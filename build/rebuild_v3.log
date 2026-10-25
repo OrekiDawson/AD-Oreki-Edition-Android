@@ -1,0 +1,93 @@
+[0] 复制反编译目录 -> _work/mod
+[1] 从 density split 合并 54 个资源文件
+[1] 补回 56 条 public.xml 资源 ID（drawable/dimen）
+[2] app_name -> 反物质维度，新增 2 条快捷方式字符串
+[2] 新增 res/xml/oreki_shortcuts.xml（长按桌面图标入口）
+[3] Manifest: package -> com.oreki.antimatterdimensions，移除 50 个 Google/split 相关条目
+      - manifest@requiredSplitTypes
+      - manifest@splitTypes
+      - uses-permission com.android.vending.BILLING
+      - uses-permission com.google.android.gms.permission.AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_ATTRIBUTION
+      - uses-permission android.permission.ACCESS_ADSERVICES_TOPICS
+      - uses-permission com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      - uses-permission com.google.android.providers.gsf.permission.READ_GSERVICES
+      - queries/package com.android.vending
+      - queries/intent com.android.vending.billing.InAppBillingService.BIND
+      - queries/intent com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND
+      - queries/package com.google.android.gms
+      - meta-data com.google.android.gms.games.APP_ID
+      - meta-data com.google.android.gms.ads.APPLICATION_ID
+      - meta-data com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING
+      - meta-data google_analytics_default_allow_analytics_storage
+      - meta-data google_analytics_default_allow_ad_storage
+      - meta-data google_analytics_default_allow_ad_user_data
+      - meta-data google_analytics_default_allow_ad_personalization_signals
+      - activity com.google.android.gms.ads.AdActivity
+      - provider com.google.android.gms.ads.MobileAdsInitProvider
+      - service com.google.android.gms.ads.AdService
+      - activity com.google.android.gms.ads.OutOfContextTestingActivity
+      - activity com.google.android.gms.ads.NotificationHandlerActivity
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION
+      - activity com.google.android.play.core.hsdp.service.HsdpShimActivity
+      - service androidx.credentials.playservices.CredentialProviderMetadataHolder
+      - activity androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+      - activity androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+      - meta-data com.google.android.play.billingclient.version
+      - activity com.android.billingclient.api.ProxyBillingActivity
+      - activity com.android.billingclient.api.ProxyBillingActivityV2
+      - provider com.google.android.gms.games.provider.PlayGamesInitProvider
+      - activity com.google.android.gms.games.internal.v2.resolution.GamesResolutionActivity
+      - activity com.google.android.gms.games.internal.v2.appshortcuts.PlayGamesAppShortcutsActivity
+      - meta-data com.google.android.gms.games.version
+      - receiver com.google.android.gms.measurement.AppMeasurementReceiver
+      - service com.google.android.gms.measurement.AppMeasurementService
+      - service com.google.android.gms.measurement.AppMeasurementJobService
+      - activity com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+      - service com.google.android.gms.auth.api.signin.RevocationBoundService
+      - activity com.google.android.gms.common.api.GoogleApiActivity
+      - activity com.google.android.play.core.common.PlayCoreDialogWrapperActivity
+      - meta-data com.android.vending.splits.required
+      - meta-data com.android.stamp.source
+      - meta-data com.android.stamp.type
+      - meta-data com.android.vending.splits
+      - meta-data com.android.vending.derived.apk.id
+      ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
+[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
+[4] MainActivity.smali: 默认语言 en -> zh_CN
+[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
+[4] 拷入 4 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[5] apktool b ...
+      I: Using Apktool 3.0.3 on kajfosz.antimatterdimensions.apk with 8 threads
+      I: smali_classes3 has not changed.
+      I: Building resources with aapt2...
+      I: smali_classes2 has not changed.
+      I: Smaling smali folder into classes.dex...
+      I: Building apk file...
+      I: Importing assets...
+      I: Importing unknown files...
+      I: Built apk into: C:\Users\Oreki\WorkBuddy\2026-10-24-01-19-39\AD_Oreki_Edition_Android\build\unsigned.apk
+[5] 未签名 APK: 66.3 MiB
+[5] zipalign -p -f 4 ...
+[5] apksigner sign (v1+v2+v3, 个人密钥) ...
+[5] apksigner verify ...
+      Verifies
+      Verified using v1 scheme (JAR signing): false
+      Verified using v2 scheme (APK Signature Scheme v2): true
+      Verified using v3 scheme (APK Signature Scheme v3): true
+      Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+      Verified using v4 scheme (APK Signature Scheme v4): false
+      Verified for SourceStamp: false
+      Number of signers: 1
+      Signer #1 certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+      Signer #1 certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+      Signer #1 certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+      Signer #1 certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b
+      Signer #1 key algorithm: RSA
+      Signer #1 key size (bits): 2048
+      Signer #1 public key SHA-256 digest: 3e1872584158600bab528736b10069cb543631bc5ccd4babf7ec3fa2ff1c1ab7
+      Signer #1 public key SHA-1 digest: eb0bb871fd8e00c9c33b68299083ff016a346a33
+      Signer #1 public key MD5 digest: 2eb7e7c6dea1897a964ae8472777cead
+[5] 最终 APK: C:\Users\Oreki\WorkBuddy\2026-10-24-01-19-39\AD_Oreki_Edition_Android\release\反物质维度.apk  (66.5 MiB)

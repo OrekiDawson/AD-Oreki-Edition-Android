@@ -1,0 +1,605 @@
+{
+  "total": 32,
+  "by_field": {
+    "c": [
+      {
+        "file": "ag2.smali",
+        "line": 10125,
+        "call": "a",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public static final p(Lkajfosz/antimatterdimensions/MainActivity;)V",
+        "method_line": 9859
+      },
+      {
+        "file": "ag2.smali",
+        "line": 13312,
+        "call": "a",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public static final u(Lkajfosz/antimatterdimensions/MainActivity;)V",
+        "method_line": 13164
+      },
+      {
+        "file": "xf2.smali",
+        "line": 1196,
+        "call": "a",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+        "method_line": 38
+      },
+      {
+        "file": "xf2.smali",
+        "line": 1208,
+        "call": "b",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+        "method_line": 38
+      },
+      {
+        "file": "xv2.smali",
+        "line": 564,
+        "call": "a",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "xv2.smali",
+        "line": 592,
+        "call": "b",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState.smali",
+        "line": 454,
+        "call": "b",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public final F()Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 438
+      },
+      {
+        "file": "kajfosz/antimatterdimensions/cache/GameCache$totalIPMult$1.smali",
+        "line": 348,
+        "call": "b",
+        "t5_field": "c",
+        "kind": "r5",
+        "method": ".method public final get()Ljava/lang/Object;",
+        "method_line": 7
+      }
+    ],
+    "d": [
+      {
+        "file": "ag2.smali",
+        "line": 10802,
+        "call": "a",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public static final p(Lkajfosz/antimatterdimensions/MainActivity;)V",
+        "method_line": 9859
+      },
+      {
+        "file": "ag2.smali",
+        "line": 15424,
+        "call": "a",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public static final z(Lkajfosz/antimatterdimensions/MainActivity;)V",
+        "method_line": 15292
+      },
+      {
+        "file": "gv2.smali",
+        "line": 904,
+        "call": "a",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "gv2.smali",
+        "line": 932,
+        "call": "b",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "xf2.smali",
+        "line": 668,
+        "call": "a",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+        "method_line": 38
+      },
+      {
+        "file": "xf2.smali",
+        "line": 680,
+        "call": "b",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+        "method_line": 38
+      },
+      {
+        "file": "kajfosz/antimatterdimensions/autobuyer/EternityAutobuyerState.smali",
+        "line": 522,
+        "call": "b",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public final n()Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 506
+      },
+      {
+        "file": "kajfosz/antimatterdimensions/prestige/c.smali",
+        "line": 1998,
+        "call": "b",
+        "t5_field": "d",
+        "kind": "r5",
+        "method": ".method public static i()Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 1723
+      }
+    ],
+    "e": [
+      {
+        "file": "av2.smali",
+        "line": 220,
+        "call": "a",
+        "t5_field": "e",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "av2.smali",
+        "line": 268,
+        "call": "b",
+        "t5_field": "e",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "kajfosz/antimatterdimensions/eternity/dilation/a.smali",
+        "line": 562,
+        "call": "b",
+        "t5_field": "e",
+        "kind": "r5",
+        "method": ".method public static c()Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 266
+      }
+    ],
+    "g": [
+      {
+        "file": "le2.smali",
+        "line": 377,
+        "call": "b",
+        "t5_field": "g",
+        "kind": "r5",
+        "method": ".method public static e()Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 241
+      }
+    ],
+    "f": [
+      {
+        "file": "lv2.smali",
+        "line": 587,
+        "call": "a",
+        "t5_field": "f",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "lv2.smali",
+        "line": 651,
+        "call": "b",
+        "t5_field": "f",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "kajfosz/antimatterdimensions/a.smali",
+        "line": 2468,
+        "call": "b",
+        "t5_field": "f",
+        "kind": "r5",
+        "method": ".method public static g(Ljava/util/List;Ljava/lang/Integer;)D",
+        "method_line": 1621
+      }
+    ],
+    "j": [
+      {
+        "file": "mv3.smali",
+        "line": 342,
+        "call": "b",
+        "t5_field": "j",
+        "kind": "r5",
+        "method": ".method public final e()D",
+        "method_line": 276
+      }
+    ],
+    "b": [
+      {
+        "file": "o66.smali",
+        "line": 1858,
+        "call": "b",
+        "t5_field": "b",
+        "kind": "r5",
+        "method": ".method public static final G(Lkajfosz/antimatterdimensions/BigDouble;Lr5;)Z",
+        "method_line": 1830
+      },
+      {
+        "file": "qj1.smali",
+        "line": 2539,
+        "call": "b",
+        "t5_field": "b",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "yu2.smali",
+        "line": 2192,
+        "call": "b",
+        "t5_field": "b",
+        "kind": "r5",
+        "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+        "method_line": 32
+      },
+      {
+        "file": "zu2.smali",
+        "line": 527,
+        "call": "a",
+        "t5_field": "b",
+        "kind": "r5",
+        "method": ".method public final invoke()Ljava/lang/Object;",
+        "method_line": 32
+      }
+    ],
+    "<unresolved>": [
+      {
+        "file": "t5.smali",
+        "line": 814,
+        "call": "a",
+        "t5_field": null,
+        "kind": null,
+        "method": ".method public static b(Lr5;)Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 796
+      }
+    ],
+    "i": [
+      {
+        "file": "kajfosz/antimatterdimensions/reality/glyphs/b.smali",
+        "line": 3482,
+        "call": "a",
+        "t5_field": "i",
+        "kind": "s5",
+        "method": ".method public final g(Lkajfosz/antimatterdimensions/reality/glyphs/c;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+        "method_line": 2921
+      }
+    ],
+    "h": [
+      {
+        "file": "kajfosz/antimatterdimensions/celestials/effarig/a.smali",
+        "line": 1556,
+        "call": "b",
+        "t5_field": "h",
+        "kind": "r5",
+        "method": ".method public final j()D",
+        "method_line": 1378
+      }
+    ],
+    "k": [
+      {
+        "file": "kajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState.smali",
+        "line": 1657,
+        "call": "b",
+        "t5_field": "k",
+        "kind": "r5",
+        "method": ".method public final s()Lkajfosz/antimatterdimensions/BigDouble;",
+        "method_line": 1379
+      }
+    ]
+  },
+  "sites": [
+    {
+      "file": "ag2.smali",
+      "line": 10125,
+      "call": "a",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public static final p(Lkajfosz/antimatterdimensions/MainActivity;)V",
+      "method_line": 9859
+    },
+    {
+      "file": "ag2.smali",
+      "line": 10802,
+      "call": "a",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public static final p(Lkajfosz/antimatterdimensions/MainActivity;)V",
+      "method_line": 9859
+    },
+    {
+      "file": "ag2.smali",
+      "line": 13312,
+      "call": "a",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public static final u(Lkajfosz/antimatterdimensions/MainActivity;)V",
+      "method_line": 13164
+    },
+    {
+      "file": "ag2.smali",
+      "line": 15424,
+      "call": "a",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public static final z(Lkajfosz/antimatterdimensions/MainActivity;)V",
+      "method_line": 15292
+    },
+    {
+      "file": "av2.smali",
+      "line": 220,
+      "call": "a",
+      "t5_field": "e",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "av2.smali",
+      "line": 268,
+      "call": "b",
+      "t5_field": "e",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "gv2.smali",
+      "line": 904,
+      "call": "a",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "gv2.smali",
+      "line": 932,
+      "call": "b",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "le2.smali",
+      "line": 377,
+      "call": "b",
+      "t5_field": "g",
+      "kind": "r5",
+      "method": ".method public static e()Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 241
+    },
+    {
+      "file": "lv2.smali",
+      "line": 587,
+      "call": "a",
+      "t5_field": "f",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "lv2.smali",
+      "line": 651,
+      "call": "b",
+      "t5_field": "f",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "mv3.smali",
+      "line": 342,
+      "call": "b",
+      "t5_field": "j",
+      "kind": "r5",
+      "method": ".method public final e()D",
+      "method_line": 276
+    },
+    {
+      "file": "o66.smali",
+      "line": 1858,
+      "call": "b",
+      "t5_field": "b",
+      "kind": "r5",
+      "method": ".method public static final G(Lkajfosz/antimatterdimensions/BigDouble;Lr5;)Z",
+      "method_line": 1830
+    },
+    {
+      "file": "qj1.smali",
+      "line": 2539,
+      "call": "b",
+      "t5_field": "b",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "t5.smali",
+      "line": 814,
+      "call": "a",
+      "t5_field": null,
+      "kind": null,
+      "method": ".method public static b(Lr5;)Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 796
+    },
+    {
+      "file": "xf2.smali",
+      "line": 668,
+      "call": "a",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+      "method_line": 38
+    },
+    {
+      "file": "xf2.smali",
+      "line": 680,
+      "call": "b",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+      "method_line": 38
+    },
+    {
+      "file": "xf2.smali",
+      "line": 1196,
+      "call": "a",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+      "method_line": 38
+    },
+    {
+      "file": "xf2.smali",
+      "line": 1208,
+      "call": "b",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public final onFocusChange(Landroid/view/View;Z)V",
+      "method_line": 38
+    },
+    {
+      "file": "xv2.smali",
+      "line": 564,
+      "call": "a",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "xv2.smali",
+      "line": 592,
+      "call": "b",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "yu2.smali",
+      "line": 2192,
+      "call": "b",
+      "t5_field": "b",
+      "kind": "r5",
+      "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "zu2.smali",
+      "line": 527,
+      "call": "a",
+      "t5_field": "b",
+      "kind": "r5",
+      "method": ".method public final invoke()Ljava/lang/Object;",
+      "method_line": 32
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/a.smali",
+      "line": 2468,
+      "call": "b",
+      "t5_field": "f",
+      "kind": "r5",
+      "method": ".method public static g(Ljava/util/List;Ljava/lang/Integer;)D",
+      "method_line": 1621
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState.smali",
+      "line": 454,
+      "call": "b",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public final F()Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 438
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/autobuyer/EternityAutobuyerState.smali",
+      "line": 522,
+      "call": "b",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public final n()Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 506
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/cache/GameCache$totalIPMult$1.smali",
+      "line": 348,
+      "call": "b",
+      "t5_field": "c",
+      "kind": "r5",
+      "method": ".method public final get()Ljava/lang/Object;",
+      "method_line": 7
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/prestige/c.smali",
+      "line": 1998,
+      "call": "b",
+      "t5_field": "d",
+      "kind": "r5",
+      "method": ".method public static i()Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 1723
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/reality/glyphs/b.smali",
+      "line": 3482,
+      "call": "a",
+      "t5_field": "i",
+      "kind": "s5",
+      "method": ".method public final g(Lkajfosz/antimatterdimensions/reality/glyphs/c;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+      "method_line": 2921
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/eternity/dilation/a.smali",
+      "line": 562,
+      "call": "b",
+      "t5_field": "e",
+      "kind": "r5",
+      "method": ".method public static c()Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 266
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/celestials/effarig/a.smali",
+      "line": 1556,
+      "call": "b",
+      "t5_field": "h",
+      "kind": "r5",
+      "method": ".method public final j()D",
+      "method_line": 1378
+    },
+    {
+      "file": "kajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState.smali",
+      "line": 1657,
+      "call": "b",
+      "t5_field": "k",
+      "kind": "r5",
+      "method": ".method public final s()Lkajfosz/antimatterdimensions/BigDouble;",
+      "method_line": 1379
+    }
+  ]
+}

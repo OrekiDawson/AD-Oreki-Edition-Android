@@ -1,0 +1,91 @@
+== 1. 文件存在与哈希 ==
+-rw-r--r-- 1 Oreki 197609 69728798 Oct 24 03:24 release/反物质维度.apk
+7072f4ea125b4a8b3ce3945a3f243e845e035922b5a026e4968bbb8a8e013607 *release/反物质维度.apk
+
+== 2. apksigner verify ==
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+Signer #1 certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+Signer #1 certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+Signer #1 certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 3e1872584158600bab528736b10069cb543631bc5ccd4babf7ec3fa2ff1c1ab7
+Signer #1 public key SHA-1 digest: eb0bb871fd8e00c9c33b68299083ff016a346a33
+Signer #1 public key MD5 digest: 2eb7e7c6dea1897a964ae8472777cead
+
+== 3. aapt2 badging（从最终 APK 重新提取）==
+package: name='com.oreki.antimatterdimensions' versionCode='30190000' versionName='3.19.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+sdkVersion:'24'
+targetSdkVersion:'37'
+application-label:'反物质维度'
+launchable-activity: name='kajfosz.antimatterdimensions.MainActivity'  label='' icon=''
+
+== 4. 组件与权限清单 ==
+  androidx.profileinstaller.ProfileInstallReceiver
+  androidx.room.MultiInstanceInvalidationService
+  androidx.startup.InitializationProvider
+  androidx.work.impl.background.systemalarm.RescheduleReceiver
+  androidx.work.impl.background.systemjob.SystemJobService
+  androidx.work.impl.diagnostics.DiagnosticsReceiver
+  androidx.work.impl.foreground.SystemForegroundService
+  androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver
+  com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
+  com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver
+  com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService
+  com.google.firebase.auth.internal.GenericIdpActivity
+  com.google.firebase.auth.internal.RecaptchaActivity
+  com.google.firebase.components.ComponentDiscoveryService
+  com.google.firebase.provider.FirebaseInitProvider
+  com.google.firebase.sessions.SessionLifecycleService
+  kajfosz.antimatterdimensions.MainActivity
+  kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity
+  kajfosz.antimatterdimensions.shop.LoginActivity
+  -- 权限 --
+  android.permission.INTERNET
+  android.permission.WAKE_LOCK
+  android.permission.ACCESS_NETWORK_STATE
+  android.permission.DETECT_SCREEN_CAPTURE
+  android.permission.VIBRATE
+  android.permission.USE_BIOMETRIC
+  android.permission.USE_FINGERPRINT
+  android.permission.FOREGROUND_SERVICE
+  com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+
+== 5. Google 组件残留检查（应为 0，Firebase 除外）==
+1
+== 5b. split 声明残留（应为 0）==
+0
+== 5c. 原生库（本包不含 .so，应为 0）==
+0
+
+== 6. 注入点 / 新增类 / 语言默认值 ==
+    mul-double v12, v12, v37
+
+    invoke-static {v12, v13}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D
+
+work/verify/smali/kajfosz/antimatterdimensions/OrekiSpeed.smali
+
+work/verify/smali/kajfosz/antimatterdimensions/oreki/:
+AchievementUnlocker.smali
+SettingsClickListener.smali
+SpeedSettingsActivity.smali
+42682:    const-string/jumbo v4, "zh_CN"
+
+== 7. dex 结构（dexdump 头部）==
+  --- build/dexcheck/classes.dex ---
+Opened 'build/dexcheck/classes.dex', DEX version '037'
+  类数量: 11413
+  --- build/dexcheck/classes2.dex ---
+Opened 'build/dexcheck/classes2.dex', DEX version '037'
+  类数量: 11764
+  --- build/dexcheck/classes3.dex ---
+Opened 'build/dexcheck/classes3.dex', DEX version '037'
+  类数量: 17

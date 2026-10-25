@@ -1,0 +1,26 @@
+别名: oreki
+创建日期: 2026年10月24日
+条目类型: PrivateKeyEntry
+证书链长度: 1
+证书[1]:
+所有者: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+发布者: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+序列号: db8265e380bd1d6c
+生效时间: Sat Oct 24 01:34:51 HKT 2026, 失效时间: Mon Oct 16 01:34:51 HKT 2056
+证书指纹:
+	 SHA1: 21:F9:95:98:67:01:4B:F6:B0:1C:F2:80:C5:1C:79:70:6B:1F:CD:D0
+	 SHA256: 95:96:0B:CE:0D:88:06:12:4D:72:75:5D:82:7F:CD:92:16:91:9C:AC:29:14:76:35:76:7A:96:73:60:ED:31:97
+签名算法名称: SHA256withRSA
+主体公共密钥算法: 2048 位 RSA 密钥
+版本: 3
+
+扩展: 
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: DD EF 60 A2 36 9C 4B E8   88 47 F2 6B 2C B3 91 9F  ..`.6.K..G.k,...
+0010: 5C A0 C6 30                                        \..0
+]
+]
+

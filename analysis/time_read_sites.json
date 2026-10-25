@@ -1,0 +1,930 @@
+[
+ {
+  "file": "ag1.smali",
+  "line": 131,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ag1.smali",
+  "line": 885,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ag1.smali",
+  "line": 1318,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ag1.smali",
+  "line": 1449,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ag1.smali",
+  "line": 1572,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "ag1.smali",
+  "line": 1703,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "dg1.smali",
+  "line": 3222,
+  "method": ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "e24.smali",
+  "line": 459,
+  "method": ".method public static b(Lkajfosz/antimatterdimensions/constants/Constants$PrestigeEvent;)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "e24.smali",
+  "line": 491,
+  "method": ".method public static b(Lkajfosz/antimatterdimensions/constants/Constants$PrestigeEvent;)V",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "e3.smali",
+  "line": 283,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "e3.smali",
+  "line": 381,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "e43.smali",
+  "line": 1007,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "e43.smali",
+  "line": 1336,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "eg1.smali",
+  "line": 5024,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "eg1.smali",
+  "line": 5831,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "ff2.smali",
+  "line": 262,
+  "method": ".method public final onClick(Landroid/view/View;)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "g3.smali",
+  "line": 875,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "g3.smali",
+  "line": 1039,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "h3.smali",
+  "line": 161,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "h3.smali",
+  "line": 229,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "h3.smali",
+  "line": 327,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "h3.smali",
+  "line": 711,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "i3.smali",
+  "line": 377,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "i3.smali",
+  "line": 1027,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "i3.smali",
+  "line": 1173,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "i3.smali",
+  "line": 1314,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "ii2.smali",
+  "line": 4535,
+  "method": ".method public static final f(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "ii2.smali",
+  "line": 4676,
+  "method": ".method public static final f(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "ii2.smali",
+  "line": 5163,
+  "method": ".method public static final f(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "j3.smali",
+  "line": 75,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "k3.smali",
+  "line": 1247,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/MainActivity.smali",
+  "line": 29007,
+  "method": ".method public final Q8()V",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/a.smali",
+  "line": 6631,
+  "method": ".method public static s(Ljava/lang/Double;DDLjava/lang/Double;)Ljava/lang/String;",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/a.smali",
+  "line": 6975,
+  "method": ".method public static t(DD)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/a.smali",
+  "line": 7000,
+  "method": ".method public static t(DD)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/a.smali",
+  "line": 7025,
+  "method": ".method public static t(DD)V",
+  "fields": [
+   "realTimeDoomed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/a.smali",
+  "line": 7058,
+  "method": ".method public static t(DD)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/achievements/a.smali",
+  "line": 1018,
+  "method": ".method public E(ZZ)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState.smali",
+  "line": 592,
+  "method": ".method public final K()D",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState.smali",
+  "line": 1180,
+  "method": ".method public final q(Lvh0;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState.smali",
+  "line": 59,
+  "method": ".method public c()Z",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState.smali",
+  "line": 390,
+  "method": ".method public q(Lvh0;)Ljava/lang/Object;",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/celestials/pelle/c.smali",
+  "line": 5348,
+  "method": ".method public final h(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "realTimeDoomed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/challenge/antimatter/b.smali",
+  "line": 661,
+  "method": ".method public final E(Z)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/challenge/antimatter/b.smali",
+  "line": 709,
+  "method": ".method public final E(Z)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState.smali",
+  "line": 1547,
+  "method": ".method public final L(J)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/mainactivity/i0.smali",
+  "line": 39,
+  "method": ".method public static final a(Lkajfosz/antimatterdimensions/MainActivity;Ljava/lang/Long;Z)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/mainactivity/i0.smali",
+  "line": 3032,
+  "method": ".method public static final e(Lkajfosz/antimatterdimensions/MainActivity;Ljava/lang/Long;Ljava/lang/Long;)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/c.smali",
+  "line": 20169,
+  "method": ".method public final f(Ljava/lang/StringBuilder;)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/c.smali",
+  "line": 20242,
+  "method": ".method public final f(Ljava/lang/StringBuilder;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/c.smali",
+  "line": 20271,
+  "method": ".method public final f(Ljava/lang/StringBuilder;)V",
+  "fields": [
+   "realTimeDoomed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/c.smali",
+  "line": 20337,
+  "method": ".method public final f(Ljava/lang/StringBuilder;)V",
+  "fields": [
+   "previousRunRealTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/c.smali",
+  "line": 21243,
+  "method": ".method public final f(Ljava/lang/StringBuilder;)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/c.smali",
+  "line": 21280,
+  "method": ".method public final f(Ljava/lang/StringBuilder;)V",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/f.smali",
+  "line": 4895,
+  "method": ".method public static i(Ll32;Lqq1;)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/f.smali",
+  "line": 5169,
+  "method": ".method public static i(Ll32;Lqq1;)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/f.smali",
+  "line": 6332,
+  "method": ".method public static i(Ll32;Lqq1;)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/f.smali",
+  "line": 6399,
+  "method": ".method public static i(Ll32;Lqq1;)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8067,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8087,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8143,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8199,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8235,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8263,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 8379,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/player/g.smali",
+  "line": 9259,
+  "method": ".method public static g(Lt63;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 1449,
+  "method": ".method public static l()V",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 2464,
+  "method": ".method public final g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 2496,
+  "method": ".method public final g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 2769,
+  "method": ".method public final g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 2814,
+  "method": ".method public final g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 2879,
+  "method": ".method public final g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/prestige/e.smali",
+  "line": 3027,
+  "method": ".method public final g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/reality/glyphs/i.smali",
+  "line": 16931,
+  "method": ".method public final j(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;Ljava/lang/Integer;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/speedrun/a.smali",
+  "line": 367,
+  "method": ".method public static a(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "previousRunRealTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/speedrun/a.smali",
+  "line": 391,
+  "method": ".method public static a(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/speedrun/a.smali",
+  "line": 1143,
+  "method": ".method public static a(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "previousRunRealTime"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/speedrun/b.smali",
+  "line": 408,
+  "method": ".method public final x()V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "kajfosz/antimatterdimensions/ui/statistics/graphs/a.smali",
+  "line": 4350,
+  "method": ".method public static t(DZZ)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ki2.smali",
+  "line": 10297,
+  "method": ".method public static final j(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "ki2.smali",
+  "line": 10384,
+  "method": ".method public static final j(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "ki2.smali",
+  "line": 10958,
+  "method": ".method public static final j(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "previousRunRealTime"
+  ]
+ },
+ {
+  "file": "ki2.smali",
+  "line": 10978,
+  "method": ".method public static final j(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "ki2.smali",
+  "line": 12708,
+  "method": ".method public static final j(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ki2.smali",
+  "line": 14249,
+  "method": ".method public static final j(Lkajfosz/antimatterdimensions/MainActivity;)V",
+  "fields": [
+   "realTimeDoomed"
+  ]
+ },
+ {
+  "file": "l3.smali",
+  "line": 349,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "m23.smali",
+  "line": 186,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "m23.smali",
+  "line": 238,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "m3.smali",
+  "line": 989,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "mw4.smali",
+  "line": 401,
+  "method": ".method public static a()V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "mw4.smali",
+  "line": 601,
+  "method": ".method public static b()V",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "n3.smali",
+  "line": 260,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "nv3.smali",
+  "line": 338,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "nw4.smali",
+  "line": 101,
+  "method": ".method public static c()Ltw4;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "o3.smali",
+  "line": 759,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "o3.smali",
+  "line": 1122,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "oy1.smali",
+  "line": 108,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "oy1.smali",
+  "line": 468,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "q3.smali",
+  "line": 899,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "q3.smali",
+  "line": 1015,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "r23.smali",
+  "line": 535,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "s23.smali",
+  "line": 975,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "s3.smali",
+  "line": 590,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "sy1.smali",
+  "line": 878,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "sy1.smali",
+  "line": 1200,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "tv.smali",
+  "line": 388,
+  "method": ".method public static f()D",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "tv.smali",
+  "line": 1274,
+  "method": ".method public static h(Z)V",
+  "fields": [
+   "realTimePlayed"
+  ]
+ },
+ {
+  "file": "u23.smali",
+  "line": 136,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "u51.smali",
+  "line": 1359,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "v3.smali",
+  "line": 1233,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "vw3.smali",
+  "line": 982,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ },
+ {
+  "file": "w3.smali",
+  "line": 480,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "w3.smali",
+  "line": 605,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "ww1.smali",
+  "line": 597,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.time"
+  ]
+ },
+ {
+  "file": "x3.smali",
+  "line": 890,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "thisInfinity.realTime"
+  ]
+ },
+ {
+  "file": "xv3.smali",
+  "line": 581,
+  "method": ".method public final invoke()Ljava/lang/Object;",
+  "fields": [
+   "totalTimePlayed"
+  ]
+ }
+]

@@ -1,0 +1,10 @@
+# 输入文件记录
+
+文件名: Antimatter+Dimensions_3.19.0_APKPure.xapk
+路径: C:\Users\Oreki\Downloads\
+大小: 68917122 字节 (66M)
+SHA-256: 1e5782461ff81b687775c0fdcac74faa7dfe8299238a809784cc91a9f387c259
+修改时间: 2026-10-24 01:03:55.000000000 +0800
+
+备注: Downloads 目录中另有一个完全相同的副本 'Antimatter+Dimensions_3.19.0_APKPure (1).xapk'，SHA-256 一致，未使用。
+原始文件在整个过程中保持只读，未被修改（哈希在构建前后均一致）。

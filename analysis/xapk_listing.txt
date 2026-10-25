@@ -1,0 +1,22 @@
+
+7-Zip 26.05 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-10-21
+
+Scanning the drive for archives:
+1 file, 68917122 bytes (66 MiB)
+
+Listing archive: C:\Users\Oreki\Downloads\Antimatter+Dimensions_3.19.0_APKPure.xapk
+
+--
+Path = C:\Users\Oreki\Downloads\Antimatter+Dimensions_3.19.0_APKPure.xapk
+Type = zip
+Physical Size = 68917122
+
+   Date      Time    Attr         Size   Compressed  Name
+------------------- ----- ------------ ------------  ------------------------
+                    .....     68676268     68676268  kajfosz.antimatterdimensions.apk
+                    .....        12588        12588  icon.png
+                    .....        53580        53580  config.armeabi_v7a.apk
+                    .....       169552       169552  config.xhdpi.apk
+                    .....         4415         4415  manifest.json
+------------------- ----- ------------ ------------  ------------------------
+                              68916403     68916403  5 files

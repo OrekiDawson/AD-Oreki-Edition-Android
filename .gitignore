@@ -1,0 +1,65 @@
+# ============================================================
+#  反物质维度 Oreki Edition —— Git 忽略规则
+#  原则：
+#    1. 可重新生成的大体积产物不入库（work/ tools/ *.apk）
+#    2. 源码、脚本、payload、报告、验收证据一律入库
+#    3. 密钥与口令绝不入库
+# ============================================================
+
+# ---------- 1. 构建中间树（apktool 解码/重建，约 1.7G、11 万文件）----------
+# base_decoded/base_rebuild/mod/verify/out 等全部由 scripts/build_mod.py
+# 从 input_info/input_file.txt 记录的原始 XAPK 重新生成，属于一次性中间物。
+/work/
+
+# ---------- 2. 构建工具链（第三方二进制，约 719M）----------
+# jdk/ jdk17.zip bt/ buildtools.zip platform-tools/ apktool.jar 等。
+# 需要时按 tools/README.md 重新放置；只有 README 入库。
+/tools/*
+!/tools/README.md
+
+# ---------- 3. APK / 签名板产物（单件约 66.5MB，可由 build_mod.py 重新生成）----------
+# 覆盖 release/反物质维度.apk、build/*.apk、build/backup*/*.apk
+*.apk
+*.apks
+*.xapk
+*.idsig
+
+# ---------- 4. build/ 内的可重建中间物与临时目录 ----------
+/build/dexcheck/
+/build/out/
+
+# ---------- 5. 签名密钥与口令（绝不入库）----------
+/keys/
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pk8
+密码.txt
+*.pass
+.secrets*
+
+# 该文件是 row18 改动前的 build_mod.py 备份，内含明文签名口令，
+# 只在本地留存追溯，不入库（脚本本身已由 Git 版本化）。
+/build/backup_pre_row18/build_mod.py.bak
+
+# ---------- 6. Python 缓存 ----------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# ---------- 7. IDE / 编辑器个人配置 ----------
+.idea/
+.vscode/
+*.iml
+*.swp
+*~
+
+# ---------- 8. 系统杂项与临时文件 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.orig
+*.rej
