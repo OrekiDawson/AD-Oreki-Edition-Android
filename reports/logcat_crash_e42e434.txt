@@ -1,0 +1,31 @@
+1109-10-25 11:03:13.305  2689  2743 E FirebaseCrashlytics: Cannot send reports. Timed out while fetching settings.
+1110---------- beginning of crash
+1111:10-25 11:03:13.306  2689  2743 E AndroidRuntime: FATAL EXCEPTION: AntimatterGameThread
+1112-10-25 11:03:13.306  2689  2743 E AndroidRuntime: Process: com.oreki.antimatterdimensions, PID: 2689
+1113-10-25 11:03:13.306  2689  2743 E AndroidRuntime: java.lang.VerifyError: Verifier rejected class kajfosz.antimatterdimensions.oreki.StageAssist: int kajfosz.antimatterdimensions.oreki.StageAssist.alchemyCapped(): [0xFFFFFFFF] register index out of range (5 >= 5)
+1114-10-25 11:03:13.306  2689  2743 E AndroidRuntime:  boolean kajfosz.antimatterdimensions.oreki.StageAssist.iu25(): [0xFFFFFFFF] register index out of range (6 >= 6) (declaration of 'kajfosz.antimatterdimensions.oreki.StageAssist' appears in /data/app/~~u3_Z3Vgoe7BTRlGAai3Hqg==/com.oreki.antimatterdimensions-Tp-Mlis5xr5XHJeX3KfAIw==/base.apk)
+1115-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at kajfosz.antimatterdimensions.OrekiSpeed.apply(Unknown Source:0)
+1116-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at kajfosz.antimatterdimensions.a.f(r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761:97)
+1117-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at kajfosz.antimatterdimensions.mainactivity.c0.d(r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761:210)
+1118-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at kajfosz.antimatterdimensions.mainactivity.MainActivityGameLoopKt$launchGameLoop$1.invokeSuspend(r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761:27)
+1119-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761:6)
+1120-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at rx0.run(r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761:114)
+1121-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+1122-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+1123-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	at java.lang.Thread.run(Thread.java:1012)
+1124-10-25 11:03:13.306  2689  2743 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [ok4{Cancelling}@efcb118, java.util.concurrent.Executors$FinalizableDelegatedExecutorService@1ce771]
+1125-10-25 11:03:13.321   530   951 W ActivityTaskManager:   Force finishing activity com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity
+1126-10-25 11:03:13.340   530  2966 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+1127-10-25 11:03:13.346   864   907 V WindowManagerShell: Transition requested: android.os.BinderProxy@122c5c TransitionRequestInfo { type = CLOSE, triggerTask = null, remoteTransition = null, displayChange = null }
+1128-10-25 11:03:13.346  2689  2743 I Process : Sending signal. PID: 2689 SIG: 9
+1129-10-25 11:03:13.377   471   883 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7279ea4128a8 cached: 0/0M, 0/0% in use; allocs: 207, 98% recycled; transfers: 207, 98% unfetched
+1130-10-25 11:03:13.378   471   471 D BufferPoolAccessor2.0: bufferpool2 0x7279ea40f378 : 0(0 size) total buffers - 0(0 size) used buffers - 203/207 (recycle/alloc) - 5/207 (fetch/transfer)
+1131-10-25 11:03:13.378   405   405 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+1132-10-25 11:03:13.379   471   920 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7279ea410848 cached: 0/0M, 0/0% in use; allocs: 207, 98% recycled; transfers: 207, 98% unfetched
+1133-10-25 11:03:13.379   471   492 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7279ea40dea8 cached: 0/0M, 0/0% in use; allocs: 207, 97% recycled; transfers: 207, 97% unfetched
+1134-10-25 11:03:13.380   471   920 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7279ea410158 cached: 0/0M, 0/0% in use; allocs: 207, 98% recycled; transfers: 207, 98% unfetched
+1135-10-25 11:03:13.393   530   604 I ActivityManager: Process com.oreki.antimatterdimensions (pid 2689) has died: fg  TOP 
+1136-10-25 11:03:13.394   530   563 I libprocessgroup: Successfully killed process cgroup uid 10141 pid 2689 in 0ms
+1137-10-25 11:03:13.395   351   351 I Zygote  : Process 2689 exited due to signal 9 (Killed)
+1138-10-25 11:03:13.395   530   794 D ConnectivityService: releasing NetworkRequest [ REQUEST id=58, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ] (release request)
+1139-10-25 11:03:13.395   471   883 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7279ea40a978 cached: 0/0M, 0/0% in use; allocs: 207, 97% recycled; transfers: 207, 97% unfetched
