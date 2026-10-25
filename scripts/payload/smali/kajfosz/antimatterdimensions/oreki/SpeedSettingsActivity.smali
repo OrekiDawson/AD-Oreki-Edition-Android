@@ -292,7 +292,7 @@
     const-string v3, "Doom 之前（第 1–17 行）"
     invoke-direct {p0, v0, v3, v2}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAssistCard(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    const-string v3, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 的门槛（买最后一个 Time Study 需要，且 Reality 重置会清空），成就 147 是 Teresa 入口的开关（MainActivity 直接读 147），第 1–17 行是 Pelle 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。Pelle 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。"
+    const-string v3, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是 Teresa 入口的开关（MainActivity 直接读 147），第 1–17 行是 Pelle 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。Pelle 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。"
     invoke-direct {p0, v0, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     const-string v3, "倍率说明：加速作用于每个 tick 的游戏时间差，所以维度生产、时间机制、自动购买器都按倍率推进。现实时间字段（thisInfinity.realTime / realTimePlayed / previousRunRealTime）走独立累加，不受加速影响。需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类「游戏时间」字段会被倍率放大；以它们为判据的 6 处成就/挑战判定和 4 处最佳记录尚未还原，属已知项，待确认后单独处理。"

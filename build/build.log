@@ -67,6 +67,7 @@
 [4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
 [4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
 [4b] 旧全成就类零外部引用通过
+[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）
 [5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）
 [5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
 [5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
