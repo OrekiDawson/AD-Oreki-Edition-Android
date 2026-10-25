@@ -422,6 +422,31 @@ def verify_payload():
         "旧批量解锁的范围常量应已移除"
     note("[4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）")
 
+    # realityUpgradesAll 必须指向原版「全买」判定（= 成就 147 的原版条件），
+    # 不得改成「随便某个布尔」或自算数量。证据：z3.<clinit> 6022 构造 147 时传入
+    # p3(0x8)，p3 :pswitch_14 -> reality/upgrades/b;->b()Z（bought cardinality == size）。
+    assert "reality/upgrades/b;->b()Z" in sa, \
+        "realityUpgradesAll 未指向原版 allBought 判定（与成就 147 条件同源）"
+    note("[4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）")
+
+    # 时间侧：倍率注入点必须唯一，否则会重复乘算
+    apply_hits = 0
+    for p in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+        txt = p.read_text(encoding="utf-8", errors="ignore")
+        apply_hits += txt.count("}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D")
+    assert apply_hits == 1, f"OrekiSpeed.apply 调用点应为 1 处，实际 {apply_hits} 处"
+    note(f"[4b] 时间倍率注入点唯一性通过（apply 调用 {apply_hits} 处）")
+
+    # 旧全成就类不得再被任何其他类引用（防旧入口复活）
+    au_refs = 0
+    for p in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+        if p.name == "AchievementUnlocker.smali":
+            continue
+        au_refs += p.read_text(encoding="utf-8", errors="ignore").count(
+            "oreki/AchievementUnlocker;->")
+    assert au_refs == 0, f"旧全成就类仍有 {au_refs} 处外部引用"
+    note("[4b] 旧全成就类零外部引用通过")
+
 
 # ------------------------------------------------- 5. Ad Bonus 永久生效
 # 目标：让移动版「广告加成」的十个乘区永久生效。
