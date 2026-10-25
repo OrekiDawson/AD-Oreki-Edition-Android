@@ -4,7 +4,7 @@
 
 # AD: Oreki Edition - click handler for the Oreki settings screen
 # action 0 = apply a preset, 1 = save the typed value, 2 = restore default,
-#        3 = unlock one achievement stage (stage field carries the stage number),
+#        3 = removed legacy bulk unlock (kept as a no-op for switch layout),
 #        4 = open the confirmation dialog of the precise stage assist
 
 .field private final action:I
@@ -184,17 +184,11 @@
     return-void
 
     :case_stage
-    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->stage:I
-
-    invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/AchievementUnlocker;->requestStage(I)V
-
-    const-string v1, "已标记，回到游戏后立即生效"
+    # 旧「按行号批量解锁」入口已于 2026-10-25 移除；
+    # 保留分支只是为了不改变 packed-switch 的索引布局。
+    const-string v1, "该入口已移除，请使用下方「阶段辅助」三张卡片"
 
     invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->toast(Ljava/lang/String;)V
-
-    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->act:Landroid/app/Activity;
-
-    invoke-virtual {v1}, Landroid/app/Activity;->finish()V
 
     return-void
 

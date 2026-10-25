@@ -406,14 +406,21 @@ def verify_payload():
     assert "0x12" not in sa, "StageAssist 里不应用到第 18 行"
     note("[4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）")
 
-    # 8 阶段入口：上界必须是 0x88（第 1-17 行），且夹取方向必须是 if-gt
+    # 适用时机判定必须存在（前置进度原则），且写入仍只走原版 E(ZZ)
+    for needle in ("stageHint(I)", "hintRows13()", "hintTeresa()", "hintPelle()"):
+        assert needle in sa, f"缺少适用时机判定: {needle}"
+    assert sa.count("}, Lkajfosz/antimatterdimensions/achievements/a;->E(ZZ)V") == 2, \
+        "成就写入调用点数量异常（应为 unlockRows + unlock147 两处）"
+    note("[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）")
+
+    # 旧「按行号批量解锁」已停用：不得再出现原版写入调用，且 unlockStage 必须直接拒绝
     au = (MOD / "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali"
           ).read_text(encoding="utf-8")
-    assert "const/16 v1, 0x88" in au, "8 阶段/全部 的上界断言失败（缺少 0x88）"
-    assert "const/16 v1, 0x90" not in au, "AchievementUnlocker 仍含 0x90：会包含第 18 行"
-    assert "if-gt v1, v5, :clamp" in au, "上界夹取方向断言失败（应为 if-gt）"
-    assert "if-le v1, v5, :clamp" not in au, "夹取条件仍是反的：每个阶段都会扩成全部 144 个"
-    note("[4b] 第 18 行排除自检通过（上界 0x88，夹取 if-gt，8 阶段互不越界）")
+    assert "achievements/a;->E(ZZ)V" not in au, "旧批量解锁仍含 E(ZZ) 写入"
+    assert "-0x3" in au, "unlockStage 未停用（缺少 -3 返回）"
+    assert "const/16 v1, 0x88" not in au and "const/16 v1, 0x90" not in au, \
+        "旧批量解锁的范围常量应已移除"
+    note("[4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）")
 
 
 # ------------------------------------------------- 5. Ad Bonus 永久生效

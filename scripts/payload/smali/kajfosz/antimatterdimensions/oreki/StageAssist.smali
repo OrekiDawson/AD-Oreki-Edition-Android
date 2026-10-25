@@ -5,10 +5,16 @@
 # AD: Oreki Edition - staged precise achievement assist
 #
 # 与 AchievementUnlocker（按“行区间”批量解锁）刻意分离：
-#   * 本类只处理三个「有真实成就门槛」的阶段：
-#       stage 1 = 初次 Reality  : 第 1-13 行中尚未解锁的成就
-#       stage 2 = Teresa        : 只处理成就 147
-#       stage 3 = Pelle / Doom  : 第 1-17 行中尚未解锁的成就
+#   * 本类只处理三个「有真实成就门槛」的阶段，且都要求「进度之前」使用：
+#       stage 1 = 第 1-13 行：Reality 的成就门槛（wiki.gg /wiki/Reality：
+#                 买最后一个 Time Study 需 e4000 EP + 前 13 行成就；且 Reality
+#                 重置会清空第 1-13 行）。窗口 = 解锁 Reality 之前 / 重置之后。
+#       stage 2 = 成就 147  ：MainActivity 用 z3.a(147).A() 控制 Teresa 布局可见性
+#                 （/wiki/Celestials 脚注：147 的奖励就是解锁 Teresa）。
+#                 窗口 = 进入 Reality 后、买齐 Reality Upgrade 之前。
+#       stage 3 = 第 1-17 行：Pelle 入场条件之一（/wiki/Pelle：17 行成就 +
+#                 全部炼金资源 25000 + 最后一个 Imaginary Upgrade）。
+#                 窗口 = Reality 后期、Doom 之前。
 #   * 第 18 行（181-188）在任何 stage 下都不会被写入。
 #   * 全部判定基于实时位图（achievements/a;->A()），不使用累计时间，
 #     也不按行号“推测”玩家处于哪个阶段。
@@ -721,7 +727,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string v1, "\n点亮只让 Teresa 立即出现；不会购买 Reality Upgrade，也不会补发升级效果。"
+    const-string v1, "\n点亮只让 Teresa 入口立即可见；不会购买 Reality Upgrade，也不会补发升级效果；进入 Teresa 的现实仍需 1e14 RM。"
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -847,7 +853,7 @@
 
 
 .method private static cardSummary0(I)Ljava/lang/String;
-    .locals 1
+    .locals 3
 
     packed-switch p0, :sw
 
@@ -860,17 +866,38 @@
 
     move-result-object v0
 
-    return-object v0
+    goto :join
 
     :c2
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->summaryTeresa()Ljava/lang/String;
 
     move-result-object v0
 
-    return-object v0
+    goto :join
 
     :c3
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->summaryPelle()Ljava/lang/String;
+
+    move-result-object v0
+
+    :join
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v0, "\n\n【适用时机】\n"
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->stageHint(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
@@ -953,7 +980,7 @@
 
 # 兜底包装：清单读取失败时仍可让玩家决定是否继续
 .method public static dialogMessage(I)Ljava/lang/String;
-    .locals 2
+    .locals 3
 
     :try_start_0
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->dialogMessage0(I)Ljava/lang/String;
@@ -968,6 +995,26 @@
     const-string v0, "无法读取当前清单。确认后仍会按该阶段范围执行（执行走原版解锁流程，不可撤销）。"
 
     :done
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v0, "\n\n【适用时机】\n"
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->stageHint(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
     return-object v0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 .end method
@@ -1050,7 +1097,7 @@
     return-object v0
 
     :c2
-    const-string v0, "将点亮成就 147「现实专精」。\n\n重要：该操作不会购买任何 Reality Upgrade，也不会补发任何升级效果。Teresa 会立即解锁，但现实升级页仍保持你当前的真实购买状态。\n\n写入走原版解锁流程，执行后不可撤销。"
+    const-string v0, "将点亮成就 147「Master of Reality」。\n\n该操作不会购买任何 Reality Upgrade，也不会补发任何升级效果：点亮后 Teresa 的入口会立即可见（原版 MainActivity 用 147 的解锁状态控制该布局），但进入 Teresa 的现实仍需你自行向 Container 倒入 1e14 RM。\n\n写入走原版解锁流程，执行后不可撤销。"
 
     return-object v0
 
@@ -1060,4 +1107,227 @@
         :c2
         :c3
     .end packed-switch
+.end method
+
+
+# ---------------------------------------------------------------
+# 适用时机判定（全部基于实时位图/实时状态，不按行号或时长推测）
+# 设计原则：这些辅助只服务于「前置进度」，不做事后补发。
+# ---------------------------------------------------------------
+
+.method public static stageHint(I)Ljava/lang/String;
+    .locals 1
+
+    packed-switch p0, :sw
+
+    const-string v0, "未指定阶段。"
+
+    return-object v0
+
+    :h1
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->hintRows13()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
+    :h2
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->hintTeresa()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
+    :h3
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->hintPelle()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
+    :sw
+    .packed-switch 0x1
+        :h1
+        :h2
+        :h3
+    .end packed-switch
+.end method
+
+
+.method private static hintRows13()Ljava/lang/String;
+    .locals 5
+
+    const/4 v0, 0x1
+
+    const/16 v1, 0xd
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->countUnlockedRows(II)I
+
+    move-result v2
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->countTotalRows(II)I
+
+    move-result v3
+
+    sub-int v4, v3, v2
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "第 1–13 行是 Reality 的门槛：买最后一个 Time Study 需要 e4000 EP 且这 13 行全满；而 Reality 重置会把这 13 行清空。请在解锁 Reality 之前使用，或重置后发现行数掉光时用来立刻恢复。"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    if-nez v4, :gap
+
+    const-string v1, "\n当前这 13 行已满：门槛已满足，再执行没有新增收益。"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto :fin
+
+    :gap
+    const-string v1, "\n当前缺口 "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v1, " 个：现在执行可提前拿到行内解锁（41 两个无限升级 / 75 第四无限维度 / 118 牺牲不再重置 AD / 133 开局自带全部无限挑战 / 138 移除研究负面）与 ×1.03、×1.25 倍率。"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    :fin
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+
+.method private static hintTeresa()Ljava/lang/String;
+    .locals 2
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->ach147()Z
+
+    move-result v0
+
+    if-eqz v0, :check
+
+    const-string v0, "成就 147 已解锁：无需执行。"
+
+    return-object v0
+
+    :check
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->realityUpgradesAll()Z
+
+    move-result v0
+
+    if-eqz v0, :window
+
+    const-string v0, "现实升级已全部购买：147 会自然达成，此时执行只剩 +1.03× 成就倍率，没有前置收益。建议留到下一次 Reality。"
+
+    return-object v0
+
+    :window
+    const-string v0, "适用窗口：进入 Reality 后、买齐 Reality Upgrade 之前。买齐之前点亮 147，Teresa 的入口立即可见；买齐之后则由原版条件自然达成，补点就没意义了。"
+
+    return-object v0
+.end method
+
+
+.method private static hintPelle()Ljava/lang/String;
+    .locals 7
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->isDoomed()Z
+
+    move-result v0
+
+    if-eqz v0, :ok
+
+    const-string v0, "Doomed 状态：本功能全部写入被禁用，离开 Doomed 后才能执行。"
+
+    return-object v0
+
+    :ok
+    const/4 v0, 0x1
+
+    const/16 v1, 0x11
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->countUnlockedRows(II)I
+
+    move-result v2
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->countTotalRows(II)I
+
+    move-result v3
+
+    sub-int v4, v3, v2
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->iu25()Z
+
+    move-result v5
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->alchemyCapped()I
+
+    move-result v6
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->alchemyTotal()I
+
+    move-result v0
+
+    if-nez v4, :use
+
+    if-eqz v5, :use
+
+    if-ne v6, v0, :use
+
+    const-string v0, "Pelle 入场条件已全部满足：无需执行（点亮只会补成就位与倍率）。"
+
+    return-object v0
+
+    :use
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "适用窗口：Reality 后期、Doom 之前。缺口 "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " 个；点亮只补第 1–17 行的成就位与倍率，不会满足 Pelle 入场条件（当前 IU25="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {v5}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->yn(Z)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v2, "，炼金 capped "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, "/"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v0, "，全部炼金资源仍需各自达到上限）。"
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
 .end method

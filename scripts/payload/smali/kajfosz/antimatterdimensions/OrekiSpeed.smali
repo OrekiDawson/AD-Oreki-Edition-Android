@@ -45,7 +45,7 @@
 
     sput-object p0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sCtx:Landroid/content/Context;
 
-    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/AchievementUnlocker;->init(Landroid/content/Context;)V
+    # 旧的按行号批量解锁已停用，不再初始化（唯一入口是 StageAssist）
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->init(Landroid/content/Context;)V
 
@@ -112,8 +112,6 @@
 
 .method public static apply(D)D
     .locals 4
-
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/AchievementUnlocker;->onTick()V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->onTick()V
 

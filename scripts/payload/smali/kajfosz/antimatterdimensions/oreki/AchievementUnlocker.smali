@@ -2,7 +2,7 @@
 .super Ljava/lang/Object;
 
 # ---------------------------------------------------------------
-# AD: Oreki Edition - staged achievement unlock
+# AD: Oreki Edition - legacy staged achievement unlock (DISABLED)
 #
 # 设计要点：
 #   1) 不做"一键全解锁"。成就按游戏进度分为 8 个阶段，
@@ -77,40 +77,12 @@
 
 # 设置界面调用：只写标记，不动游戏对象
 .method public static requestStage(I)V
-    .locals 4
+    .locals 0
 
-    sput p0, Lkajfosz/antimatterdimensions/oreki/AchievementUnlocker;->pending:I
-
-    sget-object v0, Lkajfosz/antimatterdimensions/oreki/AchievementUnlocker;->sCtx:Landroid/content/Context;
-
-    if-eqz v0, :done
-
-    :try_start_0
-    const-string v1, "oreki_prefs"
-
-    const/4 v2, 0x0
-
-    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-    move-result-object v0
-
-    const-string v1, "unlock_stage"
-
-    invoke-interface {v0, v1, p0}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
-    :try_end_0
-    goto :done
-
-    :catch_0
-    move-exception v0
-
-    :done
+    # 2026-10-25：旧「按行号批量解锁」入口已移除。
+    # 保留签名是为了不让残留调用点变成 NoSuchMethodError；
+    # 本方法不再写任何标记，唯一的成就写入入口是 StageAssist。
     return-void
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 .end method
 
 
@@ -184,135 +156,11 @@
 
 # 返回本次新解锁的数量
 .method public static unlockStage(I)I
-    .locals 10
+    .locals 1
 
-    const/4 v0, 0x0
-
-    # 默认区间（stage 99「全部」走这里）：0..0x88，排除第 18 行
-    const/16 v1, 0x88
-
-    const/16 v2, 0x63
-
-    if-ne p0, v2, :range
-
-    packed-switch p0, :sw
-
-    const/4 v0, -0x1
-
-    return v0
-
-    :s1
-    const/4 v0, 0x0
-
-    const/16 v1, 0x10
-
-    goto :range
-
-    :s2
-    const/16 v0, 0x10
-
-    const/16 v1, 0x20
-
-    goto :range
-
-    :s3
-    const/16 v0, 0x20
-
-    const/16 v1, 0x40
-
-    goto :range
-
-    :s4
-    const/16 v0, 0x40
-
-    const/16 v1, 0x50
-
-    goto :range
-
-    :s5
-    const/16 v0, 0x50
-
-    const/16 v1, 0x60
-
-    goto :range
-
-    :s6
-    const/16 v0, 0x60
-
-    const/16 v1, 0x68
-
-    goto :range
-
-    :s7
-    const/16 v0, 0x68
-
-    const/16 v1, 0x78
-
-    goto :range
-
-    :s8
-    # 第 16-17 行 = 索引 0x78..0x88（0x88 不含）；第 18 行 0x88..0x90 永不写入
-    const/16 v0, 0x78
-
-    const/16 v1, 0x88
-
-    goto :range
-
-    :sw
-    .packed-switch 0x1
-        :s1
-        :s2
-        :s3
-        :s4
-        :s5
-        :s6
-        :s7
-        :s8
-    .end packed-switch
-
-    :range
-    invoke-static {}, Lz3;->d()I
-
-    move-result v3
-
-    sget-object v4, Lz3;->c:[Lkajfosz/antimatterdimensions/achievements/a;
-
-    array-length v5, v4
-
-    # 原写法 if-le 是反的：只要上界 <= 数组长度（任何合法阶段都成立）就把上界
-    # 改成数组长度，等于每个阶段都解锁全部 144 个（含第 18 行）。
-    # 改为 if-gt：只有上界越界时才夹到数组长度，正常阶段保留自己的上界。
-    if-gt v1, v5, :clamp
-
-    goto :init
-
-    :clamp
-    move v1, v5
-
-    :init
-    move v6, v0
-
-    :loop
-    if-ge v6, v1, :fin
-
-    aget-object v7, v4, v6
-
-    const/4 v8, 0x0
-
-    const/4 v9, 0x0
-
-    invoke-virtual {v7, v8, v9}, Lkajfosz/antimatterdimensions/achievements/a;->E(ZZ)V
-
-    add-int/lit8 v6, v6, 0x1
-
-    goto :loop
-
-    :fin
-    invoke-static {}, Lz3;->d()I
-
-    move-result v0
-
-    sub-int/2addr v0, v3
+    # 2026-10-25：旧批量解锁已停用（-3 = 功能已移除）。
+    # 即使被反射或残留调用点触发，也不会写入任何成就位。
+    const/4 v0, -0x3
 
     return v0
 .end method

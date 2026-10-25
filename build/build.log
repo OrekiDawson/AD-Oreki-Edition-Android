@@ -62,7 +62,8 @@
 [4b] payload 齐全: 6 个类
 [4b] 混淆类引用自检通过: 13 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）
 [4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
-[4b] 第 18 行排除自检通过（上界 0x88，夹取 if-gt，8 阶段互不越界）
+[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）
+[4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）
 [5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）
 [5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
 [5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
