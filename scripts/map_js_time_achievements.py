@@ -2,7 +2,7 @@
 """只读：在 ADChinese/ADfaster 的 normal-achievements.js 中，把每一处时间读取映射到成就 ID"""
 import re, io, os, sys
 
-BASE = r"C:\Users\Oreki\WorkBuddy\2026-10-24-00-34-44\upstream"
+BASE = r"C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\web\upstream"
 FILES = {
     "ADChinese": os.path.join(BASE, "ADChinese", "src", "core", "secret-formula", "achievements", "normal-achievements.js"),
     "ADfaster": os.path.join(BASE, "ADfaster", "src", "core", "secret-formula", "achievements", "normal-achievements.js"),

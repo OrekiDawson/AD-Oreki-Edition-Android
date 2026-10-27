@@ -16,6 +16,11 @@
 
 .field private static sMult:D
 
+# [Oreki A1] 最佳无限时间的单位迁移标记。
+# false（默认）= 存档里的 thisEternity.bestInfinityTime 可能仍是 S2 之前
+# 写入的「放大值」；true = 已整体迁移为「归一化值」，永不再次缩放。
+.field private static sRecordsNorm:Z
+
 
 .method static constructor <clinit>()V
     .locals 2
@@ -35,7 +40,8 @@
 
     sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sLoaded:Z
 
-    if-eqz v0, :done
+    # 已初始化过则直接返回（if-nez：sLoaded != 0 才跳 :done）
+    if-nez v0, :done
 
     const/4 v0, 0x1
 
@@ -62,11 +68,28 @@
     const v3, 0x461c4000    # 10000.0f
 
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
-    move-result v1
+    move-result v2
 
-    float-to-double v1, v1
+    float-to-double v2, v2
 
-    sput-wide v1, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
+    sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
+
+    # [Oreki A1] 读取最佳记录单位迁移标记（1 = 已归一化，0/缺失 = 待迁移）
+    const-string v2, "records_norm"
+
+    const/4 v3, 0x0
+
+    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+    move-result v2
+
+    const/4 v3, 0x1
+
+    # if-ne：v2 != 1 时跳过置位（即保持未迁移）
+    if-ne v2, v3, :no_norm
+
+    sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRecordsNorm:Z
+
+    :no_norm
     :try_end_0
     goto :done
 
@@ -93,13 +116,13 @@
 
     cmpg-double v4, v0, v2
 
-    if-gez v4, :reset
+    if-ltz v4, :reset
 
     const-wide v2, 0x41cdcd6500000000L    # 1.0E9
 
     cmpl-double v4, v0, v2
 
-    if-lez v4, :reset
+    if-gtz v4, :reset
 
     return-wide v0
 
@@ -146,6 +169,289 @@
 .end method
 
 
+# ---------------------------------------------------------------
+# 加速归一化工具（S1）
+#
+# 语义基线 = ADfaster commit 8125874：
+#   public/index.html:5-6      f = isDoomed ? sqrt(1000) : 1000
+#   src/game.js:452            realDiff = 真实毫秒 * f      （放大值）
+#   src/game.js:485            diff     = realDiff * speedFactor（放大值 + 黑洞等）
+#   src/game.js:539/541/543    records.*.realTime += realDiff / f  → 真实毫秒
+#   src/game.js:540/542/544    records.*.time     += diff           → 放大值
+#   src/core/big-crunch.js:95  bestInfinity.time = min(old, thisInfinity.time / f)
+#
+# 结论：游戏内计时字段本轮（thisInfinity.time 等）保存的是「放大值」，
+# 而对外可见、参与比较与持久化的最佳记录必须先除以 f。
+# 因此 unscale() 只用于「把放大值还原为等效原版游戏时间」，绝不能
+# 反过来用在 realTime 类字段（那些本身就是真实毫秒）。
+#
+# 单位：入参/回参均为毫秒，与原版 TimeSpan 一致。
+# S1 阶段本方法尚无人调用，行为零变化；S2 起在最佳记录写入处使用。
+# Doomed 的 sqrt 分支在 S4 接入（见 effectiveMult）。
+# ---------------------------------------------------------------
+
+.method public static unscale(D)D
+    .locals 6
+
+    # p0 自身为 NaN 时原样返回，避免把 NaN 写进记录
+    invoke-static {p0, p1}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v4
+
+    if-eqz v4, :val_ok
+
+    return-wide p0
+
+    :val_ok
+    # 取当前实际注入用的倍率（与 apply(D) 完全同源，保证乘除配对）
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v4
+
+    if-eqz v4, :finite_ok
+
+    return-wide p0
+
+    :finite_ok
+    invoke-static {v0, v1}, Ljava/lang/Double;->isInfinite(D)Z
+
+    move-result v4
+
+    if-eqz v4, :pos_ok
+
+    return-wide p0
+
+    :pos_ok
+    const-wide/16 v2, 0x0
+
+    cmpg-double v4, v0, v2
+
+    # 倍率 <= 0 视为无效配置，不做缩放
+    if-lez v4, :bad
+
+    div-double v0, p0, v0
+
+    return-wide v0
+
+    :bad
+    return-wide p0
+.end method
+
+
+.method public static migrateBest(Ltw4;)V
+    .locals 10
+
+    # ---------------------------------------------------------------
+    # [Oreki A1] 最佳无限时间的跨版本单位迁移
+    #
+    # 事实（已核实，非推测）：
+    #   · Android 原版与 S2 之前的本 Mod，都把「放大值」直接写进
+    #     thisEternity.bestInfinityTime（prestige.e#g 的两处原地 iput）。
+    #   · S2 之后写入的是「归一化值」（同一字段，单位已换）。
+    #   · ADfaster big-crunch.js:95 的 bestInfinity.time 也是归一化值。
+    #   · 存档内没有任何倍率元数据，无法逐条判定某一条记录的单位。
+    #
+    # 因此以「整个存档一次性迁移」取代「逐条猜测」：
+    #   records_norm 标记缺失 → 该存档的最佳记录只可能来自 S2 之前 → 放大值
+    #   records_norm 标记存在 → 已经是归一化值 → 原样不动
+    # 迁移后立刻持久化标记，重启/再次比较都不会重复除。
+    #
+    # 已知局限（必须记录，不得声称无损）：
+    #   若用户在产生旧记录之后改过倍率，迁移用的是「当前」倍率，
+    #   还原结果会偏离真实值。存档不含历史倍率，无法消除该歧义。
+    # ---------------------------------------------------------------
+
+    sget-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sCtx:Landroid/content/Context;
+
+    # sCtx 为空说明 init(Context) 未执行，标记无法持久化；此时宁可不迁移
+    if-eqz v0, :done
+
+    sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRecordsNorm:Z
+
+    # 已迁移 → 直接返回（幂等的关键）
+    if-nez v0, :done
+
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRecordsNorm:Z
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->persistRecordsNorm()V
+
+    iget-wide v0, p0, Ltw4;->a:D
+
+    # 「无记录」哨兵（Player.c）不参与缩放，否则会破坏无最快无限的判定
+    sget-wide v2, Lkajfosz/antimatterdimensions/player/Player;->c:D
+
+    cmpl-double v4, v0, v2
+
+    # cmpl 相等返回 0；if-eqz = 相等则跳（哨兵不动）
+    if-eqz v4, :done
+
+    const-wide/16 v2, 0x0
+
+    cmpg-double v4, v0, v2
+
+    # 非正值视为无效记录，不动
+    if-lez v4, :done
+
+    # --- 交叉校验（防止 prefs 丢失后的二次缩放）---
+    # 事实：归一化后的最佳时间是「游戏时间」，恒 >= bestInfinityRealTime
+    # （游戏速度倍率最低为 1）；而放大值是它的 f 倍。因此若当前值连
+    # real * f * 0.5 都不到，它只可能是已经归一化过的值（典型来源：
+    # SharedPreferences 被清空而 player.json 保留），必须跳过。
+    # 该判据不依赖数值量级猜测格式，而是用同一存档内的 realTime 交叉验证。
+    sget-object v4, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v4}, Lkajfosz/antimatterdimensions/player/Player;->R()Lkajfosz/antimatterdimensions/player/Player$Records;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Lkajfosz/antimatterdimensions/player/Player$Records;->j()Lkajfosz/antimatterdimensions/player/Player$ThisEternity;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;->f()Ltw4;
+
+    move-result-object v4
+
+    iget-wide v2, v4, Ltw4;->a:D
+
+    const-wide/16 v4, 0x0
+
+    cmpg-double v6, v2, v4
+
+    # realTime 无效则跳过校验，按旧逻辑处理
+    if-lez v6, :no_guard
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v4
+
+    mul-double v6, v2, v4
+
+    const-wide/high16 v4, 0x3fe0000000000000L    # 0.5
+
+    mul-double v6, v6, v4
+
+    cmpg-double v8, v0, v6
+
+    # v0 <= real*f/2 → 已是归一化值，不再除
+    if-lez v8, :done
+
+    :no_guard
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D
+
+    move-result-wide v0
+
+    iput-wide v0, p0, Ltw4;->a:D
+
+    :done
+    return-void
+.end method
+
+
+.method private static persistRecordsNorm()V
+    .locals 4
+
+    sget-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sCtx:Landroid/content/Context;
+
+    if-eqz v0, :done
+
+    :try_start_0
+    const-string v1, "oreki_prefs"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+    move-result-object v0
+
+    const-string v1, "records_norm"
+
+    const/4 v2, 0x1
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v0
+
+    :done
+    return-void
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+.method public static unscaleBy(DD)D
+    .locals 4
+
+    # 显式指定倍率的归一化，供特殊子系统（黑洞 / Ra / Lai'tela / 离线）
+    # 在 S4 按各自语义传参，避免复制粘贴多份除法。
+    invoke-static {p2, p3}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v0
+
+    if-eqz v0, :f_ok
+
+    return-wide p0
+
+    :f_ok
+    const-wide/16 v2, 0x0
+
+    cmpg-double v0, p2, v2
+
+    if-lez v0, :bad
+
+    div-double v0, p0, p2
+
+    return-wide v0
+
+    :bad
+    return-wide p0
+.end method
+
+
+.method public static effectiveMult()D
+    .locals 4
+
+    # ADfaster index.html:6 —— Doomed/Pelle 下只给 sqrt(f)。
+    # S1 暂不接入 apply(D)/unscale(D)，等 S4 逐项核验子系统后统一切换；
+    # 现在先提供出来，避免 S4 再改一次方法表。
+    invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;->q()Z
+
+    move-result v0
+
+    if-eqz v0, :plain
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->sqrt(D)D
+
+    move-result-wide v0
+
+    return-wide v0
+
+    :plain
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v0
+
+    return-wide v0
+.end method
+
+
 .method public static set(D)Z
     .locals 6
 
@@ -158,13 +464,13 @@
 
     cmpl-double v0, p0, v2
 
-    if-gtz v0, :bad
+    if-lez v0, :bad
 
     const-wide v2, 0x41cdcd6500000000L    # 1.0E9
 
     cmpl-double v0, p0, v2
 
-    if-lez v0, :bad
+    if-gtz v0, :bad
 
     sput-wide p0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
 

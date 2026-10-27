@@ -106,7 +106,7 @@
     invoke-interface {v0, v1, p0}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
     move-result-object v0
 
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->apply()V
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
     :try_end_0
     goto :done
 
@@ -144,7 +144,7 @@
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
     move-result-object v0
 
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->apply()V
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
     :try_end_0
     goto :done
 
@@ -163,7 +163,8 @@
 
     sget v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;->pending:I
 
-    if-nez v0, :done
+    # pending == 0 表示没有待处理请求，直接返回
+    if-eqz v0, :done
 
     const/4 v1, 0x0
 
@@ -195,7 +196,8 @@
 
     move-result v0
 
-    if-eqz v0, :blocked
+    # Doomed / Pelle 下拒绝批量解锁
+    if-nez v0, :blocked
 
     packed-switch p0, :sw
 
@@ -275,7 +277,7 @@
 
     iget v5, v4, Lkajfosz/antimatterdimensions/achievements/a;->m:I
 
-    if-ge v5, p0, :next
+    if-lt v5, p0, :next
 
     if-gt v5, p1, :next
 
@@ -283,7 +285,7 @@
 
     move-result v6
 
-    if-nez v6, :do
+    if-eqz v6, :do
 
     goto :next
 
@@ -405,7 +407,7 @@
 # Imaginary Upgrade 25：在「一次性升级」列表里取 id 最大者
 # （u 列表 = IU 11..25 共 15 个；可重复购买项在 t 列表，不在其中）
 .method private static iu25()Z
-    .locals 6
+    .locals 7
 
     sget-object v0, Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->u:Ljava/util/List;
 
@@ -430,11 +432,11 @@
 
     invoke-virtual {v5}, Lav;->I()I
 
-    move-result p0
+    move-result v6
 
-    if-le p0, v2, :next
+    if-le v6, v2, :next
 
-    move v2, p0
+    move v2, v6
 
     move-object v3, v5
 
@@ -461,7 +463,7 @@
 
 # 炼金资源已达上限的数量（l7.w() == amount >= cap）
 .method public static alchemyCapped()I
-    .locals 5
+    .locals 6
 
     sget-object v0, Lu7;->v:Ljava/util/List;
 
@@ -484,9 +486,9 @@
 
     invoke-virtual {v4}, Ll7;->w()Z
 
-    move-result p0
+    move-result v5
 
-    if-eqz p0, :next
+    if-eqz v5, :next
 
     add-int/lit8 v2, v2, 0x1
 
@@ -531,7 +533,7 @@
 
     iget v5, v4, Lkajfosz/antimatterdimensions/achievements/a;->m:I
 
-    if-ge v5, p0, :next
+    if-lt v5, p0, :next
 
     if-gt v5, p1, :next
 
@@ -571,7 +573,7 @@
 
     iget v5, v4, Lkajfosz/antimatterdimensions/achievements/a;->m:I
 
-    if-ge v5, p0, :next
+    if-lt v5, p0, :next
 
     if-gt v5, p1, :next
 

@@ -56,9 +56,14 @@
       - meta-data com.android.vending.derived.apk.id
       ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
 [4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
+[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)
 [4] MainActivity.smali: 默认语言 en -> zh_CN
 [4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
 [4] 拷入 6 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）
+[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）
+[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）
+[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）
 [4b] payload 齐全: 6 个类
 [4b] 混淆类引用自检通过: 13 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）
 [4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
@@ -66,8 +71,18 @@
 [4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）
 [4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
 [4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
+[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）
 [4b] 旧全成就类零外部引用通过
 [4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）
+[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）
+[4e] 旧存档时间换算守卫通过（三处 ×100 + 哨兵回落，且 100.0 仅存在于 d.smali）
+[4f] 加速归一化工具自检通过（unscale / unscaleBy / effectiveMult 就位，apply 仍为 mult，边界方向正确）
+[4h] SharedPreferences.Editor 接口类型自检通过（apply 全部挂在 Editor 上）
+[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）
+[4i] 最佳记录单位迁移自检通过（标记幂等、哨兵排除、先落盘后改值、init 读取标记）
+[4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）
+[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）
 [5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）
 [5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
 [5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException

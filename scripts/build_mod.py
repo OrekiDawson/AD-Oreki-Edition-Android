@@ -293,6 +293,52 @@ def patch_smali():
     a.write_text(src.replace(old, new), encoding="utf-8")
     note("[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成")
 
+    # 4.1b 天体累积加速：a.d(DZ) 是 Ra 宠物记忆 / Ra.momentumTime /
+    # Laitela 暗物质维度的统一入口，调用点在 OrekiSpeed 注入点（a.smali
+    # 11544）**之前**，所以它拿到的是未加速的 realDiff。
+    # 实测后果：F=1 与 F=10000 的 Ra 记忆增速比值 = 1.0008（完全不吃倍率）。
+    #
+    # 倍率不是同一个：官方 game.js:realTimeMechanics 的语义是
+    #   Ra.memoryTick(realDiff / sqrt(F))          -> 宠物记忆   ：sqrt(F)
+    #   momentumTime += realDiff * A175            -> 动量时间   ：F
+    #   DarkMatterDimensions.tick(realDiff/sqrt(F))-> 暗物质维度 ：sqrt(F)
+    # 三处调用点在 smali 中依次对应：
+    #   div-double v7, p0, v4  (v4=1000.0，乘 RaPetState.g())   -> 记忆
+    #   mul-double v1, v1, p0  (随后 Player$Ra;->m(D))          -> momentumTime
+    #   add-double v2, v2, p0  (随后 DarkMatterDimensionState.G)-> timeSinceLastUpdate
+    ra_entry = (".method public static d(DZ)V\n"
+                "    .locals 20\n"
+                "\n"
+                "    .line 1\n")
+    assert src.count(ra_entry) == 1, "a.d(DZ) 入口不唯一"
+    # 需要两个不同的加速后 delta：v20=F·dt（动量）、v22=sqrt(F)·dt（记忆/暗物质）。
+    # .locals 20 时 p0=v20，故把 .locals 扩到 24（p0=v24），腾出 v20..v23 作暂存。
+    ra_patch = (".method public static d(DZ)V\n"
+                "    .locals 24\n"
+                "\n"
+                "    # [Oreki R1] 天体累积按官方 realTimeMechanics 语义补偿\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D\n"
+                "\n"
+                "    move-result-wide v20\n"
+                "\n"
+                "    invoke-static/range {v20 .. v21}, Ljava/lang/Math;->sqrt(D)D\n"
+                "\n"
+                "    move-result-wide v22\n"
+                "\n"
+                "    mul-double v22, p0, v22\n"
+                "\n"
+                "    mul-double v20, p0, v20\n"
+                "\n"
+                "    .line 1\n")
+    asrc2 = a.read_text(encoding="utf-8").replace(ra_entry, ra_patch)
+    for old_use, new_use in (("div-double v7, p0, v4", "div-double v7, v22, v4"),
+                             ("mul-double v1, v1, p0", "mul-double v1, v1, v20"),
+                             ("add-double v2, v2, p0", "add-double v2, v2, v22")):
+        assert asrc2.count(old_use) == 1, f"a.d 使用点不唯一: {old_use}"
+        asrc2 = asrc2.replace(old_use, new_use)
+    a.write_text(asrc2, encoding="utf-8")
+    note("[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)")
+
     # 4.2 默认语言 en -> zh_CN (attachBaseContext 里的默认值)
     m = MOD / "smali" / OLD_PKG.replace(".", "/") / "MainActivity.smali"
     msrc = m.read_text(encoding="utf-8")
@@ -388,6 +434,175 @@ PAYLOAD_REFS = [
 ]
 
 
+def patch_speed_records():
+    """S2：最佳无限时间（bestInfinityTime）归一化。
+
+    语义基线 = ADfaster commit 8125874：
+      src/game.js:540   player.records.thisInfinity.time += diff            # 存的是放大值
+      src/core/big-crunch.js:95
+          player.records.bestInfinity.time =
+              Math.min(old, player.records.thisInfinity.time / getGlobalSpeedFactor())
+
+    Android 现状（prestige.e#g = Infinity.giveInfinityRewards 协程体）：
+        iget-wide v11, thisInfinity.time.a          # 放大值
+        cmpg-double  … / iput-wide v11, bestInfinityTime.a
+    即把放大值直接当作「最快用时」比较并落盘，于是现实 2 分钟被记成 28 天。
+
+    修正：两处读取后各接一次 OrekiSpeed.unscale()，与 apply(D) 的
+    乘法严格配对（同一 mult() 来源），除法只作用于游戏时间域，
+    不触碰 thisInfinity.realTime / bestInfinityRealTime（那些已是真实毫秒）。
+    """
+    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "e.smali"
+    src = p.read_text(encoding="utf-8")
+    marker = "; [Oreki S2]"
+    assert marker not in src, "prestige.e 记录归一化已打过补丁（重复注入）"
+
+    ins = ("    iget-wide v11, v9, Ltw4;->a:D\n"
+           "\n"
+           "    # [Oreki S2] ADfaster big-crunch.js:95 —— thisInfinity.time 存的是\n"
+           "    # 加速后的放大值，参与最佳记录比较与落盘前必须除以实际注入倍率。\n"
+           "    invoke-static {v11, v12}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D\n"
+           "\n"
+           "    move-result-wide v11\n")
+
+    for line_tag, desc in (("    .line 420", "比较前归一化"),
+                           ("    .line 442", "写入前归一化")):
+        old = "    iget-wide v11, v9, Ltw4;->a:D\n\n" + line_tag
+        assert src.count(old) == 1, f"记录归一化锚点不唯一: {desc}（{src.count(old)} 处）"
+        src = src.replace(old, ins + "\n" + line_tag)
+
+    # --- [Oreki A1] 跨版本单位迁移 ---
+    # v5 = Player.R().j().g()，即 records.thisEternity.bestInfinity 的 tw4。
+    # 必须在「无记录哨兵检测」和「跨记录比较」之前完成迁移，否则旧存档里
+    # 的放大值会以更大的数量级直接胜出/落败，单位不一致。
+    mig = ("    # [Oreki A1] 旧存档可能仍以「放大值」保存最佳无限时间。\n"
+           "    # 在哨兵检测与跨记录比较之前，按 records_norm 标记做一次性单位迁移。\n"
+           "    invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiSpeed;->migrateBest(Ltw4;)V\n"
+           "\n"
+           "    .line 396\n")
+    ancor = "    .line 396\n    iget-wide v11, v5, Ltw4;->a:D\n"
+    assert src.count(ancor) == 1, f"最佳记录迁移锚点不唯一（{src.count(ancor)} 处）"
+    src = src.replace(ancor, mig + "    iget-wide v11, v5, Ltw4;->a:D\n")
+
+    p.write_text(src, encoding="utf-8")
+    note("[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）")
+
+
+def patch_recent_runs():
+    """A2：最近十次无限（pastTenInfinities）的时间字段归一化。
+
+    语义基线 = ADfaster commit 8125874 src/game.js:190-191：
+        player.records.recentInfinities.unshift(
+            [time / getGlobalSpeedFactor(), realTime, ip, infinities, challenge])
+    即「列表里的 time 是归一化游戏时间，realTime 是真实毫秒」。
+
+    Android 的写入点：prestige.e#g 里构造 Player$PastRun，
+    参数 v13/v14 直接取自 ThisInfinity.f().a（放大值），v11/v12 取自
+    ThisInfinity.e().a（realTime，正确）。于是「最近重置」页把放大值
+    直接显示成 83 天 / 10 年。
+
+    只改 time 参数，realTime 不动（它本身已是真实毫秒）。
+    """
+    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "e.smali"
+    src = p.read_text(encoding="utf-8")
+    assert "# [Oreki A2]" not in src, "prestige.e 最近重置归一化已打过补丁（重复注入）"
+
+    old = "    .line 277\n    iget-wide v13, v11, Ltw4;->a:D\n"
+    assert src.count(old) == 1, f"最近重置 time 锚点不唯一（{src.count(old)} 处）"
+    new = ("    .line 277\n"
+           "    iget-wide v13, v11, Ltw4;->a:D\n"
+           "\n"
+           "    # [Oreki A2] ADfaster game.js:191 —— recentInfinities 存的是\n"
+           "    # [time / f, realTime, ...]，故 PastRun.time 必须先归一化；\n"
+           "    # 紧随其后的 realTime（ThisInfinity.e）保持真实毫秒，不做缩放。\n"
+           "    invoke-static {v13, v14}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D\n"
+           "\n"
+           "    move-result-wide v13\n")
+    src = src.replace(old, new)
+    p.write_text(src, encoding="utf-8")
+    note("[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）")
+
+
+def patch_recent_runs_er():
+    """A4：最近十次永恒 / 现实（pastTenEternities / pastTenRealities）的时间字段归一化。
+
+    与 A2 同源缺陷：官方 `player.js` 的 recentInfinities / recentEternities /
+    recentRealities 都是 `[time, realTime, ...]`，其中 `time` 是游戏时间、
+    `realTime` 是真实毫秒（release 分支 game.js:191 / :223 / :262）。
+    本项目 OrekiSpeed 把「游戏时间增量」放大了 f 倍，于是写进存档的
+    `time` 也带 f；归一化后写入，保持与官方一致的「游戏时间、无 Mod 倍率」。
+
+    Android 写入点：
+      - prestige/c#j  → Player$PastEternityRun，v12/v13 = nw4.a() = ThisEternity.time
+      - prestige/f#i  → Player$PastRealityRun， v14/v15 = ThisReality.n() = time
+    两处的 realTime 参数（nw4.b() / ThisReality.m()）本身是真实毫秒，不动。
+    """
+    # --- 永恒 ---
+    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "c.smali"
+    src = p.read_text(encoding="utf-8")
+    assert "# [Oreki A4]" not in src, "prestige.c 已打过 A4 补丁（重复注入）"
+    old = "    .line 345\n    iget-wide v12, v10, Ltw4;->a:D\n"
+    assert src.count(old) == 1, f"pastTenEternities.time 锚点不唯一（{src.count(old)} 处）"
+    new = ("    .line 345\n"
+           "    iget-wide v12, v10, Ltw4;->a:D\n"
+           "\n"
+           "    # [Oreki A4] 官方 game.js:223 recentEternities.unshift([time, realTime, ...])，\n"
+           "    # time 为游戏时间。本 Mod 的游戏时间被放大 f 倍，写库前归一化；\n"
+           "    # 紧随其后的 realTime（nw4.b）保持真实毫秒不缩放。\n"
+           "    invoke-static {v12, v13}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D\n"
+           "\n"
+           "    move-result-wide v12\n")
+    src = src.replace(old, new)
+    p.write_text(src, encoding="utf-8")
+
+    # --- 现实 ---
+    q = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "f.smali"
+    src2 = q.read_text(encoding="utf-8")
+    assert "# [Oreki A4]" not in src2, "prestige.f 已打过 A4 补丁（重复注入）"
+    old2 = "    .line 171\n    iget-wide v14, v12, Ltw4;->a:D\n"
+    assert src2.count(old2) == 1, f"pastTenRealities.time 锚点不唯一（{src2.count(old2)} 处）"
+    new2 = ("    .line 171\n"
+            "    iget-wide v14, v12, Ltw4;->a:D\n"
+            "\n"
+            "    # [Oreki A4] 官方 game.js:262 recentRealities.unshift([time, realTime, ...])，\n"
+            "    # time 为游戏时间。归一化后入库；realTime（ThisReality.m）不动。\n"
+            "    invoke-static {v14, v15}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D\n"
+            "\n"
+            "    move-result-wide v14\n")
+    src2 = src2.replace(old2, new2)
+    q.write_text(src2, encoding="utf-8")
+    note("[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）")
+
+
+def patch_shop_coins():
+    """目标 D：商店金币（STD）余额全局下限 10000。
+
+    唯一修正点 = Purchases.getStds() 读取边界：任何 UI、购买判定、
+    存档载入/重置/新游戏都只能通过该方法拿到余额，因此在读取处钳制
+    即可覆盖全部生命周期，且不需要在每帧或 UI 刷新里写入字段。
+    """
+    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "shop" / "Purchases.smali"
+    src = p.read_text(encoding="utf-8")
+    marker = "; Oreki: STD 下限"
+    assert marker not in src, "getStds 已被修补过（重复打补丁）"
+    new = (".method public final getStds()I\n"
+           "    .locals 2\n"
+           "\n"
+           "    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I\n"
+           "\n"
+           "    const/16 v1, 0x2710    # 10000 ; Oreki: STD 下限\n"
+           "\n"
+           "    if-ge v0, v1, :ok\n"
+           "\n"
+           "    const/16 v0, 0x2710\n"
+           "\n"
+           "    :ok\n"
+           "    return v0\n"
+           ".end method\n")
+    p.write_text(_replace_method(src, "public final getStds()I", new), encoding="utf-8")
+    note("[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）")
+
+
 def verify_payload():
     for rel in PAYLOAD_MUST_EXIST:
         assert (MOD / rel).is_file(), f"payload 缺失: {rel}"
@@ -436,6 +651,22 @@ def verify_payload():
         apply_hits += txt.count("}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D")
     assert apply_hits == 1, f"OrekiSpeed.apply 调用点应为 1 处，实际 {apply_hits} 处"
     note(f"[4b] 时间倍率注入点唯一性通过（apply 调用 {apply_hits} 处）")
+
+    # --- [4n] Ra / Laitela 时间补偿倍率语义（对齐官方 realTimeMechanics）---
+    ad_full = (MOD / "smali/kajfosz/antimatterdimensions/a.smali").read_text(encoding="utf-8")
+    ad = ad_full[ad_full.index(".method public static d(DZ)V"):]
+    ad = ad[:ad.index(".end method")]
+    assert ".locals 24" in ad, "[4n] a.d 的 .locals 未扩到 24（暂存寄存器不足）"
+    assert "invoke-static/range {v20 .. v21}, Ljava/lang/Math;->sqrt(D)D" in ad, \
+        "[4n] a.d 未对倍率开平方（Ra 记忆 / Laitela 暗物质应取 sqrt(F)）"
+    assert "mul-double v22, p0, v22" in ad, "[4n] sqrt(F)·dt 未生成"
+    assert "mul-double v20, p0, v20" in ad, "[4n] F·dt 未生成"
+    assert "div-double v7, v22, v4" in ad, "[4n] Ra 宠物记忆未使用 sqrt(F)"
+    assert "mul-double v1, v1, v20" in ad, "[4n] momentumTime 未使用 F"
+    assert "add-double v2, v2, v22" in ad, "[4n] Laitela 暗物质 timeSinceLastUpdate 未使用 sqrt(F)"
+    for stale in ("div-double v7, p0, v4", "mul-double v1, v1, p0", "add-double v2, v2, p0"):
+        assert stale not in ad, f"[4n] a.d 仍有未补偿的原始 delta 使用点: {stale}"
+    note("[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）")
 
     # 旧全成就类不得再被任何其他类引用（防旧入口复活）
     au_refs = 0
@@ -489,6 +720,182 @@ def verify_payload():
     assert "StageAssist;->startPerk()Z" in r0, "R0 卡片摘要未显示 START 状态"
     assert "START perk 已购：" in r0, "R0 卡片摘要缺少 START 状态标签"
     note("[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）")
+
+    # --- [4d] 商店金币下限（目标 D）---
+    pur = (MOD / "smali/kajfosz/antimatterdimensions/shop/Purchases.smali").read_text(encoding="utf-8")
+    gs = _body(".method public final getStds()I", pur)
+    assert "; Oreki: STD 下限" in gs, "getStds 未应用金币下限补丁"
+    assert "const/16 v1, 0x2710" in gs, "getStds 缺少 10000 常量"
+    assert "if-ge v0, v1, :ok" in gs, "getStds 缺少 >=10000 的保留分支"
+    assert gs.count("return v0") == 1, "getStds 返回点应唯一"
+    note("[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）")
+
+    # --- [4e] 旧版存档导入的时间换算（2026-10-26 复核：保留，不得删除）---
+    # 结论：d.smali 里的 ×100 不是无配对缺陷，而是上游 migrations.normalizeTimespans
+    # 的忠实移植（存档版本 13 迁移：时间单位 1/10 秒 -> 1/1000 秒）。
+    # 依据：① REA/jadx 反编译 d.k 得到 totalTimePlayed/bestInfinityTime/thisInfinityTime 三处 *100；
+    #       ② 上游 src/core/storage/migrations.js:425-453，仅由 patches[13] 调起；
+    #       ③ 路由 h64.d 前缀 = base64('{"money"')，只服务极老裸 JSON 存档；
+    #       ④ 现代链路 e.q()/g.h/f(player.json) 对同名字段零缩放。
+    # 因此这里做成守卫：任何人删掉这三行都会在构建期失败。
+    pl = MOD / "smali/kajfosz/antimatterdimensions/player"
+    dsm = (pl / "d.smali").read_text(encoding="utf-8")
+    assert dsm.count("const-wide/high16 v13, 0x4059000000000000L") == 1, \
+        "旧存档导入的 100.0 常量被改动（应为 1 处，供 3 个字段共用）"
+    assert dsm.count("mul-double/2addr v11, v13") == 3, \
+        "旧存档导入应有三处 ×100（totalTimePlayed / bestInfinityTime / thisInfinityTime）"
+    assert "const-wide v15, 0x426d1a94a1f38000L" in dsm, \
+        "旧存档哨兵比较常量 9.999999999E11 缺失"
+    assert "sget-wide v11, Lkajfosz/antimatterdimensions/player/Player;->c:D" in dsm, \
+        "旧存档哨兵回落 Player.c 缺失"
+    scaled = [p.name for p in pl.glob("*.smali") if "0x4059000000000000" in p.read_text(encoding="utf-8")]
+    assert scaled == ["d.smali"], f"100.0 缩放只应存在于旧格式导入 d.smali，实际: {scaled}"
+    note("[4e] 旧存档时间换算守卫通过（三处 ×100 + 哨兵回落，且 100.0 仅存在于 d.smali）")
+
+    # --- [4f] 加速语义归一化工具（S1，2026-10-26）---
+    # 语义基线 = ADfaster commit 8125874：
+    #   index.html:5-6      f = isDoomed ? sqrt(1000) : 1000
+    #   game.js:452/485     realDiff / diff 均为「放大值」
+    #   game.js:539-549     records.*.realTime += realDiff / f （真实毫秒）
+    #   game.js:540-544     records.*.time     += diff        （放大值）
+    #   big-crunch.js:95    bestInfinity.time = min(old, thisInfinity.time / f)
+    # 即：计时字段存放大值，对外记录必须 /f。OrekiSpeed.unscale 就是那个 /f。
+    osp = (MOD / "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali").read_text(encoding="utf-8")
+    for sig, desc in (
+        (".method public static unscale(D)D", "unscale 归一化工具"),
+        (".method public static unscaleBy(DD)D", "unscaleBy 显式倍率工具"),
+        (".method public static effectiveMult()D", "effectiveMult（Doomed 感知倍率）"),
+    ):
+        assert sig in osp, f"[4f] OrekiSpeed 缺少 {desc}（{sig}）"
+
+    # S1 的硬约束：apply(D) 必须仍等于「x * mult()」，不得提前切到 effectiveMult。
+    # 切到 effectiveMult 属于 S4（Doomed sqrt 分支）工作包，届时同步更新本断言。
+    ap_body = _body(".method public static apply(D)D", osp)
+    assert "OrekiSpeed;->mult()D" in ap_body, "[4f] apply 的倍率来源被改动（应为 mult()）"
+    assert "effectiveMult" not in ap_body, "[4f] apply 已切到 effectiveMult，应属 S4 工作包"
+
+    # 分支方向回归守卫（2026-10-26 曾有实错，导致 S2 静默失效）：
+    #   Dalvik 语义 if-eqz = v==0 跳；if-ltz = v<0 跳；if-gtz = v>0 跳。
+    #   unscale 的「p0 是 NaN 才原样返回」必须用 if-eqz（isNaN 返回 true=1）。
+    #   mult 的下界「sMult < 1e-6 就回落 DEF」必须用 if-ltz；
+    #   上界「sMult > 1e9 就回落 DEF」必须用 if-gtz。
+    assert "if-eqz v4, :val_ok" in osp, "[4f] unscale 的 NaN 守卫方向错误（应为 if-eqz）"
+    assert "if-ltz v4, :reset" in osp, "[4f] mult 的下界守卫方向错误（应为 if-ltz）"
+    assert "if-gtz v4, :reset" in osp, "[4f] mult 的上界守卫方向错误（应为 if-gtz）"
+    assert "if-gtz v0, :bad" in osp, "[4f] set 的上界校验方向错误"
+    # unscaleBy 与 set 共用 if-lez v0, :bad 模式，至少应出现 2 次
+    assert osp.count("if-lez v0, :bad") >= 2, "[4f] unscaleBy/set 的下界守卫缺失"
+    # init 的幂等守卫：sLoaded != 0 时返回（if-nez）。写成 if-eqz 会导致
+    # 首次调用就跳过初始化，使 SharedPreferences 里的倍率永远读不到。
+    assert "if-nez v0, :done" in osp, "[4f] init 的幂等守卫方向错误（应为 if-nez）"
+    note("[4f] 加速归一化工具自检通过（unscale / unscaleBy / effectiveMult 就位，apply 仍为 mult，边界方向正确）")
+
+    # --- [4h] SharedPreferences.Editor 接口类型（2026-10-26 阻断性缺陷）---
+    # 把 apply() 挂在 SharedPreferences 上会抛 NoSuchMethodError（Error，非 Exception，
+    # 因此连 catch(Exception) 都兜不住）。该缺陷长期潜伏，因为 OrekiSpeed.init() 的
+    # 幂等守卫写反导致首次调用就 return，StageAssist.sCtx 一直为 null，
+    # onTick -> clearFlag 从不执行。修好 init 后立刻崩溃，故在此加硬守卫。
+    for sp in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+        txt = sp.read_text(encoding="utf-8", errors="ignore")
+        assert "Landroid/content/SharedPreferences;->apply()V" not in txt, \
+            f"[4h] {sp.name} 把 apply() 挂在 SharedPreferences 而非 Editor 上（会 NoSuchMethodError）"
+    note("[4h] SharedPreferences.Editor 接口类型自检通过（apply 全部挂在 Editor 上）")
+
+    # --- [4g] 最佳无限时间归一化（S2，2026-10-26）---
+    # ADfaster big-crunch.js:95 把 thisInfinity.time 先 /f 再参与 bestInfinity 比较与写入。
+    # Android 的写入点是 prestige.e#g（Infinity.giveInfinityRewards）里的原地 iput-wide。
+    pe = (MOD / "smali/kajfosz/antimatterdimensions/prestige/e.smali").read_text(encoding="utf-8")
+    # S2 的两处必须都用 {v11, v12}（thisInfinity.time 的比较值与写入值）；
+    # A2 新增的 {v13, v14} 属 PastRun.time，由 [4j] 单独校验，不计入这里。
+    assert pe.count("{v11, v12}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D") == 2, \
+        "[4g] prestige.e 应有 2 处 {v11, v12} 的 unscale（比较前 + 写入前）"
+    assert "# [Oreki S2]" in pe, "[4g] prestige.e 缺少 S2 归一化标记"
+    assert "# [Oreki A1]" in pe and pe.count("OrekiSpeed;->migrateBest(Ltw4;)V") == 1, \
+        "[4g] prestige.e 缺少 A1 的 migrateBest 一次性单位迁移（应恰 1 处）"
+    # 迁移必须发生在哨兵检测（.line 396）之前，否则旧值仍以放大单位参与比较
+    assert pe.index("migrateBest(Ltw4;)V") < pe.index("sget-wide v13, Lkajfosz/antimatterdimensions/player/Player;->c:D"), \
+        "[4g] migrateBest 必须位于哨兵检测之前"
+    # 现实时间域不得被缩放：bestInfinityRealTime 取的是 ThisInfinity.e()（realTime）
+    assert "ThisInfinity;->e()Ltw4;\n\n    .line 470" in pe, \
+        "[4g] bestInfinityRealTime 的读取点被改动（realTime 不应归一化）"
+    # 哨兵分支必须还在（无记录 → 直接写）
+    assert "sget-wide v13, Lkajfosz/antimatterdimensions/player/Player;->c:D" in pe, \
+        "[4g] bestInfinity 的「无记录」哨兵比较丢失"
+    note("[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）")
+
+    # --- [4i] 最佳记录单位迁移的幂等性与边界（A1，2026-10-26）---
+    osp = (MOD / "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali").read_text(encoding="utf-8")
+    for sig, desc in (
+        (".method public static migrateBest(Ltw4;)V", "migrateBest(Ltw4;)V"),
+        (".method private static persistRecordsNorm()V", "persistRecordsNorm()V"),
+        (".field private static sRecordsNorm:Z", "sRecordsNorm 标记"),
+    ):
+        assert sig in osp, f"[4i] OrekiSpeed 缺少 {desc}"
+    # 迁移必须是「标记未置才做」：if-nez sRecordsNorm -> :done 表示已迁移即返回
+    mb = osp[osp.index(".method public static migrateBest(Ltw4;)V"):
+             osp.index(".method private static persistRecordsNorm()V")]
+    assert "if-nez v0, :done" in mb, "[4i] migrateBest 的已迁移短路方向错误（应为 if-nez）"
+    assert "if-eqz v0, :done" in mb, "[4i] migrateBest 的 sCtx 空值守卫方向错误"
+    assert "if-eqz v4, :done" in mb, "[4i] migrateBest 的哨兵相等守卫方向错误（应为 if-eqz）"
+    assert "if-lez v4, :done" in mb, "[4i] migrateBest 的非正值守卫方向错误（应为 if-lez）"
+    assert "Player;->c:D" in mb, "[4i] migrateBest 未排除「无记录」哨兵"
+    # 交叉校验：用 bestInfinityRealTime 判断是否已被归一化过（防 prefs 丢失后二次除）
+    assert "ThisEternity;->f()Ltw4;" in mb, "[4i] migrateBest 缺少 bestInfinityRealTime 交叉校验"
+    assert "0x3fe0000000000000L" in mb, "[4i] 交叉校验缺少 0.5 阈值"
+    assert "if-lez v8, :done" in mb, "[4i] 交叉校验的「已归一化」短路方向错误（应为 if-lez）"
+    assert mb.count("unscale(D)D") == 1, "[4i] migrateBest 应恰有 1 次 unscale"
+    # 标记必须先落盘再改值，避免异常路径重复缩放
+    assert mb.index("persistRecordsNorm") < mb.index("iput-wide"), \
+        "[4i] migrateBest 必须先持久化标记再改写记录值"
+    # init 必须真的把标记读进来，否则每次启动都重复迁移
+    ini = osp[osp.index(".method public static init(Landroid/content/Context;)V"):
+             osp.index(".method public static mult()D")]
+    assert '"records_norm"' in ini, "[4i] init 未读取 records_norm 标记"
+    assert "getInt" in ini, "[4i] init 应以 getInt 读取 records_norm"
+    assert "if-ne v2, v3, :no_norm" in ini, "[4i] init 的标记判定方向错误（应为 if-ne）"
+    note("[4i] 最佳记录单位迁移自检通过（标记幂等、哨兵排除、先落盘后改值、init 读取标记）")
+
+    # --- [4j] 最近十次无限的时间归一化（A2，2026-10-26）---
+    # ADfaster game.js:191：[time / f, realTime, ...]，realTime 不除。
+    assert "# [Oreki A2]" in pe, "[4j] prestige.e 缺少 A2 最近重置归一化标记"
+    assert pe.count("{v13, v14}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D") == 1, \
+        "[4j] PastRun.time 应恰有 1 处 unscale"
+    # A2 必须发生在 PastRun 构造之前，且早于该分支里的 realTime 读取
+    assert pe.index("# [Oreki A2]") < pe.index("Player$PastRun;-><init>"), \
+        "[4j] A2 归一化必须在 PastRun 构造之前"
+    assert "ThisInfinity;->e()Ltw4;" in pe, "[4j] realTime 读取点丢失"
+    note("[4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）")
+
+    # --- [4k] StageAssist 行区间与解锁判定（A3，2026-10-26）---
+    # 行号 m 为 1-based；区间过滤必须是「v5 < p0 跳过」+「v5 > p1 跳过」。
+    sa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali").read_text(encoding="utf-8")
+    assert sa.count("if-lt v5, p0, :next") == 3, \
+        f"[4k] 行区间下界过滤应为 if-lt（实际 {sa.count('if-lt v5, p0, :next')} 处，期望 3）"
+    assert "if-ge v5, p0, :next" not in sa, "[4k] 仍有反向的行区间下界过滤（if-ge）"
+    assert sa.count("if-gt v5, p1, :next") == 3, "[4k] 行区间上界过滤应保留 3 处 if-gt"
+    assert sa.count("if-eqz v6, :do") == 1, "[4k] unlockRows 应只对未解锁项调用原版解锁"
+    assert "if-nez v6, :do" not in sa, "[4k] unlockRows 的解锁判定仍写反"
+    # 必须仍然走原版 E(ZZ)，不得直接写 BitSet
+    assert "{v4, p2, p3}, Lkajfosz/antimatterdimensions/achievements/a;->E(ZZ)V" in sa, \
+        "[4k] 解锁路径被改动（必须走原版 a.E(ZZ)）"
+    assert "BitSet" not in sa.split(".method private static unlockRows")[1].split(".end method")[0], \
+        "[4k] unlockRows 出现了直接写 BitSet 的捷径"
+    note("[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）")
+
+    # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
+    # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
+    # 同样是「游戏时间 + 真实毫秒」；time 必须归一化，realTime 不得除。
+    pc = (MOD / "smali/kajfosz/antimatterdimensions/prestige/c.smali").read_text(encoding="utf-8")
+    pf = (MOD / "smali/kajfosz/antimatterdimensions/prestige/f.smali").read_text(encoding="utf-8")
+    assert "# [Oreki A4]" in pc, "[4m] prestige.c 缺少 A4 标记"
+    assert "# [Oreki A4]" in pf, "[4m] prestige.f 缺少 A4 标记"
+    assert pc.count("{v12, v13}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D") == 1,         "[4m] pastTenEternities.time 应恰有 1 处 unscale"
+    assert pf.count("{v14, v15}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D") == 1,         "[4m] pastTenRealities.time 应恰有 1 处 unscale"
+    assert pc.index("# [Oreki A4]") < pc.index("Player$PastEternityRun;-><init>"),         "[4m] A4 永恒归一化必须在 PastEternityRun 构造之前"
+    assert pf.index("# [Oreki A4]") < pf.index("Player$PastRealityRun;-><init>"),         "[4m] A4 现实归一化必须在 PastRealityRun 构造之前"
+    assert "ThisReality;->m()Ltw4;" in pf, "[4m] pastTenRealities 的 realTime 读取点丢失"
+    assert "Lnw4;->b()Ltw4;" in pc, "[4m] pastTenEternities 的 realTime 读取点丢失"
+    note("[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）")
 
 
 # ------------------------------------------------- 5. Ad Bonus 永久生效
@@ -699,6 +1106,10 @@ def main():
     patch_resources()
     patch_manifest()
     patch_smali()
+    patch_speed_records()
+    patch_recent_runs()
+    patch_recent_runs_er()
+    patch_shop_coins()
     verify_payload()
     patch_ad_bonus()
     final = build_sign(java)
