@@ -55,7 +55,7 @@ zipalign → apksigner(v1+v2+v3) → verify。
 
 ## 版本控制约定
 
-- `main` 为唯一分支，本地仓库，暂无远端。
+- `main` 为唯一分支；远端为 **私有** 仓库 `https://github.com/OrekiDawson/AD-Oreki-Edition-Android`（2026-10-29 起）。
 - 已忽略：`work/`、`tools/`（除 README）、`keys/`、`*.apk`、`build/dexcheck|out/`、Python 缓存、IDE 配置。
 - 需要把某个 APK 纳入版本时用 `git add -f <file>`，但每个约 66.5 MiB，慎用。
 - 提交前建议：`git status --short` → `git diff` → `git log --oneline --graph`。
