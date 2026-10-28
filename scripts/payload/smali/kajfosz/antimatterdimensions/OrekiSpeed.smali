@@ -538,3 +538,145 @@
 
     return-object v0
 .end method
+
+# [Oreki AW] 自动机等待态文案（AUTOMATOR_WAIT_AUDIT_2026-10-27 §5.1）。
+# 与 Web AutomatorControls.js 的等待行对齐：
+#   等待中：{脚本名}（第 {行} 行，已等待 {N} 秒）
+# 平台差异（有意）：Web 用 TimeSpan.toStringShort()（如 "1m 23s"），
+# Android 侧为最小 smali 实现先显示整秒；调用方已保证 isWaiting==true 且未暂停。
+.method public static waitingText(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 6
+
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v0
+
+    invoke-static {}, Lvo;->waitStart()J
+
+    move-result-wide v2
+
+    sub-long/2addr v0, v2
+
+    const-wide/16 v2, 0x3e8
+
+    div-long/2addr v0, v2
+
+    const-wide/16 v2, 0x0
+
+    cmp-long v4, v0, v2
+
+    if-gez v4, :awt_pos
+
+    const-wide/16 v0, 0x0
+
+    :awt_pos
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "等待中："
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, "（第 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " 行，已等待 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-static {v0, v1}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " 秒）"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+
+# [Oreki AF] 主循环帧间隔（毫秒）。
+#
+# 主循环 MainActivityGameLoopKt.gameLoop 固定 delay(25ms)，每帧只调用一次
+# Game.gameTick —— 也就是每帧每个自动购买器最多做一次采购决策。倍率放大的是
+# 游戏时间，不放大帧数：F=10000 时一帧横跨 250 游戏秒，而采购密度仍是 40 次/秒。
+# 实测（ab_cadence，同一存档 20s）：F=1 与 F=10000 的 Δbought / ΔdimBoost 基本相同
+# （1380/177 与 1380/172），即采购机会数被帧率锁死，与游戏时间无关。
+#
+# 修法：把帧间隔目标按倍率缩小（最多 8 倍，下限 3ms），让每单位现实时间内的
+# 采购决策数随倍率上升。F<=1 时仍返回 25ms，语义完全不变。
+# 只改「目标间隔」，不改任何时间记账：realTimePlayed / totalTimePlayed /
+# 离线结算仍由 gameTick 内部的 diff 决定，总量不受帧率影响。
+.method public static frameMs()J
+    .locals 8
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v0
+
+    const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
+
+    cmpg-double v4, v0, v2
+
+    if-lez v4, :base
+
+    const-wide/high16 v2, 0x4020000000000000L    # 8.0
+
+    cmpl-double v4, v0, v2
+
+    if-lez v4, :capped
+
+    move-wide v0, v2
+
+    :capped
+    const-wide/high16 v2, 0x4039000000000000L    # 25.0
+
+    div-double/2addr v2, v0
+
+    const-wide/high16 v4, 0x4008000000000000L    # 3.0
+
+    cmpg-double v6, v2, v4
+
+    if-gez v6, :floor
+
+    double-to-long v0, v2
+
+    return-wide v0
+
+    :floor
+    const-wide/16 v0, 0x3
+
+    return-wide v0
+
+    :base
+    const-wide/16 v0, 0x19
+
+    return-wide v0
+.end method

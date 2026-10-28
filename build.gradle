@@ -1,0 +1,283 @@
+/*
+ * 反物质维度 Oreki Edition —— Android 构建入口（方案 B：Gradle 调度现有 smali 流水线）
+ * ------------------------------------------------------------------------------------
+ * 为什么不是标准 AGP 工程：
+ *   上游 APK 是原生 Kotlin 混淆产物，仓库没有任何可编译的 Java/Kotlin 源码；
+ *   正式产物由 scripts/build_mod.py 完成「apktool 反编译树 -> smali 补丁 -> 重建 ->
+ *   zipalign -> apksigner」全流程。用 AGP 重建目录结构等于重写已稳定的构建链，
+ *   还会丢失 smali 补丁与资源 ID 修补。因此这里让 Gradle 只做编排：任务体一律是
+ *   Exec 调用真实脚本，退出码原样上抛，不做 Shell 字符串拼接。
+ *
+ * 安全约定（与 R4 执行令一致）：
+ *   1. assembleRelease 把候选 APK 输出到 build/gradle-stage/，绝不触碰 release/；
+ *   2. 只有 publishRelease（显式调用）才会把验证过的候选替换为正式发布文件；
+ *   3. clean 只删 Gradle 自己的暂存目录，不删除 build/ 下的归档、备份与 release/。
+ */
+
+def repoRoot = rootDir
+def buildRoot = layout.buildDirectory.get().asFile
+def stageDir = new File(buildRoot, 'gradle-stage')
+def reportDir = new File(buildRoot, 'gradle-reports')
+def stageApk = new File(stageDir, '反物质维度.apk')
+def releaseApk = file('release/反物质维度.apk')
+
+// ---------------------------------------------------------------- 工具链发现
+// 不写死个人绝对路径：JDK 在仓库内 tools/jdk/<任意版本>/，按目录扫描取最新。
+def jdkHome = {
+    def base = file('tools/jdk')
+    if (!base.isDirectory()) return null
+    def cands = base.listFiles()?.findAll {
+        it.isDirectory() && new File(it, 'bin/java.exe').exists()
+    }
+    return cands ? cands.sort { it.name }.last() : null
+}()
+def javaExe = jdkHome ? new File(jdkHome, 'bin/java.exe') : null
+def pythonExe = System.getenv('PYTHON') ?: 'python'
+def adbExe = file('tools/platform-tools/adb.exe')
+def apktoolJar = file('tools/apktool.jar')
+def btDir = file('tools/bt/android-14')
+def keystore = file('keys/oreki.jks')
+
+def pkgName = 'com.oreki.antimatterdimensions'
+def expectVersionName = '3.19.0'
+def expectVersionCode = '30190000'
+def avdName = 'oreki_test'
+
+// ------------------------------------------------------- 简易任务日志工具
+ext.step = { String msg -> logger.lifecycle("[oreki] ${msg}") }
+
+// =========================================================== verifyEnvironment
+tasks.register('verifyEnvironment') {
+    group = 'oreki'
+    description = '检查 JDK / Python / apktool / build-tools / 签名 / ADB / 反编译输入树是否就绪'
+    doLast {
+        def rows = []
+        def add = { String name, boolean ok, String detail ->
+            rows << [name: name, ok: ok, detail: detail]
+        }
+
+        add('jdk', javaExe != null && javaExe.exists(),
+            javaExe ? javaExe.absolutePath : 'tools/jdk 下未找到 JDK（需要 bin/java.exe）')
+
+        def pyVer = ''
+        def pyOk = false
+        try {
+            def out = new ByteArrayOutputStream()
+            exec {
+                commandLine pythonExe, '--version'
+                standardOutput = out
+                errorOutput = out
+                ignoreExitValue = true
+            }
+            pyVer = out.toString('UTF-8').trim()
+            pyOk = pyVer.toLowerCase().contains('python')
+        } catch (Exception e) {
+            pyVer = e.message
+        }
+        add('python', pyOk, "${pythonExe} -> ${pyVer}")
+
+        add('apktool.jar', apktoolJar.exists(),
+            apktoolJar.exists() ? apktoolJar.absolutePath : '缺 tools/apktool.jar')
+
+        def btOk = new File(btDir, 'zipalign.exe').exists() && new File(btDir, 'lib/apksigner.jar').exists()
+        add('build-tools', btOk, btDir.absolutePath)
+
+        add('keystore', keystore.exists(),
+            keystore.exists() ? "keys/oreki.jks（口令走 OREKI_KS_PASS 或 keys/密码.txt）" : '缺 keys/oreki.jks')
+
+        add('adb', adbExe.exists(), adbExe.exists() ? adbExe.absolutePath : '缺 tools/platform-tools/adb.exe')
+
+        def baseOk = file('work/base_decoded/apktool.yml').exists()
+        add('base_decoded', baseOk,
+            baseOk ? 'work/base_decoded 就绪' : '缺 work/base_decoded（按 tools/README.md 用 apktool 反编译原始 XAPK 重建）')
+
+        def splitOk = file('work/xhdpi_decoded').isDirectory()
+        add('xhdpi_split', splitOk, splitOk ? 'work/xhdpi_decoded 就绪' : '缺 work/xhdpi_decoded（config.xhdpi 反编译树）')
+
+        add('payload', file('scripts/payload').isDirectory(), 'scripts/payload 手工 smali/资源补丁')
+
+        // 只报告，不阻断：可能本轮不打算跑安装/冒烟
+        def devOut = ''
+        def devOnline = false
+        try {
+            def out = new ByteArrayOutputStream()
+            exec {
+                commandLine adbExe, 'devices'
+                standardOutput = out
+                errorOutput = out
+                ignoreExitValue = true
+            }
+            devOut = out.toString('UTF-8').readLines().findAll { it.contains('\tdevice') }.join(' | ')
+            devOnline = devOut
+        } catch (Exception e) {
+            devOut = e.message
+        }
+
+        reportDir.mkdirs()
+        new File(reportDir, 'verify-environment.json').text = groovy.json.JsonOutput.toJson(rows)
+
+        rows.each { r -> logger.lifecycle(String.format('  %-14s %s  %s', r.name, r.ok ? 'OK  ' : 'FAIL', r.detail)) }
+        logger.lifecycle("  ${'-' * 60}")
+        logger.lifecycle("  AVD(${avdName}): " + (devOnline ? "在线 ${devOut}" : '不在线（仅 installOrekiTest / smokeOrekiTest 需要）'))
+
+        def failed = rows.findAll { !it.ok }
+        if (failed) {
+            throw new GradleException('环境检查未通过：' + failed.collect { it.name }.join(', '))
+        }
+    }
+}
+
+// ============================================================== assembleRelease
+// 真实调用 scripts/build_mod.py；OREKI_RELEASE_OUT 把签名产物重定向到暂存目录，
+// 这样 build_sign() 删除目标文件时删的是暂存文件，release/ 下的正式 APK 不受影响。
+tasks.register('assembleRelease', Exec) {
+    group = 'oreki'
+    description = '用现有 smali/apktool 流水线生成候选 APK（输出 build/gradle-stage，不触碰 release/）'
+    dependsOn 'verifyEnvironment'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/build_mod.py'
+    environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
+    environment 'PYTHONIOENCODING', 'utf-8'
+    doFirst {
+        stageDir.mkdirs()
+        if (stageApk.exists()) stageApk.delete()   // 防止旧候选被误当本轮产物
+        step("候选输出目录: ${stageDir}")
+    }
+    // 反编译树（work/base_decoded，约 1.7G / 11 万文件）是 gitignore 的重建物，
+    // 无法低成本哈希，因此不参与增量判定：每次都真实跑一遍构建链。
+    outputs.upToDateWhen { false }
+    outputs.file(stageApk)
+}
+
+// ================================================================ verifyRelease
+tasks.register('verifyRelease', Exec) {
+    group = 'oreki'
+    description = '校验候选 APK：包名/版本/签名/EC12 补丁是否真的在 dex 里'
+    dependsOn 'assembleRelease'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/verify_release.py',
+        '--apk', stageApk.absolutePath,
+        '--json', new File(reportDir, 'verify-release.json').absolutePath
+    environment 'PYTHONIOENCODING', 'utf-8'
+    doFirst { reportDir.mkdirs() }
+    outputs.upToDateWhen { false }
+}
+
+// ============================================================= patchContract
+tasks.register('verifyPatchContract', Exec) {
+    group = 'oreki'
+    description = '静态守卫：补丁脚本语法、EC12 补丁已启用、提频方案保持禁用、mod 树补丁唯一'
+    dependsOn 'assembleRelease'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/verify_patch_contract.py'
+    environment 'PYTHONIOENCODING', 'utf-8'
+    outputs.upToDateWhen { false }
+}
+
+// ===================================================================== 生命周期
+tasks.register('build') {
+    group = 'oreki'
+    description = 'assembleRelease + verifyRelease + verifyPatchContract'
+    dependsOn 'assembleRelease', 'verifyRelease', 'verifyPatchContract'
+}
+
+tasks.register('check') {
+    group = 'oreki'
+    description = '本轮定向回归：APK 产物校验 + 补丁契约静态守卫'
+    dependsOn 'verifyRelease', 'verifyPatchContract'
+}
+
+// ============================================================ installOrekiTest
+tasks.register('installOrekiTest', Exec) {
+    group = 'oreki'
+    description = "仅向 ${avdName} AVD 安装候选 APK"
+    dependsOn 'verifyRelease'
+    workingDir = repoRoot
+    commandLine adbExe, 'install', '-r', stageApk.absolutePath
+    doFirst {
+        def out = new ByteArrayOutputStream()
+        exec { commandLine adbExe, 'devices'; standardOutput = out; errorOutput = out; ignoreExitValue = true }
+        if (!out.toString('UTF-8').contains('\tdevice')) {
+            throw new GradleException("AVD 不在线，拒绝安装。启动参数见 environment/测试环境记录.md")
+        }
+        step("安装候选 APK: ${stageApk.name}")
+    }
+    outputs.upToDateWhen { false }
+}
+
+// ============================================================== smokeOrekiTest
+tasks.register('smokeOrekiTest', Exec) {
+    group = 'oreki'
+    description = '启动应用并检查进程存活 / 无 FATAL'
+    dependsOn 'installOrekiTest'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/avd_smoke.py', '--adb', adbExe.absolutePath
+    environment 'PYTHONIOENCODING', 'utf-8'
+    outputs.upToDateWhen { false }
+}
+
+// =============================================================== installToRelease
+// 显式任务：把已通过 verifyRelease 的候选替换为正式发布文件。默认不参与 build。
+tasks.register('installToRelease') {
+    group = 'oreki'
+    description = '把验证通过的候选 APK 复制到 release/（覆盖前先比对哈希并留档）'
+    dependsOn 'verifyRelease'
+    doLast {
+        if (!stageApk.exists()) throw new GradleException("候选 APK 不存在：${stageApk}")
+        def stageHash = hashOf(stageApk)
+        def stageSize = stageApk.length()
+        step("候选 SHA-256: ${stageHash} (${stageSize} B)")
+        if (releaseApk.exists()) {
+            def oldHash = hashOf(releaseApk)
+            step("现有发布 SHA-256: ${oldHash}")
+            if (oldHash == stageHash) {
+                step('候选与现有发布完全一致，无需替换')
+                return
+            }
+            releaseApk.parentFile.mkdirs()
+        }
+        releaseApk.parentFile.mkdirs()
+        java.nio.file.Files.copy(stageApk.toPath(), releaseApk.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        def newHash = hashOf(releaseApk)
+        if (newHash != stageHash) throw new GradleException("复制后哈希不一致: ${newHash} != ${stageHash}")
+        step("已替换 release/反物质维度.apk -> ${newHash}")
+    }
+}
+
+// ================================================================ publishRelease
+tasks.register('publishRelease', Exec) {
+    group = 'oreki'
+    description = '按既有流程发布到 OneDrive / 小米云盘 并回读校验（不做 KDE 直发）'
+    dependsOn 'installToRelease'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/publish_apk.py', '--no-kde'
+    environment 'PYTHONIOENCODING', 'utf-8'
+    outputs.upToDateWhen { false }
+}
+
+// ------------------------------------------------------------------ helpers
+String hashOf(File f) {
+    def md = java.security.MessageDigest.getInstance('SHA-256')
+    f.withInputStream { is ->
+        byte[] buf = new byte[1 << 20]
+        int n
+        while ((n = is.read(buf)) > 0) md.update(buf, 0, n)
+    }
+    return md.digest().collect { String.format('%02x', it) }.join('')
+}
+
+// ====================================================================== clean
+// 覆盖 Gradle 默认 clean：只清 Gradle 自己的暂存目录。
+// build/ 下还有 onedrive_archive/、xiaomi_archive/、backup_*.apk 等唯一备份，
+// release/ 下是正式发布物 —— 一律不得被 clean 触碰。
+tasks.register('clean') {
+    group = 'oreki'
+    description = '只清理 build/gradle-stage 与 build/gradle-reports（不动 release/ 与 build/ 归档备份）'
+    doLast {
+        [stageDir, new File(buildRoot, 'gradle-verify-apk')].each { d ->
+            if (d.exists()) { d.deleteDir(); step("已删除 ${d}") }
+        }
+        step('release/、build/*archive*、build/backup* 未被触碰')
+    }
+}

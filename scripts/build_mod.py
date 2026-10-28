@@ -27,9 +27,15 @@ SPLIT = WORK / "xhdpi_decoded"
 PAYLOAD = ROOT / "scripts" / "payload"
 MOD = WORK / "mod"
 BUILD = ROOT / "build"
-RELEASE = ROOT / "release"
 TOOLS = ROOT / "tools"
 KEYS = ROOT / "keys"
+
+# 候选版 APK 的输出目录。
+# 默认仍是 release/（旧行为，直接跑 `python scripts/build_mod.py` 完全不变）。
+# Gradle 入口会把它指向 build/gradle-stage/，让候选产物先落暂存目录，
+# 验证通过后才由 publishRelease 覆盖 release/ 下的正式文件。
+# 说明：build_sign() 会先删除目标文件，所以重定向输出目录是必要的保险。
+RELEASE = Path(os.environ.get("OREKI_RELEASE_OUT") or (ROOT / "release")).resolve()
 
 ANDROID_NS = "http://schemas.android.com/apk/res/android"
 A = "{%s}" % ANDROID_NS
@@ -396,6 +402,7 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali",
     "smali/kajfosz/antimatterdimensions/oreki/StageConfirmListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",
+    "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
 ]
 
 # (文件, 必须包含的片段, 说明)
@@ -431,6 +438,23 @@ PAYLOAD_REFS = [
     ("smali/av.smali", ".method public I()I", "升级 id"),
     ("smali/u7.smali", ".field public static final v:Ljava/util/List;", "炼金资源列表"),
     ("smali/l7.smali", ".method public final w()Z", "炼金资源 capped 判定"),
+    # --- 挑战进入即完成（R4）依赖的混淆入口：版本升级后若名字变了，构建阶段就失败，
+    #     不会等到运行期才 NoSuchMethodError ---
+    ("smali/c43.smali",
+     ".method public static a(I)Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;",
+     "c43.a(id) 按 id 取普通挑战实例"),
+    ("smali/py1.smali",
+     ".method public static c()Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;",
+     "py1.c() 当前无限挑战实例"),
+    ("smali/r51.smali",
+     ".method public static c()Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+     "r51.c() 当前永恒挑战实例"),
+    ("smali/kajfosz/antimatterdimensions/challenge/antimatter/b.smali",
+     ".method public final E(Z)V",
+     "挑战完成入口 E(Z)"),
+    ("smali/kajfosz/antimatterdimensions/challenge/eternity/b.smali",
+     ".method public final F(Z)V",
+     "EC addCompletion F(Z)"),
 ]
 
 
@@ -1065,6 +1089,21 @@ def build_sign(java):
         return None
     note(f"[5] 未签名 APK: {unsigned.stat().st_size/1048576:.1f} MiB")
 
+    # [5b] 时间戳规整：apktool 会把「写入时刻」写进每个 ZIP 条目，导致同一份源码
+    # 在不同分钟构建出内容完全相同（CRC/大小/顺序一致）但 SHA-256 不同的 APK。
+    # 只改 ZIP 头里的 DOS 时间字段，不碰数据，zipalign 会保留，因此产物位级可复现。
+    note("[5b] 规整 ZIP 时间戳（位级可复现）...")
+    try:
+        _sdir = str(Path(__file__).resolve().parent)
+        if _sdir not in sys.path:
+            sys.path.insert(0, _sdir)
+        import apk_normalize
+        info = apk_normalize.normalize(unsigned)
+        note(f"      条目 {info['entries']}，改写中央目录 {info['patched_cd']} / 本地头 {info['patched_lfh']}")
+    except Exception as e:  # noqa: BLE001
+        note(f"!! 时间戳规整失败：{e}")
+        return None
+
     bt = TOOLS / "bt" / "android-14"
     note("[5] zipalign -p -f 4 ...")
     r1 = subprocess.run([str(bt / "zipalign.exe"), "-p", "-f", "4", str(unsigned), str(aligned)],
@@ -1099,6 +1138,270 @@ def build_sign(java):
     return target
 
 
+def patch_automator_waiting():
+    """[Oreki AW] 自动机等待态可见化（AUTOMATOR_WAIT_AUDIT_2026-10-27 §5.1）。
+
+    Web 基线 = AutomatorControls.js:61-62：运行中且 isWaiting 时状态栏显示
+    「等待中：脚本名（第 N 行）｜等待 X，已等待 Y」；暂停优先于等待显示。
+
+    Android 实现（最小侵入，不改变任何执行语义）：
+      1. vo.smali（AutomatorData）追加两个只读 getter：isWaiting()Z -> vo.e、
+         waitStart()J -> vo.f（审计 §2.1 已确认两字段语义与 Web 一致，仅内存态）。
+      2. MainActivityAutomatorKt$updateAutomator$1.smali 状态选取块最前面插入
+         分支：isWaiting 且未暂停（a.p()）时，用 OrekiSpeed.waitingText 生成
+         等待文案后直接跳 :goto_c；否则原逻辑零改动。
+         不依赖该协程寄存器 v15/p1 的极性（静态推导存在歧义），门控只用
+         vo.e 本身 —— 它只在 wait 指令挂起期间为真，停止路径会清零。
+      3. 文案由 payload 的 OrekiSpeed.waitingText 拼接（硬编码中文，与
+         StageAssist 先例一致；本 mod 默认语言已切 zh_CN）。
+    """
+    # ---- 1. vo.smali getters ----
+    vo = MOD / "smali" / "vo.smali"
+    vsrc = vo.read_text(encoding="utf-8")
+    assert ".field public static e:Z" in vsrc, "vo.e (isWaiting) 字段不存在"
+    assert ".field public static f:J" in vsrc, "vo.f (waitStart) 字段不存在"
+    assert "isWaiting" not in vsrc and "waitStart" not in vsrc, "vo getter 已存在（重复注入）"
+    getters = (
+        "\n# [Oreki AW] AutomatorData.isWaiting / waitStart 只读访问器\n"
+        ".method public static isWaiting()Z\n"
+        "    .locals 1\n"
+        "\n"
+        "    sget-boolean v0, Lvo;->e:Z\n"
+        "\n"
+        "    return v0\n"
+        ".end method\n"
+        "\n"
+        ".method public static waitStart()J\n"
+        "    .locals 2\n"
+        "\n"
+        "    sget-wide v0, Lvo;->f:J\n"
+        "\n"
+        "    return-wide v0\n"
+        ".end method\n"
+    )
+    vo.write_text(vsrc.rstrip("\n") + "\n" + getters, encoding="utf-8")
+    note("[AW] vo.smali: 追加 isWaiting()Z / waitStart()J 只读访问器")
+
+    # ---- 2. 状态选取块插入等待分支 ----
+    lam = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "mainactivity" / (
+        "MainActivityAutomatorKt$updateAutomator$1.smali")
+    lsrc = lam.read_text(encoding="utf-8")
+    anchor = (
+        "    .line 432\n"
+        "    if-eqz v15, :cond_d\n"
+        "\n"
+        "    .line 433\n"
+        "    .line 434\n"
+        "    sget v10, Lzt3;->automator_paused:I\n"
+    )
+    assert lsrc.count(anchor) == 1, "状态选取锚点不唯一或未找到"
+    assert "[Oreki AW]" not in lsrc, "等待分支已存在（重复注入）"
+    branch = (
+        "    # [Oreki AW] 等待态优先：isWaiting 且未暂停 -> 等待文案；否则原逻辑。\n"
+        "    # 只占用 v18（其后 0x922 处先写后读）与 v5（本分支内重写），不触碰 v10-v15。\n"
+        "    invoke-static {}, Lvo;->isWaiting()Z\n"
+        "\n"
+        "    move-result v18\n"
+        "\n"
+        "    if-eqz v18, :aw_orig\n"
+        "\n"
+        "    invoke-static {}, Lkajfosz/antimatterdimensions/reality/automator/a;->p()Z\n"
+        "\n"
+        "    move-result v18\n"
+        "\n"
+        "    if-nez v18, :aw_orig\n"
+        "\n"
+        "    invoke-static {v7, v5}, Lkajfosz/antimatterdimensions/OrekiSpeed;->waitingText(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n"
+        "\n"
+        "    move-result-object v5\n"
+        "\n"
+        "    goto/16 :goto_c\n"
+        "\n"
+        "    :aw_orig\n"
+        + anchor
+    )
+    lam.write_text(lsrc.replace(anchor, branch), encoding="utf-8")
+
+    # ---- 3. 注入后自检 ----
+    chk = lam.read_text(encoding="utf-8")
+    assert chk.count(":aw_orig") == 3, ":aw_orig 应为 2 跳转 + 1 标签定义"
+    assert chk.count("OrekiSpeed;->waitingText") == 1, "waitingText 调用数量异常"
+    assert "goto/16 :goto_c" in chk, "缺少跳转"
+    # 原四个状态分支必须原样保留
+    for res in ("automator_paused:I", "automator_running:I", "automator_cannot_run:I", "automator_stopped:I"):
+        assert chk.count(res) == 1, f"原状态分支被破坏: {res}"
+    vchk = vo.read_text(encoding="utf-8")
+    assert vchk.count(".method public static isWaiting()Z") == 1
+    assert vchk.count(".method public static waitStart()J") == 1
+    note("[AW] 自动机等待分支注入完成（vo getter ×2 + updateAutomator$1 状态分支 + 自检通过）")
+
+
+def patch_autobuyer_cadence():
+    """[Oreki AC] 自动购买器节奏跟随游戏时间（2026-10-28 实测）。
+
+    购买器门控读的是现实时间累计 (Records.i().a - lastTick)，而主循环每帧
+    推进的游戏时间已乘过倍率。高倍率下每帧跨越的游戏时间极长，采购仍按
+    现实 interval 触发 —— 实测 F=10000 到达同一里程碑需要 2797 倍游戏时间，
+    现实加速只剩约 3.6 倍。
+
+    修法：把「已流逝现实时间」乘全局倍率再与 interval 比较
+    （等价于 effectiveInterval = interval / F，但避免除法与除零）。
+    lastTick 记账口径不变（仍写现实时间）→ 现实时间统计、最佳时间、
+    离线结算语义不受影响。
+
+    Web 同源改动：3b5d577（另加微步，F=10000 帧数 1144 -> 67）。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "IntervaledAutobuyerState.smali"
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    if "OrekiSpeed;->mult()D" in src:
+        note("[Oreki AC] 购买器节奏补丁已存在，跳过")
+        return
+    assert "IntervaledAutobuyerState;->k()D" in src, "c() 结构不符合预期（找不到 k() 调用）"
+    body = (PAYLOAD / "templates" / "autobuyer_cadence_c.smali").read_text(encoding="utf-8")
+    out = _replace_method(src, "public c()Z", body)
+    target.write_text(out, encoding="utf-8")
+    assert "OrekiSpeed;->mult()D" in out, "补丁写入失败"
+    note("[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间")
+
+
+def patch_ec12_restriction():
+    """[Oreki EC12] 永恒挑战 12 的限时判定改为与全局倍率无关（2026-10-28）。
+
+    证据链（静态定位，全部为实测文件行号）：
+      challenge/eternity/b->O(I)Z            取 p（阈值映射）与 q（判定闭包）后调用 q
+      r51 <clinit>（EC12 段）                p = p51@0x10、q = p51@0x11、id = 0x0c
+      p51 :pswitch_c                          max(10-2c,1)/10，即 EC12 阈值 1.0..0.1
+      p51 :pswitch_b                          records.thisEternity.time.totalSeconds < 阈值
+
+    `records.thisEternity.time` 是**被放大**的游戏时间：P0 实测（cadence_bench，
+    同一存档 20s）F=1 时 游戏时间/现实时间 = 2.00，F=10000 时 = 20000 = 2×F。
+    判定直接用该字段，等于把限时按倍率缩短：F=10000 下 1.0 秒限时只剩约 1/20000
+    的现实时间 → 进 EC12 立刻被判失败，EC12×5 无法完成，进而阻断时间膨胀解锁。
+
+    修法：判定前用 OrekiSpeed.unscale() 把该时间按当前倍率还原（与 apply 配对）。
+    F=1 时 x/1.0 逐位相等 → 既有行为不变；任意倍率下判定值与 F 无关。
+    Web 同源：inGameSecondsOf(player.records.thisEternity)（提交 22344cf / 部署 4971636）。
+
+    只改判定，不改 thisEternity.time 的记账口径，也不碰挑战最佳时间与统计。
+    """
+    target = MOD / "smali" / "p51.smali"
+    assert target.exists(), f"缺少 {target}（EC 限制闭包类未反编译出来）"
+    blob = target.read_bytes()
+    if b"Oreki EC12" in blob:
+        note("[Oreki EC12] 限时判定补丁已存在，跳过")
+        return
+    anchor = b"    cmpg-double v0, v2, v0"
+    n = blob.count(anchor)
+    assert n == 1, f"EC12 判定锚点出现 {n} 次，预期 1（闭包结构可能已变）"
+    nl = b"\r\n" if b"\r\n" in blob else b"\n"
+    snippet = "\n".join([
+        "    # [Oreki EC12] thisEternity.time 是被 F 放大的游戏时间，判定前还原倍率，",
+        "    # 否则高倍率下限时按 F 缩短（F=10000 时 1 秒限时只剩 1/20000 现实时间）。",
+        "    # unscale 只除以 OrekiSpeed.mult()，F=1 时 x/1.0 逐位不变。",
+        "    invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D",
+        "",
+        "    move-result-wide v2",
+        "",
+        "",
+    ])
+    nl_s = nl.decode()
+    block = snippet.replace("\n", nl_s).encode("utf-8")
+    out = blob.replace(anchor, block + anchor, 1)
+    target.write_bytes(out)
+    assert out.count(b"OrekiSpeed;->unscale(D)D") >= 1, "补丁写入失败"
+    note("[Oreki EC12] EC12 限时判定已改为按倍率还原（与 Web inGameSecondsOf 同源）")
+
+
+def patch_instant_challenge():
+    """[Oreki IC] 挑战进入即完成：C / IC / EC 进入后下一帧按正常结算完成（2026-10-28 R4）。
+
+    证据链（全部为实测文件行号，构建前可复核）：
+      challenge/antimatter/c->b(D, Continuation)          Challenges.update(diff)，由 Game.gameTick(a.f) 每帧调用
+      challenge/antimatter/b->E(Z)V                       挑战完成入口：置完成位 + 记录最佳时间 + 派发 INFINITY_CHALLENGE_COMPLETED
+      challenge/antimatter/b->K()Z                        isCompleted
+      c43.a(I)                                           按 id 取普通挑战实例（内部 p0 = id - 1）
+      py1.c()                                            当前无限挑战实例（内部按 current > 0 判空）
+      challenge/eternity/b->F(Z)V                         EC addCompletion
+      challenge/eternity/b->y()Z                          EC isFullyCompleted（completions == maxCompletions）
+      r51.c()                                             当前永恒挑战实例
+      Player$PlayerNormalChallenges->n(I)V                C  current 写入
+      Player$PlayerInfinityChallenges->i(I)V              IC current 写入
+      Player$PlayerEternityChallenges->h(I)V              EC current 写入
+      BitSet->c(I)V                                       按掩码清零（= requirementBits &= ~(1<<id)）
+
+    实现：新增类 OrekiInstantChallenge（scripts/payload/smali/...），在本方法里
+    把 `invoke-static {}, ...->tick()V` 插到 Challenges.update 的 .locals 之后。
+    每帧只做三次「当前挑战 id > 0」判定；结算后立刻把 current 置 0，因此不会重复结算。
+
+    与 Web 同源：src/core/oreki-instant-challenges.js（提交见 handoff/统一项目状态.md）。
+    不发放 IP / EP / 无限次数 / 永恒次数，也不改解锁条件。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
+    blob = target.read_bytes()
+    marker = b"OrekiInstantChallenge;->tick()V"
+    if marker in blob:
+        note("[Oreki IC] 进入即完成钩子已存在，跳过")
+        return
+
+    header = (b".method public final b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)"
+              b"Ljava/lang/Object;")
+    idx = blob.find(header)
+    assert idx >= 0, "未找到 Challenges.update 方法头（结构可能已变）"
+    loc = blob.find(b".locals 23", idx)
+    assert loc >= 0 and loc - idx < 400, "未找到 Challenges.update 的 .locals 声明"
+    eol = blob.find(b"\n", loc)
+    assert eol > 0, "定位 .locals 行尾失败"
+    nl = b"\r\n" if blob[eol - 1:eol] == b"\r" else b"\n"
+    note_line = "# [Oreki IC] 挑战进入即完成：每帧在挑战更新前结算（详见 OrekiInstantChallenge.smali）"
+    inject = (nl +
+              ("    " + note_line).encode("utf-8") + nl +
+              b"    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;->tick()V" + nl)
+    out = blob[:eol + 1] + inject + blob[eol + 1:]
+    target.write_bytes(out)
+    assert out.count(marker) == 1, "补丁写入失败"
+    note("[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()")
+
+
+def patch_frame_cadence():
+    """[Oreki AF] 主循环帧间隔按倍率缩放（2026-10-28）。
+
+    MainActivityGameLoopKt.gameLoop 固定一个 25ms 目标间隔，每帧只调用一次
+    Game.gameTick —— 即每帧每个自动购买器最多做一次采购决策。OrekiSpeed 放大的是
+    游戏时间，不放大帧数：F=10000 时一帧横跨 250 游戏秒，采购密度却仍是 40 次/秒。
+
+    ab_cadence 实测（同一存档、同样 20s 墙钟）：
+      F=1     Δbought 1380  ΔdimBoost 21   Δt 0.1e6 ms
+      F=10000 Δbought 11290 ΔdimBoost 176  Δt 581.9e6 ms
+    游戏时间涨了约 5800 倍，采购次数只涨 8 倍 —— 说明采购机会数被帧率锁死，
+    与游戏时间无关，本项即为该断层。
+
+    修法：把 5 处 `const-wide/16 v18, 0x19`（=25ms，全部位于 gameLoop 内）
+    换成 OrekiSpeed.frameMs()。F<=1 返回 25（语义完全不变）；F>1 返回
+    25/min(F,8)，下限 3ms。只改「目标间隔」，不碰任何时间记账：
+    realTimePlayed / totalTimePlayed / 离线结算仍由 gameTick 内的 diff 决定，
+    总量与帧率无关，只有采购决策密度随帧率上升。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "mainactivity" / "c0.smali"
+    assert target.exists(), f"缺少 {target}"
+    # 按字节处理：read_text 会做换行归一化（CRLF -> LF），这里必须原样保留
+    src = target.read_bytes()
+    if b"OrekiSpeed;->frameMs()J" in src:
+        note("[Oreki AF] 帧间隔补丁已存在，跳过")
+        return
+    old = b"    const-wide/16 v18, 0x19\r\n"
+    n = src.count(old)
+    assert n == 5, f"帧间隔常量出现 {n} 次，预期 5（gameLoop 结构可能已变）"
+    new = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->frameMs()J\r\n"
+           b"\r\n"
+           b"    move-result-wide v18\r\n")
+    out = src.replace(old, new)
+    target.write_bytes(out)
+    assert out.count(b"OrekiSpeed;->frameMs()J") == 5, "补丁写入失败"
+    note("[Oreki AF] gameLoop 的 5 处 25ms 目标间隔已改为 OrekiSpeed.frameMs()")
+
+
 def main():
     java = str(TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe")
     prepare()
@@ -1112,6 +1415,15 @@ def main():
     patch_shop_coins()
     verify_payload()
     patch_ad_bonus()
+    patch_automator_waiting()
+    patch_autobuyer_cadence()
+    patch_ec12_restriction()
+    patch_instant_challenge()
+    # patch_frame_cadence()  【2026-10-28 实测否证，未启用】
+    # 提频方案对照：F=10000/20s 下 Δbought 11300（基线 11290）、dimBoost 176（基线 176）、
+    # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
+    # 结论：Android 主循环是 CPU 受限（单次 gameTick ≈22ms）而非 delay 受限，提频无效。
+    # 保留函数体与 OrekiSpeed.frameMs 作为证据与后续候选基础，但不接入构建。
     final = build_sign(java)
     (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
     return 0 if final else 1

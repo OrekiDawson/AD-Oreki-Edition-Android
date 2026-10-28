@@ -1,0 +1,7 @@
+// 反物质维度 Oreki Edition —— Android 工程根
+//
+// 本项目不是标准 AGP 工程：上游 APK 是原生 Kotlin 混淆产物，仓库里没有可编译的
+// Java/Kotlin 源码，正式 APK 由 scripts/build_mod.py（apktool + smali 补丁 + apksigner）
+// 生成。因此这里只声明工程名，不引入 Android Gradle Plugin，由 build.gradle 把
+// Gradle 作为现有流水线的统一入口（见 docs/GRADLE_BUILD.md）。
+rootProject.name = 'antimatter-dimensions-oreki'

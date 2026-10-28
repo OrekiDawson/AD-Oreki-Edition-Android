@@ -28,6 +28,13 @@
 /build/dexcheck/
 /build/out/
 
+# ---------- 4b. Gradle（R4）----------
+# Gradle 自己的缓存、暂存产物与报告都可重建；build.gradle / wrapper / gradlew 要入库。
+/.gradle/
+/build/gradle-stage/
+/build/gradle-reports/
+/build/gradle-verify-apk/
+
 # ---------- 5. 签名密钥与口令（绝不入库）----------
 /keys/
 *.jks
