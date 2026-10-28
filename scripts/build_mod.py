@@ -1402,6 +1402,80 @@ def patch_frame_cadence():
     note("[Oreki AF] gameLoop 的 5 处 25ms 目标间隔已改为 OrekiSpeed.frameMs()")
 
 
+def _scan_method(src, sig):
+    """返回 (方法起点, 方法终点) 字符下标；sig 形如 'public final g()Z'。"""
+    head = ".method " + sig
+    i = src.find(head)
+    assert i >= 0, f"找不到方法 {sig}"
+    j = src.find(".end method", i)
+    assert j > i, f"方法 {sig} 没有 .end method"
+    return i, j + len(".end method")
+
+
+def patch_autobuyer_unlock():
+    """[Oreki AU] 自动购买器提前解锁（R5.5 新档实测，2026-10-28）。
+
+    实测证据（oreki_test，`pm clear` 后的真正新档，默认 10000×）：
+      开局 反物质 10.0 / 每秒 0 / 第一维度 0 —— 不点「价格：10」就永远没有产量；
+      手动买下第一个维度后 2 秒内 反物质 10 → 115.97K。
+    而四个关键自动购买器的解锁条件都在中后期：
+      · 维度 ×8：isBought（1e40..1e47 反物质）或 普通挑战 1..8 完成
+      · 速度：    isUnlocked 字段（同上口径）
+      · 维度提升：普通挑战 10 完成
+      · 星系：    普通挑战 11 完成
+    → 新档前几小时只能手动连点，直接违反「不依赖玩家持续手动点击」的验收条件。
+
+    修法：每条只改 1 条指令，可逆，且都保留 Pelle 禁用检查（Doomed 下行为不变）：
+      · 维度 / 速度：isUnlocked 读取后的分支改为无条件走「已解锁」路径
+      · 提升 / 星系：普通挑战完成判定改为直通（nop）
+
+    故意**不**解锁大坍塌自动购买器：它默认 mode=AMOUNT、amount=1，
+    解锁后会在 break_infinity 之后「一有 1 IP 就重置」，反而卡死 IP 增长。
+    需要先修默认模式（X_HIGHEST），留到下一轮单独处理。
+
+    【2026-10-28 R5.5 实测结论：未启用】
+      补丁四条全部写入成功、`gradlew check assembleRelease` RC=0、契约全 PASS，
+      装到 oreki_test 清档新开后，在**确认无弹窗**的 60 s 干净窗口里
+      反物质恒 10.0、每秒 0、第一维度 0 —— 自动购买器一次都没买。
+      ⇒ 真正的门控不在四个 `g()`（isUnlocked），而在「每帧 tick 驱动」
+        或「自动化页是否解锁」。改动无效，已从 main() 撤下，不进交付。
+      另：R5.5 补充令要求保留手动购买维度/升级，全开自动购买器与该要求冲突，
+      后续若重启此方向，应改为「到达首次无限后再解锁」，而不是开局全开。
+    """
+    base = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer"
+    plans = [
+        # (文件, 方法签名, 原指令, 新指令, 说明)
+        ("AntimatterDimensionAutobuyerState.smali", "public final g()Z",
+         "    if-nez v0, :cond_0", "    goto :cond_0", "维度"),
+        ("TickspeedAutobuyerState.smali", "public final g()Z",
+         "    if-nez v0, :cond_0", "    goto :cond_0", "速度"),
+        ("DimBoostAutobuyerState.smali", "public final g()Z",
+         "    if-eqz p0, :cond_0", "    nop", "维度提升"),
+        ("GalaxyAutobuyerState.smali", "public final g()Z",
+         "    if-eqz p0, :cond_0", "    nop", "星系"),
+    ]
+    for fname, sig, old, new, label in plans:
+        target = base / fname
+        assert target.exists(), f"缺少 {target}"
+        src = target.read_text(encoding="utf-8")
+        if "Oreki AU" in src:
+            note(f"[Oreki AU] {label} 自动购买器解锁补丁已存在，跳过")
+            continue
+        i, j = _scan_method(src, sig)
+        body = src[i:j]
+        n = body.count(old)
+        assert n == 1, f"{fname} {sig} 内锚点出现 {n} 次，预期 1（结构可能已变）"
+        body2 = body.replace(
+            old,
+            "    # [Oreki AU] 跳过解锁条件（原：已购买 / 普通挑战完成），保留 Pelle 禁用检查\n" + new,
+            1,
+        )
+        out = src[:i] + body2 + src[j:]
+        assert "Oreki AU" in out, "补丁写入失败"
+        target.write_text(out, encoding="utf-8")
+        note(f"[Oreki AU] {label}自动购买器已解锁（{old.strip()} -> {new.strip()}）")
+
+
 def main():
     java = str(TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe")
     prepare()
@@ -1417,6 +1491,12 @@ def main():
     patch_ad_bonus()
     patch_automator_waiting()
     patch_autobuyer_cadence()
+    # patch_autobuyer_unlock()  【2026-10-28 R5.5 实测未生效 + 与「保留手动玩法」冲突，未启用】
+    # 实测：四条 isUnlocked 分支全部改写成功、构建通过，但新档干净窗口 60s 内
+    # 反物质恒为 10.0、第一维度恒为 0 —— 自动购买器根本没被驱动。
+    # 说明真正的门控在「每帧 tick 驱动」或「自动化页解锁」，不在 g()。
+    # 另外 R5.5 补充令要求保留手动购买维度/升级等有决策意义的操作，
+    # 无条件全开自动购买器与该要求相悖。函数体保留作证据与后续候选。
     patch_ec12_restriction()
     patch_instant_challenge()
     # patch_frame_cadence()  【2026-10-28 实测否证，未启用】
