@@ -104,6 +104,22 @@ def click_crunch():
     tap(540, 458)
 
 
+def app_uid():
+    """应用真实 uid（动态取，不写死）。
+
+    历史坑：脚本曾把属主写死成 `u0_a142`。本机 AVD 实测 uid = **10142**（恰好等于 u0_a142），
+    所以当时的测量没有被静默污染；但 uid 在重装/换机后会变，写死会在别处把属主改错，
+    表现为「应用读不到存档 → 回落到默认倍率」，跑出来的 F=1 其实是 10000×，数据全废。
+    """
+    return sh(f"stat -c %u {FILES}").strip() or "10142"
+
+
+def fix_owner(remote):
+    """把 push 上去的文件属主/权限交还应用（push 会变成 shell 所有）。"""
+    u = app_uid()
+    sh(f"chown {u}:{u} {remote}; chmod 660 {remote}")
+
+
 def shot(local):
     sh("screencap -p /sdcard/_s.png")
     pull("/sdcard/_s.png", local)
@@ -111,14 +127,32 @@ def shot(local):
 
 
 def set_pref(mult):
-    xml = ("<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n"
-           "<map>\n    <float name=\"speed_multiplier\" value=\"%s\" />\n</map>\n"
-           % (repr(float(mult)) if not isinstance(mult, str) else mult))
+    """只替换 speed_multiplier 单键，**保留其余键**（records_norm 等）。
+
+    历史坑：旧实现整文件覆盖，会抹掉 `records_norm`（最佳记录单位迁移标记），
+    导致下次启动把已归一化的记录再缩一遍。文件不存在/无该键时才写最小文件。
+    """
+    import re
+    val = repr(float(mult)) if not isinstance(mult, str) else mult
+    try:
+        cur = sh(f"cat {PREFS}")
+    except Exception:
+        cur = ""
+    if "speed_multiplier" in cur:
+        xml = re.sub(r'(<float name="speed_multiplier" value=")[^"]*(")',
+                     lambda m: m.group(1) + val + m.group(2), cur)
+    else:
+        block = f'    <float name="speed_multiplier" value="{val}" />\n'
+        if "</map>" in cur:
+            xml = cur.replace("</map>", block + "</map>")
+        else:
+            xml = ("<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n"
+                   "<map>\n" + block + "</map>\n")
     p = os.path.join(TMP, "_prefs.xml")
-    with open(p, "w", encoding="utf-8") as f:
+    with open(p, "w", encoding="utf-8", newline="\n") as f:
         f.write(xml)
     push(p, PREFS)
-    sh(f"chown u0_a142:u0_a142 {PREFS}; chmod 660 {PREFS}")
+    fix_owner(PREFS)
     return xml
 
 
@@ -178,7 +212,7 @@ def inject(patch, out, prefs=None, fresh_last_update=True):
     with open(local, "w", encoding="utf-8") as f:
         json.dump(d, f, separators=(",", ":"), ensure_ascii=False)
     push(local, f"{FILES}/player.json")
-    sh(f"chown u0_a142:u0_a142 {FILES}/player.json; chmod 660 {FILES}/player.json")
+    fix_owner(f"{FILES}/player.json")
     if mult is not None:
         set_pref(mult)
     launch()
@@ -271,7 +305,7 @@ def load_save_text(txt_path, out, prefs=None, patch=None, wait=6.0):
     with open(local, "w", encoding="utf-8") as f:
         json.dump(obj, f, separators=(",", ":"), ensure_ascii=False)
     push(local, f"{FILES}/player.json")
-    sh(f"chown u0_a142:u0_a142 {FILES}/player.json; chmod 660 {FILES}/player.json")
+    fix_owner(f"{FILES}/player.json")
     if prefs is not None:
         set_pref(prefs)
     launch()
