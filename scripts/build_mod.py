@@ -1656,6 +1656,38 @@ def patch_autobuyer_crunch_after_infinity():
     note("[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity）")
 
 
+def patch_autobuyer_crunch_force_active():
+    """[Oreki AU4c] 首次无限之后一次性启用大坍缩自动购买器（Android 侧长期缺失的一环）。
+
+    现场证据（R8-R10 真实存档 4/4 一致）：`auto.bigCrunch.isActive = false`，
+    而 `CrunchAutobuyerState.c()` 的第一项就是 `b()`（读 isActive）——
+    短路之后 AU4 放宽的 `g()` 根本不会被求值，lastTick 恒为 0、infinities 不增长。
+    即：自动坍缩在 Android 上是「开关没开」，不是「条件不满足」。
+
+    修法：在 `c()` 最前面插入一次性初始化 —— 仅当 isActive 为 false（尚未启用）、
+    lastTick 为 0（从未 tick 过，说明玩家也没手动关过）、且 OrekiAuto.hasInfinity()（已无限过）
+    时把 isActive 置 true。关闭前必然已 tick 过（lastTick > 0），因此玩家之后主动关闭
+    不会被重新打开；不碰 interval / 阈值 / mode / Doomed 分支。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    if "Oreki AU4c" in src:
+        note("[Oreki AU4c] 大坍缩自动器一次性启用已打过补丁，跳过")
+        return
+    i, j = _scan_method(src, "public final c()Z")
+    body = src[i:j]
+    assert ".locals 0" in body, "c() 的 .locals 与预期不符"
+    assert body.count("IntervaledAutobuyerState;->c()Z") == 1, "c() 的 invoke-super 锚点不唯一"
+    block = '    # [Oreki AU4c] 首次无限后一次性启用（只做一次，尊重玩家后续手动关闭）\n    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->b()Z\n    move-result v0\n    if-nez v0, :oreki_au4c_skip\n    iget-wide v0, p0, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->lastTick:D\n    const-wide/16 v2, 0x0\n    cmpl-double v0, v0, v2\n    if-nez v0, :oreki_au4c_skip\n    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n    move-result v0\n    if-eqz v0, :oreki_au4c_skip\n    const/4 v0, 0x1\n    invoke-virtual {p0, v0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V\n    :oreki_au4c_skip'
+    body = body.replace(".locals 0", ".locals 4", 1)
+    anchor = "    invoke-super {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->c()Z"
+    body = body.replace(anchor, block + anchor, 1)
+    assert "Oreki AU4c" in body, "补丁写入失败"
+    target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    note("[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用")
+
+
 def patch_autobuyer_batch_fallback():
     """[Oreki AB2] 批量买不起时退化为买 1 个（R5.6，双端一致）。
 
@@ -1713,6 +1745,7 @@ def main():
     patch_autobuyer_after_infinity()
     patch_autobuyer_boost_galaxy()
     patch_autobuyer_crunch_after_infinity()
+    patch_autobuyer_crunch_force_active()
     # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
     # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
     # 正式发布构建不得设置该变量（构建末尾会打印提示）。
