@@ -1621,6 +1621,41 @@ def patch_autobuyer_boost_galaxy():
         note(f"[Oreki AU3] {label}自动购买器：首次无限后解锁（追加 hasInfinity）")
 
 
+def patch_autobuyer_crunch_after_infinity():
+    """[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（R5.8，双端一致）。
+
+    原版条件（smali 实测）：`CrunchAutobuyerState.g()` = Pelle Doomed 时看 strike，
+    否则等于「普通挑战 12 完成」。而挑战 10–12 需要 **16 次无限**才解锁（wiki.gg 原文），
+    所以首次无限后每轮都得手点大坍缩。
+
+    修法：Doomed 分支原样返回；非 Doomed 分支在「NC12 完成」之外追加
+    `OrekiAuto.hasInfinity()`。不改触发策略、阈值、间隔与重置逻辑。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    if "Oreki AU4" in src:
+        note("[Oreki AU4] 大坍缩自动器已打过补丁，跳过")
+        return
+    i, j = _scan_method(src, "public final g()Z")
+    body = src[i:j]
+    anchor = "\n    return p0"
+    idx = body.rfind(anchor)
+    assert idx != -1, "CrunchAutobuyerState.g() 内找不到 return p0（结构可能已变）"
+    block = (
+        "\n    # [Oreki AU4] 非 Doomed 分支：完成过首次无限后也可运行\n"
+        "    if-nez p0, :oreki_au4_inf\n"
+        "    return p0\n"
+        ":oreki_au4_inf\n"
+        "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+        "    move-result p0"
+    )
+    body = body[:idx] + block + body[idx:]
+    assert "Oreki AU4" in body, "补丁写入失败"
+    target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    note("[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity）")
+
+
 def patch_autobuyer_batch_fallback():
     """[Oreki AB2] 批量买不起时退化为买 1 个（R5.6，双端一致）。
 
@@ -1677,6 +1712,7 @@ def main():
     patch_autobuyer_cadence()
     patch_autobuyer_after_infinity()
     patch_autobuyer_boost_galaxy()
+    patch_autobuyer_crunch_after_infinity()
     # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
     # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
     # 正式发布构建不得设置该变量（构建末尾会打印提示）。
