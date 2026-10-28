@@ -1575,6 +1575,52 @@ def patch_autobuyer_after_infinity():
         note(f"[Oreki AU2] {label}自动购买器：首次无限后解锁（追加 hasInfinity）")
 
 
+def patch_autobuyer_boost_galaxy():
+    """[Oreki AU3] 维度提升 / 反物质星系自动购买器：首次无限后解锁（R5.7，双端一致）。
+
+    原版条件（smali 实测）：
+      DimBoostAutobuyerState.g() = 普通挑战 10 完成 && !Pelle 禁用(dimBoostAutobuyer)
+      GalaxyAutobuyerState.g()   = 普通挑战 11 完成 && !Pelle 禁用(galaxyAutobuyer)
+    而普通挑战要先有无限才能进，于是从 AM 1e49 走到 1.79e308 之间，玩家必须
+    连点「维度提升」上百次 —— 这是当前通关路径上最大的纯重复劳动（R5.6 实测）。
+
+    修法：保留「挑战完成」这条原版路径，追加第三条 `OrekiAuto.hasInfinity()`。
+    只改「能否运行」，不改购买条件、成本、上限与重置副作用；
+    Pelle 禁用检查仍是最后一道，语义与 Web 端 `PlayerProgress.infinityUnlocked()` 对齐。
+    """
+    auto = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer"
+    plans = [
+        ("DimBoostAutobuyerState.smali", "维度提升"),
+        ("GalaxyAutobuyerState.smali", "反物质星系"),
+    ]
+    for fname, label in plans:
+        target = auto / fname
+        assert target.exists(), f"缺少 {target}"
+        src = target.read_text(encoding="utf-8")
+        if "Oreki AU3" in src:
+            note(f"[Oreki AU3] {label} 已打过补丁，跳过")
+            continue
+        i, j = _scan_method(src, "public final g()Z")
+        body = src[i:j]
+        anchor = "    if-eqz p0, :cond_0"
+        n = body.count(anchor)
+        assert n == 1, f"{fname} g() 内锚点出现 {n} 次，预期 1（结构可能已变）"
+        block = (
+            f"    # [Oreki AU3] 追加：完成过首次无限后即可运行（不写 isBought，不绕过成本）\n"
+            f"    if-eqz p0, :oreki_au3_inf\n"
+            f"    goto :oreki_au3_ok\n"
+            f"    :oreki_au3_inf\n"
+            f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+            f"    move-result p0\n"
+            f"    :oreki_au3_ok\n"
+            + anchor
+        )
+        body = body.replace(anchor, block, 1)
+        assert "Oreki AU3" in body, "补丁写入失败"
+        target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+        note(f"[Oreki AU3] {label}自动购买器：首次无限后解锁（追加 hasInfinity）")
+
+
 def patch_autobuyer_batch_fallback():
     """[Oreki AB2] 批量买不起时退化为买 1 个（R5.6，双端一致）。
 
@@ -1630,6 +1676,7 @@ def main():
     patch_automator_waiting()
     patch_autobuyer_cadence()
     patch_autobuyer_after_infinity()
+    patch_autobuyer_boost_galaxy()
     # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
     # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
     # 正式发布构建不得设置该变量（构建末尾会打印提示）。

@@ -93,6 +93,8 @@
 [Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间
 [Oreki AU2] 维度×8自动购买器：首次无限后解锁（追加 hasInfinity）
 [Oreki AU2] 速度升级自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 维度提升自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 反物质星系自动购买器：首次无限后解锁（追加 hasInfinity）
 [Oreki AB2] 维度批量购买：不可负担时退化为买 1 个
 [Oreki EC12] EC12 限时判定已改为按倍率还原（与 Web inGameSecondsOf 同源）
 [Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()
