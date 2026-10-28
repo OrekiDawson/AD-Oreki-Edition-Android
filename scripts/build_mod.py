@@ -397,6 +397,7 @@ def patch_smali():
 # 名字都可能变，所以构建时必须逐项断言存在，否则运行期才会 NoSuchMethodError。
 PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali",
+    "smali/kajfosz/antimatterdimensions/OrekiAuto.smali",
     "smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/SettingsClickListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali",
@@ -1476,6 +1477,143 @@ def patch_autobuyer_unlock():
         note(f"[Oreki AU] {label}自动购买器已解锁（{old.strip()} -> {new.strip()}）")
 
 
+def patch_debug_trace():
+    """[Oreki DBG] 自动购买器调度链埋点（仅诊断构建，OREKI_DEBUG_TRACE=1 时启用）。
+
+    R5.6 目的：区分「调度块根本没进」与「进了但 canTick/canBuy 为假」。
+    只插入 `invoke-static {}` 的零寄存器调用，不改变任何判据；发布构建不启用。
+    同时临时启用 patch_autobuyer_unlock()，让「解锁」不再是变量，
+    这样若仍然不动，问题必然在调度或 canTick，而不在 g()。
+    """
+    patch_autobuyer_unlock()
+    trace = "Lkajfosz/antimatterdimensions/OrekiTrace;"
+    a = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "a.smali"
+    src = a.read_text(encoding="utf-8")
+    i, j = _scan_method(src, "public final b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;")
+    body = src[i:j]
+    old = "    if-nez v0, :cond_23\n"
+    assert body.count(old) == 1, f"autoBuyerTick 维度块门控锚点出现 {body.count(old)} 次"
+    body = body.replace(
+        old,
+        old + f"    invoke-static {{}}, {trace}->gEnter()V\n",
+        1,
+    )
+    lab = "\n    :cond_23\n"
+    assert body.count(lab) == 1, f":cond_23 落点出现 {body.count(lab)} 次"
+    body = body.replace(
+        lab,
+        f"\n    :cond_23\n    invoke-static {{}}, {trace}->gSkip()V\n",
+        1,
+    )
+    a.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    note("[Oreki DBG] 已在 Game.autoBuyerTick 维度块进出点埋点")
+
+    t = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / \
+        "AntimatterDimensionAutobuyerState.smali"
+    tsrc = t.read_text(encoding="utf-8")
+    i, j = _scan_method(tsrc, "public final q(Lvh0;)Ljava/lang/Object;")
+    body = tsrc[i:j]
+    call = "    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->c()Z"
+    k = body.find(call)
+    assert k >= 0, "维度自动购买器 tick 内找不到 canTick 调用"
+    br = "    if-eqz v3, :cond_5"
+    m = body.find(br, k)
+    assert m >= 0, "找不到 canTick 的分支"
+    inject = (
+        "    if-eqz v3, :oreki_ct_f\n"
+        f"    invoke-static {{}}, {trace}->ctTrue()V\n"
+        "    goto :oreki_ct_end\n"
+        "    :oreki_ct_f\n"
+        f"    invoke-static {{}}, {trace}->ctFalse()V\n"
+        "    :oreki_ct_end\n"
+        + br
+    )
+    body2 = body[:m] + inject + body[m + len(br):]
+    t.write_text(tsrc[:i] + body2 + tsrc[j:], encoding="utf-8")
+    note("[Oreki DBG] 已在维度自动购买器 tick 埋入 canTick 分支埋点")
+
+
+def patch_autobuyer_after_infinity():
+    """[Oreki AU2] 维度/速度自动购买器：完成首次无限后解锁（R5.6，双端一致）。
+
+    原版条件：`isUnlocked` 字段 或 对应普通挑战完成。开局两者都不满足，
+    于是第一次无限之前没有任何自动化（符合「保留开局手动」）。
+    这里追加第三条：`OrekiAuto.hasInfinity()`（player.infinities > 0）。
+    只改「能否运行」的判定，**不写 isBought、不伪造购买记录、不绕过成本**，
+    Pelle 禁用检查仍在最后一道，语义与 Web 端 `PlayerProgress.infinityUnlocked()` 对齐。
+    """
+    auto = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer"
+    plans = [
+        ("AntimatterDimensionAutobuyerState.smali",
+         "public final g()Z", "    if-eqz v0, :cond_1", "v0", "维度×8"),
+        ("TickspeedAutobuyerState.smali",
+         "public final g()Z", "    if-eqz p0, :cond_1", "p0", "速度升级"),
+    ]
+    for fname, sig, anchor, reg, label in plans:
+        target = auto / fname
+        assert target.exists(), f"缺少 {target}"
+        src = target.read_text(encoding="utf-8")
+        if "Oreki AU2" in src:
+            note(f"[Oreki AU2] {label} 已打过补丁，跳过")
+            continue
+        i, j = _scan_method(src, sig)
+        body = src[i:j]
+        n = body.count(anchor)
+        assert n == 1, f"{fname} {sig} 内锚点出现 {n} 次，预期 1（结构可能已变）"
+        block = (
+            f"    # [Oreki AU2] 追加：完成过首次无限后即可运行（不写 isBought）\n"
+            f"    if-eqz {reg}, :oreki_au_inf\n"
+            f"    goto :cond_0\n"
+            f"    :oreki_au_inf\n"
+            f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+            f"    move-result {reg}\n"
+            + anchor
+        )
+        body = body.replace(anchor, block, 1)
+        assert "Oreki AU2" in body, "补丁写入失败"
+        target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+        note(f"[Oreki AU2] {label}自动购买器：首次无限后解锁（追加 hasInfinity）")
+
+
+def patch_autobuyer_batch_fallback():
+    """[Oreki AB2] 批量买不起时退化为买 1 个（R5.6，双端一致）。
+
+    实测（AVD，2026-10-28）：维度自动购买器默认 mode=10（整批 10 个），
+    `AntimatterDimensionState.i()` 要求 `剩余批次成本 >= 反物质` 就整段放弃。
+    每次重置后（反物质恰好 10、维度 0）整批要 100，永远买不起 ⇒ 自动购买器
+    永远停在原地，玩家必须手动点第一维度。这才是「自动器不工作」的真因，
+    不是解锁条件，也不是每帧调度（埋点实测 canTick 恒 true、lastTick 持续推进）。
+
+    修法：整批不可负担时改走 `j(cost)` 买 1 个；买得起整批时行为完全不变。
+    只放宽「不可负担」的分支，不改变任何成本、不产生免费购买。
+    """
+    p = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "dimension" / "antimatter" / \
+        "AntimatterDimensionState.smali"
+    assert p.exists(), f"缺少 {p}"
+    src = p.read_text(encoding="utf-8")
+    if "Oreki AB2" in src:
+        note("[Oreki AB2] 批量退化补丁已存在，跳过")
+        return
+    i, j = _scan_method(src, "public final i(Lkajfosz/antimatterdimensions/BigDouble;D)V")
+    body = src[i:j]
+    anchor = "    if-gtz v1, :cond_a"
+    n = body.count(anchor)
+    assert n == 1, f"i(BigDouble,D) 内锚点出现 {n} 次，预期 1（结构可能已变）"
+    block = (
+        "    # [Oreki AB2] 整批买不起（v1 > 0）时退化为买 1 个，避免重置后死锁\n"
+        "    if-lez v1, :oreki_ab_ok\n"
+        "    invoke-virtual {p0, p1}, Lkajfosz/antimatterdimensions/dimension/antimatter/"
+        "AntimatterDimensionState;->j(Lkajfosz/antimatterdimensions/BigDouble;)V\n"
+        "    return-void\n"
+        "    :oreki_ab_ok\n"
+        "    if-gtz v1, :cond_a"
+    )
+    body = body.replace(anchor, block, 1)
+    assert "Oreki AB2" in body, "补丁写入失败"
+    p.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    note("[Oreki AB2] 维度批量购买：不可负担时退化为买 1 个")
+
+
 def main():
     java = str(TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe")
     prepare()
@@ -1491,6 +1629,16 @@ def main():
     patch_ad_bonus()
     patch_automator_waiting()
     patch_autobuyer_cadence()
+    patch_autobuyer_after_infinity()
+    # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
+    # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
+    # 正式发布构建不得设置该变量（构建末尾会打印提示）。
+    if os.environ.get("OREKI_NO_AB2") == "1":
+        note("[AB2-CONTROL] 已按 OREKI_NO_AB2=1 跳过批量退化补丁（仅用于 A/B 对照）")
+    else:
+        patch_autobuyer_batch_fallback()
+    if os.environ.get("OREKI_DEBUG_TRACE") == "1":
+        patch_debug_trace()
     # patch_autobuyer_unlock()  【2026-10-28 R5.5 实测未生效 + 与「保留手动玩法」冲突，未启用】
     # 实测：四条 isUnlocked 分支全部改写成功、构建通过，但新档干净窗口 60s 内
     # 反物质恒为 10.0、第一维度恒为 0 —— 自动购买器根本没被驱动。
