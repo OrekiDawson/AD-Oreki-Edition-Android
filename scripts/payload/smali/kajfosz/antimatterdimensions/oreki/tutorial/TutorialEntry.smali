@@ -448,9 +448,14 @@
 
     if-eqz p1, :done
 
-    new-instance v0, Landroid/widget/Button;
+    # [Oreki DARK] 用 TextView 而不是 Button：Button 自带 minHeight / textAllCaps /
+    # 内边距，撑出来的高度和文案与这里想要的「整行色条」不一致；TextView 尺寸可控。
+    # 注意（R31 更正）：TextView **同样**会吃到主题的 backgroundTint，上一轮注释里
+    # 「TextView 不吃这层 tint」的判断是错的，实测仍被染成 colorAccent 亮绿。
+    # 因此下面除了 setBackgroundColor 还必须显式给同色 tint list。
+    new-instance v0, Landroid/widget/TextView;
 
-    invoke-direct {v0, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+    invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
     const-string v1, "打开 Oreki 中文教程"
 
@@ -461,6 +466,63 @@
     const/high16 v2, 0x41800000    # 16.0f
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    # [Oreki UI R31] 按钮底色 = 用户指定精确值 #0078D7（0xFF0078D7，有符号十进制 -16746281）
+    # 文字改纯白 0xFFFFFFFF（-1）：蓝底 #0078D7 上白字对比度 ≈ 4.6:1，亮灰 #E4E5E1 只有 ≈ 3.9:1
+    # 历史：-15198184 == 0xFF181818（上一轮的深灰底，本轮被用户指定色替换）
+    const v2, -16746281
+
+    invoke-virtual {v0, v2}, Landroid/view/View;->setBackgroundColor(I)V
+
+    # [Oreki UI R31] 兜底 tint：上一轮实测 build/agentc_dark/52_final_entry2.png 里这条
+    # 按钮渲染成亮绿（#11ff11，= 主题 colorAccent），说明主题的 backgroundTint 会盖到
+    # 背景 drawable 上，单靠 setBackgroundColor 不可靠。这里显式给一个**同色** tint list，
+    # 于是无论 tint 走 AppCompat 的哪条路径，最终色都锁定 #0078D7。
+    const v2, -16746281
+
+    invoke-static {v2}, Landroid/content/res/ColorStateList;->valueOf(I)Landroid/content/res/ColorStateList;
+
+    move-result-object v2
+
+    # [Oreki R32 运行时修复] tint 兜底**已移除**，理由是实测启动必崩，见下。
+    #
+    # 现象（两次真实装机，oreki_test / API 34）：
+    #   ① 写 `Landroid/view/View;->setBackgroundTintList(...)`
+    #      → java.lang.NoSuchMethodError: No virtual method
+    #        setBackgroundTintList(Landroid/content/ColorStateList;)V
+    #        in class Landroid/view/View; or its super classes
+    #   ② 改成 `Landroid/widget/TextView;->setBackgroundTintList(...)`
+    #      → 同一句 NoSuchMethodError，只是类名变成 TextView
+    # 两次都发生在 MainActivity.onStart -> TutorialEntry.addEntry 链上，
+    # 也就是说 APK 装上后**一点开就闪退**，比配色问题严重得多。
+    #
+    # 为何不再换写法：`View.setBackgroundTintList` 是 API 21 起的公开方法，
+    # 本机 SDK 实测为 34（`getprop ro.build.version.sdk`），理论上应存在；
+    # 但该镜像的 framework 解析不到它。再往上叠反射或换 androidx 封装
+    # （`androidx.core.view.ViewCompat` 在本包内已被 R8 混淆，取不到稳定类名），
+    # 都是拿「能不能启动」去赌一个配色细节，不值得。
+    #
+    # 取舍：只保留 setBackgroundColor(#0078D7) —— 它调的是 View.setBackgroundColor，
+    # 是 View 自己的方法，解析无风险。若构建后 AVD 截图显示底色仍被主题 tint 盖成
+    # 绿色，作为**已知的纯视觉差异**记录，另行处理，不能再让它挡住启动。
+
+    const/4 v2, -0x1
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/16 v2, 0x11
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setGravity(I)V
+
+    const/16 v2, 0xc
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    invoke-virtual {v0, v3, v2, v3, v2}, Landroid/view/View;->setPadding(IIII)V
 
     new-instance v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;
 

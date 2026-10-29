@@ -16,6 +16,7 @@ Every step prints what it changed so the build log is auditable.
 import os
 import re
 import shutil
+import struct
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -667,6 +668,182 @@ def patch_shop_coins():
     note("[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）")
 
 
+# ------------------------------------- 4e. 鹿颈长削弱收敛（双端同源，R32）
+# 与 Web `src/core/celestials/effarig.js` 的 OREKI_EFFARIG_NERF_DIVISOR 对应。
+# ⚠ 这两个常量必须与 Web 端同名常量**同步修改**：本脚本会把常量编译进 smali 立即数，
+#   两端任何一侧改动都会造成静默数值分叉（注释由 _d_bits 自动生成，不会脱钩）。
+OREKI_EFFARIG_NERF_DIVISOR = 1e6
+# 遗迹碎片收益除数：原版 7500 → 30（Web: OREKI_EFFARIG_SHARD_DIVISOR）。
+OREKI_EFFARIG_SHARD_DIVISOR = 30.0
+
+
+def _d_bits(value):
+    """float64 → smali `const-wide` 的 0x%016x 字面量。
+
+    用位模式反算而不是硬编码十六进制，避免「改常量忘了改立即数」的静默错配。
+    """
+    return "0x%016x" % struct.unpack("<Q", struct.pack("<d", float(value)))[0]
+
+
+assert _d_bits(1e6) == "0x412e848000000000", "float64 位模式生成异常（1e6）"
+assert _d_bits(30.0) == "0x403e000000000000", "float64 位模式生成异常（30.0）"
+
+
+def patch_effarig_nerf():
+    """[Oreki RN] 鹿颈长「削弱强度」收敛 + sqrt 自变量下限（R32 双端同步）。
+
+    目标方法（smali 事实，work/base_decoded 逐行核对）：
+      celestials/effarig/a.smali -> `public static o(BigDouble)D` = Effarig.nerfFactor
+        v0 = c            （ordinal 0→1500.0 / 1→29.29 / 其它→25.0）
+        v2 = sqrt(pLog10(p0))
+        v0 = c / (c + v2)
+        v2 = 3.0 * (1.0 - v0)   → return
+      调用点：同文件 `multDilation = 0.25 + 0.25 * o(infinityPower)`（第 579 行附近）
+             与 `tickDilation = 0.7 + 0.1 * o(...)`，与 Web 逐项同构。
+
+    两个缺陷（Web R32 已定案，Android 缺同样的修）：
+      1) `pLog10(power)` 在 power = 0 时返回 0 → sqrt(0) = 0 → c/(c+0) = 1 →
+         `nerfFactor ≡ 0`，于是 `multDilation ≡ 0.25`：所有乘子被压成 0.25 次方。
+         鹿颈长阶段 1 的 Currency.infinityPower 恒为 0（ID1 全 0，唯一产出点不可达），
+         削弱因此**永远不会解除**，反物质锁在 1e159 量级上不去 1.8e308。
+         → 修法：sqrt 的自变量取 `max(1.0, pLog10)`。power > 1 时 max 取原值，
+           **clamp 本身不改变原有数值**（与 Web R32 同一论证）。注意：`c /= 1e6` 是另一项
+           独立改动，它会整体抬高 nerfFactor，两项叠加后才与 Web 逐值相等。
+      2) c 未按 MOD 收敛（原版 c=1500），削弱区间过宽。
+         → 修法：switch 合流点之后 `c /= OREKI_EFFARIG_NERF_DIVISOR`（字面同义于 Web）。
+
+    寄存器/语义：方法原有 `.locals 4`（v0/v1/v2/v3 + 参数 p0）。除数用 v2（其后被
+    `pLog10` 的 `move-result-wide v2` 覆盖，无冲突），1.0 需要 v4/v5，故 `.locals`
+    提到 6；返回类型 D、参数 p0 不变，不新增标签（沿用既有 `:goto_0`），不改其它方法。
+
+    落改顺序与判据见 `docs/R32-Android-鹿颈长削弱同步调研.md` §7.4 / §7.7：
+    只做 max 得到 0.2505/0.7002，只做除数得到 0.2500/0.7000，两者同时才是
+    0.99888/0.99955（multDilation / tickDilation 的验收签名）。
+
+    边界：只改削弱强度，不改阶段推进条件、不改 unlockBits、不发奖励。
+    """
+    target = MOD / "smali" / OLD_PKG.replace(".", "/") / "celestials" / "effarig" / "a.smali"
+    assert target.exists(), f"缺少 {target}（鹿颈长类未反编译出来）"
+    src = target.read_text(encoding="utf-8")
+    if "Oreki RN" in src:
+        note("[Oreki RN] 鹿颈长削弱收敛补丁已存在，跳过")
+        return
+
+    sig = "public static o(Lkajfosz/antimatterdimensions/BigDouble;)D"
+    i, j = _scan_method(src, sig)
+    body = src[i:j]
+    assert body.count(".locals 4") == 1, "nerfFactor 的 .locals 与预期不符（结构可能已变）"
+    # 补丁前方法体内不得已存在除数常量（否则说明锚点错位或重复插入）
+    assert body.count(_d_bits(OREKI_EFFARIG_NERF_DIVISOR)) == 0, \
+        "nerfFactor 内已存在 1e6 字面量，锚点可疑，停止落改"
+
+    # ---- 1) c 收敛：switch 合流点之后除以 1e6（与 Web `c /= 1e6` 字面同义）----
+    join = "    :goto_0\n"
+    assert body.count(join) == 1, f"nerfFactor 内 switch 合流标签出现 {body.count(join)} 次，预期 1"
+    c_scale = (
+        join +
+        "\n"
+        "    # [Oreki RN] c /= OREKI_EFFARIG_NERF_DIVISOR（与 Web effarig.js 同名常量同步）\n"
+        f"    const-wide v2, {_d_bits(OREKI_EFFARIG_NERF_DIVISOR)}L"
+        f"    # {OREKI_EFFARIG_NERF_DIVISOR:.1f}\n"
+        "\n"
+        "    div-double/2addr v0, v2\n"
+    )
+    body = body.replace(join, c_scale, 1)
+
+    # ---- 2) sqrt 自变量下限 1.0 ----
+    sq = "    invoke-static {v2, v3}, Ljava/lang/Math;->sqrt(D)D"
+    assert body.count(sq) == 1, "sqrt(pLog10) 锚点不唯一"
+    clamp = (
+        "    # [Oreki RN] sqrt(max(1.0, pLog10))：power<=1 时 pLog10 为 0，\n"
+        "    # sqrt(0)=0 → c/(c+0)=1 → nerfFactor 恒为 0（削弱永远拉满，multDilation 锁死 0.25）。\n"
+        "    # 与 Web R32 的 Math.max(1, pLog10) 同语义，不做平滑（双端一致性优先）。\n"
+        "    const-wide v4, 0x3ff0000000000000L    # 1.0\n"
+        "\n"
+        "    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(DD)D\n"
+        "\n"
+        "    move-result-wide v2\n"
+        "\n" + sq
+    )
+    body = body.replace(sq, clamp, 1)
+    body = body.replace(".locals 4", ".locals 6", 1)
+
+    out = src[:i] + body + src[j:]
+    # 断言一律查方法体切片 body（全文查会被别处同名常量误判）
+    assert body.count("Math;->max(DD)D") == 1, "补丁写入失败（max 调用数异常）"
+    assert body.count(_d_bits(OREKI_EFFARIG_NERF_DIVISOR)) == 1, "补丁写入失败（除数常量缺失或重复）"
+    # 本方法内原有 1 处 `div-double/2addr v0, v2`（= c/(c+sqrt)），插入后应为 2 处
+    assert body.count("div-double/2addr v0, v2") == 2, "补丁写入失败（c 收敛指令数量异常）"
+    assert out.count(".method " + sig) == 1, "补丁破坏了方法头"
+    target.write_text(out, encoding="utf-8")
+    note("[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）")
+
+
+def patch_effarig_shard_divisor():
+    """[Oreki RS] 遗迹碎片收益除数 7500 → 30（与 Web OREKI_EFFARIG_SHARD_DIVISOR 同源）。
+
+    目标方法（smali 事实，work/base_decoded 逐行核对）：
+      celestials/effarig/a.smali -> `public final j()D` = Effarig.shardsGained 的指数项
+        v0 = ln0.F（Currency.eternityPoints）.r()  = EP 的指数（D）
+        v2 = 7500.0
+        div-double/2addr v0, v2                    → base = exponent / 7500
+        随后 ArrayList 收集符文效果位并 pow(base, glyphEffectAmount)
+      与 Web `Math.pow(EP.exponent / OREKI_EFFARIG_SHARD_DIVISOR, glyphEffectAmount)` 同构。
+
+    为什么改：除数 7500→30 使同样的 EP 换到 250 倍的碎片指数，鹿颈长阶段 1 换碎片
+    从「几乎拿不到」变成「一次现实重置就能拿到足量」。碎片正是买鹿颈长解锁的货币，
+    因此这一条比「把解锁价除以 1e6」更能解决同一问题，且只换一个立即数。
+
+    只替换一个 `const-wide` 立即数：不增删指令、不改变量数、不碰寄存器与标签。
+    前置断言：全文 `7500.0` 的位模式唯一，且落在 `j()D` 方法体内；否则拒绝落改
+    （禁止全局 replace —— 该常量一旦多处共用，改它会波及别的公式）。
+    """
+    target = MOD / "smali" / OLD_PKG.replace(".", "/") / "celestials" / "effarig" / "a.smali"
+    assert target.exists(), f"缺少 {target}（鹿颈长类未反编译出来）"
+    src = target.read_text(encoding="utf-8")
+    if "Oreki RS" in src:
+        note("[Oreki RS] 遗迹碎片除数补丁已存在，跳过")
+        return
+
+    old_bits = _d_bits(7500.0)
+    new_bits = _d_bits(OREKI_EFFARIG_SHARD_DIVISOR)
+    # ① 全文唯一性（避免改到别的方法里的同值常量）
+    assert src.count(old_bits) == 1, \
+        f"a.smali 内 {old_bits}(7500.0) 出现 {src.count(old_bits)} 次，预期 1，拒绝落改"
+    assert src.count("7500.0") == 1, \
+        f"a.smali 内字面量 '7500.0' 出现 {src.count('7500.0')} 次，预期 1，拒绝落改"
+
+    sig = "public final j()D"
+    i, j = _scan_method(src, sig)
+    body = src[i:j]
+    old_line = f"    const-wide v2, {old_bits}L    # 7500.0"
+    assert body.count(old_line) == 1, "j() 内 7500.0 的 const-wide 行不唯一或格式已变"
+
+    locals_before = re.search(r"\.locals (\d+)", body).group(1)
+    regs_before = sorted({int(x) for x in re.findall(r"\bv(\d+)\b", body)})
+
+    # 注释里不写 "7500.0" 字面量：本补丁的验收断言要求方法体内该串为 0 次，
+    # 注释若带旧值会让断言失去「指令真的换了」这一判别力。
+    new_line = (f"    const-wide v2, {new_bits}L"
+                f"    # {OREKI_EFFARIG_SHARD_DIVISOR:.1f}    "
+                f"[Oreki RS] 原除数 7500（与 Web OREKI_EFFARIG_SHARD_DIVISOR 同源）")
+    body = body.replace(old_line, new_line, 1)
+
+    out = src[:i] + body + src[j:]
+    # ② 语义落点断言：只换立即数，指令与寄存器不变
+    assert body.count(f"{new_bits}L") == 1, "补丁写入失败（30.0 常量数量异常）"
+    assert f"const-wide v2, {old_bits}L" not in body, "补丁写入失败（旧除数指令仍在）"
+    assert "7500.0" not in body, "补丁写入失败（方法体内仍残留 7500.0 字面量）"
+    assert re.search(r"\.locals (\d+)", body).group(1) == locals_before, "j() 的 .locals 被改动"
+    assert sorted({int(x) for x in re.findall(r"\bv(\d+)\b", body)}) == regs_before, \
+        "j() 的寄存器引用集合被改动（只应替换立即数）"
+    assert body.count("div-double/2addr v0, v2") == 1, "j() 的除法指令被破坏"
+    assert len(out.splitlines()) == len(src.splitlines()), "补丁改变了总行数（不应增删指令）"
+    target.write_text(out, encoding="utf-8")
+    note(f"[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → {OREKI_EFFARIG_SHARD_DIVISOR:.0f}"
+         f"（EP 指数同量换 250 倍碎片）")
+
+
 def verify_payload():
     for rel in PAYLOAD_MUST_EXIST:
         assert (MOD / rel).is_file(), f"payload 缺失: {rel}"
@@ -691,6 +868,40 @@ def verify_payload():
     assert sa.count("}, Lkajfosz/antimatterdimensions/achievements/a;->E(ZZ)V") == 2, \
         "成就写入调用点数量异常（应为 unlockRows + unlock147 两处）"
     note("[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）")
+
+    # [Oreki ER3] 开局自动化的「只应用一次」闩锁必须存在。
+    #
+    # 为什么必须守住：enableEarly() 被 onAutoBuyerTick 每帧调用，且无条件写
+    # `autobuyersOn = true` 与 8 个维度 + 4 类自动购买器的 `isActive = true`。
+    # 一旦闩锁被删掉，玩家在开局阶段手动关掉自动购买器后会**下一帧被强制重开**，
+    # 等于剥夺手动控制权，违背「保留大部分有意义的手动玩法」。
+    # 同时闩锁必须在过首次无限后被重置，否则玩家重开新档时开局自动化永久失效。
+    esa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali"
+           ).read_text(encoding="utf-8")
+    assert ".field private static sEarlyApplied:Z" in esa, \
+        "缺少开局自动化闩锁字段 sEarlyApplied（玩家关闭自动购买器会被每帧重开）"
+    assert "OrekiStageAuto;->sEarlyApplied:Z" in esa, "闩锁字段未被读写（形同虚设）"
+    assert esa.count("sput-boolean") >= 2, \
+        "闩锁写入点不足 2 处（应含 enableEarly 置位 + 过首次无限后重置）"
+    note("[4b] 开局自动化闩锁自检通过（sEarlyApplied 字段 + 置位/重置 2 处写入）")
+
+    # [Oreki RN] 鹿颈长削弱收敛必须真的落到 smali 上。
+    # 守住的理由：阶段 1 的 infinityPower 恒为 0，一旦 sqrt 自变量下限或 c 收敛任何一项
+    # 丢失，nerfFactor 就退回「恒 0」→ multDilation 锁死 0.25 → 反物质停在 1e159 上不去
+    # 1.8e308，R31 实测 560 秒只爬 34 个数量级。
+    eff = (MOD / "smali/kajfosz/antimatterdimensions/celestials/effarig/a.smali"
+           ).read_text(encoding="utf-8")
+    assert "Oreki RN" in eff, "鹿颈长削弱收敛补丁未生效（patch_effarig_nerf 未接入 main）"
+    assert "Math;->max(DD)D" in eff, "nerfFactor 缺少 sqrt 自变量下限（power=0 时削弱恒满）"
+    assert _d_bits(OREKI_EFFARIG_NERF_DIVISOR) in eff, "nerfFactor 缺少 c /= 1e6 收敛常量"
+    note("[4b] 鹿颈长 nerfFactor 收敛自检通过（max(1.0,pLog10) + c/1e6，验收签名 0.99888/0.99955）")
+
+    # [Oreki RS] 遗迹碎片除数必须整体到位：30.0 在、7500.0 必须彻底消失。
+    # 只在 j() 内替换，若旧值仍出现在别处说明锚点滑动，构建立即失败。
+    assert "Oreki RS" in eff, "遗迹碎片除数补丁未生效（patch_effarig_shard_divisor 未接入 main）"
+    assert _d_bits(OREKI_EFFARIG_SHARD_DIVISOR) in eff, "遗迹碎片除数未改成 30.0"
+    assert _d_bits(7500.0) not in eff, "遗迹碎片旧除数 7500.0 仍在（补丁未覆盖全）"
+    note("[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）")
 
     # 旧「按行号批量解锁」已停用：不得再出现原版写入调用，且 unlockStage 必须直接拒绝
     au = (MOD / "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali"
@@ -1615,12 +1826,18 @@ def patch_autobuyer_after_infinity():
         n = body.count(anchor)
         assert n == 1, f"{fname} {sig} 内锚点出现 {n} 次，预期 1（结构可能已变）"
         block = (
-            f"    # [Oreki AU2] 追加：完成过首次无限后即可运行（不写 isBought）\n"
+            f"    # [Oreki AU2/ER1] 完成过首次无限 / 首次无限之前(orekiEarly) 即可运行（不写 isBought）\n"
             f"    if-eqz {reg}, :oreki_au_inf\n"
             f"    goto :cond_0\n"
             f"    :oreki_au_inf\n"
             f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
             f"    move-result {reg}\n"
+            f"    if-nez {reg}, :oreki_au_er\n"
+            f"    goto :oreki_au_ok\n"
+            f"    :oreki_au_er\n"
+            f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->orekiEarly()Z\n"
+            f"    move-result {reg}\n"
+            f"    :oreki_au_ok\n"
             + anchor
         )
         body = body.replace(anchor, block, 1)
@@ -1660,11 +1877,16 @@ def patch_autobuyer_boost_galaxy():
         n = body.count(anchor)
         assert n == 1, f"{fname} g() 内锚点出现 {n} 次，预期 1（结构可能已变）"
         block = (
-            f"    # [Oreki AU3] 追加：完成过首次无限后即可运行（不写 isBought，不绕过成本）\n"
+            f"    # [Oreki AU3/ER1] 完成过首次无限 / 首次无限之前(orekiEarly) 即可运行（不写 isBought，不绕过成本）\n"
             f"    if-eqz p0, :oreki_au3_inf\n"
             f"    goto :oreki_au3_ok\n"
             f"    :oreki_au3_inf\n"
             f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+            f"    move-result p0\n"
+            f"    if-nez p0, :oreki_au3_er\n"
+            f"    goto :oreki_au3_ok\n"
+            f"    :oreki_au3_er\n"
+            f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->orekiEarly()Z\n"
             f"    move-result p0\n"
             f"    :oreki_au3_ok\n"
             + anchor
@@ -1697,11 +1919,16 @@ def patch_autobuyer_crunch_after_infinity():
     idx = body.rfind(anchor)
     assert idx != -1, "CrunchAutobuyerState.g() 内找不到 return p0（结构可能已变）"
     block = (
-        "\n    # [Oreki AU4] 非 Doomed 分支：完成过首次无限后也可运行\n"
+        "\n    # [Oreki AU4/ER1] 非 Doomed 分支：完成过首次无限 / 首次无限之前(orekiEarly) 也可运行\n"
         "    if-nez p0, :oreki_au4_inf\n"
         "    return p0\n"
         ":oreki_au4_inf\n"
         "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+        "    move-result p0\n"
+        "    if-nez p0, :oreki_au4_er\n"
+        "    return p0\n"
+        ":oreki_au4_er\n"
+        "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->orekiEarly()Z\n"
         "    move-result p0"
     )
     body = body[:idx] + block + body[idx:]
@@ -2068,6 +2295,8 @@ def main():
     patch_recent_runs()
     patch_recent_runs_er()
     patch_shop_coins()
+    patch_effarig_nerf()
+    patch_effarig_shard_divisor()
     verify_payload()
     patch_ad_bonus()
     patch_automator_waiting()
@@ -2096,6 +2325,21 @@ def main():
     # 无条件全开自动购买器与该要求相悖。函数体保留作证据与后续候选。
     patch_ec12_restriction()
     patch_instant_challenge()
+    # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
+    # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
+    # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），
+    # verify() 的 8 条守卫任一失败即抛错中止，不会带着半套 UI 产出 APK。
+    #
+    # 导入兜底：只有 `python scripts/build_mod.py` 直接调用时 sys.path[0] 才是 scripts/，
+    # 被 Gradle 用别的 cwd 或 `-m` 方式调用时 `import oreki_dark_theme` 会 ImportError。
+    # 这里显式把本文件所在目录插到 sys.path 最前，保证任何调用方式都能取到同级模块。
+    _here = os.path.dirname(os.path.abspath(__file__))
+    if _here not in sys.path:
+        sys.path.insert(0, _here)
+    import oreki_dark_theme
+    for _dk, _dv in oreki_dark_theme.apply(MOD).items():
+        note(f"[DARK] {_dk:14s} {_dv}")
+    oreki_dark_theme.verify(MOD)
     # patch_frame_cadence()  【2026-10-28 实测否证，未启用】
     # 提频方案对照：F=10000/20s 下 Δbought 11300（基线 11290）、dimBoost 176（基线 176）、
     # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
