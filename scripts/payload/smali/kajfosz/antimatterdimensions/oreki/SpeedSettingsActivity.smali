@@ -187,25 +187,12 @@
 
     invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
-    # 当前倍率
-    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
-    move-result-wide v6
-
+    # 当前倍率 + 当前模式（文案由 OrekiSpeedModeListener.describe() 统一生成，
+    # 点切换按钮后由监听器原地刷新同一个 TextView）
     new-instance v3, Landroid/widget/TextView;
     invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    new-instance v4, Ljava/lang/StringBuilder;
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v5, "当前游戏速度倍率：×"
-    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-static {v6, v7}, Lkajfosz/antimatterdimensions/OrekiSpeed;->format(D)Ljava/lang/String;
-    move-result-object v5
-
-    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener;->describe()Ljava/lang/String;
     move-result-object v4
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
@@ -214,6 +201,48 @@
     invoke-virtual {v3, v2, v2, v2, v2}, Landroid/view/View;->setPadding(IIII)V
 
     invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 动态 / 手动速度切换（v3 = 上面那个状态 TextView）----
+    new-instance v2, Landroid/widget/LinearLayout;
+    invoke-direct {v2, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x0
+    invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/16 v1, 0x28
+    invoke-virtual {v2, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {v0, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v4, Landroid/widget/Button;
+    invoke-direct {v4, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "动态（自动升档）"
+    invoke-virtual {v4, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    new-instance v5, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener;
+
+    const/4 v1, 0x1
+    invoke-direct {v5, v3, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener;-><init>(Landroid/widget/TextView;Z)V
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-virtual {v2, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v4, Landroid/widget/Button;
+    invoke-direct {v4, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "手动（固定）"
+    invoke-virtual {v4, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    new-instance v5, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener;
+
+    const/4 v1, 0x0
+    invoke-direct {v5, v3, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener;-><init>(Landroid/widget/TextView;Z)V
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-virtual {v2, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
     # 输入框
     new-instance v6, Landroid/widget/EditText;

@@ -404,6 +404,11 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/StageConfirmListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
+    "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
+    "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.smali",
+    "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.smali",
 ]
 
 # (文件, 必须包含的片段, 说明)
@@ -456,6 +461,40 @@ PAYLOAD_REFS = [
     ("smali/kajfosz/antimatterdimensions/challenge/eternity/b.smali",
      ".method public final F(Z)V",
      "EC addCompletion F(Z)"),
+    # --- [Oreki AU5~AU7] OrekiStageAuto 依赖的原版入口（R21，2026-10-29 实测签名）---
+    ("smali/kajfosz/antimatterdimensions/player/Player$Auto.smali",
+     ".field private ipMult:Z",
+     "player.auto.ipMult 开关字段"),
+    ("smali/kajfosz/antimatterdimensions/player/Player$Auto.smali",
+     ".method public final O(Z)V",
+     "player.auto.ipMult 原版 setter"),
+    ("smali/kajfosz/antimatterdimensions/player/Player$Auto.smali",
+     ".method public final e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;",
+     "Player$Auto.bigCrunch（活对象，非拷贝）"),
+    ("smali/ln0.smali",
+     ".field public static final w:Lbn0;",
+     "Currency.infinityPoints"),
+    ("smali/bn0.smali",
+     ".method public final w()Lkajfosz/antimatterdimensions/BigDouble;",
+     "货币现值为 BigDouble"),
+    ("smali/kajfosz/antimatterdimensions/dimension/infinity/a.smali",
+     ".method public static a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;",
+     "InfinityDimensions 取单个维度"),
+    ("smali/kajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState.smali",
+     ".method public final p()Z",
+     "ID 的反物质门槛（thisEternity.maxAM >= 要求）"),
+    ("smali/kajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState.smali",
+     ".method public final h(Z)V",
+     "ID 原版购买入口（与 InfinityDimensionsAutobuyer 同一入口）"),
+    ("smali/kajfosz/antimatterdimensions/autobuyer/UpgradeableAutobuyerState.smali",
+     ".method public A(Z)V",
+     "自动器 interval 升级（照价扣 IP）"),
+    ("smali/wx0.smali",
+     ".method public static q(Liu;D)Lkajfosz/antimatterdimensions/BigDouble;",
+     "BigDouble.of(double)"),
+    ("smali/kajfosz/antimatterdimensions/BigDouble.smali",
+     ".method public final compareTo(D)I",
+     "BigDouble 与字面量比较"),
 ]
 
 
@@ -921,6 +960,21 @@ def verify_payload():
     assert "ThisReality;->m()Ltw4;" in pf, "[4m] pastTenRealities 的 realTime 读取点丢失"
     assert "Lnw4;->b()Ltw4;" in pc, "[4m] pastTenEternities 的 realTime 读取点丢失"
     note("[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）")
+
+    # --- [T2] 动态速度开关必须真的接到设置界面（不是只有 OrekiSpeed 里有方法）---
+    # 反例：OrekiSpeed.setDynamic/isDynamic/modeLabel 全部存在，但设置页从来没调用，
+    # 玩家在游戏里根本关不掉自动升档 —— 构建照样成功，属于「源码已改、界面没接」。
+    ssa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali"
+           ).read_text(encoding="utf-8")
+    mls = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali"
+           ).read_text(encoding="utf-8")
+    assert "OrekiSpeedModeListener;->describe()Ljava/lang/String;" in ssa, \
+        "[T2] 设置页没有引用模式文案（动态速度没接进界面）"
+    assert ssa.count("OrekiSpeedModeListener;-><init>(Landroid/widget/TextView;Z)V") == 2, \
+        "[T2] 设置页应恰好有「动态 / 手动」两个切换按钮"
+    assert "OrekiSpeed;->setDynamic(Z)Z" in mls, "[T2] 切换按钮没有调用 setDynamic"
+    assert "OrekiSpeed;->modeLabel()Ljava/lang/String;" in mls, "[T2] 模式文案没走 modeLabel()"
+    note("[T2] 动态速度开关自检通过（设置页 2 个按钮 -> setDynamic / modeLabel）")
 
 
 # ------------------------------------------------- 5. Ad Bonus 永久生效
@@ -1668,25 +1722,301 @@ def patch_autobuyer_crunch_force_active():
     lastTick 为 0（从未 tick 过，说明玩家也没手动关过）、且 OrekiAuto.hasInfinity()（已无限过）
     时把 isActive 置 true。关闭前必然已 tick 过（lastTick > 0），因此玩家之后主动关闭
     不会被重新打开；不碰 interval / 阈值 / mode / Doomed 分支。
+
+    【R21 更正（2026-10-29）】两处问题，均已在 oreki_test（API 34）实测暴露并修正：
+
+    1) 分支条件写反：`b()`（isActive）为真才继续、`lastTick == 0` 时反而跳过 ——
+       只有「已经开着且已经 tick 过」才会走进去，`i(true)` 是空操作，
+       整个补丁在运行期等价于不存在。本版按注释语义改正。
+    2) **直接读 private 字段会运行期崩溃**：`lastTick` 声明为
+       `private lastTick:D`，子类用 `iget-wide` 读取会在 dex 校验时抛
+       `java.lang.IllegalAccessError: Field ...lastTick is inaccessible to class
+       CrunchAutobuyerState`（构建能过、启动即闪退，堆栈落在
+       CrunchAutobuyerState.c ← q ← a.b）。
+       改为调用公开访问器 `IntervaledAutobuyerState.l()D`。
+       这与 OrekiAuto 里「不要直接 sget BigDouble.Zero」是同一条教训：
+       **smali 补丁只能碰 public / protected 成员**。
     """
     target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
     assert target.exists(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AU4c" in src:
+        assert ":oreki_au4c_zero" in src, (
+            "检测到旧的 AU4c（分支条件写反、标签与 invoke-super 同行）版本，"
+            "请重新 decode 后再构建"
+        )
+        assert "->lastTick:" not in src, (
+            "AU4c 仍直接读 private 字段 lastTick —— 运行期会 IllegalAccessError，必须走 l()"
+        )
         note("[Oreki AU4c] 大坍缩自动器一次性启用已打过补丁，跳过")
         return
     i, j = _scan_method(src, "public final c()Z")
     body = src[i:j]
     assert ".locals 0" in body, "c() 的 .locals 与预期不符"
     assert body.count("IntervaledAutobuyerState;->c()Z") == 1, "c() 的 invoke-super 锚点不唯一"
-    block = '    # [Oreki AU4c] 首次无限后一次性启用（只做一次，尊重玩家后续手动关闭）\n    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->b()Z\n    move-result v0\n    if-nez v0, :oreki_au4c_skip\n    iget-wide v0, p0, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->lastTick:D\n    const-wide/16 v2, 0x0\n    cmpl-double v0, v0, v2\n    if-nez v0, :oreki_au4c_skip\n    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n    move-result v0\n    if-eqz v0, :oreki_au4c_skip\n    const/4 v0, 0x1\n    invoke-virtual {p0, v0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V\n    :oreki_au4c_skip'
+    block = (
+        "    # [Oreki AU4c] 首次无限后一次性启用（只做一次，尊重玩家后续手动关闭）\n"
+        "    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->b()Z\n"
+        "    move-result v0\n"
+        "    # 已经开着 → 什么都不做\n"
+        "    if-eqz v0, :oreki_au4c_skip\n"
+        "    # lastTick 是 private 字段，必须走公开访问器 l()，否则运行期 IllegalAccessError\n"
+        "    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->l()D\n"
+        "    move-result-wide v0\n"
+        "    const-wide/16 v2, 0x0\n"
+        "    cmpl-double v0, v0, v2\n"
+        "    # lastTick == 0（从未 tick 过）才继续，否则说明玩家自己关的 → 跳过\n"
+        "    if-eqz v0, :oreki_au4c_zero\n"
+        "    goto :oreki_au4c_skip\n"
+        "    :oreki_au4c_zero\n"
+        "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+        "    move-result v0\n"
+        "    # 还没完成过首次无限 → 保持原版（开局全手动）\n"
+        "    if-eqz v0, :oreki_au4c_skip\n"
+        "    const/4 v0, 0x1\n"
+        "    invoke-virtual {p0, v0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V\n"
+        "    :oreki_au4c_skip\n"
+    )
+    assert "->lastTick:" not in block, "AU4c 不得直接访问 private 字段 lastTick"
     body = body.replace(".locals 0", ".locals 4", 1)
     anchor = "    invoke-super {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->c()Z"
     body = body.replace(anchor, block + anchor, 1)
     assert "Oreki AU4c" in body, "补丁写入失败"
     target.write_text(src[:i] + body + src[j:], encoding="utf-8")
-    note("[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用")
+    note("[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）")
 
+
+def patch_ip_mult_autobuyer():
+    """[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（R21，2026-10-29 实测定点）。
+
+    这是「首次无限之后 IP 增长通道」的唯一入口，也是后续 Break / ID1 的前提。
+
+    REA + smali 实测链路（本轮逐行核对，非推断）：
+      a.smali:8614 `Game.autoBuyerTick` 内的 IPMultAutobuyer 块
+        Player.c().v()      → player.auto.ipMult 开关（Player$Auto.ipMult）
+        e02.n0()            → 与 IPMultAutobuyerState.g() 完全同体：
+                              z51.a.w() && !Pelle.isDoomed()
+        Player.K().c()      → Options.autobuyersOn（玩家总开关，本补丁不动）
+        然后 fp3.a(Z)       → 原版购买（自扣 IP、连成就一起走原版）
+
+    原版缺口：`z51.a.w()` = `Currency.infinityPoints >= 该自动器解锁价`，
+    新档 IP 恒为 1×totalIPMult，价格远高于此，于是整块永远进不去。
+    → 与 AU2/AU3/AU4 完全同一套「解锁门放宽」做法：保留原判据，追加
+      `OrekiAuto.hasInfinity()`。不写 isBought、不改价格、不改购买逻辑。
+    注意：只放宽 `e02.n0()`（全仓库仅 a.smali:8623 一处调用），
+    不动 `s51.w()`（其它自动器共用）以免外溢成全局解锁。
+    """
+    target = MOD / "smali" / "e02.smali"
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    if "Oreki AU5" in src:
+        note("[Oreki AU5] IP 倍率自动购买器解锁补丁已存在，跳过")
+        return
+    i, j = _scan_method(src, "public static n0()Z")
+    body = src[i:j]
+    assert ".locals 1" in body, "e02.n0() 的 .locals 与预期不符"
+    anchor = "    sget-object v0, Lz51;->a:Ls51;\n"
+    n = body.count(anchor)
+    assert n == 1, f"e02.n0() 内锚点出现 {n} 次，预期 1（结构可能已变）"
+    block = (
+        "    # [Oreki AU5] 完成过首次无限后同样解锁（保留原判据，不写 isBought/不改价格）\n"
+        "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
+        "    move-result v0\n"
+        "    if-eqz v0, :oreki_au5_orig\n"
+        "    const/4 v0, 0x1\n"
+        "    return v0\n"
+        "    :oreki_au5_orig\n"
+    )
+    body = body.replace(anchor, block + anchor, 1)
+    assert "Oreki AU5" in body, "补丁写入失败"
+    target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    note("[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）")
+
+
+def patch_stage_auto_hook():
+    """[Oreki AU6/AU7] 把 OrekiStageAuto 接进原版自动购买器调度 + AD3b 暂停坍缩。
+
+    两处注入，都是零寄存器静态调用，不改任何既有判据：
+
+    1) `a.smali` 的 `Game.autoBuyerTick`（方法 b(Continuation)）入口
+       注入 `OrekiStageAuto.onAutoBuyerTick()`。
+       选这里而不是 OrekiSpeed.apply()：OrekiSpeed 由 android-speed 独占，
+       且 autoBuyerTick 才是 Web 端 `Game.autoBuyerTick()` 的对应位置。
+
+    2) `CrunchAutobuyerState.c()`（canTick）最前面注入 `holdCrunch()`：
+       AD3b —— Break 之后、ID1 的反物质门槛（1e1100）未达成时不允许坍缩，
+       否则默认 AMOUNT/1 模式会「每次坍缩都够」，maxAM 永远停在低位。
+       一旦门槛达成，holdCrunch() 自动返回 false，坍缩与 IP 收入自行恢复。
+    """
+    trace_cls = "Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;"
+
+    # --- 1) Game.autoBuyerTick 入口 ---
+    a = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "a.smali"
+    assert a.exists(), f"缺少 {a}"
+    src = a.read_text(encoding="utf-8")
+    if "Oreki AU6" in src:
+        note("[Oreki AU6] Game.autoBuyerTick 钩子已存在，跳过")
+    else:
+        i, j = _scan_method(
+            src, "public final b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;")
+        body = src[i:j]
+        anchor = "    .locals 23\n"
+        n = body.count(anchor)
+        assert n == 1, f"Game.autoBuyerTick 的 .locals 23 出现 {n} 次，预期 1（结构可能已变）"
+        block = (
+            "\n"
+            "    # [Oreki AU6] 阶段自动化入口（零寄存器调用，不改变任何既有判据）\n"
+            f"    invoke-static {{}}, {trace_cls}->onAutoBuyerTick()V\n"
+        )
+        body = body.replace(anchor, anchor + block, 1)
+        assert "Oreki AU6" in body, "补丁写入失败"
+        a.write_text(src[:i] + body + src[j:], encoding="utf-8")
+        note("[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()")
+
+    # --- 2) CrunchAutobuyerState.c() 最前面注入 AD3b 暂停 ---
+    t = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
+    assert t.exists(), f"缺少 {t}"
+    tsrc = t.read_text(encoding="utf-8")
+    if "Oreki AU7" in tsrc:
+        note("[Oreki AU7] AD3b 暂停坍缩已存在，跳过")
+        return
+    i, j = _scan_method(tsrc, "public final c()Z")
+    body = tsrc[i:j]
+    au4c = "    # [Oreki AU4c] 首次无限后一次性启用"
+    assert body.count(au4c) == 1, "AU4c 锚点不唯一 —— AU7 必须在 AU4c 之后注入"
+    block = (
+        "    # [Oreki AU7] AD3b：Break 后先攒到 ID1 的反物质门槛再继续坍缩\n"
+        "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->holdCrunch()Z\n"
+        "    move-result v0\n"
+        "    if-eqz v0, :oreki_au7_go\n"
+        "    const/4 v0, 0x0\n"
+        "    return v0\n"
+        "    :oreki_au7_go\n"
+    )
+    body = body.replace(au4c, block + au4c, 1)
+    assert "Oreki AU7" in body, "补丁写入失败"
+    t.write_text(tsrc[:i] + body + tsrc[j:], encoding="utf-8")
+    note("[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入")
+
+    # --- 3) 静态守卫：本组补丁不得直接访问 private 字段（运行期 IllegalAccessError）
+    for f in (t, a):
+        s = f.read_text(encoding="utf-8")
+        for bad in ("->lastTick:", "->isActive:"):
+            assert bad not in s, f"{f.name} 出现对 private 字段的直接访问 {bad}（会运行期崩溃）"
+    note("[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）")
+
+
+def patch_tutorial_entry():
+    """[Oreki T1] 游戏内教程入口：Manifest 注册 + Application 挂载。
+
+    现状（R21 之前）：`scripts/payload/.../oreki/tutorial/` 三个类早就写好，
+    payload 拷贝走的是 `rglob("*.smali")` 递归，所以类本身其实**一直在包里**；
+    缺的只有两件事，缺任一件都表现为「点了没反应 / 教程页打不开」：
+      1) AndroidManifest 没有 `<activity ... TutorialActivity>` —— 启动时抛
+         ActivityNotFoundException（监听器会把异常 Toast 出来，但页面打不开）。
+      2) 没有任何地方调用 `TutorialEntry.install(Context)` —— 生命周期回调
+         没注册，选项页里根本不会有入口按钮。
+
+    入口形式：不改布局 XML、不新增资源 ID、不加第 13 个底栏项。
+    `TutorialEntry` 在 Activity resume 时用 Resources.getIdentifier("scrollView_xxx")
+    找到 选项 / 信息（关于）/ 玩法说明 三个页面的滚动容器，在容器顶部插一个
+    原生 Button（tag 幂等，不会重复插）。
+
+    【R25 补第三条】上面两件都做对了，按钮还是不会出现：`addEntryOnce` 的
+    tag 判重分支写成了 `if-eqz v0, :done`（tag 为 null 就跳过），语义与注释相反，
+    于是从未插入过。实测证据（emulator-5554，R25 构建 e269160a…）：选项页顶部
+    只有搜索框、没有「打开 Oreki 中文教程」。本版改为 tag 为 null 才进入插入块，
+    并加了构建期断言防止再次写反。
+    """
+    pkg_dir = MOD / "smali" / OLD_PKG.replace(".", "/")
+    tut_src = PAYLOAD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    for f in ("TutorialActivity.smali", "TutorialEntry.smali", "TutorialEntryListener.smali"):
+        assert (tut_src / f).is_file(), f"[T1] 教程 payload 缺失: {f}"
+        assert (pkg_dir / "oreki" / "tutorial" / f).is_file(), f"[T1] 教程类未拷进 mod 树: {f}"
+    note("[T1] 教程类已进入 mod 树（3 个）")
+
+    # --- 1) Manifest 注册教程 Activity ---
+    mp = MOD / "AndroidManifest.xml"
+    tree = ET.parse(mp)
+    root = tree.getroot()
+    app = root.find("application")
+    assert app is not None, "[T1] manifest 缺少 <application>"
+    tname = OLD_PKG + ".oreki.tutorial.TutorialActivity"
+    assert not [a for a in app.findall("activity") if a.get(A + "name") == tname], \
+        "[T1] TutorialActivity 已注册过，不要重复写入"
+    # 锚点唯一性：launcher activity 必须恰好一个
+    launchers = [a for a in app.findall("activity")
+                 for f in a.findall("intent-filter")
+                 for c in f.findall("category")
+                 if c.get(A + "name") == "android.intent.category.LAUNCHER"]
+    assert len(launchers) == 1, f"[T1] launcher activity 数量异常: {len(launchers)}"
+    act = ET.SubElement(app, "activity")
+    act.set(A + "name", tname)
+    act.set(A + "exported", "false")
+    act.set(A + "label", "Oreki 教程")
+    # 正文是硬编码深色字 + 浅底，必须配浅色主题，否则系统深色主题下会变成深字深底
+    act.set(A + "theme", "@android:style/Theme.DeviceDefault.Light")
+    act.set(A + "configChanges", "keyboardHidden|orientation|screenLayout|screenSize|uiMode")
+    tree.write(mp, encoding="utf-8", xml_declaration=True)
+    note(f"[T1] Manifest 注册 {tname}（exported=false, Theme.DeviceDefault.Light）")
+
+    # --- 2) Application.onCreate 挂载生命周期回调 ---
+    ap = pkg_dir / "App.smali"
+    asrc = ap.read_text(encoding="utf-8")
+    anchor = ("    invoke-static {p0}, Lkajfosz/antimatterdimensions/OrekiSpeed;"
+              "->init(Landroid/content/Context;)V\n")
+    n = asrc.count(anchor)
+    assert n == 1, f"[T1] App.onCreate 里 OrekiSpeed.init 锚点出现 {n} 次，预期 1"
+    assert "TutorialEntry;->install" not in asrc, "[T1] TutorialEntry.install 已存在，可能重复注入"
+    block = (anchor
+             + "\n"
+             + "    # [Oreki T1] 注册游戏内教程入口（Activity 生命周期回调，插按钮到选项页）\n"
+             + "    invoke-static {p0}, "
+               "Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;"
+               "->install(Landroid/content/Context;)V\n")
+    ap.write_text(asrc.replace(anchor, block, 1), encoding="utf-8")
+    note("[T1] App.onCreate 挂载 TutorialEntry.install(Context)")
+
+    # --- 3) 静态断言：三件事都得真的在产物里 ---
+    mtext = mp.read_text(encoding="utf-8")
+    assert mtext.count(tname) == 1, "[T1] 断言失败：manifest 里教程 Activity 不是恰好一处"
+    a2 = ap.read_text(encoding="utf-8")
+    assert a2.count("TutorialEntry;->install") == 1, \
+        "[T1] 断言失败：TutorialEntry.install 调用点不唯一"
+    ent = (pkg_dir / "oreki" / "tutorial" / "TutorialEntry.smali").read_text(encoding="utf-8")
+    assert "addEntryOnce" in ent, "[T1] 断言失败：入口不是幂等版本（缺 addEntryOnce）"
+    assert "sLastAct" not in ent, "[T1] 断言失败：入口仍是旧 WeakReference 判重版本"
+    # R25：判重不得依赖容器自身的 tag（实测容器常已带别人的 tag，导致永远跳过），
+    # 必须改成「在容器里找带我们标记的子 View」，且标记打在按钮身上。
+    assert "findViewWithTag" in ent, \
+        "[T1] 断言失败：addEntryOnce 没有用 findViewWithTag 判重（容器 tag 判重会漏插）"
+    assert ".method public run()V" in ent, "[T1] 断言失败：缺重试回调 run()"
+    # 入口必须在 addEntry / addEntryOnce 两处都做「空才返回」的判断。
+    # 反例（R25 实测）：`if-nez p1, :done` 是「非空就返回」，addView 永远不执行，
+    # 表现为按钮一次都不出现而 logcat 无异常、容器 childCount 恒为 2。
+    assert ent.count("if-eqz p1, :done") >= 2, \
+        "[T1] 断言失败：addEntry/addEntryOnce 的判空分支写反（if-nez p1 会直接返回）"
+    act_src = (pkg_dir / "oreki" / "tutorial" / "TutorialActivity.smali").read_text(encoding="utf-8")
+    assert "Landroid/app/Activity;" in act_src, "[T1] 断言失败：教程类不是 Activity 子类"
+    assert "Oreki 教程" in act_src, "[T1] 断言失败：教程标题缺失"
+    # R27：addFull 的判空也曾写反（`if-nez p1` 是非空就返回），
+    # 结果 ScrollView 里只有一个空 LinearLayout（高度 = 上下内边距 88px），整页白屏。
+    # 注意：注释里会引用这个反例原文，因此只统计「非注释行」。
+    def _code_lines(s):
+        return [ln for ln in s.splitlines() if not ln.lstrip().startswith("#")]
+
+    act_code = "\n".join(_code_lines(act_src))
+    assert "if-eqz p1, :done" in act_code and "if-nez p1, :done" not in act_code, \
+        "[T1] 断言失败：TutorialActivity.addFull 判空方向写反（教程正文会全空白）"
+    lst_src = (pkg_dir / "oreki" / "tutorial" / "TutorialEntryListener.smali").read_text(encoding="utf-8")
+    lst_code = "\n".join(_code_lines(lst_src))
+    # R27：start() 的判空写反时，点「打开 Oreki 中文教程」无任何反应（不崩溃、无日志）。
+    assert "if-eqz p0, :done" in lst_code and "if-nez p0, :done" not in lst_code, \
+        "[T1] 断言失败：TutorialEntryListener.start 判空方向写反（点击入口无反应）"
+    pub = (MOD / "res" / "values" / "public.xml").read_text(encoding="utf-8")
+    assert 'name="scrollView_options"' in pub, "[T1] 断言失败：scrollView_options 资源不存在"
+    note("[T1] 静态断言通过（manifest 唯一注册 / install 唯一调用 / 入口幂等 / Activity 存在）")
+    note("[T1b] 教程渲染断言通过（addFull 会真的 addView / start 会真的 startActivity）")
 
 def patch_autobuyer_batch_fallback():
     """[Oreki AB2] 批量买不起时退化为买 1 个（R5.6，双端一致）。
@@ -1746,6 +2076,9 @@ def main():
     patch_autobuyer_boost_galaxy()
     patch_autobuyer_crunch_after_infinity()
     patch_autobuyer_crunch_force_active()
+    patch_ip_mult_autobuyer()
+    patch_stage_auto_hook()
+    patch_tutorial_entry()
     # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
     # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
     # 正式发布构建不得设置该变量（构建末尾会打印提示）。

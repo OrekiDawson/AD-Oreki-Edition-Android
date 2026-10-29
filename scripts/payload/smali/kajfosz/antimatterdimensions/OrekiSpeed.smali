@@ -6,15 +6,41 @@
 # The multiplier is applied once per game tick on the game-time
 # delta, after the vanilla speedup factor (black hole / EC12 ...)
 # so that real-time statistics are not affected.
+#
+# [Oreki R21] 动态速度控制器（与 Web src/core/speed-config.js 语义等价）：
+#   · 倍率仍只在 apply(D) 这一处被消费（gameTick 的时间差），不放大购买器
+#     tick 密度、离线 tick 数、realTime 统计或最佳记录；
+#   · 动态模式只决定 sMult 的"值"，判定依据是存档实体的真实增长
+#     （无限次数 / IP / 无限力量 / 永恒 / 现实 / 本纪最高反物质 /
+#      维度提升 / 星系 / Break 状态），绝不使用游戏时间、帧心跳或诊断计数器；
+#   · 手动模式下 autotune() 首行即返回，绝不擅自升档；
+#   · 倍率与模式分别持久化在 oreki_prefs 的 speed_multiplier / speed_dynamic。
 # ---------------------------------------------------------------
 
 .field private static final DEF:D
+
+# [Oreki R21] 自动升档上限。注意：只约束自动升档，手动 set(D) 仍保留历史区间
+# 1e-6 ~ 1e9（设置页文案与既有用户存档都按该区间书写，改动会让存量值失效）。
+.field private static final MAXD:D
 
 .field private static sCtx:Landroid/content/Context;
 
 .field private static sLoaded:Z
 
 .field private static sMult:D
+
+# [Oreki R21] 动态控制器的运行期状态（不持久化，进程重启后重置）
+.field private static sDynamic:Z
+
+.field private static sStagnant:J
+
+.field private static sLastSample:J
+
+.field private static sLastAdjust:J
+
+.field private static sRamps:I
+
+.field private static sSignal:Ljava/lang/String;
 
 # [Oreki A1] 最佳无限时间的单位迁移标记。
 # false（默认）= 存档里的 thisEternity.bestInfinityTime 可能仍是 S2 之前
@@ -30,6 +56,15 @@
     sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->DEF:D
 
     sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
+
+    const-wide v0, 0x40f86a0000000000L    # 100000.0
+
+    sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->MAXD:D
+
+    # 动态模式默认开启（与 Web DYNAMIC_KEY 缺省 true 一致）
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
 
     return-void
 .end method
@@ -90,6 +125,29 @@
     sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRecordsNorm:Z
 
     :no_norm
+    # [Oreki R21] 动态速度开关：1 = 动态（自动升档），0 = 手动。缺省按 1（与 Web 一致）
+    const-string v2, "speed_dynamic"
+
+    const/4 v3, 0x1
+
+    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+    move-result v2
+
+    const/4 v3, 0x1
+
+    # if-nez：v2 == 0（手动）才跳到关闭分支
+    if-nez v2, :dyn_off
+
+    sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
+
+    goto :dyn_done
+
+    :dyn_off
+    const/4 v3, 0x0
+
+    sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
+
+    :dyn_done
     :try_end_0
     goto :done
 
@@ -137,6 +195,9 @@
     .locals 4
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->onTick()V
+
+    # [Oreki R21] 动态速度采样（内部 1s 节流；只读取存档实体，不改任何时间记账）
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->autotune()V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
     move-result-wide v0
@@ -679,4 +740,582 @@
     const-wide/16 v0, 0x19
 
     return-wide v0
+.end method
+
+
+# ===============================================================
+# [Oreki R21] 动态速度控制器
+#
+# 语义基线 = Web src/core/speed-config.js（GameSpeed.tickDynamic）：
+#   DYN_STALL_MS = 4000 / DYN_ADJUST_MS = 5000 / DYN_STEP = 2
+#   GAME_SPEED_MIN = 1 / GAME_SPEED_MAX = 100000
+#
+# 平台差异（有意）：
+#   · Web 用 setInterval(1000) 驱动；Android 没有可以安全挂载定时器的位置，
+#     因此由 apply(D)（gameTick 唯一注入点）驱动，内部按 elapsedRealtime 做
+#     1s 节流：开销是每秒一次 String 比较，与帧率无关。
+#   · Web 在 simulateTime 期间用 simulationToken 冻结倍率。Android 的离线
+#     模拟同样会经过 apply(D)，这里没有等价的冻结钩子；实际风险很低——
+#     离线推进会让进度指纹变化从而清零停滞累计；若存档已完全饱和，理论上
+#     可能在离线分片中途升一次档（已在报告里列为已知偏差）。
+#
+# 为什么必须用「实体增长」而不是时间/帧/计数器：
+#   游戏时间与 realTime 都被倍率放大，帧心跳恒为 40Hz，BigDouble 的
+#   normalizeChecks 等诊断计数只反映计算次数。只有存档里的实体数量
+#   （无限次数、IP、无限力量、永恒、现实、本纪最高反物质、维度提升、星系）
+#   才是"玩家真的推进了"的证据；它们全部饱和不变，才判定为停滞。
+# ===============================================================
+
+.method private static autotune()V
+    .locals 16
+
+    # 手动模式：绝不升档（这是「关掉动态后不再自动改倍率」的硬保证）
+    sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
+
+    if-eqz v0, :done
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    sget-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sLastSample:J
+
+    sub-long v4, v0, v2
+
+    # 1s 采样门限（对应 Web 的 1000ms 定时器）。sLastSample 只在这里、
+    # 门限通过之后才更新，否则每帧（约 25ms）都会把它刷新成 now，门限永不过。
+    const-wide/16 v6, 0x3e8
+
+    cmp-long v8, v4, v6
+
+    if-gez v8, :done
+
+    sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sLastSample:J
+
+    # dt 夹到 2000ms：应用切后台/系统休眠后再回来的一段空白不得被算成停滞
+    const-wide/16 v6, 0x7d0
+
+    cmp-long v8, v4, v6
+
+    if-lez v8, :clip
+
+    goto :sampled
+
+    :clip
+    move-wide v4, v6
+
+    :sampled
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->signal()Ljava/lang/String;
+
+    move-result-object v6
+
+    # 玩家对象尚未就绪（启动早期）：不采样、不改倍率
+    if-eqz v6, :done
+
+    sget-object v7, Lkajfosz/antimatterdimensions/OrekiSpeed;->sSignal:Ljava/lang/String;
+
+    # 首次采样只建立基线
+    if-eqz v7, :changed
+
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v8
+
+    if-eqz v8, :stable
+
+    :changed
+    sput-object v6, Lkajfosz/antimatterdimensions/OrekiSpeed;->sSignal:Ljava/lang/String;
+
+    const-wide/16 v8, 0x0
+
+    sput-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;->sStagnant:J
+
+    return-void
+
+    :stable
+    # 指纹未变：累计停滞时长
+    sget-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;->sStagnant:J
+
+    add-long/2addr v8, v4
+
+    sput-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;->sStagnant:J
+
+    const-wide/16 v10, 0xfa0    # DYN_STALL_MS = 4000
+
+    cmp-long v12, v8, v10
+
+    if-gez v12, :done
+
+    # 两次升档至少间隔 5000ms（DYN_ADJUST_MS）
+    sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;->sLastAdjust:J
+
+    sub-long v10, v0, v10
+
+    const-wide/16 v12, 0x1388    # 5000
+
+    cmp-long v14, v10, v12
+
+    if-gez v14, :done
+
+    sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
+
+    invoke-static {v10, v11}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v12
+
+    if-nez v12, :finite
+
+    sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;->DEF:D
+
+    :finite
+    const-wide/16 v12, 0x0
+
+    cmpg-double v14, v10, v12
+
+    if-gtz v14, :use_def
+
+    goto :cur_ok
+
+    :use_def
+    sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;->DEF:D
+
+    :cur_ok
+    # 已到上限：不再升档
+    const-wide v12, 0x40f86a0000000000L    # 100000.0
+
+    cmpg-double v14, v10, v12
+
+    if-gez v14, :ramp
+
+    return-void
+
+    :ramp
+    const-wide/high16 v8, 0x4000000000000000L    # 2.0
+
+    mul-double v2, v10, v8
+
+    sget-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;->MAXD:D
+
+    cmpg-double v12, v2, v8
+
+    if-lez v12, :next_ok
+
+    move-wide v2, v8
+
+    :next_ok
+    # next <= cur 时保持不动：绝不降档，也不会把手动设得更高的倍率拉低
+    cmpl-double v12, v2, v10
+
+    if-lez v12, :done
+
+    sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
+
+    invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->persistMult(D)V
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v2
+
+    sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sLastAdjust:J
+
+    const-wide/16 v2, 0x0
+
+    sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sStagnant:J
+
+    sget v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRamps:I
+
+    add-int/lit8 v2, v2, 0x1
+
+    sput v2, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRamps:I
+
+    :done
+    return-void
+.end method
+
+
+# 进度指纹：只读存档实体，构造 "a|b|c|..." 形式的字符串。
+# 任一实体变化 → 字符串变化 → 视为「有真实进度」。
+# 顺序：反物质 / 无限次数 / IP / 无限力量 / 永恒 / 现实 / 本纪最高反物质 /
+#       维度提升 / 星系 / Break 状态。
+.method private static signal()Ljava/lang/String;
+    .locals 6
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    if-eqz v0, :null
+
+    # 整个指纹构造都在 try 里：apply() 在 gameTick 主路径上，
+    # 这里抛出的任何异常都会连带打死整帧，必须就地吞掉（返回 null = 本次不采样）。
+    :try_start_0
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    # 当前反物质（Player.b() = antimatter）。Web 用 maxAM 代替它，是为了跳过
+    # 牺牲维度导致的瞬时下降；本移植版不确定 maxAM 是否逐 tick 刷新，
+    # 因此两者都纳入——多一个会变化的量只会更保守（宁可少升档，不可误升档）。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->b()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 无限次数（Player.C() = infinities）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->C()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 无限点数（Player.D() = infinityPoints）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->D()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 无限力量（Player.E() = infinityPower）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->E()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 永恒次数（Player.x() = eternities）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->x()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 现实次数（Player.P() = realities）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->P()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 本纪最高反物质（Player.R().j().h() = records.thisEternity.maxAM）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->R()Lkajfosz/antimatterdimensions/player/Player$Records;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Records;->j()Lkajfosz/antimatterdimensions/player/Player$ThisEternity;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;->h()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;->sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 维度提升次数（Player.u() = dimensionBoosts，整数语义）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->u()D
+
+    move-result-wide v2
+
+    double-to-long v2, v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # 星系数量（Player.A() = galaxies）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->A()J
+
+    move-result-wide v2
+
+    invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const/16 v4, 0x7c
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    # Break Infinity 状态（Player.m() = brake，对应 Web 的 player.break）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    return-object v5
+    :try_end_0
+
+    :catch_0
+    move-exception v3
+
+    :null
+    const/4 v0, 0x0
+
+    return-object v0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# 单个 BigDouble 的数量级指纹：round(log10(v) * 100)。
+# 与 Web 的 ex() 一致（exponent + log10(mantissa)），0.01 数量级分辨率：
+# 既不会把「同一数量级内的真实增长」误判成停滞，也不会对微小抖动过敏。
+# 只用 public 的 log10()，不碰 private 字段（private 字段跨类访问会
+# 抛 IllegalAccessError，构建期看不出来，运行期直接崩）。
+.method private static sigOf(Lkajfosz/antimatterdimensions/BigDouble;)J
+    .locals 4
+
+    if-eqz p0, :zero
+
+    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/BigDouble;->log10()D
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
+
+    move-result v2
+
+    if-eqz v2, :zero
+
+    const-wide/high16 v2, 0x4059000000000000L    # 100.0
+
+    mul-double/2addr v0, v2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v0
+
+    return-wide v0
+
+    :zero
+    const-wide/16 v0, 0x0
+
+    return-wide v0
+.end method
+
+
+# 倍率持久化：写 oreki_prefs/speed_multiplier（与 init/set 同一键，单位 float）。
+.method private static persistMult(D)V
+    .locals 4
+
+    sget-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sCtx:Landroid/content/Context;
+
+    if-eqz v0, :done
+
+    :try_start_0
+    const-string v1, "oreki_prefs"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "speed_multiplier"
+
+    double-to-float v2, p0
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putFloat(Ljava/lang/String;F)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v0
+
+    :done
+    return-void
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+.method public static isDynamic()Z
+    .locals 1
+
+    sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
+
+    return v0
+.end method
+
+
+# 切换动态/手动。关闭时立刻清空停滞累计与指纹，避免重新开启后
+# 用旧状态立刻升档；返回写入后的模式（true = 动态）。
+.method public static setDynamic(Z)Z
+    .locals 6
+
+    sput-boolean p0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
+
+    # p0 != 0（动态）时才保留运行状态；== 0 时清空
+    if-nez p0, :keep
+
+    const-wide/16 v0, 0x0
+
+    sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sStagnant:J
+
+    const/4 v0, 0x0
+
+    sput-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sSignal:Ljava/lang/String;
+
+    :keep
+    const/4 v0, 0x0
+
+    if-eqz p0, :write
+
+    const/4 v0, 0x1
+
+    :write
+    sget-object v1, Lkajfosz/antimatterdimensions/OrekiSpeed;->sCtx:Landroid/content/Context;
+
+    if-eqz v1, :done
+
+    :try_start_0
+    const-string v2, "oreki_prefs"
+
+    const/4 v3, 0x0
+
+    invoke-virtual {v1, v2, v3}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    const-string v2, "speed_dynamic"
+
+    invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v1
+
+    :done
+    const/4 v0, 0x1
+
+    return v0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# 诊断用：本次运行自动升档次数
+.method public static rampCount()I
+    .locals 1
+
+    sget v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sRamps:I
+
+    return v0
+.end method
+
+
+# 界面用：一句话模式文案（与 Web GameSpeed.modeLabel 同构）
+.method public static modeLabel()Ljava/lang/String;
+    .locals 6
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    sget-boolean v1, Lkajfosz/antimatterdimensions/OrekiSpeed;->sDynamic:Z
+
+    if-eqz v1, :manual
+
+    const-string v1, "自动（当前 "
+
+    goto :prefix
+
+    :manual
+    const-string v1, "手动（"
+
+    :prefix
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v2
+
+    invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->format(D)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, "×）"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
 .end method
