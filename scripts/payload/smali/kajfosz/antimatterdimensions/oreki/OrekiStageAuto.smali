@@ -1,6 +1,20 @@
 .class public final Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;
 .super Ljava/lang/Object;
 
+# [Oreki ER3] 「开局自动化已应用」闩锁。
+#
+# 为什么必须要有（R29 修复）：
+#   enableEarly() 原本被 onAutoBuyerTick() **每帧**调用，而它无条件写入
+#   `autobuyersOn = true` 与 8 个维度 + 4 类自动购买器的 `isActive = true`。
+#   于是首次无限之前，玩家**手动关掉自动购买器后会被下一帧立刻重开** ——
+#   等于剥夺了玩家在开局阶段的手动控制权，违背「保留大部分有意义的手动玩法」。
+#   加闩锁后：只在「进入开局阶段后的第一帧」写一次，之后完全尊重玩家选择。
+#
+# 重置策略：一旦 `player.infinities > 0`（首次无限已达成），
+#   onAutoBuyerTick 会把闩锁清回 false。这样玩家重置存档、再次回到
+#   infinities == 0 时，开局自动化还能重新应用一次，不会因为静态字段残留而失效。
+.field private static sEarlyApplied:Z
+
 # ---------------------------------------------------------------
 # AD: Oreki Edition —— 「首次无限之后」阶段自动化（Android 侧）
 #
@@ -43,8 +57,15 @@
     invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z
     move-result v0
 
-    # 首次无限之前：全部保持原版（开局仍全手动）
-    if-eqz v0, :oreki_sa_ret
+    # 首次无限之前：开启「开局自动化」（维度/速度/提升/星系/大坍缩 五类自动购买器）
+    # 不再保持原版的全手动 —— 这是缩短新档到首次无限现实时间的核心改动。
+    if-nez v0, :oreki_sa_early
+
+    # [Oreki ER3] 已过首次无限：清掉「开局自动化已应用」闩锁。
+    # 这样玩家重置存档、再次回到 infinities == 0 时，开局自动化仍能重新应用一次。
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sEarlyApplied:Z
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->isDoomed()Z
     move-result v0
@@ -64,6 +85,11 @@
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
     :try_end_0
+    goto :oreki_sa_ret
+
+    # 首次无限之前：开启开局自动化后直接返回（不进入后续阶段逻辑）
+    :oreki_sa_early
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->enableEarly()V
     goto :oreki_sa_ret
 
     :catch_0
@@ -298,4 +324,117 @@
     :oreki_sa_hc_no
     const/4 v0, 0x0
     return v0
+.end method
+
+
+# ---------------------------------------------------------------
+# [Oreki ER2] 开局自动化：首次无限之前，真正打开五类自动购买器。
+#
+# 仅写入原版已有的状态开关（不写解锁字段、不改成本、不发放免费资源）：
+#   · 主开关 Player$Options.autobuyersOn = true（等价于玩家手动打开「自动购买器」）
+#   · 维度 ×8 自动购买器 各自 isActive = true
+#   · 速度 / 维度提升 / 星系 / 大坍缩 自动购买器 各 isActive = true
+# 配合 g() 的 orekiEarly() 放行（见各 AutobuyerState.g() 的 AU2/AU3/AU4 扩展），
+# 使得 Game.autoBuyerTick 每帧都按游戏自身顺序执行真实购买：
+#   维度 1→8 升序 buyMax → 速度升级 → 维度提升 → 星系 → 可坍缩就坍缩。
+# 顺序由游戏主循环保证，本方法不 reorder。
+# 幂等：每帧执行，已开的不重复写。
+# ---------------------------------------------------------------
+.method public static enableEarly()V
+    .locals 8
+
+    # [Oreki ER3] 只应用一次：已应用过就直接返回。
+    #
+    # 这一步是「玩家手动关闭自动购买器不会被每帧重开」的关键。
+    # 不带这个判断时，本方法被 onAutoBuyerTick 每帧调用，
+    # 玩家在开局阶段关掉任意自动购买器，下一帧就被强制重新打开。
+    sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sEarlyApplied:Z
+
+    if-nez v0, :oreki_ee_go
+
+    return-void
+
+    :oreki_ee_go
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sEarlyApplied:Z
+
+    # ---- 主开关 autobuyersOn = true ----
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->K()Lkajfosz/antimatterdimensions/player/Player$Options;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player$Options;->g0(Z)V
+
+    # ---- player.auto ----
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v2
+
+    # ---- 维度 ×8：循环设 isActive = true ----
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Auto;->j()[Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;
+
+    move-result-object v3
+
+    array-length v4, v3
+
+    const/4 v5, 0x0
+
+    :oreki_ee_dim_loop
+    if-ge v5, v4, :oreki_ee_after_dims
+
+    aget-object v6, v3, v5
+
+    const/4 v7, 0x1
+
+    invoke-virtual {v6, v7}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :oreki_ee_dim_loop
+
+    :oreki_ee_after_dims
+    # ---- 速度升级 ----
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Auto;->B()Lkajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V
+
+    # ---- 维度提升（DimBoost）----
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Auto;->i()Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V
+
+    # ---- 星系（Galaxy）----
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Auto;->p()Lkajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V
+
+    # ---- 大坍缩（Crunch）----
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V
+
+    return-void
 .end method

@@ -43,6 +43,34 @@
 .end method
 
 
+# [Oreki ER1] 首次无限「之前的」阶段标识。
+#
+# 与 hasInfinity() 互补：hasInfinity() = player.infinities > 0（首次无限之后）；
+# orekiEarly()  = player.infinities == 0（首次无限之前，开局全手动阶段）。
+# 用途：让维度/速度/维度提升/星系/大坍缩 五个自动购买器的 g() 在首次无限之前也放行，
+# 由 OrekiStageAuto.enableEarly() 把对应自动购买器真正打开（isActive + autobuyersOn）。
+# 不改变购买条件、成本、上限与重置副作用；Pelle 禁用检查仍在 g() 末尾保留。
+.method public static orekiEarly()Z
+    .locals 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z
+
+    move-result v0
+
+    # hasInfinity 为真（首次无限之后）-> 不是 early 阶段
+    if-eqz v0, :oreki_er_yes
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :oreki_er_yes
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
+
 # [Oreki AU9] IP 倍率自动购买器的运行许可。
 #
 # 原版 `Game.autoBuyerTick`（a.smali）里这一段：

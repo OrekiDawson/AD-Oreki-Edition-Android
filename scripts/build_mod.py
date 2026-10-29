@@ -461,6 +461,7 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/StageConfirmListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
+    "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
@@ -1686,6 +1687,151 @@ def patch_instant_challenge():
     note("[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()")
 
 
+def patch_auto_enter_eternity_challenge():
+    """[Oreki CA] 自动进入永恒挑战：把 Web 的 buyEcStudiesAndStart() 那一半补齐（R34，Agent C）。
+
+    背景（本轮静态实证，不是猜测）：
+      Web 的「挑战进入即完成」链条是两段：
+        src/core/oreki-eternity-automation.js:316-360  buyEcStudiesAndStart()
+            :337 已有挑战在跑就不插手 → :341 读 unlocked → :350 满级先 respec
+            :358 `return challenge.start(true) === true;`   ← **自动进入**
+        src/game.js:842  tryInstantCompleteChallenges()      ← 下一帧真实结算
+      而 Android 只有后半段（OrekiInstantChallenge）。实证：
+        `Player$PlayerEternityChallenges;->h(I)V`（写 current）全仓只有 7 处调用：
+          challenge/eternity/b.smali:983（`D(Z,Continuation)`，唯一写非 0 = start）
+          challenge/eternity/b.smali:3714（`w(Z,Continuation)`，exit 写 0）
+          player/d,e,f,g（存档序列化/反序列化）  prestige/c.smali:2406（eternity 重置写 0）
+        → **没有任何 tick 会写它**。start 的上游调用者也全是 UI 回调
+          （EternityChallengeState$start$1 / $confirmStart$2$1 / vg2.smali:6193）
+          或 automator 脚本命令（Parser$StartEcCommand 等），没有无人值守入口。
+      对照：普通挑战（C）与无限挑战（IC）在 Web 里也**没有**自动进入
+        （grep `NormalChallenge(` / `InfinityChallenge(` 于 src/core/oreki-*.js → 0 命中），
+        所以本补丁**只补 EC**，不去动 C/IC，避免把双端「本来一致」的地方改歪。
+
+    实现（全部走原版路径，不写任何存档字段）：
+      新增类 OrekiChallengeAuto（scripts/payload/smali/...），本方法只做一件事 ——
+      把 `invoke-static {}, ...->tick()V` 插到 **OrekiInstantChallenge.tick() 的紧前面**。
+      顺序不能反：先「进入」、同一帧再「结算」，才与 Web 的
+      `buyEcStudiesAndStart()` → 下一帧 `tryInstantCompleteChallenges()` 语义等价
+      （这里同帧完成更激进但不会更差；反过来插则每关要多等一帧且与 Web 时序不同）。
+      所以本函数**必须先于/紧随** patch_instant_challenge() 执行，且断言 IC 的钩子已存在。
+
+    tick() 的判定顺序（smali 事实，符号逐个反查过）：
+      Player.a -> q() = Player$Challenge                       （challenge/eternity/b.smali:349-353）
+        -> c() = PlayerNormalChallenges  -> g()I = current      （写点是 n(I)V，见 patch_instant_challenge 文档）
+        -> b() = PlayerInfinityChallenges-> c()I = current
+        -> a() = PlayerEternityChallenges-> b()I = current / f()I = unlocked
+        任一 current != 0 → 直接返回（有人/automator 已经在挑战里，不插手）
+      unlocked == 0 → 返回（还没解锁任何一关）
+      r51.a(unlocked) = EC 实例（r51.smali:1746，工厂；automator 也用同一个）
+      A()Z = 当前正跑的就是这一关（b.smali:345，读 current == this.id）
+      **y()Z = isFullyCompleted = `I() == L()`（b.smali:3834-3856）**
+        —— 用它而不是硬编码 `completions >= 5`：Enslaved 阶段 EC1 的 maxCompletions
+           是 1000，硬编码 5 会让 EC1 在 Enslaved 里被误判满级而永远不重进。
+           `L()` 就是动态的 maxCompletions，`y()` 已经是原版自己的判据，直接复用。
+      E(true) = start(fromAutomation)（b.smali:1328；automator 同款调用见 Parser$StartEcCommand:267）
+
+    红线：不写 completions / current / completedBits / 任何奖励字段。
+      current 由 E(true) 内部经 D(Z,Continuation) 写；完成与发奖仍由既有
+      OrekiInstantChallenge 负责（它自己会 maxAM/maxIP 还原、幂等闸门）。
+      整个 tick() 包在 try/catch 里 —— 每帧调用，异常必须吞掉，绝不能把主循环打崩。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
+
+    # 新类必须已由步骤 [4] 从 scripts/payload 拷进来
+    newcls = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiChallengeAuto.smali"
+    assert newcls.exists(), (
+        "缺少 OrekiChallengeAuto.smali（payload 未拷入？检查步骤 [4] 是否整目录复制 scripts/payload）")
+
+    # --- 外部符号存在性（混淆换名时立即失败，而不是运行到 EC 里才 NoSuchMethodError）---
+    roots = [MOD / "smali", MOD / "smali_classes2", MOD / "smali_classes3"]
+
+    def _cls(desc):
+        rel = desc[1:-1] + ".smali"
+        for r in roots:
+            f = r / rel
+            if f.exists():
+                return f
+        return None
+
+    syms = [
+        ("Lkajfosz/antimatterdimensions/player/Player;", "q",
+         "()Lkajfosz/antimatterdimensions/player/Player$Challenge;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$Challenge;", "a",
+         "()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$Challenge;", "b",
+         "()Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$Challenge;", "c",
+         "()Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;", "b", "()I"),
+        ("Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;", "f", "()I"),
+        ("Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;", "c", "()I"),
+        ("Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges;", "g", "()I"),
+        ("Lr51;", "a", "(I)Lkajfosz/antimatterdimensions/challenge/eternity/b;"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "A", "()Z"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "y", "()Z"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "I", "()I"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "L", "()I"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "E", "(Z)Z"),
+    ]
+    for cls, name, rest in syms:
+        f = _cls(cls)
+        assert f is not None, f"混淆换名：找不到类 {cls}（自动进入补丁的锚点失效）"
+        body = f.read_text(encoding="utf-8", errors="replace")
+        pat = re.compile(r"^\.method .*\b" + re.escape(name) + re.escape(rest) + r"$", re.M)
+        assert pat.search(body), f"{cls} 缺少方法 {name}{rest}（混淆换名）"
+
+    # --- 新类自身结构断言 ---
+    nsrc = newcls.read_text(encoding="utf-8")
+    assert nsrc.count(".method public static tick()V") == 1, "tick() 数量异常"
+    for frag in ("Lr51;->a(I)Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+                 "Lkajfosz/antimatterdimensions/challenge/eternity/b;->y()Z",
+                 "Lkajfosz/antimatterdimensions/challenge/eternity/b;->E(Z)Z",
+                 ".catch Ljava/lang/Exception;"):
+        assert frag in nsrc, f"OrekiChallengeAuto 缺少关键调用：{frag}"
+    # 红线：新类不得出现任何存档字段写入
+    for banned in ("PlayerEternityChallenges;->h(I)V", "PlayerNormalChallenges;->n(I)V",
+                   "PlayerInfinityChallenges;->i(I)V", "->F(I)V", "completions"):
+        assert banned not in nsrc, f"OrekiChallengeAuto 触碰了存档字段（红线）：{banned}"
+
+    # --- 插钩子：必须紧贴在 OrekiInstantChallenge.tick() 之前 ---
+    blob = target.read_bytes()
+    ic_line = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/"
+               b"OrekiInstantChallenge;->tick()V")
+    ca_line = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/"
+               b"OrekiChallengeAuto;->tick()V")
+    ca_marker = b"OrekiChallengeAuto;->tick()V"
+
+    assert ic_line in blob, (
+        "Challenges.update 里没有 OrekiInstantChallenge.tick()："
+        "本补丁依赖它做顺序锚点，请确认 patch_instant_challenge() 已先执行")
+    if ca_marker in blob:
+        # 幂等 + 顺序再确认一次（防止别人调换过顺序）
+        assert blob.find(ca_line) < blob.find(ic_line), (
+            "OrekiChallengeAuto.tick() 排在 OrekiInstantChallenge.tick() 之后，"
+            "顺序被改动过：必须是「先进入、同帧结算」")
+        note("[Oreki CA] 自动进入永恒挑战钩子已存在，跳过")
+        return
+
+    assert blob.count(ic_line) == 1, "OrekiInstantChallenge.tick() 出现次数异常，无法安全定位"
+    pos = blob.find(ic_line)
+    assert pos > 0, "定位 OrekiInstantChallenge.tick() 行失败"
+    eol_prev = blob.rfind(b"\n", 0, pos)
+    assert eol_prev > 0, "定位行首失败"
+    nl = b"\r\n" if blob[eol_prev:eol_prev + 1] == b"\r" else b"\n"
+    note_line = ("# [Oreki CA] 自动进入永恒挑战：必须在 OrekiInstantChallenge.tick() 之前，"
+                 "先进入再同帧结算（详见 OrekiChallengeAuto.smali）")
+    inject = (nl + ("    " + note_line).encode("utf-8") + nl + ca_line + nl)
+    out = blob[:eol_prev] + inject + blob[eol_prev:]
+    target.write_bytes(out)
+
+    after = target.read_bytes()
+    assert after.count(ca_marker) == 1, "补丁写入失败：tick() 不是 1 处"
+    assert after.find(ca_line) < after.find(ic_line), "写入后顺序不对（CA 必须在 IC 之前）"
+    note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）")
+
+
 def patch_instant_challenge_rewards():
     """[Oreki RIS] 挑战进入即完成：补齐真实收益结算（R33，Agent C）。
 
@@ -2512,6 +2658,187 @@ def patch_autobuyer_batch_fallback():
     note("[Oreki AB2] 维度批量购买：不可负担时退化为买 1 个")
 
 
+def patch_v_unlock_thresholds():
+    """[Oreki V] V（成就天神）解锁三项阈值与 Web 对齐（R34，Agent C）。
+
+    背景
+      Web 侧 src/core/secret-formula/celestials/v.js 已把 V.mainUnlock 的
+      realities / dilatedTime / replicanti 三项从原版 10000 / 1e320 / 1e320000
+      改为 200 / 1e30 / 1e20000（理由见该文件 :17-41 的实测注释：原值在 180
+      分钟预算内物理上不可达）。Android 仍是原版，机制不等价。本轮只同步这三项。
+
+    定位链（全部来自 apktool 反编译的 smali，不是靠猜类名）
+      · 「V」这个类被 R8 改名成 Lkajfosz/antimatterdimensions/celestials/v/a; ——
+        V 的内部类 V$initializeRun$1 的 runtime annotation 里写着
+        `c = "kajfosz.antimatterdimensions.celestials.v.V"`、`f = "V.kt"`，
+        且 this$0 字段类型就是 Lkajfosz/antimatterdimensions/celestials/v/a;（smali 事实）。
+      · V.mainUnlock 的 6 条配置在 Lu55; 的 <clinit>：6 个 Ls55; 实例，字段
+        a:Lui1(名称) b:Lui1(资源读数) c:BigDouble(门槛) d:Lvi1(格式化) e:Lvi1(进度)，
+        由 `sput-object ... Lu55;->a..f` 逐个落盘，最后 `filled-new-array/range {v0..v5}`
+        收成 Lu55;->g:Ljava/util/List。
+        → 顺序与 v.js 的 mainUnlock 一致：a=realities b=eternities c=infinities
+          d=dilatedTime e=replicanti f=realityMachines。判别依据是 c 字段引用的常量：
+          Lu55;->a 引用 Llu;->n1（lu.smali :2849-2867 构造 mantissa=1, exp=4 → 1e4 = 10000）
+          Lu55;->d 引用 Llu;->Y2（lu.smali :4801-4807 构造 exp=0x140=320 → 1e320）
+          Lu55;->e 引用 Llu;->y4（lu.smali :6694-6703 构造 exp=0x4e200=320000 → 1e320000）
+      · 进度分母另有独立一处：Ls55;->a()I（s55.smali:69）取 b(资源) 过 e(进度函数)
+        → clamp(0,1)*10000 → 进度条/门槛判定值；真正「全 6 项达标才解锁」的判据在
+        t55.smali :452-506，逐条 `if-lt a()I, 0x2710 → 不满足`。
+        所以「显示门槛」和「进度分母」确实是两个独立位置，只改一个会导致
+        进度永远到不了 1（Web 侧踩过的坑），两个都必须改。
+      · 三个进度函数落在 Lc15;->invoke（c15.smali）。该类的 byte 索引 → 分支表
+        `:pswitch_data_0` 是倒序的（index i → :pswitch_{0x1C-i}）：
+          索引 5  → :pswitch_17  realities    `toDouble() / 10000.0`（:1161-1178）
+          索引 11 → :pswitch_11  dilatedTime  `pow(10, pLog10()/320.0)`（:903-928）
+          索引 1  → :pswitch_1b  replicanti   `pow(10, pLog10()/320000.0)`（:1306-1329）
+
+    为什么改 c15 而不是改 lu 的常量
+      共享常量 `Llu;->n1`(1e4) 被 11 处引用，改它会波及无关阶段（R32 的
+      Llu;->L1 教训：6 处引用，含 eternity/dilation 的 <clinit>）。本轮：
+        · 门槛常量一律**不碰** Llu 的既有字段，只在 u55.smali 里就地 new-instance
+          构造新的 BigDouble 顶掉原 sget-object —— u55 是 V 专属类，
+          全仓对 Lu55;-> 的引用只有 or1/t55/w20/x20/ug2 五处，全部是 V 的 UI 与门槛。
+        · 进度分母改 c15 的三个分支：全局扫描 29 个 c15 索引的实例化点，
+          索引 1..12 各只出现 1 次且全部落在 u55.smali（g65 用 16..22/25..27，
+          w55 用 13..15，androidx/room 用 0），因此这三个分支是 V 独占，不存在串味。
+
+    门槛值与 Web 完全一致（v.js OREKI_V_UNLOCK_*）：
+      realities 200 → BigDouble(200, 0, true)
+      dilatedTime 1e30 → BigDouble(1, 30, true)
+      replicanti 1e20000 → BigDouble(1, 20000, true)
+    """
+    # ---------------------------------------------------------------- 1) 门槛（显示）
+    u55 = MOD / "smali" / "u55.smali"
+    assert u55.exists(), f"缺少 {u55}（步骤 [0] 复制反编译目录没跑？）"
+    usrc = u55.read_text(encoding="utf-8")
+    umark = "# [Oreki V] unlock-thresholds v1"
+    if umark in usrc:
+        note("[Oreki V] V.mainUnlock 门槛常量已同步（幂等跳过）")
+    else:
+        # 三个 sget-object 必须各出现 1 次，且必须在 <clinit> 里（防止结构漂移后误替换）
+        i, j = _scan_method(usrc, "static constructor <clinit>()V")
+        body = usrc[i:j]
+        plans = [
+            # (原行, 新块, 说明)
+            (
+                "    sget-object v3, Llu;->n1:Lkajfosz/antimatterdimensions/BigDouble;",
+                # v9/v10/v11 此时均未使用（.locals 12，v0..v2 已用于 s55/hr4）
+                "    # [Oreki V] realities 门槛 1e4(10000) -> 200（不碰共享常量 Llu;->n1，它另有 10 处引用）\n"
+                "    new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;\n"
+                "    const/16 v9, 0xc8\n"
+                "    const/4 v10, 0x0\n"
+                "    const/4 v11, 0x1\n"
+                "    invoke-direct {v3, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "realities 200",
+            ),
+            (
+                "    sget-object v6, Llu;->Y2:Lkajfosz/antimatterdimensions/BigDouble;",
+                # 此处 v3=s55, v4=t55(5), v5=t55(6)，v6..v11 空闲
+                "    # [Oreki V] dilatedTime 门槛 1e320 -> 1e30（不碰共享常量 Llu;->Y2）\n"
+                "    new-instance v6, Lkajfosz/antimatterdimensions/BigDouble;\n"
+                "    const/4 v9, 0x1\n"
+                "    const/16 v10, 0x1e\n"
+                "    const/4 v11, 0x1\n"
+                "    invoke-direct {v6, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "dilatedTime 1e30",
+            ),
+            (
+                "    sget-object v7, Llu;->y4:Lkajfosz/antimatterdimensions/BigDouble;",
+                # 此处 v4=s55, v5=t55(7), v6=t55(8)，v7..v11 空闲
+                "    # [Oreki V] replicanti 门槛 1e320000 -> 1e20000（不碰共享常量 Llu;->y4）\n"
+                "    new-instance v7, Lkajfosz/antimatterdimensions/BigDouble;\n"
+                "    const/4 v9, 0x1\n"
+                "    const v10, 0x4e20\n"
+                "    const/4 v11, 0x1\n"
+                "    invoke-direct {v7, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "replicanti 1e20000",
+            ),
+        ]
+        for old, new, label in plans:
+            n = body.count(old)
+            assert n == 1, f"u55 <clinit> 内 {label} 的锚点出现 {n} 次，预期 1（结构可能已变）"
+            body = body.replace(old, new, 1)
+        # 改完必须一条 sget-object 都不剩（否则说明有漏改/多改）。
+        # 注意：注释里保留了「不碰共享常量 Llu;->xxx」的说明文字，所以只查指令行。
+        for frozen in ("Llu;->n1", "Llu;->Y2", "Llu;->y4"):
+            left = [ln for ln in body.splitlines()
+                    if "sget-object" in ln and frozen in ln]
+            assert not left, f"u55 <clinit> 里仍有 sget-object {frozen}（门槛未替换干净）：{left}"
+        out = usrc[:i] + body + usrc[j:]
+        out = out.replace(
+            ".method static constructor <clinit>()V",
+            ".method static constructor <clinit>()V\n    " + umark,
+            1,
+        )
+        assert out.count("    " + umark) == 1, "幂等标记写入异常"
+        u55.write_text(out, encoding="utf-8")
+        note("[Oreki V] V.mainUnlock 门槛：realities 10000->200 / dilatedTime 1e320->1e30 / "
+             "replicanti 1e320000->1e20000")
+
+    # ------------------------------------------------------- 2) 进度分母（3 个分支）
+    c15 = MOD / "smali" / "c15.smali"
+    assert c15.exists(), f"缺少 {c15}"
+    csrc = c15.read_text(encoding="utf-8")
+    cmark = "# [Oreki V] progress-divisor v1"
+    if cmark in csrc:
+        note("[Oreki V] V.mainUnlock 进度分母已同步（幂等跳过）")
+    else:
+        i, j = _scan_method(csrc, "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;")
+        body = csrc[i:j]
+        plans = [
+            # (旧字面量, 新字面量, 语义, 旧值文本, 新值文本)
+            ("0x40c3880000000000L", "0x4069000000000000L", "realities 进度分母 toDouble()/X", "10000.0", "200.0"),
+            ("0x4074000000000000L", "0x403e000000000000L", "dilatedTime 进度分母 pLog10()/X", "320.0", "30.0"),
+            ("0x4113880000000000L", "0x40d3880000000000L", "replicanti 进度分母 pLog10()/X", "320000.0", "20000.0"),
+        ]
+        for old, new, label, otext, ntext in plans:
+            n = body.count(old)
+            assert n == 1, f"c15 invoke() 内 {label} 的字面量 {old} 出现 {n} 次，预期 1"
+            body = body.replace(old, new, 1)
+            # 同一行的尾部注释（# 10000.0）也要跟着改，否则后人照着注释读会读错
+            assert body.count("    # " + otext) == 1, (
+                f"{label} 的尾注释 '# {otext}' 出现 {body.count('    # ' + otext)} 次，预期 1")
+            body = body.replace("    # " + otext, "    # " + ntext, 1)
+            assert old not in body, f"{label} 替换后仍残留 {old}"
+        out = csrc[:i] + body + csrc[j:]
+        out = out.replace(
+            ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+            ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;\n    " + cmark,
+            1,
+        )
+        assert out.count("    " + cmark) == 1, "幂等标记写入异常"
+        c15.write_text(out, encoding="utf-8")
+        note("[Oreki V] V.mainUnlock 进度分母：realities /10000->/200、dilatedTime /320->/30、"
+             "replicanti /320000->/20000")
+
+    # ----------------------------------------- 3) 交付契约：两处都到位才算成功（fail-fast）
+    ub = u55.read_text(encoding="utf-8")
+    cb = c15.read_text(encoding="utf-8")
+    checks = [
+        ("realities 门槛 200", "const/16 v9, 0xc8" in ub),
+        ("dilatedTime 门槛 1e30", "const/16 v10, 0x1e" in ub),
+        ("replicanti 门槛 1e20000", "const v10, 0x4e20" in ub),
+        ("门槛不再 sget-object 共享常量", not [
+            ln for ln in ub.splitlines()
+            if "sget-object" in ln and any(x in ln for x in ("Llu;->n1", "Llu;->Y2", "Llu;->y4"))]),
+        ("realities 分母 200.0", "0x4069000000000000L" in cb),
+        ("dilatedTime 分母 30.0", "0x403e000000000000L" in cb),
+        ("replicanti 分母 20000.0", "0x40d3880000000000L" in cb),
+        ("旧分母已彻底消失", all(
+            x not in cb for x in ("0x40c3880000000000L", "0x4074000000000000L", "0x4113880000000000L"))),
+    ]
+    for name, ok in checks:
+        assert ok, f"[Oreki V] 契约未达成：{name}"
+    # 结构锚点：u55 仍是「6 条 Ls55 + 一个 List」，c15 仍是单 invoke 派发
+    assert ub.count("new-instance v0, Ls55;") + ub.count("new-instance v1, Ls55;") \
+        + ub.count("new-instance v2, Ls55;") + ub.count("new-instance v3, Ls55;") \
+        + ub.count("new-instance v4, Ls55;") + ub.count("new-instance v5, Ls55;") == 6, \
+        "u55 <clinit> 的 6 条 V.mainUnlock 条目数量异常（结构漂移）"
+    assert "Lu55;->g:Ljava/util/List;" in ub, "u55 结构漂移：缺少 g(List) 字段"
+    assert cb.count(".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;") == 1, \
+        "c15 结构漂移：invoke 方法数量异常"
+
+
 def main():
     java = str(TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe")
     prepare()
@@ -2553,9 +2880,17 @@ def main():
     # 无条件全开自动购买器与该要求相悖。函数体保留作证据与后续候选。
     patch_ec12_restriction()
     patch_instant_challenge()
+    # [R34 Agent C] 自动进入永恒挑战（Web buyEcStudiesAndStart 的 Android 对位）。
+    # 必须在 patch_instant_challenge() 之后：本补丁以 IC 的 tick 行为顺序锚点，
+    # 并把 OrekiChallengeAuto.tick() 插到它**前面**（先进入、同帧结算）。
+    patch_auto_enter_eternity_challenge()
     # [R33 Agent C] 挑战进入即完成必须「真结算」：补发 IP / 无限次数 / EP，
     # 并按原版口径更新最速无限记录；缺这一步 Android 会比 Web 少一整份资源。
     patch_instant_challenge_rewards()
+    # [R34 Agent C] V 的 mainUnlock 三项阈值与 Web 同步：realities 200 /
+    # dilatedTime 1e30 / replicanti 1e20000。门槛常量（u55 就地 new BigDouble）
+    # 与进度分母（c15 三个分支）两处同时改，否则 progress 永远到不了 1。
+    patch_v_unlock_thresholds()
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），

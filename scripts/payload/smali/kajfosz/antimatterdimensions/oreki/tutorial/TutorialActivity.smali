@@ -6,7 +6,11 @@
 # 全部界面由代码构建（不依赖任何 layout XML / 新资源 ID），
 # 根节点是 ScrollView，小屏也可以上下滚动；正文字号 15sp，标题 18/22sp，
 # 左右留白 16dp，长文本自动换行，不会横向溢出。
-# 配色显式写死（浅底深字），因此不受系统深浅色主题影响。
+#
+# R31：整页强制深色（背景 #1B1A1E，正文 #D7D8D2，标题 #E4E5E1，章节标题 #64B5F6，
+# 按钮文字 #6AD477）。窗口主题在 onCreate 里用 android.R.style.Theme_DeviceDefault
+# （深色）覆盖，避免 manifest 里的 Theme.DeviceDefault.Light 带来浅色 ActionBar /
+# 浅色状态栏。改这里不需要动 build_mod.py 的 manifest 补丁。
 
 .method public constructor <init>()V
     .locals 0
@@ -20,6 +24,12 @@
 .method protected onCreate(Landroid/os/Bundle;)V
     .locals 9
 
+    # [Oreki DARK] 窗口主题先切成深色，再 super.onCreate，保证 ActionBar / 状态栏
+    # 不再沿用 manifest 里的 Theme.DeviceDefault.Light。
+    sget v0, Landroid/R$style;->Theme_DeviceDefault:I
+
+    invoke-virtual {p0, v0}, Landroid/app/Activity;->setTheme(I)V
+
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
     const-string v0, "Oreki 教程"
@@ -29,6 +39,11 @@
     new-instance v0, Landroid/widget/ScrollView;
 
     invoke-direct {v0, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
+
+    # [Oreki DARK] 根节点深色背景：const v2, -0xE4E5E2 == 0xFF1B1A1E
+    const v2, -0xe4e5e2
+
+    invoke-virtual {v0, v2}, Landroid/view/View;->setBackgroundColor(I)V
 
     const/4 v1, 0x1
 
@@ -147,7 +162,8 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    const v2, -0x1000000
+    # [Oreki DARK] 标题字色 0xFFE4E5E1
+    const v2, -1776159
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -172,7 +188,8 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    const v2, -0x99999a
+    # [Oreki DARK] 提示字色 0xFFB9BAB4
+    const v2, -4605260
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -218,7 +235,8 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    const v2, -0xea9a40
+    # [Oreki DARK] 章节标题 0xFF64B5F6
+    const v2, -10177034
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -245,7 +263,8 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    const v2, -0xcccccd
+    # [Oreki DARK] 正文字色 0xFFD7D8D2
+    const v2, -2631470
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -279,6 +298,15 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
+    # [Oreki DARK] 按钮深底亮字：背景 0xFF2A2A2E、文字 0xFF6AD477
+    const v2, -14013906
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
+
+    const v2, -9776009
+
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setTextColor(I)V
+
     new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;
 
     const/4 v3, 0x1
@@ -308,6 +336,15 @@
     const-string v2, "打开 Oreki 设置"
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    # [Oreki DARK] 按钮深底亮字：背景 0xFF2A2A2E、文字 0xFF6AD477
+    const v2, -14013906
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
+
+    const v2, -9776009
+
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
     new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;
 
