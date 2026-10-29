@@ -346,13 +346,69 @@ def patch_smali():
     a.write_text(asrc2, encoding="utf-8")
     note("[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)")
 
-    # 4.2 默认语言 en -> zh_CN (attachBaseContext 里的默认值)
+    # 4.2 默认语言 en -> zh_CN
+    #
+    # 【R33 修复】同一个 `language` 偏好键在 MainActivity 里被**两处**用不同默认值读取，
+    # R32 只改了第一处，于是出现「界面是中文、但设置页显示 English」的 bug（用户实测报告）：
+    #   ① attachBaseContext 里 `getString("language", "en")` —— 决定**实际生效的语言**，
+    #      R32 已改成 "zh_CN"，所以界面是中文；
+    #   ② 第 50833 行附近（`.line 171` 那一段）`getString("language", "en")` —— 决定
+    #      **设置页/选项状态读到的值**，R32 没改，于是界面中文 + 设置显示 English。
+    # 两处读的是同一个键、只是各自的「缺省字面量」不同，全新安装没有该键时就会分叉。
+    # 修法：把第二处的缺省字面量也对齐成 zh_CN。
     m = MOD / "smali" / OLD_PKG.replace(".", "/") / "MainActivity.smali"
     msrc = m.read_text(encoding="utf-8")
-    old = '    const-string v4, "en"\n'
-    assert msrc.count(old) == 1, "语言默认值不唯一"
-    m.write_text(msrc.replace(old, '    const-string v4, "zh_CN"\n'), encoding="utf-8")
-    note("[4] MainActivity.smali: 默认语言 en -> zh_CN")
+
+    # ① 生效语言：attachBaseContext 内 `const-string v4, "en"`（R32 起就是 zh_CN）
+    old_lang_apply = '    const-string v4, "en"\n'
+    if msrc.count(old_lang_apply) == 1:
+        msrc = msrc.replace(old_lang_apply, '    const-string v4, "zh_CN"\n')
+        note('[4] MainActivity.smali: 生效语言默认值 en -> zh_CN')
+    else:
+        # 已经是 zh_CN（幂等重跑）或锚点变化：后者必须 fail-fast，不能静默跳过
+        assert '    const-string v4, "zh_CN"\n' in msrc, "生效语言默认值锚点丢失，拒绝继续"
+        note('[4] MainActivity.smali: 生效语言默认值已是 zh_CN，跳过')
+
+    # ② 设置页读到的语言：`const-string v6, "en"`，必须紧跟在 "language" 键之后。
+    # 只按字面量替换是不够的 —— 必须断言它确实是 language 的缺省值，
+    # 否则将来别处出现同形 `const-string v6, "en"` 会被误改。
+    old_lang_pref = '    const-string v6, "en"\n'
+    if msrc.count(old_lang_pref) == 1:
+        idx = msrc.index(old_lang_pref)
+        ctx = msrc[max(0, idx - 400):idx]
+        assert '"language"' in ctx, 'v6 "en" 前面 400 字符内没有 "language" 键，锚点语义不符，拒绝落改'
+        msrc = msrc.replace(old_lang_pref, '    const-string v6, "zh_CN"\n')
+        note('[4] MainActivity.smali: 设置页语言默认值 en -> zh_CN（修 界面中文/设置English 分叉）')
+    else:
+        assert msrc.count('    const-string v6, "zh_CN"\n') >= 1, \
+            "设置页语言默认值锚点丢失，拒绝继续"
+        note('[4] MainActivity.smali: 设置页语言默认值已是 zh_CN，跳过')
+
+    m.write_text(msrc, encoding="utf-8")
+
+    # ③ `Ljw0;->T` 的静态初值也是 "en"（jw0.<clinit>）。
+    # 前两处只覆盖「onCreate 之后」的路径：两者都是 `getString("language", 默认)`
+    # 再 `sput Ljw0;->T`。而 jw0.<clinit> 在类首次被引用时就把 T 初始化成 "en"，
+    # 任何**早于 onCreate** 读 `jw0->T` 的路径（偏好页默认值、异常早退、
+    # 以后新加的启动期读取）都会拿到英文。
+    # 这里把静态初值同样对齐成 zh_CN，使三条路径一致。
+    # 边界：`T` 是「当前语言」的内存副本，真正落盘只在玩家主动改语言时由
+    # `U2` → `MyPrefsFile.putString` 触发，所以改这个初值**不会**覆盖玩家
+    # 自己选过的语言（prefs 有值时 `getString` 返回存档值，与默认值无关）。
+    j = MOD / "smali" / "jw0.smali"
+    jsrc = j.read_text(encoding="utf-8")
+    old_j = '    const-string v0, "en"\n'
+    if jsrc.count(old_j) == 1:
+        idx = jsrc.index(old_j)
+        after = jsrc[idx:idx + 400]
+        assert 'sput-object v0, Ljw0;->T:Ljava/lang/String;' in after, \
+            'jw0 的 "en" 后面 400 字符内没有 T 写入点，锚点语义不符，拒绝落改'
+        jsrc = jsrc.replace(old_j, '    const-string v0, "zh_CN"\n')
+        note('[4] jw0.smali: 当前语言静态初值 en -> zh_CN')
+    else:
+        assert '    const-string v0, "zh_CN"\n' in jsrc, "jw0 语言初值锚点丢失，拒绝继续"
+        note('[4] jw0.smali: 当前语言静态初值已是 zh_CN，跳过')
+    j.write_text(jsrc, encoding="utf-8")
 
     # 4.3 Application.onCreate: 保留自身回调 + Firebase 初始化，去掉 Play Integrity/AdMob
     ap = MOD / "smali" / OLD_PKG.replace(".", "/") / "App.smali"
@@ -1630,6 +1686,172 @@ def patch_instant_challenge():
     note("[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()")
 
 
+def patch_instant_challenge_rewards():
+    """[Oreki RIS] 挑战进入即完成：补齐真实收益结算（R33，Agent C）。
+
+    背景（R32 遗留缺口，本轮修复）：
+      R32 的 OrekiInstantChallenge 只走原版「完成入口」，不会发货币——
+        C/IC：challenge/antimatter/b->E(Z)V 只做 完成位(H.g) + 最佳时间(N) + 通知(M)，
+              **不调** Currency.infinityPoints / Currency.infinities；
+        EC  ：challenge/eternity/b->F(Z)V = addCompletion，只写 completions。
+      于是 Android 每完成一个挑战都比 Web 少一份 IP / 无限次数 / EP，
+      与 src/core/oreki-instant-challenges.js（提交 a96b4bc，两次真实新档验证）不等价。
+
+    本轮的落点（smali 事实，配对方式见下）：
+      Currency 的真实载体是 Lln0（抽象基类 Lju，add 方法 = ju.o(BigDouble)Lln0）：
+        Lln0->d  antimatter        （rm0，clinit 里带 cost_X/antimatter_short 资源）
+        Lln0->w  infinityPoints    （bn0，clinit 里带 cost_X_infinity_points）
+        Lln0->e  infinities        （sm0，与 Parser$currencyInfinities$1 同字段）
+        Lln0->F  eternityPoints    （ym0，clinit 里带 cost_X_eternity_points）
+        Lln0->z  eternities        （xm0，与 Parser$currencyEternities$1 同字段）
+      收益函数（static，Game/Eternity 侧的伴生对象，R8 只改了外层类名）：
+        prestige/e->d()BigDouble   gainedInfinityPoints（285.0 / 307.8 / 308.0 三档除数 + maxAM.log10）
+        prestige/e->c()BigDouble   gainedInfinities（giveInfinityRewards 里 round 后进 ln0.e）
+        prestige/e->l()V           bigCrunchUpdateStatistics 的 bestIPminVal 部分
+        prestige/c->g()BigDouble   gainedEternityPoints（maxIP + gainedIP → log10 → EP 除数）
+      记录（峰值）：
+        Player$Records->k() = thisInfinity，->j() = thisEternity
+        Player$ThisInfinity->d()/j()  = maxAM get/set
+        Player$ThisEternity->i()/t()  = maxIP get/set
+      门槛：
+        challenge/antimatter/b->J() = challenge.goal（= prestige/e.b() 的 canCrunch 判据）
+        challenge/eternity/b->M(I)  = goalAtCompletions(n)，n<=0 时返回第 1 次完成的目标
+
+    为什么内容写在本函数校验、而正文放在 scripts/payload 的同名 smali：
+      这个类是我们自己新写的（不是从原版反编译出来的补丁点），
+      正文有 300 行。若在 build_mod.py 里再复制一份「旧文本 → 新文本」，
+      两份必然漂移；payload 才是唯一来源（构建步骤 [4] 会整目录拷进 MOD）。
+      因此本函数做的是**交付契约**：旧的不发奖版本必须已被替换、关键调用一个不能少、
+      每个外部符号必须在实际参与打包的 MOD 里存在且描述符一致（混淆换名时立即失败，
+      而不是运行到挑战里才 NoSuchMethodError）。
+      二次执行只重新校验、不重复写入（幂等靠 #[Oreki RIS] 标记 + 内容断言）。
+
+    幂等（运行期，不会每帧重复发奖）：
+      C  ：current(id) > 0 且 b.K()（已完成）为假才结算 → n(0) 归零 → 下一帧 if-lez 直接跳过；
+      IC ：同上（py1.c() 取不到实例也跳过）→ i(0) 归零；
+      EC ：current > 0 进入，先记 I()（completions），补满后再读，**只有变大才发 EP**；
+           h(0) 归零 current + BitSet.c(id) 清 requirementBits → 下一帧入口即失败。
+      结算后 maxAM / maxIP 都还原成结算前的值（C/IC 在 E() 之后还原，因为 E 要用 maxAM
+      与 goal 比较才会写挑战最佳时间），所以 canCrunch / canEternity 不会恒真。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiInstantChallenge.smali"
+    assert target.exists(), f"缺少 {target}（payload 未拷入？检查步骤 [4]）"
+    src = target.read_text(encoding="utf-8")
+
+    # --- 1) 旧版本（只翻完成位、明确不发货币）必须已被替换 ---
+    assert "不额外发放 IP / EP / 无限次数 / 永恒次数" not in src, (
+        "OrekiInstantChallenge.smali 仍是 R32 的「不发货币」版本："
+        "请更新 scripts/payload/smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali")
+
+    # --- 2) 结构断言：入口唯一、三个结算方法各一份 ---
+    assert src.count(".method public static tick()V") == 1, "OrekiInstantChallenge.tick() 数量异常"
+    for sig in (
+        "private static rewardAntimatter(Lkajfosz/antimatterdimensions/challenge/antimatter/b;)"
+        "Lkajfosz/antimatterdimensions/BigDouble;",
+        "private static restoreMaxAM(Lkajfosz/antimatterdimensions/BigDouble;)V",
+        "private static rewardEternity(Lkajfosz/antimatterdimensions/challenge/eternity/b;I)V",
+    ):
+        n = src.count(".method " + sig)
+        assert n == 1, f"缺少或重复的结算方法 {sig}（实际 {n} 处）"
+
+    # --- 3) 关键调用点断言（少一条就等于少发一份货币）---
+    must = [
+        ("    sget-object v3, Lln0;->w:Lbn0;", "Currency.infinityPoints（IP 通道）"),
+        ("    sget-object v3, Lln0;->e:Lsm0;", "Currency.infinities（无限次数通道）"),
+        ("    sget-object v3, Lln0;->F:Lym0;", "Currency.eternityPoints（EP 通道）"),
+        ("Lju;->o(Lkajfosz/antimatterdimensions/BigDouble;)Lln0;", "Currency.add 原版入口"),
+        ("Lkajfosz/antimatterdimensions/prestige/e;->d()Lkajfosz/antimatterdimensions/BigDouble;",
+         "gainedInfinityPoints"),
+        ("Lkajfosz/antimatterdimensions/prestige/e;->c()Lkajfosz/antimatterdimensions/BigDouble;",
+         "gainedInfinities"),
+        ("Lkajfosz/antimatterdimensions/prestige/e;->l()V", "bigCrunchUpdateStatistics 子集"),
+        ("Lkajfosz/antimatterdimensions/prestige/c;->g()Lkajfosz/antimatterdimensions/BigDouble;",
+         "gainedEternityPoints"),
+        ("Lkajfosz/antimatterdimensions/challenge/antimatter/b;->E(Z)V", "挑战完成入口"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;->M(I)Lkajfosz/antimatterdimensions/BigDouble;",
+         "EC goalAtCompletions"),
+        ("Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D", "最速记录归一化"),
+        ("Lkajfosz/antimatterdimensions/OrekiSpeed;->migrateBest(Ltw4;)V", "旧记录单位迁移"),
+    ]
+    for frag, why in must:
+        assert frag in src, f"OrekiInstantChallenge 缺少 {why} 的调用：{frag}"
+
+    # --- 4) 外部符号存在性（与实际打包的 MOD 逐条对照，防止混淆换名）---
+    # 只校验本补丁新增的引用；描述符必须逐字相同。
+    roots = [MOD / "smali", MOD / "smali_classes2", MOD / "smali_classes3"]
+
+    def _class_file(desc):
+        rel = desc[1:-1] + ".smali"
+        for r in roots:
+            f = r / rel
+            if f.exists():
+                return f
+        return None
+
+    syms = [
+        ("Lln0;", "w", "Lbn0;"),
+        ("Lln0;", "e", "Lsm0;"),
+        ("Lln0;", "F", "Lym0;"),
+        ("Lju;", "o", "(Lkajfosz/antimatterdimensions/BigDouble;)Lln0;"),
+        ("Lkajfosz/antimatterdimensions/prestige/e;", "d", "()Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/prestige/e;", "c", "()Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/prestige/e;", "l", "()V"),
+        ("Lkajfosz/antimatterdimensions/prestige/c;", "g", "()Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/challenge/antimatter/b;", "J",
+         "()Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "I", "()I"),
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "M",
+         "(I)Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;", "d",
+         "()Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;", "j",
+         "(Lkajfosz/antimatterdimensions/BigDouble;)V"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisEternity;", "i",
+         "()Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisEternity;", "t",
+         "(Lkajfosz/antimatterdimensions/BigDouble;)V"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;", "f", "()Ltw4;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;", "e", "()Ltw4;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisEternity;", "g", "()Ltw4;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$ThisEternity;", "f", "()Ltw4;"),
+        ("Lkajfosz/antimatterdimensions/BigDouble;", "round",
+         "(J)Lkajfosz/antimatterdimensions/BigDouble;"),
+        ("Lkajfosz/antimatterdimensions/BigDouble;", "compareTo",
+         "(Lkajfosz/antimatterdimensions/BigDouble;)I"),
+        ("Lkajfosz/antimatterdimensions/player/Player;", "T",
+         "()Lkajfosz/antimatterdimensions/player/Player$RequirementChecks;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$RequirementChecks;", "d",
+         "()Lkajfosz/antimatterdimensions/player/Player$RealityChecks;"),
+        ("Lkajfosz/antimatterdimensions/player/Player$RealityChecks;", "q", "(Z)V"),
+        ("Lkajfosz/antimatterdimensions/OrekiSpeed;", "unscale", "(D)D"),
+        ("Lkajfosz/antimatterdimensions/OrekiSpeed;", "migrateBest", "(Ltw4;)V"),
+    ]
+    for cls, name, rest in syms:
+        f = _class_file(cls)
+        assert f is not None, f"混淆换名：找不到类 {cls}（挑战发奖补丁的锚点失效）"
+        body = f.read_text(encoding="utf-8", errors="replace")
+        if rest.startswith("("):
+            pat = re.compile(r"^\.method .*\b" + re.escape(name) + re.escape(rest) + r"$", re.M)
+            assert pat.search(body), f"{cls} 缺少方法 {name}{rest}（混淆换名）"
+        else:
+            pat = re.compile(r"^\.field .*\b" + re.escape(name) + ":" + re.escape(rest) + r"$", re.M)
+            assert pat.search(body), f"{cls} 缺少字段 {name}:{rest}（混淆换名）"
+
+    # --- 5) 幂等：二次执行只校验不写盘 ---
+    marker = "# [Oreki RIS] reward-instant-settle v1"
+    if marker in src:
+        note("[Oreki RIS] 挑战结算补发已校验（幂等跳过重复写入）")
+        return
+
+    # 正文已就位但缺少标记（例如从别的分支合入）：补标记，便于二次执行短路
+    head = "# 挑战进入即完成（Oreki Edition）"
+    assert head in src, "文件头锚点缺失，无法补写幂等标记"
+    out = src.replace(head, head + "\n#\n" + marker, 1)
+    target.write_text(out, encoding="utf-8")
+    assert marker in target.read_text(encoding="utf-8"), "幂等标记写入失败"
+    note("[Oreki RIS] 挑战进入即完成已改为「真实结算收益」：IP / 无限次数 / EP + 最速记录 + 幂等闸门")
+
+
 def patch_frame_cadence():
     """[Oreki AF] 主循环帧间隔按倍率缩放（2026-10-28）。
 
@@ -1832,7 +2054,13 @@ def patch_autobuyer_after_infinity():
             f"    :oreki_au_inf\n"
             f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
             f"    move-result {reg}\n"
-            f"    if-nez {reg}, :oreki_au_er\n"
+            # [R33 修复] 这里原本是 `if-nez`，方向写反，导致首次无限前**两条路都拒绝**：
+            #   hasInfinity=true  → 跳去调 orekiEarly()，而 orekiEarly ≡ !hasInfinity → 返回 0 → 拒绝；
+            #   hasInfinity=false → 不跳，直接 goto ok，此时 reg 仍是 0 → 锚点 if-eqz 判定 → 拒绝。
+            # 结果是 8 个维度自动购买器 isActive=true、autobuyersOn=true，却一次都不买
+            # （R33 AVD 实测：反物质 1.5e8→1e36，bought 恒为 [101,79,60,50,0,0,0,0]）。
+            # `if-eqz` 才是「hasInfinity 为假时再去问 orekiEarly」，两条路都能得 1。
+            f"    if-eqz {reg}, :oreki_au_er\n"
             f"    goto :oreki_au_ok\n"
             f"    :oreki_au_er\n"
             f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->orekiEarly()Z\n"
@@ -1883,7 +2111,7 @@ def patch_autobuyer_boost_galaxy():
             f"    :oreki_au3_inf\n"
             f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
             f"    move-result p0\n"
-            f"    if-nez p0, :oreki_au3_er\n"
+            f"    if-eqz p0, :oreki_au3_er\n"
             f"    goto :oreki_au3_ok\n"
             f"    :oreki_au3_er\n"
             f"    invoke-static {{}}, Lkajfosz/antimatterdimensions/OrekiAuto;->orekiEarly()Z\n"
@@ -1925,7 +2153,7 @@ def patch_autobuyer_crunch_after_infinity():
         ":oreki_au4_inf\n"
         "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
         "    move-result p0\n"
-        "    if-nez p0, :oreki_au4_er\n"
+        "    if-eqz p0, :oreki_au4_er\n"
         "    return p0\n"
         ":oreki_au4_er\n"
         "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->orekiEarly()Z\n"
@@ -2325,6 +2553,9 @@ def main():
     # 无条件全开自动购买器与该要求相悖。函数体保留作证据与后续候选。
     patch_ec12_restriction()
     patch_instant_challenge()
+    # [R33 Agent C] 挑战进入即完成必须「真结算」：补发 IP / 无限次数 / EP，
+    # 并按原版口径更新最速无限记录；缺这一步 Android 会比 Web 少一整份资源。
+    patch_instant_challenge_rewards()
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），
