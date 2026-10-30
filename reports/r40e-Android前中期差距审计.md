@@ -590,3 +590,132 @@ const/16 v1, 0x258 + if-ge   # 一次比较
 **结论**：审计对帧时间的影响从「可观测」降到「低于测量噪声」。
 真正的设备实测（`dumpsys gfxinfo` 前后对比）需要 AVD 授权，本轮按约定没有开模拟器；
 一旦排期，这一项补在 AVD 记录里。
+
+## 12. B4 断链复核（2026-10-31，AVD 第 1 步停手后的代码级取证，全为只读）
+
+> 起因：第 1 步要求「`Player.brake` 在间隔拉满前后各读一次」。全新档跑到 235 s，
+> `IP` 恒 0、`bigCrunches` 恒 0、`interval` 恒 150000 —— **「拉满后」这个状态根本到不了**。
+> 按约定停下不往下走，改为先把「为什么到不了」查清。以下每条都给了 smali 坐标。
+
+### 12.1 结论（三句话）
+
+1. `player.break` 在 Android 上**只有两条**置真路径：早期靠 UI 按钮回调，末日靠现实重置结算；**没有任何定时器**。
+2. 末日那条 **Android 有**，与 Web `reality.js:748-752` 同构，所以 FACTS C.31 成立、末日半段不缺。
+3. 更前面还有一层断路：**新档的大坍缩自动购买器根本没解锁**，所以 `IP` 永远是 0，
+   `hasInfinity()` 永远 false，`OrekiStageAuto` 永远停在 early 分支 —— 「间隔拉满」在自动路径上不是慢，是**不会发生**。
+
+### 12.2 `brake` 字段的写入点普查【实测】
+
+全树只有 3 处字段引用（`grep -rn "Player;->brake:Z"`，耗时 2 min 28 s，无其他命中）：
+
+| 位置 | 作用 |
+|---|---|
+| `Player.smali:3497` | `m0()` 存档序列化，键名 `brake` |
+| `Player.smali:10750` | `m()Z` getter |
+| `Player.smali:11111` | `x0(Z)V` setter —— **唯一写入口** |
+
+`x0` 的 6 个调用者（`work/deobf/index.sqlite` 的 `calls` 表）：
+
+| 调用者 | 性质 |
+|---|---|
+| `MainActivityBreakInfinityKt$loadViewsBreakInfinity$1$1` | **早期 break 的唯一入口（UI 按钮）** |
+| `player/d;->k(String)` ×2 | 存档反序列化 |
+| `player/e;->q()V` | 重置流程 |
+| `prestige/c;->o(ZZ,…)` | 永恒重置 |
+| `prestige/f;->a()V` | 现实重置（清位） |
+| `prestige/f;->o(…)` | **末日自动 break（置真）** |
+
+**结论**：6 个调用者里没有一个是「到点就置真」的定时逻辑。早期想拿到 break，只能走按钮。
+
+### 12.3 早期路径：`!break && interval ≤ 100 → 置真`【实测】
+
+`…$loadViewsBreakInfinity$1$1.smali:358-428`：
+
+```
+:cond_3
+  Player.m()            → if-nez → :cond_4     # 已 break 则什么都不做
+  Player.c().e()        → CrunchAutobuyerState
+  UpgradeableAutobuyerState.v() → if-eqz → :cond_4
+  Player.x0(true)                              # 唯一的置真
+  "BREAK_INFINITY"（埋点）
+  autobuyer.a.c()
+```
+
+`UpgradeableAutobuyerState;->v()Z`（:467-498）逐条就是：
+
+```
+iget-wide interval ; const-wide/high16 0x4059000000000000 (# 100.0) ; cmpg-double ; if-gtz → true
+```
+
+即 `interval <= 100.0`，与 Web 的 `Autobuyer.bigCrunch.hasMaxedInterval` **同口径、同阈值**。
+
+### 12.4 末日路径：Android 已实现，与 Web 同构【实测】
+
+`prestige/f;->o(…)` L7482-7530：
+
+```
+if (doomed) {
+  Player.c().e()                     # bigCrunch 自动购买器
+  UpgradeableAutobuyerState.v()      # hasMaxedInterval
+  → Player.x0(true)
+}
+```
+
+对应 `reality.js:750`：`Pelle.isDoomed && PelleUpgrade.keepAutobuyers.canBeApplied && Autobuyer.bigCrunch.hasMaxedInterval → player.break = true`。
+**这一半不缺**，缺的是 12.3 那一下没人替玩家按。
+
+### 12.5 ★ 更前的一环：大坍缩自动购买器锁在「普通挑战 12」【实测】
+
+`CrunchAutobuyerState;->g()Z`（:782-844）：
+
+```
+Pelle.c.q()  ?  ve3.a()                    # doomed：PelleStrikes.infinity.hasStrike
+             :  c43.a(0xC).K()             # 正常：普通挑战 #12 的完成位
+```
+
+- `c43.a(0xC)` → `challenge/antimatter/normal/a`（普通/反物质挑战，id = 12）
+- `challenge/antimatter/b;->K()Z`（:914-939）= `H().e(id)`，即 `completedChallenges` 位图取位
+- 资源侧佐证：`res/values/strings.xml:3015` `<string name="nc12_reward">Big Crunch autobuyer</string>`
+
+而 `AutobuyerState;->c()Z`（:43-106）= `isActive && Player.options.autobuyersOn && g()`。
+
+`OrekiStageAuto.enableEarly()`（:439-445）对 crunch 只调了 `AutobuyerState;->i(true)`，**只写 `isActive`，不解锁**。
+于是新档出现一个自相矛盾的状态，与 AVD 读数逐项吻合：
+
+| 观察值 | 期望 | 解释 |
+|---|---|---|
+| `auto.bigCrunch.isActive = true` | 我们打开的 | `enableEarly` 写了 `isActive` |
+| `bigCrunches = 0` 且 AM 触顶 `1.7976931348623277e308` | 该 crash 了 | `g()=false` ⇒ `c()=false` ⇒ tick 不执行 |
+| `IP = 0`（46 s / 107 s / 235 s 三次） | 每次坍缩至少 1 IP | 同上 |
+| `interval = 150000`、`cost = 1` | 会随 IP 升级 | `upgradeCrunchInterval()` 在 `hasInfinity()==true` 之后才调用，而 `hasInfinity()` 永远 false |
+
+即 `onAutoBuyerTick`（:59-86）的分流把整个中段逻辑挡在门外：
+
+```
+if (!OrekiAuto.hasInfinity()) { enableEarly(); return; }   # 永远走这条
+enableIpMultAutobuyer(); upgradeCrunchInterval(); tryBuyId1();
+```
+
+**所以类注释里「缩短新档到首次无限现实时间的核心改动」只对 AD/速度/提升/星系四类自动购买器成立；
+大坍缩这一类是「开了，但没解锁」。**
+
+### 12.6 第 1 步读数（已停手，未继续）
+
+| t | brake | interval | cost | IP | bigCrunches | AM |
+|---|---|---|---|---|---|---|
+| 46 s | false | 150000 | 1 | 0 | 0 | 3.41e171 |
+| 107 s | false | 150000 | 1 | 0 | 0 | 1.7976931348623277e308（触顶） |
+| 235 s | false | 150000 | 1 | 0 | 0 | 同上 |
+
+**端点校验（32767 注释）**：新档 `150000 / cost 1` ↔ 备份旧档 `brake=true / interval 100.0 / cost 32768`
+⇒ 15 级、×0.6 递减、成本 ×2、累计 32767 IP，下限 100 与 `v()` 的 `<= 100` 判定一致。注释正确。
+
+### 12.7 未决（等 team-lead 裁决，本报告不预判）
+
+- **A1**：拿备份旧档做夹具，只把 `brake` 改 `false` 后推到设备跑，观察是否会自己翻真。
+  改的是**存档夹具**、不是 payload；结论只在报告里作为「人工构造起始态」出现。
+  预计 15 分钟、零重编。
+- **A2**：把 12.3 那段 1:1 镜像成 `OrekiStageAuto.tryBreakInfinity()`。
+  **单独做不够**：挑战 12 未完成 + 间隔无法拉满 ⇒ `v()` 恒 false，仍不会触发。
+- Web 侧 t=4.1 s 就 `interval→100`（=32767 IP），与「全新档 0 资源」不相容，已请 agent-a-web-ec 确认是否为 harness 预置；
+  **未确认前不作为证据引用**。

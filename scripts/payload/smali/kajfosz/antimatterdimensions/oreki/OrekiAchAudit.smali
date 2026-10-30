@@ -186,6 +186,9 @@
 
     invoke-static {v11, v10}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
+    # [Oreki GATE] 同一周期附带一行自动坍缩门控快照（只读，见 gate() 注释）
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->gate()V
+
     :try_end_0
     goto :ret
 
@@ -236,4 +239,134 @@
     :ret
     return-void
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# ---------------------------------------------------------------------------
+# [Oreki GATE] 自动坍缩门控快照（**纯诊断，只读**）
+#
+# 为什么需要：全新档实测 235 s 内 bigCrunches 恒 0、IP 恒 0，
+# 但代码上 isActive/autobuyersOn/g() 都应该是真 —— 静态读代码无法判定
+# 「哪一道门是 false」，只能用运行期读数。判据链：
+#   IntervaledAutobuyerState.c() = super.c() && (realTime - lastTick) * OrekiSpeed.mult() >= interval
+#   super.c()                    = isActive && options.autobuyersOn && g()
+#   q() 只在 c() 为真时调用 super.q()，而 super.q() 是 lastTick 的唯一写入者
+#   ⇒ 存档里 lastTick == 0 等价于「这个自动购买器一次都没 tick 过」
+#
+# 输出一行：GATE brake=<z> g=<z> c=<z> b=<z> mult=<d> rt=<d>
+#   brake = Player.m()            是否已 Break
+#   g     = CrunchAutobuyerState.g()   解锁门（AU4 补丁后 = 挑战12 || 有无限 || early）
+#   c     = CrunchAutobuyerState.c()   运行门（上述时间判据）
+#   b     = prestige.e.b()             canBigCrunch（AM >= 需求，挑战内另算）
+#   mult  = OrekiSpeed.mult()          全局速度倍率（c() 里参与乘法，若 ≤0 则永久冻结）
+#   rt    = Player.R().i().a           records 里的现实时间（c() 的被减数）
+#
+# 只读保证：本方法只有 sget / invoke / iget，无 iput/sput 到任何游戏对象；
+# 不进 try 会影响 tick 主流程 —— 它自带 try/catch，异常一律吞掉。
+# 一次 600 帧一行，验收结束后可用 `adb logcat -d | grep OREKI_GATE` 取表。
+# ---------------------------------------------------------------------------
+.method private static gate()V
+    .locals 6
+
+    :try_start_g
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v0
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "GATE brake="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget-object v2, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v2, " g="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->g()Z
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v2, " c="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->c()Z
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v2, " b="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;->b()Z
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v2, " mult="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->mult()D
+
+    move-result-wide v4
+
+    invoke-virtual {v1, v4, v5}, Ljava/lang/StringBuilder;->append(D)Ljava/lang/StringBuilder;
+
+    const-string v2, " rt="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    sget-object v2, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player;->R()Lkajfosz/antimatterdimensions/player/Player$Records;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Records;->i()Ltw4;
+
+    move-result-object v2
+
+    iget-wide v4, v2, Ltw4;->a:D
+
+    invoke-virtual {v1, v4, v5}, Ljava/lang/StringBuilder;->append(D)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "OREKI_GATE"
+
+    invoke-static {v2, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_g
+    goto :ret_g
+
+    :catch_g
+    move-exception v0
+
+    :ret_g
+    return-void
+    .catch Ljava/lang/Throwable; {:try_start_g .. :try_end_g} :catch_g
 .end method
