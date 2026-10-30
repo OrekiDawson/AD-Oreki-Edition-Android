@@ -1406,12 +1406,21 @@ t=0.1 的现场值：`amE=21`、`totAM=0`、`realities=0`、`bcUnl=false`、`ivl
 
 ### 四、一个必须更正的口径：`player.break` 有两条来源
 
-本次跑的 `brk` 变化**4 次**，不止末日那一次：
+本次跑的 `brk` 变化**5 次**（3 次 false→true、2 次 true→false），不止末日那一次。
+自行重算命令（不许采信报告，我按 `r40s1-full.jsonl` 892 条逐条比相邻帧数的）：
+
+```
+node -e '逐条比 r.brk 与上一帧，变化即记' → brk 翻转次数: 5
+首次 gameEnd true: {"t":708.1,"endState":1.028735,"totAML":1032.015}
+```
+
+> 更正记录：本条初版写「**4 次**」，但同一节的表里列了 5 行——正文与自己的表对不上。
+> 由 agent-a 指出（它把 5 次连行号一起列了出来），我复核确认为 5 次。
 
 | t | brk | 阶段 | 判定 |
 |---|---|---|---|
 | 0.1 → 4.1 | false→true | idle | **自动买 Break Infinity 升级**（`ivl 150000→100`、`bcUnl false→true`） |
-| 4.1 → 68.1 | true→false | idle | 永恒重置 |
+| 4.1 → 68.1 | true→false | idle | **现实重置**（同帧 `realities 0→5`）。初版标「永恒重置」是错的，见下 |
 | 68.1 → 72.1 | false→true | idle | 再次买到（`ipL=25.7`、`ivl=100`） |
 | 72.1 → 662.2 | true→false | wait-remnants | 末日（现实重置清 break） |
 | 662.2 → 706.1 | false→true | broken | **这一次才是 `finishProcessReality` 置真**（C.31） |
@@ -1419,6 +1428,16 @@ t=0.1 的现场值：`amE=21`、`totAM=0`、`realities=0`、`bcUnl=false`、`ivl
 ⇒ 正确表述：**早期靠买升级，末日路径靠 `finishProcessReality` 置真。**
 此前「`break` 只能由 `finishProcessReality` 置真」是过度概括，会让 Android 侧误以为
 break 只能从末日拿到，从而漏掉「间隔拉满后应该自动买 break」这一步。
+
+**第二处更正（我自己查出来的）：68.1 s 那次不是「永恒重置」，是「现实重置」。**
+
+判据：同帧 `realities` 从 `0` 跳到 `5`，而永恒重置不会产生现实数。
+另外 t=6.1 就做了永恒（见 §五），而 t=60.1 时 `brk` 仍是 `true`
+—— 说明永恒重置**根本不清** `player.break`（Break Infinity 是无限层升级，跨永恒保留）。
+所以能清它的只有现实及以上。
+
+⇒ 结论：`brk` 的 true→false 只有两种成因——**现实重置**、**末日重置**。
+写「永恒重置清 break」是错的，会让人误判 `brk=false` 时机的含义。
 
 ### 五、副产品：一条 spec 设计被实测确认
 
@@ -1515,3 +1534,467 @@ t=3100ms  queue=2  current=MessageModal        dom=false
 ⇒ 规则：**拦响应式对象只能用于「记录谁在写」，不能在同一轮里做 DOM 断言**；
 要么只在 `show()` 之前装桩并只读日志、DOM 断言另跑一轮，要么改包方法
 （`removeFromQueue` / `Modal.hide` / `Modal.hideAll`）而不碰访问器。
+
+## C.38 推翻 C.37 §三-3：`core/modal.js` 必须改，教程 `priority` 0 → 4 `[实测]`
+
+### 一、我上一轮判断错了，错在只看了「打断一次可接受」
+
+C.37 §三-3 我写的是「不改 `core/modal.js`，接受被打断一次，点掉就回来」。
+这条判断只算了「打断」的代价，没算**打断后重建的代价**——而真正的伤害在重建里：
+`data()` 重跑，`index: getTutorialStartIndex()` 把读到第 10 章的进度重置回第 7 章（C.37 §二）。
+
+于是形成这样一条链：
+```
+第 10 章正在读 → 成就说明顶掉 → 组件销毁 → 玩家点掉提示 → 组件重建
+→ data() 重跑 → index 从 10 掉到 7 → 玩家发现自己在第 7 章
+→ 再读到第 10 章 → 又解锁一个成就 → 再被顶掉 …
+```
+在默认 10000× 下成就解锁是**密集事件**（成就是在游戏循环里判的，不是按墙钟），
+所以这不是「被打断一次」，而是「在读完之前会被反复打断」。C.37 §三-3 的假设不成立。
+
+### 二、改法与位置
+
+`src/core/modal.js:246`：
+```js
+Modal.orekiTutorial = new Modal(OrekiTutorialModal, 4);   // 原为不传 priority（= 0）
+```
+4 高于全部既有值：玩法确认弹窗 `1`（`dimensionBoost` / `bigCrunch` / `eternity` / `reality` …
+一二十个）、成就与特殊说明 `3`（`normal-achievement.js:64` 的
+`Modal.message.show(text, {}, 3)`）。`modalQueue.sort((x,y) => y.priority - x.priority)`
+（`modal.js:152`）⇒ 最大者胜，4 是当前最高，够用且没有越权到「超过一切」的地步
+（真要更高就会盖住硬重置确认这类必须立刻处理的东西，4 刚好压在它们之上、成就说明之下无对手）。
+
+「教程是玩家主动发起的阅读会话，被任何东西顶掉都是错的」——这是这条改动的唯一理由。
+不是「教程更重要」，是「玩家已经明确表示此刻在读书」。
+
+### 三、验收：真跑，逐 100 ms 采样
+
+探针 `web/_tools/_r40/t-tut-priority.mjs`。被测入口是真实路径：
+`OptionsGameplayTab.js:362` 的按钮就是 `onclick="Modal.orekiTutorial.show()"`，
+所以调 `show()` 等于玩家点按钮，不是绕过 UI。
+
+先空跑 20 s 让提示堆积，实测现场：
+
+```
+queueLen: 1     queueNames: ["MessageModal"]     current: "MessageModal"
+```
+—— 队列里**正好压着一条消息弹窗**，这就是改之前必然被顶掉的场景。
+
+`show()` 之后逐 100 ms 采样 6 s：
+
+| 指标 | 值 |
+|---|---|
+| `firstVisibleMs` | **0** |
+| `zeroSamples`（tutNodes 为 0 的采样数） | **0** |
+| `current` 全程取值 | 只有 `OrekiTutorialModal` |
+| 章节标题全程取值 | 只有 `第 0 章　开始之前` |
+| `pageErrors` | 只有一条 CSP 拦截 googletagmanager，与本次无关 |
+
+判定 `pass: true`（出现 ≤ 1 s ∧ 6 s 内零跌落 ∧ 章节未变）。
+
+### 四、方法学陷阱（第二例）：读了不存在的字段，断言会变成恒真
+
+第一版探针的 `chapterStable` 判据写的是
+`window.Modal.orekiTutorial._component?.chapter?.id`，实测**全程 `null`**。
+理由：Vue 挂载后 `_component` 上拿不到 `data` 字段。
+
+于是 `chapterStable` 的判据变成「历史集合里非空值 ≤ 1 个」，
+而集合是 `[null]` ⇒ **永远为真**。这不是「通过」，这是**根本没有判**。
+
+⇒ 规则：**任何「没变化」类断言，必须先证明「读到了东西」**。
+做法是断言里同时要求 `历史集合.size >= 1 且 集合里不含 null`，
+或者干脆换一个有内容的读取面（本处改为从 DOM 读章节标题文本）。
+凡是「结果恒为默认值」的检查，都要先怀疑字段路径写错了，而不是先庆祝通过。
+
+### 五、与 C.37 的关系
+
+C.37 的根因分析（被 priority 3 顶掉、组件销毁但仍在队列、重建重跑 `data()`）**全部成立**，保留。
+被推翻的只有 C.37 §三-3「不改 `core/modal.js`」这一条决策。
+`ModalWrapperChoice.useEnterToConfirm` 与 `TutorialReadingPosition` 两项修法仍然有效且必要：
+priority 4 挡住的是「成就说明」，挡不住 Esc / × 误关，也挡不住玩家自己切走再回来。
+
+## C.39 七篇附录在 Web 端零渲染入口：数据资产 ≠ 玩家能看的内容 `[实测]`
+
+### 一、实测：`appendices` 只被校验器和生成器消费，没进任何 UI
+
+```
+$ grep -rn "appendices" src --include=*.js | grep -v oreki-tutorial-data.gen.js
+（零命中）
+$ grep -rn "TUTORIAL_APPENDICES" src scripts
+（零命中）
+```
+
+`data.appendices` 实际存在 **7 篇**（不是 6 篇，此前多处口径写错）：
+`apx_terms` / `apx_achievements` / `apx_notation` / `apx_bilingual` /
+`apx_blockers` / `apx_automation` / `apx_changes`。
+
+消费方只有两处，都不面向玩家：
+- `scripts/validate_tutorial.mjs` 规则 9（数条数与字段完整性）
+- `scripts/gen_tutorial_module.mjs`（聚合 `apx_automation`）
+
+`OrekiTutorialModal` 里没有附录区，`oreki-tutorial.js` 也没导出 `TUTORIAL_APPENDICES`。
+
+### 二、为什么这条严重
+
+用户目标是「完全不读外部攻略的纯新手，180 分钟真实通关」。
+七篇附录里，术语表、卡点速查、成就表、记数法这四篇**正是新手在没有攻略时唯一的信息来源**：
+正文讲的是「按什么顺序做什么」，附录讲的是「这个词是什么意思、卡住了查哪一条」。
+
+18 章正文写得再准，附录不可达 = 新手遇到第一个不认识的词就断线。
+校验器 2087 项全绿**不能说明交付完整**——它验的是数据，不是可达性。
+
+⇒ 规则：**「数据存在 + 校验通过」永远不构成「玩家能看到」的证据。**
+任何内容类交付，验收必须包含一条「从玩家入口点进去，页面里有字」的实测。
+
+### 三、连带发现：核对数量口径时要数一遍
+
+此前摘要与报告里反复出现「18 章 + **6** 附录」。实际是 **7** 篇。
+多出来的那篇是 `apx_changes`（本轮新加）。这说明凡是「N 章 + M 附录」这类数字，
+只要没人真去 `JSON.parse` 数一遍，就会在多个文档里同时出错并互相引用为证。
+
+⇒ 规则：凡引用数量（章节数、附录数、检查项数、文件数），一律给出来源命令，
+不接受「以报告为准」。
+
+### 四、另一处口径更正：`a5142cf` 的标题少写了一章
+
+`a5142cf` 标题为「教程第14章事实修正」，但其中
+「第 14 章结束（薇与太阳神可以没做完…）」这句位于 **`ch15`（莱特拉）的 `entry` 字段**。
+该提交同时改动 ch14 与 ch15，标题只写 ch14 是漏的。
+
+已推送的提交不改写历史（不 `--amend`、不强推）。
+后续引用该提交时以本条为准：**它动的是 ch14 + ch15**。
+
+## C.40 两条通用教训：产物里的陈旧副本、跨项目规则污染 `[实测 + 自查]`
+
+### 一、「删掉源文件」≠「产物里没有那个文件」
+
+Android 侧删 `AchievementUnlocker.smali` 时发现的坑（`build_mod.py:547-550` 补的 `stale.unlink()`）：
+
+`build_mod.py` 把 `scripts/payload/smali/**` 拷到 `work/mod/` 再打包，
+拷贝逻辑**只覆盖、不删除**。于是源码删了，`work/mod/` 里那份旧 smali 还在，
+**照样被打进 APK**。
+
+这个 bug 在代码里完全看不出来：
+- `git ls-files` 里没有它（源已删）
+- `grep -r AchievementUnlocker scripts/` 只会命中 `build_mod.py` 的断言
+- 只有真解包 APK 才看得到那个类还在
+
+⇒ 规则：**凡是「拷贝到工作目录再打包」的构建链，必须显式清理陈旧副本**，
+不能依赖「源目录有什么就拷什么」。清理逻辑要写成「目标目录里有、源目录里没有 ⇒ unlink」，
+并且构建脚本里要有断言验证这件事（本处是 `build_mod.py:1114` 的 `"[AU-DEL] 类文件仍存在"`）。
+
+同类风险面还有：`web/_deploy/site`（filelist.txt 驱动）、任何 `cp -r` 式部署。
+
+### 二、跨项目规则污染：我（team-lead）犯的错
+
+给 `apx_changes` 附录列「本作 vs 原版差异」清单时，我写了：
+
+> 玩家模型：`player_zero` 固定，禁止 `mp_m_freemode_01`。
+> 出生点：Downtown 固定坐标，死亡原地重生不传医院。
+
+**这两条是用户另一个项目（FiveM 练车服）的服务器规则，跟《反物质维度》没有任何关系。**
+`player_zero` 是 GTA V 的 Michael 模型，Downtown `(215.76, -810.12, 30.73)` 是洛圣都出生点。
+
+这不是「说法不准」，是**把两个项目的规则串在了一起**。危害在于：
+写进附录后玩家会去游戏里找「玩家模型设置」，找不到，然后怀疑整篇附录的可信度——
+而一篇攻略的可信度是整体性的，一条明显的胡说会让人不再相信另外九条。
+
+⇒ 规则：**跨项目工作时，任何要写进交付物的「事实」，先问一句「这是哪个项目的」。**
+判断办法：能在这个项目的仓库里 grep 到依据吗？
+grep 不到就不是这个项目的事实，无论它在我脑子里多「显然」。
+
+### 三、同一轮里第二类错误：把「本作内部的两种来源」当成「本作与原版的差异」
+
+`player.break` 有两条来源（买 Break Infinity 升级、末日路径 `finishProcessReality`），
+这是 **本作内部** 的两条来源，实测 t=4.1 s / 72.1 s / 706.1 s（FACTS C.35 §四）。
+
+我转述给写附录的人时写成了「原版只能靠买升级，本作新增末日路径」——
+**原版也有末日路径**（`reality.js` 两侧同构）。
+
+⇒ 规则：**「有两个来源」和「与原版不同」是两件事。**
+前者是内部观察，后者必须两侧对照（本作文件 vs 原版文件 diff 过）才能下结论。
+写差异表时，每一条都要能回答「原版那一侧我看了哪个文件的哪一行」。
+
+### 四、L3 有界调用落地（核验通过）
+
+`OrekiAchAudit.smali:51` `const/16 v1, 0x258`（600 帧 ≈10 s）一次完整审计；
+`OrekiSpeed.smali:201` 每帧只剩一个 `invoke-static OrekiAchAudit;->tick()V`。
+改前是每帧 104 次 `A()` + `k.invoke()`（`invoke-interface`）。
+
+**帧耗时为静态估算（< 0.1 µs/帧），不是设备实测**——AVD 实测值待补，补上之前不许写成实测。
+
+### 五、验收器必须能报红
+
+L3 审计「0 处不一致」这句话本身不构成证据：
+如果它永远报绿，那它什么都没验。
+
+⇒ 规则：**任何审计/校验器交付时，必须额外证明它能在真实缺陷上变红。**
+做法是人为制造一处已知不一致（本处：手动开一次「强制点亮」），
+断言审计器报出**恰好那一处**——多报一处说明有假阳性，少报说明有漏检。
+
+## C.41 执行层四条验收实测通过 + 面板「阻塞：无」的语义 `[实测]`
+
+跑法：全新档（`localStorage.clear()` + reload），端口 8886 / 9386 避让，
+数据 `web/_tools/_r40/r40s2-verify-b.jsonl` **205 条 / 221.4 s**，脚本 `r40s2-verify.mjs`。
+
+### 一、四个值（不是「看起来正常」，是逐项读取）
+
+| 项 | 实测值 |
+|---|---|
+| `smOk` | `true` |
+| `smDeg` | `false`（205 条样本里为 true 的条数 **0**） |
+| `smDegN` | `0` |
+| `smErr` | `""` |
+| 控制台本模块报错 | `consoleRelevant=0`、`pageErrors=0` |
+| 面板七项 | 全渲染，`700×150`，`overflowX=false` |
+| 面板 ①~⑦ | 现实阶段(reality) / 解锁天神(未完成) / 现实推进策略(realityPush) / 装备最优符文→无可买 / 装备最优符文 / 无 / timeStudy+challengeClear → reality+realityPush(20 秒前) |
+
+全量 `error` 只有 1 条：googletagmanager 被 CSP 拦截。**环境噪音，早于本次改动就存在**，
+不许把它算成本模块缺陷，也不许为了消它去改 CSP。
+
+### 二、不抢购买权：结构成立 + 计数器兜住「结构推理错了」
+
+接管处加两个运行时计数 `takeovers` / `takeoverWhileModuleActed` + `lastConflict`。205 条样本：
+
+```
+takeovers = 205                  （接管尝试，含空转）
+takeoverWhileModuleActed = 0     （模块本帧动手时仍被接管 —— 必须为 0）
+actionCount = 4                  （真买到，不是尝试次数）
+```
+
+`takeoverWhileModuleActed = 0` 本身不新鲜：结构上「摘要非空 ⇒ idle 清零 ⇒ 不挑中」推得出来。
+**加计数器的意义是「结构推理错了能被抓到」**——这是把不变量写成可观测值，值得推广。
+
+### 三、手动优先：真的点了真实按钮
+
+t=150.9 s 脚本点了 `购买解锁现实的时间研究以解锁现实`。之后 57 条样本：
+
+```
+hold 从 59 s 倒计数到 1 s
+actN 4 → 4（无增长）
+violations = []
+```
+
+「其它 goal 不受影响」用单测证：挡住目标 A，目标 B 照常动手。
+
+### 四、无预测值
+
+正则扫面板文本 `预计|预估|剩余时间|ETA` → `false`。面板只显示实测态。
+这条重要：一个猜出来的「预计剩余 12 分钟」，比不显示更坏——玩家会拿它做决策。
+
+### 五、`阻塞：无` 的语义必须写清
+
+`blockers` 那行现在渲染「无」。这是**事实为空**，不是「没实现」：
+spec 当前只有 2 条 blocker，现实阶段都不成立。
+
+⇒ 规则：**「空」与「坏」在 UI 上必须可区分。**
+待改：渲染成「无（已检查 2 项）」——数量来自 spec 实际 blocker 条数，不写死。
+
+### 六、agent-a 自己抓出的一个「测错不是产品错」
+
+第一版脚本写 `ser[idxFirst].actN`（拿下标当对象），算出 `4 - 0 = 4`，
+差点报成「hold 期间照样动手」。改成逐样本与相邻帧比对并输出 `violations` 数组。
+
+⇒ 与 C.38 §四 是同一类：**判据写错时的失败方向是「报出一个不存在的缺陷」或「报出恒真」**，
+两种都会骗过自己。凡是「差值」类断言，必须能打印被减的两个原值。
+
+## C.42 Android 连第一次无限都拿不到：缺 AU4b 与首次坍缩调用 `[AVD 实测 + 源码对照]`
+
+### 一、现场读数（AVD 全新档，`pm clear` 后，×10000）
+
+用 `adb exec-out cat /data/data/<pkg>/files/player.json` 逐次取样
+（`Player.smali:1033` 的序列化键就是 `brake`；`auto.bigCrunch.interval/cost` 在同一份 JSON，
+一次取样两值同源，零注入、不动内存）：
+
+| 时刻 | `brake` | `bigCrunch.interval` | `bigCrunch.cost` | IP | bigCrunches | infinities | AM |
+|---|---|---|---|---|---|---|---|
+| 46 s | **false** | **150000** | **1** | 0 | 0 | 0 | 3.41e171 |
+| 107 s | false | 150000 | 1 | 0 | 0 | 0 | **1.7976931348623277e308** |
+| 235 s（停） | false | 150000 | 1 | 0 | 0 | 0 | 1.797e308 |
+
+235 秒里 IP 恒 0、`bigCrunches` 恒 0 ⇒ 间隔一级都买不起 ⇒ `brake` 不可能变真。
+
+### 二、根因候选：两个已知缺失，但因果顺序**未定**（不许写死）
+
+> 更正：本条初版断言「AU4b 缺失**导致** AM 卡在 1.8e308」。**顺序说反了。**
+> AU4b 改的是坍缩**策略**（AMOUNT → X_HIGHEST），它只在坍缩**真正发生过**之后才有意义。
+> 若自动坍缩一次都没 tick，AU4b 根本轮不到发挥作用。
+> 下面两条是**候选**，谁在前必须由 AVD 运行期门控表判定，不能靠读代码推。
+
+**候选一：`[Oreki AU4b]` 在 Android 侧 0 命中。**
+
+Web `src/core/autobuyers/big-crunch-autobuyer.js:19-26`：
+
+```js
+// [Oreki AU4b] 用默认策略（AMOUNT，amount = 1）开自动坍缩会把反物质永久卡在 1.8e308：
+// 实测 120 s 内 maxAM 恒为 1e25.7、Infinity Dimension 永远不可用，进度实际停滞。
+if (unlocked && this.data.mode === AUTO_CRUNCH_MODE.AMOUNT && Decimal.lt(this.data.amount, 10)) {
+  this.data.mode = AUTO_CRUNCH_MODE.X_HIGHEST;
+  this.data.xHighest = new Decimal(10);
+}
+```
+
+AVD 读到的 `1.7976931348623277e308` 与这里的 1.8e308 同值 —— **可疑，但同值不等于同因**。
+
+**候选二：首次坍缩调用缺失。**
+
+Web `src/game.js:311`（`tryOrekiEarlyRoutine` 内）：
+```js
+if (!player.break && Player.canCrunch) bigCrunchResetRequest(true);
+```
+原版大坍缩自动器间隔 150000 ms，且 `Time.thisInfinityRealTime` 是**真实时间**
+（速度倍率在 `realTimeMechanics` 里被除回去），所以开局第一次自动坍缩要干等 150 秒真实时间。
+
+**已知待办（不是新发现）**：`scripts/build_mod.py:3121` 自己记着
+「需要先修默认模式（X_HIGHEST），留到下一轮单独处理」。
+
+### 二·补 「g() 未解锁」这条被推翻
+
+一度有结论说 `CrunchAutobuyerState.g()` 未打 AU4 补丁、故 `c()` 恒 false。
+**该结论被推翻**：`work/mod`（2026-10-30 22:14）里 `g()` 是 `:810-:883`，
+AU4 分支在 `:865-:882`；引用者用的是 `:782-844`，**在 :844 截断**，
+而补丁永远加在方法末尾 `return` 之前 ⇒ 截断必然截掉补丁。
+
+按完整方法推演：全新档 `K()=false` → `hasInfinity()=false` → `orekiEarly()=true`
+⇒ `g()` 返回 **true**。
+
+⇒ 方法学：**判「这个方法里有没有 X」，行号区间一律不可用，必须按方法边界取全文。**
+```
+awk '/\.method public final g\(\)Z/,/\.end method/' 文件
+```
+`grep -A N` 同样会截断。这一条在 Web 侧一样适用。
+
+### 二·补二 判定的唯一办法：运行期门控表
+
+不读代码推，直接 dump 这 10 个值（60 s / 120 s / 200 s 各一次）：
+
+```
+Player.m()                          # brake
+CrunchAutobuyerState->g()Z          # 解锁门
+AutobuyerState->c()Z                # 运行门
+player.auto.bigCrunch.isActive      # 开关
+player.options.autobuyersOn         # 总开关
+player.auto.bigCrunch.mode          # AMOUNT / TIME / X_HIGHEST
+player.auto.bigCrunch.amount
+player.auto.bigCrunch.xHighest
+player.auto.bigCrunch.interval
+Player.canCrunch
+```
+
+哪一道门是 false 就是事实。**拿到这张表之前不许写补丁。**
+
+### 三、为什么 AU4c 救不了第一环（这条成立）
+
+`canBeUpgraded` 的实现是 `NormalChallenge(12).isCompleted`。
+而 AU4c 是「首次无限**之后**一次性启用」。首次无限之前 `canBeUpgraded` 为假、
+`PlayerProgress.infinityUnlocked()` 也为假 ⇒ **鸡生蛋**。
+所以「补 AU4c」不能解决首坍缩。
+但注意：AU4 **本身**已经给 `g()` 加了 `orekiEarly()` 分支（见上），
+所以「解锁门」在全新档应当已放行 —— 真正卡住的是哪一环，等门控表。
+
+### 四、结论：Android 实测到不了第一次无限 —— 但「从未可能」这句话过头了
+
+实测事实只有一条，很硬：**AVD 全新档 235 s，`bigCrunches=0`、IP 恒 0、`brake=false`。**
+也就是说，在这台 AVD + 这一份已装 APK 上，第一次无限没有自然发生。
+
+但**不许**由此推成「Android 任何版本都不可能出现首次无限」：
+- 已装 APK 与 `work/mod` 时间不同（`work/mod` 缺 `OrekiAchAudit`，说明它早于本轮 L3 工作）
+- `work/mod` 里 `g()` **有** AU4 分支（`:865-882`），全新档应返回 true
+- 也就是说「已装 APK」是否等于「当前代码」，尚未确认
+
+⇒ 已确认的结论（可以写）：
+```
+在这台 AVD + 已装 APK 上，
+自动坍缩未发生 → IP 恒 0 → interval 一级买不起 → brake 恒假
+→ 无限维度不可用 → 永恒/现实/佩勒全部不可达
+```
+
+⇒ 未确认、不许写的：
+```
+「Android 代码层面不可能首次无限」（需要门控表 + 重编后复测才能定）
+```
+
+**在下一次重编 + 门控表出来之前，不许写「Android 与 Web 机制等价」，
+也不许写「Android 根本没写这个功能」——只能写「实测未发生，原因待判定」。**
+
+### 五、方法学：判「Android 有没有某机制」不能用关键词 grep
+
+本次「payload 全树搜不到触发大坍缩的调用」这个结论**恰好是对的**，
+但方法是错的——R8 会把 `bigCrunchResetRequest` 改成无意义名字，
+`instantChallenge : 0` 就是现成反例（关键词 0 命中，类却有 304 行）。
+
+正确顺序：
+1. 先看 Web 实现调用的是什么 API、在哪个**类**里
+2. 到 Android 找那个**类**（不是找方法名），看结构上有没有对应调用点
+3. 交叉验证用 `build_mod.py` 里有没有对应补丁——补丁脚本是人类写的、不混淆的，
+   比 smali 可靠得多
+
+### 六、32767 悬案结案（AVD 两端夹逼）
+
+| 端点 | `interval` | `cost` | 结论 |
+|---|---|---|---|
+| 全新档 | 150000 | 1 IP | 第 0 级 |
+| 旧存档（10-30 14:21） | 100.0 | 32768 IP | 已买 15 级、累计正好 32767 IP |
+
+两边合起来证明：15 级、累计 32767 IP、`interval` 下限 100
+（`150000 × 0.6^15 ≈ 70.5`，被夹到 100）—— `OrekiStageAuto.smali:30` 的注释**是对的**。
+
+⇒ 方法学：**用两端夹逼代替单点猜测**。单点只能说「当时是 X」，
+两端才说得清「变化规律与边界」。
+
+## C.43 Android 缺 AD5b：interval 会升级，但没人按「打破无限」那一下 `[结构核实]`
+
+### 一、核实方式（这次是可接受的搜法）
+
+```
+$ grep -rn "Player;->x0(" scripts/payload/smali/
+（0 个文件）
+```
+
+这条可信度**高于**普通关键词 grep：`x0` 是 payload 那个命名空间里的**真实方法名**
+（`Player.smali:11103` 的 `x0(Z)V`，`brake` 的唯一写入口），不是被 R8 改过的外部名字。
+在同一个命名空间里搜它，不存在「改名叫别的」的问题。
+
+### 二、Web 有，Android 没有
+
+Web `src/game.js:203-220` 的 `[Oreki AD5b]`：
+
+```js
+if (!player.break && player.auto.autobuyersOn &&
+    Autobuyer.bigCrunch.hasMaxedInterval &&
+    !NormalChallenge.isRunning && !InfinityChallenge.isRunning && !EternityChallenge.isRunning &&
+    !Pelle.isDoomed) { /* 按一次 breakInfinity() */ }
+```
+
+守卫一条都不能少：`breakInfinity()` 是**开关**（`player.break = !player.break`），
+少 `!player.break` 会每帧来回翻转。
+
+Android 侧：`OrekiStageAuto.upgradeCrunchInterval()` 只做 interval 升级，
+文件头注释还写着「interval 自动升级（Break 的唯一前置）」——
+**它以为 break 由别人负责，而那个「别人」不存在。**
+
+### 三、这是「两段自动化中间断了一节」
+
+```
+interval 拉满（有，OrekiStageAuto.upgradeCrunchInterval）
+        ↓  [断]
+按下 breakInfinity（无）
+```
+
+这类断链比「整段没写」更难发现：
+每一段单独看都在，注释还互相声称对方负责。
+⇒ 规则：**凡是「A 是 B 的前置」的注释，必须同时指出 B 在哪个文件里。
+指不出来就是断链的征兆。**
+
+### 四、当前 Android 端断链清单（按执行顺序）
+
+| # | 环节 | 状态 |
+|---|---|---|
+| 1 | 自动大坍缩（首次） | **待 A0 门控表判定**（AU4 分支在 `g():865-882`，按完整方法推断应为 true） |
+| 2 | 坍缩策略 AMOUNT→X_HIGHEST（AU4b） | Android 侧 0 命中；`build_mod.py:3121` 自认待办 |
+| 3 | interval 升级 | 有（`OrekiStageAuto.upgradeCrunchInterval`） |
+| 4 | 按下 breakInfinity（AD5b） | **无**（`Player;->x0(` 全 payload 0 调用） |
+| 5 | 末日路径置 break | 有（`prestige/f;->o(...)` 与 `reality.js:748-752` 同构） |
+
+⇒ 结论：即使第 1、2 环修好，第 4 环不补，`brake` 仍恒假（除非走末日）。
+但**修的顺序必须由 A0 门控表定**，不许照着这张表从上往下盲补。
