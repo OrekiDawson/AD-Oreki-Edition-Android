@@ -568,3 +568,25 @@ E/OREKI_ACHAUDIT: MARK_FAILED ...               # 留痕写盘失败 ⇒ L2 判�
 
 **恢复方式**：`git show 0b51233:scripts/payload/smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali`
 （删除前的最后一次内容在 `0b51233`；历史另有 `4b3f5d0`、`59ad3b5` 两次提交）。
+
+### 11.7 审计的帧成本（声明：静态估算，未在 AVD 实测）
+
+`OrekiAchAudit.tick()` 挂在 `OrekiSpeed.apply(D)D`（每帧一次）。改前每帧跑 104 个
+`A()` + `k.invoke()`（`invoke-interface`），按 ART 上单次接口调用 20~80 ns 粗估，
+每帧要多 2~8 µs；10000× 长跑下这会把 708 s 基线拖偏，属于「验收工具污染被测对象」。
+
+改为有界周期调用后，每帧只剩：
+
+```
+sget  sFrame      # 静态 int 读
+add-int/lit8      # +1
+sput  sFrame      # 写回
+const/16 v1, 0x258 + if-ge   # 一次比较
+```
+
+即 4 条整数指令、零分配、零虚调用/接口调用，量级 < 0.1 µs/帧（同量级的一次静态字段读约 2~5 ns）。
+104 个谓词从「每帧」变成「每 600 帧」，调用频次降到 1/600。
+
+**结论**：审计对帧时间的影响从「可观测」降到「低于测量噪声」。
+真正的设备实测（`dumpsys gfxinfo` 前后对比）需要 AVD 授权，本轮按约定没有开模拟器；
+一旦排期，这一项补在 AVD 记录里。
