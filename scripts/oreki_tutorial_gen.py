@@ -472,6 +472,22 @@ def _smali_glossary_problems(terms: list[dict], smali_dir: Path | None = None) -
     return problems
 
 
+def validate_level2_smali_glossary(path: Path | None = None,
+                                   smali_dir: Path | None = None) -> int:
+    """二级断言（旁路文案）：手写 smali 里的中文文案不得出现禁用译名。
+
+    独立成会抛错的一层，不只是为了自测：`_smali_glossary_problems` 返回清单，
+    拿它配 `expect_fail` 会永远「没被拦住」—— 断言必须有个会 raise 的入口才算断言。
+    """
+    terms = load_forbidden_terms(path)
+    problems = _smali_glossary_problems(terms, smali_dir)
+    if problems:
+        raise TutorialContentError(
+            "二级断言（旁路文案译名）失败 —— 共 %d 处（词表 %d 条）：\n  "
+            % (len(problems), len(terms)) + "\n  ".join(problems))
+    return len(terms)
+
+
 def validate_level2(doc: dict, allow_draft: bool = False) -> None:
     """二级断言：默认就必须过（fail closed）。检查「内容是不是真的写完了」。
 
@@ -977,20 +993,20 @@ def selftest() -> int:
         (Path(td) / "TutorialProgress.smali").write_text(body, encoding="utf-8")
         return Path(td)
 
+    # 必须走会抛错的入口：`_smali_glossary_problems` 只返回清单不抛，
+    # 拿它配 expect_fail 会永远「没被拦住」（第一版就踩了这个坑）。
     expect_fail("旁路文案：smali 里的「时间定理」",
-                lambda: _smali_glossary_problems(
-                    load_forbidden_terms(),
-                    fake_smali_dir('    const-string v0, "用时间定理点时间研究"\n')),
+                lambda: validate_level2_smali_glossary(
+                    smali_dir=fake_smali_dir('    const-string v0, "用时间定理点时间研究"\n')),
                 "时间定理")
     expect_pass("旁路文案：smali 里的纠错句不误伤",
-                lambda: _smali_glossary_problems(
-                    load_forbidden_terms(),
-                    fake_smali_dir('    const-string v0, "官方译名是「时间之理」，不是「时间定理」"\n')))
+                lambda: validate_level2_smali_glossary(
+                    smali_dir=fake_smali_dir(
+                        '    const-string v0, "官方译名是「时间之理」，不是「时间定理」"\n')))
     # 只扫 const-string：注释里的词不是玩家可见文案，扫它会制造假阳性
     expect_pass("旁路文案：注释行不误伤（只扫 const-string）",
-                lambda: _smali_glossary_problems(
-                    load_forbidden_terms(),
-                    fake_smali_dir('# 注释里写时间定理不算：它不是 const-string\n')))
+                lambda: validate_level2_smali_glossary(
+                    smali_dir=fake_smali_dir('# 注释里写时间定理不算：它不是 const-string\n')))
 
     if failures:
         print(f"\n自测失败 {len(failures)} 项: {failures}")
