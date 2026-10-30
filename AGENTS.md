@@ -439,6 +439,48 @@ REA 是静态反编译，官方明确声明「不建立运行时行为」。因�
 `build_sign()` 开头会 `unlink` 目标 APK，不备份就会丢掉上一个可复现的产物
 （本次丢了 `7bda91a1…`，只能靠代码回滚重建，无法逐字节恢复）。
 
+## 3-A-2. 并发构建：一棵树一个构建根（2026-10-31 事故教训，长期有效）
+
+**`work/mod` 是共享单例。两个 agent 同时跑 `build_mod.py` 会互相 `rmtree` 对方的树。**
+2026-10-31 实测后果：一个构建在 `build/unsigned.apk` 打包之后 27 s 才写完 `work/mod/assets/oreki_tutorial.txt`
+（时间戳 `build/unsigned.apk` 02:46:57 → `release/反物质维度.apk` 02:46:59 → `assets/oreki_tutorial.txt` 02:47:26），
+产出一个**缺教程资产、校验判红**的包，并直接覆盖了 `release/反物质维度.apk`。
+同一次事故里还有一次直接死在 `PermissionError: work\mod\build\resources.zip 另一个程序正在使用`。
+
+### 正解不是排队，是各自一棵构建根
+
+`build_mod.py:25-29` 的 `WORK = ROOT / "work"` / `MOD = WORK / "mod"` 全部由**脚本自身位置**推导，
+所以在另一棵树下跑，`rmtree` 的只会是那棵树自己的 `work/mod`。已验证可用的结构：
+
+```
+android/_<你的代号>_build/
+  scripts                  ← 实目录（从仓库 scripts 整体拷贝，含 payload）
+  work/mod                 ← 实目录，留空由构建生成（rmtree 目标，必须是实目录）
+  work/base_decoded        ← symlink → 仓库 work/base_decoded   （只读）
+  work/xhdpi_decoded       ← symlink → 仓库 work/xhdpi_decoded  （只读）
+  keys                     ← symlink → 仓库 keys               （只读）
+  tools                    ← symlink → 仓库 tools              （只读）
+```
+
+### 四条硬规则
+
+1. **`_<代号>_build` 是产物目录，不是源码目录。** 改 smali / 改 python 一律改仓库里的
+   `scripts/payload`、`scripts/*.py`，改完再同步进构建根的 `scripts` 再构建。
+   在构建根里改等于改了个一次性副本，下一轮全丢。
+2. **构建前后各做一次隔离自检**，两次 `stat` 的 mtime 必须不变，报告里贴原文：
+   ```bash
+   cd "C:/Users/Oreki/WorkBuddy/AD-Oreki-Unified/android/_<代号>_build"
+   for d in work/base_decoded work/xhdpi_decoded keys tools; do printf "%-24s %s\n" "$d" "$(readlink "$d")"; done
+   stat -c '%n %Y' work/base_decoded work/xhdpi_decoded
+   ```
+3. **`scripts` 是快照，不是视图。** 并行时 A 的构建根看不到 B 后续对 payload 的改动。
+   报告里必须写明本轮构建用的 payload 快照时间，或直接记 `scripts/payload` 的哈希。
+4. **验证性构建 / 中间态构建一律设 `OREKI_RELEASE_OUT` 到自己目录，禁止写 `release/反物质维度.apk`。**
+   只有「全部断言绿 + lead 明确批准发布」的那一次才允许覆盖 release，且覆盖前先 `cp` 一份带时间戳的备份进 `release/`。
+
+> 判定口径：**「构建成功」不等于「包是对的」。** 判对的依据只有两条同时成立 ——
+> 断言全绿，且从产物 APK 里解出的资产与源码逐字节一致（`build_mod.py` 的 R40H 回读断言就是干这个的）。
+
 ## 3-B. 发布流程：验证 APK → 覆盖双云盘 → 核验云端 → 直发手机（2026-10-27 用户确立，长期有效）
 
 **本节是 Android 版本交付的唯一发布流程。每次有效版本通过验证后自动执行，不再逐次询问是否上传。**
