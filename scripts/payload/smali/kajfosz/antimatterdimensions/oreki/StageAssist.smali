@@ -28,10 +28,14 @@
 #   * 第 18 行（181-188）在任何 stage 下都不会被写入。
 #   * 全部判定基于实时位图（achievements/a;->A()），不使用累计时间，
 #     也不按行号“推测”玩家处于哪个阶段。
-#   * 写入一律复用原版 achievements/a;->E(ZZ)V：
-#       置位 -> g61.h 新成就标记 -> 特殊 id 连带 -> 速通计时
+#   * 写入一律走原版 achievements/a;->E(ZZ)V，但必须说清它做什么：
+#       E(ZZ) 只在第一句判「该位是否已解锁」（A()），**完全不校验达成条件**，
+#       随后直接 BitSet.g(col) 置位 —— 等价于原版的「强制解锁」入口。
+#       它不做的事：不检查成就条件、不推断玩家是否达成。
+#       顺带副作用：g61.h 新成就标记 -> 特殊 id 连带 -> 速通计时
 #       -> cache/a.j 失效 -> MainActivity.Bn UI 脏标记 -> ACHIEVEMENT_UNLOCKED 广播
-#     不直接操作 BitSet。
+#     即：本类实现的是「绕过条件点亮」，不是「走原版解锁流程」。文案不得含糊。
+#     不直接操作 BitSet（否则漏掉上述副作用）。
 #   * Doomed（Pelle.isDoomed）下 run() 直接返回 -1，不写任何一位。
 #
 # 执行时机：设置页只写 SharedPreferences 标记（oreki_prefs / stage_assist），
@@ -81,8 +85,17 @@
 
 
 # 设置界面确认后调用：只写标记，不动游戏对象
+# [三约束①] 默认关闭：未显式启用时，即使对话框已弹出并点了确认，这里也不受理。
+#   放在 sput pending 之前 —— 拒绝要在「产生待处理请求」之前发生，
+#   否则 onTick 会拿着上一帧残留的请求继续写。
 .method public static request(I)V
     .locals 4
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->isEnabled()Z
+
+    move-result v0
+
+    if-eqz v0, :done
 
     sput p0, Lkajfosz/antimatterdimensions/oreki/StageAssist;->pending:I
 
@@ -142,6 +155,207 @@
     const/4 v2, 0x0
 
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v0
+
+    :done
+    return-void
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# 永久留痕：本存档用过「强制点亮」入口。
+# 独立键 stage_assist_used（boolean，只写不清）。与易失的请求键 stage_assist 分开：
+# clearFlag() 每个 tick 都会把 stage_assist 归零，所以它不能当留痕；
+# 「该存档是否被助战点亮过」只依赖 stage_assist_used，本类不存在清它的代码路径。
+# 只在真正写入 >=1 个成就位后调用（run(I) 里 if-lez 之后），
+# 所以「点了但一个都没写」（例如已全解锁）不会误伤存档。
+# 幂等：已经 == 1 就直接返回，不重复写盘。
+# 写失败不静默：用 commit() 取真实结果，失败打 MARK_FAILED（L2 解析到即判「未知」）。
+.method private static markUsed()V
+    .locals 4
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->usedState()I
+
+    move-result v0
+
+    const/4 v1, 0x1
+
+    if-ne v0, v1, :done
+
+    sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;->sCtx:Landroid/content/Context;
+
+    if-eqz v0, :fail
+
+    :try_start_0
+    const-string v1, "oreki_prefs"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "stage_assist_used"
+
+    const/4 v2, 0x1
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
+
+    move-result v0
+
+    # commit 返回 false = 落盘失败 -> 必须喊出来
+    if-nez v0, :fail
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v0
+
+    :fail
+    const-string v0, "OREKI_ACHAUDIT"
+
+    const-string v1, "MARK_FAILED stage_assist_used 写入失败（L2 视为未知，不是清白）"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+
+    :done
+    return-void
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# 只读查询：给验收层 L2 用。三态，**必须**能区分「没写」和「读不到」：
+#   1  = 用过（prefs 里 stage_assist_used == true）
+#   0  = 没用过（prefs 读到了、且为 false）
+#   -1 = 未知（sCtx 未初始化 / 读 prefs 抛异常）
+# 绝不把「读不到」降级成 0：那会让 L2 给出假清白，正是「静默通过」的骗人形态。
+.method public static usedState()I
+    .locals 4
+
+    sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;->sCtx:Landroid/content/Context;
+
+    if-eqz v0, :unknown
+
+    :try_start_0
+    const-string v1, "oreki_prefs"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "stage_assist_used"
+
+    const/4 v2, 0x0
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v0
+
+    if-eqz v0, :zero
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :zero
+    const/4 v0, 0x0
+
+    return v0
+    :try_end_0
+
+    :catch_0
+    move-exception v0
+
+    :unknown
+    const/4 v0, -0x1
+
+    return v0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# [三约束①] 默认关闭：键不存在（含首次安装）一律视为关闭。
+# 只有玩家在设置页勾选「我已知晓代价」后才会变成 true（setEnabled 唯一写入者）。
+.method public static isEnabled()Z
+    .locals 4
+
+    sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;->sCtx:Landroid/content/Context;
+
+    if-eqz v0, :no
+
+    :try_start_0
+    const-string v1, "oreki_prefs"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "stage_assist_enabled"
+
+    const/4 v2, 0x0
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v0
+    :try_end_0
+    goto :done
+
+    :catch_0
+    move-exception v0
+
+    :no
+    const/4 v0, 0x0
+
+    :done
+    return v0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# 显式开启/关闭（设置页复选框唯一调用者）。默认关闭，写 true 必须由玩家手动操作。
+.method public static setEnabled(Z)V
+    .locals 4
+
+    sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;->sCtx:Landroid/content/Context;
+
+    if-eqz v0, :done
+
+    :try_start_0
+    const-string v1, "oreki_prefs"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "stage_assist_enabled"
+
+    invoke-interface {v0, v1, p0}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
@@ -218,6 +432,11 @@
 
     move-result v0
 
+    if-lez v0, :m1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->markUsed()V
+
+    :m1
     return v0
 
     :s2
@@ -225,6 +444,11 @@
 
     move-result v0
 
+    if-lez v0, :m2
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->markUsed()V
+
+    :m2
     return v0
 
     :s3
@@ -240,6 +464,11 @@
 
     move-result v0
 
+    if-lez v0, :m3
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->markUsed()V
+
+    :m3
     return v0
 
     :blocked
@@ -358,18 +587,26 @@
 .method public static canWrite()Z
     .locals 1
 
+    # [三约束①] 默认关闭：未显式启用时按钮直接置灰（玩家看不到可点的入口）
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->isEnabled()Z
+
+    move-result v0
+
+    if-eqz v0, :off
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->isDoomed()Z
 
     move-result v0
 
-    if-nez v0, :doomed
+    if-nez v0, :ok
 
-    const/4 v0, 0x1
+    :off
+    const/4 v0, 0x0
 
     return v0
 
-    :doomed
-    const/4 v0, 0x0
+    :ok
+    const/4 v0, 0x1
 
     return v0
 .end method
@@ -948,17 +1185,17 @@
     return-object v0
 
     :c1
-    const-string v0, "点亮第 1–13 行未解锁成就"
+    const-string v0, "强制点亮第 1–13 行未解锁成就"
 
     return-object v0
 
     :c2
-    const-string v0, "点亮成就 147（需二次确认）"
+    const-string v0, "强制点亮成就 147（需二次确认）"
 
     return-object v0
 
     :c3
-    const-string v0, "点亮第 1–17 行未解锁成就"
+    const-string v0, "强制点亮第 1–17 行未解锁成就"
 
     return-object v0
 
@@ -1018,7 +1255,7 @@
     :catch_0
     move-exception v1
 
-    const-string v0, "无法读取当前清单。确认后仍会按该阶段范围执行（执行走原版解锁流程，不可撤销）。"
+    const-string v0, "无法读取当前清单。确认后仍会按该阶段范围执行。\n\n【代价】本操作不校验成就条件，直接把成就位写成已解锁；会写入永久标记，该存档将无法用于「真实通关」验收，且不可撤销。"
 
     :done
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1104,14 +1341,14 @@
 
     if-ne p0, v0, :stage3
 
-    const-string v0, "不含第 14–18 行。\n写入走原版解锁流程，执行后不可撤销。"
+    const-string v0, "不含第 14–18 行。\n\n【代价】本操作不校验这 104 个成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。执行后不可撤销。"
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     goto :fin
 
     :stage3
-    const-string v0, "不含第 18 行（181–188）。\nPelle 的解锁条件（IU25 + 第 1–17 行全满 + 全部炼金资源 capped）不会因本操作而满足，仍需你自行达成。\nDoomed 是 Pelle 机制内的状态，此时本功能完全禁用。\n写入走原版解锁流程，执行后不可撤销。"
+    const-string v0, "不含第 18 行（181–188）。\nPelle 的解锁条件（IU25 + 第 1–17 行全满 + 全部炼金资源 capped）不会因本操作而满足，仍需你自行达成。\nDoomed 是 Pelle 机制内的状态，此时本功能完全禁用。\n\n【代价】本操作不校验这些成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。执行后不可撤销。"
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1123,7 +1360,7 @@
     return-object v0
 
     :c2
-    const-string v0, "将点亮成就 147「Master of Reality」。\n\n该操作不会购买任何 Reality Upgrade，也不会补发任何升级效果：点亮后 Teresa 的入口会立即可见（原版 MainActivity 用 147 的解锁状态控制该布局），但进入 Teresa 的现实仍需你自行向 Container 倒入 1e14 RM。\n\n写入走原版解锁流程，执行后不可撤销。"
+    const-string v0, "将点亮成就 147「Master of Reality」。\n\n该操作不会购买任何 Reality Upgrade，也不会补发任何升级效果：点亮后 Teresa 的入口会立即可见（原版 MainActivity 用 147 的解锁状态控制该布局），但进入 Teresa 的现实仍需你自行向 Container 倒入 1e14 RM。\n\n【代价】本操作不校验该成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。执行后不可撤销。"
 
     return-object v0
 

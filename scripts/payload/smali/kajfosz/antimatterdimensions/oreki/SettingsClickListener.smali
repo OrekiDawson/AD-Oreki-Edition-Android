@@ -213,7 +213,7 @@
 
     invoke-virtual {v2, v3}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    const-string v3, "确认点亮"
+    const-string v3, "强制点亮（不校验条件）"
 
     new-instance v4, Lkajfosz/antimatterdimensions/oreki/StageConfirmListener;
 

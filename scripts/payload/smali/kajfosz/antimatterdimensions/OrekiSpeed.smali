@@ -196,6 +196,10 @@
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->onTick()V
 
+    # [Oreki AA] 成就位逐位重算自检（只读，进程内第 120 帧跑一次，tag=OREKI_ACHAUDIT）
+    # 判据见 FACTS C.36 §三 L3；解析器见 scripts/ach_audit.py
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->tick()V
+
     # [Oreki R21] 动态速度采样（内部 1s 节流；只读取存档实体，不改任何时间记账）
     invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->autotune()V
 

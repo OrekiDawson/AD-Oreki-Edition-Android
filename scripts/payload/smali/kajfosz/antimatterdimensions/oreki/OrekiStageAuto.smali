@@ -166,6 +166,12 @@
 # 大坍缩自动购买器的 interval 自动升级（Break 的唯一前置）。
 # 走 UpgradeableAutobuyerState.A(false)：照价扣 IP，interval ×0.6 且下限 100，
 # 与 UI 上 upgradeInterval 完全同一条路径。每 tick 最多 16 级（实际 15 级封顶）。
+#
+# 两个前置，代码里各有一处早退，顺序与下面一致：
+#   · 未 break：Player->m()Z == false 才继续。已 break 时原版在 break 那一刻
+#     已把全部 interval 拉到最低，再升级没有意义（Break 后 IP 语义也已改变）。
+#   · interval > 100：UpgradeableAutobuyerState->v()Z == false 才继续。
+#     v() = hasMaxedInterval，为真即已完成（15 级拉满、区间降到 100）。
 .method public static upgradeCrunchInterval()V
     .locals 5
 

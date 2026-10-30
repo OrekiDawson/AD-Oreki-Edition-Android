@@ -295,7 +295,7 @@
     new-instance v3, Landroid/widget/TextView;
     invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    const-string v4, "阶段辅助（精准成就）"
+    const-string v4, "阶段辅助（强制点亮成就，不校验条件）"
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     const/high16 v4, 0x41a00000    # 20.0f
@@ -303,6 +303,33 @@
 
     const/16 v2, 0x28
     invoke-virtual {v3, v2, v2, v2, v2}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- [三约束①] 默认关闭：显式开启的唯一入口 ----
+    # 复选框文本本身就是代价说明；未勾选时下方三张卡片的按钮均为置灰。
+    # setChecked 必须早于 setOnCheckedChangeListener，否则初始化会触发一次回调 + recreate。
+    new-instance v3, Landroid/widget/CheckBox;
+    invoke-direct {v3, p0}, Landroid/widget/CheckBox;-><init>(Landroid/content/Context;)V
+
+    const-string v4, "我已知晓代价，启用「强制点亮」\n（不校验成就条件，直接写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。默认关闭。）"
+    invoke-virtual {v3, v4}, Landroid/widget/CheckBox;->setText(Ljava/lang/CharSequence;)V
+
+    const/high16 v4, 0x41600000    # 14.0f
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextSize(F)V
+
+    const/16 v2, 0x28
+    invoke-virtual {v3, v2, v2, v2, v2}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->isEnabled()Z
+    move-result v4
+
+    invoke-virtual {v3, v4}, Landroid/widget/CompoundButton;->setChecked(Z)V
+
+    new-instance v4, Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;
+    invoke-direct {v4, p0}, Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;-><init>(Landroid/app/Activity;)V
+
+    invoke-virtual {v3, v4}, Landroid/widget/CompoundButton;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
 
     invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
@@ -321,7 +348,7 @@
     const-string v3, "Doom 之前（第 1–17 行）"
     invoke-direct {p0, v0, v3, v2}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAssistCard(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
 
-    const-string v3, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是 Teresa 入口的开关（MainActivity 直接读 147），第 1–17 行是 Pelle 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。Pelle 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。"
+    const-string v3, "阶段辅助说明：三张卡片是成就写入的唯一入口（旧的按行号批量解锁已移除），并且都要求在前置进度之前使用——第 1–13 行是 Reality 研究的成就门槛（研究树上的「Unlock Reality」要求这 13 行全满，Reality 重置会清空；买了 START perk 后门槛被移除，买了 ACHNR 后不再清空并会立即补齐），成就 147 是 Teresa 入口的开关（MainActivity 直接读 147），第 1–17 行是 Pelle 入场条件之一。每张卡片下方会实时给出适用时机与当前缺口，已过窗口时会直接提示「没有前置收益」。第 18 行（181–188）任何情况下都不写入；进度全部来自当前存档的成就位图，不按时长或行号推测；点按钮会先弹出数量与范围确认，Doomed 状态下按钮置灰且写入函数内二次拒绝。\n\n【这不是「走原版解锁流程」】三张卡片都不校验成就的达成条件：点「强制点亮」就是把这些成就位直接写成已解锁（原版 E(ZZ) 只判「是否已解锁」，随后直接置位，属强制解锁入口），并写入不可清除的永久标记 stage_assist_used —— 一旦写入，该存档不能再用于「真实通关」验收，且无法撤销。想要干净的存档，请不要点这三张卡片。\n\nPelle 入场仍需 IU25 + 全部炼金资源达上限，本功能不会代付；Ra 的 Space Theorems 来自 V-Achievement 独立位图，同样无法替代。"
     invoke-direct {p0, v0, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     const-string v3, "倍率说明：加速作用于每个 tick 的游戏时间差，所以维度生产、时间机制、自动购买器都按倍率推进。现实时间字段（thisInfinity.realTime / realTimePlayed / previousRunRealTime）走独立累加，不受加速影响。需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类「游戏时间」字段会被倍率放大；以它们为判据的 6 处成就/挑战判定和 4 处最佳记录尚未还原，属已知项，待确认后单独处理。"

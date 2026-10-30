@@ -31,7 +31,7 @@
 
     invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->request(I)V
 
-    const-string v1, "已标记，回到游戏后下一个 tick 生效"
+    const-string v1, "已标记：回到游戏后下一个 tick 强制点亮（不可撤销）"
 
     iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/StageConfirmListener;->act:Landroid/app/Activity;
 

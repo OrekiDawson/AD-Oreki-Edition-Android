@@ -553,6 +553,10 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/SettingsClickListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali",
     "smali/kajfosz/antimatterdimensions/oreki/StageConfirmListener.smali",
+    # [三约束①] 默认关的唯一开启入口（设置页复选框回调）
+    "smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali",
+    # [Oreki AA] L3 验收（成就位逐位重算，只读）的设备侧执行者
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali",
     "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
@@ -1079,6 +1083,15 @@ def verify_payload():
     assert apply_hits == 1, f"OrekiSpeed.apply 调用点应为 1 处，实际 {apply_hits} 处"
     note(f"[4b] 时间倍率注入点唯一性通过（apply 调用 {apply_hits} 处）")
 
+    # [Oreki AA] L3 成就位自检必须挂在 OrekiSpeed.apply 里，且只挂一次。
+    # 挂两次 = 每帧多跑一遍 104 位谓词；一次都没有 = 通关验收拿不到 DONE 行。
+    aa_hits = 0
+    for p in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+        aa_hits += p.read_text(encoding="utf-8", errors="ignore").count(
+            "Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->tick()V")
+    assert aa_hits == 1, f"OrekiAchAudit.tick 调用点应为 1 处，实际 {aa_hits} 处"
+    note(f"[4b] L3 成就自检注入点唯一性通过（tick 调用 {aa_hits} 处）")
+
     # --- [4n] Ra / Laitela 时间补偿倍率语义（对齐官方 realTimeMechanics）---
     ad_full = (MOD / "smali/kajfosz/antimatterdimensions/a.smali").read_text(encoding="utf-8")
     ad = ad_full[ad_full.index(".method public static d(DZ)V"):]
@@ -1308,6 +1321,36 @@ def verify_payload():
     assert "BitSet" not in sa.split(".method private static unlockRows")[1].split(".end method")[0], \
         "[4k] unlockRows 出现了直接写 BitSet 的捷径"
     note("[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）")
+
+    # --- [4k-3C] 助战入口三约束（team-lead 裁决 2026-10-31）---
+    # ① 默认关、显式开：默认值必须是 false，且 request(I) 自己再判一次
+    #    （不能只靠按钮置灰 —— 按钮状态是 UI，request 是唯一能落到 pending 的入口）
+    assert '"stage_assist_enabled"' in sa, "[3C] 缺少显式开启键 stage_assist_enabled（默认关）"
+    assert ('const-string v1, "stage_assist_enabled"\n\n    const/4 v2, 0x0\n\n'
+            '    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean'
+            ) in sa, "[3C] stage_assist_enabled 的默认值必须是 false（getBoolean 第二参 0x0）"
+    reqm = sa[sa.index(".method public static request(I)V"):]
+    reqm = reqm[:reqm.index(".end method")]
+    assert "StageAssist;->isEnabled()Z" in reqm, "[3C] request(I) 没有默认关判定"
+    assert reqm.index("StageAssist;->isEnabled()Z") < reqm.index("sput p0"), \
+        "[3C] request(I) 的默认关判定必须在 sput pending 之前（否则残留请求仍会写入）"
+    # ② 留痕必须走独立键，且不得与每 tick 清零的请求键同名
+    tail = sa[sa.index(".method private static clearFlag()V"):]
+    tail = tail[:tail.index(".end method")]
+    assert '"stage_assist_used"' not in tail, "[3C] clearFlag() 不得清留痕键 stage_assist_used"
+    # ③ 自动化路径永不调用：调用面必须收敛为「1 处 UI 回调 + 本类 onTick」
+    req_hits = run_hits = 0
+    for p in (MOD / "smali").rglob("*.smali"):
+        t = p.read_text(encoding="utf-8", errors="ignore")
+        n = t.count("StageAssist;->request(I)V")
+        if n:
+            assert p.name == "StageConfirmListener.smali", \
+                f"[3C] request(I) 出现非法调用点：{p.name}"
+            req_hits += n
+        run_hits += t.count("StageAssist;->run(I)I")
+    assert req_hits == 1, f"[3C] request(I) 调用点应为 1（StageConfirmListener），实际 {req_hits}"
+    assert run_hits == 1, f"[3C] run(I) 调用点应只有 onTick 自己，实际 {run_hits}"
+    note("[3C] 助战三约束自检通过（默认关 / 独立留痕键 / request=1 run=1）")
 
     # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
     # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
@@ -2727,14 +2770,15 @@ ID_GUARD_TMPL = (
 
 
 def patch_id_autobuyer_guard():
-    """[Oreki IU15] 只抑制「第 1 无限维度」的购买，直到 IU15 被拿到（或失败回退）。
+    """[Oreki IU15] 抑制无限维度购买（**全 8 层**：h(Z) buyMax 与 i() buySingle 的方法体开头各插一段），
+    直到 IU15 被拿到（或失败回退）。
 
     为什么必须在「IU15 未拿到」时全程拦，而不是「IU15 可买」时拦：
       IU15 的 checkRequirement 含 maxID1.eq(0)；等它「可买」时 ID1 早买过了，
       循环依赖 ⇒ 永远不触发。
 
-    为什么只拦 tier 1：
-      maxID1 只受第 1 维影响。ID2~ID8 该买就买，才能把反物质指数推到 1e8（R38-M 缩档后的门槛）。
+    R38 教训：只拦 tier==1 不够，ID2~ID8 会经 DimensionState.e() 逐层喂回 ID1 ——
+      任何一层的购买等价于给 ID1 加量。所以守卫插在方法体开头、不读 tier。
     """
     mod_id_state = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "dimension"
                     / "infinity" / "InfinityDimensionState.smali")
@@ -2807,7 +2851,7 @@ def patch_id_autobuyer_guard():
     assert after.count(":oreki_iu15_pass_buymax") == 2, "buyMax 标签出现次数异常（应为 1 处跳转 + 1 处定义）"
     assert after.count(":oreki_iu15_pass_single") == 2, "buySingle 标签出现次数异常（应为 1 处跳转 + 1 处定义）"
 
-    note("[Oreki IU15] 已注入 tier==1 的 ID1 购买守卫（h(Z)V + i()V）；"
+    note("[Oreki IU15] 已注入全 8 层 ID 购买守卫（h(Z)V + i()V）；"
          "不再改任何原版数值")
 
 
@@ -4082,7 +4126,7 @@ def main():
     #   G2 互斥分叉冲突必须走原版 respec，且节流/上限/auto=true 一个都不能少。
     # 只读文本、零副作用。自测：OREKI_EC_SELFTEST=1 python scripts/build_mod.py
     check_ec_chain_mechanisms()
-    # [R38-B] IU15/ID1 冲突：只抑制「第 1 无限维度」的购买，直到 IU15 被拿到。
+    # [R38-B] IU15/ID1 冲突：抑制无限维度购买（全 8 层，不按 tier），直到 IU15 被拿到。
     # **本轮开启**（ID_GUARD_ENABLED=True）。R37 的两处错误已更正：
     #   · 目标 IU 是 b->k / BitSet id=4（不是 b->n/id=9，那是 Web IU20）；
     #   · 没有任何「3.0E12 -> 1.5E12」的原版数值改动（IU15 门槛本来就是 1.5E12）。
