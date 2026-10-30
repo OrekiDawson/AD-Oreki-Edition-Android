@@ -1,1 +1,0 @@
-I/OREKI_ACHAUDIT: ABORT scanned=40 unlocked=5 mismatch=0 used=0

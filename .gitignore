@@ -88,3 +88,13 @@ build/_*
 # 与 /work/ 同类：可由 scripts/build_mod.py 重新生成。R40 实测 build/tutorial_check
 # 下的解码树有路径超过 Windows 260 字符上限，git add 直接 fatal。
 /build/
+
+# ---------- 10. smali 自检的编译/汇编产物（reports/r40b/_check）----------
+# 这三类都是「跑一次就变」的二进制或临时输入，入库只会制造无法评审的脏 diff：
+#   · *.dex  —— SmaliCheck <in.smali> <out.dex> 的输出，每次自检都重写
+#   · *.class —— javac 编译 SmaliCheck.java 的产物（.java 是源码，必须入库）
+#   · l3fix/  —— ach_audit.py 离线分支测试的一次性日志样例（几行文本，全文抄在 chore(repo) 提交信息里）
+# 需要复核时按 reports/r40b/_check/README 或 scripts/ach_audit.py 顶部注释重建。
+reports/r40b/_check/*.dex
+reports/r40b/_check/*.class
+reports/r40b/_check/l3fix/
