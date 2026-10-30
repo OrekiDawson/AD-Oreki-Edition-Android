@@ -15,6 +15,11 @@
 #   infinities == 0 时，开局自动化还能重新应用一次，不会因为静态字段残留而失效。
 .field private static sEarlyApplied:Z
 
+# [R41] holdCrunch() 上一次的判定结果（false = 不暂停）。只为「判定翻转时打一行日志」
+# 服务，不参与任何判据。有了它，门控表才能报出 holdCrunch 的运行时结果，
+# 而不是靠读代码猜。
+.field private static sHold:Z
+
 # ---------------------------------------------------------------
 # AD: Oreki Edition —— 「首次无限之后」阶段自动化（Android 侧）
 #
@@ -65,7 +70,11 @@
 
     # 首次无限之前：开启「开局自动化」（维度/速度/提升/星系/大坍缩 五类自动购买器）
     # 不再保持原版的全手动 —— 这是缩短新档到首次无限现实时间的核心改动。
-    if-nez v0, :oreki_sa_early
+    #
+    # [R41 极性修正] if-eqz = v0==0 才跳。hasInfinity()==false（还没无限过）才走 early。
+    # 原写 if-nez（非零才跳）：有无限的档才去 enableEarly，全新档反而落进下面的
+    # 「已过首次无限」块。基准样本 Lju;->t(D)Z：if-ltz = 小于零才跳、if-gez = 大于等于零才跳。
+    if-eqz v0, :oreki_sa_early
 
     # [Oreki ER3] 已过首次无限：清掉「开局自动化已应用」闩锁。
     # 这样玩家重置存档、再次回到 infinities == 0 时，开局自动化仍能重新应用一次。
@@ -76,26 +85,36 @@
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->isDoomed()Z
     move-result v0
 
-    # Doomed → 不介入
-    if-nez v0, :oreki_sa_ret
+    # Doomed → 不介入（出口在 try 范围内，避免跳过 :try_end_0）
+    if-nez v0, :oreki_sa_try_end
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->eternitiesZero()Z
     move-result v0
 
     # 已进入永恒 → 本阶段窗口结束，停止干预
-    if-nez v0, :oreki_sa_ret
+    #
+    # [R41 极性修正] if-eqz = v0==0 才跳。eternitiesZero()==false（已经永恒过）才停。
+    # 原写 if-nez（非零才跳）：eternities==0 的新档反而在这里 return，
+    # 于是 enableIpMultAutobuyer / upgradeCrunchInterval / tryBuyId1 一次都不执行
+    # —— 门控表 interval 恒 150000、IP 只有几次坍缩的存量，就是这个原因。
+    if-eqz v0, :oreki_sa_try_end
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->enableIpMultAutobuyer()V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->upgradeCrunchInterval()V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
-    :try_end_0
-    goto :oreki_sa_ret
+    goto :oreki_sa_try_end
 
     # 首次无限之前：开启开局自动化后直接返回（不进入后续阶段逻辑）
+    #
+    # [R41] 这一支原来在 :try_end_0 之外，enableEarly() 里任何异常都会冒到
+    # Game.autoBuyerTick 主循环。现在把它挪进 try 覆盖范围。
     :oreki_sa_early
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->enableEarly()V
+
+    :oreki_sa_try_end
+    :try_end_0
     goto :oreki_sa_ret
 
     :catch_0
@@ -147,7 +166,7 @@
 # 只翻开关；真正的购买由原版 Game.autoBuyerTick 内的 IPMultAutobuyer 块完成，
 # 因此成本、成就、货币扣减全部走原版逻辑。
 .method public static enableIpMultAutobuyer()V
-    .locals 2
+    .locals 3
 
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
@@ -158,11 +177,23 @@
     move-result v1
 
     # 已经开着 → 不重复写
-    if-eqz v1, :oreki_sa_ipm_on
+    #
+    # [R41 极性修正] if-nez = v1!=0 才跳。auto.ipMult 已经为 true 才跳过写入。
+    # 原写 if-eqz（为 0 才跳）：关着的时候反而跳走，本方法等价于「永远打不开 ipMult」。
+    # 依据：Player$Auto->v()Z 是 auto.ipMult 的读取器 —— IPMultAutobuyerState.b()Z 直接
+    # 调它（deobf 索引 calls 表可查）；配套写入口是 Player$Auto->O(Z)V。
+    if-nez v1, :oreki_sa_ipm_on
 
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player$Auto;->O(Z)V
+
+    # [R41] 运行期证据：只在真正翻开关时打一行
+    const-string v1, "OREKI_IPM_ON"
+
+    const-string v2, "auto.ipMult=true"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_ipm_on
     return-void
@@ -174,8 +205,10 @@
 # 与 UI 上 upgradeInterval 完全同一条路径。每 tick 最多 16 级（实际 15 级封顶）。
 #
 # 两个前置，代码里各有一处早退，顺序与下面一致：
-#   · 未 break：Player->m()Z == false 才继续。已 break 时原版在 break 那一刻
-#     已把全部 interval 拉到最低，再升级没有意义（Break 后 IP 语义也已改变）。
+#   · 未 break：Player->m()Z == false 才继续。已 break 时不再管 interval。
+#     ⚠ [R41 订正] 旧注释写「break 那一刻原版已把全部 interval 拉到最低」——**事实错误**。
+#     Player->x0(Z)V 全文只有一句 `iput-boolean p1, ->brake:Z`，break 不碰 interval。
+#     旧档 brake=true / interval=100.0 / cost=32768 是买出来的，不是 break 送的。
 #   · interval > 100：UpgradeableAutobuyerState->v()Z == false 才继续。
 #     v() = hasMaxedInterval，为真即已完成（15 级拉满、区间降到 100）。
 .method public static upgradeCrunchInterval()V
@@ -186,7 +219,7 @@
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
     move-result v0
 
-    # 已经 Break → 原版在 Break 时已把全部 interval 拉到最低，不必再管
+    # 已经 Break → 本阶段的 interval 升级窗口结束（break 不碰 interval，见上方订正）
     if-nez v0, :oreki_sa_iv_done
 
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
@@ -222,11 +255,28 @@
     move-result v2
 
     # IP < cost → 买不起，停下等下一 tick
-    if-gez v2, :oreki_sa_iv_done
+    #
+    # [R41 极性修正] if-ltz = v2<0 才跳（compareTo 为负 = IP < cost）。
+    # 原写 if-gez（大于等于零才跳）：买得起的时候反而放弃，整个循环一次也买不成。
+    # 基准样本：Lju;->t(D)Z 用 if-ltz 判「不足」后返回 false，语义与此一致。
+    if-ltz v2, :oreki_sa_iv_done
 
     const/4 v2, 0x0
 
     invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/autobuyer/UpgradeableAutobuyerState;->A(Z)V
+
+    # [R41] 运行期证据：每次真正买到一级打一行（15 级封顶，量有界）
+    const-string v2, "OREKI_IV_BUY"
+
+    const/16 v3, 0x1
+
+    add-int/2addr v3, v1
+
+    invoke-static {v3}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     add-int/lit8 v1, v1, 0x1
 
@@ -266,6 +316,13 @@
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->h(Z)V
+
+    # [R41] 运行期证据：ID1 真的被走到过
+    const-string v1, "OREKI_ID1"
+
+    const-string v0, "buy called"
+
+    invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_id_done
     return-void
@@ -317,7 +374,11 @@
     move-result v0
 
     # IP < 1e8 → 先正常坍缩攒 IP
-    if-gez v0, :oreki_sa_hc_no
+    #
+    # [R41 极性修正] if-ltz = v0<0 才跳（compareTo 为负 = IP < 1e8）。
+    # 原写 if-gez（大于等于零才跳）：变成「IP 已经够 1e8 才不暂停、IP 不够时反而暂停」，
+    # 而坍缩是 IP 的唯一来源 ⇒ 一旦进入暂停就再也赚不到 IP，是死锁而不是节流。
+    if-ltz v0, :oreki_sa_hc_no
 
     const/4 v1, 0x1
 
@@ -330,10 +391,55 @@
     # 门槛已达成 → 不需要再等
     if-nez v0, :oreki_sa_hc_no
 
+    # [R41] 运行期证据：只在判定翻转时打一行，避免高频刷日志
+    #
+    # [R41 极性修正] if-eqz = sHold==0 才跳（0→1 是翻转）。原写 if-nez（非零才跳）：
+    # sHold 已经是 1 时反而每次进来都打一遍 hold=1，而真正翻转（0→1）时直接 return，
+    # sHold 永远停在 0 —— 这个字段等于死的，日志还退化成每 tick 一条。
+    sget-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sHold:Z
+
+    if-eqz v1, :oreki_sa_hc_yes_log
+
+    const/4 v0, 0x1
+    return v0
+
+    :oreki_sa_hc_yes_log
+    const/4 v1, 0x1
+
+    sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sHold:Z
+
+    const-string v1, "OREKI_HOLD"
+
+    const-string v2, "hold=1"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     const/4 v0, 0x1
     return v0
 
     :oreki_sa_hc_no
+    # [R41] 同上：只在翻转时打一行
+    #
+    # [R41 极性修正] if-nez = sHold!=0 才跳（1→0 是翻转）。原写 if-eqz（为 0 才跳）：
+    # sHold 本来就是 0 时照样跳进日志块，每 tick 打一条 hold=0；而真正翻转时直接 return。
+    sget-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sHold:Z
+
+    if-nez v1, :oreki_sa_hc_no_log
+
+    const/4 v0, 0x0
+    return v0
+
+    :oreki_sa_hc_no_log
+    const/4 v1, 0x0
+
+    sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sHold:Z
+
+    const-string v1, "OREKI_HOLD"
+
+    const-string v2, "hold=0"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     const/4 v0, 0x0
     return v0
 .end method
@@ -362,7 +468,10 @@
     # 玩家在开局阶段关掉任意自动购买器，下一帧就被强制重新打开。
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sEarlyApplied:Z
 
-    if-nez v0, :oreki_ee_go
+    # [R41 极性修正] if-eqz = v0==0 才跳。闩锁为 false（还没应用过）才进方法体。
+    # 原写 if-nez（非零才跳）：已应用过才去重写，未应用过反而直接 return
+    # ⇒ 5 个开局自动购买器一个也开不了，:oreki_ee_go 在正常路径上不可达。
+    if-eqz v0, :oreki_ee_go
 
     return-void
 
@@ -370,6 +479,13 @@
     const/4 v0, 0x1
 
     sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sEarlyApplied:Z
+
+    # [R41] 运行期证据：开局自动化真正应用了一次
+    const-string v0, "OREKI_EARLY"
+
+    const-string v1, "applied"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     # ---- 主开关 autobuyersOn = true ----
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
@@ -512,7 +628,11 @@
     move-result v1
 
     # amount >= 10 说明玩家自己设了阈值，尊重它
-    if-ltz v1, :ret_p
+    #
+    # [R41 极性修正] if-gez = v1>=0 才跳（compareTo 非负 = amount >= 10）。
+    # 原写 if-ltz（小于零才跳）：amount<10 时反而 return、amount>=10 时反而被覆盖成
+    # X_HIGHEST/10 —— 正好是这条注释声称要避免的那一侧。
+    if-gez v1, :ret_p
 
     const/4 v1, 0x2
 

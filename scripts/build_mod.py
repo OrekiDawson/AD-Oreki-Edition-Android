@@ -1381,9 +1381,65 @@ def verify_payload():
     assert "SystemClock;->uptimeMillis()J" in aa, "[AA] 审计必须用 uptimeMillis 做时间节流"
     assert "const-wide/16 v4, 0x1388" in aa, "[AA] 审计周期必须是 5000 ms（0x1388），不能按调用次数"
     assert "OrekiAchAudit;->sLast:J" in aa, "[AA] 缺少 sLast 时间戳字段"
-    assert "sFrame" not in aa, "[AA] 仍残留按次数节流的 sFrame（量纲错误，会退化成 ~19 Hz）"
-    assert "sDone" not in aa, "[AA] 仍残留「只跑一次」的 sDone（后期结果拿不到）"
+    # 只扫非注释行：断言查的是「有没有残留的计数节流实现」，注释里提到旧字段名不算
+    aa_code = "\n".join(l for l in aa.splitlines() if not l.lstrip().startswith("#"))
+    assert "sFrame" not in aa_code, "[AA] 仍残留按次数节流的 sFrame（量纲错误，会退化成 ~19 Hz）"
+    assert "sDone" not in aa_code, "[AA] 仍残留「只跑一次」的 sDone（后期结果拿不到）"
     note("[3C] 开启入口 / 三态留痕 / 有界审计 自检通过")
+
+    # --- [R41] 极性回归表（2026-10-31）---
+    # 教训：AU4b 的 8 条「存在性」断言全绿，运行期却是死的（mode 恒 0）。
+    # 断言只证明「指令在」，不证明「极性对」。下面逐处锁死「被比较量语义 → 允许的助记符」，
+    # 任何一处被改回反向写法，构建期直接红。
+    #
+    # 基准样本（全队唯一无歧义样本）：Lju;->t(D)Z
+    #     compareTo(cost) → if-ltz :cond_0（cond_0 返回 0）；顺序落到 return 1
+    #   ⇒ 「IP >= cost 返回 true」只有在 if-ltz = **小于零才跳** 时成立。
+    #   ⇒ if-ltz = v<0, if-gez = v>=0, if-eqz = v==0, if-nez = v!=0, if-gtz = v>0。
+    sa_txt = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali"
+              ).read_text(encoding="utf-8")
+    aa_txt = aa
+
+    def _branch_after(text: str, marker: str, why: str) -> str:
+        """返回 marker 之后 12 行内第一条条件跳转（去掉行首缩进）。"""
+        pos = text.find(marker)
+        assert pos >= 0, f"[R41] 找不到极性标记：{why}"
+        tail = text[pos:].splitlines()[1:13]
+        for line in tail:
+            s = line.strip()
+            if s.startswith("if-"):
+                return s
+        raise AssertionError(f"[R41] 极性标记后 12 行内没有条件跳转：{why}")
+
+    # (文件文本, 唯一标记, 期望助记符, 被比较量语义)
+    POLARITY = [
+        (sa_txt, "hasInfinity()==false（还没无限过）才走 early", "if-eqz",
+         "hasInfinity() 为 false 才进开局自动化"),
+        (sa_txt, "eternitiesZero()==false（已经永恒过）才停", "if-eqz",
+         "eternitiesZero() 为 false（已永恒）才停止干预"),
+        (sa_txt, "auto.ipMult 已经为 true 才跳过写入", "if-nez",
+         "ipMult 已开启才跳过写入"),
+        (sa_txt, "原写 if-gez（大于等于零才跳）：买得起的时候反而放弃", "if-ltz",
+         "IP < cost（compareTo 为负）才停止购买"),
+        (sa_txt, "原写 if-gez（大于等于零才跳）：变成「IP 已经够 1e8", "if-ltz",
+         "IP < 1e8（compareTo 为负）才不暂停"),
+        (sa_txt, "未应用过反而直接 return", "if-eqz",
+         "sEarlyApplied 为 false 才执行开局自动化"),
+        (sa_txt, "amount<10 时反而 return", "if-gez",
+         "amount >= 10（compareTo 非负）才尊重玩家阈值"),
+        (sa_txt, "只在判定翻转时打一行，避免高频刷日志", "if-eqz",
+         "sHold==0（0→1 翻转）才打 hold=1"),
+        (sa_txt, "同上：只在翻转时打一行", "if-nez",
+         "sHold!=0（1→0 翻转）才打 hold=0"),
+        (aa_txt, "原写 if-ltz（小于零才跳）：elapsed < 5000 时才跑去审计", "if-gez",
+         "elapsed >= 5000 才跑审计"),
+    ]
+    for text, marker, want_mn, why in POLARITY:
+        got = _branch_after(text, marker, why)
+        assert got.startswith(want_mn + " "), (
+            f"[R41] 极性回归失败：{why} —— 期望 {want_mn}，实际 `{got}`"
+        )
+    note(f"[R41] 极性回归表通过（{len(POLARITY)} 处，基准样本 Lju;->t(D)Z）")
 
     # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
     # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
@@ -3459,7 +3515,9 @@ def patch_autobuyer_crunch_force_active():
         "    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->b()Z\n"
         "    move-result v0\n"
         "    # 已经开着 → 什么都不做\n"
-        "    if-eqz v0, :oreki_au4c_skip\n"
+        "    # [R41 极性修正] if-nez = v0!=0 才跳；isActive 已为 true 才跳过。\n"
+        "    # 原写 if-eqz（为 0 才跳）：关着的时候反而跳走，等于永远不打开。\n"
+        "    if-nez v0, :oreki_au4c_skip\n"
         "    # lastTick 是 private 字段，必须走公开访问器 l()，否则运行期 IllegalAccessError\n"
         "    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->l()D\n"
         "    move-result-wide v0\n"
@@ -3478,6 +3536,11 @@ def patch_autobuyer_crunch_force_active():
         "    :oreki_au4c_skip\n"
     )
     assert "->lastTick:" not in block, "AU4c 不得直接访问 private 字段 lastTick"
+    # [R41] 极性回归：isActive 为真（v0!=0）才跳过；if-eqz 会让 AU4c 永不启用。
+    # 注意 block 里另有一处 `if-eqz v0, :oreki_au4c_skip`（hasInfinity 判据，跳同一标签，
+    # 语义正确），所以只能用计数断言，不能用「not in」。
+    assert block.count("if-nez v0, :oreki_au4c_skip") == 1, "AU4c 极性错误：b() 之后必须是 if-nez"
+    assert block.count("if-eqz v0, :oreki_au4c_skip") == 1, "AU4c 的 hasInfinity 判据丢失或被改反"
     body = body.replace(".locals 0", ".locals 4", 1)
     anchor = "    invoke-super {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->c()Z"
     body = body.replace(anchor, block + anchor, 1)
