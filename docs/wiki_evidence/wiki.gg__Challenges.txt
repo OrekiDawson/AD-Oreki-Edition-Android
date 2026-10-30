@@ -1,0 +1,25 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Challenges
+# url: https://antimatterdimensions.wiki.gg/wiki/Challenges
+
+Challenges are modified versions of reset layer runs that the player can enter at will. Completing the Challenges usually gives the player some kind of reward.
+
+
+== Types of Challenges ==
+
+
+=== Normal Challenges ===
+The first set of Challenges the player sees requires the player to get 1.80e308 (Infinite) antimatter in a new Infinity with altered conditions. Challenges 1st through 9th are unlocked after the player performs at least one Infinity; challgnes 10th, 11th and 12th are only unlocked after 16 Infinities.
+Completing the Normal Challenges allows the player to unlock and improve the basic autobuyers that the player gets at the start of Infinity layer.
+
+
+=== Infinity Challenges ===
+This set of challenges requires the player to get a certain amount of antimatter in a new Infinity with altered conditions.
+Completing the Infinity challenges gives the player various rewards to different previous mechanics of the game.
+
+
+=== Eternity Challenges ===
+This set of challenges requires the player to get a certain amount of Infinity Points in a new Eternity with altered conditions. To be able to enter, the player has to have enough Time Theorems, as well as be eligible for a secondary requirement the challenge usually sets.
+Completing the Eternity challenges gives the player various rewards to different previous mechanics of the game. The player can complete the Eternity Challenges repeatedly, up to 5 times, to make the reward from the Eternity Challenge stronger.
+
+
+== Navigation ==

@@ -1,0 +1,114 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Challenges
+# url: https://antimatter-dimensions.fandom.com/wiki/Challenges
+
+Challenges are unlocked upon reaching Infinity. A challenge requires reaching Infinity Antimatter with special conditions, which change the gameplay. They will provide a unique Autobuyer upon completion. After the Reality Upgrade, you don't have to complete challenges to get the dimension and tickspeed autobuyers and instead need a certain amount of antimatter to unlock them. However, you need to complete challenges to be able to upgrade the interval.
+
+You cannot go past 1.79e308 Antimatter inside a normal challenge, with a single exception.
+
+ Challenges 
+
+Public ID
+Description
+Details
+Reward
+Internal ID
+
+1
+Reach Infinity for the first time outside of a challenge.
+Automatically awarded on Infinity, does not count towards your Sum of Normal Challenge times.
+First Dimension Autobuyer
+1
+
+2
+Buying Antimatter Dimensions or Tickspeed upgrades halts production of all Antimatter Dimensions. Production gradually returns to normal over 3 minutes.
+When you buy anything, production for Dimensions (effectively their Tickspeed) will be reset to 0%, increasing back to 100% linearly over the course of 3 minutes (+0.555...%/s).Second Dimension Autobuyer
+2
+
+3
+The 1st Antimatter Dimension is heavily weakened, but gets an uncapped exponentially increasing multiplier. This multiplier resets after Dimension Boosts and Antimatter Galaxies.
+First Dimension's production is 1% of its original, but is multiplied by 1.0038065 per second. This exponential time multiplier makes a certain Achievement possible with only 1 Infinity.
+It will take around 20 minutes for production to return to normal levels, although this resets every Dimension Boost and Antimatter Galaxy
+
+Extra: The multiplier is capped at 1.79e308 to prevent inflation inside The Nameless Ones 's reality.  This takes more than 24 hours.
+Third Dimension Autobuyer
+3
+
+4
+Buying an Antimatter Dimension automatically erases all lower tier Antimatter Dimensions, like a sacrifice without the boost.
+Straightforward Challenge, buy Dimensions as soon as you can. Offline progression is less effective.Fourth Dimension Autobuyer
+8
+
+5
+Tickspeed starts at 7%.
+(Web) The Tickspeed purchase multiplier starts at ×1.080 instead of ×1.125.
+See Tickspeed.
+Fifth Dimension Autobuyer
+6
+
+6
+Upgrading each Antimatter Dimension costs the Antimatter Dimension 2 tiers below it instead of antimatter. Antimatter Dimension prices are modified.
+Dimension 3 will cost Dimension 1s, 4 will cost 2, etc. Base prices (Dimensions 3-8):100/500/2,500/20K/200K/4M
+Price increases (Dimensions 3-8):10K/12K/18K/26K/32K/42K
+
+Sixth Dimension Autobuyer
+10
+
+7
+The multiplier from buying 10 Antimatter Dimensions is reduced to ×1. This increases by ×0.2 per Dimension Boost, to a maximum of ×2, and is unaffected by any upgrades.
+min(1+b/5,2), where b is Dimension Boosts.
+Seventh Dimension Autobuyer
+9
+
+8
+Dimension Boosts provide no multiplier and Antimatter Galaxies cannot be bought. Dimensional Sacrifice resets antimatter and all Antimatter Dimensions, but also gives a significantly stronger multiplier.
+The two provide no multiplier, but you still unlock Dimensions. For the improved formula, see Dimensional Sacrifice. This lets a superexponential loop occur with the help of Tickspeed.
+During this challenge, only 5 Dimension Boosts can be bought, as additional Dimension Boosts would do nothing.
+Eighth Dimension Autobuyer
+11
+
+9
+Whenever you buy Tickspeed upgrades or 10 of an Antimatter Dimension, everything else of equal cost will increase to its next cost step.
+Seems unintuitive, because the costs only increase when you buy 10 of an Antimatter Dimension or single Tickspeed upgrade, but it increases the prices if the single Antimatter Dimension or single Tickspeed upgrades match.
+Tickspeed Autobuyer
+5
+
+10
+There are only 6 Antimatter Dimensions. Dimension Boost and Antimatter Galaxy costs are modified.
+Dimensional Sacrifice is effectively disabled as there is no Eighth Dimension available. For the modified costs, see Dimension Shift and Boost and Antimatter Galaxy.
+Dimension Boost Autobuyer
+4
+
+11
+There is normal matter which rises once you have at least 1 2nd Antimatter Dimension. If it exceeds your antimatter, it will Dimension Boost without giving the bonus.
+Sets you to the starting amount of Antimatter and 0 Antimatter Dimensions. Matter increases at a (1.03 + \frac{b}{200} + \frac{g}{100})^{10}x rate per second, where b is Dimension Boosts and g is Galaxies.
+Galaxy Autobuyer
+12
+
+12
+Each Antimatter Dimension produces the Dimension 2 tiers below it instead of 1. Both 1st and 2nd Dimensions produce antimatter. The 2nd, 4th, and 6th Dimensions are made stronger to compensate.
+Dimensions 1 and 2 produce antimatter, D3 produces D1, D4 -> D2 etc. Second Dimension's effectiveness is raised to the 1.7 and amount's effect on its production is raised to the 1.5.
+Fourth Dimension's power is ^1.4 and amount's effect on production is ^1.3.
+Sacrifice only resets the first 6 Dimensions since the Seventh Dimension cannot be naturally produced.
+Big Crunch Autobuyer
+7
+
+## Infinity Challenges
+Main article: Infinity Challenges
+
+## Eternity Challenges
+Main article: Eternity Challenges
+
+##  Achievements 
+Achievements related to Normal Challenges: (Note that these are mobile achievements)
+
+* Daredevil: Complete 3 Normal Challenges.
+* Antichallenged: Complete all the Normal Challenges (Reward: All Antimatter Dimensions are 10% stronger.)
+* Zero Deaths: Get to Infinity without Dimension Boosts or Antimatter Galaxies while in a Normal Challenge. (Reward: Antimatter Dimensions 1-4 are 25% stronger.)
+* You did this again just for the achievement right?: Complete the 3rd Antimatter Dimension Autobuyer challenge (C3) in 10 seconds or less. (Reward: 1st Antimatter Dimensions are 50% stronger.)
+* Not-so-challenging: Get the sum of Normal Challenge times under 3 minutes. (Reward: All Antimatter Dimensions are stronger in the first 3 minutes of Infinities, but only in challenges.)
+* Not a second lost: Get the sum of Normal Challenge time under 5 seconds. (Reward: All Antimatter Dimensions are 40% stronger, but only in challenges.)
+* Many Deaths: Complete the 2nd Antimatter Dimension Autobuyer challenge (C2) in 3 minutes or less. (Reward: All Antimatter Dimensions are stronger in the first 3 minutes of Infinities.)
+* Gift from the Gods: Complete the 8th Antimatter Dimension Autobuyer challenge (C8) in 3 minutes or less. (Reward: Dimensional Sacrifice is stronger.)
+* This is fine.: Complete the Tickspeed Autobuyer challenge (C9) in 3 minutes or less. (Reward: Boost per buying 10 Antimatter Dimensions +1%)
+
+Category:Challenges

@@ -1,0 +1,37 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Eternity
+# url: https://antimatterdimensions.wiki.gg/wiki/Eternity
+
+Eternity is the second reset layer of the game that is reached after getting 1.80e308 (Infinite) Infinity Points.
+
+
+== Mechanics ==
+The Eternity layer is first accessed through a button that originally unlocks 8 Infinity Dimensions for the first time. After the player reaches 1e280 Infinity Points and unlocks 8th Infinity Dimension, the button becomes purple and informs the player that they need to reach 1.80e308 Infinity Points.
+After reaching 1.80e308 Infinity Points for the first time, the purple button displays a text signifying that an Eternity reset is possible.
+When the player performs a Eternity reset for the first time, a new Eternity tab is unlocked, which contains 3 subtabs: Time Studies, Eternity Upgrades and Eternity Milestones. The player also gets Eternity Points, the primary currency of this Prestige layer, depending on the amount of Infinity Points they have, and one Eternity.
+Performing a Eternity reset subsequent times doesn't unlock new tabs and just awards the player with more Eternity Points and Eternities.
+Eternity resets most things encountered before Eternity, including but not limited to:
+
+Antimatter, Dimensions, Tickspeed, Dimension Boosts, Antimatter Galaxies;
+Infinity Points, Infinity Dimensions, Infinity Upgrades, Break Infinity Upgrades;
+Normal Challenge and Infinity challenge completions;
+Replicanti, Replicanti Upgrades and Replicanti Galaxies.
+The player keeps Achievements and everything under the General header in the Statistics tab.
+Performing an eternity reset is also referred to as eternitying.
+
+
+== Eternity Points ==
+Unlike with Infinity Points, the player can get more than 1 Eternity Point from a reset without having to do anything beforehand. The formula for calculating Eternity Points amount the player gets on reset is as follows:
+⌊EPmult*5log10(IPhighest this Eternnity)308−0.7⌋
+Due to the way this formula works, there are several facts about Eternity Point gain that the player can find:
+
+Having exactly 1.80e308 Infinity Points actually gives about 1.62 base Eternity Point gain.
+Every time the Infinity Point amount is multiplied by 1e308, the Eternity Point gain is multiplied by 5.
+
+
+== Eternities ==
+Early on, the player can only get 1 Eternity per reset, and most multipliers to Eternities are tied to content relating to Reality. The player can increase the amount of Eternity they gain with upgrades like Eternal Amplifier or Achievement 113.
+Eternities are used to determine the strength of certain upgrades (like Eternity Upgrade 2). They are also used as a way to gate progression: for example, unlocking Eternity Challenge 1 requires the player to get a certain number of Eterntiies.
+It is important not to confuse the Eternity Points with Eternities — Eternity Points are a primary currency of the layer and are used heavily throughout the game, while Eternities are a reset currency that largely can't be spent on upgrades and are only used in specific ways throughout the game.
+
+
+== Navigation ==

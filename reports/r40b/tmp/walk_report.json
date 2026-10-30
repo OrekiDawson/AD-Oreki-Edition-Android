@@ -1,0 +1,211 @@
+{
+ "tabs": [
+  {
+   "i": 0,
+   "tap": [
+    48,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 1,
+   "tap": [
+    146,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 2,
+   "tap": [
+    244,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 3,
+   "tap": [
+    342,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 4,
+   "tap": [
+    440,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 5,
+   "tap": [
+    538,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 6,
+   "tap": [
+    636,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 7,
+   "tap": [
+    734,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 8,
+   "tap": [
+    832,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 9,
+   "tap": [
+    930,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  },
+  {
+   "i": 10,
+   "tap": [
+    1028,
+    2142
+   ],
+   "texts": [
+    "云存档",
+    "云存档功能默认 禁用 。 你可以通过下面的按钮，或通过选项页面中的\"保存 & 加载\"启用。",
+    "启用云存档",
+    "确定"
+   ],
+   "nonempty": true,
+   "n_nodes": 4
+  }
+ ],
+ "ev0": 202,
+ "ev_after": 230,
+ "new_state_changed": [
+  {
+   "t_mono_ns": 1646167224100,
+   "event_time_uptime_ms": 1646167,
+   "record_mono_ns": 1646356224100,
+   "wall_ms": 1793358149465,
+   "event_type": "TYPE_WINDOW_STATE_CHANGED",
+   "event_type_id": 32,
+   "package_name": "com.oreki.antimatterdimensions",
+   "window_id": 24,
+   "class_name": "b8",
+   "view_id": null,
+   "content_description": null,
+   "text": null,
+   "is_password": false,
+   "bounds": "-503,918,522,1557",
+   "item_count": -1,
+   "scroll_delta": 0,
+   "nearest_frame_id": 4
+  },
+  {
+   "t_mono_ns": 1646354911600,
+   "event_time_uptime_ms": 1646354,
+   "record_mono_ns": 1646518911600,
+   "wall_ms": 1793358149525,
+   "event_type": "TYPE_WINDOW_STATE_CHANGED",
+   "event_type_id": 32,
+   "package_name": "com.oreki.antimatterdimensions",
+   "window_id": 24,
+   "class_name": "b8",
+   "view_id": null,
+   "content_description": null,
+   "text": null,
+   "is_password": false,
+   "bounds": "-208,918,817,1557",
+   "item_count": -1,
+   "scroll_delta": 0,
+   "nearest_frame_id": 4
+  }
+ ]
+}

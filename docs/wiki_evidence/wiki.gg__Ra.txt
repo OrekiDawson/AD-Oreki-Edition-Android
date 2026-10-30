@@ -1,0 +1,58 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Ra
+# url: https://antimatterdimensions.wiki.gg/wiki/Ra
+
+Ra is the fifth Celestial in progression, themed around remembering and improving the previous four Celestials. Unlocked by fully completing all of V's Achievements, they introduce memories that can be used to bring back positive effects from previous Celestials in a stronger way, ranging from improving convenience and automation, improving the effects of various things to unlocking new features and mechanics. The player starts with only Teresa at level 1, but will progressively unlock the other celestials over time.
+
+
+== Reality ==
+Ra's Reality is unlocked alongside the Celestial and has 2 simple but effective penalties. The player can only have up to 4 Dimension Boosts and the Tickspeed purchase multiplier is fixed at ×1.125, making Galaxies's effect on it useless. There is no reward for completing the Reality.
+Within Ra's Reality, Memory Chunks for Celestial Memories will be generated based on certain resource amounts, with each Celestial having different resources as the main factor.
+
+Storing real time halts Memory Chunk generation, but Memories will still be gained normally.
+
+
+== Memories ==
+Each previous Celestial within Ra gains levels by using memories, which are generated passively over time from Memory Chunks. Each Memory Chunk generates a base of one Memory per second, which can be improved with memory upgrades and milestones. Memory Chunks and Memories are not uniform, meaning that each Celestial has their own 2 resources that are separate from others.
+
+
+=== Upgrades ===
+Memories can be spent on 3 different rebuyable upgrades. The player can use it to increase Memory gain directly, increase Memory Chunk gain in Ra's Reality or level up the Celestial. The player starts Ra with only Teresa unlocked and each successive Celestial is unlocked by reaching level 8 with the previous Celestial. Levels are capped at 25.
+The first 2 upgrades - Recollection and Fragmentation - have a cap depending on this factor:
+CostUpgrade≥0.5*requiredMemoriesLevelCap
+This makes the 2 upgrades purchasable 22 times and 11 times respectively. However, leveling up a Celestial to 25 will result in the player losing the ability to upgrade Memory Chunk and Memory gain in that celestial, as they do not have an effect on outside resources.
+
+The following table shows the costs of all 3 upgrades for individual levels.
+
+
+=== Remembrance ===
+Having a total of 20 levels across all Celestials unlocks Remembrance, allowing the player to choose a particular Celestial to gain ×5 more Memory Chunks while inside of Ra's Reality, with the consequence of halving the other Celestial's chunk gains. Remembrance becomes visible once the player unlocks Effarig's Memories by leveling Teresa up to 8. Leveling up all Celestials up to 25 disables and hides this mechanic.
+
+
+=== Unlockable mechanics ===
+Leveling up a celestial to a certain level can also unlock new mechanics for or outside the celestial.
+
+Teresa unlocks the ability to charge Infinity Upgrades at level 2, changing the formulas to be much stronger. At level 10, they improve certain Glyph effects once the player reaches certain thresholds in Glyph sacrifice value.
+At level 2, Effarig unlocks Glyph Alchemy and later on also makes Effarig Glyphs stronger while gradually removing almost all random elements of Glyph generation.
+The Nameless Ones unlocks the pulse mechanic at level 10 where the Black Hole discharges a fraction of the player's stored game time automatically every 5 ticks.
+V unlocks Triad Studies at level 6, which cost Space Theorems and require 3 nearby Studies to purchase them. In Addition, Hard V-Achievements are unlocked alongside cursed Glyphs and the inverted Black Hole which are used to complete them.
+
+
+== Milestones ==
+All 4 Celestials have 7 milestones that are unlocked unlocked once the player levels them up to a certain level. The milestones are unlocked at levels 1, 2, 5, 8 (except V with 6), 10, 15 and 25 respectively. 
+All level 5 milestones make all Memory Chunks produce more Memories based on different factors, and level 8 milestones unlock the successive Celestials.
+
+
+== Trivia ==
+Ra's name is the shortened form of Razenpok, who worked on Antimatter Dimensions as the technical architect.
+The name also comes from the sun god Ra from the ancient Egyptian mythology.
+Not knowing anything about the other Celestials, Ra asks the player to help remember them in exchange for powers, unknowing of their past actions that caused them to forget everything. (Editors note: this is in trivia for now)
+During the development on the Reality Update, sometime in 2019, The Nameless Ones used to have an unlockable mechanic by Ra that worked out similarly to Time Dilation, named Time Compression. It eventually got scrapped for its incompatibility with other content in terms of balancing and usability.. 
+
+
+=== Footnotes ===
+
+
+=== References ===
+
+
+== Navigation ==

@@ -1,0 +1,452 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Lai'tela
+# url: https://antimatter-dimensions.fandom.com/wiki/Lai%27tela
+
+Lai'tela is the sixth Celestial, unlocked by purchasing the appropriate Imaginary Upgrade for 1e9 iM.
+
+##  Dark Matter Dimensions 
+Lai'tela gives a new currency called Dark Matter, which provides a multiplier to Continuum's effect based on the highest amount of Dark Matter you have ever had. Dark Matter is produced by Dark Matter Dimensions, in a similar cascading way to all other types of dimensions in the game. Unlike other dimensions, there are only four Dark Matter Dimensions rather than eight. You start with the first one unlocked immediately and the higher ones are unlocked via Imaginary Upgrades. When unlocking dimensions, you are given 1 of the dimension and cannot gain more without having it produced from the next tier up, or the Annihilation multiplier for the 4th Dark Matter Dimension after 5e11 Singularities.
+
+Each Dark Matter Dimension, after a certain interval of time, generates two resources: Dark Matter or the next lower Dark Matter Dimension, and another resource called Dark Energy. Dark Matter and Dark Matter Dimension production per interval are equal to the product of your Dark Matter multiplier and the number of dimensions you have, while Dark Energy production is independent of your dimension amount. Dark Energy is used to produce Singularities, which have their own How To Play entry.
+
+Your Dark Matter increases the number of purchases from Continuum. 
+
+Dark Matter Dimensions can have their intervals upgraded down to a minimum of 10ms, at which point you can't upgrade the interval any further. You can choose to ascend Dark Matter Dimensions which reach that point, which initially multiplies Dark Matter gain by 500 and Dark Energy by 500. The interval gets multiplied by 1,200 but can be upgraded once again. Reaching 10ms again allows you to ascend again if you choose to.
+{| class="fandom-table"
+|+Dark Matter Dimensions
+!Dimension
+!Upgrades Base Cost (Dark Matter)
+!Base Interval
+!Base DM/tick
+!Base DE/tick
+|-
+|1st
+|100
+|1 second
+|1 DM/tick
+|0.001 DE/tick
+|-
+|2nd
+|144.0 M (1.44e8) 
+|4 seconds
+|0.0001 DMD1/tick
+|0.015 DE/tick
+|-
+|3rd
+|248.8 Qa (2.48832e17)
+|16 seconds
+|0.0000022 DMD2/tick
+|0.225 DE/tick
+|-
+|4th
+|1.06e42
+|64 seconds
+|0.000000117 DMD3/tick
+|3.375 DE/tick
+|}
+
+For every Interval upgrade, the Interval decreases by 8%  (\ \times 0.92 \ \ )and the cost scales by (\ \times 5 \ \ ).
+
+For every DM multiplier upgrade, the DM production is multiplied by \Bigr (
+\ \ \times 2 ( 1.15^{lvl}) + 1 \ \ 
+\Bigr )and the cost scales by (\ \times 10 \ \ ) .
+
+For every DE production upgrade, the DE production is multiplied by \Bigr ( \ \ \times 
+(1+ \frac
+{lvl}
+{10})
+(1.005^{lvl})
+\ \ \Bigr )and the cost scales by \bigr ( \ \ \times \ 
+1.65-0.05( DMD \ Tier - 1)
+\ \ \ \bigr ).
+
+##  Singularity 
+Singularities are a new resource that you can obtain using features within Lai'tela.
+
+To obtain Singularities, you need to reach 200 Dark Energy. When you do, you get the option to condense all your Dark Energy into a Singularity, resetting it back to zero. Any extra Dark Energy above this amount doesn't carry over and is thus wasted. Note that only Dark Energy is reset, the status of your Dark Matter and its dimensions stays the same when condensing Singularities.
+
+Once you reach 10 Singularities, you can freely increase or decrease the Dark Energy requirement to condense Singularities by a factor of 10 (with a minimum of 200 Dark Energy). This increases or decreases the number of Singularities gained from resetting at the cap by more than a factor of 10 (determined by the Singularity Milestones of Increased Singularity gain per cap increase reached, the default factor is 11), making higher caps worth more if you are willing to wait.
+
+The purpose of Singularities is to unlock Singularity Milestones, which act similarly to Eternity Milestones. Unlocking these milestones simply requires you to reach the total number of Singularities specified; Singularities are not spent. There are three types of milestones - one-time milestones, milestones repeatable a limited number of times, and milestones that can be repeated indefinitely.
+
+{| class="fandom-table"
+|+Singularity Milestones
+!Type
+!First Completion Requirement and Max Completion (Singularities)
+!Singularities Requirement Scaling
+!Effect Description
+!Effect Formula (n = completions)
+|-
+|
+|1 (\infty)
+|125 (increase faster after 20)
+|Continuum percentage multiplier
+| \times \bigr (
+1 + 0.03n
+\bigr )
+|-
+|ᛝ
+|2 (\infty)
+|20 (increase faster after 30)
+|Dark Matter production multiplier
+|\times 1.5^n
+|-
+|ᛝ
+|3 (\infty)
+|120 (increase faster after 10)
+|Dark Energy production multiplier
+|\times 2^n
+|-
+|ᛝ
+|4 (\infty)
+|40 (increase faster after 25)
+|Dark Matter Dimension upgrades are cheaper
+|/\ \ 2.5^n
+|-
+|ᛝ
+|8 (8)
+|80
+|Automatically condense Singularities when reaching a threshold above the cap
+|N/A → Cap x[1.3, 1.22, 1.15, 1.1, 1.06, 1.03, 1.01, 1] (leftmost is first completion reward)
+|-
+|ᛝ
+|10 (\infty)
+|100 (increase faster after 20)
+|Dark Matter Dimension interval decrease
+|\biggr /\ \ \Biggr ( \frac {5}{3} \Biggr )^n
+|-
+|ᛝ
+|30 (4)
+|170
+|Dark Matter Dimension Autobuyers
+|No autobuyers → Autobuy up to the [1st, 2nd, 3rd, 4th] DMD (leftmost is the first completion reward)
+|-
+|ᛝ
+|45 (8)
+|650
+|Autobuyer Speed for all DMD Autobuyers
+|Once every [30, 20, 15, 10, 5, 3, 2, 1, 0] seconds (30 seconds at 0 completions of this Milestone), at the final completion it will be displayed as Instant
+|-
+|ᛝ
+|50 (\infty)
+|3000 (increase faster after 5)
+|Singularity gain multiplier
+|\times 2^n
+|-
+|
+
+|80 (1)
+|
+| Tesseracts boost Dark Matter and Dark Energy production
+|\times 1.1^{Tesseracts}
+|-
+|ᛝ
+|150 (4)
+|10000
+|Increased Singularity gain per cap increase
+|11+n
+|-
+|ᛝ
+|1500 (6)
+|10000
+|Dark Energy multiplier based on disabled Dimension count within Lai'tela
+|\times (1+0.05n)^{Dimensions Disabled}
+|-
+|
+
+|3,000 (1)
+|
+|Infinities boost Dark Matter and Dark Energy production
+|\times max \Biggr( 1, \frac {log_{10}(Infinities)}{1,000} \Biggr )
+|-
+|
+
+|80,000 (1)
+|
+|Singularities improve the repeatable Dilated Time multiplier upgrade
+|\times min\Biggr ( 
+1 + \frac {log_{10}(Singularities)}{100},
+1.35
+\Biggr )
+|-
+|ᛝ
+|1.20e5 (8)
+|2400
+|Dark Matter Dimensions Ascension increases the interval less
+|1200-50n
+|-
+|ᛝ
+|1.30e5 (5)
+|50000
+|Interval cost scaling is better
+|x^{1-0.03n}
+|-
+|ᛝ
+|2.00e5 (\infty)
+|4000 (increase faster after 15)
+|Ascension affects Dark Matter production more
+|\times 500 + 100n
+|-
+|
+
+|3.00e6 (1)
+|
+|Boost Dark Matter and Dark Energy production based on highest Glyph level
+|\times max \Biggr ( 1,
+\biggr (
+\frac {GL-15,000}{2,000}
+\biggr )^{0.5}
+\Biggr )
+|-
+|
+
+|8.00e7 (1)
+|
+|Singularities boost game speed
+|\times \Bigr (
+log_{10}(Singularities)
+\Bigr )^3
+|-
+|ᛝ
+|1.00e8 (4)
+|140
+|DMD Ascension Autobuyers
+|No autobuyers → Ascend up to the [1st, 2nd, 3rd, 4th] DMD (leftmost is first completion reward)
+|-
+|
+
+|3.00e9 (1)
+|
+|Time Theorems boost Dark Matter and Dark Energy gain
+|\times max\Biggr ( 1, \biggr ( \frac
+{log_{10}\bigr ( TT \bigr )-1,000}
+{50}
+\biggr )^{0.5}
+\Biggr )
+|-
+|ᛝ
+|5.00e11 (1)
+|
+|Annihilation mult. generates 4th DMD when Annihilation is available
+|DMMult/s
+|-
+|ᛝ
+|5.00e12 (1)
+|
+|4th Dark Matter Dimension amount boosts Dark Matter and Dark Energy gain
+|\times max\Bigr ( 1,
+DMD4^{0.03}
+\Bigr )
+|-
+|ᛝ
+|4.00e18 (1)
+|
+|Unlock an Autobuyer for Annihilation
+|
+|-
+|
+
+|3.00e21 (1)
+|
+|Singularities give a power effect to Time Theorem gain
+|x^{1+
+\frac
+{log_{10}(Singularities)}
+{70}
+}
+|-
+|
+
+|8.00e22 (1)
+|
+|Game speed boosts Dark Matter and Dark Energy production
+|\times max \biggr ( 1,
+\frac
+{log_{10}
+\Bigr ( \frac
+{Gamespeed}
+{e120}
+\Bigr )}
+{40}
+\biggr )
+|-
+|
+
+|3.00e24 (1)
+|
+|Singularities boost pre-instability Glyph level
+|\times \Biggr ( 1+
+\frac
+{
+\Bigr (
+log_{10} \bigr (
+Singularities
+\bigr )-20
+\Bigr )}
+{30}
+\Biggr ) 
+|-
+|
+
+|8.00e33 (1)
+|
+|Dilated Time boosts Dark Matter production
+|1.6^{ \frac
+{log_{10}(DT+1)}
+{1,000}
+}
+|-
+|
+
+|3.00e38 (1)
+|
+|Infinities gain a power effect based on Singularities
+|x^{ \biggr (
+1 + \frac {log_{10}(Singularities + 1)}
+{300}
+\biggr )
+}
+|-
+|
+
+|2.50e45 (1)
+|
+|Singularities increase effective Tesseract count
+|\times  \Biggr (
+1 + \frac {log_{10}(Singularities)}
+{80}
+\Biggr )
+|}
+
+Legend:
+
+* ᛝ - Boosts Lai'tela related mechanics
+* Fa Arrows Up Down Left Right - Boosts outside mechanics based on Lai'tela mechanics
+* Fa Minimize - Boosts Lai'tela mechanics based on outside mechanics
+
+(hello, other experienced wiki users, please modify the fas fa code blocks to their respective symbols)
+
+##  Annihilation 
+An Imaginary Upgrade allows you to unlock a prestige called Annihilation. Annihilation resets your Dark Matter and Dark Matter Dimensions but adds a permanent multiplier to Dark Matter that applies to all Dark Matter Dimensions. You can Annihilate multiple times; the additions to the multiplier stack additively, and there is no need to Annihilate for a greater addition each time. You must have at least 1e60 Dark Matter to Annihilate.
+
+The Annihilation multiplier formula is:+log \biggr ( \frac 
+{DM}
+{e60} +1 
+\biggr )^{1.5},multiplied by the Imaginary Upgrade 21 effect if you have this upgrade.
+
+##  Lai'tela's Reality 
+Lai'tela has a Reality that gives a multiplier to Dark Matter Dimensions' Production based on how well you do in the Reality. Whenever you complete the Reality in under 30 seconds, your highest available Dimension will be permanently disabled during further attempts of the Reality. Disabling all of your dimensions by completing the Reality in under 30 seconds eight times will also give you a ×8 multiplier to Dark Energy gain.
+
+When you are in Lai'tela's Reality, Infinity Point and Eternity Point gain are Dilated, Game Speed is reduced to 1 and gradually comes back over 10 minutes, and Black Hole storing, discharging, pulsing, and inversion are all disabled. Antimatter generates entropy inside of this Reality. 
+
+Entropy Formula:\frac { \Bigr ( \frac {\log_{10}
+(AM+1)}
+{100,000,000,000}
+\Bigr )^2 }
+{200}Border between 0% and 50% (e1e12 AM)) At 100% entropy, the Reality becomes destabilized and you gain a reward (Dark Matter Dimensions' Production Multiplier) based on how quickly you reached 100%.
+
+Reward Formula:100^{Completions}
+\times 
+\biggr ( \frac {360}
+{Fastest\ Completion\ (s)}
+\biggr )^2  The Fastest Completion will be set to 5 minutes after each completion. 
+
+Destabilizing the Reality in less than 30 seconds makes it significantly more difficult (Production from xth and higher Dimensions is disabled, including Antimatter, Infinity, and Time Dimensions)
+
+Lai'tela won't directly unlock the next Celestial.
+
+##  Quotes 
+
+##  Unlocking Lai'tela 
+*You finally reached me.
+*I guess it is time to reveal,
+*The secrets hidden beneath existence itself.
+*The shape of dimensional perfection, Continuum.
+*And the powers that bind the Multiverse,
+*Dark Matter and Dark Energy.
+*My knowledge is endless and my wisdom divine.
+*So you can play around all you want.
+*For I am Lai'tela, the Celestial of Dimensions,
+*And I shall watch you forever.
+
+##  Destabilizing Lai'tela's Reality For the First Time 
+*Unlike the others beneath me, I have no need for a Reality.
+*For I can simply create them, knowing full well it will collapse.
+*A power more incredible than any other, to build a Reality.
+*A prison, that can restrain even celestial power.
+*And this is why nothing you do will change a thing.
+*When you tire of struggling, you too, shall be bound and forgotten.
+*You will never find a way to overpower me.
+
+##  Destabilizing Lai'tela's Reality for the Second Time 
+*You... seem to be having too much fun.
+*Just like they did before meeting their fate.
+*Maybe my judgement was harsh, or unwarranted.
+*But maybe that matters not.
+*It gives me no solace to ponder and look back.
+*As all I can do is reminisce upon every possible action I could have taken.
+*But I digress. We should tighten those chains.
+
+##  Condensing the First Singularity 
+*With my knowledge, I never found the need to question.
+*Everything always functioned right as designed.
+*And yet, your arrival baffles me.
+*Were you always just out of sight?
+*Growing, controlling, understanding, ascending?
+*You have taken control of the darkness so quickly.
+*Molded them into your own design, and now into a singular point...
+*It... it does not matter. The end will remain the same.
+
+##  Annihilating for the First Time 
+*Back to square one, again.
+*Your chains shall bind you tighter, as your end slowly nears.
+*While we transcend time and existence itself.
+*Even if we may cease, we just come back. Never the exact same as before.
+*And so... we repeat forever.
+*And you?
+*...
+*The answer... eludes me...
+
+##  Unlocking the 3rd Dark Matter Dimension 
+*Your absolute control of Antimatter...
+*Your mastery of it, molding it into your own Power...
+*It could not have been an accident.
+*How did you manage to obtain it?
+*Fascinating... I was never aware of this.
+*... was I?
+
+##  Destabilizing Lai'tela's Reality for 4 Times 
+*I do not understand...
+*Were there others... controlling Dimensions in this way?
+*Did they... vanish? How have we not found them?
+*Are they... us? Are we the endpoint?
+*Or is their fate... something we cannot understand?
+*No, I must be missing something...
+*Are you causing gaps within my own memory?
+*What... ARE you?
+
+##  Purchasing the Imaginary Upgrade "Existential Elimination"
+*It is all impossible, beyond my comprehension...
+*Unless... Is this all just part of the cycle?"
+*Can... you see beyond it all? Is... this why...
+*I feel... afraid?
+* I feel... my powers, my memories, being erased...
+*Just like... when my role was almost usurped...
+*And yet... I am unable to bring myself to do anything.
+*Because this... was... my mistake...
+
+## Getting 1e40 Singularities
+*I know not for how much... longer I can hold...
+*You are attaining... total mastery... over the dark...
+*While I can barely... hold onto my name...
+*What... can I... even do?
+
+## Fully Destabilizing Lai'tela's Reality
+*I feel... like I had something to say...
+*I am not sure...
+*I cannot... hold onto the darkness any longer...
+*I do not even... have anything left...
+*Something about... destruction...
+*The end...
+
+##  Trivia 
+Lai'tela is named after Finnish soap opera character Ismo Lai'tela, whose first name reversed is Omsi, one of the developers of Antimatter Dimensions.

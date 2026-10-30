@@ -1,0 +1,28 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Eternity Challenges
+# url: https://antimatterdimensions.wiki.gg/wiki/Eternity_Challenges
+
+Eternity Challenges (abbreviated as EC) are the third set of Challenges, which are unlocked by the respective Time Studies from its tree. They are modified Eternities that require a higher target of Infinity Points to complete. The EC Time Studies cost a certain amount of Time Theorems and have a secondary requirement that must be met before the Study is actually unlocked. There are 12 Eternity Challenges in the game with a total of 60 unique completions.
+Completing an Eternity Challenge respecs the Time Study Tree and rewards the player with powerful effects similar to Time Studies. The rewards are applied permanently with no need to have the respective Time Study purchased. Eternity Challenges are completable up to five (5) times, each having the secondary requirement and end goal increased, and rewards improved. 
+When an Eternity Challenge secondary requirement is fulfilled, it is removed from the study requirement until that particular challenge is completed, meaning the player only needs to complete it once. As a result, an Eternity Challenge can be unlocked with one set of studies, and then respec into a different set to beat the challenge. The last two Eternity Challenges don't follow this rule.
+
+
+== Time Study Tree ==
+
+Eternity Challenges are a lot more distinct from the previous Challenge types — Normal and Infinity Challenges — not only can a single Eternity Challenge be repeated five times, but its purchase requirements are also more complex; note the additional factor of needing to have purchased Studies before that point, and secondary requirements.
+
+
+== Challenges ==
+
+Eternity Challenges 4 and 12 have a fail condition which automatically sends the player back to the normal Eternity and have the time study respecced. These 2 challenges will have their additional conditions hardened after completion. Unlike Normal and Infinity Challenges, the rewards aren't shown until the player completes the challenge once, even if the effect's value exceeds 1.
+
+
+== Related Achievements ==
+
+
+== Trivia ==
+
+
+=== Footnotes ===
+
+
+== Navigation ==

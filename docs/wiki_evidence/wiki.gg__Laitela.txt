@@ -1,0 +1,70 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Laitela
+# url: https://antimatterdimensions.wiki.gg/wiki/Laitela
+
+Lai'tela is the sixth and penultimate Celestial, themed around Dimensions. They are unlocked by buying the Imaginary Upgrade "Fabrication of Ideals". The Celestial of Dimensions, Lai'tela features Dark Matter Dimensions with its first tier producing Dark Matter, which gives more Antimatter Dimension and Tickspeed purchases from Continuum.
+
+
+== Reality ==
+Lai'tela's Reality is unlocked alongside the Celestial. It dilates Infinity Point and Eternity point gains, reduces game speed to 1 which gradually comes back over 10 minutes and disables Black Hole features such as storing, discharging, pulsing, and inversion. Making a new Reality within Lai'tela gives no rewards.
+Within Lai'tela's Reality, Antimatter generates entropy which is measured in percentage. How fast entropy is generated is based on this formula which has Antimatter as the main factor:
+Min(Max((log10(AM+1)1011)2,0),100)200
+Reaching 100%(1) entropy will destabilize the Reality, effectively exiting it. The player is then given a reward based on how fast they reached 100% within the Reality. The Reality can be retried for faster destabilizations, improving the reward's effect. The reward is a multiplier to Dark Matter Dimensions:
+Max(100Completions*(360Seconds)2,1)
+Destabilizing Lai'tela's Reality in less than 30 seconds will make the Reality significantly harder by disabling the highest available Dimension, in exchange for giving a stronger reward. The player needs to complete Lai'tela's Reality again in under 5 minutes to have the reward improved. 
+
+Disabling all 8 dimensions by completing the Reality in under 30 seconds 8 times will also give the player a ×8 multiplier to Dark Energy gain. Lai'tela's Reality with all dimensions disabled is impossible to destabilize even further and is only used to unlock the final Imaginary Upgrade "Omnipresent Obliteration".
+
+
+== Dark Matter Dimensions ==
+Dark Matter Dimensions are the fourth and final type of Dimensions, unlocked alongside Lai'tela. Unlike other 3 dimensions, there are only 4 Dark Matter Dimensions rather than 8. The player starts Lai'tela with only the 1st Dark Matter Dimension and the higher tiers are unlocked via respective Imaginary Upgrades; Those being "Massless Momentum", "Chiral Oscillation" and "Dimensional Symmetry". When unlocking dimensions, the player is given 1 of the dimension and cannot gain more without having it produced from the next tier up.
+The 1st Dark Matter Dimension produces Dark Matter, which provides a multiplier to Continuum's effect based on the highest amount of Dark Matter the player has ever had. Dark Matter Dimensions in general also produce Dark Energy, which is used to produce Singularities. Dark Matter and Dark Matter Dimension production per interval is equal to the product of Dark Matter multiplier and the number of dimensions the player has, while Dark Energy production is independent of the dimension amount.
+The production of the 2 dark resources occur every certain intervals. Dark Matter Dimensions can have their intervals upgraded down to a minimum of 10ms, at which point the player cannot upgrade the interval any further. Each purchase decreases the interval by 8% initially, or ×0.92.
+
+Dark Matter Dimensions have their own autobuyers, which are locked behind Singularity Milestones.
+
+
+=== Ascension ===
+If a Dark Matter Dimension has their interval reach 10ms, the player can choose to ascend that Dark Matter Dimension, initially multiplying Dark Matter gain and Dark Energy by 500. However, the interval gets multiplied by 1,200, but can be upgraded once again. The player can freely ascend Dark Matter Dimensions multiple times. The rewards and penalties for ascending can be improved by certain Singularity Milestones, along with the ability to automate the feature.
+
+
+=== Annihilation ===
+Dark Matter Annihilation is a reset mechanic exclusively for Dark Matter Dimensions, unlocked by purchasing the Imaginary Upgrade "Deterministic Radiation". The player must have at least e60 Dark Matter in order to Annihilate.
+Annihilating resets Dark Matter and Dark Matter Dimensions in exchange for a multiplier to all Dark Matter Dimensions. The player can Annihilate multiple times; the additions to the multiplier stack additively, and there is no need to Annihilate for a greater addition each time. The value Annihilation will add to the multiplier can be improved with the Imaginary Upgrade "Existential Elimination". The Annihilation multiplier can, when the respective Singularity Milestone is reached, generate 4th Dark Matter Dimensions when Annihilation is available. Annihilation can also be automated.
+The base formula for Annihilation: (log10(DM1060+1))1.5
+
+
+== Singularities ==
+Singularities are one of the main resources in Lai'tela, obtained by condensing Dark Energy. They require 200 Dark Energy at minimum, which the player gets the option to condense all the available Dark Energy into a Singularity, resetting it back to zero. Any extra Dark Energy above the condensing threshold do not carry over, and is thus wasted. Condensing Singularities only resets Dark Energy, while the status of Dark Matter and its Dimensions remain unaffected.
+Reaching 10 Singularities unlocks the ability to change the Dark Energy requirement to condense Singularities by a factor of 10 (with a minimum of 200). This increases or decreases the number of Singularities gained from resetting at the cap by more than a factor of 10 (11 at default; can be increased with Milestones), making higher caps worth more at the cost of waiting. The Dark Energy requirement can be increased up to 50 times, with 2e52 Dark Energy being the highest condensing can require.
+
+There are also other means of increasing Singularity gain via the repeatable Imaginary Upgrade "Entropic Condensing" and the respective Singularity Milestone.
+
+
+=== Singularity Milestones ===
+
+Singularity Milestones are a major feature in Lai'tela that act similarly to Eternity Milestones. These milestones require a total number of Singularities specified to be unlocked, and do not spend Singularities. There are three types of milestones that represent how many times they can be completed:
+
+"Infinite" milestones, which can be completed indefinitely. Their requirement increases with each completion, and each milestone has a certain completion threshold; beyond this threshold, each requirement increase is equivalent to 3 increases before the threshold.
+"Limited" milestones, which can only be completed a limited number of times. Like infinite milestones, their requirement increases with each completion; however, their requirement does not increase faster after a certain number of completions.
+"Unique" milestones, which can only be completed once.
+Independently of the milestone type, milestones also have an icon indicating what kind of upgrade they generally give:
+
+ᛝ: Milestones that help mechanics specific to Lai'tela
+: Milestones that let a resource in Lai'tela affect the rest of the game
+: Milestones that improve Lai'tela based on something outside of Lai'tela
+
+
+== Related Achievements ==
+
+
+== Trivia ==
+Lai'tela's name is derived from "Ismo Laitela", a character from the Finnish television soap opra "Salatut elämät". The first name of the character becomes "Omsi" when reversed. Omsi is one of the lead Developers of the game. She is also responsible for the art in Achievements along with its whole artstyle presented on mobile versions.
+
+
+=== Footnotes ===
+
+
+=== References ===
+
+
+== Navigation ==

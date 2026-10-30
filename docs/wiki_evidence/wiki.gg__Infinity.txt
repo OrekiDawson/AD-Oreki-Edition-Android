@@ -1,0 +1,43 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Infinity
+# url: https://antimatterdimensions.wiki.gg/wiki/Infinity
+
+Infinity refers to two things, the value of 21024, and "Big Crunch". Big Crunch is the first reset layer of the game.
+
+
+== Big Crunch ==
+After reaching 1.80e308 (Infinite) antimatter for the first time, most UI elements disappear, aside from the text that says "The world has collapsed due to excess of antimatter.", as well as a huge "Big Crunch" button, that allows the player to perform a Big Crunch.
+When the player performs a Big Crunch for the first time, several things happen:
+
+a new Infinity tab is unlocked, which contains 3 subtabs: Infinity Upgrades, Breaking Infinity, and Replicanti;
+a new Challenges tab which only has the Normal Challenges sub-tab;
+the player also gets one Infinity Point, the primary currency of this Prestige layer, and one Infinity.
+Performing a Big Crunch subsequent times doesn't unlock new tabs and just awards the player with more Infinity Points and Infinities.
+Big Crunch resets most things encountered before Infinity, such as Antimatter, Dimensions, Tickspeed, Antimatter Galaxies, Dimension Boosts, as well as some things within the Infinity layer, such as Replicanti, Replicanti Galaxies, Infinity Dimension amounts (not purchases!). The player keeps Achievements and everything in the Statistics tab.
+Big Crunch is also referred to as infinitying or performing an Infinity.
+
+
+== Infinity Points ==
+Before breaking Infinity, performing a Big Crunch will give the player one Infinity Point. After getting all 16 non-repeatable Infinity Upgrades, the amount of Infinity Points gained upon reset can be increased by a repeatable Infinity Upgrade by ×2 per upgrade.
+After breaking Infinity, the player unlocks the ability to get more than 1.80e308 (Infinite) antimatter and get more than 1 base Infinity Point per Infinity. The formula for calculating Infinity Points amount the player gets on reset is as follows:
+
+Due to the way this formula works, there are several facts about Infinity Point gain that the player can find:
+
+Having exactly 1.80e308 (Infinite) antimatter actually gives about 1.78167 base Infinity Point gain after breaking Infinity, as opposed to 1;
+Every time the antimatter amount is multiplied by 1e308, the Infinity Point gain is multiplied by 10;
+With Achievement 103, the player only needs to multiply an antimatter amount by 1e307.8 to get 10 times more Infinity Points;
+With Time Study 111, the player only needs to multiply an antimatter amount by 1e285 to get 10 times more Infinity Points. This upgrade plays a pretty big part in increasing the amount of Infinity Points the player can get.
+
+
+== Infinities ==
+Before Eternity, the player can only get 1 Infinity per crunch, and most multipliers to Infinities are tied to content relating to Eternity or later reset layers.
+Unlike Infinity Points, Infinities themselves don't see much use before Eternity, acting as a 1-to-1 translation of amount of times the player infinitied. The value is also used to determine strength of certain Infinity and Break Infinity upgrades.
+After Eternity, the player can generally increase the amount of Infinities they gain with upgrades like Time Study 32 and Achievement 87. They are also used as a way to gate progression: for example, unlocking Eternity Challenge 4 requires the player to get a certain number of Infintiies.
+It is important not to confuse the Infinity Points with Infinities — Infinity Points are a primary currency of the layer and are used heavily throughout the game, while Infinities are a reset currency that largely can't be spent on upgrades and are only used in specific ways throughout the game.
+
+
+== Trivia ==
+The value of Infinity is 21024≈1.79769e308. It is the Limit of 64-bit IEEE floating point numbers (this applies in JavaScript), and is the maximum value that a number can normally get in JavaScript applications.
+This game uses the Break Infinity library by Patashu with Decimal constructor to calculate numbers beyond the value of Infinity. Variables declared as a Decimal become a non-primitive Object that stores two properties: mantissa, and exponent. Such number objects are used in numerous places throughout the game.
+
+
+== Navigation ==

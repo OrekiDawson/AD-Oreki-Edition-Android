@@ -1,0 +1,23 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Black Hole
+# url: https://antimatterdimensions.wiki.gg/wiki/Black_Hole
+
+The Black Hole is a feature unlockable after your first Reality. Unlike Glyphs, Reality Upgrades and Perks, the Black Hole subtab is only unlocked after performing the prestige. The Black Hole can be unlocked for 100 Reality Machines. It has a cooldown after which it may be activated, charging up for 5 seconds and increasing your Game Speed for its active duration. After unlocking the Black Hole, the player will have the option to pause it, pausing its cooldown timer — or active duration while it is active. Auto-Pause will automatically pause the Black Hole 5 seconds before activation.
+The player can unlock a second Black Hole by purchasing the Reality Upgrade Parity of Singularity. This Black Hole has its own set of upgrades, aswell as cooldown, which only progresses while BH1 is active. Its effect is multiplicative with that of BH1.
+
+
+== Black Hole Upgrades ==
+Black Hole 1
+
+Black Hole 2
+
+
+== Trivia ==
+
+
+=== Footnotes ===
+
+
+=== References ===
+
+
+== Navigation ==

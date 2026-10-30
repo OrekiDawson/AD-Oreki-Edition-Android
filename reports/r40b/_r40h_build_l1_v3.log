@@ -1,0 +1,178 @@
+[0] 复制反编译目录 -> _work/mod
+[1] 从 density split 合并 54 个资源文件
+[1] 补回 56 条 public.xml 资源 ID（drawable/dimen）
+[2] app_name -> 反物质维度，新增 2 条快捷方式字符串
+[2] 新增 res/xml/oreki_shortcuts.xml（长按桌面图标入口）
+[R40B] 更新日志中文化：最新 6 个版本 127 条已译，其余 616 条保留英文原文
+[3] Manifest: package -> com.oreki.antimatterdimensions，移除 50 个 Google/split 相关条目
+      - manifest@requiredSplitTypes
+      - manifest@splitTypes
+      - uses-permission com.android.vending.BILLING
+      - uses-permission com.google.android.gms.permission.AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_ATTRIBUTION
+      - uses-permission android.permission.ACCESS_ADSERVICES_TOPICS
+      - uses-permission com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      - uses-permission com.google.android.providers.gsf.permission.READ_GSERVICES
+      - queries/package com.android.vending
+      - queries/intent com.android.vending.billing.InAppBillingService.BIND
+      - queries/intent com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND
+      - queries/package com.google.android.gms
+      - meta-data com.google.android.gms.games.APP_ID
+      - meta-data com.google.android.gms.ads.APPLICATION_ID
+      - meta-data com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING
+      - meta-data google_analytics_default_allow_analytics_storage
+      - meta-data google_analytics_default_allow_ad_storage
+      - meta-data google_analytics_default_allow_ad_user_data
+      - meta-data google_analytics_default_allow_ad_personalization_signals
+      - activity com.google.android.gms.ads.AdActivity
+      - provider com.google.android.gms.ads.MobileAdsInitProvider
+      - service com.google.android.gms.ads.AdService
+      - activity com.google.android.gms.ads.OutOfContextTestingActivity
+      - activity com.google.android.gms.ads.NotificationHandlerActivity
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION
+      - activity com.google.android.play.core.hsdp.service.HsdpShimActivity
+      - service androidx.credentials.playservices.CredentialProviderMetadataHolder
+      - activity androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+      - activity androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+      - meta-data com.google.android.play.billingclient.version
+      - activity com.android.billingclient.api.ProxyBillingActivity
+      - activity com.android.billingclient.api.ProxyBillingActivityV2
+      - provider com.google.android.gms.games.provider.PlayGamesInitProvider
+      - activity com.google.android.gms.games.internal.v2.resolution.GamesResolutionActivity
+      - activity com.google.android.gms.games.internal.v2.appshortcuts.PlayGamesAppShortcutsActivity
+      - meta-data com.google.android.gms.games.version
+      - receiver com.google.android.gms.measurement.AppMeasurementReceiver
+      - service com.google.android.gms.measurement.AppMeasurementService
+      - service com.google.android.gms.measurement.AppMeasurementJobService
+      - activity com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+      - service com.google.android.gms.auth.api.signin.RevocationBoundService
+      - activity com.google.android.gms.common.api.GoogleApiActivity
+      - activity com.google.android.play.core.common.PlayCoreDialogWrapperActivity
+      - meta-data com.android.vending.splits.required
+      - meta-data com.android.stamp.source
+      - meta-data com.android.stamp.type
+      - meta-data com.android.vending.splits
+      - meta-data com.android.vending.derived.apk.id
+      ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
+[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
+[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)
+[4] MainActivity.smali: 生效语言默认值 en -> zh_CN
+[4] MainActivity.smali: 设置页语言默认值 en -> zh_CN（修 界面中文/设置English 分叉）
+[4] jw0.smali: 当前语言静态初值 en -> zh_CN
+[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
+[4] 拷入 20 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）
+[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）
+[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）
+[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）
+[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）
+[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → 30（EP 指数同量换 250 倍碎片）
+[4b] payload 齐全: 15 个类
+[4b] 混淆类引用自检通过: 29 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）
+[4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
+[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）
+[4b] 开局自动化闩锁自检通过（sEarlyApplied 字段 + 置位/重置 2 处写入）
+[4b] 鹿颈长 nerfFactor 收敛自检通过（max(1.0,pLog10) + c/1e6，验收签名 0.99888/0.99955）
+[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）
+[4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）
+[4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
+[4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
+[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）
+[4b] 旧全成就类零外部引用通过
+[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）
+[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）
+[4e] 旧存档时间换算守卫通过（三处 ×100 + 哨兵回落，且 100.0 仅存在于 d.smali）
+[4f] 加速归一化工具自检通过（unscale / unscaleBy / effectiveMult 就位，apply 仍为 mult，边界方向正确）
+[4h] SharedPreferences.Editor 接口类型自检通过（apply 全部挂在 Editor 上）
+[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）
+[4i] 最佳记录单位迁移自检通过（标记幂等、哨兵排除、先落盘后改值、init 读取标记）
+[4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）
+[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[T2] 动态速度开关自检通过（设置页 2 个按钮 -> setDynamic / modeLabel）
+[5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）
+[5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
+[5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
+[5] Ad Bonus: 十乘区（反物质/IP/EP/DT/RM/暗能量/记忆/稀有度/遗物碎片/游戏速度）永久生效已注入
+[5] Ad Bonus: 注入后自检通过（Doomed 检查保留、异常兜底已移除、UI 依赖保留）
+[AW] vo.smali: 追加 isWaiting()Z / waitStart()J 只读访问器
+[AW] 自动机等待分支注入完成（vo getter ×2 + updateAutomator$1 状态分支 + 自检通过）
+[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间
+[Oreki AU2] 维度×8自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU2] 速度升级自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 维度提升自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 反物质星系自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）
+[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()
+[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入
+[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）
+[R40H] 教程正文由 JSON 生成：17 章 × 14 字段，13813 字，回读 238 个字段逐字一致
+[R40H] draft 章节 10 个；strict=off；stage 映射 [1, 2, 3, 4, 7, 11, 13, 15]
+[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自生成物）
+[T1] 教程类已进入 mod 树（4 个）
+[T1] Manifest 注册 kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity（exported=false, Theme.DeviceDefault.Light）
+[T1] App.onCreate 挂载 TutorialEntry.install(Context)
+[T1] 静态断言通过（manifest 唯一注册 / install 唯一调用 / 入口幂等 / Activity 存在）
+[T1b] 教程渲染断言通过（addFull 会真的 addView / start 会真的 startActivity）
+[Oreki AB2] 维度批量购买：不可负担时退化为买 1 个
+[Oreki EC12] EC12 限时判定已改为按倍率还原（与 Web inGameSecondsOf 同源）
+[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()
+[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）
+  [OK] 类描述符校验通过（已定义 11428 个类）
+[Oreki R39] 挑战自动进入极性断言通过：K()=已完成→跳过、D()=false→试下一关、含解锁预检
+[Oreki R40B] EC 链条断言通过：purchaseUntil 已接线（真实 continuation）、互斥分叉走原版 respec（6 s 冷却 / 32 次上限）、无存档字段写入
+[Oreki IU15] 阈值校验通过：3 处均为 1e8，旧值 1.5E12 已清零（本次改写 0 个文件）
+[Oreki IU15] 门槛回归断言通过：c30/lu/vw1 三处均为 1e8，且无 1.5E12 残留
+[Oreki IU15] 已注入 tier==1 的 ID1 购买守卫（h(Z)V + i()V）；不再改任何原版数值
+[Oreki RIS] 挑战结算补发已校验（幂等跳过重复写入）
+[Oreki V] V.mainUnlock 门槛：realities 10000->200 / dilatedTime 1e320->1e30 / replicanti 1e320000->1e20000
+[Oreki V] V.mainUnlock 进度分母：realities /10000->/200、dilatedTime /320->/30、replicanti /320000->/20000
+[Oreki R38-B] 终局判定常量已镜像 Web：OFFSET 8.7 -> 1.0，TARGET 9.0E15 -> 1000.0
+[Oreki R38-B] 回读通过：OFFSET=1.0 / TARGET=1000.0，分母 log10(1e3)-1 = 2 > 0
+[DARK] styles         ok(DayNight -> AppCompat 深色 + windowLightNavigationBar=false)
+[DARK] bools          ok(window_light_status_bar -> false)
+[DARK] appearance     ok(a(),b(),c())
+[DARK] loader         ok(4 处加载点夹成 DARK)
+[DARK] writer         ok(设置页选浅色不生效，也不会写入浅色偏好)
+[DARK] notation       ok(Options默认,o43.v,o43串,g.b)
+[DARK] topbar         ok(加载点,静态默认,标题不清空)
+[DARK] zh             ok(补 3 条中文)
+[5] apktool b ...
+      I: Using Apktool 3.0.3 on kajfosz.antimatterdimensions.apk with 8 threads
+      I: smali_classes3 has not changed.
+      I: Building resources with aapt2...
+      I: smali_classes2 has not changed.
+      I: Smaling smali folder into classes.dex...
+      I: Building apk file...
+      I: Importing assets...
+      I: Importing unknown files...
+      I: Built apk into: C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\build\unsigned.apk
+[5] 未签名 APK: 66.3 MiB
+[5b] 规整 ZIP 时间戳（位级可复现）...
+      条目 2238，改写中央目录 2238 / 本地头 2238
+[5] zipalign -p -f 4 ...
+[5] apksigner sign (v1+v2+v3, 个人密钥) ...
+[5] apksigner verify ...
+      Verifies
+      Verified using v1 scheme (JAR signing): false
+      Verified using v2 scheme (APK Signature Scheme v2): true
+      Verified using v3 scheme (APK Signature Scheme v3): true
+      Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+      Verified using v4 scheme (APK Signature Scheme v4): false
+      Verified for SourceStamp: false
+      Number of signers: 1
+      Signer #1 certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+      Signer #1 certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+      Signer #1 certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+      Signer #1 certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b
+      Signer #1 key algorithm: RSA
+      Signer #1 key size (bits): 2048
+      Signer #1 public key SHA-256 digest: 3e1872584158600bab528736b10069cb543631bc5ccd4babf7ec3fa2ff1c1ab7
+      Signer #1 public key SHA-1 digest: eb0bb871fd8e00c9c33b68299083ff016a346a33
+      Signer #1 public key MD5 digest: 2eb7e7c6dea1897a964ae8472777cead
+[5] 最终 APK: C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\release\反物质维度.apk  (66.5 MiB)
+EXIT=0

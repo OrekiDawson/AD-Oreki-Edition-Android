@@ -1,0 +1,147 @@
+[0] 复制反编译目录 -> _work/mod
+[1] 从 density split 合并 54 个资源文件
+[1] 补回 56 条 public.xml 资源 ID（drawable/dimen）
+[2] app_name -> 反物质维度，新增 2 条快捷方式字符串
+[2] 新增 res/xml/oreki_shortcuts.xml（长按桌面图标入口）
+[R40B] 更新日志中文化：最新 6 个版本 127 条已译，其余 616 条保留英文原文
+[3] Manifest: package -> com.oreki.antimatterdimensions，移除 50 个 Google/split 相关条目
+      - manifest@requiredSplitTypes
+      - manifest@splitTypes
+      - uses-permission com.android.vending.BILLING
+      - uses-permission com.google.android.gms.permission.AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_ATTRIBUTION
+      - uses-permission android.permission.ACCESS_ADSERVICES_TOPICS
+      - uses-permission com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      - uses-permission com.google.android.providers.gsf.permission.READ_GSERVICES
+      - queries/package com.android.vending
+      - queries/intent com.android.vending.billing.InAppBillingService.BIND
+      - queries/intent com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND
+      - queries/package com.google.android.gms
+      - meta-data com.google.android.gms.games.APP_ID
+      - meta-data com.google.android.gms.ads.APPLICATION_ID
+      - meta-data com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING
+      - meta-data google_analytics_default_allow_analytics_storage
+      - meta-data google_analytics_default_allow_ad_storage
+      - meta-data google_analytics_default_allow_ad_user_data
+      - meta-data google_analytics_default_allow_ad_personalization_signals
+      - activity com.google.android.gms.ads.AdActivity
+      - provider com.google.android.gms.ads.MobileAdsInitProvider
+      - service com.google.android.gms.ads.AdService
+      - activity com.google.android.gms.ads.OutOfContextTestingActivity
+      - activity com.google.android.gms.ads.NotificationHandlerActivity
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION
+      - activity com.google.android.play.core.hsdp.service.HsdpShimActivity
+      - service androidx.credentials.playservices.CredentialProviderMetadataHolder
+      - activity androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+      - activity androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+      - meta-data com.google.android.play.billingclient.version
+      - activity com.android.billingclient.api.ProxyBillingActivity
+      - activity com.android.billingclient.api.ProxyBillingActivityV2
+      - provider com.google.android.gms.games.provider.PlayGamesInitProvider
+      - activity com.google.android.gms.games.internal.v2.resolution.GamesResolutionActivity
+      - activity com.google.android.gms.games.internal.v2.appshortcuts.PlayGamesAppShortcutsActivity
+      - meta-data com.google.android.gms.games.version
+      - receiver com.google.android.gms.measurement.AppMeasurementReceiver
+      - service com.google.android.gms.measurement.AppMeasurementService
+      - service com.google.android.gms.measurement.AppMeasurementJobService
+      - activity com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+      - service com.google.android.gms.auth.api.signin.RevocationBoundService
+      - activity com.google.android.gms.common.api.GoogleApiActivity
+      - activity com.google.android.play.core.common.PlayCoreDialogWrapperActivity
+      - meta-data com.android.vending.splits.required
+      - meta-data com.android.stamp.source
+      - meta-data com.android.stamp.type
+      - meta-data com.android.vending.splits
+      - meta-data com.android.vending.derived.apk.id
+      ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
+[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
+[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)
+[4] MainActivity.smali: 生效语言默认值 en -> zh_CN
+[4] MainActivity.smali: 设置页语言默认值 en -> zh_CN（修 界面中文/设置English 分叉）
+[4] jw0.smali: 当前语言静态初值 en -> zh_CN
+[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
+[4] 拷入 20 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）
+[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）
+[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）
+[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）
+[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）
+[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → 30（EP 指数同量换 250 倍碎片）
+[4b] payload 齐全: 15 个类
+[4b] 混淆类引用自检通过: 29 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）
+[4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
+[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）
+[4b] 开局自动化闩锁自检通过（sEarlyApplied 字段 + 置位/重置 2 处写入）
+[4b] 鹿颈长 nerfFactor 收敛自检通过（max(1.0,pLog10) + c/1e6，验收签名 0.99888/0.99955）
+[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）
+[4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）
+[4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
+[4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
+[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）
+[4b] 旧全成就类零外部引用通过
+[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）
+[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）
+[4e] 旧存档时间换算守卫通过（三处 ×100 + 哨兵回落，且 100.0 仅存在于 d.smali）
+[4f] 加速归一化工具自检通过（unscale / unscaleBy / effectiveMult 就位，apply 仍为 mult，边界方向正确）
+[4h] SharedPreferences.Editor 接口类型自检通过（apply 全部挂在 Editor 上）
+[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）
+[4i] 最佳记录单位迁移自检通过（标记幂等、哨兵排除、先落盘后改值、init 读取标记）
+[4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）
+[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[T2] 动态速度开关自检通过（设置页 2 个按钮 -> setDynamic / modeLabel）
+[5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）
+[5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
+[5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
+[5] Ad Bonus: 十乘区（反物质/IP/EP/DT/RM/暗能量/记忆/稀有度/遗物碎片/游戏速度）永久生效已注入
+[5] Ad Bonus: 注入后自检通过（Doomed 检查保留、异常兜底已移除、UI 依赖保留）
+[AW] vo.smali: 追加 isWaiting()Z / waitStart()J 只读访问器
+[AW] 自动机等待分支注入完成（vo getter ×2 + updateAutomator$1 状态分支 + 自检通过）
+[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间
+[Oreki AU2] 维度×8自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU2] 速度升级自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 维度提升自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 反物质星系自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）
+[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()
+[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入
+[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）
+!! [R40H] 教程内容校验失败，禁止构建：
+   二级断言（发布门槛）失败 —— 共 21 项：
+     ch07: draft 仍为 true（发布构建要求 draft=false）
+     ch07: steps 为空
+     ch08: draft 仍为 true（发布构建要求 draft=false）
+     ch08: steps 为空
+     ch09: draft 仍为 true（发布构建要求 draft=false）
+     ch09: steps 为空
+     ch10: draft 仍为 true（发布构建要求 draft=false）
+     ch10: steps 为空
+     ch11: draft 仍为 true（发布构建要求 draft=false）
+     ch11: steps 为空
+     ch12: draft 仍为 true（发布构建要求 draft=false）
+     ch12: steps 为空
+     ch13: draft 仍为 true（发布构建要求 draft=false）
+     ch13: steps 为空
+     ch14: draft 仍为 true（发布构建要求 draft=false）
+     ch14: steps 为空
+     ch15: draft 仍为 true（发布构建要求 draft=false）
+     ch15: steps 为空
+     ch16: draft 仍为 true（发布构建要求 draft=false）
+     ch16: steps 为空
+     ch10: 出现禁用译名「稀释时间」，应写作「膨胀时间」（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:113）
+Traceback (most recent call last):
+  File "C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\build_mod.py", line 4014, in <module>
+    if os.environ.get("OREKI_EC_SELFTEST") == "1":
+             ^^^^^^
+  File "C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\build_mod.py", line 3931, in main
+    patch_ip_mult_autobuyer()
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\build_mod.py", line 3501, in patch_tutorial_content
+    except gen.TutorialContentError as e:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [R40H] 教程内容校验失败（strict=True）
+EXIT=1

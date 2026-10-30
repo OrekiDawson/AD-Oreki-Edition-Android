@@ -1,0 +1,98 @@
+﻿class,field,desc,reads,writes,read_sites,write_sites
+Landroidx/media3/common/util/StuckPlayerException,timeoutMs,I,0,0,,
+celestials/laitela/DarkMatterDimensionState,timeSinceLastUpdate,D,1,1,kajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState.smali:2125,kajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState.smali:1070 [public final l()V]
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1,$purchasedTime,J,2,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:116;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:275,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1,$tickDiff,D,2,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:112;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:267,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1,$totalGameTime,D,2,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:96;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:251,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1,$totalRealTime,J,2,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:108;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1.smali:263,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1,$purchasedTime,J,2,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:127;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:959,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1,$tickDiff,D,4,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:123;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:603;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:686;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:723,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1,$totalGameTime,D,2,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:107;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:356,
+mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1,$totalRealTime,J,8,0,kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:119;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:443;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:488;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:520;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:716;kajfosz/antimatterdimensions/mainactivity/MainActivityOfflineSimulationKt$simulateOfflineProgressNoAsync$1$job$1.smali:821,
+player/Player,bigRealities,J,1,0,kajfosz/antimatterdimensions/player/Player.smali:9341,
+player/Player,blackHolePauseTime,D,1,0,kajfosz/antimatterdimensions/player/Player.smali:10739,
+player/Player,lastUpdate,J,2,1,kajfosz/antimatterdimensions/player/Player.smali:3204;kajfosz/antimatterdimensions/player/Player.smali:8657,kajfosz/antimatterdimensions/player/Player.smali:1009 [public constructor <init>()V]
+player/Player,realities,Lkajfosz/antimatterdimensions/BigDouble;,0,1,,kajfosz/antimatterdimensions/player/Player.smali:1312 [public constructor <init>()V]
+player/Player,timeShards,Lkajfosz/antimatterdimensions/BigDouble;,1,1,kajfosz/antimatterdimensions/player/Player.smali:6112,kajfosz/antimatterdimensions/player/Player.smali:1213 [public constructor <init>()V]
+player/Player,totalTickBought,J,2,0,kajfosz/antimatterdimensions/player/Player.smali:6154;kajfosz/antimatterdimensions/player/Player.smali:9253,
+player/Player,totalTickGained,I,1,0,kajfosz/antimatterdimensions/player/Player.smali:6129,
+player/Player$Animations,reality,Z,0,1,,kajfosz/antimatterdimensions/player/Player$Animations.smali:69 [public constructor <init>()V]
+player/Player$Auto,achTimer,D,1,0,kajfosz/antimatterdimensions/player/Player$Auto.smali:842,
+player/Player$Auto,ecTimer,D,1,0,kajfosz/antimatterdimensions/player/Player$Auto.smali:974,
+player/Player$Automator,execTimer,D,1,0,kajfosz/antimatterdimensions/player/Player$Automator.smali:167,
+player/Player$AutomatorEvents,clearOnReality,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AutomatorEvents.smali:53 [public constructor <init>()V]
+player/Player$AutomatorEvents,timestampType,I,0,0,,
+player/Player$AwayProgress,dilatedTime,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AwayProgress.smali:127 [public constructor <init>()V]
+player/Player$AwayProgress,realities,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AwayProgress.smali:143 [public constructor <init>()V]
+player/Player$AwayProgress,realityMachines,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AwayProgress.smali:147 [public constructor <init>()V]
+player/Player$AwayProgress,realityShards,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AwayProgress.smali:179 [public constructor <init>()V]
+player/Player$AwayProgress,storedRealTime,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AwayProgress.smali:187 [public constructor <init>()V]
+player/Player$AwayProgress,timeTheorems,Z,0,1,,kajfosz/antimatterdimensions/player/Player$AwayProgress.smali:135 [public constructor <init>()V]
+player/Player$BestReality,realTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$BestReality.smali:142 [public constructor <init>()V]
+player/Player$BestReality,time,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$BestReality.smali:129 [public constructor <init>()V]
+player/Player$BlackHole,durationUpgrades,J,1,0,kajfosz/antimatterdimensions/player/Player$BlackHole.smali:83,
+player/Player$Confirmations,armageddon,Z,0,1,,kajfosz/antimatterdimensions/player/Player$Confirmations.smali:81 [public constructor <init>()V]
+player/Player$Confirmations,realityReset,Z,0,1,,kajfosz/antimatterdimensions/player/Player$Confirmations.smali:105 [public constructor <init>()V]
+player/Player$Dilation,dilatedTime,Lkajfosz/antimatterdimensions/BigDouble;,0,1,,kajfosz/antimatterdimensions/player/Player$Dilation.smali:97 [public constructor <init>()V]
+player/Player$Dilation,lastEP,Lkajfosz/antimatterdimensions/BigDouble;,0,1,,kajfosz/antimatterdimensions/player/Player$Dilation.smali:157 [public constructor <init>()V]
+player/Player$Enslaved,autoStoreReal,Z,0,0,,
+player/Player$Enslaved,boostReality,Z,0,0,,
+player/Player$Enslaved,isStoringReal,Z,0,0,,
+player/Player$Enslaved,storedReal,J,1,0,kajfosz/antimatterdimensions/player/Player$Enslaved.smali:374,
+player/Player$Enslaved,zeroHintTime,D,1,0,kajfosz/antimatterdimensions/player/Player$Enslaved.smali:407,
+player/Player$GlyphSacrifice,reality,D,1,0,kajfosz/antimatterdimensions/player/Player$GlyphSacrifice.smali:99,
+player/Player$GlyphSacrifice,time,D,1,0,kajfosz/antimatterdimensions/player/Player$GlyphSacrifice.smali:121,
+player/Player$Glyphs,createdRealityGlyph,Z,0,0,,
+player/Player$HighestRefinementValues,time,D,1,0,kajfosz/antimatterdimensions/player/Player$HighestRefinementValues.smali:108,
+player/Player$Laitela,lastCheckedMilestones,D,1,0,kajfosz/antimatterdimensions/player/Player$Laitela.smali:366,
+player/Player$NewsOptions,speed,D,1,1,kajfosz/antimatterdimensions/player/Player$NewsOptions.smali:122,kajfosz/antimatterdimensions/player/Player$NewsOptions.smali:61 [public constructor <init>()V]
+player/Player$Options,autoRealityForFilter,Z,0,0,,
+player/Player$Options,lastOpenTab,I,0,0,,
+player/Player$Options,offlineTicks,I,0,1,,kajfosz/antimatterdimensions/player/Player$Options.smali:243 [public constructor <init>()V]
+player/Player$Options,showLastTenRunsPrestigeCount,Z,0,0,,
+player/Player$Options,showTimeSinceSave,Z,0,1,,kajfosz/antimatterdimensions/player/Player$Options.smali:272 [public constructor <init>()V]
+player/Player$Options,updateRate,I,0,1,,kajfosz/antimatterdimensions/player/Player$Options.smali:219 [public constructor <init>()V]
+player/Player$PastRun,realTime,D,1,0,kajfosz/antimatterdimensions/player/Player$PastRun.smali:189,
+player/Player$PastRun,time,D,1,0,kajfosz/antimatterdimensions/player/Player$PastRun.smali:200,
+player/Player$Pelle,realityShards,Lkajfosz/antimatterdimensions/BigDouble;,0,1,,kajfosz/antimatterdimensions/player/Player$Pelle.smali:89 [public constructor <init>()V]
+player/Player$PelleRift,percentageSpent,D,1,0,kajfosz/antimatterdimensions/player/Player$PelleRift.smali:95,
+player/Player$PermanentChecks,singleTickspeed,J,1,0,kajfosz/antimatterdimensions/player/Player$PermanentChecks.smali:69,
+player/Player$PlayerNormalChallenges,c9TickspeedCostBumps,J,1,0,kajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges.smali:200,
+player/Player$Ra,momentumTime,D,1,0,kajfosz/antimatterdimensions/player/Player$Ra.smali:225,
+player/Player$Ra,peakGamespeed,D,1,1,kajfosz/antimatterdimensions/player/Player$Ra.smali:236,kajfosz/antimatterdimensions/player/Player$Ra.smali:88 [public constructor <init>()V]
+player/Player$Reality,realityMachines,Lkajfosz/antimatterdimensions/BigDouble;,0,1,,kajfosz/antimatterdimensions/player/Player$Reality.smali:114 [public constructor <init>()V]
+player/Player$Records,gameCreatedTime,J,1,1,kajfosz/antimatterdimensions/player/Player$Records.smali:418,kajfosz/antimatterdimensions/player/Player$Records.smali:70 [public constructor <init>()V]
+player/Player$Records,previousRunRealTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$Records.smali:137 [public constructor <init>()V]
+player/Player$Records,realTimeDoomed,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$Records.smali:124 [public constructor <init>()V]
+player/Player$Records,realTimePlayed,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$Records.smali:111 [public constructor <init>()V]
+player/Player$Records,timePlayedAtBHUnlock,D,1,1,kajfosz/antimatterdimensions/player/Player$Records.smali:528,kajfosz/antimatterdimensions/player/Player$Records.smali:98 [public constructor <init>()V]
+player/Player$Records,totalTimePlayed,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$Records.smali:87 [public constructor <init>()V]
+player/Player$Replicanti,timer,D,1,0,kajfosz/antimatterdimensions/player/Player$Replicanti.smali:139,
+player/Player$ShowHintText,realityUpgrades,Z,0,1,,kajfosz/antimatterdimensions/player/Player$ShowHintText.smali:81 [public constructor <init>()V]
+player/Player$ShowHintText,showPercentage,Z,0,1,,kajfosz/antimatterdimensions/player/Player$ShowHintText.smali:57 [public constructor <init>()V]
+player/Player$ShownRuns,reality,Z,0,1,,kajfosz/antimatterdimensions/player/Player$ShownRuns.smali:41 [public constructor <init>()V]
+player/Player$Speedrun,offlineTimeUsed,J,1,0,kajfosz/antimatterdimensions/player/Player$Speedrun.smali:275,
+player/Player$SpeedrunRun,offlineTimeUsed,J,1,0,kajfosz/antimatterdimensions/player/Player$SpeedrunRun.smali:143,
+player/Player$Teresa,lastRepeatedMachines,Lkajfosz/antimatterdimensions/BigDouble;,0,1,,kajfosz/antimatterdimensions/player/Player$Teresa.smali:120 [public constructor <init>()V]
+player/Player$ThisEternity,bestInfinityRealTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisEternity.smali:166 [public constructor <init>()V]
+player/Player$ThisEternity,bestInfinityTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisEternity.smali:153 [public constructor <init>()V]
+player/Player$ThisEternity,realTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisEternity.smali:80 [public constructor <init>()V]
+player/Player$ThisEternity,time,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisEternity.smali:67 [public constructor <init>()V]
+player/Player$ThisInfinity,lastBuyTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisInfinity.smali:83 [public constructor <init>()V]
+player/Player$ThisInfinity,realTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisInfinity.smali:70 [public constructor <init>()V]
+player/Player$ThisInfinity,time,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisInfinity.smali:57 [public constructor <init>()V]
+player/Player$ThisReality,bestEternityTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisReality.smali:183 [public constructor <init>()V]
+player/Player$ThisReality,realTime,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisReality.smali:86 [public constructor <init>()V]
+player/Player$ThisReality,time,Ltw4;,0,1,,kajfosz/antimatterdimensions/player/Player$ThisReality.smali:73 [public constructor <init>()V]
+reality/automator/CommandState,timeMs,D,1,0,kajfosz/antimatterdimensions/reality/automator/CommandState.smali:146,
+reality/glyphs/GlyphUndoData,storedTime,D,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:310,
+reality/glyphs/GlyphUndoData,thisEternityRealTime,Ltw4;,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:467,
+reality/glyphs/GlyphUndoData,thisEternityTime,Ltw4;,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:463,
+reality/glyphs/GlyphUndoData,thisInfinityRealTime,Ltw4;,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:459,
+reality/glyphs/GlyphUndoData,thisInfinityTime,Ltw4;,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:455,
+reality/glyphs/GlyphUndoData,thisRealityRealTime,Ltw4;,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:475,
+reality/glyphs/GlyphUndoData,thisRealityTime,Ltw4;,1,0,kajfosz/antimatterdimensions/reality/glyphs/GlyphUndoData.smali:471,
+shop/Purchases,dtSpeedPurchases,I,5,0,kajfosz/antimatterdimensions/shop/Purchases.smali:642;kajfosz/antimatterdimensions/shop/Purchases.smali:1364;kajfosz/antimatterdimensions/shop/Purchases.smali:1368;kajfosz/antimatterdimensions/shop/Purchases.smali:1906;kajfosz/antimatterdimensions/shop/Purchases.smali:2321,
+shop/Purchases,lastRespec,J,7,0,kajfosz/antimatterdimensions/shop/Purchases.smali:768;kajfosz/antimatterdimensions/shop/Purchases.smali:962;kajfosz/antimatterdimensions/shop/Purchases.smali:1508;kajfosz/antimatterdimensions/shop/Purchases.smali:1512;kajfosz/antimatterdimensions/shop/Purchases.smali:1636;kajfosz/antimatterdimensions/shop/Purchases.smali:2014,
+shop/Purchases,replicantiSpeedPurchased,Z,5,0,kajfosz/antimatterdimensions/shop/Purchases.smali:666;kajfosz/antimatterdimensions/shop/Purchases.smali:1396;kajfosz/antimatterdimensions/shop/Purchases.smali:1400;kajfosz/antimatterdimensions/shop/Purchases.smali:1930;kajfosz/antimatterdimensions/shop/Purchases.smali:2329,
+shop/Purchases,replicantiSpeedPurchases,I,5,0,kajfosz/antimatterdimensions/shop/Purchases.smali:630;kajfosz/antimatterdimensions/shop/Purchases.smali:1348;kajfosz/antimatterdimensions/shop/Purchases.smali:1352;kajfosz/antimatterdimensions/shop/Purchases.smali:1894;kajfosz/antimatterdimensions/shop/Purchases.smali:2317,

@@ -1,0 +1,147 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Time Dilation
+# url: https://antimatter-dimensions.fandom.com/wiki/Time_Dilation
+
+Time Dilation is a feature unlocked at the end of the Eternity stage, introducing a harder version of your normal runs to be able to gain a new currency.
+
+## How do I unlock it?
+Unlocking Time Dilation requires that you have fully completed Eternity Challenges 11 and 12 (5 times each), and have at least 12,900 total Time Theorems. Only then, you can buy the Time Study located below EC11 and EC12, called Unlock Time Dilation. Purchasing this study will unlock Time Dilation permanently, with no way of retrieving the 5,000 spent TT until later on, when you get further into the Dilated Time upgrades. 
+
+## How does Time Dilation work?
+Time Dilation is a nerfed version of a normal run where nearly all of the multipliers to Tickspeed, Normal, Infinity and Time Dimensions have their multiplier's exponent raised to the power of 0.75 (eg. if you otherwise would have a 1e10,000 (1e1e4) multiplier on a Dimension, Time Dilation changes this multiplier to 1e1,000 (1e1e3), since 1e40.75 is 1e3). This is equivalent to the formula x => 10^{log_{10}(x)^{0.75}}, where x is the multiplier. This is a massive superexponential nerf to everything (since it affects most multipliers), but your goal at the start is only to reach Infinity IP and Eternity. Performing an Eternity inside a Dilated run will exit Dilation.
+
+Entering Dilation will force an Eternity reset.
+
+## Tachyon Particles
+Tachyon Particles are gained by performing an Eternity with enough Antimatter while Dilated.
+
+Base Tachyon Particle gain = \max\left(0,\left(\frac{log_{10}(a)}{400}\right)^{1.5} \times 3^{d3} - T\right), where a is Antimatter, \text{d3} is the number Triple TP upgrades bought and T is total Tachyon Particles.
+
+To get more Tachyon Particles, you must progress farther than your last Dilated run or gain additional TP multipliers; otherwise, you'll make 0.
+
+## Dilated Time
+Dilated Time is a multi-purpose currency produced by tachyon particles (base production rate is 1DT/s per TP).
+#Dilated Time can produce free Galaxies for you, much like Time Shards but more powerful. When you reach certain thresholds of DT, you will gain a free Antimatter Galaxy that won't affect its normal cost. The threshold initially quintuples each Galaxy, starting at 1000. This scaling can be reduced by a repeatable upgrade.
+#Dilated Time is used as currency to purchase various upgrades (two of which provide additional bonuses based on Dilated Time):
+
+## Upgrades
+
+## Repeatable
+{| class="article-table"
+!ID
+!Description
+!Details
+!Starting Cost
+!Price Increase
+|-
+|1
+|Double Dilated Time gain.
+|
+|1e5 (100K)
+|10x
+|-
+|2
+|Reset Dilated Time and Tachyon Galaxies, but lower their threshold
+|Threshold:1.35 + 3.65(0.8^n).  After 38 upgrades, threshold becomes 1.3500.
+|1e6 (1M)
+|100x
+|-
+|3
+|Triple the amount of Tachyon Particles gained.
+|
+|1e7 (10M)
+|20x
+|}
+
+## Non-Repeatable
+{| class="article-table"
+!ID
+!Description
+!Details
+!Cost
+|-
+|4
+|Gain twice as many Tachyon Galaxies, up to 500 base Galaxies
+|
+|5e6 (5M)
+|-
+|5
+|Time Dimensions are affected by Replicanti multiplier ^0.1, reduced effect above x1e9000
+|After 1e9000x: 1e9000(x/1e9000)^0.5
+|1e9 (1B)
+|-
+|6
+|Antimatter Dimensions gain a multiplier based on Dilated Time, unaffected by Time Dilation.
+|D^{308}, D = Dilated Time.
+|5e7 (50M)
+|-
+|7
+|Gain a multiplier to IP based on Dilated Time. Currently: ()x
+|D^{1000}, D = Dilated Time.
+|2e12 (2T)
+|-
+|8
+|You can buy all three Time Study paths from the Dimension split.
+|
+|1e10 (10B)
+|-
+|9
+|Reduce the Dilation penalty. (^1.05 after reduction.)
+|The Dilation effect to exponents become x^{0.7875}
+|1e11 (100B)
+|-
+|10
+|Generate Time Theorems based on Tachyon Particles. Currently: ()/s
+|\frac{T}{20000}, T = Tachyon Particles
+|1e15 (1Qa)
+|}
+
+##  Pelle only 
+{| class="article-table"
+!ID
+!Description
+!Details
+!Cost
+!Cost scaling
+|-
+|3
+|Multiply the amount of Tachyon Particles gained by 1.
+|This upgrade was formerly able to be bought until the "Celebrate Android Reality Update" on May 2nd, 2024, when it was removed. This used to unlock at 50% Paradox/Contradiction/Fallacy, where it would be relevant in order to increase the milestone's effect. The milestone has been rebalanced to account for this.
+|1e7 (10M)
+|20x
+|-
+|11
+|x5 Dilated Time gain.
+|5^x
+|1e14 (100T)
+|100x
+|-
+|12
+|Multiply Tachyon Galaxies gained, applies after TG doubling upgrade
+|x+1
+|1e15 (1Qa)
+|1e3x
+|-
+|13
+|Gain a power to Tickspeed
+|x*0.03+1
+|1e16 (10Qa)
+|1e4x
+|-
+|14
+|Apply a cube root to the Tachyon Galaxy threshold
+|
+|1e45 (1QaDc)
+|
+|-
+|15
+|Gain more Dilated Time based on current EP
+|\left(10^{9}\right)^{\min((\max(EP-1500,0)/2500)^{1.2},1)}
+|1e55 (10 SpDc)
+|
+|}
+
+##  Trivia 
+* On Desktop versions of the game, purchasing the Study to unlock Dilation will subtract 5000 TTs from your "total" TT count. (purely visual)
+* Capping the 2nd Dilation repeatable upgrade without external TG threshold reductions, the TG threshold will be \times 1.3507
+* Assuming you can indefinitely purchase the 2nd Dilation repeatable, and you do not have any external TG threshold reductions, the lowest TG Threshold you can have is \times 1.35
+* The order of the Non-Repeatable Dilation Upgrades are in cost order on Mobile, as opposed to ID order on Desktop.  This does not affect gameplay.

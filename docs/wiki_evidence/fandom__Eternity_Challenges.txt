@@ -1,0 +1,130 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Eternity Challenges
+# url: https://antimatter-dimensions.fandom.com/wiki/Eternity_Challenges
+
+Like Infinity Challenges, there are also Eternity Challenges, where the goal is instead to reach a certain amount of IP, then Eternity. However, Eternity Challenges require different criteria to be met and cost Time Theorems to unlock before attempting. These Challenges are unique in that they are completable up to 5 times, where for each completion its requirement, goal and reward increases.
+
+You can purchase an upgrade past an Eternity Challenge on the Time Study tree after one completion of every Eternity Challenge connecting to it, without needing to repurchase the Challenge; though you still need to purchase the upgrade before the Challenge. (except for EC11-12)
+
+Upon completion of an Eternity Challenge, your Time Studies tree is automatically respecced. Imagine the Time Theorem cost of a challenge as a loan that is returned upon completion.
+
+Their rewards are uninterrupted - you do not have to leave the Challenge unlocked to keep/use the reward.
+
+In the table below:
+
+n in the reward and requirement refers to the amount of times that particular challenge has been completed, up to 5.
+
+You will not receive the reward for clearing until the first clear, even if the value from the reward exceeds 1.
+{|class="article-table"
+|+
+!#
+!Unlock Requirement
+!Goal (IP)
+!Description
+!Reward
+!Details
+|-
+!1
+|20,000(1+n) eternities
+Cost: 30 TT
+|101800×10200n
+|Time Dimensions are disabled.
+|Multiplier for all Time Dimensions (based on time spent this Eternity)
+|Time spent in eternity (s*100)0.3+(n*0.05)
+|-
+!2
+|1,300+150n tickspeed upgrades
+from time dimensions
+
+Cost: 35 TT
+|10975×10175n
+|Infinity Dimensions are disabled.
+|Infinity power affects 1st Infinity Dimension with reduced effect, Currently: ()x (caps at 1e100x)
+|max(1,min(1e100,(infinity power)1.5/(700-100n))+1)
+|-
+!3
+|17,300+1,250n 8th dimensions
+Cost: 40 TT
+|10600×1075n
+|Dimensions 5-8 don't produce anything. Dimensional sacrifice is disabled.
+|Increase the multiplier for buying 10 dimensions, Currently: ()x
+|Adds 0.72n to the previous multiplier
+|-
+!4
+|1e8+2.5ne7 infinities
+Cost: 70 TT
+|102750×10550n in
+16-4n infinities or less.
+|All Infinity multipliers and generators are disabled. The goal must be reached within a certain number of Infinities or else you will fail the Challenge.
+|Infinity Dimension multiplier from unspent IP, Currently: ()x (caps at 1e200x)
+|min(1e200,IP0.003+0.002n)
+2 Million Infinities achievement reward, infinitiesGenerationInfinity Upgrade, and Time Study 32 are disabled.
+|-
+!5
+|160+14n galaxies
+Cost: 130 TT
+|10750×10400n
+|Antimatter Galaxy cost increase scaling starts immediately (normally at 100 Galaxies). Dimension Boost costs scaling is massively increased.
+|Galaxy cost scaling starts () galaxies later.
+|5n
+DimBoost cost is increased by DimBoosts3+DimBoosts
+|-
+!6
+|40+5n Replicanti
+galaxies
+Cost: 85 TT
+|10850×10250n
+|You cannot gain Antimatter Galaxies normally. The cost of upgrading your max Replicanti Galaxies is massively reduced.
+|Further reduce the dimension cost multiplier increase, Currently: ()x
+|3-0.2n
+|-
+!7
+|10500,000+300,000n antimatter
+Cost: 115 TT
+|102000×10530n
+|1st Time Dimensions produce 8th Infinity Dimensions and 1st Infinity Dimensions produce 7th Antimatter Dimensions. Tickspeed also directly applies to Infinity and Time Dimensions.
+|First Time dimension produces Eighth Infinity Dimensions, Currently: () per second.
+|(time shard production/s)0.2n-1
+|-
+!8
+|104,000+1,000n IP
+Cost: 115 TT
+|101300×10900n
+|You can only upgrade Infinity Dimensions 50 times and Replicanti upgrades 40 times. Infinity Dimension and Replicanti upgrade autobuyers are disabled.
+|Infinity power powers up replicanti galaxies, Currently: ()%
+|((log10(log10(infinity power+1)+1))0.03n-1)
+|-
+!9
+|1017500+2000n infinity power
+Cost: 415 TT
+|101750×10250n
+|You cannot buy Tickspeed upgrades. Infinity Power instead multiplies Time Dimensions with greatly reduced effect.
+|Infinity Dimension multiplier based on time shards, Currently: ()x (caps at 1e400x)
+|Challenge: log2(infinity power)4
+Reward: min(1e400,(time shards)0.1n)
+|-
+!10
+|10100+20n EP
+Cost: 550 TT
+|103000×10300n
+|Time Dimensions and Infinity Dimensions are disabled. You gain an immense boost from Infinities to Antimatter Dimensions (Infinities^950). Currently: ()x
+|Time dimensions gain a multiplier from infinitied stat, Currently: ()x
+|Study 31 affects this challenge reward.
+Banked Infinities count as Infinities.(infinities0.9*2n*10-6+1)
+|-
+!11
+|Use only the Normal Dimension path
+Cost: 1 TT
+|10450×10200n
+|All Dimension multipliers and powers are disabled except for the multipliers from Infinity Power and Dimension Boosts (to Antimatter Dimensions).
+|Further reduce the tickspeed cost multiplier increase, Currently: ()x
+|2-0.07n
+|-
+!12
+|Use only the Time Dimension path
+Cost: 1 TT
+|10110,000×1012,000n
+in 1-0.2n secondsor less.
+|The game runs 1000x slower; all other game speed effects are disabled. The goal must be reached within a certain amount of time or you will fail the Challenge.
+|Infinity Dimension cost multipliers are reduced. (x^())
+|1-0.008n
+|}Category:ChallengesCategory:Eternity

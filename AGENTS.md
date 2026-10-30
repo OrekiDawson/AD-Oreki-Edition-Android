@@ -332,6 +332,42 @@ REA 是静态反编译，官方明确声明「不建立运行时行为」。因�
 - Bash 里 `node` 不在 PATH；用 Scoop 的 nodejs 路径（见项目 MEMORY.md）。
 - 体积统计用 `scripts/dir_sizes.py`；Git Bash 的 `du -sh` 在本项目会卡死。
 
+## 1-A. 观测第一选择：Frame Observer（2026-10-30 用户确立，长期有效，**本节是观测口径的唯一源**）
+
+> 用户原话：「要利用好 frame-observer 这个 App 啊，刚开发的，可以直接提取文字或交互。」
+
+**Android 侧任何「看界面 / 读文字 / 判断弹了什么 / 找可点控件 / 取某一刻的画面」的需求，
+第一步一律走 `frame-observer`，不要默认先 `uiautomator dump` + 手工正则解析。**
+
+- 工具本体：`<统一工作区>/frame-observer/`（APK `OrekiFrameObserver.apk`，包名 `com.oreki.frameobserver`）。
+  接口契约：`frame-observer/docs/接口说明.md`；已安装在 `oreki_test`，无障碍服务已启用。
+- 命令行封装（本仓）：`tools/fo.py`，零第三方依赖。
+
+  | 命令 | 作用 | 何时用 |
+  |---|---|---|
+  | `python tools/fo.py up` | `adb forward tcp:8731` + 启用无障碍 + 拉起 App | 每轮开工第一条 |
+  | `python tools/fo.py stats` | 采集统计（FPS/延迟/丢帧/进程） | 判断采集是否在跑 |
+  | `python tools/fo.py events --since N [--types ...] [--grep 关键词]` | 事件时间线（推送式） | **验收证据的主来源** |
+  | `python tools/fo.py last-tree` | 最近一次 `view_tree_snapshot` 压平成「文字 + 坐标」 | 看最近一次窗口切换时的界面 |
+  | `python tools/fo.py shot out.jpg` | 取最新一帧 | 有画面证据要留档 |
+  | `python tools/fo.py at <t_mono_ns>` | 按 `CLOCK_MONOTONIC` 时刻回放那一帧 | 事件 ↔ 画面互证 |
+  | `python tools/fo.py ui` | **即时**全量控件树（底层走 uiautomator） | 只有「现在就要整棵树」时才用 |
+  | `python tools/fo.py tap N` / `tapxy x y` | 点 `ui` 列表第 N 个节点 / 点坐标 | 点击（工具本身不注入） |
+
+- **通道分工要说清楚**：`/events` 是推送式，能还原「某一刻弹了什么」，且带 `auto_shot`
+  关键词截图（离线结算 / 挑战可完成 / 成就 / 二次确认）；`uiautomator` 只能轮询，
+  开销大且会打扰输入焦点，**只作「即时全量树」的兜底**。
+- `view_tree_snapshot` 只在 `TYPE_WINDOW_STATE_CHANGED` 时产生（实测 500 条事件里只 4 条），
+  所以「等它给你一棵树」是不现实的；要树就用 `fo.py ui`。
+- **工具只读、不注入点击**：点击仍走 `adb shell input tap`。不要指望它代点。
+- MediaProjection 授权必须**在设备上确认**（App「开始捕获」→ 系统对话框 `START NOW`），
+  刻意不提供远程启动。未授权时 `capturing=false`、`/shot` 返回 503，**这不是故障**。
+- `actual_fps` 个位数是正常的：SurfaceFlinger 只在画面真变化时产帧。要看吞吐得在有动画/滚动的页面上测。
+- 时间基准统一 `CLOCK_MONOTONIC`（`t_mono_ns` / `event_time_uptime_ms`）；
+  `wall_ms` 只作人工对照，**禁止参与计算**。
+- 验收类结论（「弹窗已是简体中文」「页面无软锁」「EC 真结算」）必须能在 `events.jsonl`
+  或 `shot` 里指到具体条目/帧号；「我看过一眼截图」不算证据。
+
 ## 2. 模拟器与签名
 
 - 只操作 AVD `oreki_test`（emulator-5554）与 `/data/data/com.oreki.antimatterdimensions/`。
@@ -365,6 +401,21 @@ REA 是静态反编译，官方明确声明「不建立运行时行为」。因�
   - 永恒页 N=4：`0 研究 / 1 永恒升级 / 2 里程碑 / 3 时间膨胀` → 实测 134 / 403 / 674 / 944
   - 数量 N 随页面变化，**必须按当前页 N 重算**，不要套用固定间距（旧表 216 只在 N=5 成立）。
 - 图标行的**选中态**用颜色区分（沙漏变紫等），无法从灰度判断，识别页面请靠子 tab 文案或截图目视。
+
+> **本节的坐标表只在「12 个槽位全解锁」的存档上成立（R40 补注，必读）**
+>
+> R40 用 frame-observer `GET /ui` 实测到：底栏其实是**两行**，且槽位数量随解锁进度变化 ——
+> 主 tab 行 `id/mainTabLayout`（`0,2076,1080,2208`，`HorizontalScrollView`，**槽宽 90**），
+> 副 tab 行 `id/secondaryTabLayout`（`0,2208,1080,2340`，按数量等分，后期存档是「普通/无限/永恒」）。
+> 全新存档只有 7 个槽位（中心 x ≈ 76/230/385/538/692/847/1000，间距 ≈154）。
+>
+> 结论：**`x = 48 + 98*i` 不是通用公式，只对应「11 个主图标 + 1 个通知」这一种解锁状态。**
+> 任何脚本在点页签前都应当**现取坐标**：
+> ```bash
+> python tools/fo.py ui      # 取 y 中心在 2070~2340 内的可点节点
+> ```
+> 硬编码这张表只适合「人工按图索骥」，不适合自动化。
+
 - 反物质维度主 tab 顶部的 `大坍缩` 按钮 ≈ `(540, 458)`。
   **例外（Reality/TD 阶段）**：进入 Reality 后「无限」主 tab 的子 tab 是「时间」，
   `大坍缩` 在**底部按钮行** ≈ `(401, 1999)`，顶部 (540,450) 变成「获得…永恒点数」。
@@ -555,3 +606,26 @@ REA 是静态反编译，官方明确声明「不建立运行时行为」。因�
   `.realTime` 始终是真实毫秒。
 - `bestInfinityTime` 存归一化游戏毫秒（ADfaster `big-crunch.js:95`）；`bestInfinityRealTime` 是真实毫秒。
 - 哨兵：`bestInfinityTime = 999999999999` 表示「无记录」。
+
+---
+
+## 双端实现差异表（2026-10-30 用户确立，长期有效）
+
+**规则唯一源 = 工作区根 `AGENTS.md` §21**，本节只写 Android 仓落点，不重复定义。
+
+- 本仓根目录 `WEB_ANDROID_DIFFERENCES.md` 与工作区根、Web 仓同名文件是**同一 inode 的硬链接**，
+  只通过任一路径编辑，不要复制、不要另存为。
+- 每轮**开工先读**、**收工按实际代码变更更新**；任何影响游戏行为的提交都要检查是否需要更新。
+- **Android 侧特别条款**：smali 汇编通过 + 构建期断言 + 变异自测全绿，**仍然只是 `待验证`**。
+  只有 `oreki_test` 上跑出的运行证据（logcat / 截图 / 字段回读）才能标 `已验证`。
+  这是本仓库历史上最容易自欺的一处（R40 的 EC 改动就属于这一类）。
+- 提交前核对硬链接未被破坏：
+
+```bash
+stat -c '%d %i %n' WEB_ANDROID_DIFFERENCES.md \
+  ../../WEB_ANDROID_DIFFERENCES.md \
+  ../../web/AD-Oreki-Edition/WEB_ANDROID_DIFFERENCES.md
+```
+
+**同时注意**：最高目标已更新为「新手无教程、全新存档、真实墙钟 ≤180 分钟通关」，
+Web 与 Android 各自独立通过（口径唯一源 = 工作区根 `AGENTS.md` §22）。

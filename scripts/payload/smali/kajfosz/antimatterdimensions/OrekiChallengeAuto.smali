@@ -77,9 +77,73 @@
 #   * 已满级 EC 的研究永不重买（与 Web :330 同一条防线）；
 #   * 不直接写 unlocked/current/requirementBits/完成次数 —— 全部由
 #     fp3.D（内部 E(true)）与 challenge.D 自己写，本类不碰任何存档字段。
+#
+# ══════════════════════════════════════════════════════════════════════════
+# [Oreki R40B] 两处真实机制缺口（本轮补上，均走原版方法，零存档字段写入）
+# ══════════════════════════════════════════════════════════════════════════
+# 缺口一：买 EC 前置时间研究只用了 `purchase()`，缺 `purchaseUntil()`。
+#   Web（oreki-eternity-automation.js，R36 注释）早就写明：
+#     「官方购买入口不是 purchase() 而是 purchaseUntil()（ec-time-study.js:52）：
+#       它会先 commitToGameState(buyStudiesUntil(目标, id)) 补齐该 EC 需要的研究路径再重试购买」
+#   Android 侧 C21.a(id).D(true,null) 只是 purchase()，它内部 A(Z)Z（c.smali:413）按
+#   TSRequirementType 要求「前置研究已经买好」。所以只要 EC 的 requirement 项自身还有前置
+#   （143←133←123←113 这种链式），purchase() 恒 false ⇒ 这一关永远买不上。
+#   现在改为 ① purchase() → ② 失败再调原版 `c;->N(Continuation)`（= NormalTimeStudyState
+#   .purchaseUntil$1，c.smali:1550，内部 buyStudiesUntil + 提交整条路径）→ 用 B() 复核。
+#
+# 缺口二：时间研究树有三组「只能选一条」的分叉，选错就永久挡住了别的 EC。
+#   EC 研究的 canBeBought（b.smali:360-395）含一条 `eg3.D.k() || O()`，
+#   而 `O()Z`（b.smali:861-903）= **没有买任何互斥/二级研究（b.p）**。
+#   分叉示例（Web 侧已按源码逐条列出，Android 侧同一套 secret-formula 数据）：
+#     · 维度路径 71 / 73 —— 81 要 71、83 要 73，默认只允许一条；
+#     · 层列 121/122/123 → 131/132/133 → 141/142/143 —— 151 只认列 C。
+#   不同 EC 的 requirement 指向不同分叉（EC4→143、EC6→121、EC8→123；
+#   EC11/EC12 的二级研究分别禁 [72,73] 与 [71,72]）。
+#   ⇒ 选错一次，`O()` 恒 false，这条 EC 研究**永远**买不到；唯一解法是原版 respec。
+#   现在：当「EC 研究买得到价(z()) 但买不到手(A()==0) 且确实拥有互斥研究(O()==0)」时，
+#   调原版 `eternity/studies/d;->b(true)`（respecTimeStudies：清树 + unlocked 归零 +
+#   **退还 TT**），下一帧再由缺口一的 purchaseUntil 把目标 EC 的整条前置路径按正确的
+#   分叉买回来。节流 6 秒 / 全程 32 次 / **同一关只清一次**（见 respecForEc），
+#   最坏退化为停住等资源。
+#   ⚠ 状态：静态推导 + 汇编通过 + 构建期断言；**未在真机/AVD 验证**（本轮不占 AVD）。
+#
+# 缺口三（R40B-2）：`c;->N`（普通研究 purchaseUntil）**修不了 EC11/EC12**。
+#   它的底层是 `d.e(id, -1, cont)` —— 第二个参数 ec 恒为 -1，
+#   而 `buyStudiesUntil` 里专门为 EC11/EC12 写的那段（Web time-studies.js:52-58 同一处）：
+#       ec == 11 → 只买反物质维度分叉 71/81/91/101
+#       ec == 12 → 只买时间维度分叉 73/83/93/103
+#   只有 ec 参数是真实 id 时才会命中。原版 EC 研究自己的 purchaseUntil
+#   `b;->S(Cont)`（b.smali:1341-1687）正是 `d.e(b.r[id], id, cont)`（b.smali:1541，
+#   b.r = [0,171,171,171,143,42,121,111,123,151,181,181,181]），且 EC11 补 191、EC12 补 193。
+#   ⇒ 现在「买不到 + 买得起 + 没有互斥研究」这一支改调 `b;->S`，
+#     等价于 Web R40-A 的 `dimensionPathId()`（EC11 满 & EC12 未满 → 73，否则 71），
+#     但用的是游戏自己的判定，不会和版本漂移。
+# ══════════════════════════════════════════════════════════════════════════
 .class public final Lkajfosz/antimatterdimensions/OrekiChallengeAuto;
 .super Ljava/lang/Object;
 .source "OrekiChallengeAuto.smali"
+
+
+# static fields
+#
+# [Oreki R40B] respec 节流的三个计数器（只在「买不到 EC 研究且已被互斥研究挡住」时用得到）。
+#   frame        —— tick() 每帧 +1，只用于算间隔（回绕在 180 分钟里不会发生：2^31 帧 ≈ 3.4 年）
+#   respecFrame  —— 上一次真正执行 respec 的帧号
+#   respecCount  —— 本次进程内已执行的 respec 次数，硬上限 0x20（见 respecForEc）
+# 目的：把「respec ↔ 重建 → 又被挡 → 再 respec」的抖动限制在 6 秒一次、全程 32 次，
+# 最坏情况退化为「停在原地等资源」，绝不会变成 Web R40-A 实测到的那种每 6 秒清空一次树
+# 却一次都不推进的死循环。
+#
+# [Oreki R40B-2] 第四个计数器：上一次 respec 是为哪一关做的。
+#   同一个 id **全进程只允许 respec 一次**。理由（对齐 Web R40-A 的「快照闸门」）：
+#   清树之后路径只能由原版 b;->S(ECTimeStudyState.purchaseUntil) 按 ec 参数重建，
+#   而重建结果是**确定性**的；同一关再清一次必然得到同一棵树，
+#   所以第二次 respec 不可能带来新结果，只会白掉一张树。
+#   一旦重复触发被拒绝，就 goto :next_id 让后面还能买的关先推进，而不是死在本关。
+.field private static respecLastId:I
+.field private static frame:I
+.field private static respecFrame:I
+.field private static respecCount:I
 
 
 # direct methods
@@ -97,6 +161,14 @@
     .locals 10
 
     :try_start_0
+    # ---------------------------- -1) 帧计数（供 respec 冷却用） ----------------------------
+    # 必须在 try 内：本方法每帧被调用，任何异常都必须被尾部 .catch 吞掉。
+    sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I
+
     # ---------------------------- 0) 有人在挑战里就不插手 ----------------------------
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
@@ -280,6 +352,94 @@
     return-void
 
     :ca_buy_ec
+    # ---------------------------- 3a) 互斥研究挡路 → 走原版 respec ----------------------------
+    # [Oreki R40B] 为什么必须有这一段（Web 侧 R40-A 已用 700 s 真实新档实测确认同类机制）：
+    #   EC 研究的 canBeBought = `b;->A(Z)Z`（b.smali:360-395）
+    #     = unlocked==0 && 「requirement(zw4.k) 里至少一项已买」
+    #         && ( eg3.D.k() || O() )
+    #   而 `b;->O()Z`（b.smali:861-903）= **互斥/二级研究（b.p，zw4 的超集）一项都没买**。
+    #   ⇒ 时间研究树里有几组「只能选一条」的分叉：
+    #        · 维度路径 71 / 73（81 要 71、83 要 73，allowedDimPathCount 默认 1）
+    #        · 层列 121/122/123 → 131/132/133 → 141/142/143（151 只认列 C）
+    #     不同 EC 的 requirement 指向不同分叉（EC4→143、EC6→121、EC8→123；
+    #     EC11/EC12 的二级研究分别禁 [72,73] 与 [71,72]）。
+    #   ⇒ 一旦选错分叉，`O()` 恒 false，这条 EC 研究**永远买不到**；
+    #     唯一解法就是原版自己的「重洗时间研究」：清空普通研究树 + 退 TT + unlocked 归零。
+    #
+    # 触发条件（三条同时成立，缺一不动）：
+    #   ① A(false)==0 —— 确实买不到；
+    #   ② z()==1      —— 这条 EC 研究本身**买得起**（fp3.z = y().f(x())），
+    #                    排除「只是 TT 不够」的开局情况（否则会把新手的研究树白清）；
+    #   ③ O()==0      —— 确实已拥有互斥/二级研究，即 ① 的原因是分叉选错，不是资源。
+    #   满足即调用原版 `eternity/studies/d;->b(Z)V`（respecTimeStudies，d.smali:1565）
+    #   传 true（auto：不弹确认框、不播音效），然后本帧 return。
+    #   下一帧 :buy_studies 分支的 fillEcRequirement 会用原版 purchaseUntil 把**目标
+    #   EC 的整条前置路径**重新买回来 —— 这条路径来自 requirement 本身，
+    #   因此会自然落到该 EC 需要的那条分叉上（等价于 Web 的 respec + AD10 重买）。
+    #
+    # 幂等/红线：只调用原版方法；不写解锁位 / 完成次数 / 当前关卡；
+    #   respec 的节流与总次数上限在 respecForEc() 里（6 秒一次、全程 32 次）。
+    const/4 v9, 0x0
+
+    invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z
+
+    move-result v9
+
+    # A()==1（可买）→ 正常走购买；==0 才进互斥判定
+    if-eqz v9, :ca_do_buy
+
+    # 买不起（资源不足）→ 等下一帧，绝不清树
+    invoke-virtual {v7}, Lfp3;->z()Z
+
+    move-result v9
+
+    if-eqz v9, :next_id
+
+    # O()==1（没有互斥研究）→ 挡住 ① 的不是分叉冲突，而是**前置普通研究没买**
+    # [Oreki R40B-2] 这里必须调用原版 **EC 自己的** purchaseUntil，而不是 respec。
+    invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z
+
+    move-result v9
+
+    if-eqz v9, :ca_official
+
+    # O()==0（已拥有互斥/二级研究）→ 分叉选错，只有 respec 能解
+    invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z
+
+    move-result v9
+
+    # respec 被拒（同一关已经清过一次树）→ 别死在本关，交给后面的关
+    if-eqz v9, :next_id
+
+    return-void
+
+    # ---------------------- 3b) 前置缺失：走原版 EC purchaseUntil ----------------------
+    # [Oreki R40B-2] 为什么不能只靠 fillEcRequirement 里的 c;->N(Cont)（普通研究 purchaseUntil）：
+    #   c;->N 内部是 `d.e(id, -1, cont)` —— 第二个参数 ec 恒为 **-1**，
+    #   于是 d.e 里专门为 EC11/EC12 写的那段「按 EC 决定维度分叉」永远走不到：
+    #       d.e(id, 11, …) → 只买**反物质维度**那条分叉（71/81/91/101）
+    #       d.e(id, 12, …) → 只买**时间维度**那条分叉（73/83/93/103）
+    #   （Web 侧同一段在 time-studies.js:52-58，其 EC 类用 `buyStudiesUntil(studiesToBuy[id], id)`
+    #    把 id 传进去，ec-time-study.js:65。）
+    #   ⇒ 清树之后普通 purchaseUntil 面对 71/72/73 只能落到「第一优先维度路径」，
+    #     新手存档若没设首选路径，它会直接放弃 → EC11/EC12 恒买不上。
+    #
+    # b;->S(Cont) 就是原版 EC 研究的 purchaseUntil（b.smali:1341-1687），逐条核对：
+    #   · `b.r[this.id]`（b.smali:17-56 = [0,171,171,171,143,42,121,111,123,151,181,181,181]）
+    #   · `d.e(b.r[id], this.id, cont)`（b.smali:1541）—— **ec 参数是真实 id**
+    #   · 提交这条路径（e;->c(…)，b.smali:1565）
+    #   · EC11 再补买 191（0xbf，b.smali:1648-1671）、EC12 再补买 193（0xc1，b.smali:1609-1632）
+    # ⇒ 与 Web「dimensionPathId(): EC11 满 & EC12 未满 → 73，否则 71」殊途同归，
+    #   但这里用的是**游戏自己的判定**，不存在第二份手写规则会跟版本漂移。
+    # 幂等：买过的不再买；买不起就本帧空转，下一帧重试。
+    :ca_official
+    sget-object v9, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
+
+    invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->S(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    return-void
+
+    :ca_do_buy
     # 原版购买：fp3.D(true, null) —— 内部 a() = 价格/前置/二级资源全部自校验
     const/4 v8, 0x1
 
@@ -511,7 +671,7 @@
 # （c.smali:1129 起，第一句 `p0.a(z)` 自校验；形参 p1 全程未被读，传 null 安全）。
 # 本方法不写任何存档字段：unlocked / 已购位 / TT 全部由 a() 与后续 E(true) 自己写。
 .method private static fillEcRequirement(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z
-    .locals 8
+    .locals 9
 
     iget-object v0, p0, Lzw4;->k:[Ljava/lang/Integer;
 
@@ -549,22 +709,55 @@
     # 已经买了任意一项 → 前置已满足，不需要补
     if-eqz v5, :fr_has
 
-    # 这一项没买 → 尝试买
+    # 这一项没买 → ① 先按原版单击购买（前置已满足时最省、且不触发任何重建）
     const/4 v6, 0x1
 
     const/4 v7, 0x0
 
     invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)Ljava/lang/Boolean;
 
-    move-result-object v4
+    move-result-object v6
 
-    if-nez v4, :fr_next
+    if-nez v6, :fr_until
 
-    invoke-virtual {v4}, Ljava/lang/Boolean;->booleanValue()Z
+    invoke-virtual {v6}, Ljava/lang/Boolean;->booleanValue()Z
 
-    move-result v4
+    move-result v6
 
-    if-eqz v4, :fr_bought
+    if-eqz v6, :fr_bought
+
+    :fr_until
+    # ② [Oreki R40B] 单击买不动 → 走原版 purchaseUntil 补**整条前置路径**
+    #
+    # 为什么必须补这一步（对齐 Web oreki-eternity-automation.js 的 `pre.purchaseUntil()`）：
+    #   `c;->D(ZLvh0;)` 只是 `purchase()`，它内部 a(Z) = !B() && z() && A(z)，
+    #   而 A(Z)Z（c.smali:413）按 TSRequirementType 要求**前置研究已经买好**。
+    #   本类此前只买「requirement 里的那一项」，于是当该项自身还有前置（
+    #   例如 143←133←123←113，或 181←163←…）时 purchase() 恒 false ⇒ 这一关永远买不上。
+    #   Web 侧靠 `purchaseUntil()` 一次把整条链补齐，Android 侧此前缺这一环。
+    #
+    # 用的是**原版自己的方法**：`c;->N(LContinuationImpl;)` 就是
+    #   `NormalTimeStudyState$purchaseUntil$1`（c.smali:1550），内部
+    #     d.e(id, -1, cont)  = TimeStudyTree.buyStudiesUntil(target, -1)  → 求路径
+    #     e.c(tree, list, …) = 提交这条路径（逐项扣 TT 购买）
+    #   与 UI 长按时间研究走的是同一个入口，不是本类自己重写的贪心买法。
+    #
+    # continuation 传 OrekiEcContinuation.a（静态单例、空上下文、invokeSuspend 恒返回
+    # CoroutineSingletons）。若真的挂起，本帧不会买到，下一帧重来；不会崩、不会重复扣费
+    # （扣费在 e.c 里按购买列表一次性完成）。
+    sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
+
+    invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    # 用原版自己的 isBought 复核：只有真的买上了才算「本帧已动作」
+    invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z
+
+    move-result v6
+
+    # B()==1（非零）= 买上了 → 本帧到此为止；==0 → 换下一个 requirement 项
+    if-nez v6, :fr_bought
+
+    goto :fr_next
 
     :fr_next
     add-int/lit8 v2, v2, 0x1
@@ -582,6 +775,87 @@
     return v0
 
     :fr_none
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+
+# ------------------------------------------------ EC 分叉冲突时的原版 respec（R40B）
+# 调用点只有一处：tick() 的 :buy_studies 循环里，且必须同时满足
+#   A(false)==0（买不到）、z()==1（EC 研究本身买得起）、O()==0（已拥有互斥/二级研究）。
+# 这三个条件由调用点判定，本方法只负责「节流 + 调用原版」。
+#
+# 为什么用原版 eternity/studies/d;->b(Z)V 而不是自己清字段（d.smali:1565-1856）：
+#   它正是游戏「重洗时间研究」按钮的实现，按顺序做四件事：
+#     ① player.timestudy.studies.clear()       清空普通研究树
+#     ② c21.c()（= unlocked 对应的那条 EC 研究）-> E(false) -> r51.h(0)   unlocked 归零
+#     ③ 缓存失效 + 按 d.a(false) 计算的额度 **退还时间定理**（ln0.H.o(refund)）
+#     ④ UI 重绘（DrawStudyTree.b / MainActivity.Dn）
+#   ⇒ TT 不丢，解锁状态由原版自己收敛；本类不碰任何存档字段。
+#   传 true = auto：不弹确认框、不播音效（与原版 automator 的无人值守调用一致）。
+#
+# 节流（三层，缺一即抖动）：
+#   · 距上次 respec 不足 120 帧（20 fps ≈ 6 s）→ 拒绝。Web R40-A 实测的抖动是
+#     「每 6.2 s 一次、38 s 内 7 次、EC 完成数一次都没涨」，所以间隔不能比 6 s 更短；
+#   · 同一关 id 全进程只清一次（respecLastId 闸门，见字段注释）→ 拒绝；
+#   · 本次进程累计 32 次 → 永久拒绝。最坏情况退化为「停在这一关等资源」，
+#     玩家研究树保持完好，不会把 180 分钟的推进拖死。
+#
+# 返回 Z：1 = 真的执行了 respec（调用点应 return）
+#         0 = 被三层闸门拒绝（调用点应 goto :next_id，去试后面的关）
+.method private static respecForEc(I)Z
+    .locals 3
+
+    sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I
+
+    # p0 == respecLastId：这一关已经清过一次树，重建结果是确定性的，再清也是同一棵树
+    if-ne v0, p0, :rr_no
+
+    sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecCount:I
+
+    const/16 v1, 0x20
+
+    # 已用满 32 次 → 永久放弃（宁可停住，也不无限清树）
+    if-lt v0, v1, :rr_no
+
+    sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I
+
+    sget v1, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecFrame:I
+
+    sub-int/2addr v0, v1
+
+    const/16 v2, 0x78
+
+    # 距上次 ≥120 帧 → 放行
+    if-lt v0, v2, :rr_go
+
+    # 0 <= 间隔 < 120 → 冷却中
+    if-ltz v0, :rr_no
+
+    :rr_go
+    sput p0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I
+
+    sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I
+
+    sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecFrame:I
+
+    sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecCount:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecCount:I
+
+    # 原版重洗时间研究（auto = true）
+    const/4 v0, 0x1
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :rr_no
     const/4 v0, 0x0
 
     return v0

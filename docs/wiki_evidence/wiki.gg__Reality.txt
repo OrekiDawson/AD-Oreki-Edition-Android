@@ -1,0 +1,71 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Reality
+# url: https://antimatterdimensions.wiki.gg/wiki/Reality
+
+Reality is the third and final main prestige layer in the game, unlocked upon buying the final Time Study which requires e4,000 Eternity Points and the first 13 rows of Achievements. Starting a new Reality will reset the entire game up to that point in exchange for Reality Machines, a Glyph and a Perk Point.
+Reality introduces Glyphs, Reality Upgrades and Perks upon making a new Reality for the first time, alongside Black Hole and Automator; both of them having additional requirements to be fully unlocked. Purchasing the Reality Time Study allows the player to preview the Reality tab and its first 3 subtabs, while performing the first Reality reset reveals the Black Hole and the Automator tabs.
+The prestige layer is added to the game in the Reality Update, the final major content update that took 4.5 years of development for the desktop versions. The update is released on December 17th 2022 on the website (alongside the Steam release) and ported to Android on April 1st 2024.
+
+
+== Reset ==
+
+Reality resets all Eternity contents and below, including all currencies and challenge completions. Unlike the previous 2 prestige layers, the player will also lose the first 13 rows of Achievements and their associated rewards upon performing the reset. All data under the general header in the Statistics tab and all best Challenge times are kept on Reality. All pre-Reality tabs remain accessible even when the features become locked again.
+The player will normally receive Reality Machines depending on their highest EP, a Glyph of their choice and 1 Perk Point. On the first Reality, the player is given a Power Glyph with only the Antimatter Dimension power effect and a fixed rarity of 20%. In addition, the player is also given the Companion Glyph that shows how many EP the player had reached on their first Reality.
+Completing the first Reality unlocks the option to restart the current Reality over, sending the player back to the start of the Reality. The option to do so is located in the Glyphs tab. Restarting a Reality over does not give the player the rewards they would normally get from making a new Reality. Additionally, the potential Glyphs will not change.
+
+
+=== Reality Machines ===
+Reality Machines are the main currency of the Reality prestige layer, which can be spent on Reality Upgrades or the Black Hole. They are given based on the highest amount of Eternity Points in the current Reality, added by Eternity Points the player would gain on Eternity. There are 3 different formulas for Reality Machine gain; Which formula is currently being used depends on the player's current circumstances.
+Linear Scaling (1−10 RM): ⌊274,000log10(EP)−26⌋
+Exponential Scaling (>10 RM): ⌊1,000log10(EP)4,000−1⌋
+Reduced Scaling (e6,000 EP on first Reality): ⌊1,000log10(EP)−0.75(log10(EP)−6,000)4,000−1⌋
+The first 10 Reality Machines scale linearly in the exponent between 1.00e4,000 EP and 2.15e5,333 EP. The formula changes into the exponential one above 10 RM, which becomes a higher RM gain than linear above 2.15e5,333 EP. Only on the first Reality, Reality Machines is reduced above e6,000 EP and capped at e8,000 EP. This formula would give the player 31 RM at e6,000 EP and 74 at e8,000.
+
+
+=== Glyph Level ===
+
+Glyphs on Reality have a level based on multitude of factors, which become more complex as the game progresses (e.g. Eternities boost Glyph Level once the player purchases the Reality Upgrade "Measure of Forever"). The Glyph level scales off of a combination of Eternity Points, Replicanti, and Dilated Time by default, with a minimum level of 1. The type, effects, and rarity of Glyphs are randomized. 
+The 3 starting factors use their highest values the player has reached in the current Reality.
+
+
+== Mechanics ==
+
+
+=== Automatic Achievements ===
+
+The automatic achievements mechanic is featured in Reality to compensate with the player losing the first 13 rows of Achievements. While the player needs to redo the requirements for each Achievement in order to regain their rewards, they will passively unlock the next incomplete Achievement at base intervals of 30 minutes. The automatic completion can be disabled, in which case the timer will count down to zero and pause, immediately completing another Achievement when unpaused. The timer still progresses at the same rate while offline. The speed of the achievement timer can be improved with achievement Perks.
+The mechanic will become obsolete when the ACHNR Perk is bought, allowing the player to keep all pre-Reality achievements permanently. All information and its respective button related to this feature will disappear from the achievements tab.
+The following table shows the different intervals of automatic achievements and its maximum time required to complete all first 13 rows of achievements.
+
+
+=== Glyphs ===
+Glyphs are equippable upgrades that have different effects on various aspects of the game and can only be unequipped between Realities. The player can choose one of the multiple random Glyphs on every Reality.
+
+
+=== Reality Upgrades ===
+
+Reality Upgrades are a set of upgrades that cost Reality Machines and have requirements that need to be met first before they can be purchased.
+
+
+=== Perks ===
+
+Perks are unlockable features similar to Eternity Milestones which primarily focus on convenience and automation. They are purchased using Perk Points, which are gained after every Reality.
+
+
+=== Black Hole ===
+The Black Hole runs the entire game faster in a periodic cycle, affecting everything in the game up to that point and will give similar results to leaving the game open for an equivalent amount of time. The feature is locked behind 100 Reality Machines.
+
+
+=== Automator ===
+The Automator is an advanced, built-in feature that uses a scripting language that allows the player to automate many sections of Realities. The feature is locked behind 100 Automator Points, a resource given when buying Reality Upgrades and Perks, unlocking the Black Hole or simply completing more Realities.
+
+
+== Trivia ==
+The name of the prestige layer presumably comes from one of the higher level roles from the official Antimatter Dimensions discord server, named "Reality Dimension". The role was created on December 14th, 2017, over a year before the Reality Update and its contents were announced in the server.
+Reality is the only prestige layer of the three to not have the name of the primary currency end with "Points"
+Reality is also the only prestige layer of the three to have a different requirement than 1.80e308 (Infinite) Antimatter / Infinity Points
+
+
+=== Footnotes ===
+
+
+== Navigation ==

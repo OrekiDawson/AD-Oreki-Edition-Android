@@ -79,3 +79,12 @@ desktop.ini
 /_r*/
 # build/ 下以 _ 开头的都是逐轮临时物（build.log 仍入库）
 build/_*
+
+# ---------- release/：手工放置的发布候补 APK（单件约 66MB）----------
+# 构建产物由 scripts/build_mod.py 重新生成；发布副本走 OneDrive/小米云盘，不入库。
+/release/
+
+# ---------- build/：构建中间树与临时日志（含超长路径的 smali 解码产物）----------
+# 与 /work/ 同类：可由 scripts/build_mod.py 重新生成。R40 实测 build/tutorial_check
+# 下的解码树有路径超过 Windows 260 字符上限，git add 直接 fatal。
+/build/

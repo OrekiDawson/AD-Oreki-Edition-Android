@@ -1,0 +1,960 @@
+你可以随时在「关于」页重新查看本更新日志。
+
+<b>3.19.0</b>
+
+新增
+- 新增了新闻内容
+- 新增了天体的现实按钮动画
+- 新增了切换回原版 PC 成就图片的选项
+
+改进
+- 改进了部分带圈形状的 Metro 化处理
+- 改进了离线进度计算的性能
+- 浅色主题下买不起的按钮现在显示为更深的灰色
+- 隐藏主题现在会为可用的升级显示提示圆点
+- 升级提示现在也会出现在黑洞解锁与黑洞升级上
+- 自动化常量现在可以与 ID、区间和别名混用在时间研究列表里，例如 "studies purchase myStudies, 181|10!"
+
+修复
+- 修复了若干崩溃
+- 修复了某个隐藏主题的两处显示问题
+- 修复了「导入研究树」对话框中三元研究的一个错误
+- 修复了自动购买器输入框会把低于 0.01 的设置改成 0 的问题
+- 修复了离开应用前的最后几次操作有时不会被保存的问题
+- 修复了两个隐藏主题会自行切回默认主题的问题
+- 修复了某些隐藏主题下部分天体元素仍保留原色的问题
+- 修复了离线时间以现实时间保存时 DMD 自动购买器不运行的问题
+- 修复了在隐藏主题下重新打开应用后不显示离线进度的问题
+- 修复了「永恒之流」现实升级无法通过离线永恒产出解锁的问题
+- 修复了从 PC 导入的部分存档永远无法解锁 r52、r53 成就的问题
+- 修复了主题预览使用系统语言和字号、而不是应用内设置的问题
+- 修复了长按时间研究时，本来只是第二优先维度路径却买成反物质路径的问题
+
+<b>3.18.0</b>
+
+新增
+- 新增了新闻内容
+- 新增了隐藏主题
+- 新增了离开进度选项
+- 新增了部分升级的公式弹窗
+
+改进
+- 长按时间研究现在会先购买通往它的最短路径
+- 现在点击膨胀按钮会在可能时直接解锁膨胀
+- 被禁用的升级在 cel7 中的公式图表现在会显示为禁用状态
+
+修复
+- 修复了若干崩溃
+- 修复了部分升级文字没有居中的问题
+- 修复了离线时间不产出奇点的问题
+
+<b>3.17.0</b>
+
+新增
+- 新增了新闻内容
+- 为公式非线性的升级新增了「?」按钮，可显示公式与图表
+
+改进
+- 改进了离线进度计算的性能
+- 快子粒子动画不再在每次现实后从屏幕边缘重新开始
+- 广告加成现在在倍率明细里有独立一行，而不再并入「商店页购买」
+- 在维度自动购买器组里点按小开关时，不再连带切换整个组
+
+修复
+- 修复了若干崩溃
+- 修复了图表页卡顿的问题
+- 修复了数值极大时单复数形式闪烁的问题
+- 修复了离开 cel3 后永恒挑战描述仍保留删除线的问题
+- 修复了更新日志对话框有时比屏幕更宽的问题
+- 修复了离线进度计算中的「剩余时间」在不同数值间跳动的问题
+- 点按天体导航节点时，不再在天体尚未解锁前打开其页面
+- 修复了被锁定的虚幻升级在仍可满足需求时也一直显示为红色的问题
+
+<b>3.16.0</b>
+
+新增
+- 新增了新闻内容
+- 新增了天体导航
+- 新增了「存档文件名」选项
+- 新增了「复制器」顶栏选项
+- 新增了「底栏按钮模式：研究预设」选项
+- 为大坍缩/永恒自动购买器新增了时间模式说明
+
+改进
+- 游戏现在会在片尾字幕结束后保存
+- 改进了离线进度计算的性能
+- 「玩法说明」与「关于」现在是「信息」页的子页
+- 新存档默认关闭永恒自动购买器
+- 进入 cel7 时会正好留下每种基础类型各一个符文
+- 点按现实/虚幻升级提示时现在会打开对应的子页
+- 顶栏的现实按钮现在只有在获得成就 r147 后才常驻显示
+- 当现实自动购买器不在符文等级模式时，符文回收选项现在会被禁用
+- 无限升级页在解锁充能后保持可见，直到 12 项升级全部充能完毕
+- 当「悖论达成」需求锁定生效且需求已满足时，自动成就现在会重新开启
+
+移除
+- 移除了「解锁已完成的永恒挑战」开关
+
+修复
+- 修复了「玩法说明」中空的标题
+- 修复了图表页会让游戏卡死的问题
+- 修复了平板 cel4 六边形过大的问题
+- 修复了 cel7 进入按钮点击区域过小的问题
+- 修复了图表页在「Lines: Both/Max」下的卡顿
+- 修复了能量符文的「购买 10 个」倍率效果显示
+- 修复了时间研究树可以滚出屏幕外的问题
+- 修复了在输入大坍缩/永恒自动购买器设置时切换其模式的问题
+- 修复了添加常量后自动化常量里不出现「新常量」行的问题
+- 修复了离线进度中复制器达到 1.8e308 时成就 r95 不解锁的问题
+
+<b>3.15.0</b>
+
+新增
+- 新增了新闻内容
+- 新增了图表子页
+- 在升级提示中新增了未使用的特权点
+- 为 cel3 中损坏的普通挑战与 cel7 中被献祭的裂隙新增了视觉效果
+
+改进
+- 已购买的无限升级现在显示为橙色
+- 将 EU1 特权改写为「在你拥有永恒之后」
+- 存在性抹消锁定一旦停止生效，连续统现在会立即重新启用
+- 被增幅的现实不再以 ×1000 为上限；大幅增幅时会显示「正在模拟增幅现实」进度对话框
+
+修复
+- 修复了若干崩溃
+- 修复了 cel4 的需求显示
+- 修复了平板上部分宽屏布局的问题
+- 修复了浅色主题下黑色符文筛选器标题的问题
+- 修复了浅色主题下 cel7 裂隙文字看不清的问题
+- 修复了游戏结束时对话框仍然停留的问题
+- 修复了「重开本次现实」会发放现实机器的问题
+- 修复了一个可能重置 STD 硬币与商店购买的罕见错误
+- 修复了在达到 e4000 永恒点之前 cel1 的现实按钮就发光的问题
+- 修复了离线进度之后一段时间内自动化运行过快的问题
+- 修复了带侧边固定导航的平板上主页面无法全部显示的问题
+- 修复了自动切换到的页面没有被取消隐藏的问题
+- 修复了离线进度购买期间底部固定按钮仍处于激活状态的问题
+- 修复了现实开始时打开自动购买器页会让游戏卡死的问题
+- 修复了重启应用后 cel7 强制显示的页面又回到隐藏状态的问题
+- 修复了倍率明细中 IC4 的效果一直以指数形式显示的问题
+- 修复了表情符号偶尔从时间研究预设名与自动化脚本中消失的问题
+- 修复了首次打开天体页面时其登场语从未播放的问题
+- 修复了「自动切换页面」选项被大多数自动切换忽略的问题
+- 修复了手动隐藏复制器、现实/虚幻升级、cel1、cel2、cel6 页面时的错误
+- 修复了展开的倍率明细条目右边框与上一行不对齐的问题
+- 修复了在计算期间关闭游戏时商店购买的离线进度大部分丢失的问题
+- 修复了离线进度保存现实时间时只存了模拟本身耗掉的几毫秒、而不是模拟时长的问题
+- 修复了从自动购买器页切换后，现实升级、虚幻升级与黑洞自动购买器各自页面上的开关不刷新的问题
+
+<b>3.14.0</b>
+
+新增
+- 新增了新闻内容
+- 在统计中新增了倍率明细子页
+- 新增了在侧边导航中显示全部隐藏页面的开关
+- 在升级提示中新增了现实升级、黑洞与虚幻升级
+
+改进
+- 当永恒点倍率自动购买器未解锁时，永恒升级页现在会被强制取消隐藏
+- 在 PEC1 与自动化之前运行 EC8 时，复制器与无限维度页现在会被强制取消隐藏
+- 底栏导航上方现在有一条小型安全区，防止切换页面时误触
+- 广告加成生效期间，大坍缩与永恒自动购买器的数值现在直接显示触发值，而不再单列「广告加成后」字段
+
+修复
+- 修复了「侵入回想」的费用显示
+- 修复了在无限点低于 e308 时退出膨胀的错误
+- 修复了部分自动购买器输入框卡在 0 的错误
+- 修复了错误地删除了一个同伴符文的错误
+- 修复了商店复选框在手动切换后变灰的问题
+- 修复了滚动时无法购买时间定理的错误
+- 修复了获得的永恒次数不含炼金加成的错误
+- 修复了永恒之流不含成就 r113 加成的错误
+- 修复了 cel1 的现实按钮发光动画在大坍缩/永恒时重置的错误
+- 修复了「修改符文随机种子」对话框中键盘遮挡种子输入框的问题
+- 修复了解锁 cel2 后现实自动购买器不出现「遗物碎片」选项的问题
+- 修复了购买 ANR 特权后反物质星系按钮仍提示会重置维度的问题
+- 修复了快子粒子卡在屏幕左上角小方块里的错误
+- 修复了在购买 START 特权之前符文预览显示的符文与现实实际给出的不一致的问题
+
+—— 以下为 3.13.2 及更早版本，保留英文原文 ——
+
+<b>3.13.2</b>
+
+NEW STUFF
+- Added new news
+- Added saved settings to cloud save (theme, language, layout, hidden tabs, etc.)
+
+IMPROVED STUFF
+- Small popups now don't block other small popups from opening
+- All Reality/Celestial subtabs are now visible in bottom navigation without the need to scroll
+- Automator log now shows when a loaded study preset starts (or fails to start) an Eternity Challenge
+
+FIXED STUFF
+- Fixed Time Study text overflow in Russian
+- Fixed Reality upgrades not being red in cel7
+- Fixed a sticky side navigation bug on tablets
+
+<b>3.13.1</b>
+
+NEW STUFF
+- Added new news
+- Added sticky side navigation to tablet layouts
+- Added a shadow highlight to all Glyph altered effects
+
+FIXED STUFF
+- Fixed a crash related to System theme
+- Fixed a bug where Fullscreen was not applied correctly
+- Fixed a bug where doomed cel7 studies couldn't be purchased
+- Fixed a bug where the "Toggle buy until 10" button was clipped
+- Fixed a bug where Glyph selection confirmation could be disabled before unlocking the Reality autobuyer
+
+<b>3.13.0</b>
+
+NEW STUFF
+- Added new news
+- Added search to Options
+- Added iOS testers to credits
+- Added the rift overfill to cel7
+- Added a border to cel4 hexagons
+- Added colors to bottom navigation
+- Added a "Sign in with Apple" option
+- Added the "Modify visible tabs" option
+- Added glow to the Reality button in cel1
+- Added a new "Extended" fullscreen option
+- Added all autobuyers to the Autobuyers tab
+- Added Glyph amount to the purge confirmation
+- Added sticky buttons info dialog after first Infinity
+- Added a toggle for diagonal Time Study tree dragging
+- Added support for Standard notation in autobuyer fields
+- Added a toggle for Time Study and background animations
+- Added a disclaimer/customization hint to the side navigation
+- Added "Effect Stacking" and "Common Abbreviations" to How to Play
+- Added a Tickspeed upgrade-count tooltip (tap the Tickspeed layout)
+- Added Supporter Pack art by MrKrutaman and improved the IAP purchase dialog UI
+- Added haptic feedback when enabling a sticky bottom button (and an option to disable it)
+- Added a liquid glass bottom navigation and bottom buttons option (Options -> Bottom navigation/buttons)
+- Added the Galactic theme (unlocked the same way as on PC) and a new "Theme" option replacing "Night mode"
+
+IMPROVED STUFF
+- Improved s45
+- Improved the autobuyer UI
+- Improved the side navigation UI
+- Increased snackbar time to 2 seconds
+- UI update rate minimum lowered to 25ms
+- Cel7 name is now scrambled in quotes dialog
+- Improved the Eternity upgrade display after cel1
+- TS 131 now disables RG autobuyer only while offline
+- Updated the Break Infinity explanation in How to Play
+- Improved Glyph purge and Music Glyph fill performance
+- Saving is now disabled before the last cel7 rift is drained
+- The inventory glyphs now correctly display their base level
+- The "choose cosmetic set" modal now uses a wheel picker
+- IP upgrade time estimates now account for passive IP generation
+- The bottom navigation will now use icons for main tabs by default
+- Improved the Replicanti multiplier formula and the TS 21 description
+- You can now hold the "Share save" button to download your save as file
+- The sticky bottom button is now preserved when you put the app in background
+- Credits now correctly pause and resume when moving app to background and back
+- The main currency displays now transition smoothly to their endgame counterparts
+- Added a "Don't show this message again" checkbox to dialogs which can be disabled
+- The TT generator upgrade now displays its effect including the Achievement 137 bonus
+- The percentage bar now mentions "a new type of Dimension" instead of Infinity Dimensions before they're unlocked
+
+FIXED STUFF
+- Fixed a bug with Glyph refine
+- Fixed an old web save import bug
+- Fixed negative zero display in Replicanti
+- Fixed a bug with the Glyph effect score filter
+- Fixed a bug with tab display mismatch after Big Crunch
+- Fixed a bug where the Replicanti timer was not accurate
+- Fixed a bug with the Existential Elimination upgrade lock
+- Fixed a wording consistency with TS 121 and 141 after ACT
+- Fixed a bug with achievement r41 when importing an old save
+- Fixed a bug where some speedrun milestones weren't triggering
+- Fixed bugs with secret achievements s28, s33, s38, s41, and s47
+- Fixed a bug where changing orientation would switch the language
+- Fixed a bug where you could charge the last column of Infinity Upgrades
+- Fixed Max Time Theorems buying nothing when you had exactly the bulk cost
+
+<b>3.12.1</b>
+- Added time estimate display to Infinity Upgrades, Break Infinity Upgrades, Eternity Upgrades, Eternity Milestones, Infinity Dimensions, and Time Dimensions
+- Fixed a couple of crashes
+- Fixed a bug with reality glyphs
+- Fixed a bug with balloon popups
+- Fixed some bugs with translations
+- Fixed a bug with incorrect strikethrough
+- Fixed a bug with automator during offline progress
+
+<b>3.12.0</b>
+- Added AP coloured display
+- Added a time estimate popup to max DT
+- Added glow to purchasable Time Studies
+- Added a command to load a glyph preset
+- Added seamless orientation change transition
+- Added star badges to achievements with rewards
+- Added description popups to automator event log clear option buttons
+- Updated cel2 icon
+- Updated cursed glyph icon
+- Improved the loading screen
+- Improved Sacrifice button display
+- Improved the r143 reward wording
+- Limited snackbar queue to 3 items
+- Improved the balloon popup animation
+- Updated the functionality of bottom buttons
+- The M and D bottom buttons are now disabled only in IC4
+- Improved the glyph selection code without START perk
+- Sacrifice is now not available when the multiplier is x1
+- Improved performance of Automator editor and Alchemy tab
+- Shortened the text on Time Theorem buttons when it's too long
+- Unlocking the glyph filter now scrolls to it and shows it correctly
+- Enter celestial dialog now only shows unlocked cel5 pets
+- Unlocking glyph auto adjust, glyph filter, or glyph sets now scrolls to it
+- The subtabs are no longer all caps and more of them can now fit on screen
+- The imaginary upgrades no longer show as purchasable when there are no charges left
+- Improved balloon popup handling - it is no longer possible to show two at the same time
+- Tapping on an unlocked/purchased Reality or Imaginary Upgrade now shows its requirement
+- The Synthetic Symbolism will now prevent you from doing a Reality if you have less than 5000 pending RM
+- The "follow execution" automator toggle is now transparent when editing a script which isn't currently running
+- The glyph peek no longer jumps when clicking on its glyphs, and it also prevents swiping navigation when scrolling it
+- Fixed "Best: -0"
+- Fixed balloon popup text clipping
+- Fixed a bug with the 5x EP multiplier cost
+- Fixed an extra space in Black Hole notification
+- Fixed a bug with incorrect glyph popup arrow color
+- Fixed a bug with duplicated tabs in side navigation
+- Fixed a bug where glyph filter effect dots were not updating
+- Fixed a bug with "clear event log on script restart" automator option
+- Fixed a bug where the save was deleted when the device turned itself off
+- Removed some of the bible newstickers
+
+<b>3.11.6</b>
+- Added an option to disable Bible quotes in the Newsticker under Options -> Other -> News -> Secular news
+- Added an option to set the Reality autobuyer to glyph level mode with the Automator
+- Switched the positions of the Dimboost and Galaxy bottom buttons
+- Celestial tabs will now stay unhidden until they are fully completed
+- Fixed a bug with cel5
+- Fixed a bug with Replicanti gain text calculation
+- Fixed a bug where some caps were not correctly calculated (this is a buff)
+
+<b>3.11.5</b>
+- Numbers are now visible after finishing the game
+- Reality and imaginary upgrade tabs will now stay unhidden until acquiring respective upgrade autobuyers
+- Fixed a bug with status bar not being visible in light mode
+- Fixed a bug with EC 4 reward giving a 0x multiplier at 0 IP
+- Fixed a bug where the "studies nowait" command didn't start an EC
+- Fixed an exploit with infinite equipped glyphs in cel7
+- Fixed an exploit which allowed to purchase extra Dilation Upgrades in cel7 before unlocking them
+
+<b>3.11.4</b>
+- Fixed a bug with back button
+- Fixed a bug with side navigation
+
+<b>3.11.3</b>
+- Updated the Google Play billing library
+- Updated the app for edge-to-edge content
+- Fixed a bug with achievement r45 and r66
+- Fixed an issue with the "Make a new Reality" button not displaying Glyph choices
+
+<b>3.11.2</b>
+- Added Glyph dots visualization to the Specified Effect Glyph filter
+
+<b>3.11.1</b>
+- Improved Reality button display
+- Improved the look of Time Study and Perk names
+- Improved Tickspeed display while in EC9
+- Fixed a bug with some UI elements not having the correct color
+- Fixed a bug with news being visible behind the side navigation hamburger
+- Fixed a bug with the side navigation hamburger disappearing after loading a new save slot
+
+<b>3.11.0</b>
+- Added new news
+- Added a confirmation to the Shop sign out option
+- Improved Replicanti UI
+- The Reality button is now wider
+- Implemented Ad loading optimization
+- Moved the Blackhole pulse button to the Blackhole header
+- Fixed speedrun seed initialization
+- Fixed a bug where matter could go over e9e15
+- Fixed a bug with Time Study names on Android 15+
+- Fixed a lategame exploit by disabling Sacrifice in cel3
+- Fixed Transience of Information not calculating its RM requirement correctly
+- Fixed a bug where IP mult and RG autobuyers were not affected by the toggles in the Autobuyers tab
+
+<b>3.10.1</b>
+- Fixed a crash
+- Fixed a bug with export to web
+
+<b>3.10.0</b>
+- Added a new "Basic" glyph filter
+- Added an option to load web cloud save (if you have one)
+- Added a link to Reality update development retrospection written by SpectralFlame in the About tab
+- Updated the shop and cloud save sign in menu
+- You can now sign out of your shop and cloud save account in the Shop tab
+- Removed the "Number of effects" and "Rarity threshold" glyph filters
+- Fixed a tzpo
+- Fixed a crash
+- Fixed a bug where some glyphs displayed a wrong image
+
+<b>3.9.5</b>
+- Added an "auto-format" function to automator
+- Improved Replicanti UI
+- Fixed a bug with export to web
+- Fixed a bug with ec4 fail message
+- Fixed a bug with Replicanti Galaxy button
+- Fixed a bug where the reality unlock study was free
+- Fixed a bug with garbled text on row 18 achievements
+- Fixed a bug with displayed remnant gain factor values
+- Fixed a bug where BH didn't work after becoming permanent
+
+<b>3.9.4</b>
+- Break Infinity upgrades are now available only after you break infinity
+- Fixed a bug with upgrade notification
+- Fixed a bug with cel1 RM record tracking
+- Fixed a bug with "sacrifice all glyphs" confirmation
+- Fixed a bug where hidden tabs were reset when starting over
+- Fixed a bug where the Crunch autobuyer field was not editable
+
+<b>3.9.3</b>
+- Added harsh purge confirmation option
+- Fixed a crash
+- Fixed EC descriptions in cel7
+
+<b>3.9.2</b>
+- Autobuyer field edits now apply after you finish editing them (instead of instantly)
+- Fixed a bug with cel6
+- Fixed a bug with entropy not displaying a timer
+- Fixed a couple of bugs with the upgrade notification
+- Fixed a bug with some glyph symbols not displaying correctly
+
+<b>3.9.1</b>
+- Fixed a crash
+
+<b>3.9.0</b>
+- Added upgrade notification
+- Added info about AP to Perks and Reality Upgrades tabs
+- Added a total Dimboost amount popup when you click on Dimboost amount after getting Consequences of Illusions
+- Improved the ascension display
+- Improved the study preset popup
+- All glyph popups now gravitate towards the center of the screen
+- Cel1 RM record tracking is now based on highest RM
+- Cel1 reward is now based on highest antimatter reached in its reality
+- Fixed a crash
+- Fixed a bug with s37
+- Fixed a text issue with cel7
+
+<b>3.8.3</b>
+- Eternity Challenges now display a completion status progress bar
+- Fixed a bug with last cel7 rift
+
+<b>3.8.2</b>
+- Added all texts to Crowdin for translation
+- Added sacrifice/refine/score values to glyph popups
+- Device options will no longer reset when starting over
+- Top bar option is no longer tied to respective save slots
+- Automator now supports the "wait blackhole bh2 off" command
+- Glyph dots and effects will no longer be shown when using the True Blind notation
+- Removed the TT command from the automator
+- Fixed a softlock
+- Fixed a bug with the Omega notation
+- Fixed a bug with popups staying visible after reopening the app
+
+<b>3.8.1</b>
+- Fixed a crash
+- Fixed a crash in cel7
+- Fixed the description of cel7 upgrades
+- Fixed a bug where some numbers were not rounded correctly and acted as one less than the displayed value
+
+<b>3.8.0</b>
+- Added more than 500 new AI news
+- Added a "spent tt" currency to the automator script language
+- Paperclips are no longer reset when starting over
+- The news type is now set to "Normal + AI" by default
+- Fixed a bug with cel7
+- Fixed the antimatter spike bug
+- Fixed a bug with � in automator script names
+- Fixed a bug with the Standard, Bar, Brackets, and Omega notations
+- Fixed a bug where some numbers were very long for a split second
+
+<b>3.7.3</b>
+- Cel5 upgrades now get re-displayed after you buy them
+- Fixed a bug with s35
+- Fixed a bug where the start game button didn't show
+
+<b>3.7.2</b>
+- The new loading screen now shows only after clean launch or after 10+ minutes offline
+- Fixed a crash
+
+<b>3.7.1</b>
+- Added startup tip counter
+- Added an option for old loading popup
+- Improved loading screen
+- In-app updates no longer force you to update
+- Sidebar navigation is now disabled on loading screen
+- Adjusted loading screen for landscape orientation
+- Fixed a bug with changelog formatting
+
+<b>3.7.0</b>
+- Added new startup tips
+- Added new loading screen
+- Added buttons to navigate startup tips
+- Removed the "Always show start game button" option
+- Removed the "UI updates during offline progress" option
+
+<b>3.6.2</b>
+- Added Ad bonus tracking to speedrun stats
+- Automator line numbers are now right-aligned
+- Fixed a bug with export to web
+- Fixed a bug with wrong currency in IAPs
+- Fixed a bug with study and perk tree lines
+- Fixed a bug with DMD buttons not being aligned
+- Fixed a bug with offline time calculation during speedrun
+- Fixed a bug where you could buy galgen upgrades after END
+- Fixed a bug with the "Repeat this Celestial's Reality" line
+- Fixed a bug with Ad bonus not working when storing offline time
+
+<b>3.6.1</b>
+- Added an option to always show start game button
+- Fixed a crash
+- Fixed a bug with import from web
+- Fixed a bug where you could equip more glyphs than intended
+
+<b>3.6.0</b>
+- Added new news
+- Added startup tips
+- Added in-app update notification
+- Added current total Galaxy amount to AntiStellar
+- Improved charged upgrades info
+- Improved max RG upgrade display with TS 131
+- Disabled challenge fail popups when automator is running
+- Disabled all buttons during the Crunch and Reality animations
+- Increased the minimum required Android version from 5.0 to 6.0
+- Fixed a crash
+- Fixed a bug with newsticker speed
+
+<b>3.5.1</b>
+- Fixed a bug with the Blob notation
+- Fixed a bug with newsticker speed
+- Fixed a bug with first Dilation in cel7
+
+<b>3.5.0</b>
+- Added the Belarusian, Portuguese, and Swedish translations
+- Added red lines to cel7
+- Added challenge display to cel7
+- Added a confirmation for autobuyer change
+- Fixed a crash
+- Fixed a bug with automator indentation
+- Fixed a bug where offline progress was instant
+- Fixed a bug with sacrifice unprotected glyphs confirmation
+- Fixed a bug where blackhole pulse didn't work while offline
+
+<b>3.4.0</b>
+- Added cel5 symbol to celestial glyph cosmetic set
+- Added confirmation and explanation for glyph purge
+- Added time estimation display to imaginary upgrades
+- Added a new VERY SHORT option for tab slide animation
+- Years are now exactly 365 days long
+- Improved automatic indentation in automator
+- Offline progress now always displays a progress bar
+- Effect score filter now accepts values from -999 to 999
+- Holding Max no longer disables Dimension/Tickspeed autobuyers
+- Newsticker speed now doesn't change in EC12 nor Dilation if you have unlocked automator
+- Fixed a bug with relic shards
+- Fixed a bug with glyph recycle
+- Fixed a bug with eternity button in cel7
+- Fixed a bug when storing real time offline
+- Fixed a bug where some glyphs displayed a wrong image
+- Fixed a bug with rotated inventory causing glyph ghosting
+- Fixed a bug with offline progress with ad bonus and black hole
+- Fixed a bug where selecting a currently running script would stop it
+
+<b>3.3.2</b>
+- TP upgrade is now disabled in cel7
+- Improved the performance of Glyph and Alchemy tabs
+- Fixed a crash
+- Fixed a softlock with s47
+- Fixed a crash with russian language in cel7
+- Fixed a bug where the UI was visible during credits
+- Fixed a bug where last speedrun milestone wasn't awarded
+
+<b>3.3.1</b>
+- Fixed a crash related to glyph cosmetics
+
+<b>3.3.0</b>
+- Added DAB perk
+- Added a second splash screen
+- Added a new reward to achievement r131
+- Added an option to switch fullscreen between ON/FULL/OFF
+- Added an option to always buy all Studies up to clicked Study
+- Improved performance
+- Improved cel3 mechanic display
+- Amplification is now capped at 1000x
+- Cel2x1 now shows percentage to Infinity
+- Glyph selection dialog now has a limited height
+- "Challenge ready to be completed" popups are now disabled after you unlock automator
+- Fixed a bug with Auto EC
+- Fixed a bug with glyph undo
+- Fixed a bug with automator templates
+- Fixed a bug with � in glyph cosmetics
+- Fixed a bug where glyph presets stopped automator
+
+<b>3.2.2</b>
+- The app is now fully fullscreen on devices with Android 8.1 and higher
+- Fixed a bug with TS 132
+- Fixed a couple of crashes
+- Fixed a bug with cel7 upgrade
+- Fixed a couple of bugs in automator
+- Fixed a bug where you could dupe glyphs
+
+<b>3.2.1</b>
+- Added an option to disable alchemy animation
+- Somehow, Max returned
+- TS 132 now makes Replicanti 1.5x faster
+- Improved the sacrifice autobuyer display
+- Fixed a bug with glyph undo
+- Fixed a bug when entering cel7
+- Fixed a bug with the automator
+- Fixed a bug with some glyph icons
+- Fixed a bug with � in study preset names
+- Fixed a bug with relic shard autobuyer mode
+- Fixed a bug where you couldn't disable remembrance
+- Fixed a bug with stored real time not getting used
+- Fixed a bug with swiping in perks tab with sticky top buttons
+- Fixed a bug where automator highlighted current line when editing another script
+
+<b>3.2.0</b>
+- Added new news
+- Added writers to credits
+- Added iM to currency amount top bar
+- Added "skip" button to offline progress
+- Added "exit challenge" button to time studies tab
+- Added option to follow code execution in the automator
+- Renamed UD perks to DU
+- Cheaper pp for everyone
+- Made giraffes more expensive
+- Improved the text on some upgrades
+- Notifications now show above bottom buttons
+- Improved the tachyon particle color (hi Lars)
+- Switched the position of the REPAS and IDR perks
+- Changed milestone 1000 requirement to 5 seconds or less
+- "Speed up" button now speeds up the offline progress by 2x
+- Study tree will now automatically respec when exiting an EC
+- Disabled the notify command during offline progress simulation
+- Companion glyph and study presets now carry over when you start over
+- The glyph selection dialog now gets automatically closed when you reality
+- Clicking the blackhole text in the header now takes you to the blackhole tab
+- Infinity upgrades tab now cannot be hidden before getting the IP multiplier automation
+- Fixed lag in the script exports page
+- Fixed a bug with automator templates
+- Fixed a bug with Mixed scientific notation
+- Fixed a bug with the first paradox milestone
+- Fixed a bug with strikethrough on reality upgrades
+- Fixed a bug with some constant names in the automator
+- Fixed a bug with passive infinities generation upgrade
+- Fixed a bug where ACHNR didn't give pre-reality achievements
+- Fixed a bug where equipped glyphs were showing an incorrect image
+- Fixed a bug with BH how to play tab not showing when BH was disabled
+- Fixed a bug where time estimation was shown for purchased dilation studies
+- Fixed a bug where automator script could contain � and carriage return characters
+- Fixed a bug where Paradoxical Forever and Effortless Existence required an Eternity/Reality to unlock
+
+<b>3.1.3</b>
+- Added color to DT texts
+- Added maximum DT this reality display
+- Added an option to change bottom button text type (full/short/letter)
+- The app now remembers your last open subtabs when you restart it
+- Fixed a bug with ads not increasing ad bonus time
+- Fixed a bug where you couldn't switch tabs during reality animation
+
+<b>3.1.2</b>
+- Added bottom buttons explanation to the How to play tab
+- You can now hold the max all IDs button to buy them continuously
+- Improved the bottom buttons display
+- Fixed a crash
+- Fixed a bug with passive IP generation upgrade
+
+<b>3.1.1</b>
+- Added real time storing to offline progress message
+- Changed splash screen background to black
+- Bottom buttons now have a circle around them when stickied
+- Fixed a crash
+- Fixed a bug with r116
+- Fixed a bug with glyph auto sort
+- Fixed a bug with dimboost autobuyer
+- Fixed a bug with autobuyers not working when storing real time
+
+<b>3.1.0</b>
+- Added new splash screen
+- Added trailer to play store
+- Added "sort by level" button
+- Improved ID autobuyer display
+- Improved buy ten multiplier display
+- Improved the glyph management layout
+- Increased the size of time study buttons
+- Improved the performance of the time studies tab
+- "Galaxies required" is now hidden when the dimboost limit is disabled
+- Fixed a crash
+- Fixed a bug with s47
+- Fixed a bug with the automator parser
+- Fixed a bug with the automator top bar option
+- Fixed a bug with auto achievement lock and popups
+- Fixed a bug with swipe in perk and time studies tabs
+- Fixed a bug with the dimboost/crunch/eternity/reality autobuyers
+- Fixed a bug with text sometimes being black in offline progress dialog
+- Removed automator suggestions to fix a crash
+
+<b>3.0.3</b>
+- Fixed a bug with IDs being too expensive
+
+<b>3.0.2</b>
+- Fixed a bug when exporting a save to pc
+- Fixed a crash after importing a save from pc
+
+<b>3.0.1</b>
+- Added button to toggle reaction
+- Improved cel4 visuals
+- Annihilation autobuyer is now disabled by default
+- Fixed a crash
+- Fixed a bug with Total Termination
+- Fixed a bug where the glyph popup wouldn't show
+- Fixed a bug with passive IP gen infinity upgrade
+- Fixed Reality count description in the automator
+- Fixed a bug with offline progress option not saving
+- Fixed a bug where disabled studies were too pink in night mode
+- Fixed a bug where current notation wouldn't apply to the currently selected save in the save selection
+
+<b>3.0.0</b>
+- Added Reality and Celestials
+
+<b>2.45.0</b>
+- Added new news
+- Added the Automation tab
+- Added the Ukrainian translation
+- Added a Golden Bottom Buttons IAP
+- Added info about holding Time Studies
+- Added name popup when holding tabs in Bottom Navigation
+- Added two new options to display bottom symbols only for main or sub tabs
+- You can now toggle one bottom button after first Infinity (you can toggle it even before first Infinity if you are not a new player)
+- Bottom symbols are now disabled by default
+- Fixed various crashes
+- Fixed a bug where you could keep a bottom button pressed after a tab swipe
+
+<b>2.44.0</b>
+- Added symbols to bottom navigation
+- Added an option to choose between symbols and text for the bottom navigation
+- Added a message that explains the Crunch button changes after buying the 5e11 IP upgrade
+- Updated translations
+- Updated the GDPR consent dialog
+- Removed the "Autobuyer upgrading" option
+
+<b>2.43.0</b>
+- Added a reward to the r138 Achievement
+- Lowered the r131 Achievement requirement from 5 billion to 2 billion Banked Infinities
+- The Crunch and Eternity autobuyers now use 3 decimal places when needed
+- Time Study tree now remembers the horizontal scroll position
+- ICs are now always shown after Eternity Milestone 7
+- Increased the minimum required Android version from 4.4 to 5.0
+- Updated translations
+
+<b>2.42.0</b>
+- Added new news
+- Added Thai translation
+- Added current effect display to TS 21
+- Added time estimate display to Tachyon Galaxies
+- Added color to the blobs in the Blob font (credit to Hira)
+- Added a value at which the IP/EP /min peaked to the Crunch/Eternity buttons
+- Added a cap to the Infinity generation Break Upgrade and improved its formula
+- Added an option to enable cloud saving and change the language at the start of the game
+- EC4 Infinity requirement scales slower (50M => 25M Infinities per tier)
+- EC11 goals have been reduced by e50 IP on all tiers
+- EC requirements no longer scale up after max completions
+- Improved the reward of the "Unique Snowflakes" achievement
+- The option to respec IAPs is now available once every three days
+- Lowered the initial cost of the 2x DT gain upgrade from 1e5 to 1e4 DT
+- Lowered the threshold at which EP/min disappears from 1e100 to 1e40 EP
+- Fixed a bug with the Flag notation
+
+<b>2.41.1</b>
+- Fixed a bug with the Crunch and Eternity autobuyers
+
+<b>2.41.0</b>
+- Added 3 automatic save backups that trigger after 10 minutes, 60 minutes, and 5 hours of offline progress
+- Added an automatic save backup that stores the save right before you load a backup
+- The option to respec IAPs is now available only once after every STD purchase
+- UI now updates only 10 times per second during offline progress simulation
+- Removed relative gain text coloring from Tachyon Particle gain
+- Fixed a bug with Replicanti Upgrades
+
+<b>2.40.3</b>
+- Fixed a crash
+
+<b>2.40.2</b>
+- Improved the Max all Time Dimensions behaviour
+- Updated the Time Dilation explanation in the How to play
+- Fixed a crash
+- Fixed a bug with the changelog
+
+<b>2.40.1</b>
+- Added auto backup for devices with Android 6.0 or higher
+- Added a reward to the "Eternities are the new Infinity" achievement
+- Changed the requirement of the "Blink of an eye" and "Eternities are the new Infinity" achievements from 200ms to 250ms
+- Swapped the "Long lasting relationship" and "Eternities are the new Infinity" achievements
+- Fixed a bug with IAP respec
+- Fixed a bug where holding an EC Time Study didn't start the EC
+
+<b>2.40.0</b>
+- Added new news
+- Added an option to respec IAPs
+- Added Ad bonus usage display to offline progress
+- Added a new IAP that lets you increase the Dilated Time gain speed
+- Added a new IAP that lets you get 24 hours of offline progress
+- The Replicanti speed IAP is now repeatably purchasable
+- Fixed a crash
+
+<b>2.39.3</b>
+- Fixed a crash
+
+<b>2.39.2</b>
+- Added a button to toggle between "Buys until 10" and "Buys singles" for all Dimension autobuyers
+- Improved the visibility of Time Study numbers
+- Fixed an issue with painful notations
+- Fixed a couple of crashes
+
+<b>2.39.1</b>
+- Fixed a crash
+
+<b>2.39.0</b>
+- Added a beta version of the Hungarian translation
+- Added visual highlighting of the dimension with normal production in IC4
+- TS 33 is now connected to TS 22 instead of TS 21
+- Clicking the new achievement popup now takes you to the achievement
+- The antimatter multiplier/sec now shows up only if its higher than 1.00x
+- Merged the Normal Challenge records and Infinity Challenge records to Challenge records
+- Merged the Past Infinities and Past Eternities to Past Runs
+- Improved the UI of the Past Runs tab
+- Improved the performance of the Time Studies tab
+- Removed the ability to disable bulk buy
+- Fixed a crash
+- Fixed the size of a proton
+- Fixed a bug where the IC tab was flickering
+
+<b>2.38.0</b>
+- Added new news
+- Added highest IP and EP amounts to Statistics
+- Added semi-transparency to the Infinity Dimension unlock button
+- Improved the EC disclaimer
+- Starting and restarting EC now ignores respec
+- Renamed the "Modify navigation" option to "Hide tabs"
+- You can now have multiple secondary EC requirements completed at once
+- The Time Theorem buttons now hide after you get the TT gen Dilation Upgrade
+- Some bottom navigation tabs are now sometimes shown even if manually hidden
+		- Challenge tabs are shown if you haven't completed all challenges
+		- Upgrade tabs are shown if you haven't purchased all upgrades
+- Fixed some UI bugs
+- Fixed a bug with the Emoji notation
+- Fixed a bug with the Max RG autobuyer
+- Fixed a bug with incorrect best EP/min display
+- Fixed a bug with the Tachyon Particle animation
+- Fixed Sacrifice confirmation text in C12 and after r118
+
+<b>2.37.0</b>
+- Added new news
+- Added an option to select preferred Time Study paths
+- Added a popup requirement display to the percentage bar
+- Lowered the Dilation unlock requirement from 13000 to 12900 total TT
+- Refactored save format
+- Improved Dimboost autobuyer text
+- Improved the display of the EC Time Studies
+- Improved the display of the Infinity Upgrades
+- Improved the display of the Dilation and Eternity buttons
+- Fixed a bug with the RG button
+- Fixed a bug where some of the dialogs were cut off
+
+<b>2.36.1</b>
+- Fixed an issue with the Roboto font
+
+<b>2.36.0</b>
+- Added new news
+- Added time estimate display to TD Studies
+- The app font is now Roboto
+- Normal Challenge 11 is now much harder
+- Normal Challenges 10, 11, and 12 now unlock after 16 Infinities
+- The "Blob" notation now uses actual blob emojis (credit to Hira)
+- The peak IP/min rate display now hides at 5e11 IP
+- The peak EP/min rate display now hides at 1e100 EP
+- The Infinity Challenges tab now unlocks after Breaking Infinity
+- The Time Study 201 can now be purchased after buying the Study split Dilation Upgrade
+- Re-added the peak IP/EP rate display to the 3rd line of the Crunch/Eternity buttons
+- Improved some descriptions
+- Removed the "MAX" Bottom buttons option
+- Fixed backup save time display
+- Fixed offline progress dialog time display
+- Fixed an issue with the Standard notation
+
+<b>2.35.1</b>
+- Added new news
+- Added a new "Blob" notation
+- Improved the New Dimension button display
+- Fixed a crash
+
+<b>2.35.0</b>
+- Added new news
+- Added a disclaimer to the offline progress simulation
+- Added a How to play entry for Antimatter and Offline progress
+- Added a display for Banked Infinities gained on Eternity to the Statistics tab
+- Added a display for total seen Newsticker messages and unlocked Secret Achievements to the Statistics tab
+- You now need to reach 1e8 IP in order to unlock the Infinity Dimensions tab
+- You can now tap locked Infinity and Time Dimension buttons to see their cost
+- The first locked Infinity and Time Dimension is now always visible
+- Replicanti and their Galaxies now don't reset when you start a Normal or Infinity Challenge
+- Improved the New Dimension button display
+- Improved the long click EC Study behaviour
+- Improved display of the TG threshold upgrade effect
+- Improved display of offline upgrades when offline progress is disabled
+- Changed the "OK" confirmation to "Confirm"
+- Renamed the "Cancer" notation to "Emoji"
+- Renamed Achievement 41 to "No DLC required"
+- Renamed Secret Achievement 22 to "Deep fried"
+- Achievement 41 now requires you to buy 16 Infinity Upgrades and unlocks two new ones
+- Moved the "Unlocking completed ECs" option to the EC tab
+- Removed the floating text animation
+- Removed references to cancer from the game
+- Fixed an exploit
+- Fixed a bug with TS 123
+- Fixed a bug with "Toggle all autobuyers"
+
+<b>2.34.4</b>
+- Added an option to toggle the relative prestige gain text coloring
+- Buying Tickspeed while in IC5 now doesn't increase AD costs
+- Buying ADs while in IC5 now doesn't increase the cost of ADs with the same cost
+- The Crunch button text is now orange and the background is black
+- Increased the effect of Achievements that make you start with more antimatter and IP
+- Fixed an antimatter spike bug
+- Fixed an issue with Achievement effect display
+
+<b>2.34.3</b>
+- The Crunch button border is now orange
+
+<b>2.34.2</b>
+- Added current effect display to some Achievement's popups
+- Added an option to toggle UI updates during offline progress (disabled by default)
+- The "Auto: ON/OFF" buttons are now gray when disabled
+- The Achievement popup is now shown below the image if the image is above the middle of the screen, and vice versa
+- Moved the "Automatically retry challenges" option from Options to the NC/IC tabs
+- Fixed a crash
+- Fixed a spike bug
+- Fixed a bug with the Max button
+- Fixed a Secret Achievement image
+- Fixed a bug with EC Study requirements
+- Fixed a bug with the "Like jumping on a lego" achievement
+
+<b>2.34.1</b>
+- The achievement popup overlay is now smaller
+- Updated Google Play achievements
+- Fixed a bug with the IC1 reward
+- Fixed a bug with white background
+- Fixed a bug with 0ms challenge times
+- Fixed a bug with the Korean translation
+- Fixed a bug with the Crunch and Eternity autobuyers
+
+You can view the full changelog in the #android-updates channel in our Discord server.

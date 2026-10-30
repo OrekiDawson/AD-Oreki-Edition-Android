@@ -1,0 +1,473 @@
+{
+ "nodes": [
+  {
+   "text": "Oreki 教程",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,173,297,253",
+   "center": [
+    170,
+    213
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "关闭",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "0,312,540,444",
+   "center": [
+    270,
+    378
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "打开 OREKI 设置",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "540,312,1080,444",
+   "center": [
+    810,
+    378
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "字号 小",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "0,466,360,598",
+   "center": [
+    180,
+    532
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "字号 中",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "360,466,720,598",
+   "center": [
+    540,
+    532
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "字号 大",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "720,466,1080,598",
+   "center": [
+    900,
+    532
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "",
+   "desc": "",
+   "cls": "HorizontalScrollView",
+   "id": null,
+   "bounds": "0,598,1080,774",
+   "center": [
+    540,
+    686
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "0 开始之前",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "22,620,264,752",
+   "center": [
+    143,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "1 开局：10 反…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "264,620,506,752",
+   "center": [
+    385,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "2 维度献祭与第一…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "506,620,793,752",
+   "center": [
+    649,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "3 第一次无限",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "793,620,1035,752",
+   "center": [
+    914,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "4 无限升级与无限…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "1035,620,1080,752",
+   "center": [
+    1057,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "5 打破无限",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "1322,620,1080,752",
+   "center": [
+    1201,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "6 无限维度与无限…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "1564,620,1080,752",
+   "center": [
+    1322,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "7 复制器与首次永…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "1851,620,1080,752",
+   "center": [
+    1465,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "8 时间研究与永恒…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "2138,620,1080,752",
+   "center": [
+    1609,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "9 永恒挑战（EC…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "2425,620,1080,752",
+   "center": [
+    1752,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "10 时间膨胀",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "2689,620,1080,752",
+   "center": [
+    1884,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "11 现实与符文",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "2931,620,1080,752",
+   "center": [
+    2005,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "12 复兴树、自动机…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "3173,620,1080,752",
+   "center": [
+    2126,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "13 天神（一）：特…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "3477,620,1080,752",
+   "center": [
+    2278,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "14 天神（二）：薇…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "3766,620,1080,752",
+   "center": [
+    2423,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "15 佩勒与终局",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "4055,620,1080,752",
+   "center": [
+    2567,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "16 隐藏条件与成就…",
+   "desc": "",
+   "cls": "Button",
+   "id": null,
+   "bounds": "4297,620,1080,752",
+   "center": [
+    2688,
+    686
+   ],
+   "clickable": true,
+   "checked": false
+  },
+  {
+   "text": "",
+   "desc": "",
+   "cls": "ScrollView",
+   "id": null,
+   "bounds": "0,774,1080,2208",
+   "center": [
+    540,
+    1491
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "你现在该做什么\n当前阶段：现实\n下一步：在「现实」页装备符文、买现实升级；然后打开「天神」页看哪一位可以进入。",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "77,851,1003,1206",
+   "center": [
+    540,
+    1028
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "第 11 章　现实与符文",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1239,1036,1344",
+   "center": [
+    540,
+    1291
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "1 RM ~ 1e4 RM",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1344,1036,1428",
+   "center": [
+    540,
+    1386
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "阶段目标",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1428,1036,1558",
+   "center": [
+    540,
+    1493
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "执行第一次现实，学会装备符文、看懂符文等级与效果。",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1558,1036,1718",
+   "center": [
+    540,
+    1638
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "进入条件",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1718,1036,1848",
+   "center": [
+    540,
+    1783
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "无限升级 25 已购买。",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1848,1036,1920",
+   "center": [
+    540,
+    1884
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "完成判据",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,1920,1036,2050",
+   "center": [
+    540,
+    1985
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "现实次数 ≥ 1，至少装备 1 个符文。",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,2050,1036,2122",
+   "center": [
+    540,
+    2086
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "下一步路线",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,2122,1036,2208",
+   "center": [
+    540,
+    2165
+   ],
+   "clickable": false,
+   "checked": false
+  },
+  {
+   "text": "进第 11 章。",
+   "desc": "",
+   "cls": "TextView",
+   "id": null,
+   "bounds": "44,2252,1036,2208",
+   "center": [
+    540,
+    2230
+   ],
+   "clickable": false,
+   "checked": false
+  }
+ ],
+ "at": "2026-10-30 22:21:41"
+}

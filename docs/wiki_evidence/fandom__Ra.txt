@@ -1,0 +1,365 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Ra
+# url: https://antimatter-dimensions.fandom.com/wiki/Ra
+
+Ra is the fifth Celestial, unlocked by fully completing all of V's Achievements. They bring back mechanics from older Celestials in a stronger way by using their memories. Over time, you'll unlock the previous four Celestials within Ra, with each Celestial offering additional upgrades related to their original themes.
+
+##  Ra's Memories 
+Each previous Celestial within Ra gains levels by using memories, which are generated passively over time from Memory Chunks.  Memory Chunks can only be gained by entering Ra's Reality, but inside of the Reality, Chunks will be generated passively based on certain resource totals for each Celestial.  If you are storing real time, you will not gain any Chunks inside of Ra's Reality, but Memories will still be generated normally.  Having a total of 20 levels across all Celestials unlocks Remembrance, which allows you to choose a particular Celestial to gain more chunks while inside of Ra's Reality.  Whichever Celestial has Remembrance will get ×5 Memory Chunk gain, and the other Celestials will cut Memory Chunk gain in half.  Ra won't directly unlock the next Celestial.
+
+When you are in Ra's Reality, you can only have up to 4 Dimension Boosts and the Tickspeed purchase multiplier will be fixed at x1.125 (meaning Galaxies will have no effect).  There is no benefit for reaching any given milestone, just passive Memory Chunk gains based on various currencies gained during the Reality.
+
+Memory Chunks Base production:
+* Teresa: 4\times\left(\frac{\log_{10}(EP)}{10^4}\right)^3 (EP = Eternity Points)
+* Effarig: 4\times{RS}^{0.1}(RS = pending Relic Shards)
+* Nameless Ones: 4\times\left(\frac{\log_{10}(TS)}{3.5\times10^5}\right)^2(TS = Time Shards)
+* V: 4\times\left(\frac{\log_{10}(IP)}{10^7}\right)^{1.5}(IP = Infinity Power)
+Each Celestial has their own Memories and Memory Chunks, completely separate from the other Celestials.  Their specific memories can only be spent on their own upgrades and level-ups.
+
+##  Unlockables 
+Teresa unlocks the ability to charge your Infinity Upgrades, making them much stronger. They also improve your Glyph effects once you reach certain thresholds in Glyph sacrifice value.
+
+At level 2, Effarig unlocks a new mechanic called Glyph Alchemy and later on also makes Effarig Glyphs stronger while gradually removing almost all random elements of Glyph generation. Glyph Alchemy also has its own How To Play entry.
+
+The Nameless Ones unlocks additional mechanics related to charging Black Holes, as well as making them significantly stronger.
+
+V unlocks Triad Studies, which are new studies near the bottom of the tree which cost Space Theorems. Each Triad Study requires you to also have the three nearby studies as well in order to purchase them. They also unlock a smaller set of more difficult V-Achievements to complete for additional Space Theorems.
+
+##  Upgrades 
+Memories can be spent on three things - an increase to Memory Chunk gain, an increase to Memory gain, and leveling up the Celestial. You start Ra with only Teresa unlocked and each successive Celestial is unlocked by reaching level 8 with the previous Celestial. Levels are capped at 25.
+{| class="fandom-table"
+|+Upgrade cost
+!Upgrade name
+!Effect
+!Cost (Memories, n = purchases)
+|-
+|(Celestial name)'s Recollection
+|Gain 30% more Memories
+|1000\times5^n, capped at 22 purchases
+|-
+|(Celestial name)'s Fragmentation
+|Gain 50% more Memory Chunks
+|5000\times25^n, capped at 11 purchases
+|-
+|Level (Celestial name) to (Current Level +1)
+|Increase Celestial Level by 1
+|10^6\times\left(n+\frac{n^2}{10}\right)^{5.52}\times1.5^{\max(n-15,0)}
+The cost table is below
+|}
+
+##  Celestial Level up cost table 
+{| class="mw-collapsible mw-collapsed fandom-table"
+!Required Level
+!Memories cost
+!Memories cost (scientific notation)
+|-
+|1
+|0
+|0
+|-
+|2
+|1,692,340
+|1.69e6
+|-
+|3
+|125,535,354
+|1.26e8
+|-
+|4
+|1,830,950,616
+|1.83e9
+|-
+|5
+|13,489,563,879
+|1.35e10
+|-
+|6
+|67,660,962,880
+|6.77e10
+|-
+|7
+|264,324,370,372
+|2.64e11
+|-
+|8
+|865,006,213,088
+|8.65e11
+|-
+|9
+|2,478,340,399,379
+|2.48e12
+|-
+|10
+|6,399,389,278,661
+|6.40e12
+|-
+|11
+|15,194,470,701,802
+|1.52e13
+|-
+|12
+|33,661,861,517,675
+|3.37e13
+|-
+|13
+|70,348,311,234,460
+|7.03e13
+|-
+|14
+|139,863,682,778,993
+|1.40e14
+|-
+|15
+|266,313,272,425,972
+|2.66e14
+|-
+|16  (this is where the exponent scale kick in)
+|488,261,631,380,653
+|4.88e14
+|-
+|17
+|1,298,633,028,213,176
+|1.30e15
+|-
+|18
+|3,352,652,506,357,979
+|3.35e15
+|-
+|19
+|8,427,336,555,943,238
+|8.43e15
+|-
+|20
+|20,678,634,731,677,324
+|2.07e16
+|-
+|21
+|49,642,220,284,231,920
+|4.96e16
+|-
+|22
+|116,819,303,142,108,450
+|1.17e17
+|-
+|23
+|269,922,999,820,727,520
+|2.70e17
+|-
+|24
+|613,288,294,167,283,000
+|6.13e17
+|-
+|25
+|1,371,990,195,470,548,700
+|1.37e18
+|}
+
+##  Rewards 
+{| class="fandom-table"
+|+Rewards
+! colspan="2" |Teresa
+|-
+!Level requirement
+!Reward
+|-
+|1
+|Tachyon Particles are given immediately when Time Dilation is active, no need to exit Time Dilation first.
+|-
+|2
+|Unlock the ability to Charge an Infinity Upgrade, with the ability to Charge an additional one every 2 Teresa Levels (maxing out with all 12 at Level 24).
+|-
+|5
+|Gain a multiplier to Memory gain based on Reality Machines.  Formula:\left(1 + \sqrt{\frac{\log_{10}(RM)}{100}}\right)
+|-
+|8
+|Unlock Effarig's Memories.
+|-
+|10
+|Unlock Altered Glyphs, which grant new effects to Glyphs based on Glyph Sacrifice.
+|-
+|15
+|Teresa's Perk Point Shop upgrades gain more purchases.
+|-
+|25
+|In non-Celestial Realities, gain Tachyon Particles as if you reached the square root of your total antimatter in Dilation. Any multipliers to TP gain are applied retroactively, even outside Dilation.
+|-
+! colspan="2" |Effarig
+|-
+!Level requirement
+!Reward
+|-
+|1
+|Get 8 Glyph choices (up from 4) and the increased Glyph Rarity from Relic Shards is always its maximum value (instead of a random amount between 0 and that value).
+|-
+|2
+|Unlocks Glyph Alchemy, which adds resources that give bonuses you can increase by Refining Glyphs.  You unlock more resources through Effarig levels.
+|-
+|5
+|Gain a multiplier to Memory gain based on highest achieved Glyph Level.  Formula:\left(1+\frac{GL}{7000}\right)
+|-
+|8
+|Unlock The Nameless Ones's Memories.
+|-
+|10
+|Glyphs always have at least 4 effects, and Effarig Glyphs can now have up to 7 (it also makes the Glyph Instability Delay and RM multiplier effects no longer mutually exclusive).
+|-
+|15
+|Glyph Level is increased based on Relic Shards.  Formula:100\times\log_{10}(RS)^2
+|-
+|25
+|Glyphs are always generated with 100% Rarity and Glyph Sacrifice gain is raised to a power based on Relic Shards.  Formula:\Bigl({1+\frac{RS Rarity Gain%}{100}}\Bigr)
+|-
+! colspan="2" |Nameless
+|-
+!Level requirement
+!Reward
+|-
+|1
+|Unlock Black Hole power upgrade autobuyers
+|-
+|2
+|Stored game time is multiplied when discharged (\times20^{NamelessLevel}), and you can store more real time (+NamelessLevel hours).
+|-
+|5
+|Gain a multiplier to Memory gain based on total game time played (milliseconds).  Formula:\left(1+\frac{\log(t)}{200}\right)
+|-
+|8
+|Unlock V's Memories
+|-
+|10
+|Black Hole charging now only uses 99% of your game speed and unlocks Black Hole Pulsing, which perpetually charges the Black Hole and uses 1% of your stored game time every 5 frames (167ms-1s, based on the game's update rate).
+|-
+|15
+|Gain a multiplier to Dilated Time based on maximum game speed in each Reality.  Formula:\max\left(\left(\log_{10}(x)-90\right)^3,1\right)(x = maximum value of Time spent in Reality divided by Real Time spent in Reality, so Black Hole Pulsing is still effective).
+|-
+|25
+|All basic Glyphs gain the increased game speed effect from Time Glyphs, and Time Glyphs gain an additional effect.
+|-
+! colspan="2" |V
+|-
+!Level requirement
+!Reward
+|-
+|1
+|Rebuyable Reality upgrades are bought automatically and Auto-Eternity Challenges happen instantly.
+|-
+|2
+|In non-Celestial Realities, Time Dilation is unlocked automatically for free at 12900 total Time Theorems
+|-
+|5
+|Gain a multiplier to Memory gain based on total Celestial Levels. \left(1+\frac{Levels}{50}\right)
+|-
+|6
+|Unlock Hard V-Achievements and unlock a Triad Study every 6 levels. Triad Studies are located between Rows 22 and 23 on the Time Study Tree.
+When unlocked, Cursed Glyphs and Black Hole Inversion also become available, as they are key to completing Hard V-Achievements.
+|-
+|10
+|Time Theorems boost a variety of resources.
+x = \min\left(10,\max\left(0,\frac{\log_{10}(TT)-350}{50}\right)\right)
+{| class="fandom-table"
+|Time Theorem generation
+|10^{5x}
+|-
+|Eternities
+|10^{2x}
+|-
+|Infinities
+|10^{15x}
+|-
+|Replicanti
+|10^{20x}
+|-
+|Dilated Time
+|10^{3x}
+|-
+|Memories and Memory Chunks
+|1+\frac{x}{20}
+|-
+|Passive IP/EP/RM
+|1+2.4x
+|}
+|-
+|15
+|Achievement multiplier applies to Time Theorem generation.
+|-
+|25
+|Achievement multiplier is raised ^1.5.
+|}
+
+##  Quotes 
+
+##  Unlocking Ra 
+* A... visitor?
+* I am here! I am the one you are looking for... I think...
+* What even was I again?
+* Oh right, the Celestial of Memories.
+
+##  Entering Ra's Reality 
+* I have not seen the others in so long...
+* Can you help me remember them?
+* I could give you powers in exchange.
+
+##  Reaching Teresa Level 2 
+* Te... re... sa...
+* I think I remember.
+
+##  Reaching Effarig Level 2 
+* Eff... a... rig
+* I remember Effarig being friendly.
+
+##  Reaching The Nameless Ones Level 2 
+* I cannot remember this one completely...
+
+##  Unlocking Remembrance 
+* I remembered something!
+* Watch this!
+* Remembrance!
+* I can focus even harder on remembering them now!
+
+##  Reaching V Level 2 
+*Had I met this one?
+*So lonely, yet so willingly so...
+
+##  Reaching Teresa Level 15 
+*Teresa dealt with machines, I believe.
+*I remember visiting Teresa’s shop a few times.
+*Wait, someone else had a shop too, right?
+
+##  Reaching Effarig Level 15 
+*Effarig was very particular?
+*And I also remember a frightening Reality...
+*It was about... suffering?
+
+##  Reaching The Nameless Ones Level 15 
+*I am starting to remember...
+*Why I am here...
+*Why I am alone...
+*Help me.
+
+##  Reaching V Level 15 
+*I think I met V once...
+*I can remember the achievements.
+
+##  Getting a Total of 50 Memory Levels 
+*Realities are my homes, yet I cannot make my own Reality.
+*I can only copy the ones of my friends.
+*But... why am I hearing voices?
+*Are they asking for help?
+
+##  Getting a Total of 80 Memory Levels 
+*I think they are telling me to stop.
+*You... whatever you are?
+*What is happening?
+*Am I doing something wrong?
+
+##  Reaching Max Levels of All Celestial Memories 
+*Finally, I remember everything.
+*This darkness that banished me.
+*Lai'tela...
+*They were right to banish me.
+*My powers...
+*They steal, they corrupt.
+*Please leave.
+*I do not want to hurt you too.
+
+##  Trivia 
+Ra is a shortened version of Razenpok, one of the developers of the Reality Update.

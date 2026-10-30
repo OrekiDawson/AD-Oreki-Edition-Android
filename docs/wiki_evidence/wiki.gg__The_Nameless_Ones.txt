@@ -1,0 +1,59 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=The Nameless Ones
+# url: https://antimatterdimensions.wiki.gg/wiki/The_Nameless_Ones
+
+The Nameless Ones are the third Celestial, themed around Time-oriented mechanics. They are unlocked by completing Effarig's Eternity.
+They introduce Black Hole Discharging, which unlocks "stored Game time" — a resource that could also be used to purchase Nameless' Upgrades, with the second Upgrade unlocking their Reality.
+
+
+== Black Holes Discharging ==
+Time can be stored through two mediums: Game time, and Real time.
+
+
+=== Stored Game time ===
+Storing Game time disables the game speed multiplier effect from Black Holes. The game speed multiplier is then converted to the stored Game time; or to be more precise, suppose that a real second with the Black Holes was five game years, the Game time stored would also be five game years per second.
+In turn, the stored time can be discharged and the game can "skip" that amount of time that was stored, as if the game were left running for that period of time — this only affects Game time, so Real time mechanics such as Autobuyers are not affected by this.
+This can be useful if utilizing the Time Glyphs' second effect, Multiply game speed by ×N or Effarig Glyph's third effect, Game speed power +N, of which a Reality can be spent to garner as much stored Game time, and then said stored Game time could be discharged with a more approriate Glyph set to attain much more resources than a Reality without discharges.
+
+
+=== Stored Real time ===
+Storing Real time sets the game speed to zero, effectively pausing the game's tickrate, meaning nothing that is passively gained — production of Dimensions, Replicanti ticks, passive generation like Infinity Points from Time Study 181 and Eternity Points from one of Teresa's Container milestones — all halt, with only with interactive elements like Glyph picking or purchasing/respeccing Time Studies not being disabled.
+Unlike storing game time where there is a 100% efficiency for conversion; Real time is only stored at a 70% efficiency — so leaving the game storing Real time for a 100 seconds would only keep 70 seconds of Real time. Stored Real time is also capped at 8 hours.
+Stored Real time are used for amplifying Realities, wherein all resources gained in a single Realty — namely: Reality Machines, Glyphs (units, not the level), Perk Points, and Relic Shards — are boosted, as if that Reality was performed multiple times.
+For instance, if a Reality were to produce one level 3,000 Glyph and 4e29(400Oc) Reality Machines; and the amplification multiplier was ×200, that same Reality would instead produce 200 level 3,000 Glyphs and 8e31(80No) Reality Machines.
+The amplification multiplier for Realities is dependent on both stored Real time, and Real time spent in that Reality. The more stored Real time you have, the larger this multiplier is directly proportionally; but the more time spent in the Reality, the smaller the multiplier inversely proportionally gets.
+max⁡(1,⌊RealTimeStored⌋max⁡(1,RealTimeThis Reality))
+Both Real time are in seconds (s) units, inclusive of milliseconds.
+
+
+== Upgrades ==
+The Nameless Ones introduce only two upgrades, both single-time purchases and bought using stored Game time.
+
+The additional requirements for the second upgrade must be met simultaneously, though they can be fulfilled with two different Glyphs. Additionally, the requirements only need to be met once.
+
+
+== Reality ==
+The Nameless Ones' Reality is by far one of the most restrictive and tricky of the Celestials. It is designed to be more puzzle-oriented, hence why it has nine effects on top of hidden or secret ones.
+
+In addition to the listed effects, The Nameless Ones' Reality has several effects that are not directly mentioned.
+
+
+== Tesseracts ==
+
+Completing The Nameless Ones' Reality allows the player to buy Tesseracts, a resource that permanently increases the purchase cap of Infinity Dimensions 1-7. The Infinity Point cost of Tesseracts increases super-exponentially; to compensate, each successive Tesseract provides a stronger increase to the ID purchase cap.
+The Infinity Dimensions tab contains a button that shows the player how many Tesseracts they have, the ID purchase cap increase of the next Tesseract, and how much the next Tesseract costs. This button visually changes when a Tesseract can be bought.
+Similar to the dedicated button on the Infinity Dimensions tab, the Infinity button will visually change when a Tesseract can be bought. On Web/Steam, clicking the Infinity button in this state takes the player to the Infinity Dimensions tab; on Android/iOS, clicking the Infinity button in this state instead buys a Tesseract.
+
+
+== Trivia ==
+Prior to version 3.11.0 on Android, Sacrifice was not disabled in The Nameless Ones' Reality. If the player reached 5 Dimension Boosts in Challenge 8, they could have easily reached the antimatter cap of 1e9e15.
+Initially, they were titled as "Enslaved" rather than "The Nameless Ones". This naming decision was ultimately changed, due to obvious questionability in ethicality, but you will still find Nameless internally referred to as "Enslaved" within the Game's Source Code.
+The Nameless Ones represent the Testing Team as a collective, or the players of Antimatter Dimensions. This is linked to the first name they had, that being "Enslaved", reflecting a joke about the "Testers" or "Players" as people trapped in Hevipelle's basement, forced to play his wicked game.
+
+
+=== Footnotes ===
+
+
+=== References ===
+
+
+== Navigation ==

@@ -1,0 +1,53 @@
+{
+ "first": {
+  "t": 0.1,
+  "ec12": 0,
+  "ec_sum": 55,
+  "unlocked": 0,
+  "current": 0,
+  "realities": {
+   "exponent": 5.0,
+   "mantissa": 4.82101907898094
+  },
+  "eternities": {
+   "exponent": 431.0,
+   "mantissa": 1.32185195898403
+  },
+  "inf": {
+   "exponent": 960.0,
+   "mantissa": 1.069043257982
+  },
+  "studies": 58,
+  "ts_71": false,
+  "ts_73": true
+ },
+ "last": {
+  "t": 296.8,
+  "ec12": 5,
+  "ec_sum": 60,
+  "unlocked": 0,
+  "current": 0,
+  "realities": {
+   "exponent": 5.0,
+   "mantissa": 5.14154695702843
+  },
+  "eternities": {
+   "exponent": 435.0,
+   "mantissa": 4.63646116947312
+  },
+  "inf": {
+   "exponent": 970.0,
+   "mantissa": 3.95875808089741
+  },
+  "studies": 58,
+  "ts_71": false,
+  "ts_73": true
+ },
+ "fatal": [
+  "D/AndroidRuntime( 5266): >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<",
+  "I/AndroidRuntime( 5266): Using default boot image",
+  "I/AndroidRuntime( 5266): Leaving lock profiling enabled",
+  "D/AndroidRuntime( 5266): Calling main entry com.android.commands.monkey.Monkey",
+  "I/AndroidRuntime( 5266): VM exiting with result code 0."
+ ]
+}

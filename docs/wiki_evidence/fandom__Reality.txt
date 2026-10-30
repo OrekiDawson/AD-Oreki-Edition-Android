@@ -1,0 +1,174 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Reality
+# url: https://antimatter-dimensions.fandom.com/wiki/Reality
+
+Reality can be accessed once you unlock the first 13 rows of achievements and time dimensions 5-8, and have 1e4000 EP.
+
+Reality is the 5th consecutive reset system and 3rd prestige layer, which resets everything apart from post-Reality achievements (i.e., those on rows 14+), statistics, Challenge/Infinity Challenge times, and everything after Reality.
+
+##  What can I do now? 
+Similar to Eternity, you can exceed 1e4000 EP whenever you want, and will receive more RM (Max: 1e1000, the cap can be increased by an Imaginary Upgrade) as a result of doing so.
+
+On first Reality, the EP amount is softcapped past 1e6000 EP (Each 4 OoMs of EP past 1e6000 only count as 1 OoM of EP to the RM gain), and is hardcapped at 1e8000 EP (effectively 1e6500 EP)
+
+RM 1-10 are linear, increasing every 104000/27x (3e4444 will give 4 RM). Beyond 10 RM, the formula becomes:
+
+\min(1000^{ \frac
+{log(x)}
+{4000}-1
+} ,10^{1000})
+
+Where x is your current EP. Here's a table of some values:
+{| class="fandom-table"
+|+EP to RM table (1)
+!EP Amount
+!RM Gained
+!EP Amount
+!RM Gained
+!EP Amount
+!RM Gained
+|-
+|1.00e4000
+|1
+|2.15e5333
+|10
+|4.64e6666
+|100
+|-
+|1.40e4148
+|2
+|5.08e5734
+|20
+|1.09e7068
+|200
+|-
+|1.97e4296
+|3
+|3.12e5969
+|30
+|6.73e7302
+|300
+|-
+|2.78e4444
+|4
+|1.20e6136
+|40
+|2.59e7469
+|400
+|-
+|3.91e4592
+|5
+|1.96e6265
+|50
+|4.23e7598
+|500
+|-
+|5.50e4740
+|6
+|7.38e6370
+|60
+|1.59e7704
+|600
+|-
+|7.74e4888
+|7
+|1.35e6460
+|70
+|2.91e7793
+|700
+|-
+|1.08e5037
+|8
+|2.83e6537
+|80
+|6.11e7870
+|800
+|-
+|1.53e5185
+|9
+|4.63e6605
+|90
+|9.77e7936
+|900
+|}
+In first reality, the RM gain is softcapped past 31, and is hardcapped at 74.
+{| class="fandom-table"
+|+EP to RM table (2)
+!EP Amount
+!RM Gained
+!EP Amount
+!RM Gained
+!EP Amount
+!RM Gained
+|-
+|2.15e5,333
+|10
+|2.15e17,333
+|1e10
+|2.15e137,333
+|1e100
+|-
+|4.64e6,666
+|100
+|4.64e30,666
+|1e20
+|4.64e270,666
+|1e200
+|-
+|1.00e8,000
+|1e3
+|1.00e44,000
+|1e30
+|1.00e404,000
+|1e300
+|-
+|2.15e9,333
+|1e4
+|2.15e57,333
+|1e40
+|2.15e537,333
+|1e400
+|-
+|4.64e10,666
+|1e5
+|4.64e70,666
+|1e50
+|4.64e670,666
+|1e500
+|-
+|1.00e12,000
+|1e6
+|1.00e84,000
+|1e60
+|1.00e804,000
+|1e600
+|-
+|2.15e13,333
+|1e7
+|2.15e97,333
+|1e70
+|2.15e937,333
+|1e700
+|-
+|4.64e14,666
+|1e8
+|4.64e110,666
+|1e80
+|4.64e1,070,666
+|1e800
+|-
+|1.00e16,000
+|1e9
+|1.00e124,000
+|1e90
+|1.00e1,204,000
+|1e900
+|}
+When your RM reached 1e1,000, you will produce Imaginary Machines, its cap is based on your highest EP (starts at 2.15e1,337,333 EP):
+
+{(3(log(EP)/4000-1)-1000)}^{2}  \max({(3(log(EP)/4000-1)-100000)}^{0.2},1)
+
+##  What next? 
+On reality, you will gain 3 resources. Reality machines, which are based off the amount of EP you had when making a reality. Glyphs, has special effects that boost your production. Perk points, of which can be used to get upgrades to speed up gameplay. 
+
+You will also begin to automatically unlock achievements from rows 1-13, at a rate of 1 every 30 minutes. You can pause this, which can be desirable if the auto-unlock is about to give you an easy achievement that you're about to unlock naturally, and you want it to give you a difficult/annoying achievement instead. This rate can be improved with Perks (specifically, those beginning with "ACH"), until the achievement reset is eliminated altogether by the ACHNR perk.  
+Category:Prestige

@@ -1,0 +1,104 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=The Nameless Ones
+# url: https://antimatter-dimensions.fandom.com/wiki/The_Nameless_Ones
+
+The Nameless Ones (Source code: enslaved) are the third Celestial, unlocked by completing Effarig's Eternity.
+
+##  Storing Time 
+When unlocking The Nameless Ones, you immediately gain access to two new mechanics related to time. You can store "game time" by charging your Black Hole, and you can store "real time" by intentionally halting your production. Stored game time is also used as a currency for purchasing unlocks from The Nameless Ones.
+
+Charging your Black Hole gives you stored game time, which it does at the expense of setting your game speed to 1. The game is in effect using your increased game speed in order to store game time itself.  Its main use is to discharge the Black Hole, which takes uses your stored game time to skip forward in time by a duration equal to the game time stored. This is different than regular game speed multipliers in that discharging is not subject to any modifiers to game speed when it is used, only when it is stored.
+
+Storing real time completely stops all production, effectively pausing your game. For every real-time second that passes, you gain 0.7 seconds of stored Real Time. You can use stored real time in order to amplify a Reality in the Glyphs tab.  When you complete the Reality, this uses all of your stored real time at once in order to attempt to repeat that exact Reality over and over, giving you all the rewards you would normally get from the repetitions.  For example, if you have 50 minutes stored and amplify a Reality which has lasted 10 minutes and would give 1e30 RM and 1e12 Relic Shards, the amplified Reality will give you 5e30 RM, 5e12 Relic Shards, 5 Glyphs (different ones based on your filter settings, not the same one 5 times), and 5 Perk Points.  Stored Real Time is capped at 8 hours, but that can increase due to upgrades.
+
+However, if your Reality has lasted for less than 1 second, the amplification factor is capped by the amount of seconds stored. For example, if you have 1,000 seconds stored and amplify a Reality which has lasted 0.20 seconds, you will use 200 seconds to simulate 1,000 Realities.
+
+You can toggle a setting to automatically store offline time as stored real time.  This comes with the upside of not having any offline calculations when resuming the game.
+
+##  Upgrades/Nameless's Reality 
+The Nameless Ones have two upgrades, both of which cost stored Game Time.
+
+The first upgrade costs 1e35 years of stored Game Time. It increases the softcap to Tickspeed Upgrades gained from Time Dimensions (the point at which their cost starts increasing faster) by 100,000 Tickspeed Upgrades, up to 400,000.
+
+The second upgrade costs 1e40 years of stored game time, and you must have received a Level 5000+ Glyph and a 100% (Celestial) rarity Glyph to be able to spend the Game Time to buy this upgrade.  This upgrade unlocks The Nameless Ones's Reality.  Note: These Glyph requirements can be on different Glyphs or the same Glyph, and you can sacrifice them earlier and it still counts.
+
+The Nameless Ones's Reality has the following restrictions:
+
+* Infinity, Time and 8th Antimatter Dimensions are limited to 1 purchase each (1 set of 10 for Infinity Dimensions).
+* Antimatter Dimension multipliers are always Dilated (the Glyph effect still only applies in actual Dilation).
+* Time Study 192 (uncapped Replicanti) is locked, which also makes TS201 unpurchaseable.
+* The Black Hole is disabled, and stored game time is worth less (Time in seconds^0.55).
+* Tachyon Particles and Dilated Time production are severely reduced. (TP gain ^0.3, DT production exponent ^0.85 and /10)
+* Time Theorem production from Dilation Glyphs is disabled.
+There are also some less negative changes:
+* Glyph levels are increased to a minimum of 5000 (Rarity is unaffected).
+* Certain challenges are modified: EC1 can be completed up to 1000 times instead of 5 for a greater reward each time (IP requirements go up to 1e201600), EC6 does not restrict buying Antimatter Galaxies anymore, and most Normal Challenges (except 1, 6, and 9) are "Broken", with no practical limit on how much Antimatter you can generate while part of the Challenge (1e1e15 instead of the usual 1.79e308).
+* There is a hidden Time Study on the right side of TS11 that gives 100 TT (removes the secret Time Study on mobile because it's in the same place).
+* The BREAK INFINITY button is changed to FEEL ETERNITY which makes effective time in this Eternity be multiplied by your Eternity count, up to a maximum of ×1e66. (This multiplier does not apply to time spent in the current Infinity or Reality).
+* Every tab is forced to be shown.
+* Tooltip for achievement 16 is changed to "Buy a 6th Antimatter Dimension (they never amount to anything)"
+* Tooltip for achievement 18 is changed to "Buy an 8th Antimatter Dimension (don't get used to it)"
+The reward for completing The Nameless Ones' Reality is unlocking Tesseracts, which let you increase Infinity Dimension purchase limits. The info is listed in Infinity Dimensions page.
+
+The Nameless Ones won't directly unlock the next Celestial.  However, Achievement 151, which does unlock the next Celestial, is only possible to unlock while in The Nameless Ones's Reality.
+
+##  Hints 
+The Nameless Ones's Reality requires some out of the box thinking and completely different strategies to reach 1e4000 EP, which is why every 5 hours (Real Time) you can ask for a hint on how to get closer to that.  There are two different hint types, Glyph Hints and Reality Hints, with a choice each time you reveal a hint.  Doing what a Reality Glyph is hinting at (described below the corresponding hint) will cause a popup to appear that says "You exposed a quirk in this Reality!".
+
+Glyph Hints: (appear in order)
+
+* Infinity and Dilation Glyphs seem confined too tightly to be useful at all.
+* Power and Time Glyphs are particularly strong here.
+* Effarig Glyphs are only useful with the right effects, but you can complete the Reality without one. A Replication Glyph is very helpful, but it's not strictly necessary or quite as strong as Power and Time.
+
+Reality Hints: (don't appear in order)
+
+* The Nameless Ones want to help, but the help takes a while. 
+** Spend more than 5 real-time hours inside the Reality without completing it. (Always the first one revealed, does not come with a popup)
+* That's odd, the Automatic Eternity Challenge perk seems to be having some trouble working properly.
+** Gained more than 5 completions of Eternity Challenge 1 at once. (Not just more than 5 total)
+* Infinity seems to be more broken than usual in this Reality, but is that even fixable?
+** Tried to Fix Infinity, but instead found and clicked the FEEL ETERNITY button.
+* Some Challenges are harder, but also boost something in exchange. I wonder if there's a Challenge that's just strictly better than normal here.
+** Entered Eternity Challenge 6 again after completing it 5 times in order to use its cheaper Replicanti Galaxies.
+* Is there a way to get Antimatter Galaxies without 8th Antimatter Dimensions?
+** Used Challenge 10 to get more than one Antimatter Galaxy with 6th Antimatter Dimensions.
+* Time Study 12? What's that?
+** Clicked the secret Time Study and gained an extra 100 Time Theorems (Time Study that is to the right of Time Study 11)
+* It seems like certain parts of this Reality erode away if you wait long enough.
+** Discharge the Black Hole to have more than a year of game time this Reality (Require ~3.06e31 years of stored game time before reduction)
+* Could I possibly use one Challenge to get around a restriction in another Challenge?
+** Entered Challenge 10 while already inside of Eternity Challenge 6, taking advantage of Antimatter Galaxies and cheaper Replicanti Galaxies.
+
+##  Quotes 
+
+##  Unlocking The Nameless Ones 
+* A visitor? We have not had one... eons.
+* We... had a name. It has been lost... to this place.
+* The others... will not let us rest. We do their work with time...
+* Place time... into places... that need it...
+* Watch ourselves grow... pass and die.
+* Perhaps you... will break these chains... we will wait.
+
+##  Unlocking The Nameless Ones' Reality 
+* The others... used us. They will use... or destroy you.
+* End our suffering... power will be yours...
+
+##  Entering The Nameless Ones' Reality 
+* So little space... but no... prison... is perfect.
+* They squeezed... this Reality... too tightly. Cracks appeared.
+* Search everywhere. We will help... where we can.
+
+##  Unlocking Help from The Nameless Ones 
+* ...you need...to look harder...
+* We think...we can help...
+
+##  Entering C10 while in EC6 
+* ... did not... underestimate you...
+
+##  Completing The Nameless Ones' Reality 
+* All... fragments... clones... freed.
+* We have given... tools... of our imprisoning. Use them...
+* Freedom from torture... is torture itself.
+
+##  Trivia 
+The Nameless Ones name is a reference to the playtesters of the Reality Update.

@@ -1,0 +1,76 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Black Hole
+# url: https://antimatter-dimensions.fandom.com/wiki/Black_Hole
+
+thumb|300px|Black Hole 1 active.
+The Black Hole is a feature that is unlocked by spending 100 Reality Machines. It speeds up how fast the game runs on a periodic cycle. The game will run at normal speed for some amount of time, then have a burst of running extremely fast for a short period before going back to normal speed and repeating the cycle.
+
+Increased game speed from Black Holes is much stronger than tickspeed because, unlike tickspeed, it affects everything equally, including things that are only partially affected by tickspeed (eg. Infinity/Time Dimensions), things that are normally completely unaffected (eg. DT/TT generation), and effects which are boosted purely on time spent (eg. idle path IP/EP multipliers).
+
+While most features in the game are boosted by this increased game speed, there are some which remain unaffected. In these cases, it will be specifically mentioned that a given time is stated as real time as opposed to game time. Examples include the set of Perks which automatically complete Eternity Challenges over time, the black hole's Interval and Duration, and your Autobuyers and the Automator.  Otherwise, it should be assumed from this point onward that all references to time are for game time. Note that this also includes situations where you may want to have a lower amount of time spent, like the Reality Upgrade "Replicative Rapidity" for example.
+
+You can buy upgrades for the Black Hole by using Reality Machines. There are three upgrades for the Black Hole:
+
+* Interval - How long the Black Hole is inactive between bursts, reduced by 20% per upgrade.
+* Power - How much faster the game runs during the temporary speed bursts, increased by 35% per upgrade.
+* Duration - How long each speed burst lasts before going back to normal speed, increased by 30% per upgrade.
+
+thumb|300px|Black Hole 2 active.
+100 days of game time after unlocking the Black Hole, you unlock the ability to purchase "Parity of Singularity", a Reality Upgrade that allows you to have a second Black Hole. The Interval and Duration timers on the second Black Hole only advance when the first Black Hole is active, and they advance in real time when doing so. For example, if the first Black Hole has a duration of 4 minutes and the second has an interval of 8 minutes, the second Black Hole will only activate once every two cycles of the first Black Hole, regardless of how short the first Black Hole's interval is. Note that the timer shown in the in-game header takes account of this and shows the actual time until the second Black Hole activates; in the Black Hole tab, you can see the amount of time with the first Black Hole active needed for the second Black Hole to activate.  Note that if Black Hole 1 becomes inactive while Black Hole 2 is still active, it will pause Black Hole 2's speedup as well.
+
+When a Black Hole is active at least 99.99% of the time, it becomes permanently active, meaning its interval is set to 0. This is tracked separately for the two Black Holes.
+
+While offline, Black Hole cycles will still advance normally and their active speed boosts will apply fully as if the game were still open. Offline time simulates segments of inactive and active Black Holes with different tick lengths to reduce the negative effects of small tick count during active periods; the entry for Offline Progress has been updated with more technical details.
+
+The Black Holes can be paused, completely halting their interval/duration cycle. However, when unpausing them, it will take 5 real-time seconds for them to return to their full power if they are active during this 5-second window. This acceleration time will still advance the cycle as if it were running at full speed; so while pausing gives some more control, it ultimately results in some boosted time being lost.  This gradual return to speed does not apply after both Black Holes become Permanent.
+
+Pausing and unpausing affect both Black Holes; they can't be paused or unpaused independently. They can be paused automatically 5 real-time seconds before activation by toggling the relevant setting on the Black Hole tab.
+
+##  Upgrades 
+{| class="fandom-table"
+|+Black Hole 1
+!Upgrade
+!Base Effect
+!Base Cost (Reality Machines)
+!Base Cost Scaling
+|-
+|Reduce the Black Hole's inactive time by 20%
+|1 hour
+|15
+|x3.5
+|-
+|Make the Black Hole 35% stronger
+|180x
+|20
+|x2
+|-
+|Extend the Black Hole's duration by 30%
+|10 seconds
+|10
+|x4
+|}
+{| class="fandom-table"
+|+Black Hole 2
+!Upgrade
+!Base Effect
+!Base Cost (Reality Machines)
+!Cost Scaling
+|-
+|Reduce the Black Hole's inactive time by 20%
+|6 minutes
+|15,000
+|x3.5
+|-
+|Make the Black Hole 35% stronger
+|90x
+|20,000
+|x2
+|-
+|Extend the Black Hole's duration by 30%
+|7 seconds
+|10,000
+|x4
+|}
+For both black holes, when the cost for an upgrade reaches 1e30 RM, the cost scaling between upgrades increases by +0.2 per upgrade; once the cost reaches 1.8e308 RM, its cost ignores previous scaling and becomes equal to 10^(295+(n+5)*(n+6)/2), where n is the number of purchases after reaching 1.8e308 RM.  These are the same price increase equations and thresholds as the repeatable Reality Upgrades.
+
+##  Trivia 
+* It costs exactly 9,243,108,413,553,347,354 (9.24e18) Reality Machines to fully make Black Hole 1 permanently active; it costs exactly 50,997,249,780,179,191,696 (5.09e19) Reality Machines for Black Hole 2.

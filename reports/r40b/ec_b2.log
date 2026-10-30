@@ -1,0 +1,26 @@
+[2] 注入夹具 fxB2_respec.json
+    ok
+[2b] 清空 logcat
+[3] 采样 180 s
+   t=   0.1 ec12=0 unlocked=0 current=0 realities=5.0 studies=60
+   t=  20.7 ec12=0 unlocked=0 current=0 realities=5.0 studies=60
+   t=  41.1 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+   t=  61.8 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+   t=  82.3 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+   t= 102.9 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+   t= 123.5 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+   t= 143.9 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+   t= 164.7 ec12=5 unlocked=0 current=0 realities=5.0 studies=60
+
+=== b2 结论 ===
+ec12: 0 → 5
+unlocked: 0 → 0
+current: 0 → 0
+studies: 60 → 60 (71:True→True 73:True→True)
+realities exp: 5.0 → 5.0
+logcat 致命行: 5
+    D/AndroidRuntime( 5822): >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+    I/AndroidRuntime( 5822): Using default boot image
+    I/AndroidRuntime( 5822): Leaving lock profiling enabled
+    D/AndroidRuntime( 5822): Calling main entry com.android.commands.monkey.Monkey
+    I/AndroidRuntime( 5822): VM exiting with result code 0.

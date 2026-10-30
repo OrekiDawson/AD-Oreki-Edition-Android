@@ -1,0 +1,172 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Eternity
+# url: https://antimatter-dimensions.fandom.com/wiki/Eternity
+
+Eternity can be accessed once you reach 1.798e308 Infinity Points and have the 8th Infinity Dimension unlocked.
+
+Eternity is the 4th consecutive reset system and the 2nd Prestige Layer, which resets everything except your Achievements, Statistics, Challenge times, Infinity Challenge times, Time Dimensions, Eternity Upgrades, Time Studies, Eternity Milestones, Eternity Challenges, and Time Dilation. What you keep on Eternity can change depending on which Eternity Milestone you have reached.
+
+## What can I do now?
+Unlike Infinities, you can reach 1.798e308 IP and above whenever you want, and you will gain more EP as a result of doing so. The formula for EP isEP = \left\lfloor\left(5^{\frac{\lfloor\log_{10}(IP)\rfloor}{308}-0.7} \cdot B\right)\right\rfloor \approx 0.324 \cdot B \cdot IP^{\frac{1}{440.65}}, where B is any bonuses to EP gain.
+
+With no bonuses, the amount of IP needed for various amounts of EP for the purposes of early post-Eternity is listed below:
+{| class="fandom-table"
+|+IP to EP table (1)
+!IP Amount
+!EP Gained
+!IP Amount
+!EP Gained
+!IP Amount
+!EP Gained
+|-
+|1e216 (effectively 1.80e308)
+|1
+|1e657
+|10
+|1e1097
+|100
+|-
+|1e349
+|2
+|1e789
+|20
+|1e1230
+|200
+|-
+|1e426
+|3
+|1e867
+|30
+|1e1308
+|300
+|-
+|1e481
+|4
+|1e922
+|40
+|1e1363
+|400
+|-
+|1e524
+|5
+|1e965
+|50
+|1e1405
+|500
+|-
+|1e559
+|6
+|1e1000
+|60
+|1e1440
+|600
+|-
+|1e588
+|7
+|1e1029
+|70
+|1e1470
+|700
+|-
+|1e614
+|8
+|1e1055
+|80
+|1e1495
+|800
+|-
+|1e637
+|9
+|1e1077
+|90
+|1e1518
+|900
+|}
+{| class="fandom-table"
+|+IP to EP table (2)
+!IP Amount
+!EP Gained
+!IP Amount
+!EP Gained
+!IP Amount
+!EP Gained
+!IP Amount
+!EP Gained
+|-
+|1e657
+|10
+|1e4,623
+|1e10
+|1e44,281
+|1e100
+|1e440,864
+|1e1,000
+|-
+|1e1,097
+|100
+|1e9,029
+|1e20
+|1e88,346
+|1e200
+|1e881,513
+|1e2,000
+|-
+|1e1,538
+|1e3
+|1e13,436
+|1e30
+|1e132,411
+|1e300
+|1e1,322,161
+|1e3,000
+|-
+|1e1,979
+|1e4
+|1e17,842
+|1e40
+|1e176,475
+|1e400
+|1e1,762,810
+|1e4,000
+|-
+|1e2,419
+|1e5
+|1e22,249
+|1e50
+|1e220,540
+|1e500
+| colspan="2" rowspan="5" |
+|-
+|1e2,860
+|1e6
+|1e26,655
+|1e60
+|1e264,605
+|1e600
+|-
+|1e3,301
+|1e7
+|1e31,061
+|1e70
+|1e308,670
+|1e700
+|-
+|1e3,741
+|1e8
+|1e35,468
+|1e80
+|1e352,735
+|1e800
+|-
+|1e4,182
+|1e9
+|1e39,874
+|1e90
+|1e396,800
+|1e900
+|}
+centre|thumb|150x150px|EP and the exponent of IP needed to get them (Click to enlargen)There is a more extensive spreadsheet of IP -> EP values available [https://docs.google.com/spreadsheets/d/1nqm_EPbSpn1-jlbdgShOnBLWe-N92ElylWR8jEfQRuw/edit#gid=0 here]. After getting at least 1 Eternity, you'll able to buy Time Theorems, with which you can buy Time Studies. There are also Eternity Upgrades available. You also unlock a new set of dimensions, called Time Dimensions, which give you Time Shards which are translated to free Tickspeed upgrades, and these upgrades push your progression even higher.
+
+## What's next?
+After reaching enough Time Theorems, you will be able to do Eternity Challenges, once you have enough Eternity Challenges completed, you can reach 1.798e308 EP. You will also get an achievement ("But I wanted another prestige layer..."), however you don't unlock a new prestige layer directly.
+
+After completing EC11x5 and EC12x5 and buying at least 13,000 Time Theorems in total, you will be able to spend 5,000 Time Theorems for a Time Study to unlock a new mechanic called Time Dilation.Category:PrestigeCategory:Eternity

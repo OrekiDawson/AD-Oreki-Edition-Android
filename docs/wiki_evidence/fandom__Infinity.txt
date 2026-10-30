@@ -1,0 +1,26 @@
+# source: https://antimatter-dimensions.fandom.com/api.php  title=Infinity
+# url: https://antimatter-dimensions.fandom.com/wiki/Infinity
+
+Infinity is a significant term of the game and is a base for many values and requirements in the game. Infinity has 2 different meanings.
+
+## Value
+Infinity is regarded to as 2^{1024} (\approx1.79769e308), and is important for many parts in Antimatter Dimensions as it is mentioned many times in the game. It is the limit of 64 bit IEEE floating point numbers (this applies in JavaScript), and is the maximum value that a number can normally get in JavaScript applications (unless the application uses a method to work around this, such as this game, but that doesn't mean the Number data-type can actually exceed Infinity). Before breaking Infinity, numbers that would otherwise be above this value will display as Infinite.
+
+## Big Crunch
+The action of pressing the large Big Crunch button that occurs at Infinity antimatter. Infinity is another word for this. You'll have to Big Crunch to continue, which initially gives 1 Infinity Point. Your first Big Crunch unlocks the Infinity tab, where you can spend your IP. How much IP you get from Crunching can be improved by the 2x IP multiplier to multiplicatively give more IP. The Infinity Upgrades have to be bought from top to bottom, except the 2x IP upgrade at the bottom, which can double your IP gains from all sources. The 2x IP upgrade can be bought multiple times, doubling IP gains but costing 10x more at each level, but you can only start buying it after you get the 16 other upgrades, and costs 10 IP (nerfed from 100 IP).
+
+## What happens when I Big Crunch?
+Everything that doesn't depend on Infinity gets reset, which means 0 Dimensions, Galaxies and Dimension Boosts. That also means that you keep everything related to Infinity (and later), like your IP and upgrades, and you also get a new run to Infinity (which is useful for some Achievements). However, some Achievements can make you retain some upgrades or features on Infinity, or affect other things on Infinity. The fourth column of Infinity Upgrades can also make you start Infinities with a set amount of Dimension Shifts and even a Galaxy.
+
+## What do I unlock when I (first) Big Crunch?
+Upon Big Crunch, you will unlock Infinity Upgrades to spend your IP and also be able to complete Challenges. You will automatically unlock the First Dimension Autobuyer, and gain an Achievement.
+
+Challenges may appear difficult at first, but with more IP they will become easier. Challenge 8 is the easiest in your early Infinity runs, so do it until you've filled at least half of Infinity Upgrades, then grind normally again. You can also choose to complete other challenges if you need their Autobuyers (which is not likely unless you are on mobile web).
+
+## What's next?
+Once you have enough IP and completed every Challenge, you can Break Infinity when you've maxed out the Big Crunch Autobuyer's interval.Category:Prestige
+
+## Notes
+
+##  Trivia 
+* The base time for how long an Infinity took is 31.71 years. This is only accessible after an Eternity or beyond.

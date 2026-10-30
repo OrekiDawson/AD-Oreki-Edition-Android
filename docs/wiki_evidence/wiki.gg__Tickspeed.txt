@@ -1,0 +1,76 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Tickspeed
+# url: https://antimatterdimensions.wiki.gg/wiki/Tickspeed
+
+Tickspeed increases the speed at which Antimatter Dimensions produce antimatter. It is a crucial mechanic for accelerating progress in the game. Tickspeed is improved by purchasing Tickspeed Upgrades unlocked with the Second Antimatter Dimension, and with various upgrades and Achievement rewards.
+
+
+== Mechanics ==
+Tickspeed simulates reducing the time between antimatter production cycles, effectively multiplying the player's overall production rate.
+Each Tickspeed upgrade multiplies production speed of all Antimatter Dimensions by a certain fixed value, which can be most easily increased by getting more Galaxies.
+
+
+== Tickspeed Boost Formula ==
+
+
+=== General ===
+Tickspeed bonus is kept in game as an "interval" between Antimatter Dimension "ticks". When the game wants to calculate the tickspeed multiplier, a function is called that gets the tickspeed "interval" multiplied by 1,000. Then, since the game only has a length of each tick, the value needs to be inverted to convert it to a "multiplier": 1,000 is divided by this value to get the actual Tickspeed multiplier applied to all Antimatter Dimensions.
+Thus, one can derive a formula for the resulting Tickspeed multiplier that looks like this:
+1,0001,000*A*TU,
+where:
+
+A is value that initially starts at 1 and gets smaller with some achievements:
+Achievement 36 multiplies this value by 11.02;
+Achievement 45 and 66 both multiply this value by 0.98;
+Achievement 83 both multiply this value by 0.95 for each Antimatter Galaxy.
+T is the value of the "tick interval" for Antimatter Dimensions. Notice the inversely proportionate nature of the relationship between "interval" and "multiplier" parts — the bonuses actually reduce the denominator, making the Tickspeed multiplier value bigger.
+The exact way of calculating this value will be shown further.
+U is amount of the Tickspeed upgrades the player has.
+For simplicity's sake, the 1,000s will not be written out in all Tickspeed formulas on this page. 1A*TU can be considered a simplified final formula of the Tickspeed multiplier, and 1T can be considered a simplified formula to determine the value of each Tickspeed upgrade.
+
+
+=== Less than 3 Galaxies ===
+If player has less than 3 Galaxies of any kind, a simplified formula is used for calculating the T value from the earlier formula:
+BM−G*S*0.02,
+where:
+
+BM is a base multiplier that is defined using a following table:
+
+G is the galaxy amount;
+S is the global galaxy strength coefficient. Early on, only the "All Galaxies are twice as strong" Infinity Upgrade can affect this number. Later on, this formula becomes almost irrelevant, so this wiki will not cover all galaxy effects in this part.
+This means that the player can calculate the value of each individual Tickspeed upgrade, using the formula 1BM−G*S*0.02, or calculating the Tickspeed mutliplier value using the formula 1A*(BM−G*S*0.02)U.
+Due to the limited use of the formula, it's possible to calculate all possible Tickspeed upgrade values the player can encounter early on. They are all written in he following table, rounded to 3 significant digits (same way they are displayed in-game):
+
+
+=== 3 Galaxies or More ===
+If player has 3 Galaxies or more, a different formula is used for calculating the T value from the earlier formula:
+BM*0.965(G−2)*S−2,
+where:
+
+BM is a base multiplier that is equal to 0.83 if the player is inside Normal Challenge 5, and equal to 0.8 otherwise;
+G is the "effective base galaxy" amount. The exact way to calculate this amount is elaborated later on;
+All the bonuses that only apply to some category of the Galaxies will increase this number.
+S is the global galaxy strength coefficient. The exact way to calculate this amount is elaborated later on;
+All the bonuses that apply to all Galaxies equally will increase this number.
+The effective Galaxy amount G is defined by adding up all values in the following table:
+
+The global Galaxy strength coefficient S is defined by applying following effects:
+
+
+== Price scaling ==
+Every purchase the cost of Tickspeed upgrade will be multiplied by 10.
+
+
+=== Post-Infinity Scaling ===
+After the costs surpasses 1.80e308 (Infinite) antimatter, the scaling coefficient itself starts to increase, multiplying by 10 per upgrade. This number can be reduced by the corresponding Break Infinity upgrade, and later by a certain Eternity Challenge.
+
+
+== Trivia ==
+
+
+=== Footnotes ===
+
+
+=== References ===
+
+
+== Navigation ==

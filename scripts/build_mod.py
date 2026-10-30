@@ -136,6 +136,100 @@ def patch_resources():
     note("[2] 新增 res/xml/oreki_shortcuts.xml（长按桌面图标入口）")
 
 
+# ------------------------------------- [Oreki R40B] 首启「更新日志」弹窗中文化
+#
+# 文案来源（逐层反查，不是猜的）：
+#   MainActivity.N8()（MainActivity.smali:23711 起）读 SharedPreferences
+#     "MyPrefsFile"/"lastChangelogHash" 与 `MainActivity.x()` 比对，不一致就弹
+#     `Lt40;`（tag "ChangelogDialog"）。
+#   t40.Q(Bundle)（t40.smali:69 起）：
+#       sget v3, Lyt3;->changelog:I  → Resources.openRawResource(...)
+#       → BufferedReader(0x2000) → lo4.b() 读全量
+#       → 只解析 "<b>…</b>" 做加粗（其余按纯文本 append）
+#       → setText(SpannableStringBuilder)
+#   public.xml:  <public type="raw" name="changelog" id="0x7f100000"/>
+#   → 实际文件是 **res/raw/changelog.txt**（42 537 字节、958 行、78 个版本块）。
+#   标题不是它：标题走 strings 的 changelog_title，官方简体中文（values-zh-rCN）里
+#   **已经是「更新日志」**，不需要改。英文只在正文资源里。
+#
+# 本轮覆盖范围（如实登记）：
+#   · 已翻译：3.19.0 / 3.18.0 / 3.17.0 / 3.16.0 / 3.15.0 / 3.14.0 —— 最新 6 个版本，
+#     共 127 条 bullet，与原文逐一对应（条目数、段落结构、<b> 标记数量全部相等）。
+#   · 未翻译：3.13.2 及更早共 72 个版本、616 条 bullet，保留英文原文，
+#     并在分界处插入一行中文提示「—— 以下为 3.13.2 及更早版本，保留英文原文 ——」。
+#   · 为什么不整份替换：全文 743 条 bullet 需要逐条人工翻译，本轮的取舍是
+#     「先让用户打开弹窗第一屏就是中文」，把剩余 616 条登记为待办，
+#     而不是塞进机翻或删掉上游历史。
+#
+# 格式/换行：原文是纯文本 + `<b>` 加粗，渲染端只认 "<b>"/"</b>" 两个标记。
+#   本补丁只做「逐行替换 + 保留原有空行分段」，不新增/删除换行、不引入其它标记，
+#   `<b>`/`</b>` 成对数量与替换前完全相同（下面有断言），所以排版不会变。
+CHANGELOG_ANCHOR = "<b>3.13.2</b>"
+CHANGELOG_ZH_SRC = PAYLOAD / "res" / "raw" / "changelog.zh.txt"
+CHANGELOG_ZH_MARK = "—— 以下为 3.13.2 及更早版本，保留英文原文 ——"
+
+
+def _count_bullets(text):
+    return sum(1 for ln in text.splitlines() if ln.startswith("- "))
+
+
+def _count_exact_line(text, target):
+    return sum(1 for ln in text.splitlines() if ln == target)
+
+
+def patch_changelog_zh():
+    """[Oreki R40B] 把首启更新日志弹窗的最新 6 个版本换成简体中文（幂等）。"""
+    dst = MOD / "res" / "raw" / "changelog.txt"
+    assert dst.is_file(), f"缺少 {dst}（apktool 未解出 res/raw/changelog.txt）"
+    assert CHANGELOG_ZH_SRC.is_file(), f"缺少译文 {CHANGELOG_ZH_SRC}"
+
+    orig = dst.read_text(encoding="utf-8")
+    zh = CHANGELOG_ZH_SRC.read_text(encoding="utf-8")
+
+    if CHANGELOG_ZH_MARK in orig:
+        note("[R40B] 更新日志已中文化（分界标记存在），跳过")
+        return
+
+    assert orig.count(CHANGELOG_ANCHOR) == 1, (
+        f"切分锚点 {CHANGELOG_ANCHOR} 在 changelog.txt 里不是唯一一处（{orig.count(CHANGELOG_ANCHOR)}）")
+    head_orig = orig[:orig.index(CHANGELOG_ANCHOR)]
+    tail = orig[orig.index(CHANGELOG_ANCHOR):]
+
+    merged = zh + tail
+
+    # ---- 结构等价断言：只换文字，不动分段与标记 ----
+    assert merged.count("<b>") == orig.count("<b>"), "加粗开始标记数量变了（排版会被破坏）"
+    assert merged.count("</b>") == orig.count("</b>"), "加粗结束标记数量变了"
+    assert merged.count(CHANGELOG_ANCHOR) == 1, "锚点在合并后不唯一"
+    assert _count_bullets(merged) == _count_bullets(orig), (
+        f"条目数变了：{_count_bullets(orig)} → {_count_bullets(merged)}")
+    assert _count_bullets(zh) == _count_bullets(head_orig), (
+        f"译文条目数 {_count_bullets(zh)} 与原文 {_count_bullets(head_orig)} 不一致")
+
+    # 段落（小节标题）数量必须一一对应，否则会漏掉整段
+    for en, cns in (("NEW STUFF", "新增"), ("IMPROVED STUFF", "改进"),
+                    ("FIXED STUFF", "修复"), ("REMOVED STUFF", "移除")):
+        assert _count_exact_line(head_orig, en) == _count_exact_line(zh, cns), (
+            f"小节「{en}」数量不一致：原文 {_count_exact_line(head_orig, en)} / "
+            f"译文 {_count_exact_line(zh, cns)}")
+
+    # 译文段落里不允许还有未翻译的 bullet（必须含中日韩字符）
+    for ln in zh.splitlines():
+        if ln.startswith("- "):
+            assert any("\u4e00" <= ch <= "\u9fff" for ch in ln), (
+                f"存在未翻译条目：{ln}")
+
+    # 分隔符与换行：译文段末必须正好是一个空行（与原文 bullet→空行→版本头的结构一致）
+    assert zh.endswith("\n\n"), "译文尾必须是「空行 + 换行」，否则版本之间会黏在一起"
+    _i = merged.index(CHANGELOG_ANCHOR)
+    assert _i >= 2 and merged[_i - 2:_i] == "\n\n", (
+        "分界处不是「空行 + 版本头」，段落结构会被改坏")
+
+    dst.write_text(merged, encoding="utf-8")
+    note(f"[R40B] 更新日志中文化：最新 6 个版本 {_count_bullets(zh)} 条已译，"
+         f"其余 {_count_bullets(orig) - _count_bullets(zh)} 条保留英文原文")
+
+
 # --------------------------------------------------------- 3. manifest
 DROP_PERMISSIONS = {
     "com.android.vending.BILLING",
@@ -2089,6 +2183,306 @@ def check_challenge_auto_polarity():
     note("[Oreki R39] 挑战自动进入极性断言通过：K()=已完成→跳过、D()=false→试下一关、含解锁预检")
 
 
+# ---------------------------------------------------------------------------
+# [Oreki R40B] EC 链条两处机制缺口的构建期防线
+#
+# 背景（见 payload/OrekiChallengeAuto.smali 的 R40B 段与 reports/r40b/R40B-Android-EC.md）：
+#   G1 买 EC 前置研究只调 purchase()，缺原版 purchaseUntil() ⇒ 链式前置永远买不上；
+#   G2 时间研究树分叉（71/73、121/122/123 列）选错后 `O()` 恒 false ⇒ 该 EC 永久买不到。
+#
+# 这两处的失效形态都是「静默停住」（不崩、不报错，EC 完成数永远不涨），
+# 只靠构建通过或烟测很难发现，所以这里做**文本级结构断言**：
+#   ① 每条新分支都以「invoke → move-result → 跳转」三连为锚，整体比对；
+#      这样寄存器被复用时（v9 在这里先后承载 A()/z()/O() 三个布尔）不会误判，
+#      而单看 `if-eqz v9` 是把合法写法当回归。
+#   ② 错误极性必须一次都不出现 —— 极性写反的后果分别是：
+#      z()/O() 反了 = 资源不足或无冲突时也去 respec（把新手研究树白清）；
+#      B() 反了   = purchaseUntil 成功却当失败，每帧重复算路径。
+#   ③ 红线：新代码不得写任何存档字段；respec 只允许出现一次且必须 auto=true。
+# ---------------------------------------------------------------------------
+CA_SMALI_R40B = CA_SMALI
+EC_RED_LINES = (
+    "PlayerEternityChallenges;->h(I)V",
+    "PlayerEternityChallenges;->k(I)V",
+    "PlayerNormalChallenges;->n(I)V",
+    "PlayerInfinityChallenges;->i(I)V",
+)
+
+
+def _ec_flat(src, start_marker):
+    """把方法体压成一行（丢注释/空行/.line），供三连断言使用。"""
+    i = src.find(start_marker)
+    assert i >= 0, f"找不到方法头 {start_marker}"
+    j = src.find(".end method", i)
+    if j < 0:
+        # 自测会把方法体压平成「没有 .end method」的视图，这里必须容忍
+        j = len(src)
+    assert j > i, f"{start_marker} 找不到方法尾"
+    out = []
+    for ln in src[i:j].splitlines():
+        s = ln.strip()
+        if not s or s.startswith("#") or s.startswith(".line"):
+            continue
+        out.append(s)
+    return "|".join(out)
+
+
+def _ec_flatten_all(src):
+    """把每个 `.method … .end method` 块压平成一行，块外原样保留。
+
+    只服务于自测：让「变异串」与「断言串」位于同一个视图里。
+    """
+    out = []
+    i = 0
+    tag = ".method "
+    while True:
+        k = src.find(tag, i)
+        if k < 0:
+            out.append(src[i:])
+            break
+        j = src.find(".end method", k)
+        if j < 0:
+            out.append(src[i:])
+            break
+        out.append(src[i:k])
+        out.append(_ec_flat(src[k:j + len(".end method")], tag))
+        out.append("\n\n")
+        i = j + len(".end method")
+    return "".join(out)
+
+
+def _ec_src_path():
+    """R40B 断言的读取目标：payload 源文件（唯一事实源）。
+
+    为什么不是 `work/mod`：`work/` 整个目录是 .gitignore 的构建中间产物，
+    里面可能留着**上一轮**的旧副本（本轮就实测到 work/mod 里是 24998 字节的 R39 版本）。
+    断言如果读旧副本，就会「对旧代码通过、对新代码失明」—— 这正是断言最容易骗人的地方。
+    所以这里固定读 `scripts/payload`，并顺带把 work/mod 与它不一致这件事说出来，
+    交给构建日志留痕（prepare() 之后两者必须一致）。
+    """
+    src_p = PAYLOAD / CA_SMALI_R40B
+    mod_p = MOD / CA_SMALI_R40B
+    if src_p.is_file() and mod_p.is_file():
+        try:
+            if mod_p.read_bytes() != src_p.read_bytes():
+                note(f"[Oreki R40B] 注意：{mod_p} 与 payload 不一致（构建树是旧的），"
+                     f"断言以 payload 为准")
+        except OSError:
+            pass
+    return src_p
+
+
+def _verify_ec_r40b(src):
+    """纯函数（便于自测）：src 为 OrekiChallengeAuto.smali 全文，违规即 AssertionError。"""
+
+    tick = _ec_flat(src, ".method public static tick()V")
+    fill = _ec_flat(src, ".method private static fillEcRequirement(")
+    rsps = _ec_flat(src, ".method private static respecForEc(")
+
+    # ---- 0) 红线：不得写任何存档字段 ----
+    for banned in EC_RED_LINES:
+        assert banned not in src, f"[R40B] OrekiChallengeAuto 触碰了存档字段（红线）：{banned}"
+
+    # ---- 1) 帧计数三连（respec 冷却依赖它，被删掉就等于没有节流）----
+    assert ("sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I"
+            "|add-int/lit8 v0, v0, 0x1"
+            "|sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I") in tick, (
+        "[R40B] tick() 缺少帧计数三连：respec 冷却会退化成「每帧都能 respec」")
+
+    # ---- 2) G2：互斥研究判定三连（A → z → O）----
+    good = ("invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z"
+            "|move-result v9|if-eqz v9, :ca_do_buy")
+    bad = ("invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z"
+           "|move-result v9|if-nez v9, :ca_do_buy")
+    assert good in tick, (
+        "[R40B] canBeBought 判定三连不对：A()==1（可买）必须走 :ca_do_buy，"
+        "否则会出现「买得到却不去买」的死循环")
+    assert bad not in tick, "[R40B] canBeBought 极性回归（if-nez）：可买的 EC 被当成不可买"
+
+    good = "invoke-virtual {v7}, Lfp3;->z()Z|move-result v9|if-eqz v9, :next_id"
+    bad = "invoke-virtual {v7}, Lfp3;->z()Z|move-result v9|if-nez v9, :next_id"
+    assert good in tick, (
+        "[R40B] 买得起判定三连不对：z()==0（资源不足）必须 :next_id 跳过，"
+        "否则开局资源不够时会去清研究树")
+    assert bad not in tick, "[R40B] z() 极性回归（if-nez）：买不起也会 respec"
+
+    good = "invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z|move-result v9|if-eqz v9, :ca_official"
+    bad = "invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z|move-result v9|if-nez v9, :next_id"
+    assert good in tick, (
+        "[R40B] O() 判定三连不对：O()==1（没有互斥研究）必须走 :ca_official（原版 EC purchaseUntil），"
+        "否则前置缺失会被当成「等资源」永远停住")
+    assert bad not in tick, "[R40B] O() 极性回归（if-nez）"
+
+    # ---- 2b) R40B-2：前置缺失走原版 EC 自己的 purchaseUntil（ec 参数 = 真实 id）----
+    # 这是 EC11/EC12 的唯一正确入口：d.e(id, -1, …) 走不到「按 EC 选维度分叉」那段。
+    official = ("sget-object v9, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
+                "Lkajfosz/antimatterdimensions/OrekiEcContinuation;"
+                "|invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->S("
+                "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;")
+    assert official in tick, (
+        "[R40B-2] 缺少 b;->S(EC purchaseUntil) 调用：EC11/EC12 会一直停在 unlocked=0 且买不上的状态")
+    assert src.count("eternity/studies/b;->S(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)"
+                     "Ljava/lang/Object;") == 1, (
+        "[R40B-2] EC purchaseUntil 调用点必须唯一（多处调用会每帧重复 commitToGameState）")
+    assert "const/4 v9, 0x0|invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->S(" not in tick, (
+        "[R40B-2] EC purchaseUntil 又传 null continuation：ContinuationImpl 会 NPE（R35 的 b.D 老坑）")
+
+    good = ("invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z"
+            "|move-result v9|if-eqz v9, :next_id")
+    bad = ("invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z"
+           "|move-result v9|if-nez v9, :next_id")
+    assert good in tick, (
+        "[R40B-2] respec 返回值极性不对：respecForEc 返回 0（被闸门拒绝）时必须 :next_id，"
+        "否则会被同一关永久卡住")
+    assert bad not in tick, "[R40B-2] respec 返回值极性回归（if-nez）"
+
+    # ---- 3) G1：purchaseUntil 接线 + 真实 continuation ----
+    # 反例先判：否则「把 continuation 换成 null」会先命中下面的正例断言，
+    # 报错信息变成「没有用真实 continuation」，丢掉真正的原因（null continuation NPE）。
+    assert "const/4 v6, 0x0|invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N(" not in fill, (
+        "[R40B] purchaseUntil 又传 null continuation：ContinuationImpl 会 NPE（R35 的 b.D 老坑）")
+    assert ("sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
+            "Lkajfosz/antimatterdimensions/OrekiEcContinuation;"
+            "|invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N("
+            "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;") in fill, (
+        "[R40B] fillEcRequirement 没有用真实 continuation 调 purchaseUntil（c;->N）—— "
+        "G1（链式前置）没有修上，EC9~EC12 会继续停在原地")
+
+    assert ("invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)"
+            "Ljava/lang/Boolean;|move-result-object v6|if-nez v6, :fr_until") in fill, (
+        "[R40B] 单击购买失败后没有落到 :fr_until（purchaseUntil 兜底被删）")
+
+    good = ("invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z"
+            "|move-result v6|if-nez v6, :fr_bought")
+    bad = ("invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z"
+           "|move-result v6|if-eqz v6, :fr_bought")
+    assert good in fill, (
+        "[R40B] purchaseUntil 之后没有用 B() 复核是否真的买上（B()==1 才 return 1）")
+    assert bad not in fill, (
+        "[R40B] B() 极性回归：买上了却当没买上，会每帧重复跑 buyStudiesUntil")
+
+    # ---- 4) respec 只允许一处、必须 auto=true、必须有节流与总次数上限 ----
+    assert src.count("Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V") == 1, (
+        "[R40B] respecTimeStudies 调用点必须唯一（否则会出现第二个未受节流保护的清树入口）")
+    assert "const/4 v0, 0x1|invoke-static {v0}, Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V" in rsps, (
+        "[R40B] respec 必须传 true（auto：不弹确认框），否则无人值守时会卡在对话框")
+    assert "const/16 v2, 0x78" in rsps, "[R40B] respec 冷却常量 0x78（120 帧 ≈ 6 s）被删"
+    assert "const/16 v1, 0x20" in rsps, "[R40B] respec 总次数上限 0x20 被删"
+
+    # ---- 5) R40B-2：同一关只清一次树（Web R40-A 的「快照闸门」在本端的等价物）----
+    assert ("sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I"
+            "|if-ne v0, p0, :rr_no") in rsps, (
+        "[R40B-2] 缺少 respecLastId 闸门：同一关会反复清树（Web 实测的 6.2 s 抖动就是这么来的）")
+    assert ("sput p0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I") in rsps, (
+        "[R40B-2] respec 后没有登记 respecLastId，闸门恒不生效")
+    assert "const/4 v0, 0x1|return v0" in rsps, "[R40B-2] respec 成功必须 return 1"
+    assert "const/4 v0, 0x0|return v0" in rsps, "[R40B-2] respec 被拒必须 return 0"
+
+    for fld in ("frame", "respecFrame", "respecCount", "respecLastId"):
+        assert f".field private static {fld}:I" in src, f"[R40B] 缺少节流字段 {fld}"
+
+    return True
+
+
+def check_ec_chain_mechanisms():
+    """[Oreki R40B] 读取 payload 并执行 EC 链条断言（零副作用，只读文本）。"""
+    p = _ec_src_path()
+    assert p.is_file(), f"缺少 {p}（payload 未拷入？）"
+    _verify_ec_r40b(p.read_text(encoding="utf-8"))
+    note("[Oreki R40B] EC 链条断言通过：purchaseUntil 已接线（真实 continuation）、"
+         "互斥分叉走原版 respec（6 s 冷却 / 32 次上限）、无存档字段写入")
+
+
+def ec_chain_selftest():
+    """[Oreki R40B] 断言自测：故意把每一处改错，必须被拦下。
+
+    只读 payload 文本、只在内存里改字符串，不写任何文件 —— 用来证明
+    `_verify_ec_r40b()` 不是「永远返回 True 的摆设」。
+    由 `OREKI_EC_SELFTEST=1 python scripts/build_mod.py`（只跑到这一步）手动触发。
+    """
+    src = _ec_src_path().read_text(encoding="utf-8")
+    # 变异在「方法体已压平」的视图上做：正例必须先通过，再逐条改错。
+    # 这样变异串与断言串是同一套形态，不会出现「断言看压平文本、自测改原始文本」的错配。
+    flat_src = _ec_flatten_all(src)
+    _verify_ec_r40b(flat_src)  # 正例：原样必须通过
+
+    cases = [
+        # (说明, 错法, 期望命中的断言关键字)
+        ("A() 极性反转（可买却不当可买）",
+         ("invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z"
+          "|move-result v9|if-eqz v9, :ca_do_buy"),
+         ("invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z"
+          "|move-result v9|if-nez v9, :ca_do_buy"), "canBeBought"),
+        ("z() 极性反转（买不起也 respec）",
+         "invoke-virtual {v7}, Lfp3;->z()Z|move-result v9|if-eqz v9, :next_id",
+         "invoke-virtual {v7}, Lfp3;->z()Z|move-result v9|if-nez v9, :next_id", "z()"),
+        ("O() 极性反转（无冲突也 respec）",
+         "invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z"
+         "|move-result v9|if-eqz v9, :ca_official",
+         "invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z"
+         "|move-result v9|if-nez v9, :ca_official", "O()"),
+        ("删掉原版 EC purchaseUntil（前置缺失只能空转）",
+         ("sget-object v9, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
+          "Lkajfosz/antimatterdimensions/OrekiEcContinuation;"
+          "|invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->S("
+          "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"),
+         "return-void", "EC11/EC12"),
+        ("respecLastId 闸门失效（同一关反复清树）",
+         ("sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I"
+          "|if-ne v0, p0, :rr_no"),
+         ("sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I"
+          "|if-ne v0, p0, :rr_go"), "respecLastId"),
+        ("respec 返回值极性反转（拒绝时死在本关）",
+         ("invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z"
+          "|move-result v9|if-eqz v9, :next_id"),
+         ("invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z"
+          "|move-result v9|if-nez v9, :next_id"), "返回值极性"),
+        ("purchaseUntil 传 null continuation",
+         ("sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
+          "Lkajfosz/antimatterdimensions/OrekiEcContinuation;"
+          "|invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N("
+          "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"),
+         ("const/4 v6, 0x0"
+          "|invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N("
+          "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"), "null continuation"),
+        ("respec 改成非 auto（会卡确认框）",
+         "const/4 v0, 0x1|invoke-static {v0}, Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V",
+         "const/4 v0, 0x0|invoke-static {v0}, Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V",
+         "auto"),
+        ("删掉 respec 冷却常量",
+         "const/16 v2, 0x78", "const/16 v2, 0x79", "冷却"),
+    ]
+
+    # 三连整体比对：把 move-result 的寄存器改错（寄存器复用误判的典型形态）
+    cases.append((
+        "move-result 寄存器错位（三连锚点失效）",
+        "invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z|move-result v6|if-nez v6, :fr_bought",
+        "invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z|move-result v5|if-nez v5, :fr_bought",
+        "B()"))
+    # 字段级错误：删掉节流字段（sput/sget 仍在 → 汇编能过，但运行期是另一个字段，语义全丢）
+    cases.append((
+        "删掉节流字段 respecFrame",
+        ".field private static respecFrame:I", "", "respecFrame"))
+
+    passed = 0
+    for name, good, bad, keyword in cases:
+        assert good in flat_src, f"[selftest] 前提缺失，正例找不到：{name}"
+        mutated = flat_src.replace(good, bad, 1)
+        assert mutated != flat_src, f"[selftest] 变异失败：{name}"
+        try:
+            _verify_ec_r40b(mutated)
+        except AssertionError as exc:
+            assert keyword in str(exc), (
+                f"[selftest] {name} 被拦下了，但报错信息不含关键字 {keyword!r}：{exc}")
+            passed += 1
+            note(f"[R40B selftest] 已拦下：{name}")
+            continue
+        raise AssertionError(f"[selftest] {name} 没被拦下 —— 断言是摆设，禁止构建")
+
+    note(f"[Oreki R40B] 断言自测通过：{passed}/{len(cases)} 个错误变异全部被拦下")
+    return True
+
+
 # ============================================================================
 # [Oreki IU15] 第一无限维度购买抑制 —— R38-B 重写
 # ============================================================================
@@ -3076,6 +3470,110 @@ def patch_stage_auto_hook():
     note("[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）")
 
 
+def patch_tutorial_content():
+    """[Oreki R40H] 教程正文：构建期从 Web 单源 JSON 生成 smali + 三层内容断言。
+
+    背景（R40F 盘点）：正文原先硬编码在 TutorialActivity.smali 的 const-string
+    里，与 Web 侧各维护一份，已经分叉过一次（Android 10 章 / Web 7 章）。
+    现在 Android 不再保存正文，构建时读
+    `web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json`（只读）生成
+    `TutorialContent.smali`。
+
+    为什么必须在这里断言：生成器出问题时**能编过、能装上**，只是界面空白或少章，
+    只有装机肉眼才看得见。所以三道关：
+      ① 一级断言（常开）  JSON 语法 / schemaVersion / 章节数量 / id 唯一连续 / 字段类型；
+      ② 二级断言（常开，OREKI_TUTORIAL_ALLOW_DRAFT=1 才放宽 draft 门槛）
+         draft 全 false、steps 非空、numbers[].src 非空、无占位词、无禁用译名、
+         doomed 章有终局数值；译名词表与 Web 共读 docs/TUTORIAL_GLOSSARY.md 第四节；
+      ③ 回读校验（常开）  把刚生成的 smali 再解析回字符串与 JSON 逐字段比对，
+         专拦「转义把正文弄坏」——① ② 只读 JSON，看不到生成阶段引入的损坏。
+
+    门控语义是「默认严格、失败即关闭」：不设环境变量 = 最严格。旧名
+    OREKI_TUTORIAL_STRICT（=1 才严格）已作废 —— 默认放行的断言等于没有断言。
+
+    产物落两处：payload（可审阅、可入库）与 work/mod（实际编译的树）。
+    """
+    import oreki_tutorial_gen as gen
+
+    strict = os.environ.get("OREKI_TUTORIAL_ALLOW_DRAFT") != "1"
+    try:
+        stats = gen.generate(strict=strict)
+    except gen.TutorialContentError as e:
+        note("!! [R40H] 教程内容校验失败，禁止构建：")
+        for ln in str(e).splitlines():
+            note("   " + ln)
+        raise AssertionError(
+            f"[R40H] 教程内容校验失败（allow_draft={'1' if not strict else '0'}）") from None
+
+    note(f"[R40H] 教程正文由 JSON 生成：{stats['chapters']} 章 × {stats['fields']} 字段，"
+         f"{stats['chars']} 字，回读 {stats['compared_strings']} 个字段逐字一致")
+    note(f"[R40H] draft 章节 {stats['drafts']} 个；"
+         f"二级断言={'严格（draft 也不许留）' if strict else '放宽（仅放行 draft 章）'}；"
+         f"stage 映射 {stats['stage_map']}")
+
+    # 拷进实际编译树（patch_smali 的 payload 递归拷贝发生在本函数之前）
+    tut_dir = MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    src = Path(stats["out"])
+    dst = tut_dir / "TutorialContent.smali"
+    tut_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    assert dst.is_file() and dst.stat().st_size == stats["bytes"], \
+        "[R40H] TutorialContent.smali 未正确落进 work/mod 树"
+
+    body = dst.read_text(encoding="utf-8")
+    # 常量自检：运行时自检用的章节数 / 字段数必须与生成时的统计一致
+    assert f"const/16 v0, 0x{stats['chapters']:x}" in body, \
+        "[R40H] chapterCount 常量与章节数不符"
+    assert f"const/16 v0, 0x{stats['fields']:x}" in body, \
+        "[R40H] fieldCount 常量与字段数不符"
+    # 每一章都必须有独立取值方法，缺一章 = 界面少一章
+    for cid in gen.parse_generated(body).keys():
+        assert f".method private static {cid}()" in body, f"[R40H] {cid} 方法缺失"
+    assert len(gen.parse_generated(body)) == stats["chapters"], \
+        "[R40H] 生成物章方法数与 JSON 章数不一致"
+
+    # 渲染层必须真的在用生成物：TutorialActivity 不得再自带正文
+    act = tut_dir / "TutorialActivity.smali"
+    assert act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
+    asrc = act.read_text(encoding="utf-8")
+    assert "Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialContent;->chapter(I)" in asrc, \
+        "[R40H] TutorialActivity 没有从 TutorialContent 取正文（可能又被写死回 const-string）"
+    assert "TutorialContent;->chapterCount()I" in asrc, \
+        "[R40H] TutorialActivity 没有读章节数（目录会缺章）"
+    # 红线：手写渲染层不得触碰存档字段（构建期红线守卫按全文子串扫，注释里也不行）。
+    # 生成物只断言「正文里不许出现类型描述符」—— 正文是散文，出现 Lkajfosz/ 或 ;->
+    # 说明模板把代码片段当正文混进来了；不在正文上扫存档字段子串，
+    # 否则以后正文里正常写一句「completions 达到 5」就会误伤构建。
+    for banned in ("PlayerEternityChallenges;->h(I)V", "PlayerNormalChallenges;->n(I)V",
+                   "PlayerInfinityChallenges;->i(I)V", "->F(I)V", "completions"):
+        assert banned not in asrc, f"[R40H] TutorialActivity 触碰了存档字段（红线）：{banned}"
+    for cid, fields in gen.parse_generated(body).items():
+        for i, text in enumerate(fields):
+            assert ";->" not in text, f"[R40H] {cid}[{i}] 正文里混入了字段/方法访问片段（;->）"
+
+    # 极性守卫（指令序列锚定，与 check_challenge_auto_polarity 同一手法）。
+    # R40H 开发期实际踩到三次零比较/大小比较方向写反。后果不是崩溃，而是
+    # 「只剩章标题、正文一个字都不显示」—— 能编过、能装机，只有肉眼才看得见，
+    # 正是本任务要拦的那一类。逐条钉死：
+    #   if-gtz 在 Dalvik 里是「> 0 才跳」，想「为空就跳过」必须写 if-lez。
+    for good, bad, why in (
+        ("if-lez v5, :render_next", "if-gtz v5, :render_next", "空字段跳过"),
+        ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),
+        ("if-lez v0, :sec_body", "if-gtz v0, :sec_body", "小节标题空值跳过"),
+        ("if-ge v2, v3, :render_go", "if-lt v2, v3, :render_go", "字段数 < 2 直接返回"),
+        ("if-ge v3, v2, :render_empty", "if-lt v3, v2, :render_empty", "渲染循环退出"),
+        ("if-eq v0, v2, :ts_small", "if-ne v0, v2, :ts_small", "字号 小 档"),
+        ("if-eq v0, v2, :ts_big", "if-ne v0, v2, :ts_big", "字号 大 档"),
+        ("if-gez v0, :stage_lo_ok", "if-ltz v0, :stage_lo_ok", "stage 下界钳制"),
+        ("if-lt v0, v2, :stage_hi_ok", "if-ge v0, v2, :stage_hi_ok", "stage 上界钳制"),
+        ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
+    ):
+        assert good in asrc, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
+        assert bad not in asrc, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
+
+    note("[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自生成物）")
+
+
 def patch_tutorial_entry():
     """[Oreki T1] 游戏内教程入口：Manifest 注册 + Application 挂载。
 
@@ -3100,10 +3598,11 @@ def patch_tutorial_entry():
     """
     pkg_dir = MOD / "smali" / OLD_PKG.replace(".", "/")
     tut_src = PAYLOAD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-    for f in ("TutorialActivity.smali", "TutorialEntry.smali", "TutorialEntryListener.smali"):
+    for f in ("TutorialActivity.smali", "TutorialEntry.smali", "TutorialEntryListener.smali",
+              "TutorialTabListener.smali"):
         assert (tut_src / f).is_file(), f"[T1] 教程 payload 缺失: {f}"
         assert (pkg_dir / "oreki" / "tutorial" / f).is_file(), f"[T1] 教程类未拷进 mod 树: {f}"
-    note("[T1] 教程类已进入 mod 树（3 个）")
+    note("[T1] 教程类已进入 mod 树（4 个）")
 
     # --- 1) Manifest 注册教程 Activity ---
     mp = MOD / "AndroidManifest.xml"
@@ -3413,6 +3912,8 @@ def main():
     prepare()
     merge_split()
     patch_resources()
+    # [Oreki R40B] 首启「更新日志」弹窗正文中文化（res/raw/changelog.txt，幂等）。
+    patch_changelog_zh()
     patch_manifest()
     patch_smali()
     patch_speed_records()
@@ -3431,6 +3932,9 @@ def main():
     patch_autobuyer_crunch_force_active()
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
+    # [R40H] 教程正文：从 Web 单源 JSON 生成 TutorialContent.smali（必须先于
+    # patch_tutorial_entry，后者的断言要求教程类已进 mod 树）。
+    patch_tutorial_content()
     patch_tutorial_entry()
     # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
     # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
@@ -3459,6 +3963,11 @@ def main():
     # [Oreki R39] 极性断言：IC1 软锁（已完成的挑战每帧被重进）必须在构建期被拦住。
     # 只读 payload 文本，零副作用；放在钩子安装之后、Gradle 之前。
     check_challenge_auto_polarity()
+    # [Oreki R40B] EC 链条两条机制缺口的构建期防线：
+    #   G1 purchaseUntil（c;->N）必须用真实 continuation 接线；
+    #   G2 互斥分叉冲突必须走原版 respec，且节流/上限/auto=true 一个都不能少。
+    # 只读文本、零副作用。自测：OREKI_EC_SELFTEST=1 python scripts/build_mod.py
+    check_ec_chain_mechanisms()
     # [R38-B] IU15/ID1 冲突：只抑制「第 1 无限维度」的购买，直到 IU15 被拿到。
     # **本轮开启**（ID_GUARD_ENABLED=True）。R37 的两处错误已更正：
     #   · 目标 IU 是 b->k / BitSet id=4（不是 b->n/id=9，那是 Web IU20）；
@@ -3502,4 +4011,10 @@ def main():
 
 
 if __name__ == "__main__":
+    # [Oreki R40B] 断言自测入口：只跑断言 + 变异自测，不构建、不碰 work/mod。
+    #   OREKI_EC_SELFTEST=1 python scripts/build_mod.py
+    if os.environ.get("OREKI_EC_SELFTEST") == "1":
+        check_ec_chain_mechanisms()
+        ec_chain_selftest()
+        sys.exit(0)
     sys.exit(main())

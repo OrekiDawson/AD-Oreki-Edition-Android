@@ -1,0 +1,45 @@
+# source: https://antimatterdimensions.wiki.gg/api.php  title=Dilation
+# url: https://antimatterdimensions.wiki.gg/wiki/Dilation
+
+Time Dilation is the final main mechanic introduced in the Eternity prestige layer. It features a modified, nerfed Eternity; which, upon first-time completion, unlocks two new currencies called Tachyon Particles and Dilated Time that can be used to purchase Dilation Upgrades.
+Dilation is unlocked by purchasing the respective Time Study below the EC11 and EC12 studies, which requires having a total of 12,900 Time Theorems, and having completed both Eternity Challenges 11 and 12 five (5) times each. It costs 5,000 Theorems, but unlocks the feature permanently.
+It also unlocks the passive generation of Time Theorems, making the last four Time Dimensions realistically available. In addition, one of the mechanic's upgrades gives the advantage of buying all three Time Study paths from the Dimension Split.
+
+
+== Dilated Eternity ==
+An Eternity inside Dilation has all of the Antimatter Dimensions, Infinity Dimensions, and Time Dimensions multipliers' exponents, and the Tickspeed multipliers' exponent raised ＾0.75, significantly reducing their potency. Dilating Time causes an Eternity reset.
+Dilated values are calculated using this formula: 10x→10x0.75, where the value on the left is transformed to the value on the right. For example, a multiplier of 1e10,000 would be decreased to 1e1,000; because 10,0000.75 is equal to 1,000. The exponent constant can be increased by a Dilation Upgrade to reduce the Dilation penalty.
+The initial goal of Time Dilation is to reach 1.80e308 (Infinite) IP to complete the Eternity, rewarding the player with Tachyon Particles. Performing an Eternity inside Dilation exits the challenge. 
+
+
+=== Tachyon Particles ===
+Tachyon Particles (TP) are a resource that can be gained by completing a Dilated Eternity, based on the quantity of antimatter produced inside it. They produce Dilated Time based on its amount.
+Unlike other resources that can be "farmed", the value is strictly based on the highest Antimatter attained in Time Dilation and the TP multipliers. Failing to exceed the previous highest antimatter or purchase a TP multiplier would net in no extra Tachyons gained. Tachyon Particles are never reduced, only increased.
+Tachyons = TPMult*(log10(AMHighest Dilated)400)1.5
+
+
+=== Dilated Time ===
+Dilated Time (DT) is a multipurpose currency produced by Tachyon Particles with a base ratio of 1:1. Dilated Time is translated into Tachyon Galaxies by reaching thresholds similarly to the Tickspeed Upgrades gained from Time Dimensions. Dilated Time can also be used to buy various Upgrades.
+
+
+=== Tachyon Galaxies ===
+Tachyon Galaxies (TG) are the third type of Galaxies that improve Tickspeed. They behave like the previous two Galaxy variants in that they affect Tickspeed but do not increase the raw cost of the next Antimatter Galaxy. While the initial threshold starts at 1 with each new galaxy requiring ×1.35 more DT than the last, this can be reduced with a Repeatable Dilation upgrade.
+
+
+== Upgrades ==
+
+
+== Related Achievements ==
+
+
+== Trivia ==
+The proper terms for Tachyon Particles and Tachyon Galaxies would be "Tachyonic Particles" (or simply "Tachyons") and "Tachyonic Galaxies" respectively.
+
+
+=== Footnotes ===
+
+
+=== References ===
+
+
+== Navigation ==
