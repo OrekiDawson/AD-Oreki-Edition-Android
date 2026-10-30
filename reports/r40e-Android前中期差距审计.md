@@ -479,11 +479,15 @@ if (!A()) {                                  # 未解锁
 
 ## 11. 交付记录：L3 脚本 + 文案修正（任务 1、2，2026-10-31）
 
+> **仓库根（避免再有人问「这是不是 git 仓库」）**
+> `git rev-parse --show-toplevel` → `C:/Users/Oreki/WorkBuddy/AD-Oreki-Unified/android/AD_Oreki_Edition_Android`
+> 之前那次 `fatal: not a git repository` 是在别的工作目录（`WorkBuddy/2026-10-30-16-13-18`）跑的，结论作废。
+
 ### 11.1 L3 验收链（任务 1，已完成）
 
 | 交付物 | 路径 | 自检结果 |
 |---|---|---|
-| 设备侧只读审计 | `scripts/payload/smali/.../oreki/OrekiAchAudit.smali` | `SmaliCheck` → `assembled=true bytes=1780` |
+| 设备侧只读审计 | `scripts/payload/smali/.../oreki/OrekiAchAudit.smali` | `SmaliCheck` → `assembled=true bytes=1764`；**有界周期**：每 `0x258`=600 帧（≈10 s）一次，第 600 帧首跑；每帧只有 sget/add/sput/比较 |
 | 注入点（唯一） | `scripts/payload/smali/.../OrekiSpeed.smali`（`apply(D)D` 里，紧跟 `StageAssist.onTick()`） | `assembled=true bytes=6036` |
 | 解析与判据 | `scripts/ach_audit.py` | 离线 6 分支退出码实测：`0/1/2/3/5` + adb 错误 `4` |
 | 构建期守卫 | `scripts/build_mod.py`：`PAYLOAD_MUST_EXIST` 增 `OrekiAchAudit.smali`；新增「`tick()` 调用点必须恰好 1 处」断言 | 静态改完，待下次构建验证 |
@@ -491,9 +495,10 @@ if (!A()) {                                  # 未解锁
 输出格式（logcat，`tag = OREKI_ACHAUDIT`）：
 
 ```
-I/OREKI_ACHAUDIT: DONE scanned=<n> unlocked=<u> mismatch=<m> used=<0|1>
+I/OREKI_ACHAUDIT: DONE scanned=<n> unlocked=<u> mismatch=<m> used=<0|1|-1>
 W/OREKI_ACHAUDIT: MISMATCH id=<成就ID>          # 每一位不一致各一行
 I/OREKI_ACHAUDIT: ABORT scanned=... used=...    # 谓词抛异常，本次结果不可用
+E/OREKI_ACHAUDIT: MARK_FAILED ...               # 留痕写盘失败 ⇒ L2 判「未知」
 ```
 
 判据（以 FACTS C.36 §三 为准，未放宽）：必须出现 `DONE`；`ID<=138` 的 MISMATCH ⇒ 硬失败；`ID>138` 仅警告；`ABORT` ⇒ 失败。
@@ -508,9 +513,10 @@ I/OREKI_ACHAUDIT: ABORT scanned=... used=...    # 谓词抛异常，本次结果
 | `StageAssist.smali` `:stage3` 分支 | 「…写入走原版解锁流程，执行后不可撤销。」 | 「…【代价】本操作不校验这些成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 `stage_assist_used`…」 |
 | `StageAssist.smali` `:c2`（成就 147） | 「…写入走原版解锁流程，执行后不可撤销。」 | 同上，主语换成「该成就」 |
 | `StageAssist.smali` `dialogMessage` catch 兜底 | 「确认后仍会按该阶段范围执行。」 | 追加同一段【代价】 |
-| `SettingsClickListener.smali:216` 按钮 | 「确认点亮」 | 「强制点亮（不校验条件）」 |
+| `SettingsClickListener.smali:216` 按钮 | 「确认点亮」 | 「强制点亮」；「不校验条件」移到卡片常驻行 `cardSummary`（`【强制解锁 · 不校验条件】`），避免按钮宽度把警告截掉 |
 | `StageConfirmListener.smali:34` Toast | 「已标记，回到游戏后下一个 tick 生效」 | 「已标记：回到游戏后下一个 tick 强制点亮（不可撤销）」 |
 | `SpeedSettingsActivity.smali:298` 分区标题 | 「阶段辅助（精准成就）」 | 「阶段辅助（强制点亮成就，不校验条件）」 |
+| `SettingsClickListener.smali:189` 禁用态 Toast | 「该入口已移除，请使用下方「阶段辅助」三张卡片」 | 「该入口默认关闭，原因见下方「阶段辅助」说明」 |
 | `SpeedSettingsActivity.smali:324` 说明 | 只说「弹出数量与范围确认」 | 新增独立段落「【这不是「走原版解锁流程」】…不校验达成条件…写入 `stage_assist_used`…想要干净的存档，请不要点这三张卡片。」 |
 | `StageAssist.smali` 类头注释 `:31` | 「写入一律复用原版 `E(ZZ)`：置位→…」 | 明确写「`E(ZZ)` 不校验条件，等价于原版强制解锁入口；本类实现的是绕过条件点亮，不是走原版解锁流程」 |
 
@@ -535,7 +541,7 @@ I/OREKI_ACHAUDIT: ABORT scanned=... used=...    # 谓词抛异常，本次结果
 | ② 独立留痕键 | `stage_assist_used`（`markUsed()` 只在真写入 ≥1 位时写） | `clearFlag()` 方法体内不得出现该键 |
 | ③ 自动化永不调用 | 全树只允许 `StageConfirmListener` 调 `request`；`run` 只允许 `onTick` 调 | `request_hits==1 && run_hits==1`，出现其他调用者构建直接红 |
 
-`OrekiAchAudit` 的 `DONE/ABORT` 行带 `used=<0|1>`，`ach_audit.py` 在 `used=1` 时退出码 5（L2 失败）。
+`OrekiAchAudit` 的 `DONE/ABORT` 行带 `used=<0|1|-1>`（三态，`0` 与「读不到」严格区分），`ach_audit.py` 在 `used=1` 时退出码 5（L2 失败）、`used=-1` 或出现 `MARK_FAILED` 时打印「未知」而不是「清白」。
 
 ### 11.5 任务 5：docstring 漂移（已完成 4 处）
 

@@ -186,7 +186,7 @@
     :case_stage
     # 旧「按行号批量解锁」入口已于 2026-10-25 移除；
     # 保留分支只是为了不改变 packed-switch 的索引布局。
-    const-string v1, "该入口已移除，请使用下方「阶段辅助」三张卡片"
+    const-string v1, "该入口默认关闭，原因见下方「阶段辅助」说明"
 
     invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->toast(Ljava/lang/String;)V
 
@@ -213,7 +213,7 @@
 
     invoke-virtual {v2, v3}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    const-string v3, "强制点亮（不校验条件）"
+    const-string v3, "强制点亮"
 
     new-instance v4, Lkajfosz/antimatterdimensions/oreki/StageConfirmListener;
 

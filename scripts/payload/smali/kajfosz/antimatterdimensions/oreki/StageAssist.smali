@@ -1095,7 +1095,7 @@
 
 # 兜底包装：卡片文案读取失败时不能让设置页崩溃
 .method public static cardSummary(I)Ljava/lang/String;
-    .locals 2
+    .locals 3
 
     :try_start_0
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->cardSummary0(I)Ljava/lang/String;
@@ -1110,6 +1110,22 @@
     const-string v0, "状态读取失败（不影响游戏本体）"
 
     :done
+    # 常驻警示：这行一直在卡片标题下面，避免「不校验条件」只在弹窗/说明里出现，
+    # 也避免它被按钮宽度截断（按钮主文案只保留四个字）。
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "【强制解锁 · 不校验条件】\n"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
     return-object v0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 .end method

@@ -29,6 +29,8 @@
 #   · Break 的前置是 Autobuyer.bigCrunch.hasMaxedInterval（interval ≤ 100）：
 #     从 150000 起每级 ×0.6、成本 ×2，共 15 级、累计 32767 IP。
 #     原版**没有任何自动购买器**会升级这个 interval —— 必须手点 15 次。
+#     ⚠ 「钱够就自动停手」不成立：停手条件是「已 break 且 interval ≤ 100」两个前置，
+#       见 upgradeCrunchInterval 上方的注释（代码里各有一处早退）。
 #   · ID1 的反物质门槛是 thisEternity.maxAM ≥ 1e1100；未 Break 时反物质上限
 #     1.797e308，所以 ID1 只能在 Break 之后达成。
 #   · Break 之后默认坍缩模式是 AMOUNT/1，会「每次都够」，于是反物质爬不到 1e1100

@@ -1352,6 +1352,35 @@ def verify_payload():
     assert run_hits == 1, f"[3C] run(I) 调用点应只有 onTick 自己，实际 {run_hits}"
     note("[3C] 助战三约束自检通过（默认关 / 独立留痕键 / request=1 run=1）")
 
+    # 开启入口只允许改开关：不得顺手触发写入
+    tog = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali"
+           ).read_text(encoding="utf-8")
+    assert "StageAssist;->setEnabled(Z)V" in tog, "[3C] 复选框没有接 setEnabled"
+    for forbidden in ("StageAssist;->request", "StageAssist;->run(", "StageAssist;->unlockRows",
+                      "StageAssist;->unlock147", "achievements/a;->E(ZZ)V"):
+        assert forbidden not in tog, f"[3C] 开启入口出现写入路径（违规）：{forbidden}"
+    # 开关类不得自己直接写 prefs：键名只出现在 StageAssist（唯一写入者）
+    assert '"stage_assist_enabled"' not in tog, "[3C] 开启入口绕过 setEnabled 直接写键"
+
+    # 留痕必须是三态：0（没用过）/ 1（用过）/ -1（读不到）。0 与「读不到」不可合并
+    assert ".method public static usedState()I" in sa, "[3C] 缺少三态 usedState()"
+    utail = sa[sa.index(".method public static usedState()I"):]
+    utail = utail[:utail.index(".end method")]
+    assert "const/4 v0, -0x1" in utail, "[3C] usedState 读不到时未返回 -1（会把未知当清白）"
+    # markUsed 必须幂等 + 用 commit 拿真实结果 + 失败留痕
+    mtail = sa[sa.index(".method private static markUsed()V"):]
+    mtail = mtail[:mtail.index(".end method")]
+    assert "stage_assist_used" in mtail and "commit()Z" in mtail,         "[3C] markUsed 必须用 commit() 取真实写盘结果（apply 无返回值 = 静默失败）"
+    assert "MARK_FAILED" in mtail, "[3C] markUsed 写失败必须留 MARK_FAILED（L2 判未知）"
+
+    # 审计必须是有界周期调用：每帧只有计数与比较，104 个谓词不得每帧跑
+    aa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali"
+          ).read_text(encoding="utf-8")
+    assert "const/16 v1, 0x258" in aa, "[AA] 审计没有 600 帧的周期门（每帧跑会拖偏基线）"
+    assert aa.count("OrekiAchAudit;->sFrame:I") >= 3, "[AA] 帧计数读写缺失"
+    assert "sDone" not in aa, "[AA] 仍残留「只跑一次」的 sDone（后期结果拿不到）"
+    note("[3C] 开启入口 / 三态留痕 / 有界审计 自检通过")
+
     # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
     # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
     # 同样是「游戏时间 + 真实毫秒」；time 必须归一化，realTime 不得除。
