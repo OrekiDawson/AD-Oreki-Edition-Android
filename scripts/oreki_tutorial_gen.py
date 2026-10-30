@@ -424,13 +424,17 @@ def validate_level2_glossary(doc: dict, path: Path | None = None) -> int:
 
 # ---------------------------------------------------------------- 旁路文案
 # 只校验「内容的正确位置」（JSON）不够，还要校验「内容可能出现的位置」。
-# 教程包里有大量中文是**手写 smali 里的 const-string**，玩家真会看到，却完全不经过
-# JSON：入口按钮文字、8 档阶段提示、目录页签、渲染层标题。
-# 实测证据（2026-10-30 23:1x）：`TutorialProgress.smali:202` 的 8 档提示里写着
-# 「用时间定理点时间研究」——最高频的错译，JSON 里一个字都没有，规则 8 看不见它。
-# 这类文案的错误和正文明文错误一样是**不可见缺陷**：玩家看不出「时间定理」是错的。
-TUTORIAL_SMALI_DIR = (ANDROID_ROOT / "scripts" / "payload" / "smali" / "kajfosz"
-                      / "antimatterdimensions" / "oreki" / "tutorial")
+# 玩家看得见的中文，除了教程正文，还有大量**手写 smali 里的 const-string**，它们
+# 完全不经过 JSON：入口按钮文字、8 档阶段提示、目录页签、渲染层标题、设置项、错误提示。
+# 实测证据（2026-10-30 23:1x）：`tutorial/TutorialProgress.smali:202` 的 8 档提示里
+# 写着「用时间定理点时间研究」——最高频的错译，JSON 里一个字都没有，规则 8 看不见它。
+# 这类文案的错误和正文错译一样是**不可见缺陷**：玩家看不出「时间定理」是错的。
+#
+# 范围取**整个 oreki 包**而不是只取 tutorial 子目录：入口按钮在 SettingsClickListener、
+# 阶段辅助在 StageAssist、加速在 SpeedSettingsActivity，都是玩家可见文案。
+# 实测全包 12 个 smali / 106 条中文 const-string，全扫一遍的代价可以忽略。
+OREKI_SMALI_DIR = (ANDROID_ROOT / "scripts" / "payload" / "smali" / "kajfosz"
+                   / "antimatterdimensions" / "oreki")
 
 # smali 的字符串字面量。只认 `const-string vX, "..."` 整行，不碰注释与指令。
 SMALI_CONST_STRING = re.compile(r'^\s*const-string(?:/jumbo)?\s+v\d+,\s*"(.*)"\s*$')
@@ -442,16 +446,16 @@ _GENERATED_SMALI = ("TutorialContent.smali",)
 
 
 def _smali_glossary_problems(terms: list[dict], smali_dir: Path | None = None) -> list[str]:
-    """扫教程包 smali 里玩家可见的中文文案，返回禁用译名问题清单。
+    """扫 oreki 包 smali 里玩家可见的中文文案，返回禁用译名问题清单。
 
     直接在**原始字面量**上匹配，不做 unescape：中文不会被 smali 转义，
     而 unescape 遇到不认识的手写转义会抛错，把「文案检查」变成「语法检查」。
     """
-    smali_dir = Path(smali_dir) if smali_dir else TUTORIAL_SMALI_DIR
+    smali_dir = Path(smali_dir) if smali_dir else OREKI_SMALI_DIR
     if not smali_dir.is_dir():
         raise TutorialContentError(
-            f"找不到教程 smali 目录 {smali_dir} —— 旁路文案断言不能静默跳过")
-    files = sorted(p for p in smali_dir.glob("*.smali") if p.name not in _GENERATED_SMALI)
+            f"找不到 smali 目录 {smali_dir} —— 旁路文案断言不能静默跳过")
+    files = sorted(p for p in smali_dir.rglob("*.smali") if p.name not in _GENERATED_SMALI)
     if not files:
         raise TutorialContentError(
             f"{smali_dir} 下没有 .smali 文件 —— 目录被挪走时这条断言会静默失效")
