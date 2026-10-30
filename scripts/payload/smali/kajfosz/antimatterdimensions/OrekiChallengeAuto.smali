@@ -140,11 +140,32 @@
 
     move-result v2
 
-    if-eqz v2, :chk_main
+    if-eqz v2, :chk_cic
 
     return-void
 
-    # ---------------------------- 1) 读 unlocked ----------------------------
+    # --------------- 0.5) 普通挑战 C / 无限挑战 IC 的自动进入（R37-B 新增）---------------
+    # 为什么放在 EC 链条**之前**：与 Web 的推进顺序一致（C → IC → EC），
+    # 且 EC 的解锁链本来就以「先跑完前置挑战」为条件。两者互相不打扰：
+    # 只有在 unlocked && 未完成时 D() 才会真的写入 current，其余情况一律返回 false。
+    :chk_cic
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->tryNormal()Z
+
+    move-result v3
+
+    if-nez v3, :chk_ic2
+
+    return-void
+
+    :chk_ic2
+    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->tryInfinity()Z
+
+    move-result v3
+
+    if-nez v3, :chk_main
+
+    return-void
+
     :chk_main
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;->a()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;
 
@@ -190,10 +211,23 @@
     return-void
 
     :do_start
-    # 真实进入：challenge.D(false, null) —— 原版 automator `start ec` 同款
-    const/4 v5, 0x0
+    # 真实进入：challenge.D(true, 真实 continuation)
+    #
+    # [Oreki EC-CT] R35/R36 这里传的是 null，导致 100% 失效。逐指令核到根因：
+    #   b.D 会 `new EternityChallengeState$start$1(this, p2)`，
+    #   其父类构造 ContinuationImpl.<init>(Lvh0;) 在 p1==null 时把 _context 置 null，
+    #   随后 start$1.getContext() 里 `iget _context; invoke-virtual getClass()`
+    #   ⇒ NPE，被本方法尾部 .catch 吞掉 ⇒ 每帧静默成功、状态零变化。
+    # 现在改为传 OrekiEcContinuation.a（静态单例、getContext() 返回 EmptyCoroutineContext，
+    #   见 OrekiEcContinuation.smali 的反编译依据）。原版 6 个调用点全部传真实 continuation，
+    #   其中 Parser$StartEcCommand:360 同样传 z=true（无人值守模式），与本调用一致。
+    #
+    # 返回值：Boolean（v() 的结果）或 CoroutineSingletons（真的挂起）；两种都不需要处理，
+    #   若挂起，start$1 的 resume 分支会在恢复时写 current，本帧无副作用。
+    const/4 v5, 0x1
 
-    const/4 v6, 0x0
+    # 不要再每帧 new：单例由 OrekiEcContinuation.<clinit> 建立一次
+    sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
 
     invoke-virtual {v4, v5, v6}, Lkajfosz/antimatterdimensions/challenge/eternity/b;->D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
 
@@ -230,6 +264,22 @@
 
     if-eqz v7, :next_id
 
+    # [Oreki CA-4] EC9~EC12 的普通时间研究前置（对齐 Web R36 的同一修复）
+    #   eternity/studies/b;->A(Z)Z（b.smali:360）第一段就要求
+    #   `unlocked == 0` 且 `requirement（zw4.k）里至少有一项 isBought()`
+    #   （b.smali:373-390 遍历 zw4.k → l43.a(companion,id) → c.B()）。
+    #   EC9..EC12 的 requirement 指向普通时间研究，若不补买，fp3.D 永远返回 false，
+    #   链条停在第 8 关。这里在正式购买前先补一项，成功就本帧返回，下一帧继续。
+    invoke-static {v7}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->fillEcRequirement(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z
+
+    move-result v8
+
+    # 0 = 没补买（requirement 已满足或为空）→ 继续正常购买；1 = 补买了一项 → 本帧到此为止
+    if-nez v8, :ca_buy_ec
+
+    return-void
+
+    :ca_buy_ec
     # 原版购买：fp3.D(true, null) —— 内部 a() = 价格/前置/二级资源全部自校验
     const/4 v8, 0x1
 
@@ -262,4 +312,235 @@
     move-exception v0
 
     return-void
+.end method
+
+
+# ------------------------------------------------------------------ 普通挑战 C 自动进入
+# 语义与 Web 的 `challenge.start(true)` 完全一致：**静默模式**（z=true，不弹窗、不放音效），
+# 走的是原版 NormalChallengeState.start → normal/a.D(Z,Continuation)。
+#
+# 为什么可以直接对「锁着的」挑战调 D：
+#   normal/a.D 第一段就是 `invoke-virtual {p0}, normal/a;->v()Z`，v() = B() && (c != 0)，
+#   B() 才是「已解锁」。v() 为假时 D 直接返回 Boolean.FALSE，不做任何 softReset 与写档。
+#   因此这里不需要自己判 unlockBits，也就不碰任何存档字段（红线）。
+#
+# 幂等：已完成（K()==true，即 completionBits.e(id)）的关卡直接跳过。
+#   OrekiInstantChallenge 在同帧把 current 归零并发奖，下一帧 K() 变真 ⇒ 不会重复进入。
+#
+# 返回值：本帧是否「已经进入了一关」。true 时 tick() 立即 return，
+#   让紧跟着的 OrekiInstantChallenge.tick() 同帧结算（进入即完成）。
+.method private static tryNormal()Z
+    .locals 5
+
+    const/4 v0, 0x1
+
+    :loop_c
+    const/16 v1, 0xc
+
+    # id > 12 才退出（C 一共 12 关，见 c43.<clinit> 的 12 处 new-instance normal/a）
+    if-gt v0, v1, :c_none
+
+    invoke-static {v0}, Lc43;->a(I)Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;
+
+    move-result-object v2
+
+    if-eqz v2, :c_next
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;->K()Z
+
+    move-result v3
+
+    # 已完成 → 跳过
+    if-eqz v3, :c_next
+
+    const/4 v3, 0x1
+
+    sget-object v4, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
+
+    invoke-virtual {v2, v3, v4}, Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;->D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    sget-object v3, Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:Lkotlin/coroutines/intrinsics/CoroutineSingletons;
+
+    # 真的挂起（原版 softReset 里有挂起点）也算已进入：恢复时会自己写 current
+    if-ne v2, v3, :c_yes
+
+    check-cast v2, Ljava/lang/Boolean;
+
+    invoke-virtual {v2}, Ljava/lang/Boolean;->booleanValue()Z
+
+    move-result v2
+
+    if-nez v2, :c_next
+
+    :c_yes
+    const/4 v0, 0x1
+
+    return v0
+
+    :c_next
+    add-int/lit8 v0, v0, 0x1
+
+    goto :loop_c
+
+    :c_none
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+
+# ---------------------------------------------------------------- 无限挑战 IC 自动进入
+# 与 tryNormal 同构，只是实例工厂换成 py1.a(I)，共 8 关（py1.<clinit> 8 处 new-instance）。
+# infinity/a.D 的第一段是 `invoke-virtual {p0}, Lg40;->B()Z`，同样自校验解锁，
+# 未解锁时直接返回 false，不写 current、不做 Big Crunch。
+.method private static tryInfinity()Z
+    .locals 5
+
+    const/4 v0, 0x1
+
+    :loop_i
+    const/16 v1, 0x8
+
+    if-gt v0, v1, :i_none
+
+    invoke-static {v0}, Lpy1;->a(I)Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;
+
+    move-result-object v2
+
+    if-eqz v2, :i_next
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;->K()Z
+
+    move-result v3
+
+    if-eqz v3, :i_next
+
+    const/4 v3, 0x1
+
+    sget-object v4, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
+
+    invoke-virtual {v2, v3, v4}, Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;->D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    sget-object v3, Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:Lkotlin/coroutines/intrinsics/CoroutineSingletons;
+
+    if-ne v2, v3, :i_yes
+
+    check-cast v2, Ljava/lang/Boolean;
+
+    invoke-virtual {v2}, Ljava/lang/Boolean;->booleanValue()Z
+
+    move-result v2
+
+    if-nez v2, :i_next
+
+    :i_yes
+    const/4 v0, 0x1
+
+    return v0
+
+    :i_next
+    add-int/lit8 v0, v0, 0x1
+
+    goto :loop_i
+
+    :i_none
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+
+# ----------------------------------------------- EC 研究的普通时间研究前置（EC9~EC12）
+# 依据（work/base_decoded/smali/.../eternity/studies/b.smali:360-395）：
+#   A(Z) = (r51.d()==0) && [ 存在 id ∈ zw4.k 使 l43.a(l43,id)->B() ] && eg3.D.k() && ...
+# 即「这条 EC 研究能不能买」的第一条硬前置是 requirement 列表里至少一项**已购买**。
+# EC1..EC8 的 requirement 为空（数组长度 0），EC9..EC12 指向普通时间研究
+# （TS 的 chain），所以必须先把它们买上，否则 fp3.D 永远返回 false。
+#
+# 语义：只在「一个都没买」时才动作；买到一项就返回 true（调用方本帧结束）。
+# 全部买不上（TT 不够 / 前置不满足）返回 false，让调用方照常尝试 EC 研究本身 ——
+# 此时 fp3.D 也会因为同一条前置返回 false，不会产生任何副作用。
+#
+# 红线：这里调用的 `c.D(ZLvh0;)Ljava/lang/Boolean;` 就是原版「点时间研究」的购买入口
+# （c.smali:1129 起，第一句 `p0.a(z)` 自校验；形参 p1 全程未被读，传 null 安全）。
+# 本方法不写任何存档字段：unlocked / 已购位 / TT 全部由 a() 与后续 E(true) 自己写。
+.method private static fillEcRequirement(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z
+    .locals 8
+
+    iget-object v0, p0, Lzw4;->k:[Ljava/lang/Integer;
+
+    if-eqz v0, :fr_none
+
+    array-length v1, v0
+
+    if-nez v1, :fr_none
+
+    const/4 v2, 0x0
+
+    :fr_chk
+    if-ge v2, v1, :fr_none
+
+    aget-object v3, v0, v2
+
+    if-eqz v3, :fr_next
+
+    invoke-virtual {v3}, Ljava/lang/Number;->intValue()I
+
+    move-result v3
+
+    sget-object v4, Ll43;->a:Ll43;
+
+    invoke-static {v4, v3}, Ll43;->a(Ll43;I)Lkajfosz/antimatterdimensions/eternity/studies/c;
+
+    move-result-object v4
+
+    if-eqz v4, :fr_next
+
+    invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z
+
+    move-result v5
+
+    # 已经买了任意一项 → 前置已满足，不需要补
+    if-eqz v5, :fr_has
+
+    # 这一项没买 → 尝试买
+    const/4 v6, 0x1
+
+    const/4 v7, 0x0
+
+    invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)Ljava/lang/Boolean;
+
+    move-result-object v4
+
+    if-nez v4, :fr_next
+
+    invoke-virtual {v4}, Ljava/lang/Boolean;->booleanValue()Z
+
+    move-result v4
+
+    if-eqz v4, :fr_bought
+
+    :fr_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :fr_chk
+
+    :fr_has
+    const/4 v0, 0x0
+
+    return v0
+
+    :fr_bought
+    const/4 v0, 0x1
+
+    return v0
+
+    :fr_none
+    const/4 v0, 0x0
+
+    return v0
 .end method

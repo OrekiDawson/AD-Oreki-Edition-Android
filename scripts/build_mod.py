@@ -462,6 +462,7 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
+    "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
@@ -1910,12 +1911,48 @@ def patch_auto_enter_eternity_challenge():
                  "Lc21;->a(I)Lkajfosz/antimatterdimensions/eternity/studies/b;",
                  # [Oreki CA-3] 满级必须退关（unlocked 归零），否则 EC2..EC12 永远买不到
                  "Lkajfosz/antimatterdimensions/eternity/studies/b;->E(Z)V",
+                 # [Oreki EC-CT] R37-B 回归闸门：EC 自动开打必须传**真实** continuation。
+                 # R35/R36 传 null 导致 ContinuationImpl._context=null → start$1.getContext()
+                 # NPE → 被 .catch 吞掉 → 每帧「静默成功、状态零变化」= 100% 失效。
+                 "sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
+                 "Lkajfosz/antimatterdimensions/OrekiEcContinuation;",
+                 # C / IC 自动进入（与 Web 的 challenge.start(true) 等价）
+                 "invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->tryNormal()Z",
+                 "invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->tryInfinity()Z",
+                 "Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;->D(ZLkotlin/"
+                 "coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+                 "Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;->D(ZLkotlin/"
+                 "coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+                 # [Oreki CA-4] EC9~EC12 的普通时间研究前置：必须读 zw4.k 并用 c.D 补买
+                 "Lzw4;->k:[Ljava/lang/Integer;",
+                 "Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)Ljava/lang/Boolean;",
+                 "invoke-static {v7}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->"
+                 "fillEcRequirement(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z",
                  ".catch Ljava/lang/Exception;"):
         assert frag in nsrc, f"OrekiChallengeAuto 缺少关键调用：{frag}"
     # 红线：新类不得出现任何存档字段写入
     for banned in ("PlayerEternityChallenges;->h(I)V", "PlayerNormalChallenges;->n(I)V",
                    "PlayerInfinityChallenges;->i(I)V", "->F(I)V", "completions"):
         assert banned not in nsrc, f"OrekiChallengeAuto 触碰了存档字段（红线）：{banned}"
+    # EC 自动开打的 continuation 不得退回 null（R35 的原始 bug 形态）
+    assert ("const/4 v6, 0x0\n\n    invoke-virtual {v4, v5, v6}, "
+            "Lkajfosz/antimatterdimensions/challenge/eternity/b;->D") not in nsrc, (
+        "EC start 又传 null continuation 了：ContinuationImpl 会 NPE，自动开打必然 100% 失效")
+
+    # --- OrekiEcContinuation 自身结构断言（叶子 continuation，静态单例）---
+    ecct = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiEcContinuation.smali"
+    assert ecct.is_file(), "缺少 OrekiEcContinuation.smali（payload 未拷入？）"
+    csrc = ecct.read_text(encoding="utf-8")
+    assert ".super Lkotlin/coroutines/jvm/internal/ContinuationImpl;" in csrc, (
+        "OrekiEcContinuation 必须继承 ContinuationImpl（b.D 的形参类型）")
+    assert "Lkotlin/coroutines/jvm/internal/ContinuationImpl;-><init>(Lvh0;Lii0;)V" in csrc, (
+        "必须走两参构造：单参构造会调 getContext() 解引用 null")
+    assert "Lkotlin/coroutines/EmptyCoroutineContext;->a:" in csrc, (
+        "getContext 必须是非 null 的空上下文，否则 start$1.getContext() 仍会 NPE")
+    assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:" in csrc, (
+        "invokeSuspend 必须返回 CoroutineSingletons，避免沿 completion 链继续/死循环")
+    assert ".field public static final a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;" in csrc, (
+        "必须是静态单例（不允许每帧 new）")
 
     # --- 插钩子：必须紧贴在 OrekiInstantChallenge.tick() 之前 ---
     blob = target.read_bytes()
@@ -1952,6 +1989,199 @@ def patch_auto_enter_eternity_challenge():
     assert after.count(ca_marker) == 1, "补丁写入失败：tick() 不是 1 处"
     assert after.find(ca_line) < after.find(ic_line), "写入后顺序不对（CA 必须在 IC 之前）"
     note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）")
+
+
+# ============================================================================
+# [Oreki IU15] 第一无限维度购买抑制 —— R38-B 重写
+# ============================================================================
+# 状态：已实现、默认开启、**未在真机验证**。
+#
+# ---- R38-B 对 R37 的更正（重要，别再改回去）----
+# 1) R37 认定「IU15 = b->n(id=9)、阈值 3.0E12」是错的：
+#    b->n 是 **Web IU20**（成本 3.0E12、解锁虚构升级自动购买器），
+#    IU15（理想之构/解锁莱特拉）是 **b->k，BitSet id = 4，成本 1e9**。
+#    判据：`imaginary_upgrades/b.<clinit>` 的 15 条实例成本序列与 Web IU11..IU25 逐位一致
+#    ⇒ AndroidId = WebId - 11；b->k 另有两条佐证（InfinityDimensionState 的 tier==1 锁、
+#    celestials/laitela/a:1861）。
+# 2) 因此**没有**「Android 3.0e12 vs Web 1.5e12」的双端不一致：
+#    IU15 的需求阈值在 `vw1.smali :pswitch_16` 里就是 1.5E12，与 Web 相同；
+#    3.0E12 是 IU20 的成本，**绝对不能改**。R37 的「阈值对齐」已删除。
+#
+# ---- 注入点 ----
+# R37 注入 `autobuyer/InfinityDimensionsAutobuyerState;->c()Z`（整族总闸，ID1~ID8 一起停），
+# 会掐掉 ID2~ID8 的增长，反而不利于把反物质指数冲到 1.5e12。
+# 本轮改为注入**购买方法本体**，且只在 tier == 1 时生效：
+#   dimension/infinity/InfinityDimensionState;->h(Z)V  (buyMax)
+#   dimension/infinity/InfinityDimensionState;->i()V   (buySingle)
+# 未触发时一个字节的行为都不变；触发时直接 return-void，不写任何存档字段。
+# [R38 交付决定] 本版**启用**，但必须配合两条前提（缺一即软锁）：
+#   1) 8 层全拦：只拦 tier==1 时，ID2~ID8 经 DimensionState.e() 逐层生产仍会把
+#      ID1 顶上正（Agent B 用 javap 分支表 + smali 常量解析双重确认），maxID1 照样变正。
+#      Web 原版锁 `ImaginaryUpgrade(15).setMechanicLock(true)` 本来就是全 8 层语义。
+#   2) IM 前置闸：见 OrekiAuto.idBuyBlocked() 的 1.5 步（imaginaryMachines <= 0 直接放行）。
+#      全新存档 IM=0 ⇒ 永不抑制 ⇒ 不存在「开局就挡死」的闭环软锁。
+#   3) 失败回退保持 0x14（20 个现实）—— 这是逃生口，宁可早放行也不要卡死。
+# 验证状态：新档 40 秒推进到「无限升级」= 已实测；IM 解锁后的拦截/释放 = 未实测。
+ID_GUARD_ENABLED = True
+
+# R38-M：IU15 门槛双端缩放。
+#   Web `OREKI_IU15_AM_EXP = 1e8`（secret-formula/reality/imaginary-upgrades.js:48），
+#   原版 1.5E12 在「零 ID」前提下结构上不可达（实测天花板 1.216e8）。
+#   Android 侧同步改 3 处比较常量（都在 `work/base_decoded`，由外部替换）：
+#     c30.smali:1884（导航进度条）、lu.smali:7050（需求文案预计算）、vw1.smali:1175（需求谓词）
+#   ⚠ 这 3 处**不在本脚本里改**（改的是 base_decoded 源树），本脚本只做**回归断言**：
+#     一旦有人重新反编译把旧值带回来，构建立刻失败，而不是静默退回 4 个数量级的门槛。
+IU20_COST_3E12 = "0x4285d3ef79800000L"          # IU20 成本，必须原地保留（不能当门槛改）
+IU15_REQ_OLD_1P5E12 = "0x4275d3ef79800000"      # R38 之前的原版门槛，现在必须 0 命中
+IU15_REQ_NEW_1E8 = "0x4197d78400000000"         # R38-M 缩放后（大小写不敏感比较）
+IU15_MARKER = "[Oreki R38: 1.5E12 -> 1e8, 与 Web OREKI_IU15_AM_EXP 对齐]"
+IU15_THRESHOLD_SITES = (
+    "smali/c30.smali",
+    "smali/lu.smali",
+    "smali/vw1.smali",
+)
+
+
+def check_iu15_threshold():
+    """[R38-M] 把 IU15 门槛 1.5E12 **改写成** 1e8（3 处），并断言旧值已清零。
+
+    ── 为什么这里必须「自己改」而不是「只断言」────────────────────────────
+    `work/` 整个目录是 .gitignore 掉的（1.7G、11 万文件，由本脚本从原始 XAPK 重新生成）。
+    如果把 1e8 只手工写在 `work/base_decoded` 里，**下一次干净重建就会退回 1.5E12**，
+    而这处的断言会让构建直接失败——等于把「改过的机器」变成唯一能出包的机器。
+    所以补丁写进脚本：每次构建都幂等应用一遍，源码仓库里才是真正可复现的。
+
+    三处都是同一条 IU15 需求（前置语句均为 `BigDouble->pLog10()`）：
+      smali/c30.smali  invoke()Ljava/lang/Object;   需求判定 lambda
+      smali/lu.smali   <clinit>()V                  需求文案预计算
+      smali/vw1.smali  invoke()Ljava/lang/Object;   另一个需求判定 lambda
+    """
+    patched = 0
+    for rel in IU15_THRESHOLD_SITES:
+        p = MOD / rel
+        assert p.is_file(), f"缺少 {p}"
+        with open(p, "r", encoding="utf-8", newline="") as f:
+            txt = f.read()
+        if IU15_REQ_OLD_1P5E12.lower() in txt.lower():
+            # 大小写不敏感地替换（原版是大写 0x4275D3EF... 还是小写取决于反编译工具版本）
+            import re as _re
+            new_txt, n = _re.subn(_re.escape(IU15_REQ_OLD_1P5E12), IU15_REQ_NEW_1E8, txt,
+                                  flags=_re.IGNORECASE)
+            assert n >= 1, f"{rel} 替换失败"
+            with open(p, "w", encoding="utf-8", newline="") as f:
+                f.write(new_txt)
+            patched += 1
+            note(f"[Oreki IU15] {rel}: 门槛 1.5E12 -> 1e8（{n} 处）")
+
+    for rel in IU15_THRESHOLD_SITES:
+        p = MOD / rel
+        with open(p, "r", encoding="utf-8", newline="") as f:
+            txt = f.read()
+        low = txt.lower()
+        assert IU15_REQ_OLD_1P5E12.lower() not in low, (
+            f"{rel} 里仍有 1.5E12（{IU15_REQ_OLD_1P5E12}）：R38-M 的双端缩放已丢失")
+        assert low.count(IU15_REQ_NEW_1E8) >= 1, (
+            f"{rel} 里没有 1e8（{IU15_REQ_NEW_1E8}）：IU15 门槛没改到这一处")
+    note(f"[Oreki IU15] 阈值校验通过：3 处均为 1e8，旧值 1.5E12 已清零（本次改写 {patched} 个文件）")
+    note("[Oreki IU15] 门槛回归断言通过：c30/lu/vw1 三处均为 1e8，且无 1.5E12 残留")
+
+# 注入片段（两个方法各一份，标签必须互不相同：同一文件内标签不能重名）
+ID_GUARD_TMPL = (
+    "    # [Oreki IU15] 守卫生效时拦下全部 8 层 ID 购买（= Web 原版锁的语义）\n"
+    "    # R38 教训：只拦 tier==1 不够，ID2~ID8 会经 DimensionState.e() 逐层喂回 ID1\n"
+    "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->idBuyBlocked()Z\n"
+    "    move-result v0\n"
+    "    if-eqz v0, :{label}\n"
+    "\n"
+    "    return-void\n"
+    "\n"
+    "    :{label}\n"
+)
+
+
+def patch_id_autobuyer_guard():
+    """[Oreki IU15] 只抑制「第 1 无限维度」的购买，直到 IU15 被拿到（或失败回退）。
+
+    为什么必须在「IU15 未拿到」时全程拦，而不是「IU15 可买」时拦：
+      IU15 的 checkRequirement 含 maxID1.eq(0)；等它「可买」时 ID1 早买过了，
+      循环依赖 ⇒ 永远不触发。
+
+    为什么只拦 tier 1：
+      maxID1 只受第 1 维影响。ID2~ID8 该买就买，才能把反物质指数推到 1e8（R38-M 缩档后的门槛）。
+    """
+    mod_id_state = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "dimension"
+                    / "infinity" / "InfinityDimensionState.smali")
+    mod_iu = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "reality"
+              / "imaginary_upgrades" / "b.smali")
+    mod_auto = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiAuto.smali"
+
+    # ---- 锚点校验（无论开关都做，防止原版更新后静默漂移）----
+    assert mod_id_state.is_file(), f"缺少 {mod_id_state}（payload/反编译目录不完整？）"
+    assert mod_iu.is_file(), f"缺少 {mod_iu}"
+    assert mod_auto.is_file(), f"缺少 {mod_auto}（payload 未拷入？）"
+
+    src = mod_id_state.read_text(encoding="utf-8")
+    h_sig = ".method public final h(Z)V"
+    i_sig = ".method public final i()V"
+    assert src.count(h_sig) == 1, "InfinityDimensionState.h(Z)V 不唯一，IU15 守卫锚点失效"
+    assert src.count(i_sig) == 1, "InfinityDimensionState.i()V 不唯一，IU15 守卫锚点失效"
+    # 两个方法都必须确实是「买 ID」的那两个（锁检查在同一文件里只有这两处）
+    assert src.count("Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->k:Lbx1;") == 2, (
+        "InfinityDimensionState 里对 IU15(b->k) 的锁检查不是 2 处，锚点已漂移")
+
+    iu = mod_iu.read_text(encoding="utf-8")
+    assert iu.count(IU20_COST_3E12) == 1, (
+        f"IU20 成本常量 {IU20_COST_3E12} 不唯一或已消失（原版可能改动过）")
+    # R38-M：IU15 门槛已缩放到 1e8，旧值必须彻底消失（否则三套阈值会打架）
+    check_iu15_threshold()
+
+    auto_src = mod_auto.read_text(encoding="utf-8")
+    for sig in (".method public static idGuardAllowed()Z",
+                ".method public static idBuyBlocked()Z",
+                ".method public static bumpIdGuardFails()V",
+                ".method private static noteReality()V",
+                ".field private static idGuardFails:I",
+                ".field private static idGuardLastRealities:D",
+                # IU15 的两个位图口径：k()=已购买 / j()=需求已满足
+                "Player$Reality;->k()Lkajfosz/antimatterdimensions/BitSet;",
+                "Player$Reality;->j()Lkajfosz/antimatterdimensions/BitSet;",
+                # 旧写法 e(9) 是 IU20，必须不存在
+                "const/16 v1, 0x9"):
+        if sig.startswith("const/16 v1, 0x9"):
+            assert sig not in auto_src, (
+                "OrekiAuto 仍用 e(9)（= Web IU20 的位）：IU15 的 BitSet id 是 4")
+            continue
+        assert sig in auto_src, f"OrekiAuto 缺少 IU15 守卫所需的 {sig}"
+    assert auto_src.count("const/4 v1, 0x4") == 2, (
+        "OrekiAuto 应恰好有 2 处 const/4 v1, 0x4（k() 已购买 + j() 需求位），实际不同")
+
+    if not ID_GUARD_ENABLED:
+        note("[Oreki IU15] 锚点已校验，ID_GUARD_ENABLED=False，跳过写入")
+        return
+
+    # ---- 注入：两个购买方法体开头各插一段，标签互不复用 ----
+    for sig, label in ((h_sig, "oreki_iu15_pass_buymax"),
+                       (i_sig, "oreki_iu15_pass_single")):
+        pos = src.find(sig)
+        assert pos >= 0, f"找不到 {sig}"
+        # 从方法头往后找第一处 .locals，插在它后面
+        loc = src.find(".locals", pos)
+        assert loc >= 0, f"{sig} 后没有 .locals"
+        eol = src.find("\n", loc)
+        assert eol > 0, f"{sig} 的 .locals 行没有换行"
+        nl = "\r\n" if "\r\n" in src[:eol + 1] else "\n"
+        inject = (nl + ID_GUARD_TMPL.replace("{label}", label).replace("\n", nl)).encode("utf-8")
+        src = src[:eol + 1] + inject.decode("utf-8") + src[eol + 1:]
+
+    mod_id_state.write_text(src, encoding="utf-8")
+
+    after = mod_id_state.read_text(encoding="utf-8")
+    assert after.count("OrekiAuto;->idBuyBlocked()Z") == 2, "守卫注入后不是 2 处"
+    assert after.count(":oreki_iu15_pass_buymax") == 2, "buyMax 标签出现次数异常（应为 1 处跳转 + 1 处定义）"
+    assert after.count(":oreki_iu15_pass_single") == 2, "buySingle 标签出现次数异常（应为 1 处跳转 + 1 处定义）"
+
+    note("[Oreki IU15] 已注入 tier==1 的 ID1 购买守卫（h(Z)V + i()V）；"
+         "不再改任何原版数值")
 
 
 def patch_instant_challenge_rewards():
@@ -3006,6 +3236,12 @@ def main():
     # 必须在 patch_instant_challenge() 之后：本补丁以 IC 的 tick 行为顺序锚点，
     # 并把 OrekiChallengeAuto.tick() 插到它**前面**（先进入、同帧结算）。
     patch_auto_enter_eternity_challenge()
+    # [R38-B] IU15/ID1 冲突：只抑制「第 1 无限维度」的购买，直到 IU15 被拿到。
+    # **本轮开启**（ID_GUARD_ENABLED=True）。R37 的两处错误已更正：
+    #   · 目标 IU 是 b->k / BitSet id=4（不是 b->n/id=9，那是 Web IU20）；
+    #   · 没有任何「3.0E12 -> 1.5E12」的原版数值改动（IU15 门槛本来就是 1.5E12）。
+    # ⚠ 尚未在真机跑到莱特拉阶段验证；守卫自带 20 个现实的失败回退。
+    patch_id_autobuyer_guard()
     # [R33 Agent C] 挑战进入即完成必须「真结算」：补发 IP / 无限次数 / EP，
     # 并按原版口径更新最速无限记录；缺这一步 Android 会比 Web 少一整份资源。
     patch_instant_challenge_rewards()

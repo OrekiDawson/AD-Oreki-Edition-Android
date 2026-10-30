@@ -75,65 +75,80 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    const-string v2, "Oreki 教程（Android 版）"
+    const-string v2, "Oreki 新手教程（Android 版）"
 
     invoke-direct {p0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addTitle(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    const-string v2, "本页只描述本版本已经写进代码的行为；凡是尚未验证或尚未实现的，都在文中明确标了「未验证 / 未实现」。遇到与本文不符的现象，以游戏内实际表现和构建日志为准。"
+    const-string v2, "本页只描述这个版本已经写进代码的行为；凡是尚未验证或未实现的，都单独列在最后一节。与游戏内实际表现不符时，以实际表现和构建日志为准。"
 
     invoke-direct {p0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addActions(Landroid/widget/LinearLayout;)V
 
-    const-string v2, "一、这个版本改了什么"
+    # [R37] 按当前存档高亮「你现在该做什么」：只读判定，读不到就退回通用文案
+    invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHint(Landroid/widget/LinearLayout;)V
 
-    const-string v3, "AD: Oreki Edition 基于原版《反物质维度》3.19.0 的 Android 原生版重新打包：移除 Google 登录 / 广告 / 崩溃上报相关组件，默认语言改为简体中文，新增「游戏速度倍率」与 Oreki 设置界面，并修正了自动化、时间记录与部分门槛。存档格式与原版一致，可以与原版互相导入导出。"
+    const-string v2, "① 第一步：买下第一个反物质维度"
 
-    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
-
-    const-string v2, "二、游戏速度（核心）"
-
-    const-string v3, "默认 10000 倍，进游戏就能跑。在「Oreki 设置」里可以改成 0.000001 ~ 1000000000 之间的任意值，保存后立即生效，不需要重启。上层说明里常写的「上限 100000」只是推荐区间，不是硬限制，真正的手动上限是 1000000000。\n\n倍率乘在每个 tick 的「游戏时间增量」上，所以维度产量、时间机制、自动购买器会一起加速；现实时间字段（本次无限现实用时、累计现实游玩时间）不受影响。\n\n【动态速度】设置页顶部有「动态（自动升档）」和「手动（固定）」两个按钮：\n· 动态（默认）：通过读存档实体（反物质、无限次数、IP、无限力量、永恒、现实、本纪最高反物质、维度提升、星系、Break 状态）判断你是否真的在推进。连续 4 秒这些数值全都不变，就判定为停滞，把倍率翻倍；两次升档至少间隔 5 秒；上限 100000 倍，到了就不再升。\n· 手动：绝不自动升档。已经涨上去的倍率会保留，不会被拉回去。\n· 只会升不会降 —— 这是刻意的：停滞通常意味着数值已经饱和、继续加档仍有收益；反过来降档会打断正在进行的挂机。觉得太高就手动设一个更小的值。\n· 切换后状态文案立刻刷新；倍率与模式都会写进 oreki_prefs（speed_multiplier / speed_dynamic），重启游戏后保持。\n· 已知偏差：离线结算也会走同一条采样路径，如果存档已经完全饱和，理论上可能在离线分片中途升一次档。未在 Android 实测。"
+    const-string v3, "打开底栏的「维度」页，你会看到 8 个反物质维度。第一个维度的价格是 10 反物质，点它的价格按钮即可买下；买下之后它会自己产出反物质，产量再拿来买下一个维度。\n\n开局不需要懂任何复杂机制：只要不停买当前买得起的最便宜的维度，数字就会指数上涨。本版本默认带全局速度倍率，等待时间比原版短得多。"
 
     invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    const-string v2, "三、时间记录怎么算"
+    const-string v2, "② 维度与重置：维度提升 / 反物质星系 / 大坍缩"
 
-    const-string v3, "为了让记录不被倍率污染，下列字段在写入时会除以当前倍率（还原成等效的原版游戏时间）：最佳无限时间、最近 10 次无限用时、最近 10 次永恒用时、最近 10 次现实用时。\n\n但「本次无限 / 永恒 / 现实用时」和「累计游戏时长」这类游戏时间字段仍然是被放大后的值 —— 这是加速的正常结果，不代表你变慢了。以它们为判据的少数成就 / 挑战是否受影响，尚未逐项验证。"
-
-    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
-
-    const-string v2, "四、自动化（自动购买器）"
-
-    const-string v3, "1）首次无限后解锁：8 个反物质维度购买器、速度升级、维度提升、反物质星系、大坍缩。原版这些分别要求「已购买」或完成普通挑战 10/11/12，而挑战本身要先有无限，等于长期没有自动化。本版只放宽「能否运行」，不伪造已购买、不绕过成本。\n\n2）节奏跟随倍率：原版按现实时间间隔触发，高倍率下购买频率会严重掉队；本版改为「已流逝现实时间 × 倍率」与间隔比较，等价于有效间隔 ÷ 倍率。\n\n3）批量退化：维度购买器默认一次买 10 个，重置后买不起整批就会整批放弃；本版在买不起整批时退化为买 1 个，买得起整批时行为不变。\n\n4）大坍缩自动器：首次无限后会一次性打开开关；你之后手动关掉，不会被重新打开。\n\n总开关仍然是「自动化」页里原有的那个，关闭后所有自动购买器停止。总开关对离线模拟的影响未逐项验证。"
+    const-string v3, "· 维度提升：满足需求就能点，把全部反物质维度的产量乘一个倍率（默认每层 ×2，可被升级与研究加强）。需求随次数上涨。\n\n· 反物质星系：第 8 个维度达到需求数量后可买，整体倍率提升，是前期最大的跳跃。\n\n· 大坍缩（第一次无限）：反物质顶到 1.8e308（界面显示成「无限」）会被强制坍缩，重置反物质 / 维度 / 维度提升 / 星系，并给你无限点数（IP）。这是第一个「重置层」——重置不是失败，是换一种货币继续变强。\n\n买下第一个维度是开局唯一必须手动完成的操作；之后每次重置都会比以前更快回到原位。"
 
     invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    const-string v2, "五、阶段路径：首次无限 → 破无限 → 无限维度 → 首次永恒"
+    const-string v2, "③ 无限：无限点数 / 打破无限 / 无限维度 / 复制器"
 
-    const-string v3, "① 首次无限：把反物质堆到 1.8e308 后点「大坍缩」。开局唯一必须手动的是买下第一个反物质维度（点「价格：10」），之后产量会爆发式增长。\n\n② 破无限（Break Infinity）：首次无限后进入「无限」页，用无限点数（IP）买 Breaking Infinity，反物质就能突破 1.8e308，并开始稳定获得 IP。\n\n③ 无限维度（Infinity Dimensions）：破无限后用 IP 买 ID1~ID8。先用 ID1 建立 IP 产出，再往 ID2 / ID3 推进。\n\n④ 首次永恒（Eternity）：IP 达到 1.8e308 量级后点「永恒」。第一次永恒的主要瓶颈是时间维度（TD）—— 先把 8 个时间维度补满再堆 IP，不要一上来就反复重置。\n\n卡点提示：破无限后 IP 增长很慢，优先补「无限维度」与 IP 倍率类升级；TD 阶段缺的是购买顺序，不是等待时间（10000 倍下等待本身很短）。具体数值以游戏内提示为准，本页只给流程顺序。"
-
-    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
-
-    const-string v2, "六、其他修正"
-
-    const-string v3, "· 默认简体中文，可在「选项 → 界面」改回其他语言。\n· 广告加成永久生效（反物质 / IP / EP / DT / RM / 暗能量 / 记忆 / 稀有度 / 遗物碎片 / 游戏速度 十个乘区），不需要再看广告。\n· 商店金币读取下限 10000，新游戏 / 导入 / 重置 / 商店刷新都适用。\n· 永恒挑战 12 的限时判定改为与倍率无关，避免高倍速下「游戏时间被放大」而直接判负。\n· 挑战（普通 / 无限 / 永恒）进入后的下一帧即按正常结算完成，不再要求真的打完；不会额外发放 IP / EP / 次数。\n· 阶段辅助：设置页的三张卡片用于精准补成就（第 1–13 行 / 成就 147 / 第 1–17 行），是写入成就的唯一入口。"
+    const-string v3, "第一次无限之后：\n\n· 无限升级：在「无限」页用 IP 买，多数是永久加成，优先买提高 IP 收入的。\n\n· 打破无限：用 IP 买下后，反物质可以超过 1.8e308，坍缩时按超出量给更多 IP。\n\n· 无限维度（ID1~ID8）：用 IP 买。ID1 负责产出 IP，后面的维度给前面的维度加成。\n\n· 复制器：解锁后自动增长，可以换反物质星系；相关升级能让它反过来提高无限收益。\n\n· 自动化：本版本在第一次无限之后就会解锁「自动化」页里的自动购买器（原版要等普通挑战 10~12），总开关是自动化页原有的那个。打开后维度购买、维度提升、星系、大坍缩都可以交给它，你只负责决策。"
 
     invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    const-string v2, "七、注意事项与常见问题"
+    const-string v2, "④ 永恒：时间维度 / 时间定理 / 时间研究 / 膨胀"
 
-    const-string v3, "· 倍率越高越吃 CPU：发热、掉帧、点击有延迟都正常。觉得卡就先降到 10000 或更低。\n· 高倍率下部分机制的叠加顺序尚未验证：离线结算是否吃倍率、Enslaved 8 小时钳制、时间储存的释放帧、Laitela 时效、黑洞与符文组合。遇到数值异常，先记下当时倍率。\n· Pelle（毁灭现实）下仍使用全额倍率，未在 Android 实测。\n· 换回原版或换存档前，先导出存档备份。\n· 找不到设置入口：桌面长按图标 →「Oreki 设置」，或在本页顶部点「打开 Oreki 设置」。\n· 本教程入口位置：选项页最上方；信息（关于）/ 玩法说明页最上方（若这些标签已启用）。"
-
-    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
-
-    const-string v2, "八、未实现 / 未验证（如实标注）"
-
-    const-string v3, "· 动态倍率在高倍率下的长时间挂机稳定性（内存、卡顿累积）—— 未验证。\n· 离线结算是否应用倍率、离线分片中途会不会被动态升档 —— 未验证。\n· Web 与 Android 在 Doomed、EC12 叠加等场景下是否完全一致 —— 未验证。\n\n请不要把本节列出的内容当成已经可用的功能；它们只是待办与已知缺口。"
+    const-string v3, "无限点数顶到 1.8e308（界面显示「无限」）就能点「永恒」，拿到永久点数（EP）。\n\n· 时间维度（TD1~TD8）：在「永恒」页用 EP 购买，产出时间碎片，是这一阶段的主要产能。\n\n· 时间研究：用时间定理（TT）购买，研究树分成永恒、膨胀等分支，效果互相组合。\n\n· 膨胀（Dilation）：点出「时间膨胀」研究后解锁。它不是加速时钟，而是把维度倍率的指数开 0.75 次方（削弱产量），换取时间碎片与膨胀专属内容——用强度换新资源。\n\n· 永恒里程碑：达成条件后永久保留某些自动购买器，减少重复操作。\n\n这一阶段的常见卡点不是等待，而是购买顺序：先把 8 个时间维度补满，再堆 EP 与 IP 倍率。"
 
     invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
 
-    const-string v2, "（本页内容随 MOD 版本变化，若某项功能被移除或未生效，以实际构建与实机表现为准。）"
+    const-string v2, "⑤ 现实：符文 / 现实机器 / 现实升级 / 黑洞"
+
+    const-string v3, "EP 达到需求后点「现实」，进入第三个重置层，并获得现实机器（RM）。\n\n· 符文：每次现实会给若干符文供你选择，装到槽位里效果立刻生效；不同种类分别强化时间、膨胀、复制、无限、力量、现实等系统，等级越高越强。\n\n· 现实升级：用 RM 购买，很多是「让某个系统重新可用 / 提高上限」的质变型升级。\n\n· 机器与黑洞：现实页里可以继续解锁黑洞与自动化相关内容，进一步压缩重复劳动。\n\n符文是配置而不是纯数值：卡住时先想想要不要换一套符文。"
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v2, "⑥ 挑战：普通 → 无限 → 永恒"
+
+    const-string v3, "「挑战」页分三档，完成条件都是重新达到无限，但会施加不同限制：\n\n· 普通挑战：首次无限后解锁，限制维度 / 星系 / 价格等，奖励是永久的小幅加成。\n\n· 无限挑战：目标高于无限上限，必须打破无限才能完成，奖励通常是强力的机制型加成。\n\n· 永恒挑战：限制最狠（禁研究、禁维度等），奖励直接改变玩法。\n\n建议：能稳定无限之后先把普通挑战清一遍，再推进无限挑战。挑战进行中随时可以退出，退出即放弃本次进度。\n\n本版本对挑战做了一处改动：进入挑战后的下一帧即按正常结算完成，不再要求真的打完；不会额外发放 IP / EP / 次数。"
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v2, "⑦ 后期：薇 / 太阳神 / 莱特拉 / 佩勒"
+
+    const-string v3, "「天神」页是后期主战场，按顺序解锁，每一位都是一种独立玩法：\n\n· 薇（V）：用空间目标推进的成就式挑战。\n\n· 太阳神（Ra）：宠物与记忆系统，长期养成的产能。\n\n· 莱特拉：暗物质维度与熵，另一套独立的维度体系。\n\n· 佩勒：最终层「毁灭现实」，会拿走你大部分能力，要求你从零重建。进入佩勒前请先导出存档备份——这是不可逆的终局状态。\n\n天神之间不是纯线性：前置条件满足就会解锁下一位，卡住时回天神页看哪一位的按钮亮着。"
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v2, "⑧ 这个版本的加速与自动化"
+
+    const-string v3, "· 全局速度倍率：默认 10000 倍，进游戏就能跑；在「Oreki 设置」里可以改成 0.000001 ~ 1000000000 之间的任意值，保存后立即生效。倍率乘在每个 tick 的游戏时间增量上，维度产量、时间机制、自动购买器会一起加速；现实时间字段（本次无限 / 永恒 / 现实用时、累计现实游玩时间）不受影响。\n\n· 动态速度：设置页顶部可选「动态（自动升档）」或「手动（固定）」。动态模式在连续 4 秒内推进量全部不变时把倍率翻倍，两次升档至少间隔 5 秒，上限 100000 倍，只升不降。\n\n· 时间记录：最佳无限时间、最近 10 次无限 / 永恒 / 现实用时在写入时除以当前倍率（还原成等效原版游戏时间）；「本次用时」这类游戏时间字段仍然是被放大后的值。\n\n· 自动购买器：第一次无限后解锁，节奏跟随倍率；维度购买器买不起整批时退化为买 1 个；大坍缩自动器首次无限后一次性打开，你手动关掉后不会被重新打开。\n\n· 广告加成本版本永久生效，不需要看广告。"
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v2, "⑨ 注意事项与常见问题"
+
+    const-string v3, "· 倍率越高越吃 CPU：发热、掉帧、点击延迟都正常，觉得卡就先降到 10000 或更低。\n\n· 换回原版或换存档前，先导出存档备份。\n\n· 找不到设置入口：桌面长按图标 →「Oreki 设置」，或在本页顶部点「打开 Oreki 设置」。\n\n· 本教程入口：选项页最上方；信息 / 玩法说明页最上方（若这些标签已启用）。任何时候都可以重新打开，不需要联网。\n\n· 底栏页签会随进度逐个出现（维度、自动化、挑战、无限、永恒、现实、天神、成就、统计数据、选项、商店、信息）；某个页签没出现，通常代表还没解锁对应阶段。"
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v2, "⑩ 未实现 / 未验证（如实标注）"
+
+    const-string v3, "· 动态倍率在高倍率下的长时间挂机稳定性（内存、卡顿累积）—— 未在真机长期验证。\n\n· 离线结算是否应用倍率、离线分片中途会不会被动态升档 —— 未验证。\n\n· Pelle（毁灭现实）下仍使用全额倍率 —— 未在 Android 实测。\n\n· Web 与 Android 在 Doomed、EC12 叠加等场景下是否完全一致 —— 未验证。\n\n请不要把本节列出的内容当成已经可用的功能。"
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)V
+
+    const-string v2, "（本页内容随 MOD 版本变化；若某项功能被移除或未生效，以实际构建与实机表现为准。）"
 
     invoke-direct {p0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
@@ -378,6 +393,74 @@
 
     invoke-static {p1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
 
+    return-void
+.end method
+
+
+# [R37] 高亮块：背景 0xFF10304A（深蓝），白色 15sp 粗体正文，
+# 文本来自 TutorialProgress.hint()（只读存档，读不到就返回开局文案）。
+# 视觉上与正文区（#1B1A1E 背景）区分开，玩家一眼能看到「下一步」。
+.method private final addHint(Landroid/widget/LinearLayout;)V
+    .locals 5
+
+    if-eqz p1, :done
+
+    new-instance v0, Landroid/widget/LinearLayout;
+
+    invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    # 0xFF10304A
+    const v1, -15716278
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
+
+    const/16 v1, 0xc
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    invoke-virtual {v0, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    new-instance v2, Landroid/widget/TextView;
+
+    invoke-direct {v2, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;->hint()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v3, 0x2
+
+    const/high16 v4, 0x41700000    # 15.0f
+
+    invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    const/4 v3, -0x1
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTextColor(I)V
+
+    sget-object v3, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    const/high16 v3, 0x40a00000    # 5.0f
+
+    const/high16 v4, 0x3f800000    # 1.0f
+
+    invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setLineSpacing(FF)V
+
+    invoke-virtual {v0, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    invoke-static {p1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+
+    :done
     return-void
 .end method
 

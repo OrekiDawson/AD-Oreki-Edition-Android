@@ -70,3 +70,12 @@ desktop.ini
 *.tmp
 *.orig
 *.rej
+
+# ---------- 9. 反编译碎片 / 临时取证物（可由 REA 或 build_mod.py 重新生成）----------
+# *.raw 是 jadx / baksmali 的中间导出；analysis/ 是逐轮分析的临时目录；
+# build/_*.png 是装机验证的临时截图（正式验收截图放 docs/ 或 handoff/）。
+*.raw
+/analysis/
+/_r*/
+# build/ 下以 _ 开头的都是逐轮临时物（build.log 仍入库）
+build/_*

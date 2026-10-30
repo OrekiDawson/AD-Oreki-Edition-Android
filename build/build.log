@@ -57,17 +57,24 @@
       ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
 [4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
 [4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)
-[4] MainActivity.smali: 默认语言 en -> zh_CN
+[4] MainActivity.smali: 生效语言默认值 en -> zh_CN
+[4] MainActivity.smali: 设置页语言默认值 en -> zh_CN（修 界面中文/设置English 分叉）
+[4] jw0.smali: 当前语言静态初值 en -> zh_CN
 [4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
-[4] 拷入 10 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[4] 拷入 18 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
 [4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）
 [4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）
 [4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）
 [4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）
-[4b] payload 齐全: 8 个类
-[4b] 混淆类引用自检通过: 18 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）
+[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）
+[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → 30（EP 指数同量换 250 倍碎片）
+[4b] payload 齐全: 15 个类
+[4b] 混淆类引用自检通过: 29 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）
 [4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
 [4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）
+[4b] 开局自动化闩锁自检通过（sEarlyApplied 字段 + 置位/重置 2 处写入）
+[4b] 鹿颈长 nerfFactor 收敛自检通过（max(1.0,pLog10) + c/1e6，验收签名 0.99888/0.99955）
+[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）
 [4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）
 [4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
 [4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
@@ -83,6 +90,7 @@
 [4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）
 [4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）
 [4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[T2] 动态速度开关自检通过（设置页 2 个按钮 -> setDynamic / modeLabel）
 [5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）
 [5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
 [5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
@@ -96,9 +104,33 @@
 [Oreki AU3] 维度提升自动购买器：首次无限后解锁（追加 hasInfinity）
 [Oreki AU3] 反物质星系自动购买器：首次无限后解锁（追加 hasInfinity）
 [Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）
+[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()
+[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入
+[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）
+[T1] 教程类已进入 mod 树（3 个）
+[T1] Manifest 注册 kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity（exported=false, Theme.DeviceDefault.Light）
+[T1] App.onCreate 挂载 TutorialEntry.install(Context)
+[T1] 静态断言通过（manifest 唯一注册 / install 唯一调用 / 入口幂等 / Activity 存在）
+[T1b] 教程渲染断言通过（addFull 会真的 addView / start 会真的 startActivity）
 [Oreki AB2] 维度批量购买：不可负担时退化为买 1 个
 [Oreki EC12] EC12 限时判定已改为按倍率还原（与 Web inGameSecondsOf 同源）
 [Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()
+[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）
+[Oreki IU15] 门槛回归断言通过：c30/lu/vw1 三处均为 1e8，且无 1.5E12 残留
+[Oreki IU15] 已注入 tier==1 的 ID1 购买守卫（h(Z)V + i()V）；不再改任何原版数值
+[Oreki RIS] 挑战结算补发已校验（幂等跳过重复写入）
+[Oreki V] V.mainUnlock 门槛：realities 10000->200 / dilatedTime 1e320->1e30 / replicanti 1e320000->1e20000
+[Oreki V] V.mainUnlock 进度分母：realities /10000->/200、dilatedTime /320->/30、replicanti /320000->/20000
+[DARK] styles         ok(DayNight -> AppCompat 深色 + windowLightNavigationBar=false)
+[DARK] bools          ok(window_light_status_bar -> false)
+[DARK] appearance     ok(a(),b(),c())
+[DARK] loader         ok(4 处加载点夹成 DARK)
+[DARK] writer         ok(设置页选浅色不生效，也不会写入浅色偏好)
+[DARK] notation       ok(Options默认,o43.v,o43串,g.b)
+[DARK] topbar         ok(加载点,静态默认,标题不清空)
+[DARK] zh             ok(补 3 条中文)
 [5] apktool b ...
       I: Using Apktool 3.0.3 on kajfosz.antimatterdimensions.apk with 8 threads
       I: smali_classes3 has not changed.
@@ -132,4 +164,4 @@
       Signer #1 public key SHA-256 digest: 3e1872584158600bab528736b10069cb543631bc5ccd4babf7ec3fa2ff1c1ab7
       Signer #1 public key SHA-1 digest: eb0bb871fd8e00c9c33b68299083ff016a346a33
       Signer #1 public key MD5 digest: 2eb7e7c6dea1897a964ae8472777cead
-[5] 最终 APK: C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\build\gradle-stage\反物质维度.apk  (66.5 MiB)
+[5] 最终 APK: C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\release\反物质维度.apk  (66.5 MiB)
