@@ -1365,6 +1365,30 @@ L3 原理：原版 `achievements/a;->D(Z)V`（`:650-716`）本身就是「求条
 
 ⇒ 规则：**任何 Android 通关验收，L3 必须跑，且结果必须为 0 处不一致。** 只跑 L1/L2 不算过。
 
+> **更正记录：这条「必须 0 处不一致」是不可达到的判据，实测已被证伪。**
+>
+> AVD 全新档（`pm clear`，**一次「强制点亮」都没用过**、`stage_assist_used = 0`）：
+> L3 报 **17 处不一致**，`used=0`，**零次 FORCE 记录**。
+>
+> 原因：**成就条件是「一度满足」的历史事件，谓词不幂等。**
+> 例：成就 55「1 分钟内完成一次无限」——解锁当时成立，之后永远为假。
+> `A()==true && k()==false` 因此在**干净档上也必然大量出现**，
+> 它证明不了「被强制置位」，只能证明「条件是过去式的」。
+>
+> ⇒ 正确的 L3 必须拆成**两级**，判死级与观察级分离：
+>
+> | 级 | 判据 | 性质 |
+> |---|---|---|
+> | **闸门级（判死）** | 在 `achievements/a;->E(ZZ)V`（强制解锁入口，`E` 不查条件）插 `OREKI_FORCE: id=<n>` 日志；**FORCE 集合必须为空，除非 `stage_assist_used=1`** | 可判死，不依赖谓词幂等 |
+> | **观察级（不判死）** | `A()==true && k()==false` 的集合与数量，只报告不置否定 | 含历史漂移，不能当缺陷 |
+>
+> 另：位图范围是 **144**（`z3.c` 18×8），不是 104。原口径少扫 40 位。
+>
+> ⇒ 方法学：**「比对两个状态」的断言，必须先证明两个状态测的是同一时刻的同一件事。**
+> 拿「当前条件」去对「历史结果」，是跨时间比较，必然假阳。
+> 这类断言的特征是：**在干净的样本上就会失败** —— 所以判据写完后，
+> 第一步应该拿「已知无缺陷」的样本跑一遍，跑不过就是判据错了，不是产品错了。
+
 ### 六、由此产生的排期变更（结论未变，但理由换了）
 
 佩勒破无限循环**暂缓**，Android 先做前中期**能力逐项核对**（不是「补」——补什么还没确定）。
@@ -1715,13 +1739,43 @@ grep 不到就不是这个项目的事实，无论它在我脑子里多「显然
 前者是内部观察，后者必须两侧对照（本作文件 vs 原版文件 diff 过）才能下结论。
 写差异表时，每一条都要能回答「原版那一侧我看了哪个文件的哪一行」。
 
-### 四、L3 有界调用落地（核验通过）
+### 四、L3 有界调用落地（**「有界」没做到声称的程度**）
 
-`OrekiAchAudit.smali:51` `const/16 v1, 0x258`（600 帧 ≈10 s）一次完整审计；
-`OrekiSpeed.smali:201` 每帧只剩一个 `invoke-static OrekiAchAudit;->tick()V`。
-改前是每帧 104 次 `A()` + `k.invoke()`（`invoke-interface`）。
+`OrekiAchAudit.smali:51` `const/16 v1, 0x258`（每 600 次 `tick()`）一次完整审计；
+`OrekiSpeed.smali:201` 每个 `apply(D)` 只剩一个 `invoke-static OrekiAchAudit;->tick()V`。
 
-**帧耗时为静态估算（< 0.1 µs/帧），不是设备实测**——AVD 实测值待补，补上之前不许写成实测。
+**但「600 次 = 600 帧 = 约 10 秒」这个换算是错的。**
+
+AVD 实测 5975 个 GATE 间隔：中位 **31 ms**、p90 51 ms、p99 115 ms。
+GATE 每 600 次 `tick()` 打一行 ⇒ 审计实际约 **32 Hz 在跑**，不是 0.1 Hz。
+即 `OrekiSpeed.apply(D)` 被调用的是**每秒约 1.9 万次**（600 / 0.031 s），不是「每帧一次」。
+
+> 算术自查：`600 / 0.031 = 19,355`，约 1.9 万/秒。
+> 报告里写「约 3.2 万次/秒」与这个中位数**对不上**（3.2 万需要约 18.75 ms 的间隔）。
+> 二者必有一错，须按原始 5975 个间隔重算，不许拿中位数和某个未说明的口径各说一套。
+
+⇒ 结论：
+- 开销量级仍可忽略（32 Hz × 104 谓词 ≈ 3,300 次接口调用/秒），
+  但**「按次数节流」等于「按调用频率节流」，而调用频率不是帧率** —— 这是设计错，不是数字偏差。
+- 正确做法：**按时间节流**（例如 `SystemClock.uptimeMillis()` 每 5000 ms 一次），
+  而不是按 `apply` 调用次数。次数节流在「apply 被高频调用」的实现下会自动退化成高频审计。
+- 帧耗时的静态估算（< 0.1 µs/帧）**从未被设备实测证实**，且「每帧」这个前提本身已被推翻。
+
+### 四·补 gfxinfo 在这台机器上对 SurfaceView 无效
+
+- 「审计关」组：`Total frames rendered: 1146 / Janky 56.89% / p50 17ms / p90 36ms / p99 109ms`
+- 「审计开」组：**`Total frames rendered: 0`**，p50/p90/p99 全是 4950 ms（空直方图默认值）
+
+环境已排除（`mWakefulness=Awake`、`mScreenState=ON`、`mCurrentFocus=…MainActivity`、
+进程存活、GATE 每 31 ms 仍在打）。主界面 Surface 在 SurfaceFlinger 里是
+`…MainActivity#1126/#1127` ⇒ 游戏画在 **SurfaceView** 上，**HWUI 的帧统计里没有它**。
+
+⇒ 那 1146 帧很可能根本不是游戏主界面（大概是首启更新日志弹窗在动），
+**这一组作废，不算交付**。
+
+⇒ 规则：**用测量工具前先证明它测的是被测对象。**
+`Total frames rendered > 0` 不构成「测到了游戏」的证据，
+必须能对上 SurfaceFlinger 里的那个 surface。
 
 ### 五、验收器必须能报红
 
@@ -1857,6 +1911,33 @@ AU4 分支在 `:865-:882`；引用者用的是 `:782-844`，**在 :844 截断**�
 
 按完整方法推演：全新档 `K()=false` → `hasInfinity()=false` → `orekiEarly()=true`
 ⇒ `g()` 返回 **true**。
+
+> **更正记录（第二层错）：上面这句也是错的，而且错在跳转极性上。**
+>
+> 注入段的真实指令（`work/mod`，方法内相对行号）：
+> ```
+> 63: if-nez p0, :oreki_au4_inf      # p0 = K()，非零才跳
+> 64: return p0                      # K() 为假 → 直接返回 false，AU4 分支走不到
+> 65: :oreki_au4_inf
+> 66: invoke-static OrekiAuto;->hasInfinity()Z
+> 68: if-eqz p0, :oreki_au4_er
+> 69: return p0
+> 70: :oreki_au4_er
+> 71: invoke-static OrekiAuto;->orekiEarly()Z
+> 73: return p0
+> ```
+>
+> `if-nez` 是「**非**零跳转」。K() 为真才跳到后面三项，K() 为假就 `return p0` = false。
+> 所以净效果 **= `K()`**，AU4 注入的三项在全新档一次都走不到。
+>
+> ⇒ 结论：**AU4 补丁在 Android 上是死代码，从未生效。**
+> 正确极性应是 `if-eqz p0, :oreki_au4_inf`（K() 为假时去查另外两项）。
+>
+> AVD 实测 `g()=false` 5976/5976 条样本，与此一致。
+>
+> ⇒ 方法学（第三层）：**判 smali 的条件分支，必须逐条读 `if-*` 的语义，
+> 不能凭助记符的直觉猜。** `if-nez` 不是「if zero」，是「if not zero」。
+> 这次我连"更正"都错了一遍，正是因为它长得像 if zero。
 
 ⇒ 方法学：**判「这个方法里有没有 X」，行号区间一律不可用，必须按方法边界取全文。**
 ```
@@ -1998,3 +2079,79 @@ interval 拉满（有，OrekiStageAuto.upgradeCrunchInterval）
 
 ⇒ 结论：即使第 1、2 环修好，第 4 环不补，`brake` 仍恒假（除非走末日）。
 但**修的顺序必须由 A0 门控表定**，不许照着这张表从上往下盲补。
+
+## C.44 上线 R40：发布源必须是 commit，不是工作区 `[实测]`
+
+### 一、上线结果
+
+`web/_deploy/site` 提交 `31a72e9` → `OrekiDawson/OrekiDawson.github.io` main → `https://oreki.net`
+
+同步：**49 项变更（更新 43 + 新建 6），一致跳过 813，源码缺失 0**。
+
+线上实开验收 7/7（`web/_tools/_r40/r40t-live-verify.mjs`，直接打 `https://oreki.net`）：
+
+| 项 | 结果 |
+|---|---|
+| 页面能进（`GameUI.initialized`） | PASS，9,506 ms |
+| 教程 6 s 内一直可见 | PASS，消失采样 0/49 |
+| 教程章节未跳变 | PASS，全程「第 0 章 开始之前」 |
+| 目录底部 7 篇附录 | PASS，实际 7 条 |
+| 7 篇逐篇正文 > 200 字符 | PASS，2874/2337/1638/1621/2494/6191/3196 |
+| `apx_changes` 表格 ≥ 15 行 | PASS，rows=24 |
+| 线上无 pageerror | PASS |
+
+### 二、三个坑（都会导致「以为发了其实没发」或「发上去白屏」）
+
+**坑一：`filelist.txt` 漏登记 6 项，而 `--dry-run` 不会报。**
+
+漏了：`oreki-tutorial-data.gen.js`(197KB) / `OrekiTutorialStyles.js` /
+`oreki-tutorial-markdown.js` / `oreki-smart-strategy.js` / `oreki-smart-strategy.gen.js` /
+`oreki-smart-executor.js`。
+
+原因：`sync_deploy.py` **只按清单走**，清单里没有的它根本不看。
+所以「dry-run 报新建 0 项」不代表没有新增文件。
+
+⇒ 查新增唯一可靠办法：**拿源码树和清单做差集**，不是看 dry-run 输出。
+这与 R38 漏 `oreki-dilation-automation.js` 导致线上 404 是同一个坑，第二次了。
+清单一律 856 → 862。
+
+**坑二：`sync_deploy.py` 读工作区，会把别人未验收的中间态直接发上线。**
+
+同步当下工作区有 3 个 `M`（`OptionsGameplayTab.js` / `oreki-smart-executor.js` /
+`oreki-smart-strategy.js`），都是 agent-a 正在改、还没验收的。
+
+改法（已落盘）：`sync_deploy.py` 支持 `OREKI_SYNC_SRC` 覆盖源码根；
+发布时先 `git worktree add ../_wt_deploy HEAD`，再
+`OREKI_SYNC_SRC=_wt_deploy python sync_deploy.py`。
+
+⇒ 规则：**发布永远发布一个 commit，不发布工作区。**
+不然「线上跑的是哪份代码」这个问题永远答不清。
+
+注意 `web/_wt_head` **不能当干净快照**：它是 `df6ef9d` 的 detached worktree，
+早于教程单源化，连 `src/core/oreki-tutorial.js` 都不存在。看着干净，其实是更老的版本。
+
+**坑三：Pages 构建完成 ≠ 立刻可用，冷启动会 503。**
+
+推送后约 3 分钟 `https://oreki.net/src/core/oreki-tutorial.js` 仍是旧版 40,191 B
+（新版 16,275 B），新文件 404；出现新版后**第一次**加载还撞到一次 503
+（`GameUI.initialized` 70 s 未真）。重跑即 9.5 s 正常。
+
+⇒ 判据：**看「某个已登记文件的字节数变了没有」，比看 index.html 返回 200 有效**。
+再加一个穿透参数 `?cb=随机` 避免 CDN 缓存误判。
+
+### 三、上线验收不能拿本地副本代替
+
+本地 `_deploy/site` 上 22/22 全过，线上**仍要单独跑一遍**：
+- 本地副本可能比远端新（本地同步了但推送失败）
+- 远端可能比本地旧（Pages 没重建完）
+
+两者是**三个不同状态**：工作区 / 部署副本 / 线上。
+⇒ 规则：**「部署副本通过」不构成「线上可用」的证据**，必须对线上 URL 实开一次。
+
+### 四、线上验收脚本要能直连线上
+
+`r40t-appendix-verify.mjs` 把 baseURL 硬编码成 `http://127.0.0.1:${port}`，只能测本地。
+新写 `r40t-live-verify.mjs` 接受完整 URL。
+
+⇒ 规则：**验收脚本的地址必须是参数，不许硬编码。**
+硬编码的结果是「线上验收」这一步会被悄悄降级成「本地再跑一遍」。

@@ -120,6 +120,13 @@ def sanitize(text: str) -> str:
     return out.strip()
 
 
+# 逐字核对**通过之后**再统一纠正的术语。只允许「官方译名有定论、且旧版写错」的词。
+#   旧版把 Time Theorems 写成「时间定理」：官方 APK 里 0 次，词表
+#   docs/TUTORIAL_GLOSSARY.md:112 规定写作「时间之理」。这属于「旧版已确认的错误」，
+#   照抄错译等于把已知错误继续发给玩家，所以正文结构与措辞一律不动、只换术语。
+GLOSSARY_FIXES = (("时间定理", "时间之理"),)
+
+
 def main() -> int:
     if not BACKUP.is_file():
         print(f"!! 找不到备份 APK: {BACKUP}", file=sys.stderr)
@@ -139,16 +146,31 @@ def main() -> int:
             print("   " + line, file=sys.stderr)
         return 1
 
+    # 术语纠正（核对之后再改，保证「来源可信」与「术语正确」两件事都能验）
+    fixed = []
+    legacy = []
+    for title, body in LEGACY:
+        t2, b2 = title, body
+        for old, new in GLOSSARY_FIXES:
+            if old in t2:
+                fixed.append(f"标题「{old}」-> 「{new}」")
+                t2 = t2.replace(old, new)
+            if old in b2:
+                fixed.append(f"正文「{old}」-> 「{new}」×{b2.count(old)}")
+                b2 = b2.replace(old, new)
+        legacy.append((t2, b2))
+
     lines = [
         "# AD: Oreki Edition - 旧版教程（过渡期保留，请勿手改）",
         "# 来源：release/备份-R40构建前-1840.apk 的 dex 中的 TutorialActivity 字面量",
         "# 每条已逐字核对：在备份 APK 里恰好出现 1 次",
-        f"# 章数: {len(LEGACY) + 1}（含 1 章过渡说明）",
+        "# 唯一改动：术语「时间定理」-> 「时间之理」（官方译名，见 TUTORIAL_GLOSSARY.md:112）",
+        f"# 章数: {len(legacy) + 1}（含 1 章过渡说明）",
         "CH|0|legacy_intro",
         "TITLE|0|旧版教程（正在并入新版，暂留）",
         f"SUB|0|{sanitize(DISCLAIMER)}",
     ]
-    for idx, (title, body) in enumerate(LEGACY, 1):
+    for idx, (title, body) in enumerate(legacy, 1):
         lines.append(f"CH|0|legacy{idx:02d}")
         lines.append(f"TITLE|0|{sanitize(title)}")
         lines.append(f"STEP|0|{sanitize(body)}")
@@ -157,8 +179,10 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_bytes(text.encode("utf-8"))
     cjk = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
-    print(f"[LEGACY] 写出 {OUT}：{len(LEGACY) + 1} 章 / {cjk} 汉字 / "
+    print(f"[LEGACY] 写出 {OUT}：{len(legacy) + 1} 章 / {cjk} 汉字 / "
           f"{len(text.encode('utf-8'))} 字节（已与备份 APK 逐条核对）")
+    if fixed:
+        print("[LEGACY] 术语纠正 " + str(len(fixed)) + " 处：" + "；".join(fixed))
     return 0
 
 

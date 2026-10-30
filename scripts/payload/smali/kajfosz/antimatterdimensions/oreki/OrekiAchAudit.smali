@@ -21,9 +21,12 @@
 #   · 不调用 A()/k 之外的任何原版方法，不触发解锁、不发货币、不写存档。
 #
 # 触发时机：
-#   由 OrekiSpeed.apply(D) 每帧调用（与 StageAssist.onTick 同一处）；
-#   每 0x258 = 600 帧（≈10 s）执行一次，第 600 帧才第一次跑（等存档加载完）。
-#   有界调用：验收工具不能成为被测对象的负担 —— 104 个谓词每帧跑会把 708 s 基线拖偏。
+#   由 OrekiSpeed.apply(D) 调用（与 StageAssist.onTick 同一处），但**按时间节流**：
+#   每 5000 ms（0x1388）跑一次，与 apply 被调多少次无关。
+#   为什么改：旧实现按「每 600 次 apply」节流，而 apply 实测被调
+#   均值 34.4 ms / 中位 31.0 ms / p90 51 ms / p99 115 ms（5975 个间隔）一次 600 下，
+#   即 ≈17,400 次/秒 ⇒ 审计实际以 ≈19 Hz 满负荷跑，与「每 5 s 一次」的设计差 100 倍。
+#   量纲错了，指令数再少也没意义。
 #
 # 输出（logcat，tag = OREKI_ACHAUDIT）：
 #   W/MISMATCH id=<成就ID>            每一位不一致各一行
@@ -33,29 +36,46 @@
 # 解析与判据在 scripts/ach_audit.py。
 # ---------------------------------------------------------------------------
 
-# 进程内帧计数：每 0x258 = 600 帧（≈10 s）归零一次，即审计是「有界周期调用」。
-# 不设「只跑一次」的开关：通关验收可能要看后期的结果，最后一次 DONE 行才是判据。
-.field private static sFrame:I
+# 上次执行时刻（SystemClock.uptimeMillis）。**按时间节流**，不按调用次数。
+# 为什么不用计数：OrekiSpeed.apply(D) 实测被调 ≈1.7 万次/秒（GATE 间隔中位 31 ms），
+# 按「每 600 次」节流会变成 ≈19 Hz 的满负荷审计，与设计意图（每 5 s 一次）差 100 倍。
+# 0 表示还没跑过（首调用只记时间，等存档加载完再审计）。
+.field private static sLast:J
 
 
 .method public static tick()V
-    .locals 12
+    .locals 14
 
-    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->sFrame:I
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
-    add-int/lit8 v0, v0, 0x1
+    move-result-wide v12
 
-    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->sFrame:I
+    sget-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->sLast:J
 
-    # 每帧成本：1 次 sget + 1 次 add + 1 次 sput + 1 次比较（无分配、无谓词调用）
-    const/16 v1, 0x258
+    const-wide/16 v2, 0x0
 
-    if-ge v0, v1, :ret
+    cmp-long v4, v0, v2
 
-    # 满 600 帧 -> 归零并执行一次；下一次再等 600 帧
-    const/4 v0, 0x0
+    if-nez v4, :first
 
-    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->sFrame:I
+    # 已流逝 = now - last；< 5000 ms 直接返回（每帧只剩 6 条整数指令）
+    sub-long v2, v12, v0
+
+    const-wide/16 v4, 0x1388
+
+    cmp-long v6, v2, v4
+
+    if-ltz v6, :go
+
+    return-void
+
+    :first
+    sput-wide v12, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->sLast:J
+
+    return-void
+
+    :go
+    sput-wide v12, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->sLast:J
 
     # v0 = 成就数组 / v1 = 长度 / v2 = i / v3 = scanned / v4 = unlocked / v5 = mismatch
     # 计数寄存器必须在 try 之前初始化：catch 块要读它们，否则校验器会报「未初始化」

@@ -56,6 +56,10 @@
     .locals 1
 
     :try_start_0
+    # [Oreki AU4b] 策略默认值修正：必须在任何分支之前、无条件执行
+    # （Web big-crunch-autobuyer.js:19-26 同源；只改策略，不动坍缩条件/间隔/重置）
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->applyCrunchPolicy()V
+
     invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z
     move-result v0
 
@@ -445,4 +449,95 @@
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V
 
     return-void
+.end method
+
+
+# ---------------------------------------------------------------------------
+# [Oreki AU4b] 大坍缩策略默认值修正（移植自 Web src/core/autobuyers/big-crunch-autobuyer.js:19-26）
+#
+# 现象：默认策略是 AMOUNT / amount=1，一旦自动坍缩开始工作，每次 tick 都会「够 1 就坍缩」，
+#      反物质被反复清零 → thisInfinity.maxAM 永远上不去 → Infinity Dimension 的门槛
+#      （1e1100）永远达不到，进度实际停滞。Web 侧实测 120 s 内 maxAM 恒为 1e25.7。
+#
+# 修法（与 Web 完全一致）：只改**策略默认值** ——
+#   if (unlocked && mode == AMOUNT && amount < 10) { mode = X_HIGHEST; xHighest = 10; }
+# 不动：坍缩条件、重置副作用、间隔、成本。改完之后是「每涨 10 倍坍缩一次」，
+# 反物质才有机会往 1e1100 爬。
+#
+# 访问器（全走公开方法，符合 AU8「私有字段访问守卫」）：
+#   I()I 读 mode / a(I)V 写 mode / E()BigDouble 读 amount / P(BigDouble) 写 xHighest
+#   mode: 0=AMOUNT 1=TIME 2=X_HIGHEST（与 Q() 的 +1 mod 3 循环一致）
+# 幂等：条件一旦不满足就什么都不做；策略已经是 X_HIGHEST 时 mode!=0 直接返回。
+# ---------------------------------------------------------------------------
+.method public static applyCrunchPolicy()V
+    .locals 5
+
+    :try_start_p
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v0
+
+    # 未解锁不动（对齐 Web 的 if (unlocked && ...)）
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->g()Z
+
+    move-result v1
+
+    if-eqz v1, :ret_p
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
+
+    move-result v1
+
+    # 只处理 AMOUNT(0)：TIME(1) / X_HIGHEST(2) 保持玩家自己的选择
+    if-nez v1, :ret_p
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->E()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v1
+
+    new-instance v2, Lkajfosz/antimatterdimensions/BigDouble;
+
+    const-wide/high16 v3, 0x4024000000000000L    # 10.0
+
+    invoke-direct {v2, v3, v4}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(D)V
+
+    invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+
+    move-result v1
+
+    # amount >= 10 说明玩家自己设了阈值，尊重它
+    if-ltz v1, :ret_p
+
+    const/4 v1, 0x2
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
+
+    new-instance v1, Lkajfosz/antimatterdimensions/BigDouble;
+
+    const-wide/high16 v3, 0x4024000000000000L    # 10.0
+
+    invoke-direct {v1, v3, v4}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(D)V
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->P(Lkajfosz/antimatterdimensions/BigDouble;)V
+
+    const-string v1, "OREKI_AU4B"
+
+    const-string v2, "policy AMOUNT/1 -> X_HIGHEST/10"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_p
+    goto :ret_p
+
+    :catch_p
+    move-exception v0
+
+    :ret_p
+    return-void
+    .catch Ljava/lang/Throwable; {:try_start_p .. :try_end_p} :catch_p
 .end method

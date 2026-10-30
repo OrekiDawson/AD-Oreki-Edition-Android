@@ -14,12 +14,18 @@
     python scripts/ach_audit.py --no-install --wait 40             # 复用已装应用
     python scripts/ach_audit.py --logcat-file dump.txt             # 离线解析已有日志
 
-判据（FACTS C.36）：
+判据（FACTS C.36，2026-10-31 修订）：
     · 必须出现 DONE 行；
-    · 成就 ID <= 138（第 1~13 行 = 104 位）的任何 MISMATCH ⇒ 硬失败；
-    · ID > 138（第 14~18 行）的 MISMATCH ⇒ 仅警告（不在 C.36 的 104 位范围内）；
-    · 出现 ABORT ⇒ 失败（谓词抛异常，无法证明干净）；
-    · 顺带校验 L2：used=1 ⇒ 该档不是干净存档（退出码 5）；used=-1 / 缺字段 ⇒ 未知（不退出 5，但明确打印「未知」）。
+    · 位图是 **144 位（18 行 × 8）**，ID 11..188 全部在口径内 ——
+      旧口径「104 位 / ID ≤ 138」是错的，等于漏查 28% 的面（本轮已按实测修正）；
+    · ABORT ⇒ 失败（谓词抛异常，无法证明干净）；
+    · L2：used=1 ⇒ 该档不是干净存档（退出码 5）；used=-1 / 缺字段 ⇒ 未知。
+
+⚠ 已知局限（下一轮改，见 reports/r40e §12.9）：当前 MISMATCH 是**观察级**，
+  不是**闸门级**。成就条件是「一度满足」的历史事件，谓词不幂等，
+  所以干净档也会报十几处。真正的闸门级判据应该是
+  「`achievements/a;->E(ZZ)V` 的 FORCE 日志集合必须为空（除非 used=1）」。
+  在 FORCE 日志落地之前，MISMATCH 的红色**不能**当作「被强制置位」的证据。
 
 退出码：0 通过 / 1 硬失败 / 2 没有审计输出 / 3 ABORT / 4 adb 或文件错误
         / 5 L3 通过但 L2 失败（该存档用过强制点亮，不能当通关证据）
@@ -37,7 +43,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ADB = ROOT / "tools" / "platform-tools" / "adb.exe"
 PKG = "com.oreki.antimatterdimensions"
 TAG = "OREKI_ACHAUDIT"
-HARD_MAX_ID = 138          # 第 1~13 行 = 104 位 = ID 11..138
+HARD_MAX_ID = 188          # 18 行 × 8 列 = 144 位 = ID 11..188（旧值 138 漏查 40 位，已修）
 WAIT_DEFAULT = 30
 
 RE_MISMATCH = re.compile(r"MISMATCH id=(\d+)")

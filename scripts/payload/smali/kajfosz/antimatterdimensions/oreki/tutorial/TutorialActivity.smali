@@ -1256,6 +1256,15 @@
     :short
     if-eqz p0, :ret
 
+    # 标题里已经写着「旧版」时不再加前缀，避免出现「旧·旧版教程（…」
+    const-string v1, "旧版"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v1
+
+    if-gez v1, :ret
+
     const-string v1, "legacy"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z

@@ -1374,11 +1374,14 @@ def verify_payload():
     assert "stage_assist_used" in mtail and "commit()Z" in mtail,         "[3C] markUsed 必须用 commit() 取真实写盘结果（apply 无返回值 = 静默失败）"
     assert "MARK_FAILED" in mtail, "[3C] markUsed 写失败必须留 MARK_FAILED（L2 判未知）"
 
-    # 审计必须是有界周期调用：每帧只有计数与比较，104 个谓词不得每帧跑
+    # 审计必须按**时间**节流（0x1388 = 5000 ms）：apply 被调 ~1.7 万次/秒，
+    # 按次数节流会退化成 ~19 Hz 满负荷审计（2026-10-31 实测，见 r40e §12.10）
     aa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali"
           ).read_text(encoding="utf-8")
-    assert "const/16 v1, 0x258" in aa, "[AA] 审计没有 600 帧的周期门（每帧跑会拖偏基线）"
-    assert aa.count("OrekiAchAudit;->sFrame:I") >= 3, "[AA] 帧计数读写缺失"
+    assert "SystemClock;->uptimeMillis()J" in aa, "[AA] 审计必须用 uptimeMillis 做时间节流"
+    assert "const-wide/16 v4, 0x1388" in aa, "[AA] 审计周期必须是 5000 ms（0x1388），不能按调用次数"
+    assert "OrekiAchAudit;->sLast:J" in aa, "[AA] 缺少 sLast 时间戳字段"
+    assert "sFrame" not in aa, "[AA] 仍残留按次数节流的 sFrame（量纲错误，会退化成 ~19 Hz）"
     assert "sDone" not in aa, "[AA] 仍残留「只跑一次」的 sDone（后期结果拿不到）"
     note("[3C] 开启入口 / 三态留痕 / 有界审计 自检通过")
 
@@ -1630,14 +1633,22 @@ def build_sign(java):
     # [R40H] 打包后自检：教程正文必须以 assets 形式真的进了 APK。
     # apktool 不会因为 assets 缺失而失败，缺了只会让真机显示「正文缺失」页，
     # 所以直接读 ZIP 目录断言，避免再烧一次装机。
+    # 同时守住「原有 assets 不许丢」：字体（fa-*、Roboto、MonospaceTypewriter）、
+    # 四段现实背景 mp4、dexopt 基线都是游戏正常运行需要的，历史产物固定 22 条。
     try:
         import zipfile
         with zipfile.ZipFile(target) as z:
+            entries = [n for n in z.namelist() if n.startswith("assets/")]
             for name in TUTORIAL_ASSETS:
                 info = z.getinfo("assets/" + name)
                 assert info.file_size > 0, f"assets/{name} 是空条目"
                 note(f"      assets/{name}: {info.file_size} 字节"
                      f"（压缩后 {info.compress_size}）")
+            assert len(entries) >= 22, \
+                f"APK 里 assets 只有 {len(entries)} 条（至少应有 22 条原有资源）"
+            for must in ("assets/fonts/fa-solid-900.ttf", "assets/dexopt/baseline.prof"):
+                assert must in entries, f"APK 丢了原有资源 {must}"
+            note(f"      APK assets 条目 {len(entries)} 条（原有资源完整）")
     except (KeyError, AssertionError) as e:
         note(f"!! [R40H] APK 里缺少教程正文：{e}")
         return None
@@ -3347,7 +3358,9 @@ def patch_autobuyer_crunch_after_infinity():
     assert idx != -1, "CrunchAutobuyerState.g() 内找不到 return p0（结构可能已变）"
     block = (
         "\n    # [Oreki AU4/ER1] 非 Doomed 分支：完成过首次无限 / 首次无限之前(orekiEarly) 也可运行\n"
-        "    if-nez p0, :oreki_au4_inf\n"
+        # if-eqz = 「p0 == 0 才跳」。K() 为假（全新档）必须跳进分支去问 hasInfinity/orekiEarly；
+        # 写成 if-nez 会让全新档直接 return p0 = false，后面两段变成死代码（2026-10-31 实证：g() 恒 false）。
+        "    if-eqz p0, :oreki_au4_inf\n"
         "    return p0\n"
         ":oreki_au4_inf\n"
         "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
@@ -3360,8 +3373,41 @@ def patch_autobuyer_crunch_after_infinity():
     )
     body = body[:idx] + block + body[idx:]
     assert "Oreki AU4" in body, "补丁写入失败"
+    assert "if-eqz p0, :oreki_au4_inf" in body, "AU4 极性断言失败：必须是 if-eqz（K() 为假时进兜底分支）"
+    assert "if-nez p0, :oreki_au4_inf" not in body, "AU4 极性断言失败：if-nez 会让全新档 g() 恒 false"
     target.write_text(src[:i] + body + src[j:], encoding="utf-8")
-    note("[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity）")
+    note("[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity；极性 if-eqz 已修正）")
+
+
+def verify_au4b():
+    """[Oreki AU4b] 大坍缩策略默认值修正的构建期守卫。
+
+    三条硬约束：
+      1. `applyCrunchPolicy()` 必须存在；
+      2. 它必须在 `onAutoBuyerTick` 里**排在任何分支之前**无条件调用
+         （放在 hasInfinity 分流之后的话，已进入永恒/毁灭的存档就再也修正不到）；
+      3. 只能改策略（mode/xHighest），不得直接写私有字段、不得碰 interval/cost/重置。
+    """
+    p = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.smali"
+    assert p.exists(), "[AU4b] 缺少 OrekiStageAuto.smali"
+    s = p.read_text(encoding="utf-8")
+    assert ".method public static applyCrunchPolicy()V" in s, "[AU4b] 缺少 applyCrunchPolicy()"
+    i_call = s.index("OrekiStageAuto;->applyCrunchPolicy()V")
+    i_inf = s.index("OrekiAuto;->hasInfinity()Z")
+    assert i_call < i_inf, "[AU4b] applyCrunchPolicy 必须排在 hasInfinity 分流之前"
+
+    i, j = _scan_method(s, "public static applyCrunchPolicy()V")
+    body = s[i:j]
+    assert "CrunchAutobuyerState;->g()Z" in body, "[AU4b] 必须先判解锁（对齐 Web 的 unlocked）"
+    assert "CrunchAutobuyerState;->I()I" in body, "[AU4b] 必须读 mode"
+    assert "if-nez v1, :ret_p" in body, "[AU4b] 必须只处理 mode == AMOUNT(0)"
+    assert "const/4 v1, 0x2" in body, "[AU4b] 必须把 mode 置为 X_HIGHEST(2)"
+    assert "CrunchAutobuyerState;->a(I)V" in body, "[AU4b] 必须走公开 setter a(I)V 写 mode"
+    assert "CrunchAutobuyerState;->P(" in body, "[AU4b] 必须走公开 setter P(...) 写 xHighest"
+    assert "->mode:I" not in body and "->xHighest:" not in body, "[AU4b] 禁止直接读写私有字段（AU8）"
+    for banned in ("->interval", "->cost", "->lastTick"):
+        assert banned not in body, f"[AU4b] 不得触碰 {banned}"
+    note("[Oreki AU4b] 大坍缩策略守卫通过（AMOUNT/1 → X_HIGHEST/10，只改策略）")
 
 
 def patch_autobuyer_crunch_force_active():
@@ -3717,11 +3763,12 @@ def patch_tutorial_content():
     assert not (tut_dir / "TutorialContent.smali").exists(), \
         "[R40H] payload 里还留着 TutorialContent.smali（方案已改为 assets）"
 
-    # 正文不许回到 smali：Activity 里汉字数应与「界面文案」同量级（几百字），
-    # 一旦有人把正文贴回去，这里立刻从几百跳到几千。
-    cjk_act = sum(1 for c in asrc_txt if "\u4e00" <= c <= "\u9fff")
-    assert cjk_act < 1500, \
-        f"[R40H] TutorialActivity 里有 {cjk_act} 个汉字，正文像是又被写回 smali 了"
+    # 正文不许回到 smali：只统计 const-string 字面量里的汉字（注释不算）。
+    # 界面文案是几百字量级，正文一旦被贴回来立刻跳到几千。
+    lit_cjk = sum(1 for lit in _tutorial_literals(asrc_txt)
+                  for c in lit if "\u4e00" <= c <= "\u9fff")
+    assert lit_cjk < 600, \
+        f"[R40H] TutorialActivity 的 const-string 里有 {lit_cjk} 个汉字，正文像是又被写回 smali 了"
 
     # 界面文案一律简体中文：只查 const-string 字面量里的英文界面词（标识符不算）。
     for lit in _tutorial_literals(asrc_txt):
@@ -4120,6 +4167,7 @@ def main():
     patch_autobuyer_crunch_force_active()
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
+    verify_au4b()
     # [R40H] 教程正文：从 Web 单源 JSON 生成 TutorialContent.smali（必须先于
     # patch_tutorial_entry，后者的断言要求教程类已进 mod 树）。
     patch_tutorial_content()

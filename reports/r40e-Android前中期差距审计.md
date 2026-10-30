@@ -569,7 +569,7 @@ E/OREKI_ACHAUDIT: MARK_FAILED ...               # 留痕写盘失败 ⇒ L2 判�
 **恢复方式**：`git show 0b51233:scripts/payload/smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali`
 （删除前的最后一次内容在 `0b51233`；历史另有 `4b3f5d0`、`59ad3b5` 两次提交）。
 
-### 11.7 审计的帧成本（声明：静态估算，未在 AVD 实测）
+### 11.7 审计的帧成本 [作废：量纲错误，见 §12.10 / §12.11]
 
 `OrekiAchAudit.tick()` 挂在 `OrekiSpeed.apply(D)D`（每帧一次）。改前每帧跑 104 个
 `A()` + `k.invoke()`（`invoke-interface`），按 ART 上单次接口调用 20~80 ns 粗估，
@@ -719,3 +719,126 @@ enableIpMultAutobuyer(); upgradeCrunchInterval(); tryBuyId1();
   **单独做不够**：挑战 12 未完成 + 间隔无法拉满 ⇒ `v()` 恒 false，仍不会触发。
 - Web 侧 t=4.1 s 就 `interval→100`（=32767 IP），与「全新档 0 资源」不相容，已请 agent-a-web-ec 确认是否为 harness 预置；
   **未确认前不作为证据引用**。
+
+### 12.8 门控表（AVD 实测，2026-10-31 02:00，重编后 `pm clear` 全新档）
+
+构建：`OREKI_TUTORIAL_ALLOW_DRAFT=1 OREKI_RELEASE_OUT=build/gate_stage python scripts/build_mod.py`
+（教程章节当时仍是 draft，放宽的是 **R40H 教程内容门槛**，与本文所有判据无关；产物只落 `build/gate_stage/`，
+**未覆盖 `release/`**，不作发布候选。）
+
+新增只读诊断 `OrekiAchAudit.gate()`，每 600 帧一行 `OREKI_GATE`：
+
+```
+GATE brake=<z> g=<z> c=<z> b=<z> mult=<d> rt=<d>
+  g = CrunchAutobuyerState.g()   解锁门      c = CrunchAutobuyerState.c()  运行门
+  b = prestige.e.b()             canBigCrunch             mult = OrekiSpeed.mult()
+  rt = Player.R().i().a          records 现实时间（c() 的被减数）
+```
+
+| t | brake | g | c | b | mult | lastTick | bigCrunches | IP | AM |
+|---|---|---|---|---|---|---|---|---|---|
+| 62.6 s | false | false | false | false | 10000.0 | 0.0 | 0 | 0 | 1.50e90 |
+| 124.7 s | false | false | false | false | 10000.0 | 0.0 | 0 | 0 | 2.10e132 |
+| 203.3 s | false | false | false | false | 10000.0 | 0.0 | 0 | 0 | 1.79769e308 |
+
+全量 5976 行统计：`g` 与 `c` **5976/5976 全为 false**，`brake` 全为 false，`mult` 恒 `10000.0`；
+`b` 有 2941 行为 true（AM 触顶后 canBigCrunch 已成立），`rt` 从 25 涨到 206429。
+
+**判死的结论**：在 `b=true`（本来可以坍缩）的 2941 个采样点上，`c` 仍全程 false ⇒ **唯一挡路的是 `g()`**，
+不是 mult、不是 rt、不是 canCrunch、也不是策略。
+
+**`g()` 为什么是 false（一行代码）**：`work/mod` 里的 AU4 补丁把极性写反了。
+
+```smali
+invoke-virtual {p0}, challenge/antimatter/b;->K()Z     # 挑战 12 完成位
+move-result p0
+if-nez p0, :oreki_au4_inf     # ← if-nez = 「p0 != 0 才跳」；K()==0 时直接落到下一行
+return p0                     # ← 于是全新档返回 0，后面两段（hasInfinity / orekiEarly）永远不执行
+:oreki_au4_inf
+```
+
+按 smali 语义 `if-nez` 是「非零跳转」，所以 K()==0（全新档）会**直接 `return 0`**，
+`hasInfinity()` 与 `orekiEarly()` 两个兜底分支成了死代码 —— 与补丁自己的注释
+「首次无限之前(orekiEarly) 也可运行」正好相反。改成 `if-eqz` 即可，**只动这一条指令**。
+
+> 这一条也校正了我 §12.5 的表述：`g()` 的方法体**确实**有 AU4 分支（我之前只读到 `base_decoded` 的未打补丁版本），
+> 但分支极性反了，所以在运行期等价于「只有打完挑战 12 才解锁」。
+
+### 12.9 L3 判据不成立（干净档就报 17 处不一致）
+
+同一台设备、`pm clear` 全新档、`used=0`（没有用过强制点亮），首次扫描就是红的：
+
+```
+DONE scanned=144 unlocked=127 mismatch=17 used=0
+```
+
+最后一次扫描的 17 个 id：`[21,35,37,54,96,107,114,115,116,117,136]`（≤138，口径内 11 个）
++ `[141,144,156,174,176,186]`（>138，口径外 6 个）。
+
+两个独立缺陷：
+
+1. **扫描范围超界**：`z3.c` 有 144 个成就（18 行 × 8），C.36 的 104 位口径只覆盖行 1~13（id ≤ 138）。
+   现在 6 个越界 id 在干净档也会被报红。
+2. **谓词不是幂等的**：`k.invoke()` 是「此刻是否满足解锁条件」，而成就解锁是**历史事件**。
+   干净档正常玩到 200 s 解锁 127 个是正常的，但其中 11 个条件此刻已不成立（例如「一度达到 X」）。
+   ⇒ 「A()==true 且 k()==false」**并不等价于**「被强制置位」。
+
+**结论：C.36「任何 Android 通关验收 L3 必须 0 处不一致」在当前实现下不可达，干净档就会被判红。**
+如果硬按这条验收，结果只有两种：要么被迫忽略红字（等于自欺），要么永远无法交付。
+
+**建议改判据（三选一，按可靠性排序）**：
+
+- **A（推荐）**：在 `achievements/a;->E(ZZ)V` 入口加一行 `OREKI_FORCE: id=<n>` 日志（`E(ZZ)` 是强制置位的唯一入口，
+  删除 AU 之后只有 StageAssist 调它）。L3 判据改为「**新增** mismatch 集合 == FORCE 集合」；
+  干净档要求 FORCE 为空。这直接观测「谁被强制了」，不依赖谓词幂等。
+- **B**：基线差分 —— 装包首启跑一次 baseline，验收时要求 `mismatch ⊆ baseline ∪ 强制集合`。
+- **C**：只扫 id ≤ 138（修掉越界），其余不动 —— 只解决缺陷 1，缺陷 2 仍在，**不够**。
+
+无论选哪个，扫描范围都要先收敛到 id ≤ 138。
+
+### 12.10 第 2 步（gfxinfo）在本机无效 + §11.7 的节奏假设被推翻 [本组数据作废]
+
+**gfxinfo 作废**：同一台模拟器、同一场景，旧包报 `Total frames rendered: 1146`，新包报 **`0`**
+（p50/p90/p99 全为 `4950ms`，是空直方图的默认值）。环境已排除：`mWakefulness=Awake`、`mScreenState=ON`、
+`mCurrentFocus=…MainActivity`、进程存活、GATE 每 31 ms 仍在输出。SurfaceFlinger 里主界面是
+`…MainActivity#1126/#1127`，即游戏画在 **SurfaceView** 上，HWUI 帧统计里没有它的帧。
+
+⇒ 上一轮那 1146 帧不能当「审计关的地板」，**该数据作废**，第 2 步不能以 gfxinfo 交付。
+
+**§11.7 的节奏假设错误**：GATE 行每 600 次 `tick()` 一行，5975 个间隔中位 **31 ms**（p90 51 ms、p99 115 ms）。
+即 `OrekiSpeed.apply(D)` 实际被调 **≈3.2 万次/秒**，不是每帧一次。
+
+- 正确表述：审计以 **≈30 Hz** 运行，不是「每 600 帧 ≈ 10 s」（0.1 Hz）。§11.7 的「降到 1/600」结论在**次数**上成立、
+  在**时间**上不成立。
+- 换算成本：30 × 104 ≈ 3120 次接口调用/秒，按 50 ns/次约 0.16 ms/s（≈0.016%），量级仍可忽略，
+  但「有界」应按**时间**节流（如 5000 ms 一次）而不是按调用次数。
+- 待办：把 `sFrame` 计数改成时间戳节流；此项**未交付**。
+
+**第 2 步的替代方案**（待批准后执行）：`dumpsys SurfaceFlinger --latency <surface>` 取真实 vsync；
+若不可用，用「启动到 rt 达到固定值」的墙钟时间做两个包的吞吐比；审计成本用「临时关审计体后 GATE 周期差值」量。
+
+### 12.11 更正算术：apply 的真实频率（§11.7 / §12.10 的「3.2 万次/秒」是错的）
+
+数据源与 §12.10 相同：`build/brake_probe/logcat_gate.txt`，5975 个 GATE 间隔（每 600 次 `tick()` 一行），
+剔除非正间隔后仍是 5975 个，无需清洗（无进程重启造成的长间隔）。
+
+| 统计量 | 间隔 | 换算 apply 次数/秒 = 600 ÷ 间隔 |
+|---|---|---|
+| 均值 | **34.4 ms** | **17,433** |
+| 中位 | **31.0 ms** | **19,355** |
+| p90 | 51 ms | 11,765 |
+| p99 | 115 ms | 5,217 |
+
+**§12.10 里写的「约 3.2 万次/秒」作废**：正确值是均值 1.74 万、中位 1.94 万。
+3.2 万对应 18.75 ms，那个数在本文任何一张表里都不存在，是我把中位与心算混在一起的产物。
+
+**分母口径**：`OrekiAchAudit.tick()` 由 `OrekiSpeed.apply(D)` 调用，且**每次 apply 恰好调用一次 tick**
+（构建期断言 `aa_hits == 1` 保证注入点唯一），所以「600 次 tick」= 「600 次 apply」，换算不需要额外系数。
+
+**由此得到两个必须记住的结论**：
+
+1. 旧实现「每 600 次 apply 一次」在时间上 = **≈19 Hz**，不是 0.1 Hz。§11.7 的「降到 1/600」只在次数上成立。
+2. §11.7 里「每帧 < 0.1 µs」的估算前提（每帧一次）不成立，这个数**连估算都不算**，是把错误量纲套在正确的指令数上。
+
+**已修正**：`OrekiAchAudit` 改为按 `SystemClock.uptimeMillis()` 节流，每 **5000 ms** 一次（`0x1388`），
+与 apply 被调多少次无关；构建期断言改为「必须含 `uptimeMillis` + `0x1388`，且不得残留 `sFrame`」。
