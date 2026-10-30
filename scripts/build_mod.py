@@ -1687,6 +1687,91 @@ def patch_instant_challenge():
     note("[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()")
 
 
+# 【2026-10-30 / r35-s2 标注】下面这个 patch_auto_enter_eternity_challenge() 是**历史残留**：
+# 同一个文件里 80 行后还有一个同名定义，Python 以后者为准覆盖前者，所以本段从不执行。
+# 保留是为历史对照；**不要按本段文档里的 if-nez / if-le 跳转表改代码** —— 那是 R35 首版写反的错误记忆，
+# 实际 payload 用的是 if-eqz（当前值==0 才跳）/ if-gt（id>12 才结束）。
+# 真正的实现（含 [Oreki CA-3] 满级退关）见文件后面那一份同名定义。
+def patch_auto_enter_eternity_challenge():
+    """[Oreki CA] 自动进入永恒挑战：把 Web 的 buyEcStudiesAndStart() 那一半补齐（R34，Agent C）。
+
+    背景（本轮静态实证，不是猜测）：
+      Web 的「挑战进入即完成」链条是两段：
+        src/core/oreki-eternity-automation.js:316-360  buyEcStudiesAndStart()
+            :337 已有挑战在跑就不插手 → :341 读 unlocked → :350 满级先 respec
+            :358 `return challenge.start(true) === true;`   ← **自动进入**
+        src/game.js:842  tryInstantCompleteChallenges()      ← 下一帧真实结算
+      而 Android 只有后半段（OrekiInstantChallenge）。实证：
+        `Player$PlayerEternityChallenges;->h(I)V`（写 current）全仓只有 7 处调用：
+          challenge/eternity/b.smali:983（`D(Z,Continuation)`，唯一写非 0 = start）
+          challenge/eternity/b.smali:3714（`w(Z,Continuation)`，exit 写 0）
+          player/d,e,f,g（存档序列化/反序列化）  prestige/c.smali:2406（eternity 重置写 0）
+        → **没有任何 tick 会写它**。start 的上游调用者也全是 UI 回调
+          （EternityChallengeState$start$1 / $confirmStart$2$1 / vg2.smali:6193）
+          或 automator 脚本命令（Parser$StartEcCommand 等），没有无人值守入口。
+      对照：普通挑战（C）与无限挑战（IC）在 Web 里也**没有**自动进入
+        （grep `NormalChallenge(` / `InfinityChallenge(` 于 src/core/oreki-*.js → 0 命中），
+        所以本补丁**只补 EC**，不去动 C/IC，避免把双端「本来一致」的地方改歪。
+
+    实现（全部走原版路径，不写任何存档字段）：
+      新增类 OrekiChallengeAuto（scripts/payload/smali/...），本方法只做一件事 ——
+      把 `invoke-static {}, ...->tick()V` 插到 **OrekiInstantChallenge.tick() 的紧前面**。
+      顺序不能反：先「进入」、同一帧再「结算」，才与 Web 的
+      `buyEcStudiesAndStart()` → 下一帧 `tryInstantCompleteChallenges()` 语义等价
+      （这里同帧完成更激进但不会更差；反过来插则每关要多等一帧且与 Web 时序不同）。
+      所以本函数**必须先于/紧随** patch_instant_challenge() 执行，且断言 IC 的钩子已存在。
+
+    tick() 的判定顺序（R35 重写后的实际指令序，逐条给语义）：
+      Player.a -> q() = Player$Challenge                       （challenge/eternity/b.smali:349-353）
+        -> c() = PlayerNormalChallenges  -> g()I = current
+        -> b() = PlayerInfinityChallenges-> c()I = current
+        -> a() = PlayerEternityChallenges-> b()I = current / f()I = unlocked
+      1. `if-nez v2, :chk_ic`（C current）      —— current == 0 才继续，非 0 直接 return
+      2. `if-nez v2, :chk_ec`（IC current）     —— 同上
+      3. `if-nez v2, :chk_main`（EC current）   —— 同上（三个挑战都不在跑才插手）
+      4. `if-nez v3, :buy_studies`（unlocked）  —— unlocked == 0 → 买研究分支；否则走进入分支
+      5. `if-eqz v4, :end`（r51.a(unlocked)）   —— 实例为 null → 什么都不做
+      6. `if-nez v5, :do_start`（y() = I()==L()）—— **未满级** → 去 do_start；满级 → return
+         （y() 是动态上限，Enslaved 下 EC1 是 1000，绝不能用硬编码 5）
+      7. `:do_start` 调 `b.D(false, null)`       —— 原版 start（R34 的 E() 只是「研究能不能买」）
+      8. 买研究循环 `if-le v5, v6, :end`（id > 12）—— 跳出
+      9. `if-eqz v6, :next_id` / `if-eqz v7, :next_id`（实例 null）—— 跳过
+     10. `if-eqz v7, :next_id`（挑战 y()=满级）—— 满级 EC 的研究永不重买（Web :330 同一条防线）
+     11. `if-eqz v7, :next_id`（研究实例 null）—— 跳过
+     12. `if-nez v8, :next_id`（fp3.D 的返回值）—— 买成功才 return，失败继续下一 id
+
+    红线：不写 完成次数 / current / completedBits / 任何奖励字段。
+      current 由 challenge.D 内部写；完成与发奖仍由既有 OrekiInstantChallenge 负责
+      （它自己会 maxAM/maxIP 还原、幂等闸门）。
+      整个 tick() 包在 try/catch 里 —— 每帧调用，异常必须吞掉，绝不能把主循环打崩。
+    """
+    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
+    blob = target.read_bytes()
+    marker = b"OrekiInstantChallenge;->tick()V"
+    if marker in blob:
+        note("[Oreki IC] 进入即完成钩子已存在，跳过")
+        return
+
+    header = (b".method public final b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)"
+              b"Ljava/lang/Object;")
+    idx = blob.find(header)
+    assert idx >= 0, "未找到 Challenges.update 方法头（结构可能已变）"
+    loc = blob.find(b".locals 23", idx)
+    assert loc >= 0 and loc - idx < 400, "未找到 Challenges.update 的 .locals 声明"
+    eol = blob.find(b"\n", loc)
+    assert eol > 0, "定位 .locals 行尾失败"
+    nl = b"\r\n" if blob[eol - 1:eol] == b"\r" else b"\n"
+    note_line = "# [Oreki IC] 挑战进入即完成：每帧在挑战更新前结算（详见 OrekiInstantChallenge.smali）"
+    inject = (nl +
+              ("    " + note_line).encode("utf-8") + nl +
+              b"    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;->tick()V" + nl)
+    out = blob[:eol + 1] + inject + blob[eol + 1:]
+    target.write_bytes(out)
+    assert out.count(marker) == 1, "补丁写入失败"
+    note("[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()")
+
+
 def patch_auto_enter_eternity_challenge():
     """[Oreki CA] 自动进入永恒挑战：把 Web 的 buyEcStudiesAndStart() 那一半补齐（R34，Agent C）。
 
@@ -1729,11 +1814,35 @@ def patch_auto_enter_eternity_challenge():
         —— 用它而不是硬编码 `completions >= 5`：Enslaved 阶段 EC1 的 maxCompletions
            是 1000，硬编码 5 会让 EC1 在 Enslaved 里被误判满级而永远不重进。
            `L()` 就是动态的 maxCompletions，`y()` 已经是原版自己的判据，直接复用。
-      E(true) = start(fromAutomation)（b.smali:1328；automator 同款调用见 Parser$StartEcCommand:267）
+      E(true) 在 R34 被当成 start —— **R35 复核后确认是错的**：`b.E(Z)` 的方法体是
+        `B()`(=unlocked==this.id) 为真时返回 false，再要求 study.a()；
+        即「这一关的研究还能不能买」，永远不可能启动挑战。真正的 start 是
+        `b.D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)`（内部
+        `EternityChallengeState$start$1` 状态机，b.smali:983 是唯一写 current 非 0 处）。
+        ⇒ R35 起 tick() 用 D() 进入；automator 的 `start ec` 命令也是 D()
+        （Parser$StartEcCommand:267 的 E() 只是「要不要先买研究」的前置判断）。
+
+    [Oreki CA-3]（2026-10-30 r35-s2，本轮新增，解除「卡在 EC1」）
+      问题：EC 研究的 canBeBought（eternity/studies/b;->A(Z)Z，b.smali:360-368）第一条是
+        `r51.d()（unlocked）必须为 0`；而买下某关研究时 b;->E(true)（b.smali:590-604）
+        会把 unlocked 写成该关 id。⇒ R35 首版「unlocked != 0 且满级就 return」会让链条
+        在第一关满级后**永久停住**，EC2..EC12 一次都进不去。
+      做法：满级分支改为调用**原版自己的退关钩子** `eternity/studies/b;->E(Z)V` 传 false，
+        它内部就是 `r51.h(0)`（= unlocked 归零）。原版 respecTimeStudies
+        （eternity/studies/d;->b(Z)V，d.smali:1565-1620）清树之后做的正是同一件事：
+        `c21.c()`（unlocked 对应的那条 EC 研究）-> `E(false)`。
+        区别（Mod 定制，须登记）：本补丁**不清普通研究树、不退 TT**。
+        理由：Android 没有 Web AD10 的「自动重买普通研究路径」；整树 respec 之后
+        `requirement.some(isBought)`（b.smali:373-390）必然不成立 ⇒ 任何 EC 研究都买不上 = 死锁，
+        且每帧都会清树退款，副作用比「停住」更糟。只退 EC 研究则失败面极小：
+        退不上就停在原地（unlocked=0 时买研究循环逐 id 试探），玩家普通研究树完好。
+      已知代价：这一关 EC 研究的 TT 成本不退（Mod 定制）。等 AD10 落地后再换 d.b(true)。
 
     红线：不写 completions / current / completedBits / 任何奖励字段。
-      current 由 E(true) 内部经 D(Z,Continuation) 写；完成与发奖仍由既有
-      OrekiInstantChallenge 负责（它自己会 maxAM/maxIP 还原、幂等闸门）。
+      current 由 b.D(Z,Continuation) 内部写；完成与发奖仍由既有 OrekiInstantChallenge 负责
+      （它自己会 maxAM/maxIP 还原、幂等闸门）。
+      [Oreki CA-3] 的 E(false) 只**撤销**一个解锁（unlocked -> 0），且走的是原版方法体；
+      所有**发放**（unlocked 变大）仍然只由 fp3.D 在 canBeBought / 扣费 / 前置全过之后自己写。
       整个 tick() 包在 try/catch 里 —— 每帧调用，异常必须吞掉，绝不能把主循环打崩。
     """
     target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
@@ -1774,6 +1883,14 @@ def patch_auto_enter_eternity_challenge():
         ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "I", "()I"),
         ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "L", "()I"),
         ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "E", "(Z)Z"),
+        # R35：真正的 start（R34 误把 E(Z) 当 start，E 只是「研究还能不能买」）
+        ("Lkajfosz/antimatterdimensions/challenge/eternity/b;", "D",
+         "(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"),
+        # R35：原版买 EC 研究 = fp3.D，EC 研究实例来自 c21.a(id)（automator 同款）
+        ("Lfp3;", "D", "(ZLvh0;)Ljava/lang/Boolean;"),
+        ("Lc21;", "a", "(I)Lkajfosz/antimatterdimensions/eternity/studies/b;"),
+        # [Oreki CA-3] 满级退关：EC 研究自己的 onBuy(false) 钩子（内部 r51.h(0) = unlocked 归零）
+        ("Lkajfosz/antimatterdimensions/eternity/studies/b;", "E", "(Z)V"),
     ]
     for cls, name, rest in syms:
         f = _cls(cls)
@@ -1787,7 +1904,12 @@ def patch_auto_enter_eternity_challenge():
     assert nsrc.count(".method public static tick()V") == 1, "tick() 数量异常"
     for frag in ("Lr51;->a(I)Lkajfosz/antimatterdimensions/challenge/eternity/b;",
                  "Lkajfosz/antimatterdimensions/challenge/eternity/b;->y()Z",
-                 "Lkajfosz/antimatterdimensions/challenge/eternity/b;->E(Z)Z",
+                 "Lkajfosz/antimatterdimensions/challenge/eternity/b;->D(ZLkotlin/coroutines/"
+                 "jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+                 "Lfp3;->D(ZLvh0;)Ljava/lang/Boolean;",
+                 "Lc21;->a(I)Lkajfosz/antimatterdimensions/eternity/studies/b;",
+                 # [Oreki CA-3] 满级必须退关（unlocked 归零），否则 EC2..EC12 永远买不到
+                 "Lkajfosz/antimatterdimensions/eternity/studies/b;->E(Z)V",
                  ".catch Ljava/lang/Exception;"):
         assert frag in nsrc, f"OrekiChallengeAuto 缺少关键调用：{frag}"
     # 红线：新类不得出现任何存档字段写入
