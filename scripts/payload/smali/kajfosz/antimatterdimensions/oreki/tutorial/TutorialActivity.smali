@@ -1,28 +1,44 @@
 .class public final Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;
 .super Landroid/app/Activity;
 
-# AD: Oreki Edition - 游戏内简体中文教程（R40H：只负责显示）
+# AD: Oreki Edition - 游戏内简体中文教程（R40H：只负责显示，一章一屏）
 #
 # 正文去哪了
 #   R40H 之前正文硬编码在本文件的 const-string 里，与 Web 侧各维护一份，
-#   已经分叉过一次（两端章数都不一样）。现在正文全部来自
-#   TutorialContent.smali —— 那是构建期由 Web 单源 JSON 生成的类
-#   （scripts/oreki_tutorial_gen.py）。本文件不含任何正文，只负责：
-#     · 顶部固定的章节目录（横向可滑，每章一个页签）
-#     · 字号三档（小 / 中 / 大），偏好存 SharedPreferences
-#     · 打开时按 TutorialProgress.stage() 定位到当前阶段对应的章节
-#     · 把一章的十四个字段按「小节标题 + 正文」渲染出来
+#   已经分叉过一次（两端章数都不一样）。现在正文在构建期由 Web 单源 JSON
+#   生成成两个纯文本资源（scripts/oreki_tutorial_gen.py）：
+#     assets/oreki_tutorial.txt        新版正文（源：oreki-tutorial-data.json）
+#     assets/oreki_tutorial_legacy.txt 旧版正文（过渡期保留，排在新版之后）
+#   本文件不含任何正文，只负责解析 + 渲染。
 #
-# 布局全部代码构建，不依赖 layout XML / 新资源 ID：
-#   LinearLayout(vertical)
-#     ├ 操作行：关闭 / 打开 Oreki 设置
-#     ├ 字号行：小 / 中 / 大
-#     ├ HorizontalScrollView -> 章节页签行
-#     └ ScrollView(weight=1) -> 正文容器
-#   正文容器每次切章 removeAllViews 重填，所以滚动位置会回到顶部。
+# 为什么是 assets 而不是 smali 常量
+#   正文有六位数千字，写成 const-string 会撑出上万行 smali 并顶到 65,535 的
+#   常量池边界；assets 不走 aapt、不占资源 ID、不产生常量池压力，构建期还能
+#   直接按字节做编码与结构断言。
+#
+# 文本格式（每个非空、非 # 开头的行一条记录）
+#   TAG|flag|text
+#   TAG  ∈ CH TITLE SUB STAGE GOAL ENTRY STEP BUY AUTO CHAL NUM DONE NEXT TRAP TBL NOTE
+#   flag 只对 STEP 有意义：0 = 手动，1 = 已由自动化代劳；其它 TAG 写 0
+#   text  里不含半角竖线与换行（生成器负责转义），所以 split("\\|", 3) 一定 3 段
+#   CH 行标记一章开始，TAG 顺序即渲染顺序，章节顺序即文件顺序。
+#
+# 渲染结构（一章一屏）
+#   先读全部文本 -> 建章节索引（起点 / id / 标题 / stageKey）-> 目录页签
+#   -> 只渲染当前章 -> 切章时 removeAllViews 重建内容区。
+#   布局全部代码构建，不依赖 layout XML / 新资源 ID：
+#     LinearLayout(vertical)
+#       ├ 操作行：关闭 / 打开 Oreki 设置
+#       ├ 字号行：小 / 中 / 大（SharedPreferences 只存这一项）
+#       ├ HorizontalScrollView -> 章节页签
+#       └ ScrollView(weight=1) -> 当前章正文
+#
+# 打开时定位：TutorialProgress.stage() 是 8 档，Web stageKey 只有 6 档，
+# 降维映射见 stageKeyFor(I)：0/1/2->early 3->infinity 4->eternity
+# 5->reality 6->celestials 7->doomed。stageKey 为空的章（导览章）不参与定位。
 #
 # 深色配色（R31 起）：背景 #1B1A1E、正文 #D7D8D2、标题 #E4E5E1、
-# 章节标题 #64B5F6、按钮 #2A2A2E/#6AD477、阶段提示 #10304A/白。
+# 小节标题 #64B5F6、按钮 #2A2A2E/#6AD477、阶段提示 #10304A/白。
 #
 # 只读约束：本类除字号偏好外不写任何状态，尤其不碰游戏存档里的任何字段。
 
@@ -35,6 +51,23 @@
 .field private fontSize:I
 
 .field private currentChapter:I
+
+# 本章是否已经画过「具体操作」这个小标题（一章只画一次，多条 STEP 归到同一块）
+.field private stepHeaderDone:Z
+
+# 全部记录行（新版在前、旧版在后，顺序即渲染顺序）
+.field private lines:Ljava/util/ArrayList;
+
+# 每章在 lines 里的起始下标 / 章节 id / 标题 / stageKey
+.field private chStart:[I
+
+.field private chId:[Ljava/lang/String;
+
+.field private chTitle:[Ljava/lang/String;
+
+.field private chStage:[Ljava/lang/String;
+
+.field private chCount:I
 
 
 .method public constructor <init>()V
@@ -193,6 +226,8 @@
 
     invoke-virtual {p0, v0}, Landroid/app/Activity;->setContentView(Landroid/view/View;)V
 
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->loadData()V
+
     invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->buildTabs()V
 
     invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->openInitialChapter()V
@@ -201,41 +236,880 @@
 .end method
 
 
-# 打开时定位：TutorialProgress 是 8 档，Web stageKey 只有 6 档，
-# 两边键位与粒度都不同，映射表由生成器写进 TutorialContent.stageToChapter()。
-.method private final openInitialChapter()V
-    .locals 4
+# 读两个 assets 文件并按 CH 行建章节索引。读不到就当作没有章节，
+# 由 showChapter 画出「正文缺失」提示，绝不因为 IO 失败崩掉教程页。
+.method private final loadData()V
+    .locals 2
 
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;->stage()I
+    new-instance v0, Ljava/util/ArrayList;
 
-    move-result v0
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialContent;->stageToChapter()[I
+    iput-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
 
-    move-result-object v1
+    # 新版在前
+    const-string v1, "oreki_tutorial.txt"
 
-    array-length v2, v1
+    invoke-direct {p0, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V
 
-    if-gez v0, :stage_lo_ok
+    # 旧版在后（过渡期保留，不允许静默丢掉）
+    const-string v1, "oreki_tutorial_legacy.txt"
 
-    const/4 v0, 0x0
+    invoke-direct {p0, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V
 
-    :stage_lo_ok
-    if-lt v0, v2, :stage_hi_ok
-
-    const/4 v0, 0x0
-
-    :stage_hi_ok
-    aget v3, v1, v0
-
-    invoke-direct {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->showChapter(I)V
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->indexChapters()V
 
     return-void
 .end method
 
 
-# 目录：每章一个页签。页签文字来自 TutorialContent.tabTitles()，
-# 与正文同源，所以标题改了目录自动跟着改，不会出现「目录 10 章、正文 15 章」。
+# 逐行读进 p1，跳过空行与 # 注释行。任何异常都吞掉（返回时列表里有多少算多少）。
+.method private final readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V
+    .locals 5
+
+    const/4 v0, 0x0
+
+    :try_open_start
+    invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p2}, Landroid/content/res/AssetManager;->open(Ljava/lang/String;)Ljava/io/InputStream;
+
+    move-result-object v1
+
+    new-instance v2, Ljava/io/BufferedReader;
+
+    new-instance v3, Ljava/io/InputStreamReader;
+
+    const-string v4, "UTF-8"
+
+    invoke-direct {v3, v1, v4}, Ljava/io/InputStreamReader;-><init>(Ljava/io/InputStream;Ljava/lang/String;)V
+
+    invoke-direct {v2, v3}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;)V
+
+    move-object v0, v2
+    :try_open_end
+    .catch Ljava/lang/Exception; {:try_open_start .. :try_open_end} :open_fail
+
+    goto :read_loop
+
+    :open_fail
+    goto :close_stream
+
+    :read_loop
+    :try_read_start
+    invoke-virtual {v0}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
+
+    move-result-object v1
+
+    if-nez v1, :read_end
+
+    invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
+
+    move-result v2
+    :try_read_end
+    .catch Ljava/lang/Exception; {:try_read_start .. :try_read_end} :read_fail
+
+    # 空行
+    if-eqz v2, :read_loop
+
+    const/4 v3, 0x0
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->charAt(I)C
+
+    move-result v3
+
+    # '#' 开头的注释 / 文件头
+    const/16 v4, 0x23
+
+    if-eq v3, v4, :read_loop
+
+    invoke-virtual {p1, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    goto :read_loop
+
+    :read_end
+    goto :close_stream
+
+    :read_fail
+    goto :close_stream
+
+    :close_stream
+    if-nez v0, :done
+
+    :try_close_start
+    invoke-virtual {v0}, Ljava/io/BufferedReader;->close()V
+    :try_close_end
+    .catch Ljava/lang/Exception; {:try_close_start .. :try_close_end} :done
+
+    :done
+    return-void
+.end method
+
+
+# 建章节索引：CH 行开新章，TITLE / STAGE 填该章字段。
+# 章节数只认实际扫到的 CH 行数，绝不写死。
+.method private final indexChapters()V
+    .locals 9
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
+
+    if-nez v0, :no_lines
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+
+    move-result v1
+
+    # 第一遍：数 CH
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    :count_loop
+    if-ge v2, v1, :count_done
+
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Ljava/lang/String;
+
+    invoke-static {v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->parts(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v5
+
+    const/4 v6, 0x0
+
+    if-eqz v5, :count_after_code
+
+    const/4 v7, 0x0
+
+    aget-object v7, v5, v7
+
+    invoke-static {v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tagCode(Ljava/lang/String;)I
+
+    move-result v6
+
+    :count_after_code
+    const/4 v7, 0x1
+
+    if-ne v6, v7, :count_next
+
+    add-int/lit8 v3, v3, 0x1
+
+    :count_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :count_loop
+
+    :count_done
+    iput v3, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    new-array v2, v3, [I
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStart:[I
+
+    new-array v2, v3, [Ljava/lang/String;
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chId:[Ljava/lang/String;
+
+    new-array v2, v3, [Ljava/lang/String;
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chTitle:[Ljava/lang/String;
+
+    new-array v2, v3, [Ljava/lang/String;
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStage:[Ljava/lang/String;
+
+    # 第二遍：填
+    const/4 v2, 0x0
+
+    const/4 v3, -0x1
+
+    :fill_loop
+    if-ge v2, v1, :fill_done
+
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Ljava/lang/String;
+
+    invoke-static {v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->parts(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v5
+
+    if-eqz v5, :fill_next
+
+    const/4 v6, 0x0
+
+    aget-object v6, v5, v6
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tagCode(Ljava/lang/String;)I
+
+    move-result v6
+
+    if-nez v6, :fill_next
+
+    const/4 v7, 0x1
+
+    if-ne v6, v7, :fill_not_ch
+
+    # CH：新章起点
+    add-int/lit8 v3, v3, 0x1
+
+    iget-object v7, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStart:[I
+
+    aput v2, v7, v3
+
+    const/4 v8, 0x2
+
+    aget-object v8, v5, v8
+
+    iget-object v7, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chId:[Ljava/lang/String;
+
+    aput-object v8, v7, v3
+
+    iget-object v7, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chTitle:[Ljava/lang/String;
+
+    const-string v8, ""
+
+    aput-object v8, v7, v3
+
+    iget-object v7, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStage:[Ljava/lang/String;
+
+    aput-object v8, v7, v3
+
+    goto :fill_next
+
+    :fill_not_ch
+    if-ltz v3, :fill_next
+
+    const/4 v7, 0x2
+
+    if-ne v6, v7, :fill_not_title
+
+    iget-object v7, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chTitle:[Ljava/lang/String;
+
+    const/4 v8, 0x2
+
+    aget-object v8, v5, v8
+
+    aput-object v8, v7, v3
+
+    goto :fill_next
+
+    :fill_not_title
+    const/4 v7, 0x4
+
+    if-ne v6, v7, :fill_next
+
+    iget-object v7, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStage:[Ljava/lang/String;
+
+    const/4 v8, 0x2
+
+    aget-object v8, v5, v8
+
+    aput-object v8, v7, v3
+
+    :fill_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :fill_loop
+
+    :fill_done
+    return-void
+
+    :no_lines
+    const/4 v0, 0x0
+
+    iput v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    return-void
+.end method
+
+
+# 一行 -> 3 段。段数不是 3 就返回 null（构建期已断言每条记录正好 3 段，
+# 这里只是兜底，避免畸形行把下标打飞）。
+.method private static parts(Ljava/lang/String;)[Ljava/lang/String;
+    .locals 3
+
+    if-eqz p0, :null
+
+    const-string v0, "\\|"
+
+    const/4 v1, 0x3
+
+    invoke-virtual {p0, v0, v1}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
+
+    move-result-object v0
+
+    array-length v1, v0
+
+    const/4 v2, 0x3
+
+    if-lt v1, v2, :null
+
+    return-object v0
+
+    :null
+    const/4 v0, 0x0
+
+    return-object v0
+.end method
+
+
+.method private final partsAt(I)[Ljava/lang/String;
+    .locals 1
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, p1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->parts(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+
+# TAG -> 整数码。0 表示不认识的 TAG（整行跳过）。
+# 编号与 labelForCode / showChapter 的分派必须一致。
+.method private static tagCode(Ljava/lang/String;)I
+    .locals 1
+
+    const-string v0, "CH"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_ch
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :t_ch
+    const-string v0, "TITLE"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_title
+
+    const/4 v0, 0x2
+
+    return v0
+
+    :t_title
+    const-string v0, "SUB"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_sub
+
+    const/4 v0, 0x3
+
+    return v0
+
+    :t_sub
+    const-string v0, "STAGE"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_stage
+
+    const/4 v0, 0x4
+
+    return v0
+
+    :t_stage
+    const-string v0, "GOAL"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_goal
+
+    const/4 v0, 0x5
+
+    return v0
+
+    :t_goal
+    const-string v0, "ENTRY"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_entry
+
+    const/4 v0, 0x6
+
+    return v0
+
+    :t_entry
+    const-string v0, "STEP"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_step
+
+    const/4 v0, 0x7
+
+    return v0
+
+    :t_step
+    const-string v0, "BUY"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_buy
+
+    const/16 v0, 0x8
+
+    return v0
+
+    :t_buy
+    const-string v0, "AUTO"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_auto
+
+    const/16 v0, 0x9
+
+    return v0
+
+    :t_auto
+    const-string v0, "CHAL"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_chal
+
+    const/16 v0, 0xa
+
+    return v0
+
+    :t_chal
+    const-string v0, "NUM"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_num
+
+    const/16 v0, 0xb
+
+    return v0
+
+    :t_num
+    const-string v0, "DONE"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_done
+
+    const/16 v0, 0xc
+
+    return v0
+
+    :t_done
+    const-string v0, "NEXT"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_next
+
+    const/16 v0, 0xd
+
+    return v0
+
+    :t_next
+    const-string v0, "TRAP"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_trap
+
+    const/16 v0, 0xe
+
+    return v0
+
+    :t_trap
+    const-string v0, "TBL"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_tbl
+
+    const/16 v0, 0xf
+
+    return v0
+
+    :t_tbl
+    const-string v0, "NOTE"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :t_note
+
+    const/16 v0, 0x10
+
+    return v0
+
+    :t_note
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+
+# 整数码 -> 小节标题。文案与 Web 侧字段一一对应，不另起名字。
+.method private static labelForCode(I)Ljava/lang/String;
+    .locals 1
+
+    packed-switch p0, :label_sw
+
+    const-string v0, ""
+
+    return-object v0
+
+    :lb_goal
+    const-string v0, "阶段目标"
+
+    return-object v0
+
+    :lb_entry
+    const-string v0, "进入条件"
+
+    return-object v0
+
+    :lb_step
+    const-string v0, "具体操作"
+
+    return-object v0
+
+    :lb_buy
+    const-string v0, "购买优先级"
+
+    return-object v0
+
+    :lb_auto
+    const-string v0, "自动化配置"
+
+    return-object v0
+
+    :lb_chal
+    const-string v0, "挑战攻略"
+
+    return-object v0
+
+    :lb_num
+    const-string v0, "关键数值"
+
+    return-object v0
+
+    :lb_done
+    const-string v0, "完成判据"
+
+    return-object v0
+
+    :lb_next
+    const-string v0, "下一步路线"
+
+    return-object v0
+
+    :lb_trap
+    const-string v0, "常见卡点"
+
+    return-object v0
+
+    :lb_tbl
+    const-string v0, "对照表"
+
+    return-object v0
+
+    :lb_note
+    const-string v0, "补充说明"
+
+    return-object v0
+
+    :label_sw
+    .packed-switch 0x5
+        :lb_goal
+        :lb_entry
+        :lb_step
+        :lb_buy
+        :lb_auto
+        :lb_chal
+        :lb_num
+        :lb_done
+        :lb_next
+        :lb_trap
+        :lb_tbl
+        :lb_note
+    .end packed-switch
+.end method
+
+
+.method private final textOf(I)Ljava/lang/String;
+    .locals 2
+
+    invoke-direct {p0, p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->partsAt(I)[Ljava/lang/String;
+
+    move-result-object v0
+
+    const/4 v1, 0x0
+
+    if-eqz v0, :empty
+
+    const/4 v1, 0x2
+
+    aget-object v1, v0, v1
+
+    :empty
+    return-object v1
+.end method
+
+
+.method private final flagOf(I)Ljava/lang/String;
+    .locals 2
+
+    invoke-direct {p0, p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->partsAt(I)[Ljava/lang/String;
+
+    move-result-object v0
+
+    const/4 v1, 0x0
+
+    if-eqz v0, :empty
+
+    const/4 v1, 0x1
+
+    aget-object v1, v0, v1
+
+    :empty
+    return-object v1
+.end method
+
+
+# 把 [p1, p2) 这几行的正文拼成一段（换行分隔），相同的 TAG 归到一个小节里。
+.method private final joinText(II)Ljava/lang/String;
+    .locals 4
+
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    move v1, p1
+
+    :join_loop
+    if-ge v1, p2, :join_done
+
+    if-le v1, p1, :join_append
+
+    const-string v2, "\n"
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    :join_append
+    invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->textOf(I)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    add-int/lit8 v1, v1, 0x1
+
+    goto :join_loop
+
+    :join_done
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+
+# 打开时定位：stage() 8 档 -> Web stageKey 6 档。
+#   0 开局 / 1 维度提升 / 2 逼近无限  -> early
+#   3 已无限                          -> infinity
+#   4 已永恒                          -> eternity
+#   5 已现实                          -> reality
+#   6 后期天神                        -> celestials
+#   7 佩勒                            -> doomed
+.method private static stageKeyFor(I)Ljava/lang/String;
+    .locals 2
+
+    const/4 v0, 0x3
+
+    if-lt p1, v0, :sk_early
+
+    const-string v0, "early"
+
+    return-object v0
+
+    :sk_early
+    const/4 v0, 0x3
+
+    if-ne p1, v0, :sk_infinity
+
+    const-string v0, "infinity"
+
+    return-object v0
+
+    :sk_infinity
+    const/4 v0, 0x4
+
+    if-ne p1, v0, :sk_eternity
+
+    const-string v0, "eternity"
+
+    return-object v0
+
+    :sk_eternity
+    const/4 v0, 0x5
+
+    if-ne p1, v0, :sk_reality
+
+    const-string v0, "reality"
+
+    return-object v0
+
+    :sk_reality
+    const/4 v0, 0x6
+
+    if-ne p1, v0, :sk_celestials
+
+    const-string v0, "celestials"
+
+    return-object v0
+
+    :sk_celestials
+    const/4 v0, 0x7
+
+    if-ne p1, v0, :sk_none
+
+    const-string v0, "doomed"
+
+    return-object v0
+
+    :sk_none
+    const-string v0, ""
+
+    return-object v0
+.end method
+
+
+# 组内第一个 stageKey 命中的章；stageKey 为空的章（导览章）不参与定位。
+.method private final chapterForStage(Ljava/lang/String;)I
+    .locals 4
+
+    if-eqz p1, :fallback
+
+    invoke-virtual {p1}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-eqz v0, :fallback
+
+    const/4 v0, 0x0
+
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    :cs_loop
+    if-ge v0, v1, :fallback
+
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStage:[Ljava/lang/String;
+
+    aget-object v2, v2, v0
+
+    if-eqz v2, :cs_next
+
+    invoke-virtual {p1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cs_next
+
+    return v0
+
+    :cs_next
+    add-int/lit8 v0, v0, 0x1
+
+    goto :cs_loop
+
+    :fallback
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+
+.method private final openInitialChapter()V
+    .locals 3
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;->stage()I
+
+    move-result v0
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->stageKeyFor(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chapterForStage(Ljava/lang/String;)I
+
+    move-result v2
+
+    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->showChapter(I)V
+
+    return-void
+.end method
+
+
+# 目录：每章一个页签，章数只认 chCount。
 .method private final buildTabs()V
     .locals 8
 
@@ -243,69 +1117,173 @@
 
     if-eqz v0, :tabs_done
 
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialContent;->tabTitles()[Ljava/lang/String;
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
 
-    move-result-object v1
-
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialContent;->chapterCount()I
-
-    move-result v2
-
-    const/4 v3, 0x0
+    const/4 v2, 0x0
 
     :tabs_loop
-    if-ge v3, v2, :tabs_done
+    if-ge v2, v1, :tabs_done
 
-    new-instance v4, Landroid/widget/Button;
+    new-instance v3, Landroid/widget/Button;
 
-    invoke-direct {v4, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+    invoke-direct {v3, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    aget-object v5, v1, v3
+    iget-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chId:[Ljava/lang/String;
 
-    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    aget-object v4, v4, v2
 
-    const/4 v5, 0x2
+    iget-object v5, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chTitle:[Ljava/lang/String;
 
-    const/high16 v6, 0x41300000    # 11.0f
+    aget-object v5, v5, v2
 
-    invoke-virtual {v4, v5, v6}, Landroid/widget/TextView;->setTextSize(IF)V
+    invoke-static {v4, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabLabel(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v4, 0x2
+
+    const/high16 v5, 0x41300000    # 11.0f
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/TextView;->setTextSize(IF)V
 
     # 按钮深底亮字，与正文区区分
-    const v5, -14013906
+    const v4, -14013906
 
-    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundColor(I)V
+    invoke-virtual {v3, v4}, Landroid/view/View;->setBackgroundColor(I)V
 
-    const v5, -9776009
+    const v4, -9776009
 
-    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTextColor(I)V
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
-    const/4 v5, 0x6
+    const/4 v4, 0x6
 
-    invoke-static {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
-    move-result v5
+    move-result v4
 
-    const/4 v6, 0x0
+    const/4 v5, 0x0
 
-    invoke-virtual {v4, v5, v6, v5, v6}, Landroid/view/View;->setPadding(IIII)V
+    invoke-virtual {v3, v4, v5, v4, v5}, Landroid/view/View;->setPadding(IIII)V
 
     # 页签编号从 100 起，小于 100 的留给字号按钮
     new-instance v5, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
 
-    add-int/lit16 v6, v3, 0x64
+    add-int/lit16 v6, v2, 0x64
 
     invoke-direct {v5, p0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;-><init>(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
 
-    invoke-virtual {v4, v5}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v3, v5}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    invoke-virtual {v0, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+    invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
-    add-int/lit8 v3, v3, 0x1
+    add-int/lit8 v2, v2, 0x1
 
     goto :tabs_loop
 
     :tabs_done
     return-void
+.end method
+
+
+# 页签文字：取标题里全角空格之后的部分（去掉「第 N 章」），超过 6 字截断，
+# 旧版章加「旧·」前缀。标题本身可能被人改，所以这里不做任何格式假设。
+.method private static tabLabel(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 4
+
+    const-string v0, ""
+
+    if-eqz p1, :trunc
+
+    move-object v0, p1
+
+    const-string v1, "\u3000"
+
+    invoke-virtual {p1, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
+
+    move-result v2
+
+    if-ltz v2, :trunc
+
+    add-int/lit8 v2, v2, 0x1
+
+    invoke-virtual {p1}, Ljava/lang/String;->length()I
+
+    move-result v3
+
+    if-ge v2, v3, :trunc
+
+    invoke-virtual {p1, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    :trunc
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    const/4 v3, 0x6
+
+    if-le v2, v3, :short
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x6
+
+    invoke-virtual {v0, v2, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, "…"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    :short
+    if-eqz p0, :ret
+
+    const-string v1, "legacy"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :ret
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "旧·"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    :ret
+    return-object v0
 .end method
 
 
@@ -368,168 +1346,268 @@
 .end method
 
 
-# 渲染第 i 章：清空正文容器 -> 阶段提示 -> 标题 -> 副标题 -> 十四个字段。
+# 渲染第 i 章：清空正文容器 -> 阶段提示 -> 章标题 -> 副标题
+# -> 该章剩余记录（同 TAG 连续的合成一块）。
 .method private final showChapter(I)V
-    .locals 7
+    .locals 11
 
-    iput p1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
+    iget v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
 
-    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+    if-gtz v0, :has_chapters
 
-    if-eqz v0, :render_empty
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
 
-    invoke-virtual {v0}, Landroid/view/ViewGroup;->removeAllViews()V
+    if-eqz v1, :no_chapters_done
 
-    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentScroll:Landroid/widget/ScrollView;
+    invoke-virtual {v1}, Landroid/view/ViewGroup;->removeAllViews()V
 
-    if-eqz v1, :render_hint
+    const-string v2, "教程正文缺失：打包时没有把 assets/oreki_tutorial.txt 带进来。请重装完整安装包，并把这个问题反馈给打包的人。"
 
-    const/4 v2, 0x0
+    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHeading(Ljava/lang/String;)V
 
-    invoke-virtual {v1, v2, v2}, Landroid/widget/ScrollView;->scrollTo(II)V
-
-    :render_hint
-    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHint()V
-
-    invoke-static {p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialContent;->chapter(I)[Ljava/lang/String;
-
-    move-result-object v1
-
-    array-length v2, v1
-
-    const/4 v3, 0x2
-
-    if-ge v2, v3, :render_go
-
+    :no_chapters_done
     return-void
 
-    :render_go
+    :has_chapters
+    if-gez p1, :low_ok
+
+    const/4 p1, 0x0
+
+    :low_ok
+    if-ge p1, v0, :high_ok
+
+    add-int/lit8 p1, v0, -0x1
+
+    :high_ok
+    iput p1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
+
+    const/4 v1, 0x0
+
+    iput-boolean v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->stepHeaderDone:Z
+
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+
+    if-eqz v1, :no_host
+
+    invoke-virtual {v1}, Landroid/view/ViewGroup;->removeAllViews()V
+
+    :no_host
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentScroll:Landroid/widget/ScrollView;
+
+    if-eqz v2, :no_scroll
+
     const/4 v3, 0x0
 
-    aget-object v3, v1, v3
+    invoke-virtual {v2, v3, v3}, Landroid/widget/ScrollView;->scrollTo(II)V
 
-    invoke-direct {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHeading(Ljava/lang/String;)V
+    :no_scroll
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHint()V
 
-    const/4 v3, 0x1
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chTitle:[Ljava/lang/String;
 
-    aget-object v3, v1, v3
+    aget-object v2, v2, p1
 
-    invoke-direct {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addNote(Ljava/lang/String;)V
+    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHeading(Ljava/lang/String;)V
 
-    const/4 v3, 0x2
+    # 本章在 lines 里的区间 [v3, v4)
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStart:[I
 
-    :render_loop
-    if-ge v3, v2, :render_empty
+    aget v3, v2, p1
 
-    aget-object v4, v1, v3
+    add-int/lit8 v4, p1, 0x1
 
-    invoke-virtual {v4}, Ljava/lang/String;->length()I
+    if-lt v4, v0, :not_last
 
-    move-result v5
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
 
-    if-lez v5, :render_next
+    invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
-    invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->labelFor(I)Ljava/lang/String;
+    move-result v4
 
-    move-result-object v6
+    goto :end_ready
 
-    invoke-direct {p0, v6, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Ljava/lang/String;Ljava/lang/String;)V
+    :not_last
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chStart:[I
 
-    :render_next
-    add-int/lit8 v3, v3, 0x1
+    aget v4, v2, v4
 
-    goto :render_loop
+    :end_ready
+    # 副标题：本章第一条 SUB
+    add-int/lit8 v5, v3, 0x1
 
-    :render_empty
+    :sub_loop
+    if-ge v5, v4, :sub_done
+
+    invoke-direct {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->partsAt(I)[Ljava/lang/String;
+
+    move-result-object v7
+
+    if-eqz v7, :sub_next
+
+    const/4 v8, 0x0
+
+    aget-object v8, v7, v8
+
+    invoke-static {v8}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tagCode(Ljava/lang/String;)I
+
+    move-result v8
+
+    const/4 v9, 0x3
+
+    if-ne v8, v9, :sub_next
+
+    const/4 v9, 0x2
+
+    aget-object v9, v7, v9
+
+    invoke-direct {p0, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addNote(Ljava/lang/String;)V
+
+    goto :sub_done
+
+    :sub_next
+    add-int/lit8 v5, v5, 0x1
+
+    goto :sub_loop
+
+    :sub_done
+    add-int/lit8 v5, v3, 0x1
+
+    :rec_loop
+    if-ge v5, v4, :rec_done
+
+    invoke-direct {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->partsAt(I)[Ljava/lang/String;
+
+    move-result-object v7
+
+    if-eqz v7, :rec_next
+
+    const/4 v8, 0x0
+
+    aget-object v8, v7, v8
+
+    invoke-static {v8}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tagCode(Ljava/lang/String;)I
+
+    move-result v8
+
+    if-nez v8, :rec_next
+
+    # CH / TITLE / SUB / STAGE 已经单独处理
+    const/4 v9, 0x4
+
+    if-le v8, v9, :rec_next
+
+    # 找同 TAG 连续的记录，合成一块
+    add-int/lit8 v6, v5, 0x1
+
+    :grp_loop
+    if-ge v6, v4, :grp_done
+
+    invoke-direct {p0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->partsAt(I)[Ljava/lang/String;
+
+    move-result-object v10
+
+    if-eqz v10, :grp_done
+
+    const/4 v9, 0x0
+
+    aget-object v9, v10, v9
+
+    invoke-static {v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tagCode(Ljava/lang/String;)I
+
+    move-result v9
+
+    if-ne v9, v8, :grp_done
+
+    add-int/lit8 v6, v6, 0x1
+
+    goto :grp_loop
+
+    :grp_done
+    invoke-direct {p0, v8, v5, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addGroup(III)V
+
+    move v5, v6
+
+    goto :rec_loop
+
+    :rec_next
+    add-int/lit8 v5, v5, 0x1
+
+    goto :rec_loop
+
+    :rec_done
     return-void
 .end method
 
 
-# 字段下标 -> 小节标题。下标顺序必须与 oreki_tutorial_gen.py 的 FIELDS 一致。
-.method private static labelFor(I)Ljava/lang/String;
-    .locals 1
+# 画一块：同 TAG 的连续几条正文拼成一段。STEP 特殊处理：
+#   一章只画一次「具体操作」小标题；flag=1 的步骤加「［已自动化］」前缀。
+.method private final addGroup(III)V
+    .locals 4
 
-    packed-switch p0, :label_sw
+    invoke-direct {p0, p2, p3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->joinText(II)Ljava/lang/String;
 
-    const-string v0, ""
+    move-result-object v0
 
-    return-object v0
+    const/4 v1, 0x7
 
-    :lb_goal
-    const-string v0, "阶段目标"
+    if-ne p1, v1, :not_step
 
-    return-object v0
+    const-string v1, ""
 
-    :lb_entry
-    const-string v0, "进入条件"
+    iget-boolean v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->stepHeaderDone:Z
 
-    return-object v0
+    if-nez v2, :no_header
 
-    :lb_steps
-    const-string v0, "具体操作"
+    const/4 v2, 0x1
 
-    return-object v0
+    iput-boolean v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->stepHeaderDone:Z
 
-    :lb_buy
-    const-string v0, "购买优先级"
+    const-string v1, "具体操作"
 
-    return-object v0
+    :no_header
+    invoke-direct {p0, p2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->flagOf(I)Ljava/lang/String;
 
-    :lb_auto
-    const-string v0, "自动化配置"
+    move-result-object v2
 
-    return-object v0
+    const-string v3, "1"
 
-    :lb_chal
-    const-string v0, "挑战攻略"
+    invoke-virtual {v3, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    return-object v0
+    move-result v2
 
-    :lb_num
-    const-string v0, "关键数值"
+    if-eqz v2, :no_auto
 
-    return-object v0
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    :lb_done
-    const-string v0, "完成判据"
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    return-object v0
+    const-string v3, "［已自动化］"
 
-    :lb_next
-    const-string v0, "下一步路线"
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    return-object v0
+    move-result-object v3
 
-    :lb_traps
-    const-string v0, "常见卡点"
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    return-object v0
+    move-result-object v3
 
-    :lb_table
-    const-string v0, "对照表"
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    return-object v0
+    move-result-object v0
 
-    :lb_note
-    const-string v0, "补充说明"
+    :no_auto
+    invoke-direct {p0, v1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Ljava/lang/String;Ljava/lang/String;)V
 
-    return-object v0
+    return-void
 
-    :label_sw
-    .packed-switch 0x2
-        :lb_goal
-        :lb_entry
-        :lb_steps
-        :lb_buy
-        :lb_auto
-        :lb_chal
-        :lb_num
-        :lb_done
-        :lb_next
-        :lb_traps
-        :lb_table
-        :lb_note
-    .end packed-switch
+    :not_step
+    invoke-static {p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->labelForCode(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-direct {p0, v1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Ljava/lang/String;Ljava/lang/String;)V
+
+    return-void
 .end method
 
 
@@ -566,7 +1644,7 @@
 .end method
 
 
-# 页面标题（章标题）
+# 章标题
 .method private final addHeading(Ljava/lang/String;)V
     .locals 4
 
@@ -665,10 +1743,20 @@
 
 
 # 小节：标题（蓝色粗体）+ 正文（常规色）。标题为空时只画正文。
+# 正文里的换行由 TextView 自己折行（生成器把 \n 换成了「 / 」，这里的 \n
+# 只来自「同 TAG 多条记录拼接」）。
 .method private final addSection(Ljava/lang/String;Ljava/lang/String;)V
     .locals 6
 
     if-eqz p2, :sec_done_early
+
+    invoke-virtual {p2}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-lez v0, :sec_done_early
+
+    if-eqz p1, :sec_body
 
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
@@ -736,6 +1824,16 @@
     const v2, -2631470
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/high16 v2, 0x40800000    # 4.0f
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    invoke-virtual {v0, v3, v3, v3, v2}, Landroid/view/View;->setPadding(IIII)V
 
     const/4 v2, 0x0
 
@@ -1013,7 +2111,7 @@
 # 等于 addFull 永远直接 return，标题 / 正文 / 按钮一个都没进 LinearLayout。
 # 实测证据（AVD，r27_02_tutorial）：DecorView 下只有
 #   ScrollView{0,0-1080,2120} -> LinearLayout{0,0-1080,88}（88px = 上下各 16dp 内边距）
-# 且 uiautomator dump 里除 ActionBar 标题外没有任何 TextView → 整页空白。
+# 且 uiautomator dump 里除 ActionBar 标题外没有任何 TextView -> 整页空白。
 .method private static addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
     .locals 3
 

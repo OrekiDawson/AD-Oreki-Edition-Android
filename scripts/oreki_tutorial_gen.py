@@ -305,8 +305,14 @@ EXPECTED_GLOSSARY_TERMS = 19
 #
 # 与 Web 的 CORRECTION_SPAN 逐字相同（含 `\s*`）。只剥「明确否定 + 立即跟引号」
 # 的片段：把错译随便包进引号（「时间定理」）不构成豁免，必须前面带否定词。
+#
+# 引号开闭两两放开：中文嵌套引号的标准写法是外层 `「」`、内层 `『』`，所以
+# 「不是『时间定理』」也必须豁免，否则按标准写法写纠错句反而会被判红。
+# 注意这**不是**跨层配对实现：`[「『]…[」』]` 只保证边界对得上，不检查
+# `「…『…』…」` 的层次是否闭合。故意不做得更严 —— 更严的配对会引入新的
+# 假阳性（比如正文里单独引用一个 `『` 符号），收益不抵成本。后来者勿以为是完备实现。
 CORRECTION_SPAN = re.compile(
-    r"(?:不是|禁止写作|不要写成|误译为|错译作|错误写法是)\s*「[^」]{1,40}」")
+    r"(?:不是|禁止写作|不要写成|误译为|错译作|错误写法是)\s*[「『][^」』]{1,40}[」』]")
 
 # 表格里「正确写法」为这些值时，说明官方根本没有这个概念，正确做法是删掉表述，
 # 而不是换成某个词。报错文案要能直接指导修改，所以单独区分。
@@ -416,6 +422,56 @@ def validate_level2_glossary(doc: dict, path: Path | None = None) -> int:
     return len(terms)
 
 
+# ---------------------------------------------------------------- 旁路文案
+# 只校验「内容的正确位置」（JSON）不够，还要校验「内容可能出现的位置」。
+# 教程包里有大量中文是**手写 smali 里的 const-string**，玩家真会看到，却完全不经过
+# JSON：入口按钮文字、8 档阶段提示、目录页签、渲染层标题。
+# 实测证据（2026-10-30 23:1x）：`TutorialProgress.smali:202` 的 8 档提示里写着
+# 「用时间定理点时间研究」——最高频的错译，JSON 里一个字都没有，规则 8 看不见它。
+# 这类文案的错误和正文明文错误一样是**不可见缺陷**：玩家看不出「时间定理」是错的。
+TUTORIAL_SMALI_DIR = (ANDROID_ROOT / "scripts" / "payload" / "smali" / "kajfosz"
+                      / "antimatterdimensions" / "oreki" / "tutorial")
+
+# smali 的字符串字面量。只认 `const-string vX, "..."` 整行，不碰注释与指令。
+SMALI_CONST_STRING = re.compile(r'^\s*const-string(?:/jumbo)?\s+v\d+,\s*"(.*)"\s*$')
+
+# 生成物（JSON 的逐字投影）。它出现在目录里时跳过：内容已经由
+# `_glossary_problems(doc)` 查过一遍，再查一次只会让同一个错误报两遍；
+# 而「生成物与 JSON 是否一致」由 verify_roundtrip 负责，不归译名断言管。
+_GENERATED_SMALI = ("TutorialContent.smali",)
+
+
+def _smali_glossary_problems(terms: list[dict], smali_dir: Path | None = None) -> list[str]:
+    """扫教程包 smali 里玩家可见的中文文案，返回禁用译名问题清单。
+
+    直接在**原始字面量**上匹配，不做 unescape：中文不会被 smali 转义，
+    而 unescape 遇到不认识的手写转义会抛错，把「文案检查」变成「语法检查」。
+    """
+    smali_dir = Path(smali_dir) if smali_dir else TUTORIAL_SMALI_DIR
+    if not smali_dir.is_dir():
+        raise TutorialContentError(
+            f"找不到教程 smali 目录 {smali_dir} —— 旁路文案断言不能静默跳过")
+    files = sorted(p for p in smali_dir.glob("*.smali") if p.name not in _GENERATED_SMALI)
+    if not files:
+        raise TutorialContentError(
+            f"{smali_dir} 下没有 .smali 文件 —— 目录被挪走时这条断言会静默失效")
+
+    problems = []
+    for f in files:
+        for lineno, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            m = SMALI_CONST_STRING.match(line)
+            if not m:
+                continue
+            lit = CORRECTION_SPAN.sub("", m.group(1))
+            for t in terms:
+                if t["term"] in lit:
+                    problems.append(
+                        f"{f.name}:{lineno} 出现禁用译名「{t['term']}」，"
+                        f"{_fix_hint(t['correct'])}"
+                        f"（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:{t['line']}）")
+    return problems
+
+
 def validate_level2(doc: dict, allow_draft: bool = False) -> None:
     """二级断言：默认就必须过（fail closed）。检查「内容是不是真的写完了」。
 
@@ -455,7 +511,11 @@ def validate_level2(doc: dict, allow_draft: bool = False) -> None:
                 problems.append(f"{cid}: 出现占位词 {word!r}")
     # 译名黑名单（词表 = Web 侧 TUTORIAL_GLOSSARY.md 第四节，本文件不另存词表）。
     # 并进 problems 而不是单独抛，是为了让一次构建把「没写完」和「译名错」一起报全。
-    problems.extend(_glossary_problems(doc, load_forbidden_terms(), skip_draft=allow_draft))
+    terms = load_forbidden_terms()
+    problems.extend(_glossary_problems(doc, terms, skip_draft=allow_draft))
+    # 旁路文案（手写 smali 里的中文）**不受 draft 门控**：它和「草稿写完没」无关，
+    # 任何构建都会进包，所以任何口径都该对。被 allow_draft 放行的只有 JSON 草稿章。
+    problems.extend(_smali_glossary_problems(terms))
     doomed = [c for c in doc["chapters"] if c.get("stageKey") == "doomed"]
     if not doomed:
         problems.append("没有任何 stageKey=='doomed' 的章节（终局章节缺失）")
@@ -805,22 +865,45 @@ def selftest() -> int:
     failures: list[str] = []
     checked = 0
 
-    def expect_fail(name, fn):
+    def expect_fail(name, fn, must_say: str | None = None):
+        """must_say：报错里必须出现的关键词。
+
+        只判「抛没抛」不够：真实数据上有 10 章 draft，随便改坏一处都会被
+        「draft 仍为 true」顺带拦住，于是「通过」证明不了这条规则真的生效。
+        要求报错里出现该规则的专属关键词，才算这条断言独立工作。
+        """
         nonlocal checked
         checked += 1
         try:
             fn()
         except TutorialContentError as e:
-            print(f"[OK]   {name} -> 被拦住: {str(e).splitlines()[0]}")
+            msg = str(e)
+            if must_say and must_say not in msg:
+                failures.append(name)
+                print(f"[FAIL] {name} -> 报错了但不是这条规则拦的（缺 {must_say!r}）")
+                return
+            print(f"[OK]   {name} -> 被拦住: {msg.splitlines()[0]}")
             return
         failures.append(name)
         print(f"[FAIL] {name} -> 没有被拦住")
 
-    def with_doc(mutate):
+    def expect_pass(name, fn):
+        """反向用例：断言不该误伤。缺了它，把断言写成「无脑 raise」也会 100% 通过。"""
+        nonlocal checked
+        checked += 1
+        try:
+            fn()
+        except TutorialContentError as e:
+            failures.append(name)
+            print(f"[FAIL] {name} -> 被误拦: {str(e).splitlines()[0]}")
+            return
+        print(f"[OK]   {name} -> 放行")
+
+    def with_doc(mutate, allow_draft=False):
         d = copy.deepcopy(doc)
         mutate(d)
         validate_level1(d)
-        validate_level2(d)
+        validate_level2(d, allow_draft=allow_draft)
 
     expect_fail("schemaVersion 改成 2", lambda: with_doc(lambda d: d.update(schemaVersion=2)))
     expect_fail("chapters 清空", lambda: with_doc(lambda d: d.update(chapters=[])))
@@ -851,6 +934,63 @@ def selftest() -> int:
 
     expect_fail("体积超限", lambda: verify_size(b"\x00" * (MAX_ASSET_BYTES + 1)))
     expect_fail("带 BOM", lambda: verify_encoding(b"\xef\xbb\xbf" + base_text.encode("utf-8"), base_text))
+
+    # --- 禁用译名：正文（JSON）-------------------------------------------
+    # 词表必须与 Web 共读同一份：先证明「解析出来的条数 == Web 侧 19 条」。
+    expect_pass("译名表解析出 19 条禁用写法", lambda: load_forbidden_terms())
+
+    def short_glossary():
+        """条数契约本身也要能失败 —— 否则「解析漏一条」会被当成「表里就这么多」。"""
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "TUTORIAL_GLOSSARY.md"
+            text = GLOSSARY_PATH.read_text(encoding="utf-8")
+            p.write_text(re.sub(r"^\| 倍速 .*$\n?", "", text, flags=re.MULTILINE),
+                         encoding="utf-8")
+            load_forbidden_terms(p)
+    expect_fail("译名表少一条 -> 条数契约拦截", short_glossary, "18 条")
+
+    def push_step(d, text, idx=1):
+        d["chapters"][idx]["steps"].append({"text": text, "auto": False})
+        return d
+
+    # 负例：正文直接误用禁用译名 -> 必须失败（fail closed）
+    expect_fail("译名黑名单：把稀释时间推到 1e100（正文）", lambda: validate_level2_glossary(
+        push_step(copy.deepcopy(doc), "把稀释时间推到 1e100")), "稀释时间")
+    # 正例：主动纠正的例外语境 -> 必须通过（否则守则本身会把守则判红）
+    expect_pass("译名黑名单：例外语境「不是「时间定理」」（正文）", lambda: validate_level2_glossary(
+        push_step(copy.deepcopy(doc), "官方译名是「时间之理」，不是「时间定理」")))
+    # 正例：中文嵌套引号的标准写法（外层「」内层『』）同样必须豁免
+    expect_pass("译名黑名单：嵌套引号「不是『时间定理』」豁免（正文）",
+                lambda: validate_level2_glossary(
+                    push_step(copy.deepcopy(doc), "官方译名是「时间之理」，不是『时间定理』")))
+    # 负例：用引号把错译包起来蒙混过关（前面没有否定词）-> 仍必须失败
+    expect_fail("译名黑名单：引号包裹不构成豁免（正文）", lambda: validate_level2_glossary(
+        push_step(copy.deepcopy(doc), "这里写「稀释时间」也可以")), "稀释时间")
+
+    # --- 禁用译名：旁路文案（手写 smali）----------------------------------
+    # 这条挡的是「正文干净、界面文案却错」—— JSON 里一个字都没有，规则 8 完全看不见。
+    # 实测教训：`TutorialProgress.smali:202` 的 8 档提示里写着「用时间定理点时间研究」。
+    def fake_smali_dir(body: str):
+        import tempfile
+        td = tempfile.mkdtemp()
+        (Path(td) / "TutorialProgress.smali").write_text(body, encoding="utf-8")
+        return Path(td)
+
+    expect_fail("旁路文案：smali 里的「时间定理」",
+                lambda: _smali_glossary_problems(
+                    load_forbidden_terms(),
+                    fake_smali_dir('    const-string v0, "用时间定理点时间研究"\n')),
+                "时间定理")
+    expect_pass("旁路文案：smali 里的纠错句不误伤",
+                lambda: _smali_glossary_problems(
+                    load_forbidden_terms(),
+                    fake_smali_dir('    const-string v0, "官方译名是「时间之理」，不是「时间定理」"\n')))
+    # 只扫 const-string：注释里的词不是玩家可见文案，扫它会制造假阳性
+    expect_pass("旁路文案：注释行不误伤（只扫 const-string）",
+                lambda: _smali_glossary_problems(
+                    load_forbidden_terms(),
+                    fake_smali_dir('# 注释里写时间定理不算：它不是 const-string\n')))
 
     if failures:
         print(f"\n自测失败 {len(failures)} 项: {failures}")

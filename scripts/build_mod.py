@@ -1553,6 +1553,22 @@ def build_sign(java):
     for line in ((r3.stdout or "") + (r3.stderr or "")).strip().splitlines():
         note("      " + line.strip())
     note(f"[5] 最终 APK: {target}  ({target.stat().st_size/1048576:.1f} MiB)")
+
+    # [R40H] 打包后自检：教程正文必须以 assets 形式真的进了 APK。
+    # apktool 不会因为 assets 缺失而失败，缺了只会让真机显示「正文缺失」页，
+    # 所以直接读 ZIP 目录断言，避免再烧一次装机。
+    try:
+        import zipfile
+        with zipfile.ZipFile(target) as z:
+            for name in TUTORIAL_ASSETS:
+                info = z.getinfo("assets/" + name)
+                assert info.file_size > 0, f"assets/{name} 是空条目"
+                note(f"      assets/{name}: {info.file_size} 字节"
+                     f"（压缩后 {info.compress_size}）")
+    except (KeyError, AssertionError) as e:
+        note(f"!! [R40H] APK 里缺少教程正文：{e}")
+        return None
+
     return target
 
 
@@ -3470,29 +3486,59 @@ def patch_stage_auto_hook():
     note("[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）")
 
 
+# ---------------------------------------------------------------- R40H 教程正文
+# 产物是两个纯文本 assets，不再是 smali 常量：正文是五位数千字规模，写成
+# const-string 会撑出上万行 smali 并顶到 65,535 常量池边界；assets 不走 aapt、
+# 不占资源 ID、不产生常量池压力，而且构建期能按字节做编码与结构断言。
+TUTORIAL_ASSETS = ("oreki_tutorial.txt", "oreki_tutorial_legacy.txt")
+
+# 旧版正文的「不许静默丢章」地板：11 章 / 2047 汉字，取 2000 留余量。
+LEGACY_MIN_CJK = 2000
+
+# 旧版分节标题必须逐字等于这句（lead 指定），渲染顺序在全部新章之后。
+LEGACY_HEADER = "旧版教程（正在并入新版，暂留）"
+
+
+def _tutorial_literals(src):
+    """抽出 smali 里的 const-string 字面量。
+
+    只用来断言「界面文案必须简体中文」——`fontSize` / `addFontRow` 是代码标识符，
+    不是给人看的文案，所以只扫字面量、不扫标识符。
+    """
+    out = []
+    for m in re.finditer(r'const-string(?:/jumbo)?\s+v\d+,\s*"((?:[^"\\]|\\.)*)"', src):
+        out.append(m.group(1))
+    return out
+
+
 def patch_tutorial_content():
-    """[Oreki R40H] 教程正文：构建期从 Web 单源 JSON 生成 smali + 三层内容断言。
+    """[Oreki R40H] 教程正文：构建期从 Web 单源 JSON 生成 assets 文本 + 三层断言。
 
     背景（R40F 盘点）：正文原先硬编码在 TutorialActivity.smali 的 const-string
     里，与 Web 侧各维护一份，已经分叉过一次（Android 10 章 / Web 7 章）。
     现在 Android 不再保存正文，构建时读
     `web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json`（只读）生成
-    `TutorialContent.smali`。
+    `payload/assets/oreki_tutorial.txt`，并把它拷进 work/mod/assets/ 参与打包。
 
     为什么必须在这里断言：生成器出问题时**能编过、能装上**，只是界面空白或少章，
-    只有装机肉眼才看得见。所以三道关：
+    只有装机肉眼才看得见。所以三道关（全部在 scripts/oreki_tutorial_gen.py 里）：
       ① 一级断言（常开）  JSON 语法 / schemaVersion / 章节数量 / id 唯一连续 / 字段类型；
       ② 二级断言（常开，OREKI_TUTORIAL_ALLOW_DRAFT=1 才放宽 draft 门槛）
-         draft 全 false、steps 非空、numbers[].src 非空、无占位词、无禁用译名、
-         doomed 章有终局数值；译名词表与 Web 共读 docs/TUTORIAL_GLOSSARY.md 第四节；
-      ③ 回读校验（常开）  把刚生成的 smali 再解析回字符串与 JSON 逐字段比对，
-         专拦「转义把正文弄坏」——① ② 只读 JSON，看不到生成阶段引入的损坏。
+         draft 全 false、steps 非空、numbers[].src 非空、automation ≥120 字且提到
+         总开关 / 自动购买器 / 自动化页、无占位词、无禁用译名；
+         译名词表与 Web 共读 docs/TUTORIAL_GLOSSARY.md 第四节；
+      ③ 回读校验（常开）  把刚生成的文本按分隔符解回结构，与 JSON 逐字段比对，
+         另加 UTF-8 无 BOM / 编码往返 / 体积上限 2 MB / 每条记录正好 3 段。
+
+    本函数再补两层「落盘之后」的检查：
+      ④ 对 work/mod/assets/ 里那份**真正会被打包的字节**重跑编码 + 结构 + 回读；
+      ⑤ 渲染层接线断言 + 极性守卫（构建期红线按全文子串扫描，注释里也不行）。
 
     门控语义是「默认严格、失败即关闭」：不设环境变量 = 最严格。旧名
     OREKI_TUTORIAL_STRICT（=1 才严格）已作废 —— 默认放行的断言等于没有断言。
-
-    产物落两处：payload（可审阅、可入库）与 work/mod（实际编译的树）。
     """
+    import json as _json
+
     import oreki_tutorial_gen as gen
 
     strict = os.environ.get("OREKI_TUTORIAL_ALLOW_DRAFT") != "1"
@@ -3503,75 +3549,143 @@ def patch_tutorial_content():
         for ln in str(e).splitlines():
             note("   " + ln)
         raise AssertionError(
-            f"[R40H] 教程内容校验失败（allow_draft={'1' if not strict else '0'}）") from None
+            f"[R40H] 教程内容校验失败（allow_draft={'0' if strict else '1'}）") from None
 
-    note(f"[R40H] 教程正文由 JSON 生成：{stats['chapters']} 章 × {stats['fields']} 字段，"
-         f"{stats['chars']} 字，回读 {stats['compared_strings']} 个字段逐字一致")
+    note(f"[R40H] 教程正文由 JSON 生成：{stats['chapters']} 章 / {stats['records']} 条记录 / "
+         f"{stats['cjk']} 汉字 / {stats['bytes']} 字节，回读 {stats['records']} 条逐字一致")
     note(f"[R40H] draft 章节 {stats['drafts']} 个；"
          f"二级断言={'严格（draft 也不许留）' if strict else '放宽（仅放行 draft 章）'}；"
          f"stage 映射 {stats['stage_map']}")
 
-    # 拷进实际编译树（patch_smali 的 payload 递归拷贝发生在本函数之前）
+    # ---- ① 拷进实际编译树（patch_smali 只 rglob *.smali，assets 要单独拷）----
+    asrc = PAYLOAD / "assets"
+    adst = MOD / "assets"
+    adst.mkdir(parents=True, exist_ok=True)
+    for name in TUTORIAL_ASSETS:
+        src = asrc / name
+        assert src.is_file(), f"[R40H] payload 缺 assets/{name}"
+        shutil.copy2(src, adst / name)
+        assert (adst / name).stat().st_size == src.stat().st_size, \
+            f"[R40H] assets/{name} 未正确落进 work/mod 树"
+    note(f"[R40H] assets 已进 mod 树：{', '.join(TUTORIAL_ASSETS)}")
+
+    # ---- ② 对「真正会被打包的那份字节」重做编码 / 结构 / 回读 ----
+    raw = (adst / "oreki_tutorial.txt").read_bytes()
+    assert raw, "[R40H] assets/oreki_tutorial.txt 是空文件"
+    assert not raw.startswith(b"\xef\xbb\xbf"), \
+        "[R40H] assets 带 UTF-8 BOM —— 某些读取路径会把 BOM 当正文首字符"
+    assert len(raw) <= gen.MAX_ASSET_BYTES, \
+        f"[R40H] assets 体积 {len(raw)} 字节超过 2 MB 上限"
+    text = raw.decode("utf-8")          # 解不开就是 UnicodeDecodeError，直接炸构建
+    # 编码回读探针：这句中文是我们自己写进文件头的固定串，读回来必须一字不差。
+    assert "游戏内教程正文（构建期生成，请勿手改）" in text, \
+        "[R40H] assets 读回来的中文与写入的不一致（编码链路损坏）"
+    cjk_new = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
+    assert cjk_new >= 1000, f"[R40H] 新版正文只有 {cjk_new} 个汉字，疑似生成物截断"
+
+    doc = _json.loads(Path(stats["json"]).read_text(encoding="utf-8"))
+    ids = [c.get("id") for c in doc["chapters"]]
+    try:
+        rr = gen.verify_roundtrip(text, doc, gen.build_text(doc)[1])
+    except gen.TutorialContentError as e:
+        note(f"!! [R40H] 回读校验失败：{e}")
+        raise AssertionError("[R40H] 重新读回 work/mod 里的 assets 与 JSON 不一致") from None
+
+    # 章节数只认 JSON 实际长度，绝不写死：id 顺序必须等于数组顺序。
+    assert rr["chapters"] == len(ids), \
+        f"[R40H] 回读章数 {rr['chapters']} != JSON 章数 {len(ids)}"
+    assert [c[0][2] for c in gen.parse_text(text)] == ids, \
+        "[R40H] 生成物里的章节 id 顺序与 JSON 数组顺序不一致"
+    assert f"章节数: {len(ids)}" in text, \
+        "[R40H] 文件头「章节数: N」与 JSON 实际章数不一致（生成器可能写死了章数）"
+
+    # ---- ③ 旧版正文：默认总是写，构建不做任何删除 ----
+    lraw = (adst / "oreki_tutorial_legacy.txt").read_bytes()
+    assert lraw, "[R40H] assets/oreki_tutorial_legacy.txt 是空文件（旧版正文被删了？）"
+    ltext = lraw.decode("utf-8")
+    cjk_legacy = sum(1 for c in ltext if "\u4e00" <= c <= "\u9fff")
+    assert cjk_legacy >= LEGACY_MIN_CJK, \
+        f"[R40H] 旧版正文只有 {cjk_legacy} 个汉字（下限 {LEGACY_MIN_CJK}），疑似丢章"
+    try:
+        lchs = gen.parse_text(ltext)
+    except gen.TutorialContentError as e:
+        raise AssertionError(f"[R40H] 旧版 assets 结构损坏：{e}") from None
+    assert lchs and lchs[0][1][2] == LEGACY_HEADER, \
+        f"[R40H] 旧版首章标题不是「{LEGACY_HEADER}」（分节标题丢了）"
+    note(f"[R40H] 旧版正文保留：{len(lchs)} 章 / {cjk_legacy} 汉字 / {len(lraw)} 字节"
+         f"（排版在新版之后，删除与否由 lead 决定，构建不删）")
+    if stats["drafts"] == 0:
+        note(f"[R40H] 新版 {stats['total']} 章已全部完稿；旧版仍写在包里，等 lead 决定是否撤除")
+
+    # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
     tut_dir = MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-    src = Path(stats["out"])
-    dst = tut_dir / "TutorialContent.smali"
-    tut_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src, dst)
-    assert dst.is_file() and dst.stat().st_size == stats["bytes"], \
-        "[R40H] TutorialContent.smali 未正确落进 work/mod 树"
-
-    body = dst.read_text(encoding="utf-8")
-    # 常量自检：运行时自检用的章节数 / 字段数必须与生成时的统计一致
-    assert f"const/16 v0, 0x{stats['chapters']:x}" in body, \
-        "[R40H] chapterCount 常量与章节数不符"
-    assert f"const/16 v0, 0x{stats['fields']:x}" in body, \
-        "[R40H] fieldCount 常量与字段数不符"
-    # 每一章都必须有独立取值方法，缺一章 = 界面少一章
-    for cid in gen.parse_generated(body).keys():
-        assert f".method private static {cid}()" in body, f"[R40H] {cid} 方法缺失"
-    assert len(gen.parse_generated(body)) == stats["chapters"], \
-        "[R40H] 生成物章方法数与 JSON 章数不一致"
-
-    # 渲染层必须真的在用生成物：TutorialActivity 不得再自带正文
     act = tut_dir / "TutorialActivity.smali"
     assert act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
-    asrc = act.read_text(encoding="utf-8")
-    assert "Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialContent;->chapter(I)" in asrc, \
-        "[R40H] TutorialActivity 没有从 TutorialContent 取正文（可能又被写死回 const-string）"
-    assert "TutorialContent;->chapterCount()I" in asrc, \
-        "[R40H] TutorialActivity 没有读章节数（目录会缺章）"
+    asrc_txt = act.read_text(encoding="utf-8")
+
+    for needle, why in (
+        ("getAssets()Landroid/content/res/AssetManager;", "没有走 AssetManager 读正文"),
+        ('const-string v1, "oreki_tutorial.txt"', "没有读新版 assets"),
+        ('const-string v1, "oreki_tutorial_legacy.txt"', "没有读旧版 assets"),
+        ('const-string v0, "\\\\|"', "没有按竖线切分记录"),
+        ("Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;", "没有 split 解析"),
+        ("->showChapter(I)V", "没有「只渲染当前章」的入口"),
+        ("->buildTabs()V", "没有章节目录"),
+        ("->openInitialChapter()V", "打开时没有按阶段定位"),
+        ("TutorialProgress;->stage()I", "没有用 stage() 定位"),
+        ("->saveFontSize()V", "字号偏好没有持久化"),
+    ):
+        assert needle in asrc_txt, f"[R40H] TutorialActivity 接线缺失：{why}（{needle}）"
+
+    # 两套并存是明确禁止的：旧的 smali 常量类必须已删除
+    assert "TutorialContent" not in asrc_txt, \
+        "[R40H] TutorialActivity 仍在引用 TutorialContent（两套正文并存）"
+    assert not (tut_dir / "TutorialContent.smali").exists(), \
+        "[R40H] payload 里还留着 TutorialContent.smali（方案已改为 assets）"
+
+    # 正文不许回到 smali：Activity 里汉字数应与「界面文案」同量级（几百字），
+    # 一旦有人把正文贴回去，这里立刻从几百跳到几千。
+    cjk_act = sum(1 for c in asrc_txt if "\u4e00" <= c <= "\u9fff")
+    assert cjk_act < 1500, \
+        f"[R40H] TutorialActivity 里有 {cjk_act} 个汉字，正文像是又被写回 smali 了"
+
+    # 界面文案一律简体中文：只查 const-string 字面量里的英文界面词（标识符不算）。
+    for lit in _tutorial_literals(asrc_txt):
+        for bad in ("Chapter", "Font", "Back", "Tutorial", "Settings", "Close"):
+            if bad in lit:
+                raise AssertionError(
+                    f"[R40H] TutorialActivity 界面文案出现英文「{bad}」：{lit!r}")
+
     # 红线：手写渲染层不得触碰存档字段（构建期红线守卫按全文子串扫，注释里也不行）。
-    # 生成物只断言「正文里不许出现类型描述符」—— 正文是散文，出现 Lkajfosz/ 或 ;->
-    # 说明模板把代码片段当正文混进来了；不在正文上扫存档字段子串，
-    # 否则以后正文里正常写一句「completions 达到 5」就会误伤构建。
     for banned in ("PlayerEternityChallenges;->h(I)V", "PlayerNormalChallenges;->n(I)V",
                    "PlayerInfinityChallenges;->i(I)V", "->F(I)V", "completions"):
-        assert banned not in asrc, f"[R40H] TutorialActivity 触碰了存档字段（红线）：{banned}"
-    for cid, fields in gen.parse_generated(body).items():
-        for i, text in enumerate(fields):
-            assert ";->" not in text, f"[R40H] {cid}[{i}] 正文里混入了字段/方法访问片段（;->）"
+        assert banned not in asrc_txt, f"[R40H] TutorialActivity 触碰了存档字段（红线）：{banned}"
 
     # 极性守卫（指令序列锚定，与 check_challenge_auto_polarity 同一手法）。
-    # R40H 开发期实际踩到三次零比较/大小比较方向写反。后果不是崩溃，而是
-    # 「只剩章标题、正文一个字都不显示」—— 能编过、能装机，只有肉眼才看得见，
-    # 正是本任务要拦的那一类。逐条钉死：
-    #   if-gtz 在 Dalvik 里是「> 0 才跳」，想「为空就跳过」必须写 if-lez。
+    # R40H 开发期实际踩到多次零比较/大小比较写反。后果不是崩溃，而是
+    # 「只剩章标题、正文一个字都不显示」或「永远停在第 1 章」—— 能编过、能装机，
+    # 只有肉眼才看得见，正是本任务要拦的那一类。逐条钉死：
+    #   if-gtz = 大于 0 才跳；if-ltz = 小于 0 才跳；if-gez = 大于等于 0 才跳。
     for good, bad, why in (
-        ("if-lez v5, :render_next", "if-gtz v5, :render_next", "空字段跳过"),
+        ("if-gtz v0, :has_chapters", "if-lez v0, :has_chapters", "有章节才渲染正文"),
+        ("if-ge p1, v0, :high_ok", "if-lt p1, v0, :high_ok", "章号上界钳制"),
+        ("if-lt v4, v0, :not_last", "if-ge v4, v0, :not_last", "末章区间取 lines.size()"),
+        ("if-le v8, v9, :rec_next", "if-gt v8, v9, :rec_next", "跳过 CH/TITLE/SUB/STAGE"),
+        ("if-ne v9, v8, :grp_done", "if-eq v9, v8, :grp_done", "同 TAG 才合并成一块"),
+        ("if-nez v2, :no_header", "if-eqz v2, :no_header", "「具体操作」小标题只画一次"),
+        ("if-ltz v3, :fill_next", "if-gez v3, :fill_next", "CH 之前出现的记录丢弃"),
+        ("if-eq v3, v4, :read_loop", "if-ne v3, v4, :read_loop", "跳过 # 注释行"),
+        ("if-le v1, p1, :join_append", "if-gt v1, p1, :join_append", "拼接时首条不加换行"),
+        ("if-lt p1, v0, :sk_early", "if-ge p1, v0, :sk_early", "stage 0~2 归 early"),
+        ("if-ltz v2, :trunc", "if-gez v2, :trunc", "页签取全角空格之后的标题"),
+        ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
         ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),
         ("if-lez v0, :sec_body", "if-gtz v0, :sec_body", "小节标题空值跳过"),
-        ("if-ge v2, v3, :render_go", "if-lt v2, v3, :render_go", "字段数 < 2 直接返回"),
-        ("if-ge v3, v2, :render_empty", "if-lt v3, v2, :render_empty", "渲染循环退出"),
-        ("if-eq v0, v2, :ts_small", "if-ne v0, v2, :ts_small", "字号 小 档"),
-        ("if-eq v0, v2, :ts_big", "if-ne v0, v2, :ts_big", "字号 大 档"),
-        ("if-gez v0, :stage_lo_ok", "if-ltz v0, :stage_lo_ok", "stage 下界钳制"),
-        ("if-lt v0, v2, :stage_hi_ok", "if-ge v0, v2, :stage_hi_ok", "stage 上界钳制"),
-        ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
     ):
-        assert good in asrc, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
-        assert bad not in asrc, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
+        assert good in asrc_txt, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
+        assert bad not in asrc_txt, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
 
-    note("[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自生成物）")
+    note("[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自 assets）")
 
 
 def patch_tutorial_entry():
