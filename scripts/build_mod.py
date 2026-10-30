@@ -3797,7 +3797,12 @@ def patch_tutorial_content():
         ("if-ltz v3, :fill_next", "if-gez v3, :fill_next", "CH 之前出现的记录丢弃"),
         ("if-eq v3, v4, :read_loop", "if-ne v3, v4, :read_loop", "跳过 # 注释行"),
         ("if-le v1, p1, :join_append", "if-gt v1, p1, :join_append", "拼接时首条不加换行"),
-        ("if-lt p1, v0, :sk_early", "if-ge p1, v0, :sk_early", "stage 0~2 归 early"),
+        # stage 0~2 归 early：必须「stage >= 3 才跳」，即 if-ge。
+        # 2026-10-31 更正：此条原写 good=if-lt p1 / bad=if-ge p1，
+        # ① 寄存器错（stageKeyFor(I) 是静态方法，参数在 p0，不是 p1），
+        # ② 极性也错（if-lt 会让 stage 0~2 跳走返回空串，恰好是本条要防的故障）。
+        # 它把正确写法当成「写反的」禁掉，同时把写反的当成必须存在 —— 于是构建必红。
+        ("if-ge p0, v0, :sk_early", "if-lt p0, v0, :sk_early", "stage 0~2 归 early"),
         ("if-ltz v2, :trunc", "if-gez v2, :trunc", "页签取全角空格之后的标题"),
         ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
         ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),

@@ -1004,7 +1004,10 @@
 
     const/4 v0, 0x3
 
-    if-lt p0, v0, :sk_early
+    # [极性] if-ge = 「大于等于才跳」：stage >= 3 才跳进下面的分支链；
+    # stage 0/1/2 跳过本跳转、直接落到下面的 "early"。
+    # 写反成 if-lt 时，stage 0~2 会一路跳到 :sk_none 返回空串 ⇒ 新手开局定位不到第 1 章。
+    if-ge p0, v0, :sk_early
 
     const-string v0, "early"
 
