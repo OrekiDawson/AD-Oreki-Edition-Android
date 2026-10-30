@@ -11,6 +11,13 @@ import re
 import sys
 
 REG_V = re.compile(r"\bv(\d+)\b")
+# R40H 教训：`stageKeyFor(I)` 是 static，唯一参数只能是 p0；写成 p1 会多占一个
+# 寄存器，汇编器不报错，ART 装载时抛 VerifyError（register index out of range），
+# 表现为「点教程直接闪退」。所以这里按描述符算出允许的最大 p 编号并检查。
+METHOD_DECL = re.compile(
+    r"^\.method\s+.*?(?P<name>[^\s(]+)\((?P<args>[^)]*)\)(?P<ret>\S+)")
+PARAM_TYPE = re.compile(r"\[*(?:L[^;]+;|[ZBSCIJFDV])")
+REG_P = re.compile(r"\bp(\d+)\b")
 LABEL_DEF = re.compile(r"^\s*:([A-Za-z0-9_]+)\s*$")
 LABEL_REF = re.compile(r":([A-Za-z0-9_]+)")
 # 字段引用形如 `->Theme_DeviceDefault:I` / `->a:Lkajfosz/...;`，其中的类型后缀不是标签
@@ -34,12 +41,20 @@ def lint(path):
     body = []
     locals_n = 0
     start_line = 0
+    max_p = 0
     for idx, line in enumerate(lines, 1):
         if line.startswith(".method"):
             current = line.strip()
             body = []
             locals_n = 0
             start_line = idx
+            m = METHOD_DECL.match(line)
+            if m:
+                n_params = len(PARAM_TYPE.findall(m.group("args")))
+                # 实例方法 p0 = this、参数 p1..pN -> 上限 pN；静态方法参数 p0..p(N-1)
+                max_p = (n_params - 1) if " static " in line else n_params
+            else:
+                max_p = -1          # 解析不了就跳过这条检查（宁漏不误伤）
             continue
         if line.startswith(".end method"):
             if current is None:
@@ -68,6 +83,12 @@ def lint(path):
                 if used and max(used) >= locals_n:
                     problems.append(
                         f"{path}:{start_line} {current} 使用 v{max(used)} 但 .locals = {locals_n}")
+            if max_p >= 0:
+                pmax = [int(n) for ln in body for n in REG_P.findall(ln)]
+                if pmax and max(pmax) > max_p:
+                    problems.append(
+                        f"{path}:{start_line} {current} 使用 p{max(pmax)}，"
+                        f"但该方法的参数上限是 p{max_p}（ART 装载时会 VerifyError）")
             current = None
             continue
         if current is not None:

@@ -69,6 +69,9 @@
 
 .field private chCount:I
 
+# 读 assets 失败时的第一个异常文本（只用于报错文案，不参与任何判定）
+.field private diag:Ljava/lang/String;
+
 
 .method public constructor <init>()V
     .locals 1
@@ -295,6 +298,14 @@
     goto :read_loop
 
     :open_fail
+    move-exception v4
+
+    invoke-virtual {v4}, Ljava/lang/Throwable;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    iput-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->diag:Ljava/lang/String;
+
     goto :close_stream
 
     :read_loop
@@ -337,6 +348,14 @@
     goto :close_stream
 
     :read_fail
+    move-exception v4
+
+    invoke-virtual {v4}, Ljava/lang/Throwable;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    iput-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->diag:Ljava/lang/String;
+
     goto :close_stream
 
     :close_stream
@@ -985,7 +1004,7 @@
 
     const/4 v0, 0x3
 
-    if-lt p1, v0, :sk_early
+    if-lt p0, v0, :sk_early
 
     const-string v0, "early"
 
@@ -994,7 +1013,7 @@
     :sk_early
     const/4 v0, 0x3
 
-    if-ne p1, v0, :sk_infinity
+    if-ne p0, v0, :sk_infinity
 
     const-string v0, "infinity"
 
@@ -1003,7 +1022,7 @@
     :sk_infinity
     const/4 v0, 0x4
 
-    if-ne p1, v0, :sk_eternity
+    if-ne p0, v0, :sk_eternity
 
     const-string v0, "eternity"
 
@@ -1012,7 +1031,7 @@
     :sk_eternity
     const/4 v0, 0x5
 
-    if-ne p1, v0, :sk_reality
+    if-ne p0, v0, :sk_reality
 
     const-string v0, "reality"
 
@@ -1021,7 +1040,7 @@
     :sk_reality
     const/4 v0, 0x6
 
-    if-ne p1, v0, :sk_celestials
+    if-ne p0, v0, :sk_celestials
 
     const-string v0, "celestials"
 
@@ -1030,7 +1049,7 @@
     :sk_celestials
     const/4 v0, 0x7
 
-    if-ne p1, v0, :sk_none
+    if-ne p0, v0, :sk_none
 
     const-string v0, "doomed"
 
@@ -1370,7 +1389,71 @@
 
     invoke-virtual {v1}, Landroid/view/ViewGroup;->removeAllViews()V
 
-    const-string v2, "教程正文缺失：打包时没有把 assets/oreki_tutorial.txt 带进来。请重装完整安装包，并把这个问题反馈给打包的人。"
+    # 报错要能定位：带上「读了多少行 / 认了几章 / 第一个异常」，否则玩家只会说
+    # 「教程是空的」，构建期也看不出是 assets 没打进去还是解析挂了。
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "教程正文缺失（行数 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    iget-object v3, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
+
+    const/4 v4, 0x0
+
+    if-eqz v3, :lines_ready
+
+    invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
+
+    move-result v3
+
+    goto :lines_counted
+
+    :lines_ready
+    move v3, v4
+
+    :lines_counted
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, " / 章节 "
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    iget v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, " / 异常 "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    iget-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->diag:Ljava/lang/String;
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, "）：请重装完整安装包，并把这一行反馈给打包的人。"
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
 
     invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addHeading(Ljava/lang/String;)V
 

@@ -118,6 +118,26 @@ TAG|flag|text
 
 这一版 assets 重写里我自己又写反过 3 处（`if-ne`/`if-eq` 跳注释行、`if-gez`/`if-ltz` 判 chapter 索引、`if-gez`/`if-ltz` 判页签分隔符位置），是**逐条人工复核 + 先设计守卫再写代码**逼出来的；这三条现在都在守卫表里。
 
+### 4.3 参数寄存器：一个汇编期不报、装载期才炸的坑（R40H 第二次装机踩到）
+
+**[实测]** 第三次构建（`_r40h_build_assets_03.log`）汇编、打包、签名全部成功，装到模拟器上点教程直接**闪退**：
+
+```
+java.lang.VerifyError: Verifier rejected class ...TutorialActivity:
+  java.lang.String ...TutorialActivity.stageKeyFor(int):
+  [0xFFFFFFFF] register index out of range (3 >= 3)
+```
+
+原因：`stageKeyFor(I)` 是 `private static`，唯一参数只能是 `p0`；我照抄了旁边实例方法的写法用了 `p1`，等于引用了一个不存在的寄存器（`.locals 2` + 1 个参数 ⇒ 只有 v0/v1/v2，p1 落在 v3）。**汇编器不查寄存器编号，ART 装载时才校验** —— 又一类「能编过、能装上、装上就崩」。
+
+处置（两层，都已生效）：
+
+1. 把该方法的 `p1` 全部改回 `p0`；构建期极性守卫同步改成 `("if-lt p0, v0, :sk_early", …)`；
+2. 给 `tutorial/_lint_smali.py` 加了**参数寄存器上界检查**：按方法描述符算参数个数，实例方法上限 `pN`、静态方法上限 `p(N-1)`，超了直接 FAIL。反向验证过：把 `p0` 改回 `p1`，立刻报
+   `使用 p1，但该方法的参数上限是 p0（ART 装载时会 VerifyError）`。
+
+这次是**装机截图逼出来的**：静态读码、smali 汇编、apktool 打包、签名、APK 内容断言全部通过，只有真机启动才暴露。这也是为什么这份报告坚持「装机验证」这一节不能省。
+
 ---
 
 ## 5. 真实命令与输出
@@ -259,7 +279,7 @@ LinearLayout(vertical)
 | `assets/oreki_tutorial.txt` | 114149 字节 / 839 行 / 18 章 / 834 条记录 / 25176 汉字 / UTF-8 无 BOM |
 | SHA-256 | `4861168fbbf48ff1f1111065c43075d66f75ffd6e77490cfdb7dc19da8c0b265` |
 | `assets/oreki_tutorial_legacy.txt` | 8440 字节 / 37 行 / 11 章 / 2066 汉字 / UTF-8 无 BOM |
-| SHA-256 | `{{LEGACY_SHA}}` |
+| SHA-256 | `2a79cd3c589a99e44b5f4bca4bb7aa20b7083f71d0d4c0ccf276e0879b21242d` |
 | 成品 APK | `{{APK_SIZE}}` |
 | APK SHA-256 | `{{APK_SHA}}` |
 | 构建耗时 | `{{BUILD_TIME}}`（`prepare` 全量重建 + aapt2 + smali + 签名） |
