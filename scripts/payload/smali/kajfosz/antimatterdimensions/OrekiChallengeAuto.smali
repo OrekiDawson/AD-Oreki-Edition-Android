@@ -327,6 +327,27 @@
 # 幂等：已完成（K()==true，即 completionBits.e(id)）的关卡直接跳过。
 #   OrekiInstantChallenge 在同帧把 current 归零并发奖，下一帧 K() 变真 ⇒ 不会重复进入。
 #
+# ── [Oreki R39 · IC1 软锁根因] 这里原本的两处极性全写反了 ─────────────────────
+#   反编译证据（work/base_decoded，逐方法核对，不靠注释猜）：
+#     b.K()Z        = H().e(c)            ⇒ **K()==true 表示「已完成」**
+#                     （H() 是完成位 BitSet：基类返回 PlayerInfinityChallenges.b()，
+#                       normal/a 覆盖为 PlayerNormalChallenges.f()）
+#     normal/a.D()  = 走到写入 current 之后 `Boolean.valueOf(true)` 返回；
+#                     解锁判据 v() 为假时在 :cond_6 返回 `Boolean.valueOf(false)`
+#   ⇒ 「已完成才跳过」必须是 if-nez（非零才跳），原来写成 if-eqz（零才跳）＝
+#     **未完成的全被跳过、已完成的反而每帧被重新 start**。
+#   ⇒ 「D() 返回 true 才算进入」必须是 if-eqz（零＝失败才跳下一个），原来写成
+#     if-nez ＝ 成功反而继续试下一关、失败反而当成功返回。
+#   两条叠加的实际后果（用户实际遇到的 IC1 软锁）：
+#     玩家手动进 IC1 → OrekiInstantChallenge 同帧结算并清 current → 下一帧
+#     tryInfinity 因 K()==true 把「已完成的 IC1」当成可进入目标 → 调 D() →
+#     D() 内部 c.a() 是**完整大坍缩重置**（prestige/e->h(ZZ,Continuation)）→
+#     再被 instant 清 current → 下一帧再来一次。**每帧一次全量重置**，游戏不可操作。
+#   修法：只改极性，不改语义（仍是「进入即完成」），不碰任何存档字段。
+#
+# 另加一道「解锁预检」：B() 为假（未解锁）时直接跳过，不再每帧为 12 关各分配一个
+#   kotlin start$1 协程对象。B() 是原版公开方法（normal/a:345 / g40:116），只读存档。
+#
 # 返回值：本帧是否「已经进入了一关」。true 时 tick() 立即 return，
 #   让紧跟着的 OrekiInstantChallenge.tick() 同帧结算（进入即完成）。
 .method private static tryNormal()Z
@@ -350,7 +371,15 @@
 
     move-result v3
 
-    # 已完成 → 跳过
+    # 已完成（K()==true）→ 跳过。必须是 if-nez：值为非零时跳转。
+    # 写成 if-eqz 会让「已完成的关卡每帧重进」，这正是 R39 修掉的 IC1 软锁。
+    if-nez v3, :c_next
+
+    # 未解锁 → 跳过（省掉一次协程对象分配，语义与 D() 内部首句 v() 判据一致）
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;->B()Z
+
+    move-result v3
+
     if-eqz v3, :c_next
 
     const/4 v3, 0x1
@@ -372,7 +401,8 @@
 
     move-result v2
 
-    if-nez v2, :c_next
+    # D() 返回 false ＝ 没进去 → 试下一个。必须是 if-eqz：值为 0 时跳转。
+    if-eqz v2, :c_next
 
     :c_yes
     const/4 v0, 0x1
@@ -393,8 +423,9 @@
 
 # ---------------------------------------------------------------- 无限挑战 IC 自动进入
 # 与 tryNormal 同构，只是实例工厂换成 py1.a(I)，共 8 关（py1.<clinit> 8 处 new-instance）。
-# infinity/a.D 的第一段是 `invoke-virtual {p0}, Lg40;->B()Z`，同样自校验解锁，
-# 未解锁时直接返回 false，不写 current、不做 Big Crunch。
+# 极性同 tryNormal 那份说明（R39 修掉的 IC1 软锁就死在这两条 if 上，别再改回去）。
+# 解锁判据用 g40.B()（g40.smali:116，`PlayerInfinityChallenges.f() >= c`，只读存档），
+# 与 infinity/a.D 首句的 B() 判据完全同一份实现。
 .method private static tryInfinity()Z
     .locals 5
 
@@ -412,6 +443,16 @@
     if-eqz v2, :i_next
 
     invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;->K()Z
+
+    move-result v3
+
+    # 已完成 → 跳过（必须是 if-nez；写成 if-eqz 就是 IC1 每帧重进的软锁）
+    if-nez v3, :i_next
+
+    # 注意：解锁判据 B()Z 声明在默认包基类 Lg40;（b.smali 的 super 就是它），
+    # infinity/a 没有覆盖 B()。给 g40 加 antimatter 子包前缀会让 ART 在类装载期
+    # 抛 VerifyError（R39 首次装机就是这样炸的）。
+    invoke-virtual {v2}, Lg40;->B()Z
 
     move-result v3
 
@@ -435,7 +476,8 @@
 
     move-result v2
 
-    if-nez v2, :i_next
+    # false ＝ 没进去 → 试下一个（必须是 if-eqz）
+    if-eqz v2, :i_next
 
     :i_yes
     const/4 v0, 0x1

@@ -1991,6 +1991,104 @@ def patch_auto_enter_eternity_challenge():
     note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）")
 
 
+# ---------------------------------------------------------------------------
+# [Oreki R39] 挑战自动进入的极性断言 —— IC1 软锁的编译期防线
+#
+# 背景：R37 写进 OrekiChallengeAuto 的 4 条分支极性全反了，导致
+#   「未完成的挑战一律跳过、已完成的反而每帧被重新 start」。
+#   玩家手动进 IC1 → 同帧被 OrekiInstantChallenge 结算并清 current →
+#   下一帧 tryInfinity 又把已完成的 IC1 当目标调 D() → D() 内部是**完整大坍缩重置**
+#   → 再被清 current → 每帧一次全量重置 ⇒ 页面切不动（用户实际报的软锁）。
+#
+# 反编译依据（work/base_decoded，逐方法核对）：
+#   b.K()Z        = H().e(c)                    ⇒ true == 已完成
+#   normal/a.D()  = 写入 current 后返回 Boolean.TRUE；v() 为假时返回 Boolean.FALSE
+#   g40.B()Z      = PlayerInfinityChallenges.f() >= c  ⇒ 已解锁
+#
+# 这里只做**文本级结构断言**，不试图"聪明地"判断语义：
+# 期望的四条形态必须各出现一次，错误形态必须一次都不出现。
+# ---------------------------------------------------------------------------
+CA_SMALI = "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali"
+
+
+def check_smali_descriptors():
+    """[Oreki R39] 调用独立脚本校验 payload 里引用的游戏类是否真实存在。"""
+    import subprocess
+    import sys as _sys
+    script = Path(__file__).resolve().parent / "check_smali_descriptors.py"
+    if not script.is_file():
+        note("[Oreki R39] 缺少 check_smali_descriptors.py，跳过类描述符校验")
+        return
+    r = subprocess.run([_sys.executable, str(script)], capture_output=True, text=True)
+    out = (r.stdout or "") + (r.stderr or "")
+    for ln in out.strip().splitlines():
+        note("  " + ln)
+    assert r.returncode == 0, "[Oreki R39] 类描述符校验失败（见上方缺失列表），禁止构建"
+
+
+def check_challenge_auto_polarity():
+    """[Oreki R39] 把「指令对」压成一行来断言极性，避免寄存器复用时误判。
+
+    v3 在本方法里先后被 K() 与 B() 复用，所以只看 `if-eqz v3` 这种单条形态会
+    把合法写法误判成回归。这里以 invoke 为锚点，断言紧跟的三连（invoke → move-result
+    → 跳转）整体正确，反例就自动不存在了。
+    """
+    p = MOD / CA_SMALI
+    assert p.is_file(), f"缺少 {p}（payload 未拷入？）"
+    src = p.read_text(encoding="utf-8")
+
+    # ⓪ 类描述符硬约束：g40 在默认包，任何带包名的形式都会 VerifyError
+    assert "antimatter/g40" not in src, (
+        "[Oreki R39] 出现了不存在的类 Lkajfosz/antimatterdimensions/challenge/antimatter/g40; —— "
+        "g40 的真实描述符是 Lg40;（默认包），这会在装机时抛 VerifyError")
+
+    def flat(start_marker):
+        i = src.find(start_marker)
+        assert i >= 0, f"找不到方法头 {start_marker}"
+        j = src.find(".end method", i)
+        assert j > i, f"{start_marker} 找不到方法尾"
+        out = []
+        for ln in src[i:j].splitlines():
+            s = ln.strip()
+            if not s or s.startswith("#") or s.startswith(".line") or s == "|":
+                continue
+            out.append(s)
+        return "|".join(out)
+
+    specs = (
+        ("tryNormal", ".method private static tryNormal()Z", ":c_next",
+         "Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;->B()Z"),
+        # g40 在默认包里（`.class public abstract Lg40;`），不是 antimatter 子包。
+        # 写成带包名会让 ART 在类装载期抛 VerifyError（R39 首次装机实测）。
+        ("tryInfinity", ".method private static tryInfinity()Z", ":i_next", "Lg40;->B()Z"),
+    )
+    for name, hdr, lbl, unlock in specs:
+        body = flat(hdr)
+
+        # ① 完成位：K() 之后必须 if-nez（非零＝已完成 → 跳过）
+        good = f"antimatter/b;->K()Z|move-result v3|if-nez v3, {lbl}"
+        bad = f"antimatter/b;->K()Z|move-result v3|if-eqz v3, {lbl}"
+        assert good in body, (
+            f"[Oreki R39] {name}：K() 之后不是 if-nez —— 已完成的挑战会被每帧重进（IC1 软锁）")
+        assert bad not in body, (
+            f"[Oreki R39] {name}：K() 仍是 if-eqz —— 极性回归，禁止构建")
+
+        # ② D() 的 Boolean：必须 if-eqz（零＝没进去 → 试下一关）
+        good = f"Ljava/lang/Boolean;->booleanValue()Z|move-result v2|if-eqz v2, {lbl}"
+        bad = f"Ljava/lang/Boolean;->booleanValue()Z|move-result v2|if-nez v2, {lbl}"
+        assert good in body, (
+            f"[Oreki R39] {name}：D() 的返回值判定不是 if-eqz —— 失败会被当成已进入，"
+            "并对下一关继续调 start（同帧多次全量重置）")
+        assert bad not in body, (
+            f"[Oreki R39] {name}：Boolean 仍是 if-nez —— 极性回归，禁止构建")
+
+        # ③ 解锁预检（未解锁直接跳过，省掉每帧一份协程对象分配）
+        assert f"invoke-virtual {{v2}}, {unlock}|move-result v3|if-eqz v3, {lbl}" in body, (
+            f"[Oreki R39] {name}：缺少解锁预检 {unlock}（未解锁关卡会被每帧调 D）")
+
+    note("[Oreki R39] 挑战自动进入极性断言通过：K()=已完成→跳过、D()=false→试下一关、含解锁预检")
+
+
 # ============================================================================
 # [Oreki IU15] 第一无限维度购买抑制 —— R38-B 重写
 # ============================================================================
@@ -2084,6 +2182,125 @@ def check_iu15_threshold():
             f"{rel} 里没有 1e8（{IU15_REQ_NEW_1E8}）：IU15 门槛没改到这一处")
     note(f"[Oreki IU15] 阈值校验通过：3 处均为 1e8，旧值 1.5E12 已清零（本次改写 {patched} 个文件）")
     note("[Oreki IU15] 门槛回归断言通过：c30/lu/vw1 三处均为 1e8，且无 1.5E12 残留")
+
+
+# ---------------------------------------------------------------------------
+# [Oreki R38-B] 终局判定常量：OFFSET 8.7 -> 1.0、TARGET 9.0E15 -> 1000.0
+#
+# 语义（Web 侧 R38-M 已查实并单测通过，Android 这里只做对等镜像）：
+#   endState = (log10(log10(totalAM)+1) - OFFSET) / (log10(TARGET) - OFFSET)
+# 令 E = log10(totalAM)（反物质指数），则 endState >= 1  <=>  E >= TARGET。
+#   · 原版 TARGET = 9e15 的真实含义是「反物质指数要到 9e15」，180 分钟预算内不可达；
+#   · OFFSET = 8.7 只在 TARGET > 1e8.7 = 5.01e8 时分母为正。若只缩 TARGET 不动 OFFSET，
+#     分母变负、函数非单调（E 越大 endState 反而越小）——这条路是死的。
+# 取 OFFSET = 1、TARGET = 1e3：分母 log10(1e3)-1 = 2 > 0，E > 9 上严格单调递增。
+#
+# 落点（REA 从 release/ 出货包取证，见 reports/R38B_*）：
+#   smali/kajfosz/antimatterdimensions/celestials/pelle/b.smali
+#     .method public static b()D        == GameEnd.endState
+#       const-wide v2, 0x4021666666666666L    # 8.7    ← 分子、分母共用同一个 v2
+#       const-wide v4, 0x433ff973cafa8000L    # 9.0E15 ← 只进分母
+#   置位点 pelle/b.d(D)V 里的 `Player.a.I0(true)`（Player.I0 = setIsGameEnd）**不动**。
+#
+# 为什么必须写进脚本而不是只改 work/：work/ 整个目录被 .gitignore，干净重建会退回原值。
+# ---------------------------------------------------------------------------
+PELLE_END_SMALI = "smali/kajfosz/antimatterdimensions/celestials/pelle/b.smali"
+PELLE_END_OFFSET_OLD = "0x4021666666666666L"   # 8.7   （IEEE-754 双精度位模式）
+PELLE_END_OFFSET_NEW = "0x3ff0000000000000L"   # 1.0
+PELLE_END_TARGET_OLD = "0x433ff973cafa8000L"   # 9.0E15
+PELLE_END_TARGET_NEW = "0x408f400000000000L"   # 1000.0
+PELLE_END_TARGET_VALUE = 1e3                   # 判据：endState >= 1  <=>  log10(totalAM) >= 1e3
+PELLE_END_OFFSET_VALUE = 1.0
+
+# 只匹配「const-wide vN, 0x....L」整行（含可选行尾注释）。
+# 场景里同一文件还有 `const-wide/high16 v2, 0x3ff0000000000000L # 1.0` 与
+# `const-wide v5, 0x408f400000000000L # 1000.0` 两处**同值不同寄存器**的指令，
+# 所以绝不能用「全局替换该字面量」的做法，必须按整行 + 原字面量双重定位。
+_CONST_WIDE_LINE = re.compile(
+    r"^([ \t]*)const-wide (v\d+), (0x[0-9a-fA-F]{16})L([ \t]*(?:#.*)?)$",
+    re.MULTILINE)
+
+
+def patch_pelle_end_target():
+    """[Oreki R38-B] 把 GameEnd 的 OFFSET / TARGET 缩到 1.0 / 1000.0（幂等）。
+
+    只改两条 `const-wide` 的立即数，寄存器与 `.locals` 完全不变（同一寄存器、
+    同一 64 位宽度），因此不需要动栈帧、不需要补 `const-wide/high16`。
+    """
+    p = MOD / PELLE_END_SMALI
+    assert p.is_file(), f"缺少 {p}（payload/反编译目录不完整？）"
+    src = p.read_text(encoding="utf-8")
+    original = src
+
+    # ---- 结构锚点：改之前先确认这确实是 endState，且两处常量各只有一份 ----
+    assert ".method public static b()D" in src, "pelle/b.smali 里找不到 endState 方法 b()D，锚点失效"
+    # 分母与分子共用 v2：`sub-double/2addr v4, v2` 就是 `log10(TARGET) - OFFSET`
+    assert src.count("sub-double/2addr v4, v2") == 1, (
+        "分母 sub-double/2addr v4, v2 不唯一：endState 结构已漂移，停止改写")
+    # 同值但不同寄存器的两条指令必须仍在（作为「没被误改」的反向证据）
+    assert "const-wide v5, 0x408f400000000000L" in src, \
+        "b()D 里的 1000.0（diff/1000）不见了：这个文件不是预期的版本"
+
+    already = (PELLE_END_OFFSET_OLD not in src and PELLE_END_TARGET_OLD not in src)
+    if not already:
+        # 只在「确实还是原值」时做唯一性断言；二次调用会因旧值已消失而落到这里之外
+        assert src.count(PELLE_END_OFFSET_OLD) == 1, (
+            f"OFFSET 常量 {PELLE_END_OFFSET_OLD} 出现 {src.count(PELLE_END_OFFSET_OLD)} 次（应恰好 1 次）")
+        assert src.count(PELLE_END_TARGET_OLD) == 1, (
+            f"TARGET 常量 {PELLE_END_TARGET_OLD} 出现 {src.count(PELLE_END_TARGET_OLD)} 次（应恰好 1 次）")
+
+    rewrote = []
+    if PELLE_END_OFFSET_OLD in src:
+        src = src.replace(PELLE_END_OFFSET_OLD, PELLE_END_OFFSET_NEW)
+        rewrote.append("OFFSET 8.7 -> 1.0")
+    if PELLE_END_TARGET_OLD in src:
+        src = src.replace(PELLE_END_TARGET_OLD, PELLE_END_TARGET_NEW)
+        rewrote.append("TARGET 9.0E15 -> 1000.0")
+
+    # ---- 行尾注释同步（原版是 `# 8.7` / `# 9.0E15`，留着会误导后来人）----
+    def _fix_comment(m):
+        indent, reg, lit, tail = m.group(1), m.group(2), m.group(3), m.group(4)
+        # lit 捕获组不含行尾的 L，且以 `0x` 小写开头；统一 lower() 后比对
+        want = {PELLE_END_OFFSET_NEW.rstrip("L").lower(): "1.0",
+                PELLE_END_TARGET_NEW.rstrip("L").lower(): "1000.0"}.get(lit.lower())
+        if want is None:
+            return m.group(0)
+        has_comment = "#" in tail
+        if not has_comment:
+            return m.group(0)
+        # 注意必须把 L 后缀补回去：捕获组 (0x[0-9a-fA-F]{16}) 不含 L，
+        # 曾因漏写 L 产出非法 smali（`const-wide v2, 0x3ff0000000000000`）。
+        return f"{indent}const-wide {reg}, {lit}L    # {want}"
+
+    src = _CONST_WIDE_LINE.sub(_fix_comment, src)
+
+    if src != original:
+        p.write_text(src, encoding="utf-8", newline="")
+        note("[Oreki R38-B] 终局判定常量已镜像 Web：" + ("，".join(rewrote) or "仅同步注释"))
+    else:
+        note("[Oreki R38-B] 终局判定常量已是 1.0 / 1000.0，跳过")
+
+    # ---- 回读校验（构建后必须还能过这一关）----
+    # 不能只数「新字面量出现几次」：b.smali 里另有 `const-wide/high16 v2, 0x3ff0...L # 1.0`
+    # （c()Z 拿 endState 与 1.0 比）和 `const-wide v5, 0x408f...L # 1000.0`（diff/1000），
+    # 同值不同寄存器。所以按「寄存器 + 指令形态 + 字面量」三者一起定位。
+    after = p.read_text(encoding="utf-8")
+    assert PELLE_END_OFFSET_OLD not in after, "回读：OFFSET 旧值 8.7 仍在"
+    assert PELLE_END_TARGET_OLD not in after, "回读：TARGET 旧值 9.0E15 仍在"
+    assert re.search(r"^[ \t]*const-wide v2, 0x3ff0000000000000L", after, re.MULTILINE), (
+        "回读：找不到改写后的 `const-wide v2, 1.0`（endState 的 OFFSET）")
+    assert re.search(r"^[ \t]*const-wide v4, 0x408f400000000000L", after, re.MULTILINE), (
+        "回读：找不到改写后的 `const-wide v4, 1000.0`（endState 的 TARGET）")
+    assert after.count("sub-double/2addr v4, v2") == 1, "回读：分母结构被破坏"
+    # 反向防护：任何 `const-wide vN, 0x....` 后面少写 L 都是非法 smali（曾因注释同步丢过 L）
+    assert not re.search(r"const-wide v\d+, 0x[0-9a-fA-F]{16}(?!L)", after), (
+        "回读：存在缺少 L 后缀的 const-wide 字面量，smali 非法")
+    import math
+    assert math.log10(PELLE_END_TARGET_VALUE) - PELLE_END_OFFSET_VALUE > 0, (
+        "分母必须为正，否则 endState 非单调")
+    note("[Oreki R38-B] 回读通过：OFFSET=1.0 / TARGET=1000.0，分母 "
+         f"log10(1e3)-1 = {math.log10(PELLE_END_TARGET_VALUE) - PELLE_END_OFFSET_VALUE:g} > 0")
+
 
 # 注入片段（两个方法各一份，标签必须互不相同：同一文件内标签不能重名）
 ID_GUARD_TMPL = (
@@ -3236,6 +3453,12 @@ def main():
     # 必须在 patch_instant_challenge() 之后：本补丁以 IC 的 tick 行为顺序锚点，
     # 并把 OrekiChallengeAuto.tick() 插到它**前面**（先进入、同帧结算）。
     patch_auto_enter_eternity_challenge()
+    # [Oreki R39] 类描述符校验：payload 引用的游戏类必须真实存在。
+    # VerifyError 只在 ART 装载期爆，汇编器不报 —— R39 就因此白烧了一次构建 + 一次装机。
+    check_smali_descriptors()
+    # [Oreki R39] 极性断言：IC1 软锁（已完成的挑战每帧被重进）必须在构建期被拦住。
+    # 只读 payload 文本，零副作用；放在钩子安装之后、Gradle 之前。
+    check_challenge_auto_polarity()
     # [R38-B] IU15/ID1 冲突：只抑制「第 1 无限维度」的购买，直到 IU15 被拿到。
     # **本轮开启**（ID_GUARD_ENABLED=True）。R37 的两处错误已更正：
     #   · 目标 IU 是 b->k / BitSet id=4（不是 b->n/id=9，那是 Web IU20）；
@@ -3249,6 +3472,10 @@ def main():
     # dilatedTime 1e30 / replicanti 1e20000。门槛常量（u55 就地 new BigDouble）
     # 与进度分母（c15 三个分支）两处同时改，否则 progress 永远到不了 1。
     patch_v_unlock_thresholds()
+    # [R38-B] 终局判定常量镜像 Web：OFFSET 8.7 -> 1.0、TARGET 9.0E15 -> 1000.0。
+    # 语义：endState >= 1 <=> 反物质指数 >= TARGET。只改两条 const-wide 的立即数，
+    # 置位点（Player.I0 = setIsGameEnd）与 gameLoop 一行不动。
+    patch_pelle_end_target()
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），
