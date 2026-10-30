@@ -542,6 +542,14 @@ def patch_smali():
         n += 1
     note(f"[4] 拷入 {n} 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）")
 
+    # [AU-DEL] payload 里已删掉的类，work/mod 里可能还留着上一轮的副本。
+    # 拷贝只覆盖不删除，所以必须显式清掉，否则死代码照样会被打进 APK。
+    for gone in ("smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",):
+        stale = MOD / gone
+        if stale.exists():
+            stale.unlink()
+            note(f"[4] 清理陈旧副本（已从 payload 删除）: {gone}")
+
 
 # ------------------------------------------- 4b. 新增类的静态引用自检
 # 阶段辅助 / 设置界面依赖一批混淆后的类与方法。它们在每个版本的 APK 里
@@ -557,7 +565,6 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali",
     # [Oreki AA] L3 验收（成就位逐位重算，只读）的设备侧执行者
     "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali",
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
@@ -1059,14 +1066,7 @@ def verify_payload():
     assert _d_bits(7500.0) not in eff, "遗迹碎片旧除数 7500.0 仍在（补丁未覆盖全）"
     note("[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）")
 
-    # 旧「按行号批量解锁」已停用：不得再出现原版写入调用，且 unlockStage 必须直接拒绝
-    au = (MOD / "smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali"
-          ).read_text(encoding="utf-8")
-    assert "achievements/a;->E(ZZ)V" not in au, "旧批量解锁仍含 E(ZZ) 写入"
-    assert "-0x3" in au, "unlockStage 未停用（缺少 -3 返回）"
-    assert "const/16 v1, 0x88" not in au and "const/16 v1, 0x90" not in au, \
-        "旧批量解锁的范围常量应已移除"
-    note("[4b] 旧批量解锁停用自检通过（无 E(ZZ) 写入，unlockStage 返回 -3）")
+    # 旧「按行号批量解锁」类已整体删除（见 [AU-DEL]）；这里不再读它的源码。
 
     # realityUpgradesAll 必须指向原版「全买」判定（= 成就 147 的原版条件），
     # 不得改成「随便某个布尔」或自算数量。证据：z3.<clinit> 6022 构造 147 时传入
@@ -1108,15 +1108,16 @@ def verify_payload():
         assert stale not in ad, f"[4n] a.d 仍有未补偿的原始 delta 使用点: {stale}"
     note("[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）")
 
-    # 旧全成就类不得再被任何其他类引用（防旧入口复活）
+    # [AU-DEL] AchievementUnlocker 已删除（死代码，零运行时引用）。
+    # 双向反向断言：类文件不在了、且全树 0 引用 —— 少一条都说明有人把它请回来了。
+    assert not (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+                / "AchievementUnlocker.smali").exists(), "[AU-DEL] 类文件仍存在"
     au_refs = 0
-    for p in (MOD / "smali" / "kajfosz").rglob("*.smali"):
-        if p.name == "AchievementUnlocker.smali":
-            continue
+    for p in (MOD / "smali").rglob("*.smali"):
         au_refs += p.read_text(encoding="utf-8", errors="ignore").count(
-            "oreki/AchievementUnlocker;->")
-    assert au_refs == 0, f"旧全成就类仍有 {au_refs} 处外部引用"
-    note("[4b] 旧全成就类零外部引用通过")
+            "oreki/AchievementUnlocker;")
+    assert au_refs == 0, f"[AU-DEL] 全树仍有 {au_refs} 处引用指向已删除的类"
+    note("[4b] AchievementUnlocker 删除干净（类文件不存在 + 全树 0 引用）")
 
     # --- [4c] START perk 与 R0 提示一致性（2026-10-25 复核新增）---
     # 证据链：eg3.a = Reality perk id 0 = START（strings.xml perk_0_name）；

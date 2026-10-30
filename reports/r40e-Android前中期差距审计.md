@@ -548,8 +548,23 @@ E/OREKI_ACHAUDIT: MARK_FAILED ...               # 留痕写盘失败 ⇒ L2 判�
 `patch_id_autobuyer_guard` 首行、原「为什么只拦 tier 1」整段、该函数的 `note(...)`、`:4128` 调用点注释——四处统一改成「全 8 层 ID 购买守卫，不读 tier」。
 `OrekiStageAuto.smali:166-168` 的 `upgradeInterval` 注释补两个前置：未 break 才继续 / `v()==hasMaxedInterval`（interval ≤100）即停。
 
-### 11.6 仍未做：任务 3（`AchievementUnlocker` 删除）
+### 11.6 任务 3：`AchievementUnlocker` 纯删除（已完成，单独 commit）
 
-**阻塞点**：本仓库不是 git repo（`git status` → `fatal: not a git repository`），「纯删除单独一个 commit」无法执行。
-候选删除面：`scripts/payload/.../oreki/AchievementUnlocker.smali`、`scripts/verify_row18.py`（已坏）、`build_mod.py:560`（`PAYLOAD_MUST_EXIST`）、`:1063-1066`（停用自检）、`:1114-1118`（零引用断言）、`StageAssist.smali:7/:42` 两处提及该类的注释。
-待 team-lead 在「备份目录+sha256 / unified diff / 直接删」中选一种后执行。
+删除依据（不是 grep 结论，是运行期反证）：
+`requestStage(I)V` 只剩 `return-void`；`unlockStage(I)I` 首句 `const/4 v0, -0x3` + `return v0`；
+`onTick()` 读 `pending`，而唯一写入点（`requestStage`）已停 ⇒ 三条入口全部不可达。
+
+删除面（3 个文件 + `build_mod.py` 同一次提交内原子移除）：
+
+| 动作 | 位置 |
+|---|---|
+| `git rm` | `scripts/payload/smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali` |
+| 改写 | `scripts/verify_row18.py`：从「解析 AU 的 8 个阶段」改成**反向断言**（类不存在 + payload 0 引用），并保留「第 18 行不得写入」的判定（只扫 `run(I)`，取到 `[13, 17]`） |
+| 改注释 | `StageAssist.smali:7/:43` 两处「原因同 AchievementUnlocker」改成「已删除 + 本类不得调任何强制置位入口」 |
+| 原子移除 | `build_mod.py`：`PAYLOAD_MUST_EXIST` 去掉该条目；删掉「旧批量解锁停用」自检；零引用断言改成 `[AU-DEL]` 双向反向断言（类文件不存在 + 全树 0 引用） |
+| 新守卫 | `build_mod.py` 拷入 payload 后**主动删除 `work/mod` 里的陈旧副本** —— 拷贝只覆盖不删除，不清掉的话死代码照样会被打进 APK |
+
+`python scripts/verify_row18.py` → `结论: 通过`（payload 引用数 0 / 上界 `[13, 17]`）。
+
+**恢复方式**：`git show 0b51233:scripts/payload/smali/kajfosz/antimatterdimensions/oreki/AchievementUnlocker.smali`
+（删除前的最后一次内容在 `0b51233`；历史另有 `4b3f5d0`、`59ad3b5` 两次提交）。

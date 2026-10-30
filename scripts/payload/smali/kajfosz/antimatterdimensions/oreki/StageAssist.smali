@@ -4,8 +4,9 @@
 # ---------------------------------------------------------------
 # AD: Oreki Edition - staged precise achievement assist
 #
-# 与 AchievementUnlocker（按“行区间”批量解锁）刻意分离：
-#   * 本类只处理三个「有真实成就门槛」的阶段，且都要求「进度之前」使用：
+# AchievementUnlocker（按“行区间”批量解锁）已于 2026-10-31 整体删除：它是死代码，
+# 且本类不得调用任何「强制置位」入口（`achievements/a;->E(ZZ)V` 只给本类用，别处一律禁止）。
+# 本类只保留三个「有真实成就门槛」的阶段，且都要求「进度之前」使用：
 #       stage 1 = 第 1-13 行：Reality 的成就门槛。三向印证（2026-10-25 复核）：
 #                 研究树「Unlock Reality」（dilation study id 6）的要求 =
 #                   TimeDimension8 已买 && maxEP.exponent >= 4000 &&
@@ -39,7 +40,7 @@
 #   * Doomed（Pelle.isDoomed）下 run() 直接返回 -1，不写任何一位。
 #
 # 执行时机：设置页只写 SharedPreferences 标记（oreki_prefs / stage_assist），
-# 真正写入在游戏 tick 内执行。原因同 AchievementUnlocker：
+# 真正写入在游戏 tick 内执行。延迟到 tick 的原因（与已删除的 AchievementUnlocker 同）：
 # Player.a 在类加载时是默认实例，冷启动场景直接改会写进默认对象后丢失。
 # ---------------------------------------------------------------
 
