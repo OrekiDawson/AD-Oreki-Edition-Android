@@ -56,7 +56,11 @@
 
     cmp-long v4, v0, v2
 
-    if-nez v4, :first
+    # [R41 极性修正] if-eqz = v4==0 才跳（sLast == 0，说明还没跑过）。
+    # 原写 if-nez（非零才跳）：首次调用 sLast==0 反而落到下面的 elapsed 计算里跑了一次审计，
+    # 之后每次 sLast!=0 都跳进 :first「只记时间就返回」⇒ 审计总共只跑 1 次。
+    # 实测：220 s 内 OREKI_GATE 只有 1 行、OREKI_ACHAUDIT 只有 1 轮（36 MISMATCH + 1 DONE）。
+    if-eqz v4, :first
 
     # 已流逝 = now - last；< 5000 ms 直接返回（每帧只剩 6 条整数指令）
     sub-long v2, v12, v0
