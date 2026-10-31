@@ -2758,9 +2758,21 @@ PELLE_END_SMALI = "smali/kajfosz/antimatterdimensions/celestials/pelle/b.smali"
 PELLE_END_OFFSET_OLD = "0x4021666666666666L"   # 8.7   （IEEE-754 双精度位模式）
 PELLE_END_OFFSET_NEW = "0x3ff0000000000000L"   # 1.0
 PELLE_END_TARGET_OLD = "0x433ff973cafa8000L"   # 9.0E15
-PELLE_END_TARGET_NEW = "0x408f400000000000L"   # 1000.0
-PELLE_END_TARGET_VALUE = 1e3                   # 判据：endState >= 1  <=>  log10(totalAM) >= 1e3
+PELLE_END_TARGET_NEW = "0x408f480000000000L"   # 1001.0（= Web 的 TARGET+1，见下方 [R41] 说明）
+PELLE_END_TARGET_VALUE = 1e3 + 1               # 判据：endState >= 1  <=>  log10(totalAM) >= 1e3
 PELLE_END_OFFSET_VALUE = 1.0
+
+# [R41] 为什么 TARGET 是 1001.0 而不是 1000.0（双端一致性修正，2026-10-31）：
+#   Web 的公式是 (log10(log10(totalAM)+1) - OFFSET) / (log10(TARGET + 1) - OFFSET)，
+#   Android 这段 smali 的分母写死为 log10(TARGET) - OFFSET（没有 +1）。
+#   · TARGET=1000.0：分母 = 3 - 1 = 2 ⇒ endState>=1 ⇔ E+1>=1000 ⇔ E>=999
+#   · TARGET=1001.0：分母 = log10(1001) - 1 = 2.000434 ⇒ E+1>=1001 ⇔ E>=1000（= Web）
+#   ⇒ 差的是**整整一个数量级的反物质**（10^999 vs 10^1000），不是 0.1% 的显示误差；
+#     endState 跨过 1 的位置也随之左移一格 ⇒ 终局判据双端不等价，必须修。
+#   取证：`pelle/b.smali` 的 `b()D` 里是
+#     invoke-static {v0,v1}, Math->log10(D)D ; sub-double/2addr v0, v2（分子）
+#     const-wide v4, <TARGET> ; Math->log10(D)D ; sub-double/2addr v4, v2（分母）
+#   分子那一侧原版已经带 +1（BigDouble.Add(lu.C) 之后才 log10），所以只需给分母补 +1。
 
 # 只匹配「const-wide vN, 0x....L」整行（含可选行尾注释）。
 # 场景里同一文件还有 `const-wide/high16 v2, 0x3ff0000000000000L # 1.0` 与
@@ -2805,14 +2817,14 @@ def patch_pelle_end_target():
         rewrote.append("OFFSET 8.7 -> 1.0")
     if PELLE_END_TARGET_OLD in src:
         src = src.replace(PELLE_END_TARGET_OLD, PELLE_END_TARGET_NEW)
-        rewrote.append("TARGET 9.0E15 -> 1000.0")
+        rewrote.append("TARGET 9.0E15 -> 1001.0")
 
     # ---- 行尾注释同步（原版是 `# 8.7` / `# 9.0E15`，留着会误导后来人）----
     def _fix_comment(m):
         indent, reg, lit, tail = m.group(1), m.group(2), m.group(3), m.group(4)
         # lit 捕获组不含行尾的 L，且以 `0x` 小写开头；统一 lower() 后比对
         want = {PELLE_END_OFFSET_NEW.rstrip("L").lower(): "1.0",
-                PELLE_END_TARGET_NEW.rstrip("L").lower(): "1000.0"}.get(lit.lower())
+                PELLE_END_TARGET_NEW.rstrip("L").lower(): "1001.0"}.get(lit.lower())
         if want is None:
             return m.group(0)
         has_comment = "#" in tail
@@ -2839,8 +2851,8 @@ def patch_pelle_end_target():
     assert PELLE_END_TARGET_OLD not in after, "回读：TARGET 旧值 9.0E15 仍在"
     assert re.search(r"^[ \t]*const-wide v2, 0x3ff0000000000000L", after, re.MULTILINE), (
         "回读：找不到改写后的 `const-wide v2, 1.0`（endState 的 OFFSET）")
-    assert re.search(r"^[ \t]*const-wide v4, 0x408f400000000000L", after, re.MULTILINE), (
-        "回读：找不到改写后的 `const-wide v4, 1000.0`（endState 的 TARGET）")
+    assert re.search(r"^[ \t]*const-wide v4, 0x408f480000000000L", after, re.MULTILINE), (
+        "回读：找不到改写后的 `const-wide v4, 1001.0`（endState 的 TARGET）")
     assert after.count("sub-double/2addr v4, v2") == 1, "回读：分母结构被破坏"
     # 反向防护：任何 `const-wide vN, 0x....` 后面少写 L 都是非法 smali（曾因注释同步丢过 L）
     assert not re.search(r"const-wide v\d+, 0x[0-9a-fA-F]{16}(?!L)", after), (
@@ -2848,7 +2860,7 @@ def patch_pelle_end_target():
     import math
     assert math.log10(PELLE_END_TARGET_VALUE) - PELLE_END_OFFSET_VALUE > 0, (
         "分母必须为正，否则 endState 非单调")
-    note("[Oreki R38-B] 回读通过：OFFSET=1.0 / TARGET=1000.0，分母 "
+    note("[Oreki R38-B] 回读通过：OFFSET=1.0 / TARGET=1001.0，分母 "
          f"log10(1e3)-1 = {math.log10(PELLE_END_TARGET_VALUE) - PELLE_END_OFFSET_VALUE:g} > 0")
 
 
