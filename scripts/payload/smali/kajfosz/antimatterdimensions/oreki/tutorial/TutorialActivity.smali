@@ -7,7 +7,7 @@
 #   R40H 之前正文硬编码在本文件的 const-string 里，与 Web 侧各维护一份，
 #   已经分叉过一次（两端章数都不一样）。现在正文在构建期由 Web 单源 JSON
 #   生成成一个纯文本资源（scripts/oreki_tutorial_gen.py）：
-#     assets/oreki_tutorial.txt        正文 18 章 + 附录 7 篇（源：oreki-tutorial-data.json）
+#     assets/oreki_tutorial.txt        正文 18 章 + 附录 6 篇 = 24 段（源：oreki-tutorial-data.json）
 #   旧版正文 assets 已按用户要求删除（构建期有反向守卫，见 build_mod.py）。
 #   本文件不含任何正文，只负责解析 + 渲染。
 #
@@ -37,8 +37,33 @@
 # 降维映射见 stageKeyFor(I)：0/1/2->early 3->infinity 4->eternity
 # 5->reality 6->celestials 7->doomed。stageKey 为空的章（导览章）不参与定位。
 #
-# 深色配色（R31 起）：背景 #1B1A1E、正文 #D7D8D2、标题 #E4E5E1、
-# 小节标题 #64B5F6、按钮 #2A2A2E/#6AD477、阶段提示 #10304A/白。
+# 主题与视觉（R45：Material 3 Expressive 视觉规范，纯深色，无浅色回退）
+#   窗口主题改为 @android:style/Theme.Material.NoActionBar（构建期有防回归断言，
+#   禁止任何 Light 主题），根容器底 #0F1318 直接铺满，系统栏同色，不存在浅色分支。
+#
+#   为什么是「手绘 M3」而不是直接 new Material 控件
+#     包里确实带了 Material Components（classes2.dex 里 154 个 material 类，
+#     Theme.Material3.Dark.NoActionBar 等主题资源也在），但那是 R8 处理过的：
+#     shape/ 只剩 1 个类、ShapeAppearanceModel 缺席，M3 的形状体系（shapeAppearance
+#     / shapeAppearanceOverlay）拿不到；游戏自身主题链也只走 Theme.AppCompat。
+#     因此控件层退回原生 View + GradientDrawable/RippleDrawable，按 M3 规范取值，
+#     不新增任何 Gradle 依赖、不新增 res 资源、不改布局 XML。
+#
+#   色彩角色（深色，对比度均已核算）
+#     Surface              #0F1318   根容器底
+#     SurfaceContainerLow  #12171C   分段控件轨道
+#     SurfaceContainer     #1A2027   正文卡片
+#     SurfaceContainerHigh #232B33   未选中页签
+#     OutlineVariant       #33404C   1dp 分隔线 / 卡片描边
+#     OnSurface            #E3E8EE   标题与正文（15.1:1）
+#     OnSurfaceVariant     #AFBAC6   次要文字（8.3:1）
+#     Primary              #0078D7   Filled 按钮底（白字 4.5:1）
+#     PrimaryContainer     #00496E   提示块 / 选中页签 / 选中档
+#     OnPrimaryContainer   #C9E6FF   容器上的文字（7.5:1）
+#     PrimaryTonal         #7CCBFF   Tonal 按钮文字 / 小标签
+#
+#   形状与字号：卡片 16dp、提示块 24dp、页签与按钮全圆角(pill)、标题卡 26dp；
+#   小标签 12sp 加 0.08 字距、正文 15sp、标题 23sp、页签 13sp。
 #
 # 只读约束：本类除字号偏好外不写任何状态，尤其不碰游戏存档里的任何字段。
 
@@ -55,7 +80,7 @@
 # 本章是否已经画过「具体操作」这个小标题（一章只画一次，多条 STEP 归到同一块）
 .field private stepHeaderDone:Z
 
-# 全部记录行（顺序即渲染顺序；旧版已删除，只剩新版 18 章 + 7 附录）
+# 全部记录行（顺序即渲染顺序；旧版已删除，只剩新版 18 章 + 6 附录）
 .field private lines:Ljava/util/ArrayList;
 
 # 每章在 lines 里的起始下标 / 章节 id / 标题 / stageKey
@@ -108,7 +133,17 @@
 
     # [Oreki DARK] 窗口主题先切成深色，再 super.onCreate，保证 ActionBar / 状态栏
     # 不再沿用 manifest 里的 Theme.DeviceDefault.Light。
-    sget v0, Landroid/R$style;->Theme_DeviceDefault:I
+    #
+    # [R45-C] 改成 Theme.Material.NoActionBar：
+    #   1) Theme.Material 是**恒深色**主题，不随系统 uiMode 翻转 —— 教程页是手绘深色，
+    #      只要窗口主题回退成浅色，状态栏文字、系统弹窗、Toast 就会跟着变浅，
+    #      出现「浅色回退」。这一点比保留 ActionBar 重要。
+    #   2) NoActionBar 是为了自己画一条 M3 风格标题区（见 addAppBar）：
+    #      ActionBar 的高度、字重、内边距都不受我们控制，会和卡片式正文打架。
+    #      标题文字改由 addAppBar 绘制，setTitle 保留只为系统最近任务列表显示。
+    #   3) 这两个都是 android.R 里的常量字段，与已在线上跑通的
+    #      Theme_DeviceDefault 同一解析路径，不引新依赖。
+    sget v0, Landroid/R$style;->Theme_Material_NoActionBar:I
 
     invoke-virtual {p0, v0}, Landroid/app/Activity;->setTheme(I)V
 
@@ -146,10 +181,15 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    # 0xFF1B1A1E
-    const v1, -0xe4e5e2
+    # 0xFF0F1318 —— M3 深色 Surface（中性色相 210、tone 6~8）。
+    # 比 R31 的 #FF1B1A1E 更暗一档，卡片/描边才有层级空间：卡片用 SurfaceContainer
+    # #FF1A2027，比底色亮 4%，不用阴影也能看出是独立一块。
+    const v1, -15789288
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
+
+    # [R45-C] M3 标题区（自绘，替代被去掉的 ActionBar）
+    invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addAppBar(Landroid/widget/LinearLayout;)V
 
     invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addActions(Landroid/widget/LinearLayout;)V
 
@@ -168,21 +208,50 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
+    # 章节目录条的内边距：左右 12dp（胶囊页签自己还有 8dp 外边距，
+    # 合起来与正文 16dp 的左边距对齐），上下 6dp。
     const/16 v3, 0x8
 
     invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
     move-result v3
 
-    invoke-virtual {v2, v3, v3, v3, v3}, Landroid/view/View;->setPadding(IIII)V
+    const/4 v4, 0x6
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    invoke-virtual {v2, v3, v4, v3, v4}, Landroid/view/View;->setPadding(IIII)V
 
     invoke-virtual {v1, v2}, Landroid/widget/HorizontalScrollView;->addView(Landroid/view/View;)V
 
     iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabHost:Landroid/widget/LinearLayout;
 
-    # 记住外层 HorizontalScrollView：25 个页签（18 章 + 7 附录）横向要滑，
+    # 记住外层 HorizontalScrollView：24 个页签（18 章 + 6 附录）横向要滑，
     # 切章后要让当前页签可见，否则玩家不知道自己在看哪一条。
     iput-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabScroll:Landroid/widget/HorizontalScrollView;
+
+    # 目录与标题区之间加一条 1dp 的 OutlineVariant 分隔线（M3 里目录也属于 chrome）
+    new-instance v3, Landroid/view/View;
+
+    invoke-direct {v3, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    const v4, -13418420
+
+    invoke-virtual {v3, v4}, Landroid/view/View;->setBackgroundColor(I)V
+
+    new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v5, -0x1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->hairline()I
+
+    move-result v6
+
+    invoke-direct {v4, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v0, v3, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -213,13 +282,27 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
+    # 正文左右各 16dp、上 14dp、下 32dp。上下不对称是为了让最后一张卡片
+    # 与屏幕底边留出余量（M3 要求滚动容器底部至少 16dp 的安全内边距）。
     const/16 v3, 0x10
 
     invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
     move-result v3
 
-    invoke-virtual {v2, v3, v3, v3, v3}, Landroid/view/View;->setPadding(IIII)V
+    const/16 v4, 0xe
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    const/16 v5, 0x20
+
+    invoke-static {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v5
+
+    invoke-virtual {v2, v3, v4, v3, v5}, Landroid/view/View;->setPadding(IIII)V
 
     iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
 
@@ -1407,9 +1490,13 @@
     :tabs_loop
     if-ge v2, v1, :tabs_done
 
-    new-instance v3, Landroid/widget/Button;
+    # [R45-C] 胶囊页签：TextView + GradientDrawable（全圆角）+ Ripple。
+    # 不用 Button 的原因：Button 自带 minHeight / textAllCaps / backgroundTint，
+    # 圆角会被主题 tint 覆盖成实心块（R31 实测）。TextView 不设 backgroundTint，
+    # 背景是程序化的 GradientDrawable，形状稳定可控。
+    new-instance v3, Landroid/widget/TextView;
 
-    invoke-direct {v3, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+    invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
     iget-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chId:[Ljava/lang/String;
 
@@ -1427,29 +1514,58 @@
 
     const/4 v4, 0x2
 
-    const/high16 v5, 0x41300000    # 11.0f
+    const/high16 v5, 0x41500000    # 13.0f
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    # 按钮深底白字，与正文区区分（R43：章节列表文字色按用户要求改成 #FFFFFFFF，
-    # 选中态在 showChapter 里用「蓝底 + 加粗」单独标出来，不靠字色深浅区分）。
-    const v4, -14013906
-
-    invoke-virtual {v3, v4}, Landroid/view/View;->setBackgroundColor(I)V
-
-    const/4 v4, -0x1
+    # 未选中：OnSurfaceVariant #FFAFBAC6 —— 与 SurfaceContainerHigh #FF232B33 对比 8.09:1
+    const v4, -5260602
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
-    const/4 v4, 0x6
+    const/16 v4, 0x11
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setGravity(I)V
+
+    # 背景：SurfaceContainerHigh 填充 + 18dp 圆角（高 38dp ⇒ 视觉上是全圆胶囊）
+    const/high16 v4, 0x41900000    # 18.0f
+
+    const v5, -14472397
+
+    invoke-direct {p0, v5, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v4
+
+    # Ripple：20% 白，点击时有水波反馈，不做无意义动画
+    const v5, 0x33ffffff
+
+    invoke-static {v4, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ripple(Landroid/graphics/drawable/Drawable;I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/16 v4, 0x9
 
     invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
     move-result v4
 
-    const/4 v5, 0x0
+    const/16 v5, 0xe
 
-    invoke-virtual {v3, v4, v5, v4, v5}, Landroid/view/View;->setPadding(IIII)V
+    invoke-static {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v5
+
+    invoke-virtual {v3, v5, v4, v5, v4}, Landroid/view/View;->setPadding(IIII)V
+
+    const/16 v4, 0x26
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    invoke-virtual {v3, v4}, Landroid/view/View;->setMinimumHeight(I)V
 
     # 页签编号从 100 起，小于 100 的留给字号按钮
     new-instance v5, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
@@ -1460,7 +1576,24 @@
 
     invoke-virtual {v3, v5}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+    # 页签之间 8dp 间距：靠 LayoutParams 的右边距，而不是塞空 View
+    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v6, -0x2
+
+    const/4 v7, -0x2
+
+    invoke-direct {v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/16 v6, 0x8
+
+    invoke-static {p0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v6
+
+    iput v6, v5, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
+
+    invoke-virtual {v0, v3, v5}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     add-int/lit8 v2, v2, 0x1
 
@@ -1758,11 +1891,10 @@
     invoke-virtual {v1, v3, v4}, Landroid/widget/HorizontalScrollView;->scrollTo(II)V
 
     :no_tabscroll
-    # 页签选中态：选中 = 白字加粗 + 蓝底 #FF2E49B5，未选中 = 白字常规 + 深底 #FF2A2A2E。
-    # 用户要求章节列表文字统一 #FFFFFFFF，选中态必须另设 —— 这里用底色 + 字重区分，
-    # 不动字色。白字在两块底色上的对比度：#FF2A2A2E 14.29:1、#FF2E49B5 7.67:1，
-    # 均过 WCAG AA 正文 4.5:1（也过 AAA 7:1）；两底色互相对比 1.86:1，靠字重再加一层区分。
-    # 常量：-14013906 = 0xFF2A2A2E、-13743691 = 0xFF2E49B5（负数 = 有符号十进制）。
+    # [R45-C] 页签选中态：M3 双色阶，不靠字色深浅区分。
+    #   选中 = PrimaryContainer #FF00496E 填充 + OnPrimaryContainer #FFC9E6FF 文字（7.46:1）+ 加粗
+    #   未选 = SurfaceContainerHigh #FF232B33 填充 + OnSurfaceVariant #FFAFBAC6 文字（8.09:1）
+    # 两个填充色本身相差 3.1:1，再加上字重与字色两重区分，色觉障碍下也能分辨。
     iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabHost:Landroid/widget/LinearLayout;
 
     if-eqz v1, :no_tabcolor
@@ -1786,9 +1918,26 @@
 
     if-ne v3, p1, :tabcolor_sel
 
-    const v5, -14013906
+    # 未选中
+    const/high16 v5, 0x41900000    # 18.0f
 
-    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundColor(I)V
+    const v6, -14472397
+
+    invoke-direct {p0, v6, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v5
+
+    const v6, 0x33ffffff
+
+    invoke-static {v5, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ripple(Landroid/graphics/drawable/Drawable;I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v5
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const v5, -5260602
+
+    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTextColor(I)V
 
     sget-object v5, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
 
@@ -1797,9 +1946,26 @@
     goto :tabcolor_next
 
     :tabcolor_sel
-    const v5, -13743691
+    # 选中
+    const/high16 v5, 0x41900000    # 18.0f
 
-    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundColor(I)V
+    const v6, -16758418
+
+    invoke-direct {p0, v6, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v5
+
+    const v6, 0x33ffffff
+
+    invoke-static {v5, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ripple(Landroid/graphics/drawable/Drawable;I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v5
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const v5, -3545345
+
+    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTextColor(I)V
 
     sget-object v5, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
@@ -1943,14 +2109,20 @@
     goto :rec_loop
 
     :rec_done
+    # [R45-C] 切章微动效：内容淡入 + 8dp 上浮归位（220ms、Decelerate）。
+    # 只在切章时跑一次，滚动、点字号重建也会走这里，但都不会连播 ——
+    # 没有常驻动画，也没有对列表逐项做动画（那会掉帧）。
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->fadeIn()V
+
     return-void
 .end method
 
 
 # 画一块：同 TAG 的连续几条正文拼成一段。STEP 特殊处理：
-#   一章只画一次「具体操作」小标题；flag=1 的步骤加「［已自动化］」前缀。
+#   一章只画一次「具体操作」小标题；每条 STEP 单独一张带序号的卡片，
+#   flag=1 的步骤加「［已自动化］」前缀。
 .method private final addGroup(III)V
-    .locals 4
+    .locals 6
 
     invoke-direct {p0, p2, p3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->joinText(II)Ljava/lang/String;
 
@@ -1964,6 +2136,13 @@
 
     iget-boolean v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->stepHeaderDone:Z
 
+    # [R45-C] 极性修正（保持同一条指令，只把取反提前）：
+    #   原写法直接 `if-nez stepHeaderDone` ⇒ 「已画过」为 0 时才跳，于是**第一次**进来
+    #   就跳到 :no_header、标签永远是空串，而一章通常只有一组 STEP，
+    #   结果「具体操作」这个小标题一次都不会出现。
+    #   先 xor 1 把语义换成「还没画过」，if-nez 才与注释一致：没画过就画、画过就跳过。
+    xor-int/lit8 v2, v2, 0x1
+
     if-nez v2, :no_header
 
     const/4 v2, 0x1
@@ -1973,25 +2152,42 @@
     const-string v1, "具体操作"
 
     :no_header
-    invoke-direct {p0, p2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->flagOf(I)Ljava/lang/String;
+    # 小标题单独一条（空串时 addLabel 内部直接返回）
+    invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addLabel(Ljava/lang/String;)V
 
-    move-result-object v2
+    # 逐条 STEP 各画一张卡片：不再把 7 条步骤拼成一大段，否则「第 3 步」要自己数。
+    move v2, p2
 
-    const-string v3, "1"
+    const/4 v1, 0x1
 
-    invoke-virtual {v3, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    :step_loop
+    if-ge v2, p3, :step_done
 
-    move-result v2
+    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->textOf(I)Ljava/lang/String;
 
-    if-eqz v2, :no_auto
+    move-result-object v0
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    if-eqz v0, :step_next
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->flagOf(I)Ljava/lang/String;
 
-    const-string v3, "［已自动化］"
+    move-result-object v3
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v4, "1"
+
+    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :no_auto
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v4, "［已自动化］"
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
@@ -2004,8 +2200,16 @@
     move-result-object v0
 
     :no_auto
-    invoke-direct {p0, v1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addSection(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-direct {p0, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addStepRow(Ljava/lang/String;I)V
 
+    add-int/lit8 v1, v1, 0x1
+
+    :step_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :step_loop
+
+    :step_done
     return-void
 
     :not_step
@@ -2064,40 +2268,141 @@
 .end method
 
 
-# 章标题
+# 章标题 = M3 Extra-Large 圆角卡片（26dp）+ 左侧 4dp Primary 竖条 + 23sp 粗体标题。
+# 卡片用 SurfaceContainer #FF1A2027 而不是纯色块：与 Surface #FF0F1318 相差一档色阶，
+# 不用阴影也能看出层级（M3 深色用色阶表达高度，不用 elevation 阴影）。
 .method private final addHeading(Ljava/lang/String;)V
-    .locals 4
+    .locals 12
 
     if-eqz p1, :head_done
 
-    new-instance v0, Landroid/widget/TextView;
+    new-instance v0, Landroid/widget/LinearLayout;
 
-    invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+    invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    const/4 v1, 0x1
 
-    const/4 v1, 0x2
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    const/high16 v2, 0x41b00000    # 22.0f
+    # 卡片底：SurfaceContainer + 26dp 圆角
+    const/high16 v1, 0x41d00000    # 26.0f
 
-    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+    const v2, -15065049
+
+    invoke-direct {p0, v2, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/16 v1, 0x12
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    const/16 v2, 0x10
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
     move-result v2
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
+    invoke-virtual {v0, v2, v1, v2, v1}, Landroid/view/View;->setPadding(IIII)V
 
-    sget-object v2, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+    # 行：竖条 + 标题，垂直居中
+    new-instance v3, Landroid/widget/LinearLayout;
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+    invoke-direct {v3, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    # 0xFFE4E5E1
-    const v2, -1776159
+    const/4 v4, 0x0
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+    invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    iget-object v3, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+    const/16 v4, 0x10
 
-    invoke-static {v3, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+    invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    new-instance v4, Landroid/view/View;
+
+    invoke-direct {v4, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    # Primary #FF7CCBFF
+    const v5, -8598529
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundColor(I)V
+
+    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/16 v6, 0x4
+
+    invoke-static {p0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v6
+
+    const/16 v7, 0x18
+
+    invoke-static {p0, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v7
+
+    invoke-direct {v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v3, v4, v5}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    new-instance v4, Landroid/widget/TextView;
+
+    invoke-direct {v4, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v4, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v5, 0x2
+
+    const/high16 v6, 0x41b80000    # 23.0f
+
+    invoke-direct {p0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+
+    move-result v6
+
+    invoke-virtual {v4, v5, v6}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    sget-object v6, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v4, v6}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    # OnSurface #FFE3E8EE，在 SurfaceContainer 上对比 14.2:1
+    const v6, -1840914
+
+    invoke-virtual {v4, v6}, Landroid/widget/TextView;->setTextColor(I)V
+
+    new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v7, -0x2
+
+    const/4 v8, -0x2
+
+    invoke-direct {v6, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/16 v7, 0xe
+
+    invoke-static {p0, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v7
+
+    iput v7, v6, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    invoke-virtual {v3, v4, v6}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    invoke-virtual {v0, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    iget-object v5, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+
+    const/16 v6, 0xa
+
+    invoke-static {p0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v6
+
+    invoke-static {v5, v0, v6}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
 
     :head_done
     return-void
@@ -2132,8 +2437,9 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    # 0xFFB9BAB4
-    const v2, -4605260
+    # OnSurfaceVariant #FFAFBAC6 —— M3 里「副标题/次要说明」固定用这一档，
+    # 与正文 OnSurface 拉开层级但不降到不可读（在 Surface 上 8.9:1）。
+    const v2, -5260602
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -2145,11 +2451,17 @@
 
     const/4 v3, 0x0
 
-    invoke-virtual {v0, v3, v2, v3, v3}, Landroid/view/View;->setPadding(IIII)V
+    const/16 v4, 0x4
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    invoke-virtual {v0, v4, v2, v4, v3}, Landroid/view/View;->setPadding(IIII)V
 
     const/4 v3, 0x0
 
-    const/high16 v4, 0x3fa00000    # 1.25f
+    const v4, 0x3faccccd    # 1.35f
 
     invoke-virtual {v0, v3, v4}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
@@ -2162,11 +2474,13 @@
 .end method
 
 
-# 小节：标题（蓝色粗体）+ 正文（常规色）。标题为空时只画正文。
-# 正文里的换行由 TextView 自己折行（生成器把 \n 换成了「 / 」，这里的 \n
-# 只来自「同 TAG 多条记录拼接」）。
+# 小节 = 一张 M3 卡片：SurfaceContainer 填充 + 16dp 圆角 + 1dp OutlineVariant 描边。
+# 卡内上排是 12sp 字距加宽的 Primary 小标签，下排是 15sp 正文。
+# 为什么要卡片而不是「蓝字标题 + 裸正文」：一章有 10 个左右小节，裸排版时
+# 玩家分不清「这一段属于哪个标签」；卡片边界把每一块圈起来，标签才有所属。
+# 标题为空（SUB 走 addNote，不会进来）时只画正文，卡片里不留空行。
 .method private final addSection(Ljava/lang/String;Ljava/lang/String;)V
-    .locals 6
+    .locals 13
 
     if-eqz p2, :sec_done_early
 
@@ -2176,6 +2490,38 @@
 
     if-lez v0, :sec_done_early
 
+    # ---- 卡片容器（放在 v8，把 v0 留给「标签是否为空」的长度判定）----
+    new-instance v8, Landroid/widget/LinearLayout;
+
+    invoke-direct {v8, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v8, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/high16 v1, 0x41800000    # 16.0f
+
+    const v2, -15065049
+
+    const v3, -13418420
+
+    const/4 v4, 0x1
+
+    invoke-direct {p0, v2, v1, v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shapeS(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v1
+
+    invoke-virtual {v8, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/16 v1, 0xe
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    invoke-virtual {v8, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    # ---- 小标签（LabelLarge：12sp、字距 0.08em、Primary）----
     if-eqz p1, :sec_body
 
     invoke-virtual {p1}, Ljava/lang/String;->length()I
@@ -2184,86 +2530,87 @@
 
     if-lez v0, :sec_body
 
-    new-instance v0, Landroid/widget/TextView;
+    new-instance v2, Landroid/widget/TextView;
 
-    invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+    invoke-direct {v2, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v2, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    const/4 v1, 0x2
+    const/4 v3, 0x2
 
-    const/high16 v2, 0x41900000    # 18.0f
+    const/high16 v4, 0x41400000    # 12.0f
 
-    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+    invoke-direct {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
 
-    move-result v2
+    move-result v4
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
+    invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    sget-object v2, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+    sget-object v4, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+    invoke-virtual {v2, v4}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    # 0xFF64B5F6
-    const v2, -10177034
+    const v4, 0x3da3d70a    # 0.08f，中文不加字距会挤成一团
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+    invoke-virtual {v2, v4}, Landroid/widget/TextView;->setLetterSpacing(F)V
 
-    const/high16 v2, 0x41800000    # 16.0f
+    # Primary #FF7CCBFF：在 SurfaceContainer 上 9.25:1
+    const v4, -8598529
 
-    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+    invoke-virtual {v2, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
-    move-result v2
+    const/16 v4, 0x6
 
-    const/4 v3, 0x0
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
-    invoke-virtual {v0, v3, v2, v3, v3}, Landroid/view/View;->setPadding(IIII)V
+    move-result v4
 
-    iget-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+    const/4 v5, 0x0
 
-    invoke-static {v4, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+    invoke-virtual {v2, v5, v5, v5, v4}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {v8, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
     :sec_body
-    new-instance v0, Landroid/widget/TextView;
+    new-instance v2, Landroid/widget/TextView;
 
-    invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+    invoke-direct {v2, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    invoke-virtual {v0, p2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v2, p2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    const/4 v1, 0x2
+    const/4 v3, 0x2
 
-    const/high16 v2, 0x41700000    # 15.0f
+    const/high16 v4, 0x41700000    # 15.0f
 
-    invoke-direct {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+    invoke-direct {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
 
-    move-result v2
+    move-result v4
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
+    invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    # 0xFFD7D8D2
-    const v2, -2631470
+    # OnSurface #FFE3E8EE：在 SurfaceContainer 上 14.2:1
+    const v4, -1840914
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+    invoke-virtual {v2, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
-    const/high16 v2, 0x40800000    # 4.0f
+    const/4 v4, 0x0
 
-    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+    const v5, 0x3f99999a    # 1.2f，中文正文行距 1.2 倍足够，1.45 会散
 
-    move-result v2
+    invoke-virtual {v2, v4, v5}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    const/4 v3, 0x0
+    invoke-virtual {v8, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
-    invoke-virtual {v0, v3, v3, v3, v2}, Landroid/view/View;->setPadding(IIII)V
+    # ---- 整卡入列，卡片之间 10dp ----
+    iget-object v6, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
 
-    const/4 v2, 0x0
+    const/16 v7, 0xa
 
-    const/high16 v3, 0x3fa00000    # 1.25f
+    invoke-static {p0, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
-    invoke-virtual {v0, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
+    move-result v7
 
-    iget-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
-
-    invoke-static {v4, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+    invoke-static {v6, v8, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
 
     :sec_done_early
     return-void
@@ -2412,7 +2759,10 @@
 
     move-result-object v7
 
-    # 深底容器
+    # [R45-C] 阶段提示 = M3 PrimaryContainer 卡（24dp 圆角）。
+    # 以前是纯色块 #FF10304A + 纯白粗体，识别不出是「卡片」；
+    # 换成 PrimaryContainer #FF00496E 后与正文卡片（中性灰）在色相上分开，
+    # 一眼能看出这是「给你的那句话」，而不是正文的一节。
     new-instance v8, Landroid/widget/LinearLayout;
 
     invoke-direct {v8, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
@@ -2421,12 +2771,23 @@
 
     invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    # 0xFF10304A
-    const v9, -15716278
+    const/high16 v9, 0x41c00000    # 24.0f
 
-    invoke-virtual {v8, v9}, Landroid/view/View;->setBackgroundColor(I)V
+    const v10, -16758418
 
-    const/16 v9, 0xc
+    invoke-direct {p0, v10, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v9
+
+    const v10, 0x33ffffff
+
+    invoke-static {v9, v10}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ripple(Landroid/graphics/drawable/Drawable;I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v9
+
+    invoke-virtual {v8, v9}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/16 v9, 0x10
 
     invoke-static {p0, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
@@ -2450,13 +2811,20 @@
 
     invoke-virtual {v9, v10, v7}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    const/4 v7, -0x1
+    # OnPrimaryContainer #FFC9E6FF：在 PrimaryContainer 上 7.46:1（AAA 正文档）
+    const v7, -3545345
 
     invoke-virtual {v9, v7}, Landroid/widget/TextView;->setTextColor(I)V
 
     sget-object v7, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v9, v7}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    const/4 v7, 0x0
+
+    const/high16 v10, 0x3fa00000    # 1.3f
+
+    invoke-virtual {v9, v7, v10}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
     if-gez v6, :no_click
 
@@ -2472,16 +2840,26 @@
     :no_click
     invoke-virtual {v8, v9}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
-    invoke-static {v0, v8}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+    # 整卡可点（可跳转时才有监听器），底部留 12dp 与第一张正文卡片分开
+    const/16 v9, 0xc
+
+    invoke-static {p0, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v9
+
+    invoke-static {v0, v8, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
 
     :hint_done
     return-void
 .end method
 
 
-# 顶部操作行：关闭 / 打开 Oreki 设置
+# 顶部操作行：M3 双按钮形态
+#   关闭        = Filled 按钮：品牌蓝 #FF0078D7 填充 + 纯白粗体（对比 4.5:1，AA 下限）
+#   Oreki 设置  = Tonal 按钮：SurfaceContainerHigh 填充 + Primary 文字（8.09:1）
+# 两个都是 46dp 高的全圆角胶囊，带 Ripple。原有的两个点击动作码 1 / 2 不变。
 .method private final addActions(Landroid/widget/LinearLayout;)V
-    .locals 5
+    .locals 7
 
     new-instance v0, Landroid/widget/LinearLayout;
 
@@ -2491,22 +2869,18 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    new-instance v1, Landroid/widget/Button;
+    # ---- 关闭（filled）----
+    const-string v1, "关闭"
 
-    invoke-direct {v1, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+    const/4 v2, -0x1
 
-    const-string v2, "关闭"
+    const v3, -16746281
 
-    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    const/4 v4, 0x1
 
-    # 按钮深底亮字：背景 0xFF2A2A2E、文字 0xFF6AD477
-    const v2, -14013906
+    invoke-direct {p0, v1, v2, v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->pill(Ljava/lang/String;III)Landroid/widget/LinearLayout;
 
-    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
-
-    const v2, -9776009
-
-    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setTextColor(I)V
+    move-result-object v1
 
     new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;
 
@@ -2528,23 +2902,28 @@
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
 
+    const/16 v3, 0x8
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
+
     invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    new-instance v1, Landroid/widget/Button;
+    # ---- 打开 Oreki 设置（tonal）----
+    const-string v1, "打开 Oreki 设置"
 
-    invoke-direct {v1, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+    const v2, -8598529
 
-    const-string v2, "打开 Oreki 设置"
+    const v3, -14472397
 
-    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    const/4 v4, 0x1
 
-    const v2, -14013906
+    invoke-direct {p0, v1, v2, v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->pill(Ljava/lang/String;III)Landroid/widget/LinearLayout;
 
-    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
-
-    const v2, -9776009
-
-    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setTextColor(I)V
+    move-result-object v1
 
     new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;
 
@@ -2568,15 +2947,20 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    const/high16 v1, 0x41000000    # 8.0f
+    # 操作行外边距：左右 16dp（与正文卡片对齐）、上下 6dp
+    const/16 v1, 0x10
 
-    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
 
     move-result v1
 
-    const/4 v2, 0x0
+    const/4 v2, 0x6
 
-    invoke-virtual {v0, v2, v1, v2, v1}, Landroid/view/View;->setPadding(IIII)V
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    invoke-virtual {v0, v1, v2, v1, v2}, Landroid/view/View;->setPadding(IIII)V
 
     invoke-static {p1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
 
@@ -2584,10 +2968,13 @@
 .end method
 
 
-# 字号行：小 / 中 / 大，三档等分
+# 字号行 = M3 分段控件（segmented button）：三档等分、外侧 22dp 圆角轨道、
+# 选中档用 PrimaryContainer 填充 + 加粗，未选中透明。轨道底 SurfaceContainerLow #FF12171C
+# 比页面底色亮一档，读作「一个控件」而不是三个散落的按钮。
 .method private final addFontRow(Landroid/widget/LinearLayout;)V
-    .locals 3
+    .locals 5
 
+    # 外层：左右 16dp 与正文卡片对齐
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
@@ -2596,75 +2983,166 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    const-string v1, "字号 小"
+    const/16 v1, 0x10
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
 
     const/4 v2, 0x0
 
-    invoke-direct {p0, v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+    invoke-virtual {v0, v1, v2, v1, v2}, Landroid/view/View;->setPadding(IIII)V
 
-    const-string v1, "字号 中"
+    # 轨道
+    new-instance v1, Landroid/widget/LinearLayout;
 
-    const/4 v2, 0x1
+    invoke-direct {v1, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    invoke-direct {p0, v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+    const/4 v2, 0x0
 
-    const-string v1, "字号 大"
+    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    const/4 v2, 0x2
+    const/high16 v2, 0x41b00000    # 22.0f
 
-    invoke-direct {p0, v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+    const v3, -15591652
 
-    invoke-static {p1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+    invoke-direct {p0, v3, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/4 v2, 0x3
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    invoke-virtual {v1, v2, v2, v2, v2}, Landroid/view/View;->setPadding(IIII)V
+
+    const-string v2, "字号 小"
+
+    const/4 v3, 0x0
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    const-string v2, "字号 中"
+
+    const/4 v3, 0x1
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    const-string v2, "字号 大"
+
+    const/4 v3, 0x2
+
+    invoke-direct {p0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    const/4 v4, -0x2
+
+    invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/high16 v3, 0x3f800000    # 1.0f
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
+
+    invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    const/16 v1, 0x8
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    invoke-static {p1, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
 
     return-void
 .end method
 
 
+# 单个分段：选中 = PrimaryContainer 填充 + OnPrimaryContainer 文字 + 加粗；
+# 未选中 = 透明 + OnSurfaceVariant 文字。动作码仍是 0/1/2（onTabClick 按 <100 分流）。
 .method private final addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
-    .locals 4
+    .locals 6
 
-    new-instance v0, Landroid/widget/Button;
+    iget v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->fontSize:I
 
-    invoke-direct {v0, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+    if-ne p3, v0, :seg_off
 
-    invoke-virtual {v0, p2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    # 选中
+    const v1, -3545345
 
-    const/4 v1, 0x2
+    const v2, -16758418
 
-    const/high16 v2, 0x41600000    # 14.0f
+    goto :seg_draw
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
+    :seg_off
+    const v1, -5260602
 
-    const v1, -14013906
+    const v2, -15591652
 
-    invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
+    :seg_draw
+    const/4 v3, 0x2
 
-    const v1, -9776009
+    invoke-direct {p0, p2, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->pill(Ljava/lang/String;III)Landroid/widget/LinearLayout;
 
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
+    move-result-object v1
 
-    new-instance v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
+    # 选中档加粗：pill 内部的唯一子 View 就是文字
+    iget v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->fontSize:I
 
-    invoke-direct {v1, p0, p3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;-><init>(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
+    if-ne p3, v0, :seg_skip_bold
 
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    const/4 v0, 0x0
 
-    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
+    invoke-virtual {v1, v0}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
-    const/4 v2, 0x0
+    move-result-object v0
 
-    const/4 v3, -0x2
+    if-eqz v0, :seg_skip_bold
 
-    invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    check-cast v0, Landroid/widget/TextView;
 
-    const/high16 v2, 0x3e800000    # 0.25f
+    sget-object v2, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
-    iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->weight:F
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    invoke-virtual {p1, v0, v1}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    :seg_skip_bold
+    new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
+
+    invoke-direct {v2, p0, p3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;-><init>(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    const/4 v4, -0x2
+
+    invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const v3, 0x3eaaaaab    # 0.33333334f
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
+
+    const/4 v3, 0x2
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
+
+    invoke-virtual {p1, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     return-void
 .end method
+
 
 
 # 把一段 View 铺满容器宽度（wrap 高度）后加进容器。
@@ -2715,4 +3193,704 @@
     float-to-int v0, v1
 
     return v0
+.end method
+
+
+# ===================================================================
+# [R45-C] Material 3 Expressive 基础件
+#
+# 为什么全部用原生控件 + 程序化 drawable，而不是 Material Components：
+#   本工程不是 AGP 工程，是「apktool 反编译 + smali 拼装 + Gradle 只做编排」。
+#   原 APK 里的 com.google.android.material 只剩 6 个类
+#      （internal/ClippableRoundedCornerLayout、internal/NavigationMenuView、
+#        internal/ScrimInsetsFrameLayout、textfield/MaterialAutoCompleteTextView、
+#        textfield/TextInputEditText、theme/MaterialComponentsViewInflater），
+#   没有 MaterialButton / MaterialCardView / MaterialToolbar / ShapeAppearanceModel，
+#   也没有 Compose。资源表里虽然有 Base.Theme.Material3Expressive.Dark 这套 style，
+#   但没有可实例化的 M3 控件，引进来只是一个空主题。
+#   ⇒ 这里按 M3 规格用 LinearLayout + GradientDrawable + RippleDrawable + Typeface
+#     手工实现色彩角色、形状、排版、层级与交互反馈，不新增任何资源文件
+#     （不新增 res/ 也就不引入 aapt 编译步骤，构建链保持不变）。
+#
+# 色彩角色（深色，对比度见各调用点）：
+#   Surface              #FF0F1318  页面底
+#   SurfaceContainerLow  #FF12171C  分段控件轨道
+#   SurfaceContainer     #FF1A2027  正文卡片
+#   SurfaceContainerHigh #FF232B33  未选中页签 / Tonal 按钮
+#   OnSurface            #FFE3E8EE  正文 / 标题
+#   OnSurfaceVariant     #FFAFBAC6  副标题 / 次要文字
+#   OutlineVariant       #FF33404C  卡片描边 / 分隔线
+#   Primary              #FF7CCBFF  小标签 / 标题竖条（品牌 #0078D7 的深色 tone80）
+#   PrimaryContainer     #FF00496E  选中页签 / 阶段提示卡
+#   OnPrimaryContainer   #FFC9E6FF  上述两种容器上的文字
+#   品牌实色              #FF0078D7  Filled 按钮（与原「打开 Oreki 中文教程」同色）
+# ===================================================================
+
+
+# 圆角填充：p1 颜色、p2 圆角 dp。
+.method private final shape(IF)Landroid/graphics/drawable/GradientDrawable;
+    .locals 2
+
+    new-instance v0, Landroid/graphics/drawable/GradientDrawable;
+
+    invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
+
+    invoke-virtual {v0, p1}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
+
+    invoke-static {p0, p2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    return-object v0
+.end method
+
+
+# 圆角填充 + 描边：p1 颜色、p2 圆角 dp、p3 描边色、p4 描边宽度 dp。
+.method private final shapeS(IFII)Landroid/graphics/drawable/GradientDrawable;
+    .locals 3
+
+    new-instance v0, Landroid/graphics/drawable/GradientDrawable;
+
+    invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
+
+    invoke-virtual {v0, p1}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
+
+    invoke-static {p0, p2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    int-to-float v2, p4
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->dpf(Landroid/content/Context;F)I
+
+    move-result v2
+
+    invoke-virtual {v0, v2, p3}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
+
+    return-object v0
+.end method
+
+
+# 给任意 drawable 套一层 Ripple。深色主题的状态层用白色低透明度，
+# 不用主题 colorControlHighlight（那是浅色主题推导出来的，深色下偏灰）。
+.method private static ripple(Landroid/graphics/drawable/Drawable;I)Landroid/graphics/drawable/Drawable;
+    .locals 3
+
+    new-instance v0, Landroid/graphics/drawable/RippleDrawable;
+
+    invoke-static {p1}, Landroid/content/res/ColorStateList;->valueOf(I)Landroid/content/res/ColorStateList;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    invoke-direct {v0, v1, p0, v2}, Landroid/graphics/drawable/RippleDrawable;-><init>(Landroid/content/res/ColorStateList;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;)V
+
+    return-object v0
+.end method
+
+
+# 胶囊状可点区块：p1 文字、p2 文字色、p3 填充色、p4 尺寸档
+#   0 = 小（36dp / 12sp / 左右 14dp）
+#   1 = 按钮（46dp / 14sp 粗体 / 左右 18dp）
+#   2 = 分段控件（34dp / 12sp / 左右 8dp）
+# 返回的 LinearLayout 里只有一个 TextView（索引 0），调用方拿它挂监听、改字重。
+.method private final pill(Ljava/lang/String;III)Landroid/widget/LinearLayout;
+    .locals 9
+
+    new-instance v0, Landroid/widget/LinearLayout;
+
+    invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/16 v1, 0x11
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    # 全圆角：24dp 远大于任一档高度的一半
+    const/high16 v1, 0x41c00000    # 24.0f
+
+    invoke-direct {p0, p3, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v1
+
+    const v2, 0x33ffffff
+
+    invoke-static {v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ripple(Landroid/graphics/drawable/Drawable;I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/4 v1, 0x1
+
+    if-ne p4, v1, :pk_not_button
+
+    const/16 v3, 0x2e
+
+    const/high16 v4, 0x41600000    # 14.0f
+
+    const/16 v5, 0x12
+
+    const/4 v6, 0x1
+
+    goto :pk_build
+
+    :pk_not_button
+    const/4 v1, 0x2
+
+    if-ne p4, v1, :pk_not_segment
+
+    const/16 v3, 0x22
+
+    const/high16 v4, 0x41400000    # 12.0f
+
+    const/16 v5, 0x8
+
+    const/4 v6, 0x0
+
+    goto :pk_build
+
+    :pk_not_segment
+    const/16 v3, 0x24
+
+    const/high16 v4, 0x41400000    # 12.0f
+
+    const/16 v5, 0xe
+
+    const/4 v6, 0x0
+
+    :pk_build
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    invoke-virtual {v0, v3}, Landroid/view/View;->setMinimumHeight(I)V
+
+    new-instance v7, Landroid/widget/TextView;
+
+    invoke-direct {v7, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v7, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    invoke-virtual {v7, p2}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/4 v8, 0x2
+
+    invoke-virtual {v7, v8, v4}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    const/16 v8, 0x11
+
+    invoke-virtual {v7, v8}, Landroid/widget/TextView;->setGravity(I)V
+
+    if-eqz v6, :pk_no_bold
+
+    sget-object v8, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v7, v8}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    :pk_no_bold
+    invoke-virtual {v0, v7}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    invoke-static {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v5
+
+    const/4 v7, 0x0
+
+    invoke-virtual {v0, v5, v7, v5, v7}, Landroid/view/View;->setPadding(IIII)V
+
+    return-object v0
+.end method
+
+
+# 同 addFull，但多给一个底部外边距（像素）。卡片之间的 10dp 靠它，
+# 而不是给每张卡片加内边距 —— 内边距会连最后一行的行高一起撑大。
+.method private static addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
+    .locals 3
+
+    if-eqz p0, :done
+
+    if-eqz p1, :done
+
+    new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v1, -0x1
+
+    const/4 v2, -0x2
+
+    invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    iput p2, v0, Landroid/widget/LinearLayout$LayoutParams;->bottomMargin:I
+
+    invoke-virtual {p0, p1, v0}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    :done
+    return-void
+.end method
+
+
+# 1dp 分隔线在当前密度下的像素值（至少 1px，否则低密度设备画不出来）。
+.method private static hairline()I
+    .locals 2
+
+    invoke-static {}, Landroid/content/res/Resources;->getSystem()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v0
+
+    iget v0, v0, Landroid/util/DisplayMetrics;->density:F
+
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    float-to-int v0, v0
+
+    return v0
+.end method
+
+
+# [R45-C] 切章微动效：内容淡入 + 从下往上 8dp 归位。
+# 只动 contentHost 一个 View（不是逐项动画），220ms、Decelerate —— 相当于 M3 的
+# emphasized-decelerate 短过渡。滚动与字号切换也会触发，但都是单次、不叠加。
+.method private final fadeIn()V
+    .locals 4
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+
+    if-eqz v0, :fi_done
+
+    const/16 v1, 0x8
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setTranslationY(F)V
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setAlpha(F)V
+
+    invoke-virtual {v0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->alpha(F)Landroid/view/ViewPropertyAnimator;
+
+    const-wide/16 v1, 0xdc
+
+    invoke-virtual {v0, v1, v2}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+
+    new-instance v1, Landroid/view/animation/DecelerateInterpolator;
+
+    invoke-direct {v1}, Landroid/view/animation/DecelerateInterpolator;-><init>()V
+
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)Landroid/view/ViewPropertyAnimator;
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->translationY(F)Landroid/view/ViewPropertyAnimator;
+
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+
+    :fi_done
+    return-void
+.end method
+
+
+# [R45-C] M3 Large Top App Bar（自绘）：22sp 标题 + 12sp 说明。
+# 窗口主题改成 NoActionBar 之后标题不再由 ActionBar 画，改由这里画。
+# 不设背景：直接坐在 Surface 上，与下面的操作行、目录条形成「页头 - 工具 - 内容」三段。
+.method private final addAppBar(Landroid/widget/LinearLayout;)V
+    .locals 6
+
+    new-instance v0, Landroid/widget/LinearLayout;
+
+    invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/16 v1, 0x10
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    const/16 v2, 0xc
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    const/4 v3, 0x4
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    invoke-virtual {v0, v1, v2, v1, v3}, Landroid/view/View;->setPadding(IIII)V
+
+    new-instance v1, Landroid/widget/TextView;
+
+    invoke-direct {v1, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    const-string v2, "Oreki 教程"
+
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v2, 0x2
+
+    const/high16 v3, 0x41b00000    # 22.0f
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    sget-object v3, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v1, v3}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    const v3, -1840914
+
+    invoke-virtual {v1, v3}, Landroid/widget/TextView;->setTextColor(I)V
+
+    invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v1, Landroid/widget/TextView;
+
+    invoke-direct {v1, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    const-string v2, "按存档进度定位到当前章节，字号可调"
+
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v2, 0x2
+
+    const/high16 v3, 0x41400000    # 12.0f
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    const v3, -5260602
+
+    invoke-virtual {v1, v3}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/4 v3, 0x4
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v1, v4, v3, v4, v4}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    invoke-static {p1, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+
+    return-void
+.end method
+
+
+# [R45-C] 小节标签（只用于「具体操作」这类没有卡片的引导标题）：
+# 4dp Primary 竖条 + 13sp 字距加宽的标签，视觉上属于「下面一组卡片」的组名。
+.method private final addLabel(Ljava/lang/String;)V
+    .locals 7
+
+    if-eqz p1, :lb_done
+
+    invoke-virtual {p1}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-lez v0, :lb_done
+
+    new-instance v0, Landroid/widget/LinearLayout;
+
+    invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/16 v1, 0x10
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    new-instance v1, Landroid/view/View;
+
+    invoke-direct {v1, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    const v2, -8598529
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x4
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    const/16 v4, 0xe
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    new-instance v1, Landroid/widget/TextView;
+
+    invoke-direct {v1, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v1, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v2, 0x2
+
+    const/high16 v3, 0x41600000    # 14.0f
+
+    invoke-direct {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+
+    move-result v3
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    sget-object v3, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v1, v3}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    const v3, 0x3da3d70a    # 0.08f
+
+    invoke-virtual {v1, v3}, Landroid/widget/TextView;->setLetterSpacing(F)V
+
+    const v3, -8598529
+
+    invoke-virtual {v1, v3}, Landroid/widget/TextView;->setTextColor(I)V
+
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v4, -0x2
+
+    const/4 v5, -0x2
+
+    invoke-direct {v3, v4, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/16 v4, 0xa
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    iput v4, v3, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    invoke-virtual {v0, v1, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+
+    const/16 v2, 0x6
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    invoke-static {v1, v0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
+
+    :lb_done
+    return-void
+.end method
+
+
+# [R45-C] 单条步骤卡片：左边 22dp 圆形序号徽标（PrimaryContainer），右边正文。
+# 序号用 String.valueOf(int)，不拼字符串，避免 "1" + n 之类的隐式转换错。
+.method private final addStepRow(Ljava/lang/String;I)V
+    .locals 11
+
+    if-eqz p1, :st_done
+
+    new-instance v0, Landroid/widget/LinearLayout;
+
+    invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/high16 v1, 0x41800000    # 16.0f
+
+    const v2, -15065049
+
+    const v3, -13418420
+
+    const/4 v4, 0x1
+
+    invoke-direct {p0, v2, v1, v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shapeS(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/16 v1, 0xc
+
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v1
+
+    invoke-virtual {v0, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    # ---- 序号徽标 ----
+    new-instance v1, Landroid/widget/LinearLayout;
+
+    invoke-direct {v1, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/16 v2, 0x11
+
+    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    const/high16 v2, 0x41300000    # 11.0f
+
+    const v3, -16758418
+
+    invoke-direct {p0, v3, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->shape(IF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    new-instance v2, Landroid/widget/TextView;
+
+    invoke-direct {v2, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-static {p2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v3, 0x2
+
+    const/high16 v4, 0x41300000    # 11.0f
+
+    invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    sget-object v3, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    const v3, -3545345
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/16 v3, 0x11
+
+    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setGravity(I)V
+
+    invoke-virtual {v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/16 v4, 0x16
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    const/16 v5, 0x2
+
+    invoke-static {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v5
+
+    invoke-direct {v3, v4, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    iput v5, v3, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
+
+    invoke-virtual {v0, v1, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    # ---- 正文 ----
+    new-instance v1, Landroid/widget/TextView;
+
+    invoke-direct {v1, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v1, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v2, 0x2
+
+    const/high16 v3, 0x41700000    # 15.0f
+
+    invoke-direct {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+
+    move-result v3
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    const v2, -1840914
+
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/4 v2, 0x0
+
+    const v3, 0x3f99999a    # 1.2f
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    const/4 v4, -0x2
+
+    invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/high16 v3, 0x3f800000    # 1.0f
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
+
+    const/16 v3, 0xb
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+
+    const/16 v2, 0x8
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    invoke-static {v1, v0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
+
+    :st_done
+    return-void
 .end method

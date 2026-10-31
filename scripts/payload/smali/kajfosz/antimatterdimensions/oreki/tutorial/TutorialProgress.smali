@@ -66,12 +66,37 @@
 
     if-lez v1, :not_reality
 
-    # [Oreki R38-C] 返回值必须与 hint() 的 packed-switch（起始 key=0x1）对齐：
+    # [Oreki R38-C] 返回值必须与 PH 记录的 packed-switch（起始 key=0x1）对齐：
     #   key1=维度提升 key2=逼近无限 key3=无限 key4=永恒 key5=现实 key6=后期天神 key7=佩勒
-    # R37 此处返回 0x6，装机实测「已现实」的存档被报成「当前阶段：后期天神」，
-    # 属新手引导直接指错路，R38-C 修正为 0x5（现实）。
+    # R37 此处无条件返回 0x6，装机实测「已现实」的存档被报成「当前阶段：后期天神」，
+    # 属新手引导直接指错路，R38-C 改回 0x5（现实）。
+    #
+    # [Oreki R45-C] 0x6 从「永不返回」改为有判据：成就 147（现实专精：购买所有现实升级）
+    # 的奖励就是解锁现实之神特蕾莎，也就是天神阶段的入口。所以
+    #   现实已达成 + 成就 147 未解锁 → 0x5 已现实
+    #   现实已达成 + 成就 147 已解锁 → 0x6 后期天神
+    # 读法与 StageAssist.unlock147() 完全一致（Lz3;->a(I) 取成就 + a;->A()Z 读解锁位），
+    # 全程只读：不触发解锁判定、不弹成就、不写存档。
+    # 成就对象取不到时退回 0x5，绝不因为读不到成就把玩家甩到「后期天神」。
+    const/16 v1, 0x93
+
+    invoke-static {v1}, Lz3;->a(I)Lkajfosz/antimatterdimensions/achievements/a;
+
+    move-result-object v1
+
     const/4 v0, 0x5
 
+    if-eqz v1, :reality_done
+
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/achievements/a;->A()Z
+
+    move-result v1
+
+    if-nez v1, :reality_done
+
+    const/4 v0, 0x6
+
+    :reality_done
     return v0
 
     :not_reality
