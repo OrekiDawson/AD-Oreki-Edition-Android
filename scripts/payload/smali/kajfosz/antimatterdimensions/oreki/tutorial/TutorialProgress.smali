@@ -146,8 +146,10 @@
     return v0
 
     :has_boost
-    # [Oreki R38-C] 0x2 -> 0x0（开局）。hint() 的 default 分支才是「开局」文案，
-    # 原值把反物质还不到 1e10 的真·新档报成「逼近第一次无限」，新手第一眼就被指去点大坍缩。
+    # [Oreki R38-C] 0x2 -> 0x0（开局）。原值把反物质还不到 1e10 的真·新档报成
+    # 「逼近第一次无限」，新手第一眼就被指去点大坍缩。
+    # [R43] 提示文案已不在本类（见文末说明）：这里只负责返回 0~7 的阶段序号，
+    # 序号 0 对应的提示由 assets 里第 1 条 PH 记录提供。
     const/4 v0, 0x0
 
     return v0
@@ -168,64 +170,7 @@
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 .end method
 
-
-# 「你现在该做什么」正文：一次返回整段（含阶段名与下一步），由 TutorialActivity 高亮显示。
-.method public static hint()Ljava/lang/String;
-    .locals 2
-
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;->stage()I
-
-    move-result v0
-
-    packed-switch v0, :sw
-
-    const-string v0, "你现在该做什么\n当前阶段：开局\n下一步：点底栏「维度」，买下第 1 个反物质维度（10 反物质）。"
-
-    return-object v0
-
-    :s1
-    const-string v0, "你现在该做什么\n当前阶段：维度提升\n下一步：攒够反物质就点「维度提升」，再把第 8 个维度堆到需求数量买「反物质星系」。"
-
-    return-object v0
-
-    :s2
-    const-string v0, "你现在该做什么\n当前阶段：逼近第一次无限\n下一步：反复「维度提升 / 反物质星系」，把反物质顶到 1.8e308（界面显示「无限」）后点「大坍缩」。"
-
-    return-object v0
-
-    :s3
-    const-string v0, "你现在该做什么\n当前阶段：无限\n下一步：用无限点数（IP）在「无限」页先买「打破无限」，再买无限维度 ID1~ID8。"
-
-    return-object v0
-
-    :s4
-    const-string v0, "你现在该做什么\n当前阶段：永恒\n下一步：在「永恒」页补满 8 个时间维度，用时间之理点时间研究；需要时再解锁膨胀。"
-
-    return-object v0
-
-    :s5
-    const-string v0, "你现在该做什么\n当前阶段：现实\n下一步：在「现实」页装备符文、买现实升级；然后打开「天神」页看哪一位可以进入。"
-
-    return-object v0
-
-    :s6
-    const-string v0, "你现在该做什么\n当前阶段：后期天神\n下一步：按 薇 → 太阳神 → 莱特拉 的顺序推进；进入「佩勒」之前先导出存档备份。"
-
-    return-object v0
-
-    :s7
-    const-string v0, "你现在该做什么\n当前阶段：佩勒（毁灭现实）\n下一步：跟着佩勒冲击与裂隙推进；任何不可逆操作前先导出存档备份。"
-
-    return-object v0
-
-    :sw
-    .packed-switch 0x1
-        :s1
-        :s2
-        :s3
-        :s4
-        :s5
-        :s6
-        :s7
-    .end packed-switch
-.end method
+# [R43] hint() 已删除：8 条阶段提示从「代码」搬进了 JSON 的 progressHints，
+# 由构建期生成成 assets 里的 PH 记录，再由 TutorialActivity.addHint() 读出来渲染。
+# 这样网页改一句提示，Android 重新构建就跟着变，不需要再改 smali。
+# 本类现在只保留 stage()：它是「读存档判进度」的逻辑，属于代码，不属于文案。

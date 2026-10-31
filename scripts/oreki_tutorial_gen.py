@@ -72,6 +72,11 @@ DEFAULT_OUT = ANDROID_ROOT / "scripts" / "payload" / "assets" / "oreki_tutorial.
 # 生成器支持的结构版本。不认识的版本必须拒绝构建，不允许降级猜测（契约 §校验规则 1）。
 SUPPORTED_SCHEMA = 1
 
+# 渲染层固定的阶段档位数：TutorialProgress.stage() 返回 0~7（0 开局 … 7 佩勒），
+# PH 记录就按这个顺序取第 stage 条。多一条少一条都会让「你现在该做什么」错位，
+# 所以这里写死 8 并断言 —— 这不是「章数写死」，阶段档位是代码契约。
+STAGE_COUNT = 8
+
 # 章节必须齐全的十四个内容字段（契约 docs/TUTORIAL_SCHEMA.md）。
 # 顺序只用于遍历与报错定位；上盘顺序由 chapter_records() 决定。
 FIELDS = (
@@ -164,8 +169,15 @@ def smali_unescape(lit: str) -> str:
 
 # ---------------------------------------------------------------- 目录页签
 def tab_title(ch: dict) -> str:
-    """目录页签文字：去掉「第 N 章　」前缀后截断，前缀补章节号，控制在 8 字内。"""
+    """目录页签文字：去掉「第 N 章　」前缀后截断，前缀补章节号，控制在 8 字内。
+
+    附录（apx_*）与 smali 的 tabLabel 保持一致：直接取全角空格之后的标题、
+    截到 6 字，不带编号 —— 附录不参与主线进度，页签上加编号只会误导。
+    """
     title = ch.get("title") or ch["id"]
+    if str(ch["id"]).startswith("apx_"):
+        rest = title.split("\u3000", 1)[-1].strip() or title
+        return rest[:6] + "…" if len(rest) > 6 else rest
     m = re.match(r"^第\s*(\d+)\s*章[\s\u3000:：]*(.*)$", title)
     if m:
         num, rest = m.group(1), m.group(2)
@@ -243,8 +255,13 @@ def validate_level1(doc: dict) -> None:
             if not isinstance(t, str):
                 raise TutorialContentError(f"{cid}.traps[{i}] 应为 string")
         for i, n in enumerate(c["numbers"]):
-            if not isinstance(n, dict) or not all(isinstance(n.get(k), str) for k in ("label", "value", "src")):
-                raise TutorialContentError(f"{cid}.numbers[{i}] 必须形如 {{label,value,src}} 且均为 string")
+            # 2026-10-31 反转：`src`（源码 文件:行 溯源）不再是必需字段，也不再进正文。
+            # 用户要求「源码路径、行号直接删除，不在教程正文展示」，Web 侧已把该字段
+            # 整个移除。label / value 仍是必填 string —— 这两者才是玩家看得见的内容。
+            if not isinstance(n, dict) or not all(isinstance(n.get(k), str) for k in ("label", "value")):
+                raise TutorialContentError(f"{cid}.numbers[{i}] 必须形如 {{label,value}} 且均为 string")
+            if n.get("src") is not None and not isinstance(n["src"], str):
+                raise TutorialContentError(f"{cid}.numbers[{i}].src 若存在必须是 string")
         if c["table"] is not None:
             t = c["table"]
             if not isinstance(t.get("head"), list) or not isinstance(t.get("rows"), list):
@@ -257,6 +274,51 @@ def validate_level1(doc: dict) -> None:
     for c in chapters:
         if not tab_title(c):
             raise TutorialContentError(f"{c['id']} 生成不出页签文字")
+
+    # ---- 附录：{id, title, body} 或 {id, title, auto:"automation"} ----
+    apx = doc.get("appendices")
+    if apx is not None:
+        if not isinstance(apx, list):
+            raise TutorialContentError(f"appendices 应为 array，实际 {_type_of(apx)}")
+        seen: set = set()
+        for i, a in enumerate(apx):
+            if not isinstance(a, dict):
+                raise TutorialContentError(f"appendices[{i}] 必须是对象")
+            aid = a.get("id")
+            if not isinstance(aid, str) or not aid.startswith("apx_"):
+                raise TutorialContentError(
+                    f"appendices[{i}].id 必须以 apx_ 开头（渲染层按它做页签键），实际 {aid!r}")
+            if aid in seen:
+                raise TutorialContentError(f"附录 id 重复: {aid}")
+            seen.add(aid)
+            if not isinstance(a.get("title"), str) or not a["title"]:
+                raise TutorialContentError(f"{aid}.title 必须是非空 string")
+            if a.get("body") is not None and not isinstance(a["body"], str):
+                raise TutorialContentError(f"{aid}.body 应为 string，实际 {_type_of(a['body'])}")
+            if not a.get("body") and a.get("auto") != "automation":
+                raise TutorialContentError(
+                    f"{aid} 既没有 body 也没有 auto=\"automation\" —— "
+                    "生成器拿不到正文，App 上会是一页只有标题的空白")
+
+    # ---- 阶段提示：条数必须等于渲染层档位数，且目标章必须存在 ----
+    hints = doc.get("progressHints")
+    if hints is not None:
+        if not isinstance(hints, list):
+            raise TutorialContentError(f"progressHints 应为 array，实际 {_type_of(hints)}")
+        if len(hints) != STAGE_COUNT:
+            raise TutorialContentError(
+                f"progressHints 有 {len(hints)} 条，渲染层认 {STAGE_COUNT} 档"
+                "（TutorialProgress.stage() 返回 0~7，PH 按这个顺序取第 stage 条）")
+        for i, h in enumerate(hints):
+            if not isinstance(h, dict):
+                raise TutorialContentError(f"progressHints[{i}] 必须是对象")
+            for k in ("stage", "chapterId", "text"):
+                if not isinstance(h.get(k), str) or not h[k]:
+                    raise TutorialContentError(f"progressHints[{i}].{k} 必须是非空 string")
+            if h["chapterId"] not in ids:
+                raise TutorialContentError(
+                    f"progressHints[{i}].chapterId={h['chapterId']!r} 不在章节 id 里"
+                    "（点击「你现在该做什么」会跳不到章）")
 
 
 def _chapter_texts(ch: dict) -> list[str]:
@@ -292,12 +354,16 @@ def _chapter_texts(ch: dict) -> list[str]:
 # 属于看不见的缺陷，只能靠机器卡。
 GLOSSARY_PATH = REPO_ROOT / "web" / "AD-Oreki-Edition" / "docs" / "TUTORIAL_GLOSSARY.md"
 
-# 解析结果的条数契约。第四节的表格是 15 行数据行，其中 4 行用 `/` 并列了两个
-# 禁用写法（艾法瑞格/艾法瑞、被奴役者/奴役者、雕文/铭文、刻速/tick 速度），
-# 15 + 4 = 19。Web 侧 `译名黑名单: 19 条禁用写法` 实测一致。
+# 解析结果的条数契约。第四节现在是 18 行数据行，其中 5 行用 `/` 并列了两个
+# 禁用写法（艾法瑞格/艾法瑞、被奴役者/奴役者、雕文/铭文、刻速/tick 速度、
+# 裂隙/裂缝），18 + 5 = 23。
+# 2026-10-31 19 -> 23：译名表新增三行（裂隙/裂缝→裂痕、遗烬→遗物、打击→冲击），
+# 属词表扩容而不是解析漂移 —— 逐行核对过 18 行 × 5 个 `/` 并列，23 是正确的。
+# Web 侧 validate_tutorial.mjs 只断言「≥1 条」并由它自己打印实际条数，
+# `译名黑名单: 23 条禁用写法` 与这里一致。
 # 条数对不上 = 有一边解析错了（表格格式改了、或 `/` 拆分规则改了），
 # 这时必须停下来对齐，不允许「解析出几条就查几条」—— 少解析一条就是少一条断言。
-EXPECTED_GLOSSARY_TERMS = 19
+EXPECTED_GLOSSARY_TERMS = 23
 
 # 例外语境：正文**主动纠正**某个错译时会把错译写进引号，例如
 #   「官方译名是「时间之理」，不是「时间定理」」
@@ -401,6 +467,16 @@ def _glossary_problems(doc: dict, terms: list[dict],
                 continue
             problems.append(
                 f"{cid}: 出现禁用译名「{t['term']}」，{_fix_hint(t['correct'])}"
+                f"（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:{t['line']}）")
+    # 附录同样是玩家可见正文（Web 上是一整页 Markdown），译名规则不能只查章节。
+    for a in doc.get("appendices") or []:
+        blob = CORRECTION_SPAN.sub("", "\n".join(
+            [a.get("title") or "", a.get("body") or ""]))
+        for t in terms:
+            if t["term"] not in blob:
+                continue
+            problems.append(
+                f"{a['id']}: 出现禁用译名「{t['term']}」，{_fix_hint(t['correct'])}"
                 f"（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:{t['line']}）")
     return problems
 
@@ -523,8 +599,14 @@ def validate_level2(doc: dict, allow_draft: bool = False) -> None:
                     f"{cid}.automation 没提到总开关 / 自动购买器 / 自动化页，"
                     "玩家不知道去哪个开关确认")
         for i, n in enumerate(c.get("numbers") or []):
-            if not (n.get("src") or "").strip():
-                problems.append(f"{cid}.numbers[{i}] ({n.get('label')}): src 为空")
+            # 2026-10-31 反转：原先要求 src 非空（便于溯源）。用户现在要求正文里
+            # 不出现源码路径与行号，Web 侧正在整字段移除 —— 所以规则反过来：
+            # **允许缺失，但一旦出现非空 src 就是「开发者信息泄漏」，直接判红**。
+            # 这样既不会因为字段被删而挡构建，也不会让溯源悄悄回流到正文链路。
+            if (n.get("src") or "").strip():
+                problems.append(
+                    f"{cid}.numbers[{i}] ({n.get('label')}): src 非空"
+                    f"（{n.get('src')!r}）—— 教程正文不展示源码路径，请删掉这个字段")
         blob = "\n".join(_chapter_texts(c))
         for word in PLACEHOLDERS:
             if word in blob:
@@ -621,6 +703,7 @@ RECORD_TAGS = (
     "TRAP",    # 常见卡点（一条一条）
     "TBL",     # 对照表（一条一行「标签：值」）
     "NOTE",    # 补充说明
+    "PH",      # 阶段提示（全局段，不属于任何章）：text = `chapterId|stage|正文`
 )
 
 # 单文件体积上限。内容是 5~12 万汉字（≈120~300 KB），2 MB 已经是 6 倍余量；
@@ -695,13 +778,164 @@ def chapter_records(ch: dict) -> list[tuple[str, int, str]]:
     return rec
 
 
+# ---------------------------------------------------------------- 附录（apx_*）
+# Web 侧附录正文是 Markdown 子集（语法清单见 web/AD-Oreki-Edition/src/components/
+# tutorial/oreki-tutorial-markdown.js：##/### 标题、| 表格（第二行 --- 分隔）、
+# - / 1. 列表、--- 分隔线、**粗体**、`行内代码`）。
+#
+# Android 渲染层没有 Markdown，只有 16 个记录标签，所以在**生成期**把段落映射到
+# 现有标签：smali 端不需要认识 Markdown，也不新增标签。
+#   ### / ## 小标题  -> SUB   （渲染层用 addNote：14sp 次要色、**不带**中文标签）
+#   表格             -> TBL   （表头一行「列1｜列2｜列3」，数据行「首列：其余」）
+#   - / 1. 列表项    -> STEP
+#   段落             -> 首个段落 SUB（当副标题），之后 NOTE
+#   --- 分隔线       -> 丢弃（纯装饰，转成文字只是多一行噪声）
+# 为什么要专门给「小标题 -> SUB」留位置：labelForCode 给 GOAL…NOTE 共 12 个标签都
+# 配了中文名（阶段目标 / 对照表 / 补充说明…），没有「无标签正文」标签；小标题若走
+# TBL/NOTE，会先画出「对照表」「补充说明」再画标题，层级直接塌掉。
+INLINE_BOLD = re.compile(r"\*\*([^*]+)\*\*")
+INLINE_CODE = re.compile(r"`([^`]+)`")
+TABLE_DIVIDER = re.compile(r"^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$")
+MD_HEADING = re.compile(r"^#{2,4}\s+(.*)$")
+MD_UL = re.compile(r"^[-*]\s+(.*)$")
+MD_OL = re.compile(r"^\d+\.\s+(.*)$")
+
+
+def _plain(text: str) -> str:
+    """去掉行内 Markdown 标记 —— Android 的 TextView 不解析 `**` 与反引号，留着就是噪声。"""
+    return INLINE_CODE.sub(r"\1", INLINE_BOLD.sub(r"\1", str(text or ""))).strip()
+
+
+def _cells(row: str) -> list[str]:
+    return [_plain(c) for c in row.strip().strip("|").split("|")]
+
+
+def md_blocks(body: str) -> list[tuple[str, str]]:
+    """附录 Markdown -> [(TAG, text)]，顺序即阅读顺序。"""
+    out: list[tuple[str, str]] = []
+    lines = [ln.rstrip() for ln in str(body or "").replace("\r\n", "\n").split("\n")]
+    i = 0
+    started = False
+    while i < len(lines):
+        s = lines[i].strip()
+        if not s or s == "---":
+            i += 1
+            continue
+        m = MD_HEADING.match(s)
+        if m:
+            out.append(("SUB", _plain(m.group(1))))
+            started = True
+            i += 1
+            continue
+        if s.startswith("|"):
+            rows = []
+            while i < len(lines) and lines[i].strip().startswith("|"):
+                rows.append(lines[i].strip())
+                i += 1
+            if len(rows) >= 2 and TABLE_DIVIDER.match(rows[1]):
+                head = [c for c in _cells(rows[0]) if c]
+                if head:
+                    out.append(("TBL", "｜".join(head)))
+                for row in rows[2:]:
+                    text = _row_text(_cells(row))
+                    if text:
+                        out.append(("TBL", text))
+            else:
+                # 不是表格（正文里以竖线开头的句子）：原样成段，宁可朴素也别丢字
+                out.append(("NOTE", _plain(" ".join(rows))))
+            started = True
+            continue
+        if MD_UL.match(s) or MD_OL.match(s):
+            while i < len(lines):
+                t = lines[i].strip()
+                mm = MD_UL.match(t) or MD_OL.match(t)
+                if not mm:
+                    break
+                item = _plain(mm.group(1))
+                if item:
+                    out.append(("STEP", item))
+                i += 1
+            started = True
+            continue
+        para = []
+        while i < len(lines):
+            t = lines[i].strip()
+            if (not t or t == "---" or t.startswith("|") or MD_HEADING.match(t)
+                    or MD_UL.match(t) or MD_OL.match(t)):
+                break
+            para.append(t)
+            i += 1
+        text = _plain(" ".join(para))
+        if text:
+            out.append(("NOTE" if started else "SUB", text))
+            started = True
+    return out
+
+
+def appendix_records(apx: dict, chapters: list[dict]) -> list[tuple[str, int, str]]:
+    """一篇附录 -> 记录列表。前两条固定是 CH + TITLE。
+
+    为什么 TITLE 必须有：showChapter 无条件调用 addHeading(chTitle[i])，而
+    addHeading 只判 null 不判空串 —— 缺 TITLE 会画出一条 22sp 的空白粗体行。
+    """
+    rec: list[tuple[str, int, str]] = [
+        ("CH", 0, apx["id"]),
+        ("TITLE", 0, sanitize(apx.get("title"))),
+    ]
+    body = apx.get("body")
+    if body:
+        for tag, text in md_blocks(body):
+            if text:
+                rec.append((tag, 0, sanitize(text)))
+    elif apx.get("auto") == "automation":
+        # 附录 F 在 JSON 里没有 body（只有 {"auto": "automation"}）：Web 侧
+        # appendixHtml 对 undefined 返回空串，也就是这一篇在网页上是空白页。
+        # 这里按同一份数据（各章的 automation 字段）汇总，保证 App 上有内容可读。
+        for ch in chapters:
+            auto = sanitize(ch.get("automation"))
+            if auto:
+                rec.append(("TBL", 0, sanitize(f"{ch.get('title') or ch['id']}：{auto}")))
+    return rec
+
+
+def hint_records(doc: dict) -> list[tuple[str, int, str]]:
+    """progressHints -> PH 记录，写在文件头注释之后、第一条 CH 之前（全局段）。
+
+    格式 `PH|0|<chapterId>|<stage>|<text>`：flag 位固定 0，text 段自己再按 `|` 切三份。
+    smali 的 parts() 用 split("\\|", 3)，所以这三份在上盘后仍然是同一条记录的 text。
+    """
+    out = []
+    for h in doc.get("progressHints") or []:
+        out.append(("PH", 0, SEP.join((
+            sanitize(h.get("chapterId")),
+            sanitize(h.get("stage")),
+            sanitize(h.get("text")),
+        ))))
+    return out
+
+
+def all_units(doc: dict) -> list[tuple[str, dict]]:
+    """渲染单元：18 章正文 + 7 篇附录。顺序 = 目录顺序（正文在前，附录在后）。"""
+    return ([("chapter", c) for c in doc["chapters"]]
+            + [("appendix", a) for a in (doc.get("appendices") or [])])
+
+
 # ---------------------------------------------------------------- 生成
 def build_text(doc: dict, header: list[str] | None = None) -> tuple[str, list[list[tuple[str, int, str]]]]:
-    """生成 assets 文本全文，并返回每章的期望记录（供回读比对）。"""
-    per_chapter = [chapter_records(c) for c in doc["chapters"]]
+    """生成 assets 文本全文，并返回每个渲染单元的期望记录（供回读比对）。
+
+    单元 = 18 章正文 + 7 篇附录；PH（阶段提示）是全局记录，写在最前面，
+    不参与单元划分 —— 渲染层只拿它画「你现在该做什么」，不按章遍历。
+    """
+    per_chapter = [
+        chapter_records(u) if kind == "chapter" else appendix_records(u, doc["chapters"])
+        for kind, u in all_units(doc)
+    ]
     lines: list[str] = []
     for ln in header or ():
         lines.append("# " + ln)
+    for tag, flag, text in hint_records(doc):
+        lines.append(f"{tag}{SEP}{flag}{SEP}{text}")
     for recs in per_chapter:
         for tag, flag, text in recs:
             if tag not in ("CH", "TITLE", "SUB", "STAGE") and text == "":
@@ -711,11 +945,13 @@ def build_text(doc: dict, header: list[str] | None = None) -> tuple[str, list[li
 
 
 def parse_text(text: str) -> list[list[tuple[str, int, str]]]:
-    """把生成物解析回 [章 -> [(TAG, flag, text)]]，是 build_text 的逆运算。
+    """把生成物解析回 [单元 -> [(TAG, flag, text)]]，是 build_text 的逆运算。
 
     解析规则与 smali 端逐条一致：忽略空行与 `#` 开头的注释行；其余行必须
     正好被 `|` 切成 3 段（多一段说明正文里混进了半角竖线，会让真机把那半句
     当成新字段丢掉）。flag 只接受 0/1。
+
+    PH（阶段提示）是全局记录，5 段，这里跳过 —— 它由 parse_hints() 单独校验。
     """
     chapters: list[list[tuple[str, int, str]]] = []
     cur: list[tuple[str, int, str]] | None = None
@@ -724,6 +960,12 @@ def parse_text(text: str) -> list[list[tuple[str, int, str]]]:
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         parts = line.split(SEP)
+        if parts[0] == "PH":
+            if len(parts) != 5:
+                raise TutorialContentError(
+                    f"第 {lineno} 行 PH 记录必须是 5 段"
+                    f"（PH|flag|chapterId|stage|text），实际 {len(parts)} 段：{line[:80]!r}")
+            continue
         if len(parts) != 3:
             raise TutorialContentError(
                 f"第 {lineno} 行不是 3 段（实际 {len(parts)} 段）：{line[:80]!r} —— "
@@ -744,6 +986,24 @@ def parse_text(text: str) -> list[list[tuple[str, int, str]]]:
     return chapters
 
 
+def parse_hints(text: str) -> list[tuple[str, str, str]]:
+    """抽出 PH 记录 -> [(chapterId, stage, text)]。"""
+    out: list[tuple[str, str, str]] = []
+    for lineno, raw in enumerate(text.splitlines(), 1):
+        line = raw.rstrip("\n")
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        parts = line.split(SEP)
+        if parts[0] != "PH":
+            continue
+        if len(parts) != 5:
+            raise TutorialContentError(
+                f"第 {lineno} 行 PH 记录必须是 5 段，实际 {len(parts)} 段：{line[:80]!r}")
+        _tag, _flag, cid, stage, body = parts
+        out.append((cid, stage, body))
+    return out
+
+
 def verify_roundtrip(text: str, doc: dict, expected: list[list[tuple[str, int, str]]]) -> dict:
     """回读校验：生成物 -> 记录 -> 与 JSON 渲染结果逐字段比对。
 
@@ -751,13 +1011,14 @@ def verify_roundtrip(text: str, doc: dict, expected: list[list[tuple[str, int, s
     写盘阶段引入的损坏（截断、错位、竖线被吃掉、换行丢失）。
     """
     got = parse_text(text)
-    chapters = doc["chapters"]
-    if len(got) != len(chapters):
+    units = all_units(doc)
+    if len(got) != len(units):
         raise TutorialContentError(
-            f"回读章节数 {len(got)} != JSON 章数 {len(chapters)}")
+            f"回读单元数 {len(got)} != JSON 单元数 {len(units)}"
+            f"（正文 {len(doc['chapters'])} 章 + 附录 {len(doc.get('appendices') or [])} 篇）")
     diffs: list[str] = []
     for idx, (g, want) in enumerate(zip(got, expected)):
-        cid = chapters[idx]["id"]
+        cid = units[idx][1]["id"]
         gw = [(t, f, x) for (t, f, x) in want
               if t in ("CH", "TITLE", "SUB", "STAGE") or x != ""]
         if g[0] != ("CH", 0, cid):
@@ -770,13 +1031,24 @@ def verify_roundtrip(text: str, doc: dict, expected: list[list[tuple[str, int, s
             if a == b:
                 continue
             diffs.append(f"{cid} 第 {i} 条 {b[0]}：期望 {b!r}\n      实际 {a!r}")
+    # PH：条数、字段、顺序都必须与 JSON 逐字一致
+    want_ph = [(h.get("chapterId"), h.get("stage"), sanitize(h.get("text")))
+               for h in (doc.get("progressHints") or [])]
+    got_ph = parse_hints(text)
+    if got_ph != want_ph:
+        diffs.append(f"PH 记录不一致：期望 {len(want_ph)} 条 {want_ph[:1]!r}…，"
+                     f"实际 {len(got_ph)} 条 {got_ph[:1]!r}…")
+    ids = {u["id"] for _k, u in units}
+    for cid, stage, _t in got_ph:
+        if cid not in ids:
+            diffs.append(f"PH 记录指向不存在的章 {cid!r}（stage={stage!r}）")
     if diffs:
         raise TutorialContentError(
             "回读校验失败 —— 生成物与 JSON 不一致（共 %d 处）：\n  " % len(diffs)
             + "\n  ".join(diffs))
     n_rec = sum(len(c) for c in got)
     n_cjk = sum(1 for c in got for _t, _f, x in c for chx in x if "\u4e00" <= chx <= "\u9fff")
-    return {"chapters": len(chapters), "records": n_rec, "cjk": n_cjk}
+    return {"chapters": len(units), "records": n_rec, "cjk": n_cjk, "hints": len(got_ph)}
 
 
 def verify_encoding(raw: bytes, text: str) -> None:
@@ -835,15 +1107,27 @@ def generate(json_path: Path | None = None, out_path: Path | None = None,
     validate_level2(doc, allow_draft=not strict)
 
     n = len(doc["chapters"])
+    n_apx = len(doc.get("appendices") or [])
+    n_ph = len(doc.get("progressHints") or [])
     header = [
         "AD: Oreki Edition - 游戏内教程正文（构建期生成，请勿手改）",
         f"唯一内容源: {_rel(json_path)}",
         f"schemaVersion: {doc.get('schemaVersion')}    updatedAt: {doc.get('updatedAt')}",
-        f"章节数: {n}",
+        f"章节数: {n + n_apx}（正文 {n} 章 + 附录 {n_apx} 篇）",
+        f"阶段提示: {n_ph} 条（PH 记录，写在正文之前，顺序 = TutorialProgress.stage() 0~7）",
         "格式: TAG|flag|text   （TAG 见 scripts/oreki_tutorial_gen.py:RECORD_TAGS）",
     ]
     text, expected = build_text(doc, header)
     stats = verify_roundtrip(text, doc, expected)
+
+    # 防回归：正文里不许出现源码路径（用户要求「源码路径、行号直接删除，不在正文展示」）。
+    # 记录格式是 TAG|flag|text，所以「text 以 src/ 开头」在这份文件里表现为 "|src/"。
+    # 这条守的是「以后有人把溯源写回正文」，与 numbers[].src 的字段级断言互为补位：
+    # 字段级防的是 JSON 里留 src，文本级防的是有人把它拼进 text。
+    if "|src/" in text:
+        raise TutorialContentError(
+            "生成物里出现了源码路径（`|src/`）—— 教程正文不展示 文件:行，"
+            "请把该字段从 JSON 里删掉，而不是在生成期过滤")
 
     raw = text.encode("utf-8")
     verify_size(raw)
@@ -860,8 +1144,11 @@ def generate(json_path: Path | None = None, out_path: Path | None = None,
         "written": write,
         "drafts": sum(1 for c in doc["chapters"] if c.get("draft")),
         "total": n,
+        "appendices": n_apx,
+        "hints": n_ph,
         "bytes": len(raw),
-        "tabs": [tab_title(c) for c in doc["chapters"]],
+        "tabs": [tab_title(c) for c in doc["chapters"]]
+                + [tab_title(a) for a in (doc.get("appendices") or [])],
         "stage_map": stage_to_chapter(doc),
     })
     return stats
@@ -933,7 +1220,14 @@ def selftest() -> int:
         lambda d: d["chapters"][0].update(draft=True)))
     expect_fail("占位词混入", lambda: with_doc(
         lambda d: d["chapters"][0].update(subtitle=d["chapters"][0]["subtitle"] + "待补")))
-    expect_fail("numbers.src 为空", lambda: with_doc(
+    expect_fail("numbers.src 非空（开发者信息泄漏）", lambda: with_doc(
+        lambda d: d["chapters"][0]["numbers"][0].update(src="src/game.js:112")),
+        must_say="src 非空")
+    # 反向用例：整字段删掉必须放行 —— 这是 Web 侧当前的真实形态，
+    # 缺了这条，「反转」可能只做到「允许空串、仍要求键存在」而没人发现。
+    expect_pass("numbers 整字段没有 src（允许）", lambda: with_doc(
+        lambda d: [n.pop("src", None) for c in d["chapters"] for n in c["numbers"]]))
+    expect_pass("numbers.src 是空串（允许）", lambda: with_doc(
         lambda d: d["chapters"][0]["numbers"][0].update(src="  ")))
 
     base_text, base_exp = build_text(doc, None)
@@ -968,7 +1262,10 @@ def selftest() -> int:
             p.write_text(re.sub(r"^\| 倍速 .*$\n?", "", text, flags=re.MULTILINE),
                          encoding="utf-8")
             load_forbidden_terms(p)
-    expect_fail("译名表少一条 -> 条数契约拦截", short_glossary, "18 条")
+    # 删掉一行「倍速」（1 条）后应剩 22 条，与 EXPECTED_GLOSSARY_TERMS=23 对不上。
+    # 这里的 must_say 跟着常量走，别再写死数字 —— 上次 19->23 就是因为写死而过期。
+    expect_fail("译名表少一条 -> 条数契约拦截", short_glossary,
+                f"{EXPECTED_GLOSSARY_TERMS - 1} 条")
 
     def push_step(d, text, idx=1):
         d["chapters"][idx]["steps"].append({"text": text, "auto": False})

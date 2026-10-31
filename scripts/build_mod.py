@@ -3939,8 +3939,9 @@ def patch_stage_auto_hook():
 # 产物是一个纯文本 assets，不再是 smali 常量：正文是五位数千字规模，写成
 # const-string 会撑出上万行 smali 并顶到 65,535 常量池边界；assets 不走 aapt、
 # 不占资源 ID、不产生常量池压力，而且构建期能按字节做编码与结构断言。
-# 只允许这一份。旧版正文（oreki_tutorial_legacy.txt）已由用户明确要求删除，
-# 构建期反向守卫见下方「旧版正文禁止回归」段。
+# 只允许这一份。旧版正文已由用户明确要求删除（2026-10-31），构建期反向守卫
+# 见下方「旧版正文禁止回归」段；那里的判定不看文件名，只看读取调用次数，
+# 避免把已删除的文件名再写回脚本（`rg "旧版文件名" scripts/` 必须为 0）。
 TUTORIAL_ASSETS = ("oreki_tutorial.txt",)
 
 
@@ -4029,7 +4030,10 @@ def patch_tutorial_content():
     assert cjk_new >= 1000, f"[R40H] 新版正文只有 {cjk_new} 个汉字，疑似生成物截断"
 
     doc = _json.loads(Path(stats["json"]).read_text(encoding="utf-8"))
-    ids = [c.get("id") for c in doc["chapters"]]
+    # 渲染单元 = 18 章正文 + 7 篇附录。两者都进 assets、都会出现在页签条上，
+    # 所以「章数」断言必须按单元算，不能只数 chapters（否则附录一加就误报）。
+    ids = ([c.get("id") for c in doc["chapters"]]
+           + [a.get("id") for a in (doc.get("appendices") or [])])
     try:
         rr = gen.verify_roundtrip(text, doc, gen.build_text(doc)[1])
     except gen.TutorialContentError as e:
@@ -4038,13 +4042,46 @@ def patch_tutorial_content():
 
     # 章节数只认 JSON 实际长度，绝不写死：id 顺序必须等于数组顺序。
     assert rr["chapters"] == len(ids), \
-        f"[R40H] 回读章数 {rr['chapters']} != JSON 章数 {len(ids)}"
+        f"[R40H] 回读单元数 {rr['chapters']} != JSON 单元数 {len(ids)}"
     assert [c[0][2] for c in gen.parse_text(text)] == ids, \
         "[R40H] 生成物里的章节 id 顺序与 JSON 数组顺序不一致"
     assert f"章节数: {len(ids)}" in text, \
-        "[R40H] 文件头「章节数: N」与 JSON 实际章数不一致（生成器可能写死了章数）"
+        "[R40H] 文件头「章节数: N」与 JSON 实际单元数不一致（生成器可能写死了章数）"
 
-    # ---- ③ 旧版正文禁止回归（用户 2026-10-31 明确指令：Android 版把旧版教程删了）----
+    # ---- ②b 附录 / 阶段提示（PH）结构守卫 ----
+    # 附录：7 个 apx_* 必须全在，且每篇都必须有 TITLE —— 渲染层无条件画章标题，
+    # 缺 TITLE 会画出一条 22sp 的空白粗体行（见 TutorialActivity.addHeading）。
+    apx_ids = [a.get("id") for a in (doc.get("appendices") or [])]
+    units_parsed = gen.parse_text(text)
+    by_id = {u[0][2]: u for u in units_parsed if u}
+    for aid in apx_ids:
+        assert aid in by_id, f"[R40H] 附录 {aid} 没有 CH 记录"
+        assert len(by_id[aid]) > 1 and by_id[aid][1][0] == "TITLE", \
+            f"[R40H] 附录 {aid} 的第二条记录不是 TITLE（页面会出现空白大标题）"
+    ch_lines = [ln for ln in text.splitlines() if ln.startswith("CH|")]
+    assert len(ch_lines) == len(ids), \
+        f"[R40H] 生成物里 CH 记录 {len(ch_lines)} 条 != 渲染单元 {len(ids)} 个"
+    # PH：条数必须等于渲染层档位数（TutorialProgress.stage() 返回 0~7），
+    # 每条的目标章必须在 CH 集合里，否则「你现在该做什么」点下去跳不到章。
+    ph_lines = [ln for ln in text.splitlines() if ln.startswith("PH|")]
+    assert len(ph_lines) == gen.STAGE_COUNT, \
+        f"[R40H] PH 记录 {len(ph_lines)} 条 != 渲染层档位 {gen.STAGE_COUNT} 档"
+    for ln in ph_lines:
+        seg = ln.split("|")
+        assert len(seg) == 5, f"[R40H] PH 记录不是 5 段：{ln[:60]!r}"
+        assert seg[2] in ids, f"[R40H] PH 指向不存在的章 {seg[2]!r}（{ln[:60]!r}）"
+    note(f"[R40H] 渲染单元 {len(ids)} 个（正文 {len(doc['chapters'])} + 附录 {len(apx_ids)}），"
+         f"PH 记录 {len(ph_lines)} 条，章数/附录/阶段提示守卫通过")
+
+    # ---- ②c 正文里不许出现源码路径 ----
+    # 用户明确要求「源码路径、行号直接删除，不在教程正文展示」。记录格式是
+    # TAG|flag|text，所以「text 以 src/ 开头」在文件里表现为 "|src/"。
+    # 与 gen.py 里 numbers[].src 的字段级断言互为补位：那边防 JSON 留字段，
+    # 这边防有人把溯源拼进正文文本。
+    assert "|src/" not in text, \
+        "[R40H] assets 里出现源码路径（|src/）—— 教程正文不展示 文件:行"
+
+    # ---- ③ 上一版正文禁止回归（用户 2026-10-31 明确指令：Android 版把旧正文删了）----
     # 反转为**禁止**：payload 里不许再出现任何 legacy 变体的教程 assets，
     # 已经落进 work/mod 的旧文件也必须在拷 assets 时清掉，否则 apktool 会把上一轮
     # 残留的 legacy 文本一起打进 APK（静默复活，最坏情况）。
@@ -4052,22 +4089,27 @@ def patch_tutorial_content():
         p.name for p in asrc.glob("*legacy*")
         if p.is_file() and p.suffix == ".txt")
     assert not legacy_variants, (
-        "[R40H] payload/assets 里仍有旧版教程文件 "
-        f"{legacy_variants} —— 用户已要求删除旧版教程，禁止重新落盘")
+        "[R40H] payload/assets 里仍有上一版正文文件 "
+        f"{legacy_variants} —— 用户已要求删除上一版正文，禁止重新落盘")
     for stale in sorted(adst.glob("*legacy*")):
         if stale.is_file():
             stale.unlink()
             note(f"[R40H] 清掉 work/mod 里的旧版残留：{stale.name}")
     assert not sorted(adst.glob("*legacy*")), \
         "[R40H] work/mod/assets 里仍有 legacy 教程文件（会被一起打进 APK）"
-    # 渲染层也不许再去读：文件名一旦出现在 smali 里，说明读回退到了旧版。
+    # 渲染层也不许再去读多份 assets：readAssetInto 只能出现 2 次
+    # （方法定义 1 次 + loadData 里唯一一次调用）。多于 2 次说明又接回了第二份正文。
+    # 这里刻意不按文件名断言 —— 旧版文件名不该再出现在任何脚本里。
     _early_act = (MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
                   / "TutorialActivity.smali")
     assert _early_act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
     asrc_txt_early = _early_act.read_text(encoding="utf-8")
-    assert "oreki_tutorial_legacy" not in asrc_txt_early, \
-        "[R40H] TutorialActivity 仍在读取 oreki_tutorial_legacy.txt（旧版已删除）"
-    note(f"[R40H] 旧版教程已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
+    _read_marker = "->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V"
+    _read_n = asrc_txt_early.count(_read_marker)
+    assert _read_n == 2, (
+        f"[R40H] TutorialActivity 的 readAssetInto 出现 {_read_n} 次（期望 2："
+        "定义 1 次 + loadData 调用 1 次）；多出来的调用说明又读回了第二份教程正文")
+    note(f"[R40H] 上一版正文已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
 
     # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
     tut_dir = MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
@@ -4124,13 +4166,12 @@ def patch_tutorial_content():
         # 2026-10-31 R42 更正：此条原写 good=if-ge / bad=if-lt，**极性反了**。
         # if-ge p1, v0 = 「p1 >= chCount 才跳」⇒ 合法索引反而不跳，直接落到
         # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 合法章节号
-        # 都会被钳成最后一章（表现为「旧·⑩」）。
+        # 都会被钳成最后一章（表现为页签带废弃前缀 +「⑩」）。
         # 章数：18 章正文 + 7 个附录（apx_*）= 25 个 CH 记录（旧版 11 章已删除）。
         # 与同文件内两处已写对的样本对齐：:1487 if-gez p1, :low_ok（下界）、
         # :1534 if-lt v4, v0, :not_last（末章区间）。
         ("if-lt p1, v0, :high_ok", "if-ge p1, v0, :high_ok", "章号上界钳制（合法索引才跳）"),
         ("if-lt v4, v0, :not_last", "if-ge v4, v0, :not_last", "末章区间取 lines.size()"),
-        ("if-le v8, v9, :rec_next", "if-gt v8, v9, :rec_next", "跳过 CH/TITLE/SUB/STAGE"),
         ("if-ne v9, v8, :grp_done", "if-eq v9, v8, :grp_done", "同 TAG 才合并成一块"),
         ("if-nez v2, :no_header", "if-eqz v2, :no_header", "「具体操作」小标题只画一次"),
         ("if-ltz v3, :fill_next", "if-gez v3, :fill_next", "CH 之前出现的记录丢弃"),
@@ -4144,11 +4185,42 @@ def patch_tutorial_content():
         ("if-ge p0, v0, :sk_early", "if-lt p0, v0, :sk_early", "stage 0~2 归 early"),
         ("if-ltz v2, :trunc", "if-gez v2, :trunc", "页签取全角空格之后的标题"),
         ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
+        # R43：SUB 从「只画本章第一条」改成「按原位逐条画」（附录小标题靠它）。
+        # 写反的表现：if-ne 会让 SUB 全部跳过（附录小标题消失）；第二行若写 if-le，
+        # CH/TITLE/STAGE 也会被当成正文画出来（页面出现重复标题）。
+        ("if-eq v8, v9, :rec_render", "if-ne v8, v9, :rec_render", "SUB 也要渲染"),
+        ("if-gt v8, v9, :rec_render", "if-le v8, v9, :rec_render", "正文标签走 addGroup"),
         ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),
         ("if-lez v0, :sec_body", "if-gtz v0, :sec_body", "小节标题空值跳过"),
     ):
         assert good in asrc_txt, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
         assert bad not in asrc_txt, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
+
+    # R43：SUB 走 addNote（无中文标签的次要色正文），不再单独扫一遍「第一条 SUB」。
+    assert ":sub_loop" not in asrc_txt, \
+        "[R40H] showChapter 里还留着 sub_loop —— 它只画第一条 SUB，会让附录小标题丢失"
+    ag0 = asrc_txt.find(".method private final addGroup(III)V")
+    ag1 = asrc_txt.find(".end method", ag0)
+    assert ag0 > 0 and ag1 > ag0, "[R40H] 找不到 addGroup"
+    ag = asrc_txt[ag0:ag1]
+    assert "if-ne p1, v1, :not_sub" in ag and "addNote(Ljava/lang/String;)V" in ag, \
+        "[R40H] addGroup 没有 SUB -> addNote 分支（附录小标题会退化成 18sp 蓝色小节标题）"
+
+    # R43：阶段提示（PH）必须从 assets 读，不许又写回 smali。
+    prg = (tut_dir / "TutorialProgress.smali").read_text(encoding="utf-8")
+    for key in ("当前阶段：开局", "当前阶段：维度提升", "当前阶段：佩勒"):
+        assert key not in prg, \
+            f"[R40H] TutorialProgress 里还写死着阶段提示「{key}」—— 应迁到 JSON 的 progressHints"
+    for line in _tutorial_literals(prg):
+        assert "下一步：" not in line, \
+            f"[R40H] TutorialProgress 里还有阶段提示文案：{line[:40]!r}"
+    for needle, why in (
+        ("->indexHints()V", "没有建 PH 索引"),
+        ("->chapterForId(Ljava/lang/String;)I", "没有按 chapterId 找章（跳转用）"),
+        ('const-string v6, "PH"', "没有识别 PH 记录"),
+        ("phChapter:[Ljava/lang/String;", "没有存 PH 的 chapterId"),
+    ):
+        assert needle in asrc_txt, f"[R40H] 阶段提示接线缺失：{why}（{needle}）"
 
     note("[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自 assets）")
 

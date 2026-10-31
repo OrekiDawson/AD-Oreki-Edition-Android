@@ -72,6 +72,23 @@
 # 读 assets 失败时的第一个异常文本（只用于报错文案，不参与任何判定）
 .field private diag:Ljava/lang/String;
 
+# 阶段提示（PH 记录，8 条，顺序 = TutorialProgress.stage() 的 0~7）
+#   文案全部来自 assets，本文件不再写死任何阶段提示 —— 这是「Web 改完两端就一致」
+#   的前提：以前这 8 条在 TutorialProgress.smali 里，改 JSON 影响不到 Android。
+.field private phChapter:[Ljava/lang/String;
+
+.field private phStage:[Ljava/lang/String;
+
+.field private phText:[Ljava/lang/String;
+
+.field private phCount:I
+
+# 「阶段提示跳转失败」只报一次，避免每次切章都刷同一行日志
+.field private jumpWarned:Z
+
+# 页签所在的横向滚动容器（切章后把当前页签滚进可见区）
+.field private tabScroll:Landroid/widget/HorizontalScrollView;
+
 
 .method public constructor <init>()V
     .locals 1
@@ -162,6 +179,10 @@
     invoke-virtual {v1, v2}, Landroid/widget/HorizontalScrollView;->addView(Landroid/view/View;)V
 
     iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabHost:Landroid/widget/LinearLayout;
+
+    # 记住外层 HorizontalScrollView：25 个页签（18 章 + 7 附录）横向要滑，
+    # 切章后要让当前页签可见，否则玩家不知道自己在看哪一条。
+    iput-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabScroll:Landroid/widget/HorizontalScrollView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -255,6 +276,8 @@
     invoke-direct {p0, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V
 
     invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->indexChapters()V
+
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->indexHints()V
 
     return-void
 .end method
@@ -563,6 +586,166 @@
 
     iput v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
 
+    return-void
+.end method
+
+
+# 建阶段提示索引：PH 记录 -> (chapterId, stage, text) 三张平行数组。
+# 条数只认实际扫到的 PH 行数；生成器保证恰好 8 条，与 TutorialProgress.stage()
+# 的 0~7 一一对应，所以取第 i 条就是第 i 档（数组顺序 = assets 里的书写顺序）。
+.method private final indexHints()V
+    .locals 8
+
+    const/4 v0, 0x0
+
+    iput v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phCount:I
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
+
+    if-eqz v0, :hi_done
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+
+    move-result v1
+
+    # 第一遍：数 PH
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    :hi_count
+    if-ge v2, v1, :hi_count_done
+
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Ljava/lang/String;
+
+    invoke-static {v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->parts(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v4
+
+    if-eqz v4, :hi_count_next
+
+    const/4 v5, 0x0
+
+    aget-object v5, v4, v5
+
+    const-string v6, "PH"
+
+    invoke-virtual {v6, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :hi_count_next
+
+    add-int/lit8 v3, v3, 0x1
+
+    :hi_count_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :hi_count
+
+    :hi_count_done
+    iput v3, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phCount:I
+
+    new-array v2, v3, [Ljava/lang/String;
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phChapter:[Ljava/lang/String;
+
+    new-array v2, v3, [Ljava/lang/String;
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phStage:[Ljava/lang/String;
+
+    new-array v2, v3, [Ljava/lang/String;
+
+    iput-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phText:[Ljava/lang/String;
+
+    if-gtz v3, :hi_done
+
+    # 第二遍：填。PH 的 text 段是 "chapterId|stage|正文"，再按竖线切三份。
+    const/4 v2, 0x0
+
+    const/4 v3, -0x1
+
+    :hi_fill
+    if-ge v2, v1, :hi_done
+
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v4
+
+    check-cast v4, Ljava/lang/String;
+
+    invoke-static {v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->parts(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v4
+
+    if-eqz v4, :hi_fill_next
+
+    const/4 v5, 0x0
+
+    aget-object v5, v4, v5
+
+    const-string v6, "PH"
+
+    invoke-virtual {v6, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :hi_fill_next
+
+    const/4 v5, 0x2
+
+    aget-object v4, v4, v5
+
+    const-string v5, "\\|"
+
+    const/4 v6, 0x3
+
+    invoke-virtual {v4, v5, v6}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
+
+    move-result-object v4
+
+    array-length v5, v4
+
+    const/4 v6, 0x3
+
+    if-lt v5, v6, :hi_fill_next
+
+    add-int/lit8 v3, v3, 0x1
+
+    iget-object v5, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phChapter:[Ljava/lang/String;
+
+    const/4 v6, 0x0
+
+    aget-object v6, v4, v6
+
+    aput-object v6, v5, v3
+
+    iget-object v5, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phStage:[Ljava/lang/String;
+
+    const/4 v6, 0x1
+
+    aget-object v6, v4, v6
+
+    aput-object v6, v5, v3
+
+    iget-object v5, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phText:[Ljava/lang/String;
+
+    const/4 v6, 0x2
+
+    aget-object v6, v4, v6
+
+    aput-object v6, v5, v3
+
+    :hi_fill_next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :hi_fill
+
+    :hi_done
     return-void
 .end method
 
@@ -1124,6 +1307,70 @@
 .end method
 
 
+# 章 id -> 章索引；找不到返回 -1。
+# 阶段提示的跳转目标来自 assets 里的 PH 记录（chapterId），不是本文件的常量表 ——
+# 所以 JSON 里把某一档指向别的章，这里立刻跟着变，不需要改 smali。
+.method private final chapterForId(Ljava/lang/String;)I
+    .locals 3
+
+    if-eqz p1, :nf
+
+    invoke-virtual {p1}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-eqz v0, :nf
+
+    const/4 v0, 0x0
+
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    :ci_loop
+    if-ge v0, v1, :nf
+
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chId:[Ljava/lang/String;
+
+    aget-object v2, v2, v0
+
+    if-eqz v2, :ci_next
+
+    invoke-virtual {p1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :ci_next
+
+    return v0
+
+    :ci_next
+    add-int/lit8 v0, v0, 0x1
+
+    goto :ci_loop
+
+    :nf
+    const/4 v0, -0x1
+
+    return v0
+.end method
+
+
+# 正文滚回顶部（同章点「你现在该做什么」时只滚不重排）
+.method private final scrollContentTop()V
+    .locals 3
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentScroll:Landroid/widget/ScrollView;
+
+    if-eqz v0, :sct_done
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1, v1}, Landroid/widget/ScrollView;->scrollTo(II)V
+
+    :sct_done
+    return-void
+.end method
+
+
 .method private final openInitialChapter()V
     .locals 3
 
@@ -1184,12 +1431,13 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    # 按钮深底亮字，与正文区区分
+    # 按钮深底白字，与正文区区分（R43：章节列表文字色按用户要求改成 #FFFFFFFF，
+    # 选中态在 showChapter 里用「蓝底 + 加粗」单独标出来，不靠字色深浅区分）。
     const v4, -14013906
 
     invoke-virtual {v3, v4}, Landroid/view/View;->setBackgroundColor(I)V
 
-    const v4, -9776009
+    const/4 v4, -0x1
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -1290,7 +1538,7 @@
     move-result-object v0
 
     :short
-    # 旧版教程已删除，「旧·」前缀逻辑随之移除：页签只显示标题本体。
+    # 上一版正文已删除，废弃的页签前缀逻辑随之移除：页签只显示标题本体。
     return-object v0
 .end method
 
@@ -1307,6 +1555,18 @@
 
     add-int/lit16 v0, p1, -0x64
 
+    # 同章：只把正文滚回顶部，不重建内容区。
+    # 点「你现在该做什么」跳到当前正在看的那一章时会走到这里 —— 需求是「只滚不重排」，
+    # 重建虽然结果一样，但会把页签/滚动位置一起重置，观感是整页闪一下。
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
+
+    if-ne v0, v1, :switch_chapter
+
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->scrollContentTop()V
+
+    return-void
+
+    :switch_chapter
     invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->showChapter(I)V
 
     return-void
@@ -1450,7 +1710,7 @@
     # 原写 if-ge（p1 >= chCount 才跳）：合法索引反而不跳，直接落到下面的 add-int 被改成
     # chCount-1 ⇒ **任何合法章节号都被钳成最后一章**。实际后果（R42 候选 APK 实测症状）：
     #   1) 打开教程永远停在最后一章 —— 当时最后一章是旧版第 11 章，页签名被加上
-    #      「旧·」前缀，于是显示「旧·⑩」；
+    #      废弃前缀，于是显示「旧版·⑩」；
     #   2) 点任何页签都调 showChapter(idx)，idx 仍 < chCount ⇒ 又被钳成最后一章，
     #      页面内容不变，看起来就是「页签点了不切章」；
     #   3) 正文只剩最后一章那一条 STEP（约 210 字符 / 112 汉字），而全量是 848 条，
@@ -1467,6 +1727,90 @@
     :high_ok
     iput p1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
 
+    # 当前页签滚进可见区：25 个页签（18 章 + 7 附录）横向放不下，
+    # 切到靠后的章时如果不滚，玩家看到的页签条还停在最左边。
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabScroll:Landroid/widget/HorizontalScrollView;
+
+    if-eqz v1, :no_tabscroll
+
+    iget-object v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabHost:Landroid/widget/LinearLayout;
+
+    if-eqz v2, :no_tabscroll
+
+    invoke-virtual {v2}, Landroid/view/ViewGroup;->getChildCount()I
+
+    move-result v3
+
+    if-ge p1, v3, :no_tabscroll
+
+    invoke-virtual {v2, p1}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+
+    move-result-object v3
+
+    if-eqz v3, :no_tabscroll
+
+    invoke-virtual {v3}, Landroid/view/View;->getLeft()I
+
+    move-result v3
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v1, v3, v4}, Landroid/widget/HorizontalScrollView;->scrollTo(II)V
+
+    :no_tabscroll
+    # 页签选中态：选中 = 白字加粗 + 蓝底 #FF2E49B5，未选中 = 白字常规 + 深底 #FF2A2A2E。
+    # 用户要求章节列表文字统一 #FFFFFFFF，选中态必须另设 —— 这里用底色 + 字重区分，
+    # 不动字色。白字在两块底色上的对比度：#FF2A2A2E 14.29:1、#FF2E49B5 7.67:1，
+    # 均过 WCAG AA 正文 4.5:1（也过 AAA 7:1）；两底色互相对比 1.86:1，靠字重再加一层区分。
+    # 常量：-14013906 = 0xFF2A2A2E、-13743691 = 0xFF2E49B5（负数 = 有符号十进制）。
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tabHost:Landroid/widget/LinearLayout;
+
+    if-eqz v1, :no_tabcolor
+
+    invoke-virtual {v1}, Landroid/view/ViewGroup;->getChildCount()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    :tabcolor_loop
+    if-ge v3, v2, :no_tabcolor
+
+    invoke-virtual {v1, v3}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+
+    move-result-object v4
+
+    if-eqz v4, :tabcolor_next
+
+    check-cast v4, Landroid/widget/TextView;
+
+    if-ne v3, p1, :tabcolor_sel
+
+    const v5, -14013906
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundColor(I)V
+
+    sget-object v5, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
+
+    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    goto :tabcolor_next
+
+    :tabcolor_sel
+    const v5, -13743691
+
+    invoke-virtual {v4, v5}, Landroid/view/View;->setBackgroundColor(I)V
+
+    sget-object v5, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    :tabcolor_next
+    add-int/lit8 v3, v3, 0x1
+
+    goto :tabcolor_loop
+
+    :no_tabcolor
     const/4 v1, 0x0
 
     iput-boolean v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->stepHeaderDone:Z
@@ -1518,44 +1862,10 @@
     aget v4, v2, v4
 
     :end_ready
-    # 副标题：本章第一条 SUB
-    add-int/lit8 v5, v3, 0x1
-
-    :sub_loop
-    if-ge v5, v4, :sub_done
-
-    invoke-direct {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->partsAt(I)[Ljava/lang/String;
-
-    move-result-object v7
-
-    if-eqz v7, :sub_next
-
-    const/4 v8, 0x0
-
-    aget-object v8, v7, v8
-
-    invoke-static {v8}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->tagCode(Ljava/lang/String;)I
-
-    move-result v8
-
-    const/4 v9, 0x3
-
-    if-ne v8, v9, :sub_next
-
-    const/4 v9, 0x2
-
-    aget-object v9, v7, v9
-
-    invoke-direct {p0, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addNote(Ljava/lang/String;)V
-
-    goto :sub_done
-
-    :sub_next
-    add-int/lit8 v5, v5, 0x1
-
-    goto :sub_loop
-
-    :sub_done
+    # 副标题不再单独扫一遍：SUB 记录统一由下面的 rec_loop 按**原始位置**渲染。
+    # R43 之前这里有一段 sub_loop，找到本章第一条 SUB 就 addNote 然后跳出，
+    # 而 rec_loop 又把 SUB 档在门外 ⇒ 一章里第 2 条及以后的 SUB 全部静默丢弃。
+    # 附录（A/B/C/D/G）的 `### 小标题` 正好是 SUB，按老逻辑会丢 17 个小标题。
     add-int/lit8 v5, v3, 0x1
 
     :rec_loop
@@ -1581,11 +1891,19 @@
     # 正文的记录块一行都渲染不出来，页面上只剩章名。
     if-eqz v8, :rec_next
 
-    # CH / TITLE / SUB / STAGE 已经单独处理
+    # CH / TITLE / STAGE 由 indexChapters 与章标题单独处理；SUB 要按原位渲染
+    # （章节副标题 + 附录小标题都靠它），其余正文标签同样走 addGroup。
+    const/4 v9, 0x3
+
+    if-eq v8, v9, :rec_render
+
     const/4 v9, 0x4
 
-    if-le v8, v9, :rec_next
+    if-gt v8, v9, :rec_render
 
+    goto :rec_next
+
+    :rec_render
     # 找同 TAG 连续的记录，合成一块
     add-int/lit8 v6, v5, 0x1
 
@@ -1691,6 +2009,18 @@
     return-void
 
     :not_step
+    const/4 v1, 0x3
+
+    if-ne p1, v1, :not_sub
+
+    # SUB：无标签正文。章节副标题、附录里 `### 小标题` 转出来的段落都走这里。
+    # 为什么不用 addSection：labelForCode 虽然对 <5 的码返回空串，但 addSection
+    # 的正文是 15sp 常规色，和小标题需要「小一号、次要色、上留白」不是一回事。
+    invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addNote(Ljava/lang/String;)V
+
+    return-void
+
+    :not_sub
     invoke-static {p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->labelForCode(I)Ljava/lang/String;
 
     move-result-object v1
@@ -1940,67 +2270,209 @@
 .end method
 
 
-# [R37] 高亮块：背景 0xFF10304A（深蓝），白色粗体正文，
-# 文本来自 TutorialProgress.hint()（只读存档，读不到就返回开局文案）。
+# [R43] 高亮块：背景 0xFF10304A（深蓝），白色粗体正文。
+# 文案来自 assets 的 PH 记录（progressHints -> PH|0|chapterId|stage|text）：
+# 本文件与 TutorialProgress.smali 都不再写死任何阶段提示 —— 否则「Web 改完
+# 两端一致」永远差这一块。点一下跳到该阶段对应的章，目标章 id 由 JSON 给，
+# 不在这里维护映射表。
 .method private final addHint()V
-    .locals 5
+    .locals 11
 
     iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
 
     if-eqz v0, :hint_done
 
-    new-instance v1, Landroid/widget/LinearLayout;
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phCount:I
 
-    invoke-direct {v1, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+    if-lez v1, :hint_done
 
-    const/4 v2, 0x1
-
-    invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
-
-    # 0xFF10304A
-    const v2, -15716278
-
-    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
-
-    const/16 v2, 0xc
-
-    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;->stage()I
 
     move-result v2
 
-    invoke-virtual {v1, v2, v2, v2, v2}, Landroid/view/View;->setPadding(IIII)V
+    if-gez v2, :hint_done
 
-    new-instance v2, Landroid/widget/TextView;
+    if-lt v2, v1, :stage_ok
 
-    invoke-direct {v2, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+    goto :hint_done
 
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;->hint()Ljava/lang/String;
+    :stage_ok
+    iget-object v3, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phStage:[Ljava/lang/String;
 
-    move-result-object v3
+    aget-object v3, v3, v2
 
-    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    iget-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phText:[Ljava/lang/String;
 
-    const/4 v3, 0x2
+    aget-object v4, v4, v2
 
-    const/high16 v4, 0x41700000    # 15.0f
+    iget-object v5, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->phChapter:[Ljava/lang/String;
 
-    invoke-direct {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+    aget-object v5, v5, v2
 
-    move-result v4
+    invoke-direct {p0, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chapterForId(Ljava/lang/String;)I
 
-    invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setTextSize(IF)V
+    move-result v6
 
-    const/4 v3, -0x1
+    # 正文：你现在该做什么 / 当前阶段：X / 下一步：Y
+    new-instance v7, Ljava/lang/StringBuilder;
 
-    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTextColor(I)V
+    invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
 
-    sget-object v3, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+    const-string v8, "你现在该做什么\n当前阶段："
 
-    invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+    move-result-object v7
 
-    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
+    invoke-virtual {v7, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    const-string v8, "\n下一步："
+
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    invoke-virtual {v7, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    if-gez v6, :no_jump
+
+    # 找得到目标章：正文尾部加「点此跳到第 N 章 ▸」，并挂点击
+    const-string v8, "\n　点此跳到第 "
+
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    invoke-virtual {v7, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    const-string v8, " 章 ▸"
+
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    goto :jump_text_done
+
+    :no_jump
+    # 找不到目标章：保持原样（不挂点击、不崩），只报一次日志。
+    iget-boolean v8, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->jumpWarned:Z
+
+    if-eqz v8, :jump_text_done
+
+    const/4 v8, 0x1
+
+    iput-boolean v8, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->jumpWarned:Z
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "阶段 "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " 的目标章 "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, " 不存在，忽略跳转"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    const-string v9, "OrekiTutorial"
+
+    invoke-static {v9, v8}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :jump_text_done
+    invoke-virtual {v7}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v7
+
+    # 深底容器
+    new-instance v8, Landroid/widget/LinearLayout;
+
+    invoke-direct {v8, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v9, 0x1
+
+    invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    # 0xFF10304A
+    const v9, -15716278
+
+    invoke-virtual {v8, v9}, Landroid/view/View;->setBackgroundColor(I)V
+
+    const/16 v9, 0xc
+
+    invoke-static {p0, v9}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v9
+
+    invoke-virtual {v8, v9, v9, v9, v9}, Landroid/view/View;->setPadding(IIII)V
+
+    new-instance v9, Landroid/widget/TextView;
+
+    invoke-direct {v9, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v9, v7}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v10, 0x2
+
+    const/high16 v7, 0x41700000    # 15.0f
+
+    invoke-direct {p0, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->ts(F)F
+
+    move-result v7
+
+    invoke-virtual {v9, v10, v7}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    const/4 v7, -0x1
+
+    invoke-virtual {v9, v7}, Landroid/widget/TextView;->setTextColor(I)V
+
+    sget-object v7, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v9, v7}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    if-gez v6, :no_click
+
+    # 复用页签监听器：动作码 = 100 + 章索引，与点页签走同一条路径
+    new-instance v7, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
+
+    add-int/lit16 v10, v6, 0x64
+
+    invoke-direct {v7, p0, v10}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;-><init>(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
+
+    invoke-virtual {v9, v7}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    :no_click
+    invoke-virtual {v8, v9}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    invoke-static {v0, v8}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull(Landroid/widget/LinearLayout;Landroid/view/View;)V
 
     :hint_done
     return-void

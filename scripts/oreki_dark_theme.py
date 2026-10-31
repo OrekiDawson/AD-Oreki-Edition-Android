@@ -434,6 +434,11 @@ ZH_ADDITIONS = {
     # 用词对齐既有 zh 条目 `navigation_menu`=导航菜单、`close_drawer`=关闭导航菜单
     "navigation_drawer_open": "打开导航菜单",
     "navigation_drawer_close": "关闭导航菜单",
+    # [R43] 取色器面板标题。基准 values/strings.xml:1234 是 "Select a Color"，
+    # values-zh-rCN 里**没有**这一条 ⇒ 中文系统会直接回落成英文（台账里唯一的
+    # 「被引用且未译」上屏串）。引用方：com/jaredrummler/android/colorpicker/
+    # ColorPreference(Compat).smali 与 iu3.smali（资源 id 0x7f1104a1，public.xml:13386）。
+    "cpv_default_title": "选择颜色",
 }
 
 
@@ -446,7 +451,7 @@ def patch_zh_strings(mod: Path) -> str:
             continue
         add.append(f'    <string name="{name}">{value}</string>')
     if not add:
-        return "skip(三条中文已存在)"
+        return "skip(中文条目已存在)"
     if "</resources>" not in t:
         raise DarkThemeError("values-zh-rCN/strings.xml 缺少 </resources>")
     t = t.replace("</resources>", "\n".join(add) + "\n</resources>", 1)
@@ -530,8 +535,11 @@ def verify(mod: Path) -> None:
     assert f"{MARK} R31 顶栏默认值" in jw, "[UI] jw0.<clinit> 顶栏默认值未改"
 
     zhf = (mod / "res" / "values-zh-rCN" / "strings.xml").read_text(encoding="utf-8")
-    for k in ZH_ADDITIONS:
-        assert f'<string name="{k}">' in zhf, f"[UI] 中文缺 {k}"
+    for k, v in ZH_ADDITIONS.items():
+        assert f'<string name="{k}">{v}</string>' in zhf,             f"[UI] 中文缺 {k}={v!r}（中文系统会回落成英文）"
+    # 取色器标题单独钉一次：它是「基准串是英文、zh 里没有」的典型，值必须是中文，
+    # 否则中文系统上会看到 "Select a Color"（台账里唯一被引用且未译的上屏串）。
+    assert "Select a Color" not in zhf, "[UI] values-zh-rCN 里还有英文取色器标题"
 
     # ---- R42-C 深色对比度守卫 ----
     for style, fixes in PALETTE_CONTRAST_FIXES.items():
