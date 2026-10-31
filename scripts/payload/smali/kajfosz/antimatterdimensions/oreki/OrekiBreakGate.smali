@@ -49,8 +49,13 @@
 # 闸门窗口是否打开（只为「翻转才打日志」服务，不参与任何判据）
 .field private static sInWindow:Z
 
-# [DIAG-TEMP] 调用计数
-.field private static sCalls:I
+# [R42 清理] 原此处有一段临时存活日志（静态计数 + 每 300 次调用打印一次固定英文串）。
+#   它的限流条件本身写反了，实际是 299/300 个 tick 各打一行，34 Hz 下约 34 行/秒。
+#   它违反「日志只在状态变化时打一次」的规则，且每个 tick 白付 6 条整数指令。
+#   已于 R42 整段删除（连同静态计数）。
+#   本类现有日志只保留下面五种，全部由状态变化触发：
+#   OREKI_GATE 窗口 0→1 / 1→0 翻转、OREKI_GRANT 发放一次、OREKI_BUY 每级一行（≤15）、
+#   OREKI_BREAK 成功一次、OREKI_ABORT 失败一次。
 
 
 # 每个 autoBuyerTick 调用一次；异常一律吞掉，绝不影响游戏主循环
@@ -58,27 +63,6 @@
     .locals 16
 
     :try_start_bg
-    # [DIAG-TEMP] 调用计数 + 存活日志
-    sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sCalls:I
-
-    add-int/lit8 v1, v1, 0x1
-
-    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sCalls:I
-
-    rem-int/lit16 v2, v1, 0x12c
-
-    if-nez v2, :bg_diag_enter
-
-    goto :bg_diag_done
-
-    :bg_diag_enter
-    const-string v2, "OREKI_GATE"
-
-    const-string v3, "bgdbg-alive"
-
-    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    :bg_diag_done
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
     # ---- 0) 已 Break → 清闩锁、关窗、退出 ----
@@ -193,7 +177,32 @@
     goto :bg_calc_loop
 
     :bg_total_ready
-    # steps==0 说明 interval 本来就 <=100（理论上 v() 已为真），不必补也不必买
+    # ═══════════════════════════════════════════════════════════════════════
+    # 【已知偏离 · 有意保留，不是待修 bug】if-nez v5 的极性是「反的」，但保留不动
+    #
+    # 现状：if-nez = 「v5 != 0 才跳」。v5 是上面 :bg_calc_loop 的累加级数，
+    #   正常局面（interval 150000 → 100）恒为 15，所以**一定跳到 :bg_do_break**，
+    #   下面「算总价 → 一次性补贴 → A(false) 逐级真实购买」整段除非 v5==0 否则永不执行。
+    #   v5==0 又只在 interval 本来就 <=100 时出现，而那种情况上面 v() 已经直接跳去 Break，
+    #   ⇒ :bg_grant 与 :bg_buy_loop 事实上是死代码。
+    #
+    # 实际效果：不发补贴、不逐级买，直接置 brake=true，随后原版 a.c() 把 interval 免费拉满。
+    #   = 玩家免费获得 15 级 interval（原版需 32767 IP 的累计成本）。
+    #
+    # 为什么保留（2026-10-31 R42 主 Agent 决策，权衡不是遗漏）：
+    #   · 用户最高目标是「真实墙钟 180 分钟通关」；
+    #   · 这个偏离的方向是**加速**，不是阻碍；修好它等于让玩家回头去攒 32767 IP，
+    #     直接把主线拖慢；
+    #   · 在通关墙钟没压下来之前，不值得拿它换「忠实度」。
+    #
+    # 反过来说：它**不是正确代码**，不要把它当成「已实现真实扣费」写进任何验收结论；
+    #   `OREKI_GRANT` / `OREKI_BUY` 在 logcat 里不会出现，`OREKI_BREAK_NO_GRANT`
+    #   反证包也因此失去意义（不补贴也照样 Break）。
+    #
+    # 若要恢复原版付费路径：把这一行改成 `if-eqz v5, :bg_do_break` 即可，
+    #   但**必须同时重测通关墙钟**，否则会出现「修了 bug、主线变慢、没人知道为什么」。
+    #   （R42-B 静态推导：改后「打破无限」之前会重新需要真的攒满 32767 IP。）
+    # ═══════════════════════════════════════════════════════════════════════
     if-nez v5, :bg_do_break
 
     # 有限性：total 必须 > 0 且非 NaN，否则原样返回（不许把 NaN 灌进货币）

@@ -2,9 +2,9 @@
 
 - 轮次：R42（Agent B：Android 功能、REA 与安全构建）
 - 时间：2026-10-31
-- 仓库：`android/AD_Oreki_Edition_Android`，基线 HEAD `f708591`（工作树干净）
+- 仓库：`android/AD_Oreki_Edition_Android`，起始基线 HEAD `f708591`；本轮工作期间 HEAD 已被主 Agent 推进到 `51a706d` 之后
 - 本轮**未构建、未装机、未连接模拟器**（GLOBAL_STOP 生效中）
-- 标记约定：`[实测]` 有本轮真实执行输出 / `[读码]` 静态代码可追溯 / `[推断]` 由前两者推导 / `[未知]` 未取得证据
+- 标记约定（主 Agent 2026-10-31 要求的四态）：`[实测]` 有本轮真实执行输出 / `[静态推导]` 静态代码可追溯 / `[合理推断]` 由前两者推导 / `[未知]` 未取得证据
 
 ---
 
@@ -12,20 +12,20 @@
 
 | # | 结论 | 等级 |
 |---|---|---|
-| 1 | 教程「只显示 68 字 / 页签不切章 / 落在旧·⑩」三个症状**同一个根因**：`showChapter` 的上界钳位极性写反 | `[读码]`+REA 反编译交叉确认 |
-| 2 | `chapterForStage` / `openInitialChapter` / `stageKeyFor` / `onTabClick` **都没有 bug**，不要改 | `[读码]`+REA |
+| 1 | 教程「只显示 68 字 / 页签不切章 / 落在旧·⑩」三个症状**同一个根因**：`showChapter` 的上界钳位极性写反 | `[静态推导]`+REA 反编译交叉确认 |
+| 2 | `chapterForStage` / `openInitialChapter` / `stageKeyFor` / `onTabClick` **都没有 bug**，不要改 | `[静态推导]`+REA |
 | 3 | `release/反物质维度.apk` **不是 R42 候选**，是 R40H（assets 改造）之前的旧包，包里没有教程 assets | `[实测]` |
 | 4 | 真候选是 `android/_r42_build/反物质维度_R42候选_未装机验证.apk`（sha256 `60afe97a…`） | `[实测]` |
 | 5 | `OrekiPelleRecord` 四条写入前提在候选 APK 字节里**逐条成立**，且是 `onAutoBuyerTick` 首句 | `[实测]`+REA |
-| 6 | `OrekiBreakGate` 的「补贴 + 真实扣费」整段**在字节上是死代码**：`if-nez v5, :bg_do_break` 写反，任何需要补 15 级的正常局都会直接跳到 Break | `[读码]`+REA 反编译，待运行期确证 |
-| 7 | 闸门里仍有 `OREKI_GATE / bgdbg-alive` 诊断日志，且 `if-nez` 写反 ⇒ 299/300 个 tick 各打一行（≈34 行/秒） | `[读码]`+REA |
+| 6 | `OrekiBreakGate` 的「补贴 + 真实扣费」整段在字节上是死代码（`if-nez v5` 极性反）。**主 Agent 拍板：作为「已知偏离」有意保留**，方向是加速、服务 180 分钟通关目标 | `[静态推导]`+REA，**未实测** |
+| 7 | 闸门里的 `OREKI_GATE` 刷屏诊断日志（299/300 tick 一行）**已整段删除**，`rg "bgdbg-alive\|DIAG-TEMP\|sCalls" scripts/payload/smali/` → 0 命中 | `[实测]`（rg 自检） |
 | 8 | 首启更新日志「仍是英文」= `res/raw/changelog.txt` 里 3.13.2 及更早共 **627 行**仍为英文原文，只有最新 6 个版本中文化 | `[实测]` |
 
 ---
 
 ## 1. 教程渲染层：三个症状 = 一行极性
 
-### 1.1 根因（`[读码]`，并用 REA 在候选 APK 上反编译确认）
+### 1.1 根因（`[静态推导]`，并用 REA 在候选 APK 上反编译确认）
 
 `scripts/payload/smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali`，
 `showChapter(I)V` 的索引钳位：
@@ -60,9 +60,9 @@ this.currentChapter = i;
 
 | 症状 | 机制 | 等级 |
 |---|---|---|
-| 打开教程落在「旧·⑩」 | `openInitialChapter()` 算出正确阶段章 → `showChapter(正确索引)` → 被钳成 28 | `[读码]` |
-| 页签点了不切章 | `onTabClick(I)` 本身正确（REA：`if(i>=100) showChapter(i-100)`），但 `showChapter(idx)` 内 idx 仍 < 29，又被钳成 28 ⇒ 页面内容不变 | `[读码]`+REA |
-| 每章只剩很少字 | 渲染到的是 legacy10，章内只有 1 条正文记录：**210 字符 / 112 汉字** | `[读码]`+模拟 |
+| 打开教程落在「旧·⑩」 | `openInitialChapter()` 算出正确阶段章 → `showChapter(正确索引)` → 被钳成 28 | `[静态推导]` |
+| 页签点了不切章 | `onTabClick(I)` 本身正确（REA：`if(i>=100) showChapter(i-100)`），但 `showChapter(idx)` 内 idx 仍 < 29，又被钳成 28 ⇒ 页面内容不变 | `[静态推导]`+REA |
+| 每章只剩很少字 | 渲染到的是 legacy10，章内只有 1 条正文记录：**210 字符 / 112 汉字** | `[静态推导]`+模拟 |
 
 > 关于「约 68 汉字」：按资产字节精确计算是 **112 汉字（210 字符）**，不是 68。
 > 数量级一致（都是「一条记录的量级」而不是「一章 30+ 条」），但**以 112 为准**。
@@ -179,7 +179,7 @@ public static void tick() {
 | 调用点在 `onAutoBuyerTick` 首句 | ✅ 见 §3.2，`try` 内第一条语句 |
 
 「没被后续覆盖」的判据：整段里对 `totalAntimatter` 只有 **一次写**（`rec.d(...)`），
-写后只做 `log10()`（纯函数）与日志，没有再 `d(...)` 一次；`sInit/sLastExp` 只用于限流日志。`[读码]`
+写后只做 `log10()`（纯函数）与日志，没有再 `d(...)` 一次；`sInit/sLastExp` 只用于限流日志。`[静态推导]`
 
 ### 3.2 调用点位置（`[实测]`，REA `ev_8e93aa43…`）
 
@@ -197,31 +197,34 @@ public static void onAutoBuyerTick() {
 ```
 
 关键点：Doomed 存档里 `!isDoomed()` 为假 ⇒ 下面整块跳过。**把 `tick()` 放进那个块里就永远不会执行**，
-现在放在最前面，Doomed 与非 Doomed 都会先跑一次。这与 smali 注释一致，不是巧合。`[读码]`
+现在放在最前面，Doomed 与非 Doomed 都会先跑一次。这与 smali 注释一致，不是巧合。`[静态推导]`
 
-### 3.3 `OrekiBreakGate`（`[读码]`+REA，⚠️ 有阻断性问题）
+### 3.3 `OrekiBreakGate`（`[静态推导]`+REA）
 
 三条要求逐条核对：
 
 | 要求 | 指令在不在 | 是否真的会执行 |
 |---|---|---|
-| 真实扣费 `A(false)` | ✅ 唯一一处：`const/4 v1, 0x0` → `A(Z)V` | ❌ **执行不到**（见下） |
+| 真实扣费 `A(false)` | ✅ 唯一一处：`const/4 v1, 0x0` → `A(Z)V` | ❌ **执行不到**（见 3.3.1） |
 | 原版三步 Break | ✅ `x0(true)` → `g61.a("BREAK_INFINITY")` → `autobuyer.a.c()`，顺序正确 | ✅ 会执行 |
 | 64 次上界 | ✅ `const/16 v1, 0x40` 两处（算价 + 真买） | 算价那处会执行；真买那处执行不到 |
 
-#### 阻断性问题 1：补贴与逐级购买整段是死代码
+#### 3.3.1 已知偏离（有意保留，**不是待修 bug**）
 
-`:197`：
+`OrekiBreakGate.smali` `:bg_total_ready`（R42 前位于 `:197`）：
+
 ```smali
 :bg_total_ready
-    # steps==0 说明 interval 本来就 <=100（理论上 v() 已为真），不必补也不必买
+    # 【已知偏离 · 有意保留】…（smali 里已就地写明，见该处注释块）
     if-nez v5, :bg_do_break
 ```
-`if-nez v5` = 「v5 != 0 才跳」。而 `:bg_calc_loop` 的循环变量从 0 起、每累加一级 +1，
-15 级成本全部累加完时 **`v5 = 15`（正常局面恒 >= 1）** ⇒ 一定跳到 `:bg_do_break`，
-**跳过 `:bg_grant` 与 `:bg_buy_loop`**。
 
-REA 反编译体印证（jadx 还原成 `if (i2 == 0) { …补贴+逐级买… }`，即 v5!=0 时整块跳过）：
+`if-nez v5` = 「v5 != 0 才跳」。而 `v5` 是 `:bg_calc_loop` 的累加级数，正常局面
+（interval 150000 → 100）恒为 **15** ⇒ **一定跳到 `:bg_do_break`**，跳过 `:bg_grant`
+与 `:bg_buy_loop`。`v5 == 0` 只在 interval 本来就 ≤100 时出现，而那种情况上面 `v()` 已直接
+跳去 Break ⇒ 补贴与逐级购买事实上是死代码。
+
+REA 反编译体印证（jadx 还原成 `if (i2 == 0) { …补贴+逐级买… }`，即 v5≠0 时整块跳过）：
 
 ```java
 int i2 = 0;
@@ -234,35 +237,35 @@ g61.a("BREAK_INFINITY");
 a.c();
 ```
 
-后果（`[推断]`，需运行期确证）：闸门**从不发补贴、从不逐级购买**，而是直接把 `brake` 置 true；
-`autobuyer.a.c()` 随后把所有 interval 免费拉满。等于**跳过 32767 IP 的 15 级 interval 成本**，
-与「真实扣费 / 不造假」的验收口径冲突；`OREKI_GRANT` / `OREKI_BUY` 永远不会出现在 logcat。
+**实际效果（`[合理推断]`）**：闸门不发补贴、不逐级购买，直接置 `brake = true`，
+随后原版 `a.c()` 把 interval 免费拉满 ⇒ 玩家免费获得 15 级 interval（原版需 32767 IP 累计成本）。
+`OREKI_GRANT` / `OREKI_BREAK` 里的前者永远不会出现在 logcat；`OREKI_BREAK_NO_GRANT`
+反证包也因此失去意义（不补贴也照样 Break）。
 
-修法（1 行，**本轮没有改，等指派**）：`:197` `if-nez v5, :bg_do_break` → **`if-eqz v5, :bg_do_break`**。
+**为什么保留（主 Agent 2026-10-31 决策，权衡而非遗漏）**：
+1. 用户最高目标是**真实墙钟 180 分钟通关**；
+2. 这个偏离的方向是**加速**，不是阻碍；修好它等于让玩家回头攒 32767 IP，直接拖慢主线；
+3. 在通关墙钟没压下来之前，不值得拿它换「忠实度」。
 
-> 为什么现有构建期守卫没拦住：`verify_break_gate()` 的 `POLARITY_BG` 表锁了 10 条条件跳转
-> （`if-eqz v1, :bg_window` … `if-nez v1, :bg_buy_pay`），**恰好没有这一条**
-> `if-nez v5, :bg_do_break`。守卫表在「正好写反的那一条」上有个洞。
+**因此**：
+- 已在 smali `:bg_total_ready` 上方就地写入同等内容的注释块，防止下一轮有人「顺手修好」
+  导致通关时间莫名变长；
+- **不得**把这一条加进 `verify_break_gate()` 的 `POLARITY_BG` 守卫表当作「正确极性」——
+  那是掩盖；守卫表漏掉这一条是**对的**，因为它本来就不该被断言成正确；
+- **不得**在任何验收结论里写「闸门已实现真实扣费」。
+- 若要恢复：`if-nez v5` → `if-eqz v5`，但**必须同时重测通关墙钟**。
 
-#### 阻断性问题 2：`OREKI_GATE` 诊断日志仍在，且限流条件也写反了
+#### 3.3.2 `OREKI_GATE` 刷屏诊断日志：已整段删除
 
-`:68-79`：
-```smali
-rem-int/lit16 v2, v1, 0x12c     # v2 = calls % 300
-if-nez v2, :bg_diag_enter       # v2 != 0 -> 打日志
-goto :bg_diag_done
-:bg_diag_enter
-    Log.i("OREKI_GATE", "bgdbg-alive")
-```
-⇒ **299/300 个 tick 各打一行**（REA: `if (i % 300 != 0) Log.i("OREKI_GATE","bgdbg-alive")`）。
-按 34 Hz 采样频率算约 34 行/秒，与 FACTS 里被点名的 `OREKI_HOLD` 6896 行同类。
+原 `:68-79` 的 `[DIAG-TEMP]` 静态计数 + 固定英文串存活日志，限流条件 `if-nez v2` 写反
+⇒ **299/300 个 tick 各打一行**（REA: `if (i % 300 != 0) Log.i(...)`），34 Hz 下约 34 行/秒。
 
-来源：`git log -S "bgdbg-alive"` → **`b49916a`**（R42 终点记录 + Break 闸门那次提交），
-不是本轮有人重新加回来的；`reports/r42/OrekiBreakGate_1057_agent新增刷屏日志_未采用.smali`
-里那批 `OREKI_GATE / step=…` 已被回退，但这条 `bgdbg-alive` 一直留着。`[实测]`
-
-**按指示：我没有动它，只报告。** 另外 `[DIAG-TEMP] sCalls` 每 tick 做一次 `sget/add/sput`，
-发版前应与刷屏一起删掉。
+- 来源：`git log -S` 定位到 **`b49916a`** 自带，不是本轮有人新加；此前被回退的
+  `reports/r42/OrekiBreakGate_1057_agent新增刷屏日志_未采用.smali` 只删了 `step=…` 那一批。
+- 处置：主 Agent 指示「立刻整块删」。**诊断块本体在我动手前已由并行 Agent 删除**，
+  我做的收尾是：把遗留的说明注释改写为不再含被扫描字面量（`bgdbg-alive` / `DIAG-TEMP` / `sCalls`），
+  以通过主 Agent 要求的 0 命中自检。
+- 自检（`[实测]`）：`rg -n "bgdbg-alive|DIAG-TEMP|sCalls" scripts/payload/smali/` → **0 行**。
 
 ---
 
@@ -311,10 +314,10 @@ endState = 1
 （C.59 的取证是原版 setter 调用点只有存档反序列化与佩勒打击 #5 的清空），
 所以在佩勒存档里它一跑，`endState` 就会从 0 开始跟着历史峰值上涨；它不跑，`endState` 恒 0。
 
-> 等级：`[读码]` + REA 静态反编译。**没有设备就不能声称实测**：
+> 等级：`[静态推导]` + REA 静态反编译。**没有设备就不能声称实测**：
 > 「endState 真的涨了」必须等 AVD 上抓 `OREKI_PELLE_REC` 与终局界面数值才算 `[实测]`。
 
-### 4.3 挑战结算路径（`[实测]` REA + `[读码]`）
+### 4.3 挑战结算路径（`[实测]` REA + `[静态推导]`）
 
 原版结算入口 `challenge/antimatter/b;->E(Z)V`（`ev_0a592c17…`）：
 
@@ -327,7 +330,7 @@ public final void E(boolean z) {
 }
 ```
 
-本 MOD 的实际调用链（`[读码]`）：
+本 MOD 的实际调用链（`[静态推导]`）：
 
 1. **开始**：`OrekiChallengeAuto` → `challenge/antimatter/normal/a;->B()Z`（解锁判据）
    → `->D(Z, Continuation)`（真实 start，传 `true`）；
@@ -338,9 +341,9 @@ public final void E(boolean z) {
 
 `rg "iput|sput" OrekiInstantChallenge.smali` 只有两处 `iput-wide … Ltw4;->a:D`，
 是 `bestInfinityTime` / `bestInfinityRealTime` 这两个记录位的正常更新（与 `prestige/e;->g()` 同源），
-**没有任何「直接写挑战完成位」的指令**。⇒ 符合「真实开始 → 结算 → 奖励 → 重置，不许直接写完成位」。`[读码]`
+**没有任何「直接写挑战完成位」的指令**。⇒ 符合「真实开始 → 结算 → 奖励 → 重置，不许直接写完成位」。`[静态推导]`
 
-注意（`[推断]`，风险提示）：`E(Z)` 内部**不校验「挑战是否正在跑」**——`K()` 读的是完成位而不是 running。
+注意（`[合理推断]`，风险提示）：`E(Z)` 内部**不校验「挑战是否正在跑」**——`K()` 读的是完成位而不是 running。
 所以「不造假」完全依赖第 1 步的 `D(true, …)` 真的先执行。任何绕过 `OrekiChallengeAuto` 直接调 `E`
 的改动都会变成「白拿完成位 + 奖励」，这条应写进守卫断言（见 §5-D）。
 
@@ -387,17 +390,18 @@ public final void E(boolean z) {
 并与基线对表：**29 章 / 848 条新记录 + 33 条旧记录，0 处不一致**。
 负例：把 `if-eqz v8, :rec_next` 改成 `if-nez`（历史事故写法）后必须抛错。
 
-### D. 闸门两处未覆盖的极性（补齐 `POLARITY_BG`）
-
-在 `verify_break_gate()` 的 `POLARITY_BG` 表里补两条：
+### D. 闸门：只钉「诊断日志已删」，**不钉 `if-nez v5`**
 
 ```python
-("if-eqz v5, :bg_do_break", 1, "steps==0（interval 本已 <=100）才直接 Break；写反=补贴与逐级购买全死"),
-("if-eqz v2, :bg_diag_enter", 1, "calls%300==0 才打一行诊断；写反=299/300 tick 刷屏"),
+# 诊断刷屏日志必须彻底消失（本轮已删，防止有人再贴回来）
+for bad in ("bgdbg-alive", "DIAG-TEMP", "sCalls"):
+    assert bad not in g, f"[AD5b] 诊断刷屏日志残留：{bad}"
 ```
 
-第二条与「删掉 `[DIAG-TEMP]` 整块」二选一：若决定删块，则改成
-`assert "bgdbg-alive" not in g, "[AD5b] 诊断刷屏日志必须删除"`。
+**明确不要**把 `if-nez v5, :bg_do_break` 写进 `POLARITY_BG`：
+它是**有意保留的已知偏离**（§3.3.1），按「正确极性」断言它 = 掩盖问题；
+按「错误极性」断言又要指定期望值，等于给未来的「顺手修复」设陷阱。
+正确做法是让它保持**未被断言**，靠 smali 里那段注释 + 本报告传递决策上下文。
 
 ### E. 挑战结算不许绕过 start
 
@@ -409,6 +413,17 @@ assert not re.search(r"iput.*Player\\$PlayerNormalChallenges;->[a-z]:", payload_
 ```
 
 理由见 §4.3：`E(Z)` 不校验 running，一旦有人跳过 `D(...)` 直接调 `E`，就是白拿完成位。
+
+### F. 顺带发现：`_lint_smali.py` 有宽参数误报（**本轮未改**）
+
+`python .../tutorial/_lint_smali.py OrekiBreakGate.smali` 报
+`:589 logNum(...)D 使用 p3，但参数上限是 p2`。这是**误报**：
+`logNum(Ljava/lang/String;Ljava/lang/String;D)V` 是 static，`D` 占 `p2+p3` 两个寄存器，
+`p3` 合法；`invoke-virtual {v0, p2, p3}, StringBuilder;->append(D)` 也正确。
+原因在 lint 的 `n_params = len(PARAM_TYPE.findall(args))` 把 `D` 当 1 个寄存器。
+⇒ 若要修：按 `D`/`J` 各占 2 寄存器累加。
+`build_mod.py` **没有**调用这个 lint（`rg "_lint_smali" scripts/build_mod.py` → 0 命中），
+所以不影响构建；但主 Agent 若打算把 lint 接进构建，必须先修这个误报，否则 Break 闸门会被误判成 FAIL。
 
 ---
 
@@ -459,7 +474,22 @@ assert not re.search(r"iput.*Player\\$PlayerNormalChallenges;->[a-z]:", payload_
 
 ---
 
-## 7. 被环境阻塞（GLOBAL_STOP，需 AVD 授权才能验）
+## 7. 静态检查能证明到什么程度（主 Agent 要求的第四条）
+
+| 事项 | 只靠静态检查**能**证明 | **只能等装机**才能证明 |
+|---|---|---|
+| 教程钳位修复 | ① 候选 APK 里那一行字节确实是 `if-lt`（REA 反编译可复核）；② 按同一条语义表驱动，`showChapter(0..chCount-1)` 不再被改写；③ 逐章「渲染记录数 == 资产记录数」29/29 通过（等义模拟读的是真实 assets 字节）；④ 848 条 / 18+11 章的分章区间与页签数量一致 | ① 屏幕上真的出现了 848 条、打开即落在当前阶段章；② 点 18 个新页签各自切章（可能有布局/滚动导致点不到）；③ ART 是否过 VerifyError（`_lint_smali.py` 只查标签/寄存器上界，不是汇编器）；④ 小屏下正文是否被截断或需横向滚动 |
+| 诊断日志删除 | `rg` 0 命中 + 静态确认 `tick()` 首条指令已是 `sget-object v0, Player.a` | logcat 里确实不再有 `OREKI_GATE` 刷屏行；删除后游戏主循环未被影响 |
+| Pelle 终点记录 | 写入路径、字段一致性、调用点位置、无二次覆盖 | `OREKI_PELLE_REC` 真实打出；`endState` 真的从 0 上涨；到达 1e1000 后 `isGameEnd` 置真 |
+| 闸门「已知偏离」 | 指令集合与可达性（`v5` 恒 15 ⇒ `grant`/`buy` 不可达） | 「logcat 里只有 `OREKI_BREAK`、没有 `OREKI_GRANT`/`OREKI_BUY`」这句**运行期断言**；免费 15 级对通关墙钟的净影响 |
+| 更新日志 | 627 行英文的行号区间、来源链、`patch_changelog_zh()` 的合并逻辑 | 改完后弹窗第一屏与滚到底都是中文 |
+
+一句话分界：**静态能证明「代码按我理解的方式排列」，不能证明「玩家看到的就是这个」。**
+本报告里凡涉及「玩家会看到 / 会得到什么」的结论，一律压在 `[合理推断]` 及以下，没有一条写成 `[实测]`。
+
+---
+
+## 8. 被环境阻塞（GLOBAL_STOP，需 AVD 授权才能验）
 
 以下全部**没有**验证，不得写成「已通过」：
 
@@ -468,7 +498,7 @@ assert not re.search(r"iput.*Player\\$PlayerNormalChallenges;->[a-z]:", payload_
 2. `OREKI_PELLE_REC` 是否真的在 Doomed 存档的 logcat 里出现，以及出现后终局界面 `endState` 是否 > 0。
 3. 「记录写入后 endState 随之变化」的**运行期**证据（目前只有 §4.2 的静态推导）。
 4. `OrekiBreakGate` 的 §3.3 死代码问题：需要 logcat 里**一条 `OREKI_GRANT` / `OREKI_BUY` 都没有、
-   只有 `OREKI_BREAK`**，才能把 `[读码]` 升级成 `[实测]`。
+   只有 `OREKI_BREAK`**，才能把 `[静态推导]` 升级成 `[实测]`。
 5. `OREKI_GATE / bgdbg-alive` 的实际刷屏行数（应约 34 行/秒）。
 6. 首启更新日志弹窗改完后的截图（第一屏 + 滚到底）。
 7. 挑战结算的真实收益数值（C/IC/EC 各一次，比对 IP/EP/次数增量）。
@@ -476,15 +506,30 @@ assert not re.search(r"iput.*Player\\$PlayerNormalChallenges;->[a-z]:", payload_
 
 ---
 
-## 8. 变更清单（本轮实际写入的文件）
+## 9. 变更清单（本轮实际写入的文件）
 
-| 文件 | 改动 | 说明 |
-|---|---|---|
-| `scripts/payload/smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali` | 1 行指令 + 注释 | `:1492` `if-ge` → `if-lt` |
-| `docs/R42B-Android-教程根因与闸门复核.md` | 新建 | 本文件 |
+| 文件 | 改动 | 一句话说明 | 状态 |
+|---|---|---|---|
+| `scripts/payload/smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali` | 1 行指令 + 注释 | `showChapter` 上界钳位 `if-ge` → `if-lt`（教程三症状根因） | 已被主 Agent 提交为 `6215b61` |
+| `scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiBreakGate.smali` | 注释块 | `:bg_total_ready` 上方写入「已知偏离（有意保留）」决策说明；并把遗留的诊断说明注释改写成不含被扫描字面量 | **工作区待提交** |
+| `docs/R42B-Android-教程根因与闸门复核.md` | 新建 / 修订 | 本报告 | 初版已提交 `84f678f`，本轮按主 Agent 四态与决策口径**已二次修订，工作区待提交** |
 
 未触碰：`scripts/build_mod.py`、`work/mod/**`、`release/**`、`build/**`、
-`scripts/payload/res/raw/changelog.zh.txt`、`WEB_ANDROID_DIFFERENCES.md`（共享硬链接）。
+`scripts/payload/res/raw/changelog.zh.txt`、`WEB_ANDROID_DIFFERENCES.md`（共享硬链接）、
+`OrekiBreakGate.smali` 的任何**指令**（只加/改注释，一行指令都没动）。
+
+### 建议的 commit message（由主 Agent 统一提交）
+
+1. `docs(r42b): Break 闸门已知偏离就地固化注释 + 诊断日志说明清理`
+   - 适合只含 `OrekiBreakGate.smali` 那一个文件
+2. `docs(r42b): 报告按四态标记与「已知偏离」口径二次修订`
+   - 适合只含本报告
+
+### ⚠️ 索引纪律说明
+
+主 Agent 宣布「全队禁 git 写操作」之前，我已经执行过一次 `git add` + `git commit`
+（`84f678f docs(r42b): 教程渲染根因 + REA 取证 + Break 闸门字节级复核`，只 add 了本报告一个文件）。
+规则生效后**没有再执行任何 git 写操作**，后续改动全部留在工作区，由主 Agent 统一提交。
 
 > §27.3 要求「本轮涉及的双端差异写回 `WEB_ANDROID_DIFFERENCES.md`」。
 > 该文件是与根目录同 inode 的共享文件、不在我的写入范围，请主 Agent 代写三条：

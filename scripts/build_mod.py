@@ -166,7 +166,7 @@ def patch_resources():
 #   `<b>`/`</b>` 成对数量与替换前完全相同（下面有断言），所以排版不会变。
 CHANGELOG_ANCHOR = "<b>3.13.2</b>"
 CHANGELOG_ZH_SRC = PAYLOAD / "res" / "raw" / "changelog.zh.txt"
-CHANGELOG_ZH_MARK = "—— 以下为 3.13.2 及更早版本，保留英文原文 ——"
+CHANGELOG_ZH_MARK = "本更新日志只保留自 3.14.0 起的版本记录"
 
 
 def _count_bullets(text):
@@ -193,18 +193,19 @@ def patch_changelog_zh():
     assert orig.count(CHANGELOG_ANCHOR) == 1, (
         f"切分锚点 {CHANGELOG_ANCHOR} 在 changelog.txt 里不是唯一一处（{orig.count(CHANGELOG_ANCHOR)}）")
     head_orig = orig[:orig.index(CHANGELOG_ANCHOR)]
-    tail = orig[orig.index(CHANGELOG_ANCHOR):]
 
-    merged = zh + tail
+    # [R42] 首启弹窗必须全简体中文（用户 2026-10-31 要求）。
+    # 旧实现 `merged = zh + tail` 会把 3.13.2 及更早的 **627 行英文**保留在弹窗里，
+    # 玩家首启看到的仍是英文，等于没中文化。changelog.zh.txt 本身是自洽全量文件
+    # （末尾已注明「3.13.2 及更早属上游原版历史，不在本 MOD 变更范围内」），
+    # 所以直接整份替换，不再拼接英文 tail。
+    merged = zh
 
-    # ---- 结构等价断言：只换文字，不动分段与标记 ----
-    assert merged.count("<b>") == orig.count("<b>"), "加粗开始标记数量变了（排版会被破坏）"
-    assert merged.count("</b>") == orig.count("</b>"), "加粗结束标记数量变了"
-    assert merged.count(CHANGELOG_ANCHOR) == 1, "锚点在合并后不唯一"
-    assert _count_bullets(merged) == _count_bullets(orig), (
-        f"条目数变了：{_count_bullets(orig)} → {_count_bullets(merged)}")
+    # ---- 结构断言：全中文 + 与原文最新段一一对应 ----
     assert _count_bullets(zh) == _count_bullets(head_orig), (
-        f"译文条目数 {_count_bullets(zh)} 与原文 {_count_bullets(head_orig)} 不一致")
+        f"译文条目数 {_count_bullets(zh)} 与原文最新段 {_count_bullets(head_orig)} 不一致")
+    assert merged.count(CHANGELOG_ANCHOR) == 0, (
+        f"译文里不应再出现上游锚点 {CHANGELOG_ANCHOR}（出现即说明英文历史又被拼回来了）")
 
     # 段落（小节标题）数量必须一一对应，否则会漏掉整段
     for en, cns in (("NEW STUFF", "新增"), ("IMPROVED STUFF", "改进"),
@@ -213,21 +214,19 @@ def patch_changelog_zh():
             f"小节「{en}」数量不一致：原文 {_count_exact_line(head_orig, en)} / "
             f"译文 {_count_exact_line(zh, cns)}")
 
-    # 译文段落里不允许还有未翻译的 bullet（必须含中日韩字符）
-    for ln in zh.splitlines():
-        if ln.startswith("- "):
-            assert any("\u4e00" <= ch <= "\u9fff" for ch in ln), (
-                f"存在未翻译条目：{ln}")
+    # 全篇不允许还有未翻译的 bullet（必须含中日韩字符）。
+    # 旧版只查 zh 段，英文 tail 绕过了检查；现在 merged 是弹窗最终内容，直接查它。
+    _en_left = [ln for ln in merged.splitlines()
+                if ln.startswith("- ") and not any("\u4e00" <= ch <= "\u9fff" for ch in ln)]
+    assert not _en_left, (
+        f"仍有 {len(_en_left)} 条未翻译的行，首条：{_en_left[0][:80] if _en_left else ''}")
 
-    # 分隔符与换行：译文段末必须正好是一个空行（与原文 bullet→空行→版本头的结构一致）
-    assert zh.endswith("\n\n"), "译文尾必须是「空行 + 换行」，否则版本之间会黏在一起"
-    _i = merged.index(CHANGELOG_ANCHOR)
-    assert _i >= 2 and merged[_i - 2:_i] == "\n\n", (
-        "分界处不是「空行 + 版本头」，段落结构会被改坏")
+    # 分隔符与换行：译文段末必须正好是一个空行，否则版本之间会黏在一起
+    assert merged.endswith("\n\n"), "日志尾必须是「空行 + 换行」，否则版本之间会黏在一起"
 
     dst.write_text(merged, encoding="utf-8")
-    note(f"[R40B] 更新日志中文化：最新 6 个版本 {_count_bullets(zh)} 条已译，"
-         f"其余 {_count_bullets(orig) - _count_bullets(zh)} 条保留英文原文")
+    note(f"[R42] 更新日志已全中文化：{_count_bullets(merged)} 条；"
+         f"上游 3.13.2 及更早的英文历史已整段移除，不再出现在首启弹窗")
 
 
 # --------------------------------------------------------- 3. manifest
@@ -3586,8 +3585,16 @@ def verify_break_gate():
         assert tag in g, f"[AD5b] 缺少运行期日志点 {tag}"
 
     # 1) 补贴额动态推导：不许出现「15 级累计成本」这类写死值
-    for hard in ("32767", "16384", "32768"):
-        assert hard not in g, f"[AD5b] 补贴额被写死：出现常量 {hard}"
+    #    [R42 修订] 只扫**指令行，不扫注释**。
+    #    原实现 `hard not in g` 是对整份文本做子串匹配，结果是：任何中文注释里
+    #    提到「原版需 32767 IP」都会让构建变红。而那条注释正是为了防止后人
+    #    误改闸门极性才写的 —— 断言把说明本身判成违规，只会逼人删掉说明。
+    #    断言的真实意图是拦「const vX, 0x7fff」这种把补贴额写死的**指令**，
+    #    所以这里按行过滤掉注释行（`#` 开头）后再匹配，并补上十六进制等价形式。
+    _code = "\n".join(ln for ln in g.splitlines() if not ln.lstrip().startswith("#"))
+    for hard in ("32767", "16384", "32768", "0x7fff", "0x4000", "0x8000"):
+        assert hard not in _code, (
+            f"[AD5b] 补贴额被写死：指令行里出现常量 {hard}（注释里提到是允许的）")
 
     # 2) 真实扣费入口：A(Z)V 之前必须是 const/4 v1, 0x0（照价扣 IP）
     paid = ("const/4 v1, 0x0\n\n"
@@ -4111,7 +4118,14 @@ def patch_tutorial_content():
     #   if-gtz = 大于 0 才跳；if-ltz = 小于 0 才跳；if-gez = 大于等于 0 才跳。
     for good, bad, why in (
         ("if-gtz v0, :has_chapters", "if-lez v0, :has_chapters", "有章节才渲染正文"),
-        ("if-ge p1, v0, :high_ok", "if-lt p1, v0, :high_ok", "章号上界钳制"),
+        # 章号上界钳制：合法索引（p1 < chCount）才跳去 :high_ok 跳过钳位。
+        # 2026-10-31 R42 更正：此条原写 good=if-ge / bad=if-lt，**极性反了**。
+        # if-ge p1, v0 = 「p1 >= chCount 才跳」⇒ 合法索引反而不跳，直接落到
+        # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 29 章里任何合法章节号
+        # 都会被钳成最后一章（表现为「旧·⑩」）。
+        # 与同文件内两处已写对的样本对齐：:1487 if-gez p1, :low_ok（下界）、
+        # :1534 if-lt v4, v0, :not_last（末章区间）。
+        ("if-lt p1, v0, :high_ok", "if-ge p1, v0, :high_ok", "章号上界钳制（合法索引才跳）"),
         ("if-lt v4, v0, :not_last", "if-ge v4, v0, :not_last", "末章区间取 lines.size()"),
         ("if-le v8, v9, :rec_next", "if-gt v8, v9, :rec_next", "跳过 CH/TITLE/SUB/STAGE"),
         ("if-ne v9, v8, :grp_done", "if-eq v9, v8, :grp_done", "同 TAG 才合并成一块"),
