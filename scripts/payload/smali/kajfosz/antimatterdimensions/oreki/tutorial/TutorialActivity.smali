@@ -1,5 +1,9 @@
 .class public final Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;
 .super Landroid/app/Activity;
+# [R47-IN1] 自己当 WindowInsets 监听器：targetSdk 37 在 Android 15+ 强制 edge-to-edge，
+# 原来标题栏只有固定 12dp 顶部内边距，状态栏的时间/图标会压在「Oreki 教程」上（R46 截图实证）。
+# 由本类实现接口，避免新增 smali 文件（payload 白名单在 build_mod.py 里是显式枚举的）。
+.implements Landroid/view/View$OnApplyWindowInsetsListener;
 
 # AD: Oreki Edition - 游戏内简体中文教程（R40H：只负责显示，一章一屏）
 #
@@ -68,6 +72,9 @@
 # 只读约束：本类除字号偏好外不写任何状态，尤其不碰游戏存档里的任何字段。
 
 .field private contentHost:Landroid/widget/LinearLayout;
+
+# [R47-IN1] 自绘标题区引用：onApplyWindowInsets 里要按真实状态栏高度重设它的内边距
+.field private appBar:Landroid/widget/LinearLayout;
 
 .field private contentScroll:Landroid/widget/ScrollView;
 
@@ -187,6 +194,15 @@
     const v1, -15789288
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
+
+    # [R47-IN1] 根容器接管 WindowInsets：
+    #   顶部 inset 交给标题栏（背景随根容器深色一起延伸进状态栏区域），
+    #   左/右/底部 inset 交给根容器（横屏刘海、三按钮导航不遮正文）。
+    # 监听器只在 dispatch 时按「基础内边距 + 当次 inset」重算一次，不做累加，
+    # 因此旋转、分屏、Insets 变化都不会叠加两遍。
+    invoke-virtual {v0, p0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
+
+    invoke-virtual {v0}, Landroid/view/View;->requestApplyInsets()V
 
     # [R45-C] M3 标题区（自绘，替代被去掉的 ActionBar）
     invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addAppBar(Landroid/widget/LinearLayout;)V
@@ -3523,6 +3539,107 @@
 # [R45-C] M3 Large Top App Bar（自绘）：22sp 标题 + 12sp 说明。
 # 窗口主题改成 NoActionBar 之后标题不再由 ActionBar 画，改由这里画。
 # 不设背景：直接坐在 Surface 上，与下面的操作行、目录条形成「页头 - 工具 - 内容」三段。
+# [R47-IN1] WindowInsets 分发：顶部 inset 给自绘标题栏，左右/底部交给根容器。
+# 每次 dispatch 都用「固定基础内边距 + 当次 inset」重算，天然幂等 —— 旋转、
+# 分屏、手势导航 ↔ 三按钮导航来回切都不会越垫越高。
+.method public onApplyWindowInsets(Landroid/view/View;Landroid/view/WindowInsets;)Landroid/view/WindowInsets;
+    .locals 8
+
+    # v3/v4/v5/v6 = 左/上/右/下 inset，默认 0（无 inset 时不改任何内边距）
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x1e
+
+    if-lt v0, v1, :ins_legacy
+
+    # API 30+：真实 systemBars 类型 inset（含状态栏、导航栏、刘海）
+    invoke-static {}, Landroid/view/WindowInsets$Type;->systemBars()I
+
+    move-result v0
+
+    invoke-virtual {p2, v0}, Landroid/view/WindowInsets;->getInsets(I)Landroid/graphics/Insets;
+
+    move-result-object v0
+
+    if-nez v0, :ins_legacy
+
+    iget v3, v0, Landroid/graphics/Insets;->left:I
+
+    iget v4, v0, Landroid/graphics/Insets;->top:I
+
+    iget v5, v0, Landroid/graphics/Insets;->right:I
+
+    iget v6, v0, Landroid/graphics/Insets;->bottom:I
+
+    goto :ins_apply
+
+    :ins_legacy
+    # API 20~29：老接口仍然返回系统窗口 inset，语义一致（不含 IME）
+    invoke-virtual {p2}, Landroid/view/WindowInsets;->getSystemWindowInsetLeft()I
+
+    move-result v3
+
+    invoke-virtual {p2}, Landroid/view/WindowInsets;->getSystemWindowInsetTop()I
+
+    move-result v4
+
+    invoke-virtual {p2}, Landroid/view/WindowInsets;->getSystemWindowInsetRight()I
+
+    move-result v5
+
+    invoke-virtual {p2}, Landroid/view/WindowInsets;->getSystemWindowInsetBottom()I
+
+    move-result v6
+
+    :ins_apply
+    # ---- 根容器：左右 + 底部（顶部交给标题栏，避免叠两次）----
+    const/4 v0, 0x0
+
+    invoke-virtual {p1, v3, v0, v5, v6}, Landroid/view/View;->setPadding(IIII)V
+
+    # ---- 标题栏：16/12/16/4 dp 基础内边距 + 顶部 inset ----
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->appBar:Landroid/widget/LinearLayout;
+
+    if-eqz v0, :ins_done
+
+    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v1
+
+    const/16 v2, 0x10
+
+    invoke-static {v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    const/16 v7, 0xc
+
+    invoke-static {v1, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v7
+
+    add-int/2addr v7, v4
+
+    const/4 v4, 0x4
+
+    invoke-static {v1, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    invoke-virtual {v0, v2, v7, v2, v4}, Landroid/view/View;->setPadding(IIII)V
+
+    :ins_done
+    return-object p2
+.end method
+
 .method private final addAppBar(Landroid/widget/LinearLayout;)V
     .locals 6
 
@@ -3553,6 +3670,9 @@
     move-result v3
 
     invoke-virtual {v0, v1, v2, v1, v3}, Landroid/view/View;->setPadding(IIII)V
+
+    # [R47-IN1] 交给 onApplyWindowInsets 按真实状态栏高度重设（基础 12dp 不变，只叠加 inset）
+    iput-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->appBar:Landroid/widget/LinearLayout;
 
     new-instance v1, Landroid/widget/TextView;
 
