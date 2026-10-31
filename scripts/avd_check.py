@@ -46,11 +46,12 @@ def ensure(retry=True):
     if not ok:
         msg = ('AVD 不在线（emulator-5554 缺失）。\n'
                f'  adb devices 输出：{info}\n'
-               '  ⚠ 不要自己启动模拟器。模拟器启停权只属于主 Agent（AGENTS.md §21、'
+               '  ⚠ 模拟器启停权只属于主 Agent（工作区根 AGENTS.md §28、'
                '项目根 EMULATOR_CONTROL.md）。\n'
-               '  需要模拟器请向主 Agent 提交申请：测试目标 / 为何非它不可 / 预计耗时 / '
-               '具体命令 / 释放方式，拿到带编号的授权后再动。\n'
-               '  以下参数**仅供参考**，未经授权执行即视为违规：\n'
+               '  · 主 Agent：可自主启停，不需要授权、审批或 AUTH 编号。\n'
+               '  · 子 Agent：严禁自行启动/关闭/重启，须先向主 Agent 申请具体测试任务；'
+               '授权测试不含启停权。\n'
+               '  以下参数**仅供参考**，子 Agent 未经授权执行即视为违规：\n'
                '  emulator -avd oreki_test -no-window -no-audio -no-boot-anim '
                '-no-snapshot -gpu swiftshader_indirect -memory 2048 -cores 4 -port 5554')
         raise SystemExit('[AVD 预检失败] ' + msg)
