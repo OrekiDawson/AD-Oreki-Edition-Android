@@ -718,13 +718,24 @@
 
     move-result-object v6
 
-    if-nez v6, :fr_until
+    # [R42 极性修正] if-eqz = v6==0 才跳：D() 返回 null 才落到 purchaseUntil 兜底。
+    # 原写 if-nez（v6!=0 才跳）：返回非 null 时直接跳去 :fr_until，
+    # 于是下面两行（booleanValue / if-eqz v6, :fr_bought）只有在 null 时才可达 ——
+    # 对 null 调 booleanValue() 就是 NPE。
+    # 这段代码自己就是矛盾的证据：作者在这两句里假定 v6 非 null，
+    # 上面却把「非 null」当成「跳过检查」。
+    # 改成 if-eqz 后语义自洽：null → purchaseUntil 兜底；非 null → 看布尔值，
+    # 真则 :fr_bought（单击就买上了，不必跑昂贵的整链补买），假则继续落到 :fr_until。
+    if-eqz v6, :fr_until
 
     invoke-virtual {v6}, Ljava/lang/Boolean;->booleanValue()Z
 
     move-result v6
 
-    if-eqz v6, :fr_bought
+    # [R42 极性修正] if-nez = v6!=0 才跳：booleanValue() 为真（买上了）才去 :fr_bought。
+    # 原写 if-eqz（为零才跳）：买到 true 时反而落到 :fr_until 白跑一遍整链补买，
+    # 而 false（没买上）时却跳去 :fr_bought 当成已买好 —— 这一关就再也买不上了。
+    if-nez v6, :fr_bought
 
     :fr_until
     # ② [Oreki R40B] 单击买不动 → 走原版 purchaseUntil 补**整条前置路径**
