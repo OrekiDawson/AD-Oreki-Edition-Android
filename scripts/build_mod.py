@@ -573,6 +573,8 @@ PAYLOAD_MUST_EXIST = [
     # [R42] 终点记录写入（PelleRecords.totalAntimatter = 历史峰值反物质）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
+    # [R44] 顶栏标题「主页签 · 子页签」合成（MainActivity.H8 里被 invoke-static）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiUiTitle.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.smali",
@@ -4099,16 +4101,18 @@ def patch_tutorial_content():
         "[R40H] work/mod/assets 里仍有 legacy 教程文件（会被一起打进 APK）"
     # 渲染层也不许再去读多份 assets：readAssetInto 只能出现 2 次
     # （方法定义 1 次 + loadData 里唯一一次调用）。多于 2 次说明又接回了第二份正文。
+    # 注意计数用「不带 -> 的裸名」：定义行是 `.method ... readAssetInto(...)V`，没有 `->`。
     # 这里刻意不按文件名断言 —— 旧版文件名不该再出现在任何脚本里。
     _early_act = (MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
                   / "TutorialActivity.smali")
     assert _early_act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
     asrc_txt_early = _early_act.read_text(encoding="utf-8")
-    _read_marker = "->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V"
-    _read_n = asrc_txt_early.count(_read_marker)
-    assert _read_n == 2, (
-        f"[R40H] TutorialActivity 的 readAssetInto 出现 {_read_n} 次（期望 2："
-        "定义 1 次 + loadData 调用 1 次）；多出来的调用说明又读回了第二份教程正文")
+    _sig = "readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V"
+    _read_n = asrc_txt_early.count(_sig)
+    _call_n = asrc_txt_early.count("->" + _sig)
+    assert _read_n == 2 and _call_n == 1, (
+        f"[R40H] TutorialActivity 的 readAssetInto 出现 {_read_n} 次 / 其中调用 {_call_n} 次"
+        "（期望 2 / 1：定义 1 次 + loadData 调用 1 次）；多出来的调用说明又读回了第二份教程正文")
     note(f"[R40H] 上一版正文已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
 
     # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----

@@ -316,25 +316,55 @@ def patch_default_notation(mod: Path) -> str:
 # `Activity.setTitle(rq4.a())`（rq4.a() = 该 tab 的本地化标题 lambda），
 # 而 MyToolbar 已通过 setSupportActionBar 挂成 action bar（B2() 内
 # `Lse;->setSupportActionBar` 内联），标题直接落到 toolbar 的 title TextView。
-# 所以把模式钉在 CURRENT_TAB 即可，无需新增任何 View。
+# 所以把模式的**缺省值**改成 CURRENT_TAB 即可，无需新增任何 View/监听。
 TOPBAR_FIELD = "Lkajfosz/antimatterdimensions/player/DeviceOptions$TopBar;"
-TOPBAR_SPUT = "sput-object v7, Ljw0;->b:" + TOPBAR_FIELD
+NOTATION_TABS_KEY = '    const-string v9, "topBar"\n'
 
 
 def patch_topbar_current_tab(mod: Path) -> str:
     did = []
 
-    # 6.1 偏好加载点（启动时）—— 覆盖任何已保存的旧值
+    # 6.1 偏好**缺省值** = CURRENT_TAB(2)。
+    #     R44 修正 R31 的副作用：R31 在 onCreate 读完偏好后无条件把 jw0.b 钉成
+    #     CURRENT_TAB，于是「选项 → 顶栏」这项官方设置**改了不生效**（切页当时有效，
+    #     下次启动又被覆盖），等于把官方 4 种顶栏内容砍成 1 种。
+    #     事实：prefs 里的 "topBar" 键**只有在玩家真的选过一次时才存在**
+    #     （全仓唯一写入点 mainactivity/l0.smali:3556 → MainActivity.S2），
+    #     所以只改 getInt 的缺省参数 0 -> 2 就能同时满足：
+    #       没选过 → 顶栏显示当前页面名；选过 → 尊重玩家选择。
+    #     v2 在这一句之前恒为 0（51978 `getSharedPreferences(v1, v2)` 是 MODE_PRIVATE），
+    #     用完立刻还原 0，后面十几个 getInt/getBoolean 的缺省值不受影响。
     p = mod / "smali" / PKG_DIR / "MainActivity.smali"
-    if _replace_once(
-            p,
-            "    " + TOPBAR_SPUT,
-            f"    # {MARK} R31 顶栏模式强制 = CURRENT_TAB(f)：顶栏显示当前页面名称\n"
-            f"    sget-object v7, {TOPBAR_FIELD}->f:{TOPBAR_FIELD}\n"
-            "    " + TOPBAR_SPUT,
-            "MainActivity 顶栏偏好加载",
-            mark=f"{MARK} R31 顶栏模式强制"):
-        did.append("加载点")
+    old = (NOTATION_TABS_KEY +
+           '\n'
+           '    .line 783\n'
+           '    .line 784\n'
+           '    invoke-interface {v4, v9, v2}, '
+           'Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I\n'
+           '\n'
+           '    .line 785\n'
+           '    .line 786\n'
+           '    .line 787\n'
+           '    move-result v9\n')
+    new = (NOTATION_TABS_KEY +
+           '\n'
+           '    .line 783\n'
+           '    .line 784\n'
+           f'    # {MARK} R44 缺省顶栏模式 = CURRENT_TAB(2)：顶栏显示当前页面名\n'
+           '    const/4 v2, 0x2\n'
+           '    invoke-interface {v4, v9, v2}, '
+           'Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I\n'
+           '\n'
+           '    .line 785\n'
+           '    .line 786\n'
+           '    .line 787\n'
+           '    move-result v9\n'
+           '\n'
+           '    # v2 还原成 0（后续所有 getInt/getBoolean 的缺省值都靠它）\n'
+           '    const/4 v2, 0x0\n')
+    if _replace_once(p, old, new, "MainActivity 顶栏缺省值",
+                     mark=f"{MARK} R44 缺省顶栏模式"):
+        did.append("缺省值")
 
     # 6.2 静态默认值（jw0.<clinit>），保证偏好尚未加载的第一帧也不是 NEWS
     p = mod / "smali" / "jw0.smali"
@@ -374,7 +404,55 @@ def patch_topbar_current_tab(mod: Path) -> str:
                      mark=f"{MARK} R31 仅 NEWS 模式才把标题清成空格"):
         did.append("标题不清空")
 
+    # 6.4 R44：标题从「子页签名」升级成「主页签名 · 子页签名」。
+    #     官方 CURRENT_TAB 只给子页签名（反物质维度 / 无限升级 / 特蕾莎 …），
+    #     玩家在子页签之间切换时看不出自己还在哪个主页签。合成串的主/子标签
+    #     仍然全部取自原版 R.string.tab_*（不新增译名），单页签 tab 同名时不重复。
+    #     合成逻辑在 payload 类 oreki/OrekiUiTitle.of(Lyn4;)String，这里只换一句调用。
+    if _replace_once(
+            p,
+            "    invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;\n",
+            f"    # {MARK} R44 顶栏标题 = 「主页签 · 子页签」（文案仍取原版 tab_* 资源）\n"
+            "    invoke-static {p1}, Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle;->of("
+            "Lyn4;)Ljava/lang/String;\n",
+            "MainActivity H8 顶栏标题",
+            mark=f"{MARK} R44 顶栏标题"):
+        did.append("标题合成")
+
     return "ok(" + ",".join(did) + ")" if did else "skip(已是 CURRENT_TAB)"
+
+
+# ------------------------------- 6.4b R44：原创 Activity 的窗口主题也必须固定深色
+# 事实：`patch_manifest()`（build_mod.py:369）给 SpeedSettingsActivity 写的是
+#   `android:theme="@android:style/Theme.DeviceDefault"` —— 这是**跟随系统明暗**的
+#   平台主题，手机处于浅色模式时这一页是白底，与「所有原创页面深色」不符；
+#   而它是个 `android.app.Activity`，继承不到 AppTheme（AppCompat）的深色。
+# 修法：只换这一个 activity 的主题为 `Theme.Material.NoActionBar`（API21+ 固定深色，
+#   minSdk=24 满足），页面本身全是代码建 View、不写死颜色，深色主题下默认文字色
+#   ?android:textColorPrimary(#deffffff) 落在 #303030 窗口底上 ≈ 12.6:1。
+OREKI_SETTINGS_OLD_THEME = "@android:style/Theme.DeviceDefault"
+OREKI_SETTINGS_NEW_THEME = "@android:style/Theme.Material.NoActionBar"
+
+
+def patch_oreki_activity_theme(mod: Path) -> str:
+    p = mod / "AndroidManifest.xml"
+    t = p.read_text(encoding="utf-8")
+    m = re.search(
+        r'<activity[^>]*android:name="kajfosz\.antimatterdimensions\.oreki\.SpeedSettingsActivity"[^>]*>',
+        t)
+    if not m:
+        raise DarkThemeError("AndroidManifest 里找不到 SpeedSettingsActivity 注册（manifest 补丁跑过吗？）")
+    block = m.group(0)
+    if OREKI_SETTINGS_NEW_THEME in block:
+        return "skip(Oreki 设置页已是固定深色主题)"
+    if OREKI_SETTINGS_OLD_THEME not in block:
+        raise DarkThemeError(
+            f"SpeedSettingsActivity 的主题既不是 {OREKI_SETTINGS_OLD_THEME} 也不是 "
+            f"{OREKI_SETTINGS_NEW_THEME}，结构变了，拒绝盲改")
+    t = t.replace(block, block.replace(OREKI_SETTINGS_OLD_THEME,
+                                       OREKI_SETTINGS_NEW_THEME, 1), 1)
+    p.write_text(t, encoding="utf-8")
+    return "ok(Oreki 设置页 Theme.DeviceDefault -> Theme.Material(固定深色))"
 
 
 # ------------------------------- 6.5 R42-C：深色调色板里两条状态文字的对比度下限
@@ -473,6 +551,7 @@ def apply(mod: Path) -> dict:
         "writer": patch_appearance_writer(mod),
         "notation": patch_default_notation(mod),
         "topbar": patch_topbar_current_tab(mod),
+        "activity": patch_oreki_activity_theme(mod),
         "zh": patch_zh_strings(mod),
     }
     return stats
@@ -512,6 +591,17 @@ def verify(mod: Path) -> None:
     l0 = (mod / "smali" / PKG_DIR / "mainactivity" / "l0.smali").read_text(encoding="utf-8")
     assert f"{MARK} writer" in l0, "[DARK] 偏好写入点未夹成深色"
 
+    # 原创 Activity 的窗口主题：DeviceDefault 跟随系统，浅色系统下会变白底
+    mf = (mod / "AndroidManifest.xml").read_text(encoding="utf-8")
+    mact = re.search(
+        r'<activity[^>]*android:name="kajfosz\.antimatterdimensions\.oreki\.SpeedSettingsActivity"[^>]*>',
+        mf)
+    assert mact, "[DARK] AndroidManifest 里找不到 SpeedSettingsActivity"
+    assert OREKI_SETTINGS_NEW_THEME in mact.group(0), \
+        f"[DARK] Oreki 设置页主题不是 {OREKI_SETTINGS_NEW_THEME}（浅色系统下会白底）"
+    assert OREKI_SETTINGS_OLD_THEME not in mact.group(0), \
+        "[DARK] Oreki 设置页仍是 Theme.DeviceDefault（跟随系统明暗）"
+
     # ---- R31 UI 打磨守卫 ----
     opts = (mod / "smali" / PKG_DIR / "player" / "Player$Options.smali").read_text(encoding="utf-8")
     assert f'const-string v0, "{NOTATION_ZH}"' in opts, \
@@ -528,9 +618,23 @@ def verify(mod: Path) -> None:
     assert f'const-string v1, "{NOTATION_ZH}"' in pg, "[UI] player/g.b() 重开新档的记数法未改"
 
     ma = (mod / "smali" / PKG_DIR / "MainActivity.smali").read_text(encoding="utf-8")
-    assert f"{MARK} R31 顶栏模式强制" in ma, "[UI] 顶栏模式未钉在 CURRENT_TAB（顶栏不显示页面名）"
+    assert f"{MARK} R44 缺省顶栏模式" in ma, \
+        "[UI] 顶栏模式缺省值不是 CURRENT_TAB（新装顶栏不显示页面名）"
+    # R31 的「每次启动强制覆盖」必须已经不在：否则「选项 → 顶栏」这项官方设置改了不生效
+    assert f"{MARK} R31 顶栏模式强制" not in ma, \
+        "[UI] 仍在启动时强制覆盖玩家选择的顶栏模式（官方设置项会失效）"
     assert f"{MARK} R31 仅 NEWS 模式才把标题清成空格" in ma, \
         "[UI] B2() 仍无条件把标题清成空格（CURRENT_TAB 下切页标题会被抹掉）"
+    assert f"{MARK} R44 顶栏标题" in ma, "[UI] H8 顶栏标题未换成合成串"
+    assert "invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;" not in ma, \
+        "[UI] H8 还在直接用子页签名（顶栏看不到主页签）"
+    uit = (mod / "smali" / PKG_DIR / "oreki" / "OrekiUiTitle.smali")
+    assert uit.is_file(), "[UI] payload 类 OrekiUiTitle 没进 mod 树"
+    uit_src = uit.read_text(encoding="utf-8")
+    assert (".method public static of(Lyn4;)Ljava/lang/String;"
+            in uit_src), "[UI] OrekiUiTitle.of(Lyn4;)String 签名不符，H8 钩子会 NoSuchMethod"
+    assert "Lyn4;->j:Lmi2;" in uit_src, \
+        "[UI] OrekiUiTitle 没有读父页签字段 yn4.j（主页签名取不到）"
     jw = (mod / "smali" / "jw0.smali").read_text(encoding="utf-8")
     assert f"{MARK} R31 顶栏默认值" in jw, "[UI] jw0.<clinit> 顶栏默认值未改"
 

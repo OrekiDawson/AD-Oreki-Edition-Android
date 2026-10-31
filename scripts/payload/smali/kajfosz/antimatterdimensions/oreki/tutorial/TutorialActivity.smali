@@ -2403,7 +2403,7 @@
 
     move-result-object v8
 
-    const-string v9, "OrekiTutorial"
+    const-string v9, "Oreki 教程"
 
     invoke-static {v9, v8}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
