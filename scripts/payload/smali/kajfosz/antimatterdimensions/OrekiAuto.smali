@@ -80,38 +80,16 @@
 .end method
 
 
-# [Oreki AU9] IP 倍率自动购买器的运行许可。
+# [Oreki AU9 → 已删除，R41]
 #
-# 原版 `Game.autoBuyerTick`（a.smali）里这一段：
-#   if (player.auto.ipMult)                 // Player$Auto.v()
-#     && e02.n0()                           // z51.a.w() && !doomed（自动化解锁位）
-#     && player.options.autobuyersOn
-#   then fp3.a(Z)                           // 原版无限升级购买
-#
-# 即真正的门控是「自动化解锁位」（存档位图 z51.a），不是 IPMultAutobuyerState.g()。
-# 首次无限之前该位必然未点亮；本方法把「已无限过」作为第三条放行条件，
-# 与 AU2 / AU3 的做法完全一致：只放宽「能不能跑」，不改购买条件、成本与副作用。
-# Doomed 判定仍由 n0() 内部保留，本方法不能绕过它。
-.method public static ipMultAuto()Z
-    .locals 1
-
-    invoke-static {}, Le02;->n0()Z
-
-    move-result v0
-
-    if-nez v0, :fallback
-
-    const/4 v0, 0x1
-
-    return v0
-
-    :fallback
-    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z
-
-    move-result v0
-
-    return v0
-.end method
+# 这里原本有一个 `ipMultAuto()Z`（把「已无限过」作为 IP 倍率自动购买器的第三条放行条件）。
+# 全仓库零调用点，而且它是**多余实现**：
+#   真正的门控 `e02.n0()` 已经由 AU5 在**源头**放宽（build_mod.py patch_ip_mult_autobuyer，
+#   在 n0() 开头追加 hasInfinity() 放行），n0() 全仓库唯一调用点就是 a.smali 的
+#   Game.autoBuyerTick IPMultAutobuyer 块 —— 源头一改，所有调用者自动受益。
+#   `enableIpMultAutobuyer()` 只负责把 player.auto.ipMult 翻成 true，购买仍走原版 fp3.a(Z)。
+# 保留一个零调用、零效果的副本只会让下一轮误以为「已经接上了」。
+# 证据：deobf 索引 calls 表里 callee_name=ipMultAuto 的记录数 = 0。
 
 
 # ============================================================================
