@@ -1648,7 +1648,9 @@ def build_sign(java):
     unsigned = BUILD / "unsigned.apk"
     aligned = BUILD / "aligned.apk"
     target = RELEASE / "反物质维度.apk"
-    for f in (unsigned, aligned, target):
+    # [R42] 不再删 target：正式包只在【签名成功且体积合理】之后才被原子覆盖。
+    # 之前这里连 target 一起删，导致任何后续失败都会让上一份可用版本消失。
+    for f in (unsigned, aligned):
         if f.exists():
             f.unlink()
 
@@ -1690,18 +1692,39 @@ def build_sign(java):
 
     note("[5] apksigner sign (v1+v2+v3, 个人密钥) ...")
     pw = "pass:" + ks_pass()
+    # [R42] 先签到临时文件，成功且体积合理才原子覆盖正式包。
+    # 事故背景（EMULATOR_CONTROL.md INC-2026-1031-03）：原实现先在开头 unlink 正式包，
+    # 再让 apksigner 直接写正式包路径。11:02 那次高负载下 apksigner 静默失败
+    # （returncode≠0，stdout/stderr 全空），正式包被留成 9,462,925 字节的半成品，
+    # 上一份可用版本当场没了。现在改成「失败不动正式包」。
+    staged = BUILD / "signed_staged.apk"
+    if staged.exists():
+        staged.unlink()
     r2 = subprocess.run([java, "-jar", str(bt / "lib" / "apksigner.jar"), "sign",
                          "--ks", str(KEYS / "oreki.jks"), "--ks-key-alias", KEY_ALIAS,
                          "--ks-pass", pw, "--key-pass", pw,
                          "--v1-signing-enabled", "true", "--v2-signing-enabled", "true",
                          "--v3-signing-enabled", "true",
-                         "--out", str(target), str(aligned)],
+                         "--out", str(staged), str(aligned)],
                         capture_output=True, text=True, encoding="utf-8", errors="replace")
     for line in ((r2.stdout or "") + (r2.stderr or "")).strip().splitlines()[-8:]:
         note("      " + line)
-    if r2.returncode != 0 or not target.exists():
-        note("!! 签名失败")
+    if r2.returncode != 0 or not staged.exists():
+        # 事故现场必须留在日志里：上一次只写「!! 签名失败」，stderr 是空字符串，
+        # 事后完全无法定位原因。现在把 returncode 与原始输出逐字落盘。
+        note(f"!! 签名失败 rc={r2.returncode} "
+             f"stdout={len(r2.stdout or '')}B stderr={len(r2.stderr or '')}B")
+        note(f"      raw stdout={r2.stdout!r}"[:1200])
+        note(f"      raw stderr={r2.stderr!r}"[:1200])
+        note(f"      正式包未改动：{target}（上一份可用版本保持原样）")
         return None
+    # 体积哨兵：签名只会在尾部追加签名字段，绝不应当比 zipalign 产物小。
+    # 截断文件（9.4 MB）会被这一条直接拦下。
+    if staged.stat().st_size < aligned.stat().st_size:
+        note(f"!! 签名产物被截断：signed={staged.stat().st_size} < aligned={aligned.stat().st_size}")
+        note(f"      正式包未改动：{target}")
+        return None
+    staged.replace(target)
 
     note("[5] apksigner verify ...")
     r3 = subprocess.run([java, "-jar", str(bt / "lib" / "apksigner.jar"), "verify", "--verbose", "--print-certs", str(target)],
