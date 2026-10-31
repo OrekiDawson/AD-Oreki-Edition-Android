@@ -571,6 +571,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
     # [Oreki AD5b] Break Infinity 闸门（间隔补贴 + 真实 Break 序列）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakGate.smali",
+    # [R42] 终点记录写入（PelleRecords.totalAntimatter = 历史峰值反物质）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.smali",
@@ -3624,6 +3626,82 @@ def verify_break_gate():
     note("[Oreki AD5b] Break 闸门守卫通过（动态补贴 / 真实扣费 / 原版三步 Break / 64 上界 / 调用点顺序 / 极性）")
 
 
+def verify_pelle_record():
+    """[R42] 终点记录写入的构建期守卫。
+
+    守住的七条，每条对应一次已经踩过或已论证过的失败模式：
+      1. 类必须在 payload 里，且 `onAutoBuyerTick` 里真的有调用；
+      2. 调用点必须排在 doomed 早退**之前** —— 放后面时佩勒阶段永远不执行，
+         表现是 `OREKI_PELLE_REC` 一行日志都没有、endState 恒 0；
+      3. 取反物质必须用 `Player;->b()`。`Player;->x()` 读的是 eternities，
+         写错的表现是「记录里存的是永恒点」，endState 恒 0 且看不出错；
+      4. isDoomed 判空极性成对覆盖（FACTS C.69 §四）；
+      5. max 语义极性成对覆盖（只增不减）；
+      6. 必须存 `copy()`，不许把 `player.antimatter` 这个可变对象直接别名进记录；
+      7. getter 链必须与 endState 完全一致（p → d → h → a），链条错一环就写到别处去。
+    """
+    base = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+    rec_path = base / "OrekiPelleRecord.smali"
+    assert rec_path.exists(), "[R42] 缺少 OrekiPelleRecord.smali"
+    rec = rec_path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    sa = (base / "OrekiStageAuto.smali").read_text(encoding="utf-8").replace("\r\n", "\n")
+
+    # 1) 真的被调用
+    call = "invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;->tick()V"
+    assert call in sa, "[R42] onAutoBuyerTick 没有调用 OrekiPelleRecord.tick()"
+    assert sa.count(call) == 1, "[R42] OrekiPelleRecord.tick() 调用点应恰有 1 处"
+
+    # 2) 必须排在 doomed 早退之前（佩勒阶段唯一需要它的地方）
+    i_call = sa.index(call)
+    i_policy = sa.index("OrekiStageAuto;->applyCrunchPolicy()V")
+    # 必须锚到「行首缩进 + 指令」：`if-nez v0, :oreki_sa_try_end` 这串文本在本方法
+    # 上方的注释里也出现过一次（我写解释时正好引用了这条指令），
+    # 直接用 index() 会命中注释，把顺序判断变成永远失败。
+    i_doomed = sa.index("\n    if-nez v0, :oreki_sa_try_end")
+    assert i_call < i_policy, \
+        "[R42] 记录采样必须排在 applyCrunchPolicy 之前（保持「第一件事」的可读顺序）"
+    assert i_call < i_doomed, \
+        "[R42] 记录采样被放到了 doomed 早退之后 —— 佩勒阶段这一行永远不执行"
+
+    # 3) 取的是反物质，不是 eternities
+    assert "Lkajfosz/antimatterdimensions/player/Player;->b()Lkajfosz/antimatterdimensions/BigDouble;" in rec, \
+        "[R42] 没有用 Player.b() 取反物质"
+    assert "Lkajfosz/antimatterdimensions/player/Player;->x()Lkajfosz/antimatterdimensions/BigDouble;" not in rec, \
+        "[R42] 用了 Player.x() —— 那是 eternities，写进记录后 endState 恒 0"
+
+    # 4) isDoomed 极性成对
+    assert "if-eqz v0, :pr_ret" in rec, "[R42] 未毁灭时必须早退（if-eqz q()==0 才跳）"
+    assert "if-nez v0, :pr_ret" not in rec, \
+        "[R42] isDoomed 极性反了：会把「已毁灭」当成「未毁灭」直接退出，采样永不生效"
+
+    # 5) max 语义极性成对
+    assert "if-lez v2, :pr_ret" in rec, "[R42] compareTo<=0（当前<=记录）时必须跳过"
+    assert "if-gez v2, :pr_ret" not in rec, \
+        "[R42] max 极性反了：compareTo>=0 才跳 ⇒ 记录会被改小，终局判据被往回拉"
+
+    # 6) 必须 copy，不许别名
+    assert "Lkajfosz/antimatterdimensions/BigDouble;->copy()Lkajfosz/antimatterdimensions/BigDouble;" in rec, \
+        "[R42] 没有 copy() —— player.antimatter 是可变对象，直接存会变成别名"
+    assert rec.count("Player$PelleRecords;->d(Lkajfosz/antimatterdimensions/BigDouble;)V") == 1, \
+        "[R42] PelleRecords.d 只允许一个写入点"
+
+    # 7) getter 链与 endState 完全一致
+    for desc, why in (
+        ("Lkajfosz/antimatterdimensions/player/Player;->p()Lkajfosz/antimatterdimensions/player/Player$Celestials;", "Player.p()"),
+        ("Lkajfosz/antimatterdimensions/player/Player$Celestials;->d()Lkajfosz/antimatterdimensions/player/Player$Pelle;", "Celestials.d()"),
+        ("Lkajfosz/antimatterdimensions/player/Player$Pelle;->h()Lkajfosz/antimatterdimensions/player/Player$PelleRecords;", "Pelle.h()"),
+        ("Lkajfosz/antimatterdimensions/player/Player$PelleRecords;->a()Lkajfosz/antimatterdimensions/BigDouble;", "PelleRecords.a()"),
+    ):
+        assert desc in rec, f"[R42] 记录读取链缺 {why}（与 endState 的链必须逐环相同）"
+
+    # 8) 异常兜底 + 日志点
+    assert ".catch Ljava/lang/Exception; {:try_start_pr .. :try_end_pr} :pr_catch" in rec, \
+        "[R42] 缺少异常兜底（采样抛异常会打断 Game.autoBuyerTick 主循环）"
+    assert '"OREKI_PELLE_REC"' in rec, "[R42] 缺少运行期诊断日志点 OREKI_PELLE_REC"
+
+    note("[R42] 终点记录守卫通过（调用点位置 / 反物质来源 / 两组极性 / copy 非别名 / 链条一致 / 异常兜底）")
+
+
 def patch_autobuyer_crunch_force_active():
     """[Oreki AU4c] 首次无限之后一次性启用大坍缩自动购买器（Android 侧长期缺失的一环）。
 
@@ -4397,6 +4475,8 @@ def main():
     # [Oreki AD5b] Break Infinity 闸门：反证开关装配 + 构建期守卫。
     patch_break_gate()
     verify_break_gate()
+    # [R42] 终点记录写入：只做构建期守卫（不写任何原版方法体）
+    verify_pelle_record()
     # [R40H] 教程正文：从 Web 单源 JSON 生成 TutorialContent.smali（必须先于
     # patch_tutorial_entry，后者的断言要求教程类已进 mod 树）。
     patch_tutorial_content()

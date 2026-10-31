@@ -61,6 +61,12 @@
     .locals 1
 
     :try_start_0
+    # [R42 终点记录] 必须排在**所有早退之前**：本方法在 Doomed 态会在下面
+    # `if-nez v0, :oreki_sa_try_end` 处直接返回，放到那里之后这条就永远不执行，
+    # 而佩勒阶段恰恰是唯一需要它的阶段。
+    # 该方法自己先判 isDoomed，非毁灭态只花一次静态调用 + 一次比较。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;->tick()V
+
     # [Oreki AU4b] 策略默认值修正：必须在任何分支之前、无条件执行
     # （Web big-crunch-autobuyer.js:19-26 同源；只改策略，不动坍缩条件/间隔/重置）
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->applyCrunchPolicy()V

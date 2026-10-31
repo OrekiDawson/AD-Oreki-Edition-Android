@@ -49,12 +49,36 @@
 # 闸门窗口是否打开（只为「翻转才打日志」服务，不参与任何判据）
 .field private static sInWindow:Z
 
+# [DIAG-TEMP] 调用计数
+.field private static sCalls:I
+
 
 # 每个 autoBuyerTick 调用一次；异常一律吞掉，绝不影响游戏主循环
 .method public static tick()V
     .locals 16
 
     :try_start_bg
+    # [DIAG-TEMP] 调用计数 + 存活日志
+    sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sCalls:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sCalls:I
+
+    rem-int/lit16 v2, v1, 0x12c
+
+    if-nez v2, :bg_diag_enter
+
+    goto :bg_diag_done
+
+    :bg_diag_enter
+    const-string v2, "OREKI_GATE"
+
+    const-string v3, "bgdbg-alive"
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :bg_diag_done
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
     # ---- 0) 已 Break → 清闩锁、关窗、退出 ----
