@@ -6,6 +6,7 @@
 # action 0 = 打开中文教程 Activity
 # action 1 = 关闭当前 Activity（教程页的「关闭」按钮）
 # action 2 = 打开既有的 Oreki 设置界面
+# action 3 = 打开章节抽屉（R47-DR1）
 
 .field private final a:Landroid/app/Activity;
 
@@ -62,11 +63,24 @@
 
     return-void
 
+    :pswitch_drawer
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;->a:Landroid/app/Activity;
+
+    if-eqz v0, :drawer_done
+
+    check-cast v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->openChapterDrawer()V
+
+    :drawer_done
+    return-void
+
     :pswitch_data_0
     .packed-switch 0x0
         :pswitch_tutorial
         :pswitch_close
         :pswitch_settings
+        :pswitch_drawer
     .end packed-switch
 .end method
 

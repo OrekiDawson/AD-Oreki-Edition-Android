@@ -4362,10 +4362,11 @@ def patch_tutorial_entry():
     pkg_dir = MOD / "smali" / OLD_PKG.replace(".", "/")
     tut_src = PAYLOAD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
     for f in ("TutorialActivity.smali", "TutorialEntry.smali", "TutorialEntryListener.smali",
-              "TutorialTabListener.smali"):
+              "TutorialTabListener.smali", "DrawerInsetListener.smali",
+              "TutorialProgress.smali"):
         assert (tut_src / f).is_file(), f"[T1] 教程 payload 缺失: {f}"
         assert (pkg_dir / "oreki" / "tutorial" / f).is_file(), f"[T1] 教程类未拷进 mod 树: {f}"
-    note("[T1] 教程类已进入 mod 树（4 个）")
+    note("[T1] 教程类已进入 mod 树（6 个）")
 
     # --- 1) Manifest 注册教程 Activity ---
     mp = MOD / "AndroidManifest.xml"

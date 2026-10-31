@@ -76,6 +76,13 @@
 # [R47-IN1] 自绘标题区引用：onApplyWindowInsets 里要按真实状态栏高度重设它的内边距
 .field private appBar:Landroid/widget/LinearLayout;
 
+# [R47-FS1] 字号分段控件的轨道：点小/中/大后要重排这三颗药丸，
+# 否则选中态只在 onCreate 时算过一次，永远停在「中」。
+.field private fontTrack:Landroid/widget/LinearLayout;
+
+# [R47-DR1] 章节抽屉（Dialog 实现：自带遮罩、点外部与返回键关闭）
+.field private drawerDialog:Landroid/app/Dialog;
+
 .field private contentScroll:Landroid/widget/ScrollView;
 
 .field private tabHost:Landroid/widget/LinearLayout;
@@ -1716,6 +1723,18 @@
     return-void
 
     :switch_chapter
+    # [R47-DR1] 从抽屉里点章节：先关抽屉再切页，遮罩不会留在正文上面
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->drawerDialog:Landroid/app/Dialog;
+
+    if-eqz v1, :no_drawer_dismiss
+
+    invoke-virtual {v1}, Landroid/app/Dialog;->dismiss()V
+
+    const/4 v1, 0x0
+
+    iput-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->drawerDialog:Landroid/app/Dialog;
+
+    :no_drawer_dismiss
     invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->showChapter(I)V
 
     return-void
@@ -1724,6 +1743,10 @@
     iput p1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->fontSize:I
 
     invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->saveFontSize()V
+
+    # [R47-FS1] 选中态与正文必须同源：正文由 showChapter 重建，
+    # 药丸也在此处按新的 fontSize 重排，否则选中永远停在初始化时的那一档。
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->refreshFontPills()V
 
     iget v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
 
@@ -2125,6 +2148,9 @@
     goto :rec_loop
 
     :rec_done
+    # [R47-NV1] 正文底部放「上一章 / 第 N 章 / 下一章」，切章后同步刷新
+    invoke-direct {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addChapterFooter()V
+
     # [R45-C] 切章微动效：内容淡入 + 8dp 上浮归位（220ms、Decelerate）。
     # 只在切章时跑一次，滚动、点字号重建也会走这里，但都不会连播 ——
     # 没有常驻动画，也没有对列表逐项做动画（那会掉帧）。
@@ -2885,6 +2911,51 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
+    # ---- 章节（tonal）：打开左侧章节抽屉 ----
+    const-string v1, "章节"
+
+    const v2, -8598529
+
+    const v3, -14472397
+
+    const/4 v4, 0x1
+
+    invoke-direct {p0, v1, v2, v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->pill(Ljava/lang/String;III)Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;
+
+    const/4 v3, 0x3
+
+    invoke-direct {v2, p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;-><init>(Landroid/app/Activity;I)V
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    const/4 v4, -0x2
+
+    invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    # [R48-A3] 三颗按钮不再等宽：章节/关闭各 25%，「打开 Oreki 设置」占 50%。
+    # 等宽 1/3 时第三颗只有约 153dp，7 个字折成两行（真机实测按钮高 131px vs 正常 66px）。
+    const v3, 0x3e800000    # 0.25f
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
+
+    const/16 v3, 0x8
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
+
+    invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
     # ---- 关闭（filled）----
     const-string v1, "关闭"
 
@@ -2914,7 +2985,7 @@
 
     invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    const/high16 v3, 0x3f000000    # 0.5f
+    const v3, 0x3e800000    # 0.25f
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
 
@@ -2957,7 +3028,7 @@
 
     invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    const/high16 v3, 0x3f000000    # 0.5f
+    const v3, 0x3f000000    # 0.5f
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->weight:F
 
@@ -3036,6 +3107,9 @@
 
     invoke-virtual {v1, v2, v2, v2, v2}, Landroid/view/View;->setPadding(IIII)V
 
+    # [R47-FS1] 记下轨道：点字号后要按新状态重排这三颗药丸
+    iput-object v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->fontTrack:Landroid/widget/LinearLayout;
+
     const-string v2, "字号 小"
 
     const/4 v3, 0x0
@@ -3082,6 +3156,503 @@
 
 # 单个分段：选中 = PrimaryContainer 填充 + OnPrimaryContainer 文字 + 加粗；
 # 未选中 = 透明 + OnSurfaceVariant 文字。动作码仍是 0/1/2（onTabClick 按 <100 分流）。
+# ===== [R47-FS1] 字号药丸重排：选中态与正文字号同源 =====
+# 只在 onTabClick 改完 fontSize 后调用；三颗药丸整批重建（3 个 View，代价可忽略），
+# 复用 addOneFontButton 里已有的选中/未选两套配色，不引入第二套状态。
+.method private final refreshFontPills()V
+    .locals 4
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->fontTrack:Landroid/widget/LinearLayout;
+
+    if-eqz v0, :rfp_done
+
+    invoke-virtual {v0}, Landroid/view/ViewGroup;->removeAllViews()V
+
+    const-string v1, "字号 小"
+
+    const/4 v2, 0x0
+
+    invoke-direct {p0, v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    const-string v1, "字号 中"
+
+    const/4 v2, 0x1
+
+    invoke-direct {p0, v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    const-string v1, "字号 大"
+
+    const/4 v2, 0x2
+
+    invoke-direct {p0, v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    :rfp_done
+    return-void
+.end method
+
+
+# ===== [R47-NV1] 页脚导航：正文底部 上一章 / 第 X / N 章 / 下一章 =====
+.method private final addChapterFooter()V
+    .locals 8
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->contentHost:Landroid/widget/LinearLayout;
+
+    if-eqz v0, :cf_done
+
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    if-gtz v1, :cf_done
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
+
+    new-instance v3, Landroid/widget/LinearLayout;
+
+    invoke-direct {v3, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    # 上一章：第一章时不可点，只占位保持三段等宽
+    const-string v4, "已是第一章"
+
+    const/4 v5, -0x1
+
+    if-lez v2, :cf_prev_ready
+
+    const-string v4, "上一章"
+
+    add-int/lit8 v5, v2, -0x1
+
+    add-int/lit16 v5, v5, 0x64
+
+    :cf_prev_ready
+    invoke-direct {p0, v3, v4, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->footerPill(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    # 位置：第 X / N 章
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    add-int/lit8 v5, v2, 0x1
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " / "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    const/4 v5, -0x1
+
+    invoke-direct {p0, v3, v4, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->footerPill(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    # 下一章：最后一章时不可点
+    add-int/lit8 v6, v1, -0x1
+
+    const-string v4, "已是最后一章"
+
+    const/4 v5, -0x1
+
+    if-ge v2, v6, :cf_next_ready
+
+    const-string v4, "下一章"
+
+    add-int/lit8 v5, v2, 0x1
+
+    add-int/lit16 v5, v5, 0x64
+
+    :cf_next_ready
+    invoke-direct {p0, v3, v4, v5}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->footerPill(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+
+    const/16 v4, 0x10
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    invoke-static {v0, v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->addFull2(Landroid/widget/LinearLayout;Landroid/view/View;I)V
+
+    :cf_done
+    return-void
+.end method
+
+
+# 页脚单颗：p3 >= 0 时绑章节动作（100 + idx），-1 表示纯展示。
+.method private final footerPill(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
+    .locals 5
+
+    const v4, -8598529
+
+    const v3, -14472397
+
+    const/4 v2, 0x1
+
+    # [R48-A1] 这里必须是 p2（本方法的 String 参数），不是 p1（容器 LinearLayout）。
+    # 写成 p1 时 ART 校验器直接拒绝整个 TutorialActivity：
+    #   VerifyError: footerPill(...) [0x7] v6 has type LinearLayout but expected String
+    # 真机上表现为点教程入口后 Activity 被 Force finishing、直接摔回桌面。
+    invoke-direct {p0, p2, v4, v3, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->pill(Ljava/lang/String;III)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    if-ltz p3, :fp_nolisten
+
+    new-instance v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
+
+    invoke-direct {v1, p0, p3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;-><init>(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    :fp_nolisten
+    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v2, 0x0
+
+    const/4 v3, -0x2
+
+    invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    const/high16 v2, 0x3f800000    # 1.0f
+
+    iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->weight:F
+
+    const/4 v2, 0x4
+
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v2
+
+    iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
+
+    invoke-virtual {p1, v0, v1}, Landroid/view/ViewGroup;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    return-void
+.end method
+
+
+# ===== [R47-DR1] 章节抽屉 =====
+# 用 Dialog 而不是自绘遮罩：遮罩、点外部关闭、返回键关闭三件事都由系统窗口负责，
+# 不会和内容区的滚动/点击抢事件。宽度取屏幕 82%，高度铺满，gravity 靠左。
+.method public final openChapterDrawer()V
+    .locals 13
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->drawerDialog:Landroid/app/Dialog;
+
+    if-eqz v0, :dr_none
+
+    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+
+    :dr_none
+    iget v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chCount:I
+
+    # [R48-A2] 极性修正：chCount <= 0 才该返回。
+    # 原来写成 if-gtz（>0 就跳 :dr_done），结果真机上章节目录永远不弹 ——
+    # 正常打开教程时 chCount 一定 > 0，等于每次点击都直接 return。
+    # 这与 R25 addEntry、R27 start 是同一类「判空/比较方向写反」。
+    if-lez v0, :dr_done
+
+    iget v1, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->currentChapter:I
+
+    new-instance v2, Landroid/widget/LinearLayout;
+
+    invoke-direct {v2, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v3, 0x1
+
+    invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const v3, -15789288
+
+    invoke-virtual {v2, v3}, Landroid/view/View;->setBackgroundColor(I)V
+
+    const/16 v3, 0xc
+
+    invoke-static {p0, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v3
+
+    invoke-virtual {v2, v3, v3, v3, v3}, Landroid/view/View;->setPadding(IIII)V
+
+    # [R48-A4] 抽屉标题被状态栏压住：Android 15+ 对 targetSdk>=35 强制 edge-to-edge，
+    # Theme_Material_NoActionBar 的 Dialog 也不会自动避开状态栏。
+    # 这里挂真实 Insets 监听（12dp 基础内边距 + 系统状态栏高度，只加一次），
+    # 不用固定 dp，也不改全局主题。
+    new-instance v4, Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;
+
+    invoke-direct {v4, v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;-><init>(I)V
+
+    invoke-virtual {v2, v4}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
+
+    invoke-virtual {v2}, Landroid/view/View;->requestApplyInsets()V
+
+    new-instance v3, Landroid/widget/TextView;
+
+    invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    const-string v4, "章节目录"
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v4, 0x2
+
+    const/high16 v5, 0x41900000    # 18.0f
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    sget-object v5, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v3, v5}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    const v4, -3545345
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextColor(I)V
+
+    invoke-virtual {v2, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v3, Landroid/widget/TextView;
+
+    invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "已读到第 "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    add-int/lit8 v5, v1, 0x1
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " 章 · 共 "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " 章"
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v4, 0x2
+
+    const/high16 v5, 0x41400000    # 12.0f
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    const v4, -5260602
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextColor(I)V
+
+    const/4 v4, 0x4
+
+    invoke-static {p0, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v4
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v3, v5, v4, v5, v4}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {v2, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v3, Landroid/widget/ScrollView;
+
+    invoke-direct {v3, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
+
+    new-instance v4, Landroid/widget/LinearLayout;
+
+    invoke-direct {v4, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v5, 0x1
+
+    invoke-virtual {v4, v5}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/4 v5, 0x0
+
+    :dr_loop
+    if-ge v5, v0, :dr_loop_done
+
+    new-instance v6, Landroid/widget/TextView;
+
+    invoke-direct {v6, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    new-instance v7, Ljava/lang/StringBuilder;
+
+    invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
+
+    add-int/lit8 v8, v5, 0x1
+
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    const-string v8, ". "
+
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    iget-object v8, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->chTitle:[Ljava/lang/String;
+
+    aget-object v8, v8, v5
+
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v7
+
+    invoke-virtual {v7}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/4 v7, 0x2
+
+    const/high16 v8, 0x41700000    # 15.0f
+
+    invoke-virtual {v6, v7, v8}, Landroid/widget/TextView;->setTextSize(IF)V
+
+    if-ne v5, v1, :dr_row_off
+
+    const v7, -3545345
+
+    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setTextColor(I)V
+
+    sget-object v7, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
+
+    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    goto :dr_row_draw
+
+    :dr_row_off
+    const v7, -5260602
+
+    invoke-virtual {v6, v7}, Landroid/widget/TextView;->setTextColor(I)V
+
+    :dr_row_draw
+    const/16 v7, 0xa
+
+    invoke-static {p0, v7}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->dpToPx(Landroid/content/Context;I)I
+
+    move-result v7
+
+    invoke-virtual {v6, v7, v7, v7, v7}, Landroid/view/View;->setPadding(IIII)V
+
+    new-instance v7, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;
+
+    add-int/lit16 v8, v5, 0x64
+
+    invoke-direct {v7, p0, v8}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;-><init>(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
+
+    invoke-virtual {v6, v7}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-virtual {v4, v6}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    add-int/lit8 v5, v5, 0x1
+
+    goto :dr_loop
+
+    :dr_loop_done
+    invoke-virtual {v3, v4}, Landroid/widget/ScrollView;->addView(Landroid/view/View;)V
+
+    invoke-virtual {v2, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    new-instance v4, Landroid/app/Dialog;
+
+    sget v5, Landroid/R$style;->Theme_Material_NoActionBar:I
+
+    invoke-direct {v4, p0, v5}, Landroid/app/Dialog;-><init>(Landroid/content/Context;I)V
+
+    invoke-virtual {v4, v2}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
+
+    const/4 v5, 0x1
+
+    invoke-virtual {v4, v5}, Landroid/app/Dialog;->setCanceledOnTouchOutside(Z)V
+
+    invoke-virtual {v4}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
+
+    move-result-object v5
+
+    if-eqz v5, :dr_show
+
+    invoke-virtual {v5}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
+
+    move-result-object v6
+
+    const/4 v7, 0x3
+
+    iput v7, v6, Landroid/view/WindowManager$LayoutParams;->gravity:I
+
+    const v7, 0x3f19999a    # 0.6f
+
+    iput v7, v6, Landroid/view/WindowManager$LayoutParams;->dimAmount:F
+
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v7
+
+    invoke-virtual {v7}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v7
+
+    iget v8, v7, Landroid/util/DisplayMetrics;->widthPixels:I
+
+    int-to-float v9, v8
+
+    const v10, 0x3f51eb85    # 0.82f
+
+    mul-float/2addr v9, v10
+
+    float-to-int v9, v9
+
+    iput v9, v6, Landroid/view/WindowManager$LayoutParams;->width:I
+
+    const/4 v9, -0x1
+
+    iput v9, v6, Landroid/view/WindowManager$LayoutParams;->height:I
+
+    invoke-virtual {v5, v6}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
+
+    :dr_show
+    invoke-virtual {v4}, Landroid/app/Dialog;->show()V
+
+    iput-object v4, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->drawerDialog:Landroid/app/Dialog;
+
+    :dr_done
+    return-void
+.end method
+
+
 .method private final addOneFontButton(Landroid/widget/LinearLayout;Ljava/lang/String;I)V
     .locals 6
 
