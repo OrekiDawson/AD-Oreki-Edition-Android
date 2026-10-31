@@ -4115,3 +4115,244 @@ Android 无独立 `autoEC` 字段，沿用原版 `player.reality.autoEC`（原�
 | 210 s | 3.6e87 | 10 | 同上 |
 
 `totalTimePlayed` 17.2 天 ÷ 10000 ≈ 149 s，与墙钟吻合 ⇒ **确认是全新档且速度倍率生效**。
+
+---
+
+## C.83　R50：真实通关路上的三个死锁（Web）
+
+R50 用隔离浏览器上下文（`Target.createBrowserContext`，非用户 Profile）跑真实新档，
+默认 10000×、不开教程、零人工点击。下面三条都是**实测字段证据**，不是读码推断。
+
+### C.83.1 死锁一：EC8~EC12 没有任何模块驱动（`r50-diag1`，t≈400 s）
+
+观测：`realities=115`、`timeTheorems=1.5e7`，但 `ecDone=[5,5,5,5,5,5,5,0,0,0,0,0]`、
+`player.challenge.eternity.unlocked=62`、`TimeStudy(123)` 从未购买、
+`OrekiCelestialAutomation.gates.notUnlocked=8583`、`ds1=false / maxDT=0 / V=false`，
+永久停在 `celestialsEnslaved`。
+
+根因三条同时成立：
+1. `DEEP_EC_IDS` 只有 `[9,10,11,12]`，EC8 交给通用路径，而现实每 ~25 s 清空
+   `player.challenge.eternity.unlocked` 与时间研究树，通用路径来不及补 123 分叉；
+2. `hold` 要求「EC11 已满」才压现实，而 `_driveEcChain()` 只在 `hold === true` 时被调用
+   ⇒ 「要 hold 才能打 EC11，要 EC11 才能 hold」闭环，`lastRelease="shallow"`；
+3. 补前置只调 `buyTimeStudies()`，它按自己的优先级补树，不会为 EC8 专门点 123。
+
+修复（`b192718`）：`DEEP_EC_IDS=[8,9,10,11,12]`；`hold` 改为「EC11 未满且（EC7 未满或
+未过 V 门槛）才放手」；`unlocked===0` 时改走原版 `purchaseUntil()`（等价 Shift+点击 EC 研究）。
+
+### C.83.2 死锁二：V 解锁后膨胀链自我关闭
+
+观测：V 解锁后 3 分钟 `ds1=false / ds6=false / tp=0 / maxDT=0 / im` 平在 1.98e9、
+`iu25=false`，卡在莱特拉前。
+
+根因：`hold`、`tick()`、`tickDilation()` 三处都以「V 已解锁」为停机条件，而 IU25 的
+`checkRequirement` 要求 `TimeStudy.reality.isBought`（DS6），DS6 在膨胀树里。
+
+修复（`3a778d5`）：三处停机条件改判 `ImaginaryUpgrade(25).isBought`；同时
+`buyImaginaryUpgrades()` 在买 IU15/IU25 前先用 IU1~IU10、IU13 抬 IM 上限。
+
+### C.83.3 死锁三：IM 上限低于 IU25 成本（物理上买不起）
+
+观测：`im` 连续 30 s 平在 3.16e9 不动，反推 `log10(uncappedRM)=6621`，
+而上限公式 `(log10(uncappedRM)-1000)² × …` 给出 3.16e9 < IU25 的 5e9。
+R37-A 的 100 倍系数是按 `log10(uncappedRM)=10722` 推的，R50 实测只有 6621。
+唯一能乘上限的 IU13 要求「在无名氏的现实中」+ 符文门票，本档 13 级拿不到。
+
+修复（`41933b3`）：`OREKI_IM_CAP_MULT` 100 → 300，上限抬到 ≈9.5e9（IU15 占 10.5%、
+IU25 占 53%）；并把「DS1+DS6 一买到就被放手冲掉」改成 IM 达标时不放手。
+
+### C.83.4 真实通关（当前代码的第一次终局）
+
+`r50-save2` 存档（01:56 从零开始）在 02:18 达到：
+
+```json
+{"perf":92214,"isGameEnd":true,"endState":2.6129516019644914,"stage":"doomed",
+ "realities":"355","doomed":true,"remnants":"632","keepAutobuyers":true,
+ "brk":true,"speed":40000}
+```
+
+墙钟约 22 分钟（< 180 分钟目标），`endState` 2.61 > 1，`speed` 已由动态提速抬到 40000。
+证据：`web/reports/_r50/r50-clear-evidence.txt`。
+**口径说明**：该档跨越了三次修复的落地时刻，不能严格证明「只用 bf55b0f 的代码从零到终局」；
+可复现的当前代码新档是 `2B2A4FCA`（02:19 起，页面加载时已含全部修复），见 C.83.5。
+
+### C.83.5 当前代码新档（`2B2A4FCA`）推进记录
+
+`startedAt=2026-10-31T18:19:14.210Z`，首状态 `eternities=0 / infinities=0 / realities=0 /
+ecDone=0 / speed=10000 / storageKeys=0`。
+
+| 墙钟 | 现实时间 | 阶段 | 现实次数 | EC 完成数（1→12） |
+|---|---|---|---|---|
+| 02:19 | 0 s | 开局 | 0 | 000000000000 |
+| 02:21 | 120 s | celestialsEnslaved | 30 | — |
+| 02:40 | 1132 s | celestialsEnslaved | 335 | 5 5 5 0 5 0 0 0 0 0 0 0 |
+| 02:42 | 1430 s | celestialsEnslaved | 415 | 5 5 5 5 5 0 0 0 0 0 0 0 |
+
+**这一轮的关键教训**：`ecDone` 里 EC1~EC5 是「先做能做的、顺序不固定」，单看
+「35 秒没推进」不能判定死锁；本轮 EC4 在 t≈1200 s 才补上，EC6/EC7 之后才轮到
+`hold` 放行去推 EC8~EC12。R49 的「35 秒冻结」结论（真死锁）**在 R50 未复现**，
+R50 的真死锁是 C.83.1~C.83.3 这三条，靠字段级证据定位。
+
+### C.83.6 教程中文化（R50-W5，`b578ad8`）
+
+需求：玩家不先懂英文缩写也要能读完整篇教程。做法与验收：
+
+- 唯一正文源 `src/core/oreki-tutorial-data.json`：233 个字符串、448 处替换。
+  EC/ID/IC/IM/RM/TD/DT/TP/IU/DM/DE → 永恒挑战/无限维度/无限挑战/虚幻机器/现实机器/
+  时间维度/膨胀时间/超光速粒子/虚幻升级/暗物质/暗能量；顺带 DU→膨胀升级、UI→界面、MOD→本作。
+- 每种缩写全篇只首次括注一次（「永恒挑战 12（EC12）」）；注释用占位符落盘，
+  防止被后两遍替换二次转换（第一版就踩过「（ID1~ID8）」变成「（无限维度 1~无限维度 8）」）。
+- **保留并给中文**：`autoEC`（配置键）、`SAM/SIP1/SIP2/SEP1~3/STP/TTF/ACH1~4/ACHNR/START`
+  （复兴树节点 ID，正文改为「起始反物质（SAM）」）、时间研究编号、`ALT+`、`Emoji` 记数法、
+  成就 41「无需 DLC」、`log10`/`max()`。
+- 附录 A 新增三列「中文名 · 英文缩写 · 用途」+「保留原样的技术标识」理由表。
+- **布局回归**：上游 `public/stylesheets/styles.css` 里有一条营销页遗留的
+  `section { float: right; width: 500px }`，教程每个 block 都是 `<section>`，
+  中文长句在 500px 窄栏里排不下，直接压到相邻栏上互相遮挡（第 9 章进入条件实测）。
+  修法：`.c-oreki-tut section { float: none; width: auto; }`，只作用于教程，不改上游。
+- 验收：`validate_tutorial.mjs` 十三项 PASS；真实打开教程后第 0/9 章与附录 A 的
+  `innerText` 裸缩写命中 **0**；桌面 1280×860、手机 390×844 截图核对不压字、不溢出。
+  Android 侧由 `scripts/oreki_tutorial_gen.py` 读同一份 JSON 生成 assets：
+  24 章 / 1160 条 / 40689 汉字 / 166158 字节，回读校验逐字一致。
+
+
+---
+
+## C.84 R50 真实新档通关 / Android 发布 / AVD 移动端实测（2026-11-01 03:00~04:00）
+
+### C.84.1 真实全新存档从零到终局：2530 秒（42 分 10 秒）
+
+验收标准（`docs/AGENTS_GLOBAL.md §3.1`）：真实全新存档、默认 10000×、不看教程、
+新手 0 门槛，从开始到终局现实时间 ≤ 180 分钟，唯一判据 `player.isGameEnd === true`
+且 `endState >= 1`。
+
+**结论：达标。** 样本 `r50-fresh1`（503 条，5 s 一次）。
+
+| 项 | 值 |
+| --- | --- |
+| 存档创建时刻 | `2026-10-31T18:19:14.212Z`（`startedAtMs=1793470754212`） |
+| 创建时校验 | `realities=0`、`infinities=0`、`eternities=0`、`ecDone=0`、`normalDone=0`、`storageKeys=0`、`speed=10000` |
+| 首样本 | `+8.9 s`，`stage=eternityTimeStudy`、`real=0`、`am=4.4e203817` |
+| 终局样本 | `+2530.2 s`，`stage=doomed`、`real=735`、`isEnd=true`、`end=1.0214385789143967` |
+| 墙钟总时长 | **2530 s = 42 分 10 秒**（上限 180 分钟，用掉 23.4%） |
+| `iu25` 达成 | `t=2481 s`（墙钟 +2490.1 s）——终局前 40 秒 |
+| 通关判据 | `player.isGameEnd === true` 且 `endState = 1.0214 ≥ 1` ✔ |
+
+**速度是 10000× 还是被改过？** 基础倍率全程默认：`getGlobalSpeedupFactor()` 在
+`t=0 ~ t=2511` 恒为 **10000**；直到 `t=2511`（墙钟 +2520 s）才出现 20000，
+`t=2521` 出现 40000。这是 `game.js:584 getGameSpeedupFactor()` 里
+`TIME_GLYPH / BLACK_HOLE / TIME_STORAGE / SINGULARITY_MILESTONE` 这些**游戏内机制**
+叠加出来的有效倍率（终局 Doom 阶段才点亮），不是外部脚本改速——`r50_monitor.mjs`、
+`new_game_ctx.mjs`、本目录所有 `.mjs` 都没有写 `player.speed` 的代码。
+也就是说：0 → `end=0.7506` 这段（占全程 99.6%）全部在 10000× 下完成。
+
+**对照样本 `r50-fresh1b`（不计入新档记录）**：它的 `t=0` 样本已经是
+`stage=celestialsEnslaved`、`real=70`、`ecs=5,5,5,5`，是从中局接管的第二次采样，
+不是新档；它自己在 `+2266 s` 时也到 `end=1.0723`，只能说明「中局 → 终局 37 分 46 秒」，
+不能当作从零起算的成绩。
+
+### C.84.2 Android 构建与双云盘发布（R50-A1）
+
+| 项 | 值 |
+| --- | --- |
+| 构建 | `./gradlew.bat build` 8 m 16 s，BUILD SUCCESSFUL |
+| 门禁 | `verifyRelease` 15/15、`verifyPatchContract` 34/34 |
+| 候选 APK | 69,794,405 B，SHA-256 `9dec09010c2b3a992bca133090e2087d65086a54f5f79d41092b00470d4ac4f6` |
+| versionCode / Name | 30190000 / 3.19.0 |
+| 签名 | v2 + v3，证书 `95960bce…` |
+| 替换 | `installToRelease` 覆盖 `release/反物质维度.apk`，哈希一致 |
+| 云盘 | `C:\Users\Oreki\OneDrive\反物质维度.apk`、`C:\Users\Oreki\小米云盘\反物质维度.apk`，两处 SHA-256 与源一致 |
+
+### C.84.3 AVD Chrome 真实移动端实测（1440×3200 @560dpi，Chrome 156.0.8078.47）
+
+原生视口 **411×750 CSS px、dpr 3.5、UA 含 Mobile、`meta viewport: width=device-width`**，
+`navigator.maxTouchPoints = 5`。七档测量（原生 + 320/360/393/411/980/1280）：
+
+| 视口 | 横向滚动 | 教程按钮可见 | 教程弹窗渲染 | 章节按钮 | 正文滚动区高 | 表格横向溢出 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 原生 411 | 无 | 是 | 是 | 24 | 379 px | 0 |
+| 320 | 无 | 是 | 是 | 24 | 185 px | 0 |
+| 360/393/411 | 无 | 是 | 是 | 24 | 379 px | 0 |
+| 980 | 无 | 是 | 是 | 24 | — | 0 |
+| 1280 | 无 | 是 | 是 | 24 | — | 0 |
+
+目录条 `overflow-x:auto`（`scrollWidth 5007 / clientWidth 302`，320 下），
+章节被截断属可横滚，不是缺陷；关闭按钮在 320 与 411 截图中均完整落在视口内。
+
+### C.84.4 本轮修掉的两处实测缺陷（`e035505` → Pages `9e64f86`）
+
+**① 膨胀页升级按钮被裁（真缺陷）**：`.l-dilation-upgrades-grid` 宽 660 px，
+`left=-124 / right=536`；10 个 `.o-dilation-upgrade` 里 **6 个在 411 视口外**
+（第一个 -109..81，第三个 331..521）。成因是 `grid__row` 为
+`flex + justify-content:center` 且按钮写死 `width:19rem` 不收缩，行宽 660 居中后
+左右各溢出 124 px，而 `.c-game-ui` 是 `overflow-x:hidden` → 两侧按钮**既看不见也点不到**。
+修法：`≤900px` 时行 `flex-wrap`、单元格外边距 1.5rem→0.4rem、
+按钮 `width:min(19rem, 50vw - 2.2rem)` 且 `height`→`min-height:9rem`。
+复测：411 下网格 `0..411`、**0 个按钮越界**（每行 184 px×2）；
+320 下 0 越界（每行 138 px×2）；1280 下仍是原样 660 px、0 越界（桌面零影响）。
+
+**② 教程短屏正文区过矮**：320×568 下正文滚动区仅约 150 px（布局盒写死 50vh）。
+修法 `@media (max-height:720px) { .c-oreki-tut__layout { height:72vh } }`，
+复测 320 下滚动区 185 px。
+
+**线上核验**：`oreki.css` SHA-256 `92ce0a559729cb936470cbd4458fd3dfc1ef17c1e2532c38327736151230281f`、
+`index.html` `6e47f5e35ebb6834e495bfe172297e055bb575784d45e866290731dc82504343`，
+与 `_deploy/site` 本地副本逐字节一致（不用耗时判断，用哈希）。
+
+### C.84.5 两条踩坑记录（下次直接省时间）
+
+1. **Android Chrome 的 CDP `/json` 暴露的 `id` 是别名，不能用**：拿 `/json` 里的
+   `id` 去 `Target.attachToTarget` 会「附着成功但 `Runtime.enable` / `Runtime.evaluate`
+   全部超时」。必须用 `Target.getTargets` 返回的真实 `targetId`（形如
+   `32983E98…`），附着后 `1+1` 立刻返回 2。
+2. **教程弹窗打不开不是教程的问题**：`GameUiComponentFixed.js:75-87` 是
+   `v-if / v-else-if` 链——`ModalProgressBar` → `CelestialQuoteModal`(`view.quotes.current`)
+   → `CelestialQuoteHistoryDisplay` → `PopupModal`(`view.modal.current`)。
+   只要有一条天体语录在播，`PopupModal` 整块就不渲染，此时
+   `Modal.orekiTutorial.isOpen === true`（它确实已是 `ui.view.modal.current`）但 DOM 里
+   一个 `.c-oreki-tut` 都没有。量教程前必须先 `Quote.clearAll()`。
+   这也是**上游原有行为**，不是本 MOD 引入的缺陷。
+
+### C.84.6 Android「挑战启动即完成」端到端运行验证【本轮首次做实】
+
+R49/R50 之前该功能**只有读码与包内确认**，从未在设备上跑出结果。本轮在 AVD
+`oreki_test`（API 34，1440×3200 @560dpi，App versionName 3.19.0 / versionCode 30190000）
+上做实：
+
+**运行环境事实**
+- 游戏本体是**原生 Java**（`kajfosz.antimatterdimensions.MainActivity`），不是 WebView；
+  设备上唯一的 WebView 只加载 AdMob。因此**不能**用 CDP 驱动游戏页，
+  必须走真实控件/存档观测。`adb root` 可用，存档在
+  `/data/data/com.oreki.antimatterdimensions/files/player.json`（明文 JSON）。
+- 钩子确已注入：`build/build.log` 第 135~136 行
+  `[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()`、
+  `[Oreki CA] ... OrekiChallengeAuto.tick()（先于 IC 结算）`。
+
+**判定实验（二分法 + 低上限排除自然完成）**
+存档夹具：把 `challenge.normal.completedBits` 从 8190（C1~C12 全完成）改成
+**4094**（清掉 bit12 → C12 未完成），`challenge.normal.current = 12`
+（等价于原版 `start()` 之后的「在 C12 中」状态），
+`records.thisInfinity.maxAM = 1e10`（把自然打到目标的可能压掉）。
+此前的试探还包含：`completedBits=8190` 且 `current=12`（已完成的挑战再进入）。
+
+| 采样（开局后） | completedBits | current | maxAM | 结论 |
+| --- | --- | --- | --- | --- |
+| t1 ≈ 15 s（读档时的存档） | 4094 | 12 | 1e10 | 尚未 tick |
+| t2 ≈ 30 s | **8190** | **0** | **1e133** | 已被结算并退出 |
+| t3~t6 | 8190 | 0 | 1e133→1e300 | 之后是正常游玩增长 |
+
+判据三条同时成立：
+1. **完成位** 4094 → 8190（C12 记完成），而玩家全程没有任何点击；
+2. **`current` 12 → 0**（退出挑战），且这一跳发生在同一个 15 s 采样窗口内；
+3. **`maxAM` 1e10 → 1e133**：正是 `rewardAntimatter` 的「把 `thisInfinity.maxAM`
+   临时抬到 `challenge.goal` 再交给原版 `gainedInfinityPoints`」留下的签名——
+   自然游玩不可能在 15 s 内从 1e10 涨到 1e133。
+另外 `completedBits=8190` + `current=12` 的对照实验里 `current` 也回到 0，
+符合「原版已完成 → `K()` 为 true → 跳过发奖、仍然退出」的幂等分支，
+即**没有发生二次结算**。
+
+**未能做到的部分（如实记录）**：App 的自动存档间隔约 60 s，`lastUpdate` 在同一存档
+内不变，因此**无法做到帧级时间戳**；「下一帧完成」这一点是由「一个存档周期内
+`current` 由 12 变 0、完成位翻转、maxAM 跳到 goal」三条同时成立推出来的，
+不是直接测到的帧号。要拿到帧级证据需要在 smali 里加日志后重新构建（约 8 分钟构建
++ 装机），本轮受通关长跑占用时间未做，记为待办。
