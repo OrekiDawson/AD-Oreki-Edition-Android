@@ -4236,6 +4236,25 @@ def patch_tutorial_entry():
     assert "findViewWithTag" in ent, \
         "[T1] 断言失败：addEntryOnce 没有用 findViewWithTag 判重（容器 tag 判重会漏插）"
     assert ".method public run()V" in ent, "[T1] 断言失败：缺重试回调 run()"
+    # R43-B：就绪判定必须来自「插入动作本身」，且没有 content_main 的 Activity 不得无限重试。
+    # 反例（装机 logcat，R42）：打开 Oreki 教程页时 findTab 恒 null（该 Activity 的视图树里
+    # 没有 scrollView_options），旧判定恒假 → 每 800ms 重试一次 ×10 刷屏。
+    assert ".method private static addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z" in ent, \
+        "[T1] 断言失败：addEntryOnce 被改回 void（就绪判定会与插入动作脱节，重新出现无效重试）"
+    assert ".method private static addEntry(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z" in ent, \
+        "[T1] 断言失败：addEntry 被改回 void（拿不到 addView 的真实结果）"
+    assert "hasLaidOutContent" in ent, \
+        "[T1] 断言失败：缺 hasLaidOutContent（无法区分「内容未铺」与「本页不承载入口」）"
+    _ti0 = ent.find(".method private static tryInsert")
+    assert _ti0 >= 0, "[T1] 断言失败：缺 tryInsert"
+    _ti1 = ent.find(".end method", _ti0)
+    ti = ent[_ti0:_ti1]
+    assert "if-eqz v1, :no_container" in ti, \
+        "[T1] 断言失败：tryInsert 没有「容器不存在」分支（会退回恒假判定）"
+    assert "hasLaidOutContent(Landroid/app/Activity;)Z" in ti, \
+        "[T1] 断言失败：tryInsert 未接线 hasLaidOutContent"
+    assert "addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z" in ti, \
+        "[T1] 断言失败：tryInsert 未用 addEntryOnce 的返回值作判据"
     # 入口必须在 addEntry / addEntryOnce 两处都做「空才返回」的判断。
     # 反例（R25 实测）：`if-nez p1, :done` 是「非空就返回」，addView 永远不执行，
     # 表现为按钮一次都不出现而 logcat 无异常、容器 childCount 恒为 2。

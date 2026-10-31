@@ -161,28 +161,48 @@
 .end method
 
 
-# 真正的插入动作；返回 true 表示选项页容器已就绪（不需要再重试）。
-# 注意：ready 用 int 寄存器承载（0/1）。异常路径与正常路径都只给同一类型，
+# 真正的插入动作；返回 true 表示「本次不需要再重试」。
+#
+# [R43-B] 就绪判定的两处更正（原判定在无 content_main 的 Activity 上恒为假）：
+#
+# 事实链（apktool 反编译树，可复核）：
+#   res/layout/content_main.xml:223  scrollView_options 只在这一份布局里，
+#   它经 app_bar_main.xml:21 的 <include> 进入 activity_main，
+#   而 activity_main 只被 MainActivity.onCreate 用（MainActivity.smali:51013 setContentView）。
+#   MainActivity 之外还有 3 个 Activity 用的是自己 setContentView 的视图：
+#     TutorialActivity.smali:230 / SpeedSettingsActivity.smali:360 / LoginActivity.smali:479
+#   它们的视图树里**永远没有** scrollView_options。
+#
+#   本类是 Application$ActivityLifecycleCallbacks 注册的，**每个** Activity 的
+#   onStart/onResume 都会进来。于是打开「Oreki 教程」页时：findTab 恒 null →
+#   原判定恒假 → 每 800ms 重试一次、10 次后停 —— 与
+#   logcat「OrekiTutorial: options 容器未就绪，稍后重试」每 800ms ×10 完全一致。
+#   同时可反证「按钮确实插进去了」：若真在 MainActivity 上失败，addEntry 每轮都会
+#   addView，10 轮就是 10 个蓝条，实测只有 1 个 —— 说明重试都发生在没有入口的 Activity 上。
+#
+# 新判定：
+#   (a) 容器存在   → 判据就是 addEntryOnce 的返回值（本次是否插入成功 / 已存在），
+#                    判定与插入动作落在同一个对象、同一帧，不再二次查找；
+#   (b) 容器不存在 且 content 根已有子 View → 本 Activity 不承载入口（教程/设置/登录页），
+#                    返回 true 停止重试，并打一条准确的日志；
+#   (c) 容器不存在 且 content 根还是空的 → setContentView 尚未执行，才排重试。
+# 返回 int（0/1）。异常路径、成功路径、无需重试路径都只给 int，
 # 避免校验器在汇合点看到「引用 + int」冲突。
 .method private static tryInsert(Landroid/app/Activity;)Z
     .locals 3
 
     :try_start_0
-    const-string v0, "scrollView_options"
-
-    invoke-static {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->findTab(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout;
-
-    move-result-object v1
-
-    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
-
+    # 「关于 / 玩法说明」两个可选页签先插：容器不存在时 addEntryOnce 自己返回 0，
+    # 它们不参与就绪判定（本来就不是必选项，不能因为缺它们而重试）。
     const-string v0, "scrollView_about"
 
     invoke-static {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->findTab(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
-    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
+
+    move-result v2
 
     const-string v0, "scrollView_howToPlay"
 
@@ -190,26 +210,44 @@
 
     move-result-object v2
 
-    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    invoke-static {p0, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
 
-    # 判定标准从「容器非空」改为「容器里真的能找到我们的按钮」：
-    # 这样「插入被吞掉」或「按钮随后被界面重建冲掉」都会继续重试。
-    if-eqz v1, :not_ready
+    move-result v2
 
-    const-string v0, "oreki_tutorial_entry"
+    const-string v0, "scrollView_options"
 
-    invoke-virtual {v1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+    invoke-static {p0, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->findTab(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout;
 
-    move-result-object v0
+    move-result-object v1
 
-    if-eqz v0, :not_ready
+    if-eqz v1, :no_container
+
+    # (a) 判定 = 插入动作本身的返回值（插成功 / 已存在 → 1）
+    invoke-static {p0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
+
+    move-result v0
+
+    goto :check
+
+    :no_container
+    # (b)/(c) 没有选项页容器：区分「内容还没铺上」与「本 Activity 根本不承载入口」
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->hasLaidOutContent(Landroid/app/Activity;)Z
+
+    move-result v0
+
+    if-eqz v0, :retry
+
+    const-string v0, "本 Activity 无 scrollView_options（非游戏主界面），不再重试"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->log(Ljava/lang/String;)V
 
     const/4 v0, 0x1
 
     goto :check
 
-    :not_ready
+    :retry
     const/4 v0, 0x0
+
     :try_end_0
     goto :check
 
@@ -231,7 +269,7 @@
 
     sput v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->sRetry:I
 
-    const-string v1, "options 容器就绪，入口已插入"
+    const-string v1, "本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数"
 
     invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->log(Ljava/lang/String;)V
 
@@ -249,6 +287,39 @@
     return v0
 
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+.end method
+
+
+# content 根（android.R.id.content = 0x01020002，framework 常量）已经挂上至少一个子 View？
+# 用来区分「Activity 还没 setContentView」与「这个 Activity 的布局里根本没有选项页」：
+# 前者值得重试，后者重试多少次都不会出现容器。
+.method private static hasLaidOutContent(Landroid/app/Activity;)Z
+    .locals 3
+
+    const/4 v0, 0x0
+
+    if-eqz p0, :done
+
+    const v1, 0x01020002    # android.R.id.content
+
+    invoke-virtual {p0, v1}, Landroid/app/Activity;->findViewById(I)Landroid/view/View;
+
+    move-result-object v1
+
+    if-eqz v1, :done
+
+    check-cast v1, Landroid/view/ViewGroup;
+
+    invoke-virtual {v1}, Landroid/view/ViewGroup;->getChildCount()I
+
+    move-result v2
+
+    if-gtz v2, :done
+
+    const/4 v0, 0x1
+
+    :done
+    return v0
 .end method
 
 
@@ -347,8 +418,14 @@
 #
 # R25 诊断日志保留（tag=OrekiTutorial），便于后续定位「按钮不出现」时
 # 区分是「没找到容器」「已有入口被跳过」还是「插入过程抛异常」。
-.method private static addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
-    .locals 2
+#
+# [R43-B] 返回值改为 Z：1 = 本次调用后容器里确实有我们的入口（刚插入 或 原本就在），
+# 0 = 容器为 null（本 Activity 没有这个页签）。tryInsert 直接用它当就绪判据，
+# 不再另做一次 findViewWithTag —— 判定与插入落在同一对象、同一帧。
+.method private static addEntryOnce(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
+    .locals 3
+
+    const/4 v1, 0x0
 
     if-eqz p1, :done
 
@@ -361,10 +438,18 @@
     # v0 == null（还没插过）→ 插入；非空 → 已存在
     if-eqz v0, :insert
 
-    goto :already
+    const-string v0, "容器里已有入口按钮，跳过"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->log(Ljava/lang/String;)V
+
+    const/4 v1, 0x1
+
+    goto :done
 
     :insert
-    invoke-static {p0, p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntry(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    invoke-static {p0, p1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->addEntry(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
+
+    move-result v1
 
     # 诊断：插入后容器的子 View 数（预期 >= 2：按钮 + header/currentLayout）
     invoke-virtual {p1}, Landroid/view/ViewGroup;->getChildCount()I
@@ -375,19 +460,12 @@
 
     move-result-object v0
 
-    const-string v1, "OrekiTutorial"
+    const-string v2, "OrekiTutorial"
 
-    invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
-    goto :done
-
-    :already
-    const-string v0, "容器里已有入口按钮，跳过"
-
-    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;->log(Ljava/lang/String;)V
+    invoke-static {v2, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :done
-    return-void
+    return v1
 .end method
 
 
@@ -443,8 +521,12 @@
 # R25：这里原本写的是 `if-nez p1, :done`（p1 非空就返回），等于每次调用都
 # 立刻返回，按钮永远不会被 addView。实测证据：插入后容器 childCount 恒为 2
 # （header + currentLayout），且 logcat 无异常。现改为 p1 为空才返回。
-.method private static addEntry(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+# [R43-B] 返回值改为 Z：1 = 真的执行了 addView（addView 是同步生效的，
+# 返回时按钮已在容器的子 View 列表里），0 = 传入容器为 null。
+.method private static addEntry(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
     .locals 6
+
+    const/4 v5, 0x0
 
     if-eqz p1, :done
 
@@ -559,8 +641,10 @@
 
     invoke-virtual {p1, v0, v3, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;ILandroid/view/ViewGroup$LayoutParams;)V
 
+    const/4 v5, 0x1
+
     :done
-    return-void
+    return v5
 .end method
 
 
