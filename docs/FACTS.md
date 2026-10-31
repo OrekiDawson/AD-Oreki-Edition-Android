@@ -4025,3 +4025,93 @@ Windows Edge 411 / 980 / 1280 三档实测「越界行 0、子元素溢出 0、�
 
 `docs/FACTS.md` 三处 inode `3940649674859546`、`nlink = 3`、SHA-256 一致（`f34e79e5756bdecb`）。
 本次追加同样使用原地读写，未破坏链接。
+
+## C.82 R49 交付台账与实测数据（2026-11-01 01:07–04:xx）`[实测]`
+
+### C.82.1 交付
+
+| 项 | 值 |
+|---|---|
+| Web 源码 | `f10968c`（教程同步：挑战启动即完成的前提与 autoEC 默认关闭） |
+| Web 前置（同轮并行会话） | `0d4f95b` §45、`fbd193c` 行宽收敛、`45b7373` EC 语义、`c98c325` FACTS、`9a4d893` autoEC 默认关闭 |
+| Pages 部署 | 部署仓 `e2ecf58`，864 文件，import 闭包 PASS（2 个 probe 模块未接线属正常） |
+| 线上核验 | `oreki.net/src/core/player.js` 第 529 行 `autoEC: false`；`oreki.css` 含 `min(96rem` ⇒ 新版本确实生效 |
+| Android 源码 | `a649196`（补提交 `DrawerInsetListener.smali` + `check_invoke_types.py`，此前已打进 APK 但漏提交） |
+| APK | `release/反物质维度.apk` 69,790,309 B，SHA-256 `d101ea0926f410c9…` |
+| 双网盘 | OneDrive 与小米云盘均 `d101ea09…` / 69,790,309 B（替换掉 10-31 23:23 的旧包 `5af2e259…`） |
+
+**Android 未重新构建的依据**：`find scripts/payload/smali -newermt "2026-11-01 00:22"` 结果 **0 个**，
+`build_mod.py` 最后修改 00:16。即 00:22 产出的 `release/反物质维度.apk` 与当前源码一致。
+包内已确认 `OrekiInstantChallenge` / `OrekiChallengeAuto` / `OrekiStageAuto` / `DrawerInsetListener` /
+`TutorialActivity` 均在 dex 中命中。
+
+### C.82.2 自动购买器六档矩阵（真机 + CDP 视口）
+
+真机 Redmi 23113RKC6C / Android 16，411 px 逻辑视口，真实 `getBoundingClientRect()`：
+
+| 视口来源 | vw | docW | 行数 | 子元素越界 | 行超视口 | 横向滚动 |
+|---|---|---|---|---|---|---|
+| 真机 Chrome 原生 | 411 | 411 | 18 | **0** | 0 | 无 |
+| CDP 320 | 320 | 320 | 16 | 0 | 0 | 无 |
+| CDP 360 | 360 | 360 | 16 | 0 | 0 | 无 |
+| CDP 393 | 393 | 393 | 16 | 0 | 0 | 无 |
+| **手机 Edge 980（桌面模式布局视口）** | 980 | 980 | 16 | **0** | 0 | 无 |
+| CDP 1280 | 1280 | 1280 | 16 | 0 | 0 | 无 |
+
+- R48 真机基线是「子元素超出所属槽右边界 **75–83 px**」，R49 实测为 **0**，修复真实有效。
+- 手机 Edge 调试通道：`chrome_devtools_remote_32336` → `adb forward tcp:9334`。
+- **口径说明**：980 档是在手机 Edge 进程里用 CDP 设置布局视口 + 桌面 UA 复现的，
+  **没有走 Edge 菜单里的「请求桌面网站」开关**。缺陷成因就是布局视口取 980，
+  所以这个测法覆盖缺陷本身；但菜单路径未走，如实记录为未完成项。
+
+### C.82.3 挑战「启动即完成」实测（隔离浏览器上下文，零存储）
+
+用 CDP `Target.createBrowserContext` 建真正全新存储（`localStorage` 空、`eternities=0`、`eternityChalls={}`）。
+
+**EC5**：`start(true)` 返回 `true` → `current` 写入 5 → **68 ms 后** `completions` 0→5、`current` 归零；
+12 次 × 50 ms 采样**全部稳定**（无反复、无重复结算）。
+
+**C2**：`start()` 后 `current=2` → 60 ms 内 `current=0`、`isCompleted=true`，8 次采样稳定。
+
+**IC1**：`start()` 后 `current=1` → 60 ms 内 `current=0`。
+
+**一条必须记住的干扰**：在后期存档上，`completedBits` 会在 3 秒内从 0 跳到 **8190**（12 个普通挑战全置位），
+IC 的 `isCompleted` 在 true/false 间闪。**这不是缺陷**，是原版
+`eternity.js:181 initializeChallengeCompletions()`：
+拿到「保留自动购买器」永恒里程碑后每次永恒都 `NormalChallenges.completeAll()`，
+`Achievement(133)` 解锁后同样 `InfinityChallenges.completeAll()`。
+⇒ 「未启动不涨完成数」在后期档**无法干净验证**，只能靠代码路径断言（入口是 `current !== 0`）。
+
+### C.82.4 Android 侧代码核对结论
+
+`OrekiInstantChallenge.smali` 已完整覆盖 C/IC/EC：三类各自先判 `current > 0`；
+C/IC 抬高 `maxAM` → 原版 `E(false)` 记完成 → `restoreMaxAM()` 还原；
+EC 循环 `F(false)` 补满且**带 2000 次安全上限**，只有次数真变大才结算 EP；
+幂等靠「完成次数变化 + `current` 归零」双闸门。
+`OrekiChallengeAuto` 的 `tryNormal/tryInfinity` 只走启动路径，未发现未启动直接补次数。
+Android 无独立 `autoEC` 字段，沿用原版 `player.reality.autoEC`（原版默认关闭），与 Web 改动后一致。
+
+**这是代码核对与包内确认，不是端到端实测** —— Android 挑战流程装机验证本轮未做。
+
+### C.82.5 两条操作教训
+
+1. **不得用模糊文字匹配点击游戏内开关**。本轮为关弹窗按「嗯呐/确定/关闭」匹配按钮，
+   误点了真机的「自动重试挑战」开关（`player.options.retryChallenge` 被置 true），
+   30 秒内已改回 `false` 并核对 UI。这正是上一轮「页面一直跳转」的成因。
+2. **`--user-data-dir` 必须用 `C:/…` 形式**。传 `/c/Users/…` 时 Edge 会解析成 `C:\c\Users\…`，
+   建立了一个错误目录且**看起来像新 profile 实则不是**（R48 遗留测试存档就在那里）。
+   用 `Target.createBrowserContext` 才是真正零存储，`localStorage` 为空不等于新档
+   —— 只有 `gameCreatedTime` 与页面加载时刻吻合、`realTimePlayed` 与墙钟吻合，才能认定是新档。
+
+### C.82.6 新档推进速度（抽样）
+
+全新存档 10000×、默认自动化、无人工操作，实测阶段推进：
+
+| 现实时间 | 永恒次数 | 现实次数 | 阶段 |
+|---|---|---|---|
+| 0 s（页面创建） | 0 | 0 | — |
+| ~90 s | 6.4e4 | 0 | — |
+| 150 s | 1.5e6 | 5 | 符文装备与现实升级（glyphs） |
+| 210 s | 3.6e87 | 10 | 同上 |
+
+`totalTimePlayed` 17.2 天 ÷ 10000 ≈ 149 s，与墙钟吻合 ⇒ **确认是全新档且速度倍率生效**。
