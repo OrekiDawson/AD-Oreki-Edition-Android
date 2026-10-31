@@ -94,6 +94,17 @@
     # Doomed → 不介入（出口在 try 范围内，避免跳过 :try_end_0）
     if-nez v0, :oreki_sa_try_end
 
+    # [Oreki ET1] 永恒层（时间定理 / 时间维度 / 普通时间研究 / 按永恒）。
+    #
+    # 位置刻意放在 `eternitiesZero()` 分叉**之前**：
+    #   · 首次永恒发生在 eternities==0 的窗口里，放到分叉之后会被
+    #     「已进入永恒 → 停止干预」那一条挡掉，于是第一次永恒永远不触发；
+    #   · 之后每一档都在同一处继续生效，不需要二套入口。
+    # 本类既有语义一行未改（下方 enableIpMultAutobuyer / upgradeCrunchInterval /
+    # BreakGate / tryBuyId1 的顺序与条件完全不变），这里只是追加一个零寄存器静态调用。
+    # 内部四个子步骤各自 try/catch，任一环异常都不会冒到 Game.autoBuyerTick。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->tick()V
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->eternitiesZero()Z
     move-result v0
 

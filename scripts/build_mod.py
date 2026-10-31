@@ -572,6 +572,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakGate.smali",
     # [R42] 终点记录写入（PelleRecords.totalAntimatter = 历史峰值反物质）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.smali",
+    # [Oreki ET1] 永恒层自动化（时间定理 / 时间维度 / 普通时间研究 / 按永恒）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiEternity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     # [R44] 顶栏标题「主页签 · 子页签」合成（MainActivity.H8 里被 invoke-static）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiUiTitle.smali",
@@ -3243,6 +3245,109 @@ def _scan_method(src, sig):
     return i, j + len(".end method")
 
 
+def verify_eternity_chain():
+    """[Oreki ET1] 永恒层自动化（TT / 时间维度 / 时间研究 / 按永恒）的构建期守卫。
+
+    为什么要有：这一层是 Reality 之前**唯一的一道门**。四个子步骤缺任一步，
+    表现都只是「EP 不涨 / 没有 TT / 买不到 TimeStudy.reality」—— 静默、无报错、
+    无崩溃，只能靠构建期断言把契约钉住，而不是靠下一次 AVD 长跑来发现。
+
+    七条硬约束：
+      ① `tick()` 必须真的调用四个子步骤；
+      ② TT 必须走原版 `ix4.a(Z)J` 且 buyMax=true（不免费发 TT）；
+      ③ 时间维度必须走按钮本体 `TimeDimensionState.i(Z,Cont)`，tier 1-based；
+      ④ 时间研究必须用 `l43.d`（SparseIntArray id->下标）的键集枚举**全部** id，
+         先过互斥封锁表，再走原版 `studies/c;->D(Z,vh0)`；
+      ⑤ 按永恒必须 `f()`(canEternity) + `g()`(gainedEP) >= EP x10，
+         且先 `copy()` 再 `multiply`（否则就地改玩家 EP）；
+      ⑥ 封锁表三个 id 区间 + 维度分叉常量齐全；
+      ⑦ 挂点必须在 `OrekiStageAuto.onAutoBuyerTick()` 里、Doomed 判定之后、
+         `eternitiesZero()` 分叉**之前**（否则首次永恒永远不触发）。
+    """
+    mod = MOD / "smali" / "kajfosz" / "antimatterdimensions"
+    et = mod / "oreki" / "OrekiEternity.smali"
+    assert et.is_file(), "[ET1] 缺少 OrekiEternity.smali（payload 未拷入？检查步骤 [4]）"
+    s = et.read_text(encoding="utf-8")
+
+    # (1) tick() 的四个子步骤
+    i, j = _scan_method(s, "public static tick()V")
+    body = s[i:j]
+    for m in ("buyTimeTheorems", "buyTimeDimensions", "buyNormalStudies", "tryEternity"):
+        assert f"OrekiEternity;->{m}()V" in body, f"[ET1] tick() 未调用 {m}"
+
+    # (2) 时间定理
+    i, j = _scan_method(s, "private static buyTimeTheorems()V")
+    body = s[i:j]
+    assert "Lix4;->a(Z)J" in body, "[ET1] TT 必须走原版 ix4.a(Z)J（唯一真实购买入口）"
+    assert "const/4 v0, 0x1" in body, "[ET1] TT 必须 buyMax(true)"
+
+    # (3) 时间维度
+    i, j = _scan_method(s, "private static buyTimeDimensions()V")
+    body = s[i:j]
+    assert ("dimension/time/a;->a(I)Lkajfosz/antimatterdimensions/"
+            "dimension/time/TimeDimensionState;") in body, \
+        "[ET1] 必须用 TimeDimensions.a(tier) 取状态"
+    assert "TimeDimensionState;->i(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)" in body, \
+        "[ET1] 必须走 TimeDimensionState.i(Z,Cont)（未解锁则原版解锁、可买则原版扣费）"
+    assert "const/4 v2, 0x1" in body, "[ET1] tier 必须从 1 开始（a(I) 内部先 -1，传 0 会 OOB）"
+    assert "array-length" in body, "[ET1] 层数必须取自 Player.Dimensions.c() 的真实长度"
+
+    # (4) 时间研究
+    i, j = _scan_method(s, "private static buyNormalStudies()V")
+    body = s[i:j]
+    assert "Ll43;->d:Landroid/util/SparseIntArray;" in body, \
+        "[ET1] 必须用 l43.d 的键集枚举全部研究 id（l43.b 是按行分组表，不是全集）"
+    assert "SparseIntArray;->keyAt(I)I" in body, "[ET1] 枚举方式必须是 SparseIntArray.keyAt"
+    assert "OrekiEternity;->blocked(III)Z" in body, "[ET1] 必须先过互斥封锁表"
+    assert "eternity/studies/c;->B()Z" in body, "[ET1] 必须先判已购买"
+    assert "eternity/studies/c;->A(Z)Z" in body, "[ET1] 必须先判需求满足（A(Z)）"
+    assert "eternity/studies/c;->D(ZLvh0;)Ljava/lang/Boolean;" in body, \
+        "[ET1] 购买必须走原版 D(Z,vh0)（形参就是 vh0；写 ContinuationImpl 会 NoSuchMethodError）"
+    assert "OrekiEcContinuation;->a:" in body, "[ET1] 必须传真实 continuation（null 会 NPE）"
+
+    # (5) 按永恒
+    i, j = _scan_method(s, "private static tryEternity()V")
+    body = s[i:j]
+    assert "OrekiStageAuto;->holdCrunch()Z" in body,         "[ET1] 必须与 AD3b 的 ID1 窗口互斥（holdCrunch 为真时不按永恒）"
+    assert body.index("OrekiStageAuto;->holdCrunch()Z") < body.index("prestige/c;->f()Z"),         "[ET1] ID1 窗口互斥必须排在 canEternity 判定之前"
+    assert "prestige/c;->f()Z" in body, "[ET1] 必须先判 canEternity"
+    assert "prestige/c;->g()Lkajfosz/antimatterdimensions/BigDouble;" in body, \
+        "[ET1] 必须取 gainedEP"
+    i_copy = body.find("BigDouble;->copy()")
+    i_mul = body.find("BigDouble;->multiply(I)")
+    assert 0 <= i_copy < i_mul, "[ET1] 必须 copy() 之后再 multiply(I)（否则就地改玩家 EP）"
+    assert "BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I" in body, \
+        "[ET1] 必须做 EP x10 比较"
+    assert ("prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;"
+            "Lkotlin/coroutines/jvm/internal/ContinuationImpl;I)") in body, \
+        "[ET1] 必须走原版默认参数桥 prestige/c.d(...)"
+    assert "const/16 v6, 0xd" in body, "[ET1] 默认参数掩码必须是 0xD（= 原版永恒自动器实参元组）"
+    assert "prestige/c;->a:Lkajfosz/antimatterdimensions/prestige/c;" in body, \
+        "[ET1] 必须取 Eternity INSTANCE"
+
+    # (6) 封锁表
+    i, j = _scan_method(s, "private static blocked(III)Z")
+    body = s[i:j]
+    # 三列基准 121 / 131 / 141、分叉基准 71，以及 +10 / +20 两处偏移。
+    # 具体选中列由入参 p2 / p3 决定，不再出现 123 字面量（见函数头注释）。
+    for lit in ("0x79", "0x83", "0x8d", "0x47", "0x0a", "0x14"):
+        assert lit in body, f"[ET1] 互斥封锁表缺少常量 {lit}"
+    for reg in ("p1", "p2", "p3"):
+        assert reg in body, f"[ET1] 封锁表必须用到入参 {reg}"
+
+    # (7) 挂点顺序
+    sa = mod / "oreki" / "OrekiStageAuto.smali"
+    t = sa.read_text(encoding="utf-8")
+    i, j = _scan_method(t, "public static onAutoBuyerTick()V")
+    tb = t[i:j]
+    assert "OrekiEternity;->tick()V" in tb, "[ET1] onAutoBuyerTick 未挂 OrekiEternity.tick()"
+    assert tb.index("OrekiStageAuto;->isDoomed()Z") < tb.index("OrekiEternity;->tick()V"), \
+        "[ET1] 必须排在 Doomed 判定之后"
+    assert tb.index("OrekiEternity;->tick()V") < tb.index("OrekiStageAuto;->eternitiesZero()Z"), \
+        "[ET1] 必须排在 eternitiesZero 分叉之前，否则首次永恒永远不触发"
+    note("[Oreki ET1] 永恒层守卫通过（TT / 时间维度 / 时间研究 / 按永恒 + 挂点顺序 + 实参元组）")
+
+
 def patch_autobuyer_unlock():
     """[Oreki AU] 自动购买器提前解锁（R5.5 新档实测，2026-10-28）。
 
@@ -4278,11 +4383,17 @@ def patch_tutorial_entry():
     act.set(A + "name", tname)
     act.set(A + "exported", "false")
     act.set(A + "label", "Oreki 教程")
-    # 正文是硬编码深色字 + 浅底，必须配浅色主题，否则系统深色主题下会变成深字深底
-    act.set(A + "theme", "@android:style/Theme.DeviceDefault.Light")
+    # [R45-C] 窗口主题改成恒深色的 Theme.Material.NoActionBar。
+    #   历史：2026-10 之前这里是 Theme.DeviceDefault.Light，理由是「正文硬编码深色字 + 浅底」。
+    #   那个前提早就不成立了 —— R31 起正文正文已经是深色底 + 浅色字。留着浅色主题的后果是
+    #   系统弹窗、Toast、状态栏图标、输入法候选栏全部走浅色，深色页面上弹出一个白框，
+    #   就是用户反复报的「浅色回退」。
+    #   NoActionBar 是配套的：标题改由 TutorialActivity.addAppBar 自绘（M3 Large Top App Bar），
+    #   不要再把 ActionBar 加回来 —— ActionBar 的高度/字重/内边距不可控，会和卡片排版打架。
+    act.set(A + "theme", "@android:style/Theme.Material.NoActionBar")
     act.set(A + "configChanges", "keyboardHidden|orientation|screenLayout|screenSize|uiMode")
     tree.write(mp, encoding="utf-8", xml_declaration=True)
-    note(f"[T1] Manifest 注册 {tname}（exported=false, Theme.DeviceDefault.Light）")
+    note(f"[T1] Manifest 注册 {tname}（exported=false, Theme.Material.NoActionBar）")
 
     # --- 2) Application.onCreate 挂载生命周期回调 ---
     ap = pkg_dir / "App.smali"
@@ -4304,6 +4415,13 @@ def patch_tutorial_entry():
     # --- 3) 静态断言：三件事都得真的在产物里 ---
     mtext = mp.read_text(encoding="utf-8")
     assert mtext.count(tname) == 1, "[T1] 断言失败：manifest 里教程 Activity 不是恰好一处"
+    # [R45-C] 防回归：教程页必须是恒深色窗口主题。任何一次回退到 .Light 或
+    # DeviceDefault，都会让系统弹窗/状态栏走浅色，在深色正文上闪白框。
+    for light_theme in ("Theme.DeviceDefault.Light", "Theme.Material.Light", "Theme.Light"):
+        assert light_theme not in mtext.split(tname)[1][:400], \
+            f"[T45-C] 教程 Activity 的 theme 回退成了浅色：{light_theme}"
+    assert "Theme.Material.NoActionBar" in mtext, \
+        "[T45-C] 教程 Activity 的 theme 不是 Theme.Material.NoActionBar"
     a2 = ap.read_text(encoding="utf-8")
     assert a2.count("TutorialEntry;->install") == 1, \
         "[T1] 断言失败：TutorialEntry.install 调用点不唯一"
@@ -4607,6 +4725,9 @@ def main():
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
     verify_au4b()
+    # [Oreki ET1] 永恒层四步（TT / 时间维度 / 时间研究 / 按永恒）的契约守卫。
+    # 只读 MOD 文本、零副作用；放在钩子安装之后、UI 补丁之前。
+    verify_eternity_chain()
     # [Oreki AD5b] Break Infinity 闸门：反证开关装配 + 构建期守卫。
     patch_break_gate()
     verify_break_gate()
