@@ -377,6 +377,53 @@ def patch_topbar_current_tab(mod: Path) -> str:
     return "ok(" + ",".join(did) + ")" if did else "skip(已是 CURRENT_TAB)"
 
 
+# ------------------------------- 6.5 R42-C：深色调色板里两条状态文字的对比度下限
+# 现象（静态体检 scripts/oreki_contrast_audit.py，Palette.Dark）：
+#   ECSTUDY_RUNNING_TEXT      #ff7041b8 on #ff222222(对话框)  2.38 ；on #ff1b1a1e(页面) 2.59
+#   AUTOBUYER_WRONG_TEXT_RED  #88a62630 →（alpha 0x88 合成后 #672328）on #ff1f1f1f  1.45
+# 前者是「EC 研究进行中」的状态字，后者是自动购买器「设置错误」的提示字，
+# 都属于「必须读得出来」的信息，却都是深底深字，用户原文要求「不得深底深字」。
+# 修法：只把这两条换成**同色相、去半透明、提亮**后的值，实测 ≥4.5:1（WCAG AA 正文）；
+#      不动布局、不动文案、不动逻辑；也不动 Palette.Light / LightInverted
+#      （浅底上原值才是正确的，改它会反过来变成浅底浅字）。
+PALETTE_CONTRAST_FIXES = {
+    "Palette.Dark": {
+        "ECSTUDY_RUNNING_TEXT": ("#ff7041b8", "#ffb58ce8"),
+        "AUTOBUYER_WRONG_TEXT_RED": ("#88a62630", "#ffef5b5b"),
+    },
+    "Palette.Amoled": {
+        "ECSTUDY_RUNNING_TEXT": ("#ff7041b8", "#ffb58ce8"),
+        "AUTOBUYER_WRONG_TEXT_RED": ("#88a62630", "#ffef5b5b"),
+    },
+}
+
+
+def patch_palette_contrast(mod: Path) -> str:
+    p = mod / "res" / "values" / "styles.xml"
+    t = p.read_text(encoding="utf-8")
+    done = []
+    for style, fixes in PALETTE_CONTRAST_FIXES.items():
+        m = re.search(r'<style name="%s"[^>]*>.*?</style>' % re.escape(style), t, re.S)
+        if not m:
+            raise DarkThemeError(f"styles.xml 里找不到 {style} 调色板块")
+        block = m.group(0)
+        new_block = block
+        for name, (old, new) in fixes.items():
+            needle = f'<item name="{name}">{old}</item>'
+            if needle in new_block:
+                new_block = new_block.replace(needle, f'<item name="{name}">{new}</item>', 1)
+                done.append(f"{style}.{name}")
+            elif f'<item name="{name}">{new}</item>' not in new_block:
+                raise DarkThemeError(
+                    f"{style} 的 {name} 既不是 {old} 也不是 {new}，结构变了，拒绝盲改")
+        if new_block != block:
+            t = t.replace(block, new_block, 1)
+    if not done:
+        return "skip(两条对比度色值已是新值)"
+    p.write_text(t, encoding="utf-8")
+    return "ok(" + ",".join(done) + ")"
+
+
 # ------------------------------------------------- 7. R31：补全中文（简体）
 # 只补「基准有、values-zh-rCN 没有」并且**确认在包内被引用**的可见文案；
 # 未引用的死串、程序关键字（Automator 命令）、品牌名不翻译（见报告）。
@@ -414,6 +461,7 @@ def apply(mod: Path) -> dict:
         raise DarkThemeError(f"{mod} 不像 apktool 反编译树")
     stats = {
         "styles": patch_styles(mod),
+        "contrast": patch_palette_contrast(mod),
         "bools": patch_bools(mod),
         "appearance": patch_appearance_class(mod),
         "loader": patch_appearance_loader(mod),
@@ -484,6 +532,17 @@ def verify(mod: Path) -> None:
     zhf = (mod / "res" / "values-zh-rCN" / "strings.xml").read_text(encoding="utf-8")
     for k in ZH_ADDITIONS:
         assert f'<string name="{k}">' in zhf, f"[UI] 中文缺 {k}"
+
+    # ---- R42-C 深色对比度守卫 ----
+    for style, fixes in PALETTE_CONTRAST_FIXES.items():
+        m = re.search(r'<style name="%s"[^>]*>.*?</style>' % re.escape(style), styles, re.S)
+        assert m, f"[UI] 找不到 {style} 调色板块"
+        blk = m.group(0)
+        for name, (old, new) in fixes.items():
+            assert f'<item name="{name}">{new}</item>' in blk, \
+                f"[UI] {style}.{name} 未提到 {new}（深底深字，对比度 <4.5:1）"
+            assert f'<item name="{name}">{old}</item>' not in blk, \
+                f"[UI] {style}.{name} 仍是旧值 {old}"
 
 
 if __name__ == "__main__":
