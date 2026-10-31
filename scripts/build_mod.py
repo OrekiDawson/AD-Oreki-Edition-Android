@@ -569,6 +569,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
+    # [Oreki AD5b] Break Infinity 闸门（间隔补贴 + 真实 Break 序列）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakGate.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.smali",
@@ -659,6 +661,26 @@ PAYLOAD_REFS = [
     ("smali/kajfosz/antimatterdimensions/BigDouble.smali",
      ".method public final compareTo(D)I",
      "BigDouble 与字面量比较"),
+    # --- [Oreki AD5b] OrekiBreakGate 依赖的原版入口（R42，2026-10-31 从
+    #     `MainActivityBreakInfinityKt$loadViewsBreakInfinity$1$1` 的按钮实现逐条抠出）---
+    ("smali/kajfosz/antimatterdimensions/player/Player.smali",
+     ".method public final x0(Z)V",
+     "Break 写入口 Player.brake（方法体只有一句 iput-boolean）"),
+    ("smali/g61.smali",
+     ".method public static a(Ljava/lang/String;)V",
+     "BREAK_INFINITY 事件派发"),
+    ("smali/kajfosz/antimatterdimensions/autobuyer/a.smali",
+     ".method public static c()V",
+     "Break 后所有 UpgradeableAutobuyerState 间隔免费拉满"),
+    ("smali/kajfosz/antimatterdimensions/player/Player$Options.smali",
+     ".method public final c()Z",
+     "autobuyersOn 读入口"),
+    ("smali/kajfosz/antimatterdimensions/autobuyer/UpgradeableAutobuyerState.smali",
+     ".method public final u()D",
+     "自动器 interval 读入口（cost 是 t()D）"),
+    ("smali/ju.smali",
+     ".method public o(Lkajfosz/antimatterdimensions/BigDouble;)Lln0;",
+     "货币加值（补贴走它，不直接写字段）"),
 ]
 
 
@@ -2504,9 +2526,26 @@ def _verify_ec_r40b(src):
         "[R40B] fillEcRequirement 没有用真实 continuation 调 purchaseUntil（c;->N）—— "
         "G1（链式前置）没有修上，EC9~EC12 会继续停在原地")
 
-    assert ("invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)"
-            "Ljava/lang/Boolean;|move-result-object v6|if-nez v6, :fr_until") in fill, (
-        "[R40B] 单击购买失败后没有落到 :fr_until（purchaseUntil 兜底被删）")
+    # [R42 更正] 这条断言原来把「失败」和 if-nez 绑在一起，等于给错误写法上保险。
+    # D() 返回的是装箱 Boolean：null 才是「没给出结果」，应落 purchaseUntil 兜底；
+    # 非 null 则要看 booleanValue()。所以判空必须是 if-eqz。
+    # 按 FACTS C.69 §四：带条件跳转的断言必须成对覆盖「正写法存在 + 反写法不存在」，
+    # 只写前者时，变异回 if-nez 仍可能命中子串而不报错。
+    _D_PREFIX = ("invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)"
+                 "Ljava/lang/Boolean;|move-result-object v6|")
+    assert _D_PREFIX + "if-eqz v6, :fr_until" in fill, (
+        "[R40B] D() 返回 null 时没有落到 :fr_until（purchaseUntil 兜底被删）")
+    assert _D_PREFIX + "if-nez v6, :fr_until" not in fill, (
+        "[R40B] D() 判空极性回归成 if-nez：非 null 会跳走，"
+        "下面的 booleanValue() 就只在 null 时可达 ⇒ 对 null 调用即 NPE")
+
+    # booleanValue() 之后是原始布尔：true 才去 :fr_bought。
+    _BV_PREFIX = ("invoke-virtual {v6}, Ljava/lang/Boolean;->booleanValue()Z|move-result v6|")
+    assert _BV_PREFIX + "if-nez v6, :fr_bought" in fill, (
+        "[R40B] booleanValue() 为真时没有去 :fr_bought（单击就买上的快路被删）")
+    assert _BV_PREFIX + "if-eqz v6, :fr_bought" not in fill, (
+        "[R40B] booleanValue() 极性回归成 if-eqz：false（没买上）会被当成「买好了」，"
+        "这一关就再也买不上")
 
     good = ("invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z"
             "|move-result v6|if-nez v6, :fr_bought")
@@ -3478,6 +3517,113 @@ def verify_au4b():
     note("[Oreki AU4b] 大坍缩策略守卫通过（AMOUNT/1 → X_HIGHEST/10，只改策略）")
 
 
+# ------------------------------------------------------------------ AD5b Break 闸门
+def patch_break_gate():
+    """[Oreki AD5b] 反证开关装配（只在打对照包时改一行，正式包零改动）。
+
+    `OrekiBreakGate.grantEnabled()` 里有一处显式标记 `[OREKI_NOGRANT_MARKER]` +
+    `const/4 v0, 0x0`。设 `OREKI_BREAK_NO_GRANT=1` 时把它改写成 0x1，
+    于是**补贴完全关闭**、只保留「用现有 IP 逐级买」这条真实路径 ——
+    用来做反证：不补贴就仍买不满、brake 仍为 false、IP 仍停在 11 附近。
+
+    为什么用构建期开关而不是运行期读系统属性：Android 上取 SystemProperties 需要反射，
+    会把「反证」这件事本身引入不可控路径。构建期改一个立即数最干净、可复现。
+    """
+    p = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiBreakGate.smali"
+    assert p.exists(), "[AD5b] 缺少 OrekiBreakGate.smali"
+    src = p.read_text(encoding="utf-8")
+    marker = "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x0\n"
+    assert src.count(marker) == 1, "[AD5b] 反证开关锚点不唯一/丢失"
+    if os.environ.get("OREKI_BREAK_NO_GRANT") == "1":
+        p.write_text(src.replace(marker, "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x1\n", 1),
+                     encoding="utf-8")
+        note("[AD5b-CONTROL] OREKI_BREAK_NO_GRANT=1：一次性补贴已关闭（仅用于反证包）")
+    else:
+        note("[AD5b] 一次性补贴开关保持默认（grantEnabled = 0）")
+
+
+def verify_break_gate():
+    """[Oreki AD5b] Break 闸门的构建期守卫。
+
+    守住的六条（每一条对应一次实测过的失败模式）：
+      1. 补贴额不许写死 —— payload 里不得出现 32767/16384 之类的常量；
+      2. 买满必须走**照价扣费**的真实入口 `A(false)`，不许 `A(true)`、不许直接写 interval；
+      3. Break 必须是原版三步序列且顺序不变：`x0(true)` → `g61.a("BREAK_INFINITY")` → `autobuyer.a.c()`；
+      4. 买满循环必须有 64 次硬上界（两处：算总价 + 真买）；
+      5. 必须在 `onAutoBuyerTick` 的 interval 升级之后、ID1 之前被调用；
+      6. 失败出口必须存在且带 OREKI_ABORT（不许静默 return）。
+    """
+    base = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+    g = (base / "OrekiBreakGate.smali").read_text(encoding="utf-8")
+    sa = (base / "OrekiStageAuto.smali").read_text(encoding="utf-8")
+
+    for tag in ("OREKI_GATE", "OREKI_GRANT", "OREKI_BUY", "OREKI_BREAK", "OREKI_ABORT"):
+        assert tag in g, f"[AD5b] 缺少运行期日志点 {tag}"
+
+    # 1) 补贴额动态推导：不许出现「15 级累计成本」这类写死值
+    for hard in ("32767", "16384", "32768"):
+        assert hard not in g, f"[AD5b] 补贴额被写死：出现常量 {hard}"
+
+    # 2) 真实扣费入口：A(Z)V 之前必须是 const/4 v1, 0x0（照价扣 IP）
+    paid = ("const/4 v1, 0x0\n\n"
+            "    invoke-virtual {v3, v1}, "
+            "Lkajfosz/antimatterdimensions/autobuyer/UpgradeableAutobuyerState;->A(Z)V")
+    assert paid in g, "[AD5b] 买满没有走照价扣费的 A(false)，或寄存器/对象已变"
+    assert g.count("UpgradeableAutobuyerState;->A(Z)V") == 1, \
+        "[AD5b] A(Z)V 只允许有一个调用点（多出来的一处一定会绕过扣费或重复购买）"
+    for banned in ("->interval:", "->cost:", "->brake:"):
+        assert banned not in g, f"[AD5b] 禁止直接写私有字段 {banned}"
+
+    # 3) Break 三步序列 + 顺序
+    i_x0 = g.index("Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V")
+    i_ev = g.index('Lg61;->a(Ljava/lang/String;)V')
+    i_ac = g.index("Lkajfosz/antimatterdimensions/autobuyer/a;->c()V")
+    assert i_x0 < i_ev < i_ac, "[AD5b] Break 序列顺序必须与按钮一致：x0(true) → 事件 → a.c()"
+    assert "const/4 v1, 0x1\n\n    invoke-virtual {v0, v1}, " \
+           "Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V" in g, \
+        "[AD5b] x0 的参数不是 true（写成 false 会把 brake 清掉）"
+
+    # 4) 64 次硬上界（算总价 + 真买各一处）
+    assert g.count("const/16 v1, 0x40") >= 2, "[AD5b] 买满/算价循环缺少 64 次硬上界"
+
+    # 5) 调用点位置
+    i_up = sa.index("OrekiStageAuto;->upgradeCrunchInterval()V")
+    i_bg = sa.index("OrekiBreakGate;->tick()V")
+    i_id1 = sa.index("OrekiStageAuto;->tryBuyId1()V")
+    assert i_up < i_bg < i_id1, \
+        "[AD5b] OrekiBreakGate.tick() 必须夹在 upgradeCrunchInterval 与 tryBuyId1 之间"
+
+    # 6) 失败出口
+    assert g.count('"OREKI_ABORT"') == 2, \
+        "[AD5b] OREKI_ABORT 的 const-string 应恰有 2 处（正常失败出口 + 异常兜底）"
+    assert g.count(":bg_abort_") >= 5, \
+        "[AD5b] 失败出口不足（溢出/总价非法/买不起/买不动/没买满 必须各有独立出口）"
+    assert "grantDisabled()Z" in g, "[AD5b] 反证开关 grantDisabled() 丢失"
+
+    # 7) [R42 极性回归] 本轮第一版把这九处条件跳转写反了三次，运行期表现是
+    #    「闸门一次都不开、OREKI_GRANT/OREKI_ABORT 全 0」——构建全绿、日志静默。
+    #    这里逐条锁死「被判定量语义 → 允许的助记符」，写反即构建期失败。
+    #    基准：if-eqz = 值为 0 跳；if-nez = 非 0 跳；if-lt = a<b 跳；if-lez = a<=0 跳。
+    POLARITY_BG = [
+        ("if-eqz v1, :bg_window", 1, "Player.m()==0（未 Break）才继续"),
+        ("if-nez v1, :bg_off", 2, "isDoomed()!=0 与 challengeRunning()!=0 才退出"),
+        ("if-eqz v1, :bg_off", 1, "autobuyersOn==0（总开关关）才退出"),
+        ("if-nez v1, :bg_do_break", 2, "v()!=0（interval 已拉满）才 Break"),
+        ("if-lez v1, :bg_total_ready", 1, "interval<=100.0 才结束计价"),
+        ("if-lt v5, v1, :bg_calc_add", 1, "steps<64 才继续累加成本"),
+        ("if-lt v5, v1, :bg_buy_try", 1, "本轮买过<64 级才继续购买"),
+        ("if-lez v1, :bg_abort_total", 1, "total<=0（含 NaN 以外的非法值）才放弃"),
+        ("if-nez v1, :bg_buy_loop", 3, "余额已够 / 补贴被关 / 已发过 三处都跳过补贴"),
+        ("if-nez v1, :bg_buy_pay", 1, "IP>=cost（买得起）才付钱"),
+    ]
+    for needle, want_n, why in POLARITY_BG:
+        got = g.count(needle)
+        assert got == want_n, f"[AD5b 极性] {why}：期望 `{needle}` 出现 {want_n} 次，实际 {got} 次"
+    note("[Oreki AD5b] 极性回归表通过（10 条，基准 if-eqz=0 跳 / if-nez=非0 跳）")
+
+    note("[Oreki AD5b] Break 闸门守卫通过（动态补贴 / 真实扣费 / 原版三步 Break / 64 上界 / 调用点顺序 / 极性）")
+
+
 def patch_autobuyer_crunch_force_active():
     """[Oreki AU4c] 首次无限之后一次性启用大坍缩自动购买器（Android 侧长期缺失的一环）。
 
@@ -4248,6 +4394,9 @@ def main():
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
     verify_au4b()
+    # [Oreki AD5b] Break Infinity 闸门：反证开关装配 + 构建期守卫。
+    patch_break_gate()
+    verify_break_gate()
     # [R40H] 教程正文：从 Web 单源 JSON 生成 TutorialContent.smali（必须先于
     # patch_tutorial_entry，后者的断言要求教程类已进 mod 树）。
     patch_tutorial_content()

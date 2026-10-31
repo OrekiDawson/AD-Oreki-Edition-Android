@@ -103,6 +103,12 @@
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->upgradeCrunchInterval()V
 
+    # [Oreki AD5b] Break Infinity 闸门：在 interval 升级之后、ID1 之前。
+    # 顺序理由：先把这一帧能买的那几级用真实 IP 买掉（upgradeCrunchInterval），
+    # 再由 BreakGate 现推差额 → 补足 → 同一 tick 内买满 → 走真实 Break 序列。
+    # 本类既有方法的语义一行未改，这里只是追加一个零寄存器静态调用。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->tick()V
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
     goto :oreki_sa_try_end
 

@@ -3192,3 +3192,191 @@ C.66 记的「同一段文字高 222 / 261 / 420 px」是在正文为空的状�
 当时页面上唯一的长文本是**那行红色诊断信息**。字号随设置变化是真实的，但**量的不是教程正文**。
 
 ⇒ 修复后必须重测：量的必须是某一章的真实正文段落，并同时确认「行数 > 0 且章节 > 0」。
+
+## C.69 一条能机械抓出「对象判空写反」的启发式；又抓到 `OrekiChallengeAuto` 两处 `[读码]`
+
+### 一、启发式
+
+```
+move-result-object vX   （可隔空行与 # 注释）
+        ↓
+if-nez vX, :label       ← 可疑
+```
+
+**理由**：`move-result-object` 拿回的是对象引用，`if-eqz`（为零才跳）= 「拿到 null 才跳走」。
+所以紧跟其后的守卫几乎总该是 `if-eqz`。写成 `if-nez` 等于「**拿到了才跳走**」，
+通常意味着把「成功」当成了「失败」。
+
+**必须跳过空行与注释行**才能用：这个代码库里这两句之间经常夹空行，
+第一次跑（要求紧邻）在未修的旧副本上命中 0 处，是假阴性。
+
+**验证方式**：拿一份**未修复的旧副本**跑，能命中已知的坏点才算数。
+本次在 `android/_h_build/scripts/payload/smali`（未修）命中 3 处，其中
+`TutorialActivity.smali:317` 是已确认的真 bug（C.68）—— 启发式成立。
+
+### 二、在旧副本上命中的 3 处，逐个判语义
+
+| 命中 | 判定 | 依据 |
+|---|---|---|
+| `TutorialActivity.smali:317` `if-nez v1, :read_end` | **错**（已修，C.68） | `readLine()` 非 null 就跳走 ⇒ 循环体不执行 |
+| `TutorialEntry.smali:57` `if-nez v0, :ctx_ok` | **对**，不动 | `v0 = getApplicationContext()`；非空就用它，为空才回落到 `p0`。语义正好是「拿到了才去 ctx_ok」 |
+| `OrekiChallengeAuto.smali:721` `if-nez v6, :fr_until` | **错**（已修） | 见下 |
+
+⇒ 规则：**启发式只用来找候选，最终判定必须读上下文。** 3 处里 1 处是对的，
+批量替换会把 `TutorialEntry` 改坏。
+
+### 三、`OrekiChallengeAuto` 那两处：代码自己就是矛盾的证据
+
+原写法：
+
+```
+invoke-virtual {v4, v6, v7}, ...studies/c;->D(ZLvh0;)Ljava/lang/Boolean;
+move-result-object v6
+if-nez v6, :fr_until          ← 非 null 就跳去兜底
+invoke-virtual {v6}, Ljava/lang/Boolean;->booleanValue()Z
+move-result v6
+if-eqz v6, :fr_bought         ← 为零（false）才算买上
+```
+
+两行**都反了**，而且反得互相掩盖：
+
+- `if-nez` 让「非 null」直接跳走 ⇒ 下面 `booleanValue()` **只在 v6 为 null 时可达** ⇒ **对 null 调 `booleanValue()` 就是 NPE**；
+- `if-eqz` 让「false（没买上）」跳去 `:fr_bought` ⇒ **当成买好了，这一关再也买不上**；而「true（买上了）」反而白跑一遍 `purchaseUntil`。
+
+⇒ 正常路径下（`D()` 返回非 null）表现是「每次都走整链补买」，
+而 `:fr_bought` 这条快路是**不可达的死代码**。所以它能「看起来工作」，只是慢，
+一旦 `D()` 返回 null 就会崩。
+
+改为 `if-eqz v6, :fr_until` + `if-nez v6, :fr_bought` 后语义自洽：
+null → `purchaseUntil` 兜底；非 null → 真则 `:fr_bought`（单击就买上，不跑昂贵路径），假则落 `:fr_until`。
+
+### 四、为什么 `build_mod.py:2530` 那条断言没能拦住
+
+断言是：
+
+```python
+assert ("...studies/c;->D(ZLvh0;)Ljava/lang/Boolean;|move-result-object v6|if-nez v6, :fr_until") in fill, (
+    "[R40B] 单击购买失败后没有落到 :fr_until（purchaseUntil 兜底被删）")
+```
+
+它的**意图**是「失败后要落兜底」，但它把「失败」和「`if-nez`」绑在了一起，
+于是**把错误的写法锁成了必须存在**。这就是 `stageKeyFor` 那次（`76692d8`）的同一个模式：
+**守卫自己写反，构建越绿，bug 越稳。**
+
+⇒ 规则：断言里出现条件跳转时，**断言必须同时覆盖「正写法存在」与「反写法不存在」**，
+并且注释要写清「这个寄存器此刻代表真还是假」。
+只写「某个带跳转的字符串必须出现」，等于给错误写法上保险。
+
+---
+
+## C.70 Web 的「智能策略」是查表，不是择优；`oreki-route-model.json` 从 R40 起是纯数据、无人读 `[读码]`
+
+### 一、结论
+
+`src/core/oreki-smart-strategy.js` 在 R42 之前的全部「决策」只有三行查表，
+**没有任何「比较两条路线并选更优」的动作**：
+
+| 行（HEAD `dd155f3`） | 做的事 |
+|---|---|
+| `:221-248` `detectStage()` | 按 `precedence` 取最大者；相等就 fail closed。没有比较。 |
+| `:295-297` | `findById(spec.goals, stage.goal)` / `findById(spec.strategies, stage.strategy)`，单条取。 |
+| `:336` | `priority: strategy.priority.slice()` —— 把 spec 里那个数组**原样**抄进决策对象。 |
+
+执行层同样是线性扫这个数组取第一个可执行的：`oreki-smart-executor.js:283-292` `pickExecutable()`。
+⇒ **顺序只在 spec 作者恰好写对时才对**，系统本身没有「还有别的走法」这个概念。
+
+### 二、模型写了，解释器没写
+
+`src/core/oreki-route-model.json`（182 行）已经完整定义了多路线择优：
+`filter` 6 条硬过滤、8 个评分维度与权重、9 条带 `stageScope` 的路线、
+`stability.minImprovementRatio = 0.15` / `cooldownSeconds = 300`、
+`replan` 的 5 个触发条件、`interface` 的 8 个查询方法。
+
+但 `rg -n "route-model" src/ scripts/` 在 R42 之前**只有一条命中**：
+`scripts/gen_spec_module.mjs:31` 的生成登记表。也就是说这份模型被生成成
+`oreki-route-model.gen.js` 之后，**从来没有模块 import 它**。
+（C.53 也记过：这两个文件在线上是 404 —— 因为连 import 都没有，部署时漏了也没人发现。）
+
+⇒ 规则：**「规则是数据不是代码」只保证数据不被写死，不保证数据被读取。**
+交付一份 spec 时必须同时交付「谁 import 它」的机械证据（`rg` 一条命中都没有 ⇒ 等于没做）。
+
+---
+
+## C.71 智能执行层整局只产生 3~4 次真实购买；同口径通关 771.2 s → 756.0 s `[实测]`
+
+### 一、执行层的真实吞吐（这是判断「值不值得优化它」的唯一依据）
+
+`_r40/r42-base-head.jsonl`（HEAD `dd155f3`，真实新档，1000 s / 961 条，**无模拟器负载**）：
+
+| 指标 | 读数 |
+|---|---|
+| `exTryN`（尝试次数） | **306** |
+| `exActN`（真的买到） | **3** |
+| 命中率 | 1.0% |
+| 最后一次动作分布 | `runReality@reality:0` 828 条、`equipBestGlyph@reality:0` 28、`buyRealityUpgrade@reality:0` 34、`eternity@eternity:0` 40、`buyTimeTheorem@eternity:0` 24 |
+| `takeoverWhileModuleActed` | **0**（购买权边界 B 在整局里没有被违反过） |
+
+⇒ 在 771 s 的整局里，执行层**只买到 3 样东西**。所以「把 15 个 owned 动词重新排序」
+这件事的**上限收益 = 3 次购买的时移**，不可能改变通关秒数量级。
+这条同时解释了 R40-S2 报告里「贡献接近于 0」的自我评价是对的。
+
+### 二、同口径前后对比（`pelle-probe` 1000 ms / 约 60 字段，10000× 起步）
+
+| 轮次 | 代码 | 墙钟区间 | 宿主负载 | `isGameEnd` 首真 |
+|---|---|---|---|---|
+| baseline | HEAD `dd155f3` | 9:23:13–9:39:51 | 无 | **771.2 s**（`doomed` 724 s） |
+| after-a | 路线层改动 | 9:40:39–9:57:18 | 无 | **756.0 s**（`doomed` 710 s） |
+
+两轮 `isGameEnd` 翻真后分别 **227.8 s / 243.0 s** 持续为 true（225 / 242 条采样全 true），
+`smDeg = 0`、`smErr = ""`、`pageErrors` 只剩 Google Tag Manager 的 CSP 噪声。
+
+**756.0 与 771.2 的差（−15.2 s / −2.0%）不能算改进**：改动后每个阶段的 `strategy.priority`
+与 spec 原序**逐字相同**（存活探针 `r42-route-peek-b`，8 个阶段全部 `rPriority === rSpecPriority`，
+`routeSwitches = 0`），行为等价 ⇒ 这个差是跑分本身的抖动。
+C.47 记的六次读数跨度 708~915.8 s，−2% 完全落在这个带里。
+
+### 三、`doomed` 段与 `100 现实` 里程碑（供后续对照）
+
+| 轮次 | 5 现实 | 20 现实 | 100 现实 | `doomed` | `isGameEnd` |
+|---|---|---|---|---|---|
+| baseline | 70.0 s | 257.0 s | 701.0 s | 724.0 s | 771.2 s |
+| after-a | 68.1 s | 222.1 s | 686.1 s | 710.0 s | 756.0 s |
+
+---
+
+## C.72 Android 模拟器会把 Web 跑分拖到「1000 s 内未到 doomed」；判回归前先查 qemu 启动时刻 `[实测]`
+
+### 一、现象
+
+同一份代码、同一台机器、同一口径，第三轮（`r42-after-b.jsonl`，10:06:55–10:23:34）
+**1000 s 内连 `doomed` 都没进**，而且在跑的是 `60 realities @999 s`
+（前两轮是 `100 realities @701/686 s`）。表面上像一次 30% 的严重回归。
+
+### 二、真实原因：两个 Android AVD 同时在跑
+
+`Get-Process qemu-system-x86_64-headless` 的启动时刻：
+
+| PID | 启动 | 检查时累计 CPU |
+|---|---|---|
+| 44224 | **9:58:49** | 8998 s |
+| 36832 | **10:04:32** | 707 s |
+
+而 baseline（9:23:13–9:39:51）与 after-a（9:40:39–9:57:18）都在 **9:58:49 之前结束**。
+third run 全程压在这两个模拟器上。
+
+机内轨迹也吻合：after-b **前 95 s 与基线一致**（`5 realities @69.1 s`），
+从 ~200 s 起才分叉（`20 realities @313.1 s`，基线 257 s）。
+**「开局正常、中段崩」是宿主抢 CPU 的形状，不是代码回归的形状** ——
+代码回归会从第一秒就一起变慢。
+
+### 三、规则（比这次结论更重要）
+
+1. **跑通关秒数前先记录宿主负载**：`Get-Process qemu-system-x86_64-headless,emulator` 的
+   `StartTime` 与 `CPU`，和 jsonl 的 `CreationTime` / `LastWriteTime` 放在一起比。
+   两个区间有交集 ⇒ 这一轮**作废**，不是回归。
+2. **判定「变慢」必须看分叉点**，不能只看终值。
+   同时对比一个早期里程碑（如 `5 realities`）与一个中段里程碑（如 `20 realities`）：
+   只有中段变慢 ⇒ 先怀疑宿主；两段同时变慢 ⇒ 才怀疑代码。
+3. 宁可多跑一轮干净的，也不要用被污染的样本改代码 —— 这次差一点因为 after-b
+   去「回退一个其实没有行为差异的改动」。
+
