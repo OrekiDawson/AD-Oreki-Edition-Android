@@ -3329,11 +3329,14 @@ def verify_eternity_chain():
     i, j = _scan_method(s, "private static blocked(III)Z")
     body = s[i:j]
     # 三列基准 121 / 131 / 141、分叉基准 71，以及 +10 / +20 两处偏移。
-    # 具体选中列由入参 p2 / p3 决定，不再出现 123 字面量（见函数头注释）。
+    # 入参只有三个：p0 = 研究 id，p1 = 选中列，p2 = 选中维度分叉。
+    # （早期版本按 p1/p2/p3 写，p3 在 (III)Z 里越界 → 整类 ART VerifyError，
+    #   OrekiEternity.tick() 每帧抛异常，见 R45 首次装机日志。）
     for lit in ("0x79", "0x83", "0x8d", "0x47", "0x0a", "0x14"):
         assert lit in body, f"[ET1] 互斥封锁表缺少常量 {lit}"
-    for reg in ("p1", "p2", "p3"):
+    for reg in ("p0", "p1", "p2"):
         assert reg in body, f"[ET1] 封锁表必须用到入参 {reg}"
+    assert "p3" not in body, "[ET1] 封锁表不得引用 p3（三参静态方法没有 p3，会触发 ART VerifyError）"
 
     # (7) 挂点顺序
     sa = mod / "oreki" / "OrekiStageAuto.smali"

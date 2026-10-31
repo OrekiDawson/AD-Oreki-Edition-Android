@@ -302,15 +302,17 @@
 
 
 # -------------------------------------------------------------- 互斥封锁表
-# p1 = 研究 id，p2 = 选中列（121 / 123），p3 = 选中维度分叉（71 / 73）
-# 返回 true = 这一条**不许买**。
+# 静态方法 (III)Z：p0 = 研究 id，p1 = 选中列（121 / 123），p2 = 选中维度分叉（71 / 73）。
+# 参数只有三个，**没有 p3**（写 p3 会让 ART 校验报 register index out of range）。
+# 返回 true = 这一条在**保留集**里；调用点用 `if-nez` 跳过 false 的那一批，
+# 与 Web 的「id != 选中 ⇒ 放进封锁集」完全等价（只是把补集翻到返回侧）。
 #
 # 映射依据（Web `blockedStudies()` :291-309 逐条照抄）：
-#   121/122/123 三列互斥 → 只保留 p2；
-#   131/132/133 ← 121/122/123（+10）→ 只保留 p2+10；
-#   141/142/143 ← 131/132/133（+20）→ 只保留 p2+20；
-#   71 / 72 / 73 维度分叉 → 只保留 p3（72 永远不许买）。
-# 由于 p2 只取 121 或 123（122 永不选中），122 / 132 / 142 恒被封锁 ——
+#   121/122/123 三列互斥 → 只保留 p1；
+#   131/132/133 ← 121/122/123（+10）→ 只保留 p1+10；
+#   141/142/143 ← 131/132/133（+20）→ 只保留 p1+20；
+#   71 / 72 / 73 维度分叉 → 只保留 p2（72 永远不许买）。
+# 由于 p1 只取 121 或 123（122 永不选中），122 / 132 / 142 恒被挡住 ——
 # 与 Web 给出的两张具体封锁表完全等价。
 .method private static blocked(III)Z
     .locals 4
@@ -320,10 +322,10 @@
 
     # ---- 列 A：121..123 ----
     const/16 v0, 0x79
-    sub-int v1, p1, v0
+    sub-int v1, p0, v0
     if-lt v1, v3, :chk_b
     if-gt v1, v2, :chk_b
-    sub-int v0, p2, v0
+    sub-int v0, p1, v0
     if-ne v1, v0, :allow
     const/4 v0, 0x1
     return v0
@@ -331,10 +333,10 @@
     :chk_b
     # ---- 列 B：131..133 ----
     const/16 v0, 0x83
-    sub-int v1, p1, v0
+    sub-int v1, p0, v0
     if-lt v1, v3, :chk_c
     if-gt v1, v2, :chk_c
-    sub-int v0, p2, v0
+    sub-int v0, p1, v0
     add-int/lit8 v0, v0, 0x0a
     if-ne v1, v0, :allow
     const/4 v0, 0x1
@@ -343,10 +345,10 @@
     :chk_c
     # ---- 列 C：141..143 ----
     const/16 v0, 0x8d
-    sub-int v1, p1, v0
+    sub-int v1, p0, v0
     if-lt v1, v3, :chk_dim
     if-gt v1, v2, :chk_dim
-    sub-int v0, p2, v0
+    sub-int v0, p1, v0
     add-int/lit8 v0, v0, 0x14
     if-ne v1, v0, :allow
     const/4 v0, 0x1
@@ -355,10 +357,10 @@
     :chk_dim
     # ---- 维度分叉：71..73 ----
     const/16 v0, 0x47
-    sub-int v1, p1, v0
+    sub-int v1, p0, v0
     if-lt v1, v3, :allow
     if-gt v1, v2, :allow
-    sub-int v0, p3, v0
+    sub-int v0, p2, v0
     if-ne v1, v0, :allow
     const/4 v0, 0x1
     return v0
