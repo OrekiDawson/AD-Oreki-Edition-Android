@@ -9,17 +9,23 @@
 
 ## 1. 一句话结论（按阻塞顺序）
 
-**Android 的自动化只写到「首次无限 → Break」这一段，而这一段本身有 4 处断口，任何一处都足以让整局停在 Break 之前；Break 之后（永恒 / 现实 / 天神 / 莱特拉 / 佩勒 / 终局）是零实现。**
+> **【2026-10-31 04:58 重写】** 本节原稿（04:18 版）的结论已被推翻，原因见 §9.1「时间线」。
+> `scripts/payload/smali/.../oreki/OrekiStageAuto.smali` 在 **04:58** 被重写，把 `onAutoBuyerTick()` 两处分支、
+> `enableEarly()` 闩锁、`upgradeCrunchInterval()` 的 IP/成本比较、`holdCrunch()` 的 IP 门槛比较、
+> `enableIpMultAutobuyer()` 的开关极性**全部改对**（文件里带 `[R41 极性修正]` 标注）。
+> 因此「`enableEarly()` 不执行 ⇒ 首次坍缩不发生」这条链**在当前工作树里已经不成立**。
+> 反证（实测）：agent-b 在含 AU4 修正的包上 `pm clear` 后跑门控表，
+> `t=40.9 bc=0 ip=0` → `t=133.5 bc=2 ip=20` → `t=190.1 bc=5 ip=26` → `t=221.0 bc=7 ip=30`。
+
+**当前真正的结论：Android 已经能自动跑到「首次无限 → 攒 IP → 间隔拉满」，卡点是「Break 那一下没人按」和「Break 之后没人保证反物质能停在 1e999 不被打断」；永恒/现实/天神/佩勒整段空白，但在 Oreki 缩放后的终局判据下**不是通关必需**。**
 
 按"解除通关阻塞"的先后排：
 
-1. **`OrekiStageAuto.onAutoBuyerTick()` 两处分支极性反了**（`hasInfinity` / `eternitiesZero`）。净效果：新档里 `enableEarly()` 永远不执行 → 所有自动购买器 `isActive` 保持 false → **首次大坍缩一次都不会发生**。这与 FACTS C.42 的 AVD 读数（235 s，`bigCrunches=0`、`IP=0`、`brake=false`）完全吻合。
-2. **`OrekiStageAuto.upgradeCrunchInterval()` 的 IP/成本比较极性反了**（`if-gez`，应为 `if-ltz`）。净效果：**买得起就停、买不起才去调原版升级函数（又被内部余额检查挡回）** → 间隔永远停在 150000，`hasMaxedInterval` 永假。即使第 1 条修好，也够不到 Break。
-3. **AD5b 完全缺失**：payload 全树 0 处 `Player;->x0(Z)V`，即"间隔拉满后没人按打破无限那一颗按钮"。
-4. **AD5 的 B 段（一次性补足 32767 IP）缺失**：Android 只能靠「未 Break 时每次坍缩 1 IP」真实攒，Web 实测约 9 天。
-5. **首次永恒没有自动化**（`prestige/c` 的永恒重置入口 payload 零调用），而原版「自动永恒」要 **100 次永恒**才解锁（`eternity-milestones.js:141-143`）→ 必须手点。
-6. **永恒之后一切为零**：TT 自动购买、时间维度、时间研究（EC 研究除外）、现实、符文、天神、莱特拉、佩勒、末日循环、末日 IP 脉冲、`keepAutobuyers`，payload 与 `build_mod.py` 里都是零命中。
-7. **终局判定本身是好的**：`celestials/pelle/b;->b()D`（= `GameEnd.endState`）已被 `a.smali` 的 `gameTick` 每帧轮询，公式与 Web 等价，只有分母少一个 `+1`（实际阈值 999 而非 1000，宽 1 个数量级）。
+1. **AD5b 仍完全缺失**：payload 全树 0 处 `Player;->x0(Z)V`。间隔拉满后没人按「打破无限」。⇒ **必须手点一次**（不是死锁，但"全自动"不成立）。`grep -rn "Player;->x0(" scripts/payload/smali/` → 0 个文件。
+2. **AD5 的 B 段（一次性补足 32767 IP）仍缺失**：Android 只能靠「未 Break 时每次坍缩 1 IP」真实攒 32767。Web 用 A 段+B 段在 Break 瞬间补齐；Android 只有 A 段（`upgradeCrunchInterval()`，现已修对）。这是**时间成本**，不是死锁 —— 但 180 分钟预算里它是最大的一项不确定。
+3. **AU4c 是死代码**（`build_mod.py:3469` 起的 `patch_autobuyer_crunch_force_active()`）：注入体第一句 `if-eqz v0, :oreki_au4c_skip`（v0 = `b()` = isActive）——`if-eqz` 是"为零跳转"，所以**isActive 为 false 时反而跳过**，与注释"已经开着 → 什么都不做"正好相反。`i(true)` 于是恒为对已开对象的空写。**对全新档无影响**（`IntervaledAutobuyerState.<init>()` 默认 `isActive=1`，见 §9.2）；**对从存档载入、`isActive` 被序列化成 false 的档，它是唯一补救路径且不生效**。
+4. **永恒 / 现实 / 天神 / 佩勒自动化全部空白**（§9.7 四问）。但**不必走**：`endState` 的判据被 `patch_pelle_end_target()` 改成"反物质指数 ≥ 999"，只依赖 `PelleRecords.totalAntimatter + Currency.antimatter`，**不需要进入佩勒**。所以这条空白是「机制不等价」，不是「拿不到 `isGameEnd`」。
+5. **终局判据与 Web 不等价（硬缺陷，但方向是"更容易"）**：Android 分母是 `Math.log10(1000.0) - 1.0 = 2.0`，Web 是 `Math.log10(1000.0 + 1) - 1 ≈ 2.000434`。两边 `endState >= 1` 的交会点：**Android 在反物质 1e999，Web 在 1e1000** —— 差整整一个数量级，不是"0.02% 的误差"。Web 的 `game-end.js:49-57` 明确写了这一处 `+1` 就是为了消掉这个 off-by-one，Android 的 `patch_pelle_end_target()` 没有镜像。详见 §9.8。
 
 > 另有一条**流程性**风险：`build/_build_*.log` 六次构建里四次失败
 > （01:57 `[R40H] 教程内容校验失败`、01:59 `FileNotFoundError: public.xml`、02:36 `PermissionError: resources.zip`（并发占用）、03:03 `[AA] 仍残留按次数节流的 sFrame`），
@@ -34,23 +40,29 @@
 
 `[断]`＝净效果不成立（含极性反、不可达）；`[缺]`＝零实现；`[有]`＝存在且真的会被调用。
 
+> **本表已按 04:58 版 `OrekiStageAuto.smali` 重判。** 带 `〔04:58 后〕` 的行是原稿之后发生变化的。
+
 | # | 环节 | Web 位置 | Android 落点 | 是否真被调用 | 证据（≤3 行） | 判定 |
 |---|---|---|---|---|---|---|
-| 1 | 自动大坍缩（首次无限） | `game.js:311` `bigCrunchResetRequest(true)`；`autobuyers/big-crunch-autobuyer.js:12-29`（AU4/AU4b） | `CrunchAutobuyerState.g()` 的 AU4 注入 + `OrekiStageAuto.enableEarly()` | 注入在、极性对（`if-eqz`）；但 `enableEarly()` 不可达 | `awk g()` 见 §3.1；`if-nez v0, :oreki_sa_early` 在 `OrekiStageAuto.smali:68` | **[断]** 首次坍缩不发生 |
-| 2 | 间隔自动升级到满 | `oreki-break-infinity-gate.js:111-120`（A 段） | `OrekiStageAuto.upgradeCrunchInterval()` | 方法存在但**永不生效**（双重断：不可达 + 比较反） | `OrekiStageAuto.smali:225` `if-gez v2, :oreki_sa_iv_done` | **[断]** |
-| 3 | 打破无限（AD5b） | `game.js:210-231` | 无 | — | `grep -rn "x0(Z)V" scripts/payload/smali/` → 0 | **[缺]** |
+| 1 | 自动大坍缩（首次无限） | `game.js:311` `bigCrunchResetRequest(true)`；`autobuyers/big-crunch-autobuyer.js:12-29`（AU4/AU4b） | `CrunchAutobuyerState.g()` 的 AU4 注入 + `OrekiStageAuto.enableEarly()` | 是（AU4 `g()` 放开 + `isActive` 默认 true + `autobuyersOn` 默认 true） | 〔04:58 后〕`OrekiStageAuto.smali:77` `if-eqz v0, :oreki_sa_early`；`IntervaledAutobuyerState.<init>()` → `const/4 v0, 0x1` | **[有]**（实测 `bc` 0→7） |
+| 2 | 间隔自动升级到满 | `oreki-break-infinity-gate.js:111-120`（A 段） | `OrekiStageAuto.upgradeCrunchInterval()` | 是（`!brake && !hasMaxedInterval && IP >= cost` 才买） | 〔04:58 后〕`OrekiStageAuto.smali:262` `if-ltz v2, :oreki_sa_iv_done` | **[有]** |
+| 3 | 打破无限（AD5b） | `game.js:210-231` | 无 | — | `grep -rn "Player;->x0(" scripts/payload/smali/` → 0 | **[缺]** |
 | 4 | 一次性补足 32767 IP | `oreki-break-infinity-gate.js:94-109`（B 段） | 无 | — | `BREAK_INTERVAL_TOTAL_COST` 在 Android 零命中 | **[缺]** |
-| 5 | 永恒自动 | `oreki-eternity-automation.js:571-592`（`eternity(false,true)`） | 无（原版 `EternityAutobuyerState.g()` 锁在解锁位，里程碑 100 次永恒） | — | payload 对 `prestige/c;->` 只有 1 处、且是 `g()`（得 EP），不是重置 | **[缺]** |
+| 5 | 永恒自动 | `oreki-eternity-automation.js:571-592`（`eternity(false,true)`） | 无（原版 `EternityAutobuyerState.g()` 锁在解锁位，里程碑 100 次永恒；**且该自动器 `isActive` 初值是 0**） | 机制每帧被调，但双门（isActive=false + g()=false）都关 | `a.smali:8234` `EternityAutobuyerState;->y(`；`EternityAutobuyerState.<init>` `const/4 v0, 0x0` | **[缺]** |
 | 6 | TT / 时间维度自动购买 | `oreki-eternity-automation.js:131-176` | 无（原版 `TimeTheoremAutobuyerState.g()` 锁在 **perk** `eg3.N`；`TimeDimensionsAutobuyerState.g()` 锁在 **RealityUpgrade**） | — | 见 §3.6 | **[缺]** |
-| 7 | 现实自动（首次现实 + 循环 + RU + 符文） | `oreki-reality-automation.js:153-460` | 无 | — | `grep -rn "prestige/f;->" payload` → 0；`RealityAutobuyerState.g()` 只认 RU25 | **[缺]** |
-| 8 | 莱特拉 / 特蕾莎 / 天神链（V / 鹿颈长 / 薇 / 无名氏 / Ra） | `oreki-celestial-automation.js:156-700` | 无（只有 `StageAssist` 强制点亮成就 147，属作弊入口，不是自动化） | — | `grep -rli "teresa\|effarig\|glyph\|ra_" payload` → 仅注释 | **[缺]** |
+| 7 | 现实自动（首次现实 + 循环 + RU + 符文） | `oreki-reality-automation.js:153-460` | 无（`RealityAutobuyerState` 在 `a.smali:8295` 每帧被调，但 `isActive=0` 且 `g()`=RU25） | 机制在，门全关 | `RealityAutobuyerState.<init>` `const/4 v0, 0x0`；`g()` = `reality/upgrades/b.z.B()` | **[缺]** |
+| 8 | 莱特拉 / 特蕾莎 / 天神链（V / 鹿颈长 / 薇 / 无名氏 / Ra） | `oreki-celestial-automation.js:156-700` | 无（只有 `StageAssist` 强制点亮成就 147，属作弊入口，不是自动化；`build_mod.py` 只改了 Effarig 的 nerf 因子/shard 指数与 V 的三项阈值） | — | `grep -rli "teresa\|effarig\|glyph\|ra_" scripts/payload/smali` → 仅注释；`build_mod.py:888/964`（effarig 数值）、`3964`（V 阈值） | **[缺]** |
 | 9 | 毁灭态（佩勒）末日循环 | `oreki-endgame-automation.js:479-586`（`driveDoomed` + `_maybeArmageddon`） | 无 | — | `grep -rli "armageddon\|remnants" payload` → 0 | **[缺]** |
 | 10 | 末日态 IP 脉冲（自己按大坍缩） | `oreki-endgame-automation.js:613-626`（`_pulseDoomedCrunch`） | 无 | — | 同上 0 | **[缺]** |
-| 11 | `keepAutobuyers`（遗迹碎片 5e6）优先购买 | `oreki-endgame-automation.js:495-505` | 无 | — | `grep -rli "PelleUpgrade" payload` → 0 | **[缺]** |
-| 12 | 终局判定 `endState` | `celestials/pelle/game-end.js:62-68` | `celestials/pelle/b;->b()D`，由 `a.smali` 的 `gameTick` 每帧读 `c()Z` | 是 | `a.smali:14494` `invoke-static {v2,v3}, ...pelle/b;->d(D)V` | **[有]**（阈值 999 vs 1000） |
+| 11 | `keepAutobuyers`（遗迹碎片 5e6）优先购买 | `oreki-endgame-automation.js:495-505` | 原版 `Autobuyers.d(PrestigeEvent)` 逐项调 `IntervaledAutobuyerState.o()`，而 `o()` **只把 `lastTick` 归零、不动 `isActive`** ⇒ Android 行为恒等于"keepAutobuyers 已发放" | 是（但不是等价实现） | `IntervaledAutobuyerState.smali:327-361` | **[偏]** 不是断口，也不是等价 |
+| 12 | 终局判定 `endState` | `celestials/pelle/game-end.js:62-68` | `celestials/pelle/b;->b()D`，由 `a.smali` 的 `gameTick` 每帧读 `c()Z` → `Player.I0(true)` | 是 | `a.smali:14494` `invoke-static {v2,v3}, ...pelle/b;->d(D)V`；`pelle/b.smali` 分母 `log10(1000.0)-1.0` | **[有·不等价]** Android 1e999 / Web 1e1000 |
 | 13 | EC 链（买研究 + 真实进入） | `oreki-eternity-automation.js:370`（`buyEcStudiesAndStart`） | `OrekiChallengeAuto.tick()` | 是，挂在 `Challenges.update` | `challenge/antimatter/c.smali:208` | **[有]** |
 | 14 | 挑战进入即完成 | `oreki-instant-challenges.js` | `OrekiInstantChallenge.tick()` | 是，同处紧后 | `challenge/antimatter/c.smali:210` | **[有]** |
-| 15 | IP 倍率自动器 | `player.auto.ipMult` + 原版自动器 | `e02.n0()` 的 AU5 注入 | 是（`ipMult` 默认 true，不依赖那个不可达的开关方法） | `build_mod.py:3520` 附近 `if-eqz v0, :oreki_au5_orig` | **[有]** |
+| 15 | IP 倍率自动器 | `player.auto.ipMult` + 原版自动器 | `e02.n0()` 的 AU5 注入 + `OrekiStageAuto.enableIpMultAutobuyer()` | 是（首次无限后 AU5 放行；`auto.ipMult` 由 R41 修正后的 `if-nez` 打开） | `build_mod.py` AU5 段 `if-eqz v0, :oreki_au5_orig`；`OrekiStageAuto.smali:185` `if-nez v1, :oreki_sa_ipm_on` | **[有]** |
+| 16 | `enableEarly()` 闩锁 | —（Android 侧机制） | `OrekiStageAuto.smali:454` | 是 | 〔04:58 后〕`:467` `if-eqz v0, :oreki_ee_go` | **[有]** |
+| 17 | 大坍缩自动器一次性启用（AU4c） | `autobuyers/big-crunch-autobuyer.js`（Web 无此需求） | `build_mod.py:3469` `patch_autobuyer_crunch_force_active()` | **否**（`if-eqz` 极性反，对已开对象空写） | `build_mod.py:3518` `if-eqz v0, :oreki_au4c_skip`；产物同 | **[断]**（但被 #1 的默认值掩盖，见 §9.6） |
+| 18 | Break 后暂停坍缩攒 ID1 门槛（AD3b） | `big-crunch-autobuyer.js` `waitingForId1Peak` | `OrekiStageAuto.holdCrunch()` → 注入 `CrunchAutobuyerState.c()` 最前 | 是（`brake && eternities==0 && IP>=1e8 && !ID1.p()`） | 〔04:58 后〕`OrekiStageAuto.smali:381` `if-ltz v0, :oreki_sa_hc_no` | **[有]** |
+| 19 | 首次 ID1 自动购买 | `game.js` `tryFirstId1AutoUnlock` | `OrekiStageAuto.tryBuyId1()` → `InfinityDimensionState.h(true)` | 是（`brake && p()`） | `OrekiStageAuto.smali:303/314` | **[有]**（价格口径待复核，见 §9.4 R-07） |
 
 ---
 
@@ -82,6 +94,12 @@ if-nez p1, :cond_4      # p1 = Player.m()；按钮在"未 Break"时才执行 x0(
 ---
 
 ### 3.1 断口 1：`onAutoBuyerTick()` 两处分支反了 ⇒ 开局自动化永不启动
+
+> **⚠️ 本节结论已作废（2026-10-31 04:58 起）。** 现网工作树里两处都已是 `if-eqz`，
+> `enableEarly()` 也已搬进 `:try_start_0` 覆盖范围（`OrekiStageAuto.smali:113-114`）。
+> 本节保留作为**历史取证**与**极性写法范例**；现行状态请看 §9.2 与 §9.1。
+> 另：本节"`isActive` 保持 false"的推断本身也是错的 —— `IntervaledAutobuyerState.<init>()`
+> 默认写 `isActive=1`，见 §9.2 的构造链证据。所以即使极性真的反了，首次坍缩也不会因此停摆。
 
 文件：`scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali:55-107`
 
@@ -139,6 +157,9 @@ C.42 §三 已经证明 AU4c 救不了第一环（它要 `hasInfinity()`），�
 ---
 
 ### 3.2 断口 2：`upgradeCrunchInterval()` 的余额比较反了 ⇒ 间隔一级都买不上
+
+> **⚠️ 本节结论已作废（2026-10-31 04:58 起）。** 现网是 `if-ltz v2, :oreki_sa_iv_done`
+> （`OrekiStageAuto.smali:262`，`compareTo < 0` = IP < cost 才停）。见 §9.2。
 
 文件：`OrekiStageAuto.smali:181-237`
 
@@ -351,22 +372,29 @@ $ awk 'NR<=14494 && /^\.method/ {m=NR": "$0} NR==14494 {print m}' .../a.smali
 
 ## 4. 「看起来有但其实没有」清单
 
+> **04:58 之后的变化**：本表第 2/3/4 项已在工作树里被改对（带 `[R41 极性修正]` 标注），
+> 从"假修好"降级为"历史问题"。仍成立的只剩第 1、5、6（部分）、7、8 项。
+
 这些是最容易在交接里被误当成"已修好"的项：
 
-| # | 表象 | 真相 | 证据 |
-|---|---|---|---|
-| 1 | `[Oreki AU4c] 首次无限后一次性启用` 日志每次构建都打，还带断言 | **永远不会把 `isActive` 从 false 改成 true**：`if-eqz v0, :oreki_au4c_skip`（v0=isActive，非零跳转 ⇒ 只有"已经开着"才继续），随后 `i(true)` 是空操作 | `work/mod/.../CrunchAutobuyerState.smali` 的 `c()`（AU4c 段第 2-4 行） |
-| 2 | `OrekiStageAuto` 有 `enableEarly()` + `sEarlyApplied` 闩锁，构建期还断言"闩锁未被读写就报错" | 闩锁极性也反了（`if-nez v0, :oreki_ee_go` ⇒ 已应用反而重新应用），**而且整个方法因 §3.1 不可达**。断言只检查"字段被读写"，不检查极性 | `OrekiStageAuto.smali:363-372` |
-| 3 | `upgradeCrunchInterval()` 写得很完整（循环、16 级上限、`A(false)` 真扣费） | 余额比较极性反 ⇒ 空函数 | §3.2 |
-| 4 | `holdCrunch()`（AD3b 暂停坍缩）存在且被注入进 `CrunchAutobuyerState.c()` | IP 门槛比较也反了（`if-gez v0` ⇒ IP ≥ 1e8 反而不暂停）。真生效后会变成"IP 低时永远不坍缩 ⇒ 永远没有 IP"的死锁 | `OrekiStageAuto.smali:320` |
-| 5 | `OrekiAuto.ipMultAuto()` 有 15 行实现 + 大段注释 | **零调用点**（AU5 最终改的是 `e02.n0()`，这个方法被落下了） | `grep -rn ipMultAuto` 只命中定义行 |
-| 6 | 构建日志 `[Oreki AU4] …（追加 hasInfinity；极性 if-eqz 已修正）` | 这条是真的修好了（`g()` 现在是 `if-eqz`），但**修好的 `g()` 位于 `c()` 里 `isActive` 短路之后**，而 `isActive` 永远 false ⇒ 仍然不生效 | §3.1 + C.42 |
-| 7 | `StageAssist` 能"点亮特蕾莎/佩勒进度" | 那不是自动化，是**直接写成就位**，且会写永久标记 `stage_assist_used`，使该存档不能再用于"真实通关"验收（它自己的说明文档就这么写） | `oreki/StageAssist.smali` 与 `SpeedSettingsActivity.smali:351` |
-| 8 | `reports/` 与 `docs/` 里有大量"已实现"的 Android 叙述 | 多数描述的是**代码存在**，不是**代码生效**。R40B-Android-EC.md 自己也标了"未在真机/AVD 验证" | 见各报告抬头 |
+| # | 表象 | 真相 | 证据 | 04:58 后状态 |
+|---|---|---|---|---|
+| 1 | `[Oreki AU4c] 首次无限后一次性启用` 日志每次构建都打，还带断言 | **永远不会把 `isActive` 从 false 改成 true**：`if-eqz v0, :oreki_au4c_skip`。`if-eqz` = **为零跳转**，所以 isActive=0 时反而跳过；isActive=1 时才继续，随后 `i(true)` 是空写。本意应为 `if-nez` | `build_mod.py:3518`（注入体）/ `work/mod/.../CrunchAutobuyerState.smali` | **仍成立** |
+| 2 | `OrekiStageAuto` 有 `enableEarly()` + `sEarlyApplied` 闩锁 | 旧版闩锁极性反（`if-nez` ⇒ 已应用反而重进），且整个方法因 §3.1 不可达 | `OrekiStageAuto.smali:363-372`（旧版） | **已修**：现为 `:467` `if-eqz v0, :oreki_ee_go` |
+| 3 | `upgradeCrunchInterval()` 写得很完整（循环、16 级上限、`A(false)` 真扣费） | 旧版余额比较极性反 ⇒ 空函数 | §3.2 | **已修**：现为 `:262` `if-ltz` |
+| 4 | `holdCrunch()`（AD3b 暂停坍缩）存在且被注入进 `CrunchAutobuyerState.c()` | 旧版 IP 门槛比较反（`if-gez` ⇒ IP ≥ 1e8 反而不暂停） | `OrekiStageAuto.smali:320`（旧版） | **已修**：现为 `:381` `if-ltz` |
+| 5 | `OrekiAuto.ipMultAuto()` 有 15 行实现 + 大段注释 | **零调用点**（AU5 最终改的是 `e02.n0()`，这个方法被落下了） | `grep -rn ipMultAuto scripts/payload/smali` 只命中定义行 | **仍成立** |
+| 6 | 构建日志 `[Oreki AU4] …（追加 hasInfinity；极性 if-eqz 已修正）` | 这条是真的修好了（`g()` 现在是 `if-eqz`）。旧版说"`g()` 位于 `isActive` 短路之后 ⇒ 仍不生效"，**这句推断错**：`isActive` 默认就是 true（§9.2），AU4 的 `g()` 一直是生效的 | `work/mod/.../CrunchAutobuyerState.g()` + `IntervaledAutobuyerState.<init>()` | **结论反转**：AU4 一直生效 |
+| 7 | `StageAssist` 能"点亮特蕾莎/佩勒进度" | 那不是自动化，是**直接写成就位**，且会写永久标记 `stage_assist_used`，使该存档不能再用于"真实通关"验收 | `oreki/StageAssist.smali` 与 `SpeedSettingsActivity.smali:351` | 仍成立 |
+| 8 | `reports/` 与 `docs/` 里有大量"已实现"的 Android 叙述 | 多数描述的是**代码存在**，不是**代码生效**。R40B-Android-EC.md 自己也标了"未在真机/AVD 验证" | 见各报告抬头 | 仍成立 |
+| 9 | `patch_pelle_end_target()` 的注释写"`endState >= 1` ⇔ `log10(totalAM) >= 1e3`" | **算错**：分母是 `log10(1000.0) - 1.0 = 2`，实际交会点是 `log10(totalAM) >= 999`。注释把"TARGET"当成了阈值本身，忽略了自己分母里少掉的那个 `+1` | `build_mod.py:2762`；`pelle/b.smali` 分母 `sub-double/2addr v4, v2`（v4=`log10(1000.0)`、v2=1.0） | **仍成立**（见 §9.8） |
 
 ---
 
 ## 5. 修复优先级（按"解除通关阻塞"的贡献度）
+
+> **⚠️ P0-1 ~ P0-2 已于 2026-10-31 04:58 由 agent-b 落盘完成**（`OrekiStageAuto.smali` 全面重写极性）。
+> 本节保留作历史上的修复路径与验证方法；**当前真正的优先级请直接看 §9.4 的 patch diff 清单**。
 
 ### P0-1　修 `onAutoBuyerTick()` 两处极性（改 2 个字符级）——**唯一能让游戏重新动起来的一步**
 
@@ -475,7 +503,7 @@ $ awk 'NR<=14494 && /^\.method/ {m=NR": "$0} NR==14494 {print m}' .../a.smali
 
 ---
 
-## 8. 第二轮独立复核（2026-10-31，逐条重跑，未改码）
+## 8. 第一次复核（04:18 版，部分结论已被 §9 取代）
 
 本节是同一份清单的**独立复算**（不引用上一轮的结论，按 §7 的方法学重新取指令）。
 结论全部一致，另补三条上一轮没写的观察。
@@ -543,4 +571,407 @@ FACTS C.42 里那批 `bigCrunches=0 / IP=0` 的读数早于 03:19，因此它既
 另外：`work/mod` 的 `CrunchAutobuyerState.smali` 在本轮审计期间被并行 agent 从 10-24 的旧副本
 改写成 10-31 03:15 的新副本（`g()` 已带 `if-eqz` 修正）。所以本文所有产物侧引用都按 03:15 之后
 的树取证，凡早于该时间的 `work/mod` 读数一律不可用。
+
+---
+
+## 9. 第二轮独立复核（team-lead 纠正后重做）
+
+### 9.0 快照与免责
+
+**快照时刻：2026-10-31 05:37。**
+
+| 文件 | mtime | 大小 |
+|---|---|---|
+| `scripts/payload/smali/.../oreki/OrekiStageAuto.smali` | 05:17 | 27 338 B |
+| `scripts/payload/smali/.../OrekiAuto.smali` | 10-30 14:54 | 16 206 B |
+| `scripts/build_mod.py` | 05:28 | 261 614 B |
+
+> **警告：`OrekiStageAuto.smali` 与 `build_mod.py` 在本次审计的 3 小时里各被改了 3 次**
+> （`OrekiStageAuto` 02:34 → 04:58 → 05:17；`build_mod.py` 03:37 → 05:28）。
+> 本报告里所有 `build_mod.py:NNNN` 行号只对 05:28 快照成立，**引用时请以函数名为准**。
+> 任何"已修复/未修复"的判断都必须带时间戳，否则下一分钟就可能失效。
+
+---
+
+### 9.1 时间线：结论为什么会被推翻
+
+| 时刻 | 事件 | 对报告的影响 |
+|---|---|---|
+| 02:34 | `OrekiStageAuto.smali` 还带旧极性（`if-nez … :oreki_sa_early`） | 原稿 §3.1 的依据 |
+| 03:15 | `work/mod` 重建（AU4/AU4c 已进产物） | 原稿的产物引证 |
+| **04:18** | **本报告原稿写入** | — |
+| **04:58** | `OrekiStageAuto.smali` 重写：`onAutoBuyerTick` ×2、`enableEarly` 闩锁、`upgradeCrunchInterval` ×2、`holdCrunch`、`enableIpMultAutobuyer` 全部加 `[R41 极性修正]` | **§1 / §3.1 / §3.2 / §4-2/3/4 全部作废** |
+| **05:17** | 再改：补 `sHold` 日志极性、`enableEarly()` 搬进 `:try_start_0` | §8.2 的"try 范围"观察也一并解决 |
+| **05:28** | `build_mod.py` 改：AU4c 注入体从 `if-eqz` 改成 `if-nez`（带回归断言） | §4-1 的 AU4c 断口**已修** |
+
+**方法学教训（接受 team-lead 的纠正，并推广）**：
+判断"某功能生效没有"不能只看一个类、也不能只看一个时间点。
+本轮的实证是：同一个 `enableEarly()` 的失效，被三件互不相干的事各自掩盖了一次 ——
+① `isActive` 构造默认 true（§9.2）；② `patch_autobuyer_crunch_force_active` 是第二条独立注入（§9.6）；
+③ 04:58 的极性重写。**三条里任意一条单独成立，就足以让"没有大坍缩"这个结论变成假。**
+
+---
+
+### 9.2 9 类自动购买器的真实运行状态（新档前 200 秒）
+
+#### 9.2.1 三道门先摆清楚
+
+`AutobuyerState.c()`（`work/base_decoded/.../autobuyer/AutobuyerState.smali:43` 起，逐指令核对）：
+
+```
+c() {
+  if (b() == 0)                 return 0;   # b()  = isActive
+  if (Player.Options.c() == 0)  return 0;   # c()  = autobuyersOn
+  if (g() == 0)                 return 0;   # g()  = isUnlocked（解锁门）
+  return 1;
+}
+```
+
+两个默认值先钉死（**这是本轮最重要的两条新事实**）：
+
+```bash
+$ awk '/^\.method public constructor <init>\(\)V/,/^\.end method/' .../autobuyer/IntervaledAutobuyerState.smali
+.method public constructor <init>()V
+    .locals 1
+    const/4 v0, 0x1
+    invoke-direct {p0, v0}, .../AutobuyerState;-><init>(Z)V      # ← isActive = TRUE
+```
+
+```bash
+$ awk 'NR>=178 && NR<=191' .../player/Player$Options.smali
+    const/4 v0, 0x1
+    iput-boolean v0, ...->autobuyersOn:Z                        # ← autobuyersOn = TRUE
+```
+
+构造链：`UpgradeableAutobuyerState.<init>(D)` → `invoke-direct {p0}, IntervaledAutobuyerState;-><init>()V`
+→ 上面那段 `const/4 v0, 0x1`。所以**所有 `Upgradeable*` / `Intervaled*` 子类开局 `isActive` 就是 true**，
+不需要任何人去"打开"。`enableEarly()` 里那批 `i(true)` 对这些对象**本来全是空写**。
+
+#### 9.2.2 表格
+
+`g()` 一列写的是**构造默认值 + 新档（首次无限前）时的求值结果**。
+`hasInfinity=false`、`orekiEarly()=true`（`OrekiAuto.smali:62-80`，逐指令核对：`hasInfinity==0 → return 1`）。
+
+| # | 类别 | 类（构造默认 isActive） | `g()` 原始门 | `g()` 当前在新档 | 200 s 内真跑？ | 证据 |
+|---|---|---|---|---|---|---|
+| 1 | 反物质维度 ×8 | `AntimatterDimensionAutobuyerState`（**true**，经 `Upgradeable<init>(D)`） | `isUnlocked` 字段 或 `d()`（对应普通挑战完成） | **true**（AU2 加 `hasInfinity()‖orekiEarly()`） | **✅ 跑** | `work/mod/.../AntimatterDimensionAutobuyerState.g()`；`player/Player$Auto.smali:140` `<init>(DI)` |
+| 2 | 速度升级 | `TickspeedAutobuyerState`（**true**） | 同上 | **true**（AU2） | **✅ 跑** | 同上；`Player$Auto.smali:185` `<init>()V` |
+| 3 | 维度提升 | `DimBoostAutobuyerState`（**true**） | 普通挑战 10 完成 | **true**（AU3） | **✅ 跑** | `DimBoostAutobuyerState.g()`；`Player$Auto.smali:198` |
+| 4 | 反物质星系 | `GalaxyAutobuyerState`（**true**） | 普通挑战 11 完成 | **true**（AU3） | **✅ 跑** | `GalaxyAutobuyerState.g()`；`Player$Auto.smali:211` |
+| 5 | 大坍缩 | `CrunchAutobuyerState`（**true**） | 普通挑战 12 完成 | **true**（AU4） | **✅ 跑**（首次坍缩 ≈ t 40–130 s） | `CrunchAutobuyerState.g()`；`Player$Auto.smali:224`；实测 `bc=2 @133.5 s` |
+| 6 | IP 倍率 | `IPMultAutobuyerState`（**true**，自己 `const/4 v0, 0x1`） | `e02.n0()` = `z51.a.w()`（IP ≥ 解锁价）&& `!doomed` | 新档 **false**；首次无限后 **true**（AU5） | **❌ 前段 / ✅ 首次无限后** | `IPMultAutobuyerState.<init>`；`e02.n0()` AU5 注入；`a.smali:8610` |
+| 7 | 永恒 | `EternityAutobuyerState`（**false**，`const/4 v0, 0x0`） | `z51.r.w()`（Autobuyers 解锁位；里程碑 100 次永恒） | **false** | **❌ 恒 false（双门都关）** | `EternityAutobuyerState.<init>` / `.g()`；`a.smali:8234` |
+| 8 | 现实 | `RealityAutobuyerState`（**false**，`const/4 v0, 0x0`） | `reality/upgrades/b.z.B()`（RU25，10 万 RM） | **false** | **❌ 恒 false** | `RealityAutobuyerState.<init>` / `.g()`；`a.smali:8295` |
+| 9 | 时间定理 | `TimeTheoremAutobuyerState`（**true**） | perk `eg3.N` && `!doomed` | **false** | **❌ 恒 false** | `TimeTheoremAutobuyerState.<init>` / `.g()`；`a.smali:9265` |
+
+补充（不在 9 类内，但同一套门）：
+
+| 类别 | 构造默认 | 门 | 结论 |
+|---|---|---|---|
+| 祭献 `SacrificeAutobuyerState` | true | `z51.g.w()` 或 IC2 完成 | 恒 false |
+| 无限维度 `InfinityDimensionsAutobuyerState` | true（无自有构造，继承 `Intervaled`） | `z51.t[i].w()` 或 `bf3.o.B()` | 恒 false |
+| 时间维度 `TimeDimensionsAutobuyerState` | true（无自有构造） | `reality/upgrades/b.n.B()` | 恒 false |
+| 黑洞 / 虚拟 / 暗物质 / 湮灭 | 前两类 **false**，后两类 true | Reality 内 | 与本阶段无关 |
+
+**答：新档前 200 秒，9 类里 5 类真在跑（AD×8 / 速度 / 维度提升 / 星系 / 大坍缩），
+1 类在首次无限后启动（IP 倍率），3 类恒 false（永恒 / 现实 / 时间定理）。**
+[实测支撑：bc 曲线；其余 [静态推导]，依据为逐指令读构造与 `g()`]
+
+---
+
+### 9.3 `build_mod.py` 全部 `patch_*` 注入点（32 个，05:28 快照）
+
+| 函数（行号） | 目标文件 | 改的是哪个字段/方法 | 在 `main()` 里 |
+|---|---|---|---|
+| `patch_resources` (105) | `res/*` | 文案/图形资源 | 启用 |
+| `patch_changelog_zh` (180) | `res/raw/changelog.txt` | 更新日志正文 | 启用 |
+| `patch_manifest` (283) | `AndroidManifest.xml` | 包名/版本/权限 | 启用 |
+| `patch_smali` (382) | `a.smali` / `MainActivity.smali` / `jw0.smali` / `App.smali` | 帧循环、存档节流、启动 | 启用 |
+| `patch_speed_records` (665) | `prestige/e.smali` | 最速记录 | 启用 |
+| `patch_recent_runs` (719) | `prestige/e.smali` | 近期记录 | 启用 |
+| `patch_recent_runs_er` (754) | `prestige/c.smali` / `prestige/f.smali` | 永恒/现实记录 | 启用 |
+| `patch_shop_coins` (805) | `shop/Purchases.smali` | 商店货币 | 启用 |
+| `patch_effarig_nerf` (855) | `celestials/effarig/a.smali` `o(BigDouble)D` | Effarig nerf 因子（**数值**） | 启用 |
+| `patch_effarig_shard_divisor` (945) | `celestials/effarig/a.smali` `j()D` | 碎片指数（**数值**） | 启用 |
+| `patch_ad_bonus` (1562) | `t5.smali` | 广告加成 | 启用 |
+| `patch_automator_waiting` (1715) | `vo.smali` + `mainactivity/*` | 自动机等待 | 启用 |
+| `patch_autobuyer_cadence` (1813) | `IntervaledAutobuyerState.smali` `c()` **整方法体** | 间隔判定：`已流逝时间 × OrekiSpeed.mult()` | 启用 |
+| `patch_ec12_restriction` (1842) | `p51.smali` | EC12 限制 | 启用 |
+| `patch_instant_challenge` (1890) | `challenge/antimatter/c.smali` | 挂 `OrekiInstantChallenge.tick()` | 启用 |
+| `patch_auto_enter_eternity_challenge` (1946 / 2026) | `challenge/antimatter/c.smali` + `OrekiChallengeAuto.smali` | 挂 `OrekiChallengeAuto.tick()` | 启用 |
+| `patch_pelle_end_target` (2786) | `celestials/pelle/b.smali` | 两条 `const-wide`：OFFSET 8.7→1.0、TARGET 9e15→1000.0 | 启用 |
+| `patch_id_autobuyer_guard` (2881) | `InfinityDimensionState.h/i` + `OrekiAuto.smali` | IU15 守卫（tier==1 且未拿到 IU15 时 `return-void`） | 启用 |
+| `patch_instant_challenge_rewards` (2967) | `OrekiInstantChallenge.smali` | 补发 IP/无限/EP + 最速记录 | 启用 |
+| `patch_frame_cadence` (3133) | `mainactivity/c0.smali` | 提帧 | **未启用**（实测否证） |
+| `patch_autobuyer_unlock` (3181) | `autobuyer/*.smali` 四类 `g()` 直通 | 无条件解锁 | **未启用**（R5.5 实测反物质恒 10.0） |
+| `patch_debug_trace` (3245) | `a.smali` + `autobuyer/*` | 调帧 trace | 条件启用（`OREKI_DEBUG_TRACE=1`） |
+| `patch_autobuyer_after_infinity` (3301) | AD×8 / Tickspeed `g()` | 追加 `hasInfinity()‖orekiEarly()`（AU2） | 启用 |
+| `patch_autobuyer_boost_galaxy` (3355) | DimBoost / Galaxy `g()` | 同上（AU3） | 启用 |
+| `patch_autobuyer_crunch_after_infinity` (3406) | `CrunchAutobuyerState.g()` | 同上（AU4） | 启用 |
+| `patch_autobuyer_crunch_force_active` (3481) | `CrunchAutobuyerState.c()` | 一次性 `i(true)`（AU4c，05:28 已改 `if-nez`） | 启用 |
+| `patch_ip_mult_autobuyer` (3564) | `e02.n0()` | 追加 `hasInfinity()`（AU5） | 启用 |
+| `patch_stage_auto_hook` (3611) | `a.smali` `Game.autoBuyerTick` 入口 + `CrunchAutobuyerState.c()` 最前 | 挂 `OrekiStageAuto.onAutoBuyerTick()` / `holdCrunch()`（AU6/AU7） | 启用 |
+| `patch_tutorial_content` (3709) | `oreki/tutorial/*` | 教程正文生成 | 启用 |
+| `patch_tutorial_entry` (3892) | `mainactivity/*` | 教程入口按钮 | 启用 |
+| `patch_autobuyer_batch_fallback` (4005) | `AntimatterDimensionState.i(BigDouble)V` | 整批买不起时退化为 `j(cost)` 买 1 个（AB2） | 启用（`OREKI_NO_AB2=1` 可关） |
+| `patch_v_unlock_thresholds` (4044) | `celestials/v/a.smali` + `c15` | V 三项 mainUnlock 阈值 | 启用 |
+
+**逐条结论**：32 个 patch 里，只有 **6 个**真正改"自动购买器能不能跑"（AU2 / AU3 / AU4 / AU4c / AU5 / AB2）；
+**0 个**触碰 `EternityAutobuyerState` / `RealityAutobuyerState` / `TimeTheoremAutobuyerState` / `TimeDimensionsAutobuyerState`；
+**0 个**触碰 `celestials/teresa|ra|laitela`；`celestials/effarig` 只有两处**数值**改动，不是自动化。
+
+---
+
+### 9.4 Patch diff 清单（三组，可直接套用）
+
+> 约束：**本轮不落盘、不改码**。下面只是 diff 文本与依据。
+> `tryBuyId1` 那段我**没有**逐行核到 ID1 的计价货币，所以标 `[待复核]`。
+> 另：`OrekiStageAuto.smali` / `OrekiAchAudit.smali` / `ach_audit.py` 归 agent-b 落盘，本节只出 diff。
+
+#### A 组：可以单独修（互不依赖，修了立刻有效）
+
+**R-01　`Player.x0(true)`（AD5b）—— 间隔拉满后自动 Break**　`[静态推导]`
+
+- 文件：`scripts/payload/smali/.../oreki/OrekiStageAuto.smali`（新增 `tryBreakInfinity()`）+ `onAutoBuyerTick()` 调用
+- 原文 3 行（05:17 版 `:100` 之后）：
+
+```smali
+    if-eqz v0, :oreki_sa_try_end
+    invoke-static {}, ...OrekiStageAuto;->enableIpMultAutobuyer()V
+    invoke-static {}, ...OrekiStageAuto;->upgradeCrunchInterval()V
+```
+
+- 改后：
+
+```smali
+    if-eqz v0, :oreki_sa_try_end
+    invoke-static {}, ...OrekiStageAuto;->enableIpMultAutobuyer()V
+    invoke-static {}, ...OrekiStageAuto;->upgradeCrunchInterval()V
+    invoke-static {}, ...OrekiStageAuto;->tryBreakInfinity()V      # ← 新增
+```
+
+```smali
+.method public static tryBreakInfinity()V
+    .locals 2
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+    invoke-virtual {v0}, ...Player;->m()Z                  # brake
+    if-nez v0, :oreki_tb_done                            # 已 break → 走
+    invoke-virtual {v0}, ...Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+    move-result-object v0
+    invoke-virtual {v0}, ...Player$Auto;->e()...CrunchAutobuyerState;
+    move-result-object v0
+    invoke-virtual {v0}, ...UpgradeableAutobuyerState;->v()Z   # hasMaxedInterval
+    if-nez v0, :oreki_tb_done                             # 没拉满 → 不 break
+    sget-object v0, ...Player;->a
+    const/4 v1, 0x1
+    invoke-virtual {v0, v1}, ...Player;->x0(Z)V           # brake = true
+:oreki_tb_done
+    return-void
+.end method
+```
+
+- 依据：Web `src/game.js:210-231`（`tryOpenBreakInfinityGate`）判据同构；`Player;->x0(Z)V` = `iput-boolean p1, ->brake:Z`（`Player.smali:11105`）
+- 风险：低。`x0` 只有一句 `iput-boolean`，无副作用。
+
+**R-02　`endState` 分母补 `+1`（消 off-by-one）**　`[已复核]`
+
+- 文件：`scripts/build_mod.py` 的 `patch_pelle_end_target()`（05:28 版 2786 行起）
+- 原文 3 行：
+
+```python
+PELLE_END_TARGET_OLD = "0x433ff973cafa8000L"   # 9.0E15
+PELLE_END_TARGET_NEW = "0x408f400000000000L"   # 1000.0
+PELLE_END_TARGET_VALUE = 1e3
+```
+
+- 改后：
+
+```python
+PELLE_END_TARGET_OLD = "0x433ff973cafa8000L"   # 9.0E15
+PELLE_END_TARGET_NEW = "0x408f440000000000L"   # 1001.0  ← 与分子 log10(E+1) 对称
+PELLE_END_TARGET_VALUE = 1e3
+```
+
+- 依据：Web `src/core/celestials/pelle/game-end.js:49-57` 明确写了这处 `+1`；
+  IEEE-754：`1000.0 = 0x408F400000000000`，`1001.0 = 0x408F440000000000`（阶码同、尾数 +1）
+- **不要误改**：`pelle/b.smali` 里还有一条 `const-wide v5, 0x408f400000000000L # 1000.0`，那是 `d()` 里的 `/1000`，`build_mod.py:2791` 已用断言守住它。
+- 影响：把阈值从 1e999 抬回 1e1000，与 Web 对齐（§9.8）
+
+**R-03　`ipMultAuto()` 零调用点**　`[已复核]`
+
+- 文件：`scripts/payload/smali/.../OrekiAuto.smali:95-114`
+- 改法：**删掉**，或让 `enableIpMultAutobuyer()` 改调它。
+- 依据：`grep -rn "ipMultAuto" scripts/payload/smali` 只命中定义行 —— C.43 模式第三例
+- 风险：删掉无害；保留也无害（只是死代码）。**优先级最低**
+
+#### B 组：必须成组修（单独修会造死锁或反效果）
+
+**R-04　`holdCrunch()` 的暂停 与 `tryBuyId1()` 的解锁 必须同组**　`[已复核]`
+
+- 现状（05:17 版 `OrekiStageAuto.smali:344-438`，**极性已对**）：
+  - `holdCrunch()`：`brake && eternities==0 && IP ≥ 1e8 && !ID1.p()` ⇒ return true（暂停坍缩）
+  - `tryBuyId1()`：`brake && ID1.p()` ⇒ `h(true)`
+- 死锁风险：`holdCrunch` 一旦为 true，**大坍缩停摆 ⇒ IP 不再增长**。它靠"暂停期间反物质继续涨、`ID1.p()` 迟早变 true"解锁。
+  若把 `!ID1.p()` 去掉或判反，就变成"IP 一到 1e8 就永久停坍缩、门槛永远不达成" ⇒ **硬死锁**。
+- **与 team-lead 描述的差异**：team-lead 说阈值是 `max(20, ipMultCost/2)`；当前树是**字面量 `1e8`**
+  （`OrekiStageAuto.smali:368` `const-wide v2, 0x4197d78400000000L # 1.0E8`）。
+  `grep -n "ipMultCost\|max(20" scripts/build_mod.py scripts/payload -r` → **0 命中**。
+  ⇒ 流传的版本与工作树不同步，**必须先对齐再改**。
+
+**R-05　`enableEarly()` 与 `g()` 的 AU2/AU3/AU4 必须同组**　`[已复核]`
+
+- 现状：`enableEarly()` 只写 `isActive` / `autobuyersOn`，两者构造默认已是 true ⇒ 它现在是**纯空转**；
+  真正让自动器跑起来的是 `g()` 里的 `orekiEarly()`。
+- 反效果风险：若让 `enableEarly()` 去写 `isBought`/`isUnlocked` 绕过解锁门，会把"可回退的放宽"变成"永久的伪造解锁"（`g()` 走原版短路，`orekiEarly()` 分支变死代码）。
+
+**R-06　AU4c 与 AU4 必须同组**　`[已复核]`
+
+- 现状：AU4c 已在 05:28 改成 `if-nez`（`build_mod.py:3532`），但它**只在 `isActive=false` 时有意义**；
+  全新档 `isActive` 就是 true ⇒ **新档上它仍是空跑**（只是不再有害）。
+- 唯一价值：从旧存档/旧 JSON 载入、`isActive` 被序列化成 false 的情况（`player/c.smali:678` 等 20+ 处存档键 `"isActive"`）。
+- 反效果风险：若改成无条件 `i(true)`，会**覆盖玩家手动关闭**（每帧重开）。
+- 注：`work/mod` 里仍是 03:15 的旧版（AU4c 还是 `if-eqz`），**重建后才能看到修复**。
+
+#### C 组：修了也没用（缺上游，或不是断口）
+
+| 编号 | 想修的东西 | 为什么修了也没用 |
+|---|---|---|
+| R-07 | `tryBuyId1()` 的 `h(true)` 买不起 | `holdCrunch` 判的是 **IP ≥ 1e8**，而 `InfinityDimensionState` 的购买货币是**反物质**（`p()` 比的是 `thisEternity.maxAM`）。两者一致性没核过 ⇒ **[待复核]**。若货币确实不同，`IP ≥ 1e8` 只是"我有钱别急着坍缩"的粗门槛，不构成死锁，但也解释不了"为什么偏偏是 1e8" |
+| R-08 | `upgradeCrunchInterval()` 循环上限 16 级 | 注释自己写"实际 15 级封顶"（`hasMaxedInterval` 先返回）。多出的 1 次是上界保护，不是缺陷 |
+| R-09 | AD5 的 B 段（一次性补 32767 IP） | 没有 `x0` 就先没有 Break，补 IP 无处可用。**必须等 R-01 之后** |
+| R-10 | `keepAutobuyers` | `IntervaledAutobuyerState.o(PrestigeEvent)`（`:327-361`）只把 `lastTick` 归零、**不动 `isActive`** ⇒ Android 行为恒等于"keepAutobuyers 永远已发放"。想"修成等价"反而要**新增**关闭逻辑，属于倒退 |
+| R-11 | 永恒 / 现实 / 天神 / 佩勒自动化 | 不是通关必需（§9.7 + §9.8）。**先别做**，除非目标从"能通关"改成"机制等价" |
+
+---
+
+### 9.5 修一半会造死锁的地方（单列）
+
+1. **`holdCrunch()` 与 `tryBuyId1()` 是一对**。暂停期间 IP 断流，唯一出路是"反物质涨到 ID1 门槛"。任何让 `p()` 永远为 false 的改动（判反、门槛常量被抬高、ID1 被 `patch_id_autobuyer_guard` 拦住）都会让这一对变成永久停机。`patch_id_autobuyer_guard` 注入的是 `InfinityDimensionState.h/i` 开头，而 `tryBuyId1()` 走的正是 `h(true)` ⇒ **两处补丁的交互点在这里**，改任一处都要回归另一处。
+2. **`enableEarly()` 闩锁 + 每帧调用**：旧版 `if-nez` 等价于每帧重写 `isActive=true` ⇒ 玩家关不掉自动器。05:17 版已改 `if-eqz`。若改回"无条件执行"，同一个 bug 会以"玩家关不掉"的形式回来。
+3. **`upgradeCrunchInterval()` 的 `!brake` 早退**（`:223` `if-nez v0, :oreki_sa_iv_done`）。若改成 `if-eqz`（"已 break 才升级"），break 之后 interval 再也不会被拉满 —— 而 break 的前置恰恰是 interval 拉满 ⇒ **互相等待的死锁**。
+4. **`patch_autobuyer_cadence()` 替换 `IntervaledAutobuyerState.c()` 整个方法体**。任何依赖 `invoke-super …IntervaledAutobuyerState;->c()Z` 的补丁（AU4c 就是）都必须排在它之后注入。`main()` 里顺序恰好是 `cadence` → … → `crunch_force_active`。**顺序一调就 InvalidMethod**。
+
+---
+
+### 9.6 功能生效性被另一条注入覆盖的地方（team-lead 指出的模式，本轮找到 5 例）
+
+| # | 功能 | 注入 A（看起来是唯一路径） | 注入 B（真正让它生效的那条） | 结论 |
+|---|---|---|---|---|
+| 1 | 新档自动大坍缩 | `OrekiStageAuto.enableEarly()` 写 `isActive=true` | **`IntervaledAutobuyerState.<init>()` 的 `const/4 v0,0x1`** —— 构造期就是 true | A 是空转，B 才是原因。所以 04:58 之前「enableEarly 不执行 ⇒ 没有坍缩」是**错**的（agent-b 的 bc 曲线是实证） |
+| 2 | 大坍缩器一次性启用 | `patch_autobuyer_crunch_force_active()`（AU4c） | 同上，构造默认 true | AU4c 从来不是必要条件；它坏着也没人发现，因为 B 一直在兜底 |
+| 3 | 自动购买器总开关 | `enableEarly()` 写 `Player$Options.g0(true)` | **`Player$Options.<init>` 的 `const/4 v0,0x1`**（`:180-191`） | 同上 |
+| 4 | 大坍缩解锁 | `CrunchAutobuyerState.g()` 的 AU4 | 原版 `a.smali:8098-8113` 的 `CrunchAutobuyerState.q()` 每帧无条件调用（`c()` 在里面） | 调用点在原版就有，不需要注入；"没接线"这个担心不成立 |
+| 5 | 永恒机制 | payload 零命中 | 原版 `a.smali:8234` 每帧调 `EternityAutobuyerState.y()`，而 `y()` 内部真的调 `prestige/c;->d(...)` | **机制存在**，只是双门（`isActive=0` + `g()` 要 100 次）都关。不要把它写成"零实现" |
+
+**这条要写进验收口径**：任何"某功能没生效"的结论，至少要排除
+① 构造默认值、② 另一个 `patch_*`、③ 原版调用点 三条兜底路径。
+
+---
+
+### 9.7 终局链四问（有/无 + 文件:行 + 调用点）
+
+#### ① 永恒自动 —— **无（放宽），有（机制）**
+
+- 机制：`.../autobuyer/EternityAutobuyerState.smali` 的 `public final y(Lvh0;)Ljava/lang/Object;`，内部 `invoke-static/range {v0 .. v6}, .../prestige/c;->d(...)` 就是永恒重置本体。
+- 调用点：`work/base_decoded/.../a.smali:8234`（`Game.autoBuyerTick`，方法 `b(ContinuationImpl)`，`:7685` 起）。
+- 门：`g()` = `sget-object z51.r ; invoke-virtual s51.w()`（Autobuyers 解锁位）。Web 里程碑 `secret-formula/eternity/eternity-milestones.js:141-143` `autobuyerEternity: { eternities: 100 }`。
+- payload / `build_mod.py` 对 `EternityAutobuyerState` **0 命中**。
+- 另：`EternityAutobuyerState.<init>` 的 `const/4 v0, 0x0` ⇒ `isActive=false`，就算放宽 `g()` 也必须同时 `i(true)`。
+- ⇒ **新档拿不到自动永恒，必须手点 100 次。**
+
+#### ② 现实自动 —— **无（放宽），有（机制）**
+
+- 机制：`RealityAutobuyerState.y(Lvh0;)`，内部 `prestige/f;->q()` 与 `prestige/f;->b(ContinuationImpl)`（现实重置本体）。
+- 调用点：`a.smali:8295`（同一 `autoBuyerTick`）。
+- 门：`g()` = `reality/upgrades/b.z.B()`（RU25）。`isActive` 初值 `0x0`。
+- payload / `build_mod.py` 对 `RealityAutobuyerState` 0 命中；`grep -rn "prestige/f;->" scripts/payload/smali` → 0。
+- ⇒ **要手动买到 RU25 才有自动现实。**
+
+#### ③ 莱特拉 / 特蕾莎 / 天神链 —— **无**
+
+- payload 全树：`teresa|Teresa` → 2 文件（`SpeedSettingsActivity.smali:351` 说明文案、`StageAssist.smali` 注释与 `summaryTeresa()` 文案）；`laitela|Laitela` → 1 文件（`OrekiAuto.smali:131` 注释）；`effarig`/`glyph`/`ra_` → **0**。
+- `build_mod.py` 只碰 `celestials/effarig/a.smali` 的**两个数值**（`patch_effarig_nerf` 改 `o(BigDouble)D` 的 nerf 因子、`patch_effarig_shard_divisor` 改 `j()D` 的指数），以及 `celestials/v/a.smali` 的三项 mainUnlock 阈值（`patch_v_unlock_thresholds`）。**全是数值缩放，没有一处"自动进入/自动购买"。**
+- `StageAssist` 的"点亮成就 147"是**直接写成就位**（`achievements/a;->E(ZZ)V`），会写永久标记 `stage_assist_used`，使该存档不能用于"真实通关"验收 —— 不是自动化。
+- ⇒ **空白，且没有半成品可复用。**
+
+#### ④ 佩勒末日循环 + IP 脉冲 + `keepAutobuyers` —— **无（前两者）/ 恒等发放（第三项）**
+
+- `grep -rli "armageddon\|remnants\|PelleUpgrade" scripts/payload/smali scripts/build_mod.py` → **0**。
+- payload 里唯一与 Pelle 有关的调用是 `celestials/pelle/c;->q()`（`isDoomed()`），用途是"末日态下别乱动"，不是末日循环。
+- `keepAutobuyers`：原版 `autobuyer/a;->d(Constants$PrestigeEvent;)V`（`a.smali:909`）逐项调 `IntervaledAutobuyerState.o(PrestigeEvent)`，而 `o()`（`IntervaledAutobuyerState.smali:327-361`）**只 `iput-wide 0 → lastTick`，不碰 `isActive`**。⇒ Android 在任何重置后都不会把自动器关掉，行为上**恒等于"keepAutobuyers 已发放"**。
+- ⇒ **末日循环与 IP 脉冲零实现；`keepAutobuyers` 不是断口，但也不是等价实现。**
+
+---
+
+### 9.8 `endState` 分母 `+1` 的影响面（"会不会跨 1"）
+
+**会，而且正好跨 1。差一个数量级。**
+
+| 端 | 公式（`E = log10(totalAM)`） | `endState=1` 的解 | 通关所需反物质 |
+|---|---|---|---|
+| Web `game-end.js:65-67` | `(log10(E+1) - 1) / (log10(1001) - 1)` | `log10(E+1) = log10(1001)` ⇒ `E = 1000` | **1e1000** |
+| Android `pelle/b.smali`（05:28 构建） | `(log10(E+1) - 1.0) / (log10(1000.0) - 1.0)` = `/2.0` | `log10(E+1) = 3.0` ⇒ `E = 999` | **1e999** |
+
+推导（逐指令核对 `pelle/b;->b()D`）：
+
+```
+log10(PelleRecords.totalAntimatter + Currency.antimatter) → +1.0 → Math.log10 → -1.0
+→ div (Math.log10(1000.0) - 1.0) → + additionalEnd → max(0.0)
+```
+
+- `pelle/b;->c()Z` = `b() >= 1.0`（`cmpl-double` + `if-ltz`）。
+- `pelle/b;->d(D)V`（`gameTick` 每帧，`a.smali:14494`）在 `c() && MainActivity.on` 时执行 `Player.I0(true)`（`I0` = `iput-boolean isGameEnd`；`j0()` 是其 getter）。
+- **`PelleRecords.totalAntimatter` 唯一 setter 调用点在 `player/e.smali:13422`**，而 `e.m()` 是存档反序列化 ⇒ 不在佩勒时它保持 0 或上次存档值，`endState` 实际由**当前** `Currency.antimatter` 决定。
+
+**三个直接推论：**
+
+1. **不需要进入佩勒就能 `isGameEnd=true`**。只要 Break 之后让反物质在"不坍缩"的状态下涨到 1e999（`holdCrunch()` 已经在做这件事），`endState` 就过线。
+2. **1e999 比 ID1 门槛 1e1100 低 101 个数量级** ⇒ 通关可能发生在"ID1 还没买"之前。不是 bug，但意味着**通关不代表链走完了**。
+3. **双端不等价是真的**。Web 在 `game-end.js:49-57` 就写了这段 off-by-one 的修正说明；Android 的 `patch_pelle_end_target()` docstring 里那句
+   `endState >= 1 <=> log10(totalAM) >= 1e3`（`build_mod.py` 内 `PELLE_END_TARGET_VALUE` 附近）**是算错的** —— 它把 `TARGET` 当成了阈值本身，忽略了自己分母里的 `-1`。
+
+⇒ **修法见 §9.4 R-02**：`PELLE_END_TARGET_NEW` 从 `0x408f400000000000`（1000.0）改成 `0x408f440000000000`（1001.0）。一个立即数。
+
+---
+
+### 9.9 复现命令（全部只读）
+
+```bash
+cd android/AD_Oreki_Edition_Android
+
+# 1) 三道门的真值
+awk '/^\.method public c\(\)Z/,/^\.end method/' work/base_decoded/smali/kajfosz/antimatterdimensions/autobuyer/AutobuyerState.smali
+awk '/^\.method public constructor <init>\(\)V/,/^\.end method/' work/base_decoded/smali/kajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState.smali
+
+# 2) autobuyersOn 默认值
+awk 'NR>=178 && NR<=191' work/base_decoded/smali/kajfosz/antimatterdimensions/player/Player\$Options.smali
+
+# 3) 9 类的构造默认 isActive
+for f in IPMult Reality Eternity TimeTheorem Sacrifice; do echo "== $f"; awk '/^\.method public constructor <init>/,/^\.end method/' work/base_decoded/smali/kajfosz/antimatterdimensions/autobuyer/${f}AutobuyerState.smali | grep 'const/4 v0'; done
+
+# 4) autoBuyerTick 到底驱动哪些
+awk 'NR>=7698 && NR<=9900 && /AutobuyerState;->[qymk]\(|Player\$Auto;->/ {print NR": "$0}' work/base_decoded/smali/kajfosz/antimatterdimensions/a.smali
+
+# 5) 终局判据（两端对照）
+awk '/^\.method public static b\(\)D/,/^\.end method/' work/mod/smali/kajfosz/antimatterdimensions/celestials/pelle/b.smali
+sed -n '59,68p' ../web/AD-Oreki-Edition/src/core/celestials/pelle/game-end.js
+
+# 6) 终局链空白
+grep -rl "Player;->x0("          scripts/payload/smali/                        # 0
+grep -rl "EternityAutobuyerState" scripts/payload/smali/ scripts/build_mod.py  # 0
+grep -rl "RealityAutobuyerState"  scripts/payload/smali/ scripts/build_mod.py  # 0
+grep -rli "armageddon\|remnants\|PelleUpgrade" scripts/payload/smali/         # 0
+grep -rli "teresa\|effarig\|glyph" scripts/payload/smali/                       # 仅注释/文案
+```
+
+---
+
+### 9.10 本轮仍未确认（留给下一轮）
+
+| 项 | 状态 | 卡在哪 |
+|---|---|---|
+| `tryBuyId1()` 的门槛货币 | **[待复核]** | `holdCrunch` 用 `IP ≥ 1e8`，`InfinityDimensionState.p()` 用 `thisEternity.maxAM ≥ 1e1100`。ID1 到底扣 IP 还是扣反物质，没读到成本实现 |
+| Break 之后反物质能否在 180 min 内到 1e999 | **[未知]** | 需要真机曲线；理论上是 AD 自动买 + holdCrunch 的叠加，但没有实测 |
+| `PelleRecords.totalAntimatter` 在非佩勒局是否真的一直是 0 | **[静态推导]** | 唯一 setter 在存档反序列化里；字段 private，跨类写不了，倾向成立 |
+| AU4c 在"旧存档 isActive=false"上修好后的真机效果 | **[未知]** | 需要一份 `auto.bigCrunch.isActive=false` 的存档才能验 |
 
