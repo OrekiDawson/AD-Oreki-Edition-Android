@@ -3936,16 +3936,12 @@ def patch_stage_auto_hook():
 
 
 # ---------------------------------------------------------------- R40H 教程正文
-# 产物是两个纯文本 assets，不再是 smali 常量：正文是五位数千字规模，写成
+# 产物是一个纯文本 assets，不再是 smali 常量：正文是五位数千字规模，写成
 # const-string 会撑出上万行 smali 并顶到 65,535 常量池边界；assets 不走 aapt、
 # 不占资源 ID、不产生常量池压力，而且构建期能按字节做编码与结构断言。
-TUTORIAL_ASSETS = ("oreki_tutorial.txt", "oreki_tutorial_legacy.txt")
-
-# 旧版正文的「不许静默丢章」地板：11 章 / 2047 汉字，取 2000 留余量。
-LEGACY_MIN_CJK = 2000
-
-# 旧版分节标题必须逐字等于这句（lead 指定），渲染顺序在全部新章之后。
-LEGACY_HEADER = "旧版教程（正在并入新版，暂留）"
+# 只允许这一份。旧版正文（oreki_tutorial_legacy.txt）已由用户明确要求删除，
+# 构建期反向守卫见下方「旧版正文禁止回归」段。
+TUTORIAL_ASSETS = ("oreki_tutorial.txt",)
 
 
 def _tutorial_literals(src):
@@ -4048,23 +4044,30 @@ def patch_tutorial_content():
     assert f"章节数: {len(ids)}" in text, \
         "[R40H] 文件头「章节数: N」与 JSON 实际章数不一致（生成器可能写死了章数）"
 
-    # ---- ③ 旧版正文：默认总是写，构建不做任何删除 ----
-    lraw = (adst / "oreki_tutorial_legacy.txt").read_bytes()
-    assert lraw, "[R40H] assets/oreki_tutorial_legacy.txt 是空文件（旧版正文被删了？）"
-    ltext = lraw.decode("utf-8")
-    cjk_legacy = sum(1 for c in ltext if "\u4e00" <= c <= "\u9fff")
-    assert cjk_legacy >= LEGACY_MIN_CJK, \
-        f"[R40H] 旧版正文只有 {cjk_legacy} 个汉字（下限 {LEGACY_MIN_CJK}），疑似丢章"
-    try:
-        lchs = gen.parse_text(ltext)
-    except gen.TutorialContentError as e:
-        raise AssertionError(f"[R40H] 旧版 assets 结构损坏：{e}") from None
-    assert lchs and lchs[0][1][2] == LEGACY_HEADER, \
-        f"[R40H] 旧版首章标题不是「{LEGACY_HEADER}」（分节标题丢了）"
-    note(f"[R40H] 旧版正文保留：{len(lchs)} 章 / {cjk_legacy} 汉字 / {len(lraw)} 字节"
-         f"（排版在新版之后，删除与否由 lead 决定，构建不删）")
-    if stats["drafts"] == 0:
-        note(f"[R40H] 新版 {stats['total']} 章已全部完稿；旧版仍写在包里，等 lead 决定是否撤除")
+    # ---- ③ 旧版正文禁止回归（用户 2026-10-31 明确指令：Android 版把旧版教程删了）----
+    # 反转为**禁止**：payload 里不许再出现任何 legacy 变体的教程 assets，
+    # 已经落进 work/mod 的旧文件也必须在拷 assets 时清掉，否则 apktool 会把上一轮
+    # 残留的 legacy 文本一起打进 APK（静默复活，最坏情况）。
+    legacy_variants = sorted(
+        p.name for p in asrc.glob("*legacy*")
+        if p.is_file() and p.suffix == ".txt")
+    assert not legacy_variants, (
+        "[R40H] payload/assets 里仍有旧版教程文件 "
+        f"{legacy_variants} —— 用户已要求删除旧版教程，禁止重新落盘")
+    for stale in sorted(adst.glob("*legacy*")):
+        if stale.is_file():
+            stale.unlink()
+            note(f"[R40H] 清掉 work/mod 里的旧版残留：{stale.name}")
+    assert not sorted(adst.glob("*legacy*")), \
+        "[R40H] work/mod/assets 里仍有 legacy 教程文件（会被一起打进 APK）"
+    # 渲染层也不许再去读：文件名一旦出现在 smali 里，说明读回退到了旧版。
+    _early_act = (MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+                  / "TutorialActivity.smali")
+    assert _early_act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
+    asrc_txt_early = _early_act.read_text(encoding="utf-8")
+    assert "oreki_tutorial_legacy" not in asrc_txt_early, \
+        "[R40H] TutorialActivity 仍在读取 oreki_tutorial_legacy.txt（旧版已删除）"
+    note(f"[R40H] 旧版教程已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
 
     # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
     tut_dir = MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
@@ -4075,7 +4078,6 @@ def patch_tutorial_content():
     for needle, why in (
         ("getAssets()Landroid/content/res/AssetManager;", "没有走 AssetManager 读正文"),
         ('const-string v1, "oreki_tutorial.txt"', "没有读新版 assets"),
-        ('const-string v1, "oreki_tutorial_legacy.txt"', "没有读旧版 assets"),
         ('const-string v0, "\\\\|"', "没有按竖线切分记录"),
         ("Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;", "没有 split 解析"),
         ("->showChapter(I)V", "没有「只渲染当前章」的入口"),
@@ -4121,8 +4123,9 @@ def patch_tutorial_content():
         # 章号上界钳制：合法索引（p1 < chCount）才跳去 :high_ok 跳过钳位。
         # 2026-10-31 R42 更正：此条原写 good=if-ge / bad=if-lt，**极性反了**。
         # if-ge p1, v0 = 「p1 >= chCount 才跳」⇒ 合法索引反而不跳，直接落到
-        # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 29 章里任何合法章节号
+        # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 合法章节号
         # 都会被钳成最后一章（表现为「旧·⑩」）。
+        # 章数：18 章正文 + 7 个附录（apx_*）= 25 个 CH 记录（旧版 11 章已删除）。
         # 与同文件内两处已写对的样本对齐：:1487 if-gez p1, :low_ok（下界）、
         # :1534 if-lt v4, v0, :not_last（末章区间）。
         ("if-lt p1, v0, :high_ok", "if-ge p1, v0, :high_ok", "章号上界钳制（合法索引才跳）"),

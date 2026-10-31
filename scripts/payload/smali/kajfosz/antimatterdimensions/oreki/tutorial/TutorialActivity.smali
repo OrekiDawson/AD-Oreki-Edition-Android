@@ -6,9 +6,9 @@
 # 正文去哪了
 #   R40H 之前正文硬编码在本文件的 const-string 里，与 Web 侧各维护一份，
 #   已经分叉过一次（两端章数都不一样）。现在正文在构建期由 Web 单源 JSON
-#   生成成两个纯文本资源（scripts/oreki_tutorial_gen.py）：
-#     assets/oreki_tutorial.txt        新版正文（源：oreki-tutorial-data.json）
-#     assets/oreki_tutorial_legacy.txt 旧版正文（过渡期保留，排在新版之后）
+#   生成成一个纯文本资源（scripts/oreki_tutorial_gen.py）：
+#     assets/oreki_tutorial.txt        正文 18 章 + 附录 7 篇（源：oreki-tutorial-data.json）
+#   旧版正文 assets 已按用户要求删除（构建期有反向守卫，见 build_mod.py）。
 #   本文件不含任何正文，只负责解析 + 渲染。
 #
 # 为什么是 assets 而不是 smali 常量
@@ -55,7 +55,7 @@
 # 本章是否已经画过「具体操作」这个小标题（一章只画一次，多条 STEP 归到同一块）
 .field private stepHeaderDone:Z
 
-# 全部记录行（新版在前、旧版在后，顺序即渲染顺序）
+# 全部记录行（顺序即渲染顺序；旧版已删除，只剩新版 18 章 + 7 附录）
 .field private lines:Ljava/util/ArrayList;
 
 # 每章在 lines 里的起始下标 / 章节 id / 标题 / stageKey
@@ -250,13 +250,7 @@
 
     iput-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
 
-    # 新版在前
     const-string v1, "oreki_tutorial.txt"
-
-    invoke-direct {p0, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V
-
-    # 旧版在后（过渡期保留，不允许静默丢掉）
-    const-string v1, "oreki_tutorial_legacy.txt"
 
     invoke-direct {p0, v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V
 
@@ -1229,8 +1223,8 @@
 .end method
 
 
-# 页签文字：取标题里全角空格之后的部分（去掉「第 N 章」），超过 6 字截断，
-# 旧版章加「旧·」前缀。标题本身可能被人改，所以这里不做任何格式假设。
+# 页签文字：取标题里全角空格之后的部分（去掉「第 N 章」/「附录 X」），超过 6 字截断。
+# 标题本身可能被人改，所以这里不做任何格式假设。
 .method private static tabLabel(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     .locals 4
 
@@ -1296,44 +1290,7 @@
     move-result-object v0
 
     :short
-    if-eqz p0, :ret
-
-    # 标题里已经写着「旧版」时不再加前缀，避免出现「旧·旧版教程（…」
-    const-string v1, "旧版"
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
-
-    move-result v1
-
-    if-gez v1, :ret
-
-    const-string v1, "legacy"
-
-    invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-
-    move-result v1
-
-    if-eqz v1, :ret
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v2, "旧·"
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    :ret
+    # 旧版教程已删除，「旧·」前缀逻辑随之移除：页签只显示标题本体。
     return-object v0
 .end method
 
@@ -1492,11 +1449,11 @@
     # [R42 上界极性修正] if-lt = 「小于才跳」：p1 < chCount 表示索引合法，跳去 :high_ok。
     # 原写 if-ge（p1 >= chCount 才跳）：合法索引反而不跳，直接落到下面的 add-int 被改成
     # chCount-1 ⇒ **任何合法章节号都被钳成最后一章**。实际后果（R42 候选 APK 实测症状）：
-    #   1) 打开教程永远停在最后一章 —— 新 18 章之后是旧版 11 章，最后一章是 legacy10，
-    #      页签名被 tabLabel 加上「旧·」前缀，于是显示「旧·⑩」；
+    #   1) 打开教程永远停在最后一章 —— 当时最后一章是旧版第 11 章，页签名被加上
+    #      「旧·」前缀，于是显示「旧·⑩」；
     #   2) 点任何页签都调 showChapter(idx)，idx 仍 < chCount ⇒ 又被钳成最后一章，
     #      页面内容不变，看起来就是「页签点了不切章」；
-    #   3) 正文只剩 legacy10 那一条 STEP（约 210 字符 / 112 汉字），而全量是 848 条，
+    #   3) 正文只剩最后一章那一条 STEP（约 210 字符 / 112 汉字），而全量是 848 条，
     #      看起来就是「每章只有几十个字」。
     # 症状是三个，根因只有这一行：三者的共同前提都是「被钳到同一章」。
     # 证据：REA 反编译 _r42_build/反物质维度_R42候选_未装机验证.apk
