@@ -3909,3 +3909,20 @@ celestialsEnslaved / celestialsV / celestialsRa / laitela / pelle / doomed`。
    `/stats` 返回 `"capturing": false, "state": {"v": "未开始"}` ⇒
    **MediaProjection 授权必须由人在设备上点**，工具刻意不提供远程启动接口。
 
+### C.80.3 R46 首次 Android 有效交付（2026-10-31 21:34）
+
+| 项 | 值 |
+|---|---|
+| 构建入口 | `./gradlew.bat build`（Gradle Wrapper 8.10.2 编排 `scripts/build_mod.py`），`JAVA_HOME=tools/jdk/jdk-17.0.20.1+1` |
+| 构建结果 | `BUILD SUCCESSFUL in 9m 21s`（b3；b2 于 21:08 因 `OrekiEternity.blocked(III)Z` 的 ART `VerifyError` 失败） |
+| 候选包 | `build/gradle-stage/反物质维度.apk`，69,790,309 B |
+| 发布包 | `release/反物质维度.apk`（经 `installToRelease`，**不是**候选包直接改名） |
+| SHA-256 | `ca472a5125319dc31a56cf202d2e67ab98d8780b9edaab8622604b330c2ef68c` |
+| 旧发布包 SHA-256 | `090b9adbd0b4f8ad0a1b799d151c11e6af207ea93c55e13ea40441ba67d69f43`（已确认被替换，未用旧包冒充） |
+| verifyRelease | **15/15 通过**（`build/gradle-reports/verify-release.json`） |
+| 装机验证 | `emulator-5554` 增量安装成功；`MainActivity` 到前台；`logcat` 无 `VerifyError` / `Verifier rejected` / `FATAL EXCEPTION` |
+| 启动证据 | `reports/_r45/shots/r45_launch.png`：深色主题、离线收益弹窗（无限点数 177→179、无限次数 216→217）、`开始游戏` 按钮、顶栏「选项」 |
+| 版本 | `versionName=3.19.0`、`versionCode=30190000`、`minSdk=24`、`targetSdk=37` |
+| 网盘 | OneDrive `C:/Users/Oreki/OneDrive/反物质维度.apk` 与小米云盘 `C:/Users/Oreki/小米云盘/反物质维度.apk` 均为 `ca472a51…c2ef68c` / 69,790,309 B / 21:34（按用户要求不做远程回读核验） |
+
+**上一个正式包是 11:04 的 `090b9adb…`，中间近 10 小时没有 Android 版本 —— 本轮已恢复交付。**
