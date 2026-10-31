@@ -370,6 +370,13 @@ REA 是静态反编译，官方明确声明「不建立运行时行为」。因�
 
 ## 2. 模拟器与签名
 
+> **[R42 冲突消解] 本节关于「操作 AVD」的授权一律服从 `AGENTS_GLOBAL.md` §28（唯一源）。**
+> 该节规定：模拟器启停权只属于主 Agent；子 Agent 只能申请、不得自行启停，
+> 也不得用 `adb` / 脚本 / `nohup` / Gradle 绕间接拉起。
+> 当 §28 处于 `GLOBAL_STOP` 时，本节所有「必须 AVD 实测」的验收项一律
+> 标为 **「被环境阻塞」**，不得降级成「已通过」，也不得为了凑证据去启动模拟器。
+> 本节不再重复 §28 的规则细节，只保留 AVD 相关的**设备侧事实**（坐标、包名、路径）。
+
 - 只操作 AVD `oreki_test`（emulator-5554）与 `/data/data/com.oreki.antimatterdimensions/`。
 - **严禁**操作真机、清理真机数据、覆盖手机存档、触发真实支付。
 - 签名口令来自环境变量 `OREKI_KS_PASS` 或 `keys/密码.txt`（`scripts/build_mod.py` 的 `ks_pass()`）。
