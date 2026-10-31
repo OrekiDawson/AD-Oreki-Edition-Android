@@ -314,7 +314,14 @@
 
     move-result-object v1
 
-    if-nez v1, :read_end
+    # [R42 极性修正] if-eqz = v1==0 才跳，即 readLine() 返回 null（EOF）才结束循环。
+    # 原写 if-nez（v1!=0 才跳）：读到第一行（非 null）就立刻跳到 :read_end，
+    # 循环体一次都不执行 ⇒ lines.size()==0 / chCount==0 ⇒ 界面显示
+    # 「教程正文缺失（行数 0 / 章节 0 / 异常 null）」。
+    # 关键旁证：:open_fail 与 :read_fail 两条失败路径都会写 diag，
+    # 界面 diag 为 null 说明两条失败路径都没走到 ⇒ 资产其实读到了，是循环自己跳走的。
+    # 基准样本 Lju;->t(D)Z：if-eqz = 为零才跳、if-nez = 非零才跳。
+    if-eqz v1, :read_end
 
     invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -359,7 +366,10 @@
     goto :close_stream
 
     :close_stream
-    if-nez v0, :done
+    # [R42 极性修正] if-eqz = v0==0 才跳：reader 为 null 才没有东西可关。
+    # 原写 if-nez（v0!=0 才跳）：reader 非 null 时直接跳到 :done，close() 永远不执行。
+    # 原版语义在这条上无歧义 —— 先判空再关，空则跳过。
+    if-eqz v0, :done
 
     :try_close_start
     invoke-virtual {v0}, Ljava/io/BufferedReader;->close()V
@@ -378,7 +388,11 @@
 
     iget-object v0, p0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;->lines:Ljava/util/ArrayList;
 
-    if-nez v0, :no_lines
+    # [R42 极性修正] if-eqz = v0==0 才跳：lines 为 null 才走 :no_lines（chCount=0）。
+    # 原写 if-nez（v0!=0 才跳）：lines **有内容**时反而跳去 :no_lines，
+    # 于是 chCount 恒 0、章节数组全空 ⇒ 界面「章节 0」。
+    # 这条即使读循环修好了也会挡在前面：正文读进 lines 了，但索引一个都建不出来。
+    if-eqz v0, :no_lines
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
@@ -473,7 +487,13 @@
 
     move-result v6
 
-    if-nez v6, :fill_next
+    # [R42 极性修正] if-eqz = v6==0 才跳：tagCode 返回 0 表示「这一行没有标签」，
+    # 第二遍只关心带标签的行，所以要跳过它。
+    # 原写 if-nez（v6!=0 才跳）：把**所有带标签的行**全跳掉，只让无标签行落到下面，
+    # 于是 `if-ne 1` 的 CH 分支永远走不到 ⇒ 章节字段（起点/编号/标题/阶段）一个都填不上。
+    # 基准样本：第一遍用的是 `if-eq v6, 1, :count_next`（tagCode 编码 CH=1 / TITLE=2 / SUB=3），
+    # 与这里的「0 才是无标签」互为印证。
+    if-eqz v6, :fill_next
 
     const/4 v7, 0x1
 
@@ -1584,7 +1604,11 @@
 
     move-result v8
 
-    if-nez v8, :rec_next
+    # [R42 极性修正] if-eqz = v8==0 才跳：tagCode==0（无标签）才跳过。
+    # 原写 if-nez（v8!=0 才跳）：所有带标签的行都被跳过，下一句
+    # `if-le v8, 4, :rec_next`（只要 CH/TITLE/SUB/STAGE 之外的记录标签）就永远走不到 ⇒
+    # 正文的记录块一行都渲染不出来，页面上只剩章名。
+    if-eqz v8, :rec_next
 
     # CH / TITLE / SUB / STAGE 已经单独处理
     const/4 v9, 0x4
