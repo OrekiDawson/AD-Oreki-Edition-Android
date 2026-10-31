@@ -1489,7 +1489,21 @@
     const/4 p1, 0x0
 
     :low_ok
-    if-ge p1, v0, :high_ok
+    # [R42 上界极性修正] if-lt = 「小于才跳」：p1 < chCount 表示索引合法，跳去 :high_ok。
+    # 原写 if-ge（p1 >= chCount 才跳）：合法索引反而不跳，直接落到下面的 add-int 被改成
+    # chCount-1 ⇒ **任何合法章节号都被钳成最后一章**。实际后果（R42 候选 APK 实测症状）：
+    #   1) 打开教程永远停在最后一章 —— 新 18 章之后是旧版 11 章，最后一章是 legacy10，
+    #      页签名被 tabLabel 加上「旧·」前缀，于是显示「旧·⑩」；
+    #   2) 点任何页签都调 showChapter(idx)，idx 仍 < chCount ⇒ 又被钳成最后一章，
+    #      页面内容不变，看起来就是「页签点了不切章」；
+    #   3) 正文只剩 legacy10 那一条 STEP（约 210 字符 / 112 汉字），而全量是 848 条，
+    #      看起来就是「每章只有几十个字」。
+    # 症状是三个，根因只有这一行：三者的共同前提都是「被钳到同一章」。
+    # 证据：REA 反编译 _r42_build/反物质维度_R42候选_未装机验证.apk
+    #   sha256 60afe97a5c15721468fdc0f7e17c46822eb467cc550dd4fde706974af05b2093
+    #   showChapter 体：if (i < 0) i = 0;  if (i < i2) i = i2 - 1;   ← 第二条反了
+    # 基准样本（同一文件内已写对的两处）：if-gez p1, :low_ok 与 if-lt v4, v0, :not_last。
+    if-lt p1, v0, :high_ok
 
     add-int/lit8 p1, v0, -0x1
 
