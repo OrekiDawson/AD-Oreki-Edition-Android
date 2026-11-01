@@ -144,6 +144,35 @@
     # 内部四个子步骤各自 try/catch，任一环异常都不会冒到 Game.autoBuyerTick。
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->tick()V
 
+    # [R51-A31] 现实（Reality）自动化，同样放在 `eternitiesZero()` 分叉之前：
+    # 首次现实发生在「已永恒多次」之后，而分叉之后的分支是「已永恒就整体退出」，
+    # 放到后面会让现实永远不触发（与上面 OrekiEternity 的理由完全一致）。
+    # 自身用原版 `canReality()` 兜底：未永恒 / maxRM 不足时它返回 false，本调用即空转，
+    # 开销是每 tick 一次静态方法调用 + 一次布尔判断。
+    #
+    # 受统一调度器管辖（"reality" 属「策略决策」，默认档受 1~60 秒间隔约束）。
+    # `tick()Z` 只有**真的重置了一次现实**才返回 true，据此决定是否 noteActed ——
+    # 这样空转不占节拍，不会把 breakGate 饿死。
+    const-string v0, "reality"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->allow(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :oreki_sa_reality_skip
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiReality;->tick()Z
+
+    move-result v0
+
+    # v0 == 0（没有真触发）→ 不占节拍
+    if-eqz v0, :oreki_sa_reality_skip
+
+    const-string v0, "reality"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
+
+    :oreki_sa_reality_skip
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->eternitiesZero()Z
     move-result v0
 

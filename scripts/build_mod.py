@@ -574,6 +574,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.smali",
     # [Oreki ET1] 永恒层自动化（时间定理 / 时间维度 / 普通时间研究 / 按永恒）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiEternity.smali",
+    # [R51-A31] 现实（Reality）自动化：canReality() 判据 + 原版 realityReset 入口
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiReality.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     # [R44] 顶栏标题「主页签 · 子页签」合成（MainActivity.H8 里被 invoke-static）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiUiTitle.smali",
