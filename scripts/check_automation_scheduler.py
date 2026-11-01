@@ -303,6 +303,56 @@ def main():
         ok(sched_semantics(_m)[_flag] is False,
            f"变异测试未报错：翻转「{_flag}」后检查器仍认为正确")
 
+    # ── 17. [R51-A32b] 同寄存器类型冲突（VerifyError 的真实来源）─────────
+    # 真实事故：A32 首包启动即崩，logcat：
+    #   VerifyError: boolean …allow(String) failed to verify:
+    #   register v6 has type Integer but expected Precise Reference: java.lang.String
+    # 原因：诊断日志里用 v6 存原因字符串，而同一方法的 `sub-long v6, v2, v4`
+    # 把 v6 当 long 用 —— 同一寄存器在同一方法内承载两种不兼容类型，ART 直接拒收整个类。
+    # 这类错误**编译期不报、断言也看不见**，只有装机才炸，所以必须静态拦。
+
+    _OBJ = re.compile(r"\b(?:const-string|const-class|sget-object|move-result-object|new-instance|check-cast)\s+(v\d+)")
+    # 只统计 **wide** 写入：`const/4 v0` 与 `const-string v0` 分属不同分支时是合法的，
+    # 纳入统计会造成大量误报（noteActed 就是这样被误判的）。而 wide 占两个寄存器、
+    # 与对象引用混用时几乎必然被 ART 拒收，这才是值得拦的那一类。
+    _WIDE = re.compile(r"\b(?:const-wide(?:/high16|/16)?|move-result-wide|sub-long|add-long|cmp-long)\s+(v\d+)")
+
+    def _reg_types(method_body):
+        """返回 {寄存器: {'obj','wide'}}，只统计写入该寄存器的指令。"""
+        seen = {}
+        for ln in method_body.splitlines():
+            s = ln.strip()
+            if s.startswith("#"):
+                continue
+            mo = _OBJ.search(s)
+            if mo:
+                seen.setdefault(mo.group(1), set()).add("obj")
+            mw = _WIDE.search(s)
+            if mw:
+                seen.setdefault(mw.group(1), set()).add("wide")
+        return seen
+
+    for _f in (SCHED,):
+        _txt = read(_f)
+        for _mname in ("allow", "isContIdx", "noteActed", "noteNoop", "noteFail"):
+            _b = body(_txt, _mname)
+            if not _b:
+                continue
+            _bad = [r for r, t in _reg_types(_b).items() if t == {"obj", "wide"}]
+            ok(not _bad,
+               f"{_mname}() 寄存器类型冲突（VerifyError 风险）：" + (", ".join(sorted(_bad)) if _bad else ""))
+
+    # 变异测试：构造一个「同寄存器既 const-string 又 sub-long」的方法体，检查器必须识别
+    _mutant_body = (
+        "    const-string v6, \"x\"\n"
+        "    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J\n"
+        "    move-result-wide v2\n"
+        "    sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sDenyAt:J\n"
+        "    sub-long v6, v2, v4\n"
+    )
+    _mut_bad = [r for r, t in _reg_types(_mutant_body).items() if t == {"obj", "wide"}]
+    ok(_mut_bad == ["v6"], f"变异测试未报错：v6 同时作 String 与 long 时检查器必须报错（实际 {_mut_bad}）")
+
     # ── 输出 ───────────────────────────────────────────────────────────
     if FAILS:
         print(f"[FAIL] {len(FAILS)} / {CHECKS[0]} 条断言失败：")
