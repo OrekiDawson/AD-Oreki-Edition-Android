@@ -91,6 +91,12 @@
     .locals 1
 
     :try_start_0
+    # [R51-A30] 统一调度器开帧：必须是本方法第一条指令。
+    # 语义（AGENTS §60 / R51-SCHED-01）：同一帧最多一个「受调度动作」，
+    # beginFrame 负责清本帧名额；下面的 allow()/noteActed() 成对使用。
+    # 该方法只做一次时间戳比较，无日志、无存档写入。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->beginFrame()V
+
     # [R42 终点记录] 必须排在**所有早退之前**：本方法在 Doomed 态会在下面
     # `if-nez v0, :oreki_sa_try_end` 处直接返回，放到那里之后这条就永远不执行，
     # 而佩勒阶段恰恰是唯一需要它的阶段。
@@ -178,8 +184,31 @@
     # [Oreki AD5b] Break Infinity 闸门：在 interval 升级之后、ID1 之前。
     # 顺序理由：先把这一帧能买的那几级用真实 IP 买掉（upgradeCrunchInterval），
     # 再由 BreakGate 现推差额 → 补足 → 同一 tick 内买满 → 走真实 Break 序列。
-    # 本类既有方法的语义一行未改，这里只是追加一个零寄存器静态调用。
+    # [R51-A30] Break 闸门纳入统一调度器管辖（属「策略决策」，默认档受间隔约束）。
+    #
+    # 为什么只包这一处：按 R51-SCHED-01 的语义划分，
+    #   · 受管 = 策略决策类（breakGate / breakUpgrades / reality / celestial / perk / endgame）
+    #   · 不受管 = 原版自动器等价物（routine / early / eternity / eternityReset），按原版帧频跑
+    # 本方法里只有 BreakGate 属前者；其余调用点保持原样，避免把连续购买拖进限流。
+    #
+    # allow() 内部已含：Oreki 开关、原版自动购买器总开关、间隔闸门、同帧名额、失败冷却。
+    # noteActed() 负责推进节拍并打 `OREKI_SCHED: act breakGate @<ms> gap=...` 日志——
+    # 这是 R51-SCHED-01 要求的运行期证据。
+    const-string v0, "breakGate"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->allow(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :oreki_sa_bg_skip
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->tick()V
+
+    const-string v0, "breakGate"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
+
+    :oreki_sa_bg_skip
 
     # [R50-A9] Break 兜底：BreakGate 已经在 09:00 实测里打开过窗口（`window=1`），
     # 但 15 分钟过去 `brake` 仍是 false、`OREKI_BREAK` 一行都没有 —— 即闸门进了窗口却没落到
@@ -699,10 +728,19 @@
 
     sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
 
-    rem-int/lit16 v3, v2, 0x64
+    # [R51-A30] 日志节流改为「前 50 级每级都打，之后每 10 级一行」。
+    # A29 实测教训：原来写死「每 100 级一行」，而新档全程只买到 6 级 ⇒
+    # `OREKI_IPM_LV` 一行都没打，取证时无法从日志确认等级在涨（只能翻存档）。
+    const/16 v3, 0x32
+
+    # if-le = v2 <= 50 时直接打印
+    if-le v2, v3, :oreki_sa_ipm_log
+
+    rem-int/lit8 v3, v2, 0xa
 
     if-nez v3, :oreki_sa_iup_done
 
+    :oreki_sa_ipm_log
     invoke-static {v4, v5}, Ljava/lang/Long;->toString(J)Ljava/lang/String;
 
     move-result-object v3
