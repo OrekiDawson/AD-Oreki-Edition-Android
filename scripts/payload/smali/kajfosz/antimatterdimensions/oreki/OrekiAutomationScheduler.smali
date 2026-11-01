@@ -979,14 +979,9 @@
 #   · 清掉该任务的 no-op 连击与失败冷却
 #   · 打一行 OREKI_SCHED 日志：`act <id> @<now>ms gap=<全局间隔> taskGap=<同任务间隔>`
 .method public static noteActed(Ljava/lang/String;)V
-    # [R54] 14 → 15：给追踪日志留一个专用寄存器 v14（p0 随之落在 v15）。
-    # 注意不能扩到 16 —— R52 实测该工具在 locals 16 + 1 参数时报 Invalid register v16。
-    .locals 15
+    .locals 14
 
-    # [R54 BRKTRACE] 入口追踪：回答「到底有没有到达记账方法」。
     # 用独立 tag，便于 rg 过滤；不节流（真动作本就稀疏），不改任何状态。
-    # [R54] 该方法寄存器已满，tag 与 msg 同值，只用 v14 一个寄存器。
-    const-string v14, "noteActed enter"
 
     invoke-static {v14, v14}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
@@ -995,8 +990,6 @@
     if-eqz v0, :done
 
     # 走到这里说明 sEnabled 为假 —— 早退原因记录下来
-    # [R54] 该方法寄存器已满，tag 与 msg 同值，只用 v14 一个寄存器。
-    const-string v14, "noteActed early-exit sEnabled=false"
 
     invoke-static {v14, v14}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
@@ -1147,13 +1140,9 @@
 # 同一帧内下一个候选立刻就能上（用户令：no-op 不计时、立即让位）。
 .method public static noteNoop(Ljava/lang/String;)V
     # [R53] 4 → 6：限频日志需要一对 long（v4:v5）。
-    # [R54] 6 → 8：追踪日志要两个独立的对象寄存器 v6/v7（p0 随之落在 v8）。
-    .locals 8
+    .locals 6
 
-    # [R54 BRKTRACE] 入口追踪
-    const-string v6, "OREKI_BRKTRACE"
 
-    const-string v7, "noteNoop enter"
 
     invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
