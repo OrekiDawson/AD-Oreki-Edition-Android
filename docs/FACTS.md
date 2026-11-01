@@ -5415,3 +5415,34 @@ text="严格模式：任意两次自动操作之间都必须 ≥ 间隔&#10;（�
 
 由 R50-AND-04 实现装机验证时实测发现（真机 dump 见 `reports/r50and04/ui_settings_before.xml`），
 tutorial-agent 同期在 R50-AND-05 遇到同一现象，双向印证。
+
+## C.96　坍缩自动器的阈值语义：三种模式比的都是 IP，不是反物质（2026-11-01）
+
+**【实测】Web 源码**（`web/AD-Oreki-Edition/src/core/autobuyers/big-crunch-autobuyer.js:139-146`）：
+
+```js
+case AUTO_CRUNCH_MODE.AMOUNT:    return gainedInfinityPoints().gte(this.amount);
+case AUTO_CRUNCH_MODE.TIME:      return Time.thisInfinityRealTime.totalSeconds > this.time;
+case AUTO_CRUNCH_MODE.X_HIGHEST: return gainedInfinityPoints().gte(this.highestPrevPrestige.times(this.xHighest));
+```
+
+三种模式比较对象全部是 **IP**，没有一种比反物质。
+
+**【读码】枚举值**：`AUTO_CRUNCH_MODE = { AMOUNT: 0, TIME: 1, X_HIGHEST: 2 }`（Web `constants.js:202-206`）。
+
+**【实测】Android A26 读数**（装机 75 秒，`mode=2 / xHighest=10`）：
+`dimensionBoosts 7→87`、`galaxies 1→11`、`infinities 42→4305`、`IP 5.3e7→6.09e8`、ID1 已买（`baseAmount=10`）、ID2 已解锁。
+
+**【推断，已作废】曾经认为「`F() = amount × 当前反物质`」**。这个推断在当时能解释两个现象，但被更简单的正确解释取代：`amount=1` 能坍缩是因为「本轮已得 IP ≥ 1」恒成立，`amount=1e1000` 不坍缩是因为该门槛永远够不着。**凡以「阈值乘以 AM」为前提的结论一律作废。**
+
+**【实测】正确策略**：Web 用 `X_HIGHEST + xHighest=10`（单次 IP 达本次永恒最高单次 IP 的 10 倍才坍缩），在两处做归一化——`isUnlocked`（`[Oreki AU4b]`）与 `reset()`（`[Oreki R26]`）。Android 必须同样处理，且每 tick 无条件执行即可天然满足「重置后重新归一化」。
+
+**教训**：`amount` 这个名字会误导人往反物质上想。判定任何阈值前，先去看比较式的**左边**是什么 getter，不要看字段名。
+
+## C.97　`bought` 是假指标，真实购买次数是 `baseAmount / 10`（2026-11-01）
+
+**【实测】** 存档里 `dimensions.infinity[i].bought` **恒为 0**，不随购买递增。
+真实购买次数 = **`baseAmount / 10`**（对应 smali `y()J`），ID1 买过 1 次时 `baseAmount = 10`。
+
+**【后果】** 曾多次把 `bought=0` 读成「没买成」，据此判断「解锁了但买不下」，全部误判。
+判 ID 是否已购买，一律看 `baseAmount / 10 > 0`，不看 `bought`。
