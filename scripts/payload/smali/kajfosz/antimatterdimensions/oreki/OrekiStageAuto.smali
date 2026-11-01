@@ -35,6 +35,15 @@
 # 不参与任何判定，不进存档。
 .field private static sIpMultBuys:I
 
+# [R51-A27] buyInfinityUpgrades 的探针计数器（每 300 次调用打一行）。
+# 为什么需要：A26 存档 `infinityUpgradeBits=0`、日志里 `OREKI_IUP_BUY` 一行都没有，
+# 但同一个方法每 tick 都在跑 —— 无法区分「没跑」「跑了但全被跳过」「买不起」。
+# 只服务诊断，不进存档、不参与任何判定。
+.field private static sIupProbeTick:I
+
+# [R51-A27] 探针闩锁：0=未打过 1=已打过（只打第一行「循环入口快照」）
+.field private static sIupProbeDone:I
+
 # [R50-A11] 取证位：tryBuyId1 的 1→8 循环**完整跑完过一次**就打一行日志，只打一次。
 # 为什么需要它：`OREKI_ID` 只在某层门槛达成（p() 为真）时才打，新档早期 8 层全未达标，
 # 于是"循环到底有没有执行"无法从日志区分——这正是 A10 的 if-le 极性错误能藏住的原因。
@@ -445,8 +454,91 @@
 # 每 tick 最多买 1 个（与 Web 的 UPGRADES_PER_TICK = 1 同策略）：
 # 一次买光会把 IP 从 interval 升级（Break 的唯一前置）上抢走。
 .method public static buyInfinityUpgrades()V
-    .locals 6
+    .locals 8
 
+    # [R51-A27] 入口探针：每 300 次调用打一行「列表大小 / 第 0 项是否已买 / 第 0 项是否买得起」。
+    # 目的：A26 出现 `infinityUpgradeBits=0` 且零条 `OREKI_IUP_BUY`，三种可能
+    # （没被调用 / 循环全跳过 / 全部买不起）必须靠运行期数据区分，不能靠读码猜。
+    # [R51-A27b] 探针改为**只打一次**入口快照。
+    # A27 实测：`rem-int` 节流没生效，25 秒打出 1004 行 OREKI_IUP_SIZE，
+    # 与真正的购买日志混在一起把 logcat 冲爆。取证只需要一次快照，
+    # 后续进度用存档采样（reports/r51/poll.py）看 IP / ipMultUpgrades。
+    sget v6, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIupProbeDone:I
+
+    if-nez v6, :oreki_sa_iup_probe
+
+    goto :oreki_sa_iup_probe_end
+
+    :oreki_sa_iup_probe
+    const/4 v6, 0x1
+
+    sput v6, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIupProbeDone:I
+    sget-object v6, Laz1;->s:Ljava/util/List;
+
+    invoke-interface {v6}, Ljava/util/List;->size()I
+
+    move-result v6
+
+    const-string v7, "OREKI_IUP_SIZE"
+
+    invoke-static {v6}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-static {v7, v6}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    sget-object v6, Laz1;->s:Ljava/util/List;
+
+    invoke-interface {v6}, Ljava/util/List;->size()I
+
+    move-result v7
+
+    if-nez v7, :oreki_sa_iup_probe_end
+
+    const/4 v7, 0x0
+
+    invoke-interface {v6, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v6
+
+    # cast 到基类 fp3（ry1/av 都是它的子类），避免因具体子类不同而 ClassCastException
+    check-cast v6, Lfp3;
+
+    invoke-virtual {v6}, Lfp3;->B()Z
+
+    move-result v7
+
+    const-string v6, "OREKI_IUP_B0"
+
+    invoke-static {v7}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    sget-object v6, Laz1;->s:Ljava/util/List;
+
+    const/4 v7, 0x0
+
+    invoke-interface {v6, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v6
+
+    check-cast v6, Lfp3;
+
+    invoke-virtual {v6}, Lfp3;->z()Z
+
+    move-result v7
+
+    const-string v6, "OREKI_IUP_Z0"
+
+    invoke-static {v7}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_sa_iup_probe_end
     const/4 v0, 0x0
 
     sget-object v1, Laz1;->s:Ljava/util/List;
@@ -493,7 +585,16 @@
 
     invoke-static {v3, v4}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    return-void
+    # [R51-A27b] 买到后**不再 return-void**，改为继续遍历。
+    #
+    # 依据（2026-11-01 15:54【实测】，A27 装机 25 秒日志）：
+    #   `OREKI_IUP_BUY: resetBoost` 出现 1007 次，且每次都在同一项提前退出；
+    #   存档 `infinityUpgradeBits` 从 0 涨到 2047（11 项真买到），但
+    #   `ipMultUpgrades` 恒为 0 —— 因为循环每次都卡在列表靠前的 `resetBoost`
+    #   就 return，后面的 `:oreki_sa_iup_ipm`（ipMult 可重复升级）**一次都轮不到**。
+    #   IP 因此只能线性增长（每次坍缩 +2），永远到不了 Break 与 ID1 的门槛。
+    # 改成 goto :next 后：一 tick 内可买到多项，且必然走到 ipMult 分支。
+    goto :oreki_sa_iup_next
 
     :oreki_sa_iup_next
     add-int/lit8 v0, v0, 0x1
@@ -519,6 +620,23 @@
     invoke-static {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/a;->a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;
     move-result-object v0
 
+    # [R51-A27] 死锁修复：ID1 **未解锁**时必须正常买 ipMult。
+    #
+    # 依据（2026-11-01 15:55【实测】，真实新档 60 s 采样）：
+    #   `inf 10→14`、`IP 5→13`、`ipMultUpgrades=0`、`infinityUpgradeBits=0`
+    #   ⇒ 每次坍缩只兑现约 1 IP，IP 是**线性**增长。
+    #   A26 的闸门用 `ID1.y() == 0`（没买过 ID1）判「不买 ipMult」，
+    #   而全新档 ID1 恒未买 ⇒ ipMult 恒不买 ⇒ IP 恒线性 +1 ⇒
+    #   永远攒不到 ID1 解锁所需的 1e8。这是死锁，不是数值不够。
+    #
+    # 正确的保护窗口只有一段：**已解锁但尚未买下 ID1**（此时才需要把 IP 攒到 1e8）。
+    # 未解锁 → 必须让 IP 指数增长，否则连解锁都到不了。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->G()Z
+    move-result v1
+
+    # if-eqz = G()==0（未解锁）→ 去正常买 ipMult
+    if-eqz v1, :oreki_sa_iup_ipm_go
+
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->y()J
     move-result-wide v2
 
@@ -529,6 +647,7 @@
     # purchases != 0（已经买过 ID1）→ 恢复买 ipMult
     if-nez v2, :oreki_sa_iup_ipm_go
 
+    # 已解锁但还没买下：这一窗口把 IP 留给 ID1 的 1e8，暂不买 ipMult
     return-void
 
     :oreki_sa_iup_ipm_go
@@ -1262,8 +1381,12 @@
 
     move-result v1
 
-    # xHighest > 10（玩家自定义过）→ 玩家自定义过，不动
-    if-gtz v1, :ret_p
+    # xHighest >= 10（默认值或玩家自定义过）→ 不动。
+    #
+    # [R51-A27b] 原写 if-gtz（只有 xHighest > 10 才跳过）：xHighest 恰好等于 10 时不跳，
+    # 于是每 tick 都重新写入 10 并打一行 OREKI_AU4B —— A27 实测 25 秒打出 1007 行，
+    # 纯属 I/O 浪费。改成 if-gez（>= 0 即 xHighest >= 10 就跳过）后行为不变、日志归零。
+    if-gez v1, :ret_p
 
     invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->P(Lkajfosz/antimatterdimensions/BigDouble;)V
 
