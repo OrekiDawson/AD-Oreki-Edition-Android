@@ -99,6 +99,10 @@
 .field private static sIntervalSec:I
 .field private static sStrictGlobal:Z
 .field private static sInited:Z
+
+# [R51-A31 DIAG] 上次 deny 诊断的时间（elapsedRealtime），用于「10 秒最多一条」的节流。
+# 只服务诊断日志，不参与任何判定，不持久化。
+.field private static sDenyAt:J
 .field private static sCtx:Landroid/content/Context;
 
 # 诊断计数（累计，不清零；清零点见 setEnabled(false)）
@@ -721,7 +725,7 @@
 
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z
 
-    if-eqz v0, :deny
+    if-eqz v0, :deny_1
 
     # ---- 原版「自动购买器」总开关（与 Oreki 开关是「与」的关系）----
     # 与 Web tick() 的 `if (!player?.auto?.autobuyersOn) return null;` 对齐：
@@ -732,13 +736,13 @@
 
     move-result v0
 
-    if-eqz v0, :deny
+    if-eqz v0, :deny_2
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
 
     move-result v1
 
-    if-gez v1, :deny
+    if-gez v1, :deny_3
 
     # ---- 连续型 + 默认档：不受管辖 ----
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sStrictGlobal:Z
@@ -783,7 +787,7 @@
 
     cmp-long v0, v4, v10
 
-    if-gez v0, :deny
+    if-gez v0, :deny_4
 
     const/4 v0, 0x0
 
@@ -803,7 +807,7 @@
 
     cmp-long v0, v4, v2
 
-    if-lez v0, :deny
+    if-lez v0, :deny_5
 
     :gate
     const/16 v8, 0x3e8
@@ -852,7 +856,67 @@
 
     sput v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sBeatSkips:I
 
+    # [R51-A31 DIAG] 拒绝原因诊断（临时取证代码，定位后即降频或移除）
+    #
+    # 背景：A30 实测 `OREKI_SCHED act` **一条都没有**，而 init 日志正常。
+    # 已排除：数组长度（11 项一致）、`isContIdx(8)` 判为非连续型、
+    # `Player$Options.c()` 确实读 autobuyersOn。剩因只能靠运行期数据，不许再猜。
+    #
+    # code：1=sEnabled 关 / 2=原版自动购买器总开关关 / 3=任务 id 未注册
+    #       4=同帧名额被占且未超 1 秒看门狗 / 5=失败冷却中 /（间隔闸门见 :deny_iv）
+    # 节流：10 秒最多一条，避免再制造一次日志洪水。
+    :deny_1
+    const/4 v0, 0x1
+    goto :deny_log
+
+    :deny_2
+    const/4 v0, 0x2
+    goto :deny_log
+
+    :deny_3
+    const/4 v0, 0x3
+    goto :deny_log
+
+    :deny_4
+    const/4 v0, 0x4
+    goto :deny_log
+
+    :deny_5
+    const/4 v0, 0x5
+    goto :deny_log
+
     :deny
+    const/4 v0, 0x0
+
+    return v0
+
+    :deny_log
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+    move-result-wide v2
+
+    sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sDenyAt:J
+
+    sub-long v6, v2, v4
+
+    const-wide/16 v4, 0x2710
+
+    cmp-long v6, v6, v4
+
+    # if-ltz = 间隔不足 10 秒 → 不打，直接返回 false
+    # 基准样本见 FACTS C.51：if-ltz = 小于零才跳
+    if-ltz v6, :deny_log_done
+
+    sput-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sDenyAt:J
+
+    const-string v2, "OREKI_SCHED deny"
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :deny_log_done
     const/4 v0, 0x0
 
     return v0
