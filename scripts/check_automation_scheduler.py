@@ -257,6 +257,52 @@ def main():
         hits = _wide.scan_file(f)
         ok(not hits, "wide 寄存器对被当 32 位值读：" + ("; ".join(hits) if hits else ""))
 
+    # ── 16. [R51-A32] 分支语义真值表 + 变异自测（能报红的检查器）──────────
+    # 背景：A30 实测 `OREKI_SCHED act` 恒缺，根因是三处极性写反
+    # （isContIdx / 失败冷却 / 严格档时间戳选择），而旧检查器只查「标记字符串在不在」，
+    # 三处全绿。这里改为**结构断言 + 变异自测**：先把极性抽成布尔量核对，
+    # 再把每处故意翻回去，要求检查器必须识别为错。只加断言数量不算数，能报红才算。
+
+    def _code_only(src):
+        """剔除注释行：本轮修复说明里会引用被替换掉的旧指令
+        （如反引号里的 `if-gtz v0, :gate`），不剔除会把说明文字当成违规代码。"""
+        return "\n".join(l for l in src.splitlines() if not l.strip().startswith("#"))
+
+    def sched_semantics(src):
+        """把三处关键分支的极性抽成布尔量，供真源码与变异源码对比。"""
+        code = _code_only(src)
+        cont = body(code, "isContIdx")
+        return {
+            "isContIdx 0..3 走 cont（if-gez）": "if-gez p0, :cont" in cont,
+            "isContIdx 无反向 if-ltz": "if-ltz p0, :cont" not in cont,
+            "冷却 deadline<=0 走 gate（if-lez）": "if-lez v0, :gate" in code,
+            "冷却无反向 if-gtz→gate": "if-gtz v0, :gate" not in code,
+            "时间戳 严格档走 global（if-nez）": "if-nez v0, :global" in code,
+            "时间戳 无反向 if-eqz→global": "if-eqz v0, :global" not in code,
+        }
+
+    _sem = sched_semantics(sched)
+    for _k, _v in _sem.items():
+        ok(_v, f"分支语义：{_k}")
+
+    # 连续型任务 ID 必须是这四类（序号即 sIds 下标 0~3），且默认档豁免、严格档纳管
+    for _name, _idx in (("routine", 0), ("early", 1), ("eternity", 2), ("eternityReset", 3)):
+        ok(f'"{_name}"' in sched, f"连续型任务 id 缺失：{_name}（idx={_idx}）")
+
+    # 变异测试：每处翻回去，检查器必须报错（证明它真的在测语义，不是测字符串）
+    _mutants = (
+        ("if-gez p0, :cont", "if-ltz p0, :cont", "isContIdx 0..3 走 cont（if-gez）"),
+        ("if-lez v0, :gate", "if-gtz v0, :gate", "冷却 deadline<=0 走 gate（if-lez）"),
+        ("if-nez v0, :global", "if-eqz v0, :global", "时间戳 严格档走 global（if-nez）"),
+    )
+    for _old, _new, _flag in _mutants:
+        # 必须**全部**替换：`if-lez v0, :gate` 在冷却段出现两次（deadline<=0 与已过期两条支路），
+        # 只换第一次的话第二条仍在，flag 依旧为真，变异测试就会假通过。
+        _m = sched.replace(_old, _new)
+        ok(_m != sched, f"变异测试锚点缺失（无法翻转）：{_flag}")
+        ok(sched_semantics(_m)[_flag] is False,
+           f"变异测试未报错：翻转「{_flag}」后检查器仍认为正确")
+
     # ── 输出 ───────────────────────────────────────────────────────────
     if FAILS:
         print(f"[FAIL] {len(FAILS)} / {CHECKS[0]} 条断言失败：")

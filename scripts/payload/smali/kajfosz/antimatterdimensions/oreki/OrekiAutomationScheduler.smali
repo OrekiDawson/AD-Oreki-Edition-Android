@@ -373,7 +373,16 @@
 .method private static isContIdx(I)Z
     .locals 1
 
-    if-ltz p0, :cont
+    # [R51-A32] 极性修复。原写 `if-ltz p0, :cont`：
+    #   基准语义（FACTS C.51）= if-ltz 为「小于零才跳」，
+    #   于是 idx 0~3（routine/early/eternity/eternityReset）**不跳**，
+    #   直接落到下面的 `const/4 v0, 0x0; return v0` ⇒ 四个连续型任务全部被误判为非连续型，
+    #   默认档里它们被错误地纳入 1~60 秒限流（而本应保持原版 tick 节奏）。
+    #   这句同时解释了 A30 实测 `OREKI_SCHED act` 恒缺的一半：非连续型判定反向之后，
+    #   调度语义整体失真。
+    # 正确真值表（本轮静态检查逐项验证）：
+    #   -1 → false ｜ 0,1,2,3 → true ｜ 4,8,10 → false
+    if-gez p0, :cont
 
     # 负数 = 未知任务，不按连续型处理
     const/4 v0, 0x0
@@ -803,19 +812,44 @@
 
     cmp-long v0, v4, v10
 
-    if-gtz v0, :gate
+    # [R51-A32] 冷却判据极性修复。
+    # 原写 `if-gtz v0, :gate`（v0 > 0 才去 gate）：
+    #   deadline == 0（**从未失败过**）时 v0 = 0 → 不跳 → 继续拿 0 和 now 比，
+    #   compare(0, now) 恒为负 → 下一句 `if-lez … :deny` 直接拒绝。
+    #   ⇒ 只要没发生过失败，**所有任务永远被拒**。这正是 A30 `OREKI_SCHED act` 一条都没有的
+    #   第二个原因（第一个见 isContIdx）。
+    # 正确语义：
+    #   deadline <= 0        → 无冷却，交给间隔闸门（gate）
+    #   deadline <= now      → 冷却已过，交给间隔闸门（gate）
+    #   deadline >  now      → 冷却生效，拒绝（deny_5）
+    if-lez v0, :gate
 
     cmp-long v0, v4, v2
 
-    if-lez v0, :deny_5
+    # if-lez = compare(deadline, now) <= 0（已过）→ gate；> 0（未到）→ 落到 deny_5
+    if-lez v0, :gate
+
+    goto :deny_5
 
     :gate
     const/16 v8, 0x3e8
 
-    # ---- 取参照时刻：严格档 = 全局节拍；默认档 = 本任务上次执行 ----
+    # ---- 取参照时刻：默认档 = 本任务上次执行；严格档 = 全局节拍 ----
+    #
+    # [R51-A32] 极性修复。原写 `if-eqz v0, :global`：
+    #   v0 == 0（默认档）时反而跳到 `:global` 去读 `sLastBeatAt`（全系统共用节拍），
+    #   v0 != 0（严格档）时反而读 `sLastAct[idx]`（每任务各自计时）——
+    #   **两种模式的时间戳正好互换**，于是：
+    #     · 默认档被误施加全局节拍 ⇒ 不同策略任务互相挤占，等于把 1~60 秒限流
+    #       变成了"全局只能有一个动作"，与设计语义相反；
+    #     · 严格档失去全局统一节拍的意义。
+    # 正确语义（用户 2026年11月1日 A32 令 §2.3）：
+    #   strictGlobal = false → sLastAct[idx]，每条策略任务各自计时
+    #   strictGlobal = true  → sLastBeatAt，全系统共用一个节拍
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sStrictGlobal:Z
 
-    if-eqz v0, :global
+    # if-nez = v0 != 0（严格档）→ 跳 :global 读全局节拍
+    if-nez v0, :global
 
     sget-object v6, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sLastAct:[J
 
@@ -866,23 +900,23 @@
     #       4=同帧名额被占且未超 1 秒看门狗 / 5=失败冷却中 /（间隔闸门见 :deny_iv）
     # 节流：10 秒最多一条，避免再制造一次日志洪水。
     :deny_1
-    const/4 v0, 0x1
+    const-string v6, "disabled"
     goto :deny_log
 
     :deny_2
-    const/4 v0, 0x2
+    const-string v6, "original-autobuyers-off"
     goto :deny_log
 
     :deny_3
-    const/4 v0, 0x3
+    const-string v6, "unknown-task"
     goto :deny_log
 
     :deny_4
-    const/4 v0, 0x4
+    const-string v6, "frame-held"
     goto :deny_log
 
     :deny_5
-    const/4 v0, 0x5
+    const-string v6, "failure-cooldown"
     goto :deny_log
 
     :deny
@@ -910,11 +944,7 @@
 
     const-string v2, "OREKI_SCHED deny"
 
-    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v2, v6}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :deny_log_done
     const/4 v0, 0x0

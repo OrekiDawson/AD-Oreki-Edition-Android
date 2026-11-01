@@ -88,7 +88,9 @@
 
 # 每个自动购买器 tick 调用一次；异常一律吞掉，绝不影响游戏主循环
 .method public static onAutoBuyerTick()V
-    .locals 1
+    # [R51-A32] .locals 由 1 扩到 6：BreakGate 真动作判定需要 v1~v4 存前后快照
+    # （brake / hasMaxedInterval 各两次）。本方法无参数，扩大 locals 不影响 p 寄存器。
+    .locals 6
 
     :try_start_0
     # [R51-A30] 统一调度器开帧：必须是本方法第一条指令。
@@ -231,8 +233,64 @@
 
     if-eqz v0, :oreki_sa_bg_skip
 
+    # [R51-A32] 真动作记账：`tick()` 内部有多个提前返回，「调用过」不等于「改变了状态」。
+    # 原先无条件 `noteActed` 会让空转冒充成功，把节拍白白吃掉（并污染 OREKI_SCHED act 证据）。
+    # 这里用**前后状态快照**判定，选的是 BreakGate 两个可观测的终态：
+    #   ① `Player.m()Z`        = brake（未 Break→已 Break）
+    #   ② `CrunchAutobuyerState.v()Z` = hasMaxedInterval（interval 未满→已满）
+    # 任一翻转即真动作。补贴 IP、逐级买 interval 这些中间步骤最终都会体现为②翻转，
+    # 所以不需要读 IP 数值，也就不动任何原版公式。
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v1
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->v()Z
+
+    move-result v2
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->tick()V
 
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v3
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->v()Z
+
+    move-result v4
+
+    # 任一状态翻转 → 真动作
+    if-ne v1, v3, :oreki_sa_bg_acted
+
+    if-ne v2, v4, :oreki_sa_bg_acted
+
+    # 两个终态都没变 → no-op：不计节拍、不更新时间戳
+    const-string v0, "breakGate"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteNoop(Ljava/lang/String;)V
+
+    goto :oreki_sa_bg_skip
+
+    :oreki_sa_bg_acted
     const-string v0, "breakGate"
 
     invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
