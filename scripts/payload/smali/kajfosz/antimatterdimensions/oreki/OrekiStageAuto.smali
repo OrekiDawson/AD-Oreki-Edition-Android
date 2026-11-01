@@ -20,11 +20,21 @@
 # 而不是靠读代码猜。
 .field private static sHold:Z
 
+# [R50-A10] autoSacrifice() 的计数器。只为日志节流：献祭在维度数量很大时
+#   每帧都可能达成（间隔 100ms 的原版自动器是 10 次/秒），全打会把 logcat 冲爆。
+#   前 10 次逐条打，之后每满 100 次打一行。不参与任何判定，不进存档。
+.field private static sSacCount:I
+
 # [R50-A8] buyInfinityUpgrades() 的计数器。只为日志节流：
 #   一次性无限升级最多 17 个（有界），每次都打；IP 倍率可重复升级可能买到上万级，
 #   只在第 1 次与每满 100 次打一行，避免把 logcat 冲爆后拿不到证据。
 # 不参与任何判定，不进存档。
 .field private static sIpMultBuys:I
+
+# [R50-A11] 取证位：tryBuyId1 的 1→8 循环**完整跑完过一次**就打一行日志，只打一次。
+# 为什么需要它：`OREKI_ID` 只在某层门槛达成（p() 为真）时才打，新档早期 8 层全未达标，
+# 于是"循环到底有没有执行"无法从日志区分——这正是 A10 的 if-le 极性错误能藏住的原因。
+.field private static sIdLoopLogged:Z
 
 # ---------------------------------------------------------------
 # AD: Oreki Edition —— 「首次无限之后」阶段自动化（Android 侧）
@@ -124,6 +134,13 @@
     if-eqz v0, :oreki_sa_try_end
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->enableIpMultAutobuyer()V
+
+    # [R50-A10] 维度献祭自动购买。Web 端 `game.js:tryOrekiEarlyRoutine` 每帧都做
+    # （`Sacrifice.canSacrifice && nextBoost >= max(multiplier, 1.01)` → `sacrificeReset()`），
+    # Android 端原版献祭自动器被锁在「永恒里程碑 autoSacrifice / IC2 完成」之后，
+    # 于是首次永恒之前**一次都不会献祭**（存档实测 `sacrificed = 0`，而 UI 上按钮
+    # 写着 `×6.17e3`）。这是当前最便宜的乘法器，必须补上。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->autoSacrifice()V
 
     # [R50-A8] 无限升级自动购买：必须排在 interval 升级之前。
     # 理由：先让这一帧的 IP 变成「能生的钱」（无限升级乘数），再由 interval 升级花掉存量；
@@ -243,6 +260,96 @@
 .end method
 
 
+# [R50-A10] 维度献祭自动购买 —— 补上 Web `tryOrekiEarlyRoutine` 里的 `sacrificeReset()`。
+#
+# 为什么必须有（存档实测 2026-11-01 09:58）：
+#   `sacrificed = 0.0`（从开局到现在一次都没献祭过），而 UI 上「维度献祭」按钮写着
+#   `×6.17e3`。原版的献祭自动器 `SacrificeAutobuyerState.g()` 要求
+#   `EternityMilestone.autoSacrifice` 或 `InfinityChallenge(2)` 完成 —— 两条都在
+#   首次永恒之后，所以**首次永恒之前完全没有献祭自动化**，玩家必须手点。
+#   而 Web 端从开局第一帧就在献祭，这是产量差出几个数量级的原因之一。
+#
+# 判据与 Web 完全一致（`game.js:319-322`）：
+#   `Sacrifice.canSacrifice && nextBoost >= Decimal.max(player.auto.sacrifice.multiplier, 1.01)`
+#   · `prestige/g;->b()Z`  = canSacrifice（原版判据，含挑战 / Enslaved / 无第八维度等全部限制）
+#   · `prestige/g;->d()L...BigDouble;` = nextBoost
+#   · `Player$Auto;->z()...;->k()L...BigDouble;` = 玩家设定的 multiplier（默认 2）
+#
+# 走的是**原版真实入口** `prestige/g;->i()V`，与原版献祭自动器
+# `SacrificeAutobuyerState.m()` 第 41 行调的**同一个方法**：
+# 照价重置第 1~7 维度、把 `player.sacrificed` 置为 nextBoost，
+# 不写解锁位、不改成本、不发放免费资源。
+.method public static autoSacrifice()V
+    .locals 3
+
+    # ① 原版可献祭判据（挑战 / 毁灭 / Enslaved / 维度不足 全部由它把关）
+    invoke-static {}, Lkajfosz/antimatterdimensions/prestige/g;->b()Z
+    move-result v0
+
+    if-eqz v0, :oreki_sa_sac_done
+
+    # ② nextBoost
+    invoke-static {}, Lkajfosz/antimatterdimensions/prestige/g;->d()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v1
+
+    # ③ 玩家阈值（原版献祭自动器的 multiplier，默认 2.0）
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->z()Lkajfosz/antimatterdimensions/autobuyer/SacrificeAutobuyerState;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/SacrificeAutobuyerState;->k()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v0
+
+    invoke-virtual {v1, v0}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+    move-result v0
+
+    # compareTo < 0（nextBoost < multiplier）→ 不值得献祭，等下一帧
+    if-ltz v0, :oreki_sa_sac_done
+
+    # ④ 真献祭（原版入口）
+    invoke-static {}, Lkajfosz/antimatterdimensions/prestige/g;->i()V
+
+    # ⑤ 运行期证据：前 10 次逐条打，之后每满 100 次打一行
+    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sSacCount:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sSacCount:I
+
+    const/16 v1, 0xa
+
+    if-gt v0, v1, :oreki_sa_sac_rem
+
+    const-string v1, "OREKI_SAC"
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v2
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    goto :oreki_sa_sac_done
+
+    :oreki_sa_sac_rem
+    rem-int/lit16 v1, v0, 0x64
+
+    if-nez v1, :oreki_sa_sac_done
+
+    const-string v1, "OREKI_SAC"
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v2
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_sa_sac_done
+    return-void
+.end method
+
+
 # [R50-A8] 无限升级自动购买 —— 补上 Web `OrekiEarlyAutomation.buyInfinityUpgrades()` 的 Android 对应物。
 #
 # 为什么必须有（C.86.4 已量化）：Android 端 `ipMultUpgrades` 恒为 0，一次坍缩只给 1~2 IP，
@@ -346,7 +453,10 @@
     # 日志节流：第 1 次必打，之后每满 100 次打一行（买到上万级也不会冲爆 logcat）
     const/4 v2, 0x1
 
-    if-eq v1, v2, :oreki_sa_iup_ipm_rem
+    # [R50-A10] 这里原来是 if-eq，极性写反：count==1 时跳去取余分支（不打），
+    # count!=1 时反而每次都打 —— 实测 20 分钟刷了 27598 行 OREKI_IPM_BUY。
+    # 改成 if-ne 才是「只有第 1 次和每满 100 次打」。
+    if-ne v1, v2, :oreki_sa_iup_ipm_rem
 
     const-string v2, "OREKI_IPM_BUY"
 
@@ -517,12 +627,21 @@
 .end method
 
 
-# 首次 ID1 的自动购买（等价 Web tryFirstId1AutoUnlock 的「买」这一半）。
-# 解锁不由本方法负责：反物质门槛达成后，原版 InfinityDimensionState 自己的
-# 解锁流程会把 isUnlocked 置位（走原版判据，不写字段）。
-# 本方法只在门槛已达成时调用原版自动购买器同一个入口 h(Z)。
+# 无限维度自动购买（等价 Web `OrekiEarlyAutomation.buyInfinityDimensions()` 的
+# `InfinityDimensions.buyMax()`：8 层逐层尝试，含 unlock）。
+#
+# 历史：R41 只买了 ID1（`tryBuyId1`），因为当时认为 ID2~ID8 由原版自动器接管。
+# 但原版无限维度自动器的解锁条件是 `EternityMilestone.autobuyerID{tier}`，
+# **首次永恒之前全部不可用**（Web 侧 `oreki-early-automation.js` 顶部事实 1 已核）。
+# 所以首次永恒之前 8 层都只能手动买 —— 这也是 Web 必须每帧 `buyMax()` 的原因。
+# [R50-A10] 把循环补成 1..8 层。
+#
+# 解锁不由本方法负责：原版 `InfinityDimensionState.h(Z)` 首行就是
+# `if (!isUnlocked) return this.unlock();`，所以「买」这一动作本身会先尝试解锁，
+# 走的是原版判据（`thisEternity.maxAM >= 该层要求`），不写任何解锁字段。
+# 每层的门槛用原版 `p()Z` 判定，未达成就不碰（ID1 为 1e1100）。
 .method public static tryBuyId1()V
-    .locals 2
+    .locals 4
 
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
@@ -534,25 +653,61 @@
 
     const/4 v1, 0x1
 
+    :oreki_sa_id_loop
+    const/16 v2, 0x8
+
+    # [R50-A11 极性修复] 原写 `if-le v1, v2, :oreki_sa_id_done`：
+    # if-le 语义是「v1 <= v2 就跳」，而初值 v1=1、上界 v2=8 ⇒ 1<=8 恒成立
+    # ⇒ 第一次判断就跳出，循环体一次都不执行，本方法退化为空操作。
+    # 升序闭区间 1..8 的正确循环头是「v1 > 8 才退出」，即 if-gt。
+    if-gt v1, v2, :oreki_sa_id_exit
+
     invoke-static {v1}, Lkajfosz/antimatterdimensions/dimension/infinity/a;->a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;
     move-result-object v0
 
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->p()Z
-    move-result v1
+    move-result v2
 
-    # p() = thisEternity.maxAM >= 该维度要求（ID1 为 1e1100）→ 未达成就不碰
-    if-eqz v1, :oreki_sa_id_done
+    # p() = thisEternity.maxAM >= 该层要求 → 未达成就跳过这一层
+    if-eqz v2, :oreki_sa_id_next
 
-    const/4 v1, 0x1
+    const/4 v2, 0x1
 
-    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->h(Z)V
+    invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->h(Z)V
 
-    # [R41] 运行期证据：ID1 真的被走到过
-    const-string v1, "OREKI_ID1"
+    # [R41] 运行期证据：哪一层真的被走到过（8 层封顶，量有界）
+    const-string v2, "OREKI_ID"
 
-    const-string v0, "buy called"
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v3
 
-    invoke-static {v1, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_sa_id_next
+    add-int/lit8 v1, v1, 0x1
+
+    goto :oreki_sa_id_loop
+
+    # [R50-A11 取证] 只有从循环头正常退出才会落到这里（v1 已递增到 9）。
+    # 未 Break 的早退直接跳 :oreki_sa_id_done，不经过本块，因此 v1 不会读到未初始化值。
+    :oreki_sa_id_exit
+    const/16 v2, 0x9
+
+    if-ne v1, v2, :oreki_sa_id_done
+
+    sget-boolean v2, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIdLoopLogged:Z
+
+    if-nez v2, :oreki_sa_id_done
+
+    const/4 v2, 0x1
+
+    sput-boolean v2, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIdLoopLogged:Z
+
+    const-string v2, "OREKI_ID_LOOP"
+
+    const-string v3, "tier 1..8 executed"
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_id_done
     return-void
