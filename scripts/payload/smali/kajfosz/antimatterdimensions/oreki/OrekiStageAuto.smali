@@ -25,6 +25,10 @@
 #   前 10 次逐条打，之后每满 100 次打一行。不参与任何判定，不进存档。
 .field private static sSacCount:I
 
+# [R50-A16] crunchProbe 的帧计数（每 300 次 autoBuyerTick 打一行，约 5 秒）。
+# 只服务诊断，不进存档、不参与任何判定。
+.field private static sCrunchProbeTick:I
+
 # [R50-A8] buyInfinityUpgrades() 的计数器。只为日志节流：
 #   一次性无限升级最多 17 个（有界），每次都打；IP 倍率可重复升级可能买到上万级，
 #   只在第 1 次与每满 100 次打一行，避免把 logcat 冲爆后拿不到证据。
@@ -87,6 +91,9 @@
     # [Oreki AU4b] 策略默认值修正：必须在任何分支之前、无条件执行
     # （Web big-crunch-autobuyer.js:19-26 同源；只改策略，不动坍缩条件/间隔/重置）
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->applyCrunchPolicy()V
+
+    # [R50-A16] 坍缩闸门探针（每约 5 秒一行，只为定位「mode=0 且 AM>>阈值却仍不坍缩」）
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->crunchProbe()V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z
     move-result v0
@@ -494,6 +501,28 @@
     goto :oreki_sa_iup_loop
 
     :oreki_sa_iup_ipm
+    # [R50-A15] ID1 未解锁前，**不买 ipMult**，把 IP 留给 ID1 的 1e8。
+    #
+    # 依据（Web `oreki-early-automation.js:30-32` 原话）：
+    #   `InfinityUpgrade.ipMult` 单次 ×2 IP，但只把永恒门槛平移 308×log10(2)≈93 个反物质指数，
+    #   **对首次永恒几乎无贡献，却会瞬间吃光 IP**。
+    # 实测（2026-11-01 13:07→13:38）：`infinities` 恒 42 的这段时间里 IP 从 9.17e5 掉到 2.13e5，
+    # 而 `breakInfinityUpgradeBits=0`（ipGen 没买、没有被动 IP 来源）⇒ 唯一的消费方就是 ipMult。
+    # 判据用原版 `InfinityDimensionState.G()Z`（isUnlocked），不用 IP 数值自己猜。
+    const/4 v0, 0x1
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/a;->a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->G()Z
+    move-result v0
+
+    # G() != 0（已解锁）→ 恢复买 ipMult
+    if-eqz v0, :oreki_sa_iup_ipm_go
+
+    return-void
+
+    :oreki_sa_iup_ipm_go
     sget-object v2, Laz1;->a:Luu1;
 
     const/4 v3, 0x0
@@ -1094,6 +1123,71 @@
 #   mode: 0=AMOUNT 1=TIME 2=X_HIGHEST（与 Q() 的 +1 mod 3 循环一致）
 # 幂等：条件一旦不满足就什么都不做；策略已经是 X_HIGHEST 时 mode!=0 直接返回。
 # ---------------------------------------------------------------------------
+# [R50-A16] 坍缩闸门探针。每 300 次 autoBuyerTick（约 5 秒）打一行位掩码：
+#   bit0-1 = mode（0=AMOUNT 1=TIME 2=X_HIGHEST）
+#   bit2   = c()   canTick（isActive && autobuyersOn && g() && prestige/e.b()）
+#   bit3   = g()   isUnlocked
+#   bit4   = holdCrunch()（true 表示本帧被 AD3b 主动挡掉）
+# 只读、只在日志里出现，不改任何状态。
+.method public static crunchProbe()V
+    .locals 4
+
+    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sCrunchProbeTick:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sCrunchProbeTick:I
+
+    const/16 v1, 0x12c
+
+    rem-int v1, v0, v1
+
+    if-nez v1, :oreki_cp_done
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
+    move-result v1
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->c()Z
+    move-result v2
+
+    shl-int/lit8 v2, v2, 0x2
+
+    or-int/2addr v1, v2
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->g()Z
+    move-result v2
+
+    shl-int/lit8 v2, v2, 0x3
+
+    or-int/2addr v1, v2
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->holdCrunch()Z
+    move-result v2
+
+    shl-int/lit8 v2, v2, 0x4
+
+    or-int/2addr v1, v2
+
+    const-string v2, "OREKI_CRUNCH"
+
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v3
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_cp_done
+    return-void
+.end method
+
+
 .method public static applyCrunchPolicy()V
     .locals 8
 
@@ -1165,6 +1259,18 @@
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
 
     :oreki_ap_set
+    # [R50-A16] 关掉 increaseWithMult —— 这是「AMOUNT 门槛却永远够不到」的真凶。
+    # 放在 :oreki_ap_set 内部，保证「本来就是 AMOUNT」的那条路径也会被纠正。
+    #
+    # `CrunchAutobuyerState.F()LBigDouble;`（= AMOUNT 分支用的阈值）不是裸 amount：
+    #   F() = amount × Lt5;->b(Lr5;) 返回的倍率
+    # 该倍率受 `increaseWithMult` 控制。本存档 `increaseWithMult = true`，
+    # 阈值被乘成天文数字，AM（1e1388）永远够不到 —— 探针实测：
+    #   OREKI_CRUNCH = 12 = 0b01100 ⇒ mode=0(AMOUNT)、c()=1、g()=1、holdCrunch=0，
+    #   canTick 全通过、却被 AMOUNT 分支内部的比较挡掉。
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->N(Z)V
     # amount 目标 1e1000（BigDouble: mantissa × 10^exponent）
     # 注意：`<init>(DDZ)` 有「对象 + 两个 double + 一个布尔」共 6 个寄存器实参，
     # 超过 invoke 的 5 个上限，必须用 /range 且寄存器连续 ⇒ 放在 v2..v7。
