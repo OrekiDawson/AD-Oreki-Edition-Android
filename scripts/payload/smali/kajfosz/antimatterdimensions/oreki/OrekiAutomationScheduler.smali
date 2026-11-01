@@ -730,7 +730,7 @@
 #   严格档          → 全局闸（距 sLastBeatAt ≥ intervalSec）
 #   默认档          → 单任务闸（该任务距自己的 sLastAct ≥ intervalSec）
 .method public static allow(Ljava/lang/String;)Z
-    .locals 16
+    .locals 12
 
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z
 
@@ -900,23 +900,23 @@
     #       4=同帧名额被占且未超 1 秒看门狗 / 5=失败冷却中 /（间隔闸门见 :deny_iv）
     # 节流：10 秒最多一条，避免再制造一次日志洪水。
     :deny_1
-    const-string v13, "disabled"
+    const-string v1, "disabled"
     goto :deny_log
 
     :deny_2
-    const-string v13, "original-autobuyers-off"
+    const-string v1, "original-autobuyers-off"
     goto :deny_log
 
     :deny_3
-    const-string v13, "unknown-task"
+    const-string v1, "unknown-task"
     goto :deny_log
 
     :deny_4
-    const-string v13, "frame-held"
+    const-string v1, "frame-held"
     goto :deny_log
 
     :deny_5
-    const-string v13, "failure-cooldown"
+    const-string v1, "failure-cooldown"
     goto :deny_log
 
     :deny
@@ -925,34 +925,30 @@
     return v0
 
     :deny_log
+    # [R52] 节流改用「下次允许时间」语义，不需要 long 差值寄存器：
+    #   sDenyAt 存 now + 10000；now < sDenyAt 就跳过。
+    # 这样只需一次 cmp-long（结果 int 放 v0），不必 sub-long，
+    # 也就不会与 v2/v4（long）或 v6（数组引用）抢寄存器。
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
     move-result-wide v2
 
     sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sDenyAt:J
 
-    # [R51-A32b] 时间差用 v14:v15，**不能复用 v6**：
-    # v6 在本方法里是数组引用（sget-object sFailUntil / sLastAct），
-    # 既作对象又作 long 会触发 ART 的 VerifyError（A32 首包启动即崩的直接原因）。
-    # v14:v15 存差值的 long；cmp 结果必须另开一个不与之重叠的寄存器（v9），
-    # 写 v15 会与 v14 的 high-half 重叠 ⇒ smali 报 Invalid register: v16。
-    sub-long v14, v2, v4
+    cmp-long v0, v2, v4
+
+    # if-ltz = compare(now, limit) < 0（还没到允许时间）→ 不打
+    if-ltz v0, :deny_log_done
 
     const-wide/16 v4, 0x2710
 
-    cmp-long v9, v14, v4
-
-    # if-ltz = 间隔不足 10 秒 → 不打，直接返回 false
-    # 基准样本见 FACTS C.51：if-ltz = 小于零才跳
-    if-ltz v9, :deny_log_done
+    add-long v2, v2, v4
 
     sput-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sDenyAt:J
 
-    const-string v12, "OREKI_SCHED deny"
+    const-string v6, "OREKI_SCHED deny"
 
-    # [R51-A32b] 原因必须用 v9：本方法的 v6:v7 已被 sub-long/cmp-long 占作 long/int，
-    # v10:v11 被 const-wide 占用。混用会触发 VerifyError 拒收整个类（A32 首包即因此启动即崩）：
-    # `register v6 has type Integer but expected Precise Reference: java.lang.String`。
-    invoke-static {v12, v13}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    # v1 = 拒绝原因（由各 deny_N 出口写入）
+    invoke-static {v6, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :deny_log_done
     const/4 v0, 0x0
@@ -967,7 +963,7 @@
 #   · 清掉该任务的 no-op 连击与失败冷却
 #   · 打一行 OREKI_SCHED 日志：`act <id> @<now>ms gap=<全局间隔> taskGap=<同任务间隔>`
 .method public static noteActed(Ljava/lang/String;)V
-    .locals 16
+    .locals 14
 
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z
 
@@ -996,9 +992,9 @@
 
     const-wide/16 v12, 0x0
 
-    cmp-long v14, v4, v12
+    cmp-long v13, v4, v12
 
-    if-eqz v14, :gap_task
+    if-eqz v13, :gap_task
 
     sub-long v12, v2, v4
 
@@ -1007,9 +1003,9 @@
     :gap_task
     const-wide/16 v12, 0x0
 
-    cmp-long v14, v8, v12
+    cmp-long v13, v8, v12
 
-    if-eqz v14, :log
+    if-eqz v13, :log
 
     sub-long v12, v2, v8
 

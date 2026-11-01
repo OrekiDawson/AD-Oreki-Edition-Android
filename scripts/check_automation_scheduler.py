@@ -353,6 +353,73 @@ def main():
     _mut_bad = [r for r, t in _reg_types(_mutant_body).items() if t == {"obj", "wide"}]
     ok(_mut_bad == ["v6"], f"变异测试未报错：v6 同时作 String 与 long 时检查器必须报错（实际 {_mut_bad}）")
 
+    # ── 18. [R52] 寄存器越界与参数别名（`Invalid register: v16` 的拦截点）────
+    # 真实事故：把 `.locals 12` 改成 16 想多要两个临时寄存器，
+    # smali 报 `Invalid register: v16. Must be between v0 and v15`，连挂两次构建。
+    # 原因是该工具把 `.locals N` 的可用局部寄存器限定为 v0..v(N-1)，
+    # 参数别名 pK 映射到 v(N+K)；给了 16 之后 v16 已不在它认可的范围。
+    # 教训：**不要靠扩大 .locals 拿临时寄存器**，优先复用类型一致的既有寄存器。
+    # 这条检查按 `.locals + 参数占用` 算出上界，任何越界引用都会被抓到。
+
+    _PARAM_RE = re.compile(r"\.method[^\n]*?\(([^)]*)\)")
+
+    def _param_slots(desc):
+        """按 Dalvik 规则算参数占几个寄存器（J/D 占 2）。"""
+        n, i = 0, 0
+        while i < len(desc):
+            c = desc[i]
+            if c == "[":
+                while i < len(desc) and desc[i] == "[":
+                    i += 1
+                if i < len(desc) and desc[i] == "L":
+                    while i < len(desc) and desc[i] != ";":
+                        i += 1
+                n += 1
+            elif c == "L":
+                while i < len(desc) and desc[i] != ";":
+                    i += 1
+                n += 1
+            elif c in "JD":
+                n += 2
+            elif c:
+                n += 1
+            i += 1
+        return n
+
+    def _reg_bounds(src):
+        """返回 [(方法名, locals, 参数槽数, 方法体)]。"""
+        out = []
+        for m in re.finditer(r"\.method[^\n]*?\s(\w+)\(([^)]*)\)\S*\s*\n\s*\.locals (\d+)", src):
+            name, desc, loc = m.group(1), m.group(2), int(m.group(3))
+            end = src.find(".end method", m.end())
+            out.append((name, loc, _param_slots(desc), src[m.end():end]))
+        return out
+
+    _OVF = re.compile(r"\bv(\d+)\b")
+    for _f in (SCHED,):
+        _txt = read(_f)
+        for _name, _loc, _pslots, _b in _reg_bounds(_txt):
+            _limit = _loc + _pslots          # 合法编号上界（不含）
+            _used = [int(x) for x in _OVF.findall(_code_only(_b))]
+            _over = sorted({x for x in _used if x >= _limit})
+            ok(not _over,
+               f"{_name}() 寄存器越界：v{_over} ≥ locals({_loc})+参数({_pslots})={_limit}"
+               if _over else "")
+
+    # 变异测试：locals 12 + 1 参数时，出现 v12 必须被判越界
+    _mut_src = (".method public static x(Ljava/lang/String;)Z\n    .locals 12\n"
+                "    const/4 v12, 0x0\n\n    return v12\n.end method\n")
+    # 变异测试（不走源码文本解析，直接验证参数槽计算与上界判定）：
+    #   1 个 String 参数 → 1 槽；两个 double → 4 槽（各占 2）；
+    #   locals 12 + 1 槽 ⇒ 合法上界 v12，v13 必须判越界。
+    ok(_param_slots("Ljava/lang/String;") == 1, "参数槽计算错：String 应占 1 槽")
+    ok(_param_slots("DD") == 4, "参数槽计算错：两个 double 应占 4 槽")
+    ok(_param_slots("[Ljava/lang/String;I") == 2, "参数槽计算错：数组+int 应占 2 槽")
+    _l12_limit = 12 + _param_slots("Ljava/lang/String;")
+    ok(_l12_limit == 13, "上界计算错：locals 12 + 1 槽应为 13")
+    ok(12 < _l12_limit and 13 >= _l12_limit,
+       "越界判定错：v12 应合法、v13 应越界")
+
     # ── 输出 ───────────────────────────────────────────────────────────
     if FAILS:
         print(f"[FAIL] {len(FAILS)} / {CHECKS[0]} 条断言失败：")
