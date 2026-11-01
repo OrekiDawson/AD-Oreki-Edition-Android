@@ -1144,8 +1144,6 @@
 
 
 
-    invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
 
     move-result v0
