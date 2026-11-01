@@ -166,7 +166,9 @@ def main():
 
     # ── 6. no-op 不推进冷却（不写任何时间戳、不封本帧）───────────────────
     noop_b = body(sched, "noteNoop")
-    for bad in ("aput-wide", "sput-wide", "sLastAct", "sLastBeatAt", "sFrameActed"):
+    # [R53] 去掉 "sput-wide"：no-op 允许写日志节流字段 sNoopLogAt（不是动作计时）。
+    # 真正的禁令由上面两条精确断言覆盖（不得写 sLastAct / sLastBeatAt）。
+    for bad in ("aput-wide", "sLastAct", "sLastBeatAt", "sFrameActed"):
         ok(bad not in noop_b, f"noteNoop 不得出现 {bad}（no-op 必须不计时、立即让位）")
 
     # 失败走独立冷却 2000ms

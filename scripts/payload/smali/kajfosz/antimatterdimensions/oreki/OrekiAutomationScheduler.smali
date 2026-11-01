@@ -103,6 +103,9 @@
 # [R51-A31 DIAG] 上次 deny 诊断的时间（elapsedRealtime），用于「10 秒最多一条」的节流。
 # 只服务诊断日志，不参与任何判定，不持久化。
 .field private static sDenyAt:J
+
+# [R53] noop 限频日志的下次允许时间（elapsedRealtime + 30000）。只服务诊断。
+.field private static sNoopLogAt:J
 .field private static sCtx:Landroid/content/Context;
 
 # 诊断计数（累计，不清零；清零点见 setEnabled(false)）
@@ -1128,7 +1131,8 @@
 # 记一次 no-op（什么都没买 / 条件不满足）。**不动任何时间戳** ⇒ 不消耗节拍，
 # 同一帧内下一个候选立刻就能上（用户令：no-op 不计时、立即让位）。
 .method public static noteNoop(Ljava/lang/String;)V
-    .locals 4
+    # [R53] 4 → 6：限频日志需要一对 long（v4:v5）。
+    .locals 6
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
 
@@ -1157,6 +1161,31 @@
     add-int/lit8 v2, v2, 0x1
 
     sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sAttemptCount:I
+
+    # [R53] noop 限频日志：30 秒最多一条。
+    # 必须打的原因：R52 的 noteNoop 完全静默，于是「调度器在空转」与「调度器没被调用」
+    # 在日志上无法区分 —— 只见 act 缺失就会误判「调度器不工作」。
+    # 用「下次允许时间」语义，避免 long 差值寄存器（R52 的 v16 教训）。
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v4
+
+    sget-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopLogAt:J
+
+    cmp-long v2, v4, v0
+
+    # if-ltz = now < 允许时间 → 不打
+    if-ltz v2, :done
+
+    const-wide/16 v0, 0x7530
+
+    add-long v4, v4, v0
+
+    sput-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopLogAt:J
+
+    const-string v1, "OREKI_SCHED noop"
+
+    invoke-static {v1, p0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :done
     return-void

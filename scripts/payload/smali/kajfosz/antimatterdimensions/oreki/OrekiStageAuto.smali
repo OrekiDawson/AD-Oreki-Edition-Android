@@ -302,7 +302,55 @@
     # `:bg_do_break`。这条兜底只做「间隔已拉满 && 未 Break」这一个判定，再走与 UI 按钮
     # 相同的两步（`Player.x0(true)` + `autobuyer.a.c()`），不改任何其它字段。
     # 成功会打 `OREKI_BRK2`，与闸门的 `OREKI_BREAK` 区分开，便于定位到底是谁生效的。
+    # [R53] Break 兜底同样纳入统一调度并**按真实结果记账**。
+    #
+    # 为什么必须补这一处（R52 实测教训）：
+    #   `breakGate` 只在 interval 未满时做事，而 interval 是由 `upgradeCrunchInterval`
+    #   每 tick 一级买上去的；等它满 100 时，真正把 `brake` 置真的是**这条兜底**
+    #   （日志 `OREKI_BRK2`），不是 BreakGate。于是 BreakGate 全程空转 → 快照无变化 →
+    #   走 `noteNoop` → 日志上既没有 act 也没有 deny，看起来像「调度器没工作」。
+    #   实际上调度器工作正常，只是「干活的那条路」没被它管辖。
+    #
+    # 归属：`breakUpgrades`（interval 升级 + 触发 Break 属同一策略组）。
+    # 记账：前后 `Player.m()Z`（brake）翻转才算 act —— 这是**真实游戏状态变化**，
+    # 不是调用次数。没翻转就是 no-op，不占节拍。
+    const-string v0, "breakUpgrades"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->allow(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :oreki_sa_brk2_skip
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v1
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBreakInfinity()V
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v2
+
+    # brake 未翻转 → 没有真实动作
+    if-ne v1, v2, :oreki_sa_brk2_noop
+
+    const-string v0, "breakUpgrades"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
+
+    goto :oreki_sa_brk2_skip
+
+    :oreki_sa_brk2_noop
+    const-string v0, "breakUpgrades"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteNoop(Ljava/lang/String;)V
+
+    :oreki_sa_brk2_skip
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
     goto :oreki_sa_try_end
