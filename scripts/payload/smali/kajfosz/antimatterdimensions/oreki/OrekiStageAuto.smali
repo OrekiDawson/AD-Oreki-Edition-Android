@@ -704,7 +704,7 @@
 # 走的是原版判据（`thisEternity.maxAM >= 该层要求`），不写任何解锁字段。
 # 每层的门槛用原版 `p()Z` 判定，未达成就不碰（ID1 为 1e1100）。
 .method public static tryBuyId1()V
-    .locals 4
+    .locals 6
 
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
@@ -728,12 +728,73 @@
     invoke-static {v1}, Lkajfosz/antimatterdimensions/dimension/infinity/a;->a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;
     move-result-object v0
 
-    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->p()Z
+    # [R50-A13] 门槛判定**不能用 p()**。
+    # 实测：maxAM 已到 7.1e1382（ID1 门槛 1e1100）时 8 层 p() 仍然全为 false。
+    # 读码确认 p() = (里程碑 || maxAM >= k()) **&& v()**，而 v() 是「可购买性」判据
+    # （含已解锁/未封顶一类条件）—— 未解锁时 v() 恒 false ⇒ p() 恒 false，
+    # 用它当解锁闸就是自锁死。Web 的 tryAutoUnlock 用的是 canUnlock（纯 maxAM 门槛）。
+    # 这里直接照 canUnlock 的口径：records.thisEternity.maxAM >= k()。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->k()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v2
+
+    sget-object v3, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;->R()Lkajfosz/antimatterdimensions/player/Player$Records;
+    move-result-object v3
+
+    invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$Records;->j()Lkajfosz/antimatterdimensions/player/Player$ThisEternity;
+    move-result-object v3
+
+    invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;->h()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v3
+
+    invoke-virtual {v3, v2}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
     move-result v2
 
-    # p() = thisEternity.maxAM >= 该层要求 → 未达成就跳过这一层
+    # compareTo < 0（maxAM < 该层要求）→ 跳过这一层
+    if-ltz v2, :oreki_sa_id_next
+
+    # [R50-A13] 必须先解锁，再买。
+    # 事实（rea 逐方法体核对 + FACTS C.90）：`h(Z)` = buyMax，首句是 `if (!D()) return;`，
+    # 而 `D()`（isAvailableForPurchase）里含 `if (!isUnlocked) return false;`
+    # ⇒ **未解锁时 h() 直接返回，且永远解不开锁**。
+    # Web 的 `InfinityDimensions.buyMax()` 是显式 `dimension.unlock()` 之后再买的，
+    # Android 的解锁短路只在 `i()`（buySingle）和 `M()`（unlock）里。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->G()Z
+    move-result v2
+
+    # G() = isUnlocked，已解锁就跳过 M()
+    if-nez v2, :oreki_sa_id_unlocked
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->M()Z
+    move-result v2
+
+    # M() 返回 false（没解锁成功）→ 这一层本帧放弃
     if-eqz v2, :oreki_sa_id_next
 
+    # 运行期证据：解锁成功才打（8 层封顶，量有界）
+    const-string v2, "OREKI_ID_UNLOCK"
+
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v3
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_sa_id_unlocked
+    # 首次（purchases == 0）先 buySingle，把 baseAmount 抬起来；
+    # 否则 buyMax 在 count<=0 时直接 return，baseAmount 还是 0 就永远买不动。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->y()J
+    move-result-wide v2
+
+    const-wide/16 v4, 0x0
+
+    cmp-long v2, v2, v4
+
+    if-nez v2, :oreki_sa_id_max
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->i()V
+
+    :oreki_sa_id_max
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->h(Z)V
@@ -1034,7 +1095,7 @@
 # 幂等：条件一旦不满足就什么都不做；策略已经是 X_HIGHEST 时 mode!=0 直接返回。
 # ---------------------------------------------------------------------------
 .method public static applyCrunchPolicy()V
-    .locals 5
+    .locals 8
 
     :try_start_p
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
@@ -1054,49 +1115,87 @@
 
     if-eqz v1, :ret_p
 
+    # [R50-A14] 策略改为 AMOUNT + 阈值 1e1000。
+    #
+    # 事实（2026-11-01 实测）：X_HIGHEST/10 在「AM 每帧刷新历史最高」的局面下
+    # 等价于**关掉坍缩** —— AM 恒等于 maxAM，`AM >= 10*maxAM` 永不成立。
+    # 后果：infinities 从 03:00 起恒为 42，IP 永远停在 1e5，而 ID1 解锁要求
+    # `maxAM>=1e1100 且 IP>=1e8`（v() 里的 f = ID1.cost = 1e8），于是 ID1 永远买不了。
+    #
+    # 改成 AMOUNT + 1e1000：AM 一旦越过 1e1000 就坍缩、IP 稳定进账；
+    # 而 holdCrunch() 在 IP>=1e8 之后会接管、把坍缩停掉去冲 maxAM —— 两者天然闭环。
+    #
+    # 尊重玩家：TIME(1) 模式或自定义了 xHighest>10 的，一律不动。
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
 
     move-result v1
 
-    # 只处理 AMOUNT(0)：TIME(1) / X_HIGHEST(2) 保持玩家自己的选择
-    if-nez v1, :ret_p
+    # mode == 0（AMOUNT）→ 直接去设阈值
+    if-eqz v1, :oreki_ap_set
 
-    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->E()Lkajfosz/antimatterdimensions/BigDouble;
+    # TIME(1)：玩家明确选了时间模式，不动
+    #
+    # [R50-A14 极性] 必须是 if-eq（mode == 1 才 return）。
+    # 写成 if-ne 会把 X_HIGHEST(2) 也一起挡掉，导致本方法变成空操作 ——
+    # 实测 05:36 装机后 mode 仍为 2、无 OREKI_AU4B 日志，就是这个极性写反了。
+    const/4 v2, 0x1
 
-    move-result-object v1
+    if-eq v1, v2, :ret_p
 
-    new-instance v2, Lkajfosz/antimatterdimensions/BigDouble;
+    # X_HIGHEST(2)：只有 xHighest <= 10（mod 默认值）才接管
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->L()Lkajfosz/antimatterdimensions/BigDouble;
 
-    const-wide/high16 v3, 0x4024000000000000L    # 10.0
+    move-result-object v2
 
-    invoke-direct {v2, v3, v4}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(D)V
+    new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;
 
-    invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+    const-wide/high16 v4, 0x4024000000000000L    # 10.0
+
+    invoke-direct {v3, v4, v5}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(D)V
+
+    invoke-virtual {v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
 
     move-result v1
 
-    # amount >= 10 说明玩家自己设了阈值，尊重它
-    #
-    # [R41 极性修正] if-gez = v1>=0 才跳（compareTo 非负 = amount >= 10）。
-    # 原写 if-ltz（小于零才跳）：amount<10 时反而 return、amount>=10 时反而被覆盖成
-    # X_HIGHEST/10 —— 正好是这条注释声称要避免的那一侧。
-    if-gez v1, :ret_p
+    # xHighest > 10 → 玩家自定义过，不动
+    if-gtz v1, :ret_p
 
-    const/4 v1, 0x2
+    const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
 
-    new-instance v1, Lkajfosz/antimatterdimensions/BigDouble;
+    :oreki_ap_set
+    # amount 目标 1e1000（BigDouble: mantissa × 10^exponent）
+    # 注意：`<init>(DDZ)` 有「对象 + 两个 double + 一个布尔」共 6 个寄存器实参，
+    # 超过 invoke 的 5 个上限，必须用 /range 且寄存器连续 ⇒ 放在 v2..v7。
+    new-instance v2, Lkajfosz/antimatterdimensions/BigDouble;
 
-    const-wide/high16 v3, 0x4024000000000000L    # 10.0
+    const-wide/high16 v3, 0x3ff0000000000000L    # 1.0   → v3:v4
+    const-wide v5, 0x408f400000000000L           # 1000.0 → v5:v6
 
-    invoke-direct {v1, v3, v4}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(D)V
+    const/4 v7, 0x0
 
-    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->P(Lkajfosz/antimatterdimensions/BigDouble;)V
+    invoke-direct/range {v2 .. v7}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(DDZ)V
+
+    # v2 = 1e1000，挪到 v3 保住；v2 腾出来接当前 amount
+    move-object v3, v2
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->E()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+
+    move-result v1
+
+    # amount 已经 >= 1e1000 → 不动（幂等）
+    if-gez v1, :ret_p
+
+    invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->M(Lkajfosz/antimatterdimensions/BigDouble;)V
 
     const-string v1, "OREKI_AU4B"
 
-    const-string v2, "policy AMOUNT/1 -> X_HIGHEST/10"
+    const-string v2, "policy -> AMOUNT/1e1000"
 
     invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
     :try_end_p

@@ -1452,8 +1452,10 @@ def verify_payload():
          "IP < 1e8（compareTo 为负）才不暂停"),
         (sa_txt, "未应用过反而直接 return", "if-eqz",
          "sEarlyApplied 为 false 才执行开局自动化"),
-        (sa_txt, "amount<10 时反而 return", "if-gez",
-         "amount >= 10（compareTo 非负）才尊重玩家阈值"),
+        # [R50-A14] 策略改成 AMOUNT/1e1000 后，原来那条「amount>=10 才尊重」已不存在；
+        # 换成同一处的等效极性守卫：玩家自定义了 xHighest>10 时必须原样保留。
+        (sa_txt, "xHighest > 10 → 玩家自定义过，不动", "if-gtz",
+         "xHighest > 10（compareTo 为正）才放手不动"),
         (sa_txt, "只在判定翻转时打一行，避免高频刷日志", "if-eqz",
          "sHold==0（0→1 翻转）才打 hold=1"),
         (sa_txt, "同上：只在翻转时打一行", "if-nez",
@@ -3641,14 +3643,18 @@ def verify_au4b():
     body = s[i:j]
     assert "CrunchAutobuyerState;->g()Z" in body, "[AU4b] 必须先判解锁（对齐 Web 的 unlocked）"
     assert "CrunchAutobuyerState;->I()I" in body, "[AU4b] 必须读 mode"
-    assert "if-nez v1, :ret_p" in body, "[AU4b] 必须只处理 mode == AMOUNT(0)"
-    assert "const/4 v1, 0x2" in body, "[AU4b] 必须把 mode 置为 X_HIGHEST(2)"
+    # [R50-A14] 策略从 X_HIGHEST/10 改为 AMOUNT/1e1000：X_HIGHEST 在「AM 每帧刷新历史最高」
+    # 的局面下永不触发（实测 infinities 恒为 42、IP 永远到不了 ID1 要的 1e8）。
+    assert "if-eqz v1, :oreki_ap_set" in body, "[AU4b] 必须优先处理 mode == AMOUNT(0)"
+    assert "if-eq v1, v2, :ret_p" in body, "[AU4b] TIME(1) 模式必须原样保留（尊重玩家）"
+    assert "if-gtz v1, :ret_p" in body, "[AU4b] 自定义 xHighest>10 时必须原样保留"
     assert "CrunchAutobuyerState;->a(I)V" in body, "[AU4b] 必须走公开 setter a(I)V 写 mode"
-    assert "CrunchAutobuyerState;->P(" in body, "[AU4b] 必须走公开 setter P(...) 写 xHighest"
+    assert "CrunchAutobuyerState;->M(" in body, "[AU4b] 必须走公开 setter M(...) 写 amount"
+    assert "CrunchAutobuyerState;->L()" in body, "[AU4b] 必须走公开 getter L() 读 xHighest"
     assert "->mode:I" not in body and "->xHighest:" not in body, "[AU4b] 禁止直接读写私有字段（AU8）"
     for banned in ("->interval", "->cost", "->lastTick"):
         assert banned not in body, f"[AU4b] 不得触碰 {banned}"
-    note("[Oreki AU4b] 大坍缩策略守卫通过（AMOUNT/1 → X_HIGHEST/10，只改策略）")
+    note("[Oreki AU4b] 大坍缩策略守卫通过（AMOUNT/1e1000，只改策略）")
 
 
 # ------------------------------------------------------------------ AD5b Break 闸门
