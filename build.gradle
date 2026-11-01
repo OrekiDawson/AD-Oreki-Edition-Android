@@ -187,19 +187,103 @@ tasks.register('check') {
     dependsOn 'verifyRelease', 'verifyPatchContract'
 }
 
+// ============================================================ 目标 AVD 识别（安全）
+// 【为什么必须做这一步】原实现只判断 `adb devices` 里「存在任意一台 device 在线」，
+// 且 `adb install` 没有 `-s`。后果：
+//   · 用户真实手机是唯一在线设备时 → 会直接装到真机上；
+//   · 多台设备在线时 → adb 报 "more than one device"，任务失败但错误信息误导。
+// 项目硬性规则是「只允许操作 oreki_test、禁止操作用户真实手机」，
+// 所以这里必须做到：动态解析 serial、显式 -s、确认 AV
+// D 名匹配、找不到/歧义/状态异常一律拒绝。
+//
+// 识别策略（保守优先，宁拒绝不误装）：
+//   1. 只考虑 `emulator-<数字>` 形式的 serial —— 真机 serial 不是这个形式，天然排除；
+//   2. 逐个用 `getprop ro.boot.qemu.avd_name` 确认 AVD 名等于 oreki_test；
+//   3. 该属性取不到时（部分镜像没有），退化为「必须同时满足 ro.kernel.qemu=1
+//      且当前只有一个模拟器在线」，否则拒绝；
+//   4. 命中 0 个或多个 → 抛异常，绝不猜。
+def listOnlineDevices = {
+    def out = new ByteArrayOutputStream()
+    try {
+        exec { commandLine adbExe, 'devices'; standardOutput = out; errorOutput = out; ignoreExitValue = true }
+    } catch (Exception ignored) {
+        return [:]
+    }
+    def result = [:]
+    out.toString('UTF-8').readLines().each { line ->
+        def m = line =~ /^(emulator-\d+)\s+(device|offline|unauthorized)$/
+        if (m.matches()) result[m.group(1)] = m.group(2)
+    }
+    return result
+}
+
+def getPropOf = { String serial, String key ->
+    def out = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine adbExe, '-s', serial, 'shell', 'getprop', key
+            standardOutput = out; errorOutput = out; ignoreExitValue = true
+        }
+    } catch (Exception ignored) {
+        return ''
+    }
+    return out.toString('UTF-8').trim()
+}
+
+def resolveOrekiTestSerial = {
+    def online = listOnlineDevices()
+    if (online.isEmpty()) {
+        throw new GradleException(
+            "未找到任何在线模拟器，拒绝安装。请先启动 AVD ${avdName}（参数见 environment/测试环境记录.md）。\n" +
+            "注意：本任务只允许操作 AVD ${avdName}，不会安装到任何真实手机。")
+    }
+    def emulatorCount = online.size()
+
+    def matched = []
+    def details = []
+    online.each { serial, state ->
+        details << "  ${serial}: ${state}"
+        if (state != 'device') return
+        def avd = getPropOf(serial, 'ro.boot.qemu.avd_name')
+        if (!avd) avd = getPropOf(serial, 'ro.kernel.qemu.avd_name')
+        def isQemu = getPropOf(serial, 'ro.kernel.qemu') == '1'
+        if (avd == avdName) {
+            matched << serial
+        } else if (!avd && isQemu && emulatorCount == 1) {
+            // 镜像未提供 AVD 名属性：仅当唯一模拟器且确认是 qemu 时接受，并显式告知
+            logger.lifecycle("  [提示] ${serial} 未提供 AVD 名属性，但确认是模拟器(ro.kernel.qemu=1)" +
+                             "且当前仅此一台，按 ${avdName} 处理。")
+            matched << serial
+        }
+    }
+
+    if (matched.isEmpty()) {
+        throw new GradleException(
+            "在线设备中没有确认属于 AVD ${avdName} 的模拟器，拒绝安装。\n" +
+            "当前在线模拟器：\n" + details.join('\n') + "\n" +
+            "若 AVD 名不匹配，请确认启动的是 ${avdName}；本任务不会安装到任何真实手机。")
+    }
+    if (matched.size() > 1) {
+        throw new GradleException(
+            "同时存在多台疑似 ${avdName} 的模拟器（${matched.join(', ')}），存在歧义，拒绝安装。\n" +
+            "请只保留一台在线后重试。")
+    }
+    return matched[0]
+}
+
 // ============================================================ installOrekiTest
 tasks.register('installOrekiTest', Exec) {
     group = 'oreki'
-    description = "仅向 ${avdName} AVD 安装候选 APK"
+    description = "仅向 ${avdName} AVD 安装候选 APK（显式 -s 指定序列号，拒绝装到真实手机）"
     dependsOn 'verifyRelease'
     workingDir = repoRoot
-    commandLine adbExe, 'install', '-r', stageApk.absolutePath
+    def targetSerial = null
+    commandLine adbExe, 'install', '-r', stageApk.absolutePath   // 占位，doFirst 里替换为带 -s 的真实命令
     doFirst {
-        def out = new ByteArrayOutputStream()
-        exec { commandLine adbExe, 'devices'; standardOutput = out; errorOutput = out; ignoreExitValue = true }
-        if (!out.toString('UTF-8').contains('\tdevice')) {
-            throw new GradleException("AVD 不在线，拒绝安装。启动参数见 environment/测试环境记录.md")
-        }
+        targetSerial = resolveOrekiTestSerial()
+        step("目标设备已确认为 ${avdName}: ${targetSerial}")
+        // 显式 -s：即使此刻又插进来别的设备，也不会误装
+        commandLine adbExe, '-s', targetSerial, 'install', '-r', stageApk.absolutePath
         step("安装候选 APK: ${stageApk.name}")
     }
     outputs.upToDateWhen { false }
