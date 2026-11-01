@@ -751,7 +751,15 @@
 
     move-result v1
 
-    if-gez v1, :deny_3
+    # [R52] 第 4 个极性错误：原写 `if-gez v1, :deny_3`。
+    # 基准语义（FACTS C.51）：if-gez = **大于等于零才跳**，
+    # 于是「id 找到了（v1>=0）」反而跳去 deny_3（unknown-task），
+    # 而「没找到（v1=-1）」才继续往下跑 —— 与意图完全相反。
+    # 运行期证据：R52 首包 logcat 每 10 秒一条
+    #   `OREKI_SCHED deny: unknown-task`
+    # 而 sIds[9] 确实是 "breakGate"、idxOf 实现本身没问题。
+    # 正确：v1 < 0（未注册）才 deny，即 if-ltz。
+    if-ltz v1, :deny_3
 
     # ---- 连续型 + 默认档：不受管辖 ----
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sStrictGlobal:Z
@@ -796,7 +804,12 @@
 
     cmp-long v0, v4, v10
 
-    if-gez v0, :deny_4
+    # [R52] 第 5 个极性错误：原写 `if-gez v0, :deny_4`。
+    # if-gez = 大于等于零才跳 ⇒ 变成「距本帧已超 1 秒才 deny」，
+    # 与下面注释的意图（超 1 秒就把帧名额复位）正好相反：
+    # 结果是「刚发生动作的 1 秒内反而放行、卡住 1 秒后反而拒绝」。
+    # 正确：diff < 1000 才继续 deny，即 if-ltz。
+    if-ltz v0, :deny_4
 
     const/4 v0, 0x0
 
