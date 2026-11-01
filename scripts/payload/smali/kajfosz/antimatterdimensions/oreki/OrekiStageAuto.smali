@@ -142,6 +142,15 @@
     # 写着 `×6.17e3`）。这是当前最便宜的乘法器，必须补上。
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->autoSacrifice()V
 
+    # [R50-A12] 维度自动购买器「批量购买」升级（bulk 1 → 512）。
+    # 这是本轮查 bulk 时发现的、**两端都白白浪费的最大增益**：
+    #   · 每个维度自动器每 tick 买的是 `buyMax(count, bulk)`，bulk 就是单次能买几批；
+    #   · `bulk` 初始 1.0，只由 UI 上的「批量购买」按钮（`N(Z)V`）翻倍，上限 512；
+    #   · Web 的 `oreki-*` 自动化同样从不调 `upgradeBulk()`，所以两边都锁在 1；
+    #   · 升满之后每次 tick 的购买量是现在的 **512 倍**，而升级本身只花反物质。
+    # 走原版 `N(false)`：内含 hasMaxedBulk 幂等判断 + 照价扣反物质 + `bulk = min(bulk*2, 512)`。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->upgradeBulkAll()V
+
     # [R50-A8] 无限升级自动购买：必须排在 interval 升级之前。
     # 理由：先让这一帧的 IP 变成「能生的钱」（无限升级乘数），再由 interval 升级花掉存量；
     # 反过来先花 interval，留给升级的 IP 只会更少，而 Break 门要等的恰恰是 IP 指数级增长。
@@ -346,6 +355,60 @@
     invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_sac_done
+    return-void
+.end method
+
+
+# [R50-A12] 8 个反物质维度自动购买器的「批量购买」升级（bulk 1 → 512）。
+#
+# 事实（`work/base_decoded/.../autobuyer/AntimatterDimensionAutobuyerState.smali`）：
+#   · `bulk:D`（:16）默认 1.0；
+#   · `D()D`（:591-630）= 成就 61 已解锁 ? 1e100 : min(bulk, 512)；
+#   · 自动器 tick 的 `mode != 1` 分支调 `AntimatterDimensionState->i(count, D())`，
+#     第二个参数就是 bulk ⇒ **bulk=1 时每次只能买 1 批（10 个）**；
+#   · `N(Z)V`（:1003-1090）= 原版「批量购买」按钮：`if (F()) return`（F = hasMaxedBulk）、
+#     **Z != 0 时照价扣反物质**（`Lju;->t(D)Z` 判得起、`u(D)` 扣费），Z == 0 时是免费路径
+#     （只给 `prestige/f;->a()` 的 breakInfinity 用，传的是 `const/4 v2, 0x1` 即付费）；
+#     然后 `bulk = min(D()*2, 512)` 并把下一级成本 ×2.4。
+#   · 成就 61「虎背熊腰」= 8 个自动器 bulk 全部到 512，不是 Break 的产物。
+#
+# 为什么值得每 tick 都试：升级成本按 ×2.4 递增，第一次只要 16 反物质量级，
+# 升满 9 级就到 512；之后每次 tick 的购买量是原来的 512 倍。
+# 全部走原版入口，不写 bulk 字段、不改成本、不绕过 hasMaxedBulk。
+.method public static upgradeBulkAll()V
+    .locals 5
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;->j()[Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;
+    move-result-object v1
+
+    array-length v2, v1
+
+    const/4 v3, 0x0
+
+    :oreki_sa_bulk_loop
+    if-ge v3, v2, :oreki_sa_bulk_done
+
+    aget-object v4, v1, v3
+
+    # 实参必须是 true（照价扣反物质）。`N(Z)V` 的分支是
+    #   `if-nez p1, :cond_1` → p1==0 时直接跳过扣费（免费路径，给 breakInfinity 用），
+    #   p1!=0 时才走 `Lju;->t(cost)` 判得起 + `Lju;->u(cost)` 扣费。
+    # 原版 `prestige/f;->a()V`（breakInfinity）传的就是 `const/4 v2, 0x1`。
+    # 我们走「照价购买」，绝不发免费资源。
+    const/4 v0, 0x1
+
+    invoke-virtual {v4, v0}, Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;->N(Z)V
+
+    add-int/lit8 v3, v3, 0x1
+
+    goto :oreki_sa_bulk_loop
+
+    :oreki_sa_bulk_done
     return-void
 .end method
 
