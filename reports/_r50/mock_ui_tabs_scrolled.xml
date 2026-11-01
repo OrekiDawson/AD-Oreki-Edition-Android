@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.oreki.antimatterdimensions" content-desc="" bounds="[0,0][1080,1920]">
+    <node index="0" text="关闭" class="android.widget.Button" bounds="[24,48][168,132]" />
+    <node index="1" text="打开 Oreki 设置" class="android.widget.Button" bounds="[192,48][520,132]" />
+    <node index="2" text="小" class="android.widget.TextView" bounds="[24,168][96,240]" />
+    <node index="3" text="中" class="android.widget.TextView" bounds="[120,168][192,240]" />
+    <node index="4" text="大" class="android.widget.TextView" bounds="[216,168][288,240]" />
+    <node index="5" text="时间膨胀" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[24,300][152,376]" />
+    <node index="6" text="现实与符文" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[164,300][314,376]" />
+    <node index="7" text="复兴树、自动…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[326,300][520,376]" />
+    <node index="8" text="天神（一）：…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[532,300][726,376]" />
+    <node index="9" text="天神（二）：…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[738,300][932,376]" />
+    <node index="10" text="莱特拉" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[944,300][1050,376]" />
+    <node index="99" text="" class="android.widget.ScrollView" bounds="[0,400][1080,1920]">
+      <node index="100" text="阶段目标" class="android.widget.TextView" bounds="[32,420][200,480]" />
+    </node>
+  </node>
+</hierarchy>

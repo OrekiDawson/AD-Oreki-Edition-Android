@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<hierarchy rotation="0">
+  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" package="com.oreki.antimatterdimensions" content-desc="" bounds="[0,0][1080,1920]">
+    <node index="0" text="关闭" class="android.widget.Button" bounds="[24,48][168,132]" />
+    <node index="1" text="打开 Oreki 设置" class="android.widget.Button" bounds="[192,48][520,132]" />
+    <node index="2" text="小" class="android.widget.TextView" bounds="[24,168][96,240]" />
+    <node index="3" text="中" class="android.widget.TextView" bounds="[120,168][192,240]" />
+    <node index="4" text="大" class="android.widget.TextView" bounds="[216,168][288,240]" />
+    <node index="5" text="开始之前" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[24,300][152,376]" />
+    <node index="6" text="开局：10 …" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[164,300][358,376]" />
+    <node index="7" text="维度献祭与第…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[370,300][564,376]" />
+    <node index="8" text="第一次无限" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[576,300][726,376]" />
+    <node index="9" text="无限升级与普…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[738,300][932,376]" />
+    <node index="10" text="打破无限" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[944,300][1072,376]" />
+    <node index="11" text="无限维度与无…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[1084,300][1278,376]" />
+    <node index="12" text="复制器与首次…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[1290,300][1484,376]" />
+    <node index="13" text="时间研究与永…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[1496,300][1690,376]" />
+    <node index="14" text="永恒挑战 1…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[1702,300][1896,376]" />
+    <node index="15" text="时间膨胀" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[1908,300][2036,376]" />
+    <node index="16" text="现实与符文" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[2048,300][2198,376]" />
+    <node index="17" text="复兴树、自动…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[2210,300][2404,376]" />
+    <node index="18" text="天神（一）：…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[2416,300][2610,376]" />
+    <node index="19" text="天神（二）：…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[2622,300][2816,376]" />
+    <node index="20" text="莱特拉" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[2828,300][2934,376]" />
+    <node index="21" text="佩勒与终局" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[2946,300][3096,376]" />
+    <node index="22" text="隐藏条件与成…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[3108,300][3302,376]" />
+    <node index="23" text="术语表" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[3314,300][3420,376]" />
+    <node index="24" text="隐藏成就速查" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[3432,300][3604,376]" />
+    <node index="25" text="记数法" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[3616,300][3722,376]" />
+    <node index="26" text="卡住时的症状…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[3734,300][3928,376]" />
+    <node index="27" text="自动化总览" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[3940,300][4090,376]" />
+    <node index="28" text="本作与原版的…" resource-id="" class="android.widget.TextView" package="com.oreki.antimatterdimensions" bounds="[4102,300][4296,376]" />
+    <node index="99" text="" class="android.widget.ScrollView" bounds="[0,400][1080,1920]">
+      <node index="100" text="阶段目标" class="android.widget.TextView" bounds="[32,420][200,480]" />
+    </node>
+  </node>
+</hierarchy>
