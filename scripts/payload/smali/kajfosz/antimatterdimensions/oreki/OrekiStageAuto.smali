@@ -761,12 +761,15 @@
 
     if-nez v3, :oreki_sa_iup_next
 
-    # 运行期证据：一次性无限升级最多 17 个，量有界，每次真买到都打一行
-    const-string v3, "OREKI_IUP_BUY"
-
-    iget-object v4, v2, Lry1;->n:Ljava/lang/String;
-
-    invoke-static {v3, v4}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    # [R57-3] 每次买到都打一行 → 删除。
+    #
+    # 为什么删（2026-11-01 22:41–23:09【实测】，R57 APK 新档 28 分钟）：
+    #   `OREKI_IUP_BUY` 打出 **10631 行**。来源不是「17 个一次性升级」，
+    #   而是可重复的 `ipMult` 升级——它每 tick 会随 IP 增长被连续买很多次，
+    #   这本身是正确且必要的（也是 IP 指数增长的主要来源），只是**日志不该跟着刷**。
+    #   10000× 下 logcat 写入是真实 I/O 成本，属于 §61 明确禁止的「用日志拖慢主循环」。
+    #   该日志原本只用于 A27 定位「循环卡在 resetBoost」，任务已完成，保留价值为零。
+    #   购买行为本身一行未动。
 
     # [R51-A27b] 买到后**不再 return-void**，改为继续遍历。
     #
