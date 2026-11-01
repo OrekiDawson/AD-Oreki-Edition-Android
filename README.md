@@ -80,6 +80,10 @@ SHA-256 1e5782461ff81b687775c0fdcac74faa7dfe8299238a809784cc91a9f387c259
 
 ## 六、构建、签名与 APK 输出
 
+有两条等价路径：**直接跑 Python 脚本**（最常用）与 **Gradle 工作流**（带环境检查、验证与交付编排）。
+
+### 6.1 直接构建（Python）
+
 ```bash
 python scripts/build_mod.py
 ```
@@ -91,6 +95,45 @@ python scripts/build_mod.py
 - 签名口令从环境变量 `OREKI_KS_PASS` 或 `keys/密码.txt` 读取，**不写在脚本里**
 - 前置条件：`work/base_decoded`、`work/xhdpi_decoded`、`tools/`、`keys/oreki.jks` 均需存在
 - 产物：`release/反物质维度.apk`
+
+### 6.2 Gradle 工作流
+
+根目录提供 `build.gradle` 与 Gradle Wrapper（`gradlew` / `gradlew.bat`）。
+需要 JDK 17+（仓库内自带：`tools/jdk/jdk-17.0.20.1+1`）。
+
+```bash
+export JAVA_HOME="$(pwd)/tools/jdk/jdk-17.0.20.1+1"
+./gradlew tasks            # 列出全部任务
+```
+
+**真实存在的任务**（`./gradlew tasks` 实测输出，非虚构）：
+
+| 任务 | 职责 |
+| --- | --- |
+| `verifyEnvironment` | 检查 JDK / Python / apktool / build-tools / 签名 / ADB / 反编译树等前置条件是否齐备 |
+| `assembleRelease` | 走 smali/apktool 流水线生成**候选** APK 到 `build/gradle-stage/`，**不触碰 `release/`** |
+| `verifyRelease` | 校验候选 APK：完整性 / 版本 / 签名 / EC12 补丁是否进入 dex |
+| `verifyPatchContract` | 静态检查补丁脚本语法、EC12 判据引用、音频补丁、mod 字符串唯一性等 |
+| `build` | 组合任务：`assembleRelease` + `verifyRelease` + `verifyPatchContract` |
+| `check` | 组合任务：回归校验（APK 内容校验 + 补丁契约静态检查） |
+| `installOrekiTest` | 仅向 `oreki_test` AVD 安装候选 APK（**显式 `-s <serial>`，拒绝装到真实手机**） |
+| `smokeOrekiTest` | 启动应用并检查进程存活 / 无 FATAL |
+| `installToRelease` | 把通过验证的候选 APK 复制到 `release/`（覆盖前先比对哈希并留档） |
+| `publishRelease` | 把发布产物分发到 OneDrive / 小米云盘并做本地梯度校验 |
+| `clean` | 只清 `build/gradle-stage` 与 `build/gradle-reports`，**不动** `release/` 与 `build/` 归档 |
+
+**关键区别**：
+
+- **候选产物在 `build/gradle-stage/`，常规构建不会直接覆盖 `release/`。**
+  只有显式执行 `installToRelease`（再由 `publishRelease` 分发）才进入正式交付流程。
+- `installOrekiTest` 会**动态识别**当前在线设备中属于 `emulator-*` 且 AVD 名为 `oreki_test` 的那一台，
+  安装时显式 `adb -s <serial> install`。找不到、名不匹配或存在多台歧义时**直接拒绝安装**，
+  不会退回「有任意设备就装」的行为——这是为了避免误装到用户真实手机。
+
+**与 Python 路径的关系**：Gradle 的 `assembleRelease` 内部就是调用 `scripts/build_mod.py`，
+只是用环境变量 `OREKI_RELEASE_OUT` 把签名产物重定向到 `build/gradle-stage`。
+两条路径产出同一份东西，区别只在于 Gradle 多了一层环境检查、验证与交付编排。
+
 
 ### 静态检查（构建前必跑）
 
