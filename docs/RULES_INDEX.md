@@ -133,6 +133,7 @@
 | 40. | 子 Agent 强制终止与失联处置 | AGENTS.md §40 |
 | 55. | 后台构建与 Agent 阶段性 Pause | AGENTS.md §55 |
 | 56. | 主 Agent 统一统筹与 Android-Agent 按需调用 | AGENTS.md §56 |
+| 58. | AI 工作负载与资源健康监控（2026-11-01 用户下达） | AGENTS.md §58 |
 | 全局一 | 子 Agent 调度：并发上限 3 | GLOBAL-RULES.md §一 |
 | 全局三 | 完成即回收 | GLOBAL-RULES.md §三 |
 | 全局四 | 取消 / 超时 / 异常回收 | GLOBAL-RULES.md §四 |
