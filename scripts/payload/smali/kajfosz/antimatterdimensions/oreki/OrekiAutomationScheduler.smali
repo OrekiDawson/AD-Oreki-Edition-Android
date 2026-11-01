@@ -933,15 +933,17 @@
     # [R51-A32b] 时间差用 v14:v15，**不能复用 v6**：
     # v6 在本方法里是数组引用（sget-object sFailUntil / sLastAct），
     # 既作对象又作 long 会触发 ART 的 VerifyError（A32 首包启动即崩的直接原因）。
+    # v14:v15 存差值的 long；cmp 结果必须另开一个不与之重叠的寄存器（v9），
+    # 写 v15 会与 v14 的 high-half 重叠 ⇒ smali 报 Invalid register: v16。
     sub-long v14, v2, v4
 
     const-wide/16 v4, 0x2710
 
-    cmp-long v15, v14, v4
+    cmp-long v9, v14, v4
 
     # if-ltz = 间隔不足 10 秒 → 不打，直接返回 false
     # 基准样本见 FACTS C.51：if-ltz = 小于零才跳
-    if-ltz v15, :deny_log_done
+    if-ltz v9, :deny_log_done
 
     sput-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sDenyAt:J
 
