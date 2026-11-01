@@ -663,9 +663,42 @@
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->G()Z
     move-result v1
 
-    # if-eqz = G()==0（未解锁）→ 去正常买 ipMult
-    if-eqz v1, :oreki_sa_iup_ipm_go
+    # [R51-A30b] 已解锁 → 走下面的 purchases 判据；未解锁 → 先看 IP 是否已接近 1e8。
+    #
+    # 依据（A29 零重启采样，**相对时刻** t=808 s，绝对时刻未逐点读取真实时钟，故不写墙钟）：
+    #   该采样点 IP 已到 8.6e7（离 ID1 门槛 1e8 只差 16%），
+    #   下一 tick 买到 ipMult 第 8 级（成本 1e8）⇒ IP 立刻掉回 2.06e6，
+    #   离门槛反而更远。整整 20 分钟内 IP 在 1e7~9e7 区间反复被自己吃掉。
+    #   Web 的原话就是「只把永恒门槛平移 93 个指数，却会瞬间吃光 IP」。
+    # 所以未解锁窗口也要留一道闸：**IP ≥ 1e7 就停止买 ipMult，把余额攒到 1e8**。
+    if-nez v1, :oreki_sa_iup_ipm_unlocked
 
+    # ---- 未解锁分支：IP ≥ 1e7 → 让位 ----
+    sget-object v1, Lln0;->w:Lbn0;
+
+    invoke-virtual {v1}, Lbn0;->w()Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v1
+
+    sget-object v2, Lkajfosz/antimatterdimensions/BigDouble;->Companion:Liu;
+
+    const-wide v4, 0x416312d000000000L    # 1.0E7
+
+    invoke-static {v2, v4, v5}, Lwx0;->q(Liu;D)Lkajfosz/antimatterdimensions/BigDouble;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+
+    move-result v1
+
+    # if-gez = compareTo >= 0（IP 已达 1e7）→ 攒钱，不买
+    # 基准样本见 FACTS C.51：if-ltz = 小于零才跳，if-gez = 大于等于零才跳
+    if-gez v1, :oreki_sa_iup_done
+
+    goto :oreki_sa_iup_ipm_go
+
+    :oreki_sa_iup_ipm_unlocked
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->y()J
     move-result-wide v2
 
