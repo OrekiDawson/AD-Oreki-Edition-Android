@@ -445,7 +445,7 @@
 # 每 tick 最多买 1 个（与 Web 的 UPGRADES_PER_TICK = 1 同策略）：
 # 一次买光会把 IP 从 interval 升级（Break 的唯一前置）上抢走。
 .method public static buyInfinityUpgrades()V
-    .locals 5
+    .locals 6
 
     const/4 v0, 0x0
 
@@ -509,16 +509,25 @@
     # 实测（2026-11-01 13:07→13:38）：`infinities` 恒 42 的这段时间里 IP 从 9.17e5 掉到 2.13e5，
     # 而 `breakInfinityUpgradeBits=0`（ipGen 没买、没有被动 IP 来源）⇒ 唯一的消费方就是 ipMult。
     # 判据用原版 `InfinityDimensionState.G()Z`（isUnlocked），不用 IP 数值自己猜。
+    # [R50-A20] 判据用「ID1 是否已经买过」，不是「是否已解锁」。
+    #
+    # 实测教训（2026-11-01 15:05）：ID1 解锁那一瞬 IP 刚过 1e8，但闸门用的是 G()（isUnlocked），
+    # 一解锁就放行 ipMult，IP 立刻被吃回 5.27e7 ⇒ 买不起 1e8 的 ID1，bought 恒为 0。
+    # 所以改成 purchases（y()J）== 0 时不买 ipMult —— 与 Web waitingForId1Peak 同义。
     const/4 v0, 0x1
 
     invoke-static {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/a;->a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;
     move-result-object v0
 
-    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->G()Z
-    move-result v0
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->y()J
+    move-result-wide v2
 
-    # G() != 0（已解锁）→ 恢复买 ipMult
-    if-eqz v0, :oreki_sa_iup_ipm_go
+    const-wide/16 v4, 0x0
+
+    cmp-long v2, v2, v4
+
+    # purchases != 0（已经买过 ID1）→ 恢复买 ipMult
+    if-nez v2, :oreki_sa_iup_ipm_go
 
     return-void
 
@@ -1189,7 +1198,7 @@
 
 
 .method public static applyCrunchPolicy()V
-    .locals 8
+    .locals 6
 
     :try_start_p
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
@@ -1209,34 +1218,36 @@
 
     if-eqz v1, :ret_p
 
-    # [R50-A14] 策略改为 AMOUNT + 阈值 1e1000。
+    # [R50-A19] 与 Web 完全一致：X_HIGHEST(2) + xHighest = 10
     #
-    # 事实（2026-11-01 实测）：X_HIGHEST/10 在「AM 每帧刷新历史最高」的局面下
-    # 等价于**关掉坍缩** —— AM 恒等于 maxAM，`AM >= 10*maxAM` 永不成立。
-    # 后果：infinities 从 03:00 起恒为 42，IP 永远停在 1e5，而 ID1 解锁要求
-    # `maxAM>=1e1100 且 IP>=1e8`（v() 里的 f = ID1.cost = 1e8），于是 ID1 永远买不了。
-    #
-    # 改成 AMOUNT + 1e1000：AM 一旦越过 1e1000 就坍缩、IP 稳定进账；
-    # 而 holdCrunch() 在 IP>=1e8 之后会接管、把坍缩停掉去冲 maxAM —— 两者天然闭环。
-    #
-    # 尊重玩家：TIME(1) 模式或自定义了 xHighest>10 的，一律不动。
+    # 依据（Web big-crunch-autobuyer.js + 本项目 [Oreki AU4b]/[Oreki R26] 注释）：
+    #   三种模式的比较对象都是 **IP**，不是反物质：
+    #     AMOUNT     : gainedIP >= amount
+    #     TIME       : 本纪真实时间 > time
+    #     X_HIGHEST  : gainedIP >= thisEternity.maxIP × xHighest
+    #   Web 的终局策略就是 X_HIGHEST + 10（「单次 IP 达到本永恒最高单次 IP 的 10 倍才坍缩」），
+    #   这样 AM 在两次坍缩之间有充足时间成长，db/gal 不会被每 tick 打回原点。
+    # 本方法每 tick 在 onAutoBuyerTick 最前面无条件执行，所以「重置后重新归一化」天然满足。
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
 
     move-result v1
 
-    # mode == 0（AMOUNT）→ 直接去设阈值
-    if-eqz v1, :oreki_ap_set
+    const/4 v2, 0x2
 
-    # TIME(1)：玩家明确选了时间模式，不动
-    #
-    # [R50-A14 极性] 必须是 if-eq（mode == 1 才 return）。
-    # 写成 if-ne 会把 X_HIGHEST(2) 也一起挡掉，导致本方法变成空操作 ——
-    # 实测 05:36 装机后 mode 仍为 2、无 OREKI_AU4B 日志，就是这个极性写反了。
+    # 已经是 X_HIGHEST → 只需校准 xHighest
+    if-eq v1, v2, :oreki_ap_xh
+
     const/4 v2, 0x1
 
+    # TIME(1)：玩家明确选了时间模式，原样保留
     if-eq v1, v2, :ret_p
 
-    # X_HIGHEST(2)：只有 xHighest <= 10（mod 默认值）才接管
+    # 其余（AMOUNT）→ 改成 X_HIGHEST
+    const/4 v1, 0x2
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
+
+    :oreki_ap_xh
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->L()Lkajfosz/antimatterdimensions/BigDouble;
 
     move-result-object v2
@@ -1251,57 +1262,14 @@
 
     move-result v1
 
-    # xHighest > 10 → 玩家自定义过，不动
+    # xHighest > 10（玩家自定义过）→ 玩家自定义过，不动
     if-gtz v1, :ret_p
 
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
-
-    :oreki_ap_set
-    # [R50-A16] 关掉 increaseWithMult —— 这是「AMOUNT 门槛却永远够不到」的真凶。
-    # 放在 :oreki_ap_set 内部，保证「本来就是 AMOUNT」的那条路径也会被纠正。
-    #
-    # `CrunchAutobuyerState.F()LBigDouble;`（= AMOUNT 分支用的阈值）不是裸 amount：
-    #   F() = amount × Lt5;->b(Lr5;) 返回的倍率
-    # 该倍率受 `increaseWithMult` 控制。本存档 `increaseWithMult = true`，
-    # 阈值被乘成天文数字，AM（1e1388）永远够不到 —— 探针实测：
-    #   OREKI_CRUNCH = 12 = 0b01100 ⇒ mode=0(AMOUNT)、c()=1、g()=1、holdCrunch=0，
-    #   canTick 全通过、却被 AMOUNT 分支内部的比较挡掉。
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->N(Z)V
-    # amount 目标 1e1000（BigDouble: mantissa × 10^exponent）
-    # 注意：`<init>(DDZ)` 有「对象 + 两个 double + 一个布尔」共 6 个寄存器实参，
-    # 超过 invoke 的 5 个上限，必须用 /range 且寄存器连续 ⇒ 放在 v2..v7。
-    new-instance v2, Lkajfosz/antimatterdimensions/BigDouble;
-
-    const-wide/high16 v3, 0x3ff0000000000000L    # 1.0   → v3:v4
-    const-wide v5, 0x408f400000000000L           # 1000.0 → v5:v6
-
-    const/4 v7, 0x0
-
-    invoke-direct/range {v2 .. v7}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(DDZ)V
-
-    # v2 = 1e1000，挪到 v3 保住；v2 腾出来接当前 amount
-    move-object v3, v2
-
-    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->E()Lkajfosz/antimatterdimensions/BigDouble;
-
-    move-result-object v2
-
-    invoke-virtual {v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
-
-    move-result v1
-
-    # amount 已经 >= 1e1000 → 不动（幂等）
-    if-gez v1, :ret_p
-
-    invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->M(Lkajfosz/antimatterdimensions/BigDouble;)V
+    invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->P(Lkajfosz/antimatterdimensions/BigDouble;)V
 
     const-string v1, "OREKI_AU4B"
 
-    const-string v2, "policy -> AMOUNT/1e1000"
+    const-string v2, "policy -> X_HIGHEST/10"
 
     invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
     :try_end_p
