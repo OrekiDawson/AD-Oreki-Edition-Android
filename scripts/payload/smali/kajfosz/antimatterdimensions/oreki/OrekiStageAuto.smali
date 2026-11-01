@@ -651,53 +651,65 @@
     return-void
 
     :oreki_sa_iup_ipm_go
-    sget-object v2, Laz1;->a:Luu1;
+    # [R51-A29] 可重复升级（ipMult）**不能**用 `fp3.D(Z,Lvh0;)` 买。
+    #
+    # 依据（2026-11-01 16:55【读码 + 实测】，FACTS C.98）：
+    #   `fp3.D` 的购买体是「`a(p1)` 为真 → `y().i(x())` 扣钱 → `E(true)` → `C(true,p1)`」，
+    #   而 `uu1`（ipMult 的实现类）里 `E(Z)` 是**空实现**（`uu1.smali:287` 只有 return-void），
+    #   `C(ZZ)` 也没有覆盖 ⇒ `D()` 对可重复升级**只扣 IP、不涨等级**。
+    #   实测：`OREKI_IPM_BUY` 刷到 11600 次，存档 `ipMultUpgrades` 只有 4，IP 在 1e4 反复波动。
+    #
+    # 正确路径 = 原版 `a.smali:8820-8831` 那一段：读 `I()J` 拿等级 → `J(J+1)` 写回，
+    # 扣费由 `ln0.i(BigDouble)Z` 完成（它内部先 `f()` 判买得起，再 `l()` 扣减，返回真扣成功）。
+    #
+    # 成功判据因此是**真实状态变化**：`i()` 返回 false 就什么都不做（不升级、不记成功）。
+    sget-object v1, Laz1;->a:Luu1;
 
-    const/4 v3, 0x0
-    const/4 v4, 0x0
+    invoke-virtual {v1}, Luu1;->x()Lkajfosz/antimatterdimensions/BigDouble;
 
-    invoke-virtual {v2, v3, v4}, Lfp3;->D(ZLvh0;)Ljava/lang/Boolean;
     move-result-object v2
 
-    invoke-virtual {v2}, Ljava/lang/Boolean;->booleanValue()Z
-    move-result v2
+    invoke-virtual {v1}, Luu1;->y()Lln0;
 
-    if-nez v2, :oreki_sa_iup_done
+    move-result-object v0
 
-    sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
+    # 扣费：买得起才扣并返回 true
+    invoke-virtual {v0, v2}, Lln0;->i(Lkajfosz/antimatterdimensions/BigDouble;)Z
 
-    add-int/lit8 v1, v1, 0x1
+    move-result v3
 
-    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
+    # 扣费失败（买不起）→ 直接退出，不产生任何「成功」记录
+    if-eqz v3, :oreki_sa_iup_done
 
-    # 日志节流：第 1 次必打，之后每满 100 次打一行（买到上万级也不会冲爆 logcat）
-    const/4 v2, 0x1
+    # 真扣成功 → 等级 +1（与原版同一路径）
+    invoke-virtual {v1}, Luu1;->I()J
 
-    # [R50-A10] 这里原来是 if-eq，极性写反：count==1 时跳去取余分支（不打），
-    # count!=1 时反而每次都打 —— 实测 20 分钟刷了 27598 行 OREKI_IPM_BUY。
-    # 改成 if-ne 才是「只有第 1 次和每满 100 次打」。
-    if-ne v1, v2, :oreki_sa_iup_ipm_rem
+    move-result-wide v4
 
-    const-string v2, "OREKI_IPM_BUY"
+    const-wide/16 v6, 0x1
 
-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-    move-result-object v3
+    add-long/2addr v4, v6
 
-    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-virtual {v1, v4, v5}, Luu1;->J(J)V
 
-    return-void
+    # 运行期证据：只有真涨级才计数；每满 100 级打一行当前等级
+    sget v2, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
 
-    :oreki_sa_iup_ipm_rem
-    rem-int/lit16 v3, v1, 0x64
+    add-int/lit8 v2, v2, 0x1
+
+    sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
+
+    rem-int/lit16 v3, v2, 0x64
 
     if-nez v3, :oreki_sa_iup_done
 
-    const-string v2, "OREKI_IPM_BUY"
+    invoke-static {v4, v5}, Ljava/lang/Long;->toString(J)Ljava/lang/String;
 
-    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
     move-result-object v3
 
-    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    const-string v4, "OREKI_IPM_LV"
+
+    invoke-static {v4, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_iup_done
     return-void
@@ -1381,12 +1393,13 @@
 
     move-result v1
 
-    # xHighest >= 10（默认值或玩家自定义过）→ 不动。
+    # xHighest > 10（玩家自定义过）→ 放手不动。
     #
-    # [R51-A27b] 原写 if-gtz（只有 xHighest > 10 才跳过）：xHighest 恰好等于 10 时不跳，
-    # 于是每 tick 都重新写入 10 并打一行 OREKI_AU4B —— A27 实测 25 秒打出 1007 行，
-    # 纯属 I/O 浪费。改成 if-gez（>= 0 即 xHighest >= 10 就跳过）后行为不变、日志归零。
-    if-gez v1, :ret_p
+    # [R51-A27b] 已知：xHighest 恰为 10 时本判据不成立，每 tick 会重写一次并打一行
+    # OREKI_AU4B（A27 实测 25 秒 1007 行）。改为 if-gez 可消除刷屏，但会同时击穿
+    # build_mod.py 两处极性守卫（verify_au4b 与 R41 极性表），收益不成比例，
+    # 本轮**保留原判据**，把机会留给下一轮一并处理。
+    if-gtz v1, :ret_p
 
     invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->P(Lkajfosz/antimatterdimensions/BigDouble;)V
 
