@@ -19,6 +19,7 @@
   T10 CLI 歧义时退出码 3
   T11 父子嵌套同文案（bounds 包含）→ 解析到更内层那个，不算歧义
   T12 两个互不嵌套的节点含同一关键字 → 仍然判歧义（新逻辑不能吞掉真歧义）
+  T13 节点纵向滚出屏幕下方（y1 ≥ 屏高）→ 判 offscreen，不算命中
 
 用法：python scripts/test_r50_tap_tab.py
 退出码：0 全通过；1 有失败。
@@ -199,6 +200,18 @@ def main() -> int:
     n12 = tap.parse_nodes(amb_xml)
     r12 = tap.resolve(n12, "无限", width=1080)
     check("T12 互不嵌套的多命中仍判歧义", r12["status"] == "ambiguous", f"{r12['status']}，候选 {len(r12['cands'])} 个")
+
+    # T13：纵向滚出屏幕——只判横向会漏掉这一类，tap 同样静默无效
+    below_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<hierarchy rotation="0">
+  <node index="0" text="" class="android.widget.FrameLayout" bounds="[0,0][1080,1920]">
+    <node index="1" text="具体操作" class="android.widget.TextView" bounds="[60,2400][900,2480]" />
+  </node>
+</hierarchy>
+"""
+    n13 = tap.parse_nodes(below_xml)
+    r13 = tap.resolve(n13, "具体操作", width=1080, height=1920)
+    check("T13 纵向屏外判 offscreen", r13["status"] == "offscreen", r13["status"])
 
     # T7~T10：CLI 行为
     rc, out = run_cli("--xml", str(OUT_XML), "--screen", "1080x1920", "--list")

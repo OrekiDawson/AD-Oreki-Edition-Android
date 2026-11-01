@@ -114,7 +114,8 @@ def dump_nodes(serial: str | None) -> list[dict]:
     return parse_nodes(out)
 
 
-def resolve(nodes: list[dict], key: str, width: int | None = None) -> dict:
+def resolve(nodes: list[dict], key: str, width: int | None = None,
+            height: int | None = None) -> dict:
     """把关键字解析成一个确定的页签。
 
     返回 {"status": "ok"|"ambiguous"|"offscreen"|"missing", "hit": node|None, "cands": [...]}
@@ -158,7 +159,16 @@ def resolve(nodes: list[dict], key: str, width: int | None = None) -> dict:
     if len(clickables) == 1:
         pool = clickables
 
-    visible = [n for n in pool if width is None or n["x1"] < width]
+    # ⑤ 可见性：横向要 x1 < 屏宽，纵向要 y1 < 屏高且 y2 > 0。
+    #    只判横向不够——文案可能整段滚出屏幕下方，此时 tap 同样静默无效。
+    def on_screen(n: dict) -> bool:
+        if width is not None and n["x1"] >= width:
+            return False
+        if height is not None and (n["y1"] >= height or n["y2"] <= 0):
+            return False
+        return True
+
+    visible = [n for n in pool if on_screen(n)]
     if not visible:
         return {"status": "offscreen", "hit": None, "cands": pool}
     if len(visible) > 1:
@@ -204,11 +214,11 @@ def main() -> int:
     if args.list or not args.key:
         print(f"屏幕 {w}x{h}，可点文字 {len(nodes)} 个：")
         for n in nodes:
-            flag = "" if n["x1"] < w else "  [屏幕外]"
+            flag = "" if (n["x1"] < w and n["y1"] < h and n["y2"] > 0) else "  [屏幕外]"
             print(f"  ({n['x']:>5},{n['y']:>5})  {n['text'][:40]}{flag}")
         return EXIT_OK
 
-    result = resolve(nodes, args.key, width=w)
+    result = resolve(nodes, args.key, width=w, height=h)
 
     if result["status"] == "ambiguous":
         print(f"关键字「{args.key}」命中 {len(result['cands'])} 个页签，拒绝猜测——换更具体的关键字：",
@@ -227,7 +237,7 @@ def main() -> int:
             adb(args.serial, "shell", "input", "swipe",
                 str(int(w * 0.8)), str(tab_y), str(int(w * 0.2)), str(tab_y), "250")
             nodes = dump_nodes(args.serial)
-            result = resolve(nodes, args.key, width=w)
+            result = resolve(nodes, args.key, width=w, height=h)
             if result["status"] == "ok":
                 break
             if result["status"] == "ambiguous":
