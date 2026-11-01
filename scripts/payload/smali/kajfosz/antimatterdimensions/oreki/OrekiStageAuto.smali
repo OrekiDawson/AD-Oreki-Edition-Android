@@ -938,7 +938,9 @@
 # 为什么不用 `player.break = !player.break` 的开关语义：本方法在 **已 Break 时已早退**，
 # 所以不存在「每帧来回翻转」的风险；这与 Web `game.js:222-236` 的 `!player.break` 守卫同义。
 .method public static tryBreakInfinity()V
-    .locals 3
+    # [R56] 3 → 6：取证需要 v3(brake) / v4(tag) / v5(msg)。
+    # 本方法无参数，扩大 locals 不会移动 p 寄存器。
+    .locals 6
 
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
@@ -964,9 +966,51 @@
     # if-eqz = interval 未拉满（==0）→ 不 Break
     if-eqz v2, :oreki_sa_brk_done
 
+    # [R56 BRKTRACE2] 取证：真实 Break 调用点（x0(true)）之前读一次 brake。
+    # 只在这里打 —— 本段只在「未 Break 且 interval 已满」时执行，Break 成功后再进不来，
+    # 因此天然只输出一次，不需要限频。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v3
+
+    const-string v4, "OREKI_BRKTRACE2"
+
+    if-eqz v3, :oreki_bt_b1
+
+    const-string v5, "x0-before brake=1"
+
+    goto :oreki_bt_b2
+
+    :oreki_bt_b1
+    const-string v5, "x0-before brake=0"
+
+    :oreki_bt_b2
+    invoke-static {v4, v5}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V
+
+    # [R56 BRKTRACE2] x0(true) 之后立刻再读一次，确认真实翻转。
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v3
+
+    const-string v4, "OREKI_BRKTRACE2"
+
+    if-eqz v3, :oreki_bt_a1
+
+    const-string v5, "x0-after brake=0"
+
+    goto :oreki_bt_a2
+
+    :oreki_bt_a1
+    const-string v5, "x0-after brake=1"
+
+    :oreki_bt_a2
+    invoke-static {v4, v5}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     invoke-static {}, Lkajfosz/antimatterdimensions/autobuyer/a;->c()V
 

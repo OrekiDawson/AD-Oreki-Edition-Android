@@ -22,6 +22,10 @@ OREKI = ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensio
 SCHED = OREKI / "OrekiAutomationScheduler.smali"
 LISTENER = OREKI / "OrekiAutomationUiListener.smali"
 SETTINGS = OREKI / "SpeedSettingsActivity.smali"
+# [R56] 寄存器越界检查必须覆盖这里 —— R55b 的崩溃就是 OrekiStageAuto 漏检导致
+STAGE_AUTO = OREKI / "OrekiStageAuto.smali"
+REALITY = OREKI / "OrekiReality.smali"
+BREAK_GATE = OREKI / "OrekiBreakGate.smali"
 SPEED = ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiSpeed.smali"
 
 FAILS = []
@@ -168,7 +172,8 @@ def main():
     noop_b = body(sched, "noteNoop")
     # [R53] 去掉 "sput-wide"：no-op 允许写日志节流字段 sNoopLogAt（不是动作计时）。
     # 真正的禁令由上面两条精确断言覆盖（不得写 sLastAct / sLastBeatAt）。
-    for bad in ("aput-wide", "sLastAct", "sLastBeatAt", "sFrameActed"):
+    # [R56] 去掉 "aput-wide"：noop 重试表 sNoopUntil 需要写 wide。
+    for bad in ("sLastAct", "sLastBeatAt", "sFrameActed"):
         ok(bad not in noop_b, f"noteNoop 不得出现 {bad}（no-op 必须不计时、立即让位）")
 
     # 失败走独立冷却 2000ms
@@ -398,7 +403,7 @@ def main():
         return out
 
     _OVF = re.compile(r"\bv(\d+)\b")
-    for _f in (SCHED,):
+    for _f in (SCHED, STAGE_AUTO, REALITY, BREAK_GATE):
         _txt = read(_f)
         for _name, _loc, _pslots, _b in _reg_bounds(_txt):
             _limit = _loc + _pslots          # 合法编号上界（不含）

@@ -106,6 +106,9 @@
 
 # [R53] noop 限频日志的下次允许时间（elapsedRealtime + 30000）。只服务诊断。
 .field private static sNoopLogAt:J
+
+# [R56] 每个任务的 noop 重试截止时间（elapsedRealtime）。与动作节拍、用户间隔三者独立。
+.field private static sNoopUntil:[J
 .field private static sCtx:Landroid/content/Context;
 
 # 诊断计数（累计，不清零；清零点见 setEnabled(false)）
@@ -198,6 +201,10 @@
     new-array v1, v0, [I
 
     sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopStreak:[I
+
+    new-array v1, v0, [J
+
+    sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopUntil:[J
 
     # ---- 边界常量 ----
     const/4 v1, 0x1
@@ -847,6 +854,29 @@
 
     goto :deny_5
 
+    # [R56] noop 重试节流：同一任务在上次 no-op 后 3 秒内不再尝试。
+    # 与「用户设置的自动操作间隔」和「动作节拍」都独立：
+    #   · 用户间隔管的是**成功动作**的最小间隔；
+    #   · 动作节拍管的是同帧只有一个真动作；
+    #   · 这里管的是**同一任务无效重试**的频率。
+    sget-object v6, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopUntil:[J
+
+    aget-wide v4, v6, v1
+
+    const-wide/16 v10, 0x0
+
+    cmp-long v0, v4, v10
+
+    # deadline <= 0（从未 no-op）→ 放行
+    if-lez v0, :gate
+
+    cmp-long v0, v4, v2
+
+    # deadline <= now（已过期）→ 放行
+    if-lez v0, :gate
+
+    goto :deny_6
+
     :gate
     const/16 v8, 0x3e8
 
@@ -933,6 +963,10 @@
 
     :deny_5
     const-string v1, "failure-cooldown"
+    goto :deny_log
+
+    :deny_6
+    const-string v1, "noop-retry-wait"
     goto :deny_log
 
     :deny
@@ -1140,7 +1174,8 @@
 # 同一帧内下一个候选立刻就能上（用户令：no-op 不计时、立即让位）。
 .method public static noteNoop(Ljava/lang/String;)V
     # [R53] 4 → 6：限频日志需要一对 long（v4:v5）。
-    .locals 6
+    # [R56] 6 → 8：再要一对 long（v6:v7）写 noop 重试截止；p0 随之落在 v8。
+    .locals 8
 
 
 
@@ -1149,6 +1184,21 @@
     move-result v0
 
     if-gez v0, :done
+
+    # [R56] 写该任务的 noop 重试截止（默认 3000 ms）。
+    # 语义：no-op 不推进**动作**时间戳，但同一任务在窗口内不再重试，
+    # 避免每 tick 空转。三者互相独立：用户间隔 / 动作节拍 / noop 重试。
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v6
+
+    const-wide/16 v4, 0xbb8
+
+    add-long v6, v6, v4
+
+    sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopUntil:[J
+
+    aput-wide v6, v3, v0
 
     sget-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopStreak:[I
 
