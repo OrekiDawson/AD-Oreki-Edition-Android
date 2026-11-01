@@ -76,12 +76,15 @@ def main():
     ok("getSharedPreferences" not in body(settings, "addAutomationSection"),
        "设置页调度段落直接碰了 SharedPreferences —— 应只调调度器 getter/setter")
 
-    # ── 2. 默认值 enabled=true / intervalSec=3 / strictGlobal=false ────────
+    # ── 2. 默认值 enabled=true / intervalSec=1 / strictGlobal=false ────────
+    # [R57-2] 间隔默认值由 3 秒改为 1 秒（R57 执行令：默认 1 秒，最快通关优先）。
+    # 三处必须同时是 1：字段默认 sIntervalDefault、运行期初值 sIntervalSec、
+    # SharedPreferences 的缺省回退值 —— 任一处留在 3 就会出现「设置里显示 1、实际按 3 跑」。
     init_b = body(sched, "init")
     ok(re.search(r'const-string v1, "oreki.automation.enabled"\s*\n\s*\n\s*const/4 v2, 0x1', init_b),
        "读取 enabled 的默认值不是 true")
-    ok(re.search(r'const-string v1, "oreki.automation.intervalSec"\s*\n\s*\n\s*const/4 v2, 0x3', init_b),
-       "读取 intervalSec 的默认值不是 3")
+    ok(re.search(r'const-string v1, "oreki.automation.intervalSec"\s*\n\s*\n\s*const/4 v2, 0x1', init_b),
+       "读取 intervalSec 的默认值不是 1（R57-2）")
     ok(re.search(r'const-string v1, "oreki.automation.strictGlobal"\s*\n\s*\n\s*const/4 v2, 0x0', init_b),
        "读取 strictGlobal 的默认值不是 false")
 
@@ -89,8 +92,10 @@ def main():
     clinit = body(sched, "<clinit>")
     ok("const/4 v1, 0x1\n\n    sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z" in clinit,
        "<clinit> 的 sEnabled 初值不是 true")
-    ok("const/4 v1, 0x3\n\n    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalSec:I" in clinit,
-       "<clinit> 的 sIntervalSec 初值不是 3")
+    ok("const/4 v1, 0x1\n\n    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalSec:I" in clinit,
+       "<clinit> 的 sIntervalSec 初值不是 1（R57-2）")
+    ok("const/4 v1, 0x1\n\n    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalDefault:I" in clinit,
+       "字段默认 sIntervalDefault 不是 1（R57-2）")
     ok("const/4 v1, 0x0\n\n    sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sStrictGlobal:Z" in clinit,
        "<clinit> 的 sStrictGlobal 初值不是 false")
 

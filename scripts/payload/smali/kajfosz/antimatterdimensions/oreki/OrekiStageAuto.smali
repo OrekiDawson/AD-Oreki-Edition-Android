@@ -175,16 +175,32 @@
     invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
 
     :oreki_sa_reality_skip
-    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->eternitiesZero()Z
-    move-result v0
-
-    # 已进入永恒 → 本阶段窗口结束，停止干预
+    # [R57-1] 删除「首次永恒后整体退出」的硬门。
     #
-    # [R41 极性修正] if-eqz = v0==0 才跳。eternitiesZero()==false（已经永恒过）才停。
-    # 原写 if-nez（非零才跳）：eternities==0 的新档反而在这里 return，
-    # 于是 enableIpMultAutobuyer / upgradeCrunchInterval / tryBuyId1 一次都不执行
-    # —— 门控表 interval 恒 150000、IP 只有几次坍缩的存量，就是这个原因。
-    if-eqz v0, :oreki_sa_try_end
+    # 原代码：`invoke-static eternitiesZero() / if-eqz v0, :oreki_sa_try_end`
+    #   → eternitiesZero()==false（即 eternities>0）时直接跳到方法末尾，
+    #     于是下面这一整段**在首次永恒之后永久不再执行**：
+    #       enableIpMultAutobuyer / autoSacrifice / upgradeBulkAll /
+    #       buyInfinityUpgrades / upgradeCrunchInterval / breakGate / breakUpgrades / tryBuyId1
+    #
+    # 为什么必须删（而不是"阶段结束就该停"）：
+    #   · 每次永恒都会把无限升级整层清空（原版 eternityReset），
+    #     而 buyInfinityUpgrades 是 Oreki 补的、原版自动器里**没有**的那一层——
+    #     停在永恒之后 = 此后每一轮无限都拿不到这批乘数，IP 增速直接掉一个数量级；
+    #   · tryBuyId1 的判据用的是 `records.thisEternity.maxAM >= ID.k()`，
+    #     本来就是**永恒内**语义（见 tryBuyId1 内注释），停在这里等于把它废掉；
+    #   · autoSacrifice / upgradeBulkAll 同理，都是每轮无限都要重做的动作。
+    #   这正是 R57 明令禁止的「进入 Eternity 后自动化停止工作」。
+    #
+    # 安全依据（逐个调用点自带守卫，不需要这层外门）：
+    #   · enableIpMultAutobuyer：只翻一次开关，幂等；
+    #   · autoSacrifice：内部判 canSacrifice 与倍数增量，未达条件即空转；
+    #   · upgradeBulkAll：原版 N(false) 内含 hasMaxedBulk 幂等判断；
+    #   · buyInfinityUpgrades：逐项判 canBeBought，买不起/已买即跳过；
+    #   · upgradeCrunchInterval：判 hasMaxedInterval，满级即空转；
+    #   · breakGate / tryBreakInfinity：判 !Player.m()（已 Break 即不动）；
+    #   · tryBuyId1：判 Player.m() 与 ID 解锁门槛。
+    #   即：任何一项在当前阶段不适用时都退化为空操作，删门不会产生重复扣费或重复购买。
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->enableIpMultAutobuyer()V
 

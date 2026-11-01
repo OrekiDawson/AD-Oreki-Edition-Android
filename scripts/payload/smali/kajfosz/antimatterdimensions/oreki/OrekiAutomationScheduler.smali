@@ -215,7 +215,9 @@
 
     sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalMax:I
 
-    const/4 v1, 0x3
+    # [R57-2] 默认间隔 3 → 1 秒：R57 要求「默认 1 秒，以最快通关为优先」。
+    # 只改**默认值**，玩家已写入 SharedPreferences 的值仍然照原样读回（见下面 init 的 getInt）。
+    const/4 v1, 0x1
 
     sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalDefault:I
 
@@ -223,12 +225,12 @@
 
     sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sFailCooldownMs:I
 
-    # ---- 默认值：启用 / 3 秒 / 单任务档（与 Web readStoredAutomation 一致）----
+    # ---- 默认值：启用 / 1 秒 / 单任务档（[R57-2] 间隔默认由 3 改 1）----
     const/4 v1, 0x1
 
     sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z
 
-    const/4 v1, 0x3
+    const/4 v1, 0x1
 
     sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalSec:I
 
@@ -278,9 +280,12 @@
 
     sput-boolean v2, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z
 
+    # [R57-2] 缺省回退值同样改 0x1：与 sIntervalDefault 保持一致，
+    # 否则「没有存过设置」的玩家读出来仍是 3 秒。
+    # 注：静态检查器用「相邻两行」正则校验这条缺省值，注释不能夹在两条指令之间。
     const-string v1, "oreki.automation.intervalSec"
 
-    const/4 v2, 0x3
+    const/4 v2, 0x1
 
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
 
