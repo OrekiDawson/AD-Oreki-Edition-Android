@@ -83,7 +83,8 @@ def parse_nodes(xml_text: str) -> list[dict]:
             {"text": m.group(1), "x1": int(m.group(2)), "y1": int(m.group(3)),
              "x2": int(m.group(4)), "y2": int(m.group(5)),
              "x": (int(m.group(2)) + int(m.group(4))) // 2,
-             "y": (int(m.group(3)) + int(m.group(5))) // 2}
+             "y": (int(m.group(3)) + int(m.group(5))) // 2,
+             "clickable": False}
             for m in NODE_RE.finditer(xml_text) if m.group(1).strip()
         ]
     nodes = []
@@ -96,7 +97,8 @@ def parse_nodes(xml_text: str) -> list[dict]:
             continue
         x1, y1, x2, y2 = map(int, m.groups())
         nodes.append({"text": text, "x1": x1, "y1": y1, "x2": x2, "y2": y2,
-                      "x": (x1 + x2) // 2, "y": (y1 + y2) // 2})
+                      "x": (x1 + x2) // 2, "y": (y1 + y2) // 2,
+                      "clickable": (el.get("clickable") or "").lower() == "true"})
     return nodes
 
 
@@ -124,8 +126,38 @@ def resolve(nodes: list[dict], key: str, width: int | None = None) -> dict:
     cands = [n for n in nodes if key in n["text"]]
     if not cands:
         return {"status": "missing", "hit": None, "cands": []}
-    exact = [n for n in cands if n["text"] == key]     # 完全相等优先
+
+    # ① 完全相等优先（避免「术语表」同时命中更长的一句话）
+    exact = [n for n in cands if n["text"] == key]
     pool = exact or cands
+
+    # ② 父子嵌套去重：同一段可见文字经常同时挂在父容器和子 TextView 上。
+    #    若 A 的 bounds 完整包含 B 的 bounds，B 就是更具体的那个，丢掉 A。
+    #    不做这步会把「父 + 子」算成两条命中 → 把一次合法点击判成歧义（会卡住整轮验收）。
+    def contains(a: dict, b: dict) -> bool:
+        return (a["x1"] <= b["x1"] and a["y1"] <= b["y1"]
+                and a["x2"] >= b["x2"] and a["y2"] >= b["y2"]
+                and (a["x1"], a["y1"], a["x2"], a["y2"]) != (b["x1"], b["y1"], b["x2"], b["y2"]))
+
+    innermost = [n for n in pool if not any(contains(n, other) for other in pool)]
+    if innermost:
+        pool = innermost
+
+    # ③ 同一 bounds 重复出现（父容器带 text 且与子节点边界完全一致）按 bounds 去重
+    deduped, seen = [], set()
+    for n in pool:
+        box = (n["x1"], n["y1"], n["x2"], n["y2"])
+        if box in seen:
+            continue
+        seen.add(box)
+        deduped.append(n)
+    pool = deduped
+
+    # ④ 仍然多个时，若其中只有一个 clickable，就选它（其余是纯文本展示节点）
+    clickables = [n for n in pool if n.get("clickable")]
+    if len(clickables) == 1:
+        pool = clickables
+
     visible = [n for n in pool if width is None or n["x1"] < width]
     if not visible:
         return {"status": "offscreen", "hit": None, "cands": pool}

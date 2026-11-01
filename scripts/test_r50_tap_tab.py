@@ -17,6 +17,8 @@
   T8 CLI 在「滑动后」的屏上命中时退出码 0 且打印「命中」（模拟先滑动再点）
   T9 CLI 未命中时退出码 1（离线模式不碰 adb，不许报 adb 错误）
   T10 CLI 歧义时退出码 3
+  T11 父子嵌套同文案（bounds 包含）→ 解析到更内层那个，不算歧义
+  T12 两个互不嵌套的节点含同一关键字 → 仍然判歧义（新逻辑不能吞掉真歧义）
 
 用法：python scripts/test_r50_tap_tab.py
 退出码：0 全通过；1 有失败。
@@ -168,6 +170,35 @@ def main() -> int:
     off_nodes = tap.parse_nodes(off_xml)
     off = tap.resolve(off_nodes, "复兴树", width=1080)
     check("T6 屏幕外不算命中", off["status"] == "offscreen", off["status"])
+
+    # T11：父子嵌套同文案——父容器 bounds 包含子节点，应只留更内层的那个
+    nested_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<hierarchy rotation="0">
+  <node index="0" text="" class="android.widget.FrameLayout" bounds="[0,0][1080,1920]">
+    <node index="1" text="智能调度" class="android.widget.LinearLayout" bounds="[60,1519][1380,1702]">
+      <node index="2" text="智能调度" class="android.widget.TextView" clickable="true" bounds="[80,1540][1340,1680]" />
+    </node>
+  </node>
+</hierarchy>
+"""
+    n11 = tap.parse_nodes(nested_xml)
+    r11 = tap.resolve(n11, "智能调度", width=1080)
+    check("T11 父子嵌套同文案解析到内层节点",
+          r11["status"] == "ok" and r11["hit"]["x1"] == 80,
+          f"{r11['status']}，命中 {r11['hit']['text'] if r11['hit'] else None} @ x1={r11['hit']['x1'] if r11['hit'] else '-'}")
+
+    # T12：两个互不嵌套的节点都含关键字 → 必须仍判歧义
+    amb_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<hierarchy rotation="0">
+  <node index="0" text="" class="android.widget.FrameLayout" bounds="[0,0][1080,1920]">
+    <node index="1" text="无限升级与普通挑战" class="android.widget.TextView" bounds="[24,300][400,376]" />
+    <node index="2" text="无限维度与无限挑战" class="android.widget.TextView" bounds="[420,300][800,376]" />
+  </node>
+</hierarchy>
+"""
+    n12 = tap.parse_nodes(amb_xml)
+    r12 = tap.resolve(n12, "无限", width=1080)
+    check("T12 互不嵌套的多命中仍判歧义", r12["status"] == "ambiguous", f"{r12['status']}，候选 {len(r12['cands'])} 个")
 
     # T7~T10：CLI 行为
     rc, out = run_cli("--xml", str(OUT_XML), "--screen", "1080x1920", "--list")
