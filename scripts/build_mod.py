@@ -4703,6 +4703,68 @@ def patch_v_unlock_thresholds():
         "c15 结构漂移：invoke 方法数量异常"
 
 
+def patch_dimboost_ad8_slope():
+    """[Oreki AD1 同步] 维度提升 tier-8 的 AD8 需求斜率：原版 15/次 → max(1, 5 - discount)。
+
+    ── 为什么必须打（2026-11-01 R50-A13 实测）────────────────────────────
+    Web 端 `src/core/dimboost.js:96-135` 的 `bulkRequirement()` 里有本项目自己的削弱补丁：
+
+        } else if (tier === 8) {
+          // [Oreki AD1] 原版 15/次 的 AD8 需求斜率在 Break 后会把成长反馈环卡死：
+          // R12 实测（干净驱动、无坍缩、150 s）：提升冻结在 32、星系 6 …
+          const perBoost = Math.max(1, 5 - discount);
+          amount += Math.round((targetResets - 5) * perBoost);
+        }
+
+    Android 侧仍是原版 15/次（`kx0.smali` 的 `a(D)Ljx0;` = bulkRequirement），
+    于是 `dimensionBoosts=32` 时需求 = `20 + (33-5)*15 = 440`（扣减免后实测 **431**），
+    而 AD8 自身单价 1e930、当时反物质只有 1e921 —— **提升与星系永久冻结在 32 / 6**，
+    与 Web 注释里描述的停滞态一字不差。
+
+    改法（与 Web 逐字同义，只动斜率，不动基础 20 / 折扣 / EC5 / charged）：
+        perBoost = max(1.0, 5.0 - discount)
+    改完需求 431 → 160，当前 AD8=420 立刻满足，提升/星系恢复复利。
+
+    R25 教训一并落实：斜率必须钳 ≥1，否则 discount=5 时变 0 → 需求量恒为 20 →
+    `maxBuyDimBoosts` 的线性外推出现 0/0 = NaN → 每帧抛异常、主循环停摆。
+    """
+    target = MOD / "smali" / "kx0.smali"
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    if "Oreki AD1" in src:
+        note("[Oreki AD1] 维度提升 AD8 斜率已打过补丁，跳过")
+        return
+
+    start_mark = "    const-wide/high16 v8, 0x4014000000000000L    # 5.0\n"
+    end_mark = "    mul-double/2addr v10, v8\n"
+    assert src.count(start_mark) == 1, "kx0 的 5.0 锚点不唯一，结构可能已变"
+    assert src.count(end_mark) == 1, "kx0 的 mul v10,v8 锚点不唯一"
+    i = src.index(start_mark)
+    j = src.index(end_mark, i) + len(end_mark)
+
+    # 顺序要点：先算 perBoost（此时 v8/v9 还空闲，可放 1.0 常量做钳制），
+    # 再算 (resets - 5.0) 放进 v8，最后相乘 —— 寄存器宽度与 .locals 12 相容。
+    block = (
+        "    # [Oreki AD1] 与 Web core/dimboost.js:118-130 同义：\n"
+        "    #   原版 15/次 的 AD8 需求斜率在 Break 后会把成长反馈环卡死\n"
+        "    #   （实测冻结在 db=32 / gal=6），改为 max(1, 5 - discount)/次。\n"
+        "    #   只改斜率，不改基础 20、折扣来源、EC5 与 charged 效果。\n"
+        "    const-wide/high16 v8, 0x4014000000000000L    # 5.0\n"
+        "    sub-double v10, v8, v4                       # v10 = 5.0 - discount\n"
+        "    const-wide/high16 v8, 0x3ff0000000000000L    # 1.0\n"
+        "    invoke-static {v10, v11, v8, v9}, Ljava/lang/Math;->max(DD)D\n"
+        "    move-result-wide v10                         # v10 = max(1.0, 5.0-discount)\n"
+        "    const-wide/high16 v8, 0x4014000000000000L    # 5.0\n"
+        "    sub-double v8, v0, v8                        # v8 = targetResets - 5.0\n"
+        "    mul-double/2addr v10, v8\n"
+    )
+    target.write_text(src[:i] + block + src[j:], encoding="utf-8")
+    patched = target.read_text(encoding="utf-8")
+    assert "Oreki AD1" in patched, "补丁写入失败"
+    assert "0x402e000000000000L" not in patched, "原版 15.0 斜率仍残留"
+    note("[Oreki AD1] 维度提升 AD8 需求斜率 15/次 → max(1, 5-discount)/次")
+
+
 def main():
     java = str(TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe")
     prepare()
@@ -4725,6 +4787,8 @@ def main():
     patch_autobuyer_after_infinity()
     patch_autobuyer_boost_galaxy()
     patch_autobuyer_crunch_after_infinity()
+    # [Oreki AD1 同步] 维度提升 tier-8 的 AD8 需求斜率（Web 已有、Android 缺失）
+    patch_dimboost_ad8_slope()
     patch_autobuyer_crunch_force_active()
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
