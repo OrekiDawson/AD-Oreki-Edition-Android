@@ -20,6 +20,8 @@
   T11 父子嵌套同文案（bounds 包含）→ 解析到更内层那个，不算歧义
   T12 两个互不嵌套的节点含同一关键字 → 仍然判歧义（新逻辑不能吞掉真歧义）
   T13 节点纵向滚出屏幕下方（y1 ≥ 屏高）→ 判 offscreen，不算命中
+  T14 真机 dump（reports/_r50/fixtures/ui_settings_before.xml）能解析、实体已解码、目标文案可定位
+  T15 实体转义：`&#10;` / `&amp;` 等必须解码成真实字符后才参与匹配
 
 用法：python scripts/test_r50_tap_tab.py
 退出码：0 全通过；1 有失败。
@@ -212,6 +214,45 @@ def main() -> int:
     n13 = tap.parse_nodes(below_xml)
     r13 = tap.resolve(n13, "具体操作", width=1080, height=1920)
     check("T13 纵向屏外判 offscreen", r13["status"] == "offscreen", r13["status"])
+
+    # T15：实体转义——真机 dump 里换行是 `&#10;`，若不解码，任何跨行文案都匹配不上
+    ent_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<hierarchy rotation="0">
+  <node index="0" text="" class="android.widget.FrameLayout" bounds="[0,0][1080,1920]">
+    <node index="1" text="启用 Oreki 智能调度&#10;（关闭后立即停止）" class="android.widget.CheckBox" clickable="true" bounds="[60,300][1380,600]" />
+    <node index="2" text="A &amp; B" class="android.widget.TextView" bounds="[60,700][600,760]" />
+  </node>
+</hierarchy>
+"""
+    n15 = tap.parse_nodes(ent_xml)
+    t15 = [n["text"] for n in n15]
+    check("T15 &#10; 解码为真实换行",
+          any("\n" in t for t in t15) and not any("&#10;" in t for t in t15),
+          "、".join(repr(t[:24]) for t in t15))
+    check("T15 &amp; 解码为 &", any("A & B" == t for t in t15), "、".join(repr(t) for t in t15))
+
+    # T14：真机 dump（android-scheduler-agent 提供，A17 的 Oreki 设置页）
+    real = ANDROID_ROOT / "reports" / "_r50" / "fixtures" / "ui_settings_before.xml"
+    if not real.is_file():
+        print(f"  SKIP  T14 真机 dump 不在（{real.relative_to(ANDROID_ROOT).as_posix()}）")
+    else:
+        rn = tap.parse_nodes(real.read_text(encoding="utf-8"))
+        check("T14 真机 dump 可解析且节点都有 bounds",
+              len(rn) >= 10 and all(n["x2"] > n["x1"] and n["y2"] > n["y1"] for n in rn),
+              f"{len(rn)} 个非空文字节点")
+        check("T14 真机 dump 空 text 节点已被跳过",
+              all(n["text"].strip() for n in rn), "无空节点")
+        check("T14 真机 dump 无残留 &#10; 字面量",
+              not any("&#10;" in n["text"] for n in rn),
+              f"{sum(1 for n in rn if chr(10) in n['text'])} 个节点含真实换行")
+        r_save = tap.resolve(rn, "保存间隔", width=1080, height=3200)
+        check("T14 可点节点（保存间隔）定位成功",
+              r_save["status"] == "ok" and r_save["hit"]["clickable"],
+              f"{r_save['status']}")
+        r_note = tap.resolve(rn, "调度说明", width=1080, height=3200)
+        check("T14 纯文本节点（调度说明）也能定位",
+              r_note["status"] == "ok" and not r_note["hit"]["clickable"],
+              f"{r_note['status']}")
 
     # T7~T10：CLI 行为
     rc, out = run_cli("--xml", str(OUT_XML), "--screen", "1080x1920", "--list")
