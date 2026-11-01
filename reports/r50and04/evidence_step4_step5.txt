@@ -1,0 +1,15 @@
+# R50-AND-04 设置页验证证据（2026年11月1日 13:50 左右，设备时钟 05:49-05:50 UTC）
+
+## 1) 打开方式：am start（未被 exported=false 拦住）
+adb shell am start -n com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity
+-> Starting: Intent { cmp=...SpeedSettingsActivity }
+
+## 2) mCurrentFocus 命中
+11-01 05:49:56.327 I/ActivityTaskManager(  531): Displayed com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity for user 0: +413ms
+mCurrentFocus=Window{75dba2f u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity}
+
+## 3) 进程被杀（外部 force-stop，非崩溃）
+11-01 05:50:40.563 I/ActivityManager(  531): Force stopping com.oreki.antimatterdimensions appid=10145 user=0: from pid 3884
+
+## 4) init 日志（第 4 条证据）
+11-01 05:43:36.538 I/OREKI_SCHED( 3443): init 调度：已启用 · 间隔 1 秒 · 单任务档（每条策略任务各自计时；原版等价连续购买不受限）

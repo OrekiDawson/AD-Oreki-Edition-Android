@@ -291,6 +291,11 @@
 
     invoke-direct {p0, v0, v6, v2, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAction(Landroid/widget/LinearLayout;Landroid/widget/EditText;ILjava/lang/String;)V
 
+    # [R50-AND-04] 智能调度段落（开关 / 1~60 秒间隔 / 严格模式）。
+    # 放在速度段之后、成就段之前：它约束的是「Oreki 自动动作多久执行一次」，
+    # 与上面的倍率同属「运行参数」，不掺进成就卡片那组不可逆操作。
+    invoke-direct {p0, v0}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAutomationSection(Landroid/widget/LinearLayout;)V
+
     # ---- 精准成就辅助：唯一的成就写入入口 ----
     new-instance v3, Landroid/widget/TextView;
     invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
@@ -358,6 +363,182 @@
     invoke-direct {p0, v0, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     invoke-virtual {p0, v8}, Landroid/app/Activity;->setContentView(Landroid/view/View;)V
+
+    return-void
+.end method
+
+
+# ---------------------------------------------------------------
+# [R50-AND-04] 智能调度段落：启用开关 / 1~60 秒间隔 / 严格模式
+#
+# 与 Web 侧 oreki-smart-executor.js 的三个键逐字对应，文案只说这个类真正做的事：
+#   · 只管 **Oreki 自己发起的** 自动动作（策略决策周期）；
+#   · 原版 tick 与原版自带自动购买器**不在**管辖范围（用户令第 8 条），
+#     对应「买维度 / 计数频率 / 维度提升 / 星系 / 献祭 / 重开 / 无限维度 /
+#     无限升级 / 时间研究」这些原版本来就有的自动器职责；
+#   · 关掉只会停 Oreki 的动作，不影响手动操作与原版自动购买器。
+#
+# 颜色一律不写死：本页在 oreki_dark_theme.py 里被固定成 Theme.Material（深色），
+# 这里只建 View、不给任何 setTextColor/setBackgroundColor，于是深浅色跟随主题。
+# 「打开 Oreki 中文教程」按钮不在本页（它在 TutorialEntry 注入的 MainActivity 容器里，
+# 底色已在 R31 锁定 #0078D7），本段不重复造第二个入口。
+# ---------------------------------------------------------------
+.method private addAutomationSection(Landroid/widget/LinearLayout;)V
+    .locals 10
+
+    # 配置兜底加载：App.onCreate → OrekiSpeed.init 已经调过，这里再调是幂等的
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->init(Landroid/content/Context;)V
+
+    # ---- 标题 ----
+    new-instance v0, Landroid/widget/TextView;
+    invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "智能调度（Oreki 自动操作节拍）"
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/high16 v1, 0x41a00000    # 20.0f
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextSize(F)V
+
+    const/16 v1, 0x28
+    invoke-virtual {v0, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {p1, v0}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 状态行（v2：点控件后由 listener 原地刷新，不 recreate 页面）----
+    new-instance v2, Landroid/widget/TextView;
+    invoke-direct {v2, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->statusLine()Ljava/lang/String;
+    move-result-object v1
+    invoke-virtual {v2, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    const/high16 v1, 0x41600000    # 14.0f
+    invoke-virtual {v2, v1}, Landroid/widget/TextView;->setTextSize(F)V
+
+    const/16 v1, 0x28
+    invoke-virtual {v2, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {p1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 启用开关（默认开，键不存在时也是开）----
+    # setChecked 必须早于 setOnCheckedChangeListener：否则初始化会触发一次回调
+    new-instance v3, Landroid/widget/CheckBox;
+    invoke-direct {v3, p0}, Landroid/widget/CheckBox;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "启用 Oreki 智能调度\n（关闭后所有 Oreki 自动动作立即停止，并清空待执行/冷却状态；手动操作与原版自动购买器不受影响）"
+    invoke-virtual {v3, v1}, Landroid/widget/CheckBox;->setText(Ljava/lang/CharSequence;)V
+
+    const/high16 v1, 0x41600000    # 14.0f
+    invoke-virtual {v3, v1}, Landroid/widget/TextView;->setTextSize(F)V
+
+    const/16 v1, 0x28
+    invoke-virtual {v3, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->isEnabled()Z
+    move-result v1
+    invoke-virtual {v3, v1}, Landroid/widget/CompoundButton;->setChecked(Z)V
+
+    const/4 v8, 0x0
+
+    new-instance v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
+    const/4 v1, 0x2
+    invoke-direct {v7, p0, v1, v8, v2}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;-><init>(Landroid/app/Activity;ILandroid/widget/EditText;Landroid/widget/TextView;)V
+
+    invoke-virtual {v3, v7}, Landroid/widget/CompoundButton;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
+
+    invoke-virtual {p1, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 间隔输入（v4）----
+    new-instance v4, Landroid/widget/EditText;
+    invoke-direct {v4, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
+
+    const v1, 0x2002    # InputType.TYPE_CLASS_NUMBER
+    invoke-virtual {v4, v1}, Landroid/widget/TextView;->setInputType(I)V
+
+    const-string v1, "调度间隔（秒）：1~60，越界会被夹到边界，改完下一次调度立即生效"
+    invoke-virtual {v4, v1}, Landroid/widget/TextView;->setHint(Ljava/lang/CharSequence;)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->getIntervalSec()I
+    move-result v1
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v1
+    invoke-virtual {v4, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    invoke-virtual {p1, v4}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 按钮行（v5）：保存 / 恢复默认 ----
+    new-instance v5, Landroid/widget/LinearLayout;
+    invoke-direct {v5, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    const/4 v1, 0x0
+    invoke-virtual {v5, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    const/16 v1, 0x28
+    invoke-virtual {v5, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-virtual {p1, v5}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # 保存间隔（kind 0）
+    new-instance v6, Landroid/widget/Button;
+    invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "保存间隔"
+    invoke-virtual {v6, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    new-instance v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
+    const/4 v1, 0x0
+    invoke-direct {v7, p0, v1, v4, v2}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;-><init>(Landroid/app/Activity;ILandroid/widget/EditText;Landroid/widget/TextView;)V
+
+    invoke-virtual {v6, v7}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-virtual {v5, v6}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # 恢复默认（kind 1）
+    new-instance v6, Landroid/widget/Button;
+    invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "恢复默认 3 秒"
+    invoke-virtual {v6, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    new-instance v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
+    const/4 v1, 0x1
+    invoke-direct {v7, p0, v1, v4, v2}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;-><init>(Landroid/app/Activity;ILandroid/widget/EditText;Landroid/widget/TextView;)V
+
+    invoke-virtual {v6, v7}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    invoke-virtual {v5, v6}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 严格模式（v3 复用）----
+    new-instance v3, Landroid/widget/CheckBox;
+    invoke-direct {v3, p0}, Landroid/widget/CheckBox;-><init>(Landroid/content/Context;)V
+
+    const-string v1, "严格模式：任意两次自动操作之间都必须 ≥ 间隔\n（连原版等价的连续购买也一起被限制，会显著变慢甚至停滞。默认关闭。）"
+    invoke-virtual {v3, v1}, Landroid/widget/CheckBox;->setText(Ljava/lang/CharSequence;)V
+
+    const/high16 v1, 0x41600000    # 14.0f
+    invoke-virtual {v3, v1}, Landroid/widget/TextView;->setTextSize(F)V
+
+    const/16 v1, 0x28
+    invoke-virtual {v3, v1, v1, v1, v1}, Landroid/view/View;->setPadding(IIII)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->isStrictGlobal()Z
+    move-result v1
+    invoke-virtual {v3, v1}, Landroid/widget/CompoundButton;->setChecked(Z)V
+
+    new-instance v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
+    const/4 v1, 0x3
+    invoke-direct {v7, p0, v1, v8, v2}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;-><init>(Landroid/app/Activity;ILandroid/widget/EditText;Landroid/widget/TextView;)V
+
+    invoke-virtual {v3, v7}, Landroid/widget/CompoundButton;->setOnCheckedChangeListener(Landroid/widget/CompoundButton$OnCheckedChangeListener;)V
+
+    invoke-virtual {p1, v3}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
+
+    # ---- 说明 ----
+    const-string v1, "调度说明：间隔约束的是「策略决策周期」——现实 / 天神 / Perk / 终局 / Break 升级 / 闸门这些离散决策，多久重新评估一次。买反物质维度、计数频率、维度提升、星系、献祭、重开、无限维度、无限升级、时间研究这些属于原版自动购买器的职责，默认按原版 tick 节奏跑，不受此间隔限制（用户令第 8 条：不得破坏原版机制）；只有勾选严格模式才会把它们一起纳入。同一帧最多只放行一个真动作；没有真正改变游戏状态的调用不计入间隔、立即让位给下一个候选；失败的调用有 2 秒独立冷却，不会无限重试。"
+    invoke-direct {p0, p1, v1}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
+
+    const-string v1, "键名与 Web 端逐字相同（oreki.automation.enabled / oreki.automation.intervalSec / oreki.automation.strictGlobal），默认启用、3 秒、单任务档。每次真正执行都会在 logcat 打一行 OREKI_SCHED（带 act= / gap= / taskGap= 毫秒），可直接用来核对间隔是否合规。"
+    invoke-direct {p0, p1, v1}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     return-void
 .end method

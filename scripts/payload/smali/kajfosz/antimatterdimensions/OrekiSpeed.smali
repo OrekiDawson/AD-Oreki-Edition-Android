@@ -90,6 +90,18 @@
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->init(Landroid/content/Context;)V
 
+    # [R50-AND-04] 统一智能调度器：启动时读一次三个配置键
+    # （oreki.automation.enabled / intervalSec / strictGlobal）。
+    # 放在 App.onCreate 链上而不是「等用户打开设置页」，否则改完设置重启后
+    # 运行时仍是默认值，用户设的间隔等于没存。
+    #
+    # [R50-AND-04 复盘] 这一行曾在 2026-11-01 被临时注掉（ART VerifyError：
+    # allow(String) 里 v10 是 wide 高半却被当 int 读，类被拒收 → App.onCreate 直接崩）。
+    # 该 bug 已修复（int 与 wide 对寄存器彻底分段），并补了 scripts/check_smali_wide_regs.py 作闸门。
+    # 这一行现在同时也是**启动探针**：它在就说明调度器类通过了 ART 校验，
+    # 且 init 会打一行 `OREKI_SCHED: init ...` 供验收核对。**不要再注掉它。**
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->init(Landroid/content/Context;)V
+
     :try_start_0
     const-string v1, "oreki_prefs"
 
