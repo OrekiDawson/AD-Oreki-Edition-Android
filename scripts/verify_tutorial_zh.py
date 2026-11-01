@@ -92,7 +92,8 @@ def main() -> int:
             check("A1 从源 JSON 重新生成", False, f"生成/校验抛异常：{exc}")
             return 1
         check("A1 从源 JSON 重新生成", True,
-              f"{stats['chapters']} 章 / {stats['records']} 条记录 / {stats['cjk']} 汉字 / {stats['bytes']} 字节")
+              f"{stats['chapters']} 个渲染单元 / {stats['records']} 条记录 / "
+              f"{stats['cjk']} 汉字 / {stats['bytes']} 字节")
         fresh_bytes = fresh.read_bytes()
         same = fresh_bytes == payload_bytes
         detail = "与仓库 payload 逐字节一致" if same else (

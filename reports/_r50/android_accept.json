@@ -1,0 +1,208 @@
+{
+  "generatedAt": "2026-11-01T12:23:12",
+  "payload": "C:\\Users\\Oreki\\WorkBuddy\\AD-Oreki-Unified\\android\\AD_Oreki_Edition_Android\\scripts\\payload\\assets\\oreki_tutorial.txt",
+  "apk": "release/反物质维度.apk",
+  "results": [
+    {
+      "check": "A1 从源 JSON 重新生成",
+      "ok": true,
+      "detail": "24 个渲染单元 / 1155 条记录 / 41342 汉字 / 167445 字节"
+    },
+    {
+      "check": "A2 payload 与源 JSON 同步",
+      "ok": true,
+      "detail": "与仓库 payload 逐字节一致"
+    },
+    {
+      "check": "A3 源 JSON 路径正确",
+      "ok": true,
+      "detail": "C:\\Users\\Oreki\\WorkBuddy\\AD-Oreki-Unified\\web\\AD-Oreki-Edition\\src\\core\\oreki-tutorial-data.json"
+    },
+    {
+      "check": "A4 work/mod 内的旁本一致",
+      "ok": true,
+      "detail": "work/mod/assets 与 payload 一致"
+    },
+    {
+      "check": "A5 渲染单元数",
+      "ok": true,
+      "detail": "24 个单元（期望 24 = 18 章 + 6 附录；正文 18，附录 6）"
+    },
+    {
+      "check": "A6 无 BOM",
+      "ok": true,
+      "detail": "UTF-8 且无 BOM"
+    },
+    {
+      "check": "A7 体积合理",
+      "ok": true,
+      "detail": "167445 字节（改前 166158，允许 ±2 倍数量级）"
+    },
+    {
+      "check": "A8 汉字数",
+      "ok": true,
+      "detail": "41643 个汉字"
+    },
+    {
+      "check": "B 旧文案 SAM",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 SIP1",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 SEP3",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 ACHNR",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 START",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 TTF",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 log10",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 autoEC",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 1 次（允许 正文 0、附录 ≤1）"
+    },
+    {
+      "check": "B 旧文案 R37-A",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 0 次（允许 正文 0、附录 ≤0）"
+    },
+    {
+      "check": "B 旧文案 （EC）",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 0 次（允许 正文 0、附录 ≤0）"
+    },
+    {
+      "check": "B 旧文案 （RM）",
+      "ok": true,
+      "detail": "正文 0 次 / 附录 0 次（允许 正文 0、附录 ≤0）"
+    },
+    {
+      "check": "C 新文案 起始反物质",
+      "ok": true,
+      "detail": "正文 5 次"
+    },
+    {
+      "check": "C 新文案 起始无限点数",
+      "ok": true,
+      "detail": "正文 9 次"
+    },
+    {
+      "check": "C 新文案 起始永恒点数",
+      "ok": true,
+      "detail": "正文 11 次"
+    },
+    {
+      "check": "C 新文案 成就免重置节点",
+      "ok": true,
+      "detail": "正文 4 次"
+    },
+    {
+      "check": "C 新文案 以 10 为底取对数",
+      "ok": true,
+      "detail": "正文 28 次"
+    },
+    {
+      "check": "C 第 12 章含复兴树中文节点名",
+      "ok": true,
+      "detail": "四个中文节点名都在第 12 章"
+    },
+    {
+      "check": "C 第 12 章旧节点缩写为 0",
+      "ok": true,
+      "detail": "第 12 章不含任何旧节点缩写"
+    },
+    {
+      "check": "D 保留 F 键",
+      "ok": true,
+      "detail": "全文 3 次"
+    },
+    {
+      "check": "D 保留 B A 回车",
+      "ok": true,
+      "detail": "全文 3 次"
+    },
+    {
+      "check": "D 保留 IEATASS",
+      "ok": true,
+      "detail": "全文 3 次"
+    },
+    {
+      "check": "D 保留 save",
+      "ok": true,
+      "detail": "全文 3 次"
+    },
+    {
+      "check": "D 保留 tree",
+      "ok": true,
+      "detail": "全文 1 次"
+    },
+    {
+      "check": "D 保留 Emoji 记数法",
+      "ok": true,
+      "detail": "全文 7 次"
+    },
+    {
+      "check": "E1 单元 id 与顺序",
+      "ok": true,
+      "detail": "完全一致"
+    },
+    {
+      "check": "E2 标题逐字一致",
+      "ok": true,
+      "detail": "全部一致"
+    },
+    {
+      "check": "E3 第 12 章抽样 3 条步骤逐字存在",
+      "ok": true,
+      "detail": "3 条全部命中"
+    },
+    {
+      "check": "F1 APK 内有教程 assets",
+      "ok": true,
+      "detail": "167445 字节（压缩后 52800）"
+    },
+    {
+      "check": "F2 APK 内 assets 与 payload 逐字节一致",
+      "ok": true,
+      "detail": "一致"
+    },
+    {
+      "check": "F3 原有 assets 未丢",
+      "ok": true,
+      "detail": "23 条"
+    },
+    {
+      "check": "F4 保留 assets/fonts/fa-solid-900.ttf",
+      "ok": true,
+      "detail": "存在"
+    },
+    {
+      "check": "F4 保留 assets/dexopt/baseline.prof",
+      "ok": true,
+      "detail": "存在"
+    }
+  ],
+  "failed": 0
+}
