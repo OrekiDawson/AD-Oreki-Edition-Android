@@ -1444,8 +1444,9 @@ def verify_payload():
     POLARITY = [
         (sa_txt, "hasInfinity()==false（还没无限过）才走 early", "if-eqz",
          "hasInfinity() 为 false 才进开局自动化"),
-        (sa_txt, "eternitiesZero()==false（已经永恒过）才停", "if-eqz",
-         "eternitiesZero() 为 false（已永恒）才停止干预"),
+        # [R57-1] 原条目锁的是「eternitiesZero()==false → :oreki_sa_try_end」这道硬门，
+        # 该硬门已被删除（它让首次永恒之后的无限升级/ID1/献祭全部永久停摆）。
+        # 极性表里不能再锁一条不存在的指令，改为在表后加「硬门不得回归」的正向守卫。
         (sa_txt, "auto.ipMult 已经为 true 才跳过写入", "if-nez",
          "ipMult 已开启才跳过写入"),
         (sa_txt, "原写 if-gez（大于等于零才跳）：买得起的时候反而放弃", "if-ltz",
@@ -1471,6 +1472,18 @@ def verify_payload():
             f"[R41] 极性回归失败：{why} —— 期望 {want_mn}，实际 `{got}`"
         )
     note(f"[R41] 极性回归表通过（{len(POLARITY)} 处，基准样本 Lju;->t(D)Z）")
+
+    # [R57-1] 硬门守卫：eternitiesZero() 的结果**不允许**再直接跳 :oreki_sa_try_end。
+    # 为什么用正则而不是字符串包含：中间隔着 move-result，写法可能被重排，
+    # 但「取 eternitiesZero 后紧跟着条件跳到方法末尾」这个语义是可识别的。
+    # 这条守卫存在的意义：那门被删是因为它把首次永恒之后的无限层自动化全部掐死
+    # （无限升级 / ID1 / 献祭 / 批量购买此后永久不再执行），
+    # 若日后有人「按老逻辑」加回来，构建期必须立刻红，而不是等 90 分钟实测才发现。
+    assert not re.search(
+        r"OrekiStageAuto;->eternitiesZero\(\)Z[\s\S]{0,80}?:oreki_sa_try_end", sa_txt), (
+        "[R57-1] 首次永恒后掐死无限层自动化的硬门被加回来了 —— "
+        "eternitiesZero() 之后不得直接跳 :oreki_sa_try_end")
+    note("[R57-1] 硬门守卫通过：eternitiesZero() 不再直接终止无限层自动化")
 
     # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
     # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
