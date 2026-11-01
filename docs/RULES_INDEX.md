@@ -131,11 +131,13 @@
 | 39. | 子 Agent 持续工作与任务接续 | AGENTS.md §39 |
 | 40. | 子 Agent 强制终止与失联处置 | AGENTS.md §40 |
 | 55. | 后台构建与 Agent 阶段性 Pause | AGENTS.md §55 |
+| 56. | 主 Agent 统一统筹与 Android-Agent 按需调用 | AGENTS.md §56 |
 | 全局一 | 子 Agent 调度：并发上限 3 | GLOBAL-RULES.md §一 |
 | 全局三 | 完成即回收 | GLOBAL-RULES.md §三 |
 | 全局四 | 取消 / 超时 / 异常回收 | GLOBAL-RULES.md §四 |
 | 全局五 | 建新 Agent 的前置检查 | GLOBAL-RULES.md §五 |
 | 全局二十三 | 后台构建与 Agent 阶段性 Pause | GLOBAL-RULES.md §二十三 |
+| 全局二十四 | 主 Agent 统一统筹与专项 Agent 按需调用 | GLOBAL-RULES.md §二十四 |
 
 ### 3.5 P4（16 节）
 
