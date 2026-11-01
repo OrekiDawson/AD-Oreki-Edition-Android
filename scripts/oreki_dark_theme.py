@@ -404,20 +404,18 @@ def patch_topbar_current_tab(mod: Path) -> str:
                      mark=f"{MARK} R31 仅 NEWS 模式才把标题清成空格"):
         did.append("标题不清空")
 
-    # 6.4 R44：标题从「子页签名」升级成「主页签名 · 子页签名」。
-    #     官方 CURRENT_TAB 只给子页签名（反物质维度 / 无限升级 / 特蕾莎 …），
-    #     玩家在子页签之间切换时看不出自己还在哪个主页签。合成串的主/子标签
-    #     仍然全部取自原版 R.string.tab_*（不新增译名），单页签 tab 同名时不重复。
-    #     合成逻辑在 payload 类 oreki/OrekiUiTitle.of(Lyn4;)String，这里只换一句调用。
-    if _replace_once(
-            p,
-            "    invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;\n",
-            f"    # {MARK} R44 顶栏标题 = 「主页签 · 子页签」（文案仍取原版 tab_* 资源）\n"
-            "    invoke-static {p1}, Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle;->of("
-            "Lyn4;)Ljava/lang/String;\n",
-            "MainActivity H8 顶栏标题",
-            mark=f"{MARK} R44 顶栏标题"):
-        did.append("标题合成")
+    # 6.4 [R51 用户令] **撤回 R44 的「主页签名 · 子页签名」合成，改回官方只有子页签名。**
+    #
+    # 用户 2026年11月1日 17:37 明确：「Android 标题当前页面显示有误，要改回和官方一致」。
+    # 官方 CURRENT_TAB 模式的行为是 `MainActivity.H8(Lyn4;ZZ)` 里 `Activity.setTitle(subtab.a())`，
+    # 即**只显示子页签全名**（反物质维度 / 无限升级 / 特蕾莎 …）。
+    # R44 把这一句换成了 `OrekiUiTitle.of(Lyn4;)`，合成「主页签 · 子页签」，
+    # 与官方不一致，实机显示被用户判为有误。
+    #
+    # 因此此处**不改写该调用**，保持原版 `invoke-virtual {p1}, Lrq4;->a()`。
+    # 注意：`OrekiUiTitle.smali` 仍留在 payload 里（不注入即无副作用），
+    # 保留它是为了不改动 payload 清单与既有断言；verify() 已改为反向断言「不得被调用」。
+    did.append("标题保持官方")
 
     return "ok(" + ",".join(did) + ")" if did else "skip(已是 CURRENT_TAB)"
 
@@ -625,9 +623,13 @@ def verify(mod: Path) -> None:
         "[UI] 仍在启动时强制覆盖玩家选择的顶栏模式（官方设置项会失效）"
     assert f"{MARK} R31 仅 NEWS 模式才把标题清成空格" in ma, \
         "[UI] B2() 仍无条件把标题清成空格（CURRENT_TAB 下切页标题会被抹掉）"
-    assert f"{MARK} R44 顶栏标题" in ma, "[UI] H8 顶栏标题未换成合成串"
-    assert "invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;" not in ma, \
-        "[UI] H8 还在直接用子页签名（顶栏看不到主页签）"
+    # [R51 用户令] 顶栏标题必须是**官方原样**：`H8` 直接 setTitle(subtab.a())。
+    # 反向断言两条，确保 R44 的合成补丁真的被撤掉了（只删补丁不删断言 = 静默漏改）。
+    assert f"{MARK} R44 顶栏标题" not in ma, "[UI] R44 顶栏标题合成补丁仍在（用户要求改回官方）"
+    assert "invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;" in ma, \
+        "[UI] H8 没有直接用子页签名（官方 CURRENT_TAB 只显示子页签全名）"
+    assert "Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle;->of(" not in ma, \
+        "[UI] H8 仍在调用 OrekiUiTitle.of（应改回官方 setTitle）"
     uit = (mod / "smali" / PKG_DIR / "oreki" / "OrekiUiTitle.smali")
     assert uit.is_file(), "[UI] payload 类 OrekiUiTitle 没进 mod 树"
     uit_src = uit.read_text(encoding="utf-8")
