@@ -336,8 +336,11 @@
 
     move-result v2
 
-    # brake 未翻转 → 没有真实动作
-    if-ne v1, v2, :oreki_sa_brk2_noop
+    # brake 未翻转 → 没有真实动作。
+    # [R53] 极性纠正：原写 `if-ne`（v1 != v2 才跳），等于「翻转了反而去 noop」，
+    # 于是 Break 真实发生却记为 no-op —— 这正是 R53 首包 BRK2 出现而 act 缺失的原因。
+    # 正确：v1 == v2（没变）才 noop，用 if-eq。
+    if-eq v1, v2, :oreki_sa_brk2_noop
 
     const-string v0, "breakUpgrades"
 
