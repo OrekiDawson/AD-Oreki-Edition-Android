@@ -49,6 +49,10 @@
 # 闸门窗口是否打开（只为「翻转才打日志」服务，不参与任何判据）
 .field private static sInWindow:Z
 
+# [R50-A10] 分阶段探针的进度闩锁（0=未开始 1=BG0 已打 2=BG1 3=BG2 4=BG3）。
+# 只服务诊断日志，不参与任何判据，不进存档。
+.field private static sProbe:I
+
 # [R42 清理] 原此处有一段临时存活日志（静态计数 + 每 300 次调用打印一次固定英文串）。
 #   它的限流条件本身写反了，实际是 299/300 个 tick 各打一行，34 Hz 下约 34 行/秒。
 #   它违反「日志只在状态变化时打一次」的规则，且每个 tick 白付 6 条整数指令。
@@ -63,6 +67,25 @@
     .locals 16
 
     :try_start_bg
+    # [R50-A10 取证] 分阶段探针：每个阶段只在第一次到达时打一行，用来定位
+    #   「窗口已开(window=1) 但 OREKI_BG_PRE / OREKI_ABORT 都没有」到底断在哪一步。
+    #   BG0 = 进入 tick；BG1 = setWindow(true) 之后；BG2 = v()(hasMaxedInterval) 之后；
+    #   BG3 = 成本推算循环结束之后。四个都出现而 BG_PRE 仍没有，就说明问题在 :bg_do_break 之后。
+    sget v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    if-nez v4, :bg_probe0
+
+    const/4 v4, 0x1
+
+    sput v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const-string v4, "OREKI_BG0"
+
+    const-string v5, "enter tick"
+
+    invoke-static {v4, v5}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :bg_probe0
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
     # ---- 0) 已 Break → 清闩锁、关窗、退出 ----
@@ -115,6 +138,25 @@
 
     invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->setWindow(Z)V
 
+    # [R50-A10 取证] BG1：窗口已打开之后仍活着
+    sget v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const/4 v5, 0x1
+
+    if-ne v4, v5, :bg_probe1_done
+
+    const/4 v4, 0x2
+
+    sput v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const-string v4, "OREKI_BG1"
+
+    const-string v5, "window opened"
+
+    invoke-static {v4, v5}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :bg_probe1_done
+
     # v3 = CrunchAutobuyerState 活对象（与 UI 的 upgradeInterval 同一个实例）
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
 
@@ -129,6 +171,33 @@
 
     move-result v1
 
+    # [R50-A10 取证] BG2：v() 调用返回之后仍活着
+    sget v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const/4 v5, 0x2
+
+    if-ne v4, v5, :bg_probe2_done
+
+    const/4 v4, 0x3
+
+    sput v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const-string v4, "OREKI_BG2"
+
+    # 把 v() 的结果拼进去：maxed=true / maxed=false
+    if-eqz v1, :bg_probe2_false
+
+    const-string v5, "hasMaxedInterval=true"
+
+    goto :bg_probe2_log
+
+    :bg_probe2_false
+    const-string v5, "hasMaxedInterval=false"
+
+    :bg_probe2_log
+    invoke-static {v4, v5}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :bg_probe2_done
     # if-nez = v()!=0（已拉满）才跳去 Break
     if-nez v1, :bg_do_break
 
@@ -177,6 +246,31 @@
     goto :bg_calc_loop
 
     :bg_total_ready
+    # [R50-A10 取证] BG3：成本推算循环正常退出（v5 = 级数，正常应为 15；0 表示一进来就 <=100）
+    #
+    # ⚠ 寄存器纪律：这里绝不能用 v7/v9/v11/v13/v15 —— 它们分别是 v6/v8/v10/v12/v14
+    #   这条 double 宽寄存器的另一半。上一版探针写了 v7，ART 直接
+    #   `VerifyError: wide register v6 has type Double/Conflict` 把整个类拒掉，
+    #   于是 `OrekiBreakGate.tick()` 每帧抛异常、被 onAutoBuyerTick 的 catch 吞掉，
+    #   `tryBreakInfinity` / `tryBuyId1` 也一并永远不执行（02:53 实测）。
+    sget v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const/4 v2, 0x3
+
+    if-ne v4, v2, :bg_probe3_done
+
+    const/4 v4, 0x4
+
+    sput v4, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->sProbe:I
+
+    const-string v4, "OREKI_BG3"
+
+    invoke-static {v5}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v2
+
+    invoke-static {v4, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :bg_probe3_done
     # ═══════════════════════════════════════════════════════════════════════
     # 【已知偏离 · 有意保留，不是待修 bug】if-nez v5 的极性是「反的」，但保留不动
     #
