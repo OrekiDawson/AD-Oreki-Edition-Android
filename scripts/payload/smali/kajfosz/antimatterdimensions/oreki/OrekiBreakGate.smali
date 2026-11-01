@@ -373,6 +373,16 @@
 
     # ---- 6) 原版 Break 按钮的完整序列（顺序不许改）----
     :bg_do_break
+    # [R50-A9 取证] 进到 Break 段先落一行，再动 brake。
+    #   目的：把「没进这一段」和「进了但 x0 后被别处改回 false」两种情况分开。
+    #   09:00 实测：窗口 window=1 已打开、interval 已 100，但 OREKI_BREAK 一行没有、brake 仍为 false，
+    #   这条日志就是用来定位到底断在哪一步的。
+    const-string v14, "OREKI_BG_PRE"
+
+    const-string v15, "entered bg_do_break"
+
+    invoke-static {v14, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V

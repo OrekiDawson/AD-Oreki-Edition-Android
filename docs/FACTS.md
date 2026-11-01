@@ -4588,3 +4588,70 @@ Break 需要累计 32767 IP；按 2 IP/次、17.7 秒/次，差 32208 IP ⇒ 需
   11 个中文名 **11 / 11** 命中，无括号注解 19 处**全部落在附录 A**（表格单元格 `TBL|` 标记）。
 
 结论：双端教程内容同源、缩写分布一致、正文裸露缩写为 0；此前「只需改源 JSON」的判断成立。
+
+---
+
+### C.87　R50-A8：Android 无限升级自动购买（入口定位 + 首轮实测）
+
+本节替换 C.86.4 末尾「真正的可重复升级 purchase 混淆名尚未定位」这一条 —— 入口已定位并已实测生效。
+
+#### C.87.1　逆向结论：六个混淆名一次说清【读码】
+
+在 `work/base_decoded/smali`（原版 base APK 反编译产物）逐个方法体核对：
+
+| 混淆名 | 真实语义 | 依据 |
+| --- | --- | --- |
+| `Laz1;` | `InfinityUpgrade` 持有类 | `a:Luu1;` = ipMult；`b..m` = 12 个一次性；`n..r` = `Lwy1/Lxy1/Lyy1/Lzy1/Lvy1` 5 个可重复项；`s:Ljava/util/List;` = `all`（17 项）；`t` = id 列表 |
+| `Lry1` | 一次性无限升级（`extends Lav extends Lfp3`） | `n:Ljava/lang/String;` = id 字符串；`D(ZLvh0;)Ljava/lang/Boolean;` 先过 `fp3.a(Z)` 再 `invoke-super` |
+| `Luu1` | **`InfinityUpgrade.ipMult`** | 全工程唯一写 `Player.ipMultUpgrades` 的地方：`uu1.J(J)V` → `Player->O0(J)V`；`I()J` → `Player->G()J` 读回 |
+| `Lfp3` | 通用「可购买」基类 | `a(Z)Z` = `!B() && z() && A()`；`D(ZLvh0;)` = 扣费 `y().i(x())` → `E(true)` → `C(true,Z)` |
+| `Lav` | 位图型升级基类（`extends Lfp3`） | `B()Z` = `J().e(I())` 读位；`E(Z)V` = `J().g(I())` 置位；`I()I` = `ak1.c`（该升级在 BitSet 里的下标） |
+| `Laz1;->a` 的解锁门 | 成就 41 | `uu1.A(Z)Z` → `Lz3;->a(0x29)` 即成就 41「购买 16 个无限升级」（Web 同名判据 `infinity-upgrades.js:337 checkRequirement: Achievement(41).isUnlocked`） |
+
+**购买入口**：`Lfp3;->D(ZLvh0;)Ljava/lang/Boolean;`，`Z=false` 即单次购买。
+与 UI 点击链 `MainActivityInfinityUpgradesKt$loadViewsInfinityUpgrades$5$1$1:38`
+调的是**同一个方法**；`invoke-super` 的接收者是 `Lfp3`（`ry1` 的祖父类，中间隔着 `av`）。
+两个实现体都没有 `COROUTINE_SUSPENDED` 分支，所以传 `null` 当 Continuation 是安全的。
+
+#### C.87.2　A8 实测：一次改动把「IP 只能线性爬」改成「IP 复利」【实测】
+
+构建：2026-11-01 08:54 `release/反物质维度.apk`（`classes.dex` 14176644 B 内可见
+`buyInfinityUpgrades`），装机到 `emulator-5554`，用**既有存档**（非新档）连跑，
+`adb pull /data/data/com.oreki.antimatterdimensions/files/player.json` 两次采样：
+
+| 字段 | 改动前（R50 上一轮） | 09:01 采样 | 09:06 采样（+300 s） |
+| --- | --- | --- | --- |
+| `ipMultUpgrades` | **0** | **6** | **7** |
+| `infinityUpgradeBits` | — | **65535**（16 个一次性全买齐） | 65535 |
+| `infinityPoints` | 559 | 3.78e6 | **1.16e7** |
+| `infinities` | 791 | 1065 | 1155 |
+| `auto.bigCrunch.interval` | 907 | **100.0**（拉满） | 100.0 |
+| `auto.bigCrunch.cost` | 1024 | 32768（第 16 级） | 32768 |
+| `brake` | false | **false** | **false** |
+
+同时点：`infinityUpgradeBits=65535` → 成就 41 达成 → 原版 `IPMultAutobuyerState` 那条
+（AU5 已放宽 `e02.n0()` 解锁门）开始真正买 ipMult ⇒ `ipMultUpgrades` 从 0 变 6/7。
+**即：C.86.4 里「`player.auto.ipMult` 是空开关」的成因是前置缺失，不是开关本身坏了。**
+坍缩节奏也从 17.7 真实秒/次加快到约 3.3 秒/次（300 s 内 +90 次）。
+
+#### C.87.3　必须记录的坑：`ry1.D(false,null)` 在「已买」的一次性升级上仍会返回 TRUE【实测】
+
+A8 首版直接以 `D()` 的返回值为「买到没买到」的判据，结果 logcat 里
+`OREKI_IUP_BUY: timeMult` 在 60 秒内打了 **3493 行**（≈1 行/tick，间隔 27 ms），
+而 `infinityUpgradeBits` 早就等于 65535 —— 说明这些「购买成功」是**空转**。
+
+根因：`ry1.D` 在 `fp3.a(Z)` 为假之后还有一条 Ra 记忆分支，满足条件时返回
+`Boolean.TRUE` 而不改任何一次性升级状态；循环于是每帧都在第 0 项提前 `return`，
+后面 16 项与 ipMult 分支永远轮不到。
+A9 修正：进循环先判 `Lav;->B()Z`（该升级的位是否已在 BitSet 里），为真直接跳过，
+**不再拿 `D()` 的返回值当状态判据**。
+
+#### C.87.4　仍未打通的一环：`brake` 仍为 false【实测】
+
+* `OrekiBreakGate` 的窗口在 08:58:54.457 打开过（`OREKI_GATE: window=1`），
+  说明「非 Doomed / 总开关开 / 不在挑战里」三条早退全部通过；
+* 但 15 分钟过去 `brake=false`、`OREKI_BREAK` **一行都没有**、`OREKI_ABORT` 也一行没有
+  —— 即既没成功也没走到任一失败出口；
+* A9 加了两条取证与一条兜底（`OREKI_BG_PRE` / `OREKI_BRK2`），结果见 C.88。
+
+本文件**不宣称** Android 已经 Break、已经永恒、已经通关。

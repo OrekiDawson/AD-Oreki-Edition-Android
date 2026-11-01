@@ -20,6 +20,12 @@
 # 而不是靠读代码猜。
 .field private static sHold:Z
 
+# [R50-A8] buyInfinityUpgrades() 的计数器。只为日志节流：
+#   一次性无限升级最多 17 个（有界），每次都打；IP 倍率可重复升级可能买到上万级，
+#   只在第 1 次与每满 100 次打一行，避免把 logcat 冲爆后拿不到证据。
+# 不参与任何判定，不进存档。
+.field private static sIpMultBuys:I
+
 # ---------------------------------------------------------------
 # AD: Oreki Edition —— 「首次无限之后」阶段自动化（Android 侧）
 #
@@ -46,6 +52,7 @@
 #     （AU5 放宽 e02.n0() 解锁门 + 这里打开 player.auto.ipMult；购买由原版 fp3.a(Z) 完成）
 #   · interval 升级 = UpgradeableAutobuyerState.A(false)（照价扣 IP）
 #   · ID1 购买 = InfinityDimensionState.h(true)（原版自动购买器同一入口）
+#   · 无限升级购买 = fp3.D(Z,Lvh0;)（与 UI 点击链同一个入口，R50-A8 追加）
 #   · 暂停坍缩 = CrunchAutobuyerState.c()（canTick）在 AD3b 窗口返回 false
 #
 # 窗口：已无限过 && 未进入永恒（eternities == 0）&& 非 Doomed。
@@ -118,6 +125,12 @@
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->enableIpMultAutobuyer()V
 
+    # [R50-A8] 无限升级自动购买：必须排在 interval 升级之前。
+    # 理由：先让这一帧的 IP 变成「能生的钱」（无限升级乘数），再由 interval 升级花掉存量；
+    # 反过来先花 interval，留给升级的 IP 只会更少，而 Break 门要等的恰恰是 IP 指数级增长。
+    # 原版这一层完全没有自动购买器（Web 侧同缺口，见 oreki-early-automation.js 顶部事实 3）。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->buyInfinityUpgrades()V
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->upgradeCrunchInterval()V
 
     # [Oreki AD5b] Break Infinity 闸门：在 interval 升级之后、ID1 之前。
@@ -125,6 +138,13 @@
     # 再由 BreakGate 现推差额 → 补足 → 同一 tick 内买满 → 走真实 Break 序列。
     # 本类既有方法的语义一行未改，这里只是追加一个零寄存器静态调用。
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakGate;->tick()V
+
+    # [R50-A9] Break 兜底：BreakGate 已经在 09:00 实测里打开过窗口（`window=1`），
+    # 但 15 分钟过去 `brake` 仍是 false、`OREKI_BREAK` 一行都没有 —— 即闸门进了窗口却没落到
+    # `:bg_do_break`。这条兜底只做「间隔已拉满 && 未 Break」这一个判定，再走与 UI 按钮
+    # 相同的两步（`Player.x0(true)` + `autobuyer.a.c()`），不改任何其它字段。
+    # 成功会打 `OREKI_BRK2`，与闸门的 `OREKI_BREAK` 区分开，便于定位到底是谁生效的。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBreakInfinity()V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
     goto :oreki_sa_try_end
@@ -219,6 +239,193 @@
     invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_ipm_on
+    return-void
+.end method
+
+
+# [R50-A8] 无限升级自动购买 —— 补上 Web `OrekiEarlyAutomation.buyInfinityUpgrades()` 的 Android 对应物。
+#
+# 为什么必须有（C.86.4 已量化）：Android 端 `ipMultUpgrades` 恒为 0，一次坍缩只给 1~2 IP，
+# 791 次坍缩才 559 IP，而 Break 需要累计 32767 IP ⇒ 按该速率约需 79 小时。
+# Web 端同一阶段由 `buyInfinityUpgrades()` 每帧买 1 个，真实新档 760 s 通关。
+#
+# 走的全是原版真实购买路径，不写解锁位、不改成本、不发资源：
+#   · `Laz1;->s` = `InfinityUpgrade.all`（17 个，含一次性与可重复项）；
+#   · `Laz1;->a` = `InfinityUpgrade.ipMult`（类型 Luu1，
+#     全工程唯一写 `Player.ipMultUpgrades` 的地方：uu1.J(J)V → Player->O0(J)V）；
+#   · 购买入口 `Lfp3;->D(ZLvh0;)Ljava/lang/Boolean;`，与 UI 点击链
+#     `MainActivityInfinityUpgradesKt$loadViewsInfinityUpgrades$5$1$1` 调的**同一个方法**，
+#     Z=false 即单次购买（不是 buyMax）；
+#   · 它内部先过 `fp3.a(Z)`（未买过 / 已解锁 / 买得起），再 `y().i(cost)` 扣费 + `E(true)` + `C(true,Z)`。
+#   · 传 null 当 Continuation 是安全的：`fp3.D` 与 `ry1.D` 的方法体都没有 COROUTINE_SUSPENDED
+#     分支，参数只被原样往下传，从未被解引用。
+#
+# ⚠ 顺序有意为之：先遍历 `az1.s`，最后才试 ipMult。
+#   `uu1.A(Z)Z` 要求成就 41（「购买 16 个无限升级」），一次性升级没买够之前 ipMult 不可买；
+#   反过来先试 ipMult 只会在每帧白做一次判定。
+#   成就 41 达成后 ipMult 自然开始被买，IP 倍率进入 ×2 复利。
+#
+# 每 tick 最多买 1 个（与 Web 的 UPGRADES_PER_TICK = 1 同策略）：
+# 一次买光会把 IP 从 interval 升级（Break 的唯一前置）上抢走。
+.method public static buyInfinityUpgrades()V
+    .locals 5
+
+    const/4 v0, 0x0
+
+    sget-object v1, Laz1;->s:Ljava/util/List;
+
+    :oreki_sa_iup_loop
+    invoke-interface {v1}, Ljava/util/List;->size()I
+    move-result v2
+
+    if-ge v0, v2, :oreki_sa_iup_ipm
+
+    invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    move-result-object v2
+
+    check-cast v2, Lry1;
+
+    # [R50-A9] 已买过就跳过。必须显式判，不能只看 D() 的返回值：
+    # 实测 2026-11-01 09:00，向量里第一项 `timeMult` 在被买过之后
+    # `ry1.D(false,null)` 仍然返回 TRUE（每 tick 一次，60 s 打出 3493 行），
+    # 于是循环每帧都在第 0 项提前 return，后面 16 项与 ipMult 分支永远轮不到。
+    # `av.B()Z` 就是「这个升级的位已在对应 BitSet 里」——与存档
+    # `infinityUpgradeBits=65535` 对得上，是可靠的跳过判据。
+    invoke-virtual {v2}, Lav;->B()Z
+
+    move-result v3
+
+    # if-nez = B()!=0（已买）才跳到下一项
+    if-nez v3, :oreki_sa_iup_next
+
+    const/4 v3, 0x0
+    const/4 v4, 0x0
+
+    invoke-virtual {v2, v3, v4}, Lry1;->D(ZLvh0;)Ljava/lang/Boolean;
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/Boolean;->booleanValue()Z
+    move-result v3
+
+    if-nez v3, :oreki_sa_iup_next
+
+    # 运行期证据：一次性无限升级最多 17 个，量有界，每次真买到都打一行
+    const-string v3, "OREKI_IUP_BUY"
+
+    iget-object v4, v2, Lry1;->n:Ljava/lang/String;
+
+    invoke-static {v3, v4}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    return-void
+
+    :oreki_sa_iup_next
+    add-int/lit8 v0, v0, 0x1
+
+    goto :oreki_sa_iup_loop
+
+    :oreki_sa_iup_ipm
+    sget-object v2, Laz1;->a:Luu1;
+
+    const/4 v3, 0x0
+    const/4 v4, 0x0
+
+    invoke-virtual {v2, v3, v4}, Lfp3;->D(ZLvh0;)Ljava/lang/Boolean;
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/Boolean;->booleanValue()Z
+    move-result v2
+
+    if-nez v2, :oreki_sa_iup_done
+
+    sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sIpMultBuys:I
+
+    # 日志节流：第 1 次必打，之后每满 100 次打一行（买到上万级也不会冲爆 logcat）
+    const/4 v2, 0x1
+
+    if-eq v1, v2, :oreki_sa_iup_ipm_rem
+
+    const-string v2, "OREKI_IPM_BUY"
+
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v3
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    return-void
+
+    :oreki_sa_iup_ipm_rem
+    rem-int/lit16 v3, v1, 0x64
+
+    if-nez v3, :oreki_sa_iup_done
+
+    const-string v2, "OREKI_IPM_BUY"
+
+    invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+    move-result-object v3
+
+    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_sa_iup_done
+    return-void
+.end method
+
+
+# [R50-A9] Break 兜底（见 onAutoBuyerTick 调用点上方注释）。
+#
+# 判据只两条，且都是原版自己的判据：
+#   ① `Player.m()Z`（brake 读取器）为 false —— 还没 Break；
+#   ② `CrunchAutobuyerState.v()Z` 为 true —— hasMaxedInterval（interval ≤ 100）。
+# 动作照抄 `MainActivityBreakInfinityKt$loadViewsBreakInfinity$1$1` 的第 144~154 行：
+#   `Player.x0(true)`（唯一写 brake 的方法）+ `autobuyer.a.c()`（把其它带 interval 的
+#   自动购买器一并免费拉满，等价 Web `breakInfinity()` 里的 `maxIntervalForFree()` 循环）。
+# 不写解锁位、不发资源、不碰 interval 数值本身。
+#
+# 为什么不用 `player.break = !player.break` 的开关语义：本方法在 **已 Break 时已早退**，
+# 所以不存在「每帧来回翻转」的风险；这与 Web `game.js:222-236` 的 `!player.break` 守卫同义。
+.method public static tryBreakInfinity()V
+    .locals 3
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v1
+
+    # if-nez = 已 Break（!=0）→ 什么都不做
+    if-nez v1, :oreki_sa_brk_done
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/autobuyer/UpgradeableAutobuyerState;->v()Z
+
+    move-result v2
+
+    # if-eqz = interval 未拉满（==0）→ 不 Break
+    if-eqz v2, :oreki_sa_brk_done
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/autobuyer/a;->c()V
+
+    const-string v1, "OREKI_BRK2"
+
+    const-string v2, "Player.x0(true) + autobuyer.a.c()"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    :oreki_sa_brk_done
     return-void
 .end method
 
