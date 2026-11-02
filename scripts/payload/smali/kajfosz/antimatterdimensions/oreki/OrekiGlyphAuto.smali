@@ -101,7 +101,10 @@
 
     check-cast v9, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;
 
-    if-nez v9, :og_next
+    # [R62] 第六处极性：List.get() 返回的有效对象是**非 null**，原写 if-nez 等于
+    # 「拿到有效符文就跳过」，加上前面五处，整套功能仍然一枚都装不上。
+    # 正确：null 才跳过 → if-eqz（FACTS C.51 基准：if-eqz = v==0 才跳）。
+    if-eqz v9, :og_next
 
     # 4a. 已在槽里（与 active 数组同一对象）→ 跳过
     const/4 v10, 0x0

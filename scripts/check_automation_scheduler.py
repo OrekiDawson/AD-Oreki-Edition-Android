@@ -432,24 +432,40 @@ def main():
     ok(12 < _l12_limit and 13 >= _l12_limit,
        "越界判定错：v12 应合法、v13 应越界")
 
-    # ── [R61] 符文自动装备的控制流守卫 ──────────────────────────────
-    # 为什么单独建一组：R59/R60 这五条分支全部写反（if-nez 当 if-eqz 用），
-    # 后果是「有槽数组反而直接退出」「背包非 null 反而直接退出」，
-    # 静态看起来像实现了，运行期一枚都装不上。断言必须锁**极性**，不是锁字符串存在。
+    # ── [R61/R62] 符文自动装备控制流守卫（六处极性 + 逐条变异自测）──────
+    # 为什么单建一组：R59/R60/R61 这六条分支全部写反（if-nez 当 if-eqz 用），
+    # 后果是「有槽数组反而直接退出」「背包非 null 反而直接退出」「拿到有效符文就跳过」，
+    # 静态看起来像实现了，运行期一枚都装不上。
+    # 断言必须锁**极性**（哪条分支、跳到哪、方向），不是锁字符串存在。
     GLYPH_AUTO = OREKI / "OrekiGlyphAuto.smali"
     ga = read(GLYPH_AUTO)
     ga_body = body(ga, "tick")
 
-    ok("if-eqz v0, :og_no" in ga_body,
-       "槽数组 null 保护方向错：必须 if-eqz（null 才退出），否则有数组时反而直接退出")
-    ok("if-eqz v3, :og_no" in ga_body,
-       "背包列表 null 保护方向错：必须 if-eqz")
-    ok("if-eqz v10, :og_score" in ga_body,
-       "GlyphType 为 null 时应跳去评分；写成 if-nez 会把 companion 判断整段跳过")
-    ok("if-nez v10, :og_next" in ga_body,
-       "companion 判定方向错：equalsIgnoreCase 为真（是同伴）才应跳过")
-    ok("if-eqz v8, :og_no" in ga_body,
-       "候选 null 判定方向错：必须 if-eqz，否则选到候选反而退出")
+    # (正确指令, 错误指令, 语义说明) —— 六处，缺一不可
+    _GA_BRANCHES = (
+        ("if-eqz v0, :og_no",     "if-nez v0, :og_no",
+         "① 槽数组 null 保护：null 才退出"),
+        ("if-eqz v3, :og_no",     "if-nez v3, :og_no",
+         "② 背包 List null 保护：null 才退出"),
+        ("if-eqz v10, :og_score", "if-nez v10, :og_score",
+         "③ GlyphType 判空：null 才跳去评分（否则 companion 判断被整段跳过）"),
+        ("if-nez v10, :og_next",  "if-eqz v10, :og_next",
+         "④ companion 判定：为真（是同伴）才跳过"),
+        ("if-eqz v9, :og_next",   "if-nez v9, :og_next",
+         "⑤ List.get() 候选判空：null 才跳过（否则拿到有效符文就被跳过）"),
+        ("if-eqz v8, :og_no",     "if-nez v8, :og_no",
+         "⑥ 最终候选判空：null 才退出（否则选到候选反而退出）"),
+    )
+    for _good, _bad, _desc in _GA_BRANCHES:
+        ok(_good in ga_body, f"符文分支方向错：{_desc} —— 期望 {_good!r}")
+        ok(_bad not in ga_body, f"符文分支出现反向写法：{_desc} —— 不该有 {_bad!r}")
+
+    # 逐条变异自测：每条分支单独翻反，守卫必须各自变红。
+    # 用「翻反后该条不再是 good 或出现 bad」作为判据，逐条独立，不互相遮蔽。
+    for _good, _bad, _desc in _GA_BRANCHES:
+        _mut = ga_body.replace(_good, _bad, 1)
+        _caught = (_good not in _mut) or (_bad in _mut)
+        ok(_caught, f"变异测试失效：把「{_desc}」翻反后守卫没识别")
 
     # 只装空槽：必须先找 null 槽，且满槽直接退出（不得进入替换路径）
     ok(":og_full" in ga_body and "goto :og_no" in ga_body,
@@ -465,11 +481,6 @@ def main():
        "出现了未经确证的卸下/替换入口（K / b），禁止")
     ok("prestige/f;->" not in ga_body,
        "符文路径不得直接调用现实重置入口")
-
-    # 变异自测：把 null 保护翻回 if-nez，上面这条断言必须失败
-    _ga_mut = ga_body.replace("if-eqz v0, :og_no", "if-nez v0, :og_no", 1)
-    ok(_ga_mut != ga_body and "if-eqz v0, :og_no" not in _ga_mut.split(":og_full")[0],
-       "变异测试失效：翻转 null 保护后检查器未能识别")
 
     # ── 输出 ───────────────────────────────────────────────────────────
     if FAILS:
