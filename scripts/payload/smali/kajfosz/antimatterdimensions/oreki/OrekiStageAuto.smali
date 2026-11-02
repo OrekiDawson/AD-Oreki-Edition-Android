@@ -175,6 +175,12 @@
     invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
 
     :oreki_sa_reality_skip
+    # [R59] 符文自动装备：只填空槽，满槽不替换。
+    # 放在现实之后：现实刚结束时空槽最多，正好把新拿到的符文装上。
+    # 不受调度器间隔约束——它自己做了「装满即空转」的收敛，且每 tick 最多装一枚，
+    # 不需要再叠加一层限流（叠了反而会让空槽长期空着）。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiGlyphAuto;->tick()Z
+
     # [R57-1] 删除「首次永恒后整体退出」的硬门。
     #
     # 原代码：`invoke-static eternitiesZero() / if-eqz v0, :oreki_sa_try_end`

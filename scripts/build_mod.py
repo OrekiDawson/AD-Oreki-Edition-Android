@@ -565,6 +565,8 @@ PAYLOAD_MUST_EXIST = [
     # [Oreki AA] L3 验收（成就位逐位重算，只读）的设备侧执行者
     "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali",
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
+    # [R59] 符文自动装备（只填空槽；装备走原版 Glyphs.L，已确证不含 Reality 回调）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
@@ -3363,8 +3365,14 @@ def verify_eternity_chain():
     assert "OrekiEternity;->tick()V" in tb, "[ET1] onAutoBuyerTick 未挂 OrekiEternity.tick()"
     assert tb.index("OrekiStageAuto;->isDoomed()Z") < tb.index("OrekiEternity;->tick()V"), \
         "[ET1] 必须排在 Doomed 判定之后"
-    assert tb.index("OrekiEternity;->tick()V") < tb.index("OrekiStageAuto;->eternitiesZero()Z"), \
-        "[ET1] 必须排在 eternitiesZero 分叉之前，否则首次永恒永远不触发"
+    # [R57-1] 原先这里锁的是「OrekiEternity.tick() 必须排在 eternitiesZero 分叉之前」。
+    # 那个分叉（= 首次永恒后直接 return 的硬门）已被删除，句柄不复存在，
+    # 但**这条检查的意图仍然要保留**：永恒层必须排在整个无限层策略块之前，
+    # 否则首次永恒在 eternities==0 的窗口里永远触发不了。
+    # 现在用「无限层策略块里最后一个动作 tryBuyId1」作为新的右侧句柄 ——
+    # 它位于整段策略块的末尾，等价于原来的「分叉点」位置。
+    assert tb.index("OrekiEternity;->tick()V") < tb.index("OrekiStageAuto;->tryBuyId1()V"), \
+        "[ET1] 必须排在无限层策略块之前，否则首次永恒永远不触发"
     note("[Oreki ET1] 永恒层守卫通过（TT / 时间维度 / 时间研究 / 按永恒 + 挂点顺序 + 实参元组）")
 
 
