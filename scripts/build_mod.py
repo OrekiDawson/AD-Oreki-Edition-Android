@@ -567,6 +567,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
     # [R59] 符文自动装备（只填空槽；装备走原版 Glyphs.L，已确证不含 Reality 回调）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.smali",
+    # [R62] 特蕾莎自动浇注（按原版 MainActivity.yo 开关，复用主循环 a->r()）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",

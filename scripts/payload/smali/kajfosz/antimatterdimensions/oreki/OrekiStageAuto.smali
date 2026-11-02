@@ -181,6 +181,12 @@
     # 不需要再叠加一层限流（叠了反而会让空槽长期空着）。
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiGlyphAuto;->tick()Z
 
+    # [R62] 特蕾莎浇注：只按原版那个「按住浇注按钮」的开关（MainActivity.yo），
+    # 真正的浇注/扣 RM/解锁全在主循环 `a->r()` 里，本类不带第二套公式。
+    # 这是**连续时间行为**，不 noteActed、不占策略节拍 —— 若塞进 1 秒调度，
+    # 实际浇注量会被砍掉一个数量级（R62 §6.2）。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->tick()Z
+
     # [R57-1] 删除「首次永恒后整体退出」的硬门。
     #
     # 原代码：`invoke-static eternitiesZero() / if-eqz v0, :oreki_sa_try_end`

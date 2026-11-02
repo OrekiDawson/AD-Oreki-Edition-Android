@@ -39,11 +39,20 @@
     .locals 16
 
     :try_start_0
+    # [R62 诊断] 入口标记：用于区分「tick 没被调用」与「tick 内抛异常静默返回」。
+    const-string v15, "OREKI_GLYPH_ENTER"
+
+    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     # ---- 1. 装备槽数组 ----
     sget-object v0, Lkajfosz/antimatterdimensions/reality/glyphs/i;->e:[Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;
 
     # [R61] 原写 if-nez：非 null 就跳到退出标签 —— 等于「有槽数组反而直接退出」。
     # 正确：null 才退出。if-eqz = v==0 才跳（FACTS C.51 基准）。
+    const-string v15, "OREKI_GLYPH_NOARR"
+
+    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     if-eqz v0, :og_no
 
     array-length v1, v0
@@ -63,6 +72,10 @@
     goto :og_find
 
     # 满槽：不替换、不卸下、不交换
+    const-string v15, "OREKI_GLYPH_FULL"
+
+    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     :og_full
     goto :og_no
 
@@ -80,6 +93,10 @@
     move-result-object v3
 
     # [R61] 同 ①：原来非 null 就退出，等于永远不遍历背包。
+    const-string v15, "OREKI_GLYPH_NOINV"
+
+    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     if-eqz v3, :og_no
 
     invoke-interface {v3}, Ljava/util/List;->size()I
@@ -170,6 +187,10 @@
     :og_pick
     # [R61] 原写 if-nez：v8 非 null（已选到候选）反而退出，等于永远装不上。
     # 正确：候选为 null 才退出。
+    const-string v15, "OREKI_GLYPH_NOCAND"
+
+    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     if-eqz v8, :og_no
 
     invoke-static {v8, v2}, Lkajfosz/antimatterdimensions/reality/glyphs/i;->L(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;I)V
@@ -185,6 +206,18 @@
 
     :og_catch
     move-exception v0
+
+    # [R62 诊断] 这里过去完全静默：如果 tick 内部抛异常，外部看到的就是
+    #「一条日志都没有」，与「没装备」无法区分。打出异常类名。
+    invoke-virtual {v0}, Ljava/lang/Throwable;->getClass()Ljava/lang/Class;
+    move-result-object v15
+
+    invoke-virtual {v15}, Ljava/lang/Class;->getSimpleName()Ljava/lang/String;
+    move-result-object v15
+
+    const-string v14, "OREKI_GLYPH_EXC"
+
+    invoke-static {v14, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :og_no
     const/4 v0, 0x0
