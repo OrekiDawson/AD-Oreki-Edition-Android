@@ -90,7 +90,10 @@
 .method public static onAutoBuyerTick()V
     # [R51-A32] .locals 由 1 扩到 6：BreakGate 真动作判定需要 v1~v4 存前后快照
     # （brake / hasMaxedInterval 各两次）。本方法无参数，扩大 locals 不影响 p 寄存器。
-    .locals 6
+    # [R65] 再扩到 8：Break 升级购买块需要两个**独占**寄存器（v6=任务 id 字符串、
+    # v7=tick() 的 int 返回值）。复用 v0/v1 会与上面的 brake 快照在同一合流点
+    # 形成「引用型与整型合并」，这正是 R52/R62 VerifyError 的成因，故一律新开寄存器。
+    .locals 8
 
     :try_start_0
     # [R51-A30] 统一调度器开帧：必须是本方法第一条指令。
@@ -382,6 +385,55 @@
     invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteNoop(Ljava/lang/String;)V
 
     :oreki_sa_brk2_skip
+
+    # [R65] Break Infinity 升级**真实购买** —— 本轮第一优先级。
+    #
+    # R64 之前这里完全没有购买动作：`breakInfinityUpgradeBits` 全程恒为 0，
+    # 12 条升级一条都没买下，于是 Break 之后 IP 只能靠「坍缩次数」线性堆，
+    # 而 ID1 的 IP 门槛是 4e8 —— 这正是 R64 结束时 IP 停在 7.09e7 的直接原因。
+    #
+    # 购买入口已在 REA 里确证（见 OrekiBreakShop.smali 头注释）：
+    #   Break 页按钮监听器 → `fp3.D(Z, Continuation)Boolean` → `a(Z)` 判定
+    #   → `y().i(x())` 真扣 IP → `E(true)` 置已购位 → `C(true,auto)` 回调。
+    # 本调用与玩家点按钮**同一条代码路径**，不写位图、不扣钱、不算价。
+    #
+    # 调度任务 id 用**独立的 `breakShop`**（R65 首包实测教训）：
+    # 最初复用 `breakUpgrades`，结果一次都没跑到 —— 因为上面那条在 Break 早已完成时
+    # 每帧都走 noteNoop，而 noteNoop 会写 `sNoopUntil[idx] = now + 3000`（3 秒无效重试冷却），
+    # 于是同一帧里本块的 allow() 读到的永远是「冷却中」→ deny_6。
+    # 拆成独立 id 后，两者各自计时、各自冷却，互不干扰；
+    # 同一帧最多一个真动作的限制仍由 beginFrame/allow 的硬约束保证。
+    const-string v6, "breakShop"
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->allow(Ljava/lang/String;)Z
+
+    move-result v7
+
+    # 寄存器分工固定：v6 只放任务 id 字符串、v7 只放整型返回值，
+    # 避免在 :oreki_sa_bs_skip 这个合流点出现「引用型与整型合并」。
+    if-eqz v7, :oreki_sa_bs_skip
+
+    # 返回 1 = 真的买下一条（IP 已按原版成本扣除、已购位已置）
+    # 返回 0 = 未 Break / 无候选 / 买不起 / 原版判定不放行
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;->tick()I
+
+    move-result v7
+
+    if-eqz v7, :oreki_sa_bs_noop
+
+    const-string v6, "breakShop"
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteActed(Ljava/lang/String;)V
+
+    goto :oreki_sa_bs_skip
+
+    :oreki_sa_bs_noop
+    # no-op 不推进时间戳：下一个候选同一帧就能上，不会被白吃一个节拍
+    const-string v6, "breakShop"
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->noteNoop(Ljava/lang/String;)V
+
+    :oreki_sa_bs_skip
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
     goto :oreki_sa_try_end

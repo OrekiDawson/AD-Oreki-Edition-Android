@@ -316,7 +316,7 @@ cmp WEB_ANDROID_DIFFERENCES.md web/AD-Oreki-Edition/WEB_ANDROID_DIFFERENCES.md \
 
 | 能力 | Android 状态 | Web 状态 | 证据等级 |
 |---|---|---|---|
-| 符文自动装备（只填空槽） | **已实现**（`oreki/OrekiGlyphAuto.smali`） | 已实现 `equipGlyphs()` | Android：读码 + 静态 + 启动运行期（无崩溃、新档 0 次触发）；**装备正例未取** |
+| 符文自动装备（只填空槽） | **代码已修正但运行期未生效**（`oreki/OrekiGlyphAuto.smali`）：R59/R60 五处极性全反、R62 修到第六处，另有**第七处根因**——`GlyphType` 被 R8 改写为 `.super Ljava/lang/Object;`（不是 `java.lang.Enum` 子类），调 `Enum->name()` 让 ART 拒收整个类（实测 1461 条 VerifyError），已改 `Object.toString()` | 已实现 `equipGlyphs()` | Android：读码 + 静态 + 装机（VerifyError 0）；**装备正例仍未取得**——用 869 份存档里的 `637` 造出 3/5 空槽夹具（加载成功），但 `OREKI_GLYPH` 仍 0 条，具体卡点未定 |
 | 符文满槽不替换 | 已实现（找不到 null 槽直接返回） | 已实现（`freeSlot < 0 → continue`） | 读码 |
 | 现实后立即补装 | 天然满足（每 tick 检查） | **本轮新增**当帧补装 | Web 读码 |
 | RU9/16/17/18/24 形态推进 | **未实现** | 已实现 `satisfyGlyphRequirements()` | — |
@@ -325,3 +325,16 @@ cmp WEB_ANDROID_DIFFERENCES.md web/AD-Oreki-Edition/WEB_ANDROID_DIFFERENCES.md \
 Android 侧关键接口（逐指令确证，详见 FACTS C.106）：
 `Glyphs->e:[Glyph;`（槽）、`Glyphs->L(Glyph;I)V`（装备，**无 Reality 回调**）、
 `Player.Q().d().e()`（背包）、`Glyph->l()`=槽位号 / `m()`=等级 / `e()`=强度。
+
+## 附：R62 状态（2026年11月2日）
+
+| 能力 | Android | 证据等级 |
+|---|---|---|
+| 符文自动装备 | 代码六处极性 + 一处 VerifyError 根因已修；装机无崩溃；**装备正例未取得** | 装机实测 |
+| 特蕾莎浇注 | `OrekiTeresaAuto` 已实现（复用原版 `MainActivity.yo` + 主循环 `a->r()`）；**pouredAmount 未增长** | 装机实测 |
+| 现实压制 | `isHolding()` 已接入 `OrekiReality`；实测 `realities` 仍在涨，**未生效** | 装机实测 |
+| 869 份存档 | 全部可解码（`scripts/savecodec.py`），470 份含 Reality+符文，最高 Cel7 | 实测 |
+
+**本轮修正的一条错误推断**：曾认为「现实每 2 秒清空 `reality.upgradeBits`」导致
+Teresa 不浇；实测 `upgradeBits` 在现实后**仍为 0xFFFFF**（RU 是一次性永久解锁，现实不清），
+该因果链不成立，真实卡点待查。

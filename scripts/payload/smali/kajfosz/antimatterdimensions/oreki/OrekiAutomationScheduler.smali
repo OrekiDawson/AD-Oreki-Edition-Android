@@ -134,7 +134,9 @@
     .locals 4
 
     # ---- 任务 id 表：连续型 4 条排在前 4 位（isContIdx 按索引 <4 判定）----
-    const/16 v0, 0xb
+    # [R65] 11 → 12：尾部追加 "breakShop"（Break Infinity 升级购买）。
+    # 只在尾部追加、不插队不改名 —— 改名等于让历史时间戳失配。
+    const/16 v0, 0xc
 
     new-array v1, v0, [Ljava/lang/String;
 
@@ -182,9 +184,23 @@
     const-string v3, "executor"
     aput-object v3, v1, v2
 
+    # [R65] Break Infinity 升级购买 —— **必须独立于 "breakUpgrades"**。
+    #
+    # 为什么不能复用（R65 首包实测教训）：
+    #   "breakUpgrades" 同时被「触发 Break」那一块使用，而那块在 Break 早已完成时
+    #   每帧都会走 noteNoop → 写 sNoopUntil[idx] = now + 3000。于是同一帧里
+    #   购买块的 allow() 读到的永远是「no-op 重试冷却中」→ deny_6，一次都跑不到
+    #   （logcat 实测：30 秒内 OREKI_BRKUP 零条，OREKI_BRKUP_ST 零条，
+    #     而 OREKI_ID 每帧都在刷 —— 说明整条链路只被这个冷却卡住）。
+    # 拆成独立 id 之后，两件事各自计时、各自冷却，互不影响。
+    const/16 v2, 0xb
+    const-string v3, "breakShop"
+    aput-object v3, v1, v2
+
     sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIds:[Ljava/lang/String;
 
-    const/16 v0, 0xb
+    # [R65] 与 sIds 长度严格一致：12
+    const/16 v0, 0xc
 
     new-array v1, v0, [J
 
@@ -927,7 +943,13 @@
 
     mul-int v7, v7, v8
 
-    if-ge v0, v7, :deny_iv
+    # [R65 第三处同源极性] 原写 `if-ge v0, v7, :deny_iv`。
+    # if-ge = **v0 >= v7 才跳**，于是「间隔已够」才 deny、「间隔不够」反而放行 ——
+    # 与整段注释（diff < interval 应当拒绝）正好相反。
+    # 运行期证据：noteActed 修好之后仍然 8 条升级在 80 ms 内买完，
+    # OREKI_SCHED act 里 taskGap=10~28 ms（间隔要求 1000 ms）。
+    # 正确：diff < interval 才 deny，即 if-lt。
+    if-lt v0, v7, :deny_iv
 
     :allow
     const/4 v0, 0x1
@@ -1012,6 +1034,69 @@
 .end method
 
 
+# [R65 诊断] 打印 breakShop 这一条任务的调度内部状态。
+#   只读，不改任何字段；由 OrekiBreakShop 每 200 次 tick 调一次（约 6 秒一行）。
+#   目的：interval 闸门"看起来没生效"时，一次就能看出到底是
+#     ① sLastAct 没写进去（last=0）
+#     ② 间隔读错（iv=0）
+#     ③ 时间戳算错（diff 异常）
+.method public static dbgState()V
+    .locals 12
+
+    const-string v0, "breakShop"
+
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
+
+    move-result v1
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v2
+
+    sget-object v4, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sLastAct:[J
+
+    aget-wide v5, v4, v1
+
+    sub-long v5, v2, v5
+
+    long-to-int v7, v5
+
+    sget v8, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalSec:I
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v0, "idx="
+
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v0, " last="
+
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v0, " iv="
+
+    invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v9, "OREKI_SCHED dbg"
+
+    invoke-static {v9, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    return-void
+.end method
+
+
 # 记一次「真的改变了游戏状态」的执行。
 #   · 推进该任务的冷却（sLastAct）
 #   · 非连续型（或严格档下的任意任务）额外推进全局节拍 + 封掉本帧名额
@@ -1020,23 +1105,31 @@
 .method public static noteActed(Ljava/lang/String;)V
     .locals 14
 
-    # 用独立 tag，便于 rg 过滤；不节流（真动作本就稀疏），不改任何状态。
-
-    invoke-static {v14, v14}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    # 用独立 tag（logI），真动作本就稀疏，不节流，不改任何状态。
+    # [R65] 这里原有两行 `invoke-static {v14, v14}, Log;->i` —— v14 在本方法里
+    # 从未初始化，属于早期调试残留（tag/msg 都是垃圾值，甚至可能 NPE）。
+    # 已删除，只保留正式的 logI 记录。
 
     sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sEnabled:Z
 
     if-eqz v0, :done
 
-    # 走到这里说明 sEnabled 为假 —— 早退原因记录下来
-
-    invoke-static {v14, v14}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    # 走到这里说明 sEnabled 为假 —— 不记账，直接返回。
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
 
     move-result v1
 
-    if-gez v1, :done
+    # [R65 根因] 原写 `if-gez v1, :done`。按 FACTS C.51 的基准语义，
+    # if-gez = **v1 >= 0 才跳** ⇒ 任务 id 合法时反而直奔 :done，
+    # 整个 noteActed 退化为空方法：
+    #   · sLastAct 永不更新 → allow() 的间隔闸门恒放行（实测：8 条 Break 升级
+    #     在 80 毫秒内被连买，完全没有 1 秒间隔）；
+    #   · sServed/sActionCount 永不累加 → `OREKI_SCHED act` 一条都不出现。
+    # 这正是 WEB_ANDROID_DIFFERENCES.md 里「Android 调度器没有真正接管」
+    # 的真实原因（不是没接线，是记账方法本身恒空转）。
+    # 正确：v1 < 0（未注册）才返回，即 if-ltz。
+    if-ltz v1, :done
 
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
@@ -1188,7 +1281,10 @@
 
     move-result v0
 
-    if-gez v0, :done
+    # [R65 同源根因] 与 noteActed 同一处极性错误：if-gez = v>=0 才跳，
+    # 于是合法 id 直接返回，sNoopUntil 永不写入 ⇒ R56 的「3 秒无效重试冷却」
+    # 从未生效过。正确：v0 < 0 才返回，即 if-ltz。
+    if-ltz v0, :done
 
     # [R56] 写该任务的 noop 重试截止（默认 3000 ms）。
     # 语义：no-op 不推进**动作**时间戳，但同一任务在窗口内不再重试，

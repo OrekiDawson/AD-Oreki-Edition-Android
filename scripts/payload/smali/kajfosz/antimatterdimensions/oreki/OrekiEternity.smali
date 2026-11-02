@@ -424,7 +424,17 @@
     move-result v0
 
     # gainedEP < EP*10 → 还没到 10 倍，继续攒
-    if-gez v0, :et_end
+    #
+    # [R65 极性修正] 原写 `if-gez v0, :et_end`。基准语义（FACTS C.51 /
+    # OrekiBreakGate 头注释）：if-gez = **v0 >= 0 才跳**，而 v0 是
+    # `compareTo(gainedEP, EP×10)`：
+    #   · v0 >= 0（收益已过 10 倍）→ 跳到 :et_end，**跳过**永恒；
+    #   · v0 <  0（收益还不够）  → 继续往下按永恒。
+    # 即：该按的时候不按、不该按的时候乱按 —— 与注释和 Web `tickEternity()` 完全相反。
+    # 实测佐证：R64/R65 的续跑档里 `eternities` 恒为 0，而反物质峰值已 1e4653、
+    # ID1~ID3 都买下了 —— 卡点不在资源，就在这一句。
+    # 正确：v0 < 0（没到 10 倍）才 :et_end，即 if-ltz。
+    if-ltz v0, :et_end
 
     sget-object v0, Lkajfosz/antimatterdimensions/prestige/c;->a:Lkajfosz/antimatterdimensions/prestige/c;
 

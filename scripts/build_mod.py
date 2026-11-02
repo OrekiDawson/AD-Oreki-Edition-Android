@@ -569,6 +569,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.smali",
     # [R62] 特蕾莎自动浇注（按原版 MainActivity.yo 开关，复用主循环 a->r()）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
+    # [R65] Break Infinity 升级自动购买（原版 fp3.D 唯一购买入口，不写位图不扣钱）
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
@@ -692,6 +694,29 @@ PAYLOAD_REFS = [
     ("smali/ju.smali",
      ".method public o(Lkajfosz/antimatterdimensions/BigDouble;)Lln0;",
      "货币加值（补贴走它，不直接写字段）"),
+    # --- [R65] OrekiBreakShop 依赖的原版 Break 升级购买链 ---
+    # 入口来源：`MainActivityBreakInfinityKt$loadViewsBreakInfinity$2$1.invokeSuspend`
+    # 里唯一一次调用 `Lfp3;->D(ZLvh0;)Ljava/lang/Boolean;` —— 这就是 Break 页
+    # 「购买」按钮的处理器本体。以下五条任何一条名字变了，构建期就失败，
+    # 不会等到运行期才 NoSuchMethodError / 静默买不到。
+    ("smali/fp3.smali",
+     ".method public D(ZLvh0;)Ljava/lang/Boolean;",
+     "Break 升级唯一购买入口 fp3.purchase(autobuyer, Continuation)"),
+    ("smali/fp3.smali",
+     ".method public a(Z)Z",
+     "升级综合可购买判定（!B && z && A）"),
+    ("smali/fp3.smali",
+     ".method public x()Lkajfosz/antimatterdimensions/BigDouble;",
+     "升级当前价格"),
+    ("smali/ln0.smali",
+     ".method public final i(Lkajfosz/antimatterdimensions/BigDouble;)Z",
+     "货币扣费（canAfford + 真扣，购买链第 ② 步）"),
+    ("smali/av.smali",
+     ".method public final E(Z)V",
+     "置已购位（购买链第 ③ 步）"),
+    ("smali/oy.smali",
+     ".field public static final m:Ljava/util/List;",
+     "12 条 Break Infinity 升级实例表（List<fp3>）"),
 ]
 
 
@@ -1051,6 +1076,26 @@ def verify_payload():
         assert needle in p.read_text(encoding="utf-8"), \
             f"引用自检失败: {desc}（{rel} 中找不到 {needle!r}）"
     note(f"[4b] 混淆类引用自检通过: {len(PAYLOAD_REFS)} 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）")
+
+    # [R65] 异常处理标签自检：`.catch Type { :a .. :b } :handler` 里三个标签
+    # 必须都在同一方法内真实定义。
+    # 教训：R65 首版把 handler 写成 `:bs_catch`，而 .catch 指向 `:catch_0`，
+    # smali 不报「标签不存在」，而是在 dexlib2 写 code item 时抛
+    # `IllegalStateException: Cannot get the location of a label that hasn't been placed yet.`
+    # —— 栈里看不到是哪个文件哪个标签，只能靠这条前置断言拦住。
+    _label_re = re.compile(r"^\s*(:[A-Za-z0-9_]+)", re.M)
+    _catch_re = re.compile(
+        r"^\s*\.catch\s+.*?\{(:[A-Za-z0-9_]+)\s*\.\.\s*(:[A-Za-z0-9_]+)\}\s*(:[A-Za-z0-9_]+)", re.M)
+    for _p in MOD.rglob("*.smali"):
+        _txt = _p.read_text(encoding="utf-8")
+        if ".catch " not in _txt:
+            continue
+        _labels = set(_label_re.findall(_txt))
+        for _m in _catch_re.finditer(_txt):
+            for _g in _m.groups():
+                assert _g in _labels, (
+                    f"[R65] catch 标签未定义: {_p.relative_to(MOD)} 引用 {_g}")
+    note("[4b] catch 标签自检通过（所有 .catch 的三个标签均已定义）")
 
     # 新分区不得写入第 18 行
     sa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali").read_text(encoding="utf-8")
