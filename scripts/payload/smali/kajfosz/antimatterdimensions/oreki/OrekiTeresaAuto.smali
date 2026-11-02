@@ -119,3 +119,68 @@
     return v3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :ot_catch
 .end method
+
+# ---------------------------------------------------------- 给现实自动化用
+# 返回 true 表示「本类正接管浇注」。`OrekiReality` 用它来压住现实重置。
+#
+# 为什么必须压住（R62 实测）：夹具 `realities=1731`、RU 位图已满 20 位，
+# 但 OrekiReality 每 2 秒现实一次 → 每次现实都清空 `reality.upgradeBits`
+# → 下一帧 cardinality 回到 0 → 本类条件不成立 → 不浇 → 永远回到起点。
+# 实测 40 秒内 `realities` 从 1.731 涨到 1.732，而 `pouredAmount` 一动不动。
+#
+# 为什么不会死锁：`sHolding` 只在「一次性 RU 全部买完」时才为真。
+#   · RU 没买完 → 不压现实 → 照常现实攒 RM → 自动器继续买 RU；
+#   · RU 买完 → 压住现实 → RM 不再被 RU 消耗，只被浇注消耗 → 一直浇到 1e24；
+#   · 浇满 1e24 → 原版 `yr4.g()` 变假、本类的 RM 也早被烧完，
+#     而 sHolding 仍为真 —— 所以还要判 poured < 1e24，浇满即释放。
+.method public static isHolding()Z
+    .locals 4
+
+    :try_start_h
+    sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHolding:Z
+
+    if-eqz v0, :ot_hno
+
+    # 浇满（poured >= 1e24）就释放：否则现实会被永久压住
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->p()Lkajfosz/antimatterdimensions/player/Player$Celestials;
+    move-result-object v0
+
+    if-eqz v0, :ot_hno
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Celestials;->f()Lkajfosz/antimatterdimensions/player/Player$Teresa;
+    move-result-object v0
+
+    if-eqz v0, :ot_hno
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Teresa;->e()D
+    move-result-wide v0
+
+    const-wide v2, 0x44ea784379d99db4L    # 1.0E24
+
+    cmpl-double v2, v0, v2
+
+    # poured >= 1e24 → 已浇满，释放
+    if-ltz v2, :ot_hno
+    :try_end_h
+    goto :ot_hyes
+
+    :ot_hno
+    const/4 v0, 0x0
+
+    return v0
+
+    :ot_hcatch
+    move-exception v0
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :ot_hyes
+    const/4 v0, 0x1
+
+    return v0
+    .catch Ljava/lang/Throwable; {:try_start_h .. :try_end_h} :ot_hcatch
+.end method

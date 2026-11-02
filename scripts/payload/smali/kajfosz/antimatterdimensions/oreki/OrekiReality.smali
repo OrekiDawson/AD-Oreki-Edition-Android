@@ -80,6 +80,22 @@
     # 基准样本见 FACTS C.51：if-ltz = 小于零才跳
     if-ltz v4, :oreki_real_no
 
+    # [R62] 特蕾莎浇注期间压住现实。
+    #
+    # 实测依据：夹具 RU 位图 20 位全满、`pouredAmount=1.136e21`，
+    # 但本方法每 2 秒现实一次 → 每次把 `reality.upgradeBits` 清零
+    # → Teresa 的「RU 全买完」条件下一帧就不成立 → 永远不浇。
+    # 40 秒采样：`realities` 1.731 → 1.732，而 `pouredAmount` 一位都没变。
+    #
+    # `isHolding()` 只在「RU 全买完且未浇满 1e24」时为真，所以不会死锁：
+    # RU 没买完时照常现实攒 RM，买完后才停手专心浇。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->isHolding()Z
+
+    move-result v0
+
+    # if-nez = v0!=0 才跳；正在浇注就跳走，不做现实
+    if-nez v0, :oreki_real_no
+
     # ③ 触发一次完整现实重置（原版自动器同一条路径）
     sget-object v0, Lkajfosz/antimatterdimensions/prestige/f;->a:Lkajfosz/antimatterdimensions/prestige/f;
 
