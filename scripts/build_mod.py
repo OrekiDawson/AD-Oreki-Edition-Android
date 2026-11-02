@@ -1461,8 +1461,11 @@ def verify_payload():
          "sEarlyApplied 为 false 才执行开局自动化"),
         # [R50-A14] 策略改成 AMOUNT/1e1000 后，原来那条「amount>=10 才尊重」已不存在；
         # 换成同一处的等效极性守卫：玩家自定义了 xHighest>10 时必须原样保留。
-        (sa_txt, "xHighest > 10（玩家自定义过）", "if-gtz",
-         "xHighest > 10（compareTo 为正）才放手不动"),
+        # [R64] 由 `if-gtz`（>10 才放手）改为 `if-gez`（>=10 就放手）。
+        # 原写法在 xHighest 恰为 10 时 compareTo=0 不退出 ⇒ 每帧重写 P(10)
+        # 并打一行 OREKI_AU4B（R63 实测 7.5 分钟 14314 行）。
+        (sa_txt, "改后：< 10 才写入 10；== 10 跳过；> 10 保留玩家自定义值", "if-gez",
+         "xHighest >= 10（compareTo 非负）才放手不动"),
         (sa_txt, "只在判定翻转时打一行，避免高频刷日志", "if-eqz",
          "sHold==0（0→1 翻转）才打 hold=1"),
         (sa_txt, "同上：只在翻转时打一行", "if-nez",
@@ -3672,7 +3675,7 @@ def verify_au4b():
     # 的局面下永不触发（实测 infinities 恒为 42、IP 永远到不了 ID1 要的 1e8）。
     assert "if-eq v1, v2, :oreki_ap_xh" in body, "[AU4b] 已是 X_HIGHEST(2) 时必须直接去校准 xHighest"
     assert "if-eq v1, v2, :ret_p" in body, "[AU4b] TIME(1) 模式必须原样保留（尊重玩家）"
-    assert "if-gtz v1, :ret_p" in body, "[AU4b] 自定义 xHighest>10 时必须原样保留"
+    assert "if-gez v1, :ret_p" in body, "[AU4b] xHighest>=10 时必须原样保留（R64 改为 if-gez）"
     assert "CrunchAutobuyerState;->a(I)V" in body, "[AU4b] 必须走公开 setter a(I)V 写 mode"
     assert "CrunchAutobuyerState;->P(" in body, "[AU4b] 必须走公开 setter P(...) 写 xHighest"
     assert "CrunchAutobuyerState;->L()" in body, "[AU4b] 必须走公开 getter L() 读 xHighest"

@@ -1613,7 +1613,10 @@
 
 
 .method public static applyCrunchPolicy()V
-    .locals 6
+    # [R64] 6 → 9：TIME 分支的日志要两个对象寄存器（v6/v7）。
+    # 不能复用 v4 —— 那里 `const-wide/high16 v4, 1.0` 占着 v4:v5，
+    # 同一寄存器既作 wide 又作 String 会被 ART 拒收（R52/R62 的 VerifyError 教训）。
+    .locals 9
 
     :try_start_p
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
@@ -1633,6 +1636,90 @@
 
     if-eqz v1, :ret_p
 
+    # ═══════════════════════════════════════════════════════════════════
+    # [R64] Break 后早期改用 TIME 模式，打破「坍缩永不触发」的死锁
+    #
+    # ── 实测证据（R63 真新档 450 秒，`r63_final.json`）──
+    #   auto.bigCrunch = { mode:2(X_HIGHEST), xHighest:1.0, time:1.0, interval:100 }
+    #   thisEternity.maxIP = 2.87e7   infinityPoints = 2.87e7   infinities = 27
+    #   thisEternity.maxAM = 1.0e1365  galaxies = 8（停涨）  breakInfinityUpgradeBits = 0
+    #
+    # X_HIGHEST 的判据是 `gainedIP >= thisEternity.maxIP × xHighest`。
+    # 此刻 maxIP 已被顶到 2.87e7，而单次坍缩能给到的 IP 达不到它的 1 倍
+    # ⇒ **条件永不满足 ⇒ 7.5 分钟一次坍缩都没有**（inf 恒 27），
+    # IP 只能靠 `ipGen` 被动收入慢慢爬（1e6→2.4e7），
+    # 而 Android 3.19.0 的 ID1 要 IP 4e8 —— 差 14 倍，且越等越远。
+    #
+    # 注意：把 xHighest 从 1 再往下调没有意义（已经是 1，且 `>=` 语义下
+    # 等于自己），所以本轮**换模式**而不是调参数：这是 R64 §3.2 要求的
+    #「不得机械保留阈值而制造新墙」。
+    #
+    # ── 为什么用「breakInfinityUpgradeBits 是否为空」作为阶段判据 ──
+    #   · Break 前：该位图恒为 0，但那时也不该坍缩（原版还没 Break），
+    #     所以先判 `Player.m()`（brake），未 Break 直接不干预；
+    #   · Break 后到买第一个 Break 升级之前：位图为 0 ⇒ TIME 模式，IP 快速累积；
+    #   · 买过任意 Break 升级之后：位图非 0 ⇒ 回到 X_HIGHEST + 10 的终局策略。
+    #   这个判据不需要 ID1 实例，也不必猜任何数值门槛。
+    #
+    # ── 为什么 TIME 模式安全（不会毁掉 ID1 的前置）──
+    #   ID1 的反物质门槛读的是 `thisEternity.maxAM`（**本永恒**峰值，坍缩不清零），
+    #   实测已是 1.0e1365 > 1e1100；只有 `thisInfinity.maxAM` 会被坍缩清零，
+    #   而它不是 ID 的判据。所以每秒坍缩不会把 ID1 的门槛打回去。
+    # ═══════════════════════════════════════════════════════════════════
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
+
+    move-result v1
+
+    # 已经是 TIME(1) → 玩家自己选的，或本段已设过，原样放手。
+    # [R64 自纠] 这里必须 `if-eq`（v1 == 1 才返回）。写成 `if-ne` 就变成
+    #「mode 不是 TIME 就返回」，等于本段永远不执行 —— 与 R52~R62 那七处
+    # 极性反转同一类错误，写完必须先自查一遍方向。
+    const/4 v2, 0x1
+
+    if-eq v1, v2, :ret_p
+
+    # 未 Break → 不干预（原版还没到能频繁坍缩的阶段）
+    sget-object v3, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;->m()Z
+
+    move-result v3
+
+    if-eqz v3, :ret_p
+
+    # Break 升级位图基数：0 = 还没买过任何 Break 升级 = 仍在早期
+    sget-object v3, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;->o()Lkajfosz/antimatterdimensions/BitSet;
+
+    move-result-object v3
+
+    if-eqz v3, :ret_p
+
+    invoke-virtual {v3}, Lkajfosz/antimatterdimensions/BitSet;->a()I
+
+    move-result v3
+
+    if-nez v3, :oreki_ap_xh_setup
+
+    # ---- 早期：TIME 模式 + 1 秒 ----
+    const/4 v3, 0x1
+
+    invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
+
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    invoke-virtual {v0, v4, v5}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->O(D)V
+
+    const-string v6, "OREKI_AU4C"
+
+    const-string v7, "policy -> TIME/1s (break-upgrades empty)"
+
+    invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    goto :ret_p
+
+    :oreki_ap_xh_setup
     # [R50-A19] 与 Web 完全一致：X_HIGHEST(2) + xHighest = 10
     #
     # 依据（Web big-crunch-autobuyer.js + 本项目 [Oreki AU4b]/[Oreki R26] 注释）：
@@ -1681,9 +1768,14 @@
     #
     # [R51-A27b] 已知：xHighest 恰为 10 时本判据不成立，每 tick 会重写一次并打一行
     # OREKI_AU4B（A27 实测 25 秒 1007 行）。改为 if-gez 可消除刷屏，但会同时击穿
-    # build_mod.py 两处极性守卫（verify_au4b 与 R41 极性表），收益不成比例，
-    # 本轮**保留原判据**，把机会留给下一轮一并处理。
-    if-gtz v1, :ret_p
+    # build_mod.py 两处极性守卫（verify_au4b 与 R41 极性表），收益不成比例。
+    #
+    # [R64] 已改：`if-gtz`（v1 > 0 才退出）→ `if-gez`（v1 >= 0 就退出）。
+    # compareTo 语义：xHighest < 10 → -1，== 10 → 0，> 10 → 1。
+    # 原写法在 == 10 时 v1=0 不退出 ⇒ **每帧重写 P(10) 并打一行 OREKI_AU4B**
+    # （R63 实测 7.5 分钟 14314 行，10000× 下是实打实的 I/O 拖累）。
+    # 改后：< 10 才写入 10；== 10 跳过；> 10 保留玩家自定义值。三条都符合 R64 §3.1。
+    if-gez v1, :ret_p
 
     invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->P(Lkajfosz/antimatterdimensions/BigDouble;)V
 
