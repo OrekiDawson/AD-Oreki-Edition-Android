@@ -39,20 +39,11 @@
     .locals 16
 
     :try_start_0
-    # [R62 诊断] 入口标记：用于区分「tick 没被调用」与「tick 内抛异常静默返回」。
-    const-string v15, "OREKI_GLYPH_ENTER"
-
-    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
     # ---- 1. 装备槽数组 ----
     sget-object v0, Lkajfosz/antimatterdimensions/reality/glyphs/i;->e:[Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;
 
     # [R61] 原写 if-nez：非 null 就跳到退出标签 —— 等于「有槽数组反而直接退出」。
     # 正确：null 才退出。if-eqz = v==0 才跳（FACTS C.51 基准）。
-    const-string v15, "OREKI_GLYPH_NOARR"
-
-    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
     if-eqz v0, :og_no
 
     array-length v1, v0
@@ -72,10 +63,6 @@
     goto :og_find
 
     # 满槽：不替换、不卸下、不交换
-    const-string v15, "OREKI_GLYPH_FULL"
-
-    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
     :og_full
     goto :og_no
 
@@ -93,10 +80,6 @@
     move-result-object v3
 
     # [R61] 同 ①：原来非 null 就退出，等于永远不遍历背包。
-    const-string v15, "OREKI_GLYPH_NOINV"
-
-    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
     if-eqz v3, :og_no
 
     invoke-interface {v3}, Ljava/util/List;->size()I
@@ -146,7 +129,13 @@
     # 正确：类型为 null 才跳去评分（拿不到类型就没法判，不能因为判不了就排除）。
     if-eqz v10, :og_score
 
-    invoke-virtual {v10}, Ljava/lang/Enum;->name()Ljava/lang/String;
+    # [R62 根因] 原来调的是枚举的 name 方法。实测 `GlyphType.smali` 声明是
+    # `.super Ljava/lang/Object;` —— R8 把 Kotlin enum 改写成普通类，**不继承 java.lang.Enum**，
+    # 于是 ART 验证器拒收整个类：
+    #   VerifyError: [0x56] this argument GlyphType not instance of the Enum class
+    # 前几轮没暴露，是因为六处极性全反、代码走不到这一行。
+    # 改用 Object.toString()：GlyphType 继承 Object，合法；R8 的 enum 型类保留枚举名。
+    invoke-virtual {v10}, Ljava/lang/Object;->toString()Ljava/lang/String;
     move-result-object v10
 
     const-string v11, "companion"
@@ -187,10 +176,6 @@
     :og_pick
     # [R61] 原写 if-nez：v8 非 null（已选到候选）反而退出，等于永远装不上。
     # 正确：候选为 null 才退出。
-    const-string v15, "OREKI_GLYPH_NOCAND"
-
-    invoke-static {v15, v15}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
-
     if-eqz v8, :og_no
 
     invoke-static {v8, v2}, Lkajfosz/antimatterdimensions/reality/glyphs/i;->L(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;I)V
