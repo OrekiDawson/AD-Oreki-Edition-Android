@@ -64,7 +64,15 @@
 
     sub-long v4, v0, v2
 
-    const-wide/16 v2, 0x3e8
+    # [R58-1] 最小间隔 1 秒 → 2 秒，与 Web `REALITY_MIN_INTERVAL_MS = 2000` 对齐。
+    #
+    # 为什么必须改：现实会把 `eternityChalls`、整棵时间研究树、`maxDT` 全部清零
+    # （reality.js 侧同源，见 Web oreki-reality-automation.js:96-107 的注释）。
+    # 只要 `canReality` 成立，本方法每 1 秒就能重置一次 —— 等于把
+    # 「买满 EC → 建研究分叉 → 拿膨胀研究 1」这条链每 1 秒打断一次，
+    # 而 Android 侧没有任何 hold 机制去保护它。
+    # 2 秒是 Web 已验证的同一取值，不是新调的魔数；两端同值才是「行为等价」。
+    const-wide/16 v2, 0x7d0
 
     cmp-long v4, v4, v2
 
