@@ -432,6 +432,45 @@ def main():
     ok(12 < _l12_limit and 13 >= _l12_limit,
        "越界判定错：v12 应合法、v13 应越界")
 
+    # ── [R61] 符文自动装备的控制流守卫 ──────────────────────────────
+    # 为什么单独建一组：R59/R60 这五条分支全部写反（if-nez 当 if-eqz 用），
+    # 后果是「有槽数组反而直接退出」「背包非 null 反而直接退出」，
+    # 静态看起来像实现了，运行期一枚都装不上。断言必须锁**极性**，不是锁字符串存在。
+    GLYPH_AUTO = OREKI / "OrekiGlyphAuto.smali"
+    ga = read(GLYPH_AUTO)
+    ga_body = body(ga, "tick")
+
+    ok("if-eqz v0, :og_no" in ga_body,
+       "槽数组 null 保护方向错：必须 if-eqz（null 才退出），否则有数组时反而直接退出")
+    ok("if-eqz v3, :og_no" in ga_body,
+       "背包列表 null 保护方向错：必须 if-eqz")
+    ok("if-eqz v10, :og_score" in ga_body,
+       "GlyphType 为 null 时应跳去评分；写成 if-nez 会把 companion 判断整段跳过")
+    ok("if-nez v10, :og_next" in ga_body,
+       "companion 判定方向错：equalsIgnoreCase 为真（是同伴）才应跳过")
+    ok("if-eqz v8, :og_no" in ga_body,
+       "候选 null 判定方向错：必须 if-eqz，否则选到候选反而退出")
+
+    # 只装空槽：必须先找 null 槽，且满槽直接退出（不得进入替换路径）
+    ok(":og_full" in ga_body and "goto :og_no" in ga_body,
+       "缺少「满槽直接退出」路径（满槽必须不替换）")
+    # 评分口径：等级 × 强度
+    ok("mul-double v10, v10, v12" in ga_body, "评分不是 等级 × 强度")
+    ok("Glyph;->m()I" in ga_body and "Glyph;->e()D" in ga_body,
+       "评分取值器不对：等级取 m()、强度取 e()")
+    # 装备入口只能是已确证的 L，且不得出现未确证的 K / b
+    ok("glyphs/i;->L(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;I)V" in ga_body,
+       "装备入口不是已确证的 Glyphs.L(Glyph,int)")
+    ok("glyphs/i;->K(" not in ga and "glyphs/i;->b(" not in ga,
+       "出现了未经确证的卸下/替换入口（K / b），禁止")
+    ok("prestige/f;->" not in ga_body,
+       "符文路径不得直接调用现实重置入口")
+
+    # 变异自测：把 null 保护翻回 if-nez，上面这条断言必须失败
+    _ga_mut = ga_body.replace("if-eqz v0, :og_no", "if-nez v0, :og_no", 1)
+    ok(_ga_mut != ga_body and "if-eqz v0, :og_no" not in _ga_mut.split(":og_full")[0],
+       "变异测试失效：翻转 null 保护后检查器未能识别")
+
     # ── 输出 ───────────────────────────────────────────────────────────
     if FAILS:
         print(f"[FAIL] {len(FAILS)} / {CHECKS[0]} 条断言失败：")

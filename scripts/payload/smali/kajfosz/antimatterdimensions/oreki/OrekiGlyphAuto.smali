@@ -42,7 +42,9 @@
     # ---- 1. 装备槽数组 ----
     sget-object v0, Lkajfosz/antimatterdimensions/reality/glyphs/i;->e:[Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;
 
-    if-nez v0, :og_no
+    # [R61] 原写 if-nez：非 null 就跳到退出标签 —— 等于「有槽数组反而直接退出」。
+    # 正确：null 才退出。if-eqz = v==0 才跳（FACTS C.51 基准）。
+    if-eqz v0, :og_no
 
     array-length v1, v0
 
@@ -77,7 +79,8 @@
     invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$Glyphs;->e()Ljava/util/List;
     move-result-object v3
 
-    if-nez v3, :og_no
+    # [R61] 同 ①：原来非 null 就退出，等于永远不遍历背包。
+    if-eqz v3, :og_no
 
     invoke-interface {v3}, Ljava/util/List;->size()I
     move-result v4
@@ -119,7 +122,9 @@
     invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;->h()Lkajfosz/antimatterdimensions/reality/glyphs/GlyphType;
     move-result-object v10
 
-    if-nez v10, :og_score
+    # [R61] 原写 if-nez：类型非 null 就跳去评分 ⇒ companion 判断整段被跳过。
+    # 正确：类型为 null 才跳去评分（拿不到类型就没法判，不能因为判不了就排除）。
+    if-eqz v10, :og_score
 
     invoke-virtual {v10}, Ljava/lang/Enum;->name()Ljava/lang/String;
     move-result-object v10
@@ -129,7 +134,9 @@
     invoke-virtual {v10, v11}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
     move-result v10
 
-    if-eqz v10, :og_next
+    # [R61] 原写 if-eqz：等于 companion 时返回 1，if-eqz 不跳 ⇒ 反而**放行**同伴符文，
+    # 而普通符文返回 0 时被跳掉 —— 正好反了。正确：为真（是同伴）才跳过。
+    if-nez v10, :og_next
 
     # 4c. score = level * strength
     :og_score
@@ -158,7 +165,9 @@
 
     # ---- 5. 装到空槽 ----
     :og_pick
-    if-nez v8, :og_no
+    # [R61] 原写 if-nez：v8 非 null（已选到候选）反而退出，等于永远装不上。
+    # 正确：候选为 null 才退出。
+    if-eqz v8, :og_no
 
     invoke-static {v8, v2}, Lkajfosz/antimatterdimensions/reality/glyphs/i;->L(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;I)V
 
