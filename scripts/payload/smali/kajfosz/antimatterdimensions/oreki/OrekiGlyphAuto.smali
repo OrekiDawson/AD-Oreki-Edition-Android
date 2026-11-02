@@ -1,45 +1,45 @@
-# 符文自动装备（Oreki Edition，R59）
+# 符文自动装备（Oreki Edition，R59 建，R60 修正候选判定）
 #
-# ── 为什么只做「填空槽」（不是能力不足，是安全边界）────────────────────
-# 原版 `Glyphs`（smali 里是 `reality/glyphs/i`）的装备入口有三个：
+# ── 为什么只做「填空槽」（安全边界，不是能力不足）──────────────────────
+# 原版 `Glyphs`（smali 里是 `reality/glyphs/i`）的装备入口：
 #   · `i->L(Glyph;I)V`   ← 本类使用，逐指令确认：写 `i->e[slot]`，并把旧槽置 null
-#   · `i->K(Glyph;I)V`   ← 未确证语义，未使用
+#   · `i->K(Glyph;I)V`   ← 语义未确证，未使用
 #   · `i->b(Glyph;)V`    ← Ra 的 allGamespeedGlyphs 在调，未确证是「装备」还是「入包」，未使用
 #
-# 对 `L` 的实测读码结论（222 行、`reality/glyphs/i.smali:1916` 起）：
-#   ① `sget-object i->e:[Glyph;` —— 这是**装备槽数组**，代码里 `aput-object null` 把
-#      该符文原来所在的槽清空，再 `aput-object glyph, e[slot]` 写进目标槽，
-#      最后 `Glyph->x(I)` 把这个槽号记回符文自身；
-#   ② 整个方法里 `prestige/f->` 出现 **0 次**，`ProcessReality` 相关字符串 **0 次**。
-#      ⇒ 通过 `L` 装备**不会**触发一次 Reality 结算。
-#      （Web 那边 `equipGlyphs()` 特意避开「覆盖已占用槽位」，就是因为覆盖会走到
-#        `swapIntoActive()` → `finishProcessReality({ reset: true })`；
-#        Android 侧既然 `L` 本身不含该回调，空槽装备更是绝对安全。）
+# `L` 的实测读码结论（222 行、`reality/glyphs/i.smali:1916` 起）：
+#   ① `sget-object i->e:[Glyph;` —— **装备槽数组**；`aput-object null` 清旧槽，
+#      再 `aput-object glyph, e[slot]` 写目标槽，最后 `Glyph->x(I)` 记回槽号；
+#   ② 方法体内 `prestige/f->` 出现 **0 次**，`ProcessReality` 相关 **0 次**
+#      ⇒ 通过 `L` 装备**不会**触发 Reality 结算。
+#      （Web 的 `equipGlyphs()` 避开「覆盖已占槽位」，是因为那边覆盖会走
+#        `swapIntoActive()` → `finishProcessReality({reset:true})` —— 一次不发奖励的完整现实重置。）
 #
-# 因此本类的策略与 Web `equipGlyphs()` 对齐：
-#   · 只找**空槽**；找不到空槽就直接返回（满槽不替换、不卸下、不交换）；
-#   · 候选只从背包里取**未被装备**的符文（`Glyph->l()I` 是槽位号 idx，>=0 表示已在槽里）；
-#   · 评分沿用 Web 已验证口径 `等级 × 强度`（`Glyph->m()I` = level，`Glyph->e()D` = strength）；
-#   · 每次 tick 最多装一个，装满即自动变空转，不会来回倒腾。
+# ── [R60 修正] 候选判定：不能看 `idx`，要看「是否在 active 数组里」────────
+# R59 写的是「`Glyph->l()`（= idx）>= 0 就当已装备、跳过」。
+# 实测存档（`build/r27_player.json`）证伪了这个假设：
+#   · 已装备：`{"idx":0,  "type":"power",     "level":1, "rarity":20.0}`
+#   · 背包里：`{"idx":20, "type":"companion", "level":1, "rarity":0.00415}`
+# 背包符文的 idx 是 **20**，同样 >= 0 ⇒ 原判定会把**每一枚背包符文都跳过**，
+# 功能等于一枚都装不上。
+# 现在改成身份比较：候选必须**不在** `i->e` 数组里（同一对象引用），
+# 与 Web `already` 的语义一致，也不再依赖 idx 的取值规则。
 #
-# ── 未做的事（明确记录，避免被误读成已实现）──────────────────────────
-#   · RU9/16/17/18/24 的「符文形态」推进（需要先卸下再装指定形态）—— 涉及
-#     `K`/卸下语义与升级条件阈值，本类**没有**实现，也没有伪装成实现了。
-#   · 满槽替换 —— 明确禁止。
+# ── [R60] 同伴符文（companion）不参与自动装备 ────────────────────────
+# 它有自己的槽位规则，用普通槽位装会破坏形态判定。
+# 判定方式：`Glyph->h()` 取 GlyphType，`name()` 与 "companion" 比较（不猜枚举常量名）。
 #
-# 幂等性：不写任何存档字段，不缓存状态；「是否已装备」完全由原版
-# `Glyph->l()`（槽位号）决定，所以重启、读档、跨现实都成立。
+# 幂等性：不写任何存档字段、不缓存状态；每 tick 最多装一枚，装满即走满槽分支。
 .class public final Lkajfosz/antimatterdimensions/oreki/OrekiGlyphAuto;
 .super Ljava/lang/Object;
 
 
 # ---------------------------------------------------------------- 每帧入口
-# 返回 true 表示本帧**真的装上了一枚符文**（供上层决定是否记账/打日志）。
+# 返回 true 表示本帧**真的装上了一枚符文**。
 .method public static tick()Z
-    .locals 15
+    .locals 16
 
     :try_start_0
-    # ---- 1. 取装备槽数组；没有符文系统时直接退出 ----
+    # ---- 1. 装备槽数组 ----
     sget-object v0, Lkajfosz/antimatterdimensions/reality/glyphs/i;->e:[Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;
 
     if-nez v0, :og_no
@@ -48,7 +48,7 @@
 
     const/4 v2, 0x0
 
-    # ---- 2. 找第一个空槽（v2 = 目标槽下标）----
+    # ---- 2. 第一个空槽 → v2 ----
     :og_find
     if-ge v2, v1, :og_full
 
@@ -60,13 +60,12 @@
 
     goto :og_find
 
-    # 满槽：不替换、不卸下、不交换，直接返回 false
+    # 满槽：不替换、不卸下、不交换
     :og_full
     goto :og_no
 
     :og_slot
-    # ---- 3. 取背包列表 ----
-    # Player.Q() = Player$Reality；.d() = Player$Glyphs；.e() = 背包 List
+    # ---- 3. 背包列表 ----
     sget-object v3, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
     invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;->Q()Lkajfosz/antimatterdimensions/player/Player$Reality;
@@ -85,12 +84,12 @@
 
     const/4 v5, 0x0
 
-    # v8 = 当前最优符文（对象），v6:v7 = 当前最优分数（double）
+    # v8 = 最优符文，v6:v7 = 最优分数
     const/4 v8, 0x0
 
     const-wide/16 v6, 0x0
 
-    # ---- 4. 遍历背包，按 等级 × 强度 选最优（只考虑未装备的）----
+    # ---- 4. 遍历背包 ----
     :og_loop
     if-ge v5, v4, :og_pick
 
@@ -101,13 +100,39 @@
 
     if-nez v9, :og_next
 
-    # Glyph->l() = 槽位号 idx；>= 0 表示已经在槽里 → 跳过（不参与候选）
-    invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;->l()I
+    # 4a. 已在槽里（与 active 数组同一对象）→ 跳过
+    const/4 v10, 0x0
+
+    :og_in_active
+    if-ge v10, v1, :og_not_active
+
+    aget-object v11, v0, v10
+
+    if-eq v11, v9, :og_next
+
+    add-int/lit8 v10, v10, 0x1
+
+    goto :og_in_active
+
+    :og_not_active
+    # 4b. 同伴符文不参与（有自己的槽位规则）
+    invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;->h()Lkajfosz/antimatterdimensions/reality/glyphs/GlyphType;
+    move-result-object v10
+
+    if-nez v10, :og_score
+
+    invoke-virtual {v10}, Ljava/lang/Enum;->name()Ljava/lang/String;
+    move-result-object v10
+
+    const-string v11, "companion"
+
+    invoke-virtual {v10, v11}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
     move-result v10
 
-    if-gez v10, :og_next
+    if-eqz v10, :og_next
 
-    # score = level * strength
+    # 4c. score = level * strength
+    :og_score
     invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;->m()I
     move-result v10
 
@@ -118,7 +143,6 @@
 
     mul-double v10, v10, v12
 
-    # 与当前最优比较；cmpl 结果放 v14（int），不与任何 wide 对重叠
     cmpl-double v14, v10, v6
 
     if-lez v14, :og_next
@@ -138,7 +162,6 @@
 
     invoke-static {v8, v2}, Lkajfosz/antimatterdimensions/reality/glyphs/i;->L(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;I)V
 
-    # 一次性证据：只在真的装上时打一行（不会每帧刷屏：装满槽后本方法立刻走 :og_full）
     const-string v0, "OREKI_GLYPH"
 
     invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
@@ -152,7 +175,6 @@
     move-exception v0
 
     :og_no
-    :try_end_no
     const/4 v0, 0x0
 
     return v0

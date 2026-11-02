@@ -497,7 +497,8 @@
     new-instance v6, Landroid/widget/Button;
     invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    const-string v1, "恢复默认 3 秒"
+    # [R60] 文案与调度器默认值（1 秒）对齐；原来写 3 秒，点下去会跳回 3 秒
+    const-string v1, "恢复默认 1 秒"
     invoke-virtual {v6, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     new-instance v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;

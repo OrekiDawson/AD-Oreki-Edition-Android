@@ -11,7 +11,7 @@
 #
 # kind：
 #   0 = 保存间隔（读 edit，越界由调度器钳制后回填）
-#   1 = 恢复默认 3 秒
+#   1 = 恢复默认 1 秒（R60）
 #   2 = 启用开关（checkbox）
 #   3 = 严格模式（checkbox）
 #
@@ -57,7 +57,8 @@
 
     if-eqz v0, :refresh
 
-    const/4 v1, 0x3
+    # [R60] 解析初值 3 → 1（与调度器 <clinit>/SharedPreferences 缺省值统一）
+    const/4 v1, 0x1
 
     :try_start_0
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -79,8 +80,8 @@
     goto :parsed
 
     :catch_0
-    # 空串 / 非数字 → 用默认 3 秒（不猜用户想要多少）
-    const/4 v1, 0x3
+    # 空串 / 非数字 → 用默认 1 秒（不猜用户想要多少）[R60：3→1]
+    const/4 v1, 0x1
 
     :parsed
     # 钳制 + 持久化都在调度器里，返回值就是实际生效值
@@ -106,8 +107,10 @@
 
     if-ne v0, v1, :refresh
 
-    # ---- 恢复默认 3 秒 ----
-    const/4 v1, 0x3
+    # ---- 恢复默认 1 秒 ----
+    # [R60] 这里过去写死 0x3：调度器默认已是 1 秒，按「恢复默认」却回到 3 秒，
+    # 造成「装完是 1 秒、点一下恢复默认变 3 秒」的自相矛盾，且与 Web 默认值不一致。
+    const/4 v1, 0x1
 
     invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->setIntervalSec(I)I
 
