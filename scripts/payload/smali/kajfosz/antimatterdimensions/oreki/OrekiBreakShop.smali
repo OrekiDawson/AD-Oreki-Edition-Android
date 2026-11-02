@@ -61,6 +61,15 @@
 # 调用计数（只用于节流状态日志，不进存档、不参与任何判定）
 .field private static sTicks:I
 
+# [R66] 本模块自己的「上次成功购买时刻」（elapsedRealtime 毫秒）。
+#
+# 为什么模块内还要再守一道间隔：调度器 allow() 里那道闸门 R66 实测未生效
+# （8 条升级 96 ms 内连买），而它是十几条分支的长方法，不加诊断构建无法定位。
+# 这条闸门只有「now - lastBuyAt < intervalMs → 不买」三次比较，
+# 与用户设置同源（Scheduler.intervalMs()），语义无歧义，且**独立于**调度器。
+# 两者叠加不会互相削弱：调度器放行时这里仍会拦，调度器拦截时这里不会放行。
+.field private static sLastBuyAt:J
+
 
 # ---------------------------------------------------------------- 每帧入口
 # 返回 1 表示本帧**真的买下了一条**升级；0 表示没有任何真实动作。
@@ -72,7 +81,7 @@
 #   v10 int(常量2)         v11 int(比较/取余)                 v12 int(选中下标)
 #   v13 引用(null/Boolean/异常)   v14 String(日志tag)          v15 String(日志值)
 .method public static tick()I
-    .locals 16
+    .locals 18
 
     :try_start_0
     # ---- 1. 必须已 Break ----
@@ -82,6 +91,14 @@
     move-result v7
 
     # 未 Break（false）→ 退出。if-eqz = v==0 才跳（FACTS C.51 基准）
+    if-eqz v7, :bs_no
+
+    # ---- 1b. 模块内间隔闸门（R66）----
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;->canBuyNow()Z
+
+    move-result v7
+
+    # false = 距上次成功购买还不到用户设置的间隔 → 本帧不买，也不记 no-op
     if-eqz v7, :bs_no
 
     # ---- 2. 当前 IP（活引用，只读，绝不原地改）----
@@ -227,6 +244,14 @@
     # 原版自己说没买成（条件不服）→ 记 no-op
     if-eqz v7, :bs_no
 
+    # 记录成功时刻：下一次购买必须等满 intervalMs()
+    # 寄存器说明：v8/v9 在本方法里是 BigDouble（价格与副本），**不能**当 wide 用，
+    # 所以时间戳单独占用 v16:v17（move-result-wide / sput-wide 都支持 8 位寄存器）。
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+    move-result-wide v16
+
+    sput-wide v16, Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;->sLastBuyAt:J
+
     # ---- 7. 运行期证据：槽位序号（一次 tick 最多一行）----
     invoke-static {v12}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
     move-result-object v15
@@ -257,4 +282,40 @@
 
     return v7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :bs_catch
+.end method
+
+
+# ---------------------------------------------------------------- 间隔闸门
+# true  = 距上次成功购买已满 intervalMs()（或从未买过），可以尝试
+# false = 还没到间隔，本帧不要动
+.method private static canBuyNow()Z
+    .locals 6
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;->sLastBuyAt:J
+
+    sub-long v2, v0, v2
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->intervalMs()I
+
+    move-result v4
+
+    int-to-long v4, v4
+
+    cmp-long v0, v2, v4
+
+    # compare(diff, interval) < 0 → 还没等满 → 不放行
+    if-ltz v0, :bn_no
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :bn_no
+    const/4 v0, 0x0
+
+    return v0
 .end method

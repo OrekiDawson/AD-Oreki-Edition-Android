@@ -127,13 +127,50 @@ tasks.register('verifyEnvironment') {
     }
 }
 
+// ============================================================== fingerprintInputs
+// [R66] 构建输入指纹：决定 assembleRelease 能否安全跳过。
+//
+// 为什么不用 Gradle 原生的 inputs.dir()：
+//   反编译基线树 work/base_decoded 有 27744 个文件 / 0.40 GB，**从不修改**；
+//   对它做内容哈希是纯浪费。而真正会变的只有 scripts/payload（35 个文件）
+//   和 scripts/*.py（69 个）。所以这里做**分级指纹**：
+//     · 小而常变的 → 内容 sha256（payload / 脚本 / gradle 编排文件）
+//     · 大而只读的 → (路径, 体积, mtime) 滚动哈希（基线树 / 原始 APK / keystore）
+//   实测单次指纹约 4.4 秒（含基线树 4.2 秒），相对 8.5 分钟的完整构建可忽略。
+//
+// 安全阀：候选 APK 不存在 → 一律 stale；指纹文件缺失/损坏 → stale；
+//         -PorekiForceBuild=1 → 直接强制构建（发布链路用）。
+def staleFlag = file("$buildDir" + "/.build_stale")
+
+// [R66] 发布链路一律强制真实构建：增量跳过只服务开发期，绝不用于对外发布。
+// 必须在任务图确定、但**尚未开始执行**时决定 —— 写在 publishRelease 的 doFirst 里
+// 是无效的，因为依赖任务（assembleRelease）在那之前就已经跑完了。
+def forceFullBuild = false
+gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(':publishRelease') || graph.hasTask(':installToRelease')) {
+        forceFullBuild = true
+        step("发布链路（publishRelease/installToRelease）：强制 assembleRelease 真实执行")
+    }
+}
+
+tasks.register('fingerprintInputs', Exec) {
+    group = 'oreki'
+    description = '计算构建输入指纹，决定 assembleRelease 是 UP-TO-DATE 还是必须重建'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/build_fingerprint.py', '--check',
+        '--flag', staleFlag.absolutePath
+    environment 'PYTHONIOENCODING', 'utf-8'
+    // 它自己每次都要真实跑一遍（读文件系统状态），不能被 Gradle 跳过
+    outputs.upToDateWhen { false }
+}
+
 // ============================================================== assembleRelease
 // 真实调用 scripts/build_mod.py；OREKI_RELEASE_OUT 把签名产物重定向到暂存目录，
 // 这样 build_sign() 删除目标文件时删的是暂存文件，release/ 下的正式 APK 不受影响。
 tasks.register('assembleRelease', Exec) {
     group = 'oreki'
     description = '用现有 smali/apktool 流水线生成候选 APK（输出 build/gradle-stage，不触碰 release/）'
-    dependsOn 'verifyEnvironment'
+    dependsOn 'verifyEnvironment', 'fingerprintInputs'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
     environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
@@ -143,8 +180,19 @@ tasks.register('assembleRelease', Exec) {
         if (stageApk.exists()) stageApk.delete()   // 防止旧候选被误当本轮产物
         step("候选输出目录: ${stageDir}")
     }
-    // 反编译树（work/base_decoded，约 1.7G / 11 万文件）是 gitignore 的重建物，
-    // 无法低成本哈希，因此不参与增量判定：每次都真实跑一遍构建链。
+    // [R66] 增量判定：输入指纹一致且候选 APK 仍在 → 跳过（Gradle 显示 SKIPPED）。
+    // 注意 doFirst 只在真正执行时运行，所以「跳过」不会误删候选产物。
+    onlyIf { forceFullBuild || project.hasProperty('orekiForceBuild') || staleFlag.exists() }
+    // 构建成功之后才提交新指纹：失败不会污染下一次的判定基准。
+    doLast {
+        exec {
+            workingDir = repoRoot
+            commandLine pythonExe, 'scripts/build_fingerprint.py', '--commit'
+            environment 'PYTHONIOENCODING', 'utf-8'
+        }
+    }
+    // 不使用 Gradle 自己的 up-to-date 判定：产物由 onlyIf + 指纹决定，
+    // 这里保留声明只为让 verifyRelease 能解析到输出文件。
     outputs.upToDateWhen { false }
     outputs.file(stageApk)
 }

@@ -435,6 +435,13 @@
 
     :oreki_sa_bs_skip
 
+    # [R66] 剧情目标感知：只读解释器，不购买、不点击、不写存档。
+    # 数据来自与 Web 共用的 oreki-smart-strategy.json（构建期编译成
+    # OrekiStrategyData）。内部 2 秒节流，日志只在阶段变化或每 30 秒一行。
+    # 刻意**不受**调度器节拍约束：它不产生任何动作，节流会让「阶段变化」滞后，
+    # 反而让面板与日志对不上真实状态。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;->tick()V
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->tryBuyId1()V
     goto :oreki_sa_try_end
 
@@ -1209,7 +1216,9 @@
 # 走的是原版判据（`thisEternity.maxAM >= 该层要求`），不写任何解锁字段。
 # 每层的门槛用原版 `p()Z` 判定，未达成就不碰（ID1 为 1e1100）。
 .method public static tryBuyId1()V
-    .locals 6
+    # [R66] 6 → 8：购买次数比较需要 v6（cmp 结果）与 v7（日志参数），
+    # 与既有 v0~v5（状态对象 / 层级 / 两个 wide 时间戳）互不重叠。
+    .locals 8
 
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
@@ -1300,17 +1309,34 @@
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->i()V
 
     :oreki_sa_id_max
+    # [R66] OREKI_ID 日志限频：R65 实测 30 秒 2782 条（每帧每层一条），
+    # 把 logcat 环形缓冲区冲掉，同时刻的 OREKI_BRKUP / OREKI_SCHED 证据被挤丢
+    # （R65 正是因此一度误判「没买到」）。这里改成**购买次数真的变了才打**：
+    #   ① `y()` = 该层累计购买次数（原版公开 getter，只读）
+    #   ② 买前取一次、买后取一次，相等 = 这一帧没有任何真实动作
+    # 语义不变（仍然只记录真实发生的事），只是不再刷屏。
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->y()J
+    move-result-wide v4
+
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->h(Z)V
 
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->y()J
+    move-result-wide v2
+
+    cmp-long v6, v2, v4
+
+    # 没变化 → 这一帧没有真实动作，不打日志
+    if-eqz v6, :oreki_sa_id_next
+
     # [R41] 运行期证据：哪一层真的被走到过（8 层封顶，量有界）
-    const-string v2, "OREKI_ID"
+    const-string v6, "OREKI_ID"
 
     invoke-static {v1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-    move-result-object v3
+    move-result-object v7
 
-    invoke-static {v2, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :oreki_sa_id_next
     add-int/lit8 v1, v1, 0x1

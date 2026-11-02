@@ -434,6 +434,87 @@ README 检查：存在性、语言、与实际功能一致性、命令/路径真
    （80% 不再加并发 / 85% 不接重型任务 / 90% 停止 / 95% 保护模式）。
 8. 每轮报告必须写明：**本轮完整 APK 构建次数、每次构建原因、最终验证结果**。
 
+### 6.5.1 Gradle 增量构建与构建缓存（2026-11-02 用户确立，长期有效）
+
+> 用户原话：「不得把 Android 每轮构建默认理解为必须从头完整执行全部任务。」
+
+**一、事实基线（R66 实测，勿凭印象复述）**
+
+| 项 | 现状 |
+|---|---|
+| `assembleRelease` | 历史上 `outputs.upToDateWhen { false }` 无条件执行；R66 起改为「指纹判定 + `onlyIf`」 |
+| `org.gradle.caching` | `false`（未启用构建缓存） |
+| `org.gradle.parallel` / `vfs.watch` | `false` |
+| 反编译基线树 `work/base_decoded` | **27744 个文件 / 0.40 GB**（不是早期记的 11 万 / 1.7 GB） |
+| 整棵树 `(path,size,mtime)` 滚动哈希 | **约 4.2 秒**（相对 8.5 分钟完整构建可忽略） |
+| `scripts/payload` | 35 个文件，内容哈希约 17 毫秒 |
+| `scripts/*.py` | 69 个文件，内容哈希约 150 毫秒 |
+
+**二、规则**
+
+1. **先判断再构建**：每轮先看哪些任务的输入真的变了，不为「确保最新」而无条件全量重跑。
+2. **优先用增量**：能声明 `inputs`/`outputs` 的任务就声明；不能的（本项目的 Python 流水线）用
+   `scripts/build_fingerprint.py` 这类**显式指纹**兜底，不得直接退回 `upToDateWhen { false }`。
+3. **分级指纹，不哈希巨量只读输入**：小而常变的走内容 sha256；大而只读的（反编译树、原始 APK、keystore）
+   走 `(路径, 体积, mtime)` 滚动哈希。
+4. **文本文件哈希前做 CRLF→LF 归一化**：换行风格不影响 APK 字节，却会让指纹误判。
+5. **`assembleRelease` 允许跳过**（输入指纹一致 + 候选 APK 存在）；
+   **`installToRelease` / `publishRelease` 一律强制真实构建**（`taskGraph.whenReady` 置 `forceFullBuild`），
+   增量跳过只服务开发期。
+6. **安全阀不可省**：候选 APK 不存在 / 指纹文件缺失或损坏 → 一律视为 stale；
+   `-PorekiForceBuild=1` 可强制重建；构建失败**不得**更新指纹基线（`--commit` 只在 `doLast` 执行）。
+7. **区分任务结果**：`UP-TO-DATE`（输入未变跳过）、`FROM-CACHE`（缓存恢复）、`SKIPPED`（条件跳过）、
+   `NO-SOURCE`（无源）、正常执行 —— 报告里不得混为一谈。
+8. **配置缓存与构建缓存先评估副作用再启用**：本项目任务几乎全是 `Exec` 调外部 Python 脚本，
+   输入输出没有 Gradle 原生声明，盲目开 `org.gradle.caching` 只会产生错误的缓存命中。
+   未验证的优化只能记为【待验证】，**不得写成已实现**。
+9. **失败先修具体任务**，不得一遇增量问题就退回全量重建，除非能证明增量判断不安全。
+10. **每轮记录构建效率**：实际执行任务数、`UP-TO-DATE` / `SKIPPED` 数、完整构建耗时、与上轮差异。
+
+**三、命令**
+
+```bash
+python scripts/build_fingerprint.py --show        # 看当前指纹与各段耗时
+python scripts/build_fingerprint.py --check       # 判定是否 stale（Gradle 每次自动调用）
+./gradlew assembleRelease                          # 输入未变 → SKIPPED（秒级）
+./gradlew assembleRelease -PorekiForceBuild=1      # 强制真实构建
+./gradlew installToRelease                         # 强制真实构建（发布链路）
+```
+
+**四、优化必须以官方文档为依据**
+
+参考（按优先级）：
+
+1. Android Developers 中文 · 优化构建速度 — https://developer.android.google.cn/build/optimize-your-build?hl=zh-cn
+2. Android Developers 中文 · Build Analyzer — https://developer.android.google.cn/build/build-analyzer?hl=zh-cn
+3. Gradle · Performance — https://docs.gradle.org/current/userguide/performance.html
+4. Gradle · Best practices for performance — https://docs.gradle.org/current/userguide/best_practices_performance.html
+
+对应到本项目的落实点：
+
+| 官方原则 | 本项目做法 |
+|---|---|
+| 先用 Build Analyzer / 性能分析定位真实耗时，不凭感觉改配置 | `./gradlew assembleRelease --profile` 产出 `build/reports/profile/`；耗时分布见 §6.5.1 一 |
+| 正确声明输入输出与任务依赖 | 每条 `Exec` 显式 `dependsOn`；无法用 Gradle 原生 input 的用 `build_fingerprint.py` 兜底 |
+| 消除不必要的始终运行任务 | 逐个复核 `outputs.upToDateWhen { false }`：`assembleRelease` 已改为 `onlyIf`；`verifyRelease`/`verifyPatchContract` 保留（秒级、且是交付闸门） |
+| 逐步启用增量 / Build Cache / Configuration Cache | 增量已启用并验证；Build Cache 与 Configuration Cache **尚未启用**，理由与前置条件见 Android `docs/GRADLE_BUILD.md §9.7`，不得写成已完成 |
+| 耗时逻辑放执行阶段，不放配置阶段 | `build.gradle` 配置阶段只做路径与变量计算；所有 Python 调用都在 `Exec`/`doLast` 里 |
+| 大型输入树分阶段、文件级检测 | 分级指纹：payload/脚本走内容哈希，`work/base_decoded` 走 `(path,size,mtime)` 滚动哈希（4.2 s / 27744 文件） |
+| 确定性无副作用任务才可缓存 | 当前只有 `assembleRelease` 具备确定性，但它有外部写（apktool 重建 `work/mod`），**故不启用缓存** |
+| 签名 / 发布 / 云盘复制必须明确执行 | `installToRelease` / `publishRelease` 由 `taskGraph.whenReady` 强制全量，永不跳过 |
+| 确认无共享写入才并行 | `work/mod` 是共享工作树，**禁止并发构建**；`org.gradle.parallel=false` 保持不变 |
+| 开发与发布用不同任务组合 | 开发用 `assembleRelease`（可跳过）；发布用 `installToRelease` / `publishRelease`（强制全量） |
+| 不盲目升级 Gradle/AGP/JDK | 仍用仓库内 `tools/jdk/jdk-17.0.20.1+1`，本项无收益不动 |
+
+**五、验收口径（用户 2026-11-02 指定，缺一不可）**
+
+- **A** 输入未变化，连续构建时可跳过的任务显示 `UP-TO-DATE` 或 `FROM-CACHE`；
+- **B** 修改一个真实 smali 输入后，相关任务重新执行，下游任务也重新执行；
+- **C** 修改教程或构建脚本后，对应生成与检查任务正确失效，不得继续用旧结果；
+- **D** 正常执行与缓存恢复的有效产物一致（SHA-256 核对）；**未启用 Build Cache 时，
+  以「指纹恢复后 digest 一致 + 产物 SHA-256 不变」作为等价证明，并注明未使用 FROM-CACHE**；
+- **E** 最终 APK 仍通过原有完整性、安装与运行验证。
+
 ## 6.6. Android 交付顺序：APK 优先于源码 push（2026-10-30 用户确立，长期有效，**本节是发布顺序的唯一源**）
 
 > 用户原话：「安卓交付 apk 比 push 源码优先。」

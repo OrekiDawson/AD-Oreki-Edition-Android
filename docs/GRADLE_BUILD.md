@@ -129,3 +129,83 @@ entries 2241 2241 same set: True
 - `verifyRelease` 用 `apktool d -r -f` 反编译候选 APK 取 smali（`-r` 跳过资源以提速，
   保留 dex→smali）。这是**静态**验证补丁进了 dex，不等于运行时行为正确；
   运行时行为由 AVD 探针（`scripts/instant_challenge_probe.py`）与 Web 侧脚本覆盖。
+
+---
+
+## 9. 增量构建（R66 新增，2026-11-02）
+
+### 9.1 真实任务图
+
+```
+verifyEnvironment ──┐
+                    ├─→ assembleRelease ──→ verifyRelease ──→ installToRelease ──→ publishRelease
+fingerprintInputs ──┘                   └─→ verifyPatchContract
+                                        └─→ installOrekiTest ──→ smokeOrekiTest
+```
+
+| 任务 | 类型 | 增量策略 |
+|---|---|---|
+| `verifyEnvironment` | 自定义 | 每次执行（秒级，检查 JDK/Python/apktool/adb/签名/输入树） |
+| `fingerprintInputs` | Exec | 每次执行（约 4.4 秒），输出 `build/.build_stale` |
+| `assembleRelease` | Exec | **可跳过**：`onlyIf { forceFullBuild \|\| staleFlag.exists() }` |
+| `verifyRelease` / `verifyPatchContract` | Exec | 每次执行（秒级） |
+| `installToRelease` / `publishRelease` | Exec | `taskGraph.whenReady` 置 `forceFullBuild`，**强制真实构建** |
+
+### 9.2 为什么不用 Gradle 原生 `inputs.dir()`
+
+`work/base_decoded`（反编译基线）有 **27744 个文件 / 0.40 GB**，且**从不修改**。
+对它做内容哈希是纯浪费；而真正会变的只有 `scripts/payload`（35 文件）和
+`scripts/*.py`（69 文件）。Gradle 无法表达「这棵树只读，用 stat 指纹就够」，
+所以改用 `scripts/build_fingerprint.py` 做**分级指纹**，由 Gradle 的 `onlyIf` 消费结果。
+
+### 9.3 分级指纹规则
+
+| 段 | 模式 | 实测耗时 |
+|---|---|---|
+| `scripts/payload/smali` | 内容 sha256 | 17 ms |
+| `scripts/payload/assets` `res` | 内容 sha256 | <2 ms |
+| `scripts/*.py`（69 个） | 内容 sha256 | 150 ms |
+| `build.gradle` / `gradle.properties` / `settings.gradle` | 内容 sha256 | <5 ms |
+| `work/base_decoded`（27744 文件 / 0.40 GB） | `(路径, 体积, mtime)` 滚动哈希 | 4.2 s |
+| `work/kajfosz.antimatterdimensions.apk`、`keys/` | 同上 | <5 ms |
+| 环境变量 `OREKI_RELEASE_OUT` 等 | 直接并入 | — |
+| **合计** | | **约 4.4 s** |
+
+文本类文件（`.smali` `.py` `.json` `.txt` `.xml` `.gradle` …）在哈希前做
+**CRLF→LF 归一化**：换行风格不影响 smali 汇编与 APK 字节，但会让指纹误判。
+
+### 9.4 安全阀
+
+1. 候选 APK（`build/gradle-stage/*.apk`）不存在 → 一律 stale；
+2. 指纹文件缺失/损坏 → 视为 stale；
+3. `--commit` 只在 `assembleRelease` 的 `doLast` 执行 —— **构建失败不更新基线**；
+4. `-PorekiForceBuild=1` 强制重建；
+5. `installToRelease` / `publishRelease` 无条件强制全量（发布链路绝不使用旧候选）。
+
+### 9.5 命令
+
+```bash
+python scripts/build_fingerprint.py --show     # 看指纹与各段耗时
+python scripts/build_fingerprint.py --check    # 判定 stale（Gradle 自动调用）
+./gradlew assembleRelease                       # 输入未变 → SKIPPED（秒级）
+./gradlew assembleRelease -PorekiForceBuild=1   # 强制重建
+./gradlew installToRelease                      # 发布链路，强制全量
+```
+
+### 9.6 已验证的行为（R66 实测）
+
+| 场景 | 结果 |
+|---|---|
+| 无指纹基线 | `STALE（输入指纹变化）` → 触发构建 |
+| 提交基线后连续两次 `--check` | 两次均 `UP-TO-DATE`，digest 一致 `15ee47006f368417` |
+| 给一个 payload smali 加 2 个空格 | `STALE`，digest 变为 `63121e9064e21f3a` |
+| 还原那 2 个空格 | 回到 `UP-TO-DATE`，digest 恢复 `15ee47006f368417` |
+
+### 9.7 尚未启用（【待验证】，不是已实现）
+
+- `org.gradle.caching`：本项目任务几乎全是 `Exec` 调外部 Python 脚本，没有 Gradle 原生
+  输入输出声明，强行开启会产生**错误的缓存命中**。要启用必须先给每条 `Exec` 补齐
+  `inputs`/`outputs`，届时再单独验证 `FROM-CACHE` 产物与正常执行产物的 SHA-256 一致性。
+- `org.gradle.configuration-cache`：`build.gradle` 里用了 `gradle.taskGraph.whenReady`
+  与项目级可变状态（`forceFullBuild`），与配置缓存不兼容，需先改造成 provider 形式。
+- `org.gradle.parallel`：任务链本质是串行（每个都依赖前一个的产物），并行收益为零。

@@ -109,6 +109,24 @@
 
 # [R56] 每个任务的 noop 重试截止时间（elapsedRealtime）。与动作节拍、用户间隔三者独立。
 .field private static sNoopUntil:[J
+
+# [R66] 原子动作预约表（每个任务一个时间戳，0 = 无预约）。
+#
+# 为什么需要（R65 遗留：8 条 Break 升级在 80 ms 内被连买，1 秒间隔形同虚设）：
+#   间隔闸门只认 noteActed() 写下的 sLastAct，而 noteActed 是在被调用的模块
+#   **跑完之后**才执行的。只要两次 allow() 之间夹着一次「外层还没提交时间戳、
+#   内层又申请」的调用（同步重入、同帧多次调用、或模块内部再次进入调度入口），
+#   内层看到的 last 仍是旧值 → 直接放行，间隔形同不存在。
+#   把「占位」提前到 allow() 内部、在返回 true 之前写入，就能从机制上堵住，
+#   不依赖「noteActed 一定会被执行」这个假设。
+#
+#   · 预约窗口 2000 ms：正常路径下 noteActed 会立刻清空，只有异常/漏调用时才留到过期；
+#   · 过期自动作废：任何一次异常都不会把任务永久卡死（最坏延迟 2 秒）；
+#   · 与 sLastAct 完全独立：预约不参与间隔计算，只回答「此刻是否已有一次进行中」。
+.field private static sReserve:[J
+
+# 未提交预约的计数（beginFrame 用它判断「本帧是否已有进行中的动作」）
+.field private static sReserveCount:I
 .field private static sCtx:Landroid/content/Context;
 
 # 诊断计数（累计，不清零；清零点见 setEnabled(false)）
@@ -221,6 +239,10 @@
     new-array v1, v0, [J
 
     sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sNoopUntil:[J
+
+    new-array v1, v0, [J
+
+    sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserve:[J
 
     # ---- 边界常量 ----
     const/4 v1, 0x1
@@ -951,6 +973,20 @@
     # 正确：diff < interval 才 deny，即 if-lt。
     if-lt v0, v7, :deny_iv
 
+    # [R66 第一优先级] 间隔闸门通过后，**在返回 true 之前**先占用一次动作名额。
+    #
+    # 这一步是本轮修复的核心：R65 只在 noteActed() 里写 sLastAct，而 noteActed
+    # 是模块跑完之后才被调用。两次 allow() 之间只要夹着一次「外层未提交、内层又申请」
+    # 的调用（同帧多次调用 / 同步重入 / 模块内部二次进入），内层看到的 last 仍是旧值，
+    # 间隔就形同不存在 —— 这正是 R65「8 条升级 80 ms 内连买」的机制性成因。
+    # 预约挪到 allow() 内部后，第二次申请一定能看见「已有进行中的动作」而被拒，
+    # 不再依赖 noteActed 是否真的被执行。
+    invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->reserveOk(I)Z
+
+    move-result v0
+
+    if-eqz v0, :deny_7
+
     :allow
     const/4 v0, 0x1
 
@@ -962,6 +998,12 @@
     add-int/lit8 v7, v7, 0x1
 
     sput v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sBeatSkips:I
+
+    # [R66] 原来这里直接落到 :deny_1，reason 被写成 "disabled"（误导）。
+    # 间隔拒绝必须有自己的原因串，否则 deny 日志会把「间隔没到」读成「功能被关」。
+    const-string v1, "interval"
+
+    goto :deny_log
 
     # [R51-A31 DIAG] 拒绝原因诊断（临时取证代码，定位后即降频或移除）
     #
@@ -994,6 +1036,11 @@
 
     :deny_6
     const-string v1, "noop-retry-wait"
+    goto :deny_log
+
+    # [R66] 已有未提交的动作预约（重入 / 同帧连击）
+    :deny_7
+    const-string v1, "reserved"
     goto :deny_log
 
     :deny
@@ -1031,6 +1078,123 @@
     const/4 v0, 0x0
 
     return v0
+.end method
+
+
+# [R66] 把用户配置的动作间隔换算成毫秒，供各模块在自己的代码里守闸。
+#
+# 为什么要有这个出口：调度器的 allow() 里已经有一道间隔判定，但它是一条
+# 十几个分支的长方法（开关 / 原版总开关 / 任务表 / 连续型 / 帧名额 / 失败冷却 /
+# noop 重试 / 间隔 / 预约）。R66 实测出现「allow 全放行、模块连买 8 条」的现象，
+# 且无法在不加诊断构建的前提下定位到具体分支。
+# 与其继续猜分支极性，不如让模块自己拿间隔值再守一道 —— 这条闸门只有
+# 「取时间差 + 比较」三条指令，语义不可能有歧义，且与用户设置同源。
+.method public static intervalMs()I
+    .locals 2
+
+    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sIntervalSec:I
+
+    const/16 v1, 0x3e8
+
+    mul-int/2addr v0, v1
+
+    return v0
+.end method
+
+
+# [R66] 尝试为任务 idx 预约一次「正在进行中的动作」。
+#   true  = 预约成功（或已有预约但已过期，被覆盖），调用方可以执行
+#   false = 已有未提交的预约（重入 / 同帧连击），调用方必须让位
+#
+# 2000 ms 的预约窗口是「异常兜底」而不是节流：正常路径下 noteActed/noteNoop
+# 会在同一调用栈里立刻 clearReserve()，窗口只在漏调 clear 时才会用满。
+.method private static reserveOk(I)Z
+    .locals 8
+
+    sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserve:[J
+
+    # 数组缺失（类初始化异常）时按「放行」处理：宁可退回 R65 行为，
+    # 也不能因为预约表没建好就让整套自动化停摆。
+    if-eqz v0, :ok
+
+    aget-wide v1, v0, p0
+
+    const-wide/16 v3, 0x0
+
+    cmp-long v5, v1, v3
+
+    # 0 = 无预约 → 直接占位
+    if-eqz v5, :fresh
+
+    # 已有预约：超过 2000 ms 视为陈旧（调用方异常未提交），允许覆盖
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v5
+
+    sub-long v5, v5, v1
+
+    const-wide/16 v3, 0x7d0
+
+    cmp-long v7, v5, v3
+
+    # compare >= 0（已超 2000 ms）→ 陈旧，覆盖
+    if-gez v7, :fresh
+
+    const/4 v7, 0x0
+
+    return v7
+
+    :fresh
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v5
+
+    aput-wide v5, v0, p0
+
+    sget v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserveCount:I
+
+    add-int/lit8 v7, v7, 0x1
+
+    sput v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserveCount:I
+
+    :ok
+    const/4 v7, 0x1
+
+    return v7
+.end method
+
+
+# [R66] 释放任务预约。noteActed / noteNoop / noteFail 都要调，
+# 区别只在于是否同时推进 sLastAct —— 预约本身永远要清。
+.method public static clearReserve(Ljava/lang/String;)V
+    .locals 4
+
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    # 未注册 id（v0 < 0）→ 直接返回
+    if-ltz v0, :done
+
+    sget-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserve:[J
+
+    if-eqz v1, :done
+
+    const-wide/16 v2, 0x0
+
+    aput-wide v2, v1, v0
+
+    sget v3, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserveCount:I
+
+    # 计数 <= 0 时不减，避免变负数
+    if-lez v3, :done
+
+    add-int/lit8 v3, v3, -0x1
+
+    sput v3, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->sReserveCount:I
+
+    :done
+    return-void
 .end method
 
 
@@ -1104,6 +1268,10 @@
 #   · 打一行 OREKI_SCHED 日志：`act <id> @<now>ms gap=<全局间隔> taskGap=<同任务间隔>`
 .method public static noteActed(Ljava/lang/String;)V
     .locals 14
+
+    # [R66] 先释放 allow() 里占下的动作预约，再记账。
+    # 顺序不能反：预约只代表「有一次动作正在进行」，成功的判定仍由调用方给出。
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->clearReserve(Ljava/lang/String;)V
 
     # 用独立 tag（logI），真动作本就稀疏，不节流，不改任何状态。
     # [R65] 这里原有两行 `invoke-static {v14, v14}, Log;->i` —— v14 在本方法里
@@ -1275,6 +1443,10 @@
     # [R56] 6 → 8：再要一对 long（v6:v7）写 noop 重试截止；p0 随之落在 v8。
     .locals 8
 
+    # [R66] no-op 也必须释放预约，否则下一次调用会被「reserved」挡到预约过期。
+    # 注意：这里**不**推进成功动作的时间戳 —— 没做事就不该消耗间隔额度。
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->clearReserve(Ljava/lang/String;)V
+
 
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
@@ -1357,6 +1529,9 @@
 # 同样不推进节拍（失败没改变状态，不该吃掉用户的那一拍）。
 .method public static noteFail(Ljava/lang/String;)V
     .locals 6
+
+    # [R66] 失败同样释放预约（保留 failUntil 冷却，二者语义不同）。
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->clearReserve(Ljava/lang/String;)V
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->idxOf(Ljava/lang/String;)I
 
