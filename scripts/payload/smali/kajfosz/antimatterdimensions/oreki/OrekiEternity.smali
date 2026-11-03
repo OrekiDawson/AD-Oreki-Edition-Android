@@ -49,6 +49,23 @@
 
 # 每 autoBuyerTick 调用一次。四个子步骤各自独立兜底：任一环节抛异常
 # 都只丢这一环，不会把整条链（尤其「按永恒」）一起带走。
+# [R70] 自动永恒的防重入与观察字段。
+#
+# sEtPending：已发起、尚未看到永恒次数变化。非 0 期间不重复发起，
+#   避免「协程还没跑完，下一帧又发起一次」造成重复结算。
+# sEtBefore：发起时的永恒次数（取 log10 便于比较；BigDouble 直接 toDouble 会溢出）。
+# sEtTtl：兜底超时（帧数）。协程若因任何原因没跑完，超时后释放，不会永久卡死。
+# sRu10Since / sRu10GaveUp：现实升级 10 的「压一次永恒」窗口（与 Web holdForRealityUpgrade10 等价）。
+.field public static sEtPending:I
+
+.field public static sEtTtl:I
+
+.field public static sEtBefore:D
+
+.field public static sRu10Since:D
+
+.field public static sRu10GaveUp:Z
+
 .method public static tick()V
     .locals 0
 
@@ -380,40 +397,80 @@
 # 注意 `Player.y()` 返回的是**存档内活对象**，`multiply` 会就地改它，
 # 所以必须先 `copy()` —— 少了这一步会直接把玩家 EP 乘 10 写进存档。
 .method private static tryEternity()V
-    .locals 7
+    .locals 10
 
     :try_start_0
-    # ⓪ ID1 窗口互斥：`OrekiStageAuto.holdCrunch()` 为真时**不许按永恒**。
-    #
-    # 为什么（这是本类最容易把既有链路弄坏的一处）：
-    #   AD3b 的窗口是「已 Break 且 eternities==0 且 IP≥1e8 且 ID1 还没买满」，
-    #   这期间 `CrunchAutobuyerState.c()` 被压住，好让反物质爬到 ID1 的 1e1100 门槛。
-    #   而「反物质 ≥ 1.797e308」既是 ID1 的前置，也正好是 canEternity 的前置
-    #   ⇒ 若在这里按永恒，会在爬坡中途把反物质清零，ID1 永远买不到；
-    #   更糟的是 ID1 的购买调用点 `tryBuyId1()` 被 `eternitiesZero()` 分叉挡在
-    #   「首次永恒之前」，一旦永恒过就**再也不会被调用**（审计 B6 的「永久化」）。
-    #   所以永恒必须等这个窗口自己关掉（ID1 买满 / IP 掉回 1e8 以下 / 已永恒过）。
-    #   `holdCrunch()` 本身就在 eternities>0 时恒为 false，因此首次永恒之后零开销。
-    # 只读调用：holdCrunch() 唯二的副作用是判定翻转时打一行 OREKI_HOLD（幂等），
-    #   这里多调一次只是把同一行日志的触发点挪前，不会多打也不会漏打。
+    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtPending:I
+
+    # 已有一次永恒在途 -> 只看它是否已生效，不重复发起
+    # if-eqz = v0 等于 0（不在途）时才进闸门
+    if-eqz v0, :et_gates
+
+    :et_pending
+    sget-object v1, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;->x()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v1
+
+    # 用 log10 比较次数：BigDouble 直接 toDouble 在极高次数下会溢出成 Infinity
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;->log10()D
+    move-result-wide v2
+
+    sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtBefore:D
+
+    cmpl-double v0, v2, v4
+
+    if-eqz v0, :et_pend_ttl
+
+    # 次数已变化 -> 原版结算完成，立即释放闩锁
+    const/4 v0, 0x0
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtPending:I
+
+    goto :et_end
+
+    :et_pend_ttl
+    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtTtl:I
+
+    add-int/lit8 v0, v0, -0x1
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtTtl:I
+
+    if-lez v0, :et_pend_clear
+
+    goto :et_end
+
+    :et_pend_clear
+    const/4 v0, 0x0
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtPending:I
+
+    goto :et_end
+
+    :et_gates
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->holdCrunch()Z
     move-result v0
 
-    # [R67 极性修正] 原写 `if-eqz v0, :et_end` = **holdCrunch() 为 false 才结束**，
-    # 即：窗口需要保护时（true）反而往下按永恒，窗口关闭后（false）什么都不做 ——
-    # 与上面整段注释、与用户给定的判定表完全相反，也是首次永恒迟迟不发生的直接原因之一。
-    # 正确：holdCrunch() 为真（true != 0）才跳走不按永恒，即 if-nez。
+    # holdCrunch 为真 = 正在保护反物质成长窗口，不得按永恒
     if-nez v0, :et_end
 
     invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;->f()Z
     move-result v0
 
+    # f() = 永恒资格（maxIP >= 目标值），为假则还不能永恒
     if-eqz v0, :et_end
+
+    # 现实升级 10 的一次性保护（与 Web holdForRealityUpgrade10 等价，最多 10 秒）
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->holdForRu10()Z
+    move-result v0
+
+    if-nez v0, :et_end
 
     invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;->g()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v0
 
     sget-object v1, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;->y()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
@@ -421,79 +478,58 @@
     move-result-object v1
 
     const/16 v2, 0xa
+
     invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->multiply(I)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
     move-result v0
 
-    # gainedEP < EP*10 → 还没到 10 倍，继续攒
-    #
-    # [R65 极性修正] 原写 `if-gez v0, :et_end`。基准语义（FACTS C.51 /
-    # OrekiBreakGate 头注释）：if-gez = **v0 >= 0 才跳**，而 v0 是
-    # `compareTo(gainedEP, EP×10)`：
-    #   · v0 >= 0（收益已过 10 倍）→ 跳到 :et_end，**跳过**永恒；
-    #   · v0 <  0（收益还不够）  → 继续往下按永恒。
-    # 即：该按的时候不按、不该按的时候乱按 —— 与注释和 Web `tickEternity()` 完全相反。
-    # 实测佐证：R64/R65 的续跑档里 `eternities` 恒为 0，而反物质峰值已 1e4653、
-    # ID1~ID3 都买下了 —— 卡点不在资源，就在这一句。
-    # 正确：v0 < 0（没到 10 倍）才 :et_end，即 if-ltz。
+    # 收益不足现有 EP 的 10 倍就继续攒：compareTo < 0 时返回等待。
+    # if-ltz = v0 小于 0 时跳转。这道闸门 R70 曾被我误判为「极性写反」，
+    # 由 fixture_eternity_gate 的判定表当场推翻（if-ltz 是「小于零才跳」，
+    # 原写法本来就是对的）。保留原样，仅加注释说明，避免下一轮再误改。
     if-ltz v0, :et_end
 
-    # [R68 关键修正] 必须调用 `prestige/c;->e()V`，不是 `b()V`。
+    # ---- 发起原版「无确认永恒」 ----
     #
-    # `b()` 是**按钮处理器**：它先 `if (f())`，然后读 `Player$Confirmations.h()`
-    #   · h() == false → 跳到 :cond_0 → 调 `e()`（真正重置）
-    #   · h() == true  → `new-instance Eternity$confirmEternity$1` —— **只弹确认框**，
-    #                    不重置任何东西
-    # 实测存档 `options.confirmations.eternity = true`（原版默认开启），
-    # 于是 R67 那一版虽然「调用了按钮入口」，实际每次只是排队一个弹窗，
-    # `eternities` 永远不动、也没有任何异常 —— 完美伪装成「什么都没发生」。
+    # `prestige/c.c(...)` 是 suspend 函数，内部按 `instance-of Eternity$eternity$1`
+    # 决定是新建还是恢复状态机。R65~R69 直接传自造的 Continuation 进去，
+    # 一旦方法体遇到挂起点就返回 COROUTINE_SUSPENDED，而**没有任何东西驱动它恢复**
+    # => 没有异常、也没有结算，完美伪装成「调用成功」。
     #
-    # `e()` 就是上面那条「确认关闭」分支调用的函数（内部走
-    # `Eternity$giveEternityRewards` + `Eternity$resetPlayer`），
-    # 即原版在不弹窗时执行的同一条重置路径；自动化跳过弹窗是正确行为。
+    # `Eternity$confirmEternity$4` 是原版「确认关闭」时用的那个 lambda，它自己是
+    # 真正的 SuspendLambda，由游戏作用域驱动，挂起点能自动恢复。它只做一件事：
+    # `c.d(..., mask 0xF)`，即标准的无确认永恒。
+    #
+    # 但它声明为**包内可见**，本类在另一个包里，直接 new 会抛 IllegalAccessError
+    # （R70 第一次装机实测：每帧 OREKI_ET_EXC，永恒永不生效）。
+    # 因此把「构造 + 启动」转发给同包的 prestige/OrekiEternityLaunch.run()。
+    invoke-static {}, Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;->run()V
 
-    #
-    # 原先调的是 `c.d(receiver, Z, Z, Z, Boolean, ContinuationImpl, I)Object` ——
-    # 一个 7 参数的 suspend 方法，我们用自己造的 `OrekiEcContinuation` 冒充
-    # Continuation。R65/R66 都假设「方法体内无挂起点，传 null 安全」，但实测
-    # `eternities` 恒为 0 且**没有任何异常日志**（catch 只 move-exception，静默吞掉）。
-    # 而 `c.b()V` 的方法体第一句就是 `invoke-static c->f()Z` + `if-eqz` ——
-    # 与上面两道闸门完全同源，说明它就是原版按钮的同步路径，没有任何协程参与。
-    # 走它既不需要伪造 Continuation，也不会把异常吞进黑洞。
-    # [R69 关键修正] 按**原版永恒自动器**的实参还原：`(false, true, false, null)` + mask 0xD。
-    #
-    # 证据来自 `autobuyer/EternityAutobuyerState.smali:1010-1037`（原版自动永恒）：
-    #     const/16 v6, 0xd            # 默认参数掩码
-    #     move-object v5, p1
-    #     check-cast v5, ...ContinuationImpl;
-    #     sget-object v0, prestige/c;->a
-    #     const/4 v1, 0x0
-    #     const/4 v2, 0x1             # ← 第二位是 true
-    #     const/4 v3, 0x0
-    #     const/4 v4, 0x0
-    #     invoke-static/range {v0..v6}, prestige/c;->d(...)
-    #
-    # R68 把它换成了 `c.c(...)` 且把第二位写成 0（注释却写 true），于是协程按
-    # 「非自动」分支跑，表现为「无异常、无结算」。注释与实参不一致本身就是缺陷，
-    # 已由夹具锁死（见 fixture_eternity_gate 的参数元组断言）。
-    #
-    # 保持 `d`（而不是 `c`）：`d` 是带 mask 的默认参数桥，原版自动器走的就是它。
-    # Continuation 用项目内已验证的 OrekiEcContinuation（buyNormalStudies 同款），
-    # 它不是 Eternity$eternity$1，因此 `instance-of` 为假 → 首次调用分支 → 同步执行。
-    sget-object v0, Lkajfosz/antimatterdimensions/prestige/c;->a:Lkajfosz/antimatterdimensions/prestige/c;
+    const/4 v0, 0x1
 
-    const/4 v1, 0x0
-    const/4 v2, 0x1
-    const/4 v3, 0x0
-    const/4 v4, 0x0
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtPending:I
 
-    sget-object v5, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
+    const/16 v0, 0x258
 
-    const/16 v6, 0xd
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtTtl:I
 
-    invoke-static/range {v0 .. v6}, Lkajfosz/antimatterdimensions/prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;Lkotlin/coroutines/jvm/internal/ContinuationImpl;I)Ljava/lang/Object;
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->x()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;->log10()D
+    move-result-wide v0
+
+    sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEtBefore:D
+
+    const-string v0, "OREKI_ET"
+
+    const-string v1, "launch via OrekiEternityLaunch (original no-confirm path)"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :et_end
     :try_end_0
@@ -502,7 +538,6 @@
     :et_catch2
     move-exception v0
 
-    # [R67] 不再静默吞异常：把 message 打到独立 tag，避免「什么都没发生」无法定位。
     invoke-virtual {v0}, Ljava/lang/Throwable;->getMessage()Ljava/lang/String;
     move-result-object v1
 
@@ -513,4 +548,110 @@
     :et_done
     return-void
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :et_catch2
+.end method
+
+
+# ---------------------------------------------------------------- 现实升级 10 保护
+# [R70] 与 Web `OrekiEternityAutomation.holdForRealityUpgrade10()` 等价。
+#
+# 为什么需要：现实升级 10 的解锁条件是「无限点数指数 >= 400 且本现实还没永恒过」。
+# 自动永恒在 maxIP 刚过门槛时就触发，指数远不到 400，于是每个现实都拿不到 RU10
+# => 成就 147「购买所有现实升级」不成立 => 特蕾莎不出现，后段整条链断掉。
+#
+# 但绝不能无限期压住永恒，否则反而卡死推进。因此：
+#   · 只在「还没永恒过」且「无限点数指数 < 400」时压；
+#   · 最多压 10 秒（SystemClock.elapsedRealtime，不受系统时间被改影响）；
+#   · 超时后置 sRu10GaveUp，本局不再尝试压 —— 物理上不可能长期压死自动永恒。
+.method private static holdForRu10()Z
+    .locals 8
+
+    # 已经永恒过 -> 不压
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->x()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v0
+
+    new-instance v1, Lkajfosz/antimatterdimensions/BigDouble;
+
+    const-wide/16 v2, 0x0
+
+    invoke-direct {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(D)V
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+    move-result v0
+
+    if-gtz v0, :ru_no
+
+    # 本局已放弃过 -> 不再压
+    sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sRu10GaveUp:Z
+
+    if-nez v0, :ru_no
+
+    # 无限点数指数已达标（>= 400）-> 目的已达到，放开
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->D()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;->log10()D
+    move-result-wide v4
+
+    const-wide v6, 0x4079000000000000L    # 400.0
+
+    cmpl-double v0, v4, v6
+
+    if-gez v0, :ru_no
+
+    :ru_nohold
+    sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sRu10Since:D
+
+    const-wide/16 v6, 0x0
+
+    cmpl-double v0, v4, v6
+
+    if-nez v0, :ru_start
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+    move-result-wide v6
+
+    long-to-double v6, v6
+
+    sub-double/2addr v6, v4
+
+    const-wide v4, 0x4024000000000000L    # 10.0
+
+    cmpl-double v0, v6, v4
+
+    if-gtz v0, :ru_giveup
+
+    goto :ru_yes
+
+    :ru_start
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+    move-result-wide v4
+
+    long-to-double v4, v4
+
+    sput-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sRu10Since:D
+
+    goto :ru_yes
+
+    :ru_giveup
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sRu10GaveUp:Z
+
+    const-wide/16 v4, 0x0
+
+    sput-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sRu10Since:D
+
+    :ru_no
+    const/4 v0, 0x0
+
+    return v0
+
+    :ru_yes
+    const/4 v0, 0x1
+
+    return v0
 .end method

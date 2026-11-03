@@ -67,7 +67,8 @@ SHA-256 1e5782461ff81b687775c0fdcac74faa7dfe8299238a809784cc91a9f387c259
 | --- | --- |
 | `OrekiStageAuto` | 阶段自动化总入口，挂在 `Game.autoBuyerTick` 上；含 Break 兜底、无限升级购买、无限维度解锁与购买、自动献祭、坍缩策略 |
 | `OrekiBreakGate` | 打破无限的闸门（推进 IP 与坍缩间隔到可 Break 状态） |
-| `OrekiEternity` | 永恒层：时间维度、普通时间研究、永恒挑战续接、按永恒 |
+| `OrekiEternity` | 永恒层：时间维度、普通时间研究、永恒挑战续接、按永恒；含防重入闩锁与现实升级 10 保护 |
+| `prestige/OrekiEternityLaunch` | 原版「无确认永恒」协程的启动转发器。`Eternity$confirmEternity$4` 是包内可见类，必须同包才能构造；本类只做「构造 lambda + 交给游戏作用域启动」，不写任何进度 |
 | `OrekiAchAudit` | 成就/门控审计与运行期门控表日志 |
 | `StageAssist` / `StageAssistToggleListener` / `StageConfirmListener` | 阶段成就辅助与确认交互 |
 | `SpeedSettingsActivity` / `OrekiSpeedModeListener` | 速度设置页与倍率监听 |

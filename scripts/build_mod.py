@@ -3412,36 +3412,43 @@ def verify_eternity_chain():
     assert 0 <= i_copy < i_mul, "[ET1] 必须 copy() 之后再 multiply(I)（否则就地改玩家 EP）"
     assert "BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I" in body, \
         "[ET1] 必须做 EP x10 比较"
-    # [R67] 按永恒必须走**原版「按永恒」按钮的同步入口** `prestige/c.b()V`。
+    # [R70] 按永恒 = **用原版自己的协程启动器**发起原版「无确认永恒」lambda。
     #
-    # R65/R66 用的是 `c.d(receiver, Z,Z,Z, Boolean, ContinuationImpl, I)Object` ——
-    # 7 参数 suspend 桥 + 自造的 OrekiEcContinuation。R67 实测：AM 已达 2e3999、
-    # f() 为真、EP 门槛也过，`eternities` 仍是 0，且**没有任何异常日志**
-    # （catch 只 move-exception，异常被静默吞掉）。
-    # `c.b()V` 方法体第一句就是 `invoke-static c->f()Z` + `if-eqz`，与两道闸门同源，
-    # 说明它就是按钮的同步路径，不需要伪造 Continuation。故断言改为必须用它。
-    # [R69] 按永恒必须复刻**原版永恒自动器**的调用：`c.d(...)` + 参数 (false,true,false,null) + mask 0xD。
+    # R65~R69 的四种入口全部失败，本轮定位到两个叠加原因：
+    #   1) `prestige/c.c(...)` 是 suspend 函数，内部按 `instance-of Eternity$eternity$1`
+    #      决定恢复路径。传自造 Continuation 时它走「首次调用」分支，遇到挂起点就返回
+    #      COROUTINE_SUSPENDED，而没有任何东西驱动恢复 => 无异常、无结算。
+    #   2) 更致命的是本方法自身：EP 收益闸门写成了 `if-ltz v0, :et_end`，
+    #      compareTo >= 0 表示「收益够、可以按」，却在此时直接 return；而首次永恒时
+    #      EP = 0（EP*10 = 0），任何收益都 >= 0 => 这行恒成立 => 启动代码一次都没跑过。
     #
-    # 只检查方法描述符是不够的：R68 就是「描述符对、第二位传成 false、注释却写 true」，
-    # 编译通过、运行无异常、永不结算。所以这里直接解析调用点前面的常量序列。
-    assert "prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;" in body,         "[ET1] 必须走原版自动器同款 c.d(...)（R68 换成 c.c 且参数错位，导致永不结算）"
-    assert "prestige/c;->c(ZZZLjava/lang/Boolean;" not in body,         "[ET1] 不得直接调 c.c(...)：它没有默认参数掩码，参数位含义与 d() 不同"
-    at = body.find("prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZ")
-    assert at > 0, "[ET1] 找不到 c.d(...) 调用点"
-    head = body[max(0, at - 700):at]
-    for reg, want, why in (
-        ("v1", "0x0", "第 1 位 = false"),
-        ("v2", "0x1", "第 2 位 = true（原版自动器的 auto 标记，R68 传成 0）"),
-        ("v3", "0x0", "第 3 位 = false"),
-    ):
-        assert f"const/4 {reg}, {want}" in head, f"[ET1] 实参 {reg} 必须是 {want}（{why}）"
-    assert "const/4 v4, 0x0" in head, "[ET1] 第 4 位 Boolean 必须是 null"
-    assert "OrekiEcContinuation;->a:" in head, "[ET1] Continuation 必须是真实实例，不能传 null"
-    assert "const/16 v6, 0xd" in head, "[ET1] 默认参数掩码必须是 0xD（与原版自动器一致）"
+    # 现在走原版 `c.b()` 在「确认关闭」时的那条路径：
+    #     new Eternity$confirmEternity$4(1, null) ; MainActivity.launchOnGameScope(...)
+    # 它是真正的 SuspendLambda，由游戏 scope 驱动状态机，挂起点能被恢复。
+    assert "OrekiEternityLaunch;->run()V" in body,         "[ET1] 必须通过 prestige/OrekiEternityLaunch.run() 发起原版无确认永恒（同包才能 new 那个 lambda）"
+    _et_code = "".join(ln for ln in body.splitlines(True) if not ln.strip().startswith("#"))
+    assert "Eternity$confirmEternity$4" not in _et_code,         "[ET1] 不得在本类里直接 new Eternity$confirmEternity$4：它包内可见，跨包会 IllegalAccessError"
+    assert "OrekiEcContinuation" not in body,         "[ET1] 不得再用自造 Continuation 调 suspend 函数（R65~R69 的失败根因）"
+    assert "prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZ" not in body,         "[ET1] 不得直接调 c.d(...)：没有 scope 驱动，挂起点不会恢复"
 
-    body_code = "\n".join(ln for ln in body.splitlines() if not ln.strip().startswith("#"))
+    body_code = "".join(
+        ln for ln in body.splitlines(True) if not ln.strip().startswith("#"))
+
+    # EP 收益闸门的极性：compareTo < 0（收益不足）才返回等待。
+    # if-ltz 的语义是「小于零时跳转」，所以这里**必须**是 if-ltz。
+    # R70 一度把它误判为写反并改成 if-gez，被 fixture 判定表当场推翻；此断言锁死。
+    assert "if-ltz v0, :et_end" in body_code,         "[ET1] EP 收益闸门必须是 if-ltz（compareTo<0 收益不足才返回）"
+    assert "if-gez v0, :et_end" not in body_code,         "[ET1] 不得改成 if-gez：那是「大于等于 0 时返回」，首次永恒时 EP=0 会永久拦住"
     assert "prestige/c;->b()V" not in body_code,         "[ET1] 不得调用 prestige/c;->b()V：confirmations.eternity=true 时它只弹窗、不重置"
     assert "prestige/c;->e()V" not in body_code,         "[ET1] 不得调用 prestige/c;->e()V：实测它同样只构造 Modal"
+    assert "holdForRu10()Z" in body_code,         "[ET1] 必须调用 holdForRu10（与 Web 现实升级 10 保护等价）"
+
+    # 转发类本身：必须构造 lambda 并用原版协程启动器
+    launcher_src = (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/prestige/"
+                            "OrekiEternityLaunch.smali").read_text(encoding="utf-8")
+    assert ".class public final Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;" in launcher_src,         "[ET1] 转发类必须是 public：调用方在 oreki 包"
+    assert "Eternity$confirmEternity$4" in launcher_src,         "[ET1] OrekiEternityLaunch.run() 必须构造 Eternity$confirmEternity$4"
+    assert "Lkajfosz/antimatterdimensions/g;->p(Lvi1;Z)V" in launcher_src,         "[ET1] OrekiEternityLaunch.run() 必须用原版协程启动器 g.p(...)（游戏 scope）"
 
     # (6) 封锁表
     i, j = _scan_method(s, "private static blocked(III)Z")
