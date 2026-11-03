@@ -3420,17 +3420,28 @@ def verify_eternity_chain():
     # （catch 只 move-exception，异常被静默吞掉）。
     # `c.b()V` 方法体第一句就是 `invoke-static c->f()Z` + `if-eqz`，与两道闸门同源，
     # 说明它就是按钮的同步路径，不需要伪造 Continuation。故断言改为必须用它。
-    assert "prestige/c;->c(ZZZLjava/lang/Boolean;" in body, \
-        "[ET1] 必须调用 prestige/c;->c(...)（真正的永恒协程本体，Eternity$eternity$1 的唯一引用者）"
-    # 「不得调用」类断言只看**代码行**：注释里会引用 b()/e()/d() 的错误写法做说明，
-    # 直接对整段 body 做子串判断会把注释当代码（R68 第一次构建就栽在这）。
+    # [R69] 按永恒必须复刻**原版永恒自动器**的调用：`c.d(...)` + 参数 (false,true,false,null) + mask 0xD。
+    #
+    # 只检查方法描述符是不够的：R68 就是「描述符对、第二位传成 false、注释却写 true」，
+    # 编译通过、运行无异常、永不结算。所以这里直接解析调用点前面的常量序列。
+    assert "prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;" in body,         "[ET1] 必须走原版自动器同款 c.d(...)（R68 换成 c.c 且参数错位，导致永不结算）"
+    assert "prestige/c;->c(ZZZLjava/lang/Boolean;" not in body,         "[ET1] 不得直接调 c.c(...)：它没有默认参数掩码，参数位含义与 d() 不同"
+    at = body.find("prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZ")
+    assert at > 0, "[ET1] 找不到 c.d(...) 调用点"
+    head = body[max(0, at - 700):at]
+    for reg, want, why in (
+        ("v1", "0x0", "第 1 位 = false"),
+        ("v2", "0x1", "第 2 位 = true（原版自动器的 auto 标记，R68 传成 0）"),
+        ("v3", "0x0", "第 3 位 = false"),
+    ):
+        assert f"const/4 {reg}, {want}" in head, f"[ET1] 实参 {reg} 必须是 {want}（{why}）"
+    assert "const/4 v4, 0x0" in head, "[ET1] 第 4 位 Boolean 必须是 null"
+    assert "OrekiEcContinuation;->a:" in head, "[ET1] Continuation 必须是真实实例，不能传 null"
+    assert "const/16 v6, 0xd" in head, "[ET1] 默认参数掩码必须是 0xD（与原版自动器一致）"
+
     body_code = "\n".join(ln for ln in body.splitlines() if not ln.strip().startswith("#"))
-    assert "prestige/c;->b()V" not in body_code, \
-        "[ET1] 不得调用 prestige/c;->b()V：confirmations.eternity=true 时它只弹窗、不重置"
-    assert "prestige/c;->e()V" not in body_code, \
-        "[ET1] 不得调用 prestige/c;->e()V：实测它同样只构造 Modal"
-    assert "prestige/c;->d(" not in body_code, \
-        "[ET1] 不得再调用 prestige/c;->d(...)（suspend 桥，R67 起弃用）"
+    assert "prestige/c;->b()V" not in body_code,         "[ET1] 不得调用 prestige/c;->b()V：confirmations.eternity=true 时它只弹窗、不重置"
+    assert "prestige/c;->e()V" not in body_code,         "[ET1] 不得调用 prestige/c;->e()V：实测它同样只构造 Modal"
 
     # (6) 封锁表
     i, j = _scan_method(s, "private static blocked(III)Z")

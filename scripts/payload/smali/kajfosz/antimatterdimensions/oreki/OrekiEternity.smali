@@ -462,33 +462,38 @@
     # 而 `c.b()V` 的方法体第一句就是 `invoke-static c->f()Z` + `if-eqz` ——
     # 与上面两道闸门完全同源，说明它就是原版按钮的同步路径，没有任何协程参与。
     # 走它既不需要伪造 Continuation，也不会把异常吞进黑洞。
-    # [R68] 直接调用真正的永恒实现 `prestige/c.c(ZZZ,Boolean,Continuation)Object`。
+    # [R69 关键修正] 按**原版永恒自动器**的实参还原：`(false, true, false, null)` + mask 0xD。
     #
-    # 前面两次都错在「入口」上，且都**没有任何异常**，只有打开弹窗这一种副作用：
-    #   · `b()` = 按钮处理器：确认关闭才走 e()，确认开启只 `new Eternity$confirmEternity$1`
-    #   · `e()` = 同样只构造 Modal（invoke 列表里是 n(...)String 格式化 + Modal 构造）
-    # 存档 `options.confirmations.eternity = true`（原版默认），所以调用 b() 相当于
-    # 「每次排队一个弹窗」，eternities 永远不动。
+    # 证据来自 `autobuyer/EternityAutobuyerState.smali:1010-1037`（原版自动永恒）：
+    #     const/16 v6, 0xd            # 默认参数掩码
+    #     move-object v5, p1
+    #     check-cast v5, ...ContinuationImpl;
+    #     sget-object v0, prestige/c;->a
+    #     const/4 v1, 0x0
+    #     const/4 v2, 0x1             # ← 第二位是 true
+    #     const/4 v3, 0x0
+    #     const/4 v4, 0x0
+    #     invoke-static/range {v0..v6}, prestige/c;->d(...)
     #
-    # `Eternity$eternity$1` 这个内部类只被 `c.c(...)` 引用，说明 c.c 才是协程本体；
-    # `c.d(...)`（R65/R66 用的 7 参数桥）只是它的默认参数合成桥，需要真实
-    # ContinuationImpl——我们伪造的那个不是 `Eternity$eternity$1`，状态机对不上。
-    # 这里按「首次调用」语义传 label=0 / 三个 false / null Boolean / null Continuation：
-    # 方法体在无挂起点时同步跑完，与我们「一帧内完成永恒」的预期一致。
+    # R68 把它换成了 `c.c(...)` 且把第二位写成 0（注释却写 true），于是协程按
+    # 「非自动」分支跑，表现为「无异常、无结算」。注释与实参不一致本身就是缺陷，
+    # 已由夹具锁死（见 fixture_eternity_gate 的参数元组断言）。
+    #
+    # 保持 `d`（而不是 `c`）：`d` 是带 mask 的默认参数桥，原版自动器走的就是它。
+    # Continuation 用项目内已验证的 OrekiEcContinuation（buyNormalStudies 同款），
+    # 它不是 Eternity$eternity$1，因此 `instance-of` 为假 → 首次调用分支 → 同步执行。
     sget-object v0, Lkajfosz/antimatterdimensions/prestige/c;->a:Lkajfosz/antimatterdimensions/prestige/c;
 
     const/4 v1, 0x0
-    const/4 v2, 0x0
+    const/4 v2, 0x1
     const/4 v3, 0x0
     const/4 v4, 0x0
 
-    # 第 5 参 Continuation 不能传 null（本项目 buyNormalStudies 的构建断言里写过
-    # 「null 会 NPE」）。用项目内已验证可用的 OrekiEcContinuation 实例；
-    # 它不是 Eternity$eternity$1，因此 c.c 的 `instance-of` 为假、按「首次调用」
-    # 走方法体，不会去碰恢复路径。
     sget-object v5, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
 
-    invoke-static/range {v0 .. v5}, Lkajfosz/antimatterdimensions/prestige/c;->c(ZZZLjava/lang/Boolean;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+    const/16 v6, 0xd
+
+    invoke-static/range {v0 .. v6}, Lkajfosz/antimatterdimensions/prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;Lkotlin/coroutines/jvm/internal/ContinuationImpl;I)Ljava/lang/Object;
 
     :et_end
     :try_end_0

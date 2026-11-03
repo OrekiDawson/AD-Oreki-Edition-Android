@@ -84,6 +84,20 @@ def main() -> int:
           "InfinityDimensionState;->p()" not in hc_code)
     check("holdCrunch 到门槛后放开（if-gez）", "if-gez v0, :oreki_sa_hc_no" in hc_code)
 
+    # ---- 1c. 按永恒的实参元组（R68 就是「注释写 true、实参传 false」） ----
+    et = SMALI.read_text(encoding="utf-8")
+    tb = et.split(".method private static tryEternity()V", 1)[1].split(".end method", 1)[0]
+    at = tb.find("prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZ")
+    check("按永恒走 c.d(...)（原版自动器同款）", at > 0)
+    if at > 0:
+        head = tb[max(0, at - 700):at]
+        for reg, want in (("v1", "0x0"), ("v2", "0x1"), ("v3", "0x0"), ("v4", "0x0")):
+            check(f"实参 {reg} = {want}", f"const/4 {reg}, {want}" in head)
+        check("默认参数掩码 0xD", "const/16 v6, 0xd" in head)
+        check("Continuation 是真实实例", "OrekiEcContinuation;->a:" in head)
+    check("不得直接调 c.c(...)（无掩码，参数位含义不同）",
+          "prestige/c;->c(ZZZLjava/lang/Boolean;" not in tb)
+
     # ---- 2. 用提取到的助记符跑判定表 ----
     def jumps(mnemonic: str, value) -> bool:
         """按助记符语义判断是否跳转（跳转 = 不按永恒）。"""
