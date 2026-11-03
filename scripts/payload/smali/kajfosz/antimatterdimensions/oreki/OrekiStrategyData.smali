@@ -33,14 +33,27 @@
 .field public static sConsts:[D
 .field public static sLeafNames:[Ljava/lang/String;
 
+# [R67] 显式填充完成标记。不得用某个数组非空来代替：
+# 中途异常时可能已有几个数组被赋值，用「部分数组非空」判据会把半成品
+# 当成已完成，之后永远不再重试。这里只在**全部**数组填完之后才置 true。
+# 首次为 false（Java 静态字段默认值），异常中断则保持 false → 下次安全重试。
+.field public static sFilled:Z
 
-# 一次性填充全部静态表；sIds 非空即视为已填充（幂等）。
+
+# 一次性填充全部静态表（幂等）。
+#
+# [R67 根因] R66 的守卫是 `sget-object sIds` + `if-eqz v0, :ret`：
+#   if-eqz = v0 == 0 才跳 ⇒ **sIds 还是 null（首次调用）时直接返回**，
+#   于是数据表永远不填充 → evalStage 每处 `if-eqz v0, :es_false` 都命中
+#   → 19 个阶段恒 false → 日志恒为 `stage=-1 unknownLeaf=0`。
+#   正确做法：用**独立的 sFilled 标记**，已填充才返回。
 .method public static fill()V
     .locals 6
 
-    sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sIds:[Ljava/lang/String;
+    sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sFilled:Z
 
-    if-eqz v0, :ret
+    # 已完整填充过 → 直接返回（幂等）。首次 / 上次异常中断时为 false，继续往下填。
+    if-nez v0, :ret
 
     const/16 v0, 0x13
 
@@ -3053,6 +3066,11 @@
     aput-wide v4, v1, v3
 
     sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sConsts:[D
+
+    # 全部数组填完才置位；任何一步抛异常都不会走到这里，下次调用会整体重填。
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sFilled:Z
 
     :ret
     return-void

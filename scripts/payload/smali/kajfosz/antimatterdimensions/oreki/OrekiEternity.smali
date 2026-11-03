@@ -399,7 +399,11 @@
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->holdCrunch()Z
     move-result v0
 
-    if-eqz v0, :et_end
+    # [R67 极性修正] 原写 `if-eqz v0, :et_end` = **holdCrunch() 为 false 才结束**，
+    # 即：窗口需要保护时（true）反而往下按永恒，窗口关闭后（false）什么都不做 ——
+    # 与上面整段注释、与用户给定的判定表完全相反，也是首次永恒迟迟不发生的直接原因之一。
+    # 正确：holdCrunch() 为真（true != 0）才跳走不按永恒，即 if-nez。
+    if-nez v0, :et_end
 
     invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;->f()Z
     move-result v0
@@ -436,18 +440,55 @@
     # 正确：v0 < 0（没到 10 倍）才 :et_end，即 if-ltz。
     if-ltz v0, :et_end
 
+    # [R68 关键修正] 必须调用 `prestige/c;->e()V`，不是 `b()V`。
+    #
+    # `b()` 是**按钮处理器**：它先 `if (f())`，然后读 `Player$Confirmations.h()`
+    #   · h() == false → 跳到 :cond_0 → 调 `e()`（真正重置）
+    #   · h() == true  → `new-instance Eternity$confirmEternity$1` —— **只弹确认框**，
+    #                    不重置任何东西
+    # 实测存档 `options.confirmations.eternity = true`（原版默认开启），
+    # 于是 R67 那一版虽然「调用了按钮入口」，实际每次只是排队一个弹窗，
+    # `eternities` 永远不动、也没有任何异常 —— 完美伪装成「什么都没发生」。
+    #
+    # `e()` 就是上面那条「确认关闭」分支调用的函数（内部走
+    # `Eternity$giveEternityRewards` + `Eternity$resetPlayer`），
+    # 即原版在不弹窗时执行的同一条重置路径；自动化跳过弹窗是正确行为。
+
+    #
+    # 原先调的是 `c.d(receiver, Z, Z, Z, Boolean, ContinuationImpl, I)Object` ——
+    # 一个 7 参数的 suspend 方法，我们用自己造的 `OrekiEcContinuation` 冒充
+    # Continuation。R65/R66 都假设「方法体内无挂起点，传 null 安全」，但实测
+    # `eternities` 恒为 0 且**没有任何异常日志**（catch 只 move-exception，静默吞掉）。
+    # 而 `c.b()V` 的方法体第一句就是 `invoke-static c->f()Z` + `if-eqz` ——
+    # 与上面两道闸门完全同源，说明它就是原版按钮的同步路径，没有任何协程参与。
+    # 走它既不需要伪造 Continuation，也不会把异常吞进黑洞。
+    # [R68] 直接调用真正的永恒实现 `prestige/c.c(ZZZ,Boolean,Continuation)Object`。
+    #
+    # 前面两次都错在「入口」上，且都**没有任何异常**，只有打开弹窗这一种副作用：
+    #   · `b()` = 按钮处理器：确认关闭才走 e()，确认开启只 `new Eternity$confirmEternity$1`
+    #   · `e()` = 同样只构造 Modal（invoke 列表里是 n(...)String 格式化 + Modal 构造）
+    # 存档 `options.confirmations.eternity = true`（原版默认），所以调用 b() 相当于
+    # 「每次排队一个弹窗」，eternities 永远不动。
+    #
+    # `Eternity$eternity$1` 这个内部类只被 `c.c(...)` 引用，说明 c.c 才是协程本体；
+    # `c.d(...)`（R65/R66 用的 7 参数桥）只是它的默认参数合成桥，需要真实
+    # ContinuationImpl——我们伪造的那个不是 `Eternity$eternity$1`，状态机对不上。
+    # 这里按「首次调用」语义传 label=0 / 三个 false / null Boolean / null Continuation：
+    # 方法体在无挂起点时同步跑完，与我们「一帧内完成永恒」的预期一致。
     sget-object v0, Lkajfosz/antimatterdimensions/prestige/c;->a:Lkajfosz/antimatterdimensions/prestige/c;
 
     const/4 v1, 0x0
-    const/4 v2, 0x1
+    const/4 v2, 0x0
     const/4 v3, 0x0
     const/4 v4, 0x0
 
+    # 第 5 参 Continuation 不能传 null（本项目 buyNormalStudies 的构建断言里写过
+    # 「null 会 NPE」）。用项目内已验证可用的 OrekiEcContinuation 实例；
+    # 它不是 Eternity$eternity$1，因此 c.c 的 `instance-of` 为假、按「首次调用」
+    # 走方法体，不会去碰恢复路径。
     sget-object v5, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
 
-    const/16 v6, 0xd
-
-    invoke-static/range {v0 .. v6}, Lkajfosz/antimatterdimensions/prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;Lkotlin/coroutines/jvm/internal/ContinuationImpl;I)Ljava/lang/Object;
+    invoke-static/range {v0 .. v5}, Lkajfosz/antimatterdimensions/prestige/c;->c(ZZZLjava/lang/Boolean;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
 
     :et_end
     :try_end_0
@@ -455,6 +496,14 @@
 
     :et_catch2
     move-exception v0
+
+    # [R67] 不再静默吞异常：把 message 打到独立 tag，避免「什么都没发生」无法定位。
+    invoke-virtual {v0}, Ljava/lang/Throwable;->getMessage()Ljava/lang/String;
+    move-result-object v1
+
+    const-string v2, "OREKI_ET_EXC"
+
+    invoke-static {v2, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
     :et_done
     return-void

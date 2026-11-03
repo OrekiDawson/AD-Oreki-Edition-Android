@@ -40,7 +40,9 @@ WORKSPACE = ROOT.parents[1]
 JSON_PATH = WORKSPACE / "web/AD-Oreki-Edition/src/core/oreki-smart-strategy.json"
 OUT_PATH = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiStrategyData.smali"
 
-CMP = {"gte": 0, "lt": 1, "lte": 2, "truthy": 3}
+# 算子编号必须与 OrekiSmartStrategy.evalStage() 里的分派顺序一致。
+# 未知算子由 to_dnf() 直接 SystemExit —— 绝不静默当成 0 编译。
+CMP = {"gte": 0, "lt": 1, "lte": 2, "truthy": 3, "eq": 4, "gt": 5}
 
 
 def double_bits(v: float) -> str:
@@ -215,8 +217,20 @@ def build_smali(c: Compiler) -> str:
     add(".field public static sConsts:[D")
     add(".field public static sLeafNames:[Ljava/lang/String;")
     add("")
+    add("# [R67] 显式填充完成标记。不得用某个数组非空来代替：")
+    add("# 中途异常时可能已有几个数组被赋值，用「部分数组非空」判据会把半成品")
+    add("# 当成已完成，之后永远不再重试。这里只在**全部**数组填完之后才置 true。")
+    add("# 首次为 false（Java 静态字段默认值），异常中断则保持 false → 下次安全重试。")
+    add(".field public static sFilled:Z")
     add("")
-    add("# 一次性填充全部静态表；sIds 非空即视为已填充（幂等）。")
+    add("")
+    add("# 一次性填充全部静态表（幂等）。")
+    add("#")
+    add("# [R67 根因] R66 的守卫是 `sget-object sIds` + `if-eqz v0, :ret`：")
+    add("#   if-eqz = v0 == 0 才跳 ⇒ **sIds 还是 null（首次调用）时直接返回**，")
+    add("#   于是数据表永远不填充 → evalStage 每处 `if-eqz v0, :es_false` 都命中")
+    add("#   → 19 个阶段恒 false → 日志恒为 `stage=-1 unknownLeaf=0`。")
+    add("#   正确做法：用**独立的 sFilled 标记**，已填充才返回。")
     add(".method public static fill()V")
     # [R66] .locals 4 → 6：double 数组填充需要一对**专用 wide 寄存器** v4:v5。
     # 曾经复用 v2 写 `const-wide v2, ...`，而 v2 在同一方法里已被 int 用过，
@@ -225,9 +239,10 @@ def build_smali(c: Compiler) -> str:
     #           but expected Double (Low Half) for put
     add("    .locals 6")
     add("")
-    add("    sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sIds:[Ljava/lang/String;")
+    add("    sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sFilled:Z")
     add("")
-    add("    if-eqz v0, :ret")
+    add("    # 已完整填充过 → 直接返回（幂等）。首次 / 上次异常中断时为 false，继续往下填。")
+    add("    if-nez v0, :ret")
     add("")
 
     def emit_str_array(field: str, values: list[str]) -> None:
@@ -294,6 +309,11 @@ def build_smali(c: Compiler) -> str:
         add("    aput-wide v4, v1, v3")
         add("")
     add("    sput-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sConsts:[D")
+    add("")
+    add("    # 全部数组填完才置位；任何一步抛异常都不会走到这里，下次调用会整体重填。")
+    add("    const/4 v0, 0x1")
+    add("")
+    add("    sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sFilled:Z")
     add("")
     add("    :ret")
     add("    return-void")

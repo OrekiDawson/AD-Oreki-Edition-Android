@@ -571,6 +571,9 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
     # [R65] Break Infinity 升级自动购买（原版 fp3.D 唯一购买入口，不写位图不扣钱）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.smali",
+    # [R66] 剧情目标感知（只读）+ 由策略 JSON 编译出的数据表
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.smali",
+    "smali/kajfosz/antimatterdimensions/oreki/OrekiStrategyData.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
@@ -1096,6 +1099,28 @@ def verify_payload():
                 assert _g in _labels, (
                     f"[R65] catch 标签未定义: {_p.relative_to(MOD)} 引用 {_g}")
     note("[4b] catch 标签自检通过（所有 .catch 的三个标签均已定义）")
+
+    # [R66] 字面量操作数自检：aput/aget 系列的三个操作数都必须是寄存器。
+    # 教训见 scripts/lint_smali_literals.py 头注释（生成器写 aput v2, v1, 72，
+    # 直到 apktool 汇编才报 mismatched input，一次构建白烧 6 分钟）。
+    import lint_smali_literals as _lsl
+    # 检查**构建树**（已打补丁），而不是 payload 源：补丁阶段也可能引入字面量下标。
+    _rc = _lsl.main(str(MOD / "smali"))
+    assert _rc == 0, "[R66] smali 字面量操作数自检未通过"
+    note("[4b] smali 字面量操作数自检通过")
+
+    # [R67] 策略层语义夹具：直接读生成的数据表求值，与 JSON 语义逐阶段对照。
+    # 这不是「检查某条指令是否存在」，而是真实跑语义（19 阶段正反例 + 400 组
+    # 随机环境 + 算子边界 + fail-closed）。R65/R66 两次恒定 stage=-1 都是
+    # 因为缺少这一步，只能靠整包构建 + logcat 猜。
+    import fixture_strategy_semantics as _fss
+    assert _fss.main() == 0, "[R67] 策略语义夹具未通过（见上方 FAIL 明细）"
+    note("[4b] 策略语义夹具通过")
+
+    # [R67] 首次永恒判定链：从 smali 提取跳转助记符，跑用户给定的 5 行判定表
+    import fixture_eternity_gate as _feg
+    assert _feg.main() == 0, "[R67] 永恒判定夹具未通过"
+    note("[4b] 永恒判定链夹具通过")
 
     # 新分区不得写入第 18 行
     sa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali").read_text(encoding="utf-8")
@@ -3387,12 +3412,25 @@ def verify_eternity_chain():
     assert 0 <= i_copy < i_mul, "[ET1] 必须 copy() 之后再 multiply(I)（否则就地改玩家 EP）"
     assert "BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I" in body, \
         "[ET1] 必须做 EP x10 比较"
-    assert ("prestige/c;->d(Lkajfosz/antimatterdimensions/prestige/c;ZZZLjava/lang/Boolean;"
-            "Lkotlin/coroutines/jvm/internal/ContinuationImpl;I)") in body, \
-        "[ET1] 必须走原版默认参数桥 prestige/c.d(...)"
-    assert "const/16 v6, 0xd" in body, "[ET1] 默认参数掩码必须是 0xD（= 原版永恒自动器实参元组）"
-    assert "prestige/c;->a:Lkajfosz/antimatterdimensions/prestige/c;" in body, \
-        "[ET1] 必须取 Eternity INSTANCE"
+    # [R67] 按永恒必须走**原版「按永恒」按钮的同步入口** `prestige/c.b()V`。
+    #
+    # R65/R66 用的是 `c.d(receiver, Z,Z,Z, Boolean, ContinuationImpl, I)Object` ——
+    # 7 参数 suspend 桥 + 自造的 OrekiEcContinuation。R67 实测：AM 已达 2e3999、
+    # f() 为真、EP 门槛也过，`eternities` 仍是 0，且**没有任何异常日志**
+    # （catch 只 move-exception，异常被静默吞掉）。
+    # `c.b()V` 方法体第一句就是 `invoke-static c->f()Z` + `if-eqz`，与两道闸门同源，
+    # 说明它就是按钮的同步路径，不需要伪造 Continuation。故断言改为必须用它。
+    assert "prestige/c;->c(ZZZLjava/lang/Boolean;" in body, \
+        "[ET1] 必须调用 prestige/c;->c(...)（真正的永恒协程本体，Eternity$eternity$1 的唯一引用者）"
+    # 「不得调用」类断言只看**代码行**：注释里会引用 b()/e()/d() 的错误写法做说明，
+    # 直接对整段 body 做子串判断会把注释当代码（R68 第一次构建就栽在这）。
+    body_code = "\n".join(ln for ln in body.splitlines() if not ln.strip().startswith("#"))
+    assert "prestige/c;->b()V" not in body_code, \
+        "[ET1] 不得调用 prestige/c;->b()V：confirmations.eternity=true 时它只弹窗、不重置"
+    assert "prestige/c;->e()V" not in body_code, \
+        "[ET1] 不得调用 prestige/c;->e()V：实测它同样只构造 Modal"
+    assert "prestige/c;->d(" not in body_code, \
+        "[ET1] 不得再调用 prestige/c;->d(...)（suspend 桥，R67 起弃用）"
 
     # (6) 封锁表
     i, j = _scan_method(s, "private static blocked(III)Z")

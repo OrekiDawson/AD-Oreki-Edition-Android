@@ -158,6 +158,16 @@
     # 受统一调度器管辖（"reality" 属「策略决策」，默认档受 1~60 秒间隔约束）。
     # `tick()Z` 只有**真的重置了一次现实**才返回 true，据此决定是否 noteActed ——
     # 这样空转不占节拍，不会把 breakGate 饿死。
+    # [R67] 策略驱动：当前阶段的 strategy 不需要现实循环时，本帧不申请名额。
+    # 用 v6/v7（R66 已划给 Break 购买块的专用寄存器，此处尚未使用）。
+    # drives() 在 sStage < 0（未识别）时恒为 true —— 策略层异常不会阻断成长链。
+    const-string v6, "reality"
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;->drives(Ljava/lang/String;)Z
+    move-result v7
+
+    if-eqz v7, :oreki_sa_reality_skip
+
     const-string v0, "reality"
 
     invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->allow(Ljava/lang/String;)Z
@@ -182,13 +192,31 @@
     # 放在现实之后：现实刚结束时空槽最多，正好把新拿到的符文装上。
     # 不受调度器间隔约束——它自己做了「装满即空转」的收敛，且每 tick 最多装一枚，
     # 不需要再叠加一层限流（叠了反而会让空槽长期空着）。
+    const-string v6, "glyph"
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;->drives(Ljava/lang/String;)Z
+    move-result v7
+
+    if-eqz v7, :oreki_sa_glyph_skip
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiGlyphAuto;->tick()Z
+
+    :oreki_sa_glyph_skip
 
     # [R62] 特蕾莎浇注：只按原版那个「按住浇注按钮」的开关（MainActivity.yo），
     # 真正的浇注/扣 RM/解锁全在主循环 `a->r()` 里，本类不带第二套公式。
     # 这是**连续时间行为**，不 noteActed、不占策略节拍 —— 若塞进 1 秒调度，
     # 实际浇注量会被砍掉一个数量级（R62 §6.2）。
+    const-string v6, "teresa"
+
+    invoke-static {v6}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;->drives(Ljava/lang/String;)Z
+    move-result v7
+
+    if-eqz v7, :oreki_sa_teresa_skip
+
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->tick()Z
+
+    :oreki_sa_teresa_skip
 
     # [R57-1] 删除「首次永恒后整体退出」的硬门。
     #
@@ -1420,16 +1448,49 @@
     # 而坍缩是 IP 的唯一来源 ⇒ 一旦进入暂停就再也赚不到 IP，是死锁而不是节流。
     if-ltz v0, :oreki_sa_hc_no
 
-    const/4 v1, 0x1
+    # [R68 根因修复] 首次永恒始终不发生的真正死锁点。
+    #
+    # 原判据是 `InfinityDimensionState.a(1).p()`（ID1 是否**已解锁**），
+    # 其定义是 `(Perk 旁路 || thisEternity.maxAM >= 本层门槛) && v()`。死循环：
+    #   · ID1 未解锁 → p()=false → 继续 → 暂停坍缩（此时是对的）
+    #   · ID1 一旦解锁 → p()=true → 直接跳 :hc_no → **永久放开坍缩**
+    #   · 坍缩每 1 秒清空反物质 ⇒ maxAM 只能停在「1 秒产量」上
+    #     （实测 1.378e300 → 1.779e300 → 1.964e300 缓慢爬升，
+    #       同时 infinities 7.565e6 → 7.880e6 证明坍缩一直在触发）
+    #   · 而永恒资格要求 maxAM 突破 1.797e308 ⇒ 永远达不到 ⇒ 永远不永恒
+    #
+    # 闸门必须钉在**反物质峰值本身**，不能钉在 f() 上：
+    #   f() = thisEternity.maxIP >= requiredIPForEP(1)，而 maxIP 只在坍缩时刷新。
+    #   若用 f() 作闸门 → 暂停坍缩 → maxIP 不刷新 → f() 恒 false → 二次死锁。
+    #
+    # 正确编排（与官方 Web 的 X_HIGHEST 策略殊途同归）：
+    #   maxAM < 1.797e308 → 暂停坍缩，让反物质继续爬；
+    #   maxAM ≥ 1.797e308 → 放开坍缩，这一次坍缩会把 maxIP 推到 1.797e308，
+    #                        f() 随即为真，tryEternity 立刻按永恒。
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
 
-    invoke-static {v1}, Lkajfosz/antimatterdimensions/dimension/infinity/a;->a(I)Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->R()Lkajfosz/antimatterdimensions/player/Player$Records;
     move-result-object v0
 
-    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;->p()Z
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Records;->j()Lkajfosz/antimatterdimensions/player/Player$ThisEternity;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;->h()Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v0
+
+    sget-object v1, Lkajfosz/antimatterdimensions/BigDouble;->Companion:Liu;
+
+    # 1.7976931348623157e308 == Double.MAX_VALUE，即原版的「Infinity 反物质」门槛
+    const-wide v2, 0x7fefffffffffffffL
+
+    invoke-static {v1, v2, v3}, Lwx0;->q(Liu;D)Lkajfosz/antimatterdimensions/BigDouble;
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
     move-result v0
 
-    # 门槛已达成 → 不需要再等
-    if-nez v0, :oreki_sa_hc_no
+    # maxAM >= 1.797e308（compare >= 0）→ 已到门槛，放开坍缩让 maxIP 刷新
+    if-gez v0, :oreki_sa_hc_no
 
     # [R41] 运行期证据：只在判定翻转时打一行，避免高频刷日志
     #
