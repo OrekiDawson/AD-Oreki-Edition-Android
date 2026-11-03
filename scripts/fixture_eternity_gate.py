@@ -125,6 +125,19 @@ def main() -> int:
     check("防重入：sEtPending==0 才进闸门", "if-eqz v0, :et_gates" in tb_code)
     check("防重入：TTL 超时才释放", "if-lez v0, :et_pend_clear" in tb_code)
     check("调用现实升级 10 保护", "holdForRu10()Z" in tb_code)
+    # [R71] EC 入口保护（与 Web ecEntryPending 等价）
+    check("调用 EC 入口保护", "ecHoldForStart()Z" in tb_code)
+    ec = et.split(".method private static ecHoldForStart()Z", 1)
+    check("EC 入口保护方法存在", len(ec) == 2)
+    if len(ec) == 2:
+        ecb = ec[1].split(".end method", 1)[0]
+        check("EC 保护读挑战 current", "PlayerEternityChallenges;->b()I" in ecb)
+        check("EC 保护读已解锁 EC", "PlayerEternityChallenges;->f()I" in ecb)
+        check("EC 保护判定满级 y()", "challenge/eternity/b;->y()Z" in ecb)
+        check("EC 保护有 300 帧超时放行", "0x12c" in ecb)
+        check("EC 保护不写任何存档字段",
+              "PlayerEternityChallenges;->h(I)V" not in ecb
+              and "challenge/eternity/b;->D(" not in ecb)
 
     # ---- 1d. 现实升级 10 保护（与 Web holdForRealityUpgrade10 等价） ----
     ru = et.split(".method private static holdForRu10()Z", 1)[1].split(".end method", 1)[0]

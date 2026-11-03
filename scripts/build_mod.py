@@ -3442,6 +3442,7 @@ def verify_eternity_chain():
     assert "prestige/c;->b()V" not in body_code,         "[ET1] 不得调用 prestige/c;->b()V：confirmations.eternity=true 时它只弹窗、不重置"
     assert "prestige/c;->e()V" not in body_code,         "[ET1] 不得调用 prestige/c;->e()V：实测它同样只构造 Modal"
     assert "holdForRu10()Z" in body_code,         "[ET1] 必须调用 holdForRu10（与 Web 现实升级 10 保护等价）"
+    assert "ecHoldForStart()Z" in body_code,         "[ET1] 必须调用 ecHoldForStart（与 Web ecEntryPending 等价：EC 入口前不抢着重置）"
 
     # 转发类本身：必须构造 lambda 并用原版协程启动器
     launcher_src = (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/prestige/"

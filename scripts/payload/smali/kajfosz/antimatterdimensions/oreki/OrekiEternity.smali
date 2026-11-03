@@ -66,6 +66,9 @@
 
 .field public static sRu10GaveUp:Z
 
+# [R71] EC 入口保护的帧计数（最多压 300 帧 ≈ 5 秒，防止条件误判时永久卡住永恒）。
+.field public static sEcHoldTtl:I
+
 .method public static tick()V
     .locals 0
 
@@ -466,6 +469,15 @@
 
     if-nez v0, :et_end
 
+    # EC 入口保护（与 Web ecEntryPending 等价）：
+    #   已解锁的 EC 还没满级、又不在挑战里 —— 说明「下一步该进 EC」。
+    #   此时按永恒会把 EP / TT / 时间维度全部清空，等于把刚买好的入口条件冲掉。
+    #   最多压 5 秒；OrekiChallengeAuto 会在下一帧真正进入挑战，压的时间通常只有一帧。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->ecHoldForStart()Z
+    move-result v0
+
+    if-nez v0, :et_end
+
     invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;->g()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v0
 
@@ -652,6 +664,83 @@
 
     :ru_yes
     const/4 v0, 0x1
+
+    return v0
+.end method
+
+
+# ---------------------------------------------------------------- EC 入口保护
+# [R71] 与 Web `OrekiEternityAutomation.ecEntryPending()` 等价的 Android 侧判定。
+#
+# 为什么需要：EC 解锁之后，进入挑战需要先有一笔 EP/TT 存量（EC1 起手就要 30 TT 级别）。
+# 若在这之前就按永恒，EP 与时间定理会被清空 —— 刚攒起来、正好够开 EC 的资源被冲掉，
+# 于是永远差一点，EC 一次也开不了。Web 端早已有这条保护，Android 缺。
+#
+# 判定（全部只读）：
+#   current == 0            —— 当前不在任何挑战里
+#   unlocked > 0            —— 至少解锁过一个 EC
+#   r51.a(unlocked) != null —— 取得到挑战对象
+#   !y()                    —— 该 EC 还没满级（y() = 完成次数 == 动态上限）
+# 三条同时成立 ⇒ 认为「该进 EC 了」，暂不永恒。
+#
+# 防死锁：sEcHoldTtl 每次命中加一，超过 300 帧（约 5 秒）无条件放行。
+# 只要条件不再成立就清零，因此不会累积成永久锁。
+.method private static ecHoldForStart()Z
+    .locals 6
+
+    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->q()Lkajfosz/antimatterdimensions/player/Player$Challenge;
+    move-result-object v0
+
+    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Challenge;->a()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;
+    move-result-object v1
+
+    # 正在挑战中 -> 不压（挑战内本来也不会按永恒）
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;->b()I
+    move-result v2
+
+    if-nez v2, :ec_no
+
+    # 没有已解锁的 EC -> 不压
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;->f()I
+    move-result v3
+
+    if-lez v3, :ec_no
+
+    invoke-static {v3}, Lr51;->a(I)Lkajfosz/antimatterdimensions/challenge/eternity/b;
+    move-result-object v4
+
+    if-eqz v4, :ec_no
+
+    # 已满级 -> 不压
+    invoke-virtual {v4}, Lkajfosz/antimatterdimensions/challenge/eternity/b;->y()Z
+    move-result v5
+
+    if-eqz v5, :ec_no
+
+    # 超时保护：最多压 300 帧
+    sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEcHoldTtl:I
+
+    const/16 v1, 0x12c
+
+    if-ge v0, v1, :ec_yes
+
+    goto :ec_no
+
+    :ec_yes
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEcHoldTtl:I
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :ec_no
+    const/4 v0, 0x0
+
+    sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;->sEcHoldTtl:I
 
     return v0
 .end method
