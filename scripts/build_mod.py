@@ -1118,6 +1118,10 @@ def verify_payload():
     note("[4b] 策略语义夹具通过")
 
     # [R67] 首次永恒判定链：从 smali 提取跳转助记符，跑用户给定的 5 行判定表
+    import fixture_crunch_mode_label as _fcml
+    assert _fcml.checks >= 1 and _fcml.fails == [], "[R73] 大坍缩模式标题夹具未通过"
+    note("[4b] 大坍缩模式标题刷新夹具通过")
+
     import fixture_eternity_gate as _feg
     assert _feg.main() == 0, "[R67] 永恒判定夹具未通过"
     note("[4b] 永恒判定链夹具通过")
@@ -3978,6 +3982,121 @@ def verify_pelle_record():
     note("[R42] 终点记录守卫通过（调用点位置 / 反物质来源 / 两组极性 / copy 非别名 / 链条一致 / 异常兜底）")
 
 
+def patch_crunch_mode_label_refresh():
+    """[Oreki R73] 让「自动大坍缩」卡片在点击后立即刷新模式标题。
+
+    ── 根因（AVD 实测确认，不是推断）────────────────────────────────
+    `CrunchAutobuyerState.Q()V` 的三态循环本身完全正确：
+
+        iget v0, ...->mode:I
+        add-int/lit8 v0, v0, 0x1
+        rem-int/lit8 v0, v0, 0x3
+        iput v0, ...->mode:I
+
+    点击后 mode 值确实在变（阈值文案在 10.00 ↔ 7.26e5 之间来回切换，可观测）。
+    但卡片上的模式按钮标题**只在构造函数里设置过一次**，刷新入口
+    `AutobuyerSingleBoxView.b(Lxn;Z)V` 只更新数值/间隔/买卖按钮，从不重设它。
+    于是玩家点一次「看起来没反应」，必须切到别的页再切回来才刷新 ——
+    这就是被报告为「第三种模式点不动」的真实机制。
+
+    ── 修法 ────────────────────────────────────────────────────
+    在 `b()` 收尾处按当前 mode 重设模式按钮文本。三个文案资源 id 已核对：
+
+        auto_crunch_mode_amount     0x7f11030e  大坍缩后获得 X 无限点数：
+        auto_crunch_mode_time       0x7f11030f  每 X 秒自动大坍缩：
+        auto_crunch_mode_x_highest  0x7f110310  最高无限点数的 X 倍：
+
+    只对「带模式选择器」的卡片生效（`vn.e != null`），其它自动器完全不受影响。
+    全段只读游戏状态 + 一次 setText，不写任何存档字段。
+    """
+    target = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "ui" / "autobuyers"
+              / "AutobuyerSingleBoxView.smali")
+    assert target.exists(), f"缺少 {target}"
+
+    src = target.read_text(encoding="utf-8")
+    if "Oreki R73" in src:
+        assert ":oreki_r73_no_mode" in src, "检测到残缺的 R73 注入（块被截断）"
+        note("[Oreki R73] 大坍缩模式标题刷新已打过补丁，跳过")
+        return
+
+    # 锚点：b() 的收尾 iput-boolean（唯一出现）
+    anchor = "    iput-boolean p2, p0, Lkajfosz/antimatterdimensions/ui/autobuyers/AutobuyerSingleBoxView;->c:Z"
+    assert src.count(anchor) == 1, "b() 收尾锚点不唯一，拒绝注入"
+
+    block = """    # [Oreki R73] 刷新模式按钮标题（详见 patch_crunch_mode_label_refresh 注释）
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/ui/autobuyers/AutobuyerSingleBoxView;->b:Lvn;
+
+    iget-object v0, v0, Lvn;->e:Lwn;
+
+    if-eqz v0, :oreki_r73_no_mode
+
+    iget-object v0, p0, Lkajfosz/antimatterdimensions/ui/autobuyers/AutobuyerSingleBoxView;->w:Landroidx/appcompat/widget/AppCompatButton;
+
+    if-eqz v0, :oreki_r73_no_mode
+
+    sget-object v1, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;->c()Lkajfosz/antimatterdimensions/player/Player$Auto;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Auto;->e()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
+
+    move-result v1
+
+    if-nez v1, :oreki_r73_m_time
+
+    const v1, 0x7f11030e
+
+    goto :oreki_r73_set
+
+    :oreki_r73_m_time
+    const/4 v2, 0x1
+
+    if-ne v1, v2, :oreki_r73_m_xh
+
+    const v1, 0x7f11030f
+
+    goto :oreki_r73_set
+
+    :oreki_r73_m_xh
+    const v1, 0x7f110310
+
+    :oreki_r73_set
+    invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    :oreki_r73_no_mode
+"""
+
+    src = src.replace(anchor, block + anchor, 1)
+
+    # 自身结构断言：块必须完整
+    for frag in (":oreki_r73_m_time", ":oreki_r73_m_xh", ":oreki_r73_set", ":oreki_r73_no_mode",
+                 "0x7f11030e", "0x7f11030f", "0x7f110310",
+                 "CrunchAutobuyerState;->I()I", "Landroid/widget/TextView;->setText"):
+        assert frag in src, f"R73 注入缺失片段：{frag}"
+    # 红线：**注入块自身**不得写 mode / 不得替玩家切换。
+    # 只能查 block 这一段 —— b() 原文里本来就有其它自动器的 a(I)V 调用，
+    # 按整份源码查 count 会假失败（R73 第一次构建就踩了这个）。
+    for banned in ("CrunchAutobuyerState;->a(I)V", "CrunchAutobuyerState;->Q()V"):
+        assert banned not in block, f"R73 注入触碰了模式写入（红线）：{banned}"
+
+    target.write_text(src, encoding="utf-8", newline="\n")
+    note("[Oreki R73] 已注入：大坍缩模式标题点击后立即刷新")
+
+
 def patch_autobuyer_crunch_force_active():
     """[Oreki AU4c] 首次无限之后一次性启用大坍缩自动购买器（Android 侧长期缺失的一环）。
 
@@ -4926,6 +5045,8 @@ def main():
     # [Oreki AD1 同步] 维度提升 tier-8 的 AD8 需求斜率（Web 已有、Android 缺失）
     patch_dimboost_ad8_slope()
     patch_autobuyer_crunch_force_active()
+    # [Oreki R73] 大坍缩模式标题点击后立即刷新（Q() 循环本身正确，缺的是 UI 重绘）
+    patch_crunch_mode_label_refresh()
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
     verify_au4b()
