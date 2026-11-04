@@ -466,9 +466,15 @@ def main() -> int:
     check("drives 只禁用 growth / fastUnlock（黑名单）",
           blocked == {"growth", "fastUnlock"}, str(sorted(blocked)))
     check("drives 具备 fail-open（sStage < 0 放行）", "if-ltz v0, :dr_yes" in drives_body)
-    check("drives 已接入 StageAuto（3 处）",
-          (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali")
-          .read_text(encoding="utf-8").count("OrekiSmartStrategy;->drives") == 3)
+    # [R78] OrekiStageAuto 已转 Kotlin：改读 Kotlin 源码，仍是"3 处 drives() 调用"
+    # （reality / glyph / teresa 三个分支），语义不变。
+    _kt = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt")
+    if _kt.is_file():
+        _cnt = _kt.read_text(encoding="utf-8").count("GameApi.strategyDrives(")
+    else:
+        # 回退：若还没迁移，仍查 Smali（保证夹具在迁移前后都能跑）
+        _cnt = (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali")             .read_text(encoding="utf-8").count("OrekiSmartStrategy;->drives")
+    check("drives 已接入 StageAuto（3 处）", _cnt == 3, f"实际 {_cnt} 处")
     check("被禁用的策略不含后期模块所需的任何策略",
           not (blocked & {"realityPush", "realityTreePush", "celestial", "pelleEndgame", "dilationPush"}),
           str(sorted(blocked)))

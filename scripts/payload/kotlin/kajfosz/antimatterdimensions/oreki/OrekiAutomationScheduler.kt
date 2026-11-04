@@ -372,9 +372,23 @@ object OrekiAutomationScheduler {
      *
      * 推进该任务的 `lastAct`、**推进全局节拍 `lastBeatAt`**、封掉本帧名额、
      * 清 no-op 连击与失败冷却，并打一行 `act <id> @<now>ms gap=<全局间隔> taskGap=<同任务间隔>`。
+     *
+     * 若 [detail] 非空，会附在日志尾部（例如 "lv=12"），便于验收时确认"到底改了什么"。
      */
     @JvmStatic
     fun noteActed(taskId: String?) {
+        noteActed(taskId, null)
+    }
+
+    /**
+     * [R78] 带明细的 noteActed。明细只进日志，不参与任何判定。
+     *
+     * 为什么需要：验收要求"证明购买动作之间满足间隔"，光有 `act <id>` 只能证明
+     * 调度器记账了，不能证明"确实买了多少"。带 lv/amount 后，日志同时给出
+     * 时间间隔与真实状态变化，两者可以交叉验证。
+     */
+    @JvmStatic
+    fun noteActed(taskId: String?, detail: String?) {
         clearReserve(taskId)
         if (!enabled) return
         val idx = idxOf(taskId) ?: return
@@ -385,7 +399,13 @@ object OrekiAutomationScheduler {
         val gap = if (prevBeat != 0L) (now - prevBeat).toInt() else -1
         val taskGap = if (prevSame != 0L) (now - prevSame).toInt() else -1
 
-        logI("act ${taskId} @${now}ms gap=$gap taskGap=$taskGap")
+        logI(
+            if (detail.isNullOrEmpty()) {
+                "act $taskId @${now}ms gap=$gap taskGap=$taskGap"
+            } else {
+                "act $taskId @${now}ms gap=$gap taskGap=$taskGap $detail"
+            }
+        )
 
         lastAct[idx] = now
         served[idx]++

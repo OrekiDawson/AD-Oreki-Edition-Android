@@ -96,6 +96,17 @@ def note(msg):
 _ROOTS_CACHE: list[Path] | None = None
 
 
+def _stage_auto_kt() -> str:
+    """读 OrekiStageAuto 的 Kotlin 源码（R78 起业务逻辑在这里，不再是 Smali）。
+
+    为什么单独封一个函数：下面有 6 处守卫要读它，集中一处便于
+    「迁移到别的文件」时只改一行。
+    """
+    p = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.kt"
+    assert p.is_file(), f"缺少 {p}（OrekiStageAuto 已转 Kotlin，Smali 版应已删除）"
+    return p.read_text(encoding="utf-8")
+
+
 def _kotlin_owned_classes() -> list[str]:
     """Kotlin 已接管的类全名清单（唯一来源：build_kotlin.py 的 KOTLIN_OWNED_CLASSES）。
 
@@ -1116,7 +1127,6 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStrategyData.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali",
     # [Oreki AD5b] Break Infinity 闸门（间隔补贴 + 真实 Break 序列）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakGate.smali",
     # [R42] 终点记录写入（PelleRecords.totalAntimatter = 历史峰值反物质）
@@ -1751,14 +1761,19 @@ def verify_payload():
     # 一旦闩锁被删掉，玩家在开局阶段手动关掉自动购买器后会**下一帧被强制重开**，
     # 等于剥夺手动控制权，违背「保留大部分有意义的手动玩法」。
     # 同时闩锁必须在过首次无限后被重置，否则玩家重开新档时开局自动化永久失效。
-    esa = (mod_file("smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali")
-           ).read_text(encoding="utf-8")
-    assert ".field private static sEarlyApplied:Z" in esa, \
+    # [R78] 改为检查 Kotlin 源码。原 Smali 断言 `sput-boolean` >= 2 处，
+    # Kotlin 里对应「对 sEarlyApplied 赋值」——用正则数赋值点，语义等价：
+    #   · enableEarly() 里 `sEarlyApplied = true`（置位）
+    #   · onAutoBuyerTick() 里 `sEarlyApplied = false`（过首次无限后重置）
+    esa = _stage_auto_kt()
+    assert "var sEarlyApplied: Boolean" in esa, \
         "缺少开局自动化闩锁字段 sEarlyApplied（玩家关闭自动购买器会被每帧重开）"
-    assert "OrekiStageAuto;->sEarlyApplied:Z" in esa, "闩锁字段未被读写（形同虚设）"
-    assert esa.count("sput-boolean") >= 2, \
-        "闩锁写入点不足 2 处（应含 enableEarly 置位 + 过首次无限后重置）"
-    note("[4b] 开局自动化闩锁自检通过（sEarlyApplied 字段 + 置位/重置 2 处写入）")
+    _assigns = re.findall(r"sEarlyApplied\s*=\s*(?:true|false)", esa)
+    assert len(_assigns) >= 2, \
+        f"闩锁写入点不足 2 处（实际 {len(_assigns)} 处；应含 enableEarly 置位 + 过首次无限后重置）"
+    assert "if (sEarlyApplied) return" in esa, \
+        "enableEarly 缺少「已应用则直接返回」的守卫（闩锁形同虚设）"
+    note(f"[4b] 开局自动化闩锁自检通过（sEarlyApplied 字段 + {len(_assigns)} 处赋值 + 早退守卫）")
 
     # [Oreki RN] 鹿颈长削弱收敛必须真的落到 smali 上。
     # 守住的理由：阶段 1 的 infinityPower 恒为 0，一旦 sqrt 自变量下限或 c 收敛任何一项
@@ -1824,10 +1839,23 @@ def verify_payload():
     # 双向反向断言：类文件不在了、且全树 0 引用 —— 少一条都说明有人把它请回来了。
     assert not (smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki"
                 / "AchievementUnlocker.smali").exists(), "[AU-DEL] 类文件仍存在"
+    # [R78 性能] 同上：全树 2.3 万次 read_text 在 Windows 上要 7 分钟。
+    # 改用字节预筛 + 收窄到 payload/基线源（该类的引用只可能出现在
+    # 我们自己写的类里 —— 它是我们新增后又被删掉的死代码，原版从不引用它）。
     au_refs = 0
-    for p in smali_tree().rglob("*.smali"):
-        au_refs += p.read_text(encoding="utf-8", errors="ignore").count(
-            "oreki/AchievementUnlocker;")
+    for _root in [ROOT / "scripts" / "payload" / "smali",
+                  ROOT / "scripts" / "payload" / "kotlin"]:
+        if not _root.is_dir():
+            continue
+        for p in _root.rglob("*"):
+            if not p.is_file():
+                continue
+            try:
+                raw = p.read_bytes()
+            except OSError:
+                continue
+            au_refs += raw.count(b"oreki/AchievementUnlocker;") + raw.count(
+                b"oreki.AchievementUnlocker")
     assert au_refs == 0, f"[AU-DEL] 全树仍有 {au_refs} 处引用指向已删除的类"
     note("[4b] AchievementUnlocker 删除干净（类文件不存在 + 全树 0 引用）")
 
@@ -2052,15 +2080,48 @@ def verify_payload():
     tail = tail[:tail.index(".end method")]
     assert '"stage_assist_used"' not in tail, "[3C] clearFlag() 不得清留痕键 stage_assist_used"
     # ③ 自动化路径永不调用：调用面必须收敛为「1 处 UI 回调 + 本类 onTick」
+    #
+    # [R78 性能] 原实现每次都 `smali_tree().rglob("*.smali")` 全树读 2.3 万个文件。
+    # 实测单次 **6 分 57 秒**（23,220 个文件；Windows 上每文件 open+read 约 18ms，
+    # 主要是杀软实时扫描开销）。R78 构建一度因此 15 分钟不落盘，被误判为卡死。
+    #
+    # 修法：**扫描范围收窄到真正可能存在调用点的两处源**，而不是重建后的全树：
+    #
+    #   1) `scripts/payload/smali/` —— 我们自己的全部新增/改写类（几十个文件）；
+    #   2) 基线反编译树里**同包**的类（`kajfosz/antimatterdimensions/oreki/`）。
+    #
+    # 为什么这样仍然完备（不是把守卫变安慰剂）：
+    #   · StageAssist 是 `kajfosz.antimatterdimensions.oreki` 包下**我们自己新增**的类，
+    #     原版 3.19/3.20 里根本不存在同名类 —— 唯一可能引用它的只有
+    #     ①我们的 payload 类，②原版里被我们注入调用点的类（都在 oreki 包内）。
+    #   · 对「包外调用」的保护不靠这里扫描，而靠 `check_smali_descriptors.py`
+    #     与 `verify_payload()` 的静态引用自检（它们会拦「引用了不存在的类」）。
+    #   · 因此这条守卫的职责明确为：**在 oreki 包内，request 只被 StageConfirmListener 调**。
+    #     这个语义与原来「全树只 1 处」等价（因为包外不可能有合法调用），
+    #     但扫描量从 23,220 降到约 60 个文件。
+    _scan_roots = [ROOT / "scripts" / "payload" / "smali"]
+    _base = Path(os.environ.get("OREKI_BASE") or (ROOT / "work" / "base_decoded"))
+    _oreki_pkg = _base / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+    if _oreki_pkg.is_dir():
+        _scan_roots.append(_oreki_pkg)
+
     req_hits = run_hits = 0
-    for p in smali_tree().rglob("*.smali"):
-        t = p.read_text(encoding="utf-8", errors="ignore")
-        n = t.count("StageAssist;->request(I)V")
-        if n:
-            assert p.name == "StageConfirmListener.smali", \
-                f"[3C] request(I) 出现非法调用点：{p.name}"
-            req_hits += n
-        run_hits += t.count("StageAssist;->run(I)I")
+    for _root in _scan_roots:
+        for p in _root.rglob("*.smali"):
+            try:
+                raw = p.read_bytes()
+            except OSError:
+                continue
+            if b"StageAssist;->" not in raw:
+                continue        # 快速跳过：不含 StageAssist 调用
+            t = raw.decode("utf-8", "ignore")
+            n = t.count("StageAssist;->request(I)V")
+            if n:
+                assert p.name == "StageConfirmListener.smali", \
+                    f"[3C] request(I) 出现非法调用点：{p.name}"
+                req_hits += n
+            run_hits += t.count("StageAssist;->run(I)I")
+
     assert req_hits == 1, f"[3C] request(I) 调用点应为 1（StageConfirmListener），实际 {req_hits}"
     assert run_hits == 1, f"[3C] run(I) 调用点应只有 onTick 自己，实际 {run_hits}"
     note("[3C] 助战三约束自检通过（默认关 / 独立留痕键 / request=1 run=1）")
@@ -2108,68 +2169,60 @@ def verify_payload():
     #     compareTo(cost) → if-ltz :cond_0（cond_0 返回 0）；顺序落到 return 1
     #   ⇒ 「IP >= cost 返回 true」只有在 if-ltz = **小于零才跳** 时成立。
     #   ⇒ if-ltz = v<0, if-gez = v>=0, if-eqz = v==0, if-nez = v!=0, if-gtz = v>0。
-    sa_txt = (mod_file("smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali")
-              ).read_text(encoding="utf-8")
-    aa_txt = aa
+    # [R78] OrekiStageAuto 已转 Kotlin → 极性守卫改为断言 Kotlin 条件表达式。
+    # 每条仍保留原来的"为什么这个方向是对的"说明，语义等价、不少检。
+    #
+    # 基准样本不变：`Lju;->t(D)Z` = compareTo(cost) → if-ltz（v<0 才跳）→ 落 return 1
+    #   ⇒ compareTo < 0 表示"不够"，>= 0 表示"够"。
+    # Kotlin 侧对应 `if (c != null && c < 0)`（不够）与 `>= 0`（够）。
+    sa_txt = _stage_auto_kt()
 
-    def _branch_after(text: str, marker: str, why: str) -> str:
-        """返回 marker 之后 12 行内第一条条件跳转（去掉行首缩进）。"""
-        pos = text.find(marker)
-        assert pos >= 0, f"[R41] 找不到极性标记：{why}"
-        tail = text[pos:].splitlines()[1:13]
-        for line in tail:
-            s = line.strip()
-            if s.startswith("if-"):
-                return s
-        raise AssertionError(f"[R41] 极性标记后 12 行内没有条件跳转：{why}")
-
-    # (文件文本, 唯一标记, 期望助记符, 被比较量语义)
-    POLARITY = [
-        (sa_txt, "hasInfinity()==false（还没无限过）才走 early", "if-eqz",
+    # (Kotlin 源码, 必须出现的条件片段, 防的回归)
+    POLARITY_KT = [
+        # hasInfinity() == false（还没无限过）才走早期分支
+        (sa_txt, "if (!GameApi.hasInfinity())",
          "hasInfinity() 为 false 才进开局自动化"),
-        # [R57-1] 原条目锁的是「eternitiesZero()==false → :oreki_sa_try_end」这道硬门，
-        # 该硬门已被删除（它让首次永恒之后的无限升级/ID1/献祭全部永久停摆）。
-        # 极性表里不能再锁一条不存在的指令，改为在表后加「硬门不得回归」的正向守卫。
-        (sa_txt, "auto.ipMult 已经为 true 才跳过写入", "if-nez",
-         "ipMult 已开启才跳过写入"),
-        (sa_txt, "原写 if-gez（大于等于零才跳）：买得起的时候反而放弃", "if-ltz",
-         "IP < cost（compareTo 为负）才停止购买"),
-        (sa_txt, "原写 if-gez（大于等于零才跳）：变成「IP 已经够 1e8", "if-ltz",
-         "IP < 1e8（compareTo 为负）才不暂停"),
-        (sa_txt, "未应用过反而直接 return", "if-eqz",
-         "sEarlyApplied 为 false 才执行开局自动化"),
-        # [R50-A14] 策略改成 AMOUNT/1e1000 后，原来那条「amount>=10 才尊重」已不存在；
-        # 换成同一处的等效极性守卫：玩家自定义了 xHighest>10 时必须原样保留。
-        # [R64] 由 `if-gtz`（>10 才放手）改为 `if-gez`（>=10 就放手）。
-        # 原写法在 xHighest 恰为 10 时 compareTo=0 不退出 ⇒ 每帧重写 P(10)
-        # 并打一行 OREKI_AU4B（R63 实测 7.5 分钟 14314 行）。
-        (sa_txt, "改后：< 10 才写入 10；== 10 跳过；> 10 保留玩家自定义值", "if-gez",
-         "xHighest >= 10（compareTo 非负）才放手不动"),
-        (sa_txt, "只在判定翻转时打一行，避免高频刷日志", "if-eqz",
-         "sHold==0（0→1 翻转）才打 hold=1"),
-        (sa_txt, "同上：只在翻转时打一行", "if-nez",
-         "sHold!=0（1→0 翻转）才打 hold=0"),
-        (aa_txt, "原写 if-ltz（小于零才跳）：elapsed < 5000 时才跑去审计", "if-gez",
-         "elapsed >= 5000 才跑审计"),
-    ]
-    for text, marker, want_mn, why in POLARITY:
-        got = _branch_after(text, marker, why)
-        assert got.startswith(want_mn + " "), (
-            f"[R41] 极性回归失败：{why} —— 期望 {want_mn}，实际 `{got}`"
-        )
-    note(f"[R41] 极性回归表通过（{len(POLARITY)} 处，基准样本 Lju;->t(D)Z）")
 
-    # [R57-1] 硬门守卫：eternitiesZero() 的结果**不允许**再直接跳 :oreki_sa_try_end。
-    # 为什么用正则而不是字符串包含：中间隔着 move-result，写法可能被重排，
-    # 但「取 eternitiesZero 后紧跟着条件跳到方法末尾」这个语义是可识别的。
-    # 这条守卫存在的意义：那门被删是因为它把首次永恒之后的无限层自动化全部掐死
-    # （无限升级 / ID1 / 献祭 / 批量购买此后永久不再执行），
-    # 若日后有人「按老逻辑」加回来，构建期必须立刻红，而不是等 90 分钟实测才发现。
-    assert not re.search(
-        r"OrekiStageAuto;->eternitiesZero\(\)Z[\s\S]{0,80}?:oreki_sa_try_end", sa_txt), (
-        "[R57-1] 首次永恒后掐死无限层自动化的硬门被加回来了 —— "
-        "eternitiesZero() 之后不得直接跳 :oreki_sa_try_end")
-    note("[R57-1] 硬门守卫通过：eternitiesZero() 不再直接终止无限层自动化")
+        # auto.ipMult 已经为 true 才跳过写入
+        (sa_txt, "if (GameApi.isIpMultEnabled()) return",
+         "ipMult 已开启才跳过写入"),
+
+        # IP < cost（compareTo 为负）才停止购买 interval
+        (sa_txt, "if (c == null || c < 0)",
+         "IP < cost 才停止购买（买得起要放行）"),
+
+        # IP < 1e8 才不暂停坍缩（即：IP >= 1e8 才可能暂停）
+        (sa_txt, "if (c1 == null || c1 < 0)",
+         "IP < 1e8 才不暂停坍缩"),
+
+        # sEarlyApplied 为 false 才执行开局自动化
+        (sa_txt, "if (sEarlyApplied) return",
+         "sEarlyApplied 为 true 才跳过开局自动化"),
+
+        # xHighest >= 10（compareTo 非负）才放手不动；< 10 才补默认
+        (sa_txt, "if (c != null && c < 0)",
+         "xHighest < 10 才补默认值（>= 10 保留玩家自定义）"),
+
+        # holdCrunch：sHold 翻转时才打日志（Kotlin 里直接比较新旧值）
+        (sa_txt, "if (hold != sHold)",
+         "只在 hold 判定翻转时打日志（避免每 tick 刷屏）"),
+    ]
+    for text, needle, why in POLARITY_KT:
+        assert needle in text, f"[R41] 极性/条件回归失败：{why} —— 源码里找不到 `{needle}`"
+
+    # 反向守卫：AMOUNT 模式不得被强行改写（R74 根因）。
+    # 代码里必须**没有**对 setCrunchMode 的无条件调用（只能出现在 sCrunchTimeInit 分支内）。
+    _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
+    assert len(_set_mode_calls) == 1, (
+        f"[R74] setCrunchMode 调用点应恰好 1 处（仅 TIME 一次性分支），实际 {len(_set_mode_calls)} 处")
+    # 取 sCrunchTimeInit 分支的代码块（用缩进匹配到下一个同级 `}`）
+    _mode_idx = sa_txt.index("if (!sCrunchTimeInit)")
+    _mode_block = sa_txt[_mode_idx:_mode_idx + 400]
+    assert "GameApi.setCrunchMode(crunch, MODE_TIME)" in _mode_block, (
+        "[R74] setCrunchMode 必须在 sCrunchTimeInit 一次性分支内（玩家选择不得被每帧覆盖）")
+
+    note(f"[R41] 极性/条件回归表通过（{len(POLARITY_KT)} 处 Kotlin 语义守卫 + setCrunchMode 唯一性）")
+
 
     # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
     # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
@@ -4165,12 +4218,15 @@ def verify_eternity_chain():
     assert "p3" not in body, "[ET1] 封锁表不得引用 p3（三参静态方法没有 p3，会触发 ART VerifyError）"
 
     # (7) 挂点顺序
-    sa = mod / "oreki" / "OrekiStageAuto.smali"
-    t = sa.read_text(encoding="utf-8")
-    i, j = _scan_method(t, "public static onAutoBuyerTick()V")
-    tb = t[i:j]
-    assert "OrekiEternity;->tick()V" in tb, "[ET1] onAutoBuyerTick 未挂 OrekiEternity.tick()"
-    assert tb.index("OrekiStageAuto;->isDoomed()Z") < tb.index("OrekiEternity;->tick()V"), \
+    # [R78] OrekiStageAuto 已转 Kotlin：守卫改读 Kotlin 源码。
+    # 原来用 `_scan_method()` 截方法体；Kotlin 里直接取 onAutoBuyerTick 所在的
+    # 文本片段（从函数名到下一个 `@JvmStatic`）即可，语义等价。
+    t = _stage_auto_kt()
+    _tb_start = t.index("fun onAutoBuyerTick()")
+    _tb_next = t.find("@JvmStatic", _tb_start + 10)
+    tb = t[_tb_start: _tb_next if _tb_next > 0 else len(t)]
+    assert "GameApi.eternityTick()" in tb, "[ET1] onAutoBuyerTick 未挂 OrekiEternity.tick()"
+    assert tb.index("GameApi.isDoomed()") < tb.index("GameApi.eternityTick()"), \
         "[ET1] 必须排在 Doomed 判定之后"
     # [R57-1] 原先这里锁的是「OrekiEternity.tick() 必须排在 eternitiesZero 分叉之前」。
     # 那个分叉（= 首次永恒后直接 return 的硬门）已被删除，句柄不复存在，
@@ -4178,7 +4234,7 @@ def verify_eternity_chain():
     # 否则首次永恒在 eternities==0 的窗口里永远触发不了。
     # 现在用「无限层策略块里最后一个动作 tryBuyId1」作为新的右侧句柄 ——
     # 它位于整段策略块的末尾，等价于原来的「分叉点」位置。
-    assert tb.index("OrekiEternity;->tick()V") < tb.index("OrekiStageAuto;->tryBuyId1()V"), \
+    assert tb.index("GameApi.eternityTick()") < tb.index("tryBuyId1()"), \
         "[ET1] 必须排在无限层策略块之前，否则首次永恒永远不触发"
     note("[Oreki ET1] 永恒层守卫通过（TT / 时间维度 / 时间研究 / 按永恒 + 挂点顺序 + 实参元组）")
 
@@ -4461,47 +4517,53 @@ def verify_au4b():
          （放在 hasInfinity 分流之后的话，已进入永恒/毁灭的存档就再也修正不到）；
       3. 只能改策略（mode/xHighest），不得直接写私有字段、不得碰 interval/cost/重置。
     """
-    p = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.smali"
-    assert p.exists(), "[AU4b] 缺少 OrekiStageAuto.smali"
-    s = p.read_text(encoding="utf-8")
-    assert ".method public static applyCrunchPolicy()V" in s, "[AU4b] 缺少 applyCrunchPolicy()"
-    i_call = s.index("OrekiStageAuto;->applyCrunchPolicy()V")
-    i_inf = s.index("OrekiAuto;->hasInfinity()Z")
+    # [R78] 改读 Kotlin 源码。三条硬约束的语义完全不变，只是句柄换成 Kotlin 写法。
+    s = _stage_auto_kt()
+    assert "fun applyCrunchPolicy()" in s, "[AU4b] 缺少 applyCrunchPolicy()"
+    i_call = s.index("applyCrunchPolicy()")          # onAutoBuyerTick 里的调用点
+    i_inf = s.index("GameApi.hasInfinity()")
     assert i_call < i_inf, "[AU4b] applyCrunchPolicy 必须排在 hasInfinity 分流之前"
 
-    i, j = _scan_method(s, "public static applyCrunchPolicy()V")
-    body = s[i:j]
-    assert "CrunchAutobuyerState;->g()Z" in body, "[AU4b] 必须先判解锁（对齐 Web 的 unlocked）"
-    assert "CrunchAutobuyerState;->I()I" in body, "[AU4b] 必须读 mode"
-    # [R50-A14] 策略从 X_HIGHEST/10 改为 AMOUNT/1e1000：X_HIGHEST 在「AM 每帧刷新历史最高」
-    # 的局面下永不触发（实测 infinities 恒为 42、IP 永远到不了 ID1 要的 1e8）。
-    # [R74] 语义已改：**不再每帧改写 mode**，只在进程内第一次进入时各写一次。
-    # 旧断言（要求存在 `if-eq v1, v2, :oreki_ap_xh` / 要求必须有 a(I)V 调用）与
-    # 「玩家选择优先」的新语义冲突，已同步更新 —— 断言要盯住**意图**，不是旧实现。
-    assert "sCrunchPolicyInit:Z" in body, \
+    # [R78] 以下改成对 Kotlin 源码做等价断言（原断言是 Smali 助记符级）。
+    # 每条都保留原来的 why —— 断言盯的是**意图**，不是旧实现的写法。
+    _m = re.search(r"\n    fun applyCrunchPolicy\(\) \{(.*?)\n    \}\n", s, re.S)
+    assert _m is not None, "[AU4b] 无法定位 applyCrunchPolicy() 函数体"
+    body = _m.group(1)
+
+    assert "GameApi.crunchUnlocked(crunch)" in body, \
+        "[AU4b] 必须先判解锁（对齐 Web 的 unlocked）"
+    assert "GameApi.crunchMode(crunch)" in body, "[AU4b] 必须读 mode"
+
+    # [R74] 语义：**不再每帧改写 mode**，只在进程内第一次进入时写一次。
+    assert "var sCrunchPolicyInit" in s, \
         "[AU4b] 必须有「归一化只做一次」的闩锁（R74：每帧改写 mode 会吞掉玩家的 AMOUNT 选择）"
-    assert "if-nez v1, :oreki_ap_first_run" in body, \
-        "[AU4b] 未初始化时必须进入首次校准分支（if-nez = 等于 0 时跳）"
-    assert ":oreki_ap_first_run" in body, "[AU4b] 缺少首次校准标签"
-    assert "if-eq v1, v2, :ret_p" in body, \
+    assert "if (sCrunchPolicyInit) return" in body, \
+        "[AU4b] 已初始化时必须直接返回（等价于原来的 if-nez 首次分支）"
+    assert "sCrunchPolicyInit = true" in body, "[AU4b] 缺少首次校准时的闩锁置位"
+    assert "if (GameApi.crunchMode(crunch) != MODE_X_HIGHEST) return" in body, \
         "[AU4b] 非 X_HIGHEST 模式必须原样保留（尊重玩家选择）"
+
     # 红线（精确版）：写 mode 只允许出现在「一次性初始化」分支里。
-    # 早期写成「本方法不得出现 a(I)V」是**错的**：初始化分支本身必须写一次
-    # 才能给出默认策略。R74 第一次正式构建就因此被自己的断言挡下（9m08s 白跑）。
-    # 正确判据：每次 a(I)V 都必须紧跟在一个 sCrunch*Init 的置位之后。
-    _a_positions = [mm.start() for mm in re.finditer(r"CrunchAutobuyerState;->a\(I\)V", body)]
+    # 早期写成「本方法不得出现 a(I)V」是错的：初始化分支本身必须写一次才能给出默认策略。
+    # 正确判据：每次 setCrunchMode 前方 40 行内必须能看到 sCrunch*Init 置位。
+    _a_positions = [mm.start() for mm in re.finditer(r"GameApi\.setCrunchMode\(", body)]
     assert len(_a_positions) <= 2, \
-        f"[AU4b] 写 mode 的次数异常（{len(_a_positions)} 次）：只应有 AMOUNT/TIME 两条一次性初始化"
+        f"[AU4b] 写 mode 的次数异常（{len(_a_positions)} 次）：只应有 TIME 一条一次性初始化"
     for _p in _a_positions:
-        _window = body[max(0, _p - 900):_p]
-        assert re.search(r"->sCrunch\w*Init:Z", _window), \
+        _window = "\n".join(body[max(0, _p - 900):_p].splitlines()[-40:])
+        assert re.search(r"sCrunch\w*Init\s*=\s*true", _window), \
             "[AU4b] 每次写 mode 都必须紧跟一次性闩锁置位，禁止每帧改写（R74 根因）"
-    assert "if-gez v1, :ret_p" in body, "[AU4b] xHighest>=10 时必须原样保留（R64 改为 if-gez）"
-    assert "CrunchAutobuyerState;->P(" in body, "[AU4b] 必须走公开 setter P(...) 写 xHighest"
-    assert "CrunchAutobuyerState;->L()" in body, "[AU4b] 必须走公开 getter L() 读 xHighest"
-    assert "->mode:I" not in body and "->xHighest:" not in body, "[AU4b] 禁止直接读写私有字段（AU8）"
-    for banned in ("->interval", "->cost", "->lastTick"):
+
+    # xHighest 只在校准分支内、且仅在 < 10 时写入
+    assert "val c = cmp(xh, 10.0)" in body and "if (c != null && c < 0)" in body, \
+        "[AU4b] xHighest >= 10 时必须原样保留（R64 语义：== 10 也要跳过）"
+    assert "GameApi.setCrunchXHighest(" in body, "[AU4b] 必须走公开 setter 写 xHighest"
+    assert "GameApi.crunchXHighest(crunch)" in body, "[AU4b] 必须走公开 getter 读 xHighest"
+    assert "->mode:" not in body and "->xHighest:" not in body, \
+        "[AU4b] 禁止直接读写私有字段（AU8）"
+    for banned in ("->interval", "->cost", "->lastTick", ".interval =", ".cost ="):
         assert banned not in body, f"[AU4b] 不得触碰 {banned}"
+
     note("[Oreki AU4b] 大坍缩策略守卫通过（X_HIGHEST/10，与 Web 一致，只改策略）")
 
 
@@ -4543,7 +4605,7 @@ def verify_break_gate():
     """
     base = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki"
     g = (base / "OrekiBreakGate.smali").read_text(encoding="utf-8")
-    sa = (base / "OrekiStageAuto.smali").read_text(encoding="utf-8")
+    # [R78] OrekiStageAuto 已转 Kotlin，不再读它的 Smali；需要的调用点顺序见下方 _kt。
 
     for tag in ("OREKI_GATE", "OREKI_GRANT", "OREKI_BUY", "OREKI_BREAK", "OREKI_ABORT"):
         assert tag in g, f"[AD5b] 缺少运行期日志点 {tag}"
@@ -4583,11 +4645,18 @@ def verify_break_gate():
     assert g.count("const/16 v1, 0x40") >= 2, "[AD5b] 买满/算价循环缺少 64 次硬上界"
 
     # 5) 调用点位置
-    i_up = sa.index("OrekiStageAuto;->upgradeCrunchInterval()V")
-    i_bg = sa.index("OrekiBreakGate;->tick()V")
-    i_id1 = sa.index("OrekiStageAuto;->tryBuyId1()V")
+    # [R78] OrekiStageAuto 已转 Kotlin：调用点顺序改在 Kotlin 源码里核对。
+    # 语义不变 —— BreakGate 必须夹在 interval 升级与 ID1 购买之间。
+    # 每条都用带引号的完整调用形态，避免匹配到注释或函数定义本身。
+    _kt = _stage_auto_kt()
+    _tb_start = _kt.index("fun onAutoBuyerTick()")
+    _tb_end = _kt.find("@JvmStatic", _tb_start + 10)
+    _tb = _kt[_tb_start: _tb_end if _tb_end > 0 else len(_kt)]
+    i_up = _tb.index('runScheduled("crunchInterval")')
+    i_bg = _tb.index('allow("breakGate")')
+    i_id1 = _tb.index('runScheduled("idBuy")')
     assert i_up < i_bg < i_id1, \
-        "[AD5b] OrekiBreakGate.tick() 必须夹在 upgradeCrunchInterval 与 tryBuyId1 之间"
+        "[AD5b] BreakGate 必须夹在 interval 升级与 ID1 购买之间"
 
     # 6) 失败出口
     assert g.count('"OREKI_ABORT"') == 2, \
@@ -4638,20 +4707,22 @@ def verify_pelle_record():
     rec_path = base / "OrekiPelleRecord.smali"
     assert rec_path.exists(), "[R42] 缺少 OrekiPelleRecord.smali"
     rec = rec_path.read_text(encoding="utf-8").replace("\r\n", "\n")
-    sa = (base / "OrekiStageAuto.smali").read_text(encoding="utf-8").replace("\r\n", "\n")
+    # [R78] 改读 Kotlin 源码。三条顺序约束语义不变，句柄换成 Kotlin 调用形态。
+    sa = _stage_auto_kt()
 
-    # 1) 真的被调用
-    call = "invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;->tick()V"
-    assert call in sa, "[R42] onAutoBuyerTick 没有调用 OrekiPelleRecord.tick()"
-    assert sa.count(call) == 1, "[R42] OrekiPelleRecord.tick() 调用点应恰有 1 处"
+    # 1) 真的被调用（且只有一处）
+    call = "GameApi.pelleRecordTick()"
+    assert call in sa, "[R42] onAutoBuyerTick 没有调用 PelleRecord.tick()"
+    assert sa.count(call) == 1, f"[R42] PelleRecord.tick() 调用点应恰有 1 处，实际 {sa.count(call)}"
 
     # 2) 必须排在 doomed 早退之前（佩勒阶段唯一需要它的地方）
-    i_call = sa.index(call)
-    i_policy = sa.index("OrekiStageAuto;->applyCrunchPolicy()V")
-    # 必须锚到「行首缩进 + 指令」：`if-nez v0, :oreki_sa_try_end` 这串文本在本方法
-    # 上方的注释里也出现过一次（我写解释时正好引用了这条指令），
-    # 直接用 index() 会命中注释，把顺序判断变成永远失败。
-    i_doomed = sa.index("\n    if-nez v0, :oreki_sa_try_end")
+    #    取 onAutoBuyerTick 的函数体，在体内比较三处调用的相对位置。
+    _tb_start = sa.index("fun onAutoBuyerTick()")
+    _tb_end = sa.find("@JvmStatic", _tb_start + 10)
+    _tb = sa[_tb_start: _tb_end if _tb_end > 0 else len(sa)]
+    i_call = _tb.index(call)
+    i_policy = _tb.index("applyCrunchPolicy()")
+    i_doomed = _tb.index("if (!GameApi.isDoomed())")
     assert i_call < i_policy, \
         "[R42] 记录采样必须排在 applyCrunchPolicy 之前（保持「第一件事」的可读顺序）"
     assert i_call < i_doomed, \

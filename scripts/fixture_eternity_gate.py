@@ -73,16 +73,22 @@ def main() -> int:
     #   · p() 是「ID1 已解锁」，解锁后就不再暂停坍缩 → 反物质永远到不了 1.797e308；
     #   · 也不能钉在 f() 上：f() 依赖 maxIP，而 maxIP 只在坍缩时刷新 →
     #     暂停坍缩会让 f() 恒 false → 二次死锁。
-    stage = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali"
+    # [R78] OrekiStageAuto 已转 Kotlin：改读 Kotlin 源码，四条语义断言不变。
+    stage = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki"
+             / "OrekiStageAuto.kt")
     st = stage.read_text(encoding="utf-8")
-    hc = st.split(".method public static holdCrunch()Z", 1)[1].split(".end method", 1)[0]
-    hc_code = "\n".join(ln for ln in hc.splitlines() if not ln.strip().startswith("#"))
-    check("holdCrunch 读 thisEternity.maxAM", "Player$ThisEternity;->h()" in hc_code)
-    check("holdCrunch 用 1.797e308（Double.MAX_VALUE）作门槛",
-          "0x7fefffffffffffff" in hc_code)
+    # 取 computeHoldCrunch() 的函数体（Kotlin 用花括号，不能靠 .end method）
+    _m = re.search(r"fun computeHoldCrunch\(\): Boolean = try \{(.*?)\n    \} catch",
+                   st, re.S)
+    hc_code = "\n".join(ln for ln in (_m.group(1) if _m else "").splitlines()
+                         if not ln.strip().startswith("//"))
+    check("holdCrunch 读 thisEternity.maxAM", "GameApi.thisEternityMaxAM()" in hc_code)
+    check("holdCrunch 用 Double.MAX_VALUE（1.797e308）作门槛",
+          "Double.MAX_VALUE" in hc_code)
     check("holdCrunch 不再依赖 ID1 解锁判定 p()",
-          "InfinityDimensionState;->p()" not in hc_code)
-    check("holdCrunch 到门槛后放开（if-gez）", "if-gez v0, :oreki_sa_hc_no" in hc_code)
+          "idUnlocked" not in hc_code and "InfinityDimensionState" not in hc_code)
+    check("holdCrunch 到门槛后放开（compareTo < 0 才继续 hold）",
+          "c2 != null && c2 < 0" in hc_code)
 
     # ---- 1c. 按永恒 = 原版协程启动器（R70 定案） ----
     #

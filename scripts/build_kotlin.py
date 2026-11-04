@@ -36,6 +36,14 @@ OUT_CLASS = ROOT / "build" / "kt" / "classes"
 OUT_DEX = ROOT / "build" / "kt"
 KOTLINC = ROOT / "tools" / "kotlinc" / "bin" / "kotlinc.bat"
 D8 = ROOT / "tools" / "bt" / "android-14" / "d8.bat"
+# [R78] Kotlin 标准库：`by lazy` / `data class` / 集合操作等都会生成对
+# kotlin.jvm.functions.* / kotlin.Lazy 的引用。本 APK 是「往原版游戏里塞几个类」，
+# 原版没有 Kotlin 运行时 —— 所以必须把 stdlib 一起 D8 进去，否则运行期
+# NoClassDefFoundError: Lkotlin/jvm/functions/Function0;（R78 实测踩到）。
+#
+# 为什么可以整包打进去：stdlib 2.4.21 的 d8 体积约 1.5MB（dex 压缩后更小），
+# 相比 67MB 的 APK 可忽略；且只 D8 一次、所有 Kotlin 类共用。
+KOTLIN_STDLIB = ROOT / "tools" / "kotlinc" / "lib" / "kotlin-stdlib.jar"
 
 
 # --------------------------------------------------------------- [R76-SDK] SDK 定位
@@ -84,6 +92,25 @@ EXPECTED_ABI = {
     # [R77] 调度器 Kotlin 全量转译。ABI 必须与旧 Smali 版逐字一致 ——
     # 5 个调用方（OrekiStageAuto / OrekiBreakShop / OrekiAutomationUiListener /
     # SpeedSettingsActivity / OrekiSpeed）全部是 invoke-static，签名一变就全废。
+    # [R78] OrekiStageAuto 全量转译。14 个 public static 方法必须逐字一致 ——
+    # build_mod.py 在 Game.autoBuyerTick 注入 onAutoBuyerTick()V，
+    # CrunchAutobuyerState.c() 注入 holdCrunch()Z，其余由设置页/探针调用。
+    "kajfosz.antimatterdimensions.oreki.OrekiStageAuto": [
+        "public static final void onAutoBuyerTick()",
+        "public static final boolean isDoomed()",
+        "public static final boolean eternitiesZero()",
+        "public static final void enableIpMultAutobuyer()",
+        "public static final boolean autoSacrifice()",
+        "public static final boolean upgradeBulkAll()",
+        "public static final boolean buyInfinityUpgrades()",
+        "public static final void tryBreakInfinity()",
+        "public static final boolean upgradeCrunchInterval()",
+        "public static final boolean tryBuyId1()",
+        "public static final boolean holdCrunch()",
+        "public static final void enableEarly()",
+        "public static final void crunchProbe()",
+        "public static final void applyCrunchPolicy()",
+    ],
     "kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler": [
         "public static final void init(android.content.Context)",
         "public static final boolean isEnabled()",
@@ -114,6 +141,12 @@ EXPECTED_ABI = {
 KOTLIN_OWNED_CLASSES = {
     "kajfosz.antimatterdimensions.OrekiTrace",
     "kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler",
+    # [R78] 第二个业务类迁移。**注意 5 个方法签名从 V 改成了 Z**：
+    # autoSacrifice / upgradeBulkAll / buyInfinityUpgrades / upgradeCrunchInterval /
+    # tryBuyId1 现在返回「本帧是否真的改变了游戏状态」，供调度器决定 noteActed / noteNoop。
+    # 这些方法的**唯一调用方**是本类自己的 onAutoBuyerTick（也在本次迁移里），
+    # 所以改返回类型不破坏任何外部调用点 —— 已用 grep 全量确认无其它 invoke-static。
+    "kajfosz.antimatterdimensions.oreki.OrekiStageAuto",
 }
 
 
@@ -221,8 +254,16 @@ def main() -> int:
         print(f"[kotlin] ABI 校验通过：{fqcn}（{len(expected)} 个方法）")
 
     OUT_DEX.mkdir(parents=True, exist_ok=True)
+    # [R78] 把 stdlib 一起 D8：否则运行期缺 kotlin.jvm.functions.* / kotlin.Lazy。
+    # 用 --lib 不行（--lib 只是解析类用，不产出 dex），必须作为**输入**。
+    _inputs = [str(c) for c in classes]
+    if KOTLIN_STDLIB.is_file():
+        _inputs.append(str(KOTLIN_STDLIB))
+        print(f"[kotlin] 打包 stdlib：{KOTLIN_STDLIB.name}（{KOTLIN_STDLIB.stat().st_size} B）")
+    else:
+        print("[kotlin] ⚠ 找不到 kotlin-stdlib.jar：若源码用了 by lazy/集合操作，运行期会 NoClassDefFoundError")
     code, out = run([D8, "--lib", str(ANDROID_JAR), "--min-api", "29",
-                     "--output", str(OUT_DEX)] + [str(c) for c in classes], env=env)
+                     "--output", str(OUT_DEX)] + _inputs, env=env)
     if code != 0:
         print("[kotlin] D8 失败")
         return 1
