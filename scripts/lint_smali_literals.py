@@ -31,16 +31,23 @@ ARRAY_OPS = re.compile(
 CONST16 = re.compile(r"^\s*const/16\s+v\d+\s*,\s*(0x[0-9a-fA-F]+|-?\d+)", re.M)
 
 
-def main(root: str | None = None) -> int:
+def main(root: str | None = None, files: list[str] | None = None) -> int:
     """root 省略时取命令行第一个参数，再省略则用默认 payload 目录。
 
     这样既能当命令行工具用（python scripts/lint_smali_literals.py 路径），
     也能被 build_mod.py 以 `main(str(MOD / "smali"))` 直接调用。
+
+    [R75] 新增 `files` 参数：构建期只检查「本次改写过的文件」就够了 ——
+    原版 smali 是 apktool 从官方 dex 反编译的，不可能有字面量下标错误；
+    这类错误的唯一来源是 payload 手写代码和 patch_* 的文本注入。
+    全树扫 2.3 万个文件要 90 秒，而实际需要检查的只有几十个。
+    命令行单独跑（不带 files）时行为不变，仍然是全树。
     """
     if root is None:
         root = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_ROOT
     bad = 0
-    files = glob.glob(root + "/**/*.smali", recursive=True)
+    if files is None:
+        files = glob.glob(root + "/**/*.smali", recursive=True)
     for f in files:
         s = open(f, encoding="utf-8").read()
         for m in ARRAY_OPS.finditer(s):

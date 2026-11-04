@@ -100,12 +100,37 @@ python scripts/build_mod.py
 ### 6.2 Gradle 工作流
 
 根目录提供 `build.gradle` 与 Gradle Wrapper（`gradlew` / `gradlew.bat`）。
-需要 JDK 17+（仓库内自带：`tools/jdk/jdk-17.0.20.1+1`）。
+需要 JDK 17+（仓库内自带两个：`tools/jdk/jdk-17.0.20.1+1`、`tools/jdk/jdk-21.0.13+9`）。
 
 ```bash
 export JAVA_HOME="$(pwd)/tools/jdk/jdk-17.0.20.1+1"
 ./gradlew tasks            # 列出全部任务
 ```
+
+#### JAVA_HOME 环境变量要求（R75 实测记录）
+
+**要求**：`JAVA_HOME` 指向实际存在的 JDK 根目录，且系统 `Path` 包含 `%JAVA_HOME%\bin`。
+**本机实际情况（2026-11-04 核验）**：
+
+| 项 | 实测结果 |
+| --- | --- |
+| 系统级 `JAVA_HOME`（Machine） | **空**（未配置） |
+| `where java` / `javac` | **无输出**（不在任何 Path 中） |
+| 可用 JDK | `tools/jdk/jdk-17.0.20.1+1`（Temurin 17.0.20.1）、`tools/jdk/jdk-21.0.13+9`（Temurin 21.0.13+9） |
+| 当前账户是否管理员 | **否** |
+| 直接写 Machine 变量 | **失败**：`不允许所请求的注册表访问权` |
+| `sudo.exe`（Windows 11 内置） | 存在（v1.0.1.0），但在本非交互会话中执行后**无输出、无写入**，无法完成提权 |
+| 结论 | **当前账户没有系统级环境变量修改权限**，未降级为仅当前会话的临时设置 |
+
+**因此本仓库不依赖全局 Java**，走两条内置兜底，二者都不需要管理员权限：
+
+1. `gradlew`（Git Bash）在 `JAVA_HOME` 为空时，自动扫描 `tools/jdk/*` 并选用；
+2. `build.gradle` 的 `jdkHome` 也按目录扫描（`tools/jdk/<任意版本>/`，取名字排序最后一个），
+   把 JDK 路径传给需要它的子任务。
+
+> 拿到管理员权限后，若要补齐系统级变量，执行
+> `scripts/set_java_home_admin.ps1`（以管理员身份运行 PowerShell 再执行该脚本）。
+> 脚本只追加 `%JAVA_HOME%\bin`、不覆盖也不重复添加，并在结尾回读校验。
 
 **真实存在的任务**（`./gradlew tasks` 实测输出，非虚构）：
 

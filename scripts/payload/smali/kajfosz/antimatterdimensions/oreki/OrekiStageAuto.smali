@@ -49,6 +49,25 @@
 # 于是"循环到底有没有执行"无法从日志区分——这正是 A10 的 if-le 极性错误能藏住的原因。
 .field private static sIdLoopLogged:Z
 
+# [R74] 大坍缩策略「默认值只设一次」的闩锁。
+#
+# 为什么必须加：`applyCrunchPolicy()` 在**每一帧** gameLoop 里被调用，
+# 里面原本有一段「如果 mode 不是 2 且不是 1，就改成 2」的兜底。
+# 后果是玩家在自动购买器卡片上把模式选成 AMOUNT(0) 后，
+# 下一帧就被改回 X_HIGHEST(2) —— 运行时调用栈实测：
+#     CrunchAutobuyerState.a(0 -> 2) <- OrekiStageAuto.applyCrunchPolicy
+#     <- OrekiStageAuto.onAutoBuyerTick <- MainActivityGameLoopKt$gameLoop$1
+# 玩家视角就是「这个模式点不动 / 只有两种模式在跳」。
+#
+# 修法：归一化只在**本会话第一次**处理时做一次，之后完全尊重玩家选择。
+# 不写存档，避免改存档结构；进程重启后重新判断一次也无害
+# （重启后 mode 已经是 2，条件不成立，不会覆盖）。
+.field private static sCrunchPolicyInit:Z
+
+# [R74] 「早盘 TIME/1s」也只设一次。同一类问题：这段原本每帧 `a(1)`，
+# 会把玩家选好的 AMOUNT / X_HIGHEST 改回 TIME。只在首次进入该分支时写。
+.field private static sCrunchTimeInit:Z
+
 # ---------------------------------------------------------------
 # AD: Oreki Edition —— 「首次无限之后」阶段自动化（Android 侧）
 #
@@ -1842,13 +1861,24 @@
     if-nez v3, :oreki_ap_xh_setup
 
     # ---- 早期：TIME 模式 + 1 秒 ----
+    #
+    # [R74] 这里原本**每帧**强制 `a(1)` + `O(1.0)`，同样会覆盖玩家在卡片上的选择
+    # （玩家选了 AMOUNT/X_HIGHEST，只要 break 升级还是空的就被改回 TIME）。
+    # 现在只在本进程第一次进入该分支时写一次，之后交给玩家。
+    # `O(1.0)` 是「间隔 1 秒」，属于本策略自己的节奏参数，可以继续每帧校准；
+    # 只有 mode 那一行必须收进首次分支。
+    sget-boolean v3, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sCrunchTimeInit:Z
+
+    if-nez v3, :oreki_ap_time_apply
+
+    goto :oreki_ap_time_interval
+
+    :oreki_ap_time_apply
     const/4 v3, 0x1
 
+    sput-boolean v3, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sCrunchTimeInit:Z
+
     invoke-virtual {v0, v3}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
-
-    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
-
-    invoke-virtual {v0, v4, v5}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->O(D)V
 
     const-string v6, "OREKI_AU4C"
 
@@ -1856,37 +1886,51 @@
 
     invoke-static {v6, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
+    :oreki_ap_time_interval
+    const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
+
+    invoke-virtual {v0, v4, v5}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->O(D)V
+
     goto :ret_p
 
     :oreki_ap_xh_setup
-    # [R50-A19] 与 Web 完全一致：X_HIGHEST(2) + xHighest = 10
+    # [R74] 玩家选择优先：本段**不再改 mode**，只做一次 xHighest 的默认校准。
     #
-    # 依据（Web big-crunch-autobuyer.js + 本项目 [Oreki AU4b]/[Oreki R26] 注释）：
-    #   三种模式的比较对象都是 **IP**，不是反物质：
-    #     AMOUNT     : gainedIP >= amount
-    #     TIME       : 本纪真实时间 > time
-    #     X_HIGHEST  : gainedIP >= thisEternity.maxIP × xHighest
-    #   Web 的终局策略就是 X_HIGHEST + 10（「单次 IP 达到本永恒最高单次 IP 的 10 倍才坍缩」），
-    #   这样 AM 在两次坍缩之间有充足时间成长，db/gal 不会被每 tick 打回原点。
-    # 本方法每 tick 在 onAutoBuyerTick 最前面无条件执行，所以「重置后重新归一化」天然满足。
+    # 历史与根因（运行时调用栈实测，2026-11-04）：
+    #   本方法由 onAutoBuyerTick **每帧**调用。原实现在这里做了「不是 2 就改成 2」的兜底，
+    #   于是玩家在自动购买器卡片上选中 AMOUNT(0) 后，下一帧立刻被改回 X_HIGHEST(2)：
+    #     CrunchAutobuyerState.a(0 -> 2) <- OrekiStageAuto.applyCrunchPolicy
+    #     <- OrekiStageAuto.onAutoBuyerTick <- MainActivityGameLoopKt$gameLoop$1
+    #   TIME(1) 因为下面原来的 `if-eq v1,1 → ret_p` 特判被放过，
+    #   AMOUNT(0) 没有这层保护 —— 所以玩家看到「只有两种模式能选 / 第三种点不动」。
+    #
+    # 现在的语义（与 Web 侧 R71 的「一次性迁移」对齐）：
+    #   · mode 是玩家自己的设置，**永远不覆盖**；
+    #   · 只在本进程第一次进入时，若玩家从没动过（xHighest < 10），补一个默认 10；
+    #   · 之后什么都不做。
+    # 这样三种模式都能稳定选中并保持，同时也保住了「新档默认不会卡在 AMOUNT+1」的初衷。
+    sget-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sCrunchPolicyInit:Z
+
+    # 已初始化（v1 != 0）→ 什么都不做，直接返回。
+    # if-nez = 「等于 0 时跳」，所以这里要跳到「继续执行」的分支，
+    # 不能写反成 if-nez → :ret_p（那会让本段永远不执行，用户永远拿不到默认阈值）。
+    if-nez v1, :oreki_ap_first_run
+
+    goto :ret_p
+
+    :oreki_ap_first_run
+    const/4 v1, 0x1
+
+    sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->sCrunchPolicyInit:Z
+
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->I()I
 
     move-result v1
 
     const/4 v2, 0x2
 
-    # 已经是 X_HIGHEST → 只需校准 xHighest
-    if-eq v1, v2, :oreki_ap_xh
-
-    const/4 v2, 0x1
-
-    # TIME(1)：玩家明确选了时间模式，原样保留
+    # 只对 X_HIGHEST 校准默认阈值；其它模式完全不碰
     if-eq v1, v2, :ret_p
-
-    # 其余（AMOUNT）→ 改成 X_HIGHEST
-    const/4 v1, 0x2
-
-    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->a(I)V
 
     :oreki_ap_xh
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->L()Lkajfosz/antimatterdimensions/BigDouble;

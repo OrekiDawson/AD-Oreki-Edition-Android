@@ -17,13 +17,16 @@ import os
 import re
 import shutil
 import struct
+import time
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORK = ROOT / "work"
-BASE = WORK / "base_decoded"
+# 基线可切换：OREKI_BASE 指向另一份 apktool 反编译目录（例如升级到新版官方 APK 时
+# 用 work/base_decoded_320 做迁移验证）。默认行为不变，仍是 3.19.0 基线。
+BASE = Path(os.environ.get("OREKI_BASE") or (WORK / "base_decoded")).resolve()
 SPLIT = WORK / "xhdpi_decoded"
 PAYLOAD = ROOT / "scripts" / "payload"
 MOD = WORK / "mod"
@@ -48,6 +51,15 @@ APP_LABEL = "反物质维度"
 
 log = []
 
+# [R75] 本次构建「被写过」的 smali 文件集合。
+# 用途：`verify_payload` 的 .catch 自检只需扫这些文件（见该函数内注释）。
+# 原版反编译出来的 smali 不可能有悬空标签，全树扫 2.3 万个文件纯属浪费 95 秒。
+TOUCHED_FILES: set[Path] = set()
+
+
+def mark_touched(path: Path) -> None:
+    TOUCHED_FILES.add(path.resolve())
+
 
 def note(msg):
     print(msg, flush=True)
@@ -55,11 +67,338 @@ def note(msg):
 
 
 # ---------------------------------------------------------------- 0. copy
+_ROOTS_CACHE: list[Path] | None = None
+
+
+def smali_roots() -> list[Path]:
+    """MOD 树里所有 smali 根目录（smali / smali_classes2 / ...），按 dex 序号排序。
+
+    结果缓存：`_DexRoot.__truediv__` 会被调用上万次，每次重扫目录会拖垮探测/构建。
+    `prepare()` 重建 MOD 后会调用 smali_roots(refresh=True) 失效缓存。
+    """
+    global _ROOTS_CACHE
+    if _ROOTS_CACHE is not None:
+        return _ROOTS_CACHE
+
+    def _idx(p: Path) -> int:
+        return 0 if p.name == "smali" else int(p.name.rsplit("classes", 1)[1])
+    _ROOTS_CACHE = sorted((p for p in MOD.glob("smali*") if p.is_dir()), key=_idx)
+    return _ROOTS_CACHE
+
+
+def reset_smali_roots_cache() -> None:
+    global _ROOTS_CACHE
+    _ROOTS_CACHE = None
+
+
+class _DexPath:
+    """「尚未确定落在哪个 dex 根目录」的相对路径。
+
+    为什么需要它：`smali_tree() / "kajfosz" / "antimatterdimensions" / "a.smali"`
+    是链式拼接。如果第一步就返回一个具体 Path（主根 smali/ 下那个不存在的路径），
+    后面再拼就完全失去「跨 dex 回落」的能力 —— 3.20 上会一路拼到
+    `work/mod/smali/kajfosz/...` 然后 FileNotFoundError。
+
+    所以每一步都只累积相对路径，直到真正需要 filesystem 操作（exists / read_text /
+    write_text / is_file / open …）时才解析到唯一根目录。
+    """
+
+    __slots__ = ("_rel",)
+
+    def __init__(self, rel: str = "") -> None:
+        self._rel = rel
+
+    # ---- 路径累积 ----
+    def __truediv__(self, rel) -> "_DexPath":
+        part = str(rel).replace("\\", "/").strip("/")
+        if not self._rel:
+            return _DexPath(part)
+        return _DexPath(f"{self._rel}/{part}")
+
+    def __str__(self) -> str:
+        return str(self.resolve())
+
+    def __fspath__(self) -> str:
+        return str(self.resolve())
+
+    @property
+    def name(self) -> str:
+        return self._rel.rsplit("/", 1)[-1]
+
+    @property
+    def suffix(self) -> str:
+        n = self.name
+        return n[n.rfind("."):] if "." in n else ""
+
+    def with_suffix(self, suf: str) -> Path:
+        return self.resolve().with_suffix(suf)
+
+    # ---- 解析：找到唯一存在的那一份；都不存在则回落到主根 ----
+    def resolve(self) -> Path:
+        rel = self._rel
+        roots = smali_roots()
+        if not roots:
+            return MOD / "smali" / rel
+        for root in roots:
+            cand = root / rel
+            if cand.exists():
+                return cand
+        return roots[0] / rel
+
+    # ---- filesystem 代理 ----
+    def exists(self) -> bool:
+        return self.resolve().exists()
+
+    def is_file(self) -> bool:
+        return self.resolve().is_file()
+
+    def is_dir(self) -> bool:
+        return self.resolve().is_dir()
+
+    def read_text(self, *a, **kw):
+        return self.resolve().read_text(*a, **kw)
+
+    def read_bytes(self) -> bytes:
+        return self.resolve().read_bytes()
+
+    def write_text(self, *a, **kw):
+        p = self.resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p.write_text(*a, **kw)
+
+    def write_bytes(self, data: bytes):
+        p = self.resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p.write_bytes(data)
+
+    def open(self, *a, **kw):
+        p = self.resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p.open(*a, **kw)
+
+    def stat(self):
+        return self.resolve().stat()
+
+    @property
+    def parent(self) -> Path:
+        """父目录：返回已解析的真实目录（调用方通常紧接着 mkdir / 拼文件名）。"""
+        return self.resolve().parent
+
+    def mkdir(self, *a, **kw):
+        """建目录：对未解析路径，需要在自己解析出的位置建。"""
+        p = self.resolve()
+        p.mkdir(*a, **kw)
+        return None
+
+    def touch(self, *a, **kw):
+        p = self.resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p.touch(*a, **kw)
+
+    def unlink(self, *a, **kw):
+        return self.resolve().unlink(*a, **kw)
+
+    def rglob(self, pattern: str):
+        """整树扫描：遍历所有 smali 根目录。"""
+        for root in smali_roots():
+            yield from (root / self._rel).rglob(pattern)
+
+    def glob(self, pattern: str):
+        for root in smali_roots():
+            yield from (root / self._rel).glob(pattern)
+
+
+class _DexRoot:
+    """`MOD / "smali"` 的代理：同一个包内相对路径在任意 smali 根目录里都能找到。
+
+    [R75] 官方 APK 的 dex 分组随版本变化 —— 3.19 把游戏类放在 smali/，
+    3.20 改放 smali_classes2/。但**绝不能**把 classesN 合并成一份：
+    3.20 的 classes.dex 的 method_ids_size 已是 65536（DEX 硬上限），
+    合并会直接超限、构建失败。
+
+    所以目录结构一律保持原样，只把「路径访问」做成多根回落。
+    """
+
+    def __init__(self, primary: Path) -> None:
+        self._primary = primary
+
+    def __truediv__(self, rel) -> _DexPath:
+        return _DexPath(str(rel).replace("\\", "/"))
+
+    def __fspath__(self) -> str:
+        return str(self._primary)
+
+    def __str__(self) -> str:
+        return str(self._primary)
+
+    @property
+    def name(self) -> str:
+        return self._primary.name
+
+    def rglob(self, pattern: str):
+        """整树扫描：遍历所有 smali 根目录。"""
+        for root in smali_roots():
+            yield from root.rglob(pattern)
+
+    def glob(self, pattern: str):
+        for root in smali_roots():
+            yield from root.glob(pattern)
+
+    def exists(self) -> bool:
+        return self._primary.exists()
+
+    def is_dir(self) -> bool:
+        return True
+
+
+def smali_tree() -> _DexRoot:
+    """取多根代理。`MOD / "smali"` 在 3.20 上只剩 10666 个类，游戏类在 smali_classes2。"""
+    return _DexRoot(MOD / "smali")
+
+
+# ------------------------------------------------------------------ 混淆别名
+# payload 与 build_mod 里的那些 `Lxx;` 短名是按 3.19.0 的 R8 输出写的。
+# 官方每版都全量重混淆，短名会被回收复用（`jw0` 在 3.20 变成了完全无关的类），
+# 所以**不能**靠名字沿用，也不能在 payload 源里直接改成新版名字（那样 3.19 就坏了）。
+#
+# 做法：只在当前基线是 3.20 时，启用一张「3.19 名 → 3.20 名」的别名表，
+# 在建包时把 payload 的 MOD 副本重写一遍。每条都必须有结构证据，
+# 证据写在行内注释里，方便下轮复核（不允许凭感觉加条目）。
+OBFUSCATION_ALIASES_320: dict[str, str] = {
+    # 3.19 Lln0 = 货币容器抽象基类（25 个 public static final 字段，全是 *State 子类）。
+    # 3.20 对应 Lbq0：同样 abstract + 25 个 public static final 字段，**字段顺序逐一对齐**，
+    # 且唯一一个 `o(BigDouble)→自身` 形态的 add 方法在 3.20 里就是 bq0.u(BigDouble)Lbq0;。
+    # → 3.19 Lju;->o(BigDouble)Lln0;  对应 3.20 Lbq0;->u(BigDouble)Lbq0;
+    "ln0": "bq0",
+    # 3.19 Lju = Currency 抽象基类（super=ln0）。3.20 里 super=bq0 的那个抽象类即其等价；
+    # ju 在 3.20 仍是同名不同义（现在是个 5 字段的小类），不能沿用。
+    # 具体名字由 ju_320() 用「super 指向 bq0 的唯一抽象类」动态求出，不写死。
+    # 3.19 Ltw4 = 单 double 值对象（field a:D + 17 方法）。3.20 唯一结构同构者 Llt4。
+    "tw4": "lt4",
+    # 货币状态类（3.19 sm0 = 通用「次数/计数」状态，被 5 个货币位复用；
+    # 3.20 对应 ip0，同样被 5 个位复用 → 位置对应关系成立）。
+    # bn0 = 无限点数状态（3.19 w 位），3.20 是 rp0；ym0 = 永恒点状态，3.20 是 op0。
+    "bn0": "rp0",
+    "sm0": "ip0",
+    "ym0": "op0",
+    # 成就表：3.19 Lz3 唯一持有 `a(I)L.../achievements/a;`（按 id 取成就）。
+    # 3.20 全库搜同一签名，唯一命中 Ls3。
+    "z3": "s3",
+    # 永恒挑战表：3.19 Lr51 唯一持有 `a(I)L.../challenge/eternity/b;`，
+    # 3.20 全库唯一命中 Ln81。
+    "r51": "n81",
+    # Automator 脚本状态：3.19 Lvo 持有 `public static e:Z`（isWaiting）+ 两个
+    # 返回 AutomatorScript 的静态方法。3.20 全库唯一同时满足这两条的类是 Loq。
+    "vo": "oq",
+    # AD 自动购买开关：3.19 Lt5 是「恰好 6 个方法、含 <clinit>/()Z/()V/(J)V、
+    # 且 a(Lr5;)Z / b(Lr5;)LBigDouble;」的唯一形态；3.20 全库唯一同构者是 Lk5
+    # （6 个方法签名逐一对齐，r5→i5）。
+    "t5": "k5",
+    "r5": "i5",
+}
+
+# 字段级别名：R8 也会重排字段名（3.19 Lln0;->w 在 3.20 是 Lbq0;->w，
+# 但同族其它字段名全变了）。只登记 payload 真正用到的三个货币通道。
+# 依据：3.19 ln0 与 3.20 bq0 都是 25 个 public static final 字段、**顺序完全对齐**，
+# 逐个按位置比对得到（见 FACTS C.122）。这是结构证据，不是猜名。
+FIELD_ALIASES_320: dict[str, str] = {
+    # 3.19 Lln0;->w:Lbn0;  = Currency.infinityPoints（第 22 个字段，两版同位置）
+    "ln0.w": "bq0.w",
+    # 3.19 Lln0;->e:Lsm0;  = Currency.infinities（第 19 个字段 → 3.20 g0）
+    "ln0.e": "bq0.g0",
+    # 3.19 Lln0;->F:Lym0;  = Currency.eternityPoints（第 1 个字段 → 3.20 R）
+    "ln0.F": "bq0.R",
+}
+
+
+def _baseline_version() -> str:
+    """读 apktool.yml 的 versionName，用来判断当前基线是 3.19 还是 3.20。"""
+    y = MOD / "apktool.yml"
+    if not y.is_file():
+        return ""
+    m = re.search(r"versionName:\s*'?([\d.]+)'?", y.read_text(encoding="utf-8", errors="ignore"))
+    return m.group(1) if m else ""
+
+
+def field_aliases() -> dict[tuple[str, str], tuple[str, str]]:
+    """字段级别名 {(旧类, 旧字段): (新类, 新字段)}，仅 3.20 基线生效。"""
+    out = {}
+    for k, v in FIELD_ALIASES_320.items():
+        oc, of = k.split(".", 1)
+        nc, nf = v.split(".", 1)
+        out[(oc, of)] = (nc, nf)
+    return out
+
+
+def obfuscation_aliases() -> dict[str, str]:
+    """当前基线下需要把 payload 的 3.19 混淆名重写成什么。
+
+    3.19 基线返回空表（payload 本来就是按它写的，不需要改）。
+    3.20 基线返回别名表；表里查不到的名字会在 verify_payload 里被
+    「外部符号存在性」检查拦下，不会静默带进包。
+    """
+    ver = _baseline_version()
+    if not ver.startswith("3.20"):
+        return {}
+    aliases = dict(OBFUSCATION_ALIASES_320)
+    # ju：3.20 里 super 指向 bq0 的那个抽象类
+    bq0_super = aliases.get("ln0", "bq0")
+    ju_equiv = None
+    for f in smali_roots():
+        for cand in f.glob("*.smali"):
+            try:
+                head = cand.read_text(encoding="utf-8", errors="ignore")[:400]
+            except OSError:
+                continue
+            if f".super L{bq0_super};" in head and ".class public abstract" in head:
+                ju_equiv = cand.stem
+                break
+        if ju_equiv:
+            break
+    if ju_equiv:
+        aliases["ju"] = ju_equiv
+    return aliases
+
+
+def smali_file(rel: str) -> Path:
+    """按「包内相对路径」定位一个 smali 文件（跨 dex 根目录）。"""
+    hits = [root / rel for root in smali_roots() if (root / rel).is_file()]
+    if not hits:
+        raise AssertionError(
+            f"缺少 smali 文件: {rel}（已查 {[r.name for r in smali_roots()]}）")
+    assert len(hits) == 1, f"同名类出现在多个 dex: {[str(h) for h in hits]}"
+    return hits[0]
+
+
 def prepare():
     if MOD.exists():
         shutil.rmtree(MOD)
     shutil.copytree(BASE, MOD)
-    note("[0] 复制反编译目录 -> _work/mod")
+    reset_smali_roots_cache()
+    TOUCHED_FILES.clear()
+    note(f"[0] 复制反编译目录 -> _work/mod（保持 multidex：{[r.name for r in smali_roots()]}）")
+
+
+def refresh_touched() -> None:
+    """把「本次构建改写过的 smali」收进 TOUCHED_FILES。
+
+    [R75 性能] 不要用 mtime 反查：那需要 rglob 遍历 2.3 万个文件（95 秒）。
+    改写来源只有两类，都已知：
+      ① payload 拷入的全部文件（PAYLOAD 目录列表，O(几十)）；
+      ② patch_* 修改的原版文件 —— 由各补丁调用 mark_touched() 登记。
+    两类合起来几十个文件，扫 .catch 秒级完成。
+    """
+    # PAYLOAD 的 rglob 会带出 templates/ 等非 smali 源目录，只取 smali/ 下的。
+    _psmali = PAYLOAD / "smali"
+    if _psmali.is_dir():
+        for f in _psmali.rglob("*.smali"):
+            rel = f.relative_to(_psmali)      # 形如 kajfosz/antimatterdimensions/X.smali
+            TOUCHED_FILES.add((smali_tree() / rel).resolve())
+
+
+# 全局多根代理：所有 `smali_tree() /  ...` 已改为 `smali_tree() / ...`，
+# 自动跨 dex 根目录回落（不合并 dex，见 _DexRoot 注释）。
+
 
 
 # ------------------------------------------------- 1. merge density split
@@ -194,11 +533,18 @@ def patch_changelog_zh():
         f"切分锚点 {CHANGELOG_ANCHOR} 在 changelog.txt 里不是唯一一处（{orig.count(CHANGELOG_ANCHOR)}）")
     head_orig = orig[:orig.index(CHANGELOG_ANCHOR)]
 
-    # [R42] 首启弹窗必须全简体中文（用户 2026-10-31 要求）。
-    # 旧实现 `merged = zh + tail` 会把 3.13.2 及更早的 **627 行英文**保留在弹窗里，
-    # 玩家首启看到的仍是英文，等于没中文化。changelog.zh.txt 本身是自洽全量文件
-    # （末尾已注明「3.13.2 及更早属上游原版历史，不在本 MOD 变更范围内」），
-    # 所以直接整份替换，不再拼接英文 tail。
+    # [R75] 译文文件同时保存了 3.19.0 和 3.20.0 两个版本段，而基线（3.19 或 3.20）
+    # 只有其中一段。按基线实际存在的最高版本截取译文，避免「换基线就断言失败」。
+    # 判据：取 orig 里第一条 `<b>x.y.z</b>` 作为基线版本；译文里同名段之前的全部内容。
+    m_top = re.search(r"<b>(\d+\.\d+\.\d+)</b>", head_orig)
+    if m_top:
+        top = m_top.group(1)
+        zh_marker = f"<b>{top}</b>"
+        if zh_marker in zh:
+            zh = zh[:zh.index(zh_marker)] + zh[zh.index(zh_marker):]
+            # 译文以 3.20 开头、基线是 3.19 → 从 3.19 段开始截
+            zh = zh[zh.index(zh_marker):]
+            note(f"[R40B] 译文按基线版本 {top} 截取")
     merged = zh
 
     # ---- 结构断言：全中文 + 与原文最新段一一对应 ----
@@ -380,7 +726,7 @@ def patch_manifest():
 # ------------------------------------------------------------ 4. smali
 def patch_smali():
     # 4.1 关卡时间差注入点：diff *= speedupFactor 之后乘以 Oreki 倍率
-    a = MOD / "smali" / OLD_PKG.replace(".", "/") / "a.smali"
+    a = smali_tree() /  OLD_PKG.replace(".", "/") / "a.smali"
     src = a.read_text(encoding="utf-8")
     old = "    mul-double v12, v12, v37\n"
     assert src.count(old) == 1, "速度注入点不唯一"
@@ -449,7 +795,7 @@ def patch_smali():
     #      **设置页/选项状态读到的值**，R32 没改，于是界面中文 + 设置显示 English。
     # 两处读的是同一个键、只是各自的「缺省字面量」不同，全新安装没有该键时就会分叉。
     # 修法：把第二处的缺省字面量也对齐成 zh_CN。
-    m = MOD / "smali" / OLD_PKG.replace(".", "/") / "MainActivity.smali"
+    m = smali_tree() /  OLD_PKG.replace(".", "/") / "MainActivity.smali"
     msrc = m.read_text(encoding="utf-8")
 
     # ① 生效语言：attachBaseContext 内 `const-string v4, "en"`（R32 起就是 zh_CN）
@@ -462,49 +808,105 @@ def patch_smali():
         assert '    const-string v4, "zh_CN"\n' in msrc, "生效语言默认值锚点丢失，拒绝继续"
         note('[4] MainActivity.smali: 生效语言默认值已是 zh_CN，跳过')
 
-    # ② 设置页读到的语言：`const-string v6, "en"`，必须紧跟在 "language" 键之后。
+    # ② 设置页读到的语言：`const-string vN, "en"`，必须紧跟在 "language" 键之后。
     # 只按字面量替换是不够的 —— 必须断言它确实是 language 的缺省值，
-    # 否则将来别处出现同形 `const-string v6, "en"` 会被误改。
-    old_lang_pref = '    const-string v6, "en"\n'
-    if msrc.count(old_lang_pref) == 1:
-        idx = msrc.index(old_lang_pref)
-        ctx = msrc[max(0, idx - 400):idx]
-        assert '"language"' in ctx, 'v6 "en" 前面 400 字符内没有 "language" 键，锚点语义不符，拒绝落改'
-        msrc = msrc.replace(old_lang_pref, '    const-string v6, "zh_CN"\n')
-        note('[4] MainActivity.smali: 设置页语言默认值 en -> zh_CN（修 界面中文/设置English 分叉）')
+    # 否则将来别处出现同形 `const-string vN, "en"` 会被误改。
+    #
+    # [R75] 3.20.0 的 R8 重新分配了寄存器：这一处从 `v6` 变成 `v7`。
+    # 不再写死寄存器编号 —— 按「紧跟在 "language" 之后的第一条 `const-string vN, "en"`」
+    # 定位，寄存器号从匹配结果里取。这样 R8 重排寄存器也不会再打断补丁。
+    lang_pref_pat = re.compile(r'    const-string (v\d+), "en"\n')
+    picked = None
+    for mm in lang_pref_pat.finditer(msrc):
+        ctx = msrc[max(0, mm.start() - 400):mm.start()]
+        if '"language"' in ctx:
+            picked = mm
+            break
+    if picked is not None:
+        reg = picked.group(1)
+        msrc = msrc[:picked.start()] + f'    const-string {reg}, "zh_CN"\n' + msrc[picked.end():]
+        note(f'[4] MainActivity.smali: 设置页语言默认值 {reg} en -> zh_CN'
+             '（修 界面中文/设置English 分叉）')
     else:
-        assert msrc.count('    const-string v6, "zh_CN"\n') >= 1, \
+        assert re.search(r'    const-string v\d+, "zh_CN"\n', msrc), \
             "设置页语言默认值锚点丢失，拒绝继续"
         note('[4] MainActivity.smali: 设置页语言默认值已是 zh_CN，跳过')
 
     m.write_text(msrc, encoding="utf-8")
 
-    # ③ `Ljw0;->T` 的静态初值也是 "en"（jw0.<clinit>）。
+    # ③ 静态初值里的语言默认值也是 "en"（3.19 在 jw0.<clinit>，3.20 在 cz0.<clinit>）。
     # 前两处只覆盖「onCreate 之后」的路径：两者都是 `getString("language", 默认)`
-    # 再 `sput Ljw0;->T`。而 jw0.<clinit> 在类首次被引用时就把 T 初始化成 "en"，
-    # 任何**早于 onCreate** 读 `jw0->T` 的路径（偏好页默认值、异常早退、
+    # 再写进语言静态字段。而 <clinit> 在类首次被引用时就把语言初始化成 "en"，
+    # 任何**早于 onCreate** 读该字段的路径（偏好页默认值、异常早退、
     # 以后新加的启动期读取）都会拿到英文。
     # 这里把静态初值同样对齐成 zh_CN，使三条路径一致。
-    # 边界：`T` 是「当前语言」的内存副本，真正落盘只在玩家主动改语言时由
+    # 边界：那个字段是「当前语言」的内存副本，真正落盘只在玩家主动改语言时由
     # `U2` → `MyPrefsFile.putString` 触发，所以改这个初值**不会**覆盖玩家
     # 自己选过的语言（prefs 有值时 `getString` 返回存档值，与默认值无关）。
-    j = MOD / "smali" / "jw0.smali"
-    jsrc = j.read_text(encoding="utf-8")
-    old_j = '    const-string v0, "en"\n'
-    if jsrc.count(old_j) == 1:
-        idx = jsrc.index(old_j)
-        after = jsrc[idx:idx + 400]
-        assert 'sput-object v0, Ljw0;->T:Ljava/lang/String;' in after, \
-            'jw0 的 "en" 后面 400 字符内没有 T 写入点，锚点语义不符，拒绝落改'
-        jsrc = jsrc.replace(old_j, '    const-string v0, "zh_CN"\n')
-        note('[4] jw0.smali: 当前语言静态初值 en -> zh_CN')
+    #
+    # [R75] 不写死类名/字段名：R8 每版都会重排（3.19 jw0.T → 3.20 cz0.U）。
+    # 按结构定位 —— 「String 类型的静态字段，且 <clinit> 里 `const-string "en"`
+    # 紧跟 `sput-object <同字段>`」。这个组合在整份 dex 里唯一。
+    lang_static_pat = re.compile(
+        r'    const-string (v\d+), "en"\n'
+        r'(?:\s*\n)?'
+        r'(?:    \.line \d+\n)*'
+        r'    sput-object \1, L([A-Za-z0-9_/$]+);->([A-Za-z0-9_$]+):Ljava/lang/String;\n')
+    hits = []
+    # 语言静态初值不在 MainActivity 里，单独找那个类。
+    #
+    # [R75 性能] 不要 `MOD.rglob("*.smali")` 全树扫描：3.20 有 2.3 万个 smali，
+    # 在 Windows 上逐个 read_text 要 90+ 秒，一个补丁就把构建拖慢一分半。
+    # 用「结构性剪枝」代替：这个类必定是「持有 DeviceOptions 静态字段的
+    # 偏好容器」，候选只需在含该类型的类里找，通常是 5~10 个文件。
+    cands = []
+    for root in smali_roots():
+        for pref in ("kajfosz", "com", "kotlin"):
+            base_dir = root / pref
+            if not base_dir.is_dir():
+                continue
+            for cand in base_dir.rglob("*.smali"):
+                cands.append(cand)
+        # R8 把大量混淆类直接放在 smali 根目录（jw0.smali / cz0.smali …），
+        # 不在任何包目录下，漏掉它们就找不到语言偏好类。
+        cands.extend(p for p in root.glob("*.smali"))
+    # 先按「有 String 静态字段」粗筛（读一次文件头即可判定），再跑正则。
+    lang_class = None
+    lang_field = None
+    lang_reg = None
+    for cand in cands:
+        ctext = cand.read_text(encoding="utf-8", errors="ignore")
+        # 注意：这个偏好类本身**不含** "language" 字面量（那个键在 MainActivity 里），
+        # 所以只能用「String 静态字段 + `const-string "en"` 紧跟同寄存器 sput」判定。
+        if 'Ljava/lang/String;' not in ctext:
+            continue
+        mm = lang_static_pat.search(ctext)
+        if mm:
+            lang_class, lang_field, lang_reg = cand, mm.group(3), mm.group(1)
+            cand_src = ctext
+            break
+    if lang_class is not None:
+        old_lit = f'    const-string {lang_reg}, "en"\n'
+        assert cand_src.count(old_lit) == 1, "语言静态初值出现多次，拒绝落改"
+        new_src = cand_src.replace(old_lit, f'    const-string {lang_reg}, "zh_CN"\n', 1)
+        lang_class.write_text(new_src, encoding="utf-8")
+        note(f'[4] {lang_class.name}: 语言静态初值 -> zh_CN（字段 {lang_field}）')
     else:
-        assert '    const-string v0, "zh_CN"\n' in jsrc, "jw0 语言初值锚点丢失，拒绝继续"
-        note('[4] jw0.smali: 当前语言静态初值已是 zh_CN，跳过')
-    j.write_text(jsrc, encoding="utf-8")
+        # 幂等：已经改过（zh_CN）就跳过；两样都找不到才算失败。
+        found = False
+        for cand in cands:
+            ctext = cand.read_text(encoding="utf-8", errors="ignore")
+            # 幂等判定不引用捕获组（旧写法把 lang_static_pat 的 \1 抄过来，
+            # 但这里的 pattern 没有组，会抛 invalid group reference）。
+            if re.search(r'const-string v\d+, "zh_CN"\n(?:\s*\n)?'
+                         r'(?:    \.line \d+\n)*    sput-object v\d+, '
+                         r'L[A-Za-z0-9_/$]+;->[A-Za-z0-9_$]+:Ljava/lang/String;\n', ctext):
+                found = True
+                break
+        assert found, "语言静态初值锚点丢失（既没有 en 也没有 zh_CN 版本），拒绝继续"
 
     # 4.3 Application.onCreate: 保留自身回调 + Firebase 初始化，去掉 Play Integrity/AdMob
-    ap = MOD / "smali" / OLD_PKG.replace(".", "/") / "App.smali"
+    ap = smali_tree() /  OLD_PKG.replace(".", "/") / "App.smali"
     asrc = ap.read_text(encoding="utf-8")
     start = asrc.index(".method public final onCreate()V")
     end = asrc.index(".end method", start) + len(".end method")
@@ -532,14 +934,66 @@ def patch_smali():
     note("[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init")
 
     # 4.4 拷入新增类
+    #
+    # [R75-C] 源目录是 payload/smali（不是 payload 根）：
+    # payload 下还有 templates/、kotlin/、res/、assets/，用 PAYLOAD.rglob("*.smali")
+    # 会把 templates 里的片段也当成类拷进来、落到 work/mod/smali/templates/，
+    # 造成 verify_payload 找不到真正的类文件（R75-B 探测的 43/44 就是这个原因）。
+    # 目标走 smali_tree()：payload 类必须落在与游戏类相同的 dex 根目录
+    # （3.19 是 smali/，3.20 是 smali_classes2/），否则跨 dex 引用虽然合法，
+    # 但后续补丁按包路径定位时会找不到。
+    _psmali = PAYLOAD / "smali"
+    assert _psmali.is_dir(), f"缺少 payload smali 目录: {_psmali}"
     n = 0
-    for f in PAYLOAD.rglob("*.smali"):
-        rel = f.relative_to(PAYLOAD)
-        dst = MOD / rel
+    for f in _psmali.rglob("*.smali"):
+        rel = f.relative_to(_psmali)
+        dst = smali_tree() / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(f, dst)
+        TOUCHED_FILES.add(dst.resolve())
         n += 1
     note(f"[4] 拷入 {n} 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）")
+
+    # 4.5 [R75-C] 混淆符号别名重写：payload 是按 3.19 写的，3.20 的 R8 换了名字。
+    #
+    # 为什么不在 payload 源里改成 3.20 的名字：那样 3.19 基线立刻就坏了，
+    # 而双基线必须同时可构建。所以把「3.19 名 → 当前基线真实名」做成构建期别名表，
+    # 拷入后立刻在 MOD 副本上重写，源文件保持 3.19 名不变。
+    #
+    # 表只放**已用结构指纹验证过唯一命中**的条目（见 scripts/dexdiff_320.py 输出），
+    # 不做猜测性映射；查不到就 fail-fast，绝不静默沿用旧名。
+    rewrites = obfuscation_aliases()
+    if rewrites:
+        field_rewrites = field_aliases() if _baseline_version().startswith("3.20") else {}
+        touched = 0
+        for f in _psmali.rglob("*.smali"):
+            dst = smali_tree() / f.relative_to(_psmali)
+            txt = dst.read_text(encoding="utf-8")
+            new = txt
+            # 先做字段级（更具体），再做类级（更宽），顺序不能反
+            for (old_cls, old_fld), (new_cls, new_fld) in field_rewrites.items():
+                new = re.sub(rf"\bL{re.escape(old_cls)};->{re.escape(old_fld)}:",
+                             f"L{new_cls};->{new_fld}:", new)
+            for old, new_name in rewrites.items():
+                new = re.sub(rf"\bL{re.escape(old)};", f"L{new_name};", new)
+            if new != txt:
+                dst.write_text(new, encoding="utf-8")
+                touched += 1
+        note(f"[4] 混淆别名重写：{len(rewrites)} 条类规则 + {len(field_rewrites)} 条字段规则，"
+             f"改写 {touched} 个 payload 类")
+
+    # [R75] Kotlin 迁移单元：`OrekiTrace` 已从 Smali 迁到 Kotlin。
+    # 用 Kotlin 版编译出的 dex 顶替同名 Smali 类 —— 两者 ABI 完全一致
+    # （6 个 public static void xxx()），调用点 `Lkajfosz/antimatterdimensions/OrekiTrace;` 不变。
+    #
+    # 为什么要删掉 Smali 版：apktool 回编译时同一个类只能有一个定义，
+    # 同时存在会直接报 "duplicate class"。删 Smali 后由 dex 提供实现。
+    kt_src = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "OrekiTrace.kt"
+    if kt_src.exists():
+        stale = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiTrace.smali"
+        if stale.exists():
+            stale.unlink()
+            note("[4] 移除 OrekiTrace.smali（已迁移到 Kotlin，由附加 dex 提供）")
 
     # [AU-DEL] payload 里已删掉的类，work/mod 里可能还留着上一轮的副本。
     # 拷贝只覆盖不删除，所以必须显式清掉，否则死代码照样会被打进 APK。
@@ -741,12 +1195,18 @@ def patch_speed_records():
     乘法严格配对（同一 mult() 来源），除法只作用于游戏时间域，
     不触碰 thisInfinity.realTime / bestInfinityRealTime（那些已是真实毫秒）。
     """
-    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "e.smali"
+    p = smali_tree() /  OLD_PKG.replace(".", "/") / "prestige" / "e.smali"
     src = p.read_text(encoding="utf-8")
+    # [R75-C] 锚点按 3.19 的 Ltw4 写；3.20 里该值对象是 Llt4（结构指纹唯一命中：
+    # field a:D + 17 方法 + 构造(D)V，次优候选差距 0.46）。统一把源码里的
+    # 旧名换成当前基线名，锚点与补丁体就都能对上，且两条断言仍逐字校验。
+    _tw4 = obfuscation_aliases().get("tw4")
+    if _tw4:
+        src = re.sub(r"\bLtw4;", f"L{_tw4};", src)
     marker = "; [Oreki S2]"
     assert marker not in src, "prestige.e 记录归一化已打过补丁（重复注入）"
 
-    ins = ("    iget-wide v11, v9, Ltw4;->a:D\n"
+    ins = (f"    iget-wide v11, v9, L{_tw4 or 'tw4'};->a:D\n"
            "\n"
            "    # [Oreki S2] ADfaster big-crunch.js:95 —— thisInfinity.time 存的是\n"
            "    # 加速后的放大值，参与最佳记录比较与落盘前必须除以实际注入倍率。\n"
@@ -756,7 +1216,7 @@ def patch_speed_records():
 
     for line_tag, desc in (("    .line 420", "比较前归一化"),
                            ("    .line 442", "写入前归一化")):
-        old = "    iget-wide v11, v9, Ltw4;->a:D\n\n" + line_tag
+        old = f"    iget-wide v11, v9, L{_tw4 or 'tw4'};->a:D\n\n" + line_tag
         assert src.count(old) == 1, f"记录归一化锚点不唯一: {desc}（{src.count(old)} 处）"
         src = src.replace(old, ins + "\n" + line_tag)
 
@@ -766,12 +1226,12 @@ def patch_speed_records():
     # 的放大值会以更大的数量级直接胜出/落败，单位不一致。
     mig = ("    # [Oreki A1] 旧存档可能仍以「放大值」保存最佳无限时间。\n"
            "    # 在哨兵检测与跨记录比较之前，按 records_norm 标记做一次性单位迁移。\n"
-           "    invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiSpeed;->migrateBest(Ltw4;)V\n"
+           f"    invoke-static {{v5}}, Lkajfosz/antimatterdimensions/OrekiSpeed;->migrateBest(L{_tw4 or 'tw4'};)V\n"
            "\n"
            "    .line 396\n")
-    ancor = "    .line 396\n    iget-wide v11, v5, Ltw4;->a:D\n"
+    ancor = f"    .line 396\n    iget-wide v11, v5, L{_tw4 or 'tw4'};->a:D\n"
     assert src.count(ancor) == 1, f"最佳记录迁移锚点不唯一（{src.count(ancor)} 处）"
-    src = src.replace(ancor, mig + "    iget-wide v11, v5, Ltw4;->a:D\n")
+    src = src.replace(ancor, mig + f"    iget-wide v11, v5, L{_tw4 or 'tw4'};->a:D\n")
 
     p.write_text(src, encoding="utf-8")
     note("[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）")
@@ -792,14 +1252,17 @@ def patch_recent_runs():
 
     只改 time 参数，realTime 不动（它本身已是真实毫秒）。
     """
-    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "e.smali"
+    p = smali_tree() /  OLD_PKG.replace(".", "/") / "prestige" / "e.smali"
     src = p.read_text(encoding="utf-8")
+    _tw4 = obfuscation_aliases().get("tw4")
+    if _tw4:
+        src = re.sub(r"\bLtw4;", f"L{_tw4};", src)   # [R75-C] 3.20 该值对象是 Llt4
     assert "# [Oreki A2]" not in src, "prestige.e 最近重置归一化已打过补丁（重复注入）"
 
-    old = "    .line 277\n    iget-wide v13, v11, Ltw4;->a:D\n"
+    old = f"    .line 277\n    iget-wide v13, v11, L{_tw4 or 'tw4'};->a:D\n"
     assert src.count(old) == 1, f"最近重置 time 锚点不唯一（{src.count(old)} 处）"
     new = ("    .line 277\n"
-           "    iget-wide v13, v11, Ltw4;->a:D\n"
+           f"    iget-wide v13, v11, L{_tw4 or 'tw4'};->a:D\n"
            "\n"
            "    # [Oreki A2] ADfaster game.js:191 —— recentInfinities 存的是\n"
            "    # [time / f, realTime, ...]，故 PastRun.time 必须先归一化；\n"
@@ -827,13 +1290,16 @@ def patch_recent_runs_er():
     两处的 realTime 参数（nw4.b() / ThisReality.m()）本身是真实毫秒，不动。
     """
     # --- 永恒 ---
-    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "c.smali"
+    p = smali_tree() /  OLD_PKG.replace(".", "/") / "prestige" / "c.smali"
     src = p.read_text(encoding="utf-8")
+    _tw4 = obfuscation_aliases().get("tw4")
+    if _tw4:
+        src = re.sub(r"\bLtw4;", f"L{_tw4};", src)   # [R75-C] 3.20 是 Llt4
     assert "# [Oreki A4]" not in src, "prestige.c 已打过 A4 补丁（重复注入）"
-    old = "    .line 345\n    iget-wide v12, v10, Ltw4;->a:D\n"
+    old = f"    .line 345\n    iget-wide v12, v10, L{_tw4 or 'tw4'};->a:D\n"
     assert src.count(old) == 1, f"pastTenEternities.time 锚点不唯一（{src.count(old)} 处）"
     new = ("    .line 345\n"
-           "    iget-wide v12, v10, Ltw4;->a:D\n"
+           f"    iget-wide v12, v10, L{_tw4 or 'tw4'};->a:D\n"
            "\n"
            "    # [Oreki A4] 官方 game.js:223 recentEternities.unshift([time, realTime, ...])，\n"
            "    # time 为游戏时间。本 Mod 的游戏时间被放大 f 倍，写库前归一化；\n"
@@ -845,13 +1311,15 @@ def patch_recent_runs_er():
     p.write_text(src, encoding="utf-8")
 
     # --- 现实 ---
-    q = MOD / "smali" / OLD_PKG.replace(".", "/") / "prestige" / "f.smali"
+    q = smali_tree() /  OLD_PKG.replace(".", "/") / "prestige" / "f.smali"
     src2 = q.read_text(encoding="utf-8")
+    if _tw4:
+        src2 = re.sub(r"\bLtw4;", f"L{_tw4};", src2)
     assert "# [Oreki A4]" not in src2, "prestige.f 已打过 A4 补丁（重复注入）"
-    old2 = "    .line 171\n    iget-wide v14, v12, Ltw4;->a:D\n"
+    old2 = f"    .line 171\n    iget-wide v14, v12, L{_tw4 or 'tw4'};->a:D\n"
     assert src2.count(old2) == 1, f"pastTenRealities.time 锚点不唯一（{src2.count(old2)} 处）"
     new2 = ("    .line 171\n"
-            "    iget-wide v14, v12, Ltw4;->a:D\n"
+            f"    iget-wide v14, v12, L{_tw4 or 'tw4'};->a:D\n"
             "\n"
             "    # [Oreki A4] 官方 game.js:262 recentRealities.unshift([time, realTime, ...])，\n"
             "    # time 为游戏时间。归一化后入库；realTime（ThisReality.m）不动。\n"
@@ -870,7 +1338,7 @@ def patch_shop_coins():
     存档载入/重置/新游戏都只能通过该方法拿到余额，因此在读取处钳制
     即可覆盖全部生命周期，且不需要在每帧或 UI 刷新里写入字段。
     """
-    p = MOD / "smali" / OLD_PKG.replace(".", "/") / "shop" / "Purchases.smali"
+    p = smali_tree() /  OLD_PKG.replace(".", "/") / "shop" / "Purchases.smali"
     src = p.read_text(encoding="utf-8")
     marker = "; Oreki: STD 下限"
     assert marker not in src, "getStds 已被修补过（重复打补丁）"
@@ -946,7 +1414,7 @@ def patch_effarig_nerf():
 
     边界：只改削弱强度，不改阶段推进条件、不改 unlockBits、不发奖励。
     """
-    target = MOD / "smali" / OLD_PKG.replace(".", "/") / "celestials" / "effarig" / "a.smali"
+    target = smali_tree() /  OLD_PKG.replace(".", "/") / "celestials" / "effarig" / "a.smali"
     assert target.exists(), f"缺少 {target}（鹿颈长类未反编译出来）"
     src = target.read_text(encoding="utf-8")
     if "Oreki RN" in src:
@@ -1022,7 +1490,7 @@ def patch_effarig_shard_divisor():
     前置断言：全文 `7500.0` 的位模式唯一，且落在 `j()D` 方法体内；否则拒绝落改
     （禁止全局 replace —— 该常量一旦多处共用，改它会波及别的公式）。
     """
-    target = MOD / "smali" / OLD_PKG.replace(".", "/") / "celestials" / "effarig" / "a.smali"
+    target = smali_tree() /  OLD_PKG.replace(".", "/") / "celestials" / "effarig" / "a.smali"
     assert target.exists(), f"缺少 {target}（鹿颈长类未反编译出来）"
     src = target.read_text(encoding="utf-8")
     if "Oreki RS" in src:
@@ -1068,15 +1536,46 @@ def patch_effarig_shard_divisor():
          f"（EP 指数同量换 250 倍碎片）")
 
 
+def mod_file(rel: str) -> Path:
+    """按「MOD 内相对路径」（形如 smali/kajfosz/.../X.smali）定位文件，跨 dex 根目录回落。
+
+    [R75-C] `(MOD / rel)` 在 3.20 上会失败：游戏类在 smali_classes2/，
+    而 rel 里写死了 "smali/" 前缀。这个函数把 "smali/xxx" 解释成
+    「在任意 smali 根目录下找 xxx」，从而对 dex 分组无感。
+    rel 不以 "smali/" 开头时按普通相对路径处理（res/、assets/ 等）。
+    """
+    rel = str(rel).replace("\\", "/")
+    if rel.startswith("smali/"):
+        inner = rel[len("smali/"):]
+        cands = [root / inner for root in smali_roots() if (root / inner).is_file()]
+        if cands:
+            return cands[0]
+        return MOD / "smali" / inner
+    return MOD / rel
+
+
 def verify_payload():
+    refresh_touched()   # [R75] 先用 mtime 收集本次改写过的文件（见 .catch 自检处注释）
     for rel in PAYLOAD_MUST_EXIST:
-        assert (MOD / rel).is_file(), f"payload 缺失: {rel}"
+        assert mod_file(rel).is_file(), f"payload 缺失: {rel}"
     note(f"[4b] payload 齐全: {len(PAYLOAD_MUST_EXIST)} 个类")
 
+    # [R75-C] PAYLOAD_REFS 的 (rel, needle) 按 3.19 混淆名书写；3.20 已在 step 4.5
+    # 把 payload 重写成新名，所以这里要同步套用同一张别名表再比对。
+    _ref_al = obfuscation_aliases()
+    _ref_fal = field_aliases() if _baseline_version().startswith("3.20") else {}
+
+    def _ref_rewrite(text: str) -> str:
+        for (oc, of), (nc, nf) in _ref_fal.items():
+            text = re.sub(rf"\bL{re.escape(oc)};->{re.escape(of)}:", f"L{nc};->{nf}:", text)
+        for _o, _n in _ref_al.items():
+            text = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", text)
+        return text
+
     for rel, needle, desc in PAYLOAD_REFS:
-        p = MOD / rel
+        p = mod_file(_ref_rewrite(rel))
         assert p.is_file(), f"引用自检失败，文件不存在: {rel}"
-        assert needle in p.read_text(encoding="utf-8"), \
+        assert _ref_rewrite(needle) in p.read_text(encoding="utf-8"), \
             f"引用自检失败: {desc}（{rel} 中找不到 {needle!r}）"
     note(f"[4b] 混淆类引用自检通过: {len(PAYLOAD_REFS)} 项（z3 / E(ZZ) / isDoomed / allBought / IU 列表 / 炼金）")
 
@@ -1085,12 +1584,18 @@ def verify_payload():
     # 教训：R65 首版把 handler 写成 `:bs_catch`，而 .catch 指向 `:catch_0`，
     # smali 不报「标签不存在」，而是在 dexlib2 写 code item 时抛
     # `IllegalStateException: Cannot get the location of a label that hasn't been placed yet.`
-    # —— 栈里看不到是哪个文件哪个标签，只能靠这条前置断言拦住。
+    #
+    # [R75 性能] 原实现 `MOD.rglob("*.smali")` 全树读 2.3 万个文件要 95 秒。
+    # 但 `.catch` 只可能出现在**本次构建新写/改写过的文件**里 —— 原版 APK 的
+    # smali 是 apktool 从已验证的 dex 反编译出来的，不可能有悬空标签。
+    # 所以改成扫「payload 类 + 所有 patch_* 改写过的文件」，覆盖面等价而快两个数量级。
+    # 兜底：TOUCHED 为空时（例如单独跑本函数）退回全树，保证不自欺。
     _label_re = re.compile(r"^\s*(:[A-Za-z0-9_]+)", re.M)
     _catch_re = re.compile(
         r"^\s*\.catch\s+.*?\{(:[A-Za-z0-9_]+)\s*\.\.\s*(:[A-Za-z0-9_]+)\}\s*(:[A-Za-z0-9_]+)", re.M)
-    for _p in MOD.rglob("*.smali"):
-        _txt = _p.read_text(encoding="utf-8")
+    _scan = [p for p in sorted(TOUCHED_FILES) if p.is_file()] or list(MOD.rglob("*.smali"))
+    for _p in _scan:
+        _txt = _p.read_text(encoding="utf-8", errors="ignore")
         if ".catch " not in _txt:
             continue
         _labels = set(_label_re.findall(_txt))
@@ -1103,9 +1608,19 @@ def verify_payload():
     # [R66] 字面量操作数自检：aput/aget 系列的三个操作数都必须是寄存器。
     # 教训见 scripts/lint_smali_literals.py 头注释（生成器写 aput v2, v1, 72，
     # 直到 apktool 汇编才报 mismatched input，一次构建白烧 6 分钟）。
+    #
+    # [R75] 探测脚本以 importlib 加载本模块时，scripts/ 不在 sys.path 上，
+    # 直接 `import lint_smali_literals` 会 ModuleNotFound；显式补一次路径。
+    _scripts_dir = str(Path(__file__).resolve().parent)
+    if _scripts_dir not in sys.path:
+        sys.path.insert(0, _scripts_dir)
     import lint_smali_literals as _lsl
     # 检查**构建树**（已打补丁），而不是 payload 源：补丁阶段也可能引入字面量下标。
-    _rc = _lsl.main(str(MOD / "smali"))
+    # 只查「本次改写过的文件」：全树 2.3 万个文件要 90 秒，而原版 smali 不可能有
+    # 这类错误（来源只有 payload 手写代码与 patch_* 的文本注入）。
+    # 过滤已不存在的路径：Kotlin 迁移会把 OrekiTrace.smali 删掉（改由 classesN.dex 提供）。
+    _lint_files = [str(x) for x in sorted(TOUCHED_FILES) if x.is_file()]
+    _rc = _lsl.main(str(smali_tree()), files=_lint_files)
     assert _rc == 0, "[R66] smali 字面量操作数自检未通过"
     note("[4b] smali 字面量操作数自检通过")
 
@@ -1118,6 +1633,10 @@ def verify_payload():
     note("[4b] 策略语义夹具通过")
 
     # [R67] 首次永恒判定链：从 smali 提取跳转助记符，跑用户给定的 5 行判定表
+    import fixture_crunch_policy as _fcp
+    assert _fcp.checks >= 1 and _fcp.fails == [], "[R74] 大坍缩策略夹具未通过"
+    note("[4b] 大坍缩策略夹具通过（玩家选择优先）")
+
     import fixture_crunch_mode_label as _fcml
     assert _fcml.checks >= 1 and _fcml.fails == [], "[R73] 大坍缩模式标题夹具未通过"
     note("[4b] 大坍缩模式标题刷新夹具通过")
@@ -1184,7 +1703,7 @@ def verify_payload():
 
     # 时间侧：倍率注入点必须唯一，否则会重复乘算
     apply_hits = 0
-    for p in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+    for p in (smali_tree() / "kajfosz").rglob("*.smali"):
         txt = p.read_text(encoding="utf-8", errors="ignore")
         apply_hits += txt.count("}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D")
     assert apply_hits == 1, f"OrekiSpeed.apply 调用点应为 1 处，实际 {apply_hits} 处"
@@ -1193,7 +1712,7 @@ def verify_payload():
     # [Oreki AA] L3 成就位自检必须挂在 OrekiSpeed.apply 里，且只挂一次。
     # 挂两次 = 每帧多跑一遍 104 位谓词；一次都没有 = 通关验收拿不到 DONE 行。
     aa_hits = 0
-    for p in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+    for p in (smali_tree() / "kajfosz").rglob("*.smali"):
         aa_hits += p.read_text(encoding="utf-8", errors="ignore").count(
             "Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;->tick()V")
     assert aa_hits == 1, f"OrekiAchAudit.tick 调用点应为 1 处，实际 {aa_hits} 处"
@@ -1217,10 +1736,10 @@ def verify_payload():
 
     # [AU-DEL] AchievementUnlocker 已删除（死代码，零运行时引用）。
     # 双向反向断言：类文件不在了、且全树 0 引用 —— 少一条都说明有人把它请回来了。
-    assert not (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+    assert not (smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki"
                 / "AchievementUnlocker.smali").exists(), "[AU-DEL] 类文件仍存在"
     au_refs = 0
-    for p in (MOD / "smali").rglob("*.smali"):
+    for p in smali_tree().rglob("*.smali"):
         au_refs += p.read_text(encoding="utf-8", errors="ignore").count(
             "oreki/AchievementUnlocker;")
     assert au_refs == 0, f"[AU-DEL] 全树仍有 {au_refs} 处引用指向已删除的类"
@@ -1343,7 +1862,7 @@ def verify_payload():
     # 因此连 catch(Exception) 都兜不住）。该缺陷长期潜伏，因为 OrekiSpeed.init() 的
     # 幂等守卫写反导致首次调用就 return，StageAssist.sCtx 一直为 null，
     # onTick -> clearFlag 从不执行。修好 init 后立刻崩溃，故在此加硬守卫。
-    for sp in (MOD / "smali" / "kajfosz").rglob("*.smali"):
+    for sp in (smali_tree() / "kajfosz").rglob("*.smali"):
         txt = sp.read_text(encoding="utf-8", errors="ignore")
         assert "Landroid/content/SharedPreferences;->apply()V" not in txt, \
             f"[4h] {sp.name} 把 apply() 挂在 SharedPreferences 而非 Editor 上（会 NoSuchMethodError）"
@@ -1448,7 +1967,7 @@ def verify_payload():
     assert '"stage_assist_used"' not in tail, "[3C] clearFlag() 不得清留痕键 stage_assist_used"
     # ③ 自动化路径永不调用：调用面必须收敛为「1 处 UI 回调 + 本类 onTick」
     req_hits = run_hits = 0
-    for p in (MOD / "smali").rglob("*.smali"):
+    for p in smali_tree().rglob("*.smali"):
         t = p.read_text(encoding="utf-8", errors="ignore")
         n = t.count("StageAssist;->request(I)V")
         if n:
@@ -1685,14 +2204,23 @@ def _replace_method(src, signature, new_body):
 
 
 def patch_ad_bonus():
-    """t5.smali 位于默认包（work/mod/smali/t5.smali），必须由构建脚本注入，
-    不能直接改 work/mod（prepare() 每次 rmtree 重建）。"""
-    p = MOD / "smali" / "t5.smali"
+    """AD 自动购买开关补丁：t5.smali（3.19）/ k5.smali（3.20）。
+
+    位于默认包（work/mod/smali/<name>.smali），必须由构建脚本注入，
+    不能直接改 work/mod（prepare() 每次 rmtree 重建）。
+    """
+    _t5 = obfuscation_aliases().get("t5", "t5")
+    p = smali_tree() / f"{_t5}.smali"
     src = p.read_text(encoding="utf-8")
+    # [R75-C] 3.20 里 t5 被别的类占用；k5 是 6 方法全同构的唯一等价类（见别名表）。
+    # 该类内部引用的 r5 也要跟着换成 i5。
+    _r5 = obfuscation_aliases().get("r5")
+    if _r5:
+        src = re.sub(r"\bLr5;", f"L{_r5};", src)
 
     # A. 整方法替换 d()
     src = _replace_method(src, "public static d()Z", AD_T5_D_NEW)
-    note("[5] Ad Bonus: A. t5.d() 跳过时间/购买门槛（保留 Doomed）")
+    note(f"[5] Ad Bonus: A. {_t5}.d() 跳过时间/购买门槛（保留 Doomed）")
 
     # B / C. 指令级替换
     for label, old, new in [
@@ -1765,6 +2293,50 @@ def build_sign(java):
         note("!! 构建失败")
         return None
     note(f"[5] 未签名 APK: {unsigned.stat().st_size/1048576:.1f} MiB")
+
+    # [5a] Kotlin 迁移单元注入：把 `OrekiTrace.kt` 编译出的 dex 放进 APK 的附加 dex 槽位。
+    #
+    # 为什么走「附加 dex」而不是「编译成 smali」：
+    #   apktool 3.x 只能反编译 APK，不能直接解裸 dex；仓库里也没有独立 baksmali。
+    #   Android 原生支持 APK 里存在多个 classesN.dex，只要没有重复类即可。
+    #   这条路不需要改 apktool 管线，风险最小。
+    #
+    # 槽位要**自动探测**：原版 APK 本身就带 classes2.dex（多 dex），
+    # 写死 classes2 会撞名（R75 第一次正式构建就是这么失败的）。
+    # 从 2 开始找第一个没被占用的序号。
+    #
+    # 前置：`scripts/build_kotlin.py` 已把 .kt 编成 build/kt/classes.dex。
+    # 缺失时不阻断构建（Kotlin 是增量迁移，未编译就退回 Smali 版），只提示。
+    kt_dex = BUILD / "kt" / "classes.dex"
+    if kt_dex.exists():
+        import zipfile
+        tmp_apk = unsigned.with_suffix(".kt.apk")
+        try:
+            with zipfile.ZipFile(unsigned, "r") as zin:
+                existing = set(zin.namelist())
+            slot = None
+            for n in range(2, 100):
+                name = f"classes{n}.dex"
+                if name not in existing:
+                    slot = name
+                    break
+            assert slot is not None, "找不到可用的 classesN.dex 槽位（已有 98 个 dex？）"
+
+            with zipfile.ZipFile(unsigned, "r") as zin, \
+                    zipfile.ZipFile(tmp_apk, "w", zipfile.ZIP_DEFLATED) as zout:
+                for item in zin.infolist():
+                    zout.writestr(item, zin.read(item.filename))
+                zout.writestr(slot, kt_dex.read_bytes())
+            tmp_apk.replace(unsigned)
+            note(f"[5a] 已注入 Kotlin dex 为 {slot}（{kt_dex.stat().st_size} B，"
+                 f"原 APK 已有 {len([x for x in existing if x.startswith('classes') and x.endswith('.dex')])} 个 dex）")
+        except Exception as e:  # noqa: BLE001
+            note(f"!! Kotlin dex 注入失败：{e}")
+            if tmp_apk.exists():
+                tmp_apk.unlink()
+            return None
+    else:
+        note("[5a] 未找到 Kotlin dex，跳过注入（OrekiTrace 将使用 Smali 版）")
 
     # [5b] 时间戳规整：apktool 会把「写入时刻」写进每个 ZIP 条目，导致同一份源码
     # 在不同分钟构建出内容完全相同（CRC/大小/顺序一致）但 SHA-256 不同的 APK。
@@ -1878,17 +2450,19 @@ def patch_automator_waiting():
          StageAssist 先例一致；本 mod 默认语言已切 zh_CN）。
     """
     # ---- 1. vo.smali getters ----
-    vo = MOD / "smali" / "vo.smali"
+    # [R75-C] 3.20 里该类是 Loq（`e:Z` / `f:J` 字段名与类型都不变，结构直接对应）。
+    _vo_cls = obfuscation_aliases().get("vo", "vo")
+    vo = smali_tree() / f"{_vo_cls}.smali"
     vsrc = vo.read_text(encoding="utf-8")
-    assert ".field public static e:Z" in vsrc, "vo.e (isWaiting) 字段不存在"
-    assert ".field public static f:J" in vsrc, "vo.f (waitStart) 字段不存在"
+    assert ".field public static e:Z" in vsrc, f"{_vo_cls}.e (isWaiting) 字段不存在"
+    assert ".field public static f:J" in vsrc, f"{_vo_cls}.f (waitStart) 字段不存在"
     assert "isWaiting" not in vsrc and "waitStart" not in vsrc, "vo getter 已存在（重复注入）"
     getters = (
         "\n# [Oreki AW] AutomatorData.isWaiting / waitStart 只读访问器\n"
         ".method public static isWaiting()Z\n"
         "    .locals 1\n"
         "\n"
-        "    sget-boolean v0, Lvo;->e:Z\n"
+        f"    sget-boolean v0, L{_vo_cls};->e:Z\n"
         "\n"
         "    return v0\n"
         ".end method\n"
@@ -1896,7 +2470,7 @@ def patch_automator_waiting():
         ".method public static waitStart()J\n"
         "    .locals 2\n"
         "\n"
-        "    sget-wide v0, Lvo;->f:J\n"
+        f"    sget-wide v0, L{_vo_cls};->f:J\n"
         "\n"
         "    return-wide v0\n"
         ".end method\n"
@@ -1905,7 +2479,7 @@ def patch_automator_waiting():
     note("[AW] vo.smali: 追加 isWaiting()Z / waitStart()J 只读访问器")
 
     # ---- 2. 状态选取块插入等待分支 ----
-    lam = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "mainactivity" / (
+    lam = smali_tree() /  "kajfosz" / "antimatterdimensions" / "mainactivity" / (
         "MainActivityAutomatorKt$updateAutomator$1.smali")
     lsrc = lam.read_text(encoding="utf-8")
     anchor = (
@@ -1921,7 +2495,7 @@ def patch_automator_waiting():
     branch = (
         "    # [Oreki AW] 等待态优先：isWaiting 且未暂停 -> 等待文案；否则原逻辑。\n"
         "    # 只占用 v18（其后 0x922 处先写后读）与 v5（本分支内重写），不触碰 v10-v15。\n"
-        "    invoke-static {}, Lvo;->isWaiting()Z\n"
+        f"    invoke-static {{}}, L{_vo_cls};->isWaiting()Z\n"
         "\n"
         "    move-result v18\n"
         "\n"
@@ -1973,7 +2547,7 @@ def patch_autobuyer_cadence():
 
     Web 同源改动：3b5d577（另加微步，F=10000 帧数 1144 -> 67）。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "IntervaledAutobuyerState.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer" / "IntervaledAutobuyerState.smali"
     assert target.exists(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "OrekiSpeed;->mult()D" in src:
@@ -2007,7 +2581,7 @@ def patch_ec12_restriction():
 
     只改判定，不改 thisEternity.time 的记账口径，也不碰挑战最佳时间与统计。
     """
-    target = MOD / "smali" / "p51.smali"
+    target = smali_tree() /  "p51.smali"
     assert target.exists(), f"缺少 {target}（EC 限制闭包类未反编译出来）"
     blob = target.read_bytes()
     if b"Oreki EC12" in blob:
@@ -2059,7 +2633,7 @@ def patch_instant_challenge():
     与 Web 同源：src/core/oreki-instant-challenges.js（提交见 handoff/统一项目状态.md）。
     不发放 IP / EP / 无限次数 / 永恒次数，也不改解锁条件。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
     assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
     blob = target.read_bytes()
     marker = b"OrekiInstantChallenge;->tick()V"
@@ -2144,7 +2718,7 @@ def patch_auto_enter_eternity_challenge():
       （它自己会 maxAM/maxIP 还原、幂等闸门）。
       整个 tick() 包在 try/catch 里 —— 每帧调用，异常必须吞掉，绝不能把主循环打崩。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
     assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
     blob = target.read_bytes()
     marker = b"OrekiInstantChallenge;->tick()V"
@@ -2244,16 +2818,16 @@ def patch_auto_enter_eternity_challenge():
       所有**发放**（unlocked 变大）仍然只由 fp3.D 在 canBeBought / 扣费 / 前置全过之后自己写。
       整个 tick() 包在 try/catch 里 —— 每帧调用，异常必须吞掉，绝不能把主循环打崩。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
     assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
 
     # 新类必须已由步骤 [4] 从 scripts/payload 拷进来
-    newcls = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiChallengeAuto.smali"
+    newcls = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiChallengeAuto.smali"
     assert newcls.exists(), (
         "缺少 OrekiChallengeAuto.smali（payload 未拷入？检查步骤 [4] 是否整目录复制 scripts/payload）")
 
     # --- 外部符号存在性（混淆换名时立即失败，而不是运行到 EC 里才 NoSuchMethodError）---
-    roots = [MOD / "smali", MOD / "smali_classes2", MOD / "smali_classes3"]
+    roots = smali_roots()   # [R75] 按实际 dex 分组动态取（不写死 classes2/3）
 
     def _cls(desc):
         rel = desc[1:-1] + ".smali"
@@ -2291,7 +2865,13 @@ def patch_auto_enter_eternity_challenge():
         # [Oreki CA-3] 满级退关：EC 研究自己的 onBuy(false) 钩子（内部 r51.h(0) = unlocked 归零）
         ("Lkajfosz/antimatterdimensions/eternity/studies/b;", "E", "(Z)V"),
     ]
+    # [R75-C] 这张表按 3.19 混淆名书写（Lr51 / Lfp3 / Lc21 等）；3.20 已重排，
+    # 统一按别名表换算后再校验，避免把「改了名」误报成「补丁锚点失效」。
+    _al3 = obfuscation_aliases()
     for cls, name, rest in syms:
+        for _o, _n in _al3.items():
+            cls = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", cls)
+            rest = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", rest)
         f = _cls(cls)
         assert f is not None, f"混淆换名：找不到类 {cls}（自动进入补丁的锚点失效）"
         body = f.read_text(encoding="utf-8", errors="replace")
@@ -2338,7 +2918,7 @@ def patch_auto_enter_eternity_challenge():
         "EC start 又传 null continuation 了：ContinuationImpl 会 NPE，自动开打必然 100% 失效")
 
     # --- OrekiEcContinuation 自身结构断言（叶子 continuation，静态单例）---
-    ecct = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiEcContinuation.smali"
+    ecct = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiEcContinuation.smali"
     assert ecct.is_file(), "缺少 OrekiEcContinuation.smali（payload 未拷入？）"
     csrc = ecct.read_text(encoding="utf-8")
     assert ".super Lkotlin/coroutines/jvm/internal/ContinuationImpl;" in csrc, (
@@ -2871,7 +3451,7 @@ def check_iu15_threshold():
     """
     patched = 0
     for rel in IU15_THRESHOLD_SITES:
-        p = MOD / rel
+        p = mod_file(rel)   # [R75-C] 跨 dex 根目录（3.20 在 smali_classes2/）
         assert p.is_file(), f"缺少 {p}"
         with open(p, "r", encoding="utf-8", newline="") as f:
             txt = f.read()
@@ -2887,7 +3467,7 @@ def check_iu15_threshold():
             note(f"[Oreki IU15] {rel}: 门槛 1.5E12 -> 1e8（{n} 处）")
 
     for rel in IU15_THRESHOLD_SITES:
-        p = MOD / rel
+        p = mod_file(rel)
         with open(p, "r", encoding="utf-8", newline="") as f:
             txt = f.read()
         low = txt.lower()
@@ -2954,7 +3534,7 @@ def patch_pelle_end_target():
     只改两条 `const-wide` 的立即数，寄存器与 `.locals` 完全不变（同一寄存器、
     同一 64 位宽度），因此不需要动栈帧、不需要补 `const-wide/high16`。
     """
-    p = MOD / PELLE_END_SMALI
+    p = mod_file(PELLE_END_SMALI)   # [R75-C] 跨 dex 根目录（3.20 在 smali_classes2/）
     assert p.is_file(), f"缺少 {p}（payload/反编译目录不完整？）"
     src = p.read_text(encoding="utf-8")
     original = src
@@ -3054,11 +3634,11 @@ def patch_id_autobuyer_guard():
     R38 教训：只拦 tier==1 不够，ID2~ID8 会经 DimensionState.e() 逐层喂回 ID1 ——
       任何一层的购买等价于给 ID1 加量。所以守卫插在方法体开头、不读 tier。
     """
-    mod_id_state = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "dimension"
+    mod_id_state = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "dimension"
                     / "infinity" / "InfinityDimensionState.smali")
-    mod_iu = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "reality"
+    mod_iu = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "reality"
               / "imaginary_upgrades" / "b.smali")
-    mod_auto = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiAuto.smali"
+    mod_auto = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiAuto.smali"
 
     # ---- 锚点校验（无论开关都做，防止原版更新后静默漂移）----
     assert mod_id_state.is_file(), f"缺少 {mod_id_state}（payload/反编译目录不完整？）"
@@ -3177,7 +3757,7 @@ def patch_instant_challenge_rewards():
       结算后 maxAM / maxIP 都还原成结算前的值（C/IC 在 E() 之后还原，因为 E 要用 maxAM
       与 goal 比较才会写挑战最佳时间），所以 canCrunch / canEternity 不会恒真。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "OrekiInstantChallenge.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiInstantChallenge.smali"
     assert target.exists(), f"缺少 {target}（payload 未拷入？检查步骤 [4]）"
     src = target.read_text(encoding="utf-8")
 
@@ -3216,12 +3796,25 @@ def patch_instant_challenge_rewards():
         ("Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D", "最速记录归一化"),
         ("Lkajfosz/antimatterdimensions/OrekiSpeed;->migrateBest(Ltw4;)V", "旧记录单位迁移"),
     ]
+    # [R75-C] must 里的符号按 3.19 混淆名书写；3.20 基线已在 step 4.5 把 payload
+    # 重写成新名，所以断言前要同步套用同一张别名表，否则会误报「缺少调用」。
+    _al = obfuscation_aliases()
+    _fal = field_aliases() if _baseline_version().startswith("3.20") else {}
+
+    def _apply_alias(text: str) -> str:
+        # 字段级先做（更具体），再做类级
+        for (oc, of), (nc, nf) in _fal.items():
+            text = re.sub(rf"\bL{re.escape(oc)};->{re.escape(of)}:", f"L{nc};->{nf}:", text)
+        for _o, _n in _al.items():
+            text = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", text)
+        return text
+
     for frag, why in must:
-        assert frag in src, f"OrekiInstantChallenge 缺少 {why} 的调用：{frag}"
+        assert _apply_alias(frag) in src, f"OrekiInstantChallenge 缺少 {why} 的调用：{frag}"
 
     # --- 4) 外部符号存在性（与实际打包的 MOD 逐条对照，防止混淆换名）---
     # 只校验本补丁新增的引用；描述符必须逐字相同。
-    roots = [MOD / "smali", MOD / "smali_classes2", MOD / "smali_classes3"]
+    roots = smali_roots()   # [R75] 按实际 dex 分组动态取（不写死 classes2/3）
 
     def _class_file(desc):
         rel = desc[1:-1] + ".smali"
@@ -3270,6 +3863,23 @@ def patch_instant_challenge_rewards():
         ("Lkajfosz/antimatterdimensions/OrekiSpeed;", "migrateBest", "(Ltw4;)V"),
     ]
     for cls, name, rest in syms:
+        # [R75-C] 这张表按 3.19 混淆名书写；3.20 已重排，按别名表换算后再查。
+        # 字段级优先（Lln0;->w 在 3.20 是 Lbq0;->w，但同族 e/F 都换了字母），
+        # 然后才是类级（Lln0→Lbq0、Lju→ju_320、Ltw4→Llt4）。
+        _al2 = obfuscation_aliases()
+        _fal2 = field_aliases() if _baseline_version().startswith("3.20") else {}
+        _hit = False
+        for (oc, of), (nc, nf) in _fal2.items():
+            if cls == f"L{oc};" and name == of:
+                cls = f"L{nc};"
+                name = nf
+                rest = re.sub(rf"\bL{re.escape(oc)};", f"L{nc};", rest)
+                _hit = True
+                break
+        # 无论走哪条分支，最后都要把 rest（返回类型 / 参数类型）里的类别名套一遍
+        for _o, _n in _al2.items():
+            cls = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", cls)
+            rest = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", rest)
         f = _class_file(cls)
         assert f is not None, f"混淆换名：找不到类 {cls}（挑战发奖补丁的锚点失效）"
         body = f.read_text(encoding="utf-8", errors="replace")
@@ -3314,7 +3924,7 @@ def patch_frame_cadence():
     realTimePlayed / totalTimePlayed / 离线结算仍由 gameTick 内的 diff 决定，
     总量与帧率无关，只有采购决策密度随帧率上升。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "mainactivity" / "c0.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "mainactivity" / "c0.smali"
     assert target.exists(), f"缺少 {target}"
     # 按字节处理：read_text 会做换行归一化（CRLF -> LF），这里必须原样保留
     src = target.read_bytes()
@@ -3362,7 +3972,7 @@ def verify_eternity_chain():
       ⑦ 挂点必须在 `OrekiStageAuto.onAutoBuyerTick()` 里、Doomed 判定之后、
          `eternitiesZero()` 分叉**之前**（否则首次永恒永远不触发）。
     """
-    mod = MOD / "smali" / "kajfosz" / "antimatterdimensions"
+    mod = smali_tree() /  "kajfosz" / "antimatterdimensions"
     et = mod / "oreki" / "OrekiEternity.smali"
     assert et.is_file(), "[ET1] 缺少 OrekiEternity.smali（payload 未拷入？检查步骤 [4]）"
     s = et.read_text(encoding="utf-8")
@@ -3517,7 +4127,7 @@ def patch_autobuyer_unlock():
       另：R5.5 补充令要求保留手动购买维度/升级，全开自动购买器与该要求冲突，
       后续若重启此方向，应改为「到达首次无限后再解锁」，而不是开局全开。
     """
-    base = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer"
+    base = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer"
     plans = [
         # (文件, 方法签名, 原指令, 新指令, 说明)
         ("AntimatterDimensionAutobuyerState.smali", "public final g()Z",
@@ -3561,7 +4171,7 @@ def patch_debug_trace():
     """
     patch_autobuyer_unlock()
     trace = "Lkajfosz/antimatterdimensions/OrekiTrace;"
-    a = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "a.smali"
+    a = smali_tree() /  "kajfosz" / "antimatterdimensions" / "a.smali"
     src = a.read_text(encoding="utf-8")
     i, j = _scan_method(src, "public final b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;")
     body = src[i:j]
@@ -3582,7 +4192,7 @@ def patch_debug_trace():
     a.write_text(src[:i] + body + src[j:], encoding="utf-8")
     note("[Oreki DBG] 已在 Game.autoBuyerTick 维度块进出点埋点")
 
-    t = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / \
+    t = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer" / \
         "AntimatterDimensionAutobuyerState.smali"
     tsrc = t.read_text(encoding="utf-8")
     i, j = _scan_method(tsrc, "public final q(Lvh0;)Ljava/lang/Object;")
@@ -3616,7 +4226,7 @@ def patch_autobuyer_after_infinity():
     只改「能否运行」的判定，**不写 isBought、不伪造购买记录、不绕过成本**，
     Pelle 禁用检查仍在最后一道，语义与 Web 端 `PlayerProgress.infinityUnlocked()` 对齐。
     """
-    auto = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer"
+    auto = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer"
     plans = [
         ("AntimatterDimensionAutobuyerState.smali",
          "public final g()Z", "    if-eqz v0, :cond_1", "v0", "维度×8"),
@@ -3674,7 +4284,7 @@ def patch_autobuyer_boost_galaxy():
     只改「能否运行」，不改购买条件、成本、上限与重置副作用；
     Pelle 禁用检查仍是最后一道，语义与 Web 端 `PlayerProgress.infinityUnlocked()` 对齐。
     """
-    auto = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer"
+    auto = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer"
     plans = [
         ("DimBoostAutobuyerState.smali", "维度提升"),
         ("GalaxyAutobuyerState.smali", "反物质星系"),
@@ -3722,7 +4332,7 @@ def patch_autobuyer_crunch_after_infinity():
     修法：Doomed 分支原样返回；非 Doomed 分支在「NC12 完成」之外追加
     `OrekiAuto.hasInfinity()`。不改触发策略、阈值、间隔与重置逻辑。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
     assert target.exists(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AU4" in src:
@@ -3765,7 +4375,7 @@ def verify_au4b():
          （放在 hasInfinity 分流之后的话，已进入永恒/毁灭的存档就再也修正不到）；
       3. 只能改策略（mode/xHighest），不得直接写私有字段、不得碰 interval/cost/重置。
     """
-    p = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.smali"
+    p = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.smali"
     assert p.exists(), "[AU4b] 缺少 OrekiStageAuto.smali"
     s = p.read_text(encoding="utf-8")
     assert ".method public static applyCrunchPolicy()V" in s, "[AU4b] 缺少 applyCrunchPolicy()"
@@ -3779,10 +4389,28 @@ def verify_au4b():
     assert "CrunchAutobuyerState;->I()I" in body, "[AU4b] 必须读 mode"
     # [R50-A14] 策略从 X_HIGHEST/10 改为 AMOUNT/1e1000：X_HIGHEST 在「AM 每帧刷新历史最高」
     # 的局面下永不触发（实测 infinities 恒为 42、IP 永远到不了 ID1 要的 1e8）。
-    assert "if-eq v1, v2, :oreki_ap_xh" in body, "[AU4b] 已是 X_HIGHEST(2) 时必须直接去校准 xHighest"
-    assert "if-eq v1, v2, :ret_p" in body, "[AU4b] TIME(1) 模式必须原样保留（尊重玩家）"
+    # [R74] 语义已改：**不再每帧改写 mode**，只在进程内第一次进入时各写一次。
+    # 旧断言（要求存在 `if-eq v1, v2, :oreki_ap_xh` / 要求必须有 a(I)V 调用）与
+    # 「玩家选择优先」的新语义冲突，已同步更新 —— 断言要盯住**意图**，不是旧实现。
+    assert "sCrunchPolicyInit:Z" in body, \
+        "[AU4b] 必须有「归一化只做一次」的闩锁（R74：每帧改写 mode 会吞掉玩家的 AMOUNT 选择）"
+    assert "if-nez v1, :oreki_ap_first_run" in body, \
+        "[AU4b] 未初始化时必须进入首次校准分支（if-nez = 等于 0 时跳）"
+    assert ":oreki_ap_first_run" in body, "[AU4b] 缺少首次校准标签"
+    assert "if-eq v1, v2, :ret_p" in body, \
+        "[AU4b] 非 X_HIGHEST 模式必须原样保留（尊重玩家选择）"
+    # 红线（精确版）：写 mode 只允许出现在「一次性初始化」分支里。
+    # 早期写成「本方法不得出现 a(I)V」是**错的**：初始化分支本身必须写一次
+    # 才能给出默认策略。R74 第一次正式构建就因此被自己的断言挡下（9m08s 白跑）。
+    # 正确判据：每次 a(I)V 都必须紧跟在一个 sCrunch*Init 的置位之后。
+    _a_positions = [mm.start() for mm in re.finditer(r"CrunchAutobuyerState;->a\(I\)V", body)]
+    assert len(_a_positions) <= 2, \
+        f"[AU4b] 写 mode 的次数异常（{len(_a_positions)} 次）：只应有 AMOUNT/TIME 两条一次性初始化"
+    for _p in _a_positions:
+        _window = body[max(0, _p - 900):_p]
+        assert re.search(r"->sCrunch\w*Init:Z", _window), \
+            "[AU4b] 每次写 mode 都必须紧跟一次性闩锁置位，禁止每帧改写（R74 根因）"
     assert "if-gez v1, :ret_p" in body, "[AU4b] xHighest>=10 时必须原样保留（R64 改为 if-gez）"
-    assert "CrunchAutobuyerState;->a(I)V" in body, "[AU4b] 必须走公开 setter a(I)V 写 mode"
     assert "CrunchAutobuyerState;->P(" in body, "[AU4b] 必须走公开 setter P(...) 写 xHighest"
     assert "CrunchAutobuyerState;->L()" in body, "[AU4b] 必须走公开 getter L() 读 xHighest"
     assert "->mode:I" not in body and "->xHighest:" not in body, "[AU4b] 禁止直接读写私有字段（AU8）"
@@ -3803,7 +4431,7 @@ def patch_break_gate():
     为什么用构建期开关而不是运行期读系统属性：Android 上取 SystemProperties 需要反射，
     会把「反证」这件事本身引入不可控路径。构建期改一个立即数最干净、可复现。
     """
-    p = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiBreakGate.smali"
+    p = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiBreakGate.smali"
     assert p.exists(), "[AD5b] 缺少 OrekiBreakGate.smali"
     src = p.read_text(encoding="utf-8")
     marker = "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x0\n"
@@ -3827,7 +4455,7 @@ def verify_break_gate():
       5. 必须在 `onAutoBuyerTick` 的 interval 升级之后、ID1 之前被调用；
       6. 失败出口必须存在且带 OREKI_ABORT（不许静默 return）。
     """
-    base = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+    base = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki"
     g = (base / "OrekiBreakGate.smali").read_text(encoding="utf-8")
     sa = (base / "OrekiStageAuto.smali").read_text(encoding="utf-8")
 
@@ -3920,7 +4548,7 @@ def verify_pelle_record():
       6. 必须存 `copy()`，不许把 `player.antimatter` 这个可变对象直接别名进记录；
       7. getter 链必须与 endState 完全一致（p → d → h → a），链条错一环就写到别处去。
     """
-    base = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "oreki"
+    base = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki"
     rec_path = base / "OrekiPelleRecord.smali"
     assert rec_path.exists(), "[R42] 缺少 OrekiPelleRecord.smali"
     rec = rec_path.read_text(encoding="utf-8").replace("\r\n", "\n")
@@ -3982,6 +4610,135 @@ def verify_pelle_record():
     note("[R42] 终点记录守卫通过（调用点位置 / 反物质来源 / 两组极性 / copy 非别名 / 链条一致 / 异常兜底）")
 
 
+def patch_r74_temp_diag():
+    """[R74 临时诊断] 给 `CrunchAutobuyerState.a(I)V` 插一行「谁改的 mode」日志。
+
+    ⚠️ **仅用于本轮诊断构建，正式 Release 必须删掉这个函数与它的调用。**
+    守卫：环境变量 `OREKI_R74_DIAG=1` 时才注入，默认完全不生效，
+    这样即使忘记删，正常构建也不会带上。
+
+    为什么必须写在这里而不是直接改 `work/mod`：
+    Gradle 的 `fingerprintInputs` 只对 `payload_smali / base_decoded / build_scripts ...`
+    等内容做指纹，`work/mod` 是**产物目录**、不在指纹里。直接改 `work/mod` 后
+    Gradle 会判定 `UP-TO-DATE` 而整段跳过构建 —— 表现为「构建成功但改动没进包」。
+    R74 就踩了这个坑（16 秒"成功"，APK 时间戳仍是旧的）。
+    改 `build_mod.py` 会改变 `build_scripts` 指纹，从而真正触发重建。
+
+    输出格式：`OREKI_R74_DIAG: mode <old> -> <new> | frame <- frame <- ...`
+    """
+    if os.environ.get("OREKI_R74_DIAG") != "1":
+        note("[R74-DIAG] 未设置 OREKI_R74_DIAG=1，跳过临时插桩")
+        return
+
+    target = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer"
+              / "CrunchAutobuyerState.smali")
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    if "OREKI_R74_DIAG" in src:
+        note("[R74-DIAG] 已注入，跳过")
+        return
+
+    old = """.method public final a(I)V
+    .locals 0
+
+    .line 1
+    iput p1, p0, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->mode:I
+"""
+    assert old in src, "找不到 a(I)V 原始形态（混淆换名？）"
+
+    new = """.method public final a(I)V
+    .locals 6
+
+    # [R74-TEMP-DIAG] 临时诊断插桩，仅用于本轮诊断构建，**不得进入正式 Release**。
+    # 寄存器：v0=栈帧数组(循环中不变) v1=StringBuilder v2=上限/临时 v3=下标 v4=单帧 v5=输出串
+    # p1 = 入参（新 mode），全程只读，绝不能被栈帧临时值覆盖。
+    :try_start_r74d
+    new-instance v0, Ljava/lang/Throwable;
+
+    invoke-direct {v0}, Ljava/lang/Throwable;-><init>()V
+
+    invoke-virtual {v0}, Ljava/lang/Throwable;->getStackTrace()[Ljava/lang/StackTraceElement;
+
+    move-result-object v0
+    :try_end_r74d
+    .catch Ljava/lang/Throwable; {:try_start_r74d .. :try_end_r74d} :catch_r74d
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "mode "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->mode:I
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " -> "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " | "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    array-length v2, v0
+
+    const/16 v3, 0xc
+
+    if-le v2, v3, :r74d_cap
+
+    move v2, v3
+
+    :r74d_cap
+    const/4 v3, 0x0
+
+    :r74d_loop
+    if-ge v3, v2, :r74d_done
+
+    aget-object v4, v0, v3
+
+    invoke-virtual {v4}, Ljava/lang/StackTraceElement;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v4, " <- "
+
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    add-int/lit8 v3, v3, 0x1
+
+    goto :r74d_loop
+
+    :r74d_done
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    const-string v4, "OREKI_R74_DIAG"
+
+    invoke-static {v4, v5}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    goto :r74d_restore
+
+    :catch_r74d
+    move-exception v0
+
+    :r74d_restore
+    iput p1, p0, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;->mode:I
+"""
+
+    src = src.replace(old, new, 1)
+    assert "OREKI_R74_DIAG" in src
+    target.write_text(src, encoding="utf-8", newline="\n")
+    note("[R74-DIAG] 已注入 CrunchAutobuyerState.a(I)V 调用栈诊断")
+
+
 def patch_crunch_mode_label_refresh():
     """[Oreki R73] 让「自动大坍缩」卡片在点击后立即刷新模式标题。
 
@@ -4009,7 +4766,7 @@ def patch_crunch_mode_label_refresh():
     只对「带模式选择器」的卡片生效（`vn.e != null`），其它自动器完全不受影响。
     全段只读游戏状态 + 一次 setText，不写任何存档字段。
     """
-    target = (MOD / "smali" / "kajfosz" / "antimatterdimensions" / "ui" / "autobuyers"
+    target = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "ui" / "autobuyers"
               / "AutobuyerSingleBoxView.smali")
     assert target.exists(), f"缺少 {target}"
 
@@ -4124,7 +4881,7 @@ def patch_autobuyer_crunch_force_active():
        这与 OrekiAuto 里「不要直接 sget BigDouble.Zero」是同一条教训：
        **smali 补丁只能碰 public / protected 成员**。
     """
-    target = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
+    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
     assert target.exists(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AU4c" in src:
@@ -4200,7 +4957,7 @@ def patch_ip_mult_autobuyer():
     注意：只放宽 `e02.n0()`（全仓库仅 a.smali:8623 一处调用），
     不动 `s51.w()`（其它自动器共用）以免外溢成全局解锁。
     """
-    target = MOD / "smali" / "e02.smali"
+    target = smali_tree() /  "e02.smali"
     assert target.exists(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AU5" in src:
@@ -4245,7 +5002,7 @@ def patch_stage_auto_hook():
     trace_cls = "Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;"
 
     # --- 1) Game.autoBuyerTick 入口 ---
-    a = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "a.smali"
+    a = smali_tree() /  "kajfosz" / "antimatterdimensions" / "a.smali"
     assert a.exists(), f"缺少 {a}"
     src = a.read_text(encoding="utf-8")
     if "Oreki AU6" in src:
@@ -4268,7 +5025,7 @@ def patch_stage_auto_hook():
         note("[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()")
 
     # --- 2) CrunchAutobuyerState.c() 最前面注入 AD3b 暂停 ---
-    t = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
+    t = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer" / "CrunchAutobuyerState.smali"
     assert t.exists(), f"缺少 {t}"
     tsrc = t.read_text(encoding="utf-8")
     if "Oreki AU7" in tsrc:
@@ -4466,7 +5223,7 @@ def patch_tutorial_content():
     # （方法定义 1 次 + loadData 里唯一一次调用）。多于 2 次说明又接回了第二份正文。
     # 注意计数用「不带 -> 的裸名」：定义行是 `.method ... readAssetInto(...)V`，没有 `->`。
     # 这里刻意不按文件名断言 —— 旧版文件名不该再出现在任何脚本里。
-    _early_act = (MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    _early_act = (smali_tree() /  OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
                   / "TutorialActivity.smali")
     assert _early_act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
     asrc_txt_early = _early_act.read_text(encoding="utf-8")
@@ -4479,7 +5236,7 @@ def patch_tutorial_content():
     note(f"[R40H] 上一版正文已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
 
     # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
-    tut_dir = MOD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    tut_dir = smali_tree() /  OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
     act = tut_dir / "TutorialActivity.smali"
     assert act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
     asrc_txt = act.read_text(encoding="utf-8")
@@ -4614,7 +5371,7 @@ def patch_tutorial_entry():
     只有搜索框、没有「打开 Oreki 中文教程」。本版改为 tag 为 null 才进入插入块，
     并加了构建期断言防止再次写反。
     """
-    pkg_dir = MOD / "smali" / OLD_PKG.replace(".", "/")
+    pkg_dir = smali_tree() /  OLD_PKG.replace(".", "/")
     tut_src = PAYLOAD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
     for f in ("TutorialActivity.smali", "TutorialEntry.smali", "TutorialEntryListener.smali",
               "TutorialTabListener.smali", "DrawerInsetListener.smali",
@@ -4750,7 +5507,7 @@ def patch_autobuyer_batch_fallback():
     修法：整批不可负担时改走 `j(cost)` 买 1 个；买得起整批时行为完全不变。
     只放宽「不可负担」的分支，不改变任何成本、不产生免费购买。
     """
-    p = MOD / "smali" / "kajfosz" / "antimatterdimensions" / "dimension" / "antimatter" / \
+    p = smali_tree() /  "kajfosz" / "antimatterdimensions" / "dimension" / "antimatter" / \
         "AntimatterDimensionState.smali"
     assert p.exists(), f"缺少 {p}"
     src = p.read_text(encoding="utf-8")
@@ -4827,7 +5584,7 @@ def patch_v_unlock_thresholds():
       replicanti 1e20000 → BigDouble(1, 20000, true)
     """
     # ---------------------------------------------------------------- 1) 门槛（显示）
-    u55 = MOD / "smali" / "u55.smali"
+    u55 = smali_tree() /  "u55.smali"
     assert u55.exists(), f"缺少 {u55}（步骤 [0] 复制反编译目录没跑？）"
     usrc = u55.read_text(encoding="utf-8")
     umark = "# [Oreki V] unlock-thresholds v1"
@@ -4895,7 +5652,7 @@ def patch_v_unlock_thresholds():
              "replicanti 1e320000->1e20000")
 
     # ------------------------------------------------------- 2) 进度分母（3 个分支）
-    c15 = MOD / "smali" / "c15.smali"
+    c15 = smali_tree() /  "c15.smali"
     assert c15.exists(), f"缺少 {c15}"
     csrc = c15.read_text(encoding="utf-8")
     cmark = "# [Oreki V] progress-divisor v1"
@@ -4983,7 +5740,7 @@ def patch_dimboost_ad8_slope():
     R25 教训一并落实：斜率必须钳 ≥1，否则 discount=5 时变 0 → 需求量恒为 20 →
     `maxBuyDimBoosts` 的线性外推出现 0/0 = NaN → 每帧抛异常、主循环停摆。
     """
-    target = MOD / "smali" / "kx0.smali"
+    target = smali_tree() /  "kx0.smali"
     assert target.exists(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AD1" in src:
@@ -5047,6 +5804,8 @@ def main():
     patch_autobuyer_crunch_force_active()
     # [Oreki R73] 大坍缩模式标题点击后立即刷新（Q() 循环本身正确，缺的是 UI 重绘）
     patch_crunch_mode_label_refresh()
+    # [Oreki R74] 临时诊断：只在 OREKI_R74_DIAG=1 时注入，正式构建不生效
+    patch_r74_temp_diag()
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
     verify_au4b()
