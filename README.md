@@ -100,33 +100,70 @@ python scripts/build_mod.py
 ### 6.2 Gradle 工作流
 
 根目录提供 `build.gradle` 与 Gradle Wrapper（`gradlew` / `gradlew.bat`）。
-需要 JDK 17+（仓库内自带两个：`tools/jdk/jdk-17.0.20.1+1`、`tools/jdk/jdk-21.0.13+9`）。
+
+#### 工具链版本（R76-G，2026-11-04 实测）
+
+| 组件 | 版本 | 说明 |
+| --- | --- | --- |
+| Gradle Wrapper | **9.8.2** | `gradle/wrapper/gradle-wrapper.properties` |
+| Gradle JVM | **JDK 27**（Oracle 27.0.1.0.3） | 本机系统级 `JAVA_HOME` 指向它 |
+| Kotlin 编译器（命令行） | **2.4.21** | `tools/kotlinc/`，由 `scripts/build_kotlin.py` 调用 |
+| Build-Tools / D8-R8 | Android 14（D8 8.2.2） | `tools/bt/android-14/` |
+| apktool | 3.0.3 | `tools/apktool.jar` |
+| **AGP** | **不使用** | 本工程非 AGP 工程，见下 |
+| **Kotlin Gradle Plugin** | **不使用** | Kotlin 走命令行 kotlinc |
+
+> **重要**：本工程不是标准 AGP 工程。`build.gradle` / `settings.gradle` 里没有
+> `com.android.application`、没有 `org.jetbrains.kotlin` 插件、没有 `plugins {}`、
+> 没有 `dependencies`。Gradle 只做任务编排，实际构建由 `scripts/build_mod.py`
+> （apktool + smali 补丁 + zipalign + apksigner）完成。
+> 因此不存在「升级 AGP / 升级 Kotlin Gradle Plugin」这一操作。
+
+#### JDK 兼容性（实测证据）
+
+| 组合 | 结果 |
+| --- | --- |
+| Gradle 8.10.2 + JDK 27 | **失败**：`Unsupported class file major version 71` |
+| Gradle 9.8.2 + JDK 27 | **成功**：完整 Release 构建约 9m51s |
+
+Gradle 9 移除了 `Task.exec {}`。本项目已在 `build.gradle` 顶部改为项目级
+`ExecOperations` 注入（`runExec {}` 包装），5 处调用全部迁移。
 
 ```bash
-export JAVA_HOME="$(pwd)/tools/jdk/jdk-17.0.20.1+1"
+export JAVA_HOME="C:/Program Files/Java/jdk-27.0.1.0.3"   # 或仓库内 tools/jdk/jdk-21.0.13+9
 ./gradlew tasks            # 列出全部任务
+./gradlew assembleRelease --offline
 ```
 
-#### JAVA_HOME 环境变量要求（R75 实测记录）
+#### JAVA_HOME 环境变量要求（R76-G 更正）
 
 **要求**：`JAVA_HOME` 指向实际存在的 JDK 根目录，且系统 `Path` 包含 `%JAVA_HOME%\bin`。
-**本机实际情况（2026-11-04 核验）**：
+
+**本机实际配置（2026-11-04 复核，更正 R75 的错误结论）**：
 
 | 项 | 实测结果 |
 | --- | --- |
-| 系统级 `JAVA_HOME`（Machine） | **空**（未配置） |
-| `where java` / `javac` | **无输出**（不在任何 Path 中） |
-| 可用 JDK | `tools/jdk/jdk-17.0.20.1+1`（Temurin 17.0.20.1）、`tools/jdk/jdk-21.0.13+9`（Temurin 21.0.13+9） |
-| 当前账户是否管理员 | **否** |
-| 直接写 Machine 变量 | **失败**：`不允许所请求的注册表访问权` |
-| `sudo.exe`（Windows 11 内置） | 存在（v1.0.1.0），但在本非交互会话中执行后**无输出、无写入**，无法完成提权 |
-| 结论 | **当前账户没有系统级环境变量修改权限**，未降级为仅当前会话的临时设置 |
+| 系统级 `JAVA_HOME`（Machine） | `C:\Program Files\Java\jdk-27.0.1.0.3` ✅ |
+| 系统级 `Path` | 含 `%JAVA_HOME%\bin` ✅ |
+| JDK 实际版本 | Oracle JDK **27.0.1.0.3**（2026-10-25） |
+| 仓库内备选 JDK | `tools/jdk/jdk-17.0.20.1+1`、`tools/jdk/jdk-21.0.13+9` |
+| Scoop Gradle | `C:\Users\Oreki\scoop\apps\gradle\9.8.2`（全局 `gradle` 命令） |
 
-**因此本仓库不依赖全局 Java**，走两条内置兜底，二者都不需要管理员权限：
+> **R75 的结论有误**：当时报告「系统级 JAVA_HOME 为空、当前账户非管理员」，
+> 实际是 **WorkBuddy 终端会话未继承系统新环境变量**，系统级配置本身一直正确。
+> 新开的终端（或显式设置 `$env:JAVA_HOME`）即可读到 JDK 27。
+> 本节据此更正。
+
+**本仓库不依赖全局 Java**（换机器仍可构建），走两条内置兜底：
 
 1. `gradlew`（Git Bash）在 `JAVA_HOME` 为空时，自动扫描 `tools/jdk/*` 并选用；
 2. `build.gradle` 的 `jdkHome` 也按目录扫描（`tools/jdk/<任意版本>/`，取名字排序最后一个），
    把 JDK 路径传给需要它的子任务。
+
+> 注意：`gradlew` 首次运行需联网下载 `gradle-9.8.2-bin.zip`。
+> 若直连 `services.gradle.org` 超时，可临时用本机已安装的 Gradle 9.8.2（`gradle` 命令）
+> 执行同一批任务，产物完全一致；Wrapper 文件本身已正确指向 9.8.2。
+
 
 > 拿到管理员权限后，若要补齐系统级变量，执行
 > `scripts/set_java_home_admin.ps1`（以管理员身份运行 PowerShell 再执行该脚本）。

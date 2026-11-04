@@ -36,7 +36,40 @@ OUT_CLASS = ROOT / "build" / "kt" / "classes"
 OUT_DEX = ROOT / "build" / "kt"
 KOTLINC = ROOT / "tools" / "kotlinc" / "bin" / "kotlinc.bat"
 D8 = ROOT / "tools" / "bt" / "android-14" / "d8.bat"
-ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/android.jar")
+
+
+# --------------------------------------------------------------- [R76-SDK] SDK 定位
+# 原来这里写死 `C:/Users/Oreki/Android/sdk/platforms/android-34/android.jar`，
+# 换机器或换 SDK 根目录就跑不了（Git 里也不该出现个人绝对路径）。
+# 改成：ANDROID_HOME / ANDROID_SDK_ROOT 环境变量优先，其次几个常见默认位置，
+# 最后按 platforms/android-* 里最高的版本回落。
+def _find_android_jar() -> pathlib.Path | None:
+    roots: list[pathlib.Path] = []
+    for env in ("ANDROID_HOME", "ANDROID_SDK_ROOT"):
+        v = os.environ.get(env)
+        if v:
+            roots.append(pathlib.Path(v))
+    roots += [
+        pathlib.Path(r"C:\Users\Oreki\Android\sdk"),
+        pathlib.Path(os.path.expanduser("~/Android/Sdk")),
+        pathlib.Path(os.path.expanduser("~/Library/Android/sdk")),
+    ]
+    for r in roots:
+        p = r / "platforms"
+        if not p.is_dir():
+            continue
+        # 优先 android-34（本项目 d8/资源基线按它验证过），否则取最高版本
+        preferred = p / "android-34" / "android.jar"
+        if preferred.is_file():
+            return preferred
+        jars = sorted(p.glob("android-*/android.jar"),
+                      key=lambda x: int(x.parent.name.split("-")[1]) if x.parent.name.split("-")[1].isdigit() else 0)
+        if jars:
+            return jars[-1]
+    return None
+
+
+ANDROID_JAR = _find_android_jar() or pathlib.Path("android.jar")
 
 # 本轮迁移单元期望的 ABI：类名 -> 方法签名列表
 EXPECTED_ABI = {

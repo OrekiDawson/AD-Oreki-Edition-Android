@@ -58,8 +58,14 @@ CONTENT_TARGETS = [
 SCRIPT_DIRS = [ROOT / "scripts"]
 
 # 巨量只读基线：走 (path, size, mtime) 滚动哈希
+#
+# [R76] 基线目录由 OREKI_BASE 决定（唯一入口），不能写死 work/base_decoded：
+# 切换基线后指纹必须变化，否则 Gradle 会认为 UP-TO-DATE 而跳过必要重建，
+# 静默产出旧基线的包。这里把「基线路径本身」也纳入指纹 key，
+# 所以即使两个基线目录体积/mtime 碰巧一致，路径不同也会让指纹不同。
+_BASE_DIR = pathlib.Path(os.environ.get("OREKI_BASE") or (ROOT / "work" / "base_decoded")).resolve()
 STAT_TARGETS = [
-    ("base_decoded", ROOT / "work/base_decoded"),
+    ("base_decoded", _BASE_DIR),
     ("base_apk", ROOT / "work/kajfosz.antimatterdimensions.apk"),
     ("keystore", ROOT / "keys"),
 ]
@@ -78,6 +84,9 @@ STAGE_GLOB = "build/gradle-stage/*.apk"
 ENV_KEYS = [
     "OREKI_RELEASE_OUT",
     "OREKI_TUTORIAL_ALLOW_DRAFT",
+    # [R76] 基线选择必须进指纹：切到 3.20 后必须强制重建，不能因为
+    # 「payload 和脚本没变」就复用 3.19 的候选包。
+    "OREKI_BASE",
 ]
 
 

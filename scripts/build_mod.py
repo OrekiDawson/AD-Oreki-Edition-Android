@@ -52,13 +52,39 @@ APP_LABEL = "反物质维度"
 log = []
 
 # [R75] 本次构建「被写过」的 smali 文件集合。
-# 用途：`verify_payload` 的 .catch 自检只需扫这些文件（见该函数内注释）。
-# 原版反编译出来的 smali 不可能有悬空标签，全树扫 2.3 万个文件纯属浪费 95 秒。
+# 用途：`verify_payload` 的 .catch 自检与 lint 只扫这些文件。
+# 原版反编译出来的 smali 不可能有悬空标签或字面量下标错误，全树扫 2.3 万个文件
+# 要 95 秒，纯属浪费。
 TOUCHED_FILES: set[Path] = set()
+
+# [R76] 写入登记改成「统一入口」，不再依赖每个补丁记得手动调 mark_touched()。
+# 背景：R75 版本定义了 mark_touched() 但**一次都没调用过**，注释却声称
+# 「patch_* 修改的原版文件由各补丁登记」——注释与实现不符，等于自欺。
+# 现在所有 smali 写入必须走 write_smali()，它负责登记；直接 .write_text()
+# 仍可能出现（例如写 res/、assets/），但那类文件不参与 .catch / lint 检查。
+_TOUCH_LOG: list[str] = []
 
 
 def mark_touched(path: Path) -> None:
     TOUCHED_FILES.add(path.resolve())
+
+
+def write_smali(path, text: str, encoding: str = "utf-8", newline: str | None = None) -> None:
+    """写 smali 文件的唯一入口：写盘 + 自动登记到 TOUCHED_FILES。
+
+    Args:
+        path: 目标路径（可以是 Path，也可以是 _DexPath 这类延迟解析对象）。
+        text: 完整新内容。
+        encoding: 文本编码，默认 utf-8。
+        newline: 透传给 Path.write_text（部分补丁需要保留原换行风格）。
+    """
+    real = path.resolve() if hasattr(path, "resolve") else Path(path)
+    if newline is None:
+        real.write_text(text, encoding=encoding)
+    else:
+        real.write_text(text, encoding=encoding, newline=newline)
+    mark_touched(real)
+    _TOUCH_LOG.append(str(real.relative_to(MOD)) if str(real).startswith(str(MOD)) else str(real))
 
 
 def note(msg):
@@ -570,7 +596,7 @@ def patch_changelog_zh():
     # 分隔符与换行：译文段末必须正好是一个空行，否则版本之间会黏在一起
     assert merged.endswith("\n\n"), "日志尾必须是「空行 + 换行」，否则版本之间会黏在一起"
 
-    dst.write_text(merged, encoding="utf-8")
+    write_smali(dst, merged, encoding="utf-8")
     note(f"[R42] 更新日志已全中文化：{_count_bullets(merged)} 条；"
          f"上游 3.13.2 及更早的英文历史已整段移除，不再出现在首启弹窗")
 
@@ -736,7 +762,7 @@ def patch_smali():
            + "\n    invoke-static {v12, v13}, "
              "Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D\n"
              "\n    move-result-wide v12\n")
-    a.write_text(src.replace(old, new), encoding="utf-8")
+    write_smali(a, src.replace(old, new), encoding="utf-8")
     note("[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成")
 
     # 4.1b 天体累积加速：a.d(DZ) 是 Ra 宠物记忆 / Ra.momentumTime /
@@ -782,7 +808,7 @@ def patch_smali():
                              ("add-double v2, v2, p0", "add-double v2, v2, v22")):
         assert asrc2.count(old_use) == 1, f"a.d 使用点不唯一: {old_use}"
         asrc2 = asrc2.replace(old_use, new_use)
-    a.write_text(asrc2, encoding="utf-8")
+    write_smali(a, asrc2, encoding="utf-8")
     note("[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)")
 
     # 4.2 默认语言 en -> zh_CN
@@ -832,7 +858,7 @@ def patch_smali():
             "设置页语言默认值锚点丢失，拒绝继续"
         note('[4] MainActivity.smali: 设置页语言默认值已是 zh_CN，跳过')
 
-    m.write_text(msrc, encoding="utf-8")
+    write_smali(m, msrc, encoding="utf-8")
 
     # ③ 静态初值里的语言默认值也是 "en"（3.19 在 jw0.<clinit>，3.20 在 cz0.<clinit>）。
     # 前两处只覆盖「onCreate 之后」的路径：两者都是 `getString("language", 默认)`
@@ -889,7 +915,7 @@ def patch_smali():
         old_lit = f'    const-string {lang_reg}, "en"\n'
         assert cand_src.count(old_lit) == 1, "语言静态初值出现多次，拒绝落改"
         new_src = cand_src.replace(old_lit, f'    const-string {lang_reg}, "zh_CN"\n', 1)
-        lang_class.write_text(new_src, encoding="utf-8")
+        write_smali(lang_class, new_src, encoding="utf-8")
         note(f'[4] {lang_class.name}: 语言静态初值 -> zh_CN（字段 {lang_field}）')
     else:
         # 幂等：已经改过（zh_CN）就跳过；两样都找不到才算失败。
@@ -930,7 +956,7 @@ def patch_smali():
 
     return-void
 .end method'''
-    ap.write_text(asrc[:start] + body + asrc[end:], encoding="utf-8")
+    write_smali(ap, asrc[:start] + body + asrc[end:], encoding="utf-8")
     note("[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init")
 
     # 4.4 拷入新增类
@@ -977,7 +1003,7 @@ def patch_smali():
             for old, new_name in rewrites.items():
                 new = re.sub(rf"\bL{re.escape(old)};", f"L{new_name};", new)
             if new != txt:
-                dst.write_text(new, encoding="utf-8")
+                write_smali(dst, new, encoding="utf-8")
                 touched += 1
         note(f"[4] 混淆别名重写：{len(rewrites)} 条类规则 + {len(field_rewrites)} 条字段规则，"
              f"改写 {touched} 个 payload 类")
@@ -987,13 +1013,31 @@ def patch_smali():
     # （6 个 public static void xxx()），调用点 `Lkajfosz/antimatterdimensions/OrekiTrace;` 不变。
     #
     # 为什么要删掉 Smali 版：apktool 回编译时同一个类只能有一个定义，
-    # 同时存在会直接报 "duplicate class"。删 Smali 后由 dex 提供实现。
+    # 同时存在会直接报 "duplicate class"。
+    #
+    # [R76 关键修复] 删除必须以「Kotlin dex 真的存在且包含该类」为前提：
+    # 旧实现只判断 .kt 源文件存在就删 Smali，一旦 kotlinc/D8 失败（或没接进
+    # Gradle 依赖链，dex 根本没生成），就会静默产出**缺少 OrekiTrace 实现**的 APK,
+    # 运行到埋点调用时抛 NoClassDefFoundError。
+    # 现在的规则：dex 缺失 → 保留 Smali 回退版并明确记一条日志；绝不静默。
     kt_src = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "OrekiTrace.kt"
-    if kt_src.exists():
-        stale = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiTrace.smali"
+    kt_dex_ready = False
+    _kt_dex_path = BUILD / "kt" / "classes.dex"
+    if kt_src.exists() and _kt_dex_path.is_file() and _kt_dex_path.stat().st_size > 0:
+        # 进一步确认 dex 里确实有 OrekiTrace（防止拿到上一次构建的陈旧 dex）
+        try:
+            _dex_bytes = _kt_dex_path.read_bytes()
+            kt_dex_ready = b"OrekiTrace" in _dex_bytes
+        except OSError:
+            kt_dex_ready = False
+    if kt_dex_ready:
+        stale = smali_tree() / "kajfosz" / "antimatterdimensions" / "OrekiTrace.smali"
         if stale.exists():
             stale.unlink()
-            note("[4] 移除 OrekiTrace.smali（已迁移到 Kotlin，由附加 dex 提供）")
+            note("[4] 移除 OrekiTrace.smali（Kotlin dex 已就绪，由附加 dex 提供实现）")
+    else:
+        note("!! [4] Kotlin dex 未就绪，**保留** OrekiTrace.smali 回退版"
+             "（不删除；APK 仍可用，但本次不走 Kotlin 实现）")
 
     # [AU-DEL] payload 里已删掉的类，work/mod 里可能还留着上一轮的副本。
     # 拷贝只覆盖不删除，所以必须显式清掉，否则死代码照样会被打进 APK。
@@ -1233,7 +1277,7 @@ def patch_speed_records():
     assert src.count(ancor) == 1, f"最佳记录迁移锚点不唯一（{src.count(ancor)} 处）"
     src = src.replace(ancor, mig + f"    iget-wide v11, v5, L{_tw4 or 'tw4'};->a:D\n")
 
-    p.write_text(src, encoding="utf-8")
+    write_smali(p, src, encoding="utf-8")
     note("[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）")
 
 
@@ -1271,7 +1315,7 @@ def patch_recent_runs():
            "\n"
            "    move-result-wide v13\n")
     src = src.replace(old, new)
-    p.write_text(src, encoding="utf-8")
+    write_smali(p, src, encoding="utf-8")
     note("[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）")
 
 
@@ -1308,7 +1352,7 @@ def patch_recent_runs_er():
            "\n"
            "    move-result-wide v12\n")
     src = src.replace(old, new)
-    p.write_text(src, encoding="utf-8")
+    write_smali(p, src, encoding="utf-8")
 
     # --- 现实 ---
     q = smali_tree() /  OLD_PKG.replace(".", "/") / "prestige" / "f.smali"
@@ -1327,7 +1371,7 @@ def patch_recent_runs_er():
             "\n"
             "    move-result-wide v14\n")
     src2 = src2.replace(old2, new2)
-    q.write_text(src2, encoding="utf-8")
+    write_smali(q, src2, encoding="utf-8")
     note("[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）")
 
 
@@ -1356,7 +1400,7 @@ def patch_shop_coins():
            "    :ok\n"
            "    return v0\n"
            ".end method\n")
-    p.write_text(_replace_method(src, "public final getStds()I", new), encoding="utf-8")
+    write_smali(p, _replace_method(src, "public final getStds()I", new), encoding="utf-8")
     note("[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）")
 
 
@@ -1467,7 +1511,7 @@ def patch_effarig_nerf():
     # 本方法内原有 1 处 `div-double/2addr v0, v2`（= c/(c+sqrt)），插入后应为 2 处
     assert body.count("div-double/2addr v0, v2") == 2, "补丁写入失败（c 收敛指令数量异常）"
     assert out.count(".method " + sig) == 1, "补丁破坏了方法头"
-    target.write_text(out, encoding="utf-8")
+    write_smali(target, out, encoding="utf-8")
     note("[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）")
 
 
@@ -1531,7 +1575,7 @@ def patch_effarig_shard_divisor():
         "j() 的寄存器引用集合被改动（只应替换立即数）"
     assert body.count("div-double/2addr v0, v2") == 1, "j() 的除法指令被破坏"
     assert len(out.splitlines()) == len(src.splitlines()), "补丁改变了总行数（不应增删指令）"
-    target.write_text(out, encoding="utf-8")
+    write_smali(target, out, encoding="utf-8")
     note(f"[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → {OREKI_EFFARIG_SHARD_DIVISOR:.0f}"
          f"（EP 指数同量换 250 倍碎片）")
 
@@ -1646,7 +1690,7 @@ def verify_payload():
     note("[4b] 永恒判定链夹具通过")
 
     # 新分区不得写入第 18 行
-    sa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali").read_text(encoding="utf-8")
+    sa = (mod_file("smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali")).read_text(encoding="utf-8")
     assert "const/16 v1, 0x11" in sa and "const/16 v1, 0xd" in sa, "阶段行上限断言失败"
     assert "0x12" not in sa, "StageAssist 里不应用到第 18 行"
     note("[4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）")
@@ -1665,7 +1709,7 @@ def verify_payload():
     # 一旦闩锁被删掉，玩家在开局阶段手动关掉自动购买器后会**下一帧被强制重开**，
     # 等于剥夺手动控制权，违背「保留大部分有意义的手动玩法」。
     # 同时闩锁必须在过首次无限后被重置，否则玩家重开新档时开局自动化永久失效。
-    esa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali"
+    esa = (mod_file("smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali")
            ).read_text(encoding="utf-8")
     assert ".field private static sEarlyApplied:Z" in esa, \
         "缺少开局自动化闩锁字段 sEarlyApplied（玩家关闭自动购买器会被每帧重开）"
@@ -1678,7 +1722,7 @@ def verify_payload():
     # 守住的理由：阶段 1 的 infinityPower 恒为 0，一旦 sqrt 自变量下限或 c 收敛任何一项
     # 丢失，nerfFactor 就退回「恒 0」→ multDilation 锁死 0.25 → 反物质停在 1e159 上不去
     # 1.8e308，R31 实测 560 秒只爬 34 个数量级。
-    eff = (MOD / "smali/kajfosz/antimatterdimensions/celestials/effarig/a.smali"
+    eff = (mod_file("smali/kajfosz/antimatterdimensions/celestials/effarig/a.smali")
            ).read_text(encoding="utf-8")
     assert "Oreki RN" in eff, "鹿颈长削弱收敛补丁未生效（patch_effarig_nerf 未接入 main）"
     assert "Math;->max(DD)D" in eff, "nerfFactor 缺少 sqrt 自变量下限（power=0 时削弱恒满）"
@@ -1719,7 +1763,7 @@ def verify_payload():
     note(f"[4b] L3 成就自检注入点唯一性通过（tick 调用 {aa_hits} 处）")
 
     # --- [4n] Ra / Laitela 时间补偿倍率语义（对齐官方 realTimeMechanics）---
-    ad_full = (MOD / "smali/kajfosz/antimatterdimensions/a.smali").read_text(encoding="utf-8")
+    ad_full = (mod_file("smali/kajfosz/antimatterdimensions/a.smali")).read_text(encoding="utf-8")
     ad = ad_full[ad_full.index(".method public static d(DZ)V"):]
     ad = ad[:ad.index(".end method")]
     assert ".locals 24" in ad, "[4n] a.d 的 .locals 未扩到 24（暂存寄存器不足）"
@@ -1778,7 +1822,7 @@ def verify_payload():
         "门槛文案重复出现，可能被无条件复用"
     assert sa.count("成就门槛已被移除") == 1, "START 分支文案缺失或重复"
     assert "买最后一个 Time Study" not in sa, "未区分 START 的旧门槛文案仍在"
-    act = (MOD / "smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali"
+    act = (mod_file("smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali")
            ).read_text(encoding="utf-8")
     assert "买最后一个 Time Study" not in act, "设置页说明仍是未区分 START 的旧口径"
     assert "START perk 后门槛被移除" in act, "设置页说明未标注 START 会移除门槛"
@@ -1789,7 +1833,7 @@ def verify_payload():
     note("[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）")
 
     # --- [4d] 商店金币下限（目标 D）---
-    pur = (MOD / "smali/kajfosz/antimatterdimensions/shop/Purchases.smali").read_text(encoding="utf-8")
+    pur = (mod_file("smali/kajfosz/antimatterdimensions/shop/Purchases.smali")).read_text(encoding="utf-8")
     gs = _body(".method public final getStds()I", pur)
     assert "; Oreki: STD 下限" in gs, "getStds 未应用金币下限补丁"
     assert "const/16 v1, 0x2710" in gs, "getStds 缺少 10000 常量"
@@ -1805,7 +1849,7 @@ def verify_payload():
     #       ③ 路由 h64.d 前缀 = base64('{"money"')，只服务极老裸 JSON 存档；
     #       ④ 现代链路 e.q()/g.h/f(player.json) 对同名字段零缩放。
     # 因此这里做成守卫：任何人删掉这三行都会在构建期失败。
-    pl = MOD / "smali/kajfosz/antimatterdimensions/player"
+    pl = mod_file("smali/kajfosz/antimatterdimensions/player")
     dsm = (pl / "d.smali").read_text(encoding="utf-8")
     assert dsm.count("const-wide/high16 v13, 0x4059000000000000L") == 1, \
         "旧存档导入的 100.0 常量被改动（应为 1 处，供 3 个字段共用）"
@@ -1827,7 +1871,7 @@ def verify_payload():
     #   game.js:540-544     records.*.time     += diff        （放大值）
     #   big-crunch.js:95    bestInfinity.time = min(old, thisInfinity.time / f)
     # 即：计时字段存放大值，对外记录必须 /f。OrekiSpeed.unscale 就是那个 /f。
-    osp = (MOD / "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali").read_text(encoding="utf-8")
+    osp = (mod_file("smali/kajfosz/antimatterdimensions/OrekiSpeed.smali")).read_text(encoding="utf-8")
     for sig, desc in (
         (".method public static unscale(D)D", "unscale 归一化工具"),
         (".method public static unscaleBy(DD)D", "unscaleBy 显式倍率工具"),
@@ -1871,7 +1915,7 @@ def verify_payload():
     # --- [4g] 最佳无限时间归一化（S2，2026-10-26）---
     # ADfaster big-crunch.js:95 把 thisInfinity.time 先 /f 再参与 bestInfinity 比较与写入。
     # Android 的写入点是 prestige.e#g（Infinity.giveInfinityRewards）里的原地 iput-wide。
-    pe = (MOD / "smali/kajfosz/antimatterdimensions/prestige/e.smali").read_text(encoding="utf-8")
+    pe = (mod_file("smali/kajfosz/antimatterdimensions/prestige/e.smali")).read_text(encoding="utf-8")
     # S2 的两处必须都用 {v11, v12}（thisInfinity.time 的比较值与写入值）；
     # A2 新增的 {v13, v14} 属 PastRun.time，由 [4j] 单独校验，不计入这里。
     assert pe.count("{v11, v12}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D") == 2, \
@@ -1891,7 +1935,7 @@ def verify_payload():
     note("[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）")
 
     # --- [4i] 最佳记录单位迁移的幂等性与边界（A1，2026-10-26）---
-    osp = (MOD / "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali").read_text(encoding="utf-8")
+    osp = (mod_file("smali/kajfosz/antimatterdimensions/OrekiSpeed.smali")).read_text(encoding="utf-8")
     for sig, desc in (
         (".method public static migrateBest(Ltw4;)V", "migrateBest(Ltw4;)V"),
         (".method private static persistRecordsNorm()V", "persistRecordsNorm()V"),
@@ -1935,7 +1979,7 @@ def verify_payload():
 
     # --- [4k] StageAssist 行区间与解锁判定（A3，2026-10-26）---
     # 行号 m 为 1-based；区间过滤必须是「v5 < p0 跳过」+「v5 > p1 跳过」。
-    sa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali").read_text(encoding="utf-8")
+    sa = (mod_file("smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali")).read_text(encoding="utf-8")
     assert sa.count("if-lt v5, p0, :next") == 3, \
         f"[4k] 行区间下界过滤应为 if-lt（实际 {sa.count('if-lt v5, p0, :next')} 处，期望 3）"
     assert "if-ge v5, p0, :next" not in sa, "[4k] 仍有反向的行区间下界过滤（if-ge）"
@@ -1980,7 +2024,7 @@ def verify_payload():
     note("[3C] 助战三约束自检通过（默认关 / 独立留痕键 / request=1 run=1）")
 
     # 开启入口只允许改开关：不得顺手触发写入
-    tog = (MOD / "smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali"
+    tog = (mod_file("smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali")
            ).read_text(encoding="utf-8")
     assert "StageAssist;->setEnabled(Z)V" in tog, "[3C] 复选框没有接 setEnabled"
     for forbidden in ("StageAssist;->request", "StageAssist;->run(", "StageAssist;->unlockRows",
@@ -2002,7 +2046,7 @@ def verify_payload():
 
     # 审计必须按**时间**节流（0x1388 = 5000 ms）：apply 被调 ~1.7 万次/秒，
     # 按次数节流会退化成 ~19 Hz 满负荷审计（2026-10-31 实测，见 r40e §12.10）
-    aa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali"
+    aa = (mod_file("smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali")
           ).read_text(encoding="utf-8")
     assert "SystemClock;->uptimeMillis()J" in aa, "[AA] 审计必须用 uptimeMillis 做时间节流"
     assert "const-wide/16 v4, 0x1388" in aa, "[AA] 审计周期必须是 5000 ms（0x1388），不能按调用次数"
@@ -2022,7 +2066,7 @@ def verify_payload():
     #     compareTo(cost) → if-ltz :cond_0（cond_0 返回 0）；顺序落到 return 1
     #   ⇒ 「IP >= cost 返回 true」只有在 if-ltz = **小于零才跳** 时成立。
     #   ⇒ if-ltz = v<0, if-gez = v>=0, if-eqz = v==0, if-nez = v!=0, if-gtz = v>0。
-    sa_txt = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali"
+    sa_txt = (mod_file("smali/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.smali")
               ).read_text(encoding="utf-8")
     aa_txt = aa
 
@@ -2088,8 +2132,8 @@ def verify_payload():
     # --- [4m] 最近十次永恒/现实的 time 归一化（A4，2026-10-26）---
     # 官方 game.js:223 / :262 —— recentEternities / recentRealities 的 [time, realTime]
     # 同样是「游戏时间 + 真实毫秒」；time 必须归一化，realTime 不得除。
-    pc = (MOD / "smali/kajfosz/antimatterdimensions/prestige/c.smali").read_text(encoding="utf-8")
-    pf = (MOD / "smali/kajfosz/antimatterdimensions/prestige/f.smali").read_text(encoding="utf-8")
+    pc = (mod_file("smali/kajfosz/antimatterdimensions/prestige/c.smali")).read_text(encoding="utf-8")
+    pf = (mod_file("smali/kajfosz/antimatterdimensions/prestige/f.smali")).read_text(encoding="utf-8")
     assert "# [Oreki A4]" in pc, "[4m] prestige.c 缺少 A4 标记"
     assert "# [Oreki A4]" in pf, "[4m] prestige.f 缺少 A4 标记"
     assert pc.count("{v12, v13}, Lkajfosz/antimatterdimensions/OrekiSpeed;->unscale(D)D") == 1,         "[4m] pastTenEternities.time 应恰有 1 处 unscale"
@@ -2103,9 +2147,9 @@ def verify_payload():
     # --- [T2] 动态速度开关必须真的接到设置界面（不是只有 OrekiSpeed 里有方法）---
     # 反例：OrekiSpeed.setDynamic/isDynamic/modeLabel 全部存在，但设置页从来没调用，
     # 玩家在游戏里根本关不掉自动升档 —— 构建照样成功，属于「源码已改、界面没接」。
-    ssa = (MOD / "smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali"
+    ssa = (mod_file("smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali")
            ).read_text(encoding="utf-8")
-    mls = (MOD / "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali"
+    mls = (mod_file("smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali")
            ).read_text(encoding="utf-8")
     assert "OrekiSpeedModeListener;->describe()Ljava/lang/String;" in ssa, \
         "[T2] 设置页没有引用模式文案（动态速度没接进界面）"
@@ -2232,7 +2276,7 @@ def patch_ad_bonus():
         src = src.replace(old, new)
         note(f"[5] Ad Bonus: {label}")
 
-    p.write_text(src, encoding="utf-8")
+    write_smali(p, src, encoding="utf-8")
     note("[5] Ad Bonus: 十乘区（反物质/IP/EP/DT/RM/暗能量/记忆/稀有度/遗物碎片/游戏速度）永久生效已注入")
 
     # 静态自检
@@ -2475,7 +2519,7 @@ def patch_automator_waiting():
         "    return-wide v0\n"
         ".end method\n"
     )
-    vo.write_text(vsrc.rstrip("\n") + "\n" + getters, encoding="utf-8")
+    write_smali(vo, vsrc.rstrip("\n") + "\n" + getters, encoding="utf-8")
     note("[AW] vo.smali: 追加 isWaiting()Z / waitStart()J 只读访问器")
 
     # ---- 2. 状态选取块插入等待分支 ----
@@ -2516,7 +2560,7 @@ def patch_automator_waiting():
         "    :aw_orig\n"
         + anchor
     )
-    lam.write_text(lsrc.replace(anchor, branch), encoding="utf-8")
+    write_smali(lam, lsrc.replace(anchor, branch), encoding="utf-8")
 
     # ---- 3. 注入后自检 ----
     chk = lam.read_text(encoding="utf-8")
@@ -2556,7 +2600,7 @@ def patch_autobuyer_cadence():
     assert "IntervaledAutobuyerState;->k()D" in src, "c() 结构不符合预期（找不到 k() 调用）"
     body = (PAYLOAD / "templates" / "autobuyer_cadence_c.smali").read_text(encoding="utf-8")
     out = _replace_method(src, "public c()Z", body)
-    target.write_text(out, encoding="utf-8")
+    write_smali(target, out, encoding="utf-8")
     assert "OrekiSpeed;->mult()D" in out, "补丁写入失败"
     note("[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间")
 
@@ -3582,7 +3626,7 @@ def patch_pelle_end_target():
     src = _CONST_WIDE_LINE.sub(_fix_comment, src)
 
     if src != original:
-        p.write_text(src, encoding="utf-8", newline="")
+        write_smali(p, src, encoding="utf-8", newline="")
         note("[Oreki R38-B] 终局判定常量已镜像 Web：" + ("，".join(rewrote) or "仅同步注释"))
     else:
         note("[Oreki R38-B] 终局判定常量已是 1.0 / 1000.0，跳过")
@@ -3698,7 +3742,7 @@ def patch_id_autobuyer_guard():
         inject = (nl + ID_GUARD_TMPL.replace("{label}", label).replace("\n", nl)).encode("utf-8")
         src = src[:eol + 1] + inject.decode("utf-8") + src[eol + 1:]
 
-    mod_id_state.write_text(src, encoding="utf-8")
+    write_smali(mod_id_state, src, encoding="utf-8")
 
     after = mod_id_state.read_text(encoding="utf-8")
     assert after.count("OrekiAuto;->idBuyBlocked()Z") == 2, "守卫注入后不是 2 处"
@@ -3900,7 +3944,7 @@ def patch_instant_challenge_rewards():
     head = "# 挑战进入即完成（Oreki Edition）"
     assert head in src, "文件头锚点缺失，无法补写幂等标记"
     out = src.replace(head, head + "\n#\n" + marker, 1)
-    target.write_text(out, encoding="utf-8")
+    write_smali(target, out, encoding="utf-8")
     assert marker in target.read_text(encoding="utf-8"), "幂等标记写入失败"
     note("[Oreki RIS] 挑战进入即完成已改为「真实结算收益」：IP / 无限次数 / EP + 最速记录 + 幂等闸门")
 
@@ -4157,7 +4201,7 @@ def patch_autobuyer_unlock():
         )
         out = src[:i] + body2 + src[j:]
         assert "Oreki AU" in out, "补丁写入失败"
-        target.write_text(out, encoding="utf-8")
+        write_smali(target, out, encoding="utf-8")
         note(f"[Oreki AU] {label}自动购买器已解锁（{old.strip()} -> {new.strip()}）")
 
 
@@ -4189,7 +4233,7 @@ def patch_debug_trace():
         f"\n    :cond_23\n    invoke-static {{}}, {trace}->gSkip()V\n",
         1,
     )
-    a.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    write_smali(a, src[:i] + body + src[j:], encoding="utf-8")
     note("[Oreki DBG] 已在 Game.autoBuyerTick 维度块进出点埋点")
 
     t = smali_tree() /  "kajfosz" / "antimatterdimensions" / "autobuyer" / \
@@ -4213,7 +4257,7 @@ def patch_debug_trace():
         + br
     )
     body2 = body[:m] + inject + body[m + len(br):]
-    t.write_text(tsrc[:i] + body2 + tsrc[j:], encoding="utf-8")
+    write_smali(t, tsrc[:i] + body2 + tsrc[j:], encoding="utf-8")
     note("[Oreki DBG] 已在维度自动购买器 tick 埋入 canTick 分支埋点")
 
 
@@ -4267,7 +4311,7 @@ def patch_autobuyer_after_infinity():
         )
         body = body.replace(anchor, block, 1)
         assert "Oreki AU2" in body, "补丁写入失败"
-        target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+        write_smali(target, src[:i] + body + src[j:], encoding="utf-8")
         note(f"[Oreki AU2] {label}自动购买器：首次无限后解锁（追加 hasInfinity）")
 
 
@@ -4318,7 +4362,7 @@ def patch_autobuyer_boost_galaxy():
         )
         body = body.replace(anchor, block, 1)
         assert "Oreki AU3" in body, "补丁写入失败"
-        target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+        write_smali(target, src[:i] + body + src[j:], encoding="utf-8")
         note(f"[Oreki AU3] {label}自动购买器：首次无限后解锁（追加 hasInfinity）")
 
 
@@ -4362,7 +4406,7 @@ def patch_autobuyer_crunch_after_infinity():
     assert "Oreki AU4" in body, "补丁写入失败"
     assert "if-eqz p0, :oreki_au4_inf" in body, "AU4 极性断言失败：必须是 if-eqz（K() 为假时进兜底分支）"
     assert "if-nez p0, :oreki_au4_inf" not in body, "AU4 极性断言失败：if-nez 会让全新档 g() 恒 false"
-    target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    write_smali(target, src[:i] + body + src[j:], encoding="utf-8")
     note("[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity；极性 if-eqz 已修正）")
 
 
@@ -4437,7 +4481,7 @@ def patch_break_gate():
     marker = "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x0\n"
     assert src.count(marker) == 1, "[AD5b] 反证开关锚点不唯一/丢失"
     if os.environ.get("OREKI_BREAK_NO_GRANT") == "1":
-        p.write_text(src.replace(marker, "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x1\n", 1),
+        write_smali(p, src.replace(marker, "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x1\n", 1),
                      encoding="utf-8")
         note("[AD5b-CONTROL] OREKI_BREAK_NO_GRANT=1：一次性补贴已关闭（仅用于反证包）")
     else:
@@ -4735,7 +4779,7 @@ def patch_r74_temp_diag():
 
     src = src.replace(old, new, 1)
     assert "OREKI_R74_DIAG" in src
-    target.write_text(src, encoding="utf-8", newline="\n")
+    write_smali(target, src, encoding="utf-8", newline="\n")
     note("[R74-DIAG] 已注入 CrunchAutobuyerState.a(I)V 调用栈诊断")
 
 
@@ -4850,7 +4894,7 @@ def patch_crunch_mode_label_refresh():
     for banned in ("CrunchAutobuyerState;->a(I)V", "CrunchAutobuyerState;->Q()V"):
         assert banned not in block, f"R73 注入触碰了模式写入（红线）：{banned}"
 
-    target.write_text(src, encoding="utf-8", newline="\n")
+    write_smali(target, src, encoding="utf-8", newline="\n")
     note("[Oreki R73] 已注入：大坍缩模式标题点击后立即刷新")
 
 
@@ -4933,7 +4977,7 @@ def patch_autobuyer_crunch_force_active():
     anchor = "    invoke-super {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->c()Z"
     body = body.replace(anchor, block + anchor, 1)
     assert "Oreki AU4c" in body, "补丁写入失败"
-    target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    write_smali(target, src[:i] + body + src[j:], encoding="utf-8")
     note("[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）")
 
 
@@ -4980,7 +5024,7 @@ def patch_ip_mult_autobuyer():
     )
     body = body.replace(anchor, block + anchor, 1)
     assert "Oreki AU5" in body, "补丁写入失败"
-    target.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    write_smali(target, src[:i] + body + src[j:], encoding="utf-8")
     note("[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）")
 
 
@@ -5021,7 +5065,7 @@ def patch_stage_auto_hook():
         )
         body = body.replace(anchor, anchor + block, 1)
         assert "Oreki AU6" in body, "补丁写入失败"
-        a.write_text(src[:i] + body + src[j:], encoding="utf-8")
+        write_smali(a, src[:i] + body + src[j:], encoding="utf-8")
         note("[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()")
 
     # --- 2) CrunchAutobuyerState.c() 最前面注入 AD3b 暂停 ---
@@ -5046,7 +5090,7 @@ def patch_stage_auto_hook():
     )
     body = body.replace(au4c, block + au4c, 1)
     assert "Oreki AU7" in body, "补丁写入失败"
-    t.write_text(tsrc[:i] + body + tsrc[j:], encoding="utf-8")
+    write_smali(t, tsrc[:i] + body + tsrc[j:], encoding="utf-8")
     note("[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入")
 
     # --- 3) 静态守卫：本组补丁不得直接访问 private 字段（运行期 IllegalAccessError）
@@ -5425,7 +5469,7 @@ def patch_tutorial_entry():
              + "    invoke-static {p0}, "
                "Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;"
                "->install(Landroid/content/Context;)V\n")
-    ap.write_text(asrc.replace(anchor, block, 1), encoding="utf-8")
+    write_smali(ap, asrc.replace(anchor, block, 1), encoding="utf-8")
     note("[T1] App.onCreate 挂载 TutorialEntry.install(Context)")
 
     # --- 3) 静态断言：三件事都得真的在产物里 ---
@@ -5530,7 +5574,7 @@ def patch_autobuyer_batch_fallback():
     )
     body = body.replace(anchor, block, 1)
     assert "Oreki AB2" in body, "补丁写入失败"
-    p.write_text(src[:i] + body + src[j:], encoding="utf-8")
+    write_smali(p, src[:i] + body + src[j:], encoding="utf-8")
     note("[Oreki AB2] 维度批量购买：不可负担时退化为买 1 个")
 
 
@@ -5647,7 +5691,7 @@ def patch_v_unlock_thresholds():
             1,
         )
         assert out.count("    " + umark) == 1, "幂等标记写入异常"
-        u55.write_text(out, encoding="utf-8")
+        write_smali(u55, out, encoding="utf-8")
         note("[Oreki V] V.mainUnlock 门槛：realities 10000->200 / dilatedTime 1e320->1e30 / "
              "replicanti 1e320000->1e20000")
 
@@ -5683,7 +5727,7 @@ def patch_v_unlock_thresholds():
             1,
         )
         assert out.count("    " + cmark) == 1, "幂等标记写入异常"
-        c15.write_text(out, encoding="utf-8")
+        write_smali(c15, out, encoding="utf-8")
         note("[Oreki V] V.mainUnlock 进度分母：realities /10000->/200、dilatedTime /320->/30、"
              "replicanti /320000->/20000")
 
@@ -5770,7 +5814,7 @@ def patch_dimboost_ad8_slope():
         "    sub-double v8, v0, v8                        # v8 = targetResets - 5.0\n"
         "    mul-double/2addr v10, v8\n"
     )
-    target.write_text(src[:i] + block + src[j:], encoding="utf-8")
+    write_smali(target, src[:i] + block + src[j:], encoding="utf-8")
     patched = target.read_text(encoding="utf-8")
     assert "Oreki AD1" in patched, "补丁写入失败"
     assert "0x402e000000000000L" not in patched, "原版 15.0 斜率仍残留"

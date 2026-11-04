@@ -17,6 +17,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -31,8 +32,24 @@ APKSIGNER = TOOLS / "bt" / "android-14" / "lib" / "apksigner.jar"
 APKTOOL = TOOLS / "apktool.jar"
 
 EXPECT_PKG = "com.oreki.antimatterdimensions"
-EXPECT_VERSION_NAME = "3.19.0"
-EXPECT_VERSION_CODE = "30190000"
+
+# [R76] 期望版本从**所选基线**真实读取，不再写死 3.19.0 / 30190000。
+# 基线由 OREKI_BASE 唯一指定（与 build.gradle / build_mod.py 同一入口）。
+_BASE_DIR = Path(os.environ.get("OREKI_BASE") or (ROOT / "work" / "base_decoded")).resolve()
+
+
+def _read_base_version() -> tuple[str | None, str | None]:
+    yml = _BASE_DIR / "apktool.yml"
+    if not yml.is_file():
+        return (None, None)
+    txt = yml.read_text(encoding="utf-8", errors="ignore")
+    mn = re.search(r"(?m)^\s*versionName:\s*'?([^'\r\n]+)'?", txt)
+    mc = re.search(r"(?m)^\s*versionCode:\s*'?(\d+)'?", txt)
+    return (mn.group(1).strip() if mn else None,
+            mc.group(1).strip() if mc else None)
+
+
+EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_base_version()
 EXPECT_CERT = "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
 
 results = []

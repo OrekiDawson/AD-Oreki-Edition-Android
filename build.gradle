@@ -21,6 +21,25 @@ def reportDir = new File(buildRoot, 'gradle-reports')
 def stageApk = new File(stageDir, '反物质维度.apk')
 def releaseApk = file('release/反物质维度.apk')
 
+// ------------------------------------------------- [R76-G] Gradle 9 的 Exec 适配
+//
+// Gradle 9 移除了 `Task.exec {}`（Gradle 8 已弃用并告警，9 直接删）。
+// 旧写法在 Gradle 8.10 上只是 warning，升到 9.8.2 后立刻变成
+//   Could not find method exec() for arguments [...] on task ':verifyEnvironment'
+// 这是真实 API 不兼容，不是环境问题。
+//
+// Gradle 9 的正确做法：项目级注入 ExecOperations，用它来起进程。
+//   def execOps = project.services.get(ExecOperations)
+//   execOps.exec { ... }
+// 这样在任务行动（doLast）里也能用，且不依赖 Task 的已删方法。
+import org.gradle.process.ExecOperations
+def execOps = project.services.get(ExecOperations)
+
+// 便捷包装：保持原来 `exec { ... }` 的闭包形态，内部走 ExecOperations。
+def runExec = { Closure cfg ->
+    execOps.exec(cfg)
+}
+
 // ---------------------------------------------------------------- 工具链发现
 // 不写死个人绝对路径：JDK 在仓库内 tools/jdk/<任意版本>/，按目录扫描取最新。
 def jdkHome = {
@@ -39,8 +58,53 @@ def btDir = file('tools/bt/android-14')
 def keystore = file('keys/oreki.jks')
 
 def pkgName = 'com.oreki.antimatterdimensions'
-def expectVersionName = '3.19.0'
-def expectVersionCode = '30190000'
+
+// ======================================================= [R76] 唯一基线选择入口
+//
+// 背景：之前基线是隐式的 —— build_mod.py 读 work/base_decoded，
+// 而 build.gradle 里把期望版本写死成 3.19.0 / 30190000。一旦切换到 3.20 基线，
+// verifyEnvironment 会拿旧值去校验新基线，直接误报；指纹也不包含基线切换，
+// 于是「换了基线 Gradle 仍认为 UP-TO-DATE」⇒ 静默产出旧基线的包。
+//
+// 现在统一规则：
+//   1. 基线目录只能由 OREKI_BASE 环境变量或 -PorekiBase=... 指定这一处决定；
+//   2. 期望的 versionName / versionCode / package 一律**从该基线的 apktool.yml
+//      与 AndroidManifest.xml 真实读取**，不再写死；
+//   3. 同一个值同时喂给 verifyEnvironment、assembleRelease 的环境变量、
+//      build_fingerprint.py 与 verify_release.py，四处不再各自读文件。
+def resolveBaseDir = {
+    def fromProp = project.findProperty('orekiBase')
+    def fromEnv = System.getenv('OREKI_BASE')
+    def raw = fromProp ?: fromEnv ?: 'work/base_decoded'
+    return file(raw)
+}
+def baseDir = resolveBaseDir()
+def baseDecoded = new File(baseDir, '')   // 规范化
+
+// 从基线真实读取版本信息（apktool.yml 优先，缺了再看 AndroidManifest）
+def readBaseMeta = { File dir ->
+    def yml = new File(dir, 'apktool.yml')
+    def meta = [versionName: null, versionCode: null, pkg: null, ok: false]
+    if (!yml.isFile()) {
+        return meta
+    }
+    def txt = yml.getText('UTF-8')
+    def mName = txt =~ /(?m)^\s*versionName:\s*'?([^'\r\n]+)'?/
+    def mCode = txt =~ /(?m)^\s*versionCode:\s*'?(\d+)'?/
+    if (mName.find()) meta.versionName = mName.group(1).trim()
+    if (mCode.find()) meta.versionCode = mCode.group(1).trim()
+    def man = new File(dir, 'AndroidManifest.xml')
+    if (man.isFile()) {
+        def mtxt = man.getText('UTF-8')
+        def mp = mtxt =~ /package="([^"]+)"/
+        if (mp.find()) meta.pkg = mp.group(1)
+    }
+    meta.ok = (meta.versionName != null && meta.versionCode != null)
+    return meta
+}
+def baseMeta = readBaseMeta(baseDecoded)
+def expectVersionName = baseMeta.versionName
+def expectVersionCode = baseMeta.versionCode
 def avdName = 'oreki_test'
 
 // ------------------------------------------------------- 简易任务日志工具
@@ -63,7 +127,7 @@ tasks.register('verifyEnvironment') {
         def pyOk = false
         try {
             def out = new ByteArrayOutputStream()
-            exec {
+            runExec {
                 commandLine pythonExe, '--version'
                 standardOutput = out
                 errorOutput = out
@@ -87,9 +151,16 @@ tasks.register('verifyEnvironment') {
 
         add('adb', adbExe.exists(), adbExe.exists() ? adbExe.absolutePath : '缺 tools/platform-tools/adb.exe')
 
-        def baseOk = file('work/base_decoded/apktool.yml').exists()
+        // [R76] 基线来自唯一入口（OREKI_BASE / -PorekiBase），并校验真实版本
+        def baseOk = new File(baseDecoded, 'apktool.yml').isFile()
         add('base_decoded', baseOk,
-            baseOk ? 'work/base_decoded 就绪' : '缺 work/base_decoded（按 tools/README.md 用 apktool 反编译原始 XAPK 重建）')
+            baseOk ? "${baseDecoded.absolutePath} 就绪（versionName=$expectVersionName, versionCode=$expectVersionCode）"
+                   : "缺 ${baseDecoded.absolutePath}（按 tools/README.md 反编译原始 XAPK 重建）")
+        if (baseOk) {
+            add('base_version', baseMeta.versionName != null && baseMeta.versionCode != null,
+                baseMeta.ok ? "基线自述 ${baseMeta.versionName} / ${baseMeta.versionCode} / ${baseMeta.pkg ?: '?'}"
+                            : 'apktool.yml 里读不到 versionName/versionCode')
+        }
 
         def splitOk = file('work/xhdpi_decoded').isDirectory()
         add('xhdpi_split', splitOk, splitOk ? 'work/xhdpi_decoded 就绪' : '缺 work/xhdpi_decoded（config.xhdpi 反编译树）')
@@ -101,7 +172,7 @@ tasks.register('verifyEnvironment') {
         def devOnline = false
         try {
             def out = new ByteArrayOutputStream()
-            exec {
+            runExec {
                 commandLine adbExe, 'devices'
                 standardOutput = out
                 errorOutput = out
@@ -125,6 +196,29 @@ tasks.register('verifyEnvironment') {
             throw new GradleException('环境检查未通过：' + failed.collect { it.name }.join(', '))
         }
     }
+}
+
+// ================================================================ buildKotlinDex
+// [R76] Kotlin 编译接入发布依赖链。
+//
+// 背景：R75 加了 scripts/build_kotlin.py，但**没有任何 Gradle 任务调用它** ——
+// 只有手工跑过才有 build/kt/classes.dex。于是 clean 之后直接 assembleRelease，
+// 会拿到「没有 Kotlin dex」的包；更糟的是 build_mod 当时只要看见 .kt 源就删
+// Smali 版，等于产出缺实现的 APK。
+//
+// 现在：
+//   · buildKotlinDex 是 assembleRelease 的前置任务，每次构建都真实执行；
+//   · .kt 源与 kotlinc 版本都进指纹（见 build_fingerprint.py 的 payload 内容哈希）；
+//   · 编译失败 = 任务失败 = 不产出 APK（而不是静默退回）。
+tasks.register('buildKotlinDex', Exec) {
+    group = 'oreki'
+    description = '把 scripts/payload/kotlin/*.kt 编成 dex（kotlinc → D8）'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/build_kotlin.py', '--clean'
+    environment 'PYTHONIOENCODING', 'utf-8'
+    // 每次都真实跑：kotlinc 启动约 20 秒，相比 8 分钟主构建可忽略，
+    // 换来的是「clean 后也一定有 dex」的确定性。
+    outputs.upToDateWhen { false }
 }
 
 // ============================================================== fingerprintInputs
@@ -170,11 +264,14 @@ tasks.register('fingerprintInputs', Exec) {
 tasks.register('assembleRelease', Exec) {
     group = 'oreki'
     description = '用现有 smali/apktool 流水线生成候选 APK（输出 build/gradle-stage，不触碰 release/）'
-    dependsOn 'verifyEnvironment', 'fingerprintInputs'
+    dependsOn 'verifyEnvironment', 'fingerprintInputs', 'buildKotlinDex'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
     environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
     environment 'PYTHONIOENCODING', 'utf-8'
+    // [R76] 基线唯一入口：把 gradle 解析出的绝对路径喂给 build_mod.py，
+    // 避免「gradle 校验 A 基线、build_mod 却打 B 基线」的分叉。
+    environment 'OREKI_BASE', baseDecoded.absolutePath
     doFirst {
         stageDir.mkdirs()
         if (stageApk.exists()) stageApk.delete()   // 防止旧候选被误当本轮产物
@@ -185,7 +282,7 @@ tasks.register('assembleRelease', Exec) {
     onlyIf { forceFullBuild || project.hasProperty('orekiForceBuild') || staleFlag.exists() }
     // 构建成功之后才提交新指纹：失败不会污染下一次的判定基准。
     doLast {
-        exec {
+        runExec {
             workingDir = repoRoot
             commandLine pythonExe, 'scripts/build_fingerprint.py', '--commit'
             environment 'PYTHONIOENCODING', 'utf-8'
@@ -253,7 +350,7 @@ tasks.register('check') {
 def listOnlineDevices = {
     def out = new ByteArrayOutputStream()
     try {
-        exec { commandLine adbExe, 'devices'; standardOutput = out; errorOutput = out; ignoreExitValue = true }
+        runExec { commandLine adbExe, 'devices'; standardOutput = out; errorOutput = out; ignoreExitValue = true }
     } catch (Exception ignored) {
         return [:]
     }
@@ -268,7 +365,7 @@ def listOnlineDevices = {
 def getPropOf = { String serial, String key ->
     def out = new ByteArrayOutputStream()
     try {
-        exec {
+        runExec {
             commandLine adbExe, '-s', serial, 'shell', 'getprop', key
             standardOutput = out; errorOutput = out; ignoreExitValue = true
         }
