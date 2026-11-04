@@ -81,7 +81,57 @@ EXPECTED_ABI = {
         "public static final void buyTrue()",
         "public static final void buyFalse()",
     ],
+    # [R77] 调度器 Kotlin 全量转译。ABI 必须与旧 Smali 版逐字一致 ——
+    # 5 个调用方（OrekiStageAuto / OrekiBreakShop / OrekiAutomationUiListener /
+    # SpeedSettingsActivity / OrekiSpeed）全部是 invoke-static，签名一变就全废。
+    "kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler": [
+        "public static final void init(android.content.Context)",
+        "public static final boolean isEnabled()",
+        "public static final int getIntervalSec()",
+        "public static final boolean isStrictGlobal()",
+        "public static final void setEnabled(boolean)",
+        "public static final int setIntervalSec(int)",
+        "public static final void setStrictGlobal(boolean)",
+        "public static final int clampInterval(int)",
+        "public static final void beginFrame()",
+        "public static final boolean allow(java.lang.String)",
+        "public static final void noteActed(java.lang.String)",
+        "public static final void noteNoop(java.lang.String)",
+        "public static final void noteFail(java.lang.String)",
+        "public static final void clearReserve(java.lang.String)",
+        "public static final int intervalMs()",
+        "public static final java.lang.String statusLine()",
+        "public static final java.lang.String statsLine()",
+        "public static final long sinceLastActMs(java.lang.String)",
+        "public static final int servedCount(java.lang.String)",
+        "public static final void resetAll()",
+        "public static final void dbgState()",
+    ],
 }
+
+# [R77] Kotlin 已接管的类：对应的 Smali 版必须被删除，否则 apktool 回编译报 duplicate class。
+# 这份清单同时是「不可能悄悄双写」的守卫：只要 Kotlin 源存在，构建就强制校验 Smali 版已移除。
+KOTLIN_OWNED_CLASSES = {
+    "kajfosz.antimatterdimensions.OrekiTrace",
+    "kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler",
+}
+
+
+def _game_dex_classpath() -> list[pathlib.Path]:
+    """Kotlin 源码引用游戏类时的 classpath：优先当前反编译基线的 dex。
+
+    基线由 OREKI_BASE 决定（与 build.gradle / build_mod.py 同一入口），
+    默认 work/base_decoded。dex 取自 apktool 的 build/apk/ 或未打包的 dex 目录。
+    """
+    cands: list[pathlib.Path] = []
+    base = pathlib.Path(os.environ.get("OREKI_BASE") or (ROOT / "work" / "base_decoded"))
+    for d in (base / "build" / "apk", base):
+        if not d.is_dir():
+            continue
+        cands += sorted(d.glob("classes*.dex"))
+    if not cands:
+        print("[kotlin] 警告：找不到基线 dex，Kotlin 若引用游戏类会编译失败")
+    return cands
 
 
 def jdk_home() -> pathlib.Path:
@@ -139,7 +189,15 @@ def main() -> int:
     env["PATH"] = str(jdk / "bin") + os.pathsep + env.get("PATH", "")
 
     OUT_CLASS.mkdir(parents=True, exist_ok=True)
-    code, out = run([KOTLINC, "-nowarn", "-classpath", str(ANDROID_JAR)]
+    # [R77] 只把 android.jar 交给 kotlinc。
+    #
+    # 实测：kotlinc 的 -classpath **不接受 dex 输入**（报
+    # `error: source entry is not a Kotlin file: .../classes.dex`）。
+    # 因此 Kotlin 源码不得在编译期直接引用游戏类（Player / BigDouble …），
+    # 一律走 `Class.forName` + 反射 —— 见 OrekiAutomationScheduler.originalAutobuyersOn。
+    # 这是有意的架构选择：Kotlin 层只依赖 Android SDK，游戏类通过稳定 ABI 访问。
+    cp = str(ANDROID_JAR)
+    code, out = run([KOTLINC, "-nowarn", "-classpath", cp]
                     + [str(s) for s in sources] + ["-d", str(OUT_CLASS)], env=env)
     if code != 0:
         print("[kotlin] kotlinc 失败")

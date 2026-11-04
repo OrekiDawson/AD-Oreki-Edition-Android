@@ -42,7 +42,33 @@ def runExec = { Closure cfg ->
 
 // ---------------------------------------------------------------- 工具链发现
 // 不写死个人绝对路径：JDK 在仓库内 tools/jdk/<任意版本>/，按目录扫描取最新。
-def jdkHome = {
+//
+// [R77] JDK 兜底规则（用户 2026-11-04 令）的唯一实现是 scripts/jdk_env.py。
+// 优先级：JAVA_HOME（进程级 → 系统级）→ PATH → tools/jdk/* → Scoop。
+// Gradle 只调用它并复用同一个结果，保证 Gradle / build_mod / build_kotlin / D8
+// 不会各选一个 JDK。
+def pythonExe = System.getenv('PYTHON') ?: 'python'
+
+def jdkResolved = {
+    // 只解析、不自动安装（Gradle 配置阶段不该装东西）
+    def out = new ByteArrayOutputStream()
+    try {
+        def r = execOps.exec {
+            commandLine pythonExe, 'scripts/jdk_env.py', '--json', '--no-install'
+            standardOutput = out
+            errorOutput = out
+            ignoreExitValue = true
+        }
+        if (r.exitValue == 0) {
+            def txt = out.toString('UTF-8')
+            def m = txt =~ /"home"\s*:\s*"([^"]+)"/
+            if (m.find()) return new File(m.group(1))
+        }
+    } catch (Throwable ignored) {
+    }
+    return null
+}()
+def jdkHome = jdkResolved ?: {
     def base = file('tools/jdk')
     if (!base.isDirectory()) return null
     def cands = base.listFiles()?.findAll {
@@ -51,7 +77,6 @@ def jdkHome = {
     return cands ? cands.sort { it.name }.last() : null
 }()
 def javaExe = jdkHome ? new File(jdkHome, 'bin/java.exe') : null
-def pythonExe = System.getenv('PYTHON') ?: 'python'
 def adbExe = file('tools/platform-tools/adb.exe')
 def apktoolJar = file('tools/apktool.jar')
 def btDir = file('tools/bt/android-14')
@@ -215,6 +240,12 @@ tasks.register('buildKotlinDex', Exec) {
     description = '把 scripts/payload/kotlin/*.kt 编成 dex（kotlinc → D8）'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_kotlin.py', '--clean'
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     // 每次都真实跑：kotlinc 启动约 20 秒，相比 8 分钟主构建可忽略，
     // 换来的是「clean 后也一定有 dex」的确定性。
@@ -253,6 +284,12 @@ tasks.register('fingerprintInputs', Exec) {
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_fingerprint.py', '--check',
         '--flag', staleFlag.absolutePath
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     // 它自己每次都要真实跑一遍（读文件系统状态），不能被 Gradle 跳过
     outputs.upToDateWhen { false }
@@ -268,6 +305,12 @@ tasks.register('assembleRelease', Exec) {
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
     environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     // [R76] 基线唯一入口：把 gradle 解析出的绝对路径喂给 build_mod.py，
     // 避免「gradle 校验 A 基线、build_mod 却打 B 基线」的分叉。
@@ -285,7 +328,13 @@ tasks.register('assembleRelease', Exec) {
         runExec {
             workingDir = repoRoot
             commandLine pythonExe, 'scripts/build_fingerprint.py', '--commit'
-            environment 'PYTHONIOENCODING', 'utf-8'
+            // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
+    environment 'PYTHONIOENCODING', 'utf-8'
         }
     }
     // 不使用 Gradle 自己的 up-to-date 判定：产物由 onlyIf + 指纹决定，
@@ -303,6 +352,12 @@ tasks.register('verifyRelease', Exec) {
     commandLine pythonExe, 'scripts/verify_release.py',
         '--apk', stageApk.absolutePath,
         '--json', new File(reportDir, 'verify-release.json').absolutePath
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     doFirst { reportDir.mkdirs() }
     outputs.upToDateWhen { false }
@@ -315,6 +370,12 @@ tasks.register('verifyPatchContract', Exec) {
     dependsOn 'assembleRelease'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/verify_patch_contract.py'
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     outputs.upToDateWhen { false }
 }
@@ -441,6 +502,12 @@ tasks.register('smokeOrekiTest', Exec) {
     dependsOn 'installOrekiTest'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/avd_smoke.py', '--adb', adbExe.absolutePath
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     outputs.upToDateWhen { false }
 }
@@ -481,6 +548,12 @@ tasks.register('publishRelease', Exec) {
     dependsOn 'installToRelease'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/publish_apk.py', '--no-kde'
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    if (jdkHome != null) {
+        environment 'JAVA_HOME', jdkHome.absolutePath
+        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
     environment 'PYTHONIOENCODING', 'utf-8'
     outputs.upToDateWhen { false }
 }

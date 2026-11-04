@@ -81,6 +81,31 @@ SHA-256 1e5782461ff81b687775c0fdcac74faa7dfe8299238a809784cc91a9f387c259
 
 ## 六、构建、签名与 APK 输出
 
+### 6.0 构建模式：默认离线（长期规则，见 `docs/AGENTS_GLOBAL.md` §63）
+
+日常开发、增量构建、Release 构建**默认离线**：
+
+```bash
+./gradlew assembleRelease --offline
+```
+
+只有当离线构建**明确报出缺少具体依赖坐标**、或升级 Gradle/Kotlin/构建依赖时，才切在线。
+在线只负责补齐缓存，补完必须重新跑一次离线构建确认可复现。**不得**为绕过错误无差别清缓存。
+
+### 6.0b 代码形态：Android 业务逻辑全面 Kotlin（长期规则，见 §64）
+
+链路固定：`Kotlin 源码 → kotlinc → D8 → DEX → APK`。
+
+- 业务逻辑写在 `scripts/payload/kotlin/**/*.kt`，构建期由 `scripts/build_kotlin.py` 编译，
+  产物 `build/kt/classes.dex` 由 `build_mod.py` 注入为 `classesN.dex`。
+- **禁止**新增 Smali 业务逻辑或直接改 Smali 方法体实现新功能。
+- Kotlin 已接管的类登记在 `build_kotlin.py` 的 `KOTLIN_OWNED_CLASSES`，
+  `build_mod.py` 按该清单删除对应 Smali 版（前提是 dex 里确实含该类）。
+- `EXPECTED_ABI` 表用 `javap` 逐方法断言，签名不符即构建失败 —— 防止"改了源码没进 APK"。
+- **工具链限制（实测）**：`kotlinc -classpath` 不接受 dex 输入。Kotlin 层访问游戏类
+  一律走 `Class.forName` + 反射，不因此把逻辑写回 Smali。
+
+
 有两条等价路径：**直接跑 Python 脚本**（最常用）与 **Gradle 工作流**（带环境检查、验证与交付编排）。
 
 ### 6.1 直接构建（Python）

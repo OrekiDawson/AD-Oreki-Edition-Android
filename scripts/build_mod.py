@@ -96,6 +96,26 @@ def note(msg):
 _ROOTS_CACHE: list[Path] | None = None
 
 
+def _kotlin_owned_classes() -> list[str]:
+    """Kotlin 已接管的类全名清单（唯一来源：build_kotlin.py 的 KOTLIN_OWNED_CLASSES）。
+
+    为什么从脚本读而不是这里再写一份：清单必须与 ABI 断言表同步演进，
+    两处各记一份迟早漂移 —— 会出现「Kotlin 已接管但 Smali 没删」（duplicate class）
+    或「Smali 删了但 Kotlin 没编」（NoClassDefFoundError）。
+    """
+    try:
+        import importlib.util as _ilu
+        spec = _ilu.spec_from_file_location("_bk", ROOT / "scripts" / "build_kotlin.py")
+        if spec is None or spec.loader is None:
+            return []
+        mod = _ilu.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return sorted(getattr(mod, "KOTLIN_OWNED_CLASSES", set()))
+    except Exception as exc:  # noqa: BLE001
+        note(f"[4] ⚠ 读取 Kotlin 迁移清单失败：{exc}")
+        return []
+
+
 def smali_roots() -> list[Path]:
     """MOD 树里所有 smali 根目录（smali / smali_classes2 / ...），按 dex 序号排序。
 
@@ -1020,24 +1040,46 @@ def patch_smali():
     # Gradle 依赖链，dex 根本没生成），就会静默产出**缺少 OrekiTrace 实现**的 APK,
     # 运行到埋点调用时抛 NoClassDefFoundError。
     # 现在的规则：dex 缺失 → 保留 Smali 回退版并明确记一条日志；绝不静默。
-    kt_src = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "OrekiTrace.kt"
-    kt_dex_ready = False
+    # [R77] 通用机制：Kotlin 已接管的类，逐个删除对应 Smali 版。
+    #
+    # 旧实现只硬编码 OrekiTrace 一个类。R77 起 Kotlin 转译是长期强制规则
+    # （用户 2026-11-04 令），迁移类会持续增加，必须换成清单驱动。
+    #
+    # 删除前提仍是「Kotlin dex 真的存在且包含该类」—— 绝不因为 .kt 源存在就删，
+    # 否则 kotlinc/D8 失败时会静默产出缺实现的 APK（R76 修过的坑）。
+    #
+    # 清单唯一来源：scripts/build_kotlin.py 的 KOTLIN_OWNED_CLASSES，
+    # 与 ABI 断言表放在一起，避免「两边各记一份、慢慢漂移」。
     _kt_dex_path = BUILD / "kt" / "classes.dex"
-    if kt_src.exists() and _kt_dex_path.is_file() and _kt_dex_path.stat().st_size > 0:
-        # 进一步确认 dex 里确实有 OrekiTrace（防止拿到上一次构建的陈旧 dex）
+    kt_dex_bytes: bytes | None = None
+    if _kt_dex_path.is_file() and _kt_dex_path.stat().st_size > 0:
         try:
-            _dex_bytes = _kt_dex_path.read_bytes()
-            kt_dex_ready = b"OrekiTrace" in _dex_bytes
+            kt_dex_bytes = _kt_dex_path.read_bytes()
         except OSError:
-            kt_dex_ready = False
-    if kt_dex_ready:
-        stale = smali_tree() / "kajfosz" / "antimatterdimensions" / "OrekiTrace.smali"
-        if stale.exists():
-            stale.unlink()
-            note("[4] 移除 OrekiTrace.smali（Kotlin dex 已就绪，由附加 dex 提供实现）")
-    else:
-        note("!! [4] Kotlin dex 未就绪，**保留** OrekiTrace.smali 回退版"
-             "（不删除；APK 仍可用，但本次不走 Kotlin 实现）")
+            kt_dex_bytes = None
+
+    _kt_owned = _kotlin_owned_classes()
+    _kt_missing: list[str] = []
+    _kt_removed: list[str] = []
+    for fqcn in _kt_owned:
+        simple = fqcn.rsplit(".", 1)[-1]
+        if kt_dex_bytes is None or simple.encode() not in kt_dex_bytes:
+            _kt_missing.append(fqcn)
+            continue
+        rel = fqcn.replace(".", "/") + ".smali"
+        # 逐个 smali 根查找（类可能在 smali / smali_classes2）
+        for root in smali_roots():
+            cand = root / rel
+            if cand.is_file():
+                cand.unlink()
+                _kt_removed.append(rel)
+
+    for rel in _kt_removed:
+        note(f"[4] 移除 {rel}（Kotlin dex 已就绪，由附加 dex 提供实现）")
+    if _kt_missing:
+        note(f"!! [4] Kotlin dex 缺类：{', '.join(_kt_missing)}（保留 Smali 回退版）")
+        # 不 assert 中断：Kotlin 迁移是增量过程，缺类时退回 Smali 版仍可交付。
+        # 但必须在日志里显式可见，绝不静默。
 
     # [AU-DEL] payload 里已删掉的类，work/mod 里可能还留着上一轮的副本。
     # 拷贝只覆盖不删除，所以必须显式清掉，否则死代码照样会被打进 APK。

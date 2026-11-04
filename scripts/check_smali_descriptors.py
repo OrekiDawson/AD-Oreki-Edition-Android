@@ -103,11 +103,35 @@ def collect_defined() -> set:
     return defined
 
 
+def _kotlin_dex_descriptors() -> set:
+    """从 Kotlin 编译产物 dex 里读出类描述符（`Lpkg/Class;` 形式）。
+
+    有意的"读字符串"而不是完整解析 dex：只用来回答"这个类存不存在"，
+    dex 的字符串表里一定含类描述符，且比引入 dex 解析依赖简单可靠。
+    读不到就返回空集 —— 让校验退回原行为，不会因此漏报真实缺失。
+    """
+    dex = ROOT / "build" / "kt" / "classes.dex"
+    if not dex.is_file() or dex.stat().st_size == 0:
+        return set()
+    try:
+        blob = dex.read_bytes()
+    except OSError:
+        return set()
+    found: set[str] = set()
+    # Kotlin 侧类名都是 ASCII，直接按 `L...;` 形态扫；长度上限防止误吞二进制噪声
+    for m in re.finditer(rb"L(kajfosz/[A-Za-z0-9_$/]+);", blob):
+        found.add("L" + m.group(1).decode("ascii") + ";")
+    return found
+
+
 def main() -> int:
     if not BASE_ROOTS:
         print(f"[skip] 没有可用的 smali 基线目录，跳过类描述符校验")
         return 0
     defined = collect_defined()
+    # [R77] Kotlin 已接管的类：它们只在 build/kt/classes.dex 里，不在 smali 树中。
+    # 不把它们算作"已定义"，就会把正常的 Kotlin 迁移误报成"引用了不存在的类"。
+    defined |= _kotlin_dex_descriptors()
     problems = {}
     for f in sorted(PAYLOAD.rglob("*.smali")):
         txt = strip_comments(f.read_text(encoding="utf-8", errors="ignore"))
