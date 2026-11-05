@@ -80,41 +80,41 @@ object OrekiStageAuto {
 
     /** 「开局自动化已应用」闩锁。 */
     @JvmField
-    var sEarlyApplied: Boolean = false
+    var earlyAutomationApplied: Boolean = false
 
     /** `holdCrunch()` 上次结果，仅用于翻转时打日志。 */
     @JvmField
-    var sHold: Boolean = false
+    var lastCrunchHoldResult: Boolean = false
 
     @JvmField
-    var sSacCount: Int = 0
+    var sacrificeAttemptCount: Int = 0
 
     @JvmField
-    var sCrunchProbeTick: Int = 0
+    var crunchProbeTick: Int = 0
 
     @JvmField
-    var sIpMultBuys: Int = 0
+    var ipMultiplierPurchaseCount: Int = 0
 
     @JvmField
-    var sIupProbeTick: Int = 0
+    var infinityUpgradeProbeTick: Int = 0
 
     @JvmField
-    var sIupProbeDone: Int = 0
+    var infinityUpgradeProbeDone: Int = 0
 
     @JvmField
-    var sIdLoopLogged: Boolean = false
+    var infinityDimensionLoopLogged: Boolean = false
 
     @JvmField
-    var sCrunchPolicyInit: Boolean = false
+    var crunchPolicyInitialized: Boolean = false
 
     @JvmField
-    var sCrunchTimeInit: Boolean = false
+    var crunchTimeModeInitialized: Boolean = false
 
     /** bulk 轮转指针（不进存档）。 */
-    private var sBulkCursor: Int = 0
+    private var bulkPurchaseCursor: Int = 0
 
     /** ID 层轮转指针（不进存档）。 */
-    private var sIdCursor: Int = 0
+    private var infinityDimensionCursor: Int = 0
 
     // ---------------------------------------------------------------- 每帧入口
 
@@ -142,10 +142,12 @@ object OrekiStageAuto {
             }
 
             // 已过首次无限：清掉开局闩锁，玩家重置存档后还能再应用一次。
-            sEarlyApplied = false
+            earlyAutomationApplied = false
 
             if (!GameApi.isDoomed()) {
-                // 永恒层
+                // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
+                // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
+                runScheduled("eternity") { buyEternityUpgrades() }
                 GameApi.eternityTick()
 
                 // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
@@ -262,8 +264,8 @@ object OrekiStageAuto {
     /** `eternities == 0`。 */
     @JvmStatic
     fun eternitiesZero(): Boolean {
-        val e = GameApi.eternities() ?: return false
-        return GameApi.compareToDouble(e, 0.0) == 0
+        val eternityCount = GameApi.eternities() ?: return false
+        return GameApi.compareToDouble(eternityCount, 0.0) == 0
     }
 
     private fun isBroken(): Boolean = GameApi.isBroken()
@@ -289,13 +291,13 @@ object OrekiStageAuto {
     /**
      * 开局自动化：首次无限之前打开五类自动购买器。
      *
-     * **只应用一次**（`sEarlyApplied` 闩锁）：否则玩家手动关掉任意自动购买器后
+     * **只应用一次**（`earlyAutomationApplied` 闩锁）：否则玩家手动关掉任意自动购买器后
      * 下一帧就被强制重开，等于剥夺开局阶段的手动控制权。
      */
     @JvmStatic
     fun enableEarly() {
-        if (sEarlyApplied) return
-        sEarlyApplied = true
+        if (earlyAutomationApplied) return
+        earlyAutomationApplied = true
         Log.i(TAG_EARLY, "applied")
         try {
             // 主开关
@@ -333,18 +335,18 @@ object OrekiStageAuto {
         } else {
             val nextBoost = GameApi.nextBoost()
             val threshold = GameApi.sacrificeMultiplier()
-            val c = if (nextBoost != null && threshold != null) {
+            val comparabilityProbe = if (nextBoost != null && threshold != null) {
                 GameApi.compareToDouble(nextBoost, 0.0) // 只为拿到非 null 标记
             } else null
             // 直接用 BigDouble.compareTo(BigDouble)：用 nextBoost.compareTo(threshold)
             val cmpToThreshold = compareBigDoubles(nextBoost, threshold)
-            if (c == null || cmpToThreshold == null || cmpToThreshold < 0) {
+            if (comparabilityProbe == null || cmpToThreshold == null || cmpToThreshold < 0) {
                 false
             } else {
                 GameApi.doSacrifice()
-                sSacCount++
-                if (sSacCount <= 10 || sSacCount % 100 == 0) {
-                    Log.i(TAG_SAC, sSacCount.toString())
+                sacrificeAttemptCount++
+                if (sacrificeAttemptCount <= 10 || sacrificeAttemptCount % 100 == 0) {
+                    Log.i(TAG_SAC, sacrificeAttemptCount.toString())
                 }
                 true
             }
@@ -363,11 +365,11 @@ object OrekiStageAuto {
     private fun compareBigDoubles(a: Any?, b: Any?): Int? {
         if (a == null || b == null) return null
         return try {
-            val m = a.javaClass.methods.firstOrNull {
+            val compareMethod = a.javaClass.methods.firstOrNull {
                 it.name == "compareTo" && it.parameterCount == 1 &&
                     it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
             }
-            m?.invoke(a, b) as? Int
+            compareMethod?.invoke(a, b) as? Int
         } catch (_: Throwable) {
             null
         }
@@ -388,8 +390,8 @@ object OrekiStageAuto {
         if (autos == null || autos.isEmpty()) {
             false
         } else {
-            val idx = sBulkCursor % autos.size
-            sBulkCursor = (sBulkCursor + 1) % autos.size
+            val idx = bulkPurchaseCursor % autos.size
+            bulkPurchaseCursor = (bulkPurchaseCursor + 1) % autos.size
             val dim = autos[idx]
             val before = GameApi.bulkOf(dim)
             GameApi.upgradeBulk(dim)
@@ -415,6 +417,19 @@ object OrekiStageAuto {
      *
      * @return true = 本次真的买到一项
      */
+    /** 每拍最多购买一项一次性永恒升级；实际成本和奖励仍由原版商店处理。 */
+    private fun buyEternityUpgrades(): Boolean {
+        if (!GameApi.canAutomateEternityUpgrades()) return false
+        for (upgrade in GameApi.eternityUpgrades()) {
+            if (GameApi.upgradeBought(upgrade)) continue
+            if (GameApi.upgradeBuy(upgrade)) {
+                Log.i(TAG_EARLY, "永恒升级：原版商店购买成功")
+                return true
+            }
+        }
+        return false
+    }
+
     @JvmStatic
     fun buyInfinityUpgrades(): Boolean = try {
         probeInfinityUpgradesOnce()
@@ -433,8 +448,8 @@ object OrekiStageAuto {
         if (!GameApi.idUnlocked(id1)) {
             // 未解锁：IP ≥ 1e7 就停手，攒钱等 ID1 解锁
             val ip = ipBalance()
-            val c = cmp(ip, 1.0e7)
-            if (c != null && c >= 0) return false
+            val ipVersusGate = cmp(ip, 1.0e7)
+            if (ipVersusGate != null && ipVersusGate >= 0) return false
         } else {
             // 已解锁：只有买过 ID1 才恢复买 ipMult
             if (GameApi.idPurchases(id1) == 0L) return false
@@ -449,8 +464,8 @@ object OrekiStageAuto {
         val lv = GameApi.ipMultLevel(ipMult)
         GameApi.setIpMultLevel(ipMult, lv + 1)
 
-        sIpMultBuys++
-        if (sIpMultBuys <= 50 || sIpMultBuys % 10 == 0) {
+        ipMultiplierPurchaseCount++
+        if (ipMultiplierPurchaseCount <= 50 || ipMultiplierPurchaseCount % 10 == 0) {
             Log.i(TAG_IPM_LV, (lv + 1).toString())
         }
         true
@@ -460,8 +475,8 @@ object OrekiStageAuto {
 
     /** 入口探针：只打一次「列表大小 / 第 0 项是否已买 / 是否买得起」。 */
     private fun probeInfinityUpgradesOnce() {
-        if (sIupProbeDone != 0) return
-        sIupProbeDone = 1
+        if (infinityUpgradeProbeDone != 0) return
+        infinityUpgradeProbeDone = 1
         try {
             val list = GameApi.infinityUpgrades() ?: return
             Log.i(TAG_IUP_SIZE, list.size.toString())
@@ -492,8 +507,8 @@ object OrekiStageAuto {
             } else {
                 val cost = GameApi.crunchCost(crunch)
                 val ip = ipBalance()
-                val c = cmp(ip, cost)
-                if (c == null || c < 0) {
+                val ipVersusCost = cmp(ip, cost)
+                if (ipVersusCost == null || ipVersusCost < 0) {
                     false // 买不起
                 } else {
                     GameApi.crunchBuy(crunch) // 原版入口，照价扣 IP
@@ -521,15 +536,15 @@ object OrekiStageAuto {
         if (!isBroken()) {
             false
         } else {
-            val tier = (sIdCursor % 8) + 1
-            sIdCursor = (sIdCursor + 1) % 8
+            val tier = (infinityDimensionCursor % 8) + 1
+            infinityDimensionCursor = (infinityDimensionCursor + 1) % 8
             val id = GameApi.infinityDimension(tier) ?: return false
 
             // 门槛：thisEternity.maxAM >= 该层要求
             val required = GameApi.idRequirement(id)
             val maxAM = GameApi.thisEternityMaxAM()
-            val c = compareBigDoubles(maxAM, required)
-            if (c == null || c < 0) {
+            val maxAntimatterVersusRequirement = compareBigDoubles(maxAM, required)
+            if (maxAntimatterVersusRequirement == null || maxAntimatterVersusRequirement < 0) {
                 false
             } else {
                 if (!GameApi.idUnlocked(id)) {
@@ -596,8 +611,8 @@ object OrekiStageAuto {
     @JvmStatic
     fun holdCrunch(): Boolean {
         val hold = computeHoldCrunch()
-        if (hold != sHold) {
-            sHold = hold
+        if (hold != lastCrunchHoldResult) {
+            lastCrunchHoldResult = hold
             Log.i(TAG_HOLD, if (hold) "hold=1" else "hold=0")
         }
         return hold
@@ -650,8 +665,8 @@ object OrekiStageAuto {
             val bits = GameApi.breakUpgradeBits() ?: return
             if (GameApi.bitSetCardinality(bits) == 0) {
                 // ---- 早期：TIME 模式 + 1 秒 ----
-                if (!sCrunchTimeInit) {
-                    sCrunchTimeInit = true
+                if (!crunchTimeModeInitialized) {
+                    crunchTimeModeInitialized = true
                     GameApi.setCrunchMode(crunch, MODE_TIME)
                     Log.i(TAG_AU4C, "policy -> TIME/1s (break-upgrades empty)")
                 }
@@ -659,14 +674,14 @@ object OrekiStageAuto {
                 GameApi.setCrunchInterval(crunch, 1.0)
             } else {
                 // ---- 终局：只做一次 xHighest 默认校准，不改 mode ----
-                if (sCrunchPolicyInit) return
-                sCrunchPolicyInit = true
+                if (crunchPolicyInitialized) return
+                crunchPolicyInitialized = true
                 if (GameApi.crunchMode(crunch) != MODE_X_HIGHEST) return
 
                 val xh = GameApi.crunchXHighest(crunch)
                 // < 10 才补默认；== 10 / > 10 都不动（避免每帧重写刷屏）
-                val c = cmp(xh, 10.0)
-                if (c != null && c < 0) {
+                val highestVersusTen = cmp(xh, 10.0)
+                if (highestVersusTen != null && highestVersusTen < 0) {
                     GameApi.setCrunchXHighest(crunch, GameApi.bigDouble(10.0))
                     Log.i(TAG_AU4B, "policy -> X_HIGHEST/10")
                 }
@@ -684,8 +699,8 @@ object OrekiStageAuto {
     @JvmStatic
     fun crunchProbe() {
         try {
-            sCrunchProbeTick++
-            if (sCrunchProbeTick % 300 != 0) return
+            crunchProbeTick++
+            if (crunchProbeTick % 300 != 0) return
             val crunch = GameApi.crunchState() ?: return
             var mask = GameApi.crunchMode(crunch).coerceAtLeast(0)
             if (GameApi.crunchCanTick(crunch)) mask = mask or (1 shl 2)

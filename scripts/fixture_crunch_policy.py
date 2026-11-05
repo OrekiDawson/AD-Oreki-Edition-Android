@@ -73,19 +73,25 @@ ok_once = True
 for pos in a_calls:
     head = code[:pos]
     tail = "\n".join(head.splitlines()[-40:])
-    if not re.search(r"sCrunch\w*Init\s*=\s*true", tail):
+    # [R80] 判据改为「同一个 if (!xxxInitialized) { 块内」：
+    # 该方法里有两个维护不同分支的闩锁（crunchTimeModeInitialized /
+    # crunchPolicyInitialized），只认固定字段名必然误判。
+    if not (re.search(r"if\s*\(\s*!\s*\w*Initialized\s*\)\s*\{", tail)
+            and re.search(r"\w*Initialized\s*=\s*true", tail)):
         ok_once = False
         break
 check("每次写 mode 都在「首次初始化」分支内（不是每帧执行）", ok_once,
       "R74 根因：每帧改写会吞掉玩家在卡片上的选择")
 
 # ---- 2. 一次性闩锁 ----
-check("有「只校准一次」的静态闩锁 sCrunchPolicyInit",
-      "var sCrunchPolicyInit: Boolean" in text)
+# [R80] 字段按 §67 命名规范改为 crunchPolicyInitialized；接受新旧名。
+_latch = "crunchPolicyInitialized" if "crunchPolicyInitialized" in text else "sCrunchPolicyInit"
+check("有「只校准一次」的静态闩锁（crunchPolicyInitialized）",
+      f"var {_latch}: Boolean" in text)
 check("已初始化时直接返回（等价于原来的 if-nez 首次分支）",
-      "if (sCrunchPolicyInit) return" in code)
+      f"if ({_latch}) return" in code)
 check("首次校准分支存在且置位闩锁",
-      "sCrunchPolicyInit = true" in code)
+      f"{_latch} = true" in code)
 
 # ---- 3. 旧的两态归一化必须消失 ----
 _amt_rewrite = re.search(r"setCrunchMode\([^)]*MODE_X_HIGHEST", code)
@@ -106,8 +112,10 @@ check("TIME 分支仍把间隔校准为 1 秒",
       "setCrunchInterval(crunch, 1.0)" in code)
 
 # ---- 7. xHighest 只在 < 10 时补默认 ----
+# [R80] 局部变量按 §67 改为 highestVersusTen；接受历史写法。
 check("xHighest 仅在 < 10 时补默认（>= 10 保留玩家值）",
-      re.search(r"if \(c != null && c < 0\)", code) is not None)
+      re.search(r"if \((?:highestVersusTen|comparisonResult|c) != null && "
+                r"(?:highestVersusTen|comparisonResult|c) < 0\)", code) is not None)
 
 # ---- 8. 未解锁时不动 ----
 check("未解锁时直接返回",

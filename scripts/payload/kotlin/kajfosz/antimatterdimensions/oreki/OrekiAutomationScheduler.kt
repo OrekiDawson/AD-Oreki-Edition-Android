@@ -170,9 +170,9 @@ object OrekiAutomationScheduler {
     }
 
     private fun persist() {
-        val c = ctx ?: return
+        val currentContext = ctx ?: return
         try {
-            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .putBoolean(KEY_ENABLED, enabled)
                 .putInt(KEY_INTERVAL, intervalSec)
                 .putBoolean(KEY_STRICT, strictGlobal)

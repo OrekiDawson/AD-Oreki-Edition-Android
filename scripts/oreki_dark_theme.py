@@ -42,7 +42,7 @@ import re
 from pathlib import Path
 
 MARK = "[Oreki DARK]"
-PKG_DIR = "kajfosz/antimatterdimensions"
+PKG_DIR = Path("kajfosz/antimatterdimensions")
 APPEARANCE = "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;"
 THEME_STYLE = "Lkajfosz/antimatterdimensions/player/DeviceOptions$ThemeStyle;"
 DARK_APPEARANCE_FIELD = APPEARANCE + "->c:" + APPEARANCE      # Appearance.c == DARK (ordinal 0)
@@ -54,17 +54,104 @@ class DarkThemeError(RuntimeError):
     pass
 
 
+# 3.20 原版取证：fs.x 读主题，cz0 保存外观，l63 保存记数法；h 负责新档重置。
+# 此映射只属于 UI 兼容层，不能用默认包短名改写其它包的同名类。
+THEME_CLASS_ALIASES_320 = {
+    "o40": "fs", "jw0": "cz0", "o43": "l63", "qk4": "yh4",
+    "rq4": "xn4", "kajfosz/antimatterdimensions/player/g": "kajfosz/antimatterdimensions/player/h",
+}
+
+
+def _is_baseline_320(mod: str | Path) -> bool:
+    """从当前工作树元数据判版本，禁止根据目录名字猜测基线。"""
+    metadata = Path(mod) / "apktool.yml"
+    return metadata.is_file() and bool(re.search(
+        r"versionName:\s*['\"]?3\.20(?:\.0)?['\"]?\s*$", metadata.read_text(encoding="utf-8"), re.M))
+
+
+def _theme_symbols(mod: str | Path, text: str) -> str:
+    """将旧版锚点及注入文本一起转换，保留原有行为而非跳过新版补丁。"""
+    if _is_baseline_320(mod):
+        # 单次替换，避免新名字恰好等于另一个旧名字时发生二次改写。
+        text = re.sub(r"L([^;]+);", lambda match: "L" + THEME_CLASS_ALIASES_320.get(
+            match.group(1), match.group(1)) + ";", text)
+    return text
+
+
+# ---------------------------------------------------------------- 0. 跨 DEX 定位
+def _mod_smali(mod: Path, rel_parts) -> Path:
+    """在 mod 的所有 smali 根目录下定位一个 smali 文件（跨 Dex 分组）。
+
+    [R80] 3.20 把游戏类整体搬到了 `smali_classes2/`，原先写死 `mod/"smali"/...`
+    的路径全部失效（FileNotFoundError）。原版 APK 本来就是多 dex，不能假设
+    某个类一定在主根，所以这里按「相对包路径」在**所有** smali 根里找：
+
+      · 找到 1 个 → 返回它；
+      · 找到 0 个 → 抛 DarkThemeError，明确说清是「基线里没有这个类」；
+      · 找到多个 → 抛 DarkThemeError（歧义，拒绝盲选）。
+    """
+    # 入口同时接受字符串与 Path；调用前组成的包路径也必须已经是 Path。
+    mod = Path(mod)
+    rel = Path(rel_parts)
+    # 拒绝越界路径，并核对完整类描述符，避免同名文件被误认成目标类。
+    if rel.is_absolute() or ".." in rel.parts or rel.suffix != ".smali":
+        raise DarkThemeError(f"非法 smali 相对路径: {rel}")
+    # 仅套用已由原版 3.20 调用链核实的主题专用映射，不污染全局短类名。
+    if _is_baseline_320(mod):
+        relative_name = rel.with_suffix("").as_posix()
+        rel = Path(THEME_CLASS_ALIASES_320.get(relative_name, relative_name) + ".smali")
+    descriptor = "L" + rel.with_suffix("").as_posix() + ";"
+    roots = sorted(p for p in mod.glob("smali*") if p.is_dir())
+    hits = [root / rel for root in roots if (root / rel).is_file()]
+    if len(hits) == 1:
+        declaration = re.search(r"^\.class\s+[^\n]*?\s+(L[^;]+;)$",
+                                hits[0].read_text(encoding="utf-8"), re.M)
+        if not declaration or declaration.group(1) != descriptor:
+            raise DarkThemeError(f"类描述符不匹配: {hits[0]}，预期 {descriptor}")
+        return hits[0]
+    if not hits:
+        raise DarkThemeError(
+            f"基线里找不到 {rel.as_posix()}（已查 {[r.name for r in roots]}）——"
+            f"可能是版本升级后该类改名/移除")
+    raise DarkThemeError(
+        f"{rel.as_posix()} 在多个 smali 根下都存在：{[str(h.relative_to(mod)) for h in hits]}")
+
+
 # ---------------------------------------------------------------- 1. styles
 def patch_styles(mod: Path) -> str:
-    p = mod / "res" / "values" / "styles.xml"
+    """把 AppTheme 的 DayNight 父主题改成固定深色 AppCompat。
+
+    [R80] 3.20 改了主题层级：`AppTheme` 不再直接继承 `Theme.AppCompat.DayNight.*`，
+    而是继承 `@style/Palette.Fallback`，由后者继承 DayNight。
+      · 3.19: `<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.NoActionBar">`
+      · 3.20: `<style name="AppTheme" parent="@style/Palette.Fallback">`
+              `<style name="Palette.Fallback" parent="@style/Theme.AppCompat.DayNight.NoActionBar">`
+    因此必须**按基线分别处理**：
+      · 3.19 直接改 AppTheme；
+      · 3.20 改 Palette.Fallback（这样 AppTheme 与所有调色板变体一起变深色，
+        语义更正确，也避免只改 AppTheme 导致调色板覆盖层级不一致）。
+    """
+    p = Path(mod) / "res" / "values" / "styles.xml"
     t = p.read_text(encoding="utf-8")
-    old = ('<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.NoActionBar">')
-    new = ('<style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">')
-    if new in t:
+    fixed = '@style/Theme.AppCompat.NoActionBar"'
+    theme_old = '<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.NoActionBar">'
+    palette_old = '<style name="Palette.Fallback" parent="@style/Theme.AppCompat.DayNight.NoActionBar">'
+    theme_new = '<style name="AppTheme" parent="@style/Theme.AppCompat.NoActionBar">'
+    palette_new = '<style name="Palette.Fallback" parent="@style/Theme.AppCompat.NoActionBar">'
+
+    if theme_new in t or palette_new in t:
         return "skip(已是固定深色父主题)"
-    if old not in t:
-        raise DarkThemeError("styles.xml 里找不到 AppTheme 的 DayNight 父主题，请重新核对原版结构")
-    t = t.replace(old, new, 1)
+
+    if palette_old in t:
+        # 3.20 路径：改调色板基类（AppTheme 等全部继承链跟随）
+        t = t.replace(palette_old, palette_new, 1)
+    elif theme_old in t:
+        # 3.19 路径：直接改 AppTheme
+        t = t.replace(theme_old, theme_new, 1)
+    else:
+        raise DarkThemeError(
+            "styles.xml 里既没有 AppTheme 的 DayNight 父主题，也没有 "
+            "Palette.Fallback 的 DayNight 父主题 —— 请重新核对原版结构")
     # 状态栏/导航栏图标：浅色底才用深色图标，这里恒为浅色图标
     if 'android:windowLightNavigationBar' not in t:
         t = t.replace(
@@ -77,7 +164,7 @@ def patch_styles(mod: Path) -> str:
 
 
 def patch_bools(mod: Path) -> str:
-    p = mod / "res" / "values" / "bools.xml"
+    p = Path(mod) / "res" / "values" / "bools.xml"
     t = p.read_text(encoding="utf-8")
     if '<bool name="window_light_status_bar">false</bool>' in t:
         return "skip(已是 false)"
@@ -109,7 +196,7 @@ def _replace_method(text: str, sig_line: str, body_lines: list[str]) -> tuple[st
 
 
 def patch_appearance_class(mod: Path) -> str:
-    p = mod / "smali" / PKG_DIR / "player" / "DeviceOptions$Appearance.smali"
+    p = _mod_smali(mod, PKG_DIR / "player" / "DeviceOptions$Appearance.smali")
     t = p.read_text(encoding="utf-8")
     did = []
 
@@ -160,7 +247,7 @@ def patch_appearance_class(mod: Path) -> str:
 
 # ------------------------------------------------- 3. 偏好加载夹成深色
 def patch_appearance_loader(mod: Path) -> str:
-    p = mod / "smali" / "o40.smali"
+    p = _mod_smali(mod, "o40.smali")
     t = p.read_text(encoding="utf-8")
     if f"{MARK} loader" in t:
         return "skip(已夹过)"
@@ -169,7 +256,9 @@ def patch_appearance_loader(mod: Path) -> str:
     # 找到 .method public static g0(Landroid/content/SharedPreferences;)V
     start = None
     for i, ln in enumerate(lines):
-        if ln.startswith(".method public static g0(Landroid/content/SharedPreferences;)V"):
+        # 3.20 原版 fs.x 的职责与旧 o40.g0 相同，按精确签名选择。
+        loader_name = "x" if _is_baseline_320(mod) else "g0"
+        if ln.startswith(f".method public static {loader_name}(Landroid/content/SharedPreferences;)V"):
             start = i
             break
     if start is None:
@@ -178,22 +267,29 @@ def patch_appearance_loader(mod: Path) -> str:
     while end < len(lines) and not lines[end].startswith(".end method"):
         end += 1
 
-    # 提升 .locals 4 -> 5，用 v4 作为临时寄存器（不破坏原有 v0..v3 语义）
+    # 3.19 有四个局部寄存器，3.20 有五个；只新增一个临时量，不占用原版活跃寄存器。
     bumped = False
+    temporary_register = None
     for i in range(start, start + 12):
-        if lines[i].strip() == ".locals 4":
-            lines[i] = "    .locals 5"
+        match = re.fullmatch(r"\s*\.locals (\d+)", lines[i])
+        if match:
+            local_count = int(match.group(1))
+            if local_count not in (4, 5):
+                raise DarkThemeError("主题加载器寄存器布局未知，拒绝注入")
+            temporary_register = f"v{local_count}"
+            lines[i] = f"    .locals {local_count + 1}"
             bumped = True
             break
     if not bumped:
         raise DarkThemeError("g0 的 .locals 不是 4，寄存器方案需重新核对")
 
     n = 0
+    appearance_field = _theme_symbols(mod, JW0_E)
     for i in range(start, end):
-        if "sput-object" in lines[i] and JW0_E in lines[i]:
+        if "sput-object" in lines[i] and appearance_field in lines[i]:
             indent = lines[i][:len(lines[i]) - len(lines[i].lstrip())]
-            lines[i] = (f"{indent}sget-object v4, {DARK_APPEARANCE_FIELD}\n"
-                        f"{indent}sput-object v4, {JW0_E}")
+            lines[i] = (f"{indent}sget-object {temporary_register}, {DARK_APPEARANCE_FIELD}\n"
+                        f"{indent}sput-object {temporary_register}, {appearance_field}")
             n += 1
     if n == 0:
         raise DarkThemeError("g0 里没有找到 Ljw0;->E 的写入点")
@@ -205,22 +301,20 @@ def patch_appearance_loader(mod: Path) -> str:
 
 # ------------------------------------------------- 4. 偏好写入夹成深色
 def patch_appearance_writer(mod: Path) -> str:
-    p = mod / "smali" / PKG_DIR / "mainactivity" / "l0.smali"
+    p = _mod_smali(mod, PKG_DIR / "mainactivity" / "l0.smali")
     t = p.read_text(encoding="utf-8")
     if f"{MARK} writer" in t:
         return "skip(已夹过)"
     anchor = ("    .line 57\n"
               "    :cond_2\n"
               "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
-    if anchor not in t:
-        raise DarkThemeError("l0.C() 的 :cond_2 锚点变了，写入路径需重新核对")
     inject = ("    .line 57\n"
               "    :cond_2\n"
               f"    # {MARK} writer 任何外观写入都夹成 DARK\n"
               f"    sget-object p2, {DARK_APPEARANCE_FIELD}\n"
               "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
-    t = t.replace(anchor, inject, 1)
-    p.write_text(t, encoding="utf-8")
+    # 使用同一个版本感知替换器，方法指令保持一致，仅允许行号和已核实类名变化。
+    _replace_once(p, anchor, inject, "l0.C 外观写入", mark=f"{MARK} writer")
     return "ok(设置页选浅色不生效，也不会写入浅色偏好)"
 
 
@@ -245,13 +339,22 @@ def _replace_once(path: Path, old: str, new: str, what: str, mark: str = "") -> 
     mark 用于「旧锚点在新内容里仍然存在」的插入式补丁（例如在某行前插一行），
     这类补丁不能靠 `old not in t` 判断幂等。
     """
+    path = Path(path)
     t = path.read_text(encoding="utf-8")
     if mark and mark in t:
         return False
-    n = t.count(old)
-    if n != 1:
-        raise DarkThemeError(f"{what}: 期望 1 处锚点，实际 {n} 处（{path}）")
-    path.write_text(t.replace(old, new, 1), encoding="utf-8")
+    # 从文件的真实祖先找到工作树；跨 DEX 时不能用固定 parents 下标。
+    mod = next((parent for parent in path.parents if (parent / "apktool.yml").is_file()), path.parent)
+    old, new = _theme_symbols(mod, old), _theme_symbols(mod, new)
+    # 版本升级只允许调试行号变化；指令、寄存器和顺序仍须逐字匹配且唯一。
+    pattern = "\n".join(
+        r"    \.line \d+" if re.fullmatch(r"    \.line \d+", line) else re.escape(line)
+        for line in old.split("\n"))
+    matches = list(re.finditer(pattern, t))
+    if len(matches) != 1:
+        raise DarkThemeError(f"{what}: 期望 1 处锚点，实际 {len(matches)} 处（{path}）")
+    match = matches[0]
+    path.write_text(t[:match.start()] + new + t[match.end():], encoding="utf-8")
     return True
 
 
@@ -259,7 +362,7 @@ def patch_default_notation(mod: Path) -> str:
     did = []
 
     # 5.1 新档默认值（Player$Options 构造器）
-    p = mod / "smali" / PKG_DIR / "player" / "Player$Options.smali"
+    p = _mod_smali(mod, PKG_DIR / "player" / "Player$Options.smali")
     if _replace_once(
             p,
             '    const-string v0, "Mixed scientific"',
@@ -272,7 +375,7 @@ def patch_default_notation(mod: Path) -> str:
     # 5.2 o43 静态初始化里的「当前记数法对象」 o43.v = o43.f（混合科学）
     #     → 改成 o43.a（科学记数法，ordinal 9）。o43.v 全仓只有 player/g.b() 一个读者，
     #     改它等价于「新档把 w 设成科学记数法」，不污染 o43.u[] 数组里的实例。
-    p = mod / "smali" / "o43.smali"
+    p = _mod_smali(mod, "o43.smali")
     if _replace_once(
             p,
             "    sput-object v5, Lo43;->v:Lqk4;",
@@ -285,7 +388,7 @@ def patch_default_notation(mod: Path) -> str:
 
     # 5.3 o43 静态初始化里写回 Options.notation 的那一处（同名串在 o43.a() 里也有一份，
     #     那份是「名称→实例」查表，必须保留原文，故用带 G0 调用的两行锚点区分）
-    p = mod / "smali" / "o43.smali"
+    p = _mod_smali(mod, "o43.smali")
     if _replace_once(
             p,
             f'    const-string v1, "{NOTATION_EN}"\n\n    .line 438\n    .line 439\n    {G0_CALL}',
@@ -296,7 +399,7 @@ def patch_default_notation(mod: Path) -> str:
         did.append("o43串")
 
     # 5.4 重开新档（player/g.b()）
-    p = mod / "smali" / PKG_DIR / "player" / "g.smali"
+    p = _mod_smali(mod, PKG_DIR / "player" / "g.smali")
     if _replace_once(
             p,
             f'    const-string v1, "{NOTATION_EN}"\n\n    .line 22\n    .line 23\n    {G0_CALL}',
@@ -334,7 +437,7 @@ def patch_topbar_current_tab(mod: Path) -> str:
     #       没选过 → 顶栏显示当前页面名；选过 → 尊重玩家选择。
     #     v2 在这一句之前恒为 0（51978 `getSharedPreferences(v1, v2)` 是 MODE_PRIVATE），
     #     用完立刻还原 0，后面十几个 getInt/getBoolean 的缺省值不受影响。
-    p = mod / "smali" / PKG_DIR / "MainActivity.smali"
+    p = _mod_smali(mod, PKG_DIR / "MainActivity.smali")
     old = (NOTATION_TABS_KEY +
            '\n'
            '    .line 783\n'
@@ -367,7 +470,7 @@ def patch_topbar_current_tab(mod: Path) -> str:
         did.append("缺省值")
 
     # 6.2 静态默认值（jw0.<clinit>），保证偏好尚未加载的第一帧也不是 NEWS
-    p = mod / "smali" / "jw0.smali"
+    p = _mod_smali(mod, "jw0.smali")
     if _replace_once(
             p,
             "    sget-object v0, " + TOPBAR_FIELD + "->d:" + TOPBAR_FIELD,
@@ -381,7 +484,7 @@ def patch_topbar_current_tab(mod: Path) -> str:
     #     但 CURRENT_TAB 模式下它会把切页设好的标题抹掉（B2 与 H8 的先后顺序不保证）。
     #     改成「仅 NEWS 模式才清空」。此处 v3 已不再被使用（上文只用于 setSupportActionBar 的
     #     ClassCast 与 hy4 构造），可安全当临时寄存器。
-    p = mod / "smali" / PKG_DIR / "MainActivity.smali"
+    p = _mod_smali(mod, PKG_DIR / "MainActivity.smali")
     old = ('    :goto_1\n'
            '    const-string v0, " "\n'
            '\n'
@@ -433,7 +536,7 @@ OREKI_SETTINGS_NEW_THEME = "@android:style/Theme.Material.NoActionBar"
 
 
 def patch_oreki_activity_theme(mod: Path) -> str:
-    p = mod / "AndroidManifest.xml"
+    p = Path(mod) / "AndroidManifest.xml"
     t = p.read_text(encoding="utf-8")
     m = re.search(
         r'<activity[^>]*android:name="kajfosz\.antimatterdimensions\.oreki\.SpeedSettingsActivity"[^>]*>',
@@ -475,7 +578,7 @@ PALETTE_CONTRAST_FIXES = {
 
 
 def patch_palette_contrast(mod: Path) -> str:
-    p = mod / "res" / "values" / "styles.xml"
+    p = Path(mod) / "res" / "values" / "styles.xml"
     t = p.read_text(encoding="utf-8")
     done = []
     for style, fixes in PALETTE_CONTRAST_FIXES.items():
@@ -519,7 +622,7 @@ ZH_ADDITIONS = {
 
 
 def patch_zh_strings(mod: Path) -> str:
-    p = mod / "res" / "values-zh-rCN" / "strings.xml"
+    p = Path(mod) / "res" / "values-zh-rCN" / "strings.xml"
     t = p.read_text(encoding="utf-8")
     add = []
     for name, value in ZH_ADDITIONS.items():
@@ -569,7 +672,7 @@ def verify(mod: Path) -> None:
     assert '<bool name="window_light_status_bar">false</bool>' in bools, \
         "[DARK] window_light_status_bar 不是 false（浅色状态栏图标）"
 
-    ap = (mod / "smali" / PKG_DIR / "player" / "DeviceOptions$Appearance.smali").read_text(encoding="utf-8")
+    ap = (_mod_smali(mod, PKG_DIR / "player" / "DeviceOptions$Appearance.smali").read_text(encoding="utf-8"))
     for sig, needle in (
         (".method public final a()", DARK_THEME_FIELD),
         (".method public final b()", DARK_THEME_FIELD),
@@ -583,10 +686,10 @@ def verify(mod: Path) -> None:
     seg = ap[i:ap.find(".end method", i)]
     assert "const/4 p0, 0x1" in seg, "[DARK] c() 未强制 true"
 
-    o40 = (mod / "smali" / "o40.smali").read_text(encoding="utf-8")
+    o40 = (_mod_smali(mod, "o40.smali").read_text(encoding="utf-8"))
     assert f"{MARK} loader" in o40, "[DARK] 偏好加载点未夹成深色（重启后可能回到浅色）"
 
-    l0 = (mod / "smali" / PKG_DIR / "mainactivity" / "l0.smali").read_text(encoding="utf-8")
+    l0 = (_mod_smali(mod, PKG_DIR / "mainactivity" / "l0.smali").read_text(encoding="utf-8"))
     assert f"{MARK} writer" in l0, "[DARK] 偏好写入点未夹成深色"
 
     # 原创 Activity 的窗口主题：DeviceDefault 跟随系统，浅色系统下会变白底
@@ -601,21 +704,21 @@ def verify(mod: Path) -> None:
         "[DARK] Oreki 设置页仍是 Theme.DeviceDefault（跟随系统明暗）"
 
     # ---- R31 UI 打磨守卫 ----
-    opts = (mod / "smali" / PKG_DIR / "player" / "Player$Options.smali").read_text(encoding="utf-8")
+    opts = (_mod_smali(mod, PKG_DIR / "player" / "Player$Options.smali").read_text(encoding="utf-8"))
     assert f'const-string v0, "{NOTATION_ZH}"' in opts, \
         f"[UI] Player$Options 默认记数法不是 {NOTATION_ZH}（新档仍会显示混合科学记数法）"
 
-    o43 = (mod / "smali" / "o43.smali").read_text(encoding="utf-8")
+    o43 = (_mod_smali(mod, "o43.smali").read_text(encoding="utf-8"))
     assert f"{MARK} R31 o43.v" in o43, "[UI] o43.v 未指向科学记数法对象（新档格式化仍按混合科学）"
     assert f'const-string v1, "{NOTATION_ZH}"' in o43, "[UI] o43 写回的记数法字符串未改"
     # 名称→实例查表必须保留 "Mixed scientific"，否则记数法选择器里该项会消失
     assert o43.count(f'"{NOTATION_EN}"') >= 1, \
         "[UI] o43.a() 的 Mixed scientific 查表项被误删（记数法选择器会缺项）"
 
-    pg = (mod / "smali" / PKG_DIR / "player" / "g.smali").read_text(encoding="utf-8")
+    pg = (_mod_smali(mod, PKG_DIR / "player" / "g.smali").read_text(encoding="utf-8"))
     assert f'const-string v1, "{NOTATION_ZH}"' in pg, "[UI] player/g.b() 重开新档的记数法未改"
 
-    ma = (mod / "smali" / PKG_DIR / "MainActivity.smali").read_text(encoding="utf-8")
+    ma = (_mod_smali(mod, PKG_DIR / "MainActivity.smali").read_text(encoding="utf-8"))
     assert f"{MARK} R44 缺省顶栏模式" in ma, \
         "[UI] 顶栏模式缺省值不是 CURRENT_TAB（新装顶栏不显示页面名）"
     # R31 的「每次启动强制覆盖」必须已经不在：否则「选项 → 顶栏」这项官方设置改了不生效
@@ -626,23 +729,26 @@ def verify(mod: Path) -> None:
     # [R51 用户令] 顶栏标题必须是**官方原样**：`H8` 直接 setTitle(subtab.a())。
     # 反向断言两条，确保 R44 的合成补丁真的被撤掉了（只删补丁不删断言 = 静默漏改）。
     assert f"{MARK} R44 顶栏标题" not in ma, "[UI] R44 顶栏标题合成补丁仍在（用户要求改回官方）"
-    assert "invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;" in ma, \
+    assert _theme_symbols(mod, "invoke-virtual {p1}, Lrq4;->a()Ljava/lang/String;") in ma, \
         "[UI] H8 没有直接用子页签名（官方 CURRENT_TAB 只显示子页签全名）"
     assert "Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle;->of(" not in ma, \
         "[UI] H8 仍在调用 OrekiUiTitle.of（应改回官方 setTitle）"
-    uit = (mod / "smali" / PKG_DIR / "oreki" / "OrekiUiTitle.smali")
+    uit = (_mod_smali(mod, PKG_DIR / "oreki" / "OrekiUiTitle.smali"))
     assert uit.is_file(), "[UI] payload 类 OrekiUiTitle 没进 mod 树"
     uit_src = uit.read_text(encoding="utf-8")
     assert (".method public static of(Lyn4;)Ljava/lang/String;"
             in uit_src), "[UI] OrekiUiTitle.of(Lyn4;)String 签名不符，H8 钩子会 NoSuchMethod"
     assert "Lyn4;->j:Lmi2;" in uit_src, \
         "[UI] OrekiUiTitle 没有读父页签字段 yn4.j（主页签名取不到）"
-    jw = (mod / "smali" / "jw0.smali").read_text(encoding="utf-8")
+    jw = (_mod_smali(mod, "jw0.smali").read_text(encoding="utf-8"))
     assert f"{MARK} R31 顶栏默认值" in jw, "[UI] jw0.<clinit> 顶栏默认值未改"
 
     zhf = (mod / "res" / "values-zh-rCN" / "strings.xml").read_text(encoding="utf-8")
     for k, v in ZH_ADDITIONS.items():
-        assert f'<string name="{k}">{v}</string>' in zhf,             f"[UI] 中文缺 {k}={v!r}（中文系统会回落成英文）"
+        # 原版 3.20 已翻译的文案可能保留排版空格；不为守卫覆盖官方翻译。
+        existing = re.search(r'<string name="%s">(.*?)</string>' % re.escape(k), zhf, re.S)
+        assert existing and re.sub(r"\s+", "", existing.group(1)) == re.sub(r"\s+", "", v), \
+            f"[UI] 中文缺 {k}={v!r}（中文系统会回落成英文）"
     # 取色器标题单独钉一次：它是「基准串是英文、zh 里没有」的典型，值必须是中文，
     # 否则中文系统上会看到 "Select a Color"（台账里唯一被引用且未译的上屏串）。
     assert "Select a Color" not in zhf, "[UI] values-zh-rCN 里还有英文取色器标题"

@@ -4,7 +4,7 @@
 
 唯一内容源
     <repo>/web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json
-    （字段契约：web/AD-Oreki-Edition/docs/TUTORIAL_SCHEMA.md；本文件只读，绝不回写）
+    （字段契约：web/AD-Oreki-Edition/docs/教程数据结构说明.md；本文件只读，绝不回写）
 
 产物
     scripts/payload/assets/oreki_tutorial.txt   （apktool 打包进 APK 的 assets/）
@@ -36,7 +36,7 @@
     · 生成物一律 UTF-8 **无 BOM**、LF 换行，并有字节级回读断言；
     · 章节顺序 = JSON 数组顺序，不按 id 排序推断（契约明确）；
     · 章节数不写死：所有断言都用 len(chapters) 推导；
-    · 禁用译名词表不落在本文件里 —— 与 Web 共读 TUTORIAL_GLOSSARY.md 第四节。
+    · 禁用译名词表不落在本文件里 —— 与 Web 共读 教程术语表.md 第四节。
 
 命令行
     python scripts/oreki_tutorial_gen.py                # 生成 + 一级 + 二级 + 回读
@@ -77,7 +77,7 @@ SUPPORTED_SCHEMA = 1
 # 所以这里写死 8 并断言 —— 这不是「章数写死」，阶段档位是代码契约。
 STAGE_COUNT = 8
 
-# 章节必须齐全的十四个内容字段（契约 docs/TUTORIAL_SCHEMA.md）。
+# 章节必须齐全的十四个内容字段（契约 docs/教程数据结构说明.md）。
 # 顺序只用于遍历与报错定位；上盘顺序由 chapter_records() 决定。
 FIELDS = (
     "title",      # 0  标题
@@ -100,7 +100,7 @@ FIELDS = (
 PLACEHOLDERS = ("TODO", "待补", "XXX", "足够高", "继续推进")
 
 # 说明：曾经在这里做过「页签中英双写」注入（「维度」->「维度（Dimensions）」）。
-# R40H 后期撤掉了：契约要求两端正文逐字一致（docs/TUTORIAL_SCHEMA.md §双端渲染差异
+# R40H 后期撤掉了：契约要求两端正文逐字一致（docs/教程数据结构说明.md §双端渲染差异
 # 只允许布局差异），Android 单方面改写正文会让「两端一致」这条验收永远过不了。
 # 中英双写改由正文自身负责（译名表 §5 已把这条写成作者规则）。
 
@@ -344,7 +344,7 @@ def _chapter_texts(ch: dict) -> list[str]:
 
 
 # ---------------------------------------------------------------- 译名黑名单
-# 词表唯一来源 = Web 侧 docs/TUTORIAL_GLOSSARY.md 第四节
+# 词表唯一来源 = Web 侧 docs/教程术语表.md 第四节
 # 「禁用译名（官方 0 次，一律不许用）」。
 #
 # Web 的 scripts/validate_tutorial.mjs:loadForbiddenTerms() 解析的是同一张表。
@@ -352,7 +352,7 @@ def _chapter_texts(ch: dict) -> list[str]:
 # 是漂移：某一端加了词、另一端没加，于是同一句正文一端放行一端拒绝，而且
 # 不会有任何报错。译名错误的后果恰恰是「玩家照着做但界面上没有这个东西」，
 # 属于看不见的缺陷，只能靠机器卡。
-GLOSSARY_PATH = REPO_ROOT / "web" / "AD-Oreki-Edition" / "docs" / "TUTORIAL_GLOSSARY.md"
+GLOSSARY_PATH = REPO_ROOT / "web" / "AD-Oreki-Edition" / "docs" / "教程术语表.md"
 
 # 解析结果的条数契约。第四节现在是 18 行数据行，其中 5 行用 `/` 并列了两个
 # 禁用写法（艾法瑞格/艾法瑞、被奴役者/奴役者、雕文/铭文、刻速/tick 速度、
@@ -400,7 +400,7 @@ def _strip_md(text: str) -> str:
 
 
 def load_forbidden_terms(path: Path | None = None) -> list[dict]:
-    """解析 TUTORIAL_GLOSSARY.md 第四节，返回 [{term, correct, line}]。
+    """解析 教程术语表.md 第四节，返回 [{term, correct, line}]。
 
     解析规则与 Web 的 loadForbiddenTerms() 一一对应：
       · 只扫「## 四、禁用译名」到下一个二级标题之间（别的表格里也有 `|`）；
@@ -467,7 +467,7 @@ def _glossary_problems(doc: dict, terms: list[dict],
                 continue
             problems.append(
                 f"{cid}: 出现禁用译名「{t['term']}」，{_fix_hint(t['correct'])}"
-                f"（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:{t['line']}）")
+                f"（词表 web/AD-Oreki-Edition/docs/教程术语表.md:{t['line']}）")
     # 附录同样是玩家可见正文（Web 上是一整页 Markdown），译名规则不能只查章节。
     for a in doc.get("appendices") or []:
         blob = CORRECTION_SPAN.sub("", "\n".join(
@@ -477,7 +477,7 @@ def _glossary_problems(doc: dict, terms: list[dict],
                 continue
             problems.append(
                 f"{a['id']}: 出现禁用译名「{t['term']}」，{_fix_hint(t['correct'])}"
-                f"（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:{t['line']}）")
+                f"（词表 web/AD-Oreki-Edition/docs/教程术语表.md:{t['line']}）")
     return problems
 
 
@@ -548,7 +548,7 @@ def _smali_glossary_problems(terms: list[dict], smali_dir: Path | None = None) -
                     problems.append(
                         f"{f.name}:{lineno} 出现禁用译名「{t['term']}」，"
                         f"{_fix_hint(t['correct'])}"
-                        f"（词表 web/AD-Oreki-Edition/docs/TUTORIAL_GLOSSARY.md:{t['line']}）")
+                        f"（词表 web/AD-Oreki-Edition/docs/教程术语表.md:{t['line']}）")
     return problems
 
 
@@ -611,7 +611,7 @@ def validate_level2(doc: dict, allow_draft: bool = False) -> None:
         for word in PLACEHOLDERS:
             if word in blob:
                 problems.append(f"{cid}: 出现占位词 {word!r}")
-    # 译名黑名单（词表 = Web 侧 TUTORIAL_GLOSSARY.md 第四节，本文件不另存词表）。
+    # 译名黑名单（词表 = Web 侧 教程术语表.md 第四节，本文件不另存词表）。
     # 并进 problems 而不是单独抛，是为了让一次构建把「没写完」和「译名错」一起报全。
     terms = load_forbidden_terms()
     problems.extend(_glossary_problems(doc, terms, skip_draft=allow_draft))
@@ -1262,7 +1262,7 @@ def selftest() -> int:
         """条数契约本身也要能失败 —— 否则「解析漏一条」会被当成「表里就这么多」。"""
         import tempfile
         with tempfile.TemporaryDirectory() as td:
-            p = Path(td) / "TUTORIAL_GLOSSARY.md"
+            p = Path(td) / "教程术语表.md"
             text = GLOSSARY_PATH.read_text(encoding="utf-8")
             p.write_text(re.sub(r"^\| 倍速 .*$\n?", "", text, flags=re.MULTILINE),
                          encoding="utf-8")

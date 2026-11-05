@@ -64,13 +64,15 @@ internal object GameApi {
     // 构建期由 verify_kotlin_gameapi_aliases() 断言两边同步。
 
     /** 3.20 基线专用：3.19 混淆名 → 3.20 混淆名。 */
-    private val ALIAS_320: Map<String, String> = mapOf(
-        "az1" to "b22",
-        "bn0" to "rp0",
-        "fp3" to "qr3",
-        "ln0" to "bq0",
-        "uu1" to "px1",
-    )
+    // 原版 Pair 已被 R8 精简，不能用 mapOf/to 触发 component1 等缺失 ABI。
+    // 使用 Java HashMap 直接填充，映射语义不变，也不依赖另一套 Kotlin Pair。
+    private val ALIAS_320: Map<String, String> = java.util.HashMap<String, String>().apply {
+        put("az1", "b22")
+        put("bn0", "rp0")
+        put("fp3", "qr3")
+        put("ln0", "bq0")
+        put("uu1", "px1")
+    }
 
     /**
      * 当前是否为 3.20 基线。
@@ -80,20 +82,20 @@ internal object GameApi {
      *
      * **不用 `by lazy`**：R78 实测 D8 8.2.2 无法完整 desugar stdlib 2.4.21 的
      * `SynchronizedLazyImpl`（装机即 `NoSuchMethodError <init>(Function0,Object,int,
-     * DefaultConstructorMarker)`）。本文件所有惰性求值一律手写 _ready 布尔位。
+     * DefaultConstructorMarker)`）。本文件所有惰性求值一律手写 ready 布尔位。
      */
-    private var _isBaseline320: Boolean = false
-    private var _isBaseline320_ready: Boolean = false
+    private var isBaseline320: Boolean = false
+    private var isBaseline320Resolved: Boolean = false
     private fun isBaseline320(): Boolean {
-        if (!_isBaseline320_ready) {
-            _isBaseline320_ready = true
-            _isBaseline320 = try {
+        if (!isBaseline320Resolved) {
+            isBaseline320Resolved = true
+            isBaseline320 = try {
                 Class.forName("bq0", false, GameApi::class.java.classLoader) != null
             } catch (_: Throwable) {
                 false
             }
         }
-        return _isBaseline320
+        return isBaseline320
     }
 
     /** 3.19 混淆名 → 当前基线真实类名。非 3.20 基线原样返回。 */
@@ -105,164 +107,164 @@ internal object GameApi {
     // ---------------------------------------------------------------- 类解析
 
     /** `kajfosz.antimatterdimensions.player.Player` —— 单例，静态字段 `a`。 */
-    private var _playerCls: Class<*>? = null
-    private var _playerCls_ready: Boolean = false
+    private var playerClassCache: Class<*>? = null
+    private var playerClsResolved: Boolean = false
     private fun playerCls(): Class<*>? {
-        if (!_playerCls_ready) {
-            _playerCls_ready = true
-            _playerCls = cls("kajfosz.antimatterdimensions.player.Player")
+        if (!playerClsResolved) {
+            playerClsResolved = true
+            playerClassCache = cls("kajfosz.antimatterdimensions.player.Player")
         }
-        return _playerCls
+        return playerClassCache
     }
 
     /** `Player$Auto` —— `player().auto`，通过 `Player.c()` 取。 */
-    private var _playerAutoCls: Class<*>? = null
-    private var _playerAutoCls_ready: Boolean = false
+    private var playerAutoClassCache: Class<*>? = null
+    private var playerAutoClsResolved: Boolean = false
     private fun playerAutoCls(): Class<*>? {
-        if (!_playerAutoCls_ready) {
-            _playerAutoCls_ready = true
-            _playerAutoCls = cls("kajfosz.antimatterdimensions.player.Player\$Auto")
+        if (!playerAutoClsResolved) {
+            playerAutoClsResolved = true
+            playerAutoClassCache = cls("kajfosz.antimatterdimensions.player.Player\$Auto")
         }
-        return _playerAutoCls
+        return playerAutoClassCache
     }
 
     /** `Player$Options` —— `player().options`，通过 `Player.K()` 取。 */
-    private var _playerOptionsCls: Class<*>? = null
-    private var _playerOptionsCls_ready: Boolean = false
+    private var playerOptionsClassCache: Class<*>? = null
+    private var playerOptionsClsResolved: Boolean = false
     private fun playerOptionsCls(): Class<*>? {
-        if (!_playerOptionsCls_ready) {
-            _playerOptionsCls_ready = true
-            _playerOptionsCls = cls("kajfosz.antimatterdimensions.player.Player\$Options")
+        if (!playerOptionsClsResolved) {
+            playerOptionsClsResolved = true
+            playerOptionsClassCache = cls("kajfosz.antimatterdimensions.player.Player\$Options")
         }
-        return _playerOptionsCls
+        return playerOptionsClassCache
     }
 
     /** `Player$Records` / `Player$ThisEternity` —— `records.thisEternity.maxAM`。 */
-    private var _playerRecordsCls: Class<*>? = null
-    private var _playerRecordsCls_ready: Boolean = false
+    private var playerRecordsClassCache: Class<*>? = null
+    private var playerRecordsClsResolved: Boolean = false
     private fun playerRecordsCls(): Class<*>? {
-        if (!_playerRecordsCls_ready) {
-            _playerRecordsCls_ready = true
-            _playerRecordsCls = cls("kajfosz.antimatterdimensions.player.Player\$Records")
+        if (!playerRecordsClsResolved) {
+            playerRecordsClsResolved = true
+            playerRecordsClassCache = cls("kajfosz.antimatterdimensions.player.Player\$Records")
         }
-        return _playerRecordsCls
+        return playerRecordsClassCache
     }
-    private var _thisEternityCls: Class<*>? = null
-    private var _thisEternityCls_ready: Boolean = false
+    private var thisEternityClassCache: Class<*>? = null
+    private var thisEternityClsResolved: Boolean = false
     private fun thisEternityCls(): Class<*>? {
-        if (!_thisEternityCls_ready) {
-            _thisEternityCls_ready = true
-            _thisEternityCls = cls("kajfosz.antimatterdimensions.player.Player\$ThisEternity")
+        if (!thisEternityClsResolved) {
+            thisEternityClsResolved = true
+            thisEternityClassCache = cls("kajfosz.antimatterdimensions.player.Player\$ThisEternity")
         }
-        return _thisEternityCls
+        return thisEternityClassCache
     }
 
     /** `BigDouble` 与它的伴生对象（用于 `BigDouble.of(double)`）。 */
-    private var _bigDoubleCls: Class<*>? = null
-    private var _bigDoubleCls_ready: Boolean = false
+    private var bigDoubleClassCache: Class<*>? = null
+    private var bigDoubleClsResolved: Boolean = false
     private fun bigDoubleCls(): Class<*>? {
-        if (!_bigDoubleCls_ready) {
-            _bigDoubleCls_ready = true
-            _bigDoubleCls = cls("kajfosz.antimatterdimensions.BigDouble")
+        if (!bigDoubleClsResolved) {
+            bigDoubleClsResolved = true
+            bigDoubleClassCache = cls("kajfosz.antimatterdimensions.BigDouble")
         }
-        return _bigDoubleCls
+        return bigDoubleClassCache
     }
 
     /** `CrunchAutobuyerState` —— 大坍缩自动器。 */
-    private var _crunchCls: Class<*>? = null
-    private var _crunchCls_ready: Boolean = false
+    private var crunchClassCache: Class<*>? = null
+    private var crunchClsResolved: Boolean = false
     private fun crunchCls(): Class<*>? {
-        if (!_crunchCls_ready) {
-            _crunchCls_ready = true
-            _crunchCls = cls("kajfosz.antimatterdimensions.autobuyer.CrunchAutobuyerState")
+        if (!crunchClsResolved) {
+            crunchClsResolved = true
+            crunchClassCache = cls("kajfosz.antimatterdimensions.autobuyer.CrunchAutobuyerState")
         }
-        return _crunchCls
+        return crunchClassCache
     }
 
     /** `UpgradeableAutobuyerState` —— interval 升级的基类。 */
-    private var _upgradeableCls: Class<*>? = null
-    private var _upgradeableCls_ready: Boolean = false
+    private var upgradeableClassCache: Class<*>? = null
+    private var upgradeableClsResolved: Boolean = false
     private fun upgradeableCls(): Class<*>? {
-        if (!_upgradeableCls_ready) {
-            _upgradeableCls_ready = true
-            _upgradeableCls = cls("kajfosz.antimatterdimensions.autobuyer.UpgradeableAutobuyerState")
+        if (!upgradeableClsResolved) {
+            upgradeableClsResolved = true
+            upgradeableClassCache = cls("kajfosz.antimatterdimensions.autobuyer.UpgradeableAutobuyerState")
         }
-        return _upgradeableCls
+        return upgradeableClassCache
     }
 
     /** `AntimatterDimensionAutobuyerState` —— 8 个维度自动器。 */
-    private var _dimAutobuyerCls: Class<*>? = null
-    private var _dimAutobuyerCls_ready: Boolean = false
+    private var dimAutobuyerClassCache: Class<*>? = null
+    private var dimAutobuyerClsResolved: Boolean = false
     private fun dimAutobuyerCls(): Class<*>? {
-        if (!_dimAutobuyerCls_ready) {
-            _dimAutobuyerCls_ready = true
-            _dimAutobuyerCls = cls("kajfosz.antimatterdimensions.autobuyer.AntimatterDimensionAutobuyerState")
+        if (!dimAutobuyerClsResolved) {
+            dimAutobuyerClsResolved = true
+            dimAutobuyerClassCache = cls("kajfosz.antimatterdimensions.autobuyer.AntimatterDimensionAutobuyerState")
         }
-        return _dimAutobuyerCls
+        return dimAutobuyerClassCache
     }
 
     /** `AutobuyerState` —— 所有自动器的基类，`i(Z)` 是 isActive 写入器。 */
-    private var _autobuyerBaseCls: Class<*>? = null
-    private var _autobuyerBaseCls_ready: Boolean = false
+    private var autobuyerBaseClassCache: Class<*>? = null
+    private var autobuyerBaseClsResolved: Boolean = false
     private fun autobuyerBaseCls(): Class<*>? {
-        if (!_autobuyerBaseCls_ready) {
-            _autobuyerBaseCls_ready = true
-            _autobuyerBaseCls = cls("kajfosz.antimatterdimensions.autobuyer.AutobuyerState")
+        if (!autobuyerBaseClsResolved) {
+            autobuyerBaseClsResolved = true
+            autobuyerBaseClassCache = cls("kajfosz.antimatterdimensions.autobuyer.AutobuyerState")
         }
-        return _autobuyerBaseCls
+        return autobuyerBaseClassCache
     }
 
     /** `InfinityDimensionState` —— 无限维度（ID1~ID8）。 */
-    private var _idStateCls: Class<*>? = null
-    private var _idStateCls_ready: Boolean = false
+    private var idStateClassCache: Class<*>? = null
+    private var idStateClsResolved: Boolean = false
     private fun idStateCls(): Class<*>? {
-        if (!_idStateCls_ready) {
-            _idStateCls_ready = true
-            _idStateCls = cls("kajfosz.antimatterdimensions.dimension.infinity.InfinityDimensionState")
+        if (!idStateClsResolved) {
+            idStateClsResolved = true
+            idStateClassCache = cls("kajfosz.antimatterdimensions.dimension.infinity.InfinityDimensionState")
         }
-        return _idStateCls
+        return idStateClassCache
     }
 
     /** `InfinityDimensions`（混淆名 `a`）—— 静态 `a(I)` 取单个维度。 */
-    private var _idHolderCls: Class<*>? = null
-    private var _idHolderCls_ready: Boolean = false
+    private var idHolderClassCache: Class<*>? = null
+    private var idHolderClsResolved: Boolean = false
     private fun idHolderCls(): Class<*>? {
-        if (!_idHolderCls_ready) {
-            _idHolderCls_ready = true
-            _idHolderCls = cls("kajfosz.antimatterdimensions.dimension.infinity.a")
+        if (!idHolderClsResolved) {
+            idHolderClsResolved = true
+            idHolderClassCache = cls("kajfosz.antimatterdimensions.dimension.infinity.a")
         }
-        return _idHolderCls
+        return idHolderClassCache
     }
 
     /** 货币容器 `ln0`（IP）与其实现 `bn0`。 */
-    private var _currencyHolderCls: Class<*>? = null
-    private var _currencyHolderCls_ready: Boolean = false
+    private var currencyHolderClassCache: Class<*>? = null
+    private var currencyHolderClsResolved: Boolean = false
     private fun currencyHolderCls(): Class<*>? {
-        if (!_currencyHolderCls_ready) {
-            _currencyHolderCls_ready = true
-            _currencyHolderCls = cls(obf("ln0"))
+        if (!currencyHolderClsResolved) {
+            currencyHolderClsResolved = true
+            currencyHolderClassCache = cls(obf("ln0"))
         }
-        return _currencyHolderCls
+        return currencyHolderClassCache
     }
-    private var _currencyImplCls: Class<*>? = null
-    private var _currencyImplCls_ready: Boolean = false
+    private var currencyImplClassCache: Class<*>? = null
+    private var currencyImplClsResolved: Boolean = false
     private fun currencyImplCls(): Class<*>? {
-        if (!_currencyImplCls_ready) {
-            _currencyImplCls_ready = true
-            _currencyImplCls = cls(obf("bn0"))
+        if (!currencyImplClsResolved) {
+            currencyImplClsResolved = true
+            currencyImplClassCache = cls(obf("bn0"))
         }
-        return _currencyImplCls
+        return currencyImplClassCache
     }
 
     /** `prestige/g` —— 献祭（canSacrifice / nextBoost / sacrificeReset）。 */
-    private var _sacrificeCls: Class<*>? = null
-    private var _sacrificeCls_ready: Boolean = false
+    private var sacrificeClassCache: Class<*>? = null
+    private var sacrificeClsResolved: Boolean = false
     private fun sacrificeCls(): Class<*>? {
-        if (!_sacrificeCls_ready) {
-            _sacrificeCls_ready = true
-            _sacrificeCls = cls("kajfosz.antimatterdimensions.prestige.g")
+        if (!sacrificeClsResolved) {
+            sacrificeClsResolved = true
+            sacrificeClassCache = cls("kajfosz.antimatterdimensions.prestige.g")
         }
-        return _sacrificeCls
+        return sacrificeClassCache
     }
 
     /**
@@ -274,91 +276,91 @@ internal object GameApi {
      * 修正依据：`autobuyer/SacrificeAutobuyerState.smali:115` 确有
      * `.method public final k()Lkajfosz/antimatterdimensions/BigDouble;`。
      */
-    private var _sacrificeAutobuyerCls: Class<*>? = null
-    private var _sacrificeAutobuyerCls_ready: Boolean = false
+    private var sacrificeAutobuyerClassCache: Class<*>? = null
+    private var sacrificeAutobuyerClsResolved: Boolean = false
     private fun sacrificeAutobuyerCls(): Class<*>? {
-        if (!_sacrificeAutobuyerCls_ready) {
-            _sacrificeAutobuyerCls_ready = true
-            _sacrificeAutobuyerCls = cls("kajfosz.antimatterdimensions.autobuyer.SacrificeAutobuyerState")
+        if (!sacrificeAutobuyerClsResolved) {
+            sacrificeAutobuyerClsResolved = true
+            sacrificeAutobuyerClassCache = cls("kajfosz.antimatterdimensions.autobuyer.SacrificeAutobuyerState")
         }
-        return _sacrificeAutobuyerCls
+        return sacrificeAutobuyerClassCache
     }
 
     /** `autobuyer/a` —— Break 后所有 interval 免费拉满。 */
-    private var _autobuyerUtilCls: Class<*>? = null
-    private var _autobuyerUtilCls_ready: Boolean = false
+    private var autobuyerUtilClassCache: Class<*>? = null
+    private var autobuyerUtilClsResolved: Boolean = false
     private fun autobuyerUtilCls(): Class<*>? {
-        if (!_autobuyerUtilCls_ready) {
-            _autobuyerUtilCls_ready = true
-            _autobuyerUtilCls = cls("kajfosz.antimatterdimensions.autobuyer.a")
+        if (!autobuyerUtilClsResolved) {
+            autobuyerUtilClsResolved = true
+            autobuyerUtilClassCache = cls("kajfosz.antimatterdimensions.autobuyer.a")
         }
-        return _autobuyerUtilCls
+        return autobuyerUtilClassCache
     }
 
     /** `az1` —— 无限升级注册表（`s` = 全列表，`a` = ipMult）。 */
-    private var _infUpgradesCls: Class<*>? = null
-    private var _infUpgradesCls_ready: Boolean = false
+    private var infUpgradesClassCache: Class<*>? = null
+    private var infUpgradesClsResolved: Boolean = false
     private fun infUpgradesCls(): Class<*>? {
-        if (!_infUpgradesCls_ready) {
-            _infUpgradesCls_ready = true
-            _infUpgradesCls = cls(obf("az1"))
+        if (!infUpgradesClsResolved) {
+            infUpgradesClsResolved = true
+            infUpgradesClassCache = cls(obf("az1"))
         }
-        return _infUpgradesCls
+        return infUpgradesClassCache
     }
 
     /** `uu1` —— ipMult 升级实现（`x()` 成本、`y()` 货币、`I()` 等级、`J(J)` 写等级）。 */
-    private var _ipMultCls: Class<*>? = null
-    private var _ipMultCls_ready: Boolean = false
+    private var ipMultClassCache: Class<*>? = null
+    private var ipMultClsResolved: Boolean = false
     private fun ipMultCls(): Class<*>? {
-        if (!_ipMultCls_ready) {
-            _ipMultCls_ready = true
-            _ipMultCls = cls(obf("uu1"))
+        if (!ipMultClsResolved) {
+            ipMultClsResolved = true
+            ipMultClassCache = cls(obf("uu1"))
         }
-        return _ipMultCls
+        return ipMultClassCache
     }
 
     /** `fp3` —— 无限升级基类（`B()` 已买、`z()` 买得起、`D(Z,Continuation)` 购买）。 */
-    private var _upgradeBaseCls: Class<*>? = null
-    private var _upgradeBaseCls_ready: Boolean = false
+    private var upgradeBaseClassCache: Class<*>? = null
+    private var upgradeBaseClsResolved: Boolean = false
     private fun upgradeBaseCls(): Class<*>? {
-        if (!_upgradeBaseCls_ready) {
-            _upgradeBaseCls_ready = true
-            _upgradeBaseCls = cls(obf("fp3"))
+        if (!upgradeBaseClsResolved) {
+            upgradeBaseClsResolved = true
+            upgradeBaseClassCache = cls(obf("fp3"))
         }
-        return _upgradeBaseCls
+        return upgradeBaseClassCache
     }
 
     /** `BitSet` —— `Player.o()` 返回的 Break 升级位图。 */
-    private var _bitSetCls: Class<*>? = null
-    private var _bitSetCls_ready: Boolean = false
+    private var bitSetClassCache: Class<*>? = null
+    private var bitSetClsResolved: Boolean = false
     private fun bitSetCls(): Class<*>? {
-        if (!_bitSetCls_ready) {
-            _bitSetCls_ready = true
-            _bitSetCls = cls("kajfosz.antimatterdimensions.BitSet")
+        if (!bitSetClsResolved) {
+            bitSetClsResolved = true
+            bitSetClassCache = cls("kajfosz.antimatterdimensions.BitSet")
         }
-        return _bitSetCls
+        return bitSetClassCache
     }
 
     /** `pelle/c` —— Pelle.isDoomed。 */
-    private var _pelleCls: Class<*>? = null
-    private var _pelleCls_ready: Boolean = false
+    private var pelleClassCache: Class<*>? = null
+    private var pelleClsResolved: Boolean = false
     private fun pelleCls(): Class<*>? {
-        if (!_pelleCls_ready) {
-            _pelleCls_ready = true
-            _pelleCls = cls("kajfosz.antimatterdimensions.celestials.pelle.c")
+        if (!pelleClsResolved) {
+            pelleClsResolved = true
+            pelleClassCache = cls("kajfosz.antimatterdimensions.celestials.pelle.c")
         }
-        return _pelleCls
+        return pelleClassCache
     }
 
     /** `OrekiAuto` —— hasInfinity。 */
-    private var _orekiAutoCls: Class<*>? = null
-    private var _orekiAutoCls_ready: Boolean = false
+    private var orekiAutoClassCache: Class<*>? = null
+    private var orekiAutoClsResolved: Boolean = false
     private fun orekiAutoCls(): Class<*>? {
-        if (!_orekiAutoCls_ready) {
-            _orekiAutoCls_ready = true
-            _orekiAutoCls = cls("kajfosz.antimatterdimensions.OrekiAuto")
+        if (!orekiAutoClsResolved) {
+            orekiAutoClsResolved = true
+            orekiAutoClassCache = cls("kajfosz.antimatterdimensions.OrekiAuto")
         }
-        return _orekiAutoCls
+        return orekiAutoClassCache
     }
 
     private fun cls(name: String): Class<*>? = try {
@@ -406,92 +408,92 @@ internal object GameApi {
     // ---------------------------------------------------------------- Player
 
     /** `Player.a` —— 单例。手动初始化（不用 by lazy，见文件头说明）。 */
-    private var _player: Any? = null
-    private var _player_ready: Boolean = false
+    private var player: Any? = null
+    private var playerResolved: Boolean = false
 
     private fun player(): Any? {
-        if (!_player_ready) {
-            _player_ready = true
-            _player = try {
+        if (!playerResolved) {
+            playerResolved = true
+            player = try {
                 staticField(playerCls(), "a")?.get(null)
             } catch (e: Throwable) {
                 miss("Player.a", e); null
             }
         }
-        return _player
+        return player
     }
 
-    private var _mPlayerC: Method? = null
-    private var _mPlayerC_ready: Boolean = false
+    private var mPlayerC: Method? = null
+    private var mPlayerCResolved: Boolean = false
     private fun mPlayerC(): Method? {
-        if (!_mPlayerC_ready) {
-            _mPlayerC_ready = true
-            _mPlayerC = method(playerCls(), "c", 0, "Player.c()")
+        if (!mPlayerCResolved) {
+            mPlayerCResolved = true
+            mPlayerC = method(playerCls(), "c", 0, "Player.c()")
         }
-        return _mPlayerC
+        return mPlayerC
     }
-    private var _mPlayerM: Method? = null
-    private var _mPlayerM_ready: Boolean = false
+    private var mPlayerM: Method? = null
+    private var mPlayerMResolved: Boolean = false
     private fun mPlayerM(): Method? {
-        if (!_mPlayerM_ready) {
-            _mPlayerM_ready = true
-            _mPlayerM = method(playerCls(), "m", 0, "Player.m()")
+        if (!mPlayerMResolved) {
+            mPlayerMResolved = true
+            mPlayerM = method(playerCls(), "m", 0, "Player.m()")
         }
-        return _mPlayerM
+        return mPlayerM
     }
-    private var _mPlayerK: Method? = null
-    private var _mPlayerK_ready: Boolean = false
+    private var mPlayerK: Method? = null
+    private var mPlayerKResolved: Boolean = false
     private fun mPlayerK(): Method? {
-        if (!_mPlayerK_ready) {
-            _mPlayerK_ready = true
-            _mPlayerK = method(playerCls(), "K", 0, "Player.K()")
+        if (!mPlayerKResolved) {
+            mPlayerKResolved = true
+            mPlayerK = method(playerCls(), "K", 0, "Player.K()")
         }
-        return _mPlayerK
+        return mPlayerK
     }
-    private var _mPlayerR: Method? = null
-    private var _mPlayerR_ready: Boolean = false
+    private var mPlayerR: Method? = null
+    private var mPlayerRResolved: Boolean = false
     private fun mPlayerR(): Method? {
-        if (!_mPlayerR_ready) {
-            _mPlayerR_ready = true
-            _mPlayerR = method(playerCls(), "R", 0, "Player.R()")
+        if (!mPlayerRResolved) {
+            mPlayerRResolved = true
+            mPlayerR = method(playerCls(), "R", 0, "Player.R()")
         }
-        return _mPlayerR
+        return mPlayerR
     }
-    private var _mPlayerO: Method? = null
-    private var _mPlayerO_ready: Boolean = false
+    private var mPlayerO: Method? = null
+    private var mPlayerOResolved: Boolean = false
     private fun mPlayerO(): Method? {
-        if (!_mPlayerO_ready) {
-            _mPlayerO_ready = true
-            _mPlayerO = method(playerCls(), "o", 0, "Player.o()")
+        if (!mPlayerOResolved) {
+            mPlayerOResolved = true
+            mPlayerO = method(playerCls(), "o", 0, "Player.o()")
         }
-        return _mPlayerO
+        return mPlayerO
     }
-    private var _mPlayerX: Method? = null
-    private var _mPlayerX_ready: Boolean = false
+    private var mPlayerX: Method? = null
+    private var mPlayerXResolved: Boolean = false
     private fun mPlayerX(): Method? {
-        if (!_mPlayerX_ready) {
-            _mPlayerX_ready = true
-            _mPlayerX = method(playerCls(), "x", 0, "Player.x()")
+        if (!mPlayerXResolved) {
+            mPlayerXResolved = true
+            mPlayerX = method(playerCls(), "x", 0, "Player.x()")
         }
-        return _mPlayerX
+        return mPlayerX
     }
-    private var _mPlayerX0: Method? = null
-    private var _mPlayerX0_ready: Boolean = false
+    private var mPlayerX0: Method? = null
+    private var mPlayerX0Resolved: Boolean = false
     private fun mPlayerX0(): Method? {
-        if (!_mPlayerX0_ready) {
-            _mPlayerX0_ready = true
-            _mPlayerX0 = method(playerCls(), "x0", 1, "Player.x0(Z)")
+        if (!mPlayerX0Resolved) {
+            mPlayerX0Resolved = true
+            mPlayerX0 = method(playerCls(), "x0", 1, "Player.x0(Z)")
         }
-        return _mPlayerX0
+        return mPlayerX0
     }
-    private var _mPlayerD: Method? = null
-    private var _mPlayerD_ready: Boolean = false
+    private var mPlayerD: Method? = null
+    private var mPlayerDResolved: Boolean = false
     private fun mPlayerD(): Method? {
-        if (!_mPlayerD_ready) {
-            _mPlayerD_ready = true
-            _mPlayerD = method(playerCls(), "D", 0, "Player.D()")
+        if (!mPlayerDResolved) {
+            mPlayerDResolved = true
+            mPlayerD = method(playerCls(), "D", 0, "Player.D()")
         }
-        return _mPlayerD
+        return mPlayerD
     }
 
     /** `Player.auto`（Player$Auto 实例）。 */
@@ -522,77 +524,77 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- Player$Auto
 
-    private var _mAutoE: Method? = null
-    private var _mAutoE_ready: Boolean = false
+    private var mAutoE: Method? = null
+    private var mAutoEResolved: Boolean = false
     private fun mAutoE(): Method? {
-        if (!_mAutoE_ready) {
-            _mAutoE_ready = true
-            _mAutoE = method(playerAutoCls(), "e", 0, "Auto.e()=bigCrunch")
+        if (!mAutoEResolved) {
+            mAutoEResolved = true
+            mAutoE = method(playerAutoCls(), "e", 0, "Auto.e()=bigCrunch")
         }
-        return _mAutoE
+        return mAutoE
     }
-    private var _mAutoJ: Method? = null
-    private var _mAutoJ_ready: Boolean = false
+    private var mAutoJ: Method? = null
+    private var mAutoJResolved: Boolean = false
     private fun mAutoJ(): Method? {
-        if (!_mAutoJ_ready) {
-            _mAutoJ_ready = true
-            _mAutoJ = method(playerAutoCls(), "j", 0, "Auto.j()=dims[]")
+        if (!mAutoJResolved) {
+            mAutoJResolved = true
+            mAutoJ = method(playerAutoCls(), "j", 0, "Auto.j()=dims[]")
         }
-        return _mAutoJ
+        return mAutoJ
     }
-    private var _mAutoB: Method? = null
-    private var _mAutoB_ready: Boolean = false
+    private var mAutoB: Method? = null
+    private var mAutoBResolved: Boolean = false
     private fun mAutoB(): Method? {
-        if (!_mAutoB_ready) {
-            _mAutoB_ready = true
-            _mAutoB = method(playerAutoCls(), "B", 0, "Auto.B()=tickspeed")
+        if (!mAutoBResolved) {
+            mAutoBResolved = true
+            mAutoB = method(playerAutoCls(), "B", 0, "Auto.B()=tickspeed")
         }
-        return _mAutoB
+        return mAutoB
     }
-    private var _mAutoI: Method? = null
-    private var _mAutoI_ready: Boolean = false
+    private var mAutoI: Method? = null
+    private var mAutoIResolved: Boolean = false
     private fun mAutoI(): Method? {
-        if (!_mAutoI_ready) {
-            _mAutoI_ready = true
-            _mAutoI = method(playerAutoCls(), "i", 0, "Auto.i()=dimBoost")
+        if (!mAutoIResolved) {
+            mAutoIResolved = true
+            mAutoI = method(playerAutoCls(), "i", 0, "Auto.i()=dimBoost")
         }
-        return _mAutoI
+        return mAutoI
     }
-    private var _mAutoP: Method? = null
-    private var _mAutoP_ready: Boolean = false
+    private var mAutoP: Method? = null
+    private var mAutoPResolved: Boolean = false
     private fun mAutoP(): Method? {
-        if (!_mAutoP_ready) {
-            _mAutoP_ready = true
-            _mAutoP = method(playerAutoCls(), "p", 0, "Auto.p()=galaxy")
+        if (!mAutoPResolved) {
+            mAutoPResolved = true
+            mAutoP = method(playerAutoCls(), "p", 0, "Auto.p()=galaxy")
         }
-        return _mAutoP
+        return mAutoP
     }
-    private var _mAutoZ: Method? = null
-    private var _mAutoZ_ready: Boolean = false
+    private var mAutoZ: Method? = null
+    private var mAutoZResolved: Boolean = false
     private fun mAutoZ(): Method? {
-        if (!_mAutoZ_ready) {
-            _mAutoZ_ready = true
-            _mAutoZ = method(playerAutoCls(), "z", 0, "Auto.z()=sacrifice")
+        if (!mAutoZResolved) {
+            mAutoZResolved = true
+            mAutoZ = method(playerAutoCls(), "z", 0, "Auto.z()=sacrifice")
         }
-        return _mAutoZ
+        return mAutoZ
     }
-    private var _mAutoV: Method? = null
-    private var _mAutoV_ready: Boolean = false
+    private var mAutoV: Method? = null
+    private var mAutoVResolved: Boolean = false
     private fun mAutoV(): Method? {
-        if (!_mAutoV_ready) {
-            _mAutoV_ready = true
-            _mAutoV = method(playerAutoCls(), "v", 0, "Auto.v()=ipMult")
+        if (!mAutoVResolved) {
+            mAutoVResolved = true
+            mAutoV = method(playerAutoCls(), "v", 0, "Auto.v()=ipMult")
         }
-        return _mAutoV
+        return mAutoV
     }
-    private var _mAutoO: Method? = null
-    private var _mAutoO_ready: Boolean = false
+    private var mAutoO: Method? = null
+    private var mAutoOResolved: Boolean = false
     private fun mAutoO(): Method? {
-        if (!_mAutoO_ready) {
-            _mAutoO_ready = true
-            _mAutoO = method(playerAutoCls(), "O", 1, "Auto.O(Z)=setIpMult")
+        if (!mAutoOResolved) {
+            mAutoOResolved = true
+            mAutoO = method(playerAutoCls(), "O", 1, "Auto.O(Z)=setIpMult")
         }
-        return _mAutoO
+        return mAutoO
     }
 
     /** 大坍缩自动器实例。 */
@@ -600,8 +602,8 @@ internal object GameApi {
 
     /** 8 个反物质维度自动器（数组）。 */
     fun dimensionAutobuyers(): Array<Any>? {
-        val a = call(mAutoJ(), auto()) ?: return null
-        return a as? Array<Any>
+        val autobuyerArray = call(mAutoJ(), auto()) ?: return null
+        return autobuyerArray as? Array<Any>
     }
 
     fun tickspeedAutobuyer(): Any? = call(mAutoB(), auto())
@@ -619,14 +621,14 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- Player$Options / Records
 
-    private var _mOptionsG0: Method? = null
-    private var _mOptionsG0_ready: Boolean = false
+    private var mOptionsG0: Method? = null
+    private var mOptionsG0Resolved: Boolean = false
     private fun mOptionsG0(): Method? {
-        if (!_mOptionsG0_ready) {
-            _mOptionsG0_ready = true
-            _mOptionsG0 = method(playerOptionsCls(), "g0", 1, "Options.g0(Z)=autobuyersOn")
+        if (!mOptionsG0Resolved) {
+            mOptionsG0Resolved = true
+            mOptionsG0 = method(playerOptionsCls(), "g0", 1, "Options.g0(Z)=autobuyersOn")
         }
-        return _mOptionsG0
+        return mOptionsG0
     }
 
     /** 写「自动购买器」总开关。 */
@@ -634,23 +636,23 @@ internal object GameApi {
         call(mOptionsG0(), options(), value)
     }
 
-    private var _mRecordsJ: Method? = null
-    private var _mRecordsJ_ready: Boolean = false
+    private var mRecordsJ: Method? = null
+    private var mRecordsJResolved: Boolean = false
     private fun mRecordsJ(): Method? {
-        if (!_mRecordsJ_ready) {
-            _mRecordsJ_ready = true
-            _mRecordsJ = method(playerRecordsCls(), "j", 0, "Records.j()=thisEternity")
+        if (!mRecordsJResolved) {
+            mRecordsJResolved = true
+            mRecordsJ = method(playerRecordsCls(), "j", 0, "Records.j()=thisEternity")
         }
-        return _mRecordsJ
+        return mRecordsJ
     }
-    private var _mThisEternityH: Method? = null
-    private var _mThisEternityH_ready: Boolean = false
+    private var mThisEternityH: Method? = null
+    private var mThisEternityHResolved: Boolean = false
     private fun mThisEternityH(): Method? {
-        if (!_mThisEternityH_ready) {
-            _mThisEternityH_ready = true
-            _mThisEternityH = method(thisEternityCls(), "h", 0, "ThisEternity.h()=maxAM")
+        if (!mThisEternityHResolved) {
+            mThisEternityHResolved = true
+            mThisEternityH = method(thisEternityCls(), "h", 0, "ThisEternity.h()=maxAM")
         }
-        return _mThisEternityH
+        return mThisEternityH
     }
 
     /** `thisEternity.maxAM`（BigDouble）。 */
@@ -658,31 +660,31 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- BigDouble
 
-    private var _mBigDoubleInit: Method? = null
-    private var _mBigDoubleInit_ready: Boolean = false
+    private var mBigDoubleInit: Method? = null
+    private var mBigDoubleInitResolved: Boolean = false
     private fun mBigDoubleInit(): Method? {
-        if (!_mBigDoubleInit_ready) {
-            _mBigDoubleInit_ready = true
-            _mBigDoubleInit = method(bigDoubleCls(), "<init>", 1, "BigDouble(double)")
+        if (!mBigDoubleInitResolved) {
+            mBigDoubleInitResolved = true
+            mBigDoubleInit = method(bigDoubleCls(), "<init>", 1, "BigDouble(double)")
         }
-        return _mBigDoubleInit
+        return mBigDoubleInit
     }
-    private var _mBigDoubleCompareDouble: Method? = null
-    private var _mBigDoubleCompareDouble_ready: Boolean = false
+    private var mBigDoubleCompareDouble: Method? = null
+    private var mBigDoubleCompareDoubleResolved: Boolean = false
     private fun mBigDoubleCompareDouble(): Method? {
-        if (!_mBigDoubleCompareDouble_ready) {
-            _mBigDoubleCompareDouble_ready = true
-            _mBigDoubleCompareDouble = method(bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)")
+        if (!mBigDoubleCompareDoubleResolved) {
+            mBigDoubleCompareDoubleResolved = true
+            mBigDoubleCompareDouble = method(bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)")
         }
-        return _mBigDoubleCompareDouble
+        return mBigDoubleCompareDouble
     }
 
     /** 构造 `BigDouble(double)`。 */
     fun bigDouble(value: Double): Any? {
-        val c = bigDoubleCls() ?: return null
+        val bigDoubleClass = bigDoubleCls() ?: return null
         return try {
             // 构造器不在 methods 里（methods 只含 public 成员方法，构造器要用 constructors）
-            val ctor = c.constructors.firstOrNull { it.parameterCount == 1 }
+            val ctor = bigDoubleClass.constructors.firstOrNull { it.parameterCount == 1 }
             ctor?.newInstance(value)
         } catch (e: Throwable) {
             miss("BigDouble(double) ctor", e); null
@@ -691,9 +693,9 @@ internal object GameApi {
 
     /** `BigDouble.compareTo(Double)` → -1/0/1；无法比较时返回 null。 */
     fun compareToDouble(a: Any?, b: Double): Int? {
-        val m = mBigDoubleCompareDouble() ?: return null
+        val compareMethod = mBigDoubleCompareDouble() ?: return null
         return try {
-            m.invoke(a, b) as? Int
+            compareMethod.invoke(a, b) as? Int
         } catch (e: Throwable) {
             miss("BigDouble.compareTo", e); null
         }
@@ -701,95 +703,95 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- CrunchAutobuyerState
 
-    private var _mCrunchI: Method? = null
-    private var _mCrunchI_ready: Boolean = false
+    private var mCrunchI: Method? = null
+    private var mCrunchIResolved: Boolean = false
     private fun mCrunchI(): Method? {
-        if (!_mCrunchI_ready) {
-            _mCrunchI_ready = true
-            _mCrunchI = method(crunchCls(), "I", 0, "Crunch.I()=mode")
+        if (!mCrunchIResolved) {
+            mCrunchIResolved = true
+            mCrunchI = method(crunchCls(), "I", 0, "Crunch.I()=mode")
         }
-        return _mCrunchI
+        return mCrunchI
     }
-    private var _mCrunchA: Method? = null
-    private var _mCrunchA_ready: Boolean = false
+    private var mCrunchA: Method? = null
+    private var mCrunchAResolved: Boolean = false
     private fun mCrunchA(): Method? {
-        if (!_mCrunchA_ready) {
-            _mCrunchA_ready = true
-            _mCrunchA = method(crunchCls(), "a", 1, "Crunch.a(I)=setMode")
+        if (!mCrunchAResolved) {
+            mCrunchAResolved = true
+            mCrunchA = method(crunchCls(), "a", 1, "Crunch.a(I)=setMode")
         }
-        return _mCrunchA
+        return mCrunchA
     }
-    private var _mCrunchL: Method? = null
-    private var _mCrunchL_ready: Boolean = false
+    private var mCrunchL: Method? = null
+    private var mCrunchLResolved: Boolean = false
     private fun mCrunchL(): Method? {
-        if (!_mCrunchL_ready) {
-            _mCrunchL_ready = true
-            _mCrunchL = method(crunchCls(), "L", 0, "Crunch.L()=xHighest")
+        if (!mCrunchLResolved) {
+            mCrunchLResolved = true
+            mCrunchL = method(crunchCls(), "L", 0, "Crunch.L()=xHighest")
         }
-        return _mCrunchL
+        return mCrunchL
     }
-    private var _mCrunchP: Method? = null
-    private var _mCrunchP_ready: Boolean = false
+    private var mCrunchP: Method? = null
+    private var mCrunchPResolved: Boolean = false
     private fun mCrunchP(): Method? {
-        if (!_mCrunchP_ready) {
-            _mCrunchP_ready = true
-            _mCrunchP = method(crunchCls(), "P", 1, "Crunch.P(BigDouble)=setXHighest")
+        if (!mCrunchPResolved) {
+            mCrunchPResolved = true
+            mCrunchP = method(crunchCls(), "P", 1, "Crunch.P(BigDouble)=setXHighest")
         }
-        return _mCrunchP
+        return mCrunchP
     }
-    private var _mCrunchO: Method? = null
-    private var _mCrunchO_ready: Boolean = false
+    private var mCrunchO: Method? = null
+    private var mCrunchOResolved: Boolean = false
     private fun mCrunchO(): Method? {
-        if (!_mCrunchO_ready) {
-            _mCrunchO_ready = true
-            _mCrunchO = method(crunchCls(), "O", 1, "Crunch.O(D)=setInterval")
+        if (!mCrunchOResolved) {
+            mCrunchOResolved = true
+            mCrunchO = method(crunchCls(), "O", 1, "Crunch.O(D)=setInterval")
         }
-        return _mCrunchO
+        return mCrunchO
     }
-    private var _mCrunchC: Method? = null
-    private var _mCrunchC_ready: Boolean = false
+    private var mCrunchC: Method? = null
+    private var mCrunchCResolved: Boolean = false
     private fun mCrunchC(): Method? {
-        if (!_mCrunchC_ready) {
-            _mCrunchC_ready = true
-            _mCrunchC = method(crunchCls(), "c", 0, "Crunch.c()=canTick")
+        if (!mCrunchCResolved) {
+            mCrunchCResolved = true
+            mCrunchC = method(crunchCls(), "c", 0, "Crunch.c()=canTick")
         }
-        return _mCrunchC
+        return mCrunchC
     }
-    private var _mCrunchG: Method? = null
-    private var _mCrunchG_ready: Boolean = false
+    private var mCrunchG: Method? = null
+    private var mCrunchGResolved: Boolean = false
     private fun mCrunchG(): Method? {
-        if (!_mCrunchG_ready) {
-            _mCrunchG_ready = true
-            _mCrunchG = method(crunchCls(), "g", 0, "Crunch.g()=isUnlocked")
+        if (!mCrunchGResolved) {
+            mCrunchGResolved = true
+            mCrunchG = method(crunchCls(), "g", 0, "Crunch.g()=isUnlocked")
         }
-        return _mCrunchG
+        return mCrunchG
     }
-    private var _mCrunchV: Method? = null
-    private var _mCrunchV_ready: Boolean = false
+    private var mCrunchV: Method? = null
+    private var mCrunchVResolved: Boolean = false
     private fun mCrunchV(): Method? {
-        if (!_mCrunchV_ready) {
-            _mCrunchV_ready = true
-            _mCrunchV = method(crunchCls(), "v", 0, "Crunch.v()=hasMaxedInterval")
+        if (!mCrunchVResolved) {
+            mCrunchVResolved = true
+            mCrunchV = method(crunchCls(), "v", 0, "Crunch.v()=hasMaxedInterval")
         }
-        return _mCrunchV
+        return mCrunchV
     }
-    private var _mCrunchT: Method? = null
-    private var _mCrunchT_ready: Boolean = false
+    private var mCrunchT: Method? = null
+    private var mCrunchTResolved: Boolean = false
     private fun mCrunchT(): Method? {
-        if (!_mCrunchT_ready) {
-            _mCrunchT_ready = true
-            _mCrunchT = method(upgradeableCls(), "t", 0, "Upgradeable.t()=cost")
+        if (!mCrunchTResolved) {
+            mCrunchTResolved = true
+            mCrunchT = method(upgradeableCls(), "t", 0, "Upgradeable.t()=cost")
         }
-        return _mCrunchT
+        return mCrunchT
     }
-    private var _mCrunchUpA: Method? = null
-    private var _mCrunchUpA_ready: Boolean = false
+    private var mCrunchUpA: Method? = null
+    private var mCrunchUpAResolved: Boolean = false
     private fun mCrunchUpA(): Method? {
-        if (!_mCrunchUpA_ready) {
-            _mCrunchUpA_ready = true
-            _mCrunchUpA = method(upgradeableCls(), "A", 1, "Upgradeable.A(Z)=buy")
+        if (!mCrunchUpAResolved) {
+            mCrunchUpAResolved = true
+            mCrunchUpA = method(upgradeableCls(), "A", 1, "Upgradeable.A(Z)=buy")
         }
-        return _mCrunchUpA
+        return mCrunchUpA
     }
 
     fun crunchMode(s: Any?): Int = (call(mCrunchI(), s) as? Int) ?: -1
@@ -805,14 +807,14 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- Autobuyer 基类
 
-    private var _mBaseI: Method? = null
-    private var _mBaseI_ready: Boolean = false
+    private var mBaseI: Method? = null
+    private var mBaseIResolved: Boolean = false
     private fun mBaseI(): Method? {
-        if (!_mBaseI_ready) {
-            _mBaseI_ready = true
-            _mBaseI = method(autobuyerBaseCls(), "i", 1, "AutobuyerState.i(Z)=setActive")
+        if (!mBaseIResolved) {
+            mBaseIResolved = true
+            mBaseI = method(autobuyerBaseCls(), "i", 1, "AutobuyerState.i(Z)=setActive")
         }
-        return _mBaseI
+        return mBaseI
     }
 
     /** 打开/关闭某个自动器的 isActive。 */
@@ -822,23 +824,23 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- 维度自动器 bulk
 
-    private var _mDimD: Method? = null
-    private var _mDimD_ready: Boolean = false
+    private var mDimD: Method? = null
+    private var mDimDResolved: Boolean = false
     private fun mDimD(): Method? {
-        if (!_mDimD_ready) {
-            _mDimD_ready = true
-            _mDimD = method(dimAutobuyerCls(), "D", 0, "DimAutobuyer.D()=bulk")
+        if (!mDimDResolved) {
+            mDimDResolved = true
+            mDimD = method(dimAutobuyerCls(), "D", 0, "DimAutobuyer.D()=bulk")
         }
-        return _mDimD
+        return mDimD
     }
-    private var _mDimN: Method? = null
-    private var _mDimN_ready: Boolean = false
+    private var mDimN: Method? = null
+    private var mDimNResolved: Boolean = false
     private fun mDimN(): Method? {
-        if (!_mDimN_ready) {
-            _mDimN_ready = true
-            _mDimN = method(dimAutobuyerCls(), "N", 1, "DimAutobuyer.N(Z)=upgradeBulk")
+        if (!mDimNResolved) {
+            mDimNResolved = true
+            mDimN = method(dimAutobuyerCls(), "N", 1, "DimAutobuyer.N(Z)=upgradeBulk")
         }
-        return _mDimN
+        return mDimN
     }
 
     /** 当前 bulk 值（double）。 */
@@ -851,68 +853,68 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- 无限维度
 
-    private var _mIdHolderA: Method? = null
-    private var _mIdHolderA_ready: Boolean = false
+    private var mIdHolderA: Method? = null
+    private var mIdHolderAResolved: Boolean = false
     private fun mIdHolderA(): Method? {
-        if (!_mIdHolderA_ready) {
-            _mIdHolderA_ready = true
-            _mIdHolderA = method(idHolderCls(), "a", 1, "InfinityDimensions.a(I)")
+        if (!mIdHolderAResolved) {
+            mIdHolderAResolved = true
+            mIdHolderA = method(idHolderCls(), "a", 1, "InfinityDimensions.a(I)")
         }
-        return _mIdHolderA
+        return mIdHolderA
     }
-    private var _mIdK: Method? = null
-    private var _mIdK_ready: Boolean = false
+    private var mIdK: Method? = null
+    private var mIdKResolved: Boolean = false
     private fun mIdK(): Method? {
-        if (!_mIdK_ready) {
-            _mIdK_ready = true
-            _mIdK = method(idStateCls(), "k", 0, "ID.k()=requirement")
+        if (!mIdKResolved) {
+            mIdKResolved = true
+            mIdK = method(idStateCls(), "k", 0, "ID.k()=requirement")
         }
-        return _mIdK
+        return mIdK
     }
-    private var _mIdG: Method? = null
-    private var _mIdG_ready: Boolean = false
+    private var mIdG: Method? = null
+    private var mIdGResolved: Boolean = false
     private fun mIdG(): Method? {
-        if (!_mIdG_ready) {
-            _mIdG_ready = true
-            _mIdG = method(idStateCls(), "G", 0, "ID.G()=isUnlocked")
+        if (!mIdGResolved) {
+            mIdGResolved = true
+            mIdG = method(idStateCls(), "G", 0, "ID.G()=isUnlocked")
         }
-        return _mIdG
+        return mIdG
     }
-    private var _mIdM: Method? = null
-    private var _mIdM_ready: Boolean = false
+    private var mIdM: Method? = null
+    private var mIdMResolved: Boolean = false
     private fun mIdM(): Method? {
-        if (!_mIdM_ready) {
-            _mIdM_ready = true
-            _mIdM = method(idStateCls(), "M", 0, "ID.M()=unlock")
+        if (!mIdMResolved) {
+            mIdMResolved = true
+            mIdM = method(idStateCls(), "M", 0, "ID.M()=unlock")
         }
-        return _mIdM
+        return mIdM
     }
-    private var _mIdH: Method? = null
-    private var _mIdH_ready: Boolean = false
+    private var mIdH: Method? = null
+    private var mIdHResolved: Boolean = false
     private fun mIdH(): Method? {
-        if (!_mIdH_ready) {
-            _mIdH_ready = true
-            _mIdH = method(idStateCls(), "h", 1, "ID.h(Z)=buyMax")
+        if (!mIdHResolved) {
+            mIdHResolved = true
+            mIdH = method(idStateCls(), "h", 1, "ID.h(Z)=buyMax")
         }
-        return _mIdH
+        return mIdH
     }
-    private var _mIdI: Method? = null
-    private var _mIdI_ready: Boolean = false
+    private var mIdI: Method? = null
+    private var mIdIResolved: Boolean = false
     private fun mIdI(): Method? {
-        if (!_mIdI_ready) {
-            _mIdI_ready = true
-            _mIdI = method(idStateCls(), "i", 0, "ID.i()=buySingle")
+        if (!mIdIResolved) {
+            mIdIResolved = true
+            mIdI = method(idStateCls(), "i", 0, "ID.i()=buySingle")
         }
-        return _mIdI
+        return mIdI
     }
-    private var _mIdY: Method? = null
-    private var _mIdY_ready: Boolean = false
+    private var mIdY: Method? = null
+    private var mIdYResolved: Boolean = false
     private fun mIdY(): Method? {
-        if (!_mIdY_ready) {
-            _mIdY_ready = true
-            _mIdY = method(idStateCls(), "y", 0, "ID.y()=purchases")
+        if (!mIdYResolved) {
+            mIdYResolved = true
+            mIdY = method(idStateCls(), "y", 0, "ID.y()=purchases")
         }
-        return _mIdY
+        return mIdY
     }
 
     /** 取第 tier 层（1..8）；越界或失败返回 null。 */
@@ -927,32 +929,33 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
 
-    private var _mHolderW: Field? = null
-    private var _mHolderW_ready: Boolean = false
+    private var mHolderW: Field? = null
+    private var mHolderWResolved: Boolean = false
     private fun mHolderW(): Field? {
-        if (!_mHolderW_ready) {
-            _mHolderW_ready = true
-            _mHolderW = staticField(currencyHolderCls(), "w")
+        if (!mHolderWResolved) {
+            mHolderWResolved = true
+            mHolderW = staticField(currencyHolderCls(), "w")
         }
-        return _mHolderW
+        return mHolderW
     }
-    private var _mImplW: Method? = null
-    private var _mImplW_ready: Boolean = false
+    private var mImplW: Method? = null
+    private var mImplWResolved: Boolean = false
     private fun mImplW(): Method? {
-        if (!_mImplW_ready) {
-            _mImplW_ready = true
-            _mImplW = method(currencyImplCls(), "w", 0, "Currency.w()=value")
+        if (!mImplWResolved) {
+            mImplWResolved = true
+            // 3.20 rp0.K 为玩家现值，G 为 Pelle 分支；必须保留原版玩家口径。
+            mImplW = method(currencyImplCls(), if (isBaseline320()) "K" else "w", 0, "Infinity points current value")
         }
-        return _mImplW
+        return mImplW
     }
-    private var _mImplI: Method? = null
-    private var _mImplI_ready: Boolean = false
+    private var mImplI: Method? = null
+    private var mImplIResolved: Boolean = false
     private fun mImplI(): Method? {
-        if (!_mImplI_ready) {
-            _mImplI_ready = true
-            _mImplI = method(currencyImplCls(), "i", 1, "Currency.i(BigDouble)=buy")
+        if (!mImplIResolved) {
+            mImplIResolved = true
+            mImplI = method(currencyImplCls(), "i", 1, "Currency.i(BigDouble)=buy")
         }
-        return _mImplI
+        return mImplI
     }
 
     /** IP 货币容器。 */
@@ -970,59 +973,59 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- ipMult 升级
 
-    private var _mAz1A: Field? = null
-    private var _mAz1A_ready: Boolean = false
+    private var mAz1A: Field? = null
+    private var mAz1AResolved: Boolean = false
     private fun mAz1A(): Field? {
-        if (!_mAz1A_ready) {
-            _mAz1A_ready = true
-            _mAz1A = staticField(infUpgradesCls(), "a")
+        if (!mAz1AResolved) {
+            mAz1AResolved = true
+            mAz1A = staticField(infUpgradesCls(), "a")
         }
-        return _mAz1A
+        return mAz1A
     }
-    private var _mAz1S: Field? = null
-    private var _mAz1S_ready: Boolean = false
+    private var mAz1S: Field? = null
+    private var mAz1SResolved: Boolean = false
     private fun mAz1S(): Field? {
-        if (!_mAz1S_ready) {
-            _mAz1S_ready = true
-            _mAz1S = staticField(infUpgradesCls(), "s")
+        if (!mAz1SResolved) {
+            mAz1SResolved = true
+            mAz1S = staticField(infUpgradesCls(), "s")
         }
-        return _mAz1S
+        return mAz1S
     }
-    private var _mIpMultX: Method? = null
-    private var _mIpMultX_ready: Boolean = false
+    private var mIpMultX: Method? = null
+    private var mIpMultXResolved: Boolean = false
     private fun mIpMultX(): Method? {
-        if (!_mIpMultX_ready) {
-            _mIpMultX_ready = true
-            _mIpMultX = method(ipMultCls(), "x", 0, "ipMult.x()=cost")
+        if (!mIpMultXResolved) {
+            mIpMultXResolved = true
+            mIpMultX = method(ipMultCls(), "x", 0, "ipMult.x()=cost")
         }
-        return _mIpMultX
+        return mIpMultX
     }
-    private var _mIpMultY: Method? = null
-    private var _mIpMultY_ready: Boolean = false
+    private var mIpMultY: Method? = null
+    private var mIpMultYResolved: Boolean = false
     private fun mIpMultY(): Method? {
-        if (!_mIpMultY_ready) {
-            _mIpMultY_ready = true
-            _mIpMultY = method(ipMultCls(), "y", 0, "ipMult.y()=currency")
+        if (!mIpMultYResolved) {
+            mIpMultYResolved = true
+            mIpMultY = method(ipMultCls(), "y", 0, "ipMult.y()=currency")
         }
-        return _mIpMultY
+        return mIpMultY
     }
-    private var _mIpMultI: Method? = null
-    private var _mIpMultI_ready: Boolean = false
+    private var mIpMultI: Method? = null
+    private var mIpMultIResolved: Boolean = false
     private fun mIpMultI(): Method? {
-        if (!_mIpMultI_ready) {
-            _mIpMultI_ready = true
-            _mIpMultI = method(ipMultCls(), "I", 0, "ipMult.I()=level")
+        if (!mIpMultIResolved) {
+            mIpMultIResolved = true
+            mIpMultI = method(ipMultCls(), "I", 0, "ipMult.I()=level")
         }
-        return _mIpMultI
+        return mIpMultI
     }
-    private var _mIpMultJ: Method? = null
-    private var _mIpMultJ_ready: Boolean = false
+    private var mIpMultJ: Method? = null
+    private var mIpMultJResolved: Boolean = false
     private fun mIpMultJ(): Method? {
-        if (!_mIpMultJ_ready) {
-            _mIpMultJ_ready = true
-            _mIpMultJ = method(ipMultCls(), "J", 1, "ipMult.J(J)=setLevel")
+        if (!mIpMultJResolved) {
+            mIpMultJResolved = true
+            mIpMultJ = method(ipMultCls(), "J", 1, "ipMult.J(J)=setLevel")
         }
-        return _mIpMultJ
+        return mIpMultJ
     }
 
     /** ipMult 升级实例。 */
@@ -1047,32 +1050,32 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- fp3（无限升级基类）
 
-    private var _mUpB: Method? = null
-    private var _mUpB_ready: Boolean = false
+    private var mUpB: Method? = null
+    private var mUpBResolved: Boolean = false
     private fun mUpB(): Method? {
-        if (!_mUpB_ready) {
-            _mUpB_ready = true
-            _mUpB = method(upgradeBaseCls(), "B", 0, "Upgrade.B()=isBought")
+        if (!mUpBResolved) {
+            mUpBResolved = true
+            mUpB = method(upgradeBaseCls(), "B", 0, "Upgrade.B()=isBought")
         }
-        return _mUpB
+        return mUpB
     }
-    private var _mUpZ: Method? = null
-    private var _mUpZ_ready: Boolean = false
+    private var mUpZ: Method? = null
+    private var mUpZResolved: Boolean = false
     private fun mUpZ(): Method? {
-        if (!_mUpZ_ready) {
-            _mUpZ_ready = true
-            _mUpZ = method(upgradeBaseCls(), "z", 0, "Upgrade.z()=canAfford")
+        if (!mUpZResolved) {
+            mUpZResolved = true
+            mUpZ = method(upgradeBaseCls(), "z", 0, "Upgrade.z()=canAfford")
         }
-        return _mUpZ
+        return mUpZ
     }
-    private var _mUpD: Method? = null
-    private var _mUpD_ready: Boolean = false
+    private var mUpD: Method? = null
+    private var mUpDResolved: Boolean = false
     private fun mUpD(): Method? {
-        if (!_mUpD_ready) {
-            _mUpD_ready = true
-            _mUpD = method(upgradeBaseCls(), "D", 2, "Upgrade.D(Z,Continuation)=buy")
+        if (!mUpDResolved) {
+            mUpDResolved = true
+            mUpD = method(upgradeBaseCls(), "D", 2, "Upgrade.D(Z,Continuation)=buy")
         }
-        return _mUpD
+        return mUpD
     }
 
     fun upgradeBought(u: Any?): Boolean = (call(mUpB(), u) as? Boolean) ?: false
@@ -1080,49 +1083,94 @@ internal object GameApi {
     /** 尝试购买一项一次性升级；返回是否真的买到。 */
     fun upgradeBuy(u: Any?): Boolean {
         if (!upgradeBought(u)) {
-            val r = call(mUpD(), u, false, null) as? Boolean
-            return r ?: false
+            val purchaseResult = call(mUpD(), u, false, null) as? Boolean
+            return purchaseResult ?: false
         }
         return false
     }
 
+    // ---------------------------------------------------------------- R81 永恒商店兼容入口
+
+    /** 只读取原版字段；名称来自序列化契约，禁止以此入口直接修改玩家存档。 */
+    private fun readGameField(owner: Any?, fieldName: String): Any? {
+        if (owner == null) return null
+        return try {
+            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.get(owner)
+        } catch (error: Throwable) {
+            miss("read $fieldName", error)
+            null
+        }
+    }
+
+    /** 三类挑战均退出、且已播种首个时间维度时，才允许商店自动购买。 */
+    fun canAutomateEternityUpgrades(): Boolean {
+        val currentPlayer = player() ?: return false
+        val challenges = readGameField(currentPlayer, "challenge") ?: return false
+        for (challengeType in arrayOf("normal", "infinity", "eternity")) {
+            val challengeState = readGameField(challenges, challengeType) ?: return false
+            val currentChallenge = readGameField(challengeState, "current") as? Int ?: return false
+            if (currentChallenge != 0) return false
+        }
+        return try {
+            val dimensionFactory = cls("kajfosz.antimatterdimensions.dimension.time.a") ?: return false
+            val firstDimension = dimensionFactory.getMethod("a", Int::class.javaPrimitiveType).invoke(null, 1)
+            (readGameField(firstDimension, "bought") as? Long ?: 0L) > 0L
+        } catch (error: Throwable) {
+            // 升级版本若改变工厂签名，保守停止本动作，不抢占时间维度启动资金。
+            miss("first time dimension", error)
+            false
+        }
+    }
+
+    /** 3.20 x81.i 仅含六项一次性永恒升级；h 另含可重复项，不能误用。 */
+    fun eternityUpgrades(): List<Any> {
+        if (!isBaseline320()) return emptyList()
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            (cls("x81")?.getField("i")?.get(null) as? List<Any>) ?: emptyList()
+        } catch (error: Throwable) {
+            miss("eternity upgrade registry", error)
+            emptyList()
+        }
+    }
+
     // ---------------------------------------------------------------- 献祭
 
-    private var _mSacB: Method? = null
-    private var _mSacB_ready: Boolean = false
+    private var mSacB: Method? = null
+    private var mSacBResolved: Boolean = false
     private fun mSacB(): Method? {
-        if (!_mSacB_ready) {
-            _mSacB_ready = true
-            _mSacB = method(sacrificeCls(), "b", 0, "Sacrifice.b()=canSacrifice")
+        if (!mSacBResolved) {
+            mSacBResolved = true
+            mSacB = method(sacrificeCls(), "b", 0, "Sacrifice.b()=canSacrifice")
         }
-        return _mSacB
+        return mSacB
     }
-    private var _mSacD: Method? = null
-    private var _mSacD_ready: Boolean = false
+    private var mSacD: Method? = null
+    private var mSacDResolved: Boolean = false
     private fun mSacD(): Method? {
-        if (!_mSacD_ready) {
-            _mSacD_ready = true
-            _mSacD = method(sacrificeCls(), "d", 0, "Sacrifice.d()=nextBoost")
+        if (!mSacDResolved) {
+            mSacDResolved = true
+            mSacD = method(sacrificeCls(), "d", 0, "Sacrifice.d()=nextBoost")
         }
-        return _mSacD
+        return mSacD
     }
-    private var _mSacI: Method? = null
-    private var _mSacI_ready: Boolean = false
+    private var mSacI: Method? = null
+    private var mSacIResolved: Boolean = false
     private fun mSacI(): Method? {
-        if (!_mSacI_ready) {
-            _mSacI_ready = true
-            _mSacI = method(sacrificeCls(), "i", 0, "Sacrifice.i()=reset")
+        if (!mSacIResolved) {
+            mSacIResolved = true
+            mSacI = method(sacrificeCls(), "i", 0, "Sacrifice.i()=reset")
         }
-        return _mSacI
+        return mSacI
     }
-    private var _mSacK: Method? = null
-    private var _mSacK_ready: Boolean = false
+    private var mSacK: Method? = null
+    private var mSacKResolved: Boolean = false
     private fun mSacK(): Method? {
-        if (!_mSacK_ready) {
-            _mSacK_ready = true
-            _mSacK = method(sacrificeAutobuyerCls(), "k", 0, "SacrificeAutobuyerState.k()=multiplier")
+        if (!mSacKResolved) {
+            mSacKResolved = true
+            mSacK = method(sacrificeAutobuyerCls(), "k", 0, "SacrificeAutobuyerState.k()=multiplier")
         }
-        return _mSacK
+        return mSacK
     }
 
     fun canSacrifice(): Boolean = (call(mSacB(), null) as? Boolean) ?: false
@@ -1132,49 +1180,49 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- BitSet / 其它
 
-    private var _mBitSetA: Method? = null
-    private var _mBitSetA_ready: Boolean = false
+    private var mBitSetA: Method? = null
+    private var mBitSetAResolved: Boolean = false
     private fun mBitSetA(): Method? {
-        if (!_mBitSetA_ready) {
-            _mBitSetA_ready = true
-            _mBitSetA = method(bitSetCls(), "a", 0, "BitSet.a()=cardinality")
+        if (!mBitSetAResolved) {
+            mBitSetAResolved = true
+            mBitSetA = method(bitSetCls(), "a", 0, "BitSet.a()=cardinality")
         }
-        return _mBitSetA
+        return mBitSetA
     }
 
     /** Break 升级位图基数（0 = 还没买过任何 Break 升级）。 */
     fun bitSetCardinality(bits: Any?): Int = (call(mBitSetA(), bits) as? Int) ?: 0
 
-    private var _mPelleQ: Method? = null
-    private var _mPelleQ_ready: Boolean = false
+    private var mPelleQ: Method? = null
+    private var mPelleQResolved: Boolean = false
     private fun mPelleQ(): Method? {
-        if (!_mPelleQ_ready) {
-            _mPelleQ_ready = true
-            _mPelleQ = method(pelleCls(), "q", 0, "pelle.c.q()=isDoomed")
+        if (!mPelleQResolved) {
+            mPelleQResolved = true
+            mPelleQ = method(pelleCls(), "q", 0, "pelle.c.q()=isDoomed")
         }
-        return _mPelleQ
+        return mPelleQ
     }
     fun isDoomed(): Boolean = (call(mPelleQ(), null) as? Boolean) ?: false
 
-    private var _mOrekiAutoHasInfinity: Method? = null
-    private var _mOrekiAutoHasInfinity_ready: Boolean = false
+    private var mOrekiAutoHasInfinity: Method? = null
+    private var mOrekiAutoHasInfinityResolved: Boolean = false
     private fun mOrekiAutoHasInfinity(): Method? {
-        if (!_mOrekiAutoHasInfinity_ready) {
-            _mOrekiAutoHasInfinity_ready = true
-            _mOrekiAutoHasInfinity = method(orekiAutoCls(), "hasInfinity", 0, "OrekiAuto.hasInfinity")
+        if (!mOrekiAutoHasInfinityResolved) {
+            mOrekiAutoHasInfinityResolved = true
+            mOrekiAutoHasInfinity = method(orekiAutoCls(), "hasInfinity", 0, "OrekiAuto.hasInfinity")
         }
-        return _mOrekiAutoHasInfinity
+        return mOrekiAutoHasInfinity
     }
     fun hasInfinity(): Boolean = (call(mOrekiAutoHasInfinity(), null) as? Boolean) ?: false
 
-    private var _mBreakUtilC: Method? = null
-    private var _mBreakUtilC_ready: Boolean = false
+    private var mBreakUtilC: Method? = null
+    private var mBreakUtilCResolved: Boolean = false
     private fun mBreakUtilC(): Method? {
-        if (!_mBreakUtilC_ready) {
-            _mBreakUtilC_ready = true
-            _mBreakUtilC = method(autobuyerUtilCls(), "c", 0, "autobuyer.a.c()=maxAllIntervals")
+        if (!mBreakUtilCResolved) {
+            mBreakUtilCResolved = true
+            mBreakUtilC = method(autobuyerUtilCls(), "c", 0, "autobuyer.a.c()=maxAllIntervals")
         }
-        return _mBreakUtilC
+        return mBreakUtilC
     }
     fun maxAllIntervalsForFree() = call(mBreakUtilC(), null)
 
@@ -1189,159 +1237,159 @@ internal object GameApi {
     // 所以本轮不需要改它们的方法体，也就不触发 §64「修改即须转译」的约束。
     // 通过反射调用是为了让 Kotlin 侧不必为它们生成类型桩。
 
-    private var _breakGateCls: Class<*>? = null
-    private var _breakGateCls_ready: Boolean = false
+    private var breakGateClassCache: Class<*>? = null
+    private var breakGateClsResolved: Boolean = false
     private fun breakGateCls(): Class<*>? {
-        if (!_breakGateCls_ready) {
-            _breakGateCls_ready = true
-            _breakGateCls = cls("kajfosz.antimatterdimensions.oreki.OrekiBreakGate")
+        if (!breakGateClsResolved) {
+            breakGateClsResolved = true
+            breakGateClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiBreakGate")
         }
-        return _breakGateCls
+        return breakGateClassCache
     }
-    private var _breakShopCls: Class<*>? = null
-    private var _breakShopCls_ready: Boolean = false
+    private var breakShopClassCache: Class<*>? = null
+    private var breakShopClsResolved: Boolean = false
     private fun breakShopCls(): Class<*>? {
-        if (!_breakShopCls_ready) {
-            _breakShopCls_ready = true
-            _breakShopCls = cls("kajfosz.antimatterdimensions.oreki.OrekiBreakShop")
+        if (!breakShopClsResolved) {
+            breakShopClsResolved = true
+            breakShopClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiBreakShop")
         }
-        return _breakShopCls
+        return breakShopClassCache
     }
-    private var _smartStrategyCls: Class<*>? = null
-    private var _smartStrategyCls_ready: Boolean = false
+    private var smartStrategyClassCache: Class<*>? = null
+    private var smartStrategyClsResolved: Boolean = false
     private fun smartStrategyCls(): Class<*>? {
-        if (!_smartStrategyCls_ready) {
-            _smartStrategyCls_ready = true
-            _smartStrategyCls = cls("kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy")
+        if (!smartStrategyClsResolved) {
+            smartStrategyClsResolved = true
+            smartStrategyClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy")
         }
-        return _smartStrategyCls
+        return smartStrategyClassCache
     }
-    private var _pelleRecordCls: Class<*>? = null
-    private var _pelleRecordCls_ready: Boolean = false
+    private var pelleRecordClassCache: Class<*>? = null
+    private var pelleRecordClsResolved: Boolean = false
     private fun pelleRecordCls(): Class<*>? {
-        if (!_pelleRecordCls_ready) {
-            _pelleRecordCls_ready = true
-            _pelleRecordCls = cls("kajfosz.antimatterdimensions.oreki.OrekiPelleRecord")
+        if (!pelleRecordClsResolved) {
+            pelleRecordClsResolved = true
+            pelleRecordClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiPelleRecord")
         }
-        return _pelleRecordCls
+        return pelleRecordClassCache
     }
-    private var _eternityCls: Class<*>? = null
-    private var _eternityCls_ready: Boolean = false
+    private var eternityClassCache: Class<*>? = null
+    private var eternityClsResolved: Boolean = false
     private fun eternityCls(): Class<*>? {
-        if (!_eternityCls_ready) {
-            _eternityCls_ready = true
-            _eternityCls = cls("kajfosz.antimatterdimensions.oreki.OrekiEternity")
+        if (!eternityClsResolved) {
+            eternityClsResolved = true
+            eternityClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiEternity")
         }
-        return _eternityCls
+        return eternityClassCache
     }
-    private var _realityCls: Class<*>? = null
-    private var _realityCls_ready: Boolean = false
+    private var realityClassCache: Class<*>? = null
+    private var realityClsResolved: Boolean = false
     private fun realityCls(): Class<*>? {
-        if (!_realityCls_ready) {
-            _realityCls_ready = true
-            _realityCls = cls("kajfosz.antimatterdimensions.oreki.OrekiReality")
+        if (!realityClsResolved) {
+            realityClsResolved = true
+            realityClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiReality")
         }
-        return _realityCls
+        return realityClassCache
     }
-    private var _glyphAutoCls: Class<*>? = null
-    private var _glyphAutoCls_ready: Boolean = false
+    private var glyphAutoClassCache: Class<*>? = null
+    private var glyphAutoClsResolved: Boolean = false
     private fun glyphAutoCls(): Class<*>? {
-        if (!_glyphAutoCls_ready) {
-            _glyphAutoCls_ready = true
-            _glyphAutoCls = cls("kajfosz.antimatterdimensions.oreki.OrekiGlyphAuto")
+        if (!glyphAutoClsResolved) {
+            glyphAutoClsResolved = true
+            glyphAutoClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiGlyphAuto")
         }
-        return _glyphAutoCls
+        return glyphAutoClassCache
     }
-    private var _teresaAutoCls: Class<*>? = null
-    private var _teresaAutoCls_ready: Boolean = false
+    private var teresaAutoClassCache: Class<*>? = null
+    private var teresaAutoClsResolved: Boolean = false
     private fun teresaAutoCls(): Class<*>? {
-        if (!_teresaAutoCls_ready) {
-            _teresaAutoCls_ready = true
-            _teresaAutoCls = cls("kajfosz.antimatterdimensions.oreki.OrekiTeresaAuto")
+        if (!teresaAutoClsResolved) {
+            teresaAutoClsResolved = true
+            teresaAutoClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiTeresaAuto")
         }
-        return _teresaAutoCls
+        return teresaAutoClassCache
     }
 
-    private var _mBreakGateTick: Method? = null
-    private var _mBreakGateTick_ready: Boolean = false
+    private var mBreakGateTick: Method? = null
+    private var mBreakGateTickResolved: Boolean = false
     private fun mBreakGateTick(): Method? {
-        if (!_mBreakGateTick_ready) {
-            _mBreakGateTick_ready = true
-            _mBreakGateTick = method(breakGateCls(), "tick", 0, "BreakGate.tick()")
+        if (!mBreakGateTickResolved) {
+            mBreakGateTickResolved = true
+            mBreakGateTick = method(breakGateCls(), "tick", 0, "BreakGate.tick()")
         }
-        return _mBreakGateTick
+        return mBreakGateTick
     }
-    private var _mBreakShopTick: Method? = null
-    private var _mBreakShopTick_ready: Boolean = false
+    private var mBreakShopTick: Method? = null
+    private var mBreakShopTickResolved: Boolean = false
     private fun mBreakShopTick(): Method? {
-        if (!_mBreakShopTick_ready) {
-            _mBreakShopTick_ready = true
-            _mBreakShopTick = method(breakShopCls(), "tick", 0, "BreakShop.tick()I")
+        if (!mBreakShopTickResolved) {
+            mBreakShopTickResolved = true
+            mBreakShopTick = method(breakShopCls(), "tick", 0, "BreakShop.tick()I")
         }
-        return _mBreakShopTick
+        return mBreakShopTick
     }
-    private var _mStrategyDrives: Method? = null
-    private var _mStrategyDrives_ready: Boolean = false
+    private var mStrategyDrives: Method? = null
+    private var mStrategyDrivesResolved: Boolean = false
     private fun mStrategyDrives(): Method? {
-        if (!_mStrategyDrives_ready) {
-            _mStrategyDrives_ready = true
-            _mStrategyDrives = method(smartStrategyCls(), "drives", 1, "Strategy.drives(String)")
+        if (!mStrategyDrivesResolved) {
+            mStrategyDrivesResolved = true
+            mStrategyDrives = method(smartStrategyCls(), "drives", 1, "Strategy.drives(String)")
         }
-        return _mStrategyDrives
+        return mStrategyDrives
     }
-    private var _mStrategyTick: Method? = null
-    private var _mStrategyTick_ready: Boolean = false
+    private var mStrategyTick: Method? = null
+    private var mStrategyTickResolved: Boolean = false
     private fun mStrategyTick(): Method? {
-        if (!_mStrategyTick_ready) {
-            _mStrategyTick_ready = true
-            _mStrategyTick = method(smartStrategyCls(), "tick", 0, "Strategy.tick()")
+        if (!mStrategyTickResolved) {
+            mStrategyTickResolved = true
+            mStrategyTick = method(smartStrategyCls(), "tick", 0, "Strategy.tick()")
         }
-        return _mStrategyTick
+        return mStrategyTick
     }
-    private var _mPelleRecordTick: Method? = null
-    private var _mPelleRecordTick_ready: Boolean = false
+    private var mPelleRecordTick: Method? = null
+    private var mPelleRecordTickResolved: Boolean = false
     private fun mPelleRecordTick(): Method? {
-        if (!_mPelleRecordTick_ready) {
-            _mPelleRecordTick_ready = true
-            _mPelleRecordTick = method(pelleRecordCls(), "tick", 0, "PelleRecord.tick()")
+        if (!mPelleRecordTickResolved) {
+            mPelleRecordTickResolved = true
+            mPelleRecordTick = method(pelleRecordCls(), "tick", 0, "PelleRecord.tick()")
         }
-        return _mPelleRecordTick
+        return mPelleRecordTick
     }
-    private var _mEternityTick: Method? = null
-    private var _mEternityTick_ready: Boolean = false
+    private var mEternityTick: Method? = null
+    private var mEternityTickResolved: Boolean = false
     private fun mEternityTick(): Method? {
-        if (!_mEternityTick_ready) {
-            _mEternityTick_ready = true
-            _mEternityTick = method(eternityCls(), "tick", 0, "Eternity.tick()")
+        if (!mEternityTickResolved) {
+            mEternityTickResolved = true
+            mEternityTick = method(eternityCls(), "tick", 0, "Eternity.tick()")
         }
-        return _mEternityTick
+        return mEternityTick
     }
-    private var _mRealityTick: Method? = null
-    private var _mRealityTick_ready: Boolean = false
+    private var mRealityTick: Method? = null
+    private var mRealityTickResolved: Boolean = false
     private fun mRealityTick(): Method? {
-        if (!_mRealityTick_ready) {
-            _mRealityTick_ready = true
-            _mRealityTick = method(realityCls(), "tick", 0, "Reality.tick()Z")
+        if (!mRealityTickResolved) {
+            mRealityTickResolved = true
+            mRealityTick = method(realityCls(), "tick", 0, "Reality.tick()Z")
         }
-        return _mRealityTick
+        return mRealityTick
     }
-    private var _mGlyphTick: Method? = null
-    private var _mGlyphTick_ready: Boolean = false
+    private var mGlyphTick: Method? = null
+    private var mGlyphTickResolved: Boolean = false
     private fun mGlyphTick(): Method? {
-        if (!_mGlyphTick_ready) {
-            _mGlyphTick_ready = true
-            _mGlyphTick = method(glyphAutoCls(), "tick", 0, "GlyphAuto.tick()Z")
+        if (!mGlyphTickResolved) {
+            mGlyphTickResolved = true
+            mGlyphTick = method(glyphAutoCls(), "tick", 0, "GlyphAuto.tick()Z")
         }
-        return _mGlyphTick
+        return mGlyphTick
     }
-    private var _mTeresaTick: Method? = null
-    private var _mTeresaTick_ready: Boolean = false
+    private var mTeresaTick: Method? = null
+    private var mTeresaTickResolved: Boolean = false
     private fun mTeresaTick(): Method? {
-        if (!_mTeresaTick_ready) {
-            _mTeresaTick_ready = true
-            _mTeresaTick = method(teresaAutoCls(), "tick", 0, "TeresaAuto.tick()Z")
+        if (!mTeresaTickResolved) {
+            mTeresaTickResolved = true
+            mTeresaTick = method(teresaAutoCls(), "tick", 0, "TeresaAuto.tick()Z")
         }
-        return _mTeresaTick
+        return mTeresaTick
     }
 
     fun breakGateTick() = call(mBreakGateTick(), null)

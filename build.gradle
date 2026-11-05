@@ -315,6 +315,12 @@ tasks.register('assembleRelease', Exec) {
     // [R76] 基线唯一入口：把 gradle 解析出的绝对路径喂给 build_mod.py，
     // 避免「gradle 校验 A 基线、build_mod 却打 B 基线」的分叉。
     environment 'OREKI_BASE', baseDecoded.absolutePath
+    // [R80] 补丁工作目录也可指定，避免与其它树互相覆盖。
+    // 默认不设 = build_mod.py 用 work/mod（历史行为不变）。
+    def modDirEnv = System.getenv('OREKI_MOD')
+    if (modDirEnv != null && !modDirEnv.trim().isEmpty()) {
+        environment 'OREKI_MOD', new File(modDirEnv).absolutePath
+    }
     doFirst {
         stageDir.mkdirs()
         if (stageApk.exists()) stageApk.delete()   // 防止旧候选被误当本轮产物
