@@ -393,7 +393,25 @@ OBFUSCATION_ALIASES_320: dict[str, str] = {
     # 3.20 里同名同形态者是 Lqw3（22 方法，j 方法签名逐字相同）。
     # ad_bonus 的 C 段锚点直接引用这个类，不换就会命中 0。
     "ja4": "qw3",
-    # [R79] Kotlin Continuation 接口：3.19 Lvh0 / 3.20 Lkj0，都是
+    # [R82] 时间研究表：3.19 `L l43` 是「静态单例 a + SparseIntArray d(id→列表下标)
+    # + List b/c/e + static a(Ll43;I)L.../eternity/studies/c;」的注册表。
+    # 3.20 的 l43 被 R8 复用成一个只有 `a:B` 字段、实现 vl1 的 lambda 类（完全无关）；
+    # 同构者经字段/方法逐一核对是 Li63（a 单例、b/c/e 三个 List、d SparseIntArray、
+    # 静态 a(Li63;I)Lstudies/c; 方法体同为「d.get(id) → e.get(idx)」）。
+    # 不映射的后果（R82 构建期守卫实测）：OrekiEternity/OrekiChallengeAuto 里的
+    # `Ll43;->a:Ll43;` 会被 ART 判定字段类型不符 → 挑战重进与时间研究遍历直接崩。
+    "l43": "i63",
+    # [R82] Kotlin 函数接口 `()Ljava/lang/Object;` 在两版里**身份互换**：
+    # 3.19 是 Lui1（interface abstract，implements xi1），3.20 换成了 Lvl1；
+    # 3.20 的 ui1 已是普通 View 相关类（构造 (Lti1;)V + a(Z)V），不再是函数接口。
+    # OrekiAchAudit 读 `achievements/a;->k` 后 `invoke-interface {v9}, Lui1;->invoke()`，
+    # 不换就会把普通类当接口调用 → IncompatibleClassChangeError。
+    "ui1": "vl1",
+    # [R82] 3.20 字段类型守卫实测：OrekiInstantChallenge 里 `Lbq0;->g0:Lip0;`，
+    # 而 3.20 的 g0 已变成 Lup0（同为 Currency 状态类，方法形状不同）。
+    # 注意：不能写类别名 `"ip0": "up0"` —— 3.20 的 ip0 仍是**合法在用**的货币状态类，
+    # 全局替换会把其它正确引用一起改坏。只做 `bq0.g0` 这一处的字段级修正。
+    # （在 FIELD_ALIASES_320 里登记，见下方该表。）
     # `public interface abstract` + 恰好 2 个方法。它出现在
     # fp3.D(Z, Continuation) / uu1 等挂起函数签名里，不换会让整条
     # 「按方法签名查符号」的校验全部误报为「混淆换名」。
@@ -491,6 +509,23 @@ FIELD_ALIASES_320: dict[str, str] = {
     "ln0.F": "bq0.R",
 }
 
+# [R82] 字段**类型**的 3.19→3.20 对应表：
+#   {(3.20 新类, 新字段名): (类级别名级联后的错误类型短名, 3.20 真实类型短名)}
+#
+# 为什么必须单独一张表：FIELD_ALIASES_320 只重写 `L类;->字段:` 这一段，
+# 冒号后的类型描述符不受它控制；而 ③ 类级替换又会按 `sm0→ip0` 把类型级联成
+# `Lip0;`。3.20 对 Currency 状态类做了拆分，「字段名对、类型旧」的引用能通过
+# smali 汇编（它不校验），却在 ART 链接期抛 NoSuchFieldError ——
+# 构建、签名、安装全部成功，只有执行到那行才崩。每条都必须有结构证据。
+FIELD_TYPE_ALIASES_320: dict[tuple[str, str], tuple[str, str]] = {
+    # 3.19 `Lln0;->e:Lsm0;` 是 infinities 位（sm0 = 通用计数状态，5 方法）。
+    # 3.20 该位是 `Lbq0;->g0:Lup0;`：up0 只有 4 方法（b()Z/getValue 等），
+    # 与 sm0 的 5 方法形态不同，但**位置与语义一一对应**（bigCrunchUpdateStatistics
+    # 里写的就是这一位）。payload 只把它当 Currency 调父类 aw.add，不依赖子类方法，
+    # 因此按位置对应改成 up0 是安全的。
+    ("bq0", "g0"): ("ip0", "up0"),
+}
+
 
 PACKAGE_CLASS_ALIASES_320: dict[str, str] = {
     # 3.19 -> 3.20，均为「带包名的完整类名」，仅用于跨包改名的少数类。
@@ -507,8 +542,13 @@ def package_class_aliases() -> dict[str, str]:
 
 
 def _baseline_version() -> str:
-    """读 apktool.yml 的 versionName，用来判断当前基线是 3.19 还是 3.20。"""
-    y = MOD / "apktool.yml"
+    """读 apktool.yml 的 versionName，用来判断当前基线是 3.19 还是 3.20。
+
+    [R82] 必须读**基线** BASE，不能读 MOD：MOD 在执行到本函数时可能还是上一次
+    构建残留的旧树（实测残留 3.19 副本导致版本判断错成 3.19.0），
+    而构建开始 `prepare()` 会用 BASE 覆盖 MOD，判断必须与最终产物同源。
+    """
+    y = BASE / "apktool.yml"
     if not y.is_file():
         return ""
     m = re.search(r"versionName:\s*'?([\d.]+)'?", y.read_text(encoding="utf-8", errors="ignore"))
@@ -1400,7 +1440,6 @@ def patch_smali():
     rewrites = obfuscation_aliases()
     if rewrites:
         field_rewrites = field_aliases() if _baseline_version().startswith("3.20") else {}
-        method_rewrites = method_aliases() if _baseline_version().startswith("3.20") else {}
         method_sig_rewrites = (method_sig_aliases()
                                if _baseline_version().startswith("3.20") else {})
         # [R80] 方法级别名必须带**参数描述符**（method_sig_aliases）。
@@ -1414,17 +1453,11 @@ def patch_smali():
         for f in _psmali.rglob("*.smali"):
             dst = smali_tree() / f.relative_to(_psmali)
             txt = dst.read_text(encoding="utf-8")
-            new = txt
-            # 字段级 → 方法级（完整签名）→ 类级（从具体到宽泛，顺序不能反）
-            for (old_cls, old_fld), (new_cls, new_fld) in field_rewrites.items():
-                new = re.sub(rf"L{re.escape(old_cls)};->{re.escape(old_fld)}:",
-                             f"L{new_cls};->{new_fld}:", new)
-            for (old_cls, old_m), (new_cls, new_m, params) in method_sig_rewrites.items():
-                new = re.sub(
-                    re.escape(f"L{old_cls};->{old_m}{params}"),
-                    f"L{new_cls};->{new_m}{params}", new)
-            for old, new_name in rewrites.items():
-                new = re.sub(rf"L{re.escape(old)};", f"L{new_name};", new)
+            # [R82] 直接复用生产函数 rewrite_alias()，不再在这里维护第二份
+            # 「字段→方法→类」替换逻辑：两套实现已经漂移过一次 ——
+            # 这里少了「字段类型精确修正」，导致 `bq0.g0` 的类型停在 ip0，
+            # 构建期守卫实测报出 OrekiInstantChallenge 会运行期 NoSuchFieldError。
+            new = rewrite_alias(txt)
             if new != txt:
                 write_smali(dst, new, encoding="utf-8")
                 touched += 1
@@ -2101,6 +2134,18 @@ def verify_kotlin_gameapi_aliases():
 
     note(f"[4b-KT] GameApi 别名表与 Python 同步：{len(kt_map)} 条，无裸混淆名")
 
+    # [R82] 扣费入口硬守卫：必须锁定原版 `Currency.o(BigDouble)Z`（判够 + subtract + m 写回）。
+    # 字节码证据（base_decoded_320/smali_classes2/bq0.smali）：
+    #   · i(BigDouble)Z 1050-1074：只 compareTo 后返回布尔，**不扣钱**；
+    #   · u(BigDouble)Lbq0; 1206-1220：只 subtract + m()，不校验余额；
+    #   · o(BigDouble)Z 1122-1140：`if (i(cost)) { u(cost); return true; }` = 原版 purchase。
+    # R81 曾把 i() 当购买入口，导致「涨级但不扣费」——这是伪造进度，必须在构建期拦住。
+    assert '"o", 1, "Currency.o(BigDouble)=purchase"' in code_only, (
+        "[R82] GameApi.currencyBuy 未锁定原版 Currency.o(BigDouble)Z —— "
+        "i() 只判余额不扣钱、u() 不判余额，两者都会造成免费升级或负余额。")
+    assert '"i", 1, "Currency.i(BigDouble)=buy"' not in code_only, (
+        "[R82] GameApi 仍把 Currency.i(BigDouble)Z 标成 buy —— 它只是余额比较，不扣费。")
+
 
 def rewrite_alias(text: str, owner_desc: str = "") -> str:
     """把 3.19 写法的 smali 片段换算成 3.20 写法（纯函数，无副作用）。
@@ -2131,6 +2176,11 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
     fal = field_aliases()
     sig = method_sig_aliases()
 
+    # ⓪ 字段**类型**级：[R82] 只改「类名+字段名」不够 —— 3.20 里同一语义位置的
+    #     Currency 状态类实现被拆分了（`bq0.g0` 从 3.19 的 `Lip0` 变成 `Lup0`）：
+    #     字段名对上、类型还留旧值，ART 直接抛 NoSuchFieldError。构建、签名、安装
+    #     都会成功，只有执行到那行才崩，必须在构建期改掉。
+    #     位置关键：必须放在 ③ 类级替换**之后**（见函数末尾的 ④）。
     # ① 字段级（最具体：类 + 字段名 + 冒号）
     for (oc, of), (nc, nf) in fal.items():
         text = re.sub(rf"L{re.escape(oc)};->{re.escape(of)}:",
@@ -2157,6 +2207,16 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
     # ③ 类级（含返回类型、参数类型、字段类型、调用点里的所有 Lxxx;）
     for _o, _n in al.items():
         text = re.sub(rf"L{re.escape(_o)};", f"L{_n};", text)
+
+    # ④ 字段类型精确修正（[R82]，必须最后做）：
+    #    ③ 会把字段类型里的 `Lsm0;` 级联成 `Lip0;`（因为 sm0→ip0 是合法类别名），
+    #    但这一位的 3.20 真实类型是 `Lup0;`。所以按「新类+新字段」再钉一次类型。
+    #    只匹配“③ 级联后的错误类型” old_type_after，避免把本来就正确的引用也改掉。
+    for (oc, of), (old_after, new_type) in FIELD_TYPE_ALIASES_320.items():
+        text = re.sub(
+            rf"(L{re.escape(oc)};->{re.escape(of)}:)L{re.escape(old_after)};",
+            rf"\g<1>L{new_type};",
+            text)
     return text
 
 
@@ -2756,7 +2816,29 @@ def verify_payload():
         # holdCrunch：sHold 翻转时才打日志（Kotlin 里直接比较新旧值）
         (sa_txt, "if (hold != lastCrunchHoldResult)",
          "只在 hold 判定翻转时打日志（避免每 tick 刷屏）"),
+
+        # [R82] 坍缩保护窗口必须是「eternities == 0 才进入保护」。
+        # R81 曾写成 `else if (eternitiesZero()) false`，语义正好相反：
+        # 首次永恒前完全不保护，每轮坍缩清零反物质，maxAM 永远到不了 ID1 门槛。
+        # 这里断言真实极性，避免下一轮又把条件写反。
+        (sa_txt, "} else if (!eternitiesZero()) {",
+         "首次永恒窗口必须用 !eternitiesZero() 排除（et=0 时才进入保护）"),
+        # 真实门槛必须从原版对象读，不得写死 1.797e308 / Double.MAX_VALUE
+        (sa_txt, "GameApi.idRequirement(id1)",
+         "ID1 反物质门槛必须读原版 k()，不得写死旧注释数值"),
+        (sa_txt, "GameApi.idIpRequirement(id1)",
+         "ID1 IP 门槛必须读原版 f，不得写死 1e8"),
+
+        # [R82] 大坍缩间隔升级的极性：`v()` 是「已降到 100ms 上限」。
+        # R81 写成 `if (!maxed) return false`，等于「没满就放弃」，
+        # 真机实测间隔永远停在 150 秒、Break 永不发生。
+        (sa_txt, "if (GameApi.crunchMaxedInterval(crunch)) {\n                false // 已满级",
+         "间隔升级必须「已满才停」，不得在未满时放弃"),
     ]
+    # 反向守卫：保护窗口里不得再出现把 Double.MAX_VALUE 当 ID1 门槛的旧写法
+    assert "cmp(maxAM, Double.MAX_VALUE)" not in sa_txt, (
+        "[R82] computeHoldCrunch 仍在用 Double.MAX_VALUE 当 ID1 反物质门槛 —— "
+        "那是 canCrunch 的无限反物质目标，不是 ID1 的 1e1100，会让保护提前 8 个数量级解除")
     for text, needle, why in POLARITY_KT:
         assert needle in text, f"[R41] 极性/条件回归失败：{why} —— 源码里找不到 `{needle}`"
 
@@ -4859,8 +4941,12 @@ def verify_eternity_chain():
     # (4) 时间研究
     i, j = _scan_method(s, "private static buyNormalStudies()V")
     body = s[i:j]
-    assert "Ll43;->d:Landroid/util/SparseIntArray;" in body, \
-        "[ET1] 必须用 l43.d 的键集枚举全部研究 id（l43.b 是按行分组表，不是全集）"
+    # [R82] 这里读的是**已重写过别名**的 MOD 文本，断言必须跟着基线走。
+    # 3.19 是 l43，3.20 已换成 i63（l43 在 3.20 被 R8 复用成无关 lambda 类）。
+    # 写死 l43 会在 3.20 上误报「没有枚举全部研究 id」，而实际调用点是对的。
+    _study_reg = obfuscation_aliases().get("l43", "l43")
+    assert f"L{_study_reg};->d:Landroid/util/SparseIntArray;" in body, \
+        f"[ET1] 必须用 {_study_reg}.d 的键集枚举全部研究 id（{_study_reg}.b 是按行分组表，不是全集）"
     assert "SparseIntArray;->keyAt(I)I" in body, "[ET1] 枚举方式必须是 SparseIntArray.keyAt"
     assert "OrekiEternity;->blocked(III)Z" in body, "[ET1] 必须先过互斥封锁表"
     assert "eternity/studies/c;->B()Z" in body, "[ET1] 必须先判已购买"
@@ -5434,6 +5520,53 @@ def verify_break_gate():
     note("[Oreki AD5b] Break 闸门守卫通过（动态补贴 / 真实扣费 / 原版三步 Break / 64 上界 / 调用点顺序 / 极性）")
 
 
+def verify_smali_field_types_320():
+    """[R82] 3.20 构建期守卫：MOD 里任何 `X;->f:LY;` 的字段类型必须与基线一致。
+
+    为什么需要：R73 的注入块写死了 3.19 的 `AutobuyerSingleBoxView->b:Lvn;`，
+    3.20 该字段已变成 `Lpp;`，运行期直接 `NoSuchFieldError` 崩溃，
+    而构建、签名、安装**全部成功**——只有点进自动购买器页才会炸。
+    这类错误无法靠编译期发现，必须在打包前静态比对。
+    """
+    if not _baseline_version().startswith("3.20"):
+        return
+
+    def _index(root: Path) -> dict:
+        """{(完整类描述符, 字段名): 完整字段类型描述符}，必须用全限定名。
+
+        只用短类名会串包：3.20 里 `a37.smali` 内部引用的 `Le;` 与根包 `e.smali`
+        是两个完全不同的类，按短名比对会产生大量假失败（R82 实测）。
+        """
+        index = {}
+        for smali_path in root.rglob("*.smali"):
+            text = smali_path.read_text(encoding="utf-8", errors="ignore")
+            head = re.search(r"^\.class[^\n]*\s(L[^\s;]+;)", text, re.M)
+            if not head:
+                continue
+            cls = head.group(1)
+            for m in re.finditer(r"^\.field[^\n]*?\b([A-Za-z0-9_$]+):(L[A-Za-z0-9_$/]+;|\[?[IJZBFDSC])", text, re.M):
+                index[(cls, m.group(1))] = m.group(2)
+        return index
+
+    base_fields = _index(BASE)
+    bad = []
+    pat = re.compile(r"(L[A-Za-z0-9_$/]+;)->([A-Za-z0-9_$]+):(L[A-Za-z0-9_$/]+;|\[?[IJZBFDSC])")
+    for smali_path in smali_tree().rglob("*.smali"):
+        text = smali_path.read_text(encoding="utf-8", errors="ignore")
+        for m in pat.finditer(text):
+            real = base_fields.get((m.group(1), m.group(2)))
+            if real is not None and real != m.group(3):
+                bad.append(
+                    f"{smali_path.name}: {m.group(1)}->{m.group(2)}:{m.group(3)} 真实 {real}"
+                )
+                if len(bad) >= 8:
+                    break
+        if len(bad) >= 8:
+            break
+    assert not bad, "[R82] 字段类型与 3.20 基线不符（会运行期崩溃）：\n" + "\n".join(bad)
+    note(f"[R82] 3.20 字段类型守卫通过（基线字段 {len(base_fields)} 个）")
+
+
 def verify_pelle_record():
     """[R42] 终点记录写入的构建期守卫。
 
@@ -5667,10 +5800,33 @@ def patch_crunch_mode_label_refresh():
 
     只对「带模式选择器」的卡片生效（`vn.e != null`），其它自动器完全不受影响。
     全段只读游戏状态 + 一次 setText，不写任何存档字段。
+
+    ── [R82] 3.20 必须跳过这一段 ─────────────────────────────────
+    3.20 的原版已经把「点击模式按钮后刷新标题」放进了
+    `mainactivity/l0.D(MainActivity)`，由
+    `MainActivityOptionsKt$toggleCrunchMode$1$1` 在点击回调里调用；
+    同时 `AutobuyerSingleBoxView.b` 的字段类型已从 `Lvn;` 变为 `Lpp;`，
+    而 `pp.e` 的类型是 `Lqp;`。R73 的注入块硬编码了 3.19 的
+    `->b:Lvn;` / `Lvn;->e:Lwn;`，在 3.20 上会写成**完全错误的字段类型**，
+    运行期直接 `NoSuchFieldError` 崩溃（R82 的 AVD 实测两次）：
+    ```
+    NoSuchFieldError: AutobuyerSingleBoxView->b:Lvn;
+    ```
+    因此 3.20 上既不注也不改，交给原版路径；仅 3.19 才应用旧补丁。
     """
     target = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "ui" / "autobuyers"
               / "AutobuyerSingleBoxView.smali")
     assert target.exists(), f"缺少 {target}"
+
+    # [R82] 3.20 原版已自带标题刷新，且字段类型不同：跳过旧注入，避免类型错误的字段读取。
+    if _baseline_version().startswith("3.20"):
+        if "Oreki R73" in target.read_text(encoding="utf-8"):
+            raise SystemExit(
+                "[Oreki R73] 3.20 上检测到旧的 3.19 注入块，会引发 NoSuchFieldError，"
+                "拒绝继续（MOD 副本需重新生成）"
+            )
+        note("[Oreki R73] 3.20 原版已自带模式标题刷新，跳过旧注入（避免 Lvn/Lpp 字段不匹配）")
+        return
 
     src = target.read_text(encoding="utf-8")
     if "Oreki R73" in src:
@@ -6742,6 +6898,8 @@ def main():
     verify_break_gate()
     # [R42] 终点记录写入：只做构建期守卫（不写任何原版方法体）
     verify_pelle_record()
+    # [R82] 3.20 字段类型守卫：拦住「构建成功但运行期 NoSuchFieldError」的注入
+    verify_smali_field_types_320()
     # [R40H] 教程正文：从 Web 单源 JSON 生成 TutorialContent.smali（必须先于
     # patch_tutorial_entry，后者的断言要求教程类已进 mod 树）。
     patch_tutorial_content()

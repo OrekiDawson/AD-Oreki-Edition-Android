@@ -176,10 +176,22 @@ object OrekiStageAuto {
                 enableIpMultAutobuyer()
 
                 // ============ [R78] 五个真实购买动作：全部纳入统一节拍 ============
-                runScheduled("sacrifice") { autoSacrifice() }
-                runScheduled("bulk") { upgradeBulkAll() }
-                runScheduled("infinityUpgrades") { buyInfinityUpgrades() }
-                runScheduled("crunchInterval") { upgradeCrunchInterval() }
+                //
+                // [R82] 顺序不再是纯固定：每拍先问「当前阶段紧迫任务」，它拿到名额后
+                // 本拍名额即被封掉，其余任务按原顺序尝试（全部仍走同一个 allow()）。
+                // 这样既不会恢复纯轮询（历史实测会让前期停摆），也不会让 idBuy 饿死。
+                val urgentTask = resolveUrgentTask()
+                OrekiAutomationScheduler.setUrgentTask(urgentTask)
+                var urgentHandled = false
+                if (urgentTask != null) {
+                    urgentHandled = runUrgentTask(urgentTask)
+                }
+                if (!urgentHandled) {
+                    runScheduled("sacrifice") { autoSacrifice() }
+                    runScheduled("bulk") { upgradeBulkAll() }
+                    runScheduled("infinityUpgrades") { buyInfinityUpgrades() }
+                    runScheduled("crunchInterval") { upgradeCrunchInterval() }
+                }
 
                 // ---- BreakGate ----
                 if (OrekiAutomationScheduler.allow("breakGate")) {
@@ -225,7 +237,11 @@ object OrekiStageAuto {
                 //     把同帧后面真正能买东西的任务挤掉；
                 //   · 原 Smali 顺序也是「interval 升级 → BreakGate → Break 兜底 →
                 //     BreakShop → ID1」，这里保持逐字一致（verify_break_gate 有守卫）。
-                runScheduled("idBuy") { tryBuyId1() }
+                //
+                // [R82] 若本拍紧迫任务就是 idBuy 且已执行，则不再重复尝试（同一拍只做一个真动作）。
+                if (!(urgentHandled && urgentTask == "idBuy")) {
+                    runScheduled("idBuy") { tryBuyId1() }
+                }
 
                 // 剧情目标感知：只读，不产生动作，刻意不受节拍约束
                 GameApi.strategyTick()
@@ -253,6 +269,57 @@ object OrekiStageAuto {
             OrekiAutomationScheduler.noteActed(taskId)
         } else {
             OrekiAutomationScheduler.noteNoop(taskId)
+        }
+    }
+
+    /**
+     * 判定本拍的阶段紧迫任务（R82）。只读，不产生任何状态变化。
+     *
+     * 当前只有一个窗口：**首次永恒前的 ID1 收购窗口**。
+     * 条件全部来自原版真实对象：已 Break、未经历永恒、非挑战/毁灭、
+     * IP 已达到 ID1 的 IP 门槛、ID1 仍锁定。
+     *
+     * 一旦 ID1 解锁就返回 null，调用方立刻恢复原有固定顺序 —— 不长期占用名额。
+     */
+    private fun resolveUrgentTask(): String? = try {
+        if (!isBroken() || !eternitiesZero()) {
+            null
+        } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
+            null
+        } else {
+            val id1 = GameApi.infinityDimension(1)
+            if (id1 == null || GameApi.idUnlocked(id1)) {
+                null
+            } else {
+                val ipRequirement = GameApi.idIpRequirement(id1)
+                val ipVersus = if (ipRequirement == null) 1 else compareBigDoubles(ipBalance(), ipRequirement)
+                if (ipVersus != null && ipVersus >= 0) "idBuy" else null
+            }
+        }
+    } catch (_: Throwable) {
+        null
+    }
+
+    /**
+     * 优先尝试一次紧迫任务。返回 true 表示本拍已经产生了真实动作，
+     * 调用方不得再尝试其它购买动作（同一拍最多一个真动作）。
+     */
+    private fun runUrgentTask(taskId: String): Boolean {
+        if (!OrekiAutomationScheduler.isUrgent(taskId)) return false
+        if (!OrekiAutomationScheduler.allow(taskId)) return false
+        val acted = try {
+            tryBuyId1()
+        } catch (_: Throwable) {
+            OrekiAutomationScheduler.noteFail(taskId)
+            false
+        }
+        return if (acted) {
+            OrekiAutomationScheduler.noteActed(taskId)
+            true
+        } else {
+            // no-op 不占全局节拍：让位给后面的常规动作。
+            OrekiAutomationScheduler.noteNoop(taskId)
+            false
         }
     }
 
@@ -362,18 +429,14 @@ object OrekiStageAuto {
      * 这里用「双方都转 double 比较」不够精确（BigDouble 可以超过 Double.MAX_VALUE），
      * 所以直接反射 `compareTo(BigDouble)`。
      */
-    private fun compareBigDoubles(a: Any?, b: Any?): Int? {
-        if (a == null || b == null) return null
-        return try {
-            val compareMethod = a.javaClass.methods.firstOrNull {
-                it.name == "compareTo" && it.parameterCount == 1 &&
-                    it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
-            }
-            compareMethod?.invoke(a, b) as? Int
-        } catch (_: Throwable) {
-            null
-        }
-    }
+    /**
+     * 比较两个 BigDouble：返回 <0 / 0 / >0，失败返回 null。
+     *
+     * R82：实现统一收敛到 `GameApi.compareBigDoubles`（同样是精确锁定
+     * `compareTo(BigDouble)` 重载），避免本类与 GameApi 各存一份可能在
+     * 后续版本漂移的反射逻辑。
+     */
+    private fun compareBigDoubles(a: Any?, b: Any?): Int? = GameApi.compareBigDoubles(a, b)
 
     /**
      * 维度自动购买器的「批量购买」升级（bulk 1 → 512）。
@@ -458,9 +521,13 @@ object OrekiStageAuto {
         val ipMult = GameApi.ipMultUpgrade() ?: return false
         val cost = GameApi.ipMultCost(ipMult) ?: return false
         val currency = GameApi.ipMultCurrency(ipMult) ?: return false
-        // 真扣费：买得起才扣
+        // R82：真实扣费必须先成功，才允许涨级。
+        // 旧顺序是「扣费失败也照涨级」，R81 之前更因为 `Currency.i(BigDouble)Z`
+        // 这个不存在的签名让扣费**恒失败** —— 结果是免费升级，等同伪造进度。
+        // 现在 `currencyBuy()` 已锁定原版 `Currency.u(BigDouble)`，先判余额再扣；
+        // 扣费返回 false 时立即退出，绝不写等级。
         if (!GameApi.currencyBuy(currency, cost)) return false
-        // 真涨级
+        // 真涨级（仅在上面的真实扣减成功之后）
         val lv = GameApi.ipMultLevel(ipMult)
         GameApi.setIpMultLevel(ipMult, lv + 1)
 
@@ -502,8 +569,13 @@ object OrekiStageAuto {
             false
         } else {
             val crunch = GameApi.crunchState() ?: return false
-            if (!GameApi.crunchMaxedInterval(crunch)) {
-                false // 已满级
+            // R82 极性修复：`v()` = `interval <= 100.0`，即**已经降到最满**。
+            // 旧写法 `if (!maxed) return false` 把「没满」当成结束条件 ——
+            // 真实表现是间隔永远停在 150 秒、Break 永不发生（R82 真机实测：
+            // stage=16 / goal=break-infinity 长期不动，15 级升级一次都没买）。
+            // 正确语义：已满级才停，未满才继续买下一级。
+            if (GameApi.crunchMaxedInterval(crunch)) {
+                false // 已满级（interval 已到 100ms 上限）
             } else {
                 val cost = GameApi.crunchCost(crunch)
                 val ip = ipBalance()
@@ -536,34 +608,49 @@ object OrekiStageAuto {
         if (!isBroken()) {
             false
         } else {
-            val tier = (infinityDimensionCursor % 8) + 1
+            // 阶段感知选层（R82）：首次永恒之前 ID1 是整条成长链的唯一入口，
+            // 8 层轮转会让它每 8 拍才轮到一次，而每拍全网只有一个动作名额，
+            // 实际可能几十秒才碰一次 ID1。因此 ID1 尚未解锁时固定优先 ID1；
+            // 解锁之后才恢复 8 层轮转，避免长期只喂第一层。
+            val id1 = GameApi.infinityDimension(1)
+            val id1Unlocked = id1 != null && GameApi.idUnlocked(id1)
+            val tier = if (!id1Unlocked) {
+                1
+            } else {
+                (infinityDimensionCursor % 8) + 1
+            }
             infinityDimensionCursor = (infinityDimensionCursor + 1) % 8
             val id = GameApi.infinityDimension(tier) ?: return false
 
-            // 门槛：thisEternity.maxAM >= 该层要求
+            // 解锁判据：原版 canUnlock 是「反物质峰值达标 且 IP 达标」，两个都要过。
+            // R81 之前只比了 maxAM，于是 IP 不足时每拍都调 unlock() 并失败，
+            // 白白占掉调度名额，真正能买的 ipMult / 一次性升级反而排不上。
             val required = GameApi.idRequirement(id)
             val maxAM = GameApi.thisEternityMaxAM()
-            val maxAntimatterVersusRequirement = compareBigDoubles(maxAM, required)
-            if (maxAntimatterVersusRequirement == null || maxAntimatterVersusRequirement < 0) {
-                false
+            val peakVersus = compareBigDoubles(maxAM, required)
+            if (peakVersus == null || peakVersus < 0) return false
+
+            if (!GameApi.idUnlocked(id)) {
+                val ipRequirement = GameApi.idIpRequirement(id)
+                val ip = ipBalance()
+                val ipVersus = if (ipRequirement == null) 1 else compareBigDoubles(ip, ipRequirement)
+                if (ipVersus == null || ipVersus < 0) return false
+                if (!GameApi.idUnlock(id)) return false
+                Log.i(TAG_ID_UNLOCK, tier.toString())
+                true
             } else {
-                if (!GameApi.idUnlocked(id)) {
-                    if (!GameApi.idUnlock(id)) return false
-                    Log.i(TAG_ID_UNLOCK, tier.toString())
-                    true // 解锁本身就是一次真实状态变化
+                // 已解锁：先确保买到第 1 个，再交给 buyMax 正常扩张。
+                val before = GameApi.idPurchases(id)
+                if (before == 0L) {
+                    GameApi.idBuySingle(id)
+                }
+                GameApi.idBuyMax(id)
+                val after = GameApi.idPurchases(id)
+                if (after != before) {
+                    Log.i(TAG_ID, tier.toString())
+                    true
                 } else {
-                    if (GameApi.idPurchases(id) == 0L) {
-                        GameApi.idBuySingle(id)
-                    }
-                    val before = GameApi.idPurchases(id)
-                    GameApi.idBuyMax(id)
-                    val after = GameApi.idPurchases(id)
-                    if (after != before) {
-                        Log.i(TAG_ID, tier.toString())
-                        true
-                    } else {
-                        false
-                    }
+                    false
                 }
             }
         }
@@ -597,16 +684,27 @@ object OrekiStageAuto {
     // ---------------------------------------------------------------- 坍缩保护
 
     /**
-     * AD3b：Break 之后「攒着不坍缩」，让 `thisEternity.maxAM` 爬过 ID1 的 1e1100。
+     * AD3b：Break 之后「攒着不坍缩」，让 `thisEternity.maxAM` 爬过 ID1 的反物质门槛。
      *
      * 只读判断，供 `CrunchAutobuyerState.c()`（canTick）调用。true = 本 tick 不允许坍缩。
      *
-     * 生效条件（全部原版谓词，不硬编码指数）：
-     *   · 已 Break；· 仍在 `eternities == 0` 窗口；· IP ≥ 1e8（ID1 购买价）；
-     *   · `thisEternity.maxAM < 1.797e308`（还没到「无限反物质」门槛）。
+     * 生效窗口（全部读原版真实对象，不硬编码旧注释数值）：
+     *   · 已 Break；
+     *   · 仍在首次永恒窗口（`eternities == 0`）；
+     *   · 非普通/无限/永恒挑战、非毁灭（挑战内 `isBroken` 本身也不成立，此处再守一道）；
+     *   · 当前 IP ≥ ID1 的**真实** IP 门槛（`InfinityDimensionState.f`，3.20 实测 1e8）；
+     *   · ID1 尚未解锁；
+     *   · `thisEternity.maxAM` 仍低于 ID1 的**真实**反物质门槛（`k()`，3.20 实测 1e1100）。
      *
-     * **R68 根因修复**：闸门必须钉在**反物质峰值本身**。原判据用 ID1 是否已解锁，
-     * 一旦解锁就永久放开坍缩，而坍缩每秒清空反物质 ⇒ maxAM 卡在 1 秒产量 ⇒ 死锁。
+     * 三条硬边界（R82 修复，缺一条都会死锁或空转）：
+     *   1. **这里必须是 `eternitiesZero()` 为真才进入保护**。R81 之前写成
+     *      `else if (eternitiesZero()) return false`，语义正好相反：第一次永恒之前
+     *      反而完全不保护，于是每轮坍缩把反物质清零，maxAM 永远到不了 1e1100。
+     *   2. 反物质门槛与 IP 门槛都从原版对象读取；旧实现把「1.797e308」当成 ID1 门槛，
+     *      那其实是 `Player.canCrunch` 的无限反物质目标，比真实门槛低 8 个数量级，
+     *      导致保护提前解除、ID1 仍然解锁不了。
+     *   3. 一旦 ID1 解锁就立即返回 false，绝不无限 HOLD；否则会永久停止坍缩、
+     *      连 IP 也不再增长。
      */
     @JvmStatic
     fun holdCrunch(): Boolean {
@@ -621,17 +719,30 @@ object OrekiStageAuto {
     private fun computeHoldCrunch(): Boolean = try {
         if (!isBroken()) {
             false
-        } else if (eternitiesZero()) {
+        } else if (!eternitiesZero()) {
+            // 已经历过永恒：不再需要为「首次 ID1」攒峰值，交回原版节奏。
+            false
+        } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
             false
         } else {
-            val ip = ipBalance()
-            val c1 = cmp(ip, 1.0e8)
-            if (c1 == null || c1 < 0) {
-                false // IP 不够，先正常坍缩攒钱
+            val id1 = GameApi.infinityDimension(1)
+            if (id1 == null || GameApi.idUnlocked(id1)) {
+                false
             } else {
-                val maxAM = GameApi.thisEternityMaxAM()
-                val c2 = cmp(maxAM, Double.MAX_VALUE)
-                c2 != null && c2 < 0
+                // 真实 IP 门槛：id1 上的静态常量 f（ID1 专属），而不是写死的近似值。
+                val ipRequirement = GameApi.idIpRequirement(id1)
+                val ip = ipBalance()
+                val ipEnough = compareBigDoubles(ip, ipRequirement)
+                if (ipEnough == null || ipEnough < 0) {
+                    // IP 还不够 ID1 的解锁门槛：先正常坍缩把 IP 攒上来。
+                    false
+                } else {
+                    // IP 已够；继续攒反物质峰值，直到真实 maxAM 门槛。
+                    val peakRequirement = GameApi.idRequirement(id1)
+                    val maxAM = GameApi.thisEternityMaxAM()
+                    val peakVersus = compareBigDoubles(maxAM, peakRequirement)
+                    peakVersus != null && peakVersus < 0
+                }
             }
         }
     } catch (_: Throwable) {

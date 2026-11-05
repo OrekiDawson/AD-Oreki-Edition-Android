@@ -377,17 +377,29 @@ internal object GameApi {
         }
     }
 
-    /** 取方法句柄（按参数个数 + 名称匹配，避免写全签名带来的易碎性）。 */
+    /**
+     * 取方法句柄。
+     *
+     * 默认仍按「名称 + 参数个数」匹配，兼容大量只有唯一重载的既有调用点；
+     * 但当同一类存在同名同参数的多个重载时（如 `BigDouble.compareTo` 同时有
+     * `(D)`、`(I)`、`(J)`、`(Object)`、`(BigDouble)` 五份），按个数取第一个会
+     * 静默命中错误方法并抛出 IllegalArgumentException，R81 运行日志中的
+     * `missing BigDouble.compareTo: NullPointerException` 即此路径暴露。
+     * 需要精确语义的调用点必须显式传 [paramTypeNames]。
+     */
     private fun method(
         owner: Class<*>?,
         name: String,
         paramCount: Int,
         what: String = "$name/$paramCount",
+        paramTypeNames: List<String>? = null,
     ): Method? {
         if (owner == null) return null
         return try {
-            owner.methods.firstOrNull { it.name == name && it.parameterCount == paramCount }
-                ?: run { miss("method $what on ${owner.simpleName}", null); null }
+            owner.methods.firstOrNull { candidate ->
+                candidate.name == name && candidate.parameterCount == paramCount &&
+                    (paramTypeNames == null || candidate.parameterTypes.map { it.name } == paramTypeNames)
+            } ?: run { miss("method $what on ${owner.simpleName}", null); null }
         } catch (e: Throwable) {
             miss("method $what", e)
             null
@@ -674,7 +686,11 @@ internal object GameApi {
     private fun mBigDoubleCompareDouble(): Method? {
         if (!mBigDoubleCompareDoubleResolved) {
             mBigDoubleCompareDoubleResolved = true
-            mBigDoubleCompareDouble = method(bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)")
+            // 必须锁定 `(D)I`：同类还有 (I)/(J)/(Object)/(BigDouble) 四份同参数个数重载。
+            mBigDoubleCompareDouble = method(
+                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)",
+                paramTypeNames = listOf("double"),
+            )
         }
         return mBigDoubleCompareDouble
     }
@@ -691,8 +707,15 @@ internal object GameApi {
         }
     }
 
-    /** `BigDouble.compareTo(Double)` → -1/0/1；无法比较时返回 null。 */
+    /**
+     * `BigDouble.compareTo(Double)` → -1/0/1。
+     *
+     * 接收者为空时必须直接返回 null：旧实现在 null 上 `Method.invoke` 会抛
+     * NullPointerException 并被 `miss()` 打成「缺少 compareTo」，把上游的
+     * 「读不到对象」误报成「方法不存在」，掩盖了真正原因。
+     */
     fun compareToDouble(a: Any?, b: Double): Int? {
+        if (a == null) return null
         val compareMethod = mBigDoubleCompareDouble() ?: return null
         return try {
             compareMethod.invoke(a, b) as? Int
@@ -927,6 +950,42 @@ internal object GameApi {
     fun idBuySingle(id: Any?) = call(mIdI(), id)
     fun idPurchases(id: Any?): Long = (call(mIdY(), id) as? Long) ?: 0L
 
+    /**
+     * ID1 的「永恒未解锁」IP 门槛（原版 `InfinityDimensionState.f`，3.20 实测 1e8）。
+     *
+     * 为什么读静态字段而不是写 1e8：`hasIPUnlock` 只对 ID1 且 `!PlayerProgress.eternityUnlocked()`
+     * 生效，门槛值本身由原版 `BASE_COSTS[1]` 推出。写死数字会在版本调价时静默错判，
+     * 因此这里取的原版对象就是 `v()` 里参与比较的那个 `f`。
+     */
+    fun idIpRequirement(id: Any?): Any? = try {
+        val fieldOwner = id?.javaClass ?: idStateCls() ?: return null
+        fieldOwner.getField("f").get(null)
+    } catch (e: Throwable) {
+        miss("ID.f=ipRequirement", e); null
+    }
+
+    /**
+     * 当前是否处于任一挑战中（普通 / 无限 / 永恒）。
+     *
+     * 直接读 `player.challenge.<type>.current != 0`，与 Web 端
+     * `NormalChallenge.isRunning || InfinityChallenge.isRunning || EternityChallenge.isRunning`
+     * 同义；不依赖挑战类单例是否存在，避免老版本或挑战未解锁时反射失败。
+     *
+     * 读不到状态时返回 **true**（fail-closed）：调用方都用它决定「要不要花资源」，
+     * 把「不知道」当成「不在挑战」会在挑战里误买，代价不可逆；
+     * 当成「在挑战」最多是暂停一拍自动购买，下一拍会自愈。
+     */
+    fun inAnyChallenge(): Boolean {
+        val currentPlayer = player() ?: return true
+        val challenges = readGameField(currentPlayer, "challenge") ?: return true
+        for (challengeType in arrayOf("normal", "infinity", "eternity")) {
+            val state = readGameField(challenges, challengeType) ?: return true
+            val current = readGameField(state, "current") as? Int ?: return true
+            if (current != 0) return true
+        }
+        return false
+    }
+
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
 
     private var mHolderW: Field? = null
@@ -950,10 +1009,25 @@ internal object GameApi {
     }
     private var mImplI: Method? = null
     private var mImplIResolved: Boolean = false
+    /**
+     * 真扣减：`Currency.o(BigDouble)Z` —— 原版「判够 + 扣减」一步到位。
+     *
+     * R82 根因修复（两次踩坑后的最终结论，附字节码证据）：
+     *   · `bq0.i(BigDouble)Z` 只是**余额是否足够**的比较（compareTo + if-ltz），
+     *     **不扣钱**。R81 把它当购买入口，于是「判够 → 涨级」却不扣费，属于伪造进度。
+     *   · `bq0.u(BigDouble)Lbq0;` 才是真扣（`subtract` + `m()` 写回），但无余额校验，
+     *     负余额也会照扣。
+     *   · `bq0.o(BigDouble)Z` 是原版组合：`if (i(cost)) { u(cost); return true; }`，
+     *     即 Web 端 `Currency.purchase(cost)` 的等价物。
+     * 因此这里锁定 `o`：一次调用同时完成「判够」与「真扣」，返回值即是否成交。
+     */
     private fun mImplI(): Method? {
         if (!mImplIResolved) {
             mImplIResolved = true
-            mImplI = method(currencyImplCls(), "i", 1, "Currency.i(BigDouble)=buy")
+            mImplI = method(
+                currencyHolderCls(), "o", 1, "Currency.o(BigDouble)=purchase",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
         }
         return mImplI
     }
@@ -968,8 +1042,32 @@ internal object GameApi {
     /** 货币现值（BigDouble）。 */
     fun currencyValue(c: Any?): Any? = call(mImplW(), c)
 
-    /** 真扣费：买得起才扣并返回 true。 */
-    fun currencyBuy(c: Any?, cost: Any?): Boolean = (call(mImplI(), c, cost) as? Boolean) ?: false
+    /**
+     * 真扣费：调原版 `Currency.o(BigDouble)Z`，返回是否真的成交。
+     *
+     * `o()` 内部先 `i(cost)` 比余额、再 `u(cost)` 做 `subtract + m()` 写回，
+     * 与 Web `Currency.infinityPoints.purchase(cost)` 完全同义，因此这里**不再**
+     * 自己判一次余额（重复判定会让两端口径分叉）；`false` 即「余额不足，未扣」。
+     * 不直接写 player 字段，全程走原版入口。
+     */
+    fun currencyBuy(c: Any?, cost: Any?): Boolean {
+        if (c == null || cost == null) return false
+        return (call(mImplI(), c, cost) as? Boolean) ?: false
+    }
+
+    /** BigDouble 之间比较：<0 / 0 / >0，失败返回 null（精确锁定 `(BigDouble)I`）。 */
+    fun compareBigDoubles(a: Any?, b: Any?): Int? {
+        if (a == null || b == null) return null
+        return try {
+            val compareMethod = a.javaClass.methods.firstOrNull {
+                it.name == "compareTo" && it.parameterCount == 1 &&
+                    it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
+            }
+            compareMethod?.invoke(a, b) as? Int
+        } catch (e: Throwable) {
+            miss("BigDouble.compareTo(BigDouble)", e); null
+        }
+    }
 
     // ---------------------------------------------------------------- ipMult 升级
 
@@ -1104,13 +1202,8 @@ internal object GameApi {
 
     /** 三类挑战均退出、且已播种首个时间维度时，才允许商店自动购买。 */
     fun canAutomateEternityUpgrades(): Boolean {
-        val currentPlayer = player() ?: return false
-        val challenges = readGameField(currentPlayer, "challenge") ?: return false
-        for (challengeType in arrayOf("normal", "infinity", "eternity")) {
-            val challengeState = readGameField(challenges, challengeType) ?: return false
-            val currentChallenge = readGameField(challengeState, "current") as? Int ?: return false
-            if (currentChallenge != 0) return false
-        }
+        // 挑战判定复用 inAnyChallenge()，避免两套遍历在后续版本改字段时漂移。
+        if (inAnyChallenge()) return false
         return try {
             val dimensionFactory = cls("kajfosz.antimatterdimensions.dimension.time.a") ?: return false
             val firstDimension = dimensionFactory.getMethod("a", Int::class.javaPrimitiveType).invoke(null, 1)

@@ -68,12 +68,17 @@ def main() -> int:
     check("canEternity 为假时跳过永恒（if-eqz）", g_can == "if-eqz", str(g_can))
     check("收益不足 10 倍时跳过永恒（if-ltz）", g_ep == "if-ltz", str(g_ep))
 
-    # ---- 1b. holdCrunch 的闸门条件（R68 死锁回归守卫） ----
-    # 必须钉在 thisEternity.maxAM vs 1.797e308，不能钉在 ID1 的 p() 上：
-    #   · p() 是「ID1 已解锁」，解锁后就不再暂停坍缩 → 反物质永远到不了 1.797e308；
-    #   · 也不能钉在 f() 上：f() 依赖 maxIP，而 maxIP 只在坍缩时刷新 →
-    #     暂停坍缩会让 f() 恒 false → 二次死锁。
-    # [R78] OrekiStageAuto 已转 Kotlin：改读 Kotlin 源码，四条语义断言不变。
+    # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
+    # 历史沿革（两次纠偏，勿回退）：
+    #   · R68 曾把门槛钉在 `Double.MAX_VALUE`（1.797e308），并刻意不碰 ID1 的 p()；
+    #     但 1.797e308 是 `Player.canCrunch` 的「无限反物质」目标，不是 ID1 门槛 ——
+    #     ID1 真实要求是 `thisEternity.maxAM >= k()`，3.20 实测 1e1100，
+    #     比 1.797e308 高约 8 个数量级。用旧值会让保护提前解除，ID1 永远解锁不了。
+    #   · 同时旧写法把 `eternitiesZero()` 的极性写反（et=0 反而 return false），
+    #     首次永恒前完全不保护。R82 一并修正。
+    #   · 「不能依赖 p()」这一条仍然成立：p() 含「已解锁」语义，一旦解锁就永久放开，
+    #     坍缩会把峰值清零。R82 用的是 `idUnlocked(id1)` 作**释放条件**（解锁后不再 hold），
+    #     与「用 p() 当阈值」是两件事，这里改为断言真实门槛来源。
     stage = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki"
              / "OrekiStageAuto.kt")
     st = stage.read_text(encoding="utf-8")
@@ -83,12 +88,18 @@ def main() -> int:
     hc_code = "\n".join(ln for ln in (_m.group(1) if _m else "").splitlines()
                          if not ln.strip().startswith("//"))
     check("holdCrunch 读 thisEternity.maxAM", "GameApi.thisEternityMaxAM()" in hc_code)
-    check("holdCrunch 用 Double.MAX_VALUE（1.797e308）作门槛",
-          "Double.MAX_VALUE" in hc_code)
-    check("holdCrunch 不再依赖 ID1 解锁判定 p()",
-          "idUnlocked" not in hc_code and "InfinityDimensionState" not in hc_code)
+    # R82 新语义：门槛来自原版 ID1 的 k()，不再用 Double.MAX_VALUE
+    check("holdCrunch 用原版 ID1 反物质门槛（idRequirement）",
+          "GameApi.idRequirement(id1)" in hc_code)
+    check("holdCrunch 不再把 Double.MAX_VALUE 当 ID1 门槛",
+          "Double.MAX_VALUE" not in hc_code)
+    check("holdCrunch 也用原版 ID1 点数门槛（idIpRequirement）",
+          "GameApi.idIpRequirement(id1)" in hc_code)
+    # 极性：必须是 et=0 才进入保护（!eternitiesZero() 排除已永恒玩家）
+    check("holdCrunch 在 et=0 窗口内生效（!eternitiesZero）",
+          "!eternitiesZero()" in hc_code)
     check("holdCrunch 到门槛后放开（compareTo < 0 才继续 hold）",
-          "c2 != null && c2 < 0" in hc_code)
+          "peakVersus != null && peakVersus < 0" in hc_code)
 
     # ---- 1c. 按永恒 = 原版协程启动器（R70 定案） ----
     #

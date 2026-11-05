@@ -82,6 +82,43 @@ object OrekiAutomationScheduler {
     /** no-op 后同一任务的重试静默窗口（与用户间隔、动作节拍三者独立）。 */
     private const val NOOP_RETRY_MS = 3000L
 
+    /**
+     * 阶段紧迫任务（R82）。
+     *
+     * 背景：R81 真机日志里 `sacrifice` 每拍都成功、`idBuy` 一次都没轮到 ——
+     * 调用顺序固定，且「每拍最多一个真动作」，只要排在前面的任务每拍都能成功，
+     * 后面的任务就永远饿死。这不是节拍问题，是固定顺序 + 单动作名额的必然结果。
+     *
+     * 修法：**只调整调用顺序**，让当前阶段的唯一关键动作优先占用本拍名额。
+     * 不新增豁免、不放宽间隔、不允许多动作：紧迫任务仍要走完整的 allow() 闸门，
+     * 它若因自己的间隔/冷却被拒，后面的任务照常按原顺序继续尝试。
+     *
+     * ID1 未解锁且 IP 已达真实门槛时，`idBuy` 是唯一能把反物质峰值转成成长的入口，
+     * 其余动作（献祭/批量/无限升级）都只是给同一链条加速，晚一拍无损失；
+     * ID1 解锁后立刻清除紧迫标记，恢复原有固定顺序，避免长期只喂一个任务。
+     */
+    @Volatile
+    private var urgentTask: String? = null
+
+    /** 设置本拍的阶段紧迫任务；传 null 清除。仅供 OrekiStageAuto 在每拍开头调用。 */
+    @JvmStatic
+    fun setUrgentTask(taskId: String?) {
+        urgentTask = if (taskId != null && idxOf(taskId) >= 0) taskId else null
+    }
+
+    /** 当前紧迫任务（诊断用）。 */
+    @JvmStatic
+    fun getUrgentTask(): String? = urgentTask
+
+    /**
+     * 这个任务此刻是否应当优先尝试。
+     *
+     * 只用于调用方决定「先问谁」，**不改变 allow() 的任何判定**：
+     * 优先级高的任务若被拒绝，调用方必须继续尝试其它任务。
+     */
+    @JvmStatic
+    fun isUrgent(taskId: String?): Boolean = taskId != null && taskId == urgentTask
+
     private val lastAct = LongArray(IDS.size)
     private val failUntil = LongArray(IDS.size)
     private val served = IntArray(IDS.size)
@@ -289,35 +326,35 @@ object OrekiAutomationScheduler {
      */
     @JvmStatic
     fun allow(taskId: String?): Boolean {
-        if (!enabled) return deny("disabled")
-        if (!originalAutobuyersOn()) return deny("original-autobuyers-off")
+        if (!enabled) return deny("disabled", taskId)
+        if (!originalAutobuyersOn()) return deny("original-autobuyers-off", taskId)
 
         val idx = idxOf(taskId)
-        if (idx < 0) return deny("unknown-task")
+        if (idx < 0) return deny("unknown-task", taskId)
 
         val now = SystemClock.elapsedRealtime()
 
         // ---- 帧名额 + 死锁看门狗 ----
         if (frameActed) {
             val since = if (frameAt != 0L) now - frameAt else 0L
-            if (since < 1000L) return deny("frame-held")
+            if (since < 1000L) return deny("frame-held", taskId)
             // 超过 1 秒视为集成方漏调 beginFrame，复位名额（间隔仍由下面独立判定）
             frameActed = false
         }
 
         // ---- 失败冷却 ----
         val failAt = failUntil[idx]
-        if (failAt > 0L && failAt > now) return deny("failure-cooldown")
+        if (failAt > 0L && failAt > now) return deny("failure-cooldown", taskId)
 
         // ---- no-op 重试节流 ----
         val noopAt = noopUntil[idx]
-        if (noopAt > 0L && noopAt > now) return deny("noop-retry-wait")
+        if (noopAt > 0L && noopAt > now) return deny("noop-retry-wait", taskId)
 
         // ---- [R77] 全局统一节拍：所有任务的第一道闸 ----
         val beat = lastBeatAt
         if (beat != 0L && now - beat < intervalSec * 1000L) {
             beatSkips++
-            return deny("interval")
+            return deny("interval", taskId)
         }
 
         // ---- 单任务二次闸（默认档；严格档的全局闸已蕴含）----
@@ -325,12 +362,12 @@ object OrekiAutomationScheduler {
             val last = lastAct[idx]
             if (last != 0L && now - last < intervalSec * 1000L) {
                 beatSkips++
-                return deny("interval")
+                return deny("interval", taskId)
             }
         }
 
         // ---- 动作预约（R77：首帧也必须占位）----
-        if (!reserveOk(idx)) return deny("reserved")
+        if (!reserveOk(idx)) return deny("reserved", taskId)
 
         return true
     }
@@ -354,12 +391,20 @@ object OrekiAutomationScheduler {
         reserve[idx] = 0L
     }
 
-    private fun deny(reason: String): Boolean {
+    /**
+     * 记录一次拒绝（10 秒限流，避免刷屏）。
+     *
+     * [R82] 必须带上任务名：R81 的日志只有 `deny noop-retry-wait`，看不出是谁在
+     * 反复空转占名额，导致「ID1 一直买不到」无法定位。原因串保持原格式不变，
+     * 只在末尾追加 `task=<id>`，不影响既有人工判读与探针匹配。
+     */
+    private fun deny(reason: String, taskId: String? = null): Boolean {
         val now = SystemClock.elapsedRealtime()
         if (now < denyAt) return false
         denyAt = now + 10_000L
         try {
-            android.util.Log.i(TAG, "deny $reason")
+            val suffix = if (taskId != null) " task=$taskId" else ""
+            android.util.Log.i(TAG, "deny $reason$suffix")
         } catch (_: Throwable) {
         }
         return false
