@@ -1,6 +1,10 @@
 # 反物质维度 · Oreki Edition（Android Mod）
 
-基于《Antimatter Dimensions》**3.19.0** 官方 Android 版的个人非商业改造版。
+基于《Antimatter Dimensions》官方 Android 版的个人非商业改造版：历史稳定版为 **3.19.0**，R81 已生成并交付 **3.20.0** APK，通过模拟器启动、挑战重进和重启读档定向验收；无限维度解锁后购买、首次永恒及完整终局尚未覆盖，不代表完整通关验收。
+
+**产物只允许 APK，禁止生成 XAPK**。历史分包素材仅作构建输入保留。
+R81 构建采用同版密度资源、跨 DEX 主题定位与独立 Kotlin DEX；永恒商店代购使用 Kotlin 调用原版扣费入口，每拍最多一项，挑战与毁灭状态停止，保留首个时间维度启动资金。
+新增代码须配必要简体中文注释（规则见 `docs/AGENTS_GLOBAL.md` §69）。
 用 apktool 反编译 + smali 注入方式重打包，包名 `com.oreki.antimatterdimensions`，与原版可共存。
 **不联网、无 Google 依赖、无广告 SDK。**
 
@@ -319,6 +323,11 @@ web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json
 - 禁止 `git reset --hard`、`git clean`、force push
 - 网络：直连 GitHub 常失败（`Recv failure: Connection was reset`），改用
   `git -c http.proxy=http://127.0.0.1:7897 push`
+- **`docs/` 下文档文件名必须使用简体中文**（长期规则，见 `docs/AGENTS_GLOBAL.md` §68）：
+  新建文档即适用；历史英文名已分批迁移，迁移时必须同步更新 README、任务单、脚本与
+  Gradle 配置里的路径引用，禁止只改名不改引用。以下 5 个是硬链接共享文件，**豁免不改名**：
+  `AGENTS_GLOBAL.md` / `FACTS.md` / `RULES_INDEX.md` / `EMULATOR_CONTROL.md` /
+  `SHARED_GAMEPLAY_STANDARD.md`。
 
 ## 十二、相关文档
 
