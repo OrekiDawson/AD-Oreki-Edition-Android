@@ -111,6 +111,32 @@ EXPECTED_ABI = {
         "public static final void crunchProbe()",
         "public static final void applyCrunchPolicy()",
     ],
+    # [R83] OrekiAuto 整类迁移。IU15 守卫业务全部进 Kotlin；以下 5 个方法
+    # 被构建注入点（Game.autoBuyerTick 系列 / InfinityDimensionState.h+i）与
+    # OrekiSmartStrategy 直接 invoke-static，签名必须逐字不变。
+    "kajfosz.antimatterdimensions.OrekiAuto": [
+        "public static final boolean hasInfinity()",
+        "public static final boolean orekiEarly()",
+        "public static final boolean idGuardAllowed()",
+        "public static final boolean idBuyBlocked()",
+        "public static final void bumpIdGuardFails()",
+        "public static final void noteReality()",
+    ],
+    # [R83] IU15 冲刺状态机（新类，无历史 ABI 包袱）。方法供 StageAuto / 探针调用。
+    "kajfosz.antimatterdimensions.oreki.OrekiIu15Sprint": [
+        "public static final void tick()",
+        "public static final boolean isActive()",
+        "public static final boolean shouldSkipEc7()",
+        "public static final boolean shouldBlockEcStart(int)",
+        "public static final boolean idBuyBlocked()",
+        "public static final boolean canArm()",
+        "public static final boolean isCleanReality()",
+        "public static final boolean iu15Bought()",
+        "public static final void releaseNow(java.lang.String)",
+        "public static final java.lang.String statusLine()",
+        "public static final java.lang.String debugPhase()",
+        "public static final int debugFails()",
+    ],
     "kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler": [
         "public static final void init(android.content.Context)",
         "public static final boolean isEnabled()",
@@ -147,6 +173,8 @@ KOTLIN_OWNED_CLASSES = {
     # 这些方法的**唯一调用方**是本类自己的 onAutoBuyerTick（也在本次迁移里），
     # 所以改返回类型不破坏任何外部调用点 —— 已用 grep 全量确认无其它 invoke-static。
     "kajfosz.antimatterdimensions.oreki.OrekiStageAuto",
+    # [R83] IU15 守卫业务迁入 Kotlin，Smali 版必须移除。
+    "kajfosz.antimatterdimensions.OrekiAuto",
 }
 
 

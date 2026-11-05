@@ -133,6 +133,11 @@ object OrekiStageAuto {
             // 终点记录：必须排在所有早退之前（Pelle 阶段是唯一需要它的阶段）。
             GameApi.pelleRecordTick()
 
+            // [R83] IU15 冲刺状态机：必须在**任何 ID 购买之前**推进，
+            // 否则本帧可能先买掉 ID1~ID8，导致 maxID1 变正、IU15 永久失败。
+            // 该调用自身只读 + 状态迁移，不写任何存档字段。
+            OrekiIu15Sprint.tick()
+
             applyCrunchPolicy()
             crunchProbe()
 

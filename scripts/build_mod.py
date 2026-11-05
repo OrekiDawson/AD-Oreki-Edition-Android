@@ -1531,7 +1531,8 @@ def patch_smali():
 # 名字都可能变，所以构建时必须逐项断言存在，否则运行期才会 NoSuchMethodError。
 PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali",
-    "smali/kajfosz/antimatterdimensions/OrekiAuto.smali",
+    # [R83] OrekiAuto 已迁到 Kotlin（payload/kotlin），不再有对应 Smali；
+    # 由 KOTLIN_OWNED_CLASSES + build_kotlin.py 的 ABI 断言保证存在。
     "smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/SettingsClickListener.smali",
     "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali",
@@ -3420,6 +3421,65 @@ def patch_autobuyer_cadence():
     note("[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间")
 
 
+def patch_iu15_ec7_guard():
+    """[R83] IU15 冲刺期间拦截 EC7 的启动（业务判定全部在 Kotlin）。
+
+    ── 为什么必须拦 EC7 ────────────────────────────────────────────────
+    `TimeDimensions.tick()` 末尾会把 EC7 的完成奖励换算成 ID8 产量；
+    `InfinityDimensions.tick()` 再把 ID8→ID7→…→ID1 逐层生产。
+    所以只要 EC7 有过完成次数，`maxID1` 就会在一帧内变正，
+    而 IU15 的硬性要求是 `maxID1 == 0` —— 冲刺立即永久失败。
+
+    ── 为什么钉在 D(Z, Continuation) ──────────────────────────────────
+    它是 EC 的**唯一**启动入口，内部写 `PlayerEternityChallenges.h(id)`
+    作为 current。自动脚本与玩家点击都经过它，一处即可全覆盖。
+
+    ── 业务归属 ───────────────────────────────────────────────────────
+    本补丁只写 4 行 ABI 调用；「拦不拦、拦哪一关、何时解除」全部由
+    `OrekiIu15Sprint.shouldBlockEcStart(ecId)` 决定（Kotlin 生产代码）。
+    不满足冲刺条件时该方法恒 false，手动/自动玩法完全不受影响。
+    """
+    target = (smali_tree() / "kajfosz" / "antimatterdimensions" / "challenge"
+              / "eternity" / "b.smali")
+    assert target.exists(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+
+    marker = "OrekiIu15Sprint;->shouldBlockEcStart(I)Z"
+    if marker in src:
+        note("[R83] IU15 EC7 启动守卫已存在，跳过")
+        return
+
+    sig = ".method public final D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"
+    assert src.count(sig) == 1, "EC 启动方法 D(Z,Continuation) 不唯一，锚点失效"
+    pos = src.find(sig)
+    loc = src.find(".locals", pos)
+    assert loc > pos, "D 方法后没有 .locals"
+    eol = src.find(chr(10), loc)
+    assert eol > 0
+
+    nl = chr(13) + chr(10) if (chr(13) + chr(10)) in src[:eol + 1] else chr(10)
+    inject = (
+        "    # [R83] IU15 冲刺期间拒绝启动 EC7（判定在 Kotlin OrekiIu15Sprint）" + nl +
+        "    # 本方法 .locals 17 ⇒ p0 映射到 v17，普通 iget 只支持 v0..v15，" + nl +
+        "    # 必须先用 /from16 搬进低位寄存器（原版第一条指令同样如此）。" + nl +
+        "    move-object/from16 v0, p0" + nl +
+        "    iget v0, v0, Lan1;->c:I" + nl +
+        "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiIu15Sprint;->shouldBlockEcStart(I)Z" + nl +
+        "    move-result v0" + nl +
+        "    if-eqz v0, :oreki_iu15_ec_ok" + nl +
+        "    sget-object v0, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;" + nl +
+        "    return-object v0" + nl +
+        "    :oreki_iu15_ec_ok" + nl
+    )
+    src = src[:eol + 1] + inject + src[eol + 1:]
+    write_smali(target, src, encoding="utf-8")
+
+    after = target.read_text(encoding="utf-8")
+    assert after.count(marker) == 1, "EC7 守卫注入失败"
+    assert ":oreki_iu15_ec_ok" in after, "EC7 守卫标签缺失"
+    note("[R83] 已注入 IU15 EC7 启动守卫（业务判定在 Kotlin）")
+
+
 def patch_ec12_restriction():
     """[Oreki EC12] 永恒挑战 12 的限时判定改为与全局倍率无关（2026-10-28）。
 
@@ -4543,12 +4603,17 @@ def patch_id_autobuyer_guard():
                     / "infinity" / "InfinityDimensionState.smali")
     mod_iu = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "reality"
               / "imaginary_upgrades" / "b.smali")
-    mod_auto = smali_tree() /  "kajfosz" / "antimatterdimensions" / "OrekiAuto.smali"
+    # [R83] OrekiAuto 已整类迁到 Kotlin（payload/kotlin/.../OrekiAuto.kt），
+    # MOD 树里不再有对应 .smali。守卫逻辑改由 Kotlin 断言（见下方 kt 校验）。
+    kt_auto = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "OrekiAuto.kt"
+    kt_iu15 = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions"
+               / "oreki" / "OrekiIu15Sprint.kt")
 
     # ---- 锚点校验（无论开关都做，防止原版更新后静默漂移）----
     assert mod_id_state.is_file(), f"缺少 {mod_id_state}（payload/反编译目录不完整？）"
     assert mod_iu.is_file(), f"缺少 {mod_iu}"
-    assert mod_auto.is_file(), f"缺少 {mod_auto}（payload 未拷入？）"
+    assert kt_auto.is_file(), f"缺少 {kt_auto}（Kotlin 迁移单元丢失）"
+    assert kt_iu15.is_file(), f"缺少 {kt_iu15}（IU15 状态机丢失）"
 
     src = mod_id_state.read_text(encoding="utf-8")
     h_sig = ".method public final h(Z)V"
@@ -4570,25 +4635,27 @@ def patch_id_autobuyer_guard():
     # R38-M：IU15 门槛已缩放到 1e8，旧值必须彻底消失（否则三套阈值会打架）
     check_iu15_threshold()
 
-    auto_src = mod_auto.read_text(encoding="utf-8")
-    for sig in (".method public static idGuardAllowed()Z",
-                ".method public static idBuyBlocked()Z",
-                ".method public static bumpIdGuardFails()V",
-                ".method private static noteReality()V",
-                ".field private static idGuardFails:I",
-                ".field private static idGuardLastRealities:D",
-                # IU15 的两个位图口径：k()=已购买 / j()=需求已满足
-                "Player$Reality;->k()Lkajfosz/antimatterdimensions/BitSet;",
-                "Player$Reality;->j()Lkajfosz/antimatterdimensions/BitSet;",
-                # 旧写法 e(9) 是 IU20，必须不存在
-                "const/16 v1, 0x9"):
-        if sig.startswith("const/16 v1, 0x9"):
-            assert sig not in auto_src, (
-                "OrekiAuto 仍用 e(9)（= Web IU20 的位）：IU15 的 BitSet id 是 4")
-            continue
-        assert sig in auto_src, f"OrekiAuto 缺少 IU15 守卫所需的 {sig}"
-    assert auto_src.count("const/4 v1, 0x4") == 2, (
-        "OrekiAuto 应恰好有 2 处 const/4 v1, 0x4（k() 已购买 + j() 需求位），实际不同")
+    # [R83] IU15 守卫的契约断言改读 Kotlin 生产源码（真业务在执行路径上，
+    # 不能再靠 Smali 文本存在性通过）。
+    kt_auto_src = kt_auto.read_text(encoding="utf-8")
+    for sig in ("fun hasInfinity()", "fun orekiEarly()", "fun idGuardAllowed()",
+                "fun idBuyBlocked()", "fun bumpIdGuardFails()", "fun noteReality()"):
+        assert sig in kt_auto_src, f"OrekiAuto.kt 缺少历史 ABI 方法 {sig}"
+    # 全部业务判断必须下沉到状态机，不允许 OrekiAuto 自己再写一份。
+    assert "OrekiIu15Sprint.idBuyBlocked()" in kt_auto_src, (
+        "OrekiAuto.idBuyBlocked 必须转发到 OrekiIu15Sprint（否则又是两套状态）")
+
+    kt_iu_src = kt_iu15.read_text(encoding="utf-8")
+    for sig in ("fun idBuyBlocked()", "fun canArm()", "fun isCleanReality()",
+                "fun releaseNow(", "fun shouldSkipEc7()"):
+        assert sig in kt_iu_src, f"OrekiIu15Sprint.kt 缺少 {sig}"
+    # 玩家控制权：总开关关闭必须能立即释放，不能只依赖 tick 被调用。
+    assert "autobuyersOn" in kt_iu_src, "OrekiIu15Sprint 未处理自动购买器总开关"
+    assert "releaseNow(\"autobuyers-off\")" in kt_iu_src, (
+        "OrekiIu15Sprint 关闭总开关时没有立即释放接管")
+    # 不得把临时锁写进存档：状态只能是进程内字段。
+    assert "reqLock" not in kt_iu_src and "imaginaryUpgReqs" not in kt_iu_src, (
+        "OrekiIu15Sprint 触碰了会被写进存档的字段（reqLock/imaginaryUpgReqs）")
 
     if not ID_GUARD_ENABLED:
         note("[Oreki IU15] 锚点已校验，ID_GUARD_ENABLED=False，跳过写入")
@@ -6942,6 +7009,8 @@ def main():
     #   · 没有任何「3.0E12 -> 1.5E12」的原版数值改动（IU15 门槛本来就是 1.5E12）。
     # ⚠ 尚未在真机跑到莱特拉阶段验证；守卫自带 20 个现实的失败回退。
     patch_id_autobuyer_guard()
+    # [R83] IU15 冲刺期间禁止自动进入 EC7（判定在 Kotlin）
+    patch_iu15_ec7_guard()
     # [R33 Agent C] 挑战进入即完成必须「真结算」：补发 IP / 无限次数 / EP，
     # 并按原版口径更新最速无限记录；缺这一步 Android 会比 Web 少一整份资源。
     patch_instant_challenge_rewards()

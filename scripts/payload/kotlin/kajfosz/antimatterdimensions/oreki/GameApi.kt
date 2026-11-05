@@ -511,6 +511,19 @@ internal object GameApi {
     /** `Player.auto`（Player$Auto 实例）。 */
     fun auto(): Any? = call(mPlayerC(), player())
 
+    /** `player().infinities`（BigDouble，`Player.C()`；与 eternities 的 `x()` 不同）。 */
+    fun infinities(): Any? = call(mPlayerBigC(), player())
+
+    private var mPlayerBigC: Method? = null
+    private var mPlayerBigCResolved: Boolean = false
+    private fun mPlayerBigC(): Method? {
+        if (!mPlayerBigCResolved) {
+            mPlayerBigCResolved = true
+            mPlayerBigC = method(playerCls(), "C", 0, "Player.C()=infinities")
+        }
+        return mPlayerBigC
+    }
+
     /** 是否已 Break（`Player.m()`）。 */
     fun isBroken(): Boolean = (call(mPlayerM(), player()) as? Boolean) ?: false
 
@@ -1225,6 +1238,235 @@ internal object GameApi {
             miss("eternity upgrade registry", error)
             emptyList()
         }
+    }
+
+    // ---------------------------------------------------------------- IU15（R83）
+
+    // IU15「理想之构」的原版对象是 `reality.imaginary_upgrades.b.k`（3.20 实测：
+    // b 的 15 条实例成本序列 5e7,5e7,5e7,3.5e8,1e9,… 与 Web IU11..IU25 逐位一致，
+    // 本地 id = WebId - 11 ⇒ Web 的 IU15 = 本地的 b.k）。
+    //
+    // 购买入口必须走父类 `qr3.D(Z, Continuation)Boolean`，它在内部依次做
+    //   `a(Z)` 判可买 → `y().o(cost)` **真实扣虚幻机器** → `E(true)` 置已买位
+    //   → `C(ZZ)` 触发解锁通知；
+    // 不能自己置位：`qw.E(Z)` 只是 BitSet 写位，绕过扣费就是伪造进度。
+    private fun iu15Obj(): Any? = try {
+        val holder = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.b") ?: return null
+        staticField(holder, "k")?.get(null)
+    } catch (error: Throwable) {
+        miss("IU15 object", error)
+        null
+    }
+
+    /** IU15 是否已真实购买（原版 `qw.B()Z` 读同一位）。 */
+    fun iu15Bought(): Boolean {
+        val upgrade = iu15Obj() ?: return false
+        return (call(mQrB(), upgrade) as? Boolean) ?: false
+    }
+
+    private var mQrB: Method? = null
+    private var mQrBResolved: Boolean = false
+    private fun mQrB(): Method? {
+        if (!mQrBResolved) {
+            mQrBResolved = true
+            mQrB = method(qr3Cls(), "B", 0, "IU.B()=isBought")
+        }
+        return mQrB
+    }
+
+    /** IU15 是否满足需求且未购买（原版 `qr3.a(Z)Z`）。 */
+    fun iu15CanBeBought(): Boolean {
+        val upgrade = iu15Obj() ?: return false
+        return (call(mQrA(), upgrade, true) as? Boolean) ?: false
+    }
+
+    private var mQrA: Method? = null
+    private var mQrAResolved: Boolean = false
+    private fun mQrA(): Method? {
+        if (!mQrAResolved) {
+            mQrAResolved = true
+            mQrA = method(qr3Cls(), "a", 1, "IU.a(Z)=canBuy", paramTypeNames = listOf("boolean"))
+        }
+        return mQrA
+    }
+
+    /**
+     * 走原版购买入口真实买入 IU15。
+     *
+     * `D(Z, Continuation)` 的第二个参数是 Kotlin 协程续体；本类无挂起需求，
+     * 传现有 `OrekiEcContinuation` 静态单例（它已实现 ContinuationImpl，
+     * 且 getContext() 返回非 null 空上下文，原版其余无人值守调用点同样传真实实例）。
+     */
+    fun purchaseIu15(): Boolean {
+        val upgrade = iu15Obj() ?: return false
+        return try {
+            val continuation = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
+                ?.let { staticField(it, "a")?.get(null) }
+            val result = call(mQrD(), upgrade, true, continuation)
+            // 原版返回 Boolean（或挂起时的 CoroutineSingletons），统一以 isBought 为准。
+            result != null
+        } catch (error: Throwable) {
+            miss("IU.purchase", error)
+            false
+        }
+    }
+
+    private var mQrD: Method? = null
+    private var mQrDResolved: Boolean = false
+    private fun mQrD(): Method? {
+        if (!mQrDResolved) {
+            mQrDResolved = true
+            mQrD = method(
+                qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase",
+                paramTypeNames = listOf("boolean", "kotlin.coroutines.Continuation"),
+            )
+        }
+        return mQrD
+    }
+
+    private fun qr3Cls(): Class<*>? = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.a")
+
+    /**
+     * 自动购买器总开关（玩家可见的那个开关）。
+     *
+     * 3.20 实测：字段在 `Player$Options.autobuyersOn:Z`（`Player$Options.smali:25`），
+     * **不在** `Player$Auto` —— 后者只有各自动器实例与零散 boolean。
+     * 走 `player.options` 读，避免猜错归属导致静默恒 false。
+     */
+    fun autobuyersOn(): Boolean = try {
+        (readGameField(options(), "autobuyersOn") as? Boolean) ?: false
+    } catch (error: Throwable) {
+        miss("autobuyersOn", error)
+        false
+    }
+
+    /**
+     * IM 是否已解锁。
+     *
+     * 与 Web `MachineHandler.isIMUnlocked` 等价：`imaginaryMachines > 0`。
+     * 这是新档保护的**关键闸**：没有它，IU15 守卫会在开局就锁死 ID1，
+     * 导致 maxID1 恒 0、现实推不动、需求位永不点亮 —— 闭环软锁。
+     */
+    fun imUnlocked(): Boolean = try {
+        val reality = call(mPlayerQ(), player())
+        (readGameField(reality, "imaginaryMachines") as? Double ?: 0.0) > 0.0
+    } catch (error: Throwable) {
+        miss("imUnlocked", error)
+        false
+    }
+
+    private var mPlayerQ: Method? = null
+    private var mPlayerQResolved: Boolean = false
+    private fun mPlayerQ(): Method? {
+        if (!mPlayerQResolved) {
+            mPlayerQResolved = true
+            mPlayerQ = method(playerCls(), "Q", 0, "Player.Q()=reality")
+        }
+        return mPlayerQ
+    }
+
+    /** IM 上限是否已覆盖 IU15 成本（买得起才值得开始冲刺）。 */
+    fun iu15AffordableByCap(): Boolean = try {
+        val upgrade = iu15Obj() ?: return false
+        val cost = call(mQrX(), upgrade) ?: return false
+        // IM 上限是 `Player$Reality.iMCap:D`（私有字段，3.20 实测 787 行读取）。
+        // 直接读字段而不是调 `MachineHandler.currentIMCap`：后者还要乘 IU13 的
+        // effectOrDefault，属游戏内派生值；冲刺判据要的是「硬上限能不能覆盖成本」，
+        // 用原始 iMCap 更保守，也不会因 IU13 未买而低估。
+        val reality = call(mPlayerQ(), player())
+        val capRaw = readGameField(reality, "iMCap") as? Double ?: return false
+        val costValue = readBigDoubleExponentValue(cost) ?: return false
+        capRaw >= costValue
+    } catch (error: Throwable) {
+        miss("iu15AffordableByCap", error)
+        false
+    }
+
+    /**
+     * 把 BigDouble 取成 double 近似值，仅用于「上限 vs 成本」这种量级比较。
+     *
+     * BigDouble 用 `mantissa + exponent` 表示；直接转 double 会溢出，
+     * 这里按 `mantissa * 10^exponent` 计算，超出 double 范围时返回
+     * `Double.MAX_VALUE`（对「上限是否够」这一判断是安全的保守值）。
+     */
+    private fun readBigDoubleExponentValue(value: Any?): Double? = try {
+        if (value == null) {
+            null
+        } else {
+            val mantissa = readGameField(value, "mantissa") as? Double
+            val exponent = readGameField(value, "exponent") as? Double
+            when {
+                mantissa == null || exponent == null -> null
+                exponent > 300.0 -> Double.MAX_VALUE
+                else -> mantissa * Math.pow(10.0, exponent)
+            }
+        }
+    } catch (_: Throwable) {
+        null
+    }
+
+    private var mQrX: Method? = null
+    private var mQrXResolved: Boolean = false
+    private fun mQrX(): Method? {
+        if (!mQrXResolved) {
+            mQrXResolved = true
+            mQrX = method(qr3Cls(), "x", 0, "IU.x()=cost")
+        }
+        return mQrX
+    }
+
+    /** 当前反物质指数（`player.antimatter.exponent`）。 */
+    fun antimatterExponent(): Double = try {
+        val am = call(mPlayerB(), player())
+        (readGameField(am, "exponent") as? Double) ?: 0.0
+    } catch (error: Throwable) {
+        miss("antimatterExponent", error)
+        0.0
+    }
+
+    private var mPlayerB: Method? = null
+    private var mPlayerBResolved: Boolean = false
+    private fun mPlayerB(): Method? {
+        if (!mPlayerBResolved) {
+            mPlayerBResolved = true
+            mPlayerB = method(playerCls(), "b", 0, "Player.b()=antimatter")
+        }
+        return mPlayerB
+    }
+
+    /** 本现实的 `maxID1 == 0`（IU15 的真实前置）。 */
+    fun maxId1IsZero(): Boolean = try {
+        val checks = call(mPlayerT(), player())
+        val realityChecks = readGameField(checks, "reality")
+        val maxId1 = call(mRealityChecksB(), realityChecks) ?: return false
+        val compared = compareToDouble(maxId1, 0.0)
+        compared != null && compared == 0
+    } catch (error: Throwable) {
+        miss("maxId1IsZero", error)
+        false
+    }
+
+    private var mPlayerT: Method? = null
+    private var mPlayerTResolved: Boolean = false
+    private fun mPlayerT(): Method? {
+        if (!mPlayerTResolved) {
+            mPlayerTResolved = true
+            mPlayerT = method(playerCls(), "T", 0, "Player.T()=requirementChecks")
+        }
+        return mPlayerT
+    }
+
+    private var mRealityChecksB: Method? = null
+    private var mRealityChecksBResolved: Boolean = false
+    private fun mRealityChecksB(): Method? {
+        if (!mRealityChecksBResolved) {
+            mRealityChecksBResolved = true
+            mRealityChecksB = method(
+                cls("kajfosz.antimatterdimensions.player.Player\$RealityChecks"),
+                "b", 0, "RealityChecks.b()=maxID1",
+            )
+        }
+        return mRealityChecksB
     }
 
     // ---------------------------------------------------------------- 献祭
