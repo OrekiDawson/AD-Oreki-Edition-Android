@@ -187,7 +187,7 @@ python scripts/test_r81_dark_theme.py  # 主题路径
 
 ### 工具
 
-- **REA**（`scripts/rea.sh`）：静态分析 APK，确认原版 ABI。用法见 `docs/REA使用说明.md`
+- **REA**（`scripts/rea.sh`）：静态分析 APK，确认原版 ABI。用法见 `docs/REA反编译_环境与搭建_2026-10-25.md`
 - **frame-observer**：独立仓库，采集画面、Logcat 与事件时间线，见 [frame-observer](https://github.com/OrekiDawson/frame-observer)
 
 ### 何时扩大范围
