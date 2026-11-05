@@ -38,6 +38,68 @@ import java.lang.reflect.Method
  */
 internal object GameApi {
 
+    // ==================================================================================
+    // 【基线感知】混淆类名表
+    // ==================================================================================
+    //
+    // 为什么需要这张表：R78 之前 GameApi 里直接写死了 `cls("az1")` / `cls("ln0")` 这类
+    // 混淆短名。R8 会**回收复用**短名 —— 3.20 里 `az1` 确实还存在，但它已经变成
+    // 一个只有 <init>/equals/hashCode 的无关类（结构 Jaccard = 0.00）。
+    // 后果不是"找不到类然后降级"，而是**静默指向错误类**，比崩溃更难查。
+    //
+    // 3.19 与 3.20 的实测映射依据（全部用「方法签名集合 + 字段数 + 继承链」指纹确认）：
+    //
+    //   3.19 名 | 3.20 名 | 指纹依据
+    //   --------|---------|------------------------------------------------------------
+    //   az1     | b22     | 4 方法（<clinit>/a()BigDouble/b()BigDouble/c()V）+ 20 字段
+    //           |         | + `public static final s:Ljava/util/List;` 唯一命中
+    //   bn0     | rp0     | 3.19 是 Currency 实现（super=ju），3.20 对应 rp0
+    //   fp3     | qr3     | 19 方法 2 字段，A(Z)Z/B()Z/C(ZZ)V/D(Z,x)Boolean/E(Z)V 全中
+    //   ln0     | bq0     | 25 个 public static final 字段，顺序逐一对齐
+    //   uu1     | px1     | 15 方法 6 字段，super 就是 qr3，x()/y()/I()/J(J) 全中
+    //
+    // 这些名字**必须**与 build_mod.py 的 OBFUSCATION_ALIASES_320 保持一致 ——
+    // 那边负责重写 Smali 描述符，这边负责运行时反射查找，两边错一个就会
+    // 出现「Smali 补丁打到对类上、Kotlin 却反射到错类」的诡异故障。
+    // 构建期由 verify_kotlin_gameapi_aliases() 断言两边同步。
+
+    /** 3.20 基线专用：3.19 混淆名 → 3.20 混淆名。 */
+    private val ALIAS_320: Map<String, String> = mapOf(
+        "az1" to "b22",
+        "bn0" to "rp0",
+        "fp3" to "qr3",
+        "ln0" to "bq0",
+        "uu1" to "px1",
+    )
+
+    /**
+     * 当前是否为 3.20 基线。
+     *
+     * 判别探针用 `bq0`：它在 3.19 里不存在，在 3.20 里是货币容器基类（25 个
+     * public static final 字段）。任何一个版本都只会命中一边，不存在两版都真/都假。
+     *
+     * **不用 `by lazy`**：R78 实测 D8 8.2.2 无法完整 desugar stdlib 2.4.21 的
+     * `SynchronizedLazyImpl`（装机即 `NoSuchMethodError <init>(Function0,Object,int,
+     * DefaultConstructorMarker)`）。本文件所有惰性求值一律手写 _ready 布尔位。
+     */
+    private var _isBaseline320: Boolean = false
+    private var _isBaseline320_ready: Boolean = false
+    private fun isBaseline320(): Boolean {
+        if (!_isBaseline320_ready) {
+            _isBaseline320_ready = true
+            _isBaseline320 = try {
+                Class.forName("bq0", false, GameApi::class.java.classLoader) != null
+            } catch (_: Throwable) {
+                false
+            }
+        }
+        return _isBaseline320
+    }
+
+    /** 3.19 混淆名 → 当前基线真实类名。非 3.20 基线原样返回。 */
+    private fun obf(name: String): String =
+        if (isBaseline320()) (ALIAS_320[name] ?: name) else name
+
     private const val TAG = "OREKI_API_MISS"
 
     // ---------------------------------------------------------------- 类解析
@@ -178,7 +240,7 @@ internal object GameApi {
     private fun currencyHolderCls(): Class<*>? {
         if (!_currencyHolderCls_ready) {
             _currencyHolderCls_ready = true
-            _currencyHolderCls = cls("ln0")
+            _currencyHolderCls = cls(obf("ln0"))
         }
         return _currencyHolderCls
     }
@@ -187,7 +249,7 @@ internal object GameApi {
     private fun currencyImplCls(): Class<*>? {
         if (!_currencyImplCls_ready) {
             _currencyImplCls_ready = true
-            _currencyImplCls = cls("bn0")
+            _currencyImplCls = cls(obf("bn0"))
         }
         return _currencyImplCls
     }
@@ -239,7 +301,7 @@ internal object GameApi {
     private fun infUpgradesCls(): Class<*>? {
         if (!_infUpgradesCls_ready) {
             _infUpgradesCls_ready = true
-            _infUpgradesCls = cls("az1")
+            _infUpgradesCls = cls(obf("az1"))
         }
         return _infUpgradesCls
     }
@@ -250,7 +312,7 @@ internal object GameApi {
     private fun ipMultCls(): Class<*>? {
         if (!_ipMultCls_ready) {
             _ipMultCls_ready = true
-            _ipMultCls = cls("uu1")
+            _ipMultCls = cls(obf("uu1"))
         }
         return _ipMultCls
     }
@@ -261,7 +323,7 @@ internal object GameApi {
     private fun upgradeBaseCls(): Class<*>? {
         if (!_upgradeBaseCls_ready) {
             _upgradeBaseCls_ready = true
-            _upgradeBaseCls = cls("fp3")
+            _upgradeBaseCls = cls(obf("fp3"))
         }
         return _upgradeBaseCls
     }

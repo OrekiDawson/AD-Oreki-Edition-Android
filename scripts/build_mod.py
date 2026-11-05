@@ -352,6 +352,61 @@ OBFUSCATION_ALIASES_320: dict[str, str] = {
     # （6 个方法签名逐一对齐，r5→i5）。
     "t5": "k5",
     "r5": "i5",
+    # [R79] 维度提升需求计算：3.19 Lkx0 是「7 个 final 字段 a:Z b:I c:D d:Z e:D f:Z g:D
+    # + <init>()V + a(D)L<依赖对象>;」的唯一形态。3.20 里 kx0 被 R8 复用成一个
+    # 4 方法的无关类（无 5.0 常量）。按「5.0 / 15.0 / 20.0 三常量齐备 + 2 方法
+    # + 7 字段逐一同名同类型」筛全库，唯一命中 Lc01（方法 a(D)Lb01;，字段完全一致）。
+    # REA inspect-android-class / inspect-android-method 独立复核：
+    #   Evidence ev_526a72e05c6f32f22109dfe5954dc691454c2a92ae50a203dd1bec73551e2547
+    #   Java 方法体含 `Math.rint((15.0d - d3) * (dFloor - 5.0d))`，与 3.19 同义。
+    "kx0": "c01",
+    # [R79] IP 倍率自动购买器解锁判定：3.19 L e02 的第 n0()Z 方法体是
+    #   `sget Lz51;->a:Ls51; ->w()Z && !pelle.c.q()` 三段结构。
+    # 3.20 全库唯一同构者：L os0 的 F()Z（方法体逐指令相同，仅内层单例换成 v81/o81）。
+    # 注意 e02 在 3.20 仍存在但是个无关类，必须走别名。
+    "e02": "os0",
+    # 上述方法体里引用的自动器状态单例（3.19 z51/s51 → 3.20 v81/o81）
+    "z51": "v81",
+    "s51": "o81",
+    # [R79] 异常兜底工具：3.19 Lja4 是 `public final synthetic` + 19 方法的工具类，
+    # 其中 `public static synthetic j(Ljava/lang/String;)V` 是「抛 NoSuchElement」入口。
+    # 3.20 里同名同形态者是 Lqw3（22 方法，j 方法签名逐字相同）。
+    # ad_bonus 的 C 段锚点直接引用这个类，不换就会命中 0。
+    "ja4": "qw3",
+    # [R79] Kotlin Continuation 接口：3.19 Lvh0 / 3.20 Lkj0，都是
+    # `public interface abstract` + 恰好 2 个方法。它出现在
+    # fp3.D(Z, Continuation) / uu1 等挂起函数签名里，不换会让整条
+    # 「按方法签名查符号」的校验全部误报为「混淆换名」。
+    "vh0": "kj0",
+    # [R79] 无限升级抽象子类：3.19 Lav 是 `public abstract` + super=Lfp3 + 恰好 5 方法
+    # （<init>(I,BigDouble,ui1,ui1,vi1,I)V / B()Z / E(Z)V / I()I / J()BitSet）。
+    # 3.20 里 super=Lqr3 的抽象子类只有 3 个（bw3 9 方法 / qw 5 方法 / t94 4 方法），
+    # 只有 Lqw 的 5 个方法**连修饰符都逐个相同**，是唯一同构者。
+    "av": "qw",
+    # [R79] 炼金资源表：3.19 Lu7 是 `public abstract` + **恰好 23 字段 + 1 方法**
+    # 且含 `v:Ljava/util/List;` 的唯一形态。3.20 里 u7 被复用成 4 字段的无关类；
+    # 按同一指纹（abstract + 23 字段 + 1 方法 + v:List）全库唯一命中 Le7。
+    "u7": "e7",
+    # [R79] 炼金资源「capped 判定」：3.19 Ll7 是 `public abstract` + super=Lak1 +
+    # **恰好 10 方法**（含 `public final w()Z` 与 `public abstract z()D`）的唯一形态。
+    # 3.20 里 l7 变成 21 方法的无关类；按同一指纹全库唯一命中 Lv6
+    # （10 个方法连修饰符逐个相同，super an1 与 qr3 同族）。
+    "l7": "v6",
+    # [R79] 无限升级基类 / ipMult 实现：此前只在注释里描述了映射，**实际没加进表**
+    # （R79 实测发现：fp3 不在别名表 → cls 保持 Lfp3 找不到类，而 rest 里的
+    #  vh0 却被替换成 kj0，于是报「缺少方法 D(ZLkj0;)」这种自相矛盾的错误）。
+    # 补齐后 fp3→qr3 / uu1→px1 才会一起生效。
+    "fp3": "qr3",
+    "uu1": "px1",
+    # [R79] 无限升级注册表（4 方法 20 字段 + s:List），同样是「注释写了但没入表」。
+    "az1": "b22",
+    # [R79] 挑战实例工厂：3.19 Lc43 是 `public abstract` + 9 方法的唯一持有
+    # `a(I)L.../challenge/antimatter/normal/a;` 者；3.20 全库唯一命中 Lz53
+    # （同为 public abstract + 9 方法）。
+    "c43": "z53",
+    # [R79] 时间研究实例工厂：3.19 Lc21 是 `public abstract` + 4 方法 + 唯一持有
+    # `a(I)L.../eternity/studies/b;` 者；3.20 全库唯一命中 Lu41（同 4 方法）。
+    "c21": "u41",
 }
 
 # 字段级别名：R8 也会重排字段名（3.19 Lln0;->w 在 3.20 是 Lbq0;->w，
@@ -375,6 +430,32 @@ def _baseline_version() -> str:
         return ""
     m = re.search(r"versionName:\s*'?([\d.]+)'?", y.read_text(encoding="utf-8", errors="ignore"))
     return m.group(1) if m else ""
+
+
+# [R79] 方法级别名 {(旧类, 旧方法): (新类, 新方法)}。
+#
+# 为什么必须有这一层：R8 在 3.20 里不仅**复用**了旧类名（同名不同义），
+# 同一语义类内部的方法名也被完全重排。只换类名不换方法名，就会在
+# 「类找对了、方法找不到」这一步失败，而这比类找错更容易被误判成
+# 「方法体结构变化」—— R79 实测 patch_ip_mult_autobuyer 就报了
+# 「找不到方法 public static n0()Z」，实际是 n0() 变成了 F()。
+METHOD_ALIASES_320: dict[str, str] = {
+    # 3.19 Le02 的 n0()Z（IPMultAutobuyer 解锁判定）
+    #   == 3.20 Los0 的 F()Z（方法体逐指令同构，仅内层单例 z51/s51 → v81/o81）
+    "e02.n0": "os0.F",
+}
+
+
+def method_aliases() -> dict[tuple[str, str], tuple[str, str]]:
+    """方法级别名 {(旧类, 旧方法): (新类, 新方法)}，仅 3.20 基线生效。"""
+    if not _baseline_version().startswith("3.20"):
+        return {}
+    out = {}
+    for k, v in METHOD_ALIASES_320.items():
+        oc, om = k.split(".", 1)
+        nc, nm = v.split(".", 1)
+        out[(oc, om)] = (nc, nm)
+    return out
 
 
 def field_aliases() -> dict[tuple[str, str], tuple[str, str]]:
@@ -1029,10 +1110,10 @@ def patch_smali():
             new = txt
             # 先做字段级（更具体），再做类级（更宽），顺序不能反
             for (old_cls, old_fld), (new_cls, new_fld) in field_rewrites.items():
-                new = re.sub(rf"\bL{re.escape(old_cls)};->{re.escape(old_fld)}:",
+                new = re.sub(rf"L{re.escape(old_cls)};->{re.escape(old_fld)}:",
                              f"L{new_cls};->{new_fld}:", new)
             for old, new_name in rewrites.items():
-                new = re.sub(rf"\bL{re.escape(old)};", f"L{new_name};", new)
+                new = re.sub(rf"L{re.escape(old)};", f"L{new_name};", new)
             if new != txt:
                 write_smali(dst, new, encoding="utf-8")
                 touched += 1
@@ -1650,6 +1731,48 @@ def mod_file(rel: str) -> Path:
     return MOD / rel
 
 
+def verify_kotlin_gameapi_aliases():
+    """[R79] Kotlin GameApi 的混淆名表必须与 Python 的 OBFUSCATION_ALIASES_320 同步。
+
+    为什么需要这条守卫：R79 发现 3.20 的 R8 **回收复用**了旧混淆短名 ——
+    `az1` / `bn0` / `fp3` / `ln0` / `uu1` 在 3.20 里仍然存在，但全部变成了
+    完全无关的类（结构 Jaccard 0.00~0.07）。GameApi 原本把这些名字写死在
+    `cls("az1")` 里，3.20 下会**静默反射到错误类**（不是抛异常，而是方法找不到
+    或拿到不相干的值），比崩溃更难排查。
+
+    R79 把 GameApi 改成基线感知（ALIAS_320 + obf()），但两边各存一份映射必然漂移：
+    Python 侧负责重写 Smali 描述符，Kotlin 侧负责运行时反射查找，**任一边漏改
+    就会造成「Smali 补丁打到对的类、Kotlin 却反射到错的类」这种最难查的故障**。
+
+    这条守卫把两边的映射逐条比对，不一致直接失败。
+    """
+    kt = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "GameApi.kt"
+    assert kt.is_file(), f"GameApi.kt 不存在: {kt}"
+    src = kt.read_text(encoding="utf-8")
+
+    # 从 Kotlin 源里抓 ALIAS_320 的键值对（形如 "az1" to "b22",）
+    m = re.search(r"private val ALIAS_320: Map<String, String> = mapOf\((.*?)\n    \)", src, re.S)
+    assert m, "GameApi.kt 里找不到 ALIAS_320 映射表（结构被改动？）"
+    kt_map = dict(re.findall(r'"([a-z0-9]+)"\s+to\s+"([a-z0-9]+)"', m.group(1)))
+
+    py_map = {k: v for k, v in OBFUSCATION_ALIASES_320.items()
+              if k in ("az1", "bn0", "fp3", "ln0", "uu1")}
+
+    assert kt_map == py_map, (
+        "Kotlin GameApi.ALIAS_320 与 build_mod.OBFUSCATION_ALIASES_320 不一致：\n"
+        f"  Kotlin: {kt_map}\n  Python: {py_map}\n"
+        "两边必须同步 —— Python 重写 Smali 描述符，Kotlin 负责运行时反射查找。")
+
+    # 还必须确认这 5 个名字在 Kotlin 源里都走了 obf()，没有残留裸 cls("短名")
+    for old in kt_map:
+        bare = f'cls("{old}")'
+        assert bare not in src, (
+            f"GameApi.kt 里仍有硬编码混淆名 {bare} —— 3.20 下会反射到被 R8 复用的无关类。"
+            f"必须写成 cls(obf(\"{old}\"))。")
+
+    note(f"[4b-KT] GameApi 别名表与 Python 同步：{len(kt_map)} 条，无裸混淆名")
+
+
 def verify_payload():
     refresh_touched()   # [R75] 先用 mtime 收集本次改写过的文件（见 .catch 自检处注释）
     for rel in PAYLOAD_MUST_EXIST:
@@ -1663,13 +1786,34 @@ def verify_payload():
 
     def _ref_rewrite(text: str) -> str:
         for (oc, of), (nc, nf) in _ref_fal.items():
-            text = re.sub(rf"\bL{re.escape(oc)};->{re.escape(of)}:", f"L{nc};->{nf}:", text)
+            text = re.sub(rf"L{re.escape(oc)};->{re.escape(of)}:", f"L{nc};->{nf}:", text)
         for _o, _n in _ref_al.items():
-            text = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", text)
+            text = re.sub(rf"L{re.escape(_o)};", f"L{_n};", text)
         return text
 
+    def _ref_path(rel: str) -> str:
+        """[R79] 文件路径里的类名也要套别名。
+
+        为什么单独需要这个函数：`_ref_rewrite` 只认 `Lxxx;` 描述符形态，
+        对 `smali/z3.smali` 这种**路径**不生效。而 3.20 里 `z3` 这个短名
+        还存在（是个 310 字节的无关小类），于是 `mod_file("smali/z3.smali")`
+        会**成功打开一个错误的文件**，然后在里面找不到期望的成员 ——
+        R79 实测就报了「引用自检失败: z3.a(id) ... 找不到」这种误导性错误，
+        看起来像锚点漂移，实际是打开错了文件。
+
+        修法：把 basename 也过一遍别名表，`smali/z3.smali` -> `smali/s3.smali`，
+        再由 `mod_file()` 跨 dex 根回落（3.20 的 s3 在 smali_classes2）。
+        """
+        rel = str(rel).replace("\\", "/")
+        if not rel.endswith(".smali"):
+            return rel
+        head, _, base = rel.rpartition("/")
+        stem = base[: -len(".smali")]
+        new_stem = _ref_al.get(stem, stem)
+        return f"{head}/{new_stem}.smali" if head else f"{new_stem}.smali"
+
     for rel, needle, desc in PAYLOAD_REFS:
-        p = mod_file(_ref_rewrite(rel))
+        p = mod_file(_ref_path(rel))
         assert p.is_file(), f"引用自检失败，文件不存在: {rel}"
         assert _ref_rewrite(needle) in p.read_text(encoding="utf-8"), \
             f"引用自检失败: {desc}（{rel} 中找不到 {needle!r}）"
@@ -2294,42 +2438,75 @@ AD_T5_D_NEW = """.method public static d()Z
 .end method
 """
 
-AD_T5_B1 = "    invoke-static {p0}, Lt5;->a(Lr5;)Z\n"
-AD_T5_B2 = ("    # [Oreki] 门控换成 d()：原为 a() 的全等匹配，同一时刻只有一\n"
-            "    # 个乘区生效，会导致「只看得到一个加成」。\n"
-            "    invoke-static {}, Lt5;->d()Z\n")
+def _ad_t5_anchors() -> tuple[str, str]:
+    """[R79] Ad Bonus 的 B 段锚点必须按当前基线即时构造，不能写成常量。
 
-AD_T5_C1 = """    :cond_1
-    const-string v0, "Collection contains no element matching the predicate."
+    原实现把 `Lt5;->a(Lr5;)Z` 写死在模块级常量里 —— 3.20 下 t5/r5 已变成
+    完全无关的类（别名表 t5→k5、r5→i5），于是 `src.count(old)` 恒为 0，
+    报「注入点不唯一/缺失 (命中 0)」，看起来像方法体结构变化，
+    实际只是字符串没跟着别名走。
 
-    .line 35
-    .line 36
-    invoke-static {v0}, Lja4;->j(Ljava/lang/String;)V
+    这里在**调用时**用 obfuscation_aliases() 拼出真实类名，
+    3.19 下自然退化为原值（别名表为空），行为零变化。
+    """
+    al = obfuscation_aliases()
+    t5 = al.get("t5", "t5")
+    r5 = al.get("r5", "r5")
+    old = f"    invoke-static {{p0}}, L{t5};->a(L{r5};)Z\n"
+    new = ("    # [Oreki] 门控换成 d()：原为 a() 的全等匹配，同一时刻只有一\n"
+           "    # 个乘区生效，会导致「只看得到一个加成」。\n"
+           f"    invoke-static {{}}, L{t5};->d()Z\n")
+    return old, new
 
-    .line 37
-    .line 38
-    .line 39
-    const/4 v0, 0x0
+def _ad_t5_anchors_c() -> tuple[str, str]:
+    """[R79] Ad Bonus 的 C 段（NoSuchElement 兜底）锚点，按当前基线即时构造。
 
-    .line 40
-    return-object v0
-"""
-AD_T5_C2 = """    :cond_1
-    # [Oreki] 兜底：原版此处抛 NoSuchElementException。
-    # Ad Bonus 永久开启后，白板存档可能没有任何乘区满足条件，
-    # 直接走 UI 路径会崩溃，这里改为返回列表首元素。
-    sget-object v0, Lt5;->l:Ljava/util/List;
+    3.20 实测有两处名字变化，写死常量必然命中 0：
+      1. 异常抛出工具类：3.19 `Lja4;->j` → 3.20 `Lqw3;->j`
+         （方法名 j 未变，只有类的短名被 R8 重排）
+      2. 兜底代码里的列表字段与元素类型：`Lt5;->l:Ljava/util/List;` / `Lr5;`
+         → `Lk5;->l:...` / `Li5;`
 
-    const/4 v1, 0x0
-
-    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lr5;
-
-    return-object v0
-"""
+    这两处都不是"方法体结构变化"，纯粹是混淆名漂移 —— 与 B 段同一类问题。
+    """
+    al = obfuscation_aliases()
+    t5 = al.get("t5", "t5")
+    r5 = al.get("r5", "r5")
+    thrower = al.get("ja4", "ja4")
+    old = (
+        '    :cond_1\n'
+        '    const-string v0, "Collection contains no element matching the predicate."\n'
+        '\n'
+        '    .line 35\n'
+        '    .line 36\n'
+        f'    invoke-static {{v0}}, L{thrower};->j(Ljava/lang/String;)V\n'
+        '\n'
+        '    .line 37\n'
+        '    .line 38\n'
+        '    .line 39\n'
+        '    const/4 v0, 0x0\n'
+        '\n'
+        '    .line 40\n'
+        '    return-object v0\n'
+    )
+    new = (
+        '    :cond_1\n'
+        '    # [Oreki] 兜底：原版此处抛 NoSuchElementException。\n'
+        '    # Ad Bonus 永久开启后，白板存档可能没有任何乘区满足条件，\n'
+        '    # 直接走 UI 路径会崩溃，这里改为返回列表首元素。\n'
+        f'    sget-object v0, L{t5};->l:Ljava/util/List;\n'
+        '\n'
+        '    const/4 v1, 0x0\n'
+        '\n'
+        '    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;\n'
+        '\n'
+        '    move-result-object v0\n'
+        '\n'
+        f'    check-cast v0, L{r5};\n'
+        '\n'
+        '    return-object v0\n'
+    )
+    return old, new
 
 
 def _replace_method(src, signature, new_body):
@@ -2362,9 +2539,11 @@ def patch_ad_bonus():
     note(f"[5] Ad Bonus: A. {_t5}.d() 跳过时间/购买门槛（保留 Doomed）")
 
     # B / C. 指令级替换
+    _b1, _b2 = _ad_t5_anchors()
+    _c1, _c2 = _ad_t5_anchors_c()
     for label, old, new in [
-        ("B. t5.b() 十个乘区全部取真实数值", AD_T5_B1, AD_T5_B2),
-        ("C. t5.c() 兜底不再抛 NoSuchElementException", AD_T5_C1, AD_T5_C2),
+        ("B. t5.b() 十个乘区全部取真实数值", _b1, _b2),
+        ("C. t5.c() 兜底不再抛 NoSuchElementException", _c1, _c2),
     ]:
         n = src.count(old)
         assert n == 1, f"Ad Bonus 注入点不唯一/缺失: {label} (命中 {n})"
@@ -2378,10 +2557,10 @@ def patch_ad_bonus():
     after = p.read_text(encoding="utf-8")
     assert "invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;->q()Z" in after, \
         "Patch A 未生效（Doomed 检查缺失）"
-    assert "invoke-static {}, Lt5;->d()Z" in after, "Patch B 未生效"
+    assert f"invoke-static {{}}, L{_t5};->d()Z" in after, "Patch B 未生效"
     assert "invoke-interface {v0, v1}, Ljava/util/List;->get(I)" in after, "Patch C 未生效"
     assert "Lja4;->j" not in after, "旧异常兜底未清除"
-    assert ".method public static a(Lr5;)Z" in after, "t5.a() 被误删（UI 仍在使用）"
+    assert f".method public static a(L{_r5 or 'r5'};)Z" in after, "t5.a() 被误删（UI 仍在使用）"
     note("[5] Ad Bonus: 注入后自检通过（Doomed 检查保留、异常兜底已移除、UI 依赖保留）")
 
 
@@ -2621,15 +2800,31 @@ def patch_automator_waiting():
     lam = smali_tree() /  "kajfosz" / "antimatterdimensions" / "mainactivity" / (
         "MainActivityAutomatorKt$updateAutomator$1.smali")
     lsrc = lam.read_text(encoding="utf-8")
-    anchor = (
-        "    .line 432\n"
-        "    if-eqz v15, :cond_d\n"
-        "\n"
-        "    .line 433\n"
-        "    .line 434\n"
-        "    sget v10, Lzt3;->automator_paused:I\n"
-    )
-    assert lsrc.count(anchor) == 1, "状态选取锚点不唯一或未找到"
+    # [R79] 锚点必须按基线分别定位：3.20 把 `automator_paused` 这个 R 字段
+    # **内联成了资源 ID 常量** `const v10, 0x7f11037a`（同一资源，见
+    # res/values/public.xml），并且判断用的寄存器从 v15 变成 v7。
+    # 写死单版锚点必然在另一版命中 0。用「资源 ID」作锚点比用混淆符号名更抗混淆
+    # —— 资源 ID 由 aapt 分配，R8 不会改它。
+    if _baseline_version().startswith("3.20"):
+        anchor = (
+            "    .line 435\n"
+            "    if-eqz v7, :cond_d\n"
+            "\n"
+            "    .line 436\n"
+            "    .line 437\n"
+            "    const v10, 0x7f11037a\n"
+        )
+    else:
+        anchor = (
+            "    .line 432\n"
+            "    if-eqz v15, :cond_d\n"
+            "\n"
+            "    .line 433\n"
+            "    .line 434\n"
+            "    sget v10, Lzt3;->automator_paused:I\n"
+        )
+    assert lsrc.count(anchor) == 1, (
+        f"状态选取锚点不唯一或未找到（基线 {_baseline_version()}，命中 {lsrc.count(anchor)} 次）")
     assert "[Oreki AW]" not in lsrc, "等待分支已存在（重复注入）"
     branch = (
         "    # [Oreki AW] 等待态优先：isWaiting 且未暂停 -> 等待文案；否则原逻辑。\n"
@@ -2663,8 +2858,23 @@ def patch_automator_waiting():
     assert chk.count("OrekiSpeed;->waitingText") == 1, "waitingText 调用数量异常"
     assert "goto/16 :goto_c" in chk, "缺少跳转"
     # 原四个状态分支必须原样保留
-    for res in ("automator_paused:I", "automator_running:I", "automator_cannot_run:I", "automator_stopped:I"):
-        assert chk.count(res) == 1, f"原状态分支被破坏: {res}"
+    # [R79] 3.20 把这些 R 字段全部内联成资源 ID 常量（`const vN, 0x7f11xxxx`），
+    # 符号名不再出现在 smali 里。按基线分别校验：3.19 查符号名，3.20 查资源 ID。
+    if _baseline_version().startswith("3.20"):
+        # 资源 ID 取自 res/values/public.xml（aapt 分配，R8 不会改）。
+        # 注意这四个 ID **不连续**（34d / 37a / 382 / 387），必须逐个从 public.xml 取，
+        # 不能按 paused 的 ID 递增推算 —— R79 首版就是这么猜错的。
+        _status_ids = (
+            ("0x7f11037a", "automator_paused"),
+            ("0x7f110382", "automator_running"),
+            ("0x7f11034d", "automator_cannot_run"),
+            ("0x7f110387", "automator_stopped"),
+        )
+        for rid, name in _status_ids:
+            assert chk.count(rid) == 1, f"原状态分支被破坏: {name}（资源 {rid}）"
+    else:
+        for res in ("automator_paused:I", "automator_running:I", "automator_cannot_run:I", "automator_stopped:I"):
+            assert chk.count(res) == 1, f"原状态分支被破坏: {res}"
     vchk = vo.read_text(encoding="utf-8")
     assert vchk.count(".method public static isWaiting()Z") == 1
     assert vchk.count(".method public static waitStart()J") == 1
@@ -3009,8 +3219,8 @@ def patch_auto_enter_eternity_challenge():
     _al3 = obfuscation_aliases()
     for cls, name, rest in syms:
         for _o, _n in _al3.items():
-            cls = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", cls)
-            rest = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", rest)
+            cls = re.sub(rf"L{re.escape(_o)};", f"L{_n};", cls)
+            rest = re.sub(rf"L{re.escape(_o)};", f"L{_n};", rest)
         f = _cls(cls)
         assert f is not None, f"混淆换名：找不到类 {cls}（自动进入补丁的锚点失效）"
         body = f.read_text(encoding="utf-8", errors="replace")
@@ -3790,8 +4000,13 @@ def patch_id_autobuyer_guard():
     assert src.count(h_sig) == 1, "InfinityDimensionState.h(Z)V 不唯一，IU15 守卫锚点失效"
     assert src.count(i_sig) == 1, "InfinityDimensionState.i()V 不唯一，IU15 守卫锚点失效"
     # 两个方法都必须确实是「买 ID」的那两个（锁检查在同一文件里只有这两处）
-    assert src.count("Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->k:Lbx1;") == 2, (
-        "InfinityDimensionState 里对 IU15(b->k) 的锁检查不是 2 处，锚点已漂移")
+    # [R79] IU15 锁对象的具体类型在 3.20 由 Lbx1 换成 Lwz1（字段名 k 与所属类都没变）。
+    # 断言只绑「类名.字段名」，类型交给下方 _iu_lock 动态取 —— 写死类型会误报漂移。
+    _iu_lock_type = "Lwz1;" if _baseline_version().startswith("3.20") else "Lbx1;"
+    _iu_lock = f"Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->k:{_iu_lock_type}"
+    assert src.count(_iu_lock) == 2, (
+        f"InfinityDimensionState 里对 IU15(b->k) 的锁检查不是 2 处"
+        f"（基线 {_baseline_version()}，锚点 {_iu_lock}，实际 {src.count(_iu_lock)} 处）")
 
     iu = mod_iu.read_text(encoding="utf-8")
     assert iu.count(IU20_COST_3E12) == 1, (
@@ -3943,9 +4158,9 @@ def patch_instant_challenge_rewards():
     def _apply_alias(text: str) -> str:
         # 字段级先做（更具体），再做类级
         for (oc, of), (nc, nf) in _fal.items():
-            text = re.sub(rf"\bL{re.escape(oc)};->{re.escape(of)}:", f"L{nc};->{nf}:", text)
+            text = re.sub(rf"L{re.escape(oc)};->{re.escape(of)}:", f"L{nc};->{nf}:", text)
         for _o, _n in _al.items():
-            text = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", text)
+            text = re.sub(rf"L{re.escape(_o)};", f"L{_n};", text)
         return text
 
     for frag, why in must:
@@ -4001,6 +4216,15 @@ def patch_instant_challenge_rewards():
         ("Lkajfosz/antimatterdimensions/OrekiSpeed;", "unscale", "(D)D"),
         ("Lkajfosz/antimatterdimensions/OrekiSpeed;", "migrateBest", "(Ltw4;)V"),
     ]
+    # [R79] 3.20 把「同一语义位置」的类型也换了实现类：
+    #   bq0.g0（= 3.19 ln0.e 的 infinities 位）在 3.20 是 Lup0;，而 sm0 对应的
+    #   直接等价类是 Lip0;（5 方法同构）。差异来自 3.20 对 Currency 状态类的拆分
+    #   （up0 只有 4 方法）。字段的**位置与名字**仍一一对应，具体实现类型变了。
+    #
+    # 因此对「Currency 位字段」只校验字段名存在、不校验类型：
+    # 我们只 sget 该字段，再调 BigDouble 接口上的方法，不依赖它具体的实现类。
+    _CURRENCY_BIT_FIELDS = {"w", "e", "F"}
+
     for cls, name, rest in syms:
         # [R75-C] 这张表按 3.19 混淆名书写；3.20 已重排，按别名表换算后再查。
         # 字段级优先（Lln0;->w 在 3.20 是 Lbq0;->w，但同族 e/F 都换了字母），
@@ -4012,19 +4236,23 @@ def patch_instant_challenge_rewards():
             if cls == f"L{oc};" and name == of:
                 cls = f"L{nc};"
                 name = nf
-                rest = re.sub(rf"\bL{re.escape(oc)};", f"L{nc};", rest)
+                rest = re.sub(rf"L{re.escape(oc)};", f"L{nc};", rest)
                 _hit = True
                 break
         # 无论走哪条分支，最后都要把 rest（返回类型 / 参数类型）里的类别名套一遍
         for _o, _n in _al2.items():
-            cls = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", cls)
-            rest = re.sub(rf"\bL{re.escape(_o)};", f"L{_n};", rest)
+            cls = re.sub(rf"L{re.escape(_o)};", f"L{_n};", cls)
+            rest = re.sub(rf"L{re.escape(_o)};", f"L{_n};", rest)
         f = _class_file(cls)
         assert f is not None, f"混淆换名：找不到类 {cls}（挑战发奖补丁的锚点失效）"
         body = f.read_text(encoding="utf-8", errors="replace")
         if rest.startswith("("):
             pat = re.compile(r"^\.method .*\b" + re.escape(name) + re.escape(rest) + r"$", re.M)
             assert pat.search(body), f"{cls} 缺少方法 {name}{rest}（混淆换名）"
+        elif name in _CURRENCY_BIT_FIELDS and _baseline_version().startswith("3.20"):
+            # 只校验字段名（类型允许因 3.20 内部状态类重组而不同，见上方注释）
+            pat = re.compile(r"^\.field .*\b" + re.escape(name) + r":\S+$", re.M)
+            assert pat.search(body), f"{cls} 缺少 Currency 位字段 {name}（混淆换名）"
         else:
             pat = re.compile(r"^\.field .*\b" + re.escape(name) + ":" + re.escape(rest) + r"$", re.M)
             assert pat.search(body), f"{cls} 缺少字段 {name}:{rest}（混淆换名）"
@@ -4148,8 +4376,12 @@ def verify_eternity_chain():
     assert "OrekiEternity;->blocked(III)Z" in body, "[ET1] 必须先过互斥封锁表"
     assert "eternity/studies/c;->B()Z" in body, "[ET1] 必须先判已购买"
     assert "eternity/studies/c;->A(Z)Z" in body, "[ET1] 必须先判需求满足（A(Z)）"
-    assert "eternity/studies/c;->D(ZLvh0;)Ljava/lang/Boolean;" in body, \
-        "[ET1] 购买必须走原版 D(Z,vh0)（形参就是 vh0；写 ContinuationImpl 会 NoSuchMethodError）"
+    # [R79] 这里读的是**已重写过别名的** mod 树，所以期望值必须跟着基线走：
+    # 3.19 是 vh0，3.20 的 Continuation 接口是 kj0（见 obfuscation_aliases）。
+    # 写死 vh0 会让 3.20 误报「购买没走原版 D」——而实际调用点是对的。
+    _cont = obfuscation_aliases().get("vh0", "vh0")
+    assert f"eternity/studies/c;->D(ZL{_cont};)Ljava/lang/Boolean;" in body, \
+        f"[ET1] 购买必须走原版 D(Z,{_cont})（形参就是 Continuation；写 ContinuationImpl 会 NoSuchMethodError）"
     assert "OrekiEcContinuation;->a:" in body, "[ET1] 必须传真实 continuation（null 会 NPE）"
 
     # (5) 按永恒
@@ -5114,18 +5346,25 @@ def patch_ip_mult_autobuyer():
     注意：只放宽 `e02.n0()`（全仓库仅 a.smali:8623 一处调用），
     不动 `s51.w()`（其它自动器共用）以免外溢成全局解锁。
     """
-    target = smali_tree() /  "e02.smali"
-    assert target.exists(), f"缺少 {target}"
+    # [R79] 3.20 里 e02 被 R8 复用成无关类；真实等价类是 os0（见 IP_METHOD_ALIASES_320）。
+    # 方法名也从 n0() 变成 F()。两者都按基线解析。
+    _e02 = obfuscation_aliases().get("e02", "e02")
+    _n0 = method_aliases().get(("e02", "n0"), ("e02", "n0"))[1]
+    target = mod_file(f"smali/{_e02}.smali")
+    assert target.is_file(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AU5" in src:
         note("[Oreki AU5] IP 倍率自动购买器解锁补丁已存在，跳过")
         return
-    i, j = _scan_method(src, "public static n0()Z")
+    i, j = _scan_method(src, f"public static {_n0}()Z")
     body = src[i:j]
-    assert ".locals 1" in body, "e02.n0() 的 .locals 与预期不符"
-    anchor = "    sget-object v0, Lz51;->a:Ls51;\n"
+    assert ".locals 1" in body, f"{_e02}.{_n0}() 的 .locals 与预期不符"
+    # 锚点里的 z51/s51（自动器状态单例）在 3.20 是 v81/o81（见 obfuscation_aliases）。
+    _z51 = obfuscation_aliases().get("z51", "z51")
+    _s51 = obfuscation_aliases().get("s51", "s51")
+    anchor = f"    sget-object v0, L{_z51};->a:L{_s51};\n"
     n = body.count(anchor)
-    assert n == 1, f"e02.n0() 内锚点出现 {n} 次，预期 1（结构可能已变）"
+    assert n == 1, f"{_e02}.{_n0}() 内锚点出现 {n} 次，预期 1（结构可能已变）"
     block = (
         "    # [Oreki AU5] 完成过首次无限后同样解锁（保留原判据，不写 isBought/不改价格）\n"
         "    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n"
@@ -5897,8 +6136,10 @@ def patch_dimboost_ad8_slope():
     R25 教训一并落实：斜率必须钳 ≥1，否则 discount=5 时变 0 → 需求量恒为 20 →
     `maxBuyDimBoosts` 的线性外推出现 0/0 = NaN → 每帧抛异常、主循环停摆。
     """
-    target = smali_tree() /  "kx0.smali"
-    assert target.exists(), f"缺少 {target}"
+    # [R79] 3.20 里 kx0 被 R8 复用成无关类，真实等价类是 c01（见别名表注释）。
+    _kx = obfuscation_aliases().get("kx0", "kx0")
+    target = mod_file(f"smali/{_kx}.smali")
+    assert target.is_file(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
     if "Oreki AD1" in src:
         note("[Oreki AD1] 维度提升 AD8 斜率已打过补丁，跳过")
@@ -5949,6 +6190,7 @@ def main():
     patch_shop_coins()
     patch_effarig_nerf()
     patch_effarig_shard_divisor()
+    verify_kotlin_gameapi_aliases()
     verify_payload()
     patch_ad_bonus()
     patch_automator_waiting()

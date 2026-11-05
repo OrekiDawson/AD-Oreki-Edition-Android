@@ -92,6 +92,33 @@ SHA-256 1e5782461ff81b687775c0fdcac74faa7dfe8299238a809784cc91a9f387c259
 只有当离线构建**明确报出缺少具体依赖坐标**、或升级 Gradle/Kotlin/构建依赖时，才切在线。
 在线只负责补齐缓存，补完必须重新跑一次离线构建确认可复现。**不得**为绕过错误无差别清缓存。
 
+### 6.0a APK 静态分析：REA（长期规则，见 `docs/AGENTS_GLOBAL.md` §66）
+
+Android APK 的结构分析、反混淆、版本差异、调用链还原、补丁锚点定位，
+**必须优先评估并使用 REA**，不得只靠类名搜索或 Smali 文本搜索。
+
+当前环境（**版本号仅作当次记录，后续必须重新检查最新稳定版**）：
+
+```bash
+# REA CLI（本机可用入口；MCP server 需在会话侧加载后才出现在工具列表里）
+npx -y rea-agents@6.8.0 mcp doctor          # 期望 healthy: true，229 工具全通过
+npx -y rea-agents@6.8.0 inspect-android-package <apk>
+npx -y rea-agents@6.8.0 search-android-classes <apk> <substring>
+npx -y rea-agents@6.8.0 inspect-android-class  <apk> <fqcn>
+npx -y rea-agents@6.8.0 inspect-android-method <apk> <fqcn> <method> [--overload-index N]
+npx -y rea-agents@6.8.0 trace-android-references <apk> <class-or-method>
+```
+
+需要的环境变量：
+
+| 变量 | 用途 |
+|---|---|
+| `JAVA_HOME` | 指向完整 JDK（需含 `jdk.compiler` 模块）；当前用 `tools/jdk/jdk-21.0.13+9` |
+| `REA_JADX_MCP_JAR` | `tools/rea/jadx-headless-mcp-0.7.1-all.jar` |
+
+**边界**：REA 的 Manifest 分析**不验证 APK 签名** —— 来源真实性必须另用
+`apksigner verify --print-certs` 核验。REA 的静态结论也不等于运行时行为。
+
 ### 6.0b 代码形态：Android 业务逻辑全面 Kotlin（长期规则，见 §64）
 
 链路固定：`Kotlin 源码 → kotlinc → D8 → DEX → APK`。

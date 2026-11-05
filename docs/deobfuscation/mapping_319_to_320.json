@@ -1,0 +1,229 @@
+{
+  "$schema_version": 1,
+  "description": "AD Oreki Edition — Android 混淆映射表（3.19 → 3.20）。每条都必须有结构证据；未确定项显式标注为 unresolved，不得伪装成已确认。",
+  "generated_by": "R79（2026-11-05）",
+  "method": "REA 6.8.0（jadx-headless-mcp 0.7.1）+ 独立 DEX/Smali 结构指纹交叉验证",
+
+  "apk_identity": {
+    "source": {
+      "label": "3.19.0",
+      "path": "work/kajfosz.antimatterdimensions.apk",
+      "sha256": "3882178c3340a278ed0bda76985207879f0b8467e3ab592a20f0370d183930dd",
+      "version_name": "3.19.0",
+      "version_code": "30190000",
+      "cert_sha256": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14"
+    },
+    "target": {
+      "label": "3.20.0",
+      "path": "work/apk320/kajfosz.antimatterdimensions.apk",
+      "sha256": "085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400",
+      "version_name": "3.20.0",
+      "version_code": "30200000",
+      "min_sdk": 32,
+      "target_sdk": 37,
+      "class_count": 13862,
+      "resource_count": 1728,
+      "dex": ["classes.dex", "classes2.dex"],
+      "cert_sha256": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14"
+    },
+    "xapk": {
+      "path": "C:/Users/Oreki/Downloads/Antimatter+Dimensions_3.20.0_APKPure.xapk",
+      "sha256": "2aac58e2e7a413a0d93cd951ce2d17203019501b361293758f0d3e6f5c1a2345"
+    }
+  },
+
+  "toolchain": {
+    "rea": "rea-agents@6.8.0",
+    "rea_protocol": "2025-11-25",
+    "rea_catalog_digest": "fe938a7c6eba3763b22ae2022de76dc4a7812d35d86f1d4efd36b9962b04da0b",
+    "jadx_bridge": "rea-jadx-bridge v7",
+    "jadx_engine": "jadx-headless-mcp 0.7.1",
+    "jadx_jar_sha256": "6e5eacf500b64292bfb73c49797c1958f6ee44646e43e868039ae7feb573ff75",
+    "jdk": "21.0.13 (tools/jdk/jdk-21.0.13+9)"
+  },
+
+  "class_map": [
+    {
+      "from": "ln0",
+      "to": "bq0",
+      "status": "confirmed",
+      "evidence": "25 个 public static final 字段按声明顺序逐一对应（位置 1..25 全对齐）；唯一 o(BigDouble)→自身 形态的 add 方法。",
+      "field_map": {
+        "F": "R",
+        "G": "S",
+        "H": "T",
+        "I": "U",
+        "J": "V",
+        "K": "W",
+        "L": "X",
+        "M": "Y",
+        "N": "Z",
+        "O": "a0",
+        "P": "b0",
+        "Q": "c0",
+        "R": "d",
+        "S": "d0",
+        "T": "e",
+        "U": "e0",
+        "V": "f",
+        "d": "f0",
+        "e": "g0",
+        "f": "h0",
+        "v": "v",
+        "w": "w",
+        "x": "x",
+        "y": "y",
+        "z": "z"
+      },
+      "notes": "位置 19 的 e→g0 曾疑似错误，经 25 字段逐一比对确认正确。g0 的类型是 Lup0（4 方法）而非 Lip0（5 方法），属 3.20 内部状态类拆分，故 syms 校验对 Currency 位字段只校验字段名。"
+    },
+    {
+      "from": "tw4",
+      "to": "lt4",
+      "status": "confirmed",
+      "evidence": "field a:D + 17 方法，结构同构，次优差距 0.46。"
+    },
+    {
+      "from": "az1",
+      "to": "b22",
+      "status": "confirmed",
+      "evidence": "4 方法 <clinit>/a()BigDouble/b()BigDouble/c()V + 20 字段 + public static final s:Ljava/util/List;，全库唯一。3.20 的 az1 是无关类（Jaccard 0.00）。"
+    },
+    {
+      "from": "bn0",
+      "to": "rp0",
+      "status": "confirmed",
+      "evidence": "3.19 Currency 实现（super=ju）；3.20 货币状态类。"
+    },
+    {
+      "from": "sm0",
+      "to": "ip0",
+      "status": "confirmed",
+      "evidence": "两者均 public final + super 为 Currency 抽象基类的直接等价（5 方法同构）。"
+    },
+    {
+      "from": "ym0",
+      "to": "op0",
+      "status": "confirmed",
+      "evidence": "永恒点状态，位置 1（ln0.F → bq0.R）类型。"
+    },
+    {
+      "from": "z3",
+      "to": "s3",
+      "status": "confirmed",
+      "evidence": "全库唯一持有 a(I)L.../achievements/a; 的类。注意 s3 在 smali_classes2。"
+    },
+    {
+      "from": "r51",
+      "to": "n81",
+      "status": "confirmed",
+      "evidence": "全库唯一持有 a(I)L.../challenge/eternity/b; 的类。"
+    },
+    {
+      "from": "vo",
+      "to": "oq",
+      "status": "confirmed",
+      "evidence": "public static e:Z（isWaiting）+ f:J（waitStart）+ 两个返回 AutomatorScript 的静态方法。"
+    },
+    {
+      "from": "t5",
+      "to": "k5",
+      "status": "confirmed",
+      "evidence": "6 方法签名逐一对齐（<clinit>/a/ b/ c/ d/ e），r5→i5。"
+    },
+    {
+      "from": "r5",
+      "to": "i5",
+      "status": "confirmed",
+      "evidence": "随 t5→k5 的内部类型，6 方法同构。"
+    },
+    {
+      "from": "fp3",
+      "to": "qr3",
+      "status": "confirmed",
+      "evidence": "19 方法 2 字段；A(Z)Z / B()Z / C(ZZ)V / D(Z,Continuation)Boolean / E(Z)V 四关键签名全中；super ak1→an1 同型；参数类型 vh0→kj0。"
+    },
+    {
+      "from": "uu1",
+      "to": "px1",
+      "status": "confirmed",
+      "evidence": "15 方法 6 字段，super 就是 qr3；x()/y()/I()/J(J) 全中；Jaccard 0.76。"
+    },
+    {
+      "from": "kx0",
+      "to": "c01",
+      "status": "confirmed",
+      "evidence": "7 字段 a:Z b:I c:D d:Z e:D f:Z g:D 逐一同名同类型；2 方法 <init>()V + a(D)Lb01;；5.0/15.0/20.0 三常量齐备全库唯一；REA Java 体含 Math.rint((15.0d - d3) * (dFloor - 5.0d))。",
+      "rea_evidence": "ev_526a72e05c6f32f22109dfe5954dc691454c2a92ae50a203dd1bec73551e2547"
+    },
+    {
+      "from": "e02",
+      "to": "os0",
+      "status": "confirmed",
+      "evidence": "3.19 e02.n0()Z 与 3.20 os0.F()Z 方法体逐指令同构（sget v81.a:o81 → w()Z && !pelle.c.q()）。3.20 的 e02 是无关类。",
+      "method_map": { "n0": "F" }
+    },
+    {
+      "from": "z51",
+      "to": "v81",
+      "status": "confirmed",
+      "evidence": "os0.F() 内 sget-object v0, Lv81;->a:Lo81; 对应 3.19 的 Lz51;->a:Ls51;。"
+    },
+    {
+      "from": "s51",
+      "to": "o81",
+      "status": "confirmed",
+      "evidence": "public Lo81; super Lan1; 4 个方法名 k()/s()/v()/w() 与 3.19 s51 逐个相同，构造签名同型。"
+    },
+    {
+      "from": "ja4",
+      "to": "qw3",
+      "status": "confirmed",
+      "evidence": "public final synthetic + public static synthetic j(Ljava/lang/String;)V 逐字相同（3.19 19 方法 / 3.20 22 方法）。"
+    },
+    {
+      "from": "vh0",
+      "to": "kj0",
+      "status": "confirmed",
+      "evidence": "public interface abstract + 恰好 2 个方法（Kotlin Continuation 接口）。"
+    },
+    {
+      "from": "ju",
+      "to": "aw",
+      "status": "confirmed",
+      "evidence": "3.20 里 super 指向 bq0 的唯一抽象类，由 obfuscation_aliases() 动态求出。"
+    }
+  ],
+
+  "unresolved": [
+    {
+      "item": "p51（EC12 限时判定闭包）",
+      "status": "unresolved",
+      "candidates_rejected": [
+        {
+          "candidate": "ux2",
+          "why_rejected": "ux2 有 2 方法 + 60 个 pswitch（与 3.19 p51 同数，曾以为命中），但：① ux2 用 Player$Records.l()（ThisReality），p51 用 j()（ThisEternity）；② ux2 只有 10.0 一个常量，p51 有 2.0/0.1/10.0 三个；③ ux2.invoke() 无参数，p51.invoke(Object) 有参数。"
+        }
+      ],
+      "next_step": "需按「cmpg-double + Records.j() ThisEternity + 2.0/0.1/10.0 三常量 + invoke(Object) 签名」四条件联合筛选，并检查 <clinit> 的 pswitch 映射表。"
+    },
+    {
+      "item": "patch_auto_enter_eternity_challenge 的挑战入口",
+      "status": "partially_resolved",
+      "note": "fp3→qr3 与 D(Z,Continuation) 参数 vh0→kj0 已确认；但补丁仍有其他锚点待核对。"
+    },
+    {
+      "item": "u55/s55/t55/c15/lu（V 解锁阈值）",
+      "status": "deferred",
+      "reason": "V 是游戏最后阶段内容，对「3 小时通关」无影响。本轮明确暂缓，不伪装成已迁移。"
+    }
+  ],
+
+  "verification_commands": [
+    "npx -y rea-agents@6.8.0 inspect-android-package work/apk320/kajfosz.antimatterdimensions.apk",
+    "npx -y rea-agents@6.8.0 inspect-android-class work/apk320/kajfosz.antimatterdimensions.apk c01",
+    "npx -y rea-agents@6.8.0 inspect-android-method work/apk320/kajfosz.antimatterdimensions.apk c01 a",
+    "npx -y rea-agents@6.8.0 search-android-classes work/apk320/kajfosz.antimatterdimensions.apk <substring>",
+    "OREKI_BASE=$PWD/work/base_decoded_320 python scripts/probe_patches.py"
+  ]
+}
