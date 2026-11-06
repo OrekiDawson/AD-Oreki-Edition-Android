@@ -61,20 +61,49 @@ THEME_CLASS_ALIASES_320 = {
     "rq4": "xn4", "kajfosz/antimatterdimensions/player/g": "kajfosz/antimatterdimensions/player/h",
 }
 
+# 3.21 真实 APK 的 UI 符号。每项都由本轮完整 JADX 与 apktool smali 交叉确认：
+# lz0 持有 DeviceOptions 全部静态字段；z63/wi4 是记数法注册表/实现；
+# player/h.b() 写新档记数法；uo4.a() 返回官方子页签标题。
+THEME_CLASS_ALIASES_321 = {
+    "jw0": "lz0", "o43": "z63", "qk4": "wi4", "rq4": "uo4",
+    "kajfosz/antimatterdimensions/player/g": "kajfosz/antimatterdimensions/player/h",
+}
+
+
+def _baseline_version(mod: str | Path) -> str:
+    """只从当前 apktool 树读取真实 versionName，不从目录名推断版本。"""
+    metadata = Path(mod) / "apktool.yml"
+    if not metadata.is_file():
+        return ""
+    match = re.search(r"versionName:\s*['\"]?([\d.]+)['\"]?\s*$",
+                      metadata.read_text(encoding="utf-8"), re.M)
+    return match.group(1) if match else ""
+
 
 def _is_baseline_320(mod: str | Path) -> bool:
     """从当前工作树元数据判版本，禁止根据目录名字猜测基线。"""
-    metadata = Path(mod) / "apktool.yml"
-    return metadata.is_file() and bool(re.search(
-        r"versionName:\s*['\"]?3\.20(?:\.0)?['\"]?\s*$", metadata.read_text(encoding="utf-8"), re.M))
+    return _baseline_version(mod).startswith("3.20")
+
+
+def _is_baseline_321(mod: str | Path) -> bool:
+    return _baseline_version(mod).startswith("3.21")
 
 
 def _theme_symbols(mod: str | Path, text: str) -> str:
     """将旧版锚点及注入文本一起转换，保留原有行为而非跳过新版补丁。"""
+    aliases = None
     if _is_baseline_320(mod):
+        aliases = THEME_CLASS_ALIASES_320
+    elif _is_baseline_321(mod):
+        aliases = THEME_CLASS_ALIASES_321
+    if aliases is not None:
         # 单次替换，避免新名字恰好等于另一个旧名字时发生二次改写。
-        text = re.sub(r"L([^;]+);", lambda match: "L" + THEME_CLASS_ALIASES_320.get(
+        text = re.sub(r"L([^;]+);", lambda match: "L" + aliases.get(
             match.group(1), match.group(1)) + ";", text)
+    if _is_baseline_321(mod):
+        # 3.21 Player$Options 的 notation setter 由 G0 重排为 E0；调用签名未变。
+        text = text.replace("Player$Options;->G0(Ljava/lang/String;)V",
+                            "Player$Options;->E0(Ljava/lang/String;)V")
     return text
 
 
@@ -92,7 +121,13 @@ def _mod_smali(mod: Path, rel_parts) -> Path:
     """
     # 入口同时接受字符串与 Path；调用前组成的包路径也必须已经是 Path。
     mod = Path(mod)
-    rel = Path(rel_parts)
+    rel_text = str(rel_parts).replace("\\", "/")
+    if rel_text.endswith(".smali"):
+        stem = rel_text[:-6]
+        aliases = (THEME_CLASS_ALIASES_321 if _is_baseline_321(mod)
+                   else THEME_CLASS_ALIASES_320 if _is_baseline_320(mod) else {})
+        rel_text = aliases.get(stem, stem) + ".smali"
+    rel = Path(rel_text)
     # 拒绝越界路径，并核对完整类描述符，避免同名文件被误认成目标类。
     if rel.is_absolute() or ".." in rel.parts or rel.suffix != ".smali":
         raise DarkThemeError(f"非法 smali 相对路径: {rel}")
@@ -247,6 +282,23 @@ def patch_appearance_class(mod: Path) -> str:
 
 # ------------------------------------------------- 3. 偏好加载夹成深色
 def patch_appearance_loader(mod: Path) -> str:
+    if _is_baseline_321(mod):
+        # 3.21 不再有旧版 o40.g0/fs.x 的直接加载写入；真实字段表中
+        # Llz0.E 的默认值就是 Appearance.c(DARK)，运行期外观变更统一经过
+        # mainactivity/l0.C。后者由 writer 补丁夹成 DARK，因此这里拒绝把
+        # 旧方法锚点套到同名无关类，也不额外制造第二个写入点。
+        p = _mod_smali(mod, "jw0.smali")
+        t = p.read_text(encoding="utf-8")
+        default_dark = (
+            "sget-object v2, Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;->c:"
+            "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;" in t
+            and "sput-object v2, Llz0;->E:"
+            "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;" in t
+        )
+        if not default_dark:
+            raise DarkThemeError("3.21 lz0.<clinit> 的 Appearance.c(DARK) 默认值证据缺失")
+        return "skip(3.21 默认 DARK；运行期统一由 l0.C writer 夹取)"
+
     p = _mod_smali(mod, "o40.smali")
     t = p.read_text(encoding="utf-8")
     if f"{MARK} loader" in t:
@@ -305,14 +357,22 @@ def patch_appearance_writer(mod: Path) -> str:
     t = p.read_text(encoding="utf-8")
     if f"{MARK} writer" in t:
         return "skip(已夹过)"
-    anchor = ("    .line 57\n"
-              "    :cond_2\n"
-              "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
-    inject = ("    .line 57\n"
-              "    :cond_2\n"
-              f"    # {MARK} writer 任何外观写入都夹成 DARK\n"
-              f"    sget-object p2, {DARK_APPEARANCE_FIELD}\n"
-              "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
+    if _is_baseline_321(mod):
+        # 3.21 的 C() 在写 Llz0.D/E/F 前不再使用旧 :cond_2 布局；Skin 写入仍是
+        # 全文件唯一且紧邻 Appearance 写入，按真实字段 ABI 注入，不猜分支标签。
+        anchor = "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;"
+        inject = (f"    # {MARK} writer 任何外观写入都夹成 DARK\n"
+                  f"    sget-object p2, {DARK_APPEARANCE_FIELD}\n"
+                  "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
+    else:
+        anchor = ("    .line 57\n"
+                  "    :cond_2\n"
+                  "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
+        inject = ("    .line 57\n"
+                  "    :cond_2\n"
+                  f"    # {MARK} writer 任何外观写入都夹成 DARK\n"
+                  f"    sget-object p2, {DARK_APPEARANCE_FIELD}\n"
+                  "    sput-object p1, Ljw0;->D:Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;")
     # 使用同一个版本感知替换器，方法指令保持一致，仅允许行号和已核实类名变化。
     _replace_once(p, anchor, inject, "l0.C 外观写入", mark=f"{MARK} writer")
     return "ok(设置页选浅色不生效，也不会写入浅色偏好)"
@@ -686,8 +746,14 @@ def verify(mod: Path) -> None:
     seg = ap[i:ap.find(".end method", i)]
     assert "const/4 p0, 0x1" in seg, "[DARK] c() 未强制 true"
 
-    o40 = (_mod_smali(mod, "o40.smali").read_text(encoding="utf-8"))
-    assert f"{MARK} loader" in o40, "[DARK] 偏好加载点未夹成深色（重启后可能回到浅色）"
+    if _is_baseline_321(mod):
+        state = _mod_smali(mod, "jw0.smali").read_text(encoding="utf-8")
+        assert ("sget-object v2, Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;->c:"
+                "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;" in state), \
+            "[DARK] 3.21 DeviceOptions 外观默认值不是 DARK"
+    else:
+        o40 = (_mod_smali(mod, "o40.smali").read_text(encoding="utf-8"))
+        assert f"{MARK} loader" in o40, "[DARK] 偏好加载点未夹成深色（重启后可能回到浅色）"
 
     l0 = (_mod_smali(mod, PKG_DIR / "mainactivity" / "l0.smali").read_text(encoding="utf-8"))
     assert f"{MARK} writer" in l0, "[DARK] 偏好写入点未夹成深色"
@@ -745,10 +811,13 @@ def verify(mod: Path) -> None:
 
     zhf = (mod / "res" / "values-zh-rCN" / "strings.xml").read_text(encoding="utf-8")
     for k, v in ZH_ADDITIONS.items():
-        # 原版 3.20 已翻译的文案可能保留排版空格；不为守卫覆盖官方翻译。
+        # 新基线若已有官方中文，以官方正文为准；本补丁只补缺失项，不能为了
+        # 对齐旧译文覆盖新版翻译。守卫检查「存在中文」及格式占位符不丢失。
         existing = re.search(r'<string name="%s">(.*?)</string>' % re.escape(k), zhf, re.S)
-        assert existing and re.sub(r"\s+", "", existing.group(1)) == re.sub(r"\s+", "", v), \
-            f"[UI] 中文缺 {k}={v!r}（中文系统会回落成英文）"
+        assert existing and re.search(r"[\u4e00-\u9fff]", existing.group(1)), \
+            f"[UI] 中文缺 {k}（中文系统会回落成英文）"
+        for placeholder in re.findall(r"%\d+\$[a-zA-Z]", v):
+            assert placeholder in existing.group(1), f"[UI] {k} 丢失格式占位符 {placeholder}"
     # 取色器标题单独钉一次：它是「基准串是英文、zh 里没有」的典型，值必须是中文，
     # 否则中文系统上会看到 "Select a Color"（台账里唯一被引用且未译的上屏串）。
     assert "Select a Color" not in zhf, "[UI] values-zh-rCN 里还有英文取色器标题"

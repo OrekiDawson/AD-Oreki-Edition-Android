@@ -6822,12 +6822,39 @@ def patch_tutorial_entry():
     tname = OLD_PKG + ".oreki.tutorial.TutorialActivity"
     assert not [a for a in app.findall("activity") if a.get(A + "name") == tname], \
         "[T1] TutorialActivity 已注册过，不要重复写入"
-    # 锚点唯一性：launcher activity 必须恰好一个
-    launchers = [a for a in app.findall("activity")
-                 for f in a.findall("intent-filter")
-                 for c in f.findall("category")
-                 if c.get(A + "name") == "android.intent.category.LAUNCHER"]
-    assert len(launchers) == 1, f"[T1] launcher activity 数量异常: {len(launchers)}"
+    # 锚点唯一性：真实启用的 launcher 组件必须恰好一个。
+    # 3.21 把 MAIN/LAUNCHER 全部放在 activity-alias 上；皮肤图标 alias 明确
+    # enabled=false，只有 AppIcon_default 未声明 enabled（Manifest 默认 true）。
+    # 不能再把“带 LAUNCHER 的 activity”当作入口，也不能只看 alias 名猜目标；
+    # 对启用 alias 必须继续解析 targetActivity，并确认真实 Activity 存在且启用。
+    def manifest_enabled(node):
+        value = node.get(A + "enabled")
+        return value is None or value.lower() != "false"
+
+    def is_launcher(node):
+        return any(
+            c.get(A + "name") == "android.intent.category.LAUNCHER"
+            for f in node.findall("intent-filter")
+            for c in f.findall("category")
+        )
+
+    activities = {a.get(A + "name"): a for a in app.findall("activity")}
+    launchers = []
+    for component in [*app.findall("activity"), *app.findall("activity-alias")]:
+        if not manifest_enabled(component) or not is_launcher(component):
+            continue
+        if component.tag == "activity-alias":
+            target_name = component.get(A + "targetActivity")
+            target = activities.get(target_name)
+            assert target_name and target is not None, \
+                f"[T1] launcher alias 的 targetActivity 不存在: {target_name}"
+            assert manifest_enabled(target), \
+                f"[T1] launcher alias 指向已禁用 Activity: {target_name}"
+        assert component.get(A + "exported") == "true", \
+            f"[T1] launcher 组件未 exported=true: {component.get(A + 'name')}"
+        launchers.append(component)
+    assert len(launchers) == 1, \
+        f"[T1] 启用的 launcher 组件数量异常: {len(launchers)}"
     act = ET.SubElement(app, "activity")
     act.set(A + "name", tname)
     act.set(A + "exported", "false")
@@ -7030,8 +7057,17 @@ def patch_v_unlock_thresholds():
         note("[Oreki V] 3.20 基线无 u55.smali —— V 阶段门槛同步按指令暂缓（不影响前三小时通关）")
         return
     usrc = u55.read_text(encoding="utf-8")
-    if "static constructor <clinit>()V" not in usrc:
-        note("[Oreki V] 3.20 的 u55 已非 V 门槛类（无 <clinit>）—— V 阶段门槛同步按指令暂缓")
+    # 3.21 的 Lu55; 虽然仍有 <clinit>，但真实内容已变成 WeakHashMap 工具类；
+    # 仅凭方法名会把旧版混淆映射误套到新类。只有旧版 V.mainUnlock 的结构证据
+    # （Ls55 条目 + g:List 落盘）同时存在才允许修改，否则按既定 V 暂缓规则跳过。
+    v_unlock_shape = (
+        "new-instance v0, Ls55;" in usrc
+        and "Lu55;->g:Ljava/util/List;" in usrc
+        and usrc.count("new-instance") >= 6
+    )
+    if "static constructor <clinit>()V" not in usrc or not v_unlock_shape:
+        note("[Oreki V] 当前基线的 u55 不是已验证的 V.mainUnlock 结构"
+             "（缺少 Ls55 条目或 g:List）—— V 阶段门槛同步按指令暂缓")
         return
     umark = "# [Oreki V] unlock-thresholds v1"
     if umark in usrc:
