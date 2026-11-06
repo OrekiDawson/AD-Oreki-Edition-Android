@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "versions": [
+    "3.20",
+    "3.21"
+  ],
+  "current": "3.20",
+  "previous": "3.21"
+}

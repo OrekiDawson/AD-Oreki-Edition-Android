@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "version": "3.20",
+  "created_at": "2026-11-06T01:07:20Z",
+  "obtained_at": "2026-11-06T01:06:06Z",
+  "source_note": "3.20 原版 APK（R81/R82 构建所用同一份）。Web 对应官方源码仓库 2026-07-17 提交。",
+  "android": {
+    "file_name": "kajfosz.antimatterdimensions.apk",
+    "size": 76642307,
+    "sha256": "085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400",
+    "package": "kajfosz.antimatterdimensions",
+    "version_name": "3.20.0",
+    "version_code": 30200000,
+    "min_sdk": 32,
+    "target_sdk": 37,
+    "cert_sha256": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14",
+    "cert_subject": "CN=Android, OU=Android, O=Google Inc., L=Mountain View, ST=California, C=US",
+    "stored_path": "work/apk320/kajfosz.antimatterdimensions.apk",
+    "tracked_in_git": false,
+    "dex": [
+      {
+        "name": "classes.dex",
+        "size": 10714764
+      },
+      {
+        "name": "classes2.dex",
+        "size": 5263264
+      }
+    ]
+  },
+  "web": {
+    "repo": "https://github.com/IvarK/AntimatterDimensionsSourceCode",
+    "commit": "5409e320cecef96a917cca1dfb68f1f183e499ca",
+    "source_path": "C:/Users/Oreki/WorkBuddy/AD-Oreki-Unified/web/upstream/official"
+  },
+  "analysis": {
+    "inventory": "analysis/inventory.json",
+    "decoded_tree": "work/base_decoded_320"
+  }
+}

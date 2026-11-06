@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "version": "3.21",
+  "created_at": "2026-11-06T01:43:25Z",
+  "obtained_at": "2026-11-06T08:45:00+08:00",
+  "source_note": "3.21.0 官方 APK，用户提供 APKPure XAPK（SHA-256 ad1b367e...），2026-11-06 08:45 获取；证书与 3.20 一致。Web 侧 3.21 源码未在官方仓库发布。",
+  "android": {
+    "file_name": "kajfosz.antimatterdimensions.apk",
+    "size": 77633785,
+    "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+    "package": "kajfosz.antimatterdimensions",
+    "version_name": "3.21.0",
+    "version_code": 30210000,
+    "min_sdk": 32,
+    "target_sdk": 37,
+    "cert_sha256": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14",
+    "cert_subject": "CN=Android, OU=Android, O=Google Inc., L=Mountain View, ST=California, C=US",
+    "stored_path": "C:/Users/Oreki/WorkBuddy/AD-Oreki-Unified/build/_r84_baseline/kajfosz.antimatterdimensions.apk",
+    "tracked_in_git": false,
+    "dex": [
+      {
+        "name": "classes.dex",
+        "size": 10715480
+      },
+      {
+        "name": "classes2.dex",
+        "size": 5296656
+      }
+    ]
+  },
+  "web": {
+    "repo": null,
+    "commit": null,
+    "source_path": null
+  },
+  "analysis": {
+    "inventory": "analysis/inventory.json",
+    "decoded_tree": "work/base_decoded_321"
+  }
+}

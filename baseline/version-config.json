@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "_comment": [
+    "原版基线版本配置 —— 这是版本差异的唯一登记处。",
+    "scripts/build_mod.py 是唯一构建实现；本文件只描述「这一版原版长什么样」。",
+    "新增版本 = 在 versions 里加一条 + 在 baseline/versions/<ver>/ 放清单，",
+    "不允许复制构建脚本、也不允许在 build_mod.py 里再加 startswith 分支。",
+    "字段含义见 baseline/README.md。",
+    "has_* 系列：描述「原版自身是否已经具备该行为」。为 true 时 MOD 跳过对应注入，避免与新版原版重复实现或类型不符。",
+    "current 指向「当前可构建的开发基线」。3.21 的基线记录已建立（可校验、可回滚），但其 MOD 迁移未完成（别名表 5/23、锚点待重新对位），因此 current 仍为 3.20。"
+  ],
+  "current": "3.20",
+  "versions": {
+    "3.20": {
+      "decoded_tree": "work/base_decoded_320",
+      "dex_layout": "split_classes2",
+      "split_resource_dir": "work/mdpi_decoded_320",
+      "move_ads_package": true,
+      "aliases": "ALIASES_320",
+      "iu15_threshold_sites": [
+        "smali_classes2/s40.smali",
+        "smali_classes2/cw.smali",
+        "smali_classes2/qz1.smali"
+      ],
+      "iu15_lock_type": "Lwz1;",
+      "ui_status_ids": [
+        [
+          "0x7f11037a",
+          "automator_paused"
+        ],
+        [
+          "0x7f110382",
+          "automator_running"
+        ],
+        [
+          "0x7f11034d",
+          "automator_cannot_run"
+        ],
+        [
+          "0x7f110387",
+          "automator_stopped"
+        ]
+      ],
+      "automator_anchor": "resource_id",
+      "notes": "3.20 相对 3.19：游戏类移到 smali_classes2/；主 DEX method_ids 达 65536 需移广告包到 classes3；R 字段内联成资源 ID；IU15 锁对象 Lwz1。",
+      "has_native_firebase_facade": true,
+      "has_native_autobuyer_title_refresh": true,
+      "autobuyer_field_is_pp": true,
+      "automator_anchor_lines": [
+        "    .line 435",
+        "    if-eqz v7, :cond_d",
+        "",
+        "    .line 436",
+        "    .line 437",
+        "    const v10, 0x7f11037a"
+      ],
+      "ec12_closure": {
+        "file": "smali_classes2/k81.smali",
+        "anchor": "    cmpg-double v0, v6, v0",
+        "reg": "v6",
+        "reg_hi": "v7"
+      }
+    },
+    "3.21": {
+      "decoded_tree": "work/base_decoded_321",
+      "dex_layout": "split_classes2",
+      "split_resource_dir": "work/mdpi_decoded_321",
+      "move_ads_package": true,
+      "aliases": "",
+      "iu15_threshold_sites": [
+        "smali_classes2/a02.smali",
+        "smali_classes2/fw.smali",
+        "smali_classes2/x40.smali"
+      ],
+      "iu15_lock_type": "Lg02;",
+      "ui_status_ids": [
+        [
+          "0x7f110373",
+          "automator_paused"
+        ],
+        [
+          "0x7f11037b",
+          "automator_running"
+        ],
+        [
+          "0x7f110346",
+          "automator_cannot_run"
+        ],
+        [
+          "0x7f110380",
+          "automator_stopped"
+        ]
+      ],
+      "automator_anchor": "resource_id",
+      "notes": "3.21 相对 3.20：游戏包新增 7 个类（全是 UI/皮肤，OreoNewsWidgetView 等），删除 0；DEX 仍 2 个；IU15 锁对象 Lwz1→Lg02（同 super=imaginary_upgrades/a、同 C(ZZ)V）；其余 ABI 变化多为 Kotlin lambda 的 R8 重排。",
+      "has_native_firebase_facade": true,
+      "has_native_autobuyer_title_refresh": true,
+      "autobuyer_field_is_pp": true,
+      "automator_anchor_lines": [
+        "    if-eqz v7, :cond_d",
+        "",
+        "    const v10, 0x7f110373"
+      ],
+      "ec12_closure": {
+        "file": "smali_classes2/u81.smali",
+        "anchor": "    cmpg-double v0, v6, v0",
+        "reg": "v6",
+        "reg_hi": "v7"
+      },
+      "_status": "baseline-ready / migration-incomplete：别名表 5/23，构建 fail-closed"
+    }
+  }
+}

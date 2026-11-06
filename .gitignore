@@ -105,3 +105,6 @@ reports/**/tmp/
 # ---------- 8. 各 Agent 的独立构建根（AGENTS §3-A-2：一棵树一个构建根）----------
 # 规范位置是 android/_<代号>_build/（仓库外）；万一有人建到仓库里也不能入库。
 /_*_build/
+
+# ---------- 基线工具编译产物（可由 cargo build --release 重新生成）----------
+/baseline/tools/target/

@@ -1,0 +1,16 @@
+[package]
+name = "oreki-baseline"
+version = "0.1.0"
+edition = "2021"
+description = "Oreki Edition 原版基线管理工具（update / verify / diff / status / rollback）"
+
+[[bin]]
+name = "baseline"
+path = "src/main.rs"
+
+[dependencies]
+# 刻意零第三方依赖：
+#   · 基线工具必须在离线环境可用，不能依赖 crates.io 网络；
+#   · 需要的能力（SHA-256、JSON 读写、zip 读取）都比较小，自己实现可控，
+#     也避免给仓库引入供应链与体积负担。
+# 自查：SHA-256 用 FIPS 180-4 标准实现，zip 只读「中央目录 + 条目名 + 大小」。

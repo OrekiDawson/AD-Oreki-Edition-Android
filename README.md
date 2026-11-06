@@ -1,224 +1,294 @@
 # 反物质维度 · Oreki Edition（Android）
 
-《Antimatter Dimensions》的 Android 个人改造版：在原版 3.20 基础上加入**全局速度系统、智能自动化与中文教程**，把重复操作交给自动化，把时间留给决策和爽玩。
+《Antimatter Dimensions》的 Android 个人改造版。在原版 3.20 基础上加入**全局速度倍率、智能自动化与简体中文教程**，把重复点击与无意义等待交给自动化，把时间留给决策。
 
-> 与 Web 版的关系：同一玩法的两个平台实现，共用玩法语义与教程内容，但代码库、构建链、存档互不通用。
-> Web 版见 [AD-Oreki-Edition-Web](https://github.com/OrekiDawson/AD-Oreki-Edition-Web)。
+非官方、非商业，与原作者及任何发行方无隶属关系。
 
-## 版本与当前状态
+> 同一玩法的网页版见 [AD-Oreki-Edition-Web](https://github.com/OrekiDawson/AD-Oreki-Edition-Web)，可直接在线游玩：<https://oreki.net>。
+> 两端共用玩法语义与教程内容源，但代码库、构建链、存档**互不通用**。
+
+**目标读者**：想下载安装的玩家 → 已安装需要帮助的玩家 → 想自己构建的开发者。玩家内容在前，开发内容在后。
+
+---
+
+## 当前版本
 
 | 项目 | 值 |
 |---|---|
 | 原版游戏版本 | 3.20.0 |
 | MOD 版本 | 3.20.0（跟随原版版本号，不单独递增） |
+| 版本号（versionCode） | 30200000 |
 | 包名 | `com.oreki.antimatterdimensions` |
-| 存档格式 | 由原版游戏维护，MOD 不改变存档结构 |
+| 安装包 | `反物质维度.apk`，约 78 MB（81,523,975 字节，4 个 DEX） |
+| 系统要求 | Android 12（API 32）及以上 |
 
-**已通过运行验收**：安装启动、主循环持续运行、深色主题、ID1 真实解锁与购买、自动购买器页面、重启读档。
+**版本号含义**：`3.20.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-**尚未验收**：首次永恒之后的完整链路、ID4~ID8、IU15 真实购买与莱特拉解锁、完整三小时通关。未验证的部分不写成已完成。
+### 原版基线
+
+| 项 | 值 |
+|---|---|
+| 当前开发基线 | **3.20.0**（`versionCode` 30200000） |
+| Android 基线来源 | 官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400` |
+| Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
+| 3.21 基线 | 已建立记录（可校验、可回滚），但 **MOD 迁移未完成**，暂不作为开发基线 |
+
+基线记录在 `baseline/versions/<版本>/manifest.json`，版本差异配置在
+`baseline/version-config.json`。详见 [`baseline/README.md`](baseline/README.md)。
+
+**为什么 3.21 还不是开发基线**：3.21 的混淆别名表只推导出 5/23 条可证明映射，
+其余（含 START 天赋三元组、挑战父类、Currency 基类）存在多个结构同构候选，
+必须逐类核对调用链。构建对该版本 fail-closed：宁可停下，也不产出「能装但跑不对」的包。
+
+**检查、更新、回滚基线**：
+
+```bash
+cd baseline/tools && cargo build --release   # 首次需要，之后复用
+./target/release/baseline.exe status                      # 看有哪些版本、当前是哪个
+./target/release/baseline.exe verify --version 3.20       # 校验 APK 指纹与清单一致
+./target/release/baseline.exe diff --from 3.20 --to 3.21  # 生成差异报告
+./target/release/baseline.exe rollback --version 3.20     # 只改引用，不删文件
+```
+
+## 完成状态（请按此判断，不要按宣传语判断）
+
+**构建级验证（当前 `release/反物质维度.apk`，3.20.0 / 30200000）**：
+
+- 4 个 DEX；`classes4.dex` 与 Kotlin 编译产物逐字节一致
+- 5 个迁移单元（`OrekiAuto` / `OrekiIu15Sprint` / `OrekiStageAuto` / `OrekiAutomationScheduler` / `OrekiTrace`）的 ABI 签名由 `javap` 逐条断言通过
+- v3 签名有效；构建期补丁契约断言全部通过
+
+**设备运行验证**（在 AVD `oreki_test` 上做过，但**不是当前这个包**）：
+
+- 安装、启动、主循环持续运行、深色主题
+- 第一无限维度（ID1）真实解锁与真实扣费购买
+- 自动购买器页面可开可关、重启后读档
+- 普通挑战重进后正常返回
+
+> **口径说明**：上面两组验证**不是同一个包**。当前 `release/` 里的包只做了构建级验证，**没有在设备上跑过**（最近一轮构建期间模拟器退出，按「不做无意义重复启动」的规则未重启）。不要把历史候选包的运行结论直接套到当前包上。
+
+**尚未验证，不要当成已完成**：
+
+- **完整三小时真实通关**（从新档到终局）在 Android 侧**尚未跑通**
+- 首次永恒之后的完整链路、ID4~ID8 的真实购买
+- IU15「理想之构」真实购买与莱特拉解锁（代码与构建守卫已就位，设备运行未覆盖）
+- **当前正式包在设备上的任何行为**
+- 真机（非模拟器）表现
+
+> 网页版已有多轮真实新档通关实测（详见 Web 仓库 README）；Android 侧**不能**据此宣称同样达标。两端验收各自独立。
 
 ## 主要功能
 
-- **全局速度系统**：统一倍率作用于生产、自动器节拍与游戏内计时；现实时间统计不受影响。
-- **自动购买器**：反物质维度、速度升级、维度提升、星系、大坍缩、无限维度、永恒、现实，均可逐项开关。
-- **智能自动化**：统一调度器按阶段与资源状态决定每个节拍做什么，含资源预留、挑战避让与失败冷却。
+- **全局速度倍率**：统一倍率作用于维度生产、自动器节拍与游戏内计时；现实时间统计独立累加，不受影响。默认 ×10000，可在 Oreki 设置里改。
+- **智能自动化**：统一调度器按当前阶段与资源状态决定每个节拍做什么，含资源预留、挑战避让与失败冷却。反物质维度、速度升级、维度提升、星系、大坍缩、无限维度、永恒、现实等逐项可控。
 - **挑战自动化**：普通 / 无限 / 永恒挑战的自动进入与结算，含 EC 时间倍率修正。
-- **IU15 冲刺**：接近「理想之构」条件时临时接管，锁住 ID1~ID8 购买并跳过 EC7，达标后走原版入口真实购买，随后立即释放。
-- **中文教程**：内置 24 章简体中文教程；MOD 改动集中在附录 F，不改原版正文。
+- **IU15 冲刺**：接近「理想之构」条件时临时接管，锁住 ID1~ID8 购买并拦住 EC7；达标后走原版入口真实购买，随后立即释放全部限制。
+- **简体中文教程**：内置 18 章正文 + 6 篇附录（术语表、隐藏成就、记数法、卡点症状、自动化总览、与原版差异清单）。
+- **深色主题**：游戏主界面与 Oreki 设置页均为固定深色，不随系统明暗切换。
 
-## 用户使用
+## 获取与安装
 
-### 获取与安装
+### APK 从哪里来
 
-APK 由维护者手动更新到以下位置，文件名均为 `反物质维度.apk`：
+APK 由维护者手动更新到两个云盘，文件名均为 `反物质维度.apk`：
 
-- OneDrive
-- 小米云盘
+- OneDrive（`OneDrive` 同步根目录）
+- 小米云盘（根目录）
 
-安装前需允许「安装未知来源应用」。覆盖安装保留存档；**卸载会清空存档**。
+**这两个渠道没有公开分享链接**，只有维护者本机的云盘客户端可见。仓库、GitHub Release 与网页版站点都**不提供** APK 下载。如果你不是维护者本人，目前没有可用的公开获取途径 —— 这一点如实说明，不编造链接。
 
-### 安装要求
+### 安装步骤
 
-- Android 12（API 32）及以上
-- 约 1.2 GB 可用存储（安装包约 78 MB，运行缓存另计）
-- 无需 root，无需额外框架
+1. 把 `反物质维度.apk` 传到手机（云盘客户端下载、数据线拷贝均可）。
+2. 在系统设置里允许「安装未知来源应用」。
+3. 点开 APK 安装。覆盖安装会保留存档。
+4. 首次启动会连续弹出多个简中模态弹窗（原版行为），逐个关掉后再操作，否则后续点击会被弹窗吞掉。
 
-### 设置入口
+**不需要** root，不需要额外框架，不需要 Google 服务。
 
-游戏内 **选项 → Oreki 设置**：
+### 升级
 
-- 全局速度倍率
-- 自动化总开关与执行间隔（1~60 秒）
-- 严格节拍模式
-- 各自动购买器独立开关
+直接覆盖安装同包名的新 APK 即可，存档保留。升级前建议先在游戏内导出一次存档（见下节）。
 
-### 存档保护
+## 首次启动与基本使用
 
-- MOD 不改变存档结构，可与同版本官方 APK 互通
-- 覆盖安装前建议先在游戏内导出存档
-- 关闭自动化总开关后所有自动购买立即停止，不残留临时接管
+### 打开 Oreki 设置
 
-## 开发环境
+**桌面长按应用图标 → 「Oreki 设置」**（系统快捷方式）。
 
-Windows 为当前验证过的开发环境。
+也可以在游戏内任意页面点「打开 Oreki 教程」，教程页底部有「打开 Oreki 设置」按钮。
 
-| 组件 | 版本 | 说明 |
+设置页里可以改：
+
+- 全局速度倍率（手动固定 / 动态自动升档），带预设按钮与「恢复默认（×10000）」
+- 智能调度总开关、调度间隔（1~60 秒）、严格模式
+- 阶段辅助（强制点亮成就）—— **默认关闭，详见下方警告**
+
+### 速度倍率怎么理解
+
+倍率放大的是**每个 tick 推进的游戏时间**，因此维度生产、时间机制、自动购买器都按倍率加速；`realTimePlayed` 等现实时间字段走独立累加，不受影响。
+
+需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类**游戏时间**字段会被倍率放大。以它们为判据的部分成就/挑战判定与最佳记录**尚未还原**，属已知项。
+
+### 内置教程
+
+游戏内选项页、信息页、玩法说明页会自动出现「打开 Oreki 中文教程」入口；教程页里可以按章节翻阅，底部可跳到 Oreki 设置。
+
+### 阶段辅助（慎用）
+
+Oreki 设置里的「阶段辅助」三张卡片是**成就写入的唯一入口**，点了会把对应成就位直接写成已解锁，**不校验达成条件**，并写入不可清除的永久标记 `stage_assist_used`。
+
+一旦写入，**该存档不能再用于「真实通关」验收**，且无法撤销。想要干净的存档就不要点。默认关闭；毁灭现实状态下按钮置灰并在写入函数内二次拒绝。
+
+## 存档：备份、恢复与风险
+
+| 事项 | 说明 |
+|---|---|
+| 存档位置 | 应用私有目录，由原版游戏自身维护（非公开路径，普通文件管理器看不到） |
+| 存档格式 | MOD **不改变**存档结构，同级原版 APK 的存档可互相读取 |
+| 备份方式 | 游戏内**选项 → 保存 & 加载 → 导出**（复制存档文本或分享为文件） |
+| 恢复方式 | 游戏内**选项 → 保存 & 加载 → 导入**（粘贴存档文本） |
+| 覆盖安装 | 保留存档 |
+| **卸载** | **会清空存档，无法恢复** |
+
+**换机、清应用数据、卸载重装前必须先导出存档。** 云盘里的 APK 不等于存档备份。
+
+## 常见问题
+
+**装不上 / 提示"应用未安装"**
+检查系统版本是否 ≥ Android 12；检查是否已允许未知来源安装；若手机上是同包名的其他签名版本，需先卸载（会丢存档，先导出）。
+
+**打开后黑屏或卡在启动画面**
+先确认不是覆盖安装导致的签名冲突。可尝试清除应用数据（会丢存档），或重新安装。
+
+**速度倍率调了但感觉没变**
+倍率作用于游戏内 tick，界面数字的变化需要一两秒才显现；且倍率上限受设置页允许范围约束。倍率过高时手机可能掉帧，建议 100~100000。
+
+**自动化开着但游戏不推进**
+检查 Oreki 设置里「启用 Oreki 智能调度」是否打开；检查「严格模式」是否被勾选（严格模式会把原版自动购买器也纳入间隔约束，实测在开局会长时间停在首次无限之前，**默认不建议开**）。
+
+**改间隔什么时候生效**
+立即生效，下一次调度就用新值，不需要重启。
+
+**关掉自动化后有没有残留**
+没有。关闭总开关会立刻停止全部 Oreki 自动动作、清空待执行队列与冷却状态，并释放 IU15 冲刺的临时接管。手动操作与原版自动购买器不受影响。
+
+**存档会不会被 MOD 改坏**
+MOD 不写存档结构字段，购买一律走原版入口。但阶段辅助会写永久标记（见上文警告）。
+
+**游戏内文字是中文吗**
+是。界面与教程均为简体中文，术语与官方简中一致。
+
+## 开发者入口
+
+### 技术形态
+
+这不是标准 Android 工程，**没有可编译的 Java/Kotlin 应用源码树**：
+
+| 层 | 内容 | 改动方式 |
 |---|---|---|
-| JDK | 21.0.13 | Kotlin 编译与 D8 |
-| Gradle | 9.8.2 | 经 `gradlew` 调用 |
-| Kotlin | 2.4.21 | 随仓库携带于 `tools/kotlinc/` |
-| Android SDK | API 34 | 需 `ANDROID_HOME` 或 `ANDROID_SDK_ROOT` |
-| D8 | 8.2.2 | `tools/bt/android-14/` |
-| Python | 3.11+ | 构建与校验脚本 |
+| 原版游戏 | 反编译得到的 smali / dex / 资源 | 只通过补丁改动，不重写 |
+| MOD Kotlin 业务 | `scripts/payload/kotlin/`（6 个 `.kt`） | **新业务逻辑的唯一落点** |
+| 兼容补丁 | `scripts/build_mod.py` 的注入点 + `scripts/payload/smali/`（30 个历史文件） | 仅 ABI 桥接与原版适配 |
 
-```bash
-java -version
-export ANDROID_HOME="$LOCALAPPDATA/Android/Sdk"
-./gradlew --offline tasks
-```
+**新业务逻辑必须用 Kotlin 实现**。Smali 只允许承担：原版字节码的必要适配（版本间混淆名漂移）、Kotlin 无法直接表达的调用桥接、无法合理替代的兼容补丁。
 
-`tools/kotlinc/` 与 `tools/bt/` 已在仓库内，无需联网下载。新机器首次构建若缺 Gradle 依赖，需联网预热一次缓存，之后恢复 `--offline`。
-
-## 构建
-
-```bash
-OREKI_BASE="$(pwd)/work/base_decoded_320" \
-OREKI_MOD="$(pwd)/work/mod_r80_clean" \
-./gradlew assembleRelease --offline
-```
-
-产物：`build/gradle-stage/反物质维度.apk`（已签名），**不会**覆盖 `release/`。
-
-必须显式传入 `OREKI_BASE` / `OREKI_MOD`：脚本默认回落到 3.19 基线，不传会构建出错误版本。
-
-### Gradle 与 Python 的分工
-
-Gradle 是外壳，真实构建由 `scripts/build_mod.py` 驱动：
-
-1. 从 `work/base_decoded_320` 复制出干净工作树 `work/mod_r80_clean`
-2. 拷入 `scripts/payload/` 下的新增类、资源与教程资产
-3. 依次执行 `patch_*`，把 ABI 调用注入原版字节码
-4. `apktool b` 汇编、`apksigner` 签名，输出到 `build/gradle-stage/`
-
-### Kotlin 编译链
+### 构建链
 
 ```
 scripts/payload/kotlin/**.kt
-  → kotlinc（tools/kotlinc，JDK 21）
+  → kotlinc（tools/kotlinc，Kotlin 2.4.21）
   → build/kt/classes/
-  → d8（tools/bt/android-14）
+  → d8（tools/bt/android-14，8.2.2）
   → build/kt/classes.dex
   → 作为 classes4.dex 并入 APK
 ```
 
-`buildKotlinDex` 是 `assembleRelease` 的前置任务，每次构建真实重跑。方法签名由 `scripts/build_kotlin.py` 的 `EXPECTED_ABI` 用 `javap` 逐条断言。
+外层由 Gradle 编排（`build.gradle` 只做 Exec 调度，不参与 smali 生成）；真正的构建由 `scripts/build_mod.py` 完成：复制干净工作树 → 拷入 payload → 执行 `patch_*` 注入 → `apktool b` 汇编 → `zipalign` → `apksigner` 签名。
 
-### Kotlin 业务代码位置
+### 环境与工具链
 
-```
-scripts/payload/kotlin/kajfosz/antimatterdimensions/
-├── OrekiAuto.kt                    # IU15 守卫的历史 ABI 入口
-├── OrekiTrace.kt                   # 埋点
-└── oreki/
-    ├── GameApi.kt                  # 反射访问层（唯一允许出现混淆名的地方）
-    ├── OrekiStageAuto.kt           # 阶段自动化主循环
-    ├── OrekiAutomationScheduler.kt # 统一节拍
-    └── OrekiIu15Sprint.kt          # IU15 冲刺状态机
-```
+构建工具链（JDK、Build-Tools、apktool、kotlinc、platform-tools）**不入 Git**，共约 719 MiB，放在 `tools/` 下；`.gitignore` 只保留 `tools/README.md`。换机器需要按 `tools/README.md` 重新放置。
 
-### 构建失败时
-
-`assembleRelease` 失败不会改动 `release/反物质维度.apk`。排查顺序：
-
-1. 查 `build/_r*_gradle*.log` 里第一处 `AssertionError` / `error:`
-2. 补丁链断言失败通常是基线版本或混淆名漂移，不是业务代码错误
-3. 需要重建工作树时删除 `work/mod_r80_clean`，下次构建自动从基线复制
-
-## 技术架构
-
-### 三层结构
-
-| 层 | 内容 | 改动方式 |
+| 组件 | 版本 | 位置 |
 |---|---|---|
-| 原版游戏 | 反编译得到的 dex / smali / 资源 | 只通过补丁改动，不重写 |
-| MOD Kotlin 业务 | `scripts/payload/kotlin/` | 新业务逻辑的唯一落点 |
-| 兼容补丁 | `scripts/build_mod.py` 的注入点 | 仅 ABI 桥接与必要适配 |
+| JDK | 仓库内 `tools/jdk/` 含 17.0.20.1 与 21.0.13；实际用哪个由 `scripts/jdk_env.py` 解析 | 优先级：`JAVA_HOME` → `PATH` → `tools/jdk/*` → Scoop。本机实测解析到系统 `JAVA_HOME` 的 27.0.1 |
+| Gradle | 9.8.2（`gradlew` / `gradlew.bat`，wrapper 自动下载到用户目录） | 仓库根 |
+| Kotlin | 2.4.21 | `tools/kotlinc/` |
+| D8 | 8.2.2 | `tools/bt/android-14/` |
+| Android SDK | API 34 平台 + Build-Tools 34 | `ANDROID_HOME` 或 `tools/bt/` |
+| Python | 3.11+ | 系统安装（本机实测 3.13） |
 
-### 强制路线
+当前只在 **Windows** 上验证过构建。
+`./gradlew verifyEnvironment --offline` 已在本机实跑通过（BUILD SUCCESSFUL，全部 10 项 OK）。
 
-**新业务逻辑必须用 Kotlin 实现**，真实路径为 Kotlin → kotlinc → D8 → DEX → APK。
-
-Smali 只允许承担三类工作：
-
-1. 原版字节码的必要适配（版本间混淆名漂移）
-2. Kotlin 无法直接表达的调用桥接
-3. 无法合理替代的兼容补丁
-
-不得新增 Smali 业务逻辑。当前 `scripts/payload/smali/` 下 30 个文件属历史资产，`scripts/payload/kotlin/` 下 6 个文件是活跃业务代码。
-
-### 混淆名边界
-
-原版经 R8 混淆，3.19 → 3.20 之间类名与方法名大规模重排：
-
-- 混淆名只允许出现在 `GameApi.kt` 与 `build_mod.py` 的别名表
-- 业务代码通过 `GameApi` 的语义方法访问游戏，不直接写 `Lxx;`
-- 每条别名必须有结构证据（字段数、方法签名、常量）支撑，不做猜测
-
-### 多 DEX
-
-原版有 4 个 DEX，主 DEX 方法引用接近 65536 上限。新增类按「与原版类同一 DEX」分组，Kotlin 产物固定进 `classes4.dex`。
-
-## 测试
-
-改哪里验哪里，不做无差别全量回归（长期规则见 `docs/AGENTS_GLOBAL.md` §72）。
+### 构建命令
 
 ```bash
-python scripts/build_kotlin.py        # Kotlin 语法与 ABI
-python scripts/test_r83_iu15_kotlin.py # IU15 契约
-python scripts/test_r81_dark_theme.py  # 主题路径
+# 1) 环境自检（JDK / Python / apktool / build-tools / 签名 / ADB / 基线树）
+./gradlew verifyEnvironment
+
+# 2) 构建候选 APK（输出 build/gradle-stage/反物质维度.apk）
+#    必须显式指定 3.20 基线，否则默认回落到 work/base_decoded（3.19）会打出错误版本
+OREKI_BASE="$(pwd)/work/base_decoded_320" ./gradlew assembleRelease
+
+# 3) 产物校验（包名 / 版本 / 签名 / 关键补丁是否真的在 dex 里）
+./gradlew verifyRelease
 ```
 
-### AVD 运行验收
+**基线目录是唯一入口**：`OREKI_BASE` 环境变量或 `-PorekiBase=...` 二选一；期望的 `versionName` / `versionCode` / 包名全部从该基线的 `apktool.yml` 与 `AndroidManifest.xml` 真实读取，不写死。
 
-- AVD：`oreki_test`，只在此 AVD 验收
-- 安装：`adb install -r build/gradle-stage/反物质维度.apk`
-- 关键日志：`OREKI_SCHED`、`OREKI_IU15`、`OREKI_ID`
+`build/gradle-stage/` 的候选包**不会**覆盖 `release/`。只有显式执行 `publishRelease` 才会替换正式发布文件。
 
-### 工具
+构建失败时先看 `build/_r*_gradle*.log` 里第一处 `AssertionError` / `error:`；补丁链断言失败通常是基线版本或混淆名漂移，不是业务代码错误。
 
-- **REA**（`scripts/rea.sh`）：静态分析 APK，确认原版 ABI。用法见 `docs/REA反编译_环境与搭建_2026-10-25.md`
-- **frame-observer**：独立仓库，采集画面、Logcat 与事件时间线，见 [frame-observer](https://github.com/OrekiDawson/frame-observer)
+### 测试
 
-### 何时扩大范围
+```bash
+python scripts/build_kotlin.py          # Kotlin 语法 + ABI 签名断言
+python scripts/test_r83_iu15_kotlin.py  # IU15 契约
+python scripts/test_r81_dark_theme.py   # 深色主题路径
+./gradlew smokeOrekiTest                # 装到 oreki_test 并冒烟（需模拟器在线）
+```
 
-原版版本升级、DEX 分组变更、共享调度器改动、存档结构变更。
+改哪里验哪里，不做无差别全量回归。**只允许操作 AVD `oreki_test`**，`build.gradle` 里的设备识别逻辑会拒绝真机与多设备歧义情况。
 
-## 发布交付
+### 发版
 
-1. 核对 `build/gradle-stage/反物质维度.apk` 的版本、包名、签名
-2. 计算并记录 SHA-256
-3. 备份 `release/反物质维度.apk`
-4. `cp` 覆盖 `release/` 与 OneDrive、小米云盘同名文件
-5. `sha256sum` 核对三份副本一致
+```bash
+./gradlew installToRelease   # 用验证过的候选替换 release/
+./gradlew publishRelease     # 覆盖 OneDrive + 小米云盘并核验哈希
+```
 
-只交付 APK，不生成 XAPK。不做云端回读，不等待客户端同步状态。
+只交付 APK，不生成 XAPK。发布前先备份当前 `release/反物质维度.apk`（签名流程会先 `unlink` 目标文件）。
 
-## 文档索引
+### 更多开发文档
 
 | 文档 | 内容 |
 |---|---|
-| `docs/AGENTS_GLOBAL.md` | 长期开发规则 |
-| `docs/RULES_INDEX.md` | 规则索引与冲突优先级 |
-| `docs/FACTS.md` | 经核实的事实台账 |
-| `docs/SHARED_GAMEPLAY_STANDARD.md` | 双端共享玩法标准 |
-| `docs/Gradle构建说明.md` | 构建细节与故障排查 |
-| `docs/EMULATOR_CONTROL.md` | AVD 授权与安全边界 |
-| `docs/REA反编译_环境与搭建_2026-10-25.md` | REA 安装与用法 |
-| `tasks/` | 各轮任务记录 |
-| `reports/` | 测试与构建证据 |
+| [`docs/Gradle构建说明.md`](docs/Gradle构建说明.md) | 构建链细节、任务表、增量构建、位级可复现 |
+| [`baseline/README.md`](baseline/README.md) | 原版基线管理：目录结构、工具用法、版本升级流程 |
+| [`baseline/reports/3.20-to-3.21.md`](baseline/reports/3.20-to-3.21.md) | 3.20 → 3.21 实测差异报告 |
+| [`docs/REA反编译_环境与搭建_2026-10-25.md`](docs/REA反编译_环境与搭建_2026-10-25.md) | REA 反编译取证环境与用法 |
+| [`docs/FACTS.md`](docs/FACTS.md) | 经核实的事实台账（混淆名、ABI、机制） |
+| [`docs/SHARED_GAMEPLAY_STANDARD.md`](docs/SHARED_GAMEPLAY_STANDARD.md) | 双端共享玩法标准（权威源在 Web 仓库） |
+| [`WEB_ANDROID_DIFFERENCES.md`](WEB_ANDROID_DIFFERENCES.md) | 双端实现差异表 |
+| [`docs/EMULATOR_CONTROL.md`](docs/EMULATOR_CONTROL.md) | 模拟器授权与安全边界 |
+| [`AGENTS.md`](AGENTS.md) | 本仓库开发约定 |
+| [`docs/AGENTS_GLOBAL.md`](docs/AGENTS_GLOBAL.md) | 工作区级长期规则（权威源 = 工作区根 `AGENTS.md`） |
+| [`tasks/`](tasks/) / [`reports/`](reports/) | 各轮任务记录与实测证据 |
 
-## 许可
+## 相关项目
 
-原版游戏版权归其作者所有；本仓库仅包含 MOD 部分与构建脚本，不含原版游戏资源的分发授权。
-使用前请自行确认所在地区关于游戏修改的适用条款。
+- **Web 版（可直接在线游玩）**：<https://oreki.net> ／ [源码仓库](https://github.com/OrekiDawson/AD-Oreki-Edition-Web)
+- **Frame Observer**（画面与事件观测工具，Android 自动化验收用）：[OrekiDawson/frame-observer](https://github.com/OrekiDawson/frame-observer)
+
+## 许可与来源
+
+- 原版游戏 **Antimatter Dimensions** 版权归作者 Hevipelle（IvarK）所有，以 MIT 许可发布。
+- 本仓库只包含 MOD 部分（Kotlin 业务、smali 补丁、构建脚本），**不含原版游戏资源的分发授权**。
+- 本仓库当前**没有**独立的 `LICENSE` 文件；如需再分发，请自行确认上游许可与所在地区关于游戏修改的适用条款。
+
+## 规则与文档标准
+
+本 README 的编写与维护遵循工作区长期规则 **R-README-01~10**，权威源：`docs/AGENTS_GLOBAL.md` §6.2.3.7（工作区根 `AGENTS.md`）。本仓库不复制规则正文。

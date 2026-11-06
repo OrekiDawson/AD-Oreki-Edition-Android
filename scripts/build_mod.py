@@ -15,6 +15,7 @@ Every step prints what it changed so the build log is auditable.
 """
 import os
 import re
+import json
 import shutil
 import struct
 import time
@@ -534,15 +535,47 @@ PACKAGE_CLASS_ALIASES_320: dict[str, str] = {
 }
 
 
+# ══════════════════════════════════════════════════════════════════════
+# 3.21 别名表（**未完成，仅登记已证明条目**）
+#
+# ⚠️ 当前状态：**不完整**。3.21 的完整构建需要 23 条别名，这里只登记了
+# 结构指纹可唯一确定的 5 条。其余 18 条（含 gi3/fi3/th3/w50/aw 等关键类）
+# 在 3.21 里存在多个结构同构候选，无法自动判定，必须逐类人工核对调用链后补入。
+#
+# 因此 `version-config.json` 里 3.21 目前**不启用** aliases（留空），
+# 构建会在第一个需要别名的补丁处明确失败，而不是带着错误映射产出坏包。
+# 这是有意的 fail-closed 设计：宁可停下，也不要生成「能装但跑不对」的 APK。
+#
+# 已证明的 5 条（super / 方法数 / 字段数 / 方法名集合 四项全一致，且在 3.21 唯一）：
+#   bq0 -> iq0   Currency 抽象基类
+#   fd0 -> ld0   协程完成单例
+#   fw  -> iw    Application.onCreate 注册的回调
+#   iu  -> lu    Currency 抽象基类（super=ln0 系）
+#   k5  -> l5    单 double 值对象
+# ══════════════════════════════════════════════════════════════════════
+OBFUSCATION_ALIASES_321: dict[str, str] = {
+    "bq0": "iq0",
+    "fd0": "ld0",
+    "fw": "iw",
+    "iu": "lu",
+    "k5": "l5",
+}
+
+
 def package_class_aliases() -> dict[str, str]:
-    """带包名类路径别名（无 .smali 后缀），仅 3.20 基线生效。"""
-    if not _baseline_version().startswith("3.20"):
+    """带包名类路径别名（无 .smali 后缀）。
+
+    只对「配置里声明了 aliases 的版本」生效。3.19 是 payload 的原始书写形态，
+    因此它的配置 aliases 为空 → 返回 {} → 不做任何重写。
+    """
+    if not _profile_value("aliases"):
         return {}
-    return dict(PACKAGE_CLASS_ALIASES_320)
+    table = globals().get(f"PACKAGE_CLASS_ALIASES_{_profile_value('aliases').split('_')[-1]}", {})
+    return dict(table)
 
 
 def _baseline_version() -> str:
-    """读 apktool.yml 的 versionName，用来判断当前基线是 3.19 还是 3.20。
+    """读 apktool.yml 的 versionName，用来判断当前基线版本。
 
     [R82] 必须读**基线** BASE，不能读 MOD：MOD 在执行到本函数时可能还是上一次
     构建残留的旧树（实测残留 3.19 副本导致版本判断错成 3.19.0），
@@ -553,6 +586,53 @@ def _baseline_version() -> str:
         return ""
     m = re.search(r"versionName:\s*'?([\d.]+)'?", y.read_text(encoding="utf-8", errors="ignore"))
     return m.group(1) if m else ""
+
+
+# ── 基线版本配置 ────────────────────────────────────────────────────────
+# 版本差异的**唯一**登记处是 `baseline/version-config.json`；本文件只负责读取取值，
+# 不再接受「为某个新版本再加一个 if」。新增版本 = 新增一条配置。
+#
+# 为什么用 JSON 而不是 YAML：JSON 是标准库原生能力，解析不会出错，Rust 工具也能直接读。
+# 早先试图手写 YAML 解析器，规则一多就会静默解析错 —— 配置错比没配置更危险。
+_VERSION_CONFIG_CACHE: dict | None = None
+
+
+def baseline_config() -> dict:
+    """读并缓存 baseline/version-config.json。"""
+    global _VERSION_CONFIG_CACHE
+    if _VERSION_CONFIG_CACHE is not None:
+        return _VERSION_CONFIG_CACHE
+    cfg_path = ROOT / "baseline" / "version-config.json"
+    assert cfg_path.is_file(), f"缺少版本配置 {cfg_path}（基线机制未就位）"
+    _VERSION_CONFIG_CACHE = json.loads(cfg_path.read_text(encoding="utf-8"))
+    return _VERSION_CONFIG_CACHE
+
+
+def baseline_profile() -> dict:
+    """当前基线的版本配置条目。
+
+    找不到就抛错（不回落到默认版本）—— 版本未知时必须停下，
+    否则会拿错的混淆名去打补丁，产出「能装但跑不对」的包。
+    """
+    cfg = baseline_config()
+    ver = _baseline_version()
+    versions = cfg.get("versions") or {}
+    key = ver[:4] if ver.count(".") >= 2 else ver
+    prof = versions.get(key)
+    assert prof is not None, (
+        f"版本配置里没有 {key}（apktool.yml versionName={ver!r}）。"
+        f"新增版本请在 baseline/version-config.json 里补一条，不要改构建脚本。")
+    return prof
+
+
+def _profile_value(name: str, default=None):
+    return baseline_profile().get(name, default)
+
+
+# 这些类型名是 R8 产物，**每个原版版本都可能变**，但它们指向的游戏语义不变。
+# 集中登记，新增基线只加一行；查法：#   rg 'imaginary_upgrades/b;->k:' work/base_decoded_<ver>/
+#   rg -n '^\.super Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;' <树>
+
 
 
 # [R79] 方法级别名 {(旧类, 旧方法): (新类, 新方法)}。
@@ -619,15 +699,15 @@ METHOD_SIG_ALIASES_320: dict[tuple[str, str], tuple[str, str, str]] = {
 
 
 def method_sig_aliases() -> dict[tuple[str, str], tuple[str, str, str]]:
-    """完整方法身份别名，仅 3.20 基线生效。"""
-    if not _baseline_version().startswith("3.20"):
+    """完整方法身份别名（带参数描述符），只对声明了 aliases 的版本生效。"""
+    if not _profile_value("aliases"):
         return {}
     return dict(METHOD_SIG_ALIASES_320)
 
 
 def method_aliases() -> dict[tuple[str, str], tuple[str, str]]:
-    """方法级别名 {(旧类, 旧方法): (新类, 新方法)}，仅 3.20 基线生效。"""
-    if not _baseline_version().startswith("3.20"):
+    """方法级别名 {(旧类, 旧方法): (新类, 新方法)}，只对声明了 aliases 的版本生效。"""
+    if not _profile_value("aliases"):
         return {}
     out = {}
     for k, v in METHOD_ALIASES_320.items():
@@ -662,9 +742,14 @@ def obfuscation_aliases() -> dict[str, str]:
     按「第一个命中的文件」取名字会随遍历顺序漂移，属于不可复现的隐患。
     改为：固定表 + 每次用「类描述符全限定名」做唯一性校验（见 _class_file_by_desc）。
     """
-    if not _baseline_version().startswith("3.20"):
+    name = _profile_value("aliases")
+    if not name:
         return {}
-    return dict(OBFUSCATION_ALIASES_320)
+    table = globals().get(f"OBFUSCATION_{name}", {})
+    assert table, (
+        f"配置声明 aliases={name}，但 build_mod.py 里没有 OBFUSCATION_{name} 表。"
+        f"新增版本时请把该版的「旧名→新名」表加在 OBFUSCATION_ALIASES_<ver> 常量里。")
+    return dict(table)
 
 
 def smali_file(rel: str) -> Path:
@@ -849,7 +934,8 @@ def merge_split():
     # R81：密度分包必须与主包同版。旧 3.19 split 的资源 ID 在 3.20 已被复用，
     # 混合后 aapt2 会出现重号，甚至错误引用图片；禁止仅改 ID 或跳过资源来掩盖。
     split_dir = Path(os.environ.get("OREKI_SPLIT") or (
-        WORK / "mdpi_decoded_320" if _baseline_version().startswith("3.20") else SPLIT))
+        WORK / (_profile_value("split_resource_dir") or "mdpi_decoded_320").split("/")[-1]
+        if _profile_value("split_resource_dir") else SPLIT))
     split_metadata = (split_dir / "apktool.yml").read_text(encoding="utf-8")
     base_metadata = (MOD / "apktool.yml").read_text(encoding="utf-8")
     version_pattern = r"versionCode:\s*['\"]?(\d+)"
@@ -1159,13 +1245,31 @@ def patch_manifest():
             removed.append(f"{tag} {n}")
 
     # 新增：桌面长按快捷方式 + 速度设置界面
+    #
+    # [R84] 3.21 把 LAUNCHER intent-filter 全部搬到了 28 个 `activity-alias` 上，
+    # 而且全部 `android:enabled="false"` —— 原版新增了「主屏幕图标」选项，由用户在
+    # 主题对话框里选一个图标再激活对应别名。此时**没有任何 activity 带 LAUNCHER**，
+    # 只按 `activity` + LAUNCHER 找会命中 0（实测就是这个断言先炸的）。
+    #
+    # 正确判据分两级：
+    #   ① 优先找带 LAUNCHER 的 activity（3.20 及更早）；
+    #   ② 找不到就回落到 MainActivity —— 它是这些别名的 `targetActivity`，
+    #      也是唯一真正承载游戏界面的组件，快捷方式 meta-data 挂它身上语义不变。
     launcher = None
     for act in app.findall("activity"):
         for f in act.findall("intent-filter"):
             cats = [c.get(A + "name") for c in f.findall("category")]
             if "android.intent.category.LAUNCHER" in cats:
                 launcher = act
-    assert launcher is not None, "找不到 launcher activity"
+    if launcher is None:
+        for act in app.findall("activity"):
+            n = act.get(A + "name") or ""
+            if n.endswith(".MainActivity"):
+                launcher = act
+                break
+    assert launcher is not None, (
+        "找不到 launcher activity：既没有带 LAUNCHER 的 activity，"
+        "也没有 *MainActivity（原版启动组件结构可能已变，需重新核对 Manifest）")
 
     md = ET.SubElement(launcher, "meta-data")
     md.set(A + "name", "android.app.shortcuts")
@@ -1396,7 +1500,7 @@ def patch_smali():
     # R81：3.20 已内联并混淆 Firebase Kotlin 门面，不再定义 Firebase/FirebaseKt。
     # 原版 App.onCreate:43 用 ud1.i(Context) 初始化同一个 FirebaseApp；沿用该真实
     # 入口，不跳过初始化，不引入原版没有的类，也不改变回调与初始化的先后顺序。
-    if _baseline_version().startswith("3.20"):
+    if _profile_value("has_native_firebase_facade"):
         legacy_firebase = (
             "    sget-object v0, Lcom/google/firebase/Firebase;->INSTANCE:Lcom/google/firebase/Firebase;\n\n"
             "    invoke-static {v0, p0}, Lcom/google/firebase/FirebaseKt;->initialize(Lcom/google/firebase/Firebase;Landroid/content/Context;)Lcom/google/firebase/FirebaseApp;")
@@ -1439,9 +1543,9 @@ def patch_smali():
     # 不做猜测性映射；查不到就 fail-fast，绝不静默沿用旧名。
     rewrites = obfuscation_aliases()
     if rewrites:
-        field_rewrites = field_aliases() if _baseline_version().startswith("3.20") else {}
+        field_rewrites = field_aliases() if _profile_value("aliases") else {}
         method_sig_rewrites = (method_sig_aliases()
-                               if _baseline_version().startswith("3.20") else {})
+                               if _profile_value("aliases") else {})
         # [R80] 方法级别名必须带**参数描述符**（method_sig_aliases）。
         #
         # 为什么不能用「类 + 方法名」两条就够：R8 会造出大量「同名不同参」的重载。
@@ -2170,7 +2274,7 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
         owner_desc: 该文本所属类的**新**描述符（如 `Law;`）。只有与别名条目的
             新类描述符完全相等时，才允许改写该文件里的方法**声明行**。
     """
-    if not _baseline_version().startswith("3.20"):
+    if not _profile_value("aliases"):
         return text
 
     al = obfuscation_aliases()
@@ -3098,7 +3202,7 @@ def build_sign(java):
     # R81：原版主 DEX 的 method_ids_size 恰为 65536，新增 MOD 调用会使方法索引
     # 超出 unsigned short（a07.zzb 实测 65615）。拆分整个既有广告依赖包，
     # 仅调整构建副本的 DEX 归属，原版类描述符、字节文本与业务逻辑均保持不变。
-    if _baseline_version().startswith("3.20"):
+    if _profile_value("move_ads_package"):
         ads_relative = Path("com/google/android/gms/internal/ads")
         ads_source = MOD / "smali" / ads_relative
         ads_destination = MOD / "smali_classes3" / ads_relative
@@ -3313,24 +3417,11 @@ def patch_automator_waiting():
     # res/values/public.xml），并且判断用的寄存器从 v15 变成 v7。
     # 写死单版锚点必然在另一版命中 0。用「资源 ID」作锚点比用混淆符号名更抗混淆
     # —— 资源 ID 由 aapt 分配，R8 不会改它。
-    if _baseline_version().startswith("3.20"):
-        anchor = (
-            "    .line 435\n"
-            "    if-eqz v7, :cond_d\n"
-            "\n"
-            "    .line 436\n"
-            "    .line 437\n"
-            "    const v10, 0x7f11037a\n"
-        )
-    else:
-        anchor = (
-            "    .line 432\n"
-            "    if-eqz v15, :cond_d\n"
-            "\n"
-            "    .line 433\n"
-            "    .line 434\n"
-            "    sget v10, Lzt3;->automator_paused:I\n"
-        )
+    # 锚点随原版版本变化（资源 ID、行号注记都可能不同），统一登记在版本配置里。
+    _anchor_lines = _profile_value("automator_anchor_lines") or []
+    assert _anchor_lines, (
+        f"基线 {_baseline_version()} 的 automator_anchor_lines 未登记")
+    anchor = "".join(line + "\n" for line in _anchor_lines)
     assert lsrc.count(anchor) == 1, (
         f"状态选取锚点不唯一或未找到（基线 {_baseline_version()}，命中 {lsrc.count(anchor)} 次）")
     assert "[Oreki AW]" not in lsrc, "等待分支已存在（重复注入）"
@@ -3368,7 +3459,8 @@ def patch_automator_waiting():
     # 原四个状态分支必须原样保留
     # [R79] 3.20 把这些 R 字段全部内联成资源 ID 常量（`const vN, 0x7f11xxxx`），
     # 符号名不再出现在 smali 里。按基线分别校验：3.19 查符号名，3.20 查资源 ID。
-    if _baseline_version().startswith("3.20"):
+    _ui_ids = _profile_value("ui_status_ids") or []
+    if _ui_ids:
         # 资源 ID 取自 res/values/public.xml（aapt 分配，R8 不会改）。
         # 注意这四个 ID **不连续**（34d / 37a / 382 / 387），必须逐个从 public.xml 取，
         # 不能按 paused 的 ID 递增推算 —— R79 首版就是这么猜错的。
@@ -3505,14 +3597,12 @@ def patch_ec12_restriction():
     #   3.20 k81: 同一位置的判定写成 `cmpg-double v0, v6, v0`，时间在 v6/v7
     # 指纹一致：final synthetic + <init>(B)V + 唯一 invoke(Object) +
     # 10 个 cmpg-double + 2.0/0.1/10.0 三常量 + 6 处 ThisEternity 引用。
-    if _baseline_version().startswith("3.20"):
-        _ec12_rel = "smali_classes2/k81.smali"
-        anchor = b"    cmpg-double v0, v6, v0"
-        _reg = "v6"
-    else:
-        _ec12_rel = "smali/p51.smali"
-        anchor = b"    cmpg-double v0, v2, v0"
-        _reg = "v2"
+    _ec = _profile_value("ec12_closure") or {}
+    assert _ec.get("file") and _ec.get("anchor"), (
+        f"基线 {_baseline_version()} 的 ec12_closure 未登记")
+    _ec12_rel = _ec["file"]
+    anchor = _ec["anchor"].encode()
+    _reg = _ec["reg"]
     target = mod_file(_ec12_rel)          # [R80] 跨 dex 根，不能用 smali_tree() 拼
     assert target.exists(), f"缺少 {target}（EC 限制闭包类未反编译出来）"
     blob = target.read_bytes()
@@ -3522,7 +3612,7 @@ def patch_ec12_restriction():
     n = blob.count(anchor)
     assert n == 1, f"EC12 判定锚点出现 {n} 次，预期 1（闭包结构可能已变）"
     nl = b"\r\n" if b"\r\n" in blob else b"\n"
-    _reg_hi = "v7" if _reg == "v6" else "v3"
+    _reg_hi = (_profile_value("ec12_closure") or {}).get("reg_hi") or ("v7" if _reg == "v6" else "v3")
     snippet = "\n".join([
         "    # [Oreki EC12] thisEternity.time 是被 F 放大的游戏时间，判定前还原倍率，",
         "    # 否则高倍率下限时按 F 缩短（F=10000 时 1 秒限时只剩 1/20000 现实时间）。",
@@ -3816,7 +3906,7 @@ def patch_auto_enter_eternity_challenge():
     # [R80] 下面的 frag 全部按 3.19 混淆名书写，而 MOD 里的 OrekiChallengeAuto.smali
     # 已在步骤 4.5 被**就地重写**成 3.20 名字（Lr51→Ln81、Lfp3→Lqr3、Lc21→Lu41、
     # Lvh0→Lkj0）。不做同样的换算就会把「已经改对了」误报成「缺少关键调用」。
-    _fal4 = field_aliases() if _baseline_version().startswith("3.20") else {}
+    _fal4 = field_aliases() if _profile_value("aliases") else {}
 
     def _alias_frag(text: str) -> str:
         # [R80] 统一走生产函数，避免「两处别名逻辑各改一半」。
@@ -4395,8 +4485,16 @@ IU15_THRESHOLD_SITES_320 = (
 
 
 def _iu15_sites() -> tuple[str, ...]:
-    """按基线返回 IU15 门槛的三处文件（3.20 用重排后的路径）。"""
-    return IU15_THRESHOLD_SITES_320 if _baseline_version().startswith("3.20") else IU15_THRESHOLD_SITES
+    """IU15 门槛的三处文件。
+
+    路径随 R8 改名而变，所以登记在版本配置里（`iu15_threshold_sites`）。
+    配置为空时明确报错：宁可停下，也不要拿旧路径的文件名去改错地方。
+    """
+    sites = _profile_value("iu15_threshold_sites") or []
+    assert sites, (
+        f"基线 {_baseline_version()} 的 iu15_threshold_sites 未登记。"
+        f"请在 baseline/version-config.json 里补齐（用 rg 找到三处 1.5E12 / 门槛常量所在文件）。")
+    return tuple(sites)
 
 
 def check_iu15_threshold():
@@ -4621,9 +4719,14 @@ def patch_id_autobuyer_guard():
     assert src.count(h_sig) == 1, "InfinityDimensionState.h(Z)V 不唯一，IU15 守卫锚点失效"
     assert src.count(i_sig) == 1, "InfinityDimensionState.i()V 不唯一，IU15 守卫锚点失效"
     # 两个方法都必须确实是「买 ID」的那两个（锁检查在同一文件里只有这两处）
-    # [R79] IU15 锁对象的具体类型在 3.20 由 Lbx1 换成 Lwz1（字段名 k 与所属类都没变）。
-    # 断言只绑「类名.字段名」，类型交给下方 _iu_lock 动态取 —— 写死类型会误报漂移。
-    _iu_lock_type = "Lwz1;" if _baseline_version().startswith("3.20") else "Lbx1;"
+    # [R79] IU15 锁对象的具体类型在各基线间会被 R8 重命名（字段名 k 与所属类都没变）。
+    # [R84] 3.21.0 又一次改名：3.20 的 `wz1` → 3.21 的 `g02`（同 `.super a`、同 `C(ZZ)V`）。
+    # 映射集中放在 IU15_LOCK_TYPE 里，新增基线只需加一行，不必改断言逻辑。
+    _iu_lock_type = _profile_value("iu15_lock_type")
+    assert _iu_lock_type, (
+        f"基线 {_baseline_version()} 的 iu15_lock_type 未登记。"
+        f"请在 baseline/version-config.json 里补上（可用 "
+        f"`rg 'imaginary_upgrades/b;->k:' <基线树>` 反查）")
     _iu_lock = f"Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->k:{_iu_lock_type}"
     assert src.count(_iu_lock) == 2, (
         f"InfinityDimensionState 里对 IU15(b->k) 的锁检查不是 2 处"
@@ -4776,7 +4879,7 @@ def patch_instant_challenge_rewards():
     # [R75-C] must 里的符号按 3.19 混淆名书写；3.20 基线已在 step 4.5 把 payload
     # 重写成新名，所以断言前要同步套用同一张别名表，否则会误报「缺少调用」。
     _al = obfuscation_aliases()
-    _fal = field_aliases() if _baseline_version().startswith("3.20") else {}
+    _fal = field_aliases() if _profile_value("aliases") else {}
 
     def _apply_alias(text: str) -> str:
         # [R80] 统一走生产函数 rewrite_alias()，不再在这里复制一份别名逻辑。
@@ -4855,7 +4958,7 @@ def patch_instant_challenge_rewards():
         # 字段级优先（Lln0;->w 在 3.20 是 Lbq0;->w，但同族 e/F 都换了字母），
         # 然后才是类级（Lln0→Lbq0、Lju→ju_320、Ltw4→Llt4）。
         _al2 = obfuscation_aliases()
-        _fal2 = field_aliases() if _baseline_version().startswith("3.20") else {}
+        _fal2 = field_aliases() if _profile_value("aliases") else {}
 
         # [R80 修复] 顺序必须是「字段级 → 方法级 → 类级」，**不能先做类级**。
         # 旧顺序（类级在前）会把 cls 先换成 `Law;`，而方法别名表的键是 3.19 的
@@ -4887,7 +4990,7 @@ def patch_instant_challenge_rewards():
         if rest.startswith("("):
             pat = re.compile(r"^\.method .*\b" + re.escape(name) + re.escape(rest) + r"$", re.M)
             assert pat.search(body), f"{cls} 缺少方法 {name}{rest}（混淆换名）"
-        elif name in _CURRENCY_BIT_FIELDS and _baseline_version().startswith("3.20"):
+        elif name in _CURRENCY_BIT_FIELDS and _profile_value("aliases"):
             # 只校验字段名（类型允许因 3.20 内部状态类重组而不同，见上方注释）
             pat = re.compile(r"^\.field .*\b" + re.escape(name) + r":\S+$", re.M)
             assert pat.search(body), f"{cls} 缺少 Currency 位字段 {name}（混淆换名）"
@@ -5595,7 +5698,7 @@ def verify_smali_field_types_320():
     而构建、签名、安装**全部成功**——只有点进自动购买器页才会炸。
     这类错误无法靠编译期发现，必须在打包前静态比对。
     """
-    if not _baseline_version().startswith("3.20"):
+    if not _profile_value("autobuyer_field_is_pp"):
         return
 
     def _index(root: Path) -> dict:
@@ -5886,7 +5989,7 @@ def patch_crunch_mode_label_refresh():
     assert target.exists(), f"缺少 {target}"
 
     # [R82] 3.20 原版已自带标题刷新，且字段类型不同：跳过旧注入，避免类型错误的字段读取。
-    if _baseline_version().startswith("3.20"):
+    if _profile_value("has_native_autobuyer_title_refresh"):
         if "Oreki R73" in target.read_text(encoding="utf-8"):
             raise SystemExit(
                 "[Oreki R73] 3.20 上检测到旧的 3.19 注入块，会引发 NoSuchFieldError，"
