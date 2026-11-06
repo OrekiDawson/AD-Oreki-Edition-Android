@@ -98,9 +98,22 @@ internal object GameApi {
         return isBaseline320
     }
 
-    /** 3.19 混淆名 → 当前基线真实类名。非 3.20 基线原样返回。 */
-    private fun obf(name: String): String =
-        if (isBaseline320()) (ALIAS_320[name] ?: name) else name
+    /**
+     * 3.19 混淆名 → 当前基线真实类名。
+     *
+     * R87：3.21 的后续版本只剩「3.20 名称 → 3.21 名称」的 bindings；Kotlin
+     * 源码里仍保留 3.19 的可读名称（如 `ln0`）。因此 3.21 下也必须先做
+     * 3.19→3.20 名称级联，再交给 `cls()` 的 bindings 映射；3.19 基线没有
+     * bindings 时保持原名，避免把旧版本来不存在的 3.20 名称塞进去。
+     */
+    private fun obf(name: String): String {
+        val modern = ALIAS_320[name] ?: name
+        return if (isBaselineModern() || OrekiBaselineBindings.isBound(modern)) modern else name
+    }
+
+    /** 3.20 及之后共享 3.20 方法名的基线；3.19 仍保留旧名。 */
+    private fun isBaselineModern(): Boolean =
+        isBaseline320() || OrekiBaselineBindings.isBound("bq0")
 
     private const val TAG = "OREKI_API_MISS"
 
@@ -364,7 +377,8 @@ internal object GameApi {
     }
 
     private fun cls(name: String): Class<*>? = try {
-        Class.forName(name, false, GameApi::class.java.classLoader)
+        // R85：构建时从同一份版本兼容配置生成，禁止运行时凭短名存在猜版本。
+        Class.forName(OrekiBaselineBindings.className(name), false, GameApi::class.java.classLoader)
     } catch (e: Throwable) {
         miss("class $name", e)
         null
@@ -546,6 +560,107 @@ internal object GameApi {
 
     /** `Player.D()` = IP 货币容器（ln0 实例）。 */
     fun infinityPoints(): Any? = call(mPlayerD(), player())
+
+    // ---------------------------------------------------------------- Break Infinity 升级
+    //
+    // R87：OrekiBreakShop 从 Smali 迁入 Kotlin 后，不再直接写 `Lh00;->m` /
+    // `Lqr3;->D` 这类短名。这里统一通过 GameApi 的基线绑定解析：
+    //   · `h00` 是 3.20 的真实登记表类名，3.21 由 OrekiBaselineBindings 映射；
+    //   · 升级实例的公共方法由原版基类继承，反射时直接查实例的 public methods；
+    //   · 购买入口仍是原版 `D(Z,Continuation)Z`，不写位图、不扣费、不伪造奖励。
+    private var breakRegistryClassCache: Class<*>? = null
+    private var breakRegistryClsResolved: Boolean = false
+    private fun breakRegistryCls(): Class<*>? {
+        if (!breakRegistryClsResolved) {
+            breakRegistryClsResolved = true
+            breakRegistryClassCache = cls("h00")
+        }
+        return breakRegistryClassCache
+    }
+
+    private var mBreakUpgradesList: Field? = null
+    private var mBreakUpgradesListResolved: Boolean = false
+    private fun mBreakUpgradesList(): Field? {
+        if (!mBreakUpgradesListResolved) {
+            mBreakUpgradesListResolved = true
+            mBreakUpgradesList = staticField(breakRegistryCls(), "m")
+        }
+        return mBreakUpgradesList
+    }
+
+    /** 原版 12 条 Break Infinity 升级列表；读不到时返回空列表。 */
+    fun breakUpgrades(): List<Any?> {
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            (mBreakUpgradesList()?.get(null) as? List<Any?>) ?: emptyList()
+        } catch (e: Throwable) {
+            miss("BreakUpgradeRegistry.m", e)
+            emptyList()
+        }
+    }
+
+    private var mBigDoubleMultiplyInt: Method? = null
+    private var mBigDoubleMultiplyIntResolved: Boolean = false
+    private fun mBigDoubleMultiplyInt(): Method? {
+        if (!mBigDoubleMultiplyIntResolved) {
+            mBigDoubleMultiplyIntResolved = true
+            mBigDoubleMultiplyInt = method(
+                bigDoubleCls(), "multiply", 1, "BigDouble.multiply(I)",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mBigDoubleMultiplyInt
+    }
+
+    /** BigDouble × int，返回新对象；不修改原对象。 */
+    fun multiplyBigDoubleByInt(value: Any?, multiplier: Int): Any? {
+        if (value == null) return null
+        return call(mBigDoubleMultiplyInt(), value, multiplier)
+    }
+
+    private var mBigDoubleSubtract: Method? = null
+    private var mBigDoubleSubtractResolved: Boolean = false
+    private fun mBigDoubleSubtract(): Method? {
+        if (!mBigDoubleSubtractResolved) {
+            mBigDoubleSubtractResolved = true
+            mBigDoubleSubtract = method(
+                bigDoubleCls(), "subtract", 1, "BigDouble.subtract(BigDouble)",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
+        }
+        return mBigDoubleSubtract
+    }
+
+    /** BigDouble 减法，返回新对象；不修改原对象。 */
+    fun subtractBigDouble(value: Any?, other: Any?): Any? {
+        if (value == null || other == null) return null
+        return call(mBigDoubleSubtract(), value, other)
+    }
+
+    /** Break 升级实例的原版可购买判定 `a(false)`。 */
+    fun breakUpgradeCanBuy(upgrade: Any?): Boolean {
+        if (upgrade == null) return false
+        val canBuy = method(
+            upgrade.javaClass, "a", 1, "BreakUpgrade.a(Z)",
+            paramTypeNames = listOf("boolean"),
+        )
+        return (call(canBuy, upgrade, false) as? Boolean) ?: false
+    }
+
+    /** Break 升级当前价格（原版 `x()`，返回 BigDouble）。 */
+    fun breakUpgradeCost(upgrade: Any?): Any? {
+        if (upgrade == null) return null
+        val cost = method(upgrade.javaClass, "x", 0, "BreakUpgrade.x()")
+        return call(cost, upgrade)
+    }
+
+    /** Break 升级原版购买入口 `D(false, null)`；与 UI 点击同一条路径。 */
+    fun breakUpgradePurchase(upgrade: Any?): Boolean {
+        if (upgrade == null) return false
+        val purchase = method(upgrade.javaClass, "D", 2, "BreakUpgrade.D(Z,Continuation)")
+        val result = call(purchase, upgrade, false, null)
+        return (result as? Boolean) ?: false
+    }
 
     // ---------------------------------------------------------------- Player$Auto
 
@@ -1016,7 +1131,9 @@ internal object GameApi {
         if (!mImplWResolved) {
             mImplWResolved = true
             // 3.20 rp0.K 为玩家现值，G 为 Pelle 分支；必须保留原版玩家口径。
-            mImplW = method(currencyImplCls(), if (isBaseline320()) "K" else "w", 0, "Infinity points current value")
+            // 3.20 与 3.21 的货币实现都保留 K()（玩家现值）/G()（Pelle 分支）；
+            // 只有 3.19 使用 w()。不能因为 3.21 没有 bq0 类就退回旧名。
+            mImplW = method(currencyImplCls(), if (isBaselineModern()) "K" else "w", 0, "Infinity points current value")
         }
         return mImplW
     }
@@ -1230,7 +1347,7 @@ internal object GameApi {
 
     /** 3.20 x81.i 仅含六项一次性永恒升级；h 另含可重复项，不能误用。 */
     fun eternityUpgrades(): List<Any> {
-        if (!isBaseline320()) return emptyList()
+        if (!isBaselineModern()) return emptyList()
         return try {
             @Suppress("UNCHECKED_CAST")
             (cls("x81")?.getField("i")?.get(null) as? List<Any>) ?: emptyList()

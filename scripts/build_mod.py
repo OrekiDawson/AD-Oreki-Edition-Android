@@ -518,6 +518,13 @@ FIELD_ALIASES_320: dict[str, str] = {
 # `Lip0;`。3.20 对 Currency 状态类做了拆分，「字段名对、类型旧」的引用能通过
 # smali 汇编（它不校验），却在 ART 链接期抛 NoSuchFieldError ——
 # 构建、签名、安装全部成功，只有执行到那行才崩。每条都必须有结构证据。
+# R87 目标侧字段类型钉正：3.20 的 `bq0.g0:Lup0;` 在 3.21 是
+# `iq0.g0:Lsp0;`（真实 DEX 字段表）；`pp0` 是 3.21 中 `up0` 的同族候选，
+# 但实际字段类型是 sp0，必须在类别名完成后按字段身份再钉一次。
+FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
+    ("iq0", "g0"): ("pp0", "sp0"),
+}
+
 FIELD_TYPE_ALIASES_320: dict[tuple[str, str], tuple[str, str]] = {
     # 3.19 `Lln0;->e:Lsm0;` 是 infinities 位（sm0 = 通用计数状态，5 方法）。
     # 3.20 该位是 `Lbq0;->g0:Lup0;`：up0 只有 4 方法（b()Z/getValue 等），
@@ -570,6 +577,15 @@ def package_class_aliases() -> dict[str, str]:
     """
     if not _profile_value("aliases"):
         return {}
+    if _profile_value("bindings"):
+        # §75：带包名类路径同样只采用已确认绑定，不做名称推测。
+        bound = _bound_class_map()
+        out = {}
+        for old, v320 in PACKAGE_CLASS_ALIASES_320.items():
+            # 包路径的 bindings 键是完整相对路径（不是短名）。
+            if v320 in bound:
+                out[old] = bound[v320]
+        return out
     table = globals().get(f"PACKAGE_CLASS_ALIASES_{_profile_value('aliases').split('_')[-1]}", {})
     return dict(table)
 
@@ -627,6 +643,76 @@ def baseline_profile() -> dict:
 
 def _profile_value(name: str, default=None):
     return baseline_profile().get(name, default)
+
+
+def _target_compatibility() -> dict:
+    """读取当前目标已核实的兼容数据；没有数据时保持原基线实现。"""
+    rel = _profile_value("compatibility")
+    return json.loads((ROOT / rel).read_text(encoding="utf-8")) if rel else {}
+
+
+def _baseline_bindings() -> dict:
+    """读取目标基线的符号绑定（AGENTS.md §75 唯一合法来源）。
+
+    只接受 `baseline/versions/<版本>/bindings.json`；旧的人工别名表
+    （`classes_320_to_target` / `method_refs`）不得再作为新版适配依据。
+    """
+    rel = _profile_value("bindings")
+    assert rel, (
+        f"基线 {_baseline_version()} 未声明 bindings —— 按 AGENTS.md §75，"
+        "新版本符号必须先从真实 DEX 取证，禁止用别名表代替")
+    path = ROOT / rel
+    assert path.is_file(), f"缺少符号绑定文件 {path}（先跑 scripts/baseline_bindings.py derive）"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _bound_class_map() -> dict[str, str]:
+    """{旧类短名: 目标类短名}，只取 CONFIRMED 条目。
+
+    UNCONFIRMED / PARTIAL 一律不参与改写：宁可构建失败，也不带错映射出货。
+    """
+    if not _profile_value("bindings"):
+        return {}
+    out = {}
+    for old, entry in _baseline_bindings().get("classes", {}).items():
+        if entry.get("status") != "CONFIRMED" or not entry.get("to"):
+            continue
+        out[old] = entry["to"].lstrip("L").rstrip(";")
+    return out
+
+
+def _bound_method_map() -> dict[tuple[str, str], tuple[str, str]]:
+    """{(旧类, 旧方法): (新类, 新方法)}，只取 CONFIRMED 且所属类已确认的条目。"""
+    if not _profile_value("bindings"):
+        return {}
+    classes = _bound_class_map()
+    out = {}
+    for entry in _baseline_bindings().get("methods", []):
+        if entry.get("status") != "CONFIRMED" or not entry.get("to"):
+            continue
+        old_cls, old_sig = entry["from"].split(".", 1)
+        new_cls, new_sig = entry["to"].split(".", 1)
+        old_name = old_sig.split("(", 1)[0]
+        new_name = new_sig.split("(", 1)[0]
+        if old_cls not in classes:
+            continue
+        out[(old_cls, old_name)] = (new_cls, new_name)
+    return out
+
+
+def _target_ref(text: str) -> str:
+    """把已确认的旧稳定基线引用转为目标引用。
+
+    只使用 `bindings.json` 的 CONFIRMED 条目（真实 DEX 取证），
+    **不再**读取 `classes_320_to_target` 这类人工别名表。
+    """
+    if not _profile_value("bindings"):
+        return text
+    for (oc, om), (nc, nm) in _bound_method_map().items():
+        text = text.replace(f"L{oc};->{om}", f"L{nc};->{nm}")
+    aliases = _bound_class_map()
+    return re.sub(r"L([A-Za-z0-9_/$]+);",
+                  lambda m: "L" + aliases.get(m.group(1), m.group(1)) + ";", text)
 
 
 # 这些类型名是 R8 产物，**每个原版版本都可能变**，但它们指向的游戏语义不变。
@@ -702,7 +788,19 @@ def method_sig_aliases() -> dict[tuple[str, str], tuple[str, str, str]]:
     """完整方法身份别名（带参数描述符），只对声明了 aliases 的版本生效。"""
     if not _profile_value("aliases"):
         return {}
-    return dict(METHOD_SIG_ALIASES_320)
+    out = dict(METHOD_SIG_ALIASES_320)
+    if _profile_value("bindings"):
+        # §75：目标版本方法名只采用 bindings.json 的 CONFIRMED 结果。
+        # 表键是 3.19 类名，不能直接拿去查 3.20-keyed 的 _bound_method_map；
+        # 先取 3.20 三元组，再查 3.20→3.21 方法绑定。
+        bound = _bound_method_map()
+        translated = {}
+        for k, (c320, m320, params) in out.items():
+            mapped = bound.get((c320, m320))
+            if mapped is not None:
+                translated[k] = (mapped[0], mapped[1], params)
+        out = translated
+    return out
 
 
 def method_aliases() -> dict[tuple[str, str], tuple[str, str]]:
@@ -710,19 +808,33 @@ def method_aliases() -> dict[tuple[str, str], tuple[str, str]]:
     if not _profile_value("aliases"):
         return {}
     out = {}
+    bound = _bound_method_map() if _profile_value("bindings") else {}
     for k, v in METHOD_ALIASES_320.items():
         oc, om = k.split(".", 1)
         nc, nm = v.split(".", 1)
+        if _profile_value("bindings"):
+            mapped = bound.get((nc, nm))
+            if mapped is None:
+                continue
+            nc, nm = mapped
         out[(oc, om)] = (nc, nm)
     return out
 
 
 def field_aliases() -> dict[tuple[str, str], tuple[str, str]]:
-    """字段级别名 {(旧类, 旧字段): (新类, 新字段)}，仅 3.20 基线生效。"""
+    """字段级别名 {(旧类, 旧字段): (新类, 新字段)}，按当前基线落地。"""
     out = {}
+    bound = _bound_class_map() if _profile_value("bindings") else {}
     for k, v in FIELD_ALIASES_320.items():
         oc, of = k.split(".", 1)
         nc, nf = v.split(".", 1)
+        if _profile_value("bindings"):
+            target_cls = bound.get(nc)
+            if target_cls is None:
+                continue
+            # 3.21 的 infinity currency 容器把 R 重命名为 S；这是从
+            # bq0.R:Lop0; 与 iq0.S:Lvp0; 的真实字段表得到的字段级证据。
+            nc, nf = (target_cls, "S" if (nc, nf) == ("bq0", "R") else nf)
         out[(oc, of)] = (nc, nf)
     return out
 
@@ -745,10 +857,18 @@ def obfuscation_aliases() -> dict[str, str]:
     name = _profile_value("aliases")
     if not name:
         return {}
+    if _profile_value("bindings"):
+        # §75：目标版本只使用 bindings.json 的 CONFIRMED 类绑定；
+        # 未确认符号保持原名，随后由 build_baseline_binding_gate() 阻断构建，
+        # 绝不使用人工别名表「先换上去再说」。
+        bound = _bound_class_map()
+        # bindings 的键是 3.20 名称；先走 3.19→3.20 表，再走 3.20→3.21。
+        return {old: bound.get(v320, v320)
+                for old, v320 in OBFUSCATION_ALIASES_320.items() if v320 in bound}
     table = globals().get(f"OBFUSCATION_{name}", {})
     assert table, (
         f"配置声明 aliases={name}，但 build_mod.py 里没有 OBFUSCATION_{name} 表。"
-        f"新增版本时请把该版的「旧名→新名」表加在 OBFUSCATION_ALIASES_<ver> 常量里。")
+        f"新版本请改用 bindings.json（AGENTS.md §75），不要再加「旧名→新名」别名表。")
     return dict(table)
 
 
@@ -1650,8 +1770,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.smali",
     # [R62] 特蕾莎自动浇注（按原版 MainActivity.yo 开关，复用主循环 a->r()）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
-    # [R65] Break Infinity 升级自动购买（原版 fp3.D 唯一购买入口，不写位图不扣钱）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.smali",
+    # [R87] OrekiBreakShop 已整体迁移到 Kotlin，由 KOTLIN_OWNED_CLASSES 与
+    # build_kotlin.py 的 ABI 断言保证 tick()I 存在，不再要求 Smali 文件。
     # [R66] 剧情目标感知（只读）+ 由策略 JSON 编译出的数据表
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.smali",
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStrategyData.smali",
@@ -2190,6 +2310,37 @@ def mod_file(rel: str) -> Path:
     return MOD / rel
 
 
+def verify_break_shop_kotlin():
+    """[R87] Break 商店 Kotlin 迁移与 ID1 预留回归守卫。
+
+    这不是行为测试，而是构建期契约：Kotlin 是唯一实现，不能再出现同名 Smali；
+    `tick()I` 必须在 ABI 清单里；ID1 预留判据必须留在生产调用链上。
+    运行期正确性仍由 AVD / logcat / 原版存档字段验证，不能由本函数冒充。
+    """
+    kt = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz"
+          / "antimatterdimensions" / "oreki" / "OrekiBreakShop.kt")
+    assert kt.is_file(), "[R87] 缺少 OrekiBreakShop.kt（Kotlin 迁移丢失）"
+    src = kt.read_text(encoding="utf-8")
+    for token, why in (
+        ("fun tick(): Int", "tick()I 是 OrekiStageAuto 的唯一调用入口"),
+        ("fun id1ReserveRequirement()", "ID1 预留窗口判据"),
+        ("fun leavesId1Reserve(", "真实扣费后的门槛预测"),
+        ("GameApi.breakUpgradePurchase(", "必须走原版 D(Z,Continuation) 购买入口"),
+        ("GameApi.breakUpgradeCanBuy(", "必须走原版可购买判定"),
+    ):
+        assert token in src, f"[R87] OrekiBreakShop 缺少 {why}: {token}"
+    # 不写位图是购买入口合同的一部分；源码注释可以提到原版字段名，
+    # 因此这里只检查实际调用链，而不是做全文子串否决（避免误伤说明文字）。
+    assert "GameApi.breakUpgradePurchase(" in src, \
+        "[R87] 必须通过原版购买入口，不能自己写已购位图"
+    smali = (ROOT / "scripts" / "payload" / "smali" / "kajfosz"
+             / "antimatterdimensions" / "oreki" / "OrekiBreakShop.smali")
+    assert not smali.exists(), "[R87] OrekiBreakShop.smali 仍存在：Kotlin 与 Smali 双写"
+    assert "kajfosz.antimatterdimensions.oreki.OrekiBreakShop" in _kotlin_owned_classes(), \
+        "[R87] OrekiBreakShop 未登记到 KOTLIN_OWNED_CLASSES"
+    note("[R87] Break 商店 Kotlin 迁移契约通过（tick/ABI/ID1 预留/原版购买入口）")
+
+
 def verify_kotlin_gameapi_aliases():
     """[R79] Kotlin GameApi 的混淆名表必须与 Python 的 OBFUSCATION_ALIASES_320 同步。
 
@@ -2277,6 +2428,12 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
     if not _profile_value("aliases"):
         return text
 
+    # 先完整完成既有 payload 的稳定基线转换，再一次性转到目标，避免
+    # 同一个短名在两个版本语义不同造成二次替换；仅转换 MOD 片段，不改原版树。
+    # 目标版本已在 bindings 声明时，al/fal/sig 返回的是「3.19→目标」的
+    # 复合结果；没有 bindings 的旧基线仍返回 3.19→3.20。不要让这里绕过
+    # 生产 map 再拿裸 3.20 表，否则方法声明会停在 3.20 名字（R87 实测
+    # BigDouble.of 的 q→p 却未到 3.21 的 r）。
     al = obfuscation_aliases()
     fal = field_aliases()
     sig = method_sig_aliases()
@@ -2303,7 +2460,7 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
             text)
         # 2b. 声明行：`.method public final o(Lkajfosz/.../BigDouble;)Lln0;`
         #     **仅当本文件就是该别名的新类**（owner_desc 完全相等）才允许。
-        if owner_desc and owner_desc == new_desc:
+        if owner_desc and owner_desc == _target_ref(new_desc):
             text = re.sub(
                 r"(\.method [^\n]*?\s)" + re.escape(om) + re.escape(params),
                 lambda m: m.group(1) + nm + params,
@@ -2322,6 +2479,19 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
             rf"(L{re.escape(oc)};->{re.escape(of)}:)L{re.escape(old_after)};",
             rf"\g<1>L{new_type};",
             text)
+    text = _target_ref(text)
+    if _profile_value("bindings"):
+        # 3.21 的 g0 字段可能从 3.20 的 Lup0 经类级联成 Lpp0，也可能因
+        # 目标类名已预置而停在 Lup0；两种输入都钉到真实字段类型 Lsp0。
+        text = text.replace("Liq0;->g0:Lpp0;", "Liq0;->g0:Lsp0;")
+        text = text.replace("Liq0;->g0:Lup0;", "Liq0;->g0:Lsp0;")
+    if owner_desc and _profile_value("bindings"):
+        # §75：方法声明行的目标版本名只来自 bindings.json 的 CONFIRMED 结果。
+        for (oc, om), (nc, nm) in _bound_method_map().items():
+            if owner_desc != f"L{nc};":
+                continue
+            text = re.sub(rf"(\n\.method [^\n]*?\s){re.escape(om)}(?=\()",
+                          lambda m: m.group(1) + nm, text)
     return text
 
 
@@ -2624,13 +2794,24 @@ def verify_payload():
     _legacy_import_rel = "smali/kajfosz/antimatterdimensions/player/d.smali"
     _legacy_import_path = mod_file(_legacy_import_rel)
     dsm = _legacy_import_path.read_text(encoding="utf-8")
-    assert dsm.count("const-wide/high16 v13, 0x4059000000000000L") == 1, \
-        "旧存档导入的 100.0 常量被改动（应为 1 处，供 3 个字段共用）"
-    assert dsm.count("mul-double/2addr v11, v13") == 3, \
-        "旧存档导入应有三处 ×100（totalTimePlayed / bestInfinityTime / thisInfinityTime）"
-    assert "const-wide v15, 0x426d1a94a1f38000L" in dsm, \
+    # R85：R8 会重排局部寄存器；守卫核对字段读取与乘法数据流，不绑定寄存器编号。
+    _hundred_regs = re.findall(r"const-wide/high16 (v\d+), 0x4059000000000000L", dsm)
+    assert len(_hundred_regs) == 1, "旧存档导入应有唯一 100.0 常量"
+    _hundred_reg = _hundred_regs[0]
+    assert len(re.findall(r"mul-double/2addr v\d+, " + _hundred_reg + r"\b", dsm)) == 3, \
+        "旧存档导入应有三处共用 100.0 的乘法"
+    _legacy_instructions = "\n".join(
+        line.strip() for line in dsm.splitlines()
+        if line.strip() and not line.strip().startswith((".line", "#")))
+    for _time_key in ("totalTimePlayed", "bestInfinityTime", "thisInfinityTime"):
+        _read_scale = (r'"' + _time_key + r'"\ninvoke-static [^\n]+\)D\n'
+                       r'move-result-wide (v\d+)\n(?:const-wide/high16 [^\n]+\n)?'
+                       r'mul-double/2addr \1, ' + _hundred_reg + r'\b')
+        assert re.search(_read_scale, _legacy_instructions), \
+            f"旧存档字段 {_time_key} 的读取后 ×100 链缺失"
+    assert re.search(r"const-wide v\d+, 0x426d1a94a1f38000L", dsm), \
         "旧存档哨兵比较常量 9.999999999E11 缺失"
-    assert "sget-wide v11, Lkajfosz/antimatterdimensions/player/Player;->c:D" in dsm, \
+    assert re.search(r"sget-wide v\d+, Lkajfosz/antimatterdimensions/player/Player;->c:D", dsm), \
         "旧存档哨兵回落 Player.c 缺失"
     # [R80] 用**解析后的真实目录**做唯一性检查：3.20 的 player 包在 smali_classes2/，
     # 而 `pl = mod_file("...player")` 返回的是主根下的同名目录（可能不存在/为空）。
@@ -3071,13 +3252,24 @@ def _ad_t5_anchors_c() -> tuple[str, str]:
     t5 = al.get("t5", "t5")
     r5 = al.get("r5", "r5")
     thrower = al.get("ja4", "ja4")
+    # 目标版本若声明了 bindings，异常工具引用同样走已确认绑定；
+    # 未确认时保持原名并由绑定门禁阻断，不再借用旧兼容表。
+    throw_ref = f"L{thrower};->j(Ljava/lang/String;)V"
+    if _profile_value("bindings"):
+        # thrower 已先经过 obfuscation_aliases 复合，可能是 3.21 名；绑定表的
+        # 键仍是 3.20 名 `qw3`，因此显式回退到登记键。
+        mapped_throw = _bound_method_map().get(("qw3", "j")) or _bound_method_map().get((thrower, "j"))
+        if mapped_throw:
+            throw_ref = f"L{mapped_throw[0]};->{mapped_throw[1]}(Ljava/lang/String;)V"
+        else:
+            throw_ref = _target_ref(throw_ref)
     old = (
         '    :cond_1\n'
         '    const-string v0, "Collection contains no element matching the predicate."\n'
         '\n'
         '    .line 35\n'
         '    .line 36\n'
-        f'    invoke-static {{v0}}, L{thrower};->j(Ljava/lang/String;)V\n'
+        f'    invoke-static {{v0}}, {throw_ref}\n'
         '\n'
         '    .line 37\n'
         '    .line 38\n'
@@ -3087,6 +3279,7 @@ def _ad_t5_anchors_c() -> tuple[str, str]:
         '    .line 40\n'
         '    return-object v0\n'
     )
+    r5_target = _target_ref(f"L{r5};") if _profile_value("bindings") else f"L{r5};"
     new = (
         '    :cond_1\n'
         '    # [Oreki] 兜底：原版此处抛 NoSuchElementException。\n'
@@ -3100,7 +3293,7 @@ def _ad_t5_anchors_c() -> tuple[str, str]:
         '\n'
         '    move-result-object v0\n'
         '\n'
-        f'    check-cast v0, L{r5};\n'
+        f'    check-cast v0, {r5_target}\n'
         '\n'
         '    return-object v0\n'
     )
@@ -3386,7 +3579,9 @@ def patch_automator_waiting():
     vsrc = vo.read_text(encoding="utf-8")
     assert ".field public static e:Z" in vsrc, f"{_vo_cls}.e (isWaiting) 字段不存在"
     assert ".field public static f:J" in vsrc, f"{_vo_cls}.f (waitStart) 字段不存在"
-    assert "isWaiting" not in vsrc and "waitStart" not in vsrc, "vo getter 已存在（重复注入）"
+    # 支持校验失败后从本步骤恢复；已有补丁仍必须通过下面的唯一性和类型检查。
+    _getters_present = ".method public static isWaiting()Z" in vsrc
+    assert _getters_present == (".method public static waitStart()J" in vsrc), "等待访问器只存在一半"
     getters = (
         "\n# [Oreki AW] AutomatorData.isWaiting / waitStart 只读访问器\n"
         ".method public static isWaiting()Z\n"
@@ -3405,8 +3600,9 @@ def patch_automator_waiting():
         "    return-wide v0\n"
         ".end method\n"
     )
-    write_smali(vo, vsrc.rstrip("\n") + "\n" + getters, encoding="utf-8")
-    note("[AW] vo.smali: 追加 isWaiting()Z / waitStart()J 只读访问器")
+    if not _getters_present:
+        write_smali(vo, vsrc.rstrip("\n") + "\n" + getters, encoding="utf-8")
+    note("[AW] 等待访问器已就绪（新增或复用现有唯一入口）")
 
     # ---- 2. 状态选取块插入等待分支 ----
     lam = smali_tree() /  "kajfosz" / "antimatterdimensions" / "mainactivity" / (
@@ -3424,7 +3620,7 @@ def patch_automator_waiting():
     anchor = "".join(line + "\n" for line in _anchor_lines)
     assert lsrc.count(anchor) == 1, (
         f"状态选取锚点不唯一或未找到（基线 {_baseline_version()}，命中 {lsrc.count(anchor)} 次）")
-    assert "[Oreki AW]" not in lsrc, "等待分支已存在（重复注入）"
+    _waiting_present = "[Oreki AW]" in lsrc
     branch = (
         "    # [Oreki AW] 等待态优先：isWaiting 且未暂停 -> 等待文案；否则原逻辑。\n"
         "    # 只占用 v18（其后 0x922 处先写后读）与 v5（本分支内重写），不触碰 v10-v15。\n"
@@ -3449,7 +3645,10 @@ def patch_automator_waiting():
         "    :aw_orig\n"
         + anchor
     )
-    write_smali(lam, lsrc.replace(anchor, branch), encoding="utf-8")
+    if not _waiting_present:
+        write_smali(lam, lsrc.replace(anchor, branch), encoding="utf-8")
+    else:
+        note("[AW] 复用等待分支，继续校验目标资源和只读访问器")
 
     # ---- 3. 注入后自检 ----
     chk = lam.read_text(encoding="utf-8")
@@ -3464,12 +3663,8 @@ def patch_automator_waiting():
         # 资源 ID 取自 res/values/public.xml（aapt 分配，R8 不会改）。
         # 注意这四个 ID **不连续**（34d / 37a / 382 / 387），必须逐个从 public.xml 取，
         # 不能按 paused 的 ID 递增推算 —— R79 首版就是这么猜错的。
-        _status_ids = (
-            ("0x7f11037a", "automator_paused"),
-            ("0x7f110382", "automator_running"),
-            ("0x7f11034d", "automator_cannot_run"),
-            ("0x7f110387", "automator_stopped"),
-        )
+        # 直接使用目标基线配置，避免新版本仍误查旧版资源 ID。
+        _status_ids = _ui_ids
         for rid, name in _status_ids:
             assert chk.count(rid) == 1, f"原状态分支被破坏: {name}（资源 {rid}）"
     else:
@@ -6187,8 +6382,11 @@ def patch_ip_mult_autobuyer():
     """
     # [R79] 3.20 里 e02 被 R8 复用成无关类；真实等价类是 os0（见 IP_METHOD_ALIASES_320）。
     # 方法名也从 n0() 变成 F()。两者都按基线解析。
-    _e02 = obfuscation_aliases().get("e02", "e02")
-    _n0 = method_aliases().get(("e02", "n0"), ("e02", "n0"))[1]
+    # 与引用改写共用签名解析，连同目标基线的方法重排一起应用。
+    _unlock_ref = rewrite_alias("Le02;->n0()Z")
+    _unlock_match = re.fullmatch(r"L([^;]+);->([^()]+)\(\)Z", _unlock_ref)
+    assert _unlock_match, f"IP 倍率解锁签名无效：{_unlock_ref}"
+    _e02, _n0 = _unlock_match.groups()
     target = mod_file(f"smali/{_e02}.smali")
     assert target.is_file(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
@@ -7043,6 +7241,7 @@ def main():
     patch_effarig_nerf()
     patch_effarig_shard_divisor()
     verify_kotlin_gameapi_aliases()
+    verify_break_shop_kotlin()
     verify_payload()
     patch_ad_bonus()
     patch_automator_waiting()

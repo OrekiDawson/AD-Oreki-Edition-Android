@@ -8146,11 +8146,23 @@ R79 收尾时 `work/mod` 有被后台探测中途写入的痕迹（`a.smali` mti
 - 已核实生产入口：`src/core/oreki-smart-executor.js` 的新存档默认值为 10 秒，调度换算为 `intervalSec * 1000 = 10000` 毫秒；用户可调范围仍为 1～60 秒。
 - localStorage 中已有 1～60 秒合法值会保留；缺失、非整数、越界值回退 10 秒。`setIntervalSec` 仍即时更新内存状态并将用户输入钳制到 1/60 秒。
 - 关闭智能自动购买器后 `runCycle` 不执行任务，既有的 `releaseIfTakenOver` 会释放 IU15 接管；不会改变原版循环、原版自动购买器或手动操作。
-- Web 定向行为自测：`node scripts/test-scheduler-beat.mjs`，13 项检查通过；教程校验 2189/2189 通过。
+- Web 定向行为自测：`node scripts/test-scheduler-beat.mjs`，14 项检查通过；教程校验 2189/2189 通过。
 
-### R85：智能自动购买器默认调度间隔（2026-11-06）
+### R86：Android 3.21 门禁与 Web 独立交付（2026-11-06，紧急保存点）
 
-- 已核实生产入口：`OrekiAutomationScheduler.kt` 的默认值为 10 秒，换算为 `intervalMs() = 10000`；合法范围仍为 1～60 秒。
-- SharedPreferences 中已有 1～60 秒合法值会保留；缺失、越界或读盘异常回退 10 秒。用户调用 `setIntervalSec` 后立即更新内存节拍，越界输入仍钳制到 1/60 秒。
-- `setEnabled(false)` 会清空待执行状态并调用 `OrekiIu15Sprint.releaseNow("automation-off")`，不会执行已排队的 MOD 自动操作；原版循环、原版自动购买器和手动入口未改。
-- Kotlin 定向链路已生成 `build/kt/classes.dex`，本轮未在此 FACTS 条目中宣称 Release APK 或真机验收完成。
+- Android 3.21 官方基线 APK 已核实：`versionName=3.21.0`、`versionCode=30210000`、包名 `kajfosz.antimatterdimensions`、`minSdk=32`、`targetSdk=37`、双 DEX；基线 SHA-256 为 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`。
+- REA 已直接检查该 APK：包证据 `ev_6704dda2c967a878b6b27432f39a2713592ea4cbc69a8f739e46aa32eebdce0e`；`iq0` 类证据 `ev_bb5f5f3631b58c130628ae97211bded4b98b2be6d04fb63a2d5013e7d6aebdb5`。完整 JADX 导出位于 `work/output_code_321_r86`，没有覆盖旧导出。
+- `aliases=CONFIG` / 缺少 `OBFUSCATION_CONFIG` 只是表面错误；真实根因是 `baseline/version-config.json` 的 3.21 配置尚无可供构建消费的完整 `bindings.json`，因此迁移门禁仍应保持 fail-closed，禁止填假值或放宽门禁。
+- `scripts/baseline_bindings.py` 已增加基于稳定游戏宿主、唯一同构方法及真实 DEX 指令引用关系的绑定证据，并修正多 DEX 枚举：3.21 实测默认包短类与游戏包可能分处 `smali` / `smali_classes2`，不能只扫描包含游戏包的单一 DEX 根。
+- 中途结果（修正多 DEX 枚举前）为 41 个所需类中 35 个 `CONFIRMED`，未确认 6 个：`am0`、`fd0`、`fw`、`kajfosz/antimatterdimensions/player/e`、`os0`、`qw3`。其中 `am0 -> fl0` 已有多个独立真实调用宿主但类形状从 27 增至 28 方法；`os0.F()Z -> nr5.u()Z` 的真实 Smali 指令链已人工逐条核对；其余应在恢复后用修正后的全 DEX 派生重新确认。紧急停止指令到达后，新的全 DEX 派生已安全终止，未把不完整结果写成正式绑定。
+- 本轮没有启动 Android Release 构建，没有生成或安装 3.21 MOD APK，也没有 OneDrive / 小米云盘上传。Kotlin、D8、最终 APK DEX 集成及实际设备游戏验收仍未执行，不能宣称 3.21 Release 已打通。
+- Web 使用真实 Android Chrome（Chrome 133，默认 CSS 视口 412×796）完成 7/7 定向检查：缺失/无效配置默认 10 秒、合法 37 秒保留、1/60 秒边界即时生效、关闭后不执行任务并清空队列、无横向溢出。未重复已通过且代码未变化的 scheduler 14/14 与教程 2189/2189。
+- GitHub Pages 已由 Web 源提交 `29e48cff7aa699c8122f3d1bc69fde12a7a6b487` 的干净 HEAD 快照部署；Pages 提交为 `1073aedd80c200f3839d7985c74cd15639e6c330`，Actions run `42203360325` 成功。线上 `oreki-smart-executor.js` 与部署提交字节一致，SHA-256 `76ceba7b4f90379ec30e35a3ffc7d8316a26be8f9d4f50b1360f79fe21922630`。
+
+### R87：首次无限→首次永恒的真实提速与 Android 3.21 迁移（2026-11-06）
+
+- Web 生产修复：`src/core/oreki-autobuy-break-infinity.js` 复用 `OrekiEarlyAutomation.shouldReserveIpForId1()` / `leavesId1Reserve(cost)`。首次永恒前、ID1 未解锁、IP 已达到原版 `ipRequirement` 时，跳过任何真实扣费后会跌破门槛的 Break Infinity 升级；其余仍按原版最便宜优先购买，购买走 `upgrade.purchase()`，不写位图、不伪造扣费或奖励。此前 R82 只覆盖无限升级路径，Break 商店可把 IP 压到 1e8 以下，使 `waitingForId1Peak` HOLD 解除、自动坍缩清零反物质。`[读码]` + Node 行为夹具。
+- Web 定向验证：`node scripts/test-r87-break-id1-reserve.mjs` 13/13、`node scripts/test-early-ipmult.mjs` 7/7、`node scripts/test-r82-id1-growth.mjs` 17/17、`node scripts/validate_tutorial.mjs` 2189/2189 通过；未运行完整浏览器矩阵，未把定向夹具写成全流程通关证明。
+- Android R87：`OrekiBreakShop` 已从 Smali 整体迁移到 Kotlin，保留 `public static final int tick()` ABI；`GameApi.kt` 增加 Break 升级原版购买链的缓存反射与基线绑定；`build_kotlin.py` / `build_mod.py` 增加 ABI、Kotlin-owned 与 ID1 预留构建契约。`python scripts/build_kotlin.py --clean` 通过，`build/kt/classes.dex` 已生成且包含 `OrekiBreakShop`；`python -m py_compile scripts/build_mod.py scripts/build_kotlin.py` 通过。
+- Android 3.21 `bindings.json` 已生成，41 类全部 CONFIRMED（34 条来自全 DEX 派生 + 7 条来自真实字段/方法/调用链定向证据）；`baseline_bindings.py verify` 通过。实际三次构建分别暴露 `fl0` 方法名、Ad Bonus C 锚点、`iq0.g0` 字段类型问题，均已修复；交付截止前最后一次构建未完成并已停止，**未生成 R87 APK**，未上传 OneDrive / 小米云盘，不能宣称 3.21 Release 已交付。
+- Web 教程附录 F 新增「十九、打破无限后的升级不再抢走第一无限维度的点数」；Android 构建期由 `scripts/oreki_tutorial_

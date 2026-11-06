@@ -459,7 +459,9 @@ def _verify_method_entry(entry: dict, idx: dict[str, Path], label: str) -> list[
     target = entry["to"]
     cls, sig = target.split(".", 1)
     name, params = sig.split("(", 1)
-    params = params[:-1]
+    # 方法描述可能是 `name(params)return`；只取右括号前的参数串。
+    # 旧写法 `params[:-1]` 会误删返回值首字符（例如 Z），把存在的方法判成不存在。
+    params = params.split(")", 1)[0]
     desc = f"L{cls};"
     if desc not in idx:
         return [f"{label}: 目标类 {desc} 不存在"]

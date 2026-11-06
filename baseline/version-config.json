@@ -109,8 +109,10 @@
         "reg": "v6",
         "reg_hi": "v7"
       },
-      "_status": "baseline-ready / migration-incomplete：别名表 5/23，构建 fail-closed",
-      "compatibility": "baseline/versions/3.21/compatibility.json"
+      "_status": "baseline-ready / migration-bindings-verified（41 类全部 CONFIRMED；运行期待验收）",
+      "compatibility": "baseline/versions/3.21/compatibility.json",
+      "bindings": "baseline/versions/3.21/bindings.json",
+      "upstream_version": "3.21.0"
     }
   },
   "upstream": {

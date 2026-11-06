@@ -189,7 +189,7 @@ MOD 不写存档结构字段，购买一律走原版入口。但阶段辅助会�
 | 层 | 内容 | 改动方式 |
 |---|---|---|
 | 原版游戏 | 反编译得到的 smali / dex / 资源 | 只通过补丁改动，不重写 |
-| MOD Kotlin 业务 | `scripts/payload/kotlin/`（6 个 `.kt`） | **新业务逻辑的唯一落点** |
+| MOD Kotlin 业务 | `scripts/payload/kotlin/`（7 个 `.kt`，含 R87 迁移的 Break 商店） | **新业务逻辑的唯一落点** |
 | 兼容补丁 | `scripts/build_mod.py` 的注入点 + `scripts/payload/smali/`（30 个历史文件） | 仅 ABI 桥接与原版适配 |
 
 **新业务逻辑必须用 Kotlin 实现**。Smali 只允许承担：原版字节码的必要适配（版本间混淆名漂移）、Kotlin 无法直接表达的调用桥接、无法合理替代的兼容补丁。

@@ -82,6 +82,10 @@ def generate_baseline_bindings_source() -> pathlib.Path:
         "",
         "    @JvmStatic",
         "    fun className(name: String): String = if (name.contains('.')) name else (confirmed[name] ?: name)",
+        "",
+        "    /** 当前目标版是否真的有这条绑定；GameApi 用它决定是否先做 3.19→3.20 名称级联。 */",
+        "    @JvmStatic",
+        "    fun isBound(name: String): Boolean = confirmed.containsKey(name)",
         "}",
         "",
     ]
@@ -182,6 +186,11 @@ EXPECTED_ABI = {
         "public static final java.lang.String debugPhase()",
         "public static final int debugFails()",
     ],
+    # [R87] Break 升级商店整类迁移。旧 Smali 的唯一公开入口是 tick()I，
+    # OrekiStageAuto 通过该签名调用；迁移后必须保持同名同签名。
+    "kajfosz.antimatterdimensions.oreki.OrekiBreakShop": [
+        "public static final int tick()",
+    ],
     "kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler": [
         "public static final void init(android.content.Context)",
         "public static final boolean isEnabled()",
@@ -220,6 +229,9 @@ KOTLIN_OWNED_CLASSES = {
     "kajfosz.antimatterdimensions.oreki.OrekiStageAuto",
     # [R83] IU15 守卫业务迁入 Kotlin，Smali 版必须移除。
     "kajfosz.antimatterdimensions.OrekiAuto",
+    # [R87] Break 升级商店整体迁移；对应 Smali 文件已删除，构建期由本清单
+    # 强制确认 Kotlin dex 中包含该类，避免双写或静默回退。
+    "kajfosz.antimatterdimensions.oreki.OrekiBreakShop",
 }
 
 
