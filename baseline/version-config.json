@@ -7,9 +7,9 @@
     "不允许复制构建脚本、也不允许在 build_mod.py 里再加 startswith 分支。",
     "字段含义见 baseline/README.md。",
     "has_* 系列：描述「原版自身是否已经具备该行为」。为 true 时 MOD 跳过对应注入，避免与新版原版重复实现或类型不符。",
-    "current 指向「当前可构建的开发基线」。3.21 的基线记录已建立（可校验、可回滚），但其 MOD 迁移未完成（别名表 5/23、锚点待重新对位），因此 current 仍为 3.20。"
+    "R85 用户修正：平台上游独立管理，Web 不存在与 Android 版本号一致的升级前置要求。"
   ],
-  "current": "3.20",
+  "current": "3.21",
   "versions": {
     "3.20": {
       "decoded_tree": "work/base_decoded_320",
@@ -66,7 +66,7 @@
       "dex_layout": "split_classes2",
       "split_resource_dir": "work/mdpi_decoded_321",
       "move_ads_package": true,
-      "aliases": "",
+      "aliases": "CONFIG",
       "iu15_threshold_sites": [
         "smali_classes2/a02.smali",
         "smali_classes2/fw.smali",
@@ -99,6 +99,8 @@
       "automator_anchor_lines": [
         "    if-eqz v7, :cond_d",
         "",
+        "    .line 436",
+        "    .line 437",
         "    const v10, 0x7f110373"
       ],
       "ec12_closure": {
@@ -107,7 +109,23 @@
         "reg": "v6",
         "reg_hi": "v7"
       },
-      "_status": "baseline-ready / migration-incomplete：别名表 5/23，构建 fail-closed"
+      "_status": "baseline-ready / migration-incomplete：别名表 5/23，构建 fail-closed",
+      "compatibility": "baseline/versions/3.21/compatibility.json"
+    }
+  },
+  "upstream": {
+    "android": {
+      "target": "3.21.0",
+      "current_mod": "3.20.0",
+      "status": "migration-in-progress",
+      "source": "user-provided APKPure XAPK; internal identity and signing continuity verified, distribution/latest status not independently certified",
+      "apk_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac"
+    },
+    "web": {
+      "version_scheme": "independent upstream commit, not Android release numbers",
+      "source": "https://github.com/IvarK/AntimatterDimensionsSourceCode",
+      "commit": "5409e320cecef96a917cca1dfb68f1f183e499ca",
+      "status": "retained-stable"
     }
   }
 }

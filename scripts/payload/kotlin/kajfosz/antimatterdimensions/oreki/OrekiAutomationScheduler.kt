@@ -71,7 +71,8 @@ object OrekiAutomationScheduler {
 
     private const val INTERVAL_MIN = 1
     private const val INTERVAL_MAX = 60
-    private const val INTERVAL_DEFAULT = 1
+    // 新存档默认 10 秒；用户仍可在 1～60 秒范围内自行调整。
+    private const val INTERVAL_DEFAULT = 10
 
     /** 失败冷却，与 Web NOOP_COOLDOWN_MS 同值。 */
     private const val FAIL_COOLDOWN_MS = 2000
@@ -197,11 +198,16 @@ object OrekiAutomationScheduler {
             val sp = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             // 键不存在时默认启用（用户令：默认开）
             enabled = sp.getBoolean(KEY_ENABLED, true)
-            // 默认 1 秒：以最快通关为优先。已存过的值照原样读回。
-            intervalSec = clampSec(sp.getInt(KEY_INTERVAL, INTERVAL_DEFAULT))
+            // 缺少或无效配置使用 10 秒；已有合法配置原样保留。
+            val storedInterval = sp.getInt(KEY_INTERVAL, INTERVAL_DEFAULT)
+            intervalSec = if (storedInterval in INTERVAL_MIN..INTERVAL_MAX) {
+                storedInterval
+            } else {
+                INTERVAL_DEFAULT
+            }
             strictGlobal = sp.getBoolean(KEY_STRICT, false)
         } catch (_: Throwable) {
-            // 读盘失败：用内存默认值（启用 / 1 秒 / 单任务档），日志里能看到
+            // 读盘失败：用内存默认值（启用 / 10 秒 / 单任务档），日志里能看到
         }
         logI("init ${statusLine()}")
     }
@@ -239,7 +245,12 @@ object OrekiAutomationScheduler {
     @JvmStatic
     fun setEnabled(value: Boolean) {
         enabled = value
-        if (!value) clearPending()
+        if (!value) {
+            clearPending()
+            // R85：取消调度之外同步解除 IU15 临时限制，避免玩家关掉智能
+            // 开关之后仍被购买入口/挑战守卫接管；历史节拍时间戳保持不变。
+            OrekiIu15Sprint.releaseNow("automation-off")
+        }
         persist()
         logI(statusLine())
     }

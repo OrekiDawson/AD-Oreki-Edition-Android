@@ -24,6 +24,7 @@ ABI 必须与原来的 Smali 完全一致（`public static void gEnter()` 等）
 """
 
 import argparse
+import json
 import os
 import pathlib
 import shutil
@@ -44,6 +45,50 @@ D8 = ROOT / "tools" / "bt" / "android-14" / "d8.bat"
 # 为什么可以整包打进去：stdlib 2.4.21 的 d8 体积约 1.5MB（dex 压缩后更小），
 # 相比 67MB 的 APK 可忽略；且只 D8 一次、所有 Kotlin 类共用。
 KOTLIN_STDLIB = ROOT / "tools" / "kotlinc" / "lib" / "kotlin-stdlib.jar"
+GENERATED_SRC = ROOT / "build" / "kt" / "generated" / "OrekiBaselineBindings.kt"
+
+
+def generate_baseline_bindings_source() -> pathlib.Path:
+    """从当前版本配置生成 Kotlin 运行时类名解析器。
+
+    3.20 没有新版 bindings 时保持原名；只有 `bindings.json` 中的
+    CONFIRMED 条目才会进入映射，避免把 PARTIAL/UNCONFIRMED 当成 ABI 事实。
+    生成文件位于 build/，不会成为第二份可手工维护的规则或映射源。
+    """
+    config_path = ROOT / "baseline" / "version-config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    version = str(config.get("current", ""))
+    profile = config.get("versions", {}).get(version, {})
+    mapping: dict[str, str] = {}
+    rel = profile.get("bindings")
+    if rel:
+        data = json.loads((ROOT / rel).read_text(encoding="utf-8"))
+        for old, entry in data.get("classes", {}).items():
+            if entry.get("status") != "CONFIRMED" or not entry.get("to"):
+                continue
+            mapping[old] = entry["to"].split(".")[-1].rstrip(";")
+
+    rows = [
+        "package kajfosz.antimatterdimensions.oreki",
+        "",
+        "/** 构建时由真实基线绑定生成；未确认符号不参与运行时解析。 */",
+        "internal object OrekiBaselineBindings {",
+        "    private val confirmed = java.util.HashMap<String, String>().apply {",
+    ]
+    for old, new in sorted(mapping.items()):
+        rows.append(f'        put("{old}", "{new}")')
+    rows += [
+        "    }",
+        "",
+        "    @JvmStatic",
+        "    fun className(name: String): String = if (name.contains('.')) name else (confirmed[name] ?: name)",
+        "}",
+        "",
+    ]
+    GENERATED_SRC.parent.mkdir(parents=True, exist_ok=True)
+    GENERATED_SRC.write_text("\n".join(rows), encoding="utf-8")
+    print(f"[kotlin] 基线绑定生成：{version}，CONFIRMED={len(mapping)}")
+    return GENERATED_SRC
 
 
 # --------------------------------------------------------------- [R76-SDK] SDK 定位
@@ -238,7 +283,8 @@ def main() -> int:
         print(f"[kotlin] 缺少 android.jar: {ANDROID_JAR}")
         return 1
 
-    sources = sorted(KT_SRC.rglob("*.kt"))
+    generated = generate_baseline_bindings_source()
+    sources = sorted(KT_SRC.rglob("*.kt")) + [generated]
     if not sources:
         print(f"[kotlin] {KT_SRC} 下没有 .kt")
         return 1
