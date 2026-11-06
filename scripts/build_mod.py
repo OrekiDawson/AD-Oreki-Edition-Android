@@ -3407,8 +3407,18 @@ def build_sign(java):
             reset_class_index()
             note("[5] 方法引用分组：原版广告依赖包移入 classes3.dex（不改方法体）")
     note("[5] apktool b ...")
-    r = subprocess.run([java, "-Xmx6g", "-jar", str(TOOLS / "apktool.jar"), "b", str(MOD), "-o", str(unsigned)],
-                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    # R89：apktool 的 buildResources 通过 File.createTempFile 在
+    # `java.io.tmpdir` 下创建 APKTOOL*.tmp。R88 的默认 TEMP 在用户目录外，
+    # 构建进程没有该目录的写权限时会直接 Access denied；这里为本轮构建
+    # 指定仓库内唯一的临时目录，既避开旧句柄也保证可写。
+    apktool_tmp = BUILD / f"apktool-tmp-{os.getpid()}"
+    apktool_tmp.mkdir(parents=True, exist_ok=True)
+    apktool_env = os.environ.copy()
+    apktool_env["TEMP"] = str(apktool_tmp)
+    apktool_env["TMP"] = str(apktool_tmp)
+    r = subprocess.run([java, f"-Djava.io.tmpdir={apktool_tmp}", "-Xmx6g", "-jar", str(TOOLS / "apktool.jar"), "b", str(MOD), "-o", str(unsigned)],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace",
+                       env=apktool_env)
     tail = (r.stdout or "") + (r.stderr or "")
     for line in tail.strip().splitlines()[-12:]:
         note("      " + line)
