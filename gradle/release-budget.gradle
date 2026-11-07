@@ -51,19 +51,29 @@ tasks.named('assembleRelease') {
         }
     }
 
-    doLast {
-        // 只有本次真正执行构建（未被 onlyIf 跳过）才会走到这里：记账即代表一次真实成功构建。
-        exec {
-            workingDir = rbRepoRoot
-            commandLine rbPython, 'scripts/release_budget.py', '--record-success',
-                '--round', rbRound,
-                '--apk', rbStageApk.absolutePath,
-                '--type', (rbEmergency ? 'emergency' : 'final'),
-                '--reason', rbReason
-            if (rbJdk != null) {
-                environment 'JAVA_HOME', rbJdk
-            }
-            environment 'PYTHONIOENCODING', 'utf-8'
-        }
+}
+
+// [R94 修复] 记账改为独立任务：实测 20:39:51 的 assembleRelease 已产出 APK，
+// 但 doLast 里的 `exec {}` 没有执行（账本 mtime 仍停在 20:30:28 的 gate 时间，
+// builds 为空）——RG02-13 的预算因此失去约束力。改成 finalizedBy 的独立 Exec 任务，
+// 只要 assembleRelease 成功就一定记账；记账失败会让整次构建失败，不再静默。
+tasks.register('releaseBudgetRecord', Exec) {
+    group = 'oreki'
+    description = 'RG02-13：构建成功后记账（assembleRelease 的 finalizedBy）'
+    workingDir = rbRepoRoot
+    commandLine rbPython, 'scripts/release_budget.py', '--record-success',
+        '--round', rbRound,
+        '--apk', rbStageApk.absolutePath,
+        '--type', (rbEmergency ? 'emergency' : 'final'),
+        '--reason', rbReason
+    if (rbJdk != null) {
+        environment 'JAVA_HOME', rbJdk
+        environment 'PATH', rbJdk + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
     }
+    environment 'PYTHONIOENCODING', 'utf-8'
+    outputs.upToDateWhen { false }
+}
+
+tasks.named('assembleRelease') {
+    finalizedBy 'releaseBudgetRecord'
 }
