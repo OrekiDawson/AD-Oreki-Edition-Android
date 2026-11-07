@@ -2,6 +2,7 @@ package kajfosz.antimatterdimensions.oreki.tutorial
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
@@ -9,10 +10,12 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
 import android.view.View
+import android.os.Build
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import android.view.WindowInsets
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -39,6 +42,7 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
     private lateinit var contentScroll: ScrollView
     private lateinit var chapterHost: LinearLayout
     private lateinit var chapterScroll: HorizontalScrollView
+    private lateinit var appBar: LinearLayout
 
     override fun onCreate(state: Bundle?) {
         // 语义：教程始终使用深色表面，避免系统浅色主题覆盖正文层级。
@@ -97,16 +101,33 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
     }
 
     private fun addTopBar(root: LinearLayout) {
-        val bar = LinearLayout(this).apply {
+        appBar = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL; setPadding(dp(16), dp(10), dp(12), dp(10)); setBackgroundColor(surface)
         }
+        appBar.addView(actionButton("返回", primary) { finish() }, LinearLayout.LayoutParams(dp(48), dp(40)))
         val title = TextView(this).apply {
             text = "Oreki 教程"; setTextColor(onSurface); textSize = 22f; gravity = Gravity.CENTER_VERTICAL
             typeface = android.graphics.Typeface.DEFAULT_BOLD; maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
         }
-        bar.addView(title, LinearLayout.LayoutParams(0, dp(52), 1f))
-        bar.addView(TextView(this).apply { text = "${chapters.size} 章"; setTextColor(onVariant); textSize = 12f; gravity = Gravity.CENTER; setPadding(dp(10), 0, dp(10), 0) }, LinearLayout.LayoutParams(-2, dp(36)))
-        root.addView(bar, LinearLayout.LayoutParams(-1, -2))
+        appBar.addView(title, LinearLayout.LayoutParams(0, dp(40), 1f).apply { setMargins(dp(6), 0, dp(4), 0) })
+        appBar.addView(actionButton("章节", primaryContainer) { openChapterDrawer() }, LinearLayout.LayoutParams(dp(48), dp(40)).apply { setMargins(dp(2), 0, dp(2), 0) })
+        appBar.addView(actionButton("设置", highContainer) { openSettings() }, LinearLayout.LayoutParams(dp(48), dp(40)).apply { setMargins(dp(2), 0, 0, 0) })
+        root.addView(appBar, LinearLayout.LayoutParams(-1, -2))
+    }
+
+    private fun actionButton(label: String, backgroundColor: Int, action: () -> Unit) = TextView(this).apply {
+        text = label; textSize = 12f; gravity = Gravity.CENTER; setTextColor(onSurface)
+        background = ripple(shape(backgroundColor, 18f), primary); setOnClickListener { action() }
+        isFocusable = true; contentDescription = label
+    }
+
+    private fun openSettings() {
+        try {
+            val settingsClass = Class.forName("kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity")
+            startActivity(Intent(this, settingsClass))
+        } catch (error: Throwable) {
+            Toast.makeText(this, error.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun addChapterPicker(root: LinearLayout) {
@@ -190,10 +211,33 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
         when (record.tag) {
             "TITLE" -> addText(record.text, 25f, onSurface, dp(10), true)
             "SUB" -> addText(record.text, 16f, onPrimaryContainer, dp(14), true)
-            "STAGE", "GOAL", "ENTRY", "DONE", "NEXT", "NUM", "TRAP", "NOTE" -> addBlock(record.text, record.tag)
+            // STAGE 是生成链用于阶段定位的内部键（如 early），不向玩家展示。
+            "STAGE" -> Unit
+            "GOAL", "ENTRY", "DONE", "NEXT", "NUM", "TRAP", "NOTE" -> addBlock(record.text, record.tag)
             "STEP", "BUY", "AUTO", "CHAL" -> addParagraph("• ${record.text}")
-            "TBL" -> addParagraph(record.text.replace("｜", " · "))
+            "TBL" -> addTableRow(record.text)
         }
+    }
+
+    /** 保留生成器写入的「首列：其余」关系，不把列压成无语义的连续正文。 */
+    private fun addTableRow(text: String) {
+        val tableRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL; setPadding(dp(12), dp(10), dp(12), dp(10)); background = shape(container, 12f)
+        }
+        val columns = text.split("｜")
+        columns.forEachIndexed { index, column ->
+            val separator = column.indexOf('：')
+            val key = if (separator > 0) column.substring(0, separator) else if (index == 0) column else ""
+            val value = if (separator > 0) column.substring(separator + 1) else if (index > 0) column else ""
+            if (index > 0) tableRow.addView(TextView(this).apply { this.text = "\n" }, LinearLayout.LayoutParams(dp(8), -1))
+            tableRow.addView(TextView(this).apply {
+                this.text = key; textSize = 14f; setTextColor(onPrimaryContainer); typeface = android.graphics.Typeface.DEFAULT_BOLD
+            }, LinearLayout.LayoutParams(0, -2, .38f))
+            tableRow.addView(TextView(this).apply {
+                this.text = value; textSize = 14f; setTextColor(onSurface); setLineSpacing(0f, 1.2f)
+            }, LinearLayout.LayoutParams(0, -2, .62f))
+        }
+        contentHost.addView(tableRow, LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, dp(8)) })
     }
 
     private fun addBlock(text: String, label: String) {
@@ -208,7 +252,7 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
             if (bold) typeface = android.graphics.Typeface.DEFAULT_BOLD
         }, LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, 0, 0, bottom) })
     }
-    private fun labelName(tag: String) = when (tag) { "GOAL" -> "目标"; "ENTRY" -> "前置条件"; "DONE" -> "完成标志"; "NEXT" -> "下一步"; "TRAP" -> "注意"; "NUM" -> "关键数值"; "NOTE" -> "说明"; else -> tag }
+    private fun labelName(tag: String) = when (tag) { "GOAL" -> "目标"; "ENTRY" -> "前置条件"; "DONE" -> "完成标志"; "NEXT" -> "下一步"; "TRAP" -> "注意"; "NUM" -> "关键数值"; "NOTE" -> "说明"; "STAGE" -> ""; else -> "说明" }
 
     private fun initialChapter(): Int {
         // 语义：阶段越高，初始章节向后推进；相反状态必须保留在对应前期章节。
@@ -220,7 +264,16 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
         val enabled = try { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f } catch (_: Throwable) { true }
         view.alpha = if (enabled) 0f else 1f; if (enabled) view.animate().alpha(1f).setDuration(180L).start()
     }
-    override fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets { view.setPadding(insets.systemWindowInsetLeft, 0, insets.systemWindowInsetRight, insets.systemWindowInsetBottom); return insets }
+    override fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets {
+        val bars = if (Build.VERSION.SDK_INT >= 30) {
+            val systemBars = insets.getInsets(WindowInsets.Type.systemBars())
+            intArrayOf(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        } else intArrayOf(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+        // 语义：根容器只吃左右/底部，状态栏顶部只交给 Top App Bar，避免双重或零 padding。
+        view.setPadding(bars[0], 0, bars[2], bars[3])
+        if (::appBar.isInitialized) appBar.setPadding(dp(16), dp(10) + bars[1], dp(12), dp(10))
+        return insets
+    }
     private fun shape(color: Int, radiusDp: Float) = GradientDrawable().apply { setColor(color); cornerRadius = dp(radiusDp).toFloat(); setStroke(dp(1), outline) }
     private fun ripple(content: GradientDrawable, maskColor: Int) = RippleDrawable(android.content.res.ColorStateList.valueOf(maskColor), content, null)
     private fun dp(value: Int) = (value * resources.displayMetrics.density + .5f).toInt()
