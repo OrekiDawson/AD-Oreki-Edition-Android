@@ -257,6 +257,11 @@ check("未 Break 时坍缩间隔走紧迫名额", 'if (!isBroken()) {' in stage 
 check("紧迫名额按 taskId 分派", "when (taskId) {" in stage and '"crunchInterval" -> upgradeCrunchInterval()' in stage)
 check("峰值窗口有诊断探针", '"probe ipVsReq="' in stage and "holdProbeTick" in stage)
 
+# ---------------------------------------------------------------- 20. R94：HOLD 的 IP 门槛缺失语义
+# 与 resolveUrgentTask 对齐：读不到 ID1 的 IP 门槛时视为「已满足」，否则窗口永远进不去。
+check("HOLD 对 null IP 门槛按已满足处理",
+      "val ipVersus = if (ipRequirement == null) 1 else compareBigDoubles(ip, ipRequirement)" in stage)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:

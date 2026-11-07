@@ -852,7 +852,9 @@ object OrekiStageAuto {
                 } else {
                     val ipRequirement = GameApi.idIpRequirement(id1)
                     val ip = ipBalance()
-                    val ipVersus = compareBigDoubles(ip, ipRequirement)
+                    // [R94] 与 resolveUrgentTask 保持同一语义：读不到 IP 门槛时视为已满足
+                    // （不阻断），而不是当成「没达标」——后者会让窗口永远进不去。
+                    val ipVersus = if (ipRequirement == null) 1 else compareBigDoubles(ip, ipRequirement)
                     val enter = ipVersus != null && ipVersus >= 0
                     // 保险：IP 连门槛的一半都不到 ⇒ 攒不上去，放弃窗口避免永久停坍缩。
                     val doubled = GameApi.multiplyBigDoubleByInt(ip, 2)
