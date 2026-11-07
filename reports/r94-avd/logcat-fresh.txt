@@ -1,0 +1,515 @@
+--------- beginning of main
+11-07 13:06:02.704   407   497 D audioserver: FGS Logger Transaction failed
+11-07 13:06:02.704   407   497 D audioserver: -129
+11-07 13:06:02.722  9994 10095 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 13:06:02.722  9994 10095 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 13:06:02.723  9994 10095 I Ads     : This request is sent from a test device.
+11-07 13:06:02.731  9994 10259 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 13:06:02.733  9994 10095 W Ads     : Fail to fetch AdActivity theme
+11-07 13:06:02.734  9994 10095 I Ads     : Please set theme of AdActivity to @android:style/Theme.Translucent to enable transparent background interstitial ad.
+11-07 13:06:02.742  9994 10280 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 13:06:02.747  9994 10265 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 13:06:02.752  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{ea5d3d2 V.ED..... ..S..AID 67,37-87,88} during layout: running second layout pass
+11-07 13:06:02.752  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{9915ca3 V.ED..... ......ID 67,37-87,88} during layout: running second layout pass
+11-07 13:06:02.752  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{6304ba0 V.ED..... ......ID 67,37-87,88} during layout: running second layout pass
+11-07 13:06:02.752  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{75b2359 V.ED..... ......ID 67,37-87,88} during layout: running second layout pass
+11-07 13:06:02.752  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{6695b1e V.ED..... ......ID 67,37-87,88} during layout: running second layout pass
+11-07 13:06:02.752  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{bd31fff V.ED..... ......ID 66,37-87,88} during layout: running second layout pass
+11-07 13:06:02.753  9994  9994 W View    : requestLayout() improperly called by androidx.appcompat.widget.AppCompatTextView{ade81cc V.ED..... ......ID 67,37-87,88} during layout: running second layout pass
+11-07 13:06:03.109   527  4270 D ConnectivityService: requestNetwork for uid/pid:10141/9994 activeRequest: null callbackRequest: 192 [NetworkRequest [ REQUEST id=193, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+11-07 13:06:03.111   527   658 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=193, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 13:06:03.112   527   658 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=193, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 13:06:03.113   527   658 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=193, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 13:06:03.113   527   658 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=193, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 13:06:03.114   527   665 D ConnectivityService: NetReassign [193 : null → 101] [c 0] [a 0] [i 1]
+11-07 13:06:03.122   527   665 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 1]
+--------- beginning of system
+11-07 13:06:03.162   527  4270 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 99015; state: DISABLED
+11-07 13:06:03.163   527   568 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: ENABLED
+11-07 13:06:03.176   842   842 D Zygote  : Forked child process 10281
+11-07 13:06:03.190 10281 10281 I ocessService0:1: Using CollectorTypeCC GC.
+11-07 13:06:03.190 10281 10281 W ocessService0:1: Unexpected CPU variant for x86: x86_64.
+11-07 13:06:03.190 10281 10281 W ocessService0:1: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-07 13:06:03.197 10281 10281 E ocessService0:1: Not starting debugger since process cannot load the jdwp agent.
+11-07 13:06:03.207   527   568 I ActivityManager: Start proc 10281:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1/u0i15 for  {com.oreki.antimatterdimensions/org.chromium.content.app.SandboxedProcessService0:1}
+11-07 13:06:03.230 10281 10281 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 99015; state: ENABLED
+11-07 13:06:03.230 10281 10281 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 99015; state: ENABLED
+11-07 13:06:03.244 10281 10281 I cr_WebViewApkApp: Launched version=113.0.5672.136 minSdkVersion=1 isBundle=false processName=com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1
+11-07 13:06:03.245   527  1990 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 99015. pid: 10281
+11-07 13:06:03.249 10281 10281 W SystemServiceRegistry: No service published for: virtualdevice
+11-07 13:06:03.256 10281 10281 I cr_ChildProcessService: Creating new ChildProcessService pid=10281
+--------- beginning of kernel
+11-07 13:06:03.236     0     0 E SELinux : avc:  denied  { find } for pid=10281 uid=99015 name=content_capture scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:object_r:content_capture_service:s0 tclass=service_manager permissive=0
+11-07 13:06:03.282  9994 10040 I OREKI_SCHED: pb enabled=true doomed=false etern=0.0e0 inChal=false req=2.0e0 am=2.65301969625056e88 boost=0.0
+11-07 13:06:03.300 10281 10295 I cr_LibraryLoader: Successfully loaded native library
+11-07 13:06:03.301 10281 10295 I cr_CachingUmaRecorder: Flushed 2 samples from 2 histograms.
+11-07 13:06:03.312 10281 10295 W SystemServiceRegistry: No service published for: uimode
+11-07 13:06:03.542  9994 10036 D EGL_emulation: app_time_stats: avg=69.63ms min=11.43ms max=567.35ms count=14
+11-07 13:06:03.692  9994 10136 E chromium: [ERROR:ssl_client_socket_impl.cc(992)] handshake failed; returned -1, SSL error code 1, net_error -100
+11-07 13:06:04.208  9994 10136 E chromium: [ERROR:ssl_client_socket_impl.cc(992)] handshake failed; returned -1, SSL error code 1, net_error -100
+11-07 13:06:04.553  9994 10036 D EGL_emulation: app_time_stats: avg=30.83ms min=3.65ms max=62.78ms count=30
+11-07 13:06:04.686   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:06:05.291  9994 10136 E chromium: [ERROR:ssl_client_socket_impl.cc(992)] handshake failed; returned -1, SSL error code 1, net_error -100
+11-07 13:06:05.566  9994 10036 D EGL_emulation: app_time_stats: avg=32.68ms min=5.34ms max=55.51ms count=29
+11-07 13:06:05.584   353  2217 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 10993152
+11-07 13:06:05.798  9994 10136 E chromium: [ERROR:ssl_client_socket_impl.cc(992)] handshake failed; returned -1, SSL error code 1, net_error -100
+11-07 13:06:06.186   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 13:06:06.571  9994 10036 D EGL_emulation: app_time_stats: avg=27.14ms min=6.91ms max=58.96ms count=34
+11-07 13:06:07.194  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:07.219  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:07.220  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:07.220  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:07.220  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:07.220  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:07.221  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:07.221  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:07.222  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:07.222  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:07.223  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:07.223  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:07.223  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:07.224  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:07.224  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:07.224  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:07.225  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:07.225  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:07.225  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:07.227  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:07.230  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=131 mismatch=19 used=0
+11-07 13:06:07.231  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=25433.0
+11-07 13:06:07.597  9994 10036 D EGL_emulation: app_time_stats: avg=47.62ms min=3.35ms max=58.26ms count=21
+11-07 13:06:08.631  9994 10036 D EGL_emulation: app_time_stats: avg=23.40ms min=9.95ms max=54.45ms count=39
+11-07 13:06:09.187   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 13:06:09.467  9994 10004 I atterdimensions: Background young concurrent copying GC freed 408579(22MB) AllocSpace objects, 0(0B) LOS objects, 36% free, 37MB/58MB, paused 6.026ms,280us total 36.335ms
+11-07 13:06:09.654  9994 10036 D EGL_emulation: app_time_stats: avg=51.04ms min=42.69ms max=61.66ms count=20
+11-07 13:06:10.664  9994 10036 D EGL_emulation: app_time_stats: avg=40.39ms min=4.72ms max=61.67ms count=24
+11-07 13:06:11.666  9994 10036 D EGL_emulation: app_time_stats: avg=38.58ms min=5.86ms max=61.08ms count=25
+11-07 13:06:12.240  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:12.240  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:12.240  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:12.242  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:12.243  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:12.245  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:12.246  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:12.247  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:12.248  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:12.248  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:12.249  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:12.249  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:12.249  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:12.250  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:12.251  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:12.251  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:12.251  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:12.252  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:12.252  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:12.252  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=131 mismatch=19 used=0
+11-07 13:06:12.253  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=30448.0
+11-07 13:06:12.347  9994 10040 I OREKI_SCHED: noop prestigeBatch
+11-07 13:06:12.375  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:06:12.708  9994 10036 D EGL_emulation: app_time_stats: avg=51.98ms min=40.76ms max=61.51ms count=20
+11-07 13:06:13.731  9994 10036 D EGL_emulation: app_time_stats: avg=45.45ms min=4.29ms max=55.16ms count=22
+11-07 13:06:14.688   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:06:14.757  9994 10036 D EGL_emulation: app_time_stats: avg=51.08ms min=40.63ms max=68.52ms count=20
+11-07 13:06:15.422  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:15.779  9994 10036 D EGL_emulation: app_time_stats: avg=45.52ms min=4.81ms max=58.28ms count=22
+11-07 13:06:15.885  9994  9994 I Ads     : Ad failed to load : 0
+11-07 13:06:15.897   527   546 I ActivityManager: Killing 10281:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1/u0a141i15 (adj 0): isolated not needed
+11-07 13:06:15.905   527   569 I libprocessgroup: Successfully killed process cgroup uid 99015 pid 10281 in 7ms
+11-07 13:06:15.900     0     0 I binder  : undelivered transaction 7398214, process died.
+11-07 13:06:15.900     0     0 I binder  : undelivered transaction 7398215, process died.
+11-07 13:06:15.900     0     0 I binder  : undelivered transaction 7398216, process died.
+11-07 13:06:15.925   842   842 I Zygote  : Process 10281 exited due to signal 9 (Killed)
+11-07 13:06:15.929   527   574 E system_server: Cannot read thread CPU times for PID 527
+11-07 13:06:15.930  9994 10004 W atterdimensions: Suspending all threads took: 7.835ms
+11-07 13:06:15.934   527   550 D DisplayManagerService: Drop pending events for gone uid 99015
+11-07 13:06:15.943  9994 10004 I atterdimensions: Background young concurrent copying GC freed 397209(22MB) AllocSpace objects, 0(0B) LOS objects, 32% free, 39MB/58MB, paused 1.117ms,8.102ms total 78.512ms
+11-07 13:06:16.779  9994 10036 D EGL_emulation: app_time_stats: avg=33.91ms min=7.84ms max=74.50ms count=28
+11-07 13:06:17.261  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:17.261  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:17.261  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:17.262  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:17.263  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:17.263  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:17.264  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:17.264  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:17.264  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:17.265  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:17.266  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:17.266  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:17.266  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:17.267  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:17.267  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:17.267  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:17.268  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:17.268  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:17.268  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:17.268  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=130 mismatch=19 used=0
+11-07 13:06:17.269  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=35475.0
+11-07 13:06:17.801  9994 10036 D EGL_emulation: app_time_stats: avg=45.24ms min=3.77ms max=57.63ms count=22
+11-07 13:06:18.818  9994 10036 D EGL_emulation: app_time_stats: avg=45.77ms min=13.77ms max=56.91ms count=22
+11-07 13:06:19.863  9994 10036 D EGL_emulation: app_time_stats: avg=34.50ms min=7.17ms max=66.00ms count=29
+11-07 13:06:20.884  9994 10036 D EGL_emulation: app_time_stats: avg=50.86ms min=42.31ms max=59.23ms count=20
+11-07 13:06:21.579  9994 10012 W atterdimensions: Checksum mismatch for dex base.apk
+11-07 13:06:21.579  9994 10012 W atterdimensions: Could not add methods to the existing profiler. Clearing the profile data.
+11-07 13:06:21.896  9994 10036 D EGL_emulation: app_time_stats: avg=50.49ms min=32.61ms max=72.26ms count=20
+11-07 13:06:22.271  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:22.271  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:22.271  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:22.272  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:22.272  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:22.272  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:22.273  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:22.273  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:22.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:22.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:22.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:22.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:22.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:22.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:22.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:22.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:22.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:22.276  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:22.276  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:22.276  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=130 mismatch=19 used=0
+11-07 13:06:22.276  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=40483.0
+11-07 13:06:22.377  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:06:22.925  9994 10036 D EGL_emulation: app_time_stats: avg=45.33ms min=4.83ms max=59.92ms count=22
+11-07 13:06:23.559  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:23.944  9994 10036 D EGL_emulation: app_time_stats: avg=50.78ms min=41.95ms max=58.71ms count=20
+11-07 13:06:24.703   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:06:24.985  9994 10036 D EGL_emulation: app_time_stats: avg=46.24ms min=6.50ms max=71.56ms count=22
+11-07 13:06:25.977   527   615 D ActivityManager: freezing 1356 android.process.acore
+11-07 13:06:26.002  9994 10036 D EGL_emulation: app_time_stats: avg=50.78ms min=46.46ms max=58.89ms count=20
+11-07 13:06:26.542   527   611 W CpuMonitorService: Current CPU frequency (4187205) is greater than maximum CPU frequency (2) for policy ID (1). Skipping CPU frequency policy
+11-07 13:06:26.542   527   611 W CpuMonitorService: Current CPU frequency (4169461) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-07 13:06:27.002  9994 10036 D EGL_emulation: app_time_stats: avg=40.05ms min=9.14ms max=74.33ms count=24
+11-07 13:06:27.272  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:27.273  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:27.273  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:27.273  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:27.273  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:27.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:27.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:27.274  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:27.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:27.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:27.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:27.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:27.275  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:27.276  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:27.276  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:27.276  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:27.277  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:27.277  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:27.277  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:27.277  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=129 mismatch=19 used=0
+11-07 13:06:27.278  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=45486.0
+11-07 13:06:28.015  9994 10036 D EGL_emulation: app_time_stats: avg=38.83ms min=6.57ms max=56.60ms count=25
+11-07 13:06:29.031  9994 10036 D EGL_emulation: app_time_stats: avg=50.72ms min=42.97ms max=61.34ms count=20
+11-07 13:06:30.083  9994 10036 D EGL_emulation: app_time_stats: avg=31.11ms min=3.48ms max=65.31ms count=31
+11-07 13:06:31.110  9994 10036 D EGL_emulation: app_time_stats: avg=51.21ms min=39.11ms max=67.35ms count=20
+11-07 13:06:31.672  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:32.146  9994 10036 D EGL_emulation: app_time_stats: avg=51.66ms min=41.76ms max=60.45ms count=20
+11-07 13:06:32.283  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:32.283  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:32.283  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:32.284  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:32.284  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:32.284  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:32.285  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:32.287  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:32.287  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:32.287  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:32.288  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:32.288  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:32.289  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:32.289  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:32.289  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:32.289  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:32.290  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:32.290  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:32.291  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:32.291  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=129 mismatch=19 used=0
+11-07 13:06:32.294  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=50496.0
+11-07 13:06:32.393  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:06:33.166  9994 10036 D EGL_emulation: app_time_stats: avg=45.49ms min=2.89ms max=60.35ms count=22
+11-07 13:06:33.439  9994 10040 I OREKI_SCHED: pb enabled=true doomed=false etern=0.0e0 inChal=false req=2.0e0 am=6.92110027764596e144 boost=0.0
+11-07 13:06:33.477   527  1990 W BatteryExternalStatsWorker: error reading Bluetooth stats: 11
+11-07 13:06:34.185  9994 10036 D EGL_emulation: app_time_stats: avg=50.84ms min=42.78ms max=60.87ms count=20
+11-07 13:06:34.397  9994 10030 I TRuntime.CctTransportBackend: Making request to: https://firebaselogging.googleapis.com/v0cc/log/batch?format=json_proto3
+11-07 13:06:34.398   347 10323 I resolv  : GetAddrInfoHandler::run: {101 101 101 983141 10141 0}
+11-07 13:06:34.399   347 10324 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+11-07 13:06:34.402   347 10325 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-07 13:06:34.410   347 10324 I resolv  : res_nsend: used send_dg 48 terrno: 0
+11-07 13:06:34.410   347 10324 I resolv  : doQuery: rcode=0, ancount=0, return value=48
+11-07 13:06:34.411   347 10325 I resolv  : res_nsend: used send_dg 64 terrno: 0
+11-07 13:06:34.411   347 10325 I resolv  : doQuery: rcode=0, ancount=1, return value=64
+11-07 13:06:34.413  9994 10030 D TrafficStats: tagSocket(127) with statsTag=0xffffffff, statsUid=-1
+11-07 13:06:34.692   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:06:34.711   739   848 D EGL_emulation: app_time_stats: avg=34661.59ms min=34661.59ms max=34661.59ms count=1
+11-07 13:06:35.217  9994 10036 D EGL_emulation: app_time_stats: avg=51.47ms min=38.93ms max=60.64ms count=20
+11-07 13:06:35.258  9994 10030 I TRuntime.CctTransportBackend: Status Code: 200
+11-07 13:06:36.220  9994 10036 D EGL_emulation: app_time_stats: avg=49.16ms min=5.95ms max=83.61ms count=20
+11-07 13:06:36.281   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 13:06:37.230  9994 10036 D EGL_emulation: app_time_stats: avg=59.30ms min=38.74ms max=72.82ms count=17
+11-07 13:06:37.306  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:37.306  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:37.306  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 13:06:37.307  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:37.307  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:37.307  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=55
+11-07 13:06:37.307  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:37.307  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:37.308  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:37.308  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:37.308  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:37.308  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:37.308  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:37.308  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:37.309  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:37.309  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:37.309  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:37.309  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:37.309  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:37.309  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=129 mismatch=19 used=0
+11-07 13:06:37.310  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=55512.0
+11-07 13:06:38.178   739   749 I ndroid.systemui: Background young concurrent copying GC freed 245413(11MB) AllocSpace objects, 0(0B) LOS objects, 46% free, 12MB/23MB, paused 5.689ms,575us total 27.085ms
+11-07 13:06:38.252  9994 10036 D EGL_emulation: app_time_stats: avg=56.60ms min=35.49ms max=73.55ms count=18
+11-07 13:06:38.585  9994 10326 W FA      : Tasks have been queued for a long time
+11-07 13:06:39.267  9994 10036 D EGL_emulation: app_time_stats: avg=33.11ms min=9.04ms max=74.69ms count=28
+11-07 13:06:39.286   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 13:06:40.150  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:40.278  9994 10036 D EGL_emulation: app_time_stats: avg=45.01ms min=7.74ms max=59.45ms count=22
+11-07 13:06:41.284  9994 10036 D EGL_emulation: app_time_stats: avg=38.16ms min=3.28ms max=59.38ms count=25
+11-07 13:06:41.415  9994 10004 I atterdimensions: Background young concurrent copying GC freed 368779(20MB) AllocSpace objects, 0(0B) LOS objects, 29% free, 41MB/58MB, paused 6.026ms,198us total 92.556ms
+11-07 13:06:42.285   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 13:06:42.295  9994 10036 D EGL_emulation: app_time_stats: avg=25.21ms min=8.53ms max=58.64ms count=37
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:42.322  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:42.323  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:42.323  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:42.323  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:42.323  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:42.325  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:42.325  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:42.325  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:42.325  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:42.325  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:42.325  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:42.325  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:06:42.326  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=60535.0
+11-07 13:06:42.405  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:06:42.480  9994 10040 I OREKI_SCHED: noop prestigeBatch
+11-07 13:06:42.672  9994 10003 I atterdimensions: Compiler allocated 4786KB to compile void kajfosz.antimatterdimensions.MainActivity.f9()
+11-07 13:06:42.680     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10327 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:06:42.769     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10330 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:06:42.943 10335 10335 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 13:06:42.945 10335 10335 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 13:06:42.929     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-07 13:06:42.954   156   156 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-07 13:06:42.954 10335 10336 I Gralloc4: mapper 4.x is not supported
+11-07 13:06:43.324  9994 10036 D EGL_emulation: app_time_stats: avg=45.60ms min=3.16ms max=73.82ms count=22
+11-07 13:06:44.329  9994 10036 D EGL_emulation: app_time_stats: avg=34.97ms min=7.41ms max=69.15ms count=27
+11-07 13:06:44.694   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:06:45.303   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 13:06:45.347  9994 10036 D EGL_emulation: app_time_stats: avg=45.16ms min=2.30ms max=56.96ms count=22
+11-07 13:06:45.662   739   749 I ndroid.systemui: Background young concurrent copying GC freed 234182(10MB) AllocSpace objects, 0(0B) LOS objects, 43% free, 13MB/24MB, paused 23.105ms,64us total 45.116ms
+11-07 13:06:46.379  9994 10036 D EGL_emulation: app_time_stats: avg=45.81ms min=4.13ms max=67.37ms count=22
+11-07 13:06:47.326  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:47.326  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:47.326  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:47.326  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:47.326  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:47.326  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:47.327  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:47.327  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:47.327  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:47.327  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:47.327  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:47.327  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:47.328  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:47.328  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:47.328  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:47.329  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:47.330  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:47.330  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:06:47.330  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=65539.0
+11-07 13:06:47.394  9994 10036 D EGL_emulation: app_time_stats: avg=50.62ms min=42.09ms max=60.17ms count=20
+11-07 13:06:48.319  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:48.418  9994 10036 D EGL_emulation: app_time_stats: avg=45.85ms min=6.17ms max=57.79ms count=22
+11-07 13:06:49.447  9994 10036 D EGL_emulation: app_time_stats: avg=45.25ms min=2.95ms max=62.33ms count=22
+11-07 13:06:50.492  9994 10036 D EGL_emulation: app_time_stats: avg=46.19ms min=5.00ms max=59.76ms count=22
+11-07 13:06:51.529  9994 10036 D EGL_emulation: app_time_stats: avg=51.76ms min=36.07ms max=67.37ms count=20
+11-07 13:06:52.343  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:52.343  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:52.344  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:52.344  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:52.345  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:52.345  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:52.345  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:52.345  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:52.345  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:52.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:52.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:52.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:52.347  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:52.347  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:52.348  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:52.348  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:52.349  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:52.350  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:06:52.350  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=70556.0
+11-07 13:06:52.424  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:06:52.549  9994 10036 D EGL_emulation: app_time_stats: avg=45.50ms min=7.43ms max=61.24ms count=22
+11-07 13:06:53.571  9994 10036 D EGL_emulation: app_time_stats: avg=45.48ms min=4.89ms max=67.77ms count=22
+11-07 13:06:54.111     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-07 13:06:54.612  9994 10036 D EGL_emulation: app_time_stats: avg=51.94ms min=36.08ms max=65.82ms count=20
+11-07 13:06:54.703   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:06:55.632  9994 10036 D EGL_emulation: app_time_stats: avg=45.82ms min=2.81ms max=55.86ms count=22
+11-07 13:06:56.524  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:06:56.655  9994 10036 D EGL_emulation: app_time_stats: avg=51.01ms min=37.99ms max=60.21ms count=20
+11-07 13:06:56.947     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10339 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:06:57.045     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10342 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:06:57.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:06:57.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:06:57.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:06:57.346  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:06:57.347  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:06:57.347  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:06:57.348  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:06:57.348  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:06:57.348  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:06:57.349  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:06:57.349  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:06:57.349  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:06:57.349  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:06:57.349  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:06:57.350  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:06:57.350  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:06:57.350  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:06:57.350  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:06:57.351  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=75560.0
+11-07 13:06:57.683  9994 10036 D EGL_emulation: app_time_stats: avg=45.08ms min=3.48ms max=57.97ms count=22
+11-07 13:06:58.695  9994 10036 D EGL_emulation: app_time_stats: avg=50.48ms min=38.97ms max=58.98ms count=20
+11-07 13:06:59.717  9994 10036 D EGL_emulation: app_time_stats: avg=45.57ms min=6.56ms max=59.22ms count=22
+11-07 13:07:00.050   739   848 D EGL_emulation: app_time_stats: avg=25339.36ms min=25339.36ms max=25339.36ms count=1
+11-07 13:07:00.094  9994 10004 I atterdimensions: Background young concurrent copying GC freed 336819(18MB) AllocSpace objects, 0(0B) LOS objects, 28% free, 41MB/58MB, paused 5.639ms,905us total 51.016ms
+11-07 13:07:00.748  9994 10036 D EGL_emulation: app_time_stats: avg=51.45ms min=44.74ms max=62.01ms count=20
+11-07 13:07:01.767  9994 10036 D EGL_emulation: app_time_stats: avg=45.02ms min=4.40ms max=61.26ms count=22
+11-07 13:07:02.357  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:07:02.358  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:07:02.359  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:07:02.360  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:07:02.360  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=80570.0
+11-07 13:07:02.441  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:07:02.802  9994 10036 D EGL_emulation: app_time_stats: avg=51.67ms min=43.48ms max=58.67ms count=20
+11-07 13:07:03.577  9994 10040 I OREKI_SCHED: pb enabled=true doomed=false etern=0.0e0 inChal=false req=2.0e0 am=4.50799366200064e121 boost=0.0
+11-07 13:07:03.816  9994 10036 D EGL_emulation: app_time_stats: avg=45.07ms min=8.44ms max=62.88ms count=22
+11-07 13:07:04.670  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:07:04.702   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:07:04.704   739   848 D EGL_emulation: app_time_stats: avg=4653.24ms min=4653.24ms max=4653.24ms count=1
+11-07 13:07:04.833  9994 10036 D EGL_emulation: app_time_stats: avg=50.73ms min=42.42ms max=57.22ms count=20
+11-07 13:07:05.863  9994 10036 D EGL_emulation: app_time_stats: avg=45.17ms min=3.71ms max=61.88ms count=22
+11-07 13:07:06.526  9994 10004 I atterdimensions: Background young concurrent copying GC freed 328583(18MB) AllocSpace objects, 0(0B) LOS objects, 28% free, 41MB/58MB, paused 5.199ms,1.074ms total 46.180ms
+11-07 13:07:06.898  9994 10036 D EGL_emulation: app_time_stats: avg=51.60ms min=40.42ms max=60.83ms count=20
+11-07 13:07:07.382  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:07:07.382  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:07:07.382  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:07:07.384  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:07:07.384  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:07:07.384  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:07:07.384  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:07:07.384  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:07:07.384  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:07:07.385  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:07:07.385  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:07:07.385  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:07:07.386  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:07:07.386  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:07:07.387  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:07:07.388  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:07:07.388  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:07:07.388  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:07:07.390  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=85595.0
+11-07 13:07:07.933  9994 10036 D EGL_emulation: app_time_stats: avg=45.63ms min=2.92ms max=56.49ms count=22
+11-07 13:07:08.955  9994 10036 D EGL_emulation: app_time_stats: avg=50.97ms min=30.14ms max=68.30ms count=20
+11-07 13:07:09.987  9994 10036 D EGL_emulation: app_time_stats: avg=51.50ms min=41.25ms max=59.34ms count=20
+11-07 13:07:11.042  9994 10036 D EGL_emulation: app_time_stats: avg=46.70ms min=4.66ms max=67.75ms count=22
+11-07 13:07:12.045  9994 10036 D EGL_emulation: app_time_stats: avg=50.07ms min=39.53ms max=57.35ms count=20
+11-07 13:07:12.404  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:07:12.404  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:07:12.404  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:07:12.405  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:07:12.405  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:07:12.405  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:07:12.405  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:07:12.405  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:07:12.406  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:07:12.406  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:07:12.407  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:07:12.407  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:07:12.407  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:07:12.407  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:07:12.408  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:07:12.408  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:07:12.408  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:07:12.408  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:07:12.409  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=90617.0
+11-07 13:07:12.460  9994 10040 I OREKI_SCHED: deny noop-retry-wait task=prestigeBatch
+11-07 13:07:12.639  9994 10040 I OREKI_SCHED: noop prestigeBatch
+11-07 13:07:12.867  9994 10040 I OREKI_CRUNCH: 8
+11-07 13:07:12.955  9994 10004 I atterdimensions: Background young concurrent copying GC freed 339209(18MB) AllocSpace objects, 1(20KB) LOS objects, 24% free, 44MB/58MB, paused 3.722ms,109us total 109.419ms
+11-07 13:07:13.076  9994 10036 D EGL_emulation: app_time_stats: avg=45.00ms min=3.90ms max=63.03ms count=22
+11-07 13:07:14.087  9994 10036 D EGL_emulation: app_time_stats: avg=50.46ms min=39.45ms max=62.22ms count=20
+11-07 13:07:14.691   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 13:07:15.110  9994 10036 D EGL_emulation: app_time_stats: avg=51.03ms min=41.49ms max=64.32ms count=20
+11-07 13:07:16.135  9994 10036 D EGL_emulation: app_time_stats: avg=46.15ms min=5.42ms max=57.51ms count=22
+11-07 13:07:17.161  9994 10036 D EGL_emulation: app_time_stats: avg=51.11ms min=40.13ms max=69.82ms count=20
+11-07 13:07:17.415  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=21
+11-07 13:07:17.415  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 13:07:17.416  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=37
+11-07 13:07:17.416  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=54
+11-07 13:07:17.416  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 13:07:17.417  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=107
+11-07 13:07:17.417  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 13:07:17.417  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 13:07:17.417  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=116
+11-07 13:07:17.417  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 13:07:17.418  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 13:07:17.419  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 13:07:17.419  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 13:07:17.419  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 13:07:17.420  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 13:07:17.420  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 13:07:17.420  9994 10040 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 13:07:17.420  9994 10040 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-07 13:07:17.422  9994 10040 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=95628.0
+11-07 13:07:18.192  9994 10036 D EGL_emulation: app_time_stats: avg=51.44ms min=45.25ms max=62.83ms count=20
+11-07 13:07:19.212  9994 10036 D EGL_emulation: app_time_stats: avg=44.92ms min=5.50ms max=75.62ms count=22
+11-07 13:07:19.482   739   749 I ndroid.systemui: Background concurrent copying GC freed 271511(12MB) AllocSpace objects, 0(0B) LOS objects, 49% free, 11MB/23MB, paused 6.543ms,66us total 48.892ms
+11-07 13:07:20.230  9994 10036 D EGL_emulation: app_time_stats: avg=50.84ms min=40.19ms max=74.05ms count=20
+11-07 13:07:20.552     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10345 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:07:20.682     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10348 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:07:20.822     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10351 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 13:07:20.959     0     0 I logd    : logdr: UID=2000 GID=2000 PID=10354 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
