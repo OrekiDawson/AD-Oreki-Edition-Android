@@ -1,0 +1,2 @@
+[watch] R94 监视开始 serial=emulator-5556 interval=30.0s
+[watch] poll log10(IP)=7.29 log10(maxAM)=317.66

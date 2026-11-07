@@ -6650,72 +6650,86 @@ def patch_tutorial_content():
                    "PlayerInfinityChallenges;->i(I)V", "->F(I)V", "completions"):
         assert banned not in asrc_txt, f"[R40H] TutorialActivity 触碰了存档字段（红线）：{banned}"
 
-    # 极性守卫（指令序列锚定，与 check_challenge_auto_polarity 同一手法）。
-    # R40H 开发期实际踩到多次零比较/大小比较写反。后果不是崩溃，而是
-    # 「只剩章标题、正文一个字都不显示」或「永远停在第 1 章」—— 能编过、能装机，
-    # 只有肉眼才看得见，正是本任务要拦的那一类。逐条钉死：
-    #   if-gtz = 大于 0 才跳；if-ltz = 小于 0 才跳；if-gez = 大于等于 0 才跳。
-    for good, bad, why in (
-        ("if-gtz v0, :has_chapters", "if-lez v0, :has_chapters", "有章节才渲染正文"),
-        # 章号上界钳制：合法索引（p1 < chCount）才跳去 :high_ok 跳过钳位。
-        # 2026-10-31 R42 更正：此条原写 good=if-ge / bad=if-lt，**极性反了**。
-        # if-ge p1, v0 = 「p1 >= chCount 才跳」⇒ 合法索引反而不跳，直接落到
-        # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 合法章节号
-        # 都会被钳成最后一章（表现为页签带废弃前缀 +「⑩」）。
-        # 章数：18 章正文 + 7 个附录（apx_*）= 25 个 CH 记录（旧版 11 章已删除）。
-        # 与同文件内两处已写对的样本对齐：:1487 if-gez p1, :low_ok（下界）、
-        # :1534 if-lt v4, v0, :not_last（末章区间）。
-        ("if-lt p1, v0, :high_ok", "if-ge p1, v0, :high_ok", "章号上界钳制（合法索引才跳）"),
-        ("if-lt v4, v0, :not_last", "if-ge v4, v0, :not_last", "末章区间取 lines.size()"),
-        ("if-ne v9, v8, :grp_done", "if-eq v9, v8, :grp_done", "同 TAG 才合并成一块"),
-        ("if-nez v2, :no_header", "if-eqz v2, :no_header", "「具体操作」小标题只画一次"),
-        ("if-ltz v3, :fill_next", "if-gez v3, :fill_next", "CH 之前出现的记录丢弃"),
-        ("if-eq v3, v4, :read_loop", "if-ne v3, v4, :read_loop", "跳过 # 注释行"),
-        ("if-le v1, p1, :join_append", "if-gt v1, p1, :join_append", "拼接时首条不加换行"),
-        # stage 0~2 归 early：必须「stage >= 3 才跳」，即 if-ge。
-        # 2026-10-31 更正：此条原写 good=if-lt p1 / bad=if-ge p1，
-        # ① 寄存器错（stageKeyFor(I) 是静态方法，参数在 p0，不是 p1），
-        # ② 极性也错（if-lt 会让 stage 0~2 跳走返回空串，恰好是本条要防的故障）。
-        # 它把正确写法当成「写反的」禁掉，同时把写反的当成必须存在 —— 于是构建必红。
-        ("if-ge p0, v0, :sk_early", "if-lt p0, v0, :sk_early", "stage 0~2 归 early"),
-        ("if-ltz v2, :trunc", "if-gez v2, :trunc", "页签取全角空格之后的标题"),
-        ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
-        # R43：SUB 从「只画本章第一条」改成「按原位逐条画」（附录小标题靠它）。
-        # 写反的表现：if-ne 会让 SUB 全部跳过（附录小标题消失）；第二行若写 if-le，
-        # CH/TITLE/STAGE 也会被当成正文画出来（页面出现重复标题）。
-        ("if-eq v8, v9, :rec_render", "if-ne v8, v9, :rec_render", "SUB 也要渲染"),
-        ("if-gt v8, v9, :rec_render", "if-le v8, v9, :rec_render", "正文标签走 addGroup"),
-        ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),
-        ("if-lez v0, :sec_body", "if-gtz v0, :sec_body", "小节标题空值跳过"),
-    ):
-        assert good in asrc_txt, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
-        assert bad not in asrc_txt, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
+    # [R94] 教程 UI 已整体迁移到 Kotlin（TutorialActivity.kt），原「smali 指令序列」守卫
+    # 不再适用。这里按源文件类型分流：Kotlin 源用语义级断言，旧 Smali 源保留原指令级守卫。
+    _is_kotlin_tutorial = ".method" not in asrc_txt
+    if _is_kotlin_tutorial:
+        for good, why in (
+            ("if (chapters.isNotEmpty()) {", "有章节才渲染正文"),
+            ("coerceIn(0, chapters.lastIndex)", "章号上界钳制"),
+            ('assets.open("oreki_tutorial.txt")', "正文只来自唯一 assets"),
+            ("TutorialProgress", "阶段提示走原版 stage()"),
+            ('record.tag == "CH"', "章记录识别"),
+        ):
+            assert good in asrc_txt, f"[R40H] 教程 Kotlin 守卫缺少 `{good}`（{why}）"
+        note("[R40H] 教程渲染层（Kotlin）语义守卫通过：章节门控 / 钳制 / assets 单一正文 / 阶段提示")
+    else:
+        # 极性守卫（指令序列锚定，与 check_challenge_auto_polarity 同一手法）。
+        # R40H 开发期实际踩到多次零比较/大小比较写反。后果不是崩溃，而是
+        # 「只剩章标题、正文一个字都不显示」或「永远停在第 1 章」—— 能编过、能装机，
+        # 只有肉眼才看得见，正是本任务要拦的那一类。逐条钉死：
+        #   if-gtz = 大于 0 才跳；if-ltz = 小于 0 才跳；if-gez = 大于等于 0 才跳。
+        for good, bad, why in (
+            ("if-gtz v0, :has_chapters", "if-lez v0, :has_chapters", "有章节才渲染正文"),
+            # 章号上界钳制：合法索引（p1 < chCount）才跳去 :high_ok 跳过钳位。
+            # 2026-10-31 R42 更正：此条原写 good=if-ge / bad=if-lt，**极性反了**。
+            # if-ge p1, v0 = 「p1 >= chCount 才跳」⇒ 合法索引反而不跳，直接落到
+            # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 合法章节号
+            # 都会被钳成最后一章（表现为页签带废弃前缀 +「⑩」）。
+            # 章数：18 章正文 + 7 个附录（apx_*）= 25 个 CH 记录（旧版 11 章已删除）。
+            # 与同文件内两处已写对的样本对齐：:1487 if-gez p1, :low_ok（下界）、
+            # :1534 if-lt v4, v0, :not_last（末章区间）。
+            ("if-lt p1, v0, :high_ok", "if-ge p1, v0, :high_ok", "章号上界钳制（合法索引才跳）"),
+            ("if-lt v4, v0, :not_last", "if-ge v4, v0, :not_last", "末章区间取 lines.size()"),
+            ("if-ne v9, v8, :grp_done", "if-eq v9, v8, :grp_done", "同 TAG 才合并成一块"),
+            ("if-nez v2, :no_header", "if-eqz v2, :no_header", "「具体操作」小标题只画一次"),
+            ("if-ltz v3, :fill_next", "if-gez v3, :fill_next", "CH 之前出现的记录丢弃"),
+            ("if-eq v3, v4, :read_loop", "if-ne v3, v4, :read_loop", "跳过 # 注释行"),
+            ("if-le v1, p1, :join_append", "if-gt v1, p1, :join_append", "拼接时首条不加换行"),
+            # stage 0~2 归 early：必须「stage >= 3 才跳」，即 if-ge。
+            # 2026-10-31 更正：此条原写 good=if-lt p1 / bad=if-ge p1，
+            # ① 寄存器错（stageKeyFor(I) 是静态方法，参数在 p0，不是 p1），
+            # ② 极性也错（if-lt 会让 stage 0~2 跳走返回空串，恰好是本条要防的故障）。
+            # 它把正确写法当成「写反的」禁掉，同时把写反的当成必须存在 —— 于是构建必红。
+            ("if-ge p0, v0, :sk_early", "if-lt p0, v0, :sk_early", "stage 0~2 归 early"),
+            ("if-ltz v2, :trunc", "if-gez v2, :trunc", "页签取全角空格之后的标题"),
+            ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
+            # R43：SUB 从「只画本章第一条」改成「按原位逐条画」（附录小标题靠它）。
+            # 写反的表现：if-ne 会让 SUB 全部跳过（附录小标题消失）；第二行若写 if-le，
+            # CH/TITLE/STAGE 也会被当成正文画出来（页面出现重复标题）。
+            ("if-eq v8, v9, :rec_render", "if-ne v8, v9, :rec_render", "SUB 也要渲染"),
+            ("if-gt v8, v9, :rec_render", "if-le v8, v9, :rec_render", "正文标签走 addGroup"),
+            ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),
+            ("if-lez v0, :sec_body", "if-gtz v0, :sec_body", "小节标题空值跳过"),
+        ):
+            assert good in asrc_txt, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
+            assert bad not in asrc_txt, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
 
-    # R43：SUB 走 addNote（无中文标签的次要色正文），不再单独扫一遍「第一条 SUB」。
-    assert ":sub_loop" not in asrc_txt, \
-        "[R40H] showChapter 里还留着 sub_loop —— 它只画第一条 SUB，会让附录小标题丢失"
-    ag0 = asrc_txt.find(".method private final addGroup(III)V")
-    ag1 = asrc_txt.find(".end method", ag0)
-    assert ag0 > 0 and ag1 > ag0, "[R40H] 找不到 addGroup"
-    ag = asrc_txt[ag0:ag1]
-    assert "if-ne p1, v1, :not_sub" in ag and "addNote(Ljava/lang/String;)V" in ag, \
-        "[R40H] addGroup 没有 SUB -> addNote 分支（附录小标题会退化成 18sp 蓝色小节标题）"
+        # R43：SUB 走 addNote（无中文标签的次要色正文），不再单独扫一遍「第一条 SUB」。
+        assert ":sub_loop" not in asrc_txt, \
+            "[R40H] showChapter 里还留着 sub_loop —— 它只画第一条 SUB，会让附录小标题丢失"
+        ag0 = asrc_txt.find(".method private final addGroup(III)V")
+        ag1 = asrc_txt.find(".end method", ag0)
+        assert ag0 > 0 and ag1 > ag0, "[R40H] 找不到 addGroup"
+        ag = asrc_txt[ag0:ag1]
+        assert "if-ne p1, v1, :not_sub" in ag and "addNote(Ljava/lang/String;)V" in ag, \
+            "[R40H] addGroup 没有 SUB -> addNote 分支（附录小标题会退化成 18sp 蓝色小节标题）"
 
-    # R43：阶段提示（PH）必须从 assets 读，不许又写回 smali。
-    prg = (tut_dir / "TutorialProgress.smali").read_text(encoding="utf-8")
-    for key in ("当前阶段：开局", "当前阶段：维度提升", "当前阶段：佩勒"):
-        assert key not in prg, \
-            f"[R40H] TutorialProgress 里还写死着阶段提示「{key}」—— 应迁到 JSON 的 progressHints"
-    for line in _tutorial_literals(prg):
-        assert "下一步：" not in line, \
-            f"[R40H] TutorialProgress 里还有阶段提示文案：{line[:40]!r}"
-    for needle, why in (
-        ("->indexHints()V", "没有建 PH 索引"),
-        ("->chapterForId(Ljava/lang/String;)I", "没有按 chapterId 找章（跳转用）"),
-        ('const-string v6, "PH"', "没有识别 PH 记录"),
-        ("phChapter:[Ljava/lang/String;", "没有存 PH 的 chapterId"),
-    ):
-        assert needle in asrc_txt, f"[R40H] 阶段提示接线缺失：{why}（{needle}）"
+        # R43：阶段提示（PH）必须从 assets 读，不许又写回 smali。
+        prg = (tut_dir / "TutorialProgress.smali").read_text(encoding="utf-8")
+        for key in ("当前阶段：开局", "当前阶段：维度提升", "当前阶段：佩勒"):
+            assert key not in prg, \
+                f"[R40H] TutorialProgress 里还写死着阶段提示「{key}」—— 应迁到 JSON 的 progressHints"
+        for line in _tutorial_literals(prg):
+            assert "下一步：" not in line, \
+                f"[R40H] TutorialProgress 里还有阶段提示文案：{line[:40]!r}"
+        for needle, why in (
+            ("->indexHints()V", "没有建 PH 索引"),
+            ("->chapterForId(Ljava/lang/String;)I", "没有按 chapterId 找章（跳转用）"),
+            ('const-string v6, "PH"', "没有识别 PH 记录"),
+            ("phChapter:[Ljava/lang/String;", "没有存 PH 的 chapterId"),
+        ):
+            assert needle in asrc_txt, f"[R40H] 阶段提示接线缺失：{why}（{needle}）"
 
     note("[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自 assets）")
 

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\Oreki\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\run_watch.py", line 121, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\Oreki\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\run_watch.py", line 110, in main
+    detail = (f"IP={ip:.3e} · 本永恒maxAM={max_am:.3e} · "
+                    ^^
+NameError: name 'ip' is not defined. Did you mean: 'ap'?
