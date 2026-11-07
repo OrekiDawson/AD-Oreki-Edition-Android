@@ -124,6 +124,39 @@ object OrekiStageAuto {
      * 顺序与原 Smali **完全一致**（顺序本身是业务语义，不能重排）。
      * 任何异常一律吞掉：本方法在游戏主循环里，抛出去会直接崩游戏。
      */
+    // ------------------------------------------------------ [R94] Break 状态守护
+
+    private val TAG_BREAK_GUARD = "OREKI_BREAK"
+
+    /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
+    private var lastObservedBrokenState: Boolean = false
+
+    /** 大坍缩间隔是否已买满（原版「打破无限」按钮的前置条件）。 */
+    private fun crunchIntervalIsMaxed(): Boolean {
+        val crunch = GameApi.crunchState() ?: return false
+        return GameApi.crunchMaxedInterval(crunch)
+    }
+
+    /**
+     * [R94] 记录 Break 丢失事件。
+     *
+     * 实测 3.21 全树 `Player.brake` 只有 `x0(Z)` 一个写入点，调用者仅原版「打破无限」按钮
+     * 与整局重置路径；Kotlin 侧只有 `setBrake(true)`，因此 true→false 必然来自原版路径。
+     * 这里只打印一次（状态变化时），用于定位丢失时刻与当时的 IP / 间隔状态。
+     */
+    private fun detectBreakLoss() {
+        val broken = GameApi.isBroken()
+        if (lastObservedBrokenState && !broken) {
+            Log.i(
+                TAG_BREAK_GUARD,
+                "break-lost ip=" + GameApi.currencyValue(GameApi.ipCurrency()) +
+                    " maxed=" + crunchIntervalIsMaxed() +
+                    " infinities=" + GameApi.infinities(),
+            )
+        }
+        lastObservedBrokenState = broken
+    }
+
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
@@ -140,6 +173,7 @@ object OrekiStageAuto {
 
             applyCrunchPolicy()
             crunchProbe()
+            detectBreakLoss()
 
             if (!GameApi.hasInfinity()) {
                 // [R94] 首次无限前只做「原版自动购买器解锁」（enableEarly）。
@@ -209,12 +243,20 @@ object OrekiStageAuto {
                     runScheduled("crunchInterval") { upgradeCrunchInterval() }
                 }
 
-                // ---- Break 兜底 ----
+                // ---- Break 兜底 + 自愈（R94）----
                 if (OrekiAutomationScheduler.allow("breakUpgrades")) {
-                    val before = GameApi.isBroken()
-                    tryBreakInfinity()
-                    val after = GameApi.isBroken()
-                    if (before != after) {
+                    val wasBroken = GameApi.isBroken()
+                    if (!wasBroken) {
+                        // [R94] 实测：Break 可能被原版重置路径清掉（存档 brake=false），
+                        // 而原版同时把大坍缩间隔恢复为未满 —— 只重试 Break 永远不会成功。
+                        // 这里先按原版真实成本把间隔买到满，再走原版入口重试 Break。
+                        if (!crunchIntervalIsMaxed()) {
+                            upgradeCrunchInterval()
+                        }
+                        tryBreakInfinity()
+                    }
+                    val isBrokenNow = GameApi.isBroken()
+                    if (wasBroken != isBrokenNow) {
                         OrekiAutomationScheduler.noteActed("breakUpgrades")
                     } else {
                         OrekiAutomationScheduler.noteNoop("breakUpgrades")
