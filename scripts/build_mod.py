@@ -1818,7 +1818,6 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
     # [R44] 顶栏标题「主页签 · 子页签」合成（MainActivity.H8 里被 invoke-static）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiUiTitle.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.smali",
     "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.smali",
 ]
@@ -6724,34 +6723,28 @@ def patch_tutorial_content():
     # （方法定义 1 次 + loadData 里唯一一次调用）。多于 2 次说明又接回了第二份正文。
     # 注意计数用「不带 -> 的裸名」：定义行是 `.method ... readAssetInto(...)V`，没有 `->`。
     # 这里刻意不按文件名断言 —— 旧版文件名不该再出现在任何脚本里。
-    _early_act = (smali_tree() /  OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-                  / "TutorialActivity.smali")
-    assert _early_act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
+    _early_act = (PAYLOAD / "kotlin" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+                  / "TutorialActivity.kt")
+    assert _early_act.is_file(), "[R94] 缺少 Kotlin TutorialActivity.kt"
     asrc_txt_early = _early_act.read_text(encoding="utf-8")
-    _sig = "readAssetInto(Ljava/util/ArrayList;Ljava/lang/String;)V"
-    _read_n = asrc_txt_early.count(_sig)
-    _call_n = asrc_txt_early.count("->" + _sig)
-    assert _read_n == 2 and _call_n == 1, (
-        f"[R40H] TutorialActivity 的 readAssetInto 出现 {_read_n} 次 / 其中调用 {_call_n} 次"
-        "（期望 2 / 1：定义 1 次 + loadData 调用 1 次）；多出来的调用说明又读回了第二份教程正文")
+    assert 'assets.open("oreki_tutorial.txt")' in asrc_txt_early, \
+        "[R40H] Kotlin TutorialActivity 没有从唯一教程 asset 读取正文"
     note(f"[R40H] 上一版正文已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
 
     # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
-    tut_dir = smali_tree() /  OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-    act = tut_dir / "TutorialActivity.smali"
-    assert act.is_file(), "[R40H] 缺少 TutorialActivity.smali"
+    tut_dir = PAYLOAD / "kotlin" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    act = tut_dir / "TutorialActivity.kt"
+    assert act.is_file(), "[R94] 缺少 Kotlin TutorialActivity.kt"
     asrc_txt = act.read_text(encoding="utf-8")
 
     for needle, why in (
-        ("getAssets()Landroid/content/res/AssetManager;", "没有走 AssetManager 读正文"),
-        ('const-string v1, "oreki_tutorial.txt"', "没有读新版 assets"),
-        ('const-string v0, "\\\\|"', "没有按竖线切分记录"),
-        ("Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;", "没有 split 解析"),
-        ("->showChapter(I)V", "没有「只渲染当前章」的入口"),
-        ("->buildTabs()V", "没有章节目录"),
-        ("->openInitialChapter()V", "打开时没有按阶段定位"),
-        ("TutorialProgress;->stage()I", "没有用 stage() 定位"),
-        ("->saveFontSize()V", "字号偏好没有持久化"),
+        ('assets.open("oreki_tutorial.txt")', "没有走 AssetManager 读正文"),
+        ("line.split('|', limit = 3)", "没有按竖线切分记录"),
+        ("showChapter(currentChapter)", "没有「只渲染当前章」的入口"),
+        ("buildChapterPicker()", "没有章节目录"),
+        ("initialChapter()", "打开时没有按阶段定位"),
+        ('getDeclaredMethod("stage")', "没有用 stage() 定位"),
+        ('putInt("font_scale", fontScale)', "字号偏好没有持久化"),
     ):
         assert needle in asrc_txt, f"[R40H] TutorialActivity 接线缺失：{why}（{needle}）"
 
@@ -6763,7 +6756,7 @@ def patch_tutorial_content():
 
     # 正文不许回到 smali：只统计 const-string 字面量里的汉字（注释不算）。
     # 界面文案是几百字量级，正文一旦被贴回来立刻跳到几千。
-    lit_cjk = sum(1 for lit in _tutorial_literals(asrc_txt)
+    lit_cjk = sum(1 for lit in re.findall(r'(?s)"([^"\\]*(?:\\.[^"\\]*)*)"', asrc_txt)
                   for c in lit if "\u4e00" <= c <= "\u9fff")
     assert lit_cjk < 600, \
         f"[R40H] TutorialActivity 的 const-string 里有 {lit_cjk} 个汉字，正文像是又被写回 smali 了"
@@ -6874,12 +6867,12 @@ def patch_tutorial_entry():
     """
     pkg_dir = smali_tree() /  OLD_PKG.replace(".", "/")
     tut_src = PAYLOAD / "smali" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-    for f in ("TutorialActivity.smali", "TutorialEntry.smali", "TutorialEntryListener.smali",
+    for f in ("TutorialEntry.smali", "TutorialEntryListener.smali",
               "TutorialTabListener.smali", "DrawerInsetListener.smali",
               "TutorialProgress.smali"):
         assert (tut_src / f).is_file(), f"[T1] 教程 payload 缺失: {f}"
         assert (pkg_dir / "oreki" / "tutorial" / f).is_file(), f"[T1] 教程类未拷进 mod 树: {f}"
-    note("[T1] 教程类已进入 mod 树（6 个）")
+    note("[T1] 教程入口辅助类已进入 mod 树（5 个 Smali；Activity 由 Kotlin DEX 提供）")
 
     # --- 1) Manifest 注册教程 Activity ---
     mp = MOD / "AndroidManifest.xml"
@@ -7001,8 +6994,8 @@ def patch_tutorial_entry():
     # 表现为按钮一次都不出现而 logcat 无异常、容器 childCount 恒为 2。
     assert ent.count("if-eqz p1, :done") >= 2, \
         "[T1] 断言失败：addEntry/addEntryOnce 的判空分支写反（if-nez p1 会直接返回）"
-    act_src = (pkg_dir / "oreki" / "tutorial" / "TutorialActivity.smali").read_text(encoding="utf-8")
-    assert "Landroid/app/Activity;" in act_src, "[T1] 断言失败：教程类不是 Activity 子类"
+    act_src = (PAYLOAD / "kotlin" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial" / "TutorialActivity.kt").read_text(encoding="utf-8")
+    assert ": Activity()" in act_src, "[T1] 断言失败：Kotlin 教程类不是 Activity 子类"
     assert "Oreki 教程" in act_src, "[T1] 断言失败：教程标题缺失"
     # R27：addFull 的判空也曾写反（`if-nez p1` 是非空就返回），
     # 结果 ScrollView 里只有一个空 LinearLayout（高度 = 上下内边距 88px），整页白屏。
@@ -7010,9 +7003,8 @@ def patch_tutorial_entry():
     def _code_lines(s):
         return [ln for ln in s.splitlines() if not ln.lstrip().startswith("#")]
 
-    act_code = "\n".join(_code_lines(act_src))
-    assert "if-eqz p1, :done" in act_code and "if-nez p1, :done" not in act_code, \
-        "[T1] 断言失败：TutorialActivity.addFull 判空方向写反（教程正文会全空白）"
+    assert 'if (parts.size == 3) records += Record' in act_src, \
+        "[T1] 断言失败：Kotlin 教程记录解析缺少三段完整性判断"
     lst_src = (pkg_dir / "oreki" / "tutorial" / "TutorialEntryListener.smali").read_text(encoding="utf-8")
     lst_code = "\n".join(_code_lines(lst_src))
     # R27：start() 的判空写反时，点「打开 Oreki 中文教程」无任何反应（不崩溃、无日志）。
