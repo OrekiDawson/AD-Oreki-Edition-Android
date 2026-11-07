@@ -249,6 +249,14 @@ check("进入后只按峰值达标退出", "if (peakVersus != null && peakVersus
 check("防死锁保险：IP 跌破门槛一半才放弃窗口", "val farBelow = doubled != null" in stage)
 check("锁存时打印判据输入", "latch ipVsReq=" in stage)
 
+# ---------------------------------------------------------------- 19. R94：未 Break 时给坍缩间隔紧迫名额
+# 实测（run3）：crunchInterval 在固定顺序里排第 4，被 sacrifice/bulk 的 frame-held
+# 饿死 19 分钟以上，直接拖慢首次 Break。修复：未 Break 且间隔未满时给它紧迫名额；
+# 买不起返回 false ⇒ noteNoop 不占节拍，不反噬常规动作。
+check("未 Break 时坍缩间隔走紧迫名额", 'if (!isBroken()) {' in stage and '"crunchInterval"' in stage)
+check("紧迫名额按 taskId 分派", "when (taskId) {" in stage and '"crunchInterval" -> upgradeCrunchInterval()' in stage)
+check("峰值窗口有诊断探针", '"probe ipVsReq="' in stage and "holdProbeTick" in stage)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:

@@ -325,7 +325,18 @@ object OrekiStageAuto {
      * 一旦 ID1 解锁就返回 null，调用方立刻恢复原有固定顺序 —— 不长期占用名额。
      */
     private fun resolveUrgentTask(): String? = try {
-        if (!isBroken() || !eternitiesZero()) {
+        // [R94] 尚未 Break：坍缩间隔买满是 Break 的唯一前置，但它在固定顺序里排在
+        // sacrifice/bulk/infinityUpgrades 之后，实测会被「frame-held」饿死 19 分钟以上
+        // （run3：前 19 分钟 crunchInterval 0 次，直到无限升级买满才拿到节拍）。
+        // 这里给它紧迫名额；买不起时 upgradeCrunchInterval() 返回 false ⇒ noteNoop
+        // 不占节拍，后面的常规动作照常执行，不会反噬。
+        if (!isBroken()) {
+            if (crunchIntervalIsMaxed()) {
+                null
+            } else {
+                "crunchInterval"
+            }
+        } else if (!eternitiesZero()) {
             null
         } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
             null
@@ -351,7 +362,10 @@ object OrekiStageAuto {
         if (!OrekiAutomationScheduler.isUrgent(taskId)) return false
         if (!OrekiAutomationScheduler.allow(taskId)) return false
         val acted = try {
-            tryBuyId1()
+            when (taskId) {
+                "crunchInterval" -> upgradeCrunchInterval()
+                else -> tryBuyId1()
+            }
         } catch (_: Throwable) {
             OrekiAutomationScheduler.noteFail(taskId)
             false
@@ -812,6 +826,9 @@ object OrekiStageAuto {
      */
     private var holdLatched: Boolean = false
 
+    /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
+    private var holdProbeTick: Int = 0
+
     private fun computeHoldCrunch(): Boolean = try {
         val broken = isBroken()
         val eternitiesZero = eternitiesZero()
@@ -841,6 +858,17 @@ object OrekiStageAuto {
                     val doubled = GameApi.multiplyBigDoubleByInt(ip, 2)
                     val farBelow = doubled != null &&
                         (compareBigDoubles(doubled, ipRequirement) ?: 1) < 0
+                    holdProbeTick++
+                    if (!holdLatched && holdProbeTick % 300 == 0) {
+                        // [R94] 只诊断、不参与判定：为什么没有进入峰值窗口，一次看清。
+                        Log.i(
+                            TAG_HOLD,
+                            "probe ipVsReq=" + (ipVersus ?: 9) +
+                                " peakVsReq=" + (peakVersus ?: 9) +
+                                " broken=" + broken + " etZero=" + eternitiesZero +
+                                " id1Null=" + (id1 == null) + " unlocked=" + GameApi.idUnlocked(id1),
+                        )
+                    }
                     if (holdLatched) {
                         if (farBelow) holdLatched = false
                     } else if (enter) {
