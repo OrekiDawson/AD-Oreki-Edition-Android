@@ -199,6 +199,20 @@ check("自动购买器总开关绑定 3.21 真实 setter e0(Z)",
       and 'paramTypeNames = listOf("boolean")' in gameapi)
 check("不再绑定错误的 g0(I)",
       '"Options.g0(Z)=autobuyersOn"' not in gameapi)
+# ---------------------------------------------------------------- 15. R93：首次无限前维度提升
+check("调度器注册 prestigeBatch 任务", '"prestigeBatch"' in sched)
+check("prestigeBatch 只在首次无限前分支调用",
+      'if (!GameApi.hasInfinity())' in stage
+      and stage.index('runScheduled("prestigeBatch")') < stage.index('earlyAutomationApplied = false'))
+check("原版维度提升入口用 m01.n(Z) 且按真实需求预判",
+      'm01.n(Z)=prestige reset' in gameapi
+      and 'dimensionBoostRequirement()' in stage
+      and 'compareBigDoubles(antimatter, requirement)' in stage)
+check("每次提升后用 Player.u() 前后差值判定成功",
+      'val before = GameApi.dimensionBoosts()' in stage
+      and 'if (after <= before) break' in stage)
+check("首次无限前重置保留反物质（AD4 等价）",
+      'withKeptAntimatter {' in stage and 'addAntimatter(delta)' in stage)
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:

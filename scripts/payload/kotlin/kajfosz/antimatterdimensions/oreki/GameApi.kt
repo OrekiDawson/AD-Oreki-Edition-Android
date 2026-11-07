@@ -1630,6 +1630,73 @@ internal object GameApi {
     fun doSacrifice() = call(mSacI(), null)
     fun sacrificeMultiplier(): Any? = call(mSacK(), sacrificeAutobuyer())
 
+    // ------------------------------------------------------------ [R93] 首次无限前的原版重置入口
+
+    /**
+     * `m01`（3.21 的 DimensionBoost 辅助类）—— 原版「维度提升 / 反物质星系」入口。
+     *
+     * 依据（`work/base_decoded_321/smali_classes2/m01.smali` 逐行核对）：
+     *   · 游戏四个重置按钮委托 `i22/j22/k22/l22.C(ZZ)V` 都调用 `Lm01;->n(Z)V`；
+     *   · `n(false)` = 维度提升：守卫普通挑战 `n63.f()`、无限挑战 `c22.d()` →
+     *     `fl0.r(cw, Player.u())` 取当前提升数 → `m57.u(...)` 换算并重置 →
+     *     `Player.C0(...)` 写回新的提升数；
+     *   · `h()` = 维度提升需求（BigDouble）；`i()` = floor(Player.u()) 整数提升数。
+     */
+    private var prestigeHelperClassCache: Class<*>? = null
+    private var prestigeHelperClsResolved: Boolean = false
+    private fun prestigeHelperCls(): Class<*>? {
+        if (!prestigeHelperClsResolved) {
+            prestigeHelperClsResolved = true
+            prestigeHelperClassCache = cls("m01")
+        }
+        return prestigeHelperClassCache
+    }
+
+    private fun m01Static(name: String, what: String): Method? = method(prestigeHelperCls(), name, 0, what)
+
+    /** `Player.u()D` —— 维度提升计数。 */
+    fun dimensionBoosts(): Double? = try {
+        (method(playerCls(), "u", 0, "Player.u()=dimensionBoosts")?.let { m -> call(m, player()) } as? Number)?.toDouble()
+    } catch (e: Throwable) { miss("Player.u()", e); null }
+
+    /** `Player.A()J` —— 反物质星系计数。 */
+    fun galaxies(): Long? = try {
+        (method(playerCls(), "A", 0, "Player.A()=galaxies")?.let { m -> call(m, player()) } as? Number)?.toLong()
+    } catch (e: Throwable) { miss("Player.A()", e); null }
+
+    /** `m01.h()` —— 当前维度提升需求（BigDouble）。 */
+    fun dimensionBoostRequirement(): Any? = call(m01Static("h", "m01.h()=dimBoostRequirement"), null)
+
+    /** `m01.n(Z)V` —— Z=false 维度提升，Z=true 反物质星系（原版请求入口）。 */
+    fun requestPrestigeReset(isGalaxy: Boolean) {
+        try {
+            val m = method(prestigeHelperCls(), "n", 1, "m01.n(Z)=prestige reset")
+            call(m, null, isGalaxy)
+        } catch (e: Throwable) { miss("m01.n(Z)", e) }
+    }
+
+    /** 反物质货币（3.21：`iq0.d`，类型 `op0`）。 */
+    fun antimatterCurrency(): Any? = try {
+        staticField(currencyHolderCls(), "d")?.get(null)
+    } catch (e: Throwable) { miss("iq0.d", e); null }
+
+    /** 反物质当前值（`op0.K()` 的 BigDouble）。 */
+    fun antimatterValue(): Any? {
+        val c = antimatterCurrency() ?: return null
+        val m = c.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 } ?: return null
+        return try { m.invoke(c) } catch (e: Throwable) { miss("op0.K()", e); null }
+    }
+
+    /** 给反物质加回一个增量（`op0.C(BigDouble)` 的原版 add 语义，会同步 records）。 */
+    fun addAntimatter(delta: Any?) {
+        if (delta == null) return
+        val c = antimatterCurrency() ?: return
+        val m = c.javaClass.methods.firstOrNull {
+            it.name == "C" && it.parameterCount == 1 &&
+                it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
+        } ?: run { miss("op0.C(BigDouble)", null); return }
+        try { m.invoke(c, delta) } catch (e: Throwable) { miss("op0.C(BigDouble)", e) }
+    }
     // ---------------------------------------------------------------- BitSet / 其它
 
     private var mBitSetA: Method? = null
