@@ -766,7 +766,7 @@ internal object GameApi {
     private fun mOptionsG0(): Method? {
         if (!mOptionsG0Resolved) {
             mOptionsG0Resolved = true
-            mOptionsG0 = method(playerOptionsCls(), "g0", 1, "Options.g0(Z)=autobuyersOn")
+            mOptionsG0 = method(playerOptionsCls(), "e0", 1, "Options.e0(Z)=autobuyersOn setter", paramTypeNames = listOf("boolean"))
         }
         return mOptionsG0
     }

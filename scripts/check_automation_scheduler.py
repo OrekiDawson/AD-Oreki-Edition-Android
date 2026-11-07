@@ -190,6 +190,15 @@ check("无限升级购买前检查 ID1 IP 预留窗口",
       "OrekiBreakShop.id1ReserveActive()" in stage)
 check("无限升级的预留检查排在一次性升级购买之前",
       stage.index("OrekiBreakShop.id1ReserveActive()") < stage.index("GameApi.upgradeBuy(up)"))
+# ---------------------------------------------------------------- 14. R92：autobuyersOn setter 必须绑 3.21 真实符号
+# 旧实现绑 Options.g0(I)V 并用 Boolean 调用 ⇒ IllegalArgumentException 被 call() 吞掉
+# ⇒ enableEarly() 打开原版自动购买器从未生效。3.21 真实 setter 是 e0(Z)V。
+gameapi = read(KT_DIR / "GameApi.kt")
+check("自动购买器总开关绑定 3.21 真实 setter e0(Z)",
+      '"e0", 1, "Options.e0(Z)=autobuyersOn setter"' in gameapi
+      and 'paramTypeNames = listOf("boolean")' in gameapi)
+check("不再绑定错误的 g0(I)",
+      '"Options.g0(Z)=autobuyersOn"' not in gameapi)
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
