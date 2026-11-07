@@ -269,9 +269,14 @@ tasks.register('buildKotlinDex', Exec) {
         environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
     }
     environment 'PYTHONIOENCODING', 'utf-8'
-    // 每次都真实跑：kotlinc 启动约 20 秒，相比 8 分钟主构建可忽略，
-    // 换来的是「clean 后也一定有 dex」的确定性。
-    outputs.upToDateWhen { false }
+    // [R93/RG02-11] 增量构建：登记真实输入与输出，由 Gradle 决定是否重跑。
+    // 输入 = 参与编译的 Kotlin 源码 + 生成绑定 + kotlinc 库 + 版本配置；输出 = classes.dex。
+    // 输入未变 → UP-TO-DATE 跳过（不再清空并重编全部 .kt）；变化 → 脚本内部仍 --clean 重建。
+    inputs.dir(new File(repoRoot, "scripts/payload/kotlin"))
+    inputs.file(new File(repoRoot, "baseline/version-config.json"))
+    inputs.files(fileTree(new File(repoRoot, "tools/kotlinc/lib")) { include "*.jar" })
+    inputs.files(fileTree(new File(repoRoot, "build/kt/generated")) { include "*.kt" })
+    outputs.file(new File(repoRoot, "build/kt/classes.dex"))
 }
 
 // ============================================================== fingerprintInputs
@@ -673,3 +678,6 @@ tasks.register('clean') {
         step('release/、build/*archive*、build/backup* 未被触碰')
     }
 }
+
+// [R93/RG02-13] 构建预算与重复构建拦截（每轮默认 1 次最终 Release 构建）
+apply from: new File(rootDir, 'gradle/release-budget.gradle')

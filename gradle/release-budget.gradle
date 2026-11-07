@@ -1,0 +1,69 @@
+// ============================================================ RG02-13/10 构建预算与重复构建拦截
+//
+// 背景（R93 用户令）：一轮开发里连续跑了 7 次完整 assembleRelease，占用交付窗口。
+// 本脚本把「每轮默认 1 次最终构建」变成 Gradle 真实执行的闸门，而不是只写在 Markdown 里：
+//   · releaseBudgetGate：构建前比较「当前输入指纹 vs 上次成功构建指纹 + APK SHA-256 + 预算」；
+//     输入未变且 APK 有效 → 以退出码 3/4 失败，明确拒绝重复构建；
+//   · 真实 P0 证据下允许一次紧急重建：-PorekiEmergencyRebuild=1 -PorekiBuildReason="...";
+//   · 构建成功后由 assembleRelease.doLast 调用 --record-success 记账（失败不记账）；
+//   · 状态持久化在 build/release-build-ledger.json，跨 Harness/Agent/模型重启不丢。
+//
+// 本文件不改变 Kotlin → D8 → DEX → APK 链路，只增加构建前后的判定与记账。
+
+def rbRepoRoot = rootDir
+def rbStageDir = new File(rbRepoRoot, "build/gradle-stage")
+def rbStageApk = new File(rbStageDir, "反物质维度.apk")
+def rbPython = System.getenv('PYTHON') ?: 'python'
+def rbJdk = System.getenv('JAVA_HOME')
+def rbRound = (project.findProperty('orekiBuildRound') ?: System.getenv('OREKI_BUILD_ROUND') ?: 'R93').toString()
+def rbEmergency = project.hasProperty('orekiEmergencyRebuild')
+def rbReason = (project.findProperty('orekiBuildReason') ?: 'R93 最终构建').toString()
+
+tasks.register('releaseBudgetGate', Exec) {
+    group = 'oreki'
+    description = 'RG02-13/10：Release 构建预算与重复构建拦截（拒绝时以非零码失败）'
+    workingDir = rbRepoRoot
+    def gateArgs = [rbPython, 'scripts/release_budget.py', '--gate', '--round', rbRound, '--apk', rbStageApk.absolutePath]
+    if (rbEmergency) {
+        gateArgs.addAll(['--emergency', '--reason', rbReason])
+    }
+    commandLine gateArgs
+    if (rbJdk != null) {
+        environment 'JAVA_HOME', rbJdk
+        environment 'PATH', rbJdk + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
+    environment 'PYTHONIOENCODING', 'utf-8'
+    outputs.upToDateWhen { false }
+}
+
+tasks.named('assembleRelease') {
+    dependsOn 'releaseBudgetGate'
+
+    doFirst {
+        // 保留上一份候选：构建失败时不能把上一份有效 APK 丢掉。
+        if (rbStageApk.exists()) {
+            def prevDir = new File(rbStageDir, '.previous')
+            prevDir.mkdirs()
+            def stamp = new java.text.SimpleDateFormat('yyyyMMdd-HHmmss').format(new Date())
+            def prev = new File(prevDir, '反物质维度-' + stamp + '.apk')
+            java.nio.file.Files.move(rbStageApk.toPath(), prev.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            println("上一份候选已保留: " + prev)
+        }
+    }
+
+    doLast {
+        // 只有本次真正执行构建（未被 onlyIf 跳过）才会走到这里：记账即代表一次真实成功构建。
+        exec {
+            workingDir = rbRepoRoot
+            commandLine rbPython, 'scripts/release_budget.py', '--record-success',
+                '--round', rbRound,
+                '--apk', rbStageApk.absolutePath,
+                '--type', (rbEmergency ? 'emergency' : 'final'),
+                '--reason', rbReason
+            if (rbJdk != null) {
+                environment 'JAVA_HOME', rbJdk
+            }
+            environment 'PYTHONIOENCODING', 'utf-8'
+        }
+    }
+}
