@@ -33,16 +33,33 @@ THRESHOLDS = [
 ]
 
 
-def _bd(v) -> float:
+def _log10(v) -> float:
+    """把 BigDouble 转成 log10，避免 10**317 这类溢出被吞成 0。
+
+    为什么不在区间里直接算数值：本游戏数值最高到 1e1100 以上，
+    `10.0 ** 317` 在 Python 里直接 OverflowError，旧实现把整个门槛判断吞掉了（R94 实测）。
+    """
     if isinstance(v, dict):
         try:
-            return float(v.get("mantissa", 0)) * (10.0 ** float(v.get("exponent", 0)))
+            m = float(v.get("mantissa", 0) or 0)
+            e = float(v.get("exponent", 0) or 0)
+            if m <= 0:
+                return float("-inf")
+            return e + __import__("math").log10(m)
         except Exception:
-            return 0.0
+            return float("-inf")
     try:
-        return float(v)
+        x = float(v)
+        if x <= 0:
+            return float("-inf")
+        return __import__("math").log10(x)
     except Exception:
-        return 0.0
+        return float("-inf")
+
+
+def _bd(v) -> float:
+    """兼容旧调用：返回 log10 值。"""
+    return _log10(v)
 
 
 def read_save(serial: str) -> dict | None:
@@ -77,23 +94,26 @@ def main() -> int:
     while True:
         data = read_save(args.serial)
         if data:
-            ip = _bd(data.get("infinityPoints"))
+            import math
+            ip_log = _log10(data.get("infinityPoints"))
             rec = data.get("records") or {}
-            max_am = _bd((rec.get("thisEternity") or {}).get("maxAM"))
+            max_am_log = _log10((rec.get("thisEternity") or {}).get("maxAM"))
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[watch] poll log10(IP)={ip_log:.2f} log10(maxAM)={max_am_log:.2f}", flush=True)
             for key, limit, label in THRESHOLDS:
                 tag = f"{key}:{limit}"
                 if tag in fired:
                     continue
-                value = ip if key == "ip" else max_am
-                if value >= limit:
+                value = ip_log if key == "ip" else max_am_log
+                if value >= math.log10(limit):
                     fired.add(tag)
-                    detail = (f"IP={ip:.3e} · 本永恒maxAM={max_am:.3e} · "
-                              f"无限={_bd(data.get('infinities')):.3e}")
+                    detail = (f"log10(IP)={ip_log:.2f} · log10(maxAM)={max_am_log:.2f} · "
+                              f"IP={ip_log:.2f}, 本永恒maxAM=1e{max_am_log:.2f}")
                     line = f"| {now} | **{label}** | {detail} |\n"
                     with out.open("a", encoding="utf-8") as fh:
                         fh.write(line)
                     print("[watch] " + line.strip(), flush=True)
+                    out.touch()
         time.sleep(args.interval)
 
 
