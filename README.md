@@ -15,26 +15,26 @@
 
 | 项目 | 值 |
 |---|---|
-| 原版游戏版本 | 3.20.0 |
-| MOD 版本 | 3.20.0（跟随原版版本号，不单独递增） |
-| 版本号（versionCode） | 30200000 |
+| 原版游戏版本 | 3.21.0 |
+| MOD 版本 | 3.21.0（跟随原版版本号，不单独递增） |
+| 版本号（versionCode） | 30210000 |
 | 包名 | `com.oreki.antimatterdimensions` |
-| 安装包 | `反物质维度.apk`，约 78 MB（81,523,975 字节，4 个 DEX） |
+| 安装包 | `反物质维度.apk`，约 78 MB（82,626,033 字节，4 个 DEX） |
 | 系统要求 | Android 12（API 32）及以上 |
 
-**版本号含义**：`3.20.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
+**版本号含义**：`3.21.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 R92 交付候选（构建、静态门禁、独立新档推进通过；调度实际购买等专项仍未验证）
+### 3.21 正式稳定版（R94 发布，2026-11-07 21:45 +08）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
-| 本轮候选 | `release/反物质维度_R94候选_c730.apk`（与 `build/gradle-stage/反物质维度.apk` 同 SHA-256，已用 Coreutils `cp` 复制到 OneDrive 与小米云盘同名文件；6cb5/0764 旧候选保留） |
+| 正式交付 | `release/反物质维度.apk` = 原 `release/反物质维度_R94候选_c730.apk`，已按 `cp + sha256sum` 覆盖本地稳定包并交付 OneDrive 与小米云盘同名文件（四处 SHA-256 一致）；旧 3.20 稳定版备份为 `release/反物质维度_3.20稳定版_备份_82156a40.apk` |
 | 大小 / SHA-256 | 82,626,033 B / `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1` |
-| 构建 | Gradle `assembleRelease --offline` 第三次构建 17:20:54 → 17:31:44（10m50s，含 autobuyersOn setter 修复），3.21 构建链（`build/r92c-assemble.log`）；前两次产出 `6cb5`（17:09）与 `0764`（16:17）候选 |
-| 静态门禁 | `verifyRelease` **14/14 PASS**（68 s）；`verifyPatchContract` **17/17 PASS**（104 s），v2+v3 签名、证书 `95960bce…3197` 未更换；安装后运行日志中 `OREKI_API_MISS` 消失、`OREKI_EARLY applied` 正常 |
-| 独立 AVD | `oreki_r92_fresh`（本轮新建，Android 14，串口 `emulator-5556`）：**全新存档**约 40 min 墙钟（10000×）推进到 51 次无限 / IP 118 / 反物质 2.23e250；最终 APK 安装 `Success`、游戏在前台、无 FATAL/VerifyError/NoSuchMethodError |
-| 状态 | **仍是候选，不是正式稳定版**：`OREKI_SCHED act`、普通挑战真实结算、ID1 IP 预留、存档重启恢复四项运行门禁本轮**未取得证据**（新档停在首次永恒前，IP 118 < ID1 门槛 1e8），因此没有覆盖 `release/反物质维度.apk` |
+| 构建 | R94 唯一一次完整构建 20:29:56 → 20:39:51（9m55s，`-PorekiBuildRound=R94`，预算闸门 `used=0/1 ALLOW`）；产物 `build/gradle-stage/反物质维度.apk`，签名与上版同一证书 `95960bce…3197`（可原地升级） |
+| 门禁 | `verifyRelease` **14/14 PASS**、`verifyPatchContract` **17/17 PASS**、`check_automation_scheduler` **57/57**、v2+v3 签名；`OREKI_API_MISS` 的 `missing class bq0/rp0` 已由绑定描述符修复消除 |
+| 真实运行（同一 APK SHA） | `oreki_r92_fresh` / `emulator-5556`：全新存档真实墙钟 21:05:34 起跑，3m16s 首次无限、~13m 62 IP、~23m 3.20e6 IP、~31m 打破无限解锁（2.19e7 IP）；`OREKI_SCHED act` 累计 148 条（bulk/sacrifice/crunchInterval/infinityUpgrades/breakUpgrades）；总开关关闭 50 s 0 act + `deny disabled`、开启后恢复；重启后离线摘要进度保留 |
+| 状态 | **已发布为 3.21 正式稳定版**（旧 3.20 稳定包已备份）。已知限制（不阻塞安装与游玩，列为后续修复）：①「打破无限」按钮解锁后，自动化尚未自动点按（需玩家点一次；长跑在 ~32 min 处观察到此现象，正在按 R94 指令取证）；② `OREKI_GOAL` 阶段识别 `stage=-1 degraded=1`（策略层退化为固定顺序，因部分后期叶子未接线）；③ 首次永恒与 180 分钟终局尚未达成，属持续验收目标 |
 
 R92 的生产改动：Web 侧「开局维度提升 / 反物质星系」由每拍 1 次改为单次调度动作内买光当前买得起的次数，并修掉一个让该批量购买**完全失效**的真实缺陷（`player.dimBoosts` 应为原版真实字段 `player.dimensionBoosts`）；Android 侧修正 IU15 冲刺状态机只看原版自动购买器开关、未看本作自动化总开关的缺陷（关闭总开关后接管不会解除），并随构建同步 3.21 更新日志与双端教程附录 F。R91 候选 `release/反物质维度_R91候选_d46.apk`、R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R92 任务记录`](tasks/R92-独立新档验收与前期提速.md) 与 [`R92 AVD 验收结果`](reports/r92-avd/02-lead-results.md)。
 
@@ -45,15 +45,15 @@ R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除�
 | 项 | 值 |
 |---|---|
 | 当前开发基线 | **3.21.0**（`versionCode` 30210000） |
-| 当前稳定发布 | **3.20.0**（`versionCode` 30200000） |
+| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1`） |
 | Android 基线来源 | 3.20 稳定基线官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400`；3.21 基线见 `baseline/versions/3.21/` |
 | Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
-| 3.21 基线 | 已建立 42 项真实 bindings 与迁移门禁；**R91 候选的构建、签名、静态门禁、模拟器安装与设置页 P0 已通过**；自动调度实际购买等专项仍未验证，稳定发布仍为 3.20 |
+| 3.21 基线 | 42 项真实 bindings 与迁移门禁已通过；R94 起 3.21 已作为正式稳定版发布（构建/签名/双门禁/真实运行均绑定同一 SHA-256） |
 
 基线记录在 `baseline/versions/<版本>/manifest.json`，版本差异配置在
 `baseline/version-config.json`。详见 [`baseline/README.md`](baseline/README.md)。
 
-**3.21 候选状态**：42 项 3.21 bindings 与迁移门禁已通过；R91 候选的 Gradle 构建、`verifyRelease` 14/14、`verifyPatchContract` 17/17 与模拟器安装均已完成，签名方案为 v2+v3。设置页默认 10/1/60 秒、恢复默认、非法输入拒绝、关闭/恢复启用、重启保持已通过真实 AVD UI；自动调度实际购买、购买扣款、挑战结算、ID1 预留、全新存档与真实墙钟仍未验证，因此不能称为正式稳定版；稳定发布仍以 3.20 为准。
+**3.21 稳定版状态**：42 项 3.21 bindings 与迁移门禁通过；`verifyRelease` 14/14、`verifyPatchContract` 17/17、`check_automation_scheduler` 57/57；真实 AVD 上取得 `OREKI_SCHED act`、总开关关闭/恢复、保存重启、全新存档 3m16s 首次无限等证据。仍在推进：ID1 与首次永恒的真实结算、`OREKI_GOAL` 叶子接线、自动打破无限、180 分钟终局。
 
 **检查、更新、回滚基线**：
 
