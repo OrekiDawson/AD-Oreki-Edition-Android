@@ -141,16 +141,16 @@ object OrekiStageAuto {
      * [R93] 一次性诊断：首次无限前维度提升的真实前置条件（每 30 s 一条，共 6 条）。
      * 只打印，不参与判定；用于定位「prestigeBatch 一直 noop」的真实原因。
      */
-    private var probeAt: Long = 0L
-    private var probeLeft: Int = 6
+    private var diagnosticProbeNextAtMillis: Long = 0L
+    private var diagnosticProbeRemaining: Int = 6
 
     private fun probePrestigeBatch() {
         try {
             val now = android.os.SystemClock.elapsedRealtime()
-            if (probeAt == 0L) probeAt = now + 20000L
-            if (probeAt <= 0L || now < probeAt || probeLeft <= 0) return
-            probeLeft--
-            probeAt = now + 30000L
+            if (diagnosticProbeNextAtMillis == 0L) diagnosticProbeNextAtMillis = now + 20000L
+            if (diagnosticProbeNextAtMillis <= 0L || now < diagnosticProbeNextAtMillis || diagnosticProbeRemaining <= 0) return
+            diagnosticProbeRemaining--
+            diagnosticProbeNextAtMillis = now + 30000L
             Log.i(
                 "OREKI_SCHED",
                 "pb enabled=" + OrekiAutomationScheduler.isEnabled() +
@@ -161,7 +161,7 @@ object OrekiStageAuto {
                     " am=" + GameApi.antimatterValue() +
                     " boost=" + GameApi.dimensionBoosts(),
             )
-            if (probeLeft <= 0) probeAt = -1L
+            if (diagnosticProbeRemaining <= 0) diagnosticProbeNextAtMillis = -1L
         } catch (_: Throwable) {
         }
     }
