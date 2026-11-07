@@ -1729,7 +1729,15 @@ internal object GameApi {
     private fun mOrekiAutoHasInfinity(): Method? {
         if (!mOrekiAutoHasInfinityResolved) {
             mOrekiAutoHasInfinityResolved = true
-            mOrekiAutoHasInfinity = method(orekiAutoCls(), "hasInfinity", 0, "OrekiAuto.hasInfinity")
+            // [R93] 必须选**静态桥**：Kotlin object + @JvmStatic 会同时生成
+            // `public final boolean hasInfinity()`（实例方法）与静态桥；
+            // 旧实现按名字取第一个，可能拿到实例方法，再用 null 接收者调用 ⇒ NPE 被吞成 false。
+            mOrekiAutoHasInfinity = try {
+                orekiAutoCls()?.methods?.firstOrNull {
+                    it.name == "hasInfinity" && it.parameterCount == 0 &&
+                        java.lang.reflect.Modifier.isStatic(it.modifiers)
+                }
+            } catch (e: Throwable) { miss("OrekiAuto.hasInfinity", e); null }
         }
         return mOrekiAutoHasInfinity
     }
