@@ -3141,8 +3141,11 @@ def verify_payload():
         # R81 曾写成 `else if (eternitiesZero()) false`，语义正好相反：
         # 首次永恒前完全不保护，每轮坍缩清零反物质，maxAM 永远到不了 ID1 门槛。
         # 这里断言真实极性，避免下一轮又把条件写反。
-        (sa_txt, "} else if (!eternitiesZero()) {",
-         "首次永恒窗口必须用 !eternitiesZero() 排除（et=0 时才进入保护）"),
+        # [R94] 峰值窗口改为迟滞实现后，条件从 `else if` 链改成前置排除：
+        #   `if (!broken || !eternitiesZero || blocked) { holdLatched = false; false }`
+        # 语义仍是「只在 et=0 时才进入保护」，断言改为匹配新写法且保留极性含义。
+        (sa_txt, "!eternitiesZero",
+         "首次永恒窗口必须用 !eternitiesZero 排除（et=0 时才进入保护）"),
         # 真实门槛必须从原版对象读，不得写死 1.797e308 / Double.MAX_VALUE
         (sa_txt, "GameApi.idRequirement(id1)",
          "ID1 反物质门槛必须读原版 k()，不得写死旧注释数值"),
