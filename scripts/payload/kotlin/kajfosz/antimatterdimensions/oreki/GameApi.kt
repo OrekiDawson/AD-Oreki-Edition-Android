@@ -1772,7 +1772,9 @@ internal object GameApi {
     // ---------------------------------------------------------------- 尚未迁移的 Oreki 模块
     //
     // 这三个类仍是 Smali（本轮未纳入转译范围，原因见 FACTS C.125）：
-    //   · OrekiBreakGate   —— 策略决策，本轮只调用它的 tick()，逻辑未被本轮修改
+    //   · OrekiBreakGate   —— [R94] 该类在 3.21 上 VerifyError（旧 Smali 引用 3.20 类型 rp0，
+    //                          3.21 为 yp0），无法加载；其 break 商店购买职责已由 Kotlin
+    //                          OrekiBreakShop 承担，故整类删除，不再反射调用。
     //   · OrekiBreakShop   —— Break 升级购买，本轮只调用它的 tick()I
     //   · OrekiSmartStrategy —— 只读策略解释器，本轮只调用 drives()/tick()
     //
@@ -1780,15 +1782,6 @@ internal object GameApi {
     // 所以本轮不需要改它们的方法体，也就不触发 §64「修改即须转译」的约束。
     // 通过反射调用是为了让 Kotlin 侧不必为它们生成类型桩。
 
-    private var breakGateClassCache: Class<*>? = null
-    private var breakGateClsResolved: Boolean = false
-    private fun breakGateCls(): Class<*>? {
-        if (!breakGateClsResolved) {
-            breakGateClsResolved = true
-            breakGateClassCache = cls("kajfosz.antimatterdimensions.oreki.OrekiBreakGate")
-        }
-        return breakGateClassCache
-    }
     private var breakShopClassCache: Class<*>? = null
     private var breakShopClsResolved: Boolean = false
     private fun breakShopCls(): Class<*>? {
@@ -1853,15 +1846,6 @@ internal object GameApi {
         return teresaAutoClassCache
     }
 
-    private var mBreakGateTick: Method? = null
-    private var mBreakGateTickResolved: Boolean = false
-    private fun mBreakGateTick(): Method? {
-        if (!mBreakGateTickResolved) {
-            mBreakGateTickResolved = true
-            mBreakGateTick = method(breakGateCls(), "tick", 0, "BreakGate.tick()")
-        }
-        return mBreakGateTick
-    }
     private var mBreakShopTick: Method? = null
     private var mBreakShopTickResolved: Boolean = false
     private fun mBreakShopTick(): Method? {
@@ -1935,7 +1919,6 @@ internal object GameApi {
         return mTeresaTick
     }
 
-    fun breakGateTick() = call(mBreakGateTick(), null)
     fun breakShopTick(): Int = (call(mBreakShopTick(), null) as? Int) ?: 0
     fun strategyDrives(id: String): Boolean = (call(mStrategyDrives(), null, id) as? Boolean) ?: true
     fun strategyTick() = call(mStrategyTick(), null)

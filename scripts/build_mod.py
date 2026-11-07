@@ -1807,8 +1807,8 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/OrekiStrategyData.smali",
     "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
     "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
-    # [Oreki AD5b] Break Infinity 闸门（间隔补贴 + 真实 Break 序列）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiBreakGate.smali",
+    # [R94] OrekiBreakGate 已删除：该类在 3.21 上 VerifyError（旧 Smali 引用 3.20 类型 rp0，
+    # 3.21 为 yp0），无法加载；break 商店购买职责由 Kotlin OrekiBreakShop 承担。
     # [R42] 终点记录写入（PelleRecords.totalAntimatter = 历史峰值反物质）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.smali",
     # [Oreki ET1] 永恒层自动化（时间定理 / 时间维度 / 普通时间研究 / 按永恒）

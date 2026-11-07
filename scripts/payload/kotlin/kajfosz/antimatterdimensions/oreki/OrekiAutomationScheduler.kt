@@ -62,7 +62,7 @@ object OrekiAutomationScheduler {
     private val IDS = arrayOf(
         "routine", "early", "eternity", "eternityReset",
         "reality", "celestial", "perk", "endgame",
-        "breakUpgrades", "breakGate", "executor", "breakShop",
+        "breakUpgrades", "executor", "breakShop",
         // [R77] 新增：把「真实花钱买升级」的 5 条从每帧裸调用纳入统一节拍。
         // 只追加在尾部，索引 0..11 的既有语义完全不变。
         "sacrifice", "bulk", "infinityUpgrades", "crunchInterval", "idBuy",

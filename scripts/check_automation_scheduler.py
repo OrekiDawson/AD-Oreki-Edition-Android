@@ -162,8 +162,6 @@ check("upgradeCrunchInterval 以购买前后成本上升为成功判据",
       "costBefore" in stage and "costAfter" in stage and "costAfter > costBefore" in stage)
 
 # ---------------------------------------------------------------- 11. StageAuto 调用顺序（业务语义）
-check("BreakGate 在 crunchInterval 之后",
-      stage.index('runScheduled("crunchInterval")') < stage.index('allow("breakGate")'))
 check("idBuy 在 breakShop 之后（Break 之后才买 ID1）",
       stage.index('allow("breakShop")') < stage.index('runScheduled("idBuy")'))
 

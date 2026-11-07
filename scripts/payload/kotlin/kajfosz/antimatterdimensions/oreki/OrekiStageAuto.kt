@@ -209,21 +209,6 @@ object OrekiStageAuto {
                     runScheduled("crunchInterval") { upgradeCrunchInterval() }
                 }
 
-                // ---- BreakGate ----
-                if (OrekiAutomationScheduler.allow("breakGate")) {
-                    val crunch = GameApi.crunchState()
-                    val beforeBrake = GameApi.isBroken()
-                    val beforeMaxed = GameApi.crunchMaxedInterval(crunch)
-                    GameApi.breakGateTick()
-                    val afterBrake = GameApi.isBroken()
-                    val afterMaxed = GameApi.crunchMaxedInterval(crunch)
-                    if (beforeBrake != afterBrake || beforeMaxed != afterMaxed) {
-                        OrekiAutomationScheduler.noteActed("breakGate")
-                    } else {
-                        OrekiAutomationScheduler.noteNoop("breakGate")
-                    }
-                }
-
                 // ---- Break 兜底 ----
                 if (OrekiAutomationScheduler.allow("breakUpgrades")) {
                     val before = GameApi.isBroken()
