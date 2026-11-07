@@ -201,7 +201,7 @@ object OrekiIu15Sprint {
         try {
             // 玩家关闭总开关：无论处于哪个阶段都立即释放，并清掉冷却/放弃态，
             // 这样重新打开后只要条件成立就能重新评估（不保留上一轮的临时接管）。
-            val autobuyersOn = GameApi.autobuyersOn()
+            val autobuyersOn = GameApi.autobuyersOn() && OrekiAutomationScheduler.isEnabled()
             if (autobuyerWasOn && !autobuyersOn) {
                 releaseNow("autobuyers-off")
                 phase = PHASE_IDLE
@@ -286,7 +286,7 @@ object OrekiIu15Sprint {
         if (iu15Bought()) return false
         if (fails >= MAX_FAILS) return false
         if (System.currentTimeMillis() < cooldownUntil) return false
-        if (!GameApi.autobuyersOn()) return false
+        if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
         if (GameApi.isDoomed()) return false
         if (GameApi.inAnyChallenge()) return false
         if (!GameApi.imUnlocked()) return false

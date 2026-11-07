@@ -24,18 +24,21 @@
 
 **版本号含义**：`3.20.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 R91 交付候选（构建、门禁与设置页 P0 通过；专项 AVD 部分未验证）
+### 3.21 R92 交付候选（构建、静态门禁、独立新档推进通过；调度实际购买等专项仍未验证）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
-| 最终候选 | `build/r91-candidate/反物质维度_d46.apk`（与 `build/gradle-stage/反物质维度.apk` 同 SHA-256） |
-| 大小 / SHA-256 | 82,621,937 B / `D46B4B1BDBB627030ECD2B17D5882A2A0D9E9E42C42B25BC7FEDB955ADE01716` |
-| 构建 | Gradle 正式构建成功，10m37s，3.21 构建链（`build/r91-assemble.log`） |
-| 静态门禁 | `verifyRelease` 14/14 PASS；`verifyPatchContract` 17/17 PASS |
-| 状态 | 已安装到 `emulator-5554`（`Success`，3.21.0/30210000，旧存档保留）。Lead 补做设置页真实 UI：默认 10、保存 1/60、恢复默认 10、非法输入拒绝、关闭/恢复启用、重启保持均 PASS；自动调度实际购买、挑战结算、ID1 预留仍未验证，尚不能称为正式稳定版 |
+| 本轮候选 | `release/反物质维度_R92候选_0764.apk`（与 `build/gradle-stage/反物质维度.apk` 同 SHA-256，已用 Coreutils `cp` 复制到 OneDrive 与小米云盘同名文件） |
+| 大小 / SHA-256 | 82,621,937 B / `0764E0F1910355A87F9F98C331AD7E1D6284729F9C562749AF9B9EACC376B1B0` |
+| 构建 | Gradle `assembleRelease --offline` 成功，16:02:40 → 16:17:11（14m31s），3.21 构建链（`build/r92-assemble.log`） |
+| 静态门禁 | `verifyRelease` **14/14 PASS**（126 s）；`verifyPatchContract` **17/17 PASS**（120 s），v2+v3 签名、证书 `95960bce…3197` 未更换 |
+| 独立 AVD | `oreki_r92_fresh`（本轮新建，Android 14，串口 `emulator-5556`）：**全新存档**约 40 min 墙钟（10000×）推进到 51 次无限 / IP 118 / 反物质 2.23e250；最终 APK 安装 `Success`、游戏在前台、无 FATAL/VerifyError/NoSuchMethodError |
+| 状态 | **仍是候选，不是正式稳定版**：`OREKI_SCHED act`、普通挑战真实结算、ID1 IP 预留、存档重启恢复四项运行门禁本轮**未取得证据**（新档停在首次永恒前，IP 118 < ID1 门槛 1e8），因此没有覆盖 `release/反物质维度.apk` |
 
-R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除），并修正调度器 `servedCount`、`StageAuto` 成功判定与 3.21 补丁契约；`SpeedSettingsActivity` 仅 3 条玩家可见文案改动，无逻辑改动。R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R91 发布说明`](reports/r91-gates/R91-release-notes.md)。
+R92 的生产改动：Web 侧「开局维度提升 / 反物质星系」由每拍 1 次改为单次调度动作内买光当前买得起的次数，并修掉一个让该批量购买**完全失效**的真实缺陷（`player.dimBoosts` 应为原版真实字段 `player.dimensionBoosts`）；Android 侧修正 IU15 冲刺状态机只看原版自动购买器开关、未看本作自动化总开关的缺陷（关闭总开关后接管不会解除），并随构建同步 3.21 更新日志与双端教程附录 F。R91 候选 `release/反物质维度_R91候选_d46.apk`、R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R92 任务记录`](tasks/R92-独立新档验收与前期提速.md) 与 [`R92 AVD 验收结果`](reports/r92-avd/02-lead-results.md)。
+
+R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除），并修正调度器 `servedCount`、`StageAuto` 成功判定与 3.21 补丁契约；`SpeedSettingsActivity` 仅 3 条玩家可见文案改动，无逻辑改动。详见 [`R91 发布说明`](reports/r91-gates/R91-release-notes.md)。
 
 ### 原版基线
 

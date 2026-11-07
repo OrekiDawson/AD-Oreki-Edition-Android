@@ -70,15 +70,15 @@ def realtime_not_scaled():
 
 
 def evidence_files():
-    for p in ('docs/SHARED_GAMEPLAY_STANDARD.md', 'docs/WIKI_INDEX.md',
-              'docs/TIME_SEMANTICS_FULL_AUDIT_2026-10-26.md', 'docs/SPEEDUP_ANALYSIS_2026-10-26.md',
+    for p in ('docs/SHARED_GAMEPLAY_STANDARD.md', 'docs/维基索引.md',
+              'docs/时间语义全量审计_2026-10-26.md', 'docs/提速分析_2026-10-26.md',
               'docs/official_src/tickspeed.js',
-              'docs/CROSSPLATFORM_TIME_AUDIT_2026-10-26.md',
-              'docs/D2_D6_INVESTIGATION_2026-10-26.md',
-              'docs/RA_PROBE_2026-10-26.md',
-              'docs/LOOP_GRANULARITY_AUDIT_2026-10-26.md',
-              'docs/MULTIPLIER_CHECK_2026-10-26.md',
-              'docs/TICK_VS_OUTPUT_2026-10-27.md'):
+              'docs/跨端时间口径审计_2026-10-26.md',
+              'docs/第二至第六维度排查_2026-10-26.md',
+              'docs/现实自动机探测_2026-10-26.md',
+              'docs/主循环粒度审计_2026-10-26.md',
+              'docs/倍率核对_2026-10-26.md',
+              'docs/帧驱动与产出对比_2026-10-27.md'):
         assert (ROOT / p).exists(), f'缺证据文件 {p}'
 
 
