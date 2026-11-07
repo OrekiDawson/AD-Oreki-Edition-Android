@@ -5827,132 +5827,6 @@ def verify_au4b():
     note("[Oreki AU4b] 大坍缩策略守卫通过（X_HIGHEST/10，与 Web 一致，只改策略）")
 
 
-# ------------------------------------------------------------------ AD5b Break 闸门
-def patch_break_gate():
-    """[Oreki AD5b] 反证开关装配（只在打对照包时改一行，正式包零改动）。
-
-    `OrekiBreakGate.grantEnabled()` 里有一处显式标记 `[OREKI_NOGRANT_MARKER]` +
-    `const/4 v0, 0x0`。设 `OREKI_BREAK_NO_GRANT=1` 时把它改写成 0x1，
-    于是**补贴完全关闭**、只保留「用现有 IP 逐级买」这条真实路径 ——
-    用来做反证：不补贴就仍买不满、brake 仍为 false、IP 仍停在 11 附近。
-
-    为什么用构建期开关而不是运行期读系统属性：Android 上取 SystemProperties 需要反射，
-    会把「反证」这件事本身引入不可控路径。构建期改一个立即数最干净、可复现。
-    """
-    p = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiBreakGate.smali"
-    assert p.exists(), "[AD5b] 缺少 OrekiBreakGate.smali"
-    src = p.read_text(encoding="utf-8")
-    marker = "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x0\n"
-    assert src.count(marker) == 1, "[AD5b] 反证开关锚点不唯一/丢失"
-    if os.environ.get("OREKI_BREAK_NO_GRANT") == "1":
-        write_smali(p, src.replace(marker, "    # [OREKI_NOGRANT_MARKER]\n    const/4 v0, 0x1\n", 1),
-                     encoding="utf-8")
-        note("[AD5b-CONTROL] OREKI_BREAK_NO_GRANT=1：一次性补贴已关闭（仅用于反证包）")
-    else:
-        note("[AD5b] 一次性补贴开关保持默认（grantEnabled = 0）")
-
-
-def verify_break_gate():
-    """[Oreki AD5b] Break 闸门的构建期守卫。
-
-    守住的六条（每一条对应一次实测过的失败模式）：
-      1. 补贴额不许写死 —— payload 里不得出现 32767/16384 之类的常量；
-      2. 买满必须走**照价扣费**的真实入口 `A(false)`，不许 `A(true)`、不许直接写 interval；
-      3. Break 必须是原版三步序列且顺序不变：`x0(true)` → `g61.a("BREAK_INFINITY")` → `autobuyer.a.c()`；
-      4. 买满循环必须有 64 次硬上界（两处：算总价 + 真买）；
-      5. 必须在 `onAutoBuyerTick` 的 interval 升级之后、ID1 之前被调用；
-      6. 失败出口必须存在且带 OREKI_ABORT（不许静默 return）。
-    """
-    base = smali_tree() /  "kajfosz" / "antimatterdimensions" / "oreki"
-    g = (base / "OrekiBreakGate.smali").read_text(encoding="utf-8")
-    # [R78] OrekiStageAuto 已转 Kotlin，不再读它的 Smali；需要的调用点顺序见下方 _kt。
-
-    for tag in ("OREKI_GATE", "OREKI_GRANT", "OREKI_BUY", "OREKI_BREAK", "OREKI_ABORT"):
-        assert tag in g, f"[AD5b] 缺少运行期日志点 {tag}"
-
-    # 1) 补贴额动态推导：不许出现「15 级累计成本」这类写死值
-    #    [R42 修订] 只扫**指令行，不扫注释**。
-    #    原实现 `hard not in g` 是对整份文本做子串匹配，结果是：任何中文注释里
-    #    提到「原版需 32767 IP」都会让构建变红。而那条注释正是为了防止后人
-    #    误改闸门极性才写的 —— 断言把说明本身判成违规，只会逼人删掉说明。
-    #    断言的真实意图是拦「const vX, 0x7fff」这种把补贴额写死的**指令**，
-    #    所以这里按行过滤掉注释行（`#` 开头）后再匹配，并补上十六进制等价形式。
-    _code = "\n".join(ln for ln in g.splitlines() if not ln.lstrip().startswith("#"))
-    for hard in ("32767", "16384", "32768", "0x7fff", "0x4000", "0x8000"):
-        assert hard not in _code, (
-            f"[AD5b] 补贴额被写死：指令行里出现常量 {hard}（注释里提到是允许的）")
-
-    # 2) 真实扣费入口：A(Z)V 之前必须是 const/4 v1, 0x0（照价扣 IP）
-    paid = ("const/4 v1, 0x0\n\n"
-            "    invoke-virtual {v3, v1}, "
-            "Lkajfosz/antimatterdimensions/autobuyer/UpgradeableAutobuyerState;->A(Z)V")
-    assert paid in g, "[AD5b] 买满没有走照价扣费的 A(false)，或寄存器/对象已变"
-    assert g.count("UpgradeableAutobuyerState;->A(Z)V") == 1, \
-        "[AD5b] A(Z)V 只允许有一个调用点（多出来的一处一定会绕过扣费或重复购买）"
-    for banned in ("->interval:", "->cost:", "->brake:"):
-        assert banned not in g, f"[AD5b] 禁止直接写私有字段 {banned}"
-
-    # 3) Break 三步序列 + 顺序
-    # [R80] 事件总线类在 3.20 由 g61 换成 c91（见 OBFUSCATION_ALIASES_320）。
-    # payload 已被 step 4.5 重写，这里必须用当前基线的真实类名，否则 index() 会抛
-    # ValueError: substring not found —— 那是「守卫找错字面量」，不是功能缺陷。
-    _ev_cls = obfuscation_aliases().get("g61", "g61")
-    i_x0 = g.index("Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V")
-    i_ev = g.index(f"L{_ev_cls};->a(Ljava/lang/String;)V")
-    i_ac = g.index("Lkajfosz/antimatterdimensions/autobuyer/a;->c()V")
-    assert i_x0 < i_ev < i_ac, "[AD5b] Break 序列顺序必须与按钮一致：x0(true) → 事件 → a.c()"
-    assert "const/4 v1, 0x1\n\n    invoke-virtual {v0, v1}, " \
-           "Lkajfosz/antimatterdimensions/player/Player;->x0(Z)V" in g, \
-        "[AD5b] x0 的参数不是 true（写成 false 会把 brake 清掉）"
-
-    # 4) 64 次硬上界（算总价 + 真买各一处）
-    assert g.count("const/16 v1, 0x40") >= 2, "[AD5b] 买满/算价循环缺少 64 次硬上界"
-
-    # 5) 调用点位置
-    # [R78] OrekiStageAuto 已转 Kotlin：调用点顺序改在 Kotlin 源码里核对。
-    # 语义不变 —— BreakGate 必须夹在 interval 升级与 ID1 购买之间。
-    # 每条都用带引号的完整调用形态，避免匹配到注释或函数定义本身。
-    _kt = _stage_auto_kt()
-    _tb_start = _kt.index("fun onAutoBuyerTick()")
-    _tb_end = _kt.find("@JvmStatic", _tb_start + 10)
-    _tb = _kt[_tb_start: _tb_end if _tb_end > 0 else len(_kt)]
-    i_up = _tb.index('runScheduled("crunchInterval")')
-    i_bg = _tb.index('allow("breakGate")')
-    i_id1 = _tb.index('runScheduled("idBuy")')
-    assert i_up < i_bg < i_id1, \
-        "[AD5b] BreakGate 必须夹在 interval 升级与 ID1 购买之间"
-
-    # 6) 失败出口
-    assert g.count('"OREKI_ABORT"') == 2, \
-        "[AD5b] OREKI_ABORT 的 const-string 应恰有 2 处（正常失败出口 + 异常兜底）"
-    assert g.count(":bg_abort_") >= 5, \
-        "[AD5b] 失败出口不足（溢出/总价非法/买不起/买不动/没买满 必须各有独立出口）"
-    assert "grantDisabled()Z" in g, "[AD5b] 反证开关 grantDisabled() 丢失"
-
-    # 7) [R42 极性回归] 本轮第一版把这九处条件跳转写反了三次，运行期表现是
-    #    「闸门一次都不开、OREKI_GRANT/OREKI_ABORT 全 0」——构建全绿、日志静默。
-    #    这里逐条锁死「被判定量语义 → 允许的助记符」，写反即构建期失败。
-    #    基准：if-eqz = 值为 0 跳；if-nez = 非 0 跳；if-lt = a<b 跳；if-lez = a<=0 跳。
-    POLARITY_BG = [
-        ("if-eqz v1, :bg_window", 1, "Player.m()==0（未 Break）才继续"),
-        ("if-nez v1, :bg_off", 2, "isDoomed()!=0 与 challengeRunning()!=0 才退出"),
-        ("if-eqz v1, :bg_off", 1, "autobuyersOn==0（总开关关）才退出"),
-        ("if-nez v1, :bg_do_break", 2, "v()!=0（interval 已拉满）才 Break"),
-        ("if-lez v1, :bg_total_ready", 1, "interval<=100.0 才结束计价"),
-        ("if-lt v5, v1, :bg_calc_add", 1, "steps<64 才继续累加成本"),
-        ("if-lt v5, v1, :bg_buy_try", 1, "本轮买过<64 级才继续购买"),
-        ("if-lez v1, :bg_abort_total", 1, "total<=0（含 NaN 以外的非法值）才放弃"),
-        ("if-nez v1, :bg_buy_loop", 3, "余额已够 / 补贴被关 / 已发过 三处都跳过补贴"),
-        ("if-nez v1, :bg_buy_pay", 1, "IP>=cost（买得起）才付钱"),
-    ]
-    for needle, want_n, why in POLARITY_BG:
-        got = g.count(needle)
-        assert got == want_n, f"[AD5b 极性] {why}：期望 `{needle}` 出现 {want_n} 次，实际 {got} 次"
-    note("[Oreki AD5b] 极性回归表通过（10 条，基准 if-eqz=0 跳 / if-nez=非0 跳）")
-
-    note("[Oreki AD5b] Break 闸门守卫通过（动态补贴 / 真实扣费 / 原版三步 Break / 64 上界 / 调用点顺序 / 极性）")
-
-
 def verify_smali_field_types_320():
     """[R82] 3.20 构建期守卫：MOD 里任何 `X;->f:LY;` 的字段类型必须与基线一致。
 
@@ -7366,9 +7240,10 @@ def main():
     # [Oreki ET1] 永恒层四步（TT / 时间维度 / 时间研究 / 按永恒）的契约守卫。
     # 只读 MOD 文本、零副作用；放在钩子安装之后、UI 补丁之前。
     verify_eternity_chain()
-    # [Oreki AD5b] Break Infinity 闸门：反证开关装配 + 构建期守卫。
-    patch_break_gate()
-    verify_break_gate()
+    # [R94] AD5b Break 闸门已随 OrekiBreakGate.smali 一起删除：
+    # 该类在 3.21 上 VerifyError（旧 Smali 引用 3.20 类型 rp0，3.21 为 yp0），无法加载。
+    # Break 激活改由 Kotlin OrekiStageAuto.tryBreakInfinity() 走原版按钮同序路径
+    # （x0(true) → BREAK_INFINITY 事件 → autobuyer.a.c()），并由 check_automation_scheduler 守护。
     # [R42] 终点记录写入：只做构建期守卫（不写任何原版方法体）
     verify_pelle_record()
     # [R82] 3.20 字段类型守卫：拦住「构建成功但运行期 NoSuchFieldError」的注入
