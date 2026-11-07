@@ -42,14 +42,12 @@ object OrekiAuto {
      */
     @JvmStatic
     fun hasInfinity(): Boolean = try {
-        val value = GameApi.infinities() ?: return false
-        // [R93] 直接读 BigDouble.toDouble() 判 > 0，不再依赖 compareToDouble 反射链：
-        // 运行期只有 init/EARLY/GATE/CRUNCH、没有任何 act/deny/noop ⇒
-        // onAutoBuyerTick 一直在 `!hasInfinity()` 早退分支，导致全部受节拍任务从未执行。
-        val raw = value.javaClass.methods
-            .firstOrNull { it.name == "toDouble" && it.parameterCount == 0 }
-            ?.invoke(value) as? Double ?: return false
-        raw > 0.0
+        // [R93] 多源判定：任一来源证明「已无限过」即可。
+        // 现场证据：单看 infinities 在游戏内仍判 false，而 IP 已 968（IP 只来自无限）⇒ 加兜底，
+        // 避免单一绑定失效把整段后无限自动化关死。
+        if (bigDoublePositive(GameApi.infinities())) return true
+        if (bigDoublePositive(GameApi.currencyValue(GameApi.ipCurrency()))) return true
+        return GameApi.isBroken()
     } catch (_: Throwable) {
         false
     }
@@ -60,6 +58,19 @@ object OrekiAuto {
      * 与 [hasInfinity] 互补：为 true 表示还没完成第一次无限，此时原版自动购买器
      * 的解锁门要放行（由 `OrekiStageAuto.enableEarly()` 真正打开开关）。
      */
+
+    /** [R93] 反射读 BigDouble.toDouble() 并判 > 0（不依赖 compareTo 链）。 */
+    private fun bigDoublePositive(value: Any?): Boolean {
+        if (value == null) return false
+        return try {
+            val raw = value.javaClass.methods
+                .firstOrNull { it.name == "toDouble" && it.parameterCount == 0 }
+                ?.invoke(value) as? Double ?: return false
+            raw > 0.0
+        } catch (_: Throwable) {
+            false
+        }
+    }
     @JvmStatic
     fun orekiEarly(): Boolean = !hasInfinity()
 
