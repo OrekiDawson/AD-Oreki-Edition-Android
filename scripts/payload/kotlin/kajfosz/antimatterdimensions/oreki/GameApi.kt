@@ -1682,12 +1682,27 @@ internal object GameApi {
     } catch (e: Throwable) { miss("iq0.d", e); null }
 
     /** 反物质当前值（`op0.K()` 的 BigDouble）。 */
+    /**
+     * 反物质当前值（BigDouble）。
+     *
+     * [R93] 实测：直接按 `op0.K()` 反射在本包内返回 null（`pb ... am=null`），
+     * 于是首次无限前维度提升的需求比较永远失败、任务恒 noop。
+     * 这里改为「先试直接取值，失败则退回已验证可用的 currencyValue()」，
+     * 两次都失败才返回 null（调用方按不可读处理，不会误动作）。
+     */
     fun antimatterValue(): Any? {
         val c = antimatterCurrency() ?: return null
-        val m = c.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 } ?: return null
-        return try { m.invoke(c) } catch (e: Throwable) { miss("op0.K()", e); null }
+        try {
+            val m = c.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 }
+            if (m != null) {
+                val direct = m.invoke(c)
+                if (direct != null) return direct
+            }
+        } catch (e: Throwable) {
+            miss("op0.K()", e)
+        }
+        return currencyValue(c)
     }
-
     /** 给反物质加回一个增量（`op0.C(BigDouble)` 的原版 add 语义，会同步 records）。 */
     fun addAntimatter(delta: Any?) {
         if (delta == null) return
