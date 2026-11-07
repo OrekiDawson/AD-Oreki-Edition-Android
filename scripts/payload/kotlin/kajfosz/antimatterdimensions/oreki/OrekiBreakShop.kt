@@ -119,6 +119,20 @@ object OrekiBreakShop {
         return if ((GameApi.compareBigDoubles(ip, requirement) ?: -1) >= 0) requirement else null
     }
 
+    /**
+     * [R92] ID1 IP 预留窗口是否生效。
+     *
+     * 与 Web `OrekiEarlyAutomation.shouldReserveIpForId1()` 同义：
+     * 首次永恒前（eternities == 0）、ID1 尚未解锁、且当前 IP 已达到 ID1 的
+     * 原版 `ipRequirement` 时返回 true。
+     *
+     * 供 [OrekiStageAuto.buyInfinityUpgrades] 使用：R87 只给 Break 商店加了
+     * 预留，无限升级路径仍会把余额压到门槛以下；两条消耗 IP 的自动路径
+     * 必须共用同一条底线，否则 ID1 的峰值门槛会被反复打断。
+     */
+    @JvmStatic
+    fun id1ReserveActive(): Boolean = id1ReserveRequirement() != null
+
     /** 真实扣费 cost 后是否仍保住 ID1 的 IP 门槛。只读纯算术，不扣款。 */
     private fun leavesId1Reserve(ip: Any?, cost: Any?, requirement: Any?): Boolean {
         val remaining = GameApi.subtractBigDouble(ip, cost) ?: return false

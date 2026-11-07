@@ -523,6 +523,23 @@ object OrekiStageAuto {
     fun buyInfinityUpgrades(): Boolean = try {
         probeInfinityUpgradesOnce()
 
+        // [R92] 与 Web R82/R87「ID1 IP 预留」对齐。
+        //
+        // 缺陷（两端不一致）：Web 的 `OrekiEarlyAutomation.buyInfinityUpgrades()`
+        // 从 R82 起就有 `shouldReserveIpForId1()` + `leavesId1Reserve(cost)` 两道判据，
+        // 而 Android 侧此前**只有 Break 商店**（OrekiBreakShop，R87）带这条底线，
+        // 无限升级路径没有 —— 它会把 IP 花到 ID1 门槛以下。
+        //
+        // 后果（3.21 真实链路）：ID1 解锁要求「本次永恒反物质峰值达到门槛 + IP 达到门槛」，
+        // 余额一旦跌破 IP 门槛，`holdCrunch()` 的暂停坍缩随即解除，下一次自动坍缩
+        // 把反物质清零，ID1 的峰值门槛只能从头再爬 —— 这正是两端口径不一致带来的真实拖慢。
+        //
+        // 修法：窗口内**暂停无限升级购买**（保守到底线）。窗口判据全部读原版真实状态
+        // （见 OrekiBreakShop.id1ReserveActive），本处不写任何字段、不改价格、不改结算。
+        // 与 Web 的差异：Web 按单条升级 cost 精算「买完仍够门槛」，这里直接暂停，
+        // 代价是该窗口内便宜升级也一并暂停；差异已记入 tasks/R92 记录。
+        if (OrekiBreakShop.id1ReserveActive()) return false
+
         // ---- 1) 一次性升级：只买第一个「未买且买得起」的 ----
         val list = GameApi.infinityUpgrades()
         if (list != null) {

@@ -180,6 +180,16 @@ check("恢复默认使用调度器默认值（不读输入框）",
       "OrekiAutomationScheduler.defaultIntervalSec()" in listener)
 check("启用开关回读真实状态并与复选框同步", "syncChecked(button" in listener)
 
+# ---------------------------------------------------------------- 13. R92：ID1 IP 预留必须覆盖无限升级路径
+# 缺陷：R87 只给 Break 商店（OrekiBreakShop）加了 ID1 IP 预留，无限升级路径没有；
+# Web 从 R82 起两条路径共用同一条底线。这里用静态断言把两端对齐结果钉住。
+break_shop = read(KT_DIR / "OrekiBreakShop.kt")
+check("OrekiBreakShop 暴露 id1ReserveActive 窗口判据",
+      "fun id1ReserveActive(): Boolean" in break_shop and "id1ReserveRequirement() != null" in break_shop)
+check("无限升级购买前检查 ID1 IP 预留窗口",
+      "OrekiBreakShop.id1ReserveActive()" in stage)
+check("无限升级的预留检查排在一次性升级购买之前",
+      stage.index("OrekiBreakShop.id1ReserveActive()") < stage.index("GameApi.upgradeBuy(up)"))
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
