@@ -438,8 +438,10 @@ internal object GameApi {
     private var playerResolved: Boolean = false
 
     private fun player(): Any? {
-        if (!playerResolved) {
-            playerResolved = true
+        // [R93] 不缓存 null：启动早期（开始屏幕 / 存档尚未加载）Player.a 可能为 null，
+        // 旧实现把首次读到的 null 永久缓存，导致之后 hasInfinity()/IP/isBroken 全部读到 null
+        // ⇒ 后无限阶段自动化整段不执行（运行期只看到 prestigeBatch 的 noop 循环）。
+        if (player == null) {
             player = try {
                 staticField(playerCls(), "a")?.get(null)
             } catch (e: Throwable) {
@@ -448,7 +450,6 @@ internal object GameApi {
         }
         return player
     }
-
     private var mPlayerC: Method? = null
     private var mPlayerCResolved: Boolean = false
     private fun mPlayerC(): Method? {
