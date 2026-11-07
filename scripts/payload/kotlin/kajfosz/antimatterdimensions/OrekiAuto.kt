@@ -42,9 +42,14 @@ object OrekiAuto {
      */
     @JvmStatic
     fun hasInfinity(): Boolean = try {
-        val value = GameApi.infinities()
-        val compared = GameApi.compareToDouble(value, 0.0)
-        compared != null && compared > 0
+        val value = GameApi.infinities() ?: return false
+        // [R93] 直接读 BigDouble.toDouble() 判 > 0，不再依赖 compareToDouble 反射链：
+        // 运行期只有 init/EARLY/GATE/CRUNCH、没有任何 act/deny/noop ⇒
+        // onAutoBuyerTick 一直在 `!hasInfinity()` 早退分支，导致全部受节拍任务从未执行。
+        val raw = value.javaClass.methods
+            .firstOrNull { it.name == "toDouble" && it.parameterCount == 0 }
+            ?.invoke(value) as? Double ?: return false
+        raw > 0.0
     } catch (_: Throwable) {
         false
     }
