@@ -433,22 +433,34 @@ internal object GameApi {
 
     // ---------------------------------------------------------------- Player
 
-    /** `Player.a` —— 单例。手动初始化（不用 by lazy，见文件头说明）。 */
-    private var player: Any? = null
-    private var playerResolved: Boolean = false
+    /** `Player.a` 静态字段（只缓存 Field，不缓存实例）。 */
+    private var mPlayerA: java.lang.reflect.Field? = null
+    private var mPlayerAResolved: Boolean = false
 
-    private fun player(): Any? {
-        // [R93] 不缓存 null：启动早期（开始屏幕 / 存档尚未加载）Player.a 可能为 null，
-        // 旧实现把首次读到的 null 永久缓存，导致之后 hasInfinity()/IP/isBroken 全部读到 null
-        // ⇒ 后无限阶段自动化整段不执行（运行期只看到 prestigeBatch 的 noop 循环）。
-        if (player == null) {
-            player = try {
-                staticField(playerCls(), "a")?.get(null)
-            } catch (e: Throwable) {
-                miss("Player.a", e); null
+    /**
+     * 读取当前 `Player.a` 单例实例。
+     *
+     * [R94 关键修复] **绝不缓存实例本身**：实测（23:42 Break 生效、23:46 存档 maxAM 4.62e317、
+     * 00:22 反物质又被压回 1.797e308 且 `OREKI_HOLD` 在 35 ms 内 1→0）表明游戏会在运行中
+     * 替换 `Player.a`（读档 / 离线模拟都会换新实例）。旧实现把首次读到的实例永久缓存后：
+     *   · 我们对旧实例 `x0(true)` 的写入对真正的游戏状态无效；
+     *   · `isBroken()` 从旧实例读到 true，于是「Break 自愈」永不触发（早退）；
+     *   · 而真实实例的 `brake` 仍是 false ⇒ 反物质被 `Number.MAX_VALUE` 截断。
+     * 因此这里每个调用都重新读静态字段，只缓存反射 Field 句柄。
+     */
+    private fun player(): Any? = try {
+        val cached = mPlayerA
+        val field = if (cached != null) {
+            cached
+        } else {
+            staticField(playerCls(), "a")?.also {
+                mPlayerA = it
+                mPlayerAResolved = true
             }
         }
-        return player
+        field?.get(null)
+    } catch (e: Throwable) {
+        miss("Player.a", e); null
     }
     private var mPlayerC: Method? = null
     private var mPlayerCResolved: Boolean = false

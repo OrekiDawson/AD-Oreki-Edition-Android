@@ -229,6 +229,17 @@ check("Break 序列含原版 BREAK_INFINITY 事件（与按钮同序）",
       "notifyBreakInfinity()" in _break_fn and
       _break_fn.index("notifyBreakInfinity()") < _break_fn.index("maxAllIntervalsForFree()"))
 
+# ---------------------------------------------------------------- 17. R94：Player.a 实例不得缓存
+# 缺陷：游戏运行中会替换 Player.a（读档 / 离线模拟）。旧实现缓存实例后，
+# 我们的 x0(true) 写到旧实例、isBroken() 从旧实例读到 true，真实实例仍是 false，
+# 于是 Break 自愈永不触发、反物质被 Number.MAX_VALUE 截断（R94 实测）。
+_gameapi = read(KT_DIR / "GameApi.kt")
+check("Player.a 每个调用都重新读静态字段（不缓存实例）",
+      "private var player: Any? = null" not in _gameapi
+      and "field?.get(null)" in _gameapi)
+check("只缓存反射 Field 句柄", "private var mPlayerA: java.lang.reflect.Field? = null" in _gameapi)
+check("保留 R94 实例替换的说明", "R94 关键修复" in _gameapi)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
