@@ -249,6 +249,11 @@ EXPECTED_ABI = {
         "public void onClick(android.view.View)",
         "public void onCheckedChanged(android.widget.CompoundButton, boolean)",
     ],
+    "kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity": [
+        "public final void onTabClick(int)",
+        "public final void openChapterDrawer()",
+        "public android.view.WindowInsets onApplyWindowInsets(android.view.View, android.view.WindowInsets)",
+    ],
 }
 
 # [R77] Kotlin 已接管的类：对应的 Smali 版必须被删除，否则 apktool 回编译报 duplicate class。
@@ -270,6 +275,7 @@ KOTLIN_OWNED_CLASSES = {
     # [R91] 设置页智能调度回调整类迁移（保存间隔 / 恢复默认 / 启用 / 严格模式）。
     # 旧 Smali 版删除后由 Kotlin dex 提供同名同 ABI 实现，避免 duplicate class。
     "kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener",
+    "kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity",
 }
 
 
