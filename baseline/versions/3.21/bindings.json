@@ -61059,6 +61059,15 @@
         }
       ],
       "missing_evidence": []
+    },
+    "ud1": {
+      "from": "Lud1;",
+      "to": "Lee1;",
+      "status": "CONFIRMED",
+      "shape_match": true,
+      "evidence": [],
+      "direct_note": "3.20 Lud1 与 3.21 Lee1 均为 16 字段/14 方法；i(Context) 返回自身，字段/方法形状一致。3.21 的 Lud1 是无关 Iterator（仅 hasNext/next/remove），不能作为 FirebaseApp。",
+      "missing_evidence": []
     }
   },
   "methods": [

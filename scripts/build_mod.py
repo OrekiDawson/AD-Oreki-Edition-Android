@@ -518,11 +518,28 @@ FIELD_ALIASES_320: dict[str, str] = {
 # `Lip0;`。3.20 对 Currency 状态类做了拆分，「字段名对、类型旧」的引用能通过
 # smali 汇编（它不校验），却在 ART 链接期抛 NoSuchFieldError ——
 # 构建、签名、安装全部成功，只有执行到那行才崩。每条都必须有结构证据。
-# R87 目标侧字段类型钉正：3.20 的 `bq0.g0:Lup0;` 在 3.21 是
-# `iq0.g0:Lsp0;`（真实 DEX 字段表）；`pp0` 是 3.21 中 `up0` 的同族候选，
-# 但实际字段类型是 sp0，必须在类别名完成后按字段身份再钉一次。
+# R90 目标侧字段名映射：3.21 的 Currency 状态容器 iq0 对字段做了整体重排，
+# 不能沿用 3.20 的 w/g0/R。真实 DEX 字段表按类型逐项对应：
+#   bq0.w : Lrp0;  -> iq0.d0 : Lrp0;  （infinityPoints）
+#   bq0.g0: Lup0;  -> iq0.z  : Lup0;  （infinities）
+#   bq0.R : Lop0;  -> iq0.d  : Lop0;  （eternityPoints）
+# 字段名错但类型仍是 Currency 时 smali 能汇编，ART 却会在调用父类
+# Currency.add 时抛出 VerifyError，所以必须按真实字段身份映射。
+FIELD_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
+    ("bq0", "w"): ("iq0", "d0"),
+    ("bq0", "g0"): ("iq0", "z"),
+    ("bq0", "R"): ("iq0", "d"),
+}
+
+# 3.21 的字段类型也必须按目标字段钉正：旧字段类型经过类别名级联后，
+# 会落到 3.20 同名字段对应的类，而不是 3.21 真实声明类型。
+#   iq0.d0 真实 Lrp0;（3.19 Lrp0 经别名会变成 Lyp0）
+#   iq0.z  真实 Lup0;（3.19 Lsm0 经别名会变成 Lpp0）
+#   iq0.d  真实 Lop0;（3.19 Lym0 经别名会变成 Lvp0）
 FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
-    ("iq0", "g0"): ("pp0", "sp0"),
+    ("iq0", "d0"): ("yp0", "rp0"),
+    ("iq0", "z"): ("pp0", "up0"),
+    ("iq0", "d"): ("vp0", "op0"),
 }
 
 FIELD_TYPE_ALIASES_320: dict[tuple[str, str], tuple[str, str]] = {
@@ -832,9 +849,11 @@ def field_aliases() -> dict[tuple[str, str], tuple[str, str]]:
             target_cls = bound.get(nc)
             if target_cls is None:
                 continue
-            # 3.21 的 infinity currency 容器把 R 重命名为 S；这是从
-            # bq0.R:Lop0; 与 iq0.S:Lvp0; 的真实字段表得到的字段级证据。
-            nc, nf = (target_cls, "S" if (nc, nf) == ("bq0", "R") else nf)
+            mapped = FIELD_ALIASES_321.get((nc, nf))
+            if mapped is not None:
+                nc, nf = mapped
+            else:
+                nc = target_cls
         out[(oc, of)] = (nc, nf)
     return out
 
@@ -1625,8 +1644,19 @@ def patch_smali():
             "    sget-object v0, Lcom/google/firebase/Firebase;->INSTANCE:Lcom/google/firebase/Firebase;\n\n"
             "    invoke-static {v0, p0}, Lcom/google/firebase/FirebaseKt;->initialize(Lcom/google/firebase/Firebase;Landroid/content/Context;)Lcom/google/firebase/FirebaseApp;")
         assert legacy_firebase in body, "Firebase 初始化兼容锚点丢失"
-        body = body.replace(legacy_firebase,
-            "    invoke-static {p0}, Lud1;->i(Landroid/content/Context;)Lud1;", 1)
+        # R90：3.20 的 FirebaseApp 是 ud1；3.21 的 ud1 已被 R8 复用为无关
+        # Iterator，真正的 FirebaseApp 是 ee1。必须从 bindings 取目标类，
+        # 不能继续硬编码 3.20 名称，否则启动时会在 App.onCreate 抛
+        # NoSuchMethodError。没有 bindings 的 3.20 仍走 ud1。
+        firebase_class = _bound_class_map().get("ud1", "ud1") if _profile_value("bindings") else "ud1"
+        firebase_ref = f"L{firebase_class};"
+        body = body.replace(
+            legacy_firebase,
+            f"    invoke-static {{p0}}, {firebase_ref}->i(Landroid/content/Context;){firebase_ref}", 1)
+        assert f"{firebase_ref}->i(Landroid/content/Context;){firebase_ref}" in body, \
+            "FirebaseApp i(Context) 目标未被真实绑定替换"
+        assert "Lud1;->i(Landroid/content/Context;)Lud1;" not in body, \
+            "3.21 App.onCreate 仍残留旧 FirebaseApp 类引用 Lud1"
     # 原版 Application 的生命周期单例也随版本混淆；只改 ABI，不改初始化顺序。
     body = rewrite_alias(body)
     write_smali(ap, asrc[:start] + body + asrc[end:], encoding="utf-8")
@@ -2481,10 +2511,15 @@ def rewrite_alias(text: str, owner_desc: str = "") -> str:
             text)
     text = _target_ref(text)
     if _profile_value("bindings"):
-        # 3.21 的 g0 字段可能从 3.20 的 Lup0 经类级联成 Lpp0，也可能因
-        # 目标类名已预置而停在 Lup0；两种输入都钉到真实字段类型 Lsp0。
-        text = text.replace("Liq0;->g0:Lpp0;", "Liq0;->g0:Lsp0;")
-        text = text.replace("Liq0;->g0:Lup0;", "Liq0;->g0:Lsp0;")
+        for (oc, of), (old_after, new_type) in FIELD_TYPE_ALIASES_321.items():
+            text = re.sub(
+                rf"(L{re.escape(oc)};->{re.escape(of)}:)L{re.escape(old_after)};",
+                rf"\g<1>L{new_type};",
+                text,
+            )
+        # R90：3.21 Currency 状态字段已按真实字段表重命名；旧的
+        # `iq0.g0` 是无关字段，绝不能残留为 Currency 调用。
+        assert "Liq0;->g0:Lsp0;" not in text, "3.21 仍引用非 Currency 字段 iq0.g0"
     if owner_desc and _profile_value("bindings"):
         # §75：方法声明行的目标版本名只来自 bindings.json 的 CONFIRMED 结果。
         for (oc, om), (nc, nm) in _bound_method_map().items():
@@ -5156,7 +5191,9 @@ def patch_instant_challenge_rewards():
     # [R80] 这里必须同时列 3.19 名与 3.20 重写名：上方字段别名会把
     # `("Lln0;","e")` 改写成 `("Lbq0;","g0")`，若集合里只有 "e"，断言就永远不
     # 走「只校验字段名」分支，退回去要求 `g0:Lip0;`（3.20 实际是 Lup0;）→ 误报。
-    _CURRENCY_BIT_FIELDS = {"w", "e", "F", "g0", "R"}
+    # 3.21 目标字段名也必须列入：字段别名把旧 w/e/F 换成 d0/z/d 后，
+    # 断言仍应按「Currency 位字段」检查，而不是把旧类型字符串当精确 ABI。
+    _CURRENCY_BIT_FIELDS = {"w", "e", "F", "g0", "R", "d0", "z", "d"}
 
     for cls, name, rest in syms:
         # [R75-C] 这张表按 3.19 混淆名书写；3.20 已重排，按别名表换算后再查。
@@ -5202,6 +5239,27 @@ def patch_instant_challenge_rewards():
         else:
             pat = re.compile(r"^\.field .*\b" + re.escape(name) + ":" + re.escape(rest) + r"$", re.M)
             assert pat.search(body), f"{cls} 缺少字段 {name}:{rest}（混淆换名）"
+
+    # 3.21 的 Currency 位字段类型不是旧字段类型经类级联后的结果：
+    # iq0.d0=Lrp0; / iq0.z=Lup0; / iq0.d=Lop0;。这里从同一张
+    # FIELD_ALIASES_321/FIELD_TYPE_ALIASES_321 推导目标字段与真实类型，
+    # 既避免第二套硬编码，也保留字段名和类型的 fail-closed 检查。
+    if _profile_value("bindings"):
+        target_currency_fields = {}
+        for (oc, of), (tc, tf) in FIELD_ALIASES_321.items():
+            type_pair = FIELD_TYPE_ALIASES_321.get((tc, tf))
+            if type_pair is not None:
+                target_currency_fields[tf] = type_pair[1]
+        currency_file = _class_file("Liq0;")
+        assert currency_file is not None, "3.21 Currency 状态类 Liq0; 不存在"
+        currency_body = currency_file.read_text(encoding="utf-8", errors="replace")
+        for field_name, type_name in target_currency_fields.items():
+            pat = re.compile(
+                r"^\.field .*\b" + re.escape(field_name) + ":L" + re.escape(type_name) + r";$",
+                re.M,
+            )
+            assert pat.search(currency_body), (
+                f"Liq0; Currency 位字段 {field_name}:L{type_name}; 不存在（ABI 绑定错误）")
 
     # --- 5) 幂等：二次执行只校验不写盘 ---
     marker = "# [Oreki RIS] reward-instant-settle v1"
