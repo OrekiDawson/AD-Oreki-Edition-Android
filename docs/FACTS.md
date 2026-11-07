@@ -8216,3 +8216,10 @@ R79 收尾时 `work/mod` 有被后台探测中途写入的痕迹（`a.smali` mti
 - `[发布边界]` `release/反物质维度.apk` 仍为 3.20 稳定版，SHA-256 `82156A4055D36522BF247CCF37606E07CEF9D37C79BB46BE1DA727FF3D590051`；R89 `95F3917544986A1608F6FF5DECA616AF2FE87A9ED5760AC4950B012DD0A77A96`、R90 `41D14A8318166224D065CD79EC751F4F4F1222A600FDA2170B3A0406B474B7CB` 均保留。R91 尚未写入 `release/`、未上传双云盘、未 commit/push，不得写成已正式发布。
 - `[未验证]` 智能调度 1/10/60 秒、关闭停止、真实购买扣款、存档退出恢复、挑战结算、全新存档、真实 180 分钟墙钟、教程/UI 详验均 PENDING；AVD 详细结果未确认前，R91 只能称交付候选。
 
+
+## R91 Lead AVD 复核补充（2026-11-07 14:30 +08）
+
+- 设置页真实 UI：默认 10 秒、保存 1/60 秒、恢复默认 10 秒、空串/61 非法拒绝、关闭/恢复启用、force-stop 重启保持均 PASS；证据 `reports/r91-avd/09-lead-results.md` 及 13-settings.png～30-restart-settings.png。
+- 自动购买器页面显示已启用；游戏活动期间无限点数从 2.52e32 变成 2.56e32，反物质持续变化；`OREKI_GATE`/`OREKI_CRUNCH` 有日志。但未捕获 `OREKI_SCHED act`，后期存档当前无可执行任务，不能把原版自动购买器或诊断日志当作本调度器实际购买；调度器实际购买仍未验证。
+- 挑战真实结算、无限/ID1 IP 预留专项、新档 180 分钟墙钟、真机表现均未验证。
+- R91 候选已复制到 `release/反物质维度_R91候选_d46.apk`、OneDrive 与小米云盘同名候选；三处 SHA-256 均为 `D46B4B1BDBB627030ECD2B17D5882A2A0D9E9E42C42B25BC7FEDB955ADE01716`；旧 `release/反物质维度.apk` 3.20 未覆盖，未执行正式 `installToRelease`/`publishRelease`。
