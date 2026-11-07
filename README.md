@@ -24,17 +24,17 @@
 
 **版本号含义**：`3.21.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 正式稳定版（R94 发布，2026-11-07 21:45 +08）
+### 3.21 正式稳定版（R94，2026-11-07 23:10 紧急重建版；首版 21:45）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
-| 正式交付 | `release/反物质维度.apk` = 原 `release/反物质维度_R94候选_c730.apk`，已按 `cp + sha256sum` 覆盖本地稳定包并交付 OneDrive 与小米云盘同名文件（四处 SHA-256 一致）；旧 3.20 稳定版备份为 `release/反物质维度_3.20稳定版_备份_82156a40.apk` |
-| 大小 / SHA-256 | 82,626,033 B / `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1` |
-| 构建 | R94 唯一一次完整构建 20:29:56 → 20:39:51（9m55s，`-PorekiBuildRound=R94`，预算闸门 `used=0/1 ALLOW`）；产物 `build/gradle-stage/反物质维度.apk`，签名与上版同一证书 `95960bce…3197`（可原地升级） |
-| 门禁 | `verifyRelease` **14/14 PASS**、`verifyPatchContract` **17/17 PASS**、`check_automation_scheduler` **57/57**、v2+v3 签名；`OREKI_API_MISS` 的 `missing class bq0/rp0` 已由绑定描述符修复消除 |
-| 真实运行（同一 APK SHA） | `oreki_r92_fresh` / `emulator-5556`：全新存档真实墙钟 21:05:34 起跑，3m16s 首次无限、~13m 62 IP、~23m 3.20e6 IP、~31m 打破无限解锁（2.19e7 IP）；`OREKI_SCHED act` 累计 148 条（bulk/sacrifice/crunchInterval/infinityUpgrades/breakUpgrades）；总开关关闭 50 s 0 act + `deny disabled`、开启后恢复；重启后离线摘要进度保留 |
-| 状态 | **已发布为 3.21 正式稳定版**（旧 3.20 稳定包已备份）。已知限制（不阻塞安装与游玩，列为后续修复）：① `OrekiBreakGate.tick()` 在 3.21 上触发 DEX `VerifyError`（旧 Smali 业务类引用了 3.20 类型 `rp0`，3.21 实际为 `yp0`），`breakGate` 任务失效；但 `breakUpgrades`（Kotlin）已成功自动打破无限（实测 `x0-before brake=0` → `x0-after brake=1`，21:28:38），主链未被阻塞，break 商店的后续升级自动化缺失；② `OREKI_GOAL` 阶段识别 `stage=-1 degraded=1`（策略层退化为固定顺序，因部分后期叶子未接线）；③ 首次永恒与 180 分钟终局尚未达成，属持续验收目标 |
+| 正式交付 | `release/反物质维度.apk`，按 `cp + sha256sum` 覆盖本地稳定包并交付 OneDrive 与小米云盘同名文件（三处 SHA-256 一致）；上一稳定版备份为 `release/反物质维度_3.21初版_备份_c7307bf2.apk`，旧 3.20 稳定版备份为 `release/反物质维度_3.20稳定版_备份_82156a40.apk` |
+| 大小 / SHA-256 | 82,621,937 B / `B513BE9B8D58E68AE1255739D782A45A7AC4C4EA1388DC5EAB0832A8A06CC833` |
+| 构建 | R94 共两次完整构建：①20:29:56→20:39:51（首版，9m55s）②23:00 起→23:10:31（10m54s，P0 紧急重建，修复 Break 未自动重新激活）；签名与上版同一证书（可原地升级），账本 `used=1/1` |
+| 门禁 | `verifyRelease` **14/14 PASS**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17 PASS**、`check_automation_scheduler` **57/57**、v2+v3 签名；新包实测 `OREKI_API_MISS` 与 `VerifyError` **0 条** |
+| 真实运行 | 首版 APK 于 `oreki_r92_fresh`：全新存档 21:05:34 起跑，3m16s 首次无限、21:28:38 Break 激活、IP 达 3.4e8；`OREKI_SCHED act` 累计 227 条。该长跑因 Break 后续被清回 false 而**判定 FAIL**（未 Break 时反物质上限 `Number.MAX_VALUE`、IP 上限约 1e15，数学上无法到 ID1/永恒）。紧急重建版已安装并以全新存档 **23:18:18** 重新起跑 |
+| 状态 | **已发布为 3.21 正式稳定版**（紧急重建版）。已知限制：① `OREKI_GOAL` 阶段识别 `stage=-1 degraded=1`（策略层退化为固定顺序，部分后期叶子未接线，不影响推进）；② 首次永恒与 180 分钟终局仍在验收中；③ Break 被重置后的自愈逻辑已随本版上线，等待新长跑验证 |
 
 R92 的生产改动：Web 侧「开局维度提升 / 反物质星系」由每拍 1 次改为单次调度动作内买光当前买得起的次数，并修掉一个让该批量购买**完全失效**的真实缺陷（`player.dimBoosts` 应为原版真实字段 `player.dimensionBoosts`）；Android 侧修正 IU15 冲刺状态机只看原版自动购买器开关、未看本作自动化总开关的缺陷（关闭总开关后接管不会解除），并随构建同步 3.21 更新日志与双端教程附录 F。R91 候选 `release/反物质维度_R91候选_d46.apk`、R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R92 任务记录`](tasks/R92-独立新档验收与前期提速.md) 与 [`R92 AVD 验收结果`](reports/r92-avd/02-lead-results.md)。
 
@@ -45,7 +45,7 @@ R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除�
 | 项 | 值 |
 |---|---|
 | 当前开发基线 | **3.21.0**（`versionCode` 30210000） |
-| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1`） |
+| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `B513BE9B8D58E68AE1255739D782A45A7AC4C4EA1388DC5EAB0832A8A06CC833`） |
 | Android 基线来源 | 3.20 稳定基线官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400`；3.21 基线见 `baseline/versions/3.21/` |
 | Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
 | 3.21 基线 | 42 项真实 bindings 与迁移门禁已通过；R94 起 3.21 已作为正式稳定版发布（构建/签名/双门禁/真实运行均绑定同一 SHA-256） |
