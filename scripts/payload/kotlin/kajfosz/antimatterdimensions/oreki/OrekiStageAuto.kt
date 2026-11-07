@@ -754,6 +754,8 @@ object OrekiStageAuto {
             GameApi.setBrake(true)
             Log.i(TAG_BRKTRACE2, "x0-after brake=" + (if (GameApi.isBroken()) 1 else 0))
 
+            // 与原版按钮完全同序：x0(true) → 广播 BREAK_INFINITY → 免费拉满所有间隔
+            GameApi.notifyBreakInfinity()
             GameApi.maxAllIntervalsForFree()
             Log.i(TAG_BRK2, "Player.x0(true) + autobuyer.a.c()")
         } catch (_: Throwable) {

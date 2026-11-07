@@ -1769,6 +1769,31 @@ internal object GameApi {
     }
     fun maxAllIntervalsForFree() = call(mBreakUtilC(), null)
 
+    // [R94] 原版「打破无限」按钮在 x0(true) 之后会广播 BREAK_INFINITY 事件
+    // （MainActivityBreakInfinityKt$loadViewsBreakInfinity$1$1.smali:420-433：
+    //  `Player.x0(true)` → `m91.a("BREAK_INFINITY")` → `autobuyer.a.c()`）。
+    // MOD 走同一条真实入口，因此补上这一步，保证成就与界面事件与原版一致。
+    private var mBreakEventDispatch: Method? = null
+    private var mBreakEventDispatchResolved: Boolean = false
+    private fun mBreakEventDispatch(): Method? {
+        if (!mBreakEventDispatchResolved) {
+            mBreakEventDispatchResolved = true
+            mBreakEventDispatch = method(
+                cls("kajfosz.antimatterdimensions.c91"),
+                "a",
+                1,
+                "EventHub(a)(String)=BREAK_INFINITY",
+                paramTypeNames = listOf("java.lang.String"),
+            )
+        }
+        return mBreakEventDispatch
+    }
+
+    /** 原版 Break 按钮的第三步：广播 `BREAK_INFINITY` 事件（只读语义，不改状态）。 */
+    fun notifyBreakInfinity() {
+        call(mBreakEventDispatch(), null, "BREAK_INFINITY")
+    }
+
     // ---------------------------------------------------------------- 尚未迁移的 Oreki 模块
     //
     // 这三个类仍是 Smali（本轮未纳入转译范围，原因见 FACTS C.125）：
