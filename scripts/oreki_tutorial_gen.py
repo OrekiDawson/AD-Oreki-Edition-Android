@@ -722,21 +722,57 @@ ENCODING_PROBE = "反物质维度：计数频率"
 
 
 # ---------------------------------------------------------------- 文本净化
+# [R94] 行内 Markdown 标记：Android 的 TextView 不解析它们，必须在上盘前去掉，
+# 否则玩家会直接看到 `**粗体**` 的反引号与星号（R94 实测：生成物里 38 处 `**`、14 处反引号）。
+INLINE_BOLD = re.compile(r"\*\*([^*]+)\*\*")
+INLINE_CODE = re.compile(r"`([^`]+)`")
+MD_BLOCK_MARKER = re.compile(r"^\s*#{1,6}\s*")
+
+
+def strip_inline_markdown(text: str) -> str:
+    """去掉 `**粗体**` 与 `代码` 的行内标记，保留文字本身。"""
+    out = str(text or "")
+    out = INLINE_BOLD.sub(r"\1", out)
+    out = INLINE_CODE.sub(r"\1", out)
+    return out
+
+
 def sanitize(text: str) -> str:
     """把任意文本变成一条记录里合法的 text 段。
 
-    唯一硬约束是「不能有 `|`、不能有换行」。`|` 换全角 `｜`（视觉几乎一致），
-    换行换 ` / `（步骤里的换行本来就是并列关系）。全角竖线在正文里出现时
-    不会再被拆开，因为分隔符只认半角。
+    三条硬约束：不能有半角 `|`、不能有换行、不能残留 Markdown 标记。
+    半角 `|` 换全角 `｜`（视觉几乎一致），换行换 ` / `（步骤里的换行本来就是并列关系），
+    行首 `#`/`###` 改写成纯标题文字（附录标题由 md_blocks 处理，这里是兜底）。
     """
     if text is None:
         return ""
-    out = str(text)
+    out = strip_inline_markdown(str(text))
     out = out.replace("\r\n", "\n").replace("\r", "\n")
     out = out.replace("\n", " / ")
     out = out.replace("|", "｜")
     out = out.replace("\t", " ")
+    out = MD_BLOCK_MARKER.sub("", out)
     return out.strip()
+
+
+def assert_render_clean(records) -> None:
+    """[R94] 上盘前的显示性门禁：任何记录都不得残留 Markdown 源码。
+
+    只看记录的 text 段（TAG|flag|text 的第三段），命中即抛错——宁可构建失败，
+    也不能让玩家在游戏里看到 `**`、反引号、`|---|` 或行首 `#`。
+    """
+    bad = []
+    for tag, _flag, txt in records:
+        s = str(txt or "")
+        if "**" in s or "`" in s or "|---" in s or s.lstrip().startswith("#"):
+            bad.append((tag, s[:60]))
+        if "\t" in s:
+            bad.append((tag, "TAB:" + s[:40]))
+    if bad:
+        raise TutorialContentError(
+            "教程记录里残留 Markdown 源码（Android 不解析，会直接显示给玩家）："
+            + "; ".join(f"{t}={x!r}" for t, x in bad[:5])
+        )
 
 
 def _row_text(cells: list) -> str:
@@ -798,8 +834,6 @@ def chapter_records(ch: dict) -> list[tuple[str, int, str]]:
 # 为什么要专门给「小标题 -> SUB」留位置：labelForCode 给 GOAL…NOTE 共 12 个标签都
 # 配了中文名（阶段目标 / 对照表 / 补充说明…），没有「无标签正文」标签；小标题若走
 # TBL/NOTE，会先画出「对照表」「补充说明」再画标题，层级直接塌掉。
-INLINE_BOLD = re.compile(r"\*\*([^*]+)\*\*")
-INLINE_CODE = re.compile(r"`([^`]+)`")
 TABLE_DIVIDER = re.compile(r"^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?$")
 MD_HEADING = re.compile(r"^#{2,4}\s+(.*)$")
 MD_UL = re.compile(r"^[-*]\s+(.*)$")
@@ -808,7 +842,7 @@ MD_OL = re.compile(r"^\d+\.\s+(.*)$")
 
 def _plain(text: str) -> str:
     """去掉行内 Markdown 标记 —— Android 的 TextView 不解析 `**` 与反引号，留着就是噪声。"""
-    return INLINE_CODE.sub(r"\1", INLINE_BOLD.sub(r"\1", str(text or ""))).strip()
+    return strip_inline_markdown(text).strip()
 
 
 def _cells(row: str) -> list[str]:
@@ -936,6 +970,11 @@ def build_text(doc: dict, header: list[str] | None = None) -> tuple[str, list[li
         chapter_records(u) if kind == "chapter" else appendix_records(u, doc["chapters"])
         for kind, u in all_units(doc)
     ]
+    # [R94] 显示性门禁：写盘前逐条检查，任何记录残留 `**`/反引号/`|---|`/行首 `#` 直接报错。
+    for recs in per_chapter:
+        assert_render_clean(recs)
+    assert_render_clean(hint_records(doc))
+
     lines: list[str] = []
     for ln in header or ():
         lines.append("# " + ln)
@@ -1317,6 +1356,30 @@ def selftest() -> int:
     if failures:
         print(f"\n自测失败 {len(failures)} 项: {failures}")
         return 1
+    # --- R94 新增：显示性门禁（Android 不解析 Markdown，源码不得露给玩家）---
+    expect_fail("记录残留 ** 粗体标记",
+                lambda: assert_render_clean([("STEP", 0, "**粗体**")]))
+    expect_fail("记录残留反引号代码标记",
+                lambda: assert_render_clean([("STEP", 0, "看 `stage=17`")]))
+    expect_fail("记录残留表格分隔行",
+                lambda: assert_render_clean([("TBL", 0, "|---|")]))
+    expect_fail("记录以 # 标题标记开头",
+                lambda: assert_render_clean([("SUB", 0, "### 小标题")]))
+    expect_pass("普通文本与全角竖线放行",
+                lambda: assert_render_clean([("TBL", 0, "标签：值｜另一个值")]))
+
+    def sanitize_strips_markers():
+        got = sanitize("**粗体** 与 `代码` 以及 | 竖线")
+        if "**" in got or "`" in got or "|" in got:
+            raise TutorialContentError(f"sanitize 未剥净: {got!r}")
+    expect_pass("sanitize 剥掉 ** / 反引号 / 半角竖线", sanitize_strips_markers)
+
+    def table_row_multi_column():
+        got = _row_text(["列一", "值一", "值二"])
+        if got != "列一：值一｜值二":
+            raise TutorialContentError(f"多列表格转换错误: {got!r}")
+    expect_pass("多列表格行转成「首列：其余（全角竖线）」", table_row_multi_column)
+
     print(f"\n自测通过：{checked} 条变异全部被拦住")
     return 0
 
