@@ -197,6 +197,21 @@ check("自动购买器总开关绑定 3.21 真实 setter e0(Z)",
       and 'paramTypeNames = listOf("boolean")' in gameapi)
 check("不再绑定错误的 g0(I)",
       '"Options.g0(Z)=autobuyersOn"' not in gameapi)
+# ---------------------------------------------------------------- 15. R94：Break 自愈与丢失诊断
+# 缺陷（R94 实测）：Break 在运行中被写回 false 后，原版同时把大坍缩间隔恢复为未满，
+# 只重试 tryBreakInfinity() 永远不会成功 —— 自动化会永久卡在未 Break 的慢速状态。
+# 修复：breakUpgrades 内先买满间隔再重试，并在 isBroken() true→false 时打印一次诊断。
+check("存在大坍缩间隔是否买满的判据", "private fun crunchIntervalIsMaxed(): Boolean" in stage)
+check("Break 兜底内先买满间隔（upgradeCrunchInterval 调用）",
+      "if (!crunchIntervalIsMaxed())" in stage and "upgradeCrunchInterval()" in stage)
+_break_block = stage[stage.index("---- Break 兜底 + 自愈"):]
+check("间隔自愈排在 tryBreakInfinity 之前",
+      _break_block.index("crunchIntervalIsMaxed()") < _break_block.index("tryBreakInfinity()"))
+check("存在 Break 丢失诊断函数", "private fun detectBreakLoss()" in stage)
+check("诊断在 crunchProbe 之后调用",
+      stage.index("crunchProbe()") < stage.index("detectBreakLoss()"))
+check("诊断使用独立 OREKI_BREAK 标签", 'TAG_BREAK_GUARD = "OREKI_BREAK"' in stage)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
