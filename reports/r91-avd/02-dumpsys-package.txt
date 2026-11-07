@@ -1,0 +1,7 @@
+    flags=0x0
+    codePath=/data/app/~~mndGKbaGZxCZTwqtM5nM9Q==/com.oreki.antimatterdimensions-i-evY21GTPTdvuCvhs7NDg==
+    versionCode=30210000 minSdk=32 targetSdk=37
+    versionName=3.21.0
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    lastUpdateTime=2026-11-07 06:12:44
+      firstInstallTime=2026-11-04 15:38:35

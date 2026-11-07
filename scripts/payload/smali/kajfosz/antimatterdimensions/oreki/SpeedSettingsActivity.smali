@@ -455,7 +455,7 @@
     const v1, 0x2002    # InputType.TYPE_CLASS_NUMBER
     invoke-virtual {v4, v1}, Landroid/widget/TextView;->setInputType(I)V
 
-    const-string v1, "调度间隔（秒）：1~60，越界会被夹到边界，改完下一次调度立即生效"
+    const-string v1, "调度间隔（秒）：1~60 的整数，非法输入不会保存；保存后下一次调度立即生效"
     invoke-virtual {v4, v1}, Landroid/widget/TextView;->setHint(Ljava/lang/CharSequence;)V
 
     invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->getIntervalSec()I
@@ -497,8 +497,9 @@
     new-instance v6, Landroid/widget/Button;
     invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    # [R60] 文案与调度器默认值（1 秒）对齐；原来写 3 秒，点下去会跳回 3 秒
-    const-string v1, "恢复默认 1 秒"
+    # [R91] 文案与调度器默认值（10 秒）对齐。仅改玩家可见文案；
+    # 保存/恢复的判定与写盘全部在 Kotlin 版 OrekiAutomationUiListener 内。
+    const-string v1, "恢复默认（10 秒）"
     invoke-virtual {v6, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     new-instance v7, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
@@ -538,7 +539,7 @@
     const-string v1, "调度说明：间隔约束的是「策略决策周期」——现实 / 天神 / Perk / 终局 / Break 升级 / 闸门这些离散决策，多久重新评估一次。买反物质维度、计数频率、维度提升、星系、献祭、重开、无限维度、无限升级、时间研究这些属于原版自动购买器的职责，默认按原版 tick 节奏跑，不受此间隔限制（用户令第 8 条：不得破坏原版机制）；只有勾选严格模式才会把它们一起纳入。同一帧最多只放行一个真动作；没有真正改变游戏状态的调用不计入间隔、立即让位给下一个候选；失败的调用有 2 秒独立冷却，不会无限重试。"
     invoke-direct {p0, p1, v1}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    const-string v1, "键名与 Web 端逐字相同（oreki.automation.enabled / oreki.automation.intervalSec / oreki.automation.strictGlobal），默认启用、1 秒、单任务档。每次真正执行都会在 logcat 打一行 OREKI_SCHED（带 act= / gap= / taskGap= 毫秒），可直接用来核对间隔是否合规。"
+    const-string v1, "键名与 Web 端逐字相同（oreki.automation.enabled / oreki.automation.intervalSec / oreki.automation.strictGlobal），默认启用、10 秒、单任务档。每次真正执行都会在 logcat 打一行 OREKI_SCHED（带 act= / gap= / taskGap= 毫秒），可直接用来核对间隔是否合规。"
     invoke-direct {p0, p1, v1}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     return-void

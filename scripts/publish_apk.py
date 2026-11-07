@@ -5,7 +5,7 @@
 用法：
     python scripts/publish_apk.py                # 完整流程：验证 -> 归档 -> 覆盖双云盘 -> 核验云端 -> KDE 直发
     python scripts/publish_apk.py --dry-run      # 只验证，不复制
-    python scripts/publish_apk.py --skip-cloud-read   # 只等脱水，不读回算哈希（省流量，不写发布回执）
+    python scripts/publish_apk.py --skip-cloud-read   # 跳过云端回读，仍写发布回执并核对本地副本
     python scripts/publish_apk.py --no-kde       # 只发云盘，不往手机发
     python scripts/publish_apk.py --no-xiaomi    # 只发 OneDrive（排障用）
 
@@ -192,7 +192,12 @@ def main():
     ap.add_argument("--dest", default=str(DEFAULT_DEST))
     ap.add_argument("--xiaomi", default=str(DEFAULT_XIAOMI))
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--skip-cloud-read", action="store_true")
+    ap.add_argument("--skip-cloud-read", action="store_true",
+                    help="不把云盘文件读回；仍写发布回执并核对本地副本哈希")
+    ap.add_argument("--manifest", default=str(ROOT / "build" / "release-manifest.json"),
+                    help="installToRelease 写出的发布身份清单；正式发布必须提供")
+    ap.add_argument("--allow-unmanifested", action="store_true",
+                    help="仅用于诊断实验包；正式 publishRelease 禁止使用")
     ap.add_argument("--no-xiaomi", action="store_true", help="不覆盖小米云盘（排障用）")
     ap.add_argument("--no-kde", action="store_true", help="不通过 KDE Connect 直发手机")
     ap.add_argument("--force-upload", action="store_true", help="哈希相同也重新覆盖并等脱水")
@@ -231,6 +236,59 @@ def main():
     h, size = sha256_of(apk)
     log("    SHA-256=%s  大小=%d (%.1f MiB)" % (h, size, size / 1048576))
 
+    # [R91] 正式发布身份门禁：只接受 installToRelease 刚写出的清单所登记的
+    # 那一个 release 产物，并核对来源 stage 的 SHA / 版本 / 证书。
+    # 目的：即使用户手工传了 --apk 指向 R89 或旧 3.20，也不能静默上传。
+    manifest_path = Path(args.manifest).resolve()
+    manifest = None
+    if not args.allow_unmanifested:
+        if not manifest_path.is_file():
+            log("    失败：缺少发布身份清单 %s" % manifest_path)
+            return 2
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            log("    失败：发布身份清单无法解析（%s）" % exc)
+            return 2
+        release_info = manifest.get("release") or {}
+        build_info = manifest.get("build") or {}
+        expected_apk = Path(str(release_info.get("apk", ""))).resolve()
+        if apk != expected_apk:
+            log("    失败：发布对象不是清单登记的 release 产物")
+            log("      清单=%s" % expected_apk)
+            log("      输入=%s" % apk)
+            return 2
+        if release_info.get("sha256") != h:
+            log("    失败：release 产物 SHA-256 与清单不一致")
+            log("      清单=%s" % release_info.get("sha256"))
+            log("      实际=%s" % h)
+            return 2
+        source_apk = Path(str(build_info.get("source_apk", ""))).resolve()
+        if not source_apk.is_file():
+            log("    失败：清单登记的构建来源不存在 %s" % source_apk)
+            return 2
+        source_hash, _ = sha256_of(source_apk)
+        if source_hash != build_info.get("source_sha256"):
+            log("    失败：构建来源 SHA-256 与清单不一致（产物可能被替换）")
+            return 2
+        for field, actual in (("package", bag["package"]),
+                              ("versionName", bag["versionName"]),
+                              ("versionCode", bag["versionCode"]),
+                              ("cert_sha256", sig["cert"])):
+            if build_info.get(field) != actual:
+                log("    失败：发布身份字段 %s 与清单不一致" % field)
+                log("      清单=%s 实际=%s" % (build_info.get(field), actual))
+                return 2
+        if build_info.get("verify_failed") != 0:
+            log("    失败：清单对应的 verifyRelease 不是 0 失败")
+            return 2
+        verify_report = Path(str(build_info.get("verify_report", ""))).resolve()
+        if not verify_report.is_file():
+            log("    失败：清单对应的 verifyRelease 报告不存在 %s" % verify_report)
+            return 2
+        log("    发布身份清单: %s" % manifest_path)
+        log("    构建来源: %s（SHA-256 一致）" % source_apk)
+
     if args.dry_run:
         log("    --dry-run：验证通过，不做任何写操作")
         return 0
@@ -261,40 +319,43 @@ def main():
         log("    注意：OneDrive 已成功，本步骤失败不改变 OneDrive 结果")
 
     log("=" * 66)
-    log("[4] 核验 OneDrive 云端同步")
+    log("[4] 核验 OneDrive 同步 / 回读策略")
     uploaded = need_copy or args.force_upload
     dehydrated = None
-    if uploaded:
-        ok, el, a = wait_upload(dest, timeout=args.timeout)
-        if not ok:
-            log("    未在 %ds 内转为云端占位（attrs=0x%X）" % (args.timeout, a))
-            log("    结论：本地已替换，云端尚未核验")
-            return 3
-        dehydrated = True
-        log("    已上传并脱水，用时 %.0fs" % el)
-    else:
-        a = attrs_of(dest)
-        dehydrated = bool(a & ATTR_RECALL_ON_DATA_ACCESS)
-        log("    本轮未重新上传（哈希与本轮产物一致），跳过脱水等待；当前 attrs=0x%X" % a)
-
+    n3 = 0
     cloud_readback_ok = None
     if args.skip_cloud_read:
-        log("    --skip-cloud-read：跳过回读哈希（不写发布回执）")
-        log("    结论：本地已替换，云端已上传（未做内容回读核验）")
-        return 0
+        # [R91] 用户明确取消云端回读。此分支只依赖「本地两处副本哈希一致 +
+        # 上传请求已发出」，不把未回读说成云端内容已核验。
+        log("    --skip-cloud-read：跳过云端回读（仍写发布回执）")
+        log("    结论：本地副本已替换；上传服务已接受写入，云端内容未回读")
+    else:
+        if uploaded:
+            ok, el, a = wait_upload(dest, timeout=args.timeout)
+            if not ok:
+                log("    未在 %ds 内转为云端占位（attrs=0x%X）" % (args.timeout, a))
+                log("    结论：本地已替换，云端尚未核验")
+                return 3
+            dehydrated = True
+            log("    已上传并脱水，用时 %.0fs" % el)
+        else:
+            a = attrs_of(dest)
+            dehydrated = bool(a & ATTR_RECALL_ON_DATA_ACCESS)
+            log("    本轮未重新上传（哈希与本轮产物一致），跳过脱水等待；当前 attrs=0x%X" % a)
 
-    log("    回读云端内容（触发 hydrate）...")
-    t0 = time.time()
-    h3, n3 = sha256_of(dest)
-    log("    回读 %d 字节, %.1fs" % (n3, time.time() - t0))
-    log("    云端回读 SHA-256=%s" % h3)
-    if h3 != h:
-        log("    失败：云端内容与本地产物不一致")
-        return 3
-    cloud_readback_ok = True
+        log("    回读云端内容（触发 hydrate）...")
+        t0 = time.time()
+        h3, n3 = sha256_of(dest)
+        log("    回读 %d 字节, %.1fs" % (n3, time.time() - t0))
+        log("    云端回读 SHA-256=%s" % h3)
+        if h3 != h:
+            log("    失败：云端内容与本地产物不一致")
+            return 3
+        cloud_readback_ok = True
 
     log("=" * 66)
     log("[5] 写发布回执")
+    manifest_info = manifest or {}
     receipt = {
         "ts": time.strftime("%Y-%m-%d %H:%M:%S"),
         "apk": str(apk),
@@ -303,6 +364,9 @@ def main():
         "versionName": bag["versionName"],
         "versionCode": bag["versionCode"],
         "cert": sig["cert"],
+        "manifest": str(manifest_path) if manifest else None,
+        "source_apk": (manifest_info.get("build") or {}).get("source_apk"),
+        "source_sha256": (manifest_info.get("build") or {}).get("source_sha256"),
         "onedrive": {
             "dest": str(dest),
             "local_hash_ok": True,
@@ -338,8 +402,11 @@ def main():
     log("发布结果")
     log("  版本      : %s (%s)" % (bag["versionName"], bag["versionCode"]))
     log("  SHA-256   : %s" % h)
-    log("  OneDrive  : %s（%s；回读哈希一致）" % (
-        dest, "本轮重新上传 + 脱水核验" if uploaded else "本轮未重传，内容回读核验"))
+    if args.skip_cloud_read:
+        log("  OneDrive  : %s（本地副本哈希一致；云端未回读）" % dest)
+    else:
+        log("  OneDrive  : %s（%s；回读哈希一致）" % (
+            dest, "本轮重新上传 + 脱水核验" if uploaded else "本轮未重传，内容回读核验"))
     log("  小米云盘  : %s（本地哈希核验：%s）" % (xiaomi, "通过" if xiaomi_ok else "失败"))
     log("  KDE 直发  : %s" % kde_result)
     if not xiaomi_ok:

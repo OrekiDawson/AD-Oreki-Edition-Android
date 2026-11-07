@@ -1,0 +1,229 @@
+{
+  "apk": {},
+  "tree": "C:\\Users\\Oreki\\AD-Oreki-Unified\\android\\AD_Oreki_Edition_Android\\work\\mod",
+  "checks": [
+    {
+      "name": "scripts/*.py 全部可编译",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "scripts/*.py 全部可编译",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "main() 启用 patch_ec12_restriction()",
+      "ok": true,
+      "detail": "",
+      "subchecks": []
+    },
+    {
+      "name": "main() 启用 patch_instant_challenge()",
+      "ok": true,
+      "detail": "",
+      "subchecks": []
+    },
+    {
+      "name": "main() 未启用已否证的 patch_frame_cadence()",
+      "ok": true,
+      "detail": "",
+      "subchecks": []
+    },
+    {
+      "name": "OrekiInstantChallenge 未被当成模板误放进 templates/",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "OrekiInstantChallenge 未被当成模板误放进 templates/",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "EC12 补丁唯一且位于比较之前（候选 APK）",
+      "ok": false,
+      "detail": "EC12 限时补丁目标不唯一",
+      "subchecks": [
+        [
+          false,
+          "EC12 unscale 唯一目标",
+          "命中 2 处（要求唯一）"
+        ],
+        [
+          false,
+          "契约执行",
+          "EC12 限时补丁目标不唯一"
+        ]
+      ]
+    },
+    {
+      "name": "Challenges.update 只插入 1 次 tick()（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "全 APK 只调用 OrekiInstantChallenge.tick() 1 次",
+          "files=['smali_classes2/kajfosz/antimatterdimensions/challenge/antimatter/c.smali'] count=1"
+        ],
+        [
+          true,
+          "3.21 Challenges.update 为 suspend b(D, ContinuationImpl)",
+          "public final b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"
+        ],
+        [
+          true,
+          "同方法先调用 OrekiChallengeAuto.tick()（自动进入挑战）",
+          ""
+        ],
+        [
+          true,
+          "OrekiChallengeAuto.tick() 位于 OrekiInstantChallenge.tick() 之前",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "OrekiInstantChallenge 类与 ABI（候选 APK）",
+      "ok": false,
+      "detail": "类 Lkajfosz/antimatterdimensions/OrekiInstantChallenge; 命中 0 处（要求唯一）：无命中",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "类 Lkajfosz/antimatterdimensions/OrekiInstantChallenge; 命中 0 处（要求唯一）：无命中"
+        ]
+      ]
+    },
+    {
+      "name": "3.21 普通挑战入口 a(I) -> normal/a（候选 APK）",
+      "ok": false,
+      "detail": "smali_classes2/n63.smali 找不到方法头：public static a(I)Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "smali_classes2/n63.smali 找不到方法头：public static a(I)Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;"
+        ]
+      ]
+    },
+    {
+      "name": "3.21 无限挑战入口 c() -> infinity/a（候选 APK）",
+      "ok": false,
+      "detail": "smali_classes2/c22.smali 找不到方法头：public static c()Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "smali_classes2/c22.smali 找不到方法头：public static c()Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;"
+        ]
+      ]
+    },
+    {
+      "name": "3.21 永恒挑战入口 c() -> eternity/b（候选 APK）",
+      "ok": false,
+      "detail": "smali_classes2/x81.smali 找不到方法头：public static c()Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "smali_classes2/x81.smali 找不到方法头：public static c()Lkajfosz/antimatterdimensions/challenge/eternity/b;"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：序号 9/8 映射（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "wi4.l() 序号 9 = Scientific",
+          "'Scientific'"
+        ],
+        [
+          true,
+          "wi4.l() 序号 8 = Mixed scientific",
+          "'Mixed scientific'"
+        ],
+        [
+          true,
+          "wi4.l() packed-switch 覆盖 10 个序号",
+          "len=10"
+        ],
+        [
+          true,
+          "wi4.d(I,BigDouble,Z) 真实声明存在",
+          "smali_classes2/wi4.smali"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：a/f/v/w 对象身份（候选 APK）",
+      "ok": false,
+      "detail": "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：新档默认与重开新档写回（候选 APK）",
+      "ok": false,
+      "detail": "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：读档链 b()->d() 与 w 唯一写入（候选 APK）",
+      "ok": false,
+      "detail": "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：设置页选中项与 w 同源（候选 APK）",
+      "ok": false,
+      "detail": "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "静态字段 w:Ly63; 命中 0 处（要求唯一）：无命中"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：Scientific/Mixed 分支与 33.0 阈值（候选 APK）",
+      "ok": false,
+      "detail": "smali_classes2/wi4.smali 找不到方法头：public final d(ILkajfosz/antimatterdimensions/BigDouble;Z)Ljava/lang/String;",
+      "subchecks": [
+        [
+          false,
+          "契约执行",
+          "smali_classes2/wi4.smali 找不到方法头：public final d(ILkajfosz/antimatterdimensions/BigDouble;Z)Ljava/lang/String;"
+        ]
+      ]
+    }
+  ],
+  "passed": 7,
+  "total": 17
+}

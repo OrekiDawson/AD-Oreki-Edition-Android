@@ -70,8 +70,10 @@ STAT_TARGETS = [
     ("keystore", ROOT / "keys"),
 ]
 
-# 候选 APK（构建产物）。存在性是「能否跳过」的必要条件之一。
-STAGE_GLOB = "build/gradle-stage/*.apk"
+# [R91] 只认 Gradle 正式暂存路径的规范文件名。
+# 旧实现用 build/gradle-stage/*.apk：目录里只要残留 candidate.apk 等旧文件，
+# 即使「反物质维度.apk」不存在也会被当作有候选而允许跳过，存在发错包风险。
+STAGE_APK = pathlib.Path(os.environ.get("OREKI_RELEASE_OUT") or (ROOT / "build" / "gradle-stage")) / "反物质维度.apk"
 
 # 只收「真正会改变 APK 内容」的环境变量。
 #
@@ -219,7 +221,19 @@ def compute(verbose: bool = False) -> dict:
 
 
 def stage_apks() -> list[pathlib.Path]:
-    return sorted(ROOT.glob(STAGE_GLOB))
+    """只返回正式暂存 APK；目录里的旧候选不算数。"""
+    return [STAGE_APK] if STAGE_APK.is_file() else []
+
+
+def stage_sha256() -> str | None:
+    """候选内容哈希：防止候选人被替换/复制错后仍沿用旧指纹跳过。"""
+    if not STAGE_APK.is_file():
+        return None
+    h = hashlib.sha256()
+    with STAGE_APK.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def main() -> int:
@@ -244,26 +258,38 @@ def main() -> int:
     prev_digest = (previous or {}).get("aggregate")
     same = prev_digest == cur["aggregate"]
     apks = stage_apks()
+    cur_stage_sha = stage_sha256()
+    prev_stage_sha = (previous or {}).get("stage_sha256")
 
     if args.show:
         print(f"  当前指纹 {cur['aggregate'][:16]}  上次 {str(prev_digest)[:16]}  "
-              f"一致={same}  候选 APK={len(apks)}  总耗时 {elapsed:.2f}s")
+              f"一致={same}  正式候选={len(apks)}  stage_sha={str(cur_stage_sha)[:16]}  "
+              f"总耗时 {elapsed:.2f}s")
         return 0
 
     if args.commit:
+        # [R91] 指纹必须绑定「本次实际构建产物」的 SHA，而不是只绑定输入。
+        # 这样换输出路径、误复制或候选被替换时，下一次不会静默跳过。
+        if not STAGE_APK.is_file():
+            print(f"  [错误] --commit 时正式候选不存在：{STAGE_APK}")
+            return 2
+        cur["stage_apk"] = str(STAGE_APK)
+        cur["stage_sha256"] = cur_stage_sha
         FP_PATH.parent.mkdir(parents=True, exist_ok=True)
         FP_PATH.write_text(json.dumps(cur, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"  已记录输入指纹 {cur['aggregate'][:16]}（{elapsed:.2f}s）")
+        print(f"  已记录输入指纹 {cur['aggregate'][:16]} + 产物 {str(cur_stage_sha)[:16]}（{elapsed:.2f}s）")
         return 0
 
     # --check：决定是否 stale
     stale_reasons = []
     if not apks:
-        stale_reasons.append("候选 APK 不存在")
+        stale_reasons.append(f"正式候选 APK 不存在：{STAGE_APK}")
+    elif not prev_stage_sha:
+        stale_reasons.append("上次指纹未绑定产物 SHA")
+    elif prev_stage_sha != cur_stage_sha:
+        stale_reasons.append("候选 APK 内容与上次构建不一致")
     if not same:
         stale_reasons.append("输入指纹变化")
-    if len(apks) == 1 and not same:
-        pass
 
     flag = pathlib.Path(args.flag)
     flag.parent.mkdir(parents=True, exist_ok=True)

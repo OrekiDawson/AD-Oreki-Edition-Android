@@ -153,7 +153,12 @@ object OrekiStageAuto {
                 // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
                 // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
                 runScheduled("eternity") { buyEternityUpgrades() }
-                GameApi.eternityTick()
+                // R91：永恒自动化（时间定理 / 时间维度 / 研究）不在 runScheduled 闸门内，
+                // 但它同样属于 Oreki 自动接管。开关关闭后必须立即停手，
+                // 否则「关闭后仍自动买永恒升级」会违反用户令。手动操作不受影响。
+                if (OrekiAutomationScheduler.isEnabled()) {
+                    GameApi.eternityTick()
+                }
 
                 // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
                 if (GameApi.strategyDrives("reality")) {
@@ -166,13 +171,15 @@ object OrekiStageAuto {
                     }
                 }
 
-                // 符文自动装备：只填空槽、自身收敛，不受节拍约束
-                if (GameApi.strategyDrives("glyph")) {
+                // 符文自动装备：只填空槽、自身收敛，不受节拍约束；
+                // R91：但仍受总开关约束 —— 关闭后不得继续自动装备。
+                if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph")) {
                     GameApi.glyphTick()
                 }
 
-                // 特蕾莎浇注：连续时间行为（原版主循环），不占策略节拍
-                if (GameApi.strategyDrives("teresa")) {
+                // 特蕾莎浇注：连续时间行为（原版主循环），不占策略节拍；
+                // R91：同样纳入总开关，关闭后立即停止自动浇注。
+                if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("teresa")) {
                     GameApi.teresaTick()
                 }
 
@@ -354,6 +361,8 @@ object OrekiStageAuto {
     @JvmStatic
     fun enableIpMultAutobuyer() {
         try {
+            // R85：Oreki 智能开关关闭后不再接管原版自动器状态。
+            if (!OrekiAutomationScheduler.isEnabled()) return
             if (GameApi.isIpMultEnabled()) return
             GameApi.setIpMultEnabled(true)
         } catch (_: Throwable) {
@@ -368,6 +377,8 @@ object OrekiStageAuto {
      */
     @JvmStatic
     fun enableEarly() {
+        // R85：关闭智能自动化后保留玩家对原版自动购买器的控制，不强制重开。
+        if (!OrekiAutomationScheduler.isEnabled()) return
         if (earlyAutomationApplied) return
         earlyAutomationApplied = true
         Log.i(TAG_EARLY, "applied")
@@ -398,6 +409,12 @@ object OrekiStageAuto {
      * 玩家阈值 = 原版 SacrificeAutobuyerState.k()（默认 2.0）。
      * 只有 `nextBoost >= 阈值` 才献祭 —— 与原版自动器同一条件。
      *
+     * R91：原版 `Sacrifice.i()` 是 void 且内部吞掉不满足条件的分支，
+     * 「调用完直接 return true」会把一次空点击记成真执行，白占全局节拍。
+     * 现在以**献祭后的 nextBoost 必须严格下降**作为成功判据（献祭必然把
+     * 下次加成重置到 1× 附近），拿不到前后值或没有下降一律按 no-op 处理。
+     * 原版扣款/重置/结算路径不变，仍然只调用 `Sacrifice.i()`。
+     *
      * @return true = 真的献祭了
      */
     @JvmStatic
@@ -405,22 +422,26 @@ object OrekiStageAuto {
         if (!GameApi.canSacrifice()) {
             false
         } else {
-            val nextBoost = GameApi.nextBoost()
+            val beforeBoost = GameApi.nextBoost()
             val threshold = GameApi.sacrificeMultiplier()
-            val comparabilityProbe = if (nextBoost != null && threshold != null) {
-                GameApi.compareToDouble(nextBoost, 0.0) // 只为拿到非 null 标记
-            } else null
-            // 直接用 BigDouble.compareTo(BigDouble)：用 nextBoost.compareTo(threshold)
-            val cmpToThreshold = compareBigDoubles(nextBoost, threshold)
-            if (comparabilityProbe == null || cmpToThreshold == null || cmpToThreshold < 0) {
+            // 直接用 BigDouble.compareTo(BigDouble) 判断是否达到原版阈值
+            val cmpToThreshold = compareBigDoubles(beforeBoost, threshold)
+            if (beforeBoost == null || cmpToThreshold == null || cmpToThreshold < 0) {
                 false
             } else {
                 GameApi.doSacrifice()
-                sacrificeAttemptCount++
-                if (sacrificeAttemptCount <= 10 || sacrificeAttemptCount % 100 == 0) {
-                    Log.i(TAG_SAC, sacrificeAttemptCount.toString())
+                // 真成功判定：原版献祭会重置本轮加成，nextBoost 必然变小。
+                val afterBoost = GameApi.nextBoost()
+                val dropped = compareBigDoubles(afterBoost, beforeBoost)
+                if (dropped == null || dropped >= 0) {
+                    false
+                } else {
+                    sacrificeAttemptCount++
+                    if (sacrificeAttemptCount <= 10 || sacrificeAttemptCount % 100 == 0) {
+                        Log.i(TAG_SAC, sacrificeAttemptCount.toString())
+                    }
+                    true
                 }
-                true
             }
         }
     } catch (_: Throwable) {
@@ -582,14 +603,19 @@ object OrekiStageAuto {
             if (GameApi.crunchMaxedInterval(crunch)) {
                 false // 已满级（interval 已到 100ms 上限）
             } else {
-                val cost = GameApi.crunchCost(crunch)
+                val costBefore = GameApi.crunchCost(crunch)
                 val ip = ipBalance()
-                val ipVersusCost = cmp(ip, cost)
+                val ipVersusCost = cmp(ip, costBefore)
                 if (ipVersusCost == null || ipVersusCost < 0) {
                     false // 买不起
                 } else {
                     GameApi.crunchBuy(crunch) // 原版入口，照价扣 IP
-                    true
+                    // R91：原版购买失败不会抛异常（余额并发变化 / 未满足条件时静默返回），
+                    // 旧实现无条件 return true 会把空点击记成真执行并白占节拍。
+                    // 可靠判据：购买成功后同一条 upgradeable 的下一级成本必然上升；
+                    // 成本不变即为未购买。Double.MAX_VALUE 是 GameApi 的解析失败哨兵。
+                    val costAfter = GameApi.crunchCost(crunch)
+                    costBefore != Double.MAX_VALUE && costAfter > costBefore
                 }
             }
         }
@@ -769,6 +795,8 @@ object OrekiStageAuto {
     @JvmStatic
     fun applyCrunchPolicy() {
         try {
+            // R85：坍缩模式/间隔属于 MOD 接管，关闭总开关后立即让路给玩家。
+            if (!OrekiAutomationScheduler.isEnabled()) return
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
 

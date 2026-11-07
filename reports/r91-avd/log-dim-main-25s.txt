@@ -1,0 +1,123 @@
+--------- beginning of main
+11-07 06:28:42.287 D/android.hardware.audio@7.1-impl.ranchu(  496): threadLoop: entering standby, frames: 10959424
+11-07 06:28:42.287 D/android.hardware.audio@7.1-impl.ranchu(  496): ~TinyalsaSink: joining consumeThread
+11-07 06:28:42.295 D/android.hardware.audio@7.1-impl.ranchu(  496): consumeThread: exiting
+11-07 06:28:42.295 D/android.hardware.audio@7.1-impl.ranchu(  496): ~TinyalsaSink: stopping PCM stream
+11-07 06:28:43.136 I/netd    (  485): tetherGetStats() -> {[]} <0.73ms>
+11-07 06:28:43.148 I/netd    (  485): bandwidthSetGlobalAlert(2097152) <2.56ms>
+--------- beginning of system
+11-07 06:28:43.151 D/BackgroundInstallControlService(  697): Package event received: 0
+11-07 06:28:43.204 I/netd    (  485): bandwidthRemoveInterfaceQuota(eth0) <30.68ms>
+11-07 06:28:43.220 I/netd    (  485): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <11.45ms>
+11-07 06:28:43.246 I/OREKI_CRUNCH(10511): 12
+11-07 06:28:43.689 W/AppOps  (  697): Noting op not finished: uid 10145 pkg com.google.android.gms code 113 startTime of in progress event=1793982558712
+11-07 06:28:43.719 W/AppOps  (  697): Noting op not finished: uid 10145 pkg com.google.android.gms code 79 startTime of in progress event=1793982568981
+11-07 06:28:43.724 I/NlpInternalApi( 2401): unregistered nlp listener id: -2147483644 [CONTEXT service_id=6 ]
+11-07 06:28:43.746 I/NlpInternalApi( 2401): unregistered nlp listener id: -2147483643 [CONTEXT service_id=6 ]
+11-07 06:28:43.756 I/ActivityScheduler( 2401): nextTriggerTime: 50681530, in 238100ms, detectorType: 39, FULL_TYPE alarmWindowMillis: 80000
+11-07 06:28:43.756 W/AlarmManager( 2401): alarm window unlikely to be respected [CONTEXT service_id=231 ]
+11-07 06:28:43.756 W/AlarmManager( 2401): java.lang.IllegalArgumentException: alarm "NetworkLocationActivityDetection" has short window length
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at cgzr.c(:com.google.android.gms@252635038@25.26.35 (260800-783060121):41)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at cgzq.c(:com.google.android.gms@252635038@25.26.35 (260800-783060121):18)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at frlm.d(:com.google.android.gms@252635038@25.26.35 (260800-783060121):134)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fpju.w(:com.google.android.gms@252635038@25.26.35 (260800-783060121):61)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fplm.q(:com.google.android.gms@252635038@25.26.35 (260800-783060121):136)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fplm.u(:com.google.android.gms@252635038@25.26.35 (260800-783060121):107)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fpls.L(:com.google.android.gms@252635038@25.26.35 (260800-783060121):74)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fpkx.q(:com.google.android.gms@252635038@25.26.35 (260800-783060121):17)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fpkn.b(:com.google.android.gms@252635038@25.26.35 (260800-783060121):28)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fpjq.m(:com.google.android.gms@252635038@25.26.35 (260800-783060121):146)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at fpjo.k(:com.google.android.gms@252635038@25.26.35 (260800-783060121):56)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at frjl.run(:com.google.android.gms@252635038@25.26.35 (260800-783060121):7)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at frkg.handleMessage(:com.google.android.gms@252635038@25.26.35 (260800-783060121):87)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at android.os.Handler.dispatchMessage(Handler.java:110)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at cirt.mw(:com.google.android.gms@252635038@25.26.35 (260800-783060121):1)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at cirt.dispatchMessage(:com.google.android.gms@252635038@25.26.35 (260800-783060121):144)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at android.os.Looper.loopOnce(Looper.java:248)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at android.os.Looper.loop(Looper.java:338)
+11-07 06:28:43.756 W/AlarmManager( 2401): 	at android.os.HandlerThread.run(HandlerThread.java:85)
+11-07 06:28:44.400 W/OREKI_ACHAUDIT(10511): MISMATCH id=51
+11-07 06:28:44.400 W/OREKI_ACHAUDIT(10511): MISMATCH id=78
+11-07 06:28:44.400 W/OREKI_ACHAUDIT(10511): MISMATCH id=96
+11-07 06:28:44.400 W/OREKI_ACHAUDIT(10511): MISMATCH id=114
+11-07 06:28:44.400 W/OREKI_ACHAUDIT(10511): MISMATCH id=115
+11-07 06:28:44.401 W/OREKI_ACHAUDIT(10511): MISMATCH id=117
+11-07 06:28:44.401 W/OREKI_ACHAUDIT(10511): MISMATCH id=136
+11-07 06:28:44.401 W/OREKI_ACHAUDIT(10511): MISMATCH id=141
+11-07 06:28:44.401 W/OREKI_ACHAUDIT(10511): MISMATCH id=144
+11-07 06:28:44.401 W/OREKI_ACHAUDIT(10511): MISMATCH id=156
+11-07 06:28:44.401 W/OREKI_ACHAUDIT(10511): MISMATCH id=174
+11-07 06:28:44.402 W/OREKI_ACHAUDIT(10511): MISMATCH id=176
+11-07 06:28:44.402 W/OREKI_ACHAUDIT(10511): MISMATCH id=186
+11-07 06:28:44.402 I/OREKI_ACHAUDIT(10511): DONE scanned=144 unlocked=101 mismatch=13 used=0
+11-07 06:28:44.402 I/OREKI_GATE(10511): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1576988499997193E8
+11-07 06:28:44.692 W/AppOps  (  697): Noting op not finished: uid 10145 pkg com.google.android.gms code 113 startTime of in progress event=1793982558712
+11-07 06:28:49.134 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:28:49.413 W/OREKI_ACHAUDIT(10511): MISMATCH id=51
+11-07 06:28:49.413 W/OREKI_ACHAUDIT(10511): MISMATCH id=96
+11-07 06:28:49.413 W/OREKI_ACHAUDIT(10511): MISMATCH id=114
+11-07 06:28:49.414 W/OREKI_ACHAUDIT(10511): MISMATCH id=115
+11-07 06:28:49.414 W/OREKI_ACHAUDIT(10511): MISMATCH id=117
+11-07 06:28:49.414 W/OREKI_ACHAUDIT(10511): MISMATCH id=136
+11-07 06:28:49.414 W/OREKI_ACHAUDIT(10511): MISMATCH id=141
+11-07 06:28:49.414 W/OREKI_ACHAUDIT(10511): MISMATCH id=144
+11-07 06:28:49.414 W/OREKI_ACHAUDIT(10511): MISMATCH id=156
+11-07 06:28:49.415 W/OREKI_ACHAUDIT(10511): MISMATCH id=174
+11-07 06:28:49.415 W/OREKI_ACHAUDIT(10511): MISMATCH id=176
+11-07 06:28:49.415 W/OREKI_ACHAUDIT(10511): MISMATCH id=186
+11-07 06:28:49.415 I/OREKI_ACHAUDIT(10511): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:28:49.415 I/OREKI_GATE(10511): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1577489899997193E8
+11-07 06:28:49.793 W/BugleRcsEngine( 1513): Unable to send diagnostic log [CONTEXT thread_id=99 ]
+11-07 06:28:49.982 I/atterdimensions(10511): Background concurrent mark compact GC freed 23MB AllocSpace bytes, 15(452KB) LOS objects, 36% free, 41MB/65MB, paused 2.418ms,4.881ms total 213.159ms
+11-07 06:28:50.140 W/s.messaging:rcs( 1513): Reducing the number of considered missed Gc histogram windows from 5035 to 100
+11-07 06:28:51.521 I/OREKI_CRUNCH(10511): 12
+11-07 06:28:54.438 W/OREKI_ACHAUDIT(10511): MISMATCH id=51
+11-07 06:28:54.438 W/OREKI_ACHAUDIT(10511): MISMATCH id=96
+11-07 06:28:54.439 W/OREKI_ACHAUDIT(10511): MISMATCH id=114
+11-07 06:28:54.439 W/OREKI_ACHAUDIT(10511): MISMATCH id=115
+11-07 06:28:54.440 W/OREKI_ACHAUDIT(10511): MISMATCH id=117
+11-07 06:28:54.440 W/OREKI_ACHAUDIT(10511): MISMATCH id=136
+11-07 06:28:54.440 W/OREKI_ACHAUDIT(10511): MISMATCH id=141
+11-07 06:28:54.440 W/OREKI_ACHAUDIT(10511): MISMATCH id=144
+11-07 06:28:54.441 W/OREKI_ACHAUDIT(10511): MISMATCH id=156
+11-07 06:28:54.443 W/OREKI_ACHAUDIT(10511): MISMATCH id=174
+11-07 06:28:54.443 W/OREKI_ACHAUDIT(10511): MISMATCH id=176
+11-07 06:28:54.444 W/OREKI_ACHAUDIT(10511): MISMATCH id=186
+11-07 06:28:54.444 I/OREKI_ACHAUDIT(10511): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:28:54.445 I/OREKI_GATE(10511): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1577992299997193E8
+11-07 06:28:54.458 D/FileUtils(  697): Rounded bytes from 4110143488 to 8000000000
+11-07 06:28:54.513 V/ClearcutMetricXmitter( 1445): Transmission is done.
+11-07 06:28:57.338 I/bbax    ( 1445): (REDACTED) getHotwordActive::active query: %s, watch: %s, devices connected: %s
+11-07 06:28:58.249 I/atterdimensions(10511): Background concurrent mark compact GC freed 24MB AllocSpace bytes, 4(80KB) LOS objects, 36% free, 41MB/65MB, paused 6.674ms,1.331ms total 168.525ms
+11-07 06:28:58.384 I/AiAiStatsd( 1434): No op: the most recent atoms from the date 2026-11-05 have been uploaded.
+11-07 06:28:59.129 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=51
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=96
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=114
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=115
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=117
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=136
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=141
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=144
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=156
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=174
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=176
+11-07 06:28:59.460 W/OREKI_ACHAUDIT(10511): MISMATCH id=186
+11-07 06:28:59.461 I/OREKI_ACHAUDIT(10511): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:28:59.461 I/OREKI_GATE(10511): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1578494399997193E8
+11-07 06:28:59.828 I/OREKI_CRUNCH(10511): 12
+11-07 06:29:04.476 W/OREKI_ACHAUDIT(10511): MISMATCH id=51
+11-07 06:29:04.476 W/OREKI_ACHAUDIT(10511): MISMATCH id=96
+11-07 06:29:04.477 W/OREKI_ACHAUDIT(10511): MISMATCH id=114
+11-07 06:29:04.478 W/OREKI_ACHAUDIT(10511): MISMATCH id=115
+11-07 06:29:04.478 W/OREKI_ACHAUDIT(10511): MISMATCH id=117
+11-07 06:29:04.478 W/OREKI_ACHAUDIT(10511): MISMATCH id=136
+11-07 06:29:04.481 W/OREKI_ACHAUDIT(10511): MISMATCH id=141
+11-07 06:29:04.481 W/OREKI_ACHAUDIT(10511): MISMATCH id=144
+11-07 06:29:04.482 W/OREKI_ACHAUDIT(10511): MISMATCH id=156
+11-07 06:29:04.483 W/OREKI_ACHAUDIT(10511): MISMATCH id=174
+11-07 06:29:04.483 W/OREKI_ACHAUDIT(10511): MISMATCH id=176
+11-07 06:29:04.483 W/OREKI_ACHAUDIT(10511): MISMATCH id=186
+11-07 06:29:04.484 I/OREKI_ACHAUDIT(10511): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:29:04.484 I/OREKI_GATE(10511): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1578995399997193E8
+11-07 06:29:06.616 I/atterdimensions(10511): Background concurrent mark compact GC freed 24MB AllocSpace bytes, 2(40KB) LOS objects, 36% free, 41MB/65MB, paused 2.952ms,4.171ms total 163.340ms

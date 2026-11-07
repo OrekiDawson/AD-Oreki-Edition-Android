@@ -1,0 +1,190 @@
+--------- beginning of system
+11-07 06:19:07.277 V/AutofillSession(  697): Primary service component name: ComponentInfo{com.google.android.gms/com.google.android.gms.autofill.service.AutofillService}, secondary service component name: ComponentInfo{com.android.credentialmanager/com.android.credentialmanager.autofill.CredentialAutofillService}
+11-07 06:19:07.280 V/SecondaryProviderHandler(  697): Creating a secondary provider handler with component name, ComponentInfo{com.android.credentialmanager/com.android.credentialmanager.autofill.CredentialAutofillService}
+11-07 06:19:07.287 D/PresentationStatsEventLogger(  697): Started new PresentationStatsEvent
+11-07 06:19:07.287 D/RequestId(  697): nextId(): requestId = 968
+11-07 06:19:07.289 W/FillRequestEventLogger(  697): Couldn't find packageName: com.google.android.inputmethod.latin
+--------- beginning of main
+11-07 06:19:07.299 I/AutofillManager( 9394): showAutofillDialog() return false due to improve fill dialog
+11-07 06:19:07.299 D/AutofillInlineSuggestionsRequestSession(  697): onCreateInlineSuggestionsRequestLocked called: 1073741826@1305403219
+11-07 06:19:07.300 I/ImeTracker( 9394): com.oreki.antimatterdimensions:caddefaf: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser true
+11-07 06:19:07.301 D/InsetsController( 9394): show(ime(), fromIme=false)
+11-07 06:19:07.301 D/InsetsController( 9394): Setting requestedVisibleTypes to -1 (was -9)
+11-07 06:19:07.304 W/HWUI    ( 9394): Image decoding logging dropped!
+11-07 06:19:07.309 W/HWUI    ( 9394): Image decoding logging dropped!
+11-07 06:19:07.309 D/BackgroundInstallControlService(  697): Package event received: 0
+11-07 06:19:07.311 W/HWUI    ( 9394): Image decoding logging dropped!
+11-07 06:19:07.333 I/netd    (  485): tetherGetStats() -> {[]} <8.94ms>
+11-07 06:19:07.352 I/GoogleInputMethodService( 1343): GoogleInputMethodService.onFinishInput():2043 
+11-07 06:19:07.367 I/Module  ( 1343): DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 0, locked = false
+11-07 06:19:07.368 I/AssistStructure( 9394): Flattened final assist data: 10280 bytes, containing 2 windows, 36 views
+11-07 06:19:07.374 D/AutofillSession(  697): createPendingIntent for request 968
+11-07 06:19:07.376 I/GoogleInputMethodService( 1343): GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.oreki.antimatterdimensions, inputType=2002, inputTypeString=Number, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=4000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=2, initialSelEnd=2, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=Bundle[mParcelledData.dataSize=168], hintText=non-empty, hintLocales=[]}}, false)
+11-07 06:19:07.378 D/ContentCapturePerUserService(  697): Notified activity assist data for activity: Token{ba417ab ActivityRecord{176289274 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity t51}} without a session Id
+11-07 06:19:07.386 I/DisplayDeviceRepository(  697): Display device changed render timings: "内置屏幕", renderFrameRate=60.000004, presentationDeadlineNanos=16666666, appVsyncOffsetNanos=1000000, frameRateOverrides=[{uid=10216 frameRateHz=60.000004}]
+11-07 06:19:07.399 D/CoreBackPreview(  697): Window{48ee76b u0 PopupWindow:184bbdb}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@13f5a86, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+11-07 06:19:07.539 I/Module  ( 1343): DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+11-07 06:19:07.552 I/HardKeyTracker( 1343): HardKeyTracker.unregisterKeySequence():182 Unregister key sequence lsr{labelResId=0, callback=fjq@71ac9d2, lastModifier=0, keyCodes=[57, 57], actions=[1, 0]}
+11-07 06:19:07.555 I/HardKeyTracker( 1343): HardKeyTracker.unregisterKeySequence():182 Unregister key sequence lsr{labelResId=0, callback=fjq@4b51159, lastModifier=0, keyCodes=[58, 58], actions=[1, 0]}
+11-07 06:19:07.556 W/NotificationCenter( 1343): NotificationCenter$NotificationQueue.notifyPendingNotificationsOnExecutor():877 Heavy notify work detected on UI thread: [kig->ilu, kig->ilu, kig->ilu, kig->ilu, kig->ilu, kig->jvb, kig->lux, kig->fcb, kig->ilu, kig->jnx, kig->ilu, kig->gkl, kig->imt, kig->ilu, kig->fef, kig->ilu, kig->ilu, kig->ilu, kig->khc, kig->ijm, kig->khg, kig->fro, kig->ilu, kig->ilu] takes 44ms
+11-07 06:19:07.560 W/PackageConfigPersister(  697): App-specific configuration not found for packageName: com.oreki.antimatterdimensions and userId: 0
+11-07 06:19:07.562 D/AutofillInlineSuggestionsRequestSession(  697): onInlineSuggestionsSessionInvalidated() called.
+11-07 06:19:07.748 D/AutofillInlineSuggestionsRequestSession(  697): onInlineSuggestionsRequest() received: InlineSuggestionsRequest { maxSuggestionCount = 9, inlinePresentationSpecs = [InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }, InlinePresentationSpec { minSize = 119x154, maxSize = 840x154, style = Bundle[mParcelledData.dataSize=2876] }], hostPackageName = com.google.android.inputmethod.latin, supportedLocales = [zh_CN], extras = Bundle[EMPTY_PARCEL], hostInputToken = android.os.BinderProxy@e5626ca, hostDisplayId = 0, inlineTooltipPresentationSpec = null }
+11-07 06:19:07.754 D/BackgroundInstallControlService(  697): Package event received: 0
+11-07 06:19:07.825 D/ActivityManager(  697): sync unfroze 1736 com.google.android.gms for 6
+11-07 06:19:07.830 D/BackgroundInstallControlService(  697): Package event received: 0
+11-07 06:19:07.845 I/GoogleInputMethodService( 1343): GoogleInputMethodService.onStartInputView():1392 onStartInputView(EditorInfo{EditorInfo{packageName=com.oreki.antimatterdimensions, inputType=2002, inputTypeString=Number, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=4000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=2, initialSelEnd=2, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=Bundle[{androidx.core.view.inputmethod.EditorInfoCompat.STYLUS_HANDWRITING_ENABLED=true}], hintText=non-empty, hintLocales=[]}}, false)
+11-07 06:19:07.875 D/BoundBrokerSvc( 1736): onBind: Intent { act=com.google.android.mdd.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-07 06:19:07.875 D/BoundBrokerSvc( 1736): Loading bound service for intent: Intent { act=com.google.android.mdd.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-07 06:19:07.881 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.getOemKeyboardHeightRatio():161 systemKeyboardHeightRatio:1.000000.
+11-07 06:19:07.894 W/ProcessStats(  697): Tracking association SourceState{2d7d837 com.google.android.gms.persistent/10145 BFgs #8780} whose proc state 4 is better than process ProcessState{8fee5e0 com.google.android.gms/10145 pkg=com.google.android.gms} proc state 14 (4 skipped)
+11-07 06:19:07.906 I/AndroidIME( 1343): InputBundleManager.loadActiveInputBundleId():483 loadActiveInputBundleId: und-Latn-x-number, number
+11-07 06:19:07.914 I/KeyboardWrapper( 1343): KeyboardWrapper.activateKeyboard():562 activateKeyboard(): type=prime, status=0, imeDef=kyj{stringId=number, language=und-Latn-x-number, languageTag=und-Latn-x-number, processedConditions={}, className=com.google.android.libraries.inputmethod.ime.DummyIme, label=2132019005, keyEventInterpreter=null, inlineComposing=true, autoCapital=false, announceAutoSelectedCandidate=false, statusIcon=0, primeKeyboardType=SOFT, indicatorIcon=0, indicatorLabel=null, displayAppCompletions=false, extraValues=kyb{}, processors=lac@7dc315e, unacceptableMetaKeys=4098, languageSpecificSettings=0, asciiCapable=false, alwaysShowSuggestions=false, useAsciiPasswordKeyboard=false, secondaryIme=null, keyboardGroupDef=kzl@122ca5b, phenotypeFlagId=0, localizationLanguageTag=null, supportsInlineSuggestion=false}
+11-07 06:19:07.921 I/KeyboardManager( 1343): KeyboardManager.requestKeyboard():248 Creating keyboard prime, imeId=number, cacheKey=theme_!gsf_!pgsans_!pgsf_!use_system_font_BORDER=true_FLAVOR_DPI=XXXHDPI_KEYBOARD_WIDTH_CATEGORY=NORMAL_LIGHT_THEME=true_PHYSICAL_DIAGONAL=6.045558_SCREEN_SHORTEST_WIDTH=411_SCREEN_SHORTEST_WIDTH_NO_SCALE=411_bottom4dp_enable_google_fonts_icons=true_enable_popup_on_keypress=true_keyboard_redesign_google_sans=true_noshadow_overlay_builtin_dynamic_color_light_base.binarypb:gm3-light-fffaf8ff-ff495d92-82b625f90d810779661adb8ce93b5ac5_silkpopup_unify_function_key_color=true
+11-07 06:19:07.964 I/KeyboardWrapper( 1343): KeyboardWrapper.onKeyboardReady():212 onKeyboardReady(): type=prime(prime), kb=com.google.android.apps.inputmethod.latin.keyboard.LatinNumberKeyboard@f3b835
+11-07 06:19:07.968 I/KeyboardWrapper( 1343): KeyboardWrapper.doActivateKeyboard():589 doActivateKeyboard(): prime
+11-07 06:19:07.987 W/FillRequestEventLogger(  697): Shouldn't be logging AutofillFillRequestReported again for same event
+11-07 06:19:07.989 W/FillResponseEventLogger(  697): Shouldn't be logging AutofillFillRequestReported again for same event
+11-07 06:19:07.990 W/PresentationStatsEventLogger(  697): Empty dataset. Autofill ignoring log
+11-07 06:19:07.990 D/AutofillSession(  697): clearPendingIntentLocked
+11-07 06:19:07.992 D/AutofillInlineSuggestionsRequestSession(  697): onInlineSuggestionsResponseLocked called for:1073741826@1305403219
+11-07 06:19:07.993 D/AutofillInlineSuggestionsRequestSession(  697): maybeNotifyFillUiEventLoked(): hasSuggestionToShow=false, mPreviousHasNonPinSuggestionShow=false
+11-07 06:19:07.993 D/AutofillInlineSuggestionsRequestSession(  697): Send inline response: 0
+11-07 06:19:07.993 D/AutofillUI(  697): destroySaveUiUiThread(): already destroyed
+11-07 06:19:07.999 V/InlineSuggestionRenderService( 1133): handleDestroySuggestionViews called for 0:1305403219
+11-07 06:19:08.006 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.011 D/BackgroundInstallControlService(  697): Package event received: 0
+11-07 06:19:08.025 I/GlobeKeyExtension( 1343): GlobeKeyExtension.getKeyboardInitialStates():131 
+11-07 06:19:08.087 W/Keyboard( 1343): Keyboard.getKeyboardViewHelper():597 null helper is returned: keyboardDef=kze{processedConditions={enable_access_points_in_password_number=false, show_suggestions=true, layout_9key_split=false, language=zh-CN, deprecate_long_press_space_for_ime_picker=false, device=phone, expressions=normal, rtl_layout=false}, globalConditions={global_theme_key=theme_!gsf_!pgsans_!pgsf_!use_system_font_BORDER=true_FLAVOR_DPI=XXXHDPI_KEYBOARD_WIDTH_CATEGORY=NORMAL_LIGHT_THEME=true_PHYSICAL_DIAGONAL=6.045558_SCREEN_SHORTEST_WIDTH=411_SCREEN_SHORTEST_WIDTH_NO_SCALE=411_bottom4dp_enable_google_fonts_icons=true_enable_popup_on_keypress=true_keyboard_redesign_google_sans=true_noshadow_overlay_builtin_dynamic_color_light_base.binarypb:gm3-light-fffaf8ff-ff495d92-82b625f90d810779661adb8ce93b5ac5_silkpopup_unify_function_key_color=true, global_locale=zh_CN, global_density_dpi=560, global_orientation=1}, className=.latin.keyboard.LatinNumberKeyboard, resourceIds=[#0x7f1708ba], initialStates=0, keyboardViewDefs=[kzt{direction=LOCALE, id=#0x7f0b0166, isScalable=false, layoutId=#0x7f0e04e8, type=HEADER, touchable=true, defaultShow=false}, kzt{direction=null, id=#0x7f0b0166, isScalable=true, layoutId=#0x7f0e0539, type=BODY, touchable=true, defaultShow=true}], persistentStates=0, persistentStatesPrefKey=null, popupBubbleLayoutId=#0x7f0e05ce, recentKeyLayoutId=0, recentKeyPopupLayoutId=0, recentKeyType=null, rememberRecentKey=NONE, sessionStates=0}, type=FLOATING_CANDIDATES, helpersCreated=[kkl@4ac6700, kkl@eca0b39, null, null], context.getResources().getConfiguration(): {1.0 310mcc260mnc [zh_CN] ldltr sw411dp w411dp h914dp 560dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1440, 3200) mAppBounds=Rect(0, 0 - 1440, 3200) mMaxBounds=Rect(0, 0 - 1440, 3200) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.56 fontWeightAdjustment=0}
+11-07 06:19:08.087 W/Keyboard( 1343): Keyboard.getKeyboardViewHelper():597 null helper is returned: keyboardDef=kze{processedConditions={enable_access_points_in_password_number=false, show_suggestions=true, layout_9key_split=false, language=zh-CN, deprecate_long_press_space_for_ime_picker=false, device=phone, expressions=normal, rtl_layout=false}, globalConditions={global_theme_key=theme_!gsf_!pgsans_!pgsf_!use_system_font_BORDER=true_FLAVOR_DPI=XXXHDPI_KEYBOARD_WIDTH_CATEGORY=NORMAL_LIGHT_THEME=true_PHYSICAL_DIAGONAL=6.045558_SCREEN_SHORTEST_WIDTH=411_SCREEN_SHORTEST_WIDTH_NO_SCALE=411_bottom4dp_enable_google_fonts_icons=true_enable_popup_on_keypress=true_keyboard_redesign_google_sans=true_noshadow_overlay_builtin_dynamic_color_light_base.binarypb:gm3-light-fffaf8ff-ff495d92-82b625f90d810779661adb8ce93b5ac5_silkpopup_unify_function_key_color=true, global_locale=zh_CN, global_density_dpi=560, global_orientation=1}, className=.latin.keyboard.LatinNumberKeyboard, resourceIds=[#0x7f1708ba], initialStates=0, keyboardViewDefs=[kzt{direction=LOCALE, id=#0x7f0b0166, isScalable=false, layoutId=#0x7f0e04e8, type=HEADER, touchable=true, defaultShow=false}, kzt{direction=null, id=#0x7f0b0166, isScalable=true, layoutId=#0x7f0e0539, type=BODY, touchable=true, defaultShow=true}], persistentStates=0, persistentStatesPrefKey=null, popupBubbleLayoutId=#0x7f0e05ce, recentKeyLayoutId=0, recentKeyPopupLayoutId=0, recentKeyType=null, rememberRecentKey=NONE, sessionStates=0}, type=WIDGET, helpersCreated=[kkl@4ac6700, kkl@eca0b39, null, null], context.getResources().getConfiguration(): {1.0 310mcc260mnc [zh_CN] ldltr sw411dp w411dp h914dp 560dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1440, 3200) mAppBounds=Rect(0, 0 - 1440, 3200) mMaxBounds=Rect(0, 0 - 1440, 3200) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.3 s.56 fontWeightAdjustment=0}
+11-07 06:19:08.098 I/AndroidIME( 1343): InputBundleManager.startInput():361 startInput() with kzp[keyboardType=prime, payload=null]
+11-07 06:19:08.105 I/GlobeKeyExtension( 1343): GlobeKeyExtension.onActivate():70 
+11-07 06:19:08.125 I/CrowdsourceExtension( 1343): CrowdsourceExtension.checkIfDefaultBrowserIsAllowed():109 Failed to get default browser. The default browser may be deactivated.
+11-07 06:19:08.143 I/NewLanguagePromptExtension( 1343): NewLanguagePromptExtension.onActivate():186 Not activated NewLanguagePromptExtension: not a normal text input box.
+11-07 06:19:08.157 I/VoiceInputManagerWrapper( 1343): VoiceInputManagerWrapper.cancelShutdown():100 cancelShutdown()
+11-07 06:19:08.158 I/VoiceInputManagerWrapper( 1343): VoiceInputManagerWrapper.syncLanguagePacks():112 syncLanguagePacks()
+11-07 06:19:08.179 I/VoiceInputManager( 1343): VoiceInputManager.onKeyboardActivated():1023 onKeyboardActivated() [UD]
+11-07 06:19:08.179 I/SpeechFactory( 1343): SpeechRecognitionFactory.maybeScheduleAutoPackDownloadForFallback():161 maybeScheduleAutoPackDownloadForFallback()
+11-07 06:19:08.179 I/FallbackOnDeviceRecognitionProvider( 1343): FallbackOnDeviceRecognitionProvider.maybeScheduleAutoPackDownload():198 maybeScheduleAutoPackDownload() for language tag zh-CN
+11-07 06:19:08.200 I/AccessoryInputModeManager( 1343): AccessoryInputModeManager.onModeStarted():322 Accessory input mode started: null
+11-07 06:19:08.208 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=-10160, DEACTIVATE_SUPPLEMENTARY_KEYBOARD, data=accessory_candidates_consumer}
+11-07 06:19:08.211 W/SupplementaryKeyboardsWrapper( 1343): SupplementaryKeyboardsWrapper.deactivateKeyboard():160 keyboard accessory_candidates_consumer is not activated before!
+11-07 06:19:08.226 I/KeyboardModeUtils( 1343): KeyboardModeUtils.getKeyboardBottomOffset():437 inch: 0.000000 ydpi: 560.000000 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 560 defaultDensityDpi: 560 keyboardBottomToScreenPx: 0 keyboardBottomToNavBarPx: -168 navBarHeight: 168
+11-07 06:19:08.227 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.227 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.227 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.228 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.228 W/ExtensionWrapper( 1343): ExtensionWrapper.setExtensionViewVisibility():801 interface koa is not activate
+11-07 06:19:08.266 I/Module  ( 1343): DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+11-07 06:19:08.267 W/NotificationCenter( 1343): NotificationCenter$NotificationQueue.notifyPendingNotificationsOnExecutor():877 Heavy notify work detected on UI thread: [kig->ilu, kig->ilu, kig->ilu, kig->ilu, kig->ilu, kig->jvb, kig->lux, kig->fcb, kig->ilu, kig->jnx, kig->ilu, kig->gkl, kig->imt, kig->ilu, kig->fef, kig->ilu, kig->ilu, kig->ilu, kig->khc, kig->ijm, kig->khg, kig->fro, kig->ilu, kig->ilu] takes 28ms
+11-07 06:19:08.269 I/CurrentMicStatusHolder( 1343): CurrentMicStatusHolder.onStartInputView():81 Current Mic status = {MicIconHidden-PasswordOrNumberOrDateInputType,}
+11-07 06:19:08.280 D/CoreBackPreview(  697): Window{1e977c6 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@647901a, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+11-07 06:19:08.282 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=123, MOVE_END, data=null}
+11-07 06:19:08.286 D/BoundBrokerSvc( 1736): onBind: Intent { act=com.google.firebase.dynamiclinks.service.START xflg=0x4 pkg=com.google.android.gms }
+11-07 06:19:08.286 D/BoundBrokerSvc( 1736): Loading bound service for intent: Intent { act=com.google.firebase.dynamiclinks.service.START xflg=0x4 pkg=com.google.android.gms }
+11-07 06:19:08.290 I/StylusModule( 1343): StylusModule.onUpdateToolType():801 Update tool type = 0
+11-07 06:19:08.296 W/WindowOnBackDispatcher( 9394): sendCancelIfRunning: isInProgress=false callback=android.widget.PopupWindow$PopupDecorView$$ExternalSyntheticLambda1@dc0cdb6
+11-07 06:19:08.297 D/CoreBackPreview(  697): Window{48ee76b u0 PopupWindow:184bbdb}: Setting back callback null
+11-07 06:19:08.332 W/NotificationCenter( 1343): NotificationCenter$NotificationQueue.notifyPendingNotificationsOnExecutor():877 Heavy notify work detected on UI thread: [kig->fmc, kig->ghp, kig->ghi, kig->ljw, kig->fmc, kig->ghp, kig->ghi, kig->ljw, kih->lhf, kdh->gjw, kdh->lio, kro->dhr, kdh->mii, kig->fmc, kig->ghp, kig->ghi, kig->ljw] takes 40ms
+11-07 06:19:08.333 I/Choreographer( 1343): Skipped 30 frames!  The application may be doing too much work on its main thread.
+11-07 06:19:08.395 D/WindowManagerShell(  957): onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 3032 - 1440, 3200)}
+11-07 06:19:08.451 I/KeyboardModeUtils( 1343): KeyboardModeUtils.getKeyboardBottomOffset():437 inch: 0.000000 ydpi: 560.000000 adjustKeyboardBottomByDisplaySize: false currentDensityDpi: 560 defaultDensityDpi: 560 keyboardBottomToScreenPx: 0 keyboardBottomToNavBarPx: -168 navBarHeight: 168
+11-07 06:19:08.464 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.464 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.465 I/WindowMetricsNotification( 1343): WindowMetricsNotification.notifyWithWindow():166 
+11-07 06:19:08.469 I/WindowMetricsNotification( 1343): WindowMetricsNotification.notify():159 mub[bounds=Rect(0, 136 - 1440, 3200), insets=Rect(0, 0 - 0, 168), densityDpi=560, smallestScreenWidthDp=411, displayWidth=1440, displayHeight=3200, xdpi=560.0, ydpi=560.0, isTrustable=true, displayId=0]; DisplayMetrics{density=3.5, width=1440, height=3200, scaledDensity=3.5, xdpi=560.0, ydpi=560.0}
+11-07 06:19:08.491 D/WindowManagerShell(  957): onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 2178 - 1440, 3200)}
+11-07 06:19:08.840 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=123, MOVE_END, data=null}
+11-07 06:19:08.858 I/GoogleInputMethodService( 1343): GoogleInputMethodService$1.onKeyboardViewShown():312 onKeyboardViewShown: keyboardType=prime, keyboardViewType=BODY keyboardView=com.google.android.libraries.inputmethod.widgets.SoftKeyboardView{c13c088 V.E...... ........ 0,0-1440,854}
+11-07 06:19:08.859 I/KeyboardHeightUtil( 1343): KeyboardHeightUtil.calculateMaxKeyboardBodyHeight():46 leave 375 height for app when ime window height:2896, header height:154 and isFullscreenMode:false, so the max keyboard body height is:2367
+11-07 06:19:08.872 I/NewLanguagePromptExtension( 1343): NewLanguagePromptExtension$1.onKeyboardViewShown():86 Not show new language banner: not prime keyboard, or the extension not activated.
+11-07 06:19:08.899 I/HWUI    ( 1343): Davey! duration=1017ms; Flags=1, FrameTimelineVsyncId=4271194, IntendedVsync=49867505055192, Vsync=49868005055172, InputEventId=0, HandleInputStart=49868010771000, AnimationStart=49868010803200, PerformTraversalsStart=49868010842700, DrawStart=49868209865800, FrameDeadline=49867521721858, FrameStartTime=49868007684100, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=49868378666300, SyncStart=49868383934900, IssueDrawCommandsStart=49868390520900, SwapBuffers=49868438743400, FrameCompleted=49868527917500, DequeueBufferDuration=37700, QueueBufferDuration=2695600, GpuCompleted=49868527917500, SwapBuffersCompleted=49868506271000, DisplayPresentTime=0, CommandSubmissionCompleted=49868438743400, 
+11-07 06:19:08.946 D/BoundBrokerSvc( 1736): onBind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-07 06:19:08.947 D/BoundBrokerSvc( 1736): Loading bound service for intent: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-07 06:19:08.996 W/AccessibilityManagerService(  697):  wait for adding window timeout: 4
+11-07 06:19:09.062 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:19:09.121 I/ImeTracker( 9394): com.oreki.antimatterdimensions:caddefaf: onShown
+11-07 06:19:09.128 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=67, DEL, data=null}
+11-07 06:19:09.168 I/StylusModule( 1343): StylusModule.onUpdateToolType():801 Update tool type = 0
+11-07 06:19:09.226 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=DECODE, keyCode=-10055, DELETE_FINISH, data=null}
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed App frame:UNKNOWN: 3, 4272045, 18303852, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed SF frame:UNKNOWN: 3, 4272045, 18303852, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272095, 4269320, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272117, 3559154, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272138, 3736888, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272160, 11559022, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.270 W/FrameTracker( 9394): Missed App frame:UNKNOWN: 3, 4272182, 25649956, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.271 W/FrameTracker( 9394): Missed SF frame:UNKNOWN: 3, 4272182, 25649956, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.273 W/FrameTracker( 9394): Missed App frame:UNKNOWN: 3, 4272210, 18716724, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.273 W/FrameTracker( 9394): Missed SF frame:UNKNOWN: 3, 4272210, 18716724, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.273 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272232, 6102992, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@0@com.oreki.antimatterdimensions>
+11-07 06:19:09.275 V/PerfettoTrigger( 9394): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-80
+11-07 06:19:09.452 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=67, DEL, data=null}
+11-07 06:19:09.455 I/StylusModule( 1343): StylusModule.onUpdateToolType():801 Update tool type = 0
+11-07 06:19:09.462 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=DECODE, keyCode=-10055, DELETE_FINISH, data=null}
+11-07 06:19:09.635 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=67, DEL, data=null}
+11-07 06:19:09.637 I/StylusModule( 1343): StylusModule.onUpdateToolType():801 Update tool type = 0
+11-07 06:19:09.644 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=DECODE, keyCode=-10055, DELETE_FINISH, data=null}
+11-07 06:19:09.743 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=DECODE, keyCode=8, 1, data=1}
+11-07 06:19:09.743 I/StylusModule( 1343): StylusModule.onUpdateToolType():801 Update tool type = 0
+11-07 06:19:09.750 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=DECODE, keyCode=8, 1, data=1}
+11-07 06:19:09.967 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=4, BACK, data=null}
+11-07 06:19:09.969 I/StylusModule( 1343): StylusModule.onUpdateToolType():801 Update tool type = 0
+11-07 06:19:09.972 D/AutofillManagerService(  697): onBackKeyPressed()
+11-07 06:19:09.975 I/ImeTracker( 9394): com.oreki.antimatterdimensions:bb5d5a8c: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_REQUEST_HIDE_WITH_CONTROL fromUser true
+11-07 06:19:09.975 W/putmethod.latin( 1343): Reducing the number of considered missed Gc histogram windows from 678 to 100
+11-07 06:19:09.977 W/WindowOnBackDispatcher( 9394): sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@cde1545
+11-07 06:19:09.977 D/InsetsController( 9394): hide(ime(), fromIme=false)
+11-07 06:19:09.977 D/InsetsController( 9394): Setting requestedVisibleTypes to -9 (was -1)
+11-07 06:19:09.978 D/CoreBackPreview(  697): Window{1e977c6 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6a4a7d2, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+11-07 06:19:09.978 I/ProactiveUndoTriggerExtension( 1343): ProactiveUndoTriggerExtension.eventConsumer$lambda$0():125 kyp{intention=null, keyCode=4, BACK, data=null}
+11-07 06:19:10.191 I/ImeTracker(  697): system_server:d40b3e76: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false
+11-07 06:19:10.217 D/WindowManagerShell(  957): onKeepClearAreasChanged: restricted={}, unrestricted={}
+11-07 06:19:10.221 I/GoogleInputMethodService( 1343): GoogleInputMethodService.onFinishInputView():1524 
+11-07 06:19:10.222 I/GlobeKeyExtension( 1343): GlobeKeyExtension.onDeactivate():104 
+11-07 06:19:10.227 I/VoiceInputManagerWrapper( 1343): VoiceInputManagerWrapper.shutdown():122 shutdown()
+11-07 06:19:10.241 I/ImeTracker(  697): system_server:5c67e4e9: onRequestShow at ORIGIN_SERVER reason CONTROLS_CHANGED fromUser false
+11-07 06:19:10.245 W/TooltipLifecycleManager( 1343): TooltipLifecycleManager.dismissTooltips():154 Tooltip with id undo_access_point_promotion_banner not found in tooltipManager.
+11-07 06:19:10.246 I/ImeTracker( 1343): system_server:d40b3e76: onHidden
+11-07 06:19:10.261 I/ImeTracker( 9394): system_server:5c67e4e9: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
+11-07 06:19:10.281 I/netd    (  485): tetherGetStats() -> {[]} <18.17ms>
+11-07 06:19:10.291 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272787, 3544162, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.294 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272802, 3716496, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.294 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272817, 4745030, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.295 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272825, 4502364, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.297 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272847, 1992398, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.307 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272868, 5284832, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.311 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272889, 3031366, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.311 W/FrameTracker( 9394): Missed App frame:UNKNOWN: 3, 4272911, 19187900, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.311 W/FrameTracker( 9394): Missed SF frame:UNKNOWN: 3, 4272911, 19187900, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.311 W/FrameTracker( 9394): Missed SF frame:JANK_COMPOSER, 4272932, 15988368, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@0@com.oreki.antimatterdimensions>
+11-07 06:19:10.317 V/PerfettoTrigger( 9394): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-81
+11-07 06:19:10.479 I/OREKI_SCHED( 9394): interval=1s req=1
+11-07 06:19:10.490 W/AS.PlaybackActivityMon(  697): No piid assigned for invalid/internal port id 16
+11-07 06:19:10.505 I/ndroid.systemui(  957): AssetManager2(0x79d63a391e18) locale list changing from [] to [zh-Hans-CN]
+11-07 06:19:10.509 D/AudioFlinger(  556): mixer(0x7d62c2ed3770) throttle end: throttle time(21)
+11-07 06:19:10.547 I/GoogleInputMethodService( 1343): GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=com.oreki.antimatterdimensions, inputType=2002, inputTypeString=Number, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=4000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=1, initialSelEnd=1, initialCapsMode=1000, label=null, fieldId=-1, fieldName=null, extras=Bundle[mParcelledData.dataSize=168], hintText=non-empty, hintLocales=[]}}, true)
+11-07 06:19:10.548 W/SessionManager( 1343): SessionManager.beginSession():53 Try to begin an already begun session [INPUT_SESSION], end it first
+11-07 06:19:10.556 I/ndroid.systemui(  957): AssetManager2(0x79d63a3c0c18) locale list changing from [] to [zh-Hans-CN]
+11-07 06:19:10.561 W/HWUI    (  957): Image decoding logging dropped!
+11-07 06:19:10.562 I/ndroid.systemui(  957): AssetManager2(0x79d63a3c7978) locale list changing from [] to [zh-Hans-CN]
+11-07 06:19:10.625 I/Module  ( 1343): DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():100 repeatCheckTimes = 1, locked = false
+11-07 06:19:10.652 W/PackageConfigPersister(  697): App-specific configuration not found for packageName: com.oreki.antimatterdimensions and userId: 0
+11-07 06:19:10.749 D/ControlsListingControllerImpl(  957): Subscribing callback, service count: 0
+11-07 06:19:10.768 W/TooltipLifecycleManager( 1343): TooltipLifecycleManager.dismissTooltips():154 Tooltip with id undo_access_point_promotion_banner not found in tooltipManager.
+11-07 06:19:10.816 D/ControlsListingControllerImpl(  957): Unsubscribing callback
+11-07 06:19:10.817 I/ImeTracker(  697): system_server:26a3a5a3: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false
+11-07 06:19:10.818 I/ImeTracker(  697): system_server:26a3a5a3: onCancelled at PHASE_SERVER_SHOULD_HIDE
+--------- beginning of kernel
+11-07 06:19:11.430 W/healthd (    0): battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-07 06:19:11.551 I/QuickAccessWalletTile(  957): QAW service is unavailable, recreating the wallet client.
+11-07 06:19:12.733 W/screencap( 9961): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-07 06:19:12.734 W/BpBinder( 9961): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 06:19:12.735 W/ProcessState( 9961): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 06:19:12.741 E/HwcComposer(  562): getLuts failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
+11-07 06:19:12.741 E/HWComposer(  562): getLuts: getLuts failed for display 4619827259835644672: UNSUPPORTED (8)
+11-07 06:19:12.731 I/servicemanager(    0): Caller(pid=9961,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:19:12.737 I/servicemanager(    0): Caller(pid=9961,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:19:12.740 I/servicemanager(    0): Caller(pid=9961,uid=2000,sid=u:r:shell:s0) Found mapper/ranchu in device VINTF manifest.
+11-07 06:19:13.054 I/IPCThreadState( 2401): oneway function results for code 1 on binder at 0x79d7ca3b0560 will be dropped but finished with status UNKNOWN_TRANSACTION and reply parcel size 80
+11-07 06:19:13.176 W/NotificationService(  697): Toast already killed. pkg=com.oreki.antimatterdimensions token=android.os.BinderProxy@9fe70b

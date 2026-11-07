@@ -200,6 +200,8 @@ EXPECTED_ABI = {
         "public static final int setIntervalSec(int)",
         "public static final void setStrictGlobal(boolean)",
         "public static final int clampInterval(int)",
+        "public static final int defaultIntervalSec()",
+        "public static final boolean isValidInterval(int)",
         "public static final void beginFrame()",
         "public static final boolean allow(java.lang.String)",
         "public static final void noteActed(java.lang.String)",
@@ -213,6 +215,14 @@ EXPECTED_ABI = {
         "public static final int servedCount(java.lang.String)",
         "public static final void resetAll()",
         "public static final void dbgState()",
+    ],
+    # [R91] 设置页「智能调度」回调整类迁移：保存间隔 / 恢复默认 / 启用 / 严格模式。
+    # 旧 Smali 的构造器是 (Activity;ILandroid/widget/EditText;Landroid/widget/TextView;)V，
+    # SpeedSettingsActivity 仍按该描述符 new-instance，签名一变按钮就全部失效。
+    "kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener": [
+        "public kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener(android.app.Activity, int, android.widget.EditText, android.widget.TextView)",
+        "public void onClick(android.view.View)",
+        "public void onCheckedChanged(android.widget.CompoundButton, boolean)",
     ],
 }
 
@@ -232,6 +242,9 @@ KOTLIN_OWNED_CLASSES = {
     # [R87] Break 升级商店整体迁移；对应 Smali 文件已删除，构建期由本清单
     # 强制确认 Kotlin dex 中包含该类，避免双写或静默回退。
     "kajfosz.antimatterdimensions.oreki.OrekiBreakShop",
+    # [R91] 设置页智能调度回调整类迁移（保存间隔 / 恢复默认 / 启用 / 严格模式）。
+    # 旧 Smali 版删除后由 Kotlin dex 提供同名同 ABI 实现，避免 duplicate class。
+    "kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener",
 }
 
 

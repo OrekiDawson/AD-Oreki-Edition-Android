@@ -24,30 +24,33 @@
 
 **版本号含义**：`3.20.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 R90 运行候选（不是正式稳定版）
+### 3.21 R91 交付候选（构建、门禁与设置页 P0 通过；专项 AVD 部分未验证）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
-| 本地候选 | `build/r90-stage/反物质维度.apk` |
-| 大小 / SHA-256 | 82,621,937 B / `41d14a8318166224d065cd79ec751f4f4f1222a600fda2170b3a0406b474b7cb` |
-| 状态 | 已安装到 `oreki_test` 并进入主界面，资源实际变化；智能调度 1/60 秒、关闭停止、存档、挑战和完整回归待验收 |
+| 最终候选 | `build/r91-candidate/反物质维度_d46.apk`（与 `build/gradle-stage/反物质维度.apk` 同 SHA-256） |
+| 大小 / SHA-256 | 82,621,937 B / `D46B4B1BDBB627030ECD2B17D5882A2A0D9E9E42C42B25BC7FEDB955ADE01716` |
+| 构建 | Gradle 正式构建成功，10m37s，3.21 构建链（`build/r91-assemble.log`） |
+| 静态门禁 | `verifyRelease` 14/14 PASS；`verifyPatchContract` 17/17 PASS |
+| 状态 | 已安装到 `emulator-5554`（`Success`，3.21.0/30210000，旧存档保留）。Lead 补做设置页真实 UI：默认 10、保存 1/60、恢复默认 10、非法输入拒绝、关闭/恢复启用、重启保持均 PASS；自动调度实际购买、挑战结算、ID1 预留仍未验证，尚不能称为正式稳定版 |
 
-R90 候选修复了 Firebase `Lud1 → Lee1` ABI 和 `OrekiInstantChallenge` 的 3.21 Currency 字段类型问题；启动和主界面已实测，`publish_apk.py --dry-run` 已通过 v2/v3 分段验签。R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 仍保留，旧稳定包 `release/反物质维度.apk`（3.20）未覆盖。
+R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除），并修正调度器 `servedCount`、`StageAuto` 成功判定与 3.21 补丁契约；`SpeedSettingsActivity` 仅 3 条玩家可见文案改动，无逻辑改动。R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R91 发布说明`](reports/r91-gates/R91-release-notes.md)。
 
 ### 原版基线
 
 | 项 | 值 |
 |---|---|
-| 当前开发基线 | **3.20.0**（`versionCode` 30200000） |
-| Android 基线来源 | 官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400` |
+| 当前开发基线 | **3.21.0**（`versionCode` 30210000） |
+| 当前稳定发布 | **3.20.0**（`versionCode` 30200000） |
+| Android 基线来源 | 3.20 稳定基线官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400`；3.21 基线见 `baseline/versions/3.21/` |
 | Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
-| 3.21 基线 | 已建立 42 项真实 bindings 与迁移门禁；**R90 候选已安装并进入主界面**，自动化/存档/挑战完整验收待完成，稳定发布仍为 3.20 |
+| 3.21 基线 | 已建立 42 项真实 bindings 与迁移门禁；**R91 候选的构建、签名、静态门禁、模拟器安装与设置页 P0 已通过**；自动调度实际购买等专项仍未验证，稳定发布仍为 3.20 |
 
 基线记录在 `baseline/versions/<版本>/manifest.json`，版本差异配置在
 `baseline/version-config.json`。详见 [`baseline/README.md`](baseline/README.md)。
 
-**3.21 候选状态**：42 项 3.21 bindings 与迁移门禁已通过；R90 候选已安装、启动并进入主界面，资源已实际变化，签名按 API 24–27 / 28–32 分别验证 v2/v3 通过。智能调度 1/60 秒、关闭停止、存档、挑战和完整回归尚未完成，因此不能称为正式稳定版；稳定发布仍以 3.20 为准。
+**3.21 候选状态**：42 项 3.21 bindings 与迁移门禁已通过；R91 候选的 Gradle 构建、`verifyRelease` 14/14、`verifyPatchContract` 17/17 与模拟器安装均已完成，签名方案为 v2+v3。设置页默认 10/1/60 秒、恢复默认、非法输入拒绝、关闭/恢复启用、重启保持已通过真实 AVD UI；自动调度实际购买、购买扣款、挑战结算、ID1 预留、全新存档与真实墙钟仍未验证，因此不能称为正式稳定版；稳定发布仍以 3.20 为准。
 
 **检查、更新、回滚基线**：
 
@@ -67,6 +70,12 @@ cd baseline/tools && cargo build --release   # 首次需要，之后复用
 - 5 个迁移单元（`OrekiAuto` / `OrekiIu15Sprint` / `OrekiStageAuto` / `OrekiAutomationScheduler` / `OrekiTrace`）的 ABI 签名由 `javap` 逐条断言通过
 - v3 签名有效；构建期补丁契约断言全部通过
 
+**构建级验证（R91 候选，3.21.0 / 30210000）**：
+
+- 4 个 DEX；`classes4.dex` 2,664,968 B（Kotlin 产物）
+- `verifyRelease` 14/14、`verifyPatchContract` 17/17 通过
+- 候选 SHA-256 `D46B4B1BDBB627030ECD2B17D5882A2A0D9E9E42C42B25BC7FEDB955ADE01716`
+
 **设备运行验证**（在 AVD `oreki_test` 上做过，但**不是当前这个包**）：
 
 - 安装、启动、主循环持续运行、深色主题
@@ -75,12 +84,15 @@ cd baseline/tools && cargo build --release   # 首次需要，之后复用
 - 普通挑战重进后正常返回
 
 > **口径说明**：上面两组验证**不是同一个包**。当前 `release/` 里的包只做了构建级验证，**没有在设备上跑过**（最近一轮构建期间模拟器退出，按「不做无意义重复启动」的规则未重启）。不要把历史候选包的运行结论直接套到当前包上。
+>
+> **R91 候选设备状态**：已安装到 `emulator-5554`（`Success`，3.21.0/30210000，旧存档保留）；设置页 P0 已真实 UI 通过，自动调度实际购买、挑战结算、ID1 预留仍未验证，不得把安装成功或部分设置验收写成全部功能通过。
 
 **尚未验证，不要当成已完成**：
 
 - **完整三小时真实通关**（从新档到终局）在 Android 侧**尚未跑通**
 - 首次永恒之后的完整链路、ID4~ID8 的真实购买
 - IU15「理想之构」真实购买与莱特拉解锁（代码与构建守卫已就位，设备运行未覆盖）
+- **R91 候选的剩余 AVD 验收**（自动调度实际购买、挑战结算、ID1 预留、全新存档、真实墙钟）；设置页 10/1/60/恢复/非法/关闭/重启已通过
 - **当前正式包在设备上的任何行为**
 - 真机（非模拟器）表现
 
@@ -198,8 +210,8 @@ MOD 不写存档结构字段，购买一律走原版入口。但阶段辅助会�
 | 层 | 内容 | 改动方式 |
 |---|---|---|
 | 原版游戏 | 反编译得到的 smali / dex / 资源 | 只通过补丁改动，不重写 |
-| MOD Kotlin 业务 | `scripts/payload/kotlin/`（7 个 `.kt`，含 R87 迁移的 Break 商店） | **新业务逻辑的唯一落点** |
-| 兼容补丁 | `scripts/build_mod.py` 的注入点 + `scripts/payload/smali/`（30 个历史文件） | 仅 ABI 桥接与原版适配 |
+| MOD Kotlin 业务 | `scripts/payload/kotlin/`（8 个 `.kt`，含 R87 迁移的 Break 商店与 R91 迁移的 UI 监听器） | **新业务逻辑的唯一落点** |
+| 兼容补丁 | `scripts/build_mod.py` 的注入点 + `scripts/payload/smali/`（28 个历史文件） | 仅 ABI 桥接与原版适配 |
 
 **新业务逻辑必须用 Kotlin 实现**。Smali 只允许承担：原版字节码的必要适配（版本间混淆名漂移）、Kotlin 无法直接表达的调用桥接、无法合理替代的兼容补丁。
 
@@ -239,14 +251,15 @@ scripts/payload/kotlin/**.kt
 ./gradlew verifyEnvironment
 
 # 2) 构建候选 APK（输出 build/gradle-stage/反物质维度.apk）
-#    必须显式指定 3.20 基线，否则默认回落到 work/base_decoded（3.19）会打出错误版本
-OREKI_BASE="$(pwd)/work/base_decoded_320" ./gradlew assembleRelease
+#    默认读取 baseline/version-config.json 的当前版本（R91 为 3.21 / work/base_decoded_321）
+./gradlew assembleRelease
 
 # 3) 产物校验（包名 / 版本 / 签名 / 关键补丁是否真的在 dex 里）
 ./gradlew verifyRelease
+./gradlew verifyPatchContract
 ```
 
-**基线目录是唯一入口**：`OREKI_BASE` 环境变量或 `-PorekiBase=...` 二选一；期望的 `versionName` / `versionCode` / 包名全部从该基线的 `apktool.yml` 与 `AndroidManifest.xml` 真实读取，不写死。
+**基线目录是唯一入口**：默认从 `baseline/version-config.json` 的 `current` / `decoded_tree` 读取；`OREKI_BASE` 环境变量或 `-PorekiBase=...` 仅用于迁移验证时显式覆盖。期望的 `versionName` / `versionCode` / 包名全部从该基线的 `apktool.yml` 与 `AndroidManifest.xml` 真实读取，不写死。
 
 `build/gradle-stage/` 的候选包**不会**覆盖 `release/`。只有显式执行 `publishRelease` 才会替换正式发布文件。
 

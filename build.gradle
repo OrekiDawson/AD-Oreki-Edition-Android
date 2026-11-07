@@ -20,6 +20,11 @@ def stageDir = new File(buildRoot, 'gradle-stage')
 def reportDir = new File(buildRoot, 'gradle-reports')
 def stageApk = new File(stageDir, '反物质维度.apk')
 def releaseApk = file('release/反物质维度.apk')
+// [R91] 发布身份链：verifyRelease 的 JSON 报告 + installToRelease 写出的清单。
+// publishRelease 只接受清单里登记的那一个 release 产物，避免误发旧 R89/3.20。
+def verifyReport = new File(reportDir, 'verify-release.json')
+def releaseManifest = new File(buildRoot, 'release-manifest.json')
+def deliveryArchive = new File(buildRoot, 'delivery_archive')
 
 // ------------------------------------------------- [R76-G] Gradle 9 的 Exec 适配
 //
@@ -33,6 +38,8 @@ def releaseApk = file('release/反物质维度.apk')
 //   execOps.exec { ... }
 // 这样在任务行动（doLast）里也能用，且不依赖 Task 的已删方法。
 import org.gradle.process.ExecOperations
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 def execOps = project.services.get(ExecOperations)
 
 // 便捷包装：保持原来 `exec { ... }` 的闭包形态，内部走 ExecOperations。
@@ -97,10 +104,25 @@ def pkgName = 'com.oreki.antimatterdimensions'
 //      与 AndroidManifest.xml 真实读取**，不再写死；
 //   3. 同一个值同时喂给 verifyEnvironment、assembleRelease 的环境变量、
 //      build_fingerprint.py 与 verify_release.py，四处不再各自读文件。
+// [R91] 默认基线不再写死 work/base_decoded（那是 3.19）。
+// 正式发布链必须默认当前版本：baseline/version-config.json 的 current +
+// decoded_tree。显式 -PorekiBase / OREKI_BASE 仍可覆盖（迁移验证用），
+// 但未指定时绝不允许静默退回旧基线。
+def baselineConfigFile = file('baseline/version-config.json')
+if (!baselineConfigFile.isFile()) {
+    throw new GradleException("缺少基线版本配置：${baselineConfigFile}（R91 发布链要求 fail-closed）")
+}
+def baselineConfig = new JsonSlurper().parse(baselineConfigFile)
+def currentBaselineVersion = baselineConfig.current
+def currentBaselineCfg = baselineConfig.versions?.get(currentBaselineVersion)
+if (!currentBaselineCfg?.decoded_tree) {
+    throw new GradleException("baseline/version-config.json 缺少 current=${currentBaselineVersion} 的 decoded_tree")
+}
+def defaultBaseTree = currentBaselineCfg.decoded_tree.toString()
 def resolveBaseDir = {
     def fromProp = project.findProperty('orekiBase')
     def fromEnv = System.getenv('OREKI_BASE')
-    def raw = fromProp ?: fromEnv ?: 'work/base_decoded'
+    def raw = fromProp ?: fromEnv ?: defaultBaseTree
     return file(raw)
 }
 def baseDir = resolveBaseDir()
@@ -291,6 +313,11 @@ tasks.register('fingerprintInputs', Exec) {
         environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
     }
     environment 'PYTHONIOENCODING', 'utf-8'
+    // [R91] 指纹必须和构建使用同一份基线与同一个候选输出目录；
+    // 否则 verifyRelease 会拿空 OREKI_RELEASE_OUT 去比对构建时写入的 stage 路径，
+    // 每次都误判 stale 并重复触发整包构建。
+    environment 'OREKI_BASE', baseDecoded.absolutePath
+    environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
     // 它自己每次都要真实跑一遍（读文件系统状态），不能被 Gradle 跳过
     outputs.upToDateWhen { false }
 }
@@ -365,6 +392,8 @@ tasks.register('verifyRelease', Exec) {
         environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
     }
     environment 'PYTHONIOENCODING', 'utf-8'
+    // [R91] 从同一基线读取期望 versionName/versionCode，避免默认退回 3.19。
+    environment 'OREKI_BASE', baseDecoded.absolutePath
     doFirst { reportDir.mkdirs() }
     outputs.upToDateWhen { false }
 }
@@ -375,7 +404,7 @@ tasks.register('verifyPatchContract', Exec) {
     description = '静态守卫：补丁脚本语法、EC12 补丁已启用、提频方案保持禁用、mod 树补丁唯一'
     dependsOn 'assembleRelease'
     workingDir = repoRoot
-    commandLine pythonExe, 'scripts/verify_patch_contract.py'
+    commandLine pythonExe, 'scripts/verify_patch_contract.py', '--apk', stageApk.absolutePath
     // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
@@ -383,6 +412,8 @@ tasks.register('verifyPatchContract', Exec) {
         environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
     }
     environment 'PYTHONIOENCODING', 'utf-8'
+    // [R91] 契约校验也要知道当前基线；脚本可按需使用 --apk 做真实产物核验。
+    environment 'OREKI_BASE', baseDecoded.absolutePath
     outputs.upToDateWhen { false }
 }
 
@@ -519,30 +550,82 @@ tasks.register('smokeOrekiTest', Exec) {
 }
 
 // =============================================================== installToRelease
-// 显式任务：把已通过 verifyRelease 的候选替换为正式发布文件。默认不参与 build。
+// 显式任务：把已通过 verifyRelease + verifyPatchContract 的候选替换为正式发布文件。
+// 默认不参与 build。R91 起同时写出 build/release-manifest.json，作为发布身份唯一凭据。
 tasks.register('installToRelease') {
     group = 'oreki'
-    description = '把验证通过的候选 APK 复制到 release/（覆盖前先比对哈希并留档）'
-    dependsOn 'verifyRelease'
+    description = '校验候选与报告一致，复制到 release/ 并写发布身份清单（覆盖前留档）'
+    dependsOn 'verifyRelease', 'verifyPatchContract'
     doLast {
         if (!stageApk.exists()) throw new GradleException("候选 APK 不存在：${stageApk}")
+        if (!verifyReport.isFile()) throw new GradleException("缺少 verifyRelease 报告：${verifyReport}")
+        def report = new JsonSlurper().parse(verifyReport)
+        if (report.failed != 0) throw new GradleException("verifyRelease 未全通过：failed=${report.failed}")
         def stageHash = hashOf(stageApk)
         def stageSize = stageApk.length()
+        if (report.apk != stageApk.absolutePath) {
+            throw new GradleException("验证报告与候选路径不一致：report=${report.apk} stage=${stageApk.absolutePath}")
+        }
+        if (report.sha256 != stageHash) {
+            throw new GradleException("验证报告与候选哈希不一致：report=${report.sha256} stage=${stageHash}")
+        }
+        if (report.package != pkgName) {
+            throw new GradleException("候选包名不是项目包：${report.package}")
+        }
+        if (!report.versionName || !report.versionCode || !report.cert_sha256) {
+            throw new GradleException("verifyRelease 报告缺少版本/证书字段，拒绝写入发布清单")
+        }
         step("候选 SHA-256: ${stageHash} (${stageSize} B)")
+
+        releaseApk.parentFile.mkdirs()
         if (releaseApk.exists()) {
             def oldHash = hashOf(releaseApk)
             step("现有发布 SHA-256: ${oldHash}")
             if (oldHash == stageHash) {
-                step('候选与现有发布完全一致，无需替换')
-                return
+                step('候选与现有发布完全一致，不再复制；仍刷新发布清单')
+            } else {
+                deliveryArchive.mkdirs()
+                def stamp = new Date().format('yyyyMMdd-HHmmss')
+                def archive = new File(deliveryArchive, "release_${oldHash.substring(0, 8)}_${stamp}.apk")
+                java.nio.file.Files.copy(releaseApk.toPath(), archive.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                step("旧发布已留档: ${archive}")
+                java.nio.file.Files.copy(stageApk.toPath(), releaseApk.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
             }
-            releaseApk.parentFile.mkdirs()
+        } else {
+            java.nio.file.Files.copy(stageApk.toPath(), releaseApk.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING)
         }
-        releaseApk.parentFile.mkdirs()
-        java.nio.file.Files.copy(stageApk.toPath(), releaseApk.toPath(),
-            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
         def newHash = hashOf(releaseApk)
         if (newHash != stageHash) throw new GradleException("复制后哈希不一致: ${newHash} != ${stageHash}")
+
+        // 清单只记录本次真实构建 + 本次验证报告，不硬编码任何历史 SHA。
+        def manifest = [
+            schema: 1,
+            created_at: new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX"),
+            baseline_version: currentBaselineVersion,
+            build: [
+                source_apk: stageApk.absolutePath,
+                source_sha256: stageHash,
+                source_size: stageSize,
+                package: report.package,
+                versionName: report.versionName,
+                versionCode: report.versionCode,
+                cert_sha256: report.cert_sha256,
+                schemes: report.schemes,
+                verify_report: verifyReport.absolutePath,
+                verify_failed: report.failed,
+            ],
+            release: [
+                apk: releaseApk.absolutePath,
+                sha256: newHash,
+                size: releaseApk.length(),
+            ],
+        ]
+        releaseManifest.parentFile.mkdirs()
+        releaseManifest.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(manifest)), 'UTF-8')
+        step("发布清单已写: ${releaseManifest}（${report.versionName}/${report.versionCode}）")
         step("已替换 release/反物质维度.apk -> ${newHash}")
     }
 }
@@ -550,10 +633,11 @@ tasks.register('installToRelease') {
 // ================================================================ publishRelease
 tasks.register('publishRelease', Exec) {
     group = 'oreki'
-    description = '按既有流程发布到 OneDrive / 小米云盘 并回读校验（不做 KDE 直发）'
+    description = '按发布清单校验后上传 OneDrive / 小米云盘（双云盘本地副本哈希核验）'
     dependsOn 'installToRelease'
     workingDir = repoRoot
-    commandLine pythonExe, 'scripts/publish_apk.py', '--no-kde'
+    commandLine pythonExe, 'scripts/publish_apk.py', '--manifest', releaseManifest.absolutePath,
+        '--skip-cloud-read', '--no-kde'
     // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {

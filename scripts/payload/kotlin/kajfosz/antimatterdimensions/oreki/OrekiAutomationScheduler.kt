@@ -20,6 +20,7 @@ import android.os.SystemClock
  * getIntervalSec()I                         isStrictGlobal()Z
  * setEnabled(Z)V                            setIntervalSec(I)I
  * setStrictGlobal(Z)V                       clampInterval(I)I
+ * defaultIntervalSec()I                     isValidInterval(I)Z
  * beginFrame()V                             allow(Ljava/lang/String;)Z
  * noteActed(Ljava/lang/String;)V            noteNoop(Ljava/lang/String;)V
  * noteFail(Ljava/lang/String;)V             clearReserve(Ljava/lang/String;)V
@@ -29,6 +30,7 @@ import android.os.SystemClock
  * dbgState()V
  * ```
  * 用 `object` + `@JvmStatic` 生成"单例 INSTANCE + 静态桥"，字节码层面与被替换类对齐。
+ * R91 新增 `defaultIntervalSec` / `isValidInterval` 只增不改，既有调用点全部不受影响。
  *
  * ## R77 的语义变更（本轮生产修改）
  *
@@ -239,17 +241,26 @@ object OrekiAutomationScheduler {
     /**
      * 打开/关闭调度。
      *
-     * 关闭：`allow` 立即恒 false + 清空待执行/冷却状态；
+     * 关闭：`allow` 立即恒 false + 清空待执行/冷却/预约状态；
      * **不清时间戳**（清掉等于允许"开关拨一下就从零计时"，那是绕过间隔）。
+     *
+     * 重新启用也清一次 pending：上一轮遗留的失败冷却 / no-op 静默窗 / 未提交预约
+     * 不应跨开关状态生效，否则玩家刚打开开关仍会被旧的 2~3 秒冷却挡住。
+     *
+     * @return 无返回值，与旧 Smali ABI 一致。
      */
     @JvmStatic
     fun setEnabled(value: Boolean) {
+        val changed = enabled != value
         enabled = value
-        if (!value) {
+        if (changed) {
+            // R91：开关两侧都清空排队/冷却，确保关闭后没有任何已排队动作继续执行。
             clearPending()
-            // R85：取消调度之外同步解除 IU15 临时限制，避免玩家关掉智能
-            // 开关之后仍被购买入口/挑战守卫接管；历史节拍时间戳保持不变。
-            OrekiIu15Sprint.releaseNow("automation-off")
+            if (!value) {
+                // R85：取消调度之外同步解除 IU15 临时限制，避免玩家关掉智能
+                // 开关之后仍被购买入口/挑战守卫接管；历史节拍时间戳保持不变。
+                OrekiIu15Sprint.releaseNow("automation-off")
+            }
         }
         persist()
         logI(statusLine())
@@ -274,6 +285,14 @@ object OrekiAutomationScheduler {
         persist()
         logI(statusLine())
     }
+
+    /** 供设置页预览与「恢复默认」使用：**项目默认 10 秒**（唯一真值来源）。 */
+    @JvmStatic
+    fun defaultIntervalSec(): Int = INTERVAL_DEFAULT
+
+    /** 供设置页校验：只有 1～60 的整数才允许写入。 */
+    @JvmStatic
+    fun isValidInterval(value: Int): Boolean = value in INTERVAL_MIN..INTERVAL_MAX
 
     /** 供设置页预览：把输入夹进 1~60 并返回。 */
     @JvmStatic
@@ -551,9 +570,19 @@ object OrekiAutomationScheduler {
         return SystemClock.elapsedRealtime() - last
     }
 
-    /** 供自测/验收：某任务被真执行的次数。 */
+    /**
+     * 供自测/验收：某任务被**真执行**的次数。
+     *
+     * R91 修复：旧实现写成 `idxOf(taskId) ?: return -1`，实际返回的是任务索引
+     * （routine=0、idBuy=16…），据此验收会把「索引 11」误读成「执行了 11 次」。
+     * 现在返回 [served] 数组里的累计计数；未知任务仍返回 -1。
+     * 计数只增不清零（`resetAll()` 显式复位），与 noteActed 一一对应。
+     */
     @JvmStatic
-    fun servedCount(taskId: String?): Int = idxOf(taskId) ?: return -1
+    fun servedCount(taskId: String?): Int {
+        val idx = idxOf(taskId)
+        return if (idx < 0) -1 else served[idx]
+    }
 
     /** 诊断：打印 breakShop 的调度内部状态（只读，不改任何字段）。 */
     @JvmStatic

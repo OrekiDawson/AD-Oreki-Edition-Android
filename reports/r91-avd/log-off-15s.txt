@@ -1,0 +1,37 @@
+--------- beginning of main
+11-07 06:20:03.577 D/BoundBrokerSvc( 1736): onUnbind: Intent { act=com.google.firebase.dynamiclinks.service.START xflg=0x4 pkg=com.google.android.gms }
+11-07 06:20:03.911 I/OREKI_SCHED( 9394): 调度：已关闭（所有 Oreki 自动动作停止；手动与原版自动购买器不受影响）
+11-07 06:20:03.920 I/ndroid.systemui(  957): AssetManager2(0x79d63a3c1258) locale list changing from [] to [zh-Hans-CN]
+11-07 06:20:03.924 W/AS.PlaybackActivityMon(  697): No piid assigned for invalid/internal port id 16
+11-07 06:20:03.939 D/AudioFlinger(  556): mixer(0x7d62c2ed3770) throttle end: throttle time(22)
+11-07 06:20:06.107 W/screencap(10151): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-07 06:20:06.109 W/BpBinder(10151): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 06:20:06.109 W/ProcessState(10151): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 06:20:06.111 E/HwcComposer(  562): getLuts failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
+11-07 06:20:06.111 E/HWComposer(  562): getLuts: getLuts failed for display 4619827259835644672: UNSUPPORTED (8)
+--------- beginning of kernel
+11-07 06:20:06.105 I/servicemanager(    0): Caller(pid=10151,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:20:06.109 I/servicemanager(    0): Caller(pid=10151,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:20:06.110 I/servicemanager(    0): Caller(pid=10151,uid=2000,sid=u:r:shell:s0) Found mapper/ranchu in device VINTF manifest.
+--------- beginning of system
+11-07 06:20:06.566 W/NotificationService(  697): Toast already killed. pkg=com.oreki.antimatterdimensions token=android.os.BinderProxy@31e3fa3
+11-07 06:20:06.991 D/android.hardware.audio@7.1-impl.ranchu(  496): threadLoop: entering standby, frames: 8804096
+11-07 06:20:06.991 D/android.hardware.audio@7.1-impl.ranchu(  496): ~TinyalsaSink: joining consumeThread
+11-07 06:20:07.004 D/android.hardware.audio@7.1-impl.ranchu(  496): consumeThread: exiting
+11-07 06:20:07.005 D/android.hardware.audio@7.1-impl.ranchu(  496): ~TinyalsaSink: stopping PCM stream
+11-07 06:20:09.076 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:20:10.106 I/VoiceInputManagerWrapper( 1343): VoiceInputManagerWrapper.shutdownVoiceInternal():139 shutdownVoiceInternal()
+11-07 06:20:10.107 W/NotificationCenter( 1343): NotificationCenter.unregisterListener():480 Listener guw@10f7390 was not registered for notification class luj
+11-07 06:20:11.424 W/healthd (    0): battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-07 06:20:13.598 D/ActivityManager(  697): freezing 1736 com.google.android.gms
+11-07 06:20:16.817 W/CpuMonitorService(  697): Current CPU frequency (4181841) is greater than maximum CPU frequency (2) for policy ID (2). Skipping CPU frequency policy
+11-07 06:20:16.817 W/CpuMonitorService(  697): Current CPU frequency (4224250) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-07 06:20:19.075 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:20:21.977 W/screencap(10156): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-07 06:20:21.978 W/BpBinder(10156): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 06:20:21.979 W/ProcessState(10156): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 06:20:21.984 E/HwcComposer(  562): getLuts failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
+11-07 06:20:21.984 E/HWComposer(  562): getLuts: getLuts failed for display 4619827259835644672: UNSUPPORTED (8)
+11-07 06:20:21.978 I/servicemanager(    0): Caller(pid=10156,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:20:21.981 I/servicemanager(    0): Caller(pid=10156,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:20:21.984 I/servicemanager(    0): Caller(pid=10156,uid=2000,sid=u:r:shell:s0) Found mapper/ranchu in device VINTF manifest.

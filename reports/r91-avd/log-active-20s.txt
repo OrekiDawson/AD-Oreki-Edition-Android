@@ -1,0 +1,89 @@
+--------- beginning of main
+11-07 06:22:07.531 D/android.hardware.audio@7.1-impl.ranchu(  496): threadLoop: entering standby, frames: 9391616
+11-07 06:22:07.531 D/android.hardware.audio@7.1-impl.ranchu(  496): ~TinyalsaSink: joining consumeThread
+11-07 06:22:07.552 D/android.hardware.audio@7.1-impl.ranchu(  496): consumeThread: exiting
+11-07 06:22:07.552 D/android.hardware.audio@7.1-impl.ranchu(  496): ~TinyalsaSink: stopping PCM stream
+11-07 06:22:07.840 I/OREKI_CRUNCH( 9394): 12
+11-07 06:22:09.092 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:22:09.930 W/atterdimensions( 9394): Suspending all threads took: 8.520ms
+11-07 06:22:09.990 I/atterdimensions( 9394): Background concurrent mark compact GC freed 23MB AllocSpace bytes, 4(80KB) LOS objects, 35% free, 43MB/67MB, paused 11.527ms,2.156ms total 187.320ms
+11-07 06:22:10.535 W/OREKI_ACHAUDIT( 9394): MISMATCH id=51
+11-07 06:22:10.536 W/OREKI_ACHAUDIT( 9394): MISMATCH id=96
+11-07 06:22:10.537 W/OREKI_ACHAUDIT( 9394): MISMATCH id=114
+11-07 06:22:10.537 W/OREKI_ACHAUDIT( 9394): MISMATCH id=115
+11-07 06:22:10.537 W/OREKI_ACHAUDIT( 9394): MISMATCH id=117
+11-07 06:22:10.538 W/OREKI_ACHAUDIT( 9394): MISMATCH id=136
+11-07 06:22:10.538 W/OREKI_ACHAUDIT( 9394): MISMATCH id=141
+11-07 06:22:10.538 W/OREKI_ACHAUDIT( 9394): MISMATCH id=144
+11-07 06:22:10.538 W/OREKI_ACHAUDIT( 9394): MISMATCH id=156
+11-07 06:22:10.538 W/OREKI_ACHAUDIT( 9394): MISMATCH id=174
+11-07 06:22:10.538 W/OREKI_ACHAUDIT( 9394): MISMATCH id=176
+11-07 06:22:10.541 W/OREKI_ACHAUDIT( 9394): MISMATCH id=186
+11-07 06:22:10.541 I/OREKI_ACHAUDIT( 9394): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:22:10.543 I/OREKI_GATE( 9394): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1537962999997354E8
+--------- beginning of kernel
+11-07 06:22:11.425 W/healthd (    0): battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-07 06:22:15.546 W/OREKI_ACHAUDIT( 9394): MISMATCH id=51
+11-07 06:22:15.549 W/OREKI_ACHAUDIT( 9394): MISMATCH id=96
+11-07 06:22:15.550 W/OREKI_ACHAUDIT( 9394): MISMATCH id=114
+11-07 06:22:15.550 W/OREKI_ACHAUDIT( 9394): MISMATCH id=115
+11-07 06:22:15.550 W/OREKI_ACHAUDIT( 9394): MISMATCH id=117
+11-07 06:22:15.552 W/OREKI_ACHAUDIT( 9394): MISMATCH id=136
+11-07 06:22:15.553 W/OREKI_ACHAUDIT( 9394): MISMATCH id=141
+11-07 06:22:15.553 W/OREKI_ACHAUDIT( 9394): MISMATCH id=144
+11-07 06:22:15.553 W/OREKI_ACHAUDIT( 9394): MISMATCH id=156
+11-07 06:22:15.554 W/OREKI_ACHAUDIT( 9394): MISMATCH id=174
+11-07 06:22:15.554 W/OREKI_ACHAUDIT( 9394): MISMATCH id=176
+11-07 06:22:15.554 W/OREKI_ACHAUDIT( 9394): MISMATCH id=186
+11-07 06:22:15.555 I/OREKI_ACHAUDIT( 9394): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:22:15.555 I/OREKI_GATE( 9394): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1538463899997354E8
+11-07 06:22:16.395 I/OREKI_CRUNCH( 9394): 12
+--------- beginning of system
+11-07 06:22:16.981 W/CpuMonitorService(  697): Current CPU frequency (4114464) is greater than maximum CPU frequency (2) for policy ID (0). Skipping CPU frequency policy
+11-07 06:22:16.983 W/CpuMonitorService(  697): Current CPU frequency (4119543) is greater than maximum CPU frequency (2) for policy ID (1). Skipping CPU frequency policy
+11-07 06:22:16.985 W/CpuMonitorService(  697): Current CPU frequency (4107778) is greater than maximum CPU frequency (2) for policy ID (2). Skipping CPU frequency policy
+11-07 06:22:16.985 W/CpuMonitorService(  697): Current CPU frequency (4124268) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-07 06:22:19.089 D/SatelliteController( 1104): iisInCarrierRoamingNbIotNtn: satellite is disabled
+11-07 06:22:20.546 W/OREKI_ACHAUDIT( 9394): MISMATCH id=51
+11-07 06:22:20.546 W/OREKI_ACHAUDIT( 9394): MISMATCH id=96
+11-07 06:22:20.546 W/OREKI_ACHAUDIT( 9394): MISMATCH id=114
+11-07 06:22:20.546 W/OREKI_ACHAUDIT( 9394): MISMATCH id=115
+11-07 06:22:20.546 W/OREKI_ACHAUDIT( 9394): MISMATCH id=117
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=136
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=141
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=144
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=156
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=174
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=176
+11-07 06:22:20.548 W/OREKI_ACHAUDIT( 9394): MISMATCH id=186
+11-07 06:22:20.549 I/OREKI_ACHAUDIT( 9394): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:22:20.549 I/OREKI_GATE( 9394): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1538964099997354E8
+11-07 06:22:21.599 I/atterdimensions( 9394): Background concurrent mark compact GC freed 24MB AllocSpace bytes, 17(492KB) LOS objects, 35% free, 43MB/67MB, paused 6.450ms,11.863ms total 262.894ms
+11-07 06:22:23.383 I/bluetooth( 1055): system/gd/hci/le_address_manager.cc:576 GetNextPrivateAddressIntervalRange: client=LeAddressManager, nonwake=7m2s, wake=13m6s
+11-07 06:22:23.403 I/bluetooth( 1055): system/gd/hci/le_address_manager.cc:777 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS(0x2005)
+11-07 06:22:23.404 I/bluetooth( 1055): system/gd/hci/le_address_manager.cc:797 OnCommandComplete: update random address : xx:xx:xx:xx:b2:12
+11-07 06:22:23.404 I/bluetooth( 1055): system/gd/hci/le_address_manager.cc:392 resume_registered_clients: Resuming registered clients
+11-07 06:22:23.404 I/bluetooth( 1055): system/gd/hci/le_scanning_manager.cc:601 stop_scan: Scanning already stopped, return!
+11-07 06:22:25.046 I/OREKI_CRUNCH( 9394): 12
+11-07 06:22:25.557 W/OREKI_ACHAUDIT( 9394): MISMATCH id=51
+11-07 06:22:25.557 W/OREKI_ACHAUDIT( 9394): MISMATCH id=96
+11-07 06:22:25.557 W/OREKI_ACHAUDIT( 9394): MISMATCH id=114
+11-07 06:22:25.558 W/OREKI_ACHAUDIT( 9394): MISMATCH id=115
+11-07 06:22:25.558 W/OREKI_ACHAUDIT( 9394): MISMATCH id=117
+11-07 06:22:25.558 W/OREKI_ACHAUDIT( 9394): MISMATCH id=136
+11-07 06:22:25.558 W/OREKI_ACHAUDIT( 9394): MISMATCH id=141
+11-07 06:22:25.558 W/OREKI_ACHAUDIT( 9394): MISMATCH id=144
+11-07 06:22:25.558 W/OREKI_ACHAUDIT( 9394): MISMATCH id=156
+11-07 06:22:25.559 W/OREKI_ACHAUDIT( 9394): MISMATCH id=174
+11-07 06:22:25.560 W/OREKI_ACHAUDIT( 9394): MISMATCH id=176
+11-07 06:22:25.560 W/OREKI_ACHAUDIT( 9394): MISMATCH id=186
+11-07 06:22:25.561 I/OREKI_ACHAUDIT( 9394): DONE scanned=144 unlocked=101 mismatch=12 used=0
+11-07 06:22:25.561 I/OREKI_GATE( 9394): GATE brake=true g=true c=true b=true mult=10000.0 rt=2.1539465199997354E8
+11-07 06:22:27.894 W/screencap(10339): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-07 06:22:27.896 W/BpBinder(10339): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 06:22:27.897 W/ProcessState(10339): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 06:22:27.915 E/HwcComposer(  562): getLuts failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
+11-07 06:22:27.915 E/HWComposer(  562): getLuts: getLuts failed for display 4619827259835644672: UNSUPPORTED (8)
+11-07 06:22:27.910 I/servicemanager(    0): Caller(pid=10339,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:22:27.918 I/servicemanager(    0): Caller(pid=10339,uid=2000,sid=u:r:shell:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-07 06:22:27.927 I/servicemanager(    0): Caller(pid=10339,uid=2000,sid=u:r:shell:s0) Found mapper/ranchu in device VINTF manifest.

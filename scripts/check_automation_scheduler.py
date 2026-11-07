@@ -50,8 +50,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 KT_DIR = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki"
 SCHED = KT_DIR / "OrekiAutomationScheduler.kt"
 STAGE = KT_DIR / "OrekiStageAuto.kt"
-LISTENER = (ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensions"
-            / "oreki" / "OrekiAutomationUiListener.smali")
+LISTENER = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz"
+            / "antimatterdimensions" / "oreki" / "OrekiAutomationUiListener.kt")
 
 checks = 0
 fails: list[str] = []
@@ -102,7 +102,7 @@ check("全局节拍先于单任务闸（顺序断言）",
 
 # ---------------------------------------------------------------- 5. 首帧也占位
 check("放行前调用 reserveOk（首帧也不例外）",
-      re.search(r'if \(!reserveOk\(idx\)\) return deny\("reserved"\)', sched) is not None)
+      re.search(r'if \(!reserveOk\(idx\)\) return deny\("reserved", taskId\)', sched) is not None)
 
 # ---------------------------------------------------------------- 6. no-op 不推进全局节拍
 m_noop = re.search(r"fun noteNoop\(taskId: String\?\) \{(.*?)\n    \}", sched, re.S)
@@ -146,11 +146,20 @@ for fn in ("autoSacrifice", "upgradeBulkAll", "buyInfinityUpgrades",
           re.search(rf"fun {fn}\(\): Boolean", stage) is not None)
 
 check("upgradeBulkAll 用轮转指针（每拍只升 1 个维度）",
-      "sBulkCursor" in stage and "sBulkCursor = (sBulkCursor + 1) % autos.size" in stage)
+      "bulkPurchaseCursor" in stage and "bulkPurchaseCursor = (bulkPurchaseCursor + 1) % autos.size" in stage)
 check("tryBuyId1 用轮转指针（每拍只处理 1 层）",
-      "sIdCursor" in stage and "sIdCursor = (sIdCursor + 1) % 8" in stage)
+      "infinityDimensionCursor" in stage and "infinityDimensionCursor = (infinityDimensionCursor + 1) % 8" in stage)
 check("upgradeCrunchInterval 有一拍一级注释（不得循环多级）",
       "每拍**最多买 1 级**" in stage or "每拍最多买 1 级" in stage)
+
+# ---------------------------------------------------------------- 10b. R91 成功判定与计数
+check("servedCount 返回真实执行计数（不是任务索引）",
+      re.search(r"fun servedCount\(taskId: String\?\): Int \{\s*val idx = idxOf\(taskId\)\s*return if \(idx < 0\) -1 else served\[idx\]",
+                sched, re.S) is not None)
+check("autoSacrifice 以献祭前后 nextBoost 下降为成功判据",
+      "beforeBoost" in stage and "afterBoost" in stage and "dropped" in stage)
+check("upgradeCrunchInterval 以购买前后成本上升为成功判据",
+      "costBefore" in stage and "costAfter" in stage and "costAfter > costBefore" in stage)
 
 # ---------------------------------------------------------------- 11. StageAuto 调用顺序（业务语义）
 check("BreakGate 在 crunchInterval 之后",
@@ -159,10 +168,17 @@ check("idBuy 在 breakShop 之后（Break 之后才买 ID1）",
       stage.index('allow("breakShop")') < stage.index('runScheduled("idBuy")'))
 
 # ---------------------------------------------------------------- 12. UI 设置入口仍写入调度器
+# R91：监听器已整类迁到 Kotlin，断言改为 Kotlin 调用形态（仍是 invoke-static 等价路径）。
 listener = read(LISTENER)
-check("UI 监听器调用 setEnabled", "setEnabled(Z)V" in listener)
-check("UI 监听器调用 setIntervalSec", "setIntervalSec(I)I" in listener)
-check("UI 监听器调用 setStrictGlobal", "setStrictGlobal(Z)V" in listener)
+check("UI 监听器调用 setEnabled", "OrekiAutomationScheduler.setEnabled(" in listener)
+check("UI 监听器调用 setIntervalSec", "OrekiAutomationScheduler.setIntervalSec(" in listener)
+check("UI 监听器调用 setStrictGlobal", "OrekiAutomationScheduler.setStrictGlobal(" in listener)
+
+# R91 新增契约：保存间隔必须校验 1~60、不得静默钳制；恢复默认必须读 defaultIntervalSec。
+check("保存间隔做合法性校验", "isValidInterval(" in listener)
+check("恢复默认使用调度器默认值（不读输入框）",
+      "OrekiAutomationScheduler.defaultIntervalSec()" in listener)
+check("启用开关回读真实状态并与复选框同步", "syncChecked(button" in listener)
 
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
