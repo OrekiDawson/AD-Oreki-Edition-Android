@@ -124,105 +124,6 @@ object OrekiStageAuto {
      * 顺序与原 Smali **完全一致**（顺序本身是业务语义，不能重排）。
      * 任何异常一律吞掉：本方法在游戏主循环里，抛出去会直接崩游戏。
      */
-    /**
-     * [R93] 是否处于「首次无限前」。
-     *
-     * 只以 `eternities()` 的**可读值**为准；读不到时不阻断（返回 true），
-     * 因为调用点已被 `!hasInfinity()`（多源判定）保护，且原版入口本身会拒绝挑战/未满足的调用。
-     * 这样避免任一反射链失效就把整段自动化关死（RG02-02 / RG02-03 教训）。
-     */
-    private fun preInfinityPhase(): Boolean {
-        val eternities = GameApi.eternities() ?: return true
-        val compared = GameApi.compareToDouble(eternities, 0.0) ?: return true
-        return compared == 0
-    }
-
-    /**
-     * [R93] 一次性诊断：首次无限前维度提升的真实前置条件（每 30 s 一条，共 6 条）。
-     * 只打印，不参与判定；用于定位「prestigeBatch 一直 noop」的真实原因。
-     */
-    private var diagnosticProbeNextAtMillis: Long = 0L
-    private var diagnosticProbeRemaining: Int = 6
-
-    private fun probePrestigeBatch() {
-        try {
-            val now = android.os.SystemClock.elapsedRealtime()
-            if (diagnosticProbeNextAtMillis == 0L) diagnosticProbeNextAtMillis = now + 20000L
-            if (diagnosticProbeNextAtMillis <= 0L || now < diagnosticProbeNextAtMillis || diagnosticProbeRemaining <= 0) return
-            diagnosticProbeRemaining--
-            diagnosticProbeNextAtMillis = now + 30000L
-            Log.i(
-                "OREKI_SCHED",
-                "pb enabled=" + OrekiAutomationScheduler.isEnabled() +
-                    " doomed=" + GameApi.isDoomed() +
-                    " etern=" + GameApi.eternities() +
-                    " inChal=" + GameApi.inAnyChallenge() +
-                    " req=" + GameApi.dimensionBoostRequirement() +
-                    " am=" + GameApi.antimatterValue() +
-                    " boost=" + GameApi.dimensionBoosts(),
-            )
-            if (diagnosticProbeRemaining <= 0) diagnosticProbeNextAtMillis = -1L
-        } catch (_: Throwable) {
-        }
-    }
-    // ------------------------------------------------------ [R93] 首次无限前自动维度提升
-
-    /** 单拍最多连续尝试几次维度提升（原版 m01.n(false) 内部已按需求换算，这里只兜底）。 */
-    private const val MAX_PRESTIGE_BATCH = 8
-
-    /**
-     * [R93] 首次无限前的「维度提升」自动执行。
-     *
-     * 背景：原版 `DimBoostAutobuyerState.isUnlocked` 在 3.21 需要「已无限」或普通挑战 10，
-     * 所以首次无限之前没有任何自动维度提升；Web 侧 MOD 例程一直在做（R92 还改成批量）。
-     *
-     * 做法：调用原版请求入口 `m01.n(false)`（与玩家点「维度提升」按钮同一条路径），
-     * 只在**原版需求已满足**时才调用（`m01.h()` 需求 与 当前反物质 比较），
-     * 每次调用后用 `Player.u()` 前后差值确认真的买到了；没有变化立即退出。
-     * 首次无限后 `hasInfinity()` 为真 ⇒ 本函数根本不会被调用（让位给原版自动器，避免双重执行）。
-     * 反物质保留见 [withKeptAntimatter]。
-     */
-    private fun autoPrestigeBatch(): Boolean {
-        if (!OrekiAutomationScheduler.isEnabled()) return false
-        if (GameApi.isDoomed()) return false
-        // 挑战由原版入口 m01.n(false) 内部守卫（n63.f()=普通挑战 / c22.d()=无限挑战），
-        // 这里不再用会「读失败即 true」的 inAnyChallenge() 挡死自己（RG02-02 教训）。
-        if (!preInfinityPhase()) return false
-        probePrestigeBatch()
-        var acted = false
-        var guard = 0
-        while (guard++ < MAX_PRESTIGE_BATCH) {
-            val requirement = GameApi.dimensionBoostRequirement() ?: break
-            val antimatter = GameApi.antimatterValue() ?: break
-            if ((GameApi.compareBigDoubles(antimatter, requirement) ?: -1) < 0) break
-            val before = GameApi.dimensionBoosts() ?: break
-            withKeptAntimatter { GameApi.requestPrestigeReset(false) }
-            val after = GameApi.dimensionBoosts() ?: break
-            if (after <= before) break
-            acted = true
-        }
-        return acted
-    }
-
-    /**
-     * [R93] AD4 等价（只覆盖 MOD 自己触发的重置）：首次永恒前，重置类动作保留反物质。
-     *
-     * 3.21 原版在未解锁成就 111 / 未拿现实 Perk 时会把反物质清零；直接批量做维度提升
-     * 会把「反物质反复清零 → 爬不到 1.797e308 → 发不出坍缩」的死锁装回来。
-     * 这里只在本方法包裹的调用内做「读值 → 重置 → 按差值加回」，不写任何存档字段、
-     * 不改价格与公式；玩家手动重置仍是原版行为（差异已记录在 tasks/R93）。
-     */
-    private inline fun withKeptAntimatter(block: () -> Unit) {
-        if (!preInfinityPhase() || GameApi.isDoomed()) { block(); return }
-        val before = GameApi.antimatterValue()
-        block()
-        if (before == null) return
-        val after = GameApi.antimatterValue() ?: return
-        val cmp = GameApi.compareBigDoubles(after, before)
-        if (cmp == null || cmp >= 0) return
-        val delta = GameApi.subtractBigDouble(before, after) ?: return
-        GameApi.addAntimatter(delta)
-    }
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
@@ -241,9 +142,11 @@ object OrekiStageAuto {
             crunchProbe()
 
             if (!GameApi.hasInfinity()) {
+                // [R94] 首次无限前只做「原版自动购买器解锁」（enableEarly）。
+                // 实测（全新存档 3 分 16 秒首次无限、11 次维度提升）该阶段维度提升
+                // 全部由原版「自动进行维度提升」完成，R93 的 prestigeBatch 属冗余且
+                // 用 m01.h()（返回 2.0，非原版 AD8 判据）预判，已删除。
                 enableEarly()
-                // [R93] 首次无限前：原版维度提升自动器仍锁在「已无限」，由 MOD 走原版入口代做
-                runScheduled("prestigeBatch") { autoPrestigeBatch() }
                 return
             }
 

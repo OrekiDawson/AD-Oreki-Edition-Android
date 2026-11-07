@@ -66,8 +66,6 @@ object OrekiAutomationScheduler {
         // [R77] 新增：把「真实花钱买升级」的 5 条从每帧裸调用纳入统一节拍。
         // 只追加在尾部，索引 0..11 的既有语义完全不变。
         "sacrifice", "bulk", "infinityUpgrades", "crunchInterval", "idBuy",
-        // [R93] 首次无限前的维度提升（原版自动器锁在「已无限」）
-        "prestigeBatch",
     )
 
     /** 连续型（原版自动购买器等价物）索引上限：0..3。R77 起不再豁免，仅保留诊断用。 */
