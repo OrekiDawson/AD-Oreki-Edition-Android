@@ -797,32 +797,62 @@ object OrekiStageAuto {
         return hold
     }
 
+    /**
+     * [R94] 峰值窗口是否保持中（迟滞状态）。
+     *
+     * 为什么需要迟滞：实测（00:05:59）`hold=1` 与 `hold=0` 只隔 35 ms —— IP 恰好卡在
+     * ID1 的 IP 门槛上时，任何一次读数抖动都会把窗口关掉，坍缩随即恢复，本永恒峰值
+     * 永远停在原地（4.62e317），无法推进到 ID1 的 1e1100 门槛。
+     *
+     * 规则：
+     *   · 进入：`IP ≥ IP门槛` 且 `本永恒峰值 < 峰值门槛`；
+     *   · 保持：一旦进入便不再逐帧重比 IP，只在「峰值达标 / ID1 已解锁 / 不再 Break /
+     *     已有永恒 / 挑战/毁灭态 / IP 跌破门槛一半」时退出 —— 前半段是窗口的目的，
+     *     最后一条是防死锁的保险（IP 被花到一半以下说明攒不上去了，交回原版节奏）。
+     */
+    private var holdLatched: Boolean = false
+
     private fun computeHoldCrunch(): Boolean = try {
-        if (!isBroken()) {
-            false
-        } else if (!eternitiesZero()) {
-            // 已经历过永恒：不再需要为「首次 ID1」攒峰值，交回原版节奏。
-            false
-        } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
+        val broken = isBroken()
+        val eternitiesZero = eternitiesZero()
+        val blocked = GameApi.inAnyChallenge() || GameApi.isDoomed()
+        if (!broken || !eternitiesZero || blocked) {
+            holdLatched = false
             false
         } else {
             val id1 = GameApi.infinityDimension(1)
             if (id1 == null || GameApi.idUnlocked(id1)) {
+                holdLatched = false
                 false
             } else {
-                // 真实 IP 门槛：id1 上的静态常量 f（ID1 专属），而不是写死的近似值。
-                val ipRequirement = GameApi.idIpRequirement(id1)
-                val ip = ipBalance()
-                val ipEnough = compareBigDoubles(ip, ipRequirement)
-                if (ipEnough == null || ipEnough < 0) {
-                    // IP 还不够 ID1 的解锁门槛：先正常坍缩把 IP 攒上来。
+                val peakRequirement = GameApi.idRequirement(id1)
+                val maxAM = GameApi.thisEternityMaxAM()
+                val peakVersus = compareBigDoubles(maxAM, peakRequirement)
+                if (peakVersus != null && peakVersus >= 0) {
+                    // 峰值已达标：窗口使命完成，立刻交回原版（随后 tryBuyId1 会解锁 ID1）。
+                    holdLatched = false
                     false
                 } else {
-                    // IP 已够；继续攒反物质峰值，直到真实 maxAM 门槛。
-                    val peakRequirement = GameApi.idRequirement(id1)
-                    val maxAM = GameApi.thisEternityMaxAM()
-                    val peakVersus = compareBigDoubles(maxAM, peakRequirement)
-                    peakVersus != null && peakVersus < 0
+                    val ipRequirement = GameApi.idIpRequirement(id1)
+                    val ip = ipBalance()
+                    val ipVersus = compareBigDoubles(ip, ipRequirement)
+                    val enter = ipVersus != null && ipVersus >= 0
+                    // 保险：IP 连门槛的一半都不到 ⇒ 攒不上去，放弃窗口避免永久停坍缩。
+                    val doubled = GameApi.multiplyBigDoubleByInt(ip, 2)
+                    val farBelow = doubled != null &&
+                        (compareBigDoubles(doubled, ipRequirement) ?: 1) < 0
+                    if (holdLatched) {
+                        if (farBelow) holdLatched = false
+                    } else if (enter) {
+                        holdLatched = true
+                        Log.i(
+                            TAG_HOLD,
+                            "latch ipVsReq=" + (ipVersus ?: 9) +
+                                " peakVsReq=" + (peakVersus ?: 9) +
+                                " broken=" + broken + " eternitiesZero=" + eternitiesZero,
+                        )
+                    }
+                    holdLatched
                 }
             }
         }

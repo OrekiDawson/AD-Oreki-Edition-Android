@@ -240,6 +240,15 @@ check("Player.a 每个调用都重新读静态字段（不缓存实例）",
 check("只缓存反射 Field 句柄", "private var mPlayerA: java.lang.reflect.Field? = null" in _gameapi)
 check("保留 R94 实例替换的说明", "R94 关键修复" in _gameapi)
 
+# ---------------------------------------------------------------- 18. R94：ID1 峰值窗口迟滞
+# 缺陷：00:05:59 实测 hold=1 与 hold=0 只隔 35 ms，IP 卡在门槛上时窗口被反复关掉，
+# 本永恒峰值停在 4.62e317 无法推进。修复用迟滞：进入后不再逐帧重比 IP。
+check("峰值窗口有迟滞状态", "private var holdLatched: Boolean = false" in stage)
+check("进入窗口要求 IP 达门槛（ipVersus >= 0）", "val enter = ipVersus != null && ipVersus >= 0" in stage)
+check("进入后只按峰值达标退出", "if (peakVersus != null && peakVersus >= 0) {" in stage)
+check("防死锁保险：IP 跌破门槛一半才放弃窗口", "val farBelow = doubled != null" in stage)
+check("锁存时打印判据输入", "latch ipVsReq=" in stage)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
