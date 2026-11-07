@@ -29,10 +29,10 @@
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
-| 本轮候选 | `release/反物质维度_R92候选_6cb5.apk`（与 `build/gradle-stage/反物质维度.apk` 同 SHA-256，已用 Coreutils `cp` 复制到 OneDrive 与小米云盘同名文件） |
-| 大小 / SHA-256 | 82,621,937 B / `6CB5E274424ECDC103B1CD0F80ED197F9158DA9D343E8C3B9682BADCB522F123` |
-| 构建 | Gradle `assembleRelease --offline` 第二次构建 16:57:28 → 17:09:24（11m56s，含新增 Kotlin 改动），3.21 构建链（`build/r92b-assemble.log`）；第一次构建 16:02:40 → 16:17:11 产出 `0764` 候选 |
-| 静态门禁 | `verifyRelease` **14/14 PASS**（83 s）；`verifyPatchContract` **17/17 PASS**（118 s），v2+v3 签名、证书 `95960bce…3197` 未更换；新 Kotlin 已确认进入 DEX（`OrekiBreakShop.id1ReserveActive()Z` 及其在 `OrekiStageAuto` 的调用点） |
+| 本轮候选 | `release/反物质维度_R92候选_1340.apk`（与 `build/gradle-stage/反物质维度.apk` 同 SHA-256，已用 Coreutils `cp` 复制到 OneDrive 与小米云盘同名文件；6cb5/0764 旧候选保留） |
+| 大小 / SHA-256 | 82,621,937 B / `1340917533B65D7153723B68125F68EE1B0EAA7840FAFE100F0AC244B6767C1D` |
+| 构建 | Gradle `assembleRelease --offline` 第三次构建 17:20:54 → 17:31:44（10m50s，含 autobuyersOn setter 修复），3.21 构建链（`build/r92c-assemble.log`）；前两次产出 `6cb5`（17:09）与 `0764`（16:17）候选 |
+| 静态门禁 | `verifyRelease` **14/14 PASS**（68 s）；`verifyPatchContract` **17/17 PASS**（104 s），v2+v3 签名、证书 `95960bce…3197` 未更换；安装后运行日志中 `OREKI_API_MISS` 消失、`OREKI_EARLY applied` 正常 |
 | 独立 AVD | `oreki_r92_fresh`（本轮新建，Android 14，串口 `emulator-5556`）：**全新存档**约 40 min 墙钟（10000×）推进到 51 次无限 / IP 118 / 反物质 2.23e250；最终 APK 安装 `Success`、游戏在前台、无 FATAL/VerifyError/NoSuchMethodError |
 | 状态 | **仍是候选，不是正式稳定版**：`OREKI_SCHED act`、普通挑战真实结算、ID1 IP 预留、存档重启恢复四项运行门禁本轮**未取得证据**（新档停在首次永恒前，IP 118 < ID1 门槛 1e8），因此没有覆盖 `release/反物质维度.apk` |
 
