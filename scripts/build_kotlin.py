@@ -48,6 +48,20 @@ KOTLIN_STDLIB = ROOT / "tools" / "kotlinc" / "lib" / "kotlin-stdlib.jar"
 GENERATED_SRC = ROOT / "build" / "kt" / "generated" / "OrekiBaselineBindings.kt"
 
 
+def _descriptor_to_binary_name(desc: str) -> str:
+    """把 `Liq0;` / `Lkajfosz/antimatterdimensions/player/e` / `iq0` 统一成可 Class.forName 的二进制名。
+
+    [R94] 绑定表用字段描述符登记目标类；描述符前缀 `L` 与分隔符 `/` 不属于 JVM 类名。
+    旧的 `.split(".")[-1].rstrip(";")` 在无包名短类（如 `Liq0;`）上会留下 `L`，
+    直接让 Class.forName 抛 ClassNotFoundException（R93 运行期 `missing class bq0`）。
+    """
+    text = (desc or "").strip()
+    if text.endswith(";"):
+        text = text[:-1]
+    if text.startswith("L") and len(text) > 1:
+        text = text[1:]
+    return text.replace("/", ".")
+
 def generate_baseline_bindings_source() -> pathlib.Path:
     """从当前版本配置生成 Kotlin 运行时类名解析器。
 
@@ -66,7 +80,11 @@ def generate_baseline_bindings_source() -> pathlib.Path:
         for old, entry in data.get("classes", {}).items():
             if entry.get("status") != "CONFIRMED" or not entry.get("to"):
                 continue
-            mapping[old] = entry["to"].split(".")[-1].rstrip(";")
+            # [R94] 绑定表里的 `to` 是字段描述符（如 `Liq0;`），不是二进制类名；
+            # 旧实现 split(".")[-1].rstrip(";") 会留下前缀 L ⇒ Class.forName("Liq0") 必失败。
+            # 运行期实测 `missing class bq0` / `missing class rp0` 就是这条链：
+            # 反物质货币与货币实现类都解析不到，于是 antimatterValue() 恒 null。
+            mapping[old] = _descriptor_to_binary_name(entry["to"])
 
     rows = [
         "package kajfosz.antimatterdimensions.oreki",
@@ -81,7 +99,14 @@ def generate_baseline_bindings_source() -> pathlib.Path:
         "    }",
         "",
         "    @JvmStatic",
-        "    fun className(name: String): String = if (name.contains('.')) name else (confirmed[name] ?: name)",
+        "    private fun normalize(name: String): String {",
+        "        var s = name",
+        "        if (s.endsWith(\";\")) s = s.substring(0, s.length - 1)",
+        "        if (s.startsWith(\"L\") && s.length > 1) s = s.substring(1)",
+        "        return s.replace('/', '.')",
+        "    }",
+        "",
+        "    fun className(name: String): String = if (name.contains('.')) name else normalize(confirmed[name] ?: name)",
         "",
         "    /** 当前目标版是否真的有这条绑定；GameApi 用它决定是否先做 3.19→3.20 名称级联。 */",
         "    @JvmStatic",

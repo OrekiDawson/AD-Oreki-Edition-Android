@@ -1,0 +1,1328 @@
+--------- beginning of main
+11-07 12:42:49.740   934   934 D CarrierSvcBindHelper: onPackageUpdateFinished: com.oreki.antimatterdimensions
+11-07 12:42:49.743   934   934 D CarrierSvcBindHelper: No carrier app for: 0
+11-07 12:42:49.743   934   934 D CarrierSvcBindHelper: onPackageModified: com.oreki.antimatterdimensions
+11-07 12:42:49.744   934   934 D CarrierSvcBindHelper: No carrier app for: 0
+11-07 12:42:49.748   527   627 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-07 12:42:49.759  1260  1260 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: com.oreki.antimatterdimensions, current user: UserHandle{0}, packageChangeEvent: UPDATE, intent user: UserHandle{0}
+11-07 12:42:49.772   739   838 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-07 12:42:49.779   739   838 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+--------- beginning of system
+11-07 12:42:49.786   527   527 V GameManagerService_GamePackageConfiguration: No android.game_mode_config meta-data found for package com.oreki.antimatterdimensions
+11-07 12:42:49.787   527   527 V GameManagerService: Package configuration not found for com.oreki.antimatterdimensions
+11-07 12:42:49.804   527   527 V BackupManagerConstants: getFullBackupIntervalMilliseconds(...) returns 86400000
+11-07 12:42:49.810   527   527 V BackupManagerConstants: getFullBackupRequiredNetworkType(...) returns 2
+11-07 12:42:49.811  1260  6000 I PermissionControllerServiceImpl: Updating user sensitive for uid 10141
+11-07 12:42:49.811   527   527 V BackupManagerConstants: getFullBackupRequireCharging(...) returns true
+11-07 12:42:49.823   934  1208 D ImsResolver: maybeAddedImsService, packageName: com.oreki.antimatterdimensions
+11-07 12:42:49.827   527   527 D CompatibilityChangeReporter: Compat change id reported: 218533173; UID 10141; state: ENABLED
+11-07 12:42:49.827   527   527 D CompatibilityChangeReporter: Compat change id reported: 171306433; UID 10141; state: ENABLED
+11-07 12:42:49.828   527   527 W AlarmManager: Package com.oreki.antimatterdimensions, uid 10141 lost permission to set exact alarms!
+11-07 12:42:49.845   739   838 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+11-07 12:42:49.849   739   838 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+11-07 12:42:49.851   739   838 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+11-07 12:42:49.852   739   838 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+11-07 12:42:49.853   739   838 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+11-07 12:42:49.857   739   838 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+11-07 12:42:49.865   739   838 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+11-07 12:42:49.867   739   838 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+11-07 12:42:49.869   739   838 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+11-07 12:42:49.871   739   838 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-07 12:42:49.950   527   566 W VoiceInteractionManager: no available voice recognition services found for user 0
+11-07 12:42:49.951   739   783 W Looper  : Drained
+11-07 12:42:50.056  1362  1362 W MediaProvider: WorkProfileOwnerApps cache is empty
+11-07 12:42:50.058   739   739 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-07 12:42:50.066   739   739 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-07 12:42:50.068   739   739 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-07 12:42:50.268  8505  8505 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-07 12:42:50.273  8505  8505 I AndroidRuntime: Using default boot image
+11-07 12:42:50.273  8505  8505 I AndroidRuntime: Leaving lock profiling enabled
+11-07 12:42:50.275  8505  8505 I app_process: Core platform API reporting enabled, enforcing=false
+11-07 12:42:50.276  8505  8505 I app_process: Using CollectorTypeCC GC.
+11-07 12:42:50.355  8505  8505 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-07 12:42:50.393  8505  8505 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-07 12:42:50.394  8505  8505 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-07 12:42:50.408  8505  8505 W app_process: Unexpected CPU variant for x86: x86_64.
+11-07 12:42:50.408  8505  8505 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-07 12:42:50.465  8505  8505 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-07 12:42:50.466  8505  8505 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-07 12:42:50.466  8505  8505 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-07 12:42:50.448  8505  8505 W main    : type=1400 audit(0.0:175): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 12:42:50.464  8505  8505 W main    : type=1400 audit(0.0:176): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 12:42:50.464  8505  8505 W main    : type=1400 audit(0.0:177): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-07 12:42:50.472  8505  8505 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+11-07 12:42:50.474  8505  8505 W Monkey  : args: [-p, com.oreki.antimatterdimensions, -c, android.intent.category.LAUNCHER, 1]
+11-07 12:42:50.474  8505  8505 W Monkey  :  arg: "-p"
+11-07 12:42:50.474  8505  8505 W Monkey  :  arg: "com.oreki.antimatterdimensions"
+11-07 12:42:50.475  8505  8505 W Monkey  :  arg: "-c"
+11-07 12:42:50.475  8505  8505 W Monkey  :  arg: "android.intent.category.LAUNCHER"
+11-07 12:42:50.475  8505  8505 W Monkey  :  arg: "1"
+11-07 12:42:50.475  8505  8505 W Monkey  : data="com.oreki.antimatterdimensions"
+11-07 12:42:50.477  8505  8505 W Monkey  : data="android.intent.category.LAUNCHER"
+11-07 12:42:50.510   527  5507 W ActivityManager: registerReceiverWithFeature: no app for null
+11-07 12:42:50.514  8505  8505 W System  : No Compatibility callbacks set! Querying change 263076149
+11-07 12:42:50.514  8505  8505 W System  : No Compatibility callbacks set! Querying change 263076149
+11-07 12:42:50.514  8505  8505 W System  : No Compatibility callbacks set! Querying change 263076149
+11-07 12:42:50.526   527  5507 D CompatibilityChangeReporter: Compat change id reported: 161252188; UID 10141; state: DISABLED
+11-07 12:42:50.527   527  5507 W ActivityTaskManager: callingPackage for (uid=2000, pid=8505) has no WPC
+11-07 12:42:50.531   527  5507 D CompatibilityChangeReporter: Compat change id reported: 265464455; UID 10141; state: DISABLED
+11-07 12:42:50.532   527  5507 D CompatibilityChangeReporter: Compat change id reported: 265452344; UID 10141; state: DISABLED
+11-07 12:42:50.532   527  5507 D CompatibilityChangeReporter: Compat change id reported: 266124927; UID 10141; state: DISABLED
+11-07 12:42:50.533   527  5507 D CompatibilityChangeReporter: Compat change id reported: 265451093; UID 10141; state: DISABLED
+11-07 12:42:50.533   527  5507 D CompatibilityChangeReporter: Compat change id reported: 265456536; UID 10141; state: DISABLED
+11-07 12:42:50.533   527  5507 D CompatibilityChangeReporter: Compat change id reported: 255940284; UID 10141; state: DISABLED
+11-07 12:42:50.534   527  5507 D CompatibilityChangeReporter: Compat change id reported: 236283604; UID 10141; state: DISABLED
+11-07 12:42:50.534   527  5507 D CompatibilityChangeReporter: Compat change id reported: 263959004; UID 10141; state: DISABLED
+11-07 12:42:50.534   527  5507 D CompatibilityChangeReporter: Compat change id reported: 264304459; UID 10141; state: DISABLED
+11-07 12:42:50.535   527  5507 D CompatibilityChangeReporter: Compat change id reported: 264301586; UID 10141; state: DISABLED
+11-07 12:42:50.535   527  5507 D CompatibilityChangeReporter: Compat change id reported: 254631730; UID 10141; state: DISABLED
+11-07 12:42:50.535   527  5507 D CompatibilityChangeReporter: Compat change id reported: 273509367; UID 10141; state: DISABLED
+11-07 12:42:50.536   527  5507 D CompatibilityChangeReporter: Compat change id reported: 263259275; UID 10141; state: DISABLED
+11-07 12:42:50.536   527  5507 D CompatibilityChangeReporter: Compat change id reported: 174042980; UID 10141; state: DISABLED
+11-07 12:42:50.536   527  5507 D CompatibilityChangeReporter: Compat change id reported: 174042936; UID 10141; state: DISABLED
+11-07 12:42:50.537   527  5507 D CompatibilityChangeReporter: Compat change id reported: 181136395; UID 10141; state: DISABLED
+11-07 12:42:50.541   527  5507 D CompatibilityChangeReporter: Compat change id reported: 194480991; UID 10141; state: ENABLED
+11-07 12:42:50.547   527  5507 D CompatibilityChangeReporter: Compat change id reported: 184838306; UID 10141; state: DISABLED
+11-07 12:42:50.547   527  5507 D CompatibilityChangeReporter: Compat change id reported: 185004937; UID 10141; state: DISABLED
+11-07 12:42:50.548   527  5507 D CompatibilityChangeReporter: Compat change id reported: 197654537; UID 10141; state: ENABLED
+11-07 12:42:50.552   527  5507 D CompatibilityChangeReporter: Compat change id reported: 205907456; UID 10141; state: ENABLED
+11-07 12:42:50.559   527  5507 D CompatibilityChangeReporter: Compat change id reported: 194833441; UID 10141; state: ENABLED
+11-07 12:42:50.559   527  5507 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default} with LAUNCH_MULTIPLE from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-07 12:42:50.575   739   783 V WindowManagerShell: Transition requested: android.os.BinderProxy@944d8d9 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=22 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default } baseActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} topActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} origActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default} realActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} numActivities=1 lastActiveTime=16986558 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@d38a29e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 136 - 0, 0) topActivityInfo=ActivityInfo{6dd917f kajfosz.antimatterdimensions.AppIcon_default} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-07 12:42:50.580  8505  8505 I Monkey  : Events injected: 1
+11-07 12:42:50.583   527   552 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10141; state: DISABLED
+11-07 12:42:50.584   527   552 D CompatibilityChangeReporter: Compat change id reported: 177438394; UID 10141; state: DISABLED
+11-07 12:42:50.584   527   552 D CompatibilityChangeReporter: Compat change id reported: 135772972; UID 10141; state: DISABLED
+11-07 12:42:50.585   527   552 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10141; state: ENABLED
+11-07 12:42:50.596   527   568 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: ENABLED
+11-07 12:42:50.623   348   348 D Zygote  : Forked child process 8521
+11-07 12:42:50.635   527   568 W ActivityManager: Slow operation: 53ms so far, now at startProcess: returned from zygote!
+11-07 12:42:50.635   527   568 W ActivityManager: Slow operation: 53ms so far, now at startProcess: done updating battery stats
+11-07 12:42:50.636   527   568 W ActivityManager: Slow operation: 54ms so far, now at startProcess: building log message
+11-07 12:42:50.636   527   568 I ActivityManager: Start proc 8521:com.oreki.antimatterdimensions/u0a141 for next-top-activity {com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default}
+11-07 12:42:50.636   527   568 W ActivityManager: Slow operation: 54ms so far, now at startProcess: starting to update pids map
+11-07 12:42:50.638   739   796 D SplashScreenView: Build android.window.SplashScreenView{740fa38 V.E...... ......ID 0,0-0,0}
+11-07 12:42:50.638   739   796 D SplashScreenView: Icon: view: android.widget.ImageView{237ca11 V.ED..... ......I. 0,0-0,0 #10204f0 android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@b786776 size: 420
+11-07 12:42:50.638   739   796 D SplashScreenView: Branding: view: android.view.View{d0e3177 G.ED..... ......I. 0,0-0,0 #10204ef android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-07 12:42:50.639   527   568 W ActivityManager: Slow operation: 57ms so far, now at startProcess: done updating pids map
+11-07 12:42:50.640  8505  8505 I Monkey  : ## Network stats: elapsed time=73ms (0ms mobile, 0ms wifi, 73ms not connected)
+11-07 12:42:50.640  8505  8505 I app_process: System.exit called, status: 0
+11-07 12:42:50.642  8505  8505 I AndroidRuntime: VM exiting with result code 0.
+11-07 12:42:50.653   413   413 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-07 12:42:50.670   527  3723 D CoreBackPreview: Window{e0a4696 u0 Splash Screen com.oreki.antimatterdimensions}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@99c3622, mPriority=0, mIsAnimationCallback=false}
+11-07 12:42:50.672   527   607 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10141; state: ENABLED
+11-07 12:42:50.723  8521  8521 I atterdimensions: Using CollectorTypeCC GC.
+11-07 12:42:50.727  8521  8521 W atterdimensions: Unexpected CPU variant for x86: x86_64.
+11-07 12:42:50.727  8521  8521 W atterdimensions: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-07 12:42:50.734   991  1468 D EGL_emulation: app_time_stats: avg=3022.74ms min=462.93ms max=5582.54ms count=2
+11-07 12:42:50.747  8521  8521 E atterdimensions: Not starting debugger since process cannot load the jdwp agent.
+11-07 12:42:50.753   527  3723 W ActivityTaskManager: takeTaskSnapshot: taskId=22 not found or not visible
+11-07 12:42:50.774   527   549 V WindowManager: Sent Transition #30 createdAt=11-07 12:42:50.542 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=22 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default } baseActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} topActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} origActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default} realActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} numActivities=1 lastActiveTime=16986558 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{87f0d0f Task{21b5735 #22 type=standard A=10141:com.oreki.antimatterdimensions}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 136 - 0, 0) topActivityInfo=ActivityInfo{cad519c kajfosz.antimatterdimensions.AppIcon_default} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-07 12:42:50.774   527   549 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-07 12:42:50.774   527   549 V WindowManager:     info={id=30 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{87f0d0f Task{21b5735 #22 type=standard A=10141:com.oreki.antimatterdimensions}}} m=OPEN f=NONE leash=Surface(name=Task=22)/@0x4d98b3 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{f1fb8a3 Task{82d40b5 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x2b52c1b sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-07 12:42:50.776   739   783 V WindowManagerShell: onTransitionReady android.os.BinderProxy@944d8d9: {id=30 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@ba0b25a} m=OPEN f=NONE leash=Surface(name=Task=22)/@0x5c3d86f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@55f8c8b} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x52f297c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-07 12:42:50.776   739   783 V WindowManagerShell: Playing animation for (#30)android.os.BinderProxy@944d8d9@0
+11-07 12:42:50.777   739   783 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@7e50353
+11-07 12:42:50.777   739   783 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@8b7e490
+11-07 12:42:50.777   739   783 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@5506189
+11-07 12:42:50.778   739   783 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@9e7758e
+11-07 12:42:50.778   739   783 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-07 12:42:50.778   739   783 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@73281af
+11-07 12:42:50.778   739   783 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@5eb9bc
+11-07 12:42:50.779   739   783 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@8548d45
+11-07 12:42:50.779   739   783 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=30 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@ba0b25a} m=OPEN f=NONE leash=Surface(name=Task=22)/@0x5c3d86f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@55f8c8b} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x52f297c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-07 12:42:50.779   739   783 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher}},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@f9b0877, appThread = android.app.IApplicationThread$Stub$Proxy@4a10ce4, debugName = QuickstepLaunchHome }}
+11-07 12:42:50.779   739   783 V WindowManagerShell:  Delegate animation for #30 to null
+11-07 12:42:50.780   739   783 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@d3bb5a8
+11-07 12:42:50.780   739   783 V WindowManagerShell: start default transition animation, info = {id=30 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@ba0b25a} m=OPEN f=NONE leash=Surface(name=Task=22)/@0x5c3d86f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@55f8c8b} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x52f297c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-07 12:42:50.780   739   783 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@88e5981 animAttr=0x13 type=OPEN isEntrance=false
+11-07 12:42:50.782   739   783 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@d460cbd animAttr=0x12 type=OPEN isEntrance=true
+11-07 12:42:50.787   739   783 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@d3bb5a8
+11-07 12:42:50.808  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10141; state: ENABLED
+11-07 12:42:50.809  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10141; state: ENABLED
+11-07 12:42:50.816   527   550 V GameManagerService: Game power mode ON (process state was changed to foreground)
+11-07 12:42:50.826   527  5507 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10141; state: ENABLED
+11-07 12:42:50.830  8521  8521 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-07 12:42:50.830  8521  8521 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-07 12:42:50.854  8521  8521 I atterdimensions: Failed to add image file: Failed to find OatDexFile for DexFile /data/app/~~6mwbWfKj6gRPiuzmO3dSfA==/com.oreki.antimatterdimensions-kDtNJjmdqZMsDx8TiCsoug==/base.apk (canonical path /data/app/~~6mwbWfKj6gRPiuzmO3dSfA==/com.oreki.antimatterdimensions-kDtNJjmdqZMsDx8TiCsoug==/base.apk) in OatFile /data/app/~~sByl7tpgFlITjiiXCKEptw==/com.oreki.antimatterdimensions-w4vpT8IYjWO4PBG5xFTvpA==/oat/x86_64/base.odex
+11-07 12:42:50.861  8521  8521 D nativeloader: Configuring clns-6 for other apk /data/app/~~sByl7tpgFlITjiiXCKEptw==/com.oreki.antimatterdimensions-w4vpT8IYjWO4PBG5xFTvpA==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~sByl7tpgFlITjiiXCKEptw==/com.oreki.antimatterdimensions-w4vpT8IYjWO4PBG5xFTvpA==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.oreki.antimatterdimensions
+11-07 12:42:50.924  8521  8521 V GraphicsEnvironment: Currently set values for:
+11-07 12:42:50.924  8521  8521 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-07 12:42:50.926  8521  8521 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-07 12:42:50.934  8521  8521 V GraphicsEnvironment: ANGLE GameManagerService for com.oreki.antimatterdimensions: false
+11-07 12:42:50.935  8521  8521 V GraphicsEnvironment: com.oreki.antimatterdimensions is not listed in per-application setting
+11-07 12:42:50.935  8521  8521 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-07 12:42:51.060  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 183155436; UID 10141; state: ENABLED
+11-07 12:42:51.090   739   783 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#30)android.os.BinderProxy@944d8d9@0
+11-07 12:42:51.095   527   549 V WindowManager: Finish Transition #30: created at 11-07 12:42:50.542 collect-started=0.046ms request-sent=15.654ms started=37.365ms ready=228.992ms sent=230.578ms finished=551.888ms
+11-07 12:42:51.099   739   783 V WindowManagerShell: Track 0 became idle
+11-07 12:42:51.099   739   783 V WindowManagerShell: All active transition animations finished
+11-07 12:42:51.099  8521  8521 D FirebaseSessions: Dependency to CRASHLYTICS added.
+11-07 12:42:51.113  8521  8521 I FirebaseApp: Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+11-07 12:42:51.145  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 3400644; UID 10141; state: ENABLED
+11-07 12:42:51.158  8521  8541 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:51.158  8521  8541 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 12:42:51.158  8521  8541 I DynamiteModule: Considering local module com.google.android.gms.measurement.dynamite:216 and remote module com.google.android.gms.measurement.dynamite:0
+11-07 12:42:51.159  8521  8541 I DynamiteModule: Selected local version of com.google.android.gms.measurement.dynamite
+11-07 12:42:51.160  8521  8541 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 12:42:51.171  8521  8544 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:51.172  8521  8544 W GoogleApiManager: The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.172  8521  8544 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:51.172  8521  8544 W GoogleApiManager: The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.195   527  5507 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10141; state: ENABLED
+11-07 12:42:51.203  8521  8521 D FirebaseSessions: Initializing Firebase Sessions 4.0.1.
+11-07 12:42:51.204  8521  8521 I FirebaseCrashlytics: Initializing Firebase Crashlytics 21.0.1 for com.oreki.antimatterdimensions
+11-07 12:42:51.285  8521  8521 D FirebaseSessions: Subscriber CRASHLYTICS registered.
+11-07 12:42:51.285  8521  8550 D FirebaseSessions: No Sessions subscribers. Not listening to lifecycle events.
+11-07 12:42:51.286  8521  8542 D FirebaseSessions: Notified CRASHLYTICS of new session 4e8fc12db0114afbb9bc7638cb003653
+11-07 12:42:51.290  8521  8545 I FA      : App measurement initialized, version: 192000
+11-07 12:42:51.290  8521  8545 I FA      : To enable debug logging run: adb shell setprop log.tag.FA VERBOSE
+11-07 12:42:51.290  8521  8545 I FA      : To enable faster debug mode event logging run:
+11-07 12:42:51.290  8521  8545 I FA      :   adb shell setprop debug.firebase.analytics.app com.oreki.antimatterdimensions
+11-07 12:42:51.292  8521  8553 D Phlogger: Application doesn't implement PhenotypeApplication interface, falling back to globally set context. See go/phenotype-flag#process-stable-init for more info.
+11-07 12:42:51.294  8521  8553 I Phlogger: Unable to retrieve flag snapshot for com.google.android.gms.measurement#com.oreki.antimatterdimensions, using defaults.
+11-07 12:42:51.295  8521  8544 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:51.296  8521  8544 W GoogleApiManager: The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.296  8521  8544 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:51.296  8521  8544 W GoogleApiManager: The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.299  8521  8545 E FA      : AppMeasurementReceiver not registered/enabled
+11-07 12:42:51.299  8521  8545 E FA      : AppMeasurementService not registered/enabled
+11-07 12:42:51.300  8521  8545 E FA      : Uploading is not possible. App measurement disabled
+11-07 12:42:51.301  8521  8553 W FlagStore: Unable to update local snapshot for com.google.android.gms.measurement#com.oreki.antimatterdimensions, may result in stale flags.
+11-07 12:42:51.301  8521  8553 W FlagStore: java.util.concurrent.ExecutionException: com.google.android.gms.internal.measurement.zzom: 17: 17: API: Phenotype.API is not available on this device. Connection failed with: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.b.j(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:20)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.b.get(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:380)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.c.b(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:8)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at ey6.run(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:17)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at java.util.concurrent.FutureTask.run(FutureTask.java:264)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:307)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at java.lang.Thread.run(Thread.java:1012)
+11-07 12:42:51.301  8521  8553 W FlagStore: Caused by: com.google.android.gms.internal.measurement.zzom: 17: 17: API: Phenotype.API is not available on this device. Connection failed with: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at zy8.apply(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:13)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at i.r(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:2)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at i.run(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:127)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.DirectExecutor.execute(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:1)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.b.i(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:1)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.b.g(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:86)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.b.o(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:15)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at k96.onComplete(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:35)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzi.run(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:19)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.DirectExecutor.execute(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:1)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzj.zza(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:18)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzr.zzb(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:38)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzw.zzc(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:19)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzc.run(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:71)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.common.util.concurrent.DirectExecutor.execute(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:1)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzd.zza(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:7)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzr.zzb(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:38)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.zzw.zzd(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:25)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at com.google.android.gms.tasks.TaskCompletionSource.trySetException(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:2)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at ei5.a(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:11)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at lh5.f(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:46)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at lh5.g(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:10)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at lh5.l(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:184)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at lh5.p(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:99)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at lh5.n(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:54)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at ms1.handleMessage(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:1064)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at mi5.dispatchMessage(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:4)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at android.os.Looper.loop(Looper.java:294)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-07 12:42:51.301  8521  8553 W FlagStore: Caused by: com.google.android.gms.common.api.ApiException: 17: API: Phenotype.API is not available on this device. Connection failed with: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at m10.o(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:12)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	at ei5.a(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:4)
+11-07 12:42:51.301  8521  8553 W FlagStore: 	... 11 more
+11-07 12:42:51.316  8521  8521 I FirebaseInitProvider: FirebaseApp initialization successful
+11-07 12:42:51.329  8521  8521 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-07 12:42:51.335   527  5507 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10141. pid: 8521
+11-07 12:42:51.335  8521  8542 I FirebaseCrashlytics: Saved version control info
+11-07 12:42:51.373  8521  8565 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-07 12:42:51.378  8521  8565 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-07 12:42:51.384  8521  8565 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-07 12:42:51.386  8521  8521 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+11-07 12:42:51.428  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 171228096; UID 10141; state: ENABLED
+11-07 12:42:51.431  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 210923482; UID 10141; state: ENABLED
+11-07 12:42:51.966  8521  8521 W TabLayout: MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-07 12:42:51.967  8521  8521 W TabLayout: MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-07 12:42:52.219  8521  8521 W System.err: java.io.FileNotFoundException: /data/user/0/com.oreki.antimatterdimensions/files/player2.json: open failed: ENOENT (No such file or directory)
+11-07 12:42:52.222  8521  8521 W System.err: 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-07 12:42:52.222  8521  8521 W System.err: 	at java.io.FileInputStream.<init>(FileInputStream.java:160)
+11-07 12:42:52.223  8521  8521 W System.err: 	at android.app.ContextImpl.openFileInput(ContextImpl.java:745)
+11-07 12:42:52.223  8521  8521 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:249)
+11-07 12:42:52.223  8521  8521 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:249)
+11-07 12:42:52.224  8521  8521 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:249)
+11-07 12:42:52.224  8521  8521 W System.err: 	at kajfosz.antimatterdimensions.player.h.d(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:65)
+11-07 12:42:52.224  8521  8521 W System.err: 	at kajfosz.antimatterdimensions.MainActivity.onCreate(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:2051)
+11-07 12:42:52.224  8521  8521 W System.err: 	at android.app.Activity.performCreate(Activity.java:8595)
+11-07 12:42:52.224  8521  8521 W System.err: 	at android.app.Activity.performCreate(Activity.java:8573)
+11-07 12:42:52.225  8521  8521 W System.err: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1456)
+11-07 12:42:52.225  8521  8521 W System.err: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3764)
+11-07 12:42:52.225  8521  8521 W System.err: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3922)
+11-07 12:42:52.225  8521  8521 W System.err: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:103)
+11-07 12:42:52.225  8521  8521 W System.err: 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:139)
+11-07 12:42:52.226  8521  8521 W System.err: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:96)
+11-07 12:42:52.226  8521  8521 W System.err: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2443)
+11-07 12:42:52.226  8521  8521 W System.err: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-07 12:42:52.226  8521  8521 W System.err: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-07 12:42:52.227  8521  8521 W System.err: 	at android.os.Looper.loop(Looper.java:294)
+11-07 12:42:52.227  8521  8521 W System.err: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-07 12:42:52.227  8521  8521 W System.err: 	at java.lang.reflect.Method.invoke(Native Method)
+11-07 12:42:52.227  8521  8521 W System.err: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-07 12:42:52.227  8521  8521 W System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-07 12:42:52.228  8521  8521 W System.err: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+11-07 12:42:52.228  8521  8521 W System.err: 	at libcore.io.Linux.open(Native Method)
+11-07 12:42:52.228  8521  8521 W System.err: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-07 12:42:52.228  8521  8521 W System.err: 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-07 12:42:52.228  8521  8521 W System.err: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+11-07 12:42:52.228  8521  8521 W System.err: 	at android.app.ActivityThread$AndroidOs.open(ActivityThread.java:8063)
+11-07 12:42:52.229  8521  8521 W System.err: 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-07 12:42:52.229  8521  8521 W System.err: 	... 23 more
+11-07 12:42:52.234  8521  8521 I OrekiTutorial: 3
+11-07 12:42:52.235  8521  8521 I OrekiTutorial: 3
+11-07 12:42:52.237  8521  8521 I OrekiTutorial: 3
+11-07 12:42:52.237  8521  8521 I OrekiTutorial: 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-07 12:42:52.239  8521  8521 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+11-07 12:42:52.239  8521  8521 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+11-07 12:42:52.241  8521  8521 D FirebaseSessions: App foregrounded on com.oreki.antimatterdimensions
+11-07 12:42:52.241  8521  8521 D FirebaseSessions: Session 4e8fc12db0114afbb9bc7638cb003653 has not backgrounded yet
+11-07 12:42:52.242  8521  8521 D FirebaseSessions: Process com.oreki.antimatterdimensions is stale
+11-07 12:42:52.242  8521  8545 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:52.242  8521  8545 W FA      : Service invalid
+11-07 12:42:52.243  8521  8521 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-07 12:42:52.243  8521  8521 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-07 12:42:52.244  8521  8521 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-07 12:42:52.244  8521  8521 I OrekiTutorial: 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-07 12:42:52.245  8521  8548 D FirebaseSessions: Session 4e8fc12db0114afbb9bc7638cb003653 has not backgrounded yet
+11-07 12:42:52.245  8521  8548 D FirebaseSessions: Cold app start detected
+11-07 12:42:52.246  8521  8548 D FirebaseSessions: Process com.oreki.antimatterdimensions is stale
+11-07 12:42:52.248  8521  8547 D FirebaseSessions: Sessions SDK disabled through data collection. Events will not be sent.
+11-07 12:42:52.255  8521  8545 E FA      : Unable to use remote or local measurement implementation. Please register the AppMeasurementService service in the app manifest
+11-07 12:42:52.261  8521  8545 I FA      : Tag Manager is not found and thus will not be used
+11-07 12:42:52.265  8521  8545 E FA      : Unable to use remote or local measurement implementation. Please register the AppMeasurementService service in the app manifest
+11-07 12:42:52.271  8521  8550 D FirebaseSessions: Notified CRASHLYTICS of new session 43130c8830af4227854ba8711485d0cf
+11-07 12:42:52.279  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10141; state: DISABLED
+11-07 12:42:52.299  8521  8521 W OpenGLRenderer: Unknown dataspace 0
+11-07 12:42:52.319   527  5507 W WindowManager: Failed looking up window session=Session{51647f7 8521:u0a10141} callers=com.android.server.wm.WindowManagerService.windowForClientLocked:6034 com.android.server.wm.Session.updateRequestedVisibleTypes:690 android.view.IWindowSession$Stub.onTransact:1034 
+11-07 12:42:52.324  8521  8573 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:52.325  8521  8572 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:52.325  8521  8521 I Choreographer: Skipped 59 frames!  The application may be doing too much work on its main thread.
+11-07 12:42:52.339  8521  8574 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:52.340  8521  8575 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:52.369  8521  8574 I Codec2Client: Available Codec2 services: "default" "software"
+11-07 12:42:52.370   527   813 D CoreBackPreview: Window{396d82 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@78e34d0, mPriority=0, mIsAnimationCallback=false}
+11-07 12:42:52.410  8521  8574 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:52.410  8521  8575 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:52.520  8521  8575 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:52.520  8521  8574 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:52.522  8521  8574 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:52.522  8521  8575 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:52.529  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:52.530  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:52.530  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:52.531  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:52.531  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:52.532  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:52.532  8521  8574 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:52.532  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:52.536  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:52.536  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:52.537  8521  8563 W OpenGLRenderer: Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-07 12:42:52.537  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:52.538  8521  8574 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:52.538  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:52.539  8521  8574 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:52.539  8521  8574 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:52.539  8521  8574 D CCodecConfig: }
+11-07 12:42:52.540  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:52.541  8521  8575 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:52.547  8521  8575 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:52.547  8521  8575 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:52.547  8521  8575 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:52.547  8521  8575 D CCodecConfig: }
+11-07 12:42:52.569  8521  8574 D MediaCodec: flushMediametrics
+11-07 12:42:52.570  8521  8575 D MediaCodec: flushMediametrics
+11-07 12:42:52.572  8521  8575 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:52.573  8521  8575 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:52.574  8521  8575 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:52.574  8521  8575 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:52.575  8521  8575 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:52.575  8521  8575 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:52.576  8521  8574 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:52.577  8521  8574 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:52.578  8521  8575 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:52.578  8521  8574 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:52.579  8521  8574 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:52.579  8521  8574 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:52.579  8521  8574 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:52.580  8521  8575 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:52.581  8521  8575 D CCodec  : encoding statistics level = 0
+11-07 12:42:52.581  8521  8575 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:52.581  8521  8575 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:52.581  8521  8575 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:52.581  8521  8575 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:52.581  8521  8575 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:52.581  8521  8575 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:52.581  8521  8575 D CCodec  : }
+11-07 12:42:52.583  8521  8575 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:52.583  8521  8575 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:52.583  8521  8575 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:52.583  8521  8575 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:52.583  8521  8575 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:52.583  8521  8575 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:52.583  8521  8575 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:52.583  8521  8575 D CCodec  : }
+--------- beginning of kernel
+11-07 12:42:52.556     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-07 12:42:52.585   156   156 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-07 12:42:52.586  8521  8563 I Gralloc4: mapper 4.x is not supported
+11-07 12:42:52.586  8521  8575 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:52.590  8521  8575 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:52.590  8521  8575 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:52.591  8521  8575 D C2Store : Using DMABUF Heaps
+11-07 12:42:52.597  8521  8574 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:52.598  8521  8574 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:52.598  8521  8574 D CCodec  : encoding statistics level = 0
+11-07 12:42:52.599  8521  8574 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:52.599  8521  8574 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:52.599  8521  8574 D CCodec  : }
+11-07 12:42:52.599  8521  8574 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:52.599  8521  8574 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:52.599  8521  8574 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:52.599  8521  8574 D CCodec  : }
+11-07 12:42:52.599  8521  8574 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:52.602  8521  8575 D CCodecBufferChannel: [c2.android.mp3.decoder#882] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+11-07 12:42:52.614  8521  8574 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:52.615  8521  8574 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:52.616  8521  8575 I CCodecBufferChannel: [c2.android.mp3.decoder#882] Created output block pool with allocatorID 16 => poolID 146 - OK
+11-07 12:42:52.617  8521  8574 D CCodecBufferChannel: [c2.android.mp3.decoder#408] Created input block pool with allocatorID 16 => poolID 18 - OK (0)
+11-07 12:42:52.618  8521  8575 D CCodecBufferChannel: [c2.android.mp3.decoder#882] Configured output block pool ids 146 => OK
+11-07 12:42:52.620  8521  8575 I DMABUFHEAPS: Using DMA-BUF heap named: system
+11-07 12:42:52.622  8521  8574 I CCodecBufferChannel: [c2.android.mp3.decoder#408] Created output block pool with allocatorID 16 => poolID 147 - OK
+11-07 12:42:52.622  8521  8574 D CCodecBufferChannel: [c2.android.mp3.decoder#408] Configured output block pool ids 147 => OK
+11-07 12:42:52.697   469  8580 D SimpleC2Component: Using output block pool with poolID 146 => got 146 - 0
+11-07 12:42:52.697   469  8581 D SimpleC2Component: Using output block pool with poolID 147 => got 147 - 0
+11-07 12:42:52.719   469  8581 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:52.725   469  8580 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:53.272   527   615 D ActivityManager: freezing 1356 android.process.acore
+11-07 12:42:53.275   527   615 D ActivityManager: freezing 2286 com.android.webview:webview_service
+11-07 12:42:53.384   527   549 I ActivityTaskManager: Displayed com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default for user 0: +2s846ms
+11-07 12:42:53.401  8521  8537 I OpenGLRenderer: Davey! duration=2034ms; Flags=1, FrameTimelineVsyncId=12907441, IntendedVsync=16987332159764, Vsync=16988315493058, InputEventId=0, HandleInputStart=16988326195800, AnimationStart=16988326223000, PerformTraversalsStart=16988326485400, DrawStart=16988603882400, FrameDeadline=16987348826430, FrameInterval=16988325075300, FrameStartTime=16666666, SyncQueued=16988605987300, SyncStart=16988607008700, IssueDrawCommandsStart=16988608761600, SwapBuffers=16989200127000, FrameCompleted=16989368168900, DequeueBufferDuration=31000, QueueBufferDuration=757700, GpuCompleted=16989367820200, SwapBuffersCompleted=16989368168900, DisplayPresentTime=0, CommandSubmissionCompleted=16989200127000, 
+11-07 12:42:53.438  8521  8521 I Choreographer: Skipped 66 frames!  The application may be doing too much work on its main thread.
+11-07 12:42:53.550   527  5507 D CompatibilityChangeReporter: Compat change id reported: 214016041; UID 10141; state: ENABLED
+11-07 12:42:53.551   527  5507 I ImeTracker: com.oreki.antimatterdimensions:8ad32912: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-07 12:42:53.555   527  5507 I ImeTracker: com.oreki.antimatterdimensions:8ad32912: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-07 12:42:53.886   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 12:42:53.929   739   795 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda17@57b8502
+11-07 12:42:53.931   527  5507 D CoreBackPreview: Window{e0a4696 u0 Splash Screen com.oreki.antimatterdimensions EXITING}: Setting back callback null
+11-07 12:42:53.932   527  5507 W InputManager-JNI: Input channel object 'e0a4696 Splash Screen com.oreki.antimatterdimensions (client)' was disposed without first being removed with the input manager!
+11-07 12:42:53.961   991  1107 I ImeTracker: com.android.launcher3:d4ec6cd2: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT
+11-07 12:42:53.962   991  1107 I ImeTracker: com.android.launcher3:d4ec6cd2: onFailed at PHASE_CLIENT_VIEW_SERVED
+11-07 12:42:53.987   739   795 W FrameTracker: Missed App frame:UNKNOWN: 24, 12907540, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.988   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 24, 12907540, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.988   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907540, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.988   739   795 W FrameTracker: Missed App frame:UNKNOWN: 72, 12907555, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.988   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907555, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.989   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 80, 12907570, 71945786, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.989   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907585, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.989   739   795 W FrameTracker: Missed App frame:UNKNOWN: 74, 12907607, 65163388, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.991   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 74, 12907607, 65163388, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.991   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 66, 12907615, 65589922, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.993   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 66, 12907631, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.993   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907631, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.994   739   795 W FrameTracker: Missed App frame:UNKNOWN: 328, 12907653, 53280358, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.994   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 80, 12907668, 71064292, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.994   739   795 W FrameTracker: Missed App frame:UNKNOWN: 74, 12907675, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.994   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 74, 12907675, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.994   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907675, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.995   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 66, 12907720, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.995   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907720, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.995   739   795 W FrameTracker: Missed App frame:UNKNOWN: 74, 12907728, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.995   739   795 W FrameTracker: Missed SF frame:UNKNOWN: 74, 12907728, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.996   739   795 W FrameTracker: Missing HWUI jank callback for vsyncId: 12907728, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.996   739   795 W FrameTracker: Missing SF jank callback for vsyncId: 12907765, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-07 12:42:53.996   739   789 V PerfettoTrigger: Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-39
+11-07 12:42:54.123   527  1401 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-07 12:42:54.118     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-07 12:42:54.419  8521  8575 D CCodecBufferChannel: [c2.android.mp3.decoder#882] MediaCodec discarded an unknown buffer
+11-07 12:42:54.420  8521  8575 D CCodecBufferChannel: [c2.android.mp3.decoder#882] MediaCodec discarded an unknown buffer
+11-07 12:42:54.420  8521  8575 D CCodecBufferChannel: [c2.android.mp3.decoder#882] MediaCodec discarded an unknown buffer
+11-07 12:42:54.430  8521  8594 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:54.430   469   469 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:54.432  8521  8572 D MediaCodec: flushMediametrics
+11-07 12:42:54.442  8521  8574 D CCodecBufferChannel: [c2.android.mp3.decoder#408] MediaCodec discarded an unknown buffer
+11-07 12:42:54.442  8521  8574 D CCodecBufferChannel: [c2.android.mp3.decoder#408] MediaCodec discarded an unknown buffer
+11-07 12:42:54.442  8521  8574 D CCodecBufferChannel: [c2.android.mp3.decoder#408] MediaCodec discarded an unknown buffer
+11-07 12:42:54.446  8521  8574 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:54.446   469  8485 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:54.446  8521  8572 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:54.447   469  8485 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:54.449  8521  8573 D MediaCodec: flushMediametrics
+11-07 12:42:54.457  8521  8597 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:54.460  8521  8597 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:54.463  8521  8597 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:54.464  8521  8573 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:54.464  8521  8597 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:54.467  8521  8599 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:54.469  8521  8599 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:54.473  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:54.473  8521  8599 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:54.474  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:54.474  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:54.475  8521  8599 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:54.475  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:54.476  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:54.477  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:54.477  8521  8597 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:54.479  8521  8597 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:54.480  8521  8597 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:54.480  8521  8597 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:54.480  8521  8597 D CCodecConfig: }
+11-07 12:42:54.482  8521  8597 D MediaCodec: flushMediametrics
+11-07 12:42:54.482  8521  8597 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:54.482  8521  8597 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:54.483  8521  8597 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:54.483  8521  8597 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:54.483  8521  8597 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:54.483  8521  8597 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:54.484  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:54.485  8521  8597 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:54.485  8521  8597 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:54.489  8521  8597 D CCodec  : encoding statistics level = 0
+11-07 12:42:54.489  8521  8597 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:54.489  8521  8597 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:54.489  8521  8597 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:54.489  8521  8597 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:54.489  8521  8597 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:54.489  8521  8597 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:54.489  8521  8597 D CCodec  : }
+11-07 12:42:54.490  8521  8597 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:54.490  8521  8597 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:54.490  8521  8597 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:54.490  8521  8597 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:54.490  8521  8597 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:54.490  8521  8597 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:54.490  8521  8597 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:54.490  8521  8597 D CCodec  : }
+11-07 12:42:54.491  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:54.491  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:54.491  8521  8597 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:54.492  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:54.492  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:54.492  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:54.493  8521  8599 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:54.493  8521  8597 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:54.494  8521  8597 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:54.494  8521  8599 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:54.494  8521  8599 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:54.494  8521  8599 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:54.494  8521  8599 D CCodecConfig: }
+11-07 12:42:54.496  8521  8597 D CCodecBufferChannel: [c2.android.mp3.decoder#709] Created input block pool with allocatorID 16 => poolID 19 - OK (0)
+11-07 12:42:54.499  8521  8599 D MediaCodec: flushMediametrics
+11-07 12:42:54.499  8521  8597 I CCodecBufferChannel: [c2.android.mp3.decoder#709] Created output block pool with allocatorID 16 => poolID 148 - OK
+11-07 12:42:54.500  8521  8599 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:54.501  8521  8599 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:54.501  8521  8599 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:54.502  8521  8599 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:54.503  8521  8599 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:54.503  8521  8599 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:54.503  8521  8597 D CCodecBufferChannel: [c2.android.mp3.decoder#709] Configured output block pool ids 148 => OK
+11-07 12:42:54.506   469  8598 D SimpleC2Component: Using output block pool with poolID 148 => got 148 - 0
+11-07 12:42:54.506  8521  8599 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:54.507  8521  8599 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:54.507  8521  8599 D CCodec  : encoding statistics level = 0
+11-07 12:42:54.507  8521  8599 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:54.507  8521  8599 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:54.507  8521  8599 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:54.507  8521  8599 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:54.507  8521  8599 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:54.507  8521  8599 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:54.507  8521  8599 D CCodec  : }
+11-07 12:42:54.508  8521  8599 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:54.508  8521  8599 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:54.508  8521  8599 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:54.508  8521  8599 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:54.508  8521  8599 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:54.508  8521  8599 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:54.508  8521  8599 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:54.508  8521  8599 D CCodec  : }
+11-07 12:42:54.509  8521  8599 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:54.511  8521  8599 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:54.511  8521  8599 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:54.525  8521  8599 D CCodecBufferChannel: [c2.android.mp3.decoder#408] Created input block pool with allocatorID 16 => poolID 20 - OK (0)
+11-07 12:42:54.529   469  8598 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:54.535  8521  8599 I CCodecBufferChannel: [c2.android.mp3.decoder#408] Created output block pool with allocatorID 16 => poolID 149 - OK
+11-07 12:42:54.535  8521  8599 D CCodecBufferChannel: [c2.android.mp3.decoder#408] Configured output block pool ids 149 => OK
+11-07 12:42:54.543   469  8600 D SimpleC2Component: Using output block pool with poolID 149 => got 149 - 0
+11-07 12:42:54.568   469  8600 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:55.115  8521  8531 I atterdimensions: NativeAlloc concurrent copying GC freed 196738(9813KB) AllocSpace objects, 67(2828KB) LOS objects, 49% free, 20MB/41MB, paused 1.442ms,2.377ms total 340.663ms
+11-07 12:42:55.609  8521  8597 D CCodecBufferChannel: [c2.android.mp3.decoder#709] MediaCodec discarded an unknown buffer
+11-07 12:42:55.609  8521  8597 D CCodecBufferChannel: [c2.android.mp3.decoder#709] MediaCodec discarded an unknown buffer
+11-07 12:42:55.610  8521  8597 D CCodecBufferChannel: [c2.android.mp3.decoder#709] MediaCodec discarded an unknown buffer
+11-07 12:42:55.621  8521  8601 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:55.621   469   469 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:55.622  8521  8572 D MediaCodec: flushMediametrics
+11-07 12:42:55.636  8521  8572 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:55.639  8521  8602 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:55.640  8521  8602 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:55.642  8521  8602 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:55.643  8521  8602 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:55.650  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:55.651  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:55.652  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:55.652  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:55.653  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:55.654  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:55.654  8521  8602 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:55.656  8521  8602 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:55.656  8521  8602 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:55.656  8521  8602 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:55.656  8521  8602 D CCodecConfig: }
+11-07 12:42:55.658  8521  8602 D MediaCodec: flushMediametrics
+11-07 12:42:55.659  8521  8602 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:55.659  8521  8602 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:55.659  8521  8602 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:55.659  8521  8602 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:55.659  8521  8602 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:55.659  8521  8602 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:55.660  8521  8602 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:55.661  8521  8602 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:55.661  8521  8602 D CCodec  : encoding statistics level = 0
+11-07 12:42:55.661  8521  8602 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:55.661  8521  8602 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:55.661  8521  8602 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:55.661  8521  8602 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:55.661  8521  8602 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:55.661  8521  8602 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:55.661  8521  8602 D CCodec  : }
+11-07 12:42:55.662  8521  8602 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:55.662  8521  8602 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:55.662  8521  8602 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:55.662  8521  8602 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:55.662  8521  8602 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:55.662  8521  8602 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:55.662  8521  8602 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:55.662  8521  8602 D CCodec  : }
+11-07 12:42:55.662  8521  8602 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:55.666  8521  8602 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:55.667  8521  8602 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:55.668  8521  8602 D CCodecBufferChannel: [c2.android.mp3.decoder#811] Created input block pool with allocatorID 16 => poolID 21 - OK (0)
+11-07 12:42:55.670  8521  8602 I CCodecBufferChannel: [c2.android.mp3.decoder#811] Created output block pool with allocatorID 16 => poolID 150 - OK
+11-07 12:42:55.671  8521  8602 D CCodecBufferChannel: [c2.android.mp3.decoder#811] Configured output block pool ids 150 => OK
+11-07 12:42:55.675   469  8603 D SimpleC2Component: Using output block pool with poolID 150 => got 150 - 0
+11-07 12:42:55.689   469  8603 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:55.959  8521  8599 D CCodecBufferChannel: [c2.android.mp3.decoder#408] MediaCodec discarded an unknown buffer
+11-07 12:42:55.960  8521  8599 D CCodecBufferChannel: [c2.android.mp3.decoder#408] MediaCodec discarded an unknown buffer
+11-07 12:42:55.961  8521  8599 D CCodecBufferChannel: [c2.android.mp3.decoder#408] MediaCodec discarded an unknown buffer
+11-07 12:42:55.970  8521  8599 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:55.971   469  8485 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:55.979  8521  8573 D MediaCodec: flushMediametrics
+11-07 12:42:55.991  8521  8573 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:55.998  8521  8605 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:56.001  8521  8605 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:56.005  8521  8605 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:56.006  8521  8605 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:56.019  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:56.020  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:56.021  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:56.021  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:56.021  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:56.024  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:56.025  8521  8605 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:56.029  8521  8605 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:56.029  8521  8605 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:56.029  8521  8605 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:56.029  8521  8605 D CCodecConfig: }
+11-07 12:42:56.034  8521  8605 D MediaCodec: flushMediametrics
+11-07 12:42:56.035  8521  8605 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:56.036  8521  8605 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:56.036  8521  8605 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:56.036  8521  8605 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:56.036  8521  8605 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:56.038  8521  8605 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:56.041  8521  8605 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:56.042  8521  8605 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:56.042  8521  8605 D CCodec  : encoding statistics level = 0
+11-07 12:42:56.043  8521  8605 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:56.043  8521  8605 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:56.043  8521  8605 D CCodec  : }
+11-07 12:42:56.043  8521  8605 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:56.043  8521  8605 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:56.043  8521  8605 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:56.043  8521  8605 D CCodec  : }
+11-07 12:42:56.044  8521  8605 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:56.046  8521  8605 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:56.046  8521  8605 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:56.051  8521  8605 D CCodecBufferChannel: [c2.android.mp3.decoder#58] Created input block pool with allocatorID 16 => poolID 22 - OK (0)
+11-07 12:42:56.054  8521  8605 I CCodecBufferChannel: [c2.android.mp3.decoder#58] Created output block pool with allocatorID 16 => poolID 151 - OK
+11-07 12:42:56.057  8521  8605 D CCodecBufferChannel: [c2.android.mp3.decoder#58] Configured output block pool ids 151 => OK
+11-07 12:42:56.060   469  8606 D SimpleC2Component: Using output block pool with poolID 151 => got 151 - 0
+11-07 12:42:56.068   469  8606 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:56.086  8521  8521 D AutofillManager: view not autofillable - not passing ime action check
+11-07 12:42:56.439  8521  8602 D CCodecBufferChannel: [c2.android.mp3.decoder#811] MediaCodec discarded an unknown buffer
+11-07 12:42:56.440  8521  8602 D CCodecBufferChannel: [c2.android.mp3.decoder#811] MediaCodec discarded an unknown buffer
+11-07 12:42:56.441  8521  8602 D CCodecBufferChannel: [c2.android.mp3.decoder#811] MediaCodec discarded an unknown buffer
+11-07 12:42:56.446   469   469 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:56.447  8521  8607 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:56.449  8521  8572 D MediaCodec: flushMediametrics
+11-07 12:42:56.465  8521  8572 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:56.469  8521  8608 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:56.474  8521  8608 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:56.477  8521  8608 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:56.482  8521  8608 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:56.492  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:56.495  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:56.500  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:56.501  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:56.501  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:56.501  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:56.502  8521  8608 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:56.506  8521  8608 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:56.506  8521  8608 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:56.506  8521  8608 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:56.506  8521  8608 D CCodecConfig: }
+11-07 12:42:56.512  8521  8608 D MediaCodec: flushMediametrics
+11-07 12:42:56.513  8521  8608 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:56.513  8521  8608 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:56.513  8521  8608 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:56.513  8521  8608 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:56.513  8521  8608 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:56.513  8521  8608 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:56.520  8521  8608 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:56.520  8521  8608 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:56.521  8521  8608 D CCodec  : encoding statistics level = 0
+11-07 12:42:56.521  8521  8608 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:56.521  8521  8608 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:56.521  8521  8608 D CCodec  : }
+11-07 12:42:56.521  8521  8608 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:56.521  8521  8608 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:56.521  8521  8608 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:56.521  8521  8608 D CCodec  : }
+11-07 12:42:56.526  8521  8608 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:56.528  8521  8608 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:56.528  8521  8608 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:56.537  8521  8608 D CCodecBufferChannel: [c2.android.mp3.decoder#738] Created input block pool with allocatorID 16 => poolID 23 - OK (0)
+11-07 12:42:56.540  8521  8608 I CCodecBufferChannel: [c2.android.mp3.decoder#738] Created output block pool with allocatorID 16 => poolID 152 - OK
+11-07 12:42:56.542  8521  8608 D CCodecBufferChannel: [c2.android.mp3.decoder#738] Configured output block pool ids 152 => OK
+11-07 12:42:56.552   469  8609 D SimpleC2Component: Using output block pool with poolID 152 => got 152 - 0
+11-07 12:42:56.569   469  8609 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:57.128  8521  8531 I atterdimensions: NativeAlloc concurrent copying GC freed 157240(7178KB) AllocSpace objects, 58(1308KB) LOS objects, 44% free, 29MB/53MB, paused 813us,295us total 187.994ms
+11-07 12:42:57.327  8521  8605 D CCodecBufferChannel: [c2.android.mp3.decoder#58] MediaCodec discarded an unknown buffer
+11-07 12:42:57.328  8521  8605 D CCodecBufferChannel: [c2.android.mp3.decoder#58] MediaCodec discarded an unknown buffer
+11-07 12:42:57.329  8521  8605 D CCodecBufferChannel: [c2.android.mp3.decoder#58] MediaCodec discarded an unknown buffer
+11-07 12:42:57.341  8521  8605 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:57.341   469   469 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:57.346  8521  8573 D MediaCodec: flushMediametrics
+11-07 12:42:57.356  8521  8573 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:57.359  8521  8613 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:57.361  8521  8521 I Choreographer: Skipped 55 frames!  The application may be doing too much work on its main thread.
+11-07 12:42:57.364  8521  8613 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:57.365  8521  8613 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:57.366  8521  8613 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:57.388  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:57.390  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:57.390  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:57.390  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:57.391  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:57.391  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:57.392  8521  8613 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:57.394  8521  8613 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:57.395  8521  8613 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:57.395  8521  8613 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:57.395  8521  8613 D CCodecConfig: }
+11-07 12:42:57.429  8521  8613 D MediaCodec: flushMediametrics
+11-07 12:42:57.430  8521  8613 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:57.430  8521  8613 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:57.430  8521  8613 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:57.431  8521  8613 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:57.431  8521  8613 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:57.431  8521  8613 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:57.434  8521  8613 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:57.435  8521  8613 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:57.435  8521  8613 D CCodec  : encoding statistics level = 0
+11-07 12:42:57.436  8521  8613 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:57.436  8521  8613 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:57.436  8521  8613 D CCodec  : }
+11-07 12:42:57.436  8521  8613 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:57.436  8521  8613 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:57.436  8521  8613 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:57.436  8521  8613 D CCodec  : }
+11-07 12:42:57.436  8521  8613 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:57.448  8521  8613 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:57.448  8521  8613 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:57.452  8521  8613 D CCodecBufferChannel: [c2.android.mp3.decoder#598] Created input block pool with allocatorID 16 => poolID 24 - OK (0)
+11-07 12:42:57.454  8521  8613 I CCodecBufferChannel: [c2.android.mp3.decoder#598] Created output block pool with allocatorID 16 => poolID 153 - OK
+11-07 12:42:57.455  8521  8613 D CCodecBufferChannel: [c2.android.mp3.decoder#598] Configured output block pool ids 153 => OK
+11-07 12:42:57.461   469  8614 D SimpleC2Component: Using output block pool with poolID 153 => got 153 - 0
+11-07 12:42:57.474   469  8614 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:57.620   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 12:42:57.710  8521  8521 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:42:57.713  8521  8616 I UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("B3EEABB8EE11C2BE770B684D95219ECB") to set this as a debug device.
+11-07 12:42:57.718  8521  8616 W UserMessagingPlatform: The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-07 12:42:57.718  8521  8616 W UserMessagingPlatform: Example AndroidManifest:
+11-07 12:42:57.718  8521  8616 W UserMessagingPlatform:     <meta-data
+11-07 12:42:57.718  8521  8616 W UserMessagingPlatform:         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-07 12:42:57.718  8521  8616 W UserMessagingPlatform:         android:value="ca-app-pub-0000000000000000~0000000000">
+11-07 12:42:57.727  8521  8616 W UserMessagingPlatform: Metrics reporting URL is not set yet.
+11-07 12:42:57.748  8521  8558 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10141; state: ENABLED
+11-07 12:42:57.749  8521  8558 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10141; state: ENABLED
+11-07 12:42:57.751   527  1983 D CompatibilityChangeReporter: Compat change id reported: 271850009; UID 10141; state: ENABLED
+11-07 12:42:57.752   527  1983 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10141; state: ENABLED
+11-07 12:42:57.754   527  1983 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10141; state: ENABLED
+11-07 12:42:58.026  8521  8608 D CCodecBufferChannel: [c2.android.mp3.decoder#738] MediaCodec discarded an unknown buffer
+11-07 12:42:58.029  8521  8608 D CCodecBufferChannel: [c2.android.mp3.decoder#738] MediaCodec discarded an unknown buffer
+11-07 12:42:58.030  8521  8608 D CCodecBufferChannel: [c2.android.mp3.decoder#738] MediaCodec discarded an unknown buffer
+11-07 12:42:58.044   469  8485 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:58.044  8521  8608 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:58.054  8521  8572 D MediaCodec: flushMediametrics
+11-07 12:42:58.080  8521  8572 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:58.105  8521  8619 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:58.106  8521  8595 I OpenGLRenderer: Davey! duration=1641ms; Flags=0, FrameTimelineVsyncId=12908017, IntendedVsync=16992432159560, Vsync=16993348826190, InputEventId=0, HandleInputStart=16993362273700, AnimationStart=16993362301300, PerformTraversalsStart=16993365046300, DrawStart=16993393793000, FrameDeadline=16992448826226, FrameInterval=16993361484400, FrameStartTime=16666666, SyncQueued=16993396218300, SyncStart=16993396281100, IssueDrawCommandsStart=16993396343400, SwapBuffers=16993945074000, FrameCompleted=16994073572600, DequeueBufferDuration=22500, QueueBufferDuration=3368200, GpuCompleted=16994073452900, SwapBuffersCompleted=16994073572600, DisplayPresentTime=0, CommandSubmissionCompleted=16993945074000, 
+11-07 12:42:58.112  8521  8619 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:58.115  8521  8619 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:58.116  8521  8619 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:58.134  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:58.137  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:58.138  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:58.138  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:58.139  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:58.141  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:58.141  8521  8619 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:58.146  8521  8619 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:58.147  8521  8619 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:58.147  8521  8619 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:58.147  8521  8619 D CCodecConfig: }
+11-07 12:42:58.151  8521  8619 D MediaCodec: flushMediametrics
+11-07 12:42:58.151  8521  8619 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:58.151  8521  8619 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:58.151  8521  8619 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:58.151  8521  8619 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:58.152  8521  8619 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:58.152  8521  8619 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:58.155  8521  8619 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:58.160  8521  8619 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:58.160  8521  8619 D CCodec  : encoding statistics level = 0
+11-07 12:42:58.160  8521  8619 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:58.160  8521  8619 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:58.160  8521  8619 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:58.160  8521  8619 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:58.160  8521  8619 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:58.160  8521  8619 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:58.160  8521  8619 D CCodec  : }
+11-07 12:42:58.161  8521  8619 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:58.161  8521  8619 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:58.161  8521  8619 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:58.161  8521  8619 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:58.161  8521  8619 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:58.161  8521  8619 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:58.161  8521  8619 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:58.161  8521  8619 D CCodec  : }
+11-07 12:42:58.163  8521  8619 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:58.165  8521  8619 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:58.165  8521  8619 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:58.168  8521  8619 D CCodecBufferChannel: [c2.android.mp3.decoder#559] Created input block pool with allocatorID 16 => poolID 25 - OK (0)
+11-07 12:42:58.170  8521  8619 I CCodecBufferChannel: [c2.android.mp3.decoder#559] Created output block pool with allocatorID 16 => poolID 154 - OK
+11-07 12:42:58.172  8521  8619 D CCodecBufferChannel: [c2.android.mp3.decoder#559] Configured output block pool ids 154 => OK
+11-07 12:42:58.182   469  8621 D SimpleC2Component: Using output block pool with poolID 154 => got 154 - 0
+11-07 12:42:58.209   469  8621 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:58.442  8521  8531 I atterdimensions: NativeAlloc concurrent copying GC freed 270331(8464KB) AllocSpace objects, 66(4540KB) LOS objects, 36% free, 41MB/65MB, paused 8.043ms,1.258ms total 572.213ms
+11-07 12:42:58.533   407  4070 D audioserver: FGS Logger Transaction failed
+11-07 12:42:58.535   407  4070 D audioserver: -129
+11-07 12:42:58.546  8521  8568 I OREKI_SCHED: noop eternity
+11-07 12:42:58.549  8521  8568 I OREKI_SCHED: act bulk @16994549ms gap=-1 taskGap=-1
+11-07 12:42:58.551  8521  8568 I OREKI_SCHED: deny frame-held task=infinityUpgrades
+11-07 12:42:58.554  8521  8568 I OREKI_GOAL: stage=-1 - goal=- unknownLeaf=2 degraded=1 s0=0
+11-07 12:42:58.579  1307  1334 I LatinIME:LogUtils: Dictionary info: dictionary = spellcheck_userunigram.en_US ; version = 1794055378 ; date = ?
+11-07 12:42:58.582  8521  8521 I Choreographer: Skipped 73 frames!  The application may be doing too much work on its main thread.
+11-07 12:42:58.583   527  1983 D ActivityManager: sync unfroze 1356 android.process.acore for 7
+11-07 12:42:58.631   407   497 D AF::Track: interceptBuffer: took 617us to intercept 0 tracks
+11-07 12:42:58.636  8521  8521 W UserMessagingPlatform: The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-07 12:42:58.636  8521  8521 W UserMessagingPlatform: Example AndroidManifest:
+11-07 12:42:58.636  8521  8521 W UserMessagingPlatform:     <meta-data
+11-07 12:42:58.636  8521  8521 W UserMessagingPlatform:         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-07 12:42:58.636  8521  8521 W UserMessagingPlatform:         android:value="ca-app-pub-0000000000000000~0000000000">
+11-07 12:42:58.652  8521  8626 D ProfileInstaller: Installing profile for com.oreki.antimatterdimensions
+11-07 12:42:58.657   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d918a8 : 0(0 size) total buffers - 0(0 size) used buffers - 204/207 (recycle/alloc) - 3/207 (fetch/transfer)
+11-07 12:42:58.657   469   737 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:42:58.668  8521  8613 D CCodecBufferChannel: [c2.android.mp3.decoder#598] MediaCodec discarded an unknown buffer
+11-07 12:42:58.668  8521  8613 D CCodecBufferChannel: [c2.android.mp3.decoder#598] MediaCodec discarded an unknown buffer
+11-07 12:42:58.669  8521  8613 D CCodecBufferChannel: [c2.android.mp3.decoder#598] MediaCodec discarded an unknown buffer
+11-07 12:42:58.725  8521  8613 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:58.725   469  8485 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:58.728  1307  1334 I LatinIME:LogUtils: Dictionary info: dictionary = main:en ; version = 54 ; date = 1414726273
+11-07 12:42:58.739  8521  8573 D MediaCodec: flushMediametrics
+11-07 12:42:58.742   407   497 D audioserver: FGS Logger Transaction failed
+11-07 12:42:58.742   407   497 D audioserver: -129
+11-07 12:42:58.810  8521  8573 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-07 12:42:58.848  8521  8634 I OpenGLRenderer: Davey! duration=1464ms; Flags=0, FrameTimelineVsyncId=12908031, IntendedVsync=16993365492856, Vsync=16994582159474, InputEventId=0, HandleInputStart=16994591517800, AnimationStart=16994591548800, PerformTraversalsStart=16994593488300, DrawStart=16994619527400, FrameDeadline=16994098826160, FrameInterval=16994582724900, FrameStartTime=16666666, SyncQueued=16994620762700, SyncStart=16994620929300, IssueDrawCommandsStart=16994621037400, SwapBuffers=16994728147900, FrameCompleted=16994829997600, DequeueBufferDuration=28100, QueueBufferDuration=491300, GpuCompleted=16994829997600, SwapBuffersCompleted=16994806643300, DisplayPresentTime=0, CommandSubmissionCompleted=16994728147900, 
+11-07 12:42:58.893  8521  8635 D CCodec  : allocate(c2.android.mp3.decoder)
+11-07 12:42:58.908  8521  8635 I CCodec  : setting up 'default' as default (vendor) store
+11-07 12:42:58.909  8521  8635 I CCodec  : Created component [c2.android.mp3.decoder]
+11-07 12:42:58.910  8521  8635 D CCodecConfig: read media type: audio/mpeg
+11-07 12:42:58.914  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-07 12:42:58.914  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-07 12:42:58.915  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-07 12:42:58.915  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-07 12:42:58.916  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-07 12:42:58.917  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-07 12:42:58.917  8521  8635 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-07 12:42:58.919  8521  8635 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:58.920  8521  8635 D CCodecConfig: c2 config diff is Dict {
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-07 12:42:58.920  8521  8635 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-07 12:42:58.920  8521  8635 D CCodecConfig: }
+11-07 12:42:58.925  8521  8635 D MediaCodec: flushMediametrics
+11-07 12:42:58.925  8521  8635 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-07 12:42:58.925  8521  8635 D CCodecConfig: no c2 equivalents for durationUs
+11-07 12:42:58.926  8521  8635 D CCodecConfig: no c2 equivalents for track-id
+11-07 12:42:58.926  8521  8635 D CCodecConfig: no c2 equivalents for encoder-delay
+11-07 12:42:58.929  8521  8635 D CCodecConfig: no c2 equivalents for encoder-padding
+11-07 12:42:58.929  8521  8635 D CCodecConfig: no c2 equivalents for flags
+11-07 12:42:58.939  8521  8635 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-07 12:42:58.940  8521  8635 W Codec2Client: query -- param skipped: index = 1107298332.
+11-07 12:42:58.940  8521  8635 D CCodec  : encoding statistics level = 0
+11-07 12:42:58.940  8521  8635 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t bitrate = 224000
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t max-input-size = 8192
+11-07 12:42:58.940  8521  8635 D CCodec  :   string mime = "audio/mpeg"
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:58.940  8521  8635 D CCodec  : }
+11-07 12:42:58.940  8521  8635 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t channel-count = 2
+11-07 12:42:58.940  8521  8635 D CCodec  :   string mime = "audio/raw"
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t sample-rate = 44100
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t encoder-delay = 576
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t encoder-padding = 1536
+11-07 12:42:58.940  8521  8635 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-07 12:42:58.940  8521  8635 D CCodec  : }
+11-07 12:42:58.941  8521  8635 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-07 12:42:58.943  8521  8635 W Codec2Client: query -- param skipped: index = 1342179345.
+11-07 12:42:58.943  8521  8635 W Codec2Client: query -- param skipped: index = 2415921170.
+11-07 12:42:58.946  8521  8635 D CCodecBufferChannel: [c2.android.mp3.decoder#671] Created input block pool with allocatorID 16 => poolID 26 - OK (0)
+11-07 12:42:58.949  8521  8635 I CCodecBufferChannel: [c2.android.mp3.decoder#671] Created output block pool with allocatorID 16 => poolID 155 - OK
+11-07 12:42:58.950  8521  8635 D CCodecBufferChannel: [c2.android.mp3.decoder#671] Configured output block pool ids 155 => OK
+11-07 12:42:58.954   469  8636 D SimpleC2Component: Using output block pool with poolID 155 => got 155 - 0
+11-07 12:42:58.964   469  8636 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-07 12:42:59.168  8521  8563 D EGL_emulation: app_time_stats: avg=721.81ms min=10.09ms max=4705.39ms count=8
+11-07 12:42:59.545  8521  8619 D CCodecBufferChannel: [c2.android.mp3.decoder#559] MediaCodec discarded an unknown buffer
+11-07 12:42:59.546  8521  8619 D CCodecBufferChannel: [c2.android.mp3.decoder#559] MediaCodec discarded an unknown buffer
+11-07 12:42:59.552  8521  8619 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:59.552   469  3263 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:59.561  8521  8572 D MediaCodec: flushMediametrics
+11-07 12:42:59.660   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d954c8 : 0(0 size) total buffers - 0(0 size) used buffers - 204/207 (recycle/alloc) - 3/207 (fetch/transfer)
+11-07 12:42:59.660   469   737 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:42:59.660  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04d9728 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-07 12:42:59.661  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04d3cf8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-07 12:42:59.661  8521  8578 D BufferPoolAccessor2.0: evictor expired: 2, evicted: 2
+11-07 12:42:59.764  8521  8635 D CCodecBufferChannel: [c2.android.mp3.decoder#671] MediaCodec discarded an unknown buffer
+11-07 12:42:59.764  8521  8635 D CCodecBufferChannel: [c2.android.mp3.decoder#671] MediaCodec discarded an unknown buffer
+11-07 12:42:59.764  8521  8635 D CCodecBufferChannel: [c2.android.mp3.decoder#671] MediaCodec discarded an unknown buffer
+11-07 12:42:59.770  8521  8635 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:59.770   469  3263 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:59.770   469  3263 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-07 12:42:59.772  8521  8573 D MediaCodec: flushMediametrics
+11-07 12:43:00.033   739   848 D EGL_emulation: app_time_stats: avg=15449.96ms min=15449.96ms max=15449.96ms count=1
+11-07 12:43:00.070  8521  8568 I OREKI_CRUNCH: 8
+11-07 12:43:00.226  8521  8563 D EGL_emulation: app_time_stats: avg=117.39ms min=93.44ms max=140.69ms count=9
+11-07 12:43:00.551  8521  8568 I OfflineSimulation: v3.21.0 | unknown Android SDK built for x86_64, API 34 | away 0.4 min, simulated 0.4 min, 50 ms of game time per tick | 471 ticks in 2.0 s (4.242 ms/tick avg, p50 <= 4.10, p99 <= 32.77, max 61.8 at #11, first 23.1, 21 over 10 ms), completed | events: 1 crunches, 0 eternities, 0 realities | GC 1 runs / 78 ms, alloc 53.6 KB/tick | heap 42 -> 42 MB, limit 192 MB, device RAM 2474 MB | power save off, thermal none | thread on CPU 70%, nice 0 in /top-app, core 3 at 4.14 of 0.00 GHz (fastest 0.00), compiled code 0.0 MB
+11-07 12:43:00.591  8521  8641 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:00.594  8521  8641 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 12:43:00.630   527  4705 D ConnectivityService: requestNetwork for uid/pid:10141/8521 activeRequest: null callbackRequest: 163 [NetworkRequest [ REQUEST id=164, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+11-07 12:43:00.633   527   665 D ConnectivityService: NetReassign [164 : null → 101] [c 0] [a 1] [i 1]
+11-07 12:43:00.633   527   658 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=164, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.634   527   658 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=164, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.634   527   658 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=164, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.634   527   658 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=164, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.642  8521  8649 D GASS    : Clearcut logging disabled
+11-07 12:43:00.649   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 12:43:00.653  8521  8641 I Ads     : This request is sent from a test device.
+11-07 12:43:00.655  8521  8650 W GooglePlayServicesUtil: Google Play services is missing.
+11-07 12:43:00.659  8521  8650 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:00.661   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d93b58 : 0(0 size) total buffers - 0(0 size) used buffers - 203/207 (recycle/alloc) - 4/207 (fetch/transfer)
+11-07 12:43:00.661  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04c7ab8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-07 12:43:00.662  8521  8578 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:43:00.663   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d8abf8 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-07 12:43:00.663   469   737 D BufferPoolAccessor2.0: evictor expired: 2, evicted: 2
+11-07 12:43:00.667  8521  8650 D na6     : File /data/user/0/com.oreki.antimatterdimensions/cache/1782164920746.dex not found. No need for deletion
+11-07 12:43:00.699   527  1983 D ConnectivityService: requestNetwork for uid/pid:10141/8521 activeRequest: null callbackRequest: 165 [NetworkRequest [ REQUEST id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+11-07 12:43:00.701   527   658 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.701   527   665 D ConnectivityService: NetReassign [166 : null → 101] [c 0] [a 0] [i 1]
+11-07 12:43:00.701   527   658 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.701   527   658 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.701   527   658 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.714  8521  8671 D GASS    : Clearcut logging disabled
+11-07 12:43:00.716   527  4705 D ConnectivityService: requestNetwork for uid/pid:10141/8521 activeRequest: null callbackRequest: 167 [NetworkRequest [ REQUEST id=168, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+11-07 12:43:00.716  8521  8652 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:00.724   527   658 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=168, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.724   527   658 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=168, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.725   527   658 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=168, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.725   527   658 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=168, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:00.728   527   665 D ConnectivityService: NetReassign [168 : null → 101] [c 5] [a 1] [i 0]
+11-07 12:43:00.736  8521  8671 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:00.757  8521  8673 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:00.773  8521  8641 I WebViewFactory: Loading com.android.webview version 113.0.5672.136 (code 567263606)
+11-07 12:43:00.778  8521  8641 D nativeloader: InitLlndkLibrariesProduct: libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libRS.so:libandroid_net.so:libbinder_ndk.so:libc.so:libcgrouprc.so:libclang_rt.asan-x86_64-android.so:libcom.android.tethering.connectivity_native.so:libdl.so:libft2.so:liblog.so:libm.so:libmediandk.so:libnativewindow.so:libneuralnetworks.so:libselinux.so:libsync.so:libvndksupport.so:libvulkan.so
+11-07 12:43:00.778  8521  8641 D nativeloader: Configuring product-clns-7 for unbundled product apk /product/app/webview/webview.apk. target_sdk_version=34, uses_libraries=, library_path=/product/app/webview/lib/x86_64:/product/app/webview/webview.apk!/lib/x86_64:/product/lib64:/system/product/lib64, permitted_path=/data:/mnt/expand:/product/lib64:/system/product/lib64
+11-07 12:43:00.779  8521  8641 D nativeloader: InitVndkspLibrariesProduct: android.hardware.common-V2-ndk.so:android.hardware.common.fmq-V1-ndk.so:android.hardware.graphics.allocator-V2-ndk.so:android.hardware.graphics.common-V4-ndk.so:android.hardware.graphics.common@1.0.so:android.hardware.graphics.common@1.1.so:android.hardware.graphics.common@1.2.so:android.hardware.graphics.composer3-V1-ndk.so:android.hardware.graphics.mapper@2.0.so:android.hardware.graphics.mapper@2.1.so:android.hardware.graphics.mapper@3.0.so:android.hardware.graphics.mapper@4.0.so:android.hardware.renderscript@1.0.so:android.hidl.memory.token@1.0.so:android.hidl.memory@1.0-impl.so:android.hidl.memory@1.0.so:android.hidl.safe_union@1.0.so:libRSCpuRef.so:libRSDriver.so:libRS_internal.so:libbase.so:libbcinfo.so:libblas.so:libc++.so:libcompiler_rt.so:libcutils.so:libdmabufheap.so:libgralloctypes.so:libhardware.so:libhidlbase.so:libhidlmemory.so:libion.so:libjsoncpp.so:liblzma.so:libprocessgroup.so:libunwindstack.so:libutils.so:libutilscallstack.so:libz.so
+11-07 12:43:00.798  8521  8671 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:00.987  8521  8641 I cr_WVCFactoryProvider: Loaded version=113.0.5672.136 minSdkVersion=1 isBundle=false multiprocess=true packageId=2
+11-07 12:43:01.000  8521  8682 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.oreki.antimatterdimensions/app_webview/variations_seed_new"
+11-07 12:43:01.002  8521  8682 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.oreki.antimatterdimensions/app_webview/variations_seed"
+11-07 12:43:01.002  8521  8682 I cr_VariationsUtils: Requesting new seed from IVariationsSeedServer
+11-07 12:43:01.021  8521  8641 I cr_LibraryLoader: Successfully loaded native library
+11-07 12:43:01.021  8521  8641 I cr_CachingUmaRecorder: Flushed 8 samples from 8 histograms.
+11-07 12:43:01.050  8521  8641 W Ads     : Fail to fetch AdActivity theme
+11-07 12:43:01.051  8521  8641 I Ads     : Please set theme of AdActivity to @android:style/Theme.Translucent to enable transparent background interstitial ad.
+11-07 12:43:01.053  8521  8643 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.053  8521  8643 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.055  8521  8650 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 12:43:01.058  8521  8641 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.058  8521  8544 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.059  8521  8544 W GoogleApiManager: The service for a27 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:43:01.127   527  5507 D ActivityManager: sync unfroze 2286 com.android.webview:webview_service for 6
+11-07 12:43:01.133   527  5507 D CompatibilityChangeReporter: Compat change id reported: 261072174; UID 10141; state: ENABLED
+11-07 12:43:01.162  2286  2330 I cr_VariationsUtils: Throttling seed download job
+11-07 12:43:01.162  2286  2330 I cr_VariationsUtils: Writing new seed to app's data directory
+11-07 12:43:01.176  8521  8705 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.180  8521  8692 E DynamiteModule: Invalid GmsCore APK, remote loading disabled.
+11-07 12:43:01.192  8521  8692 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.201   527  2024 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 99012; state: DISABLED
+11-07 12:43:01.205   527   568 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: ENABLED
+11-07 12:43:01.221   842   842 D Zygote  : Forked child process 8707
+11-07 12:43:01.229  8707  8707 I ocessService0:0: Using CollectorTypeCC GC.
+11-07 12:43:01.231   527   568 I ActivityManager: Start proc 8707:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i12 for  {com.oreki.antimatterdimensions/org.chromium.content.app.SandboxedProcessService0:0}
+11-07 12:43:01.231  8707  8707 W ocessService0:0: Unexpected CPU variant for x86: x86_64.
+11-07 12:43:01.231  8707  8707 W ocessService0:0: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-07 12:43:01.236  8707  8707 E ocessService0:0: Not starting debugger since process cannot load the jdwp agent.
+11-07 12:43:01.251  8707  8707 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 99012; state: ENABLED
+11-07 12:43:01.251  8707  8707 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 99012; state: ENABLED
+11-07 12:43:01.259  8707  8707 I cr_WebViewApkApp: Launched version=113.0.5672.136 minSdkVersion=1 isBundle=false processName=com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+11-07 12:43:01.260   527  1983 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 99012. pid: 8707
+11-07 12:43:01.263  8707  8707 W SystemServiceRegistry: No service published for: virtualdevice
+11-07 12:43:01.264  8707  8707 I cr_ChildProcessService: Creating new ChildProcessService pid=8707
+11-07 12:43:01.268  8521  8521 D AutofillManager: Fill dialog is enabled:false, hints=[]
+11-07 12:43:01.262     0     0 E SELinux : avc:  denied  { find } for pid=8707 uid=99012 name=content_capture scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:object_r:content_capture_service:s0 tclass=service_manager permissive=0
+11-07 12:43:01.314  8521  8544 W GooglePlayServicesUtil: com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-07 12:43:01.314  8521  8544 W GoogleApiManager: The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-07 12:43:01.336  8521  8521 D CompatibilityChangeReporter: Compat change id reported: 214741472; UID 10141; state: ENABLED
+11-07 12:43:01.355   527  4705 D ConnectivityService: requestNetwork for uid/pid:10141/8521 activeRequest: null callbackRequest: 169 [NetworkRequest [ REQUEST id=170, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647
+11-07 12:43:01.357   527   658 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=170, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:01.357   527   658 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=170, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:01.357   527   658 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=170, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:01.357   527   658 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=170, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10141 RequestorUid: 10141 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-07 12:43:01.358   527   665 D ConnectivityService: NetReassign [170 : null → 101] [c 0] [a 0] [i 1]
+11-07 12:43:01.361   527   665 D ConnectivityService: NetReassign [no changes] [c 0] [a 1] [i 0]
+11-07 12:43:01.506  8521  8729 W cr_media: BLUETOOTH_CONNECT permission is missing.
+11-07 12:43:01.511  8521  8729 W cr_media: registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+11-07 12:43:01.548   347  8745 I resolv  : GetAddrInfoHandler::run: {101 101 101 983141 10141 0}
+11-07 12:43:01.551   347  8746 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+11-07 12:43:01.551   347  8747 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-07 12:43:01.559   347  8746 I resolv  : res_nsend: used send_dg 45 terrno: 0
+11-07 12:43:01.560   347  8747 I resolv  : res_nsend: used send_dg 61 terrno: 0
+11-07 12:43:01.560   347  8747 I resolv  : doQuery: rcode=0, ancount=1, return value=61
+11-07 12:43:01.563  8707  8728 I cr_LibraryLoader: Successfully loaded native library
+11-07 12:43:01.563  8707  8728 I cr_CachingUmaRecorder: Flushed 2 samples from 2 histograms.
+11-07 12:43:01.563   347  8746 I resolv  : doQuery: rcode=0, ancount=0, return value=45
+11-07 12:43:01.573  8707  8728 W SystemServiceRegistry: No service published for: uimode
+11-07 12:43:01.641   353  2217 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 6724928
+11-07 12:43:01.670   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d8c318 : 0(0 size) total buffers - 0(0 size) used buffers - 203/207 (recycle/alloc) - 6/207 (fetch/transfer)
+11-07 12:43:01.670   469   737 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:43:01.670  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04c39f8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 8/412 (fetch/transfer)
+11-07 12:43:01.670  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04db098 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 7/412 (fetch/transfer)
+11-07 12:43:01.671  8521  8578 D BufferPoolAccessor2.0: evictor expired: 2, evicted: 2
+11-07 12:43:02.077  8521  8734 E chromium: [ERROR:ssl_client_socket_impl.cc(992)] handshake failed; returned -1, SSL error code 1, net_error -100
+11-07 12:43:02.178  8521  8563 D EGL_emulation: app_time_stats: avg=324.06ms min=10.55ms max=1550.16ms count=6
+11-07 12:43:02.592  8521  8734 E chromium: [ERROR:ssl_client_socket_impl.cc(992)] handshake failed; returned -1, SSL error code 1, net_error -100
+11-07 12:43:02.684  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04c3308 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 7/412 (fetch/transfer)
+11-07 12:43:02.684   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d8d598 : 0(0 size) total buffers - 0(0 size) used buffers - 200/207 (recycle/alloc) - 7/207 (fetch/transfer)
+11-07 12:43:02.684   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d93218 : 0(0 size) total buffers - 0(0 size) used buffers - 200/207 (recycle/alloc) - 7/207 (fetch/transfer)
+11-07 12:43:02.685   469   737 D BufferPoolAccessor2.0: evictor expired: 2, evicted: 2
+11-07 12:43:02.685  8521  8578 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:43:03.551  8521  8521 I Ads     : JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02:1101)
+11-07 12:43:03.551  8521  8521 I chromium: [INFO:CONSOLE(1101)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02 (1101)
+11-07 12:43:03.555  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:03.556  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:03.556  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:03.556  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:03.556  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:03.557  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:03.557  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:03.557  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:03.558  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:03.558  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:03.558  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:03.558  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:03.559  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=12 used=0
+11-07 12:43:03.559  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0547967999999903E7
+11-07 12:43:03.638   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 12:43:03.658  8521  8691 I Ads     : SDK version: afma-sdk-a-v263305000.263305000.0
+11-07 12:43:03.661  8521  8691 I Ads     : HTTP timeout: 60000 milliseconds.
+11-07 12:43:03.663   347  8761 I resolv  : GetAddrInfoHandler::run: {101 101 101 983141 10141 0}
+11-07 12:43:03.668   347  8762 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+11-07 12:43:03.669   347  8763 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-07 12:43:03.672   347  8762 I resolv  : res_nsend: used send_dg 45 terrno: 0
+11-07 12:43:03.672   347  8762 I resolv  : doQuery: rcode=0, ancount=0, return value=45
+11-07 12:43:03.675   347  8763 I resolv  : res_nsend: used send_dg 61 terrno: 0
+11-07 12:43:03.676   347  8763 I resolv  : doQuery: rcode=0, ancount=1, return value=61
+11-07 12:43:03.677  8521  8691 D TrafficStats: tagSocket(302) with statsTag=0xffffffff, statsUid=-1
+11-07 12:43:03.688   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d92438 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 6/207 (fetch/transfer)
+11-07 12:43:03.688   469   737 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:43:03.688  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04decb8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 8/412 (fetch/transfer)
+11-07 12:43:03.689  8521  8578 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-07 12:43:03.885   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 12:43:04.195  8521  8691 W Ads     : Error while connecting to ad server: connection closed
+11-07 12:43:04.198  8521  8521 I Ads     : Ad failed to load : 0
+11-07 12:43:04.647  8521  8568 I OREKI_CRUNCH: 8
+11-07 12:43:04.694   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d95718 : 0(0 size) total buffers - 0(0 size) used buffers - 201/207 (recycle/alloc) - 6/207 (fetch/transfer)
+11-07 12:43:04.694  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04e0f68 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 7/412 (fetch/transfer)
+11-07 12:43:04.694   469   737 D BufferPoolAccessor2.0: bufferpool2 0x7d7ce0d94938 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-07 12:43:04.694   469   737 D BufferPoolAccessor2.0: evictor expired: 2, evicted: 2
+11-07 12:43:04.694  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab04d94d8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 7/412 (fetch/transfer)
+11-07 12:43:04.695  8521  8578 D BufferPoolAccessor2.0: bufferpool2 0x708ab0502c88 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-07 12:43:04.695  8521  8578 D BufferPoolAccessor2.0: evictor expired: 3, evicted: 3
+11-07 12:43:08.571  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=34
+11-07 12:43:08.572  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:08.573  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:08.573  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:08.574  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:08.574  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:08.574  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:08.575  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:08.575  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:08.576  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:08.576  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:08.577  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:08.577  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:08.578  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=13 used=0
+11-07 12:43:08.578  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0552983999999903E7
+11-07 12:43:08.579  8521  8568 I OREKI_SCHED: act bulk @17004579ms gap=10030 taskGap=10030
+11-07 12:43:08.580  8521  8568 I OREKI_SCHED: deny frame-held task=infinityUpgrades
+11-07 12:43:09.896   527   615 D ActivityManager: freezing 1260 com.android.permissioncontroller
+11-07 12:43:12.670   739   739 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+11-07 12:43:13.589  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:13.590  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:13.590  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:13.590  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:13.591  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:13.591  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:13.591  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:13.591  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:13.591  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:13.592  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:13.592  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:13.592  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:13.592  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=12 used=0
+11-07 12:43:13.592  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0558001999999903E7
+11-07 12:43:13.889   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 12:43:13.905   739   848 D EGL_emulation: app_time_stats: avg=13871.85ms min=13871.85ms max=13871.85ms count=1
+11-07 12:43:13.965  8521  8568 I OREKI_CRUNCH: 8
+11-07 12:43:18.607  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:18.607  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 12:43:18.607  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:18.608  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:18.608  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:18.608  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:18.608  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:18.609  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:18.609  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:18.609  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:18.610  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:18.610  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:18.610  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:18.610  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=13 used=0
+11-07 12:43:18.611  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0563019999999903E7
+11-07 12:43:18.612  8521  8568 I OREKI_SAC: 1
+11-07 12:43:18.612  8521  8568 I OREKI_SCHED: act sacrifice @17014612ms gap=10033 taskGap=-1
+11-07 12:43:18.613  8521  8568 I OREKI_SCHED: deny frame-held task=bulk
+11-07 12:43:23.308  8521  8568 I OREKI_CRUNCH: 8
+11-07 12:43:23.617  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:23.618  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 12:43:23.618  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:23.618  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:23.619  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:23.619  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:23.619  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:23.619  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:23.621  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:23.621  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:23.621  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:23.622  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:23.622  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:23.622  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=13 used=0
+11-07 12:43:23.622  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0568030999999903E7
+11-07 12:43:23.889   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 12:43:28.636  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:28.637  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:28.637  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:28.637  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:28.637  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:28.638  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:28.638  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:28.638  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:28.638  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:28.638  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:28.639  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:28.639  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:28.639  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=12 used=0
+11-07 12:43:28.639  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0573042999999903E7
+11-07 12:43:28.640  8521  8568 I OREKI_SCHED: noop eternity
+11-07 12:43:28.640  8521  8568 I OREKI_SCHED: act bulk @17024640ms gap=10028 taskGap=20061
+11-07 12:43:28.641  8521  8568 I OREKI_SCHED: deny frame-held task=infinityUpgrades
+11-07 12:43:28.920  8521  8568 I OREKI_GOAL: stage=-1 - goal=- unknownLeaf=2 degraded=1 s0=0
+11-07 12:43:29.651   527   615 D ActivityManager: freezing 2945 com.android.keychain
+11-07 12:43:29.652   527   615 D ActivityManager: freezing 943 com.android.settings
+11-07 12:43:31.940  8521  8539 W atterdimensions: Checksum mismatch for dex base.apk!classes2.dex
+11-07 12:43:31.940  8521  8539 W atterdimensions: Could not add methods to the existing profiler. Clearing the profile data.
+11-07 12:43:32.648  8521  8568 I OREKI_CRUNCH: 8
+11-07 12:43:33.646  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:33.646  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:33.647  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:33.647  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:33.647  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:33.647  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:33.647  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:33.648  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:33.648  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:33.648  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:33.648  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:33.649  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:33.649  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=12 used=0
+11-07 12:43:33.649  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0578057999999903E7
+11-07 12:43:33.898   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 12:43:38.668  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:38.668  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:38.668  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:38.668  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:38.668  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:38.669  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:38.669  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:38.669  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:38.669  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:38.669  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:38.669  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:38.670  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:38.670  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=12 used=0
+11-07 12:43:38.670  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0583079999999903E7
+11-07 12:43:38.671  8521  8568 I OREKI_SCHED: act bulk @17034671ms gap=10031 taskGap=10031
+11-07 12:43:38.671  8521  8568 I OREKI_SCHED: deny frame-held task=infinityUpgrades
+11-07 12:43:38.903     0     0 I logd    : logdr: UID=2000 GID=2000 PID=8769 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 12:43:38.974     0     0 I logd    : logdr: UID=2000 GID=2000 PID=8772 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-07 12:43:41.849  8521  8568 I OREKI_CRUNCH: 8
+11-07 12:43:42.622   527  2024 W BatteryExternalStatsWorker: error reading Bluetooth stats: 11
+11-07 12:43:43.678  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=35
+11-07 12:43:43.678  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=36
+11-07 12:43:43.679  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=96
+11-07 12:43:43.679  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=114
+11-07 12:43:43.679  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=115
+11-07 12:43:43.680  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=117
+11-07 12:43:43.680  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=136
+11-07 12:43:43.681  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=141
+11-07 12:43:43.681  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=144
+11-07 12:43:43.681  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=156
+11-07 12:43:43.682  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=174
+11-07 12:43:43.682  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=176
+11-07 12:43:43.682  8521  8568 W OREKI_ACHAUDIT: MISMATCH id=186
+11-07 12:43:43.682  8521  8568 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=115 mismatch=13 used=0
+11-07 12:43:43.682  8521  8568 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=2.0588094999999903E7
+11-07 12:43:43.912   739   739 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-07 12:43:47.695  8777  8777 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-07 12:43:47.695  8777  8777 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-07 12:43:47.711   156   156 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-07 12:43:47.712  8777  8778 I Gralloc4: mapper 4.x is not supported
+11-07 12:43:47.686     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-07 12:43:48.291     0     0 I logd    : logdr: UID=2000 GID=2000 PID=8779 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
