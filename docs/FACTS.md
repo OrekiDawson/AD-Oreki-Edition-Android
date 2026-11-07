@@ -8201,3 +8201,5 @@ R79 收尾时 `work/mod` 有被后台探测中途写入的痕迹（`a.smali` mti
 - `[签名]` `apksigner verify --min-sdk-version 24 --max-sdk-version 27` 通过 v2；`--min-sdk-version 28 --max-sdk-version 32` 通过 v3；证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。`publish_apk.py --dry-run` 已通过，v2=True、v3=True，证书一致。
 - `[读码]` `OrekiStageAuto.runScheduled()` 仅在 action 返回 true 时 `noteActed`，否则 `noteNoop`；未发现 Web R90 同类空转误占节拍路径。仍发现 `OrekiAutomationScheduler.servedCount()` 返回任务索引而非 `served[idx]` 的诊断计数缺陷；`upgradeCrunchInterval()`/`autoSacrifice()` 的无条件 true 是否构成真实缺陷仍需 `GameApi` 原版状态证据，未定性。
 - `[未验证]` 智能调度 1 秒/60 秒、关闭停止、真实购买扣款、存档退出恢复、挑战结算、全新存档和三小时真实墙钟均未完成；`OREKI_ACHAUDIT` 的 12 项 mismatch 语义未确认。当前只能是 R90 运行候选，不是正式稳定版；旧 3.20 稳定包与 R89 候选未被覆盖。
+- [实测] R90 候选 erifyRelease 14/14 通过（v2/v3 分段验签、EC12 动态定位、OrekiInstantChallenge 检查）；erifyPatchContract 仍为 11/17，旧 3.19 硬编码路径未适配 R90。
+

@@ -107,20 +107,29 @@ def main():
           vname.group(1) if vname else "未解析到")
 
     # ---------------- 2. 签名 ----------------
-    rc, out = run([str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose",
-                   "--print-certs", str(apk)])
-    # apksigner 输出形如 "Verified using v2 scheme (APK Signature Scheme v2): true"
-    schemes = {s: bool(re.search(rf"Verified using {s} scheme[^:]*:\s*true", out))
-               for s in ("v1", "v2", "v3")}
-    cert = re.search(r"Signer #1 certificate SHA-256 digest: ([0-9a-f]+)", out)
-    check("签名校验通过", rc == 0, f"rc={rc}")
-    # 基线事实：已发布版（d315fab6 / c5e05db4）同样是 v1=false、v2/v3=true ——
-    # minSdk 24 下 apksigner 不会实际写入 v1 签名，所以这里只要求 v2+v3，
-    # v1 作为信息项记录，避免把「一直如此」误判成回归。
+    # minSdk 32 的默认验证只选择 v3，不能据此判 v2 缺失。
+    # 分别按 API 24–27（v2 路径）与 API 28–32（v3 路径）验证；
+    # 两条路径都必须 rc=0 且真实出现对应的 true。
+    rc2, out2 = run([str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose",
+                     "--print-certs", "--min-sdk-version", "24",
+                     "--max-sdk-version", "27", str(apk)])
+    rc3, out3 = run([str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose",
+                     "--print-certs", "--min-sdk-version", "28",
+                     "--max-sdk-version", "32", str(apk)])
+    schemes = {
+        "v1": False,
+        "v2": bool(re.search(r"Verified using v2 scheme[^:]*:\s*true", out2)),
+        "v3": bool(re.search(r"Verified using v3 scheme[^:]*:\s*true", out3)),
+    }
+    cert_matches = re.findall(r"certificate SHA-256 digest: ([0-9a-f]+)", out2 + "\n" + out3)
+    cert = None
+    if cert_matches and all(c == cert_matches[0] for c in cert_matches):
+        cert = cert_matches[0]
+    check("签名校验进程退出码", rc2 == 0 and rc3 == 0, f"v2_rc={rc2} v3_rc={rc3}")
     check("签名方案 v2+v3", schemes["v2"] and schemes["v3"], str(schemes))
-    print(f"INFO  签名方案明细: {schemes}（v1=false 与历史发布版一致，minSdk 24 下不需要 v1）")
-    check("签名证书未被更换", bool(cert) and cert.group(1) == EXPECT_CERT,
-          cert.group(1) if cert else "未解析到")
+    print(f"INFO  签名方案明细: {schemes}（API 24-27 验 v2，API 28-32 验 v3）")
+    check("签名证书未被更换", bool(cert) and cert == EXPECT_CERT,
+          cert if cert else "未解析到或不一致")
 
     # ---------------- 3. 反编译 dex（跳过资源，快） ----------------
     verify_dir = ROOT / "build" / "gradle-verify-apk"
@@ -145,18 +154,19 @@ def main():
                 return p
         return None
 
-    # 3a. EC12 限时补丁：unscale 必须紧贴限时比较
-    p51 = find_smali("p51.smali")
-    if p51.exists():
-        text = p51.read_text(encoding="utf-8", errors="ignore")
-        n = text.count("OrekiSpeed;->unscale(D)D")
-        idx = text.find("cmpg-double v0, v2, v0")
-        window = text[max(0, idx - 400):idx] if idx >= 0 else ""
-        check("EC12 补丁在 dex 内（unscale 出现 1 次）", n == 1, f"count={n}")
-        check("EC12 补丁位于限时比较之前", "OrekiSpeed;->unscale(D)D" in window,
-              f"cmpg@{idx}")
-    else:
-        check("EC12 补丁在 dex 内", False, "缺 smali/p51.smali")
+    # 3a. EC12 限时补丁：3.21 的匿名/混淆类名已变化，不再硬编码 p51。
+    # 只接受「恰好一次 unscale 调用，且该调用紧邻 cmpg-double 限时比较」的文件。
+    ec12_files = []
+    for smali_file in verify_dir.rglob("*.smali"):
+        text = smali_file.read_text(encoding="utf-8", errors="ignore")
+        if text.count("OrekiSpeed;->unscale(D)D") != 1:
+            continue
+        idx = text.find("cmpg-double")
+        if idx >= 0 and "OrekiSpeed;->unscale(D)D" in text[max(0, idx - 400):idx]:
+            ec12_files.append(smali_file)
+    check("EC12 补丁在 dex 内（unscale 1 次且紧邻限时比较）",
+          len(ec12_files) == 1,
+          str(ec12_files[0].relative_to(verify_dir)) if ec12_files else "未找到唯一目标")
 
     # 3b. 挑战进入即完成：新类 + 调用点
     inst = find_smali("kajfosz/antimatterdimensions/OrekiInstantChallenge.smali")
@@ -188,7 +198,7 @@ def main():
         "versionCode": vcode.group(1) if vcode else None,
         "versionName": vname.group(1) if vname else None,
         "schemes": schemes,
-        "cert_sha256": cert.group(1) if cert else None,
+        "cert_sha256": cert if cert else None,
         "checks": results, "failed": len(failed),
     }
     if args.json:
