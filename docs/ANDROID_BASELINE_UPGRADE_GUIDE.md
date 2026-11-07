@@ -150,3 +150,83 @@ python .\scripts\verify_patch_contract.py
 ## 10. 失败时的恢复格式
 
 每次停止都要留下：目标 APK SHA-256、当前分支/HEAD、最后一个成功门禁、精确失败文本、已确认与未确认绑定、候选 APK 是否存在、是否安装/上传，以及下一条最小恢复命令。未通过最终 APK 集成或实机运行时，状态只能是“迁移中”或“阻塞”，不能写成“Release 已完成”。
+
+---
+
+# 第二部分：版本记录（3.20 → 3.21，R94 实测）
+
+> 本部分只记录**已证实**的迁移事实与证据路径；未确认项明确标注「待确认」。
+> 通用方法见第一部分 §1~§10，本部分不重复。
+
+## 11. 3.21 迁移事实清单
+
+### 11.1 基线与产物身份
+
+| 项 | 值 |
+|---|---|
+| 基线目录 | `work/base_decoded_321`（versionName 3.21.0 / versionCode 30210000） |
+| 3.21 构建产物 | `b513be9b8d58e68ae1255739d782a45a7ac4c4ea1388dc5eab0832a8a06cc833`（82,621,937 B） |
+| 上一版 3.21 产物 | `c7307bf28587ff9fdb51a930f808a89eb17d98bf4811619007f41f69249958b1` |
+| 3.20 稳定版备份 | `release/反物质维度_3.20稳定版_备份_82156a40.apk`（`82156A40…0051`） |
+| 绑定表 | `baseline/versions/3.21/bindings.json`，CONFIRMED = 42 |
+
+### 11.2 关键混淆映射（已证实）
+
+| 3.20 | 3.21 | 语义 |
+|---|---|---|
+| `bn0` | `iq0` | 货币容器（含 `d` 字段 = 反物质 Currency，`w` = 无限点数） |
+| `rp0` | `yp0` | 无限维度层状态类型 |
+| `c91` | `m91` | 事件派发（`a(String)`，用于 `BREAK_INFINITY`） |
+
+### 11.3 绑定生成：描述符 vs 二进制名（**本轮最大坑**）
+
+- 现象：`OREKI_API_MISS: missing class bq0 / missing class rp0`，`antimatterValue()` 永久 `null`；
+- 根因：`scripts/build_kotlin.py` 把 `bindings.json` 的 `to` 字段（**JVM 描述符** `Liq0;`）直接当类名写进 `Class.forName`；
+- 修复：`_descriptor_to_binary_name()`（去 `L`/`;`，`/` → `.`）+ 生成代码运行期 `normalize()`；
+- 正确产物：`put("bq0","iq0")`、`put("rp0","yp0")`，错误产物：`put("bq0","Liq0")`；
+- 验证：运行期 `am=2.65e88 / 6.92e144 / 4.51e121 / 8.59e252`（非 null）+ 全新存档 3 分 16 秒首次无限。
+
+### 11.4 旧 Smali 业务类引用旧版类型 ⇒ DEX VerifyError
+
+- 现象：每拍 `OREKI_API_MISS: missing invoke tick: VerifyError`，日志堆栈 `'this' argument 'Precise Reference: rp0' not instance of 'Precise Reference: yp0'`；
+- 根因：旧 Smali 类 `OrekiBreakGate` 方法体里写死 3.20 类型 `rp0`，3.21 实际为 `yp0`，DEX 校验器直接拒绝整类，永远不会执行；
+- 处理：该类业务职责已由 Kotlin `OrekiBreakShop` 覆盖且无外部引用 ⇒ 整类删除（711 行）并移除 payload 清单、调用点、`GameApi` 绑定；新构建实测 **VerifyError 0 条**；
+- 复用的判定方法：①全树搜索该类被谁引用；②确认职责是否已有 Kotlin 实现；③删除后必须重新跑 `check_automation_scheduler.py` 等契约。
+
+### 11.5 存档键名随版本旗标切换
+
+`kajfosz/antimatterdimensions/player/i.smali` 依据版本旗标读写：
+
+```text
+v16 != 0  → 键 "brake"
+v16 == 0  → 键 "break"
+```
+
+`Player.smali` 中 `brake` 字段**只有** `x0(Z)` 一个写入点；原版「打破无限」按钮是 **toggle**（`player.break = !player.break`），自动化必须用 setter `x0(true)`，绝不能复用 toggle。
+
+### 11.6 工具链坑（与基线无关但会误判「迁移失败」）
+
+| 现象 | 根因 | 处理 |
+|---|---|---|
+| `verify_release.py` 报 versionCode/versionName FAIL | 期望版本从 `OREKI_BASE` 读取，默认 `work/base_decoded`（3.19） | 手动运行时显式 `OREKI_BASE=work/base_decoded_321`（构建由 Gradle 传入） |
+| 构建后账本未记录、`--status` 误报 used=0 | `assembleRelease.doLast{ exec --record-success }` 未执行 | 改为独立 `releaseBudgetRecord` 任务 + `finalizedBy`，并加 `onlyIf { apk.exists() }` |
+| `finalizedBy` 把真实构建失败掩盖成「record 任务 python 退出码 2」 | 构建失败时 APK 不存在仍尝试记账 | 同上 `onlyIf`；排查时先看上游任务失败文本 |
+| `-PorekiEmergencyRebuild=1` 在 PowerShell 调用里丢失 | 中文/空格参数经 cmd 包装被截断 | 用 ASCII 理由串、`Start-Process -ArgumentList` 数组；并在日志中核对 `emergency=` 输出 |
+
+## 12. 可复用的故障对照表
+
+| 症状 | 首查 |
+|---|---|
+| `missing class X` / 绑定解析失败 | 生成绑定的 from/to 是否是**二进制名**而非描述符 |
+| `VerifyError` / `NoSuchFieldError` 仅运行期 | 旧 Smali 是否写死旧版描述符；字段类型是否变化 |
+| 自动化「写了但没生效」 | 原版对应能力是否已自带、是否被 toggle 抵消、是否被前置条件（间隔/门槛）挡住 |
+| 门禁报版本不符 | `OREKI_BASE` 是否指向本轮基线 |
+| 长跑进度停滞 | 先用存档字段增量（`lastUpdate`/IP）判活，再查阶段门槛（如未 Break 时反物质上限 = `Number.MAX_VALUE`，IP 上限约 1e15） |
+
+## 13. 验证与回滚
+
+1. 候选只写 `build/gradle-stage/`；构建前旧候选自动备份到 `build/gradle-stage/.previous/`。
+2. 发布前必须：`verify_release` 全过 + `verify_patch_contract` 全过 + 调度契约全过 + 签名证书一致 + 目标设备安装启动 + 关键运行路径真实动作。
+3. 覆盖 `release/反物质维度.apk` 前，先把上一稳定版按 `<名称>_<版本说明>_备份_<sha前8>.apk` 备份（R94 例：`反物质维度_3.21初版_备份_c7307bf2.apk`）。
+4. 交付用 `cp + sha256sum`，三处（本地/OneDrive/小米云盘）SHA 必须一致；不做云端回读。
+5. 基线回滚只需把 `baseline/version-config.json` 的 `current` 指回旧版本，并保留旧 `work/base_decoded_*` 目录；不允许删除旧基线目录。
