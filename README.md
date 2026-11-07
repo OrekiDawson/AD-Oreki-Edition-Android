@@ -34,7 +34,7 @@
 | 构建 | R94 唯一一次完整构建 20:29:56 → 20:39:51（9m55s，`-PorekiBuildRound=R94`，预算闸门 `used=0/1 ALLOW`）；产物 `build/gradle-stage/反物质维度.apk`，签名与上版同一证书 `95960bce…3197`（可原地升级） |
 | 门禁 | `verifyRelease` **14/14 PASS**、`verifyPatchContract` **17/17 PASS**、`check_automation_scheduler` **57/57**、v2+v3 签名；`OREKI_API_MISS` 的 `missing class bq0/rp0` 已由绑定描述符修复消除 |
 | 真实运行（同一 APK SHA） | `oreki_r92_fresh` / `emulator-5556`：全新存档真实墙钟 21:05:34 起跑，3m16s 首次无限、~13m 62 IP、~23m 3.20e6 IP、~31m 打破无限解锁（2.19e7 IP）；`OREKI_SCHED act` 累计 148 条（bulk/sacrifice/crunchInterval/infinityUpgrades/breakUpgrades）；总开关关闭 50 s 0 act + `deny disabled`、开启后恢复；重启后离线摘要进度保留 |
-| 状态 | **已发布为 3.21 正式稳定版**（旧 3.20 稳定包已备份）。已知限制（不阻塞安装与游玩，列为后续修复）：①「打破无限」按钮解锁后，自动化尚未自动点按（需玩家点一次；长跑在 ~32 min 处观察到此现象，正在按 R94 指令取证）；② `OREKI_GOAL` 阶段识别 `stage=-1 degraded=1`（策略层退化为固定顺序，因部分后期叶子未接线）；③ 首次永恒与 180 分钟终局尚未达成，属持续验收目标 |
+| 状态 | **已发布为 3.21 正式稳定版**（旧 3.20 稳定包已备份）。已知限制（不阻塞安装与游玩，列为后续修复）：① `OrekiBreakGate.tick()` 在 3.21 上触发 DEX `VerifyError`（旧 Smali 业务类引用了 3.20 类型 `rp0`，3.21 实际为 `yp0`），`breakGate` 任务失效；但 `breakUpgrades`（Kotlin）已成功自动打破无限（实测 `x0-before brake=0` → `x0-after brake=1`，21:28:38），主链未被阻塞，break 商店的后续升级自动化缺失；② `OREKI_GOAL` 阶段识别 `stage=-1 degraded=1`（策略层退化为固定顺序，因部分后期叶子未接线）；③ 首次永恒与 180 分钟终局尚未达成，属持续验收目标 |
 
 R92 的生产改动：Web 侧「开局维度提升 / 反物质星系」由每拍 1 次改为单次调度动作内买光当前买得起的次数，并修掉一个让该批量购买**完全失效**的真实缺陷（`player.dimBoosts` 应为原版真实字段 `player.dimensionBoosts`）；Android 侧修正 IU15 冲刺状态机只看原版自动购买器开关、未看本作自动化总开关的缺陷（关闭总开关后接管不会解除），并随构建同步 3.21 更新日志与双端教程附录 F。R91 候选 `release/反物质维度_R91候选_d46.apk`、R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R92 任务记录`](tasks/R92-独立新档验收与前期提速.md) 与 [`R92 AVD 验收结果`](reports/r92-avd/02-lead-results.md)。
 
