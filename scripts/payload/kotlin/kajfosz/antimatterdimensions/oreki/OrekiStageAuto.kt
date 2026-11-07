@@ -388,8 +388,21 @@ object OrekiStageAuto {
     /** `eternities == 0`。 */
     @JvmStatic
     fun eternitiesZero(): Boolean {
-        val eternityCount = GameApi.eternities() ?: return false
-        return GameApi.compareToDouble(eternityCount, 0.0) == 0
+        // [R94] 判据从 `Player.eternities` 改为「永恒点数 == 0 且永恒升级为空」：
+        // 全新存档实测 `eternities` 字段读作 11（UI 永恒点数 0、bigEternities 0、
+        // thisEternity 跨全程），拿它当「首次永恒之前」会让 ID1 窗口与紧迫名额永久失效。
+        // fail-closed：任一读取失败都返回 false（不进入窗口、不乱按永恒）。
+        val points = GameApi.eternityPointsValue() ?: return false
+        if (GameApi.compareToDouble(points, 0.0) != 0) return false
+        val upgrades = try {
+            GameApi.eternityUpgrades()
+        } catch (_: Throwable) {
+            return false
+        }
+        if (upgrades.isNotEmpty()) return false
+        val big = GameApi.bigEternitiesValue()
+        if (big is Number && big.toLong() != 0L) return false
+        return true
     }
 
     private fun isBroken(): Boolean = GameApi.isBroken()

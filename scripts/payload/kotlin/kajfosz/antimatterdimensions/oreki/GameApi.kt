@@ -566,6 +566,19 @@ internal object GameApi {
     /** `player().eternities`（BigDouble）。 */
     fun eternities(): Any? = call(mPlayerX(), player())
 
+    /**
+     * [R94] 永恒点数（BigDouble 引用，字段 `eternityPoints`）。
+     *
+     * 为什么不直接用 `eternities` 字段判断「首次永恒之前」：全新存档实测该字段读作
+     * `1.1e1`（11），而 UI 永恒点数为 0、`thisEternity` 跨全程、`bigEternities=0`
+     * ⇒ 该字段在本版本不能当作「是否已永恒」的判据（多次运行一致复现）。
+     * 永恒点数是可靠零点：真实永恒必然产出大量 EP（1e9 量级）。
+     */
+    fun eternityPointsValue(): Any? = readGameField(player(), "eternityPoints")
+
+    /** [R94] `bigEternities`（可能为 Number，读不到返回 null）。 */
+    fun bigEternitiesValue(): Any? = readGameField(player(), "bigEternities")
+
     /** 写 `player().brake`（唯一的 Break 写入器）。 */
     fun setBrake(value: Boolean) {
         call(mPlayerX0(), player(), value)

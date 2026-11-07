@@ -262,6 +262,18 @@ check("峰值窗口有诊断探针", '"probe ipVsReq="' in stage and "holdProbeT
 check("HOLD 对 null IP 门槛按已满足处理",
       "val ipVersus = if (ipRequirement == null) 1 else compareBigDoubles(ip, ipRequirement)" in stage)
 
+# ---------------------------------------------------------------- 21. R94：首次永恒前的可靠判据
+# 实测：全新存档 `Player.x()`（eternities 字段）读作 1.1e1，而 UI 永恒点数 0、
+# bigEternities 0、thisEternity 跨全程 ⇒ 用该字段判断会让 ID1 窗口与紧迫名额永久失效。
+# 改为「永恒点数 == 0 且永恒升级为空」，且任一读取失败 fail-closed。
+_gameapi_et = read(KT_DIR / "GameApi.kt")
+check("GameApi 提供永恒点数读取", "fun eternityPointsValue()" in _gameapi_et)
+check("GameApi 提供 bigEternities 读取", "fun bigEternitiesValue()" in _gameapi_et)
+check("eternitiesZero 以永恒点数为主判据",
+      "val points = GameApi.eternityPointsValue() ?: return false" in stage)
+check("eternitiesZero 检查永恒升级为空", "if (upgrades.isNotEmpty()) return false" in stage)
+check("eternitiesZero 对 bigEternities 兜底", "if (big is Number && big.toLong() != 0L) return false" in stage)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
