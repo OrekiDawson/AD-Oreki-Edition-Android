@@ -96,10 +96,12 @@ def main() -> int:
     check("holdCrunch 也用原版 ID1 点数门槛（idIpRequirement）",
           "GameApi.idIpRequirement(id1)" in hc_code)
     # 极性：必须是 et=0 才进入保护（!eternitiesZero() 排除已永恒玩家）
-    check("holdCrunch 在 et=0 窗口内生效（!eternitiesZero）",
-          "!eternitiesZero()" in hc_code)
-    check("holdCrunch 到门槛后放开（compareTo < 0 才继续 hold）",
-          "peakVersus != null && peakVersus < 0" in hc_code)
+    # [R94] 迟滞实现：先取状态再判断，断言改为「必须排除已永恒」而不是匹配具体写法。
+    check("holdCrunch 在 et=0 窗口内生效（排除已永恒）",
+          "!eternitiesZero" in hc_code)
+    check("holdCrunch 到门槛后放开（峰值达标即退出窗口）",
+          "peakVersus != null && peakVersus >= 0" in hc_code
+          and "holdLatched" in hc_code)
 
     # ---- 1c. 按永恒 = 原版协程启动器（R70 定案） ----
     #
