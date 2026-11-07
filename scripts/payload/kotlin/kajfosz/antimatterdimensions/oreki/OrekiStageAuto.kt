@@ -124,6 +124,47 @@ object OrekiStageAuto {
      * 顺序与原 Smali **完全一致**（顺序本身是业务语义，不能重排）。
      * 任何异常一律吞掉：本方法在游戏主循环里，抛出去会直接崩游戏。
      */
+    /**
+     * [R93] 是否处于「首次无限前」。
+     *
+     * 只以 `eternities()` 的**可读值**为准；读不到时不阻断（返回 true），
+     * 因为调用点已被 `!hasInfinity()`（多源判定）保护，且原版入口本身会拒绝挑战/未满足的调用。
+     * 这样避免任一反射链失效就把整段自动化关死（RG02-02 / RG02-03 教训）。
+     */
+    private fun preInfinityPhase(): Boolean {
+        val eternities = GameApi.eternities() ?: return true
+        val compared = GameApi.compareToDouble(eternities, 0.0) ?: return true
+        return compared == 0
+    }
+
+    /**
+     * [R93] 一次性诊断：首次无限前维度提升的真实前置条件（每 30 s 一条，共 6 条）。
+     * 只打印，不参与判定；用于定位「prestigeBatch 一直 noop」的真实原因。
+     */
+    private var probeAt: Long = 0L
+    private var probeLeft: Int = 6
+
+    private fun probePrestigeBatch() {
+        try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (probeAt == 0L) probeAt = now + 20000L
+            if (probeAt <= 0L || now < probeAt || probeLeft <= 0) return
+            probeLeft--
+            probeAt = now + 30000L
+            Log.i(
+                "OREKI_SCHED",
+                "pb enabled=" + OrekiAutomationScheduler.isEnabled() +
+                    " doomed=" + GameApi.isDoomed() +
+                    " etern=" + GameApi.eternities() +
+                    " inChal=" + GameApi.inAnyChallenge() +
+                    " req=" + GameApi.dimensionBoostRequirement() +
+                    " am=" + GameApi.antimatterValue() +
+                    " boost=" + GameApi.dimensionBoosts(),
+            )
+            if (probeLeft <= 0) probeAt = -1L
+        } catch (_: Throwable) {
+        }
+    }
     // ------------------------------------------------------ [R93] 首次无限前自动维度提升
 
     /** 单拍最多连续尝试几次维度提升（原版 m01.n(false) 内部已按需求换算，这里只兜底）。 */
@@ -143,8 +184,11 @@ object OrekiStageAuto {
      */
     private fun autoPrestigeBatch(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
-        if (GameApi.inAnyChallenge() || GameApi.isDoomed()) return false
-        if (!eternitiesZero()) return false
+        if (GameApi.isDoomed()) return false
+        // 挑战由原版入口 m01.n(false) 内部守卫（n63.f()=普通挑战 / c22.d()=无限挑战），
+        // 这里不再用会「读失败即 true」的 inAnyChallenge() 挡死自己（RG02-02 教训）。
+        if (!preInfinityPhase()) return false
+        probePrestigeBatch()
         var acted = false
         var guard = 0
         while (guard++ < MAX_PRESTIGE_BATCH) {
@@ -169,7 +213,7 @@ object OrekiStageAuto {
      * 不改价格与公式；玩家手动重置仍是原版行为（差异已记录在 tasks/R93）。
      */
     private inline fun withKeptAntimatter(block: () -> Unit) {
-        if (!eternitiesZero() || GameApi.inAnyChallenge() || GameApi.isDoomed()) { block(); return }
+        if (!preInfinityPhase() || GameApi.isDoomed()) { block(); return }
         val before = GameApi.antimatterValue()
         block()
         if (before == null) return
