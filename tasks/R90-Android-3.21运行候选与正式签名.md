@@ -41,3 +41,7 @@ python scripts/publish_apk.py --apk build/r90-stage/反物质维度.apk --dry-ru
 ```
 
 正式发布前仍需 AVD 运行验收，且不得覆盖旧 3.20 稳定包或 R89 候选。
+
+- [实测] R90 候选 `verifyRelease` 14/14 通过；v2/v3 按 API 24-27/28-32 分段验签，EC12 动态定位通过。
+- [实测/AVD] 智能调度 1/10/60 秒可设置，关闭/恢复可达到；但“保存间隔”按钮为死按钮，“恢复默认 1 秒”实际保存输入值，属未修复 P0 UI 缺陷。
+- [阻塞] `verifyPatchContract` 仍为 11/17，旧 3.19 硬编码路径未适配 R90；`publish_apk.py` 尚未加入 R90 版本/包名/SHA 身份断言。
