@@ -212,6 +212,23 @@ check("诊断在 crunchProbe 之后调用",
       stage.index("crunchProbe()") < stage.index("detectBreakLoss()"))
 check("诊断使用独立 OREKI_BREAK 标签", 'TAG_BREAK_GUARD = "OREKI_BREAK"' in stage)
 
+# ---------------------------------------------------------------- 16. R94：条件极性（反向断言）
+# 用户 R94 中途补充纪律：关键判断必须同时覆盖「该执行」与「不该执行」两种状态。
+# 这里不依赖运行期，直接对源码形态做反向断言，防止有人把方向改反而测试仍全绿。
+_break_fn = stage[stage.index("fun tryBreakInfinity()"):]
+check("已 Break 时早退（不得重复写 brake）",
+      _break_fn.index("if (isBroken()) return") < _break_fn.index("GameApi.setBrake(true)"))
+_heal_block = stage[stage.index("---- Break 兜底 + 自愈"):stage.index("---- Break 升级真实购买")]
+check("间隔自愈只在未 Break 分支内（已 Break 不买间隔）",
+      "if (!wasBroken) {" in _heal_block and
+      _heal_block.index("if (!wasBroken) {") < _heal_block.index("upgradeCrunchInterval()"))
+check("间隔判据方向未取反（返回原版 maxed 布尔）",
+      "return GameApi.crunchMaxedInterval(crunch)" in stage
+      and "return !GameApi.crunchMaxedInterval(crunch)" not in stage)
+check("Break 序列含原版 BREAK_INFINITY 事件（与按钮同序）",
+      "notifyBreakInfinity()" in _break_fn and
+      _break_fn.index("notifyBreakInfinity()") < _break_fn.index("maxAllIntervalsForFree()"))
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
