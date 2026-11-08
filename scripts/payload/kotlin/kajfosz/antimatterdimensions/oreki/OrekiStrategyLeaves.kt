@@ -50,6 +50,11 @@ object OrekiStrategyLeaves {
                 // 仓库内同源说明（oreki-celestial-automation.js:470）：
                 // = player.dilation.studies.includes(1)（DS1）
                 "progress.dilationUnlocked" -> bool(dilationStudyOneBought())
+                // [R96] 3.21 的 `Player.x()`（eternities）在全新存档上读到 11，
+                // smali 链用 x() > 0 判「已解锁永恒」→ 新档被判成 stage 10（永恒阶段），
+                // 阶段驱动整体错位。改用与 OrekiStageAuto.eternitiesZero() 同一套
+                // 真实判据（永恒点数 / BigEternities / 永恒升级位）覆盖 smali 结果。
+                "progress.eternityUnlocked" -> bool(eternityUnlocked())
                 else -> if (name in handledBySmali) Double.NaN else unwired(name)
             }
         } catch (error: Throwable) {
@@ -66,6 +71,13 @@ object OrekiStrategyLeaves {
     }
 
     private fun bool(value: Boolean): Double = if (value) 1.0 else 0.0
+
+    /**
+     * 真实「已进过永恒」判据：直接复用 `OrekiStageAuto.eternitiesZero()` 的反向。
+     * 这样策略层与阶段层用**同一套**判据（EP / BigEternities / 永恒升级位），
+     * 不会出现「策略判已进永恒、阶段层判未进」的分裂。
+     */
+    private fun eternityUnlocked(): Boolean = !OrekiStageAuto.eternitiesZero()
 
     /** `Player.dilation.studies` 是 List<Integer>；含 1 即已点亮 DS1。 */
     private fun dilationStudyOneBought(): Boolean {
