@@ -8,7 +8,7 @@
 
 判定表（用户给定，逐行断言）：
 
-| holdCrunch | canEternity | 收益达到 10 倍 | 允许永恒 |
+| holdCrunch | canEternity | 收益达到 EP 翻倍（×1，R96 第五轮由 ×10 下调） | 允许永恒 |
 |---|---|---|---|
 | true  | true  | true  | 否 |
 | true  | true  | false | 否 |
@@ -66,7 +66,15 @@ def main() -> int:
     # 语义期望：true 才跳走；false 才跳走；负数才跳走
     check("holdCrunch 为真时跳过永恒（if-nez）", g_hold == "if-nez", str(g_hold))
     check("canEternity 为假时跳过永恒（if-eqz）", g_can == "if-eqz", str(g_can))
-    check("收益不足 10 倍时跳过永恒（if-ltz）", g_ep == "if-ltz", str(g_ep))
+    check("收益不足门槛时跳过永恒（if-ltz）", g_ep == "if-ltz", str(g_ep))
+    # [R96 第五轮] 门槛乘数必须是 ×1（EP 翻倍即结算），且不能再回到 ×10。
+    # 依据：平台期 EP 卡 2.16、maxIP 1e593，×10 门槛要求 maxIP 1e804，EP 永不增长，
+    # 而时间维度/永恒升级全部用 EP 购买（TD1=1、TD2=5、首档永恒升级 5）⇒ 乘数停滞。
+    m_mult = re.search(r"const/(?:4|16) v2, (0x[0-9a-f]+)\s*\n\s*\n\s*invoke-virtual \{v1, v2\}, Lkajfosz/antimatterdimensions/BigDouble;->multiply\(I\)", body)
+    check("EP 门槛乘数提取成功", m_mult is not None)
+    if m_mult is not None:
+        check("EP 门槛乘数 = ×1（R96 第五轮下调）", m_mult.group(1) == "0x1", m_mult.group(1))
+        check("EP 门槛乘数不再回到 ×10", m_mult.group(1) != "0xa", m_mult.group(1))
 
     # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
     # 历史沿革（两次纠偏，勿回退）：
@@ -189,7 +197,7 @@ def main() -> int:
             return False
         if jumps(g_can, 1 if can else 0):
             return False
-        # compareTo(gainedEP, EP*10)：达到 10 倍 → 0 或正；不足 → 负
+        # compareTo(gainedEP, EP*threshold)：达到门槛 → 0 或正；不足 → 负
         cmp_value = 1 if ten_x else -1
         if jumps(g_ep, cmp_value):
             return False
@@ -204,7 +212,7 @@ def main() -> int:
     ]
     for hold, can, ten, want in table:
         got = allows_eternity(hold, can, ten)
-        check(f"判定表 hold={hold} can={can} 10x={ten} → {want}", got is want, f"got={got}")
+        check(f"判定表 hold={hold} can={can} 翻倍={ten} → {want}", got is want, f"got={got}")
 
     print(f"\n首次永恒判定链夹具：{checks} 项检查，失败 {len(failures)} 项")
     print(f"  提取到的助记符：hold={g_hold} can={g_can} ep={g_ep}")

@@ -24,19 +24,19 @@
 
 **版本号含义**：`3.21.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 正式稳定版（R96 第六轮，2026-11-09 04:22 四渠道交付；前五版 01:39 / 01:57 / 02:44 / 03:01 / 03:21）
+### 3.21 正式稳定版（R96 第七轮，2026-11-09 04:52 四渠道交付；前六版 01:39 / 01:57 / 02:44 / 03:01 / 03:21 / 04:22）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
 | 正式交付 | 四渠道同一包：本地 `release/反物质维度.apk`；SSH `~/Releases/AD-Oreki-Edition/latest/反物质维度.apk`（临时文件 + 原子覆盖）；OneDrive `Apps/AD-Oreki-Edition/反物质维度.apk`；Google Drive `AD-Oreki-Edition/反物质维度.apk`；GitHub Release 标签 `android-update-3.21.0-5f7afd78`（附件 APK + `.sha256`）。小米云盘不再是正式渠道 |
-| 大小 / SHA-256 | 82,552,305 B / `74730ED14C92BE87BB34DF1D8F1A3F90EDAFCA7FD8F6ACE2729A13688DE78BC3` |
+| 大小 / SHA-256 | 82,552,305 B / `78F441FBD38DF0790F100CD58FD0CB7042BDA0D41431440DF927243E93D504CF` |
 | 构建 | `./gradlew assembleRelease --offline` → `installToRelease`（生成 `build/release-manifest.json`）；签名证书与上一版一致，可原地升级 |
-| 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **115/115**、`fixture_eternity_gate` **47/47**、`check_publish_rules` **13/13**；V2+V3 签名 |
+| 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **115/115**、`fixture_eternity_gate` **50/50**、`check_publish_rules` **13/13**；V2+V3 签名 |
 | 真实运行 | ① 旧档：01:34:16 首次永恒（IP 1e179.8→1e313）、01:51:43 第 2 次永恒；② 第三轮修复经济任务饥饿后新档 13.4 分钟 IP 1e7.19；③ **第四轮修复 Break 兜底优先级后，全新存档（t0 02:50:40）在 +128s 首次无限、+548s 首次 Break、+556s（≈9.3 分钟）首次永恒真实结算**，随后第 2 次永恒与 TT/时间研究开始推进；全程 `OREKI_API_MISS=0`、`OREKI_ET_EXC=0`、`VerifyError=0` |
 | 状态 | **已发布为 3.21 正式稳定版**。已知限制：① 干净环境 3 小时新档全流程尚未做一次完整墙钟计时；② 99.72% 回落问题本轮未复现、未定位；③ 首次永恒之后的成长链已打通到「TT 真实购买 + 时间研究 + 第 2 次永恒」，膨胀解锁仍在推进 |
 
-R96 第三轮修复「经济任务饥饿 / 紧迫任务分发错误 / Break 兜底优先级 / 抢救 noop 卡死」四个 P0 链路，第四轮又修「永恒层无条件坍缩」（双端一致，详见 FACTS）。R96 第三轮早段修复「经济任务饥饿 + 紧迫任务分发错误」P0（bulk/sacrifice 吃满全局节拍导致 infinityUpgrades 零执行、IP 倍率恒 1、Break 卡死），详见 FACTS。R96 第二轮另修三个「混淆名跨版本漂移」P0（TT 入口 `ix4`→`zu4` 版本桥、永恒升级注册表 `x81`→`h91`、货币购买 `o`→`p`），详见 FACTS。R96 首轮两个 P0 修复（均由真机日志确证）：① 策略层返回 `kotlin.Triple` 在 3.21 被 R8 裁剪的 stdlib 上抛 `NoSuchMethodError`，被静默 fail-closed 后把坍缩暂停（实测 IP 冻结 1e145 达 46 分钟），改为私有载体并补异常可见化；② `OrekiEternityLaunch` 仍用 3.20 的 `g.p(Lvi1;Z)`，3.21 的正确启动器是 `g.s(Lgm1;Z)`，旧绑定被 ART 拒绝整类、每帧 `OREKI_ET_EXC`、EP 恒 0。另把智能坍缩改为目标驱动（`canEternity` → 收益 ≥10 倍 IP 的 `ip-jump` → ID 峰值窗口 → 收益等待，均带上限）。
+R96 第三轮修复「经济任务饥饿 / 紧迫任务分发错误 / Break 兜底优先级 / 抢救 noop 卡死」四个 P0 链路，第四轮修「永恒层无条件坍缩」，第五轮修「永恒结算门槛 ×10→×1 + 永恒层 30 秒周期结算」（三处均双端一致，详见 FACTS）。R96 第三轮早段修复「经济任务饥饿 + 紧迫任务分发错误」P0（bulk/sacrifice 吃满全局节拍导致 infinityUpgrades 零执行、IP 倍率恒 1、Break 卡死），详见 FACTS。R96 第二轮另修三个「混淆名跨版本漂移」P0（TT 入口 `ix4`→`zu4` 版本桥、永恒升级注册表 `x81`→`h91`、货币购买 `o`→`p`），详见 FACTS。R96 首轮两个 P0 修复（均由真机日志确证）：① 策略层返回 `kotlin.Triple` 在 3.21 被 R8 裁剪的 stdlib 上抛 `NoSuchMethodError`，被静默 fail-closed 后把坍缩暂停（实测 IP 冻结 1e145 达 46 分钟），改为私有载体并补异常可见化；② `OrekiEternityLaunch` 仍用 3.20 的 `g.p(Lvi1;Z)`，3.21 的正确启动器是 `g.s(Lgm1;Z)`，旧绑定被 ART 拒绝整类、每帧 `OREKI_ET_EXC`、EP 恒 0。另把智能坍缩改为目标驱动（`canEternity` → 收益 ≥10 倍 IP 的 `ip-jump` → ID 峰值窗口 → 收益等待，均带上限）。
 
 R92 的生产改动：Web 侧「开局维度提升 / 反物质星系」由每拍 1 次改为单次调度动作内买光当前买得起的次数，并修掉一个让该批量购买**完全失效**的真实缺陷（`player.dimBoosts` 应为原版真实字段 `player.dimensionBoosts`）；Android 侧修正 IU15 冲刺状态机只看原版自动购买器开关、未看本作自动化总开关的缺陷（关闭总开关后接管不会解除），并随构建同步 3.21 更新日志与双端教程附录 F。R91 候选 `release/反物质维度_R91候选_d46.apk`、R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R92 任务记录`](tasks/R92-独立新档验收与前期提速.md) 与 [`R92 AVD 验收结果`](reports/r92-avd/02-lead-results.md)。
 
@@ -47,7 +47,7 @@ R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除�
 | 项 | 值 |
 |---|---|
 | 当前开发基线 | **3.21.0**（`versionCode` 30210000） |
-| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `74730ED14C92BE87BB34DF1D8F1A3F90EDAFCA7FD8F6ACE2729A13688DE78BC3`） |
+| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `78F441FBD38DF0790F100CD58FD0CB7042BDA0D41431440DF927243E93D504CF`） |
 | Android 基线来源 | 3.20 稳定基线官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400`；3.21 基线见 `baseline/versions/3.21/` |
 | Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
 | 3.21 基线 | 42 项真实 bindings 与迁移门禁已通过；R94 起 3.21 已作为正式稳定版发布（构建/签名/双门禁/真实运行均绑定同一 SHA-256） |

@@ -55,6 +55,12 @@ object OrekiCrunchPolicy {
      */
     private const val ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L
 
+    /** 永恒层周期结算间隔：30 秒墙钟（保证 IP→无限维度购买链不断）。 */
+    private const val ETERNITY_CYCLE_NS: Long = 30_000_000_000L
+
+    /** 上次永恒层周期结算/收益结算的时刻（nanoTime）；0 = 未初始化。 */
+    private var lastEternityCycleAt: Long = 0L
+
     data class Decision(val allow: Boolean, val reason: String)
 
     @JvmStatic
@@ -100,7 +106,23 @@ object OrekiCrunchPolicy {
             val leapEternity = gainVersusIp()
             if (leapEternity != null && leapEternity >= 1.0) {
                 waitStartedAt = 0L
+                lastEternityCycleAt = System.nanoTime()
                 return Decision(true, "eternity-ip-jump")
+            }
+            // 周期结算：每 30 秒墙钟放行一次。
+            //
+            // 实测对比（同一存档）：纯等待（10 分钟上限）时 maxAM 指数只有 ~87/min，
+            // 而持续结算时 327–755/min —— 因为坍缩产出的 IP 是「无限维度」购买链的燃料，
+            // 完全按住会让 ID 等级停摆。这里保留「不要每帧坍缩」的初衷（30 秒一次），
+            // 同时保证 IP→ID 链不断。
+            val nowNs = System.nanoTime()
+            if (lastEternityCycleAt == 0L) {
+                lastEternityCycleAt = nowNs
+            }
+            if (nowNs - lastEternityCycleAt >= ETERNITY_CYCLE_NS) {
+                lastEternityCycleAt = nowNs
+                waitStartedAt = 0L
+                return Decision(true, "eternity-cycle")
             }
             return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)
         }

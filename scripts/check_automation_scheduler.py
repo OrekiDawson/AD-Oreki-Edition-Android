@@ -310,6 +310,10 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
       'Decision(true, "post-eternity")' not in _crunch_kt
       and 'Decision(true, "eternity-ip-jump")' in _crunch_kt
       and 'waitWithin("eternity-grow"' in _crunch_kt
+      # [R96 第五轮] 永恒层周期结算：30 秒墙钟放行一次，保证 IP→无限维度购买链不断
+      # （实测纯等待 87/min vs 持续结算 327-755/min）。
+      and 'Decision(true, "eternity-cycle")' in _crunch_kt
+      and "ETERNITY_CYCLE_NS: Long = 30_000_000_000L" in _crunch_kt
       # 永恒层分支内不得再出现 canEternity 放行（那里 canEternity 长期为真 ⇒ 等于无条件坍缩）
       and 'if (GameApi.canEternity()) {' not in _crunch_kt.split("if (!OrekiStageAuto.eternitiesZero()) {")[1].split("// 1) 已经够永恒")[0])
 check("永恒层等待带上限（10 分钟）",
