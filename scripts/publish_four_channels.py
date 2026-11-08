@@ -271,19 +271,25 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, root
         run(command, check=True)
 
 
-def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[str, object], dry_run: bool) -> str:
+def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[str, object], dry_run: bool, title: str | None, notes_file: Path | None) -> str:
     if not repo:
         raise RuntimeError("无法解析 GitHub owner/repo")
-    tag = f"android-v{version}"
+    sha_prefix = str(apk_info["sha256"])[:8]
+    tag = f"android-update-{version}-{sha_prefix}"
     apk = root / "latest" / DEFAULT_APK_NAME
     checksum = root / "archive" / version / f"{DEFAULT_APK_NAME.removesuffix('.apk')}_{version}_{str(apk_info['sha256'])[:8]}.apk.sha256"
     notes = (
-        f"Android 稳定版 {version}\n\n"
+        f"更新概括：Android {version} APK 更新\n\n"
+        "详细内容：\n"
+        "- 本次交付使用同一个已验证 APK。\n"
         f"- APK SHA-256: `{apk_info['sha256']}`\n"
         f"- APK 大小: {apk_info['size_bytes']} bytes\n"
         f"- 交付文件：{DEFAULT_APK_NAME}\n"
         "- 本 Release 使用同一个已验证 APK；云盘与 SSH 状态见本地 release-info.json。\n"
     )
+    if notes_file:
+        notes = notes_file.read_text(encoding="utf-8")
+    release_title = title or f"更新：Android {version} APK（{sha_prefix}）"
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".md", delete=False) as stream:
         stream.write(notes)
         notes_path = Path(stream.name)
@@ -296,7 +302,7 @@ def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[st
         asset_sum = staging / f"AD-Oreki-Edition-{version}.apk.sha256"
         shutil.copyfile(apk, asset_apk)
         shutil.copyfile(checksum, asset_sum)
-        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", f"Android {version}", "--notes-file", str(notes_path), "--target", "main"]
+        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", release_title, "--notes-file", str(notes_path), "--target", "main"]
         say(f"github: {' '.join(command)}")
         if not dry_run:
             existing = run(["gh", "release", "view", tag, "--repo", repo, "--json", "assets"])
@@ -305,11 +311,10 @@ def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[st
                     assets = {item.get("name", "") for item in json.loads(existing.stdout).get("assets", [])}
                 except (json.JSONDecodeError, AttributeError, TypeError):
                     assets = set()
-                sha_prefix = str(apk_info["sha256"])[:8]
                 if any(sha_prefix in name for name in assets):
                     say(f"github: {tag} 已存在且附件包含相同 APK SHA-256 前缀 {sha_prefix}，按幂等规则视为已完成，不覆盖历史 Release")
                     return "already-present"
-                raise RuntimeError(f"GitHub Release 已存在且 APK SHA-256 不同：{tag}；每个 APK 更新必须递增正式版本号并创建新的 GitHub Release，禁止覆盖旧 Release")
+                raise RuntimeError(f"GitHub Release 更新标签已存在但 APK SHA-256 不同：{tag}；请使用新的 APK SHA 生成更新 Release，禁止覆盖旧 Release")
             run(command, check=True)
             return "created"
     finally:
@@ -327,6 +332,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--apk", help="已经验证的 APK 路径")
     parser.add_argument("--version", help="正式版本号，例如 3.21.0；不是任务编号")
     parser.add_argument("--manifest", help="installToRelease/verifyRelease 生成的 release-manifest.json")
+    parser.add_argument("--release-title", help="GitHub Release 标题（更新概括）")
+    parser.add_argument("--release-notes-file", help="GitHub Release 正文（详细更新内容）")
     return parser.parse_args()
 
 
@@ -376,8 +383,11 @@ def main() -> int:
                 rclone_publish("Google Drive", os.environ.get("AD_GDRIVE_REMOTE"), os.environ.get("AD_GDRIVE_DIR"), root, args.version, apk_info, args.dry_run)
                 set_channel(state, channel, "success", "rclone copyto completed")
             elif channel == "github":
-                github_result = github_publish(github_repo(), args.version, root, apk_info, args.dry_run)
-                set_channel(state, channel, "success", f"android-v{args.version}; {github_result}")
+                notes_file = Path(args.release_notes_file).expanduser().resolve() if args.release_notes_file else None
+                if notes_file and not notes_file.is_file():
+                    raise RuntimeError(f"GitHub Release 详细内容文件不存在：{notes_file}")
+                github_result = github_publish(github_repo(), args.version, root, apk_info, args.dry_run, args.release_title, notes_file)
+                set_channel(state, channel, "success", f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}; {github_result}")
             if not args.dry_run and channel != "local":
                 save_state(root, state)
         except Exception as exc:
