@@ -45,6 +45,7 @@
 密码.txt
 *.pass
 .secrets*
+.release.env
 
 # 该文件是 row18 改动前的 build_mod.py 备份，内含明文签名口令，
 # 只在本地留存追溯，不入库（脚本本身已由 Git 版本化）。

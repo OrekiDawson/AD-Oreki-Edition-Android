@@ -115,12 +115,14 @@ cd baseline/tools && cargo build --release   # 首次需要，之后复用
 
 ### APK 从哪里来
 
-APK 由维护者手动更新到两个云盘，文件名均为 `反物质维度.apk`：
+正式稳定版采用四个独立交付位置，全部使用同一个经过验证的 APK 和 SHA-256：
 
-- OneDrive（`OneDrive` 同步根目录）
-- 小米云盘（根目录）
+- OneDrive：rclone 官方 OneDrive backend
+- Google Drive：rclone 官方 Google Drive backend
+- GitHub Releases：`android-v<version>` 正式 Release
+- Kubuntu 本地 SSH/SFTP：`~/Releases/AD-Oreki-Edition/latest/`
 
-**这两个渠道没有公开分享链接**，只有维护者本机的云盘客户端可见。仓库、GitHub Release 与网页版站点都**不提供** APK 下载。如果你不是维护者本人，目前没有可用的公开获取途径 —— 这一点如实说明，不编造链接。
+历史小米云盘文件和历史交付记录保留，但小米云盘不再是当前正式发布的必达目标。四渠道发布状态记录在本地 `release-info.json`；仓库不会保存 OAuth、密码、Cookie 或 SSH 私钥。
 
 ### 安装步骤
 
@@ -282,10 +284,32 @@ python scripts/test_r81_dark_theme.py   # 深色主题路径
 
 ```bash
 ./gradlew installToRelease   # 用验证过的候选替换 release/
-./gradlew publishRelease     # 覆盖 OneDrive + 小米云盘并核验哈希
+
+# 检查四渠道配置与权限，不上传
+python3 scripts/publish_four_channels.py --check
+
+# 使用临时文件预演，不写入本地或云端
+python3 scripts/publish_four_channels.py --dry-run --apk /path/to/test.apk --version 3.21.0
+
+# 仅更新 SSH/SFTP 本地交付目录
+python3 scripts/publish_four_channels.py --local-only \
+  --apk release/反物质维度.apk --version 3.21.0 \
+  --manifest build/release-manifest.json
+
+# 四渠道正式发布（必须显式调用，且 APK 已完成签名/门禁/必要运行验收）
+python3 scripts/publish_four_channels.py --publish \
+  --apk release/反物质维度.apk --version 3.21.0 \
+  --manifest build/release-manifest.json
+
+# 仅重试上一轮 release-info.json 中失败的渠道
+python3 scripts/publish_four_channels.py --publish --retry-failed \
+  --apk release/反物质维度.apk --version 3.21.0 \
+  --manifest build/release-manifest.json
 ```
 
-只交付 APK，不生成 XAPK。发布前先备份当前 `release/反物质维度.apk`（签名流程会先 `unlink` 目标文件）。
+发布入口不会构建 APK，也不会因普通 Gradle 构建自动上传。只交付 APK，不生成 XAPK；正式入口会先计算 SHA-256，在本地 `archive/<version>/` 保留历史包，再原子更新 `latest/`。OneDrive 和 Google Drive 使用 `rclone copyto`，禁止 `sync`/`delete`；GitHub 既有 Release 不覆盖。
+
+首次使用前复制 `.release.env.example` 中的变量到当前 shell，分别完成 `rclone config` 的 OneDrive/Google Drive OAuth；`gh auth status` 必须通过。手机从 SSH/SFTP 登录 `oreki` 用户后读取 `latest/`，不开放匿名访问。
 
 ### 更多开发文档
 

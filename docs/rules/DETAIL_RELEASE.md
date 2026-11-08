@@ -154,9 +154,11 @@ R67 定位到 R66 的 `stage=-1` 是**六处叠加**错误（fill 守卫 / leaf 
 
 ## 6.7. 发布与实测环境（2026-10-29 用户确立，长期有效）
 
-### 6.7.1 Android 发版：自动覆盖双云盘，不再询问
+### 6.7.1 Android 发版：历史双云盘条款（已被 R96 四渠道规范取代）
 
-通过验证并构建成功后**自动发布**：`C:\Users\Oreki\OneDrive\反物质维度.apk` 与
+本节仅保留历史规则和历史证据。当前正式交付以 `docs/rules/RELEASE.md` 的 R96 节为准；小米云盘不再是必达渠道。
+
+历史流程曾在验证并构建成功后自动发布：`C:\Users\Oreki\OneDrive\反物质维度.apk` 与
 `C:\Users\Oreki\小米云盘\反物质维度.apk` 两处同名覆盖 → 记录上传结果 → 报告。
 流程与脚本见 Android `AGENTS.md §3-B` / `scripts/publish_apk.py`（本节只声明「不再询问是否上传」）。
 

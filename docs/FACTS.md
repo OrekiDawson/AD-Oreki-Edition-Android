@@ -8398,3 +8398,12 @@ auto.bigCrunch = {mode: 1 (TIME), time: 10.0}  ← R94「Break 前 TIME/10s 收�
 
 Web：Pages 已部署 `fca3628..6c7d9cd`（41 项内容更新），线上 `oreki.net/src/core/oreki-smart-strategy.gen.js`
 SHA-256 前缀 `aaaefd20a3f90891` 与本地源码一致（已核验）。
+
+### R96 四渠道发布基础设施核验（2026-11-08）
+
+- `[实测]` Linux 已安装 `rclone v1.60.1-DEV`（`/usr/bin/rclone`），当前 `/home/oreki/.config/rclone/rclone.conf` 不存在，OneDrive 与 Google Drive remote 尚未完成 OAuth 配置；未把 Windows 重解析点或旧同步目录当成云端成功依据。
+- `[实测]` `gh` CLI 2.46.0 已登录 `OrekiDawson`，目标 Android 仓库为公开仓库 `OrekiDawson/AD-Oreki-Edition-Android`，默认分支 `main`；当前没有 GitHub Release 和 tag。
+- `[实测]` OpenSSH Server `10.2p1-2ubuntu3.8` 已安装，`ssh.service` 为 `enabled/active`，监听 TCP 22；UFW 仅允许 `192.168.1.0/24` 访问 22，未配置公网端口转发。
+- `[实测]` 本地 SFTP 交付目录已建立：`/home/oreki/Releases/AD-Oreki-Edition/{latest,archive}`，目录由普通用户 `oreki` 持有，不在 Web 公共根目录。
+- `[读码]` Linux 四渠道入口为 `scripts/publish_four_channels.py`：`--check`、`--dry-run`、`--local-only`、显式 `--publish` 与 `--retry-failed` 均不触发 APK 构建；OneDrive/Google Drive 使用独立 `rclone copyto`，GitHub Release 使用不可覆盖的 `android-v<version>` 标签，本地采用临时文件 + 原子替换并保留 SHA-256 归档。
+- `[未知]` OneDrive、Google Drive 的实际 OAuth 登录、remote 名称与固定交付目录，以及手机端 SSH 公钥授权，仍需维护者本人完成；本轮未上传任何 APK。
