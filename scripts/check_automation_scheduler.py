@@ -284,6 +284,18 @@ check("Break 前强制 TIME 模式收割 IP", "policy -> TIME/10s (pre-break IP 
 check("Break 前填塌间隔按常量校准", "PRE_BREAK_CRUNCH_SECONDS" in stage)
 check("未 Break 分支在 isBroken 之前", stage.index("if (!isBroken()) {") < stage.index("if (GameApi.crunchMode(crunch) == MODE_TIME) return"))
 
+# ---------------------------------------------------------------- 23. R96：策略叶子 Kotlin 补实现
+# 策略解释器只接线 11 个叶子，数据表 19 个 ⇒ 未接线叶子 NaN ⇒ fail-closed ⇒ stage=-1。
+# 新叶子一律 Kotlin 实现（OrekiStrategyLeaves），smali 只保留一处接线。
+_kind = "stage"
+_leaf_kt = read(KT_DIR / "OrekiStrategyLeaves.kt")
+_strategy_smali = (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.smali").read_text(encoding="utf-8")
+check("策略叶子 Kotlin 实现存在", "object OrekiStrategyLeaves" in _leaf_kt)
+check("dilationUnlocked 叶子读 dilation.studies 含 1", '"progress.dilationUnlocked" -> bool(dilationStudyOneBought())' in _leaf_kt)
+check("未实现叶子返回 NaN（fail-closed 不变）", "return Double.NaN" in _leaf_kt)
+check("smali 只保留一处接线调用", _strategy_smali.count("OrekiStrategyLeaves;->evaluate") == 1)
+check("接线在 unknown 计数之前", _strategy_smali.index("OrekiStrategyLeaves;->evaluate") < _strategy_smali.index(":l_unknown"))
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:

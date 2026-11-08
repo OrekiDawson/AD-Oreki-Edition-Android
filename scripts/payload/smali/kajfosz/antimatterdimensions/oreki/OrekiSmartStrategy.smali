@@ -802,9 +802,21 @@
     return-wide v2
 
     :l_doom
+    # [R96] 先问 Kotlin 叶子实现（新增业务逻辑一律 Kotlin，smali 只接线）。
+    # 非 NaN = 已实现，直接返回；NaN 再走下面的 unknown 计数与 fail-closed。
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves;->evaluate(Ljava/lang/String;)D
+    move-result-wide v2
+
+    cmpl-double v3, v2, v2
+
+    if-ltz v3, :l_unknown
+
+    return-wide v2
+
     # ---- 未接线：计一次 unknown，并返回 NaN ----
     # R66 返回 0.0，等价于「这个叶子是假的」：`not(leaf)` 会被翻成 true，
     # 于是依赖未知叶子的阶段可能被误判为成立。NaN 让 evalStage 走 fail-closed。
+    :l_unknown
     sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;->sUnknown:I
 
     add-int/lit8 v1, v1, 0x1
