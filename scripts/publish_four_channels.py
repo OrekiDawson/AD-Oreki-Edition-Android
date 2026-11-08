@@ -309,7 +309,7 @@ def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[st
                 if any(sha_prefix in name for name in assets):
                     say(f"github: {tag} 已存在且附件包含相同 APK SHA-256 前缀 {sha_prefix}，按幂等规则视为已完成，不覆盖历史 Release")
                     return "already-present"
-                raise RuntimeError(f"GitHub Release 已存在且 APK SHA-256 不同，按历史不可变规则不覆盖：{tag}")
+                raise RuntimeError(f"GitHub Release 已存在且 APK SHA-256 不同：{tag}；每个 APK 更新必须递增正式版本号并创建新的 GitHub Release，禁止覆盖旧 Release")
             run(command, check=True)
             return "created"
     finally:
