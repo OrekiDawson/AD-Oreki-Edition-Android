@@ -397,7 +397,7 @@
 # 判据逐条对齐 Web `tickEternity()`（:570-592）与本端原版自动器：
 #   ① `prestige/c;->f()Z`  = canEternity（原版同一判据，含「不在挑战中」等前置）；
 #   ② `prestige/c;->g()`   = gainedEP；
-#   ③ 门槛 = 当前 EP × 10（[R96 第八轮] 恢复 ×10：周期宽度由「重建开销」而非 ΔE 决定，见下方长注释）；
+#   ③ 门槛 = 当前 EP × 1（[R96 第九轮] 恢复 ×1：永恒里程碑才是真正的加速器，见下方长注释）；
 #   ④ 实参元组 (false, true, false, null) 来自 `EternityAutobuyerState.y()`
 #      的 `d(INSTANCE, 0, 1, 0, null, cont, 0xD)`（mask 0xD ⇒ p1/p3/p4 取默认）。
 # 注意 `Player.y()` 返回的是**存档内活对象**，`multiply` 会就地改它，
@@ -492,20 +492,23 @@
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;->copy()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
-    # [R96 第八轮] 门槛恢复到 ×10（EP 至少要涨到 11 倍才结算）。
+    # [R96 第九轮] 门槛回到 ×1（EP 至少翻倍就结算）。
     #
-    # 沿革（两次实测，勿只看其中一次）：
-    #   · 第五轮从 ×10 下调到 ×1：当时平台期 `bigE=3、EP=2.16、maxIP 1e593`，
-    #     ×10 要求 maxIP 1e804 而收益只有 7 ⇒ EP 永远不动 ⇒ 时间维度/永恒升级买不起。
-    #     但那次停滞的真正根因是「无限升级买不到 / 坍缩被每帧重置」，第七轮已修好。
-    #   · 第八轮实测（干净新档 t0 05:48:55，×1 门槛）：37 分钟做了 7 次永恒，
-    #     但每次只涨 ~1.6 EP（EP 1→4），因为门槛 ×1 等价于「一够 canEternity 就结算」，
-    #     EP 增长≈线性；而周期时间（2–4 分钟）几乎全部是**重建开销**
-    #     （维度/星系/无限维度重解锁），不是 ΔE 决定的 —— 所以加宽周期是纯赚：
-    #     ×10 时单次 EP ×11、周期只多几分钟，EP 指数增长，才能滚到
-    #     时间维度 TD2/TD3（5/100 EP）与永恒升级（5/10/5e4 EP）。
+    # 三轮实测（按时间顺序，勿只看其中一次）：
+    #   · 第五轮 ×10：平台期 `bigE=3、EP=2.16、maxIP 1e593`，×10 要求 maxIP 1e804
+    #     而收益只有 7 ⇒ EP 永远不动。真正根因是「无限升级买不到 / 坍缩每帧重置」，
+    #     第七轮修好，与门槛无关。
+    #   · 第八轮 ×1（t0 05:48:55）：37 分钟 7 次永恒、EP 1→4、eupBits 0 —— 当时看似太慢。
+    #   · 第九轮 ×10（t0 06:37:50）：首次永恒后 **19 分钟才重建到 maxAM 1e7762**，
+    #     而第二次永恒需要 maxAM ≈1e95,000（IP 1e308）⇒ 单周期 2 小时以上，EP 更慢。
+    # 结论：**真正的加速器是永恒里程碑，不是单次 EP 大小**
+    #   · 2 次永恒：`keepAutobuyers`（开局保留挑战完成 + 全部原版自动器 + 已 Break）
+    #   · 4 次永恒：`keepInfinityUpgrades`（开局直接拥有全部无限升级）
+    #   · 5 次：大坍缩自动器更多模式；8 次：保留 Break 升级
+    # 里程碑靠的是**永恒次数**，×10 会把次数卡死 ⇒ 重建开销永远付。
+    # ×1 让次数快速累积、里程碑尽快到手，重建开销随里程碑下降，EP 也随增益一起涨。
     # 只影响结算时机，不改任何收益公式；EP 收益仍由原版 gainedEP 计算。
-    const/16 v2, 0xa
+    const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->multiply(I)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1

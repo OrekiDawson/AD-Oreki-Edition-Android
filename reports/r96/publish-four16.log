@@ -1,0 +1,19 @@
+[四渠道发布] APK=/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/release/反物质维度.apk version=3.21.0 sha256=4e6fb5b274bb5f4ecfa3c70ad8d23e5835792ae37988b8d1ace3b0a3466e1b4b
+[四渠道发布] 渠道=local,onedrive,gdrive,github 模式=publish
+[四渠道发布] 本地：原子覆盖 /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk（不创建版本归档）
+[四渠道发布] OneDrive: rclone copyto /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk onedrive:Apps/AD-Oreki-Edition/反物质维度.apk
+[四渠道发布] onedrive 失败：命令失败（1）：rclone copyto /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk onedrive:Apps/AD-Oreki-Edition/反物质维度.apk
+<5>NOTICE: 反物质维度.apk: Failed to cancel multipart upload: unauthenticated: Unauthenticated (upload failed due to: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}")
+<3>ERROR : 反物质维度.apk: Failed to copy: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+<3>ERROR : Attempt 1/3 failed with 1 errors and: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+<5>NOTICE: 反物质维度.apk: Failed to cancel multipart upload: unauthenticated: Unauthenticated (upload failed due to: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}")
+<3>ERROR : 反物质维度.apk: Failed to copy: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+<3>ERROR : Attempt 2/3 failed with 1 errors and: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+<5>NOTICE: 反物质维度.apk: Failed to cancel multipart upload: unauthenticated: Unauthenticated (upload failed due to: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}")
+<3>ERROR : 反物质维度.apk: Failed to copy: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+<3>ERROR : Attempt 3/3 failed with 1 errors and: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+Failed to copyto: HTTP error 409 (409 Conflict) returned body: "{\"error\":{\"code\":\"resourceModified\",\"message\":\"The resource has changed since the caller last read it; usually an eTag mismatch\"}}"
+[四渠道发布] Google Drive: rclone copyto /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk gdrive:AD-Oreki-Edition/反物质维度.apk
+[四渠道发布] github: gh release create android-update-3.21.0-4e6fb5b2 /tmp/oreki-gh-asset-wh306x7y/AD-Oreki-Edition-3.21.0.apk /tmp/oreki-gh-asset-wh306x7y/AD-Oreki-Edition-3.21.0.apk.sha256 --repo OrekiDawson/AD-Oreki-Edition-Android --title Android 3.21.0 更新（4e6fb5b2） --notes-file /tmp/tmp03ls_bj2.md --target main
+[四渠道发布] github: android-update-3.21.0-4e6fb5b2 已存在且附件 SHA-256 与本次一致，按幂等规则视为已完成，不覆盖历史 Release
+[四渠道发布] 部分渠道失败：onedrive；已保留成功渠道，不重建 APK

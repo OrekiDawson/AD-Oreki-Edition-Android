@@ -8,7 +8,7 @@
 
 判定表（用户给定，逐行断言）：
 
-| holdCrunch | canEternity | 收益达到 EP ×10（R96 第八轮恢复） | 允许永恒 |
+| holdCrunch | canEternity | 收益达到 EP 翻倍（×1，R96 第九轮恢复） | 允许永恒 |
 |---|---|---|---|
 | true  | true  | true  | 否 |
 | true  | true  | false | 否 |
@@ -73,8 +73,8 @@ def main() -> int:
     m_mult = re.search(r"const/(?:4|16) v2, (0x[0-9a-f]+)\s*\n\s*\n\s*invoke-virtual \{v1, v2\}, Lkajfosz/antimatterdimensions/BigDouble;->multiply\(I\)", body)
     check("EP 门槛乘数提取成功", m_mult is not None)
     if m_mult is not None:
-        check("EP 门槛乘数 = ×10（R96 第八轮恢复）", m_mult.group(1) == "0xa", m_mult.group(1))
-        check("EP 门槛乘数不得退回 ×1（会退化成线性 EP 增长）", m_mult.group(1) != "0x1", m_mult.group(1))
+        check("EP 门槛乘数 = ×1（R96 第九轮恢复）", m_mult.group(1) == "0x1", m_mult.group(1))
+        check("EP 门槛乘数不得回到 ×10（会把永恒次数/里程碑卡死）", m_mult.group(1) != "0xa", m_mult.group(1))
 
     # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
     # 历史沿革（两次纠偏，勿回退）：
@@ -212,7 +212,7 @@ def main() -> int:
     ]
     for hold, can, ten, want in table:
         got = allows_eternity(hold, can, ten)
-        check(f"判定表 hold={hold} can={can} 10x={ten} → {want}", got is want, f"got={got}")
+        check(f"判定表 hold={hold} can={can} 翻倍={ten} → {want}", got is want, f"got={got}")
 
     print(f"\n首次永恒判定链夹具：{checks} 项检查，失败 {len(failures)} 项")
     print(f"  提取到的助记符：hold={g_hold} can={g_can} ep={g_ep}")
