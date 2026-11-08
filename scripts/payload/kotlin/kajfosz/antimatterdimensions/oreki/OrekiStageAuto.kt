@@ -86,6 +86,9 @@ object OrekiStageAuto {
      */
     private const val PRE_BREAK_CRUNCH_SECONDS = 60.0
 
+    /** [R96] 目标保护期间的坍缩间隔（秒）：足够大以免误触发，放行后立即恢复。 */
+    private const val CRUNCH_PAUSE_SECONDS = 3600.0
+
     // ---------------------------------------------------------------- 状态字段
     // 保持与旧 Smali 同名字段，供诊断脚本按名读取。
 
@@ -856,6 +859,9 @@ object OrekiStageAuto {
     /** [R94] 填塌间隔策略是否已在本段时期设置过。 */
     private var preBreakCrunchInitialized: Boolean = false
 
+    /** [R96] 当前因目标保护而暂停坍缩的原因；null 表示未暂停。 */
+    private var pauseReason: String? = null
+
     /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
     private var holdProbeTick: Int = 0
 
@@ -939,6 +945,25 @@ object OrekiStageAuto {
             if (!OrekiAutomationScheduler.isEnabled()) return
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
+
+            // [R96] 智能大坍缩决策：目标驱动、按需结算（挑战 > 目标保护 > 收益驱动）。
+            // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
+            // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。
+            val decision = OrekiCrunchPolicy.decide()
+            if (!decision.allow) {
+                if (pauseReason != decision.reason) {
+                    pauseReason = decision.reason
+                    GameApi.setCrunchMode(crunch, MODE_TIME)
+                    GameApi.setCrunchInterval(crunch, CRUNCH_PAUSE_SECONDS)
+                    Log.i(TAG_AU4C, "policy -> pause (" + decision.reason + ")")
+                }
+                return
+            }
+            if (pauseReason != null) {
+                pauseReason = null
+                GameApi.setCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS)
+                Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
+            }
 
             // [R94] 未 Break 阶段：实测存档 `auto.bigCrunch` 为 AMOUNT 模式且
             // `amount = 1`（mantissa 1.0 / exponent 0）⇒ 反物质刚到 1 就填塌，

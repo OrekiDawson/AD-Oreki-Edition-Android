@@ -66,8 +66,8 @@ code = "\n".join(ln for ln in body.splitlines() if not ln.strip().startswith("//
 
 # ---- 1. 红线：改 mode 只允许出现在「一次性初始化」分支内 ----
 a_calls = [mm.start() for mm in re.finditer(r"GameApi\.setCrunchMode\(", code)]
-check("写 mode 的次数不超过「一次性初始化」允许的数量（≤2）",
-      len(a_calls) <= 2, f"实际 {len(a_calls)} 次")
+check("写 mode 的次数不超过允许的数量（≤3：Break 前 / Break 后 / 目标保护暂停）",
+      len(a_calls) <= 3, f"实际 {len(a_calls)} 次")
 
 ok_once = True
 for pos in a_calls:
@@ -76,8 +76,12 @@ for pos in a_calls:
     # [R80] 判据改为「同一个 if (!xxxInitialized) { 块内」：
     # 该方法里有两个维护不同分支的闩锁（crunchTimeModeInitialized /
     # crunchPolicyInitialized），只认固定字段名必然误判。
-    if not (re.search(r"if\s*\(\s*!\s*\w*Initialized\s*\)\s*\{", tail)
-            and re.search(r"\w*Initialized\s*=\s*true", tail)):
+    guarded = bool(re.search(r"if\s*\(\s*!\s*\w*Initialized\s*\)\s*\{", tail)
+                   and re.search(r"\w*Initialized\s*=\s*true", tail))
+    # [R96] 目标保护暂停分支：只在原因变化时写一次（pauseReason != decision.reason）
+    if not guarded and "pauseReason != decision.reason" in tail:
+        guarded = True
+    if not guarded:
         ok_once = False
         break
 check("每次写 mode 都在「首次初始化」分支内（不是每帧执行）", ok_once,
@@ -104,8 +108,8 @@ check("不直接读写 xHighest 私有字段",
       "->xHighest:" not in code and ".xHighest =" not in code)
 
 # ---- 5. 玩家选择优先：除一次性校准外不得改 mode ----
-check("除一次性校准外无其它改 mode 的路径",
-      len(a_calls) <= 2, f"实际 {len(a_calls)} 次")
+check("除一次性校准/暂停切换外无其它改 mode 的路径",
+      len(a_calls) <= 3, f"实际 {len(a_calls)} 次")
 
 # ---- 6. TIME 分支的间隔校准仍然存在 ----
 check("TIME 分支仍把间隔校准为 1 秒",

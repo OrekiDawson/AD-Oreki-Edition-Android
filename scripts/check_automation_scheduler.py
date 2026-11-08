@@ -296,6 +296,16 @@ check("未实现叶子返回 NaN（fail-closed 不变）", "return Double.NaN" i
 check("smali 只保留一处接线调用", _strategy_smali.count("OrekiStrategyLeaves;->evaluate") == 1)
 check("接线在 unknown 计数之前", _strategy_smali.index("OrekiStrategyLeaves;->evaluate") < _strategy_smali.index(":l_unknown"))
 
+# ---------------------------------------------------------------- 24. R96：智能大坌缩决策
+_crunch_kt = read(KT_DIR / "OrekiCrunchPolicy.kt")
+check("智能坌缩决策类存在", "object OrekiCrunchPolicy" in _crunch_kt)
+check("决策优先级：挑战最优先", _crunch_kt.index("inAnyChallenge()") < _crunch_kt.index("hasInfinity()"))
+check("决策优先级：未 Break 放行", 'Decision(true, "pre-break-ip")' in _crunch_kt)
+check("永恒前保护 ID 峰值（阻断原因明确）", 'Decision(false, "id-peak-wait")' in _crunch_kt)
+check("判据异常 fail-closed", "exception:" in _crunch_kt and "Decision(false, \"exception:" in _crunch_kt)
+check("暂停通过大间隔实现且可恢复", "CRUNCH_PAUSE_SECONDS" in stage and "pauseReason = null" in stage)
+check("暂停原因变化才写 mode（非每帧）", "pauseReason != decision.reason" in stage)
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:

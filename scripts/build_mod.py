@@ -3173,8 +3173,8 @@ def verify_payload():
     #   ② Break 后（crunchTimeModeInitialized）：早期 TIME/1s。
     # 守卫语义不变：**任何一处都不得每帧改写 mode**（R74 根因），且只能是 MODE_TIME。
     _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
-    assert len(_set_mode_calls) == 2, (
-        f"[R74] setCrunchMode 调用点应恰好 2 处（Break 前 / Break 后各一次性），实际 {len(_set_mode_calls)} 处")
+    assert len(_set_mode_calls) == 3, (
+        f"[R74] setCrunchMode 调用点应恰好 3 处（Break 前 / Break 后 / 目标保护暂停，均一次性），实际 {len(_set_mode_calls)} 处")
     for _call in _set_mode_calls:
         assert "MODE_TIME" in _call, f"[R74] setCrunchMode 只允许切 TIME，实际：{_call}"
     # 取「TIME 模式一次性初始化」分支的代码块
@@ -5820,14 +5820,17 @@ def verify_au4b():
     # 现在改为：从「最近的 `if (!XxxInitialized) {` 块」判断，允许任意以
     # Initialized 结尾的闩锁名，语义与 R74 的设计意图完全一致。
     _a_positions = [mm.start() for mm in re.finditer(r"GameApi\.setCrunchMode\(", body)]
-    assert len(_a_positions) <= 2, \
-        f"[AU4b] 写 mode 的次数异常（{len(_a_positions)} 次）：只应有 TIME 一条一次性初始化"
+    # [R96] 现为三处一次性写 mode：Break 前 TIME/60s、Break 后 TIME/1s、目标保护暂停（TIME+大间隔）。
+    assert len(_a_positions) <= 3, \
+        f"[AU4b] 写 mode 的次数异常（{len(_a_positions)} 次）：最多三处一次性初始化"
     for _p in _a_positions:
         _window = body[max(0, _p - 1600):_p]
-        assert re.search(r"if\s*\(\s*!\s*\w*Initialized\s*\)\s*\{", _window), \
-            "[AU4b] 写 mode 必须发生在 `if (!xxxInitialized) {` 的一次性初始化块内，禁止每帧改写（R74 根因）"
-        assert re.search(r"\w*Initialized\s*=\s*true", _window), \
-            "[AU4b] 该初始化块必须先置位闩锁，再写 mode"
+        _guarded = bool(re.search(r"if\s*\(\s*!\s*\w*Initialized\s*\)\s*\{", _window)) or \
+            ("pauseReason != decision.reason" in _window)
+        assert _guarded, \
+            "[AU4b] 写 mode 必须在一次性初始化块或暂停原因变化分支内，禁止每帧改写（R74 根因）"
+        _latched = bool(re.search(r"\w*Initialized\s*=\s*true", _window)) or ("pauseReason = decision.reason" in _window)
+        assert _latched, "[AU4b] 该初始化块必须先置位闩锁（含暂停原因），再写 mode"
 
     # xHighest 只在校准分支内、且仅在 < 10 时写入
     # [R80] 局部变量按 §67 命名规范改为 `highestVersusTen`；断言接受历史三种写法。
