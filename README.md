@@ -24,16 +24,16 @@
 
 **版本号含义**：`3.21.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 正式稳定版（R96 第三轮，2026-11-09 02:44 四渠道交付；前两版 01:39 / 01:57）
+### 3.21 正式稳定版（R96 第四轮，2026-11-09 03:01 四渠道交付；前三版 01:39 / 01:57 / 02:44）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
 | 正式交付 | 四渠道同一包：本地 `release/反物质维度.apk`；SSH `~/Releases/AD-Oreki-Edition/latest/反物质维度.apk`（临时文件 + 原子覆盖）；OneDrive `Apps/AD-Oreki-Edition/反物质维度.apk`；Google Drive `AD-Oreki-Edition/反物质维度.apk`；GitHub Release 标签 `android-update-3.21.0-5f7afd78`（附件 APK + `.sha256`）。小米云盘不再是正式渠道 |
-| 大小 / SHA-256 | 82,552,305 B / `56D0E479E899C1CDC9114A23ECB2E96AA777D771D6B7B16C0F112076513E83E0` |
+| 大小 / SHA-256 | 82,552,305 B / `3BA30208C9F84F26702E8D85AF25D4CBC825F72C9DEF3B9481B41E6EFBE1D3E3` |
 | 构建 | `./gradlew assembleRelease --offline` → `installToRelease`（生成 `build/release-manifest.json`）；签名证书与上一版一致，可原地升级 |
-| 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **111/111**、`fixture_eternity_gate` **47/47**、`check_publish_rules` **13/13**；V2+V3 签名 |
-| 真实运行 | 同一存档实测：① 01:34:16 **首次永恒真实结算**（IP 1e179.8 → 1e313、8 个无限维度全解锁）；② 01:51:43 **第 2 次永恒真实结算**（`bigEternities=2`），TT 真实购买、时间研究已购；③ 第三轮修复「经济任务饥饿」后新档 13.4 分钟 IP 1e7.19、`infinityUpgradeBits=3`、坍缩间隔 150000→54000（修复前同期 IP=12、infinityUpgrades 执行 0 次）；全程 `OREKI_API_MISS=0`、`OREKI_ET_EXC=0`、`VerifyError=0` |
+| 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **112/112**、`fixture_eternity_gate` **47/47**、`check_publish_rules` **13/13**；V2+V3 签名 |
+| 真实运行 | ① 旧档：01:34:16 首次永恒（IP 1e179.8→1e313）、01:51:43 第 2 次永恒；② 第三轮修复经济任务饥饿后新档 13.4 分钟 IP 1e7.19；③ **第四轮修复 Break 兜底优先级后，全新存档（t0 02:50:40）在 +128s 首次无限、+548s 首次 Break、+556s（≈9.3 分钟）首次永恒真实结算**，随后第 2 次永恒与 TT/时间研究开始推进；全程 `OREKI_API_MISS=0`、`OREKI_ET_EXC=0`、`VerifyError=0` |
 | 状态 | **已发布为 3.21 正式稳定版**。已知限制：① 干净环境 3 小时新档全流程尚未做一次完整墙钟计时；② 99.72% 回落问题本轮未复现、未定位；③ 首次永恒之后的成长链已打通到「TT 真实购买 + 时间研究 + 第 2 次永恒」，膨胀解锁仍在推进 |
 
 R96 第三轮修复「经济任务饥饿 + 紧迫任务分发错误」P0（bulk/sacrifice 吃满全局节拍导致 infinityUpgrades 零执行、IP 倍率恒 1、Break 卡死），详见 FACTS。R96 第二轮另修三个「混淆名跨版本漂移」P0（TT 入口 `ix4`→`zu4` 版本桥、永恒升级注册表 `x81`→`h91`、货币购买 `o`→`p`），详见 FACTS。R96 首轮两个 P0 修复（均由真机日志确证）：① 策略层返回 `kotlin.Triple` 在 3.21 被 R8 裁剪的 stdlib 上抛 `NoSuchMethodError`，被静默 fail-closed 后把坍缩暂停（实测 IP 冻结 1e145 达 46 分钟），改为私有载体并补异常可见化；② `OrekiEternityLaunch` 仍用 3.20 的 `g.p(Lvi1;Z)`，3.21 的正确启动器是 `g.s(Lgm1;Z)`，旧绑定被 ART 拒绝整类、每帧 `OREKI_ET_EXC`、EP 恒 0。另把智能坍缩改为目标驱动（`canEternity` → 收益 ≥10 倍 IP 的 `ip-jump` → ID 峰值窗口 → 收益等待，均带上限）。
@@ -47,7 +47,7 @@ R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除�
 | 项 | 值 |
 |---|---|
 | 当前开发基线 | **3.21.0**（`versionCode` 30210000） |
-| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `56D0E479E899C1CDC9114A23ECB2E96AA777D771D6B7B16C0F112076513E83E0`） |
+| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `3BA30208C9F84F26702E8D85AF25D4CBC825F72C9DEF3B9481B41E6EFBE1D3E3`） |
 | Android 基线来源 | 3.20 稳定基线官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400`；3.21 基线见 `baseline/versions/3.21/` |
 | Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
 | 3.21 基线 | 42 项真实 bindings 与迁移门禁已通过；R94 起 3.21 已作为正式稳定版发布（构建/签名/双门禁/真实运行均绑定同一 SHA-256） |
