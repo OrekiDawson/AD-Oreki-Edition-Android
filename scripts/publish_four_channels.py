@@ -271,7 +271,7 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, root
         run(command, check=True)
 
 
-def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[str, object], dry_run: bool) -> None:
+def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[str, object], dry_run: bool) -> str:
     if not repo:
         raise RuntimeError("无法解析 GitHub owner/repo")
     tag = f"android-v{version}"
@@ -299,10 +299,19 @@ def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[st
         command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", f"Android {version}", "--notes-file", str(notes_path), "--target", "main"]
         say(f"github: {' '.join(command)}")
         if not dry_run:
-            existing = run(["gh", "release", "view", tag, "--repo", repo])
+            existing = run(["gh", "release", "view", tag, "--repo", repo, "--json", "assets"])
             if existing.returncode == 0:
-                raise RuntimeError(f"GitHub Release 已存在，按历史不可变规则不覆盖：{tag}")
+                try:
+                    assets = {item.get("name", "") for item in json.loads(existing.stdout).get("assets", [])}
+                except (json.JSONDecodeError, AttributeError, TypeError):
+                    assets = set()
+                sha_prefix = str(apk_info["sha256"])[:8]
+                if any(sha_prefix in name for name in assets):
+                    say(f"github: {tag} 已存在且附件包含相同 APK SHA-256 前缀 {sha_prefix}，按幂等规则视为已完成，不覆盖历史 Release")
+                    return "already-present"
+                raise RuntimeError(f"GitHub Release 已存在且 APK SHA-256 不同，按历史不可变规则不覆盖：{tag}")
             run(command, check=True)
+            return "created"
     finally:
         notes_path.unlink(missing_ok=True)
 
@@ -367,8 +376,8 @@ def main() -> int:
                 rclone_publish("Google Drive", os.environ.get("AD_GDRIVE_REMOTE"), os.environ.get("AD_GDRIVE_DIR"), root, args.version, apk_info, args.dry_run)
                 set_channel(state, channel, "success", "rclone copyto completed")
             elif channel == "github":
-                github_publish(github_repo(), args.version, root, apk_info, args.dry_run)
-                set_channel(state, channel, "success", f"android-v{args.version}")
+                github_result = github_publish(github_repo(), args.version, root, apk_info, args.dry_run)
+                set_channel(state, channel, "success", f"android-v{args.version}; {github_result}")
             if not args.dry_run and channel != "local":
                 save_state(root, state)
         except Exception as exc:
