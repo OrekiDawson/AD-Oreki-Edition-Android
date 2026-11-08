@@ -27,6 +27,7 @@ import argparse
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -35,8 +36,43 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 KT_SRC = ROOT / "scripts" / "payload" / "kotlin"
 OUT_CLASS = ROOT / "build" / "kt" / "classes"
 OUT_DEX = ROOT / "build" / "kt"
-KOTLINC = ROOT / "tools" / "kotlinc" / "bin" / "kotlinc.bat"
-D8 = ROOT / "tools" / "bt" / "android-14" / "d8.bat"
+# [R96] Linux（Kubuntu 26.04）成为主开发环境：Windows 用随仓库附带的 .bat/.exe，
+# POSIX 用 kotlinc 的 shell 启动器 + SDK build-tools 里真实的 d8 可执行文件。
+_WIN = sys.platform.startswith("win")
+
+
+def _first_existing(cands):
+    for c in cands:
+        if c and pathlib.Path(c).exists():
+            return pathlib.Path(c)
+    return None
+
+
+def _sdk_build_tools_exe(name: str):
+    """在 SDK build-tools 里找最新的可用 `name`（Linux 没有 .bat 包装）。"""
+    sdk_roots = [pathlib.Path(os.environ.get("ANDROID_SDK_ROOT", "") or ""),
+                 pathlib.Path(os.environ.get("ANDROID_HOME", "") or ""),
+                 pathlib.Path.home() / "Android" / "Sdk"]
+    for root in sdk_roots:
+        bt = root / "build-tools"
+        if not bt.is_dir():
+            continue
+        vers = sorted((d for d in bt.iterdir() if d.is_dir()),
+                      key=lambda d: [int(x) if x.isdigit() else 0 for x in re.split(r"[.-]", d.name)],
+                      reverse=True)
+        for v in vers:
+            exe = v / name
+            if exe.exists():
+                return exe
+    return None
+
+
+KOTLINC = (_first_existing([ROOT / "tools" / "kotlinc" / "bin" / "kotlinc.bat"])
+           if _WIN else
+           _first_existing([ROOT / "tools" / "kotlinc" / "bin" / "kotlinc"]))
+D8 = (_first_existing([ROOT / "tools" / "bt" / "android-14" / "d8.bat"])
+      if _WIN else
+      _sdk_build_tools_exe("d8"))
 # [R78] Kotlin 标准库：`by lazy` / `data class` / 集合操作等都会生成对
 # kotlin.jvm.functions.* / kotlin.Lazy 的引用。本 APK 是「往原版游戏里塞几个类」，
 # 原版没有 Kotlin 运行时 —— 所以必须把 stdlib 一起 D8 进去，否则运行期
@@ -297,15 +333,24 @@ def _game_dex_classpath() -> list[pathlib.Path]:
 
 
 def jdk_home() -> pathlib.Path:
-    """与 build.gradle 同口径：tools/jdk 下按名字排序取最后一个。"""
+    """Windows：tools/jdk 下按名字取最后一个；POSIX：JAVA_HOME，其次 /usr/bin/java 所在 JDK。"""
     base = ROOT / "tools" / "jdk"
-    cands = sorted(
-        d for d in base.iterdir()
-        if d.is_dir() and (d / "bin" / "java.exe").exists()
-    )
-    if not cands:
-        raise SystemExit("找不到可用 JDK（tools/jdk/<ver>/bin/java.exe）")
-    return cands[-1]
+    # [R96] tools/jdk 里是随仓库迁移过来的 Windows JDK（只有 .exe），POSIX 上必须跳过，
+    # 否则 javap/jarsigner 会以 "Exec format error" 失败。
+    if base.is_dir() and _WIN:
+        cands = sorted(
+            d for d in base.iterdir()
+            if d.is_dir() and ((d / "bin" / "java.exe").exists() or (d / "bin" / "java").exists())
+        )
+        if cands:
+            return cands[-1]
+    env = os.environ.get("JAVA_HOME", "").strip()
+    if env and (pathlib.Path(env) / "bin" / "java").exists():
+        return pathlib.Path(env)
+    java = shutil.which("java")
+    if java:
+        return pathlib.Path(java).resolve().parent.parent
+    raise SystemExit("找不到可用 JDK（tools/jdk 或 JAVA_HOME / PATH 中的 java）")
 
 
 def run(cmd, **kw):
@@ -370,7 +415,7 @@ def main() -> int:
     print(f"[kotlin] 生成 {len(classes)} 个 class")
 
     # ABI 断言：用 javap 核对每个迁移单元
-    javap = jdk / "bin" / "javap.exe"
+    javap = jdk / "bin" / ("javap.exe" if _WIN else "javap")
     for fqcn, expected in EXPECTED_ABI.items():
         code, out = run([javap, "-p", "-classpath", str(OUT_CLASS), fqcn], env=env)
         if code != 0:
