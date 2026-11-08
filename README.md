@@ -19,22 +19,24 @@
 | MOD 版本 | 3.21.0（跟随原版版本号，不单独递增） |
 | 版本号（versionCode） | 30210000 |
 | 包名 | `com.oreki.antimatterdimensions` |
-| 安装包 | `反物质维度.apk`，约 78 MB（82,626,033 字节，4 个 DEX） |
+| 安装包 | `反物质维度.apk`，约 79 MB（82,552,305 字节，4 个 DEX） |
 | 系统要求 | Android 12（API 32）及以上 |
 
 **版本号含义**：`3.21.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 正式稳定版（R94，2026-11-07 23:10 紧急重建版；首版 21:45）
+### 3.21 正式稳定版（R96，2026-11-09 01:39 四渠道交付）
 
 | 项目 | 值 |
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
-| 正式交付 | `release/反物质维度.apk`，按 `cp + sha256sum` 覆盖本地稳定包并交付 OneDrive 与小米云盘同名文件（三处 SHA-256 一致）；上一稳定版备份为 `release/反物质维度_3.21初版_备份_c7307bf2.apk`，旧 3.20 稳定版备份为 `release/反物质维度_3.20稳定版_备份_82156a40.apk` |
-| 大小 / SHA-256 | 82,621,937 B / `B513BE9B8D58E68AE1255739D782A45A7AC4C4EA1388DC5EAB0832A8A06CC833` |
-| 构建 | R94 共两次完整构建：①20:29:56→20:39:51（首版，9m55s）②23:00 起→23:10:31（10m54s，P0 紧急重建，修复 Break 未自动重新激活）；签名与上版同一证书（可原地升级），账本 `used=1/1` |
-| 门禁 | `verifyRelease` **14/14 PASS**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17 PASS**、`check_automation_scheduler` **57/57**、v2+v3 签名；新包实测 `OREKI_API_MISS` 与 `VerifyError` **0 条** |
-| 真实运行 | 首版 APK 于 `oreki_r92_fresh`：全新存档 21:05:34 起跑，3m16s 首次无限、21:28:38 Break 激活、IP 达 3.4e8；`OREKI_SCHED act` 累计 227 条。该长跑因 Break 后续被清回 false 而**判定 FAIL**（未 Break 时反物质上限 `Number.MAX_VALUE`、IP 上限约 1e15，数学上无法到 ID1/永恒）。紧急重建版已安装并以全新存档 **23:18:18** 重新起跑 |
-| 状态 | **已发布为 3.21 正式稳定版**（紧急重建版）。已知限制：① `OREKI_GOAL` 阶段识别 `stage=-1 degraded=1`（策略层退化为固定顺序，部分后期叶子未接线，不影响推进）；② 首次永恒与 180 分钟终局仍在验收中；③ Break 被重置后的自愈逻辑已随本版上线，等待新长跑验证 |
+| 正式交付 | 四渠道同一包：本地 `release/反物质维度.apk`；SSH `~/Releases/AD-Oreki-Edition/latest/反物质维度.apk`（临时文件 + 原子覆盖）；OneDrive `Apps/AD-Oreki-Edition/反物质维度.apk`；Google Drive `AD-Oreki-Edition/反物质维度.apk`；GitHub Release 标签 `android-update-3.21.0-5f7afd78`（附件 APK + `.sha256`）。小米云盘不再是正式渠道 |
+| 大小 / SHA-256 | 82,552,305 B / `5F7AFD78001BFE12103A00926F17D3E6C55647D9F84D3AAED024F406B397322F` |
+| 构建 | `./gradlew assembleRelease --offline` → `installToRelease`（生成 `build/release-manifest.json`）；签名证书与上一版一致，可原地升级 |
+| 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **105/105**、`fixture_eternity_gate` **47/47**、`check_publish_rules` **13/13**；V2+V3 签名 |
+| 真实运行 | 同一存档实测：IP 1e179.8 →（8 分钟）1e313，8 个无限维度全部解锁；**01:34:16 首次永恒真实结算**（`bigEternities=1`、`thisEternity.realTime` 重置、`stage=10 永恒与时间研究`）；`OREKI_ET_EXC`、`OREKI_API_MISS`、`VerifyError` 均 0 条 |
+| 状态 | **已发布为 3.21 正式稳定版**。已知限制：① 干净环境 3 小时新档全流程尚未做一次完整墙钟计时；② 99.72% 回落问题本轮未复现、未定位；③ 首次永恒之后的成长链（时间维度/时间研究/膨胀）仍在验收 |
+
+R96 的两个 P0 修复（均由真机日志确证）：① 策略层返回 `kotlin.Triple` 在 3.21 被 R8 裁剪的 stdlib 上抛 `NoSuchMethodError`，被静默 fail-closed 后把坍缩暂停（实测 IP 冻结 1e145 达 46 分钟），改为私有载体并补异常可见化；② `OrekiEternityLaunch` 仍用 3.20 的 `g.p(Lvi1;Z)`，3.21 的正确启动器是 `g.s(Lgm1;Z)`，旧绑定被 ART 拒绝整类、每帧 `OREKI_ET_EXC`、EP 恒 0。另把智能坍缩改为目标驱动（`canEternity` → 收益 ≥10 倍 IP 的 `ip-jump` → ID 峰值窗口 → 收益等待，均带上限）。
 
 R92 的生产改动：Web 侧「开局维度提升 / 反物质星系」由每拍 1 次改为单次调度动作内买光当前买得起的次数，并修掉一个让该批量购买**完全失效**的真实缺陷（`player.dimBoosts` 应为原版真实字段 `player.dimensionBoosts`）；Android 侧修正 IU15 冲刺状态机只看原版自动购买器开关、未看本作自动化总开关的缺陷（关闭总开关后接管不会解除），并随构建同步 3.21 更新日志与双端教程附录 F。R91 候选 `release/反物质维度_R91候选_d46.apk`、R90 候选 `build/r90-stage/反物质维度.apk`、R89 候选 `release/反物质维度_3.21.0_R89候选.apk` 与旧稳定包 `release/反物质维度.apk`（3.20）均保留，未被覆盖。详见 [`R92 任务记录`](tasks/R92-独立新档验收与前期提速.md) 与 [`R92 AVD 验收结果`](reports/r92-avd/02-lead-results.md)。
 
@@ -45,7 +47,7 @@ R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除�
 | 项 | 值 |
 |---|---|
 | 当前开发基线 | **3.21.0**（`versionCode` 30210000） |
-| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `B513BE9B8D58E68AE1255739D782A45A7AC4C4EA1388DC5EAB0832A8A06CC833`） |
+| 当前稳定发布 | **3.21.0**（`versionCode` 30210000，SHA-256 `5F7AFD78001BFE12103A00926F17D3E6C55647D9F84D3AAED024F406B397322F`） |
 | Android 基线来源 | 3.20 稳定基线官方 APK，SHA-256 `085fc1278682d11136658f10fc875a9e6970737874b7e78650a1578ef3dc6400`；3.21 基线见 `baseline/versions/3.21/` |
 | Web 基线来源 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320`（2026-07-17） |
 | 3.21 基线 | 42 项真实 bindings 与迁移门禁已通过；R94 起 3.21 已作为正式稳定版发布（构建/签名/双门禁/真实运行均绑定同一 SHA-256） |
