@@ -30,7 +30,7 @@
 |---|---|
 | 版本 | 3.21.0（versionCode 30210000） |
 | 正式交付 | 四渠道同一包：本地 `release/反物质维度.apk`；SSH `~/Releases/AD-Oreki-Edition/latest/反物质维度.apk`（临时文件 + 原子覆盖）；OneDrive `Apps/AD-Oreki-Edition/反物质维度.apk`；Google Drive `AD-Oreki-Edition/反物质维度.apk`；GitHub Release 标签 `android-update-3.21.0-5f7afd78`（附件 APK + `.sha256`）。小米云盘不再是正式渠道 |
-| 大小 / SHA-256 | 82,552,305 B / `78F441FBD38DF0790F100CD58FD0CB7042BDA0D41431440DF927243E93D504CF` |
+| 大小 / SHA-256 | 82,556,401 B / `78F441FBD38DF0790F100CD58FD0CB7042BDA0D41431440DF927243E93D504CF` |
 | 构建 | `./gradlew assembleRelease --offline` → `installToRelease`（生成 `build/release-manifest.json`）；签名证书与上一版一致，可原地升级 |
 | 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **115/115**、`fixture_eternity_gate` **50/50**、`check_publish_rules` **13/13**；V2+V3 签名 |
 | 真实运行 | ① 旧档：01:34:16 首次永恒（IP 1e179.8→1e313）、01:51:43 第 2 次永恒；② 第三轮修复经济任务饥饿后新档 13.4 分钟 IP 1e7.19；③ **第四轮修复 Break 兜底优先级后，全新存档（t0 02:50:40）在 +128s 首次无限、+548s 首次 Break、+556s（≈9.3 分钟）首次永恒真实结算**，随后第 2 次永恒与 TT/时间研究开始推进；全程 `OREKI_API_MISS=0`、`OREKI_ET_EXC=0`、`VerifyError=0` |
