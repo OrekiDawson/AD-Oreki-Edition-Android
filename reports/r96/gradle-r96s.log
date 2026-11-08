@@ -1,0 +1,389 @@
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :buildKotlinDex
+[kotlin] 已清空产物
+[kotlin] 基线绑定生成：3.21，CONFIRMED=42
+[kotlin] 待编译 12 个文件
+[kotlin] $ /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/bin/kotlinc -nowarn -classpath /home/oreki/Android/Sdk/platforms/android-34/android.jar /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiTrace.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/generated/OrekiBaselineBindings.kt -d /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes
+[kotlin] 生成 16 个 class
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.OrekiTrace
+        private static final java.lang.String TAG;
+        private kajfosz.antimatterdimensions.OrekiTrace();
+        public static final void gEnter();
+        public static final void gSkip();
+        public static final void ctTrue();
+        public static final void ctFalse();
+        public static final void buyTrue();
+        public static final void buyFalse();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.OrekiTrace（6 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiStageAuto
+        private final void probeInfinityUpgradesOnce();
+        public static final boolean upgradeCrunchInterval();
+        public static final boolean tryBuyId1();
+        public static final void tryBreakInfinity();
+        public static final boolean holdCrunch();
+        private final boolean computeHoldCrunch();
+        public static final void applyCrunchPolicy();
+        public static final void crunchProbe();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiStageAuto（14 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.OrekiAuto
+        private kajfosz.antimatterdimensions.OrekiAuto();
+        public static final boolean hasInfinity();
+        private final boolean bigDoublePositive(java.lang.Object);
+        public static final boolean orekiEarly();
+        public static final boolean idGuardAllowed();
+        public static final boolean idBuyBlocked();
+        public static final void bumpIdGuardFails();
+        public static final void noteReality();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.OrekiAuto（6 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiIu15Sprint
+        public static final boolean isCleanReality();
+        private final boolean tryBuy();
+        private final void fail(java.lang.String, long);
+        public static final void releaseNow(java.lang.String);
+        private final void recordError(java.lang.String, java.lang.Throwable);
+        public static final java.lang.String statusLine();
+        public static final java.lang.String debugPhase();
+        public static final int debugFails();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiIu15Sprint（12 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiBreakShop
+        private static int sTicks;
+        private static long sLastBuyAt;
+        private kajfosz.antimatterdimensions.oreki.OrekiBreakShop();
+        public static final int tick();
+        private final boolean canBuyNow();
+        private final java.lang.Object id1ReserveRequirement();
+        public static final boolean id1ReserveActive();
+        private final boolean leavesId1Reserve(java.lang.Object, java.lang.Object, java.lang.Object);
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiBreakShop（1 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler
+        public static final java.lang.String statusLine();
+        public static final java.lang.String statsLine();
+        public static final long sinceLastActMs(java.lang.String);
+        public static final int servedCount(java.lang.String);
+        public static final void dbgState();
+        public static final void resetAll();
+        private final int idxOf(java.lang.String);
+        private final void logI(java.lang.String);
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler（23 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener
+        public void onClick(android.view.View);
+        public void onCheckedChanged(android.widget.CompoundButton, boolean);
+        private final void saveIntervalFromInput();
+        private final void restoreDefaultInterval();
+        private final void refreshLabel();
+        private final void syncChecked(android.widget.CompoundButton, boolean);
+        private final void setFieldText(android.widget.EditText, java.lang.String);
+        private final void toast(java.lang.String);
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener（3 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity
+        private static final kotlin.Unit loadAsset$lambda$0$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, java.lang.String);
+        private static final kotlin.Unit addTopBar$lambda$1(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity);
+        private static final kotlin.Unit addTopBar$lambda$4(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity);
+        private static final kotlin.Unit addTopBar$lambda$6(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity);
+        private static final void actionButton$lambda$0$0(kotlin.jvm.functions.Function0, android.view.View);
+        private static final void addFontPicker$lambda$2$0$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, int, android.view.View);
+        private static final void buildChapterPicker$lambda$0$0$1(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, int, android.view.View);
+        private static final void openChapterDrawer$lambda$2$0$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, int, android.app.Dialog, android.view.View);
+        private static final void showChapter$lambda$1$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, android.view.View);
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity（3 个方法）
+[kotlin] 打包 stdlib：kotlin-stdlib.jar（1853315 B）
+[kotlin] $ /home/oreki/Android/Sdk/build-tools/37.0.0/d8 --lib /home/oreki/Android/Sdk/platforms/android-34/android.jar --min-api 29 --output /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/OrekiAuto.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/OrekiTrace.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/GameApi.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener$Companion.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiBaselineBindings.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$Decision.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Chapter.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Record.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/lib/kotlin-stdlib.jar
+[kotlin] 完成：/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes.dex（2725860 B）
+
+> Task :fingerprintInputs
+  payload_smali    content  files=29         1 ms  20e2bb015fe9eacf
+  payload_assets   content  files=1          0 ms  c351e9d7e2950ebd
+  payload_res      content  files=1          0 ms  4c169b5fcb4c5942
+  base_decoded     stat     files=17413    328 ms  f6f2e41efbbb896c
+  base_apk         stat     files=1          0 ms  e38cde2b57a59d62
+  keystore         stat     files=3          0 ms  88c85cfddc2715da
+  build_scripts    content  files=92         4 ms  abbd1e8aecb8097b
+  gradle_files     content  files=3          0 ms  5415dc9cd3171985
+  STALE（输入指纹变化）指纹 5d7f47ca8fad2125 vs 64284fb0f397dd36，检查耗时 0.34s
+
+> Task :releaseBudgetGate
+[release-budget] round=R96 used=9/1 emergency=1
+[release-budget] inputs=117 fingerprint=9e0e8184e5bc7763… apk_sha=8072b803c3c3f363…
+[release-budget] ALLOW: R96 放宽（用户 2026-11-08）：构建持续授权；原判定为 预算已用完且无紧急重建授权（RG02-12）
+
+> Task :verifyEnvironment
+  jdk            OK    /usr/lib/jvm/java-25-openjdk-amd64/bin/java
+  python         OK    python3 -> Python 3.14.4
+  apktool.jar    OK    /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/apktool.jar
+  build-tools    OK    /home/oreki/Android/Sdk/build-tools/37.0.0
+  keystore       OK    keys/oreki.jks（口令走 OREKI_KS_PASS 或 keys/密码.txt）
+  adb            OK    /home/oreki/Android/Sdk/platform-tools/adb
+  base_decoded   OK    /home/oreki/Projects/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321 就绪（versionName=3.21.0, versionCode=30210000）
+  base_version   OK    基线自述 3.21.0 / 30210000 / kajfosz.antimatterdimensions
+  xhdpi_split    OK    work/xhdpi_decoded 就绪
+  payload        OK    scripts/payload 手工 smali/资源补丁
+  ------------------------------------------------------------
+  AVD(oreki_test): 在线 emulator-5554	device
+
+> Task :assembleRelease
+上一份候选已保留: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/.previous/反物质维度-20261109-001239.apk
+[oreki] 候选输出目录: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage
+[0] 复制反编译目录 -> _work/mod（保持 multidex：['smali', 'smali_classes2']）
+[1] 同版密度分包: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mdpi_decoded_321 / versionCode=30210000
+[1] 从 density split 合并 46 个资源文件
+[1] 补回 45 条 public.xml 资源 ID（drawable/dimen）
+[2] app_name -> 反物质维度，新增 2 条快捷方式字符串
+[2] 新增 res/xml/oreki_shortcuts.xml（长按桌面图标入口）
+[R40B] 译文按基线版本 3.21.0 截取
+[R42] 更新日志已全中文化：162 条；上游 3.13.2 及更早的英文历史已整段移除，不再出现在首启弹窗
+[3] Manifest: package -> com.oreki.antimatterdimensions，移除 50 个 Google/split 相关条目
+      - manifest@requiredSplitTypes
+      - manifest@splitTypes
+      - uses-permission com.android.vending.BILLING
+      - uses-permission com.google.android.gms.permission.AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_ATTRIBUTION
+      - uses-permission android.permission.ACCESS_ADSERVICES_TOPICS
+      - uses-permission com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      - uses-permission com.google.android.providers.gsf.permission.READ_GSERVICES
+      - queries/package com.android.vending
+      - queries/intent com.android.vending.billing.InAppBillingService.BIND
+      - queries/intent com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND
+      - queries/package com.google.android.gms
+      - meta-data com.google.android.gms.games.APP_ID
+      - meta-data com.google.android.gms.ads.APPLICATION_ID
+      - meta-data com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING
+      - meta-data google_analytics_default_allow_analytics_storage
+      - meta-data google_analytics_default_allow_ad_storage
+      - meta-data google_analytics_default_allow_ad_user_data
+      - meta-data google_analytics_default_allow_ad_personalization_signals
+      - activity com.google.android.gms.ads.AdActivity
+      - provider com.google.android.gms.ads.MobileAdsInitProvider
+      - service com.google.android.gms.ads.AdService
+      - activity com.google.android.gms.ads.OutOfContextTestingActivity
+      - activity com.google.android.gms.ads.NotificationHandlerActivity
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION
+      - activity com.google.android.play.core.hsdp.service.HsdpShimActivity
+      - service androidx.credentials.playservices.CredentialProviderMetadataHolder
+      - activity androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+      - activity androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+      - meta-data com.google.android.play.billingclient.version
+      - activity com.android.billingclient.api.ProxyBillingActivity
+      - activity com.android.billingclient.api.ProxyBillingActivityV2
+      - provider com.google.android.gms.games.provider.PlayGamesInitProvider
+      - activity com.google.android.gms.games.internal.v2.resolution.GamesResolutionActivity
+      - activity com.google.android.gms.games.internal.v2.appshortcuts.PlayGamesAppShortcutsActivity
+      - meta-data com.google.android.gms.games.version
+      - receiver com.google.android.gms.measurement.AppMeasurementReceiver
+      - service com.google.android.gms.measurement.AppMeasurementService
+      - service com.google.android.gms.measurement.AppMeasurementJobService
+      - activity com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+      - service com.google.android.gms.auth.api.signin.RevocationBoundService
+      - activity com.google.android.gms.common.api.GoogleApiActivity
+      - activity com.google.android.play.core.common.PlayCoreDialogWrapperActivity
+      - meta-data com.android.vending.splits.required
+      - meta-data com.android.stamp.source
+      - meta-data com.android.stamp.type
+      - meta-data com.android.vending.splits
+      - meta-data com.android.vending.derived.apk.id
+      ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
+[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
+[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)
+[4] MainActivity.smali: 生效语言默认值 en -> zh_CN
+[4] MainActivity.smali: 设置页语言默认值 v7 en -> zh_CN（修 界面中文/设置English 分叉）
+[4] lz0.smali: 语言静态初值 -> zh_CN（字段 V）
+[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
+[4] 拷入 26 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[4] 混淆别名重写：40 条类规则 + 3 条字段规则 + 7 条方法签名规则，改写 10 个 payload 类
+[4] 移除 kajfosz/antimatterdimensions/OrekiTrace.smali（Kotlin dex 已就绪，由附加 dex 提供实现）
+[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）
+[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）
+[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）
+[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）
+[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）
+[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → 30（EP 指数同量换 250 倍碎片）
+[4b-KT] GameApi 别名表与 Python 同步：5 条，无裸混淆名
+[R87] Break 商店 Kotlin 迁移契约通过（tick/ABI/ID1 预留/原版购买入口）
+[4b] payload 齐全: 21 个类
+[4b] 混淆类引用自检通过: 41 项（按类描述符定位，跨 DEX）
+[4b] catch 标签自检通过（所有 .catch 的三个标签均已定义）
+lint_smali_literals: 检查 35 个文件，问题 0 处
+[4b] smali 字面量操作数自检通过
+
+策略语义夹具：77 项检查，失败 0 项
+  数据表：19 阶段 / 19 叶子 / 3 常量 / 73 子句
+  全部通过
+[4b] 策略语义夹具通过
+[4b] 大坍缩策略夹具通过（玩家选择优先）
+
+R73 大坍缩模式标题刷新夹具：20 项检查，失败 0 项
+  全部通过
+[4b] 大坍缩模式标题刷新夹具通过
+
+首次永恒判定链夹具：47 项检查，失败 0 项
+  提取到的助记符：hold=if-nez can=if-eqz ep=if-ltz
+  全部通过
+[4b] 永恒判定链夹具通过
+[4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
+[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）
+[4b] 开局自动化闩锁自检通过（earlyAutomationApplied 字段 + 2 处赋值 + 早退守卫）
+[4b] 鹿颈长 nerfFactor 收敛自检通过（max(1.0,pLog10) + c/1e6，验收签名 0.99888/0.99955）
+[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）
+[4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
+[4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
+[4b] L3 成就自检注入点唯一性通过（tick 调用 1 处）
+[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）
+[4b] AchievementUnlocker 删除干净（类文件不存在 + 全树 0 引用）
+[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）
+[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）
+[4e] 旧存档时间换算守卫通过（三处 ×100 + 哨兵回落，且 100.0 仅存在于 d.smali）
+[4f] 加速归一化工具自检通过（unscale / unscaleBy / effectiveMult 就位，apply 仍为 mult，边界方向正确）
+[4h] SharedPreferences.Editor 接口类型自检通过（apply 全部挂在 Editor 上）
+[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）
+[4i] 最佳记录单位迁移自检通过（标记幂等、哨兵排除、先落盘后改值、init 读取标记）
+[4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）
+[3C] 助战三约束自检通过（默认关 / 独立留痕键 / request=1 run=1）
+[3C] 开启入口 / 三态留痕 / 有界审计 自检通过
+[R41] 极性/条件回归表通过（11 处 Kotlin 语义守卫 + setCrunchMode 唯一性）
+[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[T2] 动态速度开关自检通过（设置页 2 个按钮 -> setDynamic / modeLabel）
+[5] Ad Bonus: A. l5.d() 跳过时间/购买门槛（保留 Doomed）
+[5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
+[5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
+[5] Ad Bonus: 十乘区（反物质/IP/EP/DT/RM/暗能量/记忆/稀有度/遗物碎片/游戏速度）永久生效已注入
+[5] Ad Bonus: 注入后自检通过（Doomed 检查保留、异常兜底已移除、UI 依赖保留）
+[AW] 等待访问器已就绪（新增或复用现有唯一入口）
+[AW] 自动机等待分支注入完成（vo getter ×2 + updateAutomator$1 状态分支 + 自检通过）
+[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间
+[Oreki AU2] 维度×8自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU2] 速度升级自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 维度提升自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 反物质星系自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity；极性 if-eqz 已修正）
+[Oreki AD1] 维度提升 AD8 需求斜率 15/次 → max(1, 5-discount)/次
+[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）
+[Oreki R73] 3.20 原版已自带模式标题刷新，跳过旧注入（避免 Lvn/Lpp 字段不匹配）
+[R74-DIAG] 未设置 OREKI_R74_DIAG=1，跳过临时插桩
+[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()
+[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入
+[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）
+[Oreki AU4b] 大坍缩策略守卫通过（X_HIGHEST/10，与 Web 一致，只改策略）
+[Oreki ET1] 永恒层守卫通过（TT / 时间维度 / 时间研究 / 按永恒 + 挂点顺序 + 实参元组）
+[R42] 终点记录守卫通过（调用点位置 / 反物质来源 / 两组极性 / copy 非别名 / 链条一致 / 异常兜底）
+[R82] 3.20 字段类型守卫通过（基线字段 57715 个）
+[R40H] 教程正文由 JSON 生成：25 章 / 1308 条记录 / 49890 汉字 / 198771 字节，回读 1308 条逐字一致
+[R40H] draft 章节 0 个；二级断言=严格（draft 也不许留）；stage 映射 [1, 2, 3, 4, 7, 11, 13, 16]
+[R40H] assets 已进 mod 树：oreki_tutorial.txt
+[R40H] 渲染单元 25 个（正文 18 + 附录 7），PH 记录 8 条，章数/附录/阶段提示守卫通过
+[R40H] 上一版正文已删除并加反向守卫：assets 只有 oreki_tutorial.txt
+[R40H] 教程渲染层（Kotlin）语义守卫通过：章节门控 / 钳制 / assets 单一正文 / 阶段提示
+[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自 assets）
+[T1] 教程入口辅助类已进入 mod 树（5 个 Smali；Activity 由 Kotlin DEX 提供）
+[T1] Manifest 注册 kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity（exported=false, Theme.Material.NoActionBar）
+[T1] App.onCreate 挂载 TutorialEntry.install(Context)
+[T1] 静态断言通过（manifest 唯一注册 / install 唯一调用 / 入口幂等 / Activity 存在）
+[T1b] 教程渲染断言通过（addFull 会真的 addView / start 会真的 startActivity）
+[Oreki AB2] 维度批量购买：不可负担时退化为买 1 个
+[Oreki EC12] EC12 限时判定已改为按倍率还原（与 Web inGameSecondsOf 同源）
+[Oreki IC] 已在 Challenges.update 入口插入 OrekiInstantChallenge.tick()
+[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）
+  [OK] 类描述符校验通过（已定义 15370 个类）
+[Oreki R39] 挑战自动进入极性断言通过：K()=已完成→跳过、D()=false→试下一关、含解锁预检
+[Oreki R40B] 注意：/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali 与 payload 不一致（构建树是旧的），断言以 payload 为准
+[Oreki R40B] EC 链条断言通过：purchaseUntil 已接线（真实 continuation）、互斥分叉走原版 respec（6 s 冷却 / 32 次上限）、无存档字段写入
+[Oreki IU15] smali_classes2/a02.smali: 门槛 1.5E12 -> 1e8（1 处）
+[Oreki IU15] smali_classes2/fw.smali: 门槛 1.5E12 -> 1e8（1 处）
+[Oreki IU15] smali_classes2/x40.smali: 门槛 1.5E12 -> 1e8（1 处）
+[Oreki IU15] 阈值校验通过：3 处均为 1e8，旧值 1.5E12 已清零（本次改写 3 个文件）
+[Oreki IU15] 门槛回归断言通过：c30/lu/vw1 三处均为 1e8，且无 1.5E12 残留
+[Oreki IU15] 已注入全 8 层 ID 购买守卫（h(Z)V + i()V）；不再改任何原版数值
+[R83] 已注入 IU15 EC7 启动守卫（业务判定在 Kotlin）
+[Oreki RIS] 挑战结算补发已校验（幂等跳过重复写入）
+[Oreki V] 当前基线的 u55 不是已验证的 V.mainUnlock 结构（缺少 Ls55 条目或 g:List）—— V 阶段门槛同步按指令暂缓
+[Oreki R38-B] 终局判定常量已镜像 Web：OFFSET 8.7 -> 1.0，TARGET 9.0E15 -> 1001.0
+[Oreki R38-B] 回读通过：OFFSET=1.0 / TARGET=1001.0，分母 log10(1e3)-1 = 2.00043 > 0
+[DARK] styles         ok(DayNight -> AppCompat 深色 + windowLightNavigationBar=false)
+[DARK] contrast       ok(Palette.Dark.ECSTUDY_RUNNING_TEXT,Palette.Dark.AUTOBUYER_WRONG_TEXT_RED,Palette.Amoled.ECSTUDY_RUNNING_TEXT,Palette.Amoled.AUTOBUYER_WRONG_TEXT_RED)
+[DARK] bools          ok(window_light_status_bar -> false)
+[DARK] appearance     ok(a(),b(),c())
+[DARK] loader         skip(3.21 默认 DARK；运行期统一由 l0.C writer 夹取)
+[DARK] writer         ok(设置页选浅色不生效，也不会写入浅色偏好)
+[DARK] notation       ok(Options默认,o43.v,o43串,g.b)
+[DARK] topbar         ok(缺省值,静态默认,标题不清空,标题保持官方)
+[DARK] activity       ok(Oreki 设置页 Theme.DeviceDefault -> Theme.Material(固定深色))
+[DARK] zh             ok(补 3 条中文)
+[5] 方法引用分组：原版广告依赖包移入 classes3.dex（不改方法体）
+[5] apktool b ...
+      I: Using Apktool 3.0.3 on kajfosz.antimatterdimensions.apk with 8 threads
+      I: Smaling smali folder into classes.dex...
+      I: Smaling smali_classes3 folder into classes3.dex...
+      I: Smaling smali_classes2 folder into classes2.dex...
+      I: Building resources with aapt2...
+      I: Building apk file...
+      I: Importing assets...
+      I: Importing unknown files...
+      I: Built apk into: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/unsigned.apk
+[5] 未签名 APK: 77.8 MiB
+[5a] 已注入 Kotlin dex 为 classes4.dex（2725860 B，原 APK 已有 3 个 dex）
+[5b] 规整 ZIP 时间戳（位级可复现）...
+      条目 1777，改写中央目录 1777 / 本地头 1777
+[5] zipalign -p -f 4 ...
+[5] apksigner sign (v1+v2+v3, 个人密钥) ...
+      WARNING: A restricted method in java.lang.System has been called
+      WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/home/oreki/Android/Sdk/build-tools/37.0.0/lib/apksigner.jar)
+      WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+      WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+[5] apksigner verify ...
+      Verifies
+      Verified using v1 scheme (JAR signing): false
+      Verified using v2 scheme (APK Signature Scheme v2): false
+      Verified using v3 scheme (APK Signature Scheme v3): true
+      Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+      Verified using v3.2 scheme (APK Signature Scheme v3.2): false
+      Verified using v4 scheme (APK Signature Scheme v4): false
+      Verified for SourceStamp: false
+      Number of signers: 1
+      V3.0 Signer: certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+      V3.0 Signer: certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+      V3.0 Signer: certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+      V3.0 Signer: certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b
+      V3.0 Signer: key algorithm: RSA
+      V3.0 Signer: key size (bits): 2048
+      V3.0 Signer: public key SHA-256 digest: 3e1872584158600bab528736b10069cb543631bc5ccd4babf7ec3fa2ff1c1ab7
+      V3.0 Signer: public key SHA-1 digest: eb0bb871fd8e00c9c33b68299083ff016a346a33
+      V3.0 Signer: public key MD5 digest: 2eb7e7c6dea1897a964ae8472777cead
+      WARNING: A restricted method in java.lang.System has been called
+      WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/home/oreki/Android/Sdk/build-tools/37.0.0/lib/apksigner.jar)
+      WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+      WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+[5] 最终 APK: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/反物质维度.apk  (78.7 MiB)
+      assets/oreki_tutorial.txt: 198771 字节（压缩后 64228）
+      APK assets 条目 23 条（原有资源完整）
+  已记录输入指纹 5e71b9bb0e91ec54 + 产物 82d922776f74a39c（0.33s）
+
+> Task :releaseBudgetRecord
+[release-budget] RECORDED final: 反物质维度.apk sha256=82d922776f74a39c… used=10/1
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 1m 16s
+6 actionable tasks: 6 executed

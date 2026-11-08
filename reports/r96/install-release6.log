@@ -1,0 +1,19 @@
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+[oreki] 发布链路（publishRelease/installToRelease）：强制 assembleRelease 真实执行
+
+> Task :installToRelease
+[oreki] 候选 SHA-256: 5e92a7e2dd1f656c22b39338488d0a00467c4cd88bde1bcb09829370e8fb0ad1 (82552305 B)
+[oreki] 现有发布 SHA-256: 30ace330d5adca570bdd4008c88e1bde121c19d954d84b5306e987b54fe2d1ea
+[oreki] 旧发布已留档: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/delivery_archive/release_30ace330_20261108-231934.apk
+[oreki] 发布清单已写: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/release-manifest.json（3.21.0/30210000）
+[oreki] 已替换 release/反物质维度.apk -> 5e92a7e2dd1f656c22b39338488d0a00467c4cd88bde1bcb09829370e8fb0ad1
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 975ms
+1 actionable task: 1 executed

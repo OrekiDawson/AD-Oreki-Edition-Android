@@ -1,0 +1,35 @@
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :buildKotlinDex
+[kotlin] 已清空产物
+[kotlin] 基线绑定生成：3.21，CONFIRMED=42
+[kotlin] 待编译 12 个文件
+[kotlin] $ /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/bin/kotlinc -nowarn -classpath /home/oreki/Android/Sdk/platforms/android-34/android.jar /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiTrace.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/generated/OrekiBaselineBindings.kt -d /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes
+      scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy.kt:36:17: error: unresolved reference 'warnedErrors'.
+                  if (warnedErrors.add(error.javaClass.simpleName)) {
+                      ^^^^^^^^^^^^
+[kotlin] kotlinc 失败
+
+> Task :buildKotlinDex FAILED
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':buildKotlinDex' (registered in build file 'build.gradle').
+> Process 'command 'python3'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6s
+1 actionable task: 1 executed

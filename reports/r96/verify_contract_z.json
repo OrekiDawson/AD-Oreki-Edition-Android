@@ -1,0 +1,566 @@
+{
+  "apk": {
+    "apk": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/反物质维度.apk",
+    "size": 82552305,
+    "sha256": "fa3892c984d3129754375567ff0b1cbfd777cdbf7f710840e75911e81ef3cb77",
+    "package": "com.oreki.antimatterdimensions",
+    "versionCode": "30210000",
+    "versionName": "3.21.0"
+  },
+  "tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/patch-contract-apk",
+  "checks": [
+    {
+      "name": "scripts/*.py 全部可编译",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "scripts/*.py 全部可编译",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "main() 启用 patch_ec12_restriction()",
+      "ok": true,
+      "detail": "",
+      "subchecks": []
+    },
+    {
+      "name": "main() 启用 patch_instant_challenge()",
+      "ok": true,
+      "detail": "",
+      "subchecks": []
+    },
+    {
+      "name": "main() 未启用已否证的 patch_frame_cadence()",
+      "ok": true,
+      "detail": "",
+      "subchecks": []
+    },
+    {
+      "name": "OrekiInstantChallenge 未被当成模板误放进 templates/",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "OrekiInstantChallenge 未被当成模板误放进 templates/",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "EC12 补丁唯一且位于比较之前（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "EC12 unscale 唯一目标",
+          "smali_classes2/u81.smali"
+        ],
+        [
+          true,
+          "目标文件内严格相邻序列只出现 1 次",
+          "count=1"
+        ],
+        [
+          true,
+          "同方法读取 thisEternity.time（Lku4.h()D）",
+          ""
+        ],
+        [
+          true,
+          "EC12 锚点与 3.21 配置一致",
+          "cmpg-double v0, v6, v0"
+        ],
+        [
+          true,
+          "EC12 闭包文件与 3.21 配置一致",
+          "实际 smali_classes2/u81.smali，配置 smali_classes2/u81.smali"
+        ],
+        [
+          true,
+          "OrekiSpeed.unscale(D)D 与 mult() 同源且执行除法",
+          "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali"
+        ]
+      ]
+    },
+    {
+      "name": "Challenges.update 只插入 1 次 tick()（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "全 APK 只调用 OrekiInstantChallenge.tick() 1 次",
+          "files=['smali_classes2/kajfosz/antimatterdimensions/challenge/antimatter/c.smali'] count=1"
+        ],
+        [
+          true,
+          "3.21 Challenges.update 为 suspend b(D, ContinuationImpl)",
+          "public final b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"
+        ],
+        [
+          true,
+          "同方法先调用 OrekiChallengeAuto.tick()（自动进入挑战）",
+          ""
+        ],
+        [
+          true,
+          "OrekiChallengeAuto.tick() 位于 OrekiInstantChallenge.tick() 之前",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "OrekiInstantChallenge 类与 ABI（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "OrekiInstantChallenge 声明 tick()V",
+          ""
+        ],
+        [
+          true,
+          "复用挑战完成入口 E(Z)",
+          "->E(Z)V"
+        ],
+        [
+          true,
+          "复用 EC addCompletion F(Z)",
+          "->F(Z)V"
+        ],
+        [
+          true,
+          "EC isFullyCompleted 判定 y()Z",
+          "->y()Z"
+        ],
+        [
+          true,
+          "已完成的挑战不重复结算 K()Z",
+          "->K()Z"
+        ],
+        [
+          true,
+          "EC requirementBits 清零 BitSet.c(I)",
+          "BitSet;->c(I)V"
+        ],
+        [
+          true,
+          "Lkajfosz/antimatterdimensions/challenge/antimatter/b;->E(Z)V 真实声明存在",
+          "smali_classes2/kajfosz/antimatterdimensions/challenge/antimatter/b.smali"
+        ],
+        [
+          true,
+          "Lkajfosz/antimatterdimensions/challenge/eternity/b;->F(Z)V 真实声明存在",
+          "smali_classes2/kajfosz/antimatterdimensions/challenge/eternity/b.smali"
+        ],
+        [
+          true,
+          "Lkajfosz/antimatterdimensions/challenge/eternity/b;->y()Z 真实声明存在",
+          "smali_classes2/kajfosz/antimatterdimensions/challenge/eternity/b.smali"
+        ],
+        [
+          true,
+          "Lkajfosz/antimatterdimensions/challenge/antimatter/b;->K()Z 真实声明存在",
+          "smali_classes2/kajfosz/antimatterdimensions/challenge/antimatter/b.smali"
+        ],
+        [
+          true,
+          "Lkajfosz/antimatterdimensions/BitSet;->c(I)V 真实声明存在",
+          "smali_classes2/kajfosz/antimatterdimensions/BitSet.smali"
+        ]
+      ]
+    },
+    {
+      "name": "3.21 普通挑战入口 a(I) -> normal/a（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "普通挑战入口 a(I) -> normal/a",
+          "smali_classes2/n63.smali / Ln63;"
+        ],
+        [
+          true,
+          "普通挑战入口 a(I) -> normal/a 生产逻辑锚点：add-int/lit8 p0, p0, -0x1",
+          ""
+        ],
+        [
+          true,
+          "普通挑战入口 a(I) -> normal/a 生产逻辑锚点：Ljava/util/List;->get(I)Ljava/lang/Object;",
+          ""
+        ],
+        [
+          true,
+          "普通挑战入口 a(I) -> normal/a 生产逻辑锚点：check-cast",
+          ""
+        ],
+        [
+          true,
+          "OrekiInstantChallenge 调用 Ln63;->a(",
+          ""
+        ],
+        [
+          true,
+          "Ln63; 在 3.21 bindings.json 中为 CONFIRMED 目标",
+          "CONFIRMED 目标数=42"
+        ]
+      ]
+    },
+    {
+      "name": "3.21 无限挑战入口 c() -> infinity/a（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "无限挑战入口 c() -> infinity/a",
+          "smali_classes2/c22.smali / Lc22;"
+        ],
+        [
+          true,
+          "无限挑战入口 c() -> infinity/a 生产逻辑锚点：->b()Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;",
+          ""
+        ],
+        [
+          true,
+          "无限挑战入口 c() -> infinity/a 生产逻辑锚点：->c()I",
+          ""
+        ],
+        [
+          true,
+          "无限挑战入口 c() -> infinity/a 生产逻辑锚点：if-lez",
+          ""
+        ],
+        [
+          true,
+          "无限挑战入口 c() -> infinity/a 生产逻辑锚点：->a(I)Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;",
+          ""
+        ],
+        [
+          true,
+          "OrekiInstantChallenge 调用 Lc22;->c(",
+          ""
+        ],
+        [
+          true,
+          "Lc22; 在 3.21 bindings.json 中为 CONFIRMED 目标",
+          "CONFIRMED 目标数=42"
+        ]
+      ]
+    },
+    {
+      "name": "3.21 永恒挑战入口 c() -> eternity/b（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "永恒挑战入口 c() -> eternity/b",
+          "smali_classes2/x81.smali / Lx81;"
+        ],
+        [
+          true,
+          "永恒挑战入口 c() -> eternity/b 生产逻辑锚点：->a()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;",
+          ""
+        ],
+        [
+          true,
+          "永恒挑战入口 c() -> eternity/b 生产逻辑锚点：->b()I",
+          ""
+        ],
+        [
+          true,
+          "永恒挑战入口 c() -> eternity/b 生产逻辑锚点：if-lez",
+          ""
+        ],
+        [
+          true,
+          "永恒挑战入口 c() -> eternity/b 生产逻辑锚点：->a(I)Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+          ""
+        ],
+        [
+          true,
+          "OrekiInstantChallenge 调用 Lx81;->c(",
+          ""
+        ],
+        [
+          true,
+          "Lx81; 在 3.21 bindings.json 中为 CONFIRMED 目标",
+          "CONFIRMED 目标数=42"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：序号 9/8 映射（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "wi4.l() 序号 9 = Scientific",
+          "'Scientific'"
+        ],
+        [
+          true,
+          "wi4.l() 序号 8 = Mixed scientific",
+          "'Mixed scientific'"
+        ],
+        [
+          true,
+          "wi4.l() packed-switch 覆盖 10 个序号",
+          "len=10"
+        ],
+        [
+          true,
+          "wi4.d(I,BigDouble,Z) 真实声明存在",
+          "smali_classes2/wi4.smali"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：a/f/v/w 对象身份（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "z63.a 是序号 9 的 Scientific 实例",
+          "实际 B=9"
+        ],
+        [
+          true,
+          "z63.f 仍是序号 8 的 Mixed scientific（对照不变量）",
+          "实际 B=8"
+        ],
+        [
+          true,
+          "z63.<clinit> 的 z63.v 取自 z63.a（新档 w=v 需要）",
+          ""
+        ],
+        [
+          true,
+          "z63.<clinit> 的 z63.w 取自 z63.a",
+          ""
+        ],
+        [
+          true,
+          "z63.<clinit> 没有把 z63.f 写给 z63.w",
+          ""
+        ],
+        [
+          true,
+          "z63 内对 w 的写入只有 2 处（<clinit> + d(I)）",
+          "实际 2"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：新档默认与重开新档写回（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "新档默认 Options.notation = \"Scientific\"",
+          "实际 'Scientific'"
+        ],
+        [
+          true,
+          "Options.notation getter 读取真实字段",
+          ""
+        ],
+        [
+          true,
+          "Options.notation setter 写入真实字段",
+          ""
+        ],
+        [
+          true,
+          "重开新档路径写入 Scientific",
+          "smali_classes2/kajfosz/antimatterdimensions/player/h.smali / public static b()V"
+        ],
+        [
+          true,
+          "重开新档设置 z63.v",
+          ""
+        ],
+        [
+          true,
+          "重开新档设置 z63.w",
+          ""
+        ],
+        [
+          true,
+          "重开新档写入 \"Scientific\"",
+          ""
+        ],
+        [
+          true,
+          "重开新档调用 Options setter",
+          ""
+        ]
+      ]
+    },
+    {
+      "name": "记数法：读档链 b()->d() 与 w 唯一写入（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "读档链 b(名字)->d(序号)",
+          "smali_classes2/kajfosz/antimatterdimensions/player/h.smali / public static g(Lbf2;Lkajfosz/antimatterdimensions/MainActivity;)Z"
+        ],
+        [
+          true,
+          "读档链调用 b(String)",
+          ""
+        ],
+        [
+          true,
+          "读档链调用 d(I)",
+          ""
+        ],
+        [
+          true,
+          "d(I) 读取 z63.w",
+          "Lz63;->w:Ly63;"
+        ],
+        [
+          true,
+          "d(I) 用 w.l() 取当前名称",
+          "->l()Ljava/lang/String;"
+        ],
+        [
+          true,
+          "d(I) 用 b(名字) 反查序号",
+          "Lz63;->b(Ljava/lang/String;)I"
+        ],
+        [
+          true,
+          "d(I) 比较当前序号与目标序号",
+          "if-ne"
+        ],
+        [
+          true,
+          "d(I) 访问序号表 z63.u",
+          "Lz63;->u:[Ly63;"
+        ],
+        [
+          true,
+          "d(I) 从 z63.u 取目标实例",
+          "aget-object"
+        ],
+        [
+          true,
+          "d(I) 写回 z63.w",
+          "sput-object "
+        ],
+        [
+          true,
+          "d(I) 内部写回 z63.w（对象身份同步）",
+          ""
+        ],
+        [
+          true,
+          "b(名字) 使用 c() 的同一列表",
+          ""
+        ],
+        [
+          true,
+          "b(名字) 用 indexOf 得到序号",
+          ""
+        ],
+        [
+          true,
+          "b(名字) 用 max(0, index) 兜底",
+          ""
+        ],
+        [
+          true,
+          "z63 内 w 写入唯一（<clinit> + d(I)）",
+          "实际 2"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：设置页选中项与 w 同源（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "设置页选自 z63.w",
+          "smali_classes2/oh2.smali"
+        ],
+        [
+          true,
+          "设置页读取 z63.w",
+          ""
+        ],
+        [
+          true,
+          "设置页调用 w.l()",
+          ""
+        ],
+        [
+          true,
+          "设置页用 b(名字) 反查序号",
+          ""
+        ],
+        [
+          true,
+          "NotationSpinner 类真实存在",
+          "smali_classes2/kajfosz/antimatterdimensions/ui/other/NotationSpinner.smali"
+        ]
+      ]
+    },
+    {
+      "name": "记数法：Scientific/Mixed 分支与 33.0 阈值（候选 APK）",
+      "ok": true,
+      "detail": "",
+      "subchecks": [
+        [
+          true,
+          "wi4.d packed-switch 覆盖 10 个序号",
+          "len=10"
+        ],
+        [
+          true,
+          "Scientific 分支调用 f(DZ) 格式化指数",
+          ""
+        ],
+        [
+          true,
+          "Scientific 分支没有指数分流",
+          ""
+        ],
+        [
+          true,
+          "Mixed 的 33.0 分流阈值常量仍在",
+          "0x4040800000000000L"
+        ],
+        [
+          true,
+          "Mixed 分支用该阈值做 cmpl-double 分流",
+          ""
+        ],
+        [
+          true,
+          "Mixed 分支调用同一行 f(DZ) 格式化指数",
+          ""
+        ]
+      ]
+    }
+  ],
+  "passed": 17,
+  "total": 17
+}

@@ -1,0 +1,58 @@
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+[oreki] 发布链路（publishRelease/installToRelease）：强制 assembleRelease 真实执行
+
+> Task :installToRelease FAILED
+[oreki] 候选 SHA-256: 30ace330d5adca570bdd4008c88e1bde121c19d954d84b5306e987b54fe2d1ea (82548209 B)
+[oreki] 现有发布 SHA-256: 30ace330d5adca570bdd4008c88e1bde121c19d954d84b5306e987b54fe2d1ea
+[oreki] 候选与现有发布完全一致，不再复制；仍刷新发布清单
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle' line: 654
+
+* What went wrong:
+Execution failed for task ':installToRelease' (registered in build file 'build.gradle').
+> No signature of method: java.io.File.writeText() is applicable for argument types: (String, String) values: [{
+      "schema": 1,
+      "created_at": "2026-11-08T22:34:55+08:00",
+      "baseline_version": "3.21",
+      "build": {
+          "source_apk": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/\u53cd\u7269\u8d28\u7ef4\u5ea6.apk",
+          "source_sha256": "30ace330d5adca570bdd4008c88e1bde121c19d954d84b5306e987b54fe2d1ea",
+          "source_size": 82548209,
+          "package": "com.oreki.antimatterdimensions",
+          "versionName": "3.21.0",
+          "versionCode": "30210000",
+          "cert_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+          "schemes": {
+              "v1": false,
+              "v2": true,
+              "v3": true
+          },
+          "verify_report": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-reports/verify-release.json",
+          "verify_failed": 0
+      },
+      "release": {
+          "apk": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/release/\u53cd\u7269\u8d28\u7ef4\u5ea6.apk",
+          "sha256": "30ace330d5adca570bdd4008c88e1bde121c19d954d84b5306e987b54fe2d1ea",
+          "size": 82548209
+      }
+  }, ...]
+  Possible solutions: setText(java.lang.String, java.lang.String), getText(), write(java.lang.String, java.lang.String), getText(java.lang.String), setText(java.lang.String), write(java.lang.String)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+1 actionable task: 1 executed

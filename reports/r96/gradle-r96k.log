@@ -1,0 +1,211 @@
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :buildKotlinDex UP-TO-DATE
+
+> Task :fingerprintInputs
+  payload_smali    content  files=29         1 ms  5cd56d0c475fc622
+  payload_assets   content  files=1          0 ms  c351e9d7e2950ebd
+  payload_res      content  files=1          0 ms  4c169b5fcb4c5942
+  base_decoded     stat     files=17413    331 ms  f6f2e41efbbb896c
+  base_apk         stat     files=1          0 ms  e38cde2b57a59d62
+  keystore         stat     files=3          0 ms  88c85cfddc2715da
+  build_scripts    content  files=91         3 ms  efd1551fb1e963a0
+  gradle_files     content  files=3          0 ms  5415dc9cd3171985
+  STALE（正式候选 APK 不存在：/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/反物质维度.apk, 输入指纹变化）指纹 4b65ea7c088d5bc8 vs 3eead9767b05ccfa，检查耗时 0.34s
+
+> Task :releaseBudgetGate SKIPPED
+
+> Task :verifyEnvironment
+  jdk            OK    /usr/lib/jvm/java-25-openjdk-amd64/bin/java
+  python         OK    python3 -> Python 3.14.4
+  apktool.jar    OK    /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/apktool.jar
+  build-tools    OK    /home/oreki/Android/Sdk/build-tools/37.0.0
+  keystore       OK    keys/oreki.jks（口令走 OREKI_KS_PASS 或 keys/密码.txt）
+  adb            OK    /home/oreki/Android/Sdk/platform-tools/adb
+  base_decoded   OK    /home/oreki/Projects/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321 就绪（versionName=3.21.0, versionCode=30210000）
+  base_version   OK    基线自述 3.21.0 / 30210000 / kajfosz.antimatterdimensions
+  xhdpi_split    OK    work/xhdpi_decoded 就绪
+  payload        OK    scripts/payload 手工 smali/资源补丁
+  ------------------------------------------------------------
+  AVD(oreki_test): 在线 emulator-5554	device
+
+> Task :assembleRelease
+[oreki] 候选输出目录: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage
+[0] 复制反编译目录 -> _work/mod（保持 multidex：['smali', 'smali_classes2']）
+[1] 同版密度分包: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mdpi_decoded_321 / versionCode=30210000
+[1] 从 density split 合并 46 个资源文件
+[1] 补回 45 条 public.xml 资源 ID（drawable/dimen）
+[2] app_name -> 反物质维度，新增 2 条快捷方式字符串
+[2] 新增 res/xml/oreki_shortcuts.xml（长按桌面图标入口）
+[R40B] 译文按基线版本 3.21.0 截取
+[R42] 更新日志已全中文化：162 条；上游 3.13.2 及更早的英文历史已整段移除，不再出现在首启弹窗
+[3] Manifest: package -> com.oreki.antimatterdimensions，移除 50 个 Google/split 相关条目
+      - manifest@requiredSplitTypes
+      - manifest@splitTypes
+      - uses-permission com.android.vending.BILLING
+      - uses-permission com.google.android.gms.permission.AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_AD_ID
+      - uses-permission android.permission.ACCESS_ADSERVICES_ATTRIBUTION
+      - uses-permission android.permission.ACCESS_ADSERVICES_TOPICS
+      - uses-permission com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      - uses-permission com.google.android.providers.gsf.permission.READ_GSERVICES
+      - queries/package com.android.vending
+      - queries/intent com.android.vending.billing.InAppBillingService.BIND
+      - queries/intent com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND
+      - queries/package com.google.android.gms
+      - meta-data com.google.android.gms.games.APP_ID
+      - meta-data com.google.android.gms.ads.APPLICATION_ID
+      - meta-data com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING
+      - meta-data google_analytics_default_allow_analytics_storage
+      - meta-data google_analytics_default_allow_ad_storage
+      - meta-data google_analytics_default_allow_ad_user_data
+      - meta-data google_analytics_default_allow_ad_personalization_signals
+      - activity com.google.android.gms.ads.AdActivity
+      - provider com.google.android.gms.ads.MobileAdsInitProvider
+      - service com.google.android.gms.ads.AdService
+      - activity com.google.android.gms.ads.OutOfContextTestingActivity
+      - activity com.google.android.gms.ads.NotificationHandlerActivity
+      - meta-data com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION
+      - activity com.google.android.play.core.hsdp.service.HsdpShimActivity
+      - service androidx.credentials.playservices.CredentialProviderMetadataHolder
+      - activity androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+      - activity androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+      - meta-data com.google.android.play.billingclient.version
+      - activity com.android.billingclient.api.ProxyBillingActivity
+      - activity com.android.billingclient.api.ProxyBillingActivityV2
+      - provider com.google.android.gms.games.provider.PlayGamesInitProvider
+      - activity com.google.android.gms.games.internal.v2.resolution.GamesResolutionActivity
+      - activity com.google.android.gms.games.internal.v2.appshortcuts.PlayGamesAppShortcutsActivity
+      - meta-data com.google.android.gms.games.version
+      - receiver com.google.android.gms.measurement.AppMeasurementReceiver
+      - service com.google.android.gms.measurement.AppMeasurementService
+      - service com.google.android.gms.measurement.AppMeasurementJobService
+      - activity com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+      - service com.google.android.gms.auth.api.signin.RevocationBoundService
+      - activity com.google.android.gms.common.api.GoogleApiActivity
+      - activity com.google.android.play.core.common.PlayCoreDialogWrapperActivity
+      - meta-data com.android.vending.splits.required
+      - meta-data com.android.stamp.source
+      - meta-data com.android.stamp.type
+      - meta-data com.android.vending.splits
+      - meta-data com.android.vending.derived.apk.id
+      ! 保留 meta-data com.google.android.gms.version（GMS 启动版本校验必需）
+[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成
+[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)
+[4] MainActivity.smali: 生效语言默认值 en -> zh_CN
+[4] MainActivity.smali: 设置页语言默认值 v7 en -> zh_CN（修 界面中文/设置English 分叉）
+[4] lz0.smali: 语言静态初值 -> zh_CN（字段 V）
+[4] App.onCreate: 去掉 Play Integrity AppCheck 与 AdMob 初始化，加入 OrekiSpeed.init
+[4] 拷入 26 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）
+[4] 混淆别名重写：40 条类规则 + 3 条字段规则 + 7 条方法签名规则，改写 10 个 payload 类
+[4] 移除 kajfosz/antimatterdimensions/OrekiTrace.smali（Kotlin dex 已就绪，由附加 dex 提供实现）
+[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）
+[4j] prestige.e: 最近十次无限的 time 归一化完成（realTime 未改动）
+[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）
+[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）
+[Oreki RN] 鹿颈长 nerfFactor: sqrt 自变量下限 1.0 + c/1e6（与 Web R32 等价）
+[Oreki RS] 鹿颈长 shardsGained 除数 7500.0 → 30（EP 指数同量换 250 倍碎片）
+[4b-KT] GameApi 别名表与 Python 同步：5 条，无裸混淆名
+[R87] Break 商店 Kotlin 迁移契约通过（tick/ABI/ID1 预留/原版购买入口）
+[4b] payload 齐全: 21 个类
+[4b] 混淆类引用自检通过: 41 项（按类描述符定位，跨 DEX）
+[4b] catch 标签自检通过（所有 .catch 的三个标签均已定义）
+lint_smali_literals: 检查 35 个文件，问题 0 处
+[4b] smali 字面量操作数自检通过
+
+策略语义夹具：77 项检查，失败 0 项
+  数据表：19 阶段 / 19 叶子 / 3 常量 / 73 子句
+  全部通过
+[4b] 策略语义夹具通过
+[4b] 大坍缩策略夹具通过（玩家选择优先）
+
+R73 大坍缩模式标题刷新夹具：20 项检查，失败 0 项
+  全部通过
+[4b] 大坍缩模式标题刷新夹具通过
+
+首次永恒判定链夹具：47 项检查，失败 0 项
+  提取到的助记符：hold=if-nez can=if-eqz ep=if-ltz
+  全部通过
+[4b] 永恒判定链夹具通过
+[4b] 阶段行上限自检通过（1–13 / 1–17，无第 18 行）
+[4b] 适用时机自检通过（stageHint/hintRows13/hintTeresa/hintPelle，写入点 2 处）
+[4b] 开局自动化闩锁自检通过（earlyAutomationApplied 字段 + 2 处赋值 + 早退守卫）
+[4b] 鹿颈长 nerfFactor 收敛自检通过（max(1.0,pLog10) + c/1e6，验收签名 0.99888/0.99955）
+[4b] 遗迹碎片除数自检通过（7500.0 → 30.0，全文 0 残留）
+[4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）
+[4b] 时间倍率注入点唯一性通过（apply 调用 1 处）
+[4b] L3 成就自检注入点唯一性通过（tick 调用 1 处）
+[4n] 天体时间补偿倍率自检通过（记忆 sqrt(F) / 动量 F / 暗物质 sqrt(F)）
+[4b] AchievementUnlocker 删除干净（类文件不存在 + 全树 0 引用）
+[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）
+[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）
+[4e] 旧存档时间换算守卫通过（三处 ×100 + 哨兵回落，且 100.0 仅存在于 d.smali）
+[4f] 加速归一化工具自检通过（unscale / unscaleBy / effectiveMult 就位，apply 仍为 mult，边界方向正确）
+[4h] SharedPreferences.Editor 接口类型自检通过（apply 全部挂在 Editor 上）
+[4g] 最佳无限时间归一化自检通过（1 次 migrateBest、2 处 unscale、realTime 未缩放、哨兵保留）
+[4i] 最佳记录单位迁移自检通过（标记幂等、哨兵排除、先落盘后改值、init 读取标记）
+[4j] 最近十次无限归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[4k] StageAssist 行区间自检通过（3 处 if-lt / 3 处 if-gt / 未解锁才点亮 / 走原版 E(ZZ)）
+[3C] 助战三约束自检通过（默认关 / 独立留痕键 / request=1 run=1）
+[3C] 开启入口 / 三态留痕 / 有界审计 自检通过
+[R41] 极性/条件回归表通过（11 处 Kotlin 语义守卫 + setCrunchMode 唯一性）
+[4m] 最近十次永恒/现实归一化自检通过（time 已除 f，realTime 保持真实毫秒）
+[T2] 动态速度开关自检通过（设置页 2 个按钮 -> setDynamic / modeLabel）
+[5] Ad Bonus: A. l5.d() 跳过时间/购买门槛（保留 Doomed）
+[5] Ad Bonus: B. t5.b() 十个乘区全部取真实数值
+[5] Ad Bonus: C. t5.c() 兜底不再抛 NoSuchElementException
+[5] Ad Bonus: 十乘区（反物质/IP/EP/DT/RM/暗能量/记忆/稀有度/遗物碎片/游戏速度）永久生效已注入
+[5] Ad Bonus: 注入后自检通过（Doomed 检查保留、异常兜底已移除、UI 依赖保留）
+[AW] 等待访问器已就绪（新增或复用现有唯一入口）
+[AW] 自动机等待分支注入完成（vo getter ×2 + updateAutomator$1 状态分支 + 自检通过）
+[Oreki AC] IntervaledAutobuyerState.c() 已改为按倍率缩放已流逝时间
+[Oreki AU2] 维度×8自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU2] 速度升级自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 维度提升自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU3] 反物质星系自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity；极性 if-eqz 已修正）
+[Oreki AD1] 维度提升 AD8 需求斜率 15/次 → max(1, 5-discount)/次
+[Oreki AU4c] 大坍缩自动购买器：首次无限后一次性启用（分支条件已更正）
+[Oreki R73] 3.20 原版已自带模式标题刷新，跳过旧注入（避免 Lvn/Lpp 字段不匹配）
+[R74-DIAG] 未设置 OREKI_R74_DIAG=1，跳过临时插桩
+[Oreki AU5] IP 倍率自动购买器：首次无限后解锁（追加 hasInfinity）
+[Oreki AU6] Game.autoBuyerTick 已接入 OrekiStageAuto.onAutoBuyerTick()
+[Oreki AU7] CrunchAutobuyerState.c()：AD3b 暂停坍缩窗口已接入
+[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）
+Traceback (most recent call last):
+  File "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/build_mod.py", line 7422, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/build_mod.py", line 7323, in main
+    verify_au4b()
+    ~~~~~~~~~~~^^
+  File "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/build_mod.py", line 5832, in verify_au4b
+    assert re.search(r"\w*Initialized\s*=\s*true", _window), \
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [AU4b] 该初始化块必须先置位闩锁，再写 mode
+
+> Task :assembleRelease FAILED
+> Task :releaseBudgetRecord SKIPPED
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':assembleRelease' (registered in build file 'build.gradle').
+> Process 'command 'python3'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 36s
+4 actionable tasks: 3 executed, 1 up-to-date

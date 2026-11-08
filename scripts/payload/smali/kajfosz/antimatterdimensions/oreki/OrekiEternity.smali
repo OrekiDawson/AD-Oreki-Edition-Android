@@ -85,15 +85,18 @@
 
 
 # ---------------------------------------------------------------- 时间定理
-# `ix4.a(true)` = buyMax；内部自带「没买过时间维度就返回 0」的前置检查
-# （Web 注释 :186-190 同款），不需要在这里重复判。
+# [R96] 不再直接写 3.20 的 `Lix4;->a(Z)J`：3.21 的 `ix4` 是无关抽象类
+# （旧绑定 NoSuchMethodError 被吞掉 ⇒ TT 恒 0，时间研究/膨胀链全断，实测）。
+# 改走 Kotlin 版本桥 `GameApi.timeTheoremBuyMax(Z)J`：按「方法真的存在」解析
+#   3.21 `zu4.a(Z)J`（TimeTheorems.buyMax）→ 3.20 `ix4.a(Z)J`，仍是原版唯一真实购买入口。
+# 内部自带「没买过时间维度就返回 0」的前置检查（Web 注释 :186-190 同款），不需要重复判。
 .method private static buyTimeTheorems()V
     .locals 1
 
     :try_start_0
     const/4 v0, 0x1
 
-    invoke-static {v0}, Lix4;->a(Z)J
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/GameApi;->timeTheoremBuyMax(Z)J
     :try_end_0
     goto :et_ret
 

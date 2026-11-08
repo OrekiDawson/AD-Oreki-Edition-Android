@@ -401,6 +401,30 @@ internal object GameApi {
      * `missing BigDouble.compareTo: NullPointerException` 即此路径暴露。
      * 需要精确语义的调用点必须显式传 [paramTypeNames]。
      */
+    /**
+     * [R96] 不发 miss 日志的探测式方法解析。
+     *
+     * 版本绑定必须按「方法真的存在」来选（同一个混淆名在不同基线里可能指向**无关类**：
+     * 3.21 的 `ix4` 就不是时间定理入口）。用 [method] 探错会刷 `OREKI_API_MISS`，
+     * 这里只在最终全部失败时记一次。
+     */
+    private fun methodOrNull(
+        owner: Class<*>?,
+        name: String,
+        paramCount: Int,
+        paramTypeNames: List<String>? = null,
+    ): Method? {
+        if (owner == null) return null
+        return try {
+            owner.methods.firstOrNull { candidate ->
+                candidate.name == name && candidate.parameterCount == paramCount &&
+                    (paramTypeNames == null || candidate.parameterTypes.map { it.name } == paramTypeNames)
+            }
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     private fun method(
         owner: Class<*>?,
         name: String,
@@ -1173,6 +1197,9 @@ internal object GameApi {
     }
     private var mImplI: Method? = null
     private var mImplIResolved: Boolean = false
+    // [R96] 3.21 把「判够 + 扣减」从 `o(BigDouble)Z` 改名为 `p(BigDouble)Z`
+    // （`l` = 判够、`v` = 扣减，`p` = 两者组合，逐指令核对）。
+    // 旧绑定在 3.21 每次都 IllegalArgument/NoSuchMethod ⇒ 真扣费路径全程失效。
     /**
      * 真扣减：`Currency.o(BigDouble)Z` —— 原版「判够 + 扣减」一步到位。
      *
@@ -1188,10 +1215,10 @@ internal object GameApi {
     private fun mImplI(): Method? {
         if (!mImplIResolved) {
             mImplIResolved = true
-            mImplI = method(
-                currencyHolderCls(), "o", 1, "Currency.o(BigDouble)=purchase",
-                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
-            )
+            val bigDoubleType = listOf("kajfosz.antimatterdimensions.BigDouble")
+            mImplI = methodOrNull(currencyHolderCls(), "p", 1, bigDoubleType)
+                ?: methodOrNull(currencyHolderCls(), "o", 1, bigDoubleType)
+            if (mImplI == null) miss("Currency.purchase(BigDouble)", null)
         }
         return mImplI
     }
@@ -1386,24 +1413,26 @@ internal object GameApi {
     fun eternityUpgrades(): List<Any> {
         if (!isBaselineModern()) return emptyList()
         if (eternityUpgradesMissing) return emptyList()
-        // [R94] 3.20 是 `x81.i`，3.21 实测字段改名为 `x81.a`（唯一 List 字段）。
-        // 先试 3.20 名再试 3.21 名，两者都失败才记一次 miss 并停用。
-        val holder = cls("x81")
-        if (holder == null) {
-            eternityUpgradesMissing = true
-            return emptyList()
-        }
-        for (fieldName in arrayOf("i", "a")) {
-            try {
-                @Suppress("UNCHECKED_CAST")
-                val list = holder.getField(fieldName).get(null) as? List<Any>
-                if (list != null) return list
-            } catch (_: Throwable) {
-                // 继续尝试下一个字段名
+        // [R96] 3.21 的永恒升级注册表是 `h91`（a=epMult、b..g=6 项一次性、i=6 项列表、
+        // h=含 epMult 的 7 项列表），元素是 `g91 extends tw extends is3`，B()/D() 可用。
+        // 旧绑定读 `x81`：3.21 的 `x81` 已变成**永恒挑战**注册表（a=挑战列表），
+        // 元素不是升级基类 ⇒ 每次 upgradeBought/upgradeBuy 抛 IllegalArgumentException，
+        // 实测每 5.5 分钟 2268 条 OREKI_API_MISS，永恒升级永远买不到。
+        // 顺序：h91.i → h91.h → x81.i → x81.a（3.20 兼容）。
+        for (holderName in arrayOf("h91", "x81")) {
+            val holder = cls(holderName) ?: continue
+            for (fieldName in arrayOf("i", "h", "a")) {
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    val list = holder.getField(fieldName).get(null) as? List<Any>
+                    if (list != null && list.isNotEmpty()) return list
+                } catch (_: Throwable) {
+                    // 继续尝试下一个字段名
+                }
             }
         }
         eternityUpgradesMissing = true
-        miss("eternity upgrade registry", NoSuchFieldException("x81.i / x81.a"))
+        miss("eternity upgrade registry", NoSuchFieldException("h91.i / x81.i / x81.a"))
         return emptyList()
     }
 
@@ -2001,6 +2030,35 @@ internal object GameApi {
     fun realityTick(): Boolean = (call(mRealityTick(), null) as? Boolean) ?: false
     fun glyphTick(): Boolean = (call(mGlyphTick(), null) as? Boolean) ?: false
     fun teresaTick(): Boolean = (call(mTeresaTick(), null) as? Boolean) ?: false
+
+    // ---------------------------------------------------------------- [R96] 时间定理（TT）
+    //
+    // 原版唯一真实购买入口 `TimeTheorems.buyMax(auto)`：
+    //   · 3.21 = `zu4.a(Z)J`（内部对 AM/IP/EP 三种 purchaseType 各走一次 `e(ZZ)J`，
+    //     真实扣费、真实加 TT；逐指令核对 work/base_decoded_321/smali_classes2/zu4.smali）；
+    //   · 3.20 = `ix4.a(Z)J`。
+    // **不能按类名硬编码**：3.21 里 `ix4` 仍存在，但已是无关的抽象类（只有 a(Lsz2;)Ltr;、
+    // k(Lps0;Z)V 两个抽象方法），旧绑定调 `ix4.a(Z)J` 会 NoSuchMethodError 被吞掉，
+    // 表现就是「TT 恒 0 → 买不到时间研究 → 膨胀/现实链全断」（实测 01:34 之后）。
+    // 这里按「方法真的存在」挑：zu4 → ix4，两个都没有才记一次 miss。
+
+    private var mTtBuyMax: Method? = null
+    private var mTtBuyMaxResolved: Boolean = false
+    private fun mTtBuyMax(): Method? {
+        if (!mTtBuyMaxResolved) {
+            mTtBuyMaxResolved = true
+            val boolType = listOf("boolean")
+            mTtBuyMax = methodOrNull(cls("zu4"), "a", 1, boolType)
+                ?: methodOrNull(cls("ix4"), "a", 1, boolType)
+            if (mTtBuyMax == null) miss("TimeTheorems.buyMax(Z)J", null)
+        }
+        return mTtBuyMax
+    }
+
+    /** 原版 `TimeTheorems.buyMax(auto)`；返回实际买到的 TT 数量（失败 0）。 */
+    @JvmStatic
+    fun timeTheoremBuyMax(auto: Boolean): Long =
+        (call(mTtBuyMax(), null, auto) as? Long) ?: 0L
 
     // ---------------------------------------------------------------- [R96] 首次永恒前收益判据
     //

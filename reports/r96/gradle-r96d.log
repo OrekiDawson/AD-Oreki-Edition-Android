@@ -1,0 +1,146 @@
+Starting a Gradle Daemon, 1 incompatible and 2 stopped Daemons could not be reused, use --status for details
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :buildKotlinDex
+[kotlin] 已清空产物
+[kotlin] 基线绑定生成：3.21，CONFIRMED=42
+[kotlin] 待编译 10 个文件
+[kotlin] $ /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/bin/kotlinc -nowarn -classpath /home/oreki/Android/Sdk/platforms/android-34/android.jar /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiTrace.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/generated/OrekiBaselineBindings.kt -d /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes
+[kotlin] 生成 13 个 class
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.OrekiTrace
+        private static final java.lang.String TAG;
+        private kajfosz.antimatterdimensions.OrekiTrace();
+        public static final void gEnter();
+        public static final void gSkip();
+        public static final void ctTrue();
+        public static final void ctFalse();
+        public static final void buyTrue();
+        public static final void buyFalse();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.OrekiTrace（6 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiStageAuto
+        private final void probeInfinityUpgradesOnce();
+        public static final boolean upgradeCrunchInterval();
+        public static final boolean tryBuyId1();
+        public static final void tryBreakInfinity();
+        public static final boolean holdCrunch();
+        private final boolean computeHoldCrunch();
+        public static final void applyCrunchPolicy();
+        public static final void crunchProbe();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiStageAuto（14 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.OrekiAuto
+        private kajfosz.antimatterdimensions.OrekiAuto();
+        public static final boolean hasInfinity();
+        private final boolean bigDoublePositive(java.lang.Object);
+        public static final boolean orekiEarly();
+        public static final boolean idGuardAllowed();
+        public static final boolean idBuyBlocked();
+        public static final void bumpIdGuardFails();
+        public static final void noteReality();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.OrekiAuto（6 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiIu15Sprint
+        public static final boolean isCleanReality();
+        private final boolean tryBuy();
+        private final void fail(java.lang.String, long);
+        public static final void releaseNow(java.lang.String);
+        private final void recordError(java.lang.String, java.lang.Throwable);
+        public static final java.lang.String statusLine();
+        public static final java.lang.String debugPhase();
+        public static final int debugFails();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiIu15Sprint（12 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiBreakShop
+        private static int sTicks;
+        private static long sLastBuyAt;
+        private kajfosz.antimatterdimensions.oreki.OrekiBreakShop();
+        public static final int tick();
+        private final boolean canBuyNow();
+        private final java.lang.Object id1ReserveRequirement();
+        public static final boolean id1ReserveActive();
+        private final boolean leavesId1Reserve(java.lang.Object, java.lang.Object, java.lang.Object);
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiBreakShop（1 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler
+        public static final java.lang.String statusLine();
+        public static final java.lang.String statsLine();
+        public static final long sinceLastActMs(java.lang.String);
+        public static final int servedCount(java.lang.String);
+        public static final void dbgState();
+        public static final void resetAll();
+        private final int idxOf(java.lang.String);
+        private final void logI(java.lang.String);
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiAutomationScheduler（23 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener
+        public void onClick(android.view.View);
+        public void onCheckedChanged(android.widget.CompoundButton, boolean);
+        private final void saveIntervalFromInput();
+        private final void restoreDefaultInterval();
+        private final void refreshLabel();
+        private final void syncChecked(android.widget.CompoundButton, boolean);
+        private final void setFieldText(android.widget.EditText, java.lang.String);
+        private final void toast(java.lang.String);
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.OrekiAutomationUiListener（3 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity
+        private static final kotlin.Unit loadAsset$lambda$0$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, java.lang.String);
+        private static final kotlin.Unit addTopBar$lambda$1(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity);
+        private static final kotlin.Unit addTopBar$lambda$4(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity);
+        private static final kotlin.Unit addTopBar$lambda$6(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity);
+        private static final void actionButton$lambda$0$0(kotlin.jvm.functions.Function0, android.view.View);
+        private static final void addFontPicker$lambda$2$0$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, int, android.view.View);
+        private static final void buildChapterPicker$lambda$0$0$1(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, int, android.view.View);
+        private static final void openChapterDrawer$lambda$2$0$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, int, android.app.Dialog, android.view.View);
+        private static final void showChapter$lambda$1$0(kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity, android.view.View);
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity（3 个方法）
+[kotlin] 打包 stdlib：kotlin-stdlib.jar（1853315 B）
+[kotlin] $ /home/oreki/Android/Sdk/build-tools/37.0.0/d8 --lib /home/oreki/Android/Sdk/platforms/android-34/android.jar --min-api 29 --output /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/OrekiAuto.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/OrekiTrace.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/GameApi.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener$Companion.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiBaselineBindings.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Chapter.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Record.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.class /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/lib/kotlin-stdlib.jar
+[kotlin] 完成：/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes.dex（2718680 B）
+
+> Task :fingerprintInputs
+  payload_smali    content  files=29         1 ms  01edebff29d70b3c
+  payload_assets   content  files=1          1 ms  c351e9d7e2950ebd
+  payload_res      content  files=1          0 ms  4c169b5fcb4c5942
+  base_decoded     stat     files=17413    482 ms  f6f2e41efbbb896c
+  base_apk         stat     files=1          0 ms  e38cde2b57a59d62
+  keystore         stat     files=3          0 ms  88c85cfddc2715da
+  build_scripts    content  files=90         4 ms  ed064fb424d392c6
+  gradle_files     content  files=3          0 ms  e4c00c6507e04cfe
+  STALE（输入指纹变化）指纹 5576058dd6e697cd vs 4460897ce998c412，检查耗时 0.49s
+
+> Task :releaseBudgetGate FAILED
+[release-budget] round=R96 used=1/1 emergency=0
+[release-budget] inputs=115 fingerprint=7b5297179d8f017a… apk_sha=e6f0169dc35763a0…
+[release-budget] REFUSE: 预算已用完且无紧急重建授权（RG02-12）
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':releaseBudgetGate' (registered in script 'gradle/release-budget.gradle').
+> Process 'command 'python3'' finished with non-zero exit value 4
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 30s
+3 actionable tasks: 3 executed

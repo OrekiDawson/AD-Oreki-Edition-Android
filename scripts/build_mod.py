@@ -2425,8 +2425,12 @@ def verify_kotlin_gameapi_aliases():
     #   · u(BigDouble)Lbq0; 1206-1220：只 subtract + m()，不校验余额；
     #   · o(BigDouble)Z 1122-1140：`if (i(cost)) { u(cost); return true; }` = 原版 purchase。
     # R81 曾把 i() 当购买入口，导致「涨级但不扣费」——这是伪造进度，必须在构建期拦住。
-    assert '"o", 1, "Currency.o(BigDouble)=purchase"' in code_only, (
-        "[R82] GameApi.currencyBuy 未锁定原版 Currency.o(BigDouble)Z —— "
+    # [R96] 3.21 把该组合方法改名为 `p(BigDouble)Z`（l=判够、v=扣减、p=两者组合，逐指令核对）；
+    # 绑定必须「p 优先、o 兜底」，且两个名字都要来自探测式解析（不能写死单版本）。
+    assert 'methodOrNull(currencyHolderCls(), "p", 1, bigDoubleType)' in code_only, (
+        "[R82/R96] GameApi.currencyBuy 未锁定 3.21 的 Currency.p(BigDouble)Z（判够+扣减）")
+    assert 'methodOrNull(currencyHolderCls(), "o", 1, bigDoubleType)' in code_only, (
+        "[R82] GameApi.currencyBuy 缺少 3.20 的 Currency.o(BigDouble)Z 兜底 —— "
         "i() 只判余额不扣钱、u() 不判余额，两者都会造成免费升级或负余额。")
     assert '"i", 1, "Currency.i(BigDouble)=buy"' not in code_only, (
         "[R82] GameApi 仍把 Currency.i(BigDouble)Z 标成 buy —— 它只是余额比较，不扣费。")
@@ -5377,8 +5381,27 @@ def verify_eternity_chain():
     # (2) 时间定理
     i, j = _scan_method(s, "private static buyTimeTheorems()V")
     body = s[i:j]
-    assert "Lix4;->a(Z)J" in body, "[ET1] TT 必须走原版 ix4.a(Z)J（唯一真实购买入口）"
+    # [R96] TT 入口必须经 Kotlin 版本桥：3.21 的 ix4 已不是时间定理类（旧绑定 NoSuchMethod）。
+    assert "GameApi;->timeTheoremBuyMax(Z)J" in body, \
+        "[ET1] TT 必须走 GameApi.timeTheoremBuyMax(Z)J 版本桥（原版唯一真实购买入口）"
+    assert "Lix4;->a(Z)J" not in body, "[ET1] 不得直接写死 3.20 的 ix4.a(Z)J"
     assert "const/4 v0, 0x1" in body, "[ET1] TT 必须 buyMax(true)"
+    _gameapi_tt = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" /
+                   "antimatterdimensions" / "oreki" / "GameApi.kt").read_text(encoding="utf-8")
+    assert "methodOrNull(cls(\"zu4\"), \"a\", 1, boolType)" in _gameapi_tt, \
+        "[ET1] 3.21 时间定理入口必须是 zu4.a(Z)J"
+    assert "methodOrNull(cls(\"ix4\"), \"a\", 1, boolType)" in _gameapi_tt, \
+        "[ET1] 3.20 时间定理入口必须是 ix4.a(Z)J"
+    # 静态桥的 ABI：smali 走 invoke-static，Kotlin 端漏 @JvmStatic 会变成实例方法
+    # ⇒ 装配期不报错、运行期 NoSuchMethodError 被吞（R96 第二轮踩过：TT 恒 0）。
+    assert "@JvmStatic\n    fun timeTheoremBuyMax(auto: Boolean): Long" in _gameapi_tt, \
+        "[ET1] GameApi.timeTheoremBuyMax 必须是 @JvmStatic（smali 用 invoke-static）"
+    # [R96] 永恒升级注册表：3.21 = h91（x81 是永恒挑战注册表，旧绑定必抛 IllegalArgumentException）
+    assert 'arrayOf("h91", "x81")' in _gameapi_tt, \
+        "[ET1] 永恒升级注册表必须先读 3.21 的 h91"
+    # [R96] 货币真扣费：3.21 = p(BigDouble)Z
+    assert "methodOrNull(currencyHolderCls(), \"p\", 1, bigDoubleType)" in _gameapi_tt, \
+        "[ET1] 货币购买入口必须兼容 3.21 的 p(BigDouble)Z"
 
     # (3) 时间维度
     i, j = _scan_method(s, "private static buyTimeDimensions()V")
