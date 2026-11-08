@@ -21,7 +21,7 @@
 1. 交付位置固定为：OneDrive、Google Drive、GitHub Releases、Kubuntu 本地 `~/Releases/AD-Oreki-Edition/`。本地目录的 `latest/` 保存当前稳定包，`archive/<version>/` 保存历史包，根目录保存 `SHA256SUMS` 与 `release-info.json`。
 2. Linux 统一入口为 `scripts/publish_four_channels.py`。普通 Gradle 构建不会上传；正式操作必须显式使用 `--publish`，只更新 SSH/SFTP 使用 `--local-only`，检查使用 `--check`，预演使用 `--dry-run`。
 3. 正式交付必须指定已经通过签名、契约和必要运行验收的 APK，并提供 `release-manifest.json`。脚本只校验和交付这个输入，不重新构建、不重新生成第二份 APK。
-4. OneDrive 和 Google Drive 只能使用 rclone remote + 固定目录，并使用 `rclone copyto` 写入 `latest/`、版本归档和 `SHA256SUMS`；禁止 `sync`、`delete` 或清空目标目录。两渠道分别记录结果，互不代替。
+4. OneDrive 和 Google Drive 只能使用 rclone remote + 固定目录，并使用 `rclone copyto` 将唯一交付文件 `反物质维度.apk` 覆盖到各自固定目录根部；禁止同步其他文件、`sync`、`delete` 或清空目标目录。两渠道分别记录结果，互不代替。
 5. GitHub Release 使用 `android-v<version>` 标签。已有 Release 默认不可变，脚本发现同名 Release 时失败，不覆盖、不删除历史 Release。附件至少包括 APK 与 `.sha256` 校验文件，说明中记录版本、大小和 SHA-256。
 6. 本地交付使用临时文件加原子替换；历史归档按版本和 SHA-256 区分，不覆盖旧包。目录由普通用户持有，不在 Web 公共根目录，不开放匿名访问。
 7. 某渠道失败时保留其他成功结果，写入 `release-info.json`，不重建 APK。使用 `--retry-failed` 只重试上次失败渠道；不得把部分成功写成四渠道全部完成。

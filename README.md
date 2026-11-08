@@ -307,7 +307,7 @@ python3 scripts/publish_four_channels.py --publish --retry-failed \
   --manifest build/release-manifest.json
 ```
 
-发布入口不会构建 APK，也不会因普通 Gradle 构建自动上传。只交付 APK，不生成 XAPK；正式入口会先计算 SHA-256，在本地 `archive/<version>/` 保留历史包，再原子更新 `latest/`。OneDrive 和 Google Drive 使用 `rclone copyto`，禁止 `sync`/`delete`；GitHub 既有 Release 不覆盖。
+发布入口不会构建 APK，也不会因普通 Gradle 构建自动上传。只交付 APK，不生成 XAPK；正式入口会先计算 SHA-256，在本地 `archive/<version>/` 保留历史包，再原子更新 `latest/反物质维度.apk`。OneDrive 和 Google Drive 只使用 `rclone copyto` 覆盖各自固定目录根部的 `反物质维度.apk`，禁止 `sync`/`delete`；GitHub 既有 Release 不覆盖。
 
 首次使用前复制 `.release.env.example` 中的变量到当前 shell，分别完成 `rclone config` 的 OneDrive/Google Drive OAuth；`gh auth status` 必须通过。手机从 SSH/SFTP 登录 `oreki` 用户后读取 `latest/`，不开放匿名访问。
 

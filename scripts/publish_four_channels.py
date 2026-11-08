@@ -264,19 +264,11 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
 def rclone_publish(channel: str, remote: str | None, directory: str | None, root: Path, version: str, apk_info: dict[str, object], dry_run: bool) -> None:
     if not remote or not directory:
         raise RuntimeError(f"{channel} 缺少 remote 或固定目录配置")
-    archive_name = f"{DEFAULT_APK_NAME.removesuffix('.apk')}_{version}_{str(apk_info['sha256'])[:8]}.apk"
     local_apk = root / "latest" / DEFAULT_APK_NAME
-    local_archive = root / "archive" / version / archive_name
-    checksum = root / "SHA256SUMS"
-    commands = [
-        ["rclone", "copyto", str(local_apk), remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}")],
-        ["rclone", "copyto", str(local_archive), remote_spec(remote, directory, f"archive/{version}/{archive_name}")],
-        ["rclone", "copyto", str(checksum), remote_spec(remote, directory, "SHA256SUMS")],
-    ]
-    for command in commands:
-        say(f"{channel}: {' '.join(command)}")
-        if not dry_run:
-            run(command, check=True)
+    command = ["rclone", "copyto", str(local_apk), remote_spec(remote, directory, DEFAULT_APK_NAME)]
+    say(f"{channel}: {' '.join(command)}")
+    if not dry_run:
+        run(command, check=True)
 
 
 def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[str, object], dry_run: bool) -> None:
