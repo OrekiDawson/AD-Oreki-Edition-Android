@@ -1,0 +1,17 @@
+11-09 02:31:16.731  9105  9138 I OREKI_SCHED: noop eternity
+11-09 02:31:16.732  9105  9138 I OREKI_SCHED: act infinityUpgrades @6895337ms gap=-1 taskGap=-1
+11-09 02:31:16.732  9105  9138 I OREKI_SCHED: deny frame-held task=breakUpgrades
+11-09 02:31:26.748  9105  9138 I OREKI_SCHED: act bulk @6905352ms gap=10015 taskGap=-1
+11-09 02:31:26.748  9105  9138 I OREKI_SCHED: deny frame-held task=infinityUpgrades
+11-09 02:31:36.758  9105  9138 I OREKI_SCHED: act crunchInterval @6915363ms gap=10011 taskGap=-1
+11-09 02:31:36.758  9105  9138 I OREKI_SCHED: deny frame-held task=breakUpgrades
+11-09 02:31:46.776  9105  9138 I OREKI_SCHED: noop eternity
+11-09 02:31:46.776  9105  9138 I OREKI_SCHED: act infinityUpgrades @6925381ms gap=10018 taskGap=30044
+11-09 02:31:46.777  9105  9138 I OREKI_SCHED: deny frame-held task=breakUpgrades
+11-09 02:31:56.777  9105  9138 I OREKI_SCHED: act crunchInterval @6935381ms gap=10000 taskGap=20018
+11-09 02:31:56.777  9105  9138 I OREKI_SCHED: deny frame-held task=breakUpgrades
+11-09 02:32:06.780  9105  9138 I OREKI_SCHED: act sacrifice @6945384ms gap=10003 taskGap=-1
+11-09 02:32:06.780  9105  9138 I OREKI_SCHED: deny frame-held task=bulk
+11-09 02:32:16.784  9105  9138 I OREKI_SCHED: noop eternity
+11-09 02:32:16.785  9105  9138 I OREKI_SCHED: act infinityUpgrades @6955389ms gap=10005 taskGap=30008
+11-09 02:32:16.785  9105  9138 I OREKI_SCHED: deny frame-held task=breakUpgrades
