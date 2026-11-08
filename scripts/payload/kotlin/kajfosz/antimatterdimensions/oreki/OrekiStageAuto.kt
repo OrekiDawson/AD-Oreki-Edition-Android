@@ -75,8 +75,16 @@ object OrekiStageAuto {
     private const val MODE_TIME = 1
     private const val MODE_X_HIGHEST = 2
 
-    /** [R94] Break 前的填塌间隔（秒）：让反物质充分滚动后再收割 IP。 */
-    private const val PRE_BREAK_CRUNCH_SECONDS = 10.0
+    /**
+     * [R94/R96] Break 前的填塌间隔（秒）：让反物质充分滚动后再收割 IP。
+     *
+     * 实测（R96 全新存档，速度 ×10000）：从 0 到 1e89 只需 10 秒，此时
+     * `gainedInfinityPoints ≈ 10^(log10(am)/4 − 77) ≈ 0`，所以 10 秒间隔等于「每次坍缩白跑」
+     * —— 21 分钟 144 次无限只攒到 ~50 IP，坍缩间隔升级买不动、Break 遥不可及。
+     * 反物质是指数增长：40~60 秒可到 1e340 以上，单次坍缩即可给 1e8 量级 IP。
+     * 取 60 秒留出余量（游戏速度倍率变化、设备负载都不至于掉回零收益区）。
+     */
+    private const val PRE_BREAK_CRUNCH_SECONDS = 60.0
 
     // ---------------------------------------------------------------- 状态字段
     // 保持与旧 Smali 同名字段，供诊断脚本按名读取。
