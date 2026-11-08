@@ -271,7 +271,10 @@ check("GameApi 提供永恒点数读取", "fun eternityPointsValue()" in _gameap
 check("GameApi 提供 bigEternities 读取", "fun bigEternitiesValue()" in _gameapi_et)
 check("eternitiesZero 以永恒点数为主判据",
       "val points = GameApi.eternityPointsValue() ?: return false" in stage)
-check("eternitiesZero 检查永恒升级为空", "if (upgrades.isNotEmpty()) return false" in stage)
+# [R94] 必须看已购位图：静态注册表任何阶段都非空（3.21 = x81.a）。
+check("eternitiesZero 检查已购永恒升级位图为空",
+      "GameApi.eternityUpgradeBitsValue() ?: return false" in stage
+      and "if (bought != 0) return false" in stage)
 check("eternitiesZero 对 bigEternities 兜底", "if (big is Number && big.toLong() != 0L) return false" in stage)
 
 # ---------------------------------------------------------------- 汇总

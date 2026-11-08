@@ -579,6 +579,14 @@ internal object GameApi {
     /** [R94] `bigEternities`（可能为 Number，读不到返回 null）。 */
     fun bigEternitiesValue(): Any? = readGameField(player(), "bigEternities")
 
+    /**
+     * [R94] 已购买的永恒升级位图（`Player.eternityUpgradeBits`，BitSet）。
+     *
+     * 不能用 `eternityUpgrades()` 判「是否买过永恒升级」：那是**静态注册表**
+     * （3.20 `x81.i` / 3.21 `x81.a`），任何阶段都非空；真正记录购买状态的是位图。
+     */
+    fun eternityUpgradeBitsValue(): Any? = readGameField(player(), "eternityUpgradeBits")
+
     /** 写 `player().brake`（唯一的 Break 写入器）。 */
     fun setBrake(value: Boolean) {
         call(mPlayerX0(), player(), value)

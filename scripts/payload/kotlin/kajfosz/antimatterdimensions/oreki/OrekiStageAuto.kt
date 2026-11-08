@@ -394,12 +394,15 @@ object OrekiStageAuto {
         // fail-closed：任一读取失败都返回 false（不进入窗口、不乱按永恒）。
         val points = GameApi.eternityPointsValue() ?: return false
         if (GameApi.compareToDouble(points, 0.0) != 0) return false
-        val upgrades = try {
-            GameApi.eternityUpgrades()
+        // [R94] 判「买过永恒升级」必须看已购位图；`eternityUpgrades()` 是静态注册表，
+        // 任何阶段都非空（3.21 起是 `x81.a`），拿它判会把窗口永久关死。
+        val bits = GameApi.eternityUpgradeBitsValue() ?: return false
+        val bought = try {
+            GameApi.bitSetCardinality(bits)
         } catch (_: Throwable) {
             return false
         }
-        if (upgrades.isNotEmpty()) return false
+        if (bought != 0) return false
         val big = GameApi.bigEternitiesValue()
         if (big is Number && big.toLong() != 0L) return false
         return true
