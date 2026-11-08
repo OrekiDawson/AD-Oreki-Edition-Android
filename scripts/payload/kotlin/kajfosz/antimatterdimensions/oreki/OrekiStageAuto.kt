@@ -391,11 +391,16 @@ object OrekiStageAuto {
         // 这里给它紧迫名额；买不起时 upgradeCrunchInterval() 返回 false ⇒ noteNoop
         // 不占节拍，后面的常规动作照常执行，不会反噬。
         val base: String? = if (!isBroken()) {
-            if (crunchIntervalIsMaxed()) {
-                null
-            } else {
-                "crunchInterval"
-            }
+            // [R96 第七轮] 首次 Break 前把「无限升级」提到固定优先：
+            //
+            // 实测（第八版新档）：调度 15 分钟只有 sacrifice/bulk 在跑，infinityUpgrades
+            // 在抢救名单里每 60 秒才拿到一拍 ⇒ ipMult 十几分钟仍是 0 ⇒ IP 只按 1/坍缩
+            // 累积 ⇒ 坍缩间隔升级（下一档 128 IP、全买满约 3.2 万 IP）根本买不起 ⇒
+            // Break 无限期推迟（第 4 轮同流程 +9 分钟就 Break）。
+            // 原版早期的最优解就是**每拍都买 IP 倍率升级**（成本 ×2、收益 ×2，指数增长），
+            // 因此未 Break 时固定把它放在紧迫名额；它没有可买项时会 noop，本拍回落到
+            // crunchInterval/sacrifice/bulk，不会造成空转。
+            "infinityUpgrades"
         } else if (!eternitiesZero()) {
             null
         } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
@@ -671,15 +676,23 @@ object OrekiStageAuto {
         return false
     }
 
-    /** [R96 第六轮] 临时诊断：无限升级购买在哪个分支失败（每个原因只打一次）。 */
-    private val iupDiagLogged = HashSet<String>()
+    /**
+     * [R96 第六/七轮] 无限升级购买诊断（节流时序日志）。
+     *
+     * 「每个原因只打一次」在第六轮暴露不足：ipMult 在 +9 分钟仍是 0，但日志只捕获到
+     * IP=0 首帧的两条失败，无法判断「后来仍失败」还是「一直没抢到节拍」。
+     * 现在改为每 12 秒最多一条，带当前 IP / 成本 / 分支名，直接看出停滞在哪一步。
+     */
+    private var iupDiagAt: Long = 0L
 
-    private fun logIupDiagOnce(reason: String) {
-        if (iupDiagLogged.add(reason)) {
-            try {
-                Log.i(TAG_IPM_LV, "iup-diag " + reason + " ip=" + GameApi.currencyValue(GameApi.ipCurrency()))
-            } catch (_: Throwable) {
-            }
+    private fun logIupDiag(reason: String, detail: String = "") {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - iupDiagAt < 12_000L) return
+        iupDiagAt = now
+        try {
+            val ip = GameApi.currencyValue(GameApi.ipCurrency())
+            Log.i(TAG_IPM_LV, "iup-diag " + reason + " ip=" + ip + detail)
+        } catch (_: Throwable) {
         }
     }
 
@@ -703,14 +716,14 @@ object OrekiStageAuto {
         // 与 Web 的差异：Web 按单条升级 cost 精算「买完仍够门槛」，这里直接暂停，
         // 代价是该窗口内便宜升级也一并暂停；差异已记入 tasks/R92 记录。
         if (OrekiBreakShop.id1ReserveActive()) {
-            logIupDiagOnce("reserve-active")
+            logIupDiag("reserve-active")
             return false
         }
 
         // ---- 1) 一次性升级：只买第一个「未买且买得起」的 ----
         val list = GameApi.infinityUpgrades()
         if (list == null) {
-            logIupDiagOnce("upgrade-list-null")
+            logIupDiag("upgrade-list-null")
         } else {
             var sawUnbought = false
             for (up in list) {
@@ -718,8 +731,8 @@ object OrekiStageAuto {
                 sawUnbought = true
                 if (GameApi.upgradeBuy(up)) return true
             }
-            if (!sawUnbought) logIupDiagOnce("all-one-time-bought")
-            else logIupDiagOnce("one-time-buy-failed")
+            if (!sawUnbought) logIupDiag("all-one-time-bought")
+            else logIupDiag("one-time-buy-failed")
         }
 
         // ---- 2) 可重复的 ipMult ----
@@ -728,7 +741,10 @@ object OrekiStageAuto {
             // 未解锁：IP ≥ 1e7 就停手，攒钱等 ID1 解锁
             val ip = ipBalance()
             val ipVersusGate = cmp(ip, 1.0e7)
-            if (ipVersusGate != null && ipVersusGate >= 0) return false
+            if (ipVersusGate != null && ipVersusGate >= 0) {
+                logIupDiag("id1-reserve-wait")
+                return false
+            }
         } else {
             // 已解锁：只有买过 ID1 才恢复买 ipMult
             if (GameApi.idPurchases(id1) == 0L) return false
@@ -736,17 +752,17 @@ object OrekiStageAuto {
 
         val ipMult = GameApi.ipMultUpgrade()
         if (ipMult == null) {
-            logIupDiagOnce("ipmult-obj-null")
+            logIupDiag("ipmult-obj-null")
             return false
         }
         val cost = GameApi.ipMultCost(ipMult)
         if (cost == null) {
-            logIupDiagOnce("ipmult-cost-null")
+            logIupDiag("ipmult-cost-null")
             return false
         }
         val currency = GameApi.ipMultCurrency(ipMult)
         if (currency == null) {
-            logIupDiagOnce("ipmult-currency-null")
+            logIupDiag("ipmult-currency-null")
             return false
         }
         // R82：真实扣费必须先成功，才允许涨级。
@@ -755,7 +771,7 @@ object OrekiStageAuto {
         // 现在 `currencyBuy()` 已锁定原版 `Currency.u(BigDouble)`，先判余额再扣；
         // 扣费返回 false 时立即退出，绝不写等级。
         if (!GameApi.currencyBuy(currency, cost)) {
-            logIupDiagOnce("currency-buy-failed")
+            logIupDiag("currency-buy-failed", " cost=" + cost)
             return false
         }
         // 真涨级（仅在上面的真实扣减成功之后）

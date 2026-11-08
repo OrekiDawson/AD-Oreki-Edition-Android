@@ -1,0 +1,7 @@
+[四渠道发布] APK=/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/release/反物质维度.apk version=3.21.0 sha256=4e6fb5b274bb5f4ecfa3c70ad8d23e5835792ae37988b8d1ace3b0a3466e1b4b
+[四渠道发布] 渠道=local,onedrive,gdrive,github 模式=publish
+[四渠道发布] 本地：原子覆盖 /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk（不创建版本归档）
+[四渠道发布] OneDrive: rclone copyto /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk onedrive:Apps/AD-Oreki-Edition/反物质维度.apk
+[四渠道发布] Google Drive: rclone copyto /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk gdrive:AD-Oreki-Edition/反物质维度.apk
+[四渠道发布] github: gh release create android-update-3.21.0-4e6fb5b2 /tmp/oreki-gh-asset-z2ae8f9p/AD-Oreki-Edition-3.21.0.apk /tmp/oreki-gh-asset-z2ae8f9p/AD-Oreki-Edition-3.21.0.apk.sha256 --repo OrekiDawson/AD-Oreki-Edition-Android --title Android 3.21.0 更新（4e6fb5b2） --notes-file /tmp/tmpjgyyxu3p.md --target main
+[四渠道发布] 所选渠道全部完成；详情已写入本地 release-info.json

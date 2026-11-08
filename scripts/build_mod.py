@@ -3125,8 +3125,8 @@ def verify_payload():
         (sa_txt, "if (ipVersusCost == null || ipVersusCost < 0)",
          "IP < cost 才停止购买（买得起要放行）"),
 
-        # IP < 1e8 才不暂停坍缩
-        (sa_txt, "if (ipVersusGate != null && ipVersusGate >= 0) return false",
+        # IP < 1e8 才不暂停坍缩（[R96 第七轮] 该分支加了诊断日志，断言改为结构形态）
+        (sa_txt, "if (ipVersusGate != null && ipVersusGate >= 0) {",
          "IP < 1e8 才不暂停坍缩"),
 
         # earlyAutomationApplied 为 false 才执行开局自动化
