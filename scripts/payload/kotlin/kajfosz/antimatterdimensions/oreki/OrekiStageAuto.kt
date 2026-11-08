@@ -75,6 +75,9 @@ object OrekiStageAuto {
     private const val MODE_TIME = 1
     private const val MODE_X_HIGHEST = 2
 
+    /** [R94] Break 前的填塌间隔（秒）：让反物质充分滚动后再收割 IP。 */
+    private const val PRE_BREAK_CRUNCH_SECONDS = 10.0
+
     // ---------------------------------------------------------------- 状态字段
     // 保持与旧 Smali 同名字段，供诊断脚本按名读取。
 
@@ -842,6 +845,9 @@ object OrekiStageAuto {
      */
     private var holdLatched: Boolean = false
 
+    /** [R94] 填塌间隔策略是否已在本段时期设置过。 */
+    private var preBreakCrunchConfigured: Boolean = false
+
     /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
     private var holdProbeTick: Int = 0
 
@@ -926,11 +932,24 @@ object OrekiStageAuto {
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
 
+            // [R94] 未 Break 阶段：实测存档 `auto.bigCrunch` 为 AMOUNT 模式且
+            // `amount = 1`（mantissa 1.0 / exponent 0）⇒ 反物质刚到 1 就填塌，
+            // 每次 IP 收益≈0，填塌间隔升级买不动，Break 永久卡住
+            // （run4：18 分钟 IP 才 59，maxAM 已 1e358）。
+            // 这里强制改为 TIME 模式 + 10 秒，让反物质在两次填塌之间
+            // 滚起来（×10000 下 10 秒足够冲过多个数量级），IP 收益随之量级上升。
+            if (!isBroken()) {
+                if (!preBreakCrunchConfigured) {
+                    preBreakCrunchConfigured = true
+                    GameApi.setCrunchMode(crunch, MODE_TIME)
+                    Log.i(TAG_AU4C, "policy -> TIME/10s (pre-break IP harvest)")
+                }
+                GameApi.setCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS)
+                return
+            }
+
             // 已经是 TIME → 玩家自己选的或本段已设过，原样放手
             if (GameApi.crunchMode(crunch) == MODE_TIME) return
-
-            // 未 Break → 不干预
-            if (!isBroken()) return
 
             val bits = GameApi.breakUpgradeBits() ?: return
             if (GameApi.bitSetCardinality(bits) == 0) {

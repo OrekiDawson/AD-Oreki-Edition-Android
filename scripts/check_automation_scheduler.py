@@ -277,6 +277,13 @@ check("eternitiesZero 检查已购永恒升级位图为空",
       and "if (bought != 0) return false" in stage)
 check("eternitiesZero 对 bigEternities 兜底", "if (big is Number && big.toLong() != 0L) return false" in stage)
 
+# ---------------------------------------------------------------- 22. R94：Break 前 IP 收割策略
+# 实测：存档 `auto.bigCrunch` 为 AMOUNT 模式且 amount=1 ⇒ 反物质刚到 1 就填塌，
+# 每次 IP 收益≈0，填塌间隔升级买不动 ⇒ Break 永久卡住。
+check("Break 前强制 TIME 模式收割 IP", "policy -> TIME/10s (pre-break IP harvest)" in stage)
+check("Break 前填塌间隔按常量校准", "PRE_BREAK_CRUNCH_SECONDS" in stage)
+check("未 Break 分支在 isBroken 之前", stage.index("if (!isBroken()) {") < stage.index("if (GameApi.crunchMode(crunch) == MODE_TIME) return"))
+
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
 if fails:
