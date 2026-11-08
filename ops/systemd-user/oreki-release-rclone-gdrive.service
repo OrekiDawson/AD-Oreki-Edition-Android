@@ -1,0 +1,9 @@
+[Unit]
+Description=AD-Oreki release one-way copy to Google Drive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/oreki-release.env
+ExecStart=/usr/bin/rclone copy ${AD_RELEASE_DIR} ${AD_GDRIVE_REMOTE}:${AD_GDRIVE_DIR} --create-empty-src-dirs --retries 3 --low-level-retries 10 --log-level INFO

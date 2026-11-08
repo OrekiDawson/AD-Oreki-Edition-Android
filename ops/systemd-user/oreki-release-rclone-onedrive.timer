@@ -1,0 +1,11 @@
+[Unit]
+Description=Run AD-Oreki OneDrive copy every 10 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+Unit=oreki-release-rclone-onedrive.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

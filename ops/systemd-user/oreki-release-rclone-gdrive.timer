@@ -1,0 +1,11 @@
+[Unit]
+Description=Run AD-Oreki Google Drive copy every 10 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+Unit=oreki-release-rclone-gdrive.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
