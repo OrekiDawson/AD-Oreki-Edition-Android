@@ -15,6 +15,15 @@
 #   `Eternity$confirmEternity$4.invokeSuspend` 只做 `c.d(..., mask 0xF)`，
 #   它自己是真正的 SuspendLambda，由游戏作用域驱动状态机，挂起点能正常恢复。
 #
+# ── [R96] 3.21 启动器绑定修正（真实机 ART VerifyError 取证）──────────────
+#   3.20 的绑定是 `g.p(Lvi1;Z)`；3.21 里 `Lvi1` 是**enum when-map**（与启动无关），
+#   原版启动器改成了 `g.s(Lgm1;Z)`（`MainActivity.Companion.launchOnGameScope`）。
+#   实测（R96 APK fa3892c9，01:31:53）残留旧绑定让 ART 直接拒绝整个类：
+#     Verifier rejected ... [0x8] register v0 has type Eternity$confirmEternity$4
+#     but expected vi1  → 每帧 OREKI_ET_EXC，首次永恒永远不结算（EP 恒 0）。
+#   这里按 3.21 baseline 真实签名改为 `g.s(Lgm1;Z)`，并显式 check-cast 到 Lgm1
+#   （Eternity$confirmEternity$4 声明 .implements Lgm1;），保证校验器类型收敛。
+#
 # ── 第二参为什么传 true ──────────────────────────────────────────────
 #   `g.p(lambda, false)` 会先查 `a.o(0)`（是否暂停 / 是否被反作弊冻结），
 #   命中就 `return-void`，**不留任何日志**。模拟器上存档时间戳常落后于系统时间，
@@ -46,9 +55,11 @@
 
     invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILvh0;)V
 
+    check-cast v0, Lgm1;
+
     const/4 v1, 0x1
 
-    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/g;->p(Lvi1;Z)V
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V
 
     return-void
 .end method

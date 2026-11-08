@@ -89,6 +89,15 @@ object OrekiStageAuto {
     /** [R96] 目标保护期间的坍缩间隔（秒）：足够大以免误触发，放行后立即恢复。 */
     private const val CRUNCH_PAUSE_SECONDS = 3600.0
 
+    /**
+     * [R96] Break 之后「放行」时的坍缩下限间隔（秒）。
+     *
+     * 原版 TIME 模式用的是**真实秒**（实测存档 `auto.bigCrunch.time=3600` 对应 1 小时真墙钟），
+     * 所以放行后不能沿用 60 秒：首次永恒前 IP 增长靠「收益 ≥ 10 倍 IP 就结算」的循环，
+     * 5 秒只是防抖下限，真正是否结算由 `OrekiCrunchPolicy` 每拍判断。
+     */
+    private const val POST_BREAK_RESUME_SECONDS = 5.0
+
     // ---------------------------------------------------------------- 状态字段
     // 保持与旧 Smali 同名字段，供诊断脚本按名读取。
 
@@ -862,6 +871,19 @@ object OrekiStageAuto {
     /** [R96] 当前因目标保护而暂停坍缩的原因；null 表示未暂停。 */
     private var pauseReason: String? = null
 
+    /** [R96] 坍缩策略异常只打一次完整堆栈：静默吞掉会让「策略不生效」变成不可观测问题。 */
+    private var crunchPolicyErrorLogged: Boolean = false
+
+    /**
+     * [R96] 目标驱动阶段（首次永恒前）是否已把 TIME 间隔校准到可结算值。
+     *
+     * 存档里可能残留上一次进程「暂停」写入的 `TIME/3600`（**真实秒** = 1 小时），
+     * 新进程只按「策略放行」清 pauseReason 而不改间隔时，放行也不会在合理时间内坍缩
+     * （实测 01:20 放行后 3 分钟 IP 未跳变、`thisInfinity.realTime` 仍线性增长）。
+     * 每个进程校准一次，之后由暂停/恢复循环维护；玩家手动改间隔后不再覆盖。
+     */
+    private var targetIntervalInitialized: Boolean = false
+
     /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
     private var holdProbeTick: Int = 0
 
@@ -961,7 +983,10 @@ object OrekiStageAuto {
             }
             if (pauseReason != null) {
                 pauseReason = null
-                GameApi.setCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS)
+                // [R96] Break 前沿用 60 秒收割间隔；Break 后放行用 5 秒下限，
+                // 真正的结算时机由目标驱动策略每拍判断（不是固定节奏）。
+                val resumeInterval = if (isBroken()) POST_BREAK_RESUME_SECONDS else PRE_BREAK_CRUNCH_SECONDS
+                GameApi.setCrunchInterval(crunch, resumeInterval)
                 Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
             }
 
@@ -971,6 +996,17 @@ object OrekiStageAuto {
             // （run4：18 分钟 IP 才 59，maxAM 已 1e358）。
             // 这里强制改为 TIME 模式 + 10 秒，让反物质在两次填塌之间
             // 滚起来（×10000 下 10 秒足够冲过多个数量级），IP 收益随之量级上升。
+            // [R96] 首次永恒前的目标驱动阶段：TIME 模式的间隔必须真的可能到期。
+            // 原版 TIME 模式用**真实秒**，残留的 3600 等于停摆 1 小时；这里校准一次。
+            if (OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME) {
+                if (!targetIntervalInitialized) {
+                    targetIntervalInitialized = true
+                    GameApi.setCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS)
+                    Log.i(TAG_AU4C, "policy -> interval=5s (target-driven, once)")
+                }
+                return
+            }
+
             if (!isBroken()) {
                 if (!preBreakCrunchInitialized) {
                     preBreakCrunchInitialized = true
@@ -1008,7 +1044,12 @@ object OrekiStageAuto {
                     Log.i(TAG_AU4B, "policy -> X_HIGHEST/10")
                 }
             }
-        } catch (_: Throwable) {
+        } catch (error: Throwable) {
+            // [R96] 不能静默：策略类若 VerifyError / 初始化失败，表现就是「完全不生效」。
+            if (!crunchPolicyErrorLogged) {
+                crunchPolicyErrorLogged = true
+                Log.e(TAG_AU4C, "applyCrunchPolicy error", error)
+            }
         }
     }
 

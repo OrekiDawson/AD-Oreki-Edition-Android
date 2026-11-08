@@ -126,8 +126,8 @@ def main() -> int:
     check("转发类声明为 public",
           ".class public final Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;" in lt)
     check("转发类构造 Eternity$confirmEternity$4", "Eternity$confirmEternity$4" in lt)
-    check("转发类用原版协程启动器 g.p(...)",
-          "Lkajfosz/antimatterdimensions/g;->p(Lvi1;Z)V" in lt)
+    check("转发类用 3.21 原版协程启动器 g.s(Lgm1;Z)",
+          "Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V" in lt)
     check("lambda 以 (1, null) 构造",
           "const/4 v1, 0x1" in lt and "SuspendLambda;-><init>(ILvh0;)V" in lt)
     check("启动不写 eternities / EP（只调原版入口）",

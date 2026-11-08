@@ -303,10 +303,40 @@ _crunch_kt = read(KT_DIR / "OrekiCrunchPolicy.kt")
 check("智能坌缩决策类存在", "object OrekiCrunchPolicy" in _crunch_kt)
 check("决策优先级：挑战最优先", _crunch_kt.index("inAnyChallenge()") < _crunch_kt.index("hasInfinity()"))
 check("决策优先级：未 Break 放行", 'Decision(true, "pre-break-ip")' in _crunch_kt)
-check("永恒前保护 ID 峰值（阻断原因明确）", 'Decision(false, "id-peak-wait")' in _crunch_kt)
+check("永恒达标立即放行（原版 canEternity 判据）",
+      'Decision(true, "eternity-ready")' in _crunch_kt)
+check("首次永恒前 ID 峰值等待带上限", 'waitWithin("id-peak-wait", PEAK_WAIT_LIMIT_NS)' in _crunch_kt)
+check("全部维度解锁后按收益结算（一次坍缩至少涨 10 倍 IP）",
+      'Decision(true, "ip-jump")' in _crunch_kt and "gainVersusIp()" in _crunch_kt)
+check("收益结算优先于等 ID 峰值（否则 IP 增长被 1.7 小时峰值窗口掐住）",
+      _crunch_kt.index('Decision(true, "ip-jump")') < _crunch_kt.index('waitWithin("id-peak-wait"'))
+check("收益判据用 log10 比较，不构造超大 BigDouble",
+      "log10BigDouble(GameApi.gainedInfinityPoints())" in _crunch_kt)
+check("等待窗口用真实墙钟计时并在上限放行",
+      "System.nanoTime()" in _crunch_kt and '"stall-" + reason' in _crunch_kt)
 check("判据异常 fail-closed", "exception:" in _crunch_kt and "Decision(false, \"exception:" in _crunch_kt)
 check("暂停通过大间隔实现且可恢复", "CRUNCH_PAUSE_SECONDS" in stage and "pauseReason = null" in stage)
+check("Break 后放行用 5 秒下限（TIME 模式为真实秒）", "POST_BREAK_RESUME_SECONDS" in stage)
+check("首次永恒前校准残留的 TIME/3600 间隔（每进程一次）", "targetIntervalInitialized" in stage)
 check("暂停原因变化才写 mode（非每帧）", "pauseReason != decision.reason" in stage)
+
+# ---------------------------------------------------------------- 24b. R96：收益判据的原版绑定
+# 目标驱动策略必须读原版真实函数：gainedInfinityPoints() / canEternity()。
+check("GameApi 绑定 gainedInfinityPoints（prestige.e.d）",
+      "prestige.e.d()=gainedInfinityPoints" in _gameapi_et)
+check("GameApi 绑定 canEternity（prestige.c.f）",
+      "prestige.c.f()=canEternity" in _gameapi_et and "fun canEternity(): Boolean" in _gameapi_et)
+check("GameApi 提供 BigDouble.log10 读取",
+      "BigDouble.log10()" in _gameapi_et and "fun log10BigDouble(" in _gameapi_et)
+
+# ---------------------------------------------------------------- 25. 禁用会被 R8 裁掉的 stdlib 类型
+_bad_stdlib = []
+for _kt in sorted(KT_DIR.glob("*.kt")):
+    _src = _kt.read_text(encoding="utf-8")
+    for _name in ("Triple<", "Pair<"):
+        if _name in _src:
+            _bad_stdlib.append(f"{_kt.name}:{_name}")
+check("payload Kotlin 不依赖可能被裁剪的 kotlin.Triple/Pair", not _bad_stdlib, "、".join(_bad_stdlib))
 
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")

@@ -2002,6 +2002,88 @@ internal object GameApi {
     fun glyphTick(): Boolean = (call(mGlyphTick(), null) as? Boolean) ?: false
     fun teresaTick(): Boolean = (call(mTeresaTick(), null) as? Boolean) ?: false
 
+    // ---------------------------------------------------------------- [R96] 首次永恒前收益判据
+    //
+    // 目标驱动坍缩策略只用**原版真实函数**，不重算公式、不写存档字段：
+    //   · `prestige/e;->d()` = `gainedInfinityPoints()`（3.21 三档除数 285.0/307.8/308.0
+    //     + `records.thisInfinity.maxAM.log10()`；`work/base_decoded_321` 逐指令核对，
+    //     与 `build_mod.py:5071` 的绑定表一致）；
+    //   · `prestige/c;->f()` = `Player.canEternity`（`records.thisEternity.maxIP ≥ Player.eternityGoal`，
+    //     首次永恒时 `eternityGoal = requiredIPForEP(1)` 被 `clampMin(Number.MAX_VALUE)`）。
+    // 两者都是静态方法，接收者为 null。
+
+    private var prestigeEClassCache: Class<*>? = null
+    private var prestigeEClsResolved: Boolean = false
+    private fun prestigeECls(): Class<*>? {
+        if (!prestigeEClsResolved) {
+            prestigeEClsResolved = true
+            prestigeEClassCache = cls("kajfosz.antimatterdimensions.prestige.e")
+        }
+        return prestigeEClassCache
+    }
+
+    private var prestigeCClassCache: Class<*>? = null
+    private var prestigeCClsResolved: Boolean = false
+    private fun prestigeCCls(): Class<*>? {
+        if (!prestigeCClsResolved) {
+            prestigeCClsResolved = true
+            prestigeCClassCache = cls("kajfosz.antimatterdimensions.prestige.c")
+        }
+        return prestigeCClassCache
+    }
+
+    private var mGainedInfinityPoints: Method? = null
+    private var mGainedInfinityPointsResolved: Boolean = false
+    private fun mGainedInfinityPoints(): Method? {
+        if (!mGainedInfinityPointsResolved) {
+            mGainedInfinityPointsResolved = true
+            mGainedInfinityPoints = method(
+                prestigeECls(), "d", 0, "prestige.e.d()=gainedInfinityPoints",
+            )
+        }
+        return mGainedInfinityPoints
+    }
+
+    /** 本次大坍缩可获得的无限点数（原版 `gainedInfinityPoints()`，BigDouble）。 */
+    fun gainedInfinityPoints(): Any? = call(mGainedInfinityPoints(), null)
+
+    private var mCanEternity: Method? = null
+    private var mCanEternityResolved: Boolean = false
+    private fun mCanEternity(): Method? {
+        if (!mCanEternityResolved) {
+            mCanEternityResolved = true
+            mCanEternity = method(prestigeCCls(), "f", 0, "prestige.c.f()=canEternity")
+        }
+        return mCanEternity
+    }
+
+    /** 原版 `Player.canEternity`：本永恒 `maxIP` 已达到永恒门槛。 */
+    fun canEternity(): Boolean = (call(mCanEternity(), null) as? Boolean) ?: false
+
+    private var mBigDoubleLog10: Method? = null
+    private var mBigDoubleLog10Resolved: Boolean = false
+    private fun mBigDoubleLog10(): Method? {
+        if (!mBigDoubleLog10Resolved) {
+            mBigDoubleLog10Resolved = true
+            // 必须锁 `()D`：BigDouble 还有 (BigDouble)/(I)/(J) 等同名重载。
+            mBigDoubleLog10 = method(
+                bigDoubleCls(), "log10", 0, "BigDouble.log10()",
+            )
+        }
+        return mBigDoubleLog10
+    }
+
+    /** `BigDouble.log10()` → Double；读不到返回 null（不参与任何数值决策）。 */
+    fun log10BigDouble(value: Any?): Double? {
+        if (value == null) return null
+        val logMethod = mBigDoubleLog10() ?: return null
+        return try {
+            logMethod.invoke(value) as? Double
+        } catch (e: Throwable) {
+            miss("BigDouble.log10", e); null
+        }
+    }
+
     // ---------------------------------------------------------------- 调用工具
 
     /**

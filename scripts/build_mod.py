@@ -5462,7 +5462,10 @@ def verify_eternity_chain():
                             "OrekiEternityLaunch.smali").read_text(encoding="utf-8")
     assert ".class public final Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;" in launcher_src,         "[ET1] 转发类必须是 public：调用方在 oreki 包"
     assert "Eternity$confirmEternity$4" in launcher_src,         "[ET1] OrekiEternityLaunch.run() 必须构造 Eternity$confirmEternity$4"
-    assert "Lkajfosz/antimatterdimensions/g;->p(Lvi1;Z)V" in launcher_src,         "[ET1] OrekiEternityLaunch.run() 必须用原版协程启动器 g.p(...)（游戏 scope）"
+    # [R96] 3.21 的启动器是 g.s(Lgm1;Z)（MainActivity.launchOnGameScope）；
+    # 3.20 的 g.p(Lvi1;Z) 在 3.21 里 Lvi1 是 enum when-map，装机会被 ART 直接拒绝。
+    assert "Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V" in launcher_src,         "[ET1] OrekiEternityLaunch.run() 必须用 3.21 原版协程启动器 g.s(Lgm1;Z)（游戏 scope）"
+    assert "Lkajfosz/antimatterdimensions/g;->p(Lvi1;Z)V" not in launcher_src,         "[ET1] 不得残留 3.20 的 g.p(Lvi1;Z) 绑定（3.21 ART VerifyError）"
 
     # (6) 封锁表
     i, j = _scan_method(s, "private static blocked(III)Z")
