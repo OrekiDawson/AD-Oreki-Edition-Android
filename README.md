@@ -233,19 +233,18 @@ scripts/payload/kotlin/**.kt
 
 ### 环境与工具链
 
-构建工具链（JDK、Build-Tools、apktool、kotlinc、platform-tools）**不入 Git**，共约 719 MiB，放在 `tools/` 下；`.gitignore` 只保留 `tools/README.md`。换机器需要按 `tools/README.md` 重新放置。
+主要开发环境是 Linux（当前实测为 KDE Plasma/Ubuntu 26.04.1 LTS），Windows 11 保留兼容性。新开发优先使用 Linux Bash；跨平台脚本必须按实际系统路径、权限、大小写和换行行为执行。构建工具链（JDK、Build-Tools、apktool、kotlinc、platform-tools）**不入 Git**，共约 719 MiB，放在 `tools/` 下；`.gitignore` 只保留 `tools/README.md`。换机器需要按 `tools/README.md` 重新放置。
 
 | 组件 | 版本 | 位置 |
 |---|---|---|
 | JDK | 仓库内 `tools/jdk/` 含 17.0.20.1 与 21.0.13；实际用哪个由 `scripts/jdk_env.py` 解析 | 优先级：`JAVA_HOME` → `PATH` → `tools/jdk/*` → Scoop。本机实测解析到系统 `JAVA_HOME` 的 27.0.1 |
-| Gradle | 9.8.2（`gradlew` / `gradlew.bat`，wrapper 自动下载到用户目录） | 仓库根 |
+| Gradle | 项目 Wrapper 优先（当前 Wrapper 9.8.2）；系统 Gradle 仅作独立工具，不替代 Wrapper | 仓库根 |
 | Kotlin | 2.4.21 | `tools/kotlinc/` |
 | D8 | 8.2.2 | `tools/bt/android-14/` |
-| Android SDK | API 34 平台 + Build-Tools 34 | `ANDROID_HOME` 或 `tools/bt/` |
-| Python | 3.11+ | 系统安装（本机实测 3.13） |
+| Android SDK | Linux 当前 `/opt/android-sdk`，Platform 37.2 + Build-Tools 37.0.0；项目实际构建输入仍以基线和脚本要求为准 | `ANDROID_HOME` / `ANDROID_SDK_ROOT` 或 `tools/bt/` |
+| Python | 3.11+ | Linux 当前实测 3.14.4；Windows 按 `tools/README.md` |
 
-当前只在 **Windows** 上验证过构建。
-`./gradlew verifyEnvironment --offline` 已在本机实跑通过（BUILD SUCCESSFUL，全部 10 项 OK）。
+R95 已核实 Linux 工具链可见，但本轮只授权规则和文档更新，未执行构建或 APK 验收；不要把工具可见写成 Release 已验证。构建时仍优先执行 `./gradlew assembleRelease --offline`，只有明确缺依赖才在线补齐。
 
 ### 构建命令
 
