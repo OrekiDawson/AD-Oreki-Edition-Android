@@ -288,7 +288,15 @@ def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[st
         stream.write(notes)
         notes_path = Path(stream.name)
     try:
-        command = ["gh", "release", "create", tag, str(apk), str(checksum), "--repo", repo, "--title", f"Android {version}", "--notes-file", str(notes_path), "--target", "main"]
+        # [R96] gh CLI 对非 ASCII 文件名会把附件名改写成 `default.apk` / 丢掉中文前缀
+        # （实测 android-v3.21.0 的附件变成 `default.apk` 与 `_3.21.0_30ace330.apk.sha256`）。
+        # 上传前复制成 ASCII 稳定名，保证 Release 附件名可读且可被脚本/玩家预期。
+        staging = Path(tempfile.mkdtemp(prefix="oreki-gh-asset-"))
+        asset_apk = staging / f"AD-Oreki-Edition-{version}.apk"
+        asset_sum = staging / f"AD-Oreki-Edition-{version}.apk.sha256"
+        shutil.copyfile(apk, asset_apk)
+        shutil.copyfile(checksum, asset_sum)
+        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", f"Android {version}", "--notes-file", str(notes_path), "--target", "main"]
         say(f"github: {' '.join(command)}")
         if not dry_run:
             existing = run(["gh", "release", "view", tag, "--repo", repo])

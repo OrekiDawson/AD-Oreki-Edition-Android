@@ -651,7 +651,8 @@ tasks.register('installToRelease') {
             ],
         ]
         releaseManifest.parentFile.mkdirs()
-        releaseManifest.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(manifest)), 'UTF-8')
+        // [R96] Groovy 5 的 File.writeText 不再接受 (String, String)：用 setText(text, charset)。
+        releaseManifest.setText(JsonOutput.prettyPrint(JsonOutput.toJson(manifest)), 'UTF-8')
         step("发布清单已写: ${releaseManifest}（${report.versionName}/${report.versionCode}）")
         step("已替换 release/反物质维度.apk -> ${newHash}")
     }
