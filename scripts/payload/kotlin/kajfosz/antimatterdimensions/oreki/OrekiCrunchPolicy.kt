@@ -47,6 +47,14 @@ object OrekiCrunchPolicy {
     /** 收益等待上限：3 分钟（一次「收益 ≥ 10 倍 IP」的成长周期远短于此）。 */
     private const val GAIN_WAIT_LIMIT_NS: Long = 180_000_000_000L
 
+    /**
+     * 永恒层「让维度长起来」的等待上限：10 分钟。
+     *
+     * 永恒层不再无条件坍缩（见 evaluate() 内注释）；若维度数量/星系在 10 分钟内
+     * 仍无起色（判据误判或真的卡住），到点仍放行一次，避免把 IP/EP 循环永久按住。
+     */
+    private const val ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L
+
     data class Decision(val allow: Boolean, val reason: String)
 
     @JvmStatic
@@ -75,9 +83,26 @@ object OrekiCrunchPolicy {
             // 首次 Break 之前：坍缩是攒 IP / 买满间隔的唯一入口
             return Decision(true, "pre-break-ip")
         }
-        // 永恒前：为下一个未解锁的无限维度保护反物质峰值
+        // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
+        //
+        // 实测缺陷（bigE=3、EP=2.16）：无条件 allow ⇒ 坍缩按 TIME/5s 节奏持续重置维度，
+        // 高倍速下几乎每帧一次（实测 `infinities` 达 1e7.85）⇒ 第八维度的「数量」永远
+        // 长不起来 ⇒ 星系/维度提升这些「按维度数量递增」的门槛永远达不到 ⇒ 生产乘数停滞：
+        // maxIP 平台 1e593（10× ET 门槛要 1e804）、星系 111 与维度提升 1253 十分钟零增长、
+        // maxAM 平台 1e124044、首个永恒升级（5 EP）永远买不起。
+        // 现在与首次永恒前共用同一套收益驱动：只有「一次坍缩至少让 IP 涨 10 倍」才结算，
+        // 否则按住让维度/星系长起来；永恒门槛达标时也放行一次，保证 EP 循环不断。
         if (!OrekiStageAuto.eternitiesZero()) {
-            return Decision(true, "post-eternity")
+            // 只看「这一次坍缩值不值得」：收益 ≥10× 当前 IP 才结算。
+            // 刻意**不**用 canEternity 当放行理由：永恒层里 canEternity 长期为真
+            // （maxIP 早已过 1.797e308），而真正决定能否结算的是 OrekiEternity 的
+            // 「gainedEP ≥ 10×EP」门槛；用它放行等于又回到无条件坍缩（实测 maxIP 平台 1e593）。
+            val leapEternity = gainVersusIp()
+            if (leapEternity != null && leapEternity >= 1.0) {
+                waitStartedAt = 0L
+                return Decision(true, "eternity-ip-jump")
+            }
+            return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)
         }
 
         // ---------------------------------------------------- [R96] 首次永恒目标驱动

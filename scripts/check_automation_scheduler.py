@@ -303,6 +303,18 @@ _crunch_kt = read(KT_DIR / "OrekiCrunchPolicy.kt")
 check("智能坌缩决策类存在", "object OrekiCrunchPolicy" in _crunch_kt)
 check("决策优先级：挑战最优先", _crunch_kt.index("inAnyChallenge()") < _crunch_kt.index("hasInfinity()"))
 check("决策优先级：未 Break 放行", 'Decision(true, "pre-break-ip")' in _crunch_kt)
+
+# [R96 第四轮] 永恒层不得无条件放行坍缩：实测无条件 allow 会让维度数量长不起来、
+# 星系/维度提升门槛永远达不到（maxIP 平台 1e593、10 分钟零增长）。
+check("永恒层坍缩改为收益驱动（不再无条件 allow）",
+      'Decision(true, "post-eternity")' not in _crunch_kt
+      and 'Decision(true, "eternity-ip-jump")' in _crunch_kt
+      and 'waitWithin("eternity-grow"' in _crunch_kt
+      # 永恒层分支内不得再出现 canEternity 放行（那里 canEternity 长期为真 ⇒ 等于无条件坍缩）
+      and 'if (GameApi.canEternity()) {' not in _crunch_kt.split("if (!OrekiStageAuto.eternitiesZero()) {")[1].split("// 1) 已经够永恒")[0])
+check("永恒层等待带上限（10 分钟）",
+      "ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L" in _crunch_kt)
+
 check("永恒达标立即放行（原版 canEternity 判据）",
       'Decision(true, "eternity-ready")' in _crunch_kt)
 check("首次永恒前 ID 峰值等待带上限", 'waitWithin("id-peak-wait", PEAK_WAIT_LIMIT_NS)' in _crunch_kt)
