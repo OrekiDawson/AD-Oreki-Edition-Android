@@ -3167,9 +3167,16 @@ def verify_payload():
 
     # 反向守卫：AMOUNT 模式不得被强行改写（R74 根因）。
     # 代码里必须**没有**对 setCrunchMode 的无条件调用（只能出现在 sCrunchTimeInit 分支内）。
+    # [R96] 自 R94 起有两处**一次性** mode 初始化：
+    #   ① Break 前（preBreakCrunchInitialized）：原版 auto.bigCrunch.amount=1 ⇒ IP 收益≈0，
+    #      必须切 TIME + 10 秒才能把反物质滚起来；
+    #   ② Break 后（crunchTimeModeInitialized）：早期 TIME/1s。
+    # 守卫语义不变：**任何一处都不得每帧改写 mode**（R74 根因），且只能是 MODE_TIME。
     _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
-    assert len(_set_mode_calls) == 1, (
-        f"[R74] setCrunchMode 调用点应恰好 1 处（仅 TIME 一次性分支），实际 {len(_set_mode_calls)} 处")
+    assert len(_set_mode_calls) == 2, (
+        f"[R74] setCrunchMode 调用点应恰好 2 处（Break 前 / Break 后各一次性），实际 {len(_set_mode_calls)} 处")
+    for _call in _set_mode_calls:
+        assert "MODE_TIME" in _call, f"[R74] setCrunchMode 只允许切 TIME，实际：{_call}"
     # 取「TIME 模式一次性初始化」分支的代码块
     # [R80] 字段按 §67 改名：sCrunchTimeInit → crunchTimeModeInitialized，取实际存在的那个。
     _time_latch = ("crunchTimeModeInitialized" if "crunchTimeModeInitialized" in sa_txt
@@ -3178,6 +3185,11 @@ def verify_payload():
     _mode_block = sa_txt[_mode_idx:_mode_idx + 400]
     assert "GameApi.setCrunchMode(crunch, MODE_TIME)" in _mode_block, (
         f"[R74] setCrunchMode 必须在 {_time_latch} 一次性分支内（玩家选择不得被每帧覆盖）")
+    # Break 前那处同样必须在 preBreakCrunchInitialized 一次性分支内。
+    _pre_idx = sa_txt.index("if (!preBreakCrunchInitialized)")
+    _pre_block = sa_txt[_pre_idx:_pre_idx + 400]
+    assert "GameApi.setCrunchMode(crunch, MODE_TIME)" in _pre_block, (
+        "[R74] Break 前的 setCrunchMode 必须在 preBreakCrunchInitialized 一次性分支内")
 
     note(f"[R41] 极性/条件回归表通过（{len(POLARITY_KT)} 处 Kotlin 语义守卫 + setCrunchMode 唯一性）")
 
@@ -3453,6 +3465,12 @@ def build_sign(java):
     apktool_env = os.environ.copy()
     apktool_env["TEMP"] = str(apktool_tmp)
     apktool_env["TMP"] = str(apktool_tmp)
+    # [R96] apktool 3.x 不再接受 --aapt2，改为从 PATH 找 aapt2。SDK 37 的 aapt2 对
+    # 反编译树里 `$avd_hide_password__0.xml` 这类条目直接报 invalid entry name；
+    # 34.0.0 的 aapt2 能正常汇编（与 Windows 端随包 aapt2 行为一致）。优先 34。
+    _aapt2_dir = _aapt2_preferred_dir()
+    if _aapt2_dir is not None:
+        apktool_env["PATH"] = f"{_aapt2_dir}{os.pathsep}{apktool_env.get('PATH', '')}"
     r = subprocess.run([java, f"-Djava.io.tmpdir={apktool_tmp}", "-Xmx6g", "-jar", str(TOOLS / "apktool.jar"), "b", str(MOD), "-o", str(unsigned)],
                        capture_output=True, text=True, encoding="utf-8", errors="replace",
                        env=apktool_env)
@@ -3523,9 +3541,9 @@ def build_sign(java):
         note(f"!! 时间戳规整失败：{e}")
         return None
 
-    bt = TOOLS / "bt" / "android-14"
+    bt = _build_tools_dir()
     note("[5] zipalign -p -f 4 ...")
-    r1 = subprocess.run([str(bt / "zipalign.exe"), "-p", "-f", "4", str(unsigned), str(aligned)],
+    r1 = subprocess.run([str(bt / ("zipalign.exe" if _WIN else "zipalign")), "-p", "-f", "4", str(unsigned), str(aligned)],
                         capture_output=True, text=True, encoding="utf-8", errors="replace")
     for line in ((r1.stdout or "") + (r1.stderr or "")).strip().splitlines()[-6:]:
         note("      " + line)
@@ -7212,8 +7230,62 @@ def patch_dimboost_ad8_slope():
     note("[Oreki AD1] 维度提升 AD8 需求斜率 15/次 → max(1, 5-discount)/次")
 
 
+# ------------------------------------------------------------------ [R96] 工具解析
+# Kubuntu 26.04 成为主开发环境：随仓库迁移过来的 tools/bt、tools/jdk 是 Windows 产物
+# （只有 .exe），POSIX 上必须改用系统 JDK 与 SDK build-tools，否则报 Exec format error。
+_WIN = sys.platform.startswith("win")
+
+
+def _resolve_java() -> str:
+    if _WIN:
+        cand = TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe"
+        return str(cand)
+    env = os.environ.get("JAVA_HOME", "").strip()
+    if env and (Path(env) / "bin" / "java").exists():
+        return str(Path(env) / "bin" / "java")
+    found = shutil.which("java")
+    if found:
+        return found
+    raise SystemExit("[R96] 找不到 java（JAVA_HOME 或 PATH）")
+
+
+def _build_tools_dir() -> pathlib.Path:
+    if _WIN:
+        return TOOLS / "bt" / "android-14"
+    roots = [os.environ.get("ANDROID_SDK_ROOT", ""), os.environ.get("ANDROID_HOME", ""),
+             str(Path.home() / "Android" / "Sdk")]
+    for root in [r for r in roots if r]:
+        bt = Path(root) / "build-tools"
+        if not bt.is_dir():
+            continue
+        for d in sorted((x for x in bt.iterdir() if x.is_dir()), key=lambda x: x.name, reverse=True):
+            if (d / "zipalign").exists():
+                return d
+    raise SystemExit("[R96] 找不到 zipalign（SDK build-tools）")
+
+
+
+
+def _aapt2_preferred_dir():
+    """[R96] 返回含兼容 aapt2 的目录：优先 build-tools/34.0.0，其次任何可用版本。"""
+    if _WIN:
+        return None
+    roots = [os.environ.get("ANDROID_SDK_ROOT", ""), os.environ.get("ANDROID_HOME", ""),
+             str(Path.home() / "Android" / "Sdk")]
+    for root in [r for r in roots if r]:
+        bt = Path(root) / "build-tools"
+        if not bt.is_dir():
+            continue
+        pinned = bt / "34.0.0"
+        if (pinned / "aapt2").exists():
+            return pinned
+        for d in sorted((x for x in bt.iterdir() if x.is_dir()), key=lambda x: x.name, reverse=True):
+            if (d / "aapt2").exists():
+                return d
+    return None
+
 def main():
-    java = str(TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe")
+    java = _resolve_java()
     prepare()
     merge_split()
     patch_resources()

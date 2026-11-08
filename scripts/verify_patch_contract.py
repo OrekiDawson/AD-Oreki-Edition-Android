@@ -38,6 +38,7 @@ R91 起的真实口径：**直接反编译候选 APK**，在 3.21 真实类的 D
 退出码：0 = 17/17 全部通过；1 = 有契约失败；2 = 工具/候选 APK/反编译不可用。
 """
 import argparse
+import pathlib
 import hashlib
 import json
 import py_compile
@@ -53,9 +54,10 @@ SCRIPTS = ROOT / "scripts"
 MOD = ROOT / "work" / "mod"
 BUILD_MOD = SCRIPTS / "build_mod.py"
 TOOLS = ROOT / "tools"
-JAVA = TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe"
+from oreki_tools import java as _oreki_java, bt_tool as _oreki_bt
+JAVA = pathlib.Path(_oreki_java())
 APKTOOL = TOOLS / "apktool.jar"
-AAPT2 = TOOLS / "bt" / "android-14" / "aapt2.exe"
+AAPT2 = pathlib.Path(_oreki_bt("aapt2"))
 CACHE_DIR = ROOT / "build" / "patch-contract-apk"
 VERSION_CONFIG = ROOT / "baseline" / "version-config.json"
 BINDINGS_DIR = ROOT / "baseline" / "versions"

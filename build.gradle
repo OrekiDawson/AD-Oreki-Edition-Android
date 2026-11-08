@@ -54,7 +54,9 @@ def runExec = { Closure cfg ->
 // 优先级：JAVA_HOME（进程级 → 系统级）→ PATH → tools/jdk/* → Scoop。
 // Gradle 只调用它并复用同一个结果，保证 Gradle / build_mod / build_kotlin / D8
 // 不会各选一个 JDK。
-def pythonExe = System.getenv('PYTHON') ?: 'python'
+// [R96] Linux（Kubuntu 26.04）为主环境：解释器名与 adb 可执行文件按平台解析。
+def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+def pythonExe = System.getenv('PYTHON') ?: (isWindows ? 'python' : 'python3')
 
 def jdkResolved = {
     // 只解析、不自动安装（Gradle 配置阶段不该装东西）
@@ -83,10 +85,29 @@ def jdkHome = jdkResolved ?: {
     }
     return cands ? cands.sort { it.name }.last() : null
 }()
-def javaExe = jdkHome ? new File(jdkHome, 'bin/java.exe') : null
-def adbExe = file('tools/platform-tools/adb.exe')
+// [R96] POSIX 的 JDK 里可执行文件叫 java（不是 java.exe）。
+def javaExe = jdkHome ? new File(jdkHome, isWindows ? 'bin/java.exe' : 'bin/java') : null
+def adbExe = { ->
+    if (isWindows) return file('tools/platform-tools/adb.exe')
+    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
+    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
+    def sdkAdb = new File(sdkHome, 'platform-tools/adb')
+    if (sdkAdb.exists()) return sdkAdb
+    def local = file('tools/platform-tools/adb')
+    return local.exists() ? local : new File('adb')
+}()
 def apktoolJar = file('tools/apktool.jar')
-def btDir = file('tools/bt/android-14')
+// [R96] Windows 用随仓库的 tools/bt/android-14（.exe 套件）；Linux 用 SDK build-tools。
+def btDir = {
+    if (isWindows) return file('tools/bt/android-14')
+    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
+    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
+    def bt = new File(sdkHome, 'build-tools')
+    if (!bt.isDirectory()) return bt
+    def dirs = bt.listFiles().findAll { it.isDirectory() }.sort { a, b -> b.name <=> a.name }
+    for (d in dirs) { if (new File(d, 'zipalign').exists() || new File(d, 'zipalign.exe').exists()) return d }
+    return dirs ? dirs[0] : bt
+}()
 def keystore = file('keys/oreki.jks')
 
 def pkgName = 'com.oreki.antimatterdimensions'
@@ -190,7 +211,8 @@ tasks.register('verifyEnvironment') {
         add('apktool.jar', apktoolJar.exists(),
             apktoolJar.exists() ? apktoolJar.absolutePath : '缺 tools/apktool.jar')
 
-        def btOk = new File(btDir, 'zipalign.exe').exists() && new File(btDir, 'lib/apksigner.jar').exists()
+        def zipalignName = isWindows ? 'zipalign.exe' : 'zipalign'
+        def btOk = new File(btDir, zipalignName).exists() && new File(btDir, 'lib/apksigner.jar').exists()
         add('build-tools', btOk, btDir.absolutePath)
 
         add('keystore', keystore.exists(),

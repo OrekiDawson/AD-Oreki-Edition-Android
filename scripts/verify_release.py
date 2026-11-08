@@ -15,6 +15,7 @@
 退出码：0 = 全部通过；1 = 有检查项失败；2 = 工具缺失/无法反编译。
 """
 import argparse
+import pathlib
 import hashlib
 import json
 import os
@@ -26,8 +27,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "tools"
-JAVA = TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe"
-AAPT2 = TOOLS / "bt" / "android-14" / "aapt2.exe"
+from oreki_tools import java as _oreki_java, bt_tool as _oreki_bt
+JAVA = pathlib.Path(_oreki_java())
+AAPT2 = pathlib.Path(_oreki_bt("aapt2"))
 APKSIGNER = TOOLS / "bt" / "android-14" / "lib" / "apksigner.jar"
 APKTOOL = TOOLS / "apktool.jar"
 

@@ -10,10 +10,13 @@
 //
 // 本文件不改变 Kotlin → D8 → DEX → APK 链路，只增加构建前后的判定与记账。
 
+// [R96] Linux 主环境下解释器是 python3（Windows 是 python）。
+def _rbIsWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+def _rbPython = System.getenv('PYTHON') ?: (_rbIsWindows ? 'python' : 'python3')
 def rbRepoRoot = rootDir
 def rbStageDir = new File(rbRepoRoot, "build/gradle-stage")
 def rbStageApk = new File(rbStageDir, "反物质维度.apk")
-def rbPython = System.getenv('PYTHON') ?: 'python'
+def rbPython = System.getenv('PYTHON') ?: (_rbIsWindows ? 'python' : 'python3')
 def rbJdk = System.getenv('JAVA_HOME')
 def rbRound = (project.findProperty('orekiBuildRound') ?: System.getenv('OREKI_BUILD_ROUND') ?: 'R93').toString()
 def rbEmergency = project.hasProperty('orekiEmergencyRebuild')
@@ -34,6 +37,9 @@ tasks.register('releaseBudgetGate', Exec) {
     }
     environment 'PYTHONIOENCODING', 'utf-8'
     outputs.upToDateWhen { false }
+    // [R94] 构建失败时 APK 可能不存在：此时不要尝试记账，否则 finalizedBy 会把真实失败掩盖成
+    // “record 任务 python 退出码 2”，排查成本极高（R94 实测踩到）。
+    onlyIf { rbStageApk.exists() }
 }
 
 tasks.named('assembleRelease') {
@@ -72,6 +78,9 @@ tasks.register('releaseBudgetRecord', Exec) {
     }
     environment 'PYTHONIOENCODING', 'utf-8'
     outputs.upToDateWhen { false }
+    // [R94] 构建失败时 APK 可能不存在：此时不要尝试记账，否则 finalizedBy 会把真实失败掩盖成
+    // “record 任务 python 退出码 2”，排查成本极高（R94 实测踩到）。
+    onlyIf { rbStageApk.exists() }
 }
 
 tasks.named('assembleRelease') {
