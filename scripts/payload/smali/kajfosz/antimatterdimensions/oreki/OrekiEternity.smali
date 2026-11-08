@@ -397,7 +397,7 @@
 # 判据逐条对齐 Web `tickEternity()`（:570-592）与本端原版自动器：
 #   ① `prestige/c;->f()Z`  = canEternity（原版同一判据，含「不在挑战中」等前置）；
 #   ② `prestige/c;->g()`   = gainedEP；
-#   ③ 门槛 = 当前 EP × 1（[R96 第五轮] 由 ×10 下调，见下方长注释）；
+#   ③ 门槛 = 当前 EP × 10（[R96 第八轮] 恢复 ×10：周期宽度由「重建开销」而非 ΔE 决定，见下方长注释）；
 #   ④ 实参元组 (false, true, false, null) 来自 `EternityAutobuyerState.y()`
 #      的 `d(INSTANCE, 0, 1, 0, null, cont, 0xD)`（mask 0xD ⇒ p1/p3/p4 取默认）。
 # 注意 `Player.y()` 返回的是**存档内活对象**，`multiply` 会就地改它，
@@ -492,17 +492,20 @@
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;->copy()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
-    # [R96 第五轮] 门槛从 ×10 下调到 ×1（EP 至少翻倍就结算）。
+    # [R96 第八轮] 门槛恢复到 ×10（EP 至少要涨到 11 倍才结算）。
     #
-    # 实测平台期（bigE=3、EP=2.16、maxIP 1e593、maxAM 1e124044）：×10 门槛要求
-    # maxIP 到 1e804（gainedEP=23），而当前 gainedEP 只有 7 —— 于是 EP 永远不动，
-    # 而 EP 正是中期唯一成长引擎的燃料：时间维度用 EP 购买（TD1=1 EP、TD2=5 EP、
-    # TD3=100 EP…，`TimeDimensionState.isAffordable = EP >= cost`）、永恒升级首档 5 EP。
-    # EP 卡在 2.16 ⇒ 时间维度只有 1 层、永恒升级一个都买不起 ⇒ 乘数停滞。
-    # 门槛降到 ×1 后：EP 2.16 + 收益 7 = 9.3 ⇒ 立刻可买 TD2(5 EP) 与永恒升级(5 EP)，
-    # 让「永恒 → EP → 时间维度/永恒升级 → 更快成长」的滚雪球真正转起来。
+    # 沿革（两次实测，勿只看其中一次）：
+    #   · 第五轮从 ×10 下调到 ×1：当时平台期 `bigE=3、EP=2.16、maxIP 1e593`，
+    #     ×10 要求 maxIP 1e804 而收益只有 7 ⇒ EP 永远不动 ⇒ 时间维度/永恒升级买不起。
+    #     但那次停滞的真正根因是「无限升级买不到 / 坍缩被每帧重置」，第七轮已修好。
+    #   · 第八轮实测（干净新档 t0 05:48:55，×1 门槛）：37 分钟做了 7 次永恒，
+    #     但每次只涨 ~1.6 EP（EP 1→4），因为门槛 ×1 等价于「一够 canEternity 就结算」，
+    #     EP 增长≈线性；而周期时间（2–4 分钟）几乎全部是**重建开销**
+    #     （维度/星系/无限维度重解锁），不是 ΔE 决定的 —— 所以加宽周期是纯赚：
+    #     ×10 时单次 EP ×11、周期只多几分钟，EP 指数增长，才能滚到
+    #     时间维度 TD2/TD3（5/100 EP）与永恒升级（5/10/5e4 EP）。
     # 只影响结算时机，不改任何收益公式；EP 收益仍由原版 gainedEP 计算。
-    const/4 v2, 0x1
+    const/16 v2, 0xa
 
     invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->multiply(I)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
