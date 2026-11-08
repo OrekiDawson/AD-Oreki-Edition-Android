@@ -1372,15 +1372,31 @@ internal object GameApi {
     }
 
     /** 3.20 x81.i 仅含六项一次性永恒升级；h 另含可重复项，不能误用。 */
+    /** [R94] 该注册表在 3.21 已改名/不存在：只告警一次，避免每帧刷屏（实测每秒数十条）。 */
+    private var eternityUpgradesMissing: Boolean = false
+
     fun eternityUpgrades(): List<Any> {
         if (!isBaselineModern()) return emptyList()
-        return try {
-            @Suppress("UNCHECKED_CAST")
-            (cls("x81")?.getField("i")?.get(null) as? List<Any>) ?: emptyList()
-        } catch (error: Throwable) {
-            miss("eternity upgrade registry", error)
-            emptyList()
+        if (eternityUpgradesMissing) return emptyList()
+        // [R94] 3.20 是 `x81.i`，3.21 实测字段改名为 `x81.a`（唯一 List 字段）。
+        // 先试 3.20 名再试 3.21 名，两者都失败才记一次 miss 并停用。
+        val holder = cls("x81")
+        if (holder == null) {
+            eternityUpgradesMissing = true
+            return emptyList()
         }
+        for (fieldName in arrayOf("i", "a")) {
+            try {
+                @Suppress("UNCHECKED_CAST")
+                val list = holder.getField(fieldName).get(null) as? List<Any>
+                if (list != null) return list
+            } catch (_: Throwable) {
+                // 继续尝试下一个字段名
+            }
+        }
+        eternityUpgradesMissing = true
+        miss("eternity upgrade registry", NoSuchFieldException("x81.i / x81.a"))
+        return emptyList()
     }
 
     // ---------------------------------------------------------------- IU15（R83）
