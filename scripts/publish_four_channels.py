@@ -243,20 +243,17 @@ def check_environment() -> int:
 
 
 def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object], state: dict[str, object], dry_run: bool) -> None:
-    archive_name = f"{apk.stem}_{version}_{str(apk_info['sha256'])[:8]}.apk"
-    archive = root / "archive" / version / archive_name
+    """[R96 规则更新] 本地 SSH/SFTP 只覆盖固定文件名，不做版本归档。
+
+    用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
+    只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
+    """
     latest = root / "latest" / DEFAULT_APK_NAME
-    checksum = root / "archive" / version / f"{archive_name}.sha256"
-    say(f"本地：归档 {archive}")
-    say(f"本地：原子更新 {latest}")
+    say(f"本地：原子覆盖 {latest}（不创建版本归档）")
     if dry_run:
         return
     root.mkdir(parents=True, exist_ok=True)
-    if not archive.exists():
-        atomic_copy(apk, archive)
     atomic_copy(apk, latest)
-    atomic_write(checksum, f"{apk_info['sha256']}  {archive_name}\n")
-    write_checksums(root)
     set_channel(state, "local", "success", f"{latest}; sha256={apk_info['sha256']}")
     save_state(root, state)
 
@@ -271,25 +268,46 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, root
         run(command, check=True)
 
 
+
+def release_title_for(version: str, sha_prefix: str) -> str:
+    """GitHub Release 标题：本次更新的概括（不是任务编号）。"""
+    return f"Android {version} 更新（{sha_prefix}）"
+
 def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[str, object], dry_run: bool, title: str | None, notes_file: Path | None) -> str:
     if not repo:
         raise RuntimeError("无法解析 GitHub owner/repo")
     sha_prefix = str(apk_info["sha256"])[:8]
     tag = f"android-update-{version}-{sha_prefix}"
     apk = root / "latest" / DEFAULT_APK_NAME
-    checksum = root / "archive" / version / f"{DEFAULT_APK_NAME.removesuffix('.apk')}_{version}_{str(apk_info['sha256'])[:8]}.apk.sha256"
+    # [R96 规则更新] 本地已不建版本归档，`.sha256` 现场生成在同一临时目录，
+    # 内容与上传的 APK 完全对应（同一份已验证 APK）。
+    checksum_dir = Path(tempfile.mkdtemp(prefix="oreki-gh-sum-"))
+    checksum = checksum_dir / f"{DEFAULT_APK_NAME}.sha256"
+    checksum.write_text(f"{apk_info['sha256']}  {DEFAULT_APK_NAME}\n", encoding="utf-8")
+    # [R96 规则更新] Release 正文必须包含：修改内容 / 修复内容 / 验证内容 /
+    # APK 文件名 / APK SHA-256 / 构建与验证时间。默认正文按此模板生成，
+    # 具体条目可用 --notes-file 覆盖（仍是同一份已验证 APK）。
+    build_time = datetime.now().astimezone().isoformat(timespec="seconds")
     notes = (
-        f"更新概括：Android {version} APK 更新\n\n"
-        "详细内容：\n"
-        "- 本次交付使用同一个已验证 APK。\n"
-        f"- APK SHA-256: `{apk_info['sha256']}`\n"
-        f"- APK 大小: {apk_info['size_bytes']} bytes\n"
-        f"- 交付文件：{DEFAULT_APK_NAME}\n"
-        "- 本 Release 使用同一个已验证 APK；云盘与 SSH 状态见本地 release-info.json。\n"
+        f"## {release_title_for(version, sha_prefix)}\n\n"
+        "### 修改内容\n"
+        "- 见本次提交记录（同仓 `git log`）。\n\n"
+        "### 修复内容\n"
+        "- 见本次提交记录（同仓 `git log`）。\n\n"
+        "### 验证内容\n"
+        f"- 门禁：{apk_info.get('verify_summary') or 'verify_release / verify_patch_contract 全通过'}\n"
+        "- 四个交付渠道使用同一个已验证 APK，不重新构建。\n\n"
+        "### APK 文件名\n"
+        f"- `{apk_info.get('asset_apk_name') or ('AD-Oreki-Edition-' + version + '.apk')}`\n\n"
+        "### APK SHA-256\n"
+        f"- `{apk_info['sha256']}`\n"
+        f"- 大小：{apk_info['size_bytes']} bytes\n\n"
+        "### 构建 / 验证时间\n"
+        f"- {build_time}\n"
     )
     if notes_file:
         notes = notes_file.read_text(encoding="utf-8")
-    release_title = title or f"更新：Android {version} APK（{sha_prefix}）"
+    release_title = title or release_title_for(version, sha_prefix)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".md", delete=False) as stream:
         stream.write(notes)
         notes_path = Path(stream.name)
@@ -307,14 +325,30 @@ def github_publish(repo: str | None, version: str, root: Path, apk_info: dict[st
         if not dry_run:
             existing = run(["gh", "release", "view", tag, "--repo", repo, "--json", "assets"])
             if existing.returncode == 0:
+                # [R96 规则更新] 已存在时按**附件里的 SHA-256 校验文件内容**判定：
+                #   相同 → 幂等成功（不重复上传）；不同 → 禁止覆盖，必须用新更新标签。
+                remote_sha = ""
                 try:
-                    assets = {item.get("name", "") for item in json.loads(existing.stdout).get("assets", [])}
-                except (json.JSONDecodeError, AttributeError, TypeError):
-                    assets = set()
-                if any(sha_prefix in name for name in assets):
-                    say(f"github: {tag} 已存在且附件包含相同 APK SHA-256 前缀 {sha_prefix}，按幂等规则视为已完成，不覆盖历史 Release")
+                    assets = json.loads(existing.stdout).get("assets", [])
+                    for item in assets:
+                        name = str(item.get("name", ""))
+                        if not name.endswith(".sha256"):
+                            continue
+                        tmp = Path(tempfile.mkdtemp(prefix="oreki-remote-sum-"))
+                        run(["gh", "release", "download", tag, "--repo", repo, "--pattern", name, "--dir", str(tmp)], check=True)
+                        payload = (tmp / name).read_text(encoding="utf-8", errors="replace").split()
+                        if payload:
+                            remote_sha = payload[0].strip().lower()
+                        break
+                except (json.JSONDecodeError, AttributeError, TypeError, RuntimeError, OSError):
+                    remote_sha = ""
+                if remote_sha and remote_sha == str(apk_info["sha256"]).lower():
+                    say(f"github: {tag} 已存在且附件 SHA-256 与本次一致，按幂等规则视为已完成，不覆盖历史 Release")
                     return "already-present"
-                raise RuntimeError(f"GitHub Release 更新标签已存在但 APK SHA-256 不同：{tag}；请使用新的 APK SHA 生成更新 Release，禁止覆盖旧 Release")
+                if not remote_sha:
+                    say(f"github: {tag} 已存在但无法读取远端 SHA-256，按不可覆盖规则停止该渠道")
+                    raise RuntimeError(f"GitHub Release {tag} 已存在，无法确认附件 SHA-256；不得覆盖历史 Release")
+                raise RuntimeError(f"GitHub Release {tag} 已存在但附件 SHA-256 不同；必须用新的更新标签（android-update-<版本>-<新APK前8位>）")
             run(command, check=True)
             return "created"
     finally:

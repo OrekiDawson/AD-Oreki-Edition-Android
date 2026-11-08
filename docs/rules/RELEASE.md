@@ -39,3 +39,13 @@
 - 正式稳定版仍须：针对性验证（签名 / 契约 / 必要运行验收）→ 每两小时至少交付一次 → 四渠道同一份 APK 发布（OneDrive 根目录、Google Drive 根目录、本地 latest 原子覆盖、GitHub Release + SHA-256，不覆盖历史 Release）。
 - RG02-10 输入指纹保留为「防重复构建」辅助（输入未变可复用产物），但**不再阻断**已有实际变化的构建。
 - RG02-12/13 的「每轮一次 + 紧急重建一次」条款就此失效，仅作历史记录。
+
+## R96 GitHub Release 更新标签规则（用户 2026-11-09 令）
+
+- 正式游戏版本号不因每次更新递增（可持续为 3.21.0）；**每个通过签名/验证/测试的 APK 都必须创建一个新的 GitHub Release**。
+- 更新标签格式：`android-update-<正式版本>-<APK SHA256 前8位>`（例 `android-update-3.21.0-e6f0169d`）；任务编号不得当作版本号。
+- 历史 Release 永不覆盖、不删除。已存在同标签时：附件 SHA-256 相同 → 按幂等成功，不重复上传；不同 → 不得覆盖，必须用新更新标签新建 Release。
+- Release 标题写更新概括；正文必须包含：修改内容、修复内容、验证内容、APK 文件名、APK SHA-256、构建/验证时间。
+- 附件使用**本次同一份已验证 APK** 与对应 `.sha256`。
+- OneDrive / Google Drive / 本地 SSH 三个渠道**不创建版本归档文件**，只覆盖固定目录同名文件 `反物质维度.apk`；云盘用 `rclone copyto`（禁 `sync`/`delete`/清空），本地用临时文件 + 校验 + 原子替换 `~/Releases/AD-Oreki-Edition/latest/反物质维度.apk`。
+- 四渠道必须同一份 APK，禁止分别重建。实现：`scripts/publish_four_channels.py`；规则自检：`scripts/check_publish_rules.py`。
