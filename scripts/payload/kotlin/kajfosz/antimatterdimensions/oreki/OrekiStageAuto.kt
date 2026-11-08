@@ -846,7 +846,7 @@ object OrekiStageAuto {
     private var holdLatched: Boolean = false
 
     /** [R94] 填塌间隔策略是否已在本段时期设置过。 */
-    private var preBreakCrunchConfigured: Boolean = false
+    private var preBreakCrunchInitialized: Boolean = false
 
     /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
     private var holdProbeTick: Int = 0
@@ -939,8 +939,8 @@ object OrekiStageAuto {
             // 这里强制改为 TIME 模式 + 10 秒，让反物质在两次填塌之间
             // 滚起来（×10000 下 10 秒足够冲过多个数量级），IP 收益随之量级上升。
             if (!isBroken()) {
-                if (!preBreakCrunchConfigured) {
-                    preBreakCrunchConfigured = true
+                if (!preBreakCrunchInitialized) {
+                    preBreakCrunchInitialized = true
                     GameApi.setCrunchMode(crunch, MODE_TIME)
                     Log.i(TAG_AU4C, "policy -> TIME/10s (pre-break IP harvest)")
                 }

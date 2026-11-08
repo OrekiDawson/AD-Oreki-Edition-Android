@@ -464,7 +464,7 @@ assert not re.search(r"iput.*Player\\$PlayerNormalChallenges;->[a-z]:", payload_
 截断是唯一能同时满足「全中文」与「不造假」的选项。
 
 **B. 全量翻译（不推荐，除非有预算）**：627 条逐条人工译，需按
-`docs/TUTORIAL_GLOSSARY.md` 校术语；改完后 `changelog.zh.txt` 直接整份替换原文件，
+`docs/教程术语表.md` 校术语；改完后 `changelog.zh.txt` 直接整份替换原文件，
 `patch_changelog_zh()` 里所有「与原文条目数一致」的断言可保留，但锚点逻辑要换成整份替换。
 
 **C. 保持现状（不可接受）**：仍违反 §8。

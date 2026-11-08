@@ -122,7 +122,11 @@ check("未解锁时直接返回",
       "if (!GameApi.crunchUnlocked(crunch)) return" in code)
 
 # ---- 9. 未 Break 时不干预 ----
-check("未 Break 时不干预", "if (!isBroken()) return" in code)
+# [R94] 旧语义「未 Break 不干预」已证伪：实测存档 auto.bigCrunch.amount=1
+# ⇒ 反物质刚到 1 就填塌、每次 IP 收益≈0、填塌间隔升级买不动。
+# 现要求：未 Break 时**必须**切 TIME 模式 + 常量间隔收割 IP，且 mode 只设一次。
+check("未 Break 时按 TIME + 常量间隔收割 IP",
+      "if (!isBroken()) {" in code and "PRE_BREAK_CRUNCH_SECONDS" in code)
 
 # ---- 10. Break 升级位图判据 ----
 check("按 Break 升级位图基数分支", "bitSetCardinality(bits)" in code)

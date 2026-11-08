@@ -3,6 +3,13 @@
 本目录管「原版游戏（Antimatter Dimensions）升级」这件事：新版本怎么固化、怎么校验、
 两版差在哪、怎么回滚。**它不改游戏玩法**，只保证 MOD 补丁打在一个可追溯、可复现的原版之上。
 
+> **⚠ 2026-11-06 起（AGENTS.md §75）：基线更新禁止使用 alias。**
+> 任何「旧名→新名」的人工映射、同名位置投票、命名规律推测，都**不是**基线识别、
+> 版本判断或 ABI 适配的依据。符号必须来自目标版本真实 APK/XAPK 的 DEX 声明，
+> 统一登记在 `versions/<版本>/bindings.json`，三态 `CONFIRMED` / `PARTIAL` / `UNCONFIRMED`，
+> **构建只允许 `CONFIRMED`**。无法确认就阻断并如实报告，不得补写映射让构建通过。
+> 下面描述的既有别名机制只保留给 3.20 及以前已验收基线，新版本一律新增 `bindings.json`。
+
 ## 为什么需要它
 
 原版每版都会全量重新混淆（R8），类名、方法名、资源 ID 全部重排。过去每次升级都要靠人工
@@ -81,6 +88,8 @@ baseline rollback --version 3.20
 | `automator_anchor_lines` | 自动机暂停判定的 smali 锚点行 |
 | `ec12_closure` | EC12 限时判定闭包类的位置与寄存器 |
 | `has_native_*` | 原版是否已自带该行为；为 true 时 MOD 跳过重复注入 |
+| `bindings` | **必填**（3.21 起）：符号绑定文件 `baseline/versions/<版本>/bindings.json`，构建只接受其中 `CONFIRMED` 条目 |
+| `upstream_version` | 该基线的真实上游版本号，必须与 `versions/<版本>/manifest.json` 一致 |
 
 ## 升级到下一个版本（3.22 及以后）
 
@@ -89,13 +98,26 @@ baseline rollback --version 3.20
 1. 拿到官方 APK，核对 versionName / versionCode / 签名证书与上一版一致（同签名才可信）。
 2. 用 apktool 反编译到 `work/base_decoded_<ver>/`。
 3. 跑 `baseline update` 固化基线（会算 SHA-256、读包信息、生成 inventory）。
-4. 在 `version-config.json` 的 `versions` 里加一条，逐字段填。
+4. **先做符号取证，再改配置**（AGENTS.md §75）：
+   ```bash
+   python scripts/baseline_bindings.py derive \
+     --legacy work/base_decoded_<旧> --target work/base_decoded_<新> \
+     --legacy-version <旧> --target-version <新> \
+     --symbols-from build/legacy-symbols.json \
+     --out baseline/versions/<新>/bindings.json
+   python scripts/baseline_bindings.py verify --config baseline/version-config.json
+   ```
+   `derive` 只承认「宿主描述符相同 + 结构指纹一致 + 同名字段/方法原型类型变化」这类
+   DEX 直接声明作为锚点；`PARTIAL` / `UNCONFIRMED` 一律视为阻塞，**不得手工补写映射**。
+5. 在 `version-config.json` 的 `versions` 里加一条，逐字段填，并写上 `bindings` 与
+   `upstream_version`。
+
    - 不确定的字段先留空，构建时会**明确报错**并告诉你缺哪一项 —— 这是有意设计，
      不允许「猜一个默认值」蒙混过去。
-5. 跑 `baseline diff --from <旧> --to <新>` 看真实差异，重点看报告里
-   「游戏包新增/删除」与「ABI 变化类」，RS 重排产生的顶层短名变化直接忽略。
-6. 按报错逐项修正配置，直到构建通过。
-7. 通过后把 `current` 改成新版本。
+6. 跑 `baseline diff --from <旧> --to <新>` 看真实差异，重点看报告里
+   「游戏包新增/删除」与「ABI 变化类」，R8 重排产生的顶层短名变化直接忽略。
+7. 按报错逐项修正配置，直到构建通过。
+8. 通过后把 `current` 改成新版本。
 
 ## 已知的版本差异（当前）
 
@@ -112,6 +134,8 @@ baseline rollback --version 3.20
 ## 不能做的事
 
 - **不要**把旧版补丁机械套到新版。每个补丁都依赖具体的类/方法/ABI，上游一变就必须重新对位。
+- **不要**用别名表、同名位置投票、命名规律去「推断」新版符号（AGENTS.md §75）。
+  没有 DEX 直接证据的符号标 `UNCONFIRMED` 并阻断，不许补映射让构建通过。
 - **不要**在 `build_mod.py` 里为新版本加 `if version == "3.22"` 分支 —— 那是把差异又散回代码里。
 - **不要**让工具覆盖已固化的版本目录。要重建就人工确认后移走旧目录。
 - **不要**把 `work/` 下的反编译树或 APK 提交进 Git。

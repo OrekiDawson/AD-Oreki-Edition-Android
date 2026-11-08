@@ -3,7 +3,6 @@
   "description": "AD Oreki Edition — Android 混淆映射表（3.19 → 3.20）。每条都必须有结构证据；未确定项显式标注为 unresolved，不得伪装成已确认。",
   "generated_by": "R79（2026-11-05）",
   "method": "REA 6.8.0（jadx-headless-mcp 0.7.1）+ 独立 DEX/Smali 结构指纹交叉验证",
-
   "apk_identity": {
     "source": {
       "label": "3.19.0",
@@ -23,7 +22,10 @@
       "target_sdk": 37,
       "class_count": 13862,
       "resource_count": 1728,
-      "dex": ["classes.dex", "classes2.dex"],
+      "dex": [
+        "classes.dex",
+        "classes2.dex"
+      ],
       "cert_sha256": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14"
     },
     "xapk": {
@@ -31,7 +33,6 @@
       "sha256": "2aac58e2e7a413a0d93cd951ce2d17203019501b361293758f0d3e6f5c1a2345"
     }
   },
-
   "toolchain": {
     "rea": "rea-agents@6.8.0",
     "rea_protocol": "2025-11-25",
@@ -41,7 +42,6 @@
     "jadx_jar_sha256": "6e5eacf500b64292bfb73c49797c1958f6ee44646e43e868039ae7feb573ff75",
     "jdk": "21.0.13 (tools/jdk/jdk-21.0.13+9)"
   },
-
   "class_map": [
     {
       "from": "ln0",
@@ -161,7 +161,9 @@
       "to": "os0",
       "status": "confirmed",
       "evidence": "3.19 e02.n0()Z 与 3.20 os0.F()Z 方法体逐指令同构（sget v81.a:o81 → w()Z && !pelle.c.q()）。3.20 的 e02 是无关类。",
-      "method_map": { "n0": "F" }
+      "method_map": {
+        "n0": "F"
+      }
     },
     {
       "from": "z51",
@@ -194,7 +196,6 @@
       "evidence": "3.20 里 super 指向 bq0 的唯一抽象类，由 obfuscation_aliases() 动态求出。"
     }
   ],
-
   "unresolved": [
     {
       "item": "p51（EC12 限时判定闭包）",
@@ -218,12 +219,95 @@
       "reason": "V 是游戏最后阶段内容，对「3 小时通关」无影响。本轮明确暂缓，不伪装成已迁移。"
     }
   ],
-
   "verification_commands": [
     "npx -y rea-agents@6.8.0 inspect-android-package work/apk320/kajfosz.antimatterdimensions.apk",
     "npx -y rea-agents@6.8.0 inspect-android-class work/apk320/kajfosz.antimatterdimensions.apk c01",
     "npx -y rea-agents@6.8.0 inspect-android-method work/apk320/kajfosz.antimatterdimensions.apk c01 a",
     "npx -y rea-agents@6.8.0 search-android-classes work/apk320/kajfosz.antimatterdimensions.apk <substring>",
     "OREKI_BASE=$PWD/work/base_decoded_320 python scripts/probe_patches.py"
-  ]
+  ],
+  "r80_review_2026_11_05": {
+    "_comment": "R80（2026-11-05）复核与新增。每条都给出结构证据与验证方式；className/method 一律按完整描述符核对。",
+    "verified_existing": {
+      "lu": {
+        "new": "cw",
+        "evidence": "312 字段 + 1 方法，方法签名集完全相同；行号 7050 的 1.5E12 常量位置与 3.19 对齐",
+        "business": "数字格式化 / 常量表"
+      },
+      "c30": {
+        "new": "s40",
+        "evidence": "1 字段 + 2 方法；行号 1884 的 1.5E12 常量位置与 3.19 对齐",
+        "business": "IU15 导航进度条"
+      },
+      "vw1": {
+        "new": "qz1",
+        "evidence": "1 字段 + 2 方法；另一处 IU15 需求谓词",
+        "business": "IU15 需求判定 lambda"
+      },
+      "py1": {
+        "new": "q12",
+        "evidence": "a:List + a(I)/b()/c()/d() 四方法逐字相同",
+        "business": "无限挑战注册表"
+      },
+      "ju": {
+        "new": "aw",
+        "evidence": "public abstract + super Lbq0; + 14 方法，方法表顺序完全一致",
+        "business": "Currency 抽象基类"
+      },
+      "ii0": {
+        "new": "xj0",
+        "evidence": "interface abstract + 4 方法；仅自引用描述符随类名变化",
+        "business": "CoroutineContext"
+      },
+      "p51": {
+        "new": "k81",
+        "evidence": "final synthetic + <init>(B) + invoke(Object) + 10 个 cmpg-double + 2.0/0.1/10.0 三常量 + ThisEternity×6",
+        "business": "EC12 限时判定闭包"
+      }
+    },
+    "verified_methods": {
+      "bn0.s": {
+        "new": "rp0.G",
+        "desc": "()Lkajfosz/antimatterdimensions/BigDouble;",
+        "evidence": "方法体首条 sget 为 celestials/pelle/c;->h（Pelle 分支）；与 bn0.w() 交叉换名",
+        "business": "货币现值（Pelle 口径）"
+      },
+      "bn0.w": {
+        "new": "rp0.K",
+        "desc": "()Lkajfosz/antimatterdimensions/BigDouble;",
+        "evidence": "方法体首条 sget 为 player/Player;->a（玩家现值）",
+        "business": "货币现值（玩家口径）"
+      },
+      "ju.o": {
+        "new": "aw.C",
+        "desc": "(Lkajfosz/antimatterdimensions/BigDouble;)Lbq0;",
+        "evidence": "方法表声明顺序逐项对齐；方法体首条 invoke 序列同构",
+        "business": "Currency.add（发奖唯一入口）"
+      },
+      "ju.u": {
+        "new": "aw.I",
+        "desc": "(D)Lbq0;",
+        "evidence": "同上",
+        "business": "Currency.add(Double)"
+      }
+    },
+    "new_in_r80": {
+      "wx0": {
+        "new": "am0",
+        "evidence": "public abstract synthetic + .super Object + 恰好 27 方法；全库同指纹仅 am0 与 uj0，其中仅 am0 含 BigDouble-><init>(D)V",
+        "business": "Kotlin 工具门面（BigDouble.of / 数字格式化 / toast）"
+      },
+      "wx0.q": {
+        "new": "am0.p",
+        "desc": "(Liu;D)Lkajfosz/antimatterdimensions/BigDouble;",
+        "evidence": "am0.p(Lzv;D)LBigDouble; 方法体内 new BigDouble(D)；zv 为 3.20 的 Unit 占位类",
+        "business": "BigDouble.of(double)"
+      },
+      "iu": {
+        "new": "zv",
+        "evidence": "两版均为 public final + super Object 的 Unit 占位类",
+        "business": "Kotlin Unit 占位（仅作方法参数类型）"
+      }
+    }
+  }
 }
