@@ -24,7 +24,7 @@
 
 **版本号含义**：`3.21.0` 是所基于的原版游戏版本，不是 MOD 自身的迭代号。MOD 改动不单独编版本，判断"是不是新版"请看 `versionCode` 或安装包 SHA-256。
 
-### 3.21 正式稳定版（R96 第二轮，2026-11-09 01:5x 四渠道交付；首版 R96 01:39）
+### 3.21 正式稳定版（R96 第二轮，2026-11-09 01:57 四渠道交付；首版 R96 01:39）
 
 | 项目 | 值 |
 |---|---|
@@ -33,7 +33,7 @@
 | 大小 / SHA-256 | 82,552,305 B / `F9536FF6DB4E45FE68333C71EC905AE968B3DDF72B0117F4E786216EB6292AB6` |
 | 构建 | `./gradlew assembleRelease --offline` → `installToRelease`（生成 `build/release-manifest.json`）；签名证书与上一版一致，可原地升级 |
 | 门禁 | `verifyRelease` **14/14**（需 `OREKI_BASE=work/base_decoded_321`）、`verifyPatchContract` **17/17**、`check_automation_scheduler` **105/105**、`fixture_eternity_gate` **47/47**、`check_publish_rules` **13/13**；V2+V3 签名 |
-| 真实运行 | 同一存档实测：IP 1e179.8 →（8 分钟）1e313，8 个无限维度全部解锁；**01:34:16 首次永恒真实结算**（`bigEternities=1`、`thisEternity.realTime` 重置、`stage=10 永恒与时间研究`）；`OREKI_ET_EXC`、`OREKI_API_MISS`、`VerifyError` 均 0 条 |
+| 真实运行 | 同一存档实测：① 01:34:16 **首次永恒真实结算**（IP 1e179.8 → 1e313、8 个无限维度全解锁）；② 第二版 01:51:43 **第 2 次永恒真实结算**（`bigEternities=2`），TT 真实购买（am/ip/ep 三入口 5/5/2 次）、时间研究已购 [11,22,32,21,33]、时间维度已买 2 层，进程内 `OREKI_API_MISS=0`、`OREKI_ET_EXC=0`、`VerifyError=0` |
 | 状态 | **已发布为 3.21 正式稳定版**。已知限制：① 干净环境 3 小时新档全流程尚未做一次完整墙钟计时；② 99.72% 回落问题本轮未复现、未定位；③ 首次永恒之后的成长链已打通到「TT 真实购买 + 时间研究 + 第 2 次永恒」，膨胀解锁仍在推进 |
 
 R96 第二轮另修三个「混淆名跨版本漂移」P0（TT 入口 `ix4`→`zu4` 版本桥、永恒升级注册表 `x81`→`h91`、货币购买 `o`→`p`），详见 FACTS。R96 首轮两个 P0 修复（均由真机日志确证）：① 策略层返回 `kotlin.Triple` 在 3.21 被 R8 裁剪的 stdlib 上抛 `NoSuchMethodError`，被静默 fail-closed 后把坍缩暂停（实测 IP 冻结 1e145 达 46 分钟），改为私有载体并补异常可见化；② `OrekiEternityLaunch` 仍用 3.20 的 `g.p(Lvi1;Z)`，3.21 的正确启动器是 `g.s(Lgm1;Z)`，旧绑定被 ART 拒绝整类、每帧 `OREKI_ET_EXC`、EP 恒 0。另把智能坍缩改为目标驱动（`canEternity` → 收益 ≥10 倍 IP 的 `ip-jump` → ID 峰值窗口 → 收益等待，均带上限）。
