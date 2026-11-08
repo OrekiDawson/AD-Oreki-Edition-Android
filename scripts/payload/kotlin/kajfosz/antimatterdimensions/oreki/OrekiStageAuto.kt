@@ -671,6 +671,18 @@ object OrekiStageAuto {
         return false
     }
 
+    /** [R96 第六轮] 临时诊断：无限升级购买在哪个分支失败（每个原因只打一次）。 */
+    private val iupDiagLogged = HashSet<String>()
+
+    private fun logIupDiagOnce(reason: String) {
+        if (iupDiagLogged.add(reason)) {
+            try {
+                Log.i(TAG_IPM_LV, "iup-diag " + reason + " ip=" + GameApi.currencyValue(GameApi.ipCurrency()))
+            } catch (_: Throwable) {
+            }
+        }
+    }
+
     @JvmStatic
     fun buyInfinityUpgrades(): Boolean = try {
         probeInfinityUpgradesOnce()
@@ -690,15 +702,24 @@ object OrekiStageAuto {
         // （见 OrekiBreakShop.id1ReserveActive），本处不写任何字段、不改价格、不改结算。
         // 与 Web 的差异：Web 按单条升级 cost 精算「买完仍够门槛」，这里直接暂停，
         // 代价是该窗口内便宜升级也一并暂停；差异已记入 tasks/R92 记录。
-        if (OrekiBreakShop.id1ReserveActive()) return false
+        if (OrekiBreakShop.id1ReserveActive()) {
+            logIupDiagOnce("reserve-active")
+            return false
+        }
 
         // ---- 1) 一次性升级：只买第一个「未买且买得起」的 ----
         val list = GameApi.infinityUpgrades()
-        if (list != null) {
+        if (list == null) {
+            logIupDiagOnce("upgrade-list-null")
+        } else {
+            var sawUnbought = false
             for (up in list) {
                 if (GameApi.upgradeBought(up)) continue
+                sawUnbought = true
                 if (GameApi.upgradeBuy(up)) return true
             }
+            if (!sawUnbought) logIupDiagOnce("all-one-time-bought")
+            else logIupDiagOnce("one-time-buy-failed")
         }
 
         // ---- 2) 可重复的 ipMult ----
@@ -713,15 +734,30 @@ object OrekiStageAuto {
             if (GameApi.idPurchases(id1) == 0L) return false
         }
 
-        val ipMult = GameApi.ipMultUpgrade() ?: return false
-        val cost = GameApi.ipMultCost(ipMult) ?: return false
-        val currency = GameApi.ipMultCurrency(ipMult) ?: return false
+        val ipMult = GameApi.ipMultUpgrade()
+        if (ipMult == null) {
+            logIupDiagOnce("ipmult-obj-null")
+            return false
+        }
+        val cost = GameApi.ipMultCost(ipMult)
+        if (cost == null) {
+            logIupDiagOnce("ipmult-cost-null")
+            return false
+        }
+        val currency = GameApi.ipMultCurrency(ipMult)
+        if (currency == null) {
+            logIupDiagOnce("ipmult-currency-null")
+            return false
+        }
         // R82：真实扣费必须先成功，才允许涨级。
         // 旧顺序是「扣费失败也照涨级」，R81 之前更因为 `Currency.i(BigDouble)Z`
         // 这个不存在的签名让扣费**恒失败** —— 结果是免费升级，等同伪造进度。
         // 现在 `currencyBuy()` 已锁定原版 `Currency.u(BigDouble)`，先判余额再扣；
         // 扣费返回 false 时立即退出，绝不写等级。
-        if (!GameApi.currencyBuy(currency, cost)) return false
+        if (!GameApi.currencyBuy(currency, cost)) {
+            logIupDiagOnce("currency-buy-failed")
+            return false
+        }
         // 真涨级（仅在上面的真实扣减成功之后）
         val lv = GameApi.ipMultLevel(ipMult)
         GameApi.setIpMultLevel(ipMult, lv + 1)

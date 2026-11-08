@@ -1,0 +1,136 @@
+
+> Configure project :
+Build file '/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle': line 65
+Starting an external process at configuration time has been deprecated. This will fail with an error in Gradle 11. Use ProviderFactory.exec/javaexec or a ValueSource to obtain the process output, or move the process execution into a task. Consult the upgrading guide for further information: https://docs.gradle.org/9.8.2/userguide/upgrading_version_9.html#config_time_external_processes
+	at build_dxxabxmxn7845ftfgpzmw1zgi$_run_closure2.doCall$original(/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build.gradle:65)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :buildKotlinDex
+[kotlin] 已清空产物
+[kotlin] 基线绑定生成：3.21，CONFIRMED=42
+[kotlin] 待编译 12 个文件
+[kotlin] $ /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/bin/kotlinc -nowarn -classpath /home/oreki/Android/Sdk/platforms/android-34/android.jar /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiTrace.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiBreakShop.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/generated/OrekiBaselineBindings.kt -d /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes
+[kotlin] 生成 17 个 class
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.OrekiTrace
+        private static final java.lang.String TAG;
+        private kajfosz.antimatterdimensions.OrekiTrace();
+        public static final void gEnter();
+        public static final void gSkip();
+        public static final void ctTrue();
+        public static final void ctFalse();
+        public static final void buyTrue();
+        public static final void buyFalse();
+        static {};
+      }
+[kotlin] ABI 校验通过：kajfosz.antimatterdimensions.OrekiTrace（6 个方法）
+[kotlin] $ /usr/lib/jvm/java-25-openjdk-amd64/bin/javap -p -classpath /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/kt/classes kajfosz.antimatterdimensions.oreki.OrekiStageAuto
+        private final void probeInfinityUpgradesOnce();
+        public static final boolean upgradeCrunchInterval();
+        public static final boolean tryBuyId1();
+        public static final void tryBreakInfinity();
+        public static final boolean holdCrunch();
+        private final boolean computeHoldCrunch();
+        public static final void applyCrunchPolicy();
+        public static final void crunchProbe();
+        static {};
+      }
+[kotlin] ABI 不匹配：kajfosz.antimatterdimensions.oreki.OrekiStageAuto 缺少 `public static final boolean buyInfinityUpgrades()`
+Compiled from "OrekiStageAuto.kt"
+public final class kajfosz.antimatterdimensions.oreki.OrekiStageAuto {
+  public static final kajfosz.antimatterdimensions.oreki.OrekiStageAuto INSTANCE;
+  private static final java.lang.String TAG_SAC;
+  private static final java.lang.String TAG_EARLY;
+  private static final java.lang.String TAG_HOLD;
+  private static final java.lang.String TAG_CRUNCH;
+  private static final java.lang.String TAG_AU4B;
+  private static final java.lang.String TAG_AU4C;
+  private static final java.lang.String TAG_ID;
+  private static final java.lang.String TAG_ID_UNLOCK;
+  private static final java.lang.String TAG_BRK2;
+  private static final java.lang.String TAG_BRKTRACE2;
+  private static final java.lang.String TAG_IPM_LV;
+  private static final java.lang.String TAG_IUP_SIZE;
+  private static final java.lang.String TAG_IUP_B0;
+  private static final java.lang.String TAG_IUP_Z0;
+  private static final int MODE_TIME;
+  private static final int MODE_X_HIGHEST;
+  private static final double PRE_BREAK_CRUNCH_SECONDS;
+  private static final double CRUNCH_PAUSE_SECONDS;
+  private static final double POST_BREAK_RESUME_SECONDS;
+  private static final long ECONOMIC_STARVATION_MS;
+  private static final java.lang.String[] STARVATION_RESCUE_TASKS;
+  private static final long RESCUE_COOLDOWN_MS;
+  private static final java.util.HashMap<java.lang.String, java.lang.Long> lastRescueAt;
+  public static boolean earlyAutomationApplied;
+  public static boolean lastCrunchHoldResult;
+  public static int sacrificeAttemptCount;
+  public static int crunchProbeTick;
+  public static int ipMultiplierPurchaseCount;
+  public static int infinityUpgradeProbeTick;
+  public static int infinityUpgradeProbeDone;
+  public static boolean infinityDimensionLoopLogged;
+  public static boolean crunchPolicyInitialized;
+  public static boolean crunchTimeModeInitialized;
+  private static int bulkPurchaseCursor;
+  private static int infinityDimensionCursor;
+  private static final java.lang.String TAG_BREAK_GUARD;
+  private static boolean lastObservedBrokenState;
+  private static final java.util.HashSet<java.lang.String> iupDiagLogged;
+  private static boolean holdLatched;
+  private static boolean preBreakCrunchInitialized;
+  private static java.lang.String pauseReason;
+  private static boolean crunchPolicyErrorLogged;
+  private static boolean targetIntervalInitialized;
+  private static int holdProbeTick;
+  private kajfosz.antimatterdimensions.oreki.OrekiStageAuto();
+  private final boolean crunchIntervalIsMaxed();
+  private final void detectBreakLoss();
+  public static final void onAutoBuyerTick();
+  private final void runScheduled(java.lang.String, kotlin.jvm.functions.Function0<java.lang.Boolean>);
+  private final java.lang.String resolveUrgentTask();
+  private final java.lang.String starvationRescue(java.lang.String);
+  private final boolean runUrgentTask(java.lang.String);
+  public static final boolean isDoomed();
+  public static final boolean eternitiesZero();
+  private final boolean isBroken();
+  private final java.lang.Object ipBalance();
+  private final java.lang.Integer cmp(java.lang.Object, double);
+  public static final void enableIpMultAutobuyer();
+  public static final void enableEarly();
+  public static final boolean autoSacrifice();
+  private final java.lang.Integer compareBigDoubles(java.lang.Object, java.lang.Object);
+  public static final boolean upgradeBulkAll();
+  private final boolean buyEternityUpgrades();
+  private static void getIupDiagLogged$annotations();
+  private final void logIupDiagOnce(java.lang.String);
+  public final boolean buyInfinityUpgrades();
+  private final void probeInfinityUpgradesOnce();
+  public static final boolean upgradeCrunchInterval();
+  public static final boolean tryBuyId1();
+  public static final void tryBreakInfinity();
+  public static final boolean holdCrunch();
+  private final boolean computeHoldCrunch();
+  public static final void applyCrunchPolicy();
+  public static final void crunchProbe();
+  static {};
+}
+
+
+> Task :buildKotlinDex FAILED
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':buildKotlinDex' (registered in build file 'build.gradle').
+> Process 'command 'python3'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 12s
+1 actionable task: 1 executed

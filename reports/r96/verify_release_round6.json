@@ -1,0 +1,87 @@
+{
+  "apk": "build/gradle-stage/反物质维度.apk",
+  "size": 82556401,
+  "sha256": "7c8b531569a50c886150932b33c3c5be4fe34e5520c9d70d8a41e170475f29bd",
+  "package": "com.oreki.antimatterdimensions",
+  "versionCode": "30210000",
+  "versionName": "3.21.0",
+  "schemes": {
+    "v1": false,
+    "v2": true,
+    "v3": true
+  },
+  "cert_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "checks": [
+    {
+      "name": "包名",
+      "ok": true,
+      "detail": "com.oreki.antimatterdimensions"
+    },
+    {
+      "name": "versionCode",
+      "ok": true,
+      "detail": "30210000"
+    },
+    {
+      "name": "versionName",
+      "ok": true,
+      "detail": "3.21.0"
+    },
+    {
+      "name": "签名校验进程退出码",
+      "ok": true,
+      "detail": "v2_rc=0 v3_rc=0"
+    },
+    {
+      "name": "签名方案 v2+v3",
+      "ok": true,
+      "detail": "{'v1': False, 'v2': True, 'v3': True}"
+    },
+    {
+      "name": "签名证书未被更换",
+      "ok": true,
+      "detail": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
+    },
+    {
+      "name": "apktool 反编译 dex",
+      "ok": true,
+      "detail": "build/gradle-verify-apk"
+    },
+    {
+      "name": "EC12 补丁在 dex 内（unscale 1 次且紧邻限时比较）",
+      "ok": true,
+      "detail": "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali"
+    },
+    {
+      "name": "OrekiInstantChallenge 类在 dex 内",
+      "ok": true,
+      "detail": "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali"
+    },
+    {
+      "name": "OrekiInstantChallenge 含 复用 C/IC 完成入口 E(Z)",
+      "ok": true,
+      "detail": "->E(Z)V"
+    },
+    {
+      "name": "OrekiInstantChallenge 含 复用 EC addCompletion F(Z)",
+      "ok": true,
+      "detail": "->F(Z)V"
+    },
+    {
+      "name": "OrekiInstantChallenge 含 EC isFullyCompleted 判定",
+      "ok": true,
+      "detail": "->y()Z"
+    },
+    {
+      "name": "OrekiInstantChallenge 含 已完成的挑战不重复结算",
+      "ok": true,
+      "detail": "->K()Z"
+    },
+    {
+      "name": "Challenges.update 调用 tick()（恰好 1 处）",
+      "ok": true,
+      "detail": "count=1"
+    }
+  ],
+  "failed": 0
+}
