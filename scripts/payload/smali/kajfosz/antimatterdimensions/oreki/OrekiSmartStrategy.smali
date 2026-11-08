@@ -540,7 +540,7 @@
 # 未接线的叶子返回 0.0 并累加 sUnknown —— 宁可在日志里显式暴露「没接」，
 # 也不假装取到了一个值。补一个叶子只需在这里加一段 equals 分支。
 .method private static leaf(I)D
-    .locals 6
+    .locals 10
 
     sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;->sLeafNames:[Ljava/lang/String;
 
@@ -558,6 +558,25 @@
 
     aget-object v0, v0, p0
 
+    # [R96] 先问 Kotlin 叶子实现（新增业务逻辑一律 Kotlin，smali 只接线）。
+    # 位置必须在 equals 链之前：此处 v2 尚未被任何分支定义，ART 校验器能接受
+    # 「move-result-wide v2 → return-wide v2」；放到链尾会与已有分支的 v2 类型合并
+    # 失败（实测 VerifyError: wide register v2 has type Double/Integer）。
+    # 结果放在 v6/v7（本方法其余分支只用 v0~v5），避免 ART 校验器把
+    # 「宽寄存器 v2」与既有分支的 v2 类型合并后判非法（实测 VerifyError）。
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves;->evaluate(Ljava/lang/String;)D
+
+    move-result-wide v6
+
+    # cmpl 目标必须与宽结果 v6/v7 不重叠（用 v8），否则会覆盖 v6 高半，
+    # ART 校验器会报「wide register ... / Integer」。
+    cmpl-double v8, v6, v6
+
+    if-ltz v8, :l_chain
+
+    return-wide v6
+
+    :l_chain
     const-string v1, "player.break"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -802,21 +821,9 @@
     return-wide v2
 
     :l_doom
-    # [R96] 先问 Kotlin 叶子实现（新增业务逻辑一律 Kotlin，smali 只接线）。
-    # 非 NaN = 已实现，直接返回；NaN 再走下面的 unknown 计数与 fail-closed。
-    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves;->evaluate(Ljava/lang/String;)D
-    move-result-wide v2
-
-    cmpl-double v3, v2, v2
-
-    if-ltz v3, :l_unknown
-
-    return-wide v2
-
     # ---- 未接线：计一次 unknown，并返回 NaN ----
     # R66 返回 0.0，等价于「这个叶子是假的」：`not(leaf)` 会被翻成 true，
     # 于是依赖未知叶子的阶段可能被误判为成立。NaN 让 evalStage 走 fail-closed。
-    :l_unknown
     sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;->sUnknown:I
 
     add-int/lit8 v1, v1, 0x1

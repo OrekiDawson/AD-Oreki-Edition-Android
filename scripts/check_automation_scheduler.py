@@ -294,7 +294,9 @@ check("策略叶子 Kotlin 实现存在", "object OrekiStrategyLeaves" in _leaf_
 check("dilationUnlocked 叶子读 dilation.studies 含 1", '"progress.dilationUnlocked" -> bool(dilationStudyOneBought())' in _leaf_kt)
 check("未实现叶子返回 NaN（fail-closed 不变）", "return Double.NaN" in _leaf_kt)
 check("smali 只保留一处接线调用", _strategy_smali.count("OrekiStrategyLeaves;->evaluate") == 1)
-check("接线在 unknown 计数之前", _strategy_smali.index("OrekiStrategyLeaves;->evaluate") < _strategy_smali.index(":l_unknown"))
+check("接线在 equals 链之前（ART 校验器要求 v6/v7 无类型合并）",
+      _strategy_smali.index("OrekiStrategyLeaves;->evaluate") < _strategy_smali.index('const-string v1, "player.break"'))
+check("Kotlin 兜底覆盖 smali 已实现叶子时静默返回 NaN", "handledBySmali" in _leaf_kt and "name in handledBySmali" in _leaf_kt)
 
 # ---------------------------------------------------------------- 24. R96：智能大坌缩决策
 _crunch_kt = read(KT_DIR / "OrekiCrunchPolicy.kt")

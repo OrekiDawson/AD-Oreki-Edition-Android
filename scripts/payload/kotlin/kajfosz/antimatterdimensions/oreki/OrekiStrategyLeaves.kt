@@ -21,6 +21,26 @@ object OrekiStrategyLeaves {
 
     private val warned = HashSet<String>()
 
+    /**
+     * smali `leaf()` 的 equals 链已经实现的叶子名。
+     *
+     * Kotlin 只是**兜底**：这些名字由 smali 链处理，evaluate() 必须静默返回 NaN
+     * （返回 NaN 才会继续走 smali 链），否则会误报 `unwired leaf` 日志。
+     */
+    private val handledBySmali = setOf(
+        "player.break",
+        "player.dimensionBoosts",
+        "player.infinities",
+        "player.realities",
+        "progress.infinityUnlocked",
+        "pelle.doomed",
+        "challenge.normalRunning",
+        "challenge.infinityRunning",
+        "challenge.eternityRunning",
+        "progress.eternityUnlocked",
+        "progress.realityUnlocked",
+    )
+
     /** Boolean 叶子用 1.0 / 0.0 表示，与 smali 侧约定一致。 */
     @JvmStatic
     fun evaluate(name: String): Double {
@@ -30,7 +50,7 @@ object OrekiStrategyLeaves {
                 // 仓库内同源说明（oreki-celestial-automation.js:470）：
                 // = player.dilation.studies.includes(1)（DS1）
                 "progress.dilationUnlocked" -> bool(dilationStudyOneBought())
-                else -> unwired(name)
+                else -> if (name in handledBySmali) Double.NaN else unwired(name)
             }
         } catch (error: Throwable) {
             Log.w(TAG, "leaf $name error: " + error.javaClass.simpleName)
