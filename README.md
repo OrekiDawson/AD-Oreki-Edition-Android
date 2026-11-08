@@ -311,7 +311,7 @@ python3 scripts/publish_four_channels.py --publish --retry-failed \
 
 首次使用前复制 `.release.env.example` 中的变量到当前 shell，分别完成 `rclone config` 的 OneDrive/Google Drive OAuth；`gh auth status` 必须通过。手机从 SSH/SFTP 登录 `oreki` 用户后读取 `latest/`，不开放匿名访问。
 
-Linux 可按需安装 `ops/systemd-user/` 下的两个 service 和两个 timer，使本地发布目录每 10 分钟分别单向复制到两套云盘。该自动复制不监听 Gradle 输出、不触发构建、不删除云端文件；用户级环境文件放在 `~/.config/oreki-release.env`，权限应为 600。
+Linux 可按需安装 `ops/systemd-user/` 下的两个 service 和两个 timer，使本地 `latest/反物质维度.apk` 每 10 分钟分别以 `rclone copyto` 覆盖两套云盘固定根目录中的同名 APK。该自动复制不上传其他文件、不监听 Gradle 输出、不触发构建、不删除云端文件；GitHub 统一走正式 Release 通道。用户级环境文件放在 `~/.config/oreki-release.env`，权限应为 600。
 
 ### 更多开发文档
 

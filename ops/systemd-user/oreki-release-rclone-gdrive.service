@@ -2,8 +2,9 @@
 Description=AD-Oreki release one-way copy to Google Drive
 After=network-online.target
 Wants=network-online.target
+ConditionPathExists=%h/Releases/AD-Oreki-Edition/latest/反物质维度.apk
 
 [Service]
 Type=oneshot
 EnvironmentFile=%h/.config/oreki-release.env
-ExecStart=/usr/bin/rclone copy ${AD_RELEASE_DIR} ${AD_GDRIVE_REMOTE}:${AD_GDRIVE_DIR} --create-empty-src-dirs --retries 3 --low-level-retries 10 --log-level INFO
+ExecStart=/usr/bin/rclone copyto ${AD_RELEASE_APK} ${AD_GDRIVE_REMOTE}:${AD_GDRIVE_DIR}/反物质维度.apk --retries 3 --low-level-retries 10 --log-level INFO

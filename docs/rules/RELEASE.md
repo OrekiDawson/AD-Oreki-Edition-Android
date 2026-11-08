@@ -26,4 +26,4 @@
 6. 本地交付使用临时文件加原子替换；历史归档按版本和 SHA-256 区分，不覆盖旧包。目录由普通用户持有，不在 Web 公共根目录，不开放匿名访问。
 7. 某渠道失败时保留其他成功结果，写入 `release-info.json`，不重建 APK。使用 `--retry-failed` 只重试上次失败渠道；不得把部分成功写成四渠道全部完成。
 8. OAuth 登录、rclone remote 名称/目录、GitHub 登录、手机 SSH 公钥授权均属于环境前置条件。真实凭据只存在用户配置、keyring 或环境变量，不进入仓库、脚本、日志或 Release 附件。
-9. 可选的 Linux 常驻自动复制使用 `ops/systemd-user/` 模板，源目录仅限本地 SSH/SFTP 发布目录，分别向 OneDrive 和 Google Drive 执行 `rclone copy`，每 10 分钟运行一次；不得指向 Gradle 构建目录，不使用 `sync` 或删除操作。
+9. 可选的 Linux 常驻自动复制使用 `ops/systemd-user/` 模板，每 10 分钟仅将本地 `latest/反物质维度.apk` 以 `rclone copyto` 覆盖到 OneDrive/Google Drive 固定根目录文件；不复制说明、校验清单或整个目录，不指向 Gradle 构建目录，不使用 `sync` 或删除操作。GitHub 只通过正式 GitHub Release 通道发布，不由定时器覆盖文件。
