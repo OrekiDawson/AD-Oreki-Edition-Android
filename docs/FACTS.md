@@ -8918,11 +8918,19 @@ ipmult-currency-null / currency-buy-failed`。不改任何购买逻辑与阈值�
 ```
 即购买链恢复，且诊断日志未打任何 `iup-diag`（说明不再是失败分支，而是真的买成了）。
 
-**第八版稳定包交付（2026-11-09 05:20 前后，四渠道同一包）**：
+**第八版稳定包交付（2026-11-09 05:38，四渠道同一包）**：
 ```text
-APK      7c8b531569a50c886150932b33c3c5be4fe34e5520c9d70d8a41e170475f29bd
+APK      7c8b531569a50c886150932b33c3c5be4fe34e5520c9d70d8a41e170475f29bd（82,556,401 B）
 门禁     verify_release 14/14 · verify_patch_contract 17/17 · 调度器契约 115/115 · 永恒夹具 50/50 · 发布规则 13/13
 渠道     本地 release + SSH latest（SHA 复核一致）· OneDrive · Google Drive · GitHub Release android-update-3.21.0-7c8b5315
 ```
 `[未完成]` 3 小时新档计时：04:55 起跑的那次在 Break 前卡了 20 分钟（已定位到上面的
 无限升级执行问题），不作为 3 小时计时依据；本轮结束前用第八版重新起跑并把每个里程碑墙钟记下来。
+
+`[第六轮补充·诊断读数]` 第八版干净新档（t0 05:31:17）在 +9 分钟时仍 `brake=false`：
+`infUpBits=1、ipMultUpgrades=0、IP≈38`；logcat 里两条一次性诊断给出**失败分支**：
+`iup-diag one-time-buy-failed ip=0.0e0` 与 `iup-diag currency-buy-failed ip=0.0e0`
+（都发生在 IP=0 的首帧，符合预期），但 ipMult 到 +9 分钟仍未买到 ⇒ 需要把诊断改成
+「节流打印当前 IP」才能区分「后来仍然失败」还是「一直没抢到节拍」；这是下一轮第一件事。
+3 小时计时仍在跑（t0 05:31:17，keeper 4 小时、里程碑采样每 20 秒），但当前 IP 倍率链
+尚未真正起来，**不作为达标依据**，等诊断修好后再判定。
