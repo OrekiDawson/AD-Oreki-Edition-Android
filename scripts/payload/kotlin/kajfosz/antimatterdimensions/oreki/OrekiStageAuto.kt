@@ -90,6 +90,18 @@ object OrekiStageAuto {
     private const val CRUNCH_PAUSE_SECONDS = 3600.0
 
     /**
+     * [R96 第十轮] 永恒层「等待成长」时的坍缩间隔（秒）。
+     *
+     * 实测缺陷（干净新档 t0 06:59:45）：永恒层策略在 `eternity-grow` 与
+     * `eternity-cycle` 之间**逐帧翻转** —— allow 一帧把间隔设成 5 秒，下一帧 deny
+     * 又设回 3600 秒（CRUNCH_PAUSE_SECONDS）⇒ 坍缩间隔实际恒为 1 小时 ⇒ 坍缩几乎不发生
+     * ⇒ maxIP 冻在 1e40（第 2 次永恒要求 1.797e308）⇒ 重建速度只有 ~190 指数/分钟。
+     * 这里让「等待」用 30 秒间隔（即周期结算本身的节奏），既不会每帧坍缩，
+     * 也保证 IP 持续产出；真正的收益结算仍由 `eternity-ip-jump` 提前放行。
+     */
+    private const val ETERNITY_GROW_CRUNCH_SECONDS = 30.0
+
+    /**
      * [R96] Break 之后「放行」时的坍缩下限间隔（秒）。
      *
      * 原版 TIME 模式用的是**真实秒**（实测存档 `auto.bigCrunch.time=3600` 对应 1 小时真墙钟），
@@ -1096,8 +1108,14 @@ object OrekiStageAuto {
                 if (pauseReason != decision.reason) {
                     pauseReason = decision.reason
                     GameApi.setCrunchMode(crunch, MODE_TIME)
-                    GameApi.setCrunchInterval(crunch, CRUNCH_PAUSE_SECONDS)
-                    Log.i(TAG_AU4C, "policy -> pause (" + decision.reason + ")")
+                    // 永恒层等待用 30 秒（周期结算），其余等待才用 1 小时硬暂停。
+                    val pauseSeconds = if (decision.reason == "eternity-grow") {
+                        ETERNITY_GROW_CRUNCH_SECONDS
+                    } else {
+                        CRUNCH_PAUSE_SECONDS
+                    }
+                    GameApi.setCrunchInterval(crunch, pauseSeconds)
+                    Log.i(TAG_AU4C, "policy -> pause (" + decision.reason + ") interval=" + pauseSeconds)
                 }
                 return
             }

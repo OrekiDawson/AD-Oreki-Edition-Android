@@ -316,6 +316,14 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
       and "ETERNITY_CYCLE_NS: Long = 30_000_000_000L" in _crunch_kt
       # 永恒层分支内不得再出现 canEternity 放行（那里 canEternity 长期为真 ⇒ 等于无条件坍缩）
       and 'if (GameApi.canEternity()) {' not in _crunch_kt.split("if (!OrekiStageAuto.eternitiesZero()) {")[1].split("// 1) 已经够永恒")[0])
+
+# [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
+# （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
+check("永恒层 eternity-grow 用 30 秒间隔而非 1 小时硬暂停",
+      "ETERNITY_GROW_CRUNCH_SECONDS = 30.0" in stage
+      and 'decision.reason == "eternity-grow"' in stage)
+check("硬暂停常量仍保留用于真等待分支",
+      "CRUNCH_PAUSE_SECONDS = 3600.0" in stage)
 check("永恒层等待带上限（10 分钟）",
       "ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L" in _crunch_kt)
 
