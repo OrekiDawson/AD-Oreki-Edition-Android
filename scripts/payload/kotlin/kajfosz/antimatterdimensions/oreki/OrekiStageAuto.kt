@@ -98,6 +98,36 @@ object OrekiStageAuto {
      */
     private const val POST_BREAK_RESUME_SECONDS = 5.0
 
+    /**
+     * [R96 第三轮] 经济任务饥饿阈值（毫秒）。
+     *
+     * 实测缺陷（新档 02:05-02:18，×10000）：`bulk` 每拍都成功、`sacrifice` 也频繁成功，
+     * 全局节拍「一帧最多一个真动作」被它们吃满 ⇒ `infinityUpgrades` 连续 39 次
+     * `deny frame-held`、一次都没执行 ⇒ `ipMultUpgrades`/`infinityUpgradeBits` 恒 0
+     * ⇒ 坍缩每次只给 1 IP ⇒ 坍缩间隔升级（cost 128 起）永远买不起 ⇒ Break 卡死。
+     * 修法：本拍若某经济任务已超过该阈值没拿到节拍，就把「紧迫名额」给它先试一次；
+     * 它若 noop 不占节拍，后面的常规动作照常执行 —— 仍然是「每 10 秒最多一个真动作」。
+     */
+    private const val ECONOMIC_STARVATION_MS = 25_000L
+
+    /** 参与防饥饿的经济任务（顺序即抢救优先级）。 */
+    private val STARVATION_RESCUE_TASKS = arrayOf(
+        "infinityUpgrades", "crunchInterval", "idBuy", "breakShop",
+    )
+
+    /**
+     * [R96 第三轮·二次修正] 同一任务的抢救冷却。
+     *
+     * 只按 `sinceLastActMs` 判断会卡死：某任务被抢救后仍 noop（如坍缩间隔已买满后的
+     * `crunchInterval`），它的 lastAct 永远不更新 ⇒ 每拍都被优先选中 ⇒ 排在后面的
+     * `idBuy` 永远轮不到（实测 03:00-03:06：act crunchInterval 3 次全部 noop、
+     * `idBuy` 0 次、8 个无限维度全部未解锁）。
+     * 这里给每次「被抢救」记时间，20 秒内不重复抢救同一任务，自然轮转到下一个饥饿任务。
+     */
+    private const val RESCUE_COOLDOWN_MS = 20_000L
+
+    private val lastRescueAt = java.util.HashMap<String, Long>()
+
     // ---------------------------------------------------------------- 状态字段
     // 保持与旧 Smali 同名字段，供诊断脚本按名读取。
 
@@ -248,25 +278,14 @@ object OrekiStageAuto {
                 // 「自动状态修改动作」，必须每帧跑 —— 否则玩家手动关掉后无法恢复接管。
                 enableIpMultAutobuyer()
 
-                // ============ [R78] 五个真实购买动作：全部纳入统一节拍 ============
+                // ---- Break 兜底 + 自愈（R94；R96 第三轮提前到购买动作之前）----
                 //
-                // [R82] 顺序不再是纯固定：每拍先问「当前阶段紧迫任务」，它拿到名额后
-                // 本拍名额即被封掉，其余任务按原顺序尝试（全部仍走同一个 allow()）。
-                // 这样既不会恢复纯轮询（历史实测会让前期停摆），也不会让 idBuy 饿死。
-                val urgentTask = resolveUrgentTask()
-                OrekiAutomationScheduler.setUrgentTask(urgentTask)
-                var urgentHandled = false
-                if (urgentTask != null) {
-                    urgentHandled = runUrgentTask(urgentTask)
-                }
-                if (!urgentHandled) {
-                    runScheduled("sacrifice") { autoSacrifice() }
-                    runScheduled("bulk") { upgradeBulkAll() }
-                    runScheduled("infinityUpgrades") { buyInfinityUpgrades() }
-                    runScheduled("crunchInterval") { upgradeCrunchInterval() }
-                }
-
-                // ---- Break 兜底 + 自愈（R94）----
+                // 实测（新档 02:45，坍缩间隔已买满 interval=100、17 项无限升级全买完，
+                // 却始终 `brake=false`）：旧的 Break 兜底排在五个购买动作之后，
+                // 每拍名额先被 sacrifice/bulk/infinityUpgrades 用掉 ⇒
+                // `allow("breakUpgrades")` 恒被 `deny frame-held` ⇒ Break 永远不触发。
+                // Break 是首次 Break 前唯一的一次性关键解锁，必须优先拿本拍名额；
+                // 未买满间隔时这里也先补买（只做一次真实动作，仍受全局节拍约束）。
                 if (OrekiAutomationScheduler.allow("breakUpgrades")) {
                     val wasBroken = GameApi.isBroken()
                     if (!wasBroken) {
@@ -284,6 +303,24 @@ object OrekiStageAuto {
                     } else {
                         OrekiAutomationScheduler.noteNoop("breakUpgrades")
                     }
+                }
+
+                // ============ [R78] 五个真实购买动作：全部纳入统一节拍 ============
+                //
+                // [R82] 顺序不再是纯固定：每拍先问「当前阶段紧迫任务」，它拿到名额后
+                // 本拍名额即被封掉，其余任务按原顺序尝试（全部仍走同一个 allow()）。
+                // 这样既不会恢复纯轮询（历史实测会让前期停摆），也不会让 idBuy 饿死。
+                val urgentTask = resolveUrgentTask()
+                OrekiAutomationScheduler.setUrgentTask(urgentTask)
+                var urgentHandled = false
+                if (urgentTask != null) {
+                    urgentHandled = runUrgentTask(urgentTask)
+                }
+                if (!urgentHandled) {
+                    runScheduled("sacrifice") { autoSacrifice() }
+                    runScheduled("bulk") { upgradeBulkAll() }
+                    runScheduled("infinityUpgrades") { buyInfinityUpgrades() }
+                    runScheduled("crunchInterval") { upgradeCrunchInterval() }
                 }
 
                 // ---- Break 升级真实购买（独立 id，避免抢冷却）----
@@ -353,7 +390,7 @@ object OrekiStageAuto {
         // （run3：前 19 分钟 crunchInterval 0 次，直到无限升级买满才拿到节拍）。
         // 这里给它紧迫名额；买不起时 upgradeCrunchInterval() 返回 false ⇒ noteNoop
         // 不占节拍，后面的常规动作照常执行，不会反噬。
-        if (!isBroken()) {
+        val base: String? = if (!isBroken()) {
             if (crunchIntervalIsMaxed()) {
                 null
             } else {
@@ -373,8 +410,34 @@ object OrekiStageAuto {
                 if (ipVersus != null && ipVersus >= 0) "idBuy" else null
             }
         }
+        starvationRescue(base)
     } catch (_: Throwable) {
         null
+    }
+
+    /**
+     * [R96 第三轮] 饥饿抢救：本拍若有经济任务长期拿不到节拍，让它先试一次。
+     *
+     * 只影响「这一拍先问谁」，不改变 allow() 的任何闸门；任务 noop 时 noteNoop 不占节拍，
+     * 后面的常规动作（sacrifice/bulk/...）照常执行，所以「每 10 秒最多一个真动作」不变。
+     * [base] 为已有紧迫任务时也参与比较：例如 `crunchInterval` 因买不起而反复 noop 时，
+     * 更饥饿的 `infinityUpgrades`（买 IP 倍率 → 让 interval 买得起）应该先拿到名额。
+     */
+    private fun starvationRescue(base: String?): String? {
+        if (!OrekiAutomationScheduler.isEnabled()) return base
+        val now = android.os.SystemClock.elapsedRealtime()
+        for (taskId in STARVATION_RESCUE_TASKS) {
+            if (taskId == base) return base
+            val age = OrekiAutomationScheduler.sinceLastActMs(taskId)
+            val starved = age == -1L || age > ECONOMIC_STARVATION_MS
+            if (!starved) continue
+            // 刚被抢救过（但没产出动作）的任务让位给下一个，避免卡在同一个 noop 任务上。
+            val last = lastRescueAt[taskId]
+            if (last != null && now - last < RESCUE_COOLDOWN_MS) continue
+            lastRescueAt[taskId] = now
+            return taskId
+        }
+        return base
     }
 
     /**
@@ -385,8 +448,13 @@ object OrekiStageAuto {
         if (!OrekiAutomationScheduler.isUrgent(taskId)) return false
         if (!OrekiAutomationScheduler.allow(taskId)) return false
         val acted = try {
+            // [R96 第三轮] 必须按任务 id 分发：旧实现 `else -> tryBuyId1()` 让
+            // 「抢救到的 infinityUpgrades」实际执行 idBuy（pre-break 恒 false），
+            // 于是 IP 倍率永远买不到、坍缩间隔升级永远买不起（实测 39 次抢到名额却零执行）。
             when (taskId) {
                 "crunchInterval" -> upgradeCrunchInterval()
+                "infinityUpgrades" -> buyInfinityUpgrades()
+                "breakShop" -> GameApi.breakShopTick() != 0
                 else -> tryBuyId1()
             }
         } catch (_: Throwable) {

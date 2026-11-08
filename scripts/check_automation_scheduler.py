@@ -310,6 +310,29 @@ check("全部维度解锁后按收益结算（一次坍缩至少涨 10 倍 IP）
       'Decision(true, "ip-jump")' in _crunch_kt and "gainVersusIp()" in _crunch_kt)
 check("收益结算优先于等 ID 峰值（否则 IP 增长被 1.7 小时峰值窗口掐住）",
       _crunch_kt.index('Decision(true, "ip-jump")') < _crunch_kt.index('waitWithin("id-peak-wait"'))
+
+# ---------------------------------------------------------------- 24c. R96 第三轮：经济任务防饥饿
+# 实测：bulk 每拍成功 + sacrifice 频繁成功 ⇒ 全局节拍被吃满 ⇒ infinityUpgrades 连续 39 次
+# deny frame-held、一次没执行 ⇒ ipMult 恒 0、坍缩每次 1 IP、interval 升级买不起 ⇒ Break 卡死。
+check("经济任务防饥饿阈值存在", "ECONOMIC_STARVATION_MS" in stage)
+check("resolveUrgentTask 末尾做饥饿抢救", "starvationRescue(base)" in stage)
+check("抢救名单以 infinityUpgrades 为第一优先",
+      stage.index('"infinityUpgrades", "crunchInterval"') > 0)
+check("抢救依据 sinceLastActMs（不是猜测业务）",
+      "OrekiAutomationScheduler.sinceLastActMs(taskId)" in stage)
+_rescue = re.search(r"private fun starvationRescue\(base: String\?\): String\? \{.*?\n    \}", stage, re.S)
+check("Break 兜底抢在购买动作之前（否则恒被 frame-held 饿死、首次 Break 永不触发）",
+      stage.index('allow("breakUpgrades")') < stage.index('runScheduled("sacrifice")'))
+check("紧迫任务按 id 分发（infinityUpgrades 不得落到 idBuy）",
+      '"infinityUpgrades" -> buyInfinityUpgrades()' in stage
+      and '"breakShop" -> GameApi.breakShopTick() != 0' in stage)
+check("抢救有冷却：避免卡在同一个 noop 任务上（idBuy 被饿死）",
+      "RESCUE_COOLDOWN_MS" in stage and "lastRescueAt[taskId] = now" in stage)
+check("抢救只改先后、不执行动作、不写调度账",
+      _rescue is not None
+      and "return taskId" in _rescue.group(0)
+      and "noteActed(" not in _rescue.group(0)
+      and "noteNoop(" not in _rescue.group(0))
 check("收益判据用 log10 比较，不构造超大 BigDouble",
       "log10BigDouble(GameApi.gainedInfinityPoints())" in _crunch_kt)
 check("等待窗口用真实墙钟计时并在上限放行",
