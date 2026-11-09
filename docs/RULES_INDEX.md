@@ -25,6 +25,8 @@
 | §61、§77.1–6、§79.1–7 | 合并至 AGENT_WORKFLOW，不再分立多个权威 |
 | §76 | 长期条款按职责分流；规则初始化限制仅适用于原任务 |
 | §79.8 | R91 临时分工只留历史，无未来效力 |
+| R97 | 子 Agent 大规模生产开发、明确所有权、动态并行角色与持续接力统一见 AGENT_WORKFLOW；候选构建次数限制废止，正式稳定版资源与门禁仍见 RELEASE |
+| R97 | 子 Agent 大规模生产开发、明确所有权、动态并行角色与持续接力统一见 AGENT_WORKFLOW；候选构建次数限制废止，正式稳定版资源与门禁仍见 RELEASE |
 | §77.15 | WinGet 顺序保留在 TOOLCHAIN |
 | §78 | GOVERNANCE |
 | Android/Web 原入口 | [原文归档](rules/archive/PLATFORM_ORIGINAL.md) |
