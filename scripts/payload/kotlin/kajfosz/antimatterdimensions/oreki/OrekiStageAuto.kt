@@ -242,13 +242,6 @@ object OrekiStageAuto {
             // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
             GameApi.settleTimeTheoremReward()
 
-            // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
-            // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
-            // ⇒ 膨胀永不解锁。放在这里的原因：
-            //   · 必须在 beginFrame() 之后（走统一节拍，allow→执行→记账）；
-            //   · 必须在 settleTimeTheoremReward() 之后（先结算 TT 奖励，再花 TT 买研究）；
-            //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
-            //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务。
             OrekiPlayerIntent.refresh()
             applyCrunchPolicy()
             crunchProbe()
@@ -275,59 +268,60 @@ object OrekiStageAuto {
             // 「首个时间维度 bought>0」，`eternityTick()`（原版 Eternity.tick()）
             // 更是完全无阶段判据 ⇒ 首次无限后立刻就能被驱动。
             //
-            // 这里用**原版真实 Break 状态**做闸门（GameApi.isBroken()，与
-            // detectBreakLoss() 同一来源），不整体禁用任何函数：Break 完成后原路径照常，
-            // 首次永恒不会被反过来阻断。
-            if (!GameApi.isBroken()) {
-                return
-            }
-
-            // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
-            // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
-            // ⇒ 膨胀永不解锁。放在这里的原因：
-            //   · 必须在 beginFrame() 之后（走统一节拍，allow→执行→记账）；
-            //   · 必须在 settleTimeTheoremReward() 之后（先结算 TT 奖励，再花 TT 买研究）；
-            //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
-            //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务；
-            //   · 必须在 Break 门禁之后（EC 只可能在永恒之后存在，提前触碰即越阶段）。
-            runScheduled("ec") { OrekiEcAutomation.step() }
-
+            // 门禁**只包住永恒及以上的动作**（EC / 永恒升级 / Eternity.tick /
+            // 现实 / 符文 / 特蕾莎）。Break 兜底与无限层购买必须留在门禁之外：
+            // 它们正是「完成 Break」的唯一自动路径，若一并禁掉，首次无限后将
+            // 永远 brake=false、infinityUpgradeBits 恒 0 —— 实测候选 cf20aacd
+            // 已复现该死锁（AVD 新档：首次无限后 IP 26 不消费、brake 恒 false）。
             if (!GameApi.isDoomed()) {
-                // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
-                // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
-                runScheduled("eternity") { buyEternityUpgrades() }
-                // R91：永恒自动化（时间定理 / 时间维度 / 研究）不在 runScheduled 闸门内，
-                // 但它同样属于 Oreki 自动接管。开关关闭后必须立即停手，
-                // 否则「关闭后仍自动买永恒升级」会违反用户令。手动操作不受影响。
-                if (OrekiAutomationScheduler.isEnabled()) {
-                    GameApi.eternityTick()
-                }
+                if (GameApi.isBroken()) {
+                    // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
+                    // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
+                    // ⇒ 膨胀永不解锁。放在这里的原因：
+                    //   · 必须在 beginFrame() 之后（走统一节拍，allow→执行→记账）；
+                    //   · 必须在 settleTimeTheoremReward() 之后（先结算 TT 奖励，再花 TT 买研究）；
+                    //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
+                    //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务；
+                    //   · 必须在 Break 门禁之后（EC 只可能在永恒之后存在，提前触碰即越阶段）。
+                    runScheduled("ec") { OrekiEcAutomation.step() }
 
-                // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
-                if (GameApi.strategyDrives("reality")) {
-                    if (OrekiAutomationScheduler.allow("reality")) {
-                        if (GameApi.realityTick()) {
-                            OrekiAutomationScheduler.noteActed("reality")
-                        } else {
-                            OrekiAutomationScheduler.noteNoop("reality")
+                    // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
+                    // 首个时间维度尚未购买时，适配层会拒绝动作，避免抢走启动资金。
+                    runScheduled("eternity") { buyEternityUpgrades() }
+                    // R91：永恒自动化（时间定理 / 时间维度 / 研究）不在 runScheduled 闸门内，
+                    // 但它同样属于 Oreki 自动接管。开关关闭后必须立即停手，
+                    // 否则「关闭后仍自动买永恒升级」会违反用户令。手动操作不受影响。
+                    if (OrekiAutomationScheduler.isEnabled()) {
+                        GameApi.eternityTick()
+                    }
+
+                    // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
+                    if (GameApi.strategyDrives("reality")) {
+                        if (OrekiAutomationScheduler.allow("reality")) {
+                            if (GameApi.realityTick()) {
+                                OrekiAutomationScheduler.noteActed("reality")
+                            } else {
+                                OrekiAutomationScheduler.noteNoop("reality")
+                            }
                         }
                     }
-                }
 
-                // 符文自动装备：只填空槽、自身收敛，不受节拍约束；
-                // R91：但仍受总开关约束 —— 关闭后不得继续自动装备。
-                if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph")) {
-                    GameApi.glyphTick()
-                }
+                    // 符文自动装备：只填空槽、自身收敛，不受节拍约束；
+                    // R91：但仍受总开关约束 —— 关闭后不得继续自动装备。
+                    if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph")) {
+                        GameApi.glyphTick()
+                    }
 
-                // 特蕾莎浇注：连续时间行为（原版主循环），不占策略节拍；
-                // R91：同样纳入总开关，关闭后立即停止自动浇注。
-                if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("teresa")) {
-                    GameApi.teresaTick()
+                    // 特蕾莎浇注：连续时间行为（原版主循环），不占策略节拍；
+                    // R91：同样纳入总开关 —— 关闭后立即停止自动浇注。
+                    if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("teresa")) {
+                        GameApi.teresaTick()
+                    }
                 }
 
                 // IP 倍率自动器开关：只翻开关（幂等、不消耗资源），不属于
                 // 「自动状态修改动作」，必须每帧跑 —— 否则玩家手动关掉后无法恢复接管。
+                // [R97 P0] 这是无限层（非永恒层）自动器，Break 前必须继续托管。
                 enableIpMultAutobuyer()
 
                 // ---- Break 兜底 + 自愈（R94；R96 第三轮提前到购买动作之前）----
