@@ -162,6 +162,13 @@ object OrekiEcAutomation {
             note("state-unreadable")
             return false
         }
+        // [R97 P0 阶段保护] EC 只可能在 Break Infinity 之后存在。
+        // 手机包真机出现过「首次无限、Break 未完成」就被推进后期内容的情况；
+        // 这里在业务入口再加一道真实前置（纵深防御），不依赖调用方是否守规矩。
+        if (!GameApi.isBroken()) {
+            note("stage=pre-break unlocked=" + unlocked)
+            return false
+        }
         // 任何挑战正在进行就不插手（结算由 OrekiInstantChallenge 负责）。
         if (GameApi.inAnyChallenge()) {
             note("in-challenge unlocked=" + unlocked)

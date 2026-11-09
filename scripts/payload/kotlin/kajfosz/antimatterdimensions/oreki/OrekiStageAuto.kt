@@ -249,8 +249,6 @@ object OrekiStageAuto {
             //   · 必须在 settleTimeTheoremReward() 之后（先结算 TT 奖励，再花 TT 买研究）；
             //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
             //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务。
-            runScheduled("ec") { OrekiEcAutomation.step() }
-
             OrekiPlayerIntent.refresh()
             applyCrunchPolicy()
             crunchProbe()
@@ -267,6 +265,32 @@ object OrekiStageAuto {
 
             // 已过首次无限：清掉开局闩锁，玩家重置存档后还能再应用一次。
             earlyAutomationApplied = false
+
+            // [R97 P0 阶段越界] 永恒相关自动化必须等 Break Infinity **真正完成**。
+            //
+            // 真机证据（手机包 2a35c13 / SHA 150c50b9…，首次无限 02:01）：
+            // Break 未完成时就出现永恒相关选项、部分时间研究被自动点亮，随后卡死。
+            // 根因层：这一整块此前只受 hasInfinity() 与 isDoomed() 约束，
+            // `buyEternityUpgrades()` 的闸门 canAutomateEternityUpgrades() 只判
+            // 「首个时间维度 bought>0」，`eternityTick()`（原版 Eternity.tick()）
+            // 更是完全无阶段判据 ⇒ 首次无限后立刻就能被驱动。
+            //
+            // 这里用**原版真实 Break 状态**做闸门（GameApi.isBroken()，与
+            // detectBreakLoss() 同一来源），不整体禁用任何函数：Break 完成后原路径照常，
+            // 首次永恒不会被反过来阻断。
+            if (!GameApi.isBroken()) {
+                return
+            }
+
+            // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
+            // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
+            // ⇒ 膨胀永不解锁。放在这里的原因：
+            //   · 必须在 beginFrame() 之后（走统一节拍，allow→执行→记账）；
+            //   · 必须在 settleTimeTheoremReward() 之后（先结算 TT 奖励，再花 TT 买研究）；
+            //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
+            //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务；
+            //   · 必须在 Break 门禁之后（EC 只可能在永恒之后存在，提前触碰即越阶段）。
+            runScheduled("ec") { OrekiEcAutomation.step() }
 
             if (!GameApi.isDoomed()) {
                 // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
