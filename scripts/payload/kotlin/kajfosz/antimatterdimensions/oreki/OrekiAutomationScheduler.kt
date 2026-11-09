@@ -137,6 +137,13 @@ object OrekiAutomationScheduler {
     @Volatile
     private var frameActed: Boolean = false
 
+    /** 本帧已经真正执行过动作的 taskId（用于「先维度后献祭」这类顺序依赖判断）。 */
+    private var frameActedTask: String? = null
+
+    /** 本帧某个任务是否已经真的动过游戏状态。 */
+    @JvmStatic
+    fun actedThisFrame(taskId: String): Boolean = frameActedTask == taskId
+
     /** 本帧开始时刻。只用于"集成方漏调 beginFrame"的死锁看门狗，不参与节拍判定。 */
     @Volatile
     private var frameAt: Long = 0L
@@ -314,6 +321,7 @@ object OrekiAutomationScheduler {
     @JvmStatic
     fun beginFrame() {
         frameActed = false
+        frameActedTask = null
         frameAt = SystemClock.elapsedRealtime()
     }
 
@@ -493,6 +501,7 @@ object OrekiAutomationScheduler {
         // [R77] 任何真动作都推进全局节拍并封本帧 —— 不再有连续型豁免。
         lastBeatAt = now
         frameActed = true
+        frameActedTask = taskId
     }
 
     /**

@@ -319,6 +319,17 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
+# ---------------------------------------------------------------- 24g. R96 第十五轮：先维度后献祭
+# 实测：顺序反了以后 sacrifice 每 10 秒独占名额，bulk 被 deny frame-held 31 次，
+# 维度零增长 ⇒ maxAM 卡 1e10754、29 分钟到不了首次永恒。
+check("调度顺序：bulk 必须先于 sacrifice",
+      stage.index('runScheduled("bulk")') < stage.index('runScheduled("sacrifice")'))
+check("献祭不得抢占维度升级（本帧 bulk 动过就放弃）",
+      'OrekiAutomationScheduler.actedThisFrame("bulk")' in stage)
+check("调度器提供 actedThisFrame 且每帧重置",
+      "fun actedThisFrame(taskId: String)" in sched
+      and "frameActedTask = null" in sched and "frameActedTask = taskId" in sched)
+
 # ---------------------------------------------------------------- 24f. R96 第十四轮：TT 购买收益 ×500
 # 用户 2026-11-09 正式裁决的 MOD 平衡参数；必须保留原版成本曲线与真实扣费。
 _api = read(KT_DIR / "GameApi.kt")

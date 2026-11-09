@@ -332,8 +332,15 @@ object OrekiStageAuto {
                     urgentHandled = runUrgentTask(urgentTask)
                 }
                 if (!urgentHandled) {
-                    runScheduled("sacrifice") { autoSacrifice() }
+                    // [R96 第十五轮] 先买维度、后献祭。
+                    //
+                    // 实测缺陷（干净新档 t0 10:34:04）：顺序反了以后，`sacrifice` 一旦连续成功
+                    // 就每 10 秒吃掉本帧唯一动作名额，`bulk` 被 `deny frame-held` 31 次，
+                    // 维度自始至终没升过级 ⇒ maxAM 卡在 1e10754 不涨、29 分钟到不了首次永恒。
+                    // 原版里献祭只放大已有维度产出，**先有维度才谈得上献祭**；
+                    // 反过来则退化成「反复献祭空维度」。因此 bulk 必须先跑。
                     runScheduled("bulk") { upgradeBulkAll() }
+                    runScheduled("sacrifice") { autoSacrifice() }
                     runScheduled("infinityUpgrades") { buyInfinityUpgrades() }
                     runScheduled("crunchInterval") { upgradeCrunchInterval() }
                 }
@@ -623,7 +630,12 @@ object OrekiStageAuto {
      */
     @JvmStatic
     fun autoSacrifice(): Boolean = try {
-        if (!GameApi.canSacrifice()) {
+        // [R96 第十五轮] 献祭不得抢占维度升级：本帧若 bulk 已经动过，直接放弃本拍。
+        // 否则会出现「sacrifice 连续成功 → bulk 永远 deny frame-held → 维度零增长」的死循环
+        // （实测 31 act sacrifice / 31 deny bulk，29 分钟 maxAM 不涨）。
+        if (OrekiAutomationScheduler.actedThisFrame("bulk")) {
+            false
+        } else if (!GameApi.canSacrifice()) {
             false
         } else {
             val beforeBoost = GameApi.nextBoost()
