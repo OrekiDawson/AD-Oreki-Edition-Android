@@ -514,7 +514,11 @@
     #     且永恒里程碑（2 次 keepAutobuyers、4 次 keepInfinityUpgrades）靠次数推进，
     #     ×1 能更快拿到 ⇒ 选择 ×1，与 Web 现有实现完全一致。
     # 只影响结算时机，不改任何收益公式；EP 收益仍由原版 gainedEP 计算。
-    const/4 v2, 0x1
+    #
+    # [R96 第十六轮·§67] 倍率判定已迁到 Kotlin（OrekiEternityRules），
+    # 这里只做转发：Smali 不再承载 MOD 业务数值。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternityRules;->eternitySettlementMultiplier()I
+    move-result v2
 
     invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->multiply(I)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1

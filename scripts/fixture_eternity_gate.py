@@ -70,11 +70,14 @@ def main() -> int:
     # [R96 第五轮] 门槛乘数必须是 ×1（EP 翻倍即结算），且不能再回到 ×10。
     # 依据：平台期 EP 卡 2.16、maxIP 1e593，×10 门槛要求 maxIP 1e804，EP 永不增长，
     # 而时间维度/永恒升级全部用 EP 购买（TD1=1、TD2=5、首档永恒升级 5）⇒ 乘数停滞。
-    m_mult = re.search(r"const/(?:4|16) v2, (0x[0-9a-f]+)\s*\n\s*\n\s*invoke-virtual \{v1, v2\}, Lkajfosz/antimatterdimensions/BigDouble;->multiply\(I\)", body)
+    m_mult = re.search(r"invoke-static \{\}, Lkajfosz/antimatterdimensions/oreki/OrekiEternityRules;->eternitySettlementMultiplier\(\)I\s*\n\s*move-result v2\s*\n\s*\n\s*invoke-virtual \{v1, v2\}, Lkajfosz/antimatterdimensions/BigDouble;->multiply\(I\)", body)
     check("EP 门槛乘数提取成功", m_mult is not None)
     if m_mult is not None:
-        check("EP 门槛乘数 = ×1（R96 第十三轮双端统一）", m_mult.group(1) == "0x1", m_mult.group(1))
-        check("EP 门槛乘数不得回到 ×10（会把永恒次数/里程碑卡死）", m_mult.group(1) != "0xa", m_mult.group(1))
+        check("EP 门槛乘数判定在 Kotlin（OrekiEternityRules 转发）", True, "Kotlin-only")
+        rules = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiEternityRules.kt").read_text(encoding="utf-8")
+        check("Kotlin 倍率 = 1（双端统一）", "ETERNITY_SETTLEMENT_MULTIPLIER: Int = 1" in rules, "×1")
+        check("Kotlin 倍率不得为 10（会把永恒次数/里程碑卡死）", "Int = 10" not in rules, "×1")
+        check("Smali 不再出现硬编码倍率 0xa", "const/4 v2, 0xa" not in body, "无硬编码")
 
     # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
     # 历史沿革（两次纠偏，勿回退）：
