@@ -18,7 +18,6 @@ import re
 import json
 import shutil
 import struct
-import time
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
