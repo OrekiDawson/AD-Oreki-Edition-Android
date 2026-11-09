@@ -162,6 +162,21 @@ def btDir = {
     for (d in dirs) { if (new File(d, 'zipalign').exists() || new File(d, 'zipalign.exe').exists()) return d }
     return dirs ? dirs[0] : bt
 }()
+// apktool 3.x 从 PATH 查找 aapt2。Linux 优先使用 34.0.0，避免新版 SDK
+// 对反编译树中的历史资源名执行更严格的校验；Windows 沿用仓库工具。
+def aapt2Dir = {
+    if (isWindows) return btDir
+    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
+    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
+    def root = new File(sdkHome, 'build-tools')
+    if (!root.isDirectory()) return btDir
+    def pinned = new File(root, '34.0.0')
+    if (new File(pinned, 'aapt2').isFile()) return pinned
+    def dirs = root.listFiles()?.findAll { it.isDirectory() }
+        ?.findAll { new File(it, 'aapt2').isFile() }
+        ?.sort { a, b -> b.name <=> a.name } ?: []
+    return dirs ? dirs[0] : btDir
+}()
 def kotlinCompiler = file("tools/kotlinc/bin/${isWindows ? 'kotlinc.bat' : 'kotlinc'}")
 def d8Exe = isWindows ? file('tools/bt/android-14/d8.bat') : new File(btDir, 'd8')
 def kotlinStdlib = file('tools/kotlinc/lib/kotlin-stdlib.jar')
@@ -493,10 +508,12 @@ tasks.register('assembleRelease', Exec) {
     environment 'OREKI_UNSIGNED_OUT', new File(stageDir, 'unsigned.apk').absolutePath
     // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+    def buildPath = aapt2Dir.absolutePath + File.pathSeparator + System.getenv('PATH')
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
-        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+        buildPath = jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + buildPath
     }
+    environment 'PATH', buildPath
     environment 'PYTHONIOENCODING', 'utf-8'
     // [R76] 基线唯一入口：把 gradle 解析出的绝对路径喂给 build_mod.py，
     // 避免「gradle 校验 A 基线、build_mod 却打 B 基线」的分叉。

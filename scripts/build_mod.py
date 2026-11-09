@@ -3439,9 +3439,8 @@ def build_package(java):
     # [R96] apktool 3.x 不再接受 --aapt2，改为从 PATH 找 aapt2。SDK 37 的 aapt2 对
     # 反编译树里 `$avd_hide_password__0.xml` 这类条目直接报 invalid entry name；
     # 34.0.0 的 aapt2 能正常汇编（与 Windows 端随包 aapt2 行为一致）。优先 34。
-    _aapt2_dir = _aapt2_preferred_dir()
-    if _aapt2_dir is not None:
-        apktool_env["PATH"] = f"{_aapt2_dir}{os.pathsep}{apktool_env.get('PATH', '')}"
+    # 正式 Gradle 入口已将兼容的 aapt2 目录放入 PATH；Python 只消费该环境，
+    # 不再重复解析 SDK 或维护另一套工具选择逻辑。
     r = subprocess.run([java, f"-Djava.io.tmpdir={apktool_tmp}", "-Xmx6g", "-jar", str(TOOLS / "apktool.jar"), "b", str(MOD), "-o", str(unsigned)],
                        capture_output=True, text=True, encoding="utf-8", errors="replace",
                        env=apktool_env)
@@ -7118,24 +7117,6 @@ def _resolve_java() -> str:
         return found
     raise SystemExit("[R96] 找不到 java（JAVA_HOME 或 PATH）")
 
-
-def _aapt2_preferred_dir():
-    """[R96] 返回含兼容 aapt2 的目录：优先 build-tools/34.0.0，其次任何可用版本。"""
-    if _WIN:
-        return None
-    roots = [os.environ.get("ANDROID_SDK_ROOT", ""), os.environ.get("ANDROID_HOME", ""),
-             str(Path.home() / "Android" / "Sdk")]
-    for root in [r for r in roots if r]:
-        bt = Path(root) / "build-tools"
-        if not bt.is_dir():
-            continue
-        pinned = bt / "34.0.0"
-        if (pinned / "aapt2").exists():
-            return pinned
-        for d in sorted((x for x in bt.iterdir() if x.is_dir()), key=lambda x: x.name, reverse=True):
-            if (d / "aapt2").exists():
-                return d
-    return None
 
 def main():
     java = _resolve_java()
