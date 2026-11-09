@@ -9330,3 +9330,35 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 3. 把设备里遗留的 5 秒恢复为默认 10 秒（或明确记录为玩家值）。
 4. Web 端等价实现/豁免说明；README 与教程附录 F 同步。
 
+## R96 第二十二轮补充（13:11-13:20）：交付与验收结果（如实分级）
+
+### 已交付（四渠道，APK 10523176）
+- 本地：`/home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk`（原子覆盖）
+- GitHub Release：`android-update-3.21.0-10523176`
+- OneDrive：rc=0
+- Google Drive：rc=0，MD5 `9b2910b347335873df55978c4f9a2da9`（与本地一致）
+- SHA-256 `10523176b37724b08f6474d4cebb60b629e4d74d61a6be8a22e9f93154d5961f`，82,560,497 B
+- 门禁：verify_release 15/15、verify_patch_contract 17/17、check_publish_rules 全过、契约 155/155
+- 距上次交付（12:26 `ab12e756`）约 45 分钟，满足双小时期限
+
+### 验收分级
+| 项 | 结果 | 证据 |
+|---|---|---|
+| MOD 全局间隔默认 10 秒 | **PASS** | 删除存储键后 `OREKI_SCHED: init … 间隔 10 秒` |
+| 玩家设 1 秒持续生效 | **PASS** | 写 `intervalSec=1` → 重启 → `间隔 1 秒` |
+| 玩家设 60 秒持续生效 | **PASS** | 写 `intervalSec=60` → 重启 → `间隔 60 秒` |
+| 原版自动器购买不受 MOD 节拍限速 | **PASS** | MOD 节拍 1 秒时 `OREKI_AU4C: policy -> pause (eternity-grow) interval=30.0` 照常输出 |
+| 全局调度器内无策略节拍代码 | **PASS** | logcat `strategy beat` 计数 = 0；契约 24j 断言 |
+| 玩家手改受管节拍后「下一次 tick 才恢复」 | **NOT RUN（受限）** | 见下 |
+| Android/Web 行为一致 | **FAIL（已知缺口）** | Web 无原版购买器配置优化系统 |
+
+### 关于「玩家手改受管节拍后下一 tick 恢复」为何未通过实测
+`OrekiPlayerIntent.crunchModeWritten` 是**进程内状态**，进程重启后为初值 `Int.MIN_VALUE`，
+`refreshCrunchMode()` 首行即 early-return（无可比基线）。因此：
+- 通过改存档 + 重启模拟玩家改动**无法触发**该判定；
+- 必须在**同一进程内**由玩家在 UI 上改坍缩模式才能触发。
+
+**结论**：机制代码在（`deferRestore`/`consumeRestoreDue`，契约已断言只登记一次/只恢复一次），
+但**端到端 UI 实测未完成**，不得记为通过。已列为下一轮首个待办。
+改进方向（不擅自改已交付包）：把基线在首次观察时采纳为当前值，或持久化基线，使跨进程可判定。
+
