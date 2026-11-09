@@ -1,6 +1,10 @@
 package kajfosz.antimatterdimensions.oreki
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -377,6 +381,383 @@ internal object GameApi {
         return orekiAutoClassCache
     }
 
+    /**
+     * 原版 GUI/计算缓存：`kajfosz.antimatterdimensions.cache.a.a()`。
+     *
+     * 3.21 基线中该静态方法会失效原版缓存 `x`/`y`；它是游戏自身主循环也会调用的
+     * 正式入口，不是通过字段名猜测实现。MOD 在自动购买、重置或策略动作后也必须
+     * 走同一入口，否则状态已经改变而界面仍可能显示上一帧缓存。
+     */
+    private var originalCacheClassCache: Class<*>? = null
+    private var originalCacheClsResolved: Boolean = false
+    private fun originalCacheCls(): Class<*>? {
+        if (!originalCacheClsResolved) {
+            originalCacheClsResolved = true
+            originalCacheClassCache = cls("kajfosz.antimatterdimensions.cache.a")
+        }
+        return originalCacheClassCache
+    }
+
+    private var originalCacheInvalidateMethod: Method? = null
+    private var originalCacheInvalidateResolved: Boolean = false
+    private fun originalCacheInvalidate(): Method? {
+        if (!originalCacheInvalidateResolved) {
+            originalCacheInvalidateResolved = true
+            originalCacheInvalidateMethod = method(
+                originalCacheCls(),
+                "a",
+                0,
+                "cache.a()"
+            )
+        }
+        return originalCacheInvalidateMethod
+    }
+
+    // 3.21 MainActivity 保存的当前 Activity 弱引用；由 MainActivity 自身在 onCreate 时写入。
+    // 这是已核对的原版字段，不通过遍历 View 或猜测当前窗口，避免后台 tick 直接碰 UI。
+    private var mainActivityRefField: Field? = null
+    private var mainActivityRefResolved: Boolean = false
+    private fun mainActivityRef(): Any? {
+        if (!mainActivityRefResolved) {
+            mainActivityRefResolved = true
+            mainActivityRefField = staticField(
+                cls("kajfosz.antimatterdimensions.MainActivity"),
+                "wp",
+            )
+        }
+        return try {
+            val weak = mainActivityRefField?.get(null) ?: return null
+            weak.javaClass.getMethod("get").invoke(weak)
+        } catch (e: Throwable) {
+            miss("MainActivity.wp.get()", e)
+            null
+        }
+    }
+
+    private var autobuyerUiRefreshMethod: Method? = null
+    private var autobuyerUiRefreshResolved: Boolean = false
+    private fun autobuyerUiRefreshMethod(): Method? {
+        if (!autobuyerUiRefreshResolved) {
+            autobuyerUiRefreshResolved = true
+            // xi2.a(MainActivity) 是原版自动购买器总览刷新入口；其实现会先重建
+            // 原版 autobuyer 快照，再调用 AutobuyerGroupBoxView.a(...) 更新复选框。
+            autobuyerUiRefreshMethod = method(
+                cls("xi2"),
+                "a",
+                1,
+                "xi2.a(MainActivity)=refreshAutobuyers",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.MainActivity"),
+            )
+        }
+        return autobuyerUiRefreshMethod
+    }
+
+    private var statisticsUiRefreshMethod: Method? = null
+    private var statisticsUiRefreshResolved: Boolean = false
+    private fun statisticsUiRefreshMethod(): Method? {
+        if (!statisticsUiRefreshResolved) {
+            statisticsUiRefreshResolved = true
+            statisticsUiRefreshMethod = method(
+                cls("jl2"),
+                "b",
+                1,
+                "jl2.b(MainActivity)=refreshStatistics",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.MainActivity"),
+            )
+        }
+        return statisticsUiRefreshMethod
+    }
+
+    /**
+     * 3.21 原版阶段谓词 `kajfosz.antimatterdimensions.f82`。
+     *
+     * 静态取证（`work/base_decoded_321/smali/f82.smali`）：
+     *   · `j()Z` = `Player.x()`（eternities）`> 0` **或** `p()`
+     *   · `p()Z` = `Player.P()`（realities）`> 0`
+     *
+     * 原版用它控制顶部永恒点数（`MainActivity.t2` / `0x7f0a05c6`）、
+     * 永恒统计区块（`MainActivity.i6` / `0x7f0a05c8`）与现实统计区块
+     * （`MainActivity.o6` / `0x7f0a0e6a`）的可见性。
+     *
+     * 这里**只读**原版结论用于对照与留痕；真实门控由 [OrekiGuiStage] 用结算产物判定。
+     */
+    private var stagePredicateClassCache: Class<*>? = null
+    private var stagePredicateClassResolved: Boolean = false
+    private fun stagePredicateCls(): Class<*>? {
+        if (!stagePredicateClassResolved) {
+            stagePredicateClassResolved = true
+            stagePredicateClassCache = cls("kajfosz.antimatterdimensions.f82")
+        }
+        return stagePredicateClassCache
+    }
+
+    private var mOriginalEternityUnlocked: Method? = null
+    private var mOriginalEternityUnlockedResolved: Boolean = false
+    fun originalEternityUnlocked(): Boolean? {
+        if (!mOriginalEternityUnlockedResolved) {
+            mOriginalEternityUnlockedResolved = true
+            mOriginalEternityUnlocked = method(
+                stagePredicateCls(),
+                "j",
+                0,
+                "f82.j()=eternityUnlocked",
+            )
+        }
+        return call(mOriginalEternityUnlocked, null) as? Boolean
+    }
+
+    private var mOriginalRealityUnlocked: Method? = null
+    private var mOriginalRealityUnlockedResolved: Boolean = false
+    fun originalRealityUnlocked(): Boolean? {
+        if (!mOriginalRealityUnlockedResolved) {
+            mOriginalRealityUnlockedResolved = true
+            mOriginalRealityUnlocked = method(
+                stagePredicateCls(),
+                "p",
+                0,
+                "f82.p()=realityUnlocked",
+            )
+        }
+        return call(mOriginalRealityUnlocked, null) as? Boolean
+    }
+
+    private var autobuyerUiRefreshPosted: Boolean = false
+
+    /** 只有真实写入过自动购买器配置时才置位，避免每帧重绘设置页。 */
+    @Volatile
+    private var autobuyerUiDirty: Boolean = false
+
+    @JvmStatic
+    fun markAutobuyerUiDirty() {
+        autobuyerUiDirty = true
+    }
+
+    /** 阶段门控与刷新链路专用日志标签；与 ABI 缺失日志 `TAG` 分开，便于现场快速过滤。 */
+    private const val TAG_GUI = "OREKI_GUI"
+
+    private var statisticsEternityViewField: Field? = null
+    private var statisticsRealityViewField: Field? = null
+    private var statisticsTopEternityField: Field? = null
+    private var statisticsViewFieldsResolved: Boolean = false
+
+    /** 上一次已应用到界面的阶段；只有变化才值得写日志与做重刷新。 */
+    private var lastAppliedPhase: Int? = null
+
+    private fun resolveStatisticsViewFields(activity: Any) {
+        if (statisticsViewFieldsResolved) return
+        statisticsViewFieldsResolved = true
+        try {
+            val cls = activity.javaClass
+            // 3.21 原版字段（`work/base_decoded_321`）：
+            //   i6 = 0x7f0a05c8 eternityStatisticsLayout
+            //   o6 = 0x7f0a0e6a realityStatisticsLayout
+            //   t2 = 0x7f0a05c6 eternityPointsTextView（顶部资源栏）
+            statisticsEternityViewField = cls.getDeclaredField("i6").apply { isAccessible = true }
+            statisticsRealityViewField = cls.getDeclaredField("o6").apply { isAccessible = true }
+            statisticsTopEternityField = cls.getDeclaredField("t2").apply { isAccessible = true }
+        } catch (e: Throwable) {
+            miss("MainActivity statistics/topbar fields", e)
+        }
+    }
+
+    private fun findMainView(activity: Any, id: Int): View? {
+        return try {
+            activity.javaClass.getMethod("findViewById", Int::class.javaPrimitiveType)
+                .invoke(activity, id) as? View
+        } catch (e: Throwable) {
+            miss("MainActivity.findViewById($id)", e)
+            null
+        }
+    }
+
+    /**
+     * 把统一阶段结论落到原版界面上（顶部资源栏 + 统计页两个层级区块）。
+     *
+     * ## 只收紧、不放开
+     *
+     * 真实阶段已达成时**什么都不做**，由原版自己的 `f82.j()` / `f82.p()` 决定显示，
+     * 因此不会提前解锁、也不会覆盖原版在挑战/毁灭等子状态下的细分规则（§2.4）。
+     * 只有在"真实结算产物表明尚未到达"时才强制 `GONE`。
+     *
+     * ## 不引入额外定时器
+     *
+     * 本方法由真实事件调用：状态写入后的刷新链路，以及游戏自身主循环里的
+     * `refreshOriginalCaches()`。原版顶部栏与统计页每帧会按 `f82.j()` 重设可见性，
+     * 因此这里采用**幂等收敛**：只有当前可见性与目标不一致时才写一次，
+     * 不重绘、不重建视图、不新建 Handler。
+     *
+     * 3.21 原版锚点（`work/base_decoded_321`）：
+     *   · `eternityPointsTextView` = `0x7f0a05c6` → `MainActivity.t2`
+     *   · `eternityStatisticsLayout` = `0x7f0a05c8` → `MainActivity.i6`
+     *   · `realityStatisticsLayout` = `0x7f0a0e6a` → `MainActivity.o6`
+     *   · 原版门控：`Lf82;->j()Z`（永恒）、`Lf82;->p()Z`（现实）
+     */
+    private fun applyStageGate(activity: Any, stage: OrekiGuiStage.Snapshot) {
+        resolveStatisticsViewFields(activity)
+        var changed = 0
+
+        // 永恒统计区块：未真实完成永恒结算时隐藏。
+        if (!stage.eternityReached) {
+            changed += hideView(activity, 0x7f0a05c8, statisticsEternityViewField, "eternityStats")
+        }
+        // 现实统计区块：未真实完成现实结算时隐藏（永恒阶段也必须隐藏）。
+        if (!stage.realityReached) {
+            changed += hideView(activity, 0x7f0a0e6a, statisticsRealityViewField, "realityStats")
+        }
+        // 顶部永恒点数：未真实完成永恒结算时隐藏。
+        if (!stage.eternityReached) {
+            changed += hideView(activity, 0x7f0a05c6, statisticsTopEternityField, "topEternityPoints")
+        }
+        // 底部动作行的「永恒」按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
+        // （`res/layout/layout_top_buttons.xml`；字段 `MainActivity.w9:Landroid/widget/Button;`，
+        //  绑定点 `mainactivity/l0.smali:241`）。未真实完成永恒结算时不得出现。
+        if (!stage.eternityReached) {
+            changed += hideView(activity, 0x7f0a05c1, null, "eternityButton")
+        }
+
+        // 已到达对应阶段：把曾经压掉的高度还原，可见性继续由原版每帧判定。
+        if (stage.eternityReached) {
+            changed += restoreViewHeight(activity, 0x7f0a05c8, statisticsEternityViewField, "eternityStats")
+            changed += restoreViewHeight(activity, 0x7f0a05c6, statisticsTopEternityField, "topEternityPoints")
+            changed += restoreViewHeight(activity, 0x7f0a05c1, null, "eternityButton")
+        }
+        if (stage.realityReached) {
+            changed += restoreViewHeight(activity, 0x7f0a0e6a, statisticsRealityViewField, "realityStats")
+        }
+
+        if (changed > 0) {
+            Log.i(TAG_GUI, "GUI_REFRESH_APPLIED target=stageGate phase=" + stage.phaseLabel + " narrowed=" + changed)
+        }
+    }
+
+    /**
+     * 把指定 View 收敛成"不可见"，并且**压掉高度**。
+     *
+     * ## 为什么不能只写 visibility（R98 设备实测根因）
+     *
+     * 3.21 原版每帧都会重新设置这些 View 的可见性：
+     * `MainActivity.smali:34923` → `q51.E(t2, f82.j())`，
+     * 而 `f82.j()` 读的是可能被污染的 `Player.eternities`
+     * （R94/R98 实测：存档里 eternities=0，运行时原版判据却为真）。
+     *
+     * MOD 若只在"阶段变化"时把 View 置 `GONE`，同一帧稍后原版又会置回 `VISIBLE`，
+     * 于是屏幕上仍然看得到——这正是 R98 §1 点名的"原版缓存与 View 更新顺序错误"。
+     *
+     * 因此这里同时把 `layoutParams.height` 收成 0：原版再怎么写 visibility，
+     * 该 View 也占不到任何高度、不可能显示出来。到达对应阶段时由
+     * [restoreViewHeight] 恢复原状，交回原版自己决定可见性。
+     *
+     * 只改可见性与高度，**不改文字、不改游戏状态、不写存档**。
+     *
+     * @return 1 表示本次真的做了收敛，0 表示已经是收敛态或取不到 View。
+     */
+    private fun hideView(activity: Any, id: Int, field: Field?, what: String): Int {
+        // 优先走已解析的原版字段（每帧调用也只是 3 次实例字段读），
+        // findViewById 只在字段解析失败时兜底，避免每帧递归遍历视图树。
+        val view = (try {
+            field?.get(activity) as? View
+        } catch (e: Throwable) {
+            miss("$what field", e)
+            null
+        }) ?: findMainView(activity, id) ?: return 0
+        var changed = 0
+        if (view.visibility != View.GONE) {
+            view.visibility = View.GONE
+            changed = 1
+        }
+        val lp = view.layoutParams
+        if (lp != null && lp.height != 0) {
+            lp.height = 0
+            view.layoutParams = lp
+            changed = 1
+        }
+        return changed
+    }
+
+    /**
+     * 恢复被 [hideView] 压掉的高度（不改可见性，可见性交回原版每帧判定）。
+     *
+     * @return 1 表示真的恢复了，0 表示无需恢复或取不到 View。
+     */
+    private fun restoreViewHeight(activity: Any, id: Int, field: Field?, what: String): Int {
+        val view = (try {
+            field?.get(activity) as? View
+        } catch (e: Throwable) {
+            miss("$what field", e)
+            null
+        }) ?: findMainView(activity, id) ?: return 0
+        val lp = view.layoutParams ?: return 0
+        if (lp.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            view.layoutParams = lp
+            return 1
+        }
+        return 0
+    }
+
+    /**
+     * 在主线程应用阶段门控。
+     *
+     * 游戏主循环本身跑在 UI 线程，正常情况下直接执行；万一被其它线程调用，
+     * 本次直接放弃（下一帧仍会收敛），**不为此新建定时器或排队任务**。
+     */
+    private fun applyStageGateSafe(stage: OrekiGuiStage.Snapshot) {
+        val activity = mainActivityRef() ?: return
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            // 不在主线程：不触碰 View，交给下一帧（§4.2 所有视图更新必须在主线程）。
+            return
+        }
+        applyStageGate(activity, stage)
+    }
+
+    /**
+     * 请求一次"真实状态已变化"的 GUI 刷新。
+     *
+     * 触发条件（§4.2 只有真实变化才刷新）：
+     *   · [autobuyerUiDirty]：MOD 真实写入过原版自动购买器配置；
+     *   · [phaseChanged]：统一阶段判定发生跳变。
+     *
+     * 两者都不成立时立即返回，不做任何 View 操作。
+     * 同一时刻最多只有一个刷新在队列里，高频写入合并成一次执行。
+     * Activity 不可用时安全放弃并记录，不持有其引用。
+     */
+    private fun requestAutobuyerUiRefresh(stage: OrekiGuiStage.Snapshot, phaseChanged: Boolean) {
+        val dirty = autobuyerUiDirty
+        if (!dirty && !phaseChanged) return
+        if (autobuyerUiRefreshPosted) return
+        autobuyerUiRefreshPosted = true
+        Log.i(
+            TAG_GUI,
+            "GUI_REFRESH_POSTED target=autobuyers+statistics phase=" + stage.phaseLabel +
+                " phaseChanged=" + phaseChanged + " dirty=" + dirty,
+        )
+        try {
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    val activity = mainActivityRef()
+                    if (activity == null) {
+                        Log.w(TAG_GUI, "GUI_REFRESH_FAILED reason=activity-unavailable")
+                    } else {
+                        // 先让原版按自己的规则重算（自动购买器总览 + 统计页），
+                        // 再由阶段门控收紧不该出现的层级区块。
+                        call(autobuyerUiRefreshMethod(), null, activity)
+                        call(statisticsUiRefreshMethod(), null, activity)
+                        applyStageGate(activity, OrekiGuiStage.refresh())
+                        Log.i(TAG_GUI, "GUI_REFRESH_APPLIED target=autobuyers+statistics")
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG_GUI, "GUI_REFRESH_FAILED reason=" + e.javaClass.simpleName)
+                } finally {
+                    autobuyerUiDirty = false
+                    autobuyerUiRefreshPosted = false
+                }
+            }
+        } catch (e: Throwable) {
+            autobuyerUiRefreshPosted = false
+            Log.w(TAG_GUI, "GUI_REFRESH_FAILED reason=post-" + e.javaClass.simpleName)
+        }
+    }
+
     private fun cls(name: String): Class<*>? = try {
         // R85：构建时从同一份版本兼容配置生成，禁止运行时凭短名存在猜版本。
         Class.forName(OrekiBaselineBindings.className(name), false, GameApi::class.java.classLoader)
@@ -601,8 +982,29 @@ internal object GameApi {
      */
     fun eternityPointsValue(): Any? = readGameField(player(), "eternityPoints")
 
+    /**
+     * [R98] 已完成的永恒次数（`Player.eternities`，3.21 为 `BigDouble`）。
+     *
+     * **仅作诊断字段**：R94 设备实测全新存档该字段可读到 `1.1e1`（11），
+     * 而同一时刻 `eternityPoints`、`bigEternities`、`eternityUpgradeBits`
+     * 全部为零。因此它**不得单独作为阶段判据**（R98 §3.2），
+     * 只能与真实结算产物交叉核对，见 [OrekiGuiStage]。
+     */
+    fun eternitiesValue(): Any? = readGameField(player(), "eternities")
+
     /** [R94] `bigEternities`（可能为 Number，读不到返回 null）。 */
     fun bigEternitiesValue(): Any? = readGameField(player(), "bigEternities")
+
+    /**
+     * [R98] 已完成的现实次数（`Player.realities`，3.21 为 `BigDouble`）。
+     *
+     * 这是原版 `f82.p()` 的判据（`realities > 0`），也是现实层级的真实结算产物；
+     * 现实重置会把 `eternities` 清零，所以永恒阶段判定必须把本字段计入。
+     */
+    fun realitiesValue(): Any? = readGameField(player(), "realities")
+
+    /** [R98] `bigRealities`（可能为 Number，读不到返回 null）。 */
+    fun bigRealitiesValue(): Any? = readGameField(player(), "bigRealities")
 
     /**
      * [R94] 已购买的永恒升级位图（`Player.eternityUpgradeBits`，BitSet）。
@@ -823,6 +1225,7 @@ internal object GameApi {
     /** 打开 `player().auto.ipMult`。 */
     fun setIpMultEnabled(value: Boolean) {
         call(mAutoO(), auto(), value)
+        markAutobuyerUiDirty()
     }
 
     // ---------------------------------------------------------------- Player$Options / Records
@@ -840,6 +1243,7 @@ internal object GameApi {
     /** 写「自动购买器」总开关。 */
     fun setAutobuyersOn(value: Boolean) {
         call(mOptionsG0(), options(), value)
+        markAutobuyerUiDirty()
     }
 
     private var mRecordsJ: Method? = null
@@ -1022,7 +1426,10 @@ internal object GameApi {
     }
 
     fun crunchMode(s: Any?): Int = (call(mCrunchI(), s) as? Int) ?: -1
-    fun setCrunchMode(s: Any?, mode: Int) = call(mCrunchA(), s, mode)
+    fun setCrunchMode(s: Any?, mode: Int) {
+        call(mCrunchA(), s, mode)
+        markAutobuyerUiDirty()
+    }
     fun crunchXHighest(s: Any?): Any? = call(mCrunchL(), s)
     fun setCrunchXHighest(s: Any?, v: Any?) = call(mCrunchP(), s, v)
     /**
@@ -1033,7 +1440,10 @@ internal object GameApi {
      */
     fun crunchInterval(s: Any?): Double? = call(mCrunchJ(), s) as? Double
 
-    fun setCrunchInterval(s: Any?, v: Double) = call(mCrunchO(), s, v)
+    fun setCrunchInterval(s: Any?, v: Double) {
+        call(mCrunchO(), s, v)
+        markAutobuyerUiDirty()
+    }
     fun crunchCanTick(s: Any?): Boolean = (call(mCrunchC(), s) as? Boolean) ?: false
     fun crunchUnlocked(s: Any?): Boolean = (call(mCrunchG(), s) as? Boolean) ?: false
     fun crunchMaxedInterval(s: Any?): Boolean = (call(mCrunchV(), s) as? Boolean) ?: false
@@ -1055,6 +1465,7 @@ internal object GameApi {
     /** 打开/关闭某个自动器的 isActive。 */
     fun setAutobuyerActive(a: Any?, active: Boolean) {
         call(mBaseI(), a, active)
+        markAutobuyerUiDirty()
     }
 
     private var mBaseB: Method? = null
@@ -1969,6 +2380,31 @@ internal object GameApi {
     /** 原版 Break 按钮的第三步：广播 `BREAK_INFINITY` 事件（只读语义，不改状态）。 */
     fun notifyBreakInfinity() {
         call(mBreakEventDispatch(), null, "BREAK_INFINITY")
+    }
+
+    /**
+     * 让原版 GUI/计算层重新读取 MOD 刚刚改变的状态。
+     *
+     * ## 链路（R98 §4.1）
+     *
+     * 状态实际变化
+     *   → 失效原版缓存 `cache.a.a()`（原版主循环同款入口）
+     *   → [OrekiGuiStage.refresh] 统一阶段判定
+     *   → [applyStageGateSafe] 收敛"尚未到达的层级区块"（便宜、幂等）
+     *   → [requestAutobuyerUiRefresh] 仅在真实变化时做一次原版重绘
+     *
+     * 本方法只读状态、只做可见性收敛，不写存档、不伪造进度。
+     */
+    fun refreshOriginalCaches() {
+        call(originalCacheInvalidate(), null)
+        val stage = OrekiGuiStage.refresh()
+        val phaseChanged = stage.phase != lastAppliedPhase
+        if (phaseChanged) {
+            lastAppliedPhase = stage.phase
+            Log.i(TAG_GUI, "STATE_CHANGED source=refreshOriginalCaches phase=" + stage.phaseLabel)
+        }
+        applyStageGateSafe(stage)
+        requestAutobuyerUiRefresh(stage, phaseChanged)
     }
 
     // ---------------------------------------------------------------- 尚未迁移的 Oreki 模块
