@@ -50,30 +50,83 @@ def runExec = { Closure cfg ->
 // ---------------------------------------------------------------- 工具链发现
 // 不写死个人绝对路径：JDK 在仓库内 tools/jdk/<任意版本>/，按目录扫描取最新。
 //
-// [R77] JDK 兜底规则（用户 2026-11-04 令）的唯一实现是 scripts/jdk_env.py。
-// 优先级：JAVA_HOME（进程级 → 系统级）→ PATH → tools/jdk/* → Scoop。
-// Gradle 只调用它并复用同一个结果，保证 Gradle / build_mod / build_kotlin / D8
-// 不会各选一个 JDK。
+// [R77] JDK 解析：Linux 由 Gradle 原生只读解析，Windows 暂保留 jdk_env.py。
+// 这是第一批渐进迁移：不自动安装、不修改系统环境、不改变子进程继承的 JAVA_HOME。
+// Linux 优先级保持为 JAVA_HOME → PATH → tools/jdk/*；Windows 继续复用 Python
+// 的系统级 JAVA_HOME / Scoop 兼容逻辑，避免本轮扩大平台风险。
 // [R96] Linux（Kubuntu 26.04）为主环境：解释器名与 adb 可执行文件按平台解析。
 def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
 def pythonExe = System.getenv('PYTHON') ?: (isWindows ? 'python' : 'python3')
 
+def validJdk = { File home ->
+    if (home == null) return false
+    def javaName = isWindows ? 'java.exe' : 'java'
+    def javacName = isWindows ? 'javac.exe' : 'javac'
+    return new File(home, "bin/${javaName}").isFile() &&
+        new File(home, "bin/${javacName}").isFile()
+}
+
+def stableJdk = { File home ->
+    if (!validJdk(home)) return false
+    def release = new File(home, 'release')
+    if (!release.isFile()) return true
+    def text = release.getText('UTF-8')
+    def prerelease = java.util.regex.Pattern.compile(
+        '\\b(alpha|beta|rc|ea|nightly|early-access|preview|snapshot)\\b',
+        java.util.regex.Pattern.CASE_INSENSITIVE
+    )
+    return !prerelease.matcher(text).find()
+}
+
+def jdkFromPath = {
+    def pathValue = System.getenv('PATH') ?: ''
+    def javaName = isWindows ? 'java.exe' : 'java'
+    for (String entry : pathValue.split(java.util.regex.Pattern.quote(File.pathSeparator))) {
+        if (!entry?.trim()) continue
+        def candidate = new File(entry, javaName)
+        if (!candidate.isFile()) continue
+        try {
+            def real = candidate.canonicalFile
+            def home = real.parentFile?.parentFile
+            if (stableJdk(home)) return home
+        } catch (Throwable ignored) {
+        }
+    }
+    return null
+}()
+
 def jdkResolved = {
-    // 只解析、不自动安装（Gradle 配置阶段不该装东西）
-    def out = new ByteArrayOutputStream()
-    try {
-        def r = execOps.exec {
-            commandLine pythonExe, 'scripts/jdk_env.py', '--json', '--no-install'
-            standardOutput = out
-            errorOutput = out
-            ignoreExitValue = true
+    if (isWindows) {
+        // Windows 还需要读取系统级 JAVA_HOME 与 Scoop 目录，交给原有解析器。
+        def out = new ByteArrayOutputStream()
+        try {
+            def r = execOps.exec {
+                commandLine pythonExe, 'scripts/jdk_env.py', '--json', '--no-install'
+                standardOutput = out
+                errorOutput = out
+                ignoreExitValue = true
+            }
+            if (r.exitValue == 0) {
+                def txt = out.toString('UTF-8')
+                def m = txt =~ /"home"\s*:\s*"([^"]+)"/
+                if (m.find()) return new File(m.group(1))
+            }
+        } catch (Throwable ignored) {
         }
-        if (r.exitValue == 0) {
-            def txt = out.toString('UTF-8')
-            def m = txt =~ /"home"\s*:\s*"([^"]+)"/
-            if (m.find()) return new File(m.group(1))
-        }
-    } catch (Throwable ignored) {
+        return null
+    }
+
+    def envHome = System.getenv('JAVA_HOME')
+    if (envHome) {
+        def home = new File(envHome)
+        if (stableJdk(home)) return home.canonicalFile
+    }
+    if (jdkFromPath != null) return jdkFromPath
+
+    def bundled = file('tools/jdk')
+    if (bundled.isDirectory()) {
+        def candidates = bundled.listFiles()?.findAll { stableJdk(it) } ?: []
+        if (candidates) return candidates.sort { it.name }.last().canonicalFile
     }
     return null
 }()
