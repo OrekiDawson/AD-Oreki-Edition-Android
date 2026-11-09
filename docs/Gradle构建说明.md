@@ -63,6 +63,9 @@ Smali 的边界：只承担原版字节码的必要适配、Kotlin 无法直接�
 | `prepareVerifyRelease` | 直接调用 AAPT2 badging、apksigner v2/v3、apktool，并采集 SHA-256/大小 | `assembleRelease` | `build/gradle-reports/verify-release-tools.json`、`build/gradle-verify-apk/` |
 | `verifyRelease` | 消费 Gradle 工具报告，执行包名/versionCode/versionName/签名方案/证书指纹/EC12 补丁位置/`OrekiInstantChallenge` 四个复用入口/`tick()` 唯一性等语义校验 | `prepareVerifyRelease` | `build/gradle-reports/verify-release.json`，15 项 |
 | `verifyPatchContract` | 消费 Gradle 工具报告和解包树，执行 `scripts/**/*.py` 编译、`main()` 启用 EC12 + 即时完成、**提频方案保持禁用**、mod 树补丁唯一、payload 未误放 templates 等语义契约 | `prepareVerifyRelease` | 17 项 |
+| `buildBaselineTool` | 离线编译 Rust 原版基线管理工具 | — | `baseline/tools/target/release/baseline[.exe]` |
+| `baselineStatus` | 用 Rust 列出已固化的 Android 基线 | `buildBaselineTool` | 只读输出 |
+| `verifyBaseline` | 用 Rust 校验指定原版 APK 的 SHA-256、包信息和 DEX 布局 | `buildBaselineTool` | 需 `-PorekiBaselineApk=...`；未提供路径即失败 |
 | `build` | `assembleRelease` + `verifyRelease` + `verifyPatchContract` | 三者 | — |
 | `check` | `verifyRelease` + `verifyPatchContract`（定向回归，不重复构建语义） | 二者 | — |
 | `installOrekiTest` | 仅向 `oreki_test` 安装候选 APK，先查 `adb devices` 含 `\tdevice`，否则拒绝 | `verifyRelease` | 修改 AVD 上已安装应用 |
@@ -155,6 +158,8 @@ entries 2241 2241 same set: True
   保留 dex→smali），`verifyRelease` 只消费该目录做语义检查。这是**静态**验证补丁进了 dex，
   不等于运行时行为正确；
   运行时行为由 AVD 探针（`scripts/instant_challenge_probe.py`）与 Web 侧脚本覆盖。
+- Rust 基线工具不加入默认 Release 依赖；显式执行 `baselineStatus` / `verifyBaseline` 时才
+  编译和运行。这样保留原生 APK/DEX 清单校验能力，又不把 Rust 编译时间强加给每次 MOD 构建。
 
 ---
 

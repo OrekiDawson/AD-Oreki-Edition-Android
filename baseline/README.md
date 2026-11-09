@@ -42,33 +42,43 @@ Git 里存的是指纹（文件名、大小、SHA-256、包信息、DEX 布局�
 
 ```bash
 cd baseline/tools
-cargo build --release          # 产物：target/release/baseline.exe
+cargo build --release          # Linux 产物：target/release/baseline；Windows 为 baseline.exe
 ```
 
 五个子命令：
 
 ```bash
 # 固化一个新版本（拒绝覆盖已存在的版本）
-baseline update --version 3.21 \
+baseline update --root .. --version 3.21 \
   --apk path/to/kajfosz.antimatterdimensions.apk \
   --decoded-tree work/base_decoded_321 \
   --web-commit <官方源码 commit> \
   --cert-sha256 <apksigner 读出的证书指纹>
 
 # 校验：APK 指纹、包信息、DEX 布局、Web 记录、inventory 是否与清单一致
-baseline verify --version 3.21
+baseline verify --root .. --version 3.21
 
 # 生成两版差异报告（复用 inventory，不重新反编译）
-baseline diff --from 3.20 --to 3.21
+baseline diff --root .. --from 3.20 --to 3.21
 
 # 列出全部版本，带 * 的是当前基线
-baseline status
+baseline status --root ..
 
 # 把「当前基线」指回历史版本（只改引用，不删任何文件）
-baseline rollback --version 3.20
+baseline rollback --root .. --version 3.20
 ```
 
 `--root` 可指定基线目录，默认为当前工作目录下的 `baseline/`。
+
+Android Gradle 入口（不属于默认 Release 链）：
+
+```bash
+./gradlew baselineStatus --offline
+./gradlew verifyBaseline --offline \
+  -PorekiBaselineApk=/path/to/original-3.21.apk
+```
+
+`verifyBaseline` 没有 APK 路径时会 fail-closed，不会猜测或使用旧的 Windows 绝对路径。
 
 ## 版本配置：`version-config.json`
 

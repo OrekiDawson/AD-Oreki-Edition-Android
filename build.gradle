@@ -226,6 +226,11 @@ def resolveBaseDir = {
 def baseDir = resolveBaseDir()
 def baseDecoded = new File(baseDir, '')   // 规范化
 
+// Rust 基线工具：只由显式 baseline 任务调用，不加入默认 Release 依赖，
+// 避免每次构建都重复编译工具；它负责 APK 指纹、包信息和 DEX 布局等原生校验。
+def baselineToolDir = file('baseline/tools')
+def baselineToolExe = new File(baselineToolDir, isWindows ? 'target/release/baseline.exe' : 'target/release/baseline')
+
 // 从基线真实读取版本信息（apktool.yml 优先，缺了再看 AndroidManifest）
 def readBaseMeta = { File dir ->
     def yml = new File(dir, 'apktool.yml')
@@ -914,6 +919,44 @@ String hashOf(File f) {
         while ((n = is.read(buf)) > 0) md.update(buf, 0, n)
     }
     return md.digest().collect { String.format('%02x', it) }.join('')
+}
+
+// ============================================================ Rust baseline
+// 可选入口：Release 默认不编译 Rust，只有显式运行这些任务时才启用。
+tasks.register('buildBaselineTool', Exec) {
+    group = 'oreki-baseline'
+    description = '离线编译 Rust 原版基线管理工具'
+    workingDir = baselineToolDir
+    commandLine 'cargo', 'build', '--release', '--offline'
+    outputs.file(baselineToolExe)
+    outputs.upToDateWhen { baselineToolExe.isFile() }
+}
+
+tasks.register('baselineStatus', Exec) {
+    group = 'oreki-baseline'
+    description = '用 Rust 列出已固化的 Android 原版基线'
+    dependsOn 'buildBaselineTool'
+    workingDir = baselineToolDir
+    commandLine baselineToolExe.absolutePath, 'status', '--root', '..'
+}
+
+tasks.register('verifyBaseline') {
+    group = 'oreki-baseline'
+    description = '用 Rust 校验指定 APK 与当前基线清单的一致性（需 -PorekiBaselineApk=...）'
+    dependsOn 'buildBaselineTool'
+    doLast {
+        def rawApk = project.findProperty('orekiBaselineApk')
+        if (!rawApk) {
+            throw new GradleException('verifyBaseline 需要 -PorekiBaselineApk=/path/to/original.apk；不猜测 APK 路径')
+        }
+        def apk = file(rawApk)
+        if (!apk.isFile()) throw new GradleException("基线 APK 不存在：${apk}")
+        execOps.exec {
+            workingDir = baselineToolDir
+            commandLine baselineToolExe.absolutePath, 'verify', '--root', '..',
+                '--version', currentBaselineVersion.toString(), '--apk', apk.absolutePath
+        }
+    }
 }
 
 // ====================================================================== clean

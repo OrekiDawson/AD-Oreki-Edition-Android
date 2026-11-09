@@ -61,10 +61,10 @@ R91 完成 `OrekiAutomationUiListener` 整类 Kotlin 迁移（旧 Smali 删除�
 
 ```bash
 cd baseline/tools && cargo build --release   # 首次需要，之后复用
-./target/release/baseline.exe status                      # 看有哪些版本、当前是哪个
-./target/release/baseline.exe verify --version 3.20       # 校验 APK 指纹与清单一致
-./target/release/baseline.exe diff --from 3.20 --to 3.21  # 生成差异报告
-./target/release/baseline.exe rollback --version 3.20     # 只改引用，不删文件
+./target/release/baseline status                           # Linux；Windows 使用 baseline.exe
+./target/release/baseline verify --version 3.20            # 校验 APK 指纹与清单一致
+./target/release/baseline diff --from 3.20 --to 3.21       # 生成差异报告
+./target/release/baseline rollback --version 3.20          # 只改引用，不删文件
 ```
 
 ## 完成状态（请按此判断，不要按宣传语判断）
