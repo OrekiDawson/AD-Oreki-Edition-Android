@@ -319,6 +319,35 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
+# ---------------------------------------------------------------- 24f. R96 第十四轮：TT 购买收益 ×500
+# 用户 2026-11-09 正式裁决的 MOD 平衡参数；必须保留原版成本曲线与真实扣费。
+_api = read(KT_DIR / "GameApi.kt")
+check("TT 购买收益倍率常量 = 500", "TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L" in _api)
+check("倍率只包住原版唯一购买入口（不另造购买路径）",
+      "fun timeTheoremBuyMax(auto: Boolean): Long" in _api
+      and "call(mTtBuyMax(), null, auto)" in _api)
+check("按本次真实购买次数发奖（不可重复发放）",
+      "val bought = (call(mTtBuyMax(), null, auto) as? Long) ?: 0L" in _api
+      and "if (bought <= 0L) return 0L" in _api)
+check("补发走原版货币 API Currency.add（不写存档字段）",
+      "Currency.C(BigDouble)=add" in _api and "grantExtraTimeTheorems" in _api)
+check("发奖走「累计购买次数对账」，覆盖手动/自动/单次/批量全部购买路径",
+      "fun settleTimeTheoremReward()" in _api
+      and "timeTheoremPurchaseCount()" in _api
+      and "OrekiIu15Sprint.tick()" in stage
+      and "GameApi.settleTimeTheoremReward()" in stage)
+check("对账边界：首次只建基线、增量为 0 不发奖、回退只重置",
+      "if (last < 0L) {" in _api and "if (delta == 0L) return" in _api
+      and "if (total < last) {" in _api)
+check("补发失败不静默：有 GRANT-FAILED 告警",
+      "tt-reward GRANT-FAILED" in _api)
+_tt_block = _api.split("fun timeTheoremBuyMax(auto: Boolean): Long")[1].split("// ------")[0]
+# 允许「读」购买次数（对账必须读），禁止任何「写」：不得改存档字段、不得调 setter。
+check("不伪造购买次数（只读 b/c/d，不写任何存档字段）",
+      'getMethod("b")' in _tt_block and 'getMethod("c")' in _tt_block and 'getMethod("d")' in _tt_block
+      and "setLong" not in _tt_block and "putLong" not in _tt_block
+      and "Timestudy;->" not in _tt_block)
+
 # ---------------------------------------------------------------- 24e. R96 第十三轮：EP 预留
 # 实测：bigE=8、EP=0、eupBits=0，34 分钟一次永恒升级都没买到 —— TD1（1/3/9…）把 EP 吃干。
 economy = read(KT_DIR / "OrekiEternityEconomy.kt")

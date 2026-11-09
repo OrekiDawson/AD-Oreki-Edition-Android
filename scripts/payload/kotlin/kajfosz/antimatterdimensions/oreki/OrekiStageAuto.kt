@@ -236,6 +236,9 @@ object OrekiStageAuto {
             // 该调用自身只读 + 状态迁移，不写任何存档字段。
             OrekiIu15Sprint.tick()
 
+            // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
+            GameApi.settleTimeTheoremReward()
+
             applyCrunchPolicy()
             crunchProbe()
             detectBreakLoss()

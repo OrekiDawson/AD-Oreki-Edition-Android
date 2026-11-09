@@ -1,5 +1,6 @@
 package kajfosz.antimatterdimensions.oreki
 
+import android.util.Log
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -2062,10 +2063,148 @@ internal object GameApi {
         return mTtBuyMax
     }
 
-    /** 原版 `TimeTheorems.buyMax(auto)`；返回实际买到的 TT 数量（失败 0）。 */
+    // ------------------------------------------------------------ [R96 第十四轮] TT 购买收益 ×500
+    //
+    // 用户 2026-11-09 正式裁决：AM / IP / EP 三源每次**真实** TT 购买收益由 1 TT 改为 500 TT，
+    // 且必须保留原版成本曲线、购买资格、资源扣费与真实购买结算（不得凭空发 TT）。
+    //
+    // 实现要点（全部在 Kotlin，Smali 一行未改）：
+    //   · 只包住原版唯一入口 `TimeTheorems.buyMax(auto)`；它内部已按原版公式向三源扣费，
+    //     并把真实购买次数作为返回值 ⇒ 用「本次实际买到的个数」作为发奖依据，天然不可重复发放。
+    //   · 补发 499×n 走原版货币 API `Currency.add(BigDouble)` = `Ldw;->C(LBigDouble;)Liq0;`
+    //     （`vu4` 的购买路径用的就是它），因此余额与 `Currency.timeTheorems.max`
+    //     （3.21 里 `hq0.L()` 直接返回 `Player$Timestudy.theorem`，与 value 同源）同步增长，
+    //     膨胀门槛 12900 随之推进。
+    //   · 不写存档字段、不伪造购买次数（`amBought/ipBought/epBought` 仍由原版自增）。
+    private const val TAG_TT_REWARD = "OREKI_TT_REWARD"
+    private const val TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L
+
+    private var mTimeTheoremsCurrency: Any? = null
+    private var mTimeTheoremsCurrencyResolved: Boolean = false
+
+    /** `Currency.timeTheorems`（3.21 混淆名 `Liq0;->U:Lhq0;`）。 */
+    private fun timeTheoremsCurrency(): Any? {
+        if (!mTimeTheoremsCurrencyResolved) {
+            mTimeTheoremsCurrencyResolved = true
+            mTimeTheoremsCurrency = try {
+                val holder = cls("iq0") ?: return null
+                holder.getField("U").get(null)
+            } catch (error: Throwable) {
+                miss("Currency.timeTheorems (iq0.U)", error)
+                null
+            }
+        }
+        return mTimeTheoremsCurrency
+    }
+
+    /** 原版货币加值 `Currency.add(BigDouble)`（3.21 混淆名 `dw.C(LBigDouble;)`）。 */
+    private fun currencyAddMethod(currency: Any?): Method? {
+        if (currency == null) return null
+        return method(
+            currency.javaClass, "C", 1, "Currency.C(BigDouble)=add",
+            paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+        )
+    }
+
+    /**
+     * 通过原版货币 API 追加 TT（不是凭空发奖：调用方必须已完成一次真实购买）。
+     * 返回是否真的加进去了。
+     */
+    private fun grantExtraTimeTheorems(extra: Long): Boolean {
+        if (extra <= 0L) return false
+        val currency = timeTheoremsCurrency() ?: return false
+        val add = currencyAddMethod(currency) ?: return false
+        val amount = bigDouble(extra.toDouble()) ?: return false
+        val result = call(add, currency, amount)
+        return result != null
+    }
+
+    /**
+     * 原版 `TimeTheorems.buyMax(auto)`，并把 MOD 平衡参数「TT 购买收益 ×500」应用上去。
+     *
+     * 返回本次获得的 TT 总量（= 原版真实购买次数 × 500）；没有买到时返回 0，
+     * 因此「余额不足 / 恰好不足一次」等边界都不会发奖。
+     */
     @JvmStatic
-    fun timeTheoremBuyMax(auto: Boolean): Long =
-        (call(mTtBuyMax(), null, auto) as? Long) ?: 0L
+    fun timeTheoremBuyMax(auto: Boolean): Long {
+        val bought = (call(mTtBuyMax(), null, auto) as? Long) ?: 0L
+        if (bought <= 0L) return 0L
+        // 发奖统一由 settleTimeTheoremReward() 的「累计购买次数对账」处理，
+        // 这里只回报本次收益供调用方展示，避免同一笔购买被两条路径各发一次。
+        return bought * TIME_THEOREM_REWARD_MULTIPLIER
+    }
+
+    /** 上一次对账时看到的「三源购买次数之和」；-1 表示尚未初始化。 */
+    private var timeTheoremPurchasesSettled: Long = -1L
+
+    /** 三源已购买次数之和（原版 `amBought + ipBought + epBought`，只读）。 */
+    private fun timeTheoremPurchaseCount(): Long {
+        val timestudy = try {
+            val player = player() ?: return -1L
+            player.javaClass.getMethod("c0").invoke(player)
+        } catch (error: Throwable) {
+            miss("Player.c0()=Timestudy", error)
+            return -1L
+        } ?: return -1L
+        return try {
+            // 3.21 逐指令核对：b()=amBought、c()=epBought、d()=ipBought（顺序无关，这里取三者和）。
+            val amBought = timestudy.javaClass.getMethod("b").invoke(timestudy) as? Long ?: return -1L
+            val epBought = timestudy.javaClass.getMethod("c").invoke(timestudy) as? Long ?: return -1L
+            val ipBought = timestudy.javaClass.getMethod("d").invoke(timestudy) as? Long ?: return -1L
+            amBought + epBought + ipBought
+        } catch (error: Throwable) {
+            miss("Timestudy.b()/c()/d()", error)
+            -1L
+        }
+    }
+
+    /**
+     * [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（每帧调用，幂等）。
+     *
+     * 为什么用「对账」而不是只包 `buyMax`：
+     *   · 手动点击 TT 按钮走的是 `TimeTheoremPurchaseType.purchase()`，**不经过** `buyMax`；
+     *   · 原版自动购买、MOD 自动购买、单次/批量购买入口也各不相同。
+     *   只包 `buyMax` 会漏掉手动购买 ⇒ 玩家按一下只得 1 TT，与 ×500 承诺不符。
+     *   这里改为读原版真实的「三源购买次数之和」增量：**任何路径**每成功买一次都会让它 +1，
+     *   于是手动/自动/单次/批量天然全覆盖，且因为每次对账后立刻把基线推进到当前值，
+     *   同一笔购买不可能被发两次。
+     *
+     * 边界：
+     *   · 首次调用只建立基线（`-1`），不为历史购买补发；
+     *   · 增量为 0（余额不足/购买失败/恰好不够）→ 不发奖；
+     *   · 增量为负（读档回退/重置）→ 只重置基线，不发奖；
+     *   · 补发失败（货币对象或方法缺失）→ 基线照样推进，避免下一帧重复尝试造成反复失败，
+     *     同时 `granted=false` 会打印告警日志，不会被静默吞掉。
+     */
+    @JvmStatic
+    fun settleTimeTheoremReward() {
+        val total = timeTheoremPurchaseCount()
+        if (total < 0L) return
+        val last = timeTheoremPurchasesSettled
+        if (last < 0L) {
+            timeTheoremPurchasesSettled = total
+            return
+        }
+        if (total < last) {
+            timeTheoremPurchasesSettled = total
+            Log.w(TAG_TT_REWARD, "tt-reward reset last=" + last + " now=" + total)
+            return
+        }
+        val delta = total - last
+        if (delta == 0L) return
+        val extra = delta * (TIME_THEOREM_REWARD_MULTIPLIER - 1L)
+        val granted = grantExtraTimeTheorems(extra)
+        timeTheoremPurchasesSettled = total
+        Log.i(
+            TAG_TT_REWARD,
+            "tt-reward delta=" + delta + " extra=" + extra + " granted=" + granted +
+                " total=" + (delta * TIME_THEOREM_REWARD_MULTIPLIER) +
+                " multiplier=" + TIME_THEOREM_REWARD_MULTIPLIER + " cumulative=" + total,
+        )
+        if (!granted) {
+            Log.w(TAG_TT_REWARD, "tt-reward GRANT-FAILED extra=" + extra + " — 已推进基线避免重试风暴")
+        }
+    }
 
     // ---------------------------------------------------------------- [R96] 首次永恒前收益判据
     //
