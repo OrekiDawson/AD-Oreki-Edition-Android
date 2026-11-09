@@ -67,7 +67,8 @@ object OrekiEcAutomation {
 
     // ------------------------------------------------ respec 节流（防研究树抖动）
     /** 上一次执行 respec 是为哪一关（同一关只清一次：清树结果确定，重复清不会带来新结果）。 */
-    private var lastRespecId: Int = 0
+    /** 每关已执行 respec 的次数。**不能**用「同关只准一次」的永久闩锁： */
+    private val respecCountById = java.util.HashMap<Int, Int>()
     /** 本次进程内已执行的 respec 次数。 */
     private var respecCount: Int = 0
     /** 上一次 respec 的时刻（elapsedRealtime）。 */
@@ -76,6 +77,19 @@ object OrekiEcAutomation {
     private const val RESPEC_COOLDOWN_MS = 6_000L
     /** 全程上限 32 次（旧 Smali 同值）；用尽后退化为「停在原地等资源」，绝不无限清树。 */
     private const val RESPEC_MAX = 32
+    /**
+     * [R97 实测] 单关 respec 次数上限。
+     *
+     * 原实现是「同一关清过一次就永不再清」（`if (id == lastRespecId) return false`），
+     * 真机实测该闩锁会造成**永久停摆**：
+     *   1. EC1 的 `O()Z` 为 false（树里存在互斥研究）→ `A(true)` 恒假；
+     *   2. 第一次 respec 之后 `lastRespecId=1`，此后每拍都被拒；
+     *   3. 于是只能落到 `purchaseUntil`，而它在 `O()==false` 时永远买不到；
+     *   4. 表现即 `unlocked=0`、12 关全 `buyable=n`、日志反复打印
+     *      `PREPARE id=1 exclusiveFree=false` —— 与用户反馈「停在第一关」完全一致。
+     * 改为**有界重试**：允许同一关再清，但每关最多 3 次、间隔仍受 6 秒冷却与总上限 32 约束，
+     * 既解除死锁，又不会退化成每拍无限清树。 */
+    private const val RESPEC_PER_ID_MAX = 3
 
     /**
      * 是否可以对该关执行 respec。
@@ -85,10 +99,14 @@ object OrekiEcAutomation {
      */
     private fun allowRespec(id: Int): Boolean {
         if (respecCount >= RESPEC_MAX) return false
-        if (id == lastRespecId) return false
+        // [R97 实测纠偏] 这里原本是 `if (id == lastRespecId) return false`：
+        // 同一关只准清一次，一旦清完仍是互斥态就再也无法自救 → EC1 永久停在第一关。
+        // 改为「每关有界重试」，配合冷却与总上限，既解死锁又不抖动。
+        val used = respecCountById[id] ?: 0
+        if (used >= RESPEC_PER_ID_MAX) return false
         val now = android.os.SystemClock.elapsedRealtime()
         if (lastRespecAtMs != 0L && now - lastRespecAtMs < RESPEC_COOLDOWN_MS) return false
-        lastRespecId = id
+        respecCountById[id] = used + 1
         respecCount += 1
         lastRespecAtMs = now
         return true
@@ -140,8 +158,22 @@ object OrekiEcAutomation {
         for (id in 1..EC_COUNT) {
             val study = Abi.study(id) ?: continue
             if (Abi.isMaxedEc(id) == true) continue          // 已满级永不重买
-            val prereqOk = Abi.canBuyPrereq(study) ?: false  // A(Z)Z：解锁位 + 前置 + 互斥
-            if (!prereqOk) continue
+            // [R97 真机根因] `A(Z)Z` **不能**当购买硬门槛。原始字节码
+            // （smali_classes2/kajfosz/antimatterdimensions/eternity/studies/b.smali）：
+            //     invoke-static {}, Lx81;->d()I
+            //     move-result p1
+            //     if-nez p1, :cond_2      # d()==0 → 跳 cond_2
+            //     ...
+            //   :cond_2
+            //     return v0                 # 返回 false
+            // `if-nez` 是「等于 0 才跳」，所以 **当前没有任何 EC 解锁（d()==0）时 A() 恒返回 false**。
+            // 旧代码 `if (!prereqOk) continue` 因此在 unlocked==0 的稳态下永远跳过购买，
+            // 真正的购买 `D(true,cont)` 一次都不会被调用 → 第一个 EC 永远解锁不了，
+            // 真机表现正是 `unlocked=0` + 12 关 `buyable=n` + completions 停在 10/60。
+            // 这同时解释了 `OREKI_EC_DIAG` 的 `buyable` 为何恒为 n：它是**结构性假**，不是证据。
+            // 正解：`A()` 只当提示（用于日志与排序），是否真的能买由原版 `D()` 自己判——
+            // 它返回 Boolean，买不到就是 false，不存在伪造解锁。
+            val prereqOk = Abi.canBuyPrereq(study) ?: false  // A(Z)Z：仅作提示，见上
             val affordable = Abi.canAfford(study) ?: false   // z()Z：余额够不够
             if (affordable) {
                 bestId = id
@@ -150,6 +182,12 @@ object OrekiEcAutomation {
             if (firstAffordableButBlocked == 0) firstAffordableButBlocked = id
         }
 
+        // [R97 真机根因] 若没有任何一关被判为「买得起」，不要把整轮直接交给第二轮的补前置：
+        // 先拿第一个未满级的关做一次**真实购买尝试**（`D(true,cont)`），由原版判定成败。
+        // 理由同上面的 `A()`：`z()Z` 也是间接判据，在 unlocked==0 的稳态下可能整体为假，
+        // 若同时把 `z()` 当硬门槛，购买入口会在稳态下彻底不可达，EC1 再次永久停在第一关。
+        // 每次 tick 只尝试一关，失败即落到第二轮补前置，不会形成无收益空转。
+        if (bestId == 0 && firstAffordableButBlocked != 0) bestId = firstAffordableButBlocked
         if (bestId != 0) {
             val study = Abi.study(bestId)
             val ok = Abi.buy(study) ?: false
@@ -173,8 +211,18 @@ object OrekiEcAutomation {
                 note("need-tt id=" + id)
                 return false
             }
-            val affordable = Abi.canAfford(study) ?: false
-            if (!affordable) continue
+            // [R97 实测纠偏] 这里原本是 `if (!Abi.canAfford(study)) continue` 的硬门槛，
+            // 已被真机证据判定为**错误的门**：
+            //   · 真机 steady state：unlocked=0、TT=4.0116e4、12 关全 buyable=n；
+            //   · 该分支只在 `A(true)==false`（前置研究没铺好）时才会走到，
+            //     恰恰是「应该去铺前置」的场景，却因为 z() 判为 false 直接 continue；
+            //   · 结果 purchaseUntil 永远不执行 → 每拍落到 `no-op (nothing buyable,
+            //     nothing to prepare)`，EC1 永久停在第一关（与用户反馈一致）；
+            //   · 且 z() 在 3.21 的混淆继承链里并非唯一声明，靠「名字+参数个数」
+            //     反查存在解析到错误重载的风险，把它当硬门槛会把整条链一起判死。
+            // 正解：**让原版自己判余额**。purchaseUntil（b.S(ContinuationImpl)）内部
+            // 逐项检查价格并只买买得起的那一段，买不起就是自然 no-op，不需要我们预筛。
+            // 因此去掉这道门槛，让流程继续走到下面的 respec / purchaseUntil。
 
             // ---- [R97] 分叉冲突：O()==false 表示时间树里已经买了互斥/二级研究 ----
             // 此时 `A(Z)Z` 的 `O()` 一项恒假，**purchaseUntil 再怎么补前置也永远买不到**。
