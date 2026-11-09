@@ -9809,3 +9809,16 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[未验证]` EC4–EC12 尚未完成（EC4 卡在 `TRYBUY id=143 D=false`，前置链仍待铺通）。
 - `[未验证]` 期间曾观测到一次存档异常（`db=2/gal=0/bigE=0`），已从 `playerBackup.json` 恢复；
   **是否由本类写入路径触发尚未查明**，合入前需继续观察。
+
+### R97 事故记录：EC 实验代码导致存档两次重置，已回滚（2026-11-10）
+- `[实测]` **现象**：EC 自动化实验版本运行期间，测试存档连续两次被重置为新档
+  （第一次 `db=2/gal=0/bigE=0`，第二次 `db=18/gal=1/bigE=0/unlocked=0/completions` 全 0）。
+  两次均从 `playerBackup*.json` 恢复成功，EC1–EC3 完成记录（`completions=[5,5,5]`）已保住。
+- `[实测]` **处置**：已将 `OrekiEcAutomation.kt` 回滚到安全基线（`cc6e9cf` 版本：
+  `PAVE_DEPTH_MAX=6`、`continuation()` 返回 null、保留 `purchaseUntil` 调用），
+  即回到本会话开始前「EC 不推进但不损坏存档」的状态。
+- `[未验证]` **根因未查明**：无法确定重置由 `TRYBUY`（原版 `D()` 直接购买）、
+  PAVE 深度调整、还是 `continuation` 真实实例触发。三者同批合入，未做单变量隔离。
+  **在完成单变量隔离实验前，不得再次合入任何一项。**
+- `[结论]` EC1–EC3 的完成是真实发生的（存档 `completions=[5,5,5]` 可证），
+  但产生该结果的代码不安全，不能交付。**已交付的 `8b3e4885` 含此代码，应视为风险版本。**
