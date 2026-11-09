@@ -9,7 +9,7 @@ independent, Google-free, 10000x-speed personal mod.
 Input : work/base_decoded       (apktool decode of base APK, pristine)
         work/xhdpi_decoded      (apktool decode of config.xhdpi split)
         scripts/payload         (hand written smali / resources)
-Output: build/unsigned.apk -> build/aligned.apk -> release/反物质维度.apk (signed)
+Output: build/gradle-stage/unsigned.apk（Gradle 负责 zipalign/apksigner 收尾）
 
 Every step prints what it changed so the build log is auditable.
 """
@@ -37,13 +37,6 @@ MOD = Path(os.environ.get("OREKI_MOD") or (WORK / "mod")).resolve()
 BUILD = ROOT / "build"
 TOOLS = ROOT / "tools"
 KEYS = ROOT / "keys"
-
-# 候选版 APK 的输出目录。
-# 默认仍是 release/（旧行为，直接跑 `python scripts/build_mod.py` 完全不变）。
-# Gradle 入口会把它指向 build/gradle-stage/，让候选产物先落暂存目录，
-# 验证通过后才由 publishRelease 覆盖 release/ 下的正式文件。
-# 说明：build_sign() 会先删除目标文件，所以重定向输出目录是必要的保险。
-RELEASE = Path(os.environ.get("OREKI_RELEASE_OUT") or (ROOT / "release")).resolve()
 
 ANDROID_NS = "http://schemas.android.com/apk/res/android"
 A = "{%s}" % ANDROID_NS
@@ -3411,41 +3404,13 @@ def patch_ad_bonus():
 
 
 # ------------------------------------------------------------ 6. build
-KEY_ALIAS = "oreki"
-
-
-def ks_pass():
-    """签名口令。
-
-    不再硬编码在脚本里（否则口令会随 Git 历史永久留存）。
-    来源优先级：
-      1) 环境变量 OREKI_KS_PASS
-      2) keys/密码.txt（keys/ 已在 .gitignore 中排除）
-    两者都没有时直接中止，避免用错误口令产出不可安装的 APK。
-    """
-    env = os.environ.get("OREKI_KS_PASS")
-    if env and env.strip():
-        return env.strip()
-    f = KEYS / "密码.txt"
-    if f.exists():
-        val = f.read_text(encoding="utf-8").strip()
-        if val:
-            return val
-    raise SystemExit("!! 缺少签名口令：请设置环境变量 OREKI_KS_PASS，或提供 keys/密码.txt")
-
-
-def build_sign(java):
+def build_package(java):
     import subprocess
     BUILD.mkdir(exist_ok=True)
-    RELEASE.mkdir(exist_ok=True)
-    unsigned = BUILD / "unsigned.apk"
-    aligned = BUILD / "aligned.apk"
-    target = RELEASE / "反物质维度.apk"
-    # [R42] 不再删 target：正式包只在【签名成功且体积合理】之后才被原子覆盖。
-    # 之前这里连 target 一起删，导致任何后续失败都会让上一份可用版本消失。
-    for f in (unsigned, aligned):
-        if f.exists():
-            f.unlink()
+    unsigned = Path(os.environ.get("OREKI_UNSIGNED_OUT") or (BUILD / "unsigned.apk")).resolve()
+    unsigned.parent.mkdir(parents=True, exist_ok=True)
+    if unsigned.exists():
+        unsigned.unlink()
 
     # R81：原版主 DEX 的 method_ids_size 恰为 65536，新增 MOD 调用会使方法索引
     # 超出 unsigned short（a07.zzb 实测 65615）。拆分整个既有广告依赖包，
@@ -3547,83 +3512,31 @@ def build_sign(java):
         note(f"!! 时间戳规整失败：{e}")
         return None
 
-    bt = _build_tools_dir()
-    note("[5] zipalign -p -f 4 ...")
-    r1 = subprocess.run([str(bt / ("zipalign.exe" if _WIN else "zipalign")), "-p", "-f", "4", str(unsigned), str(aligned)],
-                        capture_output=True, text=True, encoding="utf-8", errors="replace")
-    for line in ((r1.stdout or "") + (r1.stderr or "")).strip().splitlines()[-6:]:
-        note("      " + line)
-    if r1.returncode != 0:
-        note("!! zipalign 失败")
-        return None
+    def verify_apk_assets(apk):
+        """确认教程正文和原版必要 assets 已进入 apktool 产物。"""
+        try:
+            import zipfile
+            with zipfile.ZipFile(apk) as z:
+                entries = [n for n in z.namelist() if n.startswith("assets/")]
+                for name in TUTORIAL_ASSETS:
+                    info = z.getinfo("assets/" + name)
+                    assert info.file_size > 0, f"assets/{name} 是空条目"
+                    note(f"      assets/{name}: {info.file_size} 字节"
+                         f"（压缩后 {info.compress_size}）")
+                assert len(entries) >= 22, \
+                    f"APK 里 assets 只有 {len(entries)} 条（至少应有 22 条原有资源）"
+                for must in ("assets/fonts/fa-solid-900.ttf", "assets/dexopt/baseline.prof"):
+                    assert must in entries, f"APK 丢了原有资源 {must}"
+                note(f"      APK assets 条目 {len(entries)} 条（原有资源完整）")
+        except (KeyError, AssertionError) as e:
+            note(f"!! [R40H] APK 里缺少教程正文：{e}")
+            return False
+        return True
 
-    note("[5] apksigner sign (v1+v2+v3, 个人密钥) ...")
-    pw = "pass:" + ks_pass()
-    # [R42] 先签到临时文件，成功且体积合理才原子覆盖正式包。
-    # 事故背景（EMULATOR_CONTROL.md INC-2026-1031-03）：原实现先在开头 unlink 正式包，
-    # 再让 apksigner 直接写正式包路径。11:02 那次高负载下 apksigner 静默失败
-    # （returncode≠0，stdout/stderr 全空），正式包被留成 9,462,925 字节的半成品，
-    # 上一份可用版本当场没了。现在改成「失败不动正式包」。
-    staged = BUILD / "signed_staged.apk"
-    if staged.exists():
-        staged.unlink()
-    r2 = subprocess.run([java, "-jar", str(bt / "lib" / "apksigner.jar"), "sign",
-                         "--ks", str(KEYS / "oreki.jks"), "--ks-key-alias", KEY_ALIAS,
-                         "--ks-pass", pw, "--key-pass", pw,
-                         "--v1-signing-enabled", "true", "--v2-signing-enabled", "true",
-                         "--v3-signing-enabled", "true",
-                         "--out", str(staged), str(aligned)],
-                        capture_output=True, text=True, encoding="utf-8", errors="replace")
-    for line in ((r2.stdout or "") + (r2.stderr or "")).strip().splitlines()[-8:]:
-        note("      " + line)
-    if r2.returncode != 0 or not staged.exists():
-        # 事故现场必须留在日志里：上一次只写「!! 签名失败」，stderr 是空字符串，
-        # 事后完全无法定位原因。现在把 returncode 与原始输出逐字落盘。
-        note(f"!! 签名失败 rc={r2.returncode} "
-             f"stdout={len(r2.stdout or '')}B stderr={len(r2.stderr or '')}B")
-        note(f"      raw stdout={r2.stdout!r}"[:1200])
-        note(f"      raw stderr={r2.stderr!r}"[:1200])
-        note(f"      正式包未改动：{target}（上一份可用版本保持原样）")
+    if not verify_apk_assets(unsigned):
         return None
-    # 体积哨兵：签名只会在尾部追加签名字段，绝不应当比 zipalign 产物小。
-    # 截断文件（9.4 MB）会被这一条直接拦下。
-    if staged.stat().st_size < aligned.stat().st_size:
-        note(f"!! 签名产物被截断：signed={staged.stat().st_size} < aligned={aligned.stat().st_size}")
-        note(f"      正式包未改动：{target}")
-        return None
-    staged.replace(target)
-
-    note("[5] apksigner verify ...")
-    r3 = subprocess.run([java, "-jar", str(bt / "lib" / "apksigner.jar"), "verify", "--verbose", "--print-certs", str(target)],
-                        capture_output=True, text=True, encoding="utf-8", errors="replace")
-    for line in ((r3.stdout or "") + (r3.stderr or "")).strip().splitlines():
-        note("      " + line.strip())
-    note(f"[5] 最终 APK: {target}  ({target.stat().st_size/1048576:.1f} MiB)")
-
-    # [R40H] 打包后自检：教程正文必须以 assets 形式真的进了 APK。
-    # apktool 不会因为 assets 缺失而失败，缺了只会让真机显示「正文缺失」页，
-    # 所以直接读 ZIP 目录断言，避免再烧一次装机。
-    # 同时守住「原有 assets 不许丢」：字体（fa-*、Roboto、MonospaceTypewriter）、
-    # 四段现实背景 mp4、dexopt 基线都是游戏正常运行需要的，历史产物固定 22 条。
-    try:
-        import zipfile
-        with zipfile.ZipFile(target) as z:
-            entries = [n for n in z.namelist() if n.startswith("assets/")]
-            for name in TUTORIAL_ASSETS:
-                info = z.getinfo("assets/" + name)
-                assert info.file_size > 0, f"assets/{name} 是空条目"
-                note(f"      assets/{name}: {info.file_size} 字节"
-                     f"（压缩后 {info.compress_size}）")
-            assert len(entries) >= 22, \
-                f"APK 里 assets 只有 {len(entries)} 条（至少应有 22 条原有资源）"
-            for must in ("assets/fonts/fa-solid-900.ttf", "assets/dexopt/baseline.prof"):
-                assert must in entries, f"APK 丢了原有资源 {must}"
-            note(f"      APK assets 条目 {len(entries)} 条（原有资源完整）")
-    except (KeyError, AssertionError) as e:
-        note(f"!! [R40H] APK 里缺少教程正文：{e}")
-        return None
-
-    return target
+    note(f"[5] 未签名 APK 已准备，交由 Gradle 对齐/签名：{unsigned}")
+    return unsigned
 
 
 def patch_automator_waiting():
@@ -7206,23 +7119,6 @@ def _resolve_java() -> str:
     raise SystemExit("[R96] 找不到 java（JAVA_HOME 或 PATH）")
 
 
-def _build_tools_dir() -> pathlib.Path:
-    if _WIN:
-        return TOOLS / "bt" / "android-14"
-    roots = [os.environ.get("ANDROID_SDK_ROOT", ""), os.environ.get("ANDROID_HOME", ""),
-             str(Path.home() / "Android" / "Sdk")]
-    for root in [r for r in roots if r]:
-        bt = Path(root) / "build-tools"
-        if not bt.is_dir():
-            continue
-        for d in sorted((x for x in bt.iterdir() if x.is_dir()), key=lambda x: x.name, reverse=True):
-            if (d / "zipalign").exists():
-                return d
-    raise SystemExit("[R96] 找不到 zipalign（SDK build-tools）")
-
-
-
-
 def _aapt2_preferred_dir():
     """[R96] 返回含兼容 aapt2 的目录：优先 build-tools/34.0.0，其次任何可用版本。"""
     if _WIN:
@@ -7361,7 +7257,7 @@ def main():
     # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
     # 结论：Android 主循环是 CPU 受限（单次 gameTick ≈22ms）而非 delay 受限，提频无效。
     # 保留函数体与 OrekiSpeed.frameMs 作为证据与后续候选基础，但不接入构建。
-    final = build_sign(java)
+    final = build_package(java)
     (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
     return 0 if final else 1
 

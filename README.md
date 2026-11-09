@@ -242,7 +242,7 @@ scripts/payload/kotlin/**.kt
   → 作为 classes4.dex 并入 APK
 ```
 
-外层由 Gradle 编排（`build.gradle` 只做 Exec 调度，不参与 smali 生成）；真正的构建由 `scripts/build_mod.py` 完成：复制干净工作树 → 拷入 payload → 执行 `patch_*` 注入 → `apktool b` 汇编 → `zipalign` → `apksigner` 签名。
+外层由 Gradle 编排（`build.gradle` 不参与 smali 生成）；`scripts/build_mod.py` 负责复制干净工作树、拷入 payload、执行 `patch_*` 注入、`apktool b` 汇编、Kotlin dex 注入和 ZIP 规整，随后由 Gradle 直接调用 `zipalign` 与 `apksigner` 完成签名候选。
 
 ### 环境与工具链
 
@@ -257,7 +257,9 @@ scripts/payload/kotlin/**.kt
 | Android SDK | Linux 当前 `/opt/android-sdk`，Platform 37.2 + Build-Tools 37.0.0；项目实际构建输入仍以基线和脚本要求为准 | `ANDROID_HOME` / `ANDROID_SDK_ROOT` 或 `tools/bt/` |
 | Python | 3.11+ | Linux 当前实测 3.14.4；Windows 按 `tools/README.md` |
 
-R95 已核实 Linux 工具链可见，但本轮只授权规则和文档更新，未执行构建或 APK 验收；不要把工具可见写成 Release 已验证。构建时仍优先执行 `./gradlew assembleRelease --offline`，只有明确缺依赖才在线补齐。
+当前 Linux 工具链已由 Gradle `verifyEnvironment` 核实；最近一次架构迁移用
+`./gradlew verifyRelease --offline --no-daemon` 生成并验证了本地候选，未写入 `release/`。
+构建时仍优先离线执行 Gradle，只有明确缺依赖才在线补齐。
 
 ### 构建命令
 

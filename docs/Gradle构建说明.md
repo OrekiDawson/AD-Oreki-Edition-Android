@@ -49,7 +49,7 @@ Smali 的边界：只承担原版字节码的必要适配、Kotlin 无法直接�
 | Python | `python`（可用 `PYTHON` 环境变量覆盖） | 同上 |
 | 动态版本号 | **零**。所有任务不带 `+`/`latest` 之类动态解析 | `build.gradle` |
 | 个人绝对路径 | **零写死**。JDK 按 `tools/jdk/*` 目录扫描取最新；其余全部 `file(...)` 相对仓库根 | `build.gradle` 第 24–44 行 |
-| 密钥 | 不落盘明文：口令走 `OREKI_KS_PASS` 或 `keys/密码.txt`（`keys/` 已 gitignore） | `scripts/build_mod.py::ks_pass()` |
+| 密钥 | 不落盘明文：口令走 `OREKI_KS_PASS` 或 `keys/密码.txt`（`keys/` 已 gitignore） | `build.gradle::signingPassword` |
 
 `gradlew.bat` / `gradlew` 在 `JAVA_HOME` 未设置时会扫描仓库内 `tools/jdk/*` 自动注入，
 所以在一台**没有全局 java** 的机器上也能直接跑（这一点实测过，是本轮修的坑）。
@@ -73,13 +73,13 @@ Smali 的边界：只承担原版字节码的必要适配、Kotlin 无法直接�
 
 ## 4. 三条安全约定（对应 R4 执行令）
 
-1. **不得通过清空 `release/` 实现干净构建。** `assembleRelease` 用 `OREKI_RELEASE_OUT`
-   把 `build_sign()` 的目标文件重定向到 `build/gradle-stage/`，因此它删的是暂存文件；
-   `release/` 全程只被 `installToRelease` 写过。本轮实测：连续 4 次构建期间
+1. **不得通过清空 `release/` 实现干净构建。** `assembleRelease` 让 Python 只生成
+   `build/gradle-stage/unsigned.apk`，再由 Gradle 写入同目录的对齐/签名暂存文件；
+   `release/` 全程只被 `installToRelease` 写过。本轮实测：候选构建期间
    `release/反物质维度.apk` 哈希始终是 `c5e05db4…`，直到显式执行 `installToRelease`。
-2. **构建失败必须非零退出且保留旧 APK。** `Exec` 原样上抛退出码；`build_sign()` 在
-   apktool/zipalign/apksigner 任一失败时返回 `None`（`main()` 据此非零退出），
-   且目标文件在流程开始才被删——失败时 `release/` 里的旧 APK 不受影响。
+2. **构建失败必须非零退出且保留旧 APK。** Python 的 apktool 阶段和 Gradle 的
+   zipalign/apksigner 阶段均失败即非零退出；签名只写 `signed_staged.apk`，成功后才原子
+   替换候选 `反物质维度.apk`，失败时 `release/` 里的旧 APK 不受影响。
 3. **`clean` 不越界。** 见上表。
 
 ## 5. 位级可复现（本轮新增）
@@ -115,7 +115,7 @@ entries 2241 2241 same set: True
 因此 CRC / 解压大小 / 压缩后大小 / 对齐全部不变。本地头位置取自中央目录记录的偏移量，
 所以带数据描述符（bit 3）的条目也无需解析本地头长度字段。
 
-接入点在 `build_mod.py::build_sign()` 的 `[5b]`：apktool 出包之后、`zipalign` 之前。
+接入点在 `build_mod.py::build_package()` 的 `[5b]`：apktool 出包之后、Gradle `zipalign` 之前。
 经实测 `zipalign` 会保留输入时间戳，所以规整一次即可传递到最终签名产物。
 
 自检（`apk_normalize.normalize()` 内置返工校验）：改写后条目数必须不变、`zipfile.testzip()`
@@ -194,7 +194,7 @@ fingerprintInputs ──┘                   └─→ verifyPatchContract
 | `build.gradle` / `gradle.properties` / `settings.gradle` | 内容 sha256 | <5 ms |
 | `work/base_decoded`（27744 文件 / 0.40 GB） | `(路径, 体积, mtime)` 滚动哈希 | 4.2 s |
 | `work/kajfosz.antimatterdimensions.apk`、`keys/` | 同上 | <5 ms |
-| 环境变量 `OREKI_RELEASE_OUT` 等 | 直接并入 | — |
+| 环境变量 `OREKI_UNSIGNED_OUT` 等 | 直接并入 | — |
 | **合计** | | **约 4.4 s** |
 
 文本类文件（`.smali` `.py` `.json` `.txt` `.xml` `.gradle` …）在哈希前做

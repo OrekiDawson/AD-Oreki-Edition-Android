@@ -3,8 +3,8 @@
  * ------------------------------------------------------------------------------------
  * 为什么不是标准 AGP 工程：
  *   上游 APK 是原生 Kotlin 混淆产物，仓库没有任何可编译的 Java/Kotlin 源码；
- *   正式产物由 scripts/build_mod.py 完成「apktool 反编译树 -> smali 补丁 -> 重建 ->
- *   zipalign -> apksigner」全流程。用 AGP 重建目录结构等于重写已稳定的构建链，
+ *   正式产物由 scripts/build_mod.py 完成「apktool 反编译树 -> smali 补丁 -> 重建」；
+ *   Gradle 直接调用 zipalign/apksigner 完成产物收尾。用 AGP 重建目录结构等于重写已稳定的构建链，
  *   还会丢失 smali 补丁与资源 ID 修补。因此这里让 Gradle 只做编排：任务体一律是
  *   Exec 调用真实脚本，退出码原样上抛，不做 Shell 字符串拼接。
  *
@@ -175,6 +175,17 @@ def androidJar = {
     return jars ? jars.sort { it.parentFile.name }.last() : new File('android.jar')
 }()
 def keystore = file('keys/oreki.jks')
+
+def signingPassword = {
+    def value = System.getenv('OREKI_KS_PASS')
+    if (value?.trim()) return value.trim()
+    def passwordFile = file('keys/密码.txt')
+    if (passwordFile.isFile()) {
+        def text = passwordFile.getText('UTF-8').trim()
+        if (text) return text
+    }
+    throw new GradleException('缺少签名口令：请设置 OREKI_KS_PASS，或提供 keys/密码.txt')
+}
 
 def pkgName = 'com.oreki.antimatterdimensions'
 
@@ -452,33 +463,30 @@ tasks.register('fingerprintInputs', Exec) {
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_fingerprint.py', '--check',
         '--flag', staleFlag.absolutePath
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
         environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
     }
     environment 'PYTHONIOENCODING', 'utf-8'
-    // [R91] 指纹必须和构建使用同一份基线与同一个候选输出目录；
-    // 否则 verifyRelease 会拿空 OREKI_RELEASE_OUT 去比对构建时写入的 stage 路径，
-    // 每次都误判 stale 并重复触发整包构建。
+    // [R91] 指纹必须和构建使用同一份基线；候选输出目录由 Gradle 固定管理。
     environment 'OREKI_BASE', baseDecoded.absolutePath
-    environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
     // 它自己每次都要真实跑一遍（读文件系统状态），不能被 Gradle 跳过
     outputs.upToDateWhen { false }
 }
 
 // ============================================================== assembleRelease
-// 真实调用 scripts/build_mod.py；OREKI_RELEASE_OUT 把签名产物重定向到暂存目录，
-// 这样 build_sign() 删除目标文件时删的是暂存文件，release/ 下的正式 APK 不受影响。
+// 真实调用 scripts/build_mod.py；Python 只产出已注入 Kotlin dex 且已规整 ZIP 的 unsigned APK，
+// Gradle 随后直接调用 zipalign/apksigner，最终候选仍只落在 build/gradle-stage/。
 tasks.register('assembleRelease', Exec) {
     group = 'oreki'
-    description = '用现有 smali/apktool 流水线生成候选 APK（输出 build/gradle-stage，不触碰 release/）'
+    description = '用 smali/apktool 流水线生成并由 Gradle 对齐/签名候选 APK（不触碰 release/）'
     dependsOn 'verifyEnvironment', 'fingerprintInputs', 'buildKotlinDex'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
-    environment 'OREKI_RELEASE_OUT', stageDir.absolutePath
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    environment 'OREKI_UNSIGNED_OUT', new File(stageDir, 'unsigned.apk').absolutePath
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
@@ -496,7 +504,9 @@ tasks.register('assembleRelease', Exec) {
     }
     doFirst {
         stageDir.mkdirs()
-        if (stageApk.exists()) stageApk.delete()   // 防止旧候选被误当本轮产物
+        [stageApk, new File(stageDir, 'unsigned.apk'), new File(stageDir, 'aligned.apk'),
+         new File(stageDir, 'signed_staged.apk')].each { if (it.exists()) it.delete() }
+        // 防止旧候选被误当本轮产物
         step("候选输出目录: ${stageDir}")
     }
     // [R66] 增量判定：输入指纹一致且候选 APK 仍在 → 跳过（Gradle 显示 SKIPPED）。
@@ -504,10 +514,40 @@ tasks.register('assembleRelease', Exec) {
     onlyIf { forceFullBuild || project.hasProperty('orekiForceBuild') || staleFlag.exists() }
     // 构建成功之后才提交新指纹：失败不会污染下一次的判定基准。
     doLast {
+        def unsigned = new File(stageDir, 'unsigned.apk')
+        def aligned = new File(stageDir, 'aligned.apk')
+        def signed = new File(stageDir, 'signed_staged.apk')
+        def zipalign = new File(btDir, isWindows ? 'zipalign.exe' : 'zipalign')
+        if (!unsigned.isFile()) throw new GradleException("Python 未生成 unsigned APK：${unsigned}")
+
+        runExec {
+            commandLine zipalign.absolutePath, '-p', '-f', '4', unsigned.absolutePath, aligned.absolutePath
+        }
+        if (!aligned.isFile()) throw new GradleException("zipalign 未生成：${aligned}")
+
+        def pass = 'pass:' + signingPassword()
+        runExec {
+            commandLine javaExe.absolutePath, '-jar', new File(btDir, 'lib/apksigner.jar').absolutePath,
+                'sign', '--ks', keystore.absolutePath, '--ks-key-alias', 'oreki',
+                '--ks-pass', pass, '--key-pass', pass,
+                '--v1-signing-enabled', 'true', '--v2-signing-enabled', 'true',
+                '--v3-signing-enabled', 'true', '--out', signed.absolutePath, aligned.absolutePath
+        }
+        if (!signed.isFile() || signed.length() < aligned.length()) {
+            throw new GradleException("apksigner 产物无效：signed=${signed.length()} aligned=${aligned.length()}")
+        }
+        java.nio.file.Files.move(signed.toPath(), stageApk.toPath(),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+
+        runExec {
+            commandLine javaExe.absolutePath, '-jar', new File(btDir, 'lib/apksigner.jar').absolutePath,
+                'verify', '--verbose', '--print-certs', stageApk.absolutePath
+        }
+        logger.lifecycle("[oreki] Gradle 已完成 zipalign/apksigner：${stageApk}")
         runExec {
             workingDir = repoRoot
             commandLine pythonExe, 'scripts/build_fingerprint.py', '--commit'
-            // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+            // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
@@ -618,7 +658,7 @@ tasks.register('verifyPatchContract', Exec) {
     dependsOn 'assembleRelease'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/verify_patch_contract.py', '--apk', stageApk.absolutePath
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
@@ -752,7 +792,7 @@ tasks.register('smokeOrekiTest', Exec) {
     dependsOn 'installOrekiTest'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/avd_smoke.py', '--adb', adbExe.absolutePath
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
@@ -852,7 +892,7 @@ tasks.register('publishRelease', Exec) {
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/publish_apk.py', '--manifest', releaseManifest.absolutePath,
         '--skip-cloud-read', '--no-kde'
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
+    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
