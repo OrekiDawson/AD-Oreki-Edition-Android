@@ -128,6 +128,9 @@ object OrekiEcAutomation {
     /** 只在步骤变化时打日志，避免刷屏（每拍最多一条）。 */
     @Volatile private var lastStep: String = ""
 
+    /** [paveTimeStudy] 递归深度上限（时间研究树最深约 141→142→143 三层，留足余量防环）。 */
+    private const val PAVE_DEPTH_MAX = 6
+
     /**
      * 本进程内刚做完 SETTLE 的关号。
      *
@@ -232,26 +235,50 @@ object OrekiEcAutomation {
      * 只剩 `B()`（自指项）时的一次性 SETTLE。
      */
     private fun settle(study: Any?, target: Int, unlocked: Int): Boolean {
-        // ① z()：TT 余额 ≥ 本关价格。不够就等，不做任何写入。
+        // ① A() 的前置分项：`qu4.k` 里至少一项时间研究已买。
+        //
+        // [R97 真机 EC4 卡点] 这一项**必须排在 z() 之前**：铺前置研究本身不消耗 EC 的价格，
+        // 先判 z() 会在「EC 贵但前置还没铺」时错误地停在 need-tt。
+        //
+        // 且原版 `purchaseUntil`（`b.S`）**不足以**铺通它：
+        // 它内部只按 `b.r[id]`（EC → 那条 TS，EC4→143）去补，遇到「143 自己的行内前置没买」
+        // 时只会反复尝试 143 本身并失败（原版 `a()` 判 `A()` 不通过 → `D()` 直接 false），
+        // 真机表现就是 `PREPARE id=4 prereq=missing k=[143]` 之后 30 秒零进展。
+        // 所以这里先跑一次原版 purchaseUntil（保留它对 EC11/EC12 维度分叉的处理），
+        // 然后由 [paveTimeStudy] 递归补齐 EC 所需 TS 的**行内前置链**。
+        if (Abi.prereqOk(study) != true) {
+            val k = Abi.intArray(study, "k") ?: emptyList()
+            // [R97 真机 EC4 二次纠偏] **先铺路，后调 purchaseUntil**。
+            // 上一版是先调 purchaseUntil 再铺路：真机 `b.S` 抛 InvocationTargetException
+            // （见 purchaseUntil 的 catch），整拍被异常打断，铺路一次都没跑到 —— 日志里
+            // 只有 `purchaseUntil failed`，完全没有 `PAVE ts=`，30 秒零进展。
+            // 铺路全程走原版 `c.B()/c.a(false)/c.D(false,null)`，不依赖 continuation，
+            // 因此必须排在前面，purchaseUntil 只作为「EC11/EC12 维度分叉」的补充手段。
+            for (id in k) {
+                if (paveTimeStudy(id, 0)) {
+                    note("PREPARE id=" + target + " k=" + k + " pave=" + id +
+                        " -> unlocked=" + Abi.unlocked())
+                    return true
+                }
+            }
+            val pu = Abi.purchaseUntil(study)
+            note("PREPARE id=" + target + " prereq=missing k=" + k + " purchaseUntil=" + pu +
+                " pave=none tt=" + Abi.theorem() + " " + Abi.tsChain(k))
+            return false
+        }
+
+        // ② z()：TT 余额 ≥ 本关价格。不够就等，不做任何写入。
         if (Abi.canAfford(study) != true) {
             note("need-tt id=" + target + " unlocked=" + unlocked + " tt=" + Abi.theorem() +
                 " price=" + Abi.priceText(study))
             return false
         }
 
-        // ② 原版 D()：unlocked != id 时按字节码必然 false；仍调用一次，留真机证据，
+        // ③ 原版 D()：unlocked != id 时按字节码必然 false；仍调用一次，留真机证据，
         //    且万一原版自愈（例如别的路径已推进 unlocked），就走真实购买。
         val dRet = Abi.buy(study) == true
         if (dRet && Abi.unlocked() == target) {
             note("BUY id=" + target + " -> unlocked=" + target + " tt=" + Abi.theorem())
-            return true
-        }
-
-        // ③ A() 的前置分项：`qu4.k` 里至少一项时间研究已买。
-        if (Abi.prereqOk(study) != true) {
-            Abi.purchaseUntil(study)
-            note("PREPARE id=" + target + " prereq=missing k=" + Abi.intArray(study, "k") +
-                " -> purchaseUntil, unlocked=" + Abi.unlocked())
             return true
         }
 
@@ -262,8 +289,14 @@ object OrekiEcAutomation {
             return false
         }
 
-        // ⑤ 到这里只剩 B()（unlocked == id）不成立 —— 原版唯一可达的写点就是从 D 成功后调 E(true)，
-        //    而 D 又以 B() 为前置，构成自指闭环。用原版货币 API 真实扣款后，重放 D 的后半段。
+        // ⑤ 到这里只剩 B()（unlocked == id）不成立。
+        //
+        // [LEAD 2026-11-09 裁决：批准保留 SETTLE，不改成纯 D()]
+        // 全 DEX 只有 `Player$PlayerEternityChallenges.k(I)` 一处 `iput unlocked`，且只被
+        // `E(true)` 推高，`E(true)` 只从 `D()` 成功后可达 ⟹ 纯 `D()` 是**自指闭环**，
+        // 任何存档在 `unlocked==0` 时都无解。因此这里采用**受控偏离**：
+        // 逐指令等价重放 `is3.D` 的方法体（`y().p(x())` 真扣 TT → `E(true)` → `C(true,p1)`），
+        // 只跳过自指的 `a()`。扣费与置位**全部走原版方法**，不写完成位、不改 completions、不造资源。
         if (Abi.payPrice(study) != true) {
             note("pay-failed id=" + target + " tt=" + Abi.theorem() + " price=" + Abi.priceText(study))
             return false
@@ -278,6 +311,51 @@ object OrekiEcAutomation {
             return true
         }
         note("settle-failed id=" + target + " unlocked=" + now + " tt=" + Abi.theorem())
+        return false
+    }
+
+    // --------------------------------------------------- 时间研究前置链递归铺路
+
+    /**
+     * 递归把某条时间研究买到手，**全程走原版** `c.a(false)` / `c.D(false,null)`。
+     *
+     * 为什么要自己递归：原版 `purchaseUntil` 只认 `b.r[id]` 这一条（EC4→143），
+     * 不会处理「143 自己的 `k` 前置没买」的情况；而 EC 的 `A()` 只检查 `qu4.k` 里**任一项已买**，
+     * 所以必须先由外部把那条 TS 连同行内前置链一起补通。
+     *
+     * @return true = 本拍**真的**买下了一个时间研究（调用方据此占用节拍并立即返回）。
+     */
+    private fun paveTimeStudy(id: Int, depth: Int): Boolean {
+        if (depth > PAVE_DEPTH_MAX) {
+            note("PAVE ts=" + id + " depth-exceeded depth=" + depth)
+            return false
+        }
+        val ts = Abi.ts(id)
+        if (ts == null) {
+            // 拿不到研究对象 = w63 注册表查找失败，必须留痕，不能再静默吞掉。
+            note("PAVE ts=" + id + " lookup-null depth=" + depth)
+            return false
+        }
+        if (Abi.tsBought(ts) == true) {
+            // [R97 定位] 这里曾静默 return，导致「铺路明明跑了却无任何日志」。
+            // B() 对普通时间研究的语义需与 EC 研究区分，先留证再判定。
+            note("PAVE ts=" + id + " skip=bought depth=" + depth +
+                " canBuy=" + Abi.tsCanBuy(ts) + " k=" + Abi.tsPrereqs(ts))
+            return false
+        }
+        if (Abi.tsCanBuy(ts) == true) {                     // 原版 a()：已买+买得起+前置通过
+            val ok = Abi.tsBuy(ts) == true                  // 原版 D()：真扣 TT
+            note("PAVE ts=" + id + " ok=" + ok + " price=" + Abi.tsPrice(ts) +
+                " tt=" + Abi.theorem() + " depth=" + depth)
+            return ok
+        }
+        // 行内前置未满足 → 先补前置（深度受限，避免环）
+        val pre = Abi.tsPrereqs(ts) ?: emptyList()
+        for (pid in pre) {
+            if (paveTimeStudy(pid, depth + 1)) return true
+        }
+        note("PAVE ts=" + id + " not-buyable depth=" + depth +
+            " canBuy=" + Abi.tsCanBuy(ts) + " k=" + pre + " tt=" + Abi.theorem())
         return false
     }
 
@@ -440,7 +518,7 @@ object OrekiEcAutomation {
          * 3.21 里它是**带自身单例作首参的 static**（`w63.smali:8269`），
          * 不是普通 `a(I)`；同时兼容纯 static `a(I)` 的形态，避免版本漂移。
          */
-        private fun timeStudy(id: Int): Any? = try {
+        fun ts(id: Int): Any? = try {
             val c = tsRegistry() ?: return null
             val self = try { c.getField("a").get(null) } catch (e: Throwable) { null }
             val m2 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 2 }
@@ -455,7 +533,7 @@ object OrekiEcAutomation {
                 }
             }
         } catch (t: Throwable) {
-            Log.i(TAG, "timeStudy(" + id + ") failed: " + t)
+            Log.i(TAG, "ts(" + id + ") failed: " + t)
             null
         }
 
@@ -527,6 +605,53 @@ object OrekiEcAutomation {
             null
         }
 
+        // ------------------------------------------------ 时间研究（TS）操作族
+        //
+        // 全部走原版：`c.B()`(已买) / `c.a(Z)`(可买) / `c.D(Z,rj0)`(真扣 TT 购买) / `qu4.k`(行内前置)。
+
+        /** 时间研究是否已买（`c.B()`）。 */
+        fun tsBought(ts: Any?): Boolean? = try {
+            find(ts, "B", 0)?.invoke(ts) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG, "ts.B() failed: " + t)
+            null
+        }
+
+        /** 时间研究是否可买（`is3.a(false)` = `B() && z() && A()`，原版口径）。 */
+        fun tsCanBuy(ts: Any?): Boolean? = try {
+            find(ts, "a", 1)?.invoke(ts, java.lang.Boolean.FALSE) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG, "ts.a(false) failed: " + t)
+            null
+        }
+
+        /** 真买时间研究（`c.D(false,rj0)`）：原版扣 TT + `E(true)` + `C(true,false)`。 */
+        fun tsBuy(ts: Any?): Boolean? = try {
+            val m = find(ts, "D", 2) ?: return null
+            m.invoke(ts, java.lang.Boolean.FALSE, continuation()) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG, "ts.D failed: " + t)
+            null
+        }
+
+        fun tsPrice(ts: Any?): String = priceText(ts)
+
+        /** 时间研究的行内前置数组（`qu4.k`）。 */
+        fun tsPrereqs(ts: Any?): List<Int>? = intArray(ts, "k")
+
+        /** 诊断：把一串 TS 的「已买/价格/自身前置」打出来。 */
+        fun tsChain(ids: List<Int>): String {
+            val sb = StringBuilder("chain[")
+            for (id in ids) {
+                val t = ts(id)
+                if (t == null) { sb.append(id).append(":?"); continue }
+                sb.append(id).append(":{bought=").append(tsBought(t))
+                    .append(",price=").append(tsPrice(t))
+                    .append(",k=").append(tsPrereqs(t)).append("} ")
+            }
+            return sb.append(']').toString()
+        }
+
         /**
          * `A(Z)` 的前置分项：`qu4.k` 里**至少一项**时间研究 `B()` 为 true。
          * 直接复刻 `b.A` 的循环，不依赖 `A()` 自身（它被 `unlocked != 0` 短路）。
@@ -535,7 +660,7 @@ object OrekiEcAutomation {
             val k = intArray(study, "k") ?: return null
             if (k.isEmpty()) return false
             for (id in k) {
-                val ts = timeStudy(id) ?: continue
+                val ts = ts(id) ?: continue
                 if (find(ts, "B", 0)?.invoke(ts) as? Boolean == true) return true
             }
             return false
@@ -615,7 +740,11 @@ object OrekiEcAutomation {
             m.invoke(study, cont)
             true
         } catch (t: Throwable) {
-            Log.i(TAG, "purchaseUntil failed: " + t)
+            // [R97 真机] 只打包装异常没用：必须打出真实 cause，否则无从判定是
+            // continuation 类型不符、EC 索引越界还是内部 NPE。
+            val cause = t.cause ?: t
+            Log.i(TAG, "purchaseUntil failed: " + t +
+                " cause=" + cause.javaClass.simpleName + ":" + cause.message)
             false
         }
 
