@@ -9832,3 +9832,15 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   见 `playerBackup2.json`），该成果由 `82f2b6d` 版本产生。
 - `[待办]` EC 修复（`82f2b6d`）在 AVD 空闲、且不与用户 Codex 工作冲突时重新验证后，可再次合入主线。
   **在此之前不触碰 AVD 与测试存档**，避免干扰用户正在进行的 GUI 修复。
+
+### R97 记录：EC1–EC3 验收存档已被备份轮转覆盖（2026-11-10）
+- `[实测]` 设备侧 `playerBackup2.json` 已轮转为新档（`db=34/gal=3`），
+  原先 `db=4/gal=152/bigE=40/ep=3.9e6/unlocked=3/completions=[5,5,5]` 的验收存档**已不在设备上**。
+  现存可用备份：`playerBackup3.json`（`db=1227/gal=101/bigE=5/ep=8.0`，本会话早期标准测试档）、
+  `playerBackup5.json`（`db=627/gal=78/bigE=5/ep=14.9`）。已另存一份到 `reports/longrun/saves/`。
+- `[存档证据]` EC1–EC3 完成的运行证据仍在：
+  `reports/longrun/ec-startfix-log.txt`（`unlocked=3`、`TRYBUY` 系列）、
+  `reports/longrun/ec-depth30-log.txt`（`TRYBUY id=171 a=true D=true` 原版真实买下前置）、
+  以及本会话中两次存档探针输出（`completions=[5,5,5]`）。
+- `[待办]` 需要重新跑一次 AVD 验收以复现 `completions=[5,5,5]`，因为原始验收存档已丢失。
+  **复现前不得声称 EC1–EC3 可在当前构建上稳定复现**（结论仍限于「曾真实达成」）。
