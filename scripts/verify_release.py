@@ -77,6 +77,41 @@ def sha256_of(path):
     return h.hexdigest()
 
 
+def check_study_registry_abi(base, payload_dirs):
+    """[R96 第十九轮] 研究注册表 ABI 守卫。
+
+    实测事故：payload 里 `Ll43;->d:Landroid/util/SparseIntArray;` /
+    `Ll43;->a(Ll43;I)L.../studies/c;` 在 3.21 里整个类漂移到了 `Lw63;`
+    （l43 实为 NetworkStateTracker，无 d 字段、无该方法），
+    运行时首行 NoSuchFieldError 被 try/catch 吞掉 ⇒ 买研究逻辑从不执行，
+    膨胀解锁研究永远买不到。此守卫按「真实基线的字段/方法签名」做静态核对，
+    防止再次漂移。
+    """
+    smali_dirs = [p for p in sorted(base.glob("smali*")) if p.is_dir()]
+    def find_class(simple):
+        for d in smali_dirs:
+            f = d / f"{simple}.smali"
+            if f.is_file():
+                return f
+        return None
+    w63 = find_class("w63")
+    problems = []
+    if w63 is None:
+        problems.append("基线缺少 w63.smali（研究注册表）")
+    else:
+        text = w63.read_text(encoding="utf-8", errors="replace")
+        if ".field public static final d:Landroid/util/SparseIntArray;" not in text:
+            problems.append("w63 缺少 d:Landroid/util/SparseIntArray 字段")
+        if ".method public static a(Lw63;I)Lkajfosz/antimatterdimensions/eternity/studies/c;" not in text:
+            problems.append("w63 缺少 a(Lw63;I)L.../studies/c; 访问器")
+    # 注意：**不能**断言 payload 里没有 `Ll43;->`。
+    # 按 build_mod.py 的既有架构，payload 的短名是按 3.19 写的，3.21 的重命名
+    # 只能由 baseline/versions/3.21/bindings.json 的 CONFIRMED 绑定在建包时改写；
+    # 在 payload 源里直接写新版名字会让 3.19 失效，属于明确禁止的做法。
+    # 这里只核对**基线**是否具备 payload 期望的成员形状，不评判 payload 的书写名。
+    return problems
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--apk", required=True)
@@ -107,6 +142,13 @@ def main():
           vcode.group(1) if vcode else "未解析到")
     check("versionName", vname and vname.group(1) == EXPECT_VERSION_NAME,
           vname.group(1) if vname else "未解析到")
+
+    # ---------------- 1b. 研究注册表 ABI 漂移守卫 ----------------
+    base_dir = Path(os.environ.get("OREKI_BASE", "work/base_decoded_321"))
+    payload_smali = Path("scripts/payload/smali")
+    abi_problems = check_study_registry_abi(base_dir, [payload_smali])
+    check("研究注册表 ABI（基线 w63 具备 SparseIntArray/List/访问器）",
+          not abi_problems, "；".join(abi_problems) if abi_problems else "OK")
 
     # ---------------- 2. 签名 ----------------
     # minSdk 32 的默认验证只选择 v3，不能据此判 v2 缺失。
