@@ -128,8 +128,13 @@ object OrekiEcAutomation {
     /** 只在步骤变化时打日志，避免刷屏（每拍最多一条）。 */
     @Volatile private var lastStep: String = ""
 
+    /** [R97] 单轮铺路的已访问集合（防环）。 */
+    private val paveVisited = HashSet<Int>()
+    /** 步骤状态会在多个研究节点间逐帧循环；诊断限频，不能阻塞原版 GUI。 */
+    @Volatile private var lastStepLogAt: Long = 0L
+
     /** [paveTimeStudy] 递归深度上限（时间研究树最深约 141→142→143 三层，留足余量防环）。 */
-    private const val PAVE_DEPTH_MAX = 6
+    private const val PAVE_DEPTH_MAX = 30
 
     /**
      * 本进程内刚做完 SETTLE 的关号。
@@ -162,7 +167,7 @@ object OrekiEcAutomation {
             note("state-unreadable")
             return false
         }
-        // [R97 P0 阶段保护] EC 只可能在 Break Infinity 之后存在。
+        // [R97 P0 阶段保护] 永恒挑战只可能在打破无限之后存在。
         // 手机包真机出现过「首次无限、Break 未完成」就被推进后期内容的情况；
         // 这里在业务入口再加一道真实前置（纵深防御），不依赖调用方是否守规矩。
         if (!GameApi.isBroken()) {
@@ -242,6 +247,12 @@ object OrekiEcAutomation {
      * 只剩 `B()`（自指项）时的一次性 SETTLE。
      */
     private fun settle(study: Any?, target: Int, unlocked: Int): Boolean {
+        if (study == null) {
+            // [R97] 研究对象为空时，后续 Abi 调用会在原版内部对 null 调 getClass() 抛 NPE，
+            // 必须在入口拦截并留痕，不得让异常打断整拍。
+            note("study-null id=" + target + " unlocked=" + unlocked)
+            return false
+        }
         // ① A() 的前置分项：`qu4.k` 里至少一项时间研究已买。
         //
         // [R97 真机 EC4 卡点] 这一项**必须排在 z() 之前**：铺前置研究本身不消耗 EC 的价格，
@@ -261,6 +272,23 @@ object OrekiEcAutomation {
             // 只有 `purchaseUntil failed`，完全没有 `PAVE ts=`，30 秒零进展。
             // 铺路全程走原版 `c.B()/c.a(false)/c.D(false,null)`，不依赖 continuation，
             // 因此必须排在前面，purchaseUntil 只作为「EC11/EC12 维度分叉」的补充手段。
+            // [R97 诊断] 先让**原版 D() 自己裁决**第一个前置能否买下（真实入口，不伪造）。
+            run {
+                val first = k.firstOrNull()
+                if (first != null) {
+                    val t2 = Abi.ts(first)
+                    val dbg = "b=" + Abi.tsBought(t2) + " a=" + Abi.tsCanBuy(t2)
+                    val r = if (t2 != null) Abi.tsBuy(t2) else null
+                    note("TRYBUY id=" + first + " " + dbg + " D=" + r + " tt=" + Abi.theorem() +
+                        " unlocked=" + Abi.unlocked())
+                    if (r == true) {
+                        note("PREPARE id=" + target + " k=" + k + " paved-by-D=" + first +
+                            " -> unlocked=" + Abi.unlocked())
+                        return true
+                    }
+                }
+            }
+            paveVisited.clear()
             for (id in k) {
                 if (paveTimeStudy(id, 0)) {
                     note("PREPARE id=" + target + " k=" + k + " pave=" + id +
@@ -268,7 +296,7 @@ object OrekiEcAutomation {
                     return true
                 }
             }
-            val pu = Abi.purchaseUntil(study)
+            val pu: Any? = null
             note("PREPARE id=" + target + " prereq=missing k=" + k + " purchaseUntil=" + pu +
                 " pave=none tt=" + Abi.theorem() + " " + Abi.tsChain(k))
             return false
@@ -333,6 +361,8 @@ object OrekiEcAutomation {
      * @return true = 本拍**真的**买下了一个时间研究（调用方据此占用节拍并立即返回）。
      */
     private fun paveTimeStudy(id: Int, depth: Int): Boolean {
+        // [R97] 环检测：同一轮铺路内同一 id 只尝试一次，避免 k 链成环导致无限递归。
+        if (!paveVisited.add(id)) return false
         if (depth > PAVE_DEPTH_MAX) {
             note("PAVE ts=" + id + " depth-exceeded depth=" + depth)
             return false
@@ -343,6 +373,7 @@ object OrekiEcAutomation {
             note("PAVE ts=" + id + " lookup-null depth=" + depth)
             return false
         }
+        Abi.dumpTsMethodsOnce(ts)
         if (Abi.tsBought(ts) == true) {
             // [R97 定位] 这里曾静默 return，导致「铺路明明跑了却无任何日志」。
             // B() 对普通时间研究的语义需与 EC 研究区分，先留证再判定。
@@ -369,7 +400,11 @@ object OrekiEcAutomation {
     private fun note(what: String) {
         if (what == lastStep) return
         lastStep = what
-        Log.i(TAG, "step: " + what)
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastStepLogAt >= 1_000L) {
+            lastStepLogAt = now
+            Log.i(TAG, "step: " + what)
+        }
     }
 
     // ============================================================ ABI 适配层
@@ -503,7 +538,21 @@ object OrekiEcAutomation {
          * 不再做 `Class.forName` 探测：既省一次类查找，也避免打印一条会误导排查的
          * "continuation failed" 日志（旧实现就是被这条日志带着去追一个并不存在的问题）。
          */
-        fun continuation(): Any? = null
+        /**
+         * [R97 修正] 原版 `D(Z, Continuation)` 的续体参数**不能传 null**：
+         * 实测 `challenge.D(true, null)` 抛 InvocationTargetException（与 purchaseUntil 的
+         * NPE 同源）。改用项目既有 `OrekiEcContinuation` 静态单例（字段 `a`），
+         * 它已实现 ContinuationImpl 且 getContext() 返回非 null 空上下文；
+         * `GameApi.purchaseIu15()` 走的是同一模式。
+         */
+        fun continuation(): Any? = try {
+            Class.forName("kajfosz.antimatterdimensions.OrekiEcContinuation", false,
+                OrekiEcAutomation::class.java.classLoader)
+                ?.getField("a")?.get(null)
+        } catch (t: Throwable) {
+            Log.i(TAG, "continuation lookup failed: " + t)
+            null
+        }
 
         fun study(id: Int): Any? = try {
             factory()?.getMethod("a", Integer.TYPE)?.invoke(null, id)
@@ -617,6 +666,28 @@ object OrekiEcAutomation {
         // 全部走原版：`c.B()`(已买) / `c.a(Z)`(可买) / `c.D(Z,rj0)`(真扣 TT 购买) / `qu4.k`(行内前置)。
 
         /** 时间研究是否已买（`c.B()`）。 */
+        private var dumpedTsMethods = false
+
+        /** [R97 诊断] 一次性转储时间研究对象的方法表，确认 B()/a(Z) 是否真实存在。 */
+        fun dumpTsMethodsOnce(ts: Any?) {
+            if (dumpedTsMethods || ts == null) return
+            dumpedTsMethods = true
+            try {
+                var c: Class<*>? = ts.javaClass
+                var lvl = 0
+                while (c != null && lvl < 4) {
+                    val names = c.declaredMethods
+                        .filter { it.name.length <= 3 }
+                        .joinToString(",") { it.name + "/" + it.parameterCount + it.returnType.simpleName }
+                    Log.i(TAG, "tsDump L" + lvl + " " + c.simpleName + " :: " + names)
+                    c = c.superclass
+                    lvl++
+                }
+            } catch (t: Throwable) {
+                Log.i(TAG, "tsDump failed: " + t)
+            }
+        }
+
         fun tsBought(ts: Any?): Boolean? = try {
             find(ts, "B", 0)?.invoke(ts) as? Boolean
         } catch (t: Throwable) {
