@@ -126,8 +126,8 @@ def _kotlin_dex_descriptors() -> set:
 
 def main() -> int:
     if not BASE_ROOTS:
-        print(f"[skip] 没有可用的 smali 基线目录，跳过类描述符校验")
-        return 0
+        print(f"[FAIL] 没有可用的 smali 基线目录，拒绝跳过类描述符校验")
+        return 1
     defined = collect_defined()
     # [R77] Kotlin 已接管的类：它们只在 build/kt/classes.dex 里，不在 smali 树中。
     # 不把它们算作"已定义"，就会把正常的 Kotlin 迁移误报成"引用了不存在的类"。

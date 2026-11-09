@@ -3972,8 +3972,7 @@ def check_smali_descriptors():
     import sys as _sys
     script = Path(__file__).resolve().parent / "check_smali_descriptors.py"
     if not script.is_file():
-        note("[Oreki R39] 缺少 check_smali_descriptors.py，跳过类描述符校验")
-        return
+        raise AssertionError("[Oreki R39] 缺少 check_smali_descriptors.py，拒绝跳过类描述符校验")
     r = subprocess.run([_sys.executable, str(script)], capture_output=True, text=True)
     out = (r.stdout or "") + (r.stderr or "")
     for ln in out.strip().splitlines():
