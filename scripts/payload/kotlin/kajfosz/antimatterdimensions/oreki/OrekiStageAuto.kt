@@ -421,6 +421,12 @@ object OrekiStageAuto {
             // 直接 null，ID 解锁只能靠末尾的 runScheduled("idBuy")，每拍先被 bulk 抢走。
             // 无限维度乘数正是中期 AM 成长的主动力（首次永恒前靠它把 maxAM 推到 1e95000），
             // 缺了它每次永恒后都会在同一处卡死。
+            // [R96 第十三轮] 永恒升级优先：EP 已够买「下一项未购买升级」时，
+            // 本拍名额必须给它，否则 EP 会被时间维度 TD1 吃干（实测 bigE=8、EP=0、eupBits=0）。
+            // 真实扣费仍走原版 `Upgrade.D(Z,Continuation)`；本判断只读余额与真实成本。
+            if (OrekiEternityEconomy.canAffordNextUpgrade()) {
+                return "eternity"
+            }
             // 只要还有无限维度没解锁，本拍紧迫名额就给 idBuy。
             // 为什么不是只判 ID1：实测（t0 08:39:57）ID1 在 +518s 解锁后名额立刻交回固定顺序，
             // 之后 10 分钟 `act idBuy` 只出现 1 次（bulk/sacrifice 各占 48/36 拍）⇒ ID2~ID8
@@ -486,6 +492,8 @@ object OrekiStageAuto {
             when (taskId) {
                 "crunchInterval" -> upgradeCrunchInterval()
                 "infinityUpgrades" -> buyInfinityUpgrades()
+                // [R96 第十三轮] 永恒升级：走原版商店购买入口（真实判余额 + 扣 EP + 置位）
+                "eternity" -> buyEternityUpgrades()
                 "breakShop" -> GameApi.breakShopTick() != 0
                 else -> tryBuyId1()
             }

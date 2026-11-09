@@ -120,6 +120,16 @@
     .locals 5
 
     :try_start_0
+    # [R96 第十三轮] EP 预留闸门（业务判定全在 Kotlin：OrekiEternityEconomy）。
+    # 余额仍处在「为下一项永恒升级预留」的区间内时，本轮**不买时间维度**，
+    # 否则 TD1（成本 1/3/9/27…）会把 EP 立刻吃干，永恒升级永远买不起
+    # （实测 bigE=8、EP=0、eupBits=0，34 分钟一次都没买到）。
+    # 预留量 = 未购买升级里最便宜那项的真实成本，买完自动抬到下一档；
+    # 全部买完或最便宜项遥不可及时返回 true（不锁死 TD）。
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternityEconomy;->isEternityPointsBeyondReserve()Z
+    move-result v4
+    if-eqz v4, :td_done
+
     sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
     invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->v()Lkajfosz/antimatterdimensions/player/Player$Dimensions;
     move-result-object v0
@@ -397,7 +407,7 @@
 # 判据逐条对齐 Web `tickEternity()`（:570-592）与本端原版自动器：
 #   ① `prestige/c;->f()Z`  = canEternity（原版同一判据，含「不在挑战中」等前置）；
 #   ② `prestige/c;->g()`   = gainedEP；
-#   ③ 门槛 = 当前 EP × 10（[R96 第十一轮] 恢复 ×10：坍缩间隔修复后周期开销已大幅下降，见下方长注释）；
+#   ③ 门槛 = 当前 EP × 1（[R96 第十三轮] 双端统一为 ×1，见下方长注释）；
 #   ④ 实参元组 (false, true, false, null) 来自 `EternityAutobuyerState.y()`
 #      的 `d(INSTANCE, 0, 1, 0, null, cont, 0xD)`（mask 0xD ⇒ p1/p3/p4 取默认）。
 # 注意 `Player.y()` 返回的是**存档内活对象**，`multiply` 会就地改它，
@@ -492,19 +502,19 @@
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;->copy()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
-    # [R96 第十一轮] 门槛回到 ×10（EP 至少涨到 11 倍才结算）。
+    # [R96 第十三轮] 双端统一为 ×1（EP 至少翻倍就结算）。
     #
-    # 四轮实测沿革（必须结合第十轮修掉的「坍缩间隔逐帧翻转」一起看）：
+    # 五轮实测沿革（必须连起来看，单看一次会得出相反结论）：
     #   · 第五轮 ×10：EP 卡死 —— 真因是无限升级买不到 + 坍缩每帧重置（第七轮修）。
-    #   · 第八/九轮 ×10：第二次永恒要 2 小时 —— 真因是永恒层把坍缩间隔写成 3600 秒
-    #     （第十轮修：allow/deny 逐帧翻转 ⇒ 间隔恒 1 小时 ⇒ 坍缩几乎不发生）。
-    #   · 第十轮 ×1（间隔修复后）：34 分钟 8 次永恒、周期降到 ~2 分钟，但**EP 恒 0**：
-    #     每次只 +1.6 EP，EP 立刻被时间维度 TD1（成本 1/3/9…）吃掉，
-    #     永远攒不到永恒升级首档 5 EP ⇒ 乘数链停在原地。
-    # 现在间隔已修好、重建周期 ~2 分钟，把门槛放宽到 ×10 是纯赚：周期只多几分钟，
-    # 单次 EP 从 1.6 变成 ≥10，EP 就能真正攒起来买时间维度/永恒升级。
+    #   · 第八轮 ×10：第二次永恒要 2 小时 —— 真因是永恒层坍缩间隔恒 3600 秒（第十轮修）。
+    #   · 第九轮 ×1（间隔已修）：34 分钟 8 次永恒，但 EP 恒 0 —— 真因是 TD1 把 EP 吃干
+    #     （本轮的 EP 预留修复直接解决，不再是门槛问题）。
+    #   · 第十轮 ×10（间隔已修）：19 分钟仍只到 maxIP 1e40，单周期过长。
+    #   · 第十三轮：EP 预留上线后，×1 的「高频永恒」不再损失 EP（余额被保护到能买升级），
+    #     且永恒里程碑（2 次 keepAutobuyers、4 次 keepInfinityUpgrades）靠次数推进，
+    #     ×1 能更快拿到 ⇒ 选择 ×1，与 Web 现有实现完全一致。
     # 只影响结算时机，不改任何收益公式；EP 收益仍由原版 gainedEP 计算。
-    const/16 v2, 0xa
+    const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->multiply(I)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1

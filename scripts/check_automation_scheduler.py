@@ -319,6 +319,25 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
+# ---------------------------------------------------------------- 24e. R96 第十三轮：EP 预留
+# 实测：bigE=8、EP=0、eupBits=0，34 分钟一次永恒升级都没买到 —— TD1（1/3/9…）把 EP 吃干。
+economy = read(KT_DIR / "OrekiEternityEconomy.kt")
+_et_smali_path = ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiEternity.smali"
+_et_smali = _et_smali_path.read_text(encoding="utf-8") if _et_smali_path.is_file() else ""
+check("存在 EP 预留经济对象", "object OrekiEternityEconomy" in economy)
+check("预留量取自真实成本（不是写死 5）",
+      "fun cheapestUnboughtUpgradeCost" in economy and "GameApi.eternityUpgradeCost" in economy)
+check("预留量随已买进度自动抬高（未购买里最便宜那项）",
+      "GameApi.upgradeBought(upgrade)" in economy and "versus < 0" in economy)
+check("死锁保护：遥不可及不为它预留",
+      "REACHABLE_FACTOR" in economy and "skip-unreachable" in economy)
+check("预留只读不扣费（不出现扣款/写档调用）",
+      "currencyBuy" not in economy and "setEternityUpgradeBits" not in economy)
+check("TD 购买入口被 EP 预留闸门拦截",
+      "isEternityPointsBeyondReserve" in _et_smali)
+check("永恒升级纳入调度器紧迫名额",
+      "OrekiEternityEconomy.canAffordNextUpgrade()" in stage
+      and '"eternity" -> buyEternityUpgrades()' in stage)
 check("永恒层只要还有无限维度未解锁就优先 idBuy（否则 maxAM 卡死）",
       "allInfinityDimensionsUnlocked()" in stage
       and 'if (!allInfinityDimensionsUnlocked()) {' in stage

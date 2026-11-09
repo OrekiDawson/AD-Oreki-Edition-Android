@@ -705,6 +705,13 @@ internal object GameApi {
         return (call(canBuy, upgrade, false) as? Boolean) ?: false
     }
 
+    /** 永恒升级当前价格（原版 `x()`，返回 BigDouble）。 */
+    fun eternityUpgradeCost(upgrade: Any?): Any? {
+        if (upgrade == null) return null
+        val cost = method(upgrade.javaClass, "x", 0, "EternityUpgrade.x()=cost")
+        return call(cost, upgrade)
+    }
+
     /** Break 升级当前价格（原版 `x()`，返回 BigDouble）。 */
     fun breakUpgradeCost(upgrade: Any?): Any? {
         if (upgrade == null) return null
