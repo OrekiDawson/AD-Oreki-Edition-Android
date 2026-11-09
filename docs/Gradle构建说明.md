@@ -77,10 +77,10 @@ Smali 的边界：只承担原版字节码的必要适配、Kotlin 无法直接�
 ## 4. 三条安全约定（对应 R4 执行令）
 
 1. **不得通过清空 `release/` 实现干净构建。** `assembleRelease` 让 Python 只生成
-   `build/gradle-stage/unsigned.apk`，再由 Gradle 写入同目录的对齐/签名暂存文件；
+   补丁后的 apktool 工作树，Gradle 再在 `build/gradle-stage/` 生成 unsigned、对齐和签名暂存文件；
    `release/` 全程只被 `installToRelease` 写过。本轮实测：候选构建期间
    `release/反物质维度.apk` 哈希始终是 `c5e05db4…`，直到显式执行 `installToRelease`。
-2. **构建失败必须非零退出且保留旧 APK。** Python 的 apktool 阶段和 Gradle 的
+2. **构建失败必须非零退出且保留旧 APK。** Gradle 的 apktool、ZIP、资源、
    zipalign/apksigner 阶段均失败即非零退出；签名只写 `signed_staged.apk`，成功后才原子
    替换候选 `反物质维度.apk`，失败时 `release/` 里的旧 APK 不受影响。
 3. **`clean` 不越界。** 见上表。
@@ -118,7 +118,8 @@ entries 2241 2241 same set: True
 因此 CRC / 解压大小 / 压缩后大小 / 对齐全部不变。本地头位置取自中央目录记录的偏移量，
 所以带数据描述符（bit 3）的条目也无需解析本地头长度字段。
 
-接入点在 `build_mod.py::build_package()` 的 `[5b]`：apktool 出包之后、Gradle `zipalign` 之前。
+接入点在 `assembleRelease` 的产物阶段：apktool 出包之后、Gradle `zipalign` 之前；
+`build_mod.py` 只生成补丁后的 apktool 工作树。
 经实测 `zipalign` 会保留输入时间戳，所以规整一次即可传递到最终签名产物。
 
 自检（`apk_normalize.normalize()` 内置返工校验）：改写后条目数必须不变、`zipfile.testzip()`
