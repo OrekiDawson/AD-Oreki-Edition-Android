@@ -112,8 +112,23 @@ check("除一次性校准/暂停切换外无其它改 mode 的路径",
       len(a_calls) <= 3, f"实际 {len(a_calls)} 次")
 
 # ---- 6. TIME 分支的间隔校准仍然存在 ----
+# [R96 第三十四轮] 间隔写入已收拢到唯一受管入口 writeManagedCrunchInterval()
+#   （玩家手改要让路、下一次策略 tick 才恢复、相等不写盘）。
+#   语义等价：1 秒校准仍在，只是不再直接调 setCrunchInterval。
 check("TIME 分支仍把间隔校准为 1 秒",
-      "setCrunchInterval(crunch, 1.0)" in code)
+      "setCrunchInterval(crunch, 1.0)" in code
+      or 'writeManagedCrunchInterval(crunch, 1.0' in code)
+# 受管入口必须存在，且是**唯一**直接写间隔的地方（防回归成逐帧直写）。
+# 注意：这两项必须针对**全文** `text` 断言 —— `code` 只含 applyCrunchPolicy() 函数体，
+# 而唯一写入口 writeManagedCrunchInterval() 定义在该函数之外（类内私有方法）。
+_n_direct = text.count("setCrunchInterval(crunch,")
+check("间隔写入收拢到 writeManagedCrunchInterval 单一入口",
+      _n_direct == 1,
+      f"直接写间隔处 {_n_direct} 处（应仅受管入口内 1 处）")
+check("受管入口实现了让路与恢复语义",
+      "mayRewriteCrunchInterval" in text and "releaseCrunchIntervalToMod" in text
+      and "noteCrunchIntervalWritten" in text
+      and "writeManagedCrunchInterval(" in text)
 
 # ---- 7. xHighest 只在 < 10 时补默认 ----
 # [R80] 局部变量按 §67 改为 highestVersusTen；接受历史写法。

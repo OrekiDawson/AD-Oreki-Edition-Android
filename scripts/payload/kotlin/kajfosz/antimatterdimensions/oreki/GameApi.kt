@@ -958,6 +958,16 @@ internal object GameApi {
     }
     private var mCrunchO: Method? = null
     private var mCrunchOResolved: Boolean = false
+    private var mCrunchJ: Method? = null
+    private var mCrunchJResolved: Boolean = false
+    /** `Crunch.J()D` = 玩家配置的原始坍缩间隔（秒）。 */
+    private fun mCrunchJ(): Method? {
+        if (!mCrunchJResolved) {
+            mCrunchJResolved = true
+            mCrunchJ = method(crunchCls(), "J", 0, "Crunch.J()=intervalRaw")
+        }
+        return mCrunchJ
+    }
     private fun mCrunchO(): Method? {
         if (!mCrunchOResolved) {
             mCrunchOResolved = true
@@ -1015,6 +1025,14 @@ internal object GameApi {
     fun setCrunchMode(s: Any?, mode: Int) = call(mCrunchA(), s, mode)
     fun crunchXHighest(s: Any?): Any? = call(mCrunchL(), s)
     fun setCrunchXHighest(s: Any?, v: Any?) = call(mCrunchP(), s, v)
+    /**
+     * 读取玩家配置的原始坍缩间隔（秒）。读不到返回 null（fail-closed，不猜）。
+     *
+     * [R96] 托管判据需要「实际值」，因此必须能读；`setCrunchInterval` 只能写。
+     * 取证：`CrunchAutobuyerState.J()D` 直接 `iget-wide time:D` 返回该字段。
+     */
+    fun crunchInterval(s: Any?): Double? = call(mCrunchJ(), s) as? Double
+
     fun setCrunchInterval(s: Any?, v: Double) = call(mCrunchO(), s, v)
     fun crunchCanTick(s: Any?): Boolean = (call(mCrunchC(), s) as? Boolean) ?: false
     fun crunchUnlocked(s: Any?): Boolean = (call(mCrunchG(), s) as? Boolean) ?: false
@@ -1179,6 +1197,31 @@ internal object GameApi {
      *
      * 读不到的项一律返回 null（fail-closed：宁可少报，不猜值）。
      */
+    // ---------------------------------------------------------------- 诊断：EC 研究可购买性
+    /**
+     * [R96] 只读诊断：对第 [ecId] 关的 EC 研究调用原版可购买判据 `A(Z)Z`。
+     *
+     * 存在理由：真机实测 EC 恒为 unlocked=0 / current=0 / 完成数 0，而
+     * `OrekiChallengeAuto` 是静默实现，无法判断是「必需普通研究一个都没买」还是
+     * 「命中了但附加标记为假」。本方法只读，不写任何字段。
+     *
+     * 返回 null 表示反射失败（fail-closed：不猜）。
+     */
+    fun ecStudyPurchasable(ecId: Int): Boolean? = try {
+        // [R96] `d51` 在**默认包**（smali_classes2/d51.smali 无 package 声明），
+        // 真机实测 ClassNotFoundException: kajfosz.antimatterdimensions.d51，故用裸名。
+        val factory = Class.forName("d51")
+        val aI = factory.getMethod("a", Integer.TYPE)
+        val study = aI.invoke(null, ecId)
+        if (study == null) null else {
+            val aZ = study.javaClass.getMethod("A", java.lang.Boolean.TYPE)
+            aZ.invoke(study, java.lang.Boolean.TRUE) as? Boolean
+        }
+    } catch (t: Throwable) {
+        Log.i("OREKI_EC_DIAG", "ecStudyPurchasable(" + ecId + ") failed: " + t)
+        null
+    }
+
     fun eternityChallengeState(): Map<String, Any?> {
         val out = LinkedHashMap<String, Any?>()
         val currentPlayer = player() ?: return out + ("error" to "player=null")

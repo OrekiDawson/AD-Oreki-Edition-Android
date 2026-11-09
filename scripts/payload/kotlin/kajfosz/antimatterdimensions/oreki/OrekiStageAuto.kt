@@ -568,6 +568,56 @@ object OrekiStageAuto {
         return true
     }
 
+    /**
+     * [R96 第三十四轮] 大坍缩「受管节拍」的**唯一写入口**。
+     *
+     * 归属（§81.1 第 4/5/7/8 条）：本方法处理的是**原版大坍缩自动器**的工作间隔，
+     * 属目标驱动型智能自动购买器的受管参数，**不经过** MOD 全局 1～60 秒节拍，
+     * 也绝不写进 `OrekiAutomationScheduler`。
+     *
+     * 每帧语义（幂等，可每帧调用）：
+     *   1. 读实际值 `crunchInterval()`（失败即放弃，fail-closed，不猜）；
+     *   2. `refreshCrunchInterval(actual, desired)` 判定玩家是否手改并登记待恢复；
+     *   3. `restoreDue` 到点时先解除玩家占用，随后用**当帧最新**目标写回一次；
+     *   4. 玩家占用中 → 不抢写，仅确保只登记一次恢复时机；
+     *   5. 实际值已等于目标 → 不写、不持久化（避免逐帧抖动，§81.1 第 7 条）。
+     *
+     * @return true = 本次真的写入了；false = 跳过（相等/被占用/读不到）
+     */
+    private fun writeManagedCrunchInterval(
+        crunch: Any?,
+        desiredSeconds: Double,
+        restoreDue: Boolean,
+        reason: String
+    ): Boolean {
+        val actual = GameApi.crunchInterval(crunch) ?: return false
+        OrekiPlayerIntent.refreshCrunchInterval(actual, desiredSeconds)
+
+        if (restoreDue) {
+            // 恢复时机已到：归属交还策略（只解除占用，不在此写值）。
+            OrekiPlayerIntent.releaseCrunchIntervalToMod()
+        }
+        if (!OrekiPlayerIntent.mayRewriteCrunchInterval()) {
+            // 玩家占用中：本帧不抢写，只登记「下一次调度 tick 再恢复」。
+            OrekiAutobuyerBeat.deferRestore(OrekiAutomationScheduler.getIntervalSec())
+            return false
+        }
+        val diff = kotlin.math.abs(actual - desiredSeconds)
+        if (diff <= 1e-9) {
+            // 值未变化 —— 不写、不持久化。
+            OrekiPlayerIntent.noteCrunchIntervalWritten(actual)
+            return false
+        }
+        GameApi.setCrunchInterval(crunch, desiredSeconds)
+        OrekiPlayerIntent.noteCrunchIntervalWritten(desiredSeconds)
+        Log.i(
+            TAG_AU4C,
+            "managed interval " + actual + " -> " + desiredSeconds +
+                " (" + reason + (if (restoreDue) ", restore" else "") + ")"
+        )
+        return true
+    }
+
     private fun isBroken(): Boolean = GameApi.isBroken()
 
     /** 当前 IP 余额（BigDouble 引用）。 */
@@ -1201,34 +1251,40 @@ object OrekiStageAuto {
 
             // [R96 §81] 到恢复时机：解除玩家占用，稍后按**当时最新**策略值重写一次。
             // 注意这只是配置恢复时机，原版自动购买器始终按自身间隔正常购买。
-            if (OrekiAutobuyerBeat.consumeRestoreDue()
-                && !OrekiPlayerIntent.mayRewriteCrunchMode()
-            ) {
-                OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+            // [R96 第三十四轮] 到恢复时机：解除玩家占用，稍后按**当时最新**策略值各写一次。
+            // 只解除占用、不在此写值；写值由下面各分支用当帧算出的目标完成（§81.1 第 5 条）。
+            // 注意这只是配置恢复时机，原版自动购买器始终按自身间隔正常运行。
+            val restoreDue = OrekiAutobuyerBeat.consumeRestoreDue()
+
+            if (restoreDue) {
+                if (!OrekiPlayerIntent.mayRewriteCrunchMode()) {
+                    OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+                }
+                OrekiPlayerIntent.releaseCrunchIntervalToMod()
             }
 
             val decision = OrekiCrunchPolicy.decide()
             if (!decision.allow) {
+                // 永恒层等待用 30 秒（周期结算），其余等待才用 1 小时硬暂停。
+                val pauseSeconds = if (decision.reason == "eternity-grow") {
+                    ETERNITY_GROW_CRUNCH_SECONDS
+                } else {
+                    CRUNCH_PAUSE_SECONDS
+                }
                 if (pauseReason != decision.reason) {
                     pauseReason = decision.reason
                     // [R96 §80.2] 玩家已手动改过坍缩模式则不再覆盖。
                     if (OrekiPlayerIntent.mayRewriteCrunchMode()) {
                         GameApi.setCrunchMode(crunch, MODE_TIME)
                         OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
-                    } else {
-                        // [R96 §81] 受管节拍被玩家改动：记录，不在下一帧抢写，
-                        // 推迟到下一次调度 tick 用当时最新策略值恢复。
-                        OrekiAutobuyerBeat.deferRestore(OrekiAutomationScheduler.getIntervalSec())
                     }
-                    // 永恒层等待用 30 秒（周期结算），其余等待才用 1 小时硬暂停。
-                    val pauseSeconds = if (decision.reason == "eternity-grow") {
-                        ETERNITY_GROW_CRUNCH_SECONDS
-                    } else {
-                        CRUNCH_PAUSE_SECONDS
-                    }
-                    GameApi.setCrunchInterval(crunch, pauseSeconds)
-                    Log.i(TAG_AU4C, "policy -> pause (" + decision.reason + ") interval=" + pauseSeconds)
+                    Log.i(TAG_AU4C, "policy -> pause (" + decision.reason + ")")
                 }
+                // [R96 第三十四轮 · 关键修复] 间隔写入**不再**被 `pauseReason` 相等与否包住。
+                // 旧实现里等待原因不变就一直跳过写入，导致玩家把 30 秒改成 3600 秒后
+                // 永远恢复不回来（策略以为「已经设过 30 了」）。现在每帧都按当帧目标走
+                // 受管写入：目标与实读值相等则不写（幂等），不等且未被玩家占用才写。
+                writeManagedCrunchInterval(crunch, pauseSeconds, restoreDue, "pause:" + decision.reason)
                 return
             }
             if (pauseReason != null) {
@@ -1236,7 +1292,7 @@ object OrekiStageAuto {
                 // [R96] Break 前沿用 60 秒收割间隔；Break 后放行用 5 秒下限，
                 // 真正的结算时机由目标驱动策略每拍判断（不是固定节奏）。
                 val resumeInterval = if (isBroken()) POST_BREAK_RESUME_SECONDS else PRE_BREAK_CRUNCH_SECONDS
-                GameApi.setCrunchInterval(crunch, resumeInterval)
+                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
                 Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
             }
 
@@ -1251,7 +1307,7 @@ object OrekiStageAuto {
             if (OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME) {
                 if (!targetIntervalInitialized) {
                     targetIntervalInitialized = true
-                    GameApi.setCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS)
+                    writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
                     Log.i(TAG_AU4C, "policy -> interval=5s (target-driven, once)")
                 }
                 return
@@ -1263,7 +1319,7 @@ object OrekiStageAuto {
                     GameApi.setCrunchMode(crunch, MODE_TIME)
                     Log.i(TAG_AU4C, "policy -> TIME/10s (pre-break IP harvest)")
                 }
-                GameApi.setCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS)
+                writeManagedCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS, restoreDue, "pre-break")
                 return
             }
 
@@ -1279,7 +1335,7 @@ object OrekiStageAuto {
                     Log.i(TAG_AU4C, "policy -> TIME/1s (break-upgrades empty)")
                 }
                 // 间隔 1 秒是本策略自己的节奏参数，可以继续每帧校准
-                GameApi.setCrunchInterval(crunch, 1.0)
+                writeManagedCrunchInterval(crunch, 1.0, restoreDue, "break-empty")
             } else {
                 // ---- 终局：只做一次 xHighest 默认校准，不改 mode ----
                 if (crunchPolicyInitialized) return
@@ -1339,12 +1395,20 @@ object OrekiStageAuto {
         lastEcDiagAt = now
         try {
             val st = GameApi.eternityChallengeState()
+            val buyable = (1..12).joinToString(",") { i ->
+                when (GameApi.ecStudyPurchasable(i)) {
+                    true -> i.toString() + ":Y"
+                    false -> i.toString() + ":n"
+                    null -> i.toString() + ":?"
+                }
+            }
             Log.i(
                 "OREKI_EC_DIAG",
                 "unlocked=" + st["unlocked"] + " current=" + st["current"] +
                     " maxed=" + st["maxedCount"] + "/12 total=" + st["totalCompletions"] +
                     " completions=" + st["completions"] +
-                    " err=" + (st["error"] ?: "-")
+                    " err=" + (st["error"] ?: "-") +
+                    " buyable=" + buyable
             )
         } catch (t: Throwable) {
             Log.i("OREKI_EC_DIAG", "diag failed: " + t)

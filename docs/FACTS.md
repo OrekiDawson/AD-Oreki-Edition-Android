@@ -9654,3 +9654,53 @@ return false                        # 列表里一个都没买 → false
 当前 EP 2.96e7、bigE 66 ⇒ 返回 false，阶段 10 是真实阶段（该阶段名即「永恒与时间研究
 （含第一次永恒）」，覆盖到膨胀解锁），**不是阶段误判**。
 
+## R96 第三十四轮（16:00-16:30）：智能大坍缩「受管节拍」双端落地
+
+### 用户指出的缺陷（已逐条修复）
+1. `OrekiStageAuto.kt` 只读 mode 判手改，**从不读 interval** ⇒ 无法识别玩家改了间隔。
+2. `consumeRestoreDue()` 到期**只** `noteCrunchModeWritten(MODE_TIME)`（mode 记账），不写 interval
+   ⇒ 玩家把 30 秒改 3600 秒后永不到恢复。
+3. `if (pauseReason != decision.reason)` **把 interval 写入也包住了** ⇒ 同一 eternity-grow 等待
+   持续时永远跳过恢复（这正是「目标不变就不恢复」的直接根因）。
+4. 其它分支（原 1266/1282）在**帧路径直写** interval ⇒ 可能抢写玩家手改值。
+5. Web 侧**完全没有** interval 托管（只有 `OrekiCrunchPolicy.decide()` 决定「要不要坍缩」）。
+
+### Android 实现（Kotlin-only）
+- `GameApi.crunchInterval(s)`：新增 `mCrunchJ()` 句柄。取证 `CrunchAutobuyerState.J()D` = `iget-wide time:D`（原始间隔）。
+- `OrekiPlayerIntent`：新增 interval 账本 `crunchIntervalWritten/…PlayerOwned`、`sameInterval`(1e-9)、
+  `noteCrunchIntervalWritten`、`refreshCrunchInterval`（首观测**基线采纳** + actual/modWrote/target 三方比对）、
+  `mayRewriteCrunchInterval`、`releaseCrunchIntervalToMod`。
+- `OrekiStageAuto`：新增**唯一写入口** `writeManagedCrunchInterval(crunch, desired, restoreDue, reason)`；
+  6 处直写全部收拢（`pause:`/`resume:`/`eternity-zero`/`pre-break`/`break-empty`）；
+  interval 写入已从 `pauseReason` 相等条件中解出；到期恢复＝解除占用 + 按**当帧最新**目标写一次。
+- 契约夹具 `fixture_crunch_policy.py` 同步演进（新增「单一入口」「让路/恢复语义」两项，改对全文断言）⇒ 18 项全过。
+
+### Web 实现（原生 ESM，行为等价）
+- 新增 `src/core/oreki-managed-crunch-interval.js`（与 Android 逐条等价，常量 60/5/30/3600 同名同值）。
+- `src/game.js` 每帧在 `OrekiSmartExecutor.runCycle` **之外**调用 `applyFromPolicy()`（§80.2/§81 归属）。
+- 新增 `scripts/check_managed_crunch_interval.mjs` 纯逻辑夹具 ⇒ **7/7 PASS**。
+
+### 已验证事实（真实运行证据）
+- **Android 真机（emulator-5554）logcat**：
+  `crunch interval baseline adopted current=30.0` → `managed interval 30.0 -> 5.0 (resume:eternity-cycle)`
+  → `managed interval 5.0 -> 30.0 (pause:eternity-grow)`，每 30 秒策略 tick 各写一次，**无逐帧刷写**。
+- **Web 夹具 7/7**：基线采纳不写盘；30→3600 手改后下一帧不抢写（写入次数不增、值保留、判为玩家占用）；
+  跨一个 10 s 节拍按最新目标恢复**恰好一次**；再下一帧相等跳过；目标切换写一次；只改 interval 不动 mode/amount；
+  连续微调只登记一次 defer 且仍按时恢复。
+- `verify_patch_contract` PASS、`check_publish_rules` PASS。
+- `verify_release --apk` **13/15**；两条 FAIL 为 `versionCode`/`versionName` —— 用**旧交付件**跑同一 gate
+  得到完全相同的 13/15 与同样两条 FAIL ⇒ **既有问题，非本轮引入**（待修：aapt 输出解析/期望值来源）。
+
+### 新发现待办
+- **策略抖动**：同一策略 tick 内 `resume:eternity-cycle`(5s) 与 `pause:eternity-grow`(30s) 在 ~25 ms 内互相覆盖
+  ⇒ 每次切换实际写 2 次。受管写入本身幂等（未逐帧刷写），但应消除该抖动。
+- **Android 手动改 30→3600 的 UI 交互腿 = NOT RUN**（需真实 UI 操作，当前仅 Web 逻辑夹具覆盖该语义）。
+- 用户验收中「A=60 重载仍 60」「玩家关自动器」「原版早于 60 秒行动 vs MOD 遵守 60 秒 + IP 增量」待补。
+
+### 同时更正的历史结论
+- 前几轮「`Lc21;->a(I)` 是坏类名」**已证伪**：`rewrite_alias()` 在 bindings 声明目标版本时返回
+  「3.19→目标」**复合映射**，payload 的 `Lc21` 早已被改写成 3.21 的 `d51`；产物 `build/gradle-verify-apk`
+  的 `OrekiChallengeAuto.smali:261/302` 确实已是 `Ld51`。故此前 smali 改动属**等价无操作**，已撤销。
+- EC 新证据：`buyable=1:n,2:n,3:n,4:n,5:Y,6:n…12:n`（仅 EC5 研究可买）；`tick()` 无异常逃逸；
+  给 `:chk_cic` 加 `goto :chk_main` 后 `tick()` 抛 `InvocationTargetException`（疑 VerifyError），已整体还原待查。
+

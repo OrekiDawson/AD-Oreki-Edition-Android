@@ -113,6 +113,86 @@ object OrekiPlayerIntent {
     @JvmStatic
     fun mayRewriteCrunchMode(): Boolean = !crunchModePlayerOwned
 
+    // ---------------- 大坍缩自动器间隔（§81.1 第 4/5/7 条受管项） ----------------
+
+    /**
+     * MOD 上次写入（或观测基线）的坍缩间隔秒数；NaN = 还没写过/没观测到。
+     *
+     * 与模式分开记账：玩家完全可能只改间隔不改模式（真机场景：30 秒 → 3600 秒），
+     * 若沿用模式那套布尔量，就会把「只改间隔」判成「没改」，从而被策略覆盖回去。
+     */
+    private var crunchIntervalWritten: Double = Double.NaN
+
+    /** 玩家是否已手动改过坍缩间隔（TRUE 期间 MOD 不写，等到恢复时机再写一次）。 */
+    @Volatile
+    private var crunchIntervalPlayerOwned: Boolean = false
+
+    /** 两个间隔值是否视为相同（浮点/NaN 安全；容差 1e-9 只吸收存取舍入）。 */
+    private fun sameInterval(a: Double, b: Double): Boolean =
+        (a.isNaN() && b.isNaN()) || (a.isFinite() && b.isFinite() && kotlin.math.abs(a - b) <= 1e-9)
+
+    /** MOD 写坍缩间隔后调用，登记写入值并把归属交还 MOD。 */
+    @JvmStatic
+    fun noteCrunchIntervalWritten(seconds: Double) {
+        crunchIntervalWritten = seconds
+        crunchIntervalPlayerOwned = false
+    }
+
+    /**
+     * 每帧调用一次：读取实际间隔，判定玩家是否手动改过。
+     *
+     * 判据与模式一致，只比较「MOD 上次写入值 / 策略目标值 / 当前实际值」三者：
+     * 当前值既不是 MOD 写的、也不是策略想写的 ⇒ 玩家改过 ⇒ 登记待恢复、本帧不抢写。
+     *
+     * 首次观察（进程刚起、`crunchIntervalWritten` 为 NaN）把当前值当基线采纳，
+     * 否则重启后永远无法识别玩家改动（与 `refreshCrunchMode` 的跨进程基线同理）。
+     *
+     * @param current 当前实际间隔（`GameApi.crunchInterval()`）
+     * @param target  本帧策略期望值
+     */
+    @JvmStatic
+    fun refreshCrunchInterval(current: Double, target: Double) {
+        if (!current.isFinite()) return
+        if (crunchIntervalWritten.isNaN()) {
+            crunchIntervalWritten = current
+            Log.i(TAG, "crunch interval baseline adopted current=" + current)
+            return
+        }
+        if (sameInterval(current, crunchIntervalWritten) || sameInterval(current, target)) return
+        if (!crunchIntervalPlayerOwned) {
+            crunchIntervalPlayerOwned = true
+            Log.i(
+                TAG,
+                "player changed crunch interval current=" + current +
+                    " modWrote=" + crunchIntervalWritten + " target=" + target +
+                    " -> MOD stops rewriting until next strategy tick"
+            )
+        }
+    }
+
+    /** MOD 此刻是否允许写坍缩间隔。false = 玩家占用中，等恢复时机。 */
+    @JvmStatic
+    fun mayRewriteCrunchInterval(): Boolean = !crunchIntervalPlayerOwned
+
+    /**
+     * 恢复时机已到：把归属交还 MOD，随后按**当时最新**策略值写一次。
+     *
+     * 只解除占用，不在这里写值 —— 写值由策略路径用当帧算出的目标完成（§81.1 第 5 条）。
+     */
+    @JvmStatic
+    fun releaseCrunchIntervalToMod() {
+        if (crunchIntervalPlayerOwned) {
+            crunchIntervalPlayerOwned = false
+            Log.i(TAG, "restore due -> crunch interval handed back to strategy")
+        }
+    }
+
+    /** 面板/日志用：当前托管间隔状态。 */
+    @JvmStatic
+    fun describeCrunchInterval(): String =
+        "interval=" + (if (crunchIntervalPlayerOwned) "player-owned" else "mod-managed") +
+            " modWrote=" + crunchIntervalWritten
+
     /** 仅供单元验证复位（不影响运行时语义）。 */
     @JvmStatic
     fun resetForTest() {
@@ -120,6 +200,8 @@ object OrekiPlayerIntent {
         masterPlayerDisabled = false
         crunchModeWritten = Int.MIN_VALUE
         crunchModePlayerOwned = false
+        crunchIntervalWritten = Double.NaN
+        crunchIntervalPlayerOwned = false
     }
 
     /** 面板/日志用：当前守卫状态。 */
