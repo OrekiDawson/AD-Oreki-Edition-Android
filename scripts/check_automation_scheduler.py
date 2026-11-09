@@ -319,6 +319,10 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
+check("永恒层只要还有无限维度未解锁就优先 idBuy（否则 maxAM 卡死）",
+      "allInfinityDimensionsUnlocked()" in stage
+      and 'if (!allInfinityDimensionsUnlocked()) {' in stage
+      and stage.index("if (!allInfinityDimensionsUnlocked()) {") < stage.index('return "idBuy"'))
 check("永恒层 eternity-grow 用 30 秒间隔而非 1 小时硬暂停",
       "ETERNITY_GROW_CRUNCH_SECONDS = 30.0" in stage
       and 'decision.reason == "eternity-grow"' in stage)

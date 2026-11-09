@@ -414,6 +414,21 @@ object OrekiStageAuto {
             // crunchInterval/sacrifice/bulk，不会造成空转。
             "infinityUpgrades"
         } else if (!eternitiesZero()) {
+            // [R96 第十二轮] 永恒层里 ID 每次永恒都会被重置，ID1 满足门槛必须优先解锁。
+            //
+            // 实测（干净新档 t0 08:13:41）：首次永恒后 20 分钟 `maxAM` 卡在 1e7762、
+            // `maxIP` 卡在 1e41，调度日志里 **`act idBuy` 一次都没有** —— 永恒层分支原先
+            // 直接 null，ID 解锁只能靠末尾的 runScheduled("idBuy")，每拍先被 bulk 抢走。
+            // 无限维度乘数正是中期 AM 成长的主动力（首次永恒前靠它把 maxAM 推到 1e95000），
+            // 缺了它每次永恒后都会在同一处卡死。
+            // 只要还有无限维度没解锁，本拍紧迫名额就给 idBuy。
+            // 为什么不是只判 ID1：实测（t0 08:39:57）ID1 在 +518s 解锁后名额立刻交回固定顺序，
+            // 之后 10 分钟 `act idBuy` 只出现 1 次（bulk/sacrifice 各占 48/36 拍）⇒ ID2~ID8
+            // 全锁 ⇒ maxAM 只能在 1e3~1e5 徘徊；而无限维度乘数是中期 AM 的唯一主动力。
+            // tryBuyId1 在无可买项时返回 false（noteNoop 不占节拍），因此不会白占名额。
+            if (!allInfinityDimensionsUnlocked()) {
+                return "idBuy"
+            }
             null
         } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
             null
@@ -494,6 +509,15 @@ object OrekiStageAuto {
     fun isDoomed(): Boolean = GameApi.isDoomed()
 
     /** `eternities == 0`。 */
+    /** 8 个无限维度是否全部解锁（只读原版真实状态）。 */
+    private fun allInfinityDimensionsUnlocked(): Boolean {
+        for (tier in 1..8) {
+            val dim = GameApi.infinityDimension(tier) ?: return false
+            if (!GameApi.idUnlocked(dim)) return false
+        }
+        return true
+    }
+
     @JvmStatic
     fun eternitiesZero(): Boolean {
         // [R94] 判据从 `Player.eternities` 改为「永恒点数 == 0 且永恒升级为空」：
