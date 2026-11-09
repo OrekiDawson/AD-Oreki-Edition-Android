@@ -9569,3 +9569,45 @@ EC 未解锁、未完成 0/60 ⇒ 无法满足膨胀前置 ⇒ 后续成长链�
 - `prestige/c.smali:3937` 的 `dilation/a;->k()V` 经核为**重置后幂等恢复**（`:cond_c` 在调用之后），
   非首次解锁入口；`a.smali:1612` 只是方法句柄常量，非调用点。
 
+## R96 第三十轮（14:25-14:35）：EC 自动化接线确认 + 只读诊断上机取证
+
+### 一、接线确认（静态）
+`challenge/antimatter/c.smali::b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;`
+（游戏每帧入口）中已注入：
+```
+invoke-static {}, L…/OrekiChallengeAuto;->tick()V
+invoke-static {}, L…/OrekiInstantChallenge;->tick()V
+```
+注入由 `scripts/build_mod.py` 完成，`verify_patch_contract.py` 守约（17/17）。
+⇒ **EC 自动化不是死代码，每帧都在跑**；`OrekiChallengeAuto` 为静默实现（无任何日志语句）。
+
+### 二、只读诊断（本轮唯一代码改动，Kotlin-only）
+- `GameApi.eternityChallengeState()`：反射只读 `player.challenge.eternity` 的
+  `unlocked / current / completions / maxedCount / totalCompletions`，读不到返回 null（fail-closed）。
+- `OrekiStageAuto.onAutoBuyerTick()` 首行加 `logEternityChallengeDiagnosticsIfDue()`，
+  30 秒最多一行，**只读、不改任何决策**。
+
+### 三、真机运行证据（决定性）
+```
+I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=-
+I OREKI_GOAL:    stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+```
+- `unlocked=0` ⇒ 一条 EC 研究都没买上；
+- `current=0` ⇒ **从未进入过任何永恒挑战**；
+- `maxed=0/12 total=0` ⇒ 完成数 0/60；
+- `err=-` ⇒ 反射读取全部成功，不是读不到导致的假象。
+
+### 四、由此收敛出的结论
+EC 链条断在**最前端**：EC 研究买不上 ⇒ `unlocked` 恒 0 ⇒ `OrekiChallengeAuto` 的守卫
+（「没有已解锁的 EC 就不进入」）恒成立 ⇒ 永远不进入挑战 ⇒ 完成数恒 0 ⇒
+EC11/EC12 永远到不了 5/5 ⇒ **膨胀永不解锁**。
+下一步只需盯住「EC 研究为什么买不上」（其硬前置为 `requirement.some(isBought)`,
+b.smali:373-390：需要普通研究树里已买某些研究），以及 `fillEcRequirement` 为何没把它补齐。
+
+### 五、门禁
+verify_release 15/15、verify_patch_contract 17/17、check_publish_rules 全过、
+调度器契约全过、教程 35/35。
+
+### 六、遗留
+真机 UI 手点端到端实测（玩家同进程改坍缩模式 → 下一 tick 恢复）仍 **NOT RUN**。
+

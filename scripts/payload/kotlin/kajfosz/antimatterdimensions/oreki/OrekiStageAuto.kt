@@ -225,6 +225,9 @@ object OrekiStageAuto {
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
+            // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
+            logEternityChallengeDiagnosticsIfDue()
+
             // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
             OrekiAutomationScheduler.beginFrame()
 
@@ -1318,6 +1321,33 @@ object OrekiStageAuto {
             if (holdCrunch()) mask = mask or (1 shl 4)
             Log.i(TAG_CRUNCH, mask.toString())
         } catch (_: Throwable) {
+        }
+    }
+
+    // ---------------------------------------------------------------- 诊断（只读，R96）
+    private var lastEcDiagAt = 0L
+
+    /**
+     * [R96] 永恒挑战诊断：每 30 秒最多一行，只读，绝不影响任何决策。
+     *
+     * 为什么需要：`OrekiChallengeAuto` 是静默实现，实测 `unlocked=0`、完成数全 0 时
+     * 无法判断它是否在跑、停在哪一步。本方法只输出 `player.challenge.eternity` 的真实值。
+     */
+    private fun logEternityChallengeDiagnosticsIfDue() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastEcDiagAt < 30_000L) return
+        lastEcDiagAt = now
+        try {
+            val st = GameApi.eternityChallengeState()
+            Log.i(
+                "OREKI_EC_DIAG",
+                "unlocked=" + st["unlocked"] + " current=" + st["current"] +
+                    " maxed=" + st["maxedCount"] + "/12 total=" + st["totalCompletions"] +
+                    " completions=" + st["completions"] +
+                    " err=" + (st["error"] ?: "-")
+            )
+        } catch (t: Throwable) {
+            Log.i("OREKI_EC_DIAG", "diag failed: " + t)
         }
     }
 }

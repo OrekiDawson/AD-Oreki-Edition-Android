@@ -1169,6 +1169,30 @@ internal object GameApi {
      * 把「不知道」当成「不在挑战」会在挑战里误买，代价不可逆；
      * 当成「在挑战」最多是暂停一拍自动购买，下一拍会自愈。
      */
+    // ---------------------------------------------------------------- 诊断：永恒挑战（EC）状态
+    /**
+     * [R96] 只读诊断：把 `player.challenge.eternity` 的真实状态打出来。
+     *
+     * 存在理由：`OrekiChallengeAuto` 是静默实现（无任何日志），实测 `unlocked=0`、
+     * `completions` 全 0 时无法从日志判断它停在哪一步。本方法只读，不写任何字段，
+     * 不改变任何行为，仅供定位使用。
+     *
+     * 读不到的项一律返回 null（fail-closed：宁可少报，不猜值）。
+     */
+    fun eternityChallengeState(): Map<String, Any?> {
+        val out = LinkedHashMap<String, Any?>()
+        val currentPlayer = player() ?: return out + ("error" to "player=null")
+        val challenges = readGameField(currentPlayer, "challenge") ?: return out + ("error" to "challenge=null")
+        val ec = readGameField(challenges, "eternity") ?: return out + ("error" to "eternity=null")
+        out["unlocked"] = readGameField(ec, "unlocked") as? Int
+        out["current"] = readGameField(ec, "current") as? Int
+        val comps = readGameField(ec, "completions") as? IntArray
+        out["completions"] = comps?.joinToString(",")
+        out["maxedCount"] = comps?.count { it >= 5 }
+        out["totalCompletions"] = comps?.sum()
+        return out
+    }
+
     fun inAnyChallenge(): Boolean {
         val currentPlayer = player() ?: return true
         val challenges = readGameField(currentPlayer, "challenge") ?: return true
