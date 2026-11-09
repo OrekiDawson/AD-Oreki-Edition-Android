@@ -655,12 +655,6 @@ def _profile_value(name: str, default=None):
     return baseline_profile().get(name, default)
 
 
-def _target_compatibility() -> dict:
-    """读取当前目标已核实的兼容数据；没有数据时保持原基线实现。"""
-    rel = _profile_value("compatibility")
-    return json.loads((ROOT / rel).read_text(encoding="utf-8")) if rel else {}
-
-
 def _baseline_bindings() -> dict:
     """读取目标基线的符号绑定（AGENTS.md §75 唯一合法来源）。
 
@@ -968,14 +962,6 @@ def _class_file_by_desc(desc: str, *, purpose: str = "") -> Path:
             f"MOD 中找不到类 {desc}" + (f"（{purpose}）" if purpose else "")
             + "：混淆映射缺失或基线不匹配")
     return p
-
-
-def _desc_of(stem: str) -> str:
-    """把 3.19 短名换成它在 3.20 里的完整描述符（走类级别名表）。
-
-    只适用于**默认包**（无 package 前缀）的混淆短名，例如 `bn0` -> `Lrp0;`。
-    """
-    return f"L{obfuscation_aliases().get(stem, stem)};"
 
 
 def assert_mod_complete(*, base: Path | None = None, mod: Path | None = None,
