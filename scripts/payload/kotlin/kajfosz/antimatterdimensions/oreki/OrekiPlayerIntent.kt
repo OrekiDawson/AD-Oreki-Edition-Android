@@ -20,6 +20,10 @@ import android.util.Log
  *
  * 判据完全是「MOD 写入值 vs 当前值」的差异，不猜玩家意图、不读 UI、不依赖任何
  * 3.21 混淆名 —— 因此跨版本安全，也不会误伤玩家。
+ *
+ * [R97 收口] 单项 `isActive` 的受管状态机在这里，且**只在这里**：
+ * 登记时刻、登记轮次、消费时刻全部可读，供 `OREKI_AU4C` 验收日志打印四要素
+ * （登记时刻 / 触发源键 / 恢复时刻 / 写入前后 isActive）。
  */
 object OrekiPlayerIntent {
 
@@ -63,7 +67,13 @@ object OrekiPlayerIntent {
         }
     }
 
-    /** MOD 此刻是否允许去打开/维护原版自动购买器。false = 玩家已明确关闭，让路。 */
+    /**
+     * 玩家是否已明确关闭原版总开关（true = 让路）。
+     *
+     * 注意语义：本函数**只回答「玩家有没有明确关过」**，不等于「此刻能不能接管」。
+     * 调用方还必须各自确认 `GameApi.autobuyersOn()`（原版总开关现值）与
+     * `OrekiAutomationScheduler.isEnabled()`（MOD 总开关）——三者互不等价。
+     */
     @JvmStatic
     fun mayTouchAutobuyers(): Boolean = !masterPlayerDisabled
 
@@ -80,10 +90,16 @@ object OrekiPlayerIntent {
      *   5.   IP 倍率与其它自动器共用同一条恢复路径，不再立即重开；
      *   6/7. 两个总开关由调用方在写之前判定，本对象不越权；
      *   10.  同一 key 只登记一次、只写一次；值未变化不写、不重复持久化。
+     *
+     * [R97 收口] `passSeq` = 调用方（OrekiStageAuto）的维护轮次，用来在真机日志里
+     * 证明「登记之后至少隔了一轮才恢复」，而不是下一帧就写盘。
      */
 
     /** key → 登记时刻（elapsedRealtime 毫秒）。同一 key 只保留一条登记。 */
     private val managedActivePendingAt = java.util.HashMap<String, Long>()
+
+    /** key → 登记时的维护轮次（≈帧序号），只用于日志取证，不参与判定。 */
+    private val managedActivePendingPass = java.util.HashMap<String, Long>()
 
     /** 累计登记次数，仅用于日志佐证「不是逐帧重复登记」。 */
     @Volatile
@@ -91,16 +107,26 @@ object OrekiPlayerIntent {
 
     /** 登记「策略要求开、但玩家把该项关掉了」。已登记则不刷新时间点（防连点导致永不恢复）。 */
     @JvmStatic
-    fun noteManagedActiveDisabled(key: String, nowMs: Long): Boolean {
+    fun noteManagedActiveDisabled(key: String, nowMs: Long, passSeq: Long): Boolean {
         if (managedActivePendingAt.containsKey(key)) return false
         managedActivePendingAt[key] = nowMs
+        managedActivePendingPass[key] = passSeq
         managedActiveDefers++
-        Log.i(TAG, "managed[" + key + "]: player disable recorded -> restore at next strategy tick")
+        Log.i(
+            TAG,
+            "managed[" + key + "] register at=" + nowMs + "ms pass=" + passSeq +
+                " defers=" + managedActiveDefers
+        )
         return true
     }
 
     @JvmStatic
-    fun noteManagedActiveDisabled(key: String): Boolean = noteManagedActiveDisabled(key, SystemClock.elapsedRealtime())
+    fun noteManagedActiveDisabled(key: String, nowMs: Long): Boolean =
+        noteManagedActiveDisabled(key, nowMs, 0L)
+
+    @JvmStatic
+    fun noteManagedActiveDisabled(key: String): Boolean =
+        noteManagedActiveDisabled(key, SystemClock.elapsedRealtime(), 0L)
 
     /** 是否到恢复时机：严格晚于登记时刻（= 下一策略 tick），到点只返回一次。 */
     @JvmStatic
@@ -108,22 +134,61 @@ object OrekiPlayerIntent {
         val at = managedActivePendingAt[key] ?: return false
         if (nowMs <= at) return false
         managedActivePendingAt.remove(key)
-        Log.i(TAG, "managed[" + key + "]: restore due -> re-enable once")
+        val deferPass = managedActivePendingPass.remove(key) ?: 0L
+        Log.i(
+            TAG,
+            "managed[" + key + "] restore-due at=" + nowMs + "ms registeredAt=" + at +
+                "ms waitedMs=" + (nowMs - at) + " pass=" + deferPass
+        )
         return true
     }
 
     @JvmStatic
-    fun consumeManagedActiveRestoreDue(key: String): Boolean = consumeManagedActiveRestoreDue(key, SystemClock.elapsedRealtime())
+    fun consumeManagedActiveRestoreDue(key: String): Boolean =
+        consumeManagedActiveRestoreDue(key, SystemClock.elapsedRealtime())
 
     /** 策略要求关闭、或已处于期望状态时清空登记，绝不残留成「稍后强行开启」。 */
     @JvmStatic
-    fun clearManagedActivePending(key: String) { managedActivePendingAt.remove(key) }
+    fun clearManagedActivePending(key: String) {
+        managedActivePendingAt.remove(key)
+        managedActivePendingPass.remove(key)
+    }
+
+    /**
+     * 整体不接管时清空**所有**登记（MOD 总开关 / 原版总开关任一关闭）。
+     *
+     * 为什么必须整体清：只早退不清登记，玩家重新打开开关后这些陈旧登记会立刻
+     * 变成「到点恢复」，等于绕过策略 tick 直接抢写。返回清掉的条数，便于日志取证。
+     */
+    @JvmStatic
+    fun clearAllManagedActivePending(): Int {
+        val n = managedActivePendingAt.size
+        if (n > 0) {
+            managedActivePendingAt.clear()
+            managedActivePendingPass.clear()
+            Log.i(TAG, "managed pending cleared all n=" + n)
+        }
+        return n
+    }
 
     @JvmStatic
     fun isManagedActivePending(key: String): Boolean = managedActivePendingAt.containsKey(key)
 
+    /** 登记时刻（毫秒）；null = 未登记。供验收日志打印「登记时刻」。 */
     @JvmStatic
-    fun describeManagedActive(): String = "pending=" + managedActivePendingAt.keys + " defers=" + managedActiveDefers
+    fun managedPendingAt(key: String): Long? = managedActivePendingAt[key]
+
+    /** 登记轮次；null = 未登记。供验收日志打印「隔了几轮」。 */
+    @JvmStatic
+    fun managedPendingPass(key: String): Long? = managedActivePendingPass[key]
+
+    @JvmStatic
+    fun managedPendingCount(): Int = managedActivePendingAt.size
+
+    @JvmStatic
+    fun describeManagedActive(): String =
+        "pending=" + managedActivePendingAt.keys + " n=" + managedActivePendingAt.size +
+            " defers=" + managedActiveDefers
 
     // ---- 大坍缩沿用同一状态机（键固定 "crunch"），保留原函数名以免调用点散落 ----
     private const val KEY_CRUNCH = "crunch"
@@ -271,11 +336,15 @@ object OrekiPlayerIntent {
         crunchModePlayerOwned = false
         crunchIntervalWritten = Double.NaN
         crunchIntervalPlayerOwned = false
+        managedActivePendingAt.clear()
+        managedActivePendingPass.clear()
+        managedActiveDefers = 0
     }
 
     /** 面板/日志用：当前守卫状态。 */
     @JvmStatic
     fun describe(): String =
         "autobuyers=" + (if (masterPlayerDisabled) "player-owned" else "mod-managed") +
-            " crunchMode=" + (if (crunchModePlayerOwned) "player-owned" else "mod-managed")
+            " crunchMode=" + (if (crunchModePlayerOwned) "player-owned" else "mod-managed") +
+            " managed=" + describeManagedActive()
 }

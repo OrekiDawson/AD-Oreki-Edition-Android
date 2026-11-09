@@ -3,57 +3,120 @@ package kajfosz.antimatterdimensions.oreki
 import android.util.Log
 
 /**
- * [R97] 永恒挑战（EC）自动推进 —— **Kotlin 业务实现**（替代旧的 `OrekiChallengeAuto.smali` 的 EC 部分）。
+ * [R97] 永恒挑战（EC）自动推进 —— **Kotlin 业务实现**。
  *
- * ## 为什么必须重写
+ * ## 一、R97 逐指令复核结论（真实 3.21 smali：`work/base_decoded_321`）
  *
- * R96 真机证据：EC 恒为 `unlocked=0 / current=0 / completions 全 0`，而同一时刻
- * `OREKI_EC_DIAG` 显示 `buyable=…,5:Y,…`（EC5 的研究**已经满足前置**）。
- * 说明「买不到」不是资源问题，而是**购买代码根本没被执行或执行必然失败**。
+ * 旧实现（以及本文件 R97 前一版注释）对三条原版判据的理解**都是错的**，必须以此处为准：
  *
- * R97 逐符号复核（真实 3.21 smali，`work/base_decoded_321`）查到三个真实断点：
+ * ### 1. `D(Z,ContinuationImpl)Z` 的真实声明类
  *
- * 1. **旧 Smali 的 EC 分支不可达（任务饥饿）**：`OrekiChallengeAuto.tick()` 先跑
- *    `tryNormal()/tryInfinity()`，任一返回 true 就 `return-void`，EC 的 `:chk_main`
- *    轮不到；即使轮到了，`fillEcRequirement()` 里读的是 `Lzw4;->k:…` —— 3.21 的 `zw4`
- *    是一个只有 `<clinit>/equals/hashCode` 的无关类，**该字段不存在**，
- *    真正的「前置研究 id 数组」是 `qu4.k`（`b` → `qu4` → `na4` → `is3`）。
- * 2. **旧 Smali 的挑战启动参数极性/入口与本版不一致**：3.21 里 EC 研究的购买是
- *    `is3.D(Z,Lrj0;)Ljava/lang/Boolean;`（`rj0` = kotlin.coroutines.Continuation），
- *    不是旧注释写的 `fp3.D(ZLvh0;)`。
- * 3. **结算入口的类名漂移**：`OrekiInstantChallenge` 的 EC 分支取当前挑战用 `Lr51;->c()`，
- *    3.21 的 `r51` 是只含 `a(Lt51;)V` 的无关接口；真正的「当前 EC 挑战」是 `x81.c()`。
+ * 继承链（全部逐行核对 `.class` / `.super`）：
  *
- * 按用户令（Android 业务路径必须完整 Kotlin 化，禁止继续在 Smali 里改 EC 业务），
- * 本类承接 EC 的**全部**推进业务，Smali 只留 ABI 适配。
+ * ```
+ * e51  → kajfosz/antimatterdimensions/eternity/studies/b (ECTimeStudyState)
+ *      → qu4 → na4 → is3 → in1 → c61 → Object
+ * ```
  *
- * ## 与 3.21 原版的真实接口（全部经 DEX 逐条取证，混淆符号只出现在本文件的 Abi 内层）
+ * `D` **只**声明在 `Lis3;`：
+ * `is3.smali:181  .method public D(ZLrj0;)Ljava/lang/Boolean;`
+ * （`rj0` = `kotlin.coroutines.Continuation`；返回 `java.lang.Boolean`，非 suspend 语义、同步返回）。
+ * `e51` / `b` / `qu4` / `na4` 都没有 `D`，只能继承到 `is3`。
  *
- * | 语义 | 3.21 真实位置 | 证据 |
+ * `is3.D` 逐指令：
+ *
+ * ```
+ * a(p1)                     # 可购买判定
+ * if-eqz p2, :cond_0        # a()==false → 返回 false，**一分钱都不扣**
+ * y().p(x())                # 扣费：货币.p(价格)
+ * E(true)                   # 购买后置位
+ * C(true,p1)                # UI/缓存后置
+ * ```
+ *
+ * ### 2. `a(Z)Z` —— 真正的可购买判定（`is3.smali:277`）
+ *
+ * ```
+ * B() && z() && A(p1)
+ * ```
+ *
+ * 注意是 **`B()` 必须为 true**（`if-nez v0, :cond_0` 表示 `B()==0` 直接返回 false）。
+ * 旧注释写的 `!B() && …` 是**读反了**，据此写出的「A() 只是提示、直接调 D()」策略必然失败。
+ *
+ * ### 3. `z()Z` 的真实语义（`is3.smali`，`final`，不可覆盖）
+ *
+ * ```
+ * y().l(x())        # iq0.l(BigDouble)Z == getValue().compareTo(price) >= 0
+ * ```
+ *
+ * * `y()`：`qu4.y()` = `iq0.U` → `hq0` → `hq0.L()` = `Player.c0().i()` = **时间定理（TT）余额**；
+ * * `x()`：`is3.i` 字段 = 构造时传入的**价格** `BigDouble`；
+ * * `iq0.l(a)`：`getValue().compareTo(a) >= 0` —— 余额 **≥** 价格；
+ * * `iq0.p(a)`：`if (l(a)) { v(a); true } else false` —— 够就扣、不够返回 false。
+ *
+ * ⟹ **`z()` 就是「TT 余额 ≥ 本关价格」的 affordability**，比较对象是 TT。
+ * 旧注释写的 `y().i(x())` 是笔误。
+ *
+ * ### 4. EC1 的真实价格与 TT 对比
+ *
+ * `d51.<clinit>`（默认包，非 kajfosz 包下）：EC1 = `const/4 v1, 0x1`（id=1）、
+ * `sget-object v2, Lfw;->x0`、`k = {0xab}`（=171）。
+ * `fw.smali:750-757`：`new-instance BigDouble; const-string "30"; sput-object Lfw;->x0`
+ *
+ * ⟹ **EC1 价格 = 30 TT**；真机 TT = 4.0116e4 ≈ 40116，**远超门槛**。
+ * 所以真机 `buy-failed id=1 ret=false unlocked=0` **不是资源不足**。
+ *
+ * ### 5. 真正的拒绝原因（真机 `ret=false unlocked=0` 的唯一解释）
+ *
+ * EC 研究（`e51`）上：
+ *
+ * | 判据 | 真实实现 | `unlocked=0` 时 |
  * |---|---|---|
- * | EC 研究工厂 | `d51.a(I)L…eternity/studies/b;`（**默认包**，非 kajfosz 包下） | `d51.smali:1271`，内部 `add-int/lit8 p0,p0,-0x1` + `aget-object`（1-based） |
- * | 前置/解锁判据 | `b.A(Z)Z` | `b.smali:360`：要求 `x81.d()==0`，且 `qu4.k` 里至少一项已买，且（`vi3.D.k()` 或 `T()` 或 `O()`）；布尔参数在方法体首行即被覆盖，实为无用 |
- * | 完整可购买判据 | `is3.a(Z)Z` | `is3.smali`：`!B() && z() && A(p1)` |
- * | 买得起 | `is3.z()Z` | `is3.smali`：`y().i(x())` 的返回（余额 ≥ 价格） |
- * | 互斥研究已占 | `b.O()Z` | `b.smali:864`：`b.p` 里任一项已买则返回 false |
- * | **真实购买** | `is3.D(Z,Lrj0;)Ljava/lang/Boolean;` | `is3.smali:181`：`a(p1)` 通过 → `y().p(x())` 扣费 → `E(true)` → `C(true,p1)`；**非 suspend**，同步返回 |
- * | **解锁写位** | `b.E(Z)V` | `b.smali:590`：true → `x81.h(this.c)`（= 该关 id）；false → `x81.h(0)` |
- * | 补齐前置路径 | `b.S(ContinuationImpl)Object` | `b.smali:1345`（原版 purchaseUntil，内部 `d.e(b.r[id], id, cont)`，**带真实 ec 参数**，EC11/EC12 的维度分叉靠它） |
- * | EC 挑战对象 | `x81.a(I)L…challenge/eternity/b;` | `x81.smali:1742` |
- * | 当前在跑的 EC | `x81.c()L…challenge/eternity/b;`（无则 null） | `x81.smali:1838` |
- * | 已解锁关号 | `x81.d()I` | `x81.smali:1892` → `PlayerEternityChallenges.f()` |
- * | 满级判定 | `challenge/eternity/b.y()Z` | `b.smali:3844` = `I()==L()`；`L()`（2633）常态 5，无名者下 EC1 为 1000 |
- * | 完成次数 | `b.I()I` | `b.smali:2096` = `PlayerEternityChallenges.a()[id-1]` |
- * | **真实进入** | `b.D(Z,ContinuationImpl)Object` | `challenge/eternity/b.smali:472`，`EternityChallengeState$start$1` 状态机；唯一写 `PlayerEternityChallenges.h(I)`（非 0 current）的地方在 :983 |
- * | continuation 单例 | `OrekiEcContinuation.a` | MOD 自有叶子协程；`ContinuationImpl.<init>` 要求真实 `rj0`（= Continuation），传 null 会 NPE 被外层吞掉 |
+ * | `B()` | `e51.smali:110` `x81.d() == Lin1.c`（`unlocked == 本关 id`） | **false** |
+ * | `z()` | TT ≥ 价格（30） | true |
+ * | `A(true)` | `b.smali:360`：先 `x81.d()`，`if-nez p1,:cond_2` ⟹ `unlocked==0 → false`；否则要求 `qu4.k` 里至少一项时间研究已买，且 `!vi3.D.k() \|\| T() \|\| O()` | **false** |
  *
- * ## 纪律
- * - 只调原版方法：不写 completionBits、不伪造 resource、不改 `current`/`unlocked`（都由原版方法自己写）；
- * - 一次 [step] 最多做**一件**有进展的事，做完立刻返回；
- * - 每一步都用**读回真值**验证（买 → `unlocked` 必须变成 id；启动 → `current` 必须变成 id；
- *   退关 → `unlocked` 必须归 0），验证不过就如实返回 false，绝不假装成功；
- * - 「挑战启动即完成」由 `OrekiInstantChallenge` 在同帧结算，本类只在 `unlocked` 归零后继续买下一关，
- *   因此**不会停在第一关**。
+ * ⟹ `a()` = `B() && z() && A()` = **false** ⟹ `D()` 立刻返回 false、不扣费。
+ * 真机日志 `step: buy-failed id=1 ret=false unlocked=0` 与此**逐字节吻合**。
+ *
+ * ### 6. `unlocked` 为什么是 0，以及为什么原版自愈不了
+ *
+ * 全 DEX 对 `PlayerEternityChallenges.unlocked` 的写入只有一个：
+ * `Player$PlayerEternityChallenges.smali:213 iput p1, …, unlocked:I`（在 `k(I)` 内）。
+ * `k(I)` 的调用者只有 `x81.h(I)`；`x81.h(I)` 的调用者只有：
+ *
+ * * `e51.E(Z)` / `b.E(Z)` —— `true → unlocked = 本关 id`，`false → unlocked = 0`；
+ * * `eternity/studies/d.c(Z)V`（**respecTimeStudies**）：`d51.c()` 取当前 EC → `E(false)` → **`unlocked = 0`**；
+ * * `prestige/c.l(Z)`（EC 硬重置）、存档读写。
+ *
+ * 而 `E(true)` 只能从 `is3.D` 成功购买之后到达，`D` 又要求 `B()`（`unlocked == id`）成立 ——
+ * **自指闭环**：`unlocked=0` 之后，原版没有任何「把 0 推进到 1」的可达写点。
+ * 本存档正是被 respec/`E(false)` 打成了 0，于是 12 关全部 `buyable=n`，
+ * `purchaseUntil` 再怎么补前置也永远买不到（它内部同样走 `D`）。
+ *
+ * ⟹ **本类此后严禁调用 respecTimeStudies，也严禁调用 `E(false)` 退关**——那正是把 `unlocked`
+ * 清零、把 EC 链锁死的原因（旧实现两处都调了，是本次真机卡死的直接来源）。
+ *
+ * ## 二、本类的推进状态机（每一步都用读回真值验证）
+ *
+ * 1. `unlocked == target` 且未在挑战中 → **START**：先 `D()`（原版真实购买，付费 + 回写 `unlocked`），
+ *    再 `challenge.D(true, cont)` 真实进入；校验 `current == target`。
+ * 2. `unlocked != target` → 按 `a()` 的三个分项精确定位缺哪一项：
+ *    * `z()` 不足 → `need-tt`（等资源，不空转）；
+ *    * `A()` 的前置数组 `qu4.k` 未铺 → 走原版 `purchaseUntil`（`b.S`）补前置研究；
+ *    * `A()` 的尾部 `!ii3.k() || T() || O()` 不成立 → `blocked`（原版也不允许）；
+ *    * 只剩 `B()`（`unlocked != id`）这一项不成立 → **SETTLE**：用原版货币 API
+ *      `iq0.U.p(price)` **真实扣掉本关价格**，再调原版 `E(true)` 写 `unlocked = id`（并置
+ *      `requirementBits`），最后 `C(true,false)` 刷新 UI 缓存。
+ *
+ *     这是 `is3.D` 方法体的**逐指令等价重放**（扣费 → `E(true)` → `C(true,p1)`），
+ *      唯一差别是不再调用自指的 `a()`。**不写完成位、不改 completions、不造资源**：
+ *      价格照扣、余额照减，扣不起（`p()` 返回 false）就立即放弃并记 `pay-failed`。
+ *
+ * ## 三、纪律
+ * - 只调原版方法，混淆符号只出现在本文件的 `Abi` 内层（AGENTS.md §67）；
+ * - 一次 [step] 最多做**一件**有进展的事；无进展不占调度节拍；
+ * - 每一步都读回真值（`unlocked` / `current` / `completions` / TT 余额），验证不过就如实返回 false；
+ * - 绝不写 completionBits、绝不伪造资源、绝不再清时间研究树。
  */
 object OrekiEcAutomation {
 
@@ -65,52 +128,13 @@ object OrekiEcAutomation {
     /** 只在步骤变化时打日志，避免刷屏（每拍最多一条）。 */
     @Volatile private var lastStep: String = ""
 
-    // ------------------------------------------------ respec 节流（防研究树抖动）
-    /** 上一次执行 respec 是为哪一关（同一关只清一次：清树结果确定，重复清不会带来新结果）。 */
-    /** 每关已执行 respec 的次数。**不能**用「同关只准一次」的永久闩锁： */
-    private val respecCountById = java.util.HashMap<Int, Int>()
-    /** 本次进程内已执行的 respec 次数。 */
-    private var respecCount: Int = 0
-    /** 上一次 respec 的时刻（elapsedRealtime）。 */
-    private var lastRespecAtMs: Long = 0L
-    /** 两次 respec 之间至少间隔 6 秒，避免「清树 ↔ 重建 → 又被挡 → 再清树」的每拍抖动。 */
-    private const val RESPEC_COOLDOWN_MS = 6_000L
-    /** 全程上限 32 次（旧 Smali 同值）；用尽后退化为「停在原地等资源」，绝不无限清树。 */
-    private const val RESPEC_MAX = 32
     /**
-     * [R97 实测] 单关 respec 次数上限。
+     * 本进程内刚做完 SETTLE 的关号。
      *
-     * 原实现是「同一关清过一次就永不再清」（`if (id == lastRespecId) return false`），
-     * 真机实测该闩锁会造成**永久停摆**：
-     *   1. EC1 的 `O()Z` 为 false（树里存在互斥研究）→ `A(true)` 恒假；
-     *   2. 第一次 respec 之后 `lastRespecId=1`，此后每拍都被拒；
-     *   3. 于是只能落到 `purchaseUntil`，而它在 `O()==false` 时永远买不到；
-     *   4. 表现即 `unlocked=0`、12 关全 `buyable=n`、日志反复打印
-     *      `PREPARE id=1 exclusiveFree=false` —— 与用户反馈「停在第一关」完全一致。
-     * 改为**有界重试**：允许同一关再清，但每关最多 3 次、间隔仍受 6 秒冷却与总上限 32 约束，
-     * 既解除死锁，又不会退化成每拍无限清树。 */
-    private const val RESPEC_PER_ID_MAX = 3
-
-    /**
-     * 是否可以对该关执行 respec。
-     *
-     * 三条闸门缺一不可：总量未用尽、同一关未清过、距上次已过冷却。
-     * 返回 true 时**立即**记账（调用方随后就执行），保证即使执行抛异常也不会解闸重复清树。
+     * SETTLE 已经按原版口径扣过本关价格，所以紧接着的那一次 START **不再**调 `D()`，
+     * 避免同一关被连扣两次（SETTLE 一次 + D 一次）。START 后即清空。
      */
-    private fun allowRespec(id: Int): Boolean {
-        if (respecCount >= RESPEC_MAX) return false
-        // [R97 实测纠偏] 这里原本是 `if (id == lastRespecId) return false`：
-        // 同一关只准清一次，一旦清完仍是互斥态就再也无法自救 → EC1 永久停在第一关。
-        // 改为「每关有界重试」，配合冷却与总上限，既解死锁又不抖动。
-        val used = respecCountById[id] ?: 0
-        if (used >= RESPEC_PER_ID_MAX) return false
-        val now = android.os.SystemClock.elapsedRealtime()
-        if (lastRespecAtMs != 0L && now - lastRespecAtMs < RESPEC_COOLDOWN_MS) return false
-        respecCountById[id] = used + 1
-        respecCount += 1
-        lastRespecAtMs = now
-        return true
-    }
+    @Volatile private var settledId: Int = 0
 
     // ------------------------------------------------------------ 对外唯一入口
 
@@ -130,169 +154,130 @@ object OrekiEcAutomation {
     }
 
     private fun runOnce(): Boolean {
-        // 0) 任何挑战正在进行就不插手（结算由 OrekiInstantChallenge 负责）。
         val unlocked = Abi.unlocked()
         if (unlocked == null) {
             note("state-unreadable")
             return false
         }
+        // 任何挑战正在进行就不插手（结算由 OrekiInstantChallenge 负责）。
         if (GameApi.inAnyChallenge()) {
             note("in-challenge unlocked=" + unlocked)
             return false
         }
-        return if (unlocked == 0) buyOrPrepare() else startOrRelease(unlocked)
-    }
 
-    // ------------------------------------------------------- unlocked == 0：买研究
-
-    /**
-     * 让「当前真买得起」的那一关先被处理，找不到可买的才去补前置。
-     *
-     * 这里刻意**不按 id 顺序 fail-fast**：旧实现扫到第一个不可买的关就 return，
-     * 真正可买的关（R96 实测是 EC5）永远轮不到 —— 那正是任务饥饿。
-     */
-    private fun buyOrPrepare(): Boolean {
-        // 第一轮：找「前置已满足 且 买得起」的关，直接买。
-        var bestId = 0
-        var firstAffordableButBlocked = 0
-        for (id in 1..EC_COUNT) {
-            val study = Abi.study(id) ?: continue
-            if (Abi.isMaxedEc(id) == true) continue          // 已满级永不重买
-            // [R97 真机根因] `A(Z)Z` **不能**当购买硬门槛。原始字节码
-            // （smali_classes2/kajfosz/antimatterdimensions/eternity/studies/b.smali）：
-            //     invoke-static {}, Lx81;->d()I
-            //     move-result p1
-            //     if-nez p1, :cond_2      # d()==0 → 跳 cond_2
-            //     ...
-            //   :cond_2
-            //     return v0                 # 返回 false
-            // `if-nez` 是「等于 0 才跳」，所以 **当前没有任何 EC 解锁（d()==0）时 A() 恒返回 false**。
-            // 旧代码 `if (!prereqOk) continue` 因此在 unlocked==0 的稳态下永远跳过购买，
-            // 真正的购买 `D(true,cont)` 一次都不会被调用 → 第一个 EC 永远解锁不了，
-            // 真机表现正是 `unlocked=0` + 12 关 `buyable=n` + completions 停在 10/60。
-            // 这同时解释了 `OREKI_EC_DIAG` 的 `buyable` 为何恒为 n：它是**结构性假**，不是证据。
-            // 正解：`A()` 只当提示（用于日志与排序），是否真的能买由原版 `D()` 自己判——
-            // 它返回 Boolean，买不到就是 false，不存在伪造解锁。
-            val prereqOk = Abi.canBuyPrereq(study) ?: false  // A(Z)Z：仅作提示，见上
-            val affordable = Abi.canAfford(study) ?: false   // z()Z：余额够不够
-            if (affordable) {
-                bestId = id
-                break
-            }
-            if (firstAffordableButBlocked == 0) firstAffordableButBlocked = id
+        val target = nextTargetId()
+        if (target == 0) {
+            note("all-maxed")
+            return false
         }
-
-        // [R97 真机根因] 若没有任何一关被判为「买得起」，不要把整轮直接交给第二轮的补前置：
-        // 先拿第一个未满级的关做一次**真实购买尝试**（`D(true,cont)`），由原版判定成败。
-        // 理由同上面的 `A()`：`z()Z` 也是间接判据，在 unlocked==0 的稳态下可能整体为假，
-        // 若同时把 `z()` 当硬门槛，购买入口会在稳态下彻底不可达，EC1 再次永久停在第一关。
-        // 每次 tick 只尝试一关，失败即落到第二轮补前置，不会形成无收益空转。
-        if (bestId == 0 && firstAffordableButBlocked != 0) bestId = firstAffordableButBlocked
-        if (bestId != 0) {
-            val study = Abi.study(bestId)
-            val ok = Abi.buy(study) ?: false
-            val now = Abi.unlocked()
-            if (ok && now == bestId) {
-                note("BUY id=" + bestId + " -> unlocked=" + now)
-                return true
-            }
-            note("buy-failed id=" + bestId + " ret=" + ok + " unlocked=" + now)
+        val study = Abi.study(target)
+        if (study == null) {
+            note("study-unresolved id=" + target)
             return false
         }
 
-        // 第二轮：一关都买不起 —— 说明前置普通研究还没铺好，走原版 EC 自己的 purchaseUntil。
-        // 它内部用 `d.e(b.r[id], id, cont)`，**带真实 ec 参数**，EC11/EC12 的维度分叉靠它选中。
+        return if (unlocked == target) start(study, target) else settle(study, target, unlocked)
+    }
+
+    /** 最小未满级关号（1..12）；全部满级返回 0。 */
+    private fun nextTargetId(): Int {
         for (id in 1..EC_COUNT) {
-            if (Abi.isMaxedEc(id) == true) continue
-            val study = Abi.study(id) ?: continue
-            val prereqOk = Abi.canBuyPrereq(study) ?: false
-            if (prereqOk) {
-                // 前置已满足但买不起 → 只是 TT 不够，补前置没有意义，等资源。
-                note("need-tt id=" + id)
-                return false
-            }
-            // [R97 实测纠偏] 这里原本是 `if (!Abi.canAfford(study)) continue` 的硬门槛，
-            // 已被真机证据判定为**错误的门**：
-            //   · 真机 steady state：unlocked=0、TT=4.0116e4、12 关全 buyable=n；
-            //   · 该分支只在 `A(true)==false`（前置研究没铺好）时才会走到，
-            //     恰恰是「应该去铺前置」的场景，却因为 z() 判为 false 直接 continue；
-            //   · 结果 purchaseUntil 永远不执行 → 每拍落到 `no-op (nothing buyable,
-            //     nothing to prepare)`，EC1 永久停在第一关（与用户反馈一致）；
-            //   · 且 z() 在 3.21 的混淆继承链里并非唯一声明，靠「名字+参数个数」
-            //     反查存在解析到错误重载的风险，把它当硬门槛会把整条链一起判死。
-            // 正解：**让原版自己判余额**。purchaseUntil（b.S(ContinuationImpl)）内部
-            // 逐项检查价格并只买买得起的那一段，买不起就是自然 no-op，不需要我们预筛。
-            // 因此去掉这道门槛，让流程继续走到下面的 respec / purchaseUntil。
+            val c = Abi.challenge(id) ?: continue
+            if (Abi.isMaxedChallenge(c) != true) return id
+        }
+        return 0
+    }
 
-            // ---- [R97] 分叉冲突：O()==false 表示时间树里已经买了互斥/二级研究 ----
-            // 此时 `A(Z)Z` 的 `O()` 一项恒假，**purchaseUntil 再怎么补前置也永远买不到**。
-            // 原版唯一的解法就是 respecTimeStudies（`eternity/studies/d;->c(Z)V`，d.smali:1706）：
-            //   · `Player.c0().h().clear()` 清空普通研究树；
-            //   · `d51.c()` 取当前 EC 研究 → `E(false)` → `x81.h(0)` 归零 unlocked；
-            //   · `a(false)` 算出退款并按原版口径退回 TT（`iq0.U` = 时间定理货币）。
-            // 已逐指令核对（d.smali:1800-1997），不是猜测。
-            val exclusiveFree = Abi.hasExclusiveFree(study) ?: true
-            if (!exclusiveFree && allowRespec(id)) {
-                Abi.respecTimeStudies()
-                // [R97] 关键：清树与「按本关分叉重建」必须在**同一拍**完成。
-                // 分开做会出现 R97 实测到的死锁：
-                //   tick N  → RESPEC（树被清空，O() 仍读到旧状态）
-                //   tick N+1→ 仍判 !O()，但 allowRespec 因「同一关只清一次」拒绝 →
-                //             旧代码直接 return false，purchaseUntil 永远不执行 →
-                //             空树永不被重建，EC1 永久停摆（真机实证：studies=[] 且 completions 不变）。
-                // 因此这里 respec 后立刻 purchaseUntil：它内部 `d.e(b.r[id], id, cont)` 带真实 ec 参数，
-                // 会把**这一关需要的那条分叉**重新买回来，不给其它自动化抢建错误分叉的机会。
-                Abi.purchaseUntil(study)
-                note("RESPEC id=" + id + " used=" + respecCount + " -> rebuilt, unlocked=" + Abi.unlocked())
-                return true
-            }
+    // ------------------------------------------------------------ 阶段 B：真实进入
 
-            // 走到这里有两种情况：
-            //   ① O()==true（没有互斥研究）→ 只是前置缺失，正常补前置；
-            //   ② O()==false 但 respec 被节流拒绝（同一关已清过 / 冷却中 / 次数用尽）→
-            //      仍然要补前置：清树后树是空的，purchaseUntil 正是唯一的重建入口。
-            //      绝不 return false 空转（那会让某一关永久饿死整条链）。
-            Abi.purchaseUntil(study)
-            note("PREPARE id=" + id + " exclusiveFree=" + exclusiveFree)
-            return true
+    /**
+     * `unlocked == target`：本关已是当前可进入的那一关 → 真实进入。
+     *
+     * 进入前先走原版 `D()`（`is3.D`）：它不是"解锁按钮"，而是**每次进入都要付一次本关价格**的
+     * 原版购买入口（`challenge/eternity/b.G()` 内部同样是 `E(false)` 预检 + `D(false)` 付费）。
+     * 仅当本关刚被 [settle] 扣过费（[settledId]）时跳过，避免重复扣款。
+     */
+    private fun start(study: Any?, target: Int): Boolean {
+        val challenge = Abi.challenge(target)
+        if (challenge == null) {
+            note("challenge-unresolved id=" + target)
+            return false
         }
 
-        note("no-op (nothing buyable, nothing to prepare) " + Abi.dumpGates())
+        var paid = settledId != target
+        if (paid) {
+            // 原版真实购买（扣费 + E(true) + C(true,false)）；失败不阻塞进入，只如实记录。
+            paid = Abi.buy(study) == true
+        }
+        settledId = 0
+
+        Abi.startChallenge(challenge)
+        val cur = Abi.current()
+        if (cur == target) {
+            note("START id=" + target + " paid=" + paid + " current=" + cur +
+                " comps=" + Abi.completions(challenge) + "/" + Abi.maxCompletions(challenge))
+            return true
+        }
+        note("start-failed id=" + target + " current=" + cur + " unlocked=" + Abi.unlocked() +
+            " paid=" + paid)
         return false
     }
 
-    // ------------------------------------------- unlocked != 0：启动挑战 / 满级退关
+    // ------------------------------------------- 阶段 A：定位缺失分项并真实结算
 
-    private fun startOrRelease(unlocked: Int): Boolean {
-        val challenge = Abi.challenge(unlocked)
-        if (challenge == null) {
-            note("challenge-" + unlocked + "-unresolved")
+    /**
+     * `unlocked != target`：按 `a() = B() && z() && A()` 的三项逐一取证。
+     *
+     * 顺序刻意是「先最省事、最不可能伪造的项」：资源 → 前置研究 → 原版全局闸门 → 最后才是
+     * 只剩 `B()`（自指项）时的一次性 SETTLE。
+     */
+    private fun settle(study: Any?, target: Int, unlocked: Int): Boolean {
+        // ① z()：TT 余额 ≥ 本关价格。不够就等，不做任何写入。
+        if (Abi.canAfford(study) != true) {
+            note("need-tt id=" + target + " unlocked=" + unlocked + " tt=" + Abi.theorem() +
+                " price=" + Abi.priceText(study))
             return false
         }
-        val maxed = Abi.isMaxedChallenge(challenge) ?: false
-        if (maxed) {
-            // 满级：退掉这一关的 EC 研究，让 unlocked 归零 —— 这是原版 respecTimeStudies
-            // 内部对 EC 研究使用的同一个钩子（E(false) → x81.h(0)），不清普通研究树、不退款。
-            val study = Abi.study(unlocked)
-            Abi.releaseEc(study)
-            val now = Abi.unlocked()
-            val comps = Abi.completions(challenge)
-            if (now == 0) {
-                note("RELEASE id=" + unlocked + " completions=" + comps + " -> unlocked=0")
-                return true
-            }
-            note("release-failed id=" + unlocked + " unlocked=" + now)
-            return false
-        }
-        // 未满级：真实进入（原版 start 状态机，MOD 规则由 OrekiInstantChallenge 同帧结算）。
-        Abi.startChallenge(challenge)
-        val cur = Abi.current()
-        val listed = Abi.unlocked()
-        if (cur == unlocked && listed == unlocked) {
-            note("START id=" + unlocked + " current=" + cur)
+
+        // ② 原版 D()：unlocked != id 时按字节码必然 false；仍调用一次，留真机证据，
+        //    且万一原版自愈（例如别的路径已推进 unlocked），就走真实购买。
+        val dRet = Abi.buy(study) == true
+        if (dRet && Abi.unlocked() == target) {
+            note("BUY id=" + target + " -> unlocked=" + target + " tt=" + Abi.theorem())
             return true
         }
-        note("start-failed id=" + unlocked + " current=" + cur + " unlocked=" + listed)
+
+        // ③ A() 的前置分项：`qu4.k` 里至少一项时间研究已买。
+        if (Abi.prereqOk(study) != true) {
+            Abi.purchaseUntil(study)
+            note("PREPARE id=" + target + " prereq=missing k=" + Abi.intArray(study, "k") +
+                " -> purchaseUntil, unlocked=" + Abi.unlocked())
+            return true
+        }
+
+        // ④ A() 的尾部分项：`!vi3.D.k() || T() || O()`。
+        if (Abi.tailOk(study) != true) {
+            note("blocked id=" + target + " tail=false globalBlocked=" + Abi.globalBlocked() +
+                " bought=" + Abi.alreadyBought(target) + " progressDone=" + Abi.hasExclusiveFree(study))
+            return false
+        }
+
+        // ⑤ 到这里只剩 B()（unlocked == id）不成立 —— 原版唯一可达的写点就是从 D 成功后调 E(true)，
+        //    而 D 又以 B() 为前置，构成自指闭环。用原版货币 API 真实扣款后，重放 D 的后半段。
+        if (Abi.payPrice(study) != true) {
+            note("pay-failed id=" + target + " tt=" + Abi.theorem() + " price=" + Abi.priceText(study))
+            return false
+        }
+        Abi.setUnlocked(study)
+        Abi.afterSettle(study)
+
+        val now = Abi.unlocked()
+        if (now == target) {
+            settledId = target
+            note("SETTLE id=" + target + " paid tt=" + Abi.theorem() + " -> unlocked=" + now)
+            return true
+        }
+        note("settle-failed id=" + target + " unlocked=" + now + " tt=" + Abi.theorem())
         return false
     }
 
@@ -306,18 +291,20 @@ object OrekiEcAutomation {
     //
     // 本层是**唯一**允许出现混淆符号的地方（AGENTS.md §67）。
     // 每个方法都按「方法名 + 参数个数」在类层次里定位，避免把混淆的父类名写死：
-    //   EC 研究类 b → qu4 → na4 → is3 → in1，`D` 实际定义在 is3，
-    //   `A/O` 在 b 自身，`B/E` 在 b 与 na4 都有覆盖。
+    //   e51 → eternity/studies/b → qu4 → na4 → is3 → in1，
+    //   `D/a/z` 在 is3，`A/B/E/O/T` 在 b 与 e51 覆盖，`y` 在 qu4 覆盖。
     private object Abi {
 
         private const val STUDY_FACTORY = "d51"                 // 默认包：EC 研究工厂
         private const val EC_REGISTRY = "x81"                   // 默认包：永恒挑战注册表
-        private const val CONTINUATION = "kajfosz.antimatterdimensions.OrekiEcContinuation"
+        private const val TS_REGISTRY = "w63"                   // 默认包：时间研究注册表
+        private const val GLOBAL_GATE = "vi3"                   // 默认包：全局闸门（字段 D → ii3）
+        private const val CURRENCY_HOLDER = "iq0"               // 默认包：货币持有者（字段 U → TT）
 
         private var factoryCls: Class<*>? = null
         private var registryCls: Class<*>? = null
-        private var contInstance: Any? = null
-        private var contResolved = false
+        private var tsRegistryCls: Class<*>? = null
+        private var currencyCls: Class<*>? = null
 
         private fun cls(name: String): Class<*>? = try {
             Class.forName(name, false, OrekiEcAutomation::class.java.classLoader)
@@ -342,6 +329,30 @@ object OrekiEcAutomation {
                 registryCls = c
             }
             return c
+        }
+
+        private fun tsRegistry(): Class<*>? {
+            var c = tsRegistryCls
+            if (c == null) {
+                c = cls(TS_REGISTRY)
+                tsRegistryCls = c
+            }
+            return c
+        }
+
+        private fun currency(): Any? {
+            var c = currencyCls
+            if (c == null) {
+                c = cls(CURRENCY_HOLDER)
+                currencyCls = c
+            }
+            val k = c ?: return null
+            return try {
+                k.getField("U").get(null)
+            } catch (t: Throwable) {
+                Log.i(TAG, "currency U failed: " + t)
+                null
+            }
         }
 
         /** 在类层次里按「名字 + 参数个数」找方法，避开写死混淆父类名。 */
@@ -382,18 +393,32 @@ object OrekiEcAutomation {
         }
 
         /** 真实 `Continuation` 叶子单例（`ContinuationImpl` 的 `_context` 必须非 null）。 */
-        fun continuation(): Any? {
-            if (contResolved) return contInstance
-            contResolved = true
-            contInstance = try {
-                val c = cls(CONTINUATION) ?: return null
-                c.getField("a").get(null)
-            } catch (t: Throwable) {
-                Log.i(TAG, "continuation failed: " + t)
-                null
-            }
-            return contInstance
-        }
+        /**
+         * `ContinuationImpl` 形参一律传 `null`，这是**经字节码确认安全**的，不需要自造叶子类。
+         *
+         * `kotlin/coroutines/jvm/internal/ContinuationImpl.smali` 的 `<init>(Lrj0;)V`：
+         * ```
+         * if-eqz p1, :cond_0          # 传 null 直接走空分支
+         * invoke-interface {p1}, Lrj0;->getContext()Lek0;
+         * :cond_0 const/4 v0, 0x0     # context = null
+         * invoke-direct {p0, p1, v0}, ContinuationImpl;-><init>(Lrj0;Lek0;)V
+         * ```
+         * 即 `completion == null` 时 `_context = null`，**不会 NPE**。
+         * 于是 `b.S(null)` / `challenge.D(true, null)` 内部的
+         * `new-instance …$purchaseUntil$1(this, null)` / `…$start$1(this, null)` 都能安全构造，
+         * `instance-of` 判定为 false → 走新建分支，`label=0` → 当作全新一次调用同步跑完。
+         *
+         * 旧注释声称「传 null 会 NPE」是错的；旧值 `kajfosz.antimatterdimensions.OrekiEcContinuation`
+         * 在本 APK 中根本不存在（全仓 0 命中），`continuation()` 一直返回 null，但正因为 null 安全，
+         * 这条链并没有坏 —— 真正的坏点是 `unlocked==0`（见类头 §6）。
+         */
+        /**
+         * 一律返回 `null` —— 原版这些入口的 `ContinuationImpl` 形参**接受 null**（见上方 CONTINUATION 注释的字节码）。
+         *
+         * 不再做 `Class.forName` 探测：既省一次类查找，也避免打印一条会误导排查的
+         * "continuation failed" 日志（旧实现就是被这条日志带着去追一个并不存在的问题）。
+         */
+        fun continuation(): Any? = null
 
         fun study(id: Int): Any? = try {
             factory()?.getMethod("a", Integer.TYPE)?.invoke(null, id)
@@ -409,7 +434,32 @@ object OrekiEcAutomation {
             null
         }
 
-        /** 已解锁关号（0 = 没有）。 */
+        /**
+         * 时间研究对象：`w63.a(Lw63;I)L…eternity/studies/c;`
+         *
+         * 3.21 里它是**带自身单例作首参的 static**（`w63.smali:8269`），
+         * 不是普通 `a(I)`；同时兼容纯 static `a(I)` 的形态，避免版本漂移。
+         */
+        private fun timeStudy(id: Int): Any? = try {
+            val c = tsRegistry() ?: return null
+            val self = try { c.getField("a").get(null) } catch (e: Throwable) { null }
+            val m2 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 2 }
+            if (m2 != null) {
+                m2.isAccessible = true
+                m2.invoke(null, self, id)
+            } else {
+                val m1 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 1 }
+                if (m1 == null) null else {
+                    m1.isAccessible = true
+                    m1.invoke(null, id)
+                }
+            }
+        } catch (t: Throwable) {
+            Log.i(TAG, "timeStudy(" + id + ") failed: " + t)
+            null
+        }
+
+        /** 已解锁关号（0 = 没有）。`x81.d()` → `PlayerEternityChallenges.f()` → 字段 `unlocked`。 */
         fun unlocked(): Int? = try {
             registry()?.getMethod("d")?.invoke(null) as? Int
         } catch (t: Throwable) {
@@ -435,7 +485,7 @@ object OrekiEcAutomation {
             null
         }
 
-        /** `A(Z)Z`：解锁位为空 + 前置普通研究已铺 + 未被互斥研究挡死。 */
+        /** `A(Z)Z`：**仅作分项取证用**。真值语义见类头 §5（要求 `unlocked != 0`）。 */
         fun canBuyPrereq(study: Any?): Boolean? = try {
             find(study, "A", 1)?.invoke(study, java.lang.Boolean.TRUE) as? Boolean
         } catch (t: Throwable) {
@@ -443,7 +493,7 @@ object OrekiEcAutomation {
             null
         }
 
-        /** `z()Z`：这条 EC 研究本身买得起（余额 ≥ 价格）。 */
+        /** `z()Z`：TT 余额 ≥ 本关价格（`iq0.l` = `compareTo >= 0`）。 */
         fun canAfford(study: Any?): Boolean? = try {
             find(study, "z", 0)?.invoke(study) as? Boolean
         } catch (t: Throwable) {
@@ -451,12 +501,101 @@ object OrekiEcAutomation {
             null
         }
 
-        /** `O()Z`：true = 没有任何互斥/二级研究被买（分叉未选错）。 */
+        /** `O()Z`：e51 上 = `x >= U()`（本轮进度已达目标）；b 基类上 = 无互斥研究。 */
         fun hasExclusiveFree(study: Any?): Boolean? = try {
             find(study, "O", 0)?.invoke(study) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "O() failed: " + t)
             null
+        }
+
+        /** `T()Z`：e51 上 = `requirementBits.e(id)`（本关此前已解锁/已买过）。 */
+        fun alreadyBought(study: Any?): Boolean? = try {
+            find(study, "T", 0)?.invoke(study) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG, "T() failed: " + t)
+            null
+        }
+
+        /** `vi3.D.k()Z`：原版全局闸门（`ii3.k() = na4.B() && !ii3.K()`）。 */
+        fun globalBlocked(): Boolean? = try {
+            val c = cls(GLOBAL_GATE) ?: return null
+            val gate = c.getField("D").get(null) ?: return null
+            find(gate, "k", 0)?.invoke(gate) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG, "ii3.k() failed: " + t)
+            null
+        }
+
+        /**
+         * `A(Z)` 的前置分项：`qu4.k` 里**至少一项**时间研究 `B()` 为 true。
+         * 直接复刻 `b.A` 的循环，不依赖 `A()` 自身（它被 `unlocked != 0` 短路）。
+         */
+        fun prereqOk(study: Any?): Boolean? {
+            val k = intArray(study, "k") ?: return null
+            if (k.isEmpty()) return false
+            for (id in k) {
+                val ts = timeStudy(id) ?: continue
+                if (find(ts, "B", 0)?.invoke(ts) as? Boolean == true) return true
+            }
+            return false
+        }
+
+        /** `A(Z)` 的尾部分项：`!ii3.k() || T() || O()`。 */
+        fun tailOk(study: Any?): Boolean? {
+            val blocked = globalBlocked() ?: return null
+            if (!blocked) return true
+            if (alreadyBought(study) == true) return true
+            return hasExclusiveFree(study)
+        }
+
+        /** 本关价格（`is3.x()` → 字段 `i`）。 */
+        private fun price(study: Any?): Any? = try {
+            find(study, "x", 0)?.invoke(study)
+        } catch (t: Throwable) {
+            null
+        }
+
+        fun priceText(study: Any?): String = try {
+            price(study)?.toString() ?: "?"
+        } catch (t: Throwable) {
+            "?"
+        }
+
+        /** TT 余额（`iq0.U.L()` → `Player.c0().i()`）。 */
+        fun theorem(): String = try {
+            val cur = currency() ?: return "?"
+            find(cur, "L", 0)?.invoke(cur)?.toString() ?: "?"
+        } catch (t: Throwable) {
+            "?"
+        }
+
+        /** 原版扣费：`y().p(x())`（`iq0.p`：够就扣并返回 true，不够返回 false）。 */
+        fun payPrice(study: Any?): Boolean? = try {
+            val cur = currency() ?: return null
+            val p = price(study) ?: return null
+            find(cur, "p", 1)?.invoke(cur, p) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG, "payPrice failed: " + t)
+            null
+        }
+
+        /** 原版 `E(true)`：`e51.E` → `x81.h(id)` + `requirementBits.g(id)`。 */
+        fun setUnlocked(study: Any?): Boolean = try {
+            find(study, "E", 1)?.invoke(study, java.lang.Boolean.TRUE)
+            true
+        } catch (t: Throwable) {
+            Log.i(TAG, "E(true) failed: " + t)
+            false
+        }
+
+        /** 原版 `C(true,false)`：`b.C` → UI/缓存刷新（与 `is3.D` 成功后同一调用）。 */
+        fun afterSettle(study: Any?): Boolean = try {
+            find(study, "C", 2)?.invoke(study, java.lang.Boolean.TRUE, java.lang.Boolean.FALSE)
+            true
+        } catch (t: Throwable) {
+            Log.i(TAG, "C(true,false) failed: " + t)
+            false
         }
 
         /** 真实购买：`is3.D(true, continuation)`，同步返回 Boolean。 */
@@ -480,35 +619,6 @@ object OrekiEcAutomation {
             false
         }
 
-        /**
-         * 原版 respecTimeStudies：`eternity/studies/d;->c(Z)V`（d.smali:1706，静态）。
-         *
-         * 逐指令核对（d.smali:1706-1997）：
-         *   · `Player.c0().h().clear()`      —— 清空普通时间研究树；
-         *   · `d51.c()` → `E(false)`          —— 归零 unlocked（`x81.h(0)`）；
-         *   · `a(false)` 求退款 → `iq0.U.C(…)` —— 按原版口径退还 TT；
-         *   · 复位 cache/UI，`Player.V.o(0)`。
-         * 参数 = auto（true 表示无人值守、不弹确认框）。**只调原版方法，不手写清树/退款。**
-         */
-        fun respecTimeStudies(): Boolean = try {
-            val c = cls("kajfosz.antimatterdimensions.eternity.studies.d")
-            c?.getMethod("c", java.lang.Boolean.TYPE)?.invoke(null, java.lang.Boolean.TRUE)
-            true
-        } catch (t: Throwable) {
-            Log.i(TAG, "respecTimeStudies failed: " + t)
-            false
-        }
-
-        /** 退掉这一关的 EC 研究：`b.E(false)` → `x81.h(0)`。 */
-        fun releaseEc(study: Any?): Boolean = try {
-            val m = find(study, "E", 1) ?: return false
-            m.invoke(study, java.lang.Boolean.FALSE)
-            true
-        } catch (t: Throwable) {
-            Log.i(TAG, "E(false) failed: " + t)
-            false
-        }
-
         fun isMaxedChallenge(c: Any?): Boolean? = try {
             find(c, "y", 0)?.invoke(c) as? Boolean
         } catch (t: Throwable) {
@@ -527,31 +637,24 @@ object OrekiEcAutomation {
             false
         }
 
-        fun isMaxedEc(id: Int): Boolean? = try {
-            val st = GameApi.eternityChallengeState()
-            val text = st["completions"] as? String ?: return null
-            val parts = text.split(",")
-            if (id - 1 !in parts.indices) null
-            else (parts[id - 1].trim().toIntOrNull() ?: 0) >= 5
-        } catch (t: Throwable) {
-            null
-        }
-
-        /** 诊断：一次性把 12 关的 A / z / O 打出来（只在完全无进展时用）。 */
+        /** 诊断：一次性把 12 关的 B / A / z / T / O 与 k / p 打出来（只在完全无进展时用）。 */
         fun dumpGates(): String {
             val sb = StringBuilder()
+            val unlocked = unlocked() ?: -1
             for (id in 1..EC_COUNT) {
                 val s = study(id) ?: continue
                 sb.append(id).append(':')
+                    .append(if (unlocked == id) 'B' else '-')
                     .append(if (canBuyPrereq(s) == true) 'A' else '-')
                     .append(if (canAfford(s) == true) 'Z' else '-')
+                    .append(if (alreadyBought(s) == true) 'T' else '-')
                     .append(if (hasExclusiveFree(s) == true) 'O' else '-')
                     // k=前置研究数组、p=互斥/二级研究数组（qu4 定义），直接读真实对象，不靠推断。
                     .append(" k=").append(intArray(s, "k"))
                     .append(" p=").append(intArray(s, "p"))
                     .append(' ')
             }
-            return sb.toString().trim()
+            return ("unlocked=" + unlocked + " tt=" + theorem() + " " + sb.toString()).trim()
         }
     }
 }

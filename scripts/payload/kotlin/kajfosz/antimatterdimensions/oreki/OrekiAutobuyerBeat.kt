@@ -19,9 +19,10 @@ import android.util.Log
  *   7. 值未变化时不写、不持久化，避免逐帧抖动；
  *   8. 恢复范围仅限**明确受管**的这一项，不外溢到其他原版自动购买器设置。
  *
- * 受管项当前只有一项：**大坍缩自动器的工作模式/间隔**（由 `applyCrunchPolicy()` 负责）。
- * 该选择有据：它是 MOD 唯一主动优化的原版自动购买器节拍参数，其余原版自动器只做
- * 开关维护（见 `OrekiPlayerIntent`），不属于「节拍管理」。
+ * [R97 收口] 本对象同时是**受托管单项自动器**（`isActive`）的恢复节拍：
+ * `OrekiStageAuto.applyManagedAutobuyerStates()` 每帧消费一次 `consumeRestoreDue()`，
+ * 只有到点的这一帧才允许写一次。这样「玩家手动关闭 → 本帧只登记 → 下一个策略 tick
+ * 恢复一次」在真机 logcat 里是可数的（登记与恢复之间必然隔 ≥1 秒 / ≥1 个 tick）。
  */
 object OrekiAutobuyerBeat {
 
@@ -34,6 +35,14 @@ object OrekiAutobuyerBeat {
     /** 累计登记次数，仅用于日志/面板佐证「不是逐帧重复登记」。 */
     @Volatile
     private var deferCount: Int = 0
+
+    /** 累计到点恢复次数（每次 consume 成功 +1），用于日志取证。 */
+    @Volatile
+    private var tickCount: Int = 0
+
+    /** 最近一次登记时刻（毫秒），0 = 从未登记。 */
+    @Volatile
+    private var lastDeferAtMs: Long = 0L
 
     /**
      * 登记「玩家改过受管节拍」：把恢复推迟到下一次调度 tick。
@@ -57,8 +66,13 @@ object OrekiAutobuyerBeat {
         if (pendingRestoreAtMs != 0L) return false
         val gap = (if (intervalSec in 1..60) intervalSec else 10) * 1000L
         pendingRestoreAtMs = nowMs + gap
+        lastDeferAtMs = nowMs
         deferCount++
-        Log.i(TAG, "managed beat: player edit recorded -> restore at next tick (+" + gap + "ms)")
+        Log.i(
+            TAG,
+            "beat defer #" + deferCount + " at=" + nowMs + "ms gapMs=" + gap +
+                " dueAt=" + pendingRestoreAtMs + "ms"
+        )
         return true
     }
 
@@ -75,17 +89,45 @@ object OrekiAutobuyerBeat {
         if (at == 0L) return false
         if (nowMs < at) return false
         pendingRestoreAtMs = 0L
-        Log.i(TAG, "managed beat: restore due -> apply latest strategy value")
+        tickCount++
+        Log.i(
+            TAG,
+            "beat due #" + tickCount + " at=" + nowMs + "ms dueAt=" + at +
+                "ms waitedMs=" + (nowMs - lastDeferAtMs)
+        )
         return true
+    }
+
+    /**
+     * 整体不接管（MOD 总开关关闭 / 原版总开关关闭）时取消待恢复。
+     *
+     * 不取消就会在开关重新打开的第一帧立刻「到点」写盘，绕过策略 tick。
+     */
+    @JvmStatic
+    fun cancelPending() {
+        if (pendingRestoreAtMs == 0L) return
+        pendingRestoreAtMs = 0L
+        Log.i(TAG, "beat cancelled at=" + SystemClock.elapsedRealtime() + "ms (gate closed)")
     }
 
     /** 仅供单元验证/测试复位。 */
     @JvmStatic
-    fun resetForTest() { pendingRestoreAtMs = 0L; deferCount = 0 }
+    fun resetForTest() {
+        pendingRestoreAtMs = 0L
+        deferCount = 0
+        tickCount = 0
+        lastDeferAtMs = 0L
+    }
 
     @JvmStatic
     fun isPending(): Boolean = pendingRestoreAtMs != 0L
 
+    /** 待恢复时刻（elapsedRealtime 毫秒）；0 = 无待恢复。验收日志用。 */
     @JvmStatic
-    fun describe(): String = "pending=" + isPending() + " defers=" + deferCount
+    fun pendingDueAtMs(): Long = pendingRestoreAtMs
+
+    @JvmStatic
+    fun describe(): String =
+        "pending=" + isPending() + " dueAt=" + pendingRestoreAtMs + "ms defers=" + deferCount +
+            " ticks=" + tickCount
 }
