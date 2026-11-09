@@ -599,16 +599,29 @@ internal object GameApi {
         // 永恒统计区块：未真实完成永恒结算时隐藏。
         if (!stage.eternityReached) {
             changed += hideView(activity, 0x7f0a05c8, statisticsEternityViewField, "eternityStats")
+            changed += hideAllById(activity, 0x7f0a05c8, "eternityStats", IntArray(1))
         }
         // 现实统计区块：未真实完成现实结算时隐藏（永恒阶段也必须隐藏）。
         if (!stage.realityReached) {
             changed += hideView(activity, 0x7f0a0e6a, statisticsRealityViewField, "realityStats")
+            changed += hideAllById(activity, 0x7f0a0e6a, "realityStats", IntArray(1))
         }
         // 顶部永恒点数：未真实完成永恒结算时隐藏。
         if (!stage.eternityReached) {
             changed += hideView(activity, 0x7f0a05c6, statisticsTopEternityField, "topEternityPoints")
+            changed += hideAllById(activity, 0x7f0a05c6, "topEternityPoints", IntArray(1))
         }
-        // 底部动作行的「永恒」按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
+        // 底部 FAB 动作行的「永恒」按钮：3.21 原版 `fabContainer1` = 0x7f0a061d / `fab1` = 0x7f0a0617。
+        // 依据：`ui/bottom_buttons/BottomButtonID.smali` 的常量依次为
+        //   b="ETERNITY", c="CRUNCH", d="DIM_BOOST", e="GALAXY", f="REPLICANTI_GALAXY", v="MAX_ALL"，
+        // 与动作行从左到右「永恒 / 大坍缩 / 维度提升 / 反物质星系 / 最大」一致（fab5 已是 GONE）。
+        // 未真实完成永恒结算时不得出现。
+        if (!stage.eternityReached) {
+            changed += hideView(activity, 0x7f0a061d, null, "fabEternity")
+            changed += hideAllById(activity, 0x7f0a061d, "fabEternity", IntArray(1))
+        }
+
+        // 顶部「成为永恒」宽按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
         // （`res/layout/layout_top_buttons.xml`；字段 `MainActivity.w9:Landroid/widget/Button;`，
         //  绑定点 `mainactivity/l0.smali:241`）。未真实完成永恒结算时不得出现。
         if (!stage.eternityReached) {
@@ -617,11 +630,14 @@ internal object GameApi {
 
         // 已到达对应阶段：把曾经压掉的高度还原，可见性继续由原版每帧判定。
         if (stage.eternityReached) {
+            changed += restoreAllById(activity, 0x7f0a05c8)
             changed += restoreViewHeight(activity, 0x7f0a05c8, statisticsEternityViewField, "eternityStats")
             changed += restoreViewHeight(activity, 0x7f0a05c6, statisticsTopEternityField, "topEternityPoints")
             changed += restoreViewHeight(activity, 0x7f0a05c1, null, "eternityButton")
+            changed += restoreViewHeight(activity, 0x7f0a061d, null, "fabEternity")
         }
         if (stage.realityReached) {
+            changed += restoreAllById(activity, 0x7f0a0e6a)
             changed += restoreViewHeight(activity, 0x7f0a0e6a, statisticsRealityViewField, "realityStats")
         }
 
@@ -693,6 +709,78 @@ internal object GameApi {
             return 1
         }
         return 0
+    }
+
+    /**
+     * 把一个 View 收敛成"不可见"：置 GONE 并把高度压到 0。
+     *
+     * @return 1 表示真的做了收敛。
+     */
+    private fun collapseView(view: View): Int {
+        var changed = 0
+        if (view.visibility != View.GONE) {
+            view.visibility = View.GONE
+            changed = 1
+        }
+        val lp = view.layoutParams
+        if (lp != null && lp.height != 0) {
+            lp.height = 0
+            view.layoutParams = lp
+            changed = 1
+        }
+        return changed
+    }
+
+    /**
+     * 按资源 id 遍历整棵视图树，收敛**所有**匹配实例。
+     *
+     * ## 为什么必须遍历（R98 设备实测）
+     *
+     * 3.21 同一份头部布局会被 inflate 多份（`dumpsys activity top` 里
+     * `eternityButton` 同时出现 5 个实例）。MainActivity 上对应的字段只指向其中一个，
+     * 只改字段指向的那份时，屏幕上真正显示的那份仍然可见——
+     * 也就是 R98 §1 说的"原版缓存、Android View 和游戏状态之间存在不同步"。
+     * 因此这里按 id 遍历 decorView，收敛全部实例。
+     */
+    private fun hideAllById(activity: Any, id: Int, what: String, changedRef: IntArray): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkAndCollapse(decor, id)
+    }
+
+    private fun walkAndCollapse(view: View?, id: Int): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (view.id == id) changed += collapseView(view)
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                changed += walkAndCollapse(view.getChildAt(i), id)
+            }
+        }
+        return changed
+    }
+
+    private fun walkAndRestore(view: View?, id: Int): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (view.id == id) {
+            val lp = view.layoutParams
+            if (lp != null && lp.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
+                lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                view.layoutParams = lp
+                changed = 1
+            }
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                changed += walkAndRestore(view.getChildAt(i), id)
+            }
+        }
+        return changed
+    }
+
+    private fun restoreAllById(activity: Any, id: Int): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkAndRestore(decor, id)
     }
 
     /**
