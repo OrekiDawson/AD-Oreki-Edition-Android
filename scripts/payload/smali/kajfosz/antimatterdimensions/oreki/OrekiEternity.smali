@@ -397,7 +397,7 @@
 # 判据逐条对齐 Web `tickEternity()`（:570-592）与本端原版自动器：
 #   ① `prestige/c;->f()Z`  = canEternity（原版同一判据，含「不在挑战中」等前置）；
 #   ② `prestige/c;->g()`   = gainedEP；
-#   ③ 门槛 = 当前 EP × 1（[R96 第九轮] 恢复 ×1：永恒里程碑才是真正的加速器，见下方长注释）；
+#   ③ 门槛 = 当前 EP × 10（[R96 第十一轮] 恢复 ×10：坍缩间隔修复后周期开销已大幅下降，见下方长注释）；
 #   ④ 实参元组 (false, true, false, null) 来自 `EternityAutobuyerState.y()`
 #      的 `d(INSTANCE, 0, 1, 0, null, cont, 0xD)`（mask 0xD ⇒ p1/p3/p4 取默认）。
 # 注意 `Player.y()` 返回的是**存档内活对象**，`multiply` 会就地改它，
@@ -492,23 +492,19 @@
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;->copy()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
-    # [R96 第九轮] 门槛回到 ×1（EP 至少翻倍就结算）。
+    # [R96 第十一轮] 门槛回到 ×10（EP 至少涨到 11 倍才结算）。
     #
-    # 三轮实测（按时间顺序，勿只看其中一次）：
-    #   · 第五轮 ×10：平台期 `bigE=3、EP=2.16、maxIP 1e593`，×10 要求 maxIP 1e804
-    #     而收益只有 7 ⇒ EP 永远不动。真正根因是「无限升级买不到 / 坍缩每帧重置」，
-    #     第七轮修好，与门槛无关。
-    #   · 第八轮 ×1（t0 05:48:55）：37 分钟 7 次永恒、EP 1→4、eupBits 0 —— 当时看似太慢。
-    #   · 第九轮 ×10（t0 06:37:50）：首次永恒后 **19 分钟才重建到 maxAM 1e7762**，
-    #     而第二次永恒需要 maxAM ≈1e95,000（IP 1e308）⇒ 单周期 2 小时以上，EP 更慢。
-    # 结论：**真正的加速器是永恒里程碑，不是单次 EP 大小**
-    #   · 2 次永恒：`keepAutobuyers`（开局保留挑战完成 + 全部原版自动器 + 已 Break）
-    #   · 4 次永恒：`keepInfinityUpgrades`（开局直接拥有全部无限升级）
-    #   · 5 次：大坍缩自动器更多模式；8 次：保留 Break 升级
-    # 里程碑靠的是**永恒次数**，×10 会把次数卡死 ⇒ 重建开销永远付。
-    # ×1 让次数快速累积、里程碑尽快到手，重建开销随里程碑下降，EP 也随增益一起涨。
+    # 四轮实测沿革（必须结合第十轮修掉的「坍缩间隔逐帧翻转」一起看）：
+    #   · 第五轮 ×10：EP 卡死 —— 真因是无限升级买不到 + 坍缩每帧重置（第七轮修）。
+    #   · 第八/九轮 ×10：第二次永恒要 2 小时 —— 真因是永恒层把坍缩间隔写成 3600 秒
+    #     （第十轮修：allow/deny 逐帧翻转 ⇒ 间隔恒 1 小时 ⇒ 坍缩几乎不发生）。
+    #   · 第十轮 ×1（间隔修复后）：34 分钟 8 次永恒、周期降到 ~2 分钟，但**EP 恒 0**：
+    #     每次只 +1.6 EP，EP 立刻被时间维度 TD1（成本 1/3/9…）吃掉，
+    #     永远攒不到永恒升级首档 5 EP ⇒ 乘数链停在原地。
+    # 现在间隔已修好、重建周期 ~2 分钟，把门槛放宽到 ×10 是纯赚：周期只多几分钟，
+    # 单次 EP 从 1.6 变成 ≥10，EP 就能真正攒起来买时间维度/永恒升级。
     # 只影响结算时机，不改任何收益公式；EP 收益仍由原版 gainedEP 计算。
-    const/4 v2, 0x1
+    const/16 v2, 0xa
 
     invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;->multiply(I)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
