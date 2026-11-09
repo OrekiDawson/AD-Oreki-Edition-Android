@@ -1,37 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""候选 APK 产物校验（Gradle 的 verifyRelease 调用它）。
+"""候选 APK 语义校验（由 Gradle verifyRelease 调用）。
 
-不是看源码，而是反编译**候选 APK 本身**，确认：
+不是看源码，而是检查 Gradle 已准备好的**候选 APK 本身**，确认：
   1. 包名 / versionName / versionCode 与预期一致；
   2. 签名方案与证书指纹是项目个人密钥（未更换签名）；
   3. EC12 限时补丁真的在 dex 里（OrekiSpeed.unscale 紧邻限时比较）；
   4. 挑战进入即完成补丁真的在 dex 里（OrekiInstantChallenge.tick 存在且被 Challenges.update 调用）。
 
-用法：
-    python scripts/verify_release.py --apk build/gradle-stage/反物质维度.apk \
-        --json build/gradle-reports/verify-release.json
+Gradle 先执行 AAPT2、apksigner、apktool 并生成工具报告；本脚本只负责
+基线版本、ABI 和补丁语义检查，不再启动 Android 工具或管理临时解包目录。
 
 退出码：0 = 全部通过；1 = 有检查项失败；2 = 工具缺失/无法反编译。
 """
 import argparse
 import pathlib
-import hashlib
 import json
 import os
 import re
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TOOLS = ROOT / "tools"
-from oreki_tools import java as _oreki_java, bt_tool as _oreki_bt
-JAVA = pathlib.Path(_oreki_java())
-AAPT2 = pathlib.Path(_oreki_bt("aapt2"))
-APKSIGNER = TOOLS / "bt" / "android-14" / "lib" / "apksigner.jar"
-APKTOOL = TOOLS / "apktool.jar"
 
 EXPECT_PKG = "com.oreki.antimatterdimensions"
 
@@ -104,20 +94,6 @@ def check(name, ok, detail=""):
     return ok
 
 
-def run(args, timeout=600):
-    p = subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
-                       errors="replace", timeout=timeout)
-    return p.returncode, (p.stdout or "") + (p.stderr or "")
-
-
-def sha256_of(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def check_study_registry_abi(base, payload_dirs):
     """[R96 第十九轮] 研究注册表 ABI 守卫。
 
@@ -157,6 +133,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--apk", required=True)
     ap.add_argument("--json", default="")
+    ap.add_argument("--tool-report", required=True,
+                    help="Gradle prepareVerifyRelease 生成的工具报告")
+    ap.add_argument("--prepared-dir", required=True,
+                    help="Gradle/apktool 已准备好的候选解包目录")
     args = ap.parse_args()
 
     if _BASE_ERROR:
@@ -168,18 +148,37 @@ def main():
     if not apk.exists():
         print(f"!! 候选 APK 不存在: {apk}")
         return 2
-    for tool, name in ((JAVA, "tools/jdk"), (AAPT2, "tools/bt/aapt2"),
-                       (APKSIGNER, "apksigner.jar"), (APKTOOL, "tools/apktool.jar")):
-        if not Path(tool).exists():
-            print(f"!! 缺少工具 {name}: {tool}")
-            return 2
 
-    size = apk.stat().st_size
-    digest = sha256_of(apk)
+    tool_report_path = Path(args.tool_report)
+    prepared_dir = Path(args.prepared_dir)
+    try:
+        tool_report = json.loads(tool_report_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"!! Gradle 工具报告不可用: {tool_report_path}: {exc}")
+        return 2
+    if Path(str(tool_report.get("apk", ""))).resolve() != apk.resolve():
+        print("!! 工具报告与候选 APK 不一致，拒绝继续")
+        return 2
+    if not prepared_dir.is_dir() or not (prepared_dir / "smali").is_dir():
+        print(f"!! Gradle 准备的解包目录不可用: {prepared_dir}")
+        return 2
+    if int(tool_report.get("apktool_exit", 1)) != 0:
+        print("!! Gradle/apktool 工具阶段失败，拒绝继续")
+        return 2
+
+    size = int(tool_report.get("size", 0))
+    digest = str(tool_report.get("sha256", ""))
+    if size != apk.stat().st_size or not re.fullmatch(r"[0-9a-f]{64}", digest):
+        print("!! Gradle 工具报告中的 APK 大小或 SHA-256 无效")
+        return 2
     print(f"候选 APK: {apk.name}  {size:,} B  SHA-256 {digest}")
 
     # ---------------- 1. badging ----------------
-    rc, out = run([str(AAPT2), "dump", "badging", str(apk)])
+    badging = tool_report.get("badging") or {}
+    rc = int(badging.get("exit", 1))
+    out = str(badging.get("output", ""))
+    if rc != 0:
+        check("AAPT2 badging", False, f"exit={rc}")
     pkg = re.search(r"package: name='([^']+)'", out)
     vcode = re.search(r"versionCode='([^']+)'", out)
     vname = re.search(r"versionName='([^']+)'", out)
@@ -200,12 +199,10 @@ def main():
     # minSdk 32 的默认验证只选择 v3，不能据此判 v2 缺失。
     # 分别按 API 24–27（v2 路径）与 API 28–32（v3 路径）验证；
     # 两条路径都必须 rc=0 且真实出现对应的 true。
-    rc2, out2 = run([str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose",
-                     "--print-certs", "--min-sdk-version", "24",
-                     "--max-sdk-version", "27", str(apk)])
-    rc3, out3 = run([str(JAVA), "-jar", str(APKSIGNER), "verify", "--verbose",
-                     "--print-certs", "--min-sdk-version", "28",
-                     "--max-sdk-version", "32", str(apk)])
+    sign_v2 = tool_report.get("sign_v2") or {}
+    sign_v3 = tool_report.get("sign_v3") or {}
+    rc2, out2 = int(sign_v2.get("exit", 1)), str(sign_v2.get("output", ""))
+    rc3, out3 = int(sign_v3.get("exit", 1)), str(sign_v3.get("output", ""))
     schemes = {
         "v1": False,
         "v2": bool(re.search(r"Verified using v2 scheme[^:]*:\s*true", out2)),
@@ -222,16 +219,7 @@ def main():
           cert if cert else "未解析到或不一致")
 
     # ---------------- 3. 反编译 dex（跳过资源，快） ----------------
-    verify_dir = ROOT / "build" / "gradle-verify-apk"
-    if verify_dir.exists():
-        shutil.rmtree(verify_dir)
-    print("反编译候选 APK（-r 跳过资源、保留 dex->smali）...")
-    rc, out = run([str(JAVA), "-Xmx4g", "-jar", str(APKTOOL), "d", "-r", "-f",
-                   "-o", str(verify_dir), str(apk)], timeout=1800)
-    if rc != 0 or not (verify_dir / "smali").is_dir():
-        print(out[-1500:])
-        check("apktool 反编译 dex", False, f"rc={rc}")
-        return 2
+    verify_dir = prepared_dir
     check("apktool 反编译 dex", True, str(verify_dir.relative_to(ROOT)))
 
     smali = verify_dir / "smali"

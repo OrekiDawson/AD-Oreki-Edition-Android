@@ -60,7 +60,8 @@ Smali 的边界：只承担原版字节码的必要适配、Kotlin 无法直接�
 |---|---|---|---|
 | `verifyEnvironment` | JDK / Python / apktool / build-tools / keystore / adb / 反编译输入树 7 项 + payload 就绪检查 | — | `build/gradle-reports/verify-environment.json`；任一项 FAIL 即抛 `GradleException` |
 | `assembleRelease` | 调 `scripts/build_mod.py`，产物重定向到暂存目录 | `verifyEnvironment` | `build/gradle-stage/反物质维度.apk`；**不触碰 `release/`** |
-| `verifyRelease` | 产物级校验：包名/versionCode/versionName/签名方案/证书指纹/EC12 补丁位置/`OrekiInstantChallenge` 四个复用入口/`tick()` 唯一性 | `assembleRelease` | `build/gradle-reports/verify-release.json`，15 项 |
+| `prepareVerifyRelease` | 直接调用 AAPT2 badging、apksigner v2/v3、apktool，并采集 SHA-256/大小 | `assembleRelease` | `build/gradle-reports/verify-release-tools.json`、`build/gradle-verify-apk/` |
+| `verifyRelease` | 消费 Gradle 工具报告，执行包名/versionCode/versionName/签名方案/证书指纹/EC12 补丁位置/`OrekiInstantChallenge` 四个复用入口/`tick()` 唯一性等语义校验 | `prepareVerifyRelease` | `build/gradle-reports/verify-release.json`，15 项 |
 | `verifyPatchContract` | 静态守卫：`scripts/**/*.py` 全部可编译、`main()` 启用 EC12 + 即时完成、**提频方案保持禁用**、mod 树补丁唯一、payload 未误放 templates | `assembleRelease` | 16 项 |
 | `build` | `assembleRelease` + `verifyRelease` + `verifyPatchContract` | 三者 | — |
 | `check` | `verifyRelease` + `verifyPatchContract`（定向回归，不重复构建语义） | 二者 | — |
@@ -150,8 +151,9 @@ entries 2241 2241 same set: True
 - Gradle 侧只做编排与校验，**不参与** smali 补丁的生成。补丁的真源永远是
   `scripts/payload/` 与 `build_mod.py` 里的 `patch_*` 函数；Gradle 的作用是让它们
   有单一入口、有产物级证据、有失败即停的语义。
-- `verifyRelease` 用 `apktool d -r -f` 反编译候选 APK 取 smali（`-r` 跳过资源以提速，
-  保留 dex→smali）。这是**静态**验证补丁进了 dex，不等于运行时行为正确；
+- `prepareVerifyRelease` 用 `apktool d -r -f` 反编译候选 APK 取 smali（`-r` 跳过资源以提速，
+  保留 dex→smali），`verifyRelease` 只消费该目录做语义检查。这是**静态**验证补丁进了 dex，
+  不等于运行时行为正确；
   运行时行为由 AVD 探针（`scripts/instant_challenge_probe.py`）与 Web 侧脚本覆盖。
 
 ---

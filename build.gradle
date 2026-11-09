@@ -40,6 +40,7 @@ def deliveryArchive = new File(buildRoot, 'delivery_archive')
 import org.gradle.process.ExecOperations
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+import java.security.MessageDigest
 def execOps = project.services.get(ExecOperations)
 
 // 便捷包装：保持原来 `exec { ... }` 的闭包形态，内部走 ExecOperations。
@@ -521,17 +522,84 @@ tasks.register('assembleRelease', Exec) {
     outputs.file(stageApk)
 }
 
+// =========================================================== prepareVerifyRelease
+// [R98] 产物级工具编排迁移：Gradle 负责 Android 官方工具的执行与临时目录生命周期，
+// Python verify_release.py 只消费这份工具报告并做基线/补丁语义校验。
+def verifyDir = new File(buildRoot, 'gradle-verify-apk')
+def verifyToolReport = new File(reportDir, 'verify-release-tools.json')
+def aapt2Exe = new File(btDir, isWindows ? 'aapt2.exe' : 'aapt2')
+def apksignerJar = new File(btDir, 'lib/apksigner.jar')
+def sha256File = { File input ->
+    def md = MessageDigest.getInstance('SHA-256')
+    input.withInputStream { stream ->
+        byte[] buf = new byte[1024 * 1024]
+        int n
+        while ((n = stream.read(buf)) > 0) md.update(buf, 0, n)
+    }
+    md.digest().collect { String.format('%02x', it & 0xff) }.join()
+}
+def capturedExec = { List cmd ->
+    def out = new ByteArrayOutputStream()
+    def result = execOps.exec {
+        commandLine(*cmd)
+        standardOutput = out
+        errorOutput = out
+        ignoreExitValue = true
+    }
+    [exit: result.exitValue, output: out.toString('UTF-8')]
+}
+
+tasks.register('prepareVerifyRelease') {
+    group = 'oreki'
+    description = '用 Gradle/Android 官方工具准备候选 APK 的产物级校验输入'
+    dependsOn 'assembleRelease'
+    inputs.file(stageApk)
+    outputs.file(verifyToolReport)
+    outputs.dir(verifyDir)
+    outputs.upToDateWhen { false }
+    doLast {
+        if (!stageApk.isFile()) throw new GradleException("候选 APK 不存在：${stageApk}")
+        reportDir.mkdirs()
+        if (verifyDir.exists()) delete verifyDir
+
+        def badging = capturedExec([aapt2Exe.absolutePath, 'dump', 'badging', stageApk.absolutePath])
+        def v2 = capturedExec([javaExe.absolutePath, '-jar', apksignerJar.absolutePath, 'verify', '--verbose',
+                               '--print-certs', '--min-sdk-version', '24', '--max-sdk-version', '27', stageApk.absolutePath])
+        def v3 = capturedExec([javaExe.absolutePath, '-jar', apksignerJar.absolutePath, 'verify', '--verbose',
+                               '--print-certs', '--min-sdk-version', '28', '--max-sdk-version', '32', stageApk.absolutePath])
+        def decoded = capturedExec([javaExe.absolutePath, '-Xmx4g', '-jar', apktoolJar.absolutePath,
+                                    'd', '-r', '-f', '-o', verifyDir.absolutePath, stageApk.absolutePath])
+        if (decoded.exit != 0 || !new File(verifyDir, 'smali').isDirectory()) {
+            throw new GradleException("apktool 产物准备失败（exit=${decoded.exit}）：${decoded.output.takeRight(1500)}")
+        }
+
+        def payload = [
+            apk: stageApk.absolutePath,
+            size: stageApk.length(),
+            sha256: sha256File(stageApk),
+            badging: [exit: badging.exit, output: badging.output],
+            sign_v2: [exit: v2.exit, output: v2.output],
+            sign_v3: [exit: v3.exit, output: v3.output],
+            prepared_dir: verifyDir.absolutePath,
+            apktool_exit: decoded.exit,
+        ]
+        verifyToolReport.text = JsonOutput.prettyPrint(JsonOutput.toJson(payload)) + System.lineSeparator()
+        logger.lifecycle("[oreki] 产物工具准备完成：${verifyToolReport}")
+    }
+}
+
 // ================================================================ verifyRelease
 tasks.register('verifyRelease', Exec) {
     group = 'oreki'
-    description = '校验候选 APK：包名/版本/签名/EC12 补丁是否真的在 dex 里'
-    dependsOn 'assembleRelease'
+    description = '消费 Gradle 工具报告，校验候选 APK 的基线和 MOD 契约'
+    dependsOn 'prepareVerifyRelease'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/verify_release.py',
         '--apk', stageApk.absolutePath,
-        '--json', new File(reportDir, 'verify-release.json').absolutePath
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
-    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
+        '--json', new File(reportDir, 'verify-release.json').absolutePath,
+        '--tool-report', verifyToolReport.absolutePath,
+        '--prepared-dir', verifyDir.absolutePath
+    // Python 只做语义检查；JAVA_HOME 仍传入，供 ABI/基线辅助逻辑保持一致。
     if (jdkHome != null) {
         environment 'JAVA_HOME', jdkHome.absolutePath
         environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
