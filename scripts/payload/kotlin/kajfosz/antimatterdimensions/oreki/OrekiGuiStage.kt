@@ -36,6 +36,9 @@ import android.util.Log
 object OrekiGuiStage {
 
     private const val TAG = "OREKI_GUI_STAGE"
+    // [R98 §4.2] GUI_GATE_DIVERGENCE 的变化去重签名；null = 当前无分歧或尚未记录。
+    @Volatile
+    private var lastDivergenceSignature: String? = null
 
     /**
      * 四段阶段，与 R98 §3 的验收口径一一对应。
@@ -196,12 +199,22 @@ object OrekiGuiStage {
         }
 
         // 原版判据与真实产物不一致时留痕：这就是"兼容字段误开原版 GUI"的现场证据。
+        // [R98 §4.2] compute() 每帧执行，这里必须做**变化去重**：只在判据组合变化时打一条，
+        // 否则约 40 条/秒的重复 warn 会淹没真正有效的诊断日志并抬高每帧开销。
         if (originalEternity != null && originalEternity != eternityReached) {
-            Log.w(
-                TAG,
-                "GUI_GATE_DIVERGENCE originalEternity=$originalEternity " +
-                    "actualEternity=$eternityReached $source",
-            )
+            val signature = originalEternity.toString() + "|" + eternityReached + "|" + source
+            if (signature != lastDivergenceSignature) {
+                lastDivergenceSignature = signature
+                Log.w(
+                    TAG,
+                    "GUI_GATE_DIVERGENCE originalEternity=$originalEternity " +
+                        "actualEternity=$eternityReached $source",
+                )
+            }
+        } else if (lastDivergenceSignature != null) {
+            // 恢复一致：清除签名并留一条记录，便于判断"误报期"的起止。
+            lastDivergenceSignature = null
+            Log.i(TAG, "GUI_GATE_DIVERGENCE cleared originalEternity=$originalEternity actualEternity=$eternityReached")
         }
 
         val phase = when {
