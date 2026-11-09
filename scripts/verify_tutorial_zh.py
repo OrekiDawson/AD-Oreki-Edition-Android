@@ -116,8 +116,14 @@ def main() -> int:
     units = split_units(text)
     body_units = [(uid, body) for uid, body in units if not uid.startswith("apx_")]
     apx_units = [(uid, body) for uid, body in units if uid.startswith("apx_")]
-    check("A5 渲染单元数", len(units) == 24, f"{len(units)} 个单元（期望 24 = 18 章 + 6 附录；"
-                                            f"正文 {len(body_units)}，附录 {len(apx_units)}）")
+    # [R96 第二十八轮] 期望值修正：内容侧现有 6 个字母附录（A–F）+ 1 个「附录 F 补充」
+    # （id=apx_r85_automation_interval，标题「附录 F 补充　智能自动购买器调度」），
+    # 该补充是**有意**挂在附录 F 下的 MOD 专属内容（规则「MOD 专属内容归入附录 F」），
+    # 不是新增字母附录。旧断言硬编码 18+6=24，已滞后于内容结构，故改为按真实结构断言，
+    # 同时仍精确锁定两个数字（18 章、7 个附录单元），不放宽强度。
+    check("A5 渲染单元数", len(body_units) == 18 and len(apx_units) == 7,
+          f"{len(units)} 个单元（期望 18 章 + 6 字母附录 + 1 附录 F 补充 = 25；"
+          f"正文 {len(body_units)}，附录单元 {len(apx_units)}）")
     check("A6 无 BOM", not payload_bytes.startswith(b"\xef\xbb\xbf"), "UTF-8 且无 BOM")
     check("A7 体积合理", 0.5 * BYTES_BEFORE < len(payload_bytes) < 2 * BYTES_BEFORE,
           f"{len(payload_bytes)} 字节（改前 {BYTES_BEFORE}，允许 ±2 倍数量级）")
