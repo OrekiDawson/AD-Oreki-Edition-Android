@@ -9480,4 +9480,11 @@ ALL BEAT TESTS PASSED
   按「保护存档」原则停止盲点操作，存档经核验完好（AM/IP/bigE/studies 均在）。
 - 期间观察到的正向证据：先前被外部改为 `mode=0` 的坍缩配置，被 MOD 重新写回 `mode=1`（TIME），
   与「基线采纳→MOD 可写」的守卫设计一致。
+### 本轮附带实证：TT ×500 仍在真实生效
+```
+13:40:59.865 OREKI_TT_REWARD: tt-reward delta=1 extra=499 granted=true total=500 multiplier=500 cumulative=69
+13:41:00.096 OREKI_TT_REWARD: tt-reward delta=1 extra=499 granted=true total=500 multiplier=500 cumulative=70
+```
+每次真实购买 +500（`delta=1` 真实计数、`extra=499` 补差、`granted=true`）；
+`cumulative=70` × 500 = 35,000 ≈ 当前 TT 3.4859e4（34,859），与真实结算一致，无重复发放迹象。
 
