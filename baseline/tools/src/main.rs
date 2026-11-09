@@ -725,6 +725,111 @@ impl ZipArchive {
         Ok((patched_cd, patched_lfh))
     }
 
+    /// 在不重写既有 ZIP 条目的前提下追加一个 DEX，并重建中央目录和 EOCD。
+    ///
+    /// Java ZipOutputStream 会拒绝 APK 中合法但重复的条目；这里直接复制原始字节，
+    /// 因此能保留这类 APK 结构。新增 DEX 使用 STORE，签名和 zipalign 在后续阶段处理。
+    fn inject_dex(apk: &Path, dex: &Path) -> Result<String, String> {
+        let data = fs::read(apk).map_err(|e| format!("读 {} 失败：{}", apk.display(), e))?;
+        let dex_data = fs::read(dex).map_err(|e| format!("读 {} 失败：{}", dex.display(), e))?;
+        if dex_data.len() > u32::MAX as usize { return Err("DEX 太大，ZIP32 不支持".to_string()); }
+        if data.len() < 22 { return Err("APK 太短，找不到 EOCD".to_string()); }
+        let start = data.len().saturating_sub(65_557);
+        let mut eocd = None;
+        let mut i = data.len() - 22;
+        loop {
+            if i >= start && Self::u32_at(&data, i) == 0x0605_4b50 {
+                eocd = Some(i);
+                break;
+            }
+            if i == 0 { break; }
+            i -= 1;
+        }
+        let eocd = eocd.ok_or("找不到 ZIP 中央目录结束记录（EOCD）")?;
+        let total = Self::u16_at(&data, eocd + 10) as usize;
+        let cd_size = Self::u32_at(&data, eocd + 12) as usize;
+        let cd_off = Self::u32_at(&data, eocd + 16) as usize;
+        let comment_len = Self::u16_at(&data, eocd + 20) as usize;
+        if total == 0xffff || cd_size == 0xffff_ffff || cd_off == 0xffff_ffff {
+            return Err("疑似 ZIP64，inject-dex 未支持".to_string());
+        }
+        if eocd + 22 + comment_len > data.len() || cd_off.checked_add(cd_size).map_or(true, |end| end > data.len()) {
+            return Err("ZIP 中央目录范围越界".to_string());
+        }
+
+        let mut names = std::collections::BTreeSet::new();
+        let mut p = cd_off;
+        for _ in 0..total {
+            if p.checked_add(46).map_or(true, |end| end > data.len()) || Self::u32_at(&data, p) != 0x0201_4b50 {
+                return Err(format!("中央目录项签名不符：偏移 {}", p));
+            }
+            let name_len = Self::u16_at(&data, p + 28) as usize;
+            let extra_len = Self::u16_at(&data, p + 30) as usize;
+            let entry_comment_len = Self::u16_at(&data, p + 32) as usize;
+            let name_start = p + 46;
+            let next = name_start
+                .checked_add(name_len + extra_len + entry_comment_len)
+                .ok_or("中央目录偏移溢出")?;
+            if next > data.len() { return Err("中央目录条目越界".to_string()); }
+            names.insert(String::from_utf8_lossy(&data[name_start..name_start + name_len]).to_string());
+            p = next;
+        }
+        if p != cd_off + cd_size { return Err("中央目录长度不符".to_string()); }
+
+        let slot = (2..100)
+            .map(|n| format!("classes{}.dex", n))
+            .find(|name| !names.contains(name))
+            .ok_or("找不到可用的 classesN.dex 槽位")?;
+        let name = slot.as_bytes();
+        if name.len() > u16::MAX as usize || cd_off > u32::MAX as usize {
+            return Err("ZIP 偏移或条目名超出 ZIP32 范围".to_string());
+        }
+        let crc = crc32(&dex_data);
+        let mut local = Vec::with_capacity(30 + name.len() + dex_data.len());
+        put_u32(&mut local, 0x0403_4b50);
+        put_u16(&mut local, 20); put_u16(&mut local, 0); put_u16(&mut local, 0);
+        put_u16(&mut local, 0); put_u16(&mut local, 0);
+        put_u32(&mut local, crc as usize); put_u32(&mut local, dex_data.len()); put_u32(&mut local, dex_data.len());
+        put_u16(&mut local, name.len()); put_u16(&mut local, 0);
+        local.extend_from_slice(name); local.extend_from_slice(&dex_data);
+
+        let new_cd_off = cd_off.checked_add(local.len()).ok_or("新中央目录偏移溢出")?;
+        let new_cd_size = cd_size.checked_add(46 + name.len()).ok_or("新中央目录长度溢出")?;
+        if new_cd_off > u32::MAX as usize || new_cd_size > u32::MAX as usize || total >= 0xfffe {
+            return Err("新增 DEX 后超出 ZIP32 范围".to_string());
+        }
+        let mut central = Vec::with_capacity(46 + name.len());
+        put_u32(&mut central, 0x0201_4b50);
+        put_u16(&mut central, 20); put_u16(&mut central, 20); put_u16(&mut central, 0);
+        put_u16(&mut central, 0); put_u16(&mut central, 0); put_u16(&mut central, 0);
+        put_u32(&mut central, crc as usize); put_u32(&mut central, dex_data.len()); put_u32(&mut central, dex_data.len());
+        put_u16(&mut central, name.len()); put_u16(&mut central, 0); put_u16(&mut central, 0);
+        put_u16(&mut central, 0); put_u16(&mut central, 0); put_u32(&mut central, 0); put_u32(&mut central, cd_off);
+        central.extend_from_slice(name);
+
+        let mut out = Vec::with_capacity(data.len() + local.len() + central.len());
+        out.extend_from_slice(&data[..cd_off]);
+        out.extend_from_slice(&local);
+        out.extend_from_slice(&data[cd_off..cd_off + cd_size]);
+        out.extend_from_slice(&central);
+        put_u32(&mut out, 0x0605_4b50);
+        put_u16(&mut out, 0); put_u16(&mut out, 0);
+        put_u16(&mut out, total + 1); put_u16(&mut out, total + 1);
+        put_u32(&mut out, new_cd_size); put_u32(&mut out, new_cd_off);
+        put_u16(&mut out, comment_len);
+        out.extend_from_slice(&data[eocd + 22..eocd + 22 + comment_len]);
+
+        let tmp = apk.with_extension("apk.dex.tmp");
+        fs::write(&tmp, &out).map_err(|e| format!("写 {} 失败：{}", tmp.display(), e))?;
+        if let Err(rename_error) = fs::rename(&tmp, apk) {
+            fs::copy(&tmp, apk).map_err(|copy_error| {
+                format!("替换 {} 失败：{}；兼容回退复制也失败：{}", apk.display(), rename_error, copy_error)
+            })?;
+            fs::remove_file(&tmp).map_err(|e| format!("清理临时文件 {} 失败：{}", tmp.display(), e))?;
+        }
+        Ok(slot)
+    }
+
     fn dex_entries(&self) -> Vec<(&str, u64)> {
         self.entries
             .iter()
@@ -778,6 +883,25 @@ impl ZipArchive {
         }
         Err(format!("找不到条目 {}", want))
     }
+}
+
+fn put_u16(out: &mut Vec<u8>, value: usize) {
+    out.extend_from_slice(&(value as u16).to_le_bytes());
+}
+
+fn put_u32(out: &mut Vec<u8>, value: usize) {
+    out.extend_from_slice(&(value as u32).to_le_bytes());
+}
+
+fn crc32(data: &[u8]) -> usize {
+    let mut crc = 0xffff_ffffu32;
+    for &byte in data {
+        crc ^= byte as u32;
+        for _ in 0..8 {
+            crc = if crc & 1 != 0 { (crc >> 1) ^ 0xedb8_8320 } else { crc >> 1 };
+        }
+    }
+    (!crc) as usize
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1557,6 +1681,14 @@ fn cmd_normalize_zip(path: &Path) -> Result<(), String> {
     Ok(())
 }
 
+fn cmd_inject_dex(apk: &Path, dex: &Path) -> Result<(), String> {
+    if !apk.is_file() { return Err(format!("APK 不存在：{}", apk.display())); }
+    if !dex.is_file() { return Err(format!("DEX 不存在：{}", dex.display())); }
+    let slot = ZipArchive::inject_dex(apk, dex)?;
+    println!("[inject-dex] 已注入 {}", slot);
+    Ok(())
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════════════════════
@@ -1571,6 +1703,7 @@ fn usage() {
     eprintln!("  status   列出全部基线版本");
     eprintln!("  rollback 把「当前基线」指回某个历史版本（不删文件）");
     eprintln!("  normalize-zip 统一 APK ZIP 时间戳（不重排、不重压缩）");
+    eprintln!("  inject-dex 追加 Kotlin/DEX 条目（保留原有 ZIP 条目）");
     eprintln!();
     eprintln!("全局选项：--root <baseline 目录>（默认 ./baseline）");
     eprintln!();
@@ -1634,6 +1767,10 @@ fn main() -> ExitCode {
         "normalize-zip" => match opts.get("apk") {
             Some(p) => cmd_normalize_zip(Path::new(p)).map(|_| 0),
             None => Err("normalize-zip 需要 --apk".to_string()),
+        },
+        "inject-dex" => match (opts.get("apk"), opts.get("dex")) {
+            (Some(apk), Some(dex)) => cmd_inject_dex(Path::new(apk), Path::new(dex)).map(|_| 0),
+            _ => Err("inject-dex 需要 --apk 与 --dex".to_string()),
         },
         "update" => {
             let version = match opts.get("version") {

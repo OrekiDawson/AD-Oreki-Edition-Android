@@ -235,7 +235,7 @@ python scripts/build_fingerprint.py --check    # 判定 stale（Gradle 自动调
 
 ### 9.7 尚未启用（【待验证】，不是已实现）
 
-- `org.gradle.caching`：本项目任务几乎全是 `Exec` 调外部 Python 脚本，没有 Gradle 原生
+- `org.gradle.caching`：本项目仍有 Python 语义检查和基线绑定步骤；APK 汇编、Kotlin dex 注入、ZIP 规整、对齐与签名由 Gradle 编排 Rust/Android 工具完成。
   输入输出声明，强行开启会产生**错误的缓存命中**。要启用必须先给每条 `Exec` 补齐
   `inputs`/`outputs`，届时再单独验证 `FROM-CACHE` 产物与正常执行产物的 SHA-256 一致性。
 - `org.gradle.configuration-cache`：`build.gradle` 里用了 `gradle.taskGraph.whenReady`

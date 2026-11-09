@@ -522,8 +522,8 @@ def injectKotlinDex = { File apk ->
         return
     }
     runExec {
-        workingDir = repoRoot
-        commandLine pythonExe, 'scripts/inject_kotlin_dex.py', apk.absolutePath, ktDex.absolutePath
+        workingDir = baselineToolDir
+        commandLine baselineToolExe.absolutePath, 'inject-dex', '--apk', apk.absolutePath, '--dex', ktDex.absolutePath
     }
 }
 def verifyAssembledAssets = { File apk ->
