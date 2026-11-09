@@ -339,6 +339,11 @@ check("发奖走「累计购买次数对账」，覆盖手动/自动/单次/批�
 check("对账边界：首次只建基线、增量为 0 不发奖、回退只重置",
       "if (last < 0L) {" in _api and "if (delta == 0L) return" in _api
       and "if (total < last) {" in _api)
+# 实测：未缓存反射时主循环被拖慢（maxAM 增速 770/分 → 1/分、首次永恒迟迟不到）。
+check("对账反射 Method 必须缓存（禁止每帧 getMethod）",
+      "mTimestudyCounts" in _api and "mTimestudyCountsResolved" in _api
+      and "timestudyCountMethods" in _api
+      and _api.count('getMethod("b")') == 1)
 check("补发失败不静默：有 GRANT-FAILED 告警",
       "tt-reward GRANT-FAILED" in _api)
 _tt_block = _api.split("fun timeTheoremBuyMax(auto: Boolean): Long")[1].split("// ------")[0]

@@ -2137,24 +2137,56 @@ internal object GameApi {
     /** 上一次对账时看到的「三源购买次数之和」；-1 表示尚未初始化。 */
     private var timeTheoremPurchasesSettled: Long = -1L
 
-    /** 三源已购买次数之和（原版 `amBought + ipBought + epBought`，只读）。 */
+    // [R96 第十四轮·性能] 对账每帧执行，反射 Method **必须缓存**：
+    // 实测未缓存版本（每帧 4 次 Class.getMethod 查找）把主循环拖慢 ⇒ maxAM 增速从
+    // ~770 指数/分钟掉到 ~1 指数/分钟、首次永恒迟迟不到。缓存后恢复。
+    private var mPlayerTimestudy: Method? = null
+    private var mTimestudyCounts: Array<Method>? = null
+    private var mTimestudyCountsResolved: Boolean = false
+
+    private fun playerTimestudyMethod(): Method? {
+        if (mPlayerTimestudy == null) {
+            mPlayerTimestudy = try {
+                playerCls()?.getMethod("c0")
+            } catch (error: Throwable) {
+                miss("Player.c0()=Timestudy", error); null
+            }
+        }
+        return mPlayerTimestudy
+    }
+
+    /** `[b()=amBought, c()=epBought, d()=ipBought]`（3.21 逐指令核对），只解析一次。 */
+    private fun timestudyCountMethods(sample: Any): Array<Method>? {
+        if (!mTimestudyCountsResolved) {
+            mTimestudyCountsResolved = true
+            mTimestudyCounts = try {
+                val cls = sample.javaClass
+                arrayOf(cls.getMethod("b"), cls.getMethod("c"), cls.getMethod("d"))
+            } catch (error: Throwable) {
+                miss("Timestudy.b()/c()/d()", error); null
+            }
+        }
+        return mTimestudyCounts
+    }
+
+    /** 三源已购买次数之和（原版 `amBought + epBought + ipBought`，只读）。 */
     private fun timeTheoremPurchaseCount(): Long {
+        val player = player() ?: return -1L
+        val getTimestudy = playerTimestudyMethod() ?: return -1L
         val timestudy = try {
-            val player = player() ?: return -1L
-            player.javaClass.getMethod("c0").invoke(player)
+            getTimestudy.invoke(player)
         } catch (error: Throwable) {
-            miss("Player.c0()=Timestudy", error)
-            return -1L
+            miss("Player.c0() invoke", error); return -1L
         } ?: return -1L
+        val methods = timestudyCountMethods(timestudy) ?: return -1L
         return try {
-            // 3.21 逐指令核对：b()=amBought、c()=epBought、d()=ipBought（顺序无关，这里取三者和）。
-            val amBought = timestudy.javaClass.getMethod("b").invoke(timestudy) as? Long ?: return -1L
-            val epBought = timestudy.javaClass.getMethod("c").invoke(timestudy) as? Long ?: return -1L
-            val ipBought = timestudy.javaClass.getMethod("d").invoke(timestudy) as? Long ?: return -1L
-            amBought + epBought + ipBought
+            var sum = 0L
+            for (m in methods) {
+                sum += (m.invoke(timestudy) as? Long) ?: return -1L
+            }
+            sum
         } catch (error: Throwable) {
-            miss("Timestudy.b()/c()/d()", error)
-            -1L
+            miss("Timestudy count invoke", error); -1L
         }
     }
 
