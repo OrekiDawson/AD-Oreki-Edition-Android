@@ -239,6 +239,7 @@ object OrekiStageAuto {
             // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
             GameApi.settleTimeTheoremReward()
 
+            OrekiPlayerIntent.refresh()
             applyCrunchPolicy()
             crunchProbe()
             detectBreakLoss()
@@ -597,11 +598,18 @@ object OrekiStageAuto {
         // R85：关闭智能自动化后保留玩家对原版自动购买器的控制，不强制重开。
         if (!OrekiAutomationScheduler.isEnabled()) return
         if (earlyAutomationApplied) return
+        // [R96 §80.2] 玩家手动关掉原版自动购买器总开关后，MOD 不得擅自重新打开。
+        if (!OrekiPlayerIntent.mayTouchAutobuyers()) {
+            earlyAutomationApplied = true
+            Log.i(TAG_EARLY, "skip: player owns vanilla autobuyers")
+            return
+        }
         earlyAutomationApplied = true
         Log.i(TAG_EARLY, "applied")
         try {
             // 主开关
             GameApi.setAutobuyersOn(true)
+            OrekiPlayerIntent.noteMasterEnabledByMod()
 
             // 维度 ×8
             GameApi.dimensionAutobuyers()?.forEach { dim ->
@@ -1185,11 +1193,30 @@ object OrekiStageAuto {
             // [R96] 智能大坍缩决策：目标驱动、按需结算（挑战 > 目标保护 > 收益驱动）。
             // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
             // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。
+            // [R96 §80.2] 读当前 mode 与 MOD 上次写入值比对，识别玩家手动改动。
+            OrekiPlayerIntent.refreshCrunchMode(GameApi.crunchMode(crunch), MODE_TIME)
+
+            // [R96 §81] 到恢复时机：解除玩家占用，稍后按**当时最新**策略值重写一次。
+            // 注意这只是配置恢复时机，原版自动购买器始终按自身间隔正常购买。
+            if (OrekiAutobuyerBeat.consumeRestoreDue()
+                && !OrekiPlayerIntent.mayRewriteCrunchMode()
+            ) {
+                OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+            }
+
             val decision = OrekiCrunchPolicy.decide()
             if (!decision.allow) {
                 if (pauseReason != decision.reason) {
                     pauseReason = decision.reason
-                    GameApi.setCrunchMode(crunch, MODE_TIME)
+                    // [R96 §80.2] 玩家已手动改过坍缩模式则不再覆盖。
+                    if (OrekiPlayerIntent.mayRewriteCrunchMode()) {
+                        GameApi.setCrunchMode(crunch, MODE_TIME)
+                        OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+                    } else {
+                        // [R96 §81] 受管节拍被玩家改动：记录，不在下一帧抢写，
+                        // 推迟到下一次调度 tick 用当时最新策略值恢复。
+                        OrekiAutobuyerBeat.deferRestore(OrekiAutomationScheduler.getIntervalSec())
+                    }
                     // 永恒层等待用 30 秒（周期结算），其余等待才用 1 小时硬暂停。
                     val pauseSeconds = if (decision.reason == "eternity-grow") {
                         ETERNITY_GROW_CRUNCH_SECONDS

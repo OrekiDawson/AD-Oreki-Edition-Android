@@ -363,6 +363,34 @@ check("系统二：配置写入幂等（有 once/变化检测闩锁，不逐帧�
       "targetIntervalInitialized" in stage and "pauseReason" in stage
       and "earlyAutomationApplied" in stage)
 
+# ---------------------------------------- 24j. R96 第二十一轮：§81 智能自动购买器节拍（归属纠正后）
+# 用户 2026-11-09 纠正：逐帧节拍检查 + 玩家改动后下一 tick 恢复属于**原版自动购买器侧**，
+# 不属于 MOD 全局节拍。因此这里断言「全局调度器内**没有**策略节拍代码」。
+check("§81 全局调度器内不存在策略节拍恢复代码（归属=原版购买器）",
+      "strategyIntervalSec" not in sched and "playerOverridePending" not in sched
+      and "requestStrategyInterval" not in sched and "restoreStrategyInterval" not in sched)
+_ab = read(KT_DIR / "OrekiAutobuyerBeat.kt") if (KT_DIR / "OrekiAutobuyerBeat.kt").is_file() else ""
+check("§81 存在原版购买器侧受管节拍对象（独立于 allow）",
+      "object OrekiAutobuyerBeat" in _ab and "fun deferRestore" in _ab
+      and "fun consumeRestoreDue" in _ab)
+check("§81 玩家改动只登记一次、到点只恢复一次（不逐帧抢写、不无限延迟）",
+      "if (pendingRestoreAtMs != 0L) return" in _ab and "pendingRestoreAtMs = 0L" in _ab)
+check("§81 受管节拍在配置优化层调用（allow 之外）",
+      "OrekiAutobuyerBeat.deferRestore" in stage and "OrekiAutobuyerBeat.consumeRestoreDue" in stage)
+
+# ---------------------------------------- 24i. R96 第二十轮：§80.2 玩家意图守卫（两条硬约束）
+_pi = read(KT_DIR / "OrekiPlayerIntent.kt") if (KT_DIR / "OrekiPlayerIntent.kt").is_file() else ""
+check("§80.2 存在玩家意图守卫（Kotlin-only）",
+      "object OrekiPlayerIntent" in _pi)
+check("§80.2 不得擅自打开玩家关闭的原版自动购买器",
+      "fun mayTouchAutobuyers" in _pi and "masterPlayerDisabled" in _pi
+      and "if (!OrekiPlayerIntent.mayTouchAutobuyers())" in stage)
+check("§80.2 不得覆盖玩家已手动修改的坍缩配置",
+      "fun mayRewriteCrunchMode" in _pi and "crunchModePlayerOwned" in _pi
+      and "OrekiPlayerIntent.refreshCrunchMode(" in stage)
+check("§80.2 守卫每帧刷新（总开关写入值与当前值差异判定，不猜意图）",
+      "OrekiPlayerIntent.refresh()" in stage and "GameApi.autobuyersOn()" in _pi)
+
 # ---------------------------------------------------------------- 24g. R96 第十五轮：先维度后献祭
 # 实测：顺序反了以后 sacrifice 每 10 秒独占名额，bulk 被 deny frame-held 31 次，
 # 维度零增长 ⇒ maxAM 卡 1e10754、29 分钟到不了首次永恒。

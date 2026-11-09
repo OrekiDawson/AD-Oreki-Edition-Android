@@ -14,6 +14,7 @@
 | 教程/UI/文档 | [TUTORIAL](rules/TUTORIAL.md) | 按需 |
 | 规则维护 | [GOVERNANCE](rules/GOVERNANCE.md) | 按需 |
 | 两套系统的节拍归属（R96 §80） | [AGENTS.md §80](AGENTS.md) | 按需 |
+| 智能自动购买器节拍管理（R96 §81，归属=原版购买器） | [AGENTS.md §81](AGENTS.md) | 按需 |
 
 ## 迁移对照
 

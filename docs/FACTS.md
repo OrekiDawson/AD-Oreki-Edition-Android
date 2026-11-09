@@ -9233,3 +9233,62 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
    已买入 122/132/142 与 72，互斥使 121/123 等永久不可得 ⇒ 只能在**新档**验证修复效果。
    本次装机（APK `99ba288c`）后研究数仍为 22 项，属该原因，不算修复失败。
 
+## R96 第二十一轮（12:56-13:05）：全局节拍逐帧策略管理（长期规则 §81）
+
+### 用户补充需求（已写入 AGENTS.md §81）
+全局节拍由**策略逐帧管理**：每帧读真实进度算阶段与所需间隔；恒钳制 1～60 秒；可随阶段动态调整、
+不必等固定周期；玩家手动改受控节拍时**不在下一帧抢写**，但在**下一次调度 tick 用最新策略值恢复**；
+值未变化不写不持久化不抖动。**不得把该强制恢复扩展到原版自动购买器设置。**
+
+### 实际代码修改（Kotlin-only）
+| 文件 | 改动 |
+|---|---|
+| `OrekiAutomationScheduler.kt` | 新增 `strategyIntervalSec` / `appliedByStrategy` / `playerOverridePending`；新增 `requestStrategyInterval()`（每帧上报，值未变不写）、`restoreStrategyInterval()`、`applyStrategyIntervalLocked()`、`getStrategyIntervalSec()`、`isPlayerOverridePending()`；`setIntervalSec()` 标记为玩家写入并置 pending；`allow()` 在节拍判定**之前**恢复策略节拍；`init()` 用存储值同时初始化两个策略变量 |
+| `OrekiBeatStrategy.kt`（新） | 只读阶段→间隔映射：早期 1s / 无限 2s / 无限维度 3s / 永恒 5s / 终局 10s；判据复用 `OrekiStageAuto.eternitiesZero()`（`eternities` 新档读作 11，不能当零点）+ 本地 `allInfinityDimensionsUnlocked()` |
+| `OrekiStageAuto.kt` | 每帧 `OrekiAutomationScheduler.requestStrategyInterval(OrekiBeatStrategy.requiredIntervalSec())`，紧随 `OrekiPlayerIntent.refresh()` |
+| `OrekiPlayerIntent.kt`（上轮新增） | §80.2 玩家意图守卫：总开关被玩家关闭后不再重开；坍缩模式被玩家改过后不再覆盖 |
+
+### 与 §80 的边界（不得越界）
+本节的**强制恢复**只作用于 `OrekiAutomationScheduler.intervalSec`（MOD 自有节拍）；
+`OrekiPlayerIntent` 只做「让路」，**不改写**原版自动购买器与坍缩配置。
+两条路径方向相反、互不覆盖。
+
+### 构建与契约
+- `build_kotlin.py` 通过，D8 列表含 `OrekiPlayerIntent.class`、`OrekiBeatStrategy.class`；
+  `classes.dex` = 2,746,088 B。
+- 上一轮守卫版 APK：`2289bc3b56861d1245ec8dcbf90232161e652c9165b228847cb6d0245692ed19`
+  （与 `99ba288c…` 不同 ⇒ 守卫确实进包）。
+- 调度器契约：151 项（§81 断言待补）。
+
+### 未解决
+1. §81 版 APK **尚未重新构建**（策略节拍代码已编译未打包）。
+2. §81 四项验收（阶段变化调间隔、手动改不抢写、下 tick 恢复、1s/60s 边界不停滞）**未在真机实测**。
+3. `eternityTick`/`glyphTick`/`teresaTick` 仍绕过节拍（返回 Unit，需先改造）。
+4. Web 端无「配置优化」系统，§80.5/§81 第 7 项「Android/Web 一致」待对齐或书面豁免。
+
+## R96 第二十一轮（13:00-13:15）：§81 归属纠正 —— 智能自动购买器节拍（非全局节拍）
+
+### 用户纠正（已改写 AGENTS.md §81，长期有效）
+「每帧检查节拍 + 玩家手动改动后不在下一帧抢写 + 下一 tick 恢复」这一整套逻辑
+**属于目标驱动型智能自动购买器**，作用于**原版自动购买器**的工作节拍与必要策略参数，
+**不属于** MOD 全局 1～60 秒行动节拍。
+**不得把该纠偏逻辑写进全局调度间隔管理。**
+
+### 已完成回退
+`OrekiAutomationScheduler.kt` 中此前误加的 §81 代码**全部移除**：
+`strategyIntervalSec` / `appliedByStrategy` / `playerOverridePending` 三态字段、
+`requestStrategyInterval()` / `restoreStrategyInterval()` / `applyStrategyIntervalLocked()` /
+`getStrategyIntervalSec()` / `isPlayerOverridePending()` 五个 API、`allow()` 内的恢复点、
+`setIntervalSec()` 的 pending 标记、`init()` 的策略种子。
+校验：残留 token 计数 = **0**；`git diff --stat` 对该文件无输出（已回到 HEAD 状态）。
+
+### 教训（写入本节以防复发）
+上一轮把「策略节拍」理解成 MOD 全局节拍，属于**归属误判**；本期已按用户澄清纠正，
+并在 §81 顶部保留「归属纠正记录」。今后任何节拍类改动必须先确认归属系统再落代码。
+
+### 待办
+1. 在原版自动购买器配置优化层（`applyCrunchPolicy()` 同层、`allow()` 之外）实现受管项节拍：
+   每帧算所需间隔、及时调整、玩家改动不在下一帧抢写、下一 tick 用最新策略恢复、值未变不写。
+2. 契约断言改为「全局调度器内**不存在**策略节拍代码」。
+3. 重建 APK + 门禁 + 真机验证购买效率。
+
