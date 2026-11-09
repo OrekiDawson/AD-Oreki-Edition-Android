@@ -3091,11 +3091,8 @@ def verify_payload():
         (sa_txt, "if (!GameApi.hasInfinity())",
          "hasInfinity() 为 false 才进开局自动化"),
 
-        # [R97 统一纠偏] auto.ipMult 不再「发现关闭就立刻置 true」，改为与其它受托管
-        # 自动器共用同一延迟恢复路径：本帧只登记，下一策略 tick 才写一次。
-        # 极性仍需守住「不写盘」的一面：已开启或策略要求关闭时只清登记、绝不写。
-        (sa_txt, "if (!wantOn || enabled) { OrekiPlayerIntent.clearManagedActivePending(key); return }",
-         "ipMult 已开启/策略要求关闭时只清登记、不写盘"),
+        # [R97 统一纠偏] 智能策略不得写原版自动器 isActive；玩家关闭的自动器
+        # 不能由下一策略 tick 重新打开。工作间隔/模式仍由独立策略路径管理。
 
         # IP < cost（compareTo 为负）才停止购买 interval
         # [R80] 局部变量按 §67 改名（c → ipVersusCost）；此处用「变量名不确定」的安全形态，
@@ -3146,6 +3143,23 @@ def verify_payload():
         "那是 canCrunch 的无限反物质目标，不是 ID1 的 1e1100，会让保护提前 8 个数量级解除")
     for text, needle, why in POLARITY_KT:
         assert needle in text, f"[R41] 极性/条件回归失败：{why} —— 源码里找不到 `{needle}`"
+    # [R98 §5.3 / ~/.dsh/AGENTS.md §81.1.9] 旧契约（R97）要求"受管自动器开关必须在策略
+    # 恢复路径写回建议值"，即玩家关闭后若干秒自动重开。R98 明确禁止：
+    #   「不得强制重新打开玩家主动关闭的原版自动购买器」
+    # 真机实测（第 38 轮）该旧行为在 8 秒内把玩家关掉的 4 个自动器全部重开，
+    # 属真实缺陷。契约随之改为断言**新不变量**：isActive 只允许"尊重玩家关闭"，
+    # 绝不允许经恢复路径强行写 true。
+    assert "OrekiPlayerIntent.notePlayerClosed" in sa_txt, (
+        "[R98] 受管自动器必须登记「玩家已关闭」一票否决，不得自动重开"
+    )
+    assert "OrekiPlayerIntent.clearPlayerClosed" in sa_txt, (
+        "[R98] 玩家自行重新打开时必须解除一票否决闩锁"
+    )
+    # 反向守卫：策略恢复路径里不得再出现把单项 isActive 强行置 true 的写法。
+    assert "GameApi.setAutobuyerActive(autobuyer, true)" not in sa_txt, (
+        "[R98] reconcileManagedAutobuyer 仍在强制重开玩家关闭的自动器 —— "
+        "违反 §5.3/§81.1.9，第 38 轮真机已复现"
+    )
 
     # 反向守卫：AMOUNT 模式不得被强行改写（R74 根因）。
     # 代码里必须**没有**对 setCrunchMode 的无条件调用（只能出现在 sCrunchTimeInit 分支内）。

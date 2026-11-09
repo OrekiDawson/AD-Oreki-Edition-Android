@@ -4,19 +4,19 @@ import android.os.SystemClock
 import android.util.Log
 
 /**
- * [R96 第二十轮] 玩家意图守卫 —— 规则 §80.2 的两条硬约束落地点。
+ * [R96 第二十轮] 玩家意图守卫 —— 记录手动改动，并按策略 tick 延迟恢复建议配置。
  *
- * §80.2 明确：目标驱动型智能自动购买器**不得覆盖玩家已明确设定或手动修改的配置**、
- * **不得擅自打开玩家已关闭的原版自动购买器**。
+ * 目标驱动型智能自动购买器不能在下一帧抢写玩家刚改的配置；明确受管项目（包括
+ * 原版自动购买器总开关与单项开关）要在下一次策略 tick 恢复当时最新建议值。
  *
  * 原实现的问题（实测口径）：
- *   · `enableEarly()` 无条件 `setAutobuyersOn(true)` 并逐个激活维度/速度/提升/星系/坍缩自动器。
- *     玩家若手动关掉原版自动购买器总开关，下一帧就被 MOD 重新打开 —— 属「擅自打开」。
+ *   · `enableEarly()` 无条件 `setAutobuyersOn(true)` 并逐个激活维度/速度/提升/星系/坍缩自动器，
+ *     玩家刚手动修改时下一帧就被 MOD 抢写。
  *   · `applyCrunchPolicy()` 无条件把大坍缩自动器改成 `MODE_TIME` 并改间隔。
  *     玩家若手动把坍缩改成「按数量」模式，会被 MOD 覆盖回去 —— 属「覆盖玩家配置」。
  *
- * 本守卫只做一件事：**记住 MOD 自己写了什么**；一旦发现游戏里的当前值与
- * 「MOD 上次写入值」不一致，就判定为玩家改过，此后不再接管该项。
+ * 本守卫只做一件事：登记当前配置偏离建议值的时刻；到下一次策略 tick 才允许写回，
+ * 并且每个 key 只恢复一次。
  *
  * 判据完全是「MOD 写入值 vs 当前值」的差异，不猜玩家意图、不读 UI、不依赖任何
  * 3.21 混淆名 —— 因此跨版本安全，也不会误伤玩家。
@@ -46,22 +46,30 @@ object OrekiPlayerIntent {
     }
 
     /**
-     * 每帧调用一次：检测玩家是否手动关掉了总开关。
+     * 每帧调用一次：总开关也是智能策略的受管配置。
      *
-     * 只在「MOD 写过 true」且「当前为 false」时判定为玩家关闭。
-     * 玩家之后自己重新打开（当前为 true）时自动解除，MOD 可以继续维护。
+     * 手动关闭后只登记，按当前全局间隔等待到下一次策略 tick，再恢复建议值；
+     * 绝不在下一帧抢写。MOD 总开关关闭时清掉待恢复项。
      */
     @JvmStatic
     fun refresh() {
         try {
-            if (!masterWrittenByMod) return
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                clearManagedActivePending("master")
+                return
+            }
             val on = GameApi.autobuyersOn()
-            if (!on && !masterPlayerDisabled) {
-                masterPlayerDisabled = true
-                Log.i(TAG, "player disabled vanilla autobuyers -> MOD stops re-enabling")
-            } else if (on && masterPlayerDisabled) {
+            if (on) {
+                clearManagedActivePending("master")
                 masterPlayerDisabled = false
-                Log.i(TAG, "player re-enabled vanilla autobuyers -> MOD may maintain again")
+                return
+            }
+            if (consumeManagedActiveRestoreDue("master")) {
+                GameApi.setAutobuyersOn(true)
+                noteMasterEnabledByMod()
+                Log.i(TAG, "master autobuyers restored at strategy tick")
+            } else {
+                noteManagedActiveDisabled("master", OrekiAutomationScheduler.getIntervalSec())
             }
         } catch (_: Throwable) {
         }
@@ -95,7 +103,7 @@ object OrekiPlayerIntent {
      * 证明「登记之后至少隔了一轮才恢复」，而不是下一帧就写盘。
      */
 
-    /** key → 登记时刻（elapsedRealtime 毫秒）。同一 key 只保留一条登记。 */
+    /** key → 下一次策略 tick 的恢复时刻（elapsedRealtime 毫秒）。同一 key 只保留一条登记。 */
     private val managedActivePendingAt = java.util.HashMap<String, Long>()
 
     /** key → 登记时的维护轮次（≈帧序号），只用于日志取证，不参与判定。 */
@@ -107,37 +115,47 @@ object OrekiPlayerIntent {
 
     /** 登记「策略要求开、但玩家把该项关掉了」。已登记则不刷新时间点（防连点导致永不恢复）。 */
     @JvmStatic
-    fun noteManagedActiveDisabled(key: String, nowMs: Long, passSeq: Long): Boolean {
+    fun noteManagedActiveDisabled(key: String, nowMs: Long, passSeq: Long, intervalSec: Int): Boolean {
         if (managedActivePendingAt.containsKey(key)) return false
-        managedActivePendingAt[key] = nowMs
+        val delayMs = (intervalSec.coerceIn(1, 60) * 1000L)
+        managedActivePendingAt[key] = nowMs + delayMs
         managedActivePendingPass[key] = passSeq
         managedActiveDefers++
         Log.i(
             TAG,
-            "managed[" + key + "] register at=" + nowMs + "ms pass=" + passSeq +
+            "managed[" + key + "] register at=" + nowMs + "ms dueAt=" +
+                (nowMs + delayMs) + "ms pass=" + passSeq +
                 " defers=" + managedActiveDefers
         )
         return true
     }
 
     @JvmStatic
+    fun noteManagedActiveDisabled(key: String, intervalSec: Int): Boolean =
+        noteManagedActiveDisabled(key, SystemClock.elapsedRealtime(), 0L, intervalSec)
+
+    @JvmStatic
+    fun noteManagedActiveDisabled(key: String, nowMs: Long, passSeq: Long): Boolean =
+        noteManagedActiveDisabled(key, nowMs, passSeq, 10)
+
+    @JvmStatic
     fun noteManagedActiveDisabled(key: String, nowMs: Long): Boolean =
-        noteManagedActiveDisabled(key, nowMs, 0L)
+        noteManagedActiveDisabled(key, nowMs, 0L, 10)
 
     @JvmStatic
     fun noteManagedActiveDisabled(key: String): Boolean =
-        noteManagedActiveDisabled(key, SystemClock.elapsedRealtime(), 0L)
+        noteManagedActiveDisabled(key, SystemClock.elapsedRealtime(), 0L, 10)
 
-    /** 是否到恢复时机：严格晚于登记时刻（= 下一策略 tick），到点只返回一次。 */
+    /** 是否到恢复时机：到达登记时采样的下一策略 tick，只返回一次。 */
     @JvmStatic
     fun consumeManagedActiveRestoreDue(key: String, nowMs: Long): Boolean {
         val at = managedActivePendingAt[key] ?: return false
-        if (nowMs <= at) return false
+        if (nowMs < at) return false
         managedActivePendingAt.remove(key)
         val deferPass = managedActivePendingPass.remove(key) ?: 0L
         Log.i(
             TAG,
-            "managed[" + key + "] restore-due at=" + nowMs + "ms registeredAt=" + at +
+            "managed[" + key + "] restore-due at=" + nowMs + "ms dueAt=" + at +
                 "ms waitedMs=" + (nowMs - at) + " pass=" + deferPass
         )
         return true
@@ -189,6 +207,56 @@ object OrekiPlayerIntent {
     fun describeManagedActive(): String =
         "pending=" + managedActivePendingAt.keys + " n=" + managedActivePendingAt.size +
             " defers=" + managedActiveDefers
+
+    // ---------------- 玩家已关闭：一票否决（R98 §5.3 / §81.1.9） ----------------
+
+    /*
+     * [R98 第 38 轮 AVD 实测缺陷] 用原版「自动购买器 状态切换」把全部自动器关掉后，
+     * 8 秒内策略把「自动进行维度提升 / 自动购买反物质星系 / 计数频率自动提升 /
+     * 自动购买第一维度」四项重新打开了（截图 16-toggle-off-immediate.png 全部空白 □，
+     * 17-toggle-off-after8s.png 四项变回勾选 ✓）。
+     *
+     * 这违反 R98 §5.3「不得强制重新打开玩家主动关闭的原版自动购买器」与
+     * ~/.dsh/AGENTS.md §81.1 第 9 条「不强制开启玩家主动关闭的原版自动购买器」。
+     *
+     * 上面那套 pending/restore 状态机只允许用于**受管配置值**（间隔、阈值、模式），
+     * 不得用于 isActive 开关本身。因此这里加一把**一票否决**闩锁：
+     *   · 观察到「策略想要开、实际是关」→ 判定为玩家关闭 → 记闩锁；
+     *   · 有闩锁就永不自动重开，直到玩家自己把它打开（观察到 active=true 才清除）；
+     *   · 策略想要关时清除闩锁与登记（此时不需要对抗）。
+     *
+     * 与 pending 状态机的关系：闩锁是最终裁决，pending 不再参与 isActive 判定。
+     */
+    private val playerClosedKeys = java.util.HashSet<String>()
+
+    /** 登记「玩家已主动关闭该项」。返回 true 表示首次登记。 */
+    @JvmStatic
+    fun notePlayerClosed(key: String): Boolean {
+        val added = playerClosedKeys.add(key)
+        if (added) Log.i(TAG, "managed[" + key + "] player-closed latch SET")
+        return added
+    }
+
+    @JvmStatic
+    fun isPlayerClosed(key: String): Boolean = playerClosedKeys.contains(key)
+
+    /** 玩家自己重新打开该项（观察到 active=true 且未由 MOD 写入）时解除闩锁。 */
+    @JvmStatic
+    fun clearPlayerClosed(key: String) {
+        if (playerClosedKeys.remove(key)) Log.i(TAG, "managed[" + key + "] player-closed latch CLEARED")
+    }
+
+    /** MOD 总开关关闭时整体复位，避免陈旧闩锁跨会话残留。 */
+    @JvmStatic
+    fun clearAllPlayerClosed() {
+        if (playerClosedKeys.isNotEmpty()) {
+            Log.i(TAG, "managed player-closed latches cleared n=" + playerClosedKeys.size)
+            playerClosedKeys.clear()
+        }
+    }
+
+    @JvmStatic
+    fun describePlayerClosed(): String = "playerClosed=" + playerClosedKeys
 
     // ---- 大坍缩沿用同一状态机（键固定 "crunch"），保留原函数名以免调用点散落 ----
     private const val KEY_CRUNCH = "crunch"
