@@ -477,6 +477,69 @@ gradle.taskGraph.whenReady { graph ->
     }
 }
 
+// ===================================================== [R99] APK assembly migration
+// build_mod.py 只负责生成并校验补丁后的 apktool 树；下面的产物编排由 Gradle
+// 直接执行。先保留 Python 旧路径作为显式回退，待新路径完成一次真实产物校验后删除。
+def modTree = {
+    def raw = System.getenv('OREKI_MOD')
+    return file(raw?.trim() ? raw : 'work/mod')
+}()
+def patchedUnsigned = new File(stageDir, 'unsigned.apk')
+def selectedBaselineMeta = readBaseMeta(baseDecoded)
+def selectedBaselineKey = selectedBaselineMeta.versionName ? selectedBaselineMeta.versionName.toString().take(4) : currentBaselineVersion
+def selectedBaselineCfg = baselineConfig.versions?.get(selectedBaselineKey) ?: currentBaselineCfg
+def assembleApktoolTree = {
+    if (selectedBaselineCfg.move_ads_package) {
+        def source = new File(modTree, 'smali/com/google/android/gms/internal/ads')
+        def target = new File(modTree, 'smali_classes3/com/google/android/gms/internal/ads')
+        if (source.isDirectory()) {
+            if (target.exists()) throw new GradleException("广告依赖目标已存在，拒绝覆盖：${target}")
+            target.parentFile.mkdirs()
+            java.nio.file.Files.move(source.toPath(), target.toPath())
+            logger.lifecycle('[oreki] 已将广告依赖包分组到 classes3.dex')
+        }
+    }
+    def tmp = new File(buildRoot, "apktool-tmp-${ProcessHandle.current().pid()}")
+    tmp.mkdirs()
+    def apktoolEnv = new HashMap(System.getenv())
+    apktoolEnv['TEMP'] = tmp.absolutePath
+    apktoolEnv['TMP'] = tmp.absolutePath
+    def apktoolPath = aapt2Dir.absolutePath + File.pathSeparator + System.getenv('PATH')
+    if (jdkHome != null) apktoolPath = jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + apktoolPath
+    apktoolEnv['PATH'] = apktoolPath
+    if (patchedUnsigned.exists()) patchedUnsigned.delete()
+    execOps.exec {
+        environment apktoolEnv
+        commandLine javaExe.absolutePath, "-Djava.io.tmpdir=${tmp.absolutePath}", '-Xmx6g',
+            '-jar', apktoolJar.absolutePath, 'b', modTree.absolutePath, '-o', patchedUnsigned.absolutePath
+    }
+    if (!patchedUnsigned.isFile()) throw new GradleException("apktool 未生成 unsigned APK：${patchedUnsigned}")
+}
+def injectKotlinDex = { File apk ->
+    def ktDex = new File(buildRoot, 'kt/classes.dex')
+    if (!ktDex.isFile()) {
+        logger.lifecycle('[oreki] 未找到 Kotlin dex，跳过注入（沿用 Smali 实现）')
+        return
+    }
+    runExec {
+        workingDir = repoRoot
+        commandLine pythonExe, 'scripts/inject_kotlin_dex.py', apk.absolutePath, ktDex.absolutePath
+    }
+}
+def verifyAssembledAssets = { File apk ->
+    def z = new java.util.zip.ZipFile(apk)
+    try {
+        def names = z.entries().toList()*.name
+        ['assets/oreki_tutorial.txt', 'assets/fonts/fa-solid-900.ttf', 'assets/dexopt/baseline.prof'].each { name ->
+            def entry = z.getEntry(name)
+            if (entry == null || entry.size <= 0) throw new GradleException("APK 缺少有效资源：${name}")
+        }
+        def assetCount = names.count { it.startsWith('assets/') }
+        if (assetCount < 22) throw new GradleException("APK assets 只有 ${assetCount} 条，至少应有 22 条")
+        logger.lifecycle("[oreki] APK assets 校验通过：${assetCount} 条")
+    } finally { z.close() }
+}
+
 tasks.register('fingerprintInputs', Exec) {
     group = 'oreki'
     description = '计算构建输入指纹，决定 assembleRelease 是 UP-TO-DATE 还是必须重建'
@@ -506,6 +569,7 @@ tasks.register('assembleRelease', Exec) {
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
     environment 'OREKI_UNSIGNED_OUT', new File(stageDir, 'unsigned.apk').absolutePath
+    environment 'OREKI_GRADLE_ASSEMBLY', '1'
     // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     def buildPath = aapt2Dir.absolutePath + File.pathSeparator + System.getenv('PATH')
@@ -540,7 +604,14 @@ tasks.register('assembleRelease', Exec) {
         def aligned = new File(stageDir, 'aligned.apk')
         def signed = new File(stageDir, 'signed_staged.apk')
         def zipalign = new File(btDir, isWindows ? 'zipalign.exe' : 'zipalign')
-        if (!unsigned.isFile()) throw new GradleException("Python 未生成 unsigned APK：${unsigned}")
+        assembleApktoolTree()
+        injectKotlinDex(unsigned)
+        runExec {
+            workingDir = repoRoot
+            commandLine pythonExe, 'scripts/apk_normalize.py', unsigned.absolutePath
+        }
+        verifyAssembledAssets(unsigned)
+        if (!unsigned.isFile()) throw new GradleException("Gradle 未生成 unsigned APK：${unsigned}")
 
         runExec {
             commandLine zipalign.absolutePath, '-p', '-f', '4', unsigned.absolutePath, aligned.absolutePath

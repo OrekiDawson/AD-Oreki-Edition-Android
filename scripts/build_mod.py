@@ -7238,6 +7238,11 @@ def main():
     # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
     # 结论：Android 主循环是 CPU 受限（单次 gameTick ≈22ms）而非 delay 受限，提频无效。
     # 保留函数体与 OrekiSpeed.frameMs 作为证据与后续候选基础，但不接入构建。
+    if os.environ.get("OREKI_GRADLE_ASSEMBLY") == "1":
+        note("[5] 补丁树已完成，APK 汇编/注入/规整交由 Gradle")
+        (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
+        return 0
+    # 仅保留给历史调试调用；正式构建由 Gradle 统一负责产物编排。
     final = build_package(java)
     (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
     return 0 if final else 1
