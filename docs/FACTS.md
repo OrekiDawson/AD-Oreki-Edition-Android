@@ -9362,3 +9362,35 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 但**端到端 UI 实测未完成**，不得记为通过。已列为下一轮首个待办。
 改进方向（不擅自改已交付包）：把基线在首次观察时采纳为当前值，或持久化基线，使跨进程可判定。
 
+## R96 第二十四轮（13:23-13:30）：§81 双端一致性核验（定性，非缺陷）
+
+### 核验结论（逐条取证）
+| 项 | Android | Web | 判定 |
+|---|---|---|---|
+| 目标驱动控制原版大坍缩结算时机 | `OrekiCrunchPolicy.decide()` + `applyCrunchPolicy()` | `OrekiCrunchPolicy.decide().allow` 作为 `willInfinity` 门控（`big-crunch-autobuyer.js:147`） | **一致** |
+| 是否改写玩家 mode/time 配置 | 会改写（`setCrunchMode(MODE_TIME)`/`setCrunchInterval`），并有 `OrekiPlayerIntent` 让路守卫 | **从不改写**（`grep -cE "bigCrunch\.(mode\|time) *=" → 0`） | **实现手段不同** |
+| 受管节拍「玩家改动→下一 tick 恢复」 | 有（`OrekiAutobuyerBeat`，16 项单元验证通过） | **N/A**：Web 不写该配置，无「需恢复」的对象 | **N/A（非 FAIL）** |
+| MOD 全局节拍 1～60 秒、默认 10 秒 | 有（`INTERVAL_DEFAULT=10`，实测 1/60 秒持久生效） | Web 调度间隔由 `strictGlobal`/`intervalSec` 管理 | 需单列核对 |
+
+### 为何改判「Android/Web 一致」由 FAIL → 差异已定性
+上一轮记为 FAIL 的依据是「Web 无原版购买器配置优化系统」。本轮逐行取证后修正该判断：
+- Web **确实**实现了目标驱动控制（门控开火），只是**手段**是「不许开火」而不是「改配置」；
+- 该手段**严格更贴合** §80.2「不得覆盖玩家已明确设定或手动修改的配置」——
+  Web 从根本上不给玩家配置写入的机会，Android 则必须写（3.21 下坍缩自动器若停留在
+  AMOUNT/1 模式会每轮只换到极小 IP，实测导致 Break 永久卡住）+ 用让路守卫兜底。
+- 因此 §81「受管节拍恢复」在 Web 侧没有对应对象，属 **N/A**，不是缺陷。
+
+### 证据
+- `node scripts/check_crunch_policy.mjs` → 全部通过
+- `node scripts/check_crunch_modes.mjs` → 全部通过
+- `node scripts/check_eternity_gate.mjs` → 全部通过
+- `grep -cE "bigCrunch\.(mode|time) *=" src/core/autobuyers/big-crunch-autobuyer.js` → **0**
+
+### 若用户要求「字面一致」（Web 也改写 mode/time）
+那是**新功能**，不在本轮范围，需单独立项；且与 §80.2「不得覆盖玩家配置」存在张力，
+建议保持 Web 现状。
+
+### 仍待办
+1. 端到端 UI 实测（玩家同进程改坍缩模式 → 下一 tick 恢复）仍 NOT RUN。
+2. Web 调度间隔是否也是「默认 10 秒 / 1～60 / 玩家修改保留」需单独核对（本轮未做）。
+
