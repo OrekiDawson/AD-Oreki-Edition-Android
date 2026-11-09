@@ -1,5 +1,6 @@
 package kajfosz.antimatterdimensions.oreki
 
+import android.os.SystemClock
 import android.util.Log
 
 /**
@@ -65,6 +66,74 @@ object OrekiPlayerIntent {
     /** MOD 此刻是否允许去打开/维护原版自动购买器。false = 玩家已明确关闭，让路。 */
     @JvmStatic
     fun mayTouchAutobuyers(): Boolean = !masterPlayerDisabled
+
+    // ---------------- 受托管原版自动器：单项 isActive 统一状态机 ----------------
+
+    /*
+     * [R97 实测反馈 + 统一纠偏] 玩家手动关闭「自动大坍缩」等单项自动器后没有恢复链路；
+     * 而「无限点数倍率」相反——每帧发现关闭就立刻重开。两种表现都是错的。
+     *
+     * 这里只有**一套**按键索引的状态机，所有受托管自动器共用（用户明确要求：
+     * 不为每个自动器分别复制一套状态机）。语义严格对应 10 条要求：
+     *   2/3. 每帧读真实状态并算期望；策略要求开、实际关闭 → 本帧只登记，不抢写；
+     *   4.   下一次策略 tick（严格晚于登记时刻）才写一次；
+     *   5.   IP 倍率与其它自动器共用同一条恢复路径，不再立即重开；
+     *   6/7. 两个总开关由调用方在写之前判定，本对象不越权；
+     *   10.  同一 key 只登记一次、只写一次；值未变化不写、不重复持久化。
+     */
+
+    /** key → 登记时刻（elapsedRealtime 毫秒）。同一 key 只保留一条登记。 */
+    private val managedActivePendingAt = java.util.HashMap<String, Long>()
+
+    /** 累计登记次数，仅用于日志佐证「不是逐帧重复登记」。 */
+    @Volatile
+    private var managedActiveDefers: Int = 0
+
+    /** 登记「策略要求开、但玩家把该项关掉了」。已登记则不刷新时间点（防连点导致永不恢复）。 */
+    @JvmStatic
+    fun noteManagedActiveDisabled(key: String, nowMs: Long): Boolean {
+        if (managedActivePendingAt.containsKey(key)) return false
+        managedActivePendingAt[key] = nowMs
+        managedActiveDefers++
+        Log.i(TAG, "managed[" + key + "]: player disable recorded -> restore at next strategy tick")
+        return true
+    }
+
+    @JvmStatic
+    fun noteManagedActiveDisabled(key: String): Boolean = noteManagedActiveDisabled(key, SystemClock.elapsedRealtime())
+
+    /** 是否到恢复时机：严格晚于登记时刻（= 下一策略 tick），到点只返回一次。 */
+    @JvmStatic
+    fun consumeManagedActiveRestoreDue(key: String, nowMs: Long): Boolean {
+        val at = managedActivePendingAt[key] ?: return false
+        if (nowMs <= at) return false
+        managedActivePendingAt.remove(key)
+        Log.i(TAG, "managed[" + key + "]: restore due -> re-enable once")
+        return true
+    }
+
+    @JvmStatic
+    fun consumeManagedActiveRestoreDue(key: String): Boolean = consumeManagedActiveRestoreDue(key, SystemClock.elapsedRealtime())
+
+    /** 策略要求关闭、或已处于期望状态时清空登记，绝不残留成「稍后强行开启」。 */
+    @JvmStatic
+    fun clearManagedActivePending(key: String) { managedActivePendingAt.remove(key) }
+
+    @JvmStatic
+    fun isManagedActivePending(key: String): Boolean = managedActivePendingAt.containsKey(key)
+
+    @JvmStatic
+    fun describeManagedActive(): String = "pending=" + managedActivePendingAt.keys + " defers=" + managedActiveDefers
+
+    // ---- 大坍缩沿用同一状态机（键固定 "crunch"），保留原函数名以免调用点散落 ----
+    private const val KEY_CRUNCH = "crunch"
+    @JvmStatic fun noteCrunchActiveChanged(): Boolean = noteManagedActiveDisabled(KEY_CRUNCH)
+    @JvmStatic fun noteCrunchActiveChangedAt(nowMs: Long): Boolean = noteManagedActiveDisabled(KEY_CRUNCH, nowMs)
+    @JvmStatic fun consumeCrunchActiveRestoreDue(): Boolean = consumeManagedActiveRestoreDue(KEY_CRUNCH)
+    @JvmStatic fun consumeCrunchActiveRestoreDueAt(nowMs: Long): Boolean = consumeManagedActiveRestoreDue(KEY_CRUNCH, nowMs)
+    @JvmStatic fun clearCrunchActivePending() { clearManagedActivePending(KEY_CRUNCH) }
+    @JvmStatic fun isCrunchActivePending(): Boolean = isManagedActivePending(KEY_CRUNCH)
+    @JvmStatic fun describeCrunchActive(): String = describeManagedActive()
 
     // ---------------- 大坍缩自动器模式 ----------------
 

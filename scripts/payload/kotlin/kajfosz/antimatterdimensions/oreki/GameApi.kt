@@ -1057,6 +1057,30 @@ internal object GameApi {
         call(mBaseI(), a, active)
     }
 
+    private var mBaseB: Method? = null
+    private var mBaseBResolved: Boolean = false
+    private fun mBaseB(): Method? {
+        if (!mBaseBResolved) {
+            mBaseBResolved = true
+            // 取证：AutobuyerState.b()Z 直接 iget-boolean ->isActive:Z 并返回（真实字节码，非推断）。
+            mBaseB = method(autobuyerBaseCls(), "b", 0, "AutobuyerState.b()=isActive")
+        }
+        return mBaseB
+    }
+
+    /**
+     * 读取某个原版自动器**单项**的启用状态 `isActive`。
+     *
+     * 语义边界（务必与另两个开关区分）：
+     *   · 本方法 = 单项开关（`AutobuyerState.isActive`）；
+     *   · 原版自动购买器总开关 = `autobuyersOn()`；
+     *   · MOD 自动化总开关 = `OrekiAutomationScheduler.isEnabled()`。
+     * 三者互不等价，任何一处关闭都不等于另外两处关闭。
+     *
+     * 读不到返回 null（fail-closed：调用方不得据此写值）。
+     */
+    fun isAutobuyerActive(a: Any?): Boolean? = call(mBaseB(), a) as? Boolean
+
     // ---------------------------------------------------------------- 维度自动器 bulk
 
     private var mDimD: Method? = null

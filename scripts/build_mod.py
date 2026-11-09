@@ -3115,9 +3115,11 @@ def verify_payload():
         (sa_txt, "if (!GameApi.hasInfinity())",
          "hasInfinity() 为 false 才进开局自动化"),
 
-        # auto.ipMult 已经为 true 才跳过写入
-        (sa_txt, "if (GameApi.isIpMultEnabled()) return",
-         "ipMult 已开启才跳过写入"),
+        # [R97 统一纠偏] auto.ipMult 不再「发现关闭就立刻置 true」，改为与其它受托管
+        # 自动器共用同一延迟恢复路径：本帧只登记，下一策略 tick 才写一次。
+        # 极性仍需守住「不写盘」的一面：已开启或策略要求关闭时只清登记、绝不写。
+        (sa_txt, "if (!wantOn || enabled) { OrekiPlayerIntent.clearManagedActivePending(key); return }",
+         "ipMult 已开启/策略要求关闭时只清登记、不写盘"),
 
         # IP < cost（compareTo 为负）才停止购买 interval
         # [R80] 局部变量按 §67 改名（c → ipVersusCost）；此处用「变量名不确定」的安全形态，

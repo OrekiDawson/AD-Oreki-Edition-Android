@@ -643,8 +643,10 @@ object OrekiStageAuto {
         try {
             // R85：Oreki 智能开关关闭后不再接管原版自动器状态。
             if (!OrekiAutomationScheduler.isEnabled()) return
-            if (GameApi.isIpMultEnabled()) return
-            GameApi.setIpMultEnabled(true)
+            // [R97 统一纠偏] 不再「发现关闭就立刻置 true」——那使 IP 倍率成为唯一
+            // 会瞬间重开的自动器，与其它项恢复时机不一致，且等于无视玩家刚做的关闭。
+            // 现改由 `applyManagedAutobuyerStates()` 统一处理：本帧只登记，下一策略 tick 恢复一次。
+            reconcileIpMultAutobuyer(true)
         } catch (_: Throwable) {
         }
     }
@@ -673,15 +675,9 @@ object OrekiStageAuto {
             GameApi.setAutobuyersOn(true)
             OrekiPlayerIntent.noteMasterEnabledByMod()
 
-            // 维度 ×8
-            GameApi.dimensionAutobuyers()?.forEach { dim ->
-                GameApi.setAutobuyerActive(dim, true)
-            }
-            // 速度 / 维度提升 / 星系 / 大坍缩
-            GameApi.setAutobuyerActive(GameApi.tickspeedAutobuyer(), true)
-            GameApi.setAutobuyerActive(GameApi.dimBoostAutobuyer(), true)
-            GameApi.setAutobuyerActive(GameApi.galaxyAutobuyer(), true)
-            GameApi.setAutobuyerActive(GameApi.crunchState(), true)
+            // [R97 统一纠偏] 单项 isActive 不再在开局一次性写死（那样玩家之后关闭就再无恢复）。
+            // 这里只负责「把原版总开关交给 MOD 托管」，每个自动器的启用状态由
+            // `applyManagedAutobuyerStates()` 每帧统一比对、延迟一拍恢复。
         } catch (_: Throwable) {
         }
     }
@@ -1234,6 +1230,59 @@ object OrekiStageAuto {
 
     // ---------------------------------------------------------------- 策略与诊断
 
+    /** [R97 实测反馈] 大坍缩自动器**单项**启用状态（`isActive`）的接管与恢复。
+     *
+     * 背景：`applyCrunchPolicy()` 一直只托管「模式 + 间隔」，`enableEarly()` 只在开局跑一次，
+     * 所以玩家手动关掉「自动大坍缩」后**没有任何恢复链路**（真机实测复现）。
+     *
+     * 用户 2026-11-09 的新要求（覆盖旧的「单项关闭后永不重开」，但不覆盖总开关保护）：
+     *   1. 每帧读真实 isActive 与当前阶段目标；
+     *   2. 策略要求开、玩家刚关 → **本帧只记录**，不抢写；
+     *   3. **下一次策略 tick** 按最新目标恢复开启，不等 MOD 全局行动节拍；
+     *   4. MOD 总开关关 / 原版总开关关 → 绝不恢复；
+     *   5. 策略要求暂停时不强制开启；
+     *   6. 只碰大坍缩这一项；
+     *   7. 不重复写、不抖动、不重复启用，反射失败一律 fail-closed。
+     *
+     * @param wantRunning 当前阶段目标是否要求大坍缩运行（来自 `OrekiCrunchPolicy.decide().allow`）。
+     */
+    private fun restoreCrunchActiveIfNeeded(crunch: Any?, wantRunning: Boolean) {
+        try {
+            // 读不到就什么都不做：宁可不动，也不猜。
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+
+            // 策略要求暂停 → 清掉待恢复，绝不残留成「稍后强行开启」（用户第 5 条）。
+            if (!wantRunning) {
+                OrekiPlayerIntent.clearCrunchActivePending()
+                return
+            }
+            // 已经是开的 → 幂等收尾，不写盘（用户第 7 条）。
+            if (active) {
+                OrekiPlayerIntent.clearCrunchActivePending()
+                return
+            }
+            // 到这里：策略要求开、但单项是关的。
+            // 两个总开关任一关闭 → 不介入（用户第 4 条）。任一都不代表另一。
+            if (!OrekiAutomationScheduler.isEnabled()) return
+            if (!OrekiPlayerIntent.mayTouchAutobuyers()) return
+            if (!GameApi.autobuyersOn()) return
+
+            if (OrekiPlayerIntent.consumeCrunchActiveRestoreDue()) {
+                GameApi.setAutobuyerActive(crunch, true)
+                Log.i(TAG_AU4C, "policy -> crunch isActive re-enabled (player disable, 1 tick defer)")
+            } else {
+                // 本帧只登记；下一策略 tick 才写入（用户第 2/3 条）。
+                OrekiPlayerIntent.noteCrunchActiveChanged()
+            }
+        } catch (error: Throwable) {
+            // 反射/字段失败：保持关闭，绝不当成「已开启」而反复重试刷屏。
+            if (!crunchPolicyErrorLogged) {
+                crunchPolicyErrorLogged = true
+                Log.e(TAG_AU4C, "restoreCrunchActive failed", error)
+            }
+        }
+    }
+
     /**
      * 大坍缩策略默认值修正（移植自 Web big-crunch-autobuyer.js）。
      *
@@ -1244,6 +1293,79 @@ object OrekiStageAuto {
      * 例外：Break 后且 Break 升级位图为空时，进程内第一次进入该分支会把 mode
      * 设为 TIME/1s（打破 X_HIGHEST 判据永不满足的死锁），同样只设一次。
      */
+    /**
+     * [R97 统一纠偏] 目标驱动型智能自动购买器 —— **受托管单项自动器的统一启用状态管理**。
+     *
+     * 取代此前互不一致的三种行为：
+     *   · `enableIpMultAutobuyer()` 每帧发现关闭就立刻重开（唯一「会自动恢复」的例外，时机也不对）；
+     *   · `enableEarly()` 靠 `earlyAutomationApplied` 只跑一次，其它自动器关闭后无恢复链路；
+     *   · `applyCrunchPolicy()` 只管模式/间隔，不管单项 isActive。
+     *
+     * 现在只有**这一条**路径：枚举受托管自动器 → 每帧读真实 isActive → 与策略期望比对
+     * → 玩家刚关只登记 → 下一策略 tick 恢复一次。所有项共用 `OrekiPlayerIntent` 的一套状态机。
+     *
+     * 边界（严格按用户 10 条）：
+     *   · 两个总开关任一关闭 → 整体不接管，绝不越权（第 7 条）；
+     *   · 未解锁/取不到的自动器 → 跳过，不强制操作（第 6 条）；
+     *   · 策略要求关闭的（如策略暂停期的坍缩）→ 清登记、不开启（第 6 条）；
+     *   · 已在期望状态 → 不写、不持久化（第 10 条）；
+     *   · 本函数**不在** `allow()` / `runScheduled()` 内，故不受 MOD 全局 10 秒节拍限速（第 9 条）。
+     *
+     * @param wantCrunch 当前阶段策略是否要求大坍缩运行（来自 `OrekiCrunchPolicy.decide().allow`）。
+     */
+    private fun applyManagedAutobuyerStates(wantCrunch: Boolean) {
+        if (!OrekiAutomationScheduler.isEnabled()) return
+        if (!OrekiPlayerIntent.mayTouchAutobuyers()) return
+        if (!GameApi.autobuyersOn()) return
+        try {
+            // 反物质维度 ×8（各自独立 isActive，逐项比对）
+            GameApi.dimensionAutobuyers()?.forEachIndexed { i, dim ->
+                reconcileManagedAutobuyer("dim" + (i + 1), dim, true)
+            }
+            reconcileManagedAutobuyer("tickspeed", GameApi.tickspeedAutobuyer(), true)
+            reconcileManagedAutobuyer("dimboost", GameApi.dimBoostAutobuyer(), true)
+            reconcileManagedAutobuyer("galaxy", GameApi.galaxyAutobuyer(), true)
+            reconcileManagedAutobuyer("sacrifice", GameApi.sacrificeAutobuyer(), true)
+            reconcileManagedAutobuyer("crunch", GameApi.crunchState(), wantCrunch)
+            reconcileIpMultAutobuyer(true)
+        } catch (error: Throwable) {
+            if (!crunchPolicyErrorLogged) {
+                crunchPolicyErrorLogged = true
+                Log.e(TAG_AU4C, "applyManagedAutobuyerStates failed", error)
+            }
+        }
+    }
+
+    /** 单个原版自动器：读真实 isActive → 记录/恢复/不动。取不到一律跳过（fail-closed）。 */
+    private fun reconcileManagedAutobuyer(key: String, autobuyer: Any?, wantOn: Boolean) {
+        if (autobuyer == null) return
+        val active = GameApi.isAutobuyerActive(autobuyer) ?: return
+        if (!wantOn || active) { OrekiPlayerIntent.clearManagedActivePending(key); return }
+        if (OrekiPlayerIntent.consumeManagedActiveRestoreDue(key)) {
+            GameApi.setAutobuyerActive(autobuyer, true)
+            Log.i(TAG_AU4C, "managed[" + key + "]: isActive re-enabled (1 strategy tick defer)")
+        } else {
+            OrekiPlayerIntent.noteManagedActiveDisabled(key)
+        }
+    }
+
+    /**
+     * 无限点数倍率自动器：它是 `player.auto.ipMult` 布尔配置（`isIpMultEnabled`/`setIpMultEnabled`），
+     * 与 `AutobuyerState.isActive` 不是同一字段，因此单独走一条读取，但**共用同一套延迟状态机**，
+     * 修复「只有它会立刻重开」的不一致（用户第 5 条）。
+     */
+    private fun reconcileIpMultAutobuyer(wantOn: Boolean) {
+        val enabled = GameApi.isIpMultEnabled()
+        val key = "ipmult"
+        if (!wantOn || enabled) { OrekiPlayerIntent.clearManagedActivePending(key); return }
+        if (OrekiPlayerIntent.consumeManagedActiveRestoreDue(key)) {
+            GameApi.setIpMultEnabled(true)
+            Log.i(TAG_AU4C, "managed[ipmult]: re-enabled (1 strategy tick defer)")
+        } else {
+            OrekiPlayerIntent.noteManagedActiveDisabled(key)
+        }
+    }
+
     @JvmStatic
     fun applyCrunchPolicy() {
         try {
@@ -1273,6 +1395,15 @@ object OrekiStageAuto {
             }
 
             val decision = OrekiCrunchPolicy.decide()
+
+            // [R97 实测反馈] 大坍缩自动器**单项 isActive** 的恢复链路。
+            // 与模式/间隔分开：这里只管「要不要开着」这一个布尔。
+            // 三个开关必须分开判断，不得混为一谈：
+            //   · 单项       = GameApi.isAutobuyerActive(crunch)      ← 本段维护
+            //   · 原版总开关 = GameApi.autobuyersOn()
+            //   · MOD 总开关 = OrekiAutomationScheduler.isEnabled()（本函数入口已 return）
+            applyManagedAutobuyerStates(decision.allow)
+
             if (!decision.allow) {
                 // 永恒层等待用 30 秒（周期结算），其余等待才用 1 小时硬暂停。
                 val pauseSeconds = if (decision.reason == "eternity-grow") {

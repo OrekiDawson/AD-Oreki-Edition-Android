@@ -311,6 +311,28 @@ object OrekiEcAutomation {
             return null
         }
 
+        /**
+         * 按字段名读出 `Integer[]`（沿父类链查找，qu4 定义 `k` 与 `p`）。
+         *
+         * 只用于**取证**：把每关真实的前置/互斥数组打出来，避免按 `b.r` 之类的映射猜测。
+         * 读不到返回 null，不影响业务路径。
+         */
+        fun intArray(target: Any?, field: String): List<Int>? = try {
+            var c: Class<*>? = target?.javaClass
+            var f: java.lang.reflect.Field? = null
+            while (c != null && f == null) {
+                f = try { c.getDeclaredField(field) } catch (e: NoSuchFieldException) { null }
+                c = c.superclass
+            }
+            f?.let {
+                it.isAccessible = true
+                @Suppress("UNCHECKED_CAST")
+                (it.get(target) as? Array<Integer>)?.map { v -> v?.toInt() ?: -1 }
+            }
+        } catch (t: Throwable) {
+            null
+        }
+
         /** 真实 `Continuation` 叶子单例（`ContinuationImpl` 的 `_context` 必须非 null）。 */
         fun continuation(): Any? {
             if (contResolved) return contInstance
@@ -476,6 +498,9 @@ object OrekiEcAutomation {
                     .append(if (canBuyPrereq(s) == true) 'A' else '-')
                     .append(if (canAfford(s) == true) 'Z' else '-')
                     .append(if (hasExclusiveFree(s) == true) 'O' else '-')
+                    // k=前置研究数组、p=互斥/二级研究数组（qu4 定义），直接读真实对象，不靠推断。
+                    .append(" k=").append(intArray(s, "k"))
+                    .append(" p=").append(intArray(s, "p"))
                     .append(' ')
             }
             return sb.toString().trim()
