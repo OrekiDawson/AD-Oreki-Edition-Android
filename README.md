@@ -283,7 +283,7 @@ R95 已核实 Linux 工具链可见，但本轮只授权规则和文档更新，
 ### 测试
 
 ```bash
-python scripts/build_kotlin.py          # Kotlin 语法 + ABI 签名断言
+./gradlew buildKotlinDex --offline      # Gradle 编排 kotlinc → ABI 守卫 → D8
 python scripts/test_r83_iu15_kotlin.py  # IU15 契约
 python scripts/test_r81_dark_theme.py   # 深色主题路径
 ./gradlew smokeOrekiTest                # 装到 oreki_test 并冒烟（需模拟器在线）

@@ -161,6 +161,18 @@ def btDir = {
     for (d in dirs) { if (new File(d, 'zipalign').exists() || new File(d, 'zipalign.exe').exists()) return d }
     return dirs ? dirs[0] : bt
 }()
+def kotlinCompiler = file("tools/kotlinc/bin/${isWindows ? 'kotlinc.bat' : 'kotlinc'}")
+def d8Exe = isWindows ? file('tools/bt/android-14/d8.bat') : new File(btDir, 'd8')
+def kotlinStdlib = file('tools/kotlinc/lib/kotlin-stdlib.jar')
+def androidJar = {
+    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
+    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
+    def platforms = new File(sdkHome, 'platforms')
+    def preferred = new File(platforms, 'android-34/android.jar')
+    if (preferred.isFile()) return preferred
+    def jars = platforms.listFiles()?.collect { new File(it, 'android.jar') }?.findAll { it.isFile() } ?: []
+    return jars ? jars.sort { it.parentFile.name }.last() : new File('android.jar')
+}()
 def keystore = file('keys/oreki.jks')
 
 def pkgName = 'com.oreki.antimatterdimensions'
@@ -320,7 +332,7 @@ tasks.register('verifyEnvironment') {
     }
 }
 
-// ================================================================ buildKotlinDex
+// ================================================================ Kotlin/D8 构建阶段
 // [R76] Kotlin 编译接入发布依赖链。
 //
 // 背景：R75 加了 scripts/build_kotlin.py，但**没有任何 Gradle 任务调用它** ——
@@ -329,28 +341,81 @@ tasks.register('verifyEnvironment') {
 // Smali 版，等于产出缺实现的 APK。
 //
 // 现在：
-//   · buildKotlinDex 是 assembleRelease 的前置任务，每次构建都真实执行；
-//   · .kt 源与 kotlinc 版本都进指纹（见 build_fingerprint.py 的 payload 内容哈希）；
-//   · 编译失败 = 任务失败 = 不产出 APK（而不是静默退回）。
+//   · Gradle 负责 kotlinc / javap / D8 的工具编排与输入输出；
+//   · Python 只保留基线绑定生成和 ABI 语义守卫；
+//   · 任一阶段失败 = 任务失败 = 不产出 APK（而不是静默退回）。
+def kotlinEnv = {
+    def e = [:]
+    if (jdkHome != null) {
+        e['JAVA_HOME'] = jdkHome.absolutePath
+        e['PATH'] = jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    }
+    e['PYTHONIOENCODING'] = 'utf-8'
+    return e
+}()
+
+tasks.register('generateKotlinBindings', Exec) {
+    group = 'oreki'
+    description = '由 Python 生成已确认基线绑定的 Kotlin 源文件'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/build_kotlin.py', '--generate-bindings'
+    kotlinEnv.each { k, v -> environment k, v }
+    inputs.file(new File(repoRoot, 'baseline/version-config.json'))
+    outputs.file(new File(repoRoot, 'build/kt/generated/OrekiBaselineBindings.kt'))
+}
+
+tasks.register('compileKotlinClasses', Exec) {
+    group = 'oreki'
+    description = '用仓库 Kotlin 编译器编译 MOD Kotlin 源码'
+    dependsOn 'generateKotlinBindings'
+    workingDir = repoRoot
+    doFirst {
+        def out = new File(repoRoot, 'build/kt/classes')
+        if (out.exists()) delete out
+        out.mkdirs()
+    }
+    commandLine kotlinCompiler, '-nowarn', '-classpath', androidJar.absolutePath
+    fileTree(new File(repoRoot, 'scripts/payload/kotlin')) { include '**/*.kt' }.files.sort { it.path }.each { args it.absolutePath }
+    args new File(repoRoot, 'build/kt/generated/OrekiBaselineBindings.kt').absolutePath,
+        '-d', new File(repoRoot, 'build/kt/classes').absolutePath
+    kotlinEnv.each { k, v -> environment k, v }
+    inputs.dir(new File(repoRoot, "scripts/payload/kotlin"))
+    inputs.file(new File(repoRoot, "build/kt/generated/OrekiBaselineBindings.kt"))
+    inputs.file(androidJar)
+    inputs.files(fileTree(new File(repoRoot, "tools/kotlinc/lib")) { include "*.jar" })
+    outputs.dir(new File(repoRoot, "build/kt/classes"))
+}
+
+tasks.register('verifyKotlinAbi', Exec) {
+    group = 'oreki'
+    description = '复用 Python 语义守卫校验已编译 Kotlin ABI'
+    dependsOn 'compileKotlinClasses'
+    workingDir = repoRoot
+    commandLine pythonExe, 'scripts/build_kotlin.py', '--verify-abi',
+        '--classes', new File(repoRoot, 'build/kt/classes').absolutePath
+    kotlinEnv.each { k, v -> environment k, v }
+    inputs.dir(new File(repoRoot, 'build/kt/classes'))
+}
+
 tasks.register('buildKotlinDex', Exec) {
     group = 'oreki'
-    description = '把 scripts/payload/kotlin/*.kt 编成 dex（kotlinc → D8）'
+    description = '用 D8 将已通过 ABI 守卫的 Kotlin classes 编成 dex'
+    dependsOn 'verifyKotlinAbi'
     workingDir = repoRoot
-    commandLine pythonExe, 'scripts/build_kotlin.py', '--clean'
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/apksigner/kotlinc）
-    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
-    if (jdkHome != null) {
-        environment 'JAVA_HOME', jdkHome.absolutePath
-        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
+    doFirst {
+        def out = new File(repoRoot, 'build/kt')
+        def dex = new File(out, 'classes.dex')
+        if (dex.exists()) dex.delete()
+        out.mkdirs()
     }
-    environment 'PYTHONIOENCODING', 'utf-8'
-    // [R93/RG02-11] 增量构建：登记真实输入与输出，由 Gradle 决定是否重跑。
-    // 输入 = 参与编译的 Kotlin 源码 + 生成绑定 + kotlinc 库 + 版本配置；输出 = classes.dex。
-    // 输入未变 → UP-TO-DATE 跳过（不再清空并重编全部 .kt）；变化 → 脚本内部仍 --clean 重建。
-    inputs.dir(new File(repoRoot, "scripts/payload/kotlin"))
-    inputs.file(new File(repoRoot, "baseline/version-config.json"))
-    inputs.files(fileTree(new File(repoRoot, "tools/kotlinc/lib")) { include "*.jar" })
-    inputs.files(fileTree(new File(repoRoot, "build/kt/generated")) { include "*.kt" })
+    commandLine d8Exe, '--lib', androidJar.absolutePath, '--min-api', '29',
+        '--output', new File(repoRoot, 'build/kt').absolutePath
+    fileTree(new File(repoRoot, 'build/kt/classes')) { include '**/*.class' }.files.sort { it.path }.each { args it.absolutePath }
+    if (kotlinStdlib.isFile()) args kotlinStdlib.absolutePath
+    kotlinEnv.each { k, v -> environment k, v }
+    inputs.dir(new File(repoRoot, "build/kt/classes"))
+    inputs.file(androidJar)
+    inputs.file(kotlinStdlib)
     outputs.file(new File(repoRoot, "build/kt/classes.dex"))
 }
 

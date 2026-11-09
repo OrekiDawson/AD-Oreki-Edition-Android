@@ -64,7 +64,7 @@ class OrekiAutomationUiListener(
         refreshLabel()
     }
 
-    override fun onCheckedChanged(button: CompoundButton?, isChecked: Boolean) {
+    override fun onCheckedChanged(button: CompoundButton, isChecked: Boolean) {
         when (kind) {
             KIND_ENABLED -> {
                 OrekiAutomationScheduler.setEnabled(isChecked)
