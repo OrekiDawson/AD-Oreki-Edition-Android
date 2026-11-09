@@ -242,6 +242,15 @@ object OrekiStageAuto {
             // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
             GameApi.settleTimeTheoremReward()
 
+            // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
+            // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
+            // ⇒ 膨胀永不解锁。放在这里的原因：
+            //   · 必须在 beginFrame() 之后（走统一节拍，allow→执行→记账）；
+            //   · 必须在 settleTimeTheoremReward() 之后（先结算 TT 奖励，再花 TT 买研究）；
+            //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
+            //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务。
+            runScheduled("ec") { OrekiEcAutomation.step() }
+
             OrekiPlayerIntent.refresh()
             applyCrunchPolicy()
             crunchProbe()

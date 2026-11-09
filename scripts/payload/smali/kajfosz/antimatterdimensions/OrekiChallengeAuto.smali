@@ -239,6 +239,30 @@
     return-void
 
     :chk_main
+    # ══════════════════════════════════════════════════════════════════════
+    # [R97] EC 推进已完整迁移到 Kotlin（`oreki/OrekiEcAutomation.kt`）。
+    # 本方法从此只负责 C / IC 的自动进入；EC 段运行期不再进入。
+    #
+    # 为什么必须在这里截断（而不是继续沿用旧 EC 段）：
+    #   1. 旧 EC 段引用 `Lzw4;->k`（`fillEcRequirement` 首条指令）。3.21 的 `zw4`
+    #      是一个只有 `<clinit>/equals/hashCode` 的无关类，**没有 k 字段**；
+    #      真正的前置研究 id 数组是 `qu4.k`（`b` → `qu4` → `na4` → `is3`）。
+    #      该引用不在 bindings/alias 表内，构建期不会被改名，因而一旦执行必然抛
+    #      `NoSuchFieldError`（Error，不是 Exception，尾部 catch 兜不住）。
+    #   2. 旧 EC 段的购买入口注释写的是 `fp3.D(ZLvh0;)`，3.21 的真实签名是
+    #      `is3.D(Z,Lrj0;)Ljava/lang/Boolean;`；两处并存只会互相打架。
+    #   3. EC 的「买研究 / 补前置 / 启动 / 满级退关」现在由 Kotlin 侧按统一节拍驱动，
+    #      并且每一步都用读回真值验证（unlocked/current 必须真的变化），
+    #      Smali 侧再驱动一次只会造成同帧双写。
+    #
+    # 为什么用 `goto :end` 而不是删掉这些指令：
+    #   下面的 EC 指令块仍被 `scripts/build_mod.py::_verify_ec_r40b` 的静态断言
+    #   （A/z/O 三连极性、b;->S 唯一调用点、respecForEc 返回值极性、帧计数三连等）
+    #   逐条引用。保留文本 + 运行期跳过，既满足 §67「EC 业务归 Kotlin」，
+    #   也不让构建门禁失去它本该继续守住的回归保护。
+    # ══════════════════════════════════════════════════════════════════════
+    goto :end
+
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;->a()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;
 
     move-result-object v2
