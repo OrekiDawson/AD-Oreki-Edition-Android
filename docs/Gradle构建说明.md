@@ -62,7 +62,7 @@ Smali 的边界：只承担原版字节码的必要适配、Kotlin 无法直接�
 | `assembleRelease` | 调 `scripts/build_mod.py`，产物重定向到暂存目录 | `verifyEnvironment` | `build/gradle-stage/反物质维度.apk`；**不触碰 `release/`** |
 | `prepareVerifyRelease` | 直接调用 AAPT2 badging、apksigner v2/v3、apktool，并采集 SHA-256/大小 | `assembleRelease` | `build/gradle-reports/verify-release-tools.json`、`build/gradle-verify-apk/` |
 | `verifyRelease` | 消费 Gradle 工具报告，执行包名/versionCode/versionName/签名方案/证书指纹/EC12 补丁位置/`OrekiInstantChallenge` 四个复用入口/`tick()` 唯一性等语义校验 | `prepareVerifyRelease` | `build/gradle-reports/verify-release.json`，15 项 |
-| `verifyPatchContract` | 静态守卫：`scripts/**/*.py` 全部可编译、`main()` 启用 EC12 + 即时完成、**提频方案保持禁用**、mod 树补丁唯一、payload 未误放 templates | `assembleRelease` | 16 项 |
+| `verifyPatchContract` | 消费 Gradle 工具报告和解包树，执行 `scripts/**/*.py` 编译、`main()` 启用 EC12 + 即时完成、**提频方案保持禁用**、mod 树补丁唯一、payload 未误放 templates 等语义契约 | `prepareVerifyRelease` | 17 项 |
 | `build` | `assembleRelease` + `verifyRelease` + `verifyPatchContract` | 三者 | — |
 | `check` | `verifyRelease` + `verifyPatchContract`（定向回归，不重复构建语义） | 二者 | — |
 | `installOrekiTest` | 仅向 `oreki_test` 安装候选 APK，先查 `adb devices` 含 `\tdevice`，否则拒绝 | `verifyRelease` | 修改 AVD 上已安装应用 |

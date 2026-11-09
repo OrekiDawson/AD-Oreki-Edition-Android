@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """补丁契约静态守卫（Gradle 的 verifyPatchContract 调用它）。
 
-R91 起的真实口径：**直接反编译候选 APK**，在 3.21 真实类的 DEX/smali 上核验，
+R91 起的真实口径：**直接检查候选 APK 的已准备解包树**，在 3.21 真实类的 DEX/smali 上核验，
 不再依赖 3.19 时代的 o43 / qk4 / c43 / py1 / r51 / te2 文件名，也不依赖 work/mod
 是否恰好还留着上一轮构建树。
 
@@ -31,7 +31,9 @@ R91 起的真实口径：**直接反编译候选 APK**，在 3.21 真实类的 D
   - 符号缺失、重复、歧义一律 fail-closed，不猜、不跳过、不降低门槛。
 
 用法：
-    python scripts/verify_patch_contract.py --apk build/r90-stage/反物质维度.apk
+    python scripts/verify_patch_contract.py --apk build/r90-stage/反物质维度.apk \
+        --tool-report build/gradle-reports/verify-release-tools.json \
+        --prepared-dir build/gradle-verify-apk
     python scripts/verify_patch_contract.py --apk ... --json reports/r91-gates/verify-patch-contract.json
     python scripts/verify_patch_contract.py --tree work/mod        # 仅取证调试，不用于正式门禁
 
@@ -39,7 +41,6 @@ R91 起的真实口径：**直接反编译候选 APK**，在 3.21 真实类的 D
 """
 import argparse
 import pathlib
-import hashlib
 import json
 import py_compile
 import re
@@ -53,12 +54,6 @@ ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 MOD = ROOT / "work" / "mod"
 BUILD_MOD = SCRIPTS / "build_mod.py"
-TOOLS = ROOT / "tools"
-from oreki_tools import java as _oreki_java, bt_tool as _oreki_bt
-JAVA = pathlib.Path(_oreki_java())
-APKTOOL = TOOLS / "apktool.jar"
-AAPT2 = pathlib.Path(_oreki_bt("aapt2"))
-CACHE_DIR = ROOT / "build" / "patch-contract-apk"
 VERSION_CONFIG = ROOT / "baseline" / "version-config.json"
 BINDINGS_DIR = ROOT / "baseline" / "versions"
 
@@ -103,20 +98,6 @@ def need_unique(items, what):
         detail = "、".join(str(x) for x in items[:3]) if items else "无命中"
         raise ContractFailure(f"{what} 命中 {len(items)} 处（要求唯一）：{detail}")
     return items[0]
-
-
-def sha256_of(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def run(args, timeout=1800):
-    p = subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
-                       errors="replace", timeout=timeout)
-    return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 
 # ---------------------------------------------------------------------------
@@ -933,20 +914,6 @@ def load_confirmed_targets():
             if v.get("status") == "CONFIRMED" and v.get("to")}
 
 
-def read_badging(apk: Path):
-    if not AAPT2.is_file():
-        raise ContractFailure(f"缺少 aapt2：{AAPT2}")
-    rc, out = run([str(AAPT2), "dump", "badging", str(apk)], timeout=120)
-    if rc != 0:
-        raise ContractFailure(f"aapt2 dump badging 失败 rc={rc}: {out[-500:]}")
-    pkg = re.search(r"package: name='([^']+)'", out)
-    vcode = re.search(r"versionCode='([^']+)'", out)
-    vname = re.search(r"versionName='([^']+)'", out)
-    if not (pkg and vcode and vname):
-        raise ContractFailure("aapt2 badging 未解析到 package/versionCode/versionName")
-    return pkg.group(1), vcode.group(1), vname.group(1)
-
-
 def resolve_apk(arg_apk: str) -> Path:
     if arg_apk:
         p = Path(arg_apk)
@@ -964,31 +931,6 @@ def resolve_apk(arg_apk: str) -> Path:
     raise ContractFailure("找不到候选 APK；请显式传 --apk")
 
 
-def decompile_apk(apk: Path, digest: str) -> Path:
-    if not JAVA.is_file():
-        raise ContractFailure(f"缺少 JDK：{JAVA}")
-    if not APKTOOL.is_file():
-        raise ContractFailure(f"缺少 apktool：{APKTOOL}")
-    stamp = CACHE_DIR / "apk.sha256"
-    if CACHE_DIR.is_dir() and stamp.is_file() and stamp.read_text(encoding="utf-8").strip() == digest:
-        if any(CACHE_DIR.glob("smali*")):
-            print(f"复用已反编译树：{CACHE_DIR.relative_to(ROOT)}")
-            return CACHE_DIR
-    if CACHE_DIR.exists():
-        try:
-            shutil.rmtree(CACHE_DIR)
-        except OSError as e:
-            raise ContractFailure(f"清理旧反编译树失败（可能被占用）：{CACHE_DIR}: {e}")
-    print(f"反编译候选 APK（-r 跳过资源）：{apk.name} ...")
-    rc, out = run([str(JAVA), "-Xmx4g", "-jar", str(APKTOOL), "d", "-r", "-f",
-                   "-o", str(CACHE_DIR), str(apk)], timeout=1800)
-    if rc != 0 or not any(CACHE_DIR.glob("smali*")):
-        print(out[-1500:])
-        raise ContractFailure(f"apktool 反编译失败 rc={rc}")
-    stamp.write_text(digest, encoding="utf-8")
-    return CACHE_DIR
-
-
 # ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
@@ -997,6 +939,8 @@ def main():
     ap.add_argument("--apk", default="", help="候选 APK；Gradle verifyPatchContract 会传入")
     ap.add_argument("--tree", default="", help="仅调试：已反编译的 smali 树（不用于正式门禁）")
     ap.add_argument("--json", default="", help="可选 JSON 报告路径")
+    ap.add_argument("--tool-report", default="", help="Gradle prepareVerifyRelease 的工具报告")
+    ap.add_argument("--prepared-dir", default="", help="Gradle/apktool 已准备好的候选解包目录")
     args = ap.parse_args()
 
     apk_info = {}
@@ -1009,8 +953,31 @@ def main():
             apk = None
         else:
             apk = resolve_apk(args.apk)
-            digest = sha256_of(apk)
-            pkg, vcode, vname = read_badging(apk)
+            if not args.tool_report or not args.prepared_dir:
+                raise ContractFailure("正式门禁必须提供 --tool-report 与 --prepared-dir")
+            report_path = Path(args.tool_report)
+            prepared_dir = Path(args.prepared_dir)
+            try:
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ContractFailure(f"Gradle 工具报告不可用：{report_path}: {exc}") from exc
+            if Path(str(report.get("apk", ""))).resolve() != apk.resolve():
+                raise ContractFailure("Gradle 工具报告与候选 APK 不一致")
+            if int(report.get("apktool_exit", 1)) != 0 or not any(prepared_dir.glob("smali*")):
+                raise ContractFailure(f"Gradle/apktool 解包目录不可用：{prepared_dir}")
+            size = int(report.get("size", 0))
+            digest = str(report.get("sha256", ""))
+            if size != apk.stat().st_size or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                raise ContractFailure("Gradle 工具报告中的 APK 大小或 SHA-256 无效")
+            badging = (report.get("badging") or {}).get("output", "")
+            if int((report.get("badging") or {}).get("exit", 1)) != 0:
+                raise ContractFailure("Gradle/AAPT2 badging 阶段失败")
+            pkg_match = re.search(r"package: name='([^']+)'", badging)
+            vcode_match = re.search(r"versionCode='([^']+)'", badging)
+            vname_match = re.search(r"versionName='([^']+)'", badging)
+            if not (pkg_match and vcode_match and vname_match):
+                raise ContractFailure("Gradle 工具报告未解析到 package/versionCode/versionName")
+            pkg, vcode, vname = pkg_match.group(1), vcode_match.group(1), vname_match.group(1)
             expected = load_expected_version()
             print(f"候选 APK: {apk}  {apk.stat().st_size:,} B  SHA-256 {digest}")
             print(f"包名={pkg}  versionCode={vcode}  versionName={vname}")
@@ -1019,8 +986,8 @@ def main():
             if vcode != expected["version_code"] or vname != expected["version_name"]:
                 raise ContractFailure(
                     f"候选版本不符：{vname}/{vcode}（期望 {expected['version_name']}/{expected['version_code']}）")
-            tree = decompile_apk(apk, digest)
-            apk_info = {"apk": str(apk), "size": apk.stat().st_size, "sha256": digest,
+            tree = prepared_dir
+            apk_info = {"apk": str(apk), "size": size, "sha256": digest,
                         "package": pkg, "versionCode": vcode, "versionName": vname}
         index = SmaliIndex(tree)
         print(f"smali 目录：{[d.name for d in index.dirs]}  命中索引行={len(index._all_lines)}\n")

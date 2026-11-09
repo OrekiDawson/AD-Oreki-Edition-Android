@@ -655,9 +655,12 @@ tasks.register('verifyRelease', Exec) {
 tasks.register('verifyPatchContract', Exec) {
     group = 'oreki'
     description = '静态守卫：补丁脚本语法、EC12 补丁已启用、提频方案保持禁用、mod 树补丁唯一'
-    dependsOn 'assembleRelease'
+    dependsOn 'prepareVerifyRelease'
     workingDir = repoRoot
-    commandLine pythonExe, 'scripts/verify_patch_contract.py', '--apk', stageApk.absolutePath
+    commandLine pythonExe, 'scripts/verify_patch_contract.py',
+        '--apk', stageApk.absolutePath,
+        '--tool-report', verifyToolReport.absolutePath,
+        '--prepared-dir', verifyDir.absolutePath
     // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
