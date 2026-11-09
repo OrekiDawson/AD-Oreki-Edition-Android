@@ -337,7 +337,11 @@
 # -------------------------------------------------------------- 互斥封锁表
 # 静态方法 (III)Z：p0 = 研究 id，p1 = 选中列（121 / 123），p2 = 选中维度分叉（71 / 73）。
 # 参数只有三个，**没有 p3**（写 p3 会让 ART 校验报 register index out of range）。
-# 返回 true = 这一条在**保留集**里；调用点用 `if-nez` 跳过 false 的那一批，
+# 返回 true = 这一条在**保留集**里；调用点用 `if-nez` 跳过 false 的那一批
+# [R96 第二十轮·实测修复] 旧实现此极性写反：被排除的返回 1、保留的返回 0，
+# 而调用点是「==0 就跳过」⇒ 专买被排除的、跳过该买的。存档实证：买了 122/132/142
+# 与 72（注释称恒被挡住/永远不许买），却没有 121/123、131/133、141/143。
+# 现改为「保留=1、排除=0」，与调用点一致。，
 # 与 Web 的「id != 选中 ⇒ 放进封锁集」完全等价（只是把补集翻到返回侧）。
 #
 # 映射依据（Web `blockedStudies()` :291-309 逐条照抄）：
@@ -360,7 +364,7 @@
     if-gt v1, v2, :chk_b
     sub-int v0, p1, v0
     if-ne v1, v0, :allow
-    const/4 v0, 0x1
+    const/4 v0, 0x0
     return v0
 
     :chk_b
@@ -372,7 +376,7 @@
     sub-int v0, p1, v0
     add-int/lit8 v0, v0, 0x0a
     if-ne v1, v0, :allow
-    const/4 v0, 0x1
+    const/4 v0, 0x0
     return v0
 
     :chk_c
@@ -384,7 +388,7 @@
     sub-int v0, p1, v0
     add-int/lit8 v0, v0, 0x14
     if-ne v1, v0, :allow
-    const/4 v0, 0x1
+    const/4 v0, 0x0
     return v0
 
     :chk_dim
@@ -395,11 +399,12 @@
     if-gt v1, v2, :allow
     sub-int v0, p2, v0
     if-ne v1, v0, :allow
-    const/4 v0, 0x1
+    const/4 v0, 0x0
     return v0
 
     :allow
-    return v3
+    const/4 v0, 0x1
+    return v0
 .end method
 
 

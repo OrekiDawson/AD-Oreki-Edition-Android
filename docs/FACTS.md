@@ -9192,3 +9192,44 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 
 `[待办]` ①TT 参数需用户裁决后才能改；②仍需一次干净新档 ≤180 分钟整段墙钟验证（当前未做）；
 ③`player.json` 不含 `maxTheorem`，累计 TT 暂用「三源购买计数之和」代替；④99.72% 回落根因仍未复现。
+
+## R96 第二十轮（12:42-12:52）：两系统节拍归属 —— 用户需求纠正与审计
+
+### 用户需求纠正（长期规则 §80）
+「剧情进度感知系统」与「目标驱动型智能自动购买器」是**两个独立系统**：
+- 前者调度 MOD 主动操作，遵守 1～60 秒全局节拍 `allow()`；
+- 后者的配置优化**不走**全局节拍，只受总开关与幂等约束，且不得覆盖玩家配置、
+  不得擅自打开玩家关闭的原版自动购买器。
+
+### 审计结果（Android，逐项取证）
+| 类别 | 实现 | 是否走 allow() | 结论 |
+|---|---|---|---|
+| MOD 主动购买/升级 | `runScheduled`: eternity/bulk/sacrifice/infinityUpgrades/crunchInterval/idBuy | 走 | PASS |
+| MOD 主动现实重置 | `allow("reality")` + noteActed/noteNoop | 走 | PASS |
+| 原版自动器配置优化 | `applyCrunchPolicy()`（MODE_TIME + interval）、`enableEarly()`、`enableIpMultAutobuyer()` | **不走** | PASS |
+| 纯状态读取/目标计算 | `OrekiSmartStrategy.tick()`（只读、自带 2000ms 自节流、无 allow 引用）、`GameApi.strategyTick()` | **不走** | PASS |
+| 原版自动器自身购买 | 原版主循环 | 不走 | PASS |
+
+- `OrekiSmartStrategy.smali`（947 行）**未出现**任何 `OrekiAutomationScheduler` / `allow(` 引用
+  ⇒ 智能策略解释器没有被错误接入全局节拍（此项为审查怀疑点的直接否证）。
+- 配置优化幂等闩锁：`pauseReason`（变化检测）、`targetIntervalInitialized`（once）、
+  `earlyAutomationApplied`（once）。
+- 三道配置入口均以 `if (!OrekiAutomationScheduler.isEnabled()) return` 为首闸。
+
+### 新增契约（Android）
+`check_automation_scheduler.py` 增加 24h 段 4 条断言（runScheduled 块内不得出现配置写入、
+配置函数必须在 allow() 之外调用、每个配置入口首闸为总开关、配置写入必须有幂等闩锁）：
+**143 → 147 项，全部通过**。
+
+### 未解决 / 待确认
+1. **MOD 主动操作仍有绕过节拍的路径**：`GameApi.eternityTick()` / `glyphTick()` / `teresaTick()`
+   仅受总开关约束、未走 `allow()`。按 §80.3 第 1 类它们属于 MOD 主动操作，应纳入节拍；
+   但它们返回 Unit 无法判断「是否真动作」，直接纳入有拖慢风险，需先改造为可返回布尔。
+2. `applyCrunchPolicy` 会覆盖玩家手动设置的坍缩 mode/amount（违反 §80.2「不得覆盖玩家配置」），
+   需要「玩家改过就不接管」的检测。
+3. `enableEarly()` 会 `setAutobuyersOn(true)` 并逐个激活，若玩家已关闭某些原版自动购买器，
+   存在「擅自打开」风险（§80.2 末条），需加保护。
+4. 时间研究：`blocked()` 极性已修为「保留=1、排除=0」（契约 143→147 覆盖），但**当前存档**
+   已买入 122/132/142 与 72，互斥使 121/123 等永久不可得 ⇒ 只能在**新档**验证修复效果。
+   本次装机（APK `99ba288c`）后研究数仍为 22 项，属该原因，不算修复失败。
+

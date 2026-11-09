@@ -329,6 +329,40 @@ check("献祭要求乘数至少翻倍（避免每 10 秒重置维度）",
       "SACRIFICE_MIN_MULTIPLIER_GAIN = 2" in stage
       and "multiplyBigDoubleByInt(currentMultiplier, SACRIFICE_MIN_MULTIPLIER_GAIN)" in stage)
 
+# 实测：blocked() 旧极性写反（排除=1、保留=0，而调用点 ==0 才跳过）⇒
+# 专买 122/132/142/72 等被排除研究、跳过该买的列，研究树停在 22 项、膨胀永不解锁。
+check("blocked() 极性与调用点一致（保留=1、排除=0）",
+      (lambda b: ":allow\n    const/4 v0, 0x1\n    return v0" in b
+       and b.count("const/4 v0, 0x0\n    return v0") == 4
+       and "return v3" not in b)(
+          (ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiEternity.smali")
+          .read_text(encoding="utf-8")
+          .split(".method private static blocked(III)Z")[1].split(".end method")[0]))
+
+# ------------------------------------------------ 24h. R96 第二十轮：两系统节拍归属（用户需求纠正）
+# 系统一「剧情进度感知」：MOD 主动购买/升级/挑战/阶段推进 —— 走全局节拍 allow()。
+# 系统二「目标驱动型智能自动购买器」：只改**原版自动购买器配置** —— 不走全局节拍，
+#   只受总开关与幂等约束。二者不得混淆。
+_cfg_writers = ("setCrunchMode(", "setCrunchInterval(", "setAutobuyersOn(",
+                "setAutobuyerActive(", "setIpMultEnabled(")
+# 把每个 runScheduled{...} 动作块抽出来，断言里面不含配置写入
+_blocks = re.findall(r"runScheduled\(\"[a-zA-Z]+\"\)\s*\{([^}]*)\}", stage)
+check("系统一：runScheduled 动作块内不含原版自动购买器配置写入",
+      bool(_blocks) and not any(w in b for b in _blocks for w in _cfg_writers))
+check("系统二：配置优化函数在 allow() 之外被调用（不走全局节拍）",
+      "applyCrunchPolicy()" in stage and "enableEarly()" in stage
+      and "enableIpMultAutobuyer()" in stage
+      and not re.search(r"runScheduled\(\"[a-zA-Z]+\"\)\s*\{[^}]*applyCrunchPolicy", stage)
+      and not re.search(r"runScheduled\(\"[a-zA-Z]+\"\)\s*\{[^}]*enableEarly", stage)
+      and not re.search(r"runScheduled\(\"[a-zA-Z]+\"\)\s*\{[^}]*enableIpMultAutobuyer", stage))
+check("系统二：每个配置优化入口都以总开关为第一道闸（关闭即让路）",
+      all(f"fun {n}" in stage and
+          re.search(rf"fun {n}\([^)]*\)\s*\{{[\s\S]{{0,400}}?if \(!OrekiAutomationScheduler\.isEnabled\(\)\) return", stage)
+          for n in ("applyCrunchPolicy", "enableEarly", "enableIpMultAutobuyer")))
+check("系统二：配置写入幂等（有 once/变化检测闩锁，不逐帧改写）",
+      "targetIntervalInitialized" in stage and "pauseReason" in stage
+      and "earlyAutomationApplied" in stage)
+
 # ---------------------------------------------------------------- 24g. R96 第十五轮：先维度后献祭
 # 实测：顺序反了以后 sacrifice 每 10 秒独占名额，bulk 被 deny frame-held 31 次，
 # 维度零增长 ⇒ maxAM 卡 1e10754、29 分钟到不了首次永恒。

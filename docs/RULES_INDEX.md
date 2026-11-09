@@ -13,6 +13,7 @@
 | Linux 优先 / Windows 兼容（R95） | [TOOLCHAIN](rules/TOOLCHAIN.md) | 按需 |
 | 教程/UI/文档 | [TUTORIAL](rules/TUTORIAL.md) | 按需 |
 | 规则维护 | [GOVERNANCE](rules/GOVERNANCE.md) | 按需 |
+| 两套系统的节拍归属（R96 §80） | [AGENTS.md §80](AGENTS.md) | 按需 |
 
 ## 迁移对照
 
