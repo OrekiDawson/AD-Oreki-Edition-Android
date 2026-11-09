@@ -113,7 +113,7 @@ entries 2241 2241 same set: True
 
 ### 5.2 修法
 
-历史上由 `scripts/apk_normalize.py` 完成的逻辑现由 Rust `baseline normalize-zip` 子命令执行：只改 ZIP 头里的 4 字节 DOS 时间字段
+原由 Python 实现的逻辑现由 Rust `baseline normalize-zip` 子命令执行：只改 ZIP 头里的 4 字节 DOS 时间字段
 （中央目录项偏移 +12、本地文件头偏移 +10），**不碰任何条目数据、不重排、不重压缩**，
 因此 CRC / 解压大小 / 压缩后大小 / 对齐全部不变。本地头位置取自中央目录记录的偏移量，
 所以带数据描述符（bit 3）的条目也无需解析本地头长度字段。
@@ -122,8 +122,8 @@ entries 2241 2241 same set: True
 `build_mod.py` 只生成补丁后的 apktool 工作树。
 经实测 `zipalign` 会保留输入时间戳，所以规整一次即可传递到最终签名产物。
 
-Rust 实现逐项校验中央目录和本地文件头签名，改写后条目数、CRC、压缩数据和布局均不变。
-Python `apk_normalize.py` 仍可用于手工回退和交叉核对。
+Rust 实现逐项校验中央目录和本地文件头签名，改写后条目数、CRC、压缩数据和布局均不变；
+仓库不再保留重复的 Python ZIP 规整实现。
 
 固定时间取 `1980-01-01 00:00:00`（DOS 时间可表达的最小值），与主流可复现构建工具一致。
 
