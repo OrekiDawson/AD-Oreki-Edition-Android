@@ -9784,3 +9784,12 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[实测]` **影响面**：该误报会污染所有「永恒次数」统计（含 A/B 报告中的 `settled` 计数口径）。A/B 报告中斜率 5 的 8 次结算均已核对 `bigE 0→5` 真实增长，不受影响；斜率 15 的 0 次结论同样不受影响。
 - `[实测]` **修正后 APK**：SHA-256 `a15c1371fe695b9f70f6ab55f8f007a3c55091a29493b0f4af48778c96a930db`（已安装 AVD 实测通过）。
 - `[未验证]` 场景 6（Android/Web 门禁运行时等价）尚未做同场景对照；Web 侧 `check_eternity_gate.mjs` 63 项静态回归已通过。
+
+### R97 永恒门禁场景 6：Android/Web 语义对齐（2026-11-09）
+- `[静态]` **Android 门禁 7 条件（顺序固定）**：`automation-off` → `doomed` → `not-broken` → `same-frame-crunch` → `cannot-eternity` → `ep-gain-too-low` → `allow`（`OrekiStageAuto.eternityGateReason()`）。
+- `[实测]` **Web 原缺失两条**：`grep -n "isBroken|broken|BigCrunch" src/core/oreki-eternity-automation.js` 与 `grep -n "sameFrame|lastCrunch|justCrunch"` **均无输出** ⇒ Web 长期没有 Break 前置与同帧坍缩保护，与 Android 不等价。
+- `[实测]` **已补齐**：`tickEternity()` 内新增 `if (player.break !== true) return false;`（依据 `oreki-smart-executor.js:470` 明确 `player.break === true` 对应 `GameApi.isBroken()`）与 `if (this._justCrunchedFrame()) return false;`（用 `Currency.infinities` 令牌变化识别坍缩并跳一帧）。
+- `[实测]` **过程中修正一次严重误写**：初版误用源码中**不存在**的 `PlayerProgress.breakInfinityUnlocked()`（`grep -rn` 仅命中自己新增行），会导致永恒永久失效；已改为 `player.break`。
+- `[实测]` **回归**：`node scripts/check_eternity_gate.mjs` → **63 项检查，失败 0 项**。期间因夹具缺 `break`/`infinities` 出现 5 项失败，补齐夹具后全通过（属新增真实前置条件后的夹具同步，非放宽门禁）。
+- `[实测]` **上线验证**：源码提交 `26e1294`（`AD-Oreki-Edition-Web`）、部署提交 `5c508e0`（`OrekiDawson.github.io`）；`https://oreki.net/src/core/oreki-eternity-automation.js` 已含 `_justCrunchedFrame`（第 3 次轮询确认，`2026-11-09T23:45:48+08:00`）。
+- `[未验证]` **两端同场景运行时对照未做**：Android 侧已用 AVD 实测 5 个场景，Web 侧仅有静态回归（63 项）与线上部署验证，尚未在浏览器中跑同一场景对比实际行为。因此「Android/Web 运行时行为完全等价」仍属未验证。
