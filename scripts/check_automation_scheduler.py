@@ -319,6 +319,16 @@ check("永恒层坍缩改为收益驱动（不再无条件 allow）",
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
+check("首次永恒前 ID 未解锁时 idBuy 拿紧迫名额（不被 breakShop 饿死）",
+      "if (!allInfinityDimensionsUnlocked()) {" in stage
+      and stage.count('"idBuy"') >= 2)
+check("献祭有 60 秒冷却（避免反复重置反物质饿死 bulk/idBuy）",
+      "SACRIFICE_MIN_INTERVAL_MS = 60_000L" in stage
+      and "now - lastSacrificeAtMs < SACRIFICE_MIN_INTERVAL_MS" in stage)
+check("献祭要求乘数至少翻倍（避免每 10 秒重置维度）",
+      "SACRIFICE_MIN_MULTIPLIER_GAIN = 2" in stage
+      and "multiplyBigDoubleByInt(currentMultiplier, SACRIFICE_MIN_MULTIPLIER_GAIN)" in stage)
+
 # ---------------------------------------------------------------- 24g. R96 第十五轮：先维度后献祭
 # 实测：顺序反了以后 sacrifice 每 10 秒独占名额，bulk 被 deny frame-held 31 次，
 # 维度零增长 ⇒ maxAM 卡 1e10754、29 分钟到不了首次永恒。

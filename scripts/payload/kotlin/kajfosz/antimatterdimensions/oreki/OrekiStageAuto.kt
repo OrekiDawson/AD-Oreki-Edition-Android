@@ -449,13 +449,19 @@ object OrekiStageAuto {
         } else if (GameApi.inAnyChallenge() || GameApi.isDoomed()) {
             null
         } else {
-            val id1 = GameApi.infinityDimension(1)
-            if (id1 == null || GameApi.idUnlocked(id1)) {
-                null
+            // [R96 第十八轮] 首次永恒之前同样要给 ID 紧迫名额。
+            //
+            // 实测（新档 t0 10:34）：已 Break、bigE=0 时本分支只判 ID1；ID1 在 +319.7s
+            // 解锁后名额立刻交回固定顺序 ⇒ `breakShop` 每 ~10 秒成功一次、独占节拍，
+            // 末尾的 `runScheduled("idBuy")` 被 `deny frame-held` **14 次**，
+            // ID2~ID8 全锁、ID 购买数全 0 ⇒ 无 ID 乘数 ⇒ maxIP 冻结在 1e171、
+            // 55 分钟到不了首次永恒（可比轮次 +518s 就到）。
+            // 无限维度乘数是 IP/AM 成长的主动力，因此只要还有 ID 未解锁就优先给 idBuy；
+            // tryBuyId1 无可买项时返回 false（noteNoop 不占节拍），不会白占名额。
+            if (!allInfinityDimensionsUnlocked()) {
+                "idBuy"
             } else {
-                val ipRequirement = GameApi.idIpRequirement(id1)
-                val ipVersus = if (ipRequirement == null) 1 else compareBigDoubles(ipBalance(), ipRequirement)
-                if (ipVersus != null && ipVersus >= 0) "idBuy" else null
+                null
             }
         }
         starvationRescue(base)
@@ -628,18 +634,46 @@ object OrekiStageAuto {
      *
      * @return true = 真的献祭了
      */
+    /** 献祭要求的最小乘数增益倍数：新乘数至少是当前乘数的这么多倍才值得重置维度。 */
+    private const val SACRIFICE_MIN_MULTIPLIER_GAIN = 2
+
+    /**
+     * 献祭最小间隔（毫秒）。
+     *
+     * [R96 第十八轮] 实测：即便加了「乘数至少翻倍」，献祭仍每 ~10 秒成功一次，
+     * 每次都把反物质/维度重置 ⇒ `upgradeBulkAll` 永远买不起（0 act bulk）、
+     * 末尾的 `idBuy` 永远拿不到节拍 ⇒ ID 全 0、IP 冻结 1e171、55 分钟到不了首次永恒。
+     * 献祭是**低频**增益动作，给它 60 秒冷却，把绝大多数节拍让给维度/ID/无限升级。
+     */
+    private const val SACRIFICE_MIN_INTERVAL_MS = 60_000L
+
+    private var lastSacrificeAtMs: Long = 0L
+
     @JvmStatic
     fun autoSacrifice(): Boolean = try {
         // [R96 第十五轮] 献祭不得抢占维度升级：本帧若 bulk 已经动过，直接放弃本拍。
         // 否则会出现「sacrifice 连续成功 → bulk 永远 deny frame-held → 维度零增长」的死循环
         // （实测 31 act sacrifice / 31 deny bulk，29 分钟 maxAM 不涨）。
+        val now = System.currentTimeMillis()
         if (OrekiAutomationScheduler.actedThisFrame("bulk")) {
+            false
+        } else if (now - lastSacrificeAtMs < SACRIFICE_MIN_INTERVAL_MS) {
+            // 冷却中：本拍让给维度 / ID / 无限升级，避免献祭反复重置反物质。
             false
         } else if (!GameApi.canSacrifice()) {
             false
         } else {
             val beforeBoost = GameApi.nextBoost()
-            val threshold = GameApi.sacrificeMultiplier()
+            // [R96 第十八轮·实测回归修复] 献祭要求**至少把乘数翻倍**才做。
+            //
+            // 旧判定只要 `nextBoost >= 当前乘数` 就献祭，而这两者本来就同时增长，
+            // 于是几乎每 10 秒都判定成功 ⇒ 反物质/维度被反复重置 ⇒ `upgradeBulkAll`
+            // 永远买不起（实测 14 act sacrifice / 0 act bulk，IP 冻结 1e171、
+            // ID 全 0、55 分钟到不了首次永恒）。
+            // 现在要求 ·新乘数 ≥ 当前乘数 × 2·（SACRIFICE_MIN_MULTIPLIER_GAIN），
+            // 献祭才值得做；其余帧把节拍让给 bulk/ID 购买。
+            val currentMultiplier = GameApi.sacrificeMultiplier()
+            val threshold = GameApi.multiplyBigDoubleByInt(currentMultiplier, SACRIFICE_MIN_MULTIPLIER_GAIN)
             // 直接用 BigDouble.compareTo(BigDouble) 判断是否达到原版阈值
             val cmpToThreshold = compareBigDoubles(beforeBoost, threshold)
             if (beforeBoost == null || cmpToThreshold == null || cmpToThreshold < 0) {
@@ -652,6 +686,7 @@ object OrekiStageAuto {
                 if (dropped == null || dropped >= 0) {
                     false
                 } else {
+                    lastSacrificeAtMs = now
                     sacrificeAttemptCount++
                     if (sacrificeAttemptCount <= 10 || sacrificeAttemptCount % 100 == 0) {
                         Log.i(TAG_SAC, sacrificeAttemptCount.toString())
