@@ -725,10 +725,6 @@ impl ZipArchive {
         Ok((patched_cd, patched_lfh))
     }
 
-    fn names(&self) -> Vec<&str> {
-        self.entries.iter().map(|e| e.name.as_str()).collect()
-    }
-
     fn dex_entries(&self) -> Vec<(&str, u64)> {
         self.entries
             .iter()
@@ -969,11 +965,6 @@ impl Ctx {
         out
     }
 
-    fn current(&self) -> Option<String> {
-        read_json(&self.manifest_index())
-            .ok()
-            .and_then(|j| j.get("current").and_then(|v| v.as_str()).map(|s| s.to_string()))
-    }
 }
 
 fn now_iso() -> String {
