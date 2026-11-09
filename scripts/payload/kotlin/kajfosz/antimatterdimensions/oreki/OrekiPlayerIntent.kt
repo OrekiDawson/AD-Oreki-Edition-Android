@@ -113,6 +113,15 @@ object OrekiPlayerIntent {
     @JvmStatic
     fun mayRewriteCrunchMode(): Boolean = !crunchModePlayerOwned
 
+    /** 仅供单元验证复位（不影响运行时语义）。 */
+    @JvmStatic
+    fun resetForTest() {
+        masterWrittenByMod = false
+        masterPlayerDisabled = false
+        crunchModeWritten = Int.MIN_VALUE
+        crunchModePlayerOwned = false
+    }
+
     /** 面板/日志用：当前守卫状态。 */
     @JvmStatic
     fun describe(): String =

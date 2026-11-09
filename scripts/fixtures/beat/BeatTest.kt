@@ -39,5 +39,24 @@ fun main() {
     assertEq("clamp fallback not due at 9.9s", OrekiAutobuyerBeat.consumeRestoreDueAt(9900L), false)
     assertEq("clamp fallback due at 10s", OrekiAutobuyerBeat.consumeRestoreDueAt(10000L), true)
 
+    // 6) 玩家意图守卫：基线采纳 -> 识别改动 -> 让路 -> 释放后可再写
+    kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.resetForTest()
+    val MODE_TIME = 1
+    // 首次观察：无基线，采纳当前值，不判定为玩家改动
+    kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.refreshCrunchMode(0, MODE_TIME)
+    assertEq("baseline adopted, still rewritable", kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.mayRewriteCrunchMode(), true)
+    // MOD 写入 MODE_TIME -> 基线更新为 1
+    kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+    assertEq("after mod write, rewritable", kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.mayRewriteCrunchMode(), true)
+    // 玩家改成 AMOUNT(0)：应识别为玩家占用
+    kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.refreshCrunchMode(0, MODE_TIME)
+    assertEq("player change detected -> MOD yields", kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.mayRewriteCrunchMode(), false)
+    // 重复观察仍让路（不逐帧抢写）
+    kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.refreshCrunchMode(0, MODE_TIME)
+    assertEq("still yields on repeat observation", kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.mayRewriteCrunchMode(), false)
+    // 恢复时机到达后释放占用，MOD 可再写
+    kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+    assertEq("after restore, rewritable again", kajfosz.antimatterdimensions.oreki.OrekiPlayerIntent.mayRewriteCrunchMode(), true)
+
     println("ALL BEAT TESTS PASSED")
 }
