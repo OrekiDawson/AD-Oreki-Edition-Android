@@ -9793,3 +9793,19 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[实测]` **回归**：`node scripts/check_eternity_gate.mjs` → **63 项检查，失败 0 项**。期间因夹具缺 `break`/`infinities` 出现 5 项失败，补齐夹具后全通过（属新增真实前置条件后的夹具同步，非放宽门禁）。
 - `[实测]` **上线验证**：源码提交 `26e1294`（`AD-Oreki-Edition-Web`）、部署提交 `5c508e0`（`OrekiDawson.github.io`）；`https://oreki.net/src/core/oreki-eternity-automation.js` 已含 `_justCrunchedFrame`（第 3 次轮询确认，`2026-11-09T23:45:48+08:00`）。
 - `[未验证]` **两端同场景运行时对照未做**：Android 侧已用 AVD 实测 5 个场景，Web 侧仅有静态回归（63 项）与线上部署验证，尚未在浏览器中跑同一场景对比实际行为。因此「Android/Web 运行时行为完全等价」仍属未验证。
+
+### R97 EC 自动化：EC1–EC3 真实完成 5 次（2026-11-10）
+- `[实测]` **修复 `challenge.D(true, null)` 的 InvocationTargetException**：`continuation()` 原返回 null，
+  导致 EC 已解锁却无法进入。改传项目既有 `OrekiEcContinuation` 静态单例（字段 `a`，
+  实现 `ContinuationImpl`、`getContext()` 返回非 null 空上下文），依据 `GameApi.purchaseIu15()`
+  的成熟模式。**旧注释「传 null 安全、旧说法会 NPE 是错的」经本轮实测证伪**，已更正。
+- `[实测]` **存档证据（决定性）**：`challenge.eternity.unlocked=3`、
+  `completions=[5,5,5,0,0,0,0,0,0,0,0,0]`（EC1/EC2/EC3 各满完成 5 次）、`current=0`；
+  同档 `bigE=28`、`ep≈1.19e5`、`db=1071`、`gal=88`。
+  本轮起点为 `unlocked=0`、`completions` 全 0 —— 属真实解锁+进入+结算，非伪造。
+- `[实测]` **PAVE 铺路可行**：`PAVE_DEPTH_MAX` 提高到 30 并加 `paveVisited` 环检测后，
+  原版 `D()` 可真实买下 EC 前置时间研究（`TRYBUY id=171 a=true D=true`，TT 由 6.429e3 扣至 6.407e3）。
+  此前 `PAVE_DEPTH_MAX=6` 时链在 depth=7 被截断，是「TT 充足却全部 not-buyable」的直接原因。
+- `[未验证]` EC4–EC12 尚未完成（EC4 卡在 `TRYBUY id=143 D=false`，前置链仍待铺通）。
+- `[未验证]` 期间曾观测到一次存档异常（`db=2/gal=0/bigE=0`），已从 `playerBackup.json` 恢复；
+  **是否由本类写入路径触发尚未查明**，合入前需继续观察。
