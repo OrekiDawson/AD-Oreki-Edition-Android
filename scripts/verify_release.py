@@ -36,22 +36,63 @@ APKTOOL = TOOLS / "apktool.jar"
 EXPECT_PKG = "com.oreki.antimatterdimensions"
 
 # [R76] 期望版本从**所选基线**真实读取，不再写死 3.19.0 / 30190000。
-# 基线由 OREKI_BASE 唯一指定（与 build.gradle / build_mod.py 同一入口）。
-_BASE_DIR = Path(os.environ.get("OREKI_BASE") or (ROOT / "work" / "base_decoded")).resolve()
+# [R97] 默认基线与 build.gradle 用同一入口：baseline/version-config.json 的
+# `current` → `versions[current].decoded_tree`。旧实现默认写死 work/base_decoded
+# （3.19 基线），在 3.21 候选上必然把正确的 versionCode/versionName 判成 FAIL；
+# 这正是 R96 交接里「13/15、旧包也一样」的真实原因，不是解析失败。
+# OREKI_BASE 仍可显式覆盖（迁移验证用），相对路径按仓库根解析，与 Gradle 的 file() 一致。
+CONFIG_FILE = ROOT / "baseline" / "version-config.json"
+
+
+def _resolve_base_dir() -> Path:
+    raw = (os.environ.get("OREKI_BASE") or "").strip()
+    if raw:
+        p = Path(raw).expanduser()
+        return (p if p.is_absolute() else (ROOT / p)).resolve()
+    if not CONFIG_FILE.is_file():
+        raise RuntimeError(f"缺少基线配置 {CONFIG_FILE}，无法确定期望版本（拒绝静默退回旧基线）")
+    try:
+        cfg = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+        rel = cfg["versions"][cfg["current"]]["decoded_tree"]
+    except (KeyError, TypeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"基线配置无法解析 current/decoded_tree：{exc}") from exc
+    if not isinstance(rel, str) or not rel.strip():
+        raise RuntimeError(f"基线配置 decoded_tree 不是有效路径：{rel!r}")
+    p = Path(rel).expanduser()
+    return (p if p.is_absolute() else (ROOT / p)).resolve()
+
+
+def _yaml_value(txt: str, key: str) -> str | None:
+    """读取 apktool.yml 的 `versionName:` / `versionCode:`，兼容带引号与行尾空白。"""
+    m = re.search(rf"(?m)^[ \t]*{key}[ \t]*:[ \t]*(?P<v>'[^'\r\n]*'|\"[^\"\r\n]*\"|[^\s#]+)", txt)
+    if not m:
+        return None
+    value = m.group("v").strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+        value = value[1:-1].strip()
+    return value or None
 
 
 def _read_base_version() -> tuple[str | None, str | None]:
     yml = _BASE_DIR / "apktool.yml"
     if not yml.is_file():
-        return (None, None)
+        raise RuntimeError(f"基线缺少 apktool.yml：{yml}")
     txt = yml.read_text(encoding="utf-8", errors="ignore")
-    mn = re.search(r"(?m)^\s*versionName:\s*'?([^'\r\n]+)'?", txt)
-    mc = re.search(r"(?m)^\s*versionCode:\s*'?(\d+)'?", txt)
-    return (mn.group(1).strip() if mn else None,
-            mc.group(1).strip() if mc else None)
+    name = _yaml_value(txt, "versionName")
+    code = _yaml_value(txt, "versionCode")
+    if not name or not code:
+        raise RuntimeError(f"基线 apktool.yml 缺少 versionName/versionCode：{yml}")
+    return (name, code)
 
 
-EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_base_version()
+try:
+    _BASE_DIR: Path | None = _resolve_base_dir()
+    EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_base_version()
+    _BASE_ERROR: str | None = None
+except (RuntimeError, OSError) as _exc:  # 延迟到 main 报错，避免 import 期硬退出
+    _BASE_DIR = None
+    EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = (None, None)
+    _BASE_ERROR = str(_exc)
 EXPECT_CERT = "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
 
 results = []
@@ -118,6 +159,11 @@ def main():
     ap.add_argument("--json", default="")
     args = ap.parse_args()
 
+    if _BASE_ERROR:
+        print(f"!! 基线不可用：{_BASE_ERROR}")
+        return 2
+    print(f"基线: {_BASE_DIR}  期望 versionName={EXPECT_VERSION_NAME} versionCode={EXPECT_VERSION_CODE}")
+
     apk = Path(args.apk)
     if not apk.exists():
         print(f"!! 候选 APK 不存在: {apk}")
@@ -138,15 +184,15 @@ def main():
     vcode = re.search(r"versionCode='([^']+)'", out)
     vname = re.search(r"versionName='([^']+)'", out)
     check("包名", pkg and pkg.group(1) == EXPECT_PKG, pkg.group(1) if pkg else out[:120])
+    # 失败时同时打印「实际 / 期望」：旧输出只打实际值，容易被误读成解析失败。
     check("versionCode", vcode and vcode.group(1) == EXPECT_VERSION_CODE,
-          vcode.group(1) if vcode else "未解析到")
+          f"实际={vcode.group(1) if vcode else '未解析到'} 期望={EXPECT_VERSION_CODE}")
     check("versionName", vname and vname.group(1) == EXPECT_VERSION_NAME,
-          vname.group(1) if vname else "未解析到")
+          f"实际={vname.group(1) if vname else '未解析到'} 期望={EXPECT_VERSION_NAME}")
 
     # ---------------- 1b. 研究注册表 ABI 漂移守卫 ----------------
-    base_dir = Path(os.environ.get("OREKI_BASE", "work/base_decoded_321"))
-    payload_smali = Path("scripts/payload/smali")
-    abi_problems = check_study_registry_abi(base_dir, [payload_smali])
+    payload_smali = ROOT / "scripts" / "payload" / "smali"
+    abi_problems = check_study_registry_abi(_BASE_DIR, [payload_smali])
     check("研究注册表 ABI（基线 w63 具备 SparseIntArray/List/访问器）",
           not abi_problems, "；".join(abi_problems) if abi_problems else "OK")
 
@@ -238,6 +284,10 @@ def main():
     failed = [r for r in results if not r["ok"]]
     payload = {
         "apk": str(apk), "size": size, "sha256": digest,
+        "baseline": str(_BASE_DIR),
+        "expected": {"package": EXPECT_PKG,
+                     "versionCode": EXPECT_VERSION_CODE,
+                     "versionName": EXPECT_VERSION_NAME},
         "package": pkg.group(1) if pkg else None,
         "versionCode": vcode.group(1) if vcode else None,
         "versionName": vname.group(1) if vname else None,
