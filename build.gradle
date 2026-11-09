@@ -241,8 +241,8 @@ def resolveBaseDir = {
 def baseDir = resolveBaseDir()
 def baseDecoded = new File(baseDir, '')   // 规范化
 
-// Rust 基线工具：只由显式 baseline 任务调用，不加入默认 Release 依赖，
-// 避免每次构建都重复编译工具；它负责 APK 指纹、包信息和 DEX 布局等原生校验。
+// Rust 工具：Release 产物阶段使用 normalize-zip；它也负责 APK 指纹、包信息和 DEX
+// 布局等原生校验。源码未变化时 buildBaselineTool 由 Gradle 增量跳过，避免重复编译。
 def baselineToolDir = file('baseline/tools')
 def baselineToolExe = new File(baselineToolDir, isWindows ? 'target/release/baseline.exe' : 'target/release/baseline')
 
@@ -565,7 +565,7 @@ tasks.register('fingerprintInputs', Exec) {
 tasks.register('assembleRelease', Exec) {
     group = 'oreki'
     description = '用 smali/apktool 流水线生成并由 Gradle 对齐/签名候选 APK（不触碰 release/）'
-    dependsOn 'verifyEnvironment', 'fingerprintInputs', 'buildKotlinDex'
+    dependsOn 'verifyEnvironment', 'fingerprintInputs', 'buildKotlinDex', 'buildBaselineTool'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
     environment 'OREKI_GRADLE_ASSEMBLY', '1'
@@ -606,8 +606,8 @@ tasks.register('assembleRelease', Exec) {
         assembleApktoolTree()
         injectKotlinDex(unsigned)
         runExec {
-            workingDir = repoRoot
-            commandLine pythonExe, 'scripts/apk_normalize.py', unsigned.absolutePath
+            workingDir = baselineToolDir
+            commandLine baselineToolExe.absolutePath, 'normalize-zip', '--apk', unsigned.absolutePath
         }
         verifyAssembledAssets(unsigned)
         if (!unsigned.isFile()) throw new GradleException("Gradle 未生成 unsigned APK：${unsigned}")
@@ -1009,12 +1009,14 @@ String hashOf(File f) {
 }
 
 // ============================================================ Rust baseline
-// 可选入口：Release 默认不编译 Rust，只有显式运行这些任务时才启用。
+// Rust 工具的显式基线命令仍可单独运行；Release 只复用其中的 normalize-zip 子命令。
 tasks.register('buildBaselineTool', Exec) {
     group = 'oreki-baseline'
     description = '离线编译 Rust 原版基线管理工具'
     workingDir = baselineToolDir
     commandLine 'cargo', 'build', '--release', '--offline'
+    inputs.dir(new File(baselineToolDir, 'src'))
+    inputs.file(new File(baselineToolDir, 'Cargo.toml'))
     outputs.file(baselineToolExe)
     outputs.upToDateWhen { baselineToolExe.isFile() }
 }

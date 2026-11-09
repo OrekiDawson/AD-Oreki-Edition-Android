@@ -665,6 +665,66 @@ impl ZipArchive {
         Ok(out)
     }
 
+    /// 将 ZIP 的本地文件头和中央目录时间戳统一为 DOS 纪元。
+    ///
+    /// 只修改两个时间字段，不重排、不解压、不重压缩，适用于 apktool 生成的 APK。
+    /// 这样既保留重复 ZIP 条目，也不会改变 CRC、压缩数据或 APK 对齐布局。
+    fn normalize_timestamps(path: &Path) -> Result<(usize, usize), String> {
+        let mut data = fs::read(path).map_err(|e| format!("读 {} 失败：{}", path.display(), e))?;
+        if data.len() < 22 { return Err("ZIP 太短，找不到 EOCD".to_string()); }
+        let start = data.len().saturating_sub(65_557);
+        let mut eocd = None;
+        let mut i = data.len() - 22;
+        loop {
+            if i >= start && Self::u32_at(&data, i) == 0x0605_4b50 {
+                eocd = Some(i);
+                break;
+            }
+            if i == 0 { break; }
+            i -= 1;
+        }
+        let eocd = eocd.ok_or("找不到 ZIP 中央目录结束记录（EOCD）")?;
+        let total = Self::u16_at(&data, eocd + 10) as usize;
+        let cd_size = Self::u32_at(&data, eocd + 12) as usize;
+        let cd_off = Self::u32_at(&data, eocd + 16) as usize;
+        if total == 0xffff || cd_size == 0xffff_ffff || cd_off == 0xffff_ffff {
+            return Err("疑似 ZIP64，normalize-zip 未支持".to_string());
+        }
+        let fixed = [0u8, 0u8, 0x21u8, 0u8]; // 1980-01-01 00:00:00
+        let mut patched_cd = 0usize;
+        let mut patched_lfh = 0usize;
+        let mut p = cd_off;
+        for _ in 0..total {
+            if p.checked_add(46).map_or(true, |end| end > data.len()) || Self::u32_at(&data, p) != 0x0201_4b50 {
+                return Err(format!("中央目录项签名不符：偏移 {}", p));
+            }
+            if data[p + 12..p + 16] != fixed {
+                data[p + 12..p + 16].copy_from_slice(&fixed);
+                patched_cd += 1;
+            }
+            let lfh = Self::u32_at(&data, p + 42) as usize;
+            if lfh.checked_add(14).map_or(true, |end| end > data.len()) || Self::u32_at(&data, lfh) != 0x0403_4b50 {
+                return Err(format!("本地文件头签名不符：偏移 {}", lfh));
+            }
+            if data[lfh + 10..lfh + 14] != fixed {
+                data[lfh + 10..lfh + 14].copy_from_slice(&fixed);
+                patched_lfh += 1;
+            }
+            let name_len = Self::u16_at(&data, p + 28) as usize;
+            let extra_len = Self::u16_at(&data, p + 30) as usize;
+            let comment_len = Self::u16_at(&data, p + 32) as usize;
+            p = p.checked_add(46 + name_len + extra_len + comment_len)
+                .ok_or("中央目录偏移溢出")?;
+        }
+        if p != cd_off.checked_add(cd_size).ok_or("中央目录长度溢出")? {
+            return Err(format!("中央目录长度不符：走到 {}，EOCD 声明 {}", p, cd_off + cd_size));
+        }
+        if patched_cd != 0 || patched_lfh != 0 {
+            fs::write(path, &data).map_err(|e| format!("写 {} 失败：{}", path.display(), e))?;
+        }
+        Ok((patched_cd, patched_lfh))
+    }
+
     fn names(&self) -> Vec<&str> {
         self.entries.iter().map(|e| e.name.as_str()).collect()
     }
@@ -1499,6 +1559,13 @@ fn cmd_rollback(ctx: &Ctx, version: &str) -> Result<(), String> {
     Ok(())
 }
 
+fn cmd_normalize_zip(path: &Path) -> Result<(), String> {
+    if !path.is_file() { return Err(format!("APK/ZIP 不存在：{}", path.display())); }
+    let (cd, lfh) = ZipArchive::normalize_timestamps(path)?;
+    println!("[normalize-zip] 中央目录 {} 项，本地文件头 {} 项", cd, lfh);
+    Ok(())
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════════════════════
@@ -1512,6 +1579,7 @@ fn usage() {
     eprintln!("  diff     生成两个版本的差异报告（复用 inventory，无需重新反编译）");
     eprintln!("  status   列出全部基线版本");
     eprintln!("  rollback 把「当前基线」指回某个历史版本（不删文件）");
+    eprintln!("  normalize-zip 统一 APK ZIP 时间戳（不重排、不重压缩）");
     eprintln!();
     eprintln!("全局选项：--root <baseline 目录>（默认 ./baseline）");
     eprintln!();
@@ -1571,6 +1639,10 @@ fn main() -> ExitCode {
         "diff" => match (opts.get("from"), opts.get("to")) {
             (Some(f), Some(t)) => cmd_diff(&ctx, f, t).map(|_| 0),
             _ => Err("diff 需要 --from 与 --to".to_string()),
+        },
+        "normalize-zip" => match opts.get("apk") {
+            Some(p) => cmd_normalize_zip(Path::new(p)).map(|_| 0),
+            None => Err("normalize-zip 需要 --apk".to_string()),
         },
         "update" => {
             let version = match opts.get("version") {

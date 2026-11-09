@@ -113,7 +113,7 @@ entries 2241 2241 same set: True
 
 ### 5.2 修法
 
-新增 `scripts/apk_normalize.py`：只改 ZIP 头里的 4 字节 DOS 时间字段
+历史上由 `scripts/apk_normalize.py` 完成的逻辑现由 Rust `baseline normalize-zip` 子命令执行：只改 ZIP 头里的 4 字节 DOS 时间字段
 （中央目录项偏移 +12、本地文件头偏移 +10），**不碰任何条目数据、不重排、不重压缩**，
 因此 CRC / 解压大小 / 压缩后大小 / 对齐全部不变。本地头位置取自中央目录记录的偏移量，
 所以带数据描述符（bit 3）的条目也无需解析本地头长度字段。
@@ -122,8 +122,8 @@ entries 2241 2241 same set: True
 `build_mod.py` 只生成补丁后的 apktool 工作树。
 经实测 `zipalign` 会保留输入时间戳，所以规整一次即可传递到最终签名产物。
 
-自检（`apk_normalize.normalize()` 内置返工校验）：改写后条目数必须不变、`zipfile.testzip()`
-必须全通过。实测 2238 条目全部 CRC 一致，时间戳统一为 `(1980,1,1,0,0,0)`，文件字节长度不变。
+Rust 实现逐项校验中央目录和本地文件头签名，改写后条目数、CRC、压缩数据和布局均不变。
+Python `apk_normalize.py` 仍可用于手工回退和交叉核对。
 
 固定时间取 `1980-01-01 00:00:00`（DOS 时间可表达的最小值），与主流可复现构建工具一致。
 
@@ -159,8 +159,8 @@ entries 2241 2241 same set: True
   保留 dex→smali），`verifyRelease` 只消费该目录做语义检查。这是**静态**验证补丁进了 dex，
   不等于运行时行为正确；
   运行时行为由 AVD 探针（`scripts/instant_challenge_probe.py`）与 Web 侧脚本覆盖。
-- Rust 基线工具不加入默认 Release 依赖；显式执行 `baselineStatus` / `verifyBaseline` 时才
-  编译和运行。这样保留原生 APK/DEX 清单校验能力，又不把 Rust 编译时间强加给每次 MOD 构建。
+- Release 会增量复用 Rust 工具执行 ZIP 规整；源码未变化时不会重复编译。`baselineStatus` /
+  `verifyBaseline` 仍是显式基线任务，不改变默认发布流程。
 
 ---
 

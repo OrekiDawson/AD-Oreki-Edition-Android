@@ -242,7 +242,7 @@ scripts/payload/kotlin/**.kt
   → 作为 classes4.dex 并入 APK
 ```
 
-外层由 Gradle 编排（`build.gradle` 不参与 smali 生成）；`scripts/build_mod.py` 负责复制干净工作树、拷入 payload、执行 `patch_*` 注入并完成构建期语义守卫。随后 Gradle 直接执行 apktool 汇编、Kotlin dex 注入、ZIP 规整、`zipalign` 与 `apksigner`，生成签名候选。
+外层由 Gradle 编排（`build.gradle` 不参与 smali 生成）；`scripts/build_mod.py` 负责复制干净工作树、拷入 payload、执行 `patch_*` 注入并完成构建期语义守卫。随后 Gradle 直接执行 apktool 汇编、Kotlin dex 注入、Rust ZIP 规整、`zipalign` 与 `apksigner`，生成签名候选。
 
 ### 环境与工具链
 
