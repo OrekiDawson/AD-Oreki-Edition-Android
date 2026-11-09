@@ -9766,3 +9766,13 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[静态]` **斜率参数定义**：`斜率` = 维度提升对第八维度需求量的每次增量，`amount = 20 + (targetResets − 5) × perBoost`；原版 15/次，本作 `perBoost = max(1, 5 − discount)`（`discount` = 时间研究 211/222 效果之和），Android（`q51.smali` `[Oreki AD1]` 补丁）与 Web（`src/core/dimboost.js` `bulkRequirement`）同义；**不是运行时设置**，只能构建期切换（`OREKI_AD8_SLOPE`，默认 5）。
 - `[未验证]` 斜率 5/15 A/B 长跑**未完成**：A 组（斜率 5）已跑约 12 分钟并被三次真实永恒打断（阶段已推进），B 组（斜率 15）尚未开跑，两组均未达 30 分钟、未重复；因此**不能**据此得出任何斜率优劣结论。证据不足。
 - `[未验证]` 玩家关闭自动化后不自动永恒（场景 5）、Android/Web 门禁语义运行时等价性尚未实测。
+
+### R97 斜率 5 / 15 A/B 长跑实测（2026-11-09）
+- `[实测]` **同源条件已证**：两组均从 `reports/longrun/initial-save.json`（SHA-256 `4767dbcd0f97de38564b4c23d55840dc22d5f8e2775a62f0e1421ddc13976fbe`，`db=817, gal=67, inf=1.137727e6, ip=3.40092646656224e225, bigE=0`）启动；两组首帧 `frame=1` 逐字段一致。
+- `[实测]` **斜率 5（APK `877c6005…`，31.0 分钟，187 样本）**：真实永恒结算 **8 次**，终态 `bigE=5 / EP=8.0 / canEt=true`；`db 817→1227（+410）`、`gal 67→101（+34）`；`log10(IP) +221.70 decades`（7.143 dec/min）。
+- `[实测]` **斜率 15（APK `7ba500d3…`，30.7 分钟，185 样本）**：真实永恒结算 **0 次**，终态 `bigE=0 / EP=0.0 / canEt=false`；`db 817→290（−527）`、`gal 67→71（+4）`；`log10(IP) +2.87 decades`（0.093 dec/min）。门禁全部 `cannot-eternity`。
+- `[实测]` **两组 IP 对数增长率相差约 77 倍**（7.143 vs 0.093 dec/min）。
+- `[实测]` **异常（未定位）**：斜率 15 组在**无任何永恒**（bigE 恒为 0）的情况下 `dimensionBoosts` 由 817 持续降至 290；成因未确认，不得归因于任何单一机制。
+- `[实测]` **限制**：两组各仅运行 1 次，**未重复**；未跨越 Reality；Web 端未做对应 A/B；30 分钟内两组均未进入后续阶段。因此**不能**得出「斜率 15 必然更差」的普适结论，只支持「本次单次实测中斜率 15 完全停滞」。
+- `[实测]` **早期 A 组数据作废原因**：`am force-stop` 无法终止该游戏进程，游戏自动保存覆盖了 push 的存档，导致首次 A 组从 `db=110/gal=28` 启动。改用 `su 0 kill -9` + `pidof` 确认 GONE + push 后 SHA-256 校验后才获得同源数据。
+- `[实测]` 证据路径：`reports/longrun/slope-5/{logcat-rerun.txt,timeseries.csv,final-save-rerun.json,00-start.png,10min-rerun.png,20min-rerun.png,30min-rerun.png,after-eternity.png}`、`reports/longrun/slope-15/{logcat.txt,timeseries.csv,final-save.json,00-start.png,10min.png,20min.png,30min.png}`、对比报告 `reports/longrun/slope-5-vs-15.md`。
