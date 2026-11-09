@@ -200,7 +200,7 @@ fingerprintInputs ──┘                   └─→ verifyPatchContract
 | `build.gradle` / `gradle.properties` / `settings.gradle` | 内容 sha256 | <5 ms |
 | `work/base_decoded`（27744 文件 / 0.40 GB） | `(路径, 体积, mtime)` 滚动哈希 | 4.2 s |
 | `work/kajfosz.antimatterdimensions.apk`、`keys/` | 同上 | <5 ms |
-| 环境变量 `OREKI_UNSIGNED_OUT` 等 | 直接并入 | — |
+| 环境变量 `OREKI_BASE` / `OREKI_MOD` / `OREKI_GRADLE_ASSEMBLY` | 直接并入 | — |
 | **合计** | | **约 4.4 s** |
 
 文本类文件（`.smali` `.py` `.json` `.txt` `.xml` `.gradle` …）在哈希前做

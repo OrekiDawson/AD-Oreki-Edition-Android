@@ -35,8 +35,6 @@ PAYLOAD = ROOT / "scripts" / "payload"
 # 默认行为不变，仍是 work/mod。
 MOD = Path(os.environ.get("OREKI_MOD") or (WORK / "mod")).resolve()
 BUILD = ROOT / "build"
-TOOLS = ROOT / "tools"
-KEYS = ROOT / "keys"
 
 ANDROID_NS = "http://schemas.android.com/apk/res/android"
 A = "{%s}" % ANDROID_NS
@@ -6951,27 +6949,7 @@ def patch_dimboost_ad8_slope():
     note("[Oreki AD1] 维度提升 AD8 需求斜率 15/次 → max(1, 5-discount)/次")
 
 
-# ------------------------------------------------------------------ [R96] 工具解析
-# Kubuntu 26.04 成为主开发环境：随仓库迁移过来的 tools/bt、tools/jdk 是 Windows 产物
-# （只有 .exe），POSIX 上必须改用系统 JDK 与 SDK build-tools，否则报 Exec format error。
-_WIN = sys.platform.startswith("win")
-
-
-def _resolve_java() -> str:
-    if _WIN:
-        cand = TOOLS / "jdk" / "jdk-17.0.20.1+1" / "bin" / "java.exe"
-        return str(cand)
-    env = os.environ.get("JAVA_HOME", "").strip()
-    if env and (Path(env) / "bin" / "java").exists():
-        return str(Path(env) / "bin" / "java")
-    found = shutil.which("java")
-    if found:
-        return found
-    raise SystemExit("[R96] 找不到 java（JAVA_HOME 或 PATH）")
-
-
 def main():
-    java = _resolve_java()
     prepare()
     merge_split()
     patch_resources()
