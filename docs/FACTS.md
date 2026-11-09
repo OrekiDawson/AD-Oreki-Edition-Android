@@ -5570,7 +5570,7 @@ case AUTO_CRUNCH_MODE.X_HIGHEST: return gainedInfinityPoints().gte(this.highestP
 
 **【待办】** 给可重复购买加「前后值比较」的防假成功闸：值没变即视为失败并进冷却，不再每 tick 重试。
 
-**【同源前例】** `resetBoost` 在 A27 也是每 tick「买到」一次（1007 次 / 25 s），见 `tasks/R51-AND-01.md` §五。
+**【同源前例】** `resetBoost` 在 A27 也是每 tick「买到」一次（1007 次 / 25 s），见 `tasks/R51-Android-01.md` §五。
 
 ## C.99　C.98 的根因与修复：`uu1.E(Z)` 是空实现，`D()` 对可重复升级只扣钱不涨级（2026年11月1日）
 
@@ -5716,7 +5716,7 @@ A30 实测 `OREKI_SCHED init` 正常、`act` 一条没有。根因不是接线�
 - [ ] 用原版对照 APK 在 1.79e308 之前实测显示行为
 - [ ] 修正 R51 相关日志标签与报告，避免把内部值误称「显示次数」
 
-**本轮已发生的误用（记录在案）**：`tasks/R51-AND-01.md` §七/§八 的表格里把
+**本轮已发生的误用（记录在案）**：`tasks/R51-Android-01.md` §七/§八 的表格里把
 `dimensionBoosts` 直接标成「db」，并在正文把它当作「维度提升次数」讨论 —— 属口径混用，
 按本条改为「档位字段 `dimensionBoosts`」，不再与界面显示次数混为一谈。
 
@@ -9748,3 +9748,21 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 ### R97 构建耗时事实（2026-11-09）
 - `[实测]` Linux Android 构建日志记录：`reports/r96/gradle-r96u.log` 1m16s、`gradle-r96v.log` 1m17s、`gradle-r96w.log` 1m28s、`gradle-r96x.log` 1m25s、`gradle-r96y.log` 1m16s、`gradle-r96z.log` 1m14s；最新候选安装链 `reports/r96/install-release-r96.log` 为 1m08s。当前环境通常约 1 分钟，仅是构建事实，不代表 AVD 验收或完整通关测试耗时。
 
+### R97 永恒门禁修复与实测验收（2026-11-09）
+- `[实测]` **P0 根因（已修复）**：`OrekiStageAuto.onAutoBuyerTick()` 是 `Game.autoBuyerTick` 的第一条语句，原版自动购买器在同一 tick 内、本门禁**之后**才执行大坍缩。旧实现每帧无条件调用 `GameApi.eternityTick()`，缺少跨层守卫，因此「上一 tick 末坍缩 → 本 tick 初永恒」被当成连续发生，表现为「大坍缩后直接进入永恒」。
+- `[实测]` **修复内容（Kotlin-only）**：
+  - `OrekiStageAuto.kt` 新增 `detectResetGenerations()`（按 `GameApi.infinities()` 令牌变化识别真实大坍缩）、`eternityGateReason()`（`automation-off|doomed|not-broken|same-frame-crunch|cannot-eternity|ep-gain-too-low|allow`）、`tickEternityGated()`（仅 `allow` 时驱动原版入口）、`logEternityGateIfDue()`。
+  - `GameApi.kt` 新增只读绑定 `gainedEternityPointsValue()`（`prestige/c;->g()`）。
+  - 同帧保护采用**永恒资格跳变闩锁**：仅当 `canEternity` 由假变真且本帧观测到坍缩时跳一帧。**教训**：早期写成「只要 canEternity 为真就武装」，在自动坍缩每帧触发时会永久挡住永恒（实测 87 条 `same-frame-crunch`、0 条允许），已修正。
+  - 永恒结算日志必须以 **EP 或 `bigEternities` 变化**证明，禁止仅凭 3.21 中语义不可靠的 `Player.x()`/`eternities` 字段（该字段新档实测读作 11/12）；仅作 `eternitiesField=` 辅助打印。
+- `[实测]` **AVD 验收（`emulator-5554`，API 37 / `ad-game-api37`，userdebug root）**：
+  - 修复前：`reason=same-frame-crunch` 持续拒绝，永恒永不发生。
+  - 修复后：`same-frame-crunch` 仅 1 次（资格跳变当帧），其余为 `cannot-eternity`（收益未达）。
+  - 真实结算 3 次：`settled prove=ep/bigE ep=0.0e0->2.0e0 bigE=0->1`、`ep=2.0e0->1.0e0 bigE=1->1`、`ep=1.0e0->3.0e0 bigE=1->2`（logcat `OREKI_ET`）。
+  - **存档直读独立验证**：`bigEternities=2`、`eternityPoints=3.0`、`infinities=1.1444`，与日志/GUI 三源一致。
+  - 永恒后无限次数由 5.2e6 重置到 7.7e4，符合原版重置规则。
+- `[实测]` **日志与截图**：`reports/longrun/slope-5/logcat.txt`、`00-start.png`、`10min.png`、`after-eternity.png`；无效历史 `logcat-invalid-truncated.txt`、`logcat-invalid-blocked.txt` 保留为缺陷证据。
+- `[实测]` **诊断插桩教训**：Kotlin 中 `"a=" + if (c) "x" else "y" + " b=" + v` 因运算符优先级会把后续字段吞进 else 分支，导致日志被截断；必须写成 `(if (c) "x" else "y")`。
+- `[静态]` **斜率参数定义**：`斜率` = 维度提升对第八维度需求量的每次增量，`amount = 20 + (targetResets − 5) × perBoost`；原版 15/次，本作 `perBoost = max(1, 5 − discount)`（`discount` = 时间研究 211/222 效果之和），Android（`q51.smali` `[Oreki AD1]` 补丁）与 Web（`src/core/dimboost.js` `bulkRequirement`）同义；**不是运行时设置**，只能构建期切换（`OREKI_AD8_SLOPE`，默认 5）。
+- `[未验证]` 斜率 5/15 A/B 长跑**未完成**：A 组（斜率 5）已跑约 12 分钟并被三次真实永恒打断（阶段已推进），B 组（斜率 15）尚未开跑，两组均未达 30 分钟、未重复；因此**不能**据此得出任何斜率优劣结论。证据不足。
+- `[未验证]` 玩家关闭自动化后不自动永恒（场景 5）、Android/Web 门禁语义运行时等价性尚未实测。

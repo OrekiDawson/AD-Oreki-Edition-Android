@@ -355,7 +355,7 @@ internal object GameApi {
         return bitSetClassCache
     }
 
-    /** `pelle/c` —— Pelle.isDoomed。 */
+    /** `pelle/c` —— `Pelle.isDoomed`（佩勒毁灭态）。 */
     private var pelleClassCache: Class<*>? = null
     private var pelleClsResolved: Boolean = false
     private fun pelleCls(): Class<*>? {
@@ -620,7 +620,7 @@ internal object GameApi {
     /** `Player.D()` = IP 货币容器（ln0 实例）。 */
     fun infinityPoints(): Any? = call(mPlayerD(), player())
 
-    // ---------------------------------------------------------------- Break Infinity 升级
+    // ---------------------------------------------------------------- 打破无限升级
     //
     // R87：OrekiBreakShop 从 Smali 迁入 Kotlin 后，不再直接写 `Lh00;->m` /
     // `Lqr3;->D` 这类短名。这里统一通过 GameApi 的基线绑定解析：
@@ -647,7 +647,7 @@ internal object GameApi {
         return mBreakUpgradesList
     }
 
-    /** 原版 12 条 Break Infinity 升级列表；读不到时返回空列表。 */
+    /** 原版 12 条打破无限升级列表；读不到时返回空列表。 */
     fun breakUpgrades(): List<Any?> {
         return try {
             @Suppress("UNCHECKED_CAST")
@@ -1040,7 +1040,7 @@ internal object GameApi {
     fun crunchCost(s: Any?): Double = (call(mCrunchT(), s) as? Double) ?: Double.MAX_VALUE
     fun crunchBuy(s: Any?) = call(mCrunchUpA(), s, false)
 
-    // ---------------------------------------------------------------- Autobuyer 基类
+    // ---------------------------------------------------------------- 自动购买器基类
 
     private var mBaseI: Method? = null
     private var mBaseIResolved: Boolean = false
@@ -1287,8 +1287,8 @@ internal object GameApi {
     private fun mImplW(): Method? {
         if (!mImplWResolved) {
             mImplWResolved = true
-            // 3.20 rp0.K 为玩家现值，G 为 Pelle 分支；必须保留原版玩家口径。
-            // 3.20 与 3.21 的货币实现都保留 K()（玩家现值）/G()（Pelle 分支）；
+            // 3.20 rp0.K 为玩家现值，G 为佩勒分支；必须保留原版玩家口径。
+            // 3.20 与 3.21 的货币实现都保留 K()（玩家现值）/G()（佩勒分支）；
             // 只有 3.19 使用 w()。不能因为 3.21 没有 bq0 类就退回旧名。
             mImplW = method(currencyImplCls(), if (isBaselineModern()) "K" else "w", 0, "Infinity points current value")
         }
@@ -2420,6 +2420,19 @@ internal object GameApi {
 
     /** 原版 `Player.canEternity`：本永恒 `maxIP` 已达到永恒门槛。 */
     fun canEternity(): Boolean = (call(mCanEternity(), null) as? Boolean) ?: false
+
+    private var mGainedEternityPoints: Method? = null
+    private var mGainedEternityPointsResolved: Boolean = false
+    private fun mGainedEternityPoints(): Method? {
+        if (!mGainedEternityPointsResolved) {
+            mGainedEternityPointsResolved = true
+            mGainedEternityPoints = method(prestigeCCls(), "g", 0, "prestige.c.g()=gainedEternityPoints")
+        }
+        return mGainedEternityPoints
+    }
+
+    /** [R97] 原版 `gainedEternityPoints()`：本次永恒可获得 EP（只读，不结算）。 */
+    fun gainedEternityPointsValue(): Any? = call(mGainedEternityPoints(), null)
 
     private var mBigDoubleLog10: Method? = null
     private var mBigDoubleLog10Resolved: Boolean = false

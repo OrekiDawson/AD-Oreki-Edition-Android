@@ -60,6 +60,9 @@ object OrekiStageAuto {
     private const val TAG_EARLY = "OREKI_EARLY"
     private const val TAG_HOLD = "OREKI_HOLD"
     private const val TAG_CRUNCH = "OREKI_CRUNCH"
+    private const val TAG_ET_GATE = "OREKI_ET_GATE"
+    private const val TAG_ET = "OREKI_ET"
+    private const val TAG_EDP_FRAME = "EDP_FRAME"
     private const val TAG_AU4B = "OREKI_AU4B"
     private const val TAG_AU4C = "OREKI_AU4C"
     private const val TAG_ID = "OREKI_ID"
@@ -139,6 +142,29 @@ object OrekiStageAuto {
     private const val RESCUE_COOLDOWN_MS = 20_000L
 
     private val lastRescueAt = java.util.HashMap<String, Long>()
+
+    // ------------------------------------------------- [R97] 永恒门禁与跨层互斥状态
+    /** 上一次观测到的无限次数（用于识别大坍缩代际）。 */
+    private var lastInfinitiesToken: String? = null
+
+    /** 上一次观测到的 EP / bigEternities（真实永恒结算判据，不使用不可靠的 eternities 字段）。 */
+    private var lastEpToken: String? = null
+    private var lastBigEToken: String? = null
+
+    /** 最近一次检测到大坍缩的时间（elapsedRealtime，毫秒）。 */
+    private var lastCrunchAtMs: Long = 0L
+
+    /** 大坍缩后仍需跳过的帧数：保证跨到后续合法 tick 再判断永恒。 */
+    private var crunchSkipFrames: Int = 0
+
+    private var lastEtGateReason: String = ""
+    private var lastEtGateLogAt: Long = 0L
+    private var lastPreBreakGateLogAt: Long = 0L
+    /** [R97] 永恒资格跳变闩锁：只在 false→true 那一次跳一帧，避免逐帧坍缩把永恒永久挡死。 */
+    private var lastCanEternityLatched: Boolean = false
+    /** [R97 EDP] 只读诊断：帧号与 10 秒心跳，用于斜率 A/B 时间序列。 */
+    private var edpFrameNo: Long = 0L
+    private var lastEdpFrameLogAt: Long = 0L
 
     // ---------------------------------------------------------------- 状态字段
     // 保持与旧 Smali 同名字段，供诊断脚本按名读取。
@@ -231,7 +257,14 @@ object OrekiStageAuto {
             // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
             OrekiAutomationScheduler.beginFrame()
 
-            // 终点记录：必须排在所有早退之前（Pelle 阶段是唯一需要它的阶段）。
+            edpFrameNo++
+            edpHeartbeat()
+
+            // [R97] 跨层重置代际检测：必须最早执行，供本帧永恒门禁使用。
+            detectResetGenerations()
+            lastCanEternityLatched = GameApi.canEternity()
+
+            // 终点记录：必须排在所有早退之前（佩勒阶段是唯一需要它的阶段）。
             GameApi.pelleRecordTick()
 
             // [R83] IU15 冲刺状态机：必须在**任何 ID 购买之前**推进，
@@ -259,16 +292,16 @@ object OrekiStageAuto {
             // 已过首次无限：清掉开局闩锁，玩家重置存档后还能再应用一次。
             earlyAutomationApplied = false
 
-            // [R97 P0 阶段越界] 永恒相关自动化必须等 Break Infinity **真正完成**。
+            // [R97 P0 阶段越界] 永恒相关自动化必须等打破无限**真正完成**。
             //
             // 真机证据（手机包 2a35c13 / SHA 150c50b9…，首次无限 02:01）：
             // Break 未完成时就出现永恒相关选项、部分时间研究被自动点亮，随后卡死。
             // 根因层：这一整块此前只受 hasInfinity() 与 isDoomed() 约束，
             // `buyEternityUpgrades()` 的闸门 canAutomateEternityUpgrades() 只判
-            // 「首个时间维度 bought>0」，`eternityTick()`（原版 Eternity.tick()）
+            // 「首个时间维度 bought>0」，`eternityTick()`（原版 `Eternity.tick()`）
             // 更是完全无阶段判据 ⇒ 首次无限后立刻就能被驱动。
             //
-            // 门禁**只包住永恒及以上的动作**（EC / 永恒升级 / Eternity.tick /
+            // 门禁**只包住永恒及以上的动作**（永恒挑战 / 永恒升级 / `Eternity.tick()` /
             // 现实 / 符文 / 特蕾莎）。Break 兜底与无限层购买必须留在门禁之外：
             // 它们正是「完成 Break」的唯一自动路径，若一并禁掉，首次无限后将
             // 永远 brake=false、infinityUpgradeBits 恒 0 —— 实测候选 cf20aacd
@@ -291,9 +324,9 @@ object OrekiStageAuto {
                     // R91：永恒自动化（时间定理 / 时间维度 / 研究）不在 runScheduled 闸门内，
                     // 但它同样属于 Oreki 自动接管。开关关闭后必须立即停手，
                     // 否则「关闭后仍自动买永恒升级」会违反用户令。手动操作不受影响。
-                    if (OrekiAutomationScheduler.isEnabled()) {
-                        GameApi.eternityTick()
-                    }
+                    // [R97] 永恒真实结算门禁：总开关 / Doomed / Break / canEternity /
+                    // 收益策略 / 同帧大坍缩互斥，全部满足才驱动原版永恒入口。
+                    tickEternityGated()
 
                     // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
                     if (GameApi.strategyDrives("reality")) {
@@ -317,10 +350,14 @@ object OrekiStageAuto {
                     if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("teresa")) {
                         GameApi.teresaTick()
                     }
+                } else {
+                    // [R97] Break 前门禁诊断：限频记录「未完成 Break，永恒被拒绝」，
+                    // 使「未 Break 不会永恒」有可核对证据（不靠按钮或字段推断）。
+                    logEternityGateIfDue("not-broken")
                 }
 
                 // IP 倍率自动器开关：只翻开关（幂等、不消耗资源），不属于
-                // 「自动状态修改动作」，必须每帧跑 —— 否则玩家手动关掉后无法恢复接管。
+                // 「自动状态修改动作」，必须每帧跑 —— 否则玩家手动关掉后无法恢复托管。
                 // [R97 P0] 这是无限层（非永恒层）自动器，Break 前必须继续托管。
                 enableIpMultAutobuyer()
 
@@ -1523,6 +1560,154 @@ object OrekiStageAuto {
      * bit0-1 = mode；bit2 = canTick；bit3 = isUnlocked；bit4 = holdCrunch()。
      * 只读，不改任何状态。
      */
+    /**
+     * [R97] 跨层重置代际检测。
+     *
+     * `onAutoBuyerTick()` 是 `Game.autoBuyerTick` 的第一条语句：本帧读到的变化，
+     * 来自**上一帧**原版自动购买器执行的大坍缩/永恒。因此这里检测到无限次数变化，
+     * 说明大坍缩刚刚发生；本帧必须禁止永恒，下一帧再重新读取真实条件。
+     */
+    private fun detectResetGenerations() {
+        try {
+            val inf = GameApi.infinities()?.toString()
+            val prev = lastInfinitiesToken
+            if (inf != null && prev != null && inf != prev) {
+                lastCrunchAtMs = android.os.SystemClock.elapsedRealtime()
+                // 仅当「永恒资格刚由假变真」且本帧观测到坍缩时，跳一帧再放行；
+                // 原版坍缩发生在同一 tick 的门禁之后，逐帧武装会永久挡死（R97 实测）。
+                if (GameApi.canEternity() && !lastCanEternityLatched) crunchSkipFrames = 1
+                Log.i(
+                    TAG_CRUNCH,
+                    "crunch detected inf=" + prev + "->" + inf +
+                        " ip=" + GameApi.infinityPoints() +
+                        " ep=" + GameApi.eternityPointsValue() +
+                        " bigE=" + GameApi.bigEternitiesValue() +
+                        " t=" + lastCrunchAtMs
+                )
+            }
+            if (inf != null) lastInfinitiesToken = inf
+
+            // [R97] 永恒结算必须由真实状态变化证明：EP 或 bigEternities 变化。
+            // 3.21 的 `Player.eternities`（`x()`）语义不可靠（新档实测读作 11），
+            // 绝不能单独拿它当「已经永恒」的证据 —— 这里只作为辅助字段打印。
+            val epNow = GameApi.eternityPointsValue()?.toString()
+            val bigENow = GameApi.bigEternitiesValue()?.toString()
+            val epPrev = lastEpToken
+            val bigEPrev = lastBigEToken
+            val realSettle = (epNow != null && epPrev != null && epNow != epPrev) ||
+                (bigENow != null && bigEPrev != null && bigENow != bigEPrev)
+            if (realSettle) {
+                Log.i(
+                    TAG_ET,
+                    "settled prove=ep/bigE ep=" + epPrev + "->" + epNow +
+                        " bigE=" + bigEPrev + "->" + bigENow +
+                        " eternitiesField=" + GameApi.eternities() +
+                        " t=" + android.os.SystemClock.elapsedRealtime()
+                )
+            }
+            if (epNow != null) lastEpToken = epNow
+            if (bigENow != null) lastBigEToken = bigENow
+        } catch (_: Throwable) {
+        }
+    }
+
+    /**
+     * [R97] 永恒门禁：只有全部真实条件满足才允许 MOD 主动永恒。
+     *
+     * 判据顺序与 Web `eternityStageAllowed()` + `tickEternity()` 对齐；本方法只做
+     * 「是否允许驱动」，不写任何存档字段、不改收益公式，也不接管玩家手动永恒。
+     */
+    private fun eternityGateReason(): String {
+        if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
+        if (GameApi.isDoomed()) return "doomed"
+        if (!GameApi.isBroken()) return "not-broken"
+        if (crunchSkipFrames > 0) return "same-frame-crunch"
+        if (!GameApi.canEternity()) return "cannot-eternity"
+        val gain = GameApi.gainedEternityPointsValue()
+        val ep = GameApi.eternityPointsValue()
+        if (gain != null && ep != null) {
+            val c = GameApi.compareBigDoubles(gain, ep)
+            if (c != null && c < 0) return "ep-gain-too-low"
+        }
+        return "allow"
+    }
+
+    /** 通过门禁才调用原版永恒入口；拒绝原因限频记录（原因变化或每 5 秒一条）。 */
+    private fun tickEternityGated() {
+        try {
+            val reason = eternityGateReason()
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (crunchSkipFrames > 0) crunchSkipFrames--
+            if (reason == "allow") {
+                GameApi.eternityTick()
+            }
+            val changed = reason != lastEtGateReason
+            if ((changed && now - lastEtGateLogAt >= 1_000L) || now - lastEtGateLogAt >= 5_000L) {
+                lastEtGateReason = reason
+                lastEtGateLogAt = now
+                Log.i(
+                    TAG_ET_GATE,
+                    "allow=" + (reason == "allow") + " reason=" + reason +
+                        " broken=" + GameApi.isBroken() +
+                        " canEt=" + GameApi.canEternity() +
+                        " ep=" + GameApi.eternityPointsValue() +
+                        " gain=" + GameApi.gainedEternityPointsValue() +
+                        " bigE=" + GameApi.bigEternitiesValue() +
+                        " lastCrunch=" + lastCrunchAtMs
+                )
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** [R97 EDP] 10 秒心跳：只读快照，供斜率 A/B 时间序列对齐。 */
+    private fun edpHeartbeat() {
+        try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastEdpFrameLogAt < 10_000L) return
+            lastEdpFrameLogAt = now
+            Log.i(
+                TAG_EDP_FRAME,
+                "frame=" + edpFrameNo +
+                    " stage=" + (if (GameApi.isBroken()) "break" else "pre-break") +
+                    " break=" + GameApi.isBroken() +
+                    " canEt=" + GameApi.canEternity() +
+                    " ep=" + GameApi.eternityPointsValue() +
+                    " gainEP=" + GameApi.gainedEternityPointsValue() +
+                    " bigE=" + GameApi.bigEternitiesValue() +
+                    " inf=" + GameApi.infinities() +
+                    " ip=" + GameApi.infinityPoints() +
+                    " db=" + GameApi.dimensionBoosts() +
+                    " gal=" + GameApi.galaxies() +
+                    " justCrunch=" + (crunchSkipFrames > 0) +
+                    " lastCrunch=" + lastCrunchAtMs +
+                    " modIntervalMs=" + OrekiAutomationScheduler.intervalMs() +
+                    " auto=" + OrekiAutomationScheduler.isEnabled()
+            )
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** [R97] 门禁拒绝原因限频输出：原因变化或每 5 秒一条，避免刷屏。 */
+    private fun logEternityGateIfDue(reason: String) {
+        try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastPreBreakGateLogAt < 5_000L) return
+            lastPreBreakGateLogAt = now
+            Log.i(
+                TAG_ET_GATE,
+                "allow=false reason=" + reason +
+                    " broken=" + GameApi.isBroken() +
+                    " canEt=" + GameApi.canEternity() +
+                    " ep=" + GameApi.eternityPointsValue() +
+                    " gain=" + GameApi.gainedEternityPointsValue() +
+                    " bigE=" + GameApi.bigEternitiesValue() +
+                    " lastCrunch=" + lastCrunchAtMs
+            )
+        } catch (_: Throwable) {
+        }
+    }
+
     @JvmStatic
     fun crunchProbe() {
         try {

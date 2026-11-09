@@ -5513,8 +5513,12 @@ def verify_eternity_chain():
     _tb_start = t.index("fun onAutoBuyerTick()")
     _tb_next = t.find("@JvmStatic", _tb_start + 10)
     tb = t[_tb_start: _tb_next if _tb_next > 0 else len(t)]
-    assert "GameApi.eternityTick()" in tb, "[ET1] onAutoBuyerTick 未挂 OrekiEternity.tick()"
-    assert tb.index("GameApi.isDoomed()") < tb.index("GameApi.eternityTick()"), \
+    # [R97] 永恒入口改为经门禁 `tickEternityGated()` 调用：门禁本身负责
+    # 总开关 / Doomed / Break / canEternity / 收益策略 / 同帧大坍缩互斥。
+    # 这里同时校验「挂点存在」与「门禁内仍调用真实原版入口」，避免只挂空壳。
+    assert "tickEternityGated()" in tb, "[ET1] onAutoBuyerTick 未挂永恒门禁 tickEternityGated()"
+    assert "GameApi.eternityTick()" in t, "[ET1] 门禁内未调用真实永恒入口 GameApi.eternityTick()"
+    assert tb.index("GameApi.isDoomed()") < tb.index("tickEternityGated()"), \
         "[ET1] 必须排在 Doomed 判定之后"
     # [R57-1] 原先这里锁的是「OrekiEternity.tick() 必须排在 eternitiesZero 分叉之前」。
     # 那个分叉（= 首次永恒后直接 return 的硬门）已被删除，句柄不复存在，
@@ -5522,7 +5526,7 @@ def verify_eternity_chain():
     # 否则首次永恒在 eternities==0 的窗口里永远触发不了。
     # 现在用「无限层策略块里最后一个动作 tryBuyId1」作为新的右侧句柄 ——
     # 它位于整段策略块的末尾，等价于原来的「分叉点」位置。
-    assert tb.index("GameApi.eternityTick()") < tb.index("tryBuyId1()"), \
+    assert tb.index("tickEternityGated()") < tb.index("tryBuyId1()"), \
         "[ET1] 必须排在无限层策略块之前，否则首次永恒永远不触发"
     note("[Oreki ET1] 永恒层守卫通过（TT / 时间维度 / 时间研究 / 按永恒 + 挂点顺序 + 实参元组）")
 
@@ -7227,6 +7231,13 @@ def patch_dimboost_ad8_slope():
     target = mod_file(f"smali/{_kx}.smali")
     assert target.is_file(), f"缺少 {target}"
     src = target.read_text(encoding="utf-8")
+    # [R97 测试钩子] 斜率 A/B 长跑对比用：OREKI_AD8_SLOPE=15 时保留原版 15/次。
+    # 未设置或设为 5 时保持生产行为（max(1, 5-discount)/次），生产构建不受影响。
+    _slope = os.environ.get("OREKI_AD8_SLOPE", "5").strip()
+    if _slope != "5":
+        note(f"[Oreki AD1] 测试变体：AD8 需求斜率保留原版 {_slope}/次（生产默认 5）")
+        return
+
     if "Oreki AD1" in src:
         note("[Oreki AD1] 维度提升 AD8 斜率已打过补丁，跳过")
         return
