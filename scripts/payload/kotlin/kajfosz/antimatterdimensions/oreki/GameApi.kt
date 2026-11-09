@@ -486,7 +486,12 @@ internal object GameApi {
     private fun stagePredicateCls(): Class<*>? {
         if (!stagePredicateClassResolved) {
             stagePredicateClassResolved = true
-            stagePredicateClassCache = cls("kajfosz.antimatterdimensions.f82")
+            // [R98 根因] 3.21 的 f82 位于**默认包**（smali: `.class public abstract Lf82;`），
+            // 不是 kajfosz.antimatterdimensions.f82。且 className() 仅在名称**不含点**时才走
+            // confirmed 映射，含点的名字原样返回 —— 传全限定名会 100% ClassNotFound，
+            // 真机日志长期 origE=unknown / origR=unknown 即由此而来。
+            // 这里改传短名 "f82"，交给 className() 做版本映射。
+            stagePredicateClassCache = cls("f82")
         }
         return stagePredicateClassCache
     }
