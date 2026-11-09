@@ -355,6 +355,13 @@ check("对账反射 Method 必须缓存（禁止每帧 getMethod）",
       "mTimestudyCounts" in _api and "mTimestudyCountsResolved" in _api
       and "timestudyCountMethods" in _api
       and _api.count('getMethod("b")') == 1)
+# 审查整改：切档不得把历史购买当新购；失败不得吞掉奖励。
+check("切档保护：单帧增量超上限只重设基线、不发奖",
+      "MAX_REASONABLE_DELTA" in _api and "tt-reward SWITCH-GUARD" in _api
+      and "if (delta > MAX_REASONABLE_DELTA)" in _api)
+check("补发失败不推进基线（下一帧重试，不永久吞奖励）",
+      "timeTheoremGrantFailures" in _api
+      and _api.split("if (!granted) {")[1].split("return")[0].find("timeTheoremPurchasesSettled = total") < 0)
 check("补发失败不静默：有 GRANT-FAILED 告警",
       "tt-reward GRANT-FAILED" in _api)
 _tt_block = _api.split("fun timeTheoremBuyMax(auto: Boolean): Long")[1].split("// ------")[0]

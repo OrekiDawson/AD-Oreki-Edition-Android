@@ -2224,8 +2224,39 @@ internal object GameApi {
         }
         val delta = total - last
         if (delta == 0L) return
+
+        // [R96 第十六轮·审查整改] 切档保护：
+        // 基线是进程内全局量。若玩家在本进程内切换到「购买计数更高」的存档
+        // （读档、导入存档、speedrun 备份），`total` 会突然远大于 `last`，
+        // 直接把别人/历史购买当成本帧新购发奖就是凭空发资源。
+        // 单帧正常最多买几十次，超过 [MAX_REASONABLE_DELTA] 一律判定为切档：
+        // 只重设基线、不发奖、留告警。
+        if (delta > MAX_REASONABLE_DELTA) {
+            timeTheoremPurchasesSettled = total
+            Log.w(
+                TAG_TT_REWARD,
+                "tt-reward SWITCH-GUARD delta=" + delta + " 超过单帧上限 " + MAX_REASONABLE_DELTA +
+                    "，按切档处理：只重设基线，不发奖 cumulative=" + total,
+            )
+            return
+        }
+
         val extra = delta * (TIME_THEOREM_REWARD_MULTIPLIER - 1L)
         val granted = grantExtraTimeTheorems(extra)
+        if (!granted) {
+            // [审查整改] 补发失败**不推进基线**：下一帧重试，避免这笔奖励被永久吞掉。
+            // 只累计失败次数，避免日志刷屏（每 30 次打印一次）。
+            timeTheoremGrantFailures++
+            if (timeTheoremGrantFailures <= 3 || timeTheoremGrantFailures % 30 == 0) {
+                Log.w(
+                    TAG_TT_REWARD,
+                    "tt-reward GRANT-FAILED extra=" + extra + " retry=" + timeTheoremGrantFailures +
+                        "（基线保持 " + last + "，下一帧重试）",
+                )
+            }
+            return
+        }
+        timeTheoremGrantFailures = 0
         timeTheoremPurchasesSettled = total
         Log.i(
             TAG_TT_REWARD,
@@ -2233,10 +2264,13 @@ internal object GameApi {
                 " total=" + (delta * TIME_THEOREM_REWARD_MULTIPLIER) +
                 " multiplier=" + TIME_THEOREM_REWARD_MULTIPLIER + " cumulative=" + total,
         )
-        if (!granted) {
-            Log.w(TAG_TT_REWARD, "tt-reward GRANT-FAILED extra=" + extra + " — 已推进基线避免重试风暴")
-        }
     }
+
+    /** 单帧购买次数合理上限；超过即判定为切换存档（见 settleTimeTheoremReward 注释）。 */
+    private const val MAX_REASONABLE_DELTA: Long = 50L
+
+    /** 连续补发失败计数（仅用于日志节流）。 */
+    private var timeTheoremGrantFailures: Int = 0
 
     // ---------------------------------------------------------------- [R96] 首次永恒前收益判据
     //
