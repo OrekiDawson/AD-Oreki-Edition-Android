@@ -1594,8 +1594,14 @@ object OrekiStageAuto {
             val bigENow = GameApi.bigEternitiesValue()?.toString()
             val epPrev = lastEpToken
             val bigEPrev = lastBigEToken
-            val realSettle = (epNow != null && epPrev != null && epNow != epPrev) ||
-                (bigENow != null && bigEPrev != null && bigENow != bigEPrev)
+            // [R97 修正] 早期判据把「EP 任意变化」都算结算，实测在 automation-off 下
+            // 出现误报（EP 8.0->8.2、bigE 5->5，纯漂移）。真实永恒的特征是
+            // bigEternities 增加，或 EP 回落到远小于原值（重置后重算）。
+            val bigEIncreased = bigENow != null && bigEPrev != null &&
+                (parseNum(bigENow) ?: 0.0) > (parseNum(bigEPrev) ?: 0.0)
+            val epResetDown = epNow != null && epPrev != null &&
+                (parseNum(epNow) ?: 0.0) < (parseNum(epPrev) ?: 0.0) * 0.5
+            val realSettle = bigEIncreased || epResetDown
             if (realSettle) {
                 Log.i(
                     TAG_ET,
@@ -1661,6 +1667,19 @@ object OrekiStageAuto {
     }
 
     /** [R97 EDP] 10 秒心跳：只读快照，供斜率 A/B 时间序列对齐。 */
+    /** [R97] 解析 1.23e45 形式的数值字符串，仅用于诊断判据比较。 */
+    private fun parseNum(v: String?): Double? {
+        if (v == null) return null
+        val t = v.trim()
+        val i = t.indexOf('e', ignoreCase = true)
+        return try {
+            if (i < 0) t.toDouble()
+            else t.substring(0, i).toDouble() * Math.pow(10.0, t.substring(i + 1).toDouble())
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     private fun edpHeartbeat() {
         try {
             val now = android.os.SystemClock.elapsedRealtime()

@@ -9776,3 +9776,11 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[实测]` **限制**：两组各仅运行 1 次，**未重复**；未跨越 Reality；Web 端未做对应 A/B；30 分钟内两组均未进入后续阶段。因此**不能**得出「斜率 15 必然更差」的普适结论，只支持「本次单次实测中斜率 15 完全停滞」。
 - `[实测]` **早期 A 组数据作废原因**：`am force-stop` 无法终止该游戏进程，游戏自动保存覆盖了 push 的存档，导致首次 A 组从 `db=110/gal=28` 启动。改用 `su 0 kill -9` + `pidof` 确认 GONE + push 后 SHA-256 校验后才获得同源数据。
 - `[实测]` 证据路径：`reports/longrun/slope-5/{logcat-rerun.txt,timeseries.csv,final-save-rerun.json,00-start.png,10min-rerun.png,20min-rerun.png,30min-rerun.png,after-eternity.png}`、`reports/longrun/slope-15/{logcat.txt,timeseries.csv,final-save.json,00-start.png,10min.png,20min.png,30min.png}`、对比报告 `reports/longrun/slope-5-vs-15.md`。
+
+### R97 永恒门禁场景 5 实测：关闭自动化后不再自动永恒（2026-11-09）
+- `[实测]` **方法**：以 root 写 `shared_prefs/oreki_prefs.xml` 的 `oreki.automation.enabled=false`（该键默认 true，代码 `getBoolean(KEY_ENABLED, true)`），彻底终止进程（`am force-stop` 无效，须 `su 0 kill -9` 并循环确认 `pidof` 为 GONE）后重启，采集 `EDP_FRAME`/`OREKI_ET_GATE`/`OREKI_ET`。
+- `[实测]` **结果（`reports/longrun/scene5-logcat-fixed.txt`）**：`EDP_FRAME` 全程 `auto=false`；`OREKI_ET_GATE` **11/11 全部 `reason=automation-off`**；`settled` 计数 **0**；`bigE` 保持 5 未增。→ 关闭 MOD 总开关后确实不再自动永恒。
+- `[实测]` **同时修正一个证据缺陷**：原判据「EP 或 bigE 任意变化即结算」在 automation-off 下产生误报（`settled prove=ep/bigE ep=8.0e0->8.20066090672176e0 bigE=5->5`，EP 仅漂移 +2.5%、bigE 未增，见 `reports/longrun/scene5-logcat.txt`）。已改为「`bigEternities` 增加 **或** EP 回落到原值 50% 以下」，并新增 `parseNum()` 解析辅助。修正后同一场景 `settled=0`，误报消除。
+- `[实测]` **影响面**：该误报会污染所有「永恒次数」统计（含 A/B 报告中的 `settled` 计数口径）。A/B 报告中斜率 5 的 8 次结算均已核对 `bigE 0→5` 真实增长，不受影响；斜率 15 的 0 次结论同样不受影响。
+- `[实测]` **修正后 APK**：SHA-256 `a15c1371fe695b9f70f6ab55f8f007a3c55091a29493b0f4af48778c96a930db`（已安装 AVD 实测通过）。
+- `[未验证]` 场景 6（Android/Web 门禁运行时等价）尚未做同场景对照；Web 侧 `check_eternity_gate.mjs` 63 项静态回归已通过。
