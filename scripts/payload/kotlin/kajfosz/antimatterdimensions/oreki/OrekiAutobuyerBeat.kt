@@ -44,26 +44,44 @@ object OrekiAutobuyerBeat {
      *                    本对象**不读写**该值，符合「不把纠偏逻辑写进全局调度间隔管理」。
      */
     @JvmStatic
-    fun deferRestore(intervalSec: Int) {
-        if (pendingRestoreAtMs != 0L) return
+    fun deferRestore(intervalSec: Int) = deferRestoreAt(SystemClock.elapsedRealtime(), intervalSec)
+
+    /**
+     * 纯逻辑版本（可单元验证，不读系统时钟）。
+     *
+     * 只登记一次：重复调用不刷新时间点，防止玩家连续微调导致永远不恢复（§81.1 第 5/7 条）。
+     * @return true = 本次真的登记了；false = 已有待恢复，忽略本次。
+     */
+    @JvmStatic
+    fun deferRestoreAt(nowMs: Long, intervalSec: Int): Boolean {
+        if (pendingRestoreAtMs != 0L) return false
         val gap = (if (intervalSec in 1..60) intervalSec else 10) * 1000L
-        pendingRestoreAtMs = SystemClock.elapsedRealtime() + gap
+        pendingRestoreAtMs = nowMs + gap
         deferCount++
         Log.i(TAG, "managed beat: player edit recorded -> restore at next tick (+" + gap + "ms)")
+        return true
     }
 
     /**
      * 是否已到恢复时机。到点即清除登记，保证**只恢复一次**、不会无限延迟。
      */
     @JvmStatic
-    fun consumeRestoreDue(): Boolean {
+    fun consumeRestoreDue(): Boolean = consumeRestoreDueAt(SystemClock.elapsedRealtime())
+
+    /** 纯逻辑版本：到点才返回 true，且**只返回一次**（清除登记）。 */
+    @JvmStatic
+    fun consumeRestoreDueAt(nowMs: Long): Boolean {
         val at = pendingRestoreAtMs
         if (at == 0L) return false
-        if (SystemClock.elapsedRealtime() < at) return false
+        if (nowMs < at) return false
         pendingRestoreAtMs = 0L
         Log.i(TAG, "managed beat: restore due -> apply latest strategy value")
         return true
     }
+
+    /** 仅供单元验证/测试复位。 */
+    @JvmStatic
+    fun resetForTest() { pendingRestoreAtMs = 0L; deferCount = 0 }
 
     @JvmStatic
     fun isPending(): Boolean = pendingRestoreAtMs != 0L

@@ -91,7 +91,14 @@ object OrekiPlayerIntent {
      */
     @JvmStatic
     fun refreshCrunchMode(current: Int, target: Int) {
-        if (current < 0 || crunchModeWritten == Int.MIN_VALUE) return
+        if (current < 0) return
+        // [R96 §81] 跨进程基线：首次观察时把当前值当作基线采纳。
+        // 否则进程重启后 crunchModeWritten 为初值，永远无法识别玩家改动（真机实测缺口）。
+        if (crunchModeWritten == Int.MIN_VALUE) {
+            crunchModeWritten = current
+            Log.i(TAG, "crunch baseline adopted current=$current")
+            return
+        }
         if (current == crunchModeWritten || current == target) return
         if (!crunchModePlayerOwned) {
             crunchModePlayerOwned = true

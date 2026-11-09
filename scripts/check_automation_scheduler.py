@@ -363,6 +363,20 @@ check("系统二：配置写入幂等（有 once/变化检测闩锁，不逐帧�
       "targetIntervalInitialized" in stage and "pauseReason" in stage
       and "earlyAutomationApplied" in stage)
 
+# ---------------------------------------- 24k0. R96 §81 受管节拍状态机：跑真实单元验证
+# 纯逻辑、不依赖设备：断言只登记一次 / 未到点不恢复 / 到点只恢复一次 / 1s 与 60s 边界 / 越界兜底。
+import subprocess as _sp
+_beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
+_beat_ok, _beat_out = False, "runner missing"
+if _beat_runner.is_file():
+    try:
+        _r = _sp.run([str(_beat_runner)], capture_output=True, text=True, timeout=300)
+        _beat_ok = _r.returncode == 0 and "ALL BEAT TESTS PASSED" in _r.stdout
+        _beat_out = (_r.stdout or _r.stderr or "").strip().splitlines()[-1:] or [""]
+    except Exception as _e:
+        _beat_out = [str(_e)]
+check("§81 受管节拍状态机单元验证通过（只登记一次/到点只恢复一次/1s与60s边界）", _beat_ok)
+
 # ---------------------------------------- 24j. R96 第二十一轮：§81 智能自动购买器节拍（归属纠正后）
 # 用户 2026-11-09 纠正：逐帧节拍检查 + 玩家改动后下一 tick 恢复属于**原版自动购买器侧**，
 # 不属于 MOD 全局节拍。因此这里断言「全局调度器内**没有**策略节拍代码」。
