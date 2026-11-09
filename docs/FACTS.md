@@ -9394,3 +9394,53 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 1. 端到端 UI 实测（玩家同进程改坍缩模式 → 下一 tick 恢复）仍 NOT RUN。
 2. Web 调度间隔是否也是「默认 10 秒 / 1～60 / 玩家修改保留」需单独核对（本轮未做）。
 
+## R96 第二十五轮（13:30-13:37）：意图全链路单元验证 + Web 间隔核对 + 交付
+
+### 新增验证（可复跑，每次门禁真跑）
+`scripts/fixtures/beat/BeatTest.kt` 扩到 **21 项断言 / 6 组**，新增第 6 组覆盖玩家意图全链路：
+基线采纳 → MOD 写入 → 识别玩家改动 → 让路 → 重复观察仍让路（不逐帧抢写）→ 恢复后释放。
+真机日志同源输出：
+```
+I/OREKI_PLAYER_INTENT: crunch baseline adopted current=0
+PASS baseline adopted, still rewritable = true
+PASS after mod write, rewritable = true
+I/OREKI_PLAYER_INTENT: player changed crunch mode current=0 modWrote=1 -> MOD stops rewriting
+PASS player change detected -> MOD yields = false
+PASS still yields on repeat observation = false
+PASS after restore, rewritable again = true
+ALL BEAT TESTS PASSED
+```
+`OrekiPlayerIntent` 增加 `resetForTest()`（仅测试复位）。契约 156/156（`24k0` 执行该夹具）。
+
+### Web 全局间隔双端核对（FACTS 待办 2 已关闭）
+`src/core/oreki-smart-executor.js`：`INTERVAL_MIN_SEC=1`、`INTERVAL_MAX_SEC=60`、
+`INTERVAL_DEFAULT_SEC=10`（注释「R85：双端新存档默认 10 秒；已有合法配置必须保留」）；
+`clampIntervalSec()` 非有限值回落默认、其余钳制 1..60（「绝不接受 0 或 Infinity」）；
+`readStoredAutomation()` 仅接受 1..60 整型持久值；键名「与 Android 端逐字一致…不要改名」。
+⇒ **默认 10 秒 / 范围 1～60 / 玩家合法值保留，双端一致**。
+
+### 交付（四渠道，APK 89ccd486）
+- SHA-256 `89ccd486f5ee01d70fb2d4454d706093076a731e0160a20dd1a0852602e99ecf`，82,560,497 B
+- 本地 `latest/` 原子覆盖；GitHub Release `android-update-3.21.0-89ccd486`；
+  OneDrive rc=0；Google Drive rc=0，MD5 `5fbfbce68b994eb8014dfa75f45c7b35`（与本地一致）
+- 门禁：verify_release 15/15、verify_patch_contract 17/17、check_publish_rules 全过、契约 156/156
+- 距上次交付（13:22 `83304b64`）约 14 分钟，满足双小时期限
+
+### 验收汇总（截至本轮）
+| 项 | 结果 |
+|---|---|
+| 默认 10 秒 / 玩家 1 秒 / 玩家 60 秒（重启后仍生效） | PASS（真机） |
+| 原版自动器购买不受 MOD 节拍限速 | PASS（真机） |
+| 全局调度器内无策略节拍代码 | PASS（日志计数 0 + 契约） |
+| 受管节拍状态机（只登记一次/到点只恢复一次/1s·60s 边界） | PASS（16 断言） |
+| 玩家改动识别→让路→恢复释放 | PASS（5 断言，逻辑层） |
+| 真机手点改坍缩模式的端到端 UI 实测 | **NOT RUN** |
+| Android/Web 行为一致 | 差异已定性（效果一致、手段不同；Web 不改玩家配置更贴合 §80.2） |
+| Web 全局间隔默认/范围/玩家保留 | PASS（源码取证） |
+
+### 待办
+1. 端到端 UI 点击实测仍 NOT RUN（逻辑链路已全覆盖，仅差真机手点）。
+2. README 与教程附录 F 待同步节拍规则。
+3. eternityTick/glyphTick/teresaTick 仍绕过节拍（需布尔化改造）。
+4. 时间研究 blocked() 极性修复需新档验证；膨胀解锁证据；审核材料 hq0.K() 口径修正；×500 附录 F。
+
