@@ -468,63 +468,12 @@ internal object GameApi {
         return statisticsUiRefreshMethod
     }
 
-    /**
-     * 3.21 原版阶段谓词 `kajfosz.antimatterdimensions.f82`。
-     *
-     * 静态取证（`work/base_decoded_321/smali/f82.smali`）：
-     *   · `j()Z` = `Player.x()`（eternities）`> 0` **或** `p()`
-     *   · `p()Z` = `Player.P()`（realities）`> 0`
-     *
-     * 原版用它控制顶部永恒点数（`MainActivity.t2` / `0x7f0a05c6`）、
-     * 永恒统计区块（`MainActivity.i6` / `0x7f0a05c8`）与现实统计区块
-     * （`MainActivity.o6` / `0x7f0a0e6a`）的可见性。
-     *
-     * 这里**只读**原版结论用于对照与留痕；真实门控由 [OrekiGuiStage] 用结算产物判定。
-     */
-    private var stagePredicateClassCache: Class<*>? = null
-    private var stagePredicateClassResolved: Boolean = false
-    private fun stagePredicateCls(): Class<*>? {
-        if (!stagePredicateClassResolved) {
-            stagePredicateClassResolved = true
-            // [R98 根因] 3.21 的 f82 位于**默认包**（smali: `.class public abstract Lf82;`），
-            // 不是 kajfosz.antimatterdimensions.f82。且 className() 仅在名称**不含点**时才走
-            // confirmed 映射，含点的名字原样返回 —— 传全限定名会 100% ClassNotFound，
-            // 真机日志长期 origE=unknown / origR=unknown 即由此而来。
-            // 这里改传短名 "f82"，交给 className() 做版本映射。
-            stagePredicateClassCache = cls("f82")
-        }
-        return stagePredicateClassCache
-    }
 
-    private var mOriginalEternityUnlocked: Method? = null
-    private var mOriginalEternityUnlockedResolved: Boolean = false
-    fun originalEternityUnlocked(): Boolean? {
-        if (!mOriginalEternityUnlockedResolved) {
-            mOriginalEternityUnlockedResolved = true
-            mOriginalEternityUnlocked = method(
-                stagePredicateCls(),
-                "j",
-                0,
-                "f82.j()=eternityUnlocked",
-            )
-        }
-        return call(mOriginalEternityUnlocked, null) as? Boolean
-    }
-
-    private var mOriginalRealityUnlocked: Method? = null
-    private var mOriginalRealityUnlockedResolved: Boolean = false
-    fun originalRealityUnlocked(): Boolean? {
-        if (!mOriginalRealityUnlockedResolved) {
-            mOriginalRealityUnlockedResolved = true
-            mOriginalRealityUnlocked = method(
-                stagePredicateCls(),
-                "p",
-                0,
-                "f82.p()=realityUnlocked",
-            )
-        }
-        return call(mOriginalRealityUnlocked, null) as? Boolean
-    }
+    // [R100b 性能修复] 这里原有 originalEternityUnlocked() / originalRealityUnlocked()，
+    // 通过反射调用 `f82.j()` / `f82.p()` 当作"原版独立判据"。但构建期已把这两个方法
+    // 替换为转发到 OrekiStageAuto 的 trampoline，调用它们等于重入 MOD 自身，
+    // 并与 OrekiGuiStage.compute() 构成无限递归（实测单轮 106 578 条 StackOverflowError）。
+    // 它们只服务于已经被删除的诊断日志，故一并移除，避免再次被误用。
 
     private var autobuyerUiRefreshPosted: Boolean = false
 

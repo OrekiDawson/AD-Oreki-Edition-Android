@@ -857,11 +857,60 @@ object OrekiStageAuto {
      * 供构建期在 `f82.j()` 头部插入的 trampoline 调用（业务判定全部在本方法内）。
      */
     @JvmStatic
-    fun vanillaEternityUnlocked(): Boolean = try {
-        val phase = OrekiGuiStage.refresh().phase
-        phase == OrekiGuiStage.PHASE_ETERNITY || phase == OrekiGuiStage.PHASE_REALITY
-    } catch (_: Throwable) {
-        false
+    fun vanillaEternityUnlocked(): Boolean = stageEternityReachedDirectRead()
+
+    /**
+     * [R100b 性能修复] 本方法被原版 `f82.j()` 的 trampoline 调用，而
+     * `f82.j()` 本身被 12 处原版代码调用（含绘制路径）。因此这里**必须**：
+     *
+     * · 只用 GameApi 的字段读取器直读真实结算产物，不再调用 `OrekiGuiStage.refresh()`；
+     * · 不反射调用任何"原版判据"（那已被替换成 trampoline，会重入本方法）；
+     * · 不写任何游戏状态。
+     *
+     * 修复前的实现是 `OrekiGuiStage.refresh().phase`，而 `OrekiGuiStage.compute()`
+     * 又去反射调用 `f82.j()`，形成
+     * `f82.j() → 本方法 → refresh() → compute() → f82.j()` 的无限递归，
+     * 实测每次调用一路撞到 StackOverflowError（logcat 单轮 106 578 条），
+     * 主线程每帧付出上万层栈帧的代价，这正是用户实测的严重卡顿根因。
+     *
+     * 判据与 `OrekiGuiStage` 保持同一口径（真实结算产物，非 `Player.eternities`）：
+     * 永恒点数为正 / bigEternities 为正 / 永恒升级位图非空 / 现实已结算。
+     * 任一读取失败按未到达处理（fail-closed）。
+     */
+    private fun stageEternityReachedDirectRead(): Boolean {
+        return try {
+            positiveRead { GameApi.eternityPointsValue() } ||
+                positiveRead { GameApi.bigEternitiesValue() } ||
+                eternityUpgradeBitsBought() ||
+                positiveRead { GameApi.realitiesValue() } ||
+                positiveRead { GameApi.bigRealitiesValue() }
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /** 单次字段读取 + 与 0 比较；异常一律视为未满足。 */
+    private inline fun positiveRead(read: () -> Any?): Boolean {
+        return try {
+            val value = read() ?: return false
+            if (value is Number) {
+                value.toDouble() > 0.0
+            } else {
+                (GameApi.compareToDouble(value, 0.0) ?: 0) > 0
+            }
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /** 永恒升级位图非空 = 玩家真的买过永恒升级（真实购买记录）。 */
+    private fun eternityUpgradeBitsBought(): Boolean {
+        return try {
+            val bits = GameApi.eternityUpgradeBitsValue() ?: return false
+            GameApi.bitSetCardinality(bits) > 0
+        } catch (_: Throwable) {
+            false
+        }
     }
 
     // ---------------------------------------------------------------- 真实购买动作

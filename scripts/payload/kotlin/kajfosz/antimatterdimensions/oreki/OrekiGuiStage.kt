@@ -36,9 +36,6 @@ import android.util.Log
 object OrekiGuiStage {
 
     private const val TAG = "OREKI_GUI_STAGE"
-    // [R98 §4.2] GUI_GATE_DIVERGENCE 的变化去重签名；null = 当前无分歧或尚未记录。
-    @Volatile
-    private var lastDivergenceSignature: String? = null
 
     /**
      * 四段阶段，与 R98 §3 的验收口径一一对应。
@@ -71,9 +68,7 @@ object OrekiGuiStage {
      * @param realityReached 是否真实完成过现实结算
      * @param infinityReached 是否已进入无限进度（仅用于阶段标签，不参与永恒/现实门控）
      * @param eternitiesFieldPositive 诊断：`Player.eternities` 是否为正（**不参与判定**）
-     * @param originalEternityPredicate 诊断：原版 `f82.j()` 的返回值（读不到为 null）
-     * @param originalRealityPredicate 诊断：原版 `f82.p()` 的返回值（读不到为 null）
-     * @param source 判定来源摘要，写入 `GUI_GATE_CHANGED` 日志
+     * @param source 判定来源摘要，写入 `GUI_GATE_CHANGED` 日志（不含任何被替换方法的反射值）
      */
     data class Snapshot(
         val phase: Int,
@@ -81,8 +76,6 @@ object OrekiGuiStage {
         val realityReached: Boolean,
         val infinityReached: Boolean,
         val eternitiesFieldPositive: Boolean,
-        val originalEternityPredicate: Boolean?,
-        val originalRealityPredicate: Boolean?,
         val source: String,
     ) {
         /** 阶段标签，等价于旧 `phase.label`。 */
@@ -176,16 +169,16 @@ object OrekiGuiStage {
             false
         }
 
-        val originalEternity = try {
-            GameApi.originalEternityUnlocked()
-        } catch (_: Throwable) {
-            null
-        }
-        val originalReality = try {
-            GameApi.originalRealityUnlocked()
-        } catch (_: Throwable) {
-            null
-        }
+        // [R100b 性能修复] 这里曾经反射调用 `f82.j()` / `f82.p()` 做"原版判据对照"。
+        // 但构建期已把 `f82.j()` 整体替换为转发到 `OrekiStageAuto.vanillaEternityUnlocked()`
+        // 的 trampoline，于是形成
+        //   f82.j() → vanillaEternityUnlocked() → refresh() → compute() → f82.j()
+        // 的无限递归，每次一路撞到 StackOverflowError（logcat 单轮 106 578 条），
+        // 而 `f82.j()` 有 12 处原版调用点且包含绘制路径 —— 这正是用户实测的严重卡顿根因。
+        //
+        // 该对照值本来就只进诊断日志、不参与任何判定，删除不影响门禁语义；
+        // 且它已不可能代表"原版独立判据"（方法已被替换），继续保留只会误导排查。
+        // 现在 compute() 只读真实结算产物，不再调用任何被替换/可重入的方法。
 
         val source = buildString {
             append("ep=").append(flag(eternityPointsPositive))
@@ -194,27 +187,6 @@ object OrekiGuiStage {
             append(",r=").append(flag(realitiesPositive))
             append(",bigR=").append(flag(bigRealitiesPositive))
             append(",eternitiesField=").append(flag(eternitiesFieldPositive))
-            append(",origE=").append(originalEternity?.toString() ?: "unknown")
-            append(",origR=").append(originalReality?.toString() ?: "unknown")
-        }
-
-        // 原版判据与真实产物不一致时留痕：这就是"兼容字段误开原版 GUI"的现场证据。
-        // [R98 §4.2] compute() 每帧执行，这里必须做**变化去重**：只在判据组合变化时打一条，
-        // 否则约 40 条/秒的重复 warn 会淹没真正有效的诊断日志并抬高每帧开销。
-        if (originalEternity != null && originalEternity != eternityReached) {
-            val signature = originalEternity.toString() + "|" + eternityReached + "|" + source
-            if (signature != lastDivergenceSignature) {
-                lastDivergenceSignature = signature
-                Log.w(
-                    TAG,
-                    "GUI_GATE_DIVERGENCE originalEternity=$originalEternity " +
-                        "actualEternity=$eternityReached $source",
-                )
-            }
-        } else if (lastDivergenceSignature != null) {
-            // 恢复一致：清除签名并留一条记录，便于判断"误报期"的起止。
-            lastDivergenceSignature = null
-            Log.i(TAG, "GUI_GATE_DIVERGENCE cleared originalEternity=$originalEternity actualEternity=$eternityReached")
         }
 
         val phase = when {
@@ -230,8 +202,6 @@ object OrekiGuiStage {
             realityReached = realityReached,
             infinityReached = infinity,
             eternitiesFieldPositive = eternitiesFieldPositive,
-            originalEternityPredicate = originalEternity,
-            originalRealityPredicate = originalReality,
             source = source,
         )
     }
