@@ -294,3 +294,13 @@ APK：`release/反物质维度.apk`，sha256 `a055e54cac4a798884c92010922ca0d6f9
 | 四渠道交付 | PASS |
 | ARM64 真机 | NOT RUN（如实记录，未冒充） |
 | 候选与发布同源同哈希 | PASS |
+
+### 发布包静态回归（Universal APK 重新打包后）
+
+`release/反物质维度.apk`（a055e54c…）内 DEX 检查：
+
+- `classes.dex` 含 22 个 `kajfosz/antimatterdimensions/oreki/*` Kotlin 类，包含 `OrekiStageAuto`、`OrekiEternity*`、`OrekiSpeedModeListener`、`OrekiUiTitle`、`GameApi` 等。
+- `classes2.dex` 含 `OrekiStageAuto` 引用。
+- 说明：本轮新增 native 库与 `extractNativeLibs=true` **未剥离任何 Kotlin 业务类或门禁补丁**；阶段门禁的 GUI 验收结论（上一轮 PASS）在本包上继续成立。
+
+该项为静态检查，按规则与 AVD GUI 实测分开记录，不替代 GUI 验收。
