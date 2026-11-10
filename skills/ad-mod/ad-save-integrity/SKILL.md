@@ -21,10 +21,11 @@ license: 项目内部技能，遵循仓库 AGENTS.md §2.1 与 docs/长期规则
 | 大数格式 | `{"mantissa": x, "exponent": y}`，不是普通数字 |
 | 计数字段 | `infinities`、`eternities`、`bigEternities`、`realities`、`bigRealities` |
 | 关键派生 | `eternityPoints`、`infinityPoints`、`antimatter` |
-| 离线结算 | 启动时按 `lastUpdate` 补算，会真实推进资源、无限次数、永恒次数 |
+| 离线结算 | 启动时按 `lastUpdate` 补算，会真实推进资源与无限次数；**不推进 `eternities`**（2026-11-11 官方 3.21 实测：+2h 设备时间后重启，`eternities` 保持 11 不变） |
 | 读取路径 | `player/i.java`、`player/h.java`、`player/f.java` 等多处按版本分支 |
 
-**注意**：`Player.eternities`（BigDouble）与 `bigEternities`（long）语义不同；前者曾被观测到新档即为非零，不能单独当「已永恒」判据。
+**注意**：`Player.eternities`（BigDouble）与 `bigEternities`（long）语义不同，原版中两者解耦（`player/d.smali` 无 `bigEternities` 引用），不能单独当「已永恒」判据。
+2026-11-11 更正：官方 3.21 `pm clear` 后的全新存档 `eternities = {0.0,0.0}`，**并非新档即非零**；此前「新档读作 11」的观测来自 MOD 存档，属错误归因。官方读档、运行、离线结算三种情形均不会让该字段自行增长。
 
 ## 执行步骤
 
