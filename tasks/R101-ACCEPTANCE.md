@@ -304,3 +304,30 @@ APK：`release/反物质维度.apk`，sha256 `a055e54cac4a798884c92010922ca0d6f9
 - 说明：本轮新增 native 库与 `extractNativeLibs=true` **未剥离任何 Kotlin 业务类或门禁补丁**；阶段门禁的 GUI 验收结论（上一轮 PASS）在本包上继续成立。
 
 该项为静态检查，按规则与 AVD GUI 实测分开记录，不替代 GUI 验收。
+
+## 2026-11-11 存档跨阶段污染 P0：已证实事实与未决点
+
+### 已证实（有实测证据）
+
+| 事实 | 证据 |
+|---|---|
+| 用户导出存档完整可解码 | 7,833 B，sha256 `d316abc1b37a77e9215cc0a258e5c52e37482333bbd49ce35d92ab3350fceebf`，解码 28,491 B / 63 键 |
+| `eternities` 字段确实写着 11 | `{exponent:1.0,mantissa:1.1}`，JSON 路径 `$.eternities`，类型 BigDouble |
+| 同期 `eternityPoints` = 0、`bigEternities` = 0 | 同文件 `$.eternityPoints`、`$.bigEternities` |
+| 未进入现实 | `$.realities`=0、`$.bigRealities`=0 |
+| 无永恒记录 | `$.records.thisEternity.bestEternity` = null |
+| 官方 3.21 全新存档 `eternities` = 0 | `pm clear` 后首次生成 player.json 实测 `{0.0,0.0}` |
+
+### 由此推翻的旧结论
+
+R94/R96 代码注释称「3.21 新档 eternities 被初始化成非零（实测 11）」。该观测来自 **MOD 存档**，不是原版；原版新档为 0。因此 11 是 MOD 侧产生，不能用「原版怪癖」解释或豁免。
+
+### 未决（不得声称已定位）
+
+- 未找到 MOD 写入 `eternities` 的调用点：Kotlin 层只有读（`GameApi.eternities()` / `eternitiesValue()`），无写；`Player.E0(BigDouble)` 在 MOD 树中仅 3 处调用（`up0.smali:422`、`player/f.smali:38487`、`player/e.smali:6201`），均为原版路径，尚无证据表明被 MOD 补丁改写。
+- 未排除存档迁移路径（`player/h.java:1190`：JSON 数字 → BigDouble）把其它计数字段写入 `eternities`。
+- 因此存档 P0 判定 **FAIL（已定位异常字段，未定位写入点）**。
+
+### 编解码器迁移
+
+`tools/savecodec-rs/` 已实现 decode/encode 并通过真实样本与边界用例；`scripts/savecodec.py` 仍被 5 个分析探针 import（`ab_probe`、`ec12_limit_probe`、`cadence_bench`、`tick_probe`、`bh_probe`），迁移标记 **BLOCKED**，需先改探针再删模块。
