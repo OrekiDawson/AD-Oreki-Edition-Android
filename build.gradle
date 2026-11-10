@@ -531,11 +531,33 @@ def injectR101EternityTabGate = {
         "    return-void\n" +
         "    :oreki_r101_tab_select_original\n"
     src = src.replace(hAnchor, hInject)
+
+    // 原版恢复路径直接调用 MainActivity.W8()，不会经过 bm4.h()；
+    // 在这里把非法的永恒页签选择回退到普通反物质维度页，保持侧栏/底栏完整。
+    def w8Anchor = ".method public final W8(Lbm4;ZZ)V\n    .locals 10\n\n"
+    def mainActivity = new File(modTree, 'smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali')
+    if (!mainActivity.isFile()) throw new GradleException("R101 P0 缺少页面路由类：${mainActivity}")
+    def mainSrc = mainActivity.getText('UTF-8').replace('\r\n', '\n')
+    if (mainSrc.count(w8Anchor) != 1) throw new GradleException('R101 P0 MainActivity.W8() 锚点不唯一')
+    def w8Inject = w8Anchor +
+        "    # [R101P0_RESTORE_GATE] 页面恢复也必须经过 Kotlin 业务门禁\n" +
+        "    if-eqz p1, :oreki_r101_restore_original\n" +
+        "    iget-object v0, p1, Lbm4;->i:Ljava/lang/String;\n" +
+        "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
+        "    move-result v0\n" +
+        "    if-eqz v0, :oreki_r101_restore_fallback\n" +
+        "    goto :oreki_r101_restore_original\n" +
+        "    :oreki_r101_restore_fallback\n" +
+        "    sget-object p1, Ljp4;->b:Lbm4;\n" +
+        "    :oreki_r101_restore_original\n\n"
+    mainSrc = mainSrc.replace(w8Anchor, w8Inject)
+    mainActivity.setText(mainSrc, 'UTF-8')
     bm4.setText(src, 'UTF-8')
-    if (!bm4.getText('UTF-8').contains('oreki_r101_tab_select_locked')) {
-        throw new GradleException('R101 P0 bm4.h() 注入失败')
+    if (!bm4.getText('UTF-8').contains('oreki_r101_tab_select_locked') ||
+        !mainActivity.getText('UTF-8').contains('oreki_r101_restore_fallback')) {
+        throw new GradleException('R101 P0 页签/恢复门禁注入失败')
     }
-    logger.lifecycle('[R101 P0] Gradle 已注入 bm4.g()/h() Kotlin 页签业务门禁')
+    logger.lifecycle('[R101 P0] Gradle 已注入 bm4.g()/h() 与 MainActivity.W8() Kotlin 页签业务门禁')
 }
 def assembleApktoolTree = {
     if (selectedBaselineCfg.move_ads_package) {
