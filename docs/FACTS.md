@@ -9838,8 +9838,8 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 
 - `[静态+实测]` 原版页面恢复入口为 `MainActivity.W8(Lbm4;ZZ)`；它直接消费保存的 `Lo/Lm` 页签对象，绕过 `bm4.h()`，这是 R100 页面恢复泄漏的实际绕过点。
 - `[实现]` R101 将 `bm4.g()/h()` 与 `MainActivity.W8()` 统一接入 Kotlin `OrekiStageAuto.vanillaEternityTabAllowed()`；非法永恒页签回退原版 `jp4.b`，不写存档、不清零永恒字段、不改资源、不扫描 View。Gradle 负责构建期 ABI 接线。
-- `[实测]` AVD `ad-game-api37` / `emulator-5554` 在线；移除 View 阶段门控调用后的最新候选 APK SHA-256 为 `4b7a79bcc838191fe708d6f7f3aca39ae5344b3a702fc148f693bfd5bbed9180`。原提交 `378ebb0`、旧 APK SHA `a3a6d447…bff41b` 与中间候选均保留。
+- `[实测]` AVD `ad-game-api37` / `emulator-5554` 在线；移除 View 阶段门控实现后的最新候选 APK SHA-256 为 `3b7dfea04c91e7148ca42f34c6782e3e9e23d35bc30771f8eb585c3317876d60`。原提交 `378ebb0`、旧 APK SHA `a3a6d447…bff41b` 与中间候选均保留。
 - `[实测]` 新档恢复后首次永恒入口被正确锁定；同一新档随后真实完成首次永恒，时间研究、永恒升级和 Activity 重启读档可用。证据见 `tasks/R101-ACCEPTANCE.md` 与 `reports/R101-new-save/57-legal-eternity-logcat.txt`、`61-legal-eternity-time-page.png`、`62-legal-eternity-upgrades.png`、`64-legal-restart-running.png`。
 - `[实测]` 自动购买器页真实完成启用→禁用→强制停止重启后保持禁用→恢复启用；证据见 `reports/R101-new-save/72-autobuyer-real-page.png` 至 `75-autobuyer-enabled-restored.png`。Break Infinity 独立流程、非法程序直达和官方 XAPK 对照仍未完成。
-- `[实测]` 最新候选已移除阶段刷新链路中的 View 隐藏和递归整树扫描调用，交由已注入的 `f82.j()/f82.p()` Kotlin 真实门禁驱动原版 UI；新档日志为 `before-first-infinity` 且无 StackOverflow，证据见 `reports/R101-new-save/83-fresh-restart-logcat.txt`、`82-fresh-new-save-running.png`。
+- `[实测]` 最新候选已删除阶段刷新链路中的 View 隐藏、字段解析和递归整树扫描实现，交由已注入的 `f82.j()/f82.p()` Kotlin 真实门禁驱动原版 UI；新档日志为 `infinity`、`ep=0,bigE=0,canEt=false` 且无 StackOverflow，证据见 `reports/R101-new-save/86-final-no-view-gate-fresh-logcat.txt`、`87-final-no-view-gate-infinity-logcat.txt`、`91-final-no-view-gate-clean.png`。
 - `[实测]` frame-observer 进程存在；最终 15 秒窗口 301 帧、现代 jank=227（75.42%）、p95=16ms、p99=16ms、Missed Vsync=0、Slow issue draw commands=227，GPU p95=15ms，应用 CPU 采样约 3%。绘制命令仍占主要异常，性能门禁 FAIL，候选不得称稳定版；证据见 `tasks/R101-ACCEPTANCE.md` 与 `reports/R101-new-save/77-final-gfxinfo-15s.txt`。

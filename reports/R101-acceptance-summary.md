@@ -2,7 +2,7 @@
 
 本轮真实设备复现确认，R100 遗漏点有两层：`MainActivity.W8()` 的页面恢复路径绕过 `bm4.h()`，以及底部父级 `ll2.g()` 绕过 `bm4.g()`。进一步定位发现父级业务名称在 `Luo4.b`，`ll2.j` 只是图标字形；当前候选已将恢复入口、Activity 创建/恢复循环、子页签和父级永恒分组统一接入 Kotlin 页签业务门禁，并把非法永恒页签回退到原版反物质维度页。
 
-本轮旧候选保留：`af3055b9ac21aabd5fa0a25ba5a1098223652345b70fbbc1e59175be7401c6eb`；父级名称门禁候选：`a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`；移除 View 阶段门控调用后的最新候选：`4b7a79bcc838191fe708d6f7f3aca39ae5344b3a702fc148f693bfd5bbed9180`。历史原始 APK SHA `a3a6d447f5b30f61fe7e0ccd902a6a0c36b24bc26f3672f0219ff5b744bff41b` 与 commit `78d9f9d` 保留。
+本轮旧候选保留：`af3055b9ac21aabd5fa0a25ba5a1098223652345b70fbbc1e59175be7401c6eb`；父级名称门禁候选：`a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`；移除 View 阶段门控实现后的最新候选：`3b7dfea04c91e7148ca42f34c6782e3e9e23d35bc30771f8eb585c3317876d60`。历史原始 APK SHA `a3a6d447f5b30f61fe7e0ccd902a6a0c36b24bc26f3672f0219ff5b744bff41b` 与 commit `78d9f9d` 保留。
 
 新档恢复/重启运行页实测 PASS：`phase=infinity、eternity=false、break=true、canEt=false、ep=0、bigE=0` 时不显示紫色永恒入口，普通侧栏/底栏保留；证据 `reports/R101-new-save/38-category-name-gate-running.png`、`41-category-name-gate-restart-running.png`、`37-category-name-gate-logcat.txt`。随后同一新档真实完成首次永恒，日志出现 `ep=1,bigE=1` 的阶段切换；时间研究、永恒升级和合法永恒重启读档均 PASS，证据 `57-legal-eternity-logcat.txt`、`61-legal-eternity-time-page.png`、`62-legal-eternity-upgrades.png`、`64-legal-restart-running.png`。自动购买器真实 GUI 的启用/禁用与重启恢复也 PASS，证据 `72-autobuyer-real-page.png`、`73-autobuyer-disabled.png`、`74-autobuyer-after-restart.png`、`75-autobuyer-enabled-restored.png`。
 

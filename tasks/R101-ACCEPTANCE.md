@@ -8,7 +8,7 @@
 - 原候选 APK SHA-256：`a3a6d447f5b30f61fe7e0ccd902a6a0c36b24bc26f3672f0219ff5b744bff41b`；构建暂存区已保留上一份候选。
 - 本轮候选 APK SHA-256：`af3055b9ac21aabd5fa0a25ba5a1098223652345b70fbbc1e59175be7401c6eb`。
 - 父级导航修复候选 APK SHA-256：`a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`。
-- 移除 View 阶段门控调用后的候选 APK SHA-256：`4b7a79bcc838191fe708d6f7f3aca39ae5344b3a702fc148f693bfd5bbed9180`。
+- 移除 View 阶段门控实现后的候选 APK SHA-256：`3b7dfea04c91e7148ca42f34c6782e3e9e23d35bc30771f8eb585c3317876d60`。
 - AVD：`ad-game-api37`，设备 `emulator-5554`，`sys.boot_completed=1`。
 - SDK/ADB/emulator：`/opt/android-sdk`，ADB 37.0.1，emulator 37.2.13。
 
@@ -55,7 +55,7 @@
 
 ## 发布状态
 
-- Android Release：BLOCKED（性能门禁 FAIL，Break/非法直达/官方 XAPK 对照未完成）。最新候选 SHA-256 为 `4b7a79bcc838191fe708d6f7f3aca39ae5344b3a702fc148f693bfd5bbed9180`，仅本地验收，不发布。
+- Android Release：BLOCKED（性能门禁 FAIL，Break/非法直达/官方 XAPK 对照未完成）。最新候选 SHA-256 为 `3b7dfea04c91e7148ca42f34c6782e3e9e23d35bc30771f8eb585c3317876d60`，仅本地验收，不发布。
 - OneDrive：NOT RUN。
 - Google Drive：NOT RUN。
 - SSH/SFTP：NOT RUN。
