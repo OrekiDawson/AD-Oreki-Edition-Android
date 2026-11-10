@@ -1,0 +1,56 @@
+--------- beginning of main
+11-10 23:05:03.072  5173  5210 I OREKI_GUI: STATE_CHANGED source=tick-sync:global-tick phase=infinity
+11-10 23:05:03.072  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=true dirty=false force=true
+11-10 23:05:03.296  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:05:08.088  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=749483.9999999502
+11-10 23:05:13.074  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:05:13.077  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:05:13.100  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=754495.9999999502
+11-10 23:05:18.103  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=759499.9999999502
+11-10 23:05:23.078  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:05:23.080  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:05:23.104  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=764499.9999999502
+11-10 23:05:28.113  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=769508.9999999502
+11-10 23:05:33.098  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:05:33.100  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:05:33.124  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=774519.9999999502
+11-10 23:05:38.126  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=779520.9999999502
+11-10 23:05:43.098  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:05:43.100  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:05:43.148  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=784543.9999999502
+11-10 23:05:48.153  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=789548.9999999502
+11-10 23:05:53.117  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:05:53.120  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:05:53.169  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=794564.9999999502
+11-10 23:05:58.194  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=799589.9999999502
+11-10 23:06:03.139  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:06:03.142  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:06:03.214  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=804609.9999999502
+11-10 23:06:08.229  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=809624.9999999502
+11-10 23:06:13.158  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:06:13.160  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:06:13.233  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=814629.9999999502
+11-10 23:06:18.248  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=819643.9999999502
+11-10 23:06:23.170  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:06:23.172  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:06:23.270  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=824666.9999999502
+11-10 23:06:28.286  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=829681.9999999502
+11-10 23:06:33.189  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:06:33.191  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:06:33.290  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=834685.9999999502
+11-10 23:06:38.313  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=839708.9999999502
+11-10 23:06:43.210  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:06:43.216  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:06:43.335  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=844731.9999999502
+11-10 23:06:48.348  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=849744.9999999502
+11-10 23:06:53.214  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:06:53.217  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:06:53.365  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=854760.9999999502
+11-10 23:06:58.370  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=859766.9999999502
+11-10 23:07:03.238  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:07:03.241  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:07:03.370  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=864763.9999999502
+11-10 23:07:08.393  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=869788.9999999502
+11-10 23:07:13.241  5173  5210 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 23:07:13.243  5173  5173 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 23:07:13.418  5173  5210 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=874813.9999999502

@@ -113,3 +113,9 @@
 - 2026-11-10 当前候选 Perfetto：已独占 AVD 录制 15 秒 `reports/R101-new-save/214-current.pftrace`（10,648,942 bytes），覆盖 `sched/freq/idle/am/wm/gfx/view/binder_driver`；trace 采集成功，待工具链解析出线程级耗时后再决定性能代码变更，当前不凭猜测修改。
 - 2026-11-10 门禁状态：新档永恒入口 PASS；侧栏/底栏与重启恢复 PASS；合法永恒正向回归 PASS；性能 FAIL；Break 原版独立手动点击路径 NOT RUN；官方 XAPK 对照 BLOCKED；自动购买器当前 APK 购买/开关/存档恢复需补做；四渠道发布 BLOCKED。
 - 2026-11-10 当前 APK 自动购买器复测：真实进入自动购买器页，点击“自动购买器已启用”后页面显示“已禁用”并截图 `reports/R101-new-save/217-current-autobuyer-disabled.png`；强制停止、重启并点击“开始游戏”后同一页恢复为“已启用”，证据 `reports/R101-new-save/218-current-autobuyer-restart.png`、`219-current-autobuyer-restart-running-ui.json`。开关存档恢复当前记为 FAIL，未凭猜测修改业务。
+
+### 2026-11-10 本轮收尾复核
+
+- 合法存档恢复：PASS。使用受保护 `r101-preclear-appdata.tgz` 恢复后，点击真实“开始游戏”进入运行页；截图 `reports/R101-new-save/252-cache-legal-running.png` 显示完整底栏和普通无限页面，日志 `OREKI_GATE brake=true g=true c=true b=true`，未清零永恒字段。
+- 微缓存候选 APK：`3bc14fc6b39375c527daeed4ed140b3072f94793272c1ece49846ad66b663ffb`；新档门禁与合法存档页面均保持可用，但 15 秒窗口 300 帧、jank 259（86.33%），性能仍 FAIL，不能发布稳定版。
+- 当前状态：阶段门禁 PASS，合法存档 PASS，自动购买器开关及恢复 PASS；性能 FAIL，Break 原版独立手动点击、官方 XAPK 对照及四渠道发布 BLOCKED/NOT RUN。
