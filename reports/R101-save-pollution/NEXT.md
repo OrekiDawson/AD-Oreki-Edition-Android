@@ -100,3 +100,17 @@
 1. 解码 `fw.K0` 字面值（在 `fw.smali` `<clinit>` 中回溯 v4/v6/v7 的 const 赋值）。
 2. 确认 `up0.getValue()`/`G()` 返回的是 `Player.x()`（eternities）还是 `Player.b()`（antimatter）。
 3. 若为 eternities 且 K0==11 → 根因确认，改为 Kotlin 侧修正该钳制常量/分支。
+
+### 线索复核结果（本轮）
+
+- 已确认：`dw.D(BigDouble)` = `getValue().clampMin(常量)` + `m()`，**是就地常量下限钳制**，不是自增。
+- 已确认：`prestige/f.smali:400-420`（Big Crunch 重置体）调用 `iq0.z.D(fw.K0)`。
+- 已确认：货币类 `up0` 的 setter `t(Object)` 调用 `Player;->E0(BigDouble)`，即写入 `Player.eternities`。
+- **未能确认**：`iq0.z` 是否就是 eternities 货币。`up0.G()` / `up0.n()` 的取值来源是 `fw.b`（0）+ `reality/upgrades/b` / `reality/glyphs/a`，**没有直接调用 `Player.x()`**，因此它更可能是 Reality 系货币。
+- **未能解码**：常量 `fw.K0` 的数值（构造器 `BigDouble;-><init>(IIZI...)V`，寄存器 v4/v6/v7 在 `<clinit>` 更早处赋值）。
+
+结论：clampMin 机制与「固定 +11、不随次数变化」现象高度吻合，但**货币归属未证实**，不能当作根因。
+
+下一步（两条，都很小）：
+1. 在 `fw.smali` `<clinit>` 中回溯 K0 的 v4/v6/v7 常量。
+2. 用 `up0.smali` 的 `d` 字段（货币枚举 ID）与 `iq0` 的其它货币单例比对，确定 `iq0.z` 的语义。
