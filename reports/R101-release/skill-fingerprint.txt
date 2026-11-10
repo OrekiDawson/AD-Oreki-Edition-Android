@@ -1,0 +1,25 @@
+=== APK Fingerprint: 反物质维度.apk ===
+
+Framework:        Native Android (Kotlin + Jetpack Compose)
+  Rationale:      androidx.compose.* libraries detected
+Obfuscation:      LOW (no significant short-name namespace pollution)
+
+HTTP stack:       none detected
+DI:               none detected
+Serialization:    kotlinx.serialization Gson
+BuildConfig:      not detected in zip listing (still worth grepping after decompile)
+
+Third-party SDKs: Firebase Google Play Services
+
+Native libraries (consolidated across splits):
+  lib/arm64-v8a/libandroidx.graphics.path.so
+  lib/arm64-v8a/libdatastore_shared_counter.so
+  lib/armeabi-v7a/libandroidx.graphics.path.so
+  lib/armeabi-v7a/libdatastore_shared_counter.so
+  lib/x86_64/libandroidx.graphics.path.so
+  lib/x86_64/libdatastore_shared_counter.so
+  lib/x86/libandroidx.graphics.path.so
+  lib/x86/libdatastore_shared_counter.so
+
+Recommended next step:
+  Proceed with Phase 2: bash scripts/decompile.sh <file>
