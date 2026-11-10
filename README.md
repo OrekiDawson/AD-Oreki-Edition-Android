@@ -1,79 +1,72 @@
 # 反物质维度 · Oreki Edition（Android）
 
-《反物质维度》Android MOD。它保留官方 APK 的必要兼容能力，在 Kotlin 中实现 Oreki 的自动化、阶段逻辑、中文教程和移动端调整。
+《反物质维度》Android MOD。项目保留官方 Android 基线的必要兼容能力，并使用 Kotlin 实现 MOD 业务、阶段逻辑、自动化和移动端界面适配。
 
-## 1. 读者入口
+## 1. 适用范围
 
-### 1.1 玩家
+本仓库负责 Android 源码、官方 APK 基线、Gradle 构建、签名、存档兼容和真实设备/AVD 验证。Web 端是独立仓库，不使用本仓库的构建产物或运行证据替代 Web 验收。
 
-安装包、存档备份和已知限制以实际 Release manifest 为准。MOD 存档与官方 Android 3.21 可互相导入（已验证字段原样保留）；Android 与 Web 存档字段语义一致，但两端结构差异以 `docs/FACTS.md` 为准。
+## 2. 开始之前
 
-### 1.2 开发者
+需要可用的 JDK、Android SDK、Android Build Tools、Gradle Wrapper、Kotlin 编译器和 adb。优先使用本机已安装版本；具体版本、基线和 ABI 以当前环境检查、`docs/FACTS.md` 和构建报告为准。
 
-- 规则：[docs/AGENTS_GLOBAL.md](docs/AGENTS_GLOBAL.md) → [docs/RULES_INDEX.md](docs/RULES_INDEX.md)
-- 事实：[docs/FACTS.md](docs/FACTS.md) 与工作区根目录 [FACTS.md](../../FACTS.md)
-- 基线：[baseline/README.md](baseline/README.md)
-- 长期验证：[长期规则：验证与证据](../../docs/长期规则_验证与证据.md)
+先阅读：
 
-## 2. 技术边界
+1. [Android 规则索引](docs/RULES_INDEX.md)
+2. [Android 核心规则](docs/rules/CORE.md)
+3. [构建、测试与发布规则](docs/rules/RELEASE.md)
+4. [当前事实](docs/FACTS.md)
 
-### 2.1 业务实现
+## 3. 构建
 
-Android 新增或修改业务逻辑必须使用 Kotlin。原版混淆 DEX/Smali 只作为经过核对的 ABI、反射和兼容入口；不得新增 Smali/Java 业务实现。
-
-### 2.2 构建链
-
-```text
-Kotlin → kotlinc → D8 → DEX → Gradle/APK
-```
-
-Gradle 负责任务编排和 APK 组装；现有 Python 辅助工具按计划全部迁移到 Gradle/Kotlin/Rust/Shell（禁止新增 Python）；Rust 用于适合原生实现的分析与验证工具。
-
-### 2.3 GUI 与阶段
-
-所有状态变更必须同步刷新原版缓存和实际 GUI。无限阶段隐藏永恒层内容，永恒阶段必须显示永恒内容，现实内容只能在真实现实结算后显示。不得单独使用兼容字段判定阶段。
-
-## 3. 本地构建
-
-### 3.1 环境
-
-优先使用当前 Linux 环境中的 JDK、Android SDK、Gradle、Kotlin、D8、aapt2、apksigner 和 adb。实际路径和版本以环境检查与 FACTS 为准，不写死个人路径。
-
-### 3.2 候选构建
+### 3.1 候选 APK
 
 ```bash
 ./gradlew assembleRelease --offline --no-daemon --console=plain
 ```
 
-候选 APK 放在构建暂存目录，仅用于本地验证。不要把构建成功或静态检查通过写成稳定版。
+候选 APK 只能用于定向验证。构建成功、签名成功或上传成功不能单独证明功能通过。
 
-### 3.3 正式构建
+### 3.2 正式交付
 
-正式构建前检查基线、输入指纹、签名、版本、APK SHA-256 和必要运行门禁；具体流程读取 `docs/rules/RELEASE.md`。不要在本 README 复制动态版本号或哈希。
+正式交付前必须绑定同一份源码输入、版本、签名、APK、SHA-256 和必要运行证据。GitHub Release 使用完整发行说明；其他渠道只提供同一 APK 和对应 SHA-256 校验值。详细格式见 [RELEASE §6](docs/rules/RELEASE.md#6-android-发行版写作格式)。
 
-## 4. AVD 与 GUI 验证
+## 4. 技术边界
 
-共享 AVD 必须串行使用。测试前记录设备序列号、APK 身份和存档；测试时使用 frame-observer、ADB 截图或 UI dump 观察真实屏幕；测试后说明是否恢复存档和清理后台任务。
+1. Android 新增或修改业务逻辑使用 Kotlin，并经过 Kotlin → kotlinc → D8 → DEX → APK 链路。
+2. 原版混淆 DEX/Smali 仅作为已核实的 ABI、反射和兼容入口，不新增 Smali/Java 业务实现。
+3. 阶段、自动购买器、存档和 GUI 必须使用真实游戏状态；不得伪造资源、结算、成就或解锁。
+4. 首次大坍缩后必须真实经历无限阶段，不能立即自动 Break Infinity；永恒和现实只能在真实结算后显示。
 
-重点验证：
+## 5. AVD 与 GUI 验证
 
-1. 调度器主动操作后资源、按钮、页签和统计是否更新；
-2. 智能自动购买器手动改动后是否在下一次策略 tick 恢复；
-3. 无限/永恒/现实阶段 GUI 是否与真实结算状态一致；
-4. 原版自动购买器是否不受 MOD 全局行动节拍额外限速。
+共享 AVD 必须串行使用。每次测试记录 APK 身份、设备序列号、存档策略和测试范围；使用 frame-observer、截图和 UI dump 观察真实屏幕。
 
-## 5. 目录结构
+重点检查：
 
-| 路径 | 职责 |
+- 调度器和智能自动购买器操作后，资源、按钮、页签和统计是否刷新；
+- 玩家手动修改受管自动购买器配置后，下一次策略 tick 是否恢复建议值；
+- Infinity、Eternity、Reality 三阶段的可见内容是否与真实结算一致；
+- 原版自动购买器是否不受 MOD 全局行动节拍额外限速；
+- 存档重载后阶段、设置、资源和 ABI 行为是否保持。
+
+测试结果必须区分 `PASS`、`FAIL`、`BLOCKED` 和 `NOT RUN`。
+
+## 6. 目录边界
+
+| 路径 | 用途 |
 |---|---|
 | `scripts/payload/kotlin/` | Kotlin 业务与适配层 |
-| `scripts/payload/assets/` | 教程及其他资源 |
-| `baseline/` | 官方基线、版本配置和差异工具 |
-| `scripts/` | 构建、检查、验证和辅助工具 |
-| `build/` | 可再生构建中间产物与候选产物 |
-| `release/` | 经门禁确认的正式产物 |
-| `savestates/` | 测试存档集合（如存在） |
+| `scripts/payload/assets/` | 教程和运行资源 |
+| `baseline/` | 官方基线、版本配置和差异资料 |
+| `scripts/` | 构建、检查和验证入口 |
+| `build/` | 可再生中间产物与候选产物 |
+| `release/` | 通过发布门禁的产物 |
+| `savestates/` | 测试存档集合 |
+| `docs/` | 规则、事实和验证记录 |
 
-## 6. 修改与交付
+## 7. 修改与反馈
 
-保留用户已有修改，不使用破坏性 Git 命令。代码改动必须提供真实 diff、定向测试和未覆盖范围；正式发布必须使用同一份已验证 APK，不擅自发布候选包。
+保留已有修改，不使用破坏性 Git 命令，不覆盖其他任务产物。提交前运行与改动直接相关的检查，并记录未覆盖范围。问题报告请提供版本、设备、Android 版本、ABI、复现步骤和脱敏日志，不要上传私钥或真实用户存档。
+
+许可证和第三方声明见仓库中的 `LICENSE`、`MOD-LICENSE` 与相关声明文件。
