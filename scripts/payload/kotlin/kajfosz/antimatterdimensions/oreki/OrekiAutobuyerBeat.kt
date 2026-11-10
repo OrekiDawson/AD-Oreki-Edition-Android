@@ -19,10 +19,8 @@ import android.util.Log
  *   7. 值未变化时不写、不持久化，避免逐帧抖动；
  *   8. 恢复范围仅限**明确受管**的这一项，不外溢到其他原版自动购买器设置。
  *
- * [R97 收口] 本对象同时是**受托管单项自动器**（`isActive`）的恢复节拍：
- * `OrekiStageAuto.applyManagedAutobuyerStates()` 每帧消费一次 `consumeRestoreDue()`，
- * 只有到点的这一帧才允许写一次。这样「玩家手动关闭 → 本帧只登记 → 下一个策略 tick
- * 恢复一次」在真机 logcat 里是可数的（登记与恢复之间必然隔 ≥1 秒 / ≥1 个 tick）。
+ * [R97 收口] 本对象只管理**明确受管的工作间隔配置**。原版自动器的 `isActive`
+ * 属于玩家/原版存档状态，智能策略不得代为开启或恢复。
  */
 object OrekiAutobuyerBeat {
 

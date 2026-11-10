@@ -188,7 +188,7 @@ fingerprintInputs ──┘                   └─→ verifyPatchContract
 `work/base_decoded`（反编译基线）有 **27744 个文件 / 0.40 GB**，且**从不修改**。
 对它做内容哈希是纯浪费；而真正会变的只有 `scripts/payload`（35 文件）和
 `scripts/*.py`（69 文件）。Gradle 无法表达「这棵树只读，用 stat 指纹就够」，
-所以改用 `scripts/build_fingerprint.py` 做**分级指纹**，由 Gradle 的 `onlyIf` 消费结果。
+所以改用 Rust `baseline fingerprint` 做**分级指纹**，由 Gradle 的 `onlyIf` 消费结果。
 
 ### 9.3 分级指纹规则
 
@@ -217,8 +217,7 @@ fingerprintInputs ──┘                   └─→ verifyPatchContract
 ### 9.5 命令
 
 ```bash
-python scripts/build_fingerprint.py --show     # 看指纹与各段耗时
-python scripts/build_fingerprint.py --check    # 判定 stale（Gradle 自动调用）
+./gradlew fingerprintInputs                         # 查看并判定 stale（Gradle 自动调用 Rust）
 ./gradlew assembleRelease                       # 输入未变 → SKIPPED（秒级）
 ./gradlew assembleRelease -PorekiForceBuild=1   # 强制重建
 ./gradlew installToRelease                      # 发布链路，强制全量

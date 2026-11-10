@@ -23,7 +23,7 @@ use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 // ═══════════════════════════════════════════════════════════════════════
 // 极简 JSON
@@ -405,6 +405,197 @@ fn sha256_file(path: &Path) -> Result<(String, u64), String> {
         all.extend_from_slice(&buf[..n]);
     }
     Ok((sha256_hex(&all), all.len() as u64))
+}
+
+fn fingerprint_files(path: &Path) -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    if path.is_file() {
+        out.push(path.to_path_buf());
+        return out;
+    }
+    let Ok(entries) = fs::read_dir(path) else { return out; };
+    let mut children = entries.filter_map(|entry| entry.ok().map(|entry| entry.path())).collect::<Vec<_>>();
+    children.sort();
+    for child in children {
+        if child.is_dir() {
+            out.extend(fingerprint_files(&child));
+        } else if child.is_file() {
+            out.push(child);
+        }
+    }
+    out
+}
+
+fn fingerprint_stat_files(path: &Path) -> Vec<PathBuf> {
+    if path.is_file() { return vec![path.to_path_buf()]; }
+    let Ok(entries) = fs::read_dir(path) else { return Vec::new(); };
+    let mut files = Vec::new();
+    let mut dirs = Vec::new();
+    for entry in entries.filter_map(|entry| entry.ok()) {
+        let child = entry.path();
+        if child.is_dir() { dirs.push(child); }
+        else if child.is_file() { files.push(child); }
+    }
+    files.sort();
+    dirs.sort();
+    for dir in dirs {
+        files.extend(fingerprint_stat_files(&dir));
+    }
+    files
+}
+
+fn fingerprint_is_text(path: &Path) -> bool {
+    matches!(path.extension().and_then(|x| x.to_str()).unwrap_or(""),
+        "smali" | "py" | "json" | "txt" | "md" | "xml" | "gradle" | "properties" |
+        "js" | "mjs" | "css" | "html" | "bat" | "sh" | "yml" | "yaml")
+}
+
+fn fingerprint_file_bytes(path: &Path) -> Result<Vec<u8>, String> {
+    let raw = fs::read(path).map_err(|e| format!("读 {} 失败：{}", path.display(), e))?;
+    if fingerprint_is_text(path) {
+        let mut normalized = Vec::with_capacity(raw.len());
+        let mut i = 0;
+        while i < raw.len() {
+            if raw[i] == b'\r' && raw.get(i + 1) == Some(&b'\n') {
+                normalized.push(b'\n');
+                i += 2;
+            } else {
+                normalized.push(raw[i]);
+                i += 1;
+            }
+        }
+        Ok(normalized)
+    } else {
+        Ok(raw)
+    }
+}
+
+fn fingerprint_content_digest(path: &Path) -> Result<(String, usize), String> {
+    let mut material = Vec::new();
+    if !path.exists() {
+        material.extend_from_slice(b"<missing>");
+        return Ok((sha256_hex(&material), 0));
+    }
+    let files = fingerprint_files(path);
+    if path.is_file() {
+        material.extend_from_slice(path.file_name().and_then(|x| x.to_str()).unwrap_or("").as_bytes());
+        material.extend_from_slice(&fingerprint_file_bytes(path)?);
+        return Ok((sha256_hex(&material), 1));
+    }
+    for file in &files {
+        let rel = file.strip_prefix(path).unwrap_or(file).to_string_lossy().replace('\\', "/");
+        material.extend_from_slice(rel.as_bytes());
+        material.push(0);
+        material.extend_from_slice(&fingerprint_file_bytes(file)?);
+        material.push(0);
+    }
+    Ok((sha256_hex(&material), files.len()))
+}
+
+fn fingerprint_stat_digest(path: &Path) -> Result<(String, usize), String> {
+    let mut material = Vec::new();
+    if !path.exists() {
+        material.extend_from_slice(b"<missing>");
+        return Ok((sha256_hex(&material), 0));
+    }
+    let files = fingerprint_stat_files(path);
+    if path.is_file() {
+        let meta = fs::metadata(path).map_err(|e| format!("读 {} 元数据失败：{}", path.display(), e))?;
+        let mtime = meta.modified().ok().and_then(|t| t.duration_since(UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
+        let name = path.file_name().and_then(|x| x.to_str()).unwrap_or("");
+        material.extend_from_slice(format!("{}|{}|{}\n", name, meta.len(), mtime).as_bytes());
+        return Ok((sha256_hex(&material), 1));
+    }
+    for file in &files {
+        let meta = fs::metadata(file).map_err(|e| format!("读 {} 元数据失败：{}", file.display(), e))?;
+        let mtime = meta.modified().ok().and_then(|t| t.duration_since(UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
+        let rel = file.strip_prefix(path).unwrap_or(file).to_string_lossy().replace('\\', "/");
+        material.extend_from_slice(format!("{}|{}|{}\n", rel, meta.len(), mtime).as_bytes());
+    }
+    Ok((sha256_hex(&material), files.len()))
+}
+
+fn fingerprint_part(mode: &str, digest: String, files: usize, elapsed: u128) -> Json {
+    let mut part = Json::obj();
+    part.set("mode", Json::s(mode));
+    part.set("digest", Json::s(digest));
+    part.set("files", Json::n(files as f64));
+    part.set("ms", Json::n(elapsed as f64));
+    part
+}
+
+fn fingerprint_value(root: &Path, base: &Path, release_out: &str, tutorial: &str) -> Result<Json, String> {
+    let content_targets = [
+        ("payload_kotlin", root.join("scripts/payload/kotlin")),
+        ("payload_smali", root.join("scripts/payload/smali")),
+        ("payload_assets", root.join("scripts/payload/assets")),
+        ("payload_res", root.join("scripts/payload/res")),
+    ];
+    let stat_targets = [
+        ("base_decoded", base.to_path_buf()),
+        ("base_apk", root.join("work/kajfosz.antimatterdimensions.apk")),
+        ("keystore", root.join("keys")),
+    ];
+    let mut parts = Json::obj();
+    for (label, path) in content_targets {
+        let started = Instant::now();
+        let (digest, count) = fingerprint_content_digest(&path)?;
+        parts.set(label, fingerprint_part("content", digest, count, started.elapsed().as_millis()));
+    }
+    for (label, path) in stat_targets {
+        let started = Instant::now();
+        let (digest, count) = fingerprint_stat_digest(&path)?;
+        parts.set(label, fingerprint_part("stat", digest, count, started.elapsed().as_millis()));
+    }
+
+    let started = Instant::now();
+    let scripts = root.join("scripts");
+    let mut script_material = Vec::new();
+    let mut script_count = 0usize;
+    for path in fingerprint_files(&scripts) {
+        if path.parent() != Some(scripts.as_path()) || path.file_name().and_then(|x| x.to_str()).map_or(true, |n| n.starts_with('_')) || path.extension().and_then(|x| x.to_str()) != Some("py") {
+            continue;
+        }
+        let name = path.file_name().and_then(|x| x.to_str()).unwrap_or("");
+        script_material.extend_from_slice(name.as_bytes());
+        script_material.push(0);
+        script_material.extend_from_slice(&fingerprint_file_bytes(&path)?);
+        script_material.push(0);
+        script_count += 1;
+    }
+    parts.set("build_scripts", fingerprint_part("content", sha256_hex(&script_material), script_count, started.elapsed().as_millis()));
+
+    let started = Instant::now();
+    let mut gradle_material = Vec::new();
+    for name in ["build.gradle", "gradle.properties", "settings.gradle"] {
+        gradle_material.extend_from_slice(name.as_bytes());
+        let path = root.join(name);
+        gradle_material.extend_from_slice(&fingerprint_file_bytes(&path).unwrap_or_else(|_| b"<missing>".to_vec()));
+    }
+    parts.set("gradle_files", fingerprint_part("content", sha256_hex(&gradle_material), 3, started.elapsed().as_millis()));
+
+    let base_string = base.to_string_lossy().to_string();
+    let env = [
+        ("OREKI_RELEASE_OUT", release_out),
+        ("OREKI_TUTORIAL_ALLOW_DRAFT", tutorial),
+        ("OREKI_BASE", base_string.as_str()),
+    ];
+    let mut aggregate_material = Vec::new();
+    for label in ["base_apk", "base_decoded", "build_scripts", "gradle_files", "keystore", "payload_assets", "payload_kotlin", "payload_res", "payload_smali"] {
+        let digest = parts.get(label).and_then(|p| p.get("digest")).and_then(|x| x.as_str()).unwrap_or("");
+        aggregate_material.extend_from_slice(format!("{}:{}\n", label, digest).as_bytes());
+    }
+    for (key, value) in env {
+        aggregate_material.extend_from_slice(format!("env:{}={}\n", key, value).as_bytes());
+    }
+    let mut result = Json::obj();
+    result.set("aggregate", Json::s(sha256_hex(&aggregate_material)));
+    result.set("parts", parts);
+    let mut env_json = Json::obj();
+    for (key, value) in env { env_json.set(key, Json::s(value)); }
+    result.set("env", env_json);
+    result.set("at", Json::n(SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs() as f64));
+    Ok(result)
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1689,6 +1880,64 @@ fn cmd_inject_dex(apk: &Path, dex: &Path) -> Result<(), String> {
     Ok(())
 }
 
+fn cmd_fingerprint(opts: &BTreeMap<String, String>) -> Result<(), String> {
+    let root = PathBuf::from(opts.get("repo").ok_or("fingerprint 需要 --repo")?);
+    let base = PathBuf::from(opts.get("base").ok_or("fingerprint 需要 --base")?);
+    let fp = PathBuf::from(opts.get("fingerprint").ok_or("fingerprint 需要 --fingerprint")?);
+    let flag = PathBuf::from(opts.get("flag").ok_or("fingerprint 需要 --flag")?);
+    let stage = PathBuf::from(opts.get("stage-apk").ok_or("fingerprint 需要 --stage-apk")?);
+    let mode = opts.get("mode").map(String::as_str).unwrap_or("check");
+    let started = Instant::now();
+    let mut current = fingerprint_value(
+        &root,
+        &base,
+        opts.get("release-out").map(String::as_str).unwrap_or(""),
+        opts.get("tutorial-allow-draft").map(String::as_str).unwrap_or(""),
+    )?;
+    let previous = read_json(&fp).ok();
+    let current_aggregate = current.get("aggregate").and_then(|x| x.as_str()).unwrap_or("").to_string();
+    let previous_aggregate = previous.as_ref().and_then(|x| x.get("aggregate")).and_then(|x| x.as_str()).map(str::to_string);
+    let same = previous_aggregate.as_deref() == Some(&current_aggregate);
+    let current_stage_sha = if stage.is_file() { Some(sha256_file(&stage)?.0) } else { None };
+    let previous_stage_sha = previous.as_ref().and_then(|x| x.get("stage_sha256")).and_then(|x| x.as_str()).map(str::to_string);
+    let elapsed = started.elapsed().as_secs_f64();
+
+    if mode == "show" {
+        println!("  当前指纹 {}  上次 {}  一致={}  正式候选={}  stage_sha={}  总耗时 {:.2}s",
+            &current_aggregate[..16.min(current_aggregate.len())],
+            previous_aggregate.as_deref().unwrap_or("None"),
+            same,
+            usize::from(current_stage_sha.is_some()),
+            current_stage_sha.as_deref().unwrap_or("None"),
+            elapsed);
+        return Ok(());
+    }
+    if mode == "commit" {
+        let stage_sha = current_stage_sha.ok_or(format!("--commit 时正式候选不存在：{}", stage.display()))?;
+        current.set("stage_apk", Json::s(stage.to_string_lossy()));
+        current.set("stage_sha256", Json::s(&stage_sha));
+        write_json(&fp, &current)?;
+        println!("  已记录输入指纹 {} + 产物 {}（{:.2}s）", &current_aggregate[..16.min(current_aggregate.len())], &stage_sha[..16], elapsed);
+        return Ok(());
+    }
+    if mode != "check" { return Err(format!("fingerprint 未知模式：{}", mode)); }
+
+    let mut reasons = Vec::new();
+    if current_stage_sha.is_none() { reasons.push(format!("正式候选 APK 不存在：{}", stage.display())); }
+    else if previous_stage_sha.is_none() { reasons.push("上次指纹未绑定产物 SHA".to_string()); }
+    else if previous_stage_sha != current_stage_sha { reasons.push("候选 APK 内容与上次构建不一致".to_string()); }
+    if !same { reasons.push("输入指纹变化".to_string()); }
+    if !reasons.is_empty() {
+        if let Some(parent) = flag.parent() { fs::create_dir_all(parent).map_err(|e| format!("建 stale 目录失败：{}", e))?; }
+        fs::write(&flag, format!("stale: {}\n", reasons.join(", "))).map_err(|e| format!("写 {} 失败：{}", flag.display(), e))?;
+        println!("  STALE（{}）指纹 {} vs {}，检查耗时 {:.2}s", reasons.join(", "), &current_aggregate[..16.min(current_aggregate.len())], previous_aggregate.as_deref().unwrap_or("None"), elapsed);
+    } else {
+        if flag.exists() { fs::remove_file(&flag).map_err(|e| format!("删除 {} 失败：{}", flag.display(), e))?; }
+        println!("  UP-TO-DATE：输入未变化（{}），检查耗时 {:.2}s —— assembleRelease 可以跳过", &current_aggregate[..16.min(current_aggregate.len())], elapsed);
+    }
+    Ok(())
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════════════════════
@@ -1704,6 +1953,7 @@ fn usage() {
     eprintln!("  rollback 把「当前基线」指回某个历史版本（不删文件）");
     eprintln!("  normalize-zip 统一 APK ZIP 时间戳（不重排、不重压缩）");
     eprintln!("  inject-dex 追加 Kotlin/DEX 条目（保留原有 ZIP 条目）");
+    eprintln!("  fingerprint 检查/提交构建输入指纹（Rust）");
     eprintln!();
     eprintln!("全局选项：--root <baseline 目录>（默认 ./baseline）");
     eprintln!();
@@ -1772,6 +2022,7 @@ fn main() -> ExitCode {
             (Some(apk), Some(dex)) => cmd_inject_dex(Path::new(apk), Path::new(dex)).map(|_| 0),
             _ => Err("inject-dex 需要 --apk 与 --dex".to_string()),
         },
+        "fingerprint" => cmd_fingerprint(&opts).map(|_| 0),
         "update" => {
             let version = match opts.get("version") {
                 Some(v) => v.clone(),

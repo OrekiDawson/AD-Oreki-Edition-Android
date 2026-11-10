@@ -216,7 +216,7 @@ def pkgName = 'com.oreki.antimatterdimensions'
 //   2. 期望的 versionName / versionCode / package 一律**从该基线的 apktool.yml
 //      与 AndroidManifest.xml 真实读取**，不再写死；
 //   3. 同一个值同时喂给 verifyEnvironment、assembleRelease 的环境变量、
-//      build_fingerprint.py 与 verify_release.py，四处不再各自读文件。
+//      Rust fingerprint 与 verify_release.py，四处不再各自读文件。
 // [R91] 默认基线不再写死 work/base_decoded（那是 3.19）。
 // 正式发布链必须默认当前版本：baseline/version-config.json 的 current +
 // decoded_tree。显式 -PorekiBase / OREKI_BASE 仍可覆盖（迁移验证用），
@@ -457,7 +457,7 @@ tasks.register('buildKotlinDex', Exec) {
 // 为什么不用 Gradle 原生的 inputs.dir()：
 //   反编译基线树 work/base_decoded 有 27744 个文件 / 0.40 GB，**从不修改**；
 //   对它做内容哈希是纯浪费。而真正会变的只有 scripts/payload（35 个文件）
-//   和 scripts/*.py（69 个）。所以这里做**分级指纹**：
+//   和 scripts/*.py（69 个）。Rust 基线工具负责**分级指纹**：
 //     · 小而常变的 → 内容 sha256（payload / 脚本 / gradle 编排文件）
 //     · 大而只读的 → (路径, 体积, mtime) 滚动哈希（基线树 / 原始 APK / keystore）
 //   实测单次指纹约 4.4 秒（含基线树 4.2 秒），相对 8.5 分钟的完整构建可忽略。
@@ -465,6 +465,13 @@ tasks.register('buildKotlinDex', Exec) {
 // 安全阀：候选 APK 不存在 → 一律 stale；指纹文件缺失/损坏 → stale；
 //         -PorekiForceBuild=1 → 直接强制构建（发布链路用）。
 def staleFlag = file("$buildDir" + "/.build_stale")
+def fingerprintArgs = { String mode ->
+    [baselineToolExe.absolutePath, 'fingerprint', '--repo', repoRoot.absolutePath,
+     '--base', baseDecoded.absolutePath, '--stage-apk', stageApk.absolutePath,
+     '--flag', staleFlag.absolutePath, '--fingerprint', new File(buildDir, '.input_fingerprint.json').absolutePath,
+     '--mode', mode, '--release-out', System.getenv('OREKI_RELEASE_OUT') ?: '',
+     '--tutorial-allow-draft', System.getenv('OREKI_TUTORIAL_ALLOW_DRAFT') ?: '']
+}
 
 // [R66] 发布链路一律强制真实构建：增量跳过只服务开发期，绝不用于对外发布。
 // 必须在任务图确定、但**尚未开始执行**时决定 —— 写在 publishRelease 的 doFirst 里
@@ -544,8 +551,7 @@ tasks.register('fingerprintInputs', Exec) {
     group = 'oreki'
     description = '计算构建输入指纹，决定 assembleRelease 是 UP-TO-DATE 还是必须重建'
     workingDir = repoRoot
-    commandLine pythonExe, 'scripts/build_fingerprint.py', '--check',
-        '--flag', staleFlag.absolutePath
+    commandLine(*fingerprintArgs('check'))
     // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {
@@ -638,7 +644,7 @@ tasks.register('assembleRelease', Exec) {
         logger.lifecycle("[oreki] Gradle 已完成 zipalign/apksigner：${stageApk}")
         runExec {
             workingDir = repoRoot
-            commandLine pythonExe, 'scripts/build_fingerprint.py', '--commit'
+            commandLine(*fingerprintArgs('commit'))
             // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
     // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
     if (jdkHome != null) {

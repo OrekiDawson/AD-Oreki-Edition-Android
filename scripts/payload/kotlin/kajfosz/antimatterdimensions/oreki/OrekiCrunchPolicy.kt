@@ -53,13 +53,47 @@ object OrekiCrunchPolicy {
      * 永恒层不再无条件坍缩（见 evaluate() 内注释）；若维度数量/星系在 10 分钟内
      * 仍无起色（判据误判或真的卡住），到点仍放行一次，避免把 IP/EP 循环永久按住。
      */
-    private const val ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L
+    private const val ETERNITY_GROW_WAIT_LIMIT_NS: Long = 2_400_000_000_000L
 
-    /** 永恒层周期结算间隔：30 秒墙钟（保证 IP→无限维度购买链不断）。 */
-    private const val ETERNITY_CYCLE_NS: Long = 30_000_000_000L
+    /**
+     * [R99] 永恒层「成长窗口」自适应起点（秒）。
+     *
+     * 实测缺陷（R99 接手存档 bigE=1 / EP=6 / IP=6.46e157，×10000）：
+     * 固定 30 秒窗口下 `maxAM` 冻在 1.587e24321，`thisEternity.maxAM` 冻在 2.834e25240，
+     * 每次坍缩只加约 1.5e154 IP（相对余额 2.3e-4 倍），而第 2 次永恒要求
+     * `maxIP ≥ 1.797e308` ⇒ 实测 60 秒只涨 0.02%，永久卡死。
+     *
+     * 根因是「窗口固定」本身：反物质在 30 秒内只长到 e24321，坍缩立刻把它清空，
+     * 峰值永远停在同一个量级 ⇒ 单次坍缩收益恒定 ⇒ maxIP 不可能到 1.797e308。
+     * 这里改为**自适应扩张**：窗口结束若 IP 没有翻倍，就把窗口翻倍（上限见下），
+     * 让反物质真正长起来；一旦某次结算让 IP 翻倍以上，窗口立即回到起点。
+     * 全部判定读原版真实状态，不改存档、不伪造资源。
+     */
+    private const val ETERNITY_GROW_START_SECONDS: Double = 60.0
+
+    /** 成长窗口上限（秒）：30 分钟真墙钟；配合 2.4e12ns 的等待上限兜底。 */
+    private const val ETERNITY_GROW_MAX_SECONDS: Double = 1800.0
+
+    /** IP 翻倍判据（log10(2)）。 */
+    private const val IP_DOUBLE_LOG10: Double = 0.3010299956639812
+
+    /** 当前成长窗口（秒）；跨帧保留，成功跃升后回落到起点。 */
+    private var eternityGrowSeconds: Double = ETERNITY_GROW_START_SECONDS
+
+    /** 上一次窗口结算时的 IP log10；用于判断这一窗口是否「值得」。 */
+    private var lastCycleIpLog10: Double? = null
 
     /** 上次永恒层周期结算/收益结算的时刻（nanoTime）；0 = 未初始化。 */
     private var lastEternityCycleAt: Long = 0L
+
+    /** [R99] 当前永恒层成长窗口（秒），供 `OrekiStageAuto` 写入坍缩间隔。 */
+    @JvmStatic
+    fun eternityWaitSeconds(): Double = eternityGrowSeconds
+
+    /** [R99] 诊断：当前窗口与上次结算 IP 量级。 */
+    @JvmStatic
+    fun eternityGrowDiagnostics(): String =
+        "window=" + eternityGrowSeconds + "s lastIpLog=" + lastCycleIpLog10
 
     data class Decision(val allow: Boolean, val reason: String)
 
@@ -107,21 +141,48 @@ object OrekiCrunchPolicy {
             if (leapEternity != null && leapEternity >= 1.0) {
                 waitStartedAt = 0L
                 lastEternityCycleAt = System.nanoTime()
+                // [R99] 一次真正的大跃升：窗口回落到起点，重新按需扩张。
+                if (eternityGrowSeconds > ETERNITY_GROW_START_SECONDS) {
+                    Log.i(TAG, "eternity jump rewarded -> window reset to " + ETERNITY_GROW_START_SECONDS + "s")
+                    eternityGrowSeconds = ETERNITY_GROW_START_SECONDS
+                }
                 return Decision(true, "eternity-ip-jump")
             }
-            // 周期结算：每 30 秒墙钟放行一次。
+            // [R99] 自适应成长窗口（替代固定 30 秒周期）。
             //
-            // 实测对比（同一存档）：纯等待（10 分钟上限）时 maxAM 指数只有 ~87/min，
-            // 而持续结算时 327–755/min —— 因为坍缩产出的 IP 是「无限维度」购买链的燃料，
-            // 完全按住会让 ID 等级停摆。这里保留「不要每帧坍缩」的初衷（30 秒一次），
-            // 同时保证 IP→ID 链不断。
+            // 固定 30 秒时反物质每次只长到 e24321 就被清空 ⇒ 单次坍缩收益恒定
+            // （实测 ~1.5e154 IP，相对余额 2.3e-4 倍）⇒ maxIP 永久停在 6.46e157，
+            // 而第 2 次永恒需要 1.797e308。窗口必须随「没长起来」而扩张：
+            //   60s → 120s → 240s → 480s → 960s → 1800s（上限）
+            // 每次窗口结算时比较 IP 量级，翻倍以上就回到 60s。
             val nowNs = System.nanoTime()
             if (lastEternityCycleAt == 0L) {
                 lastEternityCycleAt = nowNs
             }
-            if (nowNs - lastEternityCycleAt >= ETERNITY_CYCLE_NS) {
+            val windowNs = (eternityGrowSeconds * 1_000_000_000.0).toLong()
+            if (nowNs - lastEternityCycleAt >= windowNs) {
+                val ipNow = GameApi.currencyValue(GameApi.ipCurrency())
+                val ipLog = if (ipNow == null) null else GameApi.log10BigDouble(ipNow)
+                val previous = lastCycleIpLog10
+                lastCycleIpLog10 = ipLog
                 lastEternityCycleAt = nowNs
                 waitStartedAt = 0L
+                val doubled = previous != null && ipLog != null && (ipLog - previous) >= IP_DOUBLE_LOG10
+                if (doubled) {
+                    if (eternityGrowSeconds > ETERNITY_GROW_START_SECONDS) {
+                        eternityGrowSeconds = ETERNITY_GROW_START_SECONDS
+                    }
+                } else if (eternityGrowSeconds < ETERNITY_GROW_MAX_SECONDS) {
+                    eternityGrowSeconds = kotlin.math.min(
+                        eternityGrowSeconds * 2.0,
+                        ETERNITY_GROW_MAX_SECONDS
+                    )
+                }
+                Log.i(
+                    TAG,
+                    "eternity window settle ipLog=" + ipLog + " prev=" + previous +
+                        " doubled=" + doubled + " next=" + eternityGrowSeconds + "s"
+                )
                 return Decision(true, "eternity-cycle")
             }
             return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)

@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "class_aliases": {
+    "eg3": "gi3",
+    "dg3": "fi3",
+    "rf3": "th3",
+    "pu": "fw",
+    "g40": "w50",
+    "ob0": "fd0",
+    "ln0": "bq0",
+    "ju": "aw",
+    "tw4": "lt4",
+    "bn0": "rp0",
+    "sm0": "ip0",
+    "ym0": "op0",
+    "z3": "s3",
+    "r51": "n81",
+    "vo": "oq",
+    "t5": "k5",
+    "r5": "i5",
+    "kx0": "c01",
+    "e02": "os0",
+    "z51": "v81",
+    "s51": "o81",
+    "ja4": "qw3",
+    "l43": "i63",
+    "ui1": "vl1",
+    "vh0": "kj0",
+    "av": "qw",
+    "u7": "e7",
+    "l7": "v6",
+    "fp3": "qr3",
+    "uu1": "px1",
+    "az1": "b22",
+    "c43": "z53",
+    "c21": "u41",
+    "py1": "q12",
+    "ii0": "xj0",
+    "wx0": "am0",
+    "iu": "zv",
+    "g61": "c91",
+    "nw4": "dt4",
+    "oy": "h00"
+  },
+  "field_aliases": {
+    "ln0.w": "bq0.w",
+    "ln0.e": "bq0.g0",
+    "ln0.F": "bq0.R"
+  },
+  "method_aliases": {
+    "e02.n0": "os0.F",
+    "bn0.s": "rp0.G",
+    "bn0.w": "rp0.K",
+    "ju.o": "aw.C",
+    "ju.u": "aw.I"
+  },
+  "method_sig_aliases": [
+    [
+      "e02",
+      "n0",
+      "os0",
+      "F",
+      "()"
+    ],
+    [
+      "bn0",
+      "s",
+      "rp0",
+      "G",
+      "()"
+    ],
+    [
+      "bn0",
+      "w",
+      "rp0",
+      "K",
+      "()"
+    ],
+    [
+      "ju",
+      "o",
+      "aw",
+      "C",
+      "(Lkajfosz/antimatterdimensions/BigDouble;)"
+    ],
+    [
+      "ju",
+      "u",
+      "aw",
+      "I",
+      "(D)"
+    ],
+    [
+      "wx0",
+      "q",
+      "am0",
+      "p",
+      "(Liu;D)"
+    ],
+    [
+      "ln0",
+      "i",
+      "bq0",
+      "o",
+      "(Lkajfosz/antimatterdimensions/BigDouble;)"
+    ]
+  ],
+  "field_type_aliases": [
+    [
+      "bq0",
+      "g0",
+      "ip0",
+      "up0"
+    ]
+  ],
+  "package_aliases": {
+    "kajfosz/antimatterdimensions/player/d": "kajfosz/antimatterdimensions/player/e"
+  }
+}

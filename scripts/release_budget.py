@@ -42,7 +42,6 @@ INPUT_FILES = (
     "baseline/version-config.json",
     "scripts/build_mod.py",
     "scripts/build_kotlin.py",
-    "scripts/build_fingerprint.py",
 )
 # 参与构建的脚本目录（只取 .py，避免把报告/文档算进来）
 SCRIPT_DIRS = ("scripts",)

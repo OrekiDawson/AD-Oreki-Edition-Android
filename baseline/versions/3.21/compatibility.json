@@ -1,0 +1,338 @@
+{
+  "schema": 1,
+  "input_version": "3.19",
+  "classes_320_to_target": {
+    "gi3": "vi3",
+    "fi3": "ui3",
+    "th3": "ii3",
+    "fw": "iw",
+    "w50": "b60",
+    "bq0": "iq0",
+    "aw": "dw",
+    "lt4": "ku4",
+    "rp0": "yp0",
+    "ip0": "pp0",
+    "op0": "vp0",
+    "s3": "t3",
+    "n81": "x81",
+    "oq": "rq",
+    "k5": "l5",
+    "i5": "j5",
+    "c01": "l01",
+    "v81": "f91",
+    "o81": "y81",
+    "i63": "w63",
+    "vl1": "fm1",
+    "kj0": "rj0",
+    "qw": "tw",
+    "e7": "f7",
+    "v6": "w6",
+    "qr3": "is3",
+    "px1": "zx1",
+    "b22": "m22",
+    "z53": "n63",
+    "u41": "d51",
+    "q12": "c22",
+    "xj0": "ek0",
+    "am0": "fl0",
+    "zv": "cw",
+    "c91": "m91",
+    "dt4": "cu4",
+    "h00": "k00",
+    "fd0": "ld0",
+    "os0": "nr5",
+    "qw3": "lx3",
+    "ud1": "ud1"
+  },
+  "method_refs": {
+    "os0.F()Z": "nr5.u()Z",
+    "bq0.o(Lkajfosz/antimatterdimensions/BigDouble;)Z": "iq0.p(Lkajfosz/antimatterdimensions/BigDouble;)Z",
+    "bq0.i(Lkajfosz/antimatterdimensions/BigDouble;)Z": "iq0.l(Lkajfosz/antimatterdimensions/BigDouble;)Z",
+    "bq0.u(Lkajfosz/antimatterdimensions/BigDouble;)Lbq0;": "iq0.v(Lkajfosz/antimatterdimensions/BigDouble;)Lbq0;",
+    "qw3.j(Ljava/lang/String;)V": "lx3.k(Ljava/lang/String;)V",
+    "am0.p(Lzv;D)Lkajfosz/antimatterdimensions/BigDouble;": "fl0.r(Lzv;D)Lkajfosz/antimatterdimensions/BigDouble;"
+  },
+  "evidence": [
+    {
+      "payload_name": "eg3",
+      "from320": "gi3",
+      "to321": "vi3",
+      "callsite_count": 45,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "dg3",
+      "from320": "fi3",
+      "to321": "ui3",
+      "callsite_count": 8,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "rf3",
+      "from320": "th3",
+      "to321": "ii3",
+      "callsite_count": 86,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "pu",
+      "from320": "fw",
+      "to321": "iw",
+      "callsite_count": 2,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "g40",
+      "from320": "w50",
+      "to321": "b60",
+      "callsite_count": 45,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ob0",
+      "from320": "fd0",
+      "to321": "ld0",
+      "callsite_count": 0,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ln0",
+      "from320": "bq0",
+      "to321": "iq0",
+      "callsite_count": 153,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ju",
+      "from320": "aw",
+      "to321": "dw",
+      "callsite_count": 57,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "tw4",
+      "from320": "lt4",
+      "to321": "ku4",
+      "callsite_count": 664,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "bn0",
+      "from320": "rp0",
+      "to321": "yp0",
+      "callsite_count": 46,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "sm0",
+      "from320": "ip0",
+      "to321": "pp0",
+      "callsite_count": 29,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ym0",
+      "from320": "op0",
+      "to321": "vp0",
+      "callsite_count": 13,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "z3",
+      "from320": "s3",
+      "to321": "t3",
+      "callsite_count": 128,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "r51",
+      "from320": "n81",
+      "to321": "x81",
+      "callsite_count": 157,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "vo",
+      "from320": "oq",
+      "to321": "rq",
+      "callsite_count": 301,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "t5",
+      "from320": "k5",
+      "to321": "l5",
+      "callsite_count": 40,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "r5",
+      "from320": "i5",
+      "to321": "j5",
+      "callsite_count": 36,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "kx0",
+      "from320": "c01",
+      "to321": "l01",
+      "callsite_count": 12,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "e02",
+      "from320": "os0",
+      "to321": "nr5",
+      "callsite_count": 0,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "z51",
+      "from320": "v81",
+      "to321": "f91",
+      "callsite_count": 46,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "s51",
+      "from320": "o81",
+      "to321": "y81",
+      "callsite_count": 89,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ja4",
+      "from320": "qw3",
+      "to321": "lx3",
+      "callsite_count": 0,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "l43",
+      "from320": "i63",
+      "to321": "w63",
+      "callsite_count": 280,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ui1",
+      "from320": "vl1",
+      "to321": "fm1",
+      "callsite_count": 926,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "vh0",
+      "from320": "kj0",
+      "to321": "rj0",
+      "callsite_count": 4649,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "av",
+      "from320": "qw",
+      "to321": "tw",
+      "callsite_count": 66,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "u7",
+      "from320": "e7",
+      "to321": "f7",
+      "callsite_count": 26,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "l7",
+      "from320": "v6",
+      "to321": "w6",
+      "callsite_count": 73,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "fp3",
+      "from320": "qr3",
+      "to321": "is3",
+      "callsite_count": 295,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "uu1",
+      "from320": "px1",
+      "to321": "zx1",
+      "callsite_count": 34,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "az1",
+      "from320": "b22",
+      "to321": "m22",
+      "callsite_count": 27,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "c43",
+      "from320": "z53",
+      "to321": "n63",
+      "callsite_count": 79,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "c21",
+      "from320": "u41",
+      "to321": "d51",
+      "callsite_count": 22,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "py1",
+      "from320": "q12",
+      "to321": "c22",
+      "callsite_count": 46,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "ii0",
+      "from320": "xj0",
+      "to321": "ek0",
+      "callsite_count": 8,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "wx0",
+      "from320": "am0",
+      "to321": "fl0",
+      "callsite_count": 21,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "iu",
+      "from320": "zv",
+      "to321": "cw",
+      "callsite_count": 262,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "g61",
+      "from320": "c91",
+      "to321": "m91",
+      "callsite_count": 221,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "nw4",
+      "from320": "dt4",
+      "to321": "cu4",
+      "callsite_count": 15,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    },
+    {
+      "payload_name": "oy",
+      "from320": "h00",
+      "to321": "k00",
+      "callsite_count": 14,
+      "evidence": "r85-reference-evidence.json; unresolved three use exact method-body + descriptor comparison"
+    }
+  ],
+  "status": "callsite-verified; patch chain and runtime pending"
+}

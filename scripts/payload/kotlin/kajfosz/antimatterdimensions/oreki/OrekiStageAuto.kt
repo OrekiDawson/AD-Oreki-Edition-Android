@@ -93,16 +93,18 @@ object OrekiStageAuto {
     private const val CRUNCH_PAUSE_SECONDS = 3600.0
 
     /**
-     * [R96 第十轮] 永恒层「等待成长」时的坍缩间隔（秒）。
+     * [R96 第十轮 → R99 修正] 永恒层「等待成长」时的坍缩间隔：**已改为自适应窗口**，
+     * 由 `OrekiCrunchPolicy.eternityWaitSeconds()` 提供（60s 起，无翻倍则翻倍，上限 1800s）。
      *
-     * 实测缺陷（干净新档 t0 06:59:45）：永恒层策略在 `eternity-grow` 与
-     * `eternity-cycle` 之间**逐帧翻转** —— allow 一帧把间隔设成 5 秒，下一帧 deny
-     * 又设回 3600 秒（CRUNCH_PAUSE_SECONDS）⇒ 坍缩间隔实际恒为 1 小时 ⇒ 坍缩几乎不发生
-     * ⇒ maxIP 冻在 1e40（第 2 次永恒要求 1.797e308）⇒ 重建速度只有 ~190 指数/分钟。
-     * 这里让「等待」用 30 秒间隔（即周期结算本身的节奏），既不会每帧坍缩，
-     * 也保证 IP 持续产出；真正的收益结算仍由 `eternity-ip-jump` 提前放行。
+     * 历史证据（保留）：R96 实测「allow 一帧设 5 秒、deny 一帧设 3600 秒」的逐帧翻转会让
+     * 坍缩几乎不发生，maxIP 冻在 1e40；当时改为固定 30 秒。
+     *
+     * R99 接手复核（bigE=1 / EP=6 / IP=6.46e157，×10000）证明固定 30 秒同样会死锁：
+     * `thisInfinity.maxAM` 冻在 1.587e24321、`thisEternity.maxAM` 冻在 2.834e25240，
+     * 单次坍缩恒定只给约 1.5e154 IP（相对余额 2.3e-4 倍），60 秒实测只涨 0.02%，
+     * 而第 2 次永恒要求 `maxIP ≥ 1.797e308` ⇒ 永久停滞。
+     * 结论：窗口必须是「会随失败而扩张」的，不能是任何固定值。
      */
-    private const val ETERNITY_GROW_CRUNCH_SECONDS = 30.0
 
     /**
      * [R96] Break 之后「放行」时的坍缩下限间隔（秒）。
@@ -1394,9 +1396,11 @@ object OrekiStageAuto {
             applyManagedAutobuyerStates(decision.allow)
 
             if (!decision.allow) {
-                // 永恒层等待用 30 秒（周期结算），其余等待才用 1 小时硬暂停。
+                // [R99] 永恒层等待用「自适应成长窗口」（60s 起，无收益翻倍即翻倍，上限 1800s）；
+                // 其余等待才用 1 小时硬暂停。固定 30 秒会把反物质每次清空在 e24321，
+                // 单次坍缩收益恒定 ⇒ maxIP 永远到不了 1.797e308（R99 实测）。
                 val pauseSeconds = if (decision.reason == "eternity-grow") {
-                    ETERNITY_GROW_CRUNCH_SECONDS
+                    OrekiCrunchPolicy.eternityWaitSeconds()
                 } else {
                     CRUNCH_PAUSE_SECONDS
                 }
