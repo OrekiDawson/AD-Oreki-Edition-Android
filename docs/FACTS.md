@@ -9887,3 +9887,11 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[P0 跨版本导入回归 PASS]` 2026-11-11 03:20 实测：修复后 MOD 导出存档（`eternities=0`、`bigEternities=0`、`infinities=23`）注入官方 3.21 对照（同时覆盖 player.json 与全部 playerBackup*），冷启动后读数 `eternities=0 / bigEternities=0 / infinities=23 / EP=0`；**完全退出并重启后再读仍为 `0/0/23/0`**，logcat `FATAL EXCEPTION` 计数 0。用户最初报缺陷的路径（MOD→官方导入显示「永恒次数 11」）现已测得 **0**，回归通过。
 - `[合法已永恒存档不退化 PASS]` 2026-11-11 03:24 实测：把真实永恒存档（`eternities=25`、`bigEternities=14`、`eternityPoints=66042.09`、`infinities=126617`）注入修复后 MOD（含全部 playerBackup*），冷启动运行后读回 **完全一致 `25/14/66042.09/126617`**。证明 P0 修复没有抹除或改写合法永恒进度，阶段保护逻辑未误伤已永恒档。
 - `[技能：android-reverse-engineering 已安装并用于发布核验]` 2026-11-11 按用户令安装 `SimoneAvogadro/android-reverse-engineering-skill` 到 `~/.dsh/skills/android-reverse-engineering`（SKILL.md + 7 references + 11 scripts）。用其 Phase 0 指纹能力核验 `release/反物质维度.apk`：**框架 = Native Android (Kotlin + Compose)**；**Native libraries（跨 split 合并）= 4 ABI × 2 库 = 8 个**（`arm64-v8a`/`armeabi-v7a`/`x86`/`x86_64` 各含 `libandroidx.graphics.path.so` 与 `libdatastore_shared_counter.so`）——为 Universal APK 的 ABI 完整性提供**第三方工具独立复核**；另检出 Firebase / Google Play Services 依赖（与「是否需要去 Google」问题相关，官方原版本就带这两项）。完整输出存 `reports/R101-release/skill-fingerprint.txt`。其 Phase 3.5 Kotlin 名称恢复在现有局部 JADX 导出上恢复 0 个（需完整导出，未额外重跑以满足「每轮最多一次完整 JADX」）。
+- `[性能门禁调整 30/45/60 FPS]` 2026-11-11 用户令：Android 正常模式性能分级为 **30 FPS 最低门槛 / 45 FPS 日常目标 / 60 FPS 理想目标**；30 不是上限，禁止把可达 45/60 的实现锁到 30；不得靠降低刷新/跳计算/关功能/伪造测量取得 PASS；省电模式除外。原版与 MOD 均约 20 FPS 时不得仅凭相等宣布达标。规则登记于 `AGENTS.md` §8.11（规则 K），历史 FAIL 与三组旧对照证据全部保留，不回写。判定口径：PASS 需达 30 FPS 且响应正常、卡顿可接受、同条件不明显劣于原版；FAIL 为环境正常但未达门槛或明显退化；BLOCKED 需附双方共受环境限制的证据。
+- `[UI 帧泵实测汇总]` `OrekiUiFramePump`（纯 Kotlin，只重绘不推进游戏）三档实测（同 AVD / 同程序 / 20 s 窗口 / 官方原版对照 971 帧、48 fps、Janky 0.62%、p90 16 ms）：
+  - 每帧整树失效（≈60 fps）：1,111 帧、Janky 98.92%
+  - **33 ms + 只失效文本控件（≈30 fps）：583 帧、Janky 3.60%、p90 16 ms、targets=8~9** ← 当前保留配置
+  - 16 ms + 文本控件：1,097 帧、Janky 71.19%、p50 27 ms
+  - 22 ms（非 vsync 整数倍）：813 帧、Janky 98.89%（错位）
+  - 结论：非 vsync 整数倍间隔会产生错位卡顿；当前实现约 30 fps，满足最低门槛但**帧率仍明显低于原版**。
+- `[Kotlin stdlib 兼容性坑]` MOD 内置 kotlin-stdlib 较旧，`emptyList()` 会在类初始化时抛 `NoSuchFieldError: No field INSTANCE of type Lkotlin/collections/EmptyList`，导致 **App.onCreate 直接崩溃**（实测）。业务代码避免使用 `emptyList()` 等新 stdlib 单例，改用 `java.util.Collections.emptyList()` / `java.ArrayList` / `java.util.ArrayDeque`。
