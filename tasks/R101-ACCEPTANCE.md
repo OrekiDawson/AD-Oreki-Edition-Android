@@ -7,7 +7,7 @@
 - 保留基线提交：`378ebb0`。
 - 原候选 APK SHA-256：`a3a6d447f5b30f61fe7e0ccd902a6a0c36b24bc26f3672f0219ff5b744bff41b`；构建暂存区已保留上一份候选。
 - 本轮候选 APK SHA-256：`af3055b9ac21aabd5fa0a25ba5a1098223652345b70fbbc1e59175be7401c6eb`。
-- 父级导航修复候选 APK SHA-256：`5a65c37b082d8eae05f303ecb640ed16dd5b1c4e3e0976a399340486710264a2`。
+- 父级导航修复候选 APK SHA-256：`a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`。
 - AVD：`ad-game-api37`，设备 `emulator-5554`，`sys.boot_completed=1`。
 - SDK/ADB/emulator：`/opt/android-sdk`，ADB 37.0.1，emulator 37.2.13。
 
@@ -15,7 +15,7 @@
 
 原版 `MainActivity.W8(Lbm4;ZZ)` 是页面选择和恢复的直接入口。Activity 恢复使用保存的 `Lo/Lm` 页签对象，绕过 `bm4.h()`，因此仅给 `bm4.g()/h()` 加门禁不能阻断 R100 的“时间维度”恢复泄漏。
 
-进一步实测发现，底部紫色永恒入口由父级 `ll2.g()` 按 `Luo4.c()` 直接放行，也绕过 `bm4.g()`。本轮在 Gradle 注入器中将 `ll2.g()` 的 `eternity` 分组转发到同一 Kotlin 判据；业务仍只读真实结算产物。
+进一步实测发现，底部紫色永恒入口由父级 `ll2.g()` 按 `Luo4.c()` 直接放行，也绕过 `bm4.g()`。首次注入误读 `ll2.j`（该字段实际是 Font Awesome 图标字形），导致恢复路径仍放行；随后改为读取父类 `Luo4.b`（真实业务名称），并将 `ll2.g()` 与 Activity 创建/恢复循环统一转发到同一 Kotlin 判据。业务仍只读真实结算产物。
 
 本轮把同一 Kotlin 业务判据接入 `W8()`：非法永恒层页签回退原版 `jp4.b`（反物质维度），不写存档、不清零 `Player.eternities`、不改资源、不扫描 View。Gradle 注入器负责 ABI 接线，业务判定仍在 `OrekiStageAuto.kt`。
 
@@ -42,13 +42,14 @@
 - 父级门禁候选实测：264 帧，p50 16ms，p95 32ms，p99 32ms；现代 FrameTimeline 206/264（78.03%），legacy 35/264（13.26%），Missed Vsync 0，Slow UI 1，Slow issue draw commands 206；证据 `reports/R101-new-save/19-parent-gate-gfxinfo.txt`。
 - Perfetto 15 秒：`reports/R101-new-save/20-parent-gate.pftrace`；应用主线程约 1.59 秒 CPU，RenderThread 约 5.15 秒 CPU，未见主线程长阻塞或递归证据。frame-observer 关闭对照为 337 帧、现代 jank 224（66.47%）、legacy 162（48.07%）、p95 36ms、Missed Vsync 0；证据 `reports/R101-new-save/21-parent-gate-gfxinfo-observer-off.txt`。两组均以 `Slow issue draw commands` 为主。
 - 官方 XAPK 对照：BLOCKED；base + `config.mdpi` 缺少设备所需 split，加入 `config.armeabi_v7a` 后 AVD 报 `INSTALL_FAILED_NO_MATCHING_ABIS`，未伪造原版性能结论。
+- 最新父级业务名称门禁：PASS；新档恢复后实测 `phase=infinity、eternity=false、ep=0、bigE=0`，底部紫色永恒入口消失，普通底栏保留 8 个合法入口；截图 `reports/R101-new-save/38-category-name-gate-running.png`。再次 Activity 重启并点击“开始游戏”后仍无紫色入口，截图 `reports/R101-new-save/41-category-name-gate-restart-running.png`，UI 树 `reports/R101-new-save/39-category-name-gate-ui.xml`。
 - CPU 采样：应用进程约 0%（采样瞬间）；frame-observer 约 1.2%。
 - StackOverflow/ANR/应用致命异常：本轮 logcat 未发现；系统 FontLog/NullBinder 警告不属于应用 P0 根因。
 - 性能门禁：FAIL。现代 jank/绘制命令仍高；Perfetto 与 frame-observer 开关对照已完成，但当前候选不能称稳定版。
 
 ## 发布状态
 
-- Android Release：BLOCKED（性能门禁 FAIL，且新档/Break/非法直达/自动购买器场景未完成）。
+- Android Release：BLOCKED（性能门禁 FAIL，Break/非法直达/合法首次永恒/自动购买器场景未完成）。候选 SHA-256 为 `a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`，仅本地验收，不发布。
 - OneDrive：NOT RUN。
 - Google Drive：NOT RUN。
 - SSH/SFTP：NOT RUN。

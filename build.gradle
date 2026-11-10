@@ -542,7 +542,7 @@ def injectR101EternityTabGate = {
         if (ll2Src.count(ll2Anchor) != 1) throw new GradleException('R101 P0 ll2.g() 锚点不唯一')
         def ll2Inject = ll2Anchor +
             "    # [R101P0_CATEGORY_GATE] 父级导航分组门槛交给 Kotlin\n" +
-            "    iget-object v0, p0, Lll2;->j:Ljava/lang/String;\n" +
+            "    iget-object v0, p0, Luo4;->b:Ljava/lang/String;\n" +
             "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
             "    move-result v0\n" +
             "    if-eqz v0, :oreki_r101_category_locked\n" +
@@ -574,11 +574,29 @@ def injectR101EternityTabGate = {
         "    sget-object p1, Ljp4;->b:Lbm4;\n" +
         "    :oreki_r101_restore_original\n\n"
     mainSrc = mainSrc.replace(w8Anchor, w8Inject)
+
+    // Activity 首次创建/恢复时会直接遍历 jp4.f0[] 向 TabLayout 添加所有父级分组，
+    // 这条路径不调用 ll2.g()。在同一构建期入口做 Kotlin 只读转发，跳过非法永恒分组，
+    // 保持正常无限分组与底栏完整；不扫描 View、不改资源。
+    def categoryLoopAnchor = "    aget-object v9, v0, v8\n"
+    if (mainSrc.count(categoryLoopAnchor) != 1) throw new GradleException('R101 P0 MainActivity 父级页签循环锚点不唯一')
+    def categoryLoopInject = categoryLoopAnchor +
+        "    # [R101P0_CATEGORY_RESTORE_GATE] 恢复/重建时过滤非法父级永恒分组\n" +
+        "    iget-object v12, v9, Luo4;->b:Ljava/lang/String;\n" +
+        "    invoke-static {v12}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
+        "    move-result v12\n" +
+        "    if-eqz v12, :oreki_r101_skip_category_restore\n"
+    mainSrc = mainSrc.replace(categoryLoopAnchor, categoryLoopInject)
+    def categoryLoopTail = "    .line 770\n    .line 771\n    .line 772\n    add-int/lit8 v8, v8, 0x1\n\n    .line 773\n    .line 774\n    goto :goto_8\n"
+    if (mainSrc.count(categoryLoopTail) != 1) throw new GradleException('R101 P0 MainActivity 父级页签循环尾锚点不唯一')
+    mainSrc = mainSrc.replace(categoryLoopTail,
+        "    :oreki_r101_skip_category_restore\n" + categoryLoopTail)
     mainActivity.setText(mainSrc, 'UTF-8')
     bm4.setText(src, 'UTF-8')
     if (!bm4.getText('UTF-8').contains('oreki_r101_tab_select_locked') ||
         !mainActivity.getText('UTF-8').contains('oreki_r101_restore_fallback') ||
-        !ll2.getText('UTF-8').contains('oreki_r101_category_locked')) {
+        !ll2.getText('UTF-8').contains('oreki_r101_category_locked') ||
+        !mainActivity.getText('UTF-8').contains('oreki_r101_skip_category_restore')) {
         throw new GradleException('R101 P0 页签/恢复门禁注入失败')
     }
     logger.lifecycle('[R101 P0] Gradle 已注入 bm4.g()/h() 与 MainActivity.W8() Kotlin 页签业务门禁')
