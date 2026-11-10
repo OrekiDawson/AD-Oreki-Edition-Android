@@ -1,0 +1,1330 @@
+--------- beginning of main
+11-10 17:13:29.993 23945 23945 I libprocessgroup: Created cgroup /sys/fs/cgroup/apps/uid_10234/pid_23945
+11-10 17:13:29.996 23945 23945 I Zygote  : Process 23945 created for com.oreki.antimatterdimensions
+11-10 17:13:29.997 23945 23945 I atterdimensions: Using generational CollectorTypeCMC GC.
+11-10 17:13:29.997 23945 23945 W atterdimensions: Unexpected CPU variant for x86: x86_64.
+11-10 17:13:29.997 23945 23945 W atterdimensions: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-10 17:13:30.001 23945 23945 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-10 17:13:30.008 23945 23945 D CompatChangeReporter: Compat change id reported: 333566037; UID 10234; state: ENABLED
+11-10 17:13:30.009 23945 23945 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-10 17:13:30.009 23945 23945 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-10 17:13:30.016 23945 23945 D nativeloader: Configuring clns-9 for other apk /data/app/~~QiRKbg6z9BxqAsjeaMZUKg==/com.oreki.antimatterdimensions-NtqRVjp3HmhLp7nOZuZrzg==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~QiRKbg6z9BxqAsjeaMZUKg==/com.oreki.antimatterdimensions-NtqRVjp3HmhLp7nOZuZrzg==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.oreki.antimatterdimensions
+11-10 17:13:30.018 23945 23945 V GraphicsEnvironment: Currently set values for:
+11-10 17:13:30.018 23945 23945 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-10 17:13:30.018 23945 23945 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-10 17:13:30.018 23945 23945 V GraphicsEnvironment: com.oreki.antimatterdimensions is not listed in per-application setting
+11-10 17:13:30.018 23945 23945 V GraphicsEnvironment: No special selections for ANGLE, returning default driver choice
+11-10 17:13:30.019 23945 23945 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-10 17:13:30.020 23945 23945 D CompatChangeReporter: Compat change id reported: 407952621; UID 10234; state: ENABLED
+11-10 17:13:30.020 23945 23945 D CompatChangeReporter: Compat change id reported: 419020719; UID 10234; state: ENABLED
+11-10 17:13:30.024 23945 23945 D FirebaseSessions: Dependency to CRASHLYTICS added.
+11-10 17:13:30.025 23945 23945 I FirebaseApp: Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+11-10 17:13:30.029 23945 23945 D nativeloader: Load libdatastore_shared_counter.so using class loader ns clns-9 (caller=/data/app/~~QiRKbg6z9BxqAsjeaMZUKg==/com.oreki.antimatterdimensions-NtqRVjp3HmhLp7nOZuZrzg==/base.apk): dlopen failed: library "libdatastore_shared_counter.so" not found
+11-10 17:13:30.031 23945 23945 D CompatChangeReporter: Compat change id reported: 418924588; UID 10234; state: ENABLED
+11-10 17:13:30.032 23945 23945 D nativeloader: Load libdatastore_shared_counter.so using class loader ns clns-9 (caller=/data/app/~~QiRKbg6z9BxqAsjeaMZUKg==/com.oreki.antimatterdimensions-NtqRVjp3HmhLp7nOZuZrzg==/base.apk): dlopen failed: library "libdatastore_shared_counter.so" not found
+11-10 17:13:30.032 23945 23945 D FirebaseSessions: Initializing Firebase Sessions 4.0.1.
+11-10 17:13:30.033 23945 23945 I FirebaseCrashlytics: Initializing Firebase Crashlytics 21.0.1 for com.oreki.antimatterdimensions
+11-10 17:13:30.039 23945 23945 D FirebaseSessions: Subscriber CRASHLYTICS registered.
+11-10 17:13:30.044 23945 23960 D FirebaseSessions: No Sessions subscribers. Not listening to lifecycle events.
+11-10 17:13:30.052 23945 23945 I FirebaseCrashlytics: Registering with ProfilingManager; heap dump collection is disabled
+11-10 17:13:30.054 23945 23945 I FirebaseInitProvider: FirebaseApp initialization successful
+11-10 17:13:30.058 23945 23945 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-10 17:13:30.058 23945 23958 I FirebaseCrashlytics: Saved version control info
+11-10 17:13:30.064 23945 23945 D CompatChangeReporter: Compat change id reported: 458413887; UID 10234; state: ENABLED
+11-10 17:13:30.066 23945 23963 I DynamiteModule: Considering local module com.google.android.gms.measurement.dynamite:216 and remote module com.google.android.gms.measurement.dynamite:182
+11-10 17:13:30.066 23945 23963 I DynamiteModule: Selected local version of com.google.android.gms.measurement.dynamite
+--------- beginning of system
+11-10 17:13:30.066 23945 23971 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+11-10 17:13:30.070 23945 23964 D FirebaseSessions: Notified CRASHLYTICS of new session 15f571fad9e54dccae293b80b0d7a707
+11-10 17:13:30.071 23945 23945 D DesktopExperienceFlags: Toggle override initialized to: false
+11-10 17:13:30.072 23945 23945 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+11-10 17:13:30.076 23945 23976 D Phlogger: Application doesn't implement PhenotypeApplication interface, falling back to globally set context. See go/phenotype-flag#process-stable-init for more info.
+11-10 17:13:30.081 23945 23976 I Phlogger: Shared storage file not found for com.google.android.gms.measurement#com.oreki.antimatterdimensions
+11-10 17:13:30.082 23945 23945 I HWUI    : Using FreeType backend (prop=Auto)
+11-10 17:13:30.085 23945 23975 I FA      : App measurement initialized, version: 192000
+11-10 17:13:30.085 23945 23975 I FA      : To enable debug logging run: adb shell setprop log.tag.FA VERBOSE
+11-10 17:13:30.085 23945 23975 I FA      : To enable faster debug mode event logging run:
+11-10 17:13:30.085 23945 23975 I FA      :   adb shell setprop debug.firebase.analytics.app com.oreki.antimatterdimensions
+11-10 17:13:30.089 23945 23975 E FA      : AppMeasurementReceiver not registered/enabled
+11-10 17:13:30.090 23945 23975 E FA      : AppMeasurementService not registered/enabled
+11-10 17:13:30.090 23945 23975 E FA      : Uploading is not possible. App measurement disabled
+11-10 17:13:30.098 23945 23971 I GFXSTREAM: [eglDisplay.cpp(297)] Opening libGLESv1_CM_emulation.so
+11-10 17:13:30.098 23945 23971 I GFXSTREAM: [eglDisplay.cpp(297)] Opening libGLESv2_emulation.so
+11-10 17:13:30.100 23945 23971 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:30.104 23945 23971 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-10 17:13:30.200 23945 23945 W TabLayout: MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-10 17:13:30.201 23945 23945 W TabLayout: MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-10 17:13:30.268 23945 23945 W System.err: java.io.FileNotFoundException: /data/user/0/com.oreki.antimatterdimensions/files/player2.json: open failed: ENOENT (No such file or directory)
+11-10 17:13:30.269 23945 23945 W System.err: 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-10 17:13:30.269 23945 23945 W System.err: 	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.ContextImpl.openFileInput(ContextImpl.java:818)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-10 17:13:30.269 23945 23945 W System.err: 	at kajfosz.antimatterdimensions.player.h.d(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:65)
+11-10 17:13:30.269 23945 23945 W System.err: 	at kajfosz.antimatterdimensions.MainActivity.onCreate(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:2051)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.Activity.performCreate(Activity.java:9340)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.Activity.performCreate(Activity.java:9318)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1543)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4559)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4781)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:224)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3032)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.os.Handler.dispatchMessageImpl(Handler.java:142)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.os.Handler.dispatchMessage(Handler.java:125)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.os.Looper.loopOnce(Looper.java:296)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.os.Looper.loop(Looper.java:397)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.ActivityThread.main(ActivityThread.java:9523)
+11-10 17:13:30.269 23945 23945 W System.err: 	at java.lang.reflect.Method.invoke(Native Method)
+11-10 17:13:30.269 23945 23945 W System.err: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+11-10 17:13:30.269 23945 23945 W System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:939)
+11-10 17:13:30.269 23945 23945 W System.err: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+11-10 17:13:30.269 23945 23945 W System.err: 	at libcore.io.Linux.open(Native Method)
+11-10 17:13:30.269 23945 23945 W System.err: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:579)
+11-10 17:13:30.269 23945 23945 W System.err: 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-10 17:13:30.269 23945 23945 W System.err: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:579)
+11-10 17:13:30.269 23945 23945 W System.err: 	at android.app.AndroidForwardingOs.open(AndroidForwardingOs.java:120)
+11-10 17:13:30.269 23945 23945 W System.err: 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-10 17:13:30.269 23945 23945 W System.err: 	... 25 more
+11-10 17:13:30.270 23945 23945 I OrekiTutorial: 3
+11-10 17:13:30.270 23945 23945 I OrekiTutorial: 3
+11-10 17:13:30.270 23945 23945 I OrekiTutorial: 3
+11-10 17:13:30.270 23945 23945 I OrekiTutorial: 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-10 17:13:30.271 23945 23945 D FirebaseSessions: App foregrounded on com.oreki.antimatterdimensions
+11-10 17:13:30.271 23945 23945 D FirebaseSessions: Session 15f571fad9e54dccae293b80b0d7a707 has not backgrounded yet
+11-10 17:13:30.271 23945 23945 D FirebaseSessions: Process com.oreki.antimatterdimensions is stale
+11-10 17:13:30.272 23945 23945 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-10 17:13:30.272 23945 23945 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-10 17:13:30.272 23945 23945 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-10 17:13:30.272 23945 23945 I OrekiTutorial: 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-10 17:13:30.272 23945 23975 I FA      : Tag Manager is not found and thus will not be used
+11-10 17:13:30.272 23945 23959 D FirebaseSessions: Session 15f571fad9e54dccae293b80b0d7a707 has not backgrounded yet
+11-10 17:13:30.273 23945 23959 D FirebaseSessions: Cold app start detected
+11-10 17:13:30.273 23945 23959 D FirebaseSessions: Process com.oreki.antimatterdimensions is stale
+11-10 17:13:30.273 23945 23964 D FirebaseSessions: Sessions SDK disabled through data collection. Events will not be sent.
+11-10 17:13:30.275 23945 23960 D FirebaseSessions: Notified CRASHLYTICS of new session aa78973edb8042eb8259fca89235a091
+11-10 17:13:30.275 23945 23981 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.275 23945 23981 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.290 23945 23980 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.290 23945 23980 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.291 23945 23945 W HWUI    : Unknown dataspace 0
+11-10 17:13:30.294 23945 23945 D InsetsController: Setting requestedVisibleTypes to 496 (was 503)
+11-10 17:13:30.300 23945 23981 I ApexCodecsLazy: ApexCodecs loaded
+11-10 17:13:30.300 23945 23981 I Codec2Client: Available Codec2 services: "default" "software" "__ApexCodecs__"
+11-10 17:13:30.306 23945 23981 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.306 23945 23980 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.307 23945 23982 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.307 23945 23983 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.310 23945 23982 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.314 23945 23983 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.315 23945 23986 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:30.357 23945 23945 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.app.Activity$$ExternalSyntheticLambda0@53a5b1b
+11-10 17:13:30.358 23945 23945 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): r83@afb291
+11-10 17:13:30.366 23945 23945 D VRI[MainActivity]: WindowInsets changed: 1080x2400 statusBars:[0,128,0,0] navigationBars:[0,0,0,63] mandatorySystemGestures:[0,160,0,84] 
+11-10 17:13:30.368 23945 23983 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.368 23945 23982 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.368 23945 23982 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.368 23945 23983 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.368 23945 23982 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.369 23945 23982 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.369 23945 23983 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.370 23945 23982 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.370 23945 23982 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.370 23945 23982 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.370 23945 23982 D CCodecConfig: }
+11-10 17:13:30.371 23945 23983 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.371 23945 23983 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.371 23945 23983 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.371 23945 23983 D CCodecConfig: }
+11-10 17:13:30.372 23945 23981 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.373 23945 23980 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.373 23945 23983 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.373 23945 23983 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.373 23945 23983 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.373 23945 23983 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.373 23945 23983 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.373 23945 23983 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.373 23945 23982 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.373 23945 23982 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.373 23945 23982 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.373 23945 23982 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.373 23945 23982 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.373 23945 23982 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.373 23945 23983 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.373 23945 23982 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.373 23945 23983 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.373 23945 23982 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.373 23945 23982 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.373 23945 23982 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.373 23945 23982 D CCodec  : }
+11-10 17:13:30.373 23945 23982 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.373 23945 23982 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.373 23945 23982 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.373 23945 23982 D CCodec  : }
+11-10 17:13:30.373 23945 23983 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.373 23945 23983 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.373 23945 23983 D CCodec  : }
+11-10 17:13:30.373 23945 23983 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.373 23945 23983 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.373 23945 23983 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.373 23945 23983 D CCodec  : }
+11-10 17:13:30.373 23945 23982 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.373 23945 23983 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.373 23945 23982 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.373 23945 23983 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.374 23945 23982 D C2Store : Using DMABUF Heaps
+11-10 17:13:30.374 23945 23982 D CCodecBufferChannel: [c2.android.mp3.decoder#87] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+11-10 17:13:30.376 23945 23983 D CCodecBufferChannel: [c2.android.mp3.decoder#287] Created input block pool with allocatorID 16 => poolID 18 - OK (0)
+11-10 17:13:30.376 23945 23982 I CCodecBufferChannel: [c2.android.mp3.decoder#87] Created output block pool with allocatorID 16 => poolID 2637 - OK
+11-10 17:13:30.377 23945 23983 I CCodecBufferChannel: [c2.android.mp3.decoder#287] Created output block pool with allocatorID 16 => poolID 2638 - OK
+11-10 17:13:30.377 23945 23983 D CCodecBufferChannel: [c2.android.mp3.decoder#287] Configured output block pool ids 2638 => OK
+11-10 17:13:30.377 23945 23982 D CCodecBufferChannel: [c2.android.mp3.decoder#87] Configured output block pool ids 2637 => OK
+11-10 17:13:30.382 23945 23945 I Surface : Creating surface for consumer unnamed-23945-0 with slotExpansion=1 for 64 slots
+11-10 17:13:30.383 23945 23945 I Surface : Creating surface for consumer VRI[MainActivity]#0(BLAST Consumer)0 with slotExpansion=1 for 64 slots
+11-10 17:13:30.384 23945 23945 D VRI[MainActivity]: WindowInsets changed: statusBars:null navigationBars:null 
+11-10 17:13:30.385 23945 23983 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.386 23945 23954 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.386 23945 23982 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.387 23945 23955 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.391 23945 23945 I Surface : Creating surface for consumer unnamed-23945-1 with slotExpansion=1 for 64 slots
+11-10 17:13:30.391 23945 23945 I Surface : Creating surface for consumer SurfaceTexture-0-23945-0 with slotExpansion=0 for 64 slots
+11-10 17:13:30.509 23945 23983 D CCodecBufferChannel: [c2.android.mp3.decoder#287] MediaCodec discarded an unknown buffer
+11-10 17:13:30.509 23945 23983 D CCodecBufferChannel: [c2.android.mp3.decoder#287] MediaCodec discarded an unknown buffer
+11-10 17:13:30.509 23945 23983 D CCodecBufferChannel: [c2.android.mp3.decoder#287] MediaCodec discarded an unknown buffer
+11-10 17:13:30.509 23945 24000 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.519 23945 23982 D CCodecBufferChannel: [c2.android.mp3.decoder#87] MediaCodec discarded an unknown buffer
+11-10 17:13:30.519 23945 23982 D CCodecBufferChannel: [c2.android.mp3.decoder#87] MediaCodec discarded an unknown buffer
+11-10 17:13:30.519 23945 23982 D CCodecBufferChannel: [c2.android.mp3.decoder#87] MediaCodec discarded an unknown buffer
+11-10 17:13:30.520 23945 24002 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.520 23945 23980 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.521 23945 23980 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.525 23945 23980 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.526 23945 24001 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.529 23945 24001 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.532 23945 23981 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.532 23945 23981 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.538 23945 23981 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.538 23945 24003 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.539 23945 24001 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.539 23945 24001 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.539 23945 24001 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.541 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.541 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.542 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.542 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.542 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.542 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.543 23945 24001 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.543 23945 24003 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.544 23945 24001 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.544 23945 24001 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.544 23945 24001 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.544 23945 24001 D CCodecConfig: }
+11-10 17:13:30.547 23945 24003 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.547 23945 24003 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.547 23945 24003 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.547 23945 23980 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.548 23945 24001 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.548 23945 24001 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.548 23945 24001 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.548 23945 24001 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.548 23945 24001 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.548 23945 24001 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.548 23945 24001 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.548 23945 24001 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.548 23945 24001 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.548 23945 24001 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.548 23945 24001 D CCodec  : }
+11-10 17:13:30.548 23945 24001 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.548 23945 24001 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.548 23945 24001 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.548 23945 24001 D CCodec  : }
+11-10 17:13:30.548 23945 24001 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.548 23945 24001 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.548 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.549 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.549 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.549 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.549 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.549 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.549 23945 24001 D CCodecBufferChannel: [c2.android.mp3.decoder#496] Created input block pool with allocatorID 16 => poolID 19 - OK (0)
+11-10 17:13:30.549 23945 24003 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.550 23945 24001 I CCodecBufferChannel: [c2.android.mp3.decoder#496] Created output block pool with allocatorID 16 => poolID 2641 - OK
+11-10 17:13:30.550 23945 24001 D CCodecBufferChannel: [c2.android.mp3.decoder#496] Configured output block pool ids 2641 => OK
+11-10 17:13:30.550 23945 24003 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.550 23945 24003 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.550 23945 24003 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.550 23945 24003 D CCodecConfig: }
+11-10 17:13:30.551 23945 23981 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.551 23945 24003 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.551 23945 24003 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.551 23945 24003 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.551 23945 24003 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.551 23945 24003 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.551 23945 24003 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.551 23945 24003 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.551 23945 24003 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.551 23945 24003 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.551 23945 24003 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.551 23945 24003 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.551 23945 24003 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.551 23945 24003 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.551 23945 24003 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.551 23945 24003 D CCodec  : }
+11-10 17:13:30.552 23945 24003 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.552 23945 24003 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.552 23945 24003 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.552 23945 24003 D CCodec  : }
+11-10 17:13:30.552 23945 24003 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.552 23945 24003 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.553 23945 24003 D CCodecBufferChannel: [c2.android.mp3.decoder#13] Created input block pool with allocatorID 16 => poolID 20 - OK (0)
+11-10 17:13:30.554 23945 24001 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.554 23945 24003 I CCodecBufferChannel: [c2.android.mp3.decoder#13] Created output block pool with allocatorID 16 => poolID 2642 - OK
+11-10 17:13:30.554 23945 24003 D CCodecBufferChannel: [c2.android.mp3.decoder#13] Configured output block pool ids 2642 => OK
+11-10 17:13:30.555 23945 23997 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.557 23945 24003 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.558 23945 23953 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.666 23945 24003 D CCodecBufferChannel: [c2.android.mp3.decoder#13] MediaCodec discarded an unknown buffer
+11-10 17:13:30.666 23945 24003 D CCodecBufferChannel: [c2.android.mp3.decoder#13] MediaCodec discarded an unknown buffer
+11-10 17:13:30.666 23945 24003 D CCodecBufferChannel: [c2.android.mp3.decoder#13] MediaCodec discarded an unknown buffer
+11-10 17:13:30.666 23945 24006 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.669 23945 23981 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.669 23945 23981 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.669 23945 24001 D CCodecBufferChannel: [c2.android.mp3.decoder#496] MediaCodec discarded an unknown buffer
+11-10 17:13:30.669 23945 24001 D CCodecBufferChannel: [c2.android.mp3.decoder#496] MediaCodec discarded an unknown buffer
+11-10 17:13:30.669 23945 24001 D CCodecBufferChannel: [c2.android.mp3.decoder#496] MediaCodec discarded an unknown buffer
+11-10 17:13:30.670 23945 24008 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.672 23945 23980 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.672 23945 23980 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.673 23945 23981 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.674 23945 24007 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.677 23945 23980 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.677 23945 24009 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.680 23945 24007 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.682 23945 24007 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.682 23945 24007 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.682 23945 24007 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.683 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.683 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.683 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.683 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.683 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.684 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.684 23945 24007 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.684 23945 24009 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.684 23945 24007 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.684 23945 24007 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.684 23945 24007 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.684 23945 24007 D CCodecConfig: }
+11-10 17:13:30.685 23945 23981 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.685 23945 24007 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.685 23945 24007 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.685 23945 24007 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.685 23945 24007 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.685 23945 24007 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.685 23945 24007 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.685 23945 24009 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.685 23945 24007 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.685 23945 24009 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.686 23945 24007 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.686 23945 24007 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.686 23945 24007 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.686 23945 24007 D CCodec  : }
+11-10 17:13:30.686 23945 24007 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.686 23945 24007 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.686 23945 24007 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.686 23945 24007 D CCodec  : }
+11-10 17:13:30.686 23945 24007 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.686 23945 24009 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.686 23945 24007 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.686 23945 24007 D CCodecBufferChannel: [c2.android.mp3.decoder#63] Created input block pool with allocatorID 16 => poolID 21 - OK (0)
+11-10 17:13:30.686 23945 24007 I CCodecBufferChannel: [c2.android.mp3.decoder#63] Created output block pool with allocatorID 16 => poolID 2645 - OK
+11-10 17:13:30.687 23945 24007 D CCodecBufferChannel: [c2.android.mp3.decoder#63] Configured output block pool ids 2645 => OK
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.687 23945 24009 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.688 23945 24009 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.688 23945 24009 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.688 23945 24009 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.688 23945 24009 D CCodecConfig: }
+11-10 17:13:30.688 23945 23980 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.688 23945 24009 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.688 23945 24009 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.688 23945 24009 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.688 23945 24009 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.688 23945 24009 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.688 23945 24009 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.689 23945 24009 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.689 23945 24009 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.689 23945 24009 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.689 23945 24009 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.689 23945 24009 D CCodec  : }
+11-10 17:13:30.689 23945 24009 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.689 23945 24009 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.689 23945 24009 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.689 23945 24009 D CCodec  : }
+11-10 17:13:30.689 23945 24009 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.689 23945 24009 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.689 23945 24009 D CCodecBufferChannel: [c2.android.mp3.decoder#230] Created input block pool with allocatorID 16 => poolID 22 - OK (0)
+11-10 17:13:30.690 23945 24009 I CCodecBufferChannel: [c2.android.mp3.decoder#230] Created output block pool with allocatorID 16 => poolID 2646 - OK
+11-10 17:13:30.690 23945 24009 D CCodecBufferChannel: [c2.android.mp3.decoder#230] Configured output block pool ids 2646 => OK
+11-10 17:13:30.691 23945 24007 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.691 23945 24009 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.692 23945 23953 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.693 23945 23997 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.770 23945 24007 D CCodecBufferChannel: [c2.android.mp3.decoder#63] MediaCodec discarded an unknown buffer
+11-10 17:13:30.770 23945 24007 D CCodecBufferChannel: [c2.android.mp3.decoder#63] MediaCodec discarded an unknown buffer
+11-10 17:13:30.771 23945 24015 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.785 23945 24014 W InteractionJankMonitor: Initializing without READ_DEVICE_CONFIG permission. enabled=true, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=com.oreki.antimatterdimensions
+11-10 17:13:30.788 23945 23981 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.788 23945 23981 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.791 23945 23981 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.791 23945 24017 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.796 23945 24017 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.799 23945 24017 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.799 23945 24017 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.800 23945 24017 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.800 23945 24017 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.801 23945 24017 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.801 23945 24017 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.801 23945 24017 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.801 23945 24017 D CCodecConfig: }
+11-10 17:13:30.801 23945 23981 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.801 23945 24017 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.802 23945 24017 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.802 23945 24017 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.802 23945 24017 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.802 23945 24017 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.802 23945 24017 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.802 23945 24017 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.802 23945 24017 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.802 23945 24017 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.802 23945 24017 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.802 23945 24017 D CCodec  : }
+11-10 17:13:30.802 23945 24017 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.802 23945 24017 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.802 23945 24017 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.802 23945 24017 D CCodec  : }
+11-10 17:13:30.802 23945 24017 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.802 23945 24017 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.805 23945 24017 D CCodecBufferChannel: [c2.android.mp3.decoder#739] Created input block pool with allocatorID 16 => poolID 23 - OK (0)
+11-10 17:13:30.806 23945 24017 I CCodecBufferChannel: [c2.android.mp3.decoder#739] Created output block pool with allocatorID 16 => poolID 2648 - OK
+11-10 17:13:30.806 23945 24017 D CCodecBufferChannel: [c2.android.mp3.decoder#739] Configured output block pool ids 2648 => OK
+11-10 17:13:30.822 23945 24017 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.823 23945 23996 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.824 23945 23945 D InsetsController: hide(ime())
+11-10 17:13:30.825 23945 23945 I ImeTracker: com.oreki.antimatterdimensions:7bebb16c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+11-10 17:13:30.841 23945 24009 D CCodecBufferChannel: [c2.android.mp3.decoder#230] MediaCodec discarded an unknown buffer
+11-10 17:13:30.842 23945 24021 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.854 23945 23980 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.854 23945 23980 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:30.861 23945 23980 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:30.862 23945 24022 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:30.870 23945 24022 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:30.872 23945 24022 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.872 23945 24022 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:30.872 23945 24022 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:30.873 23945 24022 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:30.874 23945 24022 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.874 23945 24022 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:30.874 23945 24022 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:30.874 23945 24022 D CCodecConfig: }
+11-10 17:13:30.883 23945 23980 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:30.883 23945 24022 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:30.883 23945 24022 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:30.883 23945 24022 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:30.883 23945 24022 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:30.883 23945 24022 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:30.883 23945 24022 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:30.883 23945 24022 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:30.883 23945 24022 D CCodec  : encoding statistics level = 0
+11-10 17:13:30.883 23945 24022 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:30.883 23945 24022 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.883 23945 24022 D CCodec  : }
+11-10 17:13:30.883 23945 24022 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:30.883 23945 24022 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:30.883 23945 24022 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:30.883 23945 24022 D CCodec  : }
+11-10 17:13:30.883 23945 24022 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:30.883 23945 24022 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:30.885 23945 24022 D CCodecBufferChannel: [c2.android.mp3.decoder#606] Created input block pool with allocatorID 16 => poolID 24 - OK (0)
+11-10 17:13:30.885 23945 24022 I CCodecBufferChannel: [c2.android.mp3.decoder#606] Created output block pool with allocatorID 16 => poolID 2650 - OK
+11-10 17:13:30.886 23945 24022 D CCodecBufferChannel: [c2.android.mp3.decoder#606] Configured output block pool ids 2650 => OK
+11-10 17:13:30.892 23945 24022 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.897 23945 23996 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:30.996 23945 24017 D CCodecBufferChannel: [c2.android.mp3.decoder#739] MediaCodec discarded an unknown buffer
+11-10 17:13:30.996 23945 24017 D CCodecBufferChannel: [c2.android.mp3.decoder#739] MediaCodec discarded an unknown buffer
+11-10 17:13:30.996 23945 24017 D CCodecBufferChannel: [c2.android.mp3.decoder#739] MediaCodec discarded an unknown buffer
+11-10 17:13:30.996 23945 24026 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:30.998 23945 23981 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:30.998 23945 23981 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:31.001 23945 23981 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:31.002 23945 24027 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:31.004 23945 24027 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:31.005 23945 24027 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:31.005 23945 24027 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:31.005 23945 24027 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:31.005 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:31.005 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:31.005 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:31.006 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:31.006 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:31.006 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:31.006 23945 24027 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:31.006 23945 24027 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:31.006 23945 24027 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:31.006 23945 24027 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:31.006 23945 24027 D CCodecConfig: }
+11-10 17:13:31.007 23945 23981 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:31.007 23945 24027 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:31.007 23945 24027 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:31.007 23945 24027 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:31.007 23945 24027 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:31.007 23945 24027 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:31.007 23945 24027 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:31.007 23945 24027 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:31.007 23945 24027 D CCodec  : encoding statistics level = 0
+11-10 17:13:31.007 23945 24027 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:31.007 23945 24027 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:31.007 23945 24027 D CCodec  : }
+11-10 17:13:31.007 23945 24027 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:31.007 23945 24027 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:31.007 23945 24027 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:31.007 23945 24027 D CCodec  : }
+11-10 17:13:31.007 23945 24027 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:31.007 23945 24027 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:31.007 23945 24027 D CCodecBufferChannel: [c2.android.mp3.decoder#959] Created input block pool with allocatorID 16 => poolID 25 - OK (0)
+11-10 17:13:31.008 23945 24027 I CCodecBufferChannel: [c2.android.mp3.decoder#959] Created output block pool with allocatorID 16 => poolID 2652 - OK
+11-10 17:13:31.008 23945 24027 D CCodecBufferChannel: [c2.android.mp3.decoder#959] Configured output block pool ids 2652 => OK
+11-10 17:13:31.009 23945 24027 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:31.010 23945 23996 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:31.013 23945 24022 D CCodecBufferChannel: [c2.android.mp3.decoder#606] MediaCodec discarded an unknown buffer
+11-10 17:13:31.013 23945 24022 D CCodecBufferChannel: [c2.android.mp3.decoder#606] MediaCodec discarded an unknown buffer
+11-10 17:13:31.013 23945 24022 D CCodecBufferChannel: [c2.android.mp3.decoder#606] MediaCodec discarded an unknown buffer
+11-10 17:13:31.013 23945 24029 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:31.015 23945 23980 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 17:13:31.015 23945 23980 I MediaCodec: Retry enabled for HDCP failure
+11-10 17:13:31.018 23945 23980 W atterdimensions: Failed to query component store for system resources: 6
+11-10 17:13:31.018 23945 24030 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 17:13:31.021 23945 24030 I CCodec  : setting up 'default' as default (vendor) store
+11-10 17:13:31.022 23945 24030 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:31.022 23945 24030 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 17:13:31.022 23945 24030 D CCodecConfig: read media type: audio/mpeg
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 17:13:31.022 23945 24030 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 17:13:31.023 23945 24030 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:31.023 23945 24030 D CCodecConfig: c2 config diff is Dict {
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 17:13:31.023 23945 24030 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 17:13:31.023 23945 24030 D CCodecConfig: }
+11-10 17:13:31.023 23945 23980 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 17:13:31.023 23945 24030 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 17:13:31.023 23945 24030 D CCodecConfig: no c2 equivalents for durationUs
+11-10 17:13:31.023 23945 24030 D CCodecConfig: no c2 equivalents for track-id
+11-10 17:13:31.023 23945 24030 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 17:13:31.023 23945 24030 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 17:13:31.023 23945 24030 D CCodecConfig: no c2 equivalents for flags
+11-10 17:13:31.023 23945 24030 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 17:13:31.023 23945 24030 D CCodec  : encoding statistics level = 0
+11-10 17:13:31.023 23945 24030 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t bitrate = 224000
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t max-input-size = 8192
+11-10 17:13:31.023 23945 24030 D CCodec  :   string mime = "audio/mpeg"
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:31.023 23945 24030 D CCodec  : }
+11-10 17:13:31.023 23945 24030 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t channel-count = 2
+11-10 17:13:31.023 23945 24030 D CCodec  :   string mime = "audio/raw"
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t sample-rate = 44100
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t encoder-delay = 576
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t encoder-padding = 1536
+11-10 17:13:31.023 23945 24030 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 17:13:31.023 23945 24030 D CCodec  : }
+11-10 17:13:31.023 23945 24030 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 17:13:31.024 23945 24030 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 17:13:31.024 23945 24030 D CCodecBufferChannel: [c2.android.mp3.decoder#48] Created input block pool with allocatorID 16 => poolID 26 - OK (0)
+11-10 17:13:31.024 23945 24030 I CCodecBufferChannel: [c2.android.mp3.decoder#48] Created output block pool with allocatorID 16 => poolID 2654 - OK
+11-10 17:13:31.024 23945 24030 D CCodecBufferChannel: [c2.android.mp3.decoder#48] Configured output block pool ids 2654 => OK
+11-10 17:13:31.026 23945 24030 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:31.026 23945 23996 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 17:13:31.091 23945 24027 D CCodecBufferChannel: [c2.android.mp3.decoder#959] MediaCodec discarded an unknown buffer
+11-10 17:13:31.091 23945 24030 D CCodecBufferChannel: [c2.android.mp3.decoder#48] MediaCodec discarded an unknown buffer
+11-10 17:13:31.091 23945 24027 D CCodecBufferChannel: [c2.android.mp3.decoder#959] MediaCodec discarded an unknown buffer
+11-10 17:13:31.091 23945 24027 D CCodecBufferChannel: [c2.android.mp3.decoder#959] MediaCodec discarded an unknown buffer
+11-10 17:13:31.091 23945 24030 D CCodecBufferChannel: [c2.android.mp3.decoder#48] MediaCodec discarded an unknown buffer
+11-10 17:13:31.091 23945 24030 D CCodecBufferChannel: [c2.android.mp3.decoder#48] MediaCodec discarded an unknown buffer
+11-10 17:13:31.091 23945 24032 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:31.091 23945 24033 D CCodec  : hold CodecLooper(1) until release
+11-10 17:13:31.262 23945 23945 D AutofillManager: view not autofillable - not passing ime action check
+11-10 17:13:31.480 23945 23945 I PlayCore: UID: [10234]  PID: [23945] AppUpdateListenerRegistry : registerListener
+11-10 17:13:31.480 23945 24035 I UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("B3EEABB8EE11C2BE770B684D95219ECB") to set this as a debug device.
+11-10 17:13:31.480 23945 23945 I PlayCore: UID: [10234]  PID: [23945] AppUpdateService : requestUpdateInfo(com.oreki.antimatterdimensions)
+11-10 17:13:31.480 23945 24035 W UserMessagingPlatform: The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-10 17:13:31.480 23945 24035 W UserMessagingPlatform: Example AndroidManifest:
+11-10 17:13:31.480 23945 24035 W UserMessagingPlatform:     <meta-data
+11-10 17:13:31.480 23945 24035 W UserMessagingPlatform:         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-10 17:13:31.480 23945 24035 W UserMessagingPlatform:         android:value="ca-app-pub-0000000000000000~0000000000">
+11-10 17:13:31.481 23945 24035 W UserMessagingPlatform: Metrics reporting URL is not set yet.
+11-10 17:13:31.484 23945 24036 I PlayCore: UID: [10234]  PID: [23945] AppUpdateService : Initiate binding to the service.
+11-10 17:13:31.485 23945 24036 I PlayCore: UID: [10234]  PID: [23945] AppUpdateService : Failed to bind to the service.
+11-10 17:13:31.576 23945 23978 I OREKI_EC_DIAG: unlocked=3 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 17:13:31.576 23945 23978 I OREKI_SCHED: gui-tick #1 gapMs=10000
+11-10 17:13:31.576 23945 23978 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=1,r=0,bigR=0,eternitiesField=1
+11-10 17:13:31.576 23945 23978 I OREKI_GUI: STATE_CHANGED source=tick-sync:global-tick phase=eternity
+11-10 17:13:31.577 23945 23978 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=true dirty=false force=true
+11-10 17:13:31.577 23945 23978 I OREKI_AUTO_BEAT: gui-tick #1 gapMs=10000
+11-10 17:13:31.578 23945 23978 I EDP_FRAME: frame=1 stage=break break=true canEt=true ep=2.22514867818286e6 gainEP=2.092362e6 bigE=32 inf=8.01043e5 ip=2.98113489131125e2088 db=2573.0 gal=157 justCrunch=false lastCrunch=0 modIntervalMs=10000 auto=true
+11-10 17:13:31.581 23945 23978 I OREKI_PLAYER_INTENT: crunch baseline adopted current=1
+11-10 17:13:31.581 23945 23978 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 17:13:31.582 23945 23978 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 17:13:31.583 23945 23978 I OREKI_PLAYER_INTENT: crunch interval baseline adopted current=120.0
+11-10 17:13:31.583 23945 23978 I OREKI_AU4C: managed interval 120.0 -> 60.0 (pause:eternity-grow)
+11-10 17:13:31.584 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:31.585 23945 23978 I OREKI_EC_AUTO: tsDump L0 v63 :: l/0fm1
+11-10 17:13:31.585 23945 23978 I OREKI_EC_AUTO: tsDump L1 c :: A/1boolean,B/0boolean,C/2void,D/2Boolean,E/1void,F/0boolean,G/0boolean,I/0List,J/0int,K/0boolean,L/0boolean,M/0boolean,N/1Object,m/0String,s/0SpannableStringBuilder,v/0String
+11-10 17:13:31.585 23945 23978 I OREKI_EC_AUTO: tsDump L2 qu4 :: C/2void,y/0iq0
+11-10 17:13:31.585 23945 23978 I OREKI_EC_AUTO: tsDump L3 na4 :: B/0boolean,E/1void,I/0List
+11-10 17:13:31.586 23945 23978 I OREKI_SCHED: noop ec
+11-10 17:13:31.587 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.22514867818286e6 gain=2.092362e6 bigE=32 lastCrunch=0
+11-10 17:13:31.587 23945 23978 I OREKI_IUP_SIZE: 17
+11-10 17:13:31.587 23945 23978 I OREKI_IUP_B0: 1
+11-10 17:13:31.587 23945 23978 I OREKI_IPM_LV: iup-diag all-one-time-bought ip=2.98113489131125e2088
+11-10 17:13:31.589 23945 23978 I OREKI_SCHED: deny noop-retry-wait task=infinityUpgrades
+11-10 17:13:31.590 23945 23978 I OREKI_ID_DIAG: tier=1 id=true reqType=BigDouble maxAMType=BigDouble peakVs=1 unlocked=true purchases=694
+11-10 17:13:31.590 23945 23978 I OREKI_ID_BUY: enter tier=1
+11-10 17:13:31.590 23945 23978 I OREKI_ID_BUY: tier=1 before=694 after=694 unlocked=true
+11-10 17:13:31.590 23945 23978 I OREKI_GOAL: stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-10 17:13:31.598 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.599 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.01043e5->8.01093e5 ip=2.98404946907204e2088 ep=2.22514867818286e6 bigE=32 t=87380205
+11-10 17:13:31.603 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.607 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.610 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.613 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.615 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.618 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.620 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.624 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.627 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.629 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.632 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.634 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.636 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.638 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.640 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.642 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.645 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.647 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.649 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.651 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.653 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.655 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.657 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.659 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.661 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.663 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.666 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.668 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.671 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.674 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.677 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.680 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.682 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.685 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.687 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.689 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.691 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.693 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.695 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.697 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.699 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.701 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.703 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.705 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.707 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.709 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.712 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.713 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.715 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.717 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.719 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.721 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.723 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.725 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.727 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.728 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.730 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.732 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.734 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.736 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.737 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.739 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.741 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.743 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.745 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.746 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.748 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.750 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.752 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.753 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.755 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.757 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.758 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.760 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.762 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.763 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.765 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.767 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.768 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.770 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.772 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.774 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.776 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.779 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.781 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.783 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.785 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.787 23945 23945 W UserMessagingPlatform: The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-10 17:13:31.787 23945 23945 W UserMessagingPlatform: Example AndroidManifest:
+11-10 17:13:31.787 23945 23945 W UserMessagingPlatform:     <meta-data
+11-10 17:13:31.787 23945 23945 W UserMessagingPlatform:         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-10 17:13:31.787 23945 23945 W UserMessagingPlatform:         android:value="ca-app-pub-0000000000000000~0000000000">
+11-10 17:13:31.788 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.791 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.793 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.796 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.799 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.801 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.804 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.806 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.809 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.811 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.813 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.816 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.818 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.820 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.822 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.823 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.825 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.827 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.828 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.830 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.831 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.833 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.834 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.836 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.837 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.838 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.840 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.841 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.843 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.844 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.846 23945 23978 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 17:13:31.846 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=eternity narrowed=17
+11-10 17:13:31.846 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 17:13:31.969 23945 23978 I OfflineSimulation: v3.21.0 | Google sdk_gphone64_x86_64, API 37 | away 0.2 min, simulated 0.2 min, 50 ms of game time per tick | 210 ticks in 0.4 s (1.848 ms/tick avg, p50 <= 2.05, p99 <= 8.19, max 4.5 at #2, first 23.0, 0 over 10 ms), completed | events: 1 crunches, 0 eternities, 0 realities | GC 0 runs / 0 ms, alloc 120.2 KB/tick | heap 86 -> 110 MB, limit 192 MB, device RAM 3912 MB | power save off, thermal none | thread on CPU 95%, nice 0 in /top-app, core 3 at 0.00 of 0.00 GHz (fastest 0.00), compiled code 0.0 MB
+11-10 17:13:31.987 23945 24049 D GASS    : Clearcut logging disabled
+11-10 17:13:31.987 23945 24044 I Ads     : This request is sent from a test device.
+11-10 17:13:31.996 23945 24052 D GASS    : Clearcut logging disabled
+11-10 17:13:32.005 23945 24044 I WebViewFactory: Loading com.google.android.webview version 145.0.7632.218 (code 763221809)
+11-10 17:13:32.008 23945 24050 D nativeloader: Configuring clns-10 for other apk . target_sdk_version=37, uses_libraries=ALL, library_path=, permitted_path=/data:/mnt/expand
+11-10 17:13:32.010 23945 24050 D nativeloader: Load /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar!/libd5AE61AF89A98.so using isolated ns clns-10 (caller=/data/user/0/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar): ok
+11-10 17:13:32.011 23945 24044 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=ddba697c mResDir=null mSplitDirs=[] mOverlayDirs=[] mLibDirs=[/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk,/system/framework/android.test.base.jar,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v37 mCompatInfo={420dpi always-compat} mLoaders=[]}
+11-10 17:13:32.011 23945 24044 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-10 17:13:32.011 23945 24044 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-10 17:13:32.012 23945 24044 D nativeloader: Configuring clns-11 for other apk /data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/lib/x86_64:/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+11-10 17:13:32.008 23945 23945 W AdWorker(Defaul: type=1400 audit(0.0:251): avc:  granted  { execute } for  path="/data/data/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar" dev="dm-6" ino=573677 scontext=u:r:untrusted_app:s0:c234,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c234,c256,c512,c768 tclass=file app=com.oreki.antimatterdimensions
+11-10 17:13:32.034 23945 24044 I cr_WVCFactoryProvider: version=145.0.7632.218 (763221809) minSdkVersion=29 multiprocess=true packageId=2 splits=<none>
+11-10 17:13:32.035 23945 24044 D nativeloader: Load /data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk!/lib/x86_64/libwebviewchromium.so using class loader ns clns-11 (caller=/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk): ok
+11-10 17:13:32.036 23945 24044 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using class loader ns clns-11 (caller=/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk): ok
+11-10 17:13:32.038 23945 24059 I chromium: [1110/171332.038055:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+11-10 17:13:32.038 23945 24059 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.oreki.antimatterdimensions/app_webview/variations_seed_new"
+11-10 17:13:32.039 23945 24044 D CompatChangeReporter: Compat change id reported: 364980165; UID 10234; state: ENABLED
+11-10 17:13:32.039 23945 24044 D CompatChangeReporter: Compat change id reported: 371034303; UID 10234; state: ENABLED
+11-10 17:13:32.048 23945 24044 I cr_LibraryLoader: Successfully loaded native library
+11-10 17:13:32.048 23945 24044 I cr_CachingUmaRecorder: Flushed 16 samples from 16 histograms, 0 samples were dropped.
+11-10 17:13:32.054 23945 24044 W Ads     : Fail to fetch AdActivity theme
+11-10 17:13:32.054 23945 24044 I Ads     : Please set theme of AdActivity to @android:style/Theme.Translucent to enable transparent background interstitial ad.
+11-10 17:13:32.065 23945 24077 W ServiceBindIntentUtils: Dynamic lookup for intent failed for action: com.google.android.gms.ads.service.START
+11-10 17:13:32.068 23945 23945 I cr_ChildProcLH: ScopedServiceBindingBatch.tryActivate: false
+11-10 17:13:32.068 23945 23945 I cr_VariationsUtils: Loaded seed with age 51481s
+11-10 17:13:32.069 23945 23945 I cr_CombinedPProvider: #registerProvider() provider:WV.qk@326bb51 isPolicyCacheEnabled:false policyProvidersSize:0
+11-10 17:13:32.069 23945 23945 I cr_PolicyProvider: #setManagerAndSource() 0
+11-10 17:13:32.070 23945 23945 I cr_DisplayManager: Is Display Topology available: false
+11-10 17:13:32.075 23945 23945 I cr_CombinedPProvider: #linkNativeInternal() 1
+11-10 17:13:32.076 23945 23945 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+11-10 17:13:32.076 23945 23945 I cr_PolicyProvider: #notifySettingsAvailable() 0
+11-10 17:13:32.076 23945 23945 I cr_CombinedPProvider: #onSettingsAvailable() 0
+11-10 17:13:32.076 23945 23945 I cr_CombinedPProvider: #flushPolicies()
+11-10 17:13:32.078 23945 23949 I atterdimensions: NativeAlloc concurrent mark compact GC freed 57MB AllocSpace bytes, 311(17MB) LOS objects, 36% free, 41MB/65MB, paused 755us,736us total 100.056ms
+11-10 17:13:32.106 23945 23945 W chromium: [WARNING:android_webview/browser/network_service/net_helpers.cc:137] HTTP Cache size is: 34261540
+11-10 17:13:32.121 23945 23945 D AutofillManager: Fill dialog is enabled:false, hints=[]
+11-10 17:13:32.125 23945 24109 I CameraManagerGlobal: Connecting to camera service
+11-10 17:13:32.138 23945 24098 W cr_media: BLUETOOTH_CONNECT permission is missing.
+11-10 17:13:32.138 23945 24098 W cr_media: getBluetoothAdapter() requires BLUETOOTH permission
+11-10 17:13:32.138 23945 24098 W cr_media: registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+11-10 17:13:32.139 23945 24098 D AudioSystem: onNewService: media.audio_policy service obtained 0x7de849e73530
+11-10 17:13:32.140 23945 24098 D AudioSystem: getService: IAudioPolicyService retrieved: 0x7de849e73530  cached: 0x7de849e73530
+11-10 17:13:32.142 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.log"
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.log.level"
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.log.prefix"
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.gallium.print.options"
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.log.file.auto"
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.log.file"
+11-10 17:13:32.143 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.143 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.143 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.151 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.151 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.153 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.153 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.153 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.153 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.153 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.153 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.153 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.153 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.153 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.153 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.153 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.153 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.154 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.trace"
+11-10 17:13:32.156 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.trace.per.submit"
+11-10 17:13:32.156 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.trace.frame"
+11-10 17:13:32.156 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.trace.trigger"
+11-10 17:13:32.164 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.wsi.debug"
+11-10 17:13:32.164 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.164 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.164 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.165 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.166 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.wsi.present.mode"
+11-10 17:13:32.166 23945 24113 W libc    : Access denied finding property "vendor.mesa.vk.wsi.headless.swapchain"
+11-10 17:13:32.166 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.167 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.167 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.167 23945 24103 E chromium: [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+11-10 17:13:32.168 23945 24113 E MESA    : Failed to open rendernode: No such file or directory
+11-10 17:13:32.169 23945 24113 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 17:13:32.621 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.12401e5->8.12426e5 ip=3.94768827376405e2088 ep=2.2715649690977e6 bigE=32 t=87381227
+11-10 17:13:32.669 23945 24103 E chromium: [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+11-10 17:13:33.637 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.13417e5->8.13442e5 ip=1.44828906821937e2089 ep=2.2715649690977e6 bigE=32 t=87382243
+11-10 17:13:34.247 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:13:34.602 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:34.604 23945 23978 I OREKI_ID_BUY: enter tier=2
+11-10 17:13:34.604 23945 23978 I OREKI_ID_BUY: tier=2 before=347 after=347 unlocked=true
+11-10 17:13:34.654 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.14433e5->8.14459e5 ip=2.50284623843324e2089 ep=2.2715649690977e6 bigE=32 t=87383260
+11-10 17:13:35.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e21338 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 17:13:35.375 23945 23990 D AidlBufferPoolAcc: evictor expired: 1, evicted: 1
+11-10 17:13:35.578 23945 24158 D ProfileInstaller: Skipping profile installation for com.oreki.antimatterdimensions
+11-10 17:13:35.671 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.15451e5->8.15476e5 ip=3.55740340864711e2089 ep=2.2715649690977e6 bigE=32 t=87384277
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e20c48 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e28dc8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e1ee38 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 10/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e31888 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 8/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e22368 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e261d8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e26fb8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 12/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e28488 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 12/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPool: bufferpool2 0x7de869e31638 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 17:13:36.375 23945 23990 D AidlBufferPoolAcc: evictor expired: 9, evicted: 9
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:13:36.586 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:13:36.586 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:13:36.586 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5683623.999999681
+11-10 17:13:36.587 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.108917e6 bigE=32 lastCrunch=87385193
+11-10 17:13:36.689 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.16468e5->8.16494e5 ip=4.61299750823189e2089 ep=2.2715649690977e6 bigE=32 t=87385295
+11-10 17:13:37.608 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:37.609 23945 23978 I OREKI_ID_BUY: enter tier=3
+11-10 17:13:37.609 23945 23978 I OREKI_ID_BUY: tier=3 before=260 after=260 unlocked=true
+11-10 17:13:37.709 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.17488e5->8.17513e5 ip=5.67066546655849e2089 ep=2.2715649690977e6 bigE=32 t=87386315
+11-10 17:13:38.721 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.18501e5->8.18526e5 ip=6.72107491928872e2089 ep=2.2715649690977e6 bigE=32 t=87387328
+11-10 17:13:39.736 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.19516e5->8.19541e5 ip=7.77355823076077e2089 ep=2.2715649690977e6 bigE=32 t=87388343
+11-10 17:13:40.624 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:40.625 23945 23978 I OREKI_ID_BUY: enter tier=4
+11-10 17:13:40.625 23945 23978 I OREKI_ID_BUY: tier=4 before=207 after=207 unlocked=true
+11-10 17:13:40.748 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.20528e5->8.20553e5 ip=8.82293075412009e2089 ep=2.2715649690977e6 bigE=32 t=87389355
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:13:41.587 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:13:41.587 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:13:41.587 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5688624.999999681
+11-10 17:13:41.587 23945 23978 I OREKI_SCHED: gui-tick #2 gapMs=10000
+11-10 17:13:41.587 23945 23978 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 17:13:41.587 23945 23978 I OREKI_AUTO_BEAT: gui-tick #2 gapMs=10000
+11-10 17:13:41.587 23945 23978 I EDP_FRAME: frame=589 stage=break break=true canEt=true ep=2.2715649690977e6 gainEP=2.108918e6 bigE=32 inf=8.21391e5 ip=9.69187756694135e2089 db=2573.0 gal=157 justCrunch=false lastCrunch=87390167 modIntervalMs=10000 auto=true
+11-10 17:13:41.588 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.108918e6 bigE=32 lastCrunch=87390194
+11-10 17:13:41.588 23945 23978 I OREKI_SCHED: deny noop-retry-wait task=infinityUpgrades
+11-10 17:13:41.591 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 17:13:41.766 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.21546e5->8.21571e5 ip=9.87852485370487e2089 ep=2.2715649690977e6 bigE=32 t=87390373
+11-10 17:13:41.867 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:13:42.177 23945 23945 I Ads     : Ad failed to load : 0
+11-10 17:13:42.777 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.22555e5->8.22581e5 ip=9.26860447693267e2088 ep=2.2715649690977e6 bigE=32 t=87391383
+11-10 17:13:43.136 23945 23949 W atterdimensions: Cleared Reference was only reachable from finalizer (only reported once)
+11-10 17:13:43.641 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:43.641 23945 23978 I OREKI_IPM_LV: iup-diag all-one-time-bought ip=1.82069356541633e2089
+11-10 17:13:43.642 23945 23978 I OREKI_ID_BUY: enter tier=5
+11-10 17:13:43.642 23945 23978 I OREKI_ID_BUY: tier=5 before=130 after=130 unlocked=true
+11-10 17:13:43.792 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.23569e5->8.23595e5 ip=1.97830682979441e2089 ep=2.2715649690977e6 bigE=32 t=87392398
+11-10 17:13:44.810 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.24589e5->8.24614e5 ip=3.0349378587501e2089 ep=2.2715649690977e6 bigE=32 t=87393417
+11-10 17:13:45.830 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.25609e5->8.25634e5 ip=4.0926058170767e2089 ep=2.2715649690977e6 bigE=32 t=87394437
+11-10 17:13:46.593 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:13:46.593 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:13:46.594 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:13:46.594 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:13:46.594 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5693631.999999681
+11-10 17:13:46.594 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.108925e6 bigE=32 lastCrunch=87395200
+11-10 17:13:46.645 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:46.647 23945 23978 I OREKI_ID_DIAG: tier=6 id=true reqType=BigDouble maxAMType=BigDouble peakVs=1 unlocked=true purchases=95
+11-10 17:13:46.647 23945 23978 I OREKI_ID_BUY: enter tier=6
+11-10 17:13:46.647 23945 23978 I OREKI_ID_BUY: tier=6 before=95 after=95 unlocked=true
+11-10 17:13:46.849 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.26626e5->8.26652e5 ip=5.14819991666148e2089 ep=2.2715649690977e6 bigE=32 t=87395456
+11-10 17:13:47.867 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.27643e5->8.27669e5 ip=6.20379401624626e2089 ep=2.2715649690977e6 bigE=32 t=87396473
+11-10 17:13:48.880 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.28658e5->8.28683e5 ip=7.2552403983474e2089 ep=2.2715649690977e6 bigE=32 t=87397486
+11-10 17:13:49.490 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:13:49.670 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:49.671 23945 23978 I OREKI_ID_BUY: enter tier=7
+11-10 17:13:49.671 23945 23978 I OREKI_ID_BUY: tier=7 before=74 after=74 unlocked=true
+11-10 17:13:49.899 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.29677e5->8.29702e5 ip=8.31187142730309e2089 ep=2.2715649690977e6 bigE=32 t=87398505
+11-10 17:13:50.921 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.30697e5->8.30723e5 ip=9.3705763150006e2089 ep=2.2715649690977e6 bigE=32 t=87399527
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:13:51.603 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:13:51.603 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:13:51.603 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5698640.999999681
+11-10 17:13:51.603 23945 23978 I OREKI_SCHED: gui-tick #3 gapMs=10000
+11-10 17:13:51.603 23945 23978 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 17:13:51.603 23945 23978 I OREKI_AUTO_BEAT: gui-tick #3 gapMs=10000
+11-10 17:13:51.604 23945 23978 I EDP_FRAME: frame=983 stage=break break=true canEt=true ep=2.2715649690977e6 gainEP=2.108949e6 bigE=32 inf=8.31405e5 ip=7.7762145960122e2087 db=2573.0 gal=157 justCrunch=false lastCrunch=87400184 modIntervalMs=10000 auto=true
+11-10 17:13:51.604 23945 23978 I OREKI_SCHED: deny noop-retry-wait task=ec
+11-10 17:13:51.604 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.108949e6 bigE=32 lastCrunch=87400210
+11-10 17:13:51.607 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 17:13:51.934 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.31711e5->8.31736e5 ip=4.20985767730813e2088 ep=2.2715649690977e6 bigE=32 t=87400540
+11-10 17:13:52.674 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:52.675 23945 23978 I OREKI_ID_BUY: enter tier=8
+11-10 17:13:52.675 23945 23978 I OREKI_ID_BUY: tier=8 before=61 after=61 unlocked=true
+11-10 17:13:52.953 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.32728e5->8.32754e5 ip=1.4776167966865e2089 ep=2.2715649690977e6 bigE=32 t=87401559
+11-10 17:13:53.968 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.33745e5->8.3377e5 ip=2.53113703752946e2089 ep=2.2715649690977e6 bigE=32 t=87402575
+11-10 17:13:54.982 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.34758e5->8.34783e5 ip=3.58154649025969e2089 ep=2.2715649690977e6 bigE=32 t=87403588
+11-10 17:13:55.697 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:55.698 23945 23978 I OREKI_IPM_LV: iup-diag all-one-time-bought ip=4.32295099045922e2089
+11-10 17:13:55.699 23945 23978 I OREKI_ID_BUY: enter tier=1
+11-10 17:13:55.699 23945 23978 I OREKI_ID_BUY: tier=1 before=695 after=695 unlocked=true
+11-10 17:13:56.000 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.35777e5->8.35802e5 ip=4.63817751921538e2089 ep=2.2715649690977e6 bigE=32 t=87404607
+11-10 17:13:56.607 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:13:56.608 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:13:56.608 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:13:56.608 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5703645.999999681
+11-10 17:13:56.608 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.108965e6 bigE=32 lastCrunch=87405214
+11-10 17:13:57.012 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.36788e5->8.36813e5 ip=5.68651311320379e2089 ep=2.2715649690977e6 bigE=32 t=87405618
+11-10 17:13:57.114 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:13:58.033 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.37807e5->8.37833e5 ip=6.7452180009013e2089 ep=2.2715649690977e6 bigE=32 t=87406639
+11-10 17:13:58.721 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:13:58.722 23945 23978 I OREKI_ID_BUY: enter tier=2
+11-10 17:13:58.722 23945 23978 I OREKI_ID_BUY: tier=2 before=347 after=347 unlocked=true
+11-10 17:13:59.050 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.38825e5->8.38851e5 ip=7.80081210048608e2089 ep=2.2715649690977e6 bigE=32 t=87407656
+11-10 17:14:00.069 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.39844e5->8.39869e5 ip=8.85640620007086e2089 ep=2.2715649690977e6 bigE=32 t=87408675
+11-10 17:14:01.085 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.40861e5->8.40886e5 ip=9.91096337028473e2089 ep=2.2715649690977e6 bigE=32 t=87409692
+11-10 17:14:01.595 23945 23978 I OREKI_EC_DIAG: unlocked=3 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 17:14:01.620 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:14:01.620 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:14:01.621 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:14:01.621 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:14:01.621 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5708658.999999681
+11-10 17:14:01.621 23945 23978 I OREKI_SCHED: gui-tick #4 gapMs=10000
+11-10 17:14:01.621 23945 23978 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 17:14:01.621 23945 23978 I OREKI_AUTO_BEAT: gui-tick #4 gapMs=10000
+11-10 17:14:01.621 23945 23978 I EDP_FRAME: frame=1377 stage=break break=true canEt=true ep=2.2715649690977e6 gainEP=2.108984e6 bigE=32 inf=8.41421e5 ip=4.65720583720759e2088 db=2573.0 gal=157 justCrunch=false lastCrunch=87410202 modIntervalMs=10000 auto=true
+11-10 17:14:01.621 23945 23978 I OREKI_SCHED: deny noop-retry-wait task=ec
+11-10 17:14:01.621 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.108984e6 bigE=32 lastCrunch=87410227
+11-10 17:14:01.625 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 17:14:01.722 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:01.722 23945 23978 I OREKI_SCHED: noop ec
+11-10 17:14:01.723 23945 23978 I OREKI_ID_DIAG: tier=3 id=true reqType=BigDouble maxAMType=BigDouble peakVs=1 unlocked=true purchases=261
+11-10 17:14:01.723 23945 23978 I OREKI_ID_BUY: enter tier=3
+11-10 17:14:01.723 23945 23978 I OREKI_ID_BUY: tier=3 before=261 after=261 unlocked=true
+11-10 17:14:01.723 23945 23978 I OREKI_GOAL: stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-10 17:14:02.102 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.41877e5->8.41903e5 ip=9.65520540498624e2088 ep=2.2715649690977e6 bigE=32 t=87410709
+11-10 17:14:03.116 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.4289e5->8.42915e5 ip=2.01592999322886e2089 ep=2.2715649690977e6 bigE=32 t=87411723
+11-10 17:14:04.133 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.43907e5->8.43932e5 ip=3.07048716344273e2089 ep=2.2715649690977e6 bigE=32 t=87412740
+11-10 17:14:04.744 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:14:04.744 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:04.746 23945 23978 I OREKI_ID_BUY: enter tier=4
+11-10 17:14:04.746 23945 23978 I OREKI_ID_BUY: tier=4 before=208 after=208 unlocked=true
+11-10 17:14:05.150 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.44924e5->8.44949e5 ip=4.1250443336566e2089 ep=2.2715649690977e6 bigE=32 t=87413756
+11-10 17:14:06.164 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.45938e5->8.45963e5 ip=5.17649071575774e2089 ep=2.2715649690977e6 bigE=32 t=87414770
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:14:06.624 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:14:06.624 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:14:06.624 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5713661.999999681
+11-10 17:14:06.625 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.109009e6 bigE=32 lastCrunch=87415231
+11-10 17:14:07.188 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.46962e5->8.46987e5 ip=6.23830639156798e2089 ep=2.2715649690977e6 bigE=32 t=87415794
+11-10 17:14:07.749 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:07.750 23945 23978 I OREKI_IPM_LV: iup-diag all-one-time-bought ip=6.82002376864761e2089
+11-10 17:14:07.750 23945 23978 I OREKI_ID_BUY: enter tier=5
+11-10 17:14:07.750 23945 23978 I OREKI_ID_BUY: tier=5 before=130 after=130 unlocked=true
+11-10 17:14:08.207 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.4798e5->8.48005e5 ip=7.29493742052367e2089 ep=2.2715649690977e6 bigE=32 t=87416813
+11-10 17:14:09.225 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.48999e5->8.49024e5 ip=8.35156844947936e2089 ep=2.2715649690977e6 bigE=32 t=87417832
+11-10 17:14:10.243 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.50015e5->8.50041e5 ip=9.40612561969323e2089 ep=2.2715649690977e6 bigE=32 t=87418849
+11-10 17:14:10.751 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:10.752 23945 23978 I OREKI_ID_BUY: enter tier=6
+11-10 17:14:10.752 23945 23978 I OREKI_ID_BUY: tier=6 before=95 after=95 unlocked=true
+11-10 17:14:11.259 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.51032e5->8.51058e5 ip=4.60682789907152e2088 ep=2.2715649690977e6 bigE=32 t=87419866
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:14:11.643 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:14:11.643 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:14:11.644 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5718681.999999681
+11-10 17:14:11.644 23945 23978 I OREKI_SCHED: gui-tick #5 gapMs=10000
+11-10 17:14:11.644 23945 23978 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 17:14:11.644 23945 23978 I OREKI_AUTO_BEAT: gui-tick #5 gapMs=10000
+11-10 17:14:11.644 23945 23978 I EDP_FRAME: frame=1771 stage=break break=true canEt=true ep=2.2715649690977e6 gainEP=2.109069e6 bigE=32 inf=8.51442e5 ip=8.58863668335989e2088 db=2575.0 gal=157 justCrunch=false lastCrunch=87420225 modIntervalMs=10000 auto=true
+11-10 17:14:11.644 23945 23978 I OREKI_SCHED: deny noop-retry-wait task=ec
+11-10 17:14:11.644 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.109069e6 bigE=32 lastCrunch=87420250
+11-10 17:14:11.648 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 17:14:12.282 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.52055e5->8.52081e5 ip=1.52146153634648e2089 ep=2.2715649690977e6 bigE=32 t=87420889
+11-10 17:14:12.383 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:14:13.295 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.53067e5->8.53092e5 ip=2.5708340597058e2089 ep=2.2715649690977e6 bigE=32 t=87421901
+11-10 17:14:13.753 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:13.755 23945 23978 I OREKI_ID_BUY: enter tier=7
+11-10 17:14:13.755 23945 23978 I OREKI_ID_BUY: tier=7 before=74 after=74 unlocked=true
+11-10 17:14:14.307 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.5408e5->8.54105e5 ip=3.62124351243603e2089 ep=2.2715649690977e6 bigE=32 t=87422913
+11-10 17:14:15.326 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.55098e5->8.55123e5 ip=4.67683761202081e2089 ep=2.2715649690977e6 bigE=32 t=87423932
+11-10 17:14:16.339 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.56111e5->8.56136e5 ip=5.72724706475104e2089 ep=2.2715649690977e6 bigE=32 t=87424945
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:14:16.646 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:14:16.646 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:14:16.646 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5723683.999999681
+11-10 17:14:16.647 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.109471e6 bigE=32 lastCrunch=87425253
+11-10 17:14:16.775 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:16.776 23945 23978 I OREKI_ID_DIAG: tier=8 id=true reqType=BigDouble maxAMType=BigDouble peakVs=1 unlocked=true purchases=61
+11-10 17:14:16.776 23945 23978 I OREKI_ID_BUY: enter tier=8
+11-10 17:14:16.776 23945 23978 I OREKI_ID_BUY: tier=8 before=61 after=61 unlocked=true
+11-10 17:14:17.357 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.57129e5->8.57154e5 ip=6.78284116433582e2089 ep=2.2715649690977e6 bigE=32 t=87425963
+11-10 17:14:18.370 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.58141e5->8.58167e5 ip=7.83428754643696e2089 ep=2.2715649690977e6 bigE=32 t=87426977
+11-10 17:14:19.389 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.5916e5->8.59186e5 ip=8.89091857539265e2089 ep=2.2715649690977e6 bigE=32 t=87427996
+11-10 17:14:19.794 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:19.795 23945 23978 I OREKI_IPM_LV: iup-diag all-one-time-bought ip=9.30983804123965e2089
+11-10 17:14:19.796 23945 23978 I OREKI_ID_BUY: enter tier=1
+11-10 17:14:19.796 23945 23978 I OREKI_ID_BUY: tier=1 before=695 after=695 unlocked=true
+11-10 17:14:19.995 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:14:20.401 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.60173e5->8.60198e5 ip=9.94029109875197e2089 ep=2.2715649690977e6 bigE=32 t=87429008
+11-10 17:14:21.420 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.61191e5->8.61217e5 ip=1.09969221277071e2090 ep=2.2715649690977e6 bigE=32 t=87430027
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:14:21.651 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:14:21.652 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:14:21.652 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5728689.999999681
+11-10 17:14:21.652 23945 23978 I OREKI_SCHED: gui-tick #6 gapMs=10000
+11-10 17:14:21.652 23945 23978 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 17:14:21.652 23945 23978 I OREKI_AUTO_BEAT: gui-tick #6 gapMs=10000
+11-10 17:14:21.652 23945 23978 I EDP_FRAME: frame=2165 stage=break break=true canEt=true ep=2.2715649690977e6 gainEP=2.110106e6 bigE=32 inf=8.61448e5 ip=1.12364528123868e2090 db=2575.0 gal=157 justCrunch=false lastCrunch=87430232 modIntervalMs=10000 auto=true
+11-10 17:14:21.654 23945 23978 I OREKI_SCHED: deny noop-retry-wait task=ec
+11-10 17:14:21.654 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.110106e6 bigE=32 lastCrunch=87430259
+11-10 17:14:21.656 23945 23945 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 17:14:22.438 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.62459e5->8.62484e5 ip=7.77396830804582e2090 ep=2.2715649690977e6 bigE=32 t=87431044
+11-10 17:14:22.794 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:22.796 23945 23978 I OREKI_ID_BUY: enter tier=2
+11-10 17:14:22.796 23945 23978 I OREKI_ID_BUY: tier=2 before=347 after=347 unlocked=true
+11-10 17:14:23.454 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.63476e5->8.635e5 ip=1.40000697466485e2090 ep=2.2715649690977e6 bigE=32 t=87432060
+11-10 17:14:24.470 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.64491e5->8.64516e5 ip=1.50126473731746e2091 ep=2.2715649690977e6 bigE=32 t=87433076
+11-10 17:14:25.490 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.65509e5->8.65535e5 ip=2.86654825760098e2091 ep=2.2715649690977e6 bigE=32 t=87434096
+11-10 17:14:25.795 23945 23978 I OREKI_EC_AUTO: step: TRYBUY id=143 b=false a=false D=false tt=2.9302e4 unlocked=3
+11-10 17:14:25.797 23945 23978 I OREKI_SAC: 1
+11-10 17:14:25.797 23945 23978 I OREKI_SCHED: act sacrifice @87434403ms gap=-1 taskGap=-1
+11-10 17:14:26.512 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.66533e5->8.66558e5 ip=4.23719108512803e2091 ep=2.2715649690977e6 bigE=32 t=87435119
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 17:14:26.666 23945 23978 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 17:14:26.666 23945 23978 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=83 mismatch=10 used=0
+11-10 17:14:26.666 23945 23978 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=5733703.999999681
+11-10 17:14:26.667 23945 23978 I OREKI_ET_GATE: allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.2715649690977e6 gain=2.127151e6 bigE=32 lastCrunch=87435273
+11-10 17:14:27.532 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.6755e5->8.67576e5 ip=5.60247460541155e2091 ep=2.2715649690977e6 bigE=32 t=87436138
+11-10 17:14:27.633 23945 23978 I OREKI_CRUNCH: 13
+11-10 17:14:28.547 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.68565e5->8.68591e5 ip=6.9623988184518e2091 ep=2.2715649690977e6 bigE=32 t=87437154
+11-10 17:14:29.567 23945 23978 I OREKI_CRUNCH: crunch detected inf=8.69586e5->8.69611e5 ip=8.32902216554639e2091 ep=2.2715649690977e6 bigE=32 t=87438173
