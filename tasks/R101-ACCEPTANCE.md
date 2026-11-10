@@ -95,3 +95,4 @@
 - 2026-11-10 当前候选性能复测 FAIL：合法永恒运行页当前 15 秒窗口 `Total frames=955`、现代 `Janky=693 (72.57%)`、p95=29ms、p99=48ms、Missed Vsync=3、Slow UI=11、Slow issue draw commands=691、GPU p95=17ms；View=7,117、RenderNode=9.50MB，应用 CPU 采样约 30.7%。证据 `reports/R101-new-save/214-current-gfxinfo-15s.txt`、`214-current-cpu.txt`。绘制命令/高视图树瓶颈仍未消除，不能称稳定版。
 - 2026-11-10 当前候选 Perfetto：已独占 AVD 录制 15 秒 `reports/R101-new-save/214-current.pftrace`（10,648,942 bytes），覆盖 `sched/freq/idle/am/wm/gfx/view/binder_driver`；trace 采集成功，待工具链解析出线程级耗时后再决定性能代码变更，当前不凭猜测修改。
 - 2026-11-10 门禁状态：新档永恒入口 PASS；侧栏/底栏与重启恢复 PASS；合法永恒正向回归 PASS；性能 FAIL；Break 原版独立手动点击路径 NOT RUN；官方 XAPK 对照 BLOCKED；自动购买器当前 APK 购买/开关/存档恢复需补做；四渠道发布 BLOCKED。
+- 2026-11-10 当前 APK 自动购买器复测：真实进入自动购买器页，点击“自动购买器已启用”后页面显示“已禁用”并截图 `reports/R101-new-save/217-current-autobuyer-disabled.png`；强制停止、重启并点击“开始游戏”后同一页恢复为“已启用”，证据 `reports/R101-new-save/218-current-autobuyer-restart.png`、`219-current-autobuyer-restart-running-ui.json`。开关存档恢复当前记为 FAIL，未凭猜测修改业务。
