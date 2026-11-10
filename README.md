@@ -6,7 +6,7 @@
 
 ### 1.1 玩家
 
-安装包、存档备份和已知限制以实际 Release manifest 为准。Android 与 Web 存档不保证互通。
+安装包、存档备份和已知限制以实际 Release manifest 为准。MOD 存档与官方 Android 3.21 可互相导入（已验证字段原样保留）；Android 与 Web 存档字段语义一致，但两端结构差异以 `docs/FACTS.md` 为准。
 
 ### 1.2 开发者
 
@@ -27,7 +27,7 @@ Android 新增或修改业务逻辑必须使用 Kotlin。原版混淆 DEX/Smali 
 Kotlin → kotlinc → D8 → DEX → Gradle/APK
 ```
 
-Gradle 负责任务编排和 APK 组装；Python 只保留尚未迁移或确实适合 Python 的辅助工具；Rust 用于适合原生实现的分析/验证工具。
+Gradle 负责任务编排和 APK 组装；现有 Python 辅助工具按计划全部迁移到 Gradle/Kotlin/Rust/Shell（禁止新增 Python）；Rust 用于适合原生实现的分析与验证工具。
 
 ### 2.3 GUI 与阶段
 
