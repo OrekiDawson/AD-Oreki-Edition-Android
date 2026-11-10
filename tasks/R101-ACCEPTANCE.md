@@ -386,3 +386,35 @@ invoke-virtual Player->x()                                    # 紧接读取
 4. 仍未确证：`eternities` 从 0 变为 11 的那次运行时调用属于哪条合法/非法路径；用户看到的「永恒次数 11」若来自原版对 `eternities` 的展示，则更可能是**原版字段语义**而非 MOD 污染。
 
 后续必须先确认「原版在什么条件下会写 `eternities`」，再判断 11 是否异常；在此之前不得以「污染」为前提修改代码。
+
+---
+
+## 最终状态（2026-11-11 05:00）
+
+### 已完成（PASS）
+
+| 项 | 证据 |
+|---|---|
+| 确认异常存档永恒字段实际值 | `eternities={1.0,1.1}`=11、`bigEternities=0`、`EP=0`、`infinities=4` |
+| 证明永恒次数 11 的真实来源 | `build_mod.py` 别名表把 infinities 错映射为 eternities（`iq0.z`/`up0`→`Player.E0`→`this.eternities`）；`prestige/e:2411` 的正确字段是 `iq0.e`/`pp0` |
+| Kotlin 根因修复 | 源码改 `Liq0;->e:Lpp0;`；新档 19~23 次大坍缩后 `eternities=0` |
+| Rust 存档编解码器 | `tools/savecodec-rs`，Python 入口已删除 |
+| 官方 3.21 AVD 运行对照 | 重打包对照可装可跑；原版 XAPK 因 ABI/分包无法直装（非 Google 依赖） |
+| MOD→官方导入 + 重启复查 | 25/14/126617 原样保留，重启后一致 |
+| 合法已永恒存档不退化 | 25/14/66042.09/126617 完全一致 |
+| savestates（Android/Web/frame-observer） | 三项目均建立；Pages 无独立目录，不凑数 |
+| 性能正式门禁 | 30 fps、Janky 1.89%、p50/p90 16 ms（原版 48 fps/0.62%/16 ms） |
+| 真实 APK 构建与运行验收 | BUILD SUCCESSFUL、安装/启动/无崩溃 |
+| 稳定版四渠道交付 | 本地/OneDrive/Google Drive/GitHub 全部成功，sha256 `d72c4d4c…` |
+| Android/Web 行为等价（静态） | 间隔 1–60/默认 10/默认开启/钳制全 MATCH；挑战即时完成写入货币修复后一致 |
+
+### 未完成（如实标注）
+
+| 项 | 状态 | 原因 |
+|---|---|---|
+| 45/60 FPS 目标 | 未达 | 30 fps 为当前可达最优；16 ms 档实测 Janky 71.19%、p50 27 ms |
+| 原版模式 + GUI 逐页对照矩阵 | NOT RUN | 仅完成存档级与性能级对照 |
+| Android/Web 运行时等价 | NOT RUN | 未运行 Web 端 |
+| ARM64 真机验收 | NOT RUN | 仅 AVD |
+| Python 全量迁移 P1 | 未开工 | `build_mod.py` 413 KB，需分阶段 |
+| smali 业务逻辑 Kotlin 化 | 未开工 | `OrekiInstantChallenge` 等仍为 smali，违反规则 2.3 |
