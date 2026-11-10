@@ -21,3 +21,5 @@ Perfetto 15 秒显示应用主线程约 1.59 秒 CPU、RenderThread 约 5.15 秒
 新档 Break 阶段已真实完成：前置 `phase=infinity、break=false、canEt=false、ep=0、bigE=0`，随后日志记录 `x0-before brake=0` → `x0-after brake=1`，并持续 `GATE brake=true、canEt=false、ep=0、bigE=0`；截图 `reports/R101-new-save/153-fresh2-after-break-main.png` 显示普通导航完整且无永恒入口，重启后 `155-fresh2-restart-running.png` 仍保持该状态。Break 状态转移与重启恢复 PASS；独立手动点击原版 Break 按钮 NOT RUN。
 
 新档侧栏截图 `reports/R101-new-save/150-fresh2-drawer.png` 进一步确认无限阶段普通导航完整且没有“永恒”分组；UI 树导出因 7113 视图高负载无法稳定完成，因此程序直达门禁仍按证据不足记录，不把截图替代为程序跳转 PASS。
+
+非法程序恢复路径已补齐：在新档仅将 SharedPreferences `currentSubTab` 改为 `timeStudies`，不改 `player.json`，启动仍记录 `phase=infinity、ep=0、bigE=0`，UI 启动页为“反物质维度”，运行日志持续 `allow=false reason=not-broken`；证据 `156-illegal-subtab-ui.xml`、`156-illegal-subtab-logcat.txt`、`157-illegal-subtab-running-logcat.txt`。该结果 PASS，证明 `currentSubTab -> jp4.d0` 的绕过点也受 Kotlin 门禁保护。
