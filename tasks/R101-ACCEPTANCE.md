@@ -121,3 +121,4 @@
 - 当前状态：阶段门禁 PASS，合法存档 PASS，自动购买器开关及恢复 PASS；性能 FAIL，Break 原版独立手动点击、官方 XAPK 对照及四渠道发布 BLOCKED/NOT RUN。
 - 性能 A/B 收尾复核：关闭 frame-observer 后同一运行窗口为 465 帧、jank 306（65.81%）、p95=16ms、p99=19ms、Missed Vsync=0、Slow UI=0、Slow issue draw commands=305；`227-final-no-log.pftrace` 中 RenderThread 约 1.688s、swapper 约 50.533s。观测器不是主因，性能门禁仍 FAIL，未继续增加 Kotlin Hook。
 - RTX 2060 可见窗口复核：`-gpu host` 成功选择 NVIDIA GeForce RTX 2060；同一候选运行页 15 秒为 347 帧、jank 299（86.17%）、p95/p99=16ms、Missed Vsync=1、Slow UI=1、Slow issue draw commands=295、GPU p95=15ms，证据 `reports/R101-new-save/265-gpu-host-visible-running-gfxinfo-15s.txt`、`263-gpu-host-visible-after.png`。RTX 实际使用但未改善性能，仍 FAIL。
+- RTX Perfetto：`reports/R101-new-save/266-gpu-host.pftrace` 解析为 401 个 `Buffer Stuffing` 帧，平均 16.62ms；RenderThread 约 1.391s、游戏线程约 0.066s、swapper 约 51.835s。该证据支持模拟器合成/缓冲排队主因，未发现 Kotlin 门禁造成的长阻塞，性能仍 FAIL。
