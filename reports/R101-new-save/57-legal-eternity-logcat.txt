@@ -1,0 +1,80 @@
+11-10 20:19:20.818  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.087995e6->2.08808e6 ip=4.3574985872282e305 ep=0.0e0 bigE=0 t=2884445
+11-10 20:19:21.097  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=2.0e0 bigE=0 lastCrunch=2884724
+11-10 20:19:21.833  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.091475e6->2.091561e6 ip=4.64387152451638e305 ep=0.0e0 bigE=0 t=2885460
+11-10 20:19:22.850  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.094966e6->2.095052e6 ip=4.93109088427931e305 ep=0.0e0 bigE=0 t=2886477
+11-10 20:19:23.869  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.098457e6->2.098547e6 ip=5.21859238486718e305 ep=0.0e0 bigE=0 t=2887496
+11-10 20:19:24.880  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.101925e6->2.10201e6 ip=5.50355461803078e305 ep=0.0e0 bigE=0 t=2888507
+11-10 20:19:25.740  8932  9010 I EDP_FRAME: frame=10430 stage=break break=true canEt=false ep=0.0e0 gainEP=2.0e0 bigE=0 inf=2.10496e6 ip=5.7461957274572e305 db=1021.0 gal=84 justCrunch=false lastCrunch=2889341 modIntervalMs=10000 auto=true
+11-10 20:19:25.891  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.105392e6->2.105477e6 ip=5.78879899201928e305 ep=0.0e0 bigE=0 t=2889518
+11-10 20:19:26.120  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=2.0e0 bigE=0 lastCrunch=2889747
+11-10 20:19:26.907  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.108876e6->2.108962e6 ip=6.07545407013238e305 ep=0.0e0 bigE=0 t=2890534
+11-10 20:19:27.515  8932  9010 I OREKI_CRUNCH: 13
+11-10 20:19:27.918  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.112346e6->2.112432e6 ip=6.36098058494582e305 ep=0.0e0 bigE=0 t=2891545
+11-10 20:19:28.940  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.115851e6->2.115937e6 ip=6.64931850800843e305 ep=0.0e0 bigE=0 t=2892567
+11-10 20:19:29.963  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.119356e6->2.119442e6 ip=6.93766643107102e305 ep=0.0e0 bigE=0 t=2893590
+11-10 20:19:30.967  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.122802e6->2.122888e6 ip=7.22121796011002e305 ep=0.0e0 bigE=0 t=2894594
+11-10 20:19:31.145  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=2.0e0 bigE=0 lastCrunch=2894771
+11-10 20:19:31.985  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.12629e6->2.126376e6 ip=7.50815517904804e305 ep=0.0e0 bigE=0 t=2895612
+11-10 20:19:33.000  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.129771e6->2.12986e6 ip=7.79481025716115e305 ep=0.0e0 bigE=0 t=2896627
+11-10 20:19:34.007  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.133228e6->2.133313e6 ip=8.07892606785001e305 ep=0.0e0 bigE=0 t=2897634
+11-10 20:19:35.024  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.136709e6->2.136798e6 ip=8.36558114596315e305 ep=0.0e0 bigE=0 t=2898651
+11-10 20:19:35.127  8932  9010 I OREKI_CRUNCH: 13
+11-10 20:19:35.762  8932  9010 I EDP_FRAME: frame=10825 stage=break break=true canEt=false ep=0.0e0 gainEP=2.0e0 bigE=0 inf=2.139329e6 ip=8.57380107475006e305 db=1023.0 gal=84 justCrunch=false lastCrunch=2899363 modIntervalMs=10000 auto=true
+11-10 20:19:36.042  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.140193e6->2.140278e6 ip=8.65195408325139e305 ep=0.0e0 bigE=0 t=2899669
+11-10 20:19:36.169  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=2.0e0 bigE=0 lastCrunch=2899795
+11-10 20:19:37.054  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.143674e6->2.143759e6 ip=8.93832702053966e305 ep=0.0e0 bigE=0 t=2900681
+11-10 20:19:38.072  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.147161e6->2.14725e6 ip=9.22554638030264e305 ep=0.0e0 bigE=0 t=2901699
+11-10 20:19:39.086  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.150642e6->2.150731e6 ip=9.51191931759091e305 ep=0.0e0 bigE=0 t=2902713
+11-10 20:19:39.797  8932  9010 I OREKI_CRUNCH_DEC: allow=true reason=ip-jump
+11-10 20:19:39.821  8932  9010 I OREKI_CRUNCH_DEC: allow=false reason=gain-wait
+11-10 20:19:40.102  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.154376e6->2.154465e6 ip=1.54711806583882e308 ep=0.0e0 bigE=0 t=2903729
+11-10 20:19:40.130  8932  9010 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ready
+11-10 20:19:40.130  8932  9010 I OREKI_ET_GATE: allow=false reason=same-frame-crunch broken=true canEt=true ep=0.0e0 gain=2.0e0 bigE=0 lastCrunch=2903757
+11-10 20:19:40.181  8932  9010 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 20:19:40.182  8932  9010 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=infinity to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+11-10 20:19:41.147  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2903808
+11-10 20:19:42.744  8932  9010 I OREKI_CRUNCH: 13
+11-10 20:19:45.211  8932  9010 I OREKI_CRUNCH: crunch detected inf=0.0e0->2.75e2 ip=4.69006744871517e16 ep=2.0e0 bigE=1 t=2908838
+11-10 20:19:45.211  8932  9010 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 20:19:45.774  8932  9010 I EDP_FRAME: frame=11219 stage=break break=true canEt=false ep=2.0e0 gainEP=0.0e-1 bigE=1 inf=8.38e2 ip=9.37998237576968e17 db=22.0 gal=4 justCrunch=false lastCrunch=2909375 modIntervalMs=10000 auto=true
+11-10 20:19:46.165  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2909792
+11-10 20:19:46.217  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.254e3->1.28e3 ip=7.25717990057763e17 ep=2.0e0 bigE=1 t=2909844
+11-10 20:19:47.234  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.27e3->2.296e3 ip=2.53409493884037e18 ep=2.0e0 bigE=1 t=2910861
+11-10 20:19:48.255  8932  9010 I OREKI_CRUNCH: crunch detected inf=3.289e3->3.317e3 ip=4.3513626297507e18 ep=2.0e0 bigE=1 t=2911882
+11-10 20:19:49.270  8932  9010 I OREKI_CRUNCH: crunch detected inf=4.306e3->4.331e3 ip=6.15618328168553e18 ep=2.0e0 bigE=1 t=2912897
+11-10 20:19:49.626  8932  9010 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 20:19:50.213  8932  9010 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 20:19:50.286  8932  9010 I OREKI_CRUNCH: crunch detected inf=5.571e3->5.596e3 ip=8.57727785751178e22 ep=2.0e0 bigE=1 t=2913913
+11-10 20:19:50.391  8932  9010 I OREKI_CRUNCH: 13
+11-10 20:19:51.172  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2914798
+11-10 20:19:51.296  8932  9010 I OREKI_CRUNCH: crunch detected inf=6.581e3->6.606e3 ip=9.54518878035701e23 ep=2.0e0 bigE=1 t=2914923
+11-10 20:19:52.316  8932  9010 I OREKI_CRUNCH: crunch detected inf=7.601e3->7.626e3 ip=9.32856523035577e23 ep=2.0e0 bigE=1 t=2915943
+11-10 20:19:53.320  8932  9010 I OREKI_CRUNCH: crunch detected inf=8.604e3->8.629e3 ip=1.89584769517248e24 ep=2.0e0 bigE=1 t=2916947
+11-10 20:19:54.335  8932  9010 I OREKI_CRUNCH: crunch detected inf=9.618e3->9.643e3 ip=2.86843041284858e24 ep=2.0e0 bigE=1 t=2917962
+11-10 20:19:55.341  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.0624e4->1.0649e4 ip=3.83429904864722e24 ep=2.0e0 bigE=1 t=2918968
+11-10 20:19:55.795  8932  9010 I EDP_FRAME: frame=11614 stage=break break=true canEt=false ep=2.0e0 gainEP=0.0e-1 bigE=1 inf=1.1103e4 ip=4.26975521612745e24 db=226.0 gal=21 justCrunch=false lastCrunch=2919398 modIntervalMs=10000 auto=true
+11-10 20:19:56.175  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2919802
+11-10 20:19:56.351  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.1634e4->1.1659e4 ip=4.80304514810764e24 ep=2.0e0 bigE=1 t=2919978
+11-10 20:19:56.960  8932  9010 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 20:19:56.986  8932  9010 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 20:19:57.363  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.2895e4->1.292e4 ip=6.90034539012652e27 ep=2.0e0 bigE=1 t=2920990
+11-10 20:19:57.966  8932  9010 I OREKI_CRUNCH: 13
+11-10 20:19:58.369  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.39e4->1.3925e4 ip=5.16951589871114e28 ep=2.0e0 bigE=1 t=2921996
+11-10 20:19:59.383  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.4914e4->1.494e4 ip=9.68907214134932e28 ep=2.0e0 bigE=1 t=2923010
+11-10 20:20:00.395  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.5926e4->1.5951e4 ip=4.19527008967421e28 ep=2.0e0 bigE=1 t=2924022
+11-10 20:20:01.181  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2924808
+11-10 20:20:01.408  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.6939e4->1.6964e4 ip=8.70592080277025e28 ep=2.0e0 bigE=1 t=2925035
+11-10 20:20:02.426  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.7957e4->1.7982e4 ip=1.32388353397216e29 ep=2.0e0 bigE=1 t=2926054
+11-10 20:20:03.442  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.8969e4->1.8995e4 ip=1.77539388175888e29 ep=2.0e0 bigE=1 t=2927069
+11-10 20:20:04.458  8932  9010 I OREKI_CRUNCH: crunch detected inf=1.9988e4->2.0013e4 ip=2.22868533545405e29 ep=2.0e0 bigE=1 t=2928086
+11-10 20:20:05.483  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.1011e4->2.1036e4 ip=2.68464844801186e29 ep=2.0e0 bigE=1 t=2929110
+11-10 20:20:05.584  8932  9010 I OREKI_CRUNCH: 13
+11-10 20:20:05.810  8932  9010 I EDP_FRAME: frame=12009 stage=break break=true canEt=false ep=2.0e0 gainEP=0.0e-1 bigE=1 inf=2.1364e4 ip=2.83069913250303e29 db=280.0 gal=22 justCrunch=false lastCrunch=2929412 modIntervalMs=10000 auto=true
+11-10 20:20:06.190  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2929817
+11-10 20:20:06.496  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.2024e4->2.2049e4 ip=3.13571351932149e29 ep=2.0e0 bigE=1 t=2930123
+11-10 20:20:07.512  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.3041e4->2.3066e4 ip=3.58855969653956e29 ep=2.0e0 bigE=1 t=2931139
+11-10 20:20:08.524  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.4052e4->2.4077e4 ip=4.03917949137207e29 ep=2.0e0 bigE=1 t=2932151
+11-10 20:20:09.542  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.5066e4->2.5091e4 ip=4.49068983915881e29 ep=2.0e0 bigE=1 t=2933169
+11-10 20:20:10.556  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.6082e4->2.6107e4 ip=4.94353601637687e29 ep=2.0e0 bigE=1 t=2934183
+11-10 20:20:11.194  8932  9010 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=0.0e-1 bigE=1 lastCrunch=2934820
+11-10 20:20:11.574  8932  9010 I OREKI_CRUNCH: crunch detected inf=2.71e4->2.7125e4 ip=5.39682747007204e29 ep=2.0e0 bigE=1 t=2935201

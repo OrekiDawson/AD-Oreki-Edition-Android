@@ -1,0 +1,48 @@
+--------- beginning of main
+11-10 20:26:09.505 I/adbd    ( 2537): adbd service requested 'shell,v2,TERM=dumb,raw:input tap 180 850'
+11-10 20:26:09.539 W/AS.PlaybackActivityMon(  667): No piid assigned for invalid/internal port id 15
+11-10 20:26:09.540 W/AS.PlaybackActivityMon(  667): No piid assigned for invalid/internal port id 15
+11-10 20:26:09.543 I/OREKI_IU15( 9666): 总开关关闭，已解除临时接管
+11-10 20:26:09.543 I/OREKI_PLAYER_INTENT( 9666): managed[master] register at=3293170ms dueAt=3303170ms pass=0 defers=1
+11-10 20:26:09.619 I/OREKI_CRUNCH( 9666): crunch detected inf=9.61e3->9.635e3 ip=4.69283827745894e457 ep=2.23020802440368e2 bigE=8 t=3293246
+11-10 20:26:09.699 I/APM_AudioPolicyManager(  521): getNewOutputDevices io 13 recent device override {AUDIO_DEVICE_OUT_SPEAKER, @:}
+11-10 20:26:09.747 I/OREKI_CRUNCH( 9666): 9
+11-10 20:26:10.081 I/OREKI_EC_DIAG( 9666): unlocked=3 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 20:26:10.259 I/OREKI_SCHED( 9666): deny original-autobuyers-off task=ec
+11-10 20:26:10.283 I/OREKI_SCHED( 9666): gui-tick #25 gapMs=10000
+11-10 20:26:10.283 I/OREKI_GUI( 9666): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 20:26:10.283 I/OREKI_AUTO_BEAT( 9666): gui-tick #25 gapMs=10000
+11-10 20:26:10.284 I/EDP_FRAME( 9666): frame=9921 stage=break break=true canEt=true ep=2.23020802440368e2 gainEP=1.54e2 bigE=8 inf=1.03e4 ip=7.23545866305252e457 db=709.0 gal=111 justCrunch=false lastCrunch=3293886 modIntervalMs=10000 auto=true
+11-10 20:26:10.286 I/OREKI_GUI( 9666): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 20:26:10.376 I/bluetooth( 1056): system/gd/hci/le_address_manager.cc:557 GetNextPrivateAddressIntervalRange: client=LeAddressManager, nonwake=7m1s, wake=14m56s
+11-10 20:26:10.379 I/bluetooth( 1056): system/gd/hci/le_address_manager.cc:758 OnCommandComplete: Received command complete with op_code LE_SET_RANDOM_ADDRESS(0x2005)
+11-10 20:26:10.379 I/bluetooth( 1056): system/gd/hci/le_address_manager.cc:778 OnCommandComplete: update random address : xx:xx:xx:xx:bf:37
+11-10 20:26:10.379 I/bluetooth( 1056): system/gd/hci/le_address_manager.cc:382 resume_registered_clients: Resuming registered clients
+11-10 20:26:10.379 I/bluetooth( 1056): system/gd/hci/le_scanning_manager_impl.cc:774 stop_scan: Scanning already stopped, return. caller=configure_scan
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=35
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=51
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=114
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=115
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=117
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=136
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=141
+11-10 20:26:10.608 W/OREKI_ACHAUDIT( 9666): MISMATCH id=144
+11-10 20:26:10.609 W/OREKI_ACHAUDIT( 9666): MISMATCH id=174
+11-10 20:26:10.609 W/OREKI_ACHAUDIT( 9666): MISMATCH id=176
+11-10 20:26:10.609 W/OREKI_ACHAUDIT( 9666): MISMATCH id=186
+11-10 20:26:10.609 I/OREKI_ACHAUDIT( 9666): DONE scanned=144 unlocked=86 mismatch=11 used=0
+11-10 20:26:10.609 I/OREKI_GATE( 9666): GATE brake=true g=true c=false b=true mult=10000.0 rt=2499911.0000000536
+11-10 20:26:10.634 I/OREKI_CRUNCH( 9666): crunch detected inf=1.0624e4->1.0649e4 ip=8.57367991862806e457 ep=2.23020802440368e2 bigE=8 t=3294261
+11-10 20:26:11.245 I/OREKI_GOAL( 9666): stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-10 20:26:11.523 I/OREKI_ET_GATE( 9666): allow=false reason=ep-gain-too-low broken=true canEt=true ep=2.23020802440368e2 gain=1.54e2 bigE=8 lastCrunch=3295149
+11-10 20:26:11.543 I/adbd    ( 2537): adbd service requested 'exec:screencap '-p''
+11-10 20:26:11.598 W/libbinder.BackendUnifiedServiceManager(10282): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-10 20:26:11.598 W/libbinder.BpBinder(10282): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-10 20:26:11.599 W/libbinder.ProcessState(10282): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-10 20:26:11.602 W/skia    (  525): AGTM parsing failed flags.readFromStream(s) at 159
+--------- beginning of kernel
+11-10 20:26:11.797 I/servicemanager(    0): Caller(pid=10282,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 20:26:11.800 I/servicemanager(    0): Caller(pid=10282,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 20:26:11.803 I/servicemanager(    0): Caller(pid=10282,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+11-10 20:26:11.650 I/OREKI_CRUNCH( 9666): crunch detected inf=1.1639e4->1.1665e4 ip=1.24621685384007e458 ep=2.23020802440368e2 bigE=8 t=3295277
+11-10 20:26:11.785 I/adbd    ( 2537): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'time''

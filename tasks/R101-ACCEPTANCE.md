@@ -31,9 +31,10 @@
 | 新档/首次大坍缩后 | PASS（入口修复候选） | `reports/R101-new-save/17-parent-gate-after-start.png`、`18-parent-gate-drawer.png`；`EDP_FRAME` 为 `break=false、canEt=false、ep=0、bigE=0`，底栏无紫色永恒入口，侧栏保留普通项目 |
 | Break Infinity 前后 | NOT RUN | 未覆盖独立新档流程 |
 | 非法页面直接程序进入 | NOT RUN | 需无永恒存档或导入流程 |
-| 首次合法永恒后全部对应页面 | PARTIAL | 已有合法永恒页验证；首次结算全过程未跑 |
+| 首次合法永恒后全部对应页面 | PASS | 新档运行中真实完成首次永恒；日志记录 `GUI_GATE_CHANGED from=infinity to=eternity eternity=true` 且 `ep=1,bigE=1`，时间研究与永恒升级页面均真实可用，证据 `reports/R101-new-save/57-legal-eternity-logcat.txt`、`61-legal-eternity-time-page.png`、`62-legal-eternity-upgrades.png` |
+| 合法永恒存档重启读档 | PASS | 强制停止并重启后仍进入永恒升级页，证据 `reports/R101-new-save/63-legal-restart-loading.png`、`64-legal-restart-running.png`、`64-legal-restart-logcat.txt`、`63-ui.xml` |
 | bm4.g()/h() 其他合法页签 | PASS（静态+运行） | 构建日志注入成功，正常永恒挑战/统计页面可用 |
-| 自动购买器 | NOT RUN | 本轮设备时间优先用于 P0 恢复门禁 |
+| 自动购买器 GUI、开关及恢复 | PASS | 真实进入“自动购买器”页，启用→禁用→强制停止重启后仍显示“自动购买器已禁用”，再恢复启用；证据 `reports/R101-new-save/72-autobuyer-real-page.png`、`73-autobuyer-disabled.png`、`74-autobuyer-after-restart.png`、`75-autobuyer-enabled-restored.png` |
 
 ## 性能与真实性门禁
 
@@ -47,6 +48,7 @@
 - CPU 采样：应用进程约 0%（采样瞬间）；frame-observer 约 1.2%。
 - StackOverflow/ANR/应用致命异常：本轮 logcat 未发现；系统 FontLog/NullBinder 警告不属于应用 P0 根因。
 - 性能门禁：FAIL。现代 jank/绘制命令仍高；Perfetto 与 frame-observer 开关对照已完成，但当前候选不能称稳定版。
+- 自动购买器运行证据：真实页面显示自动大坍缩、维度提升、反物质星系和计数频率等控件；禁用状态在 Activity 重启后保持，日志记录原版缓存/界面刷新完成。证据 `reports/R101-new-save/73-autobuyer-disabled-logcat.txt`、`74-autobuyer-after-restart-logcat.txt`、`75-autobuyer-enabled-logcat.txt`。
 
 ## 发布状态
 

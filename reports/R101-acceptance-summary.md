@@ -4,7 +4,9 @@
 
 本轮旧候选保留：`af3055b9ac21aabd5fa0a25ba5a1098223652345b70fbbc1e59175be7401c6eb`；本轮父级名称门禁候选：`a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`。历史原始 APK SHA `a3a6d447f5b30f61fe7e0ccd902a6a0c36b24bc26f3672f0219ff5b744bff41b` 与 commit `78d9f9d` 保留。
 
-新档恢复/重启运行页实测 PASS：`phase=infinity、eternity=false、break=true、canEt=false、ep=0、bigE=0` 时不显示紫色永恒入口，普通侧栏/底栏保留；证据 `reports/R101-new-save/38-category-name-gate-running.png`、`41-category-name-gate-restart-running.png`、`37-category-name-gate-logcat.txt`。当前不发布稳定版：性能采样仍为 FAIL（264 帧现代 jank 206、p95 32ms），Break Infinity、非法直接进入、合法首次永恒和自动购买器仍未完成全覆盖，按 BLOCKED/NOT RUN 记录。
+新档恢复/重启运行页实测 PASS：`phase=infinity、eternity=false、break=true、canEt=false、ep=0、bigE=0` 时不显示紫色永恒入口，普通侧栏/底栏保留；证据 `reports/R101-new-save/38-category-name-gate-running.png`、`41-category-name-gate-restart-running.png`、`37-category-name-gate-logcat.txt`。随后同一新档真实完成首次永恒，日志出现 `ep=1,bigE=1` 的阶段切换；时间研究、永恒升级和合法永恒重启读档均 PASS，证据 `57-legal-eternity-logcat.txt`、`61-legal-eternity-time-page.png`、`62-legal-eternity-upgrades.png`、`64-legal-restart-running.png`。自动购买器真实 GUI 的启用/禁用与重启恢复也 PASS，证据 `72-autobuyer-real-page.png`、`73-autobuyer-disabled.png`、`74-autobuyer-after-restart.png`、`75-autobuyer-enabled-restored.png`。
+
+当前不发布稳定版：性能采样仍为 FAIL（现代 jank 高且绘制命令占主导），Break Infinity 独立流程、非法程序直达、官方 XAPK 对照仍按 BLOCKED/NOT RUN 记录。
 
 Perfetto 15 秒显示应用主线程约 1.59 秒 CPU、RenderThread 约 5.15 秒 CPU；frame-observer 关闭后现代 jank 仍为 224/337，且两组主要是 `Slow issue draw commands`。官方 XAPK 因 AVD ABI/split 不匹配无法安装，官方对照标记 BLOCKED。
 
