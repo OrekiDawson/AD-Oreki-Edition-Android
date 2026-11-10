@@ -1,0 +1,71 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 889227 Realtime: 889227
+
+** MEMINFO in pid 4647 [com.oreki.antimatterdimensions] **
+                   Pss  Private  Private     Swap      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap   174535   174488        0        0   178240   191324   181967     4514
+  Dalvik Heap    54294    54172        0        0    62012    62082    37506    24576
+ Dalvik Other     5465     4620        0        0     7128                           
+        Stack     1896     1896        0        0     1904                           
+    Other dev      421        0      420        0      712                           
+     .so mmap     6400     1024      132        0    62316                           
+    .jar mmap     2559        8      376        0    48252                           
+    .apk mmap    49849      612    22940        0    83996                           
+    .ttf mmap      904        0      576        0     1232                           
+    .dex mmap      631       60      464        0     1784                           
+    .oat mmap      590        0        4        0    13332                           
+    .art mmap     1149      788        0        0    24240                           
+   Other mmap     8813      252     6096        0    14512                           
+        Memfd     9659     9368        0        0    11072                           
+      Unknown     5005     4996        0        0     6356                           
+        TOTAL   322170   252284    31008        0   517088   253406   219473    29090
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    54960                          86252
+         Native Heap:   174488                         178240
+                Code:    26216                         212608
+               Stack:     1896                           1904
+            Graphics:        0                              0
+       Private Other:    25732
+              System:    38878
+             Unknown:                                   38084
+ 
+           TOTAL PSS:   322170            TOTAL RSS:   517088      TOTAL SWAP (KB):        0
+ 
+ Objects
+               Views:     7166         ViewRootImpl:        1
+         AppContexts:        7           Activities:        1
+              Assets:       23        AssetManagers:        0
+       Local Binders:      106        Proxy Binders:      131
+       Parcel memory:       49         Parcel count:      115
+    Death Recipients:        4             WebViews:        2
+ 
+ Native Allocations
+                         Count                       Total(kB)
+                        ------                         ------
+    Other (malloced):    34258                           3276
+ Other (nonmalloced):      246                            156
+   Bitmap (malloced):      956                         110818
+ 
+ Mapped Bitmaps
+                         Count                       Size(KB)
+                        ------                         ------
+              Mapped:        0                              0
+              Unique:        0                              0
+ 
+ SQL
+         MEMORY_USED:      153
+  PAGECACHE_OVERFLOW:       63          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4       56            123    57    63    18  /data/user/0/com.oreki.antimatterdimensions/databases/com.google.android.datatransport.events
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+             57            64            18  /data/user/0/com.oreki.antimatterdimensions/databases/com.google.android.datatransport.events
+ 

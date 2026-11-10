@@ -1,0 +1,1218 @@
+--------- beginning of main
+11-10 19:37:01.318   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:01.318   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:01.319   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:01.319   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:01.319   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:01.319   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:01.319   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:01.319   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 2Mbps, Tx Link speed: 2Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:01.319   667   820 D WifiScoreCard: txRate: 1 txSpeed: 2
+11-10 19:37:01.320   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:01.320   460  3981 I netd    : setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+11-10 19:37:01.320   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=2 tx=0.7, 0.0, 0.0 rx=0.8 bcn=0 [on:0 tx:0 rx:0 period:3006] from screen [on:0 period:-985708408] score=100
+11-10 19:37:01.320   460  3981 I netd    : setProcSysNet(4, 2, wlan0, ucast_solicit, 5) <0.01ms>
+11-10 19:37:01.320   460  3981 I netd    : setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.02ms>
+11-10 19:37:01.320   460   510 I netd    : setProcSysNet(6, 2, wlan0, ucast_solicit, 5) <0.02ms>
+11-10 19:37:01.321  1032  1180 D IpClient/wlan0: interfaceLinkStateChanged: ifindex 15 up
+11-10 19:37:01.324   460   510 I netd    : setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.05ms>
+11-10 19:37:01.324   460   510 I netd    : setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.01ms>
+11-10 19:37:01.324   460   510 I netd    : setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.02ms>
+11-10 19:37:01.324   460  3981 I netd    : setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.01ms>
+11-10 19:37:01.324  1032  1180 D IpClient/wlan0: interfaceLinkStateChanged: ifindex 15 up
+11-10 19:37:01.547  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:01.961  3730  3766 I OREKI_CRUNCH: crunch detected inf=1.5e1->1.6e1 ip=8.0e0 ep=0.0e0 bigE=0 t=345588
+11-10 19:37:02.214  3730  3766 I OREKI_SCHED: gui-tick #23 gapMs=10000
+11-10 19:37:02.215  3730  3766 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 19:37:02.215  3730  3766 I OREKI_AUTO_BEAT: gui-tick #23 gapMs=10000
+11-10 19:37:02.215  3730  3766 I EDP_FRAME: frame=9026 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=1.6e1 ip=8.0e0 db=4.0 gal=0 justCrunch=false lastCrunch=345588 modIntervalMs=10000 auto=true
+11-10 19:37:02.219  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=infinity narrowed=1
+11-10 19:37:02.219  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=34
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:02.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:02.442  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=13 used=0
+11-10 19:37:02.443  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=298524.99999999953
+--------- beginning of system
+11-10 19:37:02.499   667   762 D ActivityManager: freezing 2967 com.google.android.photopicker
+11-10 19:37:02.500   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 19:37:02.500   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 19:37:02.500   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10217} in 0ms
+11-10 19:37:02.554   667   698 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:02.868  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 19:37:02.868  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:02.868  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:02.868  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:02.868  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:02.869  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:02.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:02.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:02.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:02.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:02.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:02.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:02.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:02.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:02.869  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:02.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:02.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:02.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:02.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:02.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:02.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:02.957   667   698 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:03.032  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=345588
+11-10 19:37:04.064   667   762 D ActivityManager: freezing 2852 com.google.android.gms.unstable
+11-10 19:37:04.321   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=5 freq=2437 RxLinkSpeed=2
+11-10 19:37:04.321   667   820 D WifiClientModeImpl[10746:wlan0]: reported txKbps 12000 rxKbps 30000
+11-10 19:37:04.321   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:04.321   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:04.321   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:04.321   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:04.322   667   853 I AdbWifiNetworkMonitor: Wi-Fi network available
+11-10 19:37:04.322   667   853 I AdbWifiNetworkMonitor: Received the same Wi-Fi SSID. Ignoring.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.322   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:04.323   667   989 I WifiService: getConnectionInfo uid=10210
+11-10 19:37:04.323   667   989 V WifiService: Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 19:37:04.323   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:04.324   667   989 V WifiPermissionsUtil: checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 19:37:04.324   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 5Mbps, Tx Link speed: 5Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:04.324   667   820 D WifiScoreCard: txRate: 1 txSpeed: 5
+11-10 19:37:04.325   667   989 V WifiService: Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 19:37:04.325   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:04.325   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=5 tx=0.7, 0.0, 0.0 rx=0.7 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-985705403] score=100
+11-10 19:37:04.325   667   989 I WifiService: getWifiEnabledState uid=10189 state=3
+11-10 19:37:04.327  1226  2555 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 19:37:04.327  1226  2555 W libbinder.Binder: Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 19:37:04.650  1552  1552 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.service.START xflg=0x4 pkg=com.google.android.gms }
+11-10 19:37:07.329   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:07.329   667   820 D WifiClientModeImpl[10746:wlan0]: reported txKbps 12000 rxKbps 30000
+11-10 19:37:07.329   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:07.329   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:07.329   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:07.329   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:07.330   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:07.330   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:07.330   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:07.330   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:07.330   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.6, 0.0, 0.0 rx=0.6 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-985702398] score=100
+11-10 19:37:07.331   667   853 I AdbWifiNetworkMonitor: Wi-Fi network available
+11-10 19:37:07.331   667   853 I AdbWifiNetworkMonitor: Received the same Wi-Fi SSID. Ignoring.
+11-10 19:37:07.333   667  2002 I WifiService: getWifiEnabledState uid=10189 state=3
+11-10 19:37:07.333   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.333   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.333   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.333   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.334   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.334   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.334   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:07.334   667   989 I WifiService: getConnectionInfo uid=10210
+11-10 19:37:07.334   667   989 V WifiService: Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 19:37:07.334   667   989 V WifiPermissionsUtil: checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 19:37:07.334   667   989 V WifiService: Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 19:37:07.335  1226  2268 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 19:37:07.335  1226  2268 W libbinder.Binder: Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 19:37:07.442  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:07.443  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:07.443  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=12 used=0
+11-10 19:37:07.443  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=303521.99999999953
+11-10 19:37:07.819  3730  3766 I OREKI_IPM_LV: iup-diag one-time-buy-failed ip=0.0e0
+11-10 19:37:07.819  3730  3766 I OREKI_SCHED: act bulk @351446ms gap=10009 taskGap=10009
+11-10 19:37:07.819  3730  3766 I OREKI_SCHED: deny frame-held task=sacrifice
+11-10 19:37:07.845  3730  3766 I OREKI_CRUNCH: crunch detected inf=1.6e1->1.7e1 ip=2.0e0 ep=0.0e0 bigE=0 t=351472
+11-10 19:37:08.049  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=351472
+11-10 19:37:09.218  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:10.333   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:10.333   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:10.333   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:10.333   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:10.334   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:10.334   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:10.334   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:10.334   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:10.334   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:10.334   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.2, 0.0, 0.0 rx=0.2 bcn=0 [on:0 tx:0 rx:0 period:3004] from screen [on:0 period:-985699394] score=100
+11-10 19:37:12.214  3730  3766 I OREKI_SCHED: gui-tick #24 gapMs=10000
+11-10 19:37:12.215  3730  3766 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 19:37:12.215  3730  3766 I OREKI_AUTO_BEAT: gui-tick #24 gapMs=10000
+11-10 19:37:12.215  3730  3766 I EDP_FRAME: frame=9417 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=1.7e1 ip=2.0e0 db=26.0 gal=1 justCrunch=false lastCrunch=351472 modIntervalMs=10000 auto=true
+11-10 19:37:12.220  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=infinity narrowed=1
+11-10 19:37:12.220  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=34
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:12.445  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:12.445  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=13 used=0
+11-10 19:37:12.445  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=308527.99999999953
+11-10 19:37:12.868  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:12.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:12.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:12.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:12.869  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:12.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:12.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:12.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:12.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:12.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:12.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:12.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:12.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:12.869  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:12.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:12.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:12.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:12.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:12.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:12.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:13.052  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=351472
+11-10 19:37:13.337   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:13.337   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:13.337   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:13.337   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:13.337   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:13.338   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:13.338   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:13.338   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:13.338   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:13.338   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3004] from screen [on:0 period:-985696390] score=100
+11-10 19:37:14.764  3730  3766 I OREKI_CRUNCH: crunch detected inf=1.7e1->1.8e1 ip=4.0e0 ep=0.0e0 bigE=0 t=358391
+11-10 19:37:16.347   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:16.347   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:16.347   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:16.347   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:16.347   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:16.350   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:16.350   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:16.350   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:16.350   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:16.350   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3012] from screen [on:0 period:-985693378] score=100
+11-10 19:37:16.900  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:17.457  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:17.457  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=12 used=0
+11-10 19:37:17.457  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=313540.99999999953
+11-10 19:37:17.841  3730  3766 I OREKI_SCHED: noop breakUpgrades
+11-10 19:37:17.842  3730  3766 I OREKI_SCHED: act bulk @361469ms gap=10023 taskGap=10023
+11-10 19:37:17.842  3730  3766 I OREKI_SCHED: deny frame-held task=sacrifice
+11-10 19:37:18.071  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=358391
+11-10 19:37:18.785  3730  3766 I OREKI_GOAL: stage=16 打破无限前阶段 goal=break-infinity unknownLeaf=0 degraded=0 s0=0
+11-10 19:37:19.353   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:19.353   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:19.353   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:19.353   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:19.353   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:19.354   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:19.354   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:19.354   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:19.354   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:19.354   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3004] from screen [on:0 period:-985690374] score=100
+11-10 19:37:21.414  3730  3766 I OREKI_CRUNCH: crunch detected inf=1.8e1->1.9e1 ip=6.0e0 ep=0.0e0 bigE=0 t=365041
+11-10 19:37:21.694   667   709 I WifiService: isFeatureSupported uid=1000 returns [WIFI_FEATURE_INFRA, WIFI_FEATURE_P2P, WIFI_FEATURE_MOBILE_HOTSPOT, WIFI_FEATURE_WPA3_SAE, WIFI_FEATURE_WPA3_SUITE_B, WIFI_FEATURE_OWE, WIFI_FEATURE_DPP, WIFI_FEATURE_AP_RAND_MAC, WIFI_FEATURE_MBO, WIFI_FEATURE_FILS_SHA256, WIFI_FEATURE_FILS_SHA384, WIFI_FEATURE_SAE_PK, WIFI_FEATURE_DPP_ENROLLEE_RESPONDER, WIFI_FEATURE_PASSPOINT_TERMS_AND_CONDITIONS, WIFI_FEATURE_WFD_R2, WIFI_FEATURE_DECORATED_IDENTITY, WIFI_FEATURE_TRUST_ON_FIRST_USE, WIFI_FEATURE_SET_TLS_MINIMUM_VERSION, WIFI_FEATURE_TLS_V1_3, WIFI_FEATURE_WEP, WIFI_FEATURE_WPA_PERSONAL]
+11-10 19:37:21.694   667   709 D KernelCpuUidUserSysTimeReader: Removing uids 99000-99000
+11-10 19:37:21.997  3730  3766 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 19:37:22.229  3730  3766 I OREKI_SCHED: gui-tick #25 gapMs=10000
+11-10 19:37:22.229  3730  3766 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 19:37:22.229  3730  3766 I OREKI_AUTO_BEAT: gui-tick #25 gapMs=10000
+11-10 19:37:22.230  3730  3766 I EDP_FRAME: frame=9808 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=1.9e1 ip=6.0e0 db=11.0 gal=0 justCrunch=false lastCrunch=365041 modIntervalMs=10000 auto=true
+11-10 19:37:22.249  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=infinity narrowed=1
+11-10 19:37:22.249  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:37:22.361   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:22.361   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:22.361   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:22.361   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:22.361   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:22.366   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:22.367   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:22.367   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:22.367   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:22.367   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3013] from screen [on:0 period:-985687361] score=100
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:22.462  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:22.462  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=12 used=0
+11-10 19:37:22.462  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=318544.99999999953
+11-10 19:37:22.869  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 19:37:22.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:22.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:22.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:22.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:22.869  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:22.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:22.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:22.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:22.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:22.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:22.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:22.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:22.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:22.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:22.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:22.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:22.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:22.869  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:22.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:22.870  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:22.870  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:22.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:22.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:22.870  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:22.870  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:22.870  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:23.074  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=365041
+11-10 19:37:24.588  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:25.369   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:25.369   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:25.369   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:25.370   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:25.370   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:25.370   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:25.370   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:25.370   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:25.370   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:25.370   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-985684358] score=100
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:27.474  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:27.474  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=12 used=0
+11-10 19:37:27.475  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=323557.99999999953
+11-10 19:37:27.857  3730  3766 I OREKI_IPM_LV: iup-diag one-time-buy-failed ip=6.0e0
+11-10 19:37:27.857  3730  3766 I OREKI_SCHED: act bulk @371484ms gap=10015 taskGap=10015
+11-10 19:37:27.857  3730  3766 I OREKI_SCHED: deny frame-held task=sacrifice
+11-10 19:37:28.009  3730  3766 I OREKI_CRUNCH: crunch detected inf=1.9e1->2.0e1 ip=8.0e0 ep=0.0e0 bigE=0 t=371636
+11-10 19:37:28.089  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=371636
+11-10 19:37:28.371   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:28.371   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:28.371   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:28.371   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:28.371   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:28.372   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:28.372   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:28.372   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:28.372   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:28.372   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3002] from screen [on:0 period:-985681356] score=100
+11-10 19:37:30.970   525   566 W SurfaceFlinger: Could not find layer id 100
+11-10 19:37:31.373   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:31.373   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:31.373   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:31.373   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:31.373   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:31.374   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:31.374   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:31.374   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:31.374   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:31.374   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3002] from screen [on:0 period:-985678354] score=100
+11-10 19:37:32.235  3730  3766 I OREKI_SCHED: gui-tick #26 gapMs=10000
+11-10 19:37:32.235  3730  3766 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 19:37:32.235  3730  3766 I OREKI_AUTO_BEAT: gui-tick #26 gapMs=10000
+11-10 19:37:32.236  3730  3766 I EDP_FRAME: frame=10198 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=2.0e1 ip=8.0e0 db=26.0 gal=1 justCrunch=false lastCrunch=371636 modIntervalMs=10000 auto=true
+11-10 19:37:32.239  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=infinity narrowed=1
+11-10 19:37:32.239  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:37:32.287  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:32.492  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=34
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:32.493  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:32.493  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=13 used=0
+11-10 19:37:32.493  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=328575.99999999953
+11-10 19:37:32.869  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 19:37:32.869  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:32.869  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:32.869  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:32.869  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:32.873  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:32.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:32.873  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:32.873  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:32.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:32.874  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:32.874  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:32.874  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:32.874  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:32.875  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:32.875  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:32.875  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:32.875  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:32.875  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:32.875  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:32.875  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:32.875  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:32.875  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:32.875  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:32.875  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:32.875  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:32.875  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:33.107  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=371636
+11-10 19:37:34.378   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:34.378   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:34.378   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:34.378   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:34.378   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:34.379   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:34.379   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:34.379   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:34.379   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:34.379   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-985675349] score=100
+11-10 19:37:34.444  3730  3766 I OREKI_CRUNCH: crunch detected inf=2.0e1->2.1e1 ip=1.0e1 ep=0.0e0 bigE=0 t=378071
+11-10 19:37:36.586  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:input tap 800 1595'
+11-10 19:37:37.381   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 19:37:37.381   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:37.381   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:37.381   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:37.381   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:37.382   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:37.382   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:37.382   667   820 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-10 19:37:37.382   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:37.382   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-985672346] score=100
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:37.514  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:37.514  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=12 used=0
+11-10 19:37:37.515  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=333597.99999999953
+11-10 19:37:37.870  3730  3766 I OREKI_SCHED: act infinityUpgrades @381497ms gap=10013 taskGap=60093
+11-10 19:37:37.870  3730  3766 I OREKI_SCHED: deny frame-held task=breakShop
+11-10 19:37:38.125  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=378071
+11-10 19:37:38.404  3730  3766 I OREKI_CRUNCH: crunch detected inf=2.1e1->2.2e1 ip=5.0e0 ep=0.0e0 bigE=0 t=382031
+11-10 19:37:38.615  2537  2537 I adbd    : adbd service requested 'exec:screencap '-p''
+11-10 19:37:38.679  4289  4289 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-10 19:37:38.679  4289  4289 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-10 19:37:38.679  4289  4289 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-10 19:37:38.680   525   568 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-10 19:37:38.680   525   568 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+--------- beginning of kernel
+11-10 19:37:38.876     0     0 I servicemanager: Caller(pid=4289,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:37:38.880     0     0 I servicemanager: Caller(pid=4289,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:37:38.883     0     0 I servicemanager: Caller(pid=4289,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+11-10 19:37:38.900  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:uiautomator dump /sdcard/r101-11.xml'
+11-10 19:37:38.974  4291  4291 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-10 19:37:38.979  4291  4291 I AndroidRuntime: Using default boot image
+11-10 19:37:38.979  4291  4291 I AndroidRuntime: Leaving lock profiling enabled
+11-10 19:37:38.981  4291  4291 I app_process: Core platform API enforcement enabled from the hiddenapi_platform_enforcement flag and the device API level
+11-10 19:37:38.982  4291  4291 I app_process: Using generational CollectorTypeCMC GC.
+11-10 19:37:39.062  4291  4291 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-10 19:37:39.072  4291  4291 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:37:39.072  4291  4291 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/10/icu") succeeded. 
+11-10 19:37:39.072  4291  4291 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt78l.dat
+11-10 19:37:39.073  4291  4291 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:37:39.073  4291  4291 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:37:39.075  4291  4291 I app_process: Priority-to-niceness mapping: 19, 16, 13, 10, 0, -2, -4, -5, -6, -8
+11-10 19:37:39.076  4291  4291 W app_process: Unexpected CPU variant for x86: x86_64.
+11-10 19:37:39.076  4291  4291 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-10 19:37:39.078  4291  4291 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*736588042]#PCL[/system/framework/android.test.mock.jar*4008448454]} | PCL[])
+11-10 19:37:39.079  4291  4291 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*805256125]{PCL[/system/framework/android.test.base.jar*736588042]#PCL[/system/framework/android.test.mock.jar*4008448454]}#PCL[/system/framework/android.test.base.jar*736588042]} | PCL[/system/framework/android.test.runner.jar*805256125])
+11-10 19:37:39.099  4291  4291 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-10 19:37:39.100  4291  4291 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-10 19:37:39.103  4291  4291 I AconfigPackage: android.media.swcodec.flags is mapped to com.android.media.swcodec
+11-10 19:37:39.103  4291  4291 I AconfigPackage: com.android.permission.flags is mapped to com.android.permission
+11-10 19:37:39.103  4291  4291 I AconfigPackage: com.android.permissioncontroller.flags is mapped to com.android.permission
+11-10 19:37:39.104  4291  4291 I AconfigPackage: com.google.android.widevine.flags is mapped to com.google.android.widevine
+11-10 19:37:39.104  4291  4291 I AconfigPackage: com.android.icu is mapped to com.android.i18n
+11-10 19:37:39.104  4291  4291 I AconfigPackage: com.android.appsearch.flags is mapped to com.android.appsearch
+11-10 19:37:39.104  4291  4291 I AconfigPackage: com.android.uprobestats.flags is mapped to com.android.uprobestats
+11-10 19:37:39.104  4291  4291 I AconfigPackage: android.uprobestats.mainline.flags is mapped to com.android.uprobestats
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.crashrecovery.flags is mapped to com.android.crashrecovery
+11-10 19:37:39.105  4291  4291 I AconfigPackage: android.provider.flags is mapped to com.android.configinfrastructure
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.server.deviceconfig is mapped to com.android.configinfrastructure
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.compos.flags is mapped to com.android.compos
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.art.flags is mapped to com.android.art
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.art.rw.flags is mapped to com.android.art
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.libcore is mapped to com.android.art
+11-10 19:37:39.105  4291  4291 I AconfigPackage: android.telecom.flags is mapped to com.android.telephonycore
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.internal.telecom.flags is mapped to com.android.telephonycore
+11-10 19:37:39.105  4291  4291 I AconfigPackage: com.android.telephony.flags is mapped to com.android.telephonycore
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.media.extractor.flags is mapped to com.android.media
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.media.metrics.flags is mapped to com.android.media
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.media.mainline.flags is mapped to com.android.media
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.wifi.flags is mapped to com.android.wifi
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.org.conscrypt.flags is mapped to com.android.conscrypt
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.org.conscrypt.net.flags is mapped to com.android.conscrypt
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.healthfitness.flags is mapped to com.android.healthfitness
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.ipsec.flags is mapped to com.android.ipsec
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.nfc.module.flags is mapped to com.android.nfcservices
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.nfc.module.nonexported.flags is mapped to com.android.nfcservices
+11-10 19:37:39.106  4291  4291 I AconfigPackage: com.android.adservices.ondevicepersonalization.flags is mapped to com.android.ondevicepersonalization
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.adbd.flags is mapped to com.android.adbd
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.bluetooth.beta.flags is mapped to com.android.bt
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.bluetooth.flags is mapped to com.android.bt
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.devicelock.flags is mapped to com.android.devicelock
+11-10 19:37:39.107  4291  4291 I AconfigPackage: android.os.profiling is mapped to com.android.profiling
+11-10 19:37:39.107  4291  4291 I AconfigPackage: android.os.profiling.anomaly.flags is mapped to com.android.profiling
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.os.statsd.flags is mapped to com.android.os.statsd
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.webapp.flags is mapped to com.android.webapp
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.rkpd.flags is mapped to com.android.rkpd
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.cellbroadcastreceiver.flags is mapped to com.android.cellbroadcast
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.adservices.flags is mapped to com.android.adservices
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.sdksandbox.flags is mapped to com.android.adservices
+11-10 19:37:39.107  4291  4291 I AconfigPackage: android.app.sdksandbox.flags is mapped to com.android.adservices
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.uwb.flags is mapped to com.android.uwb
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.ranging.flags is mapped to com.android.uwb
+11-10 19:37:39.107  4291  4291 I AconfigPackage: com.android.npumanager is mapped to com.android.npumanager
+11-10 19:37:39.108  4291  4291 I AconfigPackage: android.graphics.pdf.flags is mapped to com.android.mediaprovider
+11-10 19:37:39.108  4291  4291 I AconfigPackage: com.android.providers.media.flags is mapped to com.android.mediaprovider
+11-10 19:37:39.108  4291  4291 I AconfigPackage: android.graphics.pdf.flags.readonly is mapped to com.android.mediaprovider
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.tethering.mainline.beta is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: android.net.http is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.tethering.readonly.flags is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: android.net.vcn is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.net.flags is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.tethering.flags is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.tethering.beta.test is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.nearby.flags is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.net.thread.flags is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.net.ct.flags is mapped to com.android.tethering
+11-10 19:37:39.109  4291  4291 I AconfigPackage: com.android.system.virtualmachine.flags is mapped to com.android.virt
+11-10 19:37:39.109  4291  4291 E FeatureFlagsImplExport: android.os.flagging.AconfigStorageReadException: ERROR_PACKAGE_NOT_FOUND: package android.xr cannot be found on the device
+11-10 19:37:39.110  4291  4291 D UiAutomationConnection: Created on user UserHandle{0}
+11-10 19:37:39.110  4291  4291 I UiAutomation: Initialized for user 0 on display 0
+11-10 19:37:39.110  4291  4291 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-10 19:37:39.111   667  1911 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-10 19:37:39.111   667  1911 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+11-10 19:37:39.111   667  1911 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:39.112   667  1911 D OomAdjuster: Not killing cached processes
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:39.114   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:39.114   667  1911 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:39.115  4291  4303 V UiAutomation: Init UiAutomation@7b480e1[id=14, displayId=0, flags=0]
+11-10 19:37:39.115   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.115   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.115   667  1911 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:39.115   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:39.115   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:39.115   667  1911 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:39.115   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.116   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:39.118   667  1911 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:39.118   667   989 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:39.138   460   510 I netd    : tetherGetStats() -> {[]} <2.73ms>
+11-10 19:37:39.983  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:40.137  4291  4291 W AccessibilityNodeInfoDumper: Fetch time: 9ms
+11-10 19:37:40.138   667  1911 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:40.146   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:40.146   667  1911 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:40.146   667  1911 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-10 19:37:40.146   667   667 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:40.147  4291  4302 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:37:40.147  4291  4300 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:37:40.148  4291  4291 D AndroidRuntime: Shutting down VM
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:40.148   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:40.148   667   667 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:40.148   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.148   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.148   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.148   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.148   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   680 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.149   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   989 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:40.150   667   989 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:40.150   667   989 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.150   667   680 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:40.150  1804  1804 I OrekiA11y: a11y connected
+11-10 19:37:40.383   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:37:40.384   667   820 D WifiClientModeImpl[10746:wlan0]: reported txKbps 12000 rxKbps 30000
+11-10 19:37:40.384   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:40.384   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:40.384   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:40.384   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:40.386   667   853 I AdbWifiNetworkMonitor: Wi-Fi network available
+11-10 19:37:40.386   667   853 I AdbWifiNetworkMonitor: Received the same Wi-Fi SSID. Ignoring.
+11-10 19:37:40.391   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:40.391   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:40.392   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 19:37:40.392   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:40.392   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3010] from screen [on:0 period:-985669336] score=100
+11-10 19:37:40.392   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.393   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.393   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.394   667   989 I WifiService: getConnectionInfo uid=10210
+11-10 19:37:40.394   667   989 V WifiService: Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 19:37:40.394   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.394   667   989 V WifiPermissionsUtil: checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 19:37:40.394   667   989 V WifiService: Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 19:37:40.397   667   989 I WifiService: getWifiEnabledState uid=10189 state=3
+11-10 19:37:40.397   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.397   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.397   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:40.399  1226  1234 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 19:37:40.399  1226  1234 W libbinder.Binder: Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 19:37:40.973  2537  2537 I adbd    : adbd service requested 'sync:'
+11-10 19:37:40.986  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:logcat -d -v threadtime -t 800'
+11-10 19:37:41.188     0     0 I logd    : logdr: UID=0 GID=0 PID=4305 n tail=800 logMask=99 pid=0 start=0ns deadline=0ns
+11-10 19:37:42.252  3730  3766 I OREKI_SCHED: gui-tick #27 gapMs=10000
+11-10 19:37:42.252  3730  3766 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 19:37:42.252  3730  3766 I OREKI_AUTO_BEAT: gui-tick #27 gapMs=10000
+11-10 19:37:42.253  3730  3766 I EDP_FRAME: frame=10588 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=2.2e1 ip=5.0e0 db=24.0 gal=1 justCrunch=false lastCrunch=382031 modIntervalMs=10000 auto=true
+11-10 19:37:42.260  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=infinity narrowed=1
+11-10 19:37:42.260  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:37:42.413  3730  3766 I OREKI_CRUNCH: crunch detected inf=2.2e1->2.3e1 ip=7.0e0 ep=0.0e0 bigE=0 t=386040
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=34
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=78
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:42.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:42.517  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:42.517  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:42.517  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:42.517  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:42.517  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:42.517  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=14 used=0
+11-10 19:37:42.517  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=338599.99999999953
+11-10 19:37:42.870  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 19:37:42.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:42.870  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:42.870  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:42.870  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:42.870  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:42.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:42.870  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:42.870  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:42.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:42.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:42.870  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:42.870  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:42.870  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:42.871  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:42.871  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:42.871  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:42.871  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:42.871  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:42.871  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:42.871  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:42.871  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:42.871  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:42.871  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:42.871  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:42.871  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:42.871  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:43.130  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=386040
+11-10 19:37:43.394   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:37:43.394   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:43.394   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:43.394   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:43.394   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:43.397   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:43.397   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:43.397   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 19:37:43.397   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:43.397   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-985666331] score=100
+11-10 19:37:43.803  1594  1706 D PickerSyncController: Attempting to enable cloud media queries.
+11-10 19:37:43.803  1594  1706 D PickerSyncLockManager: Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@8771c79[Unlocked]. Lock Name = CLOUD_SYNC_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+11-10 19:37:43.803  1594  1706 D CloseableReentrantLock: Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@8771c79[Locked by thread com.android.providers.media.internal.modules.utils.BackgroundThread]. Lock Name = CLOUD_SYNC_LOCK. Threads that may be waiting to acquire this lock = []
+11-10 19:37:43.803  1594  1706 D PickerSyncLockManager: Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@1155eea[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+11-10 19:37:43.803  1594  1706 D CloseableReentrantLock: Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@1155eea[Locked by thread com.android.providers.media.internal.modules.utils.BackgroundThread]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-10 19:37:43.803  1594  1706 D CloseableReentrantLock: Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@1155eea[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-10 19:37:43.803  1594  1706 D PickerSyncLockManager: Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@1155eea[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = [] with timeout.
+11-10 19:37:43.803  1594  1706 D CloseableReentrantLock: Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@1155eea[Locked by thread com.android.providers.media.internal.modules.utils.BackgroundThread]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-10 19:37:43.803  1594  1706 D PickerSyncController: getSyncRequestParams() CLOUD, auth=com.google.android.apps.photos.cloudpicker
+11-10 19:37:43.805   667  1185 D ActivityManager: sync unfroze 2626 com.google.android.apps.photos for 7
+11-10 19:37:43.814   667   754 W ProcessStats: Tracking association SourceState{80662c2 system/1000 ImpBg #1908} whose proc state 6 is better than process ProcessState{a26083 com.google.android.apps.photos/10182 pkg=com.google.android.apps.photos} proc state 14 (12 skipped)
+11-10 19:37:43.821   460   510 I netd    : tetherGetStats() -> {[]} <0.42ms>
+11-10 19:37:43.845  2626  2641 W libc    : Access denied finding property "ro.debuggable"
+11-10 19:37:43.845  1594  1706 D PickerSyncController:    Latest ID/Gen=null/0
+11-10 19:37:43.845  1594  1706 D PickerSyncController:    Cached ID/Gen=null/-1
+11-10 19:37:43.845  1594  1706 D CloseableReentrantLock: Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@1155eea[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-10 19:37:43.845  1594  1706 D CloseableReentrantLock: Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@8771c79[Unlocked]. Lock Name = CLOUD_SYNC_LOCK. Threads that may be waiting to acquire this lock = []
+11-10 19:37:43.846  1594  1706 D PickerSyncController: Error occurred, remaining retry count: 1
+11-10 19:37:43.846  1594  1706 D PickerSyncController: com.android.providers.media.photopicker.util.exceptions.InvalidProviderSyncParamsException: Unexpected Latest Media Collection Info: ID/Gen/AccountName=null/0/null
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at com.android.providers.media.photopicker.PickerSyncController.getSyncRequestParamsLocked(PickerSyncController.java:1687)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at com.android.providers.media.photopicker.PickerSyncController.getSyncRequestParams(PickerSyncController.java:1644)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at com.android.providers.media.photopicker.PickerSyncController.maybeEnableCloudMediaQueries(PickerSyncController.java:376)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at com.android.providers.media.photopicker.PickerSyncController.lambda$tryEnablingCloudMediaQueries$0(PickerSyncController.java:297)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at com.android.providers.media.photopicker.PickerSyncController.$r8$lambda$igHbLHRBgFxI5G0Bp5TN28PcQJ4(PickerSyncController.java:0)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at com.android.providers.media.photopicker.PickerSyncController$$ExternalSyntheticLambda1.run(R8$$SyntheticClass:0)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at android.os.Handler.handleCallback(Handler.java:1095)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at android.os.Handler.dispatchMessage(Handler.java:125)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at android.os.Looper.loopOnce(Looper.java:296)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at android.os.Looper.loop(Looper.java:397)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: 	at android.os.HandlerThread.run(HandlerThread.java:139)
+11-10 19:37:43.846  1594  1706 D PickerSyncController: Schedule enable cloud media query task.
+11-10 19:37:46.361  3730  3766 I OREKI_CRUNCH: crunch detected inf=2.3e1->2.4e1 ip=9.0e0 ep=0.0e0 bigE=0 t=389988
+11-10 19:37:46.402   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:37:46.402   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:46.402   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:46.402   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:46.402   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:46.402   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:46.402   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:46.402   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:46.403   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:46.403   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:46.403   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:46.403   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:46.404   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:46.404   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:46.404   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 19:37:46.404   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:46.404   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3007] from screen [on:0 period:-985663324] score=100
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:47.516  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:47.516  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=12 used=0
+11-10 19:37:47.516  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=343598.99999999953
+11-10 19:37:47.697  3730  3766 I OREKI_CRUNCH: 9
+11-10 19:37:47.878  3730  3766 I OREKI_SCHED: noop breakUpgrades
+11-10 19:37:47.878  3730  3766 I OREKI_IPM_LV: iup-diag one-time-buy-failed ip=9.0e0
+11-10 19:37:47.878  3730  3766 I OREKI_SCHED: act bulk @391505ms gap=10008 taskGap=20021
+11-10 19:37:47.878  3730  3766 I OREKI_SCHED: deny frame-held task=sacrifice
+11-10 19:37:48.133  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=389988
+11-10 19:37:48.851   667  1911 D OomAdjuster: Not killing cached processes
+11-10 19:37:48.852  1226  1226 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-10 19:37:49.030  3730  3766 I OREKI_GOAL: stage=16 打破无限前阶段 goal=break-infinity unknownLeaf=0 degraded=0 s0=0
+11-10 19:37:49.406   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:37:49.406   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:49.406   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:49.406   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:49.406   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:49.409   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:49.409   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:49.409   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 19:37:49.409   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:49.410   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3006] from screen [on:0 period:-985660318] score=100
+11-10 19:37:49.882   460   510 I netd    : tetherGetStats() -> {[]} <0.35ms>
+11-10 19:37:49.934  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:input tap 936 1541'
+11-10 19:37:49.955  3730  3766 I OREKI_CRUNCH: crunch detected inf=2.4e1->2.5e1 ip=1.1e1 ep=0.0e0 bigE=0 t=393582
+11-10 19:37:51.970  2537  2537 I adbd    : adbd service requested 'exec:screencap '-p''
+11-10 19:37:52.013  3730  3766 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 19:37:52.054  4318  4318 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-10 19:37:52.054  4318  4318 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-10 19:37:52.054  4318  4318 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-10 19:37:52.073   525   568 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-10 19:37:52.073   525   568 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-10 19:37:52.280     0     0 I servicemanager: Caller(pid=4318,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:37:52.287     0     0 I servicemanager: Caller(pid=4318,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:37:52.290     0     0 I servicemanager: Caller(pid=4318,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+11-10 19:37:52.258  3730  3766 I OREKI_SCHED: gui-tick #28 gapMs=10000
+11-10 19:37:52.258  3730  3766 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 19:37:52.258  3730  3766 I OREKI_AUTO_BEAT: gui-tick #28 gapMs=10000
+11-10 19:37:52.259  3730  3766 I EDP_FRAME: frame=10977 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=2.5e1 ip=1.1e1 db=14.0 gal=1 justCrunch=false lastCrunch=393582 modIntervalMs=10000 auto=true
+11-10 19:37:52.264   667   709 I WifiService: isFeatureSupported uid=1000 returns [WIFI_FEATURE_INFRA, WIFI_FEATURE_P2P, WIFI_FEATURE_MOBILE_HOTSPOT, WIFI_FEATURE_WPA3_SAE, WIFI_FEATURE_WPA3_SUITE_B, WIFI_FEATURE_OWE, WIFI_FEATURE_DPP, WIFI_FEATURE_AP_RAND_MAC, WIFI_FEATURE_MBO, WIFI_FEATURE_FILS_SHA256, WIFI_FEATURE_FILS_SHA384, WIFI_FEATURE_SAE_PK, WIFI_FEATURE_DPP_ENROLLEE_RESPONDER, WIFI_FEATURE_PASSPOINT_TERMS_AND_CONDITIONS, WIFI_FEATURE_WFD_R2, WIFI_FEATURE_DECORATED_IDENTITY, WIFI_FEATURE_TRUST_ON_FIRST_USE, WIFI_FEATURE_SET_TLS_MINIMUM_VERSION, WIFI_FEATURE_TLS_V1_3, WIFI_FEATURE_WEP, WIFI_FEATURE_WPA_PERSONAL]
+11-10 19:37:52.265   667   709 D KernelCpuUidUserSysTimeReader: Removing uids 99002-99002
+11-10 19:37:52.265   667   709 D KernelCpuUidUserSysTimeReader: Removing uids 99001-99001
+11-10 19:37:52.268   667  1185 I BluetoothPowerStatsCollector: BluetoothActivityEnergyInfo not supported.
+11-10 19:37:52.283  3730  3766 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:37:52.308  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=infinity narrowed=1
+11-10 19:37:52.308  3730  3730 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:37:52.362  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:uiautomator dump /sdcard/r101-12.xml'
+11-10 19:37:52.412   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:37:52.412   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:37:52.413   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:37:52.413   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:37:52.413   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:37:52.415   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:37:52.415   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:37:52.415   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 19:37:52.415   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:37:52.415   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-985657313] score=100
+11-10 19:37:52.464  4321  4321 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-10 19:37:52.469  4321  4321 I AndroidRuntime: Using default boot image
+11-10 19:37:52.469  4321  4321 I AndroidRuntime: Leaving lock profiling enabled
+11-10 19:37:52.471  4321  4321 I app_process: Core platform API enforcement enabled from the hiddenapi_platform_enforcement flag and the device API level
+11-10 19:37:52.472  4321  4321 I app_process: Using generational CollectorTypeCMC GC.
+11-10 19:37:52.522  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=34
+11-10 19:37:52.522  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:37:52.523  3730  3766 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:37:52.523  3730  3766 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=114 mismatch=13 used=0
+11-10 19:37:52.523  3730  3766 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=348605.99999999953
+11-10 19:37:52.549  4321  4321 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-10 19:37:52.557  4321  4321 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:37:52.558  4321  4321 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/10/icu") succeeded. 
+11-10 19:37:52.558  4321  4321 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt78l.dat
+11-10 19:37:52.558  4321  4321 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:37:52.559  4321  4321 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:37:52.560  4321  4321 I app_process: Priority-to-niceness mapping: 19, 16, 13, 10, 0, -2, -4, -5, -6, -8
+11-10 19:37:52.560  4321  4321 W app_process: Unexpected CPU variant for x86: x86_64.
+11-10 19:37:52.560  4321  4321 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-10 19:37:52.562  4321  4321 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*736588042]#PCL[/system/framework/android.test.mock.jar*4008448454]} | PCL[])
+11-10 19:37:52.563  4321  4321 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*805256125]{PCL[/system/framework/android.test.base.jar*736588042]#PCL[/system/framework/android.test.mock.jar*4008448454]}#PCL[/system/framework/android.test.base.jar*736588042]} | PCL[/system/framework/android.test.runner.jar*805256125])
+11-10 19:37:52.584  4321  4321 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-10 19:37:52.585  4321  4321 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-10 19:37:52.588  4321  4321 I AconfigPackage: android.media.swcodec.flags is mapped to com.android.media.swcodec
+11-10 19:37:52.588  4321  4321 I AconfigPackage: com.android.permission.flags is mapped to com.android.permission
+11-10 19:37:52.588  4321  4321 I AconfigPackage: com.android.permissioncontroller.flags is mapped to com.android.permission
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.google.android.widevine.flags is mapped to com.google.android.widevine
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.icu is mapped to com.android.i18n
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.appsearch.flags is mapped to com.android.appsearch
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.uprobestats.flags is mapped to com.android.uprobestats
+11-10 19:37:52.589  4321  4321 I AconfigPackage: android.uprobestats.mainline.flags is mapped to com.android.uprobestats
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.crashrecovery.flags is mapped to com.android.crashrecovery
+11-10 19:37:52.589  4321  4321 I AconfigPackage: android.provider.flags is mapped to com.android.configinfrastructure
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.server.deviceconfig is mapped to com.android.configinfrastructure
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.compos.flags is mapped to com.android.compos
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.art.flags is mapped to com.android.art
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.art.rw.flags is mapped to com.android.art
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.libcore is mapped to com.android.art
+11-10 19:37:52.589  4321  4321 I AconfigPackage: android.telecom.flags is mapped to com.android.telephonycore
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.internal.telecom.flags is mapped to com.android.telephonycore
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.telephony.flags is mapped to com.android.telephonycore
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.media.extractor.flags is mapped to com.android.media
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.media.metrics.flags is mapped to com.android.media
+11-10 19:37:52.589  4321  4321 I AconfigPackage: com.android.media.mainline.flags is mapped to com.android.media
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.wifi.flags is mapped to com.android.wifi
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.org.conscrypt.flags is mapped to com.android.conscrypt
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.org.conscrypt.net.flags is mapped to com.android.conscrypt
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.healthfitness.flags is mapped to com.android.healthfitness
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.ipsec.flags is mapped to com.android.ipsec
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.nfc.module.flags is mapped to com.android.nfcservices
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.nfc.module.nonexported.flags is mapped to com.android.nfcservices
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.adservices.ondevicepersonalization.flags is mapped to com.android.ondevicepersonalization
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.adbd.flags is mapped to com.android.adbd
+11-10 19:37:52.590  4321  4321 I AconfigPackage: com.android.bluetooth.beta.flags is mapped to com.android.bt
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.bluetooth.flags is mapped to com.android.bt
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.devicelock.flags is mapped to com.android.devicelock
+11-10 19:37:52.591  4321  4321 I AconfigPackage: android.os.profiling is mapped to com.android.profiling
+11-10 19:37:52.591  4321  4321 I AconfigPackage: android.os.profiling.anomaly.flags is mapped to com.android.profiling
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.os.statsd.flags is mapped to com.android.os.statsd
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.webapp.flags is mapped to com.android.webapp
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.rkpd.flags is mapped to com.android.rkpd
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.cellbroadcastreceiver.flags is mapped to com.android.cellbroadcast
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.adservices.flags is mapped to com.android.adservices
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.sdksandbox.flags is mapped to com.android.adservices
+11-10 19:37:52.591  4321  4321 I AconfigPackage: android.app.sdksandbox.flags is mapped to com.android.adservices
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.uwb.flags is mapped to com.android.uwb
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.ranging.flags is mapped to com.android.uwb
+11-10 19:37:52.591  4321  4321 I AconfigPackage: com.android.npumanager is mapped to com.android.npumanager
+11-10 19:37:52.592  4321  4321 I AconfigPackage: android.graphics.pdf.flags is mapped to com.android.mediaprovider
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.providers.media.flags is mapped to com.android.mediaprovider
+11-10 19:37:52.592  4321  4321 I AconfigPackage: android.graphics.pdf.flags.readonly is mapped to com.android.mediaprovider
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.tethering.mainline.beta is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: android.net.http is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.tethering.readonly.flags is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: android.net.vcn is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.net.flags is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.tethering.flags is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.tethering.beta.test is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.nearby.flags is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.net.thread.flags is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.net.ct.flags is mapped to com.android.tethering
+11-10 19:37:52.592  4321  4321 I AconfigPackage: com.android.system.virtualmachine.flags is mapped to com.android.virt
+11-10 19:37:52.592  4321  4321 E FeatureFlagsImplExport: android.os.flagging.AconfigStorageReadException: ERROR_PACKAGE_NOT_FOUND: package android.xr cannot be found on the device
+11-10 19:37:52.593  4321  4321 D UiAutomationConnection: Created on user UserHandle{0}
+11-10 19:37:52.593  4321  4321 I UiAutomation: Initialized for user 0 on display 0
+11-10 19:37:52.593  4321  4321 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-10 19:37:52.594   667  1185 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-10 19:37:52.594   667  1185 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+11-10 19:37:52.594   667  1185 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:52.597   667  1185 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:52.597   667  1185 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:52.597   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.597   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.597   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.597  4321  4333 V UiAutomation: Init UiAutomation@6185a5f[id=16, displayId=0, flags=0]
+11-10 19:37:52.598   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.598   667  1911 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:52.598   667   680 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:52.599   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:52.599   667   680 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:52.599   667   680 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:52.614   460   510 I netd    : tetherGetStats() -> {[]} <0.41ms>
+11-10 19:37:52.870  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 19:37:52.870  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:52.870  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:52.870  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:52.870  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:52.872  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:52.872  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:52.872  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:52.872  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:52.872  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:52.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:52.873  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:52.873  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:52.873  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:52.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 19:37:52.873  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:52.873  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:52.873  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:52.873  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 19:37:52.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 19:37:52.873  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:52.873  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:52.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 19:37:52.873  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 19:37:52.873  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 19:37:52.873  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 19:37:52.873  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 19:37:53.141  3730  3766 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=393582
+11-10 19:37:53.576  3730  3766 I OREKI_CRUNCH: crunch detected inf=2.5e1->2.6e1 ip=1.3e1 ep=0.0e0 bigE=0 t=397203
+11-10 19:37:53.621  4321  4321 W AccessibilityNodeInfoDumper: Fetch time: 5ms
+11-10 19:37:53.622   667   680 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:53.624   667   680 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:53.624   667   680 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:53.624   667   680 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-10 19:37:53.625  4321  4331 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:37:53.625  4321  4321 D AndroidRuntime: Shutting down VM
+11-10 19:37:53.627   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.627   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.627   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.627   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.628   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.628   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.628   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.628   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.629   667   667 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:53.630  4321  4330 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:53.631   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:53.631   667   667 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:53.631   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.631   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.631   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.631   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.632   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667  1911 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:37:53.634   667  1911 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:37:53.634   667  1911 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.634   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:37:53.635  1804  1804 I OrekiA11y: a11y connected
+11-10 19:37:53.635   667  1911 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:53.635   667  1911 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:37:54.464  2537  2537 I adbd    : adbd service requested 'sync:'
+11-10 19:37:54.469  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:logcat -d -v threadtime -t 1200'

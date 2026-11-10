@@ -1,0 +1,1469 @@
+--------- beginning of main
+11-10 19:44:25.031  4647  4647 D FirebaseSessions: App foregrounded on com.oreki.antimatterdimensions
+11-10 19:44:25.031  4647  4647 D FirebaseSessions: Session 8265a0af137f442cb95a4e2bf6bf598a has not backgrounded yet
+11-10 19:44:25.031  4647  4647 D FirebaseSessions: No process data for com.oreki.antimatterdimensions
+11-10 19:44:25.031  4647  4647 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-10 19:44:25.031  4647  4647 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-10 19:44:25.031  4647  4647 I OrekiTutorial: 容器里已有入口按钮，跳过
+11-10 19:44:25.031  4647  4647 I OrekiTutorial: 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-10 19:44:25.034  4647  4682 I FA      : Tag Manager is not found and thus will not be used
+11-10 19:44:25.034  4647  4670 D FirebaseSessions: Session 5e6630f5aa944a5e9fae2cf32a7ad5cd has not backgrounded yet
+11-10 19:44:25.034  4647  4670 D FirebaseSessions: No process data map
+11-10 19:44:25.034  4647  4670 D FirebaseSessions: No process data for com.oreki.antimatterdimensions
+11-10 19:44:25.035  4647  4670 D FirebaseSessions: Sessions SDK disabled through data collection. Events will not be sent.
+11-10 19:44:25.035  4647  4647 W HWUI    : Unknown dataspace 0
+11-10 19:44:25.038  1552  1552 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.measurement.START xflg=0x4 pkg=com.google.android.gms }
+11-10 19:44:25.038  1552  1552 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.measurement.START xflg=0x4 pkg=com.google.android.gms }
+--------- beginning of kernel
+11-10 19:44:25.228     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:44:25.232     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+--------- beginning of system
+11-10 19:44:25.043  4647  4647 D InsetsController: Setting requestedVisibleTypes to 496 (was 503)
+11-10 19:44:25.043  4647  4692 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.043  4647  4693 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.043  4647  4693 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.044  4647  4675 D FirebaseSessions: Notified CRASHLYTICS of new session 9180e9aa66a54888bae6a7a434fb526c
+11-10 19:44:25.044   667  1937 W InputChannel-JNI: Channel already disposed.
+11-10 19:44:25.044  4647  4692 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.045  4647  4647 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.app.Activity$$ExternalSyntheticLambda0@b70abda
+11-10 19:44:25.045   667  1937 D CoreBackPreview: Window{457a3f0 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@22b0f1c, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+11-10 19:44:25.046  4647  4696 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:25.047  4647  4647 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): r83@67b6e8
+11-10 19:44:25.047   667  1937 D CoreBackPreview: Window{457a3f0 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6982725, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+11-10 19:44:25.048  4647  4647 D VRI[AppIcon_default]: WindowInsets changed: 1080x2400 statusBars:[0,128,0,0] navigationBars:[0,0,0,63] mandatorySystemGestures:[0,160,0,84] 
+11-10 19:44:25.236     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found mapper/ranchu in device VINTF manifest.
+11-10 19:44:25.049   525   568 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-10 19:44:25.052   667  1937 D WindowManager: setClientSurface Surface(name=VRI-com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default#204)/@0x65420fa for 457a3f0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default
+11-10 19:44:25.053  4647  4647 I Surface : Creating surface for consumer unnamed-4647-0 with slotExpansion=1 for 64 slots
+11-10 19:44:25.054  4647  4647 I Surface : Creating surface for consumer VRI[AppIcon_default]#0(BLAST Consumer)0 with slotExpansion=1 for 64 slots
+11-10 19:44:25.055   525   556 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0x75f7d34c6290) with descriptor: '(not cached)'
+11-10 19:44:25.055  4647  4647 D VRI[AppIcon_default]: WindowInsets changed: statusBars:null navigationBars:null 
+11-10 19:44:25.099  4647  4692 I ApexCodecsLazy: ApexCodecs loaded
+11-10 19:44:25.099  4647  4692 I Codec2Client: Available Codec2 services: "default" "software" "__ApexCodecs__"
+11-10 19:44:25.292     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.296     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.107  4647  4647 I Surface : Creating surface for consumer unnamed-4647-1 with slotExpansion=1 for 64 slots
+11-10 19:44:25.107  4647  4647 I Surface : Creating surface for consumer SurfaceTexture-0-4647-0 with slotExpansion=0 for 64 slots
+11-10 19:44:25.111  4647  4693 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.111  4647  4692 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.112  4647  4697 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.115  4647  4698 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.118  4647  4697 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.120  4647  4698 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.306     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.309     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.312     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.315     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/software in framework VINTF manifest.
+11-10 19:44:25.127  4647  4698 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.127  4647  4698 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.127  4647  4697 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.127  4647  4697 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.128  4647  4697 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.128  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.128  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.128  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.129  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.129  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.129  4647  4697 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.129  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.130  4647  4698 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.130  4647  4697 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.130  4647  4697 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.130  4647  4697 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.130  4647  4697 D CCodecConfig: }
+11-10 19:44:25.131  4647  4693 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.131  4647  4697 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.131  4647  4697 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.131  4647  4697 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.131  4647  4697 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.131  4647  4697 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.131  4647  4697 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.131  4647  4697 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.131  4647  4697 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.131  4647  4697 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.131  4647  4697 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.131  4647  4697 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.131  4647  4697 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.131  4647  4697 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.131  4647  4697 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.131  4647  4697 D CCodec  : }
+11-10 19:44:25.132  4647  4697 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.132  4647  4697 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.132  4647  4697 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.132  4647  4697 D CCodec  : }
+11-10 19:44:25.132  4647  4697 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.132  4647  4697 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.132  4647  4697 D C2Store : Using DMABUF Heaps
+11-10 19:44:25.133  4647  4697 D CCodecBufferChannel: [c2.android.mp3.decoder#381] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+11-10 19:44:25.133  4647  4697 I CCodecBufferChannel: [c2.android.mp3.decoder#381] Created output block pool with allocatorID 16 => poolID 77 - OK
+11-10 19:44:25.133  4647  4697 D CCodecBufferChannel: [c2.android.mp3.decoder#381] Configured output block pool ids 77 => OK
+11-10 19:44:25.133   607   634 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.133  4647  4698 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.133  4647  4698 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.133  4647  4698 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.133  4647  4698 D CCodecConfig: }
+11-10 19:44:25.134   607  4706 D SimpleC2Component: Using output block pool with poolID 77 => got 77 - 0
+11-10 19:44:25.135  4647  4692 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.135  4647  4698 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.135  4647  4698 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.135  4647  4698 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.135  4647  4698 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.135  4647  4698 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.135  4647  4698 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.135  4647  4698 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.135  4647  4698 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.135  4647  4698 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.135  4647  4698 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.135  4647  4698 D CCodec  : }
+11-10 19:44:25.135  4647  4698 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.135  4647  4698 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.135  4647  4698 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.135  4647  4698 D CCodec  : }
+11-10 19:44:25.135  4647  4698 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.135  4647  4698 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.136   607   634 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.136  4647  4697 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.136   607  4706 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.137  4647  4656 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.137   607  4706 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.137  4647  4698 D CCodecBufferChannel: [c2.android.mp3.decoder#192] Created input block pool with allocatorID 16 => poolID 18 - OK (0)
+11-10 19:44:25.141  4647  4698 I CCodecBufferChannel: [c2.android.mp3.decoder#192] Created output block pool with allocatorID 16 => poolID 78 - OK
+11-10 19:44:25.141  4647  4698 D CCodecBufferChannel: [c2.android.mp3.decoder#192] Configured output block pool ids 78 => OK
+11-10 19:44:25.141   607   607 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.142   607  4707 D SimpleC2Component: Using output block pool with poolID 78 => got 78 - 0
+11-10 19:44:25.153   607   634 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.153  4647  4698 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.154   607  4707 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.155  4647  4657 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.155   607  4707 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.245  4647  4698 D CCodecBufferChannel: [c2.android.mp3.decoder#192] MediaCodec discarded an unknown buffer
+11-10 19:44:25.246  4647  4698 D CCodecBufferChannel: [c2.android.mp3.decoder#192] MediaCodec discarded an unknown buffer
+11-10 19:44:25.246  4647  4698 D CCodecBufferChannel: [c2.android.mp3.decoder#192] MediaCodec discarded an unknown buffer
+11-10 19:44:25.247  4647  4710 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.247   607   954 D AidlBufferPool: Destruction - bufferpool2 0x75705a40c358 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.254  4647  4692 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.255  4647  4692 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.257  4647  4697 D CCodecBufferChannel: [c2.android.mp3.decoder#381] MediaCodec discarded an unknown buffer
+11-10 19:44:25.258  4647  4697 D CCodecBufferChannel: [c2.android.mp3.decoder#381] MediaCodec discarded an unknown buffer
+11-10 19:44:25.258  4647  4697 D CCodecBufferChannel: [c2.android.mp3.decoder#381] MediaCodec discarded an unknown buffer
+11-10 19:44:25.259  4647  4714 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.259   607  1805 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0x7570ea415f40) with descriptor: 'android.hardware.media.bufferpool2.IClientManager'
+11-10 19:44:25.259   607  1805 D AidlBufferPool: Destruction - bufferpool2 0x75705a409768 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.448     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.261  4647  4692 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.262  4647  4713 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.265  4647  4713 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.265  4647  4693 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.265  4647  4693 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.266  4647  4713 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.266  4647  4713 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.266  4647  4713 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.267  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.267  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.267  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.267  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.268  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.268  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.268  4647  4713 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.455     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.459     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.269  4647  4713 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.269  4647  4713 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.269  4647  4713 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.269  4647  4713 D CCodecConfig: }
+11-10 19:44:25.269  4647  4693 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.270  4647  4692 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.270  4647  4713 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.270  4647  4713 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.270  4647  4713 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.270  4647  4713 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.270  4647  4713 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.270  4647  4713 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.270  4647  4715 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.270  4647  4713 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.271  4647  4713 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.271  4647  4713 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.271  4647  4713 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.271  4647  4713 D CCodec  : }
+11-10 19:44:25.271  4647  4713 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.271  4647  4713 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.271  4647  4713 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.271  4647  4713 D CCodec  : }
+11-10 19:44:25.271  4647  4713 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.271  4647  4713 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.272  4647  4713 D CCodecBufferChannel: [c2.android.mp3.decoder#557] Created input block pool with allocatorID 16 => poolID 19 - OK (0)
+11-10 19:44:25.273  4647  4713 I CCodecBufferChannel: [c2.android.mp3.decoder#557] Created output block pool with allocatorID 16 => poolID 80 - OK
+11-10 19:44:25.273  4647  4713 D CCodecBufferChannel: [c2.android.mp3.decoder#557] Configured output block pool ids 80 => OK
+11-10 19:44:25.273   607   634 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.274   607  4716 D SimpleC2Component: Using output block pool with poolID 80 => got 80 - 0
+11-10 19:44:25.463     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.274  4647  4715 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.275   607   954 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.275  4647  4715 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.275  4647  4715 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.275  4647  4715 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.275  4647  4713 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.275   607  4716 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.276  4647  4656 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.276   607  4716 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.276  4647  4715 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.277  4647  4715 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.277  4647  4715 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.277  4647  4715 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.277  4647  4715 D CCodecConfig: }
+11-10 19:44:25.278  4647  4693 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.278  4647  4715 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.278  4647  4715 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.278  4647  4715 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.278  4647  4715 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.278  4647  4715 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.278  4647  4715 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.278  4647  4715 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.279  4647  4715 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.279  4647  4715 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.279  4647  4715 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.279  4647  4715 D CCodec  : }
+11-10 19:44:25.279  4647  4715 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.279  4647  4715 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.279  4647  4715 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.279  4647  4715 D CCodec  : }
+11-10 19:44:25.279  4647  4715 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.279  4647  4715 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.279  4647  4715 D CCodecBufferChannel: [c2.android.mp3.decoder#144] Created input block pool with allocatorID 16 => poolID 20 - OK (0)
+11-10 19:44:25.280  4647  4715 I CCodecBufferChannel: [c2.android.mp3.decoder#144] Created output block pool with allocatorID 16 => poolID 82 - OK
+11-10 19:44:25.280  4647  4715 D CCodecBufferChannel: [c2.android.mp3.decoder#144] Configured output block pool ids 82 => OK
+11-10 19:44:25.280   607   634 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.280   607  4717 D SimpleC2Component: Using output block pool with poolID 82 => got 82 - 0
+11-10 19:44:25.281   607  1805 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.282  4647  4715 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.282   607  4717 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.283  4647  4656 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.283   607  4717 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.374  4647  4715 D CCodecBufferChannel: [c2.android.mp3.decoder#144] MediaCodec discarded an unknown buffer
+11-10 19:44:25.374  4647  4715 D CCodecBufferChannel: [c2.android.mp3.decoder#144] MediaCodec discarded an unknown buffer
+11-10 19:44:25.375  4647  4715 D CCodecBufferChannel: [c2.android.mp3.decoder#144] MediaCodec discarded an unknown buffer
+11-10 19:44:25.375  4647  4718 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.376   607  1805 D AidlBufferPool: Destruction - bufferpool2 0x75705a415758 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.378  4647  4693 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.378  4647  4693 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.382  4647  4693 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.383  4647  4720 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.572     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.577     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.388  4647  4720 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.389  4647  4720 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.389  4647  4720 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.389  4647  4720 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.390  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.390  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.390  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.390  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.390  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.390  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.391  4647  4720 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.392  4647  4720 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.392  4647  4720 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.392  4647  4720 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.392  4647  4720 D CCodecConfig: }
+11-10 19:44:25.392  4647  4693 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.392  4647  4720 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.392  4647  4720 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.393  4647  4720 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.393  4647  4720 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.393  4647  4720 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.393  4647  4720 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.393  4647  4720 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.394  4647  4720 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.394  4647  4720 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.394  4647  4720 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.394  4647  4720 D CCodec  : }
+11-10 19:44:25.394  4647  4720 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.394  4647  4720 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.394  4647  4720 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.394  4647  4720 D CCodec  : }
+11-10 19:44:25.394  4647  4720 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.394  4647  4720 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.394  4647  4720 D CCodecBufferChannel: [c2.android.mp3.decoder#807] Created input block pool with allocatorID 16 => poolID 21 - OK (0)
+11-10 19:44:25.395  4647  4720 I CCodecBufferChannel: [c2.android.mp3.decoder#807] Created output block pool with allocatorID 16 => poolID 84 - OK
+11-10 19:44:25.395  4647  4720 D CCodecBufferChannel: [c2.android.mp3.decoder#807] Configured output block pool ids 84 => OK
+11-10 19:44:25.395   607   954 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.395   607  4721 D SimpleC2Component: Using output block pool with poolID 84 => got 84 - 0
+11-10 19:44:25.395  4647  4713 D CCodecBufferChannel: [c2.android.mp3.decoder#557] MediaCodec discarded an unknown buffer
+11-10 19:44:25.395  4647  4713 D CCodecBufferChannel: [c2.android.mp3.decoder#557] MediaCodec discarded an unknown buffer
+11-10 19:44:25.395  4647  4713 D CCodecBufferChannel: [c2.android.mp3.decoder#557] MediaCodec discarded an unknown buffer
+11-10 19:44:25.396  4647  4722 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.399   607   954 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.399  4647  4720 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.400   607  4721 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.401   607  1805 D AidlBufferPool: Destruction - bufferpool2 0x75705a40cee8 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.401  4647  4700 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.401   607  4721 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.402  4647  4692 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.402  4647  4692 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.406  4647  4692 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.406  4647  4723 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.595     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.599     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.409  4647  4723 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.410  4647  4723 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.410  4647  4723 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.410  4647  4723 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.411  4647  4723 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.411  4647  4723 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.411  4647  4723 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.411  4647  4723 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.411  4647  4723 D CCodecConfig: }
+11-10 19:44:25.412  4647  4692 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.412  4647  4723 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.412  4647  4723 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.412  4647  4723 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.412  4647  4723 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.412  4647  4723 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.412  4647  4723 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.413  4647  4723 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.413  4647  4723 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.413  4647  4723 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.413  4647  4723 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.413  4647  4723 D CCodec  : }
+11-10 19:44:25.413  4647  4723 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.413  4647  4723 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.413  4647  4723 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.413  4647  4723 D CCodec  : }
+11-10 19:44:25.413  4647  4723 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.413  4647  4723 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.414  4647  4723 D CCodecBufferChannel: [c2.android.mp3.decoder#557] Created input block pool with allocatorID 16 => poolID 22 - OK (0)
+11-10 19:44:25.415  4647  4723 I CCodecBufferChannel: [c2.android.mp3.decoder#557] Created output block pool with allocatorID 16 => poolID 86 - OK
+11-10 19:44:25.415  4647  4723 D CCodecBufferChannel: [c2.android.mp3.decoder#557] Configured output block pool ids 86 => OK
+11-10 19:44:25.415   607  1805 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.415   607  4724 D SimpleC2Component: Using output block pool with poolID 86 => got 86 - 0
+11-10 19:44:25.417   607   954 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.417  4647  4723 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.417   607  4724 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.418  4647  4700 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.418   607  4724 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.455   667   690 I ActivityTaskManager: Displayed com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default for user 0: +1s11ms
+11-10 19:44:25.465  1078  1078 D BaseActivity: Launcher flags updated: [] -[state_started]
+11-10 19:44:25.465  1078  1078 D BaseDepthController: setSurface:
+11-10 19:44:25.465  1078  1078 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-10 19:44:25.465  1078  1078 D BaseDepthController: 	mBaseSurface: null
+11-10 19:44:25.465  1078  1078 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+11-10 19:44:25.466  1078  1078 D LauncherStateManager: StateManager.goToState: fromState: Normal, toState: Normal, partial trace:
+11-10 19:44:25.466  1078  1078 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme dc5b05c43537c6aa1d671c685c710819682fcc95b6af33c0ce7f88e1808452b7:26)
+11-10 19:44:25.466  1078  1078 D LauncherStateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(go/retraceme dc5b05c43537c6aa1d671c685c710819682fcc95b6af33c0ce7f88e1808452b7:35)
+11-10 19:44:25.466  1078  1078 D LauncherStateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(go/retraceme dc5b05c43537c6aa1d671c685c710819682fcc95b6af33c0ce7f88e1808452b7:31)
+11-10 19:44:25.466  1078  1078 D LauncherStateManager: StateManager.onRepeatStateSetAborted: state: Normal
+11-10 19:44:25.469  1078  1078 D KeyboardStateManager: hideKeyboard
+11-10 19:44:25.469  4647  4658 I HWUI    : Davey! duration=794ms; Flags=1, FrameTimelineVsyncId=122490, IntendedVsync=788280920068, Vsync=788664253386, InputEventId=0, HandleInputStart=788672553688, AnimationStart=788672562155, PerformTraversalsStart=788672612609, DrawStart=788732722314, FrameDeadline=788297586734, FrameStartTime=788672494000, FrameInterval=16666666, WorkloadTarget=16666666, AnimationTime=788664253386, SyncQueued=788734625959, SyncStart=788734868094, IssueDrawCommandsStart=788734927958, SwapBuffers=788982260871, FrameCompleted=789075761826, DequeueBufferDuration=7730, QueueBufferDuration=148676, GpuCompleted=789075653655, SwapBuffersCompleted=789075761826, DisplayPresentTime=0, CommandSubmissionCompleted=788982260871, 
+11-10 19:44:25.470  1078  1078 D KeyboardStateManager: isImeShown: false
+11-10 19:44:25.470  1078  1078 D StatsLog: LAUNCHER_ONSTOP
+11-10 19:44:25.474   460  3981 I netd    : tetherGetStats() -> {[]} <0.76ms>
+11-10 19:44:25.475  1078  1078 D StatsLog: LAUNCHER_GOOGLE_SEARCH_RESTORE_LIST_SIZE_AFTER_ACTIVITY_RESTART
+11-10 19:44:25.477   667   693 I DisplayDeviceRepository: Display device same: DisplayDeviceInfo{"Built-in Screen": uniqueId="local:4619827259835644672", 1080 x 2400, modeId 1, renderFrameRate 60.000004, hasArrSupport false, frameRateCategoryRate FrameRateCategoryRate {normal=60.0, high=90.0}, supportedRefreshRates [60.000004, 30.000002, 20.0], defaultModeId 1, userPreferredModeId -1, supportedModes [{id=1, parentModeId=-1, sfModeId=0, flags=, width=1080, height=2400, fps=60.000004, vsync=60.000004, alternativeRefreshRates=[], supportedHdrTypes=[]}], colorMode 0, supportedColorModes [0], hdrCapabilities HdrCapabilities{mSupportedHdrTypes=[], mMaxLuminance=500.0, mMaxAverageLuminance=500.0, mMinLuminance=0.0}, isForceSdr false, allmSupported false, gameContentTypeSupported false, density 420, 420.0 x 420.0 dpi, appVsyncOff 1000000, presDeadline 16666666, cutout DisplayCutout{insets=Rect(0, 128 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(492, 0 - 610, 128), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1080 displayHeight=2400 physicalDisplayWidth=1080 physicalDisplayHeight=2400 density={2.625} cutoutSpec={M 507,64 a 33,33 0 1 0 66,0 33,33 0 1 0 -66,0 Z @left} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}} sideOverrides={}}, touch INTERNAL, rotation 0, type INTERNAL, address StablePhysical{id=4619827259835644672, port=0}, deviceProductInfo DeviceProductInfo{name=EMU_display_0, manufacturerPnpId=GGL, productId=1, modelYear=null, manufactureDate=ManufactureDate{week=27, year=2006}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}, state ON, committedState ON, frameRateOverride , brightnessMinimum 0.035433073, brightnessMaximum 1.0, brightnessDefault 0.39763778, brightnessDim 0.05, hdrSdrRatio NaN, roundedCorners RoundedCorners{[RoundedCorner{position=TopLeft, radius=28, center=Point(28, 28)}, RoundedCorner{position=TopRight, radius=28, center=Point(1052, 28)}, RoundedCorner{position=BottomRight, radius=28, center=Point(1052, 2372)}, RoundedCorner{position=BottomLeft, radius=28, center=Point(28, 2372)}]}, FLAG_ALLOWED_TO_BE_DEFAULT_DISPLAY, FLAG_ROTATES_WITH_CONTENT, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, FLAG_TRUSTED, installOrientation 0, displayShape DisplayShape{type=2, displayWidth=1080, displayHeight=2400, physicalPixelDisplaySizeRatio=1.0, rotation=0, offsetX=0, offsetY=0, scale=1.0}}
+11-10 19:44:25.477   667   693 I DisplayDeviceRepository: Display device same: DisplayDeviceInfo{"Built-in Screen": uniqueId="local:4619827259835644672", 1080 x 2400, modeId 1, renderFrameRate 60.000004, hasArrSupport false, frameRateCategoryRate FrameRateCategoryRate {normal=60.0, high=90.0}, supportedRefreshRates [60.000004, 30.000002, 20.0], defaultModeId 1, userPreferredModeId -1, supportedModes [{id=1, parentModeId=-1, sfModeId=0, flags=, width=1080, height=2400, fps=60.000004, vsync=60.000004, alternativeRefreshRates=[], supportedHdrTypes=[]}], colorMode 0, supportedColorModes [0], hdrCapabilities HdrCapabilities{mSupportedHdrTypes=[], mMaxLuminance=500.0, mMaxAverageLuminance=500.0, mMinLuminance=0.0}, isForceSdr false, allmSupported false, gameContentTypeSupported false, density 420, 420.0 x 420.0 dpi, appVsyncOff 1000000, presDeadline 16666666, cutout DisplayCutout{insets=Rect(0, 128 - 0, 0) waterfall=Insets{left=0, top=0, right=0, bottom=0} boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(492, 0 - 610, 128), Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1080 displayHeight=2400 physicalDisplayWidth=1080 physicalDisplayHeight=2400 density={2.625} cutoutSpec={M 507,64 a 33,33 0 1 0 66,0 33,33 0 1 0 -66,0 Z @left} rotation={0} scale={1.0} physicalPixelDisplaySizeRatio={1.0}}} sideOverrides={}}, touch INTERNAL, rotation 0, type INTERNAL, address StablePhysical{id=4619827259835644672, port=0}, deviceProductInfo DeviceProductInfo{name=EMU_display_0, manufacturerPnpId=GGL, productId=1, modelYear=null, manufactureDate=ManufactureDate{week=27, year=2006}, connectionToSinkType=1, edidStructureMetadata=EdidStructureMetadata{version=0, revision=0}, videoInputType=0}, state ON, committedState ON, frameRateOverride , brightnessMinimum 0.035433073, brightnessMaximum 1.0, brightnessDefault 0.39763778, brightnessDim 0.05, hdrSdrRatio NaN, roundedCorners RoundedCorners{[RoundedCorner{position=TopLeft, radius=28, center=Point(28, 28)}, RoundedCorner{position=TopRight, radius=28, center=Point(1052, 28)}, RoundedCorner{position=BottomRight, radius=28, center=Point(1052, 2372)}, RoundedCorner{position=BottomLeft, radius=28, center=Point(28, 2372)}]}, FLAG_ALLOWED_TO_BE_DEFAULT_DISPLAY, FLAG_ROTATES_WITH_CONTENT, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, FLAG_TRUSTED, installOrientation 0, displayShape DisplayShape{type=2, displayWidth=1080, displayHeight=2400, physicalPixelDisplaySizeRatio=1.0, rotation=0, offsetX=0, offsetY=0, scale=1.0}}
+11-10 19:44:25.492  4647  4725 W InteractionJankMonitor: Initializing without READ_DEVICE_CONFIG permission. enabled=true, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=com.oreki.antimatterdimensions
+11-10 19:44:25.499   667   691 V GameManagerService: Game power mode ON (only games in foreground)
+11-10 19:44:25.529   667   693 I DisplayDeviceRepository: Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=16666666, appVsyncOffsetNanos=1000000, frameRateOverrides=[{uid=10234 frameRateHz=60.000004}]
+11-10 19:44:25.530   667   783 I ImeTracker: com.oreki.antimatterdimensions:ee2a1b5e: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false userId 0 displayId 0
+11-10 19:44:25.531  1078  1089 W System  : A resource failed to call release. 
+11-10 19:44:25.531  1078  1089 W System  : A resource failed to call release. 
+11-10 19:44:25.531  1078  1089 W System  : A resource failed to call release. 
+11-10 19:44:25.545   667   899 W InputChannel-JNI: Channel already disposed.
+11-10 19:44:25.547  4647  4723 D CCodecBufferChannel: [c2.android.mp3.decoder#557] MediaCodec discarded an unknown buffer
+11-10 19:44:25.547  4647  4723 D CCodecBufferChannel: [c2.android.mp3.decoder#557] MediaCodec discarded an unknown buffer
+11-10 19:44:25.547  4647  4723 D CCodecBufferChannel: [c2.android.mp3.decoder#557] MediaCodec discarded an unknown buffer
+11-10 19:44:25.549  1745  1745 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2259 
+11-10 19:44:25.549   667  1937 I ImeTracker: system_server:90a68b4b: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false displayId 0
+11-10 19:44:25.549   667   693 I ImeTracker: system_server:90a68b4b: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-10 19:44:25.550  4647  4728 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.550  1745  1745 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 0, locked = false
+11-10 19:44:25.551   607  1805 D AidlBufferPool: Destruction - bufferpool2 0x75705a40f638 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.552  1745  1745 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1446 onStartInput(EditorInfo{EditorInfo{packageName=com.oreki.antimatterdimensions, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-10 19:44:25.553  1745  1745 W AndroidIME: LatinIMEBase.updateInputViewCoverNavigation():327 Null input view, cannot update padding!
+11-10 19:44:25.554  1745  1745 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+11-10 19:44:25.556   667  1937 W PackageConfigPersister: App-specific configuration not found for packageName: com.oreki.antimatterdimensions and userId: 0
+11-10 19:44:25.559  4647  4692 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.559  4647  4692 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.562  4647  4647 D InsetsController: hide(ime())
+11-10 19:44:25.562  4647  4647 I ImeTracker: com.oreki.antimatterdimensions:ee2a1b5e: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+11-10 19:44:25.563  4647  4692 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.563  4647  4729 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.567  4647  4729 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.752     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.757     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.567  1226  2268 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-10 19:44:25.567  1226  2268 I FontLog : Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:25.568  4647  4729 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.568  4647  4729 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.568  4647  4729 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.569  4647  4729 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.569  4647  4729 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.570  4647  4729 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.570  4647  4729 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.570  4647  4729 D CCodecConfig: }
+11-10 19:44:25.571  4647  4692 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.571  4647  4729 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.571  4647  4729 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.571  4647  4729 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.571  4647  4729 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.571  4647  4729 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.571  4647  4729 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.571  4647  4729 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.571  4647  4729 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.571  4647  4729 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.571  4647  4729 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.571  4647  4729 D CCodec  : }
+11-10 19:44:25.571  4647  4729 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.571  4647  4729 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.571  4647  4729 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.571  4647  4729 D CCodec  : }
+11-10 19:44:25.571  4647  4729 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.571  4647  4729 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.573  1226  2268 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-10 19:44:25.582  4647  4729 D CCodecBufferChannel: [c2.android.mp3.decoder#876] Created input block pool with allocatorID 16 => poolID 23 - OK (0)
+11-10 19:44:25.583  4647  4729 I CCodecBufferChannel: [c2.android.mp3.decoder#876] Created output block pool with allocatorID 16 => poolID 88 - OK
+11-10 19:44:25.583  1226  2268 I FontLog : Pulling font file for id = 23, cache size = 6 [CONTEXT service_id=132 ]
+11-10 19:44:25.584  4647  4729 D CCodecBufferChannel: [c2.android.mp3.decoder#876] Configured output block pool ids 88 => OK
+11-10 19:44:25.584   607  1805 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.585   607  4731 D SimpleC2Component: Using output block pool with poolID 88 => got 88 - 0
+11-10 19:44:25.589   607  1805 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.589  4647  4729 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.590   607  4731 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.591  4647  4720 D CCodecBufferChannel: [c2.android.mp3.decoder#807] MediaCodec discarded an unknown buffer
+11-10 19:44:25.591  4647  4720 D CCodecBufferChannel: [c2.android.mp3.decoder#807] MediaCodec discarded an unknown buffer
+11-10 19:44:25.591  4647  4720 D CCodecBufferChannel: [c2.android.mp3.decoder#807] MediaCodec discarded an unknown buffer
+11-10 19:44:25.591  4647  4732 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.591  1226  2268 I FontLog : Pulling font file for id = 23, cache size = 6 [CONTEXT service_id=132 ]
+11-10 19:44:25.592   607   965 D AidlBufferPool: Destruction - bufferpool2 0x75705a413de8 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.592  4647  4708 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.592   607  4731 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.598  4647  4693 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.599  4647  4693 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.601  4647  4693 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.602  4647  4733 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.792     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.795     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.608  4647  4733 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.622  4647  4733 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.622  4647  4733 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.622  4647  4733 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.623  4647  4733 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.624  4647  4733 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.624  4647  4733 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.624  4647  4733 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.624  4647  4733 D CCodecConfig: }
+11-10 19:44:25.625  4647  4693 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.625  4647  4733 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.625  4647  4733 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.625  4647  4733 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.625  4647  4733 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.625  4647  4733 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.625  4647  4733 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.625  4647  4733 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.625  4647  4733 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.625  4647  4733 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.625  4647  4733 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.625  4647  4733 D CCodec  : }
+11-10 19:44:25.625  4647  4733 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.625  4647  4733 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.625  4647  4733 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.625  4647  4733 D CCodec  : }
+11-10 19:44:25.625  4647  4733 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.625  4647  4733 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.626  4647  4733 D CCodecBufferChannel: [c2.android.mp3.decoder#355] Created input block pool with allocatorID 16 => poolID 24 - OK (0)
+11-10 19:44:25.628  4647  4733 I CCodecBufferChannel: [c2.android.mp3.decoder#355] Created output block pool with allocatorID 16 => poolID 90 - OK
+11-10 19:44:25.628  4647  4733 D CCodecBufferChannel: [c2.android.mp3.decoder#355] Configured output block pool ids 90 => OK
+11-10 19:44:25.628   607  1798 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.629   607  4734 D SimpleC2Component: Using output block pool with poolID 90 => got 90 - 0
+11-10 19:44:25.630   607   965 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.630  4647  4733 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.630   607  4734 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.631  4647  4708 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.631   607  4734 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.742  4647  4729 D CCodecBufferChannel: [c2.android.mp3.decoder#876] MediaCodec discarded an unknown buffer
+11-10 19:44:25.742  4647  4729 D CCodecBufferChannel: [c2.android.mp3.decoder#876] MediaCodec discarded an unknown buffer
+11-10 19:44:25.742  4647  4729 D CCodecBufferChannel: [c2.android.mp3.decoder#876] MediaCodec discarded an unknown buffer
+11-10 19:44:25.742  4647  4737 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.743   607  1798 D AidlBufferPool: Destruction - bufferpool2 0x75705a4136f8 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.744  4647  4692 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.744  4647  4692 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.747  4647  4692 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.748  4647  4738 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.937     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.941     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.750  4647  4738 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.751  4647  4738 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.751  4647  4738 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.751  4647  4738 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.752  4647  4738 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.753  4647  4738 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.753  4647  4738 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.753  4647  4738 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.753  4647  4738 D CCodecConfig: }
+11-10 19:44:25.754  4647  4692 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.754  4647  4738 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.754  4647  4738 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.754  4647  4738 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.754  4647  4738 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.754  4647  4738 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.754  4647  4738 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.754  4647  4738 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.754  4647  4738 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.754  4647  4738 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.754  4647  4738 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.754  4647  4738 D CCodec  : }
+11-10 19:44:25.754  4647  4738 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.754  4647  4738 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.754  4647  4738 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.754  4647  4738 D CCodec  : }
+11-10 19:44:25.754  4647  4738 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.754  4647  4738 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.757  4647  4738 D CCodecBufferChannel: [c2.android.mp3.decoder#390] Created input block pool with allocatorID 16 => poolID 25 - OK (0)
+11-10 19:44:25.758  4647  4738 I CCodecBufferChannel: [c2.android.mp3.decoder#390] Created output block pool with allocatorID 16 => poolID 92 - OK
+11-10 19:44:25.758  4647  4738 D CCodecBufferChannel: [c2.android.mp3.decoder#390] Configured output block pool ids 92 => OK
+11-10 19:44:25.758   607   965 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.758   607  4739 D SimpleC2Component: Using output block pool with poolID 92 => got 92 - 0
+11-10 19:44:25.760   607  1798 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.760  4647  4738 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.761   607  4739 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.762  4647  4658 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.762   607  4739 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.770  4647  4733 D CCodecBufferChannel: [c2.android.mp3.decoder#355] MediaCodec discarded an unknown buffer
+11-10 19:44:25.770  4647  4733 D CCodecBufferChannel: [c2.android.mp3.decoder#355] MediaCodec discarded an unknown buffer
+11-10 19:44:25.771  4647  4740 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.772   607   607 D AidlBufferPool: Destruction - bufferpool2 0x75705a40f638 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.777  4647  4693 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-10 19:44:25.778  4647  4693 I MediaCodec: Retry enabled for HDCP failure
+11-10 19:44:25.780  4647  4693 W atterdimensions: Failed to query component store for system resources: 6
+11-10 19:44:25.971     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.781  4647  4741 D CCodec  : allocate(c2.android.mp3.decoder)
+11-10 19:44:25.783  4647  4741 I CCodec  : setting up 'default' as default (vendor) store
+11-10 19:44:25.784  4647  4741 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.784  4647  4741 I CCodec  : Created component [c2.android.mp3.decoder] for [c2.android.mp3.decoder]
+11-10 19:44:25.784  4647  4741 D CCodecConfig: read media type: audio/mpeg
+11-10 19:44:25.974     0     0 I servicemanager: Caller(pid=4647,uid=10234,sid=u:r:untrusted_app:s0:c234,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-10 19:44:25.785  4647  4741 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-10 19:44:25.786  4647  4741 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.786  4647  4741 D CCodecConfig: c2 config diff is Dict {
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 8192
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   string input.media-type.value = "audio/mpeg"
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 output.large-frame.max-size = 0
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 output.large-frame.threshold-size = 0
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-10 19:44:25.786  4647  4741 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-10 19:44:25.786  4647  4741 D CCodecConfig: }
+11-10 19:44:25.786  4647  4693 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+11-10 19:44:25.786  4647  4741 D CCodec  : [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-10 19:44:25.786  4647  4741 D CCodecConfig: no c2 equivalents for durationUs
+11-10 19:44:25.786  4647  4741 D CCodecConfig: no c2 equivalents for track-id
+11-10 19:44:25.786  4647  4741 D CCodecConfig: no c2 equivalents for encoder-delay
+11-10 19:44:25.786  4647  4741 D CCodecConfig: no c2 equivalents for encoder-padding
+11-10 19:44:25.786  4647  4741 D CCodecConfig: no c2 equivalents for flags
+11-10 19:44:25.786  4647  4741 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-10 19:44:25.787  4647  4741 D CCodec  : encoding statistics level = 0
+11-10 19:44:25.787  4647  4741 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t bitrate = 224000
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t max-input-size = 8192
+11-10 19:44:25.787  4647  4741 D CCodec  :   string mime = "audio/mpeg"
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.787  4647  4741 D CCodec  : }
+11-10 19:44:25.787  4647  4741 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t channel-count = 2
+11-10 19:44:25.787  4647  4741 D CCodec  :   string mime = "audio/raw"
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t sample-rate = 44100
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t encoder-delay = 576
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t encoder-padding = 1536
+11-10 19:44:25.787  4647  4741 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-10 19:44:25.787  4647  4741 D CCodec  : }
+11-10 19:44:25.787  4647  4741 I CCodecConfig: query failed after returning 8 values (BAD_INDEX)
+11-10 19:44:25.787  4647  4741 E atterdimensions: Failed to query component interface for required system resources: 6
+11-10 19:44:25.787  4647  4741 D CCodecBufferChannel: [c2.android.mp3.decoder#676] Created input block pool with allocatorID 16 => poolID 26 - OK (0)
+11-10 19:44:25.787  4647  4741 I CCodecBufferChannel: [c2.android.mp3.decoder#676] Created output block pool with allocatorID 16 => poolID 94 - OK
+11-10 19:44:25.787  4647  4741 D CCodecBufferChannel: [c2.android.mp3.decoder#676] Configured output block pool ids 94 => OK
+11-10 19:44:25.787   607  1805 E Codec2-ComponentInterface: We have a failed config
+11-10 19:44:25.788   607  4742 D SimpleC2Component: Using output block pool with poolID 94 => got 94 - 0
+11-10 19:44:25.788   607  1798 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.788  4647  4741 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.789   607  4742 I C2SoftMp3Dec: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-10 19:44:25.789  4647  4712 W atterdimensions: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.789   607  4742 W mediaswcodec: AIBinder_linkToDeath is being called with a non-null cookie and no onUnlink callback set. Use AIBinder_DeathRecipient_setOnUnlinked to manage the lifetime of the cookie. This will become an abort.
+11-10 19:44:25.844  4647  4738 D CCodecBufferChannel: [c2.android.mp3.decoder#390] MediaCodec discarded an unknown buffer
+11-10 19:44:25.844  4647  4738 D CCodecBufferChannel: [c2.android.mp3.decoder#390] MediaCodec discarded an unknown buffer
+11-10 19:44:25.844  4647  4738 D CCodecBufferChannel: [c2.android.mp3.decoder#390] MediaCodec discarded an unknown buffer
+11-10 19:44:25.844  4647  4743 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.845   607  1798 D AidlBufferPool: Destruction - bufferpool2 0x75705a4136f8 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:25.852  4647  4741 D CCodecBufferChannel: [c2.android.mp3.decoder#676] MediaCodec discarded an unknown buffer
+11-10 19:44:25.852  4647  4741 D CCodecBufferChannel: [c2.android.mp3.decoder#676] MediaCodec discarded an unknown buffer
+11-10 19:44:25.852  4647  4741 D CCodecBufferChannel: [c2.android.mp3.decoder#676] MediaCodec discarded an unknown buffer
+11-10 19:44:25.852  4647  4744 D CCodec  : hold CodecLooper(1) until release
+11-10 19:44:25.852   607  1798 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0x7570ea414890) with descriptor: 'android.hardware.media.bufferpool2.IClientManager'
+11-10 19:44:25.852   607  1798 D AidlBufferPool: Destruction - bufferpool2 0x75705a411448 cached: 0/0M, 0/0% in use; allocs: 0, 0% recycled; transfers: 0, 0% unfetched
+11-10 19:44:26.038  4647  4647 D AutofillManager: view not autofillable - not passing ime action check
+11-10 19:44:26.068   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:44:26.068   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:44:26.068   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:44:26.068   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:44:26.068   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:26.068   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:26.068   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:26.068   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:26.069   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:26.069   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:26.069   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:26.069   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:26.070   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:44:26.070   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:44:26.070   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 19:44:26.070   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:44:26.070   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3004] from screen [on:0 period:-985263658] score=100
+11-10 19:44:26.284   667  2008 D FileUtils: Rounded bytes from 4102324224 to 8000000000
+11-10 19:44:26.289  4647  4746 I UserMessagingPlatform: Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("B3EEABB8EE11C2BE770B684D95219ECB") to set this as a debug device.
+11-10 19:44:26.290  4647  4647 I PlayCore: UID: [10234]  PID: [4647] AppUpdateListenerRegistry : registerListener
+11-10 19:44:26.290  4647  4647 I PlayCore: UID: [10234]  PID: [4647] AppUpdateService : requestUpdateInfo(com.oreki.antimatterdimensions)
+11-10 19:44:26.292  4647  4746 W UserMessagingPlatform: The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-10 19:44:26.292  4647  4746 W UserMessagingPlatform: Example AndroidManifest:
+11-10 19:44:26.292  4647  4746 W UserMessagingPlatform:     <meta-data
+11-10 19:44:26.292  4647  4746 W UserMessagingPlatform:         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-10 19:44:26.292  4647  4746 W UserMessagingPlatform:         android:value="ca-app-pub-0000000000000000~0000000000">
+11-10 19:44:26.293  4647  4746 W UserMessagingPlatform: Metrics reporting URL is not set yet.
+11-10 19:44:26.293  4647  4747 I PlayCore: UID: [10234]  PID: [4647] AppUpdateService : Initiate binding to the service.
+11-10 19:44:26.293  4647  4647 W System.err: java.io.FileNotFoundException: /data/user/0/com.oreki.antimatterdimensions/files/player.json: open failed: ENOENT (No such file or directory)
+11-10 19:44:26.293  4647  4647 W System.err: 	at libcore.io.IoBridge.open(IoBridge.java:574)
+11-10 19:44:26.293  4647  4647 W System.err: 	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.app.ContextImpl.openFileInput(ContextImpl.java:818)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:251)
+11-10 19:44:26.293  4647  4647 W System.err: 	at kajfosz.antimatterdimensions.player.h.d(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:65)
+11-10 19:44:26.293  4647  4647 W System.err: 	at kajfosz.antimatterdimensions.MainActivity.M2(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:52)
+11-10 19:44:26.293  4647  4647 W System.err: 	at kajfosz.antimatterdimensions.MainActivity.V2(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:34)
+11-10 19:44:26.293  4647  4647 W System.err: 	at yo0.run(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:847)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.os.Handler.handleCallback(Handler.java:1095)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.os.Handler.dispatchMessageImpl(Handler.java:135)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.os.Handler.dispatchMessage(Handler.java:125)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.os.Looper.loopOnce(Looper.java:296)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.os.Looper.loop(Looper.java:397)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.app.ActivityThread.main(ActivityThread.java:9523)
+11-10 19:44:26.293  4647  4647 W System.err: 	at java.lang.reflect.Method.invoke(Native Method)
+11-10 19:44:26.293  4647  4647 W System.err: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+11-10 19:44:26.293  4647  4647 W System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:939)
+11-10 19:44:26.293  4647  4647 W System.err: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+11-10 19:44:26.293  4647  4647 W System.err: 	at libcore.io.Linux.open(Native Method)
+11-10 19:44:26.293  4647  4647 W System.err: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:579)
+11-10 19:44:26.293  4647  4647 W System.err: 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+11-10 19:44:26.293  4647  4647 W System.err: 	at libcore.io.ForwardingOs.open(ForwardingOs.java:579)
+11-10 19:44:26.293  4647  4647 W System.err: 	at android.app.AndroidForwardingOs.open(AndroidForwardingOs.java:120)
+11-10 19:44:26.293  4647  4647 W System.err: 	at libcore.io.IoBridge.open(IoBridge.java:560)
+11-10 19:44:26.293  4647  4647 W System.err: 	... 18 more
+11-10 19:44:26.299   667  1942 W ActivityManager: Unable to start service Intent { act=com.google.android.play.core.install.BIND_UPDATE_SERVICE xflg=0x4 pkg=com.android.vending } U=0: not found
+11-10 19:44:26.300  4647  4747 I PlayCore: UID: [10234]  PID: [4647] AppUpdateService : Failed to bind to the service.
+11-10 19:44:26.349  1745  1745 W AndroidSpellCheckerService: AndroidSpellCheckerService.initialize():72 initialize...
+11-10 19:44:26.349  1745  1745 I ShortcutsDataManager: ShortcutsDataManager.onContentChanged():72 onContentChanged()
+11-10 19:44:26.349  1745  1745 I ContactsDataManager: ContactsDataManager.onContentChanged():153 onContentChanged()
+11-10 19:44:26.349  1745  1745 W AndroidSpellCheckerService: AndroidSpellCheckerService.initialize():82 initialize...done
+11-10 19:44:26.350  1745  3324 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.350  1745  3324 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@da89b23 is created
+11-10 19:44:26.351  1745  3324 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.351  1745  3324 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@c7c664c is created
+11-10 19:44:26.351  1745  2295 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.351  1745  2295 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@c83c3aa is created
+11-10 19:44:26.351  1745  2295 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.351  1745  2295 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@f2f9b38 is created
+11-10 19:44:26.352  1745  2295 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.352  1745  2295 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@b327076 is created
+11-10 19:44:26.352  1745  3324 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.352  1745  3324 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@9df32e4 is created
+11-10 19:44:26.353  1745  2040 I Delight5: JniUtil.loadLibrary():30 loadLibrary(): nativeLibraryLoaded=true
+11-10 19:44:26.353  1745  2040 I AndroidSpellCheckerService: AndroidSpellCheckerService.createSession():138 com.google.android.keyboard.client.delight5.LanguageIdentifier@14d1e02 is created
+11-10 19:44:26.354   667  2008 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 15
+11-10 19:44:26.354   667  1937 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 15
+11-10 19:44:26.373  4647  4690 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 19:44:26.373  4647  4690 I OREKI_SCHED: gui-tick #1 gapMs=10000
+11-10 19:44:26.374  4647  4690 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-10 19:44:26.374  4647  4690 I OREKI_GUI: STATE_CHANGED source=tick-sync:global-tick phase=before-first-infinity
+11-10 19:44:26.374  4647  4690 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=true dirty=false force=true
+11-10 19:44:26.374  4647  4690 I OREKI_AUTO_BEAT: gui-tick #1 gapMs=10000
+11-10 19:44:26.375  4647  4690 I EDP_FRAME: frame=1 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=0.0e0 ip=0.0e0 db=0.0 gal=0 justCrunch=false lastCrunch=0 modIntervalMs=10000 auto=true
+11-10 19:44:26.376  4647  4690 I OREKI_PLAYER_INTENT: crunch baseline adopted current=0
+11-10 19:44:26.376  4647  4690 I OREKI_CRUNCH_DEC: allow=true reason=pre-infinity
+11-10 19:44:26.376  4647  4690 I OREKI_AU4C: policy -> TIME/10s (pre-break IP harvest)
+11-10 19:44:26.376  4647  4690 I OREKI_PLAYER_INTENT: crunch interval baseline adopted current=1.0
+11-10 19:44:26.377  4647  4690 I OREKI_AU4C: managed interval 1.0 -> 60.0 (pre-break)
+11-10 19:44:26.377  4647  4690 I OREKI_EARLY: applied
+11-10 19:44:26.377  4647  4690 I OREKI_EARLY: OREKI_AUB unlocked=9 already=0 nofield=0 activeOff=0 detail=dim1:on,dim2:on,dim3:on,dim4:on,dim5:on,dim6:on,dim7:on,dim8:on,tickspeed:on,
+11-10 19:44:26.396  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.397  1745  2040 I tflite  : Replacing 131 out of 337 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 66 partitions for subgraph 0.
+11-10 19:44:26.398  4647  4690 I OREKI_AU4C: managed interval 60.0 -> 5.0 (eternity-zero)
+11-10 19:44:26.398  4647  4690 I OREKI_AU4C: policy -> interval=5s (target-driven, once)
+11-10 19:44:26.399  1745  2040 I tflite  : Replacing 18 out of 53 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 13 partitions for subgraph 0.
+11-10 19:44:26.399   667  1185 D ConnectivityService: requestNetwork for uid/pid:10234/4647 activeRequest: null callbackRequest: 187 [NetworkRequest [ REQUEST id=188, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|BLK
+11-10 19:44:26.400   521   570 D AudioFlinger: mixer(0x7521cc147790) throttle end: throttle time(33)
+11-10 19:44:26.401  1745  2040 I tflite  : Replacing 41 out of 87 node(s) with delegate (TfLiteXNNPackDelegate) node, yielding 21 partitions for subgraph 0.
+11-10 19:44:26.405   667   820 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=188, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.405   667   820 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=188, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.405   667   820 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=188, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.405   667   820 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=188, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.405   667   820 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=188, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.405   667   828 D ConnectivityService: NetReassign [188 : null → 101] [c 4] [a 1] [i 0]
+11-10 19:44:26.407  4647  4757 D GASS    : Clearcut logging disabled
+11-10 19:44:26.408  4647  4751 I Ads     : This request is sent from a test device.
+11-10 19:44:26.415  4647  4758 D na6     : File /data/user/0/com.oreki.antimatterdimensions/cache/1782164920746.dex not found. No need for deletion
+11-10 19:44:26.422  4647  4751 I WebViewFactory: Loading com.google.android.webview version 145.0.7632.218 (code 763221809)
+11-10 19:44:26.425  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.425  4647  4751 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=ddba697c mResDir=null mSplitDirs=[] mOverlayDirs=[] mLibDirs=[/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk,/system/framework/android.test.base.jar,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v37 mCompatInfo={420dpi always-compat} mLoaders=[]}
+11-10 19:44:26.425  4647  4751 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-10 19:44:26.426  4647  4751 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-10 19:44:26.426  4647  4751 D nativeloader: Configuring clns-10 for other apk /data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/lib/x86_64:/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+11-10 19:44:26.429   667  1937 D ConnectivityService: requestNetwork for uid/pid:10234/4647 activeRequest: null callbackRequest: 189 [NetworkRequest [ REQUEST id=190, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|BLK
+11-10 19:44:26.433  4647  4777 D GASS    : Clearcut logging disabled
+11-10 19:44:26.434   667  1942 D ConnectivityService: requestNetwork for uid/pid:10234/4647 activeRequest: null callbackRequest: 191 [NetworkRequest [ REQUEST id=192, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|BLK
+11-10 19:44:26.437   667   828 D ConnectivityService: NetReassign [190 : null → 101] [c 0] [a 3] [i 4]
+11-10 19:44:26.437   667   820 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=190, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.438   667   820 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=190, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.438   667   820 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=190, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.440   667   820 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=190, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.441   667   820 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=190, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.446   667   828 D ConnectivityService: NetReassign [192 : null → 101] [c 0] [a 1] [i 4]
+11-10 19:44:26.447  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.447   667   820 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=192, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.447   667   820 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=192, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.447   667   820 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=192, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.447   667   820 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=192, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.447  4647  4751 I cr_WVCFactoryProvider: version=145.0.7632.218 (763221809) minSdkVersion=29 multiprocess=true packageId=2 splits=<none>
+11-10 19:44:26.452  4647  4751 D nativeloader: Load /data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk!/lib/x86_64/libwebviewchromium.so using class loader ns clns-10 (caller=/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk): ok
+11-10 19:44:26.454  4647  4751 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using class loader ns clns-10 (caller=/data/app/~~u2EEV65iLm4GWEoJG_egIg==/com.google.android.webview-K9DwhBZj722qch6NvjdETQ==/WebViewGoogle.apk): ok
+11-10 19:44:26.455   667   820 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=192, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.457  4647  4787 I chromium: [1110/194426.457112:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+11-10 19:44:26.457  4647  4787 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.oreki.antimatterdimensions/app_webview/variations_seed_new"
+11-10 19:44:26.457  4647  4787 I chromium: [1110/194426.457324:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+11-10 19:44:26.457  4647  4787 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.oreki.antimatterdimensions/app_webview/variations_seed"
+11-10 19:44:26.458  4647  4751 D CompatChangeReporter: Compat change id reported: 364980165; UID 10234; state: ENABLED
+11-10 19:44:26.458  4647  4751 D CompatChangeReporter: Compat change id reported: 371034303; UID 10234; state: ENABLED
+11-10 19:44:26.461  4647  4751 I cr_LibraryLoader: Successfully loaded native library
+11-10 19:44:26.465  4647  4751 I cr_CachingUmaRecorder: Flushed 16 samples from 16 histograms, 0 samples were dropped.
+11-10 19:44:26.472  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.485  4647  4751 W Ads     : Fail to fetch AdActivity theme
+11-10 19:44:26.485  4647  4751 I Ads     : Please set theme of AdActivity to @android:style/Theme.Translucent to enable transparent background interstitial ad.
+11-10 19:44:26.497  1552  1552 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.appset.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsApiService }
+11-10 19:44:26.497  1552  1552 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.appset.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsApiService }
+11-10 19:44:26.498  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.514   521   559 I APM_AudioPolicyManager: getNewOutputDevices io 13 recent device override {AUDIO_DEVICE_OUT_SPEAKER, @:}
+11-10 19:44:26.527  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.552  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.579  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.603  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.614  4647  4647 W UserMessagingPlatform: The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-10 19:44:26.614  4647  4647 W UserMessagingPlatform: Example AndroidManifest:
+11-10 19:44:26.614  4647  4647 W UserMessagingPlatform:     <meta-data
+11-10 19:44:26.614  4647  4647 W UserMessagingPlatform:         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-10 19:44:26.614  4647  4647 W UserMessagingPlatform:         android:value="ca-app-pub-0000000000000000~0000000000">
+11-10 19:44:26.633  4647  4690 I OREKI_GUI: GUI_PENDING_SYNC_RETRY
+11-10 19:44:26.657  4647  4647 I OREKI_GUI: GUI_REFRESH_APPLIED target=stageGate phase=before-first-infinity narrowed=47
+11-10 19:44:26.657  4647  4647 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 19:44:26.663  1552  3009 W SQLiteLog: (28) double-quoted string literal: "1794138266662"
+11-10 19:44:26.663  1552  3009 W SQLiteLog: (28) double-quoted string literal: "1"
+11-10 19:44:26.664  1552  1567 W SQLiteLog: (28) double-quoted string literal: "1794138266663"
+11-10 19:44:26.664  1552  1567 W SQLiteLog: (28) double-quoted string literal: "1"
+11-10 19:44:26.667  1552  2451 W libbinder.Binder: Large reply transaction of 428720 bytes, interface descriptor com.google.android.gms.gass.internal.IGassService, function: UNKNOWN_FUNCTION_NAME, code: 3, flags: 18
+11-10 19:44:26.678  4647  4811 W ServiceBindIntentUtils: Dynamic lookup for intent failed for action: com.google.android.gms.ads.service.START
+11-10 19:44:26.680  1552  1552 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.ads.service.START xflg=0x4 pkg=com.google.android.gms }
+11-10 19:44:26.681  1552  1552 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.ads.service.START xflg=0x4 pkg=com.google.android.gms }
+11-10 19:44:26.682  4647  4647 I cr_ChildProcLH: ScopedServiceBindingBatch.tryActivate: false
+11-10 19:44:26.683  4647  4647 I cr_CombinedPProvider: #registerProvider() provider:WV.qk@6afca62 isPolicyCacheEnabled:false policyProvidersSize:0
+11-10 19:44:26.684  4647  4647 I cr_PolicyProvider: #setManagerAndSource() 0
+11-10 19:44:26.685  1552  1552 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.ads.identifier.service.EVENT_ATTESTATION dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-10 19:44:26.685  1552  1552 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.ads.identifier.service.EVENT_ATTESTATION dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-10 19:44:26.685  4647  4647 I cr_DisplayManager: Is Display Topology available: false
+11-10 19:44:26.693  4647  4647 I cr_CombinedPProvider: #linkNativeInternal() 1
+11-10 19:44:26.694  4647  4647 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+11-10 19:44:26.694  4647  4647 I cr_PolicyProvider: #notifySettingsAvailable() 0
+11-10 19:44:26.694  4647  4647 I cr_CombinedPProvider: #onSettingsAvailable() 0
+11-10 19:44:26.694  4647  4647 I cr_CombinedPProvider: #flushPolicies()
+11-10 19:44:26.708   667  1185 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 99007, packageName = null, attributionTag = null, token = android.os.Binder@9cfe677, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-10 19:44:26.710  4647  4783 D nativeloader: Configuring clns-11 for other apk . target_sdk_version=37, uses_libraries=ALL, library_path=, permitted_path=/data:/mnt/expand
+11-10 19:44:26.708  4647  4647 W pool-12-thread-: type=1400 audit(0.0:26): avc:  granted  { execute } for  path="/data/data/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar" dev="dm-6" ino=581854 scontext=u:r:untrusted_app:s0:c234,c256,c512,c768 tcontext=u:object_r:app_data_file:s0:c234,c256,c512,c768 tclass=file app=com.oreki.antimatterdimensions
+11-10 19:44:26.717  4647  4783 D nativeloader: Load /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar!/libd5AE61AF89A98.so using isolated ns clns-11 (caller=/data/user/0/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar): ok
+11-10 19:44:26.720  1008  1008 D Zygote  : Forked child process 4827
+11-10 19:44:26.720   667   700 I libprocessgroup: Created cgroup /sys/fs/cgroup/apps/uid_99007
+11-10 19:44:26.724   667   700 I libprocessgroup: Created cgroup /sys/fs/cgroup/apps/uid_99007/pid_4827
+11-10 19:44:26.724  4827  4827 I Zygote  : Process 4827 created for com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+11-10 19:44:26.724  4827  4827 I ocessService0:0: Using generational CollectorTypeCMC GC.
+11-10 19:44:26.725  4827  4827 W ocessService0:0: Unexpected CPU variant for x86: x86_64.
+11-10 19:44:26.725  4827  4827 W ocessService0:0: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-10 19:44:26.727  4827  4827 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-10 19:44:26.729  4647  4647 W chromium: [WARNING:android_webview/browser/network_service/net_helpers.cc:137] HTTP Cache size is: 20971520
+11-10 19:44:26.733   667  1937 I ActivityManager: Start proc 4827:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i7 for bound-service {com.oreki.antimatterdimensions/org.chromium.content.app.SandboxedProcessService0:0}
+11-10 19:44:26.737  1552  1552 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.safetynet.service.START xflg=0x4 pkg=com.google.android.gms }
+11-10 19:44:26.738  1552  1552 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.safetynet.service.START xflg=0x4 pkg=com.google.android.gms }
+11-10 19:44:26.740  1552  1552 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.safebrowsing.SafeBrowsingService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-10 19:44:26.740  1552  1552 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.safebrowsing.SafeBrowsingService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-10 19:44:26.743  4827  4827 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-10 19:44:26.744  4827  4827 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-10 19:44:26.933     0     0 W servicemanager: Isolated app with UID 99007 requested 'network_management', but the service is not allowed for isolated apps.
+11-10 19:44:26.748  4827  4827 E ActivityThread: ConnectivityService is null in handleBindApplication!
+11-10 19:44:26.939     0     0 W servicemanager: Isolated app with UID 99007 requested 'connectivity', but the service is not allowed for isolated apps.
+11-10 19:44:26.749  4827  4827 I cr_WebViewApkApp: version=145.0.7632.218 (763221809) minSdkVersion=29 processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 splits=<none>
+11-10 19:44:26.753  4827  4827 I cr_ChildProcessService: Creating new ChildProcessService pid=4827
+11-10 19:44:26.944     0     0 W servicemanager: Isolated app with UID 99007 requested 'content_capture', but the service is not allowed for isolated apps.
+11-10 19:44:26.764   667  1937 D ConnectivityService: requestNetwork for uid/pid:10234/4647 activeRequest: null callbackRequest: 193 [NetworkRequest [ REQUEST id=194, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|LP
+11-10 19:44:26.765   667  1937 D CompatChangeReporter: Compat change id reported: 349487600; UID 10234; state: ENABLED
+11-10 19:44:26.765   667   828 D ConnectivityService: NetReassign [194 : null → 101] [c 0] [a 1] [i 0]
+11-10 19:44:26.766   667   828 D ConnectivityService: NetReassign [no changes] [c 0] [a 1] [i 0]
+11-10 19:44:26.766   667   820 D WifiNetworkFactory: got request NetworkRequest [ REQUEST id=194, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.766   667   820 V WifiNetworkFactory: Accepted network request NetworkRequest [ REQUEST id=194, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.766   667   820 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=194, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.766   667   820 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=194, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.766   667   820 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=194, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10234 RequestorUid: 10234 RequestorPkg: com.oreki.antimatterdimensions UnderlyingNetworks: Null] ]
+11-10 19:44:26.769  4647  4647 D AutofillManager: Fill dialog is enabled:false, hints=[]
+11-10 19:44:26.774  4647  4843 I CameraManagerGlobal: Connecting to camera service
+11-10 19:44:26.782  1552  4846 W SQLiteLog: (28) double-quoted string literal: "1794138266781"
+11-10 19:44:26.782  1552  4846 W SQLiteLog: (28) double-quoted string literal: "1"
+11-10 19:44:26.787  4647  4823 W cr_media: BLUETOOTH_CONNECT permission is missing.
+11-10 19:44:26.787  4647  4823 W cr_media: getBluetoothAdapter() requires BLUETOOTH permission
+11-10 19:44:26.787  4647  4823 W cr_media: registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+11-10 19:44:26.788   667  1937 D ConnectivityService: requestNetwork for uid/pid:10210/1552 activeRequest: null callbackRequest: 196 [NetworkRequest [ TRACK_DEFAULT id=197, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10210 RequestorUid: 10210 RequestorPkg: com.google.android.gms UnderlyingNetworks: Null] ], NetworkRequest [ REQUEST id=198, [ Transports: SATELLITE Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10210 RequestorUid: 10210 RequestorPkg: com.google.android.gms UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|LP
+11-10 19:44:26.788   667  1185 D CompatChangeReporter: Compat change id reported: 349487600; UID 10210; state: ENABLED
+11-10 19:44:26.789   667   828 D ConnectivityService: NetReassign [197 : null → 101] [c 0] [a 1] [i 0]
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.790   667   828 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 1]
+11-10 19:44:26.790  4647  4823 D AudioSystem: onNewService: media.audio_policy service obtained 0x72a533ab7550
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.log"
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.log.level"
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.log.prefix"
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.gallium.print.options"
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.log.file.auto"
+11-10 19:44:26.790  4647  4848 W libc    : Access denied finding property "vendor.mesa.log.file"
+11-10 19:44:26.791  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.792  4827  4841 I cr_LibraryLoader: Successfully loaded native library
+11-10 19:44:26.792  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.792  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.792  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.792  4827  4841 I cr_CachingUmaRecorder: Flushed 2 samples from 2 histograms, 0 samples were dropped.
+11-10 19:44:26.792  4647  4823 D AudioSystem: getService: IAudioPolicyService retrieved: 0x72a533ab7550  cached: 0x72a533ab7550
+11-10 19:44:26.797  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.797  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.798   460  4853 I resolv  : GetAddrInfoHandler::run: {101 101 101 983141 10234 0}
+11-10 19:44:26.799   460  4854 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+11-10 19:44:26.800   460  4855 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-10 19:44:26.802   667   709 I WifiService: isFeatureSupported uid=1000 returns [WIFI_FEATURE_INFRA, WIFI_FEATURE_P2P, WIFI_FEATURE_MOBILE_HOTSPOT, WIFI_FEATURE_WPA3_SAE, WIFI_FEATURE_WPA3_SUITE_B, WIFI_FEATURE_OWE, WIFI_FEATURE_DPP, WIFI_FEATURE_AP_RAND_MAC, WIFI_FEATURE_MBO, WIFI_FEATURE_FILS_SHA256, WIFI_FEATURE_FILS_SHA384, WIFI_FEATURE_SAE_PK, WIFI_FEATURE_DPP_ENROLLEE_RESPONDER, WIFI_FEATURE_PASSPOINT_TERMS_AND_CONDITIONS, WIFI_FEATURE_WFD_R2, WIFI_FEATURE_DECORATED_IDENTITY, WIFI_FEATURE_TRUST_ON_FIRST_USE, WIFI_FEATURE_SET_TLS_MINIMUM_VERSION, WIFI_FEATURE_TLS_V1_3, WIFI_FEATURE_WEP, WIFI_FEATURE_WPA_PERSONAL]
+11-10 19:44:26.803   460  4854 I resolv  : res_nsend: used send_dg 45 terrno: 0
+11-10 19:44:26.803  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.803  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.803   460  4854 I resolv  : doQuery: rcode=0, ancount=0, return value=45
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.804  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.804   460  4855 I resolv  : res_nsend: used send_dg 61 terrno: 0
+11-10 19:44:26.804   460  4855 I resolv  : doQuery: rcode=0, ancount=1, return value=61
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.804  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.804  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.804  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.804  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.trace"
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.trace.per.submit"
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.trace.frame"
+11-10 19:44:26.804  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.trace.trigger"
+11-10 19:44:26.809  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.wsi.debug"
+11-10 19:44:26.809  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.810  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.810  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.810  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.812  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.wsi.present.mode"
+11-10 19:44:26.812  4647  4848 W libc    : Access denied finding property "vendor.mesa.vk.wsi.headless.swapchain"
+11-10 19:44:26.812  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.812  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.812  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.812  4647  4848 E MESA    : Failed to open rendernode: No such file or directory
+11-10 19:44:26.813  4647  4848 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-10 19:44:26.814   667  1495 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 99008, packageName = null, attributionTag = null, token = android.os.Binder@9cfe677, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-10 19:44:26.815  4827  4841 W chromium: [WARNING:content/child/runtime_features.cc:564] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+11-10 19:44:26.821   460  4861 I resolv  : GetAddrInfoHandler::run: {101 786533 101 983141 10210 0}
+11-10 19:44:26.821  4827  4841 W chromium: [WARNING:content/child/runtime_features.cc:589] Topics cannot be enabled in this configuration. Use --enable-features=BrowsingTopics in addition.
+11-10 19:44:26.821   460  4862 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+11-10 19:44:26.821  4827  4841 W chromium: [WARNING:content/child/runtime_features.cc:610] SharedStorage cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI in addition.
+11-10 19:44:26.821   460  4863 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-10 19:44:26.821   460  4863 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7976aa80e390
+11-10 19:44:26.821   460  4863 I resolv  : doQuery: rcode=0, ancount=1, return value=61
+11-10 19:44:26.823  4647  4835 E chromium: [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+11-10 19:44:26.823  1008  1008 D Zygote  : Forked child process 4864
+11-10 19:44:26.823   667   700 I libprocessgroup: Created cgroup /sys/fs/cgroup/apps/uid_99008
+11-10 19:44:26.823   460  4862 I resolv  : res_nsend: used send_dg 45 terrno: 0
+11-10 19:44:26.823   460  4862 I resolv  : doQuery: rcode=0, ancount=0, return value=45
+11-10 19:44:26.824   667   700 I libprocessgroup: Created cgroup /sys/fs/cgroup/apps/uid_99008/pid_4864
+11-10 19:44:26.825  4864  4864 I Zygote  : Process 4864 created for com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:3
+11-10 19:44:26.825  4864  4864 I ocessService0:3: Using generational CollectorTypeCMC GC.
+11-10 19:44:26.825  4864  4864 W ocessService0:3: Unexpected CPU variant for x86: x86_64.
+11-10 19:44:26.825  4864  4864 W ocessService0:3: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-10 19:44:26.826  4647  4835 E chromium: [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+11-10 19:44:26.829   667   700 I ActivityManager: Start proc 4864:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:3/u0i8 for bound-service {com.google.android.gms/org.chromium.content.app.SandboxedProcessService0:3}
+11-10 19:44:26.830  4864  4864 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-10 19:44:26.833  1226  2268 I FontLog : Received query name=Google Sans&weight=700&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-10 19:44:26.833  1226  2268 I FontLog : Query [name=Google Sans&weight=700&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.834  1226  2268 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.834  1226  2268 I FontLog : Fetch {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-10 19:44:26.835  1226  1663 I FontLog : Pulling font file for id = 24, cache size = 6 [CONTEXT service_id=132 ]
+11-10 19:44:26.839  4864  4864 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-10 19:44:26.839  4864  4864 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-10 19:44:26.841  1226  2268 I FontLog : Received query name=Noto Color Emoji Compat&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-10 19:44:26.841  1226  2268 I FontLog : Query [name=Noto Color Emoji Compat&weight=400&besteffort=false] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:27.029     0     0 W servicemanager: Isolated app with UID 99008 requested 'network_management', but the service is not allowed for isolated apps.
+11-10 19:44:27.033     0     0 W servicemanager: Isolated app with UID 99008 requested 'connectivity', but the service is not allowed for isolated apps.
+11-10 19:44:26.842  4864  4864 E ActivityThread: ConnectivityService is null in handleBindApplication!
+11-10 19:44:26.844  1226  2268 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-10 19:44:26.846  4864  4864 I cr_WebViewApkApp: version=145.0.7632.218 (763221809) minSdkVersion=29 processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:3 splits=<none>
+11-10 19:44:26.851  1226  2268 I FontLog : Pulling font file for id = 25, cache size = 6 [CONTEXT service_id=132 ]
+11-10 19:44:26.851  4864  4864 I cr_ChildProcessService: Creating new ChildProcessService pid=4864
+11-10 19:44:27.042     0     0 W servicemanager: Isolated app with UID 99008 requested 'content_capture', but the service is not allowed for isolated apps.
+11-10 19:44:26.857  1226  2268 I FontLog : Received query name=Google Sans Flex&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-10 19:44:26.857  1226  2268 I FontLog : Query [name=Google Sans Flex&weight=400&besteffort=false] resolved to {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.858  1226  2268 I FontLog : Font PFD returned from cache for {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.858  1226  2268 I FontLog : Fetch {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-10 19:44:26.859  4864  4881 I cr_LibraryLoader: Successfully loaded native library
+11-10 19:44:26.859  4864  4881 I cr_CachingUmaRecorder: Flushed 2 samples from 2 histograms, 0 samples were dropped.
+11-10 19:44:26.863  1226  1663 I FontLog : Pulling font file for id = 26, cache size = 7 [CONTEXT service_id=132 ]
+11-10 19:44:26.865  1226  1663 I FontLog : Received query name=Google Sans&weight=400&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-10 19:44:26.865  1226  1663 I FontLog : Query [name=Google Sans&weight=400&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.866  1226  1663 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.866  1226  1663 I FontLog : Fetch {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-10 19:44:26.868  4864  4881 W chromium: [WARNING:content/child/runtime_features.cc:564] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+11-10 19:44:26.868  1226  1663 I FontLog : Pulling font file for id = 27, cache size = 5 [CONTEXT service_id=132 ]
+11-10 19:44:26.869  4864  4881 W chromium: [WARNING:content/child/runtime_features.cc:589] Topics cannot be enabled in this configuration. Use --enable-features=BrowsingTopics in addition.
+11-10 19:44:26.869  4864  4881 W chromium: [WARNING:content/child/runtime_features.cc:610] SharedStorage cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI in addition.
+11-10 19:44:26.869  1226  1663 I FontLog : Received query name=Google Sans&weight=500&besteffort=false, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-10 19:44:26.869  1226  1663 I FontLog : Query [name=Google Sans&weight=500&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.877  1226  1663 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+11-10 19:44:26.877  1226  1663 I FontLog : Fetch {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-10 19:44:26.877  1226  1663 I FontLog : Pulling font file for id = 28, cache size = 6 [CONTEXT service_id=132 ]
+11-10 19:44:27.325  1552  3473 E chromium: [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+11-10 19:44:27.827  1552  3473 E chromium: [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+11-10 19:44:28.104   667   693 I DisplayDeviceRepository: Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=16666666, appVsyncOffsetNanos=1000000, frameRateOverrides=[]
+11-10 19:44:28.218   667  1697 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-10 19:44:28.778   607   652 D AidlBufferPoolAcc: evictor expired: 10, evicted: 0
+11-10 19:44:29.073   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=11 freq=2437 RxLinkSpeed=2
+11-10 19:44:29.073   667   820 D WifiClientModeImpl[10746:wlan0]: reported txKbps 12000 rxKbps 30000
+11-10 19:44:29.073   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:44:29.073   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:44:29.073   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:29.073   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:29.074   667   853 I AdbWifiNetworkMonitor: Wi-Fi network available
+11-10 19:44:29.074   667   853 I AdbWifiNetworkMonitor: Received the same Wi-Fi SSID. Ignoring.
+11-10 19:44:29.075   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:44:29.075   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 11Mbps, Tx Link speed: 11Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:44:29.075   667   820 D WifiScoreCard: txRate: 5 txSpeed: 11
+11-10 19:44:29.075   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed 11
+11-10 19:44:29.075   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=11 tx=4.8, 0.0, 0.0 rx=4.8 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-985260653] score=100
+11-10 19:44:29.075   667  1942 I WifiService: getWifiEnabledState uid=10189 state=3
+11-10 19:44:29.076   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.076   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.076   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.076   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.077   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.077  1226  2268 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 19:44:29.077   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.077  1226  2268 W libbinder.Binder: Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 19:44:29.077   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:29.077   667  2008 I WifiService: getConnectionInfo uid=10210
+11-10 19:44:29.077   667  2008 V WifiService: Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 19:44:29.077   667  2008 V WifiPermissionsUtil: checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 19:44:29.077   667  2008 V WifiService: Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 19:44:29.194  4647  4816 I cr_VariationsUtils: Requesting new seed from IVariationsSeedServer
+11-10 19:44:29.201   667  1942 D ActivityManager: sync unfroze 3523 com.google.android.webview:webview_service for 6
+11-10 19:44:29.206  3523  3541 I cr_VariationsUtils: Throttling seed download job
+11-10 19:44:29.206  3523  3541 I cr_VariationsUtils: Writing new seed to app's data directory
+11-10 19:44:29.217   460  3981 I netd    : tetherGetStats() -> {[]} <0.30ms>
+11-10 19:44:29.223   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 19:44:29.223   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 19:44:29.223   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10184} in 0ms
+11-10 19:44:29.223   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 19:44:29.223   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 19:44:29.223   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={20184} in 0ms
+11-10 19:44:29.392   473  3320 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 1341504
+11-10 19:44:29.392   473  3320 D android.hardware.audio@7.1-impl.ranchu: ~TinyalsaSink: joining consumeThread
+11-10 19:44:29.392   473  4750 D android.hardware.audio@7.1-impl.ranchu: consumeThread: exiting
+11-10 19:44:29.749  1226  1230 W .gms.persistent: Cleared Reference was only reachable from finalizer (only reported once)
+11-10 19:44:29.751  4502  4513 V ClearcutMetricXmitter: Transmission is done.
+11-10 19:44:30.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a2fb78 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 8/412 (fetch/transfer)
+11-10 19:44:30.133  4647  4705 D AidlBufferPoolAcc: evictor expired: 1, evicted: 1
+11-10 19:44:30.545  2537  2537 I adbd    : adbd service requested 'exec:screencap '-p''
+11-10 19:44:30.590  4901  4901 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-10 19:44:30.591  4901  4901 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-10 19:44:30.591  4901  4901 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-10 19:44:30.592   525   568 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-10 19:44:30.790     0     0 I servicemanager: Caller(pid=4901,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:44:30.793     0     0 I servicemanager: Caller(pid=4901,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-10 19:44:30.795     0     0 I servicemanager: Caller(pid=4901,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+11-10 19:44:30.724  4647  4903 D ProfileInstaller: Installing profile for com.oreki.antimatterdimensions
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a413de8 : 0(0 size) total buffers - 0(0 size) used buffers - 197/207 (recycle/alloc) - 11/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a412918 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a413008 : 0(0 size) total buffers - 0(0 size) used buffers - 196/207 (recycle/alloc) - 14/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a40a798 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a410d58 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a415758 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a40cee8 : 0(0 size) total buffers - 0(0 size) used buffers - 200/207 (recycle/alloc) - 7/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a415508 : 0(0 size) total buffers - 0(0 size) used buffers - 195/207 (recycle/alloc) - 15/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPool: bufferpool2 0x75705a40c358 : 0(0 size) total buffers - 0(0 size) used buffers - 200/207 (recycle/alloc) - 8/207 (fetch/transfer)
+11-10 19:44:30.778   607   652 D AidlBufferPoolAcc: evictor expired: 18, evicted: 9
+11-10 19:44:30.817  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:uiautomator dump /sdcard/r101-16.xml'
+11-10 19:44:30.867  4904  4904 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-10 19:44:30.870  4904  4904 I AndroidRuntime: Using default boot image
+11-10 19:44:30.870  4904  4904 I AndroidRuntime: Leaving lock profiling enabled
+11-10 19:44:30.871  4904  4904 I app_process: Core platform API enforcement enabled from the hiddenapi_platform_enforcement flag and the device API level
+11-10 19:44:30.872  4904  4904 I app_process: Using generational CollectorTypeCMC GC.
+11-10 19:44:30.926  4904  4904 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-10 19:44:30.932  4904  4904 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:44:30.932  4904  4904 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/10/icu") succeeded. 
+11-10 19:44:30.932  4904  4904 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt78l.dat
+11-10 19:44:30.932  4904  4904 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:44:30.933  4904  4904 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-10 19:44:30.933  4904  4904 I app_process: Priority-to-niceness mapping: 19, 16, 13, 10, 0, -2, -4, -5, -6, -8
+11-10 19:44:30.934  4904  4904 W app_process: Unexpected CPU variant for x86: x86_64.
+11-10 19:44:30.934  4904  4904 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-10 19:44:30.935  4904  4904 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*736588042]#PCL[/system/framework/android.test.mock.jar*4008448454]} | PCL[])
+11-10 19:44:30.935  4904  4904 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*805256125]{PCL[/system/framework/android.test.base.jar*736588042]#PCL[/system/framework/android.test.mock.jar*4008448454]}#PCL[/system/framework/android.test.base.jar*736588042]} | PCL[/system/framework/android.test.runner.jar*805256125])
+11-10 19:44:30.948  4904  4904 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-10 19:44:30.948  4904  4904 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-10 19:44:30.950  4904  4904 I AconfigPackage: android.media.swcodec.flags is mapped to com.android.media.swcodec
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.permission.flags is mapped to com.android.permission
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.permissioncontroller.flags is mapped to com.android.permission
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.google.android.widevine.flags is mapped to com.google.android.widevine
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.icu is mapped to com.android.i18n
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.appsearch.flags is mapped to com.android.appsearch
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.uprobestats.flags is mapped to com.android.uprobestats
+11-10 19:44:30.950  4904  4904 I AconfigPackage: android.uprobestats.mainline.flags is mapped to com.android.uprobestats
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.crashrecovery.flags is mapped to com.android.crashrecovery
+11-10 19:44:30.950  4904  4904 I AconfigPackage: android.provider.flags is mapped to com.android.configinfrastructure
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.server.deviceconfig is mapped to com.android.configinfrastructure
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.compos.flags is mapped to com.android.compos
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.art.flags is mapped to com.android.art
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.art.rw.flags is mapped to com.android.art
+11-10 19:44:30.950  4904  4904 I AconfigPackage: com.android.libcore is mapped to com.android.art
+11-10 19:44:30.950  4904  4904 I AconfigPackage: android.telecom.flags is mapped to com.android.telephonycore
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.internal.telecom.flags is mapped to com.android.telephonycore
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.telephony.flags is mapped to com.android.telephonycore
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.media.extractor.flags is mapped to com.android.media
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.media.metrics.flags is mapped to com.android.media
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.media.mainline.flags is mapped to com.android.media
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.wifi.flags is mapped to com.android.wifi
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.org.conscrypt.flags is mapped to com.android.conscrypt
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.org.conscrypt.net.flags is mapped to com.android.conscrypt
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.healthfitness.flags is mapped to com.android.healthfitness
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.ipsec.flags is mapped to com.android.ipsec
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.nfc.module.flags is mapped to com.android.nfcservices
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.nfc.module.nonexported.flags is mapped to com.android.nfcservices
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.adservices.ondevicepersonalization.flags is mapped to com.android.ondevicepersonalization
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.adbd.flags is mapped to com.android.adbd
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.bluetooth.beta.flags is mapped to com.android.bt
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.bluetooth.flags is mapped to com.android.bt
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.devicelock.flags is mapped to com.android.devicelock
+11-10 19:44:30.951  4904  4904 I AconfigPackage: android.os.profiling is mapped to com.android.profiling
+11-10 19:44:30.951  4904  4904 I AconfigPackage: android.os.profiling.anomaly.flags is mapped to com.android.profiling
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.os.statsd.flags is mapped to com.android.os.statsd
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.webapp.flags is mapped to com.android.webapp
+11-10 19:44:30.951  4904  4904 I AconfigPackage: com.android.rkpd.flags is mapped to com.android.rkpd
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.cellbroadcastreceiver.flags is mapped to com.android.cellbroadcast
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.adservices.flags is mapped to com.android.adservices
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.sdksandbox.flags is mapped to com.android.adservices
+11-10 19:44:30.952  4904  4904 I AconfigPackage: android.app.sdksandbox.flags is mapped to com.android.adservices
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.uwb.flags is mapped to com.android.uwb
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.ranging.flags is mapped to com.android.uwb
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.npumanager is mapped to com.android.npumanager
+11-10 19:44:30.952  4904  4904 I AconfigPackage: android.graphics.pdf.flags is mapped to com.android.mediaprovider
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.providers.media.flags is mapped to com.android.mediaprovider
+11-10 19:44:30.952  4904  4904 I AconfigPackage: android.graphics.pdf.flags.readonly is mapped to com.android.mediaprovider
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.tethering.mainline.beta is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: android.net.http is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.tethering.readonly.flags is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: android.net.vcn is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.net.flags is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.tethering.flags is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.tethering.beta.test is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.nearby.flags is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.net.thread.flags is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.net.ct.flags is mapped to com.android.tethering
+11-10 19:44:30.952  4904  4904 I AconfigPackage: com.android.system.virtualmachine.flags is mapped to com.android.virt
+11-10 19:44:30.952  4904  4904 E FeatureFlagsImplExport: android.os.flagging.AconfigStorageReadException: ERROR_PACKAGE_NOT_FOUND: package android.xr cannot be found on the device
+11-10 19:44:30.953  4904  4904 D UiAutomationConnection: Created on user UserHandle{0}
+11-10 19:44:30.953  4904  4904 I UiAutomation: Initialized for user 0 on display 0
+11-10 19:44:30.953  4904  4904 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-10 19:44:30.954   667  1468 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-10 19:44:30.954   667  1468 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+11-10 19:44:30.954   667  1468 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:44:30.957   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:44:30.957   667  1468 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:44:30.958  4904  4916 V UiAutomation: Init UiAutomation@853815d[id=22, displayId=0, flags=0]
+11-10 19:44:30.958   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.958   667  1935 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:44:30.959   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:44:30.959   667  1935 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:44:30.959   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.960   667   899 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:44:30.960   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.960   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.960   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.961   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.961   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.961   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:30.961  1310  1330 D AccessibilitySourceService: enabled a11y services count 1
+11-10 19:44:30.961   667  1935 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:44:30.963  1310  1330 D AccessibilitySourceService: a11y source sending 1 issue to sc
+11-10 19:44:30.964   667  1935 D SafetySourceDataValidat: No cert check requested for package com.google.android.permissioncontroller
+11-10 19:44:30.964  1310  1330 D AccessibilitySourceService: enabled a11y services count 1
+11-10 19:44:30.965  1310  1330 D AccessibilitySourceService: a11y source sending 1 issue to sc
+11-10 19:44:30.965   667  1935 D SafetySourceDataValidat: No cert check requested for package com.google.android.permissioncontroller
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a2c1a8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a2d678 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 11/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a39668 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 12/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a2bd08 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 9/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a36138 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a322c8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 19/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a31738 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a2cae8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPool: bufferpool2 0x72a693a2cd38 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 12/412 (fetch/transfer)
+11-10 19:44:31.133  4647  4705 D AidlBufferPoolAcc: evictor expired: 9, evicted: 9
+11-10 19:44:31.382  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=21
+11-10 19:44:31.382  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=26
+11-10 19:44:31.382  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 19:44:31.382  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=37
+11-10 19:44:31.382  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=38
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=54
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=55
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=96
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=107
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=116
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=156
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 19:44:31.383  4647  4690 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 19:44:31.383  4647  4690 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=135 mismatch=20 used=0
+11-10 19:44:31.384  4647  4690 I OREKI_GATE: GATE brake=false g=true c=false b=false mult=10000.0 rt=5088.0
+11-10 19:44:31.778   607   652 D AidlBufferPool: bufferpool2 0x75705a416e78 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-10 19:44:31.778   607   652 D AidlBufferPoolAcc: evictor expired: 2, evicted: 1
+11-10 19:44:31.978  4904  4904 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@e4f3; boundsInParent: Rect(0, 0 - 0, 263); boundsInScreen: Rect(0, 2137 - 0, 2400); boundsInWindow: Rect(0, 2137 - 0, 2400); packageName: com.oreki.antimatterdimensions; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+11-10 19:44:31.980  4904  4904 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@68116f; boundsInParent: Rect(0, 0 - 0, 147); boundsInScreen: Rect(1080, 128 - 1080, 275); boundsInWindow: Rect(1080, 128 - 1080, 275); packageName: com.oreki.antimatterdimensions; className: androidx.appcompat.widget.LinearLayoutCompat; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+11-10 19:44:31.980  4904  4904 W AccessibilityNodeInfoDumper: Fetch time: 18ms
+11-10 19:44:31.981   667  1935 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:44:31.982   667  1935 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:44:31.982   667  1935 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:44:31.982   667  1935 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-10 19:44:31.982   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.982   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.983   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.983  4904  4904 D AndroidRuntime: Shutting down VM
+11-10 19:44:31.983  4904  4917 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:44:31.983  4904  4913 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:44:31.983  4904  4914 W libbinder.IPCThreadState: call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 19:44:31.983   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.984   667   667 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:44:31.985   667   667 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:44:31.985   667   667 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:44:31.985   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.985   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.985   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.985   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.985   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.985   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.985   667  1468 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:44:31.986   667  1468 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 19:44:31.986   667  1468 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 19:44:31.986   667  1468 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 19:44:31.986  1310  1330 D AccessibilitySourceService: enabled a11y services count 1
+11-10 19:44:31.986   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.986   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.986   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.986   667   667 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:31.986  1804  1804 I OrekiA11y: a11y connected
+11-10 19:44:31.986   667   899 D AccessibilityManagerService: .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 19:44:31.992  1310  1330 D AccessibilitySourceService: a11y source sending 1 issue to sc
+11-10 19:44:31.992   667   899 D SafetySourceDataValidat: No cert check requested for package com.google.android.permissioncontroller
+11-10 19:44:31.993  1310  1330 D AccessibilitySourceService: enabled a11y services count 1
+11-10 19:44:31.994  1310  1330 D AccessibilitySourceService: a11y source sending 1 issue to sc
+11-10 19:44:31.994   667   899 D SafetySourceDataValidat: No cert check requested for package com.google.android.permissioncontroller
+11-10 19:44:31.998   460  3981 I netd    : tetherGetStats() -> {[]} <0.73ms>
+11-10 19:44:32.026   667   828 W AppOps  : Noting op not finished: uid 1000 pkg android code 169 startTime of in progress event=1794310303341
+11-10 19:44:32.076   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 19:44:32.076   667   820 D WifiClientModeImpl[10746:wlan0]: reported txKbps 12000 rxKbps 30000
+11-10 19:44:32.076   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 19:44:32.076   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 19:44:32.076   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 19:44:32.076   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:32.076   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:32.076   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:32.076   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:32.077   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:32.077   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:32.077   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 19:44:32.077   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 19:44:32.077   667   853 I AdbWifiNetworkMonitor: Wi-Fi network available
+11-10 19:44:32.077   667   853 I AdbWifiNetworkMonitor: Received the same Wi-Fi SSID. Ignoring.
+11-10 19:44:32.078   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 19:44:32.078   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 19:44:32.078   667   820 D WifiScoreCard: txRate: 2 txSpeed: 6
+11-10 19:44:32.078   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 19:44:32.078   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=1.9, 0.0, 0.0 rx=1.9 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-985257650] score=100
+11-10 19:44:32.079   667   899 I WifiService: getWifiEnabledState uid=10189 state=3
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.080   667  1468 I WifiService: getConnectionInfo uid=10210
+11-10 19:44:32.080   667  1468 V WifiService: Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 19:44:32.080   667  1468 V WifiPermissionsUtil: checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 19:44:32.080   667  1468 V WifiService: Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.080   667   828 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-10 19:44:32.081  1226  1763 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 19:44:32.081  1226  1763 W libbinder.Binder: Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 19:44:32.798  2537  2537 I adbd    : adbd service requested 'sync:'
+11-10 19:44:32.803  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:logcat -d -v threadtime -t 1200'
