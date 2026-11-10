@@ -1984,8 +1984,31 @@ def patch_speed_records():
     assert src.count(ancor) == 1, f"最佳记录迁移锚点不唯一（{src.count(ancor)} 处）"
     src = src.replace(ancor, mig + f"    iget-wide v11, v5, L{_tw4 or 'tw4'};->a:D\n")
 
+    # --- [Oreki R101-IP] 首次永恒前 IP 兑换尺度（对齐 Web src/game.js 的 [Oreki AD8]）---
+    # prestige/e->d() = gainedInfinityPoints：除数由 285 / 307.8 / 308 三分支汇合到 :goto_0，
+    # 汇合时除数在 (v0,v1)。此处只做一次机械转发，判据（eternities 是否为 0）全部在 Kotlin。
+    # 起因（R101 实测）：maxAM 已达 1e32901，但按 div=308 只换到约 1e106 IP，
+    # 永远到不了首次永恒门槛 1.797e308 ⇒ 180 分钟通关不可达。
+    _ip_marker = "; [Oreki R101-IP]"
+    assert _ip_marker not in src, "prestige.e IP 兑换尺度已打过补丁（重复注入）"
+    _ip_anchor = ("\n    :goto_0\n"
+                  "    sget-object v2, Lkajfosz/antimatterdimensions/celestials/pelle/c;->h:")
+    assert src.count(_ip_anchor) == 1, f"IP 兑换尺度锚点不唯一（{src.count(_ip_anchor)} 处）"
+    _ip_ins = ("\n    :goto_0\n"
+               "    # [Oreki R101-IP] 首次永恒前把 IP 兑换除数 308 收到 30（与 Web AD8 同规则）。\n"
+               "    # 只转发；判据在 Kotlin OrekiIpGainScale.apply()，只读真实 eternities，不改任何字段。\n"
+               "    # double 参数占 2 个寄存器槽：{v0,v1}=第一个 double，{v2,v3}=第二个 double。\n"
+               "    # 写成 {v0, v1} 会触发 VerifyError（expected 2 argument registers, has 3 or more）。\n"
+               "    invoke-static {v0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/OrekiIpGainScale;->apply(DD)D\n"
+               "\n"
+               "    move-result-wide v0\n"
+               "    sget-object v2, Lkajfosz/antimatterdimensions/celestials/pelle/c;->h:")
+    src = src.replace(_ip_anchor, _ip_ins, 1)
+    assert src.count("OrekiIpGainScale;->apply(DD)D") == 1, "IP 兑换尺度转发应恰 1 处"
+
     write_smali(p, src, encoding="utf-8")
     note("[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）")
+    note("[R101-IP] prestige.e: gainedInfinityPoints 已接 OrekiIpGainScale（首次永恒前 308→30）")
 
 
 def patch_recent_runs():

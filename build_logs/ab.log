@@ -1,0 +1,23 @@
+=== fixed pid=24218 so=0 apimiss=0
+Total frames rendered: 26
+Janky frames: 8 (30.77%)
+Janky frames (legacy): 5 (19.23%)
+50th percentile: 16ms
+90th percentile: 300ms
+95th percentile: 450ms
+99th percentile: 700ms
+Number Missed Vsync: 5
+Number Slow UI thread: 5
+Number Slow issue draw commands: 8
+=== broken pid=24556 so=9177 apimiss=9177
+Total frames rendered: 54
+Janky frames: 48 (88.89%)
+Janky frames (legacy): 8 (14.81%)
+50th percentile: 16ms
+90th percentile: 32ms
+95th percentile: 650ms
+99th percentile: 4950ms
+Number Missed Vsync: 5
+Number Slow UI thread: 4
+Number Slow issue draw commands: 47
+restored fixed

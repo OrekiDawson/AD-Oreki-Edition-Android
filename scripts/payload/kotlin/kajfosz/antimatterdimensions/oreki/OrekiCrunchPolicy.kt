@@ -41,8 +41,18 @@ object OrekiCrunchPolicy {
     /** 当前连续等待开始时刻（nanoTime）；0 表示没有在等待。 */
     private var waitStartedAt: Long = 0L
 
-    /** ID 峰值等待上限：15 分钟（ID6~ID8 峰值在 ×1000 速度下约需数分钟）。 */
-    private const val PEAK_WAIT_LIMIT_NS: Long = 900_000_000_000L
+    /**
+     * ID 峰值等待上限。
+     *
+     * [R101 修复] 原为 15 分钟。实测缺陷：策略在 `id-peak-wait`（暂停，写 TIME/3600）
+     * 与 `id-peak-reached`（放行）之间反复翻转，而暂停上限长达 15 分钟 ⇒
+     * **每 15 分钟只有十几秒在真正坍缩**，IP 因此冻结在 1e198，
+     * 首次永恒门槛 1.797e308 永远达不到（长跑 17 分钟实测 maxAM 1e18567 但 infinities 恒 108）。
+     *
+     * 收紧到 60 秒：既保留「为 ID 峰值多攒一点」的意图，又保证
+     * **任意 60 秒窗口内至少发生一次真实坍缩**，IP 不会长期停摆。
+     */
+    private const val PEAK_WAIT_LIMIT_NS: Long = 60_000_000_000L
 
     /** 收益等待上限：3 分钟（一次「收益 ≥ 10 倍 IP」的成长周期远短于此）。 */
     private const val GAIN_WAIT_LIMIT_NS: Long = 180_000_000_000L
