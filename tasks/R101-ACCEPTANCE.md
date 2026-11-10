@@ -43,6 +43,7 @@
 - Perfetto 15 秒：`reports/R101-new-save/20-parent-gate.pftrace`；应用主线程约 1.59 秒 CPU，RenderThread 约 5.15 秒 CPU，未见主线程长阻塞或递归证据。frame-observer 关闭对照为 337 帧、现代 jank 224（66.47%）、legacy 162（48.07%）、p95 36ms、Missed Vsync 0；证据 `reports/R101-new-save/21-parent-gate-gfxinfo-observer-off.txt`。两组均以 `Slow issue draw commands` 为主。
 - 官方 XAPK 对照：BLOCKED；base + `config.mdpi` 缺少设备所需 split，加入 `config.armeabi_v7a` 后 AVD 报 `INSTALL_FAILED_NO_MATCHING_ABIS`，未伪造原版性能结论。
 - 最新父级业务名称门禁：PASS；新档恢复后实测 `phase=infinity、eternity=false、ep=0、bigE=0`，底部紫色永恒入口消失，普通底栏保留 8 个合法入口；截图 `reports/R101-new-save/38-category-name-gate-running.png`。再次 Activity 重启并点击“开始游戏”后仍无紫色入口，截图 `reports/R101-new-save/41-category-name-gate-restart-running.png`，UI 树 `reports/R101-new-save/39-category-name-gate-ui.xml`。
+- 性能 A/B：当前候选稳定窗口 3376 帧、现代 jank 2637（78.11%）、p95 16ms、p99 32ms、Slow UI 6、Slow issue draw commands 2635；父级门禁前候选对照 307 帧、现代 jank 236（76.87%）、p95 16ms、p99 32ms、Slow UI 1、Slow issue draw commands 232，证据 `reports/R101-new-save/42-stable-window-gfxinfo.txt`、`reports/R101-new-save/43-parent-gate-old-candidate-gfxinfo.txt`。GPU p95 约 15ms，主线程未见持续阻塞；当前差异不足以证明门禁注入造成回归，性能门禁仍 FAIL。
 - CPU 采样：应用进程约 0%（采样瞬间）；frame-observer 约 1.2%。
 - StackOverflow/ANR/应用致命异常：本轮 logcat 未发现；系统 FontLog/NullBinder 警告不属于应用 P0 根因。
 - 性能门禁：FAIL。现代 jank/绘制命令仍高；Perfetto 与 frame-observer 开关对照已完成，但当前候选不能称稳定版。

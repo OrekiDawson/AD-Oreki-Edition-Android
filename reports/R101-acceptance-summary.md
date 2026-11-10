@@ -7,3 +7,5 @@
 新档恢复/重启运行页实测 PASS：`phase=infinity、eternity=false、break=true、canEt=false、ep=0、bigE=0` 时不显示紫色永恒入口，普通侧栏/底栏保留；证据 `reports/R101-new-save/38-category-name-gate-running.png`、`41-category-name-gate-restart-running.png`、`37-category-name-gate-logcat.txt`。当前不发布稳定版：性能采样仍为 FAIL（264 帧现代 jank 206、p95 32ms），Break Infinity、非法直接进入、合法首次永恒和自动购买器仍未完成全覆盖，按 BLOCKED/NOT RUN 记录。
 
 Perfetto 15 秒显示应用主线程约 1.59 秒 CPU、RenderThread 约 5.15 秒 CPU；frame-observer 关闭后现代 jank 仍为 224/337，且两组主要是 `Slow issue draw commands`。官方 XAPK 因 AVD ABI/split 不匹配无法安装，官方对照标记 BLOCKED。
+
+稳定窗口 A/B 未证明父级门禁造成性能回归：当前候选 3376 帧现代 jank 2637（78.11%）、p95 16ms、p99 32ms；父级门禁前候选 307 帧现代 jank 236（76.87%）、p95 16ms、p99 32ms。两者均以 `Slow issue draw commands` 为主，GPU p95 约 15ms；性能门禁仍保持 FAIL，不能据此发布稳定版。
