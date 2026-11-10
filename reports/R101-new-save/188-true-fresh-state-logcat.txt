@@ -1,0 +1,71 @@
+11-10 21:58:46.467   667  1935 V ActivityTaskManager: TaskLaunchParamsModifier: phase=3 task=Task{e8c188e #175 type=standard A=10236:com.oreki.antimatterdimensions} activity=ActivityRecord{115716233 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default t-1} display-from-task=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@22654487 inherit-from-task=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@22654487 skip-bounds-fullscreen
+11-10 21:58:48.310 21730 21764 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+11-10 21:58:48.310 21730 21764 I OREKI_GUI: STATE_CHANGED source=tick-sync:global-tick phase=eternity
+11-10 21:58:48.311 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=true dirty=false force=true
+11-10 21:58:48.313 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:58:48.317 21730 21764 I OREKI_SCHED: deny frame-held task=eternity
+11-10 21:58:48.317 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=8.0e0 bigE=1 lastCrunch=0
+11-10 21:58:48.638 21730 21764 I OfflineSimulation: v3.21.0 | Google sdk_gphone64_x86_64, API 37 | away 0.1 min, simulated 0.1 min, 50 ms of game time per tick | 138 ticks in 0.3 s (2.319 ms/tick avg, p50 <= 2.05, p99 <= 16.38, max 10.4 at #106, first 13.7, 1 over 10 ms), completed | events: -1 crunches, 0 eternities, 0 realities | GC 1 runs / 111 ms, alloc 152.2 KB/tick | heap 73 -> 40 MB, limit 192 MB, device RAM 3912 MB | power save off, thermal none | thread on CPU 93%, nice 0 in /top-app, core 3 at 0.00 of 0.00 GHz (fastest 0.00), compiled code 0.0 MB
+11-10 21:58:51.944 21730 21764 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:58:51.945 21730 21764 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:58:51.945 21730 21764 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:58:51.945 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:58:51.970 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:58:51.970 21730 21764 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:58:51.970 21730 21764 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:58:51.970 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:58:53.318 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.0e1 bigE=1 lastCrunch=8856945
+11-10 21:58:56.813 21730 21764 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:58:56.813 21730 21764 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:58:56.813 21730 21764 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:58:56.814 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:58:56.839 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:58:56.839 21730 21764 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:58:56.839 21730 21764 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:58:56.840 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:58:56.891 21730 21764 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:58:56.891 21730 21764 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:58:56.891 21730 21764 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:58:56.891 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:58:58.310 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:58:58.336 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:58:58.337 21730 21764 I OREKI_SCHED: deny frame-held task=eternity
+11-10 21:58:58.337 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.1e1 bigE=1 lastCrunch=8861964
+11-10 21:59:03.346 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.1e1 bigE=1 lastCrunch=8866973
+11-10 21:59:07.756 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:59:07.759 21730 21764 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:59:07.759 21730 21764 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:59:07.760 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:59:07.782 21730 21764 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:59:07.782 21730 21764 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:59:07.782 21730 21764 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:59:07.784 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:59:07.811 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:59:07.811 21730 21764 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:59:07.811 21730 21764 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:59:07.812 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:59:07.837 21730 21764 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:59:07.837 21730 21764 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:59:07.837 21730 21764 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:59:07.837 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:59:08.319 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:59:08.348 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:59:08.349 21730 21764 I OREKI_SCHED: deny frame-held task=eternity
+11-10 21:59:08.349 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=9.0e0 bigE=1 lastCrunch=8871975
+11-10 21:59:08.372 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:59:08.372 21730 21764 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:59:08.372 21730 21764 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:59:08.373 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:59:13.351 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=9.0e0 bigE=1 lastCrunch=8871999
+11-10 21:59:18.322 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:59:18.372 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:59:18.373 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.0e1 bigE=1 lastCrunch=8881999
+11-10 21:59:23.385 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.1e1 bigE=1 lastCrunch=8887012
+11-10 21:59:23.410 21730 21764 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:59:23.410 21730 21764 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:59:23.410 21730 21764 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:59:23.411 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:59:23.435 21730 21764 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:59:23.436 21730 21764 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:59:23.436 21730 21764 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:59:23.436 21730 21764 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false

@@ -1,0 +1,36 @@
+.class public final Lp91;
+.super Landroid/graphics/drawable/Drawable;
+.source "r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761"
+
+
+# virtual methods
+.method public final draw(Landroid/graphics/Canvas;)V
+    .locals 0
+
+    .line 1
+    return-void
+.end method
+
+.method public final getOpacity()I
+    .locals 0
+
+    .line 1
+    const/4 p0, -0x2
+
+    .line 2
+    return p0
+.end method
+
+.method public final setAlpha(I)V
+    .locals 0
+
+    .line 1
+    return-void
+.end method
+
+.method public final setColorFilter(Landroid/graphics/ColorFilter;)V
+    .locals 0
+
+    .line 1
+    return-void
+.end method

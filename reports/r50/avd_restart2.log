@@ -1,0 +1,282 @@
+INFO         | Android emulator version 37.2.12.0 (build_id 16428233) (CL:N/A)
+INFO         | Graphics backend: gfxstream
+INFO         | Found systemPath C:\Users\Oreki\Android\sdk\system-images\android-34\default\x86_64\
+INFO         | Increasing RAM size to 4096MB
+INFO         | IPv4 server found: 192.168.1.1
+INFO         | Ignore IPv6 address: 7045:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 7045:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 7045:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 604b:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 604b:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 604b:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 5851:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 5851:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 5851:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 2857:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 2857:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 2857:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 885f:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 885f:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 885f:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: e867:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: e867:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: e867:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 206e:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 206e:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: 206e:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: a078:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: a078:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Ignore IPv6 address: a078:2d1e:9e01:0:d040:2d1e:9e01:0
+INFO         | Guest GLES Driver: Auto (ext controls)
+ERROR        | gpuChoiceBasedOnGpuOptions: Selected GPU option 'swiftshader_indirect' is not valid, switching to 'auto' mode.
+INFO         | emuglConfig_get_vulkan_hardware_gpu_support_info: Found physical GPU 'NVIDIA GeForce RTX 2060', type: VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, apiVersion: 1.4.351, driverVersion: 617.14
+
+INFO         | emuglConfig_init: vulkan_mode_selected:host gles_mode_selected:host
+INFO         | Checking system compatibility:
+INFO         |   Checking: hasCompatibleHypervisor
+INFO         |      Ok: Hypervisor compatibility to run avd: `oreki_test` are met
+INFO         |   Checking: hasSufficientSystem
+INFO         |      Ok: System requirements to run avd: `oreki_test` are met
+INFO         |   Checking: hasSufficientHwGpu
+INFO         |      Ok: Hardware GPU requirements to run avd: `oreki_test` are passed
+INFO         |   Checking: hasSufficientDiskSpace
+INFO         |      Ok: Disk space requirements to run avd: `oreki_test` are met
+INFO         | Critical: Failed to load opengl32sw (找不到指定的模块。) (:0, )
+INFO         | Warning: Software OpenGL failed. Falling back to system OpenGL. (:0, )
+INFO         | Storing crashdata in: C:\Users\Oreki\AppData\Local\Temp\\AndroidEmulator\emu-crash-37.2.12.db, detection is enabled for process: 37300
+INFO         | Initializing gfxstream backend
+INFO         | startOpenglesRendererImpl: gpu info
+INFO         | GPU #1
+  Make: 10de
+  Model: NVIDIA GeForce RTX 2060
+  Device ID: 1f03
+
+INFO         | Disabling implicit Vulkan layers to avoid compatibility issues. Set VK_LOADER_LAYERS_DISABLE manually to disable this behavior.
+INFO         | SharedLibrary::open for [C:\Users\Oreki\Android\sdk\emulator\qemu\windows-x86_64\lib64\vulkan\vulkan-1.dll]
+INFO         | SharedLibrary::open for [C:\Users\Oreki\Android\sdk\emulator\lib64\vulkan\vulkan-1.dll]
+INFO         | Added library: C:\Users\Oreki\Android\sdk\emulator\lib64\vulkan\vulkan-1.dll
+INFO         | Selecting Vulkan device: NVIDIA GeForce RTX 2060, Version: 1.4.351
+INFO         | Using Vulkan externalMemoryMode: OpaqueWin32 for VkEmulation
+INFO         | Initializing VkEmulation features:
+INFO         |     glInteropSupported: true
+INFO         |     useDeferredCommands: true
+INFO         |     createResourceWithRequirements: true
+INFO         |     useVulkanComposition: false
+INFO         |     useVulkanNativeSwapchain: false
+INFO         |     enable guestRenderDoc: false
+INFO         |     ASTC LDR emulation mode: Gpu
+INFO         |     enable ETC2 emulation: true
+INFO         |     enable Ycbcr emulation: false
+INFO         |     guestVulkanOnly: false
+INFO         |     useDedicatedAllocations: false
+INFO         |     guestVulkanMaxApiVersion: 1.3.0
+INFO         |     enableProtectedMemoryEmulation: false
+INFO         | Graphics Adapter Vendor Google (NVIDIA Corporation)
+INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (NVIDIA GeForce RTX 2060/PCIe/SSE2)
+INFO         | Graphics API Version OpenGL ES 3.0 (4.5.0 NVIDIA 617.14)
+INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_OVR_multiview2 GL_EXT_multiview_texture_multisample GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 GL_EXT_texture_buffer 
+INFO         | Graphics Device Extensions N/A
+INFO         | Disabling sparse binding feature support
+INFO         | Sending adb public key [QAAAAFtlYOMtvc5KxKqOm8aKtncGKdFT1tnpXpVAKFyPEA1tzUigzftcDQ+vpBZ7KA89OZMV6suQDiRXa+fu2JGZLhW40tBSBZc21984qo2DgSZ/7ZnluPn0YJpXjD/8+dqNsDMMoUROlzzYeFj4tY1bub65CZUEJGGBBFM+4REU31DBrV9sw9RpDrpUMeCjPOerH4cJ8fo27qqCHhXmgL2b3GFgQhWkdH5Hk5FNHM+nBu8sMMpOQMQi+SIbXVwUD7GiTKDx4/Nm+g2drDpVlDyKoT8kuqXvqiejFnh+ufE51r1wlwplPp9R+JwOMgZ3wKKZ5H2Ng2CwP+KbRbuFK96Pl0k8VsHbf62leOb+Fgx7vlCDEoDsbSAQd+b5Sv1wXrxlX0qPteBclFPxRTH1mD0iuOVwohDNcyawMBntNOsmAdNOxuAdW4ki4yIwwFJSH5UEqB5C114pqx95mWfPDSjV8aKheYVB8oN+Q0OrsS/w8eUU+9rLCxtoE6hMFCypO/PyBBQOctJFFjQa0peiu7ObEpcZY8l8JMrNRugIq+QMBvav2dHgj1z8sV//PtVVvfUgF1s0v5dr78Tpe1JL1nujFUjuQOWKm8UN+TGS4c/NZkZKANNu2wEZT5CV5aFtlNnWfAmLnWR2vJD+++3oJESNIc7lrjuQCUrNxuPaCp+ePDGyPZ+cPwEAAQA= @unknown]
+INFO         | Userspace boot properties:
+INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+INFO         |   androidboot.dalvik.vm.heapsize=576m
+INFO         |   androidboot.debug.hwui.renderer=skiagl
+INFO         |   androidboot.debug.sf.nobootanimation=1
+INFO         |   androidboot.hardware=ranchu
+INFO         |   androidboot.hardware.gltransport=pipe
+INFO         |   androidboot.hardware.vulkan=ranchu
+INFO         |   androidboot.logcat=*:V
+INFO         |   androidboot.opengles.version=196609
+INFO         |   androidboot.qemu=1
+INFO         |   androidboot.qemu.adb.pubkey=QAAAAFtlYOMtvc5KxKqOm8aKtncGKdFT1tnpXpVAKFyPEA1tzUigzftcDQ+vpBZ7KA89OZMV6suQDiRXa+fu2JGZLhW40tBSBZc21984qo2DgSZ/7ZnluPn0YJpXjD/8+dqNsDMMoUROlzzYeFj4tY1bub65CZUEJGGBBFM+4REU31DBrV9sw9RpDrpUMeCjPOerH4cJ8fo27qqCHhXmgL2b3GFgQhWkdH5Hk5FNHM+nBu8sMMpOQMQi+SIbXVwUD7GiTKDx4/Nm+g2drDpVlDyKoT8kuqXvqiejFnh+ufE51r1wlwplPp9R+JwOMgZ3wKKZ5H2Ng2CwP+KbRbuFK96Pl0k8VsHbf62leOb+Fgx7vlCDEoDsbSAQd+b5Sv1wXrxlX0qPteBclFPxRTH1mD0iuOVwohDNcyawMBntNOsmAdNOxuAdW4ki4yIwwFJSH5UEqB5C114pqx95mWfPDSjV8aKheYVB8oN+Q0OrsS/w8eUU+9rLCxtoE6hMFCypO/PyBBQOctJFFjQa0peiu7ObEpcZY8l8JMrNRugIq+QMBvav2dHgj1z8sV//PtVVvfUgF1s0v5dr78Tpe1JL1nujFUjuQOWKm8UN+TGS4c/NZkZKANNu2wEZT5CV5aFtlNnWfAmLnWR2vJD+++3oJESNIc7lrjuQCUrNxuPaCp+ePDGyPZ+cPwEAAQA= @unknown
+INFO         |   androidboot.qemu.avd_name=oreki_test
+INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+INFO         |   androidboot.qemu.camera_protocol_ver=1
+INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+INFO         |   androidboot.qemu.gltransport.name=pipe
+INFO         |   androidboot.qemu.hwcodec.avcdec=2
+INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+INFO         |   androidboot.qemu.skin=1440x3200
+INFO         |   androidboot.qemu.virtiowifi=1
+INFO         |   androidboot.qemu.vsync=120
+INFO         |   androidboot.serialno=EMULATOR37X2X12X0
+INFO         |   androidboot.vbmeta.digest=8bee4f6105b6acd7de887b1ee6629ab07066df02ee9bbca07663adffdad97fc1
+INFO         |   androidboot.vbmeta.hash_alg=sha256
+INFO         |   androidboot.vbmeta.size=6656
+INFO         |   androidboot.veritymode=enforcing
+WHPX on Windows 10.0.26200 detected.
+Windows Hypervisor Platform accelerator is operational
+netsim I 11-01 02:15:00.261 netsimd.rs:375 - netsim startup
+netsim I 11-01 02:15:00.262 netsimd.rs:384 - Artifacts: "C:\\Users\\Oreki\\AppData\\Local\\Temp\\netsimd"
+netsim I 11-01 02:15:00.262 netsimd.rs:386 - Args {
+    fd_startup_str: None,
+    connector_instance: None,
+    instance: None,
+    logtostderr: false,
+    dev: false,
+    no_cli_ui: true,
+    no_web_ui: false,
+    http_proxy: None,
+    no_shutdown: false,
+    idle_shutdown_timeout: None,
+    startup_timeout: None,
+    pcap: false,
+    disable_address_reuse: false,
+    verbose: false,
+    version: false,
+    grpc_port: None,
+    hci_port: None,
+    tcp_port: None,
+    ws_port: None,
+    host_dns: Some(
+        "192.168.1.1",
+    ),
+    forward_host_mdns: false,
+    test_beacons: false,
+    no_test_beacons: false,
+    wifi: WifiConfig {
+        wifi_ssid: None,
+        wifi_password: None,
+        wifi_channel: None,
+        wifi_beacon_interval: None,
+        wifi_mode: None,
+    },
+}
+INFO         | Monitoring duration of emulator setup.
+WARNING      | The emulator now requires a signed jwt token for gRPC access! Use the -grpc flag if you really want an open unprotected grpc port
+INFO         | Using security allow list from: C:\Users\Oreki\Android\sdk\emulator\lib\emulator_access.json
+INFO         | The active JSON Web Key Sets can be found here: C:\Users\Oreki\AppData\Local\Temp\avd\running\37300\jwks\fb18413b-9a65-4ddb-88c5-7cacf3459c82\active.jwk
+INFO         | Scanning C:\Users\Oreki\AppData\Local\Temp\avd\running\37300\jwks\fb18413b-9a65-4ddb-88c5-7cacf3459c82 for jwk keys.
+INFO         | Started GRPC server at 127.0.0.1:8554, security: Local, auth: +token
+INFO         | Advertising in: C:\Users\Oreki\AppData\Local\Temp\avd\running\pid_37300.ini
+INFO         | Successfully initialized netsim WiFi
+INFO         | Activated packet streamer for bluetooth emulation
+INFO         | Setting display: 0 configuration to: 1440x3200, dpi: 560x560 
+INFO         | setDisplayActiveConfig: id:0, 1440x3200
+INFO         | Checking system compatibility:
+INFO         |   Checking: hasCompatibleHypervisor
+INFO         |      Ok: Hypervisor compatibility to run avd: `oreki_test` are met
+INFO         |   Checking: hasSufficientSystem
+INFO         |      Ok: System requirements to run avd: `oreki_test` are met
+INFO         |   Checking: hasSufficientHwGpu
+INFO         |      Ok: Hardware GPU requirements to run avd: `oreki_test` are passed
+INFO         |   Checking: hasSufficientDiskSpace
+INFO         |      Ok: Disk space requirements to run avd: `oreki_test` are met
+INFO         | emulatorSetupEnvironment: Environment scene is not required
+INFO         | Loading snapshot 'default_boot'...
+WARNING      | Change of GLES renderer detected.
+WARNING      | Error -1 from the snapshot callback
+
+WARNING      | Failed to load snapshot 'default_boot'
+USER_INFO    | The emulator is starting from scratch. Reason: different renderer configured
+INFO         | Warning: QMetaObject::connectSlotsByName: No matching signal for on_rgbcSensorValueWidget_valueChanged() (:0, )
+INFO         | Warning: QMetaObject::connectSlotsByName: No matching signal for on_posture_valueChanged(int) (:0, )
+INFO         | TouchpadHolder: registering via hw_xr_led agent for instance=0000019EB3E28800
+INFO         | Warning: QObject::connect: Cannot queue arguments of type 'std::vector<android::emulation::control::SnapshotInfo>'
+(Make sure 'std::vector<android::emulation::control::SnapshotInfo>' is registered using qRegisterMetaType().) (:0, )
+INFO         | AVD supportsNativeGLES=1, supportsGuestAngle=0
+INFO         | Platform does not support Guest Angle
+INFO         | Created extended window in 463.956ms
+INFO         | Critical: UpdateLayeredWindowIndirect failed for ptDst=(144, 131), size=(300x21), dirty=(300x21 0, 0) (连到系统上的设备没有发挥作用。) (:0, )
+INFO         | Boot completed in 48606 ms
+INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+INFO         | IPv4 server found: 192.168.1.1
+INFO         | Ignore IPv6 address: b0b4:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: b0b4:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: b0b4:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: a0ba:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: a0ba:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: a0ba:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 98c0:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 98c0:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 98c0:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 68c6:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 68c6:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 68c6:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: c8ce:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: c8ce:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: c8ce:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 28d7:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 28d7:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: 28d7:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: e8e1:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: e8e1:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: e8e1:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: e0e7:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: e0e7:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | Ignore IPv6 address: e0e7:b3b7:9e01:0:10b0:b3b7:9e01:0
+INFO         | IPv4 server found: 192.168.1.1
+INFO         | Ignore IPv6 address: c0b6:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: c0b6:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: c0b6:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: b0bc:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: b0bc:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: b0bc:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: a8c2:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: a8c2:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: a8c2:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 78c8:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 78c8:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 78c8:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: d8d0:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: d8d0:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: d8d0:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 38d9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 38d9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 38d9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f8e3:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f8e3:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f8e3:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f0e9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f0e9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f0e9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | IPv4 server found: 192.168.1.1
+INFO         | Ignore IPv6 address: c0b6:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: c0b6:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: c0b6:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: b0bc:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: b0bc:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: b0bc:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: a8c2:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: a8c2:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: a8c2:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 78c8:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 78c8:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 78c8:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: d8d0:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: d8d0:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: d8d0:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 38d9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 38d9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: 38d9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f8e3:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f8e3:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f8e3:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f0e9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f0e9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Ignore IPv6 address: f0e9:b5b7:9e01:0:20b2:b5b7:9e01:0
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+ERROR        | Failed to find ColorBuffer: 252
+ERROR        | Failed to bind to texture: invalid color buffer.
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+INFO         | Warning: Retrying to obtain clipboard. (:0, )
+WARNING      | Not saving state: RAM not mapped as shared
+INFO         | Wait for emulator (pid 37300) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+
+INFO         | Saving snapshot 'default_boot' took 4 ms
+pc_memory_init: above 4g size: 40000000
+INFO         | removeAll
+WARNING      | Netsim Wifi dns:///localhost:60092 is gone due to Stream removed (CANCELLED)

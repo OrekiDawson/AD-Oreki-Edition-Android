@@ -1,0 +1,9 @@
+PASS  rclone: rclone v1.60.1-DEV
+FAIL  OneDrive rclone remote: 未设置；可用=['gdrive', 'onedrive']
+FAIL  Google Drive rclone remote: 未设置；可用=['gdrive', 'onedrive']
+FAIL  OneDrive 目录: 未设置
+FAIL  Google Drive 目录: 未设置
+PASS  GitHub CLI 登录: OrekiDawson/AD-Oreki-Edition-Android
+PASS  SSH 服务: active
+PASS  本地发布目录: /home/oreki/Releases/AD-Oreki-Edition
+结果：4 项未就绪

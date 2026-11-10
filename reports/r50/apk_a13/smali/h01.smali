@@ -1,0 +1,17 @@
+.class public interface abstract Lh01;
+.super Ljava/lang/Object;
+.source "r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761"
+
+
+# virtual methods
+.method public abstract a(Landroid/view/View;)V
+.end method
+
+.method public abstract b(Landroid/view/View;)V
+.end method
+
+.method public abstract c(I)V
+.end method
+
+.method public abstract d(Landroid/view/View;F)V
+.end method

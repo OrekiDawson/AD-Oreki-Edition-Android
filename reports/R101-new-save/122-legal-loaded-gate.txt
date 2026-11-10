@@ -1,0 +1,20 @@
+11-10 21:19:51.485 I/OREKI_GUI_STAGE(16044): GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-10 21:19:56.507 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=5110.0
+11-10 21:20:01.524 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=10128.0
+11-10 21:20:06.534 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=15137.0
+11-10 21:20:11.540 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=20143.0
+11-10 21:20:16.557 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=25160.0
+11-10 21:20:21.577 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=30181.0
+11-10 21:20:26.602 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=35205.0
+11-10 21:20:31.614 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=40218.0
+11-10 21:20:36.630 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=45233.0
+11-10 21:20:41.635 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=50239.0
+11-10 21:20:46.646 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=55250.0
+11-10 21:20:51.648 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=60251.0
+11-10 21:20:56.656 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=65259.0
+11-10 21:21:01.660 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=70264.0
+11-10 21:21:06.673 I/OREKI_GATE(16044): GATE brake=false g=true c=false b=false mult=10000.0 rt=75276.0
+11-10 21:21:11.592 I/OREKI_GUI_STAGE(16365): GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-10 21:21:16.597 I/OREKI_GATE(16365): GATE brake=false g=true c=false b=false mult=10000.0 rt=5107.0
+11-10 21:21:21.609 I/OREKI_GATE(16365): GATE brake=false g=true c=false b=false mult=10000.0 rt=10119.0
+11-10 21:21:26.613 I/OREKI_GATE(16365): GATE brake=false g=true c=false b=false mult=10000.0 rt=15123.0

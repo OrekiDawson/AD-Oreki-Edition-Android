@@ -1,0 +1,55 @@
+.class public final Lwz0;
+.super Ljava/lang/Object;
+.source "r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761"
+
+
+# instance fields
+.field public a:F
+
+.field public b:F
+
+.field public c:F
+
+.field public d:F
+
+.field public e:I
+
+
+# direct methods
+.method public constructor <init>()V
+    .locals 1
+
+    .line 1
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 2
+    .line 3
+    .line 4
+    const/4 v0, 0x0
+
+    .line 5
+    iput v0, p0, Lwz0;->a:F
+
+    .line 6
+    .line 7
+    iput v0, p0, Lwz0;->b:F
+
+    .line 8
+    .line 9
+    iput v0, p0, Lwz0;->c:F
+
+    .line 10
+    .line 11
+    iput v0, p0, Lwz0;->d:F
+
+    .line 12
+    .line 13
+    const/4 v0, -0x1
+
+    .line 14
+    iput v0, p0, Lwz0;->e:I
+
+    .line 15
+    .line 16
+    return-void
+.end method

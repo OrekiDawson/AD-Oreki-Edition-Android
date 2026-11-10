@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <long name="backupSaveTime2" value="529000" />
+    <long name="backupSaveTime3" value="2939000" />
+    <long name="backupSaveTime0" value="19000" />
+    <long name="backupSaveTime1" value="186000" />
+    <boolean name="RMMultEnabled" value="true" />
+    <boolean name="hey_you" value="true" />
+    <boolean name="PermanentAdBonusEnabled" value="true" />
+    <boolean name="NormalDimMultEnabled" value="true" />
+    <string name="automationlastSelectedChild">autobuyers</string>
+    <boolean name="EPMultEnabled" value="true" />
+    <boolean name="IPMultEnabled" value="true" />
+    <int name="orientation" value="1" />
+    <int name="beginningDialogState" value="3" />
+    <string name="challengeslastSelectedChild">normalChallenges</string>
+    <boolean name="GoldenBottomButtonsEnabled" value="true" />
+    <boolean name="ReplicantiSpeedEnabled" value="true" />
+    <string name="lastChangelogHash">5ee3689164c915089328589f431cb662a95117c2cf2efddccbf265bac680bc35</string>
+    <boolean name="DTSpeedEnabled" value="true" />
+    <string name="lastOfflineSimulation">v3.19.0 | unknown Android SDK built for x86_64, API 34 | away 0.7 min, simulated 0.7 min, 50 ms of game time per tick | 782 ticks in 4.5 s (5.772 ms/tick avg, p50 &lt;= 4.10, p99 &lt;= 32.77, max 88.3 at #251, first 52.5, 78 over 10 ms), completed | events: 7 crunches, 0 eternities, 0 realities | GC 0 runs / 0 ms, alloc 17.5 KB/tick | heap 44 -&gt; 56 MB, limit 192 MB, device RAM 3921 MB | power save off, thermal none | thread on CPU 69%, core 3 at 4.06 of 0.00 GHz (fastest 0.00), compiled code 0.0 MB</string>
+    <string name="currentSubTab">antimatterDimensions</string>
+    <string name="optionsMainTablastSelectedChild">options</string>
+    <boolean name="AllDimMultEnabled" value="true" />
+    <string name="dimensionslastSelectedChild">antimatterDimensions</string>
+    <long name="adBonusTimeLeft" value="0" />
+</map>

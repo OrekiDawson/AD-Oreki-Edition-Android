@@ -1,0 +1,8 @@
+t=     0s AM=9.65e920 maxAM=1.00e921 AD8b=420 AD4b=802 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=   180s AM=9.08e919 maxAM=1.00e921 AD8b=420 AD4b=805 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=   360s AM=9.35e920 maxAM=1.00e921 AD8b=420 AD4b=807 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=   540s AM=2.64e921 maxAM=2.64e921 AD8b=420 AD4b=810 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=   720s AM=1.00e922 maxAM=1.00e922 AD8b=420 AD4b=810 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=   901s AM=2.01e922 maxAM=2.01e922 AD8b=420 AD4b=810 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=  1081s AM=3.12e922 maxAM=3.12e922 AD8b=420 AD4b=810 db=32 gal=6 inf=42 IP=1e5.0 id0=False
+t=  1261s AM=3.12e922 maxAM=3.12e922 AD8b=420 AD4b=810 db=32 gal=6 inf=42 IP=1e5.0 id0=False

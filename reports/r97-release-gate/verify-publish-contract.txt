@@ -1,0 +1,19 @@
+PASS  atomic_copy 内容一致
+PASS  atomic_copy 无残留临时文件  — [PosixPath('/tmp/oreki-pub-contract-zw6l0kk_/out/dst.apk')]
+[四渠道发布] 本地：原子覆盖 /tmp/oreki-pub-contract-zw6l0kk_/release-root/latest/反物质维度.apk（不创建版本归档）
+PASS  local_publish 覆盖 latest
+PASS  local_publish 刷新同名 .sha256  — 92cbce89afcfc208c8e1f8795d2c62eda44c0c224465e61af782fb4a3d5e1dbe  反物质维度.apk
+PASS  local_publish 刷新 SHA256SUMS  — 92cbce89afcfc208c8e1f8795d2c62eda44c0c224465e61af782fb4a3d5e1dbe  latest/反物质维度.apk
+PASS  local_publish 记录渠道状态
+PASS  release-info 版本字段一致  — 3.21.0/30210000
+PASS  verify_manifest 接受一致清单
+PASS  verify_manifest 拒绝候选路径不一致  — APK 路径与发布清单登记对象不一致：清单=/tmp/oreki-pub-contract-zw6l0kk_/other
+PASS  verify_manifest 拒绝SHA 不一致  — APK SHA-256 与发布清单不一致：清单=000000000000000000000000000000000000
+PASS  verify_manifest 拒绝verify 报告有失败项  — verifyRelease 报告存在失败项：1
+PASS  verify_manifest 拒绝verify 报告缺失  — 发布清单声明的 verifyRelease 报告不存在：/tmp/oreki-pub-contract-zw6l0kk_
+PASS  verify_manifest 拒绝清单记录 verify_failed  — 发布清单记录 verifyRelease 失败项：2
+PASS  rclone 上传源为本次 --apk
+PASS  GitHub 附件源为本次 --apk
+PASS  上传后回读远端大小
+
+16/16 项通过

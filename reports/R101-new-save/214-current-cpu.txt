@@ -1,0 +1,25 @@
+Tasks: 312 total,   1 running, 311 sleeping,   0 stopped,   0 zombie
+  Mem:  4006176K total,  3677464K used,   328712K free,    79168K buffers
+ Swap:  3004628K total,   375252K used,  2629376K free,  1787600K cached
+400%cpu  19%user   0%nice  46%sys 273%idle   4%iow   0%irq  15%sirq  42%host
+  PID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ ARGS
+24086 u0_a236      10 -10  40G 512M 238M S 30.7  13.0   0:26.71 com.oreki.antimatterdimensions
+  484 system       -3   0  10G  16M  11M S 19.2   0.4  35:15.13 android.hardware.graphics.composer3-service.ranchu
+24532 root         20   0  10G 5.4M 4.6M R  3.8   0.1   0:00.02 top -b -n 1 -m 20
+24525 root          0 -20    0    0    0 I  0.0   0.0   0:00.00 [kworker/u17:3-fscrypt_read_queue]
+24436 root         20   0    0    0    0 I  0.0   0.0   0:00.01 [kworker/u16:2-kvfree_rcu_reclaim]
+23333 root         20   0    0    0    0 I  0.0   0.0   0:00.15 [kworker/3:1-events]
+23103 u0_a237      20   0  15G 111M  64M S  0.0   2.8   0:00.38 com.android.cli.interact.instrumentation
+23092 root         20   0  15G 131M  98M S  0.0   3.3   0:00.19 app_process /system/bin com.android.commands.am.Am instrument -w com.android.cli.interact.instrumentation/.InstrumentationServer
+23049 root          0 -20    0    0    0 I  0.0   0.0   0:00.00 [kworker/u17:0-fscrypt_read_queue]
+22805 root         20   0    0    0    0 I  0.0   0.0   0:00.29 [kworker/1:1-virtio_vsock]
+22796 root         20   0    0    0    0 I  0.0   0.0   0:00.11 [kworker/0:1-cgroup_free]
+22750 root         20   0    0    0    0 I  0.0   0.0   0:00.05 [kworker/2:1-events]
+22742 root         20   0    0    0    0 I  0.0   0.0   0:00.02 [kworker/1:0-events]
+22308 root         20   0    0    0    0 I  0.0   0.0   0:00.44 [kworker/u16:1-kvfree_rcu_reclaim]
+22091 root         20   0    0    0    0 I  0.0   0.0   0:00.50 [kworker/3:2-virtio_vsock]
+21990 root         20   0    0    0    0 I  0.0   0.0   0:00.74 [kworker/1:3-virtio_vsock]
+21654 root         20   0    0    0    0 I  0.0   0.0   0:00.18 [kworker/0:2-events]
+21001 root          0 -20    0    0    0 I  0.0   0.0   0:00.03 [kworker/u17:1-fscrypt_read_queue]
+19738 root          0 -20    0    0    0 I  0.0   0.0   0:00.03 [kworker/u17:2-fscrypt_read_queue]
+19489 u0_a212      20   0  15G 104M  58M S  0.0   2.6   0:00.04 com.google.android.adservices.api

@@ -1,0 +1,23 @@
+==================================================================
+[1] 本地验证
+    package=com.oreki.antimatterdimensions versionCode=30190000 versionName=3.19.0
+    签名 v2=True v3=True
+    证书 SHA-256=95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+    SHA-256=ee3b0f0cc531becad9ae36972a7ffd5bf74a9d16bee80362aff0c0432ce930af  大小=69794405 (66.6 MiB)
+==================================================================
+[2] 归档旧版 -> 覆盖 OneDrive
+    现有 OneDrive SHA-256=8402176593444fab14701fab0a08253cd77bb98f5638b40f17915164b7f05300
+    旧版归档 -> C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\build\onedrive_archive\反物质维度_84021765.apk
+    已写入 C:\Users\Oreki\OneDrive\反物质维度.apk（本地复核哈希一致）
+    本地复核 SHA-256=ee3b0f0cc531becad9ae36972a7ffd5bf74a9d16bee80362aff0c0432ce930af
+==================================================================
+[3] 归档旧版 -> 覆盖小米云盘
+    现有 小米云盘 SHA-256=8402176593444fab14701fab0a08253cd77bb98f5638b40f17915164b7f05300
+    旧版归档 -> C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\build\xiaomi_archive\反物质维度_84021765.apk
+    已写入 C:\Users\Oreki\小米云盘\反物质维度.apk（本地复核哈希一致）
+==================================================================
+[4] 核验 OneDrive 云端同步
+    attrs=0x20 全本地
+    未在 300s 内转为云端占位（attrs=0x20）
+    结论：本地已替换，云端尚未核验
+EXIT=3

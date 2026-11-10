@@ -1,0 +1,20 @@
+11-10 22:01:18.078 22208 22208 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-10 22:01:19.928 22208 22272 I OREKI_SCHED: gui-tick #1 gapMs=10000
+11-10 22:01:19.929 22208 22272 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-10 22:01:29.929 22208 22272 I OREKI_SCHED: gui-tick #2 gapMs=10000
+11-10 22:01:39.932 22208 22272 I OREKI_SCHED: gui-tick #3 gapMs=10000
+11-10 22:01:49.933 22208 22272 I OREKI_SCHED: gui-tick #4 gapMs=10000
+11-10 22:01:59.955 22208 22272 I OREKI_SCHED: gui-tick #5 gapMs=10000
+11-10 22:02:09.971 22208 22272 I OREKI_SCHED: gui-tick #6 gapMs=10000
+11-10 22:02:19.984 22208 22272 I OREKI_SCHED: gui-tick #7 gapMs=10000
+11-10 22:02:30.004 22208 22272 I OREKI_SCHED: gui-tick #8 gapMs=10000
+11-10 22:02:40.023 22208 22272 I OREKI_SCHED: gui-tick #9 gapMs=10000
+11-10 22:02:50.042 22208 22272 I OREKI_SCHED: gui-tick #10 gapMs=10000
+11-10 22:03:00.045 22208 22272 I OREKI_SCHED: gui-tick #11 gapMs=10000
+11-10 22:03:10.056 22208 22272 I OREKI_SCHED: gui-tick #12 gapMs=10000
+11-10 22:03:20.057 22208 22272 I OREKI_SCHED: gui-tick #13 gapMs=10000
+11-10 22:03:25.608 22208 22272 I OREKI_ET_GATE: allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=9129235
+11-10 22:03:25.610 22208 22272 I OREKI_SCHED: noop breakUpgrades
+11-10 22:03:25.611 22208 22272 I OREKI_SCHED: act infinityUpgrades @9129238ms gap=-1 taskGap=-1
+11-10 22:03:25.611 22208 22272 I OREKI_SCHED: deny frame-held task=breakShop
+11-10 22:03:25.612 22208 22272 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=before-first-infinity to=infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=1

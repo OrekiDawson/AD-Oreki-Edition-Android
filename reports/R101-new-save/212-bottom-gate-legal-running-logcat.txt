@@ -1,0 +1,300 @@
+I/netd    (  460): tetherGetStats() -> {[]} <0.30ms>
+D/Zygote  ( 1008): Forked child process 24381
+I/libprocessgroup(  667): Created cgroup /sys/fs/cgroup/apps/uid_99127
+I/libprocessgroup(  667): Created cgroup /sys/fs/cgroup/apps/uid_99127/pid_24381
+I/Zygote  (24381): Process 24381 created for com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:58
+I/cessService0:58(24381): Using generational CollectorTypeCMC GC.
+W/cessService0:58(24381): Unexpected CPU variant for x86: x86_64.
+W/cessService0:58(24381): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+I/ActivityManager(  667): Start proc 24381:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:58/u0i127 for bound-service {com.google.android.gms/org.chromium.content.app.SandboxedProcessService0:58}
+D/nativeloader(24381): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+D/ApplicationLoaders(24381): Returning zygote-cached class loader: /system/framework/android.test.base.jar
+D/ApplicationLoaders(24381): Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+W/servicemanager(    0): Isolated app with UID 99127 requested 'network_management', but the service is not allowed for isolated apps.
+W/servicemanager(    0): Isolated app with UID 99127 requested 'connectivity', but the service is not allowed for isolated apps.
+E/ActivityThread(24381): ConnectivityService is null in handleBindApplication!
+I/cr_WebViewApkApp(24381): version=145.0.7632.218 (763221809) minSdkVersion=29 processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:58 splits=<none>
+I/cr_ChildProcessService(24381): Creating new ChildProcessService pid=24381
+W/servicemanager(    0): Isolated app with UID 99127 requested 'content_capture', but the service is not allowed for isolated apps.
+I/cr_LibraryLoader(24381): Successfully loaded native library
+I/cr_CachingUmaRecorder(24381): Flushed 2 samples from 2 histograms, 0 samples were dropped.
+W/chromium(24381): [WARNING:content/child/runtime_features.cc:564] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+W/chromium(24381): [WARNING:content/child/runtime_features.cc:589] Topics cannot be enabled in this configuration. Use --enable-features=BrowsingTopics in addition.
+W/chromium(24381): [WARNING:content/child/runtime_features.cc:610] SharedStorage cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI in addition.
+I/APM_AudioPolicyManager(  521): getNewOutputDevices io 13 recent device override {AUDIO_DEVICE_OUT_SPEAKER, @:}
+V/GrammaticalInflectionUtils(  667): AttributionSource: AttributionSource { uid = 99128, packageName = null, attributionTag = null, token = android.os.Binder@9cfe677, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+E/chromium( 1552): [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -101
+D/Zygote  ( 1008): Forked child process 24403
+I/libprocessgroup(  667): Created cgroup /sys/fs/cgroup/apps/uid_99128
+I/libprocessgroup(  667): Created cgroup /sys/fs/cgroup/apps/uid_99128/pid_24403
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0616537e7->1.0616562e7 ip=6.47583824537233e2081 ep=4.06692728516553e7 bigE=29 t=9967068
+I/Zygote  (24403): Process 24403 created for com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1
+I/ocessService0:1(24403): Using generational CollectorTypeCMC GC.
+W/ocessService0:1(24403): Unexpected CPU variant for x86: x86_64.
+W/ocessService0:1(24403): Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+E/chromium(24086): [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+D/nativeloader(24403): Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+I/ActivityManager(  667): Start proc 24403:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1/u0i128 for bound-service {com.oreki.antimatterdimensions/org.chromium.content.app.SandboxedProcessService0:1}
+E/chromium( 1552): [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+D/ApplicationLoaders(24403): Returning zygote-cached class loader: /system/framework/android.test.base.jar
+D/ApplicationLoaders(24403): Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+W/servicemanager(    0): Isolated app with UID 99128 requested 'network_management', but the service is not allowed for isolated apps.
+W/servicemanager(    0): Isolated app with UID 99128 requested 'connectivity', but the service is not allowed for isolated apps.
+E/ActivityThread(24403): ConnectivityService is null in handleBindApplication!
+I/cr_WebViewApkApp(24403): version=145.0.7632.218 (763221809) minSdkVersion=29 processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1 splits=<none>
+W/servicemanager(    0): Isolated app with UID 99128 requested 'content_capture', but the service is not allowed for isolated apps.
+I/cr_ChildProcessService(24403): Creating new ChildProcessService pid=24403
+I/cr_LibraryLoader(24403): Successfully loaded native library
+I/cr_CachingUmaRecorder(24403): Flushed 2 samples from 2 histograms, 0 samples were dropped.
+W/chromium(24403): [WARNING:content/child/runtime_features.cc:564] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+W/chromium(24403): [WARNING:content/child/runtime_features.cc:589] Topics cannot be enabled in this configuration. Use --enable-features=BrowsingTopics in addition.
+W/chromium(24403): [WARNING:content/child/runtime_features.cc:610] SharedStorage cannot be enabled in this configuration. Use --enable-features=SharedStorageAPI in addition.
+I/OREKI_CRUNCH(24086): 13
+I/OREKI_CRUNCH_DEC(24086): allow=false reason=eternity-grow
+I/OREKI_AU4C(24086): policy -> pause (eternity-grow)
+I/OREKI_AU4C(24086): managed interval 5.0 -> 60.0 (pause:eternity-grow)
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+E/chromium(24086): [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -100
+I/OREKI_EC_AUTO(24086): step: TRYBUY id=143 b=false a=false D=false tt=2.4802e4 unlocked=3
+I/OREKI_IPM_LV(24086): iup-diag all-one-time-bought ip=1.004311415777597e2098
+I/OREKI_ID_BUY(24086): enter tier=2
+I/OREKI_ID_BUY(24086): tier=2 before=349 after=349 unlocked=true
+D/ActivityManager(  667): freezing 4502 com.google.android.verifier
+D/InetDiagMessage(  667): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+D/InetDiagMessage(  667): Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+D/InetDiagMessage(  667): Destroyed live tcp sockets for uids={10157} in 1ms
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0617802e7->1.0617828e7 ip=2.93057856118578e2098 ep=4.06692728516553e7 bigE=29 t=9968083
+D/ActivityManager(  667): freezing 1809 com.android.keychain
+D/ActivityManager(  667): freezing 1121 com.android.settings
+D/ActivityManager(  667): freezing 2604 com.android.dynsystem:dynsystem
+D/ActivityManager(  667): freezing 2577 com.android.dynsystem
+D/ActivityManager(  667): freezing 2121 com.android.localtransport
+I/OREKI_CRUNCH(24086): crunch detected inf=1.06188e7->1.0618827e7 ip=1.015592953750223e2099 ep=4.06692728516553e7 bigE=29 t=9969083
+D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+D/WifiClientModeImpl[10746:wlan0](  667): reported txKbps 12000 rxKbps 30000
+D/WifiDataStall(  667): tx tput in kbps: 37000
+D/WifiDataStall(  667): rx tput in kbps: 37000
+V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+I/AdbWifiNetworkMonitor(  667): Wi-Fi network available
+I/AdbWifiNetworkMonitor(  667): Received the same Wi-Fi SSID. Ignoring.
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+D/WifiScoreCard(  667): txRate: 5 txSpeed: 1
+D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed 1
+I/netd    (  460): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.07ms>
+D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=4.8, 0.0, 0.0 rx=4.4 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-976083769] score=100
+I/netd    (  460): setProcSysNet(4, 2, wlan0, ucast_solicit, 5) <0.03ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, ucast_solicit, 5) <0.01ms>
+D/IpClient/wlan0( 1032): interfaceLinkStateChanged: ifindex 15 up
+I/WifiService(  667): getWifiEnabledState uid=10189 state=3
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/NullBinder( 1226): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+I/WifiService(  667): getConnectionInfo uid=10210
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.Binder( 1226): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+V/WifiService(  667): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+V/WifiPermissionsUtil(  667): checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+V/WifiService(  667): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/netd    (  460): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+I/netd    (  460): setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.01ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.02ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.01ms>
+D/IpClient/wlan0( 1032): interfaceLinkStateChanged: ifindex 15 up
+D/android.hardware.audio@7.1-impl.ranchu(  473): threadLoop: entering standby, frames: 23722752
+D/android.hardware.audio@7.1-impl.ranchu(  473): ~TinyalsaSink: joining consumeThread
+D/android.hardware.audio@7.1-impl.ranchu(  473): consumeThread: exiting
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0619813e7->1.0619837e7 ip=7.46075937455814e2098 ep=4.06692728516553e7 bigE=29 t=9970094
+I/OREKI_CRUNCH_DEC(24086): allow=true reason=eternity-ip-jump
+I/OREKI_AU4C(24086): managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+I/OREKI_AU4C(24086): policy -> resume (eternity-ip-jump)
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+I/OREKI_SCHED(24086): gui-tick #5 gapMs=10000
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+I/OREKI_AUTO_BEAT(24086): gui-tick #5 gapMs=10000
+I/EDP_FRAME(24086): frame=2537 stage=break break=true canEt=true ep=4.06692728516553e7 gainEP=5.53948e6 bigE=29 inf=1.062034e7 ip=1.0951109156454e2098 db=2585.0 gal=157 justCrunch=false lastCrunch=9970571 modIntervalMs=10000 auto=true
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+I/OREKI_SCHED(24086): deny noop-retry-wait task=ec
+W/OREKI_ACHAUDIT(24086): MISMATCH id=35
+W/OREKI_ACHAUDIT(24086): MISMATCH id=51
+W/OREKI_ACHAUDIT(24086): MISMATCH id=114
+W/OREKI_ACHAUDIT(24086): MISMATCH id=115
+W/OREKI_ACHAUDIT(24086): MISMATCH id=136
+W/OREKI_ACHAUDIT(24086): MISMATCH id=141
+W/OREKI_ACHAUDIT(24086): MISMATCH id=144
+W/OREKI_ACHAUDIT(24086): MISMATCH id=174
+W/OREKI_ACHAUDIT(24086): MISMATCH id=176
+W/OREKI_ACHAUDIT(24086): MISMATCH id=186
+I/OREKI_ACHAUDIT(24086): DONE scanned=144 unlocked=83 mismatch=10 used=0
+I/OREKI_GATE(24086): GATE brake=true g=true c=true b=true mult=10000.0 rt=1.559734100000041E7
+I/OREKI_ET_GATE(24086): allow=false reason=ep-gain-too-low broken=true canEt=true ep=4.06692728516553e7 gain=5.541832e6 bigE=29 lastCrunch=9970673
+I/OREKI_EC_AUTO(24086): step: TRYBUY id=143 b=false a=false D=false tt=2.4802e4 unlocked=3
+I/OREKI_ID_BUY(24086): enter tier=3
+I/OREKI_ID_BUY(24086): tier=3 before=262 after=262 unlocked=true
+W/atterdimensions(24086): Checksum mismatch for dex base.apk
+W/atterdimensions(24086): Could not add methods to the existing profiler. Clearing the profile data.
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0620825e7->1.0620851e7 ip=4.78726526454311e2098 ep=4.06692728516553e7 bigE=29 t=9971107
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0621829e7->1.0621854e7 ip=1.20415176447647e2099 ep=4.06692728516553e7 bigE=29 t=9972112
+I/OREKI_CRUNCH_DEC(24086): allow=false reason=eternity-grow
+I/OREKI_AU4C(24086): policy -> pause (eternity-grow)
+I/OREKI_AU4C(24086): managed interval 5.0 -> 60.0 (pause:eternity-grow)
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=2 freq=2437 RxLinkSpeed=2
+D/WifiClientModeImpl[10746:wlan0](  667): reported txKbps 12000 rxKbps 30000
+D/WifiDataStall(  667): tx tput in kbps: 37000
+D/WifiDataStall(  667): rx tput in kbps: 37000
+V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 2Mbps, Tx Link speed: 2Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+D/WifiScoreCard(  667): txRate: 3 txSpeed: 2
+D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=2 tx=2.2, 0.0, 0.0 rx=2.0 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-976080766] score=100
+I/AdbWifiNetworkMonitor(  667): Wi-Fi network available
+I/AdbWifiNetworkMonitor(  667): Received the same Wi-Fi SSID. Ignoring.
+I/WifiService(  667): getWifiEnabledState uid=10189 state=3
+I/WifiService(  667): getConnectionInfo uid=10210
+V/WifiService(  667): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+V/WifiPermissionsUtil(  667): checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+V/WifiService(  667): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/NullBinder( 1226): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+W/libbinder.Binder( 1226): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0623093e7->1.0623119e7 ip=2.43212907050181e2114 ep=4.06692728516553e7 bigE=29 t=9973127
+I/OREKI_EC_AUTO(24086): step: TRYBUY id=143 b=false a=false D=false tt=2.4802e4 unlocked=3
+I/OREKI_ID_BUY(24086): enter tier=4
+I/OREKI_ID_BUY(24086): tier=4 before=210 after=210 unlocked=true
+I/OREKI_CRUNCH(24086): crunch detected inf=1.062411e7->1.0624136e7 ip=1.38740878066458e2115 ep=4.06692728516553e7 bigE=29 t=9974145
+I/adbd    ( 2537): adbd service requested 'exec:screencap '-p''
+I/OREKI_CRUNCH(24086): 13
+W/libbinder.BackendUnifiedServiceManager(24426): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+W/libbinder.BpBinder(24426): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+W/libbinder.ProcessState(24426): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+W/skia    (  525): AGTM parsing failed flags.readFromStream(s) at 159
+I/servicemanager(    0): Caller(pid=24426,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+I/servicemanager(    0): Caller(pid=24426,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+I/servicemanager(    0): Caller(pid=24426,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0625123e7->1.0625148e7 ip=3.52107324036141e2115 ep=4.06692728516553e7 bigE=29 t=9975159
+D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=2 freq=2437 RxLinkSpeed=2
+D/WifiDataStall(  667): tx tput in kbps: 37000
+D/WifiDataStall(  667): rx tput in kbps: 37000
+V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 2Mbps, Tx Link speed: 2Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+D/WifiScoreCard(  667): txRate: 1 txSpeed: 2
+D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=2 tx=0.8, 0.0, 0.0 rx=0.7 bcn=0 [on:0 tx:0 rx:0 period:3008] from screen [on:0 period:-976077758] score=100
+I/netd    (  460): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.23ms>
+I/netd    (  460): setProcSysNet(4, 2, wlan0, ucast_solicit, 5) <0.02ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.10ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, ucast_solicit, 5) <0.02ms>
+D/IpClient/wlan0( 1032): interfaceLinkStateChanged: ifindex 15 up
+I/netd    (  460): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+I/netd    (  460): setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.02ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.01ms>
+I/netd    (  460): setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.01ms>
+D/IpClient/wlan0( 1032): interfaceLinkStateChanged: ifindex 15 up
+I/adbd    ( 2537): adbd service requested 'shell,v2:am broadcast -a com.android.cli.interact.instrumentation.GET_INFO'
+I/ActivityManager(  667): Broadcasting: Intent { act=com.android.cli.interact.instrumentation.GET_INFO flg=0x400000 }
+I/ActivityManager(  667): Enqueued broadcast Intent { act=com.android.cli.interact.instrumentation.GET_INFO flg=0x400000 }: 0
+I/ActivityManager(  667): Broadcast completed: result=-1, data="version: "1.1.16717390"
+I/ActivityManager(  667): socket_name: "com.android.cli.interact.server"
+I/ActivityManager(  667): "
+W/OREKI_ACHAUDIT(24086): MISMATCH id=35
+W/OREKI_ACHAUDIT(24086): MISMATCH id=51
+W/OREKI_ACHAUDIT(24086): MISMATCH id=114
+W/OREKI_ACHAUDIT(24086): MISMATCH id=115
+W/OREKI_ACHAUDIT(24086): MISMATCH id=136
+W/OREKI_ACHAUDIT(24086): MISMATCH id=141
+W/OREKI_ACHAUDIT(24086): MISMATCH id=144
+W/OREKI_ACHAUDIT(24086): MISMATCH id=174
+W/OREKI_ACHAUDIT(24086): MISMATCH id=176
+W/OREKI_ACHAUDIT(24086): MISMATCH id=186
+I/OREKI_ACHAUDIT(24086): DONE scanned=144 unlocked=83 mismatch=10 used=0
+I/OREKI_GATE(24086): GATE brake=true g=true c=true b=true mult=10000.0 rt=1.560235600000041E7
+I/OREKI_ET_GATE(24086): allow=false reason=ep-gain-too-low broken=true canEt=true ep=4.06692728516553e7 gain=5.8371e6 bigE=29 lastCrunch=9975688
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+D/AccessibilityManagerService(  667): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+D/AccessibilityManagerService(  667): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+I/OREKI_CRUNCH_DEC(24086): allow=true reason=eternity-ip-jump
+I/OREKI_AU4C(24086): managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+I/OREKI_AU4C(24086): policy -> resume (eternity-ip-jump)
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0626129e7->1.0626154e7 ip=5.63999372057367e2115 ep=4.06692728516553e7 bigE=29 t=9976165
+I/adbd    ( 2537): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'brief''
+I/logd    (    0): logdr: UID=0 GID=0 PID=24433 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

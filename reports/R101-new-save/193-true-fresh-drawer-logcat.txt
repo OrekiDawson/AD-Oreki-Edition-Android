@@ -1,0 +1,25 @@
+11-10 21:58:48.310 21730 21764 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+11-10 21:58:48.317 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=8.0e0 bigE=1 lastCrunch=0
+11-10 21:58:53.318 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.0e1 bigE=1 lastCrunch=8856945
+11-10 21:58:58.337 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.1e1 bigE=1 lastCrunch=8861964
+11-10 21:59:03.346 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.1e1 bigE=1 lastCrunch=8866973
+11-10 21:59:08.349 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=9.0e0 bigE=1 lastCrunch=8871975
+11-10 21:59:13.351 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=9.0e0 bigE=1 lastCrunch=8871999
+11-10 21:59:18.373 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.0e1 bigE=1 lastCrunch=8881999
+11-10 21:59:23.385 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.1e1 bigE=1 lastCrunch=8887012
+11-10 21:59:28.401 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.2e1 bigE=1 lastCrunch=8892028
+11-10 21:59:33.412 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.3e1 bigE=1 lastCrunch=8897039
+11-10 21:59:38.428 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.3e1 bigE=1 lastCrunch=8902055
+11-10 21:59:43.429 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8907055
+11-10 21:59:48.430 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8912057
+11-10 21:59:53.454 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8917081
+11-10 21:59:58.468 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8922095
+11-10 22:00:03.470 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8927096
+11-10 22:00:08.486 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8932113
+11-10 22:00:13.508 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.4e1 bigE=1 lastCrunch=8937135
+11-10 22:00:18.510 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.5e1 bigE=1 lastCrunch=8942137
+11-10 22:00:23.526 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.5e1 bigE=1 lastCrunch=8947153
+11-10 22:00:28.539 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.5e1 bigE=1 lastCrunch=8952166
+11-10 22:00:33.543 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.5e1 bigE=1 lastCrunch=8957170
+11-10 22:00:38.545 21730 21764 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.00044046851988e0 gain=1.6e1 bigE=1 lastCrunch=8962171
+11-10 22:01:19.929 22208 22272 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0

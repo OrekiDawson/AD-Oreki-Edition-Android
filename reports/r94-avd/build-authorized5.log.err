@@ -1,0 +1,16 @@
+'℃澘浼氳鐩栨湰娈碉紝鍗囩骇' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':releaseBudgetGate' (registered in script 'gradle\release-budget.gradle').
+> Process 'command 'python'' finished with non-zero exit value 4
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 42s

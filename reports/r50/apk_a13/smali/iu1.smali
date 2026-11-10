@@ -1,0 +1,17 @@
+.class public interface abstract Liu1;
+.super Ljava/lang/Object;
+.source "r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761"
+
+# interfaces
+.implements Landroid/os/IInterface;
+
+
+# virtual methods
+.method public abstract onDismissed(Landroid/os/Bundle;)V
+.end method
+
+.method public abstract onError(Landroid/os/Bundle;)V
+.end method
+
+.method public abstract onShown(Landroid/os/Bundle;)V
+.end method

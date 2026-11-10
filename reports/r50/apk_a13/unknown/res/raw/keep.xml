@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Resources looked up dynamically via Resources.getIdentifier(), invisible to
+    the resource shrinker's reference trace (see MainActivityAchievements.kt and
+    AchievementState.playID). Only consulted when shrinkResources is enabled.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/c*,@drawable/r*,@drawable/s*,@string/achievement_*_play_id" />

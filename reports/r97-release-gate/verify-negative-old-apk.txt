@@ -1,0 +1,17 @@
+基线: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321  期望 versionName=3.21.0 versionCode=30210000
+候选 APK: base_rebuild.apk  69,395,669 B  SHA-256 bf68e9272888a2bf5024d4263b5db300bff0cfe1682fbcb9d1f634cf87c563af
+FAIL  包名  — kajfosz.antimatterdimensions
+FAIL  versionCode  — 实际=30190000 期望=30210000
+FAIL  versionName  — 实际=3.19.0 期望=3.21.0
+PASS  研究注册表 ABI（基线 w63 具备 SparseIntArray/List/访问器）  — OK
+FAIL  签名校验进程退出码  — v2_rc=1 v3_rc=1
+FAIL  签名方案 v2+v3  — {'v1': False, 'v2': False, 'v3': False}
+INFO  签名方案明细: {'v1': False, 'v2': False, 'v3': False}（API 24-27 验 v2，API 28-32 验 v3）
+FAIL  签名证书未被更换  — 未解析到或不一致
+反编译候选 APK（-r 跳过资源、保留 dex->smali）...
+PASS  apktool 反编译 dex  — build/gradle-verify-apk
+FAIL  EC12 补丁在 dex 内（unscale 1 次且紧邻限时比较）  — 未找到唯一目标
+FAIL  OrekiInstantChallenge 类在 dex 内  — 缺失
+FAIL  Challenges.update 调用 tick()（恰好 1 处）  — count=0
+
+2/11 项通过

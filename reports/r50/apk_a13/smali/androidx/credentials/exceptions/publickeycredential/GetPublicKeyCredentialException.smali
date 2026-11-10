@@ -1,0 +1,57 @@
+.class public Landroidx/credentials/exceptions/publickeycredential/GetPublicKeyCredentialException;
+.super Landroidx/credentials/exceptions/GetCredentialException;
+.source "r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761"
+
+
+# static fields
+.field public static final synthetic b:I
+
+
+# instance fields
+.field private final type:Ljava/lang/String;
+
+
+# direct methods
+.method public constructor <init>(Ljava/lang/CharSequence;Ljava/lang/String;)V
+    .locals 0
+
+    .line 1
+    invoke-direct {p0, p1, p2}, Landroidx/credentials/exceptions/GetCredentialException;-><init>(Ljava/lang/CharSequence;Ljava/lang/String;)V
+
+    .line 2
+    .line 3
+    .line 4
+    iput-object p2, p0, Landroidx/credentials/exceptions/publickeycredential/GetPublicKeyCredentialException;->type:Ljava/lang/String;
+
+    .line 5
+    .line 6
+    invoke-virtual {p2}, Ljava/lang/String;->length()I
+
+    .line 7
+    .line 8
+    .line 9
+    move-result p0
+
+    .line 10
+    if-lez p0, :cond_0
+
+    .line 11
+    .line 12
+    return-void
+
+    .line 13
+    :cond_0
+    const-string p0, "type must not be empty"
+
+    .line 14
+    .line 15
+    invoke-static {p0}, Lrq1;->p(Ljava/lang/String;)V
+
+    .line 16
+    .line 17
+    .line 18
+    const/4 p0, 0x0
+
+    .line 19
+    throw p0
+.end method

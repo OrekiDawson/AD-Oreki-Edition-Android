@@ -1,0 +1,9 @@
+PASS  rclone: rclone v1.60.1-DEV
+PASS  OneDrive rclone remote: onedrive（config）；可用=['gdrive', 'onedrive']
+PASS  Google Drive rclone remote: gdrive（config）；可用=['gdrive', 'onedrive']
+PASS  OneDrive 目录: Apps/AD-Oreki-Edition（remote 内路径）
+PASS  Google Drive 目录: AD-Oreki-Edition（remote 内路径）
+PASS  GitHub CLI 登录: OrekiDawson/AD-Oreki-Edition-Android
+PASS  SSH 服务: active
+PASS  本地发布目录: /home/oreki/Releases/AD-Oreki-Edition
+结果：全部通过

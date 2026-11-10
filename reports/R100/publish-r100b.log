@@ -1,0 +1,9 @@
+[四渠道发布] APK=/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/release/反物质维度.apk version=3.21.0 sha256=f20fff30adf5ac82ef8dfa86f6c547046f37e7c7016f524e159bf77a78a86441
+[四渠道发布] 渠道=local,onedrive,gdrive,github 模式=publish
+[四渠道发布] 本地：原子覆盖 /home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk（不创建版本归档）
+[四渠道发布] OneDrive: rclone copyto /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/release/反物质维度.apk onedrive:Apps/AD-Oreki-Edition/反物质维度.apk --retries 3 --low-level-retries 10
+[四渠道发布] Google Drive: rclone copyto /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/release/反物质维度.apk gdrive:AD-Oreki-Edition/反物质维度.apk --retries 3 --low-level-retries 10
+[四渠道发布] github: gh release create android-update-3.21.0-f20fff30 /tmp/oreki-gh-asset-8z2kn9bh/AD-Oreki-Edition-3.21.0.apk /tmp/oreki-gh-asset-8z2kn9bh/AD-Oreki-Edition-3.21.0.apk.sha256 --repo OrekiDawson/AD-Oreki-Edition-Android --title R100：新档基础自动购买器解锁与永恒阶段真实判据 --notes-file /tmp/tmpswdouv58.md --target main
+[四渠道发布] github: android-update-3.21.0-f20fff30 已存在但无法读取远端 SHA-256，按不可覆盖规则停止该渠道
+[四渠道发布] github 失败：GitHub Release android-update-3.21.0-f20fff30 已存在，无法确认附件 SHA-256；不得覆盖历史 Release
+[四渠道发布] 部分渠道失败：github；已保留成功渠道，不重建 APK

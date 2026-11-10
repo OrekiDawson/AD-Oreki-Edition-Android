@@ -1,0 +1,45 @@
+.class abstract Lcom/google/android/gms/internal/play_billing/zziw;
+.super Ljava/lang/Object;
+.source "r8-map-id-e543bed884251449e1285744184756c8a56e436238788544d672e8a4cd6eb761"
+
+
+# instance fields
+.field final zza:Lsun/misc/Unsafe;
+
+
+# direct methods
+.method public constructor <init>(Lsun/misc/Unsafe;)V
+    .locals 0
+
+    .line 1
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 2
+    .line 3
+    .line 4
+    iput-object p1, p0, Lcom/google/android/gms/internal/play_billing/zziw;->zza:Lsun/misc/Unsafe;
+
+    .line 5
+    .line 6
+    return-void
+.end method
+
+
+# virtual methods
+.method public abstract zza(Ljava/lang/Object;J)D
+.end method
+
+.method public abstract zzb(Ljava/lang/Object;J)F
+.end method
+
+.method public abstract zzc(Ljava/lang/Object;JZ)V
+.end method
+
+.method public abstract zzd(Ljava/lang/Object;JD)V
+.end method
+
+.method public abstract zze(Ljava/lang/Object;JF)V
+.end method
+
+.method public abstract zzf(Ljava/lang/Object;J)Z
+.end method

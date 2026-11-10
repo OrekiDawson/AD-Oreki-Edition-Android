@@ -1,0 +1,83 @@
+Applications Graphics Acceleration Info:
+Uptime: 5466904 Realtime: 5466904
+
+** Graphics info for pid 13290 [com.oreki.antimatterdimensions] **
+
+Stats since: 5451563601347ns
+Total frames rendered: 340
+Janky frames: 231 (67.94%)
+Janky frames (legacy): 19 (5.59%)
+50th percentile: 16ms
+90th percentile: 16ms
+95th percentile: 22ms
+99th percentile: 32ms
+Number Missed Vsync: 0
+Number High input latency: 33
+Number Slow UI thread: 0
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 231
+Number Frame deadline missed: 231
+Number Frame deadline missed (legacy): 16
+HISTOGRAM: 5ms=0 6ms=0 7ms=0 8ms=6 9ms=36 10ms=16 11ms=6 12ms=5 13ms=5 14ms=7 15ms=4 16ms=232 17ms=2 18ms=3 19ms=1 20ms=0 21ms=0 22ms=1 23ms=2 24ms=0 25ms=0 26ms=0 27ms=0 28ms=1 29ms=1 30ms=0 31ms=2 32ms=9 34ms=0 36ms=0 38ms=0 40ms=0 42ms=0 44ms=0 46ms=0 48ms=0 53ms=0 57ms=0 61ms=0 65ms=0 69ms=0 73ms=0 77ms=0 81ms=0 85ms=0 89ms=0 93ms=0 97ms=0 101ms=0 105ms=0 109ms=0 113ms=0 117ms=0 121ms=0 125ms=0 129ms=0 133ms=0 150ms=1 200ms=0 250ms=0 300ms=0 350ms=0 400ms=0 450ms=0 500ms=0 550ms=0 600ms=0 650ms=0 700ms=0 750ms=0 800ms=0 850ms=0 900ms=0 950ms=0 1000ms=0 1050ms=0 1100ms=0 1150ms=0 1200ms=0 1250ms=0 1300ms=0 1350ms=0 1400ms=0 1450ms=0 1500ms=0 1550ms=0 1600ms=0 1650ms=0 1700ms=0 1750ms=0 1800ms=0 1850ms=0 1900ms=0 1950ms=0 2000ms=0 2050ms=0 2100ms=0 2150ms=0 2200ms=0 2250ms=0 2300ms=0 2350ms=0 2400ms=0 2450ms=0 2500ms=0 2550ms=0 2600ms=0 2650ms=0 2700ms=0 2750ms=0 2800ms=0 2850ms=0 2900ms=0 2950ms=0 3000ms=0 3050ms=0 3100ms=0 3150ms=0 3200ms=0 3250ms=0 3300ms=0 3350ms=0 3400ms=0 3450ms=0 3500ms=0 3550ms=0 3600ms=0 3650ms=0 3700ms=0 3750ms=0 3800ms=0 3850ms=0 3900ms=0 3950ms=0 4000ms=0 4050ms=0 4100ms=0 4150ms=0 4200ms=0 4250ms=0 4300ms=0 4350ms=0 4400ms=0 4450ms=0 4500ms=0 4550ms=0 4600ms=0 4650ms=0 4700ms=0 4750ms=0 4800ms=0 4850ms=0 4900ms=0 4950ms=0
+50th gpu percentile: 14ms
+90th gpu percentile: 15ms
+95th gpu percentile: 15ms
+99th gpu percentile: 4950ms
+GPU HISTOGRAM: 1ms=0 2ms=1 3ms=4 4ms=3 5ms=0 6ms=8 7ms=51 8ms=8 9ms=10 10ms=3 11ms=10 12ms=20 13ms=38 14ms=131 15ms=38 16ms=2 17ms=0 18ms=0 19ms=0 20ms=0 21ms=1 22ms=0 23ms=0 24ms=0 25ms=1 4950ms=11
+
+Pipeline=Skia (OpenGL)
+Memory policy:
+  Max surface area: 2592000
+  Max resource usage: 124.42MB (x48)
+  Background retention: 50% (altUiHidden = true)
+  GPU Context timeout: 10
+Contexts: 1 (stopped = 0)
+CPU Caches:
+  Glyph Cache: 739.34 KB (1 entry)
+  Masks: 31.42 KB (1 entry)
+  Glyph Count: 153 
+Total CPU memory usage:
+  789252 bytes, 770.75 KB (0.00 bytes is purgeable)
+GPU Caches:
+  Other:
+    Other: 89.83 KB (1 entry)
+    Buffer Object: 36.96 KB (7 entries)
+    StencilAttachment: 7.98 MB (9 entries)
+  Image:
+    Texture: 77.70 MB (11 entries)
+  Scratch:
+    RenderTarget: 9.89 MB (8 entries)
+    Buffer Object: 206.00 KB (6 entries)
+    Texture: 2.00 MB (2 entries)
+Layer Info:
+    GlLayer size 0x0
+  Layers Total           0.00 KB (numLayers = 1)
+Total GPU memory usage:
+  102646000 bytes, 97.89 MB (87.32 MB is purgeable)
+Pipeline Cache: inactiveTextureView: 1080x2272
+
+GraphicBufferAllocator buffers:
+            Handle |         Size |     W (Stride) x H | Layers |   Format |      Usage | Requestor
+    0x72a5a3a193b0 |      unknown | 1080 (   0) x 2400 |      1 |        1 | 0x     b00 | VRI[AppIcon_default]#0(BLAST Consumer)0
+    0x72a5a3a19570 |      unknown | 1080 (   0) x 2400 |      1 |        1 | 0x     b00 | VRI[AppIcon_default]#0(BLAST Consumer)0
+    0x72a5a3a1a140 |      unknown | 1080 (   0) x 2400 |      1 |        1 | 0x     b00 | VRI[AppIcon_default]#0(BLAST Consumer)0
+Total allocated by GraphicBufferAllocator (estimate): 0.00 KB
+Imported gralloc buffers:
++ name:VRI[AppIcon_default]#0(BLAST Consumer)0, id:577, size:10135.31KiB, w/h:1080x2400, usage: 0xb00, req fmt:1, fourcc/mod:875708993/0, dataspace: 0x8810000, compressed: false
++ name:VRI[AppIcon_default]#0(BLAST Consumer)0, id:576, size:10135.31KiB, w/h:1080x2400, usage: 0xb00, req fmt:1, fourcc/mod:875708993/0, dataspace: 0x0, compressed: false
++ name:VRI[AppIcon_default]#0(BLAST Consumer)0, id:575, size:10135.31KiB, w/h:1080x2400, usage: 0xb00, req fmt:1, fourcc/mod:875708993/0, dataspace: 0x8810000, compressed: false
+Total imported by gralloc: 30405.94KiB
+
+Profile data in ms:
+
+	com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default/android.view.ViewRootImpl@6b69ede (visibility=0)
+View hierarchy:
+
+  com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default/android.view.ViewRootImpl@6b69ede
+  7119 views, 9430.19 kB of render nodes
+
+
+Total ViewRootImpl   : 1
+Total attached Views : 7119
+Total RenderNode     : 9430.19 kB (used) / 10235.01 kB (capacity)
+

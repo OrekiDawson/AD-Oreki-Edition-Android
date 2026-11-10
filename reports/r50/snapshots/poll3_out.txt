@@ -1,0 +1,5 @@
+t=     0s  AMexp=919.0 AD1amt=1e777 AD8amt=420.0 AD8bought=420 AD1bought=1350 IPexp=5.0 inf=42 sacexp=733
+t=   180s  AMexp=920.0 AD1amt=1e777 AD8amt=420.0 AD8bought=420 AD1bought=1350 IPexp=5.0 inf=42 sacexp=733
+t=   360s  AMexp=920.0 AD1amt=1e777 AD8amt=420.0 AD8bought=420 AD1bought=1350 IPexp=5.0 inf=42 sacexp=733
+t=   540s  AMexp=920.0 AD1amt=1e778 AD8amt=420.0 AD8bought=420 AD1bought=1350 IPexp=5.0 inf=42 sacexp=733
+t=   721s  AMexp=919.0 AD1amt=1e778 AD8amt=420.0 AD8bought=420 AD1bought=1350 IPexp=5.0 inf=42 sacexp=733

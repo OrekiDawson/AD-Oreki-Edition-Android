@@ -1,0 +1,4 @@
+11-10 21:02:52.186 13290 13366 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:02:52.189 13290 13290 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 21:03:02.202 13290 13366 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:03:02.205 13290 13290 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true

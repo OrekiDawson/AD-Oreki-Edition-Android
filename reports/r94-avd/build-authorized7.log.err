@@ -1,0 +1,27 @@
+'℃澘浼氳鐩栨湰娈碉紝鍗囩骇' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+Traceback (most recent call last):
+  File "C:\Users\Oreki\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\build_mod.py", line 7347, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\Oreki\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\build_mod.py", line 7232, in main
+    verify_payload()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\Oreki\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\scripts\build_mod.py", line 2632, in verify_payload
+    assert _fcp.checks >= 1 and _fcp.fails == [], "[R74] 澶у潔缂╃瓥鐣ュす鍏锋湭閫氳繃"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [R74] 澶у潔缂╃瓥鐣ュす鍏锋湭閫氳繃
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':assembleRelease' (registered in build file 'build.gradle').
+> Process 'command 'python'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6m 43s

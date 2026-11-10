@@ -1,0 +1,250 @@
+I/OREKI_CRUNCH_DEC(24086): allow=true reason=eternity-ip-jump
+I/OREKI_AU4C(24086): managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+I/OREKI_AU4C(24086): policy -> resume (eternity-ip-jump)
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+D/WifiClientModeImpl[10746:wlan0](  667): reported txKbps 12000 rxKbps 30000
+D/WifiDataStall(  667): tx tput in kbps: 37000
+D/WifiDataStall(  667): rx tput in kbps: 37000
+V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+I/AdbWifiNetworkMonitor(  667): Wi-Fi network available
+I/AdbWifiNetworkMonitor(  667): Received the same Wi-Fi SSID. Ignoring.
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+D/WifiScoreCard(  667): txRate: 5 txSpeed: 6
+D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed 6
+D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=4.4, 0.0, 0.0 rx=4.4 bcn=0 [on:0 tx:0 rx:0 period:3002] from screen [on:0 period:-976119822] score=100
+I/WifiService(  667): getWifiEnabledState uid=10189 state=3
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/WifiService(  667): getConnectionInfo uid=10210
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+V/WifiService(  667): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/NullBinder( 1226): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+W/libbinder.Binder( 1226): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+V/WifiPermissionsUtil(  667): checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+V/WifiService(  667): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/OREKI_EC_AUTO(24086): step: TRYBUY id=143 b=false a=false D=false tt=2.4802e4 unlocked=3
+I/OREKI_SAC(24086): 1
+I/OREKI_SCHED(24086): act sacrifice @9933561ms gap=-1 taskGap=-1
+D/android.hardware.audio@7.1-impl.ranchu(  473): threadLoop: entering standby, frames: 23573696
+D/android.hardware.audio@7.1-impl.ranchu(  473): ~TinyalsaSink: joining consumeThread
+D/android.hardware.audio@7.1-impl.ranchu(  473): consumeThread: exiting
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0581609e7->1.0581634e7 ip=2.12949935050205e1558 ep=4.06692728516553e7 bigE=29 t=9933611
+D/AidlBufferPool(24086): bufferpool2 0x72a693a27308 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a262d8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+D/AidlBufferPoolAcc(24086): evictor expired: 2, evicted: 2
+D/AidlBufferPool(  607): bufferpool2 0x75705a4169d8 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a410b08 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+D/AidlBufferPoolAcc(  607): evictor expired: 4, evicted: 2
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0582623e7->1.0582648e7 ip=2.17138263114822e1558 ep=4.06692728516553e7 bigE=29 t=9934626
+D/ProfileInstaller(24086): Installing profile for com.oreki.antimatterdimensions
+I/netd    (  460): tetherGetStats() -> {[]} <0.39ms>
+D/AidlBufferPool(24086): bufferpool2 0x72a693a2b178 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a2b868 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 10/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a34328 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 11/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a2bab8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a304b8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 19/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a38d28 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 11/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a31738 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+D/AidlBufferPool(24086): bufferpool2 0x72a693a38638 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 12/412 (fetch/transfer)
+D/AidlBufferPoolAcc(24086): evictor expired: 8, evicted: 8
+D/AidlBufferPool(  607): bufferpool2 0x75705a41b3d8 : 0(0 size) total buffers - 0(0 size) used buffers - 195/207 (recycle/alloc) - 17/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a415e48 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a40ef48 : 0(0 size) total buffers - 0(0 size) used buffers - 196/207 (recycle/alloc) - 12/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a411fd8 : 0(0 size) total buffers - 0(0 size) used buffers - 200/207 (recycle/alloc) - 7/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a41a3a8 : 0(0 size) total buffers - 0(0 size) used buffers - 199/207 (recycle/alloc) - 10/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a40da78 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a411d88 : 0(0 size) total buffers - 0(0 size) used buffers - 199/207 (recycle/alloc) - 10/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a41bac8 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+D/AidlBufferPoolAcc(  607): evictor expired: 16, evicted: 8
+W/OREKI_ACHAUDIT(24086): MISMATCH id=35
+W/OREKI_ACHAUDIT(24086): MISMATCH id=51
+W/OREKI_ACHAUDIT(24086): MISMATCH id=114
+W/OREKI_ACHAUDIT(24086): MISMATCH id=115
+W/OREKI_ACHAUDIT(24086): MISMATCH id=136
+W/OREKI_ACHAUDIT(24086): MISMATCH id=141
+W/OREKI_ACHAUDIT(24086): MISMATCH id=144
+W/OREKI_ACHAUDIT(24086): MISMATCH id=174
+W/OREKI_ACHAUDIT(24086): MISMATCH id=176
+W/OREKI_ACHAUDIT(24086): MISMATCH id=186
+I/OREKI_ACHAUDIT(24086): DONE scanned=144 unlocked=83 mismatch=10 used=0
+I/OREKI_GATE(24086): GATE brake=true g=true c=true b=true mult=10000.0 rt=1.556223700000041E7
+I/OREKI_ET_GATE(24086): allow=false reason=ep-gain-too-low broken=true canEt=true ep=4.06692728516553e7 gain=7.63195e5 bigE=29 lastCrunch=9935568
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0583641e7->1.0583666e7 ip=1.22528398360532e1559 ep=4.06692728516553e7 bigE=29 t=9935644
+D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+D/WifiDataStall(  667): tx tput in kbps: 37000
+D/WifiDataStall(  667): rx tput in kbps: 37000
+V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+D/WifiScoreCard(  667): txRate: 2 txSpeed: 6
+D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=1.6, 0.0, 0.0 rx=1.6 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-976116819] score=100
+I/OREKI_CRUNCH(24086): crunch detected inf=1.0584652e7->1.0584677e7 ip=2.22650426735056e1559 ep=4.06692728516553e7 bigE=29 t=9936657
+I/adbd    ( 2537): adbd service requested 'exec:screencap '-p''
+I/OREKI_CRUNCH(24086): 13
+W/libbinder.BackendUnifiedServiceManager(24323): Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+W/libbinder.BpBinder(24323): Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+W/libbinder.ProcessState(24323): Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+W/skia    (  525): AGTM parsing failed flags.readFromStream(s) at 159
+I/servicemanager(    0): Caller(pid=24323,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+I/servicemanager(    0): Caller(pid=24323,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+I/servicemanager(    0): Caller(pid=24323,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+D/SatelliteController( 1048): isInCarrierRoamingNbIotNtn: satellite is disabled
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+D/TelephonyConfigUpdateInstallReceiver( 1048): getConfigParser: domain=satellite
+V/SatelliteController( 1048): satelliteConfigParser is not ready
+D/SatelliteController( 1048): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+D/SatelliteController( 1048): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectType: config: null
+D/TelephonyConfigUpdateInstallReceiver( 1048): getConfigParser: domain=satellite
+V/SatelliteController( 1048): satelliteConfigParser is not ready
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+D/TelephonyConfigUpdateInstallReceiver( 1048): getConfigParser: domain=satellite
+V/SatelliteController( 1048): satelliteConfigParser is not ready
+D/SatelliteController( 1048): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+D/TelephonyConfigUpdateInstallReceiver( 1048): getConfigParser: domain=satellite
+V/SatelliteController( 1048): satelliteConfigParser is not ready
+D/SatelliteController( 1048): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+D/SatelliteController( 1048): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectType: config: null
+D/TelephonyConfigUpdateInstallReceiver( 1048): getConfigParser: domain=satellite
+V/SatelliteController( 1048): satelliteConfigParser is not ready
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+D/SatelliteController( 1048): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+D/TelephonyConfigUpdateInstallReceiver( 1048): getConfigParser: domain=satellite
+V/SatelliteController( 1048): satelliteConfigParser is not ready
+D/SatelliteController( 1048): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+D/WifiNetworkSelector(  667): Current connected network: 0
+V/WifiConnectivityManager(  667): No full band scan because current network is sufficient
+V/WifiConnectivityManager(  667): schedulePeriodicScanTimer intervalMs 160000
+I/WifiScanningService(  667): Registering listener= com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@6ad2430 uid=1000 packageName=null workSource=WorkSource{1000}
+I/WifiScanningService(  667): start scan: ClientInfo[uid=1000, package=null, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@6ad2430] package null AttributionTag null
+I/WifiScanningService(  667): addSingleScanRequest: ClientInfo[uid=1000, package=null, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@6ad2430],WorkSource{1010}, ScanSettings {  type:HIGH ACCURACY band:unspecified ignoreLocationSettings:false period:0 reportEvents:3 numBssidsPerScan:0 maxScansToCache:0 rnrSetting:2 6GhzPscOnlyEnabled:false channels:[ 2437  ]  } 
+D/WifiScanningService(  667): replySucceeded onSuccess
+E/Nl80211Native(  667): getChannelsMhzForBand: Wiphy index not recorded for band 8
+E/Nl80211Native(  667): getChannelsMhzForBand: Wiphy index not recorded for band 16
+D/Nl80211Native(  667): Ignoring unsupported scan type 2
+I/Nl80211Proxy(  667): Sending Nl80211 message: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{56}, nlmsg_type{30()}, nlmsg_flags{5(NLM_F_REQUEST|NLM_F_ACK)}, nlmsg_seq{204}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{33}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{-32723}, nla_value{04000000}, }, StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }, StructNlAttr{ nla_len{12}, nla_type{-32724}, nla_value{0800000085090000}, }, StructNlAttr{ nla_len{8}, nla_type{158}, nla_value{00000000}, }]} }
+I/Nl80211Proxy(  667): Received NLMSG_ERROR with error 0 for message GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{56}, nlmsg_type{30()}, nlmsg_flags{5(NLM_F_REQUEST|NLM_F_ACK)}, nlmsg_seq{204}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{33}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{-32723}, nla_value{04000000}, }, StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }, StructNlAttr{ nla_len{12}, nla_type{-32724}, nla_value{0800000085090000}, }, StructNlAttr{ nla_len{8}, nla_type{158}, nla_value{00000000}, }]} }
+D/wpa_supplicant(  915): nl80211: Drv Event 33 (NL80211_CMD_TRIGGER_SCAN) received for wlan0
+D/wpa_supplicant(  915): wlan0: nl80211: Scan trigger
+D/wpa_supplicant(  915): wlan0: Event SCAN_STARTED (47) received
+D/wpa_supplicant(  915): wlan0: External program started a scan
+D/wpa_supplicant(  915): nl80211: Drv Event 34 (NL80211_CMD_NEW_SCAN_RESULTS) received for wlan0
+D/wpa_supplicant(  915): wlan0: nl80211: New scan results available
+D/wpa_supplicant(  915): nl80211: Scan probed for SSID ''
+D/wpa_supplicant(  915): nl80211: Scan included frequencies: 2437
+D/wpa_supplicant(  915): wlan0: Event SCAN_RESULTS (3) received
+D/Nl80211Native(  667): Received NL80211 broadcast: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{68}, nlmsg_type{30()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{34}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{1}, nla_value{00000000}, }, StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }, StructNlAttr{ nla_len{12}, nla_type{153}, nla_value{0100000000000000}, }, StructNlAttr{ nla_len{12}, nla_type{44}, nla_value{0800000085090000}, }, StructNlAttr{ nla_len{8}, nla_type{45}, nla_value{04000000}, }]} }
+D/wpa_supplicant(  915): nl80211: Received scan results (1 BSSes)
+D/WifiNative(  667): Scan result ready event
+D/wpa_supplicant(  915): nl80211: Scan results indicate BSS status with 02:15:b2:00:00:01 as associated
+D/wpa_supplicant(  915): wlan0: BSS: Start scan result update 66
+D/wpa_supplicant(  915): BSS: last_scan_res_used=1/32
+D/wpa_supplicant(  915): wlan0: New scan results available (own=0 ext=1)
+D/wpa_supplicant(  915): wlan0: Do not use results from externally requested scan operation for network selection
+I/Nl80211Proxy(  667): Sending Nl80211 message: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{20}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{205}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{5}, version{1}, reserved{0} }}, attributes{[]} }
+I/Nl80211Proxy(  667): Received NLMSG_DONE for message GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{20}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{205}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{5}, version{1}, reserved{0} }}, attributes{[]} }
+W/Nl80211Utils(  667): Malformed NEW_INTERFACE response: missing attributes
+I/Nl80211Proxy(  667): Sending Nl80211 message: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{28}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{206}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{32}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }]} }
+I/Nl80211Proxy(  667): Received NLMSG_DONE for message GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{28}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{206}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{32}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }]} }
+D/WifiNative(  667): get 1 scan results from nl80211
+I/WifiScanningService(  667): singleScanResults: ClientInfo[uid=1000, package=null, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@6ad2430],results=1
+I/WifiScanningService(  667): singleScanResults listener: ClientInfo[uid=1000, package=android, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@b311319],results=1
+I/WifiScanningService(  667): singleScanResults listener: ClientInfo[uid=1000, package=android, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@945a8bc],results=1
+I/WifiScanningService(  667): singleScanResults listener: ClientInfo[uid=1000, package=android, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@4753ff2],results=1
+I/WifiScanningService(  667): singleScanResults listener: ClientInfo[uid=10210, package=com.google.android.gms, attributionTag=network_location_provider, android.net.wifi.IWifiScannerListener$Stub$Proxy@16c9393],results=1
+D/WifiScanRequestProxy(  667): Scan results received
+D/WifiScanRequestProxy(  667): Received 1 scan results
+I/WifiScanningService(  667): singleScanResults listener: ClientInfo[uid=10210, package=com.google.android.gms, attributionTag=fused_location_provider, android.net.wifi.IWifiScannerListener$Stub$Proxy@c94f049],results=1
+I/WifiScanningService(  667): Unregistering listener= com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@6ad2430 uid=1000 packageName=null workSource=WorkSource{1000}
+I/WifiScanner( 1226): onFullResults
+I/WifiScanner( 1226): onFullResults
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+V/WifiConnectivityManager(  667): AllSingleScanListener onResults: start network selection
+V/WifiConfigManager(  667): getSavedNetworkFromScanResult Found "AndroidWifi"NONE for AndroidWifi[[ESS]]
+D/WifiNetworkSelector(  667): Current connected network: 0
+D/WifiNetworkSelector(  667): wlan0: Current connected network already sufficient. Skip network selection.
+V/WifiLastResortWatchdog(  667): updateAvailableNetworks: size = 0
+V/WifiLastResortWatchdog(  667): mWatchdogFeatureEnabled: true
+V/WifiLastResortWatchdog(  667): mWatchdogAllowedToTrigger: true
+V/WifiLastResortWatchdog(  667): mRecentAvailableNetworks: 0
+V/WifiLastResortWatchdog(  667): mSsidFailureCount:
+V/WifiConnectivityManager(  667): AllSingleScanListener:  No candidates
+I/OREKI_CRUNCH_DEC(24086): allow=false reason=eternity-grow
+I/OREKI_AU4C(24086): policy -> pause (eternity-grow)
+I/OREKI_AU4C(24086): managed interval 5.0 -> 60.0 (pause:eternity-grow)
+I/OREKI_GUI(24086): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+I/OREKI_GUI(24086): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+I/adbd    ( 2537): adbd service requested 'shell,v2:am broadcast -a com.android.cli.interact.instrumentation.GET_INFO'
+I/ActivityManager(  667): Broadcasting: Intent { act=com.android.cli.interact.instrumentation.GET_INFO flg=0x400000 }
+I/ActivityManager(  667): Enqueued broadcast Intent { act=com.android.cli.interact.instrumentation.GET_INFO flg=0x400000 }: 0
+I/ActivityManager(  667): Broadcast completed: result=-1, data="version: "1.1.16717390"
+I/ActivityManager(  667): socket_name: "com.android.cli.interact.server"
+I/ActivityManager(  667): "
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+D/AccessibilityManagerService(  667): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+D/AccessibilityManagerService(  667): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+D/AccessibilitySourceService( 1310): enabled a11y services count 0
+D/AccessibilitySourceService( 1310): a11y source sending 0 issue to sc
+D/SafetySourceDataValidat(  667): No cert check requested for package com.google.android.permissioncontroller
+D/AccessibilitySourceService( 1310): enabled a11y services count 0
+D/AccessibilitySourceService( 1310): a11y source sending 0 issue to sc
+D/SafetySourceDataValidat(  667): No cert check requested for package com.google.android.permissioncontroller
+I/OREKI_CRUNCH(24086): crunch detected inf=1.058591e7->1.0585936e7 ip=1.2357245690591e1739 ep=4.06692728516553e7 bigE=29 t=9937667
+I/adbd    ( 2537): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'brief''
+I/logd    (    0): logdr: UID=0 GID=0 PID=24331 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

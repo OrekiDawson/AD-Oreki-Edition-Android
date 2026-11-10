@@ -1,0 +1,19 @@
+11-10 21:03:52.551 13757 13793 I OREKI_CRUNCH: crunch detected inf=3.7e1->3.8e1 ip=8.421e3 ep=0.0e0 bigE=0 t=5556178
+11-10 21:03:55.864 13757 13793 I OREKI_CRUNCH: crunch detected inf=3.8e1->3.9e1 ip=1.0407e4 ep=0.0e0 bigE=0 t=5559491
+11-10 21:03:56.444 13757 13793 I OREKI_CRUNCH: 9
+11-10 21:03:57.873 13757 13793 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 21:03:57.876 13757 13757 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 21:03:57.922 13757 13793 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 21:03:57.926 13757 13757 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 21:03:59.191 13757 13793 I OREKI_CRUNCH: crunch detected inf=3.9e1->4.0e1 ip=1.2315e4 ep=0.0e0 bigE=0 t=5562818
+11-10 21:04:02.421 13757 13793 I OREKI_CRUNCH: crunch detected inf=4.0e1->4.1e1 ip=1.4267e4 ep=0.0e0 bigE=0 t=5566047
+11-10 21:04:04.076 13757 13793 I OREKI_CRUNCH: 9
+11-10 21:04:05.652 13757 13793 I OREKI_CRUNCH: crunch detected inf=4.1e1->4.2e1 ip=1.6269e4 ep=0.0e0 bigE=0 t=5569279
+11-10 21:04:07.883 13757 13793 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 21:04:07.891 13757 13757 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 21:04:07.934 13757 13793 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=false dirty=false force=true
+11-10 21:04:07.940 13757 13757 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 21:04:08.869 13757 13793 I OREKI_CRUNCH: crunch detected inf=4.2e1->4.3e1 ip=1.8055e4 ep=0.0e0 bigE=0 t=5572496
+11-10 21:04:11.686 13757 13793 I OREKI_CRUNCH: 9
+11-10 21:04:11.991 13757 13793 I OREKI_CRUNCH: crunch detected inf=4.3e1->4.4e1 ip=1.9999e4 ep=0.0e0 bigE=0 t=5575618
+11-10 21:04:15.107 13757 13793 I OREKI_CRUNCH: crunch detected inf=4.4e1->4.5e1 ip=2.1997e4 ep=0.0e0 bigE=0 t=5578734

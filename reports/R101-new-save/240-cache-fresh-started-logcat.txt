@@ -1,0 +1,402 @@
+--------- beginning of system
+11-10 22:54:37.571 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 22:54:37.571 W/MagnificationConnectionManager(  677): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+--------- beginning of main
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 I/AiAiEcho( 1640): Settings changed for uri: content://settings/secure/accessibility_enabled
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 I/AiAiEcho( 1640): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 I/AiAiEcho( 1640): EchoTargets: 
+11-10 22:54:37.572 I/AiAiEcho( 1640): Filtered by AiAi flag check: 
+11-10 22:54:37.572 I/AiAiEcho( 1640): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:37.572 D/BatterySaverPolicy(  677): accessibility changed to true, updating policy.
+11-10 22:54:37.572 I/AiAiEcho( 1640): #remoteViewsTwiddler: feature disabled.
+11-10 22:54:37.572 I/AiAiEcho( 1640): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-10 22:54:37.572 I/AiAiEcho( 1640): EchoTargets: 
+11-10 22:54:37.572 I/AiAiEcho( 1640): Filtered by AiAi flag check: 
+11-10 22:54:37.572 I/AiAiEcho( 1640): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-10 22:54:37.573 I/AiAiEcho( 1640): #remoteViewsTwiddler: feature disabled.
+11-10 22:54:37.573 I/AiAiEcho( 1640): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-10 22:54:37.573 I/AiAiEcho( 1640): EchoTargets: 
+11-10 22:54:37.573 I/AiAiEcho( 1640): Filtered by AiAi flag check: 
+11-10 22:54:37.573 I/AiAiEcho( 1640): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-10 22:54:37.573 I/AiAiEcho( 1640): #remoteViewsTwiddler: feature disabled.
+11-10 22:54:37.573 I/AiAiEcho( 1640): #postPredictionTargets: Sending updates to UISurface ambientcue with targets# 0 (types=[])
+11-10 22:54:37.573 I/AiAiEcho( 1640): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-10 22:54:37.573 I/AiAiEcho( 1640): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-10 22:54:37.574 I/AmbientCueRepository(  939): Receiving SmartSpace targets # 0
+11-10 22:54:37.575 D/AccessibilityManagerService(  677): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+11-10 22:54:37.747 I/OREKI_EC_DIAG( 3791): unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-10 22:54:37.822 I/OREKI_SCHED( 3791): gui-tick #13 gapMs=10000
+11-10 22:54:37.822 I/OREKI_GUI( 3791): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-10 22:54:37.822 I/OREKI_AUTO_BEAT( 3791): gui-tick #13 gapMs=10000
+11-10 22:54:37.822 I/EDP_FRAME( 3791): frame=4734 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=0.0e0 ip=0.0e0 db=38.0 gal=2 justCrunch=false lastCrunch=0 modIntervalMs=10000 auto=true
+11-10 22:54:37.824 I/OREKI_GUI( 3791): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=21
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=35
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=37
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=54
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=96
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=107
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=114
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=115
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=116
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=117
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=136
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=141
+11-10 22:54:37.926 W/OREKI_ACHAUDIT( 3791): MISMATCH id=144
+11-10 22:54:37.927 W/OREKI_ACHAUDIT( 3791): MISMATCH id=156
+11-10 22:54:37.927 W/OREKI_ACHAUDIT( 3791): MISMATCH id=174
+11-10 22:54:37.927 W/OREKI_ACHAUDIT( 3791): MISMATCH id=176
+11-10 22:54:37.927 W/OREKI_ACHAUDIT( 3791): MISMATCH id=186
+11-10 22:54:37.927 I/OREKI_ACHAUDIT( 3791): DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-10 22:54:37.927 I/OREKI_GATE( 3791): GATE brake=false g=true c=false b=false mult=10000.0 rt=120305.0
+11-10 22:54:39.488 I/OREKI_CRUNCH( 3791): 9
+11-10 22:54:39.663 I/Ads     ( 3791): Ad failed to load : 0
+11-10 22:54:39.877 I/netd    (  463): tetherGetStats() -> {[]} <0.34ms>
+11-10 22:54:39.989 D/WifiClientModeImpl[11358:wlan0](  677): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=2 freq=2437 RxLinkSpeed=2
+11-10 22:54:39.989 D/WifiClientModeImpl[11358:wlan0](  677): reported txKbps 12000 rxKbps 30000
+11-10 22:54:39.989 D/WifiDataStall(  677): tx tput in kbps: 37000
+11-10 22:54:39.989 D/WifiDataStall(  677): rx tput in kbps: 37000
+11-10 22:54:39.989 V/WifiConfigManager(  677): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 22:54:39.989 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:39.989 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:39.989 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:39.989 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:39.990 I/AdbWifiNetworkMonitor(  677): Wi-Fi network available
+11-10 22:54:39.990 I/AdbWifiNetworkMonitor(  677): Received the same Wi-Fi SSID. Ignoring.
+11-10 22:54:39.990 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:39.990 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:39.990 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:39.990 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:39.991 I/HalDevMgr(  677): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 22:54:39.991 I/WifiService(  677): getWifiEnabledState uid=10189 state=3
+11-10 22:54:39.991 D/WifiScoreCard(  677): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 2Mbps, Tx Link speed: 2Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 22:54:39.991 D/WifiScoreCard(  677): txRate: 2 txSpeed: 2
+11-10 22:54:39.991 D/WifiScoreCard(  677): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 22:54:39.991 D/WifiClientModeImpl[11358:wlan0](  677):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=2 tx=1.5, 0.0, 0.0 rx=1.3 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-973849737] score=100
+11-10 22:54:39.992 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:39.992 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:39.992 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:39.992 I/WifiService(  677): getConnectionInfo uid=10210
+11-10 22:54:39.993 V/WifiService(  677): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 22:54:39.993 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:39.993 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:39.993 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:39.993 V/WifiPermissionsUtil(  677): checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 22:54:39.993 I/NullBinder( 1226): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 22:54:39.993 W/libbinder.Binder( 1226): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 22:54:39.994 V/WifiService(  677): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 22:54:40.167 I/ActivityManager(  677): Killing 4278:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:1/u0a236i6 (adj 0): isolated not needed
+11-10 22:54:40.175 I/Zygote  (  999): Process 4278 exited cleanly (0)
+11-10 22:54:40.176 I/libprocessgroup(  677): Removed cgroup /sys/fs/cgroup/apps/uid_99006/pid_4278
+11-10 22:54:40.176 I/libprocessgroup(  677): Removed cgroup /sys/fs/cgroup/apps/uid_99006
+11-10 22:54:40.179 E/chromium( 1564): [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -101
+11-10 22:54:40.680 E/chromium( 1564): [ERROR:net/socket/ssl_client_socket_impl.cc:918] handshake failed; returned -1, SSL error code 1, net_error -101
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=21
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=35
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=37
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=54
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=96
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=107
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=114
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=115
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=116
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=117
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=136
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=141
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=144
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=156
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=174
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=176
+11-10 22:54:42.949 W/OREKI_ACHAUDIT( 3791): MISMATCH id=186
+11-10 22:54:42.949 I/OREKI_ACHAUDIT( 3791): DONE scanned=144 unlocked=127 mismatch=17 used=0
+11-10 22:54:42.949 I/OREKI_GATE( 3791): GATE brake=false g=true c=false b=false mult=10000.0 rt=125327.0
+11-10 22:54:42.995 D/WifiClientModeImpl[11358:wlan0](  677): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-10 22:54:42.996 D/WifiClientModeImpl[11358:wlan0](  677): reported txKbps 12000 rxKbps 30000
+11-10 22:54:42.996 D/WifiDataStall(  677): tx tput in kbps: 37000
+11-10 22:54:42.996 D/WifiDataStall(  677): rx tput in kbps: 37000
+11-10 22:54:42.996 V/WifiConfigManager(  677): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 22:54:42.996 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:42.996 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:42.996 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:42.996 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:42.996 I/AdbWifiNetworkMonitor(  677): Wi-Fi network available
+11-10 22:54:42.996 I/AdbWifiNetworkMonitor(  677): Received the same Wi-Fi SSID. Ignoring.
+11-10 22:54:42.997 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:42.997 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:42.997 D/WifiThroughputPredictor(  677):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 22:54:42.997 D/WifiThroughputPredictor(  677):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 22:54:42.998 I/HalDevMgr(  677): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 22:54:42.998 D/WifiScoreCard(  677): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 22:54:42.998 D/WifiScoreCard(  677): txRate: 2 txSpeed: 1
+11-10 22:54:42.998 D/WifiScoreCard(  677): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 22:54:42.998 D/WifiClientModeImpl[11358:wlan0](  677):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=1.4, 0.0, 0.0 rx=1.5 bcn=0 [on:0 tx:0 rx:0 period:3007] from screen [on:0 period:-973846730] score=100
+11-10 22:54:42.998 I/netd    (  463): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.05ms>
+11-10 22:54:42.998 I/netd    (  463): setProcSysNet(4, 2, wlan0, ucast_solicit, 5) <0.11ms>
+11-10 22:54:42.999 I/netd    (  463): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+11-10 22:54:42.999 I/WifiService(  677): getConnectionInfo uid=10210
+11-10 22:54:42.999 V/WifiService(  677): Clearing REDACT_FOR_LOCAL_MAC_ADDRESS for com.google.android.gms(uid=10210)
+11-10 22:54:42.999 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:42.999 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:42.999 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:42.999 V/WifiPermissionsUtil(  677): checkCallersLocationPermission(com.google.android.gms): ok because uid 10210 has app-op android:fine_location
+11-10 22:54:42.999 V/WifiService(  677): Clearing REDACT_FOR_ACCESS_FINE_LOCATION for com.google.android.gms(uid=10210)
+11-10 22:54:42.999 I/WifiService(  677): getWifiEnabledState uid=10189 state=3
+11-10 22:54:42.999 I/netd    (  463): setProcSysNet(6, 2, wlan0, ucast_solicit, 5) <0.01ms>
+11-10 22:54:43.000 D/IpClient/wlan0( 1020): interfaceLinkStateChanged: ifindex 15 up
+11-10 22:54:43.001 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:43.001 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:43.001 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:43.002 I/netd    (  463): setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+11-10 22:54:43.002 I/netd    (  463): setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.01ms>
+11-10 22:54:43.002 I/netd    (  463): setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.02ms>
+11-10 22:54:43.002 I/netd    (  463): setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.01ms>
+11-10 22:54:43.002 D/IpClient/wlan0( 1020): interfaceLinkStateChanged: ifindex 15 up
+11-10 22:54:43.002 I/NullBinder( 1226): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+11-10 22:54:43.002 W/libbinder.Binder( 1226): Large reply transaction of 1056768 bytes, interface descriptor , function: UNKNOWN_FUNCTION_NAME, code: 1, flags: 17
+11-10 22:54:43.015 W/InputChannel-JNI(  677): Channel already disposed.
+11-10 22:54:43.016 D/InsetsController( 3791): Setting requestedVisibleTypes to 496 (was 503)
+11-10 22:54:43.026 I/OREKI_CRUNCH( 3791): crunch detected inf=0.0e0->1.0e0 ip=2.0e0 ep=0.0e0 bigE=0 t=235645
+11-10 22:54:43.026 I/OREKI_CRUNCH_DEC( 3791): allow=true reason=pre-break-ip
+11-10 22:54:43.026 I/OREKI_ET_GATE( 3791): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=235645
+11-10 22:54:43.026 I/OREKI_SCHED( 3791): noop breakUpgrades
+11-10 22:54:43.026 I/OREKI_IUP_SIZE( 3791): 17
+11-10 22:54:43.026 I/OREKI_IUP_B0( 3791): 0
+11-10 22:54:43.026 I/OREKI_SCHED( 3791): act infinityUpgrades @235646ms gap=-1 taskGap=-1
+11-10 22:54:43.027 I/OREKI_SCHED( 3791): deny frame-held task=breakShop
+11-10 22:54:43.027 I/OREKI_GOAL( 3791): stage=16 打破无限前阶段 goal=break-infinity unknownLeaf=0 degraded=0 s0=0
+11-10 22:54:43.027 I/OREKI_GUI_STAGE( 3791): GUI_GATE_CHANGED from=before-first-infinity to=infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=1
+11-10 22:54:43.027 I/OREKI_GUI( 3791): STATE_CHANGED source=refreshOriginalCaches phase=infinity
+11-10 22:54:43.027 I/OREKI_GUI( 3791): GUI_REFRESH_POSTED target=autobuyers+statistics phase=infinity phaseChanged=true dirty=false force=false
+11-10 22:54:43.030 D/WindowOnBackDispatcher( 3791): setTopOnBackInvokedCallback (unwrapped): android.app.Dialog$$ExternalSyntheticLambda2@d46abc1
+11-10 22:54:43.030 D/CoreBackPreview(  677): Window{c3853a1 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@dde84b4, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+11-10 22:54:43.040 D/WindowManager(  677): setClientSurface Surface(name=VRI-com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default#163)/@0xb6588dd for c3853a1 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default
+11-10 22:54:43.041 I/Surface ( 3791): Creating surface for consumer unnamed-3791-2 with slotExpansion=1 for 64 slots
+11-10 22:54:43.041 I/Surface ( 3791): Creating surface for consumer VRI[AppIcon_default]#1(BLAST Consumer)1 with slotExpansion=1 for 64 slots
+11-10 22:54:43.105 I/OREKI_GUI( 3791): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-10 22:54:43.184 I/ImeTracker(  677): com.oreki.antimatterdimensions:5147eb93: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false userId 0 displayId 0
+11-10 22:54:43.185 D/InsetsController( 3791): hide(ime())
+11-10 22:54:43.185 I/ImeTracker( 3791): com.oreki.antimatterdimensions:5147eb93: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+11-10 22:54:43.186 W/InputChannel-JNI(  677): Channel already disposed.
+11-10 22:54:43.187 I/GoogleInputMethodService( 1539): GoogleInputMethodService.onFinishInput():2259 
+11-10 22:54:43.188 I/ImeTracker(  677): system_server:d4244f01: onRequestHide at ORIGIN_SERVER reason IME_REQUESTED_CHANGED_LISTENER fromUser false displayId 0
+11-10 22:54:43.189 I/Module  ( 1539): DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 0, locked = false
+11-10 22:54:43.189 I/GoogleInputMethodService( 1539): GoogleInputMethodService.onStartInput():1446 onStartInput(EditorInfo{EditorInfo{packageName=com.oreki.antimatterdimensions, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-10 22:54:43.189 W/AndroidIME( 1539): LatinIMEBase.updateInputViewCoverNavigation():327 Null input view, cannot update padding!
+11-10 22:54:43.190 I/Module  ( 1539): DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+11-10 22:54:43.190 I/ShortcutsDataManager( 1539): AbstractContentDataManager.startImportContentTask():241 startImportContentTask()
+11-10 22:54:43.190 I/ImeTracker(  677): system_server:d4244f01: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-10 22:54:43.191 I/ShortcutsDataManager( 1539): AbstractContentDataManager$ImportContentTask.doInBackground():257 doInBackground()
+11-10 22:54:43.191 W/PackageConfigPersister(  677): App-specific configuration not found for packageName: com.oreki.antimatterdimensions and userId: 0
+11-10 22:54:43.192 I/PersonalDictionaryDataHandler( 1539): PersonalDictionaryDataHandler.beginProcess():114 LanguageTags = [en-US]
+11-10 22:54:43.192 D/OomAdjuster(  677): Not killing cached processes
+11-10 22:54:43.193 D/ActivityManager(  677): sync unfroze 1391 android.process.acore for 7
+11-10 22:54:43.207 I/netd    (  463): tetherGetStats() -> {[]} <0.40ms>
+11-10 22:54:43.211 I/ShortcutsDataManager( 1539): AbstractContentDataManager.importRecords():348 importRecords() : Success : Count = 0
+11-10 22:54:43.213 I/ShortcutsDataManager( 1539): AbstractContentDataManager.importContentData():297 importContentData() : Ending import process
+11-10 22:54:43.216 W/SP      ( 1539): File ref is being finalized but wasn't closed, file: en_cpu_272adaa02e4841a0e8fe0d7f95b77421[4]
+11-10 22:54:43.217 W/SP      ( 1539): File ref is being finalized but wasn't closed, file: en_cpu_272adaa02e4841a0e8fe0d7f95b77421[4]
+11-10 22:54:43.217 W/SP      ( 1539): File ref is being finalized but wasn't closed, file: en_cpu_272adaa02e4841a0e8fe0d7f95b77421[4]
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.219 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): AutoCloseableTracker.drainReferenceQueue():98 Cleanup AutoCloseable object that missing the close() call
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): lno
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnl.<init>(PG:18)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnt.<init>(PG:1)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at lnr.<init>(PG:6)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:40)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.google.android.keyboard.client.delight5.LanguageIdentifier.<init>(PG:50)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.inputmethod.latin.spellcheck.AndroidSpellCheckerService.createSession(PG:32)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.service.textservice.SpellCheckerService$SpellCheckerServiceBinder.getISpellCheckerSession(SpellCheckerService.java:361)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at com.android.internal.textservice.ISpellCheckerService$Stub.onTransact(ISpellCheckerService.java:110)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-10 22:54:43.220 W/AutoCloseableTracker( 1539): 	at android.os.Binder.execTransact(Binder.java:1323)
+11-10 22:54:43.224 I/PersonalLanguageModelUpdater( 1539): PersonalLanguageModelUpdater$UpdateOperation.performInternal():165 run() : Added 0 words and 0 shortcuts
+11-10 22:54:43.224 I/DynamicLanguageModelOperation( 1539): DynamicLanguageModelOperation.perform():43 perform() : 4 : exo : Completed
+11-10 22:54:43.224 I/ShortcutsDataManager( 1539): AbstractContentDataManager$ImportContentTask.onPostExecute():268 onPostExecute() : Result = [2,0]
+11-10 22:54:43.224 I/ShortcutsDataManager( 1539): ShortcutsDataManager.onImportFinished():82 onImportFinished() : Result = 2 : Count = 0
+11-10 22:54:44.191 W/MediaProvider( 1610): isAppCloneUserPair for user 0: false
+11-10 22:54:44.195 W/AccessibilityNodeInfoDumper( 4305): Fetch time: 6ms
+11-10 22:54:44.195 V/AccessibilityManagerService(  677): onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-10 22:54:44.196 V/AccessibilityUserState(  677): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-10 22:54:44.196 W/MagnificationConnectionManager(  677): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-10 22:54:44.196 D/AccessibilityManagerService(  677): restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-10 22:54:44.196 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.196 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.196 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.196 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.196 I/AiAiEcho( 1640): Settings changed for uri: content://settings/secure/accessibility_enabled
+11-10 22:54:44.196 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.197 I/AiAiEcho( 1640): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-10 22:54:44.197 I/AiAiEcho( 1640): EchoTargets: 
+11-10 22:54:44.197 I/AiAiEcho( 1640): Filtered by AiAi flag check: 
+11-10 22:54:44.197 I/AiAiEcho( 1640): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-10 22:54:44.197 I/AiAiEcho( 1640): #remoteViewsTwiddler: feature disabled.
+11-10 22:54:44.197 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.197 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.197 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.197 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.197 D/AndroidRuntime( 4305): Shutting down VM
+11-10 22:54:44.197 I/AiAiEcho( 1640): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-10 22:54:44.197 I/AiAiEcho( 1640): EchoTargets: 
+11-10 22:54:44.197 I/AiAiEcho( 1640): Filtered by AiAi flag check: 
+11-10 22:54:44.197 I/AiAiEcho( 1640): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-10 22:54:44.197 W/libbinder.IPCThreadState( 4305): call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 22:54:44.197 I/AiAiEcho( 1640): #remoteViewsTwiddler: feature disabled.
+11-10 22:54:44.197 W/libbinder.IPCThreadState( 4305): call to talkWithDriver in joinThreadPool returned error: -9 (Bad file descriptor), FD: -1
+11-10 22:54:44.197 I/AiAiEcho( 1640): Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-10 22:54:44.197 I/AiAiEcho( 1640): EchoTargets: 
+11-10 22:54:44.197 I/AiAiEcho( 1640): Filtered by AiAi flag check: 
+11-10 22:54:44.197 I/AiAiEcho( 1640): [CONTEXT ratelimit_period="10 SECONDS" ]
+11-10 22:54:44.197 I/AiAiEcho( 1640): #remoteViewsTwiddler: feature disabled.
+11-10 22:54:44.197 I/AiAiEcho( 1640): #postPredictionTargets: Sending updates to UISurface ambientcue with targets# 0 (types=[])
+11-10 22:54:44.198 I/AmbientCueRepository(  939): Receiving SmartSpace targets # 0
+11-10 22:54:44.198 I/AiAiEcho( 1640): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-10 22:54:44.198 I/AiAiEcho( 1640): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-10 22:54:44.198 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.198 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.198 W/libbinder.IPCThreadState(  677): Sending oneway calls to frozen process.
+11-10 22:54:44.199 D/BatterySaverPolicy(  677): accessibility changed to false, updating policy.
+11-10 22:54:44.221 I/NetworkScheduler.Stats( 1226): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService started execution. cause:9 exec_start_elapsed_seconds: 236 [CONTEXT service_id=218 ]
+11-10 22:54:44.223 I/NetworkScheduler.Stats( 1226): Task com.google.android.gms/com.google.android.gms.ipa.base.IpaGcmTaskService finished executing. cause:9 result: 1 elapsed_millis: 13 uptime_millis: 13 exec_start_elapsed_seconds: 236 [CONTEXT service_id=218 ]
+11-10 22:54:44.242 D/BoundBrokerSvc( 1564): onBind: Intent { act=com.google.android.gms.auth.api.credentials.fido.autoenroll.CryptauthKeyAutoEnrollmentService.ACTION_TASK_READY dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+11-10 22:54:44.242 D/BoundBrokerSvc( 1564): Loading bound service for intent: Intent { act=com.google.android.gms.auth.api.credentials.fido.autoenroll.CryptauthKeyAutoEnrollmentService.ACTION_TASK_READY dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+11-10 22:54:44.245 I/NetworkScheduler.Stats( 1226): Task com.google.android.gms/com.google.android.gms.auth.api.credentials.fido.autoenroll.CryptauthKeyAutoEnrollmentService started execution. cause:5 exec_start_elapsed_seconds: 236 [CONTEXT service_id=218 ]
+11-10 22:54:44.249 I/Auth.Api.Credentials( 1564): [ListAccountsWithUsernameOperation] Operation started. [CONTEXT service_id=399 ]
+11-10 22:54:44.250 I/Auth.Api.Credentials( 1564): [ListAccountsWithUsernameOperation] Operation succeeded with result: []. [CONTEXT service_id=399 ]
+11-10 22:54:44.250 I/NetworkScheduler.Stats( 1226): Task com.google.android.gms/com.google.android.gms.tapandpay.gcmtask.TapAndPayGcmTaskService started execution. cause:5 exec_start_elapsed_seconds: 236 [CONTEXT service_id=218 ]
+11-10 22:54:44.256 I/NetworkScheduler.Stats( 1226): Task com.google.android.gms/com.google.android.gms.auth.api.credentials.fido.autoenroll.CryptauthKeyAutoEnrollmentService finished executing. cause:5 result: 1 elapsed_millis: 16 uptime_millis: 16 exec_start_elapsed_seconds: 236 [CONTEXT service_id=218 ]
+11-10 22:54:44.257 D/BoundBrokerSvc( 1564): onUnbind: Intent { act=com.google.android.gms.auth.api.credentials.fido.autoenroll.CryptauthKeyAutoEnrollmentService.ACTION_TASK_READY dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsInternalBoundBrokerService }
+11-10 22:54:44.257 I/TapAndPay( 1226): Sending QUICK_ACCESS_WALLET_STATE_CHANGED broadcast to wallet app. [CONTEXT service_id=79 ]
+11-10 22:54:44.265 I/NetworkScheduler.Stats( 1226): Task com.google.android.gms/com.google.android.gms.tapandpay.gcmtask.TapAndPayGcmTaskService finished executing. cause:5 result: 1 elapsed_millis: 15 uptime_millis: 15 exec_start_elapsed_seconds: 236 [CONTEXT service_id=218 ]
+11-10 22:54:44.348 D/BoundBrokerSvc( 1564): onUnbind: Intent { act=com.google.android.gms.ads.identifier.service.EVENT_ATTESTATION dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-10 22:54:44.479 D/SatelliteController( 1072): isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 22:54:44.479 D/SatelliteController( 1072): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 22:54:44.479 D/TelephonyConfigUpdateInstallReceiver( 1072): getConfigParser: domain=satellite
+11-10 22:54:44.479 V/SatelliteController( 1072): satelliteConfigParser is not ready
+11-10 22:54:44.479 D/SatelliteController( 1072): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 22:54:44.479 D/SatelliteController( 1072): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 22:54:44.479 D/SatelliteController( 1072): getCarrierRoamingNtnConnectType: config: null
+11-10 22:54:44.479 D/TelephonyConfigUpdateInstallReceiver( 1072): getConfigParser: domain=satellite
+11-10 22:54:44.479 V/SatelliteController( 1072): satelliteConfigParser is not ready
+11-10 22:54:44.479 D/SatelliteController( 1072): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 22:54:44.480 D/SatelliteController( 1072): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 22:54:44.480 D/TelephonyConfigUpdateInstallReceiver( 1072): getConfigParser: domain=satellite
+11-10 22:54:44.480 V/SatelliteController( 1072): satelliteConfigParser is not ready
+11-10 22:54:44.480 D/SatelliteController( 1072): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 22:54:44.480 D/SatelliteController( 1072): getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 22:54:44.480 D/TelephonyConfigUpdateInstallReceiver( 1072): getConfigParser: domain=satellite
+11-10 22:54:44.480 V/SatelliteController( 1072): satelliteConfigParser is not ready
+11-10 22:54:44.480 D/SatelliteController( 1072): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 22:54:44.480 D/SatelliteController( 1072): getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 22:54:44.480 D/SatelliteController( 1072): getCarrierRoamingNtnConnectType: config: null
+11-10 22:54:44.480 D/TelephonyConfigUpdateInstallReceiver( 1072): getConfigParser: domain=satellite
+11-10 22:54:44.480 V/SatelliteController( 1072): satelliteConfigParser is not ready
+11-10 22:54:44.480 D/SatelliteController( 1072): getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 22:54:44.480 D/SatelliteController( 1072): getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 22:54:44.480 D/TelephonyConfigUpdateInstallReceiver( 1072): getConfigParser: domain=satellite
+11-10 22:54:44.480 V/SatelliteController( 1072): satelliteConfigParser is not ready
+11-10 22:54:44.480 D/SatelliteController( 1072): isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 22:54:44.670 D/BoundBrokerSvc( 1564): onUnbind: Intent { act=com.google.android.gms.ads.service.START xflg=0x4 pkg=com.google.android.gms }
+11-10 22:54:45.018 I/adbd    (  532): adbd service requested 'sync:'
+11-10 22:54:45.036 I/adbd    (  532): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'time' '-t' '300''

@@ -1,0 +1,150 @@
+V/GraphicsEnvironment(23103): Currently set values for:
+V/GraphicsEnvironment(23103):   angle_gl_driver_selection_pkgs=[]
+V/GraphicsEnvironment(23103):   angle_gl_driver_selection_values=[]
+V/GraphicsEnvironment(23103): com.android.cli.interact.instrumentation is not listed in per-application setting
+V/GraphicsEnvironment(23103): No special selections for ANGLE, returning default driver choice
+V/GraphicsEnvironment(23103): Neither updatable production driver nor prerelease driver is supported.
+I/adbd    ( 2537): adbd service requested 'shell,v2:am broadcast -a com.android.cli.interact.instrumentation.GET_INFO'
+I/ActivityManager(  667): Broadcasting: Intent { act=com.android.cli.interact.instrumentation.GET_INFO flg=0x400000 }
+I/ActivityManager(  667): Enqueued broadcast Intent { act=com.android.cli.interact.instrumentation.GET_INFO flg=0x400000 }: 0
+I/ActivityManager(  667): Broadcast completed: result=-1, data="version: "1.1.16717390"
+I/ActivityManager(  667): socket_name: "com.android.cli.interact.server"
+I/ActivityManager(  667): "
+I/UiAutomation(23103): Initialized for user 0 on display 0
+D/AccessibilityManagerService(  667): changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+I/UiAutomationManager(  667): Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x1) when called by user 0
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/AiAiEcho( 1642): Settings changed for uri: content://settings/secure/accessibility_enabled
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+V/UiAutomation(23103): Init UiAutomation@48ee142[id=118, displayId=0, flags=0]
+I/AiAiEcho( 1642): Predicting[0]:  [CONTEXT sampling_count=5 ]
+I/AiAiEcho( 1642): EchoTargets: 
+I/AiAiEcho( 1642): Filtered by AiAi flag check: 
+I/AiAiEcho( 1642): [CONTEXT ratelimit_period="10 SECONDS" ]
+I/AiAiEcho( 1642): #remoteViewsTwiddler: feature disabled.
+I/AiAiEcho( 1642): Predicting[0]:  [CONTEXT sampling_count=5 ]
+I/AiAiEcho( 1642): EchoTargets: 
+I/AiAiEcho( 1642): Filtered by AiAi flag check: 
+I/AiAiEcho( 1642): [CONTEXT ratelimit_period="10 SECONDS" ]
+I/AiAiEcho( 1642): #remoteViewsTwiddler: feature disabled.
+I/AiAiEcho( 1642): Predicting[0]:  [CONTEXT sampling_count=5 ]
+I/AiAiEcho( 1642): EchoTargets: 
+I/AiAiEcho( 1642): Filtered by AiAi flag check: 
+I/AiAiEcho( 1642): [CONTEXT ratelimit_period="10 SECONDS" ]
+I/AiAiEcho( 1642): #remoteViewsTwiddler: feature disabled.
+I/AiAiEcho( 1642): #postPredictionTargets: Sending updates to UISurface ambientcue with targets# 0 (types=[])
+I/AiAiEcho( 1642): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+I/AiAiEcho( 1642): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+D/BatterySaverPolicy(  667): accessibility changed to true, updating policy.
+I/AmbientCueRepository(  927): Receiving SmartSpace targets # 0
+I/DisplayDeviceRepository(  667): Display device changed render timings: "Built-in Screen", renderFrameRate=60.000004, presentationDeadlineNanos=16666666, appVsyncOffsetNanos=1000000, frameRateOverrides=[]
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+I/AiAiEcho( 1642): Settings changed for uri: content://settings/secure/accessibility_enabled
+D/AidlBufferPool(  607): bufferpool2 0x75705a410b08 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a417a08 : 0(0 size) total buffers - 0(0 size) used buffers - 195/207 (recycle/alloc) - 13/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a415e48 : 0(0 size) total buffers - 0(0 size) used buffers - 199/207 (recycle/alloc) - 9/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a41b188 : 0(0 size) total buffers - 0(0 size) used buffers - 199/207 (recycle/alloc) - 9/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a41a3a8 : 0(0 size) total buffers - 0(0 size) used buffers - 198/207 (recycle/alloc) - 12/207 (fetch/transfer)
+D/AidlBufferPool(  607): bufferpool2 0x75705a4187e8 : 0(0 size) total buffers - 0(0 size) used buffers - 199/207 (recycle/alloc) - 8/207 (fetch/transfer)
+D/AidlBufferPoolAcc(  607): evictor expired: 12, evicted: 6
+I/AiAiEcho( 1642): Predicting[0]:  [CONTEXT sampling_count=5 ]
+I/AiAiEcho( 1642): EchoTargets: 
+I/AiAiEcho( 1642): Filtered by AiAi flag check: 
+I/AiAiEcho( 1642): [CONTEXT ratelimit_period="10 SECONDS" ]
+I/AiAiEcho( 1642): #remoteViewsTwiddler: feature disabled.
+I/AiAiEcho( 1642): #postPredictionTargets: Sending updates to UISurface ambientcue with targets# 0 (types=[])
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+V/AccessibilityManagerService(  667): onUserStateChangedLocked for userId: 0, forceUpdate: false
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/AiAiEcho( 1642): Predicting[0]:  [CONTEXT sampling_count=5 ]
+I/AiAiEcho( 1642): EchoTargets: 
+I/AiAiEcho( 1642): Filtered by AiAi flag check: 
+I/AiAiEcho( 1642): [CONTEXT ratelimit_period="10 SECONDS" ]
+I/AiAiEcho( 1642): #remoteViewsTwiddler: feature disabled.
+I/AiAiEcho( 1642): Predicting[0]:  [CONTEXT sampling_count=5 ]
+I/AiAiEcho( 1642): EchoTargets: 
+I/AiAiEcho( 1642): Filtered by AiAi flag check: 
+I/AiAiEcho( 1642): [CONTEXT ratelimit_period="10 SECONDS" ]
+I/AiAiEcho( 1642): #remoteViewsTwiddler: feature disabled.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+I/AiAiEcho( 1642): #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+I/AiAiEcho( 1642): #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+I/AmbientCueRepository(  927): Receiving SmartSpace targets # 0
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+V/AccessibilityUserState(  667): updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+W/MagnificationConnectionManager(  667): requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+W/libbinder.IPCThreadState(  667): Sending oneway calls to frozen process.
+D/WifiDataStall(  667): tx tput in kbps: 37000
+D/WifiDataStall(  667): rx tput in kbps: 37000
+V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+D/AccessibilityManagerService(  667): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+D/AccessibilityManagerService(  667): .getAccessibilityShortcutTargets {shortcutType=32, userId=0}
+D/AccessibilitySourceService( 1310): enabled a11y services count 0
+D/AccessibilitySourceService( 1310): a11y source sending 0 issue to sc
+I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+D/SafetySourceDataValidat(  667): No cert check requested for package com.google.android.permissioncontroller
+D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+D/WifiScoreCard(  667): txRate: 2 txSpeed: 6
+D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+D/AccessibilitySourceService( 1310): enabled a11y services count 0
+D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=1.7, 0.0, 0.0 rx=1.6 bcn=0 [on:0 tx:0 rx:0 period:3010] from screen [on:0 period:-976345167] score=100
+D/AccessibilitySourceService( 1310): a11y source sending 0 issue to sc
+D/SafetySourceDataValidat(  667): No cert check requested for package com.google.android.permissioncontroller
+D/ProfileInstaller(22863): Installing profile for com.oreki.antimatterdimensions
+D/AidlBufferPool(22863): bufferpool2 0x72a693a33548 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 11/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a30958 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 8/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a322c8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 12/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a36cc8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 9/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a2b618 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 10/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a2bab8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 11/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a36828 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+D/AidlBufferPool(22863): bufferpool2 0x72a693a28ec8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 10/412 (fetch/transfer)
+D/AidlBufferPoolAcc(22863): evictor expired: 8, evicted: 8
+I/adbd    ( 2537): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'brief''
+I/logd    (    0): logdr: UID=0 GID=0 PID=23126 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

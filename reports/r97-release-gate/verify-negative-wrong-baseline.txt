@@ -1,0 +1,21 @@
+基线: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded  期望 versionName=3.19.0 versionCode=30190000
+候选 APK: 反物质维度.apk  82,572,785 B  SHA-256 cf20aacdb03d710b67c6ea13723d325048a43210b5f959248f4ee335bded9c6c
+PASS  包名  — com.oreki.antimatterdimensions
+FAIL  versionCode  — 实际=30210000 期望=30190000
+FAIL  versionName  — 实际=3.21.0 期望=3.19.0
+FAIL  研究注册表 ABI（基线 w63 具备 SparseIntArray/List/访问器）  — w63 缺少 d:Landroid/util/SparseIntArray 字段；w63 缺少 a(Lw63;I)L.../studies/c; 访问器
+PASS  签名校验进程退出码  — v2_rc=0 v3_rc=0
+PASS  签名方案 v2+v3  — {'v1': False, 'v2': True, 'v3': True}
+INFO  签名方案明细: {'v1': False, 'v2': True, 'v3': True}（API 24-27 验 v2，API 28-32 验 v3）
+PASS  签名证书未被更换  — 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+反编译候选 APK（-r 跳过资源、保留 dex->smali）...
+PASS  apktool 反编译 dex  — build/gradle-verify-apk
+PASS  EC12 补丁在 dex 内（unscale 1 次且紧邻限时比较）  — smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali
+PASS  OrekiInstantChallenge 类在 dex 内  — smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali
+PASS  OrekiInstantChallenge 含 复用 C/IC 完成入口 E(Z)  — ->E(Z)V
+PASS  OrekiInstantChallenge 含 复用 EC addCompletion F(Z)  — ->F(Z)V
+PASS  OrekiInstantChallenge 含 EC isFullyCompleted 判定  — ->y()Z
+PASS  OrekiInstantChallenge 含 已完成的挑战不重复结算  — ->K()Z
+PASS  Challenges.update 调用 tick()（恰好 1 处）  — count=1
+
+12/15 项通过

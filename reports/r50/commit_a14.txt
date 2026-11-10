@@ -1,0 +1,29 @@
+R50-A14 坍缩策略改为 AMOUNT/1e1000：X_HIGHEST 在单调增长局面下等于关掉坍缩
+
+一、问题
+   AU4b 把策略设成 X_HIGHEST/10，本意是「AM 涨到历史最高的 10 倍才坍缩，让 AM 有机会长大」。
+   但实测（2026-11-01 13:00-14:50 多次采样）：AM 每帧都在刷新 records.thisEternity.maxAM，
+   于是 AM >= 10*maxAM 永远不成立 ⇒ 坍缩永不触发 ⇒ infinities 从 03:00 起恒为 42、
+   IP 永远停在 1e5 量级。而 ID1 解锁要求 maxAM>=1e1100 且 IP>=1e8
+   （v() 里的 f = ID1.cost = 1e8），IP 涨不上去就永远买不了 ID1。
+
+二、改法
+   applyCrunchPolicy() 改成 AMOUNT + 阈值 1e1000（BigDouble 1.0e1000）：
+     · mode==0(AMOUNT)  → 直接把 amount 抬到 1e1000
+     · mode==1(TIME)    → 原样返回，尊重玩家
+     · mode==2(X_HIGHEST) → 只有 xHighest<=10（mod 默认）才接管，改成 AMOUNT/1e1000
+   与 holdCrunch() 天然闭环：IP 到 1e8 后 holdCrunch 接管停掉坍缩去冲 maxAM。
+
+三、两处修正
+   1. 条件跳转极性写反：原写 if-ne v1, v2, :ret_p（mode==2 也被挡掉），改为 if-eq。
+      实测证据：05:36 装机后 mode 仍为 2、OREKI_AU4B 一行都没有。
+   2. BigDouble 的 <init>(DDZ) 有 6 个寄存器实参，超过 invoke 的 5 个上限，
+      改用 invoke-direct/range {v2 .. v7}，并把对象 / 两个 double / 布尔排成连续寄存器。
+
+四、构建期守卫同步
+   verify_au4b 的断言与 R41 极性表同步到新策略（TIME 保留、xHighest>10 保留）。
+
+五、实测状态（A17，2026-11-01 13:43）
+   OREKI_AU4B: policy -> AMOUNT/1e1000 ✔；存档 mode=0、amount=1.0e1000 ✔；
+   但 bigCrunches 仍为 31、infinities 仍为 42（AM 已 8.18e1387 >> 1e1000）——
+   说明 canTick 之外还有一道闸未定位，已如实记录，留给下一轮。

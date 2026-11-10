@@ -26,6 +26,8 @@
 
 [RELEASE](rules/RELEASE.md) · [Release 细则](rules/DETAIL_RELEASE.md)
 
+Android 发行版写作格式见 [RELEASE §6](rules/RELEASE.md#6-android-发行版写作格式)。
+
 ### 2.4 工具链、平台与共享资源
 
 [TOOLCHAIN](rules/TOOLCHAIN.md) · [Toolchain 细则](rules/DETAIL_TOOLCHAIN.md)
