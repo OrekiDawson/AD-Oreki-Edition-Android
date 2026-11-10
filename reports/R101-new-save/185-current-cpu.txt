@@ -1,0 +1,3 @@
+  PID CPU  RES[NAME]
+  525   3  44M surfaceflinger
+21158   1 514M com.oreki.antimatterdimensions

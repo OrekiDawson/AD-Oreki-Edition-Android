@@ -1,0 +1,363 @@
+--------- beginning of main
+11-10 21:56:13.401 21158 21191 I OREKI_CRUNCH: 13
+11-10 21:56:13.502 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.1765e4->5.179e4 ip=5.84873286798087e29 ep=2.0e0 bigE=1 t=8697129
+11-10 21:56:14.517 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.2779e4->5.2804e4 ip=6.49542994797846e29 ep=2.0e0 bigE=1 t=8698144
+11-10 21:56:14.821   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 21:56:14.821   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 21:56:14.821   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 21:56:14.821   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 21:56:14.821   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:14.821   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:14.821   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:14.821   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:14.822   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:14.822   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:14.822   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:14.822   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:14.825   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 21:56:14.826   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 21:56:14.826   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 21:56:14.826   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 21:56:14.826   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3008] from screen [on:0 period:-977354902] score=100
+11-10 21:56:15.520 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.3781e4->5.3806e4 ip=7.13509025988019e29 ep=2.0e0 bigE=1 t=8699147
+11-10 21:56:16.534 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.4794e4->5.482e4 ip=7.78178733987778e29 ep=2.0e0 bigE=1 t=8700161
+11-10 21:56:16.790 21158 21191 I OREKI_EC_AUTO: step: TRYBUY id=171 b=false a=false D=false tt=1.983e3 unlocked=0
+11-10 21:56:16.791 21158 21191 I OREKI_SCHED: act ec @8700418ms gap=10017 taskGap=10017
+11-10 21:56:16.866 21158 21191 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=8.0e0 bigE=1 lastCrunch=8700493
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=34
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 21:56:16.966 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 21:56:16.966 21158 21191 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=106 mismatch=12 used=0
+11-10 21:56:16.967 21158 21191 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=7909961.999999981
+11-10 21:56:17.551 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.5807e4->5.5836e4 ip=8.43103360059094e29 ep=2.0e0 bigE=1 t=8701178
+11-10 21:56:17.829   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 21:56:17.829   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 21:56:17.829   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 21:56:17.829   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:17.829   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:17.830   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 21:56:17.830   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 21:56:17.831   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 21:56:17.831   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 21:56:17.831   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-977351897] score=100
+11-10 21:56:18.374  1226  1226 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.clearcut.sampler.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-10 21:56:18.441 21158 21191 I OREKI_GOAL: stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-10 21:56:18.550  1552  1552 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.chromesync.service.firstparty.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsApiService }
+11-10 21:56:18.566 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.6825e4->5.685e4 ip=9.0794478561972e29 ep=2.0e0 bigE=1 t=8702193
+11-10 21:56:18.589   667   709 I WifiService: isFeatureSupported uid=1000 returns [WIFI_FEATURE_INFRA, WIFI_FEATURE_P2P, WIFI_FEATURE_MOBILE_HOTSPOT, WIFI_FEATURE_WPA3_SAE, WIFI_FEATURE_WPA3_SUITE_B, WIFI_FEATURE_OWE, WIFI_FEATURE_DPP, WIFI_FEATURE_AP_RAND_MAC, WIFI_FEATURE_MBO, WIFI_FEATURE_FILS_SHA256, WIFI_FEATURE_FILS_SHA384, WIFI_FEATURE_SAE_PK, WIFI_FEATURE_DPP_ENROLLEE_RESPONDER, WIFI_FEATURE_PASSPOINT_TERMS_AND_CONDITIONS, WIFI_FEATURE_WFD_R2, WIFI_FEATURE_DECORATED_IDENTITY, WIFI_FEATURE_TRUST_ON_FIRST_USE, WIFI_FEATURE_SET_TLS_MINIMUM_VERSION, WIFI_FEATURE_TLS_V1_3, WIFI_FEATURE_WEP, WIFI_FEATURE_WPA_PERSONAL]
+11-10 21:56:19.576 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.7836e4->5.7861e4 ip=9.72530037233595e29 ep=2.0e0 bigE=1 t=8703203
+11-10 21:56:20.033 21158 21191 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ip-jump
+11-10 21:56:20.033 21158 21191 I OREKI_AU4C: managed interval 60.0 -> 5.0 (resume:eternity-ip-jump)
+11-10 21:56:20.033 21158 21191 I OREKI_AU4C: policy -> resume (eternity-ip-jump)
+11-10 21:56:20.034 21158 21191 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:56:20.036 21158 21158 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-10 21:56:20.061 21158 21191 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
+11-10 21:56:20.061 21158 21191 I OREKI_AU4C: policy -> pause (eternity-grow)
+11-10 21:56:20.061 21158 21191 I OREKI_AU4C: managed interval 5.0 -> 60.0 (pause:eternity-grow)
+11-10 21:56:20.061 21158 21191 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-10 21:56:20.065 21158 21158 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-10 21:56:20.591 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.8851e4->5.8876e4 ip=2.02587544993249e30 ep=2.0e0 bigE=1 t=8704218
+11-10 21:56:20.833   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 21:56:20.833   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 21:56:20.833   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 21:56:20.833   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:20.833   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:20.834   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 21:56:20.834   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 21:56:20.834   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 21:56:20.834   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 21:56:20.834   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-977348894] score=100
+11-10 21:56:20.994 21158 21191 I OREKI_CRUNCH: 13
+11-10 21:56:21.596 21158 21191 I OREKI_CRUNCH: crunch detected inf=5.9855e4->5.988e4 ip=2.35267085509467e31 ep=2.0e0 bigE=1 t=8705223
+11-10 21:56:21.620 21158 21191 I OREKI_SCHED: gui-tick #23 gapMs=10000
+11-10 21:56:21.620 21158 21191 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-10 21:56:21.621 21158 21191 I OREKI_AUTO_BEAT: gui-tick #23 gapMs=10000
+11-10 21:56:21.621 21158 21191 I EDP_FRAME: frame=9625 stage=break break=true canEt=false ep=2.0e0 gainEP=8.0e0 bigE=1 inf=5.9905e4 ip=2.40620897724638e31 db=26.0 gal=2 justCrunch=false lastCrunch=8705223 modIntervalMs=10000 auto=true
+11-10 21:56:21.621 21158 21191 I OREKI_SCHED: deny interval task=ec
+11-10 21:56:21.624 21158 21158 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 21:56:21.875 21158 21191 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=8.0e0 bigE=1 lastCrunch=8705502
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 21:56:21.977 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 21:56:21.977 21158 21191 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=106 mismatch=11 used=0
+11-10 21:56:21.977 21158 21191 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=7914972.999999981
+11-10 21:56:22.607 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.0866e4->6.0891e4 ip=4.51989552335265e31 ep=2.0e0 bigE=1 t=8706234
+11-10 21:56:23.084  1048  1194 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-10 21:56:23.084  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 21:56:23.084  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 21:56:23.084  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 21:56:23.084  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 21:56:23.085  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 21:56:23.085  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 21:56:23.085  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 21:56:23.085  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 21:56:23.085  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 21:56:23.085  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-10 21:56:23.085  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 21:56:23.085  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 21:56:23.085  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-10 21:56:23.085  1048  1194 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-10 21:56:23.085  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 21:56:23.085  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-10 21:56:23.085  1048  1194 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-10 21:56:23.085  1048  1194 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-10 21:56:23.085  1048  1194 V SatelliteController: satelliteConfigParser is not ready
+11-10 21:56:23.085  1048  1194 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+--------- beginning of system
+11-10 21:56:23.428   667   762 D ActivityManager: freezing 1427 com.android.carrierdefaultapp
+11-10 21:56:23.428   667   762 D ActivityManager: freezing 1335 com.google.android.cellbroadcastreceiver
+11-10 21:56:23.429   667   762 D ActivityManager: freezing 1666 com.android.printspooler
+11-10 21:56:23.429   667   762 D ActivityManager: freezing 2121 com.android.localtransport
+11-10 21:56:23.429   667   762 D ActivityManager: freezing 2174 com.android.imsserviceentitlement
+11-10 21:56:23.429   667   762 D ActivityManager: freezing 2428 com.android.traceur
+11-10 21:56:23.430   667   762 D ActivityManager: freezing 2485 com.android.camera2
+11-10 21:56:23.430   667   762 D ActivityManager: freezing 2544 com.android.devicediagnostics
+11-10 21:56:23.430   667   762 D ActivityManager: freezing 2577 com.android.dynsystem
+11-10 21:56:23.431   667   762 D ActivityManager: freezing 2604 com.android.dynsystem:dynsystem
+11-10 21:56:23.431   667   762 D ActivityManager: freezing 2605 com.android.managedprovisioning
+11-10 21:56:23.431   667   762 D ActivityManager: freezing 2666 com.android.shell
+11-10 21:56:23.431   667   762 D ActivityManager: freezing 2790 com.google.android.federatedcompute
+11-10 21:56:23.431   667   762 D ActivityManager: freezing 2817 com.google.android.healthconnect.controller
+11-10 21:56:23.432   667   762 D ActivityManager: freezing 2301 com.google.android.tts
+11-10 21:56:23.432   521   739 D AudioFlinger: onStateChanged: pid:2301  uid:10181  state:frozen - no freeze activity
+11-10 21:56:23.432   667   762 D ActivityManager: freezing 2840 com.google.android.ondevicepersonalization.services
+11-10 21:56:23.432   667   762 D ActivityManager: freezing 2766 com.google.android.configupdater
+11-10 21:56:23.432   667   762 D ActivityManager: freezing 2921 com.google.android.projection.gearhead:car
+11-10 21:56:23.432   667   762 D ActivityManager: freezing 2645 com.android.providers.calendar
+11-10 21:56:23.432   667   762 D ActivityManager: freezing 2992 com.android.externalstorage
+11-10 21:56:23.433   667   762 D ActivityManager: freezing 2967 com.google.android.photopicker
+11-10 21:56:23.433   667   762 D ActivityManager: freezing 2944 com.google.android.rkpdapp
+11-10 21:56:23.433   667   762 D ActivityManager: freezing 1979 android.process.media
+11-10 21:56:23.433   667   762 D ActivityManager: freezing 2322 com.google.android.apps.restore
+11-10 21:56:23.433   667   762 D ActivityManager: freezing 2626 com.google.android.apps.photos
+11-10 21:56:23.433   667   762 D ActivityManager: freezing 1121 com.android.settings
+11-10 21:56:23.434   667   762 D ActivityManager: freezing 3013 com.google.android.settings.intelligence
+11-10 21:56:23.434   667   762 D ActivityManager: freezing 2852 com.google.android.gms.unstable
+11-10 21:56:23.434   667   762 D ActivityManager: freezing 1809 com.android.keychain
+11-10 21:56:23.434   667   762 D ActivityManager: freezing 1953 com.google.android.as.oss
+11-10 21:56:23.434   667   762 D ActivityManager: freezing 2903 com.google.android.partnersetup
+11-10 21:56:23.434   667   762 D ActivityManager: freezing 19449 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+11-10 21:56:23.435   667   762 D ActivityManager: freezing 3523 com.google.android.webview:webview_service
+11-10 21:56:23.435   667   762 D ActivityManager: freezing 2170 com.google.android.googlequicksearchbox:search
+11-10 21:56:23.435   667   762 D ActivityManager: freezing 2512 com.google.android.apps.wallpaper
+11-10 21:56:23.435   667   762 D ActivityManager: freezing 2686 com.google.android.apps.pulse
+11-10 21:56:23.435   667   762 D ActivityManager: freezing 2879 com.google.android.packageinstaller
+11-10 21:56:23.436   667   762 D ActivityManager: freezing 2282 com.google.android.deskclock
+11-10 21:56:23.436   667   762 D ActivityManager: freezing 1539 com.google.android.apps.wellbeing
+11-10 21:56:23.436   667   762 D ActivityManager: freezing 19489 com.google.android.adservices.api
+11-10 21:56:23.436   667   762 D ActivityManager: freezing 1310 com.google.android.permissioncontroller
+11-10 21:56:23.436   667   762 D ActivityManager: freezing 3059 com.android.chrome
+11-10 21:56:23.437   667   762 D ActivityManager: freezing 4502 com.google.android.verifier
+11-10 21:56:23.437   667   762 D ActivityManager: freezing 1391 android.process.acore
+11-10 21:56:23.437   667   762 D ActivityManager: freezing 3167 com.google.android.documentsui
+11-10 21:56:23.437   667   762 D ActivityManager: freezing 1893 com.google.android.googlequicksearchbox:googleapp
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10144} in 0ms
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10232} in 0ms
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.438   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10130} in 1ms
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10148} in 0ms
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10143} in 0ms
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.439   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10186} in 0ms
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10122} in 1ms
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10104} in 0ms
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={2000} in 0ms
+11-10 21:56:23.440   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10225} in 1ms
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10208} in 0ms
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10181} in 0ms
+11-10 21:56:23.441   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10224} in 1ms
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10147} in 0ms
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10152} in 0ms
+11-10 21:56:23.442   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10110} in 1ms
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10113} in 0ms
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10217} in 0ms
+11-10 21:56:23.443   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10215} in 1ms
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10112} in 0ms
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10149} in 0ms
+11-10 21:56:23.444   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10182} in 1ms
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10155} in 0ms
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10163} in 0ms
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.445   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10150} in 1ms
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={99098} in 0ms
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10172} in 0ms
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.446   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10201} in 0ms
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10158} in 1ms
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10120} in 0ms
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10156} in 0ms
+11-10 21:56:23.447   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10160} in 1ms
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10212} in 0ms
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10230} in 0ms
+11-10 21:56:23.448   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.449   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.449   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10184} in 1ms
+11-10 21:56:23.457   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.458   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.458   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10157} in 1ms
+11-10 21:56:23.458   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.458   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.458   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10111} in 0ms
+11-10 21:56:23.458   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-10 21:56:23.459   667   828 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-10 21:56:23.459   667   828 D InetDiagMessage: Destroyed live tcp sockets for uids={10124} in 1ms
+11-10 21:56:23.621 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.1878e4->6.1904e4 ip=6.69142830342983e31 ep=2.0e0 bigE=1 t=8707248
+11-10 21:56:23.837   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 21:56:23.837   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 21:56:23.837   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 21:56:23.837   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:23.837   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:23.838   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 21:56:23.838   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 21:56:23.838   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 21:56:23.838   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 21:56:23.838   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3004] from screen [on:0 period:-977345890] score=100
+11-10 21:56:24.634 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.2892e4->6.2917e4 ip=8.86082097672502e31 ep=2.0e0 bigE=1 t=8708261
+11-10 21:56:25.648 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.3904e4->6.3929e4 ip=1.030310312410179e31 ep=2.0e0 bigE=1 t=8709275
+11-10 21:56:26.666 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.4921e4->6.4947e4 ip=3.21062650727456e31 ep=2.0e0 bigE=1 t=8710293
+11-10 21:56:26.796 21158 21191 I OREKI_EC_AUTO: step: TRYBUY id=171 b=false a=false D=false tt=1.979e3 unlocked=0
+11-10 21:56:26.797 21158 21191 I OREKI_SCHED: act ec @8710424ms gap=10006 taskGap=10006
+11-10 21:56:26.842   667   820 D WifiClientModeImpl[10746:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=6 freq=2437 RxLinkSpeed=2
+11-10 21:56:26.842   667   820 D WifiDataStall: tx tput in kbps: 37000
+11-10 21:56:26.842   667   820 D WifiDataStall: rx tput in kbps: 37000
+11-10 21:56:26.842   667   820 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 21:56:26.842   667   820 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 21:56:26.843   667   820 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 21:56:26.843   667   820 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 6Mbps, Tx Link speed: 6Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 21:56:26.843   667   820 D WifiScoreCard: txRate: 1 txSpeed: 6
+11-10 21:56:26.843   667   820 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 21:56:26.843   667   820 D WifiClientModeImpl[10746:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=6 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3005] from screen [on:0 period:-977342885] score=100
+11-10 21:56:26.896 21158 21191 I OREKI_ET_GATE: allow=false reason=cannot-eternity broken=true canEt=false ep=2.0e0 gain=8.0e0 bigE=1 lastCrunch=8710522
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=35
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=51
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=114
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=115
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=117
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=136
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=141
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=144
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=174
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=176
+11-10 21:56:26.997 21158 21191 W OREKI_ACHAUDIT: MISMATCH id=186
+11-10 21:56:26.997 21158 21191 I OREKI_ACHAUDIT: DONE scanned=144 unlocked=106 mismatch=11 used=0
+11-10 21:56:26.998 21158 21191 I OREKI_GATE: GATE brake=true g=true c=true b=true mult=10000.0 rt=7919991.999999981
+11-10 21:56:27.682 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.5938e4->6.5963e4 ip=5.38880228069268e31 ep=2.0e0 bigE=1 t=8711309
+11-10 21:56:28.499  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:top -b -n 1 -o PID,CPU,RES,NAME'
+11-10 21:56:28.595 21158 21191 I OREKI_CRUNCH: 13
+11-10 21:56:28.695 21158 21191 I OREKI_CRUNCH: crunch detected inf=6.6949e4->6.6974e4 ip=7.55627077761505e31 ep=2.0e0 bigE=1 t=8712322
+11-10 21:56:28.776  2537  2537 I adbd    : adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d''
