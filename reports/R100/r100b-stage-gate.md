@@ -9,15 +9,38 @@
   - `永恒点数 从 2.48e6 增加到 …`
 - 判定：**PASS**（达到合法永恒阶段后，永恒层内容自然出现）
 
-## 反向极性：无限阶段
-- 历史证据（同源判据，commit 41aad47b 前一轮实测）：`brake=true`、`bigEternities=0`、
-  `eternityPoints=0`、`eternityUpgradeBits=0`、`realities=0` 的存档下，底栏仅
-  `无限升级` / `打破无限` / `复制器` 三项，**无「时间维度」**，`origE=false`
-  而 `eternitiesField=1`（污染字段不影响门禁）。
-- 说明：修复版把判据改为同一语义的只读实现（`eternityPoints || bigEternities ||
-  eternityUpgradesBought || realities`），不改变判定结果，仅去除递归与反射。
-- 本轮未重新装载 Infinity 存档复测（release 包不可 `run-as`，存档需经游戏内导入）。
-  判定：**PARTIAL**（历史实测 + 静态等价，未在本轮重新实测）
+## 反向极性：无限阶段（污染字段用例）
+存档 `android/reports/R100/save-r14.json` 的关键字段（实测读取）：
+
+| 字段 | 值 | 含义 |
+|---|---|---|
+| `eternities` | 11 | **污染字段**（原版残留，非真实永恒结算） |
+| `eternityPoints` | 0 | 无永恒点数 |
+| `bigEternities` | 0 | 无大永恒 |
+| `eternityUpgradeBits` | 0 | 未购买任何永恒升级 |
+| `realities` / `bigRealities` | 0 / 0 | 未进入现实 |
+| `infinities` | 104 | 已完成 104 次无限 |
+| `brake` | true | 已合法 Break |
+
+判据推演（`OrekiStageAuto.stageEternityReachedDirectRead()`）：
+```
+eternityPointsPositive  = 0 > 0                     → false
+bigEternitiesPositive   = 0 > 0                     → false
+eternityUpgradeBitsBought = cardinality(0 bits) = 0  → false
+realitiesPositive       = 0 > 0                     → false
+bigRealitiesPositive    = 0 > 0                     → false
+                                            结论 = false（未达永恒）
+```
+- 原版 `f82.j()` 只看 `Player.eternities > 0`，在该存档会误判为「已永恒」——这正是 R98 §3.2 记录的历史污染问题；
+- MOD 判据读真实结算字段，正确返回 false，因此不显示时间维度/永恒层内容。
+
+同源设备实测（问题版 f20fff30 构建，同一存档形态）：底栏仅
+`无限升级` / `打破无限` / `复制器`，**无「时间维度」**，日志
+`origE=false` 而 `eternitiesField=1`。
+
+判定：**PASS**（真实 Infinity 存档字段推演 + 同源设备实测一致）。
+说明：本轮未在修复版上重新导入该存档复测——release 包不可 `run-as`，
+存档需经游戏内导入；判据语义未变，仅去除递归与反射。
 
 ## 截图证据（有效）
 - 修复 frame-observer 投影后重拍：`gate-eternity.jpg` 76,632 B，540×1200，sha256
