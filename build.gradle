@@ -189,6 +189,7 @@ def androidJar = {
     def jars = platforms.listFiles()?.collect { new File(it, 'android.jar') }?.findAll { it.isFile() } ?: []
     return jars ? jars.sort { it.parentFile.name }.last() : new File('android.jar')
 }()
+def SMOKE_PKG = 'com.oreki.antimatterdimensions'
 def keystore = file('keys/oreki.jks')
 
 def signingPassword = {
@@ -1036,20 +1037,71 @@ tasks.register('installOrekiTest', Exec) {
 }
 
 // ============================================================== smokeOrekiTest
-tasks.register('smokeOrekiTest', Exec) {
+tasks.register('smokeOrekiTest') {
     group = 'oreki'
-    description = '启动应用并检查进程存活 / 无 FATAL'
+    description = '启动应用并检查进程存活 / 无 FATAL（Gradle 原生实现，不依赖 Python）'
     dependsOn 'installOrekiTest'
-    workingDir = repoRoot
-    commandLine pythonExe, 'scripts/avd_smoke.py', '--adb', adbExe.absolutePath
-    // [R77] 统一 JDK：让 Python 及其子进程（D8/apktool/kotlinc）
-    // 继承与 Gradle 同一个 JDK，避免「Gradle 用 A、D8 用 B」。
-    if (jdkHome != null) {
-        environment 'JAVA_HOME', jdkHome.absolutePath
-        environment 'PATH', jdkHome.absolutePath + File.separator + 'bin' + File.pathSeparator + System.getenv('PATH')
-    }
-    environment 'PYTHONIOENCODING', 'utf-8'
+    notCompatibleWithConfigurationCache('需要与在线 AVD 交互')
     outputs.upToDateWhen { false }
+    doLast {
+        def adbPath = adbExe.absolutePath
+        def runAdb = { args, strict = true ->
+            def buffer = new ByteArrayOutputStream()
+            def result = execOps.exec {
+                commandLine([adbPath] + args)
+                standardOutput = buffer
+                errorOutput = buffer
+                ignoreExitValue = true
+            }
+            def text = buffer.toString('UTF-8')
+            if (strict && result.exitValue != 0) {
+                throw new GradleException("adb ${args.join(' ')} 失败（exit=${result.exitValue}）：${text.take(400)}")
+            }
+            return [result.exitValue, text]
+        }
+
+        def devicesResult = runAdb(['devices'])
+        def devicesOut = devicesResult[1]
+        def online = devicesOut.readLines().findAll { it.contains('\tdevice') }
+        if (online.isEmpty()) {
+            throw new GradleException("AVD 不在线：${devicesOut.trim()}")
+        }
+        logger.lifecycle("设备在线：${online[0].split('\t')[0]}")
+
+        runAdb(['logcat', '-c'], false)
+        runAdb(['shell', 'am', 'force-stop', SMOKE_PKG], false)
+        def launchResult = runAdb([
+            'shell', 'monkey', '-p', SMOKE_PKG, '-c', 'android.intent.category.LAUNCHER', '1'
+        ], false)
+        def launchRc = launchResult[0]
+        def launchOut = launchResult[1]
+        if (launchRc != 0) {
+            throw new GradleException("启动失败：${launchOut.take(400)}")
+        }
+
+        def deadline = System.currentTimeMillis() + 10_000L
+        String pid = ''
+        while (System.currentTimeMillis() < deadline && pid.isEmpty()) {
+            def pidResult = runAdb(['shell', 'pidof', SMOKE_PKG], false)
+            pid = pidResult[1].trim()
+            if (pid.isEmpty()) Thread.sleep(1000L)
+        }
+        if (pid.isEmpty()) {
+            throw new GradleException('进程未起来（10s 内 pidof 为空）')
+        }
+        logger.lifecycle("进程存活 pid=${pid}")
+
+        Thread.sleep(3000L)
+        def logOut = runAdb(['logcat', '-d', '-t', '600'], false)[1]
+        def fatal = logOut.readLines().findAll {
+            it.contains('FATAL EXCEPTION') || (it.contains('AndroidRuntime') && it.contains('Exception'))
+        }
+        if (!fatal.isEmpty()) {
+            fatal.take(8).each { logger.error("  ${it}") }
+            throw new GradleException("检测到崩溃日志（${fatal.size()} 行）")
+        }
+        logger.lifecycle('logcat 无 FATAL / 未捕获异常')
+    }
 }
 
 // =============================================================== installToRelease

@@ -180,29 +180,44 @@ Web 规则位于 `web/AD-Oreki-Edition/docs/rules/`，入口为 `CORE.md` 和 `R
 
 新增长期规则应同步 AGENTS.md、RULES_INDEX 和 FACTS。生产代码变化应更新对应 tasks、验收记录、README 和必要教程。报告必须明确区分 PASS、FAIL、BLOCKED、NOT RUN；不得把计划、推断或历史证据写成新完成事项。所有变更使用中文提交，安全推送 main，不强推、不丢弃历史成果。
 
-## 9. 减少 Python 依赖（去 Python 化）
+## 9. Python 强制退出工程体系（去 Python 化）
 
-> 来源：ChatGPT 2026-11-11 下达，登记于 R101。本节为长期工程方向，不改变既有 1–8 编号；与 §8.3（构建链持续简化）配套执行。
+> 来源：ChatGPT 2026-11-11 下达（强化版），替代同名旧条款；编号仍为 9，不改动 1–8。适用于 Android、Web、frame-observer、Pages 及所有项目工具。
 
-### 9.1 禁止新增 Python
+### 9.1 先迁移，后开发
 
-禁止新增 Python 生产代码、构建脚本、测试脚本及自动化工具。确有不可替代的例外，必须在任务记录中说明原因并取得明确批准后方可引入；不得以「脚本方便」为由绕过。
+任何开发任务遇到需要修改、扩展或执行的 Python 代码，必须优先评估并将该执行路径迁移至非 Python 实现，再继续原任务。禁止以「现有代码就是 Python」「临时脚本更方便」「只运行一次」为理由继续使用 Python。禁止新增 `.py` 文件、Python 包、虚拟环境或运行时依赖。禁止用 Shell、Gradle 或其他语言包装 Python 命令来伪装迁移。迁移时优先采用目标语言的成熟 API，不得把低效算法原样翻译。
 
-### 9.2 现状基线（2026-11-11 盘点）
+### 9.2 强制技术路线
 
-项目自有 Python（排除 `tools/` 下 vendored 的 Ghidra/第三方代码、`work/`、`build/`、`node_modules/`）：**97 个文件、27,778 行**。其中高频构建路径为 `android/AD_Oreki_Edition_Android/scripts/build_mod.py`（约 42 万字节，构建主驱动）。
+| 领域 | 技术 |
+|---|---|
+| Android 业务逻辑 | Kotlin |
+| Android 构建编排 | Gradle（长期 Kotlin DSL） |
+| APK 资源处理 | Google 官方 Android 工具（aapt2 / zipalign / apksigner） |
+| DEX 结构化处理 | Kotlin/JVM 兼容库或 Rust |
+| 跨平台 CLI 与高性能文件处理 | Rust |
+| Web 业务逻辑 | 沿用项目实际 JavaScript/TypeScript 栈 |
+| 简单系统操作 | Shell |
 
-### 9.3 技术选型
+禁止为去 Python 而引入新的 Java/Smali 业务逻辑。
 
-Gradle 构建编排优先 Kotlin DSL；Android 业务使用 Kotlin；跨平台 CLI 优先 Rust；简单操作复用系统工具（adb、aapt2、zipalign、apksigner、rg、sha256sum）。
+### 9.3 执行要求
 
-### 9.4 迁移策略
+每次开发前识别本次任务涉及的 Python 执行路径；发现后先完成非 Python 替代实现，再继续原任务。迁移后必须验证功能等价、实际运行结果、错误处理与性能；新实现通过验证后删除或停用旧 Python 入口，清理依赖与调用链。禁止只改扩展名、增加包装层或保留隐式 Python 调用。不得为追求迁移数量破坏存档、构建产物或既有功能。
 
-1. 优先替换 `build_mod.py` 等高频构建路径，长期目标是 Android Release 构建完全不依赖 Python 解释器。
-2. 按实际修改范围渐进迁移，不机械重写全仓，不得删除仍在使用的功能。
-3. 每次迁移必须有真实构建与定向验证，并记录 Python 文件数、行数与运行时依赖的变化。
-4. 迁移必须功能等价、可复现、可回退；不得以工具链重构阻塞性能修复与稳定版交付。
+### 9.4 例外与阻塞
 
-### 9.5 优先级约束
+原则上不批准新增 Python。若迁移会导致已确认 P0 无法及时修复、破坏现有构建或存在不可控数据风险，必须记录具体阻碍与替代方案，保留已验证可用路径，将迁移标记为 BLOCKED 并继续其他非 Python 工作；不得未经批准扩大 Python 使用范围。
 
-R101 的性能 FAIL 始终是 P0。去 Python 化不得挤占性能修复、Universal APK 验证与稳定版验收的资源；高风险全链路重构不在 R101 展开。
+### 9.5 验收标准
+
+本次修改涉及的 Python 执行路径已迁移；无新增 Python 文件或运行时依赖；无通过其他脚本间接调用 Python；Kotlin/Gradle/Rust 替代实现通过实际验证；记录迁移前后执行时间、内存与功能差异；同步 AGENTS、RULES_INDEX、FACTS；中文提交并安全推送 main。
+
+### 9.6 现状基线（2026-11-11）
+
+项目自有 Python（排除 `tools/` vendored、`work/`、`build/`、`node_modules/`）：**97 文件 / 27,778 行**；已完成 `scripts/avd_smoke.py`（75 行，Gradle `smokeOrekiTest` 调用）迁移为 build.gradle 原生实现并删除，现存 **95 个脚本文件**（`scripts/` 目录口径）。高频入口仍为 `scripts/build_mod.py`，其完整迁移属高风险，R101 内不展开。
+
+### 9.7 优先级约束
+
+R101 性能 FAIL 始终是 P0；语言迁移不得造成无期限停工，不得挤占性能修复、Universal APK 验证与稳定版验收资源。
