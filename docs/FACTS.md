@@ -9833,3 +9833,12 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   曾被创建为「R100c 稳定版…Latest」，已手动 `gh release edit --prerelease` 纠正为
   「Android 3.21.0-候选｜验收失败：首次大坍缩后永恒入口仍提前开放」。
   后续发布必须显式传 prerelease 或发布后立即核验 `isPrerelease`。
+
+## R101 真实验收事实（2026-11-10）
+
+- `[静态+实测]` 原版页面恢复入口为 `MainActivity.W8(Lbm4;ZZ)`；它直接消费保存的 `Lo/Lm` 页签对象，绕过 `bm4.h()`，这是 R100 页面恢复泄漏的实际绕过点。
+- `[实现]` R101 将 `bm4.g()/h()` 与 `MainActivity.W8()` 统一接入 Kotlin `OrekiStageAuto.vanillaEternityTabAllowed()`；非法永恒页签回退原版 `jp4.b`，不写存档、不清零永恒字段、不改资源、不扫描 View。Gradle 负责构建期 ABI 接线。
+- `[实测]` AVD `ad-game-api37` / `emulator-5554` 在线；当前父级名称门禁候选 APK SHA-256 为 `a38ae604e397aad3d280218bb5dfb77e2b14a614a904f13574a9c19fccac0676`。原提交 `378ebb0`、旧 APK SHA `a3a6d447…bff41b` 与中间候选均保留。
+- `[实测]` 新档恢复后首次永恒入口被正确锁定；同一新档随后真实完成首次永恒，时间研究、永恒升级和 Activity 重启读档可用。证据见 `tasks/R101-ACCEPTANCE.md` 与 `reports/R101-new-save/57-legal-eternity-logcat.txt`、`61-legal-eternity-time-page.png`、`62-legal-eternity-upgrades.png`、`64-legal-restart-running.png`。
+- `[实测]` 自动购买器页真实完成启用→禁用→强制停止重启后保持禁用→恢复启用；证据见 `reports/R101-new-save/72-autobuyer-real-page.png` 至 `75-autobuyer-enabled-restored.png`。Break Infinity 独立流程、非法程序直达和官方 XAPK 对照仍未完成。
+- `[实测]` frame-observer 进程存在；272 帧采样 p50=16ms、p95=28ms、p99=400ms、Janky=203/272（74.63%）、Missed Vsync=7。性能门禁 FAIL，候选不得称稳定版；证据见 `tasks/R101-ACCEPTANCE.md` 与 `reports/R101-gfxinfo-loaded.txt`。
