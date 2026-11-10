@@ -29,3 +29,15 @@
 1. 在 `work/mod` 中对比 base 树，找出被 MOD 补丁**新增或改写**且含 "eternities" 的 smali 文件。
 2. 检查大坍缩路径（`MainActivity.W8` / crunch policy / `up0.t`）是否把某个对象当成「货币」写入，而该对象实际是 eternities。
 3. 用 logcat + 每次坍缩前后 diff 逐步缩小到具体调用。
+
+## 2026-11-11 追加：原版坍缩对照实验（未完成，结论不可用）
+
+目的：验证「原版自己做大坍缩时是否也写 eternities=11」。此前只测过原版新档（0）与离线结算（不变），**从未测过原版坍缩**。
+
+做法：从用户存档构造「坍缩前」夹具（`infinities=0`、`eternities={0,0}`、`eternityPoints={0,0}`、`bigEternities=0`、`antimatter=1e150`、`lastUpdate=0`），注入官方重打包对照 `kajfosz.antimatterdimensions`，冷启动（接受「最后游玩于 1970 年」提示），在 `B.Crunch` 按钮位置连点两次。
+
+结果：`eternities` 始终为 `{0.0,0.0}`；但 `infinities` 也始终为 2.758、无变化 → **坍缩并未真正执行**，因此本实验**不能作为「原版不写 11」的证据**，标记 INCONCLUSIVE。
+
+下次要点：
+- 先确认 `B.Crunch` 按钮在屏幕上的真实可点区域（截图为 1080×2400，按钮文字约在 (448,1655)），或改用 `uiautomator` 点击资源 id。
+- 确认点击后 `infinities` 必须变化，否则视为未触发，不得采信结果。
