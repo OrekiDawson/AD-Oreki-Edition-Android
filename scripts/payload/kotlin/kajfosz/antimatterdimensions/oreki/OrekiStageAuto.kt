@@ -860,6 +860,21 @@ object OrekiStageAuto {
     fun vanillaEternityUnlocked(): Boolean = stageEternityReachedDirectRead()
 
     /**
+     * 原版导航/页面注册表的统一永恒层门槛。
+     *
+     * `bm4` 的注册表名称是稳定 ABI 数据，不通过 View 或反射判断；普通无限层
+     * 项目直接放行，只有永恒层项目在真实结算前拒绝。业务判定仍由 Kotlin 完成。
+     */
+    @JvmStatic
+    fun vanillaEternityTabAllowed(tabName: String?): Boolean {
+        return when (tabName) {
+            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones" ->
+                vanillaEternityUnlocked()
+            else -> true
+        }
+    }
+
+    /**
      * [R100b 性能修复] 本方法被原版 `f82.j()` 的 trampoline 调用，而
      * `f82.j()` 本身被 12 处原版代码调用（含绘制路径）。因此这里**必须**：
      *
