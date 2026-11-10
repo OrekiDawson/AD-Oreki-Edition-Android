@@ -66,3 +66,37 @@
 仍未确定：该 +11 是原版核心行为还是 MOD 引入。02:18 那份 vanilha app 存档虽为 +11，但来源不可考（可能早期导入过 MOD 存档），**不能作为原版行为的证据**，标记 UNKNOWN。
 
 下一步：在 `work/base_decoded` 中搜索「把常量 11（`const/4 0xb` / `const/16 0xb`）与 BigDouble 构造或 eternities 写入结合」的位置；若原版无此代码，则必在 MOD 补丁。
+
+## 2026-11-11 重大线索：大坍缩路径存在「常量下限钳制」写入
+
+发现（`work/mod/smali_classes2`）：
+
+1. `prestige/f.smali:400-420`（Big Crunch 重置体）执行：
+   ```
+   sget-object v0, Liq0;->z:Lup0;          # 货币单例
+   sget-object v1, Lfw;->K0:LBigDouble;    # 静态常量
+   invoke-virtual {v0, v1}, Ldw;->D(LBigDouble;)V
+   ```
+2. `dw.D(BigDouble)`（`dw.smali:128`）实现为：
+   ```
+   v0 = p0.getValue()          # 取当前值的活引用
+   v0.clampMin(p1)            # ← 就地把它钳制到「不小于 p1」
+   p0.m()                      # 通知更新
+   ```
+   **即：把某个货币的当前值原地抬到常量下限，而不是自增。**
+
+3. `up0.smali:422` 的 `t(Object)` 调用 `Player;->E0(BigDouble)`，而 `E0` 正是 `this.eternities = bigDouble` 的 setter。
+
+关键意义：**「clampMin 到常量」完美解释了实测现象**——
+- 新档未坍缩 → 值不变（0）
+- 任意次坍缩 → 值被抬到同一常量（实测恒为 11），且**不会随坍缩次数增长**
+这与「eternities = bigEternities + 11」只看差值、不看次数的规律一致。
+
+尚未证实（不得当作结论）：
+- `iq0.z` 到底对应 antimatter 还是 eternities 货币（`up0.G()` 里有 Pelle `isDoomed` 分支返回 0，更像 antimatter）。
+- 常量 `fw.K0` 的数值（构造器为 `BigDouble;-><init>(IIZI...)V`，参数寄存器 v4/v6/v7 尚未解码）。
+
+下一步（按顺序）：
+1. 解码 `fw.K0` 字面值（在 `fw.smali` `<clinit>` 中回溯 v4/v6/v7 的 const 赋值）。
+2. 确认 `up0.getValue()`/`G()` 返回的是 `Player.x()`（eternities）还是 `Player.b()`（antimatter）。
+3. 若为 eternities 且 K0==11 → 根因确认，改为 Kotlin 侧修正该钳制常量/分支。
