@@ -15,7 +15,7 @@ import android.util.Log
  *
  * ## 判据来源（全部为真实结算产物，不依赖单一字段）
  *
- * 真实存档取证（`scripts/savecodec.py` 解码 `android/savestates`）：
+ * 真实存档取证（`tools/savecodec-rs` 解码 `android/savestates`）：
  *   · `16. 1Inf.txt`（无限阶段）：eternities=0, eternityPoints=0,
  *     bigEternities=0, realities=0, bigRealities=0, infinityPoints=0
  *   · `152. 2.5e4EP+21TT.txt`（永恒阶段）：eternities=1.15e2, eternityPoints=2.4825e4,

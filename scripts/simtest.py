@@ -288,16 +288,39 @@ def round_trip(patch, out, wait=2.5):
     return out
 
 
+
+def _oreki_decode(text: str) -> dict:
+    """调用 Rust 版 savecodec 解码（原 scripts/savecodec.py 已按规则删除）。"""
+    import json as _json
+    import os
+    import subprocess
+    import tempfile
+
+    exe = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "tools", "savecodec-rs", "target", "release", "savecodec",
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        src = os.path.join(tmp, "in.txt")
+        dst = os.path.join(tmp, "out.json")
+        with open(src, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        proc = subprocess.run([exe, "decode", src, dst],
+                              capture_output=True, text=True, timeout=180)
+        if proc.returncode != 0:
+            raise RuntimeError(f"savecodec 解码失败：{proc.stderr.strip()}")
+        with open(dst, encoding="utf-8") as fh:
+            return _json.load(fh)
+
+
 def load_save_text(txt_path, out, prefs=None, patch=None, wait=6.0):
     """用一份 Android 文本存档整体替换 player.json（后期存档实测用）。
 
     存档版本可能低于当前 APK，依赖游戏自身的迁移逻辑；迁移结果由调用方核对。
     """
-    import savecodec
-
     kill()
     with open(txt_path, encoding="utf-8-sig") as f:
-        obj = savecodec.decode(f.read())
+        obj = _oreki_decode(f.read())
     for k, v in (patch or {}).items():
         set_dotted(obj, k, v)
     obj["lastUpdate"] = int(time.time() * 1000)

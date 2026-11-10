@@ -333,7 +333,7 @@ Android 侧关键接口（逐指令确证，详见 FACTS C.106）：
 | 符文自动装备 | 代码六处极性 + 一处 VerifyError 根因已修；装机无崩溃；**装备正例未取得** | 装机实测 |
 | 特蕾莎浇注 | `OrekiTeresaAuto` 已实现（复用原版 `MainActivity.yo` + 主循环 `a->r()`）；**pouredAmount 未增长** | 装机实测 |
 | 现实压制 | `isHolding()` 已接入 `OrekiReality`；实测 `realities` 仍在涨，**未生效** | 装机实测 |
-| 869 份存档 | 全部可解码（`scripts/savecodec.py`），470 份含 Reality+符文，最高 Cel7 | 实测 |
+| 869 份存档 | 全部可解码（`tools/savecodec-rs`，原 `scripts/savecodec.py` 已删除），470 份含 Reality+符文，最高 Cel7 | 实测 |
 
 **本轮修正的一条错误推断**：曾认为「现实每 2 秒清空 `reality.upgradeBits`」导致
 Teresa 不浇；实测 `upgradeBits` 在现实后**仍为 0xFFFFF**（RU 是一次性永久解锁，现实不清），

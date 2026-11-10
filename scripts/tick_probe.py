@@ -18,11 +18,34 @@ import sys
 import time
 from pathlib import Path
 
+def _oreki_decode(text: str) -> dict:
+    """调用 Rust 版 savecodec 解码（原 scripts/savecodec.py 已按规则删除）。"""
+    import json as _json
+    import os
+    import subprocess
+    import tempfile
+
+    exe = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "tools", "savecodec-rs", "target", "release", "savecodec",
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        src = os.path.join(tmp, "in.txt")
+        dst = os.path.join(tmp, "out.json")
+        with open(src, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        proc = subprocess.run([exe, "decode", src, dst],
+                              capture_output=True, text=True, timeout=180)
+        if proc.returncode != 0:
+            raise RuntimeError(f"savecodec 解码失败：{proc.stderr.strip()}")
+        with open(dst, encoding="utf-8") as fh:
+            return _json.load(fh)
+
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts'))
 import simtest      # noqa: E402
 from avd_check import ensure  # noqa: E402
-import savecodec    # noqa: E402
 
 OUT = ROOT / 'build' / 'tickprobe'
 SAVE = ROOT / 'build' / 'a4test' / '554. 3R+1.1e6046EP+4.1e21DT.txt'
@@ -115,7 +138,7 @@ def run(tag, mult, secs):
     ensure()
     OUT.mkdir(parents=True, exist_ok=True)
 
-    obj = savecodec.decode(SAVE.read_text(encoding='utf-8-sig'))
+    obj = _oreki_decode(SAVE.read_text(encoding='utf-8-sig'))
     changed = disable_autobuyers(obj)
     for bh in obj.get('blackHole', []) or []:
         bh['active'] = False
