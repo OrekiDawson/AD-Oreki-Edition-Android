@@ -567,6 +567,21 @@ internal object GameApi {
     /** [R99 P0] 底部图标条中属于永恒层的字形码点（沙漏 = 永恒）。 */
     private val ETERNITY_GLYPHS = arrayOf("\uf254")
 
+    /**
+     * [R99 P0] 永恒层统计文本的特征词。
+     *
+     * 实测统计数据页在「仅到无限」的存档上仍残留三行可见：
+     *   「你本次永恒中最快的无限用时是 …」
+     *   「在本次永恒中，你获得无限点的最快速度是 …」
+     *   「当前永恒中无限点数的最大值是 …」
+     * 而「永恒」区块标题、「你进行了 N 次永恒。」等已被 ID 门禁压到 0 高。
+     * 这三行按 ID 抓不到，必须按文本特征收敛。
+     */
+    private val ETERNITY_STAT_KEYWORDS = arrayOf("本次永恒", "永恒中")
+
+    /** [R99 P0] 关键词统计行被压前的高度，用于精确还原。 */
+    private val keywordOriginalHeights = java.util.WeakHashMap<View, Int>()
+
     /** [R99 P0] 记录被字形门禁压掉前的原始高度，用于精确还原（不能一律用 WRAP_CONTENT）。 */
     private val glyphOriginalHeights = java.util.WeakHashMap<View, Int>()
 
@@ -656,8 +671,10 @@ internal object GameApi {
         // 还能用永恒点数购买时间之理。必须按字形收敛，阻断整条永恒入口。
         if (!stage.eternityReached) {
             changed += hideStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
+            changed += hideStageTextsByKeyword(activity, ETERNITY_STAT_KEYWORDS)
         } else {
             changed += restoreStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
+            changed += restoreStageTextsByKeyword(activity, ETERNITY_STAT_KEYWORDS)
         }
 
         // 顶部「成为永恒」宽按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
@@ -898,6 +915,67 @@ internal object GameApi {
         if (view.alpha != 1f) { view.alpha = 1f; changed = 1 }
         if (!view.isClickable) { view.isClickable = true; changed = 1 }
         if (!view.isEnabled) { view.isEnabled = true; changed = 1 }
+        return changed
+    }
+
+    private fun hideStageTextsByKeyword(activity: Any, keywords: Array<String>): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkAndCollapseByKeyword(decor, keywords)
+    }
+
+    private fun restoreStageTextsByKeyword(activity: Any, keywords: Array<String>): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkAndRestoreByKeyword(decor, keywords)
+    }
+
+    private fun matchesKeyword(view: View, keywords: Array<String>): Boolean {
+        if (view !is android.widget.TextView) return false
+        val t = view.text?.toString() ?: return false
+        for (k in keywords) { if (t.contains(k)) return true }
+        return false
+    }
+
+    private fun walkAndCollapseByKeyword(view: View?, keywords: Array<String>): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (matchesKeyword(view, keywords)) {
+            changed += hideGlyphEntry(view)
+            // 统计行是实时刷新的：原版会在门禁之后重设 visibility。
+            // 对普通 TextView（不涉及图标条的 weight 布局）再压一次高度，确保真正不可见。
+            val lp = view.layoutParams
+            if (lp != null && lp.height != 0) {
+                if (!keywordOriginalHeights.containsKey(view)) keywordOriginalHeights[view] = lp.height
+                lp.height = 0
+                view.layoutParams = lp
+                changed = 1
+            }
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                changed += walkAndCollapseByKeyword(view.getChildAt(i), keywords)
+            }
+        }
+        return changed
+    }
+
+    private fun walkAndRestoreByKeyword(view: View?, keywords: Array<String>): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (matchesKeyword(view, keywords)) {
+            changed += showGlyphEntry(view)
+            val lp = view.layoutParams
+            val target = keywordOriginalHeights[view] ?: ViewGroup.LayoutParams.WRAP_CONTENT
+            if (lp != null && lp.height != target) {
+                lp.height = target
+                view.layoutParams = lp
+                changed = 1
+            }
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                changed += walkAndRestoreByKeyword(view.getChildAt(i), keywords)
+            }
+        }
         return changed
     }
 
