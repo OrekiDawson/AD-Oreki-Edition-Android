@@ -582,6 +582,9 @@ internal object GameApi {
     /** [R99 P0] 关键词统计行被压前的高度，用于精确还原。 */
     private val keywordOriginalHeights = java.util.WeakHashMap<View, Int>()
 
+    /** [R99 P0] 永久门禁（已真实进入永恒）是否已完成一次性还原；完成后再不介入相关 View。 */
+    private var eternityGateReleased: Boolean = false
+
     /** [R99 P0] 记录被字形门禁压掉前的原始高度，用于精确还原（不能一律用 WRAP_CONTENT）。 */
     private val glyphOriginalHeights = java.util.WeakHashMap<View, Int>()
 
@@ -669,12 +672,19 @@ internal object GameApi {
         // [R99 P0] 底部图标条的高阶入口：原版按被污染的 Player.eternities 判真，
         // 实测全新存档（仅到 Break Infinity）上沙漏(永恒)仍可点击并进入「时间研究」页，
         // 还能用永恒点数购买时间之理。必须按字形收敛，阻断整条永恒入口。
+        // [R99 P0] 只在「阶段切换」时处理一次，稳定后完全放手。
+        //
+        // 实测教训：如果每帧都对同一批 View 反复写 visibility/alpha/isClickable，
+        // 合法永恒玩家点击沙漏会失效（a11y 仍报 clickable=true，但点击不跳转）。
+        // 因此：未达永恒 → 持续收敛；刚达永恒 → 一次性完整还原；已达永恒且已还原 → 不再触碰。
         if (!stage.eternityReached) {
             changed += hideStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
             changed += hideStageTextsByKeyword(activity, ETERNITY_STAT_KEYWORDS)
-        } else {
+            eternityGateReleased = false
+        } else if (!eternityGateReleased) {
             changed += restoreStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
             changed += restoreStageTextsByKeyword(activity, ETERNITY_STAT_KEYWORDS)
+            eternityGateReleased = true
         }
 
         // 顶部「成为永恒」宽按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
