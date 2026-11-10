@@ -532,6 +532,26 @@ internal object GameApi {
     @Volatile
     private var autobuyerUiDirty: Boolean = false
 
+    /**
+     * [R99 §12] Activity 不可用时登记的「待同步」标记。
+     *
+     * 调度器 tick 产生的强制同步请求**不得静默丢失**：Activity 不在前台时只登记，
+     * 恢复前台后由 [retryPendingGuiSync] 补一次完整同步并清除。
+     */
+    @Volatile
+    private var guiSyncPending: Boolean = false
+
+    /** [R99 §12] 主线程 Handler 单例；禁止每次刷新都新建 Handler。 */
+    private var mainHandler: android.os.Handler? = null
+
+    private fun uiHandler(): android.os.Handler {
+        val existing = mainHandler
+        if (existing != null) return existing
+        val created = android.os.Handler(android.os.Looper.getMainLooper())
+        mainHandler = created
+        return created
+    }
+
     @JvmStatic
     fun markAutobuyerUiDirty() {
         autobuyerUiDirty = true
@@ -808,35 +828,47 @@ internal object GameApi {
      *
      * 触发条件（§4.2 只有真实变化才刷新）：
      *   · [autobuyerUiDirty]：MOD 真实写入过原版自动购买器配置；
-     *   · [phaseChanged]：统一阶段判定发生跳变。
+     *   · [phaseChanged]：统一阶段判定发生跳变；
+     *   · [force]：调度器 tick 强制同步（[R99 §12]），即使无变化也要完成一致性检查。
      *
-     * 两者都不成立时立即返回，不做任何 View 操作。
+     * 三者都不成立时立即返回，不做任何 View 操作。
      * 同一时刻最多只有一个刷新在队列里，高频写入合并成一次执行。
-     * Activity 不可用时安全放弃并记录，不持有其引用。
+     * Activity 不可用时登记待同步并记录，不持有其引用。
      */
-    private fun requestAutobuyerUiRefresh(stage: OrekiGuiStage.Snapshot, phaseChanged: Boolean) {
+    private fun requestAutobuyerUiRefresh(
+        stage: OrekiGuiStage.Snapshot,
+        phaseChanged: Boolean,
+        force: Boolean = false,
+    ) {
         val dirty = autobuyerUiDirty
-        if (!dirty && !phaseChanged) return
-        if (autobuyerUiRefreshPosted) return
+        if (!force && !dirty && !phaseChanged) return
+        if (autobuyerUiRefreshPosted) {
+            // 已在队列中：本帧请求由队列里的那一次覆盖，但不能丢掉「强制」语义。
+            if (force) guiSyncPending = true
+            return
+        }
         autobuyerUiRefreshPosted = true
         Log.i(
             TAG_GUI,
             "GUI_REFRESH_POSTED target=autobuyers+statistics phase=" + stage.phaseLabel +
-                " phaseChanged=" + phaseChanged + " dirty=" + dirty,
+                " phaseChanged=" + phaseChanged + " dirty=" + dirty + " force=" + force,
         )
         try {
-            Handler(Looper.getMainLooper()).post {
+            uiHandler().post {
                 try {
                     val activity = mainActivityRef()
                     if (activity == null) {
-                        Log.w(TAG_GUI, "GUI_REFRESH_FAILED reason=activity-unavailable")
+                        // [R99 §12] 不得静默丢失：登记待同步，恢复前台后补一次。
+                        guiSyncPending = true
+                        Log.w(TAG_GUI, "GUI_REFRESH_DEFERRED reason=activity-unavailable force=" + force)
                     } else {
                         // 先让原版按自己的规则重算（自动购买器总览 + 统计页），
                         // 再由阶段门控收紧不该出现的层级区块。
                         call(autobuyerUiRefreshMethod(), null, activity)
                         call(statisticsUiRefreshMethod(), null, activity)
                         applyStageGate(activity, OrekiGuiStage.refresh())
-                        Log.i(TAG_GUI, "GUI_REFRESH_APPLIED target=autobuyers+statistics")
+                        guiSyncPending = false
+                        Log.i(TAG_GUI, "GUI_REFRESH_APPLIED target=autobuyers+statistics force=" + force)
                     }
                 } catch (e: Throwable) {
                     Log.w(TAG_GUI, "GUI_REFRESH_FAILED reason=" + e.javaClass.simpleName)
@@ -847,9 +879,53 @@ internal object GameApi {
             }
         } catch (e: Throwable) {
             autobuyerUiRefreshPosted = false
+            guiSyncPending = true
             Log.w(TAG_GUI, "GUI_REFRESH_FAILED reason=post-" + e.javaClass.simpleName)
         }
     }
+
+    /**
+     * [R99 §12] 调度器 tick 强制 GUI 状态同步。
+     *
+     * 与「有变化才重绘」的区别：本入口**无条件**完成一次状态一致性检查
+     * （原版缓存处理 → 统一阶段判定 → 阶段门控 → 原版自动购买器/统计重绘），
+     * 因此无动作 tick 也不会跳过刷新路径。绘制仍按帧合并（[autobuyerUiRefreshPosted]），
+     * 不会因为 tick 而额外触发购买、升级、挑战或结算。
+     *
+     * 只在主线程做 View 操作；调用方可在游戏线程调用。
+     */
+    @JvmStatic
+    fun forceGuiTickSync(reason: String) {
+        try {
+            call(originalCacheInvalidate(), null)
+            val stage = OrekiGuiStage.refresh()
+            val phaseChanged = stage.phase != lastAppliedPhase
+            if (phaseChanged) {
+                lastAppliedPhase = stage.phase
+                Log.i(TAG_GUI, "STATE_CHANGED source=tick-sync:" + reason + " phase=" + stage.phaseLabel)
+            }
+            applyStageGateSafe(stage)
+            requestAutobuyerUiRefresh(stage, phaseChanged, force = true)
+        } catch (e: Throwable) {
+            guiSyncPending = true
+            Log.w(TAG_GUI, "GUI_TICK_SYNC_FAILED reason=" + reason + " err=" + e.javaClass.simpleName)
+        }
+    }
+
+    /**
+     * [R99 §12] 前台恢复后的补同步；无待同步时立即返回（每帧调用成本可忽略）。
+     */
+    @JvmStatic
+    fun retryPendingGuiSync() {
+        if (!guiSyncPending) return
+        if (mainActivityRef() == null) return
+        Log.i(TAG_GUI, "GUI_PENDING_SYNC_RETRY")
+        forceGuiTickSync("pending-retry")
+    }
+
+    /** [R99 §12] 诊断：是否有尚未落地的同步请求。 */
+    @JvmStatic
+    fun isGuiSyncPending(): Boolean = guiSyncPending
 
     private fun cls(name: String): Class<*>? = try {
         // R85：构建时从同一份版本兼容配置生成，禁止运行时凭短名存在猜版本。

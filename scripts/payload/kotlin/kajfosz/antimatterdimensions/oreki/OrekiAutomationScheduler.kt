@@ -328,6 +328,53 @@ object OrekiAutomationScheduler {
         frameAt = SystemClock.elapsedRealtime()
     }
 
+    // ------------------------------------------------------------ [R99 §12] tick 边界
+
+    /** 上一次为「全局行动 tick GUI 同步」记账的时刻（elapsedRealtime 毫秒）。 */
+    @Volatile
+    private var lastGuiTickAtMs: Long = 0L
+
+    /** 累计已强制同步次数，仅用于日志取证。 */
+    @Volatile
+    private var guiTickCount: Int = 0
+
+    /**
+     * [R99 §12] 本帧是否到达一次「有效的全局行动 tick」边界。
+     *
+     * 与 [allow] 的区别：**不要求本拍真的执行了动作**。
+     * 只要距上次同步满一个玩家设定的全局间隔（1～60 秒），就返回 true 一次，
+     * 供调用方执行强制的 GUI 状态一致性检查。因此
+     * 「无动作 tick」也不会跳过 GUI 同步路径。
+     *
+     * 本方法只读时钟与间隔，不推进 `lastBeatAt`、不占用帧名额，
+     * 不会让自动化多买一次或改变节拍。
+     */
+    @JvmStatic
+    fun globalGuiTickDue(): Boolean {
+        if (!enabled) return false
+        val now = SystemClock.elapsedRealtime()
+        val gap = intervalSec * 1000L
+        if (lastGuiTickAtMs != 0L && now - lastGuiTickAtMs < gap) return false
+        lastGuiTickAtMs = now
+        guiTickCount++
+        try {
+            android.util.Log.i(TAG, "gui-tick #" + guiTickCount + " gapMs=" + gap)
+        } catch (_: Throwable) {
+        }
+        return true
+    }
+
+    /** [R99 §12] 诊断：已发生的全局 tick GUI 同步次数。 */
+    @JvmStatic
+    fun guiTickCount(): Int = guiTickCount
+
+    /** 仅供单元验证/测试复位。 */
+    @JvmStatic
+    fun resetGuiTickForTest() {
+        lastGuiTickAtMs = 0L
+        guiTickCount = 0
+    }
+
     /**
      * 原版「自动购买器」总开关是否开着。失败策略：fail-closed（读不到按"关"）。
      *

@@ -128,4 +128,45 @@ object OrekiAutobuyerBeat {
     fun describe(): String =
         "pending=" + isPending() + " dueAt=" + pendingRestoreAtMs + "ms defers=" + deferCount +
             " ticks=" + tickCount
+
+    // ------------------------------------------------------- [R99 §12] 智能策略 tick 边界
+
+    /** 上一次为「智能自动购买器 tick GUI 同步」记账的时刻（毫秒）。 */
+    @Volatile
+    private var lastGuiSyncAtMs: Long = 0L
+
+    /** 累计已强制同步次数，仅用于日志取证。 */
+    @Volatile
+    private var guiSyncTicks: Int = 0
+
+    /**
+     * [R99 §12] 本帧是否到达一次「有效的智能自动购买器策略 tick」边界。
+     *
+     * 无论策略本轮**是否真的修改了配置**，到点都返回 true 一次，
+     * 供调用方执行强制的原版自动购买器 GUI 一致性检查。
+     * 只读时钟，不写任何配置、不触发购买。
+     *
+     * @param intervalSec 策略节拍秒数（1～60，越界按 10 处理）
+     */
+    @JvmStatic
+    fun consumeGuiSyncDue(intervalSec: Int): Boolean {
+        val now = SystemClock.elapsedRealtime()
+        val gap = (if (intervalSec in 1..60) intervalSec else 10) * 1000L
+        if (lastGuiSyncAtMs != 0L && now - lastGuiSyncAtMs < gap) return false
+        lastGuiSyncAtMs = now
+        guiSyncTicks++
+        Log.i(TAG, "gui-tick #" + guiSyncTicks + " gapMs=" + gap)
+        return true
+    }
+
+    /** [R99 §12] 诊断：已发生的智能策略 tick GUI 同步次数。 */
+    @JvmStatic
+    fun guiSyncTicks(): Int = guiSyncTicks
+
+    /** 仅供单元验证/测试复位。 */
+    @JvmStatic
+    fun resetGuiSyncForTest() {
+        lastGuiSyncAtMs = 0L
+        guiSyncTicks = 0
+    }
 }

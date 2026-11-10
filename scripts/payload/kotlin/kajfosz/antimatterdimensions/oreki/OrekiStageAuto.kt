@@ -261,6 +261,23 @@ object OrekiStageAuto {
             // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
             OrekiAutomationScheduler.beginFrame()
 
+            // [R99 §12] 双调度器 tick 强制 GUI 同步。
+            // 必须在所有早退之前：即使本拍没有成功动作、或处于首次无限前的早返回分支，
+            // 也照样完成一次状态一致性检查（规则明确禁止「无动作就跳过刷新路径」）。
+            // 两个入口各自计时、互不代替；同一帧同时到点时由 GUI 队列合并成一次绘制，
+            // 但两者的「强制」语义都会保留（不会因去重丢掉状态变化）。
+            try {
+                GameApi.retryPendingGuiSync()
+                if (OrekiAutomationScheduler.globalGuiTickDue()) {
+                    GameApi.forceGuiTickSync("global-tick")
+                }
+                if (OrekiAutobuyerBeat.consumeGuiSyncDue(OrekiAutomationScheduler.getIntervalSec())) {
+                    GameApi.forceGuiTickSync("smart-autobuyer-tick")
+                }
+            } catch (_: Throwable) {
+                // 同步异常不得静默：GameApi 内部已记录 GUI_TICK_SYNC_FAILED 并登记待同步。
+            }
+
             edpFrameNo++
             edpHeartbeat()
 
