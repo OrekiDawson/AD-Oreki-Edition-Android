@@ -109,3 +109,16 @@ MOD 的 `GUI_REFRESH_POSTED/APPLIED` 仅 **3 次/22 s**，因此：
 2. 重点检查 Kotlin payload 中与 `Handler`/`postDelayed`/`Looper` 相关的实现，
    以及 `build_mod.py` 是否改写了主循环的延时参数；
 3. 修复目标：**恢复原版的每帧驱动（≈60 fps 申请重绘）**，不得用降低门禁或减少计算来绕过。
+
+## 04:50 主循环驱动排查（未定位）
+
+- `postDelayed` 在 MOD 与 base 两棵 smali 树中都是**大量库代码**（GMS/AndroidX/material）命中，
+  无法用 grep 区分出「游戏主循环」那一处，直接文本检索不具区分度。
+- MOD 的 Kotlin payload 中只有 `GameApi.uiHandler()` 一处 Handler（用于自动购买器/统计页刷新，
+  实测 22 s 仅 3 次），**不是**每帧驱动；payload 与 `build_mod.py` 中也没有对主循环延时的改写。
+- 因此「0.4 fps」更可能不是「把循环间隔调大」，而是**每帧耗时极长**（≈770 ms/帧）导致自然掉帧：
+  若 MOD 以 1000× 速度在单帧内串行执行上千次 tick，主线程单帧就会非常久。
+
+**待验证的判据**：对 MOD 采 `atrace -t 12 sched view -a <pkg>`，看主线程
+（pid 主线程名 = 包名）在 12 s 内的**运行时间占比**。若接近 100%，即证实「单帧计算量压满主线程」，
+修复方向应是**把加速计算移出主线程或降低单帧 tick 次数**，而不是去改刷新频率。
