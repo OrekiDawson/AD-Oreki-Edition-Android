@@ -214,3 +214,45 @@ cp fixture playerBackup.json; cp fixture playerBackup2.json; cp fixture playerBa
 
 结论：原版大坍缩对照实验 **NOT RUN**。阻碍已明确为「原版 UI 自动化不可靠」，不是数据构造问题。
 建议下一轮改用 frame-observer（AGENTS §41 有完整授权链路）取控件树并点击，而不是靠截图估坐标 + uiautomator。
+
+## 2026-11-11 决定性突破：`eternities` 只会在「永恒结算」里增长，且首次永恒有 5× 倍率
+
+**改用未混淆的 Web 源码**（两端行为等价）定位到唯一写入路径：
+
+`src/core/currency.js:304`
+```js
+Currency.eternities = new class extends DecimalCurrency {
+  get value() { return player.eternities; }
+  set value(value) { player.eternities = value; }
+  get startingValue() {
+    if (Pelle.isDoomed) return new Decimal(0);
+    return Effects.max(0, RealityUpgrade(10)).toDecimal();  // RU10 未购买时 = 0
+  }
+}
+```
+全仓只有两处会改变它：
+1. `src/core/eternity.js:22` — `Currency.eternities.add(newEternities)`（**永恒结算**）
+2. `src/core/reality.js:643` — `Currency.eternities.reset()`（**只在上层现实重置时**）
+
+而 `src/core/eternity.js:20`：
+```js
+const newEternities = gainedEternities().times(
+  Currency.eternities.value.pow(2 / 3).floor().clamp(5, 1000));
+```
+**首次永恒时 `eternities=0` → `0^(2/3)=0` → `clamp(0,5,1000)=5`**，即首永恒获得量 = `gainedEternities() × 5`。
+
+若 `gainedEternities() = 2.2`，则 `newEternities = 11` —— **与实测的 11 完全吻合**。
+
+同时 `eternity.js:21`：
+```js
+if (Currency.eternities.eq(0) && newEternities.lte(10)) Tab.dimensions.time.show();
+```
+这正解释了用户报告的「**出现永恒统计、时间研究相关页面**」——那是**发生过一次永恒之后的正常表现**。
+
+### 结论修正（重要）
+
+- `eternities = 11` **不是字段被污染**，而是**「确实发生了一次永恒结算」**的结果（11 = gainedEternities 2.2 × 首次 5 倍）。
+- 因此 MOD 的真实问题不是「写坏存档」，而是**在玩家未主动操作时自动触发了一次真实永恒**（MOD 的阶段自动化/自动永恒），并把它的结果如实写进了存档。
+- 官方原样保留 11 也是正确的——那是合法的游戏状态。
+
+待验证（下一步）：MOD 是否在未满足玩家意图时调用了原版永恒结算入口（`OrekiEternity`/自动化）。若是，修复方向是**约束自动永恒的触发条件**，而不是改存档字段。
