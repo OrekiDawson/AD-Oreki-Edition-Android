@@ -20,6 +20,8 @@
 | 双调度器 Tick 强制 GUI 同步（R99 §12） | [docs/长期规则_验证与证据.md §12](docs/长期规则_验证与证据.md) | 按需 |
 | 代理网络与主动搜索（R99 §33.9/§33.10） | [DETAIL_TOOLCHAIN §33.9/§33.10](docs/rules/DETAIL_TOOLCHAIN.md) | 按需 |
 | LF-only 换行符（R99 GIT §LF-only） | [docs/rules/GIT.md](docs/rules/GIT.md) | 按需 |
+| GUI 验收多截图与弹窗自动处理（R99 §13） | [docs/长期规则_验证与证据.md §13](docs/长期规则_验证与证据.md) | 按需 |
+| frame-observer 按钮真实定位与 GUI 自动验收（R99 §14） | [docs/长期规则_验证与证据.md §14](docs/长期规则_验证与证据.md) | 按需 |
 
 ## 迁移对照
 
@@ -50,3 +52,4 @@
 
 本版在独立 worktree 审查分支交付，未修改运行中工作区的共享 inode。
 两仓库携带同版模块，独立 clone 均可读取。由维护者审查整合，整合时须保链原位写入共享权威文件并同步镜像，禁止覆盖在途任务成果。
+| 两小时稳定版发布与持续推送授权（R99） | [RELEASE](rules/RELEASE.md) | 长期 |

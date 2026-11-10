@@ -564,6 +564,11 @@ internal object GameApi {
     private var statisticsRealityViewField: Field? = null
     private var statisticsTopEternityField: Field? = null
     private var statisticsViewFieldsResolved: Boolean = false
+    /** [R99 P0] 底部图标条中属于永恒层的字形码点（沙漏 = 永恒）。 */
+    private val ETERNITY_GLYPHS = arrayOf("\uf254")
+
+    /** [R99 P0] 记录被字形门禁压掉前的原始高度，用于精确还原（不能一律用 WRAP_CONTENT）。 */
+    private val glyphOriginalHeights = java.util.WeakHashMap<View, Int>()
 
     /** 上一次已应用到界面的阶段；只有变化才值得写日志与做重刷新。 */
     private var lastAppliedPhase: Int? = null
@@ -644,6 +649,15 @@ internal object GameApi {
         if (!stage.eternityReached) {
             changed += hideView(activity, 0x7f0a061d, null, "fabEternity")
             changed += hideAllById(activity, 0x7f0a061d, "fabEternity", IntArray(1))
+        }
+
+        // [R99 P0] 底部图标条的高阶入口：原版按被污染的 Player.eternities 判真，
+        // 实测全新存档（仅到 Break Infinity）上沙漏(永恒)仍可点击并进入「时间研究」页，
+        // 还能用永恒点数购买时间之理。必须按字形收敛，阻断整条永恒入口。
+        if (!stage.eternityReached) {
+            changed += hideStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
+        } else {
+            changed += restoreStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
         }
 
         // 顶部「成为永恒」宽按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
@@ -806,6 +820,110 @@ internal object GameApi {
     private fun restoreAllById(activity: Any, id: Int): Int {
         val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
         return walkAndRestore(decor, id)
+    }
+
+    /**
+     * [R99 P0] 按**图标字形**收敛原版底部图标条里的高阶入口。
+     *
+     * 3.21 底部图标条每一项是一个 `LinearLayout`，其 `contentDescription`
+     * 就是 FontAwesome 字形码点（实测：沙漏 = 永恒 = `\uf254`）。资源 id 不固定，
+     * 且原版每帧按被污染的 `Player.eternities` 重置可见性（见 [hideView] 注释），
+     * 因此只能按字形识别并压掉高度。
+     *
+     * **只收敛命中项本身**：若在"子节点命中"时收敛父容器，会把整条图标条一起压掉，
+     * 导致统计/成就/选项等无关入口全部消失。逐层各自判定。
+     *
+     * 只改可见性与高度，不改文字、不改游戏状态、不写存档。
+     */
+    private fun hideStageEntriesByGlyph(activity: Any, glyphs: Array<String>): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkAndCollapseByGlyph(decor, glyphs)
+    }
+
+    private fun restoreStageEntriesByGlyph(activity: Any, glyphs: Array<String>): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkAndRestoreByGlyph(decor, glyphs)
+    }
+
+    private fun matchesGlyph(view: View, glyphs: Array<String>): Boolean {
+        val desc = view.contentDescription?.toString()
+        if (desc != null && glyphs.contains(desc)) return true
+        if (view is android.widget.TextView) {
+            val t = view.text?.toString()
+            if (t != null && glyphs.contains(t)) return true
+        }
+        return false
+    }
+
+    private fun walkAndCollapseByGlyph(view: View?, glyphs: Array<String>): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (matchesGlyph(view, glyphs)) {
+            // [R99 P0] 绝对不要改 layoutParams.height：实测 WRAP_CONTENT→38、固定126→63、
+            // MATCH_PARENT→38，都会把图标行压坏且无法还原。只收敛可见性/透明度/可点击性。
+            changed += hideGlyphEntry(view)
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                changed += walkAndCollapseByGlyph(view.getChildAt(i), glyphs)
+            }
+        }
+        return changed
+    }
+
+    /**
+     * [R99 P0] 取**同父容器内未被收敛的兄弟图标**的高度作为还原目标。
+     *
+     * 不能依赖 "收敛前记录的高度"：View 可能在布局过程中被重建，
+     * 记录到的会是已被压过的 0/38，还原后依旧不完整（实测沙漏停在 38）。
+     * 同一行其它图标始终是正常高度（126），用它做基准最可靠。
+     */
+    /**
+     * [R99 P0] 收敛一个字形入口：只改可见性、透明度与可点击性，**不动 layoutParams**。
+     * 这样原版无论怎样 relayout 都不会被压坏，恢复时也只是把这三项写回，绝不残留畸形高度。
+     */
+    private fun hideGlyphEntry(view: View): Int {
+        var changed = 0
+        if (view.visibility != View.GONE) { view.visibility = View.GONE; changed = 1 }
+        if (view.alpha != 0f) { view.alpha = 0f; changed = 1 }
+        if (view.isClickable) { view.isClickable = false; changed = 1 }
+        if (view.isEnabled) { view.isEnabled = false; changed = 1 }
+        return changed
+    }
+
+    /** [R99 P0] 恢复一个字形入口，与 [hideGlyphEntry] 严格对称。 */
+    private fun showGlyphEntry(view: View): Int {
+        var changed = 0
+        if (view.visibility != View.VISIBLE) { view.visibility = View.VISIBLE; changed = 1 }
+        if (view.alpha != 1f) { view.alpha = 1f; changed = 1 }
+        if (!view.isClickable) { view.isClickable = true; changed = 1 }
+        if (!view.isEnabled) { view.isEnabled = true; changed = 1 }
+        return changed
+    }
+
+    private fun siblingIconHeight(view: View): Int {
+        val parent = view.parent as? ViewGroup ?: return ViewGroup.LayoutParams.WRAP_CONTENT
+        for (i in 0 until parent.childCount) {
+            val sib = parent.getChildAt(i)
+            if (sib === view) continue
+            val lp = sib.layoutParams ?: continue
+            if (lp.height > 0) return lp.height
+        }
+        return ViewGroup.LayoutParams.WRAP_CONTENT
+    }
+
+    private fun walkAndRestoreByGlyph(view: View?, glyphs: Array<String>): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (matchesGlyph(view, glyphs)) {
+            changed += showGlyphEntry(view)
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                changed += walkAndRestoreByGlyph(view.getChildAt(i), glyphs)
+            }
+        }
+        return changed
     }
 
     /**
