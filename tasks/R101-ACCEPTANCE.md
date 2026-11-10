@@ -144,3 +144,18 @@
 - 官方基线重打包 APK（无 MOD 补丁，仅去 split 约束 + 补多 ABI native libs）在同一 AVD、同一存档的「反物质维度」页：15 秒 902 帧 ≈ 60 fps，modern jank 0.11%，p95 31 ms。
 - 当前 MOD 候选在同一存档的「无限升级」页：15 秒 300 帧 = 20 fps，modern jank 84%，p95 16 ms。
 - 两者页面不同，**不能据此判定 MOD 回归**；需在同页面复测后再下结论。该差异提示 `gfxinfo` modern jank 与出帧频率强相关，需按 `ad-mobile-performance` 口径同时报告帧间隔与单帧工作量。
+
+## 2026-11-11 性能口径复核（同一 AVD / 同一存档 / 软件渲染 -gpu off）
+
+| 对象 | 页面 | 15 s 帧数 | 出帧率 | modern jank | p50/p95/p99 | Missed Vsync | Slow UI |
+|---|---|---|---|---|---|---|---|
+| 官方基线重打包 APK（无 MOD 补丁） | 反物质维度 | 902 | ≈60 fps | 0.11% | —/31/32 ms | 0 | 0 |
+| 当前 MOD 候选 | 无限升级 | 300 | 20 fps | 86.00% | 16/16/16 ms | 0 | 0 |
+
+补充：MOD 同页 framestats 明细（`/tmp/fs_mod2.txt`，15 s）：`Traversal` p50 0.32 ms、`DrawCommands` p50 1.62 ms、`Traversal→SwapBuffers` p50 3.08 ms，帧间隔恒为 50.00 ms。
+
+**判读（不是 PASS）**：
+1. MOD 出帧间隔恒为 50 ms（20 fps），单帧绘制工作量 ≤16 ms 且 `Slow UI=0`、`Missed Vsync=0`；现代 jank 86% 由「按 60 Hz 截止时间衡量一个 20 fps 出帧的应用」造成，属**口径假象**，不是单帧卡顿。
+2. 两侧页面不同（基线在反物质维度、MOD 在无限升级），**不能据此判定 MOD 回归**；必须同页复测后才能定论。
+3. 因此性能门禁**仍为 FAIL**：现有证据不足以证明 PASS，也不足以证明是 MOD 引入的回归。
+4. 下一步（唯一可执行路径）：用 frame-observer `/ui` 精确导航，把两端都停在「反物质维度」页，各采 15 s framestats + Perfetto，再按 `ad-mobile-performance` 口径同时报帧间隔与单帧工作量。
