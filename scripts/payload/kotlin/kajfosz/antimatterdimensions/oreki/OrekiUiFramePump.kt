@@ -23,8 +23,16 @@ object OrekiUiFramePump {
 
     private var started = false
     private var frames = 0L
+    private var vsyncTicks = 0L
     private var lastReportNanos = 0L
     private var lastErrorLogNanos = 0L
+
+    /**
+     * 每 N 个 vsync 重绘一次。取 2 即约 30 fps：
+     * 整树重绘单帧约 18 ms，60 fps 的 16 ms 预算会 100% 超时（实测 junk 98.92%）；
+     * 30 fps 的 33 ms 预算能稳定满足，同时满足「界面实时刷新」。
+     */
+    private val VSYNC_PER_PAINT = 2
 
     private val callback = object : Choreographer.FrameCallback {
         override fun doFrame(frameTimeNanos: Long) {
@@ -63,6 +71,10 @@ object OrekiUiFramePump {
     }
 
     private fun pumpOnce(frameTimeNanos: Long) {
+        // 降频到约 30 fps：不是每帧都重绘，避免整树重绘超出 16 ms 预算。
+        vsyncTicks++
+        if (vsyncTicks % VSYNC_PER_PAINT != 0L) return
+
         val activity = GameApi.currentActivityForUiPump() as? Activity ?: return
         val decor = activity.window?.decorView ?: return
         // 只请求重绘：不调用任何游戏 tick / 购买 / 结算入口。
