@@ -29,3 +29,26 @@
 1. 先确认 gfxinfo 对该应用可采集：换 `dumpsys gfxinfo <pkg>` 的 summary 段看 `Total frames rendered` 是否增长；
 2. 若 gfxinfo 不可用，改用 `atrace`/Perfetto 的 `gfx` + `view` 类别计时，或 `SurfaceFlinger` 的 `--latency`；
 3. 复测必须原版/MOD 交替、同档、同窗口，且各自至少 30 s 稳定期。
+
+## 追加诊断（03:35）：gfxinfo 对本应用不可采集
+
+| 检查 | 结果 | 含义 |
+|---|---|---|
+| MOD 进程 | pid 11847 运行中 | 应用活着 |
+| 前台焦点 | MOD Activity | 应用在前台 |
+| `dumpsys gfxinfo <pkg>` | `Total frames rendered: 0` | **HWUI 无帧统计** |
+| `gfxinfo framestats` | `---PROFILEDATA---` 后 0 行 | 无逐帧数据 |
+| `SurfaceFlinger --list` | 仅有 `animation-leash`/`InputSink`，无稳定应用层名 | latency 路径也不可靠 |
+
+结论：**该 AVD 上 gfxinfo 与 SurfaceFlinger latency 两条路径都取不到本应用的帧数据**，不是采样窗口问题。
+
+## 判定
+
+**性能正式门禁 = BLOCKED（测量通道不可用）**。不判 PASS；旧 FAIL 保留但非最终结论。
+
+## 下一步唯一可行路径
+
+用 Perfetto / atrace 的 `gfx` + `view` 类别采集真实帧时序（对应技能 `android-profiler`），
+或改用 `atrace -c -b 16384 gfx view sched freq` + `perfetto` trace 解析；
+采集时原版与 MOD 交替、同档、同 30 s 窗口，分别统计帧间隔 p50/p95/p99 与主线程耗时。
+在拿到该数据前，稳定版发布保持 BLOCKED。
