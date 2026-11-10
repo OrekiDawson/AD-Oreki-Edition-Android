@@ -11,3 +11,5 @@
 Perfetto 15 秒显示应用主线程约 1.59 秒 CPU、RenderThread 约 5.15 秒 CPU；frame-observer 关闭后现代 jank 仍为 224/337，且两组主要是 `Slow issue draw commands`。官方 XAPK 因 AVD ABI/split 不匹配无法安装，官方对照标记 BLOCKED。
 
 稳定窗口 A/B 未证明父级门禁造成性能回归：当前候选 3376 帧现代 jank 2637（78.11%）、p95 16ms、p99 32ms；父级门禁前候选 307 帧现代 jank 236（76.87%）、p95 16ms、p99 32ms。两者均以 `Slow issue draw commands` 为主，GPU p95 约 15ms；性能门禁仍保持 FAIL，不能据此发布稳定版。
+
+最新候选 `ae5c896` 使用合法永恒存档复验：完整无限页与底栏 PASS，点击紫色入口真实打开时间研究 PASS，强制停止后重启仍加载合法永恒数据 PASS。最新 15 秒帧统计为 300 帧、现代 jank 239（79.67%）、p95/p99 16ms、Missed Vsync 0、Slow UI 0、Slow issue draw commands 239，性能门禁仍 FAIL。Break 独立流程、非法直达和官方 XAPK 对照仍 BLOCKED/NOT RUN，因此不发布。

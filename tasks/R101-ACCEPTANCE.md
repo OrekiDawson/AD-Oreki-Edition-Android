@@ -61,3 +61,10 @@
 - SSH/SFTP：NOT RUN。
 - GitHub Releases：NOT RUN。
 - 原提交 `378ebb0` 未重写；未强推；现有存档目录未修改。
+
+## 最新候选复验（`ae5c896`）
+
+- 合法永恒存档恢复：PASS。使用 `r101-preclear-appdata.tgz`（永恒次数 29、永恒点数非零）启动最新候选，真实进入无限页，完整侧栏/底栏保留；点击紫色永恒入口后真实打开“时间研究”，证据 `reports/R101-new-save/97-legal-after-back.png`、`98-legal-time-page.png`。
+- 合法永恒重启读档：PASS（读档加载页与游戏页均保留永恒结算数据）；证据 `reports/R101-new-save/100-legal-restart-final.png`、`104-legal-restart-running.png`。
+- 最新候选帧统计：FAIL。真实运行页 15 秒共 300 帧，现代 jank 239/300（79.67%），p95/p99 均 16ms，Missed Vsync 0，Slow UI 0，Slow issue draw commands 239，GPU p95 15ms；证据 `reports/R101-new-save/104-legal-gfxinfo-15s.txt`。仍不能称稳定版。
+- Break Infinity 独立新档流程、非法程序直达、官方 XAPK 对照：BLOCKED/NOT RUN，未以已有合法存档证据冒充通过。
