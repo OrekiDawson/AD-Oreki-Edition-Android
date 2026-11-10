@@ -888,7 +888,7 @@ internal object GameApi {
         if (matchesGlyph(view, glyphs)) {
             // [R99 P0] 绝对不要改 layoutParams.height：实测 WRAP_CONTENT→38、固定126→63、
             // MATCH_PARENT→38，都会把图标行压坏且无法还原。只收敛可见性/透明度/可点击性。
-            changed += hideGlyphEntry(view)
+            changed += hideBarEntry(view)
         }
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) {
@@ -909,6 +909,68 @@ internal object GameApi {
      * [R99 P0] 收敛一个字形入口：只改可见性、透明度与可点击性，**不动 layoutParams**。
      * 这样原版无论怎样 relayout 都不会被压坏，恢复时也只是把这三项写回，绝不残留畸形高度。
      */
+    /**
+     * [R99 P0-导航占位] 记录被收敛「导航项单元」的原始可见性，用于合法解锁后完整恢复。
+     */
+    private val barCellOriginalVisibility = java.util.WeakHashMap<View, Int>()
+
+    /**
+     * [R99 P0-导航占位] 从字形 View 上溯，找到它所在的「导航项单元」。
+     *
+     * 实测结构（frame-observer `/ui`，1080x2274 屏）：
+     *   depth 14  LinearLayout  0,2148,108,2274 … 972,2148,1080,2274   ← 10 个 108x126 单元
+     *   depth 15  TextView(沙漏 \uf254) 472,2192,500,2230                 ← 单元的子项
+     * 只隐藏 depth 15 的字形会让 depth 14 的单元继续占满 108px，形成空白占位。
+     *
+     * 判定规则：返回「父容器有 >=2 个子项（即它是导航条的一员）且自身子项很少（<=3，即它是单元而非整条）」的最近祖先。
+     * 该规则保证只命中单元，绝不会上溯到整条导航条。
+     */
+    private fun resolveBarCell(view: View): View? {
+        var cur: View? = view.parent as? View
+        var guard = 0
+        while (cur != null && guard < 6) {
+            val p = cur.parent
+            if (p is ViewGroup && p.childCount >= 2 && cur is ViewGroup && cur.childCount in 1..3) return cur
+            cur = p as? View
+            guard++
+        }
+        return null
+    }
+
+    /**
+     * [R99 P0-导航占位] 收敛一个导航项：**让单元及其占位一起消失**，而不是只把字形藏起来。
+     * 单元是带 weight 的 LinearLayout 子项，`visibility=GONE` 后 Android 会重排兄弟、不留空位；
+     * 这里**绝不改 layoutParams**（历史实测改高度会压坏图标行且不可还原）。
+     */
+    private fun hideBarEntry(view: View): Int {
+        var changed = 0
+        val cell = resolveBarCell(view)
+        if (cell != null) {
+            if (!barCellOriginalVisibility.containsKey(cell)) barCellOriginalVisibility[cell] = cell.visibility
+            if (cell.visibility != View.GONE) { cell.visibility = View.GONE; changed = 1 }
+        }
+        if (view.visibility != View.GONE) { view.visibility = View.GONE; changed = 1 }
+        if (view.alpha != 0f) { view.alpha = 0f; changed = 1 }
+        if (view.isClickable) { view.isClickable = false; changed = 1 }
+        if (view.isEnabled) { view.isEnabled = false; changed = 1 }
+        return changed
+    }
+
+    /** [R99 P0-导航占位] 与 [hideBarEntry] 严格对称：恢复单元原始可见性与字形交互。 */
+    private fun showBarEntry(view: View): Int {
+        var changed = 0
+        val cell = resolveBarCell(view)
+        if (cell != null) {
+            val orig = barCellOriginalVisibility.remove(cell) ?: View.VISIBLE
+            if (cell.visibility != orig) { cell.visibility = orig; changed = 1 }
+        }
+        if (view.visibility != View.VISIBLE) { view.visibility = View.VISIBLE; changed = 1 }
+        if (view.alpha != 1f) { view.alpha = 1f; changed = 1 }
+        if (!view.isClickable) { view.isClickable = true; changed = 1 }
+        if (!view.isEnabled) { view.isEnabled = true; changed = 1 }
+        return changed
+    }
+
     private fun hideGlyphEntry(view: View): Int {
         var changed = 0
         if (view.visibility != View.GONE) { view.visibility = View.GONE; changed = 1 }
@@ -1004,7 +1066,7 @@ internal object GameApi {
         if (view == null) return 0
         var changed = 0
         if (matchesGlyph(view, glyphs)) {
-            changed += showGlyphEntry(view)
+            changed += showBarEntry(view)
         }
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) {
