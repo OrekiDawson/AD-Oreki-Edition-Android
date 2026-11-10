@@ -605,6 +605,9 @@ internal object GameApi {
         // f82.j() 已由 OrekiStageAuto 的非递归只读判据替换，原版自身阶段构建已正确，
         // 该扫描不再必要：已整体移除，导航恢复原版真实构建与解锁。
 
+        // [R100c P0-阶段越界] 侧栏永恒层导航项（时间维度/永恒）：精确按文案与行几何收敛。
+        changed += applyEternityNavGate(activity, !stage.eternityReached)
+
         // 顶部「成为永恒」宽按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
         // （`res/layout/layout_top_buttons.xml`；字段 `MainActivity.w9:Landroid/widget/Button;`，
         //  绑定点 `mainactivity/l0.smali:241`）。未真实完成永恒结算时不得出现。
@@ -765,6 +768,80 @@ internal object GameApi {
     private fun restoreAllById(activity: Any, id: Int): Int {
         val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
         return walkAndRestore(decor, id)
+    }
+
+    /** [R100c P0-阶段越界] 侧栏中仅在合法永恒之后才应出现的导航项标签（精确文案）。 */
+    private val ETERNITY_NAV_LABELS = arrayOf("永恒", "时间维度")
+
+    /** 侧栏导航行被收敛前的原始状态：visibility, labelVisibility, alpha*1000, clickable, enabled。 */
+    private val navRowOriginalState = java.util.WeakHashMap<View, IntArray>()
+
+    /**
+     * [R100c P0-阶段越界] 精确侧栏门禁。
+     *
+     * 背景：原版侧栏按被污染的 `Player.eternities` 判真，实测无限阶段点「时间维度」
+     * 会直接进入时间维度页（时间碎片 0.0、时间研究文案可见），属 P0 阶段越界。
+     * 这里**不做任何 childCount 猜测**，只处理文案完全等于 [ETERNITY_NAV_LABELS] 的节点，
+     * 且必须通过 [resolveDrawerNavRow] 的父行几何与字形兄弟双重校验，命中后只收敛该行。
+     */
+    private fun applyEternityNavGate(activity: Any, hide: Boolean): Int {
+        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
+        return walkEternityNav(decor, hide)
+    }
+
+    private fun walkEternityNav(view: View?, hide: Boolean): Int {
+        if (view == null) return 0
+        var changed = 0
+        if (view is android.widget.TextView) {
+            val t = view.text?.toString()?.trim()
+            if (t != null && ETERNITY_NAV_LABELS.contains(t)) {
+                val row = resolveDrawerNavRow(view)
+                if (row != null) changed += setNavRowState(row, view, hide)
+            }
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) changed += walkEternityNav(view.getChildAt(i), hide)
+        }
+        return changed
+    }
+
+    /** 校验并返回真正的侧栏导航行：RelativeLayout、行宽 600..900、行高 100..180、含字形兄弟。 */
+    private fun resolveDrawerNavRow(label: View): ViewGroup? {
+        val row = label.parent as? ViewGroup ?: return null
+        if (!row.javaClass.simpleName.contains("RelativeLayout")) return null
+        if (row.width !in 600..900 || row.height !in 100..180) return null
+        var hasGlyph = false
+        for (i in 0 until row.childCount) {
+            val c = row.getChildAt(i)
+            if (c !== label && c is android.widget.TextView) {
+                val glyph = c.text?.toString()
+                if (glyph != null && glyph.length == 1 && glyph[0].code >= 0xE000) hasGlyph = true
+            }
+        }
+        return if (hasGlyph) row else null
+    }
+
+    /** 精确保存与恢复：visibility / alpha / clickable / enabled 全部按原值写回，不统一置 VISIBLE。 */
+    private fun setNavRowState(row: ViewGroup, label: View, hide: Boolean): Int {
+        var changed = 0
+        if (hide) {
+            if (!navRowOriginalState.containsKey(row)) {
+                navRowOriginalState[row] = intArrayOf(
+                    row.visibility, label.visibility, (row.alpha * 1000).toInt(),
+                    if (row.isClickable) 1 else 0, if (row.isEnabled) 1 else 0)
+            }
+            if (row.visibility != View.GONE) { row.visibility = View.GONE; changed = 1 }
+        } else {
+            val saved = navRowOriginalState.remove(row)
+            if (saved != null) {
+                if (row.visibility != saved[0]) { row.visibility = saved[0]; changed = 1 }
+                if (label.visibility != saved[1]) { label.visibility = saved[1]; changed = 1 }
+                row.alpha = saved[2] / 1000f
+                row.isClickable = saved[3] == 1
+                row.isEnabled = saved[4] == 1
+            }
+        }
+        return changed
     }
 
     /**
