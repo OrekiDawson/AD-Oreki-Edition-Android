@@ -119,3 +119,4 @@
 - 合法存档恢复：PASS。使用受保护 `r101-preclear-appdata.tgz` 恢复后，点击真实“开始游戏”进入运行页；截图 `reports/R101-new-save/252-cache-legal-running.png` 显示完整底栏和普通无限页面，日志 `OREKI_GATE brake=true g=true c=true b=true`，未清零永恒字段。
 - 微缓存候选 APK：`3bc14fc6b39375c527daeed4ed140b3072f94793272c1ece49846ad66b663ffb`；新档门禁与合法存档页面均保持可用，但 15 秒窗口 300 帧、jank 259（86.33%），性能仍 FAIL，不能发布稳定版。
 - 当前状态：阶段门禁 PASS，合法存档 PASS，自动购买器开关及恢复 PASS；性能 FAIL，Break 原版独立手动点击、官方 XAPK 对照及四渠道发布 BLOCKED/NOT RUN。
+- 性能 A/B 收尾复核：关闭 frame-observer 后同一运行窗口为 465 帧、jank 306（65.81%）、p95=16ms、p99=19ms、Missed Vsync=0、Slow UI=0、Slow issue draw commands=305；`227-final-no-log.pftrace` 中 RenderThread 约 1.688s、swapper 约 50.533s。观测器不是主因，性能门禁仍 FAIL，未继续增加 Kotlin Hook。
