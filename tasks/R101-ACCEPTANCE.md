@@ -252,3 +252,21 @@
 | 旧口径 Janky % | — | 86.00% | 记录保留，判定为指标失配，不作门禁 |
 
 结论：性能门禁按修正后口径 PASS；旧口径 FAIL 记录保留不删。证据：`/tmp/fs_mod2.txt`、`/tmp/fs_base_iu.txt`、`/tmp/fs_base_curr.txt`。
+
+## 2026-11-11 Universal APK 产出与验证
+
+| 项 | 结果 |
+|---|---|
+| 产物 | `build/gradle-stage/反物质维度.apk` |
+| 大小 | 84,580,523 B |
+| SHA-256 | `a055e54cac4a798884c92010922ca0d6f9179b3363af4ca2ed8ab1562a5bdc02` |
+| ABI（`aapt2 dump badging` native-code） | `arm64-v8a` `armeabi-v7a` `x86` `x86_64` |
+| APK 内 `lib/` | 4 ABI × 2 库 = 8 个 `.so`（`libandroidx.graphics.path.so`、`libdatastore_shared_counter.so`） |
+| 签名 | apksigner verify exit=0；V3.0 Signer `CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN` |
+| zipalign | `-c -v 4` 通过 |
+| `extractNativeLibs` | 已由 false 改为 true（否则实测 `INSTALL_FAILED_INVALID_APK res=-2`） |
+| x86_64 AVD 安装 | `adb install -r` → Success；启动 pid=6747；无 FATAL / UnsatisfiedLinkError；离线结算与中文界面正常 |
+| armeabi-v7a / arm64-v8a | **NOT RUN**（无真机，未实测） |
+| 实现位置 | `build.gradle` 的 `assembleApktoolTree()` 内新增 native 库并入与 manifest 修正（Gradle 侧，不扩 build_mod.py） |
+
+ABI 依据：官方 3.21 XAPK 仅 `config.armeabi_v7a.apk` 携带上述两个 `.so`；其 armeabi-v7a 字节与 Google Maven `androidx.graphics:graphics-path:1.0.1`、`androidx.datastore:datastore-core:1.1.7` 内同文件**逐字节一致**，故其余三 ABI 取自同版本 AAR 属可验证扩展，非虚构 ABI。

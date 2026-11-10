@@ -655,6 +655,39 @@ def assembleApktoolTree = {
             logger.lifecycle('[oreki] 已将广告依赖包分组到 classes3.dex')
         }
     }
+    // [R101] Universal APK：把官方 ABI 的 native 库并入 APK，并声明解压安装。
+    //  来源可验证：armeabi-v7a 两个 .so 与官方 XAPK split 逐字节一致；
+    //  arm64-v8a/x86/x86_64 取自同一 Maven AAR 的同版本产物。
+    //  extractNativeLibs 必须为 true：压缩存放的 .so 在 false 时安装报
+    //  INSTALL_FAILED_INVALID_APK: Failed to extract native libraries (res=-2)。
+    def payloadLib = new File(repoRoot, 'scripts/payload/lib')
+    if (payloadLib.isDirectory()) {
+        int copied = 0
+        payloadLib.eachDir { abiDir ->
+            def dest = new File(modTree, "lib/${abiDir.name}")
+            dest.mkdirs()
+            abiDir.eachFile { f ->
+                if (f.name.endsWith('.so')) {
+                    java.nio.file.Files.copy(f.toPath(), new File(dest, f.name).toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                    copied++
+                }
+            }
+        }
+        if (copied == 0) throw new GradleException('payload/lib 下没有找到任何 .so，拒绝产出无 native 库的 Universal APK')
+        logger.lifecycle("[oreki] 已并入 native 库 ${copied} 个：${payloadLib.list().sort().join(', ')}")
+        def mf = new File(modTree, 'AndroidManifest.xml')
+        def text = mf.getText('UTF-8')
+        if (text.contains('android:extractNativeLibs="false"')) {
+            mf.setText(text.replace('android:extractNativeLibs="false"', 'android:extractNativeLibs="true"'), 'UTF-8')
+            logger.lifecycle('[oreki] extractNativeLibs: false -> true')
+        } else if (!text.contains('android:extractNativeLibs=')) {
+            mf.setText(text.replaceFirst('<application ', '<application android:extractNativeLibs="true" '), 'UTF-8')
+            logger.lifecycle('[oreki] extractNativeLibs: 缺失 -> 写入 true')
+        }
+    } else {
+        throw new GradleException("缺少 ${payloadLib}，无法产出 Universal APK")
+    }
     def tmp = new File(buildRoot, "apktool-tmp-${ProcessHandle.current().pid()}")
     tmp.mkdirs()
     def apktoolEnv = new HashMap(System.getenv())
