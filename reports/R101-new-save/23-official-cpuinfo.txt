@@ -1,0 +1,101 @@
+Load: 0.53 / 0.97 / 0.83
+CPU usage from 304057ms to 4043ms ago (2026-11-10 19:46:33.231 to 2026-11-10 19:51:33.245):
+  31% 484/android.hardware.graphics.composer3-service.ranchu: 1.3% user + 30% kernel
+  2.3% 525/surfaceflinger: 1.4% user + 0.8% kernel / faults: 482 minor
+  1.4% 667/system_server: 0.8% user + 0.6% kernel / faults: 25929 minor 2 major
+  0.2% 480/android.hardware.sensors-service.multihal: 0% user + 0.1% kernel / faults: 5 minor
+  0.1% 2537/adbd: 0% user + 0.1% kernel / faults: 22539 minor
+  0.1% 927/com.android.systemui: 0.1% user + 0% kernel / faults: 4136 minor
+  0.1% 580/logcat: 0% user + 0.1% kernel
+  0.1% 4501/kworker/1:2-virtio_vsock: 0% user + 0.1% kernel
+  0.1% 1552/com.google.android.gms: 0% user + 0% kernel / faults: 1446 minor 11337 major
+  0% 1539/com.google.android.apps.wellbeing: 0% user + 0% kernel / faults: 8631 minor 4529 major
+  0% 100/kworker/3:7H-kverityd: 0% user + 0% kernel
+  0% 2170/com.google.android.googlequicksearchbox:search: 0% user + 0% kernel / faults: 2962 minor 9751 major
+  0% 1226/com.google.android.gms.persistent: 0% user + 0% kernel / faults: 1377 minor 10 major
+  0% 310/logd: 0% user + 0% kernel / faults: 3642 minor
+  0% 1642/com.google.android.as: 0% user + 0% kernel / faults: 3156 minor 52 major
+  0% 1078/com.google.android.apps.nexuslauncher: 0% user + 0% kernel / faults: 2587 minor
+  0% 4411/kworker/1:4-virtio_vsock: 0% user + 0% kernel
+  0% 1048/com.android.phone: 0% user + 0% kernel / faults: 2526 minor
+  0% 4479/kworker/0:0-virtio_vsock: 0% user + 0% kernel
+  0% 77/khvcd: 0% user + 0% kernel
+  0% 45/ksoftirqd/3: 0% user + 0% kernel
+  0% 240/kworker/u16:2-loop29: 0% user + 0% kernel
+  0% 301/kworker/0:2-events: 0% user + 0% kernel
+  0% 312/servicemanager: 0% user + 0% kernel / faults: 2 minor
+  0% 572/traced_probes: 0% user + 0% kernel / faults: 481 minor 3 major
+  0% 1032/com.android.networkstack.process: 0% user + 0% kernel / faults: 849 minor
+  0% 12/kworker/u16:0-loop43: 0% user + 0% kernel
+  0% 44/migration/3: 0% user + 0% kernel
+  0% 780/vivid-000-tch-cap: 0% user + 0% kernel
+  0% 874/android.hardware.biometrics.fingerprint-service.ranchu: 0% user + 0% kernel
+  0% 1391/android.process.acore: 0% user + 0% kernel / faults: 304 minor 1060 major
+  0% 1614/com.google.android.googlequicksearchbox:interactor: 0% user + 0% kernel / faults: 178 minor 15 major
+  0% 1893/com.google.android.googlequicksearchbox:googleapp: 0% user + 0% kernel / faults: 105 minor 2209 major
+  0% 24/migration/0: 0% user + 0% kernel
+  0% 36/migration/2: 0% user + 0% kernel
+  0% 79/kworker/3:1: 0% user + 0% kernel
+  0% 461/statsd: 0% user + 0% kernel
+  0% 598/installd: 0% user + 0% kernel / faults: 22 minor
+  0% 904/ot-daemon: 0% user + 0% kernel
+  0% 1310/com.google.android.permissioncontroller: 0% user + 0% kernel / faults: 117 minor 917 major
+  0% 1353/com.google.android.dialer: 0% user + 0% kernel / faults: 69 minor 1334 major
+  0% 1594/com.google.android.providers.media.module: 0% user + 0% kernel / faults: 264 minor
+  0% 1745/com.google.android.inputmethod.latin: 0% user + 0% kernel / faults: 156 minor
+  0% 3167/com.google.android.documentsui: 0% user + 0% kernel / faults: 280 minor 407 major
+  0% 1/init: 0% user + 0% kernel / faults: 130 minor
+  0% 13/kworker/u16:1-kvfree_rcu_reclaim: 0% user + 0% kernel
+  0% 29/migration/1: 0% user + 0% kernel
+  0% 311/lmkd: 0% user + 0% kernel
+  0% 366/jbd2/dm-6-8: 0% user + 0% kernel
+  0% 482/android.hardware.wifi-service: 0% user + 0% kernel
+  0% 516/android.hardware.threadnetwork-service: 0% user + 0% kernel
+  0% 1427/com.android.carrierdefaultapp: 0% user + 0% kernel / faults: 10 minor 10 major
+  0% 1953/com.google.android.as.oss: 0% user + 0% kernel / faults: 83 minor 865 major
+  0% 2626/com.google.android.apps.photos: 0% user + 0% kernel / faults: 57 minor 928 major
+  0% 2852/com.google.android.gms.unstable: 0% user + 0% kernel / faults: 57 minor 537 major
+  0% 2903/com.google.android.partnersetup: 0% user + 0% kernel / faults: 15 minor 23 major
+  0% 2944/com.google.android.rkpdapp: 0% user + 0% kernel / faults: 57 minor 185 major
+  0% 3013/com.google.android.settings.intelligence: 0% user + 0% kernel / faults: 25 minor 82 major
+  0% 18/rcu_preempt: 0% user + 0% kernel
+  0% 19/rcuog/0: 0% user + 0% kernel
+  0% 20/rcuop/0: 0% user + 0% kernel
+  0% 33/rcuop/1: 0% user + 0% kernel
+  0% 38/kworker/2:0-events: 0% user + 0% kernel
+  0% 41/rcuop/2: 0% user + 0% kernel
+  0% 48/rcuop/3: 0% user + 0% kernel
+  0% 55/khugepaged: 0% user + 0% kernel
+  0% 73/kworker/1:1H-kverityd: 0% user + 0% kernel
+  0% 126/ueventd: 0% user + 0% kernel
+  0% 337/android.system.suspend-service: 0% user + 0% kernel
+  0% 460/netd: 0% user + 0% kernel
+  0% 531/android.hardware.graphics.allocator-service.ranchu: 0% user + 0% kernel
+  0% 574/traced: 0% user + 0% kernel / faults: 1163 minor 8 major
+  0% 607/media.swcodec: 0% user + 0% kernel / faults: 8 minor
+  0% 915/wpa_supplicant: 0% user + 0% kernel
+  0% 1056/com.google.android.bluetooth: 0% user + 0% kernel / faults: 5 minor
+  0% 1085/com.google.android.ext.services: 0% user + 0% kernel / faults: 181 minor
+  0% 1809/com.android.keychain: 0% user + 0% kernel / faults: 92 minor 242 major
+  0% 1979/android.process.media: 0% user + 0% kernel / faults: 26 minor 393 major
+  0% 2174/com.android.imsserviceentitlement: 0% user + 0% kernel / faults: 25 minor 163 major
+  0% 2282/com.google.android.deskclock: 0% user + 0% kernel / faults: 16 minor 95 major
+  0% 2301/com.google.android.tts: 0% user + 0% kernel / faults: 11 minor 29 major
+  0% 2322/com.google.android.apps.restore: 0% user + 0% kernel / faults: 12 minor 16 major
+  0% 2428/com.android.traceur: 0% user + 0% kernel / faults: 22 minor 68 major
+  0% 2485/com.android.camera2: 0% user + 0% kernel / faults: 8 minor 14 major
+  0% 2512/com.google.android.apps.wallpaper: 0% user + 0% kernel / faults: 13 minor 40 major
+  0% 2604/com.android.dynsystem:dynsystem: 0% user + 0% kernel / faults: 7 minor 21 major
+  0% 2645/com.android.providers.calendar: 0% user + 0% kernel / faults: 14 minor 160 major
+  0% 2666/com.android.shell: 0% user + 0% kernel / faults: 18 minor 181 major
+  0% 3059/com.android.chrome: 0% user + 0% kernel / faults: 38 minor 358 major
+  0% 4493/abb: 0% user + 0% kernel / faults: 80 minor
+  0% 4502/com.google.android.verifier: 0% user + 0% kernel / faults: 72 minor 401 major
+  0% 4519/kworker/2:1-mm_percpu_wq: 0% user + 0% kernel
+ +0% 5140/kworker/3:0-events: 0% user + 0% kernel
+ +0% 5194/kworker/1:0-mm_percpu_wq: 0% user + 0% kernel
+ +0% 5216/kworker/u16:3: 0% user + 0% kernel
+ +0% 5264/kworker/0:1-mm_percpu_wq: 0% user + 0% kernel
+ +0% 5273/kworker/u17:0-blk_crypto_wq: 0% user + 0% kernel
+ +0% 5393/kworker/1:1: 0% user + 0% kernel
+20% TOTAL: 4.5% user + 14% kernel + 0% iowait + 1.5% softirq

@@ -40,9 +40,11 @@
 - frame-observer 进程存在：`com.oreki.frameobserver`。
 - `dumpsys gfxinfo`：272 帧，p50 16ms，p95 28ms，p99 400ms，Janky 203/272（74.63%），Missed Vsync 7。
 - 父级门禁候选实测：264 帧，p50 16ms，p95 32ms，p99 32ms；现代 FrameTimeline 206/264（78.03%），legacy 35/264（13.26%），Missed Vsync 0，Slow UI 1，Slow issue draw commands 206；证据 `reports/R101-new-save/19-parent-gate-gfxinfo.txt`。
+- Perfetto 15 秒：`reports/R101-new-save/20-parent-gate.pftrace`；应用主线程约 1.59 秒 CPU，RenderThread 约 5.15 秒 CPU，未见主线程长阻塞或递归证据。frame-observer 关闭对照为 337 帧、现代 jank 224（66.47%）、legacy 162（48.07%）、p95 36ms、Missed Vsync 0；证据 `reports/R101-new-save/21-parent-gate-gfxinfo-observer-off.txt`。两组均以 `Slow issue draw commands` 为主。
+- 官方 XAPK 对照：BLOCKED；base + `config.mdpi` 缺少设备所需 split，加入 `config.armeabi_v7a` 后 AVD 报 `INSTALL_FAILED_NO_MATCHING_ABIS`，未伪造原版性能结论。
 - CPU 采样：应用进程约 0%（采样瞬间）；frame-observer 约 1.2%。
 - StackOverflow/ANR/应用致命异常：本轮 logcat 未发现；系统 FontLog/NullBinder 警告不属于应用 P0 根因。
-- 性能门禁：FAIL。现代 jank/绘制命令仍高，且尚未完成 Perfetto 与 frame-observer 开关对照；当前候选不能称稳定版。
+- 性能门禁：FAIL。现代 jank/绘制命令仍高；Perfetto 与 frame-observer 开关对照已完成，但当前候选不能称稳定版。
 
 ## 发布状态
 
