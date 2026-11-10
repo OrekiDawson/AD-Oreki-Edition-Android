@@ -184,3 +184,20 @@ cp fixture playerBackup.json; cp fixture playerBackup2.json; cp fixture playerBa
 启动 → 读回验证 antimatter.exponent == 150 才算注入成功
 ```
 只有「读回验证通过」之后，才允许进行「点大坍缩看 eternities 是否变 11」的判定，否则结果一律 INCONCLUSIVE。
+
+## 2026-11-11 注入已成功，但又发现第二层阻碍：antimatter 每帧被重算
+
+按上轮修正做法（同时替换 player.json + 全部 playerBackup*.json），**注入验证通过**：
+
+| 项 | 值 |
+|---|---|
+| 注入 | `antimatter=1e150`、`eternities=0`、`infinities=0` |
+| 读回 | `antimatter.exponent=150`、`eternities=0`、`infinities=0` ✅ |
+
+但随后 UI 显示 antimatter 持续**下降**：`1.06e18` → `1.00e13`（截图实测）。
+
+原因：官方每帧会用「维度产量」重算 `antimatter`，我注入的 1e150 没有对应的维度/产量支撑，因此被按真实产量覆盖并回落。**仅改 antimatter 字段无法让游戏进入「可大坍缩」状态。**
+
+结论：要触发原版大坍缩，必须让存档拥有**真实足够的维度与产量**（而不是伪造 antimatter）。这需要构造一个合法的「即将首次坍缩」存档，或直接在原版里正常玩到 1e100。两条路都需要更多操作成本。
+
+因此「原版坍缩是否也写 eternities=11」仍为 **NOT RUN**。
