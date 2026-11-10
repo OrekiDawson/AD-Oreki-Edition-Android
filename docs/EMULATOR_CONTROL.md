@@ -113,7 +113,7 @@
 | 文件 | 结果 |
 |---|---|
 | `avd_check.py:50` | **只在报错信息里打印**「解决：按既有参数重启 emulator 后重跑」，**不执行**启动 |
-| `avd_smoke.py` | 只调用 `adb`，不启动模拟器 |
+| `smokeOrekiTest`（Gradle 原生，原 `avd_smoke.py` 已迁移） | 只调用 `adb`，不启动模拟器 |
 | 其余脚本 | 无 `emulator.exe` 命中 |
 
 结论：**仓库脚本不会自动拉起 AVD**。今天的重启全部是人（Agent）在会话里直接执行的命令。
