@@ -53,9 +53,18 @@
 - 性能门禁：FAIL。现代 jank/绘制命令仍高；Perfetto 与 frame-observer 开关对照已完成，但当前候选不能称稳定版。
 - 自动购买器运行证据：真实页面显示自动大坍缩、维度提升、反物质星系和计数频率等控件；禁用状态在 Activity 重启后保持，日志记录原版缓存/界面刷新完成。证据 `reports/R101-new-save/73-autobuyer-disabled-logcat.txt`、`74-autobuyer-after-restart-logcat.txt`、`75-autobuyer-enabled-logcat.txt`。
 
+## 2026-11-10 当前候选补充复验
+
+- Kotlin 根因修复：`OrekiPlayerIntent.refresh()` 不再把原版自动购买器总开关加入策略恢复队列；玩家关闭后保持 `false`，只有玩家再次打开才清除意图。单项自动器状态机未改。
+- 构建门禁：PASS。完整执行 Kotlin→ABI 校验→D8/DEX→Apktool 汇编→zipalign/apksigner；未新增 Java/Smali 业务逻辑。当前候选 SHA-256：`3fff4f6bdbba34a86b918debda7b79e7dbddce7d7464e2bf314b7d1b5adbbc0d`。
+- 自动购买器总开关：PASS。真实点击“自动购买器已启用”后，2 秒与 35 秒读取应用 `player.json` 均为 `autobuyersOn:false`；安装当前候选后强制停止、重启并点击“开始游戏”，读取仍为 `false`，截图 `reports/R101-new-save/225-autobuyer-final-restart.png`，存档证据 `225-autobuyer-final-restart-player.txt`。
+- 自动购买器页面/功能：PASS（定向）。当前页面真实显示大坍缩、维度提升、反物质星系、计数频率等控制项；本轮未伪造购买结果，购买器完整自动购买行为仍需按独立存档场景补测。
+- 当前候选性能：FAIL。重启后运行页 15 秒 `Total frames=300`、现代 `Janky=239 (79.67%)`、p95/p99=16ms、Missed Vsync=1、Slow issue draw commands=238、GPU p95=15ms、应用 CPU 快照约 0%；证据 `reports/R101-new-save/226-autobuyer-final-gfxinfo-15s.txt`、`226-autobuyer-final-cpu.txt`。性能异常仍由绘制命令/高视图树主导，不能发布稳定版。
+- 当前候选截图 `reports/R101-new-save/225-autobuyer-final-restart.png` 与 `222-auto-page.png` 保留；诊断日志未再使用每帧输出，避免测量污染。
+
 ## 发布状态
 
-- Android Release：BLOCKED（性能门禁 FAIL，Break/非法直达/官方 XAPK 对照未完成）。最新候选 SHA-256 为 `3b7dfea04c91e7148ca42f34c6782e3e9e23d35bc30771f8eb585c3317876d60`，仅本地验收，不发布。
+- Android Release：BLOCKED（性能门禁 FAIL，Break/非法直达/官方 XAPK 对照未完成）。最新候选 SHA-256 为 `3fff4f6bdbba34a86b918debda7b79e7dbddce7d7464e2bf314b7d1b5adbbc0d`，仅本地验收，不发布。
 - OneDrive：NOT RUN。
 - Google Drive：NOT RUN。
 - SSH/SFTP：NOT RUN。

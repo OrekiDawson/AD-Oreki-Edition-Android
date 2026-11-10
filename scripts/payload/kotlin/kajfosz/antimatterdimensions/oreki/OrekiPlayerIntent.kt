@@ -46,10 +46,10 @@ object OrekiPlayerIntent {
     }
 
     /**
-     * 每帧调用一次：总开关也是智能策略的受管配置。
+     * 每帧调用一次：原版总开关由玩家拥有，不属于策略恢复项目。
      *
-     * 手动关闭后只登记，按当前全局间隔等待到下一次策略 tick，再恢复建议值；
-     * 绝不在下一帧抢写。MOD 总开关关闭时清掉待恢复项。
+     * 玩家关闭后立即登记为玩家意图，并持续保持关闭；只有玩家自己重新打开后，
+     * 才清除该意图。单项自动器仍由下方受管状态机按策略 tick 延迟恢复。
      */
     @JvmStatic
     fun refresh() {
@@ -64,13 +64,8 @@ object OrekiPlayerIntent {
                 masterPlayerDisabled = false
                 return
             }
-            if (consumeManagedActiveRestoreDue("master")) {
-                GameApi.setAutobuyersOn(true)
-                noteMasterEnabledByMod()
-                Log.i(TAG, "master autobuyers restored at strategy tick")
-            } else {
-                noteManagedActiveDisabled("master", OrekiAutomationScheduler.getIntervalSec())
-            }
+            clearManagedActivePending("master")
+            masterPlayerDisabled = true
         } catch (_: Throwable) {
         }
     }
