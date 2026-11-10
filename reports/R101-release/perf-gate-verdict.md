@@ -84,3 +84,28 @@ MOD 的 `GUI_REFRESH_POSTED/APPLIED` 仅 **3 次/22 s**，因此：
 下一步建议：对 MOD 采 `atrace -e view` 并过滤应用 pid，确认 `Choreographer#doFrame` 的**调用次数**与 gfxinfo 的 26 帧是否一致——
 - 若 doFrame 也是 ~26 次/20 s ⟹ 应用根本没申请重绘，问题在游戏主循环/tick 驱动；
 - 若 doFrame ≈970 次 ⟹ 应用申请了重绘但被合成器丢弃，问题在渲染/合成层。
+
+## ✅ 04:35 根因层面定位：MOD 应用侧根本不申请重绘
+
+用 `atrace -t 12 -b 32768 -a <pkg> view` 过滤应用，统计 12 秒窗口：
+
+| 应用 | atrace 行数 | **`Choreographer#doFrame`** | `draw` | 折算 |
+|---|---|---|---|---|
+| 官方原版 3.21 | 41,841 | **726** | 1,441 | ≈60 fps |
+| MOD | 234 | **5** | 4 | **≈0.4 fps** |
+
+**结论（二选一已判定）**：应用**根本没有申请重绘**（doFrame 少 145 倍），
+而不是「申请了但被合成器丢弃」。因此问题在**游戏的 UI 刷新调度 / invalidate 驱动**，
+不在渲染、合成或 GPU 层。
+
+这与 `gfxinfo` 的 26 帧/20 s、`atrace` 的 5 次/12 s 三个独立来源互相印证，
+且排除了此前所有候选（MOD 主动节流、日志刷屏、刷新门控、合成器丢帧）。
+
+## 下一步（修复方向已明确）
+
+需要在 MOD 侧定位「谁负责周期性 invalidate / 提交 UI 更新」：
+1. AD Android 的主循环由 `mHandler.postDelayed(...)` / `Choreographer.postFrameCallback` 驱动；
+   MOD 若把该驱动的间隔放大（例如为了「省电」或与全局行动节拍绑定），就会出现此现象；
+2. 重点检查 Kotlin payload 中与 `Handler`/`postDelayed`/`Looper` 相关的实现，
+   以及 `build_mod.py` 是否改写了主循环的延时参数；
+3. 修复目标：**恢复原版的每帧驱动（≈60 fps 申请重绘）**，不得用降低门禁或减少计算来绕过。
