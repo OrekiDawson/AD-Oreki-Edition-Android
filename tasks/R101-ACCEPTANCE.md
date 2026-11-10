@@ -343,3 +343,13 @@ R94/R96 代码注释称「3.21 新档 eternities 被初始化成非零（实测 
 
 结论：`eternities=11` 在存档写出前已存在于内存；读档只是忠实还原。因此异常发生在**运行时写入**，不在序列化或导入映射。
 下一步必须在运行时观测：全新 MOD 存档 → 首次大坍缩 → 记录 `eternities` 变化前后值，定位到具体 tick 路径。
+
+### 三处 E0 调用点性质（已逐一核对）
+
+| 位置 | 实际作用 |
+|---|---|
+| `player/e.smali:6201` | 读档：`f(z62,"eternities")D` → `new BigDouble(D)` → `E0` |
+| `player/f.smali:38487` | 读档：`z62->v("eternities")` → `f.a(u62)` 解析 → `E0` |
+| `up0.smali:422` | 货币 setter（被上层调用时写入） |
+
+三处**都不是运行时自增**。因此 `eternities` 的增长只能来自对 `Player.x()` 返回的 BigDouble 做**就地相加**（BigDouble 为可变对象，`add/plus` 直接改自身，不经过 setter）。这是下一轮定位的确切入口：搜索对 `Player.x()` 返回值调用 `add/plus/multiply` 的位置，逐一核对是否为误用（R42 曾记录过同类误用：把 `Player.x()` 当成反物质）。
