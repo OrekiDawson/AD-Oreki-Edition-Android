@@ -509,27 +509,21 @@ internal object GameApi {
     /** 阶段门控与刷新链路专用日志标签；与 ABI 缺失日志 `TAG` 分开，便于现场快速过滤。 */
     private const val TAG_GUI = "OREKI_GUI"
 
+    /** 上一次已应用到界面的阶段；只有变化才值得写日志与做重刷新。 */
+    private var lastAppliedPhase: Int? = null
+
+    // 兼容旧版本诊断实现的字段保留；当前阶段门禁由 f82.j()/f82.p() 的
+    // Kotlin trampoline 直接驱动原版 UI，不再调用这些 View 操作辅助函数。
     private var statisticsEternityViewField: Field? = null
     private var statisticsRealityViewField: Field? = null
     private var statisticsTopEternityField: Field? = null
     private var statisticsViewFieldsResolved: Boolean = false
-    // [R100 P0 导航回归] 字形/关键词整树扫描门禁已整体移除，导航回归原版真实构建。
-
-
-
-
-    /** 上一次已应用到界面的阶段；只有变化才值得写日志与做重刷新。 */
-    private var lastAppliedPhase: Int? = null
 
     private fun resolveStatisticsViewFields(activity: Any) {
         if (statisticsViewFieldsResolved) return
         statisticsViewFieldsResolved = true
         try {
             val cls = activity.javaClass
-            // 3.21 原版字段（`work/base_decoded_321`）：
-            //   i6 = 0x7f0a05c8 eternityStatisticsLayout
-            //   o6 = 0x7f0a0e6a realityStatisticsLayout
-            //   t2 = 0x7f0a05c6 eternityPointsTextView（顶部资源栏）
             statisticsEternityViewField = cls.getDeclaredField("i6").apply { isAccessible = true }
             statisticsRealityViewField = cls.getDeclaredField("o6").apply { isAccessible = true }
             statisticsTopEternityField = cls.getDeclaredField("t2").apply { isAccessible = true }
