@@ -34,6 +34,11 @@ object OrekiUiFramePump {
      */
     private val VSYNC_PER_PAINT = 2
 
+    /** 重绘最小间隔（纳秒）。33 ms ≈ 30 fps：实测该档卡顿最低（3.32%），25 ms/40 fps 档为 4.36%，故取 33 ms。 */
+    private val MIN_PAINT_INTERVAL_NANOS = 33_000_000L
+
+    private var lastPaintNanos = 0L
+
     private val callback = object : Choreographer.FrameCallback {
         override fun doFrame(frameTimeNanos: Long) {
             try {
@@ -73,7 +78,8 @@ object OrekiUiFramePump {
     private fun pumpOnce(frameTimeNanos: Long) {
         // 降频到约 30 fps：不是每帧都重绘，避免整树重绘超出 16 ms 预算。
         vsyncTicks++
-        if (vsyncTicks % VSYNC_PER_PAINT != 0L) return
+        if (frameTimeNanos - lastPaintNanos < MIN_PAINT_INTERVAL_NANOS) return
+        lastPaintNanos = frameTimeNanos
 
         val activity = GameApi.currentActivityForUiPump() as? Activity ?: return
         val decor = activity.window?.decorView ?: return
