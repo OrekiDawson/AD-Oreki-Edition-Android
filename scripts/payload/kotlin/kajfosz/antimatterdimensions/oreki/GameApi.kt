@@ -585,6 +585,7 @@ internal object GameApi {
     @JvmStatic
     fun forceGuiTickSync(reason: String) {
         try {
+            // 强制同步是缓存失效的固定低频入口；不要把同一反射调用放进每帧 finally。
             call(originalCacheInvalidate(), null)
             val stage = OrekiGuiStage.refresh()
             val phaseChanged = stage.phase != lastAppliedPhase
@@ -604,7 +605,7 @@ internal object GameApi {
      */
     @JvmStatic
     fun retryPendingGuiSync() {
-        if (!guiSyncPending) return
+        if (!guiSyncPending || autobuyerUiRefreshPosted) return
         if (mainActivityRef() == null) return
         Log.i(TAG_GUI, "GUI_PENDING_SYNC_RETRY")
         forceGuiTickSync("pending-retry")
@@ -2307,12 +2308,16 @@ internal object GameApi {
      * 本方法只读状态、只做可见性收敛，不写存档、不伪造进度。
      */
     fun refreshOriginalCaches() {
-        call(originalCacheInvalidate(), null)
         val stage = OrekiGuiStage.refresh()
         val phaseChanged = stage.phase != lastAppliedPhase
         if (phaseChanged) {
             lastAppliedPhase = stage.phase
             Log.i(TAG_GUI, "STATE_CHANGED source=refreshOriginalCaches phase=" + stage.phaseLabel)
+        }
+        // autoBuyerTick 每帧都会到达这里。只有 MOD 确认写过自动购买器配置，或阶段真的变化时，
+        // 才需要额外失效一次原版缓存；无变化帧由原版主循环自身维护缓存。
+        if (autobuyerUiDirty || phaseChanged) {
+            call(originalCacheInvalidate(), null)
         }
         requestAutobuyerUiRefresh(stage, phaseChanged)
     }

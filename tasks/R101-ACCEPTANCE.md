@@ -68,3 +68,12 @@
 - 合法永恒重启读档：PASS（读档加载页与游戏页均保留永恒结算数据）；证据 `reports/R101-new-save/100-legal-restart-final.png`、`104-legal-restart-running.png`。
 - 最新候选帧统计：FAIL。真实运行页 15 秒共 300 帧，现代 jank 239/300（79.67%），p95/p99 均 16ms，Missed Vsync 0，Slow UI 0，Slow issue draw commands 239，GPU p95 15ms；证据 `reports/R101-new-save/104-legal-gfxinfo-15s.txt`。仍不能称稳定版。
 - Break Infinity 独立新档流程、非法程序直达、官方 XAPK 对照：BLOCKED/NOT RUN，未以已有合法存档证据冒充通过。
+
+## 最新 P0 候选（2026-11-10 21:18–21:24 UTC+8）
+
+- 构建候选 SHA-256：`f2521cc7e34ac8320f6cba39a758e32bec053dffc9346a47005f78fbab788ab8`；Gradle→Kotlin→D8/DEX→APK 门禁完成，未新增 Java/Smali 业务逻辑。
+- 根因修复：`bm4.i` 不是业务页签键，改用继承字段 `Luo4.b`；同时在 `currentSubTab` 写入 `jp4.d0` 的 Activity 恢复点增加同一 Kotlin 门禁，阻断旧 SharedPreferences 绕过 `W8()`。
+- 新档/EP=0、bigE=0 的真实截图 `reports/R101-new-save/117-final-current-subtab.png`：恢复为“打破无限”页，永恒入口未出现，普通底栏完整；`OREKI_TAB_GATE` 临时诊断日志已从源码移除。
+- 性能真实采样 `reports/R101-new-save/118-final-gfxinfo-15s.txt`：300 帧，现代 Janky 240（80.00%），p95=16ms、p99=16ms、Missed Vsync=0、Slow UI=1、Slow issue draw commands=238，GPU p95=14ms，应用 CPU 约 1%；绘制命令瓶颈仍在，性能门禁 FAIL。
+- 合法永恒整包恢复：BLOCKED。单文件覆盖会被启动流程覆盖；整包恢复首次因 AVD 应用 UID 属主不匹配导致权限错误，修正 UID 后仍观测到 `ep=0,bigE=0` 与既有 `ew6.j()` 空指针，不能把 `reports/R101-new-save/125-legal-restored*` 记为合法回归 PASS。
+- Break Infinity 独立前后、官方 XAPK 对照、四渠道发布：BLOCKED/NOT RUN；本候选不发布稳定版。
