@@ -77,3 +77,10 @@
 - 性能真实采样 `reports/R101-new-save/118-final-gfxinfo-15s.txt`：300 帧，现代 Janky 240（80.00%），p95=16ms、p99=16ms、Missed Vsync=0、Slow UI=1、Slow issue draw commands=238，GPU p95=14ms，应用 CPU 约 1%；绘制命令瓶颈仍在，性能门禁 FAIL。
 - 合法永恒整包恢复：BLOCKED。单文件覆盖会被启动流程覆盖；整包恢复首次因 AVD 应用 UID 属主不匹配导致权限错误，修正 UID 后仍观测到 `ep=0,bigE=0` 与既有 `ew6.j()` 空指针，不能把 `reports/R101-new-save/125-legal-restored*` 记为合法回归 PASS。
 - Break Infinity 独立前后、官方 XAPK 对照、四渠道发布：BLOCKED/NOT RUN；本候选不发布稳定版。
+
+### 合法存档恢复复验修正
+
+- PASS：整包恢复后先修正当前 AVD UID，再将应用目录递归设置为当前 `app_data_file:s0:c236,c256,c512,c768` context；此前 EACCES/SELinux 阻塞已证实为测试恢复操作问题，不是 APK 业务根因。
+- PASS：`reports/R101-new-save/127-legal-chcon-logcat.txt` 出现 `phase=eternity、eternity=true、ep=4.83128769584846e5、bigE=29`，截图 `127-legal-chcon.png` 显示永恒点数；运行页 `129-legal-running.png` 显示紫色永恒入口和完整底栏；重启证据 `138-legal-restart.png`、`138-legal-restart-logcat.txt` 再次出现 `phase=eternity、ep=2.93977740523271e7、bigE=29`。
+- `ew6.j()` 仍有一次既有空指针日志，但未阻断页面启动、永恒状态或底栏显示；按应用无崩溃、页面可用证据记录为非 P0 阻塞，仍需后续独立修复。
+- 新档 Break 前定向观察：PASS（前置状态）。恢复受保护新档快照后，logcat 明确为 `phase=infinity、break=false、canEt=false、ep=0、bigE=0`，真实截图 `reports/R101-new-save/142-fresh2-before-break.png`/`148-fresh2-before-break-clean.png` 保留完整正常导航；Break 按钮在该高负载页面未能被 UI 树稳定枚举，点击后的独立 Break 结算尚未形成可审计证据，记为 BLOCKED，不冒充 PASS。

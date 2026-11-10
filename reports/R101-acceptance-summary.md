@@ -15,3 +15,7 @@ Perfetto 15 秒显示应用主线程约 1.59 秒 CPU、RenderThread 约 5.15 秒
 最新候选 `ae5c896` 使用合法永恒存档复验：完整无限页与底栏 PASS，点击紫色入口真实打开时间研究 PASS，强制停止后重启仍加载合法永恒数据 PASS。最新 15 秒帧统计为 300 帧、现代 jank 239（79.67%）、p95/p99 16ms、Missed Vsync 0、Slow UI 0、Slow issue draw commands 239，性能门禁仍 FAIL。Break 独立流程、非法直达和官方 XAPK 对照仍 BLOCKED/NOT RUN，因此不发布。
 
 最新未发布候选 SHA-256 为 `f2521cc7e34ac8320f6cba39a758e32bec053dffc9346a47005f78fbab788ab8`。本候选修正了 `bm4.i`/`Luo4.b` 页签键误判，并在 `currentSubTab -> jp4.d0` 恢复写入点增加 Kotlin 门禁；EP=0、bigE=0 的真实恢复截图 `reports/R101-new-save/117-final-current-subtab.png` 显示回到“打破无限”页，普通底栏完整，非法永恒入口未出现。最新 15 秒窗口为 300 帧、现代 jank 240（80.00%）、p95/p99 16ms、Slow UI 1、Slow issue draw commands 238、GPU p95 14ms，性能仍 FAIL。合法永恒整包恢复因 UID/存档加载问题及 `ew6.j()` 空指针 BLOCKED；Break 独立流程、官方 XAPK 和四渠道发布仍 BLOCKED/NOT RUN。
+
+后续复验已排除存档恢复操作本身的误判：整包恢复后设置当前 UID 与 `app_data_file` SELinux context，候选真实进入永恒阶段，logcat 为 `ep=4.83128769584846e5、bigE=29`，运行截图显示紫色永恒入口和完整底栏；强制停止重启后仍为 `phase=eternity、ep=2.93977740523271e7、bigE=29`。证据为 `reports/R101-new-save/127-legal-chcon.png`、`127-legal-chcon-logcat.txt`、`129-legal-running.png`、`138-legal-restart.png`、`138-legal-restart-logcat.txt`。性能仍 FAIL，Break 独立流程、官方 XAPK 和四渠道发布仍 BLOCKED/NOT RUN。
+
+新档前置 Break 观察已重新执行：真实状态为 `phase=infinity、break=false、canEt=false、ep=0、bigE=0`，正常导航完整，证据 `reports/R101-new-save/142-fresh2-before-break.png`、`148-fresh2-before-break-clean.png` 及对应 logcat。由于该高负载页面无法稳定完成 UI dump，Break 结算按钮点击与结算后状态尚未获得可审计证据，Break 门禁继续 BLOCKED；不得以 MOD 自动坍缩日志代替真实 Break 点击验收。
