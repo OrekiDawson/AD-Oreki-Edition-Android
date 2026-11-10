@@ -22,7 +22,7 @@
 | SSH/SFTP 本地 | PASS | `/home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk`，84,559,345 B，sha256 `6337f8739dba5570…` |
 | OneDrive | PASS | `Apps/AD-Oreki-Edition/反物质维度.apk`，84,559,345 B，mtime 2026-11-10 17:10:20（= 新 APK 本地 mtime） |
 | GitHub Releases | PASS | tag `android-update-3.21.0-6337f873`，资产 `反物质维度.apk` |
-| Google Drive | **FAIL** | 首次上传 rclone 挂死（`write_bytes=0`）；有界重试返回 `rateLimitExceeded`（Google API 配额限制），非版本缺陷 |
+| Google Drive | PASS | `AD-Oreki-Edition/反物质维度.apk`，84,559,345 B，mtime 2026-11-10 17:10:20（= 新 APK 本地 mtime）；上传过程两次返回 `rateLimitExceeded`，但最终对象为新版 |
 
 ## 错误稳定标识纠正
 
