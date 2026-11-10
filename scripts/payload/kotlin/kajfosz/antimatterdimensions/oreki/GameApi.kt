@@ -824,7 +824,6 @@ internal object GameApi {
                         // 再由阶段门控收紧不该出现的层级区块。
                         call(autobuyerUiRefreshMethod(), null, activity)
                         call(statisticsUiRefreshMethod(), null, activity)
-                        applyStageGate(activity, OrekiGuiStage.refresh())
                         guiSyncPending = false
                         Log.i(TAG_GUI, "GUI_REFRESH_APPLIED target=autobuyers+statistics force=" + force)
                     }
@@ -862,7 +861,6 @@ internal object GameApi {
                 lastAppliedPhase = stage.phase
                 Log.i(TAG_GUI, "STATE_CHANGED source=tick-sync:" + reason + " phase=" + stage.phaseLabel)
             }
-            applyStageGateSafe(stage)
             requestAutobuyerUiRefresh(stage, phaseChanged, force = true)
         } catch (e: Throwable) {
             guiSyncPending = true
@@ -2572,7 +2570,7 @@ internal object GameApi {
      * 状态实际变化
      *   → 失效原版缓存 `cache.a.a()`（原版主循环同款入口）
      *   → [OrekiGuiStage.refresh] 统一阶段判定
-     *   → [applyStageGateSafe] 收敛"尚未到达的层级区块"（便宜、幂等）
+     *   → 原版自身按 `f82.j()/f82.p()` 重算可见性
      *   → [requestAutobuyerUiRefresh] 仅在真实变化时做一次原版重绘
      *
      * 本方法只读状态、只做可见性收敛，不写存档、不伪造进度。
@@ -2585,7 +2583,6 @@ internal object GameApi {
             lastAppliedPhase = stage.phase
             Log.i(TAG_GUI, "STATE_CHANGED source=refreshOriginalCaches phase=" + stage.phaseLabel)
         }
-        applyStageGateSafe(stage)
         requestAutobuyerUiRefresh(stage, phaseChanged)
     }
 

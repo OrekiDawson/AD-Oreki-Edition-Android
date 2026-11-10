@@ -1,0 +1,47 @@
+--------- beginning of main
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=21
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=35
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=36
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=37
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=54
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=55
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=96
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=107
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=114
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=115
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=116
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=117
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=136
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=141
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=144
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=156
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=174
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=176
+11-10 20:35:20.310 W/OREKI_ACHAUDIT(10875): MISMATCH id=186
+11-10 20:35:20.310 I/OREKI_ACHAUDIT(10875): DONE scanned=144 unlocked=130 mismatch=19 used=0
+11-10 20:35:20.311 I/OREKI_GATE(10875): GATE brake=false g=true c=false b=false mult=10000.0 rt=40156.0
+11-10 20:35:20.311 I/OREKI_SCHED(10875): gui-tick #5 gapMs=10000
+11-10 20:35:20.311 I/OREKI_GUI(10875): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-10 20:35:20.311 I/OREKI_AUTO_BEAT(10875): gui-tick #5 gapMs=10000
+11-10 20:35:20.311 I/EDP_FRAME(10875): frame=1583 stage=pre-break break=false canEt=false ep=0.0e0 gainEP=0.0e-1 bigE=0 inf=0.0e0 ip=0.0e0 db=23.0 gal=1 justCrunch=false lastCrunch=0 modIntervalMs=10000 auto=true
+11-10 20:35:20.313 I/OREKI_GUI(10875): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-10 20:35:20.720 W/atterdimensions(10875): Checksum mismatch for dex base.apk
+11-10 20:35:20.720 W/atterdimensions(10875): Could not add methods to the existing profiler. Clearing the profile data.
+11-10 20:35:21.933 D/WifiClientModeImpl[10746:wlan0](  667): updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=12 freq=2437 RxLinkSpeed=2
+11-10 20:35:21.934 D/WifiDataStall(  667): tx tput in kbps: 37000
+11-10 20:35:21.934 D/WifiDataStall(  667): rx tput in kbps: 37000
+11-10 20:35:21.934 V/WifiConfigManager(  667): Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-10 20:35:21.934 D/WifiThroughputPredictor(  667):  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-10 20:35:21.934 I/HalDevMgr(  667): bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-10 20:35:21.935 D/WifiScoreCard(  667): BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 12Mbps, Tx Link speed: 12Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-10 20:35:21.935 D/WifiScoreCard(  667): txRate: 1 txSpeed: 12
+11-10 20:35:21.935 D/WifiScoreCard(  667): network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-10 20:35:21.935 D/WifiClientModeImpl[10746:wlan0](  667):  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=12 tx=0.3, 0.0, 0.0 rx=0.3 bcn=0 [on:0 tx:0 rx:0 period:3004] from screen [on:0 period:-982207793] score=100
+11-10 20:35:22.031 I/adbd    ( 2537): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'time''
