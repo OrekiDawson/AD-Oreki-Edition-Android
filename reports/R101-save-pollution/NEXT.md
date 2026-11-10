@@ -283,3 +283,50 @@ Web 源码全仓搜索 `bigEternities` **无任何结果**。即：
 `bigEternities = 0`（=永恒结算次数 0）但 `eternities = 11`。两者在永恒结算路径中本应同步（`prestige/c` 里先加货币、再把 `f()+1` 写回），却出现「货币加了、计数没加」的组合。
 
 下一步：细读 `prestige/c.smali` 里 `dw.C()` 与 `Player.f()+1` 之间是否有条件分支，找出「只加货币不加计数」的路径（这很可能就是 MOD 补丁或原版条件判断的位置）。
+
+## ✅ 2026-11-11 根因确认：build_mod.py 别名表把「无限」货币映射成了「永恒」货币
+
+### 证据链（完整闭环）
+
+1. **MOD 源码** `scripts/payload/smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali:194`
+   ```smali
+   # Currency.infinities.add(gainedInfinities().round())   —— ln0.e = infinities（sm0）
+   sget-object v3, Lln0;->e:Lsm0;
+   invoke-virtual {v3, v4}, Lju;->o(BigDouble)Lln0;     # 加「无限次数」
+   ```
+   → 作者意图明确：把 `gainedInfinities()` 加到 **infinities** 货币上。
+
+2. **构建产物** `work/mod/smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali:197`
+   ```smali
+   sget-object v3, Liq0;->z:Lup0;
+   invoke-virtual {v3, v4}, Ldw;->C(BigDouble)Liq0;
+   ```
+   → 别名替换把 `ln0.e`(sm0) 变成了 `iq0.z`(up0)。
+
+3. **`iq0.z` 的真实语义已证伪作者注释**
+   - `Player.java:6033`：`public final void E0(BigDouble d) { this.eternities = d; }`
+   - `up0.smali:422`：`t(Object)` 调用 `Player;->E0(...)`
+   - ⟹ **`up0`/`iq0.z` 是「永恒次数」货币，不是 infinities。**
+
+4. **与实测数据完全吻合**
+   | 观测 | 解释 |
+   |---|---|
+   | `eternities = 11` | `gainedInfinities()` ≈ 11 被加进了永恒货币 |
+   | `bigEternities = 0` | 从未走永恒结算（`prestige/c` 才 +1），故为 0 |
+   | `eternityPoints = 0` | 从未真正永恒结算 |
+   | `infinities = 4` | 来自 4 次真实大坍缩，与 instant challenge 无关 |
+   | 官方导入原样保留 11 | 存档里就是 11，原版只是如实读取 |
+   | 新档 → 坍缩后出现 11 | 首次 instant challenge 触发时才写入 |
+
+### 结论
+
+**不是存档污染、不是原版行为、不是自动器误触，而是 MOD 的「挑战即时完成」功能因 ABI 别名映射错误，把无限次数写进了永恒次数。**
+
+### 修复方案
+
+在 `scripts/build_mod.py` 的 `obfuscation_aliases()` 中修正映射：把 `ln0.e`（infinities, `sm0`）指向 **3.21 真正的 infinities 货币单例**，而不是 `iq0.z`（=eternities/`up0`）。
+
+待办：
+1. 用 `Player` 的 infinities setter 反查真正的 infinities 货币类。
+2. 修正别名表条目（当前 `("bq0","g0") -> ("ip0","up0")` 附近有注释误标为 infinities）。
+3. 重新构建 → 新档 → 触发 instant challenge → 验证 `eternities` 保持 0、`infinities` 正确增加。
