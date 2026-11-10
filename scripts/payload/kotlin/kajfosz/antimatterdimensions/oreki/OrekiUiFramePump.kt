@@ -24,11 +24,11 @@ object OrekiUiFramePump {
     private const val NANOS_PER_SECOND = 1_000_000_000L
 
     /**
-     * 重绘最小间隔（纳秒）。33.3 ms = 2×vsync ≈ 30 fps：实测唯一卡顿可接受的档位（非 vsync 整数倍会错位，如 22 ms 档卡顿 98.89%）。
+     * 重绘最小间隔（纳秒）。32 ms：必须略小于 2×vsync(33,333,332ns)，否则因 1ns 差会跳过到第 3 帧变成 20 fps（实测）。
      * 实测：60 fps（每帧整树重绘）单帧约 18 ms，超出 16 ms 预算，卡顿 98.92%；
      * 33 ms 档卡顿 4.66%–5.90%，p90 与原版一致（16 ms），故取 33 ms。
      */
-    private const val MIN_PAINT_INTERVAL_NANOS = 33_333_333L
+    private const val MIN_PAINT_INTERVAL_NANOS = 32_000_000L
 
     /** 文本控件缓存有效期：每秒重建一次，避免每帧遍历视图树。 */
     private const val TARGETS_MAX_AGE_NANOS = 1_000_000_000L
