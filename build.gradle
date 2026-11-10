@@ -503,6 +503,27 @@ def injectR101EternityTabGate = {
     def src = bm4.getText('UTF-8').replace('\r\n', '\n')
     if (src.contains('R101P0_TAB_GATE')) return
 
+    // 原版底部动作区把 ETERNITY 作为普通 BottomButtonID.b 处理，
+    // 只按无限点数/反物质判断可见性；这会在首次永恒前仍显示“永恒”圆钮。
+    // 这里仅注入 ABI 转发，真正阶段判定仍由 Kotlin 完成。
+    def bottomButtons = new File(modTree, 'smali_classes2/kajfosz/antimatterdimensions/mainactivity/l0.smali')
+    if (!bottomButtons.isFile()) throw new GradleException("R101 P0 缺少原版底部动作区类：${bottomButtons}")
+    def bottomSrc = bottomButtons.getText('UTF-8').replace('\r\n', '\n')
+    if (!bottomSrc.contains('R101P0_ETERNNITY_ACTION_GATE')) {
+        def bottomAnchor = "    move-result v4\n\n    .line 114\n    if-eqz v4, :cond_6\n"
+        if (bottomSrc.count(bottomAnchor) != 1) throw new GradleException('R101 P0 BottomButtonID.b 可见性锚点不唯一')
+        bottomSrc = bottomSrc.replace(bottomAnchor,
+            "    move-result v4\n\n" +
+            "    # [R101P0_ETERNNITY_ACTION_GATE] 永恒动作按钮的业务可见性由 Kotlin 判定\n" +
+            "    const-string v5, \"eternity\"\n" +
+            "    invoke-static {v5}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
+            "    move-result v5\n" +
+            "    and-int/2addr v4, v5\n\n" +
+            "    .line 114\n" +
+            "    if-eqz v4, :cond_6\n")
+        bottomButtons.setText(bottomSrc, 'UTF-8')
+    }
+
     def gAnchor = ".method public final g()Z\n    .locals 7\n\n"
     if (src.count(gAnchor) != 1) throw new GradleException('R101 P0 bm4.g() 锚点不唯一')
     def gInject = gAnchor +
@@ -613,6 +634,7 @@ def injectR101EternityTabGate = {
     mainActivity.setText(mainSrc, 'UTF-8')
     bm4.setText(src, 'UTF-8')
     if (!bm4.getText('UTF-8').contains('oreki_r101_tab_select_locked') ||
+        !bottomButtons.getText('UTF-8').contains('R101P0_ETERNNITY_ACTION_GATE') ||
         !mainActivity.getText('UTF-8').contains('oreki_r101_restore_fallback') ||
         !ll2.getText('UTF-8').contains('oreki_r101_category_locked') ||
         !mainActivity.getText('UTF-8').contains('oreki_r101_skip_category_restore') ||
