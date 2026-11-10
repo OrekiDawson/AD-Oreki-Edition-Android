@@ -129,3 +129,21 @@
 已排除：新档初始化、tick 累积、离线结算、读档/迁移、`E0` 三处调用、`x()` 就地方法调用、`x()` 后直写 mantissa/exponent、接口多态、12 个含字面量文件、`Player.smali` 补丁、`prestige/` 包 E0 写入、`build_mod.py` 记录补丁、`11.0` 常量直接构造 BigDouble、`clampMin` 常量钳制。
 
 **代码写入点仍未定位。** 唯一有效手段改为动态调试（对 `Player.eternities` 字段或 `BigDouble` 可变方法下断点，在首次 Big Crunch 瞬间抓栈）。
+
+## 2026-11-11 决定性证据：官方 3.21 自己的历史存档同样 +11
+
+从官方 app 备份（`/data/local/tmp/vanilla-backup-1794334721.tgz`，清数据前采集）解出 4 份**官方应用自己写出的**存档：
+
+| 文件 | eternities | bigEternities | 差值 | infinities | EP |
+|---|---|---|---|---|---|
+| player.json | 25 | 14 | **11** | 126,617 | 66,042 |
+| playerBackup.json | 25 | 14 | **11** | 126,367 | 66,042 |
+| playerBackup2.json | 25 | 14 | **11** | 113,842 | 66,042 |
+| playerBackup5.json | 25 | 14 | **11** | 82,779 | 64,930 |
+
+含义（重要）：
+1. `eternities = bigEternities + 11` 这个偏移**不是 MOD 特有的**——官方应用自己的存档（package `kajfosz.antimatterdimensions`）同样恒为 +11。
+2. 结合「官方导入 MOD 存档后原样保留 11」「官方离线结算不改动」「MOD 新档 0 → 坍缩后 11」，最合理的解释是：**该偏移由原版核心的大坍缩代码产生**，MOD 只是触发原版 Big Crunch 后继承了它。
+3. 因此此前「MOD 写入污染存档」的定性**缺乏证据支撑**，应改为 **UNKNOWN / 疑为原版行为**。
+
+仍待确认：官方 GUI 显示的「永恒次数」到底取 `eternities` 还是 `bigEternities`。若取 `bigEternities`，则用户看到的 11 另有来源；若取 `eternities`，则该显示是原版自身语义。
