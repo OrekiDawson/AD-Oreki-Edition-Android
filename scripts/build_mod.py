@@ -4815,7 +4815,7 @@ def patch_instant_challenge_rewards():
     # --- 3) 关键调用点断言（少一条就等于少发一份货币）---
     must = [
         ("    sget-object v3, Lln0;->w:Lbn0;", "Currency.infinityPoints（IP 通道）"),
-        ("    sget-object v3, Lln0;->e:Lsm0;", "Currency.infinities（无限次数通道）"),
+        ("    sget-object v3, Liq0;->e:Lpp0;", "Currency.infinities（无限次数通道，3.21 真实字段 iq0.e/pp0；旧 iq0.z 实为 eternities）"),
         ("    sget-object v3, Lln0;->F:Lym0;", "Currency.eternityPoints（EP 通道）"),
         ("Lju;->o(Lkajfosz/antimatterdimensions/BigDouble;)Lln0;", "Currency.add 原版入口"),
         ("Lkajfosz/antimatterdimensions/prestige/e;->d()Lkajfosz/antimatterdimensions/BigDouble;",
