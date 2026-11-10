@@ -331,3 +331,15 @@ R94/R96 代码注释称「3.21 新档 eternities 被初始化成非零（实测 
 ### 编解码器迁移
 
 `tools/savecodec-rs/` 已实现 decode/encode 并通过真实样本与边界用例；`scripts/savecodec.py` 仍被 5 个分析探针 import（`ab_probe`、`ec12_limit_probe`、`cadence_bench`、`tick_probe`、`bh_probe`），迁移标记 **BLOCKED**，需先改探针再删模块。
+
+### 字段写入链（已核实的调用链事实）
+
+| 环节 | 证据 |
+|---|---|
+| 读档 | `player/e.smali:6173-6201`：`const-string "eternities"` → `e.f(z62,String)D` 取 double → `new BigDouble(D)` → `Player.E0(BigDouble)` |
+| 迁移 | `player/h.java:1190`：JSON 值为数字时同样走 `new BigDouble(d)` 分支 |
+| 写档 | 原版序列化把内存中的 Decimal 原样写出（官方存档实测为 `{exponent,mantissa}` 对象） |
+| 内存写入点 | 全 MOD 树仅 3 处 `Player.E0`：`up0.smali:422`（货币 setter）、`player/f.smali:38487`、`player/e.smali:6201`（读档） |
+
+结论：`eternities=11` 在存档写出前已存在于内存；读档只是忠实还原。因此异常发生在**运行时写入**，不在序列化或导入映射。
+下一步必须在运行时观测：全新 MOD 存档 → 首次大坍缩 → 记录 `eternities` 变化前后值，定位到具体 tick 路径。
