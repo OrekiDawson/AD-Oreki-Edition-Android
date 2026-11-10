@@ -123,3 +123,24 @@
 - RTX 2060 可见窗口复核：`-gpu host` 成功选择 NVIDIA GeForce RTX 2060；同一候选运行页 15 秒为 347 帧、jank 299（86.17%）、p95/p99=16ms、Missed Vsync=1、Slow UI=1、Slow issue draw commands=295、GPU p95=15ms，证据 `reports/R101-new-save/265-gpu-host-visible-running-gfxinfo-15s.txt`、`263-gpu-host-visible-after.png`。RTX 实际使用但未改善性能，仍 FAIL。
 - RTX Perfetto：`reports/R101-new-save/266-gpu-host.pftrace` 解析为 401 个 `Buffer Stuffing` 帧，平均 16.62ms；RenderThread 约 1.391s、游戏线程约 0.066s、swapper 约 51.835s。该证据支持模拟器合成/缓冲排队主因，未发现 Kotlin 门禁造成的长阻塞，性能仍 FAIL。
 - 临时字段句柄缓存 A/B：完整 Kotlin→D8/DEX→APK 门禁通过，但 RTX 运行页仍为 300/300 jank（100%），无收益，改动已回退；当前设备恢复已验证候选 SHA-256 `3bc14fc6b39375c527daeed4ed140b3072f94793272c1ece49846ad66b663ffb`。合法存档原版动画配置实测全开，未将设置状态伪称为 MOD 性能结论。
+
+## 2026-11-11 Skills 建设（R101 补充任务）
+
+| 项 | 结果 | 说明 |
+|---|---|---|
+| Android 官方技能 | PASS | `~/.dsh/skills/` 36 个（android/skills v1.0.21，zip sha256 `ca74f8759b93666f88bc52a16eaac34be6d4e783391a612449829dee993671aa`），与上游逐目录 diff 一致 |
+| Android Profiler / CLI / Testing | PASS | `android-profiler`、`android-cli`、`testing-setup` 均在目录内 |
+| Vue 技能 | PASS | 8 个，符号链接自 `.agents/skills/`（vue-best-practices / debug / testing / router / pinia / jsx / options-api / create-adaptable-composable） |
+| Playwright CLI 技能 | PASS | `skills/third-party/playwright-cli`，microsoft/playwright-cli main，含 10 个 references |
+| 6 个 AD MOD 专属技能 | PASS | `skills/ad-mod/`：ad-dex-kotlin-migration、ad-universal-apk-release、ad-stage-gate-validation、ad-save-integrity、ad-gameplay-parity、ad-mobile-performance |
+| Agent 发现验证 | PASS | DSH 技能目录已实际列出全部 6 个自建技能与 playwright-cli（本轮工具清单刷新可见） |
+| 轻量使用验证 | PASS（部分） | `ad-mobile-performance` 的 framestats 口径已用于本轮性能采样；其余技能以目录结构 + frontmatter + 引用完整性检查通过，运行期调用待对应任务触发 |
+| Python 依赖 | PASS（未增加） | 本次仅新增 Markdown 技能文件与 README，无 Python |
+| 构建/存档/环境 | PASS（未受影响） | 未触发 Gradle 构建、未改 AVD 存档、未改构建链 |
+| 仓库提交 | 7e4b4de、9c6d66b | 已 push main |
+
+### 本轮性能口径发现（待同页复核）
+
+- 官方基线重打包 APK（无 MOD 补丁，仅去 split 约束 + 补多 ABI native libs）在同一 AVD、同一存档的「反物质维度」页：15 秒 902 帧 ≈ 60 fps，modern jank 0.11%，p95 31 ms。
+- 当前 MOD 候选在同一存档的「无限升级」页：15 秒 300 帧 = 20 fps，modern jank 84%，p95 16 ms。
+- 两者页面不同，**不能据此判定 MOD 回归**；需在同页面复测后再下结论。该差异提示 `gfxinfo` modern jank 与出帧频率强相关，需按 `ad-mobile-performance` 口径同时报告帧间隔与单帧工作量。
