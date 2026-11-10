@@ -364,3 +364,25 @@ R94/R96 代码注释称「3.21 新档 eternities 被初始化成非零（实测 
 ### 官方 3.21 AVD 对照版
 
 - 状态：**NOT RUN**。本轮未执行 XAPK 提取、安装、去 Google 依赖改造与交叉验收。
+
+### 重要修正（2026-11-11）：eternities 与 bigEternities 在原版中并不绑定
+
+原版 `work/base_decoded/.../player/d.smali:6069` 的 `eternities` 写入上下文为：
+
+```
+const-string "eternities"
+invoke-static {v0,v3} player/d->d(Ll32;Ljava/lang/String;)D   # 从 JSON 取 double
+new-instance BigDouble -> <init>(D)
+invoke-virtual Player->E0(BigDouble)
+invoke-virtual Player->x()                                    # 紧接读取
+```
+
+且该文件内 `bigEternities` 出现 **0 次**。
+
+结论修正：
+1. `eternities`（BigDouble）与 `bigEternities`（long）在原版中是**两个独立字段**，不存在「必须成对递增」的不变量；因此 `eternities=11 / bigEternities=0 / EP=0` **不构成原版语义冲突**。
+2. 此前把该组合当作「MOD 半途写入」的证据，属**未经证实的假设**，现予撤回。
+3. 原版与 MOD 的 `Player.E0` 调用点数量一致（各 3 处），排除「MOD 新增 setter」。
+4. 仍未确证：`eternities` 从 0 变为 11 的那次运行时调用属于哪条合法/非法路径；用户看到的「永恒次数 11」若来自原版对 `eternities` 的展示，则更可能是**原版字段语义**而非 MOD 污染。
+
+后续必须先确认「原版在什么条件下会写 `eternities`」，再判断 11 是否异常；在此之前不得以「污染」为前提修改代码。
