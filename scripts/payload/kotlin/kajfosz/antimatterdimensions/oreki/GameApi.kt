@@ -1929,6 +1929,61 @@ internal object GameApi {
      */
     fun isAutobuyerActive(a: Any?): Boolean? = call(mBaseB(), a) as? Boolean
 
+    // ---------------------------------------------------------------- [R100 P1] 自动器解锁态
+
+    private val autobuyerUnlockFieldCache = HashMap<Class<*>, Field?>()
+
+    /**
+     * [R100 P1] 读取某个自动器的**持久化解锁字段** `isUnlocked`。
+     *
+     * 取证：`work/base_decoded_321/.../autobuyer/AntimatterDimensionAutobuyerState.smali:18`
+     * 声明 `.field private isUnlocked:Z`，`g()` 第 1 条指令即 `iget-boolean ...->isUnlocked:Z`；
+     * `TickspeedAutobuyerState.g()` 同形。该字段属于原版存档结构（Serializable），
+     * 写它 = 走原版自己的解锁开关，**不是**伪造购买记录（`isBought` 在 Android 端根本不存在）。
+     *
+     * 维度提升 / 星系 / 大坍缩的 `g()` **没有**该字段（纯挑战完成位），读不到返回 null。
+     */
+    fun isAutobuyerUnlockedFlag(a: Any?): Boolean? {
+        val f = autobuyerUnlockField(a) ?: return null
+        return try {
+            f.getBoolean(a)
+        } catch (error: Throwable) {
+            miss("read isUnlocked", error)
+            null
+        }
+    }
+
+    /**
+     * [R100 P1] 写原版 `isUnlocked` 字段，返回**写回读校验**后的真实值。
+     * 字段不存在（维度提升/星系/大坍缩）返回 null，调用方必须自行区分「不支持」与「写失败」。
+     */
+    fun setAutobuyerUnlockedFlag(a: Any?, value: Boolean): Boolean? {
+        val f = autobuyerUnlockField(a) ?: return null
+        return try {
+            f.setBoolean(a, value)
+            markAutobuyerUiDirty()
+            f.getBoolean(a)
+        } catch (error: Throwable) {
+            miss("write isUnlocked", error)
+            null
+        }
+    }
+
+    private fun autobuyerUnlockField(a: Any?): Field? {
+        if (a == null) return null
+        val c = a.javaClass
+        return autobuyerUnlockFieldCache.getOrPut(c) {
+            try {
+                c.getDeclaredField("isUnlocked").apply { isAccessible = true }
+            } catch (_: NoSuchFieldException) {
+                null
+            } catch (error: Throwable) {
+                miss("resolve isUnlocked", error)
+                null
+            }
+        }
+    }
+
     // ---------------------------------------------------------------- 维度自动器 bulk
 
     private var mDimD: Method? = null

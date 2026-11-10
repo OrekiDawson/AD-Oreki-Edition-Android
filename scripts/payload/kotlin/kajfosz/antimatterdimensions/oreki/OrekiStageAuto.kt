@@ -748,10 +748,120 @@ object OrekiStageAuto {
         earlyAutomationApplied = true
         Log.i(TAG_EARLY, "applied")
         try {
-            // 总开关与单项 isActive 都走 PlayerIntent 的延迟恢复路径：
-            // 本帧只登记，下一次策略 tick 才恢复建议值。
-        } catch (_: Throwable) {
+            applyBaseAutobuyerUnlocks()
+        } catch (error: Throwable) {
+            Log.e(TAG_EARLY, "applyBaseAutobuyerUnlocks failed", error)
         }
+    }
+
+    /**
+     * [R100 P1] 方案 B：新档解锁基础自动购买器。
+     *
+     * 严格区分四态（本方法只碰第 1、2 态，绝不碰 3、4 态）：
+     *   1. 已解锁 `isUnlocked` —— 本方法写它（原版持久化字段）；
+     *   2. 已启用 `isActive` —— 默认已是 true；仅在读到 false 时保持玩家选择，不强开；
+     *   3. 已购买升级 —— **不碰**（Android 端根本没有 isBought 字段）；
+     *   4. 实际执行 —— 由原版 `Game.autoBuyerTick` 的 `c()`（canTick）按真实条件触发。
+     *
+     * 覆盖范围：
+     *   · 反物质维度 1～8、计数频率：原生有 `isUnlocked` 字段，直接写并读回校验；
+     *   · 维度提升、反物质星系：原生 `g()` 无字段，由构建期 trampoline 调用
+     *     [vanillaBaseAutobuyerUnlocked]；
+     *   · 大坍缩：**不在此列**，必须等首次真实大坍缩后才由原版挑战 12 路径解锁。
+     *
+     * 写 `isUnlocked` 属于原版存档结构内的字段，读档后仍然有效；只在「首次无限之前」
+     * 且一次性闩锁内执行，不会每帧重写，也不会把玩家手动关闭的自动器强开。
+     */
+    private fun applyBaseAutobuyerUnlocks() {
+        var unlocked = 0
+        var already = 0
+        var unsupported = 0
+        var activeOff = 0
+        val detail = StringBuilder()
+
+        fun handle(label: String, target: Any?) {
+            if (target == null) {
+                unsupported++
+                detail.append(label).append(":null,")
+                return
+            }
+            val before = GameApi.isAutobuyerUnlockedFlag(target)
+            if (before == null) {
+                // 无 isUnlocked 字段（维度提升/星系/大坍缩）：交给 trampoline，不在此写。
+                unsupported++
+                detail.append(label).append(":nofield,")
+            } else if (before) {
+                already++
+                detail.append(label).append(":already,")
+            } else {
+                val after = GameApi.setAutobuyerUnlockedFlag(target, true)
+                if (after == true) {
+                    unlocked++
+                    detail.append(label).append(":on,")
+                } else {
+                    detail.append(label).append(":fail,")
+                }
+            }
+            // 只做只读观测：玩家关掉的项保持关闭，绝不在这里强开。
+            if (GameApi.isAutobuyerActive(target) == false) activeOff++
+        }
+
+        GameApi.dimensionAutobuyers()?.forEachIndexed { i, dim -> handle("dim" + (i + 1), dim) }
+        handle("tickspeed", GameApi.tickspeedAutobuyer())
+
+        Log.i(
+            TAG_EARLY,
+            "OREKI_AUB unlocked=" + unlocked + " already=" + already +
+                " nofield=" + unsupported + " activeOff=" + activeOff +
+                " detail=" + detail,
+        )
+    }
+
+    /**
+     * [R100 P1] 维度提升 / 反物质星系自动购买器的解锁闸门（供构建期 trampoline 调用）。
+     *
+     * 只回答「这一层是否应当视为已解锁」，不写任何状态、不做购买。
+     * 毁灭现实（佩勒）返回 false，让原版 `g()` 继续走它自己的佩勒分支，
+     * 避免 MOD 越过佩勒禁用。
+     */
+    @JvmStatic
+    fun vanillaBaseAutobuyerUnlocked(): Boolean = try {
+        !GameApi.isDoomed()
+    } catch (_: Throwable) {
+        false
+    }
+
+    /**
+     * [R100 P0] 原版「永恒是否已解锁」判据 `f82.j()` 的真实阶段版本。
+     *
+     * ## 为什么要替换原版判据，而不是继续隐藏界面
+     *
+     * 3.21 原版 `f82.j()` 的字节码是
+     * `Player.x()`（eternities）`> 0 || f82.p()`；
+     * 而 3.21 兼容数据里 `eternities` 在新档会被初始化成非零（R94 实测 11，
+     * 同时 eternityPoints=0 / bigEternities=0 / 永恒升级位图为空）。
+     * 于是**原版自己的**导航与页面解锁判据在首次大坍缩后就为真，
+     * 时间维度等永恒层入口会提前出现 —— 只靠 `alpha=0`/隐藏视图去补，
+     * 既会残留占位，也挡不住其它 12 个调用点。
+     *
+     * 本方法把该判据换成**真实结算产物**：[OrekiGuiStage] 只在
+     * 「永恒点数 > 0 / bigEternities > 0 / 已购永恒升级位图非空 / 现实已结算」
+     * 时才判定永恒阶段，绝不单独依赖 `eternities` 字段（R98 §3.2）。
+     *
+     * ## 边界
+     *
+     * · 只读判定，不写存档、不改资源、不伪造进度；
+     * · 合法永恒结算后自然返回 true，原版导航与页面按原样恢复；
+     * · 读取失败一律 false（fail-closed：宁可少显示，也不提前解锁）。
+     *
+     * 供构建期在 `f82.j()` 头部插入的 trampoline 调用（业务判定全部在本方法内）。
+     */
+    @JvmStatic
+    fun vanillaEternityUnlocked(): Boolean = try {
+        val phase = OrekiGuiStage.refresh().phase
+        phase == OrekiGuiStage.PHASE_ETERNITY || phase == OrekiGuiStage.PHASE_REALITY
+    } catch (_: Throwable) {
+        false
     }
 
     // ---------------------------------------------------------------- 真实购买动作

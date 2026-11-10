@@ -6960,6 +6960,84 @@ def patch_dimboost_ad8_slope():
     assert "0x402e000000000000L" not in patched, "原版 15.0 斜率仍残留"
     note("[Oreki AD1] 维度提升 AD8 需求斜率 15/次 → max(1, 5-discount)/次")
 
+    # [R100 P1] 维度提升 / 反物质星系自动购买器的「解锁」trampoline。
+    #
+    # 为什么必须动字节码：这两项的 `g()`（isUnlocked）在 3.21 里**没有**持久化字段，
+    # 只读 `NormalChallenge(10/11).isCompleted`（见
+    # work/base_decoded_321/.../autobuyer/DimBoostAutobuyerState.smali 的 g()）。
+    # 而完成挑战位属于玩家真实进度，绝不能被 MOD 改写。
+    #
+    # 边界：这里只插一句 Kotlin 静态调用，**所有业务判断都在
+    # OrekiStageAuto.vanillaBaseAutobuyerUnlocked()**；字节码不含任何解锁规则，
+    # 也不触碰存档字段、挑战完成位、成就或资源。佩勒（毁灭）时 Kotlin 返回 false，
+    # 原版 `g()` 的佩勒分支照常生效。
+    for _cls, _nc in (("DimBoostAutobuyerState", "0xa"), ("GalaxyAutobuyerState", "0xb")):
+        _p = smali_tree() / OLD_PKG.replace(".", "/") / "autobuyer" / f"{_cls}.smali"
+        assert _p.exists(), f"[R100 P1] 缺少 {_cls}.smali"
+        _src = _p.read_text(encoding="utf-8")
+        _anchor = (".method public final g()Z\n"
+                   "    .locals 1\n"
+                   "\n"
+                   "    .line 1\n"
+                   f"    const/16 p0, {_nc}\n")
+        if "R100P1_AUB" in _src:
+            note(f"[R100 P1] {_cls}.g() 已打过 trampoline，跳过")
+            continue
+        assert _src.count(_anchor) == 1, f"[R100 P1] {_cls}.g() 锚点不唯一"
+        _inject = (".method public final g()Z\n"
+                   "    .locals 1\n"
+                   "\n"
+                   "    # [R100P1_AUB] 解锁判定交给 Kotlin，这里只做 trampoline\n"
+                   "    invoke-static {}, "
+                   "Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;"
+                   "->vanillaBaseAutobuyerUnlocked()Z\n"
+                   "    move-result p0\n"
+                   "    if-eqz p0, :oreki_r100_orig\n"
+                   "    const/4 p0, 0x1\n"
+                   "    return p0\n"
+                   "    :oreki_r100_orig\n"
+                   "\n"
+                   "    .line 1\n"
+                   f"    const/16 p0, {_nc}\n")
+        write_smali(_p, _src.replace(_anchor, _inject), encoding="utf-8")
+        assert "R100P1_AUB" in _p.read_text(encoding="utf-8"), f"[R100 P1] {_cls} 写入失败"
+        note(f"[R100 P1] {_cls}.g() 已插入 Kotlin 解锁 trampoline")
+
+    # [R100 P0] 原版「永恒已解锁」判据 `f82.j()` → 真实阶段判据。
+    #
+    # 原版实现：Player.x()（eternities）> 0 || f82.p()。
+    # 3.21 的 eternities 在新档被初始化成非零（R94 实测 11），导致首次大坍缩后
+    # 原版自己就把时间维度等永恒层入口判为已解锁 —— 只隐藏视图既留占位，
+    # 也覆盖不到全部 12 个调用点。这里把判据整体换成 Kotlin 侧的
+    # OrekiStageAuto.vanillaEternityUnlocked()（只读真实结算产物）。
+    #
+    # 字节码只负责转发，不含任何业务规则；不改存档字段、不写挑战完成位。
+    _j = smali_tree() / "f82.smali"
+    assert _j.exists(), "[R100 P0] 缺少 f82.smali"
+    _jsrc = _j.read_text(encoding="utf-8")
+    if "R100P0_ETERNITY_GATE" in _jsrc:
+        note("[R100 P0] f82.j() 已打过真实阶段 trampoline，跳过")
+    else:
+        _janchor = (".method public static j()Z\n"
+                    "    .locals 2\n"
+                    "\n"
+                    "    .line 1\n")
+        assert _jsrc.count(_janchor) == 1, "[R100 P0] f82.j() 锚点不唯一"
+        _jinject = (".method public static j()Z\n"
+                    "    .locals 2\n"
+                    "\n"
+                    "    # [R100P0_ETERNITY_GATE] 判据交给 Kotlin（真实结算产物），这里只转发\n"
+                    "    invoke-static {}, "
+                    "Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;"
+                    "->vanillaEternityUnlocked()Z\n"
+                    "    move-result v0\n"
+                    "    return v0\n"
+                    "\n"
+                    "    .line 1\n")
+        write_smali(_j, _jsrc.replace(_janchor, _jinject), encoding="utf-8")
+        assert "R100P0_ETERNITY_GATE" in _j.read_text(encoding="utf-8"), "[R100 P0] f82.j 写入失败"
+        note("[R100 P0] f82.j() 已替换为 Kotlin 真实阶段判据（trampoline）")
+
 
 def main():
     prepare()
