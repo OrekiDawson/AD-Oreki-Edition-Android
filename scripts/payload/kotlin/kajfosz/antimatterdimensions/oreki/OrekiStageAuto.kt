@@ -1719,11 +1719,18 @@ object OrekiStageAuto {
             // [R96] 首次永恒前的目标驱动阶段：TIME 模式的间隔必须真的可能到期。
             // 原版 TIME 模式用**真实秒**，残留的 3600 等于停摆 1 小时；这里校准一次。
             if (OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME) {
+                // [R101 修复] 必须**每帧幂等校正**，不能每个进程只写一次。
+                // 缺陷实测：暂停路径 `policy -> pause` 会写入 TIME/3600（真实秒=1 小时）；
+                // 放行后本分支因 `targetIntervalInitialized` 已为 true 而跳过校正并直接 return，
+                // 残留的 3600 永久生效 ⇒ 无限次数冻结（观测：maxAM 1e18578→1e18622 期间
+                // infinities 恒 108、maxIP 恒 1e198，坍缩停止 5 分钟以上）。
+                // writeManagedCrunchInterval 本身幂等（目标与实读相等则不写），
+                // 因此每帧调用不会产生写入风暴，也能在玩家手动改动后由 intent 逻辑让路。
                 if (!targetIntervalInitialized) {
                     targetIntervalInitialized = true
-                    writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
-                    Log.i(TAG_AU4C, "policy -> interval=5s (target-driven, once)")
+                    Log.i(TAG_AU4C, "policy -> interval=" + POST_BREAK_RESUME_SECONDS + "s (target-driven)")
                 }
+                writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
                 return
             }
 

@@ -122,3 +122,46 @@ AD 首次永恒门槛为 **1.8e308 IP**（原版 `Player.eternityGoal`）。据�
 
 **注意**：长跑仍在继续，但已可判定当前构建无法通关；后续如需修复必须重建 APK，
 届时本轮计时作废并记录原因。
+
+## ✅ 修复 1：自动大坍缩停止（已修并验证）
+
+### 根因（代码级）
+
+`OrekiStageAuto.kt` 放行分支里：
+
+```kotlin
+if (eternitiesZero() && crunchMode == MODE_TIME) {
+    if (!targetIntervalInitialized) {        // 每进程只校准一次
+        targetIntervalInitialized = true
+        writeManagedCrunchInterval(..., "eternity-zero")
+    }
+    return                                    // 之后每帧直接返回
+}
+```
+
+暂停路径会写 `TIME/3600`（真实秒 = 1 小时）。放行后本分支因
+`targetIntervalInitialized` 已为 true 而**跳过校正并直接 return**，
+残留的 3600 永久生效 ⇒ 坍缩停止。
+
+### 修复
+
+改为**每帧幂等校正**（`writeManagedCrunchInterval` 本身就是幂等的：目标与实读相等则不写）。
+
+### 验证（装机实测）
+
+| 指标 | 修复前 | 修复后（100 秒） |
+|---|---|---|
+| 无限次数 | **108（冻结）** | **544,580** |
+| 40 秒后 | — | 636k |
+| 80 秒后 | — | **820k** |
+
+**坍缩完全恢复。**
+
+## ❗ 修复 2 待办：maxIP 仍冻结在 1e198
+
+坍缩恢复后 `maxIP` 依旧 `1e198`（820k 次坍缩期间零增长），而 `maxAM` 已到 `1e26426`。
+
+按 AD 公式 IP 应随 maxAM 亚线性增长，此处**完全不涨**，说明 IP 结算或数值归一化另有问题
+（怀疑 `OrekiSpeed` 的 unscale 归一化影响了 IP 计算输入）。
+
+**首次永恒仍需 maxIP ≥ 1.797e308，因此 180 分钟通关仍不可达**，需继续修。
