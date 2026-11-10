@@ -330,3 +330,26 @@ Web 源码全仓搜索 `bigEternities` **无任何结果**。即：
 1. 用 `Player` 的 infinities setter 反查真正的 infinities 货币类。
 2. 修正别名表条目（当前 `("bq0","g0") -> ("ip0","up0")` 附近有注释误标为 infinities）。
 3. 重新构建 → 新档 → 触发 instant challenge → 验证 `eternities` 保持 0、`infinities` 正确增加。
+
+### 修复点精确定位（本轮）
+
+**货币类语义（已用 setter 反查证明）**
+
+| 类 | 其 `t(Object)` 调用的 Player setter | 对应字段 | 结论 |
+|---|---|---|---|
+| `up0` | `Player;->E0` → `this.eternities` | `eternities` | **永恒次数**货币 |
+| `pp0` | `Player;->K0` → `this.infinities` | `infinities` | **无限次数**货币 |
+
+**别名链路**
+- `scripts/build_mod.py:337`：`"ln0": "bq0"`（3.20 类 `ln0` → 3.21 类 `bq0`）
+- MOD 源码写的是 `Lln0;->e:Lsm0;` + `Lju;->o(...)`
+- 构建产物变成 `Liq0;->z:Lup0;` + `Ldw;->C(...)`
+- ⟹ 别名把「infinities（`pp0` 系）」错误落到了「eternities（`up0`）」
+
+**正确目标候选**：`iq0.e` / `iq0.f` / `iq0.x` 均为 `Lpp0;`（infinities 系）。大坍缩 `prestige/f.smali` 同时使用 `iq0.e`、`iq0.f`、`iq0.x`，需再确认哪一个是「无限次数」本体（另两个可能是 IP / 其它同型货币）。
+
+**修复方案（下一步执行）**
+1. 用 `prestige/f` 中「infinities += 1」的那一处确定正确字段（找 `const-wide 1` + `dw.C` on `Lpp0` 的组合）。
+2. 在 `scripts/build_mod.py` 的别名表补充/修正条目，使 MOD 源码的 `ln0.e`（infinities）落到该正确字段，而不是 `iq0.z`（eternities）。
+3. 重建 → 新档 → 触发即时挑战 → 断言 `eternities` 保持 0、`infinities` 按预期增长。
+4. 再做 MOD→官方 3.21 导入回归。
