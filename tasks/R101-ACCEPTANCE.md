@@ -61,6 +61,7 @@
 - 自动购买器页面/功能：PASS（定向）。当前页面真实显示大坍缩、维度提升、反物质星系、计数频率等控制项；本轮未伪造购买结果，购买器完整自动购买行为仍需按独立存档场景补测。
 - 当前候选性能：FAIL。重启后运行页 15 秒 `Total frames=300`、现代 `Janky=239 (79.67%)`、p95/p99=16ms、Missed Vsync=1、Slow issue draw commands=238、GPU p95=15ms、应用 CPU 快照约 0%；证据 `reports/R101-new-save/226-autobuyer-final-gfxinfo-15s.txt`、`226-autobuyer-final-cpu.txt`。性能异常仍由绘制命令/高视图树主导，不能发布稳定版。
 - 当前候选截图 `reports/R101-new-save/225-autobuyer-final-restart.png` 与 `222-auto-page.png` 保留；诊断日志未再使用每帧输出，避免测量污染。
+- Perfetto 解析：已安装官方 Trace Processor wrapper 并解析 `reports/R101-new-save/214-current.pftrace`。`actual_frame_timeline_slice` 显示 286/300 帧为 `Buffer Stuffing`，平均帧时长约 10.31ms；应用 `RenderThread` CPU 约 2.762s、主线程约 0.944s，主要绘制片段平均约 8.31ms，未见主线程递归或长阻塞。`HwcPresentDisplay`/`present`/`eglSwapBuffersWithDamageKHR` 占据主要时间，当前性能异常更符合模拟器合成/缓冲排队与高视图树共同影响；代码修复未凭猜测扩大。
 
 ## 发布状态
 
