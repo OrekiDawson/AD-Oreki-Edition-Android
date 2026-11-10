@@ -58,3 +58,29 @@ MOD 侧存在 UI 刷新节流/跳帧逻辑，需定位：
 **已排除的 MOD 侧原因**：Kotlin payload 与 smali payload 中**均无** `invalidate` / `requestLayout` / 刷新节流代码；`build_mod.py` 也没有 UI 刷新补丁。说明不是 MOD 主动加了节流，而更可能是 MOD 的游戏循环/车速实现导致**状态变化不足以触发重绘**，或主线程被长时间占用导致跳帧。
 
 **下一步定位手段**：对 MOD 采 `atrace` 的 `view` 类别并指定应用 pid 过滤，观察 `Choreographer#doFrame` 是否被调用但跳过；或直接检查 MOD 的游戏主循环 tick 是否把 UI 更新放到了低频分支。
+
+## 04:20 定位进展（logcat 侧）
+
+冷启动 22 s 内 logcat 共 2,501 行（≈114 行/秒），按 tag 统计前几位：
+
+| tag | 行数 | 归属 |
+|---|---|---|
+| AutoCloseableTracker | 420 | 系统框架 |
+| CCodec / CCodecConfig | 430 | 系统编解码 |
+| skia | 148 | 系统绘制 |
+| **OREKI_ACHAUDIT** | **72** | **MOD 自身**（成就审计，≈3.3 次/秒） |
+| ReflectedParamUpdater | 70 | 系统 |
+
+MOD 的 `GUI_REFRESH_POSTED/APPLIED` 仅 **3 次/22 s**，因此：
+
+1. **可以排除**「MOD 每帧打 GUI 刷新日志刷屏」这一假设；
+2. `GameApi.kt:530-560` 的 UI 刷新确实被 `dirty/phaseChanged/force` 门控，但它只影响自动购买器与统计页，不是全局帧驱动；
+3. MOD 自身最重的周期性日志是 `OREKI_ACHAUDIT`（≈3.3 次/秒），**在主线程上做成就审计的频率偏高**，是需要优化的候选，但不足以单独解释 37 倍帧数差。
+
+## 结论
+
+帧数差的机制仍未定位到具体代码路径。已知排除项：MOD 主动节流（无）、GUI 刷新日志刷屏（无）、刷新门控影响全局帧（否）。
+
+下一步建议：对 MOD 采 `atrace -e view` 并过滤应用 pid，确认 `Choreographer#doFrame` 的**调用次数**与 gfxinfo 的 26 帧是否一致——
+- 若 doFrame 也是 ~26 次/20 s ⟹ 应用根本没申请重绘，问题在游戏主循环/tick 驱动；
+- 若 doFrame ≈970 次 ⟹ 应用申请了重绘但被合成器丢弃，问题在渲染/合成层。
