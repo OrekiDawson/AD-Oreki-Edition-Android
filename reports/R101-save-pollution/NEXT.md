@@ -15,3 +15,17 @@
 ## 官方对照版（未开工）
 - 基准哈希见 `docs/FACTS.md` 的「官方 3.21 基准哈希」条目。
 - 先试装未修改 base APK（需 armeabi-v7a 分包或补 x86_64 库），能跑则不改包；跑不起来再最小去 Google，并逐项记录改动。
+
+## 2026-11-11 追加：已定位到「大坍缩事件」，但代码站点仍未找到
+
+实测：MOD 新档 `eternities=0` → 执行大坍缩（`infinities=2`）→ `eternities=11`。用户存档（`infinities=4`）同为 11 → 说明写入的是**固定值 11**，不是计数。
+
+已排除的写入方式（本轮新增）：
+- `Player.E0(BigDouble)` 三处调用点全部是读档/货币写入。
+- 全 MOD 树 `Player.x()` 返回值后面 500 字节内**没有** `add/multiply/pow/set` 调用 → 不是就地修改。
+- 存档迁移、离线结算、tick 累积、新档初始化均已实测排除。
+
+下一步候选：
+1. 在 `work/mod` 中对比 base 树，找出被 MOD 补丁**新增或改写**且含 "eternities" 的 smali 文件。
+2. 检查大坍缩路径（`MainActivity.W8` / crunch policy / `up0.t`）是否把某个对象当成「货币」写入，而该对象实际是 eternities。
+3. 用 logcat + 每次坍缩前后 diff 逐步缩小到具体调用。
