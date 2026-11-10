@@ -44,3 +44,26 @@
 2. **1 ns 阈值差**：帧泵门控 `33,333,333` 比 `2×vsync(33,333,332 ns)` 大 1 ns，导致实际只有 20 fps；改 `32_000_000` 恢复 30 fps。
 3. **Kotlin stdlib 版本**：MOD 内置 stdlib 较旧，`emptyList()` 会在类初始化抛 `NoSuchFieldError: EmptyList.INSTANCE` 导致启动崩溃，须用 Java 集合类。
 4. **UI 刷新与游戏推进解耦**：MOD 采用低频批量推进（CPU 0.1%），必须外挂独立帧泵，否则画面只有 1.3 fps。
+
+## savestates 覆盖情况（R101 要求各项目统一入口）
+
+| 项目 | 状态 | 内容 |
+|---|---|---|
+| Android | **PASS** | 6 份真实存档 + manifest（original/mod/regression/fixtures），注入方法与环境坑已记录 |
+| frame-observer | **PASS** | `savestates/` 存放 `/ui` 控件树、`/snapshot.jpg`、`/stats` 观测样本；**明确不提供游戏存档**（该工具不运行游戏，避免伪造凑数） |
+| Web | **PASS** | `savestates/` 说明与 Android 同源、清单与共享路径；用户真实存档不入库 |
+| Pages | **N/A** | 当前工作区无独立 Pages 项目目录（`oreki.net` 为部署目标而非独立仓库），故不建立空目录凑数 |
+
+## 尚未完成（如实标注）
+
+| 项 | 状态 | 说明 |
+|---|---|---|
+| 原版模式 + GUI 逐页对照矩阵 | **NOT RUN** | 已完成存档级与性能级对照；逐页导航/按钮可见性矩阵未做 |
+| Android/Web MOD 行为等价核查 | **NOT RUN** | 本轮未运行 Web 端；已记录 `bigEternities` 为 Android 专有字段这一差异 |
+| ARM64 真机验收 | **NOT RUN** | 仅 AVD（x86_64），不得冒充真机 |
+| Python 全量迁移 P1 | 未开工 | 已登记 AGENTS §9.9，`build_mod.py` 413 KB 需分阶段 |
+
+## 本轮最终交付结论
+
+Android 侧 R101 的**全部发布硬门禁已通过**（P0 存档、性能 30 FPS、Rust 编解码器、官方对照、跨版本导入、合法档不退化、savestates、真实构建与运行），
+并已完成**四渠道稳定版交付**。剩余为对照矩阵、真机验收与 Python 迁移等**非阻断项**，如实保留为 NOT RUN / 未开工。
