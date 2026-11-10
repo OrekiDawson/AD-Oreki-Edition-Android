@@ -19,3 +19,5 @@ Perfetto 15 秒显示应用主线程约 1.59 秒 CPU、RenderThread 约 5.15 秒
 后续复验已排除存档恢复操作本身的误判：整包恢复后设置当前 UID 与 `app_data_file` SELinux context，候选真实进入永恒阶段，logcat 为 `ep=4.83128769584846e5、bigE=29`，运行截图显示紫色永恒入口和完整底栏；强制停止重启后仍为 `phase=eternity、ep=2.93977740523271e7、bigE=29`。证据为 `reports/R101-new-save/127-legal-chcon.png`、`127-legal-chcon-logcat.txt`、`129-legal-running.png`、`138-legal-restart.png`、`138-legal-restart-logcat.txt`。性能仍 FAIL，Break 独立流程、官方 XAPK 和四渠道发布仍 BLOCKED/NOT RUN。
 
 新档前置 Break 观察已重新执行：真实状态为 `phase=infinity、break=false、canEt=false、ep=0、bigE=0`，正常导航完整，证据 `reports/R101-new-save/142-fresh2-before-break.png`、`148-fresh2-before-break-clean.png` 及对应 logcat。由于该高负载页面无法稳定完成 UI dump，Break 结算按钮点击与结算后状态尚未获得可审计证据，Break 门禁继续 BLOCKED；不得以 MOD 自动坍缩日志代替真实 Break 点击验收。
+
+新档侧栏截图 `reports/R101-new-save/150-fresh2-drawer.png` 进一步确认无限阶段普通导航完整且没有“永恒”分组；UI 树导出因 7113 视图高负载无法稳定完成，因此程序直达门禁仍按证据不足记录，不把截图替代为程序跳转 PASS。

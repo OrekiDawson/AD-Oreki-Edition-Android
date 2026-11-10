@@ -84,3 +84,4 @@
 - PASS：`reports/R101-new-save/127-legal-chcon-logcat.txt` 出现 `phase=eternity、eternity=true、ep=4.83128769584846e5、bigE=29`，截图 `127-legal-chcon.png` 显示永恒点数；运行页 `129-legal-running.png` 显示紫色永恒入口和完整底栏；重启证据 `138-legal-restart.png`、`138-legal-restart-logcat.txt` 再次出现 `phase=eternity、ep=2.93977740523271e7、bigE=29`。
 - `ew6.j()` 仍有一次既有空指针日志，但未阻断页面启动、永恒状态或底栏显示；按应用无崩溃、页面可用证据记录为非 P0 阻塞，仍需后续独立修复。
 - 新档 Break 前定向观察：PASS（前置状态）。恢复受保护新档快照后，logcat 明确为 `phase=infinity、break=false、canEt=false、ep=0、bigE=0`，真实截图 `reports/R101-new-save/142-fresh2-before-break.png`/`148-fresh2-before-break-clean.png` 保留完整正常导航；Break 按钮在该高负载页面未能被 UI 树稳定枚举，点击后的独立 Break 结算尚未形成可审计证据，记为 BLOCKED，不冒充 PASS。
+- 新档侧栏直观门禁：PASS。`reports/R101-new-save/150-fresh2-drawer.png` 显示无限阶段侧栏保留“维度/自动化/挑战/无限”及普通页签，但没有“永恒”分组；UI 树因 7113 视图高负载无法稳定导出，不能用空 dump 冒充程序跳转证据。
