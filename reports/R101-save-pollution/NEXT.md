@@ -162,3 +162,25 @@
 重要推论：既然 `bigEternities` 无人读取，GUI 上显示的「永恒次数」只可能来自 `Player.x()`（即 `eternities`）。因此用户看到的 **11 就是 `eternities` 字段的值**，与我的解码结果一致。
 
 仍未解决：为什么该字段在「未做过永恒」的存档里会是 11。官方自身存档同样带 +11（25/14），但**这几份官方存档可能源自早期导入的 MOD 存档，来源不可靠，不能作为「原版行为」的证据**，仍记 UNKNOWN。
+
+## 2026-11-11 实验失败原因定位：直接替换 player.json 会被备份覆盖
+
+本轮尝试「干净原版 + 坍缩前夹具 → 点大坍缩」的一锤定音实验，连续失败。已定位原因：
+
+1. 注入 `player.json`（`antimatter=1e150`、`infinities=0`、`eternities=0`、`lastUpdate=当前时间`）后冷启动，读到的是 `antimatter=6.57e11`（不是 1e150）；18 秒后再读变成 `1e10`——**值在变化且与注入值无关**。
+2. 说明游戏启动时**没有采用我注入的 `player.json`**，而是从 `playerBackup*.json` 恢复，随后正常跑帧。
+3. 官方 files 目录下的备份文件有：`playerBackup.json`、`playerBackup2.json`、`playerBackup5.json`（MOD 侧还有 `playerBackup6.json`）。
+
+结论（对后续所有存档注入实验都适用）：
+- **只替换 `player.json` 不足以控制游戏状态**，必须同时替换/删除所有制 `playerBackup*.json`，否则会被回滚。
+- 这也是此前多次「注入后读到的值不符合预期」的共同原因。
+
+下一步修正做法：
+```
+am force-stop <pkg>
+cp fixture player.json
+cp fixture playerBackup.json; cp fixture playerBackup2.json; cp fixture playerBackup5.json
+（或直接 rm 掉这些备份，让游戏无从回滚）
+启动 → 读回验证 antimatter.exponent == 150 才算注入成功
+```
+只有「读回验证通过」之后，才允许进行「点大坍缩看 eternities 是否变 11」的判定，否则结果一律 INCONCLUSIVE。
