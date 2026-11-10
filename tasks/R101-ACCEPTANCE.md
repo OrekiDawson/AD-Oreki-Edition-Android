@@ -68,6 +68,7 @@
 - 最终候选微缓存：在 `OrekiStageAuto.stageEternityReachedDirectRead()` 对原版绘制路径的重复只读判定增加 8ms 帧内缓存；完整 Kotlin→D8/DEX→APK 门禁 PASS，候选 SHA-256 为 `3bc14fc6b39375c527daeed4ed140b3072f94793272c1ece49846ad66b663ffb`。合法永恒自动购买器页面仍可用，截图 `reports/R101-new-save/233-cache-legal-running.png`。
 - 最终候选真新档：清除精确应用数据后点击“开始游戏”，日志保持 `GUI_GATE_CHANGED ... infinity eternity=false`、`OREKI_GATE brake=false ... c=false b=false`；截图 `reports/R101-new-save/242-cache-fresh-running.png` 显示普通导航和大坍缩/维度提升/反物质星系入口，无永恒入口；重启后的加载与恢复截图 `243-cache-fresh-restart-loading.png`、`246-cache-fresh-restart-final.png` 保留，未发现缓存放宽门禁。
 - 微缓存性能复测：真实运行页 15 秒 300 帧、jank 259（86.33%）、p95/p99=16ms、Missed Vsync=0、Slow issue draw commands=259、应用 CPU 快照约 1%；证据 `reports/R101-new-save/234-cache-gfxinfo-15s.txt`、`234-cache-cpu.txt`。未改善性能，继续 FAIL。
+- 绘制源复核：同一页面间隔 2 秒截图 SHA-256 不同（`247-frame-a.png` / `248-frame-b.png`）；随后 gfxinfo 累计 3,578 帧、现代 jank 2,322（64.90%）、Slow issue draw commands=2,310、Missed Vsync 未见主线程慢帧主导。证据 `reports/R101-new-save/247-frame-a.png`、`248-frame-b.png`、`248-current-gfxinfo.txt`。持续动画/合成绘制负载仍需独立优化，当前不以截图差异冒充 PASS。
 
 ## 发布状态
 
