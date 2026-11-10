@@ -410,6 +410,10 @@ internal object GameApi {
         return originalCacheInvalidateMethod
     }
 
+    /** 供 UI 帧泵使用：当前前台 Activity（尚未就绪时返回 null）。只读，不改任何游戏状态。 */
+    @JvmStatic
+    fun currentActivityForUiPump(): Any? = mainActivityRef()
+
     // 3.21 MainActivity 保存的当前 Activity 弱引用；由 MainActivity 自身在 onCreate 时写入。
     // 这是已核对的原版字段，不通过遍历 View 或猜测当前窗口，避免后台 tick 直接碰 UI。
     private var mainActivityRefField: Field? = null

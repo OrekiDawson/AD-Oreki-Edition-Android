@@ -98,6 +98,8 @@ object OrekiGuiStage {
      * 按"阶段是否变化"决定，避免每帧重绘。
      */
     fun refresh(): Snapshot {
+        // UI 帧泵只启动一次；它只重绘、不推进游戏，用于修复「画面约 1.3 fps」。
+        OrekiUiFramePump.start()
         val snapshot = compute()
         val previous = cached
         cached = snapshot

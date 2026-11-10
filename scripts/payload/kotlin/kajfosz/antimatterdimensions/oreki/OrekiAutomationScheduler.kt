@@ -203,6 +203,9 @@ object OrekiAutomationScheduler {
      */
     @JvmStatic
     fun init(context: Context?) {
+        // UI 帧泵：随调度器初始化启动一次（纯 Kotlin 入口，不改 smali）。
+        // 它只请求每帧重绘，不推进游戏、不改存档，用于修复「画面约 1.3 fps」。
+        OrekiUiFramePump.start()
         if (context == null || inited) return
         inited = true
         ctx = context
