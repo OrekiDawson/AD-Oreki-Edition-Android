@@ -1,0 +1,7 @@
+# 用户存档属于隐私数据：只保留哈希与复现步骤，不提交正文
+user-export.raw.txt
+payload.b64
+payload.gz
+payload2.gz
+save.json
+save-rs.json

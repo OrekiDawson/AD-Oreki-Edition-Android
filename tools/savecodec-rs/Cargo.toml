@@ -1,0 +1,18 @@
+[package]
+name = "savecodec"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+flate2 = "1"
+base64 = "0.22"
+serde_json = "1"
+
+[[bin]]
+name = "savecodec"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true

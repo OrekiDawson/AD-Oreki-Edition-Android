@@ -16,6 +16,9 @@
 # 需要时按 tools/README.md 重新放置；只有 README 入库。
 /tools/*
 !/tools/README.md
+# Rust 源码属于工程代码，必须入库；只忽略编译产物
+!/tools/savecodec-rs/
+/tools/savecodec-rs/target/
 
 # ---------- 3. APK / 签名板产物（单件约 66.5MB，可由 build_mod.py 重新生成）----------
 # 覆盖 release/反物质维度.apk、build/*.apk、build/backup*/*.apk
