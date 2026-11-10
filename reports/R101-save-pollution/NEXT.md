@@ -147,3 +147,18 @@
 3. 因此此前「MOD 写入污染存档」的定性**缺乏证据支撑**，应改为 **UNKNOWN / 疑为原版行为**。
 
 仍待确认：官方 GUI 显示的「永恒次数」到底取 `eternities` 还是 `bigEternities`。若取 `bigEternities`，则用户看到的 11 另有来源；若取 `eternities`，则该显示是原版自身语义。
+
+## 字段语义补全（本轮）
+
+`Player.java` 中两个计数是**独立字段**：
+
+| 访问器 | 类型 | 字段 | 行号 |
+|---|---|---|---|
+| `Player.x()` | BigDouble | `eternities` | 6473（getter）、6035（`E0` setter） |
+| `Player.f()` | long | `bigEternities` | 6276（getter）、6430（`r0` setter） |
+
+两者互不绑定：`bigEternities` 全库只有 3 处引用（字段声明、getter、setter），**没有任何代码把它读出来参与计算或显示**。
+
+重要推论：既然 `bigEternities` 无人读取，GUI 上显示的「永恒次数」只可能来自 `Player.x()`（即 `eternities`）。因此用户看到的 **11 就是 `eternities` 字段的值**，与我的解码结果一致。
+
+仍未解决：为什么该字段在「未做过永恒」的存档里会是 11。官方自身存档同样带 +11（25/14），但**这几份官方存档可能源自早期导入的 MOD 存档，来源不可靠，不能作为「原版行为」的证据**，仍记 UNKNOWN。
