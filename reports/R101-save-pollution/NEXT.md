@@ -256,3 +256,30 @@ if (Currency.eternities.eq(0) && newEternities.lte(10)) Tab.dimensions.time.show
 - 官方原样保留 11 也是正确的——那是合法的游戏状态。
 
 待验证（下一步）：MOD 是否在未满足玩家意图时调用了原版永恒结算入口（`OrekiEternity`/自动化）。若是，修复方向是**约束自动永恒的触发条件**，而不是改存档字段。
+
+## 2026-11-11 两处重要更正 + 新事实
+
+### 更正 1（撤回）：`bigEternities` 不是死字段
+
+上一条「`bigEternities` 无人读取」的结论**错误**，依据是局部 JADX 导出（只覆盖部分类）。用 smali 全树复核：`Player;->f()J`（bigEternities getter）有 **9 处调用**，包括：
+- `prestige/c.smali`（**永恒结算**）：`dw.C(BigDouble)` 加货币后，取 `Player.f()J` 再 `const-wide/16 0x1`
+- `player/h.smali`（存档读写）
+- `mainactivity/i0.smali`、`h5`、`wr`、`zh`（UI/统计）
+
+### 更正 2（新事实）：`bigEternities` 是 Android 端专有字段
+
+Web 源码全仓搜索 `bigEternities` **无任何结果**。即：
+- `eternities`（BigDouble）= Web 端同名货币 `player.eternities`
+- `bigEternities`（long）= **Android 移植版新增的整型计数**
+
+所以不能把 Web 的语义直接套到 `bigEternities` 上，两者关系需要单独确认。
+
+### 本轮唯一确定的事实
+
+用户存档中 `auto.eternity.isActive = false` —— **永恒自动购买器是关闭的**。因此「MOD 打开自动器导致自动永恒」这条假设**不成立**。
+
+### 当前未解
+
+`bigEternities = 0`（=永恒结算次数 0）但 `eternities = 11`。两者在永恒结算路径中本应同步（`prestige/c` 里先加货币、再把 `f()+1` 写回），却出现「货币加了、计数没加」的组合。
+
+下一步：细读 `prestige/c.smali` 里 `dw.C()` 与 `Player.f()+1` 之间是否有条件分支，找出「只加货币不加计数」的路径（这很可能就是 MOD 补丁或原版条件判断的位置）。
