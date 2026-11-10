@@ -1,0 +1,60 @@
+{
+ "version": 1,
+ "generated": "2026-11-11",
+ "samples": [
+  {
+   "path": "savestates/fixtures/precrunch-animatter-boost.json",
+   "sha256": "ac582cabb7c4c58f4124d1e6d4ca3b7672558f98508e3a991e9d377e72536e5a",
+   "bytes": 28516,
+   "eternities": 0.0,
+   "bigEternities": 0,
+   "infinities": 0.0,
+   "eternityPoints": 0.0
+  },
+  {
+   "path": "savestates/mod/after-bigcrunch-fixed.json",
+   "sha256": "869182924152e0fd59a55ed4f6c6f97876ef3f8a30c3e1e5f2b83c0920fac867",
+   "bytes": 28016,
+   "eternities": 0.0,
+   "bigEternities": 0,
+   "infinities": 19.0,
+   "eternityPoints": 0.0
+  },
+  {
+   "path": "savestates/mod/new-save-fixed.json",
+   "sha256": "09127021feabc262fb222b2bbfc851f21862f33cdc5177d8a5b54be001d93341",
+   "bytes": 28132,
+   "eternities": 0.0,
+   "bigEternities": 0,
+   "infinities": 0.0,
+   "eternityPoints": 0.0
+  },
+  {
+   "path": "savestates/original/first-eternity-progress.json",
+   "sha256": "4f029eb885af294fb09b25108d9c4ea39be1fbda86dd4a51b597c1e4bbe218c8",
+   "bytes": 29314,
+   "eternities": 25.0,
+   "bigEternities": 14,
+   "infinities": 126617.0,
+   "eternityPoints": 66042.094657793
+  },
+  {
+   "path": "savestates/original/new-save.json",
+   "sha256": "2369f65e3db19a5441c28fbe3c946b6fb9de67d138fc7ca2094ec85e3543d727",
+   "bytes": 27740,
+   "eternities": 0.0,
+   "bigEternities": 0,
+   "infinities": 0.0,
+   "eternityPoints": 0.0
+  },
+  {
+   "path": "savestates/regression/legal-eternity-preserved.json",
+   "sha256": "4f029eb885af294fb09b25108d9c4ea39be1fbda86dd4a51b597c1e4bbe218c8",
+   "bytes": 29314,
+   "eternities": 25.0,
+   "bigEternities": 14,
+   "infinities": 126617.0,
+   "eternityPoints": 66042.094657793
+  }
+ ]
+}
