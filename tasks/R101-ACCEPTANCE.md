@@ -65,6 +65,9 @@
 - 最终候选无诊断日志复测：`reports/R101-new-save/227-final-no-log.pftrace` 采集 15 秒；应用 `RenderThread` CPU 1.710s、主线程 0.770s、游戏线程 0.694s，未出现高频 `OREKI_PLAYER_INTENT` 日志。同期 gfxinfo 为 299 帧、现代 jank 234（78.26%）、p95/p99=16ms、Missed Vsync=0、Slow issue draw commands=234，证据 `reports/R101-new-save/228-final-no-log-gfxinfo-15s.txt`。性能门禁仍 FAIL，但已排除本轮自动购买器日志和主线程递归为主因。
 - 自动购买器开启运行：真实点击“自动购买器已禁用”恢复为启用，12 秒后 `player.json` 为 `autobuyersOn:true`，页面显示“自动购买器 已启用”及多个启用的自动购买项；截图 `reports/R101-new-save/229-autobuyer-enabled-running.png`，存档 `229-autobuyer-enabled-player.txt`。购买项真实运行与总开关持久化 PASS；未把资源自然增长误称为单项购买量证明。
 - RTX 2060 A/B：独占 AVD 从 `-gpu off` 切换为 `-gpu host`，启动日志确认 `NVIDIA GeForce RTX 2060`、NVIDIA OpenGL ES Translator；同一 APK/存档真实运行 15 秒仍为 300 帧、300 卡顿帧（100%）、p95/p99=16ms、Missed Vsync=0、Slow issue draw commands=299，证据 `reports/R101-new-save/230-gpu-host-gfxinfo-15s.txt`、`231-gpu-host-running-gfxinfo-15s.txt`、`231-gpu-host-running.png`。RTX 已实际启用，但性能门禁仍 FAIL，未据此修改业务代码。
+- 最终候选微缓存：在 `OrekiStageAuto.stageEternityReachedDirectRead()` 对原版绘制路径的重复只读判定增加 8ms 帧内缓存；完整 Kotlin→D8/DEX→APK 门禁 PASS，候选 SHA-256 为 `3bc14fc6b39375c527daeed4ed140b3072f94793272c1ece49846ad66b663ffb`。合法永恒自动购买器页面仍可用，截图 `reports/R101-new-save/233-cache-legal-running.png`。
+- 最终候选真新档：清除精确应用数据后点击“开始游戏”，日志保持 `GUI_GATE_CHANGED ... infinity eternity=false`、`OREKI_GATE brake=false ... c=false b=false`；截图 `reports/R101-new-save/242-cache-fresh-running.png` 显示普通导航和大坍缩/维度提升/反物质星系入口，无永恒入口；重启后的加载与恢复截图 `243-cache-fresh-restart-loading.png`、`246-cache-fresh-restart-final.png` 保留，未发现缓存放宽门禁。
+- 微缓存性能复测：真实运行页 15 秒 300 帧、jank 259（86.33%）、p95/p99=16ms、Missed Vsync=0、Slow issue draw commands=259、应用 CPU 快照约 1%；证据 `reports/R101-new-save/234-cache-gfxinfo-15s.txt`、`234-cache-cpu.txt`。未改善性能，继续 FAIL。
 
 ## 发布状态
 

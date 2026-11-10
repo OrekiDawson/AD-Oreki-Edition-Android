@@ -860,6 +860,19 @@ object OrekiStageAuto {
     fun vanillaEternityUnlocked(): Boolean = stageEternityReachedDirectRead()
 
     /**
+     * 原版绘制路径会在同一帧重复调用 f82.j() 多次；门禁结果是只读的，
+     * 允许在一个显示帧内复用，避免每次重复反射读取四组结算字段。
+     * 窗口短于一帧，结算状态变化至多延迟到下一次显示帧，不改变门禁语义。
+     */
+    private const val ETERNITY_GATE_CACHE_WINDOW_MS = 8L
+
+    @Volatile
+    private var directEternityGateCachedAtMs: Long = Long.MIN_VALUE
+
+    @Volatile
+    private var directEternityGateCachedValue: Boolean = false
+
+    /**
      * 原版导航/页面注册表的统一永恒层门槛。
      *
      * `bm4` 的注册表名称是稳定 ABI 数据，不通过 View 或反射判断；普通无限层
@@ -893,7 +906,12 @@ object OrekiStageAuto {
      * 任一读取失败按未到达处理（fail-closed）。
      */
     private fun stageEternityReachedDirectRead(): Boolean {
-        return try {
+        val now = android.os.SystemClock.elapsedRealtime()
+        val cachedAt = directEternityGateCachedAtMs
+        if (now >= cachedAt && now - cachedAt < ETERNITY_GATE_CACHE_WINDOW_MS) {
+            return directEternityGateCachedValue
+        }
+        val result = try {
             positiveRead { GameApi.eternityPointsValue() } ||
                 positiveRead { GameApi.bigEternitiesValue() } ||
                 eternityUpgradeBitsBought() ||
@@ -902,6 +920,9 @@ object OrekiStageAuto {
         } catch (_: Throwable) {
             false
         }
+        directEternityGateCachedValue = result
+        directEternityGateCachedAtMs = now
+        return result
     }
 
     /** 单次字段读取 + 与 0 比较；异常一律视为未满足。 */
