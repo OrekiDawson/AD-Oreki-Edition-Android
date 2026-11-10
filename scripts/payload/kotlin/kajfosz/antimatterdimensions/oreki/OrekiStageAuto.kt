@@ -397,9 +397,13 @@ object OrekiStageAuto {
                         // 而原版同时把大坍缩间隔恢复为未满 —— 只重试 Break 永远不会成功。
                         // 这里先按原版真实成本把间隔买到满，再走原版入口重试 Break。
                         if (!crunchIntervalIsMaxed()) {
+                            // [R99 P0-B] 本拍只补买间隔，绝不同拍连发 Break；
+                            // 首次坍缩后的 Break 必须发生在之后的独立行动节拍。
                             upgradeCrunchInterval()
+                            breakInfinityPrepPending = true
+                        } else if (breakInfinityAutoAllowed()) {
+                            tryBreakInfinity()
                         }
-                        tryBreakInfinity()
                     }
                     val isBrokenNow = GameApi.isBroken()
                     if (wasBroken != isBrokenNow) {
@@ -1083,9 +1087,21 @@ object OrekiStageAuto {
      *
      * @return true = 本次真的解锁或买到了该层
      */
+    /** [R99] 无限维度购买链诊断节流：15 秒最多一行，避免刷屏。 */
+    @Volatile
+    private var lastIdDiagAtMs: Long = 0L
+
+    private fun idDiag(msg: String) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastIdDiagAtMs < 15_000L) return
+        lastIdDiagAtMs = now
+        Log.i("OREKI_ID_DIAG", msg)
+    }
+
     @JvmStatic
     fun tryBuyId1(): Boolean = try {
         if (!isBroken()) {
+            idDiag("skip=not-broken")
             false
         } else {
             // 阶段感知选层（R82）：首次永恒之前 ID1 是整条成长链的唯一入口，
@@ -1094,20 +1110,38 @@ object OrekiStageAuto {
             // 解锁之后才恢复 8 层轮转，避免长期只喂第一层。
             val id1 = GameApi.infinityDimension(1)
             val id1Unlocked = id1 != null && GameApi.idUnlocked(id1)
+            val maxAM = GameApi.thisEternityMaxAM()
+
+            // [R99] 只在「反物质峰值已达标」的层之间轮转。
+            // 旧实现无条件 8 层轮转：ID5~ID8 尚未解锁时每拍必然 peakVs<0 直接 return false，
+            // 实测（2026-11-10 12:11 采样）轮转序列为 1→6→3→8，其中 6/8 全是空转，
+            // 一半节拍被无效目标吃掉。改为先筛出可达层再轮转，消除调度饥饿。
+            val buyableTiers = ArrayList<Int>(8)
+            for (t in 1..8) {
+                val cand = GameApi.infinityDimension(t) ?: continue
+                val vs = compareBigDoubles(maxAM, GameApi.idRequirement(cand))
+                if (vs != null && vs >= 0) buyableTiers.add(t)
+            }
+            if (buyableTiers.isEmpty()) return false
+
             val tier = if (!id1Unlocked) {
                 1
             } else {
-                (infinityDimensionCursor % 8) + 1
+                buyableTiers[infinityDimensionCursor % buyableTiers.size]
             }
-            infinityDimensionCursor = (infinityDimensionCursor + 1) % 8
+            infinityDimensionCursor = (infinityDimensionCursor + 1) % buyableTiers.size
             val id = GameApi.infinityDimension(tier) ?: return false
 
             // 解锁判据：原版 canUnlock 是「反物质峰值达标 且 IP 达标」，两个都要过。
             // R81 之前只比了 maxAM，于是 IP 不足时每拍都调 unlock() 并失败，
             // 白白占掉调度名额，真正能买的 ipMult / 一次性升级反而排不上。
             val required = GameApi.idRequirement(id)
-            val maxAM = GameApi.thisEternityMaxAM()
             val peakVersus = compareBigDoubles(maxAM, required)
+            idDiag(
+                "tier=" + tier + " id=" + (id != null) + " reqType=" + (required?.javaClass?.simpleName) +
+                    " maxAMType=" + (maxAM?.javaClass?.simpleName) + " peakVs=" + peakVersus +
+                    " unlocked=" + GameApi.idUnlocked(id) + " purchases=" + GameApi.idPurchases(id)
+            )
             if (peakVersus == null || peakVersus < 0) return false
 
             if (!GameApi.idUnlocked(id)) {
@@ -1120,12 +1154,14 @@ object OrekiStageAuto {
                 true
             } else {
                 // 已解锁：先确保买到第 1 个，再交给 buyMax 正常扩张。
+                Log.i("OREKI_ID_BUY", "enter tier=" + tier)
                 val before = GameApi.idPurchases(id)
                 if (before == 0L) {
                     GameApi.idBuySingle(id)
                 }
                 GameApi.idBuyMax(id)
                 val after = GameApi.idPurchases(id)
+                Log.i("OREKI_ID_BUY", "tier=" + tier + " before=" + before + " after=" + after + " unlocked=" + GameApi.idUnlocked(id))
                 if (after != before) {
                     Log.i(TAG_ID, tier.toString())
                     true
@@ -1144,6 +1180,39 @@ object OrekiStageAuto {
      * `Player.x0(true)`（唯一写 brake 的方法）+ `autobuyer.a.c()`（把其它带 interval 的
      * 自动购买器一并免费拉满）。不写解锁位、不发资源、不碰 interval 数值。
      */
+    /**
+     * [R99 P0-B] 首次大坍缩后禁止立即自动 Break Infinity 的阶段保护。
+     *
+     * 用户 2026-11-10 长期令：Big Crunch（进入无限阶段）、Break Infinity（无限阶段内
+     * 后续解锁）、Eternity（更高层真实重置）三者不得合并成同一个自动动作或连续跳过。
+     *
+     * 判据全部读原版真实状态，**不使用任何固定等待时间**：
+     *   · 已完成至少 [MIN_INFINITIES_BEFORE_AUTO_BREAK] 次大坍缩
+     *     —— 首次坍缩只进入无限阶段；必须再真实经历一轮完整无限循环
+     *     （IP 积累 + 无限升级购买 + 原版间隔升级）才允许自动化接管 Break；
+     *   · 本轮「补买坍缩间隔」与「执行 Break」必须落在**不同**的行动节拍，
+     *     由 [breakInfinityPrepPending] 强制隔开一拍。
+     *
+     * 该保护只约束 MOD 自动执行，不拦截玩家通过原版界面手动点击 Break。
+     */
+    private const val MIN_INFINITIES_BEFORE_AUTO_BREAK = 2
+
+    /** 本拍刚补买过坍缩间隔；下一拍只做确认，不在同一节拍内连发 Break。 */
+    private var breakInfinityPrepPending: Boolean = false
+
+    /**
+     * 自动 Break 的真实阶段判据。false 表示当前不该由 MOD 自动 Break（玩家手动仍可点）。
+     */
+    private fun breakInfinityAutoAllowed(): Boolean {
+        if (breakInfinityPrepPending) {
+            breakInfinityPrepPending = false
+            return false
+        }
+        val lg = GameApi.log10BigDouble(GameApi.infinities()) ?: return false
+        if (lg < kotlin.math.log10(MIN_INFINITIES_BEFORE_AUTO_BREAK.toDouble())) return false
+        return true
+    }
+
     @JvmStatic
     fun tryBreakInfinity() {
         try {
