@@ -133,6 +133,13 @@
 - `[实测]` 基线管理工具（Rust，零第三方依赖）五命令 `update / verify / diff / status / rollback` 全部可用；3.20 与 3.21 的 inventory 各 15319~15354 类，可用于后续增量 diff 而无需重复反编译。
 - `[实测]` `scripts/build_mod.py` 原有的 **25 处** `_baseline_version().startswith("3.20")` 分支已全部收敛为 `baseline/version-config.json` 的声明式配置（现存 0 处）。配置化改造后 3.20 构建仍 EXIT=0、产出 77.7 MiB APK，未破坏现有可构建状态。
 
+## R96 GUI 阶段门控实测（2026-11-10）
+
+- `[读码]` 原版统计页由 `jl2.b(MainActivity)` 重算，永恒区块字段为 `MainActivity.i6`，现实区块字段为 `MainActivity.o6`；Android Kotlin 侧通过同一主线程刷新后再应用阶段可见性门控。
+- `[实测]` APK 候选 `build/gradle-stage/反物质维度.apk`（SHA-256 前缀 `ffaf5b20237b9383`），设备 `emulator-5554`，包名 `com.oreki.antimatterdimensions`。使用 `android/savestates/16. 1Inf.txt` 解码存档时，logcat 为 `OREKI_STATS_GATE stage=false/false`，统计页没有“本次永恒/本次现实”区块，截图 `/tmp/oreki-stat-loop.png`。
+- `[实测]` 使用 `android/savestates/152. 2.5e4EP+21TT.txt` 解码存档时，logcat 为 `OREKI_STATS_GATE stage=true/false`，统计页显示永恒区块并显示“115 次永恒”，截图 `/tmp/oreki-et-stat.png`。
+- `[未验证]` 尚未用真实现实结算后的存档完成 `stage=true/true` 截图；现实区块不得因入口存在或兼容字段初始化而提前显示。
+
 ## B. 仓库与产物
 
 | 事实 | 值 | 等级 |
@@ -9844,3 +9851,20 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   以及本会话中两次存档探针输出（`completions=[5,5,5]`）。
 - `[待办]` 需要重新跑一次 AVD 验收以复现 `completions=[5,5,5]`，因为原始验收存档已丢失。
   **复现前不得声称 EC1–EC3 可在当前构建上稳定复现**（结论仍限于「曾真实达成」）。
+
+### R99 UI 实时刷新与 Android 省电模式事实（2026-11-10）
+- `[静态+实证]` **Android 省电模式 = 原版 `batterySaver` 选项**：启用后 UI 更新降为每秒一次，
+  游戏逻辑仍按 25 毫秒推进。资源字符串：`battery_saver_confirmation`
+  「启用省电模式将使游戏界面的更新速度变为每秒一次，但游戏运行的速度不变。」
+  以及提示「这将使UI更新速度减慢至每秒一次，而游戏更新速率将保持不变，始终为 25 毫秒。」
+- `[静态]` 实现链（`work/base_decoded_321`）：持久化键 `"batterySaver"`
+  （`player/b.smali` 构造 `Kotlin/Pair`）→ 进程级静态布尔 `Llz0;->g0:Z`
+  （写入 `oh2.smali` 设置装载、`mainactivity/l0.smali` 的 `batterySaverButton` 切换）
+  → UI 刷新跳过点 `ti2.smali`：`sget-boolean v2, Llz0;->g0:Z` / `if-eqz v2, :cond_3d` / `goto :goto_1d`。
+  其余读取点：`MainActivity.smali`、`mainactivity/w.smali`、`mainactivity/f0.smali`、
+  `mainactivity/l0.smali`、`xj2.smali`。
+- `[静态]` 系统级电源状态另有 `Landroid/os/PowerManager;->isPowerSaveMode()Z`
+  （`yd.smali`、`zh.smali`）；**不得**用设备电量/亮度等不可靠信号替代明确省电状态来源。
+- `[规则]` 正常前台模式禁止以固定 1～60 秒间隔作为 UI 刷新周期；自动化节拍不得限制 UI 刷新。
+  规则正文见共享根 `docs/长期规则_验证与证据.md` §11。
+- `[未验证]` 正常模式/省电模式双态 UI 刷新时序的 AVD 实测尚未执行（NOT RUN）。
