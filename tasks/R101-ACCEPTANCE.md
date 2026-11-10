@@ -270,3 +270,27 @@
 | 实现位置 | `build.gradle` 的 `assembleApktoolTree()` 内新增 native 库并入与 manifest 修正（Gradle 侧，不扩 build_mod.py） |
 
 ABI 依据：官方 3.21 XAPK 仅 `config.armeabi_v7a.apk` 携带上述两个 `.so`；其 armeabi-v7a 字节与 Google Maven `androidx.graphics:graphics-path:1.0.1`、`androidx.datastore:datastore-core:1.1.7` 内同文件**逐字节一致**，故其余三 ABI 取自同版本 AAR 属可验证扩展，非虚构 ABI。
+
+## 2026-11-11 四渠道交付完成
+
+APK：`release/反物质维度.apk`，sha256 `a055e54cac4a798884c92010922ca0d6f9179b3363af4ca2ed8ab1562a5bdc02`，84,580,523 B。
+
+| 渠道 | 结果 | 实证 |
+|---|---|---|
+| SSH/SFTP 本地目录 | PASS | `/home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk` 同哈希同大小 |
+| OneDrive | PASS | `rclone lsl onedrive:Apps/AD-Oreki-Edition/` 显示 84,580,523 B / 2026-11-11 01:31 |
+| Google Drive | PASS | `rclone lsl gdrive:AD-Oreki-Edition/` 显示 84,580,523 B / 2026-11-11 01:31 |
+| GitHub Releases | PASS | `gh release view android-update-3.21.0-a055e54c`，资产 `AD-Oreki-Edition-3.21.0.apk` + `.sha256` |
+
+发布前门禁：`verifyRelease` 15/15 通过；`installToRelease` 旧发布留档 `build/delivery_archive/release_b82599a3_20261111-013117.apk`，写入 `build/release-manifest.json`（3.21.0 / 30210000）。
+
+### R101 关闭条件核对
+
+| 条件 | 状态 |
+|---|---|
+| 阶段门禁 / 合法存档 / 自动购买器 | PASS |
+| 性能（新口径） | PASS（单帧 p95 3.09 ms、Missed Vsync 0、Slow UI 0） |
+| Universal APK（4 ABI、签名、zipalign、x86_64 安装启动） | PASS |
+| 四渠道交付 | PASS |
+| ARM64 真机 | NOT RUN（如实记录，未冒充） |
+| 候选与发布同源同哈希 | PASS |
