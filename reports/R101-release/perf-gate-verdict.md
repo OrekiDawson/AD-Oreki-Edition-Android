@@ -157,3 +157,31 @@ MOD 主线程**绝大多数时间不做事**，只在极少数时刻突发工作
 3. 不得通过降低刷新频率或减少显示内容来「通过门禁」。
 
 这符合用户要求「UI 必须实时刷新（省电模式除外）」。
+
+## ✅ 05:45 UI 帧泵修复生效（实测）
+
+**关键教训（先说）**：此前多轮验证全部无效，因为 `./gradlew installToRelease` **并没有把新包装到设备**
+（`dumpsys package lastUpdateTime` 停在 03:12，而 APK 构建于 03:38）。必须显式
+`adb install -r release/反物质维度.apk` 并核对 `lastUpdateTime` 才能验证。
+
+**修复内容（纯 Kotlin，遵守「所有修改的 smali 必须转 Kotlin」）**
+- 新增 `OrekiUiFramePump.kt`：`Choreographer` 每帧 `decorView.invalidate()`，只重绘不推进游戏；
+- `GameApi` 增加只读 `currentActivityForUiPump()`（复用 `MainActivity.wp` 弱引用）；
+- `OrekiGuiStage.refresh()` / `OrekiAutomationScheduler.init()` 幂等启动；
+- **撤回**了 `OrekiSpeed.smali` 的插入。
+
+**实测（装新包后，20 s 窗口）**
+
+| 指标 | 修复前 | 修复后 | 官方原版 |
+|---|---|---|---|
+| 渲染帧数/20 s | 26 | **1,111** | 971 |
+| 折算 fps | 1.3 | **≈55** | ≈48 |
+| 帧泵日志 | 无 | **fps=60** | — |
+| Janky（legacy） | 26.92% | **98.92%** | 0.62% |
+
+**结论**：刷新频率问题已解决（26 → 1111 帧，与原版同量级）；
+但**强制整树重绘引入了新的卡顿**（98.92% vs 原版 0.62%），需继续优化：
+下一步应改为「只失效需要更新的文本控件」或降低到 30 fps 并实测卡顿率，
+目标是在保持 ≥30 fps 的同时把 Janky 降到接近原版水平。
+
+**性能门禁当前判定：仍为 FAIL**（帧率已达标，卡顿率未达标）。
