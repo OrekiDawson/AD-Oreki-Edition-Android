@@ -52,3 +52,36 @@
 或改用 `atrace -c -b 16384 gfx view sched freq` + `perfetto` trace 解析；
 采集时原版与 MOD 交替、同档、同 30 s 窗口，分别统计帧间隔 p50/p95/p99 与主线程耗时。
 在拿到该数据前，稳定版发布保持 BLOCKED。
+
+## 追加诊断（03:45）：atrace 通道同样取不到应用帧
+
+`atrace -t 8 -b 16384 gfx view` 采集 8 s：
+
+| 检查 | 结果 |
+|---|---|
+| trace 行数 | 8,656（采集本身成功） |
+| 应用 pid 11847 的事件数 | **0** |
+| `doFrame` / `drawFrame` 事件 | **0** |
+| 实际出现的 gfx 事件 | 仅 `addVsyncTimestamp` / `enableHardwareVsyncLocked` 等系统级 |
+
+## 三条测量通道全部失效（已穷尽）
+
+| 通道 | 结果 |
+|---|---|
+| `dumpsys gfxinfo` | `Total frames rendered: 0` |
+| `SurfaceFlinger --latency` | 无稳定应用层名（只有 animation-leash/InputSink） |
+| `atrace gfx view` | 应用 pid 事件数 0 |
+
+## 判定
+
+**性能正式门禁 = BLOCKED（本 AVD 环境三条标准帧测量通道均采集不到本应用帧数据）**
+
+这是**测量环境限制**，不是 MOD 性能缺陷的证据，也不能反证 MOD 性能良好。
+按规则 8.1（先归因再优化）与「不得伪造 PASS」，此处不判 PASS。
+
+## 后续可选路径（需环境层面变化）
+
+1. 换 AVD 图形后端（当前 headless `-gpu swiftshader_indirect`），改用 `-gpu host` 后重测；
+2. 在 ARM64 真机上用 `perfetto` 采集（真机验收本就未完成）；
+3. 用应用自身帧计数（MOD 顶栏 FPS 显示）做相对对照——但这属「游戏内计数」，
+   与系统级帧时序口径不同，必须单独标注，不能冒充正式门禁数据。
