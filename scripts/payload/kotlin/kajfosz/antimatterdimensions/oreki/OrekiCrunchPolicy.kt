@@ -71,6 +71,15 @@ object OrekiCrunchPolicy {
      */
     private const val ETERNITY_GROW_START_SECONDS: Double = 60.0
 
+    /**
+     * [R99 P0-B] 首次 Break 之前允许按住不坍缩的最长秒数。
+     *
+     * 作用只是「有界兜底」：正常路径靠 `gainVersusIp() >= 1.0`（单次坍缩收益达到
+     * 当前 IP 的 10 倍）放行，让反物质真实长起来；本常量保证即使判据读不到，
+     * 也不会无限期不坍缩。
+     */
+    private const val PRE_BREAK_GROW_MAX_SECONDS: Double = 90.0
+
     /** 成长窗口上限（秒）：30 分钟真墙钟；配合 2.4e12ns 的等待上限兜底。 */
     private const val ETERNITY_GROW_MAX_SECONDS: Double = 1800.0
 
@@ -120,8 +129,34 @@ object OrekiCrunchPolicy {
             return Decision(true, "pre-infinity")
         }
         if (!GameApi.isBroken()) {
-            // 首次 Break 之前：坍缩是攒 IP / 买满间隔的唯一入口
-            return Decision(true, "pre-break-ip")
+            // [R99 P0-B] 首次 Break 之前：坍缩是攒 IP / 买满间隔的唯一入口，
+            // 但**不能无条件放行**——实测无条件放行时每次坍缩只涨约 2 点 IP
+            // （`crunch detected ... ip=2.0e0` → `ip=4.0e0`），大坍缩间隔永远买不满，
+            // `crunchIntervalIsMaxed()` 恒为 false，于是 `tryBreakInfinity()` 永不执行，
+            // 形成「自动 Break 永远不会发生」的死锁，同时拖垮新手 180 分钟目标。
+            //
+            // 正确语义：让反物质真实长起来再结算，使单次坍缩收益明显超过当前 IP；
+            // 间隔已满时直接放行（此时 Break 立刻可走原版合法入口）。
+            // 仍保留有界兜底，避免判据异常导致无限期不坍缩。
+            if (GameApi.crunchMaxedInterval(GameApi.crunchState())) {
+                return Decision(true, "pre-break-interval-maxed")
+            }
+            val leapPreBreak = gainVersusIp()
+            if (leapPreBreak != null && leapPreBreak >= 1.0) {
+                waitStartedAt = 0L
+                return Decision(true, "pre-break-ip-jump")
+            }
+            val heldFor = if (waitStartedAt == 0L) {
+                waitStartedAt = System.nanoTime()
+                0.0
+            } else {
+                (System.nanoTime() - waitStartedAt) / 1.0e9
+            }
+            if (heldFor >= PRE_BREAK_GROW_MAX_SECONDS) {
+                waitStartedAt = 0L
+                return Decision(true, "pre-break-hold-cap")
+            }
+            return Decision(false, "pre-break-grow")
         }
         // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
         //
