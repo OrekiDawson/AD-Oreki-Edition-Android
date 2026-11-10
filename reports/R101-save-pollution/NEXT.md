@@ -114,3 +114,18 @@
 下一步（两条，都很小）：
 1. 在 `fw.smali` `<clinit>` 中回溯 K0 的 v4/v6/v7 常量。
 2. 用 `up0.smali` 的 `d` 字段（货币枚举 ID）与 `iq0` 的其它货币单例比对，确定 `iq0.z` 的语义。
+
+### clampMin 线索：判定为「不适用 eternities」（本轮结案）
+
+依据：
+1. `prestige/f.smali:400-420` 的重置序列为：`Player.x0(Z)`（设 Break 标志）→ `replicanti/b.n(Z)`（重置 Replicanti）→ `iq0.z.D(fw.K0)`。这是原版 Big Crunch 的标准重置顺序，此处被重置的是**反物质**（归零），不是永恒次数。
+2. `iq0` 中只有 `z` 一个 `Lup0;` 字段；`up0.getValue()/G()` 的取值链是 `fw.b`(=0) + `reality/upgrades/b` + `reality/glyphs/a`，**不含 `Player.x()`**，不符合 eternities 取值特征。
+3. `Player.E0()` 确为 eternities setter（`Player.java: ` this.eternities = bigDouble`，无争议），但 `dw.D()` 走的是 `getValue()` + `clampMin()`，**不经过 `t()`/`E0()`**。
+
+结论：该 clamp 更可能是「Big Crunch 把反物质钳到 0」，与 eternities 无关。**线索关闭，不作为根因。**
+
+### 静态分析总结（至此穷尽）
+
+已排除：新档初始化、tick 累积、离线结算、读档/迁移、`E0` 三处调用、`x()` 就地方法调用、`x()` 后直写 mantissa/exponent、接口多态、12 个含字面量文件、`Player.smali` 补丁、`prestige/` 包 E0 写入、`build_mod.py` 记录补丁、`11.0` 常量直接构造 BigDouble、`clampMin` 常量钳制。
+
+**代码写入点仍未定位。** 唯一有效手段改为动态调试（对 `Player.eternities` 字段或 `BigDouble` 可变方法下断点，在首次 Big Crunch 瞬间抓栈）。
