@@ -194,8 +194,8 @@
     const-wide/16 v5, 0x0
     invoke-virtual {v4, v5, v6}, Lkajfosz/antimatterdimensions/BigDouble;->round(J)Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v4
-    sget-object v3, Lln0;->e:Lsm0;
-    invoke-virtual {v3, v4}, Lju;->o(Lkajfosz/antimatterdimensions/BigDouble;)Lln0;
+    sget-object v3, Liq0;->e:Lpp0;
+    invoke-virtual {v3, v4}, Ldw;->C(Lkajfosz/antimatterdimensions/BigDouble;)Liq0;
 
     # 原版 bigCrunchUpdateStatistics 的 bestIPminVal 部分（canCrunch 为真才会写，此处已抬高）
     invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;->l()V
