@@ -513,29 +513,10 @@ internal object GameApi {
     private var statisticsRealityViewField: Field? = null
     private var statisticsTopEternityField: Field? = null
     private var statisticsViewFieldsResolved: Boolean = false
-    /** [R99 P0] 底部图标条中属于永恒层的字形码点（沙漏 = 永恒）。 */
-    private val ETERNITY_GLYPHS = arrayOf("\uf254")
+    // [R100 P0 导航回归] 字形/关键词整树扫描门禁已整体移除，导航回归原版真实构建。
 
-    /**
-     * [R99 P0] 永恒层统计文本的特征词。
-     *
-     * 实测统计数据页在「仅到无限」的存档上仍残留三行可见：
-     *   「你本次永恒中最快的无限用时是 …」
-     *   「在本次永恒中，你获得无限点的最快速度是 …」
-     *   「当前永恒中无限点数的最大值是 …」
-     * 而「永恒」区块标题、「你进行了 N 次永恒。」等已被 ID 门禁压到 0 高。
-     * 这三行按 ID 抓不到，必须按文本特征收敛。
-     */
-    private val ETERNITY_STAT_KEYWORDS = arrayOf("本次永恒", "永恒中")
 
-    /** [R99 P0] 关键词统计行被压前的高度，用于精确还原。 */
-    private val keywordOriginalHeights = java.util.WeakHashMap<View, Int>()
 
-    /** [R99 P0] 永久门禁（已真实进入永恒）是否已完成一次性还原；完成后再不介入相关 View。 */
-    private var eternityGateReleased: Boolean = false
-
-    /** [R99 P0] 记录被字形门禁压掉前的原始高度，用于精确还原（不能一律用 WRAP_CONTENT）。 */
-    private val glyphOriginalHeights = java.util.WeakHashMap<View, Int>()
 
     /** 上一次已应用到界面的阶段；只有变化才值得写日志与做重刷新。 */
     private var lastAppliedPhase: Int? = null
@@ -618,23 +599,11 @@ internal object GameApi {
             changed += hideAllById(activity, 0x7f0a061d, "fabEternity", IntArray(1))
         }
 
-        // [R99 P0] 底部图标条的高阶入口：原版按被污染的 Player.eternities 判真，
-        // 实测全新存档（仅到 Break Infinity）上沙漏(永恒)仍可点击并进入「时间研究」页，
-        // 还能用永恒点数购买时间之理。必须按字形收敛，阻断整条永恒入口。
-        // [R99 P0] 只在「阶段切换」时处理一次，稳定后完全放手。
-        //
-        // 实测教训：如果每帧都对同一批 View 反复写 visibility/alpha/isClickable，
-        // 合法永恒玩家点击沙漏会失效（a11y 仍报 clickable=true，但点击不跳转）。
-        // 因此：未达永恒 → 持续收敛；刚达永恒 → 一次性完整还原；已达永恒且已还原 → 不再触碰。
-        if (!stage.eternityReached) {
-            changed += hideStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
-            changed += hideStageTextsByKeyword(activity, ETERNITY_STAT_KEYWORDS)
-            eternityGateReleased = false
-        } else if (!eternityGateReleased) {
-            changed += restoreStageEntriesByGlyph(activity, ETERNITY_GLYPHS)
-            changed += restoreStageTextsByKeyword(activity, ETERNITY_STAT_KEYWORDS)
-            eternityGateReleased = true
-        }
+        // [R100 P0 导航回归] R99 曾在此按字形整树扫描并 infer 导航单元收敛。
+        // resolveBarCell() 用「父容器 childCount>=2 且自身 1..3」猜测单元，
+        // 实测会命中整组导航容器并置 GONE，导致底部多项导航消失、侧栏列表空白。
+        // f82.j() 已由 OrekiStageAuto 的非递归只读判据替换，原版自身阶段构建已正确，
+        // 该扫描不再必要：已整体移除，导航恢复原版真实构建与解锁。
 
         // 顶部「成为永恒」宽按钮：3.21 原版 `eternityButton` = 0x7f0a05c1
         // （`res/layout/layout_top_buttons.xml`；字段 `MainActivity.w9:Landroid/widget/Button;`，
@@ -799,237 +768,9 @@ internal object GameApi {
     }
 
     /**
-     * [R99 P0] 按**图标字形**收敛原版底部图标条里的高阶入口。
-     *
-     * 3.21 底部图标条每一项是一个 `LinearLayout`，其 `contentDescription`
-     * 就是 FontAwesome 字形码点（实测：沙漏 = 永恒 = `\uf254`）。资源 id 不固定，
-     * 且原版每帧按被污染的 `Player.eternities` 重置可见性（见 [hideView] 注释），
-     * 因此只能按字形识别并压掉高度。
-     *
-     * **只收敛命中项本身**：若在"子节点命中"时收敛父容器，会把整条图标条一起压掉，
-     * 导致统计/成就/选项等无关入口全部消失。逐层各自判定。
-     *
-     * 只改可见性与高度，不改文字、不改游戏状态、不写存档。
-     */
-    private fun hideStageEntriesByGlyph(activity: Any, glyphs: Array<String>): Int {
-        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
-        return walkAndCollapseByGlyph(decor, glyphs)
-    }
-
-    private fun restoreStageEntriesByGlyph(activity: Any, glyphs: Array<String>): Int {
-        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
-        return walkAndRestoreByGlyph(decor, glyphs)
-    }
-
-    private fun matchesGlyph(view: View, glyphs: Array<String>): Boolean {
-        val desc = view.contentDescription?.toString()
-        if (desc != null && glyphs.contains(desc)) return true
-        if (view is android.widget.TextView) {
-            val t = view.text?.toString()
-            if (t != null && glyphs.contains(t)) return true
-        }
-        return false
-    }
-
-    private fun walkAndCollapseByGlyph(view: View?, glyphs: Array<String>): Int {
-        if (view == null) return 0
-        var changed = 0
-        if (matchesGlyph(view, glyphs)) {
-            // [R99 P0] 绝对不要改 layoutParams.height：实测 WRAP_CONTENT→38、固定126→63、
-            // MATCH_PARENT→38，都会把图标行压坏且无法还原。只收敛可见性/透明度/可点击性。
-            changed += hideBarEntry(view)
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                changed += walkAndCollapseByGlyph(view.getChildAt(i), glyphs)
-            }
-        }
-        return changed
-    }
-
-    /**
-     * [R99 P0] 取**同父容器内未被收敛的兄弟图标**的高度作为还原目标。
-     *
-     * 不能依赖 "收敛前记录的高度"：View 可能在布局过程中被重建，
-     * 记录到的会是已被压过的 0/38，还原后依旧不完整（实测沙漏停在 38）。
-     * 同一行其它图标始终是正常高度（126），用它做基准最可靠。
-     */
-    /**
-     * [R99 P0] 收敛一个字形入口：只改可见性、透明度与可点击性，**不动 layoutParams**。
-     * 这样原版无论怎样 relayout 都不会被压坏，恢复时也只是把这三项写回，绝不残留畸形高度。
-     */
-    /**
-     * [R99 P0-导航占位] 记录被收敛「导航项单元」的原始可见性，用于合法解锁后完整恢复。
-     */
-    private val barCellOriginalVisibility = java.util.WeakHashMap<View, Int>()
-
-    /**
-     * [R99 P0-导航占位] 从字形 View 上溯，找到它所在的「导航项单元」。
-     *
-     * 实测结构（frame-observer `/ui`，1080x2274 屏）：
-     *   depth 14  LinearLayout  0,2148,108,2274 … 972,2148,1080,2274   ← 10 个 108x126 单元
-     *   depth 15  TextView(沙漏 \uf254) 472,2192,500,2230                 ← 单元的子项
-     * 只隐藏 depth 15 的字形会让 depth 14 的单元继续占满 108px，形成空白占位。
-     *
-     * 判定规则：返回「父容器有 >=2 个子项（即它是导航条的一员）且自身子项很少（<=3，即它是单元而非整条）」的最近祖先。
-     * 该规则保证只命中单元，绝不会上溯到整条导航条。
-     */
-    private fun resolveBarCell(view: View): View? {
-        var cur: View? = view.parent as? View
-        var guard = 0
-        while (cur != null && guard < 6) {
-            val p = cur.parent
-            if (p is ViewGroup && p.childCount >= 2 && cur is ViewGroup && cur.childCount in 1..3) return cur
-            cur = p as? View
-            guard++
-        }
-        return null
-    }
-
-    /**
-     * [R99 P0-导航占位] 收敛一个导航项：**让单元及其占位一起消失**，而不是只把字形藏起来。
-     * 单元是带 weight 的 LinearLayout 子项，`visibility=GONE` 后 Android 会重排兄弟、不留空位；
-     * 这里**绝不改 layoutParams**（历史实测改高度会压坏图标行且不可还原）。
-     */
-    private fun hideBarEntry(view: View): Int {
-        var changed = 0
-        val cell = resolveBarCell(view)
-        if (cell != null) {
-            if (!barCellOriginalVisibility.containsKey(cell)) barCellOriginalVisibility[cell] = cell.visibility
-            if (cell.visibility != View.GONE) { cell.visibility = View.GONE; changed = 1 }
-        }
-        if (view.visibility != View.GONE) { view.visibility = View.GONE; changed = 1 }
-        if (view.alpha != 0f) { view.alpha = 0f; changed = 1 }
-        if (view.isClickable) { view.isClickable = false; changed = 1 }
-        if (view.isEnabled) { view.isEnabled = false; changed = 1 }
-        return changed
-    }
-
-    /** [R99 P0-导航占位] 与 [hideBarEntry] 严格对称：恢复单元原始可见性与字形交互。 */
-    private fun showBarEntry(view: View): Int {
-        var changed = 0
-        val cell = resolveBarCell(view)
-        if (cell != null) {
-            val orig = barCellOriginalVisibility.remove(cell) ?: View.VISIBLE
-            if (cell.visibility != orig) { cell.visibility = orig; changed = 1 }
-        }
-        if (view.visibility != View.VISIBLE) { view.visibility = View.VISIBLE; changed = 1 }
-        if (view.alpha != 1f) { view.alpha = 1f; changed = 1 }
-        if (!view.isClickable) { view.isClickable = true; changed = 1 }
-        if (!view.isEnabled) { view.isEnabled = true; changed = 1 }
-        return changed
-    }
-
-    private fun hideGlyphEntry(view: View): Int {
-        var changed = 0
-        if (view.visibility != View.GONE) { view.visibility = View.GONE; changed = 1 }
-        if (view.alpha != 0f) { view.alpha = 0f; changed = 1 }
-        if (view.isClickable) { view.isClickable = false; changed = 1 }
-        if (view.isEnabled) { view.isEnabled = false; changed = 1 }
-        return changed
-    }
-
-    /** [R99 P0] 恢复一个字形入口，与 [hideGlyphEntry] 严格对称。 */
-    private fun showGlyphEntry(view: View): Int {
-        var changed = 0
-        if (view.visibility != View.VISIBLE) { view.visibility = View.VISIBLE; changed = 1 }
-        if (view.alpha != 1f) { view.alpha = 1f; changed = 1 }
-        if (!view.isClickable) { view.isClickable = true; changed = 1 }
-        if (!view.isEnabled) { view.isEnabled = true; changed = 1 }
-        return changed
-    }
-
-    private fun hideStageTextsByKeyword(activity: Any, keywords: Array<String>): Int {
-        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
-        return walkAndCollapseByKeyword(decor, keywords)
-    }
-
-    private fun restoreStageTextsByKeyword(activity: Any, keywords: Array<String>): Int {
-        val decor = (activity as? android.app.Activity)?.window?.decorView ?: return 0
-        return walkAndRestoreByKeyword(decor, keywords)
-    }
-
-    private fun matchesKeyword(view: View, keywords: Array<String>): Boolean {
-        if (view !is android.widget.TextView) return false
-        val t = view.text?.toString() ?: return false
-        for (k in keywords) { if (t.contains(k)) return true }
-        return false
-    }
-
-    private fun walkAndCollapseByKeyword(view: View?, keywords: Array<String>): Int {
-        if (view == null) return 0
-        var changed = 0
-        if (matchesKeyword(view, keywords)) {
-            changed += hideGlyphEntry(view)
-            // 统计行是实时刷新的：原版会在门禁之后重设 visibility。
-            // 对普通 TextView（不涉及图标条的 weight 布局）再压一次高度，确保真正不可见。
-            val lp = view.layoutParams
-            if (lp != null && lp.height != 0) {
-                if (!keywordOriginalHeights.containsKey(view)) keywordOriginalHeights[view] = lp.height
-                lp.height = 0
-                view.layoutParams = lp
-                changed = 1
-            }
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                changed += walkAndCollapseByKeyword(view.getChildAt(i), keywords)
-            }
-        }
-        return changed
-    }
-
-    private fun walkAndRestoreByKeyword(view: View?, keywords: Array<String>): Int {
-        if (view == null) return 0
-        var changed = 0
-        if (matchesKeyword(view, keywords)) {
-            changed += showGlyphEntry(view)
-            val lp = view.layoutParams
-            val target = keywordOriginalHeights[view] ?: ViewGroup.LayoutParams.WRAP_CONTENT
-            if (lp != null && lp.height != target) {
-                lp.height = target
-                view.layoutParams = lp
-                changed = 1
-            }
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                changed += walkAndRestoreByKeyword(view.getChildAt(i), keywords)
-            }
-        }
-        return changed
-    }
-
-    private fun siblingIconHeight(view: View): Int {
-        val parent = view.parent as? ViewGroup ?: return ViewGroup.LayoutParams.WRAP_CONTENT
-        for (i in 0 until parent.childCount) {
-            val sib = parent.getChildAt(i)
-            if (sib === view) continue
-            val lp = sib.layoutParams ?: continue
-            if (lp.height > 0) return lp.height
-        }
-        return ViewGroup.LayoutParams.WRAP_CONTENT
-    }
-
-    private fun walkAndRestoreByGlyph(view: View?, glyphs: Array<String>): Int {
-        if (view == null) return 0
-        var changed = 0
-        if (matchesGlyph(view, glyphs)) {
-            changed += showBarEntry(view)
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                changed += walkAndRestoreByGlyph(view.getChildAt(i), glyphs)
-            }
-        }
-        return changed
-    }
-
-    /**
-     * 在主线程应用阶段门控。
-     *
-     * 游戏主循环本身跑在 UI 线程，正常情况下直接执行；万一被其它线程调用，
-     * 本次直接放弃（下一帧仍会收敛），**不为此新建定时器或排队任务**。
+     * [R100 P0 导航回归] 主线程安全检查后应用阶段门禁。
+     * 只做 ID 精确收敛（统计区块 / 顶部永恒点数 / fab 永恒按钮 / 成为永恒按钮），
+     * 不再做任何字形或关键词的整树扫描，导航完全交还原版构建。
      */
     private fun applyStageGateSafe(stage: OrekiGuiStage.Snapshot) {
         val activity = mainActivityRef() ?: return
