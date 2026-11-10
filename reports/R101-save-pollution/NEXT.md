@@ -201,3 +201,16 @@ cp fixture playerBackup.json; cp fixture playerBackup2.json; cp fixture playerBa
 结论：要触发原版大坍缩，必须让存档拥有**真实足够的维度与产量**（而不是伪造 antimatter）。这需要构造一个合法的「即将首次坍缩」存档，或直接在原版里正常玩到 1e100。两条路都需要更多操作成本。
 
 因此「原版坍缩是否也写 eternities=11」仍为 **NOT RUN**。
+
+## 2026-11-11 第三轮尝试：合法夹具可保留，但原版 UI 无法操作
+
+用「用户存档 + 清零永恒字段」构造夹具（保留真实维度/产量），注入后读回：
+`antimatter = {1.2616, 150}`、`eternities = 0`、`infinities = 0` —— **注入成功且 antimatter 未被重算掉**（真实维度支撑）。
+
+但随后无法触发原版大坍缩：
+1. `uiautomator dump` 在动画界面持续报 `ERROR: could not get idle state`（本会话已多次复现）。
+2. 按截图换算坐标点击底部主导航（Antimatter 图标，实际 ≈(66, 2133) / `input touchscreen tap`），**界面无变化**，始终停留在 Infinity Upgrades 页。
+3. UI 显示 antimatter=2.24e12，而存档文件仍是 1.26e150 → 证明内存中的 antimatter 由维度产量重算，文件值只是尚未被自动保存覆盖。
+
+结论：原版大坍缩对照实验 **NOT RUN**。阻碍已明确为「原版 UI 自动化不可靠」，不是数据构造问题。
+建议下一轮改用 frame-observer（AGENTS §41 有完整授权链路）取控件树并点击，而不是靠截图估坐标 + uiautomator。
