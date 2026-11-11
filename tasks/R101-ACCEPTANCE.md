@@ -455,3 +455,10 @@ invoke-virtual Player->x()                                    # 紧接读取
 - 正式性能新口径 PASS：60.8 fps、app work p95 8.00 ms、Slow UI 0、Missed Vsync 0、主 CPU 23.3%；官方同阶段 60.2 fps / 7.30 ms。
 - 交付：本地 SSH/SFTP、OneDrive、Google Drive、GitHub Releases 全部成功；tag `android-update-3.21.0-3ca70f8d`。
 - 阶段门禁/自动购买器/切页抽查 PASS；180 分钟真实通关、ARM64 真机、Web 部署 NOT RUN。
+
+## 2026-11-11 23:30 打破无限后无法进入永恒（P0 BLOCKED）
+
+- 用户报告 APK `3ca70f8`；受控 Break 存档手动/自动均能完成首次永恒（bigE=1、EP 7.677e3 / 1.29e3，重启保持）；旧 `3ca70f8` 同样可完成，未复现。
+- 用户原始存档是消息文本，未落盘为设备文件；无法按原状态复现，P0 BLOCKED，需用户提供存档文件。
+- `3ca70f8` 已撤销 GitHub 稳定版（prerelease）、本地 latest 移入 candidates、OneDrive/GDrive 删除。
+- GUI 性能 60fps PASS 保留；稳定版 BLOCKED。

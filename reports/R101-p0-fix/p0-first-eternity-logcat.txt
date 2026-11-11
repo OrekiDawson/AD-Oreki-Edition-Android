@@ -1,0 +1,11 @@
+11-11 23:27:14.603 12965 13038 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-11 23:27:14.605 12965 13038 I OREKI_CRUNCH_DEC: allow=true reason=ip-jump
+11-11 23:27:14.626 12965 13038 I OREKI_CRUNCH_DEC: allow=true reason=eternity-ready
+11-11 23:27:14.660 12965 13038 I OREKI_ET: launch via OrekiEternityLaunch (original no-confirm path)
+11-11 23:27:14.678 12965 13038 I OREKI_ET: settled prove=ep/bigE ep=0.0e0->1.29e3 bigE=0->1 eternitiesField=1.0e0 t=4082310
+11-11 23:27:14.680 12965 13038 I OREKI_CRUNCH_DEC: allow=true reason=pre-infinity
+11-11 23:27:14.681 12965 13038 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=infinity to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+11-11 23:28:00.070 13258 13382 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+11-11 23:28:00.071 13258 13382 I OREKI_CRUNCH_DEC: allow=true reason=pre-infinity
+11-11 23:28:22.934 13581 13618 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=1,r=0,bigR=0,eternitiesField=1
+11-11 23:28:22.942 13581 13618 I OREKI_CRUNCH_DEC: allow=false reason=eternity-grow
