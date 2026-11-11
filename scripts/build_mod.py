@@ -3953,16 +3953,21 @@ def patch_auto_enter_eternity_challenge():
     ca_line = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/"
                b"OrekiChallengeAuto;->tick()V")
     ca_marker = b"OrekiChallengeAuto;->tick()V"
+    # [R101 P0] autoEternity 关闭时禁止「自动进入 EC」触发真实永恒结算。
+    # 判据在 Kotlin（OrekiAutoEternityGate.challengeAutoStartAllowed），这里只是挂点：
+    # 原版 b.D 在 Player.canEternity 为真时会先调 prestige/c.d 做一次真实永恒，
+    # 因此该窗口内整帧跳过挑战自动化；canEternity 为假时照常推进（不结算）。
+    gate_marker = b"OrekiAutoEternityGate;->challengeAutoStartAllowed()Z"
 
     assert ic_line in blob, (
         "Challenges.update 里没有 OrekiInstantChallenge.tick()："
         "本补丁依赖它做顺序锚点，请确认 patch_instant_challenge() 已先执行")
-    if ca_marker in blob:
+    if gate_marker in blob:
         # 幂等 + 顺序再确认一次（防止别人调换过顺序）
         assert blob.find(ca_line) < blob.find(ic_line), (
             "OrekiChallengeAuto.tick() 排在 OrekiInstantChallenge.tick() 之后，"
             "顺序被改动过：必须是「先进入、同帧结算」")
-        note("[Oreki CA] 自动进入永恒挑战钩子已存在，跳过")
+        note("[Oreki CA] 自动进入永恒挑战钩子（含 autoEternity 门禁）已存在，跳过")
         return
 
     assert blob.count(ic_line) == 1, "OrekiInstantChallenge.tick() 出现次数异常，无法安全定位"
@@ -3973,14 +3978,25 @@ def patch_auto_enter_eternity_challenge():
     nl = b"\r\n" if blob[eol_prev:eol_prev + 1] == b"\r" else b"\n"
     note_line = ("# [Oreki CA] 自动进入永恒挑战：必须在 OrekiInstantChallenge.tick() 之前，"
                  "先进入再同帧结算（详见 OrekiChallengeAuto.smali）")
-    inject = (nl + ("    " + note_line).encode("utf-8") + nl + ca_line + nl)
+    # 注释只放 ASCII：字节字面量不能含中文（中文说明见本函数 docstring 与 Kotlin 门禁）。
+    gate_line = (b"    # [R101 P0] autoEternity gate: EC auto-start settles eternity when canEternity;"
+                 b" skip this frame while the switch is off")
+    gate_invoke = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                   b"OrekiAutoEternityGate;->challengeAutoStartAllowed()Z")
+    # 极性：allowed==1 才执行 CA.tick；allowed==0（关闭且会结算）跳到标签跳过。
+    gate_jump = b"    if-eqz v0, :oreki_ca_gate_skip"
+    gate_end = b"    :oreki_ca_gate_skip"
+    inject = (nl + ("    " + note_line).encode("utf-8") + nl +
+              gate_line + nl + gate_invoke + nl + b"    move-result v0" + nl +
+              gate_jump + nl + ca_line + nl + gate_end + nl)
     out = blob[:eol_prev] + inject + blob[eol_prev:]
     target.write_bytes(out)
 
     after = target.read_bytes()
     assert after.count(ca_marker) == 1, "补丁写入失败：tick() 不是 1 处"
-    assert after.find(ca_line) < after.find(ic_line), "写入后顺序不对（CA 必须在 IC 之前）"
-    note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先于 IC 结算）")
+    assert after.count(gate_marker) == 1, "补丁写入失败：autoEternity 门禁不是 1 处"
+    assert after.find(gate_invoke) < after.find(ca_line) < after.find(ic_line),         "写入后顺序不对（门禁 → CA → IC）"
+    note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先过 autoEternity 门禁、先于 IC 结算）")
 
 
 # ---------------------------------------------------------------------------

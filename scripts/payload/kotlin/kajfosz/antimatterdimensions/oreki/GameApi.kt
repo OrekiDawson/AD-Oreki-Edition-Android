@@ -1094,6 +1094,87 @@ internal object GameApi {
         (call(m, state) as? Boolean) ?: false
     } catch (e: Throwable) { miss("autoEternityCanRun", e); false }
 
+    /**
+     * [R101 P0] 原版永恒自动器**实例**（Player$Auto.o()）。
+     *
+     * ABI 取证（work/base_decoded_321/.../player/Player$Auto.smali）：
+     * public final o()Lkajfosz/antimatterdimensions/autobuyer/EternityAutobuyerState;
+     * 方法体只有一条 iget-object ...->eternity:EternityAutobuyerState;。
+     * 即 Auto.o() 返回的**就是**存档里 auto.eternity 那个对象，不是别的自动器。
+     */
+    fun autoEternityState(): Any? = call(mAutoEternityState(), auto())
+
+    /**
+     * [R101 P0] 原版「自动永恒」单项开关 isActive。
+     *
+     * 取证：AutobuyerState.b()Z 方法体只有 iget-boolean ...->isActive:Z；
+     * EternityAutobuyerState 未覆写 b()，故这里读到的就是界面开关本身。
+     * 读不到返回 null（fail-closed：调用方按「关闭」处理）。
+     */
+    fun autoEternityIsActive(): Boolean? = isAutobuyerActive(autoEternityState())
+
+    private var mPrestigeEternityLatchField: Field? = null
+
+    /**
+     * [R101 P0] 原版 Game.autoBuyerTick 里「直接永恒」分支的静态闩锁
+     * （prestige/c.b:Z）。只读诊断用：true 表示原版侧存在一条绕过 autoEternity 的
+     * 结算入口（a.smali 中该字段为真且 MainActivity.mo 为假时，不经任何自动器判据
+     * 直接调 prestige/c.d(...)）。
+     */
+    fun prestigeEternityLatch(): Boolean? = try {
+        val handle = if (mPrestigeEternityLatchField != null) {
+            mPrestigeEternityLatchField
+        } else {
+            staticField(prestigeCCls(), "b")?.also { mPrestigeEternityLatchField = it }
+        }
+        handle?.get(null) as? Boolean
+    } catch (e: Throwable) {
+        miss("prestige.c.b", e); null
+    }
+
+    private var mMainActivityCls: Class<*>? = null
+    private var mMainActivityClsResolved = false
+    private fun mainActivityCls(): Class<*>? {
+        if (!mMainActivityClsResolved) {
+            mMainActivityClsResolved = true
+            mMainActivityCls = cls("kajfosz.antimatterdimensions.MainActivity")
+        }
+        return mMainActivityCls
+    }
+
+    private var mMainActivityHaltField: Field? = null
+
+    /** [R101 P0] 原版 MainActivity.mo（Game.autoBuyerTick 直接永恒分支的第二个条件）。只读诊断。 */
+    fun mainActivityHaltFlag(): Boolean? = try {
+        val handle = if (mMainActivityHaltField != null) {
+            mMainActivityHaltField
+        } else {
+            staticField(mainActivityCls(), "mo")?.also { mMainActivityHaltField = it }
+        }
+        handle?.get(null) as? Boolean
+    } catch (e: Throwable) {
+        miss("MainActivity.mo", e); null
+    }
+
+    private var mOrekiEternityPendingField: Field? = null
+
+    /**
+     * [R101 P0] MOD 自己的在途永恒闩锁 OrekiEternity.sEtPending（public static int）。
+     *
+     * 只读诊断：非 0 说明 OrekiEternity.tryEternity() 已经发起过一次原版永恒，
+     * 用于把「结算来自 MOD 永恒层」与「结算来自原版/挑战路径」区分开。
+     */
+    fun orekiEternityPending(): Int? = try {
+        val handle = if (mOrekiEternityPendingField != null) {
+            mOrekiEternityPendingField
+        } else {
+            staticField(eternityCls(), "sEtPending")?.also { mOrekiEternityPendingField = it }
+        }
+        handle?.get(null) as? Int
+    } catch (e: Throwable) {
+        miss("OrekiEternity.sEtPending", e); null
+    }
+
     /** 8 个反物质维度自动器（数组）。 */
     fun dimensionAutobuyers(): Array<Any>? {
         val autobuyerArray = call(mAutoJ(), auto()) ?: return null
@@ -2505,7 +2586,28 @@ internal object GameApi {
     fun strategyDrives(id: String): Boolean = (call(mStrategyDrives(), null, id) as? Boolean) ?: true
     fun strategyTick() = call(mStrategyTick(), null)
     fun pelleRecordTick() = call(mPelleRecordTick(), null)
-    fun eternityTick() = call(mEternityTick(), null)
+    /**
+     * [R101 P0] MOD 主动永恒的**唯一入口**（single choke point）。
+     *
+     * 历史缺陷：OrekiEternity.tick() 是 Smali 业务实现，内部 tryEternity() **不读**
+     * autoEternity 开关；门禁只写在 OrekiStageAuto.tickEternityGated()。一旦有别的
+     * 调用链进入本方法（或策略层判据退化），autoEternity=false 仍会结算。
+     *
+     * 现在把门禁前移到本方法：任何调用方都必须先过 OrekiAutoEternityGate，
+     * 开关关闭 / MOD 总开关关闭 / 未 Break / 未达真实资格时**不进入** OrekiEternity.tick()。
+     * 手动永恒走原版 UI 入口，不经过本方法，因此不受影响。
+     *
+     * @return true = 已把控制权交给原版永恒层；false = 被门禁拒绝，未做任何动作。
+     */
+    fun eternityTick(): Boolean {
+        val reason = OrekiAutoEternityGate.reason()
+        if (reason != OrekiAutoEternityGate.REASON_ALLOW) {
+            OrekiAutoEternityGate.logBlocked(reason)
+            return false
+        }
+        call(mEternityTick(), null)
+        return true
+    }
     fun realityTick(): Boolean = (call(mRealityTick(), null) as? Boolean) ?: false
     fun glyphTick(): Boolean = (call(mGlyphTick(), null) as? Boolean) ?: false
     fun teresaTick(): Boolean = (call(mTeresaTick(), null) as? Boolean) ?: false

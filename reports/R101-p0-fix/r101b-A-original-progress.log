@@ -1,0 +1,18 @@
+t=0 maxAM=1.4458138279422252e34124.0 maxIP=1.011446971452834e205.0 inf=1.47255e6.0 IP=9.48529762177089e204.0 bigE=2 et=1.3e1.0 ep=5.27978626533964e1.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:34:44.364 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.1e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1280026
+t=30 maxAM=1.60941097970487e48433.0 maxIP=2.00838863353452e208.0 inf=1.2522378e7.0 IP=2.00838863353452e208.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:35:14.470 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.7e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1310131
+t=60 maxAM=5.3594426889833935e46773.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=1 cur=0 comp=[5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:35:44.544 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=1.9e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112
+t=90 maxAM=3.41067822883357e46958.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=3 cur=0 comp=[5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:36:14.591 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=1.8e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112
+t=120 maxAM=9.08699475826184e51886.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=3 cur=0 comp=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:36:44.673 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.1e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112
+t=150 maxAM=7.56802350764002e51891.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=3 cur=0 comp=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:37:14.770 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.1e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112
+t=180 maxAM=4.23050418365328e51894.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=3 cur=0 comp=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:37:44.836 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.1e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112
+t=210 maxAM=1.77543294856593e51896.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=3 cur=0 comp=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:38:14.899 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.1e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112
+t=240 maxAM=2.51728285777839e51897.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=2 et=1.3e1.0 ep=5.49451963259914e1.0 EC un=3 cur=0 comp=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 02:38:44.958 I/OREKI_ET_GATE( 5148): allow=false reason=auto-eternity-off broken=true canEt=false ep=5.49451963259914e1 gain=2.1e1 bigE=2 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=1325112

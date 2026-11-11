@@ -62,6 +62,9 @@ object OrekiStageAuto {
     private const val TAG_CRUNCH = "OREKI_CRUNCH"
     private const val TAG_ET_GATE = "OREKI_ET_GATE"
     private const val TAG_ET = "OREKI_ET"
+
+    /** [R101 P0] 永恒结算来源探针（只读，状态变化才打一行）。 */
+    private const val TAG_ET_PROBE = "OREKI_ET_PROBE"
     private const val TAG_EDP_FRAME = "EDP_FRAME"
     private const val TAG_AU4B = "OREKI_AU4B"
     private const val TAG_AU4C = "OREKI_AU4C"
@@ -160,6 +163,16 @@ object OrekiStageAuto {
     private var crunchSkipFrames: Int = 0
 
     private var lastEtGateReason: String = ""
+
+    // [R101 P0] 永恒结算来源探针状态（全部只读，仅用于定位「谁发起了结算」）。
+    private var lastAutoEtActiveToken: Boolean? = null
+    private var lastAutoEtCanRunToken: Boolean? = null
+    private var lastPrestigeLatchToken: Boolean? = null
+    private var lastMainHaltToken: Boolean? = null
+    private var lastOrekiPendingToken: Int? = null
+    private var lastEcUnlockedToken: Int? = null
+    private var lastEcCurrentToken: Int? = null
+    private var eternityProbeFrame: Long = 0L
     private var lastEtGateLogAt: Long = 0L
     private var lastPreBreakGateLogAt: Long = 0L
     /** 诊断限频：不能让每次原版大坍缩都同步写一行日志拖住主循环。 */
@@ -283,6 +296,8 @@ object OrekiStageAuto {
 
             // [R97] 跨层重置代际检测：必须最早执行，供本帧永恒门禁使用。
             detectResetGenerations()
+            // [R101 P0] 永恒结算来源探针：只读，变化时才打日志，用于定位「谁发起了结算」。
+            probeEternitySettlementSources()
             lastCanEternityLatched = GameApi.canEternity()
 
             // 终点记录：必须排在所有早退之前（佩勒阶段是唯一需要它的阶段）。
@@ -1895,6 +1910,13 @@ object OrekiStageAuto {
                     "settled prove=ep/bigE ep=" + epPrev + "->" + epNow +
                         " bigE=" + bigEPrev + "->" + bigENow +
                         " eternitiesField=" + GameApi.eternities() +
+                        " autoSwitch=" + GameApi.autoEternityIsActive() +
+                        " autoCanRun=" + GameApi.autoEternityCanRun() +
+                        " pending=" + GameApi.orekiEternityPending() +
+                        " latch=" + GameApi.prestigeEternityLatch() +
+                        " halt=" + GameApi.mainActivityHaltFlag() +
+                        " ec=" + GameApi.eternityChallengeState()["unlocked"] +
+                        "/" + GameApi.eternityChallengeState()["current"] +
                         " t=" + android.os.SystemClock.elapsedRealtime()
                 )
             }
@@ -1911,10 +1933,10 @@ object OrekiStageAuto {
      * 「是否允许驱动」，不写任何存档字段、不改收益公式，也不接管玩家手动永恒。
      */
     private fun eternityGateReason(): String {
-        if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
-        if (GameApi.isDoomed()) return "doomed"
-        if (!GameApi.isBroken()) return "not-broken"
-        if (!GameApi.autoEternityCanRun()) return "auto-eternity-off"
+        // [R101 P0] 基础判据统一交给 Kotlin 门禁（总开关 / autoEternity 单项开关 /
+        // Doomed / Break / canEternity）。这里只再叠加本帧的收益与节拍条件。
+        val baseReason = OrekiAutoEternityGate.reason()
+        if (baseReason != OrekiAutoEternityGate.REASON_ALLOW) return baseReason
         if (crunchSkipFrames > 0) return "same-frame-crunch"
         if (!GameApi.canEternity()) return "cannot-eternity"
         val gain = GameApi.gainedEternityPointsValue()
@@ -1947,7 +1969,79 @@ object OrekiStageAuto {
                         " ep=" + GameApi.eternityPointsValue() +
                         " gain=" + GameApi.gainedEternityPointsValue() +
                         " bigE=" + GameApi.bigEternitiesValue() +
+                        " autoSwitch=" + OrekiAutoEternityGate.autoEternitySwitchOn() +
+                        " autoCanRun=" + OrekiAutoEternityGate.autoEternityCanRun() +
+                        " pending=" + GameApi.orekiEternityPending() +
+                        " latch=" + GameApi.prestigeEternityLatch() +
+                        " halt=" + GameApi.mainActivityHaltFlag() +
                         " lastCrunch=" + lastCrunchAtMs
+                )
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /**
+     * [R101 P0] 永恒结算来源探针（**只读**）。
+     *
+     * 背景：原档 `autoEternity=false` 却发生了真实永恒结算，仅凭存档 JSON 无法判断
+     * 是哪条链发起的。这里每帧读四个**原版真实状态**，变化时才打一行，用来区分：
+     *
+     *   · `autoSwitch` = `Player$Auto.o().isActive`（界面「自动永恒」开关）；
+     *   · `autoCanRun` = `EternityAutobuyerState.c()`（原版完整 canTick）；
+     *   · `latch` = `prestige/c.b`（原版 `Game.autoBuyerTick` 的「直接永恒」静态闩锁）；
+     *   · `halt` = `MainActivity.mo`（上述直接永恒分支的第二个条件）；
+     *   · `pending` = `OrekiEternity.sEtPending`（MOD 永恒层是否已发起）；
+     *   · `ecUnlocked/ecCurrent` = 自动进入永恒挑战是否在同一时刻推进。
+     *
+     * 不写任何存档字段，不改变任何行为；EC 状态反序列化较贵，每 3 帧读一次。
+     */
+    private fun probeEternitySettlementSources() {
+        try {
+            val active = GameApi.autoEternityIsActive()
+            if (active != lastAutoEtActiveToken) {
+                lastAutoEtActiveToken = active
+                Log.i(TAG_ET_PROBE, "autoEternity.isActive=" + active)
+            }
+            val canRun = GameApi.autoEternityCanRun()
+            if (canRun != lastAutoEtCanRunToken) {
+                lastAutoEtCanRunToken = canRun
+                Log.i(TAG_ET_PROBE, "autoEternity.canRun=" + canRun)
+            }
+            val latch = GameApi.prestigeEternityLatch()
+            if (latch != lastPrestigeLatchToken) {
+                lastPrestigeLatchToken = latch
+                Log.i(TAG_ET_PROBE, "prestige.c.b=" + latch)
+            }
+            val halt = GameApi.mainActivityHaltFlag()
+            if (halt != lastMainHaltToken) {
+                lastMainHaltToken = halt
+                Log.i(TAG_ET_PROBE, "MainActivity.mo=" + halt)
+            }
+            val pending = GameApi.orekiEternityPending()
+            if (pending != lastOrekiPendingToken) {
+                lastOrekiPendingToken = pending
+                Log.i(
+                    TAG_ET_PROBE,
+                    "OrekiEternity.sEtPending=" + pending +
+                        " bigE=" + GameApi.bigEternitiesValue() +
+                        " ep=" + GameApi.eternityPointsValue()
+                )
+            }
+            eternityProbeFrame++
+            if (eternityProbeFrame % 3L != 0L) return
+            val ec = GameApi.eternityChallengeState()
+            val unlocked = ec["unlocked"] as? Int
+            val current = ec["current"] as? Int
+            if (unlocked != lastEcUnlockedToken || current != lastEcCurrentToken) {
+                lastEcUnlockedToken = unlocked
+                lastEcCurrentToken = current
+                Log.i(
+                    TAG_ET_PROBE,
+                    "ec unlocked=" + unlocked + " current=" + current +
+                        " completions=" + ec["completions"] +
+                        " bigE=" + GameApi.bigEternitiesValue() +
+                        " ep=" + GameApi.eternityPointsValue()
                 )
             }
         } catch (_: Throwable) {

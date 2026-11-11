@@ -1,0 +1,22 @@
+t=0 maxAM=1.40581051214036e312.0 maxIP=6.8e1.0 inf=1.5e1.0 IP=1.0e0.0 bigE=0 et=0.0e0.0 ep=0.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:01:13.942 I/OREKI_ET_GATE( 9981): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=2865882
+t=30 maxAM=1.81427751610682e315.0 maxIP=6.9e1.0 inf=2.2e1.0 IP=6.9e1.0 bigE=0 et=0.0e0.0 ep=0.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:01:43.982 I/OREKI_ET_GATE( 9981): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=2898215
+t=60 maxAM=1.81427751610682e315.0 maxIP=8.941e3.0 inf=2.7e1.0 IP=8.941e3.0 bigE=0 et=0.0e0.0 ep=0.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:02:14.053 I/OREKI_ET_GATE( 9981): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=2926482
+t=90 maxAM=1.81427751610682e315.0 maxIP=1.00135e5.0 inf=3.4e1.0 IP=7.5352e4.0 bigE=0 et=0.0e0.0 ep=0.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:02:44.128 I/OREKI_ET_GATE( 9981): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=2958625
+t=120 maxAM=6.45176181135066e315.0 maxIP=6.31089e5.0 inf=4.3e1.0 IP=6.31089e5.0 bigE=0 et=0.0e0.0 ep=0.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:03:14.023 I/OREKI_ET_GATE( 9981): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false lastCrunch=2979217
+t=150 maxAM=2.60326994270697e677.0 maxIP=4.75189272211624e139.0 inf=4.7e1.0 IP=4.75189272211624e139.0 bigE=0 et=0.0e0.0 ep=0.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:03:44.102 I/OREKI_ET_GATE( 9981): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=2.0e0 bigE=0 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false lastCrunch=2979217
+t=180 maxAM=4.30309305709063e101.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=1 et=1.0e0.0 ep=2.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:03:46.673 I/OREKI_ET_GATE( 9981): allow=true reason=allow broken=true canEt=true ep=0.0e0 gain=2.0e0 bigE=0 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false lastCrunch=2979217
+  SETTLED DETECTED
+  CAN_ETERNITY_TRUE at t=180
+t=210 maxAM=3.35976139545853e191.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=1 et=1.0e0.0 ep=2.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:03:46.673 I/OREKI_ET_GATE( 9981): allow=true reason=allow broken=true canEt=true ep=0.0e0 gain=2.0e0 bigE=0 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false lastCrunch=2979217
+  SETTLED DETECTED
+t=241 maxAM=1.89179477447175e221.0 maxIP=0.0e0.0 inf=0.0e0.0 IP=0.0e0.0 bigE=1 et=1.0e0.0 ep=2.0e0.0 EC un=0 cur=0 comp=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  gate: 11-12 03:03:46.673 I/OREKI_ET_GATE( 9981): allow=true reason=allow broken=true canEt=true ep=0.0e0 gain=2.0e0 bigE=0 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false lastCrunch=2979217
+  SETTLED DETECTED
