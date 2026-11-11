@@ -462,3 +462,10 @@ invoke-virtual Player->x()                                    # 紧接读取
 - 用户原始存档是消息文本，未落盘为设备文件；无法按原状态复现，P0 BLOCKED，需用户提供存档文件。
 - `3ca70f8` 已撤销 GitHub 稳定版（prerelease）、本地 latest 移入 candidates、OneDrive/GDrive 删除。
 - GUI 性能 60fps PASS 保留；稳定版 BLOCKED。
+
+## 2026-11-11 23:55 用户原始存档 P0 复现
+
+- 原档 SHA-256 `bad5fe5d…f8179c`，已只读复制到 `savestates/R101-user-original-2026-11-11T23_30.txt`。
+- 官方 3.21 同档 70 秒：Big Crunches 32→59、maxAM 冻在 e34124、maxIP 停 1.011e205，官方自身也未进入下一次永恒。
+- MOD 3ca 同档：策略 pause/resume 翻转，IP/maxIP 被清零到 0；另有挑战/即时挑战自动重置。
+- 候选 f47f 的投影 IP 门控 + 1h autoBig 暂停仍无法阻止清零，已回退；稳定版继续 BLOCKED，3ca 维持撤销。
