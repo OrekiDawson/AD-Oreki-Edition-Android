@@ -94,3 +94,10 @@
 - `legal-save-before-mod.json` / `mod-legal-readback-after-run.json`：合法存档回归前后
 - `official-import-main.png` / `official-restart-main.png` / `mod-legal-main.png`：GUI 截图
 - `build-tailed.log` / `logcat-crunch.txt`：构建与大坍缩日志
+
+## 8. 本轮反编译导出
+
+- 命令：`jadx --deobf -d /tmp/r101-jadx-full build/gradle-stage/反物质维度.apk`
+- 结果：处理 **10,919 个类**，输出约 **245 MB**；**209 个局部反编译错误**（混淆/局部结构，不阻断关键类导出）。
+- 关键类已导出：`kajfosz/antimatterdimensions/OrekiInstantChallenge.java`、`kajfosz/antimatterdimensions/oreki/OrekiIpGainScale.java`。
+- 字段/别名结论复用 `work/base_decoded_321` 的 DEX 解码树；本轮未重复全量反编译原始 XAPK。
