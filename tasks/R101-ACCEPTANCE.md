@@ -448,3 +448,10 @@ invoke-virtual Player->x()                                    # 紧接读取
 - 正式门禁（app work p95≤16、Missed=0、Slow UI=0、主 CPU<50%、交互正常、≥30/60 目标）：**PASS**。
 - 自动购买开关、无限升级/打破无限切页、EP=0 新档阶段门禁均正常；无 FATAL/ANR。
 - 证据：`reports/R101-p0-fix/PERFORMANCE-60FPS.md` 及同目录 pftrace/framestats/截图。
+
+## 2026-11-11 23:04 GUI 60fps 稳定版交付
+
+- 最终 APK `3ca70f8dab0661166969ebaa739d1433fd75e8b26731cae346401fb618634fb7`（84,588,715 B）；`verifyRelease 15/15`、V3 签名、zipalign、Universal 4 ABI。
+- 正式性能新口径 PASS：60.8 fps、app work p95 8.00 ms、Slow UI 0、Missed Vsync 0、主 CPU 23.3%；官方同阶段 60.2 fps / 7.30 ms。
+- 交付：本地 SSH/SFTP、OneDrive、Google Drive、GitHub Releases 全部成功；tag `android-update-3.21.0-3ca70f8d`。
+- 阶段门禁/自动购买器/切页抽查 PASS；180 分钟真实通关、ARM64 真机、Web 部署 NOT RUN。
