@@ -1,6 +1,31 @@
-# AD Mod 规则入口
-所有 Agent 先读 [常驻核心](docs/rules/CORE.md)，再按 [规则索引](docs/RULES_INDEX.md) 读取职责模块及当前任务上下文。
-当前全局规则入口：[全局规则](docs/AGENTS_GLOBAL.md)。归档仅供追溯，不作为当前指令。
-本仓职责：[Android](docs/rules/ANDROID.md)。
+# AD-Oreki-Edition-Android 规则
 
-构建、签名、稳定版门禁与四渠道 APK 交付遵循 [RELEASE](docs/rules/RELEASE.md)；Linux 统一交付入口为 `scripts/publish_four_channels.py`。普通构建不会自动上传，正式发布必须显式调用。
+本仓库是 Android MOD 源码与构建仓库。项目状态 **PAUSED**（R101 未完成）；旧规则已归档到 `archive/rules-pre-reset-2026-11-11/`，不再生效。
+
+## 1. 技术边界
+
+- 目标基线：官方 Android 3.21。
+- 新增或修改的 Android 业务逻辑使用 Kotlin；原版混淆 DEX/Smali 只作为已核实的 ABI、反射和兼容入口，不新增 Smali/Java 业务实现。
+- 修改混淆 ABI 前必须确认真实调用关系、完整描述符、参数和返回值；无法唯一确认时停止，不猜字段或方法别名。
+- 保持真实游戏机制和合法存档兼容；不得伪造资源、阶段、成就、挑战结算或解锁。
+- 优先最小修复，不随意重写原版游戏逻辑。
+- 保护现有 Kotlin、Rust、Gradle、DEX 构建链和 ABI 映射；不为工具迁移而迁移。
+
+## 2. 验证
+
+- 构建成功不等于功能验收。
+- 涉及存档、阶段、挑战、自动购买器或 GUI 的修改，执行对应的真实运行验证（AVD 或真机、截图、控件树、日志）。
+- 测试范围由实际风险决定；不强制全量回归或全量反编译。
+- 未运行写 `NOT RUN`，失败写 `FAIL`，不伪造 `PASS`。
+
+## 3. 构建与交付
+
+- 构建入口、环境、基线、ABI 和产物位置以 `README.md` 与 `docs/FACTS.md` 为准。
+- 发布前确认源码、签名、APK、SHA-256 和验证记录一致；未验收版本不称为稳定版。
+- 当前暂停期间不重新构建 APK、不迁移工具链、不继续 R101 功能工作。
+
+## 4. 事实与历史
+
+- 工程事实、ABI 映射、存档格式、已知 Bug 和测试结果保留在 `docs/FACTS.md`、`docs/`、`tasks/`、`reports/`。
+- 历史任务与报告保留原样，不要求每轮通读。
+- 旧规则：[archive/rules-pre-reset-2026-11-11/](archive/rules-pre-reset-2026-11-11/)，只供追溯。

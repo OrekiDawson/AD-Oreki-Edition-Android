@@ -4,14 +4,14 @@
 - 项目状态：PAUSED（主动暂停开发；不是完成，也不是稳定发布）
 - 当前轮次：R101（未宣称完成）
 - 封存前 HEAD：af31c936429734cc667020c7e523b361fbee32c3
-- 封存提交：本文件所在提交（`chore: 封存当前开发成果，暂停项目开发`）
+- 封存提交：`91b77fd39cf8878d1c3e26a8c89b416568f90914`（2026-11-11 首次封存）；本文件已在同日规则重建提交中更新。
 - 分支 / 远程：main → <https://github.com/OrekiDawson/AD-Oreki-Edition-Android.git>
 
 ## 当前开发状态
 
 - Android 目标基线：官方 3.21。
 - R101 的未完成改动（首次永恒前 IP 兑换尺度、ID 峰值等待上限等）已原样封存，未经验收，不得当作稳定版。
-- 现有 AGENTS、FACTS、tasks、RULES_INDEX、历史报告与测试证据全部保留；本次未做规则重构、未删除规则。
+- 现有 AGENTS、FACTS、tasks、历史报告与测试证据全部保留；2026-11-11 已归档旧规则并重建极简规则。
 - 最近一次本地构建：2026-11-11 05:37（`release/反物质维度.apk`），仅为本地候选。
 
 ## 已知阻碍（未验收）
@@ -36,7 +36,7 @@
 ## 未来恢复方式
 
 1. `git checkout main && git pull --ff-only`
-2. 先读 `AGENTS.md`、`docs/RULES_INDEX.md`、`docs/FACTS.md`，再决定是否恢复 R101。
-3. 恢复开发时重新设计极简开发规则；现有规则与历史记录原样保留，不在封存时删除。
+2. 先读 `AGENTS.md`、`docs/FACTS.md`、`PROJECT_PAUSED.md`，再决定是否恢复 R101。
+3. 恢复开发按新 `AGENTS.md` 执行；旧规则只在 `archive/rules-pre-reset-2026-11-11/` 追溯，不自动恢复效力。
 4. 构建入口以 README 与 FACTS 的当前记录为准（`scripts/build_mod.py` / Gradle）；先核对 SDK、JDK、XAPK 路径与哈希。
 5. 未完成的 P0、真实通关、性能门禁必须重新立项验收；本封存提交不构成稳定版声明。

@@ -12,10 +12,10 @@
 
 先阅读：
 
-1. [Android 规则索引](docs/RULES_INDEX.md)
-2. [Android 核心规则](docs/rules/CORE.md)
-3. [构建、测试与发布规则](docs/rules/RELEASE.md)
-4. [当前事实](docs/FACTS.md)
+1. [Android 当前规则](AGENTS.md)
+2. [当前事实](docs/FACTS.md)
+3. [暂停状态与本地资产](PROJECT_PAUSED.md)
+4. [规则索引](docs/RULES_INDEX.md)
 
 ## 3. 构建
 
@@ -29,7 +29,7 @@
 
 ### 3.2 正式交付
 
-正式交付前必须绑定同一份源码输入、版本、签名、APK、SHA-256 和必要运行证据。GitHub Release 使用完整发行说明；其他渠道只提供同一 APK 和对应 SHA-256 校验值。详细格式见 [RELEASE §6](docs/rules/RELEASE.md#6-android-发行版写作格式)。
+正式交付前必须绑定同一份源码输入、版本、签名、APK、SHA-256 和必要运行证据。GitHub Release 使用完整发行说明；其他渠道只提供同一 APK 和对应 SHA-256 校验值。发布要求以 [AGENTS.md](AGENTS.md) 与当前验证记录为准；旧发布规则不再生效。
 
 ## 4. 技术边界
 
