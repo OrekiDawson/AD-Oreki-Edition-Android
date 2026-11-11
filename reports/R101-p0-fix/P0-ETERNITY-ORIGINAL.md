@@ -49,3 +49,10 @@ MOD `3ca70f8` 同档 70 秒：
 - 根因不是单一 `iq0.z/iq0.e` 映射；问题跨“autoBig 间隔配置 + 挑战自动重置”两层。
 - 当前未完成修复，稳定版继续 BLOCKED；`3ca70f8` 维持撤销状态。
 - 下一步需要：用原始存档关闭自动挑战/即时挑战后单变量验证，再将 autoBig 时间门控与挑战自动门控一起以 Kotlin 修复；在未完成前不发布。
+
+## 追加：Java 方法采样（原始存档 / 3ca / 8 秒）
+
+- `OrekiChallengeAuto.tick()` 19 次、`tryNormal()` 19 次；`OrekiInstantChallenge.tick()` 4 次。
+- 同窗口 `OrekiStageAuto.applyCrunchPolicy` 236 次、`OrekiCrunchPolicy.decide` 229 次，策略在 `eternity-grow`/`eternity-ip-jump` 间切换。
+- 官方同档 70 秒 `bigCrunches` 32→59，`maxAM` 冻在 e34124；MOD `3ca` 额外出现 IP/maxIP 清零，说明清零来自挑战/即时挑战路径而非单纯 maxAM 冻结。
+- 仍未能把清零收敛到单一方法；未完成修复，稳定版保持 BLOCKED。
