@@ -481,3 +481,11 @@ invoke-virtual Player->x()                                    # 紧接读取
 - autoBig=true：IP/maxIP 9.485e204/1.011e205 → 0；只关闭 autoBig：IP/maxIP 5.893e207，未清零，bigCrunches 32；官方同档 maxIP 保持。
 - 首次清零由 MOD autoBig 首个 Big Crunch 触发；策略暂停发生在首拍之后，延长 time、autoEternity 门控、投影门控均无效，已回退。
 - 原档下一次永恒 FAIL；稳定版 BLOCKED；3ca 维持撤销。
+
+## 2026-11-12 00:50 autoBig 首拍清零修复
+
+- 在 `CrunchAutobuyerState.c()` 前置 `holdCrunch()` 增加永恒层 fail-closed HOLD，读档未完成或投影 IP 未达 1.797e308 时禁止 autoBig。
+- 原档 60 秒：IP/maxIP 由 0 恢复为 2.47e471/1.008e472，maxAM e85978，bigCrunches38，未清零。
+- 下一次真实永恒：bigE 2→3、EP≈52.8→138.6，重启保持。
+- framestats app work p95 7.40 ms；60 FPS 基线保持。
+- autoEternity=false 手动保护未完全确认，稳定版 BLOCKED；3ca 维持撤销。

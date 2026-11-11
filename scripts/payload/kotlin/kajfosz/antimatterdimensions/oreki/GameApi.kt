@@ -1069,6 +1069,31 @@ internal object GameApi {
     /** 大坍缩自动器实例。 */
     fun crunchState(): Any? = call(mAutoE(), auto())
 
+    // [R101 P0] 原版 Auto.eternity 的“可自动运行”判据（active && canEternity）。
+    private var mAutoEternityState: Method? = null
+    private var mAutoEternityStateResolved: Boolean = false
+    private fun mAutoEternityState(): Method? {
+        if (!mAutoEternityStateResolved) {
+            mAutoEternityStateResolved = true
+            mAutoEternityState = method(playerAutoCls(), "o", 0, "Auto.o()=eternity")
+        }
+        return mAutoEternityState
+    }
+    private var mEternityAutobuyerCls: Class<*>? = null
+    private var mEternityAutobuyerClsResolved: Boolean = false
+    private fun eternityAutobuyerCls(): Class<*>? {
+        if (!mEternityAutobuyerClsResolved) {
+            mEternityAutobuyerClsResolved = true
+            mEternityAutobuyerCls = cls("kajfosz.antimatterdimensions.autobuyer.EternityAutobuyerState")
+        }
+        return mEternityAutobuyerCls
+    }
+    fun autoEternityCanRun(): Boolean = try {
+        val state = call(mAutoEternityState(), auto()) ?: return false
+        val m = method(eternityAutobuyerCls(), "c", 0, "EternityAutobuyerState.c()=canRun") ?: return false
+        (call(m, state) as? Boolean) ?: false
+    } catch (e: Throwable) { miss("autoEternityCanRun", e); false }
+
     /** 8 个反物质维度自动器（数组）。 */
     fun dimensionAutobuyers(): Array<Any>? {
         val autobuyerArray = call(mAutoJ(), auto()) ?: return null

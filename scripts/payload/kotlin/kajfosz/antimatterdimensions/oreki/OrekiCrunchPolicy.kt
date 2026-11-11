@@ -41,6 +41,9 @@ object OrekiCrunchPolicy {
     /** 当前连续等待开始时刻（nanoTime）；0 表示没有在等待。 */
     private var waitStartedAt: Long = 0L
 
+    private val ETERNITY_IP_LOG10: Double = Math.log10(Double.MAX_VALUE)
+    private const val ETERNITY_GROW_WAIT_NS: Long = 300_000_000_000L
+
     /**
      * ID 峰值等待上限。
      *
@@ -143,6 +146,21 @@ object OrekiCrunchPolicy {
         // 现在与首次永恒前共用同一套收益驱动：只有「一次坍缩至少让 IP 涨 10 倍」才结算，
         // 否则按住让维度/星系长起来；永恒门槛达标时也放行一次，保证 EP 循环不断。
         if (!OrekiStageAuto.eternitiesZero()) {
+            // [R101 P0] 用户原档：autoBig TIME=60×10000 时旧 ip-jump 每 5 秒放行，
+            // 反复重置 IP/maxIP。未达到 canEternity 时，只有原版投影
+            // gainedInfinityPoints() 达到 1.797e308 才放行；否则等待 maxAM 成长。
+            if (GameApi.canEternity()) {
+                waitStartedAt = 0L
+                return Decision(true, "eternity-ready")
+            }
+            val projectedEternityIp = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
+            if (projectedEternityIp != null && projectedEternityIp < ETERNITY_IP_LOG10) {
+                return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)
+            }
+            if (projectedEternityIp != null) {
+                waitStartedAt = 0L
+                return Decision(true, "eternity-ip-ready")
+            }
             // 只看「这一次坍缩值不值得」：收益 ≥10× 当前 IP 才结算。
             // 刻意**不**用 canEternity 当放行理由：永恒层里 canEternity 长期为真
             // （maxIP 早已过 1.797e308），而真正决定能否结算的是 OrekiEternity 的

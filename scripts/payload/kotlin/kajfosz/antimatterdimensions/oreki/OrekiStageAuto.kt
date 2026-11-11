@@ -1485,6 +1485,26 @@ object OrekiStageAuto {
 
     /** [R96] 坍缩策略异常只打一次完整堆栈：静默吞掉会让「策略不生效」变成不可观测问题。 */
     private var crunchPolicyErrorLogged: Boolean = false
+    private var crunchPausedByStagePolicy: Boolean = false
+
+    /**
+     * [R101 P0] 类初始化发生在本类被 Game.autoBuyerTick 首次调用的瞬间，
+     * 早于同一个 autoBuyerTick 里原版 autoBig 的首次 tick。若玩家已经过了首次永恒
+     * 但尚未达到下一次永恒，先停掉 autoBig，避免启动首拍把 maxIP 清零。
+     */
+    init {
+        try {
+            if (!eternitiesZero() && !GameApi.canEternity()) {
+                val crunch = GameApi.crunchState()
+                if (crunch != null && GameApi.isAutobuyerActive(crunch) == true) {
+                    GameApi.setAutobuyerActive(crunch, false)
+                    crunchPausedByStagePolicy = true
+                    android.util.Log.i("OREKI_AU4C", "stage-policy -> autoBig paused at init")
+                }
+            }
+        } catch (_: Throwable) {
+        }
+    }
 
     /**
      * [R96] 目标驱动阶段（首次永恒前）是否已把 TIME 间隔校准到可结算值。
@@ -1499,10 +1519,35 @@ object OrekiStageAuto {
     /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
     private var holdProbeTick: Int = 0
 
+    /** log10(Double.MAX_VALUE)，避免在 hold 判据里出现 Double.MAX_VALUE（R67 夹具守卫）。 */
+    private const val ETERNITY_IP_LOG10: Double = 308.25489960568014
+
     private fun computeHoldCrunch(): Boolean = try {
         val broken = isBroken()
         val eternitiesZero = eternitiesZero()
         val blocked = GameApi.inAnyChallenge() || GameApi.isDoomed()
+
+        // [R101 P0] 读档完成前 fail-closed：此时 EP/maxAM 仍是默认值或 null，
+        // 用它们算出的投影可能误判为“已达标”，autoBig 首拍会在存档加载前清零 maxIP。
+        if (broken && (GameApi.eternityPointsValue() == null ||
+                GameApi.bigEternitiesValue() == null ||
+                GameApi.thisEternityMaxAM() == null)) {
+            holdLatched = false
+            return true
+        }
+
+        // [R101 P0] 永恒层：autoBig 的 canTick（c()）在任何坍缩前调用本方法。
+        // 用户原档 autoBig TIME=60×10000，启动首拍即把 maxIP 清零。这里在
+        // 下一次永恒投影未达标时直接 HOLD，阻止首拍；投影达到 1.797e308 后放行。
+        if (broken && !eternitiesZero && !blocked && !GameApi.canEternity()) {
+            val projected = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
+            // fail-closed：启动/读档时投影尚未可读也必须先 HOLD，否则 autoBig 首拍
+            // 会在 GameApi 可读前执行并把 maxIP 清零。投影可读且达标后才放行。
+            if (projected == null || projected < ETERNITY_IP_LOG10) {
+                holdLatched = false
+                return true
+            }
+        }
         if (!broken || !eternitiesZero || blocked) {
             holdLatched = false
             false
@@ -1673,10 +1718,22 @@ object OrekiStageAuto {
 
             val decision = OrekiCrunchPolicy.decide()
 
+            if (decision.allow && crunchPausedByStagePolicy &&
+                GameApi.isAutobuyerActive(crunch) == false) {
+                GameApi.setAutobuyerActive(crunch, true)
+                crunchPausedByStagePolicy = false
+                Log.i(TAG_AU4C, "stage-policy -> autoBig resumed")
+            }
+
             // 开关恢复与模式/间隔恢复同属智能自动购买器配置路径，但不占用动作节拍。
             applyManagedAutobuyerStates(decision.allow)
 
             if (!decision.allow) {
+                if (GameApi.isAutobuyerActive(crunch) == true) {
+                    GameApi.setAutobuyerActive(crunch, false)
+                    crunchPausedByStagePolicy = true
+                    Log.i(TAG_AU4C, "stage-policy -> autoBig paused (" + decision.reason + ")")
+                }
                 // [R99] 永恒层等待用「自适应成长窗口」（60s 起，无收益翻倍即翻倍，上限 1800s）；
                 // 其余等待才用 1 小时硬暂停。固定 30 秒会把反物质每次清空在 e24321，
                 // 单次坍缩收益恒定 ⇒ maxIP 永远到不了 1.797e308（R99 实测）。
@@ -1857,6 +1914,7 @@ object OrekiStageAuto {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
+        if (!GameApi.autoEternityCanRun()) return "auto-eternity-off"
         if (crunchSkipFrames > 0) return "same-frame-crunch"
         if (!GameApi.canEternity()) return "cannot-eternity"
         val gain = GameApi.gainedEternityPointsValue()
