@@ -47,3 +47,12 @@ docs/SHARED_GAMEPLAY_STANDARD.md -text
 # docs/FACTS.md 同理（工作区根 FACTS.md 与两仓 docs/FACTS.md 是三处硬链接）。
 docs/FACTS.md -text
 scripts/check_agents_sync.py -text
+
+# 【GitHub Linguist 语言统计】
+# 旧 Python 构建/测试脚本与历史报告不是 Android 运行时业务代码，排除出语言占比；
+# 这不改变任何文件内容或构建行为，只影响 GitHub 的语言统计。
+*.py linguist-vendored
+# reports/ 下是历史反编译树、日志、截图和一次性证据，属于生成/归档内容。
+reports/** linguist-generated
+# 规则归档仅作历史追溯，不属于当前生产代码。
+archive/** linguist-vendored

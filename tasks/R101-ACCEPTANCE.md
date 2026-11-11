@@ -429,3 +429,11 @@ invoke-virtual Player->x()                                    # 紧接读取
 - 状态：P0 PASS；性能 30 FPS 门禁本次 NOT RUN，稳定版四渠道发布继续 BLOCKED。
 
 - 性能复测（2026-11-11 22:08）：合法永恒页 15 秒 604 帧（约 40.3 fps）、p95 32 ms、Slow UI 16、Slow draw 229；按当前 p95≤16ms 口径 **FAIL**，稳定版发布继续 BLOCKED。
+
+## 2026-11-11 22:xx GitHub 语言统计与 Python 禁增（补充）
+
+- GitHub baseline：Smali 205,092,029 B、Python 1,381,738 B、Kotlin 420,537 B、Rust 99,830 B。
+- 根因：`reports/r50` 历史反编译树贡献 204,693,271 B Smali；Python 全部为构建/测试/历史脚本。
+- `.gitattributes`：`*.py linguist-vendored`、`reports/** linguist-generated`、`archive/** linguist-vendored`；未改构建行为。
+- Python 禁增：本轮无新增 `.py`、无新增 Python 代码/依赖；门禁 PASS。
+- GitHub 语言统计更新待确认（API 重新计算后复核）。
