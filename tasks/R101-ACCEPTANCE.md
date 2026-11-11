@@ -475,3 +475,9 @@ invoke-virtual Player->x()                                    # 紧接读取
 - 8 秒采样：`OrekiChallengeAuto.tick=19`、`tryNormal=19`、`OrekiInstantChallenge.tick=4`；`applyCrunchPolicy=236`、`decide=229`。
 - 官方同档 70 秒 Big Crunches 32→59、maxAM 冻在 e34124；MOD 3ca 额外 IP/maxIP 清零。
 - 清零来源未收敛到单一方法；P0 未修复，稳定版 BLOCKED，3ca 维持撤销。
+
+## 2026-11-12 00:20 原档首次清零单变量
+
+- autoBig=true：IP/maxIP 9.485e204/1.011e205 → 0；只关闭 autoBig：IP/maxIP 5.893e207，未清零，bigCrunches 32；官方同档 maxIP 保持。
+- 首次清零由 MOD autoBig 首个 Big Crunch 触发；策略暂停发生在首拍之后，延长 time、autoEternity 门控、投影门控均无效，已回退。
+- 原档下一次永恒 FAIL；稳定版 BLOCKED；3ca 维持撤销。
