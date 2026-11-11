@@ -511,24 +511,24 @@ FIELD_ALIASES_320: dict[str, str] = {
 # R90 目标侧字段名映射：3.21 的 Currency 状态容器 iq0 对字段做了整体重排，
 # 不能沿用 3.20 的 w/g0/R。真实 DEX 字段表按类型逐项对应：
 #   bq0.w : Lrp0;  -> iq0.d0 : Lrp0;  （infinityPoints）
-#   bq0.g0: Lup0;  -> iq0.z  : Lup0;  （infinities）
+#   bq0.g0: Lup0;  -> iq0.e  : Lpp0;  （infinities；3.21 的 iq0.z/Lup0 实为 eternities）
 #   bq0.R : Lop0;  -> iq0.d  : Lop0;  （eternityPoints）
 # 字段名错但类型仍是 Currency 时 smali 能汇编，ART 却会在调用父类
 # Currency.add 时抛出 VerifyError，所以必须按真实字段身份映射。
 FIELD_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
     ("bq0", "w"): ("iq0", "d0"),
-    ("bq0", "g0"): ("iq0", "z"),
+    ("bq0", "g0"): ("iq0", "e"),
     ("bq0", "R"): ("iq0", "d"),
 }
 
 # 3.21 的字段类型也必须按目标字段钉正：旧字段类型经过类别名级联后，
 # 会落到 3.20 同名字段对应的类，而不是 3.21 真实声明类型。
 #   iq0.d0 真实 Lrp0;（3.19 Lrp0 经别名会变成 Lyp0）
-#   iq0.z  真实 Lup0;（3.19 Lsm0 经别名会变成 Lpp0）
+#   iq0.e  真实 Lpp0;（3.19 Lsm0 经别名会变成 Lpp0，无需再改类型）
 #   iq0.d  真实 Lop0;（3.19 Lym0 经别名会变成 Lvp0）
+# 注意：iq0.z/Lup0 是 eternities 的 setter（Player.E0），绝不能当 infinities 用。
 FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
     ("iq0", "d0"): ("yp0", "rp0"),
-    ("iq0", "z"): ("pp0", "up0"),
     ("iq0", "d"): ("vp0", "op0"),
 }
 
@@ -1996,15 +1996,15 @@ def patch_speed_records():
     assert src.count(_ip_anchor) == 1, f"IP 兑换尺度锚点不唯一（{src.count(_ip_anchor)} 处）"
     _ip_ins = ("\n    :goto_0\n"
                "    # [Oreki R101-IP] 首次永恒前把 IP 兑换除数 308 收到 30（与 Web AD8 同规则）。\n"
-               "    # 只转发；判据在 Kotlin OrekiIpGainScale.apply()，只读真实 eternities，不改任何字段。\n"
-               "    # double 参数占 2 个寄存器槽：{v0,v1}=第一个 double，{v2,v3}=第二个 double。\n"
-               "    # 写成 {v0, v1} 会触发 VerifyError（expected 2 argument registers, has 3 or more）。\n"
-               "    invoke-static {v0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/OrekiIpGainScale;->apply(DD)D\n"
+               "    # 只转发；判据在 Kotlin OrekiIpGainScale.apply(D)D，只读真实 eternities，不改任何字段。\n"
+               "    # Kotlin 签名是 apply(D)D：一个 double 参数占 2 个寄存器槽，必须且只能传 {v0, v1}。\n"
+               "    # 传 {v0, v1, v2, v3} 会引用未定义寄存器并在 ART 装载时 VerifyError（R101 实测崩溃）。\n"
+               "    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiIpGainScale;->apply(D)D\n"
                "\n"
                "    move-result-wide v0\n"
                "    sget-object v2, Lkajfosz/antimatterdimensions/celestials/pelle/c;->h:")
     src = src.replace(_ip_anchor, _ip_ins, 1)
-    assert src.count("OrekiIpGainScale;->apply(DD)D") == 1, "IP 兑换尺度转发应恰 1 处"
+    assert src.count("OrekiIpGainScale;->apply(D)D") == 1, "IP 兑换尺度转发应恰 1 处"
 
     write_smali(p, src, encoding="utf-8")
     note("[4g] prestige.e: 最佳无限时间归一化完成（迁移 + 比较 + 写入，共 1 次 migrate、2 次 unscale）")
@@ -4868,6 +4868,13 @@ def patch_instant_challenge_rewards():
     for frag, why in must:
         assert _apply_alias(frag) in src, f"OrekiInstantChallenge 缺少 {why} 的调用：{frag}"
 
+    # [R101 P0 负向守卫] 3.21 的 iq0.z/Lup0 是 eternities（Player.E0），不是 infinities。
+    # 本补丁只能通过 iq0.e/Lpp0 发无限次数；一旦有人把字段改回 z，构建失败而不是
+    # 生成会污染存档的 APK（用户存档导入官方后会显示「永恒次数 11」）。
+    assert "Liq0;->z" not in src, (
+        "OrekiInstantChallenge 使用了 Liq0;->z（3.21 实为 eternities）；"
+        "无限次数必须使用 Liq0;->e:Lpp0;，否则会污染存档")
+
     # --- 4) 外部符号存在性（与实际打包的 MOD 逐条对照，防止混淆换名）---
     # 只校验本补丁新增的引用；描述符必须逐字相同。
     roots = smali_roots()   # [R75] 按实际 dex 分组动态取（不写死 classes2/3）
@@ -4979,7 +4986,7 @@ def patch_instant_challenge_rewards():
             assert pat.search(body), f"{cls} 缺少字段 {name}:{rest}（混淆换名）"
 
     # 3.21 的 Currency 位字段类型不是旧字段类型经类级联后的结果：
-    # iq0.d0=Lrp0; / iq0.z=Lup0; / iq0.d=Lop0;。这里从同一张
+    # iq0.d0=Lrp0; / iq0.e=Lpp0; / iq0.d=Lop0;。这里从同一张
     # FIELD_ALIASES_321/FIELD_TYPE_ALIASES_321 推导目标字段与真实类型，
     # 既避免第二套硬编码，也保留字段名和类型的 fail-closed 检查。
     if _profile_value("bindings"):

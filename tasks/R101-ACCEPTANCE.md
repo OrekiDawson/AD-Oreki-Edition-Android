@@ -418,3 +418,12 @@ invoke-virtual Player->x()                                    # 紧接读取
 | ARM64 真机验收 | NOT RUN | 仅 AVD |
 | Python 全量迁移 P1 | 未开工 | `build_mod.py` 413 KB，需分阶段 |
 | smali 业务逻辑 Kotlin 化 | 未开工 | `OrekiInstantChallenge` 等仍为 smali，违反规则 2.3 |
+
+## 2026-11-11 22:06 存档污染 P0 复验（本次补充）
+
+- 样本：`reports/R101-save-pollution/user-export.raw.txt`，sha256 `d316abc1…fceebf`；解码 `eternities={1.0,1.1}=11 / bigE=0 / EP=0 / infinities=4`。
+- 根因：3.21 别名把 infinities 通道映射到 `iq0.z`（`up0`，setter `Player.E0` 写 eternities）；即时挑战的 `Currency.infinities.add` 因此写入永恒次数。
+- 修复：`build_mod.py` 把 `bq0.g0 -> iq0.e/Lpp0`；增加 `Liq0;->z` 负向守卫；同时修复 `OrekiIpGainScale.apply(D)` 被误写成 `apply(DD)` 导致的启动 `VerifyError`。
+- 构建：`BUILD SUCCESSFUL 1m39s`，APK `6e7356b7f9449417b7524215faf64016462ecc88c270a8a915077dab5a0d8e42`（84,588,715 B）。
+- 验收：MOD 新档首次大坍缩后 `0/0/0/11`；MOD 导出→官方 3.21 导入→冷启动→重启均 `0/0/0/11`，GUI 无 11 次永恒/时间研究页；合法永恒存档注入后正常推进（25→26 / 14→15 / EP 增长）。
+- 状态：P0 PASS；性能 30 FPS 门禁本次 NOT RUN，稳定版四渠道发布继续 BLOCKED。

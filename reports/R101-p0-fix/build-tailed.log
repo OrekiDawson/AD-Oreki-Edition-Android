@@ -1,0 +1,40 @@
+[inject-dex] 已注入 classes4.dex
+[normalize-zip] 中央目录 1785 项，本地文件头 1785 项
+[oreki] APK assets 校验通过：23 条
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/home/oreki/Android/Sdk/build-tools/37.0.0/lib/apksigner.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/home/oreki/Android/Sdk/build-tools/37.0.0/lib/apksigner.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): false
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v3.2 scheme (APK Signature Scheme v3.2): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+V3.0 Signer: certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+V3.0 Signer: certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+V3.0 Signer: certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+V3.0 Signer: certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b
+V3.0 Signer: key algorithm: RSA
+V3.0 Signer: key size (bits): 2048
+V3.0 Signer: public key SHA-256 digest: 3e1872584158600bab528736b10069cb543631bc5ccd4babf7ec3fa2ff1c1ab7
+V3.0 Signer: public key SHA-1 digest: eb0bb871fd8e00c9c33b68299083ff016a346a33
+V3.0 Signer: public key MD5 digest: 2eb7e7c6dea1897a964ae8472777cead
+[oreki] Gradle 已完成 zipalign/apksigner：/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/反物质维度.apk
+  已记录输入指纹 d21db7d6c63cf33d + 产物 6e7356b7f9449417（0.94s）
+
+> Task :releaseBudgetRecord
+[release-budget] RECORDED final: 反物质维度.apk sha256=6e7356b7f9449417… used=225/1
+
+BUILD SUCCESSFUL in 1m 39s
+10 actionable tasks: 6 executed, 4 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html
