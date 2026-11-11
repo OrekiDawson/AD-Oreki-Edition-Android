@@ -437,3 +437,5 @@ invoke-virtual Player->x()                                    # 紧接读取
 - `.gitattributes`：`*.py linguist-vendored`、`reports/** linguist-generated`、`archive/** linguist-vendored`；未改构建行为。
 - Python 禁增：本轮无新增 `.py`、无新增 Python 代码/依赖；门禁 PASS。
 - GitHub 语言统计更新待确认（API 重新计算后复核）。
+
+- GitHub Linguist 复核（2026-11-11 22:35）：`.gitattributes` 本地生效；GitHub API 仍为旧统计，标记待确认；剩余有效代码 Kotlin 420,537 B > Smali 392,030 B > Rust 99,830 B。
