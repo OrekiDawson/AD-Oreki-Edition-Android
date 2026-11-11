@@ -66,6 +66,10 @@
 - `eternities=0 / bigEternities=0 / EP=0 / infinities=11`
 - GUI 仍为早期阶段；证据：`official-restart-main.png`
 
+### 5.6 性能门禁（FAIL，本次复测）
+
+同一 AVD 合法永恒页面 15 秒 `gfxinfo`：604 帧（约 40.3 fps）、现代 jank 263（43.54%）、p95 32 ms、p99 42 ms、Missed Vsync 0、Slow UI 16、Slow issue draw commands 229。按当前口径（p95 ≤16ms、Slow UI=0）判定 **FAIL**，45/60 fps 未达。证据：`gfxinfo-15s.txt`。
+
 ### 5.5 合法已永恒存档回归（PASS）
 
 把合法存档（`eternities=25 / bigEternities=14 / EP=66042.09 / infinities=126617`）注入修复后 MOD，冷启动后进度正常推进（离线收益与自动永恒），关键字段未清零、未被改写成错误值：
@@ -79,8 +83,8 @@
 - P0 跨版本存档污染：**PASS**（修复后 MOD→官方导入 0/0/0/11，重启不变）
 - 官方 GUI 阶段门禁：**PASS**（无 11 次永恒/时间研究）
 - 合法存档回归：**PASS**
-- 性能 30 FPS 门禁：**NOT RUN（本次未展开）**；历史 FAIL 记录保留，不据此发布稳定版
-- 稳定版四渠道发布：**BLOCKED**（P0 已修复，但性能门禁与完整 180 分钟验收未完成）
+- 性能门禁：**FAIL**（15s 约 40.3fps，p95 32ms、Slow UI 16、Slow draw 229；未达 p95 ≤16ms / Slow UI=0）
+- 稳定版四渠道发布：**BLOCKED**（P0 已修复，但性能门禁 FAIL、完整 180 分钟验收未完成）
 
 ## 7. 证据文件
 

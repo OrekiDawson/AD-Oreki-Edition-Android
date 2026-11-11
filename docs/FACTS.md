@@ -9906,3 +9906,5 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[R101 启动级回归：IP 除数补丁 VerifyError]` 同轮发现旧候选 `025d9d0a…` 启动即崩：`java.lang.VerifyError: prestige.e.d() ... [0x2D] register v2 has type Undefined but expected Double`。根因：`patch_ip_gain_scale` 把 Kotlin `OrekiIpGainScale.apply(D)D` 误写成 `apply(DD)D` 并传 `{v0,v1,v2,v3}`；已改为 `apply(D)D` + `{v0,v1}`。修复后 APK 正常冷启动、无 FATAL/VerifyError。
 - `[R101 别名表根因修正]` `FIELD_ALIASES_321` 的 `bq0.g0` 从错误目标 `iq0.z`（`Lup0;`，setter `Player.E0` 写 eternities）改为 `iq0.e`（`Lpp0;`，真实 infinities），移除错误的 `iq0.z` 类型修正；并在即时挑战补丁增加负向构建守卫 `Liq0;->z` 禁止出现，防止再次把无限次数写进永恒次数。
 - `[R101 合法永恒存档回归 PASS]` 合法存档 `eternities=25 / bigEternities=14 / EP=66042.09 / infinities=126617` 注入修复后 MOD，冷启动后正常推进（运行后 26/15/约3.7e6/约1.2e5），关键字段未被清零或改写；GUI 显示永恒点数与时间页签。证据 `reports/R101-p0-fix/legal-save-before-mod.json`、`mod-legal-main.png`。
+
+- `[R101 P0 复验性能 FAIL]` 2026-11-11 22:08 同一 AVD 合法永恒页 15 秒 `gfxinfo`：604 帧（约 40.3 fps）、现代 jank 263（43.54%）、p95 32 ms、p99 42 ms、Missed Vsync 0、Slow UI 16、Slow issue draw commands 229；按 p95≤16ms、Slow UI=0 口径 **FAIL**。P0 已修复，但性能门禁未过，稳定版四渠道发布继续 BLOCKED。证据 `reports/R101-p0-fix/gfxinfo-15s.txt`。
