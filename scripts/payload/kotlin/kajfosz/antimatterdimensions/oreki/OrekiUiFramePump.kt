@@ -24,11 +24,14 @@ object OrekiUiFramePump {
     private const val NANOS_PER_SECOND = 1_000_000_000L
 
     /**
-     * 重绘最小间隔（纳秒）。32 ms：必须略小于 2×vsync(33,333,332ns)，否则因 1ns 差会跳过到第 3 帧变成 20 fps（实测）。
-     * 实测：60 fps（每帧整树重绘）单帧约 18 ms，超出 16 ms 预算，卡顿 98.92%；
-     * 33 ms 档卡顿 4.66%–5.90%，p90 与原版一致（16 ms），故取 33 ms。
+     * 重绘最小间隔（纳秒）。
+     *
+     * [R101 性能修复] 旧值 32 ms 把 UI 固定限制在约 30 fps；Perfetto 实测
+     * 主线程单帧 traversal/draw 合计约 5.8 ms，RenderThread 约 13 ms，
+     * 官方同环境可到 60 fps。改为 16 ms，让 UI 跟随 60 Hz 刷新；仍只失效
+     * 可见文本控件，不推进游戏、不改存档、不改变加速语义。
      */
-    private const val MIN_PAINT_INTERVAL_NANOS = 32_000_000L
+    private const val MIN_PAINT_INTERVAL_NANOS = 16_000_000L
 
     /** 文本控件缓存有效期：每秒重建一次，避免每帧遍历视图树。 */
     private const val TARGETS_MAX_AGE_NANOS = 1_000_000_000L

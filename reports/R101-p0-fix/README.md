@@ -101,3 +101,7 @@
 - 结果：处理 **10,919 个类**，输出约 **245 MB**；**209 个局部反编译错误**（混淆/局部结构，不阻断关键类导出）。
 - 关键类已导出：`kajfosz/antimatterdimensions/OrekiInstantChallenge.java`、`kajfosz/antimatterdimensions/oreki/OrekiIpGainScale.java`。
 - 字段/别名结论复用 `work/base_decoded_321` 的 DEX 解码树；本轮未重复全量反编译原始 XAPK。
+
+## 9. 性能修复
+
+GUI 60 FPS 性能 P0 的根因、修复、前后对照和门禁判定见 [PERFORMANCE-60FPS.md](PERFORMANCE-60FPS.md)。

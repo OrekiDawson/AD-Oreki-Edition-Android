@@ -439,3 +439,12 @@ invoke-virtual Player->x()                                    # 紧接读取
 - GitHub 语言统计更新待确认（API 重新计算后复核）。
 
 - GitHub Linguist 复核（2026-11-11 22:35）：`.gitattributes` 本地生效；GitHub API 仍为旧统计，标记待确认；剩余有效代码 Kotlin 420,537 B > Smali 392,030 B > Rust 99,830 B。
+
+## 2026-11-11 23:00 GUI 60 FPS 性能修复
+
+- 根因：`OrekiUiFramePump` 32 ms 固定间隔把 UI 限制在约 30 fps；基线 602 帧/40.1 fps、Slow UI 3、app work p95 6.04 ms、主线程 CPU 14.3%。
+- 修复：`MIN_PAINT_INTERVAL_NANOS` 32 ms → 16 ms；仅 Kotlin，未改游戏逻辑/存档/自动化。
+- 候选 `3ca70f8d…`：912 帧/60.8 fps、modern jank 0.11%、Slow UI 0、Missed Vsync 0、app work p95 8.00 ms、主 CPU 23.3%；官方同阶段 903 帧/60.2 fps、app work p95 7.30 ms。
+- 正式门禁（app work p95≤16、Missed=0、Slow UI=0、主 CPU<50%、交互正常、≥30/60 目标）：**PASS**。
+- 自动购买开关、无限升级/打破无限切页、EP=0 新档阶段门禁均正常；无 FATAL/ANR。
+- 证据：`reports/R101-p0-fix/PERFORMANCE-60FPS.md` 及同目录 pftrace/framestats/截图。
