@@ -53,3 +53,10 @@
 - **在 08:50–09:00 或 13:50–14:00 的收尾窗口内**：停止启动新开发，安全结束子 Agent 和任务，保存代码与测试现场，中文 Commit/Push，记录未完成事项、恢复位置和 PASS/FAIL/BLOCKED/NOT RUN；**在高峰开始之前**调用 DSH/Harness 的实际 Goal 状态控制，把本次 `/goal` 设置为 `complete` 并复核 `phase=complete`、`activation=disarmed`。`complete` 只代表当前执行周期安全收口，不代表 R102 任务、测试或发布全部 PASS。
 - 官方调整峰谷后以新公布为准，并同步更新全局与本条。
 
+## 8. 双端交付、AGP 迁移与 CI/CD 增量规则（2026-11-12）
+
+- **强制读取 [Android 开发与交付长期规则](docs/DELIVERY_RULES.md)**。本节补充既有有效技术、安全与 DeepSeek 峰谷约束，不重新启用旧版归档。
+- Android 标准 AGP + 官方工具为**渐进式迁移目标**，现有 apktool/Kotlin→D8→DEX→APK 在新链路真实兼容验收 PASS 前继续保留；不为迁移而中断业务交付。每个官方基线只完整 JADX 导出一次，按需复用成果。
+- ChatGPT 管理 GitHub 与 CI/CD；公开 Android CI 仅代表源码检查，私有仓库控制敏感 APK 签名及候选验证。真实 APK、签名、AVD/GUI、四渠道交付逐项标记 PASS/FAIL/BLOCKED/NOT RUN。
+- 每两小时至少交付一份**合格稳定版**是节奏目标，绝不以失败包充数；当前授权范围内正常 Commit/Push 无需反复确认，高风险及未过门禁改动走 PR，禁止强推。生产发布须同一经验证 APK、四渠道同一 SHA-256。
+- 任务与 /goal 开头、180 分钟通关、P0/P1 优先、真实结算、自动购买器、实时 UI、双端教程和最小必要回归的完整约束见上述增量规则。不得将 Goal phase=complete 当作所有交付 PASS。
