@@ -47,6 +47,68 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun autoEternitySwitchOn(): Boolean = GameApi.autoEternityIsActive() == true
 
+    // ------------------------------------------------------- [R104 P0] 新档引导窗口
+    //
+    // 问题（R104-01 实测）：全新存档的 `auto.eternity.isActive` 默认 false，而该自动器
+    // 在解锁前**没有 UI 开关**。R101 门禁把「isActive=false」一律当成玩家主动关闭，
+    // 于是新档在 canEternity=true 之后永久停在无限层（实测 t≈7 min 起 allow=false
+    // reason=auto-eternity-off，EP 恒 0，需要人工点永恒才能继续）。
+    //
+    // 修法：只在「本会话从从未永恒过的全新档启动」时开放引导窗口：
+    //   · 未永恒过（eternities/bigEternities 都为 0）→ 允许 MOD 驱动首次永恒；
+    //   · 原版自动器仍未解锁 → 允许继续驱动（未解锁就没人能做关闭决定）；
+    //   · 解锁后由 OrekiStageAuto 一次性启用原版开关，此后仍按玩家开关严格判定。
+    // 载入已有进度（eternities>0）的存档时 freshSession=false，R101 P0 的门禁语义不变。
+    private var freshSessionChecked = false
+    private var freshSession = false
+
+    /** 只读零判断：BigDouble 走 compareTo(D)，原生 Number 直接转 double（bigEternities 是 Number）。 */
+    private fun isZeroValue(v: Any?): Boolean? = when (v) {
+        null -> null
+        is Number -> v.toDouble() == 0.0
+        else -> {
+            val cmp = GameApi.compareToDouble(v, 0.0)
+            if (cmp == null) null else cmp <= 0
+        }
+    }
+
+    /**
+     * 采样「本会话是否从全新档启动」。
+     *
+     * 注意：不能在玩家/存档就绪前把 false 缓存下来 —— 启动早期 gate 可能先被挑战钩子调用，
+     * 那一刻读不到字段；必须等两个字段都可读后再固化结论（否则一次早调用会把整个会话
+     * 永久判成"非新档"，正是 R104 首个候选版实测失败的原因）。
+     */
+    private fun noteFreshSession() {
+        if (freshSessionChecked) return
+        val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return
+        val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return
+        freshSession = eZero && bZero
+        freshSessionChecked = true
+    }
+
+    private fun neverEternitied(): Boolean {
+        val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return false
+        val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return false
+        return eZero && bZero
+    }
+
+    /** 本会话是否从全新档启动（用于"解锁后接管原版开关"的一次性判断）。 */
+    @JvmStatic
+    fun freshSessionBootstrapEligible(): Boolean {
+        noteFreshSession()
+        return freshSession
+    }
+
+    /** 新档引导窗口是否放行 MOD 主动永恒。 */
+    @JvmStatic
+    fun bootstrapActive(): Boolean {
+        noteFreshSession()
+        if (!freshSession) return false
+        if (neverEternitied()) return true
+        return !GameApi.autoEternityUnlocked()
+    }
+
     /** 原版完整 canTick（含总开关 / 解锁 / canEternity），仅用于诊断。 */
     @JvmStatic
     fun autoEternityCanRun(): Boolean = GameApi.autoEternityCanRun()
@@ -59,7 +121,7 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun reason(): String {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
-        if (!autoEternitySwitchOn()) return "auto-eternity-off"
+        if (!autoEternitySwitchOn() && !bootstrapActive()) return "auto-eternity-off"
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
@@ -88,6 +150,8 @@ internal object OrekiAutoEternityGate {
     fun challengeAutoStartAllowed(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
         if (autoEternitySwitchOn()) return true
+        // [R104 P0] 新档引导窗口内同样放行挑战自动化（否则 EC 链在新档永不启动）。
+        if (bootstrapActive()) return true
         val settlementNow = GameApi.canEternity()
         if (settlementNow) logChallengeBlocked()
         return !settlementNow

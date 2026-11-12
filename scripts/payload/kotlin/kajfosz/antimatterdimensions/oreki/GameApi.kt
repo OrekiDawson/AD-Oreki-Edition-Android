@@ -1113,6 +1113,39 @@ internal object GameApi {
      */
     fun autoEternityIsActive(): Boolean? = isAutobuyerActive(autoEternityState())
 
+    /**
+     * [R104 P0] 原版永恒自动器是否**已解锁**（`EternityAutobuyerState.g()Z`）。
+     *
+     * 取证（`work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/autobuyer/EternityAutobuyerState.smali`）：
+     * 135: `.method public final g()Z` → `sget-object p0, Lf91;->r:Ld91;` + `Ly81;->w()Z`
+     * （原版里程碑达成判定）。未解锁时界面里**不存在**可切换的「自动永恒」开关，
+     * 所以「未解锁 + isActive=false」不是玩家主动关闭，不能按 R101 的关闭口径处理。
+     */
+    private var mEternityAutobuyerUnlocked: Method? = null
+    private var mEternityAutobuyerUnlockedResolved: Boolean = false
+    private fun mEternityAutobuyerUnlocked(): Method? {
+        if (!mEternityAutobuyerUnlockedResolved) {
+            mEternityAutobuyerUnlockedResolved = true
+            mEternityAutobuyerUnlocked =
+                method(eternityAutobuyerCls(), "g", 0, "EternityAutobuyerState.g()=unlocked")
+        }
+        return mEternityAutobuyerUnlocked
+    }
+
+    /** 原版永恒自动器解锁态；读不到返回 false（fail-closed：不据此放宽门禁）。 */
+    fun autoEternityUnlocked(): Boolean = try {
+        val state = autoEternityState() ?: return false
+        (call(mEternityAutobuyerUnlocked(), state) as? Boolean) ?: false
+    } catch (e: Throwable) {
+        miss("autoEternityUnlocked", e)
+        false
+    }
+
+    /** [R104 P0] 一次性启用原版「自动永恒」开关（仅在全新档引导期、解锁后调用）。 */
+    fun setAutoEternityActive(active: Boolean) {
+        setAutobuyerActive(autoEternityState(), active)
+    }
+
     private var mPrestigeEternityLatchField: Field? = null
 
     /**

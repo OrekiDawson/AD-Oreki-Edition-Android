@@ -312,6 +312,11 @@ object OrekiStageAuto {
             GameApi.settleTimeTheoremReward()
 
             OrekiPlayerIntent.refresh()
+
+            // [R104 P0] 新档引导：原版「自动永恒」解锁后一次性接管其开关。
+            // 只在本会话从「从未永恒过」的全新档启动时生效（freshSessionBootstrapEligible），
+            // 载入已有进度的存档不会触发，R101 P0 的「玩家关闭即尊重」语义保持。
+            ensureEternityAutobuyerBootstrap()
             applyCrunchPolicy()
             crunchProbe()
             detectBreakLoss()
@@ -1946,6 +1951,38 @@ object OrekiStageAuto {
     }
 
     /**
+     * [R104 P0] 新档引导期一次性接管原版「自动永恒」开关。
+     *
+     * 背景：全新存档的 `auto.eternity.isActive` 默认 false，且在自动器解锁前没有 UI 开关。
+     * R101 门禁把 isActive=false 一律当玩家关闭，导致新档在 canEternity 后永久停在无限层
+     * （R104-01 实测 t≈7 min 起 allow=false reason=auto-eternity-off，EP 恒 0）。
+     *
+     * 顺序：全新档启动 → 门禁引导窗口允许 MOD 驱动首次永恒 → 原版里程碑解锁自动器
+     * → 本方法一次性写 `isActive=true`（走原版开关，真实读取回校验）→ 之后门禁只认开关。
+     * 载入已有进度的存档（freshSession=false）不会走到这里。
+     */
+    private var eternityAutobuyerAdopted = false
+
+    private fun ensureEternityAutobuyerBootstrap() {
+        if (eternityAutobuyerAdopted) return
+        try {
+            if (!OrekiAutomationScheduler.isEnabled()) return
+            if (!OrekiAutoEternityGate.freshSessionBootstrapEligible()) return
+            if (GameApi.autoEternityIsActive() == true) {
+                eternityAutobuyerAdopted = true
+                return
+            }
+            if (!GameApi.autoEternityUnlocked()) return
+            GameApi.setAutoEternityActive(true)
+            if (GameApi.autoEternityIsActive() == true) {
+                eternityAutobuyerAdopted = true
+                Log.i(TAG_ET_GATE, "bootstrap: adopted vanilla eternity autobuyer after unlock")
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /**
      * [R97] 永恒门禁：只有全部真实条件满足才允许 MOD 主动永恒。
      *
      * 判据顺序与 Web `eternityStageAllowed()` + `tickEternity()` 对齐；本方法只做
@@ -1989,6 +2026,9 @@ object OrekiStageAuto {
                         " gain=" + GameApi.gainedEternityPointsValue() +
                         " bigE=" + GameApi.bigEternitiesValue() +
                         " autoSwitch=" + OrekiAutoEternityGate.autoEternitySwitchOn() +
+                        " boot=" + OrekiAutoEternityGate.bootstrapActive() +
+                        " fresh=" + OrekiAutoEternityGate.freshSessionBootstrapEligible() +
+                        " etUnlock=" + GameApi.autoEternityUnlocked() +
                         " autoCanRun=" + OrekiAutoEternityGate.autoEternityCanRun() +
                         " pending=" + GameApi.orekiEternityPending() +
                         " latch=" + GameApi.prestigeEternityLatch() +

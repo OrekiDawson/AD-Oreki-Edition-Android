@@ -9982,3 +9982,25 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   单次干净 Gradle 构建的 D8 执行期 class 列表；删除 R101 创建期父级分组过滤。
 - 遗留：180 分钟真实通关 NOT RUN；Web 自动 Pages 部署 BLOCKED（缺 environment 与 PAGES_DEPLOY_TOKEN）；
   公开仓 dispatch token 缺失（本轮由授权私有工作流直接触发）。
+
+## [R104 P0-01] 全新存档无法自动越过首次永恒：自动永恒门禁过严（2026-11-13）
+
+- 现象（R103 正式 APK `3d924271…`，真实全新档 `reports/R104/android-run1/`）：t=129.7 s 首次无限、
+  t=353.7 s 首次 Break、t=359.5 s `canEternity` 首真；此后 `OREKI_ET_GATE` 连续 291 条
+  `allow=false reason=auto-eternity-off`（23:41:26→23:46:22），EP 恒 0 且收益已涨到 3.7e9 仍不结算；
+  EC 自动进入同样被拦。手动真实 UI 永恒成功（bigE 0→1、EP 3.75763128e9），证明只是自动化被门禁挡死。
+- 根因：R101 门禁把 `auto.eternity.isActive == false` 一律当成玩家主动关闭；但全新档该自动器未解锁
+  （`EternityAutobuyerState.g()` 里程碑；Web 同源 `eternity-milestones.js:141` 要求 100 次永恒），
+  解锁前界面没有开关，玩家不可能做出关闭决定。
+- 修复（Kotlin，未动原版结算链）：`GameApi.autoEternityUnlocked()/setAutoEternityActive()`；
+  `OrekiAutoEternityGate` 增加「本会话从全新档启动」引导窗口（未永恒过或自动器未解锁时放行）；
+  `OrekiStageAuto.ensureEternityAutobuyerBootstrap()` 在解锁后一次性启用原版开关。
+- 首个候选 `674e9d50…` 无效（`bigEternities` 是原生 Number，`compareToDouble` 抛异常被判非零；
+  且 gate 在玩家就绪前早调用会永久缓存 false）。v2 候选 `dbb536ae52a7b066…` 修正两点并加入诊断字段。
+- 真实 AVD 验证（`reports/R104/android-run3/`，v2 候选，pm clear 全新档 00:00:33 起跑）：
+  断点 348.6 s；00:06:41.288 `OREKI_ET_GATE allow=true reason=allow ... boot=true fresh=true etUnlock=false`；
+  00:06:43.230 `OREKI_ET launch via OrekiEternityLaunch`；00:06:43.254 `settled ep=0.0e0->2.0e0 bigE=0->1`。
+  ⇒ 新档首次永恒由 MOD 正常自动完成，P0 正向修复 PASS。
+- 待办：R101 反向回归（载入已有进度 + autoEternity=false 仍拦截）；100 次永恒解锁后接管原版开关的实测；
+  全新档 180 分钟长跑仍在进行。
+
