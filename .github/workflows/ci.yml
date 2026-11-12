@@ -44,7 +44,7 @@ jobs:
           print('PASS: baseline config current version is defined')
           PY
       - name: Gradle configuration smoke (NOT an APK build)
-        run: ./gradlew help --no-daemon --console=plain
+        run: bash ./gradlew help --no-daemon --console=plain
       - name: Explain source-only evidence
         run: |
           echo "::notice::This job checks tracked sources and Gradle configuration only."
