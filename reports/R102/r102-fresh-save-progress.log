@@ -1,0 +1,102 @@
+t=0 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=5 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=10 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=15 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=20 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=25 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=30 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=35 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=40 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=45 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=51 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=56 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+t=61 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:16.078 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39651740
+t=66 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:21.092 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39651915
+t=71 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:26.097 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39651915
+t=76 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:31.098 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39651915
+t=81 inf=0e0.0 bc=0 IP=0e0.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:36.105 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39671551
+t=86 inf=1e1.0 bc=2 IP=3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:41.121 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39671551
+t=91 inf=1e1.0 bc=2 IP=3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:46.143 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39671551
+t=96 inf=1e1.0 bc=2 IP=3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:51.165 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39671551
+t=101 inf=1e1.0 bc=2 IP=3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:14:56.187 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39689325
+t=106 inf=1e1.0 bc=2 IP=3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:01.210 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39689325
+t=111 inf=1e1.0 bc=2 IP=3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:06.223 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39689325
+t=116 inf=1.1e1.0 bc=3 IP=2.3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:11.227 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39706165
+t=121 inf=1.1e1.0 bc=3 IP=2.3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:16.237 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39706165
+t=127 inf=1.1e1.0 bc=3 IP=2.3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:21.258 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39706165
+t=132 inf=1.1e1.0 bc=3 IP=2.3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:26.280 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39721886
+t=137 inf=1.1e1.0 bc=3 IP=2.3e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:31.284 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39721886
+t=142 inf=1.4e1.0 bc=6 IP=4.5e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:36.291 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39721886
+t=147 inf=1.4e1.0 bc=6 IP=4.5e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:41.291 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39733336
+t=152 inf=1.4e1.0 bc=6 IP=4.5e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:46.308 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39733336
+t=157 inf=1.4e1.0 bc=6 IP=4.5e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:51.320 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39744515
+t=162 inf=1.4e1.0 bc=6 IP=4.5e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:15:56.344 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39752005
+t=167 inf=1.4e1.0 bc=6 IP=4.5e1.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:01.357 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39752030
+t=172 inf=2e1.0 bc=9 IP=9.95e2.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:06.381 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39759140
+t=177 inf=2e1.0 bc=9 IP=9.95e2.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:11.388 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39765854
+t=182 inf=2e1.0 bc=9 IP=9.95e2.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:16.408 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39765854
+t=187 inf=2e1.0 bc=9 IP=9.95e2.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:21.416 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39772648
+t=192 inf=2e1.0 bc=9 IP=9.95e2.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:26.437 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39779319
+t=197 inf=2e1.0 bc=9 IP=9.95e2.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:31.454 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39786105
+t=203 inf=2.5e1.0 bc=14 IP=9.05e3.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:36.465 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39786105
+t=208 inf=2.5e1.0 bc=14 IP=9.05e3.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:41.474 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39792660
+t=213 inf=2.5e1.0 bc=14 IP=9.05e3.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:46.475 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39798985
+t=218 inf=2.5e1.0 bc=14 IP=9.05e3.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:51.487 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39805365
+t=223 inf=2.5e1.0 bc=14 IP=9.05e3.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:16:56.499 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39809612
+t=228 inf=2.5e1.0 bc=14 IP=9.05e3.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:01.520 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39813822
+t=233 inf=3.1e1.0 bc=20 IP=1.05e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:06.543 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39818039
+t=238 inf=3.1e1.0 bc=20 IP=1.05e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:11.544 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39826190
+t=243 inf=3.1e1.0 bc=20 IP=1.05e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:16.558 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39829788
+t=248 inf=3.1e1.0 bc=20 IP=1.05e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:21.572 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39836976
+t=253 inf=3.1e1.0 bc=20 IP=1.05e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:26.597 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39840591
+t=258 inf=3.1e1.0 bc=20 IP=1.05e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:31.604 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39847188
+t=263 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:36.623 I/OREKI_ET_GATE(16349): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=39850442
+t=268 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:46.393 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=273 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:51.402 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=279 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:17:56.425 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=284 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:18:01.431 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
