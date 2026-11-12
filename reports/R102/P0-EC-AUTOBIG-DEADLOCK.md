@@ -98,3 +98,28 @@ OrekiStageAuto.computeHoldCrunch() 在永恒层（!eternitiesZero）加入的 R1
 2. P1 定向检查：自动化开关/间隔/恢复默认、关自动后立即停止、页面可见性、Activity 重建、60FPS。
 3. 180 分钟连续真实墙钟通关（安排在完整低谷窗口）。
 4. 候选经完整验证后再考虑发布稳定版；Web 端与教程/附录 F 按实际变化同步。
+
+
+## 8. 原版 Android 3.21 同档对照（2026-11-12 13:25 CST，AVD）
+
+- 原版包：kajfosz.antimatterdimensions（官方 3.21，已装于同 AVD）；MOD：候选 a5eda896。
+- 同一原档副本 reports/R101-p0-fix/r101b-original-save.json 注入原版 files/player.json，5 秒采样 100 秒：
+  /tmp/r102-official-original.log（证据保存为 reports/R102/r102-official-original-save-progress.log）。
+
+| 时间 | 原版 bigCrunches | maxAM | maxIP | bigE | EP | EC |
+|---|---|---|---|---|---|---|
+| t=0 | 32 | e34124 | 1.011e205 | 2 | 52.8 | un=0 |
+| t=30 | 532 | e34124 | 2.37e205 | 2 | 62.52 | un=0 |
+| t=30–100 | 532→533 | e34124（冻结） | 2.37e205 | 2 | 62.52 | un=0 |
+
+对照 MOD（候选 a5eda896，同档，见 §5）：t≈30 首次坍缩 maxIP 1.001e209；t=50/81/111 EC1~EC3 自动进入
+（MOD 授权自动化）；t=308 canEternity=true；t≈424 maxIP e851。
+
+结论：
+- 原版同档在真实速度下 100 秒内 maxAM 冻结、maxIP 仅到 2.37e205，同样无法到达下一次永恒；
+  说明「原档 240 秒未达永恒资格」本身不是 MOD 独有 Bug，而是该存档在真实速度下的正常状态。
+- MOD 能更快推进来自已授权的 ×10000 时间倍率与自动购买/自动挑战；R101 的 HOLD 死锁是 MOD 自动化错误，
+  已由 P0-03 修复；修复后未再出现 MOD 特有的长期停滞。
+- 第一处有效状态差异：原版 t≈30 出现批量坍缩（bc 32→532），MOD 在加速下持续坍缩并推动 maxAM 增长；
+  差异来源为 MOD 授权加速，非原版机制被破坏。
+- 待查（不臆断）：原版 t=30 时 EP 52.8→62.52 而 bigE 未变，需在下一轮 P0-03 深挖（可能为离线/自动结算路径）。
