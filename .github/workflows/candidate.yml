@@ -37,7 +37,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Build once and run artifact/DEX verification
-        run: ./gradlew assembleRelease verifyRelease verifyPatchContract --offline --no-daemon --console=plain
+        run: bash ./gradlew assembleRelease verifyRelease verifyPatchContract --offline --no-daemon --console=plain
       - name: Record candidate identity
         run: |
           set -euo pipefail
