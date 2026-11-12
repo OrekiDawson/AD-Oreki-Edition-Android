@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="IPMultEnabled" value="true" />
+    <string name="challengeslastSelectedChild">normalChallenges</string>
+    <boolean name="RMMultEnabled" value="true" />
+    <boolean name="GoldenBottomButtonsEnabled" value="true" />
+    <boolean name="hey_you" value="true" />
+    <boolean name="ReplicantiSpeedEnabled" value="true" />
+    <boolean name="PermanentAdBonusEnabled" value="true" />
+    <boolean name="DTSpeedEnabled" value="true" />
+    <string name="currentSubTab">breakInfinity</string>
+    <boolean name="NormalDimMultEnabled" value="true" />
+    <boolean name="EPMultEnabled" value="true" />
+    <boolean name="AllDimMultEnabled" value="true" />
+    <string name="infinitylastSelectedChild">breakInfinity</string>
+    <string name="dimensionslastSelectedChild">antimatterDimensions</string>
+</map>

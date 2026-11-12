@@ -111,6 +111,13 @@ object OrekiGuiStage {
                     "eternity=${snapshot.eternityReached} reality=${snapshot.realityReached} " +
                     "source=${snapshot.source}",
             )
+            // [R103 P0-01] 原版导航可见性在存档加载前已算过一次（l0.i0）；
+            // 阶段确定/变化后必须再刷一次，否则加载合法永恒存档时「永恒」分组永久缺失。
+            try {
+                OrekiNavRefresh.requestAsync()
+            } catch (e: Throwable) {
+                Log.w(TAG, "nav refresh request failed: " + e.javaClass.simpleName)
+            }
         }
         return snapshot
     }

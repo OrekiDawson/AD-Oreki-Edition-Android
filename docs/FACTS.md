@@ -9943,3 +9943,27 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 
 - [R102 插件本地不可见的诊断] 2026-11-12 13:35：服务端确认 dsh-feng-gu 已安装且 Loader 行 active（include:feng-gu），页面 HTML 组合脚本包含 dsh-feng-gu/client.js（rev 9a3bb34a47c6，含 2027 日历逻辑）；但 DSH 运行实例日志反复出现 HMR is disposed 与 config reload at package.json failed，插件安装后已打开的页面无法热加载新插件。结论：需刷新页面（HTML 会带新组合脚本）或重启 DSH web 进程后才能看到插件；本次先要求用户刷新验证。
 
+
+## [R103 P0-01] 合法永恒存档加载后没有「永恒」入口 —— 门禁缓存溢出根因与修复（2026-11-12）
+
+- 现象：R102 候选 `29d17bbc…`（source `ea797c7d`）冷启动加载合法永恒存档（et=1/et=25、bigE>0、EP>0）后，
+  侧栏没有「永恒」分组、底栏没有紫色沙漏，时间研究不可达；官方 3.21 加载同一份存档时入口正常。
+  证据：`docs/avd-acceptance/2026-11-12-R103/` 中 13/15/17 与 README。
+- 根因 1（决定性）：`OrekiStageAuto.stageEternityReachedDirectRead()` 的 8ms 缓存以
+  `Long.MIN_VALUE` 为哨兵却直接计算 `now - cachedAt`，long 溢出使差值恒小于 8ms，
+  永不重算、永远返回初始 false；该值经 `f82.j()` trampoline 供原版 12 个调用点使用，
+  合法永恒档也被判为「未解锁永恒」。
+- 根因 2：原版 MainActivity 在 onCreate 建父级页签时计算可见性，此时存档尚未加载完，
+  之后无重算入口，已置 GONE 的父级页签永久隐藏。
+- 修复：① 缓存哨兵显式判断；② 新增 `OrekiNavRefresh`，阶段变化后在 ≤8 次/约 10 秒的启动窗口内
+  重新调用原版 `mainactivity/l0.i0()`（先解除 GONE 页签不参与重算的锁死），最终可见性仍由原版
+  `ll2.g()/bm4.g()` + Kotlin 阶段判据决定；③ 删除 R101 的「创建期按阶段过滤父级分组」注入，
+  避免加载前阶段=0 时永久跳过「永恒」分组；④ 新增只读诊断日志 `OREKI_TABGATE`。
+- 复现与验收（本地重建 APK，同一证书 95960bce…3197）：新档 01–08 门禁 PASS；
+  修复后合法永恒档侧栏出现「永恒」、子页 时间研究/永恒升级/里程碑、时间研究页可达、底栏沙漏出现
+  （23–26）。真实现金：手动永恒结算日志 `OREKI_ET: settled`、`GUI_GATE_CHANGED to=eternity`。
+- 构建：单次干净 `./gradlew assembleRelease --offline`（预删 `build/kt/classes`）PASS，
+  `D8 输入 class 文件：31 个`，R103-06 的 D8 执行期收集修复生效；
+  `verifyRelease` + `verifyPatchContract` PASS（17/17）。日志在 `docs/avd-acceptance/2026-11-12-R103/logs/`。
+- 本机验证包 SHA-256：`f38d7a99dab5982ae5f2941c821d90884944e965b52f856076b6e72d09fd8591`（仅本地验证用，
+  正式候选由私有 CI 从新源码 SHA 重建并独立验证）。

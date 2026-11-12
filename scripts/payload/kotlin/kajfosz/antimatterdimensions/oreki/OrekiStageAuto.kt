@@ -893,13 +893,25 @@ object OrekiStageAuto {
      * `bm4` 的注册表名称是稳定 ABI 数据，不通过 View 或反射判断；普通无限层
      * 项目直接放行，只有永恒层项目在真实结算前拒绝。业务判定仍由 Kotlin 完成。
      */
+    /** [R103 诊断] 页签门禁每次状态变化记一行，用于定位「合法永恒存档却没有永恒入口」。 */
+    private val tabGateLastState = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
     @JvmStatic
     fun vanillaEternityTabAllowed(tabName: String?): Boolean {
-        return when (tabName) {
+        val allowed = when (tabName) {
             "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones" ->
                 vanillaEternityUnlocked()
             else -> true
         }
+        val key = tabName ?: "<null>"
+        val previous = tabGateLastState.put(key, allowed)
+        if (previous != allowed) {
+            android.util.Log.i(
+                "OREKI_TABGATE",
+                "tab=" + key + " allowed=" + allowed + " eternityUnlocked=" + vanillaEternityUnlocked(),
+            )
+        }
+        return allowed
     }
 
     /**
@@ -923,7 +935,15 @@ object OrekiStageAuto {
     private fun stageEternityReachedDirectRead(): Boolean {
         val now = android.os.SystemClock.elapsedRealtime()
         val cachedAt = directEternityGateCachedAtMs
-        if (now >= cachedAt && now - cachedAt < ETERNITY_GATE_CACHE_WINDOW_MS) {
+        // [R103 P0-01 根因] 旧实现用 Long.MIN_VALUE 当哨兵，却直接做 now - cachedAt：
+        // now - Long.MIN_VALUE 在 long 上溢出成负数，恒 < 8ms，于是**永不重算**、
+        // 永远返回初始值 false。实测后果：f82.j() 恒 false，合法永恒存档（et=25、
+        // bigE=14、EP=6.6e4）冷启动后原版导航永远不显示「永恒」分组。
+        // 现在显式判断哨兵，并保证真正的 8ms 帧内缓存语义不变。
+        if (cachedAt != Long.MIN_VALUE &&
+            now >= cachedAt &&
+            now - cachedAt < ETERNITY_GATE_CACHE_WINDOW_MS
+        ) {
             return directEternityGateCachedValue
         }
         val result = try {

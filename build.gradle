@@ -430,26 +430,38 @@ tasks.register('verifyKotlinAbi', Exec) {
     inputs.dir(new File(repoRoot, 'build/kt/classes'))
 }
 
-tasks.register('buildKotlinDex', Exec) {
+tasks.register('buildKotlinDex') {
     group = 'oreki'
     description = '用 D8 将已通过 ABI 守卫的 Kotlin classes 编成 dex'
     dependsOn 'verifyKotlinAbi'
-    workingDir = repoRoot
-    doFirst {
-        def out = new File(repoRoot, 'build/kt')
-        def dex = new File(out, 'classes.dex')
-        if (dex.exists()) dex.delete()
-        out.mkdirs()
-    }
-    commandLine d8Exe, '--lib', androidJar.absolutePath, '--min-api', '29',
-        '--output', new File(repoRoot, 'build/kt').absolutePath
-    fileTree(new File(repoRoot, 'build/kt/classes')) { include '**/*.class' }.files.sort { it.path }.each { args it.absolutePath }
-    if (kotlinStdlib.isFile()) args kotlinStdlib.absolutePath
-    kotlinEnv.each { k, v -> environment k, v }
+    // [R102] 类文件列表必须在**执行期**收集：改成 Exec 任务时 commandLine/args 在配置期
+    // 求值，干净 checkout 里 build/kt/classes 还不存在，D8 会收到 0 个 class files，
+    // 产出的 dex 只有 Kotlin 标准库（R39 类描述符校验因此正确拒绝构建）。
     inputs.dir(new File(repoRoot, "build/kt/classes"))
     inputs.file(androidJar)
     inputs.file(kotlinStdlib)
     outputs.file(new File(repoRoot, "build/kt/classes.dex"))
+    doLast {
+        def out = new File(repoRoot, 'build/kt')
+        def dex = new File(out, 'classes.dex')
+        if (dex.exists()) dex.delete()
+        out.mkdirs()
+        def classFiles = fileTree(new File(repoRoot, 'build/kt/classes')) { include '**/*.class' }
+            .files.sort { it.path }
+        if (classFiles.isEmpty()) {
+            throw new GradleException('build/kt/classes 为空：Kotlin 编译产物缺失，拒绝生成空 dex')
+        }
+        def cmd = [d8Exe.absolutePath, '--lib', androidJar.absolutePath, '--min-api', '29',
+                   '--output', out.absolutePath]
+        classFiles.each { cmd << it.absolutePath }
+        if (kotlinStdlib.isFile()) cmd << kotlinStdlib.absolutePath
+        step("D8 输入 class 文件：${classFiles.size()} 个")
+        execOps.exec {
+            workingDir = repoRoot
+            commandLine cmd
+            kotlinEnv.each { k, v -> environment k, v }
+        }
+    }
 }
 
 // ============================================================== fingerprintInputs
@@ -598,22 +610,17 @@ def injectR101EternityTabGate = {
         "    :oreki_r101_restore_original\n\n"
     mainSrc = mainSrc.replace(w8Anchor, w8Inject)
 
-    // Activity 首次创建/恢复时会直接遍历 jp4.f0[] 向 TabLayout 添加所有父级分组，
-    // 这条路径不调用 ll2.g()。在同一构建期入口做 Kotlin 只读转发，跳过非法永恒分组，
-    // 保持正常无限分组与底栏完整；不扫描 View、不改资源。
-    def categoryLoopAnchor = "    aget-object v9, v0, v8\n"
-    if (mainSrc.count(categoryLoopAnchor) != 1) throw new GradleException('R101 P0 MainActivity 父级页签循环锚点不唯一')
-    def categoryLoopInject = categoryLoopAnchor +
-        "    # [R101P0_CATEGORY_RESTORE_GATE] 恢复/重建时过滤非法父级永恒分组\n" +
-        "    iget-object v12, v9, Luo4;->b:Ljava/lang/String;\n" +
-        "    invoke-static {v12}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
-        "    move-result v12\n" +
-        "    if-eqz v12, :oreki_r101_skip_category_restore\n"
-    mainSrc = mainSrc.replace(categoryLoopAnchor, categoryLoopInject)
-    def categoryLoopTail = "    .line 770\n    .line 771\n    .line 772\n    add-int/lit8 v8, v8, 0x1\n\n    .line 773\n    .line 774\n    goto :goto_8\n"
-    if (mainSrc.count(categoryLoopTail) != 1) throw new GradleException('R101 P0 MainActivity 父级页签循环尾锚点不唯一')
-    mainSrc = mainSrc.replace(categoryLoopTail,
-        "    :oreki_r101_skip_category_restore\n" + categoryLoopTail)
+    // [R103 P0-01] 这里是 R101 加过的「创建时过滤永恒父级」注入点，R103 已删除。
+    //
+    // 原因（真实 AVD 复现）：MainActivity 在 onCreate 阶段就遍历 jp4.f0[] 建父级分组，
+    // 此时存档还没加载完，OrekiStageAuto.vanillaEternityUnlocked() 读到 ep/bigE/升级位图
+    // 全为 0，于是 "eternity" 分组被永久跳过；之后即使合法永恒存档加载完成，
+    // 该分组也不会再被创建 —— 实测 et=1 与 et=25 的合法存档冷启动后侧栏/底栏都没有
+    // 「永恒」入口，时间研究不可达（官方 3.21 同档有）。
+    //
+    // 正确做法：照原版创建全部父级分组，让已有的每帧可见性刷新（l0 里调用 ll2.g()）
+    // 在存档加载后决定显示/隐藏；ll2.g() 上的 R101P0_CATEGORY_GATE 仍然保证
+    // 首次永恒真实结算前隐藏「永恒」分组。这里不再做任何创建期过滤，也不写存档。
 
     // onCreate() 先把 currentSubTab 写入 jp4.d0，后续页面创建会直接消费该静态对象，
     // 因而即使 W8() 回退，仍可能从旧 SharedPreferences 恢复到永恒子页。这里在真实
@@ -638,7 +645,6 @@ def injectR101EternityTabGate = {
         !bottomButtons.getText('UTF-8').contains('R101P0_ETERNNITY_ACTION_GATE') ||
         !mainActivity.getText('UTF-8').contains('oreki_r101_restore_fallback') ||
         !ll2.getText('UTF-8').contains('oreki_r101_category_locked') ||
-        !mainActivity.getText('UTF-8').contains('oreki_r101_skip_category_restore') ||
         !mainActivity.getText('UTF-8').contains('oreki_r101_current_subtab_fallback')) {
         throw new GradleException('R101 P0 页签/恢复门禁注入失败')
     }
