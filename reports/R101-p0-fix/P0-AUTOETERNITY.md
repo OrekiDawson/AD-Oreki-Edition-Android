@@ -161,7 +161,7 @@ buyEcStudiesAndStart() 在 canEternity 为真且开关关闭时不自动进入 E
   - 本地 SSH/SFTP：成功（~/Releases/AD-Oreki-Edition/latest/反物质维度.apk）
   - OneDrive：成功（Apps/AD-Oreki-Edition/反物质维度.apk）
   - Google Drive：成功（AD-Oreki-Edition/反物质维度.apk）
-  - GitHub Releases：**BLOCKED**（HTTP 401，gh token 失效；--retry-failed 复测仍 401；需 gh auth login 后重试）
-- 三渠道与本地产物为同一 SHA-256；未重建 APK。
+  - GitHub Releases：**成功**（2026-11-12 12:40 重试：tag android-update-3.21.0-f388dc50，资产 APK 84,596,907 B + .sha256，draft=false、prerelease=false）
+- 四渠道与本地产物为同一 SHA-256；未重建 APK。四仓 main 均已推送（android 9672441c / web 22b9a49 / frame-observer e68e7a7 / pages 7b45c8f）。
 - 发布日志：/tmp/r101b-publish.log（另见 git 提交说明）。
 
