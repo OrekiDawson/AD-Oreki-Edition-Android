@@ -39,6 +39,23 @@ jobs:
       - name: Kotlin naming audit (existing debt, advisory)
         continue-on-error: true
         run: python3 scripts/check_kotlin_naming.py
+      - name: Test incremental Kotlin naming debt guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_kotlin_naming_delta.py' -v
+      - name: Block only NEW Kotlin naming violations
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            echo "::notice::No Git comparison base on manual runs; full Kotlin audit remains advisory"
+            exit 0
+          fi
+          [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ && ! "$BASE_SHA" =~ ^0+$ ]] || {
+            echo "::error::Missing trustworthy Git comparison base for naming-debt guard"
+            exit 1
+          }
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
+          python3 scripts/check_kotlin_naming_delta.py --base "$BASE_SHA"
       - name: Validate baseline configuration format
         run: |
           python3 - <<'PY'
