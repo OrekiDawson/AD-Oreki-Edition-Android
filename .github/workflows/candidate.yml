@@ -1,0 +1,59 @@
+name: Android Candidate APK (manual, not a stable release)
+
+'on':
+  workflow_dispatch:
+    inputs:
+      approved_sha:
+        description: 'Exact main commit SHA to build'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oreki-android-candidate
+  cancel-in-progress: false
+
+jobs:
+  build-candidate:
+    # Must be a privately managed Linux host with official APK baseline,
+    # Android SDK, Kotlin/D8, apktool and signing material provisioned outside Git.
+    # Never register a public-PR-accessible runner with these credentials.
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux, x64, oreki-android-build]
+    environment: android-candidate
+    timeout-minutes: 120
+    steps:
+      - name: Verify explicitly approved main revision
+        env:
+          APPROVED_SHA: ${{ inputs.approved_sha }}
+        run: |
+          if [[ ! "$APPROVED_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$APPROVED_SHA" != "$GITHUB_SHA" ]]; then
+            echo "::error::approved_sha must match the selected main revision"
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build once and run artifact/DEX verification
+        run: bash ./gradlew assembleRelease verifyRelease verifyPatchContract --offline --no-daemon --console=plain
+      - name: Record candidate identity
+        run: |
+          set -euo pipefail
+          apk='build/gradle-stage/反物质维度.apk'
+          test -s "$apk"
+          (cd build/gradle-stage && sha256sum '反物质维度.apk' > SHA256SUMS.txt)
+          cat build/gradle-stage/SHA256SUMS.txt
+      - name: Upload candidate (NOT PASS for GUI or gameplay)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-candidate-${{ github.sha }}
+          path: |
+            build/gradle-stage/反物质维度.apk
+            build/gradle-stage/SHA256SUMS.txt
+            build/gradle-reports/verify-release.json
+          if-no-files-found: error
+          retention-days: 7
+      # Deliberately no GitHub Release, no cloud drive upload and no stable tag.
+      # AVD/gameplay evidence and four-channel hash agreement are separate gates.
