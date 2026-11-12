@@ -10004,3 +10004,24 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - 待办：R101 反向回归（载入已有进度 + autoEternity=false 仍拦截）；100 次永恒解锁后接管原版开关的实测；
   全新档 180 分钟长跑仍在进行。
 
+
+## [R104 P1-01] 真实新档 180 分钟实测：永恒循环与 Break 闸门缺口（2026-11-13）
+
+- R104-01b（source f9eebf9a，本地 APK dbb536ae…，pm clear 全新档 00:53:07 起跑）：
+  首次无限 ~139 s、首次 Break ~326 s、首次自动永恒 **00:59:19 settled（bigE 0→1、EP 0→2）**。
+- 第二永恒周期瓶颈（实测）：canEternity 需要 maxIP ≥ 1.797e308（本作 `Player.canEternity`），
+  对应 maxAM 指数约 e1540；实测 maxAM e1430→e1440 约 10 分钟、maxIP 仅 e8 ⇒ 第二永恒在 180 分钟内不可达。
+  根因是每次永恒后 interval/IP 需重新真实积累（见 P1-02）。
+- P1-02 Break 闸门缺口（实验已回滚，补丁归档 `reports/R104/experiments/`）：
+  - 事实：Web `oreki-break-infinity-gate.js` 有「一次性补 IP 到 32767 + 买满 15 级 interval + Break」；
+    Android 教程同样写明；但 R94（1388b9f2）删除 `OrekiBreakGate.smali` 后只剩 `OrekiBreakShop`（Break 升级），
+    interval 补贴无任何实现 ⇒ 首次 Break 353.7 s、**第二次 Break 7 min 59 s**（00:24:56→00:32:54，另一跑）。
+  - 实验实现（Kotlin `OrekiBreakGate`：补贴剩余成本 + 一次行动买满 + Break）：实测新档 t≈116 s 即 Break
+    （`granted 32747 / bought 15 / x0(true)`），单点收益显著。
+  - 但引入新死锁：过早 Break 后 `infinityUpgradeBits=0`；`OrekiBreakShop.id1ReserveActive()`
+    （eternities==0、ID1 未解锁、IP≥门槛）暂停无限升级；ID1 要 maxAM≥1e1100，而 HOLD 又停止坍缩
+    ⇒ maxAM 仅 ~0.5 指数/分钟，整局卡死。公平轮转（servedCount 升序 + when 派发）未能解除该组合。
+  - 处理：生产回滚到只含 P0 修复的 `f9eebf9a`；补丁与诊断证据归档，留待后续以「ID1 预留窗口感知」方式重做。
+- 另：`scripts/check_automation_scheduler.py` 在 HEAD 上已有 4 条过期断言（tryBuyId1 轮转指针 / 永恒层收益驱动 /
+  30s 间隔 / 10 分钟上限）与当前源码脱节，本轮未改动业务文件；记录为测试债（不在 CI 列表）。
+

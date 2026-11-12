@@ -1,0 +1,72 @@
+{
+ "schema": 1,
+ "source_repository": "OrekiDawson/AD-Oreki-Edition-Android",
+ "source_sha": "86db0d23d0e7f8097c2e66065deda1ac134192cd",
+ "candidate_run_id": 43264978988,
+ "verification_run_id": 43266432142,
+ "web_ref": "1bf34c373d6f21d188651acfb250abd7b3ca2229",
+ "apk_sha256": "bb5e043256a6b424ba4c844835b91356731dfedda2377bfc78c0df3297511c09",
+ "apk_bytes": 84605099,
+ "package": "com.oreki.antimatterdimensions",
+ "versionName": "3.21.0",
+ "versionCode": "30210000",
+ "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+ "device": "Android API 37 emulator (sdk_gphone64_x86_64), 1080x2400, locale zh-CN",
+ "accepted_at": "2026-11-13T04:06:11+08:00",
+ "checks": [
+  {
+   "id": "apk-signature-version",
+   "state": "PASS",
+   "evidence": "APK 实测 SHA-256=bb5e043256a6b424ba4c844835b91356731dfedda2377bfc78c0df3297511c09 bytes=84605099；私有 CI verify-release 独立校验 v2+v3 签名与证书 95960bce…；versionCode/Name 以 dumpsys 复核"
+  },
+  {
+   "id": "install-upgrade",
+   "state": "PASS",
+   "evidence": "adb install -r => True；dumpsys versionCode=30210000 versionName=3.21.0 lastUpdateTime=2026-11-13 04:06:13（与 R103 同签名身份升级）"
+  },
+  {
+   "id": "launch",
+   "state": "PASS",
+   "evidence": "冷启动后 topResumed/focus 为本应用=True；logcat FATAL EXCEPTION/VerifyError 计数=0"
+  },
+  {
+   "id": "stage-gate-negative",
+   "state": "PASS",
+   "evidence": "全新档（pm clear + 首启真实点击）：GUI 未放行永恒=True；tab=eternity allowed=false=True；bigE=0"
+  },
+  {
+   "id": "gui",
+   "state": "PASS",
+   "evidence": "OREKI_UIFRAME 最大 fps=60（>=30 门槛）；顶栏显示当前页面、深色主题、科学计数法见截图"
+  },
+  {
+   "id": "autobuyer-core",
+   "state": "PASS",
+   "evidence": "调度默认启用日志=True；合法存档阶段智能购买真实动作行数=2；默认间隔 10s（与 R103 已验收的开关/1s/60s 语义一致，未改动）"
+  },
+  {
+   "id": "stage-gate-positive",
+   "state": "PASS",
+   "evidence": "导入合法永恒存档（bigE=14、autoEternity=false）：GUI_GATE_CHANGED to=eternity=True tab=eternity allowed=true=True bigE=14；读档后游戏内即时保存文件仍为 bigE=14"
+  },
+  {
+   "id": "save-import",
+   "state": "PASS",
+   "evidence": "合法存档导入（ADB 写入 player.json+playerBackup，pm clear 后重建 files/ 并修属主）后冷启动：读回 bigE=14（=14 表示导入与持久化成功）；侧栏 eternity 入口见截图"
+  },
+  {
+   "id": "reverse-regression",
+   "state": "PASS",
+   "evidence": "干净导入已有进度（bigE=14、auto.eternity.isActive=false）：存档载入后 auto-eternity-off=9、allow=true=0、bigE=14；启动窗口内（存档未载入前）放行次数=0（0/0 引导语义，载入后不再放行）；R101 P0 不回退"
+  }
+ ],
+ "screenshots": [
+  "docs/avd-acceptance/2026-11-13-bb5e0432/screenshots/10-fresh-negative.png",
+  "docs/avd-acceptance/2026-11-13-bb5e0432/screenshots/11-fresh-gui.png",
+  "docs/avd-acceptance/2026-11-13-bb5e0432/screenshots/12-legal-eternity.png",
+  "docs/avd-acceptance/2026-11-13-bb5e0432/screenshots/13-sidebar-eternity.png",
+  "docs/avd-acceptance/2026-11-13-bb5e0432/screenshots/15-reverse-regression.png",
+  "docs/avd-acceptance/2026-11-13-bb5e0432/screenshots/14-persist-restart.png"
+ ],
+ "verdict": "PASS"
+}
