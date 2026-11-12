@@ -526,6 +526,38 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
         shutil.rmtree(checksum_dir, ignore_errors=True)
 
 
+def demote_failed_github_release(version: str, sha256: str) -> None:
+    """[R104-06] 发布不完整时把刚创建的 GitHub Release 降级为 Pre-release，并把 Latest 还给最近稳定版。
+
+    背景（R104 真实事故）：run 43297871523 中 OneDrive 401 导致整体发布失败，但本脚本已在
+    GitHub 创建了非预发布 Release，GitHub 的 Latest 指针因此漂到失败发布；随后人工标记
+    prerelease 后 Latest 又落回更早的 R101（f388dc50），而不是上一稳定版 R103。
+    这个函数只做两件事，且任何一步失败都不掩盖原始发布失败：
+      1) 目标 tag 标为 Pre-release 且不占用 Latest；
+      2) 从近期非预发布/非草稿 Release 中挑最新一个，显式设为 Latest。
+    """
+    repo = github_repo()
+    if not repo:
+        return
+    tag = f"android-update-{version}-{sha256[:8]}"
+    try:
+        demote = run(["gh", "release", "edit", tag, "--repo", repo, "--prerelease", "--latest=false"])
+        if demote.returncode == 0:
+            say(f"github: 发布不完整，已将 {tag} 降级为 Pre-release 且不占用 Latest")
+        listing = run(["gh", "release", "list", "--repo", repo, "--limit", "30", "--json", "tagName,isPrerelease,isDraft"])
+        if listing.returncode != 0:
+            return
+        for item in json.loads(listing.stdout):
+            if item.get("isPrerelease") or item.get("isDraft") or item.get("tagName") == tag:
+                continue
+            restore = run(["gh", "release", "edit", str(item["tagName"]), "--repo", repo, "--latest"])
+            if restore.returncode == 0:
+                say(f"github: 已将 Latest 恢复到最近稳定版 {item['tagName']}")
+                return
+    except (RuntimeError, OSError, json.JSONDecodeError):
+        say("github: 降级/恢复 Latest 未完成（原始渠道失败仍如实上报）")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android 四渠道 APK 交付")
     parser.add_argument("--check", action="store_true", help="只检查配置、权限和服务")
@@ -617,6 +649,9 @@ def main() -> int:
     failed = [name for name in selected
               if (state.get("channels", {}).get(name) or {}).get("status") == "failed"]
     if failed:
+        # [R104-06] 部分失败时不要把失败发布留在 Latest 上。
+        if (state.get("channels", {}).get("github") or {}).get("status") == "success":
+            demote_failed_github_release(args.version, str(apk_info["sha256"]))
         say(f"部分渠道失败：{','.join(failed)}；已保留成功渠道，不重建 APK")
         return 2
     say("所选渠道全部完成；详情已写入本地 release-info.json")
