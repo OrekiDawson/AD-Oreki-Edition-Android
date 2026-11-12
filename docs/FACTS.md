@@ -10025,3 +10025,21 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - 另：`scripts/check_automation_scheduler.py` 在 HEAD 上已有 4 条过期断言（tryBuyId1 轮转指针 / 永恒层收益驱动 /
   30s 间隔 / 10 分钟上限）与当前源码脱节，本轮未改动业务文件；记录为测试债（不在 CI 列表）。
 
+
+## [R104-06] 稳定版发布门禁实测与发布不完整回滚（2026-11-13）
+
+- 稳定版发布门禁（私有仓 2cac17b）：要求候选 source SHA 有成功的公共 Source CI push run、独立验证 PASS、
+  acceptance.json 从 **pinned 公共 commit** 读取、8 项必需检查每项 PASS 且带 evidence、screenshots 以
+  `docs/avd-acceptance/` 开头且为 .png；gate run 43297871523 的 gate job 实测 PASS。
+- 发布 job 实测：local / gdrive / github 三渠道成功（同一 APK bb5e0432…），OneDrive rclone 上传持续
+  `HTTP 401 Unauthorized`（读可用、写不可用）→ 整体 exit 2；按规则该候选不作为稳定版。
+- 事故暴露：发布工具在四渠道未全部成功时已创建非预发布 GitHub Release，失败后 Latest 指针漂移
+  （R104 实测漂到更早的 R101 f388dc50，而不是上一稳定版 R103）。
+  修复（提交 d078d7a7）：`publish_four_channels.demote_failed_github_release()` —— 部分渠道失败时自动把
+  该 Release 标为 Pre-release、`--latest=false`，并把 Latest 还给最近一个非预发布 Release；任何失败不掩盖原始渠道错误。
+  自检：check_publish_rules 13/13、verify_publish_contract 16/16 PASS。
+- 稳定版结论：R104 未达 180 分钟通关 ⇒ 稳定版保持 R103 `3d924271…97de6`；四渠道已恢复 R103 一致性
+  （GitHub Latest=3d924271、本地 latest 与 SHA256SUMS={3d924271,bb5e0432 archive}、GDrive md5 1f3849c0…=R103）。
+  R104 候选仅 Pre-release（`android-update-3.21.0-bb5e0432`）+ 本地/GDrive archive 保留。
+  OneDrive：R103 文件元数据未变（84,601,003 B / 11-12T15:10:08Z），但当前内容下载报 585 B 错误页 ⇒
+  字节级未验证，需 `rclone config reconnect onedrive:` 后重测（BLOCKED，人工授权）。
