@@ -1,18 +1,17 @@
 # PROJECT PAUSED — AD-Oreki-Edition-Android
 
 - 暂停日期：2026-11-12（Asia/Hong_Kong）
-- 项目状态：R101 稳定版已交付（autoEternity P0 已修复并完成三场景 AVD 验收；四渠道全部成功）
-- 当前轮次：R101（不新开 R102）
+- 项目状态：R102 轮内（P0 原档成长死锁已修复并完成原档 AVD 验收；候选未发布；稳定版仍为 R101 f388dc50）
+- 当前轮次：R102（R101 已结案，历史记录不改写）
 - Android 目标基线：官方 3.21
-- 本版 APK：f388dc5087acaa674ecf782e0123e33b7e9d9ec6693e019f9bfa6acd899c60c9（84,596,907 B，
-  Universal 4 ABI，V2+V3 签名，verifyRelease 15/15 PASS）
-- 本版结论（2026-11-12）：autoEternity=false 不再自动永恒；手动永恒正常；autoEternity=true 自动永恒正常；
-  autoBig 首拍不清零保持；存档持久化保持；性能 60 FPS 门禁 PASS（905 帧/15 s、jank 0、p95 7.69 ms）。
-- 四渠道交付（2026-11-12 12:40）：本地 SSH/SFTP、OneDrive、Google Drive、GitHub Releases 全部成功；
-  GitHub tag android-update-3.21.0-f388dc50（commit 9672441c），资产 84,596,907 B + .sha256，非 draft / 非 prerelease；
-  四渠道与本地同一 SHA-256，未重建 APK。四仓 main 均已推送。
-- 剩余未完成项：oreki.net Web 部署（真实浏览器验收 NOT RUN）；180 分钟真实通关（NOT RUN）。
-- 真实通关与 180 分钟目标：仍未完成最终验收（NOT RUN，不伪造）。
-- 恢复方式：读 AGENTS.md / docs/FACTS.md / reports/R101-p0-fix/P0-AUTOETERNITY.md；
-  构建 ./gradlew assembleRelease（需要强制重建时加 -PorekiForceBuild=1），发布
-  verifyRelease verifyPatchContract installToRelease + scripts/publish_four_channels.py --publish。
+- 已发布稳定版：f388dc5087acaa674ecf782e0123e33b7e9d9ec6693e019f9bfa6acd899c60c9（84,596,907 B）
+- R102 P0 候选：a5eda89605026785acabc76309966f23a46c4309cc9a1b64189f9f232850a409（84,596,907 B，
+  verifyRelease 15/15、verifyPatchContract 17/17；仅移除 autoBig 无限 HOLD，保留 R101 首拍防线）
+- R102 已完成：原档从 f388 基线的「IP=0、bigCrunches=0、canEternity 恒 false」死锁，修复后 5 分钟内
+  canEternity 首次为 true，手动永恒结算 bigE 2→3、eternities 13→14、EP 62.2→2729.2，冷启动保持。
+- R102 待完成：全新存档连续推进（首次无限→Break→永恒→EC→膨胀）与首个阻断点修复；P1 GUI/自动化定向检查；
+  180 分钟连续真实墙钟通关；候选经完整验证后才考虑发布。
+- 恢复方式：读 AGENTS.md / docs/FACTS.md / reports/R102/；构建 ./gradlew assembleRelease
+  （需要强制重建时加 -PorekiForceBuild=1），发布 verifyRelease verifyPatchContract installToRelease
+  + scripts/publish_four_channels.py --publish。
+- 计费窗口：峰段（UTC）周一至周五 01:00–04:00、06:00–10:00；其余为低谷；高峰前 10 分钟停止新任务。

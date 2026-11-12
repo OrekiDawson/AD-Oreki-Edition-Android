@@ -1551,18 +1551,17 @@ object OrekiStageAuto {
             return true
         }
 
-        // [R101 P0] 永恒层：autoBig 的 canTick（c()）在任何坍缩前调用本方法。
-        // 用户原档 autoBig TIME=60×10000，启动首拍即把 maxIP 清零。这里在
-        // 下一次永恒投影未达标时直接 HOLD，阻止首拍；投影达到 1.797e308 后放行。
-        if (broken && !eternitiesZero && !blocked && !GameApi.canEternity()) {
-            val projected = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
-            // fail-closed：启动/读档时投影尚未可读也必须先 HOLD，否则 autoBig 首拍
-            // 会在 GameApi 可读前执行并把 maxIP 清零。投影可读且达标后才放行。
-            if (projected == null || projected < ETERNITY_IP_LOG10) {
-                holdLatched = false
-                return true
-            }
-        }
+        // [R102 P0] 已移除「投影 IP 未达 1.797e308 就永久 HOLD autoBig」的判据。
+        //
+        // 实测（用户原档 autoBig=true TIME=60×10000、autoEternity=false，240 秒窗口）：
+        // 该 HOLD 在进入永恒层后长期为 1；而 maxAM 只靠自然产量增长（~0.1 指数/秒），
+        // 永远达不到投影门槛所需的 e95000 量级。autoBig 不坍缩 ⇒ IP 不增长 ⇒
+        // 挑战/维度购买停滞 ⇒ canEternity 永远为 false，形成长期死锁
+        // （R101 报告已登记「原档 canEternity 未自然达到 NOT REACHED」）。
+        //
+        // 首拍清零的真正防线仍在上面两条：读档完成前（EP/bigE/maxAM 为 null）fail-closed
+        // HOLD、以及类初始化时先暂停 autoBig。投影是否达标交给 OrekiCrunchPolicy 的
+        // 「eternity-grow」自适应窗口做**有上限**的节流，不再由本方法做无限期拦截。
         if (!broken || !eternitiesZero || blocked) {
             holdLatched = false
             false
