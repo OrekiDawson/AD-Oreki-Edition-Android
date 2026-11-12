@@ -56,6 +56,23 @@ jobs:
           }
           git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
           python3 scripts/check_kotlin_naming_delta.py --base "$BASE_SHA"
+      - name: Test new source policy guards
+        run: python3 -m unittest discover -s scripts/tests -p 'test_repository_policy.py' -v
+      - name: Reject newly introduced credential files, CRLF, and Java/Smali payloads
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            echo "::notice::NOT RUN: manual dispatch has no trusted comparison base"
+            exit 0
+          fi
+          [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ && ! "$BASE_SHA" =~ ^0+$ ]] || {
+            echo "::error::Missing trustworthy base SHA for repository policy"
+            exit 1
+          }
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
+          python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
       - name: Validate baseline configuration format
         run: |
           python3 - <<'PY'
