@@ -9967,3 +9967,18 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   `verifyRelease` + `verifyPatchContract` PASS（17/17）。日志在 `docs/avd-acceptance/2026-11-12-R103/logs/`。
 - 本机验证包 SHA-256：`f38d7a99dab5982ae5f2941c821d90884944e965b52f856076b6e72d09fd8591`（仅本地验证用，
   正式候选由私有 CI 从新源码 SHA 重建并独立验证）。
+
+## [R103] 候选 3d924271 通过 AVD 验收并完成四渠道真实发布（2026-11-12）
+
+- 源码 SHA `fa6886232867b4812c857b4829bd784e58bbc80f`；Web 策略 `1bf34c373d6f21d188651acfb250abd7b3ca2229`；
+  候选 run 43239315658，独立验证 run 43240570620；发布 run 43244024960。
+- APK `3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6`（84,601,003 B，3.21.0/30210000，
+  证书 95960bce…3197）；Release tag `android-update-3.21.0-3d924271` 指向 fa688623…。
+- 四渠道均 success：GitHub Releases、OneDrive、Google Drive、本地 `~/Releases/AD-Oreki-Edition/latest/反物质维度.apk`；
+  四渠道同一 SHA；`release-info.json` 记录各渠道结果，历史 archive 保留。
+- AVD 验收：`docs/avd-acceptance/2026-11-12-3d924271/acceptance.json`（必需检查逐项 PASS）与
+  `2026-11-12-R103/`（P0 根因、官方对照、修复前后证据）。
+- 关键修复：永恒门禁 8ms 缓存哨兵溢出（Long.MIN_VALUE 相减溢出，永为 false）；存档加载后导航可见性重算；
+  单次干净 Gradle 构建的 D8 执行期 class 列表；删除 R101 创建期父级分组过滤。
+- 遗留：180 分钟真实通关 NOT RUN；Web 自动 Pages 部署 BLOCKED（缺 environment 与 PAGES_DEPLOY_TOKEN）；
+  公开仓 dispatch token 缺失（本轮由授权私有工作流直接触发）。
