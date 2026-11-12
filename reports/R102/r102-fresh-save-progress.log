@@ -100,3 +100,15 @@ t=279 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities
   11-12 13:17:56.425 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
 t=284 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
   11-12 13:18:01.431 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=289 inf=4e1.0 bc=29 IP=6.37e5.0 bigE=0 et=0e0.0 EP=0e0.0 brake=False realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:18:06.443 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=1.0e0 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=294 inf=4.2e1.0 bc=31 IP=7.08e169.0 bigE=0 et=0e0.0 EP=0e0.0 brake=True realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:18:11.451 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=1.0e0 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=299 inf=4.2e1.0 bc=31 IP=7.08e169.0 bigE=0 et=0e0.0 EP=0e0.0 brake=True realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:18:16.471 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=1.0e0 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=304 inf=4.2e1.0 bc=31 IP=7.08e169.0 bigE=0 et=0e0.0 EP=0e0.0 brake=True realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:18:21.493 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=1.0e0 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=309 inf=4.2e1.0 bc=31 IP=7.08e169.0 bigE=0 et=0e0.0 EP=0e0.0 brake=True realities=0e0.0 studies=0 canEtSeen=False
+  11-12 13:18:26.498 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=false ep=0.0e0 gain=2.0e0 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
+t=314 inf=4.2e1.0 bc=31 IP=7.08e169.0 bigE=0 et=0e0.0 EP=0e0.0 brake=True realities=0e0.0 studies=0 canEtSeen=True
+  11-12 13:18:31.515 I/OREKI_ET_GATE(16349): allow=false reason=auto-eternity-off broken=true canEt=true ep=0.0e0 gain=2.0e0 bigE=0 autoSwitch=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=39859411
