@@ -18,3 +18,4 @@
 - 四仓 HEAD（13:42）：Android 93500d28、Web 7b69ac2、frame-observer e68e7a7、Pages 7b45c8f；均与 origin/main 同步（Web 有未跟踪 build/ 与 FACTS.diverged.bak，保留）。
 - Goal 状态：按用户 R102 补充规则，已于 13:42 通过 Harness update_goal 设为 complete（表示本次执行周期安全收口，不代表 R102 全部完成、未伪造任何任务状态）。
 - 恢复点：18:00 CST 后读取本文件与 FACTS；先验证插件页面刷新/重启后的显示，再继续 P0-02（官方新档对照）、P0-04、Web Playwright 真实浏览器验收/oreki.net 部署与 180 分钟通关；Web 与 Android 继续并行。
+- [13:50–14:00 紧急窗口] 2026-11-12 13:52–13:53：以原生 Playwright 打开本机 DSH Web GUI 完成 R102-P0-01 本地验收——徽章「梁文谷」（13:52 低谷，正确），点击详情：低谷时段 / 北京时间 13:52:49 / 距切换 00:07:11（准确指向 14:00）/ 假期日历已收录 2027；pageerror 0。此前插件不可见确认为旧页面缓存（HMR disposed），非代码 Bug，未改代码；smoke 19/19 PASS；上游 PR #4 OPEN/MERGEABLE head e8e8bde 未变。14:00 实时切换观测因硬截止未执行（NOT RUN）。证据：Web 仓 reports/R102-p0-01/ 与 docs/FACTS.md（commit 296c617）。
