@@ -1,0 +1,13 @@
+{
+  "source_repository": "OrekiDawson/AD-Oreki-Edition-Android",
+  "web_ref": "1bf34c373d6f21d188651acfb250abd7b3ca2229",
+  "source_sha": "fa6886232867b4812c857b4829bd784e58bbc80f",
+  "candidate_run_id": 43239315658,
+  "apk_file": "antimatter-dimensions.apk",
+  "sha256": "3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6",
+  "apk_bytes": 84601003,
+  "package": "com.oreki.antimatterdimensions",
+  "versionName": "3.21.0",
+  "versionCode": "30210000",
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
+}

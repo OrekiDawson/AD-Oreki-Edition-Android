@@ -1,0 +1,3 @@
+11-12 22:52:31.154 20972 20972 I OREKI_TABGATE: tab=eternity allowed=false eternityUnlocked=false
+11-12 22:52:31.378 20972 21054 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-12 22:54:38.345 20972 21054 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=before-first-infinity to=infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0

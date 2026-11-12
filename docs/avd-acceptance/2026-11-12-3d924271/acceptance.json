@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "source_repository": "OrekiDawson/AD-Oreki-Edition-Android",
+  "source_sha": "fa6886232867b4812c857b4829bd784e58bbc80f",
+  "web_ref": "1bf34c373d6f21d188651acfb250abd7b3ca2229",
+  "candidate_run_id": 43239315658,
+  "verification_run_id": 43240570620,
+  "apk_sha256": "3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6",
+  "apk_bytes": 84601003,
+  "package": "com.oreki.antimatterdimensions",
+  "versionName": "3.21.0",
+  "versionCode": "30210000",
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "device": "Android API 37 emulator (sdk_gphone64_x86_64), 1080x2400, system locale zh-CN",
+  "accepted_at": "2026-11-12T23:05:00+08:00",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "install-upgrade",
+      "state": "PASS",
+      "evidence": "adb install -r of artifact antimatter-dimensions.apk over the previous install (same signing identity) returned Success; dumpsys package shows versionCode=30210000, versionName=3.21.0, lastUpdateTime=2026-11-12 22:46:46. Artifact SHA-256 3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6, 84601003 bytes."
+    },
+    {
+      "id": "launch",
+      "state": "PASS",
+      "evidence": "Cold launch after force-stop: topResumedActivity=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default; logcat FATAL EXCEPTION / VerifyError count = 0; offline-progress screen rendered and game entered (screenshots 01)."
+    },
+    {
+      "id": "apk-signature-version",
+      "state": "PASS",
+      "evidence": "aapt2 badging: package=com.oreki.antimatterdimensions versionCode=30210000 versionName=3.21.0; apksigner verify --print-certs: V3 signer certificate SHA-256 digest 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197 (matches stable signing identity); host sha256sum equals the candidate metadata SHA-256."
+    },
+    {
+      "id": "stage-gate-positive",
+      "state": "PASS",
+      "evidence": "Lawful eternity save cold start: OREKI_TABGATE tab=eternity allowed=false then allowed=true after load; GUI_GATE_CHANGED to=eternity; sidebar shows purple 永恒 group with 时间研究/永恒升级/里程碑 (screenshots 02,03) and 时间研究 page opens with TT 12802 (04). Manual real eternity via purple entry: OREKI_ET settled ep=0->9.23e14 bigE=0->1, GUI_GATE_CHANGED infinity->eternity, hourglass tab and time-dimension page appear. This is the P0 regression fixed in R103 (cache sentinel overflow + post-load nav refresh)."
+    },
+    {
+      "id": "stage-gate-negative",
+      "state": "PASS",
+      "evidence": "Fresh save after pm clear: no infinity/eternity/hourglass entries before first Big Crunch (screenshots 10,11); after real first Big Crunch the infinity stage appears but no eternity entry (AD2, GUI_GATE_CHANGED to=infinity, tab=eternity allowed=false). Illegal restore attempt with SharedPreferences currentSubTab=timeStudies is sanitized back to a legal page on launch (AD3, prefs after launch)."
+    },
+    {
+      "id": "autobuyer-core",
+      "state": "PASS",
+      "evidence": "Oreki settings smart-scheduler: switch OFF logs '调度：已关闭（所有 Oreki 自动动作停止…）' and MOD actions are denied ('deny disabled task=breakUpgrades') with no periodic gui-tick during the 14s window; switch ON resumes ('deny interval' ticks). Interval 1s saved via UI -> OREKI_SCHED gui-tick gapMs=1000 and oreki_prefs intervalSec=1; interval 60s -> gapMs=60000 and intervalSec=60 (screenshots 07,08); settings survive app restart (09). Manual actions and vanilla autobuyers remain active while scheduler off is verified by continued game progression."
+    },
+    {
+      "id": "save-import",
+      "state": "PASS",
+      "evidence": "Imported real save copies with documented sources: savestates/original/first-eternity-progress.json (official 3.21, et=25/bigE=14/EP 66042) cold start -> GUI_GATE_CHANGED to=eternity, 永恒 group present, time studies page shows EP and TT (05); post-first-crunch save (infinities=10, et=0) cold start -> GUI_GATE_CHANGED to=infinity only, no eternity entry (06). Restart after import keeps eternities=1/EP=9.23e14/bigE=1 and scheduler interval (AA2/09). Settings persistence across restart verified via oreki_prefs.xml."
+    },
+    {
+      "id": "gui",
+      "state": "PASS",
+      "evidence": "UI frame pump steady 60fps (OREKI_UIFRAME fps=60 targets=116); resources and IP update while staying on the same page (AA1 before/after screenshots 12,13 taken 16s apart without navigation); top bar shows current page name (反物质维度/时间研究/无限维度…); tutorial entry renders Simplified Chinese (第8章 时间研究与永恒里程碑) with #0078D7 tutorial button; scientific notation default."
+    },
+    {
+      "id": "r103-stage-boundary",
+      "state": "PASS",
+      "evidence": "The P0 boundary: pre-first-eternity page access is blocked (illegal currentSubTab sanitized), canEternity shows the purple eternity action exactly at the real threshold, and after a real eternity settlement the 永恒 nav group appears without any manual page switching or save edits. No save fields were written by the fix; only read-only stage judgement and original UI visibility recomputation."
+    }
+  ],
+  "screenshots": [
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/01-launch-offline.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/02-cold-start-eternity-sidebar.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/03-eternity-subtabs.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/04-time-studies-reachable.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/05-save-import-eternity.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/06-save-import-infinity.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/07-autobuyer-interval-1s.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/08-autobuyer-interval-60s.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/09-restart-persistence.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/10-fresh-save-pre-infinity.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/11-fresh-save-sidebar-pre-infinity.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/12-gui-refresh-before.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/13-gui-refresh-after.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/14-post-first-crunch-no-eternity.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/15-post-first-crunch-sidebar.png",
+    "docs/avd-acceptance/2026-11-12-3d924271/screenshots/16-illegal-timestudies-restore-sanitized.png"
+  ],
+  "notes": "AVD acceptance performed on the exact private-CI candidate artifact (source fa6886…). Every check binds apk_sha256/source_sha/candidate_run_id/verification_run_id/certificate. Save fixtures used are documented copies (savestates/), no player state was fabricated; the P0 fix is read-only stage judgement plus original UI visibility recomputation. Remaining NOT RUN: 180-minute real-time full completion, physical-device (non-emulator) run."
+}

@@ -1,0 +1,13 @@
+{
+  "candidate_run_id": 43239315658,
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "gameplay_acceptance": "NOT RUN",
+  "package": "com.oreki.antimatterdimensions",
+  "sha256": "3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6",
+  "source_sha": "fa6886232867b4812c857b4829bd784e58bbc80f",
+  "status": "PASS",
+  "verification_run_id": 43240570620,
+  "versionCode": "30210000",
+  "versionName": "3.21.0",
+  "web_ref": "1bf34c373d6f21d188651acfb250abd7b3ca2229"
+}

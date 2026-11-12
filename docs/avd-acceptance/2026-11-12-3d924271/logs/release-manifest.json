@@ -1,0 +1,26 @@
+{
+    "schema": 1,
+    "created_at": "2026-11-12T22:45:05+08:00",
+    "baseline_version": "3.21",
+    "build": {
+        "source_apk": "/home/oreki/actions-runner/_work/AD-Oreki-Private-Build/AD-Oreki-Private-Build/source/build/gradle-stage/\u53cd\u7269\u8d28\u7ef4\u5ea6.apk",
+        "source_sha256": "3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6",
+        "source_size": 84601003,
+        "package": "com.oreki.antimatterdimensions",
+        "versionName": "3.21.0",
+        "versionCode": "30210000",
+        "cert_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+        "schemes": {
+            "v1": false,
+            "v2": true,
+            "v3": true
+        },
+        "verify_report": "/home/oreki/actions-runner/_work/AD-Oreki-Private-Build/AD-Oreki-Private-Build/source/build/gradle-reports/verify-release.json",
+        "verify_failed": 0
+    },
+    "release": {
+        "apk": "/home/oreki/actions-runner/_work/AD-Oreki-Private-Build/AD-Oreki-Private-Build/source/release/\u53cd\u7269\u8d28\u7ef4\u5ea6.apk",
+        "sha256": "3d92427153b4a8b22c6bc5b281e0a1affe961f5cdbd8f56f0f23053d48397de6",
+        "size": 84601003
+    }
+}
