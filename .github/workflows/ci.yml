@@ -26,6 +26,12 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Enforce active repository rule entrypoints
+        run: |
+          test -s AGENTS.md
+          test -s docs/DELIVERY_RULES.md
+          test -s .github/pull_request_template.md
+          grep -Fq 'DELIVERY_RULES.md' AGENTS.md
       - name: Validate Python build helper syntax
         run: python3 -m compileall -q scripts
       # Existing source baseline has 67 naming violations (first CI run).
