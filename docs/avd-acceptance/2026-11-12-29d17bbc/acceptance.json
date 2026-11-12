@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "source_repository": "OrekiDawson/AD-Oreki-Edition-Android",
+  "source_sha": "ea797c7d34aaa8a5e100903da365d16be70240b5",
+  "candidate_run_id": 43217405564,
+  "verification_run_id": 43218336746,
+  "web_ref": "1bf34c373d6f21d188651acfb250abd7b3ca2229",
+  "apk_sha256": "29d17bbc7c7b55ff01009ad5501db51ac7eb46375d174d2054e52b1a16e8ea8d",
+  "apk_bytes": 84596907,
+  "package": "com.oreki.antimatterdimensions",
+  "versionName": "3.21.0",
+  "versionCode": "30210000",
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "device": "Android API 37 emulator (sdk_gphone64_x86_64), system locale zh-CN",
+  "accepted_at": "2026-11-12T20:55:00+08:00",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "install-upgrade",
+      "state": "PASS",
+      "evidence": "adb install -r over the existing stable install, same signing identity, lastUpdateTime updated"
+    },
+    {
+      "id": "launch",
+      "state": "PASS",
+      "evidence": "topResumedActivity=kajfosz.antimatterdimensions.AppIcon_default, no FATAL EXCEPTION / VerifyError in logcat"
+    },
+    {
+      "id": "save-load",
+      "state": "PASS",
+      "evidence": "existing save loaded; stats tab reports 7h40m playtime, save created 12 Nov 2026 13:12:09"
+    },
+    {
+      "id": "offline-eternity",
+      "state": "PASS",
+      "evidence": "offline screen: 无限点数 5.24e4373 -> 1.12e4381, 无限次数 110 -> 1,109 over 7h7m"
+    },
+    {
+      "id": "automation",
+      "state": "PASS",
+      "evidence": "stats tab: 无限次数 1,168,872 with 37 crunches/min and best 5.94 s; auto-crunch running"
+    },
+    {
+      "id": "autobuyer-rewards",
+      "state": "PASS",
+      "evidence": "challenges tab: 挑战 1-4 已完成 with rewards 升级第1-4维度自动购买间隔"
+    },
+    {
+      "id": "stage-gate",
+      "state": "PASS",
+      "evidence": "post-infinity stage content rendered: 无限维度 with 无限之力 ^7.000, 商店, 统计数据, 普通挑战 tabs"
+    },
+    {
+      "id": "gui-zh",
+      "state": "PASS",
+      "evidence": "五个页签全部中文渲染：无限维度 / 选项 / 统计数据 / 商店 / 普通挑战"
+    },
+    {
+      "id": "tutorial-entry",
+      "state": "PASS",
+      "evidence": "选项 tab shows 打开 Oreki 中文教程 (R102 entry)"
+    },
+    {
+      "id": "save-import-matrix",
+      "state": "NOT RUN",
+      "evidence": "not exercised on this candidate"
+    }
+  ],
+  "screenshots": [
+    "docs/avd-acceptance/2026-11-12-29d17bbc/infinity-tab.png",
+    "docs/avd-acceptance/2026-11-12-29d17bbc/statistics.png",
+    "docs/avd-acceptance/2026-11-12-29d17bbc/challenges.png",
+    "docs/avd-acceptance/2026-11-12-29d17bbc/options.png",
+    "docs/avd-acceptance/2026-11-12-29d17bbc/shop.png",
+    "docs/avd-acceptance/2026-11-12-29d17bbc/launch-offline.png"
+  ],
+  "notes": "uiautomator hierarchy is stale for this app (the game draws its own surface); acceptance was read from screenshots plus adb/dumpsys. No game save or dialog logic was modified to obtain this evidence."
+}
