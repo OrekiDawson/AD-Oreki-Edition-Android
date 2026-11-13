@@ -1,0 +1,19 @@
+t_s|state
+10|am=76.939 maxAM=None maxIP=5.0 dims=[None, None, None] TT=0.0 studies=0 eup=0
+20|am=76.939 maxAM=None maxIP=5.0 dims=[None, None, None] TT=0.0 studies=0 eup=0
+30|am=inf maxAM=None maxIP=8.722 dims=[None, None, None] TT=11500.0 studies=0 eup=3
+40|am=inf maxAM=None maxIP=8.722 dims=[None, None, None] TT=11500.0 studies=0 eup=3
+50|am=inf maxAM=None maxIP=8.722 dims=[None, None, None] TT=11500.0 studies=0 eup=3
+60|am=inf maxAM=None maxIP=8.926 dims=[None, None, None] TT=11500.0 studies=0 eup=7
+70|am=inf maxAM=None maxIP=8.926 dims=[None, None, None] TT=11500.0 studies=0 eup=7
+80|am=inf maxAM=None maxIP=8.926 dims=[None, None, None] TT=11500.0 studies=0 eup=7
+90|am=None maxAM=None maxIP=9.0 dims=[None, None, None] TT=11496.0 studies=2 eup=7
+100|am=None maxAM=None maxIP=9.0 dims=[None, None, None] TT=11496.0 studies=2 eup=7
+110|am=None maxAM=None maxIP=9.0 dims=[None, None, None] TT=11496.0 studies=2 eup=7
+120|am=None maxAM=None maxIP=29.3 dims=[None, None, None] TT=11486.0 studies=5 eup=7
+130|am=None maxAM=None maxIP=29.3 dims=[None, None, None] TT=11486.0 studies=5 eup=7
+140|am=None maxAM=None maxIP=29.3 dims=[None, None, None] TT=11486.0 studies=5 eup=7
+150|am=None maxAM=None maxIP=30.217 dims=[None, None, None] TT=11471.0 studies=9 eup=7
+160|am=None maxAM=None maxIP=30.217 dims=[None, None, None] TT=11471.0 studies=9 eup=7
+170|am=None maxAM=None maxIP=30.217 dims=[None, None, None] TT=11471.0 studies=9 eup=7
+180|am=None maxAM=None maxIP=30.734 dims=[None, None, None] TT=11429.0 studies=15 eup=7
