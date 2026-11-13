@@ -127,9 +127,9 @@ jobs:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
       - name: Build legacy Kotlin DEX (existing chain, unchanged)
-        run: ./gradlew buildKotlinDex --no-daemon --console=plain
+        run: bash ./gradlew buildKotlinDex --no-daemon --console=plain
       - name: Build AGP 9 Kotlin DEX
-        run: ./gradlew -p agp :app:assembleDebug --no-daemon --console=plain
+        run: bash ./gradlew -p agp :app:assembleDebug --no-daemon --console=plain
       - name: Enforce ABI guard on AGP-compiled classes
         run: python3 scripts/build_kotlin.py --verify-abi --classes agp/app/build/tmp/kotlin-classes/debug
       - name: Enforce AGP DEX parity with the legacy chain
