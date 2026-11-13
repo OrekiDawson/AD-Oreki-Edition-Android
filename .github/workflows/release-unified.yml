@@ -282,9 +282,10 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$(git rev-parse HEAD)" == "$TOOL_SHA" ]] || exit 1
-          test -n "$AD_LOCAL_SFTP_REMOTE" && test -n "$AD_LOCAL_SFTP_DIR" || {
-            echo "::error::Configure real Kubuntu SFTP remote and directory"; exit 1;
-          }
+          if [[ -z "$AD_LOCAL_SFTP_REMOTE" || -z "$AD_LOCAL_SFTP_DIR" ]]; then
+            echo "::error::Configure real Kubuntu SFTP remote and directory"
+            exit 1
+          fi
           grep -q 'def local_sftp_publish' scripts/publish_four_channels.py || {
             echo "::error::Audited delivery-tool SHA lacks the SFTP publisher"; exit 1;
           }
