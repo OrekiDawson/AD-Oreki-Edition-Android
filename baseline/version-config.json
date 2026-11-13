@@ -118,8 +118,13 @@
   "upstream": {
     "android": {
       "target": "3.21.0",
-      "current_mod": "3.20.0",
-      "status": "migration-in-progress",
+      "current_mod": "3.21.0",
+      "status": "released-stable",
+      "baseline_version_code": 30210000,
+      "mod_release_version_code": 30210000,
+      "mod_release_version_name": "3.21.0",
+      "mod_release_tag": "android-update-3.21.0-3d924271",
+      "correction_note": "R107-01 规则纠偏：原 current_mod=3.20.0 / status=migration-in-progress 是 R85 时期快照；按真实发行证据修正——R103 Latest tag android-update-3.21.0-3d924271、versionName 3.21.0、versionCode 30210000、cert 95960bce…3197（private-staging/candidate-43408627390/candidate-metadata.json 与 GitHub Release）。原版基线 versionCode 与 MOD 发布 versionCode 分开登记。",
       "source": "user-provided APKPure XAPK; internal identity and signing continuity verified, distribution/latest status not independently certified",
       "apk_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac"
     },
