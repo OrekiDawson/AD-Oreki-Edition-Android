@@ -1,0 +1,7 @@
+Starting: Intent { cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity
+TotalTime: 1893
+WaitTime: 1963
+Complete

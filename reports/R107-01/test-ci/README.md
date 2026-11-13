@@ -14,7 +14,7 @@
 | provenance 必须区分 native/过渡构建 | 规则已写入门禁审查（§3.4）与 CI 方案 | [03-gate-review.md](03-gate-review.md)、[04-CI-PLAN.md](04-CI-PLAN.md) |
 | AGP-only 门禁 fail-closed 审查 | **门禁仍阻断（candidate 档 6 条阻断条件）**；artifact 档缺证据阻断、自报 provenance 可被接受 → 需补真实绑定字段 | [03-gate-review.md](03-gate-review.md)、`evidence/gate/` |
 | candidate CI 切换方案 | 草案（不改 workflow） | [04-CI-PLAN.md](04-CI-PLAN.md) |
-| AVD 冷启动/新建档/重启读档门禁脚本 | 脚本就绪，**dry-run 通过；真实执行 NOT RUN（AVD 由 Lead 独占）** | [05-avd-gate.md](05-avd-gate.md) |
+| AVD 冷启动/新建档/重启读档门禁（混合候选 `c25c68dc…`） | **PASS（install-upgrade / launch / new-save / restart-load / save-file-persist / gui 全 PASS；save-import/阶段门禁/自动购买器 NOT RUN）** | [05-avd-gate.md](05-avd-gate.md)、`avd-gate-c25c68dc/` |
 | v7 APK（sha `f16c3cbf…`）结构基线 | 结构审计完成；**v7 运行 NOT RUN，且 v7 产物已被 22:43 新构建覆盖（未留存副本）** | [06-v7-baseline.md](06-v7-baseline.md)、`evidence/v7-baseline/` |
 
 ## 脚本（scripts/tests/r107/）

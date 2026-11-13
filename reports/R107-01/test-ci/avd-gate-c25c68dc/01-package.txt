@@ -1,0 +1,40 @@
+Activity Resolver Table:
+  Schemes:
+      genericidp:
+        689121c com.oreki.antimatterdimensions/com.google.firebase.auth.internal.GenericIdpActivity filter 9896e25
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Category: "android.intent.category.BROWSABLE"
+          Scheme: "genericidp"
+          Authority: "firebase.auth": -1
+          Path: "PatternMatcher{LITERAL: /}"
+      recaptcha:
+        4b15bfa com.oreki.antimatterdimensions/com.google.firebase.auth.internal.RecaptchaActivity filter 6e685ab
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Category: "android.intent.category.BROWSABLE"
+          Scheme: "recaptcha"
+          Authority: "firebase.auth": -1
+          Path: "PatternMatcher{LITERAL: /}"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        c82c7f4 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default filter 753ab1d
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        230e192 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_metro filter c76b763
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        3fe6f60 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic filter d84dc19
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        f784de com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic_metro filter 59366bf
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        fcb218c com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_inverted filter bfe20d5
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        2f310ea com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_metro_inverted filter fa1afdb
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        9ceca78 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic_inverted filter f8cf551

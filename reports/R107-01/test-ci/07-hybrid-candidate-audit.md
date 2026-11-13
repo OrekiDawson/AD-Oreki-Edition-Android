@@ -97,7 +97,7 @@
 | 资源同名不同 ID | **28**（aapt-mangled `$mtrl_*` 私有 drawable） | 0 | **0** |
 | 签名方案 | v3-only | v2-only | v3-only |
 | 游戏代码来源 | 旧链（已发布稳定版） | AGP 原生（enjarify） | **过渡：旧链 work/mod DEX** |
-| 运行状态 | 已发布稳定版 | 冷启动 PASS / **Tick 卡死 BLOCKED** | Lead AVD 实测 PASS（AM 持续增长）；本子 Agent AVD 门禁见 `7 |
+| 运行状态 | 已发布稳定版 | 冷启动 PASS / **Tick 卡死 BLOCKED** | Lead AVD 实测 PASS（AM 持续增长）；本子 Agent AVD 门禁 **PASS**（见 §7） |
 
 要点：
 - 混合候选的**资源 ID 严格优于 R103**（0 vs 28）：因为 Manifest/Resources 由 AGP 打包并保持官方 ID；R103 旧链重建造成 28 条 aapt-mangled 私有 drawable ID 位移。
@@ -132,7 +132,7 @@ SIGQUIT 关键事实（我逐行读取 trace 复核）：
 
 结论：**AGP 原生游戏代码路线 = BLOCKED**；可以冷启动、MOD UI 正常，但游戏 Tick 不推进，不具备可玩性，不能作为 Candidate 来源。4cff1540 的“冷启动成功”不等于“可运行游戏”。
 
-## 6. provenance 必须区分两类构建（写入 03-gate-review `3.4）
+## 6. provenance 必须区分两类构建（写入 03-gate-review §3.4）
 
 - `packaging_mode` 必须二选一并强制匹配：
   - `agp-native-fullgame`：游戏代码由 AGP/D8 从 JVM 类编译（provenance 需给出 game jar/class 输入 SHA）；
@@ -141,12 +141,29 @@ SIGQUIT 关键事实（我逐行读取 trace 复核）：
   `game_dex_source`（dex 数 + 逐 dex SHA-256）、`jvms_audit`、`agp_native_gameplay_status`；完整清单见 03-gate-review §3.4/§3.5。
 - 禁止：`builder: "AGP"` + `build_task: ":app:assembleRelease"` 在缺少上述字段时被解释为“AGP 原生完整游戏”。
 - 本候选 `game_code_compiled_by=legacy-dex`，即使结构/资源/签名 PASS，也不得通过正式 Candidate 门禁。
-- 本候选应在 provenance 中标记为 `agp-package-with-legacy-game-dex`；其 `hybrid-package-report.json` 的 `mode` 字段已含该语义，但**当前 `enforce_agp_only.py artifact` 不读取该字段**（需按 03 `3.4 扩展）。
+- 本候选应在 provenance 中标记为 `agp-package-with-legacy-game-dex`；其 `hybrid-package-report.json` 的 `mode` 字段已含该语义，但**当前 `enforce_agp_only.py artifact` 不读取该字段**（需按 03 §3.4 扩展）。
 
-## 7. AVD 门禁（本子 Agent 执行，00:10 窗口后）
+## 7. AVD 门禁（本子 Agent 真实执行，2026-11-14 00:11）
 
-状态占位：见 `05-avd-gate.md` 的“实际执行结果”与 `evidence/avd-gate-c25c68dc/`。
-（Lead 已在其证据目录记录一次 AVD PASS：install Success、COLD 1.8s、MOD 中文深色界面、AM 5.98e90 持续增长、0 FATAL/VerifyError；本子 Agent 将用自己的脚本独立复跑 install-upgrade/launch/new-save/restart-load。）
+命令与结果详见 `05-avd-gate.md`；报告与产物 `reports/R107-01/test-ci/avd-gate-c25c68dc/`。
+
+| 检查 | 结果 | 关键证据 |
+|---|---|---|
+| preflight | PASS | emulator-5554，Android 17 / API 37 |
+| install-upgrade | **PASS** | `adb install -r -g` → Success（同签名/同 versionCode 覆盖安装） |
+| new-save | **PASS** | pm clear + 冷启动；pid 存在；0 FATAL/VerifyError/CNFE/ANR |
+| launch | **PASS** | Status: ok / LaunchState: COLD / TotalTime 1266ms；topResumedActivity=本应用；0 崩溃 |
+| restart-load | **PASS** | HOME 触发保存 → force-stop → 重启；Status ok；pid 存活；resumed=本应用；0 崩溃 |
+| save-file-persist | **PASS** | 重启前 player.json 28,063 B + speedrunBackup0.json 27,839 B；重启后仍存在（+ speedrunBackup02.json 28,060 B） |
+| gui-screenshot | PASS | 3 张截图均 >20KB（557/622/611 KB） |
+| save-import / stage-gate± / autobuyer-core | **NOT RUN** | 不在本脚本范围，需 Lead 用既有 8 项 AVD 流程补测 |
+
+补充观察（不构成本轮验收）：`player.json` 可解析、含 `"version":30210000`、`antimatter` exponent≈81；
+但“是否全新档进度 / MOD Tick 语义”未独立判定。该结果只证明混合候选**可安装/可启动/可存读档**，
+不改变“过渡形态 + 正式发布 BLOCKED”的判定。
+
+> 说明：第一次执行（00:09:4x）出现 3 个脚本误判（Displayed 关键字、`su` 不存在、未触发 onPause 保存），
+> 修正后第二次执行（00:11）全部 PASS；验收结论取自第二次执行，详见 05 §6。
 
 ## 8. 结论
 

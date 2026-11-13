@@ -1,0 +1,4 @@
+/data/data/com.oreki.antimatterdimensions/files/player.json	size=28063
+/data/data/com.oreki.antimatterdimensions/files/playerBackup	size=?
+/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json	size=27839
+/data/data/com.oreki.antimatterdimensions/files/speedrunBackup02.json	size=28060

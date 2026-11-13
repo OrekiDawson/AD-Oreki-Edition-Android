@@ -142,10 +142,60 @@
     "status": "草案，未改 workflow"
   },
   "avd_gate": {
-    "script": "scripts/tests/r107/avd_gate.py",
-    "status": "NOT RUN（AVD 由 Lead 独占）",
-    "dryrun": "evidence/avd-dryrun/avd-gate-dryrun-and-refusal.txt",
-    "report": "05-avd-gate.md"
+    "status": "EXECUTED",
+    "device": "emulator-5554",
+    "mode": "all",
+    "apk_sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "verdict": "PASS",
+    "checks": [
+      {
+        "id": "preflight",
+        "state": "PASS"
+      },
+      {
+        "id": "install-upgrade",
+        "state": "PASS"
+      },
+      {
+        "id": "new-save",
+        "state": "PASS"
+      },
+      {
+        "id": "launch",
+        "state": "PASS"
+      },
+      {
+        "id": "restart-load",
+        "state": "PASS"
+      },
+      {
+        "id": "save-file-persist",
+        "state": "PASS"
+      },
+      {
+        "id": "gui-screenshot",
+        "state": "PASS"
+      },
+      {
+        "id": "save-import",
+        "state": "NOT RUN"
+      },
+      {
+        "id": "stage-gate-positive",
+        "state": "NOT RUN"
+      },
+      {
+        "id": "stage-gate-negative",
+        "state": "NOT RUN"
+      },
+      {
+        "id": "autobuyer-core",
+        "state": "NOT RUN"
+      }
+    ],
+    "report": "reports/R107-01/test-ci/avd-gate-c25c68dc/avd-gate-report.json",
+    "doc": "05-avd-gate.md",
+    "notes": "执行项全部 PASS；save-import/stage-gate±/autobuyer-core NOT RUN；第一次执行的脚本误判已修正并重跑"
   },
   "v7_baseline": {
     "sha256": "f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc",
@@ -160,7 +210,8 @@
     "真实 180 分钟通关",
     "正式 CI candidate/verify/release run",
     "provenance schema 2（未实现）",
-    "AVD 门禁复跑（00:10 窗口后执行，结果见 05-avd-gate.md）"
+    "save-import / stage-gate-positive / stage-gate-negative / autobuyer-core（AVD 8 项验收，需 Lead 既有流程）",
+    "正式 candidate/verify/release CI run（正式发布 BLOCKED）"
   ],
   "scripts": [
     "scripts/tests/r107/accept_apk.py",
