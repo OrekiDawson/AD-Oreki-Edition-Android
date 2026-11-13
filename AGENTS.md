@@ -56,7 +56,7 @@
 ## 8. 双端交付、AGP 迁移与 CI/CD 增量规则（2026-11-12）
 
 - **强制读取 [Android 开发与交付长期规则](docs/DELIVERY_RULES.md)**。本节补充既有有效技术、安全与 DeepSeek 峰谷约束，不重新启用旧版归档。
-- Android 标准 AGP + 官方工具为**渐进式迁移目标**，现有 apktool/Kotlin→D8→DEX→APK 在新链路真实兼容验收 PASS 前继续保留；不为迁移而中断业务交付。每个官方基线只完整 JADX 导出一次，按需复用成果。
+- **正式 Android 生产构建强制 AGP 9.5.1**；完整游戏 AGP APK 未通过验证之前，Candidate/Verify/Release 必须 fail-closed 阻断，禁止退回 apktool/Kotlin→D8 独立旧链发布。旧链仅供隔离对照测试；已发布稳定版不撤销。每个官方基线只完整 JADX 导出一次，按需复用成果。
 - GitHub 管理 CI/CD；公开 Android CI 仅代表源码检查，受保护 Environment 内的真实构建/签名/独立验签/AVD 验收/发布门禁才是候选与稳定版依据（旧私有构建仓已删除）。真实 APK、签名、AVD/GUI、四渠道交付逐项标记 PASS/FAIL/BLOCKED/NOT RUN。
 - 每两小时至少交付一份**合格稳定版**是节奏目标，绝不以失败包充数；当前授权范围内正常 Commit/Push 无需反复确认，高风险及未过门禁改动走 PR，禁止强推。生产发布须同一经验证 APK、四渠道同一 SHA-256。
 - **永久 CI/CD 硬规则（2026-11-13）**：正式构建/测试/合并/签名/验签/发布必须走 CI/CD 门禁；禁止直推绕过、跳过检查、关闭 Ruleset、手动上传 APK 或直接改生产；流水线故障必须修流水线，不能用手动发布绕过；发布后由开发机主动下载校验并更新本地 SFTP 目录；两小时节奏不得凌驾质量门禁。详见 `docs/DELIVERY_RULES.md` 第 5 节。
