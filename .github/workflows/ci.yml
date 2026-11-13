@@ -16,12 +16,21 @@ concurrency:
 
 jobs:
   source-checks:
-    # main-protection requires this check. Do not mark Source PASS if AGP fails.
+    # Required on main. Run even if AGP failed so a skipped check cannot pass branch protection.
     needs: agp-kotlin-dex
+    if: always()
     name: Source checks (no proprietary APK baseline)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Require successful AGP 9.5.1 compilation before any Source PASS
+        env:
+          AGP_RESULT: ${{ needs.agp-kotlin-dex.result }}
+        run: |
+          if [[ "$AGP_RESULT" != success ]]; then
+            echo "::error::AGP job did not pass: $AGP_RESULT"
+            exit 1
+          fi
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
