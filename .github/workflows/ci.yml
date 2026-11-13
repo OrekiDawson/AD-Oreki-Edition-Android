@@ -45,6 +45,8 @@ jobs:
           grep -Fq 'DELIVERY_RULES.md' AGENTS.md
       - name: Validate Python build helper syntax
         run: python3 -m compileall -q scripts
+      - name: Ensure DeepSeek AI review and failure triage remain disabled
+        run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Verify DeepSeek off-peak billing calendar and time boundaries
         run: python3 -m unittest discover -s scripts/tests -p 'test_deepseek_pricing.py' -v
       # Existing source baseline has 67 naming violations (first CI run).
