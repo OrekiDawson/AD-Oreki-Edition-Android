@@ -147,6 +147,9 @@ jobs:
           ref: ${{ needs.validate.outputs.source_sha }}
           path: source
           persist-credentials: false
+      - name: Enforce AGP-only production (block until real game APK is ready)
+        working-directory: source
+        run: python3 scripts/enforce_agp_only.py candidate
       - name: Check out the pinned Web sources the Android build consumes
         uses: actions/checkout@v4
         with:
