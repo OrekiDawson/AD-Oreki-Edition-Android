@@ -34,6 +34,8 @@ jobs:
           grep -Fq 'DELIVERY_RULES.md' AGENTS.md
       - name: Validate Python build helper syntax
         run: python3 -m compileall -q scripts
+      - name: Verify DeepSeek off-peak billing calendar and time boundaries
+        run: python3 -m unittest discover -s scripts/tests -p 'test_deepseek_pricing.py' -v
       # Existing source baseline has 67 naming violations (first CI run).
       # Do not misreport them as PASS; audit warns while tracked-source CI remains usable.
       - name: Kotlin naming audit (existing debt, advisory)
