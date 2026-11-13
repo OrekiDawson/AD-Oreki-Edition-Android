@@ -105,7 +105,36 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_unified_release_*.py' -v
       - name: Test dev-machine stable pull and atomic local channel
         run: python3 -m unittest discover -s scripts/tests -p 'test_local_pull.py' -v
+      - name: Test AGP phase-1 parity helpers
+        run: python3 -m unittest discover -s scripts/tests -p 'test_agp_parity.py' -v
       - name: Explain source-only evidence
         run: |
           echo "::notice::This job checks tracked sources and Gradle configuration only."
           echo "::notice::Real APK build, signature, DEX contract and AVD tests require the protected local baseline and dedicated runner."
+
+  agp-kotlin-dex:
+    name: AGP 9 Kotlin DEX parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build legacy Kotlin DEX (existing chain, unchanged)
+        run: ./gradlew buildKotlinDex --no-daemon --console=plain
+      - name: Build AGP 9 Kotlin DEX
+        run: ./gradlew -p agp :app:assembleDebug --no-daemon --console=plain
+      - name: Enforce ABI guard on AGP-compiled classes
+        run: python3 scripts/build_kotlin.py --verify-abi --classes agp/app/build/tmp/kotlin-classes/debug
+      - name: Enforce AGP DEX parity with the legacy chain
+        run: python3 scripts/verify_agp_parity.py --legacy-dex build/kt/classes.dex --agp-apk agp/app/build/outputs/apk/debug/app-debug.apk --result-file agp-parity.json
+      - name: Upload AGP phase-1 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: agp-phase1-evidence
+          path: agp-parity.json
+          if-no-files-found: error
