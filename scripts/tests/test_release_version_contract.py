@@ -32,6 +32,13 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertNotIn('EXPECTED_VERSION_NAME: 3.21.0', verify)
         self.assertNotIn("EXPECTED_VERSION_CODE: '30210000'", verify)
 
+    def test_new_stable_publication_blocks_reused_version_code(self):
+        release = (ROOT / ".github/workflows/release-unified.yml").read_text("utf-8")
+        self.assertIn('lastPublishedVersionCode', release)
+        self.assertIn('modVersionState', release)
+        self.assertIn('if code <= last_stable:', release)
+        self.assertIn('ready-for-release', release)
+
     def test_required_parallel_checks_preserve_branch_protection(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text("utf-8")
         self.assertIn('needs: [agp-kotlin-dex, source-policy]', ci)
