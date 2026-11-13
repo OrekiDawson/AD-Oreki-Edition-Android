@@ -200,3 +200,14 @@ python3 scripts/dexfix/r107/verify_structure.py --dex-index <dex_index.json> \
   **整包 D8 PASS、0 warning**；76 个补丁类逐类 D8 **0 失败**。
 - 结论：**混合转换器离线部分可行**，可作为 AVD 二分实验候选；但整包仍有 33.6% 不可校验类，
   且 rk8/nc8 未修复 → **不可作为 Candidate 来源**。AVD 实验（对照 `dff6332a…` vs 混合 `f0ab60bd…`）由 Lead 执行。
+
+## 11. mixed-r2 扩展（RK8 闭包 + nc8.M 修复 + r3 接口扫描）
+
+详见 `R107-01-mixed-r2.md`。要点：
+
+- r2：替换类 8 → 13（+ rk8、lu2、tu2、qy0、to2），nc8.M 用 PatchCtorChain 修复（zzagb 合成构造器）；
+  JVMS 不可校验 5,195 → **4,983**（单调下降），热路径 11 类全 VALID；整包 D8 PASS、76 补丁类逐类 D8 0 失败；
+  jar SHA-256 `43bfad5a0a9af8fef82475d6aea9d09394212bb139fd3ecfb2d55a0483128b61`。
+- r3（可选）：额外把 75 个 enjarify v49 非法接口替换为 dex2jar v52 版本，不可校验 **4,983 → 3,753**（FORMAT 清零）；
+  jar SHA-256 `3fb88bf9ffb2d7e9737221f3a01ff795db6b5f00cefc68deb6c651445a045756`，整包/逐类 D8 PASS。
+- 两者均为过渡实验候选，AVD 由 Lead 验证，不改变 Candidate/Release 门禁。

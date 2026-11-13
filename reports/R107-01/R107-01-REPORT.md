@@ -213,3 +213,22 @@
 - 若要 CI 产出 AGP 原生/混合候选，必须二选一（均需用户决策）：① 扩展私有 bundle，上传 pin 住的 game jar（input SHA 入 provenance）；
   ② 新增独立(非候选)输入准备流水线生成 jar 并以 artifact 传递（provenance 需绑定跨 run）。
 - 在此之前正式 Candidate/Verify/Release 继续 fail-closed；R103 Latest 不变。
+
+### 10.4 混合转换器 r4/r5（agp-dex，2026-11-14 02:10）：转换器级修复把 JVMS 不合法率从 32.5% 降到 1.55% / 0.5%
+
+- **r4（本轮最大进展）**：新增 `FixInitSplice`（ASM Analyzer + 自定义 Interpreter），语义等价地批量修复 enjarify 的 init-pattern：
+  ① `new X` + `invokespecial 祖先Y.<init>` → 沿 X→直接父类→…→Y 链补 synthetic 构造器（每层只调直接父类）；
+  ② 本类 <init> 内 `this` 调更远祖先构造器 → 改调直接父类并补链（865 处）。
+  **JVMS 3,753 → 238（98.4% 合法，verify_ok 15,092）；不新增 invalid；类集合 15,344 不变；结构审计 changed 4,685 类、
+  仅新增 2,696 个 synthetic <init>、0 删除方法/字段变更；热路径 11 类全部 VALID；整包 D8 PASS（0 warning）**。
+  剩余 238 全 VERIFY（189 根类，第一方仅 7 个）。jar `game-hybrid-r4.jar`（a0a0261e…）。
+- **r5（可选收敛）**：r4 + 140 个 dex2jar v52 版本根类替换 → **invalid 238 → 76（99.5% 合法）**；风险高于 r4，仅实验候选。
+- 待补：r4/r5 的 76 补丁类逐类 D8（因宿主 CPU 争抢暂停，02:40 后重跑）；AVD 验证 NOT RUN。
+- 下一步：把 FixInitSplice 能力应用到当前 R107-01 树（batch1+EP 尺度）产出 r4cur jar → AGP APK → AVD；
+  若 r4 运行 PASS，AGP 原生路线将从「过渡实验」升级为「有转换器级修复支撑的候选形态」。
+
+### 10.5 宿主资源争抢说明（影响所有墙钟数据）
+
+- 2026-11-14 01:58–02:20 宿主机 load average 17–20（qemu 622% + 并发构建/浏览器跑次），
+  gate-gui 的 EP 尺度跑次里程碑明显慢于 R105-03（首永恒 375.7s vs 本跑 ~600s+），
+  **所有该窗口内的墙钟数字标注为「受争抢污染，非基准」**；干净基准需在宿主空闲时重跑（后续轮次）。
