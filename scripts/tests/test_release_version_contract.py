@@ -31,6 +31,9 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertIn('Candidate release version differs from approved source policy', verify)
         self.assertNotIn('EXPECTED_VERSION_NAME: 3.21.0', verify)
         self.assertNotIn("EXPECTED_VERSION_CODE: '30210000'", verify)
+        release_validate = (ROOT / ".github/workflows/release-validate-unified.yml").read_text("utf-8")
+        self.assertIn('scripts/release-gate-policy.json', release_validate)
+        self.assertNotIn('version="3.21.0"', release_validate)
 
     def test_new_stable_publication_blocks_reused_version_code(self):
         release = (ROOT / ".github/workflows/release-unified.yml").read_text("utf-8")
