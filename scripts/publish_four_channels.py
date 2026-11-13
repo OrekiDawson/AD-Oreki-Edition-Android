@@ -568,6 +568,21 @@ def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, objec
     save_state(root, state)
 
 
+def rclone_onedrive_singlepart_supported() -> bool:
+    """True when the installed rclone supports --onedrive-upload-cutoff.
+
+    Microsoft's personal OneDrive chunked-upload endpoint has returned 401 since
+    the 2026-11-12 service incident (rclone issue #10328). rclone >= 1.71 can
+    force a single-shot upload with --onedrive-upload-cutoff, avoiding that
+    endpoint for files below the cutoff (our APK is ~85 MB).
+    """
+    try:
+        result = run(["rclone", "help", "backend", "onedrive"], timeout=60)
+    except (OSError, RuntimeError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0 and "onedrive-upload-cutoff" in result.stdout
+
+
 def rclone_publish(channel: str, remote: str | None, directory: str | None, apk: Path, apk_info: dict[str, object], dry_run: bool) -> None:
     """[R97] 云盘必须上传本次 **--apk 指向的同一份已验证 APK**。
 
@@ -582,6 +597,11 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, apk:
         raise RuntimeError(f"{channel}: 待上传 APK 与已验证摘要不一致，拒绝上传")
     target = remote_spec(remote, directory, DEFAULT_APK_NAME)
     command = ["rclone", "copyto", str(source), target, "--retries", "3", "--low-level-retries", "10"]
+    if channel == "OneDrive" and rclone_onedrive_singlepart_supported():
+        # Work around the 2026-11-12 OneDrive chunked-upload 401 incident by
+        # uploading in one part (always below the cutoff for this APK).
+        command += ["--onedrive-upload-cutoff", "250M"]
+        say("OneDrive: 使用 --onedrive-upload-cutoff 250M 单次上传，绕过故障的分片端点")
     say(f"{channel}: {' '.join(command)}")
     if dry_run:
         return

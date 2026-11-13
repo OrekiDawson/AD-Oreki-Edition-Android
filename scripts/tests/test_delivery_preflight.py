@@ -160,5 +160,44 @@ class OneDriveGraphFallbackTests(unittest.TestCase):
                                           {"sha256": "0" * 64, "size_bytes": apk.stat().st_size})
 
 
+
+class OneDriveSinglePartCutoffTests(unittest.TestCase):
+    def _publish(self, supported: bool):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            apk = Path(tmp) / "candidate.apk"
+            apk.write_bytes(b"candidate-bytes")
+            info = {"sha256": hashlib.sha256(b"candidate-bytes").hexdigest(),
+                    "size_bytes": apk.stat().st_size}
+
+            def fake_run(cmd, **kwargs):
+                calls.append(cmd)
+                if cmd[:3] == ["rclone", "help", "backend"]:
+                    return types.SimpleNamespace(returncode=0,
+                                                 stdout="--onedrive-upload-cutoff" if supported else "")
+                if cmd[:2] == ["rclone", "lsjson"]:
+                    return types.SimpleNamespace(returncode=0, stdout=json.dumps({"Size": len(b"candidate-bytes")}))
+                return types.SimpleNamespace(returncode=0, stdout="")
+
+            with mock.patch.object(p, "run", side_effect=fake_run):
+                p.rclone_publish("OneDrive", "onedrive", "Apps/AD-Oreki-Edition", apk, info, False)
+        return [cmd for cmd in calls if cmd[:2] == ["rclone", "copyto"]][0]
+
+    def test_supported_rclone_uses_singlepart_cutoff(self):
+        command = self._publish(True)
+        self.assertIn("--onedrive-upload-cutoff", command)
+        self.assertIn("250M", command)
+
+    def test_unsupported_rclone_does_not_pass_unknown_flag(self):
+        command = self._publish(False)
+        self.assertNotIn("--onedrive-upload-cutoff", command)
+
+    def test_release_workflow_pins_rclone_with_cutoff_support(self):
+        text = (Path(__file__).resolve().parents[2] / ".github/workflows/release-unified.yml").read_text()
+        self.assertIn("b00f00b3266c3764413afe599d3ec316f6f43b3e0ea8a0bc1d186d2133e46df7", text)
+        self.assertIn("rclone-v${version}-linux-amd64", text)
+        self.assertIn("onedrive-upload-cutoff", text)
+
+
 if __name__ == "__main__":
     unittest.main()
