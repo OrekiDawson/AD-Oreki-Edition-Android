@@ -381,3 +381,14 @@
   stageCap：realities==0 → 1s；1..9 → 2s；10..49 → 3s；≥50 → 5s（Android/Web 同语义）；
   不改玩家配置/存档字段、不改结算，仅 MOD 自动化节拍；已派 hook-migrate（Android）与 web-parity（Web）实现 + 验证。
 - 证据：reports/R107-01/lead-evidence/180min-default-run/（timeline/full-logcat/ds6-buy.log；t≈2540s reality reset）。
+
+### 10.18 阶段化节拍（STAGECAP）AVD PASS：默认设置首 reality 42.4min → 16.3min（2026-11-14 07:50，commit dd437e09）
+
+- 实现（Kotlin-only，OrekiAutomationScheduler）：`effective = min(配置值, stageCap)`；
+  stageCap = realities==0→1s / 1..9→2s / 10..49→3s / ≥50→5s（1s 缓存、fail-closed 1s）；
+  全局 beat、单任务二次闸、intervalMs、GUI 强同步间隔均改用 effective；配置/UI/存档值不变（玩家 10s 仍显示 10s，可设更小）。
+- 静态 124/124 PASS、构建 PASS；APK ff1d5d30…。
+- **AVD 实测（默认设置，未注入配置）PASS**：start≈07:32:05，首 reality **≈07:48:2x（16.3 分钟）**，对照旧默认 42.4 分钟（2.6×）；
+  日志 cap=1/configured=10/effective=1 → reality 后 cap=2（realities=1.0）；0 FATAL/VerifyError/NoSuchMethodError。
+- **默认设置 180 分钟真实跑次已启动**（fresh，07:49:46 起，stagecap 生效，60s 采样，gameEnd 即停）：证据 reports/R107-01/lead-evidence/180min-default-run/；
+  跑次期间宿主 CPU 独占（Web 浏览器重型跑次暂停），以保证墙钟数据可信。
