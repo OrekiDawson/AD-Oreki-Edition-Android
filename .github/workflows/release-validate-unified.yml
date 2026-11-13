@@ -110,6 +110,8 @@ jobs:
           github-token: ${{ github.token }}
           path: verification
 
+      - name: Refuse legacy artifacts during remote delivery validation
+        run: python3 scripts/enforce_agp_only.py artifact --candidate-dir candidate
       - name: Verify candidate artifact identity against inputs
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha256 }}
