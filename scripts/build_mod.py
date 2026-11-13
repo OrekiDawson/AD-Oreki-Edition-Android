@@ -2172,6 +2172,78 @@ def patch_dilation_cost_scale():
     note("[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）")
 
 
+def patch_reality_achievement_waiver():
+    """[Oreki R107-REALITY] DS6（现实研究）里「全部 preReality 成就」这一项接入 Kotlin 豁免。
+
+    Web 冻结上游 `dilation-time-studies.js` DS6 条件：
+      TD8.isBought && maxEP.exponent >= 4000 &&
+      (Perk.firstPerk || Achievements.preReality.every(unlocked) || orekiAchievementsWaivedForReality()) &&
+      !Pelle.isDoomed
+    其中 orekiAchievementsWaivedForReality() = EC11/EC12 都满 5/5。
+
+    Android 的 DS6 判定在 `z40.smali :pswitch_4`（z40(24) 分支）：
+      ① 膨胀研究5（TD8）B()  → ② maxEP.exponent >= 4000 →
+      ③ vi3.a.k()（Perk/等价）为真则跳过成就；否则遍历 `t3.g()` 全部 preReality 成就，
+         任一 `a.A()==false` 就 `goto :goto_3`（结果 v7=0）→ ④ Pelle doomed 检查。
+    本补丁只把 ③ 的**失败出口**改成先问 Kotlin：
+      const/4 v1, 0x0 → OrekiRealityUnlock.waiveAchievements(false) → 若 true 跳到 :cond_4
+    因此 TD8 / maxEP / Pelle 三项仍原版真实校验；不写成就、解锁、进度字段。
+    """
+    target = mod_file("smali/z40.smali")
+    assert target.is_file(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    marker = "# [Oreki R107-REALITY]"
+    if marker in src:
+        note("[R107-REALITY] z40 DS6 成就豁免已打过补丁，跳过")
+        return
+    assert src.count(":pswitch_4") == 2, "z40 的 :pswitch_4 标签数量异常"
+    assert "Lkajfosz/antimatterdimensions/achievements/a;->A()Z" in src, "DS6 成就遍历锚点缺失"
+    assert "Lt3;->g()Ljava/util/List;" in src, "t3.g() preReality 成就列表锚点缺失"
+    anchor = ("    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/achievements/a;->A()Z\n"
+              "\n"
+              "    .line 272\n"
+              "    .line 273\n"
+              "    .line 274\n"
+              "    move-result v1\n"
+              "\n"
+              "    .line 275\n"
+              "    if-nez v1, :cond_3\n"
+              "\n"
+              "    .line 276\n"
+              "    .line 277\n"
+              "    goto :goto_3")
+    assert src.count(anchor) == 1, f"DS6 成就失败出口锚点不唯一（{src.count(anchor)} 处）"
+    ins = (
+        "    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/achievements/a;->A()Z\n"
+        "\n"
+        "    .line 272\n"
+        "    .line 273\n"
+        "    .line 274\n"
+        "    move-result v1\n"
+        "\n"
+        "    .line 275\n"
+        "    if-nez v1, :cond_3\n"
+        "\n"
+        "    .line 276\n"
+        "    # [Oreki R107-REALITY] 全部 preReality 成就这一项失败时，EC11/EC12 各 5/5 则豁免\n"
+        "    # （Web orekiAchievementsWaivedForReality 同源）。TD8 / maxEP / Pelle 仍是原版真实校验。\n"
+        "    const/4 v1, 0x0\n"
+        "    invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityUnlock;"
+        "->waiveAchievements(Z)Z\n"
+        "\n"
+        "    move-result v7\n"
+        "\n"
+        "    if-eqz v7, :cond_4\n"
+        "\n"
+        "    .line 277\n"
+        "    goto :goto_3")
+    src = src.replace(anchor, ins, 1)
+    assert src.count("OrekiRealityUnlock;->waiveAchievements(Z)Z") == 1, "赏免调用应恰 1 处"
+    assert marker in src, "标记写入失败"
+    write_smali(target, src, encoding="utf-8")
+    note("[R107-REALITY] z40 DS6：preReality 成就项已接 OrekiRealityUnlock（EC11/12 满则豁免）")
+
+
 def patch_recent_runs():
     """A2：最近十次无限（pastTenInfinities）的时间字段归一化。
 
@@ -7277,6 +7349,8 @@ def main():
     # [R107-01 EC/DIL] Web bootstrap 数值缩放（EC 门槛 /100、膨胀研究 TT /1000）
     patch_ec_requirement_scale()
     patch_dilation_cost_scale()
+    # [R107-REALITY] DS6 的「全部 preReality 成就」项接入 Kotlin 豁免（EC11/12 满 5/5）
+    patch_reality_achievement_waiver()
     patch_recent_runs()
     patch_recent_runs_er()
     patch_shop_coins()
