@@ -54,6 +54,11 @@ jobs:
           run-id: ${{ steps.candidate.outputs.run_id }}
           github-token: ${{ github.token }}
           path: candidate
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Reject legacy or unproven candidate artifacts
+        run: python3 scripts/enforce_agp_only.py artifact --candidate-dir candidate
       - name: Verify checksums, source identity and both contract reports
         id: identity
         env:
