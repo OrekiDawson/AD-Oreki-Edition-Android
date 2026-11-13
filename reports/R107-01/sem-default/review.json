@@ -1,0 +1,3538 @@
+{
+ "summary": {
+  "checked_classes": 57,
+  "verdict_pass": 57,
+  "verdict_fail": 0,
+  "serialization_defects": 49,
+  "methods_pass": 86,
+  "methods_fail": 0,
+  "fields_pass": 41,
+  "fields_fail": 0
+ },
+ "classes": {
+  "Lnr5;": {
+   "descriptor": "Lnr5;",
+   "java_name": "nr5",
+   "declared_confidence": "strong",
+   "semantic_name": "IP 倍率自动购买器解锁判定",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali/nr5.smali",
+   "method_checks": [
+    {
+     "name": "u",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "os0",
+     "from": "Los0;",
+     "to": "Lnr5;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [
+    {
+     "site_id": "BM-33",
+     "exists": true,
+     "original_class": "Lnr5;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "bindings.json classes[nr5<-os0] CONFIRMED + methods（os0.F()->nr5.u()「IP 倍率自动购买器解锁判定的唯一语义入口」）; scripts/build_mod.py:374-378",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:374-378",
+     "path": "scripts/build_mod.py",
+     "line": 374,
+     "line2": 378,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lf82;": {
+   "descriptor": "Lf82;",
+   "java_name": "f82",
+   "declared_confidence": "confirmed",
+   "semantic_name": "永恒解锁判据（Player.x()>0 || f82.p()）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali/f82.smali",
+   "method_checks": [
+    {
+     "name": "j",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "p",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "BM-42",
+     "exists": true,
+     "original_class": "Lf82;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "docs/FACTS.md:8234/9839/9954; scripts/build_mod.py:7052-7085（f82.j() trampoline）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    },
+    {
+     "ref": "scripts/build_mod.py:7052-7085",
+     "path": "scripts/build_mod.py",
+     "line": 7052,
+     "line2": 7085,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Liw;": {
+   "descriptor": "Liw;",
+   "java_name": "iw",
+   "declared_confidence": "strong",
+   "semantic_name": "Application.onCreate 注册的回调",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali/iw.smali",
+   "method_checks": [
+    {
+     "name": "onActivityCreated",
+     "params": "Landroid/app/Activity;Landroid/os/Bundle;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "onActivityDestroyed",
+     "params": "Landroid/app/Activity;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "onActivityPaused",
+     "params": "Landroid/app/Activity;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "onActivityResumed",
+     "params": "Landroid/app/Activity;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "onActivitySaveInstanceState",
+     "params": "Landroid/app/Activity;Landroid/os/Bundle;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "onActivityStarted",
+     "params": "Landroid/app/Activity;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "onActivityStopped",
+     "params": "Landroid/app/Activity;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "fw",
+     "from": "Lfw;",
+     "to": "Liw;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[iw<-fw] CONFIRMED; scripts/build_mod.py:326-328（Application 原版 onCreate 注册 fw.a）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:326-328",
+     "path": "scripts/build_mod.py",
+     "line": 326,
+     "line2": 328,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Llx3;": {
+   "descriptor": "Llx3;",
+   "java_name": "lx3",
+   "declared_confidence": "strong",
+   "semantic_name": "异常兜底工具类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali/lx3.smali",
+   "method_checks": [
+    {
+     "name": "k",
+     "params": "Ljava/lang/String;",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "qw3",
+     "from": "Lqw3;",
+     "to": "Llx3;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[lx3<-qw3] CONFIRMED + methods（异常工具方法体等价）; scripts/build_mod.py:380-385",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:380-385",
+     "path": "scripts/build_mod.py",
+     "line": 380,
+     "line2": 385,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lis3;": {
+   "descriptor": "Lis3;",
+   "java_name": "is3",
+   "declared_confidence": "inferred",
+   "semantic_name": "通用「可购买」基类（两跳结构推断）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/is3.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "Z",
+     "ret": "Z",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "B",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "D",
+     "params": "ZLrj0;",
+     "ret": "Ljava/lang/Boolean;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "E",
+     "params": "Z",
+     "ret": "V",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "x",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "qr3",
+     "from": "Lqr3;",
+     "to": "Lis3;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[is3<-qr3] CONFIRMED; scripts/build_mod.py:409-413（3.19 Lfp3 可购买基类 的结构对应者 3.20 Lqr3，未单列文字证据）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:409-413",
+     "path": "scripts/build_mod.py",
+     "line": 409,
+     "line2": 413,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lfm1;": {
+   "descriptor": "Lfm1;",
+   "java_name": "fm1",
+   "declared_confidence": "strong",
+   "semantic_name": "Kotlin 函数接口 ()Ljava/lang/Object;",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/fm1.smali",
+   "method_checks": [
+    {
+     "name": "invoke",
+     "params": "",
+     "ret": "Ljava/lang/Object;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "vl1",
+     "from": "Lvl1;",
+     "to": "Lfm1;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[fm1<-vl1] CONFIRMED; scripts/build_mod.py:394-400（3.19 ui1/3.20 vl1 函数接口）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:394-400",
+     "path": "scripts/build_mod.py",
+     "line": 394,
+     "line2": 400,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "La02;": {
+   "descriptor": "La02;",
+   "java_name": "a02",
+   "declared_confidence": "strong",
+   "semantic_name": "IU15（无限升级 15）需求常量 lambda 闭包（1.5E12 -> 1e8 补丁点）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/a02.smali",
+   "method_checks": [
+    {
+     "name": "invoke",
+     "params": "",
+     "ret": "Ljava/lang/Object;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "BM-22",
+     "exists": true,
+     "original_class": "La02;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "reports/R106-02/hook-ledger.json sites[BM-22]（original_class=La02;；a02/fw/x40 三处 IU15 需求常量 1.5E12→1e8） work/mod/smali_classes2/a02.smali:860 命中 0x4197d78400000000L（1e8），位于 public final invoke()Ljava/lang/Object; work/base_decoded_321/smali_classes2/a02.smali：public final synthetic + implements Lfm1;（Kotlin Function0 lambda） web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js:49 OREKI_IU15_AM_EXP=1e8（MOD 对齐的 Web 上游常量）",
+   "evidence_refs": [
+    {
+     "ref": "work/mod/smali_classes2/a02.smali:860",
+     "path": "work/mod/smali_classes2/a02.smali",
+     "line": 860,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 1629,
+     "status": "PASS"
+    },
+    {
+     "ref": "web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js:49",
+     "path": "web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js",
+     "line": 49,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 369,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lgm1;": {
+   "descriptor": "Lgm1;",
+   "java_name": "gm1",
+   "declared_confidence": "confirmed",
+   "semantic_name": "协程启动接口（MainActivity.Companion.launchOnGameScope）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/gm1.smali",
+   "method_checks": [
+    {
+     "name": "invoke",
+     "params": "Ljava/lang/Object;",
+     "ret": "Ljava/lang/Object;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8570（3.21 MainActivity.Companion.launchOnGameScope 为 g.s(Lgm1;Z)，Eternity$confirmEternity$4 implements Lgm1;）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8570",
+     "path": "docs/FACTS.md",
+     "line": 8570,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ltw;": {
+   "descriptor": "Ltw;",
+   "java_name": "tw",
+   "declared_confidence": "strong",
+   "semantic_name": "位图型升级抽象基类（3.19 Lav 系）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/tw.smali",
+   "method_checks": [
+    {
+     "name": "B",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "E",
+     "params": "Z",
+     "ret": "V",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "I",
+     "params": "",
+     "ret": "I",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "J",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/BitSet;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "qw",
+     "from": "Lqw;",
+     "to": "Ltw;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[tw<-qw] CONFIRMED; scripts/build_mod.py:409-413（3.19 Lav 抽象子类 -> 3.20 Lqw）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:409-413",
+     "path": "scripts/build_mod.py",
+     "line": 409,
+     "line2": 413,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lw6;": {
+   "descriptor": "Lw6;",
+   "java_name": "w6",
+   "declared_confidence": "strong",
+   "semantic_name": "炼金资源 capped 判定",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/w6.smali",
+   "method_checks": [
+    {
+     "name": "w",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "v6",
+     "from": "Lv6;",
+     "to": "Lw6;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[w6<-v6] CONFIRMED; scripts/build_mod.py:415-421（3.19 Ll7 -> 3.20 Lv6）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:415-421",
+     "path": "scripts/build_mod.py",
+     "line": 415,
+     "line2": 421,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lrj0;": {
+   "descriptor": "Lrj0;",
+   "java_name": "rj0",
+   "declared_confidence": "strong",
+   "semantic_name": "Continuation 接口",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/rj0.smali",
+   "method_checks": [
+    {
+     "name": "getContext",
+     "params": "",
+     "ret": "Lek0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "resumeWith",
+     "params": "Ljava/lang/Object;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "kj0",
+     "from": "Lkj0;",
+     "to": "Lrj0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[rj0<-kj0] CONFIRMED; scripts/build_mod.py:402-408（vh0->kj0：public interface abstract + 恰好 2 方法，出现在 suspend 签名）; docs/FACTS.md:6267（Lvh0; 为 Continuation）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:402-408",
+     "path": "scripts/build_mod.py",
+     "line": 402,
+     "line2": 408,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:6267",
+     "path": "docs/FACTS.md",
+     "line": 6267,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Liq0;": {
+   "descriptor": "Liq0;",
+   "java_name": "iq0",
+   "declared_confidence": "confirmed",
+   "semantic_name": "Currency 容器抽象基类（25 个货币状态字段 + 货币运算入口）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/iq0.smali",
+   "method_checks": [
+    {
+     "name": "p",
+     "params": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "l",
+     "params": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "v",
+     "params": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "ret": "Liq0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "e",
+     "type": "Lpp0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "z",
+     "type": "Lup0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "type": "Lop0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "w",
+     "type": "Lyp0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "bq0",
+     "from": "Lbq0;",
+     "to": "Liq0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "baseline/versions/3.21/bindings.json classes[iq0<-bq0] CONFIRMED(shape_match); docs/FACTS.md:130（3.21 Currency 抽象基类 bq0 改名 iq0）; scripts/build_mod.py:333-336（Lbq0 abstract + 25 个 public static final 货币状态字段、唯一 o(BigDouble)->自身 add）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:130",
+     "path": "docs/FACTS.md",
+     "line": 130,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    },
+    {
+     "ref": "scripts/build_mod.py:333-336",
+     "path": "scripts/build_mod.py",
+     "line": 333,
+     "line2": 336,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ldw;": {
+   "descriptor": "Ldw;",
+   "java_name": "dw",
+   "declared_confidence": "inferred",
+   "semantic_name": "Currency 抽象基类（3.20 aw 的 CONFIRMED 后继，存疑）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/dw.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "ret": "Liq0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "I",
+     "params": "D",
+     "ret": "Liq0;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "aw",
+     "from": "Law;",
+     "to": "Ldw;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[dw<-aw] CONFIRMED; scripts/build_mod.py:338-343（3.19 Lju=Currency 抽象基类 -> 3.20 aw）; 冲突：docs/FACTS.md:130 记 aw 在 3.21 已内联/合并，本轮未复核",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:338-343",
+     "path": "scripts/build_mod.py",
+     "line": 338,
+     "line2": 343,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:130",
+     "path": "docs/FACTS.md",
+     "line": 130,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lwi4;": {
+   "descriptor": "Lwi4;",
+   "java_name": "wi4",
+   "declared_confidence": "inferred",
+   "semantic_name": "数字记数法（notation）相关类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/wi4.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8234（3.21 记数法相关：wi4/z63/Player$Options/oh2/player.h，未逐类核实职责）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lb60;": {
+   "descriptor": "Lb60;",
+   "java_name": "b60",
+   "declared_confidence": "inferred",
+   "semantic_name": "挑战类继承链基类（3.20 w50 的 CONFIRMED 后继，语义待复核）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/b60.smali",
+   "method_checks": [
+    {
+     "name": "B",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "w50",
+     "from": "Lw50;",
+     "to": "Lb60;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[b60<-w50] CONFIRMED; scripts/build_mod.py:339-340（3.20 挑战父类 b 的新版 super 为 w50，但「B()Z 解锁判定」归属存在歧义，未升级为 strong）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:339-340",
+     "path": "scripts/build_mod.py",
+     "line": 339,
+     "line2": 340,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lek0;": {
+   "descriptor": "Lek0;",
+   "java_name": "ek0",
+   "declared_confidence": "strong",
+   "semantic_name": "CoroutineContext 接口",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/ek0.smali",
+   "method_checks": [
+    {
+     "name": "fold",
+     "params": "Ljava/lang/Object;Lkm1;",
+     "ret": "Ljava/lang/Object;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "get",
+     "params": "Ldk0;",
+     "ret": "Lck0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "minusKey",
+     "params": "Ldk0;",
+     "ret": "Lek0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "plus",
+     "params": "Lek0;",
+     "ret": "Lek0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "xj0",
+     "from": "Lxj0;",
+     "to": "Lek0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[ek0<-xj0] CONFIRMED; scripts/build_mod.py:444-449（ii0->xj0：ContinuationImpl 两参构造第二形参 CoroutineContext）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:444-449",
+     "path": "scripts/build_mod.py",
+     "line": 444,
+     "line2": 449,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lbm4;": {
+   "descriptor": "Lbm4;",
+   "java_name": "bm4",
+   "declared_confidence": "confirmed",
+   "semantic_name": "阶段页签门禁（g()/h()，MainActivity.W8(Lbm4;ZZ) 消费）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/bm4.smali",
+   "method_checks": [
+    {
+     "name": "g",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "h",
+     "params": "Z",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "i",
+     "type": "Ljava/lang/String;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "GR-01",
+     "exists": true,
+     "original_class": "Lbm4;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    },
+    {
+     "site_id": "GR-02",
+     "exists": true,
+     "original_class": "Lbm4;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "docs/FACTS.md:9839-9840/9960（bm4.g()/h() 阶段判据、W8 绕过点）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:9839-9840",
+     "path": "docs/FACTS.md",
+     "line": 9839,
+     "line2": 9840,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lc22;": {
+   "descriptor": "Lc22;",
+   "java_name": "c22",
+   "declared_confidence": "confirmed",
+   "semantic_name": "无限挑战注册表/入口",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/c22.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "I",
+     "ret": "Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "q12",
+     "from": "Lq12;",
+     "to": "Lc22;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[c22<-q12] CONFIRMED; scripts/build_mod.py:439-443（3.19 Lpy1 无限挑战注册表 -> 3.20 Lq12）; docs/FACTS.md:8234（挑战入口 c22=无限）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:439-443",
+     "path": "scripts/build_mod.py",
+     "line": 439,
+     "line2": 443,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ly81;": {
+   "descriptor": "Ly81;",
+   "java_name": "y81",
+   "declared_confidence": "strong",
+   "semantic_name": "自动购买器状态单例（IP 倍率解锁判定配套）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/y81.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "o81",
+     "from": "Lo81;",
+     "to": "Ly81;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[y81<-o81] CONFIRMED; scripts/build_mod.py:376-378（3.19 z51/s51 -> 3.20 v81/o81 自动器状态单例）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:376-378",
+     "path": "scripts/build_mod.py",
+     "line": 376,
+     "line2": 378,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lcu4;": {
+   "descriptor": "Lcu4;",
+   "java_name": "cu4",
+   "declared_confidence": "strong",
+   "semantic_name": "时间值对象工厂（PastRun/PastEternityRun/PastRealityRun 构造入口）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/cu4.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "",
+     "ret": "Lku4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "b",
+     "params": "",
+     "ret": "Lku4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "params": "",
+     "ret": "Lku4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "params": "",
+     "ret": "Lku4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "e",
+     "params": "",
+     "ret": "Lku4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "dt4",
+     "from": "Ldt4;",
+     "to": "Lcu4;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[cu4<-dt4] CONFIRMED; scripts/build_mod.py:477-484（3.19 Lnw4 工厂 -> 3.20 Ldt4）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:477-484",
+     "path": "scripts/build_mod.py",
+     "line": 477,
+     "line2": 484,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lcw;": {
+   "descriptor": "Lcw;",
+   "java_name": "cw",
+   "declared_confidence": "strong",
+   "semantic_name": "kotlin.Unit 占位类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/cw.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "zv",
+     "from": "Lzv;",
+     "to": "Lcw;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[cw<-zv] CONFIRMED; scripts/build_mod.py:456-459（3.19 Liu -> 3.20 Lzv：Unit 占位类）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:456-459",
+     "path": "scripts/build_mod.py",
+     "line": 456,
+     "line2": 459,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lee1;": {
+   "descriptor": "Lee1;",
+   "java_name": "ee1",
+   "declared_confidence": "confirmed",
+   "semantic_name": "Firebase 相关类（3.20 Lud1 的 3.21 绑定）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/ee1.smali",
+   "method_checks": [
+    {
+     "name": "i",
+     "params": "Landroid/content/Context;",
+     "ret": "Lee1;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "ud1",
+     "from": "Lud1;",
+     "to": "Lee1;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[ee1<-ud1] CONFIRMED; docs/FACTS.md:8222（Firebase ABI 修复 3.20 Lud1 -> 3.21 ee1）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8222",
+     "path": "docs/FACTS.md",
+     "line": 8222,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lf7;": {
+   "descriptor": "Lf7;",
+   "java_name": "f7",
+   "declared_confidence": "strong",
+   "semantic_name": "炼金资源表",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/f7.smali",
+   "method_checks": [],
+   "field_checks": [
+    {
+     "name": "v",
+     "type": "Ljava/util/List;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "e7",
+     "from": "Le7;",
+     "to": "Lf7;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[f7<-e7] CONFIRMED; scripts/build_mod.py:415-421（3.19 Lu7 -> 3.20 Le7）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:415-421",
+     "path": "scripts/build_mod.py",
+     "line": 415,
+     "line2": 421,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lf91;": {
+   "descriptor": "Lf91;",
+   "java_name": "f91",
+   "declared_confidence": "strong",
+   "semantic_name": "自动购买器状态单例（IP 倍率解锁判定配套）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/f91.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "v81",
+     "from": "Lv81;",
+     "to": "Lf91;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[f91<-v81] CONFIRMED; scripts/build_mod.py:376-378（3.19 z51/s51 -> 3.20 v81/o81 自动器状态单例）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:376-378",
+     "path": "scripts/build_mod.py",
+     "line": 376,
+     "line2": 378,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lfl0;": {
+   "descriptor": "Lfl0;",
+   "java_name": "fl0",
+   "declared_confidence": "strong",
+   "semantic_name": "Kotlin 工具门面（BigDouble.of / 数字格式化 / language toast 等静态工具）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/fl0.smali",
+   "method_checks": [
+    {
+     "name": "r",
+     "params": "Lcw;D",
+     "ret": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "am0",
+     "from": "Lam0;",
+     "to": "Lfl0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "baseline/versions/3.21/bindings.json classes[fl0<-am0] CONFIRMED + methods（am0.p->fl0.r 为 BigDouble.of）; scripts/build_mod.py:451-459（3.19 Lwx0 工具门面 -> 3.20 am0）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:451-459",
+     "path": "scripts/build_mod.py",
+     "line": 451,
+     "line2": 459,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lfw;": {
+   "descriptor": "Lfw;",
+   "java_name": "fw",
+   "declared_confidence": "strong",
+   "semantic_name": "IU15 需求常量驻留类（<clinit> 内 1.5E12 两处 -> 1e8）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/fw.smali",
+   "method_checks": [
+    {
+     "name": "<clinit>",
+     "params": "",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "reports/R106-02/hook-ledger.json sites[BM-22]（original_class=La02;，original_class_files 含 smali_classes2/fw.smali，两处常量） work/mod/smali_classes2/fw.smali:6944 / :7050 命中 0x4197d78400000000L（1e8） work/base_decoded_321/smali_classes2/fw.smali 的 <clinit> 声明（3.21 该短名已被 R8 回收为常量持有类，与 3.20 Lfw 不是同一类） web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js:49 OREKI_IU15_AM_EXP=1e8",
+   "evidence_refs": [
+    {
+     "ref": "work/mod/smali_classes2/fw.smali:6944",
+     "path": "work/mod/smali_classes2/fw.smali",
+     "line": 6944,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 7379,
+     "status": "PASS"
+    },
+    {
+     "ref": "web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js:49",
+     "path": "web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js",
+     "line": 49,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 369,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lg02;": {
+   "descriptor": "Lg02;",
+   "java_name": "g02",
+   "declared_confidence": "confirmed",
+   "semantic_name": "Imaginary Upgrade 15 锁对象类型",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/g02.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:127（3.21 的 IU15 锁对象类型由 Lwz1; 改为 Lg02;）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:127",
+     "path": "docs/FACTS.md",
+     "line": 127,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Li22;": {
+   "descriptor": "Li22;",
+   "java_name": "i22",
+   "declared_confidence": "confirmed",
+   "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/i22.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8267",
+     "path": "docs/FACTS.md",
+     "line": 8267,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lii3;": {
+   "descriptor": "Lii3;",
+   "java_name": "ii3",
+   "declared_confidence": "inferred",
+   "semantic_name": "START 天赋基类（两跳结构推断）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/ii3.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "th3",
+     "from": "Lth3;",
+     "to": "Lii3;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[ii3<-th3] CONFIRMED; scripts/build_mod.py:320-325（3.19/3.20 天赋三元组 继承 th3 / rf3）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:320-325",
+     "path": "scripts/build_mod.py",
+     "line": 320,
+     "line2": 325,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lj22;": {
+   "descriptor": "Lj22;",
+   "java_name": "j22",
+   "declared_confidence": "confirmed",
+   "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/j22.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8267",
+     "path": "docs/FACTS.md",
+     "line": 8267,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lj5;": {
+   "descriptor": "Lj5;",
+   "java_name": "j5",
+   "declared_confidence": "inferred",
+   "semantic_name": "Ad Bonus 乘区条目（Ll5; 静态字段 b..k 的实例类型）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/j5.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "",
+     "ret": "Ljava/lang/String;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "i5",
+     "from": "Li5;",
+     "to": "Lj5;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "baseline/versions/3.21/bindings.json classes[i5->j5] CONFIRMED（3.20 Li5 的后继类） scripts/build_mod.py:361（3.19 Lt5 = AD 自动购买开关；3.19 参数类型 r5 -> 3.20 i5） work/base_decoded_321/smali_classes2/l5.smali：静态字段 b..k 类型均为 Lj5;（十乘区实例） inferred 原因：只由字段类型/绑定链推断条目身份，未逐条复核 j5 每个方法行为",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:361",
+     "path": "scripts/build_mod.py",
+     "line": 361,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ljp4;": {
+   "descriptor": "Ljp4;",
+   "java_name": "jp4",
+   "declared_confidence": "strong",
+   "semantic_name": "页签/子页恢复状态持有类（currentSubTab 静态恢复点 d0、按 id 取页签 b()）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/jp4.smali",
+   "method_checks": [
+    {
+     "name": "b",
+     "params": "Ljava/lang/String;",
+     "ret": "Lbm4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "d0",
+     "type": "Lbm4;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:9840（非法永恒页签回退原版 jp4.b，不写存档） docs/FACTS.md:9847（currentSubTab 写入 jp4.d0 的 Activity 恢复点） reports/R106-02/hook-ledger.json sites[GR-05] risk（后续页面创建直接消费 jp4.d0） work/base_decoded_321/smali_classes2/jp4.smali：abstract，静态字段 d0:Lbm4;，方法 b(Ljava/lang/String;)Lbm4;",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:9840",
+     "path": "docs/FACTS.md",
+     "line": 9840,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:9847",
+     "path": "docs/FACTS.md",
+     "line": 9847,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lk00;": {
+   "descriptor": "Lk00;",
+   "java_name": "k00",
+   "declared_confidence": "strong",
+   "semantic_name": "Break Infinity 升级表（12 条实例）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/k00.smali",
+   "method_checks": [],
+   "field_checks": [
+    {
+     "name": "a",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "b",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "e",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "f",
+     "type": "Li00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "g",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "h",
+     "type": "Lh00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "i",
+     "type": "Ld00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "j",
+     "type": "Lj00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "k",
+     "type": "Lg00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "l",
+     "type": "Lc00;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "m",
+     "type": "Ljava/util/List;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "h00",
+     "from": "Lh00;",
+     "to": "Lk00;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[k00<-h00] CONFIRMED; scripts/build_mod.py:483-490（3.19 Loy -> 3.20 Lh00）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:483-490",
+     "path": "scripts/build_mod.py",
+     "line": 483,
+     "line2": 490,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lk22;": {
+   "descriptor": "Lk22;",
+   "java_name": "k22",
+   "declared_confidence": "confirmed",
+   "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/k22.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8267",
+     "path": "docs/FACTS.md",
+     "line": 8267,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lku4;": {
+   "descriptor": "Lku4;",
+   "java_name": "ku4",
+   "declared_confidence": "strong",
+   "semantic_name": "单 double 值对象（时间值对象字段载体）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/ku4.smali",
+   "method_checks": [],
+   "field_checks": [
+    {
+     "name": "a",
+     "type": "D",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "lt4",
+     "from": "Llt4;",
+     "to": "Lku4;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[ku4<-lt4] CONFIRMED; scripts/build_mod.py:344（3.19 Ltw4 单 double 值对象 -> 3.20 lt4）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:344",
+     "path": "scripts/build_mod.py",
+     "line": 344,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ll01;": {
+   "descriptor": "Ll01;",
+   "java_name": "l01",
+   "declared_confidence": "strong",
+   "semantic_name": "维度提升需求计算",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/l01.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "D",
+     "ret": "Lk01;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "c01",
+     "from": "Lc01;",
+     "to": "Ll01;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [
+    {
+     "site_id": "BM-40",
+     "exists": true,
+     "original_class": "Ll01;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "bindings.json classes[l01<-c01] CONFIRMED; scripts/build_mod.py:366-373（3.19 Lkx0 -> 3.20 Lc01，含 5.0/15.0/20.0 常量）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:366-373",
+     "path": "scripts/build_mod.py",
+     "line": 366,
+     "line2": 373,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ll22;": {
+   "descriptor": "Ll22;",
+   "java_name": "l22",
+   "declared_confidence": "confirmed",
+   "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/l22.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "ZZ",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8267",
+     "path": "docs/FACTS.md",
+     "line": 8267,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ll5;": {
+   "descriptor": "Ll5;",
+   "java_name": "l5",
+   "declared_confidence": "strong",
+   "semantic_name": "Ad Bonus 广告乘区注册表/门控（十乘区永久生效补丁点）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/l5.smali",
+   "method_checks": [
+    {
+     "name": "d",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "b",
+     "params": "Lj5;",
+     "ret": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "params": "",
+     "ret": "Lj5;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "b",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "e",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "f",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "g",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "h",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "i",
+     "type": "Lk5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "j",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "k",
+     "type": "Lj5;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "l",
+     "type": "Ljava/util/List;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "k5",
+     "from": "Lk5;",
+     "to": "Ll5;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [
+    {
+     "site_id": "BM-14",
+     "exists": true,
+     "original_class": "Ll5;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "reports/R106-02/hook-ledger.json sites[BM-14]（original_class=Ll5;，d()/b()/c() 三处；mod_behavior 见台账） work/mod/smali_classes2/l5.smali:817「[Oreki] 门控换成 d()」、:927「兜底：原版此处抛 NoSuchElementException」、:946「Ad Bonus 永久生效」 work/base_decoded_321/smali_classes2/l5.smali：public final；静态字段 b..k 共 10 个乘区/开关实例，l:Ljava/util/List; 汇总列表 scripts/build_mod.py:361（3.19 Lt5 = AD 自动购买开关，6 方法；3.20 同构者 Lk5）+ baseline/versions/3.21/bindings.json classes[k5->l5] CONFIRMED",
+   "evidence_refs": [
+    {
+     "ref": "work/mod/smali_classes2/l5.smali:817",
+     "path": "work/mod/smali_classes2/l5.smali",
+     "line": 817,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 1181,
+     "status": "PASS"
+    },
+    {
+     "ref": "scripts/build_mod.py:361",
+     "path": "scripts/build_mod.py",
+     "line": 361,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lld0;": {
+   "descriptor": "Lld0;",
+   "java_name": "ld0",
+   "declared_confidence": "strong",
+   "semantic_name": "协程完成单例（already complete）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/ld0.smali",
+   "method_checks": [
+    {
+     "name": "getContext",
+     "params": "",
+     "ret": "Lek0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "resumeWith",
+     "params": "Ljava/lang/Object;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "a",
+     "type": "Lld0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "fd0",
+     "from": "Lfd0;",
+     "to": "Lld0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[ld0<-fd0] CONFIRMED; scripts/build_mod.py:339-340（协程完成单例 fd0 实现 kj0）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:339-340",
+     "path": "scripts/build_mod.py",
+     "line": 339,
+     "line2": 340,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lll2;": {
+   "descriptor": "Lll2;",
+   "java_name": "ll2",
+   "declared_confidence": "confirmed",
+   "semantic_name": "阶段解锁判据（ll2.g()）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/ll2.smali",
+   "method_checks": [
+    {
+     "name": "g",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "GR-03",
+     "exists": true,
+     "original_class": "Lll2;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "docs/FACTS.md:9960（ll2.g()/bm4.g() 共同决定阶段判据）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:9960",
+     "path": "docs/FACTS.md",
+     "line": 9960,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Llz0;": {
+   "descriptor": "Llz0;",
+   "java_name": "lz0",
+   "declared_confidence": "strong",
+   "semantic_name": "DeviceOptions 静态字段持有类（游戏设置默认值/偏好镜像）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/lz0.smali",
+   "method_checks": [
+    {
+     "name": "<clinit>",
+     "params": "",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "b",
+     "type": "Lkajfosz/antimatterdimensions/player/DeviceOptions$TopBar;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "V",
+     "type": "Ljava/lang/String;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "DK-07",
+     "exists": true,
+     "original_class": "Llz0;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    },
+    {
+     "site_id": "BM-04",
+     "exists": true,
+     "original_class": "Llz0;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "reports/R106-02/hook-ledger.json sites[DK-07, BM-04]（TopBar 默认值 NEWS->CURRENT_TAB；语言初值 en->zh_CN） work/mod/smali_classes2/lz0.smali:147（sget DeviceOptions$TopBar;->f 后 sput lz0.b）、:534（const-string zh_CN 后 sput lz0.V） work/base_decoded_321/smali_classes2/lz0.smali：public abstract，70+ 静态字段，b:DeviceOptions$TopBar;、V:Ljava/lang/String; 等 docs/FACTS.md:9880（SharedPreferences topBar 默认 NEWS vs CURRENT_TAB 的 20.2fps/60.5fps 实测对照）",
+   "evidence_refs": [
+    {
+     "ref": "work/mod/smali_classes2/lz0.smali:147",
+     "path": "work/mod/smali_classes2/lz0.smali",
+     "line": 147,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 1239,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:9880",
+     "path": "docs/FACTS.md",
+     "line": 9880,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lm01;": {
+   "descriptor": "Lm01;",
+   "java_name": "m01",
+   "declared_confidence": "confirmed",
+   "semantic_name": "维度提升/星系重置请求入口（h()/n(Z)/i()）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/m01.smali",
+   "method_checks": [
+    {
+     "name": "n",
+     "params": "Z",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "params": "DZZZ",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8264/8267/8286（3.21 真实入口 Lm01;->n(Z)V / c(DZZZ)V，计数 Player.u()/A()）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8264",
+     "path": "docs/FACTS.md",
+     "line": 8264,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lm91;": {
+   "descriptor": "Lm91;",
+   "java_name": "m91",
+   "declared_confidence": "strong",
+   "semantic_name": "游戏内事件总线（BREAK_INFINITY 等事件派发）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/m91.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "Ljava/lang/String;",
+     "ret": "V",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "b",
+     "type": "Ljava/util/LinkedHashMap;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "type": "Ljava/util/LinkedHashMap;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "type": "Ljava/util/LinkedHashMap;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "c91",
+     "from": "Lc91;",
+     "to": "Lm91;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[m91<-c91] CONFIRMED; scripts/build_mod.py:462-468（3.19 Lg61 事件总线 -> 3.20 Lc91）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:462-468",
+     "path": "scripts/build_mod.py",
+     "line": 462,
+     "line2": 468,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Ln63;": {
+   "descriptor": "Ln63;",
+   "java_name": "n63",
+   "declared_confidence": "confirmed",
+   "semantic_name": "普通挑战入口",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/n63.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "I",
+     "ret": "Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "f",
+     "params": "",
+     "ret": "Z",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "z53",
+     "from": "Lz53;",
+     "to": "Ln63;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[n63<-z53] CONFIRMED; docs/FACTS.md:8234（挑战入口 n63=普通）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Loh2;": {
+   "descriptor": "Loh2;",
+   "java_name": "oh2",
+   "declared_confidence": "inferred",
+   "semantic_name": "数字记数法（notation）相关类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/oh2.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8234（3.21 记数法相关：wi4/z63/Player$Options/oh2/player.h，未逐类核实职责）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lop0;": {
+   "descriptor": "Lop0;",
+   "java_name": "op0",
+   "declared_confidence": "strong",
+   "semantic_name": "反物质（antimatter）货币状态类（iq0.d:Lop0;）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/op0.smali",
+   "method_checks": [
+    {
+     "name": "C",
+     "params": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "ret": "Liq0;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "K",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:8286（按 3.21 反编译树原文核对：iq0.d:Lop0; = 反物质；op0.K() 取值 / op0.C(BigDouble) 加） docs/FACTS.md:8268（AD4 备注：反物质货币 iq0.d（op0），op0.K() 取值、op0.C(BigDouble) 加，同步 Player.Records） work/base_decoded_321/smali_classes2/op0.smali：public final extends Ldw;，含 C(BigDouble)Liq0; 与 K()LBigDouble; 冲突备注：scripts/build_mod.py:522-527 的 FIELD_ALIASES_321 注释把 iq0.d 记为 eternityPoints；本表按 FACTS:8286 的逐行核对结论取反物质，冲突列入报告",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8286",
+     "path": "docs/FACTS.md",
+     "line": 8286,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:8268",
+     "path": "docs/FACTS.md",
+     "line": 8268,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    },
+    {
+     "ref": "scripts/build_mod.py:522-527",
+     "path": "scripts/build_mod.py",
+     "line": 522,
+     "line2": 527,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lpp0;": {
+   "descriptor": "Lpp0;",
+   "java_name": "pp0",
+   "declared_confidence": "confirmed",
+   "semantic_name": "无限次数(infinities)货币状态类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/pp0.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "ip0",
+     "from": "Lip0;",
+     "to": "Lpp0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[pp0<-ip0] CONFIRMED; docs/FACTS.md:9885/9907（iq0.e:Lpp0; 为真实 infinities 通道）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:9885",
+     "path": "docs/FACTS.md",
+     "line": 9885,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lrq;": {
+   "descriptor": "Lrq;",
+   "java_name": "rq",
+   "declared_confidence": "strong",
+   "semantic_name": "Automator 脚本状态",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/rq.smali",
+   "method_checks": [
+    {
+     "name": "d",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/reality/automator/AutomatorScript;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    },
+    {
+     "name": "e",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/reality/automator/AutomatorScript;",
+     "declared_confidence": "inferred",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "e",
+     "type": "Z",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "f",
+     "type": "J",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "oq",
+     "from": "Loq;",
+     "to": "Lrq;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [
+    {
+     "site_id": "BM-15",
+     "exists": true,
+     "original_class": "Lrq;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "bindings.json classes[rq<-oq] CONFIRMED; scripts/build_mod.py:358-360（3.19 Lvo -> 3.20 Loq）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:358-360",
+     "path": "scripts/build_mod.py",
+     "line": 358,
+     "line2": 360,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lt3;": {
+   "descriptor": "Lt3;",
+   "java_name": "t3",
+   "declared_confidence": "strong",
+   "semantic_name": "成就表（按 id 取成就）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/t3.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "I",
+     "ret": "Lkajfosz/antimatterdimensions/achievements/a;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "d",
+     "params": "",
+     "ret": "I",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [
+    {
+     "name": "c",
+     "type": "[Lkajfosz/antimatterdimensions/achievements/a;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "identity_checks": [
+    {
+     "binding_key": "s3",
+     "from": "Ls3;",
+     "to": "Lt3;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[t3<-s3] CONFIRMED; scripts/build_mod.py:351-353（3.19 Lz3 -> 3.20 Ls3）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:351-353",
+     "path": "scripts/build_mod.py",
+     "line": 351,
+     "line2": 353,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lu81;": {
+   "descriptor": "Lu81;",
+   "java_name": "u81",
+   "declared_confidence": "inferred",
+   "semantic_name": "OrekiSpeed EC12 闭包（unscale(D)D 调用点）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/u81.smali",
+   "method_checks": [
+    {
+     "name": "invoke",
+     "params": "Ljava/lang/Object;",
+     "ret": "Ljava/lang/Object;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "BM-19",
+     "exists": true,
+     "original_class": "Lu81;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "docs/FACTS.md:8234（3.21 契约修复：EC12 闭包 smali_classes2/u81.smali，OrekiSpeed.unscale(D)D）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lup0;": {
+   "descriptor": "Lup0;",
+   "java_name": "up0",
+   "declared_confidence": "confirmed",
+   "semantic_name": "永恒次数(eternities)货币状态类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/up0.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "docs/FACTS.md:9885（iq0.z:Lup0; setter Player.E0 写 eternities）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:9885",
+     "path": "docs/FACTS.md",
+     "line": 9885,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lvp0;": {
+   "descriptor": "Lvp0;",
+   "java_name": "vp0",
+   "declared_confidence": "inferred",
+   "semantic_name": "永恒点数状态类（3.20 op0 的 CONFIRMED 后继，存疑）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/vp0.smali",
+   "method_checks": [],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "op0",
+     "from": "Lop0;",
+     "to": "Lvp0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[vp0<-op0] CONFIRMED; scripts/build_mod.py:348（ym0=永恒点状态 -> 3.20 op0）; 冲突：build_mod.py:515 把 3.21 iq0.d 记为 Lop0(eternityPoints)，FACTS.md:8286 记 iq0.d:Lop0=反物质，未复核",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:348",
+     "path": "scripts/build_mod.py",
+     "line": 348,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lw63;": {
+   "descriptor": "Lw63;",
+   "java_name": "w63",
+   "declared_confidence": "strong",
+   "semantic_name": "时间研究注册表",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/w63.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "Lw63;I",
+     "ret": "Lkajfosz/antimatterdimensions/eternity/studies/c;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "i63",
+     "from": "Li63;",
+     "to": "Lw63;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[w63<-i63] CONFIRMED; scripts/build_mod.py:386-393（3.19 l43/3.20 i63 时间研究表）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:386-393",
+     "path": "scripts/build_mod.py",
+     "line": 386,
+     "line2": 393,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lx40;": {
+   "descriptor": "Lx40;",
+   "java_name": "x40",
+   "declared_confidence": "strong",
+   "semantic_name": "IU15（无限升级 15）需求常量 lambda 闭包（1.5E12 -> 1e8 补丁点）",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "PASS",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/x40.smali",
+   "method_checks": [
+    {
+     "name": "invoke",
+     "params": "",
+     "ret": "Ljava/lang/Object;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [],
+   "evidence_text": "reports/R106-02/hook-ledger.json sites[BM-22]（original_class=La02;；三处之一 x40） work/mod/smali_classes2/x40.smali:1884 命中 0x4197d78400000000L（1e8），位于 public final invoke()Ljava/lang/Object; work/base_decoded_321/smali_classes2/x40.smali：public final synthetic + implements Lfm1;（Kotlin Function0 lambda） web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js:49 OREKI_IU15_AM_EXP=1e8",
+   "evidence_refs": [
+    {
+     "ref": "work/mod/smali_classes2/x40.smali:1884",
+     "path": "work/mod/smali_classes2/x40.smali",
+     "line": 1884,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 2308,
+     "status": "PASS"
+    },
+    {
+     "ref": "web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js:49",
+     "path": "web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js",
+     "line": 49,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 369,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lx81;": {
+   "descriptor": "Lx81;",
+   "java_name": "x81",
+   "declared_confidence": "confirmed",
+   "semantic_name": "永恒挑战表/入口",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/x81.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "I",
+     "ret": "Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "c",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "n81",
+     "from": "Ln81;",
+     "to": "Lx81;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[x81<-n81] CONFIRMED; scripts/build_mod.py:355-356; docs/FACTS.md:8234（挑战入口 x81=永恒）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:355-356",
+     "path": "scripts/build_mod.py",
+     "line": 355,
+     "line2": 356,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lyp0;": {
+   "descriptor": "Lyp0;",
+   "java_name": "yp0",
+   "declared_confidence": "strong",
+   "semantic_name": "无限点数(IP)货币状态类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/yp0.smali",
+   "method_checks": [
+    {
+     "name": "G",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    },
+    {
+     "name": "K",
+     "params": "",
+     "ret": "Lkajfosz/antimatterdimensions/BigDouble;",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [
+    {
+     "binding_key": "rp0",
+     "from": "Lrp0;",
+     "to": "Lyp0;",
+     "status": "PASS",
+     "binding_entry_status": "CONFIRMED",
+     "shape_match": true
+    }
+   ],
+   "hook_checks": [],
+   "evidence_text": "bindings.json classes[yp0<-rp0] CONFIRMED; scripts/build_mod.py:347（bn0=无限点数状态 -> 3.20 rp0）; docs/FACTS.md:8286（iq0.w:Lyp0;=IP）",
+   "evidence_refs": [
+    {
+     "ref": "scripts/build_mod.py:347",
+     "path": "scripts/build_mod.py",
+     "line": 347,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 7221,
+     "status": "PASS"
+    },
+    {
+     "ref": "docs/FACTS.md:8286",
+     "path": "docs/FACTS.md",
+     "line": 8286,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "Lz63;": {
+   "descriptor": "Lz63;",
+   "java_name": "z63",
+   "declared_confidence": "inferred",
+   "semantic_name": "数字记数法（notation）相关类",
+   "checks": {
+    "V1_struct": "PASS",
+    "V2_methods": "PASS",
+    "V3_fields": "PASS",
+    "V4_identity": "PASS",
+    "V5_hooks": "PASS",
+    "V7_serialization": "DEFECT",
+    "V6_evidence_refs": "PASS"
+   },
+   "issues": [
+    "V7 evidence 被错误拆分为单字符列表（R106-02 序列化缺陷），已重组为文本"
+   ],
+   "smali_file": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321/smali_classes2/z63.smali",
+   "method_checks": [
+    {
+     "name": "a",
+     "params": "",
+     "ret": "Ly63;",
+     "declared_confidence": "strong",
+     "status": "PASS"
+    },
+    {
+     "name": "<clinit>",
+     "params": "",
+     "ret": "V",
+     "declared_confidence": "confirmed",
+     "status": "PASS"
+    }
+   ],
+   "field_checks": [],
+   "identity_checks": [],
+   "hook_checks": [
+    {
+     "site_id": "DK-10",
+     "exists": true,
+     "original_class": "Lz63;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    },
+    {
+     "site_id": "DK-11",
+     "exists": true,
+     "original_class": "Lz63;",
+     "effective_declared": true,
+     "effective_ledger": true,
+     "status": "PASS"
+    }
+   ],
+   "evidence_text": "docs/FACTS.md:8234（3.21 记数法相关：wi4/z63/Player$Options/oh2/player.h，未逐类核实职责）",
+   "evidence_refs": [
+    {
+     "ref": "docs/FACTS.md:8234",
+     "path": "docs/FACTS.md",
+     "line": 8234,
+     "line2": null,
+     "file_exists": true,
+     "file_lines": 10107,
+     "status": "PASS"
+    }
+   ],
+   "verdict": "PASS"
+  }
+ }
+}

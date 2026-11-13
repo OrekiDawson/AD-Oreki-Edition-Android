@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-13T22:51:16+08:00",
+  "repo_head": "975520b402ee43759c526529ccbfed2c60d7f824",
+  "candidate_apk": {
+    "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk",
+    "sha256": "4cff154077495fb6d65fee12842e5d33a6a64be67de1dc1bcea5a48ef54e28c7",
+    "bytes": 81363615
+  },
+  "candidate_gate_run": {
+    "argv": [
+      "scripts/enforce_agp_only.py",
+      "candidate"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "FAIL: AGP_ONLY_BLOCKED: AGP still builds a bridge or a different package",
+    "blocked": true
+  },
+  "candidate_requirements": [
+    {
+      "id": "agp-plugin-pinned",
+      "state": "PASS",
+      "requirement": "agp/build.gradle.kts 固定 com.android.application 9.5.1",
+      "evidence": "plugins {",
+      "suggestion": ""
+    },
+    {
+      "id": "agp-application-module",
+      "state": "PASS",
+      "requirement": "agp/app 是 AGP application 模块",
+      "evidence": "agp/app/build.gradle.kts 第 4 行 plugins { id(\"com.android.application\") }",
+      "suggestion": ""
+    },
+    {
+      "id": "application-id-production",
+      "state": "BLOCK",
+      "requirement": "applicationId 字面量等于 com.oreki.antimatterdimensions",
+      "evidence": "实际代码为条件表达式：applicationId = if (fullGame) \"com.oreki.antimatterdimensions\" else \"kajfosz.antimatterdimensions.agpbridge\"；condition 识别=True",
+      "suggestion": "门禁适配新形态的最小改法：require(条件表达式的生产分支字面量) + require(非 fullGame 只允许 agpbridge)，并额外 require workflow 传 -PorekiFullGame=true。不得删掉条件分支（否则 CI 的 bridge 构建会变成生产 applicationId）。"
+    },
+    {
+      "id": "no-standalone-kgp",
+      "state": "PASS",
+      "requirement": "AGP 生产不得应用独立 KGP",
+      "evidence": "两文件均未出现 org.jetbrains.kotlin.android",
+      "suggestion": ""
+    },
+    {
+      "id": "built-in-kotlin-enabled",
+      "state": "PASS",
+      "requirement": "不得显式关闭 AGP 内置 Kotlin",
+      "evidence": "两文件均未出现 builtInKotlin=false",
+      "suggestion": ""
+    },
+    {
+      "id": "workflow-invokes-agp-release",
+      "state": "BLOCK",
+      "requirement": "candidate workflow 必须调用 bash ./gradlew -p agp :app:assembleRelease",
+      "evidence": "candidate-unified.yml 中只有旧链 assembleRelease/verifyRelease/installToRelease，没有 AGP release 任务",
+      "suggestion": "切 CI 时把构建步骤替换成 AGP 任务，并显式传 -PorekiFullGame=true / -PorekiGameJar= / -PorekiDecodedTree=。"
+    },
+    {
+      "id": "forbidden:bash ./gradlew assembleRelease",
+      "state": "BLOCK",
+      "requirement": "candidate workflow 不得包含旧链入口：bash ./gradlew assembleRelease",
+      "evidence": "命中",
+      "suggestion": "AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。"
+    },
+    {
+      "id": "forbidden:bash ./gradlew compileKotlinClasses",
+      "state": "BLOCK",
+      "requirement": "candidate workflow 不得包含旧链入口：bash ./gradlew compileKotlinClasses",
+      "evidence": "命中",
+      "suggestion": "AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。"
+    },
+    {
+      "id": "forbidden:bash ./gradlew buildKotlinDex",
+      "state": "BLOCK",
+      "requirement": "candidate workflow 不得包含旧链入口：bash ./gradlew buildKotlinDex",
+      "evidence": "命中",
+      "suggestion": "AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。"
+    },
+    {
+      "id": "forbidden:scripts/build_mod.py",
+      "state": "PASS",
+      "requirement": "candidate workflow 不得包含旧链入口：scripts/build_mod.py",
+      "evidence": "未命中",
+      "suggestion": "AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。"
+    },
+    {
+      "id": "forbidden:apktool b",
+      "state": "PASS",
+      "requirement": "candidate workflow 不得包含旧链入口：apktool b",
+      "evidence": "未命中",
+      "suggestion": "AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。"
+    },
+    {
+      "id": "forbidden:installToRelease",
+      "state": "BLOCK",
+      "requirement": "candidate workflow 不得包含旧链入口：installToRelease",
+      "evidence": "命中",
+      "suggestion": "AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。"
+    }
+  ],
+  "candidate_blocked_requirements": [
+    "application-id-production",
+    "workflow-invokes-agp-release",
+    "forbidden:bash ./gradlew assembleRelease",
+    "forbidden:bash ./gradlew compileKotlinClasses",
+    "forbidden:bash ./gradlew buildKotlinDex",
+    "forbidden:installToRelease"
+  ],
+  "workflow_scan": [
+    {
+      "id": "candidate-legacy-build-chain",
+      "state": "BLOCK (intended)",
+      "detail": "candidate-unified.yml 仍是旧链：compileKotlinClasses/buildKotlinDex/assembleRelease verifyRelease verifyPatchContract/installToRelease，产物 source/build/gradle-stage/反物质维度.apk"
+    },
+    {
+      "id": "verify-legacy-contract-report",
+      "state": "BLOCK (intended)",
+      "detail": "verify-unified.yml 要求 verify-patch-contract.json >=17 条 checks 与 release-manifest.json（installToRelease 产物）；AGP 原生构建当前不产出这些报告，在新 report 契约落地前 verify 会 fail-closed。"
+    },
+    {
+      "id": "release-gate-acceptance",
+      "state": "BLOCK (intended)",
+      "detail": "release-gate-unified.yml 需要 pinned acceptance.json（8 项 AVD 检查 + 双端 <=10800s 真实通关）；当前无 R107-01 acceptance，必然拒绝发布。"
+    },
+    {
+      "id": "artifact-provenance-producer",
+      "state": "MISSING",
+      "detail": "仓库内没有任何步骤生成 agp-provenance.json（grep 仅测试/门禁引用），candidate 也不会上传它；artifact 档因此永远拒绝当前产物。"
+    },
+    {
+      "id": "workflow-judge",
+      "state": "INFO",
+      "detail": "candidate/verify/release 三档当前全部阻断新发布（fail-closed 成立），但也阻止 R107-01 首个 AGP 原生候选进入正式流水线。"
+    }
+  ],
+  "artifact_probes": [
+    {
+      "id": "p1-empty-directory",
+      "description": "缺 APK",
+      "gate_exit_code": 1,
+      "gate_blocked": true,
+      "gate_message": "FAIL: AGP_ONLY_BLOCKED: candidate APK missing"
+    },
+    {
+      "id": "p2-apk-only",
+      "description": "缺 provenance 与 metadata",
+      "gate_exit_code": 1,
+      "gate_blocked": true,
+      "gate_message": "FAIL: AGP_ONLY_BLOCKED: AGP provenance and candidate metadata are required; legacy artifacts are rejected"
+    },
+    {
+      "id": "p3-legacy-builder",
+      "description": "provenance.builder=legacy-apktool",
+      "gate_exit_code": 1,
+      "gate_blocked": true,
+      "gate_message": "FAIL: AGP_ONLY_BLOCKED: candidate was not built by AGP"
+    },
+    {
+      "id": "p4-sha-mismatch",
+      "description": "provenance.apk_sha256 与 APK 不符",
+      "gate_exit_code": 1,
+      "gate_blocked": true,
+      "gate_message": "FAIL: AGP_ONLY_BLOCKED: AGP provenance APK hash mismatch"
+    },
+    {
+      "id": "p5-self-declared-agp",
+      "description": "自洽 provenance（全部字段自报）",
+      "gate_exit_code": 0,
+      "gate_blocked": false,
+      "gate_message": "PASS: AGP 9.5.1 production policy and provenance"
+    }
+  ],
+  "artifact_blocked_probes": [
+    "p1-empty-directory",
+    "p2-apk-only",
+    "p3-legacy-builder",
+    "p4-sha-mismatch"
+  ],
+  "self_declared_provenance_accepted": true,
+  "verdict": "FAIL-CLOSED: candidate 档阻断，artifact 档在缺证据时阻断"
+}

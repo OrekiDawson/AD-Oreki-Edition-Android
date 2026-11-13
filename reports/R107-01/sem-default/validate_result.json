@@ -1,0 +1,79 @@
+{
+ "checks": {
+  "C1_records": {
+   "status": "PASS",
+   "detail": "records=9712"
+  },
+  "C1_confidence": {
+   "status": "PASS",
+   "detail": {
+    "unknown": 9633,
+    "strong": 37,
+    "confirmed": 37,
+    "inferred": 5
+   }
+  },
+  "C1_named_unknown": {
+   "status": "PASS",
+   "detail": "named=79 unknown=9633"
+  },
+  "C2_scope_equal": {
+   "status": "PASS",
+   "detail": "extra=0 missing=0 dup=0"
+  },
+  "C3_methods_declared": {
+   "status": "PASS",
+   "detail": "0 bad: []"
+  },
+  "C4_fields_declared": {
+   "status": "PASS",
+   "detail": "0 bad: []"
+  },
+  "C5_evidence": {
+   "status": "PASS",
+   "detail": "noev=[] split=[]"
+  },
+  "C6_iq0_fields_25": {
+   "status": "PASS",
+   "detail": "fields=25"
+  },
+  "C7_verdicts": {
+   "status": "PASS",
+   "detail": {
+    "VERIFIED": 29,
+    "REFINED": 21,
+    "DOWNGRADED": 2,
+    "NEW": 22,
+    "CONFLICT": 5
+   }
+  },
+  "C8_new_were_unknown": {
+   "status": "PASS",
+   "detail": "overwrite=[]"
+  }
+ },
+ "failures": [],
+ "summary": {
+  "records": 9712,
+  "named": 79,
+  "unknown": 9633,
+  "by_confidence": {
+   "unknown": 9633,
+   "strong": 37,
+   "confirmed": 37,
+   "inferred": 5
+  },
+  "verdicts": {
+   "VERIFIED": 29,
+   "REFINED": 21,
+   "DOWNGRADED": 2,
+   "NEW": 22,
+   "CONFLICT": 5
+  },
+  "mapped_methods": 118,
+  "mapped_fields": 63,
+  "bad_methods": 0,
+  "bad_fields": 0,
+  "status": "PASS"
+ }
+}

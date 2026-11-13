@@ -1,0 +1,6 @@
+== 用与生产编译相同的 classpath 编译该尝试文件（预期失败）==
+classpath: gameclasses.jar:android-37.2
+/tmp/tmp.NDPijVD1sW/IntervaledAutobuyerState.kt:42:21: error: unresolved reference 'rj0'.
+    open fun q(rj0: rj0): Any? {
+                    ^^^
+exit=1

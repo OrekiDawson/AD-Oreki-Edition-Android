@@ -1,0 +1,20 @@
+date: 2026-11-13T23:00:38+08:00
+repo: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android
+jdk: openjdk version "21.0.13.0.3" 2026-10-24
+kotlinc: info: kotlinc-jvm 2.4.21 (JRE 21.0.13.0.3+1-1-26.04.1-Ubuntu)
+android.jar: /home/oreki/Android/Sdk/platforms/android-37.2/android.jar
+gameclasses.jar: /home/oreki/private-staging/r10602/jars/gameclasses.jar
+gameclasses-v3.jar: /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar
+acab7437bf87c85eafa0c194a5410d6dd7455f7a705514c2d1c55eae830741cd  /home/oreki/private-staging/r10602/jars/gameclasses.jar
+01581c873b9bfe53828666dfcaab9732304cb39845d705ca19c4c87558c3bc39  /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar
+2b64788c1868033ddf7e09f7b0bf340e12b30c45ca99127112687184c6fb218d  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/AutobuyerState.kt
+db41a169f90bf05b66db810ae2f3265f36f50a8d1de797c0409a0d6ea3591872  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/EPMultAutobuyerState.kt
+fdc9528ca7d47b390294336ef7238cbe501f879cdf7fc28a3729ebef8e7ff999  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/IPMultAutobuyerState.kt
+e2b7dd027e18e404db3ad3db46e321a4331bd4db527576da97e370d5951855c0  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/ReplicantiGalaxyAutobuyerState.kt
+13b8a52f9e9031380a68398ccc230fbe2a9fc9e11bc29538b895ae59e788f0d0  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/TimeTheoremAutobuyerState.kt
+2f703f3da2c097b5e2fc37ec5954d603d4818aef416525c7cc883912c42f4ad4  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/reality/automator/AutomatorStackEntryPersistent.kt
+268c2e599203d06ab8b628c0031b7027bdcc92e0cc98490a466a60b0d603b5f2  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/reality/automator/AutomatorState.kt
+159e0c6d3f69c60a42bc964b917ccbe3dfe0c2bd1c2884097956e98841e349ad  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/kotlin/kajfosz/antimatterdimensions/reality/automator/CommandState.kt
+8fb6691cc7885ecaa1e9cf0ebe0fb18c2d61cf5e722bc6a3dad0ee3367d29ba4  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107/kotlin/kajfosz/antimatterdimensions/reality/automator/ParserComparisonOperator.kt
+1073b89ed81041d843c5b2bfd55183910ae5f0d2f582732aaed1ad27b75f95d4  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107/kotlin/kajfosz/antimatterdimensions/reality/automator/ParserCompiledScript.kt
+df6fb2dfcd36c5aa1cff7d78adf975c7bc9f1027a133fc49dfe4c8aa85b9711a  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107/kotlin/kajfosz/antimatterdimensions/reality/automator/ParserScriptError.kt

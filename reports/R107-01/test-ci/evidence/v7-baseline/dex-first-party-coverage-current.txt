@@ -1,0 +1,92 @@
+# DEX 第一方类覆盖（当前 AGP Release，只读复算）
+# APK SHA-256: f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc
+# 基准: docs/deobfuscation/data/first-party-3.21-index.csv（官方 3.21.0，15319 类）
+
+CSV 类总数                     = 15319
+CSV 第一方类(first_party=yes)  = 10954
+APK 类总数(dexdump 去重)       = 16462
+CSV 类在 APK 中精确命中        = 15206
+CSV 类缺失(精确描述符)         = 113（全部第三方）
+  其中 '-' 包名已修复改名等价  = 107
+  其中改名后仍缺失             = 6（全部 Lkotlin/**）
+CSV 第一方类命中               = 10954 / 10954
+CSV 第一方类缺失               = 0
+APK 额外第一方类(命名规则)     = 65
+APK 额外其他类(第三方/MOD)     = 1191
+
+DEX type_ids = 23027；含 '-' 类型 = 0；非 Java 安全描述符 = 0
+
+## 改名后仍缺失的 6 个 Lkotlin/** 类（AGP 用自身 Kotlin stdlib 替代）
+  Lkotlin/a;
+  Lkotlin/b;
+  Lkotlin/collections/a;
+  Lkotlin/collections/b;
+  Lkotlin/collections/builders/a;
+  Lkotlin/enums/a;
+
+## APK 额外第一方类（最多 65）
+  La15$$ExternalSyntheticThrowIAE2;
+  Lkajfosz/antimatterdimensions/OrekiAuto;
+  Lkajfosz/antimatterdimensions/OrekiTrace;
+  Lkajfosz/antimatterdimensions/R$anim;
+  Lkajfosz/antimatterdimensions/R$animator;
+  Lkajfosz/antimatterdimensions/R$array;
+  Lkajfosz/antimatterdimensions/R$attr;
+  Lkajfosz/antimatterdimensions/R$bool;
+  Lkajfosz/antimatterdimensions/R$color;
+  Lkajfosz/antimatterdimensions/R$dimen;
+  Lkajfosz/antimatterdimensions/R$drawable;
+  Lkajfosz/antimatterdimensions/R$font;
+  Lkajfosz/antimatterdimensions/R$id;
+  Lkajfosz/antimatterdimensions/R$integer;
+  Lkajfosz/antimatterdimensions/R$interpolator;
+  Lkajfosz/antimatterdimensions/R$layout;
+  Lkajfosz/antimatterdimensions/R$plurals;
+  Lkajfosz/antimatterdimensions/R$raw;
+  Lkajfosz/antimatterdimensions/R$string;
+  Lkajfosz/antimatterdimensions/R$style;
+  Lkajfosz/antimatterdimensions/R$xml;
+  Lkajfosz/antimatterdimensions/R;
+  Lkajfosz/antimatterdimensions/oreki/GameApi$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/GameApi;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutobuyerBeat;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener$Companion;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
+  Lkajfosz/antimatterdimensions/oreki/OrekiBaselineBindings;
+  Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;
+  Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$Decision;
+  Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$LockedDimension;
+  Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation$Abi$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation$Abi;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEternityEconomy;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEternityRules;
+  Lkajfosz/antimatterdimensions/oreki/OrekiGuiStage$Snapshot;
+  Lkajfosz/antimatterdimensions/oreki/OrekiGuiStage;
+  Lkajfosz/antimatterdimensions/oreki/OrekiIpGainScale;
+  Lkajfosz/antimatterdimensions/oreki/OrekiIu15Sprint;
+  Lkajfosz/antimatterdimensions/oreki/OrekiNavRefresh$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/OrekiNavRefresh$requestAsync$1$task$1;
+  Lkajfosz/antimatterdimensions/oreki/OrekiNavRefresh;
+  Lkajfosz/antimatterdimensions/oreki/OrekiPlayerIntent;
+  Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;
+  Lkajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves;
+  Lkajfosz/antimatterdimensions/oreki/OrekiUiFramePump$callback$1;
+  Lkajfosz/antimatterdimensions/oreki/OrekiUiFramePump;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda1;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda2;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda3;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda4;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda5;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda6;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda7;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda8;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda9;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Chapter;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Record;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;

@@ -1,0 +1,26 @@
+DIFF  apk-identity-current.txt
+--- reports/R106-02/evidence/apk-identity-current.txt	2026-11-13 22:33:24.338413522 +0800
++++ work/r107-tests/r10602-recheck/out/apk-identity-current.txt	2026-11-13 22:42:13.282963866 +0800
+@@ -1,5 +1,5 @@
+ # APK 身份审计（只读复算，当前 AGP Release）
+-# 生成时间: 2026-11-13T22:33:19+08:00
++# 生成时间: 2026-11-13T22:42:06+08:00
+ # 工具: build-tools 34.0.0 (aapt2/apksigner/dexdump)
+ 
+ ## 被审计 APK
+@@ -100,7 +100,7 @@
+ PASS  first_party_components_preserved
+ PASS  no_dashed_type_descriptors
+ PASS  all_type_descriptors_java_safe
+-FAIL  csv_missing_explained
++PASS  csv_absent_after_rename_are_kotlin_package
+ PASS  csv_first_party_missing_zero
+ PASS  application_name_matches_official
+-failed=1
++failed=0
+
+SAME  apk-structure-current.txt
+SAME  dex-class-count-current.txt
+SAME  resource-id-parity-current.json
+SAME  resource-id-parity-current.txt
+SAME  dex-first-party-coverage-current.json

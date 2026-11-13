@@ -1,0 +1,217 @@
+{
+ "schema": 1,
+ "task": "R107-01 Smali->Kotlin 钩子迁移 trampoline",
+ "kotlin_package": "kajfosz.antimatterdimensions.oreki",
+ "patched_count": 13,
+ "patches": [
+  {
+   "site": "BM-11",
+   "title": "商店 STD 读取下限",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/shop/Purchases.smali",
+   "method": "public final getStds()I",
+   "kind": "method_body",
+   "base_sha256": "225caa20f415a0bb0ad368966aba71d2e750213155027f0481788cdbba2da515",
+   "patched_smali": "work/r107-hooks/patched/BM-11/main/Purchases.smali",
+   "dex": "work/r107-hooks/patched/BM-11/main/Purchases.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;.clampStds",
+   "must_vanish": [
+    "0x2710"
+   ],
+   "new": ".method public final getStds()I\n    .locals 1\n\n    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I\n\n    # [R107-01 BM-11] 读取下限业务在 Kotlin（OrekiShopRules.clampStds）\n    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;->clampStds(I)I\n\n    move-result v0\n\n    return v0\n.end method",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-23",
+   "title": "终局 endState 归一化",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/celestials/pelle/b.smali",
+   "method": "public static b()D",
+   "kind": "method_body",
+   "base_sha256": "d1beb3352990d526d96a50d3948f2a2b717e9aa378e10d9e6d220af6c325bce2",
+   "patched_smali": "work/r107-hooks/patched/BM-23/main/b.smali",
+   "dex": "work/r107-hooks/patched/BM-23/main/b.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiGameEndRules;.endState",
+   "must_vanish": [
+    "0x4021666666666666L",
+    "0x433ff973cafa8000L"
+   ],
+   "new": ".method public static b()D\n    .locals 6\n\n    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;\n\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->p()Lkajfosz/antimatterdimensions/player/Player$Celestials;\n\n    move-result-object v0\n\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Celestials;->d()Lkajfosz/antimatterdimensions/player/Player$Pelle;\n\n    move-result-object v0\n\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Pelle;->h()Lkajfosz/antimatterdimensions/player/Player$PelleRecords;\n\n    move-result-object v0\n\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$PelleRecords;->a()Lkajfosz/antimatterdimensions/BigDouble;\n\n    move-result-object v0\n\n    sget-object v1, Lfw;->C:Lkajfosz/antimatterdimensions/BigDouble;\n\n    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;->Add(Lkajfosz/antimatterdimensions/BigDouble;)Lkajfosz/antimatterdimensions/BigDouble;\n\n    move-result-object v0\n\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;->log10()D\n\n    move-result-wide v1\n\n    sget-object v0, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;\n\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;->j0()Z\n\n    move-result v3\n\n    sget-wide v4, Lkajfosz/antimatterdimensions/celestials/pelle/b;->g:D\n\n    # [R107-01 BM-23] endState 归一化公式在 Kotlin（OrekiGameEndRules.endState）\n    invoke-static {v1, v2, v4, v5, v3}, Lkajfosz/antimatterdimensions/oreki/OrekiGameEndRules;->endState(DDZ)D\n\n    move-result-wide v0\n\n    return-wide v0\n.end method",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-12",
+   "title": "Effarig nerfFactor 全公式",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/celestials/effarig/a.smali",
+   "method": "public static o(Lkajfosz/antimatterdimensions/BigDouble;)D",
+   "kind": "method_body",
+   "base_sha256": "4d5c89afe6a0e644533e75b459c911147c9d4bc6b1aab514225f4a1595a110e8",
+   "patched_smali": "work/r107-hooks/patched/BM-12/main/a.smali",
+   "dex": "work/r107-hooks/patched/BM-12/main/a.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiEffarigRules;.nerfFactor",
+   "must_vanish": [
+    "0x412e848000000000",
+    "Math;->max"
+   ],
+   "new": ".method public static o(Lkajfosz/antimatterdimensions/BigDouble;)D\n    .locals 3\n\n    invoke-static {}, Lkajfosz/antimatterdimensions/celestials/effarig/a;->h()Lkajfosz/antimatterdimensions/constants/Constants$EffarigStage;\n\n    move-result-object v0\n\n    invoke-virtual {v0}, Ljava/lang/Enum;->ordinal()I\n\n    move-result v0\n\n    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/BigDouble;->pLog10()D\n\n    move-result-wide v1\n\n    # [R107-01 BM-12] nerfFactor 全公式在 Kotlin（OrekiEffarigRules.nerfFactor）\n    invoke-static {v0, v1, v2}, Lkajfosz/antimatterdimensions/oreki/OrekiEffarigRules;->nerfFactor(ID)D\n\n    move-result-wide v0\n\n    return-wide v0\n.end method",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-13",
+   "title": "Effarig 碎片指数除数",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/celestials/effarig/a.smali",
+   "method": "public final j()D",
+   "kind": "replace_in_method",
+   "base_sha256": "4d5c89afe6a0e644533e75b459c911147c9d4bc6b1aab514225f4a1595a110e8",
+   "patched_smali": "work/r107-hooks/patched/BM-13/main/a.smali",
+   "dex": "work/r107-hooks/patched/BM-13/main/a.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiEffarigRules;.shardExponentDivisor",
+   "must_vanish": [
+    "0x40bd4c0000000000"
+   ],
+   "new": "    # [R107-01 BM-13] 除数唯一来源在 Kotlin（OrekiEffarigRules.shardExponentDivisor）\n    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEffarigRules;->shardExponentDivisor()D\n\n    move-result-wide v2",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-40",
+   "title": "维度提升 AD8 斜率",
+   "file": "smali_classes2/l01.smali",
+   "method": "public final a(D)Lk01;",
+   "kind": "replace_range_in_method",
+   "base_sha256": "9a1405f531c82845171c100c49e28fdf58f929718166f9ffb6d989859d14415e",
+   "patched_smali": "work/r107-hooks/patched/BM-40/main/l01.smali",
+   "dex": "work/r107-hooks/patched/BM-40/main/l01.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiDimBoostRules;.ad8Rounds",
+   "must_vanish": [
+    "0x402e000000000000"
+   ],
+   "new": "    # [R107-01 BM-40] AD8 斜率公式已迁入 Kotlin（OrekiDimBoostRules.ad8Rounds）\n    invoke-static {v4, v5, v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiDimBoostRules;->ad8Rounds(DD)D\n\n    move-result-wide v3\n\n    goto :goto_0",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-32",
+   "title": "大坍缩自动器一次性启用",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState.smali",
+   "method": "public final c()Z",
+   "kind": "method_body",
+   "base_sha256": "dcf9e5c3f059fe16415ea5caa264cf73321d5e2d6152b15fb712d05419c2968d",
+   "patched_smali": "work/r107-hooks/patched/BM-32/main/CrunchAutobuyerState.smali",
+   "dex": "work/r107-hooks/patched/BM-32/main/CrunchAutobuyerState.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchRules;.shouldAutoEnable",
+   "must_vanish": [],
+   "new": ".method public final c()Z\n    .locals 4\n\n    # [R107-01 BM-32] 一次性启用判据在 Kotlin（OrekiCrunchRules.shouldAutoEnable）\n    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->b()Z\n\n    move-result v0\n\n    invoke-virtual {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->l()D\n\n    move-result-wide v1\n\n    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;->hasInfinity()Z\n\n    move-result v3\n\n    invoke-static {v0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/OrekiCrunchRules;->shouldAutoEnable(ZDZ)Z\n\n    move-result v0\n\n    if-eqz v0, :oreki_au4c_skip\n\n    const/4 v0, 0x1\n\n    invoke-virtual {p0, v0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->i(Z)V\n\n    :oreki_au4c_skip\n    .line 1\n    invoke-super {p0}, Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;->c()Z\n\n    .line 2\n    .line 3\n    .line 4\n    move-result p0\n\n    .line 5\n    if-eqz p0, :cond_0\n\n    .line 6\n    .line 7\n    invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;->b()Z\n\n    .line 8\n    .line 9\n    .line 10\n    move-result p0\n\n    .line 11\n    if-eqz p0, :cond_0\n\n    .line 12\n    .line 13\n    const/4 p0, 0x1\n\n    .line 14\n    return p0\n\n    .line 15\n    :cond_0\n    const/4 p0, 0x0\n\n    .line 16\n    return p0\n.end method",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED",
+   "second_stage": {
+    "insert_after": ".locals 4",
+    "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;.holdCrunch",
+    "patched_smali": "work/r107-hooks/patched/BM-32/combined-au7/CrunchAutobuyerState.smali",
+    "dex": "work/r107-hooks/patched/BM-32/combined-au7/CrunchAutobuyerState.smali.dex",
+    "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+   }
+  },
+  {
+   "site": "BM-37",
+   "title": "维度批量购买回退",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState.smali",
+   "method": "public final i(Lkajfosz/antimatterdimensions/BigDouble;D)V",
+   "kind": "replace_in_method",
+   "base_sha256": "c5030d6fce0f1d1f43240daf5c4accd8c4ecd943ab53445d273f2837482c170c",
+   "patched_smali": "work/r107-hooks/patched/BM-37/main/AntimatterDimensionState.smali",
+   "dex": "work/r107-hooks/patched/BM-37/main/AntimatterDimensionState.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiDimensionRules;.batchFallbackToSingle",
+   "must_vanish": [],
+   "new": "    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I\n\n    .line 33\n    .line 34\n    .line 35\n    move-result v1\n\n    # [R107-01 BM-37] 整批买不起时回退单买的判据在 Kotlin（OrekiDimensionRules）\n    invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiDimensionRules;->batchFallbackToSingle(I)Z\n\n    move-result v2\n\n    if-eqz v2, :oreki_ab_ok\n\n    invoke-virtual {p0, p1}, Lkajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState;->j(Lkajfosz/antimatterdimensions/BigDouble;)V\n\n    return-void\n\n    :oreki_ab_ok\n    .line 36\n    if-gtz v1, :cond_a",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "DK-03",
+   "title": "Appearance isDark 恒真",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/player/DeviceOptions$Appearance.smali",
+   "method": "public final c()Z",
+   "kind": "method_body",
+   "base_sha256": "4fa4660b6dfba007ad28678a9080be0839b1394908fecbef67c8396e32c4b47b",
+   "patched_smali": "work/r107-hooks/patched/DK-03/main/DeviceOptions$Appearance.smali",
+   "dex": "work/r107-hooks/patched/DK-03/main/DeviceOptions$Appearance.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiThemePolicy;.isDark",
+   "must_vanish": [
+    "Appearance;->a()"
+   ],
+   "new": ".method public final c()Z\n    .locals 1\n\n    # [R107-01 DK-03] 深色策略在 Kotlin（OrekiThemePolicy.isDark）\n    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiThemePolicy;->isDark()Z\n\n    move-result v0\n\n    return v0\n.end method",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "DK-08",
+   "title": "新档默认记数法",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/player/Player$Options.smali",
+   "method": "public constructor <init>()V",
+   "kind": "replace_in_method",
+   "base_sha256": "299c832c631d72db30a3f819691657a05f2d7d647ce5de2c4102529d8656ab38",
+   "patched_smali": "work/r107-hooks/patched/DK-08/main/Player$Options.smali",
+   "dex": "work/r107-hooks/patched/DK-08/main/Player$Options.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;.defaultNotation",
+   "must_vanish": [
+    "\"Mixed scientific\""
+   ],
+   "new": "    # [R107-01 DK-08] 新档默认记数法在 Kotlin（OrekiUiDefaults.defaultNotation）\n    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;->defaultNotation()Ljava/lang/String;\n\n    move-result-object v0",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "DK-09",
+   "title": "重开新档默认记数法",
+   "file": "smali_classes2/kajfosz/antimatterdimensions/player/h.smali",
+   "method": "public static b()V",
+   "kind": "replace_in_method",
+   "base_sha256": "1e9cc89944dee1bdebe54e884256072376b60f95076f7939865635a1ea8b29c3",
+   "patched_smali": "work/r107-hooks/patched/DK-09/main/h.smali",
+   "dex": "work/r107-hooks/patched/DK-09/main/h.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;.defaultNotation",
+   "must_vanish": [
+    "\"Mixed scientific\""
+   ],
+   "new": "    # [R107-01 DK-09] 重开新档默认记数法在 Kotlin（OrekiUiDefaults.defaultNotation）\n    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;->defaultNotation()Ljava/lang/String;\n\n    move-result-object v1",
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-22",
+   "title": "IU15 门槛常量（三文件之一）",
+   "file": "smali_classes2/a02.smali",
+   "kind": "replace_file_unique",
+   "base_sha256": "ffb81396444d6d37426fd47aee7d33e364a4c9361f3bbd0e3da0fc45b85b966d",
+   "patched_smali": "work/r107-hooks/patched/BM-22/main/a02.smali",
+   "dex": "work/r107-hooks/patched/BM-22/main/a02.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiIu15Rules;.requirementAmExp",
+   "must_vanish": [
+    "0x4275d3ef79800000"
+   ],
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-22",
+   "title": "IU15 门槛常量（三文件之一）",
+   "file": "smali_classes2/fw.smali",
+   "kind": "replace_file_unique",
+   "base_sha256": "34339e4f6b8a18320ca4cd33445d593a76676e8b4971daad1844afb01cdbc0b0",
+   "patched_smali": "work/r107-hooks/patched/BM-22/main/fw.smali",
+   "dex": "work/r107-hooks/patched/BM-22/main/fw.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiIu15Rules;.requirementAmExp",
+   "must_vanish": [
+    "0x4275d3ef79800000"
+   ],
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  },
+  {
+   "site": "BM-22",
+   "title": "IU15 门槛常量（三文件之一）",
+   "file": "smali_classes2/x40.smali",
+   "kind": "replace_file_unique",
+   "base_sha256": "781a3073cc9909daa1e8af35d96194a23b7b670a273adbd6b66cf4284dd2a381",
+   "patched_smali": "work/r107-hooks/patched/BM-22/main/x40.smali",
+   "dex": "work/r107-hooks/patched/BM-22/main/x40.smali.dex",
+   "expect_invoke": "Lkajfosz/antimatterdimensions/oreki/OrekiIu15Rules;.requirementAmExp",
+   "must_vanish": [
+    "0x4275d3ef79800000"
+   ],
+   "status": "ASSEMBLED+DEXDUMP_VERIFIED"
+  }
+ ],
+ "assemble_tool": "apktool 3.0.3 内置 smali 3.0.9（work/r107-hooks/tools/AsmSmali.java）",
+ "dexdump": "/home/oreki/Android/Sdk/build-tools/37.0.0/dexdump"
+}

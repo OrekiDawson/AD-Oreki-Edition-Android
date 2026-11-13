@@ -1,0 +1,58 @@
+PASS BM-11 floor: 0 -> 10000 = got=10000 want=10000
+PASS BM-11 floor: -1 -> 10000 = got=10000 want=10000
+PASS BM-11 floor: Int.MIN -> 10000 = got=10000 want=10000
+PASS BM-11 floor: 9999 -> 10000 = got=10000 want=10000
+PASS BM-11 boundary: 10000 unchanged = got=10000 want=10000
+PASS BM-11 above: 10001 unchanged = got=10001 want=10001
+PASS BM-11 above: Int.MAX unchanged = got=2147483647 want=2147483647
+PASS BM-23 x=0 -> 0 = got=0.0 want=0.0
+PASS BM-23 x=9 -> 0 = got=0.0 want=0.0
+PASS BM-23 x=999 -> 0.9997830083559336 = got=0.9997830083559336 want=0.9997830083559336
+PASS BM-23 x=1000 -> 1.0 = got=1.0 want=1.0
+PASS BM-23 x=1000 doomed bonus 0.25 -> 1.25 = got=1.25 want=1.25
+PASS BM-23 x=1e6 -> 2.499457737989847 = got=2.499457737989847 want=2.499457737989847
+PASS BM-23 x=1e9 doomed 0.5 -> 4.4991320336408345 = got=4.4991320336408345 want=4.4991320336408345
+PASS BM-23 boundary: x=999.999 < 1 = got=0.9999997831166532
+PASS BM-23 boundary: x=1000 >= 1 = got=1.0
+PASS BM-23 monotonic increasing = a=1.0 b=2.499457737989847
+PASS BM-23 never negative = got=0.0
+PASS BM-12 pLog10=-5 uses max(1) floor = got=2.995506739890165 want=2.995506739890165
+PASS BM-12 pLog10=0 uses max(1) floor = got=2.995506739890165 want=2.995506739890165
+PASS BM-12 stage0 pLog10=1 = got=2.995506739890165 want=2.995506739890165
+PASS BM-12 stage0 pLog10=4 = got=2.9977516862353237 want=2.9977516862353237
+PASS BM-12 stage0 pLog10=1e6 = got=2.99999550000675 want=2.99999550000675
+PASS BM-12 stage1 pLog10=1 = got=2.9999121325736366 want=2.9999121325736366
+PASS BM-12 stage1 pLog10=1e6 = got=2.9999999121300025 want=2.9999999121300025
+PASS BM-12 stage2(=else) pLog10=1 = got=2.999925001874953 want=2.999925001874953
+PASS BM-12 stage3(=else) pLog10=1 = got=2.999925001874953 want=2.999925001874953
+PASS BM-12 stage2 pLog10=4 = got=2.9999625004687442 want=2.9999625004687442
+PASS BM-13 divisor == 30.0 = got=30.0 want=30.0
+PASS BM-13 divisor != legacy 7500.0 = got=30.0
+PASS BM-40 d=0 reset=5 -> 0 = got=0.0 want=0.0
+PASS BM-40 d=0 reset=6 -> 5 = got=5.0 want=5.0
+PASS BM-40 d=0 reset=7.5 -> rint(12.5)=12 (half-even) = got=12.0 want=12.0
+PASS BM-40 d=0 reset=32 -> 135 = got=135.0 want=135.0
+PASS BM-40 d=2 reset=6 -> 3 = got=3.0 want=3.0
+PASS BM-40 d=2 reset=32 -> 81 = got=81.0 want=81.0
+PASS BM-40 d=4.5 reset=32 -> 27 = got=27.0 want=27.0
+PASS BM-40 d=5 reset=32 -> 27 (slope clamped) = got=27.0 want=27.0
+PASS BM-40 d=6 reset=32 -> 27 (slope clamped) = got=27.0 want=27.0
+PASS BM-40 d=100 reset=6 -> 1 (never negative) = got=1.0 want=1.0
+PASS BM-40 differs from original slope (15-d) = got=351.0 want=351.0
+PASS BM-40 mod result != original result = mod=81.0 original=351.0
+PASS BM-32 fresh: inactive, lastTick=0, hasInfinity -> enable = got=true want=true
+PASS BM-32 already active -> no write = got=false want=false
+PASS BM-32 lastTick>0 (player closed) -> respect = got=false want=false
+PASS BM-32 no infinity yet -> keep vanilla = got=false want=false
+PASS BM-32 negative zero lastTick counts as 0 = got=true want=true
+PASS BM-32 NaN lastTick must not enable = got=false want=false
+PASS BM-37 batch unaffordable (>0) -> single fallback = got=true want=true
+PASS BM-37 batch affordable (0) -> original path = got=false want=false
+PASS BM-37 cheaper than single (<0) -> original path = got=false want=false
+PASS BM-37 extreme unaffordable = got=true want=true
+PASS DK-03 isDark always true = got=true want=true
+PASS DK-08/DK-09 default notation = got=Scientific want=Scientific
+PASS DK-08/DK-09 default is not vanilla Mixed scientific = Scientific
+PASS BM-22 IU15 requirement == 1e8 = got=1.0E8 want=1.0E8
+PASS BM-22 requirement != vanilla 1.5e12 = got=1.0E8
+R107-01 HOOK TESTS: passed=57 failed=0

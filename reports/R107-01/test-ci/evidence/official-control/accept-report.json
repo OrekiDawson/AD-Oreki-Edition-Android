@@ -1,0 +1,487 @@
+{
+  "schema": 1,
+  "label": "official 3.21.0 base APK control (not universal)",
+  "generated_at": "2026-11-13T22:49:39+08:00",
+  "tool": "scripts/tests/r107/accept_apk.py",
+  "verdict": "FAIL",
+  "required_failed": [
+    "native-abis",
+    "native-libs-complete"
+  ],
+  "advisory_failed": [
+    "java-safe-descriptors"
+  ],
+  "not_run": [
+    "reference-package",
+    "reference-permissions",
+    "reference-components",
+    "reference-assets",
+    "reference-native-libs",
+    "reference-dex-count",
+    "reference-class-total",
+    "reference-native-libs-bytes"
+  ],
+  "apk": {
+    "path": "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk",
+    "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+    "bytes": 77633785
+  },
+  "official": {
+    "path": "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk",
+    "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+    "bytes": 77633785,
+    "classes": 15319,
+    "dex": [
+      "classes.dex",
+      "classes2.dex"
+    ],
+    "xapk": {
+      "path": "/home/oreki/Antimatter+Dimensions_3.21.0_APKPure.xapk",
+      "sha256": "ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a"
+    },
+    "expected_libs_source": "XAPK Antimatter+Dimensions_3.21.0_APKPure.xapk 内全部 APK 的 lib/**",
+    "expected_libs": {
+      "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+      "lib/armeabi-v7a/libdatastore_shared_counter.so": "716c5d8d2cac8ca0edf65da8f139c7886b726ac79d542a14edeb94994ba6d3dc"
+    }
+  },
+  "reference": null,
+  "expected": {
+    "package": "kajfosz.antimatterdimensions",
+    "versionName": "3.21.0",
+    "versionCode": "30210000",
+    "certificate_sha256": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14",
+    "sha256": null,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ]
+  },
+  "tools": {
+    "aapt2": "/home/oreki/Android/Sdk/build-tools/37.0.0/aapt2",
+    "apksigner": "/home/oreki/Android/Sdk/build-tools/37.0.0/apksigner",
+    "zipalign": "/home/oreki/Android/Sdk/build-tools/37.0.0/zipalign",
+    "dir": "/home/oreki/Android/Sdk/build-tools/37.0.0"
+  },
+  "inputs": {
+    "csv": {
+      "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/first-party-3.21-index.csv",
+      "sha256": "87bda35ecb11d32fd23b0abb097630ab25ae96fd9cd0e13ac5a4e4cb31b05dc9",
+      "rows": 15319,
+      "first_party": 10954
+    }
+  },
+  "checks": [
+    {
+      "id": "apk-present",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "文件存在且非空",
+      "actual": "77633785 bytes",
+      "evidence": "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk"
+    },
+    {
+      "id": "apk-sha256",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "任意 64 位小写 hex",
+      "actual": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+      "evidence": "sha256sum 复算；--expect-sha256 为固定验收时按给定值比对"
+    },
+    {
+      "id": "package-name",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "kajfosz.antimatterdimensions",
+      "actual": "kajfosz.antimatterdimensions",
+      "evidence": "aapt2 dump badging 的 package: name"
+    },
+    {
+      "id": "version-code",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "30210000",
+      "actual": "30210000",
+      "evidence": "aapt2 dump badging；同时与官方 APK 对照：30210000"
+    },
+    {
+      "id": "version-name",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "3.21.0",
+      "actual": "3.21.0",
+      "evidence": "aapt2 dump badging；同时与官方 APK 对照：3.21.0"
+    },
+    {
+      "id": "sdk-levels",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "minSdk=None targetSdk=37（与官方一致）",
+      "actual": "minSdk=None targetSdk=37",
+      "evidence": "aapt2 dump badging，官方 APK 为基线"
+    },
+    {
+      "id": "signature-verifies",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "apksigner verify 通过",
+      "actual": true,
+      "evidence": "apksigner verify --verbose；exit=0"
+    },
+    {
+      "id": "signature-cert",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14",
+      "actual": "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14",
+      "evidence": "apksigner --print-certs 的 certificate SHA-256（与既有稳定版签名身份一致）"
+    },
+    {
+      "id": "signature-scheme",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "1 个签名者且启用 v2 或 v3",
+      "actual": "signers=1 schemes={\"v1\": false, \"v2\": false, \"v3\": true, \"v3.1\": false, \"v4\": false}",
+      "evidence": "apksigner verify --verbose"
+    },
+    {
+      "id": "dex-present",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "至少 1 个 classes*.dex，DEX magic 有效（版本 035-039）",
+      "actual": "2 个 dex，versions={\"classes.dex\": \"037\", \"classes2.dex\": \"037\"}",
+      "evidence": "zip 条目 + DEX 头部解析；官方版本={\"classes.dex\": \"037\", \"classes2.dex\": \"037\"}"
+    },
+    {
+      "id": "class-total",
+      "tier": "required",
+      "state": "PASS",
+      "expected": ">= 官方 15319 类",
+      "actual": "15319 类（逐 dex 原始和 15319）",
+      "evidence": "脚本解析 DEX class_defs 去重计数；MOD 新增类不要求等于官方"
+    },
+    {
+      "id": "first-party-coverage",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "10954/10954 第一方类存在",
+      "actual": "10954/10954（缺失 0）",
+      "evidence": "基准 CSV /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/first-party-3.21-index.csv sha256=87bda35ecb11d32f…",
+      "details": {
+        "official_classes": 15319,
+        "target_classes": 15319,
+        "official_present_exact": 15319,
+        "official_missing_exact": 0,
+        "official_missing_after_rename": 0,
+        "official_missing_kotlin_stdlib": [],
+        "official_missing_other": [],
+        "csv_classes": 15319,
+        "csv_first_party": 10954,
+        "csv_first_party_hit": 10954,
+        "csv_first_party_missing": [],
+        "csv_first_party_missing_after_rename": [],
+        "target_extra_classes": 0,
+        "target_extra_first_party_by_rule": 0,
+        "target_extra_sample": []
+      }
+    },
+    {
+      "id": "official-class-coverage",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "官方类全部存在（DEX 改名映射后仅允许 Lkotlin/** 由 AGP stdlib 替代）",
+      "actual": "官方 15319 类，精确命中 15319，改名后仍缺 0（其中 kotlin stdlib 0，其他 0）",
+      "evidence": "官方 APK DEX 描述符集合为分母；'-' 与 '_' 视为同一类（dex2jar 对非法标识符的改名）",
+      "details": {
+        "official_classes": 15319,
+        "target_classes": 15319,
+        "official_present_exact": 15319,
+        "official_missing_exact": 0,
+        "official_missing_after_rename": 0,
+        "official_missing_kotlin_stdlib": [],
+        "official_missing_other": [],
+        "csv_classes": 15319,
+        "csv_first_party": 10954,
+        "csv_first_party_hit": 10954,
+        "csv_first_party_missing": [],
+        "csv_first_party_missing_after_rename": [],
+        "target_extra_classes": 0,
+        "target_extra_first_party_by_rule": 0,
+        "target_extra_sample": []
+      }
+    },
+    {
+      "id": "resource-id-parity",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "同名不同 ID=0（'_aapt_'→'$' 归一）且官方资源无缺失",
+      "actual": "同名不同 ID=0，官方有目标无=0，目标新增=0",
+      "evidence": "aapt2 dump resources 全量对照官方 base APK；目标新增（如 appcompat 资源）不阻断",
+      "details": {
+        "official_entries": 14928,
+        "target_entries": 14928,
+        "aapt_renamed_target_entries": 0,
+        "same_name_diff_id_exact": [],
+        "same_name_diff_id_normalized": [],
+        "only_official": [],
+        "only_target": []
+      }
+    },
+    {
+      "id": "native-abis",
+      "tier": "required",
+      "state": "FAIL",
+      "expected": "包含 arm64-v8a, armeabi-v7a, x86, x86_64",
+      "actual": "",
+      "evidence": "lib/ 下共 0 个条目"
+    },
+    {
+      "id": "native-libs-complete",
+      "tier": "required",
+      "state": "FAIL",
+      "expected": "官方基线 2 个 .so 全部存在（来源：XAPK Antimatter+Dimensions_3.21.0_APKPure.xapk 内全部 APK 的 lib/**）",
+      "actual": "0/2",
+      "evidence": "缺失=['lib/armeabi-v7a/libandroidx.graphics.path.so', 'lib/armeabi-v7a/libdatastore_shared_counter.so']",
+      "missing": [
+        "lib/armeabi-v7a/libandroidx.graphics.path.so",
+        "lib/armeabi-v7a/libdatastore_shared_counter.so"
+      ]
+    },
+    {
+      "id": "assets-complete",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "官方 22 个 assets 全部存在",
+      "actual": "22/22",
+      "evidence": "缺失=[]；目标 assets 总数=22",
+      "missing": []
+    },
+    {
+      "id": "manifest-application",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "application=kajfosz.antimatterdimensions.App 且 debuggable=false",
+      "actual": "application=kajfosz.antimatterdimensions.App debuggable=False",
+      "evidence": "aapt2 dump xmltree AndroidManifest.xml"
+    },
+    {
+      "id": "manifest-components",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "第一方组件全部保留（30），activity-alias=28",
+      "actual": "缺失第一方=0，activity-alias=28",
+      "evidence": "官方 Manifest 第一方组件为基线；第三方广告/计费/GMS 组件允许有意移除",
+      "missing_first_party": []
+    },
+    {
+      "id": "launcher-intent",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "存在 MAIN + LAUNCHER",
+      "actual": "MAIN=True LAUNCHER=True",
+      "evidence": "aapt2 dump xmltree"
+    },
+    {
+      "id": "zip-safety",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "无危险路径、无重复条目、CRC 校验通过",
+      "actual": "unsafe=0 duplicates=0 corrupt=None",
+      "evidence": "zipfile 只读检查"
+    },
+    {
+      "id": "resources-arsc",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "resources.arsc 存在且非空",
+      "actual": "13532584 bytes",
+      "evidence": "zip 条目大小"
+    },
+    {
+      "id": "dex-count-matches-official",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "2",
+      "actual": "2",
+      "evidence": "dex 数量与官方一致（非必需）"
+    },
+    {
+      "id": "dex-version-matches-official",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "{\"classes.dex\": \"037\", \"classes2.dex\": \"037\"}",
+      "actual": "{\"classes.dex\": \"037\", \"classes2.dex\": \"037\"}",
+      "evidence": "DEX 版本不同不影响 minSdk 32 运行（039 为 API 28+ 格式）；记录构建工具差异"
+    },
+    {
+      "id": "dex-header-integrity",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "adler32 checksum 与 header SHA-1 均自洽",
+      "actual": "checksum=True sha1=True",
+      "evidence": "DEX 头部完整性（检测截断/损坏）"
+    },
+    {
+      "id": "cross-dex-duplicates",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "0",
+      "actual": "0",
+      "evidence": "同一类描述符出现在多个 dex 的数量"
+    },
+    {
+      "id": "java-safe-descriptors",
+      "tier": "advisory",
+      "state": "FAIL",
+      "expected": "0 个含 '-' 或非法 Java 描述符",
+      "actual": "含 '-'=118 非法=118",
+      "evidence": "DEX type_ids 全量扫描；官方基线本身含 '-' 标识符，AGP 链已改名修复"
+    },
+    {
+      "id": "assets-extras",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "记录目标新增 assets（MOD 新增资源允许，缺失由 assets-complete 阻断）",
+      "actual": "目标 22，官方 22，新增 0",
+      "evidence": "新增=[]",
+      "extras": []
+    },
+    {
+      "id": "resource-extras",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "记录目标多出的资源（允许 appcompat 等），不阻断",
+      "actual": "0 条",
+      "evidence": "aapt2 dump resources；sample=[]",
+      "sample": []
+    },
+    {
+      "id": "zipalign-16k",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "zipalign -c -P 16 4 通过",
+      "actual": "exit=0",
+      "evidence": "16 KB zip 对齐检查（build-tools>=35 的 zipalign）"
+    },
+    {
+      "id": "manifest-component-counts",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "第一方/alias 数量一致（其余差异记录）",
+      "actual": "{\"activity\": {\"official\": 17, \"target\": 17}, \"activity-alias\": {\"official\": 28, \"target\": 28}, \"service\": {\"official\": 12, \"target\": 12}, \"receiver\": {\"official\": 6, \"target\": 6}, \"provider\": {\"official\": 4, \"target\": 4}, \"meta-data\": {\"official\": 38, \"target\": 38}, \"uses-permission\": {\"official\": 16, \"target\": 16}}",
+      "evidence": "官方第三方广告/计费组件会减少 activity/service/provider 数量",
+      "details": {
+        "activity": {
+          "official": 17,
+          "target": 17
+        },
+        "activity-alias": {
+          "official": 28,
+          "target": 28
+        },
+        "service": {
+          "official": 12,
+          "target": 12
+        },
+        "receiver": {
+          "official": 6,
+          "target": 6
+        },
+        "provider": {
+          "official": 4,
+          "target": 4
+        },
+        "meta-data": {
+          "official": 38,
+          "target": 38
+        },
+        "uses-permission": {
+          "official": 16,
+          "target": 16
+        }
+      }
+    },
+    {
+      "id": "permissions-vs-official",
+      "tier": "advisory",
+      "state": "INFO",
+      "expected": "记录与官方的权限差异（MOD 有意移除广告/计费权限）",
+      "actual": "目标 16 / 官方 16",
+      "evidence": "官方有目标无=[]；目标新增=[]",
+      "missing": [],
+      "extra": []
+    },
+    {
+      "id": "reference-package",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "与参照 APK 相同包名",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-permissions",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "权限集合与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-components",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "第一方组件与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-assets",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "assets 集合与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-native-libs",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "native libs 集合与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-dex-count",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "dex 数量记录",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-class-total",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "类总数记录",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-native-libs-bytes",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "参照 native libs 逐字节相同（SHA-256）",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    }
+  ],
+  "summary": {
+    "required_total": 22,
+    "required_passed": 20,
+    "advisory_total": 18,
+    "advisory_failed": 1
+  }
+}

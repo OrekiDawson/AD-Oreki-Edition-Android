@@ -1,0 +1,26 @@
+=== dry-run (no device access) ===
+DRY-RUN（未操作设备）。计划：
+{
+  "device": "emulator-5554",
+  "apk": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk",
+  "apk_sha256": "4cff154077495fb6d65fee12842e5d33a6a64be67de1dc1bcea5a48ef54e28c7",
+  "apk_bytes": 81363615,
+  "mode": "all",
+  "allow_clear": false,
+  "allow_root": false,
+  "execute": false,
+  "steps": [
+    "preflight",
+    "install",
+    "cold-start",
+    "restart-load",
+    "finalize"
+  ],
+  "authorization_env": null
+}
+
+执行前必须由 Lead 设置 OREKI_AVD_GATE_AUTHORIZED=1 并加 --execute。
+
+=== refusal without OREKI_AVD_GATE_AUTHORIZED ===
+FAIL: 拒绝执行：需要 OREKI_AVD_GATE_AUTHORIZED=1（AVD 由 Lead 独占）。
+RC=2

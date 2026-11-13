@@ -1,0 +1,46 @@
+// R107-01 §8.1 证据：IntervaledAutobuyerState 的 Kotlin 重建尝试（BLOCKED，不能编译）。
+// 语义本身已按 smali/javap 还原（c/k/l/m/n/o/p/q 与字段 lastTick），唯一阻塞点是
+// q(rj0) 的参数类型 rj0 位于默认包，Kotlin 2.4.21 不支持在类型位置跨包引用默认包类。
+// 本文件刻意保存为 .kt.txt，避免被任何 Kotlin 源集误编译；保留供后续 ABI 适配层方案参考。
+package kajfosz.antimatterdimensions.autobuyer
+
+import java.io.Serializable
+import kajfosz.antimatterdimensions.MainActivity
+import kajfosz.antimatterdimensions.constants.`Constants$PrestigeEvent`
+import kajfosz.antimatterdimensions.g
+import kajfosz.antimatterdimensions.player.Player
+
+abstract class IntervaledAutobuyerState : AutobuyerState(true), Serializable {
+    private var lastTick: Double = 0.0
+
+    open override fun c(): Boolean = super.c() && Player.a.R().i().a - lastTick >= k()
+
+    open fun k(): Double {
+        @Suppress("UNUSED_VARIABLE") val constant = yd4.b
+        return yd4.o.h(30.0) * 1000.0
+    }
+
+    fun l(): Double = lastTick
+
+    open fun m(): `Constants$PrestigeEvent` = `Constants$PrestigeEvent`.f
+
+    fun n(): String {
+        val seconds = k() / 1000.0
+        @Suppress("UNUSED_VARIABLE") val context = MainActivity.bo
+        val count: Int = if (seconds == 1.0) 1
+            else if (seconds > 1.0 && seconds < 2.0) 1006
+            else if (seconds < 0.0 || seconds >= 2.147483647E9) 1006
+            else Math.floor(seconds).toInt()
+        @Suppress("UNUSED_VARIABLE") val plural = pi1.a
+        return g.n(2131689506, count, pi1.n(seconds, 3, 0, false, 28))
+    }
+
+    fun o(event: `Constants$PrestigeEvent`) { if (event.compareTo(m()) >= 0) lastTick = 0.0 }
+    fun p(d: Double) { lastTick = d }
+
+    // BLOCKED：rj0 在默认包，Kotlin 类型位置无法解析 —— 下一行是实际编译失败点。
+    open fun q(rj0: rj0): Any? {
+        lastTick = Player.a.R().i().a
+        return i25.a
+    }
+}
