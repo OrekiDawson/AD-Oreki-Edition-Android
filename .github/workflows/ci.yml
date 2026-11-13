@@ -91,6 +91,13 @@ jobs:
           PY
       - name: Gradle configuration smoke (NOT an APK build)
         run: bash ./gradlew help --no-daemon --console=plain
+      - name: Validate unified hosted build and independent verification workflows
+        run: |
+          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 \
+            .github/workflows/candidate-unified.yml \
+            .github/workflows/verify-unified.yml
+      - name: Enforce single-repo migration safety invariants
+        run: python3 -m unittest discover -s scripts/tests -p 'test_ci_migration.py' -v
       - name: Explain source-only evidence
         run: |
           echo "::notice::This job checks tracked sources and Gradle configuration only."
