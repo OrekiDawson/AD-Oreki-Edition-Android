@@ -158,7 +158,9 @@ jobs:
           test -n "$BUNDLE_TOKEN" || { echo "::error::Missing bearer token for private build assets"; exit 1; }
           archive="$RUNNER_TEMP/oreki-build-inputs.tar.gz"
           curl --fail --silent --show-error --location --retry 2 --max-time 1800 \
-            -H "Authorization: Bearer $BUNDLE_TOKEN" --output "$archive" "$BUNDLE_URL"
+            -H "Authorization: Bearer $BUNDLE_TOKEN" \
+            -H "Accept: application/octet-stream" \
+            --output "$archive" "$BUNDLE_URL"
           printf '%s  %s\n' "$BUNDLE_SHA" "$archive" | sha256sum --check --status || {
             echo "::error::Private build bundle digest differs from pinned input"; exit 1;
           }

@@ -59,6 +59,7 @@ env:
 jobs:
   gate:
     name: Match pinned acceptance, candidate artifact and verification receipt
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: android-release-review
     timeout-minutes: 20

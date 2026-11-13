@@ -31,7 +31,8 @@ if find "$stage" -type l -print -quit | grep -q .; then
   exit 1
 fi
 if find "$stage" -type f \( -iname '*.jks' -o -iname '*.keystore' -o \
-    -iname '*password*' -o -name '.env' -o -name '密码.txt' -o \
+    -iname 'password*.txt' -o -iname '*secret*.txt' -o -iname '*.p12' -o \
+    -iname '*.b64' -o -name '.env' -o -name '密码.txt' -o \
     -iname '*.pem' -o -iname '*.key' \) -print -quit | grep -q .; then
   echo "FAIL: build bundle appears to contain signing keys or credentials" >&2
   exit 1
