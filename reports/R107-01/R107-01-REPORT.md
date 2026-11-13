@@ -358,3 +358,15 @@
 - **AVD 实测 PASS**（15min interval=1）：EC completions [5×12]（12 关全满）；dilation.studies=[1,2,3,4,5]（膨胀研究自动购买首次生效）；bigE=317；0 FATAL。
 - **现实仍差一步**：DS6（现实研究 6）A()=false；maxEP exponent=6,343,914≥4000 满足、膨胀研究 5 已买；
   缺 Web 的 orekiAchievementsWaivedForReality()（EC11/12 满级后豁免全部 preReality 成就）— Android 未实现，已派最小 Kotlin 豁免修复。
+
+### 10.16 里程碑：Android 首次真实解锁现实（2026-11-14 06:40，commit 3f8584be）
+
+- **DS6 第二轮根因**：第一版豁免注入的条件跳转极性写反（`if-eqz` 应为 `if-nez`）——waiver effective=true 时未跳原版成功继续点
+  `:cond_4`，落回原 false；TD8 / maxEP≥4000 / Pelle 三项原版校验未动。修复后新增 `OREKI_DS6` 分段诊断。
+- **AVD 实测 PASS（fresh 档, interval=1, 22.5min 窗口）**：
+  * t≈14.6min：EC 12 关全满（[5×12]）、bigE=298；
+  * `OREKI_DS6: td8=true maxEPexp=831292 preRealityEvery=false waiverEffective=true pelleDoomed=false original=false result=true`；
+  * `OREKI_DIL_STUDIES: BUY id=6`（膨胀研究 6=现实）→ 现实结算；
+  * timeline t=875：**real=0.301**、bigE/EC/TT 全部重置（真实现实重置）；0 FATAL/VerifyError/NoSuchMethodError。
+- 意义：Android MOD 自动化首次从全新档真实打通「永恒→EC 全满→膨胀研究→现实」，180 分钟目标的结构性阻断已消除。
+- 已启动 **180 分钟默认设置（不注入 interval）真实跑次**（fresh 档，每 60s 采样，gameEnd 即停；证据 reports/R107-01/lead-evidence/180min-default-run/）。
