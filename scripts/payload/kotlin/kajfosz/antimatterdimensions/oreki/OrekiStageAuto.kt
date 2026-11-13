@@ -551,7 +551,10 @@ object OrekiStageAuto {
             // [R96 第十三轮] 永恒升级优先：EP 已够买「下一项未购买升级」时，
             // 本拍名额必须给它，否则 EP 会被时间维度 TD1 吃干（实测 bigE=8、EP=0、eupBits=0）。
             // 真实扣费仍走原版 `Upgrade.D(Z,Continuation)`；本判断只读余额与真实成本。
-            if (OrekiEternityEconomy.canAffordNextUpgrade()) {
+            // [R107-01] 只有「确实能买」时才占紧迫名额：canAutomateEternityUpgrades()=false 时
+            // buyEternityUpgrades() 恒 false，旧逻辑会让 eternity 名额空转并挤掉 idBuy
+            // （gate-gui AVD 实测：首永恒后 act idBuy=0、maxAM/maxIP 停滞）。
+            if (GameApi.canAutomateEternityUpgrades() && OrekiEternityEconomy.canAffordNextUpgrade()) {
                 return "eternity"
             }
             // 只要还有无限维度没解锁，本拍紧迫名额就给 idBuy。
@@ -2060,8 +2063,14 @@ object OrekiStageAuto {
             val reason = eternityGateReason()
             val now = android.os.SystemClock.elapsedRealtime()
             if (crunchSkipFrames > 0) crunchSkipFrames--
+            // [R107-01] 门禁只拦「是否主动按永恒」，不拦永恒层经济动作（TT/时间维度/时间研究）。
+            // 总开关/自动永恒开关/Doomed/未 Break 时仍整体停手，与既有语义一致。
+            val economyEligible = reason != "automation-off" && reason != "auto-eternity-off" &&
+                reason != "doomed" && reason != "not-broken"
             if (reason == "allow") {
                 GameApi.eternityTick()
+            } else if (economyEligible) {
+                GameApi.eternityEconomyTick()
             }
             val changed = reason != lastEtGateReason
             if ((changed && now - lastEtGateLogAt >= 1_000L) || now - lastEtGateLogAt >= 5_000L) {

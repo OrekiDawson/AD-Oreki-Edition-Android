@@ -2641,6 +2641,48 @@ internal object GameApi {
         call(mEternityTick(), null)
         return true
     }
+    // ------------------------------------------------- [R107-01] 永恒层经济动作独立入口
+    //
+    // 缺陷（gate-gui 2026-11-14 AVD 实测）：`eternityTick()` 在门禁非 allow 时直接 return，
+    // 而 `OrekiEternity.tick()` 内部同时承载 TT/时间维度/时间研究/尝试永恒四件事 ⇒
+    // canEternity=false 的时段（例如刚完成一次永恒、maxIP 尚不足下一档）整段永恒层经济停摆：
+    // TT 恒 0、时间研究 0、时间维度不买、maxIP 增速被压低，EP 只能靠下一次永恒飞跃。
+    // Web 侧同样把「按永恒」与「买 TT/TD/TS」分开（src/core/oreki-eternity-automation.js
+    // tickEternity() 与 buyTimeTheorems/buyTimeDimensions/buyTimeStudies 各自独立）。
+    //
+    // 这里通过反射调用 OrekiEternity 的三个私有静态经济动作，**不修改既有 Smali 业务实现**；
+    // 是否「主动按永恒」仍只由 OrekiAutoEternityGate 决定（门禁语义不变）。
+    private var mEternityEconomy: Array<Method>? = null
+    private var mEternityEconomyResolved: Boolean = false
+    private fun eternityEconomyMethods(): Array<Method>? {
+        if (!mEternityEconomyResolved) {
+            mEternityEconomyResolved = true
+            mEternityEconomy = try {
+                val c = eternityCls() ?: return null
+                arrayOf("buyTimeTheorems", "buyTimeDimensions", "buyNormalStudies").map { name ->
+                    c.getDeclaredMethod(name).apply { isAccessible = true }
+                }.toTypedArray()
+            } catch (_: Throwable) {
+                null
+            }
+        }
+        return mEternityEconomy
+    }
+
+    /** 只执行永恒层经济动作（TT/TD/TS），绝不发起永恒结算；返回是否解析并调用成功。 */
+    fun eternityEconomyTick(): Boolean {
+        val methods = eternityEconomyMethods() ?: return false
+        var invoked = false
+        for (m in methods) {
+            try {
+                m.invoke(null)
+                invoked = true
+            } catch (_: Throwable) {
+            }
+        }
+        return invoked
+    }
+
     fun realityTick(): Boolean = (call(mRealityTick(), null) as? Boolean) ?: false
     fun glyphTick(): Boolean = (call(mGlyphTick(), null) as? Boolean) ?: false
     fun teresaTick(): Boolean = (call(mTeresaTick(), null) as? Boolean) ?: false
