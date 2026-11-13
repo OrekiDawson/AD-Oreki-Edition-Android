@@ -1,0 +1,32 @@
+# AGP 9.5.1 公开 artifact API 与预编译 DEX 集成能力（R106-01 实测）
+# date: 2026-11-13T20:49:06+08:00
+# jar: gradle-api-9.5.1.jar
+
+## SingleArtifact 成员（无 DEX 类型）
+AAR AGGREGATED_LINT_HTML_REPORT AGGREGATED_LINT_SARIF_REPORT AGGREGATED_LINT_TEXT_REPORT AGGREGATED_LINT_XML_REPORT APK APK_FROM_BUNDLE ASSETS BUNDLE LINT_HTML_REPORT LINT_SARIF_REPORT LINT_TEXT_REPORT LINT_XML_REPORT MERGED_MANIFEST MERGED_NATIVE_LIBS METADATA_LIBRARY_DEPENDENCIES_REPORT OBFUSCATION_MAPPING_FILE OBFUSCATION_MAPPING_PARTITION_FILE PUBLIC_ANDROID_RESOURCES_LIST RUNTIME_SYMBOL_LIST VERSION_CONTROL_INFO_FILE 
+
+## ScopedArtifact 成员（都是 CLASS/JAVA_RES，没有 DEX）
+CLASSES JAVA_RES POST_COMPILATION_CLASSES 
+
+## SingleArtifact.APK 的真实能力
+Compiled from "SingleArtifact.kt"
+public final class com.android.build.api.artifact.SingleArtifact$APK extends com.android.build.api.artifact.SingleArtifact<org.gradle.api.file.Directory> implements com.android.build.api.artifact.Artifact$ContainsMany, com.android.build.api.artifact.Artifact$Replaceable, com.android.build.api.artifact.Artifact$Transformable {
+  public static final com.android.build.api.artifact.SingleArtifact$APK INSTANCE;
+  static {};
+}
+
+## 事实 1：没有 DEX 工件/追加 API
+SingleArtifact/ScopedArtifact 清单中没有 DEX；AGP 的 dexBuilderRelease/mergeDexRelease 只消费 class 文件。
+
+## 事实 2：APK 工件可以 transform（目录形式的多 split 输出）
+SingleArtifact.APK 实现 Artifact.Transformable / Replaceable / ContainsMany，理论上可在 AGP 任务里对已打包 APK 做 ZIP 级后处理。
+但这属于「打包完成后的 ZIP 重包」，并不能让 AGP 编译游戏代码；任务书 §2/§3 明确禁止以旧包为基底二次重包冒充正式迁移。
+
+## 事实 3：把 .dex 作为文件依赖会被 AGP 静默忽略
+实测：dependencies { implementation(files("/tmp/dexprobe/classes.dex")) } + clean assembleRelease → BUILD SUCCESSFUL，
+产物仍然只有 1 个 classes.dex、1143 个类，游戏类缺失（见 dex-input-probe.log / apk-structure.txt）。
+
+## 结论
+资源/Manifest/assets/native 已由 AGP 真实接管（资源 ID 与官方 3.21 完全一致）；
+预编译 DEX（含 MOD 补丁后的游戏 DEX）无法进入 AGP 的 DEX 编译/合并链路，
+唯一可行的 APK 注入点属于任务书禁止的二次重包。因此阶段三按 BLOCKED 记录，不伪造 AGP 来源。

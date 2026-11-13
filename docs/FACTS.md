@@ -10070,3 +10070,23 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - 证据：`reports/R105/android-second-eternity/`（RUN-RESULT.json / timeline.jsonl / events.json /
   logs-key-slice.txt / FINAL-SAVE-second-eternity.json / screenshots / ep-mechanism）。
 
+
+## R106-01：AGP 9.5.1 阶段三（2026-11-13，BLOCKED）
+
+- 背景：R105-04 阶段一（AGP 内置 Kotlin 编译，PR #22/#23）与阶段二（兼容打包，PR #26）之后，
+  PR #28 已把「正式 Android 生产强制 AGP 9.5.1、旧链发布 fail-closed」写进 main（d0733f6a）。
+- 本轮实测：AGP 9.5.1 在 `-PorekiFullGame=true` 模式下真实接管原版 Manifest（6 activity、28 activity-alias）、
+  14,976 条资源、assets 与 4 ABI native libs，并用 `--stable-ids` 保持资源 ID
+  **与官方 3.21 完全一致（同名不同 ID = 0）**；`:app:assembleRelease` BUILD SUCCESSFUL，
+  产物 SHA-256 `87f5454e…5831b`、66,093,389 B、包名 `com.oreki.antimatterdimensions`、
+  证书 `95960bce…3197`（原证书）。
+- 阻塞：AGP 9.5.1 公开 artifact API 没有 DEX 输入/追加类型（D8 只消费 class 文件）；
+  `.dex` 文件依赖被静默忽略；MOD 依赖 22 个原版混淆 smali 补丁 + 33 个 MOD smali 包装类，
+  游戏 DEX 只能由 smali 汇编生成。AGP APK 因此缺游戏类，AVD 冷启动
+  `ClassNotFoundException: kajfosz.antimatterdimensions.App`。
+- 未二次重包、未生成 provenance、未发布 Candidate；R103 `android-update-3.21.0-3d924271` Latest 未变；
+  `enforce_agp_only.py candidate` 继续 fail-closed。
+- 证据：`reports/R106/R106-01-AGP-PHASE3.md`、`docs/agp-acceptance/phase3-evidence.json`、`reports/R106-01/`。
+- 恢复点：R106-01 阻塞证据齐全后收口，不启动 R106-02；下一步需用户授权评估
+  「22 个原版 smali 补丁点等价迁为 AGP 可编译形态」。
+
