@@ -239,7 +239,7 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object],
             raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
         if (expected_apk.name != DEFAULT_APK_NAME
                 or "/release/" not in expected_apk.as_posix()
-                or not pathlib.PurePosixPath(str(build.get("source_apk", ""))).name == DEFAULT_APK_NAME):
+                or not PurePosixPath(str(build.get("source_apk", ""))).name == DEFAULT_APK_NAME):
             raise RuntimeError("移植发布：清单没有指向预期 release/stage 的真实候选文件")
     registered_sha = release.get("sha256") or build.get("source_sha256")
     if registered_sha != apk_info["sha256"]:
