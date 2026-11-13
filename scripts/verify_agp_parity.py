@@ -53,11 +53,11 @@ def classes_from_apk(path: Path) -> set[str]:
     return classes
 
 
-def check(legacy_dex: Path, agp_apk: Path) -> dict[str, object]:
+def check(legacy_dex: Path, agp_apk: Path, *, min_legacy_classes: int = MIN_LEGACY_CLASSES) -> dict[str, object]:
     legacy = normalize(classes_from_dex_file(legacy_dex))
     agp = normalize(classes_from_apk(agp_apk))
-    if len(legacy) < MIN_LEGACY_CLASSES:
-        raise ValueError(f"legacy DEX 业务类过少（{len(legacy)} < {MIN_LEGACY_CLASSES}），拒绝空壳对比")
+    if len(legacy) < min_legacy_classes:
+        raise ValueError(f"legacy DEX 业务类过少（{len(legacy)} < {min_legacy_classes}），拒绝空壳对比")
     missing = sorted(legacy - agp)
     extra = sorted(agp - legacy)
     return {

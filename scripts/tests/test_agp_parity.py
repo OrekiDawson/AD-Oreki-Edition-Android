@@ -29,7 +29,7 @@ class AgpParityUnitTests(unittest.TestCase):
             agp = Path(tmp) / "app.apk"
             with zipfile_apk(agp, {descriptor("A")}):
                 pass
-            result = parity.check(legacy, agp)
+            result = parity.check(legacy, agp, min_legacy_classes=1)
             self.assertFalse(result["parity"])
             self.assertEqual(result["missing_in_agp"], [descriptor("B")])
 
@@ -40,7 +40,7 @@ class AgpParityUnitTests(unittest.TestCase):
             agp = Path(tmp) / "app.apk"
             with zipfile_apk(agp, {descriptor("A"), descriptor("B"), descriptor("C$$ExternalSyntheticLambda0")}):
                 pass
-            result = parity.check(legacy, agp)
+            result = parity.check(legacy, agp, min_legacy_classes=1)
             self.assertTrue(result["parity"])
 
 
