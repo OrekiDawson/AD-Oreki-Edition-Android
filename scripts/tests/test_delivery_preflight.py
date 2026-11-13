@@ -1,4 +1,5 @@
 """Delivery safeguards: no promotion on partial channels and authorization probes."""
+import hashlib
 import json
 import subprocess
 import sys
@@ -33,6 +34,8 @@ class DeliveryPreflightTests(unittest.TestCase):
                   mock.patch.object(p, "resolve_remote", side_effect=[("onedrive", "env"), ("gdrive", "env")]),
                   mock.patch.object(p, "setting", side_effect=lambda k, default=None: default),
                   mock.patch.object(p, "github_repo", return_value="OrekiDawson/AD-Oreki-Edition-Android"),
+                  mock.patch.object(p, "onedrive_graph_fallback",
+                                    side_effect=RuntimeError("graph fallback also refused")),
                   mock.patch.object(p, "run", side_effect=fake_run)):
                 self.assertEqual(p.preflight_write_channels(), 2)
             self.assertEqual(latest.read_bytes(), b"stable-stays-unchanged")
@@ -107,6 +110,94 @@ class DeliveryPreflightTests(unittest.TestCase):
             p.demote_failed_github_release("3.21.0", "b" * 64)
         self.assertTrue(any(c[:4] == ["gh", "release", "edit", newer] for c in calls))
         self.assertFalse(any(c[:4] == ["gh", "release", "edit", older] for c in calls))
+
+class OneDriveGraphFallbackTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.config = self.root / "rclone.conf"
+        self.config.write_text(
+            "[onedrive]\ntype = onedrive\ndrive_id = testdrive123\ntoken = "
+            + json.dumps({"access_token": "x" * 80, "refresh_token": "y" * 80}) + "\n",
+            encoding="utf-8")
+
+    def test_settings_and_token_are_read_from_staged_config(self):
+        with mock.patch.dict(p.os.environ, {"RCLONE_CONFIG": str(self.config)}):
+            drive_id, path = p.onedrive_remote_settings("onedrive")
+            self.assertEqual(drive_id, "testdrive123")
+            self.assertEqual(path, self.config)
+            self.assertEqual(p.onedrive_access_token(path, "onedrive"), "x" * 80)
+
+    def test_graph_upload_refuses_oversized_file(self):
+        apk = self.root / "big.apk"
+        apk.write_bytes(b"x")
+        with mock.patch.object(p, "GRAPH_ONEDRIVE_SIMPLE_LIMIT", 0):
+            with self.assertRaises(RuntimeError):
+                p.graph_onedrive_put("testdrive123", "Apps/AD-Oreki-Edition/x.apk", apk, "token")
+
+    def test_fallback_refreshes_with_rclone_then_uploads_via_graph(self):
+        apk = self.root / "candidate.apk"
+        apk.write_bytes(b"verified-candidate")
+        sha = hashlib.sha256(b"verified-candidate").hexdigest()
+        with (mock.patch.dict(p.os.environ, {"RCLONE_CONFIG": str(self.config)}),
+              mock.patch.object(p, "run", return_value=types.SimpleNamespace(returncode=0, stdout="")),
+              mock.patch.object(p, "graph_onedrive_put",
+                                return_value={"size": apk.stat().st_size} ) as put):
+            detail = p.onedrive_graph_fallback("onedrive", "Apps/AD-Oreki-Edition", apk,
+                                               {"sha256": sha, "size_bytes": apk.stat().st_size})
+        self.assertIn("graph-simple-upload", detail)
+        self.assertEqual(put.call_count, 1)
+
+    def test_fallback_refuses_digest_mismatch(self):
+        apk = self.root / "candidate.apk"
+        apk.write_bytes(b"verified-candidate")
+        with (mock.patch.dict(p.os.environ, {"RCLONE_CONFIG": str(self.config)}),
+              mock.patch.object(p, "run", return_value=types.SimpleNamespace(returncode=0, stdout="")),
+              mock.patch.object(p, "graph_onedrive_put", return_value={"size": apk.stat().st_size})):
+            with self.assertRaises(RuntimeError):
+                p.onedrive_graph_fallback("onedrive", "Apps/AD-Oreki-Edition", apk,
+                                          {"sha256": "0" * 64, "size_bytes": apk.stat().st_size})
+
+
+
+class OneDriveSinglePartCutoffTests(unittest.TestCase):
+    def _publish(self, supported: bool):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            apk = Path(tmp) / "candidate.apk"
+            apk.write_bytes(b"candidate-bytes")
+            info = {"sha256": hashlib.sha256(b"candidate-bytes").hexdigest(),
+                    "size_bytes": apk.stat().st_size}
+
+            def fake_run(cmd, **kwargs):
+                calls.append(cmd)
+                if cmd[:3] == ["rclone", "help", "backend"]:
+                    return types.SimpleNamespace(returncode=0,
+                                                 stdout="--onedrive-upload-cutoff" if supported else "")
+                if cmd[:2] == ["rclone", "lsjson"]:
+                    return types.SimpleNamespace(returncode=0, stdout=json.dumps({"Size": len(b"candidate-bytes")}))
+                return types.SimpleNamespace(returncode=0, stdout="")
+
+            with mock.patch.object(p, "run", side_effect=fake_run):
+                p.rclone_publish("OneDrive", "onedrive", "Apps/AD-Oreki-Edition", apk, info, False)
+        return [cmd for cmd in calls if cmd[:2] == ["rclone", "copyto"]][0]
+
+    def test_supported_rclone_uses_singlepart_cutoff(self):
+        command = self._publish(True)
+        self.assertIn("--onedrive-upload-cutoff", command)
+        self.assertIn("250M", command)
+
+    def test_unsupported_rclone_does_not_pass_unknown_flag(self):
+        command = self._publish(False)
+        self.assertNotIn("--onedrive-upload-cutoff", command)
+
+    def test_release_workflow_pins_rclone_with_cutoff_support(self):
+        text = (Path(__file__).resolve().parents[2] / ".github/workflows/release-unified.yml").read_text()
+        self.assertIn("b00f00b3266c3764413afe599d3ec316f6f43b3e0ea8a0bc1d186d2133e46df7", text)
+        self.assertIn("rclone-v${version}-linux-amd64", text)
+        self.assertIn("onedrive-upload-cutoff", text)
+
 
 if __name__ == "__main__":
     unittest.main()
