@@ -93,12 +93,10 @@ object OrekiIpGainScale {
      * 任一读取失败都 fail-closed 返回 false（退回原版尺度），不猜阶段。
      */
     private fun readBootstrapRun(): Boolean {
+        // [R107-01 A2] 与 Web 完全对齐：现实未解锁 或 当前现实未购买膨胀研究 6。
+        // 每次现实重置都会清空 dilation.studies ⇒ 窗口在每个现实循环内重新打开；
+        // 旧实现 realities>0 即返回 false，首次现实后立刻回到 308，现实链推进变慢。
         if (OrekiStageAuto.eternitiesZero()) return true
-        val realities = GameApi.realitiesValue() ?: return false
-        val cmp = GameApi.compareToDouble(realities, 0.0) ?: return false
-        if (cmp > 0) return false
-        val bigRealities = GameApi.bigRealitiesValue() ?: return false
-        if (bigRealities is Number && bigRealities.toLong() != 0L) return false
-        return true
+        return GameApi.isOrekiBootstrapRun()
     }
 }
