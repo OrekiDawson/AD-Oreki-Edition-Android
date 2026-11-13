@@ -1,0 +1,13 @@
+# R107-01 DIL-AUTO APK checks
+
+c1203e81c3f55140c9d61aa5e12dde54d6bf5ed4a3c821ab28205563458206af  build/gradle-stage/反物质维度.apk
+84625579 bytes
+
+classes4 new Kotlin classes:
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiBootstrapScale;'
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiDilationCostScale;'
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiDilationStudies;'
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiEcRequirementScale;'
+
+OrekiDilationStudies.tick call sites: 1
+is3.D invoke references in classes2: 32

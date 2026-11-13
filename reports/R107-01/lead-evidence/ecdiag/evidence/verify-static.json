@@ -1,0 +1,260 @@
+{
+ "task": "R107-01 EC/DIL bootstrap scale static verification",
+ "generated_at": "2026-11-14 05:19:04 +0800",
+ "base_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321",
+ "fake_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-hooks-tmp/ecscale-static/mod",
+ "checks": [
+  {
+   "check": "临时基线副本就绪",
+   "ok": true,
+   "detail": "15 个 smali + apktool.yml"
+  },
+  {
+   "check": "补丁函数可执行（build_mod 当前源码）",
+   "ok": true,
+   "detail": "[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）\n[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）\nPRODUCER_OK\n"
+  },
+  {
+   "check": "EC 补丁输出说明",
+   "ok": true,
+   "detail": "[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）\n[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）\nPRODUCER_OK\n"
+  },
+  {
+   "check": "DIL 补丁输出说明",
+   "ok": true,
+   "detail": "[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）\n[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）\nPRODUCER_OK\n"
+  },
+  {
+   "check": "EC K() 两个 return 都转发 Kotlin",
+   "ok": true,
+   "detail": "count=2"
+  },
+  {
+   "check": "EC 转发后 check-cast 回 BigDouble",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "膨胀成本 23 处字段读取全部转发",
+   "ok": true,
+   "detail": "count=23"
+  },
+  {
+   "check": "is3.x() getter 也被转发（显示/单买一致）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "幂等标记存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "补丁幂等（二次执行不重复注入）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "被改 smali 全部单文件汇编通过",
+   "ok": true,
+   "detail": "ok=14 fails=[]"
+  },
+  {
+   "check": "基线绑定生成",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "新 Kotlin 文件存在（4 个）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "payload Kotlin 全量编译通过（含 4 个新类）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "javap ABI OrekiEcRequirementScale",
+   "ok": true,
+   "detail": "iEcRequirementScale.kt\"\npublic final class kajfosz.antimatterdimensions.oreki.OrekiEcRequirementScale {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiEcRequirementScale INSTANCE;\n  private static final double EC_REQUIREMENT_DIVISOR;\n  private kajfosz.antimatterdimensions.oreki.OrekiEcRequirementScale();\n  public static final java.lang.Object apply(java.lang.Object);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiDilationCostScale",
+   "ok": true,
+   "detail": "sions.oreki.OrekiDilationCostScale {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiDilationCostScale INSTANCE;\n  private static final double DILATION_TT_DIVISOR;\n  private kajfosz.antimatterdimensions.oreki.OrekiDilationCostScale();\n  public static final java.lang.Object applyForStudy(java.lang.Object);\n  public static final java.lang.Object apply(java.lang.Object);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiDilationStudies",
+   "ok": true,
+   "detail": "Boolean boolOf$default(kajfosz.antimatterdimensions.oreki.OrekiDilationStudies, java.lang.Object, java.lang.String, java.lang.Boolean, int, java.lang.Object);\n  private final java.util.List<kotlin.Pair<java.lang.Object, java.lang.Integer>> studies();\n  private final java.lang.String ttText();\n  private final void logThrottled(java.lang.String);\n  public static final boolean tick();\n  static {};\n}\n"
+  },
+  {
+   "check": "原版购买入口 is3.D(Z,Continuation) 存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "d01/a01/b01 不覆盖 D（继承 is3 原版入口）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "膨胀研究注册表 c01.a:[Ld01; 存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "研究 id 字段 in1.c:I 存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 成本读取必须经 OrekiDilationCostScale（bootstrap /1000）",
+   "ok": true,
+   "detail": "missing token applyForStudy"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 已购判定必须走原版 B()",
+   "ok": true,
+   "detail": "missing token boolOf(study, \"B\")"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 需求判定必须走原版 A(true)",
+   "ok": true,
+   "detail": "missing token boolOf(study, \"A\", true)"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 余额判定必须走原版 z()",
+   "ok": true,
+   "detail": "missing token boolOf(study, \"z\")"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 购买必须走原版 D(true,null)",
+   "ok": true,
+   "detail": "missing token findMethod(study, \"D\""
+  },
+  {
+   "check": "OrekiDilationStudies 契约: tick() 需 @JvmStatic 供调用方直连",
+   "ok": true,
+   "detail": "missing token @JvmStatic"
+  },
+  {
+   "check": "OrekiStageAuto 已接线 OrekiDilationStudies.tick()",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "接线位于 economyEligible 经济门禁分支（不发起永恒结算）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 契约: 独立诊断 TAG（不占 note 的 1s 限频）",
+   "ok": true,
+   "detail": "missing token TAG_DIAG2 = \"OREKI_EC_DIAG2\""
+  },
+  {
+   "check": "EC4-DIAG 契约: 诊断 30s 限频字段",
+   "ok": true,
+   "detail": "missing token lastDiag2At"
+  },
+  {
+   "check": "EC4-DIAG 契约: 诊断 30s 限频生效",
+   "ok": true,
+   "detail": "missing token now - lastDiag2At < 30_000L"
+  },
+  {
+   "check": "EC4-DIAG 契约: 只在 TRYBUY 失败时触发诊断",
+   "ok": true,
+   "detail": "missing token if (r != true) {"
+  },
+  {
+   "check": "EC4-DIAG 契约: 诊断调用点绑定目标 EC/研究/前置链",
+   "ok": true,
+   "detail": "missing token diag2(target, study, k)"
+  },
+  {
+   "check": "EC4-DIAG 契约: A(false)/A(true) 只读",
+   "ok": true,
+   "detail": "missing token fun tsA(ts: Any?, flag: Boolean)"
+  },
+  {
+   "check": "EC4-DIAG 契约: z() 余额只读",
+   "ok": true,
+   "detail": "missing token fun tsZ(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: requirementType 只读",
+   "ok": true,
+   "detail": "missing token fun tsReqType(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: 分组 t 只读",
+   "ok": true,
+   "detail": "missing token fun tsGroup(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: K() 只读",
+   "ok": true,
+   "detail": "missing token fun tsKFlag(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: r lambda 只读",
+   "ok": true,
+   "detail": "missing token fun tsReqLambda(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: TimeStudyTree c()/b() 只读",
+   "ok": true,
+   "detail": "missing token fun treeState(): String"
+  },
+  {
+   "check": "EC4-DIAG 契约: EC 研究自身诊断行",
+   "ok": true,
+   "detail": "missing token ECSTUDY target="
+  },
+  {
+   "check": "EC4-DIAG 契约: 前置 TS 链诊断行",
+   "ok": true,
+   "detail": "missing token \"TS id=\""
+  },
+  {
+   "check": "EC4-DIAG 契约: 12 个 EC completions 诊断行",
+   "ok": true,
+   "detail": "missing token \"ECS\""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: E(true)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: E(false)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: y().p(",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: write",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: commit",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: respec",
+   "ok": true,
+   "detail": ""
+  }
+ ],
+ "total": 50,
+ "failed": 0
+}

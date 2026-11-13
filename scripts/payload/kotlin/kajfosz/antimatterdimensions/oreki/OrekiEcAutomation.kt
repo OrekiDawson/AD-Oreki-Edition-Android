@@ -122,6 +122,11 @@ object OrekiEcAutomation {
 
     private const val TAG = "OREKI_EC_AUTO"
 
+    // [R107-01 EC4-DIAG] 只读诊断 TAG：定位 TRYBUY 前置研究 A() 假的具体分项。
+    // 30 秒限频、只读；诊断期使用，不改任何业务状态。
+    private const val TAG_DIAG2 = "OREKI_EC_DIAG2"
+    @Volatile private var lastDiag2At: Long = 0L
+
     /** 原版 EC 总数。 */
     private const val EC_COUNT = 12
 
@@ -281,6 +286,11 @@ object OrekiEcAutomation {
                     val r = if (t2 != null) Abi.tsBuy(t2) else null
                     note("TRYBUY id=" + first + " " + dbg + " D=" + r + " tt=" + Abi.theorem() +
                         " unlocked=" + Abi.unlocked())
+                    // [R107-01 EC4-DIAG] 只读诊断：TRYBUY 失败时用独立 TAG/限频直接输出，
+                    // 不再被 note() 的 1s 限频吞掉（这是上一轮看不到 PAVE/PREPARE 的原因）。
+                    if (r != true) {
+                        diag2(target, study, k)
+                    }
                     if (r == true) {
                         note("PREPARE id=" + target + " k=" + k + " paved-by-D=" + first +
                             " -> unlocked=" + Abi.unlocked())
@@ -395,6 +405,61 @@ object OrekiEcAutomation {
         note("PAVE ts=" + id + " not-buyable depth=" + depth +
             " canBuy=" + Abi.tsCanBuy(ts) + " k=" + pre + " tt=" + Abi.theorem())
         return false
+    }
+
+
+    // ------------------------------------------------- [R107-01 EC4-DIAG] 只读诊断
+    //
+    // 目标：一次性把「EC 研究前置 TS 的 A() 为什么是 false」拆到最细：
+    //   · EC 研究自身 A(false)/A(true)/z()/B()、tailOk/prereqOk/globalBlocked；
+    //   · 前置 TS 链（k 数组递归 3 层）每条的 B/A0/A1/z/reqType/group/K()/r()/price/k；
+    //   · 当前 TimeStudyTree 的 c()/b()（DIMENSION_PATH 分支会看这两个值）；
+    //   · 12 个 EC 的 completions/max/unlocked/current。
+    // 全部只读（只调用原版查询方法），不买、不写字段、不改变任何状态。
+    private fun diag2(target: Int, study: Any?, k: List<Int>) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastDiag2At < 30_000L) return
+        lastDiag2At = now
+        try {
+            Log.i(TAG_DIAG2,
+                "ECSTUDY target=" + target + " unlocked=" + Abi.unlocked() +
+                    " current=" + Abi.current() +
+                    " comps=" + Abi.completions(Abi.challenge(target)) +
+                    " max=" + Abi.maxCompletions(Abi.challenge(target)) +
+                    " A0=" + Abi.tsA(study, false) + " A1=" + Abi.tsA(study, true) +
+                    " z=" + Abi.tsZ(study) + " B=" + Abi.tsBought(study) +
+                    " prereqOk=" + Abi.prereqOk(study) + " tail=" + Abi.tailOk(study) +
+                    " globalBlocked=" + Abi.globalBlocked() +
+                    " k=" + k + " price=" + Abi.priceText(study))
+            val sb = StringBuilder()
+            for (i in 1..12) {
+                val c = Abi.challenge(i) ?: continue
+                sb.append(' ').append(i).append('=').append(Abi.completions(c))
+                    .append('/').append(Abi.maxCompletions(c))
+                if (Abi.isMaxedChallenge(c) == true) sb.append('M')
+            }
+            Log.i(TAG_DIAG2, "ECS" + sb + " boughtGlobal=" + Abi.globalBlocked() + " tree=" + Abi.treeState())
+            val seen = HashSet<Int>()
+            fun walk(id: Int, depth: Int) {
+                if (depth > 3 || !seen.add(id)) return
+                val ts = Abi.ts(id)
+                if (ts == null) {
+                    Log.i(TAG_DIAG2, "TS id=" + id + " depth=" + depth + " lookup=null")
+                    return
+                }
+                Log.i(TAG_DIAG2,
+                    "TS id=" + id + " depth=" + depth + " B=" + Abi.tsBought(ts) +
+                        " A0=" + Abi.tsA(ts, false) + " A1=" + Abi.tsA(ts, true) +
+                        " z=" + Abi.tsZ(ts) + " reqType=" + Abi.tsReqType(ts) +
+                        " group=" + Abi.tsGroup(ts) + " K=" + Abi.tsKFlag(ts) +
+                        " r=" + Abi.tsReqLambda(ts) + " price=" + Abi.priceText(ts) +
+                        " k=" + Abi.tsPrereqs(ts))
+                for (pid in Abi.tsPrereqs(ts) ?: emptyList()) walk(pid, depth + 1)
+            }
+            for (id in k) walk(id, 0)
+        } catch (t: Throwable) {
+            Log.i(TAG_DIAG2, "diag2 failed: " + t)
+        }
     }
 
     private fun note(what: String) {
@@ -716,6 +781,88 @@ object OrekiEcAutomation {
 
         /** 时间研究的行内前置数组（`qu4.k`）。 */
         fun tsPrereqs(ts: Any?): List<Int>? = intArray(ts, "k")
+
+        // ------------------------------------------------ [R107-01 EC4-DIAG] 只读诊断
+        // 以下 helper 只做查询：A 的两种入参、z 余额、requirementType/group/K/r，
+        // 以及 TimeStudyTree 的 c()/b()。全部包 try/catch，失败返回 null/占位符，不改状态。
+
+        /** 原版需求判定两种入参：A(false) / A(true)（c.A(Z) 的 z 参数只影响个别分支）。 */
+        fun tsA(ts: Any?, flag: Boolean): Boolean? = try {
+            find(ts, "A", 1)?.invoke(ts, flag) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG_DIAG2, "ts.A(" + flag + ") failed: " + t)
+            null
+        }
+
+        /** 原版余额判定 z()Z（TT >= x()，x() 已接 bootstrap 缩放）。 */
+        fun tsZ(ts: Any?): Boolean? = try {
+            find(ts, "z", 0)?.invoke(ts) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG_DIAG2, "ts.z() failed: " + t)
+            null
+        }
+
+        /** qu4.l:Constants$TSRequirementType 的枚举名（AT_LEAST_ONE / ALL / DIMENSION_PATH）。 */
+        fun tsReqType(ts: Any?): String = try {
+            val f = findField(ts, "l") ?: return "?"
+            val v = f.get(ts) ?: return "null"
+            v.toString()
+        } catch (t: Throwable) {
+            "?"
+        }
+
+        /** c.t:I 维度/列分组下标（-1 = 未分组）。 */
+        fun tsGroup(ts: Any?): Int? = try {
+            findField(ts, "t")?.getInt(ts)
+        } catch (t: Throwable) {
+            null
+        }
+
+        /** 原版 c.K()Z（A() 最终判定的一环）。 */
+        fun tsKFlag(ts: Any?): Boolean? = try {
+            find(ts, "K", 0)?.invoke(ts) as? Boolean
+        } catch (t: Throwable) {
+            null
+        }
+
+        /** 原版 c.r requirement lambda 的布尔结果（A() 最终判定的第一环）。 */
+        fun tsReqLambda(ts: Any?): Boolean? = try {
+            val f = findField(ts, "r") ?: return null
+            val lambda = f.get(ts) ?: return null
+            find(lambda, "invoke", 0)?.invoke(lambda) as? Boolean
+        } catch (t: Throwable) {
+            null
+        }
+
+        /** 当前 TimeStudyTree cache.a.n 的 c()/b()（DIMENSION_PATH 分支比较值）。 */
+        fun treeState(): String = try {
+            val cacheCls = cls("kajfosz.antimatterdimensions.cache.a") ?: return "?"
+            val n = cacheCls.getField("n").get(null) ?: return "?"
+            val tree = find(n, "a", 0)?.invoke(n) ?: return "?"
+            val c = find(tree, "c", 0)?.invoke(tree)
+            val b = find(tree, "b", 0)?.invoke(tree)
+            "c=" + c + ",b=" + b
+        } catch (t: Throwable) {
+            "?(" + t + ")"
+        }
+
+        private fun findField(target: Any?, name: String): java.lang.reflect.Field? {
+            var c: Class<*>? = target?.javaClass
+            while (c != null) {
+                for (f in c.declaredFields) {
+                    if (f.name == name) {
+                        try {
+                            f.isAccessible = true
+                        } catch (_: Throwable) {
+                        }
+                        return f
+                    }
+                }
+                c = c.superclass
+            }
+            return null
+        }
+
 
         /** 诊断：把一串 TS 的「已买/价格/自身前置」打出来。 */
         fun tsChain(ids: List<Int>): String {

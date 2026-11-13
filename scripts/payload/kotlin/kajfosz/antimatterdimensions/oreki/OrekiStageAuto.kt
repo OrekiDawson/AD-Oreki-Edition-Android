@@ -2090,6 +2090,12 @@ object OrekiStageAuto {
             } else if (economyEligible) {
                 GameApi.eternityEconomyTick()
             }
+            // [R107-01 DIL-AUTO] 膨胀研究自动购买：与「是否主动按永恒」无关，只要经济层
+            // 可用（未关自动化/未关自动永恒/未 Doomed）就每帧尝试一次；一次最多买 1 个，
+            // 买不到当前 id 就停（严格 1..6 顺序）。门禁语义不变：本调用绝不发起永恒结算。
+            if (economyEligible) {
+                OrekiDilationStudies.tick()
+            }
             val changed = reason != lastEtGateReason
             if ((changed && now - lastEtGateLogAt >= 1_000L) || now - lastEtGateLogAt >= 5_000L) {
                 lastEtGateReason = reason
