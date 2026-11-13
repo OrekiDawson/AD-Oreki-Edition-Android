@@ -43,6 +43,27 @@ class AgpParityUnitTests(unittest.TestCase):
             result = parity.check(legacy, agp, min_legacy_classes=1)
             self.assertTrue(result["parity"])
 
+    def test_expected_manifest_missing_class_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "classes.txt"
+            manifest.write_text("\n".join(descriptor(n) for n in ["A", "B"]) + "\n", encoding="utf-8")
+            agp = Path(tmp) / "app.apk"
+            with zipfile_apk(agp, {descriptor("A")}):
+                pass
+            result = parity.check_expected(manifest, agp, min_expected_classes=1)
+            self.assertFalse(result["parity"])
+            self.assertEqual(result["missing_in_agp"], [descriptor("B")])
+
+    def test_expected_manifest_extra_synthetics_allowed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = Path(tmp) / "classes.txt"
+            manifest.write_text(descriptor("A") + "\n", encoding="utf-8")
+            agp = Path(tmp) / "app.apk"
+            with zipfile_apk(agp, {descriptor("A"), descriptor("B$$ExternalSyntheticLambda0")}):
+                pass
+            result = parity.check_expected(manifest, agp, min_expected_classes=1)
+            self.assertTrue(result["parity"])
+
 
 def zipfile_apk(path: Path, descriptors: set[str]) -> "object":
     import zipfile

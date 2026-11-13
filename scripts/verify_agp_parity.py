@@ -53,6 +53,21 @@ def classes_from_apk(path: Path) -> set[str]:
     return classes
 
 
+def check_expected(expected_file: Path, agp_apk: Path, *, min_expected_classes: int = MIN_LEGACY_CLASSES) -> dict[str, object]:
+    expected = {line.strip() for line in expected_file.read_text(encoding="utf-8").splitlines() if line.strip()}
+    agp = normalize(classes_from_apk(agp_apk))
+    if len(expected) < min_expected_classes:
+        raise ValueError(f"expected class manifest 过少（{len(expected)} < {min_expected_classes}）")
+    missing = sorted(expected - agp)
+    return {
+        "mode": "expected-manifest",
+        "expected_classes": len(expected),
+        "agp_classes": len(agp),
+        "missing_in_agp": missing,
+        "parity": not missing,
+    }
+
+
 def check(legacy_dex: Path, agp_apk: Path, *, min_legacy_classes: int = MIN_LEGACY_CLASSES) -> dict[str, object]:
     legacy = normalize(classes_from_dex_file(legacy_dex))
     agp = normalize(classes_from_apk(agp_apk))
@@ -71,12 +86,16 @@ def check(legacy_dex: Path, agp_apk: Path, *, min_legacy_classes: int = MIN_LEGA
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--legacy-dex", default="build/kt/classes.dex")
+    parser.add_argument("--legacy-dex", help="legacy Kotlin DEX (local full parity)")
+    parser.add_argument("--expected-classes", help="committed business class manifest (CI, no kotlinc needed)")
     parser.add_argument("--agp-apk", default="agp/app/build/outputs/apk/debug/app-debug.apk")
     parser.add_argument("--result-file")
     args = parser.parse_args()
     try:
-        result = check(Path(args.legacy_dex), Path(args.agp_apk))
+        if args.expected_classes:
+            result = check_expected(Path(args.expected_classes), Path(args.agp_apk))
+        else:
+            result = check(Path(args.legacy_dex or "build/kt/classes.dex"), Path(args.agp_apk))
     except (OSError, ValueError, zipfile.BadZipFile) as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 1
