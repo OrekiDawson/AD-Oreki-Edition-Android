@@ -30,12 +30,15 @@ import org.objectweb.asm.tree.analysis.Frame;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -44,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -152,6 +156,7 @@ public final class BigClinitSplitter {
         List<BitSet> liveIn = new ArrayList<>();
         List<List<Integer>> successors = new ArrayList<>();
         int maxLocals;
+        double[] prefixEstimate;
     }
 
     static final class Chunk {
@@ -233,10 +238,26 @@ public final class BigClinitSplitter {
             throw new IllegalStateException("FAIL: 没有任何满足安全判据的切点");
         }
 
-        List<Chunk> chunks = chooseChunks(analysis, boundaries, limit);
+        List<PlanAttempt> planAttempts = new ArrayList<>();
+        List<String> verifyLog = new ArrayList<>();
+        int maxAttempts = Integer.parseInt(options.getOrDefault("max-attempts", "120"));
+        List<Chunk> chunks = searchPlan(analysis, boundaries, limit, options.get("jar"),
+                options.get("android-jar"), className, planAttempts, verifyLog, maxAttempts);
+        if (chunks == null) {
+            StringBuilder detail = new StringBuilder("FAIL: 找不到能通过 JDK verifier 的两段拆分方案; attempts=")
+                    .append(planAttempts.size());
+            for (int i = 0; i < Math.min(5, planAttempts.size()); i++) {
+                PlanAttempt attempt = planAttempts.get(i);
+                detail.append((char) 10).append("  b=").append(attempt.boundary).append(' ')
+                        .append(attempt.status).append(' ').append(attempt.detail);
+            }
+            throw new IllegalStateException(detail.toString());
+        }
         byte[] newClass = buildClass(analysis, chunks);
         List<String> verifyErrors = new ArrayList<>();
         verifyAllMethods(newClass, className, hierarchy, verifyErrors);
+        String jdkVerifyResult = jdkVerify(newClass, className, options.get("jar"), options.get("android-jar"));
+        boolean jdkVerified = jdkVerifyResult == null;
         String originalSequence = dumpSequence(analysis, 0, analysis.real.size());
         StringBuilder chunkedSequence = new StringBuilder();
         for (Chunk chunk : chunks) {
@@ -293,6 +314,20 @@ public final class BigClinitSplitter {
         }
         report.append("  ],\n");
         report.append("  \"chunk_count\": ").append(chunks.size()).append(",\n");
+        report.append("  \"jdk_verified\": ").append(jdkVerified).append(",\n");
+        report.append("  \"jdk_verify_result\": ").append(json(jdkVerifyResult == null ? "" : jdkVerifyResult)).append(",\n");
+        report.append("  \"verify_log\": ").append(stringArray(verifyLog)).append(",\n");
+        report.append("  \"plan_attempts\": [");
+        for (int i = 0; i < planAttempts.size(); i++) {
+            PlanAttempt attempt = planAttempts.get(i);
+            if (i > 0) {
+                report.append(", ");
+            }
+            report.append("{\"boundary\": ").append(attempt.boundary)
+                  .append(", \"status\": ").append(json(attempt.status))
+                  .append(", \"detail\": ").append(json(attempt.detail)).append('}');
+        }
+        report.append("],\n");
         report.append("  \"max_chunk_stack\": ").append(maxChunkStack).append(",\n");
         report.append("  \"instruction_sequence_preserved\": ").append(sequencePreserved).append(",\n");
         report.append("  \"verify_errors\": ").append(stringArray(verifyErrors)).append(",\n");
@@ -349,7 +384,60 @@ public final class BigClinitSplitter {
             analysis.successors.add(successorsOf(analysis, i));
         }
         computeLiveness(analysis);
+        analysis.prefixEstimate = new double[analysis.real.size() + 1];
+        for (int i = 0; i < analysis.real.size(); i++) {
+            analysis.prefixEstimate[i + 1] = analysis.prefixEstimate[i]
+                    + estimateInsnBytes(analysis.real.get(i));
+        }
         return analysis;
+    }
+
+    /** 指令编码字节数估计（用于切点预筛选，误差由实际试编码兜底）。 */
+    static int estimateInsnBytes(AbstractInsnNode node) {
+        int opcode = node.getOpcode();
+        if (node instanceof VarInsnNode) {
+            int var = ((VarInsnNode) node).var;
+            if (opcode >= Opcodes.ILOAD && opcode <= Opcodes.ALOAD) {
+                return var <= 3 ? 1 : (var <= 255 ? 2 : 4);
+            }
+            return var <= 3 ? 1 : (var <= 255 ? 2 : 4);
+        }
+        if (node instanceof IincInsnNode) {
+            IincInsnNode inc = (IincInsnNode) node;
+            return (inc.var <= 255 && inc.incr >= -128 && inc.incr <= 127) ? 3 : 6;
+        }
+        if (node instanceof IntInsnNode) {
+            return opcode == Opcodes.BIPUSH || opcode == Opcodes.NEWARRAY ? 2 : 3;
+        }
+        if (node instanceof LdcInsnNode) {
+            Object cst = ((LdcInsnNode) node).cst;
+            return (cst instanceof Integer && (Integer) cst >= 0 && (Integer) cst <= 255) ? 2 : 3;
+        }
+        if (node instanceof MethodInsnNode) {
+            return (opcode == Opcodes.INVOKEINTERFACE || opcode == Opcodes.INVOKEDYNAMIC) ? 5 : 3;
+        }
+        if (node instanceof FieldInsnNode) {
+            return 3;
+        }
+        if (node instanceof TypeInsnNode) {
+            return 3;
+        }
+        if (node instanceof JumpInsnNode) {
+            return 3;
+        }
+        if (node instanceof TableSwitchInsnNode) {
+            return 13 + 4 * ((TableSwitchInsnNode) node).labels.size();
+        }
+        if (node instanceof LookupSwitchInsnNode) {
+            return 9 + 8 * ((LookupSwitchInsnNode) node).labels.size();
+        }
+        if (node instanceof MultiANewArrayInsnNode) {
+            return 4;
+        }
+        if (opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) {
+            return 1;
+        }
+        return 1;
     }
 
     static List<Integer> successorsOf(Analysis analysis, int index) {
@@ -750,6 +838,153 @@ public final class BigClinitSplitter {
             }
         }
         return -1;
+    }
+
+    // ---------- JDK verifier 兜底校验 ----------
+
+    /**
+     * 用 JDK（HotSpot）的 JVMS 字节码校验器验证拆分后的 class。
+     * 触发方式：自定义 ClassLoader defineClass + Class.forName(initialize=false) +
+     * getDeclaredMethods()，HotSpot 会在链接阶段做完整校验（可捕获 uninitialized 误用）。
+     *
+     * 返回 null = 通过；返回字符串 = 失败/不可判定原因。
+     */
+    static String jdkVerify(byte[] classBytes, String className, String jarPath, String androidJar) {
+        Path tempDir = null;
+        URLClassLoader loader = null;
+        try {
+            tempDir = Files.createTempDirectory("oreki-verify-");
+            Files.write(tempDir.resolve(className + ".class"), classBytes);
+            URL[] urls = new URL[] {
+                    tempDir.toUri().toURL(),
+                    Path.of(jarPath).toUri().toURL(),
+                    Path.of(androidJar).toUri().toURL(),
+            };
+            loader = new URLClassLoader(urls, ClassLoader.getPlatformClassLoader());
+            Class<?> clazz = Class.forName(className.replace('/', '.'), false, loader);
+            clazz.getDeclaredMethods();
+            clazz.getDeclaredFields();
+            clazz.getDeclaredConstructors();
+            return null;
+        } catch (Throwable error) {
+            String message = error.getClass().getName() + ": " + String.valueOf(error.getMessage());
+            return message.replace('\n', ' ').replace('\r', ' ');
+        } finally {
+            if (loader != null) {
+                try {
+                    loader.close();
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+            if (tempDir != null) {
+                try (Stream<Path> walk = Files.walk(tempDir)) {
+                    walk.sorted(Comparator.reverseOrder()).forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (Exception ignored) {
+                            // ignore
+                        }
+                    });
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    static final class PlanAttempt {
+        final int boundary;
+        final String status;
+        final String detail;
+
+        PlanAttempt(int boundary, String status, String detail) {
+            this.boundary = boundary;
+            this.status = status;
+            this.detail = detail;
+        }
+    }
+
+    /**
+     * 搜索两段拆分方案：从大到小尝试切点，先 ASM Analyzer 自检，再用 JDK verifier 兜底。
+     * 返回第一条 JDK verifier 通过的方案；ASM 通过但 JDK 不可判定的方案作为兜底保留。
+     */
+    static List<Chunk> searchPlan(Analysis analysis, List<Boundary> boundaries, int limit,
+                                  String jarPath, String androidJar, String className,
+                                  List<PlanAttempt> attempts, List<String> verifyLog,
+                                  int maxAttempts) {
+        List<Boundary> descending = new ArrayList<>(boundaries);
+        descending.sort((a, b) -> Integer.compare(b.realIndex, a.realIndex));
+        Boundary empty = new Boundary(0, List.of());
+        int n = analysis.real.size();
+        double averageBytesPerInsn = 2.6;
+        List<Chunk> fallback = null;
+        int tried = 0;
+        int skipped = 0;
+        for (Boundary boundary : descending) {
+            if (boundary.realIndex <= 0 || boundary.realIndex >= n) {
+                continue;
+            }
+            double estimatedHead = analysis.prefixEstimate[boundary.realIndex]
+                    + boundary.params.stream().filter(p -> p.reference).count() * 10.0 + 64.0;
+            if (estimatedHead > limit * 0.99) {
+                skipped++;
+                continue;
+            }
+            double estimatedTail = analysis.prefixEstimate[n] - analysis.prefixEstimate[boundary.realIndex]
+                    + boundary.params.stream().filter(p -> p.reference).count() * 12.0 + 64.0;
+            if (estimatedTail > limit * 0.99) {
+                skipped++;
+                continue;
+            }
+            if (tried >= maxAttempts) {
+                break;
+            }
+            tried++;
+            List<Chunk> chunks;
+            try {
+                Chunk first = makeChunk(analysis, 0, 0, boundary.realIndex, empty, boundary, false, limit);
+                Chunk second = makeChunk(analysis, 1, boundary.realIndex, n, boundary, empty, true, limit);
+                chunks = List.of(first, second);
+            } catch (Throwable error) {
+                attempts.add(new PlanAttempt(boundary.realIndex, "ENCODE_FAIL", String.valueOf(error)));
+                continue;
+            }
+            byte[] newClass;
+            try {
+                newClass = buildClass(analysis, chunks);
+            } catch (Throwable error) {
+                attempts.add(new PlanAttempt(boundary.realIndex, "WRITE_FAIL", String.valueOf(error)));
+                continue;
+            }
+            List<String> asmErrors = new ArrayList<>();
+            try {
+                verifyAllMethods(newClass, className, analysis.hierarchy, asmErrors);
+            } catch (Throwable error) {
+                asmErrors.add(String.valueOf(error));
+            }
+            if (!asmErrors.isEmpty()) {
+                attempts.add(new PlanAttempt(boundary.realIndex, "ASM_VERIFY_FAIL", asmErrors.get(0)));
+                continue;
+            }
+            String jdk = jdkVerify(newClass, className, jarPath, androidJar);
+            if (jdk == null) {
+                attempts.add(new PlanAttempt(boundary.realIndex, "JDK_VERIFY_PASS", ""));
+                return chunks;
+            }
+            String status = jdk.contains("VerifyError") ? "JDK_VERIFY_FAIL" : "JDK_INCONCLUSIVE";
+            attempts.add(new PlanAttempt(boundary.realIndex, status, jdk));
+            if (status.equals("JDK_INCONCLUSIVE") && fallback == null) {
+                fallback = chunks;
+            }
+        }
+        verifyLog.add("searchPlan: tried=" + tried + " skipped_too_large=" + skipped
+                + " total_candidates=" + boundaries.size());
+        if (fallback != null) {
+            verifyLog.add("ASM 通过但 JDK 校验不可判定，使用兜底方案（不宣称 JDK 校验 PASS）");
+            return fallback;
+        }
+        return null;
     }
 
     // ---------- 分块 ----------

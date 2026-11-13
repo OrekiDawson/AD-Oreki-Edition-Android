@@ -26,6 +26,7 @@ import json
 import os
 import re
 import sys
+import struct
 import time
 import zipfile
 
@@ -78,6 +79,12 @@ def unescape_java(text: str) -> str:
         out.append(JAVA_ESCAPES.get(nxt, nxt))
         i += 2
     return "".join(out)
+
+
+ZERO_DEFAULT = {
+    "Z": ("Z", 0), "B": ("I", 0), "C": ("C", 0), "S": ("I", 0), "I": ("I", 0),
+    "J": ("J", 0), "F": ("F", 0.0), "D": ("D", 0.0),
+}
 
 
 def dex_value_to_expected(field_type: str, raw: str | None):
@@ -308,6 +315,15 @@ def compare(dex_classes: dict, jar_index: dict, android_classes: set, renames) -
                 })
             expected = dex_value_to_expected(dex_field["type"], dex_field["value"])
             actual = normalize_cv(jar_field["cv"], dex_field["type"])
+            # 缺省 ConstantValue 与基本类型零值等价（JVM 静态字段默认初始化为 0/false/null）
+            if actual[0] == "NO_VALUE" and ZERO_DEFAULT.get(dex_field["type"]) == expected:
+                expected = actual
+            # dexdump 以 ~6 位有效数字打印浮点常量，float/double 字段允许显示精度误差
+            if (dex_field["type"] in ("F", "D") and actual[0] == expected[0]
+                    and len(actual) > 1 and len(expected) > 1
+                    and isinstance(actual[1], float) and isinstance(expected[1], float)
+                    and abs(actual[1] - expected[1]) <= 1e-6):
+                expected = actual
             if expected[0] == "UNPARSED":
                 unparsed_values.append({"class": name, "field": key[0], "raw": expected[1]})
             elif expected != actual:
