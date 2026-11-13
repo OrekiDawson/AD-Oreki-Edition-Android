@@ -10107,3 +10107,37 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - 并行：6 个子 Agent（语义映射×2、Kotlin 重建、Smali 钩子台账、DEX 转换、测试/CI）运行中；
   GUI/阶段门禁因名额暂 NOT STARTED。
 
+
+
+## R107-01：AGP 构建链首次产出可运行 MOD APK；enjarify 原生游戏代码路线 BLOCKED（2026-11-13 夜间，进行中）
+
+- **AGP 构建**：AGP 9.5.1 `-PorekiFullGame=true` 真实接管 Manifest/14,976 资源（同名不同 ID=0）/
+  assets/4 ABI native/原证书签名/APK 打包；MOD Kotlin 由 AGP 内置 Kotlin 2.2.10 编译为 classes4.dex。
+- **过渡候选（AVD 实测 PASS）**：`c25c68dc…3322fa3`（72,416,868 B），安装升级 Success、COLD 启动 1.8s、
+  进入游戏、MOD 简体中文深色 UI/顶栏当前页面/自定义导航/自动化可用、AM 5.98e90 持续增长、logcat 0 FATAL。
+  组成：AGP 输出的 Manifest/Resources/assets/native + AGP 编译 MOD Kotlin DEX（1125 类）+
+  过渡游戏&钩子 DEX classes.dex..3（10,150/4,611/583 类，来自 work/mod 补丁树）。
+  **游戏代码不是 AGP 编译产物，不得宣称为“AGP 原生完整游戏构建”**。
+- **官方 DEX→JVM 转换器结论**：Google enjarify 对官方两 DEX 15,319/15,319 类 0 错误；
+  选择性 shadow remap（仅官方 DEX 中真实存在的 72 个 kotlin/** 类改到 oreki/shadow/kotlin/**；
+  游戏类与 MOD 新增类的 kotlin 引用均按该集合映射，std/src 专有类保留给 AGP stdlib）后 D8 全量通过、
+  AGP 构建/签名/冷启动 PASS。**但运行期 Tick 卡死**：进入游戏后 AM 停止增长，SIGQUIT 显示
+  `Player.l0/k0 → rk8.G → nc8.z/B → cv0.k → dc2.k/q → tf2.d → vf2.d` 自旋（100% CPU，无 FATAL）；
+  无 MOD 钩子的官方 DEX enjarify 基线同样复现 → 归因 enjarify 运行期语义/协程调度不保真，
+  **判定 BLOCKED，不可作为 Candidate 来源**。证据 `reports/R107-01/lead-evidence/native-blocker/`。
+- **P0/P1 修复**：G1 永恒层页签名单补 dilation/eternityChallenges；G2 页签门禁注入取键由
+  `Lbm4;->i`（图标字形）改为 `Luo4;->b`（业务键）；G4 现实层 currentSubTab 越阶段 fail-closed 判据；
+  3.21 Currency 字段别名错误修复（IP `iq0.w:Lyp0;`、EP `iq0.S:Lvp0;`，原映射会写进暗物质/反物质）+
+  fail-closed 反向守卫。门禁接线审计 11/11 PASS；生成式回归 42/42 PASS。
+- **反混淆真实进度（分母未缩小）**：第一方 10,954 类 / 51,397 方法 / 41,793 字段；
+  默认包命名类 79（confirmed 37/strong 37/inferred 5/unknown 9,633）、方法 118、字段 63；
+  kajfosz 语义名 1,139/1,242、混淆方法真实语义 1,049/3,417、混淆字段 101/3,351。
+- **Kotlin 重建**：8 个遗留类审查/独立编译 PASS；桩驱动差分 harness 11/11 类、1960 checks、0 fail；
+  新增 3 类；BLOCKED：默认包类型在类型位置跨包引用（Kotlin 2.4.21 语言限制）。
+- **Smali 钩子迁移**：台账复核 20/54 站点 ERROR 0；11 站点/10 个 Kotlin 业务单元写成 Kotlin 并通过
+  kotlinc/单测/javap ABI/D8/真实 smali 汇编反查；**生产实际消除 0**（未集成，待 AVD 验证）。
+- **长期规则**：上游基线正式冻结（Android 3.21.0；Web 5409e320，2026-07-17）+ 选择性移植 +
+  独立 MOD 版本体系 + 7 条升级条件（Android commit 6fed583e；Web PR #13）。
+- **发布状态**：正式 Candidate/Verify/Release **BLOCKED**（AGP 原生游戏代码运行期未通过；CI 无 AGP
+  游戏代码链路）。R103 `android-update-3.21.0-3d924271` Latest 未变，未发布任何 APK。
+

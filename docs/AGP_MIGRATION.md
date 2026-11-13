@@ -69,3 +69,17 @@
 - 结果：APK 构建/签名/资源/清单正确，但 AVD 冷启动仍 VerifyError（`ee1.<init>` 字段访问类型流）；
   转换器对 R8 优化 DEX 的类型流还原不可靠，**不得作为正式 Candidate 来源**。
 - 工具与复现：`scripts/dexfix/README.md`、`scripts/agp_gamejar.py`；证据 `reports/R106-02/`。
+
+## 阶段四（R107-01，2026-11-13）：AGP 打包可运行 MOD APK；原生游戏代码路线 BLOCKED
+
+- **AGP 打包过渡候选（AVD PASS）**：AGP 9.5.1 负责 Manifest/Resources/assets/4 ABI native/原证书签名/
+  APK 打包与 MOD Kotlin DEX；游戏与 MOD 钩子 DEX 以过渡输入方式加入（classes.dex..3）。
+  产物 SHA-256 `c25c68dc…3322fa3`，冷启动进入游戏、MOD 中文深色 UI/自动化可用、AM 持续增长、0 FATAL。
+  打包脚本：`scripts/agp_hybrid_package.py`。**边界**：游戏代码不是 AGP 编译产物，
+  不得作为“AGP 原生完整游戏构建”发布。
+- **AGP 原生游戏代码（官方 DEX→enjarify→AGP/D8）**：构建/签名/冷启动 PASS，但运行期 Tick 卡死
+  （coroutine/Gson/Player 更新链自旋；无钩子基线同样复现）→ **BLOCKED**，不可作为 Candidate 来源。
+  证据：`reports/R107-01/lead-evidence/native-blocker/`。
+- **下一步路线**：以 Kotlin 关键闭包重建（Player/主循环/存档/阶段）替代整包转换器；
+  转换器仅保留为离线对照/实验，不再作为生产输入。
+
