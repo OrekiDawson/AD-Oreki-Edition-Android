@@ -335,3 +335,16 @@
 - **构建**：./gradlew assembleRelease PASS；APK b4145763…（84,621,483 B）；jadx 确认 K()/is3.x() 转发、O(int) 未误改。
 - **AVD 运行验证进行中**：fresh 档 interval=1，采样 EC completions/realities/dilation studies（脚本 /tmp/r107/test_ecscale.sh，证据 reports/R107-01/lead-evidence/ecscale-run/）。
 - 回退：注释 build_mod main 两次调用；只改读取值，不写存档字段/不发资源/不改完成状态。
+
+### 10.14 膨胀研究自动购买 + EC4+ 诊断（2026-11-14 05:25，commit 9864121a）
+
+- **新增 OrekiDilationStudies**：反射原版膨胀研究注册表与购买入口（c01.a / in1.c / is3.D），每经济 tick 只买 1 个未购研究，
+  真实扣 TT（成本经 OrekiDilationCostScale bootstrap /1000）、不写字段不发资源；已接线 tickEternityGated 经济分支。
+- **AVD 实测暴露 payload↔游戏 kotlin ABI 冲突**：原实现用 kotlin.Pair/sortedBy → `NoSuchMethodError: kotlin.Pair.getSecond()`
+  （游戏 DEX 含官方 R8 合并版 kotlin 类，payload 编译用标准 stdlib）；已改为对象数组 + IntArray + 手写插入排序，
+  并记录教训：payload Kotlin 避免 Pair/sortedBy/mapNotNull/associate 等 stdlib 内部 ABI 依赖。
+- **EC4+ 只读诊断**（OREKI_EC_DIAG2）：TRYBUY 失败时输出 target/unlocked/comps/A0/A1/z/B/prereqOk/tail + TS 前置链 3 层；
+  静态 50/50 PASS；AVD 诊断跑次进行中。
+- 已知：DS1（膨胀研究 1）原版需求 = TT≥12900 且 **EC11/EC12 各完成 5 次**（或 Perk），当前 EC 卡在 5,5,5/unlocked=3
+  ⇒ 膨胀研究自动购买会输出 WAIT id=1 req=false（正确行为），现实链真正缺口是 EC4+ 入口。
+- 构建：APK 687d48bb…（84,629,675 B，含上述全部改动）。
