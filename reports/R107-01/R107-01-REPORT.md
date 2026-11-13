@@ -321,3 +321,17 @@
   膨胀研究 TT 成本（cost 返回点 /1000），bootstrap 时生效、fail-closed 原样返回；完成后构建 + AVD 验证 EC 完成数与 reality 是否突破。
 - cannot-eternity 诊断（注入首永恒后停摆态存档，180s 采样）：TT 11500/永恒升级 7 位/时间研究 15 可恢复，maxIP e5→e30 缓慢增长；
   说明 P1 修复后经济链恢复但速度不足，EC/研究缩放是下一主攻点。
+
+### 10.13 Android 现实链候选修复：移植 Web bootstrap 数值缩放（2026-11-14 04:45，commit 9097ac5a）
+
+- **缺口**：Web isOrekiBootstrapRun() 驱动 4 条规则（IP/EP 除数、EC 门槛/100、膨胀研究 TT/1000）；Android 仅前两条，
+  实测 EC 完成停在 5,5,5、膨胀研究 6 买不到（现实不可解锁）、realities 恒 0。
+- **实现（Kotlin + smali ABI 转发）**：
+  * OrekiBootstrapScale：bootstrap 1s 缓存、BigDouble 反射 divide/clampMin、识别膨胀研究状态类 d01/a01/b01、窗口切换日志；
+  * OrekiEcRequirementScale.apply：bootstrap 时 EC 资源门槛 max(1, req/100)；落点 `b.K()` 两个 return（调查否证 O(I)Z 假设：
+    其 p 仅 EC4/EC12 非空且为限制条件值；真实链 prestige.c.f()=antimatter>=h()=b.M(b.I())=b.K()*growth^min(i,4)）；
+  * OrekiDilationCostScale.applyForStudy：仅膨胀研究且 bootstrap → max(1, cost/1000)，覆盖 is3.x() + 23 处直接读成本（树总价/预览/UI/自动购买）。
+- **静态验证**：work/r107-gates/ecscale/verify_static.py 16/16 PASS（真实 3.21 基线副本执行补丁函数；EC 2 处/DIL 23 处/幂等/15 smali 汇编/Kotlin 编译/ABI）。
+- **构建**：./gradlew assembleRelease PASS；APK b4145763…（84,621,483 B）；jadx 确认 K()/is3.x() 转发、O(int) 未误改。
+- **AVD 运行验证进行中**：fresh 档 interval=1，采样 EC completions/realities/dilation studies（脚本 /tmp/r107/test_ecscale.sh，证据 reports/R107-01/lead-evidence/ecscale-run/）。
+- 回退：注释 build_mod main 两次调用；只改读取值，不写存档字段/不发资源/不改完成状态。
