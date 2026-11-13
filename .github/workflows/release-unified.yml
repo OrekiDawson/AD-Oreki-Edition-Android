@@ -162,6 +162,23 @@ jobs:
           path: verification
       - name: Refuse legacy or unproven APK before any release authorization
         run: python3 scripts/enforce_agp_only.py artifact --candidate-dir candidate
+      - name: Block reused Android versionCode and unreleased MOD version state
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, sys
+          policy = json.loads(pathlib.Path("scripts/release-gate-policy.json").read_text(encoding="utf-8"))
+          candidate = json.loads(pathlib.Path("candidate/candidate-metadata.json").read_text(encoding="utf-8"))
+          code = int(policy["versionCode"])
+          last_stable = int(policy["lastPublishedVersionCode"])
+          if code <= last_stable:
+              sys.exit(f"FAIL: A NEW stable APK must increase versionCode: {code} <= {last_stable}")
+          if policy.get("modVersionState") != "ready-for-release":
+              sys.exit("FAIL: MOD version identity has not been reviewed for stable release")
+          if candidate.get("versionName") != policy.get("versionName") or str(candidate.get("versionCode")) != str(code):
+              sys.exit("FAIL: Candidate version differs from reviewed release identity")
+          print("PASS: Strict versionCode increment and approved MOD version identity")
+          PY
       - name: Enforce the fail-closed release gate
         id: gate
         env:
