@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "note": "AVD minimal acceptance evidence only. R104 dual-platform 180-minute completion runs are NOT RUN; this is not a release acceptance.json.",
+  "candidate_run_id": 43408627390,
+  "verification_run_id": 43409753177,
+  "apk_sha256": "380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965",
+  "source_sha": "d65de195ba60461143b9257d3d6891b3b93099d6",
+  "web_ref": "1bf34c373d6f21d188651acfb250abd7b3ca2229",
+  "checks": [
+    {
+      "id": "install-upgrade",
+      "state": "PASS",
+      "evidence": "01-install-r103.log + 04-upgrade-candidate.log + 06-candidate-package.txt"
+    },
+    {
+      "id": "launch",
+      "state": "PASS",
+      "evidence": "05-candidate-launch.png + 07-candidate-launch-logcat.txt (0 FATAL/ANR)"
+    },
+    {
+      "id": "apk-signature-version",
+      "state": "PASS",
+      "evidence": "20-signature-version.txt"
+    },
+    {
+      "id": "stage-gate-positive",
+      "state": "PASS",
+      "evidence": "15-imported-drawer-positive-gate.png"
+    },
+    {
+      "id": "stage-gate-negative",
+      "state": "PASS",
+      "evidence": "11-fresh-drawer.png"
+    },
+    {
+      "id": "autobuyer-core",
+      "state": "PASS",
+      "evidence": "23-autobuyer-page-on.png + 21/22 player.json snapshots"
+    },
+    {
+      "id": "save-import",
+      "state": "PASS",
+      "evidence": "12/14 player.json + 13-imported-save-ingame.png"
+    },
+    {
+      "id": "gui",
+      "state": "PASS",
+      "evidence": "02/05/10/13/15 screenshots"
+    }
+  ],
+  "completion_runs": []
+}

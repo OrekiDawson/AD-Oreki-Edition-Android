@@ -1,0 +1,15 @@
+== apksigner
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/home/oreki/Android/Sdk/build-tools/34.0.0/lib/apksigner.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Signer #1 certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+Signer #1 certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+Signer #1 certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+Signer #1 certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b
+
+== aapt2 badging
+package: name='com.oreki.antimatterdimensions' versionCode='30210000' versionName='3.21.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+sdkVersion:'32'
+targetSdkVersion:'37'
