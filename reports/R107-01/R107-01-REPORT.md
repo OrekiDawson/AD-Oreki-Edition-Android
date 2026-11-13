@@ -275,3 +275,18 @@
   r4cur 的 ClassCastException 另指向 shadow `ContinuationImpl` 与 repackaged `s01`(DispatchedContinuation)/`ld0` 的层次不匹配（75 接口替换/FixInitSplice 需单独冒烟）。
 - **结论**：原生候选暂时只能采用「8 类最小替换」形态（已验证可运行）；r2/r4/r5 均不可作 Candidate，需启动级 AVD 冒烟后才可继续。
 - 已要求 agp-dex 产出「8 类最小集」与「8 类+FixInitSplice」两个变体并分析 ABI 不兼容根因。
+
+### 10.9 全新档 30 分钟真实跑次（修复后，hybrid-etlayer ee839ced…）：26 次永恒，未达现实
+
+- 设置：pm clear 全新档，真实点击开始，每 20s 采样 player.json，30 分钟窗口（1809s），0 FATAL/VerifyError。
+- 里程碑（真实墙钟，受少量构建并发争抢）：
+  | t | 事件 |
+  | --- | --- |
+  | 402s | 首次永恒（EP 6.70e7，EP 尺度生效） |
+  | 845s | 第 2 次永恒（bigE=2） |
+  | 865s | 第 4 次永恒（EP e40.9） |
+  | 1086–1608s | EP 停在 e50.6（6 次永恒后），EC 自动推进（EC 完成 5,5,5） |
+  | 1628–1809s | 永恒爆发：bigE 15→22→26；TT 4.48e6；时间研究 17 |
+- 关键改进：修复前（同环境旧候选）首永恒后整段永恒层自动化停摆（TT=0、无第 2 次永恒）；修复后 30 分钟内 26 次永恒、TT/时间研究/EC 持续运转。
+- **未达现实**（realities=0）：EC 完成数 5,5,5（unlocked 3），EP 在 EC 模式归零；下一瓶颈=EC 完成数/时间研究路径与现实门槛（maxEP e4000），
+  与 Web 侧「EP e4000 + 自动化策略」问题同构。证据：reports/R107-01/lead-evidence/hybrid-etlayer-fresh-run/（timeline/full-logcat）。
