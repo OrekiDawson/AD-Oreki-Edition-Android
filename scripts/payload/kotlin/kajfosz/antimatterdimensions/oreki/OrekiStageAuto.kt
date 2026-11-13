@@ -2034,7 +2034,9 @@ object OrekiStageAuto {
             GameApi.setAutoEternityActive(true)
             if (GameApi.autoEternityIsActive() == true) {
                 eternityAutobuyerAdopted = true
-                Log.i(TAG_ET_GATE, "bootstrap: adopted vanilla eternity autobuyer after unlock")
+                // [R107-01 P0] 同时纠正结算模式，避免「每帧永恒」把 maxIP/EP 卡死（与 Web 同源修复）。
+                GameApi.configureEternityAutobuyerXHighest(10.0)
+                Log.i(TAG_ET_GATE, "bootstrap: adopted vanilla eternity autobuyer after unlock (mode=X_HIGHEST x10)")
             }
         } catch (_: Throwable) {
         }

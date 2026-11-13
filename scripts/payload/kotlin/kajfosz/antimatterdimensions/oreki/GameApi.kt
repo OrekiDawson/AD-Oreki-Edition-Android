@@ -1956,6 +1956,59 @@ internal object GameApi {
         }
     }
 
+    /** 只写原版自动购买器配置字段（非玩家进度字段）：用于把接管后的默认「每帧永恒」改成 X_HIGHEST×10。 */
+    private fun writeGameField(owner: Any?, fieldName: String, value: Any?): Boolean {
+        if (owner == null) return false
+        return try {
+            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.set(owner, value)
+            true
+        } catch (error: Throwable) {
+            miss("write $fieldName", error)
+            false
+        }
+    }
+
+    // ------------------------------------------------ [R107-01 P0] 接管自动永恒时纠正结算模式
+    //
+    // 缺陷（与 Web 同一根因，web report reports/R107-01/ep-wall-fix/ 逐帧实证）：
+    // R104 首次永恒后接管原版「自动永恒」开关，但原版默认配置是 MODE=AMOUNT、amount=1
+    // ⇒ Player.canEternity 为真的每一帧立即永恒；永恒里程碑的被动 IP 又让 canEternity 很快恢复
+    // ⇒ 「每帧永恒重置」循环：thisEternity.maxIP 永远停在起始值、gainedEP 恒 ~1e5、EP 冻结、
+    // realities 卡住、isRealityAvailable 永假。
+    // 处理：仅在「新档首次接管 + 原版配置仍为默认值」时改为 MODE=X_HIGHEST、xHighest=10
+    // （等价 R50 的「收益 ≥ 10× 当前 EP」门槛），不覆盖玩家自定义配置。
+    private var eternityAutobuyerModeFixed = false
+
+    fun configureEternityAutobuyerXHighest(multiplier: Double): Boolean {
+        if (eternityAutobuyerModeFixed) return true
+        val state = autoEternityState() ?: return false
+        return try {
+            val mode = (readGameField(state, "mode") as? Int) ?: return false
+            val xHighest = readGameField(state, "xHighest")
+            val amount = readGameField(state, "amount")
+            val amountIsDefault = compareToDouble(amount, 1.0)?.let { it == 0 } ?: false
+            val xHighestIsDefault = compareToDouble(xHighest, 1.0)?.let { it == 0 } ?: false
+            if (mode != 0 || !amountIsDefault || !xHighestIsDefault) {
+                // 玩家已自定义：不改，直接标记完成。
+                eternityAutobuyerModeFixed = true
+                return true
+            }
+            val okMode = writeGameField(state, "mode", 2)
+            val okX = writeGameField(state, "xHighest", bigDouble(multiplier))
+            val verified = okMode && okX &&
+                (readGameField(state, "mode") as? Int) == 2 &&
+                compareToDouble(readGameField(state, "xHighest"), multiplier)?.let { it == 0 } == true
+            if (verified) {
+                eternityAutobuyerModeFixed = true
+                Log.i("OREKI_ET_GATE", "bootstrap: eternity autobuyer mode=X_HIGHEST xHighest=" + multiplier)
+            }
+            verified
+        } catch (error: Throwable) {
+            miss("eternity autobuyer mode", error)
+            false
+        }
+    }
+
     /** 三类挑战均退出、且已播种首个时间维度时，才允许商店自动购买。 */
     fun canAutomateEternityUpgrades(): Boolean {
         // 挑战判定复用 inAnyChallenge()，避免两套遍历在后续版本改字段时漂移。
