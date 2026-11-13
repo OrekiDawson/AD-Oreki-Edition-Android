@@ -348,3 +348,13 @@
 - 已知：DS1（膨胀研究 1）原版需求 = TT≥12900 且 **EC11/EC12 各完成 5 次**（或 Perk），当前 EC 卡在 5,5,5/unlocked=3
   ⇒ 膨胀研究自动购买会输出 WAIT id=1 req=false（正确行为），现实链真正缺口是 EC4+ 入口。
 - 构建：APK 687d48bb…（84,629,675 B，含上述全部改动）。
+
+### 10.15 EC4+ 修复 AVD PASS：EC1-12 全满级 + 膨胀研究 1-5 自动购买（2026-11-14 06:00，commit b91bbfe1）
+
+- **根因**：EC1-3 满级后自动化从未调用原版 respecTimeStudies → TS 树停在列 121；EC4 需 123（requiresST=[121,122]）⇒ K=true 走 V 天神尾项
+  （bootstrap V=0）⇒ A(123)=false ⇒ 143/EC4 研究永不可买。
+- **修复**（OrekiEcAutomation，只调原版 eternity/studies/d.c(Z)V）：当前已解锁 EC 满级时 respec 一次（退款/清树/unlocked 归 0），
+  下一拍按 EC4 列重建 121/123/133/143；3s 闸门；不写字段。静态 61/61 PASS、构建 PASS（APK 81700317…）。
+- **AVD 实测 PASS**（15min interval=1）：EC completions [5×12]（12 关全满）；dilation.studies=[1,2,3,4,5]（膨胀研究自动购买首次生效）；bigE=317；0 FATAL。
+- **现实仍差一步**：DS6（现实研究 6）A()=false；maxEP exponent=6,343,914≥4000 满足、膨胀研究 5 已买；
+  缺 Web 的 orekiAchievementsWaivedForReality()（EC11/12 满级后豁免全部 preReality 成就）— Android 未实现，已派最小 Kotlin 豁免修复。
