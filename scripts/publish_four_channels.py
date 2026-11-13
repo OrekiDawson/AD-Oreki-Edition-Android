@@ -517,7 +517,9 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
                             say(f"{label}: rclone upload-session 401；改用 Graph simple upload 探针")
                             onedrive_graph_fallback(remote, directory, payload, {}, probe=True)
                             say(f"{label}: verified Graph simple-upload probe")
-                            uploaded = False
+                            # Preserve the original uploaded flag: if the rclone probe
+                            # did create a remote file before readback failed, finally
+                            # must still delete it (otherwise a stray probe remains).
                         except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as graph_exc:
                             failures.append(f"{label}: graph fallback probe failed: {graph_exc}")
                     else:
