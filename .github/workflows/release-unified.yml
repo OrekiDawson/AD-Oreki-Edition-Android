@@ -252,7 +252,7 @@ jobs:
 
 
   publish:
-    name: Deliver exact APK to real four channels on GitHub hosted runner
+    name: Deliver exact APK to GitHub Releases, OneDrive and Google Drive
     needs: gate
     runs-on: ubuntu-latest
     environment: stable-release
@@ -264,8 +264,6 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       AD_GITHUB_REPO: OrekiDawson/AD-Oreki-Edition-Android
       AD_RELEASE_DIR: ${{ github.workspace }}/.oreki-release-state
-      AD_LOCAL_SFTP_REMOTE: ${{ vars.AD_LOCAL_SFTP_REMOTE }}
-      AD_LOCAL_SFTP_DIR: ${{ vars.AD_LOCAL_SFTP_DIR }}
       AD_ONEDRIVE_REMOTE: ${{ vars.AD_ONEDRIVE_REMOTE }}
       AD_ONEDRIVE_DIR: ${{ vars.AD_ONEDRIVE_DIR }}
       AD_GDRIVE_REMOTE: ${{ vars.AD_GDRIVE_REMOTE }}
@@ -276,26 +274,13 @@ jobs:
         with:
           ref: ${{ inputs.delivery_tool_sha }}
           persist-credentials: false
-      - name: Fail closed without real local SFTP adapter
-        env:
-          TOOL_SHA: ${{ inputs.delivery_tool_sha }}
-        run: |
-          set -euo pipefail
-          [[ "$(git rev-parse HEAD)" == "$TOOL_SHA" ]] || exit 1
-          if [[ -z "$AD_LOCAL_SFTP_REMOTE" || -z "$AD_LOCAL_SFTP_DIR" ]]; then
-            echo "::error::Configure real Kubuntu SFTP remote and directory"
-            exit 1
-          fi
-          grep -q 'def local_sftp_publish' scripts/publish_four_channels.py || {
-            echo "::error::Audited delivery-tool SHA lacks the SFTP publisher"; exit 1;
-          }
       - name: Set up rclone
         run: |
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install --yes --no-install-recommends rclone >/dev/null
           command -v rclone && command -v gh
-      - name: Stage restricted cloud and SSH credentials
+      - name: Stage restricted cloud credentials
         env:
           RCLONE_CONFIG_B64: ${{ secrets.OREKI_RCLONE_CONFIG_B64 }}
         run: |
@@ -326,11 +311,11 @@ jobs:
             --policy scripts/release-gate-policy.json \
             --candidate-dir candidate --expected-sha256 "$EXPECTED_SHA" \
             --candidate-run-id "$CANDIDATE_RUN" --result-file candidate/manifest-check.json
-      - name: Prove real cloud and Kubuntu SFTP write and delete access
+      - name: Prove real remote write and delete access (three cloud channels)
         run: |
           set -euo pipefail
           mkdir -p "$AD_RELEASE_DIR"
-          python3 scripts/publish_four_channels.py --preflight-write
+          python3 scripts/publish_four_channels.py --preflight-write --channels github,onedrive,gdrive
       - name: Pin GitHub release tag to accepted candidate source SHA
         id: tag
         env:
@@ -349,7 +334,7 @@ jobs:
           }
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
-      - name: Upload one signed APK and verify four channel results
+      - name: Upload one signed APK to the three remote channels
         env:
           SOURCE_SHA: ${{ needs.gate.outputs.source_sha }}
           EXPECTED_SHA: ${{ inputs.expected_sha256 }}
@@ -363,6 +348,7 @@ jobs:
           [[ "$(sha256sum "$apk" | awk '{print $1}')" == "$EXPECTED_SHA" ]] || exit 1
           export OREKI_SOURCE_COMMIT="$SOURCE_SHA"
           python3 scripts/publish_four_channels.py --publish \
+            --channels github,onedrive,gdrive \
             --apk "$apk" --version "$VERSION" --manifest "$manifest" \
             --portable-verify-report "$report"
       - name: Verify GitHub Release tag and published SHA
@@ -389,18 +375,24 @@ jobs:
           source=pathlib.Path(os.environ["AD_RELEASE_DIR"])/"release-info.json"
           state=json.loads(source.read_text()) if source.is_file() else {}
           expected=os.environ["EXPECTED_SHA"]
+          remote=("onedrive","gdrive","github")
           channels={k:((state.get("channels") or {}).get(k) or {}).get("status","NOT RUN")
-                    for k in ("local","onedrive","gdrive","github")}
+                    for k in remote}
+          # Local fourth channel is completed by the dev machine pull, not here.
+          channels["local"]="NOT RUN (dev machine pull)"
           passed=(os.environ["JOB_STATUS"]=="success" and state.get("apk_sha256")==expected
-                  and all(v=="success" for v in channels.values()))
+                  and all(channels[k]=="success" for k in remote))
           report={"apk_sha256":expected,"status":"PASS" if passed else "BLOCKED",
+                  "remote_channels":{k:channels[k] for k in remote},
+                  "local_channel":channels["local"],
                   "channels":channels}
           out=pathlib.Path(os.environ["RUNNER_TEMP"])/"unified-release-status.json"
           out.write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n")
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
-              f.write("## Four-channel delivery\nStatus: **"+report["status"]+"**\n")
-              for k,v in channels.items():
-                  f.write(f"- {k}: {v}\n")
+              f.write("## Remote delivery (3 channels)\nStatus: **"+report["status"]+"**\n")
+              for k in remote:
+                  f.write(f"- {k}: {channels[k]}\n")
+              f.write(f"- local (dev pull): {channels['local']}\n")
           PY
       - name: Upload channel status artifact
         if: always()
@@ -410,6 +402,6 @@ jobs:
           path: ${{ runner.temp }}/unified-release-status.json
           if-no-files-found: warn
           retention-days: 30
-      - name: Remove ephemeral OAuth and SFTP secrets
+      - name: Remove ephemeral cloud OAuth secrets
         if: always()
         run: rm -f "$RUNNER_TEMP/oreki-rclone.conf"

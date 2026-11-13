@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Linux APK 四渠道交付工具。
+"""Linux APK 交付工具（CI：三个远程渠道；开发机：本地第四渠道）。
 
 本工具只负责交付，不负责构建 APK。正式上传必须显式传入 --publish，且必须提供
 installToRelease/verifyRelease 生成的 release-manifest.json，避免把未验证候选包当成稳定版。
 
 渠道：
-  local     ~/Releases/AD-Oreki-Edition/（SSH/SFTP）
-  onedrive  rclone 官方 OneDrive remote
-  gdrive    rclone 官方 Google Drive remote
-  github    GitHub Release（gh CLI）
+  github    GitHub Release（gh CLI）——CI 发布
+  onedrive  rclone 官方 OneDrive remote ——CI 发布
+  gdrive    rclone 官方 Google Drive remote ——CI 发布
+  local     开发机本地发布目录（开发机主动拉取后原子更新；CI 不再登记该渠道）
 
 示例：
   python scripts/publish_four_channels.py --check
@@ -21,7 +21,7 @@ installToRelease/verifyRelease 生成的 release-manifest.json，避免把未验
       --version 3.21.0 --manifest build/release-manifest.json
 
 环境变量（不要把真实值写入仓库）：
-  AD_RELEASE_DIR       本地 SSH/SFTP 发布根目录
+  AD_RELEASE_DIR       本地发布根目录（开发机本地渠道）
   AD_ONEDRIVE_REMOTE   rclone OneDrive remote 名称
   AD_ONEDRIVE_DIR      OneDrive 固定交付目录
   AD_GDRIVE_REMOTE     rclone Google Drive remote 名称
@@ -54,6 +54,8 @@ DEFAULT_ONEDRIVE_DIR = "Apps/AD-Oreki-Edition"
 DEFAULT_GDRIVE_DIR = "AD-Oreki-Edition"
 VERSION_RE = re.compile(r"^\d+(?:\.\d+)+$")
 CHANNELS = ("local", "onedrive", "gdrive", "github")
+# GitHub-hosted 发布只负责三个远程渠道；本地第四渠道由开发机主动拉取完成。
+REMOTE_CHANNELS = ("github", "onedrive", "gdrive")
 
 # [R97] 配置读取顺序：进程环境变量 > .release.env / ~/.config/oreki-release.env。
 # 模板见仓库 .release.env.example（只放 remote 名与目录，不含任何凭据）。
@@ -409,6 +411,19 @@ def resolve_remote(env_name: str, remote_type: str) -> tuple[str | None, str]:
     return None, f"ambiguous:{','.join(matches)}"
 
 
+def parse_channels(value: str | None) -> list[str]:
+    """Parse a comma separated channel subset, validating names."""
+    if not value:
+        return []
+    names = [item.strip() for item in value.split(",") if item.strip()]
+    unknown = [name for name in names if name not in CHANNELS]
+    if unknown:
+        raise RuntimeError(f"未知渠道：{','.join(unknown)}；可选 {','.join(CHANNELS)}")
+    if not names:
+        raise RuntimeError("--channels 不能为空")
+    return names
+
+
 def check_environment() -> int:
     failures = 0
 
@@ -452,7 +467,7 @@ def check_environment() -> int:
     return 0 if failures == 0 else 1
 
 
-def preflight_write_channels() -> int:
+def preflight_write_channels(channels: list[str] | None = None) -> int:
     """Probe write/delete permissions without changing APK latest, release tags or state.
 
     A small probe cannot guarantee a later large multipart upload, but it catches
@@ -468,10 +483,14 @@ def preflight_write_channels() -> int:
         with tempfile.TemporaryDirectory(prefix="oreki-upload-preflight-") as scratch:
             payload = Path(scratch) / "write-probe.txt"
             payload.write_text("oreki-release-write-preflight\n", encoding="utf-8")
+            selected = channels or list(REMOTE_CHANNELS)
             for label, env_name, kind, dir_name, default_dir in (
                 ("onedrive", "AD_ONEDRIVE_REMOTE", "onedrive", "AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR),
                 ("gdrive", "AD_GDRIVE_REMOTE", "drive", "AD_GDRIVE_DIR", DEFAULT_GDRIVE_DIR),
             ):
+                channel_name = "onedrive" if kind == "onedrive" else "gdrive"
+                if channel_name not in selected:
+                    continue
                 remote, _ = resolve_remote(env_name, kind)
                 directory = setting(dir_name, default_dir)
                 if not remote or not directory:
@@ -497,34 +516,6 @@ def preflight_write_channels() -> int:
                             run(["rclone", "deletefile", target], check=True, timeout=45)
                         except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
                             failures.append(f"{label}: failed to clean probe file: {exc}")
-            local_remote = setting("AD_LOCAL_SFTP_REMOTE")
-            if local_remote:
-                local_directory = setting("AD_LOCAL_SFTP_DIR")
-                if not local_directory:
-                    failures.append("local sftp: AD_LOCAL_SFTP_DIR not configured")
-                else:
-                    probe = remote_spec(local_remote, local_directory,
-                                        f"latest/.oreki-write-probe-{uuid.uuid4().hex}.txt")
-                    uploaded = False
-                    try:
-                        require_sftp_remote(local_remote)
-                        run(["rclone", "copyto", str(payload), probe,
-                             "--retries", "1", "--low-level-retries", "1"],
-                            check=True, timeout=90)
-                        uploaded = True
-                        meta = json.loads(run(["rclone", "lsjson", probe, "--stat"],
-                                              check=True, timeout=45).stdout)
-                        if meta.get("Size") != payload.stat().st_size:
-                            raise RuntimeError("SFTP probe size mismatch")
-                        say("SFTP: verified write/read metadata")
-                    except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
-                        failures.append(f"local SFTP: write authorization/readback failed: {exc}")
-                    finally:
-                        if uploaded:
-                            try:
-                                run(["rclone", "deletefile", probe], check=True, timeout=45)
-                            except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
-                                failures.append(f"local SFTP probe cleanup failed: {exc}")
     repo = github_repo()
     if not repo or not command_exists("gh"):
         failures.append("github: repository or gh CLI unavailable")
@@ -537,86 +528,16 @@ def preflight_write_channels() -> int:
         for issue in failures:
             say(f"PREFLIGHT FAIL: {issue}")
         return 2
-    say("PREFLIGHT PASS: local and cloud probes cleaned, gh authorization present; latest unchanged")
+    say("PREFLIGHT PASS: selected remote probes cleaned, gh authorization present; latest unchanged")
     return 0
 
 
-def require_sftp_remote(remote: str) -> None:
-    """Validate a declared local channel is genuinely rclone's SFTP backend."""
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", remote):
-        raise RuntimeError("local SFTP remote name invalid")
-    try:
-        data = json.loads(run(["rclone", "config", "dump"], check=True, timeout=30).stdout)
-    except (ValueError, OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
-        raise RuntimeError("cannot inspect remote backend type without exposing credentials") from exc
-    if not isinstance(data, dict) or not isinstance(data.get(remote), dict) or data[remote].get("type") != "sftp":
-        raise RuntimeError("local destination must be an explicitly configured SFTP remote")
-
-
-def local_sftp_publish(root: Path, apk: Path, apk_info: dict[str, object],
-                       state: dict[str, object], dry_run: bool) -> None:
-    """Public hosted Runner's LOCAL channel means actual remote SFTP, not its temporary disk.
-
-    Upload under a unique temporary name; read back the bytes before replacing latest.
-    A successful rclone exit or remote size alone is not enough evidence.
-    """
-    remote = setting("AD_LOCAL_SFTP_REMOTE")
-    directory = setting("AD_LOCAL_SFTP_DIR")
-    if not remote or not directory:
-        raise RuntimeError("本地 SFTP 渠道缺少 remote/dir；拒绝伪造临时 Runner 上的 local PASS")
-    require_sftp_remote(remote)
-    final = remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}")
-    pending = remote_spec(remote, directory, f"latest/.oreki-stage-{uuid.uuid4().hex}.apk")
-    say(f"SSH/SFTP 本地渠道：{final}")
-    if dry_run:
-        return
-    if sha256_file(apk) != apk_info["sha256"]:
-        raise RuntimeError("SFTP 上传 APK 与候选 SHA256 不一致")
-    uploaded = False
-    try:
-        run(["rclone", "copyto", str(apk), pending, "--retries", "2",
-             "--low-level-retries", "3"], check=True)
-        uploaded = True
-        with tempfile.TemporaryDirectory(prefix="oreki-sftp-readback-") as scratch:
-            downloaded = Path(scratch) / DEFAULT_APK_NAME
-            run(["rclone", "copyto", pending, str(downloaded)], check=True)
-            if sha256_file(downloaded) != apk_info["sha256"]:
-                raise RuntimeError("SFTP staged upload readback SHA256 mismatch; stable latest untouched")
-        run(["rclone", "moveto", pending, final], check=True)
-        uploaded = False
-        with tempfile.TemporaryDirectory(prefix="oreki-sftp-final-") as scratch:
-            downloaded = Path(scratch) / DEFAULT_APK_NAME
-            run(["rclone", "copyto", final, str(downloaded)], check=True)
-            if sha256_file(downloaded) != apk_info["sha256"]:
-                raise RuntimeError("SFTP latest readback SHA256 mismatch")
-            checksum = Path(scratch) / (DEFAULT_APK_NAME + ".sha256")
-            checksum.write_text(f"{apk_info['sha256']}  {DEFAULT_APK_NAME}\n", encoding="utf-8")
-            # The root checksum index is reconstructed for this single latest APK.
-            root_index = Path(scratch) / "SHA256SUMS"
-            root_index.write_text(f"{apk_info['sha256']}  latest/{DEFAULT_APK_NAME}\n", encoding="utf-8")
-            run(["rclone", "copyto", str(checksum),
-                 remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}.sha256")], check=True)
-            run(["rclone", "copyto", str(root_index),
-                 remote_spec(remote, directory, "SHA256SUMS")], check=True)
-        set_channel(state, "local", "success", f"real SFTP {final}; sha256={apk_info['sha256']}")
-        root.mkdir(parents=True, exist_ok=True)
-        save_state(root, state)
-    finally:
-        if uploaded:
-            try:
-                run(["rclone", "deletefile", pending], check=True)
-            except (OSError, RuntimeError, subprocess.TimeoutExpired):
-                say("WARNING: SFTP temporary staged file cleanup failed; stable latest was not marked PASS")
-
-
 def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object], state: dict[str, object], dry_run: bool) -> None:
-    """[R96 规则更新] 本地 SSH/SFTP 只覆盖固定文件名，不做版本归档。
+    """[R96/R105-04] 本地发布目录只覆盖固定文件名，不做版本归档。
 
     用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
     只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
     """
-    if setting("AD_LOCAL_SFTP_REMOTE"):
-        return local_sftp_publish(root, apk, apk_info, state, dry_run)
     latest = root / "latest" / DEFAULT_APK_NAME
     say(f"本地：原子覆盖 {latest}（不创建版本归档）")
     if dry_run:
@@ -761,7 +682,7 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
 
 
 def promote_verified_github_release(version: str, sha256: str) -> None:
-    """Only a fully verified four-channel release can become GitHub Latest."""
+    """Only a fully verified three-remote release can become GitHub Latest."""
     repo = github_repo()
     if not repo:
         raise RuntimeError("GitHub repository unresolved: cannot promote stable release")
@@ -846,16 +767,17 @@ def demote_failed_github_release(version: str, sha256: str,
         say("github: 降级/恢复 Latest 未完成（原始渠道失败仍如实上报）")
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android 四渠道 APK 交付")
+    parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android APK 交付（CI 三远程 / 开发机本地第四渠道）")
     parser.add_argument("--check", action="store_true", help="只检查配置、权限和服务")
     parser.add_argument("--portable-verify-report", help="被验证候选从另一 Runner 下载后的报告本地路径；保持原 manifest 不改写")
     parser.add_argument("--preflight-write", action="store_true", help="短暂真实写入再删除云端探针；不改稳定版/发布状态")
     parser.add_argument("--dry-run", action="store_true", help="展示操作，不写本地、不上传")
-    parser.add_argument("--local-only", action="store_true", help="只更新 SSH/SFTP 本地目录")
+    parser.add_argument("--local-only", action="store_true", help="只更新本地发布目录（开发机侧，不向远端推送）")
     parser.add_argument("--publish", action="store_true", help="显式执行正式渠道交付")
     parser.add_argument("--retry-failed", action="store_true", help="只重试本地 release-info.json 中失败的渠道")
     parser.add_argument("--archive-only", action="store_true", help="只补发不可变云端归档；绝不修改稳定版 latest")
     parser.add_argument("--only", action="append", choices=CHANNELS, help="只处理指定渠道，可重复")
+    parser.add_argument("--channels", help="逗号分隔的渠道子集（GitHub-hosted 发布使用 github,onedrive,gdrive）")
     parser.add_argument("--apk", help="已经验证的 APK 路径")
     parser.add_argument("--version", help="正式版本号，例如 3.21.0；不是任务编号")
     parser.add_argument("--manifest", help="installToRelease/verifyRelease 生成的 release-manifest.json")
@@ -869,7 +791,7 @@ def main() -> int:
     if args.check:
         return check_environment()
     if args.preflight_write:
-        return preflight_write_channels()
+        return preflight_write_channels(parse_channels(args.channels))
     if args.dry_run and args.publish:
         raise RuntimeError("--dry-run 与 --publish 不能同时使用")
     if args.archive_only and (args.dry_run or args.publish or args.local_only or args.retry_failed):
@@ -902,7 +824,8 @@ def main() -> int:
             say("没有失败渠道需要重试")
             return 0
     else:
-        selected = args.only or (["local"] if args.local_only else list(CHANNELS))
+        selected = args.only or parse_channels(args.channels) or (
+            ["local"] if args.local_only else list(CHANNELS))
     if args.local_only:
         selected = ["local"]
     # Capture the real Latest before an upload can change GitHub metadata.
@@ -965,11 +888,12 @@ def main() -> int:
         say(f"部分渠道失败：{','.join(failed)}；已保留成功渠道，不重建 APK")
         return 2
     # A --only/--retry-failed operation does NOT authorize a partial release.
-    # Promotion is allowed only once all four persisted channel results for the
-    # SAME APK SHA are success; load_or_create_state ties these to this SHA.
+    # GitHub Latest promotion requires the three remote channels for the SAME
+    # APK SHA to be success. The local fourth channel is an asynchronous
+    # post-condition of full delivery (dev machine pull), not a promotion gate.
     if not args.local_only and all(
         (state.get("channels", {}).get(name) or {}).get("status") == "success"
-        for name in CHANNELS
+        for name in REMOTE_CHANNELS
     ):
         try:
             promote_verified_github_release(args.version, str(apk_info["sha256"]))

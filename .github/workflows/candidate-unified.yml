@@ -22,7 +22,10 @@ env:
 jobs:
   validate:
     name: Validate source SHA and request
-    if: github.ref == 'refs/heads/main'
+    # Pre-merge validation dispatches come from the migration branch, but the
+    # source being built is always an approved main commit. A dispatch from main
+    # additionally requires the requested SHA to be the dispatched commit.
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ci/r105-public-build-migration'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -52,7 +55,12 @@ jobs:
             exit 1
           fi
           [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid source SHA"; exit 1; }
-          [[ "$sha" == "$GITHUB_SHA" ]] || { echo "::error::Requested source must be the current approved main SHA"; exit 1; }
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            [[ "$sha" == "$GITHUB_SHA" ]] || {
+              echo "::error::Requested source must be the current approved main SHA"
+              exit 1
+            }
+          fi
           actual="$(gh api "repos/$PUBLIC_SOURCE/commits/$sha" --jq '.sha')"
           [[ "$actual" == "$sha" ]] || exit 1
           status="$(gh api "repos/$PUBLIC_SOURCE/compare/main...$sha" --jq '.status')"

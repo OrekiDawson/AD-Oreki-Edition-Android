@@ -11,7 +11,9 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("  workflow_dispatch:", text)
         self.assertNotIn("  pull_request:", text)
         self.assertNotIn("  repository_dispatch:", text)
-        self.assertIn("if: github.ref == 'refs/heads/main'", text)
+        # Only main and the migration branch may dispatch a signed build.
+        self.assertIn("refs/heads/ci/r105-public-build-migration", text)
+        self.assertIn('[[ "$GITHUB_REF" == "refs/heads/main" ]]', text)
         self.assertIn('[[ "$sha" == "$GITHUB_SHA" ]]', text)
         self.assertIn("runs-on: ubuntu-latest", text)
         self.assertNotIn("self-hosted", text)
@@ -36,6 +38,7 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("sha256sum --check", text)
         self.assertIn("Require pinned SHA256", text)
         self.assertIn("secrets.OREKI_BUILD_BUNDLE_TOKEN", text)
+        self.assertIn("Accept: application/octet-stream", text)
         self.assertIn("tar.extractall(root, filter='data')", text)
         self.assertIn("cargo build --release --offline", text)
 
@@ -47,11 +50,24 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("apksigner", text)
         self.assertIn("sha256sum -c SHA256SUMS.txt", text)
 
-    def test_existing_production_chain_is_unchanged_until_proven(self):
-        # The legacy dispatch is retained deliberately during the migration.
-        legacy = (ROOT / ".github/workflows/candidate.yml").read_text()
-        self.assertIn("Request Android Candidate Build (private builder)", legacy)
-        self.assertIn("ANDROID_PRIVATE_BUILDER_TOKEN", legacy)
+    def test_legacy_private_dispatch_is_removed(self):
+        # The deleted physical repo must not be referenced by any retained entrypoint.
+        self.assertFalse((ROOT / ".github/workflows/candidate.yml").exists())
+        for path in (ROOT / ".github/workflows").glob("*.yml"):
+            text = path.read_text()
+            self.assertNotIn("AD-Oreki-Private-Build", text, str(path))
+            self.assertNotIn("ANDROID_PRIVATE_BUILDER_TOKEN", text, str(path))
+
+    def test_release_workflow_is_three_remote_plus_local_pull(self):
+        text = (ROOT / ".github/workflows/release-unified.yml").read_text()
+        self.assertIn("--channels github,onedrive,gdrive", text)
+        self.assertNotIn("AD_LOCAL_SFTP_REMOTE", text)
+        self.assertNotIn("AD_LOCAL_SFTP_DIR", text)
+        self.assertNotIn("local_sftp_publish", text)
+        self.assertIn("local (dev pull)", text)
+        local_pull = (ROOT / "scripts/pull_stable_release.py").read_text()
+        self.assertIn("local-channel-receipt.json", local_pull)
+        self.assertIn("os.replace(", local_pull)
 
 
 if __name__ == "__main__":
