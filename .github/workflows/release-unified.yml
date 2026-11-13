@@ -1,0 +1,407 @@
+name: Android stable release (unified hosted four-channel)
+
+# Fail closed: a stable publication needs every one of the following, verified by content:
+#   * the exact successful public Android candidate run,
+#   * its independent verification run and its receipt,
+#   * a reviewed acceptance.json read from a PINNED public commit (never from mutable main),
+#   * the candidate artifact's own release-manifest.json produced by installToRelease.
+# No unrelated successful run can authorize another candidate.
+'on':
+  workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: Exact successful Android candidate run ID
+        required: true
+        type: string
+      verification_run_id:
+        description: Successful independent verification run of that exact candidate
+        required: true
+        type: string
+      expected_sha256:
+        description: Expected 64-character APK SHA-256 accepted by the AVD report
+        required: true
+        type: string
+      acceptance_commit_sha:
+        description: Exact public Android commit that contains the reviewed AVD acceptance.json
+        required: true
+        type: string
+      acceptance_path:
+        description: Exact acceptance.json path inside that pinned public commit
+        required: true
+        type: string
+      delivery_tool_sha:
+        description: Exact Android main commit for separately audited delivery tool (does not change APK)
+        required: true
+        type: string
+      extra_required_checks:
+        description: Optional comma-separated extra required acceptance check IDs for this round
+        required: false
+        default: ''
+        type: string
+      confirm:
+        description: Type PUBLISH-STABLE to publish this exact accepted APK
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: oreki-android-stable-release
+  cancel-in-progress: false
+
+env:
+  PUBLIC_SOURCE: OrekiDawson/AD-Oreki-Edition-Android
+  ACCEPTANCE_PATH: ${{ inputs.acceptance_path }}
+  GATE_POLICY: scripts/release-gate-policy.json
+
+jobs:
+  gate:
+    name: Match pinned acceptance, candidate artifact and verification receipt
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: stable-release
+    timeout-minutes: 20
+    outputs:
+      source_sha: ${{ steps.gate.outputs.source_sha }}
+      delivery_sha: ${{ steps.delivery_tool.outputs.sha }}
+      acceptance_commit: ${{ steps.fetch_acceptance.outputs.acceptance_commit }}
+      acceptance_blob_sha: ${{ steps.fetch_acceptance.outputs.acceptance_blob_sha }}
+    steps:
+      - name: Check out the public gate policy and verifier
+        uses: actions/checkout@v4
+      - name: Validate explicit release intent
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit_sha }}
+          DELIVERY_SHA: ${{ inputs.delivery_tool_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$CONFIRM" == PUBLISH-STABLE ]] || { echo "::error::Explicit publish confirmation missing"; exit 1; }
+          [[ "$CANDIDATE_ID" =~ ^[0-9]+$ && "$VERIFICATION_ID" =~ ^[0-9]+$ ]] || { echo "::error::Invalid run IDs"; exit 1; }
+          [[ "$CANDIDATE_ID" != "$VERIFICATION_ID" ]] || { echo "::error::Candidate and verification run must be different runs"; exit 1; }
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Expected APK SHA-256 is invalid"; exit 1; }
+          [[ "$ACCEPTANCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::acceptance_commit_sha must be a 40-character commit SHA"; exit 1; }
+          [[ "$DELIVERY_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::delivery_tool_sha must be a pinned 40-character commit SHA"; exit 1; }
+      - name: Verify the two private workflow runs are successful
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+        run: |
+          set -euo pipefail
+          for spec in "$CANDIDATE_ID:Android candidate build" "$VERIFICATION_ID:Android candidate verification"; do
+            id="${spec%%:*}"
+            name="${spec#*:}"
+            run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id")"
+            actual_name="$(python3 -c 'import json,sys;print(json.load(sys.stdin).get("name",""))' <<< "$run")"
+            actual_conclusion="$(python3 -c 'import json,sys;print(json.load(sys.stdin).get("conclusion",""))' <<< "$run")"
+            if [[ "$actual_name" != "$name" || "$actual_conclusion" != success ]]; then
+              echo "::error::Run $id is not a successful $name"
+              exit 1
+            fi
+            echo "::notice::Run $id is a successful $name"
+          done
+      - name: Fetch acceptance.json from the pinned public commit
+        id: fetch_acceptance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit_sha }}
+        run: |
+          set -euo pipefail
+          actual="$(gh api "repos/$PUBLIC_SOURCE/commits/$ACCEPTANCE_COMMIT" --jq '.sha')"
+          [[ "$actual" == "$ACCEPTANCE_COMMIT" ]] || { echo "::error::acceptance commit does not exist in $PUBLIC_SOURCE"; exit 1; }
+          status="$(gh api "repos/$PUBLIC_SOURCE/compare/main...$ACCEPTANCE_COMMIT" --jq '.status')"
+          [[ "$status" == identical || "$status" == behind ]] || {
+            echo "::error::acceptance commit is not reachable from public main; refusing mutable or fork-only evidence"
+            exit 1
+          }
+          gh api "repos/$PUBLIC_SOURCE/contents/$ACCEPTANCE_PATH?ref=$ACCEPTANCE_COMMIT" > acceptance-response.json
+          python3 - <<'PY'
+          import base64, hashlib, json, os, pathlib, sys
+          path = os.environ["ACCEPTANCE_PATH"]
+          commit = os.environ["ACCEPTANCE_COMMIT"]
+          payload = json.loads(pathlib.Path("acceptance-response.json").read_text())
+          if payload.get("type") != "file":
+              sys.exit("FAIL: acceptance path is not a file in the pinned commit")
+          if payload.get("path") != path:
+              sys.exit(f"FAIL: GitHub API returned another path: {payload.get('path')}")
+          if payload.get("name") != "acceptance.json":
+              sys.exit("FAIL: pinned acceptance file is not named acceptance.json")
+          if payload.get("encoding") != "base64":
+              sys.exit("FAIL: unexpected GitHub API content encoding")
+          content = base64.b64decode(payload.get("content") or "")
+          blob = b"blob %d\0" % len(content) + content
+          blob_sha = hashlib.sha1(blob).hexdigest()
+          if blob_sha != payload.get("sha"):
+              sys.exit("FAIL: acceptance.json content does not match its pinned git blob SHA")
+          pathlib.Path("acceptance.json").write_bytes(content)
+          print(f"PASS: acceptance.json read from pinned commit {commit}")
+          print(f"PASS: git blob sha {blob_sha}, file sha256 {hashlib.sha256(content).hexdigest()}")
+          PY
+          blob_sha="$(python3 -c 'import json,pathlib;print(json.loads(pathlib.Path("acceptance-response.json").read_text())["sha"])')"
+          echo "acceptance_commit=$ACCEPTANCE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "acceptance_blob_sha=$blob_sha" >> "$GITHUB_OUTPUT"
+      - name: Download the exact candidate artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-candidate
+          run-id: ${{ inputs.candidate_run_id }}
+          github-token: ${{ github.token }}
+          path: candidate
+      - name: Download the exact verification receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-verification
+          run-id: ${{ inputs.verification_run_id }}
+          github-token: ${{ github.token }}
+          path: verification
+      - name: Enforce the fail-closed release gate
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+          ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit_sha }}
+          EXTRA_CHECKS: ${{ inputs.extra_required_checks }}
+        run: |
+          set -euo pipefail
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          extra=()
+          if [[ -n "${EXTRA_CHECKS//[[:space:],;]/}" ]]; then
+            extra=(--extra-required-checks "$EXTRA_CHECKS")
+          fi
+          python3 scripts/verify_release_gate.py gate \
+            --policy "$GATE_POLICY" \
+            --acceptance-file acceptance.json \
+            --acceptance-commit "$ACCEPTANCE_COMMIT" \
+            --candidate-dir candidate \
+            --verification-dir verification \
+            --expected-sha256 "$EXPECTED_SHA" \
+            --candidate-run-id "$CANDIDATE_ID" \
+            --verification-run-id "$VERIFICATION_ID" \
+            --result-file gate-result.json \
+            "${extra[@]}"
+          source_sha="$(python3 -c 'import json;print(json.load(open("gate-result.json"))["candidate"]["source_sha"])')"
+          web_ref="$(python3 -c 'import json;print(json.load(open("gate-result.json"))["candidate"]["web_ref"])')"
+          # The independent CLI shares the same policy and rejects incomplete
+          # R104 dual-platform goal evidence (no passing by 8 AVD checks alone).
+          python3 scripts/verify_release_acceptance.py \
+            --report acceptance.json \
+            --sha256 "$EXPECTED_SHA" \
+            --candidate-run "$CANDIDATE_ID" \
+            --verification-run "$VERIFICATION_ID" \
+            --source-sha "$source_sha" \
+            --web-ref "$web_ref" \
+            --acceptance-commit "$ACCEPTANCE_COMMIT"
+          # Verify the claimed screenshots and both game-end logs really exist
+          # as immutable Git blobs in the reported source/evidence commits.
+          python3 scripts/check_pinned_evidence.py \
+            --acceptance acceptance.json \
+            --android-commit "$ACCEPTANCE_COMMIT" \
+            --web-ref "$web_ref"
+          echo "source_sha=$source_sha" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Fail-closed release gate: PASS"
+            echo ""
+            echo '```json'
+            cat gate-result.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify separately approved delivery tool commit and successful public Source CI
+        id: delivery_tool
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TOOL_SHA: ${{ inputs.delivery_tool_sha }}
+        run: |
+          set -euo pipefail
+          actual="$(gh api "repos/$PUBLIC_SOURCE/commits/$TOOL_SHA" --jq '.sha')"
+          [[ "$actual" == "$TOOL_SHA" ]] || { echo "::error::Unresolved delivery tool SHA"; exit 1; }
+          status="$(gh api "repos/$PUBLIC_SOURCE/compare/main...$TOOL_SHA" --jq '.status')"
+          [[ "$status" == identical || "$status" == behind ]] || {
+            echo "::error::Delivery code is not in trusted Android main history"; exit 1;
+          }
+          gh api "repos/$PUBLIC_SOURCE/actions/workflows/ci.yml/runs?head_sha=$TOOL_SHA&per_page=30" \
+            --jq '.workflow_runs[] | select(.event == "push" and .conclusion == "success") | .head_sha' \
+            | grep -Fxq "$TOOL_SHA" || {
+              echo "::error::No successful Android Source CI push run for delivery tool commit"; exit 1;
+            }
+          echo "sha=$TOOL_SHA" >> "$GITHUB_OUTPUT"
+          echo "::notice::Release tool $TOOL_SHA is audited separately from game source"
+
+      - name: Bind the pinned acceptance commit to the candidate source history
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.gate.outputs.source_sha }}
+          ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit_sha }}
+        run: |
+          set -euo pipefail
+          # The reviewed acceptance must have been committed at or after the candidate
+          # source commit it accepts; an older/fork-only acceptance commit is refused.
+          status="$(gh api "repos/$PUBLIC_SOURCE/compare/$SOURCE_SHA...$ACCEPTANCE_COMMIT" --jq '.status')"
+          [[ "$status" == ahead || "$status" == identical ]] || {
+            echo "::error::pinned acceptance commit $ACCEPTANCE_COMMIT does not include candidate source $SOURCE_SHA"
+            exit 1
+          }
+          echo "::notice::pinned acceptance commit includes candidate source $SOURCE_SHA"
+
+
+  publish:
+    name: Deliver exact APK to GitHub Releases, OneDrive and Google Drive
+    needs: gate
+    runs-on: ubuntu-latest
+    environment: stable-release
+    permissions:
+      contents: write
+      actions: read
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      AD_GITHUB_REPO: OrekiDawson/AD-Oreki-Edition-Android
+      AD_RELEASE_DIR: ${{ github.workspace }}/.oreki-release-state
+      AD_ONEDRIVE_REMOTE: ${{ vars.AD_ONEDRIVE_REMOTE }}
+      AD_ONEDRIVE_DIR: ${{ vars.AD_ONEDRIVE_DIR }}
+      AD_GDRIVE_REMOTE: ${{ vars.AD_GDRIVE_REMOTE }}
+      AD_GDRIVE_DIR: ${{ vars.AD_GDRIVE_DIR }}
+    steps:
+      - name: Checkout exactly the audited uploader commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.delivery_tool_sha }}
+          persist-credentials: false
+      - name: Set up rclone
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install --yes --no-install-recommends rclone >/dev/null
+          command -v rclone && command -v gh
+      - name: Stage restricted cloud credentials
+        env:
+          RCLONE_CONFIG_B64: ${{ secrets.OREKI_RCLONE_CONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$RCLONE_CONFIG_B64" || {
+            echo "::error::Missing protected OREKI_RCLONE_CONFIG_B64"; exit 1;
+          }
+          conf="$RUNNER_TEMP/oreki-rclone.conf"
+          printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$conf"
+          test -s "$conf" && chmod 600 "$conf"
+          echo "RCLONE_CONFIG=$conf" >> "$GITHUB_ENV"
+      - name: Download approved candidate artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-candidate
+          run-id: ${{ inputs.candidate_run_id }}
+          github-token: ${{ github.token }}
+          path: candidate
+      - name: Reverify immutable APK manifest identity
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          CANDIDATE_RUN: ${{ inputs.candidate_run_id }}
+        run: |
+          set -euo pipefail
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          python3 scripts/verify_release_gate.py manifest \
+            --policy scripts/release-gate-policy.json \
+            --candidate-dir candidate --expected-sha256 "$EXPECTED_SHA" \
+            --candidate-run-id "$CANDIDATE_RUN" --result-file candidate/manifest-check.json
+      - name: Prove real remote write and delete access (three cloud channels)
+        run: |
+          set -euo pipefail
+          mkdir -p "$AD_RELEASE_DIR"
+          python3 scripts/publish_four_channels.py --preflight-write --channels github,onedrive,gdrive
+      - name: Pin GitHub release tag to accepted candidate source SHA
+        id: tag
+        env:
+          SOURCE_SHA: ${{ needs.gate.outputs.source_sha }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+        run: |
+          set -euo pipefail
+          version="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionName"])')"
+          tag="android-update-${version}-${EXPECTED_SHA:0:8}"
+          if ! gh api "repos/$AD_GITHUB_REPO/git/ref/tags/$tag" >/dev/null 2>&1; then
+            gh api -X POST "repos/$AD_GITHUB_REPO/git/refs" -f ref="refs/tags/$tag" -f sha="$SOURCE_SHA" >/dev/null
+          fi
+          actual="$(gh api "repos/$AD_GITHUB_REPO/git/ref/tags/$tag" --jq '.object.sha')"
+          [[ "$actual" == "$SOURCE_SHA" ]] || {
+            echo "::error::Release tag is not bound to exact candidate source"; exit 1;
+          }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Upload one signed APK to the three remote channels
+        env:
+          SOURCE_SHA: ${{ needs.gate.outputs.source_sha }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          set -euo pipefail
+          apk="$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
+          report="$GITHUB_WORKSPACE/candidate/verify-release.json"
+          manifest="$GITHUB_WORKSPACE/candidate/release-manifest.json"
+          test -s "$apk" && test -s "$report" && test -s "$manifest"
+          [[ "$(sha256sum "$apk" | awk '{print $1}')" == "$EXPECTED_SHA" ]] || exit 1
+          export OREKI_SOURCE_COMMIT="$SOURCE_SHA"
+          python3 scripts/publish_four_channels.py --publish \
+            --channels github,onedrive,gdrive \
+            --apk "$apk" --version "$VERSION" --manifest "$manifest" \
+            --portable-verify-report "$report"
+      - name: Verify GitHub Release tag and published SHA
+        env:
+          SOURCE_SHA: ${{ needs.gate.outputs.source_sha }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$(gh api "repos/$AD_GITHUB_REPO/git/ref/tags/$TAG" --jq '.object.sha')" == "$SOURCE_SHA" ]] || exit 1
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          gh release download "$TAG" --repo "$AD_GITHUB_REPO" --pattern '*.sha256' --dir "$tmp"
+          [[ "$(awk 'NR==1 {print $1}' "$tmp"/*.sha256)" == "$EXPECTED_SHA" ]] || exit 1
+      - name: Record exact-SHA channel statuses
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,pathlib
+          source=pathlib.Path(os.environ["AD_RELEASE_DIR"])/"release-info.json"
+          state=json.loads(source.read_text()) if source.is_file() else {}
+          expected=os.environ["EXPECTED_SHA"]
+          remote=("onedrive","gdrive","github")
+          channels={k:((state.get("channels") or {}).get(k) or {}).get("status","NOT RUN")
+                    for k in remote}
+          # Local fourth channel is completed by the dev machine pull, not here.
+          channels["local"]="NOT RUN (dev machine pull)"
+          passed=(os.environ["JOB_STATUS"]=="success" and state.get("apk_sha256")==expected
+                  and all(channels[k]=="success" for k in remote))
+          report={"apk_sha256":expected,"status":"PASS" if passed else "BLOCKED",
+                  "remote_channels":{k:channels[k] for k in remote},
+                  "local_channel":channels["local"],
+                  "channels":channels}
+          out=pathlib.Path(os.environ["RUNNER_TEMP"])/"unified-release-status.json"
+          out.write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## Remote delivery (3 channels)\nStatus: **"+report["status"]+"**\n")
+              for k in remote:
+                  f.write(f"- {k}: {channels[k]}\n")
+              f.write(f"- local (dev pull): {channels['local']}\n")
+          PY
+      - name: Upload channel status artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ad-oreki-unified-release-status
+          path: ${{ runner.temp }}/unified-release-status.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Remove ephemeral cloud OAuth secrets
+        if: always()
+        run: rm -f "$RUNNER_TEMP/oreki-rclone.conf"

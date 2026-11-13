@@ -1,0 +1,198 @@
+name: Android candidate verification
+
+'on':
+  workflow_run:
+    workflows: [Android candidate build]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: Successful candidate workflow run ID
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  EXPECTED_CERT_SHA256: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+  EXPECTED_PACKAGE: com.oreki.antimatterdimensions
+  EXPECTED_VERSION_NAME: 3.21.0
+  EXPECTED_VERSION_CODE: '30210000'
+
+jobs:
+  verify:
+    name: Independently verify exact APK and candidate run
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Validate the candidate workflow identity and success
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANUAL_ID: ${{ inputs.candidate_run_id }}
+          TRIGGER_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          id="$MANUAL_ID"
+          if [[ -z "$id" ]]; then id="$TRIGGER_ID"; fi
+          [[ "$id" =~ ^[0-9]+$ ]] || { echo "::error::Invalid candidate run ID"; exit 1; }
+          run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id")"
+          name="$(jq -r '.name' <<< "$run")"
+          conclusion="$(jq -r '.conclusion' <<< "$run")"
+          [[ "$name" == 'Android candidate build' && "$conclusion" == success ]] || {
+            echo "::error::Run is not a successful Android candidate build"
+            exit 1
+          }
+          echo "run_id=$id" >> "$GITHUB_OUTPUT"
+      - name: Download exactly one candidate artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-candidate
+          run-id: ${{ steps.candidate.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: candidate
+      - name: Verify checksums, source identity and both contract reports
+        id: identity
+        env:
+          CANDIDATE_RUN_ID: ${{ steps.candidate.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, re, sys, zipfile
+          d = pathlib.Path('candidate')
+          apk = d / 'antimatter-dimensions.apk'
+          b = apk.read_bytes()
+          sha = hashlib.sha256(b).hexdigest()
+          with zipfile.ZipFile(apk) as z:
+              bad = z.testzip()
+              if bad: sys.exit(f'FAIL: Corrupt APK entry {bad}')
+          meta = json.loads((d / 'candidate-metadata.json').read_text())
+          release = json.loads((d / 'verify-release.json').read_text())
+          patch = json.loads((d / 'verify-patch-contract.json').read_text())
+          if meta.get('candidate_run_id') != int(os.environ['CANDIDATE_RUN_ID']):
+              sys.exit('FAIL: Candidate run ID does not match downloaded artifact')
+          if meta.get('source_repository') != 'OrekiDawson/AD-Oreki-Edition-Android':
+              sys.exit('FAIL: Unexpected source repository')
+          if not re.fullmatch(r'[0-9a-f]{40}', meta.get('source_sha', '')):
+              sys.exit('FAIL: Invalid source commit SHA')
+          if not re.fullmatch(r'[0-9a-f]{40}', meta.get('web_ref', '')):
+              sys.exit('FAIL: Missing or mutable Web strategy source SHA')
+          if meta.get('apk_file') != apk.name or meta.get('sha256') != sha or release.get('sha256') != sha:
+              sys.exit('FAIL: APK hashes differ across candidate evidence')
+          if release.get('failed') != 0 or not isinstance(release.get('checks'), list) or not release['checks']:
+              sys.exit('FAIL: Invalid verifyRelease report')
+          if any(row.get('ok') is not True for row in release['checks']):
+              sys.exit('FAIL: verifyRelease contains a failed check')
+          if release.get('cert_sha256') != os.environ['EXPECTED_CERT_SHA256']:
+              sys.exit('FAIL: verifyRelease recorded wrong signing identity')
+          checks = patch.get('checks')
+          if not isinstance(checks, list) or len(checks) < 17:
+              sys.exit('FAIL: Patch-contract evidence missing')
+          if any(row.get('ok') is not True for row in checks) or patch.get('passed') != len(checks) or patch.get('total') != len(checks):
+              sys.exit('FAIL: Patch-contract evidence failed or incomplete')
+          (d / 'verified-identity.json').write_text(json.dumps({
+              'candidate_run_id': meta['candidate_run_id'],
+              'source_sha': meta['source_sha'],
+              'web_ref': meta['web_ref'],
+              'sha256': sha,
+              'manifest_sha256': __import__('hashlib').sha256((d / 'release-manifest.json').read_bytes()).hexdigest()
+          }, sort_keys=True) + '\n')
+          print('PASS: Candidate run, source SHA, APK hash and all contract checks')
+          PY
+      - name: Independently confirm Android and Web source commits belong to trusted main history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source_sha="$(python3 -c 'import json; print(json.load(open("candidate/verified-identity.json"))["source_sha"])')"
+          android_actual="$(gh api "repos/OrekiDawson/AD-Oreki-Edition-Android/commits/$source_sha" --jq '.sha')"
+          [[ "$android_actual" == "$source_sha" ]] || { echo "::error::Unresolved Android source SHA"; exit 1; }
+          android_status="$(gh api "repos/OrekiDawson/AD-Oreki-Edition-Android/compare/main...$source_sha" --jq '.status')"
+          [[ "$android_status" == identical || "$android_status" == behind ]] || {
+            echo "::error::Android source is not reachable from trusted main"
+            exit 1
+          }
+          web_ref="$(python3 -c 'import json; print(json.load(open("candidate/verified-identity.json"))["web_ref"])')"
+          actual="$(gh api "repos/OrekiDawson/AD-Oreki-Edition-Web/commits/$web_ref" --jq '.sha')"
+          [[ "$actual" == "$web_ref" ]] || { echo "::error::Unresolved Web strategy SHA"; exit 1; }
+          status="$(gh api "repos/OrekiDawson/AD-Oreki-Edition-Web/compare/main...$web_ref" --jq '.status')"
+          [[ "$status" == identical || "$status" == behind ]] || {
+            echo "::error::Web strategy source is not reachable from trusted Web main"
+            exit 1
+          }
+          echo "::notice::Both Android source and Web strategy commits are immutable and on trusted main history"
+      - name: Set up Android build tools
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install tools for independent APK verification
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_SDK_ROOT/build-tools/35.0.0"
+          if [[ -x "$tools/apksigner" && -x "$tools/aapt2" ]]; then
+            echo "::notice::Android build-tools 35.0.0 already installed; skipping sdkmanager"
+          else
+            sdkmanager --install 'build-tools;35.0.0' >/dev/null
+          fi
+          test -x "$tools/apksigner"
+          test -x "$tools/aapt2"
+          echo "APKSIGNER=$tools/apksigner" >> "$GITHUB_ENV"
+          echo "AAPT2=$tools/aapt2" >> "$GITHUB_ENV"
+      - name: Verify signature, certificate, package and exact version
+        run: |
+          set -euo pipefail
+          apk=candidate/antimatter-dimensions.apk
+          "$APKSIGNER" verify --verbose --print-certs "$apk" > candidate/signature-verified.txt
+          cert="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' candidate/signature-verified.txt | head -n 1)"
+          [[ "$cert" == "$EXPECTED_CERT_SHA256" ]] || {
+            echo "::error::APK signing certificate mismatch"
+            exit 1
+          }
+          "$AAPT2" dump badging "$apk" > candidate/badging.txt
+          python3 - <<'PY'
+          import os, pathlib, re, sys
+          badging = pathlib.Path('candidate/badging.txt').read_text()
+          m = re.search(r"(?m)^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'", badging)
+          if not m: sys.exit('FAIL: Cannot read package metadata')
+          expected = (os.environ['EXPECTED_PACKAGE'], os.environ['EXPECTED_VERSION_CODE'], os.environ['EXPECTED_VERSION_NAME'])
+          if m.groups() != expected: sys.exit(f'FAIL: APK package/version mismatch: {m.groups()}')
+          print('PASS: APK signer certificate, package and exact 3.21.0 version')
+          PY
+      - name: Write immutable verification receipt
+        env:
+          CANDIDATE_RUN_ID: ${{ steps.candidate.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib
+          d = pathlib.Path('candidate')
+          checked = json.loads((d / 'verified-identity.json').read_text())
+          receipt = {
+              'status': 'PASS',
+              'candidate_run_id': int(os.environ['CANDIDATE_RUN_ID']),
+              'verification_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'source_sha': checked['source_sha'],
+              'web_ref': checked['web_ref'],
+              'sha256': checked['sha256'],
+              'certificate_sha256': os.environ['EXPECTED_CERT_SHA256'],
+              'package': os.environ['EXPECTED_PACKAGE'],
+              'versionName': os.environ['EXPECTED_VERSION_NAME'],
+              'versionCode': os.environ['EXPECTED_VERSION_CODE'],
+              'gameplay_acceptance': 'NOT RUN'
+          }
+          pathlib.Path('verification-record.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          print('PASS: Verification receipt for candidate run', receipt['candidate_run_id'])
+          PY
+          echo "### APK verification succeeded (not gameplay acceptance)" >> "$GITHUB_STEP_SUMMARY"
+          cat verification-record.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload receipt linked to exact candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: ad-oreki-verification
+          path: verification-record.json
+          if-no-files-found: error
+          retention-days: 30

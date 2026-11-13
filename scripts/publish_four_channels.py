@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Linux APK 四渠道交付工具。
+"""Linux APK 交付工具（CI：三个远程渠道；开发机：本地第四渠道）。
 
 本工具只负责交付，不负责构建 APK。正式上传必须显式传入 --publish，且必须提供
 installToRelease/verifyRelease 生成的 release-manifest.json，避免把未验证候选包当成稳定版。
 
 渠道：
-  local     ~/Releases/AD-Oreki-Edition/（SSH/SFTP）
-  onedrive  rclone 官方 OneDrive remote
-  gdrive    rclone 官方 Google Drive remote
-  github    GitHub Release（gh CLI）
+  github    GitHub Release（gh CLI）——CI 发布
+  onedrive  rclone 官方 OneDrive remote ——CI 发布
+  gdrive    rclone 官方 Google Drive remote ——CI 发布
+  local     开发机本地发布目录（开发机主动拉取后原子更新；CI 不再登记该渠道）
 
 示例：
   python scripts/publish_four_channels.py --check
@@ -21,7 +21,7 @@ installToRelease/verifyRelease 生成的 release-manifest.json，避免把未验
       --version 3.21.0 --manifest build/release-manifest.json
 
 环境变量（不要把真实值写入仓库）：
-  AD_RELEASE_DIR       本地 SSH/SFTP 发布根目录
+  AD_RELEASE_DIR       本地发布根目录（开发机本地渠道）
   AD_ONEDRIVE_REMOTE   rclone OneDrive remote 名称
   AD_ONEDRIVE_DIR      OneDrive 固定交付目录
   AD_GDRIVE_REMOTE     rclone Google Drive remote 名称
@@ -54,6 +54,8 @@ DEFAULT_ONEDRIVE_DIR = "Apps/AD-Oreki-Edition"
 DEFAULT_GDRIVE_DIR = "AD-Oreki-Edition"
 VERSION_RE = re.compile(r"^\d+(?:\.\d+)+$")
 CHANNELS = ("local", "onedrive", "gdrive", "github")
+# GitHub-hosted 发布只负责三个远程渠道；本地第四渠道由开发机主动拉取完成。
+REMOTE_CHANNELS = ("github", "onedrive", "gdrive")
 
 # [R97] 配置读取顺序：进程环境变量 > .release.env / ~/.config/oreki-release.env。
 # 模板见仓库 .release.env.example（只放 remote 名与目录，不含任何凭据）。
@@ -208,7 +210,8 @@ def inspect_apk(apk: Path) -> dict[str, object]:
     }
 
 
-def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object]) -> dict[str, object]:
+def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object], *,
+                    portable_verify_report: Path | None = None) -> dict[str, object]:
     """校验发布清单与待交付 APK 是同一份已验证产物。
 
     [R97] 真实清单由 installToRelease 生成，verify_report / versionName 在 `build` 段，
@@ -231,7 +234,15 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object])
     if not expected_apk.is_absolute():
         expected_apk = manifest_path.parent / expected_apk
     if expected_apk.resolve() != apk.resolve():
-        raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
+        # Cross-run hosted Actions artifacts retain the verified builder's absolute
+        # pathname. Only the explicit independent-report mode permits relocation.
+        # The immutable gate already verifies the manifest checksum and candidate SHA.
+        if portable_verify_report is None:
+            raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
+        if (expected_apk.name != DEFAULT_APK_NAME
+                or "/release/" not in expected_apk.as_posix()
+                or not PurePosixPath(str(build.get("source_apk", ""))).name == DEFAULT_APK_NAME):
+            raise RuntimeError("移植发布：清单没有指向预期 release/stage 的真实候选文件")
     registered_sha = release.get("sha256") or build.get("source_sha256")
     if registered_sha != apk_info["sha256"]:
         raise RuntimeError(f"APK SHA-256 与发布清单不一致：清单={registered_sha} 实际={apk_info['sha256']}")
@@ -245,6 +256,8 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object])
         report_path = Path(str(verify_report)).expanduser()
         if not report_path.is_absolute():
             report_path = manifest_path.parent / report_path
+        if not report_path.is_file() and portable_verify_report is not None:
+            report_path = portable_verify_report
         if not report_path.is_file():
             raise RuntimeError(f"发布清单声明的 verifyRelease 报告不存在：{report_path}")
         try:
@@ -398,6 +411,19 @@ def resolve_remote(env_name: str, remote_type: str) -> tuple[str | None, str]:
     return None, f"ambiguous:{','.join(matches)}"
 
 
+def parse_channels(value: str | None) -> list[str]:
+    """Parse a comma separated channel subset, validating names."""
+    if not value:
+        return []
+    names = [item.strip() for item in value.split(",") if item.strip()]
+    unknown = [name for name in names if name not in CHANNELS]
+    if unknown:
+        raise RuntimeError(f"未知渠道：{','.join(unknown)}；可选 {','.join(CHANNELS)}")
+    if not names:
+        raise RuntimeError("--channels 不能为空")
+    return names
+
+
 def check_environment() -> int:
     failures = 0
 
@@ -441,7 +467,7 @@ def check_environment() -> int:
     return 0 if failures == 0 else 1
 
 
-def preflight_write_channels() -> int:
+def preflight_write_channels(channels: list[str] | None = None) -> int:
     """Probe write/delete permissions without changing APK latest, release tags or state.
 
     A small probe cannot guarantee a later large multipart upload, but it catches
@@ -457,10 +483,14 @@ def preflight_write_channels() -> int:
         with tempfile.TemporaryDirectory(prefix="oreki-upload-preflight-") as scratch:
             payload = Path(scratch) / "write-probe.txt"
             payload.write_text("oreki-release-write-preflight\n", encoding="utf-8")
+            selected = channels or list(REMOTE_CHANNELS)
             for label, env_name, kind, dir_name, default_dir in (
                 ("onedrive", "AD_ONEDRIVE_REMOTE", "onedrive", "AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR),
                 ("gdrive", "AD_GDRIVE_REMOTE", "drive", "AD_GDRIVE_DIR", DEFAULT_GDRIVE_DIR),
             ):
+                channel_name = "onedrive" if kind == "onedrive" else "gdrive"
+                if channel_name not in selected:
+                    continue
                 remote, _ = resolve_remote(env_name, kind)
                 directory = setting(dir_name, default_dir)
                 if not remote or not directory:
@@ -498,12 +528,12 @@ def preflight_write_channels() -> int:
         for issue in failures:
             say(f"PREFLIGHT FAIL: {issue}")
         return 2
-    say("PREFLIGHT PASS: local and cloud probes cleaned, gh authorization present; latest unchanged")
+    say("PREFLIGHT PASS: selected remote probes cleaned, gh authorization present; latest unchanged")
     return 0
 
 
 def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object], state: dict[str, object], dry_run: bool) -> None:
-    """[R96 规则更新] 本地 SSH/SFTP 只覆盖固定文件名，不做版本归档。
+    """[R96/R105-04] 本地发布目录只覆盖固定文件名，不做版本归档。
 
     用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
     只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
@@ -652,7 +682,7 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
 
 
 def promote_verified_github_release(version: str, sha256: str) -> None:
-    """Only a fully verified four-channel release can become GitHub Latest."""
+    """Only a fully verified three-remote release can become GitHub Latest."""
     repo = github_repo()
     if not repo:
         raise RuntimeError("GitHub repository unresolved: cannot promote stable release")
@@ -737,15 +767,17 @@ def demote_failed_github_release(version: str, sha256: str,
         say("github: 降级/恢复 Latest 未完成（原始渠道失败仍如实上报）")
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android 四渠道 APK 交付")
+    parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android APK 交付（CI 三远程 / 开发机本地第四渠道）")
     parser.add_argument("--check", action="store_true", help="只检查配置、权限和服务")
+    parser.add_argument("--portable-verify-report", help="被验证候选从另一 Runner 下载后的报告本地路径；保持原 manifest 不改写")
     parser.add_argument("--preflight-write", action="store_true", help="短暂真实写入再删除云端探针；不改稳定版/发布状态")
     parser.add_argument("--dry-run", action="store_true", help="展示操作，不写本地、不上传")
-    parser.add_argument("--local-only", action="store_true", help="只更新 SSH/SFTP 本地目录")
+    parser.add_argument("--local-only", action="store_true", help="只更新本地发布目录（开发机侧，不向远端推送）")
     parser.add_argument("--publish", action="store_true", help="显式执行正式渠道交付")
     parser.add_argument("--retry-failed", action="store_true", help="只重试本地 release-info.json 中失败的渠道")
     parser.add_argument("--archive-only", action="store_true", help="只补发不可变云端归档；绝不修改稳定版 latest")
     parser.add_argument("--only", action="append", choices=CHANNELS, help="只处理指定渠道，可重复")
+    parser.add_argument("--channels", help="逗号分隔的渠道子集（GitHub-hosted 发布使用 github,onedrive,gdrive）")
     parser.add_argument("--apk", help="已经验证的 APK 路径")
     parser.add_argument("--version", help="正式版本号，例如 3.21.0；不是任务编号")
     parser.add_argument("--manifest", help="installToRelease/verifyRelease 生成的 release-manifest.json")
@@ -759,7 +791,7 @@ def main() -> int:
     if args.check:
         return check_environment()
     if args.preflight_write:
-        return preflight_write_channels()
+        return preflight_write_channels(parse_channels(args.channels))
     if args.dry_run and args.publish:
         raise RuntimeError("--dry-run 与 --publish 不能同时使用")
     if args.archive_only and (args.dry_run or args.publish or args.local_only or args.retry_failed):
@@ -775,7 +807,9 @@ def main() -> int:
     apk_info = inspect_apk(apk)
     manifest = None
     if args.manifest:
-        manifest = verify_manifest(Path(args.manifest).expanduser().resolve(), apk, apk_info)
+        manifest = verify_manifest(Path(args.manifest).expanduser().resolve(), apk, apk_info,
+                                   portable_verify_report=(Path(args.portable_verify_report).resolve()
+                                                           if args.portable_verify_report else None))
     elif not args.dry_run:
         raise RuntimeError("正式或本地交付必须提供已验证的 --manifest")
 
@@ -790,7 +824,8 @@ def main() -> int:
             say("没有失败渠道需要重试")
             return 0
     else:
-        selected = args.only or (["local"] if args.local_only else list(CHANNELS))
+        selected = args.only or parse_channels(args.channels) or (
+            ["local"] if args.local_only else list(CHANNELS))
     if args.local_only:
         selected = ["local"]
     # Capture the real Latest before an upload can change GitHub metadata.
@@ -853,11 +888,12 @@ def main() -> int:
         say(f"部分渠道失败：{','.join(failed)}；已保留成功渠道，不重建 APK")
         return 2
     # A --only/--retry-failed operation does NOT authorize a partial release.
-    # Promotion is allowed only once all four persisted channel results for the
-    # SAME APK SHA are success; load_or_create_state ties these to this SHA.
+    # GitHub Latest promotion requires the three remote channels for the SAME
+    # APK SHA to be success. The local fourth channel is an asynchronous
+    # post-condition of full delivery (dev machine pull), not a promotion gate.
     if not args.local_only and all(
         (state.get("channels", {}).get(name) or {}).get("status") == "success"
-        for name in CHANNELS
+        for name in REMOTE_CHANNELS
     ):
         try:
             promote_verified_github_release(args.version, str(apk_info["sha256"]))
