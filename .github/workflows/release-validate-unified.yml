@@ -1,0 +1,323 @@
+name: Android release pipeline validation (no publish)
+
+# Deliberately NOT a stable release: this workflow validates the real
+# three-remote delivery path (GitHub / OneDrive / Google Drive) with the exact
+# verified candidate, in temporary test locations only, then deletes every test
+# artifact. It never publishes Latest and cannot promote a stable release.
+#
+# Gate: successful candidate run + independent verification run + committed AVD
+# minimal acceptance evidence for the same APK SHA-256. R104 dual-platform
+# 180-minute completion evidence remains the separate stable-release gate.
+
+'on':
+  workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: Exact successful Android candidate run ID
+        required: true
+        type: string
+      verification_run_id:
+        description: Exact successful independent verification run ID
+        required: true
+        type: string
+      expected_sha256:
+        description: Exact 64-character APK SHA-256 from the candidate metadata
+        required: true
+        type: string
+      acceptance_commit_sha:
+        description: Exact public Android commit containing the AVD minimal evidence
+        required: true
+        type: string
+      acceptance_path:
+        description: Exact avd-checks.json path in that pinned commit
+        required: true
+        type: string
+      confirm:
+        description: Type VALIDATE-ONLY to run the non-publishing pipeline test
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: oreki-android-release-validate
+  cancel-in-progress: false
+
+env:
+  PUBLIC_SOURCE: OrekiDawson/AD-Oreki-Edition-Android
+  EXPECTED_CERT_SHA256: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+
+jobs:
+  validate:
+    name: Validate three-remote delivery without publishing stable
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: stable-release
+    timeout-minutes: 60
+    steps:
+      - name: Validate explicit validation intent
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit_sha }}
+          ACCEPTANCE_PATH: ${{ inputs.acceptance_path }}
+        run: |
+          set -euo pipefail
+          [[ "$CONFIRM" == VALIDATE-ONLY ]] || { echo "::error::Explicit validation-only confirmation missing"; exit 1; }
+          [[ "$CANDIDATE_ID" =~ ^[0-9]+$ && "$VERIFICATION_ID" =~ ^[0-9]+$ ]] || { echo "::error::Invalid run IDs"; exit 1; }
+          [[ "$CANDIDATE_ID" != "$VERIFICATION_ID" ]] || { echo "::error::Candidate and verification must be different runs"; exit 1; }
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Invalid expected APK SHA-256"; exit 1; }
+          [[ "$ACCEPTANCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid acceptance commit"; exit 1; }
+          [[ "$ACCEPTANCE_PATH" == docs/avd-acceptance/*/avd-checks.json ]] || { echo "::error::Acceptance path must be a committed avd-checks.json"; exit 1; }
+
+      - name: Check out repository tooling
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify candidate and verification runs succeeded
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+        run: |
+          set -euo pipefail
+          for spec in "$CANDIDATE_ID:Android candidate build" "$VERIFICATION_ID:Android candidate verification"; do
+            id="${spec%%:*}"; name="${spec#*:}"
+            run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id")"
+            actual_name="$(python3 -c 'import json,sys;print(json.load(sys.stdin).get("name",""))' <<< "$run")"
+            conclusion="$(python3 -c 'import json,sys;print(json.load(sys.stdin).get("conclusion",""))' <<< "$run")"
+            [[ "$actual_name" == "$name" && "$conclusion" == success ]] || { echo "::error::Run $id is not a successful $name"; exit 1; }
+          done
+
+      - name: Download candidate artifact and verification receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-candidate
+          run-id: ${{ inputs.candidate_run_id }}
+          github-token: ${{ github.token }}
+          path: candidate
+
+      - name: Download independent verification receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-verification
+          run-id: ${{ inputs.verification_run_id }}
+          github-token: ${{ github.token }}
+          path: verification
+
+      - name: Verify candidate artifact identity against inputs
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+        run: |
+          set -euo pipefail
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          python3 - <<'PY'
+          import json, os, pathlib, sys
+          d = pathlib.Path("candidate")
+          meta = json.loads((d / "candidate-metadata.json").read_text())
+          expected = os.environ["EXPECTED_SHA"]
+          if meta.get("sha256") != expected:
+              sys.exit("FAIL: candidate metadata SHA differs from expected")
+          if int(meta.get("candidate_run_id", -1)) != int(os.environ["CANDIDATE_ID"]):
+              sys.exit("FAIL: candidate metadata run id differs")
+          if meta.get("certificate_sha256") != os.environ.get("EXPECTED_CERT_SHA256"):
+              sys.exit("FAIL: candidate certificate differs")
+          print("PASS: candidate metadata matches requested run and SHA-256")
+          PY
+
+      - name: Verify verification receipt matches the selected candidate
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib, sys
+          record = json.loads(pathlib.Path("verification/verification-record.json").read_text())
+          expected = os.environ["EXPECTED_SHA"]
+          if record.get("status") != "PASS":
+              sys.exit("FAIL: verification receipt is not PASS")
+          if record.get("sha256") != expected:
+              sys.exit("FAIL: verification receipt SHA differs from expected")
+          if int(record.get("candidate_run_id", -1)) != int(os.environ["CANDIDATE_ID"]):
+              sys.exit("FAIL: verification receipt candidate run differs")
+          if int(record.get("verification_run_id", -1)) != int(os.environ["VERIFICATION_ID"]):
+              sys.exit("FAIL: verification receipt verification run differs")
+          print("PASS: verification receipt matches the selected candidate")
+          PY
+
+      - name: Verify committed AVD minimal acceptance evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACCEPTANCE_COMMIT: ${{ inputs.acceptance_commit_sha }}
+          ACCEPTANCE_PATH: ${{ inputs.acceptance_path }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$PUBLIC_SOURCE/contents/$ACCEPTANCE_PATH?ref=$ACCEPTANCE_COMMIT" > acceptance-response.json
+          python3 - <<'PY'
+          import base64, json, os, pathlib, sys
+          payload = json.loads(pathlib.Path("acceptance-response.json").read_text())
+          if payload.get("type") != "file" or payload.get("encoding") != "base64":
+              sys.exit("FAIL: acceptance evidence is not a pinned file")
+          doc = json.loads(base64.b64decode(payload["content"]).decode("utf-8"))
+          required = {"install-upgrade", "launch", "apk-signature-version",
+                      "stage-gate-positive", "stage-gate-negative",
+                      "autobuyer-core", "save-import", "gui"}
+          states = {row.get("id"): row.get("state") for row in doc.get("checks", [])}
+          missing = sorted(required - states.keys())
+          if missing:
+              sys.exit("FAIL: missing AVD checks: " + ", ".join(missing))
+          failed = sorted(k for k in required if states.get(k) != "PASS")
+          if failed:
+              sys.exit("FAIL: AVD checks not PASS: " + ", ".join(failed))
+          if doc.get("apk_sha256") != os.environ["EXPECTED_SHA"]:
+              sys.exit("FAIL: AVD evidence SHA differs")
+          if int(doc.get("candidate_run_id", -1)) != int(os.environ["CANDIDATE_ID"]):
+              sys.exit("FAIL: AVD evidence candidate run differs")
+          if int(doc.get("verification_run_id", -1)) != int(os.environ["VERIFICATION_ID"]):
+              sys.exit("FAIL: AVD evidence verification run differs")
+          print("PASS: committed AVD minimal acceptance evidence matches this candidate")
+          PY
+
+      - name: Capture current stable Latest before validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name > /tmp/latest-before.txt
+          cat /tmp/latest-before.txt
+
+      - name: Set up rclone (pinned 1.76.0 with single-part OneDrive upload)
+        run: |
+          set -euo pipefail
+          version="1.76.0"
+          expected="b00f00b3266c3764413afe599d3ec316f6f43b3e0ea8a0bc1d186d2133e46df7"
+          url="https://downloads.rclone.org/v${version}/rclone-v${version}-linux-amd64.zip"
+          curl --fail --silent --show-error --location --retry 2 --max-time 300 -o /tmp/rclone.zip "$url"
+          printf '%s  %s\n' "$expected" /tmp/rclone.zip | sha256sum --check --status
+          python3 -c "import zipfile;zipfile.ZipFile('/tmp/rclone.zip').extractall('/tmp/rclone-extract')"
+          sudo install -m 0755 "/tmp/rclone-extract/rclone-v${version}-linux-amd64/rclone" /usr/local/bin/rclone
+          rclone version
+          rclone help backend onedrive | grep -q 'onedrive-upload-cutoff'
+
+      - name: Stage restricted cloud credentials
+        env:
+          RCLONE_CONFIG_B64: ${{ secrets.OREKI_RCLONE_CONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$RCLONE_CONFIG_B64" || { echo "::error::Missing OREKI_RCLONE_CONFIG_B64"; exit 1; }
+          conf="$RUNNER_TEMP/oreki-rclone.conf"
+          printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$conf"
+          test -s "$conf" && chmod 600 "$conf"
+          echo "RCLONE_CONFIG=$conf" >> "$GITHUB_ENV"
+
+      - name: Validate three-remote pipeline in temporary locations
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          ONEDRIVE_REMOTE: ${{ vars.AD_ONEDRIVE_REMOTE }}
+          ONEDRIVE_ROOT: ${{ vars.AD_ONEDRIVE_DIR }}
+          GDRIVE_REMOTE: ${{ vars.AD_GDRIVE_REMOTE }}
+          GDRIVE_ROOT: ${{ vars.AD_GDRIVE_DIR }}
+        run: |
+          set -euo pipefail
+          version="3.21.0"
+          sha8="${EXPECTED_SHA:0:8}"
+          work="$RUNNER_TEMP/validate"
+          mkdir -p "$work"
+          apk="candidate/antimatter-dimensions.apk"
+          tag="android-update-${version}-${sha8}-validate"
+          cleanup() {
+            set +e
+            rclone deletefile "${ONEDRIVE_REMOTE}:${ONEDRIVE_ROOT}/_validate/${sha8}/反物质维度.apk" 2>/dev/null
+            rclone rmdirs "${ONEDRIVE_REMOTE}:${ONEDRIVE_ROOT}/_validate/${sha8}" 2>/dev/null
+            rclone deletefile "${GDRIVE_REMOTE}:${GDRIVE_ROOT}/_validate/${sha8}/反物质维度.apk" 2>/dev/null
+            rclone rmdirs "${GDRIVE_REMOTE}:${GDRIVE_ROOT}/_validate/${sha8}" 2>/dev/null
+            gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag 2>/dev/null
+          }
+          trap cleanup EXIT
+          echo "== OneDrive temporary upload =="
+          python3 - <<'PY'
+          import json, sys
+          sys.path.insert(0, "scripts")
+          import publish_four_channels as p
+          apk = p.Path("candidate/antimatter-dimensions.apk")
+          info = {"sha256": p.sha256_file(apk), "size_bytes": apk.stat().st_size}
+          p.rclone_publish("OneDrive", p.os.environ["ONEDRIVE_REMOTE"],
+                           p.os.environ["ONEDRIVE_ROOT"].strip("/") + "/_validate/" + info["sha256"][:8],
+                           apk, info, False)
+          print("OneDrive upload ok sha=" + info["sha256"])
+          PY
+          echo "== Google Drive temporary upload =="
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, "scripts")
+          import publish_four_channels as p
+          apk = p.Path("candidate/antimatter-dimensions.apk")
+          info = {"sha256": p.sha256_file(apk), "size_bytes": apk.stat().st_size}
+          p.rclone_publish("Google Drive", p.os.environ["GDRIVE_REMOTE"],
+                           p.os.environ["GDRIVE_ROOT"].strip("/") + "/_validate/" + info["sha256"][:8],
+                           apk, info, False)
+          print("Google Drive upload ok sha=" + info["sha256"])
+          PY
+          echo "== GitHub draft prerelease upload =="
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 && gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+          mkdir -p "$work/assets"
+          cp "$apk" "$work/assets/AD-Oreki-Edition-${version}.apk"
+          printf '%s  %s\n' "$EXPECTED_SHA" "AD-Oreki-Edition-${version}.apk" > "$work/assets/AD-Oreki-Edition-${version}.apk.sha256"
+          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --draft --title "VALIDATION ONLY ${sha8}" --notes "Temporary non-publishing pipeline validation; deleted by workflow." "$work/assets/AD-Oreki-Edition-${version}.apk" "$work/assets/AD-Oreki-Edition-${version}.apk.sha256"
+          echo "github draft upload ok"
+          echo "== verify remote copies =="
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          expected = os.environ["EXPECTED_SHA"]
+          size = int(subprocess.check_output(["stat", "-c", "%s", "candidate/antimatter-dimensions.apk"], text=True))
+          checks = []
+          for label, target in (
+              ("onedrive", f"{os.environ['ONEDRIVE_REMOTE']}:{os.environ['ONEDRIVE_ROOT'].strip('/')}/_validate/{expected[:8]}/反物质维度.apk"),
+              ("gdrive", f"{os.environ['GDRIVE_REMOTE']}:{os.environ['GDRIVE_ROOT'].strip('/')}/_validate/{expected[:8]}/反物质维度.apk"),
+          ):
+              meta = json.loads(subprocess.check_output(["rclone", "lsjson", target, "--stat"], text=True))
+              ok = int(meta.get("Size", -1)) == size
+              checks.append({"channel": label, "remote_size": meta.get("Size"), "expected_size": size, "size_ok": ok})
+              if not ok:
+                  raise SystemExit(f"FAIL: {label} remote size mismatch")
+          print(json.dumps({"remote_size_checks": checks, "apk_sha256": expected}, indent=2))
+          PY
+          echo "== verify GitHub draft asset digest by download-back =="
+          mkdir -p "$work/download"
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "$work/download" --pattern '*.apk'
+          got="$(sha256sum "$work/download/AD-Oreki-Edition-${version}.apk" | cut -d' ' -f1)"
+          [[ "$got" == "$EXPECTED_SHA" ]] || { echo "::error::GitHub draft asset SHA mismatch"; exit 1; }
+          echo "github asset sha256=$got"
+          echo "VALIDATION PIPELINE PASS: same APK SHA-256 on GitHub draft + OneDrive + Google Drive"
+
+      - name: Assert stable Latest unchanged and clean up
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          before="$(cat /tmp/latest-before.txt)"
+          after="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
+          [[ "$before" == "$after" ]] || { echo "::error::Stable Latest changed during validation"; exit 1; }
+          echo "Latest unchanged: $after"
+          {
+            echo "### Release pipeline validation (no stable publish)"
+            echo ""
+            echo "- Candidate/verification runs checked"
+            echo "- Committed AVD minimal acceptance evidence checked (8/8 PASS)"
+            echo "- Same APK SHA-256 uploaded and verified on GitHub draft, OneDrive, Google Drive temporary locations"
+            echo "- All temporary artifacts deleted; Latest remains $after"
+            echo "- R104 dual-platform 180-minute completion evidence is still required for a stable release"
+          } >> "$GITHUB_STEP_SUMMARY"
