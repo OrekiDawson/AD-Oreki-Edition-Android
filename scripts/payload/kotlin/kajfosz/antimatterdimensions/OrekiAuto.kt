@@ -41,7 +41,8 @@ object OrekiAuto {
      * 直接读 `player.infinities` 的 BigDouble，不依赖是否已解锁自动购买器。
      */
     @JvmStatic
-    fun hasInfinity(): Boolean = try {
+    fun hasInfinity(): Boolean {
+        return try {
         // [R93] 多源判定：任一来源证明「已无限过」即可。
         // 现场证据：单看 infinities 在游戏内仍判 false，而 IP 已 968（IP 只来自无限）⇒ 加兜底，
         // 避免单一绑定失效把整段后无限自动化关死。
@@ -50,6 +51,7 @@ object OrekiAuto {
         return GameApi.isBroken()
     } catch (_: Throwable) {
         false
+    }
     }
 
     /**

@@ -281,7 +281,8 @@ object OrekiIu15Sprint {
      * 是否满足开始接管的全部条件（与 Web `canArm` 等价，去掉不可达的 V 门）。
      */
     @JvmStatic
-    fun canArm(): Boolean = try {
+    fun canArm(): Boolean {
+        return try {
         if (phase != PHASE_IDLE) return false
         if (iu15Bought()) return false
         if (fails >= MAX_FAILS) return false
@@ -298,6 +299,7 @@ object OrekiIu15Sprint {
     } catch (error: Throwable) {
         recordError("canArm", error)
         false
+    }
     }
 
     /**

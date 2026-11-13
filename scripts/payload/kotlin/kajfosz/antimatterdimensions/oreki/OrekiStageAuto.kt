@@ -1164,7 +1164,8 @@ object OrekiStageAuto {
     }
 
     @JvmStatic
-    fun buyInfinityUpgrades(): Boolean = try {
+    fun buyInfinityUpgrades(): Boolean {
+        return try {
         probeInfinityUpgradesOnce()
 
         // [R92] 与 Web R82/R87「ID1 IP 预留」对齐。
@@ -1253,6 +1254,7 @@ object OrekiStageAuto {
     } catch (_: Throwable) {
         false
     }
+    }
 
     /** 入口探针：只打一次「列表大小 / 第 0 项是否已买 / 是否买得起」。 */
     private fun probeInfinityUpgradesOnce() {
@@ -1334,7 +1336,8 @@ object OrekiStageAuto {
     }
 
     @JvmStatic
-    fun tryBuyId1(): Boolean = try {
+    fun tryBuyId1(): Boolean {
+        return try {
         if (!isBroken()) {
             idDiag("skip=not-broken")
             false
@@ -1407,6 +1410,7 @@ object OrekiStageAuto {
         }
     } catch (_: Throwable) {
         false
+    }
     }
 
     /**
@@ -1562,7 +1566,8 @@ object OrekiStageAuto {
     /** log10(Double.MAX_VALUE)，避免在 hold 判据里出现 Double.MAX_VALUE（R67 夹具守卫）。 */
     private const val ETERNITY_IP_LOG10: Double = 308.25489960568014
 
-    private fun computeHoldCrunch(): Boolean = try {
+    private fun computeHoldCrunch(): Boolean {
+        return try {
         val broken = isBroken()
         val eternitiesZero = eternitiesZero()
         val blocked = GameApi.inAnyChallenge() || GameApi.isDoomed()
@@ -1642,6 +1647,7 @@ object OrekiStageAuto {
         }
     } catch (_: Throwable) {
         false
+    }
     }
 
     // ---------------------------------------------------------------- 策略与诊断

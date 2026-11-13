@@ -84,6 +84,27 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("ad-oreki-candidate", text)
         self.assertIn("avd-checks.json", text)
 
+    def test_agp_phase1_project_is_real_and_ci_guarded(self):
+        settings = (ROOT / "agp/settings.gradle.kts").read_text()
+        root_build = (ROOT / "agp/build.gradle.kts").read_text()
+        app = (ROOT / "agp/app/build.gradle.kts").read_text()
+        props = (ROOT / "agp/gradle.properties").read_text()
+        ci = (ROOT / ".github/workflows/ci.yml").read_text()
+        self.assertIn('include(":app")', settings)
+        self.assertIn('id("com.android.application") version "9.5.1"', root_build)
+        self.assertIn('id("com.android.application")', app)
+        self.assertIn("compileSdk = 37", app)
+        self.assertIn("scripts/payload/kotlin", app)
+        self.assertIn("build/kt/generated", app)
+        # AGP 9 built-in Kotlin: no Kotlin Gradle Plugin and no legacy fallbacks.
+        self.assertNotIn("org.jetbrains.kotlin.android", root_build + app)
+        self.assertNotIn("builtInKotlin", props)
+        self.assertNotIn("android.newDsl", props)
+        self.assertIn("AGP 9.5.1 Kotlin DEX parity", ci)
+        self.assertIn("scripts/verify_agp_parity.py", ci)
+        self.assertIn("--verify-abi", ci)
+        self.assertIn("agp-kotlin-dex", ci)
+
 
 if __name__ == "__main__":
     unittest.main()
