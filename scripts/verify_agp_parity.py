@@ -20,9 +20,47 @@ DESCRIPTOR = re.compile(r"Lkajfosz/antimatterdimensions/[A-Za-z0-9_$/]+;")
 MIN_LEGACY_CLASSES = 20
 
 
+def dex_class_definitions(data: bytes) -> set[str]:
+    """Read real class_def_item descriptors (not free-text string references)."""
+    if data[:4] != b"dex\n":
+        raise ValueError("not a DEX file")
+    import struct
+
+    def u32(offset: int) -> int:
+        return struct.unpack_from("<I", data, offset)[0]
+
+    string_ids_size, string_ids_off = u32(0x38), u32(0x3C)
+    type_ids_off = u32(0x44)
+    class_defs_size, class_defs_off = u32(0x60), u32(0x64)
+    if not (string_ids_size and type_ids_off and class_defs_size):
+        return set()
+
+    def string_at(index: int) -> str:
+        if index >= string_ids_size:
+            return ""
+        start = u32(string_ids_off + 4 * index)
+        # Skip the MUTF-8 uleb128 length prefix before the actual bytes.
+        pos = start
+        while pos < len(data) and (data[pos] & 0x80):
+            pos += 1
+        pos += 1
+        end = data.find(b"\x00", pos)
+        if end < 0:
+            end = len(data)
+        return data[pos:end].decode("utf-8", errors="ignore")
+
+    classes: set[str] = set()
+    for i in range(class_defs_size):
+        class_idx = u32(class_defs_off + 32 * i)
+        type_idx = u32(type_ids_off + 4 * class_idx)
+        descriptor = string_at(type_idx)
+        if descriptor:
+            classes.add(descriptor)
+    return classes
+
+
 def dex_descriptors(data: bytes) -> set[str]:
-    text = data.decode("latin-1", errors="ignore")
-    return set(DESCRIPTOR.findall(text))
+    return dex_class_definitions(data)
 
 
 def normalize(descriptors: set[str]) -> set[str]:

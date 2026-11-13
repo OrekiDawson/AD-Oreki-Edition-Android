@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import verify_agp_parity as parity
@@ -25,22 +26,27 @@ class AgpParityUnitTests(unittest.TestCase):
     def test_missing_legacy_class_fails_parity(self):
         with tempfile.TemporaryDirectory() as tmp:
             legacy = Path(tmp) / "classes.dex"
-            legacy.write_text(descriptor("A") + " " + descriptor("B"), encoding="latin-1")
+            legacy.touch()
             agp = Path(tmp) / "app.apk"
-            with zipfile_apk(agp, {descriptor("A")}):
-                pass
-            result = parity.check(legacy, agp, min_legacy_classes=1)
+            with mock.patch.object(parity, "classes_from_dex_file",
+                                   return_value={descriptor("A"), descriptor("B")}):
+                with mock.patch.object(parity, "classes_from_apk",
+                                       return_value={descriptor("A")}):
+                    result = parity.check(legacy, agp, min_legacy_classes=1)
             self.assertFalse(result["parity"])
             self.assertEqual(result["missing_in_agp"], [descriptor("B")])
 
     def test_extra_synthetic_classes_do_not_fail(self):
         with tempfile.TemporaryDirectory() as tmp:
             legacy = Path(tmp) / "classes.dex"
-            legacy.write_text(" ".join(descriptor(n) for n in ["A", "B"]), encoding="latin-1")
+            legacy.touch()
             agp = Path(tmp) / "app.apk"
-            with zipfile_apk(agp, {descriptor("A"), descriptor("B"), descriptor("C$$ExternalSyntheticLambda0")}):
-                pass
-            result = parity.check(legacy, agp, min_legacy_classes=1)
+            with mock.patch.object(parity, "classes_from_dex_file",
+                                   return_value={descriptor("A"), descriptor("B")}):
+                with mock.patch.object(parity, "classes_from_apk",
+                                       return_value={descriptor("A"), descriptor("B"),
+                                                     descriptor("C$$ExternalSyntheticLambda0")}):
+                    result = parity.check(legacy, agp, min_legacy_classes=1)
             self.assertTrue(result["parity"])
 
     def test_expected_manifest_missing_class_fails(self):
@@ -48,9 +54,8 @@ class AgpParityUnitTests(unittest.TestCase):
             manifest = Path(tmp) / "classes.txt"
             manifest.write_text("\n".join(descriptor(n) for n in ["A", "B"]) + "\n", encoding="utf-8")
             agp = Path(tmp) / "app.apk"
-            with zipfile_apk(agp, {descriptor("A")}):
-                pass
-            result = parity.check_expected(manifest, agp, min_expected_classes=1)
+            with mock.patch.object(parity, "classes_from_apk", return_value={descriptor("A")}):
+                result = parity.check_expected(manifest, agp, min_expected_classes=1)
             self.assertFalse(result["parity"])
             self.assertEqual(result["missing_in_agp"], [descriptor("B")])
 
@@ -59,26 +64,10 @@ class AgpParityUnitTests(unittest.TestCase):
             manifest = Path(tmp) / "classes.txt"
             manifest.write_text(descriptor("A") + "\n", encoding="utf-8")
             agp = Path(tmp) / "app.apk"
-            with zipfile_apk(agp, {descriptor("A"), descriptor("B$$ExternalSyntheticLambda0")}):
-                pass
-            result = parity.check_expected(manifest, agp, min_expected_classes=1)
+            with mock.patch.object(parity, "classes_from_apk",
+                                   return_value={descriptor("A"), descriptor("B$$ExternalSyntheticLambda0")}):
+                result = parity.check_expected(manifest, agp, min_expected_classes=1)
             self.assertTrue(result["parity"])
-
-
-def zipfile_apk(path: Path, descriptors: set[str]) -> "object":
-    import zipfile
-
-    class _Ctx:
-        def __enter__(self):
-            self.zf = zipfile.ZipFile(path, "w")
-            self.zf.writestr("classes.dex", " ".join(sorted(descriptors)))
-            return self.zf
-
-        def __exit__(self, *exc):
-            self.zf.close()
-            return False
-
-    return _Ctx()
 
 
 if __name__ == "__main__":
