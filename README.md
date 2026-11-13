@@ -73,8 +73,8 @@
 
 ## 8. 上游基线与 MOD 版本
 
-- **基线冻结（2026-11-13 起）**：固定官方 Android 3.21.0，不自动追新；base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK `ad1b367e…`、versionCode `30210000`、minSdk 32 / targetSdk 37（见 `baseline/versions/3.21/manifest.json` 与 `docs/FACTS.md` 第 6 节）。
+- **基线冻结（2026-11-13 起）**：固定官方 Android 3.21.0；允许只读监测上游安全/重大缺陷，禁止未经授权自动升级、合并、改基线或发布；base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK `ad1b367e…`、versionCode `30210000`、minSdk 32 / targetSdk 37（见 `baseline/versions/3.21/manifest.json` 与 `docs/FACTS.md` 第 6 节）。
 - **选择性上游移植**：安全/崩溃/存档/数据错误优先评估；性能需实测收益；重大新玩法单独评估；普通 UI/重构/混淆/纯版本号默认不跟进。移植必须记录上游来源与验证结果，不得整包替换。
-- **独立 MOD 版本**：产品版本 Oreki Edition 从 `1.0.0` 起；`versionCode` 单调递增且不低于 `30210000`；不得改变包名、签名身份，不得破坏存档与覆盖升级。versionName/标签/文件名/更新机制验证后渐进迁移。
+- **独立 MOD 版本**：产品版本 Oreki Edition 从 `1.0.0` 起；Android **每次正式发布 `versionCode` 必须严格大于历史已发布最大值**（当前 `30210000`），且**原版基线 versionCode 与 MOD 发布 versionCode 分开记录**；不得改变包名、签名身份，不得破坏存档与覆盖升级。versionName/标签/文件名/更新机制验证后渐进迁移。
 - **反混淆/Kotlin 目标固定 3.21.0**：复用现有 JADX 导出、第一方索引与 Kotlin 重建成果，不因上游发版重置。
-- **完整基线升级 7 条件** 与详细流程见 `AGENTS.md` 第 9 节、`docs/DELIVERY_RULES.md` 第 6 节；仅满足技术条件不等于获准升级。
+- **完整基线升级的三种边界**（研究评估无需新授权 / 用户授权必须 / 正式发布门禁全部满足）见 `AGENTS.md` 第 9 节、`docs/DELIVERY_RULES.md` 第 6.5–6.7 节；仅满足技术条件不等于获准升级。
