@@ -101,6 +101,8 @@ jobs:
             .github/workflows/release-validate-unified.yml
       - name: Enforce single-repo migration safety invariants
         run: python3 -m unittest discover -s scripts/tests -p 'test_ci_migration.py' -v
+      - name: Test fail-closed AGP-only production policy
+        run: python3 -m unittest discover -s scripts/tests -p 'test_agp_only_policy.py' -v
       - name: Run migrated immutable release gate regressions
         run: python3 -m unittest discover -s scripts/tests -p 'test_unified_release_*.py' -v
       - name: Test dev-machine stable pull and atomic local channel
