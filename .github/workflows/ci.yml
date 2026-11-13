@@ -127,9 +127,9 @@ jobs:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
       - name: Build AGP 9 Kotlin DEX
-        run: bash ./gradlew -p agp :app:assembleDebug --no-daemon --console=plain
+        run: bash ./gradlew -p agp :app:assembleDebug :app:copyAgpKotlinClasses --no-daemon --console=plain
       - name: Enforce ABI guard on AGP-compiled classes
-        run: python3 scripts/build_kotlin.py --verify-abi --classes agp/app/build/tmp/kotlin-classes/debug
+        run: python3 scripts/build_kotlin.py --verify-abi --classes agp/app/build/agp-kotlin-classes
       - name: Enforce AGP DEX parity with the legacy chain
         run: python3 scripts/verify_agp_parity.py --expected-classes scripts/kotlin_business_classes.txt --agp-apk agp/app/build/outputs/apk/debug/app-debug.apk --result-file agp-parity.json
       - name: Upload AGP phase-1 evidence

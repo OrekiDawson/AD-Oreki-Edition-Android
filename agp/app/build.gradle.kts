@@ -44,3 +44,13 @@ android {
 tasks.named("preBuild") {
     dependsOn(generateKotlinBindings)
 }
+
+// AGP 9 built-in Kotlin puts compiled classes under an internal intermediates
+// path. Copy them to a stable directory so the ABI guard works identically in
+// CI and locally. The path is pinned to the pinned AGP 9.5.1 layout; if AGP
+// changes it, this task fails loudly instead of silently skipping the guard.
+val copyAgpKotlinClasses by tasks.registering(Copy::class) {
+    dependsOn("compileDebugKotlin")
+    from(layout.buildDirectory.dir("intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes"))
+    into(layout.buildDirectory.dir("agp-kotlin-classes"))
+}
