@@ -185,3 +185,31 @@
    当前 CI 仍为旧链链路，按门禁 BLOCKED，R103 Latest 未变。
 3. A1 自动购买器 GUI 回归、180 分钟真实墙钟通关（Web 已定位自动化节拍 + EP e4000 双瓶颈）。
 4. Smali 钩子剩余 7 个候选集成（BM-12/13/22/23/37/40 + BM-32 产品决策）。
+
+## 10. 2026-11-14 周六凌晨增量（Web 证据 + EP 尺度候选 + CI 原生链阻断分析）
+
+### 10.1 Web 行为等价与 180 分钟墙（web-parity，证据已并入 web 仓库 main）
+
+- 定向真实浏览器验收 **49/49 PASS**（Playwright/Chromium，Pixel 7 移动视口，真实新档/点击，pageerror 0）；Web 生产代码 0 改动。
+- **180 分钟真实墙钟 FAIL（有量化证据）**：默认 10s 节拍主跑 180min 停在 realities=15、EP log10 冻结 3683.25（冻结 98.2min）、gameEnd=false；
+  受控 A/B（自动操作间隔 1s）首次现实 33.7min→4.9min（6.8×），但 realities=15 后 EP 同样冻结（2950s）→ 双瓶颈；
+  根因 `isRealityAvailable()` 要求 thisReality.maxEP.exponent ≥ 4000（src/core/reality.js:120）+ 默认 10s 节拍拖慢；
+  R50 fresh8（旧代码）739.6s 真实通关 → 高度怀疑 R50 后回归，已派发 web-parity 根因定位。
+- 双端差异：4 实现差异 + 2 功能缺口（Web 缺 Android 阶段化节拍 OrekiBeatStrategy；两端均未达 180min）；已写入 web docs/FACTS.md、
+  WEB_ANDROID_DIFFERENCES.md §19（Android 仓库同步副本已提交）。Web PR #16/#17 已合并。
+
+### 10.2 Android EP 兑换尺度候选已移植（commit ec7addd6）
+
+- 移植 r105-ep-scale 候选（对齐 Web src/game.js [Oreki AD9]）：OrekiEpGainScale（realities==0 时 EP 除数 308→30，fail-closed）+
+  build_mod.py patch_ep_gain_scale（prestige.c.g() 308.0 装载点一次 Kotlin 转发），不改原版公式/结算/存档格式。
+- 候选 APK：`/tmp/r107/hybrid-epscale.apk`（d79cfd0f…，AGP 打包 + AGP Kotlin classes4 1,129 类 + 过渡游戏 DEX）。
+- R105-03 既有证据：首永恒 EP 2 → 3.16e7（机制生效）；但第二永恒 EP 仍 e7.88、未到现实。
+- **当前状态：构建 PASS、AVD 真实运行验证 NOT RUN**（gate-gui 已授权 AVD 执行：OREKI_EPSCALE 生效、里程碑、EP 冻结点、首次现实窗口）。
+
+### 10.3 CI 原生构建链阻断分析（Lead）
+
+- 现 candidate-unified.yml 私有 bundle 只含 apktool.jar/kotlinc/decoded baseline/work-splits/legacy 树，**不含游戏 jar 或官方 APK/DEX**；
+  候选工作流被 gate 禁止调用 build_mod.py/apktool b，因此无法在 CI 内生成 AGP 游戏类输入。
+- 若要 CI 产出 AGP 原生/混合候选，必须二选一（均需用户决策）：① 扩展私有 bundle，上传 pin 住的 game jar（input SHA 入 provenance）；
+  ② 新增独立(非候选)输入准备流水线生成 jar 并以 artifact 传递（provenance 需绑定跨 run）。
+- 在此之前正式 Candidate/Verify/Release 继续 fail-closed；R103 Latest 不变。
