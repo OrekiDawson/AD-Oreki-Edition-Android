@@ -298,3 +298,13 @@
 - J8+fix（叠加 FixInitSplice，df837438…）：FAIL——FATAL EXCEPTION: AntimatterGameThread（FixInitSplice 改写协程/构造链不安全）；r2cur/r4cur/r5cur 同样不可用。
 - 结论：原生候选当前唯一可用形态=8 类最小替换 J8（JVMS invalid 5,161 与 r1 已 PASS 基线同档，rk8/nc8 保留 enjarify）。
 - 证据：reports/R107-01/lead-evidence/native-j8-smoke/、native-j8fix-smoke/。
+
+### 10.11 永恒模式修复版全新档跑次（hybrid-etmode ace8476e）：27 次永恒，现实仍 NOT RUN
+
+- 30 分钟新档：36 次 eternity 结算、bigE 27、TT 5.16e6、时间研究 17、0 FATAL；
+  ET_GATE 统计：allow 3 / cannot-eternity **216** / ep-gain-too-low 26 / not-broken 78 / same-frame-crunch 15。
+- **下一瓶颈：cannot-eternity（216 次）**——永恒结算后 thisEternity.maxIP 长期低于原版永恒门槛（prestige.c.f() = maxIP ≥ h() 门槛），
+  IP/维度自动化在重置后恢复太慢；期间 EP 冻结在 ~e50。EC 完成 5,5,5，未触发现实。
+- 模式修复（X_HIGHEST×10）未生效：本跑次未出现 bootstrap adopted 日志（autoEternity 未解锁），mode 仍为 0；
+  需在下一轮核对 adopt 触发条件，或把「收益阈值」策略直接用于 bootstrap 期 MOD 主动永恒。
+- Web 对照：同源修复后 r15→r20+（654→731s）、r50 @1055s、49/49 回归 PASS；Android 侧还需修 maxIP 重建/EC 完成路径。
