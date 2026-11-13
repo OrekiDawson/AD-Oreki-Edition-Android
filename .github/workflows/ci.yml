@@ -97,7 +97,8 @@ jobs:
             .github/workflows/candidate-unified.yml \
             .github/workflows/verify-unified.yml \
             .github/workflows/release-gate-unified.yml \
-            .github/workflows/release-unified.yml
+            .github/workflows/release-unified.yml \
+            .github/workflows/release-validate-unified.yml
       - name: Enforce single-repo migration safety invariants
         run: python3 -m unittest discover -s scripts/tests -p 'test_ci_migration.py' -v
       - name: Run migrated immutable release gate regressions

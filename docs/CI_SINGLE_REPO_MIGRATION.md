@@ -34,6 +34,19 @@ OAuth token（刷新令牌可重复使用，已验证），再用 `PUT /v1.0/dri
 上传同一已验证 APK，并用返回元数据尺寸校验；临时探针上传后即删除，不覆盖稳定版。
 该回退只解决上传；个人内容主机的内容下载回读仍可能独立 401，需在真实渠道验收时单独记录。
 
+## 发布管线验证（不发布稳定版）
+
+部分见 .github/workflows/release-validate-unified.yml：用真实凭据验证三远端交付路径，
+但不产生任何稳定发布：
+
+- 必须传入成功 candidate run、独立 verify run、精确 APK SHA-256，以及已提交的
+  docs/avd-acceptance/.../avd-checks.json（8 项 AVD 最小验收全部 PASS）；
+- 在 stable-release 环境审批下，把同一已验证 APK 上传到 OneDrive / Google Drive 的
+  _validate/<sha8>/ 临时目录和 GitHub draft Release，逐项校验远端大小与下载回读 SHA-256；
+- 无论成功失败都删除临时文件与 draft Release，并断言 stable Latest 未变化；
+- 它不能晋升稳定版：R104 双端 <=180 分钟真实通关 completion 证据仍是
+  release-gate-unified.yml 的独立硬门禁。
+
 ## 需要的 GitHub 配置
 
 - `main` Ruleset（active）：禁删除/强推，必须 PR + Source CI（见 `/settings/rules`）。

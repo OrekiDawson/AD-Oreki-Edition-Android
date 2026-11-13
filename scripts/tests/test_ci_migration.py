@@ -69,6 +69,21 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("local-channel-receipt.json", local_pull)
         self.assertIn("os.replace(", local_pull)
 
+    def test_release_pipeline_validation_never_publishes_stable(self):
+        text = (ROOT / ".github/workflows/release-validate-unified.yml").read_text()
+        self.assertIn("workflow_dispatch:", text)
+        self.assertNotIn("  push:", text)
+        self.assertIn("VALIDATE-ONLY", text)
+        self.assertIn("--draft", text)
+        self.assertIn("trap cleanup EXIT", text)
+        self.assertIn("_validate/", text)
+        self.assertIn("Stable Latest changed during validation", text)
+        self.assertNotIn("--latest", text)
+        self.assertNotIn("PUBLISH-STABLE", text)
+        self.assertIn("environment: stable-release", text)
+        self.assertIn("ad-oreki-candidate", text)
+        self.assertIn("avd-checks.json", text)
+
 
 if __name__ == "__main__":
     unittest.main()
