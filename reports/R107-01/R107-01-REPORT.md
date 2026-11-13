@@ -308,3 +308,16 @@
 - 模式修复（X_HIGHEST×10）未生效：本跑次未出现 bootstrap adopted 日志（autoEternity 未解锁），mode 仍为 0；
   需在下一轮核对 adopt 触发条件，或把「收益阈值」策略直接用于 bootstrap 期 MOD 主动永恒。
 - Web 对照：同源修复后 r15→r20+（654→731s）、r50 @1055s、49/49 回归 PASS；Android 侧还需修 maxIP 重建/EC 完成路径。
+
+### 10.12 Android 现实链缺口定位（2026-11-14 05:00）：EC 门槛 / 膨胀研究成本缩放缺失
+
+- 与 Web 对比发现：Web `isOrekiBootstrapRun()`（现实未解锁 或 当前现实未买膨胀研究 6）同时驱动 **4 条**数值规则：
+  IP 除数 30（game.js:161）、EP 除数 30（game.js:598）、**EC 门槛 /100**（ec-time-study.js:10,121）、**膨胀研究 TT 成本 /1000**（dilation-time-study.js）。
+  其中 EC/膨胀研究成本两条 **Android 完全缺失**；Android EC 自动化实测只能在 5,5,5 停留、买不到膨胀研究 6（现实），realities 恒 0，与缺失缩放一致。
+- 本次已补：GameApi.isOrekiBootstrapRun()（反射 Player.t()→Dilation.h() studies，未含 id 6 → true；fail-closed），
+  并让 OrekiEpGainScale 与 OrekiIpGainScale 都改用该判据（原实现 realities>0 即回到 308）。静态验证：hybrid-a2 APK dexdump 确认调用链；
+  运行期分支（需 realities>0 真实存档）NOT RUN。commit b4222531 / 23ef1765。
+- 待完成（已派 hook-migrate）：Kotlin 缩放 + smali ABI 转发，EC 门槛（challenge/eternity/b.O(I)Z 的 requirement lambda 结果 /100）与
+  膨胀研究 TT 成本（cost 返回点 /1000），bootstrap 时生效、fail-closed 原样返回；完成后构建 + AVD 验证 EC 完成数与 reality 是否突破。
+- cannot-eternity 诊断（注入首永恒后停摆态存档，180s 采样）：TT 11500/永恒升级 7 位/时间研究 15 可恢复，maxIP e5→e30 缓慢增长；
+  说明 P1 修复后经济链恢复但速度不足，EC/研究缩放是下一主攻点。
