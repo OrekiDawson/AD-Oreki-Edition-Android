@@ -67,5 +67,46 @@ class DeliveryPreflightTests(unittest.TestCase):
         self.assertIn("--latest", captured[0])
         self.assertIn("--prerelease=false", captured[0])
 
+    def test_failed_release_restores_snapshot_not_arbitrary_listing(self):
+        calls = []
+        latest = "android-update-3.21.0-3d924271"
+        def fake_run(cmd, **kw):
+            calls.append(cmd)
+            if cmd[:3] == ["gh", "release", "view"]:
+                return types.SimpleNamespace(returncode=0, stdout=json.dumps(
+                    {"isPrerelease": False, "isDraft": False}))
+            if cmd[:2] == ["gh", "api"] and cmd[2].endswith("/releases/latest"):
+                return types.SimpleNamespace(returncode=0, stdout=json.dumps(
+                    {"tag_name": latest, "prerelease": False, "draft": False}))
+            if cmd[:2] == ["gh", "api"] and "releases?per_page" in cmd[2]:
+                raise AssertionError("Snapshot exists; listing must not be consulted")
+            return types.SimpleNamespace(returncode=0, stdout="")
+        with (mock.patch.object(p, "run", side_effect=fake_run),
+              mock.patch.object(p, "github_repo", return_value="OrekiDawson/AD-Oreki-Edition-Android")):
+            p.demote_failed_github_release("3.21.0", "b" * 64, previous_latest_tag=latest)
+        self.assertTrue(any(c[:4] == ["gh", "release", "edit", latest] for c in calls))
+
+    def test_fallback_sorts_published_dates_not_cli_list_order(self):
+        calls = []
+        older = "android-update-3.21.0-f388dc50"
+        newer = "android-update-3.21.0-3d924271"
+        listing = [
+            {"tag_name": older, "draft": False, "prerelease": False, "published_at": "2026-11-12T04:40:23Z"},
+            {"tag_name": newer, "draft": False, "prerelease": False, "published_at": "2026-11-12T15:13:13Z"},
+        ]
+        def fake_run(cmd, **kw):
+            calls.append(cmd)
+            if cmd[:2] == ["gh", "api"] and "releases?per_page" in cmd[2]:
+                return types.SimpleNamespace(returncode=0, stdout=json.dumps(listing))
+            if cmd[:2] == ["gh", "api"] and cmd[2].endswith("/releases/latest"):
+                return types.SimpleNamespace(returncode=0, stdout=json.dumps(
+                    {"tag_name": newer, "prerelease": False, "draft": False}))
+            return types.SimpleNamespace(returncode=0, stdout="")
+        with (mock.patch.object(p, "run", side_effect=fake_run),
+              mock.patch.object(p, "github_repo", return_value="OrekiDawson/AD-Oreki-Edition-Android")):
+            p.demote_failed_github_release("3.21.0", "b" * 64)
+        self.assertTrue(any(c[:4] == ["gh", "release", "edit", newer] for c in calls))
+        self.assertFalse(any(c[:4] == ["gh", "release", "edit", older] for c in calls))
+
 if __name__ == "__main__":
     unittest.main()
