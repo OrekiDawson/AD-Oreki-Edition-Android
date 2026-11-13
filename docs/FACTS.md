@@ -10043,3 +10043,30 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   R104 候选仅 Pre-release（`android-update-3.21.0-bb5e0432`）+ 本地/GDrive archive 保留。
   OneDrive：R103 文件元数据未变（84,601,003 B / 11-12T15:10:08Z），但当前内容下载报 585 B 错误页 ⇒
   字节级未验证，需 `rclone config reconnect onedrive:` 后重测（BLOCKED，人工授权）。
+
+
+## [R105-01] Android 第二永恒真实突破：IP 兑换尺度应覆盖整个永恒阶段（2026-11-13）
+
+- 根因（R104 遗留决定性瓶颈）：Android `OrekiIpGainScale` 只在「首次永恒前」把
+  `gainedInfinityPoints()` 的除数从 308 收到 30（`eternitiesZero()`），首次永恒结算后立即回到 308。
+  Web 基线 `src/core/oreki-bootstrap.js#isOrekiBootstrapRun()` 的判据是 `player.realities == 0`
+  （现实未解锁），即**整个永恒阶段**都用 30，直到首次现实后才恢复原版。
+  - 按 div=30：maxAM ≈ e9248 即可换到 1.797e308 IP；按 div=308：需要 maxAM ≈ e95000，
+    而每次坍缩都清空无限力量，maxAM 实测平台 e14000–e33000 ⇒ 第二永恒在原规则下不可达。
+- 修复（最小）：判据改为 `eternitiesZero() || realities == 0`（Kotlin `OrekiIpGainScale`）。
+  只改 IP 兑换率一个数值规则；不写阶段标志、不发资源、不改 maxAM/EP/成就，不绕过 `canEternity`。
+- 真实新档验证（AVD emulator-5554，12:41:26 起，候选 APK `f69fdb1a…83bb`，source a47fbef6 + 该修复）：
+  - 首次 Break 345.8 s；首次自动永恒 374.6 s（bigE 0→1、EP 0→2，原版入口）。
+  - 第二次 Break 707.4 s；**第二次永恒 1307.2 s（bigE 1→2、EP 2→3）**，仍由原版结算入口完成。
+  - 证据链：13:03:02.987 crunch ip=1.51e222 → 13:03:04.178 `eternity-ip-ready` →
+    13:03:08.001 crunch ip=3.756e321（≥1.797e308）→ 13:03:08.002 `canEt=true` 撞 R97 同帧守卫 →
+    13:03:09.022 `OREKI_ET_GATE bigE=2 ep=3`。
+  - 对比 R104 同规则 div=308：10,832 s 后 maxIP 仅 e100、bigE 恒 1。
+- EP 侧缺口（下一阶段）：EP 兑换除数仍为 308（`prestige.c.g()`），首次永恒只拿到 EP 2，
+  时间研究/现实链不可达。分支候选（未并入本轮 main）新增 Kotlin `OrekiEpGainScale` +
+  `prestige.c.g()` 除数转发（现实前 308→30，与 Web [Oreki AD9] 同规则）。
+  机制级验证（R104 存档回放）：`EP_DIVISOR bootstrap original=308.0 effective=30.0`，
+  `gainedEternityPoints` 由 2.3e1 提升到 4.1e16（同存档同 maxIP）；完整现实链仍待真实新档验证。
+- 证据：`reports/R105/android-second-eternity/`（RUN-RESULT.json / timeline.jsonl / events.json /
+  logs-key-slice.txt / FINAL-SAVE-second-eternity.json / screenshots / ep-mechanism）。
+

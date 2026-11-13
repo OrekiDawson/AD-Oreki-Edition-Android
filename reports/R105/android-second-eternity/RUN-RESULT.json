@@ -1,0 +1,86 @@
+{
+ "id": "R105-01-android-second-eternity",
+ "apk_sha256": "f69fdb1aa58e99ad345459d953e6ee0dcb2bba20a6ff6dffc5983fa8c1a283bb",
+ "apk_size": 84605099,
+ "package_name": "com.oreki.antimatterdimensions",
+ "version_code": 30210000,
+ "version_name": "3.21.0",
+ "cert_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+ "source_sha_build_input": "a47fbef6b1743dc920433ecaf0bcb1c9dcb8c008",
+ "fix": "OrekiIpGainScale: bootstrap IP divisor (30) now applies until first reality (realities==0), matching Web isOrekiBootstrapRun()",
+ "fresh_save": true,
+ "device": "emulator-5554 Android API 37",
+ "start_iso": "2026-11-13T12:41:26+08:00",
+ "start_utc": "2026-11-13T04:41:26Z",
+ "wall_clock_note": "host time.time() + /proc/uptime monotonic, no backfill",
+ "stages_s": {
+  "antimatter": 14.1,
+  "first_break_infinity": 345.8,
+  "first_auto_eternity": 374.6,
+  "second_break_infinity": 707.4,
+  "second_eternity": 1307.2
+ },
+ "first_eternity": {
+  "bigE_before": 0,
+  "bigE_after": 1,
+  "EP_before": 0,
+  "EP_after": 2,
+  "entry": "original settlement (OREKI_ET_GATE allow=true reason=allow)"
+ },
+ "second_eternity": {
+  "bigE_before": 1,
+  "bigE_after": 2,
+  "EP_before": 2,
+  "EP_after": 3,
+  "iso": "2026-11-13T13:03:09+08:00",
+  "evidence_chain": [
+   "13:03:02.987 OREKI_CRUNCH ip=1.511542926928e222 (div=30, maxAM≈e6700)",
+   "13:03:04.178 OREKI_CRUNCH_DEC allow=true reason=eternity-ip-ready (projected IP >= 1.797e308)",
+   "13:03:08.001 OREKI_CRUNCH ip=3.75624906330912e321 (>= 1.797e308)",
+   "13:03:08.002 OREKI_ET_GATE canEt=true, blocked one frame reason=same-frame-crunch (R97 guard)",
+   "13:03:09.022 OREKI_ET_GATE bigE=2 ep=3.0e0 (original eternity settled)",
+   "13:03:15.016 OREKI_CRUNCH bigE=2"
+  ],
+  "settlement_entry": "原版永恒结算（OREKI_ET_GATE 放行 + prestige 原版入口；不写字段/不伪造）"
+ },
+ "final_state": {
+  "bigEternities": 2,
+  "eternityPoints": 3,
+  "realities": 0,
+  "isGameEnd": false,
+  "thisEternity_maxIP_l10": 11.11,
+  "thisEternity_maxAM_l10": 678
+ },
+ "ip_growth_proof": {
+  "formula": "IP = 10^(log10(thisInfinity.maxAM)/div - 0.75) * totalIPMult",
+  "div": 30,
+  "observed": [
+   {
+    "t": "12:53:02",
+    "ip": 49000
+   },
+   {
+    "t": "12:58:02",
+    "ip": 8.8e+46
+   },
+   {
+    "t": "13:03:02",
+    "ip": 1.51e+222
+   },
+   {
+    "t": "13:03:08",
+    "ip": null
+   }
+  ],
+  "note": "同一存档在 div=308 下 R104 实测 maxIP 仅 e100，10832s 未达 1.797e308；本次 div=30 在 1307s 内达 e321。"
+ },
+ "verdict": "PASS（R105-01 第二永恒真实达成）",
+ "remaining_blocker": "现实仍需 EP 除数修复（EP 侧未进入本候选；已在 r105-ep-scale 分支实现并以存档回放验证机制）",
+ "evidence": {
+  "timeline": "timeline.jsonl",
+  "events": "events.json",
+  "logcat": "logs-key-slice.txt",
+  "save": "FINAL-SAVE-second-eternity.json",
+  "screenshots": "screenshots/"
+ }
+}
