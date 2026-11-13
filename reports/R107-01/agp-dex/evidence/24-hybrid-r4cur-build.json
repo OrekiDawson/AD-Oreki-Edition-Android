@@ -1,0 +1,481 @@
+{
+ "input": {
+  "merged_jar": "/tmp/r107/r2cur/merged.jar",
+  "sha256": "49d20984c77a541f4d16b7f0a9ed8467b19dae01a93dea3fd738f738b46572e2",
+  "classes": 15344
+ },
+ "m53": {
+  "merged_sha256": "b0f7819fe51ce330a3f8336474e0cd7a3752277a1fbe20383aa58863f52a40a6",
+  "split_sha256": "326534c935cd30c986bd61c4a532fa214538764271ec383f0e39c394a1cd0d76"
+ },
+ "remap": {
+  "stats": {
+   "KEPT": 15344,
+   "DROPPED": 0,
+   "GAME_REMAPPED": 72,
+   "FAILED": 0
+  },
+  "sha256": "805380a8c6d7f9958ad0def5e691261ad3471519c2da9807254fd40e747e3e1f",
+  "stdout_tail": [
+   "KEPT=15344 DROPPED=0 GAME_REMAPPED=72 FAILED=0"
+  ]
+ },
+ "shadow_merge": {
+  "merged": 72,
+  "missing": []
+ },
+ "r2": {
+  "replaced": [
+   {
+    "class": "ox0",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "gk0",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "dc2",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "tf2",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "vf2",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "t01",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "k51",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "cv0",
+    "source": "d2j+strip-cv0-ctor",
+    "dash_restore": 0
+   },
+   {
+    "class": "rk8",
+    "source": "d2j",
+    "dash_restore": 8
+   },
+   {
+    "class": "lu2",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "tu2",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "qy0",
+    "source": "d2j",
+    "dash_restore": 0
+   },
+   {
+    "class": "to2",
+    "source": "d2j",
+    "dash_restore": 0
+   }
+  ],
+  "nc8_patch": "PATCHED calls=1 addedCtor=true target=nc8 allocated=com/google/android/gms/internal/firebase-auth-api/zzagb desc=(Ljava/lang/String;Ljava/lang/Throwable;)V",
+  "jar_sha256": "33b5507253914d9ef198d083644dcd64ce0fde9d3262415de76792a85b4fe665"
+ },
+ "r3": {
+  "replaced_interfaces": 75,
+  "replaced": [
+   {
+    "class": "ws5",
+    "dash_restore": 0
+   },
+   {
+    "class": "de0",
+    "dash_restore": 0
+   },
+   {
+    "class": "xf",
+    "dash_restore": 0
+   },
+   {
+    "class": "sc1",
+    "dash_restore": 0
+   },
+   {
+    "class": "r21",
+    "dash_restore": 0
+   },
+   {
+    "class": "qp2",
+    "dash_restore": 0
+   },
+   {
+    "class": "qw",
+    "dash_restore": 0
+   },
+   {
+    "class": "b63",
+    "dash_restore": 0
+   },
+   {
+    "class": "nt2",
+    "dash_restore": 0
+   },
+   {
+    "class": "ww4",
+    "dash_restore": 0
+   },
+   {
+    "class": "ju2",
+    "dash_restore": 0
+   },
+   {
+    "class": "jv0",
+    "dash_restore": 0
+   },
+   {
+    "class": "tr5",
+    "dash_restore": 0
+   },
+   {
+    "class": "v75",
+    "dash_restore": 0
+   },
+   {
+    "class": "pf",
+    "dash_restore": 0
+   },
+   {
+    "class": "sr",
+    "dash_restore": 0
+   },
+   {
+    "class": "pc1",
+    "dash_restore": 0
+   },
+   {
+    "class": "mf1",
+    "dash_restore": 0
+   },
+   {
+    "class": "e85",
+    "dash_restore": 0
+   },
+   {
+    "class": "ag",
+    "dash_restore": 0
+   },
+   {
+    "class": "as7",
+    "dash_restore": 0
+   },
+   {
+    "class": "ul3",
+    "dash_restore": 0
+   },
+   {
+    "class": "k55",
+    "dash_restore": 0
+   },
+   {
+    "class": "g94",
+    "dash_restore": 0
+   },
+   {
+    "class": "yj4",
+    "dash_restore": 0
+   },
+   {
+    "class": "lb",
+    "dash_restore": 0
+   },
+   {
+    "class": "qx0",
+    "dash_restore": 0
+   },
+   {
+    "class": "dg3",
+    "dash_restore": 0
+   },
+   {
+    "class": "f64",
+    "dash_restore": 0
+   },
+   {
+    "class": "x00",
+    "dash_restore": 0
+   },
+   {
+    "class": "ro2",
+    "dash_restore": 0
+   },
+   {
+    "class": "l30",
+    "dash_restore": 0
+   },
+   {
+    "class": "androidx/compose/ui/focus/b",
+    "dash_restore": 0
+   },
+   {
+    "class": "jt1",
+    "dash_restore": 0
+   },
+   {
+    "class": "gv2",
+    "dash_restore": 0
+   },
+   {
+    "class": "mm4",
+    "dash_restore": 0
+   },
+   {
+    "class": "op2",
+    "dash_restore": 0
+   },
+   {
+    "class": "o74",
+    "dash_restore": 0
+   },
+   {
+    "class": "c44",
+    "dash_restore": 0
+   },
+   {
+    "class": "androidx/webkit/ProfileStore",
+    "dash_restore": 0
+   },
+   {
+    "class": "is0",
+    "dash_restore": 0
+   },
+   {
+    "class": "hg8",
+    "dash_restore": 0
+   },
+   {
+    "class": "iu5",
+    "dash_restore": 0
+   },
+   {
+    "class": "l16",
+    "dash_restore": 0
+   },
+   {
+    "class": "wx4",
+    "dash_restore": 0
+   },
+   {
+    "class": "yw6",
+    "dash_restore": 0
+   },
+   {
+    "class": "yu8",
+    "dash_restore": 0
+   },
+   {
+    "class": "yo2",
+    "dash_restore": 0
+   },
+   {
+    "class": "cr2",
+    "dash_restore": 0
+   },
+   {
+    "class": "com/google/android/gms/internal/ads/m",
+    "dash_restore": 0
+   },
+   {
+    "class": "f61",
+    "dash_restore": 0
+   },
+   {
+    "class": "ot5",
+    "dash_restore": 0
+   },
+   {
+    "class": "kx5",
+    "dash_restore": 0
+   },
+   {
+    "class": "v76",
+    "dash_restore": 0
+   },
+   {
+    "class": "tx8",
+    "dash_restore": 0
+   },
+   {
+    "class": "jr5",
+    "dash_restore": 0
+   },
+   {
+    "class": "x79",
+    "dash_restore": 0
+   },
+   {
+    "class": "su8",
+    "dash_restore": 0
+   },
+   {
+    "class": "de4",
+    "dash_restore": 0
+   },
+   {
+    "class": "nb1",
+    "dash_restore": 0
+   },
+   {
+    "class": "ki",
+    "dash_restore": 0
+   },
+   {
+    "class": "je4",
+    "dash_restore": 0
+   },
+   {
+    "class": "v36",
+    "dash_restore": 0
+   },
+   {
+    "class": "y31",
+    "dash_restore": 0
+   },
+   {
+    "class": "x65",
+    "dash_restore": 0
+   },
+   {
+    "class": "nk6",
+    "dash_restore": 0
+   },
+   {
+    "class": "jn3",
+    "dash_restore": 0
+   },
+   {
+    "class": "n55",
+    "dash_restore": 0
+   },
+   {
+    "class": "q21",
+    "dash_restore": 0
+   },
+   {
+    "class": "o84",
+    "dash_restore": 0
+   },
+   {
+    "class": "androidx/compose/ui/node/f",
+    "dash_restore": 0
+   },
+   {
+    "class": "q92",
+    "dash_restore": 0
+   },
+   {
+    "class": "androidx/compose/ui/layout/c",
+    "dash_restore": 0
+   },
+   {
+    "class": "nu2",
+    "dash_restore": 0
+   },
+   {
+    "class": "m55",
+    "dash_restore": 0
+   }
+  ]
+ },
+ "r4": {
+  "tool": "sites=5749 patchedClasses=2999 ctorClasses=2632 ctorMethods=2696 skipped=700 skippedExisting=175 skippedConflict=0 analyzerFails=189 thisInitSites=865",
+  "jar_sha256": "80a635b2062006a3eef187210fa43106c90bcd3227165acc53083c170bafbce3"
+ },
+ "final": {
+  "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r4cur.jar",
+  "sha256": "6b293ed7d1bd82de174901644812f8959bce8cb841950bb6d229376f963cf3c7",
+  "size": 19507548,
+  "classes": 15344
+ },
+ "audit": {
+  "head": "classes=15344 verify_ok=15092 invalid=238 inconclusive=14",
+  "invalid": 238,
+  "types": {
+   "VERIFY": 238,
+   "FORMAT": 0
+  },
+  "first_party_invalid": 7,
+  "hot_valid": [
+   "ox0",
+   "gk0",
+   "dc2",
+   "tf2",
+   "vf2",
+   "t01",
+   "k51",
+   "cv0",
+   "rk8",
+   "nc8",
+   "ba1"
+  ],
+  "hot_invalid": []
+ },
+ "class_set": {
+  "cur": 15344,
+  "old": 15344,
+  "equal": true
+ },
+ "structure": {
+  "changed": 4774,
+  "added_methods": 2698,
+  "removed_method_classes": 0,
+  "field_changes": 0
+ },
+ "d8_whole": {
+  "returncode": 0,
+  "dex": [
+   "classes.dex",
+   "classes2.dex"
+  ],
+  "dex_bytes": 16478124,
+  "stderr_tail": []
+ },
+ "d8_patch": {
+  "tested": 76,
+  "fail": [],
+  "fail_detail": {}
+ },
+ "cur_tree_patch_classes": {
+  "shared": 15344,
+  "changed_count": 5,
+  "changed_sample": [
+   "kajfosz/antimatterdimensions/player/DeviceOptions$Appearance",
+   "kajfosz/antimatterdimensions/player/Player$Options",
+   "kajfosz/antimatterdimensions/player/h",
+   "kajfosz/antimatterdimensions/prestige/c",
+   "kajfosz/antimatterdimensions/shop/Purchases"
+  ],
+  "only_cur_count": 0,
+  "only_cur_sample": [],
+  "only_old_count": 0
+ },
+ "fallback": {
+  "class": "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1",
+  "source": "official-selective.jar",
+  "official_sha256": "067c000ca7daa8eceb6ae0be18502f7a3ce9cef9cab327527987584aac8424e8",
+  "loses_mod_patch": true
+ }
+}

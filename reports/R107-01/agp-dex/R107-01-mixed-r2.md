@@ -190,3 +190,32 @@ mkdir -p /tmp/d8out && /home/oreki/Android/Sdk/build-tools/34.0.0/d8 --lib $AJ -
 1. 02:40 后重跑 r4/r5 的 76 补丁类逐类 D8 与 r5 整包 D8；
 2. r4/r5 结构审计复核（已验证 r4；r5 需对 140 个替换类做字段/方法集合对比）；
 3. Lead AVD 验收（r2 主候选，r4/r5 实验候选）。
+
+## 12. r4cur（当前树应用版，2026-11-14 02:25–02:35）
+
+**输入**：`/tmp/r107/r2cur/merged.jar`（当前树 3-dex enjarify 合并 jar；SHA-256 `49d20984c77a541f4d16b7f0a9ed8467b19dae01a93dea3fd738f738b46572e2`，15,344 类，未 remap/未 shadow 合并）。
+**流程**（与线上验证顺序一致）：m53 拆分件复用 → RemapSelective（官方 class sets / exclusion / shadow）→ 合并官方 72 shadow 类 →
+r2 的 13 类 dex2jar 替换 + nc8.M 修复 → r3 的 75 接口替换 → FixInitSplice → 与管线一致的 updateAutomator$1 官方回退 → 等内容重打包。
+
+| 项 | 结果 |
+| --- | --- |
+| 产物 | `out/hybrid-translator/game-hybrid-r4cur.jar`，SHA-256 **`6b293ed7d1bd82de174901644812f8959bce8cb841950bb6d229376f963cf3c7`**（19,507,548 B，15,344 类） |
+| RemapSelective | KEPT 15,344 / DROPPED 0 / GAME_REMAPPED 72 / FAILED 0 |
+| shadow 合并 | 72/72 |
+| JVMS 审计 | `classes=15344 verify_ok=15092 invalid=238 inconclusive=14`；VERIFY 238 / FORMAT 0；**热路径 11 类全 VALID**；第一方无效 7 |
+| 类集合 | 15,344，与旧基线集合完全一致 |
+| 结构审计 | changed 4,773 类；新增方法 2,698（全部 synthetic `<init>` 链）；**0 删除方法、0 字段变更** |
+| 整包 D8 | **PASS**（0 warning） |
+| 76 补丁类逐类 D8 | **76/76 PASS，0 失败** |
+| 平台回退 | `MainActivityAutomatorKt$updateAutomator$1` 回退 official（`loses_mod_patch=true`，与管线一致；该补丁版 D8 会报 invokeSuspend undefined value） |
+| 当前树补丁类（vs 旧 3-dex enjarify 输入） | **5 个**：`kajfosz/antimatterdimensions/player/DeviceOptions$Appearance`、`player/Player$Options`、`player/h`、`prestige/c`、`shop/Purchases` |
+| 与 r4（旧树）差异 | r4 = `a0a0261e…`（238 invalid）；r4cur = `6b293ed7…`（238 invalid）。除当前树 5 个补丁类与重打包字节外，两者流程/审计/结构指标一致 |
+
+- 结论（离线）：r4cur **符合 Lead 期望**（invalid≈238、热路径 11 类 VALID、D8 全过、类集合不变）；可交给 Lead 构建 AGP APK 做 AVD 验证。
+- 证据：`evidence/23-jvm-verify-hybrid-r4cur.txt`、`evidence/24-hybrid-r4cur-build.json`、`evidence/hybrid-r4cur.sha256`。
+
+### r5cur（可选实验，进行中）
+在 r4cur 上把剩余根类用 dex2jar v52 版本替换（与 r5 同法）：在 r4cur 上把 audit 中剩余不可校验类（含依赖类）用 dex2jar v52 版本替换（去重后 **160 个类**，其中默认包游戏类 108 个、kajfosz 4 个、库类 48 个）；
+结果：invalid **238 → 77**（verify_ok 15,254，99.5%），热路径 11 类全 VALID，整包 D8 **PASS**（0 warning），76 补丁类逐类 D8 **76/76 PASS**；
+jar `out/hybrid-translator/game-hybrid-r5cur.jar` SHA-256 `4912811b0a820413dde4f64f380c610bd3cecadd921ba07f61037643bce46070`（19,501,763 B）。
+风险：160 个 d2j 替换类中含 **108 个默认包游戏类**（语义风险显著高于 r4cur），仅作对照实验；AVD 先测 r4cur。

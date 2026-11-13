@@ -1,0 +1,2545 @@
+{
+ "base": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r4cur.jar",
+ "base_sha256": "6b293ed7d1bd82de174901644812f8959bce8cb841950bb6d229376f963cf3c7",
+ "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r5cur.jar",
+ "sha256": "4912811b0a820413dde4f64f380c610bd3cecadd921ba07f61037643bce46070",
+ "size": 19501763,
+ "audit": {
+  "head": "classes=15344 verify_ok=15254 invalid=77 inconclusive=13",
+  "invalid": 77,
+  "hot_valid": [
+   "ox0",
+   "gk0",
+   "dc2",
+   "tf2",
+   "vf2",
+   "t01",
+   "k51",
+   "cv0",
+   "rk8",
+   "nc8",
+   "ba1"
+  ],
+  "hot_invalid": []
+ },
+ "replaced_roots": 160,
+ "replaced": [
+  {
+   "class": "fv3",
+   "dash_restore": 0
+  },
+  {
+   "class": "m85",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/LinearLayoutManager",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/RecyclerView",
+   "dash_restore": 0
+  },
+  {
+   "class": "u48",
+   "dash_restore": 0
+  },
+  {
+   "class": "m03",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxr",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/slider/BaseSlider",
+   "dash_restore": 0
+  },
+  {
+   "class": "bx4",
+   "dash_restore": 0
+  },
+  {
+   "class": "hq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "af1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ak1",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+   "dash_restore": 0
+  },
+  {
+   "class": "aq7",
+   "dash_restore": 0
+  },
+  {
+   "class": "at5",
+   "dash_restore": 0
+  },
+  {
+   "class": "au8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ay7",
+   "dash_restore": 0
+  },
+  {
+   "class": "bf4",
+   "dash_restore": 0
+  },
+  {
+   "class": "bi",
+   "dash_restore": 0
+  },
+  {
+   "class": "bk1",
+   "dash_restore": 0
+  },
+  {
+   "class": "c0",
+   "dash_restore": 0
+  },
+  {
+   "class": "c78",
+   "dash_restore": 0
+  },
+  {
+   "class": "cb1",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/d3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/g3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/l",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/mc",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgyk",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzv",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhat",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbd",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbe",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzbw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcq",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcx",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzfs",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzga",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/bottomappbar/BottomAppBar",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/focus/FocusRingDrawable",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/textfield/TextInputLayout",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Equals",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Identity",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ByFunctionOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ComparatorOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/CompoundOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/NaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseNaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/hash/HashCode$BytesHashCode",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/connection/f",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/core/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/tubesock/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "du8",
+   "dash_restore": 0
+  },
+  {
+   "class": "e69",
+   "dash_restore": 0
+  },
+  {
+   "class": "ei7",
+   "dash_restore": 0
+  },
+  {
+   "class": "ej8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fc9",
+   "dash_restore": 0
+  },
+  {
+   "class": "fl8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv2",
+   "dash_restore": 0
+  },
+  {
+   "class": "fw2",
+   "dash_restore": 0
+  },
+  {
+   "class": "g39",
+   "dash_restore": 0
+  },
+  {
+   "class": "gb4",
+   "dash_restore": 0
+  },
+  {
+   "class": "gg8",
+   "dash_restore": 0
+  },
+  {
+   "class": "gt1",
+   "dash_restore": 0
+  },
+  {
+   "class": "h79",
+   "dash_restore": 0
+  },
+  {
+   "class": "hr",
+   "dash_restore": 0
+  },
+  {
+   "class": "ht1",
+   "dash_restore": 0
+  },
+  {
+   "class": "hu4",
+   "dash_restore": 0
+  },
+  {
+   "class": "i56",
+   "dash_restore": 0
+  },
+  {
+   "class": "i89",
+   "dash_restore": 0
+  },
+  {
+   "class": "ik5",
+   "dash_restore": 0
+  },
+  {
+   "class": "iv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "jp0",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/challenge/eternity/b",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/celestials/navigation/CelestialNavigationMapView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/other/StarBackgroundView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "kv5",
+   "dash_restore": 0
+  },
+  {
+   "class": "m29",
+   "dash_restore": 0
+  },
+  {
+   "class": "ma7",
+   "dash_restore": 0
+  },
+  {
+   "class": "mm0",
+   "dash_restore": 0
+  },
+  {
+   "class": "nz6",
+   "dash_restore": 0
+  },
+  {
+   "class": "o27",
+   "dash_restore": 0
+  },
+  {
+   "class": "oi6",
+   "dash_restore": 0
+  },
+  {
+   "class": "or8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ot0",
+   "dash_restore": 0
+  },
+  {
+   "class": "pn",
+   "dash_restore": 0
+  },
+  {
+   "class": "qi1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ql5",
+   "dash_restore": 0
+  },
+  {
+   "class": "qn",
+   "dash_restore": 0
+  },
+  {
+   "class": "r02",
+   "dash_restore": 0
+  },
+  {
+   "class": "rj3",
+   "dash_restore": 0
+  },
+  {
+   "class": "ru8",
+   "dash_restore": 0
+  },
+  {
+   "class": "s0",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj5",
+   "dash_restore": 0
+  },
+  {
+   "class": "tj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "tu8",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc0",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc5",
+   "dash_restore": 0
+  },
+  {
+   "class": "uj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ul6",
+   "dash_restore": 0
+  },
+  {
+   "class": "ut7",
+   "dash_restore": 0
+  },
+  {
+   "class": "v61",
+   "dash_restore": 0
+  },
+  {
+   "class": "vb7",
+   "dash_restore": 0
+  },
+  {
+   "class": "vj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "vo2",
+   "dash_restore": 0
+  },
+  {
+   "class": "wa",
+   "dash_restore": 0
+  },
+  {
+   "class": "wj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "wv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "x14",
+   "dash_restore": 0
+  },
+  {
+   "class": "x58",
+   "dash_restore": 0
+  },
+  {
+   "class": "x69",
+   "dash_restore": 0
+  },
+  {
+   "class": "xa3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "xq3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xs6",
+   "dash_restore": 0
+  },
+  {
+   "class": "xx7",
+   "dash_restore": 0
+  },
+  {
+   "class": "xz0",
+   "dash_restore": 0
+  },
+  {
+   "class": "y",
+   "dash_restore": 0
+  },
+  {
+   "class": "ye1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yi3",
+   "dash_restore": 0
+  },
+  {
+   "class": "yj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yl5",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw0",
+   "dash_restore": 0
+  },
+  {
+   "class": "z28",
+   "dash_restore": 0
+  },
+  {
+   "class": "za7",
+   "dash_restore": 0
+  },
+  {
+   "class": "za9",
+   "dash_restore": 0
+  },
+  {
+   "class": "zj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "zm7",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzj",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/Random$Default",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/XorWowRandom",
+   "dash_restore": 0
+  },
+  {
+   "class": "x33",
+   "dash_restore": 0
+  },
+  {
+   "class": "yc1",
+   "dash_restore": 0
+  },
+  {
+   "class": "af1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ak1",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/GridLayoutManager",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/LinearLayoutManager",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/RecyclerView",
+   "dash_restore": 0
+  },
+  {
+   "class": "aq7",
+   "dash_restore": 0
+  },
+  {
+   "class": "at5",
+   "dash_restore": 0
+  },
+  {
+   "class": "au8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ay7",
+   "dash_restore": 0
+  },
+  {
+   "class": "b95",
+   "dash_restore": 0
+  },
+  {
+   "class": "bf4",
+   "dash_restore": 0
+  },
+  {
+   "class": "bi",
+   "dash_restore": 0
+  },
+  {
+   "class": "bk1",
+   "dash_restore": 0
+  },
+  {
+   "class": "bx4",
+   "dash_restore": 0
+  },
+  {
+   "class": "c0",
+   "dash_restore": 0
+  },
+  {
+   "class": "c78",
+   "dash_restore": 0
+  },
+  {
+   "class": "cb1",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/d3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/g3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/l",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/mc",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxa",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxr",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgyk",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgyp",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzj",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzo",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzv",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhat",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbd",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbe",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzbw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcq",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcx",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzfs",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzga",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/bottomappbar/BottomAppBar",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/focus/FocusRingDrawable",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/internal/NavigationMenuView",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/slider/BaseSlider",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/slider/RangeSlider",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/slider/Slider",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/textfield/TextInputLayout",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Equals",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Identity",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ByFunctionOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ComparatorOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/CompoundOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/NaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseNaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/hash/HashCode$BytesHashCode",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/connection/f",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/core/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/tubesock/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "du8",
+   "dash_restore": 0
+  },
+  {
+   "class": "e69",
+   "dash_restore": 0
+  },
+  {
+   "class": "ei7",
+   "dash_restore": 0
+  },
+  {
+   "class": "ej8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fc9",
+   "dash_restore": 0
+  },
+  {
+   "class": "fl8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fn2",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv2",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv3",
+   "dash_restore": 0
+  },
+  {
+   "class": "fw2",
+   "dash_restore": 0
+  },
+  {
+   "class": "fy4",
+   "dash_restore": 0
+  },
+  {
+   "class": "g39",
+   "dash_restore": 0
+  },
+  {
+   "class": "gb4",
+   "dash_restore": 0
+  },
+  {
+   "class": "gg8",
+   "dash_restore": 0
+  },
+  {
+   "class": "gt1",
+   "dash_restore": 0
+  },
+  {
+   "class": "h79",
+   "dash_restore": 0
+  },
+  {
+   "class": "hq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "hr",
+   "dash_restore": 0
+  },
+  {
+   "class": "ht1",
+   "dash_restore": 0
+  },
+  {
+   "class": "hu4",
+   "dash_restore": 0
+  },
+  {
+   "class": "i56",
+   "dash_restore": 0
+  },
+  {
+   "class": "i85",
+   "dash_restore": 0
+  },
+  {
+   "class": "i89",
+   "dash_restore": 0
+  },
+  {
+   "class": "ik5",
+   "dash_restore": 0
+  },
+  {
+   "class": "iq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "iv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "j85",
+   "dash_restore": 0
+  },
+  {
+   "class": "jp0",
+   "dash_restore": 0
+  },
+  {
+   "class": "k85",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/challenge/eternity/b",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/celestials/navigation/CelestialNavigationMapView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/other/StarBackgroundView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/other/WheelPickerView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "kv5",
+   "dash_restore": 0
+  },
+  {
+   "class": "l85",
+   "dash_restore": 0
+  },
+  {
+   "class": "lp1",
+   "dash_restore": 0
+  },
+  {
+   "class": "m03",
+   "dash_restore": 0
+  },
+  {
+   "class": "m29",
+   "dash_restore": 0
+  },
+  {
+   "class": "m85",
+   "dash_restore": 0
+  },
+  {
+   "class": "ma7",
+   "dash_restore": 0
+  },
+  {
+   "class": "mm0",
+   "dash_restore": 0
+  },
+  {
+   "class": "n0",
+   "dash_restore": 0
+  },
+  {
+   "class": "nz6",
+   "dash_restore": 0
+  },
+  {
+   "class": "o27",
+   "dash_restore": 0
+  },
+  {
+   "class": "oi6",
+   "dash_restore": 0
+  },
+  {
+   "class": "or8",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/Random$Default",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/XorWowRandom",
+   "dash_restore": 0
+  },
+  {
+   "class": "ot0",
+   "dash_restore": 0
+  },
+  {
+   "class": "pn",
+   "dash_restore": 0
+  },
+  {
+   "class": "qi1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ql5",
+   "dash_restore": 0
+  },
+  {
+   "class": "qn",
+   "dash_restore": 0
+  },
+  {
+   "class": "r02",
+   "dash_restore": 0
+  },
+  {
+   "class": "rj3",
+   "dash_restore": 0
+  },
+  {
+   "class": "ru8",
+   "dash_restore": 0
+  },
+  {
+   "class": "s0",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj5",
+   "dash_restore": 0
+  },
+  {
+   "class": "tj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "tu8",
+   "dash_restore": 0
+  },
+  {
+   "class": "u48",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc0",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc5",
+   "dash_restore": 0
+  },
+  {
+   "class": "uj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ul6",
+   "dash_restore": 0
+  },
+  {
+   "class": "ut7",
+   "dash_restore": 0
+  },
+  {
+   "class": "v61",
+   "dash_restore": 0
+  },
+  {
+   "class": "vb7",
+   "dash_restore": 0
+  },
+  {
+   "class": "vj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "vo2",
+   "dash_restore": 0
+  },
+  {
+   "class": "wa",
+   "dash_restore": 0
+  },
+  {
+   "class": "wj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "wv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "x14",
+   "dash_restore": 0
+  },
+  {
+   "class": "x33",
+   "dash_restore": 0
+  },
+  {
+   "class": "x58",
+   "dash_restore": 0
+  },
+  {
+   "class": "x69",
+   "dash_restore": 0
+  },
+  {
+   "class": "x85",
+   "dash_restore": 0
+  },
+  {
+   "class": "xa3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "xq3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xs6",
+   "dash_restore": 0
+  },
+  {
+   "class": "xx7",
+   "dash_restore": 0
+  },
+  {
+   "class": "xz0",
+   "dash_restore": 0
+  },
+  {
+   "class": "y",
+   "dash_restore": 0
+  },
+  {
+   "class": "yc1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ye1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yi3",
+   "dash_restore": 0
+  },
+  {
+   "class": "yj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yl5",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw0",
+   "dash_restore": 0
+  },
+  {
+   "class": "z28",
+   "dash_restore": 0
+  },
+  {
+   "class": "za7",
+   "dash_restore": 0
+  },
+  {
+   "class": "za9",
+   "dash_restore": 0
+  },
+  {
+   "class": "zj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "zm7",
+   "dash_restore": 0
+  },
+  {
+   "class": "zw0",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv3",
+   "dash_restore": 0
+  },
+  {
+   "class": "m85",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/LinearLayoutManager",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/RecyclerView",
+   "dash_restore": 0
+  },
+  {
+   "class": "u48",
+   "dash_restore": 0
+  },
+  {
+   "class": "m03",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxr",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/slider/BaseSlider",
+   "dash_restore": 0
+  },
+  {
+   "class": "bx4",
+   "dash_restore": 0
+  },
+  {
+   "class": "hq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "af1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ak1",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+   "dash_restore": 0
+  },
+  {
+   "class": "aq7",
+   "dash_restore": 0
+  },
+  {
+   "class": "at5",
+   "dash_restore": 0
+  },
+  {
+   "class": "au8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ay7",
+   "dash_restore": 0
+  },
+  {
+   "class": "bf4",
+   "dash_restore": 0
+  },
+  {
+   "class": "bi",
+   "dash_restore": 0
+  },
+  {
+   "class": "bk1",
+   "dash_restore": 0
+  },
+  {
+   "class": "c0",
+   "dash_restore": 0
+  },
+  {
+   "class": "c78",
+   "dash_restore": 0
+  },
+  {
+   "class": "cb1",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/d3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/g3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/l",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/mc",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgyk",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzv",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhat",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbd",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbe",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzbw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcq",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcx",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzfs",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzga",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/bottomappbar/BottomAppBar",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/focus/FocusRingDrawable",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/textfield/TextInputLayout",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Equals",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Identity",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ByFunctionOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ComparatorOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/CompoundOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/NaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseNaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/hash/HashCode$BytesHashCode",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/connection/f",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/core/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/tubesock/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "du8",
+   "dash_restore": 0
+  },
+  {
+   "class": "e69",
+   "dash_restore": 0
+  },
+  {
+   "class": "ei7",
+   "dash_restore": 0
+  },
+  {
+   "class": "ej8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fc9",
+   "dash_restore": 0
+  },
+  {
+   "class": "fl8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv2",
+   "dash_restore": 0
+  },
+  {
+   "class": "fw2",
+   "dash_restore": 0
+  },
+  {
+   "class": "g39",
+   "dash_restore": 0
+  },
+  {
+   "class": "gb4",
+   "dash_restore": 0
+  },
+  {
+   "class": "gg8",
+   "dash_restore": 0
+  },
+  {
+   "class": "gt1",
+   "dash_restore": 0
+  },
+  {
+   "class": "h79",
+   "dash_restore": 0
+  },
+  {
+   "class": "hr",
+   "dash_restore": 0
+  },
+  {
+   "class": "ht1",
+   "dash_restore": 0
+  },
+  {
+   "class": "hu4",
+   "dash_restore": 0
+  },
+  {
+   "class": "i56",
+   "dash_restore": 0
+  },
+  {
+   "class": "i89",
+   "dash_restore": 0
+  },
+  {
+   "class": "ik5",
+   "dash_restore": 0
+  },
+  {
+   "class": "iv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "jp0",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/challenge/eternity/b",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/celestials/navigation/CelestialNavigationMapView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/other/StarBackgroundView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "kv5",
+   "dash_restore": 0
+  },
+  {
+   "class": "m29",
+   "dash_restore": 0
+  },
+  {
+   "class": "ma7",
+   "dash_restore": 0
+  },
+  {
+   "class": "mm0",
+   "dash_restore": 0
+  },
+  {
+   "class": "nz6",
+   "dash_restore": 0
+  },
+  {
+   "class": "o27",
+   "dash_restore": 0
+  },
+  {
+   "class": "oi6",
+   "dash_restore": 0
+  },
+  {
+   "class": "or8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ot0",
+   "dash_restore": 0
+  },
+  {
+   "class": "pn",
+   "dash_restore": 0
+  },
+  {
+   "class": "qi1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ql5",
+   "dash_restore": 0
+  },
+  {
+   "class": "qn",
+   "dash_restore": 0
+  },
+  {
+   "class": "r02",
+   "dash_restore": 0
+  },
+  {
+   "class": "rj3",
+   "dash_restore": 0
+  },
+  {
+   "class": "ru8",
+   "dash_restore": 0
+  },
+  {
+   "class": "s0",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj5",
+   "dash_restore": 0
+  },
+  {
+   "class": "tj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "tu8",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc0",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc5",
+   "dash_restore": 0
+  },
+  {
+   "class": "uj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ul6",
+   "dash_restore": 0
+  },
+  {
+   "class": "ut7",
+   "dash_restore": 0
+  },
+  {
+   "class": "v61",
+   "dash_restore": 0
+  },
+  {
+   "class": "vb7",
+   "dash_restore": 0
+  },
+  {
+   "class": "vj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "vo2",
+   "dash_restore": 0
+  },
+  {
+   "class": "wa",
+   "dash_restore": 0
+  },
+  {
+   "class": "wj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "wv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "x14",
+   "dash_restore": 0
+  },
+  {
+   "class": "x58",
+   "dash_restore": 0
+  },
+  {
+   "class": "x69",
+   "dash_restore": 0
+  },
+  {
+   "class": "xa3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "xq3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xs6",
+   "dash_restore": 0
+  },
+  {
+   "class": "xx7",
+   "dash_restore": 0
+  },
+  {
+   "class": "xz0",
+   "dash_restore": 0
+  },
+  {
+   "class": "y",
+   "dash_restore": 0
+  },
+  {
+   "class": "ye1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yi3",
+   "dash_restore": 0
+  },
+  {
+   "class": "yj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yl5",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw0",
+   "dash_restore": 0
+  },
+  {
+   "class": "z28",
+   "dash_restore": 0
+  },
+  {
+   "class": "za7",
+   "dash_restore": 0
+  },
+  {
+   "class": "za9",
+   "dash_restore": 0
+  },
+  {
+   "class": "zj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "zm7",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzj",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/Random$Default",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/XorWowRandom",
+   "dash_restore": 0
+  },
+  {
+   "class": "x33",
+   "dash_restore": 0
+  },
+  {
+   "class": "yc1",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv3",
+   "dash_restore": 0
+  },
+  {
+   "class": "m85",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/LinearLayoutManager",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/recyclerview/widget/RecyclerView",
+   "dash_restore": 0
+  },
+  {
+   "class": "u48",
+   "dash_restore": 0
+  },
+  {
+   "class": "m03",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxr",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/slider/BaseSlider",
+   "dash_restore": 0
+  },
+  {
+   "class": "bx4",
+   "dash_restore": 0
+  },
+  {
+   "class": "hq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "af1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ak1",
+   "dash_restore": 0
+  },
+  {
+   "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+   "dash_restore": 0
+  },
+  {
+   "class": "aq7",
+   "dash_restore": 0
+  },
+  {
+   "class": "at5",
+   "dash_restore": 0
+  },
+  {
+   "class": "au8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ay7",
+   "dash_restore": 0
+  },
+  {
+   "class": "bf4",
+   "dash_restore": 0
+  },
+  {
+   "class": "bi",
+   "dash_restore": 0
+  },
+  {
+   "class": "bk1",
+   "dash_restore": 0
+  },
+  {
+   "class": "c0",
+   "dash_restore": 0
+  },
+  {
+   "class": "c78",
+   "dash_restore": 0
+  },
+  {
+   "class": "cb1",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/d3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/g3",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/l",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/mc",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgyk",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzv",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhat",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbd",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbe",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzbw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcq",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcw",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcx",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzfs",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzga",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/bottomappbar/BottomAppBar",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/focus/FocusRingDrawable",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/material/textfield/TextInputLayout",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Equals",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Identity",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ByFunctionOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ComparatorOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/CompoundOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/NaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseNaturalOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/ReverseOrdering",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/collect/s",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/common/hash/HashCode$BytesHashCode",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/connection/f",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/core/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/firebase/database/tubesock/c",
+   "dash_restore": 0
+  },
+  {
+   "class": "du8",
+   "dash_restore": 0
+  },
+  {
+   "class": "e69",
+   "dash_restore": 0
+  },
+  {
+   "class": "ei7",
+   "dash_restore": 0
+  },
+  {
+   "class": "ej8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fc9",
+   "dash_restore": 0
+  },
+  {
+   "class": "fl8",
+   "dash_restore": 0
+  },
+  {
+   "class": "fv2",
+   "dash_restore": 0
+  },
+  {
+   "class": "fw2",
+   "dash_restore": 0
+  },
+  {
+   "class": "g39",
+   "dash_restore": 0
+  },
+  {
+   "class": "gb4",
+   "dash_restore": 0
+  },
+  {
+   "class": "gg8",
+   "dash_restore": 0
+  },
+  {
+   "class": "gt1",
+   "dash_restore": 0
+  },
+  {
+   "class": "h79",
+   "dash_restore": 0
+  },
+  {
+   "class": "hr",
+   "dash_restore": 0
+  },
+  {
+   "class": "ht1",
+   "dash_restore": 0
+  },
+  {
+   "class": "hu4",
+   "dash_restore": 0
+  },
+  {
+   "class": "i56",
+   "dash_restore": 0
+  },
+  {
+   "class": "i89",
+   "dash_restore": 0
+  },
+  {
+   "class": "ik5",
+   "dash_restore": 0
+  },
+  {
+   "class": "iv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "jp0",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/challenge/eternity/b",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/celestials/navigation/CelestialNavigationMapView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/other/StarBackgroundView",
+   "dash_restore": 0
+  },
+  {
+   "class": "kq2",
+   "dash_restore": 0
+  },
+  {
+   "class": "kv5",
+   "dash_restore": 0
+  },
+  {
+   "class": "m29",
+   "dash_restore": 0
+  },
+  {
+   "class": "ma7",
+   "dash_restore": 0
+  },
+  {
+   "class": "mm0",
+   "dash_restore": 0
+  },
+  {
+   "class": "nz6",
+   "dash_restore": 0
+  },
+  {
+   "class": "o27",
+   "dash_restore": 0
+  },
+  {
+   "class": "oi6",
+   "dash_restore": 0
+  },
+  {
+   "class": "or8",
+   "dash_restore": 0
+  },
+  {
+   "class": "ot0",
+   "dash_restore": 0
+  },
+  {
+   "class": "pn",
+   "dash_restore": 0
+  },
+  {
+   "class": "qi1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ql5",
+   "dash_restore": 0
+  },
+  {
+   "class": "qn",
+   "dash_restore": 0
+  },
+  {
+   "class": "r02",
+   "dash_restore": 0
+  },
+  {
+   "class": "rj3",
+   "dash_restore": 0
+  },
+  {
+   "class": "ru8",
+   "dash_restore": 0
+  },
+  {
+   "class": "s0",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "sj5",
+   "dash_restore": 0
+  },
+  {
+   "class": "tj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "tu8",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc0",
+   "dash_restore": 0
+  },
+  {
+   "class": "uc5",
+   "dash_restore": 0
+  },
+  {
+   "class": "uj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "ul6",
+   "dash_restore": 0
+  },
+  {
+   "class": "ut7",
+   "dash_restore": 0
+  },
+  {
+   "class": "v61",
+   "dash_restore": 0
+  },
+  {
+   "class": "vb7",
+   "dash_restore": 0
+  },
+  {
+   "class": "vj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "vo2",
+   "dash_restore": 0
+  },
+  {
+   "class": "wa",
+   "dash_restore": 0
+  },
+  {
+   "class": "wj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "wv8",
+   "dash_restore": 1
+  },
+  {
+   "class": "x14",
+   "dash_restore": 0
+  },
+  {
+   "class": "x58",
+   "dash_restore": 0
+  },
+  {
+   "class": "x69",
+   "dash_restore": 0
+  },
+  {
+   "class": "xa3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "xq3",
+   "dash_restore": 0
+  },
+  {
+   "class": "xs6",
+   "dash_restore": 0
+  },
+  {
+   "class": "xx7",
+   "dash_restore": 0
+  },
+  {
+   "class": "xz0",
+   "dash_restore": 0
+  },
+  {
+   "class": "y",
+   "dash_restore": 0
+  },
+  {
+   "class": "ye1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yi3",
+   "dash_restore": 0
+  },
+  {
+   "class": "yj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "yl5",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw",
+   "dash_restore": 0
+  },
+  {
+   "class": "yw0",
+   "dash_restore": 0
+  },
+  {
+   "class": "z28",
+   "dash_restore": 0
+  },
+  {
+   "class": "za7",
+   "dash_restore": 0
+  },
+  {
+   "class": "za9",
+   "dash_restore": 0
+  },
+  {
+   "class": "zj1",
+   "dash_restore": 0
+  },
+  {
+   "class": "zm7",
+   "dash_restore": 0
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzj",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/Random$Default",
+   "dash_restore": 0
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/XorWowRandom",
+   "dash_restore": 0
+  },
+  {
+   "class": "x33",
+   "dash_restore": 0
+  },
+  {
+   "class": "yc1",
+   "dash_restore": 0
+  }
+ ],
+ "steps": [
+  {
+   "iter": 1,
+   "head": "classes=15344 verify_ok=15092 invalid=238 inconclusive=14",
+   "replaced_total": 300,
+   "added": 300
+  },
+  {
+   "iter": 2,
+   "head": "classes=15344 verify_ok=15254 invalid=76 inconclusive=14",
+   "replaced_total": 440,
+   "added": 140
+  },
+  {
+   "iter": 3,
+   "head": "classes=15344 verify_ok=15254 invalid=76 inconclusive=14",
+   "replaced_total": 580,
+   "added": 140
+  }
+ ],
+ "d8_whole": {
+  "returncode": 0,
+  "dex": [
+   "classes.dex",
+   "classes2.dex"
+  ],
+  "dex_bytes": 16477724,
+  "warnings": []
+ },
+ "d8_patch": {
+  "tested": 76,
+  "fail": []
+ },
+ "replaced_unique": [
+  "af1",
+  "ak1",
+  "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+  "androidx/recyclerview/widget/GridLayoutManager",
+  "androidx/recyclerview/widget/LinearLayoutManager",
+  "androidx/recyclerview/widget/RecyclerView",
+  "aq7",
+  "at5",
+  "au8",
+  "ay7",
+  "b95",
+  "bf4",
+  "bi",
+  "bk1",
+  "bx4",
+  "c0",
+  "c78",
+  "cb1",
+  "com/google/android/gms/internal/ads/d3",
+  "com/google/android/gms/internal/ads/g3",
+  "com/google/android/gms/internal/ads/l",
+  "com/google/android/gms/internal/ads/mc",
+  "com/google/android/gms/internal/ads/s",
+  "com/google/android/gms/internal/ads/zzgxa",
+  "com/google/android/gms/internal/ads/zzgxr",
+  "com/google/android/gms/internal/ads/zzgxw",
+  "com/google/android/gms/internal/ads/zzgyk",
+  "com/google/android/gms/internal/ads/zzgyp",
+  "com/google/android/gms/internal/ads/zzgzj",
+  "com/google/android/gms/internal/ads/zzgzo",
+  "com/google/android/gms/internal/ads/zzgzv",
+  "com/google/android/gms/internal/ads/zzhat",
+  "com/google/android/gms/internal/ads/zzhbd",
+  "com/google/android/gms/internal/ads/zzhbe",
+  "com/google/android/gms/internal/fido/zzbw",
+  "com/google/android/gms/internal/fido/zzcq",
+  "com/google/android/gms/internal/fido/zzcw",
+  "com/google/android/gms/internal/fido/zzcx",
+  "com/google/android/gms/internal/fido/zzfs",
+  "com/google/android/gms/internal/fido/zzga",
+  "com/google/android/material/bottomappbar/BottomAppBar",
+  "com/google/android/material/focus/FocusRingDrawable",
+  "com/google/android/material/internal/NavigationMenuView",
+  "com/google/android/material/slider/BaseSlider",
+  "com/google/android/material/slider/RangeSlider",
+  "com/google/android/material/slider/Slider",
+  "com/google/android/material/textfield/TextInputLayout",
+  "com/google/common/base/Equivalence$Equals",
+  "com/google/common/base/Equivalence$Identity",
+  "com/google/common/collect/ByFunctionOrdering",
+  "com/google/common/collect/ComparatorOrdering",
+  "com/google/common/collect/CompoundOrdering",
+  "com/google/common/collect/NaturalOrdering",
+  "com/google/common/collect/ReverseNaturalOrdering",
+  "com/google/common/collect/ReverseOrdering",
+  "com/google/common/collect/s",
+  "com/google/common/hash/HashCode$BytesHashCode",
+  "com/google/firebase/database/connection/f",
+  "com/google/firebase/database/core/c",
+  "com/google/firebase/database/tubesock/c",
+  "du8",
+  "e69",
+  "ei7",
+  "ej8",
+  "fc9",
+  "fl8",
+  "fn2",
+  "fv2",
+  "fv3",
+  "fw2",
+  "fy4",
+  "g39",
+  "gb4",
+  "gg8",
+  "gt1",
+  "h79",
+  "hq2",
+  "hr",
+  "ht1",
+  "hu4",
+  "i56",
+  "i85",
+  "i89",
+  "ik5",
+  "iq2",
+  "iv8",
+  "j85",
+  "jp0",
+  "k85",
+  "kajfosz/antimatterdimensions/challenge/eternity/b",
+  "kajfosz/antimatterdimensions/ui/celestials/navigation/CelestialNavigationMapView",
+  "kajfosz/antimatterdimensions/ui/other/StarBackgroundView",
+  "kajfosz/antimatterdimensions/ui/other/WheelPickerView",
+  "kq2",
+  "kv5",
+  "l85",
+  "lp1",
+  "m03",
+  "m29",
+  "m85",
+  "ma7",
+  "mm0",
+  "n0",
+  "nz6",
+  "o27",
+  "oi6",
+  "or8",
+  "oreki/shadow/kotlin/random/Random$Default",
+  "oreki/shadow/kotlin/random/XorWowRandom",
+  "ot0",
+  "pn",
+  "qi1",
+  "ql5",
+  "qn",
+  "r02",
+  "rj3",
+  "ru8",
+  "s0",
+  "sj1",
+  "sj5",
+  "tj1",
+  "tu8",
+  "u48",
+  "uc0",
+  "uc5",
+  "uj1",
+  "ul6",
+  "ut7",
+  "v61",
+  "vb7",
+  "vj1",
+  "vo2",
+  "wa",
+  "wj1",
+  "wv8",
+  "x14",
+  "x33",
+  "x58",
+  "x69",
+  "x85",
+  "xa3",
+  "xj1",
+  "xq3",
+  "xs6",
+  "xx7",
+  "xz0",
+  "y",
+  "yc1",
+  "ye1",
+  "yi3",
+  "yj1",
+  "yl5",
+  "yw",
+  "yw0",
+  "z28",
+  "za7",
+  "za9",
+  "zj1",
+  "zm7",
+  "zw0"
+ ],
+ "replaced_unique_count": 160,
+ "replaced_list_len_note": "原 list 因循环内去重判断 bug 有重复条目；实际替换类见 replaced_unique"
+}
