@@ -27,6 +27,9 @@ import zipfile
 from pathlib import Path
 
 EXCLUDED_PREFIXES = ("kotlin/", "META-INF/")
+# 保留游戏自带 kotlin/** 时只排除 META-INF；游戏内的 kotlin 类随后由 RemapKotlin
+# 整体改名到 oreki/shadow/kotlin/**，避免与 AGP 内置 stdlib 重复且保留 R8 混淆成员名。
+EXCLUDED_PREFIXES_KEEP_KOTLIN = ("META-INF/",)
 
 DASH_PATH = re.compile(rb"[A-Za-z0-9_$]+(?:/[A-Za-z0-9_$-]+)+")
 
@@ -153,6 +156,7 @@ def build(args: argparse.Namespace) -> dict:
 
     dex_files = extract_dex(base_apk, dex_dir)
     excluded_total = 0
+    excluded_prefixes = EXCLUDED_PREFIXES_KEEP_KOTLIN if args.keep_kotlin else EXCLUDED_PREFIXES
     class_blobs: dict[str, bytes] = {}
     dex_reports = []
     for dex in dex_files:
@@ -160,7 +164,7 @@ def build(args: argparse.Namespace) -> dict:
         with zipfile.ZipFile(jar) as archive:
             class_names = [n for n in archive.namelist() if n.endswith(".class") and not n.startswith("META-INF/")]
             for name in class_names:
-                if name.startswith(EXCLUDED_PREFIXES):
+                if name.startswith(excluded_prefixes):
                     excluded_total += 1
                     key = name.split("/", 1)[0]
                     report["excluded"][key] = report["excluded"].get(key, 0) + 1
@@ -231,6 +235,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--report", type=Path, default=None, help="输出报告 JSON")
     parser.add_argument("--work-dir", type=Path, default=Path(tempfile.gettempdir()) / "oreki-agp-gamejar")
     parser.add_argument("--dexdump", type=Path, default=Path("/nonexistent"), help="dexdump 路径（可选，用于覆盖校验）")
+    parser.add_argument("--keep-kotlin", action="store_true",
+                        help="保留游戏自带 kotlin/** 类（之后需 RemapKotlin 改名以避免与 AGP stdlib 重复）")
     args = parser.parse_args(argv)
     report = build(args)
     coverage = report["coverage"]

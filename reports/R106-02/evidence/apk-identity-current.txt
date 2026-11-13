@@ -1,0 +1,106 @@
+# APK 身份审计（只读复算，当前 AGP Release）
+# 生成时间: 2026-11-13T22:33:19+08:00
+# 工具: build-tools 34.0.0 (aapt2/apksigner/dexdump)
+
+## 被审计 APK
+f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc  agp/app/build/outputs/apk/release/app-release.apk
+81570991 bytes
+
+## 官方 base APK
+4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac  /home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk
+77633785 bytes
+
+## 包身份（AGP / 官方）
+package: com.oreki.antimatterdimensions / kajfosz.antimatterdimensions
+versionCode: 30210000 / 30210000
+versionName: 3.21.0 / 3.21.0
+sdkVersion: 32 / 32
+targetSdkVersion: 37 / 37
+application-label: 反物质维度
+launchable-activity: None
+uses-permission(AGP): android.permission.INTERNET, android.permission.WAKE_LOCK, android.permission.ACCESS_NETWORK_STATE, android.permission.DETECT_SCREEN_CAPTURE, android.permission.VIBRATE, android.permission.USE_BIOMETRIC, android.permission.USE_FINGERPRINT, android.permission.FOREGROUND_SERVICE, com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission(官方): android.permission.INTERNET, android.permission.WAKE_LOCK, android.permission.ACCESS_NETWORK_STATE, android.permission.DETECT_SCREEN_CAPTURE, com.android.vending.BILLING, com.google.android.gms.permission.AD_ID, android.permission.VIBRATE, android.permission.ACCESS_ADSERVICES_AD_ID, android.permission.ACCESS_ADSERVICES_ATTRIBUTION, android.permission.ACCESS_ADSERVICES_TOPICS, android.permission.USE_BIOMETRIC, android.permission.USE_FINGERPRINT, com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE, com.google.android.providers.gsf.permission.READ_GSERVICES, android.permission.FOREGROUND_SERVICE, kajfosz.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+permission 只多不少(AGP ⊇ 官方): False
+官方有、AGP 无的权限: ['android.permission.ACCESS_ADSERVICES_AD_ID', 'android.permission.ACCESS_ADSERVICES_ATTRIBUTION', 'android.permission.ACCESS_ADSERVICES_TOPICS', 'com.android.vending.BILLING', 'com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE', 'com.google.android.gms.permission.AD_ID', 'com.google.android.providers.gsf.permission.READ_GSERVICES', 'kajfosz.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION']
+AGP 新增权限: ['com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION']
+
+## 签名（apksigner verify --verbose --print-certs）
+verifies=True schemes={"v1": false, "v2": true, "v3": false, "v3.1": false, "v4": false}
+signers=1
+cert DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+cert SHA-256: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+key: RSA 2048 bits
+官方 cert SHA-256: 24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14
+
+## Manifest 组件计数（AGP / 官方）
+activity: 6 / 17
+activity-alias: 28 / 28
+service: 7 / 12
+receiver: 5 / 6
+provider: 2 / 4
+meta-data: 22 / 38
+uses-permission: 9 / 16
+
+## application name（AGP / 官方）
+kajfosz.antimatterdimensions.App / kajfosz.antimatterdimensions.App
+
+## 组件名差异（官方有、AGP 无）: 21
+  androidx.credentials.playservices.CredentialProviderMetadataHolder
+  androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+  androidx.credentials.playservices.controllers.identitycredentials.IdentityCredentialApiHiddenActivity
+  com.android.billingclient.api.ProxyBillingActivity
+  com.android.billingclient.api.ProxyBillingActivityV2
+  com.google.android.gms.ads.AdActivity
+  com.google.android.gms.ads.AdService
+  com.google.android.gms.ads.MobileAdsInitProvider
+  com.google.android.gms.ads.NotificationHandlerActivity
+  com.google.android.gms.ads.OutOfContextTestingActivity
+  com.google.android.gms.auth.api.signin.RevocationBoundService
+  com.google.android.gms.auth.api.signin.internal.SignInHubActivity
+  com.google.android.gms.common.api.GoogleApiActivity
+  com.google.android.gms.games.internal.v2.appshortcuts.PlayGamesAppShortcutsActivity
+  com.google.android.gms.games.internal.v2.resolution.GamesResolutionActivity
+  com.google.android.gms.games.provider.PlayGamesInitProvider
+  com.google.android.gms.measurement.AppMeasurementJobService
+  com.google.android.gms.measurement.AppMeasurementReceiver
+  com.google.android.gms.measurement.AppMeasurementService
+  com.google.android.play.core.common.PlayCoreDialogWrapperActivity
+  com.google.android.play.core.hsdp.service.HsdpShimActivity
+
+## 组件名差异（AGP 有、官方 无）: 2
+  kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity
+  kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity
+
+## 第一方组件丢失: 无
+
+## 契约检查
+PASS  apk_exists
+PASS  official_exists
+PASS  package_expected
+PASS  version_code_30210000
+PASS  version_name_3_21_0
+PASS  same_version_as_official
+PASS  signature_verifies
+PASS  signature_v2
+PASS  cert_matches_pinned
+PASS  single_signer
+PASS  two_dex_expected
+PASS  dex_magic_ok
+PASS  no_unsafe_zip_paths
+PASS  class_count_matches_dexdump
+PASS  no_cross_dex_duplicate_classes
+PASS  csv_first_party_fully_present
+PASS  resource_ids_stable_after_normalize
+PASS  resources_arsc_present
+PASS  native_abis_present
+PASS  official_package_untouched
+PASS  no_debuggable_flag
+PASS  launcher_intent_present
+PASS  launcher_alias_count_matches_official
+PASS  first_party_components_preserved
+PASS  no_dashed_type_descriptors
+PASS  all_type_descriptors_java_safe
+FAIL  csv_missing_explained
+PASS  csv_first_party_missing_zero
+PASS  application_name_matches_official
+failed=1

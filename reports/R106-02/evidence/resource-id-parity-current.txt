@@ -1,0 +1,70 @@
+# 资源 ID 对照（复算，当前 AGP Release，只读）
+# AGP APK: agp/app/build/outputs/apk/release/app-release.apk
+#   sha256=f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc
+# 官方 base APK: /home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk
+#   sha256=4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac
+
+资源条目数：官方=14928（package=kajfosz.antimatterdimensions） AGP=14976（package=com.oreki.antimatterdimensions）
+
+## 精确同名不同 ID 数量（不做 '$'/'_aapt_' 归一）
+0
+
+## 归一后（AGP _aapt_ -> $）同名不同 ID 数量
+0
+  sample: []
+
+## 官方有、AGP 缺（归一后）: 0
+
+## AGP 有、官方无（归一后）: 48
+  drawable/abc_ab_share_pack_mtrl_alpha
+  drawable/abc_btn_check_to_on_mtrl_000
+  drawable/abc_btn_check_to_on_mtrl_015
+  drawable/abc_btn_radio_to_on_mtrl_000
+  drawable/abc_btn_radio_to_on_mtrl_015
+  drawable/abc_btn_switch_to_on_mtrl_00001
+  drawable/abc_btn_switch_to_on_mtrl_00012
+  drawable/abc_cab_background_top_mtrl_alpha
+  drawable/abc_ic_commit_search_api_mtrl_alpha
+  drawable/abc_list_divider_mtrl_alpha
+  drawable/abc_list_focused_holo
+  drawable/abc_list_longpressed_holo
+  drawable/abc_list_pressed_holo_dark
+  drawable/abc_list_pressed_holo_light
+  drawable/abc_list_selector_disabled_holo_dark
+  drawable/abc_list_selector_disabled_holo_light
+  drawable/abc_menu_hardkey_panel_mtrl_mult
+  drawable/abc_popup_background_mtrl_mult
+  drawable/abc_scrubber_control_off_mtrl_alpha
+  drawable/abc_scrubber_control_to_pressed_mtrl_000
+  drawable/abc_scrubber_control_to_pressed_mtrl_005
+  drawable/abc_scrubber_primary_mtrl_alpha
+  drawable/abc_scrubber_track_mtrl_alpha
+  drawable/abc_spinner_mtrl_am_alpha
+  drawable/abc_switch_track_mtrl_alpha
+  drawable/abc_tab_indicator_mtrl_alpha
+  drawable/abc_text_select_handle_left_mtrl
+  drawable/abc_text_select_handle_middle_mtrl
+  drawable/abc_text_select_handle_right_mtrl
+  drawable/abc_textfield_activated_mtrl_alpha
+  drawable/abc_textfield_default_mtrl_alpha
+  drawable/abc_textfield_search_activated_mtrl_alpha
+  drawable/abc_textfield_search_default_mtrl_alpha
+  drawable/common_full_open_on_phone
+  drawable/common_google_signin_btn_icon_dark_normal_background
+  drawable/common_google_signin_btn_icon_light_normal_background
+  drawable/common_google_signin_btn_text_dark_normal_background
+  drawable/common_google_signin_btn_text_light_normal_background
+  drawable/cpv_alpha
+  drawable/cpv_ic_arrow_right_black_24dp
+  drawable/cpv_preset_checked
+  drawable/googleg_disabled_color_18
+  drawable/googleg_standard_color_18
+  drawable/ic_loadingreality_square
+  drawable/loading
+  string/oreki_shortcut_long
+  string/oreki_shortcut_short
+  xml/oreki_shortcuts
+
+## aapt2 改名条目（含 _aapt_）: 34
+
+ALL_IDS_EQUAL_AFTER_NORMALIZE = False
