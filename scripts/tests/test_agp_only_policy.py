@@ -46,7 +46,8 @@ class AgpOnlyPolicyTests(unittest.TestCase):
             workflow = root / policy.WORKFLOW
             workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n")
             policy.check_candidate(root)
-            app.write_text('applicationId = "kajfosz.antimatterdimensions.agpbridge"\n')
+            app.write_text('plugins { id("com.android.application") }\n'
+                           'applicationId = "kajfosz.antimatterdimensions.agpbridge"\n')
             with self.assertRaisesRegex(ValueError, "bridge"):
                 policy.check_candidate(root)
             app.write_text('plugins { id("com.android.application") }\n'
