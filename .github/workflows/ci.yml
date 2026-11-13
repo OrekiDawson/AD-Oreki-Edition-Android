@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   source-checks:
+    # main-protection requires this check. Do not mark Source PASS if AGP fails.
+    needs: agp-kotlin-dex
     name: Source checks (no proprietary APK baseline)
     runs-on: ubuntu-latest
     timeout-minutes: 20
