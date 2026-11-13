@@ -234,7 +234,7 @@ jobs:
           GDRIVE_ROOT: ${{ vars.AD_GDRIVE_DIR }}
         run: |
           set -euo pipefail
-          version="3.21.0"
+          version="$(python3 -c 'import json; print(json.load(open("scripts/release-gate-policy.json"))["versionName"])')"
           sha8="${EXPECTED_SHA:0:8}"
           work="$RUNNER_TEMP/validate"
           mkdir -p "$work"
