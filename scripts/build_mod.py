@@ -2043,6 +2043,135 @@ def patch_ep_gain_scale():
     note("[R105-EP] prestige.c: gainedEternityPoints 已接 OrekiEpGainScale（现实前 308→30）")
 
 
+# ---------------------------------------------------------------- R107-01 EC/DIL 缩放
+# Web 冻结基线（src/core/oreki-bootstrap.js）的 isOrekiBootstrapRun() 期间有两条数值缩放：
+#   1) EC 资源门槛 /100（src/core/time-studies/ec-time-study.js, OREKI_EC_REQUIREMENT_DIVISOR）
+#   2) 膨胀研究 TT 成本 /1000（src/core/time-studies/dilation-time-study.js, OREKI_DILATION_TT_DIVISOR）
+# 判据与数值换算全部在新 Kotlin（GameApi.isOrekiBootstrapRun / OrekiEcRequirementScale /
+# OrekiDilationCostScale），这里只做机械转发 + 构建期幂等/数量断言。
+#
+# EC 落点说明（与任务最初提示不同，已用 jadx+smali 调用链核实）：
+#   challenge/eternity/b->O(I)Z 是 **限制条件**判定（p 仅 EC4/EC12 非空；p 返回限制值，
+#   q 返回 Boolean），不是 IP/AM 资源门槛。资源门槛链是
+#     prestige.c.f()Z = thisEternity.antimatter >= prestige.c.h()
+#     prestige.c.h() = b.M(b.I()) = b.K() * growth^min(i,4)
+#   → 缩放 b.K() 的两个 return 即可让 M/h/f 与 UI 进度全部一致（M 用 K，J 用 K 反解）。
+DILATION_COST_READ_SITES = (
+    ("smali/av1.smali", 1),
+    ("smali/bv1.smali", 2),
+    ("smali/g91.smali", 1),
+    ("smali/is3.smali", 1),
+    ("smali/kajfosz/antimatterdimensions/a.smali", 2),
+    ("smali/kajfosz/antimatterdimensions/eternity/studies/c.smali", 1),
+    ("smali/kajfosz/antimatterdimensions/eternity/studies/d.smali", 5),
+    ("smali/kajfosz/antimatterdimensions/ui/celestials/navigation/c.smali", 2),
+    ("smali/uu1.smali", 1),
+    ("smali/uu4.smali", 1),
+    ("smali/wu1.smali", 2),
+    ("smali/x40.smali", 2),
+    ("smali/y40.smali", 1),
+    ("smali/zh.smali", 1),
+)
+
+
+def patch_ec_requirement_scale():
+    """[Oreki R107-EC] bootstrap 期 EC 资源门槛 /100（对齐 Web ec-time-study.js）。
+
+    Web: requirementTotal getter —— !isOrekiBootstrapRun() 时原版；
+    bootstrap 时 number 走 max(1, floor(base/100))、BigDouble 走 base.div(100).clampMin(1)。
+
+    Android 的等价单一缩放点是 challenge/eternity/b#K()（EC 基础门槛 BigDouble）：
+    它有两个 return（Pelle 分支 m / 普通 l），M(i)=K()*growth^min(i,4)、h()=M(I())、
+    f()=thisEternity.antimatter>=h()，全部由 K 派生，所以缩放 K 后资源门槛链与 UI 一致。
+    只改读取值，不写完成状态、不发资源、不绕过真实结算与 EC 进入流程。
+    """
+    target = mod_file("smali/kajfosz/antimatterdimensions/challenge/eternity/b.smali")
+    assert target.is_file(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    marker = "# [Oreki R107-EC]"
+    if marker in src:
+        note("[R107-EC] challenge/eternity/b.K() 已打过补丁，跳过")
+        return
+    sig = "public final K()Lkajfosz/antimatterdimensions/BigDouble;"
+    assert src.count(".method " + sig) == 1, "EC 基础门槛 K() 方法不唯一"
+    i, j = _scan_method(src, sig)
+    body = src[i:j]
+    bridge = ("Lkajfosz/antimatterdimensions/oreki/OrekiEcRequirementScale;"
+              "->apply(Ljava/lang/Object;)Ljava/lang/Object;")
+    returns = re.findall(r"    return-object (v\d+|p\d+)", body)
+    assert len(returns) == 2, f"K() 应有 2 个 return，实际 {len(returns)} 个"
+    for reg in returns:
+        old = f"    return-object {reg}"
+        assert body.count(old) == 1, f"K() 的 return-object {reg} 不唯一"
+        ins = ("    # [Oreki R107-EC] bootstrap 期 EC 资源门槛 /100（Web OREKI_EC_REQUIREMENT_DIVISOR）\n"
+               f"    invoke-static {{{reg}}}, {bridge}\n"
+               "\n"
+               f"    move-result-object {reg}\n"
+               "\n"
+               f"    check-cast {reg}, Lkajfosz/antimatterdimensions/BigDouble;\n"
+               "\n"
+               f"    return-object {reg}")
+        body = body.replace(old, ins, 1)
+    src = src[:i] + body + src[j:]
+    assert src.count("OrekiEcRequirementScale;->apply") == 2, "EC 门槛转发应为 2 处（K 的两个 return）"
+    write_smali(target, src, encoding="utf-8")
+    note("[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）")
+
+
+def patch_dilation_cost_scale():
+    """[Oreki R107-DIL] bootstrap 期膨胀研究 TT 成本 /1000（对齐 Web dilation-time-study.js）。
+
+    Android 的膨胀研究状态是 d01/a01/b01（均 extends is3），TT 成本存在 public final
+    字段 is3.i（构造自 fw.m1/G1/L1/R1/T1/C，对应 5000 / 1e6 / 1e7 / 1e8 / 1e9 / 0）。
+    原版既用 is3.x() getter，也在 TimeStudyTree/UI/自动购买里直接 iget 该字段（23 处）；
+    只改 x() 会让「树批量买」用原价、与显示/单买不一致，仍买不到研究 6。
+    因此把 23 处字段读取统一转发 Kotlin applyForStudy(study)：仅对膨胀研究且 bootstrap
+    窗口返回 cost/1000（clampMin 1），其它研究/窗口外原样返回。
+    只改价格读取，不改支付流程、不改已购状态、不发 TT。
+    """
+    marker = "# [Oreki R107-DIL]"
+    pat = re.compile(
+        r"^    iget-object (v\d+|p\d+), (v\d+|p\d+), Lis3;->i:"
+        r"Lkajfosz/antimatterdimensions/BigDouble;$",
+        re.M)
+    total = 0
+    skipped = 0
+    skipped_occurrences = 0
+    for rel, expected in DILATION_COST_READ_SITES:
+        target = mod_file(rel)
+        assert target.is_file(), f"缺少膨胀研究成本读取文件 {rel}（-> {target}）"
+        src = target.read_text(encoding="utf-8")
+        if marker in src:
+            skipped += 1
+            skipped_occurrences += expected
+            continue
+        found = len(pat.findall(src))
+        assert found == expected, (
+            f"{rel}: 期望 {expected} 处 is3.i 成本读取，实际 {found} 处"
+            f"（基线漂移；请重新核对再改补丁，不要盲目放宽断言）")
+
+        def _repl(match):
+            dst, source = match.group(1), match.group(2)
+            return (
+                "    # [Oreki R107-DIL] bootstrap 期膨胀研究 TT 成本 /1000（Web OREKI_DILATION_TT_DIVISOR）\n"
+                "    invoke-static {%s}, Lkajfosz/antimatterdimensions/oreki/OrekiDilationCostScale;"
+                "->applyForStudy(Ljava/lang/Object;)Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object %s\n"
+                "\n"
+                "    check-cast %s, Lkajfosz/antimatterdimensions/BigDouble;"
+                % (source, dst, dst))
+
+        new_src, n = pat.subn(_repl, src)
+        assert n == expected, f"{rel}: 替换 {n} 处，期望 {expected}"
+        write_smali(target, new_src, encoding="utf-8")
+        total += n
+    assert total + skipped_occurrences == 23, (
+        f"膨胀研究成本读取点应共 23 处，本次替换 {total} / 已打过 {skipped} 文件"
+        f"（{skipped_occurrences} 处）")
+    note("[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）")
+
+
 def patch_recent_runs():
     """A2：最近十次无限（pastTenInfinities）的时间字段归一化。
 
@@ -7145,6 +7274,9 @@ def main():
     patch_smali()
     patch_speed_records()
     patch_ep_gain_scale()
+    # [R107-01 EC/DIL] Web bootstrap 数值缩放（EC 门槛 /100、膨胀研究 TT /1000）
+    patch_ec_requirement_scale()
+    patch_dilation_cost_scale()
     patch_recent_runs()
     patch_recent_runs_er()
     patch_shop_coins()
