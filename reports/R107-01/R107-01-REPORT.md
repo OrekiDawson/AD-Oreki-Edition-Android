@@ -247,3 +247,18 @@
   `resolveUrgentTask` 仅在 canAutomateEternityUpgrades()+可负担时才占 eternity 名额。
   根因来自 gate-gui AVD 实测（首永恒后 TT=0、时间研究 0、idBuy=0）。
 - **验证状态**：hybrid-etecon 候选构建 PASS；AVD 真实验证进行中（首永恒后 TT/时间研究/第二次永恒是否恢复），结果另行记录。
+
+### 10.7 P1 修复验证 PASS：永恒层自动化在永恒结算后不再停摆（2026-11-14 02:54）
+
+- **根因**：`OrekiStageAuto` 的永恒层自动化块被 `if (GameApi.isBroken())` 包住；永恒结算会重置 Break ⇒
+  首永恒后 `broken=false`，整块（EC/永恒升级/TT/TD/TS/现实）被跳过 ⇒ TT=0、时间研究 0、maxIP 停滞（gate-gui AVD 实测）。
+- **修复（commit 1d814e8c）**：外层条件改为 `isBroken() || hasReachedEternityLayer()`（bigE>0 或 eternities>0，首次 Break 前仍不执行）；
+  经济动作门禁只排除 automation-off / auto-eternity-off / doomed（not-broken 在永恒层是常态）。
+- **AVD 对照验证 PASS**（同一「首永恒后停摆态」真实存档 fixture，autoEternity=on）：
+  | 版本 | TT | 时间研究 | maxIP | 结果 |
+  | --- | --- | --- | --- | --- |
+  | 修复前 hybrid-etecon（8a08d544） | 恒 0 | 0 | 1e5→1e6 | FAIL（停摆复现） |
+  | 修复后 hybrid-etlayer（ee839ced） | 0→**11,500** | 0→2→5→**9** | 1e5→**1e30** | **PASS** |
+  同时 EP 2.7e7→4.1e6（真实扣费）、0 FATAL/VerifyError；证据 reports/R107-01/lead-evidence/etlayer-fix/。
+- **AGP 原生候选同步重建**：`native-r4cur-fix.apk`（d0870cab…，AGP 原生游戏代码 r4cur + 修复后 MOD Kotlin，含 batch1+EP 尺度+永恒层修复）。
+- 正在进行：native-r4cur-fix 全新档 30 分钟真实跑次（首 ∞/Break/永恒/第二永恒/首次现实里程碑），结果另行记录。
