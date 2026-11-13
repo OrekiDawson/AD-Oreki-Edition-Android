@@ -546,7 +546,7 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
         shutil.copyfile(checksum, asset_sum)
         if sha256_file(asset_apk) != apk_info["sha256"]:
             raise RuntimeError("github: 附件暂存副本与已验证 APK 不一致，拒绝上传")
-        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", release_title, "--notes-file", str(notes_path), "--target", "main"]
+        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", release_title, "--notes-file", str(notes_path), "--target", "main", "--prerelease", "--latest=false"]
         say(f"github: {' '.join(command)}")
         if not dry_run:
             existing = run(["gh", "release", "view", tag, "--repo", repo, "--json", "assets"])
@@ -586,6 +586,19 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
         notes_path.unlink(missing_ok=True)
         shutil.rmtree(staging, ignore_errors=True)
         shutil.rmtree(checksum_dir, ignore_errors=True)
+
+
+def promote_verified_github_release(version: str, sha256: str) -> None:
+    """Only a fully verified four-channel release can become GitHub Latest."""
+    repo = github_repo()
+    if not repo:
+        raise RuntimeError("GitHub repository unresolved: cannot promote stable release")
+    tag = f"android-update-{version}-{sha256[:8]}"
+    # Newly created Releases are prereleases. A failed cloud upload must never
+    # briefly mark an APK stable; this is the sole stable promotion entrypoint.
+    run(["gh", "release", "edit", tag, "--repo", repo,
+         "--prerelease=false", "--latest"], check=True, timeout=60)
+    say(f"github: 四渠道均成功，已晋升 {tag} 为正式 Latest")
 
 
 def demote_failed_github_release(version: str, sha256: str) -> None:
@@ -719,6 +732,18 @@ def main() -> int:
             demote_failed_github_release(args.version, str(apk_info["sha256"]))
         say(f"部分渠道失败：{','.join(failed)}；已保留成功渠道，不重建 APK")
         return 2
+    # A --only/--retry-failed operation does NOT authorize a partial release.
+    # Promotion is allowed only once all four persisted channel results for the
+    # SAME APK SHA are success; load_or_create_state ties these to this SHA.
+    if not args.local_only and all(
+        (state.get("channels", {}).get(name) or {}).get("status") == "success"
+        for name in CHANNELS
+    ):
+        try:
+            promote_verified_github_release(args.version, str(apk_info["sha256"]))
+        except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+            say(f"GitHub 正式晋升失败（仍保持 Pre-release）：{exc}")
+            return 2
     say("所选渠道全部完成；详情已写入本地 release-info.json")
     return 0
 
