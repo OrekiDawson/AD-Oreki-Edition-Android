@@ -601,37 +601,77 @@ def promote_verified_github_release(version: str, sha256: str) -> None:
     say(f"github: 四渠道均成功，已晋升 {tag} 为正式 Latest")
 
 
-def demote_failed_github_release(version: str, sha256: str) -> None:
-    """[R104-06] 发布不完整时把刚创建的 GitHub Release 降级为 Pre-release，并把 Latest 还给最近稳定版。
+def read_published_latest_tag() -> str | None:
+    """Snapshot the real Latest before this run may mutate any release."""
+    repo = github_repo()
+    if not repo:
+        return None
+    try:
+        response = run(["gh", "api", f"repos/{repo}/releases/latest"], timeout=30)
+        if response.returncode:
+            return None
+        release = json.loads(response.stdout)
+        tag = release.get("tag_name")
+        if (release.get("prerelease") or release.get("draft") or
+                not isinstance(tag, str) or not tag.startswith("android-update-")):
+            return None
+        return tag
+    except (OSError, RuntimeError, json.JSONDecodeError, subprocess.TimeoutExpired):
+        return None
 
-    背景（R104 真实事故）：run 43297871523 中 OneDrive 401 导致整体发布失败，但本脚本已在
-    GitHub 创建了非预发布 Release，GitHub 的 Latest 指针因此漂到失败发布；随后人工标记
-    prerelease 后 Latest 又落回更早的 R101（f388dc50），而不是上一稳定版 R103。
-    这个函数只做两件事，且任何一步失败都不掩盖原始发布失败：
-      1) 目标 tag 标为 Pre-release 且不占用 Latest；
-      2) 从近期非预发布/非草稿 Release 中挑最新一个，显式设为 Latest。
+
+def demote_failed_github_release(version: str, sha256: str,
+                                 previous_latest_tag: str | None = None) -> None:
+    """Demote incomplete release; restore the *captured* Latest, not list order.
+
+    GitHub's list ordering is not a reliable stable-release ranking: R104 once
+    restored R101 instead of R103. With no snapshot, sort GA releases by real
+    published_at and verify the final Latest response, never trust list order.
     """
     repo = github_repo()
     if not repo:
         return
     tag = f"android-update-{version}-{sha256[:8]}"
     try:
-        demote = run(["gh", "release", "edit", tag, "--repo", repo, "--prerelease", "--latest=false"])
-        if demote.returncode == 0:
-            say(f"github: 发布不完整，已将 {tag} 降级为 Pre-release 且不占用 Latest")
-        listing = run(["gh", "release", "list", "--repo", repo, "--limit", "30", "--json", "tagName,isPrerelease,isDraft"])
-        if listing.returncode != 0:
+        demote = run(["gh", "release", "edit", tag, "--repo", repo,
+                      "--prerelease", "--latest=false"], timeout=45)
+        if demote.returncode != 0:
+            say(f"github: FAIL 未能降级失败 Release {tag}；不宣称 Latest 已恢复")
             return
-        for item in json.loads(listing.stdout):
-            if item.get("isPrerelease") or item.get("isDraft") or item.get("tagName") == tag:
-                continue
-            restore = run(["gh", "release", "edit", str(item["tagName"]), "--repo", repo, "--latest"])
-            if restore.returncode == 0:
-                say(f"github: 已将 Latest 恢复到最近稳定版 {item['tagName']}")
+        say(f"github: 发布不完整，已将 {tag} 降级为 Pre-release")
+        target: str | None = None
+        if previous_latest_tag and previous_latest_tag != tag:
+            # Verify the snapshot still exists and is a real stable release.
+            snapshot = run(["gh", "release", "view", previous_latest_tag, "--repo", repo,
+                            "--json", "isPrerelease,isDraft"], timeout=45)
+            if snapshot.returncode == 0:
+                details = json.loads(snapshot.stdout)
+                if not details.get("isPrerelease") and not details.get("isDraft"):
+                    target = previous_latest_tag
+        if target is None:
+            listing = run(["gh", "api", f"repos/{repo}/releases?per_page=100"], timeout=45)
+            if listing.returncode != 0:
+                say("github: 无法读取正式发布列表，Latest 恢复状态未确认")
                 return
-    except (RuntimeError, OSError, json.JSONDecodeError):
+            candidates = [
+                release for release in json.loads(listing.stdout)
+                if (isinstance(release, dict) and not release.get("prerelease")
+                    and not release.get("draft")
+                    and release.get("tag_name", "").startswith("android-update-")
+                    and release.get("tag_name") != tag and release.get("published_at"))
+            ]
+            if not candidates:
+                say("github: 无可恢复的已发布稳定版")
+                return
+            target = max(candidates, key=lambda release: release["published_at"])["tag_name"]
+        result = run(["gh", "release", "edit", target, "--repo", repo, "--latest"], timeout=45)
+        actual = read_published_latest_tag() if result.returncode == 0 else None
+        if actual == target:
+            say(f"github: 已验证 Latest 恢复为 {target}")
+        else:
+            say(f"github: Latest 恢复未获 GitHub API 验证（预期 {target}，实际 {actual}）")
+    except (RuntimeError, OSError, json.JSONDecodeError, subprocess.TimeoutExpired):
         say("github: 降级/恢复 Latest 未完成（原始渠道失败仍如实上报）")
-
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android 四渠道 APK 交付")
@@ -684,6 +724,14 @@ def main() -> int:
         selected = args.only or (["local"] if args.local_only else list(CHANNELS))
     if args.local_only:
         selected = ["local"]
+    # Capture the real Latest before an upload can change GitHub metadata.
+    # Save this beside the APK SHA for recovery after a partial channel failure.
+    if not args.dry_run and "github" in selected and not state.get("previous_latest_tag"):
+        before = read_published_latest_tag()
+        if before and before != f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}":
+            state["previous_latest_tag"] = before
+            save_state(root, state)
+            say(f"github: 记录发布前 Latest={before}")
     say(f"APK={apk} version={args.version} sha256={apk_info['sha256']}")
     say(f"渠道={','.join(selected)} 模式={'dry-run' if args.dry_run else 'publish'}")
 
@@ -729,7 +777,10 @@ def main() -> int:
     if failed:
         # [R104-06] 部分失败时不要把失败发布留在 Latest 上。
         if (state.get("channels", {}).get("github") or {}).get("status") == "success":
-            demote_failed_github_release(args.version, str(apk_info["sha256"]))
+            demote_failed_github_release(
+                args.version, str(apk_info["sha256"]),
+                previous_latest_tag=state.get("previous_latest_tag")
+            )
         say(f"部分渠道失败：{','.join(failed)}；已保留成功渠道，不重建 APK")
         return 2
     # A --only/--retry-failed operation does NOT authorize a partial release.
