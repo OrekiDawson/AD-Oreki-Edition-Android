@@ -81,6 +81,8 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_delivery_preflight.py' -v
       - name: Test immutable archive-only recovery without changing stable Latest
         run: python3 -m unittest discover -s scripts/tests -p 'test_release_archive.py' -v
+      - name: Check frozen baseline and MOD release version contract
+        run: python3 -m unittest discover -s scripts/tests -p 'test_release_version_contract.py' -v
       - name: Validate baseline configuration format
         run: |
           python3 - <<'PY'
@@ -93,6 +95,13 @@ jobs:
           PY
       - name: Gradle configuration smoke (NOT an APK build)
         run: bash ./gradlew help --no-daemon --console=plain
+      - name: Cache pinned actionlint module and Go build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: android-actionlint-${{ runner.os }}-${{ runner.arch }}-v1.7.12
       - name: Validate unified hosted build and independent verification workflows
         run: |
           go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 \
