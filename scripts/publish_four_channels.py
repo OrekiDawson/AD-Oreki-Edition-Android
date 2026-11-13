@@ -208,7 +208,8 @@ def inspect_apk(apk: Path) -> dict[str, object]:
     }
 
 
-def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object]) -> dict[str, object]:
+def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object], *,
+                    portable_verify_report: Path | None = None) -> dict[str, object]:
     """校验发布清单与待交付 APK 是同一份已验证产物。
 
     [R97] 真实清单由 installToRelease 生成，verify_report / versionName 在 `build` 段，
@@ -231,7 +232,15 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object])
     if not expected_apk.is_absolute():
         expected_apk = manifest_path.parent / expected_apk
     if expected_apk.resolve() != apk.resolve():
-        raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
+        # Cross-run hosted Actions artifacts retain the verified builder's absolute
+        # pathname. Only the explicit independent-report mode permits relocation.
+        # The immutable gate already verifies the manifest checksum and candidate SHA.
+        if portable_verify_report is None:
+            raise RuntimeError(f"APK 路径与发布清单登记对象不一致：清单={expected_apk} 实际={apk}")
+        if (expected_apk.name != DEFAULT_APK_NAME
+                or "/release/" not in expected_apk.as_posix()
+                or not pathlib.PurePosixPath(str(build.get("source_apk", ""))).name == DEFAULT_APK_NAME):
+            raise RuntimeError("移植发布：清单没有指向预期 release/stage 的真实候选文件")
     registered_sha = release.get("sha256") or build.get("source_sha256")
     if registered_sha != apk_info["sha256"]:
         raise RuntimeError(f"APK SHA-256 与发布清单不一致：清单={registered_sha} 实际={apk_info['sha256']}")
@@ -245,6 +254,8 @@ def verify_manifest(manifest_path: Path, apk: Path, apk_info: dict[str, object])
         report_path = Path(str(verify_report)).expanduser()
         if not report_path.is_absolute():
             report_path = manifest_path.parent / report_path
+        if not report_path.is_file() and portable_verify_report is not None:
+            report_path = portable_verify_report
         if not report_path.is_file():
             raise RuntimeError(f"发布清单声明的 verifyRelease 报告不存在：{report_path}")
         try:
@@ -502,12 +513,71 @@ def preflight_write_channels() -> int:
     return 0
 
 
+def local_sftp_publish(root: Path, apk: Path, apk_info: dict[str, object],
+                       state: dict[str, object], dry_run: bool) -> None:
+    """Public hosted Runner's LOCAL channel means actual remote SFTP, not its temporary disk.
+
+    Upload under a unique temporary name; read back the bytes before replacing latest.
+    A successful rclone exit or remote size alone is not enough evidence.
+    """
+    remote = setting("AD_LOCAL_SFTP_REMOTE")
+    directory = setting("AD_LOCAL_SFTP_DIR")
+    if not remote or not directory:
+        raise RuntimeError("本地 SFTP 渠道缺少 remote/dir；拒绝伪造临时 Runner 上的 local PASS")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", remote):
+        raise RuntimeError("本地 SFTP remote 名称不合法")
+    final = remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}")
+    pending = remote_spec(remote, directory, f"latest/.oreki-stage-{uuid.uuid4().hex}.apk")
+    say(f"SSH/SFTP 本地渠道：{final}")
+    if dry_run:
+        return
+    if sha256_file(apk) != apk_info["sha256"]:
+        raise RuntimeError("SFTP 上传 APK 与候选 SHA256 不一致")
+    uploaded = False
+    try:
+        run(["rclone", "copyto", str(apk), pending, "--retries", "2",
+             "--low-level-retries", "3"], check=True)
+        uploaded = True
+        with tempfile.TemporaryDirectory(prefix="oreki-sftp-readback-") as scratch:
+            downloaded = Path(scratch) / DEFAULT_APK_NAME
+            run(["rclone", "copyto", pending, str(downloaded)], check=True)
+            if sha256_file(downloaded) != apk_info["sha256"]:
+                raise RuntimeError("SFTP staged upload readback SHA256 mismatch; stable latest untouched")
+        run(["rclone", "moveto", pending, final], check=True)
+        uploaded = False
+        with tempfile.TemporaryDirectory(prefix="oreki-sftp-final-") as scratch:
+            downloaded = Path(scratch) / DEFAULT_APK_NAME
+            run(["rclone", "copyto", final, str(downloaded)], check=True)
+            if sha256_file(downloaded) != apk_info["sha256"]:
+                raise RuntimeError("SFTP latest readback SHA256 mismatch")
+            checksum = Path(scratch) / (DEFAULT_APK_NAME + ".sha256")
+            checksum.write_text(f"{apk_info['sha256']}  {DEFAULT_APK_NAME}\\n", encoding="utf-8")
+            # The root checksum index is reconstructed for this single latest APK.
+            root_index = Path(scratch) / "SHA256SUMS"
+            root_index.write_text(f"{apk_info['sha256']}  latest/{DEFAULT_APK_NAME}\\n", encoding="utf-8")
+            run(["rclone", "copyto", str(checksum),
+                 remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}.sha256")], check=True)
+            run(["rclone", "copyto", str(root_index),
+                 remote_spec(remote, directory, "SHA256SUMS")], check=True)
+        set_channel(state, "local", "success", f"real SFTP {final}; sha256={apk_info['sha256']}")
+        root.mkdir(parents=True, exist_ok=True)
+        save_state(root, state)
+    finally:
+        if uploaded:
+            try:
+                run(["rclone", "deletefile", pending], check=True)
+            except (OSError, RuntimeError, subprocess.TimeoutExpired):
+                say("WARNING: SFTP temporary staged file cleanup failed; stable latest was not marked PASS")
+
+
 def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object], state: dict[str, object], dry_run: bool) -> None:
     """[R96 规则更新] 本地 SSH/SFTP 只覆盖固定文件名，不做版本归档。
 
     用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
     只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
     """
+    if setting("AD_LOCAL_SFTP_REMOTE"):
+        return local_sftp_publish(root, apk, apk_info, state, dry_run)
     latest = root / "latest" / DEFAULT_APK_NAME
     say(f"本地：原子覆盖 {latest}（不创建版本归档）")
     if dry_run:
@@ -739,6 +809,7 @@ def demote_failed_github_release(version: str, sha256: str,
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android 四渠道 APK 交付")
     parser.add_argument("--check", action="store_true", help="只检查配置、权限和服务")
+    parser.add_argument("--portable-verify-report", help="被验证候选从另一 Runner 下载后的报告本地路径；保持原 manifest 不改写")
     parser.add_argument("--preflight-write", action="store_true", help="短暂真实写入再删除云端探针；不改稳定版/发布状态")
     parser.add_argument("--dry-run", action="store_true", help="展示操作，不写本地、不上传")
     parser.add_argument("--local-only", action="store_true", help="只更新 SSH/SFTP 本地目录")
@@ -775,7 +846,9 @@ def main() -> int:
     apk_info = inspect_apk(apk)
     manifest = None
     if args.manifest:
-        manifest = verify_manifest(Path(args.manifest).expanduser().resolve(), apk, apk_info)
+        manifest = verify_manifest(Path(args.manifest).expanduser().resolve(), apk, apk_info,
+                                   portable_verify_report=(Path(args.portable_verify_report).resolve()
+                                                           if args.portable_verify_report else None))
     elif not args.dry_run:
         raise RuntimeError("正式或本地交付必须提供已验证的 --manifest")
 
