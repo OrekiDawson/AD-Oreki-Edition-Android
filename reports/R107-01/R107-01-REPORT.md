@@ -141,3 +141,47 @@
 3. agp-dex：完成 agp_gamejar2.py 复跑管线；给出 enjarify Tick 卡死根因判断（时间盒）。
 4. 关键闭包 Kotlin 重建：优先 Player/主循环/存档（enjarify 路线证明运行期语义需要源码级重建才能长期可靠）。
 5. Web：收口 Playwright/180min 证据与必要最小修复。
+
+## 9. 最终状态更新（2026-11-14 00:15 UTC+8，本轮收口前）
+
+### 9.1 突破：AGP 原生游戏代码路线经「混合转换器」恢复运行（PASS，过渡方案）
+
+- **A/B 对照**（同构建链、同补丁树，仅 8 个热路径类来源不同）：
+  A=enjarify 全量 → Tick 卡死（无 player.json、截图静止）；B=ox0/gk0/dc2/tf2/vf2/t01/k51/cv0 换 dex2jar v52 版本 → **Tick 恢复**、
+  player.json 创建、AM e66→e135、0 FATAL。归因：enjarify 输出 classfile v49 + JVMS 非法，无法表达接口 default 方法，
+  coroutine dispatcher/queue 运行期语义不保真；dex2jar v52 版本可表达。
+- **batch1 集成版 native-mixed-b1（6da6ade3…）AVD 实测**：冷启动 → MOD 中文深色 UI → AM e93 级持续增长 → player.json 创建 →
+  门禁 eternity/reality/celestials allowed=false（新档）→ 0 FATAL；注入进度档（first-eternity-progress）后读档 + 离线结算
+  （away 4243.8 min，999 crunches）+ 继续 Tick，0 FATAL。
+- **边界（必须如实）**：整包仍有 5,161/15,344（33.6%）JVMS 不可校验（enjarify 其它 init-pattern/interface-v49 类），
+  该方案仍属**过渡转换方案**，未覆盖：永恒/现实页签真实交互、挑战结算、自动购买器 GUI 开关、导入导出、性能；
+  不能作为正式 Candidate 发布；但证明「AGP 原生游戏代码可行」，为下一轮主攻方向。
+
+### 9.2 首批 Smali 钩子 Kotlin 化已集成并运行验证
+
+- 3 个 Kotlin 业务单元落地生产：`OrekiShopRules.clampStds`、`OrekiThemePolicy.isDark`、`OrekiUiDefaults.defaultNotation`；
+  build_mod.py / oreki_dark_theme.py 改为调用 Kotlin，Smali 仅留 ABI；静态验收 59/0 PASS。
+- **生产实际消除：3 个补丁点（此前为 0）**；AVD 上深色 UI、科学记数法、游戏 Tick 均正常。
+
+### 9.3 页签门禁 AVD 闭环（gate-gui）
+
+- G1：新档 currentSubTab=eternityChallenges/dilation → `allowed=false` 且回退反物质维度（对照旧候选 380dfbfb allowed=true）。
+- G4：新档 currentSubTab=glyphs → `allowed=false` 回退。G2：ABI 反编译证实 bm4.g()/h() 用 this.b；日志全业务键、无字形。
+- 合法永恒档正向：永恒层全部 allowed=true，timeStudies 实际打开。FATAL 0。
+- A1 自动购买器总开关回归 **NOT RUN**（游戏运行页不暴露无障碍导航控件，uiautomator 无法 idle；未用历史 PASS 冒充）。
+
+### 9.4 规则冻结纠偏已合并
+
+- Android PR #32（merge commit 3fde018f）：纯规则/配置 PR，独立于技术 PR #31；包含允许只读监测、
+  完整升级三边界（研究评估/用户授权/正式发布门禁）、versionCode 严格递增与分离记录、version-config 真实性修正。
+- Web PR #13（merge commit 0eed710c）：同构纠偏（Web 无 versionCode 维度）。
+- 统一工作区 AGENTS.md §11 / README.md §7 已同步（工作区根非 Git 仓库，仅落盘）。
+
+### 9.5 仍未完成（下一轮优先级）
+
+1. 混合转换器路线扩大验证与收敛：剩余 5,161 类 JVMS 不可校验的运行时风险路径（永恒/现实/挑战/自动化/导入导出/性能）；
+   继续按类二分替换或 Kotlin 重建关键闭包（Player/main loop/存档）。
+2. 正式 Candidate：需 CI 能构建该 AGP 原生/混合游戏代码（私有输入准备 + provenance schema2 + 独立验签 + AVD 验收）；
+   当前 CI 仍为旧链链路，按门禁 BLOCKED，R103 Latest 未变。
+3. A1 自动购买器 GUI 回归、180 分钟真实墙钟通关（Web 已定位自动化节拍 + EP e4000 双瓶颈）。
+4. Smali 钩子剩余 7 个候选集成（BM-12/13/22/23/37/40 + BM-32 产品决策）。
