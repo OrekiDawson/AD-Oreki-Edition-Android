@@ -123,6 +123,10 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: android-actions/setup-android@v3
+        with:
+          # The runner image no longer provides the obsolete `tools` package;
+          # only preinstall platform-tools here, pinned build-tools come next.
+          packages: platform-tools
       - name: Install pinned Android build tools
         run: |
           set -euo pipefail
