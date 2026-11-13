@@ -8,7 +8,10 @@
 | 项 | 结果 | 证据 |
 |---|---|---|
 | R106-02 evidence 脚本可复跑性复核 | **FAIL（脚本本身有 3 处 bug，提交的 JSON 与脚本版本不一致）**；修正后数据可复现 | [01-r106-02-evidence-recheck.md](01-r106-02-evidence-recheck.md)、`evidence/r106-02-recheck/` |
-| R107-01 首个 AGP 原生候选（sha `4cff1540…`）结构审计 | **PASS（required 28/28，advisory 2 项 FAIL 已知）** | [02-candidate-structure-audit.md](02-candidate-structure-audit.md)、`evidence/candidate-4cff1540/` |
+| R107-01 首个 AGP 原生候选（sha `4cff1540…`）结构审计 | **结构 PASS（28/28）；运行 BLOCKED（Tick 卡死，23:2x 更正）** | [02-candidate-structure-audit.md](02-candidate-structure-audit.md)、`evidence/candidate-4cff1540/` |
+| R107-01 最终混合候选（sha `c25c68dc…`，AGP 打包 + 过渡游戏 DEX）结构审计 | **结构 PASS（28/28）；发布 BLOCKED（过渡形态）** | [07-hybrid-candidate-audit.md](07-hybrid-candidate-audit.md)、`evidence/hybrid-c25c68dc/` |
+| AGP 原生游戏代码（enjarify）运行结论 | **BLOCKED：冷启动/UI PASS，Tick 卡死；原生路线不可用** | 07 §5、`reports/R107-01/lead-evidence/native-blocker/` |
+| provenance 必须区分 native/过渡构建 | 规则已写入门禁审查（§3.4）与 CI 方案 | [03-gate-review.md](03-gate-review.md)、[04-CI-PLAN.md](04-CI-PLAN.md) |
 | AGP-only 门禁 fail-closed 审查 | **门禁仍阻断（candidate 档 6 条阻断条件）**；artifact 档缺证据阻断、自报 provenance 可被接受 → 需补真实绑定字段 | [03-gate-review.md](03-gate-review.md)、`evidence/gate/` |
 | candidate CI 切换方案 | 草案（不改 workflow） | [04-CI-PLAN.md](04-CI-PLAN.md) |
 | AVD 冷启动/新建档/重启读档门禁脚本 | 脚本就绪，**dry-run 通过；真实执行 NOT RUN（AVD 由 Lead 独占）** | [05-avd-gate.md](05-avd-gate.md) |

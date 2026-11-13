@@ -1,0 +1,277 @@
+== R107-01b Tick/存档闭包差分 ==
+   A(dex2jar)   = /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar
+   B(enjarify)  = /home/oreki/private-staging/r107-tools/out/official-enjarify.jar
+   C(rebuilt)   = /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-kotlin/closure-build/kotlin
+   save sample  = /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/savestates/R101-user-original-2026-11-11T23_30.txt
+
+CLASS    VERDICT       ABI   DIFF   BEHAVIOR   FAIL
+------------------------------------------------------------------
+f44      PASS           72      0        297      0
+    ABI INFO: AvsC.ctor (java.lang.String,boolean,int,byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+    ABI INFO: AvsC.ctor (java.lang.String,java.lang.String,java.lang.String,boolean,boolean): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+    ABI INFO: BvsC.field f: 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+    ABI INFO: BvsC.ctor (java.lang.String,boolean,int,byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+    ABI INFO: BvsC.ctor (java.lang.String,java.lang.String,java.lang.String,boolean,boolean): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+g44      PASS           60      0         17      0
+    ABI INFO: AvsC.class.modifiers: public abstract -> public final（benign：无实例成员/构造器，纯静态工具类，链接与静态访问不受影响）
+    ABI INFO: AvsC.field.i.genericSignature orig=java.util.List new=java.util.List<java.lang.Object>
+    ABI INFO: BvsC.class.modifiers: public abstract -> public final（benign：无实例成员/构造器，纯静态工具类，链接与静态访问不受影响）
+    ABI INFO: BvsC.field.i.genericSignature orig=java.util.List new=java.util.List<java.lang.Object>
+th2      PASS           24      0         21      0
+    ABI INFO: AvsC.ctor (byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+    ABI INFO: BvsC.field a: 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+    ABI INFO: BvsC.ctor (byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）
+
+KNOWN DIFFS (不计 FAIL，见报告):
+    full-ctor(byte=5).f: A=0 B=0 C=5
+
+KEY RESULTS（关键真值/顺序/格式对称性；长值已截断）:
+    [f44] ctor4(mask => 0,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|0)
+    [f44] ctor4(mask => 0,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|1)
+    [f44] ctor4(mask => 0,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|2)
+    [f44] ctor4(mask => 0,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|3)
+    [f44] ctor4(mask => 0,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|4)
+    [f44] ctor4(mask => 0,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|7)
+    [f44] ctor4(mask => 0,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|0)
+    [f44] ctor4(mask => 0,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|1)
+    [f44] ctor4(mask => 0,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|2)
+    [f44] ctor4(mask => 0,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|3)
+    [f44] ctor4(mask => 0,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|4)
+    [f44] ctor4(mask => 0,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|7)
+    [f44] ctor4(mask => 1,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|0)
+    [f44] ctor4(mask => 1,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|1)
+    [f44] ctor4(mask => 1,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|2)
+    [f44] ctor4(mask => 1,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|3)
+    [f44] ctor4(mask => 1,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|4)
+    [f44] ctor4(mask => 1,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|7)
+    [f44] ctor4(mask => 1,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|0)
+    [f44] ctor4(mask => 1,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|1)
+    [f44] ctor4(mask => 1,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|2)
+    [f44] ctor4(mask => 1,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|3)
+    [f44] ctor4(mask => 1,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|4)
+    [f44] ctor4(mask => 1,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|7)
+    [f44] ctor4(mask => 2,d=true,mode=0).fields=java.lang.String:(header||AAA|true|true|0)
+    [f44] ctor4(mask => 2,d=true,mode=1).fields=java.lang.String:(header||AAA|true|true|1)
+    [f44] ctor4(mask => 2,d=true,mode=2).fields=java.lang.String:(header||AAA|true|true|2)
+    [f44] ctor4(mask => 2,d=true,mode=3).fields=java.lang.String:(header||AAA|true|true|3)
+    [f44] ctor4(mask => 2,d=true,mode=4).fields=java.lang.String:(header||AAA|true|true|4)
+    [f44] ctor4(mask => 2,d=true,mode=7).fields=java.lang.String:(header||AAA|true|true|7)
+    [f44] ctor4(mask => 2,d=false,mode=0).fields=java.lang.String:(header||AAA|false|true|0)
+    [f44] ctor4(mask => 2,d=false,mode=1).fields=java.lang.String:(header||AAA|false|true|1)
+    [f44] ctor4(mask => 2,d=false,mode=2).fields=java.lang.String:(header||AAA|false|true|2)
+    [f44] ctor4(mask => 2,d=false,mode=3).fields=java.lang.String:(header||AAA|false|true|3)
+    [f44] ctor4(mask => 2,d=false,mode=4).fields=java.lang.String:(header||AAA|false|true|4)
+    [f44] ctor4(mask => 2,d=false,mode=7).fields=java.lang.String:(header||AAA|false|true|7)
+    [f44] ctor4(mask => 3,d=true,mode=0).fields=java.lang.String:(header||AAA|true|true|0)
+    [f44] ctor4(mask => 3,d=true,mode=1).fields=java.lang.String:(header||AAA|true|true|1)
+    [f44] ctor4(mask => 3,d=true,mode=2).fields=java.lang.String:(header||AAA|true|true|2)
+    [f44] ctor4(mask => 3,d=true,mode=3).fields=java.lang.String:(header||AAA|true|true|3)
+    [f44] ctor4(mask => 3,d=true,mode=4).fields=java.lang.String:(header||AAA|true|true|4)
+    [f44] ctor4(mask => 3,d=true,mode=7).fields=java.lang.String:(header||AAA|true|true|7)
+    [f44] ctor4(mask => 3,d=false,mode=0).fields=java.lang.String:(header||AAA|false|true|0)
+    [f44] ctor4(mask => 3,d=false,mode=1).fields=java.lang.String:(header||AAA|false|true|1)
+    [f44] ctor4(mask => 3,d=false,mode=2).fields=java.lang.String:(header||AAA|false|true|2)
+    [f44] ctor4(mask => 3,d=false,mode=3).fields=java.lang.String:(header||AAA|false|true|3)
+    [f44] ctor4(mask => 3,d=false,mode=4).fields=java.lang.String:(header||AAA|false|true|4)
+    [f44] ctor4(mask => 3,d=false,mode=7).fields=java.lang.String:(header||AAA|false|true|7)
+    [f44] ctor4(mask => 4,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile||true|true|0)
+    [f44] ctor4(mask => 4,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile||true|true|1)
+    [f44] ctor4(mask => 4,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile||true|true|2)
+    [f44] ctor4(mask => 4,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile||true|true|3)
+    [f44] ctor4(mask => 4,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile||true|true|4)
+    [f44] ctor4(mask => 4,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile||true|true|7)
+    [f44] ctor4(mask => 4,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile||false|true|0)
+    [f44] ctor4(mask => 4,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile||false|true|1)
+    [f44] ctor4(mask => 4,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile||false|true|2)
+    [f44] ctor4(mask => 4,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile||false|true|3)
+    [f44] ctor4(mask => 4,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile||false|true|4)
+    [f44] ctor4(mask => 4,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile||false|true|7)
+    [f44] ctor4(mask => 5,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile||true|true|0)
+    [f44] ctor4(mask => 5,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile||true|true|1)
+    [f44] ctor4(mask => 5,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile||true|true|2)
+    [f44] ctor4(mask => 5,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile||true|true|3)
+    [f44] ctor4(mask => 5,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile||true|true|4)
+    [f44] ctor4(mask => 5,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile||true|true|7)
+    [f44] ctor4(mask => 5,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile||false|true|0)
+    [f44] ctor4(mask => 5,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile||false|true|1)
+    [f44] ctor4(mask => 5,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile||false|true|2)
+    [f44] ctor4(mask => 5,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile||false|true|3)
+    [f44] ctor4(mask => 5,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile||false|true|4)
+    [f44] ctor4(mask => 5,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile||false|true|7)
+    [f44] ctor4(mask => 6,d=true,mode=0).fields=java.lang.String:(header|||true|true|0)
+    [f44] ctor4(mask => 6,d=true,mode=1).fields=java.lang.String:(header|||true|true|1)
+    [f44] ctor4(mask => 6,d=true,mode=2).fields=java.lang.String:(header|||true|true|2)
+    [f44] ctor4(mask => 6,d=true,mode=3).fields=java.lang.String:(header|||true|true|3)
+    [f44] ctor4(mask => 6,d=true,mode=4).fields=java.lang.String:(header|||true|true|4)
+    [f44] ctor4(mask => 6,d=true,mode=7).fields=java.lang.String:(header|||true|true|7)
+    [f44] ctor4(mask => 6,d=false,mode=0).fields=java.lang.String:(header|||false|true|0)
+    [f44] ctor4(mask => 6,d=false,mode=1).fields=java.lang.String:(header|||false|true|1)
+    [f44] ctor4(mask => 6,d=false,mode=2).fields=java.lang.String:(header|||false|true|2)
+    [f44] ctor4(mask => 6,d=false,mode=3).fields=java.lang.String:(header|||false|true|3)
+    [f44] ctor4(mask => 6,d=false,mode=4).fields=java.lang.String:(header|||false|true|4)
+    [f44] ctor4(mask => 6,d=false,mode=7).fields=java.lang.String:(header|||false|true|7)
+    [f44] ctor4(mask => 7,d=true,mode=0).fields=java.lang.String:(header|||true|true|0)
+    [f44] ctor4(mask => 7,d=true,mode=1).fields=java.lang.String:(header|||true|true|1)
+    [f44] ctor4(mask => 7,d=true,mode=2).fields=java.lang.String:(header|||true|true|2)
+    [f44] ctor4(mask => 7,d=true,mode=3).fields=java.lang.String:(header|||true|true|3)
+    [f44] ctor4(mask => 7,d=true,mode=4).fields=java.lang.String:(header|||true|true|4)
+    [f44] ctor4(mask => 7,d=true,mode=7).fields=java.lang.String:(header|||true|true|7)
+    [f44] ctor4(mask => 7,d=false,mode=0).fields=java.lang.String:(header|||false|true|0)
+    [f44] ctor4(mask => 7,d=false,mode=1).fields=java.lang.String:(header|||false|true|1)
+    [f44] ctor4(mask => 7,d=false,mode=2).fields=java.lang.String:(header|||false|true|2)
+    [f44] ctor4(mask => 7,d=false,mode=3).fields=java.lang.String:(header|||false|true|3)
+    [f44] ctor4(mask => 7,d=false,mode=4).fields=java.lang.String:(header|||false|true|4)
+    [f44] ctor4(mask => 7,d=false,mode=7).fields=java.lang.String:(header|||false|true|7)
+    [f44] ctor4(mask => 8,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|0)
+    [f44] ctor4(mask => 8,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|1)
+    [f44] ctor4(mask => 8,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|2)
+    [f44] ctor4(mask => 8,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|3)
+    [f44] ctor4(mask => 8,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|4)
+    [f44] ctor4(mask => 8,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|7)
+    [f44] ctor4(mask => 8,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|0)
+    [f44] ctor4(mask => 8,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|1)
+    [f44] ctor4(mask => 8,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|2)
+    [f44] ctor4(mask => 8,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|3)
+    [f44] ctor4(mask => 8,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|4)
+    [f44] ctor4(mask => 8,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|7)
+    [f44] ctor4(mask => 16,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|0)
+    [f44] ctor4(mask => 16,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|1)
+    [f44] ctor4(mask => 16,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|2)
+    [f44] ctor4(mask => 16,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|3)
+    [f44] ctor4(mask => 16,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|4)
+    [f44] ctor4(mask => 16,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|true|true|7)
+    [f44] ctor4(mask => 16,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|0)
+    [f44] ctor4(mask => 16,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|1)
+    [f44] ctor4(mask => 16,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|2)
+    [f44] ctor4(mask => 16,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|3)
+    [f44] ctor4(mask => 16,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|4)
+    [f44] ctor4(mask => 16,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile|AAA|false|true|7)
+    [f44] ctor4(mask => 18,d=true,mode=0).fields=java.lang.String:(header||AAA|true|true|0)
+    [f44] ctor4(mask => 18,d=true,mode=1).fields=java.lang.String:(header||AAA|true|true|1)
+    [f44] ctor4(mask => 18,d=true,mode=2).fields=java.lang.String:(header||AAA|true|true|2)
+    [f44] ctor4(mask => 18,d=true,mode=3).fields=java.lang.String:(header||AAA|true|true|3)
+    [f44] ctor4(mask => 18,d=true,mode=4).fields=java.lang.String:(header||AAA|true|true|4)
+    [f44] ctor4(mask => 18,d=true,mode=7).fields=java.lang.String:(header||AAA|true|true|7)
+    [f44] ctor4(mask => 18,d=false,mode=0).fields=java.lang.String:(header||AAA|false|true|0)
+    [f44] ctor4(mask => 18,d=false,mode=1).fields=java.lang.String:(header||AAA|false|true|1)
+    [f44] ctor4(mask => 18,d=false,mode=2).fields=java.lang.String:(header||AAA|false|true|2)
+    [f44] ctor4(mask => 18,d=false,mode=3).fields=java.lang.String:(header||AAA|false|true|3)
+    [f44] ctor4(mask => 18,d=false,mode=4).fields=java.lang.String:(header||AAA|false|true|4)
+    [f44] ctor4(mask => 18,d=false,mode=7).fields=java.lang.String:(header||AAA|false|true|7)
+    [f44] ctor4(mask => 20,d=true,mode=0).fields=java.lang.String:(header|EndOfSavefile||true|true|0)
+    [f44] ctor4(mask => 20,d=true,mode=1).fields=java.lang.String:(header|EndOfSavefile||true|true|1)
+    [f44] ctor4(mask => 20,d=true,mode=2).fields=java.lang.String:(header|EndOfSavefile||true|true|2)
+    [f44] ctor4(mask => 20,d=true,mode=3).fields=java.lang.String:(header|EndOfSavefile||true|true|3)
+    [f44] ctor4(mask => 20,d=true,mode=4).fields=java.lang.String:(header|EndOfSavefile||true|true|4)
+    [f44] ctor4(mask => 20,d=true,mode=7).fields=java.lang.String:(header|EndOfSavefile||true|true|7)
+    [f44] ctor4(mask => 20,d=false,mode=0).fields=java.lang.String:(header|EndOfSavefile||false|true|0)
+    [f44] ctor4(mask => 20,d=false,mode=1).fields=java.lang.String:(header|EndOfSavefile||false|true|1)
+    [f44] ctor4(mask => 20,d=false,mode=2).fields=java.lang.String:(header|EndOfSavefile||false|true|2)
+    [f44] ctor4(mask => 20,d=false,mode=3).fields=java.lang.String:(header|EndOfSavefile||false|true|3)
+    [f44] ctor4(mask => 20,d=false,mode=4).fields=java.lang.String:(header|EndOfSavefile||false|true|4)
+    [f44] ctor4(mask => 20,d=false,mode=7).fields=java.lang.String:(header|EndOfSavefile||false|true|7)
+    [f44] ctor4(mask => 22,d=true,mode=0).fields=java.lang.String:(header|||true|true|0)
+    [f44] ctor4(mask => 22,d=true,mode=1).fields=java.lang.String:(header|||true|true|1)
+    [f44] ctor4(mask => 22,d=true,mode=2).fields=java.lang.String:(header|||true|true|2)
+    [f44] ctor4(mask => 22,d=true,mode=3).fields=java.lang.String:(header|||true|true|3)
+    [f44] ctor4(mask => 22,d=true,mode=4).fields=java.lang.String:(header|||true|true|4)
+    [f44] ctor4(mask => 22,d=true,mode=7).fields=java.lang.String:(header|||true|true|7)
+    [f44] ctor4(mask => 22,d=false,mode=0).fields=java.lang.String:(header|||false|true|0)
+    [f44] ctor4(mask => 22,d=false,mode=1).fields=java.lang.String:(header|||false|true|1)
+    [f44] ctor4(mask => 22,d=false,mode=2).fields=java.lang.String:(header|||false|true|2)
+    [f44] ctor4(mask => 22,d=false,mode=3).fields=java.lang.String:(header|||false|true|3)
+    [f44] ctor4(mask => 22,d=false,mode=4).fields=java.lang.String:(header|||false|true|4)
+    [f44] ctor4(mask => 22,d=false,mode=7).fields=java.lang.String:(header|||false|true|7)
+    [f44] ctor4(mask => 23,d=true,mode=0).fields=java.lang.String:(header|||true|true|0)
+    [f44] ctor4(mask => 23,d=true,mode=1).fields=java.lang.String:(header|||true|true|1)
+    [f44] ctor4(mask => 23,d=true,mode=2).fields=java.lang.String:(header|||true|true|2)
+    [f44] ctor4(mask => 23,d=true,mode=3).fields=java.lang.String:(header|||true|true|3)
+    [f44] ctor4(mask => 23,d=true,mode=4).fields=java.lang.String:(header|||true|true|4)
+    [f44] ctor4(mask => 23,d=true,mode=7).fields=java.lang.String:(header|||true|true|7)
+    [f44] ctor4(mask => 23,d=false,mode=0).fields=java.lang.String:(header|||false|true|0)
+    [f44] ctor4(mask => 23,d=false,mode=1).fields=java.lang.String:(header|||false|true|1)
+    [f44] ctor4(mask => 23,d=false,mode=2).fields=java.lang.String:(header|||false|true|2)
+    [f44] ctor4(mask => 23,d=false,mode=3).fields=java.lang.String:(header|||false|true|3)
+    [f44] ctor4(mask => 23,d=false,mode=4).fields=java.lang.String:(header|||false|true|4)
+    [f44] ctor4(mask => 23,d=false,mode=7).fields=java.lang.String:(header|||false|true|7)
+    [f44] ctor4(mask => 255,d=true,mode=0).fields=java.lang.String:(header|||true|true|0)
+    [f44] ctor4(mask => 255,d=true,mode=1).fields=java.lang.String:(header|||true|true|1)
+    [f44] ctor4(mask => 255,d=true,mode=2).fields=java.lang.String:(header|||true|true|2)
+    [f44] ctor4(mask => 255,d=true,mode=3).fields=java.lang.String:(header|||true|true|3)
+    [f44] ctor4(mask => 255,d=true,mode=4).fields=java.lang.String:(header|||true|true|4)
+    [f44] ctor4(mask => 255,d=true,mode=7).fields=java.lang.String:(header|||true|true|7)
+    [f44] ctor4(mask => 255,d=false,mode=0).fields=java.lang.String:(header|||false|true|0)
+    [f44] ctor4(mask => 255,d=false,mode=1).fields=java.lang.String:(header|||false|true|1)
+    [f44] ctor4(mask => 255,d=false,mode=2).fields=java.lang.String:(header|||false|true|2)
+    [f44] ctor4(mask => 255,d=false,mode=3).fields=java.lang.String:(header|||false|true|3)
+    [f44] ctor4(mask => 255,d=false,mode=4).fields=java.lang.String:(header|||false|true|4)
+    [f44] ctor4(mask => 255,d=false,mode=7).fields=java.lang.String:(header|||false|true|7)
+    [f44] decode(encode(a,0)) => EX:java.io.EOFException
+    [f44] decode(encode(a,1)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(a,2)) => EX:java.io.EOFException
+    [f44] decode(encode(a,3)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(a,4)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(a,5)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(b,0)) => java.lang.String:
+    [f44] decode(encode(b,1)) => java.lang.String:{}
+    [f44] decode(encode(b,2)) => java.lang.String:{"money":1.7976931348623157E308}
+    [f44] decode(encode(b,3)) => java.lang.String:反物质维度 Oreki Edition
+    [f44] decode(encode(b,4)) => java.lang.String:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(4113 chars)
+    [f44] decode(encode(b,5)) => java.lang.String:0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/Stri...(7517 chars)
+    [f44] decode(encode(c,0)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(c,1)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(c,2)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(c,3)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(c,4)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(c,5)) => EX:java.util.zip.ZipException
+    [f44] decode(encode(d,0)) => java.lang.String:{"money"' �    
+    [f44] decode(encode(d,1)) => java.lang.String:{"money"'*�@ ]@4m
+    [f44] decode(encode(d,2)) => java.lang.String:{"money"'*ղ�sѫ�T�2�3�47�464h����������� G �
+    [f44] decode(encode(d,3)) => java.lang.String:{"money"'��G;�s�-�{�q�'Ms _G(�;u�3$�? �� 
+    [f44] decode(encode(d,4)) => java.lang.String:{"money"';p@C@  0�+;�G(   ���,Al
+    [f44] decode(encode(d,5)) => java.lang.String:{"money"';q�D@ , E����l�sY$钒��Yۻ�����������������Y'5�
+    [f44] decode(encode(e,0)) => java.lang.String:
+    [f44] decode(encode(e,1)) => java.lang.String:{}
+    [f44] decode(encode(e,2)) => java.lang.String:{"money":1.7976931348623157E308}
+    [f44] decode(encode(e,3)) => java.lang.String:反物质维度 Oreki Edition
+    [f44] decode(encode(e,4)) => java.lang.String:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(4113 chars)
+    [f44] decode(encode(e,5)) => java.lang.String:0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/Stri...(7517 chars)
+    [f44] decode(encode(f,0)) => java.lang.String:
+    [f44] decode(encode(f,1)) => java.lang.String:{}
+    [f44] decode(encode(f,2)) => java.lang.String:{"money":1.7976931348623157E308}
+    [f44] decode(encode(f,3)) => java.lang.String:反物质维度 Oreki Edition
+    [f44] decode(encode(f,4)) => java.lang.String:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(4113 chars)
+    [f44] decode(encode(f,5)) => java.lang.String:0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/Stri...(7517 chars)
+    [f44] decode(encode(g,0)) => java.lang.String:
+    [f44] decode(encode(g,1)) => java.lang.String:{}
+    [f44] decode(encode(g,2)) => java.lang.String:{"money":1.7976931348623157E308}
+    [f44] decode(encode(g,3)) => java.lang.String:反物质维度 Oreki Edition
+    [f44] decode(encode(g,4)) => java.lang.String:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(4113 chars)
+    [f44] decode(encode(g,5)) => java.lang.String:0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/Stri...(7517 chars)
+    [f44] decode(encode(h,0)) => java.lang.String:
+    [f44] decode(encode(h,1)) => java.lang.String:{}
+    [f44] decode(encode(h,2)) => java.lang.String:{"money":1.7976931348623157E308}
+    [f44] decode(encode(h,3)) => java.lang.String:反物质维度 Oreki Edition
+    [f44] decode(encode(h,4)) => java.lang.String:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(4113 chars)
+    [f44] decode(encode(h,5)) => java.lang.String:0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/String0+0a0b0c/Stri...(7517 chars)
+    [f44] realSave.decode.ok(JSON) [expect true; A => true B=true C=true]
+    [f44] realSave.length>1000 [expect true; A => true B=true C=true]
+    [f44] realSave.contains antimatter [expect true; A => true B=true C=true]
+    [f44] realSave.prefix => java.lang.String:{"IAP":{"enabled":false}
+    [f44] realSave.length => java.lang.Integer:29475
+    [f44] realSave.suffix => java.lang.String:alse,"version":30210000}
+    [f44] realSave.hashCode => java.lang.Integer:-597179927
+    [g44] g44.i[0].fields => java.lang.String:(AntimatterDimensionsAppleSaveFormat|EndOfSavefile|AAA|true|true|2)
+    [g44] g44.i[1].fields => java.lang.String:(AntimatterDimensionsAndroidSaveFormat|EndOfSavefile|AAA|true|true|0)
+    [g44] g44.i[2].fields => java.lang.String:(H4sIAAA|||true|true|1)
+    [g44] g44.i[3].fields => java.lang.String:(eyJtb25leSI|||false|true|4)
+    [g44] g44.i[4].fields => java.lang.String:(AntimatterDimensionsSavefileFormat|EndOfSavefile|AAB|false|true|3)
+    [g44] g44.i[5].fields => java.lang.String:(AntimatterDimensionsAutomatorScriptFormat|EndOfAutomatorScript|AAB|false|false|3)
+    [g44] g44.i[6].fields => java.lang.String:(AntimatterDimensionsAutomatorDataFormat|EndOfAutomatorData|AAB|false|false|3)
+    [g44] g44.i[7].fields => java.lang.String:(AntimatterDimensionsGlyphFilterFormat|EndOfGlyphFilter|AAB|false|false|3)
+
+SUMMARY classes=3 pass=3 fail=0 checks=335 fails=0
+###RESULT_JSON_BEGIN###
+[{"class":"f44","verdict":"PASS","abi":{"checks":72,"diffs":[],"info":["AvsC.ctor (java.lang.String,boolean,int,byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）","AvsC.ctor (java.lang.String,java.lang.String,java.lang.String,boolean,boolean): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）","BvsC.field f: 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）","BvsC.ctor (java.lang.String,boolean,int,byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）","BvsC.ctor (java.lang.String,java.lang.String,java.lang.String,boolean,boolean): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）"]},"behavior":{"checks":297,"fails":[]}},{"class":"g44","verdict":"PASS","abi":{"checks":60,"diffs":[],"info":["AvsC.class.modifiers: public abstract -> public final（benign：无实例成员/构造器，纯静态工具类，链接与静态访问不受影响）","AvsC.field.i.genericSignature orig=java.util.List new=java.util.List<java.lang.Object>","BvsC.class.modifiers: public abstract -> public final（benign：无实例成员/构造器，纯静态工具类，链接与静态访问不受影响）","BvsC.field.i.genericSignature orig=java.util.List new=java.util.List<java.lang.Object>"]},"behavior":{"checks":17,"fails":[]}},{"class":"th2","verdict":"PASS","abi":{"checks":24,"diffs":[],"info":["AvsC.ctor (byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）","BvsC.field a: 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）","BvsC.ctor (byte): 仅 ACC_SYNTHETIC 不同（benign；原版 R8/编译产物标志，描述符/可见性/行为一致）"]},"behavior":{"checks":21,"fails":[]}}]
+###RESULT_JSON_END###
+OVERALL: PASS

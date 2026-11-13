@@ -274,3 +274,18 @@ python3 work/r107-kajfosz/verify_outputs.py
 | 编译级验证（Kotlin 重建） | — | **NOT RUN**（由 task-4 负责） |
 
 状态标记：**PASS（静态复核/映射）+ NOT RUN（运行时/编译验证）**。
+
+
+## 8. Tick 关键闭包（task-10，承接本任务）
+
+为定位 enjarify 转换后运行期 Tick 卡死，另产出了方法级闭包文档（不改本报告 1242/7439/6563 分母）：
+
+- 闭包类：46；闭包方法：50；可检验假设：8；SIGQUIT 热栈帧：14。
+- 卡死热栈（AntimatterGameThread）：vf2.d -> tf2.d -> dc2.q -> dc2.k -> cv0.k -> nc8.B -> nc8.z -> rk8.G -> Player.k0
+- 语义确认：rk8.G=BuildersKt.withContext、nc8.z=resumeCancellableWith、nc8.B=dispatch 包装、
+  cv0=Dispatchers.IO、dc2=LimitedDispatcher、tf2/vf2=LockFreeTaskQueue(async)、t01=DispatchedTask、
+  Player.k0=save（Gson+withContext(IO)+原子写文件）、Game.gameTick→Game.k→SpeedrunMilestone.x()→complete→save。
+- 关键证据：reports/R107-01/agp-dex/evidence/04-jvm-verify-final.txt（rk8.G/t01.g/nc8.M/k51.e/q51.g/nl0.i 被判 JVMS VERIFY；ox0.f FORMAT 波及 ba1/cv0/dc2/gk0/j25/mu0）。
+- 详细交付：docs/deobfuscation/data/r107-kajfosz/tick-closure.json、reports/R107-01/sem-kajfosz/tick-closure.md。
+
+Tick 闭包状态：静态语义 PASS；运行期假设 NOT RUN（需 agp-dex/Lead 做混合 DEX、AVD 插桩等实验）。

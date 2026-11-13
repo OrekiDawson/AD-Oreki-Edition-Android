@@ -1,0 +1,21 @@
+date: 2026-11-13T23:47:57+08:00
+jdk: openjdk version "21.0.13.0.3" 2026-10-24
+kotlinc: info: kotlinc-jvm 2.4.21 (JRE 21.0.13.0.3+1-1-26.04.1-Ubuntu)
+android.jar: /home/oreki/Android/Sdk/platforms/android-37.2/android.jar
+gameclasses.jar: /home/oreki/private-staging/r10602/jars/gameclasses.jar
+acab7437bf87c85eafa0c194a5410d6dd7455f7a705514c2d1c55eae830741cd  /home/oreki/private-staging/r10602/jars/gameclasses.jar
+gameclasses-v3.jar: /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar
+01581c873b9bfe53828666dfcaab9732304cb39845d705ca19c4c87558c3bc39  /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar
+official-enjarify.jar: /home/oreki/private-staging/r107-tools/out/official-enjarify.jar
+18c7bb568773bf8d8c42147bb6574c6ede91114bdc28a35cf04bedd79ebd06cc  /home/oreki/private-staging/r107-tools/out/official-enjarify.jar
+save sample: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/savestates/R101-user-original-2026-11-11T23_30.txt
+bad5fe5d177889f1ac5974d7d6f5c5681c9a49d9dc2f3ee1199eb9f978f8179c  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/savestates/R101-user-original-2026-11-11T23_30.txt
+9bfad899aaa138b8fbda76098dd13ae122e99dec34fd4c1f471b765b64640f06  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/kotlin/f44.kt
+ce579973d47ffc0770188da0028155b74972146aa759fc2134405766ace34aa0  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/kotlin/g44.kt
+3c885fe0386880ee75155617ea431d500d8b26cbdefc6516a461afa0e5441d31  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/kotlin/th2.kt
+3f98d8cd66dcfae493eb60ff0f17bb99d13888f32a9e555096109f0118a76542  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/verify/stubs/java/android/util/Base64.java
+fd2049bce4bb10ae0010de092f0f7b69da8d0d09f6e5a2543e40eb6bc65813f2  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/verify/stubs/java/dl4.java
+2805bc1e1e40934bd4ce0863665d3ea205923a55b6d0a7890256bfe48dd3d77e  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/verify/stubs/java/j73.java
+777c901e3de9c6b0a7396124c3c2465e158dfdfd4ea1f0f0258086e5f25dd119  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/verify/stubs/java/kl4.java
+b8296038ce662244e0c9f99d12885e82ee7981fa80d498e0106402df416692ab  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/verify/stubs/java/kn6.java
+deff2af85ebc584c86172eba28b1c418838ecf8da1873c61f0f3f4d1fca7d083  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-closure/verify/stubs/java/ny6.java

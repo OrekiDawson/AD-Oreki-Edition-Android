@@ -2,7 +2,7 @@
   "schema": 1,
   "round": "R107-01",
   "agent": "test-ci",
-  "generated_at": "2026-11-13T22:55:07+08:00",
+  "generated_at": "2026-11-13T23:29:59+08:00",
   "candidate": {
     "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk",
     "sha256": "4cff154077495fb6d65fee12842e5d33a6a64be67de1dc1bcea5a48ef54e28c7",
@@ -159,11 +159,160 @@
     "AVD 玩法门禁/自动购买器/GUI 60fps",
     "真实 180 分钟通关",
     "正式 CI candidate/verify/release run",
-    "provenance schema 2（未实现）"
+    "provenance schema 2（未实现）",
+    "AVD 门禁复跑（00:10 窗口后执行，结果见 05-avd-gate.md）"
   ],
   "scripts": [
     "scripts/tests/r107/accept_apk.py",
     "scripts/tests/r107/gate_failclosed.py",
     "scripts/tests/r107/avd_gate.py"
-  ]
+  ],
+  "hybrid_candidate": {
+    "path": "/home/oreki/private-staging/r107-candidate/antimatter-dimensions-R107-hybrid-AGPpackaged-c25c68dc.apk",
+    "sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "bytes": 72416868,
+    "verdict": "PASS",
+    "required": {
+      "required_total": 28,
+      "required_passed": 28,
+      "advisory_total": 12,
+      "advisory_failed": 4
+    },
+    "advisory_failed": [
+      "dex-count-matches-official",
+      "dex-version-matches-official",
+      "cross-dex-duplicates",
+      "java-safe-descriptors"
+    ],
+    "packaging_mode": "agp-package-with-legacy-game-dex",
+    "build_report": "reports/R107-01/lead-evidence/hybrid-package-report.json",
+    "dex": {
+      "classes.dex": {
+        "classes": 10150,
+        "bytes": 12433576,
+        "sha256": "d3fbcab0ddb4a320d8e6a91e9d05d3ac360ecc17786c5f631589a2c57bcaa13b"
+      },
+      "classes2.dex": {
+        "classes": 4611,
+        "bytes": 6413784,
+        "sha256": "27141993d1b1091b7fbe7e1e865a89e0261eac90136cd1917982f86dd04323dd"
+      },
+      "classes3.dex": {
+        "classes": 583,
+        "bytes": 998372,
+        "sha256": "7cc05e767c4ce8489ba4811a6002f38de1c8c2c3167c920efa1dc44d9f365aae"
+      },
+      "classes4.dex": {
+        "classes": 1125,
+        "bytes": 2271920,
+        "sha256": "aa03505de9ccd0408f2aa6779e59bad68b3a77d83ade88e737a6c832329a8f67"
+      }
+    },
+    "key_checks": {
+      "package-name": {
+        "state": "PASS",
+        "actual": "com.oreki.antimatterdimensions"
+      },
+      "version-code": {
+        "state": "PASS",
+        "actual": "30210000"
+      },
+      "version-name": {
+        "state": "PASS",
+        "actual": "3.21.0"
+      },
+      "sdk-levels": {
+        "state": "PASS",
+        "actual": "minSdk=32 targetSdk=37"
+      },
+      "signature-cert": {
+        "state": "PASS",
+        "actual": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
+      },
+      "signature-scheme": {
+        "state": "PASS",
+        "actual": "signers=1 schemes={\"v1\": false, \"v2\": false, \"v3\": true, \"v3.1\": false, \"v4\": false}"
+      },
+      "dex-present": {
+        "state": "PASS",
+        "actual": "4 个 dex，versions={\"classes.dex\": \"039\", \"classes2.dex\": \"039\", \"classes3.dex\": \"039\", \"classes4.dex\": \"039\"}"
+      },
+      "class-total": {
+        "state": "PASS",
+        "actual": "16403 类（逐 dex 原始和 16469）"
+      },
+      "first-party-coverage": {
+        "state": "PASS",
+        "actual": "10954/10954（缺失 0）"
+      },
+      "official-class-coverage": {
+        "state": "PASS",
+        "actual": "官方 15319 类，精确命中 15319，改名后仍缺 0（其中 kotlin stdlib 0，其他 0）"
+      },
+      "resource-id-parity": {
+        "state": "PASS",
+        "actual": "同名不同 ID=0，官方有目标无=0，目标新增=48"
+      },
+      "native-abis": {
+        "state": "PASS",
+        "actual": "arm64-v8a, armeabi-v7a, x86, x86_64"
+      },
+      "native-libs-complete": {
+        "state": "PASS",
+        "actual": "2/2"
+      },
+      "assets-complete": {
+        "state": "PASS",
+        "actual": "22/22"
+      },
+      "reference-native-libs-bytes": {
+        "state": "PASS",
+        "actual": "不同=0 缺失=0"
+      }
+    },
+    "report": "07-hybrid-candidate-audit.md",
+    "evidence": "evidence/hybrid-c25c68dc/",
+    "game_code_compiled_by": "legacy-dex",
+    "dex_source_verified": true
+  },
+  "agp_native_route": {
+    "status": "BLOCKED",
+    "reason": "enjarify 原生游戏代码可冷启动/MOD UI 正常，但 Tick 卡死；SIGQUIT 多线程停在 Player.k0/l0 更新链；无钩子基线同样卡死",
+    "evidence": [
+      "reports/R107-01/lead-evidence/native-blocker/sigquit-trace.txt",
+      "reports/R107-01/lead-evidence/native-blocker/baseline-enjarify-t1.png",
+      "reports/R107-01/lead-evidence/native-blocker/baseline-enjarify-t2.png",
+      "reports/R107-01/lead-evidence/logcat-boot.txt"
+    ],
+    "gate_requirement": "provenance 字段 game_code_compiled_by / game_dex_source / jvms_audit / agp_native_gameplay_status（03-gate-review §3.4+§3.5）；legacy-dex 不得标记 native",
+    "jvms_audit": {
+      "classes_total": 15344,
+      "jvms_invalid": 5195,
+      "invalid_ratio": 0.339,
+      "categories": {
+        "VerifyError_wrong_init_method": 3280,
+        "ClassFormatError": 1915
+      },
+      "pure_official_jar": {
+        "classes_total": 15319,
+        "jvms_invalid": 5194
+      },
+      "d8_blind_spot": "D8 整包与 76 个补丁相关类逐类 PASS、AGP 构建/签名/冷启动 PASS 均未发现",
+      "evidence": [
+        "reports/R107-01/agp-dex/R107-01-agp-dex-REPORT.md",
+        "reports/R107-01/agp-dex/evidence/04-jvm-verify-final.txt",
+        "scripts/dexfix/r107/java/JarVerifyAudit.java"
+      ],
+      "gate_requirement": "任何 agp-kotlin/agp-jvm-class 候选必须通过 JVMS 校验且 jvms_invalid=0（03-gate-review §3.5）"
+    }
+  },
+  "release_status": {
+    "formal_release": "BLOCKED",
+    "reasons": [
+      "AGP 原生游戏代码 Tick 卡死（BLOCKED）",
+      "最终候选 c25c68dc 为 AGP 打包 + 过渡游戏 DEX，非原生",
+      "CI 尚无 AGP 游戏代码链路；provenance 区分字段未实现",
+      "R103 Latest 未变：android-update-3.21.0-3d924271"
+    ]
+  }
 }

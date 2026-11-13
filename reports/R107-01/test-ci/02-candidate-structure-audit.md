@@ -6,6 +6,11 @@
 > 生成：2026-11-13 22:4x +08；工具 build-tools **37.0.0**（aapt2/apksigner/zipalign）
 > 复跑：`python3 scripts/tests/r107/accept_apk.py --apk <APK> --reference-apk <R103候选> --out-dir <out>`
 > 原始证据：`evidence/candidate-4cff1540/accept-report.{json,txt}`
+>
+> **2026-11-13 23:2x 重要更正**：本 APK 的“冷启动成功”**不等于可运行游戏**。后续实测显示
+> AGP 原生游戏代码（enjarify）Tick 卡死（coroutine/Player 更新链自旋、AM 冻结、无 FATAL），
+> 该路线状态改为 **BLOCKED**。证据与结论见 [07-hybrid-candidate-audit.md](07-hybrid-candidate-audit.md) §5。
+> 本文件的结构审计结论仍然有效，但**不得**再作为“AGP 原生候选可运行”的依据。
 
 ## 1. 判定
 
@@ -121,6 +126,8 @@
 - 该 log 只有一次冷启动，没有覆盖“重启读档/新建档/玩法门禁”；
 - 安装 Success、点 Start game 等步骤由 Lead 陈述，本目录不重复声称。
 - 因此 AVD 相关状态：**冷启动 = Lead 实测 PASS（本子 Agent 仅复核日志）；其余 NOT RUN**。
+- **更正（23:2x）**：后续 Lead 实测该路线的游戏 Tick 卡死（AM 不增长）、SIGQUIT 显示 Player 更新链自旋，
+  因此运行验收整体为 **BLOCKED**，不是 PASS；结构 PASS 仅限于 APK 形态。详见 07 §5。
 
 ## 6. 结论与限制
 

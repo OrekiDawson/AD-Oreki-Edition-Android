@@ -3,19 +3,51 @@
 > 目标：把 `candidate-unified.yml` 从旧链（apktool/Kotlin→D8/installToRelease）切到
 > **AGP 9.5.1 原生完整游戏构建**，同时保持 AGP-only 门禁、独立验签与 release gate **不放宽**。
 > 本文只是方案，落地需 Lead 在 .github/agp 上执行；本子 Agent 不修改这些文件。
+>
+> **2026-11-13 23:2x 状态更新：正式发布仍 BLOCKED。** 新增两项硬事实：
+> ① AGP 原生游戏代码（enjarify）路线已实测 **BLOCKED**（冷启动/UI 正常，但 Tick 卡死；证据
+> `reports/R107-01/lead-evidence/native-blocker/`）；
+> ② R107-01 最终候选 `c25c68dc` 是 **AGP 打包 + 过渡游戏 DEX**（`agp-package-with-legacy-game-dex`），
+> 结构 PASS 但按 AGP-only 规则不得作为正式 Candidate。R103 Latest 不变。
 
 ## 1. 切换的前置条件（缺一不可）
 
 | # | 前置 | 当前状态 |
 |---|---|---|
-| P1 | R107-01 AGP 原生候选结构验收 PASS | **已满足**（`4cff1540…`，required 28/28，见 02） |
-| P2 | 候选冷启动 + 新建档 + 重启读档 AVD 门禁 PASS | **未满足**（冷启动 Lead 已实测，其余 NOT RUN；脚本就绪见 05） |
-| P3 | MOD 钩子层（smali 补丁/ABI 适配）接入 AGP 构建 | **未满足**（当前候选无 MOD 钩子，Lead 已说明；不能作为正式候选发布） |
+| P1 | R107-01 候选结构验收 PASS | **已满足（两种形态）**：AGP 原生 boot-only `4cff1540…`（02，required 28/28）与混合过渡 `c25c68dc…`（07，required 28/28） |
+| P2 | 候选冷启动 + 新建档 + 重启读档 AVD 门禁 PASS | **部分满足**：混合候选 Lead 实测冷启动/游戏内 PASS；本子 Agent 的 `avd_gate.py` 复跑见 05（结果以该节为准） |
+| P3 | **AGP 原生游戏代码** + MOD 钩子层接入 AGP 构建 | **BLOCKED（已实证）**：enjarify 原生游戏代码能冷启动但 Tick 卡死（coroutine/Player 更新链自旋）；混合候选只是“AGP 打包 + legacy 游戏 DEX”，不是原生。详见 07 §5 与 §1.1 |
 | P4 | provenance schema 2 + 门禁 artifact 校验 | 未实现（字段清单见 03-gate-review.md `3.2） |
 | P5 | 私有输入 bundle 含官方基线/解码树/工具，且全部 SHA-256 固定 | 未实现（当前 bundle 只为旧链准备） |
 | P6 | verify workflow 有新的 AGP 报告契约（替代 verify-patch-contract.json） | 未实现 |
 
-结论：**现在不能切 CI**；先完成 P2/P3/P4/P5/P6，claude（candidate）保持阻断。
+结论：**现在不能切 CI**；先完成 P2/P3/P4/P5/P6，candidate 保持阻断。
+
+### 1.1 新实证：AGP 原生游戏代码 BLOCKED（2026-11-13 23:16）
+
+- 证据：`reports/R107-01/lead-evidence/native-blocker/sigquit-trace.txt`（pid 5897）、
+  `baseline-enjarify-t1/t2.png`、`reports/R107-01/lead-evidence/logcat-boot.txt`。
+- 现象：冷启动 PASS（0 FATAL / 0 VerifyError、MOD UI 正常），但游戏 Tick 不推进（AM 冻结）；
+  无钩子基线同样卡死 → 与 MOD 钩子无关，是 enjarify 运行期语义不保真。
+- SIGQUIT：`AntimatterGameThread`（state=R，utm=5935）与 `DefaultDispatcher-worker-1/2`（utm=6107/5928）
+  等多个线程同时停在 `Player.k0 → Player.l0 → SpeedrunMilestone$complete$1.invokeSuspend` 更新链；
+  主线程仅正常 `HardwareRenderer.nSyncAndDrawFrame`。详见 07 §5。
+- 门禁含义：`agp_native_gameplay_status` 不是 PASS 前，任何“AGP 原生”候选都不得进入 Candidate；
+  过渡混合包只能标记 `agp-package-with-legacy-game-dex` 且禁止发布（03-gate-review §3.4）。
+
+### 1.2 新实证：D8/构建门禁盲点 —— 原生游戏代码候选必须加 JVMS 校验
+
+来自 agp-dex 的 JVMS 审计（`reports/R107-01/agp-dex/R107-01-agp-dex-REPORT.md` §5、`evidence/04-jvm-verify-final.txt`）：
+
+- enjarify 产物 **15,344 类中 5,195 类（33.9%）不符合 JVM 规范**：3,280 类 `VerifyError: Call to wrong initialization method`
+  + 1,915 类 `ClassFormatError`（接口 default/static 方法，classfile v49 限制）；纯官方 jar 同样 5,194/15,319。
+- **D8 整包与逐类编译全 PASS、AGP 构建/签名 PASS、冷启动 PASS 都没有发现这 33.9%**；热路径全在不合法集合内。
+- 因此 CI 必须增加 **JVMS 校验门禁**（工具：`scripts/dexfix/r107/java/JarVerifyAudit.java`，JDK21 + android.jar）：
+  - candidate job：对声明的 game jar 校验，`jvms_invalid` 必须为 0，`inconclusive` 逐条复核；
+  - verify job：用同一 pinned bundle **独立重跑**，与 candidate 报告的计数/SHA 必须一致；
+  - 记录 `tool_sha256/android_jar_sha256/classes_total/jvms_pass/jvms_invalid/invalid_categories/hot_path_classes/report_sha256` 入 provenance。
+- “D8 PASS + 冷启动 PASS + MOD UI 正常”不得作为运行期语义证据（03-gate-review §3.5）。
+- 现状：AGP 原生路线 `jvms_invalid=5,195` → 即使 Tick 卡死问题被绕过，也必须先过 JVMS 门禁。
 
 ## 2. 私有输入如何进入 CI（沿用现有 bundle 机制）
 
@@ -79,7 +111,9 @@ secrets keystore 注入、APK 独立验签、artifact 上传（`ad-oreki-candida
      --expect-sha256 "$UNSIGNED_SHA_BEFORE_SIGNING"  # 可选
    ```
    要求 required 全部 PASS；报告与 APK 一起上传。
-6. **生成 provenance（同一 job 内，构建之后立刻）**：写 `agp-provenance.json`（schema 2，字段见 03 `3.2），
+6. **生成 provenance（同一 job 内，构建之后立刻）**：写 `agp-provenance.json`（schema 2，字段见 03 §3.2/§3.4/§3.5），
+   必须包含 `game_code_compiled_by`（`agp-kotlin`/`agp-jvm-class`/`legacy-dex`）、`game_dex_source`（dex 数 + 逐 dex SHA-256）、
+   `jvms_audit`（原生候选必需，`jvms_invalid=0`）与 `agp_native_gameplay_status`。
    与 `candidate-metadata.json`、`SHA256SUMS.txt`、`accept-report.json`、`output-metadata.json` 一起放入
    `$RUNNER_TEMP/candidate/` 并上传。
 7. **独立验签**（保留现有步骤）：apksigner 证书 = `EXPECTED_CERT_SHA256`；包名/版本用 aapt2 复核。
@@ -97,7 +131,9 @@ secrets keystore 注入、APK 独立验签、artifact 上传（`ad-oreki-candida
      不信任 candidate 上传的 accept-report；两者数字必须一致）；
   3. provenance 里的 `source_sha` == `candidate-metadata.source_sha` == 触发时校验的 source SHA；
      `candidate_run_id` == 本 run；`apk.sha256` == 实际 APK；`signing.cert_sha256` == apksigner 实测；
-  4. 产物：`verification-record.json` 增加 `accept_report_sha256`、`provenance_sha256`。
+  4. **JVMS 独立复算（原生候选必需）**：用 pinned bundle 中的 game jar/android.jar 重跑 `JarVerifyAudit`，
+     要求 `jvms_invalid=0` 且与 provenance 的 `jvms_audit` 计数一致；`legacy-dex` 候选直接拒绝；
+  5. 产物：`verification-record.json` 增加 `accept_report_sha256`、`provenance_sha256`、`jvms_report_sha256`。
 - 之后 release-gate `enforce_agp_only.py artifact` 自动获得 schema 2 校验；release-gate-policy 的 8 项
   AVD 检查与 180 分钟 completion **保持原样**。
 
@@ -110,6 +146,24 @@ secrets keystore 注入、APK 独立验签、artifact 上传（`ad-oreki-candida
   "agp_version": "9.5.1",
   "gradle_version": "9.8.2",
   "build_task": ":app:assembleRelease",
+  "packaging_mode": "agp-native-fullgame",
+  "game_code_compiled_by": "agp-jvm-class",
+  "game_dex_source": {
+    "dex_count": 2,
+    "dex_sha256": ["<classes.dex sha256>", "<classes2.dex sha256>"],
+    "source_artifact_sha256": "<game jar SHA-256>",
+    "build_report_sha256": "<gamejar-report SHA-256>"
+  },
+  "jvms_audit": {
+    "tool": "scripts/dexfix/r107/java/JarVerifyAudit.java",
+    "tool_sha256": "<脚本 SHA-256>",
+    "classes_total": 0, "jvms_pass": 0, "jvms_invalid": 0, "inconclusive": 0,
+    "invalid_categories": {"VerifyError": 0, "ClassFormatError": 0},
+    "hot_path_classes": ["Player.k0", "..."],
+    "report_sha256": "<JVMS 输出 SHA-256>"
+  },
+  "agp_native_gameplay_status": "PASS",
+  "agp_native_blocker_evidence_sha256": null,
   "build_flags": {
     "orekiFullGame": "true",
     "orekiDecodedTree": "work/mod",
@@ -157,9 +211,14 @@ secrets keystore 注入、APK 独立验签、artifact 上传（`ad-oreki-candida
 
 ## 7. 仍未解决/需 Lead 决策
 
-- **P3 钩子层**：当前 AGP 候选没有 MOD 钩子（smali 补丁层未接入）。没有钩子的包不能当正式候选，
-  这是当前最大的功能性阻断（即使结构/冷启动 PASS）。
-- **enjarify 依赖**：需要固定版本与许可记录（Apache-2.0），并确认可离线运行；建议打进 bundle。
+- **P3 AGP 原生游戏代码（最高阻断）**：enjarify 路线已实证 BLOCKED（Tick 卡死）；下一步只能走
+  “关键类 Kotlin 重建/可信转换器”路线，且必须在 AVD 真实跑出 Tick 推进与玩法证据。混合候选
+  `c25c68dc` 只是“AGP 打包 + legacy 游戏 DEX”的过渡验证，不得发布，也不得标成 native（03 §3.4、07 §6）。
+- **P3b 钩子层**：当前候选仍然只包含过渡游戏 DEX 的钩子；AGP 原生钩子/ABI 适配未接入。
+- **JVMS 校验门禁实现**：`JarVerifyAudit.java` 需在 CI（JDK21 + android.jar）落地，candidate/verify 双跑，
+  记录 `jvms_invalid/inconclusive/hot_path_classes`；这是“原生候选”的最低可信度门槛（当前 enjarify 5,195 不合法 → 必 BLOCK）。
+- **enjarify 依赖与可修性**：固定版本/许可（Apache-2.0）之外，agp-dex 结论是 enjarify 需 classfile ≥v52 + StackMapTable、
+  重写 DEX 子类调父构造模式、全量 JVMS 门禁、差分语义测试——属转换器级工程，本轮不可修，建议转 Kotlin 关键闭包重建。
 - **bundle 体积/时间**：官方 XAPK 78MB + 解码树数百 MB；需确认私有托管与 120min 超时余量。
 - **签名方案**：候选 v2-only vs R103 v3-only。交付要求是“同一证书”，方案差异需 Lead 决定是否统一（建议统一 v2+v3）。
 - **官方 XAPK 只有 armeabi-v7a split**：4 ABI Universal 是 MOD 约定，provenance 必须记录 8 个 .so 的 SHA，
