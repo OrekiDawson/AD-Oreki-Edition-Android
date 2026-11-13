@@ -40,6 +40,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import uuid
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -377,6 +378,67 @@ def check_environment() -> int:
     return 0 if failures == 0 else 1
 
 
+def preflight_write_channels() -> int:
+    """Probe write/delete permissions without changing APK latest, release tags or state.
+
+    A small probe cannot guarantee a later large multipart upload, but it catches
+    expired OAuth tokens before overwriting a known-good local latest.
+    """
+    failures: list[str] = []
+    root = local_dir()
+    if not root.is_dir() or not os.access(root, os.W_OK):
+        failures.append(f"local: release root not writable: {root}")
+    if not command_exists("rclone"):
+        failures.append("cloud: rclone missing")
+    else:
+        with tempfile.TemporaryDirectory(prefix="oreki-upload-preflight-") as scratch:
+            payload = Path(scratch) / "write-probe.txt"
+            payload.write_text("oreki-release-write-preflight\n", encoding="utf-8")
+            for label, env_name, kind, dir_name, default_dir in (
+                ("onedrive", "AD_ONEDRIVE_REMOTE", "onedrive", "AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR),
+                ("gdrive", "AD_GDRIVE_REMOTE", "drive", "AD_GDRIVE_DIR", DEFAULT_GDRIVE_DIR),
+            ):
+                remote, _ = resolve_remote(env_name, kind)
+                directory = setting(dir_name, default_dir)
+                if not remote or not directory:
+                    failures.append(f"{label}: configured remote/directory missing")
+                    continue
+                target = remote_spec(remote, directory, f".oreki-write-probe-{uuid.uuid4().hex}.txt")
+                uploaded = False
+                try:
+                    run(["rclone", "copyto", str(payload), target,
+                         "--retries", "1", "--low-level-retries", "1"], check=True, timeout=90)
+                    uploaded = True
+                    meta = json.loads(run(["rclone", "lsjson", target, "--stat"],
+                                          check=True, timeout=45).stdout)
+                    if meta.get("Size") != payload.stat().st_size:
+                        raise RuntimeError("probe upload size mismatch")
+                    say(f"{label}: verified short-lived remote write/read metadata")
+                except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
+                    failures.append(f"{label}: write authorization/readback failed: {exc}")
+                finally:
+                    # Never delete a user file: unique name, only created by this run.
+                    if uploaded:
+                        try:
+                            run(["rclone", "deletefile", target], check=True, timeout=45)
+                        except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+                            failures.append(f"{label}: failed to clean probe file: {exc}")
+    repo = github_repo()
+    if not repo or not command_exists("gh"):
+        failures.append("github: repository or gh CLI unavailable")
+    else:
+        auth = run(["gh", "auth", "status", "--hostname", "github.com"], timeout=30)
+        permission = run(["gh", "api", f"repos/{repo}", "--jq", ".permissions.push"], timeout=30)
+        if auth.returncode or permission.returncode or permission.stdout.strip() != "true":
+            failures.append("github: authenticated repository push permission not confirmed")
+    if failures:
+        for issue in failures:
+            say(f"PREFLIGHT FAIL: {issue}")
+        return 2
+    say("PREFLIGHT PASS: local and cloud probes cleaned, gh authorization present; latest unchanged")
+    return 0
+
+
 def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object], state: dict[str, object], dry_run: bool) -> None:
     """[R96 规则更新] 本地 SSH/SFTP 只覆盖固定文件名，不做版本归档。
 
@@ -484,7 +546,7 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
         shutil.copyfile(checksum, asset_sum)
         if sha256_file(asset_apk) != apk_info["sha256"]:
             raise RuntimeError("github: 附件暂存副本与已验证 APK 不一致，拒绝上传")
-        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", release_title, "--notes-file", str(notes_path), "--target", "main"]
+        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", release_title, "--notes-file", str(notes_path), "--target", "main", "--prerelease", "--latest=false"]
         say(f"github: {' '.join(command)}")
         if not dry_run:
             existing = run(["gh", "release", "view", tag, "--repo", repo, "--json", "assets"])
@@ -526,6 +588,19 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
         shutil.rmtree(checksum_dir, ignore_errors=True)
 
 
+def promote_verified_github_release(version: str, sha256: str) -> None:
+    """Only a fully verified four-channel release can become GitHub Latest."""
+    repo = github_repo()
+    if not repo:
+        raise RuntimeError("GitHub repository unresolved: cannot promote stable release")
+    tag = f"android-update-{version}-{sha256[:8]}"
+    # Newly created Releases are prereleases. A failed cloud upload must never
+    # briefly mark an APK stable; this is the sole stable promotion entrypoint.
+    run(["gh", "release", "edit", tag, "--repo", repo,
+         "--prerelease=false", "--latest"], check=True, timeout=60)
+    say(f"github: 四渠道均成功，已晋升 {tag} 为正式 Latest")
+
+
 def demote_failed_github_release(version: str, sha256: str) -> None:
     """[R104-06] 发布不完整时把刚创建的 GitHub Release 降级为 Pre-release，并把 Latest 还给最近稳定版。
 
@@ -561,6 +636,7 @@ def demote_failed_github_release(version: str, sha256: str) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AD-Oreki-Edition Android 四渠道 APK 交付")
     parser.add_argument("--check", action="store_true", help="只检查配置、权限和服务")
+    parser.add_argument("--preflight-write", action="store_true", help="短暂真实写入再删除云端探针；不改稳定版/发布状态")
     parser.add_argument("--dry-run", action="store_true", help="展示操作，不写本地、不上传")
     parser.add_argument("--local-only", action="store_true", help="只更新 SSH/SFTP 本地目录")
     parser.add_argument("--publish", action="store_true", help="显式执行正式渠道交付")
@@ -578,6 +654,8 @@ def main() -> int:
     args = parse_args()
     if args.check:
         return check_environment()
+    if args.preflight_write:
+        return preflight_write_channels()
     if args.dry_run and args.publish:
         raise RuntimeError("--dry-run 与 --publish 不能同时使用")
     if not args.local_only and not args.dry_run and not args.publish:
@@ -654,6 +732,18 @@ def main() -> int:
             demote_failed_github_release(args.version, str(apk_info["sha256"]))
         say(f"部分渠道失败：{','.join(failed)}；已保留成功渠道，不重建 APK")
         return 2
+    # A --only/--retry-failed operation does NOT authorize a partial release.
+    # Promotion is allowed only once all four persisted channel results for the
+    # SAME APK SHA are success; load_or_create_state ties these to this SHA.
+    if not args.local_only and all(
+        (state.get("channels", {}).get(name) or {}).get("status") == "success"
+        for name in CHANNELS
+    ):
+        try:
+            promote_verified_github_release(args.version, str(apk_info["sha256"]))
+        except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+            say(f"GitHub 正式晋升失败（仍保持 Pre-release）：{exc}")
+            return 2
     say("所选渠道全部完成；详情已写入本地 release-info.json")
     return 0
 

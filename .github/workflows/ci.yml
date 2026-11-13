@@ -73,6 +73,8 @@ jobs:
           }
           git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
           python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
+      - name: Test four-channel delivery preflight and stable-release promotion
+        run: python3 -m unittest discover -s scripts/tests -p 'test_delivery_preflight.py' -v
       - name: Validate baseline configuration format
         run: |
           python3 - <<'PY'
