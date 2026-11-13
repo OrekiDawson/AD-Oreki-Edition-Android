@@ -232,3 +232,18 @@
 - 2026-11-14 01:58–02:20 宿主机 load average 17–20（qemu 622% + 并发构建/浏览器跑次），
   gate-gui 的 EP 尺度跑次里程碑明显慢于 R105-03（首永恒 375.7s vs 本跑 ~600s+），
   **所有该窗口内的墙钟数字标注为「受争抢污染，非基准」**；干净基准需在宿主空闲时重跑（后续轮次）。
+
+### 10.6 混合转换器 r4cur/r5cur（当前树，2026-11-14 02:30）与 P1 修复
+
+- **r4cur**（当前树，batch1+EP 尺度+G1/G2/G4+货币修复）：SHA `6b293ed7…`，15,344 类，
+  **JVMS verify_ok 15,092 / invalid 238（98.4% 合法）**，热路径 11 类全部 VALID，
+  整包 D8 PASS（0 warning），76 补丁类逐类 D8 76/76 PASS，结构审计 changed 4,773 类、仅新增 2,698 synthetic <init>、
+  **0 删除方法/字段**；与旧树 r4 的差异仅当前树 5 个补丁类（DeviceOptions$Appearance/Player$Options/player.h/prestige.c/shop.Purchases）。
+- **r5cur**（对照）：invalid **77（99.5% 合法）**，但含 160 个 dex2jar 替换类（108 默认包游戏类），语义风险高，仅作对照。
+- **AGP APK**：`native-r4cur.apk`（7f911239…，81.5MB，AGP 原生游戏代码 r4cur，含 batch1+EP 尺度）；结构验收待跑。
+- **P1 修复（commit 876c7351）**：永恒层经济动作与主动永恒门禁解耦——
+  `GameApi.eternityEconomyTick()` 反射调用 TT/TD/TS 三个既有 Smali 业务动作（不改 Smali），
+  `tickEternityGated()` 在 cannot-eternity/ep-gain-too-low 时只跑经济动作（开关关闭/Doomed/未 Break 仍整体停手），
+  `resolveUrgentTask` 仅在 canAutomateEternityUpgrades()+可负担时才占 eternity 名额。
+  根因来自 gate-gui AVD 实测（首永恒后 TT=0、时间研究 0、idBuy=0）。
+- **验证状态**：hybrid-etecon 候选构建 PASS；AVD 真实验证进行中（首永恒后 TT/时间研究/第二次永恒是否恢复），结果另行记录。
