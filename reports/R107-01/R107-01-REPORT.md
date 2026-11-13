@@ -62,6 +62,21 @@
 - 脚本：`scripts/agp_hybrid_package.py`（dex 顺序、类数、输入输出 SHA、原证书断言，报告 JSON）。
 - AVD：install -r Success、COLD 启动、MOD UI、Tick 增长、0 FATAL → **PASS**。
 
+
+### 2.5 追加证据（23:40，agp-dex 子 Agent）：enjarify 固有 JVMS 不合法
+
+- 新增 `scripts/dexfix/r107/java/JarVerifyAudit.java`，对 enjarify 产物逐类触发 HotSpot JVMS 校验：
+  **最终 jar 15,344 类中 5,195 类（33.9%）不合法**（3,280 VerifyError「Call to wrong initialization method」+
+  1,915 ClassFormatError）；**纯官方 enjarify jar 同样 5,194/15,319** → 固有缺陷，与 MOD 补丁/shadow remap 无关。
+- 根因：① DEX 合法的「new Sub + invoke-direct Super.<init>」父类构造拼接被原样译为 JVM 非法 invokespecial；
+  ② enjarify 固定输出 classfile v49，无法表达接口 default/static 方法（ox0 default → ClassFormatError，
+  整条 ox0→gk0→dc2→cv0→ba1 调度器接口链不可加载）。
+- **热路径类全部在不合法集合**：rk8/nc8/k51/t01（VerifyError）、dc2/cv0/gk0/ba1（受 ox0 污染），
+  与 SIGQUIT 自旋栈一致。
+- **门禁盲点**：D8 对非法输入全部静默接受（整包 D8 PASS；单类 D8 对 k51/ox0/rk8/t01/nc8 也 PASS），
+  因此「AGP 构建成功 + D8 全通过 + 冷启动成功」不能证明运行期语义；后续门禁必须增加 JVMS 校验/运行期 Tick 门禁。
+- 结论：enjarify 路线不可修于站点级，需转换器级改造或 Kotlin 关键闭包重建；已按停损条件转 Kotlin。
+
 ## 3. 主线 B：全量语义反混淆（进行中）
 
 真实分母不变：第一方 10,954 类（默认包 9,712 + kajfosz 1,242）/ 51,397 方法 / 41,793 字段。
