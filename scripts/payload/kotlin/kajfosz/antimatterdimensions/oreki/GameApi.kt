@@ -864,6 +864,52 @@ internal object GameApi {
      */
     fun realitiesValue(): Any? = readGameField(player(), "realities")
 
+    // ------------------------------------------- [R107-01 A2] Web isOrekiBootstrapRun 的 Android 等价
+    //
+    // Web 基线（src/core/oreki-bootstrap.js）：
+    //   bootstrap = !PlayerProgress.realityUnlocked() || !TimeStudy.reality.isBought
+    // 其中 TimeStudy.reality = DilationTimeStudyState.studies[6]（膨胀研究 id 6，即解锁现实的
+    // 那一个）；每次现实重置都会清空 player.dilation.studies，所以该窗口在**每个现实循环**
+    // 内重新打开。EP 兑换除数 30 与膨胀研究 TT 成本 /1000 都以这个判据为准。
+    //
+    // Android 原实现只用 realities==0（OrekiEpGainScale），首次现实后立即回到 308，
+    // 导致 EP 收益骤降、现实链推进变慢。这里补上「当前现实是否已购买膨胀研究 6」判据，
+    // 全异常 fail-closed 返回 true（宁可给缩放，也不回到原版 308 尺度）。
+    private var mDilationGetter: java.lang.reflect.Method? = null
+    private var mDilationStudiesGetter: java.lang.reflect.Method? = null
+    private var mDilationResolved = false
+
+    fun isOrekiBootstrapRun(): Boolean {
+        val realities = realitiesValue() ?: return true
+        val cmpZero = compareToDouble(realities, 0.0) ?: return true
+        if (cmpZero <= 0) return true
+        return try {
+            val p = player() ?: return true
+            if (!mDilationResolved) {
+                mDilationResolved = true
+                mDilationGetter = try {
+                    p.javaClass.getMethod("t")
+                } catch (_: Throwable) {
+                    null
+                }
+                val dilation = mDilationGetter?.invoke(p)
+                mDilationStudiesGetter = dilation?.let {
+                    try {
+                        it.javaClass.getMethod("h")
+                    } catch (_: Throwable) {
+                        null
+                    }
+                }
+            }
+            val dilation = mDilationGetter?.invoke(p) ?: return true
+            @Suppress("UNCHECKED_CAST")
+            val studies = mDilationStudiesGetter?.invoke(dilation) as? List<*> ?: return true
+            studies.none { (it as? Number)?.toInt() == 6 }
+        } catch (_: Throwable) {
+            true
+        }
+    }
+
     /** [R98] `bigRealities`（可能为 Number，读不到返回 null）。 */
     fun bigRealitiesValue(): Any? = readGameField(player(), "bigRealities")
 

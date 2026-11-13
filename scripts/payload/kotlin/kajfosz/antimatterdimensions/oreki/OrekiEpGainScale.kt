@@ -68,11 +68,7 @@ object OrekiEpGainScale {
      * 任一读取失败 fail-closed 返回 false（退回原版尺度），不猜阶段。
      */
     private fun readPreFirstReality(): Boolean {
-        val realities = GameApi.realitiesValue() ?: return false
-        val cmp = GameApi.compareToDouble(realities, 0.0) ?: return false
-        if (cmp > 0) return false
-        val bigRealities = GameApi.bigRealitiesValue() ?: return false
-        if (bigRealities is Number && bigRealities.toLong() != 0L) return false
-        return true
+        // [R107-01 A2] 与 Web isOrekiBootstrapRun() 对齐：现实未解锁 或 当前现实未购买膨胀研究 6。
+        return GameApi.isOrekiBootstrapRun()
     }
 }
