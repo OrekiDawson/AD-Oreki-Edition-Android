@@ -135,7 +135,7 @@ R107-01 实测出现两种**都叫“AGP”但语义完全不同**的构建形�
 | 形态 | 游戏代码来源 | 允许用途 |
 |---|---|---|
 | `agp-native-fullgame` | 游戏代码由 AGP/D8 从 JVM class 编译（enjarify / Kotlin 重建） | 只有该形态可进入正式 Candidate |
-| `agp-package-with-legacy-game-dex` | AGP 只负责 Manifest/Resources/assets/ABI/签名/MOD Kotlin；游戏 DEX 来自 legacy work/mod 构建（§scripts/agp_hybrid_package.py§） | **仅过渡验证**，禁止晋升/发布/标注为“AGP 原生” |
+| `agp-package-with-legacy-game-dex` | AGP 只负责 Manifest/Resources/assets/ABI/签名/MOD Kotlin；游戏 DEX 来自 legacy work/mod 构建（`scripts/agp_hybrid_package.py`） | **仅过渡验证**，禁止晋升/发布/标注为“AGP 原生” |
 
 强制字段（schema 2 追加，缺任一即拒绝；不得放宽）——命名以 Lead/agp-dex 审计结论为准：
 

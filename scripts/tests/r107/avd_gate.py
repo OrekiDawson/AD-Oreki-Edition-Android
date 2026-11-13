@@ -43,9 +43,13 @@ from pathlib import Path
 
 PACKAGE = "com.oreki.antimatterdimensions"
 MAIN_ACTIVITY = f"{PACKAGE}/kajfosz.antimatterdimensions.MainActivity"
-SAVE_FILES = (
+# 3.21 实际保存文件名可能是 player.json / playerBackup / speedrunBackup*.json；
+# 这里全部按“已知存档候选”检查，任一存在且非空即认为产生了持久化存档。
+SAVE_CANDIDATES = (
     f"/data/data/{PACKAGE}/files/player.json",
     f"/data/data/{PACKAGE}/files/playerBackup",
+    f"/data/data/{PACKAGE}/files/speedrunBackup0.json",
+    f"/data/data/{PACKAGE}/files/speedrunBackup02.json",
 )
 # adb 可能不在 PATH（例如仅安装了 SDK platform-tools）；支持 --adb 或 ADB_BIN 指定。
 ADB = os.environ.get("ADB_BIN", "adb")
@@ -172,63 +176,85 @@ class Gate:
         self.save_text("11-cold-start-logcat.txt", text)
         crashes = self.crash_counts(text)
         pid = adb_shell(self.device, f"pidof {PACKAGE}").stdout.strip()
-        resumed = adb_shell(self.device, "dumpsys activity activities | grep -i mResumedActivity")
+        resumed = adb_shell(self.device, "dumpsys activity activities | grep -iE 'topResumedActivity|mResumedActivity|ResumedActivity' | head -3")
         top = resumed.stdout.strip()
         shot = self.screenshot("12-cold-start.png")
-        has_display = "Displayed" in start_out
-        ok = (has_display and bool(pid) and not any(crashes.values()) and shot is not None
+        # API 37 的 am start -W 输出是 Status: ok + LaunchState/TotalTime，不再打印 "Displayed"。
+        started_ok = "Status: ok" in start_out and ("LaunchState:" in start_out or "TotalTime:" in start_out)
+        ok = (started_ok and bool(pid) and not any(crashes.values()) and shot is not None
               and PACKAGE in top)
         self.add("launch", "PASS" if ok else "FAIL",
-                 f"am start -W: Displayed={has_display} pid={pid or 'none'} resumed={top or 'unknown'} "
+                 f"am start -W: Status=ok:{started_ok} pid={pid or 'none'} resumed={top or 'unknown'} "
                  f"crashes={crashes} screenshot={shot.name if shot else 'none'}")
 
-    def read_save(self) -> tuple[bool, str]:
+    def _stat_path(self, path: str) -> tuple[bool, int]:
+        """adb root 下 shell 已是 root；'su 0' 不存在时退回直接 stat。"""
+        for prefix in ("", "su 0 "):
+            out = adb_shell(self.device, f"{prefix}stat -c '%s %Y' {path} 2>/dev/null").stdout.strip()
+            token = out.split()
+            if len(token) == 2 and token[0].isdigit():
+                return True, int(token[0])
+        return False, 0
+
+    def save_snapshot(self) -> dict[str, int]:
+        """返回所有存在的已知存档候选 -> 字节数。"""
         if not self.args.allow_root:
-            return True, "未传 --allow-root：跳过存档文件读取"
+            return {}
+        found: dict[str, int] = {}
+        lines = []
+        for path in SAVE_CANDIDATES:
+            exists, size = self._stat_path(path)
+            lines.append(f"{path}\tsize={'?' if not exists else size}")
+            if exists and size > 0:
+                found[path] = size
+        self.save_text("20-save-files-stat.txt", "\n".join(lines))
+        return found
+
+    def write_save_dump(self) -> None:
+        if not self.args.allow_root:
+            return
         parts = []
-        for path in SAVE_FILES:
-            result = adb_shell(self.device, f"su 0 sh -c 'ls -l {path} 2>/dev/null && cat {path}'")
-            text = result.stdout + result.stderr
-            parts.append(f"== {path}\n{text[:200000]}")
-        blob = "\n".join(parts)
-        self.save_text("20-save-files.txt", blob)
-        return True, blob
+        for path in SAVE_CANDIDATES:
+            for prefix in ("", "su 0 "):
+                text = adb_shell(self.device, f"{prefix}cat {path} 2>/dev/null").stdout
+                if text.strip():
+                    parts.append(f"== {path}\n{text[:300000]}")
+                    break
+        self.save_text("20-save-files.txt", "\n".join(parts) if parts else "（无存档文件可读）")
+
+    def press_home(self) -> None:
+        """HOME 触发 onPause/onStop 自动保存，再 force-stop，避免直接杀死导致不落盘。"""
+        adb_shell(self.device, "input keyevent KEYCODE_HOME")
+        adb_shell(self.device, "sleep 3")
 
     def restart_load(self) -> None:
-        before_exists = False
-        before_size = 0
-        if self.args.allow_root:
-            stat = adb_shell(self.device, f"su 0 stat -c '%s %Y' {SAVE_FILES[0]} 2>/dev/null")
-            token = stat.stdout.strip().split()
-            before_exists = len(token) == 2
-            before_size = int(token[0]) if before_exists else 0
+        self.press_home()
+        before = self.save_snapshot()
         adb_shell(self.device, f"am force-stop {PACKAGE}")
         adb(self.device, "logcat", "-c")
         start = adb_shell(self.device, f"am start -W -n {MAIN_ACTIVITY}", timeout=180)
         start_out = start.stdout + start.stderr
         self.save_text("21-restart-start.txt", start_out)
-        adb_shell(self.device, "sleep 8")
+        adb_shell(self.device, "sleep 10")
         text = self.logcat()
         self.save_text("21-restart-logcat.txt", text)
         crashes = self.crash_counts(text)
         pid = adb_shell(self.device, f"pidof {PACKAGE}").stdout.strip()
+        resumed = adb_shell(self.device, "dumpsys activity activities | grep -iE 'topResumedActivity|mResumedActivity|ResumedActivity' | head -3").stdout.strip()
         shot = self.screenshot("22-restart.png")
-        after_exists, after_blob = self.read_save()
-        after_size = 0
-        if self.args.allow_root:
-            stat = adb_shell(self.device, f"su 0 stat -c '%s %Y' {SAVE_FILES[0]} 2>/dev/null")
-            token = stat.stdout.strip().split()
-            after_size = int(token[0]) if len(token) == 2 else 0
-        save_ok = (not self.args.allow_root) or (after_exists and after_size > 0)
+        after = self.save_snapshot()
+        self.write_save_dump()
+        started_ok = "Status: ok" in start_out and ("LaunchState:" in start_out or "TotalTime:" in start_out)
+        save_ok = (not self.args.allow_root) or (bool(after) and any(v > 0 for v in after.values()))
         ok = (bool(pid) and not any(crashes.values()) and shot is not None
-              and "Displayed" in start_out and save_ok)
+              and started_ok and save_ok and PACKAGE in resumed)
         self.add("restart-load", "PASS" if ok else "FAIL",
-                 f"force-stop+重启: Displayed={'Displayed' in start_out} pid={pid or 'none'} "
-                 f"crashes={crashes} save_before={before_size}B save_after={after_size}B "
+                 f"force-stop+重启: Status=ok:{started_ok} pid={pid or 'none'} resumed={resumed or 'unknown'} "
+                 f"crashes={crashes} save_before={before or '{}'} save_after={after or '{}'} "
                  f"screenshot={shot.name if shot else 'none'}")
         if self.args.allow_root:
             self.add("save-file-persist", "PASS" if save_ok else "FAIL",
-                     f"player.json 重启前 {before_size}B / 重启后 {after_size}B；文件存在={after_exists}")
+                     f"重启前存档={before or '{}'}；重启后存档={after or '{}'}")
         else:
             self.add("save-file-persist", "NOT RUN", "未传 --allow-root：无法读取 /data/data 存档")
 
