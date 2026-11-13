@@ -1,5 +1,5 @@
 {
-  "tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed",
+  "tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod",
   "checks": [
     {
       "id": "G1-eternity-group-covered",
@@ -9,18 +9,16 @@
     },
     {
       "id": "G1-kotlin-gate-covers-eternity-layer",
-      "state": "FAIL",
-      "detail": "gate name list misses ['dilation', 'eternityChallenges']",
-      "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt: 905"
-      ]
+      "state": "PASS",
+      "detail": "all 7 eternity-layer keys gated",
+      "evidence": []
     },
     {
       "id": "G3-bm4-gate-markers",
       "state": "PASS",
       "detail": "marker R101P0_TAB_GATE count=2 (expected 2)",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/bm4.smali"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/bm4.smali"
       ]
     },
     {
@@ -28,7 +26,7 @@
       "state": "PASS",
       "detail": "marker R101P0_CATEGORY_GATE count=1 (expected 1)",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/ll2.smali"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/ll2.smali"
       ]
     },
     {
@@ -36,7 +34,7 @@
       "state": "PASS",
       "detail": "marker R101P0_RESTORE_GATE count=1 (expected 1)",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali"
       ]
     },
     {
@@ -44,7 +42,7 @@
       "state": "PASS",
       "detail": "marker R101P0_CURRENT_SUBTAB_GATE count=1 (expected 1)",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali"
       ]
     },
     {
@@ -52,8 +50,8 @@
       "state": "PASS",
       "detail": "2/2 injection(s) load iget-object v0, p0, Luo4;->b:Ljava/lang/String;",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/bm4.smali:372",
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/bm4.smali:497"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/bm4.smali:372",
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/bm4.smali:497"
       ]
     },
     {
@@ -61,7 +59,7 @@
       "state": "PASS",
       "detail": "1/1 injection(s) load iget-object v0, p0, Luo4;->b:Ljava/lang/String;",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/ll2.smali:287"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/ll2.smali:287"
       ]
     },
     {
@@ -69,7 +67,7 @@
       "state": "PASS",
       "detail": "1/1 injection(s) load Luo4;->b:Ljava/lang/String;",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali:24482"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali:24482"
       ]
     },
     {
@@ -77,7 +75,7 @@
       "state": "PASS",
       "detail": "1/1 injection(s) load Luo4;->b:Ljava/lang/String;",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali:54115"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali:54115"
       ]
     },
     {
@@ -85,9 +83,9 @@
       "state": "PASS",
       "detail": "bottom ETERNITY action gated by Kotlin",
       "evidence": [
-        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-gates/mod-fixed/smali_classes2/kajfosz/antimatterdimensions/mainactivity/l0.smali"
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/mainactivity/l0.smali"
       ]
     }
   ],
-  "failed": 1
+  "failed": 0
 }

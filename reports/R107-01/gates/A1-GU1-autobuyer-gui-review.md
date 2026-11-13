@@ -1,6 +1,6 @@
 # A1 / GU1：自动购买器与实时 GUI（P1）代码审查 + 历史证据 + 本轮复验排期
 
-状态：代码审查 **PASS（未发现新缺陷）**；历史真实 AVD 证据 **PASS**；本轮 AVD 复验 **NOT RUN**。
+状态：代码审查 **PASS（未发现新缺陷）**；历史真实 AVD 证据 **PASS**；本轮 AVD 复验：**GU1 PASS（真实页面）**、**A1 NOT RUN（导航控件不可访问，见 §4）**。
 
 ## 1. 自动购买器总开关（A1）
 
@@ -58,3 +58,19 @@ galaxies 0→23），说明自动购买器真实运转 —— **但那次是「�
 
 - 代码层未发现新的自动购买器/GUI 缺陷；R101/R103 的修复仍在位。
 - 历史 PASS 不等于本轮 PASS；本轮设备侧复验未执行，统一标 **NOT RUN**，结果出来后回填本节。
+## 4. 本轮 AVD 实测（2026-11-13 23:34–23:45，混合候选 c25c68dc）
+
+- **GU1（GUI 实时/阶段页面）PASS**：真实设备上观察到三种页面状态并留存截图——
+  新档标题页（`fresh-title-negative.png`）、无限阶段反物质维度页（`G1-ec-negative-page.png` 等）、
+  合法永恒档的时间研究页（`legal-timeStudies-positive-page.png`，EP 1.17e7、时间之理 12,802 随真实时间变化）、
+  以及「在你离开的 N 秒里」离线结算弹窗（数值真实变化）。`OREKI_GUI_STAGE`/`OREKI_NAV_REFRESH_APPLIED` 日志正常，
+  无 FATAL/ANR。
+- **A1（自动购买器总开关）NOT RUN — 阻碍**：无法在真实 GUI 完成开关操作链：
+  1) 游戏运行页没有向无障碍树暴露导航控件：frame-observer `/ui` 在游戏页返回 108 个节点（全部为当前页面内容，
+     无底部页签、无抽屉节点）；2) `uiautomator dump` 因页面持续重绘报 `could not get idle state`（仅弹窗可 dump）；
+  3) 左右边缘抽屉滑动、`KEYCODE_MENU`、顶部/底部坐标探测均未打开抽屉或切换页签。
+  因此「关闭总开关 → 2 s / 35 s / 重启后 `autobuyersOn=false`」本轮**未执行**，不用历史 R101 证据冒充本轮 PASS。
+  旁证（非验收）：候选 `player.json` 中 `auto.bigCrunch.isActive=true`，原版自动购买器分组在运转；
+  `autobuyersOn` 位于 `options` 下（非顶层键），没有 GUI 操作无法证明「关闭即停」。
+- 建议：Lead 手工在 GUI 关闭一次总开关（或提供导航坐标/无障碍导航方案）后，我补三段断言的设备验证。
+

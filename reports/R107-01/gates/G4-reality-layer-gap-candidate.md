@@ -1,6 +1,6 @@
 # G4（P0 候选）现实层页签同样未被阶段门禁覆盖：W8 恢复路径可在「首次现实」前打开现实/天神页面
 
-状态：**根因已静态定位 + 修复候选已产出（单测 42/42 PASS）/ AVD 复现 NOT RUN / 待 Lead 决策是否纳入本轮**
+状态：**已纳入本轮并合入；单测 42/42 PASS；ABI 验证 PASS；真实 AVD 负向拦截 PASS**
 
 ## 1. 与 G1 同源的第二层缺口
 
@@ -77,8 +77,9 @@ val allowed = when (tabName) {
 | 旧实现放行全部现实层键（缺陷复现） | PASS | 测试 `G3_legacy_allows_reality_layer_pre_reality`（allowed 列表 14 项） |
 | 候选实现拦截 / 现实后放行 / 不误伤普通页签 | PASS | 测试 `G3_proposed_* `、`ordinary_children_allowed_pre`（42/42 全绿） |
 | 生产补丁可应用 | PASS | `git apply --check` 输出 APPLY_OK |
-| **AVD 复现**（新档 + `currentSubTab=glyphs` 冷启动） | **NOT RUN** | 命令：`SUBTAB=glyphs tools/avd_g1_experiment.sh custom <apk> <outdir>` |
-| **AVD 修复后回归**（新档被拦 + 合法现实档正常） | **NOT RUN** | 待 Lead 决策与构建 |
+| 补丁已合入 + 旧链新构建 ABI 验证（17 个现实层键出现在 gate switch） | PASS | `evidence/G1G2G4-fixed-build-abi-evidence.txt` |
+| AVD 负向（新档 + `currentSubTab=glyphs` 冷启动） | **PASS（修复生效）** | `tab=glyphs allowed=false`(23:37:22.163) + `evidence/avd/G4-glyphs-negative-page.png`（反物质维度） |
+| AVD 合法现实档正向 | **NOT RUN** | 手头无合法现实存档样本；未用静态推断冒充 |
 
 ## 7. 复现命令（AVD 窗口内追加）
 

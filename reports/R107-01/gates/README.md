@@ -3,16 +3,25 @@
 子 Agent：gate-gui（task-6）。分支 `r107-01/agp-runtime`（HEAD 975520b4）。
 本目录只放 R107-01 本轮证据与结论；未 commit（Lead 统一提交）。
 
+## 0. 构建形态与结论适用范围（必读）
+
+- 本轮 AVD 结论全部来自 **混合候选** `c25c68dc…2fa3`：AGP 9.5.1 打包 Manifest/资源/assets/native/签名/MOD Kotlin DEX，
+  **游戏 + MOD 钩子 DEX 来自同一 `work/mod` 补丁树的过渡 DEX 输入，不是 AGP 编译的游戏代码**。
+- **AGP 原生游戏代码（enjarify JVM 类）路线 BLOCKED**（据 Lead 实测：可冷启动、MOD UI 正常，但游戏 Tick 卡死，
+  AM 停滞、SIGQUIT 显示 coroutine/Gson/Player 更新链 100% CPU 无限循环，无 FATAL/VerifyError；无钩子基线同样卡死）。
+  该路线不作为正式候选，本目录门禁结论**不得外推**到该路线。
+- 详见 `AVD-RESULTS.md` §0、§6。
+
 ## 1. 本轮结论一览
 
 | 编号 | 缺陷 | 优先级 | 根因已定位 | 修复产出 | 验证状态 |
 |---|---|---|---|---|---|
-| G1 | `vanillaEternityTabAllowed` 永恒层名单缺 `dilation`、`eternityChallenges`，两步恢复路径可在首次永恒前直达这两个永恒层页面 | P0 | 是（生产 Kotlin + 原版 jp4 注册表） | Kotlin 补丁 + 生成式回归测试 | 静态/单测 **PASS**；AVD 复现与修复后回归 **NOT RUN（等待 Lead AVD 窗口与新 APK）** |
-| G2 | `build.gradle` 的 `bm4.g()`/`bm4.h()` 门禁注入传 `Lbm4;->i`（图标字形）而非 `Luo4;->b`（业务键）→ 两个注入点恒放行（死门禁） | P1 | 是（build.gradle 注入 + jp4 构造寄存器映射） | build.gradle 补丁（交 Lead，不改本机 build.gradle） | 静态审计 **PASS（缺陷已复现，模拟修复树 11/11 PASS）**；真机/AVD **NOT RUN** |
+| G1 | `vanillaEternityTabAllowed` 永恒层名单缺 `dilation`、`eternityChallenges`，两步恢复路径可在首次永恒前直达这两个永恒层页面 | P0 | 是（生产 Kotlin + 原版 jp4 注册表） | Kotlin 补丁 + 生成式回归测试 | **PASS**：补丁合入 + ABI 验证 + 真实 AVD 负向拦截（EC/dilation）+ 合法档正向 |
+| G2 | `build.gradle` 的 `bm4.g()`/`bm4.h()` 门禁注入传 `Lbm4;->i`（图标字形）而非 `Luo4;->b`（业务键）→ 两个注入点恒放行（死门禁） | P1 | 是（build.gradle 注入 + jp4 构造寄存器映射） | build.gradle 补丁（交 Lead，不改本机 build.gradle） | **PASS**：17/17 审计 PASS、ABI 验证、真实 AVD 业务键日志 |
 | G3 | 门禁注入完整性审计（防止再次出现「注入存在但传错字段/漏注入」） | 工具 | — | `check_gate_wiring.py` | 当前树 **FAIL（复现 G1/G2）**；模拟修复树 **PASS 11/11** |
-| G4 | **现实层**页签（reality 6 / celestials 8 / automator）同样未被门禁覆盖，`W8` 恢复路径可在首次现实前打开这些页面（与 G1 同源的第二层缺口） | P0 候选 | 是（静态 + Web 判据；AVD 待复现） | 候选 Kotlin 补丁（G1+G4） | 单测 **42/42 PASS**；AVD 复现与合入决策 **NOT RUN / 待 Lead** |
-| A1 | 自动购买器总开关关闭即停、35 s 与重启后保持关闭（P1 回归） | P1 | 否（R101 已修 `OrekiPlayerIntent.refresh()` 错误恢复总开关） | 无新改动 | 历史 R101 证据 **PASS**；本轮 AVD 复验 **NOT RUN（同窗口排期）** |
-| GU1 | 阶段/资源/自动购买器页实时刷新、GUI 门禁（`OrekiGuiStage`/`OrekiNavRefresh`） | P1 | 否（R103 P0-01 已修缓存溢出 + 导航重算） | 无新改动 | 代码审查 + R105-04 验收证据 **PASS**；性能门禁不属本任务 |
+| G4 | **现实层**页签（reality 6 / celestials 8 / automator）同样未被门禁覆盖，`W8` 恢复路径可在首次现实前打开这些页面（与 G1 同源的第二层缺口） | P0 候选 | 是（静态 + Web 判据；AVD 待复现） | 候选 Kotlin 补丁（G1+G4） | **PASS**：单测 42/42、ABI 验证、真实 AVD `glyphs allowed=false`（合法现实档正向 NOT RUN） |
+| A1 | 自动购买器总开关关闭即停、35 s 与重启后保持关闭（P1 回归） | P1 | 否（R101 已修） | 无新改动 | 历史 R101 证据 **PASS**；本轮 AVD **NOT RUN**（运行页无可访问导航控件，见 `AVD-RESULTS.md` §5） |
+| GU1 | 阶段/资源/自动购买器页实时刷新、GUI 门禁（`OrekiGuiStage`/`OrekiNavRefresh`） | P1 | 否（R103 已修） | 无新改动 | 代码审查 + 本轮 AVD 真实页面（时间研究页/反物质维度页/离线结算弹窗）**PASS**；性能门禁不属本任务 |
 | B1 | R104 P1-02「Break interval 补贴缺失 → 二次 Break 7m59s」 | P1 | 部分（已归档实验，回滚原因=过早 Break 死锁） | 本轮不重做 | 记录 **BLOCKED/待设计**，不在本轮修复范围 |
 
 状态口径：PASS = 真实执行且证据齐全；FAIL = 真实执行失败；BLOCKED = 有明确外部阻碍；
@@ -22,6 +31,7 @@ NOT RUN = 未执行（不冒充通过）。
 
 | 证据 | 路径 |
 |---|---|
+| **AVD 实测汇总（G1/G4 负向、G2 日志、合法档正向、A1 NOT RUN）** | `AVD-RESULTS.md`、`evidence/avd/` |
 | G1 运行时证据：门禁对永恒层键 answered=true（`eternityUnlocked=false`） | `evidence/G1-runtime-tabgate-eternityChallenges.txt`（源：`reports/R106-01/avd-restored-candidate.log:588`） |
 | G2 运行时证据：候选 380dfbfb 启动日志里门禁收到的是字形 | `evidence/G2-runtime-tabgate-glyphs-380dfbfb.txt`（源：`docs/avd-acceptance/R105-04-candidate-43408627390/07-candidate-launch-logcat.txt`） |
 | G2 构建期证据：两处注入传 `Lbm4;->i` | `evidence/G2-buildgradle-glyph-injection-sites.txt` |
@@ -49,5 +59,6 @@ NOT RUN = 未执行（不冒充通过）。
 1. **G1 AVD 负向复现与修复后正向回归**：NOT RUN。需 Lead 给 AVD 窗口，以及用「合入两次修复后的候选 APK」验证；旧候选 380dfbfb 只能证明缺陷存在，不能替代修复后回归。
 2. **G2 真机/AVD 验证**：NOT RUN。修复属 `build.gradle` 注入层，必须由新构建产物验证（构建后运行 `check_gate_wiring.py --tree work/mod` 应为 11/11 PASS）。
 3. **自动购买器 A1 复验**：NOT RUN（同窗口排期：关闭→2 s/35 s/重启 后 `autobuyersOn=false`）。
-4. **G4 现实层门禁**：AVD 复现 `currentSubTab=glyphs` 的非法直达 + 合法现实档回归；默认不并入本轮，等 Lead 决策。
-5. **B1 Break interval 补贴**：本轮不修。原因：R104 归档实验引入「过早 Break → ID1 预留死锁」，需要新的窗口感知设计 + 真实新档验证，属独立轮次工作。
+4. **A1 自动购买器**：本轮 NOT RUN（导航控件不可访问）；需要 Lead 手工关闭一次总开关或提供导航方案后补 2 s/35 s/重启三段断言。
+5. **G4 合法现实档正向**：无合法现实存档样本，NOT RUN。
+6. **B1 Break interval 补贴**：本轮不修。原因：R104 归档实验引入「过早 Break → ID1 预留死锁」，需要新的窗口感知设计 + 真实新档验证，属独立轮次工作。

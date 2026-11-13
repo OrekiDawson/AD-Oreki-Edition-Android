@@ -10141,3 +10141,26 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - **发布状态**：正式 Candidate/Verify/Release **BLOCKED**（AGP 原生游戏代码运行期未通过；CI 无 AGP
   游戏代码链路）。R103 `android-update-3.21.0-3d924271` Latest 未变，未发布任何 APK。
 
+
+## R107-01 规则纠偏与页签门禁 AVD 实测事实（2026-11-13 深夜）
+
+- **上游监测边界纠偏**：允许对上游安全公告/重大缺陷/崩溃/存档/数据错误做**只读监测**用于评估选择性移植；
+  禁止未经用户授权自动升级、自动合并上游代码、修改冻结基线、自动改版本号或自动发布。
+- **基线升级三种边界**：研究评估（无需新授权，不得改冻结基线/整包替换；当前 P0 或 AGP 未完成不构成禁止研究评估的理由）/
+  用户授权（完整基线替换必须用户明确批准的新轮次）/ 正式发布门禁（完整升级发布前必判，条目见 DELIVERY_RULES 6.5.3）。
+- **versionCode 分离记录**：原版基线 versionCode `30210000` 与 MOD 独立发布 versionCode 分开登记；
+  每次新的正式发布 versionCode 必须**严格大于历史已发布最大值**（当前 `30210000`，R103 `android-update-3.21.0-3d924271`）。
+- **baseline/version-config.json 修正（按真实证据，非推测）**：`upstream.android.current_mod` 3.20.0→**3.21.0**、
+  `status` migration-in-progress→**released-stable**；新增 `baseline_version_code` / `mod_release_version_code` /
+  `mod_release_version_name` / `mod_release_tag` 与修正依据（candidate-metadata.json、GitHub Release）。原字段为 R85 快照。
+- **G1/G4 门禁 AVD 实测（混合候选 c25c68dc，AGP 打包过渡形态）**：
+  pm clear 新档 + 仅改 MyPrefsFile.currentSubTab → `tab=eternityChallenges allowed=false`、`tab=dilation allowed=false`、
+  `tab=glyphs allowed=false`，页面回退「反物质维度」且 prefs 被回写；对照旧候选 380dfbfb 同键 `allowed=true`（缺陷复现）。
+  合法永恒档（bigE=14、EP≈1.17e7）+ currentSubTab=timeStudies 正向真实打开时间研究页，永恒层全部 `allowed=true`。
+- **G2 AVD 实测**：修复后 ABI 反编译证实 `bm4.g()/h()` 调用 `vanillaEternityTabAllowed(this.b)`；
+  设备日志门禁收到全部业务键（timeDimensions/reality/celestials/automator/eternityChallenges），无 Δ/Ω/∞ 字形；FATAL 0。
+- **A1 自动购买器总开关回归 NOT RUN**：游戏运行页不向无障碍树暴露导航控件、uiautomator 因持续重绘无法 idle、
+  抽屉滑动/KEYCODE_MENU 无效 → 无法在真实 GUI 完成「关闭→2s→35s→重启」链路；不以历史 PASS 冒充。
+- **AVD 环境**：2026-11-13 23:34–23:45 独占 emulator-5554；实验前 /data/data 备份至
+  `/home/oreki/private-staging/r107-avd-backup/r107-data-backup-233411.tgz`，实验后已恢复并还原动画/省电/无障碍设置。
+- 证据：`reports/R107-01/gates/AVD-RESULTS.md`、`DEFECTS.md`、`evidence/avd/`。

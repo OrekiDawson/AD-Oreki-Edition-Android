@@ -10,6 +10,7 @@
 #   tools/avd_g1_experiment.sh dl    <apk> <outdir>   # currentSubTab=dilation（第二缺口）
 #   tools/avd_g1_experiment.sh custom <apk> <outdir>   # 用环境变量 SUBTAB 指定业务键（G3 现实层探测）
 #   tools/avd_g1_experiment.sh restore <apk> <outdir> # 还原备份
+#   tools/avd_g1_experiment.sh inject-save <save.json> <outdir>  # 注入合法存档到 files/player.json（及备份位）
 #   tools/avd_g1_experiment.sh leave <apk> <outdir>   # 结束：force-stop + 状态留档
 #
 # 空出 AVD 的约定：调用方负责申请时间窗；本脚本不启动/停止模拟器。
@@ -77,8 +78,8 @@ capture() {
   curl -s --max-time 8 "$OBS/snapshot.jpg" -o "$OUT/$tag-$t-snapshot.jpg" || say "WARN observer snapshot failed"
   curl -s --max-time 8 "$OBS/ui" -o "$OUT/$tag-$t-ui.json" || say "WARN observer ui failed"
   curl -s --max-time 8 "$OBS/stats" -o "$OUT/$tag-$t-stats.json" || true
-  # UI 树兜底：frame-observer 未启动时用系统 uiautomator dump（只读）
-  if [ ! -s "$OUT/$tag-$t-ui.json" ]; then
+  # UI 树兜底：frame-observer 不可用（503 / a11y_not_connected）时用系统 uiautomator dump（只读）
+  if [ ! -s "$OUT/$tag-$t-ui.json" ] || grep -q '"error"' "$OUT/$tag-$t-ui.json" 2>/dev/null; then
     a shell uiautomator dump /sdcard/r107-ui.xml >/dev/null 2>&1 || true
     a pull /sdcard/r107-ui.xml "$OUT/$tag-$t-ui.xml" >/dev/null 2>&1 || true
     a shell rm -f /sdcard/r107-ui.xml >/dev/null 2>&1 || true
@@ -93,11 +94,28 @@ capture() {
   echo "$tag-$t" >> "$OUT/captures.index"
 }
 
+enter_game() {
+  # 标题页有「开始游戏」按钮时点一次（坐标来自当前 uiautomator 树，不硬编码）
+  local t; t=$(ts)
+  a shell uiautomator dump /sdcard/r107-ui.xml >/dev/null 2>&1 || true
+  a pull /sdcard/r107-ui.xml "$OUT/title-$t-ui.xml" >/dev/null 2>&1 || true
+  a shell rm -f /sdcard/r107-ui.xml >/dev/null 2>&1 || true
+  if [ -f "$OUT/title-$t-ui.xml" ] && grep -q "开始游戏" "$OUT/title-$t-ui.xml"; then
+    say "title screen detected -> tap 开始游戏"
+    python3 "$(dirname "$0")/avd_tap_text.py" "$OUT/title-$t-ui.xml" "开始游戏" --serial "$SERIAL" --exec || say "WARN tap start failed"
+    sleep 10
+  else
+    say "no title screen (already in game?)"
+  fi
+}
+
 launch() {
   a shell am force-stop "$PKG"
   sleep 1
   a shell am start -W -n "$PKG/kajfosz.antimatterdimensions.MainActivity" 2>/dev/null | tr -d '\r' > "$OUT/launch-$(ts).txt"
-  sleep 22
+  sleep 8
+  enter_game
+  sleep 10
 }
 
 set_subtab() {
@@ -136,6 +154,28 @@ PY
   grep -o 'name="currentSubTab">[^<]*' "$OUT/MyPrefsFile-after-inject.xml" || true
 }
 
+inject_save() {
+  local save=$1
+  [ -f "$save" ] || { say "NO SAVE FILE $save"; exit 2; }
+  root_on
+  a shell am force-stop "$PKG"
+  sleep 1
+  local uid; uid=$(a shell dumpsys package "$PKG" 2>/dev/null | grep -m1 -o "userId=[0-9]*" | cut -d= -f2 | tr -d '\r')
+  say "app_uid=$uid inject_save=$save sha256=$(sha256sum "$save" | cut -d' ' -f1)"
+  a push "$save" /data/local/tmp/r107-save.json >/dev/null 2>&1
+  a shell "mkdir -p /data/data/$PKG/files" 2>/dev/null
+  a shell "cp /data/local/tmp/r107-save.json /data/data/$PKG/files/player.json" 2>/dev/null
+  a shell "for f in /data/data/$PKG/files/playerBackup*; do [ -f \"\$f\" ] && cp /data/local/tmp/r107-save.json \"\$f\"; done" 2>/dev/null
+  if [ -n "$uid" ]; then
+    a shell "chown -R $uid:$uid /data/data/$PKG/files" 2>/dev/null
+    a shell "restorecon -R /data/data/$PKG/files" 2>/dev/null
+  fi
+  a shell "ls -ln /data/data/$PKG/files/ | head -20" | tr -d '\r' > "$OUT/inject-save-files-listing.txt"
+  say "save injected; launch follows"
+  launch
+  capture "legal"
+}
+
 restore() {
   root_on
   local latest; latest=$(ls -t "$OUT"/r107-data-backup-*.tgz 2>/dev/null | head -1)
@@ -162,6 +202,10 @@ case "$STAGE" in
       custom) V=${SUBTAB:?SUBTAB required for custom stage} ;;
     esac
     set_subtab "$V"; launch; capture "$STAGE" ;;
+  inject-save)
+    inject_save "$APK" ;;
+  legal)
+    inject_save "$APK" ;;
   restore)  restore ;;
   leave)
     a shell am force-stop "$PKG"

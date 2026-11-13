@@ -1,6 +1,6 @@
 # G2（P1）`bm4.g()`/`bm4.h()` 门禁注入传错字段：传图标字形而不是业务键 → 注入点是死门禁
 
-状态：**根因已定位 + 真实运行时证据齐全 / build.gradle 补丁已产出（Lead 合入）/ 真机验证 NOT RUN**
+状态：**根因已定位 / 补丁已合入 / ABI + 真实 AVD 日志验证通过 —— PASS（程序选择拦截面以传键正确+隐藏键判定 false 为验收边界）**
 
 ## 1. 现象
 
@@ -97,7 +97,8 @@ R101 设计这条注入的意图就是拦截「程序化非法选择」。它是
 | 静态审计（当前 `work/mod`） | **FAIL**：`2/2 injection(s) do not load Luo4;->b`，字形加载点 = 373/498 行 | `reconstructed/r107-gates/out/gate-wiring-audit.json` |
 | 静态审计（模拟修复树：仅把 `work/mod` 两行改为 `Luo4;->b`） | **PASS 11/11** | `work/r107-gates/gate-wiring-audit-fixed.json` |
 | 运行时证据（旧构建确实是字形） | PASS（缺陷复现） | `evidence/G2-runtime-tabgate-glyphs-380dfbfb.txt` |
-| 新构建产物验证 | **NOT RUN** | 等 Lead 合入补丁并构建后：`python3 reconstructed/r107-gates/tools/check_gate_wiring.py --tree work/mod` |
+| 新构建产物验证（旧链 unsigned 23:04，jadx 反编译 `bm4.g()/h()` 已调用 `vanillaEternityTabAllowed(this.b)`，`this.b`=Luo4.b 业务键） | PASS | `evidence/G1G2G4-fixed-build-abi-evidence.txt` |
+| 新候选 APK 设备验证（混合候选 c25c68dc）：门禁收到业务键、无字形行；`tab=timeDimensions/reality/celestials/automator/eternityChallenges allowed=false` | PASS | `work/r107-gates/avd/*-logcat.txt`、`evidence/avd/AVD-gate-log-slices.txt` | 等 Lead 合入补丁并构建后：`python3 reconstructed/r107-gates/tools/check_gate_wiring.py --tree work/mod` |
 | AVD：`OREKI_TABGATE` 应出现业务键（`timeStudies`/`eternityUpgrades`…）而非字形 | **NOT RUN** | 同 G1 AVD 窗口 |
 
 ## 6. 复现命令

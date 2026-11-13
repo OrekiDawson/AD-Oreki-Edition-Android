@@ -1,6 +1,6 @@
 # G1（P0）永恒层页签门禁名单缺口：`dilation` 与 `eternityChallenges` 可在首次永恒前直达
 
-状态：**根因已定位 / 修复已产出（静态度量 PASS）/ AVD 复现与修复后回归 NOT RUN**
+状态：**修复已合入并在真实 AVD 验证通过（负向拦截 + 合法档不误锁）—— PASS**
 
 ## 1. 现象（要防止的玩家可见后果）
 
@@ -113,8 +113,10 @@ val allowed = when (tabName) {
 | 生成式回归测试 32/32（含「旧实现放行 → 新实现拦截」红绿对照、eternity 分组全覆盖不变式、非永恒页签不误伤、null 行为） | PASS | 运行输出见 `G3-static-audit.md` §4；jar `reconstructed/r107-gates/out/gate-test.jar` |
 | 静态接线审计 `check_gate_wiring.py`（修复前） | FAIL（G1 名单缺 2 键，如实复现） | `reconstructed/r107-gates/out/gate-wiring-audit.json` |
 | 静态接线审计（模拟修复树 + 打过补丁的 Kotlin） | PASS 11/11 | `work/r107-gates/gate-wiring-audit-fixed.json` |
-| **AVD 负向复现**（新档 + `currentSubTab=eternityChallenges` 冷启动） | **NOT RUN** | 需 Lead AVD 窗口 + 新候选；脚本已就绪 `reconstructed/r107-gates/tools/avd_g1_experiment.sh` |
-| **AVD 修复后回归**（同一攻击被拦 + 合法永恒档 dilation/EC 仍可达） | **NOT RUN** | 同上；必须用合入修复后的新 APK，不能用 380dfbfb 冒充 |
+| 补丁已合入 + 旧链新构建 ABI 验证（dilation/eternityChallenges 出现在 gate switch 中） | PASS | `evidence/G1G2G4-fixed-build-abi-evidence.txt`（`build/gradle-stage/unsigned.apk` SHA-256 `40bbc412…509b`） |
+| AVD 负向（新档 + `currentSubTab=eternityChallenges` 冷启动） | **PASS（修复生效）** | `tab=eternityChallenges allowed=false`(23:35:45.138) + `evidence/avd/G1-ec-negative-page.png`（反物质维度）+ prefs 回写 |
+| AVD 负向（`currentSubTab=dilation`） | **PASS（修复生效）** | `tab=dilation allowed=false`(23:36:52.364) + `evidence/avd/G1-dilation-negative-page.png` |
+| AVD 合法档正向（合法永恒存档 + `currentSubTab=timeStudies`） | **PASS** | `evidence/avd/legal-timeStudies-positive-page.png` + 启动时永恒层 `allowed=true` 日志（`AVD-RESULTS.md` §4） |
 
 ## 7. 复现命令（AVD，获准后执行）
 

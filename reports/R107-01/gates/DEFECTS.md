@@ -19,7 +19,7 @@
   `tabs.js:233-240,328-335`（dilation / eternityChallenges 的可见条件都只在永恒后成立）。
 - 结论：**P0 级门禁缺口成立**；R101 的非法恢复测试只覆盖 `timeStudies`，未覆盖这两个键。
 - 修复：Kotlin 补丁（`patches/production-oreki-stage-auto-20261113.patch`）+ 生成式回归测试。
-- 状态：静态/单测 **PASS**；AVD 负向复现与修复后回归 **NOT RUN**（等 Lead AVD 窗口与新 APK）。
+- 状态：**PASS** — 补丁合入 + ABI 验证 + 真实 AVD 负向拦截（`tab=eternityChallenges allowed=false`、`tab=dilation allowed=false`，页面回退反物质维度）+ 合法永恒档正向（时间研究页可达）。证据 `AVD-RESULTS.md`、`evidence/avd/`。
 
 ### G2 — P1｜`bm4.g()/h()` 门禁注入传图标字形，注入点恒放行（死门禁）
 
@@ -30,7 +30,7 @@
 - 影响：`bm4.h(Z)` 是原版 28 个文件的程序化页签选择入口，该门禁面当前完全失效；
   仍由 `ll2.g()` 父级门禁、`W8/currentSubTab` 注入与原版 `c()` 兜底，故定 P1。
 - 修复：`patches/build.gradle-bm4-business-key.patch`（Lead 合入；本 Agent 不修改 build.gradle）。
-- 状态：静态审计模拟修复树 **PASS 11/11**；新构建/AVD **NOT RUN**。
+- 状态：**PASS** — 审计 11/11、ABI 反编译证实 `this.b`、真实 AVD 日志全为业务键；程序选择拦截以传键正确+隐藏键判定 false 为验收边界。
 
 ### G4（P0 候选）｜现实层页签同样未覆盖，`W8` 恢复路径可在首次现实前打开现实/天神页面
 
@@ -39,7 +39,7 @@
 - 现实场景：现实后存档留下 `currentSubTab=glyphs`，再载入现实前存档 → 冷启动打开符文页。
 - 证据：注册表分层、Web 条件、JVM 测试红绿对照（`G3_legacy_allows_reality_layer_pre_reality` PASS）。
 - 修复：候选补丁 `patches/production-oreki-stage-auto-g1-g3-candidate.patch`（单测 42/42 PASS）。
-- 状态：**AVD 复现 NOT RUN，合入待 Lead 决策**（详见 `G4-reality-layer-gap-candidate.md`）。
+- 状态：**PASS（负向）** — 已合入本轮；真实 AVD `tab=glyphs allowed=false` 且页面回退反物质维度；合法现实档正向 NOT RUN（无存档样本）。详见 `G4-reality-layer-gap-candidate.md`。
 
 ## B. 历史已修、本轮只做回归/审查（未发现新缺陷）
 
