@@ -27,10 +27,12 @@ class AgpOnlyPolicyTests(unittest.TestCase):
                 self.assertEqual(text.count("scripts/enforce_agp_only.py "), count)
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertIn("test_agp_only_policy.py", ci)
-        self.assertIn("needs: agp-kotlin-dex", ci)
+        self.assertIn("needs: [agp-kotlin-dex, source-policy]", ci)
         self.assertIn("if: always()", ci)
         self.assertIn("needs.agp-kotlin-dex.result", ci)
-        self.assertIn("Require successful AGP 9.5.1 compilation", ci)
+        self.assertIn("needs.source-policy.result", ci)
+        self.assertIn("name: Source checks (no proprietary APK baseline)", ci)
+        self.assertIn("Require successful AGP compilation and source-policy validation", ci)
 
     def test_candidate_fails_closed_when_bridge_or_legacy_is_used(self):
         with tempfile.TemporaryDirectory() as temporary:
