@@ -1,9 +1,7 @@
 import org.gradle.api.tasks.Exec
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
 }
 
 val repoRoot = layout.projectDirectory.dir("../..").asFile
@@ -40,12 +38,6 @@ android {
 
     buildFeatures {
         buildConfig = false
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 

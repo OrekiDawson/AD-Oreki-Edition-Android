@@ -113,7 +113,7 @@ jobs:
           echo "::notice::Real APK build, signature, DEX contract and AVD tests require the protected local baseline and dedicated runner."
 
   agp-kotlin-dex:
-    name: AGP 9 Kotlin DEX parity
+    name: AGP 9.5.1 Kotlin DEX parity
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -123,6 +123,8 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
       - name: Build legacy Kotlin DEX (existing chain, unchanged)
         run: ./gradlew buildKotlinDex --no-daemon --console=plain

@@ -1,0 +1,26 @@
+{
+  "phase": 1,
+  "agp_version": "9.5.1",
+  "gradle_version": "9.8.2",
+  "jdk": "21",
+  "kotlin": "AGP built-in Kotlin (no KGP)",
+  "compile_sdk": 37,
+  "min_sdk": 32,
+  "target_sdk": 37,
+  "agp_apk": "agp/app/build/outputs/apk/debug/app-debug.apk",
+  "agp_apk_sha256": "544e7c7d62be3c400f79d10382d58dc7b0f451fe1d84c103c36b1aac14857820",
+  "package": "kajfosz.antimatterdimensions.agpbridge",
+  "versionCode": 30210000,
+  "versionName": "3.21.0",
+  "legacy_dex_build": "PASS",
+  "agp_build": "PASS",
+  "abi_guard": "PASS (8 classes)",
+  "dex_parity": {
+    "legacy_classes": 29,
+    "agp_classes": 29,
+    "missing_in_agp": [],
+    "parity": true
+  },
+  "avd_install": "PASS (ad-game-api37)",
+  "formal_chain_replaced": false
+}
