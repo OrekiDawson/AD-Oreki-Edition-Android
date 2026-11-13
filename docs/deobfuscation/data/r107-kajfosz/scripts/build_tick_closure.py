@@ -580,15 +580,13 @@ OUT.mkdir(parents=True, exist_ok=True)
 # 更新主 JSON 的 extensions（不改变分母）
 main_path = OUT / "3.21-semantic-kajfosz.json"
 main = json.loads(main_path.read_text(encoding="utf-8"))
-main["extensions"] = {
-    "tick_closure": {
-        "file": "tick-closure.json",
-        "task": "task-10",
-        "closure_classes": len(classes),
-        "closure_methods": sum(len(c["methods"]) for c in classes),
-        "hypotheses": len(hypotheses),
-        "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。",
-    }
+main.setdefault("extensions", {})["tick_closure"] = {
+    "file": "tick-closure.json",
+    "task": "task-10",
+    "closure_classes": len(classes),
+    "closure_methods": sum(len(c["methods"]) for c in classes),
+    "hypotheses": len(hypotheses),
+    "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。",
 }
 main_path.write_text(json.dumps(main, ensure_ascii=False, indent=1), encoding="utf-8")
 

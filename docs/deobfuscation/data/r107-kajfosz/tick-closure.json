@@ -3,7 +3,7 @@
  "kind": "r107-01-tick-closure-kajfosz",
  "generated_by": "work/r107-kajfosz/build_tick_closure.py",
  "generated_for_task": "task-10（承接 task-3：Tick 关键闭包方法级语义 + enjarify 卡死假设）",
- "generated_at": "2026-11-13T23:50:17+0800",
+ "generated_at": "2026-11-14T06:53:37+0800",
  "scope": {
   "unchanged_denominators": {
    "kajfosz_first_party_classes": 1242,

@@ -2,7 +2,7 @@
   "schema": 1,
   "round": "R107-01",
   "agent": "test-ci",
-  "generated_at": "2026-11-13T23:29:59+08:00",
+  "generated_at": "2026-11-14T06:54:13+08:00",
   "candidate": {
     "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk",
     "sha256": "4cff154077495fb6d65fee12842e5d33a6a64be67de1dc1bcea5a48ef54e28c7",
@@ -364,6 +364,89 @@
       "最终候选 c25c68dc 为 AGP 打包 + 过渡游戏 DEX，非原生",
       "CI 尚无 AGP 游戏代码链路；provenance 区分字段未实现",
       "R103 Latest 未变：android-update-3.21.0-3d924271"
+    ]
+  },
+  "closure": {
+    "head": "c79e876a",
+    "branch": "r107-01/agp-runtime",
+    "static_gates": {
+      "enforce_agp_only_candidate": "BLOCK (fail-closed, exit=1, 6 conditions)",
+      "accept_apk_help": "PASS (exit=0)",
+      "gate_failclosed": "FAIL-CLOSED (candidate blocked; artifact 4/5 blocked, self-declared accepted)"
+    },
+    "artifact_audits": {
+      "hybrid_c25c68dc": {
+        "required": "28/28",
+        "form": "AGP 打包 + legacy-dex（过渡）",
+        "release": "BLOCKED"
+      },
+      "A2_native_enjarify": {
+        "sha256": "9b8e8cdd...",
+        "required": "28/28",
+        "runtime": "Tick FAIL / BLOCKED"
+      },
+      "B2_native_mixed": {
+        "sha256": "ebc502fd...",
+        "required": "28/28",
+        "runtime": "r1 Tick PASS；r2/r4 FAIL；J8 未验收"
+      },
+      "b001faa7_oldchain_allfixes": {
+        "sha256": "b001faa7...",
+        "required": "27/28 (resource 28)",
+        "role": "承载四项修复的 AVD 里程碑 APK"
+      }
+    },
+    "session_fixes": {
+      "ec_respec": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/ecscale-run (ec=[5x12], dil=[1..5])"
+      },
+      "dilation_studies_autobuy": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/dilstudies + reality-run BUY 1..6"
+      },
+      "ds6_achievement_waiver": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/reality-run OREKI_DS6 result=true"
+      },
+      "first_reality": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/reality-run real=0.301 at t=875s (~14.6min)"
+      }
+    },
+    "milestone_apk": {
+      "path": "build/gradle-stage/反物质维度.apk",
+      "sha256": "b001faa71bdb7a24f801010f7c16cbe8df06b137e8215721e6f7e02ef947691b",
+      "bytes": 84637867
+    },
+    "delivery_rules_653": {
+      "gate1_stable_rollback": "PASS",
+      "gate2_agp_fullgame_runtime": "BLOCKED",
+      "gate3_no_open_p0": "BLOCKED/NOT PROVEN",
+      "gate4_save_signature_compat": "PARTIAL",
+      "gate5_dual_platform_equivalence": "NOT RUN",
+      "gate6_cost_benefit": "NOT RUN"
+    },
+    "release_gate_8_avd": {
+      "install-upgrade": "PASS",
+      "launch": "PASS",
+      "apk-signature-version": "PASS",
+      "stage-gate-positive": "PASS",
+      "stage-gate-negative": "PASS",
+      "autobuyer-core": "NOT RUN",
+      "save-import": "NOT RUN",
+      "gui": "PARTIAL"
+    },
+    "long_run_180min": {
+      "status": "NOT RUN (in progress)",
+      "started": "2026-11-14T06:40:09+08:00",
+      "latest_t_s": 661,
+      "gameEnd": false
+    },
+    "verdict": "技术成果可收口；正式发布 BLOCKED；R103 Latest 不变",
+    "docs": [
+      "08-closure-checklist.md",
+      "09-ci-native-options.md"
     ]
   }
 }

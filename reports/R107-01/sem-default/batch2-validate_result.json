@@ -1,0 +1,49 @@
+{
+ "checks": {
+  "B1_scope_unknown": {
+   "status": "PASS",
+   "detail": "118 new, 1 refined"
+  },
+  "B2_evidence": {
+   "status": "PASS",
+   "detail": "[]"
+  },
+  "B3_member_counts": {
+   "status": "PASS",
+   "detail": "[]"
+  },
+  "B4_counts": {
+   "status": "PASS",
+   "detail": "named=197 batch1_79+new_118"
+  },
+  "B5_no_dup": {
+   "status": "PASS",
+   "detail": "9712"
+  },
+  "B5_csv": {
+   "status": "PASS",
+   "detail": "9713 rows / 20 cols"
+  }
+ },
+ "failures": [],
+ "summary": {
+  "status": "PASS",
+  "named_total": 197,
+  "unknown_total": 9515,
+  "by_confidence": {
+   "unknown": 9515,
+   "strong": 91,
+   "inferred": 19,
+   "confirmed": 87
+  },
+  "batch2_new": 118,
+  "batch2_refined": 1,
+  "batch2_member_methods": 749,
+  "batch2_member_fields": 645,
+  "batch2_by_confidence": {
+   "confirmed": 49,
+   "strong": 54,
+   "inferred": 15
+  }
+ }
+}

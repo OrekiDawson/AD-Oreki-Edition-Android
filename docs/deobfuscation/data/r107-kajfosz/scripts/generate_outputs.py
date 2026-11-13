@@ -561,15 +561,28 @@ payload = {
         "R8 class merging 使部分 obf 类原类名不可恢复；只给可证明的角色与逐方法源函数，不猜测类名。",
     ],
 }
+ext = {}
 tick_stats_path = WORK / "tick-closure-stats.json"
 if tick_stats_path.exists():
     tick_stats = json.loads(tick_stats_path.read_text(encoding="utf-8"))
-    payload["extensions"] = {"tick_closure": {
+    ext["tick_closure"] = {
         "file": "tick-closure.json", "task": "task-10",
         "closure_classes": tick_stats.get("closure_classes", 0),
         "closure_methods": tick_stats.get("closure_methods", 0),
         "hypotheses": tick_stats.get("hypotheses", 0),
-        "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。"}}
+        "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。"}
+b2_stats_path = WORK / "batch2-stats.json"
+if b2_stats_path.exists():
+    b2 = json.loads(b2_stats_path.read_text(encoding="utf-8"))
+    ext["batch2"] = {
+        "file": "batch2-player-prestige-challenge-autobuyer.json", "task": "task-11",
+        "batch_classes": b2.get("batch_classes", 0),
+        "methods_mapped_total": b2.get("methods_mapped_total", 0),
+        "override_methods_added": b2.get("override_methods_added", 0),
+        "fields_with_semantic": b2.get("fields_with_semantic", 0),
+        "note": "第二批业务语义（player/prestige/challenge/autobuyer/GUI）单独文件；不改变本文件分母与统计。"}
+if ext:
+    payload["extensions"] = ext
 
 OUTDIR.mkdir(parents=True, exist_ok=True)
 (OUTDIR / "3.21-semantic-kajfosz.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")

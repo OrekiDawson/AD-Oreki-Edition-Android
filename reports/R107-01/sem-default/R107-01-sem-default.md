@@ -1,5 +1,7 @@
 # R107-01 / task-2：默认包第一方类语义反混淆（复核 + 扩写）
 
+> 注：本报告为 batch1（79 个命名类）快照。batch2 增量（+118 新增 / +1 复核升级，合计 197 命名）见 [R107-01-sem-default-batch2.md](R107-01-sem-default-batch2.md)。
+
 - 任务：shared task-2（主线B，默认包 9,712 第一方类）
 - 产物：docs/deobfuscation/data/r107-default/semantic.json / .csv（本报告数字全部由产物读取，非手写）
 - 目标基线：官方 Android 3.21.0（base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`）

@@ -289,3 +289,14 @@ python3 work/r107-kajfosz/verify_outputs.py
 - 详细交付：docs/deobfuscation/data/r107-kajfosz/tick-closure.json、reports/R107-01/sem-kajfosz/tick-closure.md。
 
 Tick 闭包状态：静态语义 PASS；运行期假设 NOT RUN（需 agp-dex/Lead 做混合 DEX、AVD 插桩等实验）。
+
+## 9. 第二批业务语义映射（task-11）
+
+对 player/prestige/challenge/autobuyer/GUI 活动类做第二批深度映射（独立文件，分母仍为 1242/7439/6563）：
+
+- 批次类：**194**（/player 99、/prestige 8、/challenge 2、/challenge/antimatter 3、/challenge/antimatter/infinity 1、/challenge/antimatter/normal 1、/challenge/eternity 2、/autobuyer 27、/mainactivity 51）
+- 类置信度：confirmed 117 / strong 77；角色新增：194。
+- 方法映射：1193（其中 override 新增 74）；字段：描述 1035、有语义 686；Web 对应：194 类；调用边：callers 934 / callees 822。
+- 交付：docs/deobfuscation/data/r107-kajfosz/batch2-player-prestige-challenge-autobuyer.json / .csv、reports/R107-01/sem-kajfosz/batch2-player-prestige-challenge-autobuyer.md。
+
+第二批状态：静态语义 PASS；运行时验证 NOT RUN（AVD 被 180min 长跑占用）。

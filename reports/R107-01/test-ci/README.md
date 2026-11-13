@@ -12,6 +12,8 @@
 | R107-01 最终混合候选（sha `c25c68dc…`，AGP 打包 + 过渡游戏 DEX）结构审计 | **结构 PASS（28/28）；发布 BLOCKED（过渡形态）** | [07-hybrid-candidate-audit.md](07-hybrid-candidate-audit.md)、`evidence/hybrid-c25c68dc/` |
 | AGP 原生游戏代码（enjarify）运行结论 | **BLOCKED：冷启动/UI PASS，Tick 卡死；原生路线不可用** | 07 §5、`reports/R107-01/lead-evidence/native-blocker/` |
 | provenance 必须区分 native/过渡构建 | 规则已写入门禁审查（§3.4）与 CI 方案 | [03-gate-review.md](03-gate-review.md)、[04-CI-PLAN.md](04-CI-PLAN.md) |
+| R107-01 收口验证清单（四项修复 + 6.5.3 + 8 项 AVD） | **技术可收口，发布 BLOCKED**；四项修复 AVD PASS（旧链 b001faa7） | [08-closure-checklist.md](08-closure-checklist.md) |
+| CI 原生链路方案 A/B | 方案与风险已给；**两种方案当前均不可用**（JVMS/AVD 未达标），不改 .github | [09-ci-native-options.md](09-ci-native-options.md) |
 | AGP-only 门禁 fail-closed 审查 | **门禁仍阻断（candidate 档 6 条阻断条件）**；artifact 档缺证据阻断、自报 provenance 可被接受 → 需补真实绑定字段 | [03-gate-review.md](03-gate-review.md)、`evidence/gate/` |
 | candidate CI 切换方案 | 草案（不改 workflow） | [04-CI-PLAN.md](04-CI-PLAN.md) |
 | AVD 冷启动/新建档/重启读档门禁（混合候选 `c25c68dc…`） | **PASS（install-upgrade / launch / new-save / restart-load / save-file-persist / gui 全 PASS；save-import/阶段门禁/自动购买器 NOT RUN）** | [05-avd-gate.md](05-avd-gate.md)、`avd-gate-c25c68dc/` |

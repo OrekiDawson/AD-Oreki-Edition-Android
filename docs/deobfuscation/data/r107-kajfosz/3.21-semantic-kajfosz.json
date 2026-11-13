@@ -3,7 +3,7 @@
  "kind": "r107-01-semantic-kajfosz-321",
  "generated_by": "work/r107-kajfosz/generate_outputs.py",
  "generated_for_task": "shared task-3（R107-01 kajfosz 包语义反混淆复核与扩写）",
- "generated_at": "2026-11-13T23:50:16+0800",
+ "generated_at": "2026-11-14T06:54:12+0800",
  "target": {
   "version_name": "3.21.0",
   "version_code": 30210000,
@@ -199926,6 +199926,15 @@
    "closure_methods": 50,
    "hypotheses": 8,
    "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。"
+  },
+  "batch2": {
+   "file": "batch2-player-prestige-challenge-autobuyer.json",
+   "task": "task-11",
+   "batch_classes": 194,
+   "methods_mapped_total": 1193,
+   "override_methods_added": 74,
+   "fields_with_semantic": 686,
+   "note": "第二批业务语义（player/prestige/challenge/autobuyer/GUI）单独文件；不改变本文件分母与统计。"
   }
  }
 }

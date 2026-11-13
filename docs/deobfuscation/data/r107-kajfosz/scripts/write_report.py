@@ -361,6 +361,26 @@ if tc_path.exists():
     A("")
     A("Tick 闭包状态：静态语义 PASS；运行期假设 NOT RUN（需 agp-dex/Lead 做混合 DEX、AVD 插桩等实验）。")
 
+# ---- 第二批语义（task-11）----
+b2_path = OUT / "batch2-player-prestige-challenge-autobuyer.json"
+if b2_path.exists():
+    b2 = json.loads(b2_path.read_text(encoding="utf-8"))
+    st = b2["stats"]
+    A("")
+    A("## 9. 第二批业务语义映射（task-11）")
+    A("")
+    A("对 player/prestige/challenge/autobuyer/GUI 活动类做第二批深度映射（独立文件，分母仍为 1242/7439/6563）：")
+    A("")
+    A("- 批次类：**%d**（%s）" % (st["batch_classes"], "、".join("%s %d" % (k, v) for k, v in st["by_package"].items())))
+    A("- 类置信度：confirmed %d / strong %d；角色新增：%d。" % (
+        st["class_confidence"].get("confirmed", 0), st["class_confidence"].get("strong", 0), st["roles_added"]))
+    A("- 方法映射：%d（其中 override 新增 %d）；字段：描述 %d、有语义 %d；Web 对应：%d 类；调用边：callers %d / callees %d。" % (
+        st["methods_mapped_total"], st["override_methods_added"], st["fields_described"],
+        st["fields_with_semantic"], st["web_mapped_classes"], st["caller_edges"], st["callee_edges"]))
+    A("- 交付：docs/deobfuscation/data/r107-kajfosz/batch2-player-prestige-challenge-autobuyer.json / .csv、reports/R107-01/sem-kajfosz/batch2-player-prestige-challenge-autobuyer.md。")
+    A("")
+    A("第二批状态：静态语义 PASS；运行时验证 NOT RUN（AVD 被 180min 长跑占用）。")
+
 text = "\n".join(L).replace("@@@", chr(96) * 3).replace("@@", chr(96))
 (REP / "report.md").write_text(text, encoding="utf-8")
 print("report written:", REP / "report.md", "lines:", len(L))
