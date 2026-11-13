@@ -32,3 +32,13 @@
 - **两小时至少一份合格稳定版**是明确的交付节奏目标；真实门禁和现行 DeepSeek 峰谷安全规则优先。无合格版时如实说明超期、阻碍与修复进度，不可发布失败包充数。
 - 正式 Android 发布为 GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道同一已验收 APK、同一 SHA256，优先复用既有发布脚本。避免无意义云端回读等待；按最低必要方式确认交付，本地使用 cp 与 sha256sum；保存旧稳定版备份，不替换签名、不误发历史包。
 - 并行 Agent 分清文件与任务；共享 AVD、签名环境、最终构建和正式发行独占。收尾同步必要 FACTS/tasks/README/教程及报告；`frame-observer` 有修改同步 Push。完成授权轮次后停止，不自动开启新轮；Goal phase=complete 仅表示本轮收口，不等于所有技术验收 PASS。
+
+
+## 5. CI/CD 强制门禁（2026-11-13 永久硬规则）
+
+1. Android / Web / Pages 的正式构建、测试、合并、签名、验签和发布都必须经过对应 CI/CD 门禁。
+2. 禁止直推绕过保护、跳过必需检查、关闭 Ruleset、手动上传 APK，或直接修改生产部署。
+3. CI/CD 故障必须修复流水线，不能用手动发布绕过。
+4. Android 正式发布必须完成真实 APK 构建、独立验签、必要 AVD 验收及发布门禁。
+5. GitHub Releases、OneDrive、Google Drive 经正式工作流发布后，由开发机主动下载并校验 APK，再更新本地 SFTP 目录。
+6. 两小时稳定版交付节奏目标不得凌驾于质量门禁之上；未通过项如实标记 FAIL / BLOCKED / NOT RUN。
