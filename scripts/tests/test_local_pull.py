@@ -52,6 +52,13 @@ class PullHelpersTests(unittest.TestCase):
             with self.assertRaises(pull.PullError):
                 pull.resolve_release("OrekiDawson/AD-Oreki-Edition-Android", None)
 
+    def test_parse_cert_digests_supports_build_tools_37_format(self):
+        old = "Signer #1 certificate SHA-256 digest: " + "A" * 64
+        new = "V3.0 Signer: certificate SHA-256 digest: " + "b" * 64
+        self.assertEqual(pull.parse_cert_digests(old), ["a" * 64])
+        self.assertEqual(pull.parse_cert_digests(new), ["b" * 64])
+        self.assertEqual(pull.parse_cert_digests("no cert here"), [])
+
     def test_atomic_replace_and_checksums(self):
         with tempfile.TemporaryDirectory() as tmp:
             dest = pathlib.Path(tmp)

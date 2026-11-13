@@ -193,6 +193,18 @@ def _version_key(name: str) -> tuple:
     return tuple(int(part) if part.isdigit() else part for part in re.split(r"[.\-]", name))
 
 
+def parse_cert_digests(output: str) -> list[str]:
+    """Extract signer certificate SHA-256 values from apksigner --print-certs output.
+
+    Older build-tools print "Signer #1 certificate SHA-256 digest: ...";
+    build-tools 37 prints per-scheme lines such as
+    "V3.0 Signer: certificate SHA-256 digest: ...". Callers require exactly one
+    unique certificate identity across every reported signer/scheme.
+    """
+    return [match.lower() for match in
+            re.findall(r"certificate SHA-256 digest:\s*([0-9a-fA-F]{64})", output)]
+
+
 def verify_signature(apk: Path, apksigner: Path | None, expected_cert: str) -> str:
     if apksigner is None:
         raise PullError("未找到 apksigner；请设置 OREKI_APKSIGNER 或 ANDROID_SDK_ROOT")
@@ -200,10 +212,12 @@ def verify_signature(apk: Path, apksigner: Path | None, expected_cert: str) -> s
                             capture_output=True, text=True, timeout=180)
     if result.returncode != 0:
         raise PullError(f"apksigner verify 失败：{result.stderr.strip()[:300]}")
-    match = re.search(r"Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]{64})", result.stdout)
-    if not match:
+    certs = set(parse_cert_digests(result.stdout))
+    if not certs:
         raise PullError("apksigner 输出缺少签名证书 SHA-256")
-    cert = match.group(1).lower()
+    if len(certs) > 1:
+        raise PullError("apksigner 报告了多个不同的签名证书 SHA-256")
+    cert = certs.pop()
     if cert != expected_cert:
         raise PullError(f"签名证书不匹配：{cert} != {expected_cert}")
     return cert
