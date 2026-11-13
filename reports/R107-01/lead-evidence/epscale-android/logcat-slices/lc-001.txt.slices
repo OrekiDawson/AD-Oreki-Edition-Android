@@ -1,0 +1,46 @@
+11-14 01:57:55.484 I/OREKI_TABGATE(18676): tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-14 01:58:06.252 I/OREKI_TABGATE(18676): tab=dimensions allowed=true eternityUnlocked=false
+11-14 01:58:06.276 I/OREKI_TABGATE(18676): tab=automation allowed=true eternityUnlocked=false
+11-14 01:58:06.276 I/OREKI_TABGATE(18676): tab=challenges allowed=true eternityUnlocked=false
+11-14 01:58:06.289 I/OREKI_TABGATE(18676): tab=infinity allowed=true eternityUnlocked=false
+11-14 01:58:06.289 I/OREKI_TABGATE(18676): tab=eternity allowed=false eternityUnlocked=false
+11-14 01:58:06.289 I/OREKI_TABGATE(18676): tab=reality allowed=false eternityUnlocked=false
+11-14 01:58:06.289 I/OREKI_TABGATE(18676): tab=celestials allowed=false eternityUnlocked=false
+11-14 01:58:06.289 I/OREKI_TABGATE(18676): tab=achievements allowed=true eternityUnlocked=false
+11-14 01:58:06.289 I/OREKI_TABGATE(18676): tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-14 01:58:06.290 I/OREKI_TABGATE(18676): tab=optionsMainTab allowed=true eternityUnlocked=false
+11-14 01:58:06.290 I/OREKI_TABGATE(18676): tab=shopMainTab allowed=true eternityUnlocked=false
+11-14 01:58:06.290 I/OREKI_TABGATE(18676): tab=infoMainTab allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=infinityDimensions allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=timeDimensions allowed=false eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=normalAchievements allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=secretAchievements allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=statistics allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=challengeTimes allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=graphs allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=speedrunRecords allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=howToPlay allowed=true eternityUnlocked=false
+11-14 01:58:06.295 I/OREKI_TABGATE(18676): tab=about allowed=true eternityUnlocked=false
+11-14 01:58:10.648 I/OREKI_IPSCALE(18676): IP_DIVISOR bootstrap original=308.0 effective=30.0
+11-14 01:58:10.648 I/OREKI_EPSCALE(18676): EP_DIVISOR bootstrap original=308.0 effective=30.0
+11-14 01:58:10.818 I/OREKI_GUI_STAGE(18676): GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-14 01:58:10.941 I/OREKI_ET_PROBE(18676): autoEternity.isActive=false
+11-14 01:58:10.941 I/OREKI_ET_PROBE(18676): autoEternity.canRun=false
+11-14 01:58:10.941 I/OREKI_ET_PROBE(18676): prestige.c.b=false
+11-14 01:58:10.941 I/OREKI_ET_PROBE(18676): MainActivity.mo=false
+11-14 01:58:10.941 I/OREKI_ET_PROBE(18676): OrekiEternity.sEtPending=0 bigE=0 ep=0.0e0
+11-14 01:58:10.945 I/OREKI_CRUNCH_DEC(18676): allow=true reason=pre-infinity
+11-14 01:58:11.060 I/OREKI_ET_PROBE(18676): ec unlocked=0 current=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 bigE=0 ep=0.0e0
+11-14 01:58:18.964 I/OREKI_TABGATE(18676): tab=autobuyers allowed=true eternityUnlocked=false
+11-14 01:58:18.964 I/OREKI_TABGATE(18676): tab=automator allowed=false eternityUnlocked=false
+11-14 01:58:21.520 I/OREKI_CRUNCH(18676): 9
+11-14 01:58:29.577 I/OREKI_CRUNCH(18676): 9
+11-14 01:58:37.810 I/OREKI_CRUNCH(18676): 9
+11-14 01:58:45.784 I/OREKI_CRUNCH(18676): 9
+11-14 01:58:53.983 I/OREKI_CRUNCH(18676): 9
+11-14 01:59:01.962 I/OREKI_CRUNCH(18676): 9
+11-14 01:59:09.940 I/OREKI_CRUNCH(18676): 9

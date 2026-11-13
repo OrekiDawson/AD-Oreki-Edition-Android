@@ -1,0 +1,30 @@
+# 首次永恒后（02:04:32 起）自动化链堵塞的代表性日志（只读采样）
+
+## TT 恒 0 / EC 无法推进
+11-14 02:18:42.825 I/OREKI_EC_AUTO(18676): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-14 02:18:52.837 I/OREKI_EC_AUTO(18676): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-14 02:19:02.858 I/OREKI_EC_AUTO(18676): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-14 02:19:11.410 I/OREKI_EC_DIAG(18676): unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 02:19:12.877 I/OREKI_EC_AUTO(18676): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-14 02:19:22.897 I/OREKI_EC_AUTO(18676): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+
+## 永恒层门禁长期拒绝
+11-14 02:19:08.365 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384
+11-14 02:19:13.371 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384
+11-14 02:19:18.380 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384
+11-14 02:19:23.400 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384
+
+## 调度器饥饿：eternity 紧迫任务空转 + 无 idBuy
+11-14 02:18:42.830 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity
+11-14 02:18:42.830 I/OREKI_SCHED(18676): act bulk @13355455ms gap=10008 taskGap=10008
+11-14 02:18:52.841 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity
+11-14 02:18:52.841 I/OREKI_SCHED(18676): act bulk @13365467ms gap=10012 taskGap=10012
+11-14 02:19:02.861 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity
+11-14 02:19:02.861 I/OREKI_SCHED(18676): act bulk @13375487ms gap=10020 taskGap=10020
+11-14 02:19:12.881 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity
+11-14 02:19:12.881 I/OREKI_SCHED(18676): act bulk @13385506ms gap=10019 taskGap=10019
+11-14 02:19:22.899 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity
+11-14 02:19:22.900 I/OREKI_SCHED(18676): act bulk @13395525ms gap=10019 taskGap=10019
+
+## ID 相关日志计数
+OREKI_ID lines: 0
