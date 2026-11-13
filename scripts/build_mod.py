@@ -2011,6 +2011,36 @@ def patch_speed_records():
     note("[R101-IP] prestige.e: gainedInfinityPoints 已接 OrekiIpGainScale（首次永恒前 308→30）")
 
 
+def patch_ep_gain_scale():
+    """[Oreki R105-EP] 现实解锁前把 EP 兑换除数 308 收到 30（对齐 Web src/game.js [Oreki AD9]）。
+
+    原版 prestige.c.g()（gainedEternityPoints）：
+        EP = 5^(log10(thisEternity.maxIP + gainedIP) / (308 - 佩勒递归) - 0.7) × totalEPMult
+    现实前的 maxIP 曲线按 div=308 换不到 e4000 EP，时间研究/现实链不可达。
+    Web 在 isOrekiBootstrapRun()（player.realities == 0）期间把除数收到 30。
+    这里只在除数装载点做一次机械转发，判据全部在 Kotlin OrekiEpGainScale.apply(D)D。
+    """
+    target = mod_file("smali/kajfosz/antimatterdimensions/prestige/c.smali")
+    src = target.read_text(encoding="utf-8")
+    marker = "; [Oreki R105-EP]"
+    if marker in src:
+        note("[R105-EP] prestige.c gainedEternityPoints 已打过补丁，跳过")
+        return
+    anchor = ("    .line 37\n"
+              "    const-wide v5, 0x4073400000000000L    # 308.0\n")
+    assert src.count(anchor) == 1, f"EP 兑换尺度锚点不唯一（{src.count(anchor)} 处）"
+    ins = (anchor +
+           "    # [Oreki R105-EP] 现实解锁前把 EP 兑换除数 308 收到 30（与 Web AD9 同规则）。\n"
+           "    # Kotlin 签名 apply(D)D：double 占两个寄存器槽，必须且只能传 {v5, v6}。\n"
+           "    invoke-static {v5, v6}, Lkajfosz/antimatterdimensions/oreki/OrekiEpGainScale;->apply(D)D\n"
+           "\n"
+           "    move-result-wide v5\n")
+    src = src.replace(anchor, ins, 1)
+    assert src.count("OrekiEpGainScale;->apply(D)D") == 1, "EP 兑换尺度转发应恰 1 处"
+    write_smali(target, src, encoding="utf-8")
+    note("[R105-EP] prestige.c: gainedEternityPoints 已接 OrekiEpGainScale（现实前 308→30）")
+
+
 def patch_recent_runs():
     """A2：最近十次无限（pastTenInfinities）的时间字段归一化。
 
@@ -7094,6 +7124,7 @@ def main():
     patch_manifest()
     patch_smali()
     patch_speed_records()
+    patch_ep_gain_scale()
     patch_recent_runs()
     patch_recent_runs_er()
     patch_shop_coins()
