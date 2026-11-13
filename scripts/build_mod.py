@@ -2107,33 +2107,45 @@ def patch_recent_runs_er():
     note("[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）")
 
 
+# [R107-01 BM-11] getStds 的读取钳制业务迁到 Kotlin（OrekiShopRules.clampStds）。
+# Smali 只保留 iget + ABI 转发；下限常量与判据全部在 Kotlin，构建期再做回读断言。
+OREKI_STD_CLAMP_TRAMPOLINE = (
+    ".method public final getStds()I\n"
+    "    .locals 1\n"
+    "\n"
+    "    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I\n"
+    "\n"
+    "    # [R107-01 BM-11] 读取下限 10000 由 Kotlin OrekiShopRules.clampStds 承载\n"
+    "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;->clampStds(I)I\n"
+    "\n"
+    "    move-result v0\n"
+    "\n"
+    "    return v0\n"
+    ".end method\n")
+
+
 def patch_shop_coins():
-    """目标 D：商店金币（STD）余额全局下限 10000。
+    """目标 D：商店金币（STD）余额全局下限 10000（R107-01 起业务在 Kotlin）。
 
     唯一修正点 = Purchases.getStds() 读取边界：任何 UI、购买判定、
     存档载入/重置/新游戏都只能通过该方法拿到余额，因此在读取处钳制
     即可覆盖全部生命周期，且不需要在每帧或 UI 刷新里写入字段。
+
+    R107-01（task-5 / 主线 C）：判据迁入 Kotlin OrekiShopRules.clampStds，
+    Smali 只剩 iget + invoke-static ABI 转发；构建期回读断言保证：
+      * 桥接调用恰好 1 处；
+      * 旧 Smali 钳制立即数已清零（否则说明迁移没生效）。
     """
     p = smali_tree() /  OLD_PKG.replace(".", "/") / "shop" / "Purchases.smali"
     src = p.read_text(encoding="utf-8")
-    marker = "; Oreki: STD 下限"
-    assert marker not in src, "getStds 已被修补过（重复打补丁）"
-    new = (".method public final getStds()I\n"
-           "    .locals 2\n"
-           "\n"
-           "    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I\n"
-           "\n"
-           "    const/16 v1, 0x2710    # 10000 ; Oreki: STD 下限\n"
-           "\n"
-           "    if-ge v0, v1, :ok\n"
-           "\n"
-           "    const/16 v0, 0x2710\n"
-           "\n"
-           "    :ok\n"
-           "    return v0\n"
-           ".end method\n")
-    write_smali(p, _replace_method(src, "public final getStds()I", new), encoding="utf-8")
-    note("[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）")
+    bridge = "OrekiShopRules;->clampStds(I)I"
+    assert bridge not in src, "getStds 已迁移到 Kotlin（重复打补丁）"
+    write_smali(p, _replace_method(src, "public final getStds()I",
+                                   OREKI_STD_CLAMP_TRAMPOLINE), encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(bridge) == 1, "BM-11 trampoline 未写入或重复写入"
+    assert "const/16 v1, 0x2710" not in after, "BM-11 旧 Smali 钳制仍在（业务未真正迁移）"
+    note("[4d] Purchases.getStds(): STD 读取下限 10000 由 Kotlin OrekiShopRules 承载（Smali 仅 ABI 转发）")
 
 
 # ------------------------------------- 4e. 鹿颈长削弱收敛（双端同源，R32）
@@ -2810,14 +2822,14 @@ def verify_payload():
     assert "START perk 已购：" in r0, "R0 卡片摘要缺少 START 状态标签"
     note("[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）")
 
-    # --- [4d] 商店金币下限（目标 D）---
+    # --- [4d] 商店金币下限（目标 D；R107-01 起业务在 Kotlin）---
     pur = (mod_file("smali/kajfosz/antimatterdimensions/shop/Purchases.smali")).read_text(encoding="utf-8")
     gs = _body(".method public final getStds()I", pur)
-    assert "; Oreki: STD 下限" in gs, "getStds 未应用金币下限补丁"
-    assert "const/16 v1, 0x2710" in gs, "getStds 缺少 10000 常量"
-    assert "if-ge v0, v1, :ok" in gs, "getStds 缺少 >=10000 的保留分支"
+    assert "OrekiShopRules;->clampStds(I)I" in gs, "getStds 未接入 Kotlin OrekiShopRules（BM-11）"
+    assert gs.count("OrekiShopRules;->clampStds(I)I") == 1, "getStds 桥接调用应唯一"
+    assert "0x2710" not in gs, "getStds 仍有 Smali 内联钳制（业务未真正迁移）"
     assert gs.count("return v0") == 1, "getStds 返回点应唯一"
-    note("[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）")
+    note("[4d] 金币下限自检通过（读取钳制由 Kotlin OrekiShopRules.clampStds 承载，Smali 仅 ABI 转发）")
 
     # --- [4e] 旧版存档导入的时间换算（2026-10-26 复核：保留，不得删除）---
     # 结论：d.smali 里的 ×100 不是无配对缺陷，而是上游 migrations.normalizeTimespans
