@@ -77,6 +77,14 @@ bash reconstructed/r107-hooks/scripts/build_and_test.sh
 **未运行**：gradle 生产构建、work/mod 集成、AVD 真机行为验收（模拟器由 Lead 独占，
 本 Agent 未获批准操作）。
 
+## 3.5 第一批集成包（unified diff，已交付）
+
+`integration/` 是本候选集的第一批可直接应用集成包（DK-03 / DK-08 / DK-09 / BM-11）：
+4 个 `git apply` 补丁 + `verify_integration.py` 静态验收脚本（干净 HEAD 导出 → 应用补丁 →
+执行补丁后的生产代码 → Smali 汇编 + dexdump + kotlinc/javap）。最近一次 `59 项 / FAIL 0`。
+应用顺序、预期行为、回滚、AVD 断言、BM-32 冲突结论见
+[`integration/README.md`](integration/README.md)。生产构建与 AVD 验收仍由 Lead 执行。
+
 ## 4. 集成步骤（Lead 执行；本 Agent 不写这些文件）
 
 1. 并入 Kotlin：把 `kotlin/kajfosz/antimatterdimensions/oreki/*.kt` 复制到

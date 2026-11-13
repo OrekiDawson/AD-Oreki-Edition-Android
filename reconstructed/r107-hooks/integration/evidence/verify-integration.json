@@ -1,0 +1,336 @@
+{
+ "task": "R107-01 integration batch1 static verification",
+ "head_commit": "c652e443e8d0115947d857d3a6675f22937c0db3",
+ "patches": [
+  {
+   "patch": "0001-kotlin-batch1-add-classes.patch",
+   "sha256": "e51adfe68e9964b586e8f35d4c0b9dbd9097f4fddb616655dcd767535a20e84b",
+   "apply_check": true,
+   "applied": true
+  },
+  {
+   "patch": "0002-build-mod-bm11-std-clamp.patch",
+   "sha256": "2b4320239c0f6bdec1e0a80031ead7dd08ec6744c13ebd506aee4cbe3d7a8e32",
+   "apply_check": true,
+   "applied": true
+  },
+  {
+   "patch": "0003-dark-theme-dk03-isdark.patch",
+   "sha256": "3c8695ec0023d072f25f6acd216ffd2af00b48d37a8f67e71d626dc12a69a483",
+   "apply_check": true,
+   "applied": true
+  },
+  {
+   "patch": "0004-dark-theme-dk08-dk09-notation.patch",
+   "sha256": "4b949feba179f04401e9e569926c76a95ca0422b5db99d15c35193ff9363128e",
+   "apply_check": true,
+   "applied": true
+  }
+ ],
+ "checks": [
+  {
+   "name": "HEAD 干净导出完成",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply --check PASS 0001-kotlin-batch1-add-classes.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply PASS 0001-kotlin-batch1-add-classes.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply --check PASS 0002-build-mod-bm11-std-clamp.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply PASS 0002-build-mod-bm11-std-clamp.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply --check PASS 0003-dark-theme-dk03-isdark.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply PASS 0003-dark-theme-dk03-isdark.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply --check PASS 0004-dark-theme-dk08-dk09-notation.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "git apply PASS 0004-dark-theme-dk08-dk09-notation.patch",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "build_mod 含 BM-11 Kotlin trampoline 常量",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "build_mod patch_shop_coins 使用 Kotlin trampoline",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "build_mod [4d] 自检已改为 Kotlin 断言",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "oreki_dark_theme 含 DK-03 常量",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "oreki_dark_theme 含 DK-08/09 常量",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "oreki_dark_theme verify() 已同步更新（c()/opts/pg）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 类存在 OrekiShopRules.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 类内容完整 OrekiShopRules.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 与候选完全一致 OrekiShopRules.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 类存在 OrekiThemePolicy.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 类内容完整 OrekiThemePolicy.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 与候选完全一致 OrekiThemePolicy.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 类存在 OrekiUiDefaults.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 类内容完整 OrekiUiDefaults.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "新增 Kotlin 与候选完全一致 OrekiUiDefaults.kt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "fake mod 树构建完成（真实 3.21 基线文件）",
+   "ok": true,
+   "detail": "5 个文件"
+  },
+  {
+   "name": "补丁后的生产代码可执行（patch_shop_coins / appearance / notation）",
+   "ok": true,
+   "detail": "[4d] Purchases.getStds(): STD 读取下限 10000 由 Kotlin OrekiShopRules 承载（Smali 仅 ABI 转发）\n[producer] patch_shop_coins: ok\n[producer] patch_appearance_class: ok(a(),b(),c())\n[producer] patch_default_notation: ok(Options默认,o43.v,o43串,g.b)\n"
+  },
+  {
+   "name": "patch_shop_coins 输出包含 Kotlin 承载说明",
+   "ok": true,
+   "detail": "[4d] Purchases.getStds(): STD 读取下限 10000 由 Kotlin OrekiShopRules 承载（Smali 仅 ABI 转发）\n[producer] patch_shop_coins: ok\n[producer] patch_appearance_class: ok(a(),b(),c())\n[producer] patch_default_notation: ok(Options默认,o43.v,o43串,g.b)\n"
+  },
+  {
+   "name": "patch_default_notation 仍完成 o43.v / o43串 / g.b（未回归其它补丁）",
+   "ok": true,
+   "detail": "[4d] Purchases.getStds(): STD 读取下限 10000 由 Kotlin OrekiShopRules 承载（Smali 仅 ABI 转发）\n[producer] patch_shop_coins: ok\n[producer] patch_appearance_class: ok(a(),b(),c())\n[producer] patch_default_notation: ok(Options默认,o43.v,o43串,g.b)\n"
+  },
+  {
+   "name": "patch_appearance_class 完成 a()/b()/c()",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "BM-11 产出 Smali 含唯一 Kotlin 桥接",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "BM-11 产出 Smali 旧钳制立即数已清零",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-03 产出 Smali 含 isDark 桥接",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-03 产出 Smali 无内联 const/4 true",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-08 产出 Smali 含 defaultNotation 桥接",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-08 产出 Smali 旧默认字符串已清零",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-09 产出 Smali 含 defaultNotation 桥接",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-09 产出 Smali 旧默认字符串已清零",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "DK-10/DK-11 仍按原补丁生效（o43 对象/字符串）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Smali 单文件汇编 PASS Purchases",
+   "ok": true,
+   "detail": "ASSEMBLED Purchases.smali -> Purchases.dex (10300 bytes)\n"
+  },
+  {
+   "name": "dexdump 命中 Kotlin trampoline Purchases",
+   "ok": true,
+   "detail": "找不到 Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;.clampStds"
+  },
+  {
+   "name": "dexdump 成功 Purchases",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Smali 单文件汇编 PASS DeviceOptions$Appearance",
+   "ok": true,
+   "detail": "ASSEMBLED DeviceOptions$Appearance.smali -> DeviceOptions$Appearance.dex (2304 bytes)\n"
+  },
+  {
+   "name": "dexdump 命中 Kotlin trampoline DeviceOptions$Appearance",
+   "ok": true,
+   "detail": "找不到 Lkajfosz/antimatterdimensions/oreki/OrekiThemePolicy;.isDark"
+  },
+  {
+   "name": "dexdump 成功 DeviceOptions$Appearance",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Smali 单文件汇编 PASS Player$Options",
+   "ok": true,
+   "detail": "ASSEMBLED Player$Options.smali -> Player$Options.dex (8876 bytes)\n"
+  },
+  {
+   "name": "dexdump 命中 Kotlin trampoline Player$Options",
+   "ok": true,
+   "detail": "找不到 Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;.defaultNotation"
+  },
+  {
+   "name": "dexdump 成功 Player$Options",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Smali 单文件汇编 PASS h",
+   "ok": true,
+   "detail": "ASSEMBLED h.smali -> h.dex (53296 bytes)\n"
+  },
+  {
+   "name": "dexdump 命中 Kotlin trampoline h",
+   "ok": true,
+   "detail": "找不到 Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;.defaultNotation"
+  },
+  {
+   "name": "dexdump 成功 h",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "基线绑定生成 PASS",
+   "ok": true,
+   "detail": "[kotlin] 基线绑定生成：3.21，CONFIRMED=42\n"
+  },
+  {
+   "name": "payload Kotlin 源数量 >= 24（新增 3 个）",
+   "ok": true,
+   "detail": "24"
+  },
+  {
+   "name": "kotlinc 编译补丁后的全部 payload Kotlin PASS",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "编译产物存在 OrekiShopRules",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "javap ABI 匹配 OrekiShopRules :: public static final int clampStds(int);",
+   "ok": true,
+   "detail": "Compiled from \"OrekiShopRules.kt\"\npublic final class kajfosz.antimatterdimensions.oreki.OrekiShopRules {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiShopRules INSTANCE;\n  public static final int STD_READ_FLOOR;\n  private kajfosz.antimatterdimensions.oreki.OrekiShopRules();\n  public static final int clampStds(int);\n  static {};\n}\n"
+  },
+  {
+   "name": "编译产物存在 OrekiThemePolicy",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "javap ABI 匹配 OrekiThemePolicy :: public static final boolean isDark();",
+   "ok": true,
+   "detail": "Compiled from \"OrekiThemePolicy.kt\"\npublic final class kajfosz.antimatterdimensions.oreki.OrekiThemePolicy {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiThemePolicy INSTANCE;\n  public static final boolean FORCE_DARK;\n  private kajfosz.antimatterdimensions.oreki.OrekiThemePolicy();\n  public static final boolean isDark();\n  static {};\n}\n"
+  },
+  {
+   "name": "编译产物存在 OrekiUiDefaults",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "javap ABI 匹配 OrekiUiDefaults :: public static final java.lang.String defaultNotation();",
+   "ok": true,
+   "detail": "Compiled from \"OrekiUiDefaults.kt\"\npublic final class kajfosz.antimatterdimensions.oreki.OrekiUiDefaults {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiUiDefaults INSTANCE;\n  public static final java.lang.String NOTATION_SCIENTIFIC;\n  private kajfosz.antimatterdimensions.oreki.OrekiUiDefaults();\n  public static final java.lang.String defaultNotation();\n  static {};\n}\n"
+  }
+ ],
+ "total": 59,
+ "failed": 0,
+ "toolchain": {
+  "kotlinc": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/kotlinc/bin/kotlinc",
+  "android_jar": "/home/oreki/Android/Sdk/platforms/android-37.0/android.jar",
+  "dexdump": "/home/oreki/Android/Sdk/build-tools/37.0.0/dexdump",
+  "apktool": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/tools/apktool.jar",
+  "base_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321"
+ }
+}
