@@ -13,7 +13,7 @@
 ## 2. Android 构建与工具迁移
 
 - 跟进官方 Android 稳定基线，当前 3.21.0；Web 采用独立冻结上游。新增或修改 Android 游戏业务必须用 Kotlin，不新增 Java/Smali 业务或 Kotlin 空壳；遵守 §67 语义命名，混淆名仅限有证据的 ABI 适配。
-- **标准 AGP + 官方构建链为长期迁移目标，而不是每轮强制切换。** 现有 apktool/原版解码树和 Kotlin→D8→DEX→APK 管线仍是当前有效交付路径。必须通过包名、资源、DEX/ABI、证书、安装、原版 GUI 与真实运行对比后，才能逐段替换；不得贸然删除仍在工作的环节。
+- **正式 Android APK 构建强制 AGP 9.5.1，唯一生产入口。** 当前阶段一只有 AGP bridge 包，未通过原版 Manifest、资源 ID、DEX/native、原证书、安装升级和 AVD 真实游戏验收，故 Candidate/Verify/Release 必须拒绝旧链产物并 fail-closed 阻断正式新发布。旧 apktool 和独立 Kotlin→D8 链仅供隔离回归对照，不可直接签名、晋升、发布；已有稳定版继续保留。新链全部兼容验收通过后，才切换正式 Candidate 构建任务并解除阻断。AGP 内部正常使用 D8/R8/AAPT2 不属于禁止范围。
 - JADX/REA 优先复用现有导出与 ABI 索引；同一官方基线完整导出一次即可，基线变动或证据缺失才重做。优先复用稳定 JDK、SDK、Gradle、Rust、rg 等；Gradle 离线优先，缺依赖再联网；Python 合理用于现有构建与验证，不代替 Kotlin 业务。代码文本 LF。
 - 主动利用 logcat、AVD、截图、控件树、帧日志、源码及原版对照定位 Bug；优先根因修复，不能用遮挡 GUI、吞异常或编造状态蒙混过关。
 
