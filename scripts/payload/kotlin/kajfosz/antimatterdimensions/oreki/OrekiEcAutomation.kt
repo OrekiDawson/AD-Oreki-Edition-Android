@@ -149,6 +149,12 @@ object OrekiEcAutomation {
      */
     @Volatile private var settledId: Int = 0
 
+    // [R107-01 EC4-FIX] 「当前已解锁 EC 已满级 → 原版 respec」的会话闸门：
+    // 同一个 (unlocked, completions) 快照 3 秒内最多触发一次，避免与其他模块
+    // （OrekiEternity.buyNormalStudies / UI）互相触发 respec 抖动。
+    @Volatile private var lastEcRespecKey: Int = -1
+    @Volatile private var lastEcRespecAt: Long = 0L
+
     // ------------------------------------------------------------ 对外唯一入口
 
     /**
@@ -184,6 +190,13 @@ object OrekiEcAutomation {
             note("in-challenge unlocked=" + unlocked)
             return false
         }
+        // [R107-01 EC4-FIX] 当前已解锁关已打满 5 次 → 先走原版 respecTimeStudies：
+        // 它会退研究、清 player.timestudy.studies，并把 challenge.eternity.unlocked 归 0
+        // （studies/d.c(Z)V 内部 b.E(false)）。不做这一步，EC4 需要的 123 列前置
+        // （143→133→123）会与已买的 121 列互斥：A(123) 的 A() 里 K()=true（requiresST 冲突）
+        // 后又要求 V 天神等级 ≥2（J()），bootstrap 期不可能满足 ⇒ A(143) 永远 false。
+        // Web 冻结上游同源：oreki-eternity-automation.js:665-687（EC 满级 → respecTimeStudies）。
+        if (respecIfCurrentEcMaxed(unlocked)) return true
 
         val target = nextTargetId()
         if (target == 0) {
@@ -197,6 +210,37 @@ object OrekiEcAutomation {
         }
 
         return if (unlocked == target) start(study, target) else settle(study, target, unlocked)
+    }
+
+
+    /**
+     * [R107-01 EC4-FIX] 当前已解锁的 EC 已满级时，调用**原版** `studies/d.c(false)V`（respecTimeStudies）：
+     *   - 退还全部普通时间研究 TT、清空 player.timestudy.studies；
+     *   - 当前 EC 研究 `b.E(false)` → `PlayerEternityChallenges.unlocked = 0`；
+     *   - 之后 buyNormalStudies 会按下一关目标列（EC4 → 列 123）重新买 123/133/143，
+     *     EC 研究 `D()` 才能把 unlocked 推进到 4。
+     *
+     * 只调用原版 UI 同款 respec 方法（prestige/c.smali:5290 的同一入口），不写任何存档字段、
+     * 不改 completions。同快照 3 秒内最多一次（防与其他模块抖动）。
+     *
+     * @return true = 本拍执行了 respec（调用方应 return true 占一拍）。
+     */
+    private fun respecIfCurrentEcMaxed(unlocked: Int): Boolean {
+        if (unlocked < 1 || unlocked > EC_COUNT) return false
+        val challenge = Abi.challenge(unlocked) ?: return false
+        val comps = Abi.completions(challenge) ?: return false
+        val max = Abi.maxCompletions(challenge) ?: return false
+        if (max <= 0 || comps < max) return false
+        val now = android.os.SystemClock.elapsedRealtime()
+        val key = unlocked * 100 + comps
+        if (lastEcRespecKey == key && now - lastEcRespecAt < 3000L) return false
+        lastEcRespecKey = key
+        lastEcRespecAt = now
+        val ok = Abi.respecTimeStudies()
+        note("RESPEC maxed id=" + unlocked + " comps=" + comps + "/" + max +
+            " ret=" + ok + " unlockedAfter=" + Abi.unlocked() +
+            " tt=" + Abi.theorem())
+        return true
     }
 
     /** 最小未满级关号（1..12）；全部满级返回 0。 */
@@ -781,6 +825,34 @@ object OrekiEcAutomation {
 
         /** 时间研究的行内前置数组（`qu4.k`）。 */
         fun tsPrereqs(ts: Any?): List<Int>? = intArray(ts, "k")
+
+
+        /** 原版 respecTimeStudies：`kajfosz/antimatterdimensions/eternity/studies/d;->c(Z)V`。
+         * 参数只控制是否弹「时间研究」页（这里传 false）；退研究/清 Tree/unlocked=0 都由原版完成。 */
+        fun respecTimeStudies(): Boolean? = try {
+            val c = cls("kajfosz.antimatterdimensions.eternity.studies.d") ?: return null
+            var m: java.lang.reflect.Method? = null
+            for (x in c.declaredMethods) {
+                if (x.name == "c" && x.parameterCount == 1 &&
+                    x.parameterTypes[0] == java.lang.Boolean.TYPE) {
+                    m = x
+                    try {
+                        x.isAccessible = true
+                    } catch (_: Throwable) {
+                    }
+                    break
+                }
+            }
+            if (m == null) {
+                Log.i(TAG, "respecTimeStudies: d.c(Z)V not found")
+                return null
+            }
+            m.invoke(null, false)
+            true
+        } catch (t: Throwable) {
+            Log.i(TAG, "respecTimeStudies failed: " + t)
+            null
+        }
 
         // ------------------------------------------------ [R107-01 EC4-DIAG] 只读诊断
         // 以下 helper 只做查询：A 的两种入参、z 余额、requirementType/group/K/r，
