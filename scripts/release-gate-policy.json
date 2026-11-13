@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "public_source_repository": "OrekiDawson/AD-Oreki-Edition-Android",
+  "apk_file": "antimatter-dimensions.apk",
+  "package": "com.oreki.antimatterdimensions",
+  "versionName": "3.21.0",
+  "versionCode": "30210000",
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "required_checks": [
+    "install-upgrade",
+    "launch",
+    "apk-signature-version",
+    "stage-gate-positive",
+    "stage-gate-negative",
+    "autobuyer-core",
+    "save-import",
+    "gui"
+  ],
+  "allowed_non_required_states": [
+    "PASS",
+    "NOT RUN",
+    "NOT-RUN",
+    "SKIP",
+    "NOT APPLICABLE",
+    "N/A"
+  ],
+  "required_completion_platforms": [
+    "android",
+    "web"
+  ],
+  "max_completion_seconds": 10800
+}
