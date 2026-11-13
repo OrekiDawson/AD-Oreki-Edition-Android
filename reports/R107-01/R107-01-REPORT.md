@@ -262,3 +262,16 @@
   同时 EP 2.7e7→4.1e6（真实扣费）、0 FATAL/VerifyError；证据 reports/R107-01/lead-evidence/etlayer-fix/。
 - **AGP 原生候选同步重建**：`native-r4cur-fix.apk`（d0870cab…，AGP 原生游戏代码 r4cur + 修复后 MOD Kotlin，含 batch1+EP 尺度+永恒层修复）。
 - 正在进行：native-r4cur-fix 全新档 30 分钟真实跑次（首 ∞/Break/永恒/第二永恒/首次现实里程碑），结果另行记录。
+
+### 10.8 混合转换器运行期回归（重要负结果，2026-11-14 03:00）
+
+- AVD 实测（pm clear + 冷启动，logcat）：
+  | 候选 | 启动 | 崩溃 |
+  | --- | --- | --- |
+  | native-mixed-b1（8 类 r1 替换 + shadow） | PASS（Tick/存档/门禁实测通过） | — |
+  | native-r2cur（13 类 + nc8 修复） | **FAIL** | FATAL：IllegalStateException: Already suspended @ ne1.l→rk8.G→DataStoreImpl$data$1.invokeSuspend |
+  | native-r4cur（r4cur jar 6b293ed7，FixInitSplice+75 接口替换） | **FAIL** | CoroutinesInternalError；Caused by ClassCastException: ld0 → s01 @ shadow ContinuationImpl.releaseIntercepted |
+- **推断**：JVMS 合法 ≠ 运行期等价。rk8（withContext）及其 kotlinx.coroutines 状态机闭包、nc8 等被 dex2jar 版本替换后，与 enjarify 版本的协程实现混用破坏内部状态机 ABI；
+  r4cur 的 ClassCastException 另指向 shadow `ContinuationImpl` 与 repackaged `s01`(DispatchedContinuation)/`ld0` 的层次不匹配（75 接口替换/FixInitSplice 需单独冒烟）。
+- **结论**：原生候选暂时只能采用「8 类最小替换」形态（已验证可运行）；r2/r4/r5 均不可作 Candidate，需启动级 AVD 冒烟后才可继续。
+- 已要求 agp-dex 产出「8 类最小集」与「8 类+FixInitSplice」两个变体并分析 ABI 不兼容根因。
