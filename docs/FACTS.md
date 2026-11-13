@@ -10090,3 +10090,18 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - 恢复点：R106-01 阻塞证据齐全后收口，不启动 R106-02；下一步需用户授权评估
   「22 个原版 smali 补丁点等价迁为 AGP 可编译形态」。
 
+
+## R106-02：AGP 游戏 DEX 过渡链与并行反混淆（2026-11-13，进行中）
+
+- 官方 3.21.0 base APK 复核 SHA-256 `4e9970a8…f527ac`；2 个 DEX 共 15,319 类（第一方 10,954：
+  默认包 9,712 + kajfosz 1,242；第一方方法 51,397、字段 41,793）。
+- descriptor 级完整第一方索引已建（`docs/deobfuscation/data/first-party-3.21-index.csv`）；
+  语义映射当前仅 49 类（confirmed 17/strong 23/inferred 9）、方法级 confirmed 10、字段级 0。
+  JADX 自动名、dex2jar 转换、VerifyError 修复都不计入语义反混淆。
+- AGP 过渡链：官方 DEX→dex2jar→JVM class（1,537 处 dash 名修复 + 4,388 处构造配对修复/
+  2,080 合成构造）→ AGP `-PorekiGameJar`；APK 含 16,390 类、原证书签名、资源 ID 与官方一致。
+- 冷启动仍 **FAIL**：最新 VerifyError `ee1.<init>` 对 `ke0.a` 的类型流访问；此前 kn6/k51 已按
+  DEX 证据修复。转换链当前不可作为正式 Candidate 来源；未发布、R103 Latest 不变。
+- 并行：6 个子 Agent（语义映射×2、Kotlin 重建、Smali 钩子台账、DEX 转换、测试/CI）运行中；
+  GUI/阶段门禁因名额暂 NOT STARTED。
+

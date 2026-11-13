@@ -13,6 +13,9 @@ val repoRoot = layout.projectDirectory.dir("../..").asFile
 val fullGame = (providers.gradleProperty("orekiFullGame").orNull ?: "false").toBoolean()
 val decodedTree = File(repoRoot, providers.gradleProperty("orekiDecodedTree").orNull ?: "work/mod")
 val fullGameStage = File(repoRoot, providers.gradleProperty("orekiFullGameStage").orNull ?: "build/agp-fullgame")
+// R106-02：由官方 3.21.0 DEX 经 dex2jar 转换并过滤后的 JVM 类输入（构建产物，不入库）。
+// 脚本：scripts/agp_gamejar.py；来源 SHA-256 必须随候选记录。
+val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
 
 val generateKotlinBindings by tasks.registering(Exec::class) {
     workingDir = repoRoot
@@ -103,6 +106,17 @@ android {
             }
         }
     }
+}
+
+if (fullGame) {
+    val jar = gameJar
+    if (jar == null || !jar.isFile) {
+        throw GradleException("完整游戏模式缺少 -PorekiGameJar=<官方 DEX 转换后的 JVM jar>；来源 SHA-256 必须可追踪")
+    }
+    dependencies {
+        implementation(files(jar))
+    }
+    logger.lifecycle("[oreki] 游戏类输入: " + jar + " (" + jar.length() + " bytes)")
 }
 
 if (fullGame) {

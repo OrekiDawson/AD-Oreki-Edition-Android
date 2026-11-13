@@ -54,3 +54,12 @@
 - 阻塞（BLOCKED）：游戏 DEX 无法进入 AGP 编译链。AGP 9.5.1 公开 artifact API 没有 DEX 工件（D8 只消费 class 文件）；`.dex` 文件依赖被静默忽略；MOD 依赖 22 个原版混淆 smali 补丁 + 33 个 MOD smali 包装类，最终游戏 DEX 必须由 smali 汇编生成。
 - 因此 AGP APK 缺游戏类，AVD 冷启动 `ClassNotFoundException: kajfosz.antimatterdimensions.App`；未生成 provenance、未发布 Candidate，R103 Latest 未变。
 - 完整游戏模式仅在本地/私有环境以 `-PorekiFullGame=true` 运行，输入准备脚本为 `scripts/agp_prepare_fullgame.py`；AGP-only 门禁继续 fail-closed。
+
+## 阶段三续（R106-02，2026-11-13）：官方 DEX→JVM class 过渡链（实验，BLOCKED）
+
+- 用 dex2jar 2.4 把官方 3.21.0 两个 DEX 转成 JVM class（15,319→15,247，排除 `kotlin/**` 72 类），
+  修复含 `-` 标识符的常量池引用（1,537 处）与构造调用配对（4,388 处/2,080 个合成构造），
+  以 `-PorekiGameJar` 输入 AGP；APK 类数从 1,143 提升到 **16,390**。
+- 结果：APK 构建/签名/资源/清单正确，但 AVD 冷启动仍 VerifyError（`ee1.<init>` 字段访问类型流）；
+  转换器对 R8 优化 DEX 的类型流还原不可靠，**不得作为正式 Candidate 来源**。
+- 工具与复现：`scripts/dexfix/README.md`、`scripts/agp_gamejar.py`；证据 `reports/R106-02/`。
