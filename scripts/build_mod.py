@@ -508,29 +508,31 @@ FIELD_ALIASES_320: dict[str, str] = {
 # `Lip0;`。3.20 对 Currency 状态类做了拆分，「字段名对、类型旧」的引用能通过
 # smali 汇编（它不校验），却在 ART 链接期抛 NoSuchFieldError ——
 # 构建、签名、安装全部成功，只有执行到那行才崩。每条都必须有结构证据。
-# R90 目标侧字段名映射：3.21 的 Currency 状态容器 iq0 对字段做了整体重排，
-# 不能沿用 3.20 的 w/g0/R。真实 DEX 字段表按类型逐项对应：
-#   bq0.w : Lrp0;  -> iq0.d0 : Lrp0;  （infinityPoints）
-#   bq0.g0: Lup0;  -> iq0.e  : Lpp0;  （infinities；3.21 的 iq0.z/Lup0 实为 eternities）
-#   bq0.R : Lop0;  -> iq0.d  : Lop0;  （eternityPoints）
+# R107-01 修正（原 R90 映射错误，证据见 reports/R107-01/lead-evidence/currency-alias-fix.md）：
+# 3.21 的 Currency 状态容器 iq0 对字段名整体重排，**不能按 3.20 的类型短名对应**，
+# 因为 3.20→3.21 的 R8 短名被整体重排（同一短名换了语义）。必须按**语义**映射：
+#   bq0.w : Lrp0;（3.20 infinityPoints） -> iq0.w : Lyp0;（3.21 infinityPoints；yp0.K() = Player.D()）
+#   bq0.g0: Lup0;（3.20 infinities）     -> iq0.e : Lpp0;（3.21 infinities；R101 已验证）
+#   bq0.R : Lop0;（3.20 eternityPoints） -> iq0.S : Lvp0;（3.21 eternityPoints；vp0.K() = Player.y()）
+# 反证（旧映射错在哪）：3.21 的 iq0.d0:Lrp0; 的 rp0.K() 走 Player.Celestials（laitela 资源），
+# iq0.d:Lop0; 的 op0.K() = Player.b()（antimatter）——都不是 IP/EP。旧映射会让
+# OrekiInstantChallenge 的挑战奖励把 IP 写进 darkMatter、EP 写进 antimatter（真实结算错误）。
+# bindings.json 自身也印证：classes.rp0 -> Lyp0;（3.20 IP 类映射到 3.21 yp0）、
+# classes.op0 -> Lvp0;（3.20 EP 类映射到 3.21 vp0）。
 # 字段名错但类型仍是 Currency 时 smali 能汇编，ART 却会在调用父类
 # Currency.add 时抛出 VerifyError，所以必须按真实字段身份映射。
 FIELD_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
-    ("bq0", "w"): ("iq0", "d0"),
+    ("bq0", "w"): ("iq0", "w"),
     ("bq0", "g0"): ("iq0", "e"),
-    ("bq0", "R"): ("iq0", "d"),
+    ("bq0", "R"): ("iq0", "S"),
 }
 
-# 3.21 的字段类型也必须按目标字段钉正：旧字段类型经过类别名级联后，
-# 会落到 3.20 同名字段对应的类，而不是 3.21 真实声明类型。
-#   iq0.d0 真实 Lrp0;（3.19 Lrp0 经别名会变成 Lyp0）
-#   iq0.e  真实 Lpp0;（3.19 Lsm0 经别名会变成 Lpp0，无需再改类型）
-#   iq0.d  真实 Lop0;（3.19 Lym0 经别名会变成 Lvp0）
+# 3.21 不再需要“字段类型钉正”式改写：字段名按语义修正后，payload 的 3.19 货币类型
+# 经 OBFUSCATION_ALIASES_320 + bindings 级联已落到 3.21 真实声明类型
+# （infinityPoints: bn0→rp0→yp0；eternityPoints: ym0→op0→vp0），与 iq0.w:Lyp0;、
+# iq0.S:Lvp0; 精确一致。保留空表只为维持调用点契约与 fail-closed 校验表。
 # 注意：iq0.z/Lup0 是 eternities 的 setter（Player.E0），绝不能当 infinities 用。
-FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
-    ("iq0", "d0"): ("yp0", "rp0"),
-    ("iq0", "d"): ("vp0", "op0"),
-}
+FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {}
 
 FIELD_TYPE_ALIASES_320: dict[tuple[str, str], tuple[str, str]] = {
     # 3.19 `Lln0;->e:Lsm0;` 是 infinities 位（sm0 = 通用计数状态，5 方法）。
@@ -5006,11 +5008,9 @@ def patch_instant_challenge_rewards():
     # FIELD_ALIASES_321/FIELD_TYPE_ALIASES_321 推导目标字段与真实类型，
     # 既避免第二套硬编码，也保留字段名和类型的 fail-closed 检查。
     if _profile_value("bindings"):
-        target_currency_fields = {}
-        for (oc, of), (tc, tf) in FIELD_ALIASES_321.items():
-            type_pair = FIELD_TYPE_ALIASES_321.get((tc, tf))
-            if type_pair is not None:
-                target_currency_fields[tf] = type_pair[1]
+        # [R107-01] 字段按语义映射后，payload 货币类型经 bindings 级联已落到真实声明
+        # 类型；显式登记「目标字段 -> 3.21 真实声明类型」以保持 fail-closed 校验。
+        target_currency_fields = {"w": "yp0", "S": "vp0"}
         currency_file = _class_file("Liq0;")
         assert currency_file is not None, "3.21 Currency 状态类 Liq0; 不存在"
         currency_body = currency_file.read_text(encoding="utf-8", errors="replace")
@@ -5021,6 +5021,14 @@ def patch_instant_challenge_rewards():
             )
             assert pat.search(currency_body), (
                 f"Liq0; Currency 位字段 {field_name}:L{type_name}; 不存在（ABI 绑定错误）")
+        # [R107-01] 反向守卫：旧的错误映射（IP→iq0.d0 / EP→iq0.d）绝不能回到生产代码，
+        # 否则挑战奖励会写进 darkMatter / antimatter（真实结算错误，非显示错误）。
+        for wrong in ("Liq0;->d0:Lrp0;", "Liq0;->d:Lop0;"):
+            assert wrong not in src, (
+                "OrekiInstantChallenge 使用了错误的 3.21 货币字段 " + wrong
+                + "（IP 应为 Liq0;->w:Lyp0;，EP 应为 Liq0;->S:Lvp0;）")
+        assert "Liq0;->w:Lyp0;" in src, "OrekiInstantChallenge 的 IP 结算字段缺失或被改错"
+        assert "Liq0;->S:Lvp0;" in src, "OrekiInstantChallenge 的 EP 结算字段缺失或被改错"
 
     # --- 5) 幂等：二次执行只校验不写盘 ---
     marker = "# [Oreki RIS] reward-instant-settle v1"

@@ -903,9 +903,24 @@ object OrekiStageAuto {
 
     @JvmStatic
     fun vanillaEternityTabAllowed(tabName: String?): Boolean {
+        // [R107-01 G1] 永恒层名单必须覆盖原版 jp4 注册表里的全部永恒层业务键（Luo4.b）。
+        // 修复前漏了 dilation 与 eternityChallenges：两者落到 else -> true，
+        // 于是 MainActivity 的 currentSubTab -> jp4.b(String) -> W8 恢复路径可在首次永恒前
+        // 直达「时间膨胀」「永恒挑战」页面（R100/R101 同类 P0，R101 只测过 timeStudies）。
+        // 依据：jp4 注册表（eternity 分组 4 个子页签）+ Web 冻结上游 tabs.js
+        // （dilation: dilationUnlocked()/realityUnlocked()；eternityChallenges:
+        // realityUnlocked() || challenge.eternity.unlocked !== 0 || EC completions>0）。
         val allowed = when (tabName) {
-            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones" ->
+            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones",
+            "dilation", "eternityChallenges" ->
                 vanillaEternityUnlocked()
+            // [R107-01 G3 候选] 现实层：W8/currentSubTab 恢复路径同样不检查页签可见性，
+            // 若业务键未拦截，「现实前存档 + 现实后 currentSubTab」会打开现实/天神页面。
+            // 判据与 OrekiGuiStage.PHASE_REALITY 同源：realities / bigRealities 真实结算产物。
+            "reality", "celestials", "automator",
+            "glyphs", "realityUpgrades", "imaginaryUpgrades", "perks", "blackhole", "glyphAlchemy",
+            "celestialNavigation", "teresa", "effarig", "nameless", "v", "ra", "laitela", "pelle" ->
+                stageRealityReachedDirectRead()
             else -> true
         }
         val key = tabName ?: "<null>"
@@ -937,6 +952,35 @@ object OrekiStageAuto {
      * 永恒点数为正 / bigEternities 为正 / 永恒升级位图非空 / 现实已结算。
      * 任一读取失败按未到达处理（fail-closed）。
      */
+    /**
+     * [R107-01 G3 候选] 现实层门禁的直接读取，与 [stageEternityReachedDirectRead] 同构：
+     * 8 ms 帧内缓存、显式哨兵、fail-closed。判据只用真实结算产物
+     * （realities / bigRealities 为正），不读 Player.eternities 字段，不写任何状态。
+     */
+    private const val REALITY_GATE_CACHE_WINDOW_MS = 8L
+
+    @Volatile
+    private var directRealityGateCachedAtMs: Long = Long.MIN_VALUE
+
+    @Volatile
+    private var directRealityGateCachedValue: Boolean = false
+
+    private fun stageRealityReachedDirectRead(): Boolean {
+        val now = android.os.SystemClock.elapsedRealtime()
+        val cachedAt = directRealityGateCachedAtMs
+        if (cachedAt != Long.MIN_VALUE && now >= cachedAt && now - cachedAt < REALITY_GATE_CACHE_WINDOW_MS) {
+            return directRealityGateCachedValue
+        }
+        val result = try {
+            positiveRead { GameApi.realitiesValue() } || positiveRead { GameApi.bigRealitiesValue() }
+        } catch (_: Throwable) {
+            false
+        }
+        directRealityGateCachedValue = result
+        directRealityGateCachedAtMs = now
+        return result
+    }
+
     private fun stageEternityReachedDirectRead(): Boolean {
         val now = android.os.SystemClock.elapsedRealtime()
         val cachedAt = directEternityGateCachedAtMs
