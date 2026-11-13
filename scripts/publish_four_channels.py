@@ -497,6 +497,34 @@ def preflight_write_channels() -> int:
                             run(["rclone", "deletefile", target], check=True, timeout=45)
                         except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
                             failures.append(f"{label}: failed to clean probe file: {exc}")
+            local_remote = setting("AD_LOCAL_SFTP_REMOTE")
+            if local_remote:
+                local_directory = setting("AD_LOCAL_SFTP_DIR")
+                if not local_directory:
+                    failures.append("local sftp: AD_LOCAL_SFTP_DIR not configured")
+                else:
+                    probe = remote_spec(local_remote, local_directory,
+                                        f"latest/.oreki-write-probe-{uuid.uuid4().hex}.txt")
+                    uploaded = False
+                    try:
+                        require_sftp_remote(local_remote)
+                        run(["rclone", "copyto", str(payload), probe,
+                             "--retries", "1", "--low-level-retries", "1"],
+                            check=True, timeout=90)
+                        uploaded = True
+                        meta = json.loads(run(["rclone", "lsjson", probe, "--stat"],
+                                              check=True, timeout=45).stdout)
+                        if meta.get("Size") != payload.stat().st_size:
+                            raise RuntimeError("SFTP probe size mismatch")
+                        say("SFTP: verified write/read metadata")
+                    except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
+                        failures.append(f"local SFTP: write authorization/readback failed: {exc}")
+                    finally:
+                        if uploaded:
+                            try:
+                                run(["rclone", "deletefile", probe], check=True, timeout=45)
+                            except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+                                failures.append(f"local SFTP probe cleanup failed: {exc}")
     repo = github_repo()
     if not repo or not command_exists("gh"):
         failures.append("github: repository or gh CLI unavailable")
@@ -513,6 +541,18 @@ def preflight_write_channels() -> int:
     return 0
 
 
+def require_sftp_remote(remote: str) -> None:
+    """Validate a declared local channel is genuinely rclone's SFTP backend."""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", remote):
+        raise RuntimeError("local SFTP remote name invalid")
+    try:
+        data = json.loads(run(["rclone", "config", "dump"], check=True, timeout=30).stdout)
+    except (ValueError, OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError("cannot inspect remote backend type without exposing credentials") from exc
+    if not isinstance(data, dict) or not isinstance(data.get(remote), dict) or data[remote].get("type") != "sftp":
+        raise RuntimeError("local destination must be an explicitly configured SFTP remote")
+
+
 def local_sftp_publish(root: Path, apk: Path, apk_info: dict[str, object],
                        state: dict[str, object], dry_run: bool) -> None:
     """Public hosted Runner's LOCAL channel means actual remote SFTP, not its temporary disk.
@@ -524,8 +564,7 @@ def local_sftp_publish(root: Path, apk: Path, apk_info: dict[str, object],
     directory = setting("AD_LOCAL_SFTP_DIR")
     if not remote or not directory:
         raise RuntimeError("本地 SFTP 渠道缺少 remote/dir；拒绝伪造临时 Runner 上的 local PASS")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", remote):
-        raise RuntimeError("本地 SFTP remote 名称不合法")
+    require_sftp_remote(remote)
     final = remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}")
     pending = remote_spec(remote, directory, f"latest/.oreki-stage-{uuid.uuid4().hex}.apk")
     say(f"SSH/SFTP 本地渠道：{final}")
