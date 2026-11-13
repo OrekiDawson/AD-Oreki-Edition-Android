@@ -348,7 +348,12 @@ object OrekiStageAuto {
             // 永远 brake=false、infinityUpgradeBits 恒 0 —— 实测候选 cf20aacd
             // 已复现该死锁（AVD 新档：首次无限后 IP 26 不消费、brake 恒 false）。
             if (!GameApi.isDoomed()) {
-                if (GameApi.isBroken()) {
+                // [R107-01 P1] 原判断只看「当前是否 Break」。永恒结算后 Break 会被重置，
+                // 而时间维度/时间定理/时间研究/永恒升级本来在永恒层就应被自动推进；
+                // gate-gui AVD 实测（首永恒 02:41:09 后）broken 持续 false ⇒ 整个永恒层自动化
+                // 被跳过：TT=0、时间研究 0、TD 不买、maxIP 停滞。改为「已 Break 或已进入永恒层」。
+                // 首次 Break 之前 bigE 恒 0，本块仍不会执行，R97 的阶段越界门禁语义不变。
+                if (GameApi.isBroken() || hasReachedEternityLayer()) {
                     // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
                     // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
                     // ⇒ 膨胀永不解锁。放在这里的原因：
@@ -2041,6 +2046,15 @@ object OrekiStageAuto {
      * 判据顺序与 Web `eternityStageAllowed()` + `tickEternity()` 对齐；本方法只做
      * 「是否允许驱动」，不写任何存档字段、不改收益公式，也不接管玩家手动永恒。
      */
+    /** [R107-01] 是否已进入永恒层（曾完成过永恒）。用于区分「首次 Break 前」与「永恒结算后 Break 被重置」。 */
+    private fun hasReachedEternityLayer(): Boolean {
+        val bigE = GameApi.bigEternitiesValue()
+        if (bigE is Number && bigE.toDouble() > 0.0) return true
+        val e = GameApi.eternitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(e, 0.0) ?: return false
+        return cmp > 0
+    }
+
     private fun eternityGateReason(): String {
         // [R101 P0] 基础判据统一交给 Kotlin 门禁（总开关 / autoEternity 单项开关 /
         // Doomed / Break / canEternity）。这里只再叠加本帧的收益与节拍条件。
@@ -2065,8 +2079,10 @@ object OrekiStageAuto {
             if (crunchSkipFrames > 0) crunchSkipFrames--
             // [R107-01] 门禁只拦「是否主动按永恒」，不拦永恒层经济动作（TT/时间维度/时间研究）。
             // 总开关/自动永恒开关/Doomed/未 Break 时仍整体停手，与既有语义一致。
+            // [R107-01] 只排除「玩家关闭 / Doomed」；not-broken 在永恒层是常态（永恒结算重置 Break），
+            // 此时仍必须推进 TT/TD/TS，否则每次永恒后经济停摆（AVD 实测）。
             val economyEligible = reason != "automation-off" && reason != "auto-eternity-off" &&
-                reason != "doomed" && reason != "not-broken"
+                reason != "doomed"
             if (reason == "allow") {
                 GameApi.eternityTick()
             } else if (economyEligible) {
