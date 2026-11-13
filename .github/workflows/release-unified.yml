@@ -276,6 +276,12 @@ jobs:
         with:
           ref: ${{ inputs.delivery_tool_sha }}
           persist-credentials: false
+      - name: Checkout mandatory AGP policy from this release workflow commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: agp-policy
+          persist-credentials: false
       - name: Set up rclone (pinned 1.76.0 with single-part OneDrive upload)
         run: |
           set -euo pipefail
@@ -317,7 +323,7 @@ jobs:
           github-token: ${{ github.token }}
           path: candidate
       - name: Recheck AGP provenance before publishing to any channel
-        run: python3 scripts/enforce_agp_only.py artifact --candidate-dir candidate
+        run: python3 agp-policy/scripts/enforce_agp_only.py artifact --candidate-dir candidate
       - name: Reverify immutable APK manifest identity
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha256 }}
