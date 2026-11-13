@@ -77,6 +77,18 @@
   因此「AGP 构建成功 + D8 全通过 + 冷启动成功」不能证明运行期语义；后续门禁必须增加 JVMS 校验/运行期 Tick 门禁。
 - 结论：enjarify 路线不可修于站点级，需转换器级改造或 Kotlin 关键闭包重建；已按停损条件转 Kotlin。
 
+
+### 2.6 独立结构审计（test-ci 子 Agent，23:30）
+
+- 过渡候选 c25c68dc 结构验收 **PASS（required 28/28）**：包名/版本/minSdk/targetSdk、apksigner v3 原证书、
+  zipalign 16KB、第一方类覆盖 **10,954/10,954**、官方 15,319 类精确覆盖 15,319/15,319、
+  资源同名不同 ID=0、4 ABI×2 native 与 R103 逐字节相同、assets/Manifest 一致。
+- **输入来源逐字节核对**：classes.dex/2/3 = unsigned.apk 对应 dex SHA **MATCH**；classes4.dex = AGP bridge
+  APK classes.dex SHA **MATCH**；旧链 Kotlin DEX（classes4.dex 9aa54a58…）确认未进入 hybrid。
+- 跨 dex 重复 66 类全部是 Lkotlin/** stdlib（与 R103 稳定版同一批），非新引入。
+- 发布判定 **BLOCKED**：过渡形态 + AGP 原生游戏代码 Tick 卡死 + CI 无 AGP 游戏代码链路。
+- 证据：reports/R107-01/test-ci/07-hybrid-candidate-audit.md 与 evidence/hybrid-c25c68dc/。
+
 ## 3. 主线 B：全量语义反混淆（进行中）
 
 真实分母不变：第一方 10,954 类（默认包 9,712 + kajfosz 1,242）/ 51,397 方法 / 41,793 字段。
