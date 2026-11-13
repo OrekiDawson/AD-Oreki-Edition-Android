@@ -370,3 +370,14 @@
   * timeline t=875：**real=0.301**、bigE/EC/TT 全部重置（真实现实重置）；0 FATAL/VerifyError/NoSuchMethodError。
 - 意义：Android MOD 自动化首次从全新档真实打通「永恒→EC 全满→膨胀研究→现实」，180 分钟目标的结构性阻断已消除。
 - 已启动 **180 分钟默认设置（不注入 interval）真实跑次**（fresh 档，每 60s 采样，gameEnd 即停；证据 reports/R107-01/lead-evidence/180min-default-run/）。
+
+### 10.17 默认设置 180 分钟跑次（前 46 分钟）与阶段化节拍决策（2026-11-14 07:30）
+
+- **默认设置（interval=10s，未注入 prefs）fresh 档实测**：
+  * 首次永恒 t≈421s、EC 推进明显变慢（t≈2284s 时 ecSum=50/60）、**首次 reality ≈ t=2542s（42.4 分钟）**；
+  * DS6 BUY id=1..6 于 07:22:31 连续发生、随后 bigE 806→0 / EC/TT 重置（真实现实结算）；0 FATAL/VerifyError。
+  * 结论：默认 10s 节拍下「首 reality 42 分钟」，→ 180 分钟 gameEnd 结构性不可达；对比 interval=1 首 reality 14.6 分钟（≈2.9×差距）。
+- **决策**：实现「阶段化节拍」（stage cap）：effectiveInterval = min(配置值, stageCap)，
+  stageCap：realities==0 → 1s；1..9 → 2s；10..49 → 3s；≥50 → 5s（Android/Web 同语义）；
+  不改玩家配置/存档字段、不改结算，仅 MOD 自动化节拍；已派 hook-migrate（Android）与 web-parity（Web）实现 + 验证。
+- 证据：reports/R107-01/lead-evidence/180min-default-run/（timeline/full-logcat/ds6-buy.log；t≈2540s reality reset）。
