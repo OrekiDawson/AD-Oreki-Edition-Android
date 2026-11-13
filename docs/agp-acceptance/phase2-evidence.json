@@ -1,0 +1,23 @@
+{
+  "phase": 2,
+  "status": "PASS (local packaging/launch; formal build entry NOT replaced)",
+  "agp_version": "9.5.1",
+  "packaging_script": "scripts/agp_package.py",
+  "base_apk": "build/gradle-stage/unsigned.apk (rebuilt 2026-11-13 19:56 from current sources)",
+  "agp_packaged_apk_sha256": "113e39dfb60aed9bfc2aabbfc09497e252bfbe88232e250df6d74291e9d66b0b",
+  "size_bytes": 84470221,
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "package": "com.oreki.antimatterdimensions",
+  "versionName": "3.21.0",
+  "versionCode": "30210000",
+  "replaced_dex": "classes4.dex -> 6 AGP built-in Kotlin DEX files",
+  "preserved_entries_identical": 1784,
+  "resources_arsc_identical": true,
+  "manifest_identical": true,
+  "native_libs_identical": true,
+  "avd_install": "PASS (upgrade over legacy candidate)",
+  "avd_launch": "PASS (no FATAL EXCEPTION, process running)",
+  "mod_active_evidence": "player.json: antimatter exponent 136011.23 -> 136215.21, dimensionBoosts 1487 -> 1489 within 20s",
+  "formal_chain_replaced": false,
+  "next": "Manifest/resources.arsc resource-ID/original DEX/native takeover; AVD parity vs legacy chain before replacing formal entry"
+}
