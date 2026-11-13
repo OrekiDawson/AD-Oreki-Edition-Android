@@ -20,6 +20,8 @@ class AgpParityUnitTests(unittest.TestCase):
             "Lkajfosz/antimatterdimensions/R;",
             "Lkajfosz/antimatterdimensions/oreki/Foo$$ExternalSyntheticLambda0;",
             "Lkajfosz/antimatterdimensions/oreki/Bar$0;",
+            "Lkotlin/Unit;",
+            "Landroid/app/Activity;",
         }
         self.assertEqual(parity.normalize(raw), {descriptor("OrekiAuto")})
 

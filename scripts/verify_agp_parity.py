@@ -66,6 +66,8 @@ def dex_descriptors(data: bytes) -> set[str]:
 def normalize(descriptors: set[str]) -> set[str]:
     normalized = set()
     for descriptor in descriptors:
+        if not descriptor.startswith("Lkajfosz/antimatterdimensions/"):
+            continue
         if descriptor == "Lkajfosz/antimatterdimensions/R;":
             continue
         if "ExternalSyntheticLambda" in descriptor:
