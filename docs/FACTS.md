@@ -10164,3 +10164,19 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - **AVD 环境**：2026-11-13 23:34–23:45 独占 emulator-5554；实验前 /data/data 备份至
   `/home/oreki/private-staging/r107-avd-backup/r107-data-backup-233411.tgz`，实验后已恢复并还原动画/省电/无障碍设置。
 - 证据：`reports/R107-01/gates/AVD-RESULTS.md`、`DEFECTS.md`、`evidence/avd/`。
+
+### R107-01 里程碑：Android 自动化首次真实解锁现实（2026-11-14 06:40，AVD 实测）
+
+- **EC1-12 全满**：修复「满级 EC 后自动化从不调用原版 respecTimeStudies」——EC1-3 打满后 TS 树停在列 121，
+  EC4 需要列 123（requiresST=[121,122]），K()=true 走 V 天神尾项（bootstrap V=0）⇒ A(123)=false ⇒ EC4 研究永不可买。
+  修复：OrekiEcAutomation 在已解锁 EC 满级时调用原版 eternity/studies/d.c(Z)V（退款/清树/unlocked 归 0），下一拍按新列重建；
+  3s 闸门、不写存档字段。AVD 实测 EC completions 由 [5,5,5,0...] → [5×12]。
+- **膨胀研究自动购买**：OrekiDilationStudies 反射原版注册表 c01.a / id 字段 in1.c / 购买入口 is3.D（真实扣 TT，成本经
+  OrekiDilationCostScale bootstrap /1000），每经济 tick 只买 1 个；AVD 实测 dilation.studies=[1,2,3,4,5]。
+  注意：payload Kotlin 不得使用 kotlin.Pair/sortedBy 等（游戏 DEX 为官方 R8 合并版 kotlin，实测 NoSuchMethodError: Pair.getSecond）。
+- **DS6（现实研究 6）成就豁免**：Web 基线 orekiAchievementsWaivedForReality 的 Android 等价——OrekiRealityUnlock.waiveAchievements
+  在 EC11 与 EC12 均 5/5 时豁免「全部 preReality 成就」一项，TD8/maxEP≥4000/Pelle 仍原版真实校验；
+  注入点在 z40 case24 的成就循环失败出口（条件跳转必须 if-nez：豁免 true 跳成功继续点 :cond_4）。
+- **首次 reality**：fresh 档 interval=1，约 14.6 分钟达成——OREKI_DS6 result=true → OREKI_DIL_STUDIES BUY id=6 →
+  real=0.301（bigE/EC/TT 重置为真实现实结算），0 FATAL/VerifyError/NoSuchMethodError。
+- 证据：reports/R107-01/lead-evidence/{reality-run,reality,ecfix,ecscale-run,dilstudies,ecdiag}/；APK b001faa7（旧链，含全部上述修复）。

@@ -506,3 +506,7 @@ Android 没有 `ecEntryPending` / IU15 冲刺这两项：前者是 EC 入口等�
 | 6 | 180min 进度 | 首次现实 33.7min；realities=15 后 EP 冻结 3683.25；未通关 | R104/R105 记录 180min 内不可达终局 | **功能缺口：两端均未达 180min 门禁** |
 
 结论：四项体验验收 Web 全 PASS；无「必须立即改 Web」的等价阻断。阶段化节拍属进度策略调整，需受控实验 + 教程同步，不擅自改默认值。
+
+| EC 满级后 respec | Web oreki-eternity-automation.js EC 满级时调用 respecTimeStudies | Android 同源已实现（OrekiEcAutomation，调原版 eternity/studies/d.c） | 已同步（R107-01，AVD：EC 12 关全满） |
+| 膨胀研究自动购买 | Web buyDilationStudies 按 id 顺序 canBeBought && buy() | Android OrekiDilationStudies 反射原版 D() 每 tick 买 1 个 | 已同步（R107-01，AVD：dilation [1..5]） |
+| 现实解锁成就豁免 | Web orekiAchievementsWaivedForReality：EC11/12 满级后豁免全部 preReality 成就 | Android OrekiRealityUnlock.waiveAchievements + z40 case24 注入（TD8/maxEP/Pelle 原版校验） | 已同步（R107-01，AVD：首次 reality 0→0.301） |
