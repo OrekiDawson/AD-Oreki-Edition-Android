@@ -1,0 +1,98 @@
+# 资源 ID 对照（R106-02 复算，只读）
+# 生成时间: 2026-11-13T21:46:18+08:00
+# AGP APK: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk
+#   sha256=50d01062a5ef05981e9f6bab156aa78716b72ec0d4bb77aeadd55c45f058e674
+# 官方 base APK: /home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk
+#   sha256=4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac
+
+资源条目数：官方=14928（package=kajfosz.antimatterdimensions） AGP=14976（package=com.oreki.antimatterdimensions）
+
+## 精确同名不同 ID 数量（不做 $/_aapt_ 归一）
+0
+
+## 归一后（AGP _aapt_ -> $）同名不同 ID 数量
+0
+
+## 官方有、AGP 缺（归一后）: 34
+  drawable/$avd_hide_password__0 0x7f080000
+  drawable/$avd_hide_password__1 0x7f080001
+  drawable/$avd_hide_password__2 0x7f080002
+  drawable/$avd_show_password__0 0x7f080003
+  drawable/$avd_show_password__1 0x7f080004
+  drawable/$avd_show_password__2 0x7f080005
+  drawable/$mtrl_checkbox_button_checked_unchecked__0 0x7f08000c
+  drawable/$mtrl_checkbox_button_checked_unchecked__1 0x7f08000d
+  drawable/$mtrl_checkbox_button_checked_unchecked__2 0x7f08000e
+  drawable/$mtrl_checkbox_button_icon_checked_indeterminate__0 0x7f08000f
+  drawable/$mtrl_checkbox_button_icon_checked_unchecked__0 0x7f080010
+  drawable/$mtrl_checkbox_button_icon_checked_unchecked__1 0x7f080011
+  drawable/$mtrl_checkbox_button_icon_checked_unchecked__2 0x7f080012
+  drawable/$mtrl_checkbox_button_icon_indeterminate_checked__0 0x7f080013
+  drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__0 0x7f080014
+  drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__1 0x7f080015
+  drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__2 0x7f080016
+  drawable/$mtrl_checkbox_button_icon_unchecked_checked__0 0x7f080017
+  drawable/$mtrl_checkbox_button_icon_unchecked_checked__1 0x7f080018
+  drawable/$mtrl_checkbox_button_icon_unchecked_checked__2 0x7f080019
+  drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__0 0x7f08001a
+  drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__1 0x7f08001b
+  drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__2 0x7f08001c
+  drawable/$mtrl_checkbox_button_unchecked_checked__0 0x7f08001d
+  drawable/$mtrl_checkbox_button_unchecked_checked__1 0x7f08001e
+  drawable/$mtrl_checkbox_button_unchecked_checked__2 0x7f08001f
+  drawable/$mtrl_switch_thumb_checked_pressed__0 0x7f080020
+  drawable/$mtrl_switch_thumb_checked_unchecked__0 0x7f080021
+  drawable/$mtrl_switch_thumb_checked_unchecked__1 0x7f080022
+  drawable/$mtrl_switch_thumb_pressed_checked__0 0x7f080023
+  drawable/$mtrl_switch_thumb_pressed_unchecked__0 0x7f080024
+  drawable/$mtrl_switch_thumb_unchecked_checked__0 0x7f080025
+  drawable/$mtrl_switch_thumb_unchecked_checked__1 0x7f080026
+  drawable/$mtrl_switch_thumb_unchecked_pressed__0 0x7f080027
+
+## AGP 有、官方无（归一后）: 82
+  drawable/_aapt_avd_hide_password__0 0x7f080000
+  drawable/_aapt_avd_hide_password__1 0x7f080001
+  drawable/_aapt_avd_hide_password__2 0x7f080002
+  drawable/_aapt_avd_show_password__0 0x7f080003
+  drawable/_aapt_avd_show_password__1 0x7f080004
+  drawable/_aapt_avd_show_password__2 0x7f080005
+  drawable/_aapt_mtrl_checkbox_button_checked_unchecked__0 0x7f08000c
+  drawable/_aapt_mtrl_checkbox_button_checked_unchecked__1 0x7f08000d
+  drawable/_aapt_mtrl_checkbox_button_checked_unchecked__2 0x7f08000e
+  drawable/_aapt_mtrl_checkbox_button_icon_checked_indeterminate__0 0x7f08000f
+  drawable/_aapt_mtrl_checkbox_button_icon_checked_unchecked__0 0x7f080010
+  drawable/_aapt_mtrl_checkbox_button_icon_checked_unchecked__1 0x7f080011
+  drawable/_aapt_mtrl_checkbox_button_icon_checked_unchecked__2 0x7f080012
+  drawable/_aapt_mtrl_checkbox_button_icon_indeterminate_checked__0 0x7f080013
+  drawable/_aapt_mtrl_checkbox_button_icon_indeterminate_unchecked__0 0x7f080014
+  drawable/_aapt_mtrl_checkbox_button_icon_indeterminate_unchecked__1 0x7f080015
+  drawable/_aapt_mtrl_checkbox_button_icon_indeterminate_unchecked__2 0x7f080016
+  drawable/_aapt_mtrl_checkbox_button_icon_unchecked_checked__0 0x7f080017
+  drawable/_aapt_mtrl_checkbox_button_icon_unchecked_checked__1 0x7f080018
+  drawable/_aapt_mtrl_checkbox_button_icon_unchecked_checked__2 0x7f080019
+  drawable/_aapt_mtrl_checkbox_button_icon_unchecked_indeterminate__0 0x7f08001a
+  drawable/_aapt_mtrl_checkbox_button_icon_unchecked_indeterminate__1 0x7f08001b
+  drawable/_aapt_mtrl_checkbox_button_icon_unchecked_indeterminate__2 0x7f08001c
+  drawable/_aapt_mtrl_checkbox_button_unchecked_checked__0 0x7f08001d
+  drawable/_aapt_mtrl_checkbox_button_unchecked_checked__1 0x7f08001e
+  drawable/_aapt_mtrl_checkbox_button_unchecked_checked__2 0x7f08001f
+  drawable/_aapt_mtrl_switch_thumb_checked_pressed__0 0x7f080020
+  drawable/_aapt_mtrl_switch_thumb_checked_unchecked__0 0x7f080021
+  drawable/_aapt_mtrl_switch_thumb_checked_unchecked__1 0x7f080022
+  drawable/_aapt_mtrl_switch_thumb_pressed_checked__0 0x7f080023
+  drawable/_aapt_mtrl_switch_thumb_pressed_unchecked__0 0x7f080024
+  drawable/_aapt_mtrl_switch_thumb_unchecked_checked__0 0x7f080025
+  drawable/_aapt_mtrl_switch_thumb_unchecked_checked__1 0x7f080026
+  drawable/_aapt_mtrl_switch_thumb_unchecked_pressed__0 0x7f080027
+  drawable/abc_ab_share_pack_mtrl_alpha 0x7f080028
+  drawable/abc_btn_check_to_on_mtrl_000 0x7f08002d
+  drawable/abc_btn_check_to_on_mtrl_015 0x7f08002e
+  drawable/abc_btn_radio_to_on_mtrl_000 0x7f080033
+  drawable/abc_btn_radio_to_on_mtrl_015 0x7f080034
+  drawable/abc_btn_switch_to_on_mtrl_00001 0x7f080035
+
+## 改名项对照（AGP _aapt_ 条目，ID 与官方同）
+AGP _aapt_ 条目数=0
+
+## 结论
+差异存在：同名不同ID=0，官方独有=34，AGP独有=82

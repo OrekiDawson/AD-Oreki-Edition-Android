@@ -1,0 +1,48 @@
+# APK 身份审计（只读）
+# 生成时间: 2026-11-13T21:45:34+08:00
+# 工具: build-tools 34.0.0 (aapt2/apksigner/dexdump)
+
+## 被审计 APK
+50d01062a5ef05981e9f6bab156aa78716b72ec0d4bb77aeadd55c45f058e674  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk
+81492951 bytes
+-rw------- 1 oreki oreki 81492951 2026-11-13 21:43:29.107235199 +0800 /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk
+
+## 官方 base APK
+4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac  /home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk
+77633785 bytes
+
+## aapt2 badging
+package: name='com.oreki.antimatterdimensions' versionCode='30210000' versionName='3.21.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+sdkVersion:'32'
+targetSdkVersion:'37'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.DETECT_SCREEN_CAPTURE'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='android.permission.USE_BIOMETRIC'
+uses-permission: name='android.permission.USE_FINGERPRINT'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+uses-permission: name='com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'反物质维度'
+application-label-af:'反物质维度'
+application-label-am:'反物质维度'
+application-label-ar:'反物质维度'
+application-label-as:'反物质维度'
+application-label-az:'反物质维度'
+application-label-be:'反物质维度'
+application-label-be-BY:'反物质维度'
+
+## aapt2 packagename
+com.oreki.antimatterdimensions
+
+## apksigner verify --print-certs
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::loadLibrary has been called by org.conscrypt.NativeLibraryUtil in an unnamed module (file:/home/oreki/Android/Sdk/build-tools/34.0.0/lib/apksigner.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Signer #1 certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+Signer #1 certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+Signer #1 certificate SHA-1 digest: 21f9959867014bf6b01cf280c51c79706b1fcdd0
+Signer #1 certificate MD5 digest: c24a2de0ea0a3bede7cc8f8a852ed12b

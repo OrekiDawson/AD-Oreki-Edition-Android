@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "kind": "r106-02-first-party-3.21-class-index",
+  "generated_by": "scripts/deobf_index_build.py",
+  "official": {
+    "version_name": "3.21.0",
+    "version_code": 30210000,
+    "xapk": {
+      "path": "/home/oreki/Antimatter+Dimensions_3.21.0_APKPure.xapk",
+      "size": 77787823,
+      "sha256": "ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a"
+    },
+    "base_apk": {
+      "entry": "kajfosz.antimatterdimensions.apk",
+      "path": "/tmp/r10602/kajfosz.antimatterdimensions.apk",
+      "size": 77633785,
+      "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+      "expected_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+      "sha256_match": true
+    },
+    "dex_count": 2,
+    "dex": [
+      {
+        "name": "classes.dex",
+        "sha256": "ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e",
+        "size": 10715480,
+        "dex_version": "037",
+        "class_defs": 10708,
+        "string_ids": 47225,
+        "type_ids": 13827,
+        "proto_ids": 15319,
+        "field_ids": 44251,
+        "method_ids": 65536
+      },
+      {
+        "name": "classes2.dex",
+        "sha256": "a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae",
+        "size": 5296656,
+        "dex_version": "037",
+        "class_defs": 4611,
+        "string_ids": 27088,
+        "type_ids": 7226,
+        "proto_ids": 6578,
+        "field_ids": 18078,
+        "method_ids": 26446
+      }
+    ]
+  },
+  "counts": {
+    "classes_total": 15319,
+    "first_party_classes": 10954,
+    "first_party_methods": 51397,
+    "first_party_fields": 41793,
+    "third_party_classes": 4365
+  },
+  "per_dex": [
+    {
+      "dex": "classes.dex",
+      "sha256": "ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e",
+      "size": 10715480,
+      "dex_version": "037",
+      "class_defs": 10708,
+      "first_party_classes": 7454,
+      "first_party_methods": 35653,
+      "first_party_fields": 28117
+    },
+    {
+      "dex": "classes2.dex",
+      "sha256": "a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae",
+      "size": 5296656,
+      "dex_version": "037",
+      "class_defs": 4611,
+      "first_party_classes": 3500,
+      "first_party_methods": 15744,
+      "first_party_fields": 13676
+    }
+  ],
+  "semantic": {
+    "with_semantic_name": 49,
+    "by_confidence": {
+      "confirmed": 17,
+      "strong": 23,
+      "inferred": 9,
+      "unknown": 0
+    },
+    "without_semantic_name": 15270,
+    "first_party_without_semantic_name": 10905,
+    "note": "semantic_name 只来自文档/绑定证据；未生成任何自动语义名"
+  },
+  "third_party_packages_top": [
+    {
+      "package": "com.google",
+      "classes": 2258
+    },
+    {
+      "package": "androidx",
+      "classes": 1810
+    },
+    {
+      "package": "kotlinx",
+      "classes": 120
+    },
+    {
+      "package": "kotlin",
+      "classes": 72
+    },
+    {
+      "package": "org.chromium",
+      "classes": 41
+    },
+    {
+      "package": "android",
+      "classes": 40
+    },
+    {
+      "package": "com.skydoves",
+      "classes": 13
+    },
+    {
+      "package": "com.jaredrummler",
+      "classes": 5
+    },
+    {
+      "package": "com.android",
+      "classes": 3
+    },
+    {
+      "package": "eightbitlab",
+      "classes": 2
+    },
+    {
+      "package": "com.amrdeveloper",
+      "classes": 1
+    }
+  ],
+  "legacy_3_20": {
+    "source": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/class-index.csv",
+    "declared_label": "3.20（上游文件名/列名口径）",
+    "detected_version": "3.19.0（解码树 apktool.yml + 行数一致）",
+    "detection_evidence": [
+      "docs/deobfuscation/data/class-index.csv 行数 23190 == work/base_decoded smali 文件数 23190，且 work/base_decoded/apktool.yml versionName=3.19.0"
+    ],
+    "source_rows": 23190,
+    "descriptor_intersection_3_21_vs_legacy_index": 11807,
+    "exact_descriptor_rows": 11765,
+    "binding_confirmed_rows": 42,
+    "true_3_20_tree": {
+      "available": true,
+      "tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_320",
+      "version_name": "3.20.0",
+      "descriptor_count": 15354,
+      "descriptor_intersection_all": 15212,
+      "descriptor_intersection_first_party": 10941,
+      "note": "既有 class-index.csv 实测为 3.19.0 解码树；3.20 交集改由本机 work/base_decoded_320 解码树计算"
+    }
+  },
+  "bindings": {
+    "source": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/baseline/versions/3.21/bindings.json",
+    "schema": 1,
+    "legacy_version": "3.20",
+    "target_version": "3.21",
+    "confirmed_classes": 42,
+    "confirmed_methods": 10,
+    "target_classes_present_in_dex": 42,
+    "method_owner_classes_present_in_dex": 6
+  },
+  "migration_status": {
+    "unbound": 15244,
+    "hook_patched_local": 37,
+    "kotlin_binding_confirmed": 38
+  },
+  "local_work_tree": {
+    "patched_originals_available": true,
+    "patched_original_classes": 37,
+    "patched_original_classes_present_in_dex": 37,
+    "patched_original_descriptors_present_in_dex": [
+      "La02;",
+      "Lbm4;",
+      "Lf82;",
+      "Lfw;",
+      "Lkajfosz/antimatterdimensions/App;",
+      "Lkajfosz/antimatterdimensions/MainActivity;",
+      "Lkajfosz/antimatterdimensions/a;",
+      "Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/celestials/effarig/a;",
+      "Lkajfosz/antimatterdimensions/celestials/pelle/b;",
+      "Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
+      "Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+      "Lkajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState;",
+      "Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;",
+      "Lkajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1;",
+      "Lkajfosz/antimatterdimensions/mainactivity/l0;",
+      "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;",
+      "Lkajfosz/antimatterdimensions/player/Player$Options;",
+      "Lkajfosz/antimatterdimensions/player/h;",
+      "Lkajfosz/antimatterdimensions/prestige/c;",
+      "Lkajfosz/antimatterdimensions/prestige/e;",
+      "Lkajfosz/antimatterdimensions/prestige/f;",
+      "Lkajfosz/antimatterdimensions/shop/Purchases;",
+      "Ll01;",
+      "Ll5;",
+      "Lll2;",
+      "Llz0;",
+      "Lnr5;",
+      "Lrq;",
+      "Lu81;",
+      "Lx40;",
+      "Lz63;"
+    ],
+    "patched_original_descriptors": [
+      "La02;",
+      "Lbm4;",
+      "Lf82;",
+      "Lfw;",
+      "Lkajfosz/antimatterdimensions/App;",
+      "Lkajfosz/antimatterdimensions/MainActivity;",
+      "Lkajfosz/antimatterdimensions/a;",
+      "Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/celestials/effarig/a;",
+      "Lkajfosz/antimatterdimensions/celestials/pelle/b;",
+      "Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
+      "Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+      "Lkajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState;",
+      "Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;",
+      "Lkajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1;",
+      "Lkajfosz/antimatterdimensions/mainactivity/l0;",
+      "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;",
+      "Lkajfosz/antimatterdimensions/player/Player$Options;",
+      "Lkajfosz/antimatterdimensions/player/h;",
+      "Lkajfosz/antimatterdimensions/prestige/c;",
+      "Lkajfosz/antimatterdimensions/prestige/e;",
+      "Lkajfosz/antimatterdimensions/prestige/f;",
+      "Lkajfosz/antimatterdimensions/shop/Purchases;",
+      "Ll01;",
+      "Ll5;",
+      "Lll2;",
+      "Llz0;",
+      "Lnr5;",
+      "Lrq;",
+      "Lu81;",
+      "Lx40;",
+      "Lz63;"
+    ],
+    "base_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321",
+    "mod_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod",
+    "note": "来自本机 work/ 工作树（不提交）；缺失时 migration_status 只含 binding/unbound"
+  },
+  "jadx": {
+    "status": "NOT RUN",
+    "reason": "本轮不运行 JADX；仓库 work/output_code_321_r86|r88 存在 3.21 相关导出，但类覆盖 13,782/15,319（缺 1,641 类）且无输入 APK SHA-256 记录，不满足『完整且基线一致』，未复用"
+  },
+  "self_check": {
+    "csv_rows": 15319,
+    "csv_rows_equals_class_defs_total": true,
+    "class_defs_total": 15319,
+    "dexdump": {
+      "status": "PASS",
+      "full_check": {
+        "status": "PASS",
+        "classes_checked": 15319,
+        "mismatch_count": 0,
+        "mismatches": []
+      },
+      "dexdump": "/home/oreki/Android/Sdk/build-tools/34.0.0/dexdump",
+      "dexdump_identity": "dexdump（34.0.0；dexdump 无 --version，版本由 build-tools 目录标识）",
+      "samples": [
+        {
+          "dex": "classes.dex",
+          "descriptor": "La03;",
+          "parsed": {
+            "methods": 12,
+            "fields": 11
+          },
+          "dexdump": {
+            "methods": 12,
+            "fields": 11
+          },
+          "match": true
+        },
+        {
+          "dex": "classes2.dex",
+          "descriptor": "Ly63;",
+          "parsed": {
+            "methods": 15,
+            "fields": 4
+          },
+          "dexdump": {
+            "methods": 15,
+            "fields": 4
+          },
+          "match": true
+        },
+        {
+          "dex": "classes2.dex",
+          "descriptor": "Liq0;",
+          "parsed": {
+            "methods": 17,
+            "fields": 28
+          },
+          "dexdump": {
+            "methods": 17,
+            "fields": 28
+          },
+          "match": true
+        }
+      ]
+    },
+    "smali_tree": {
+      "status": "PASS",
+      "tree": "work/base_decoded_321",
+      "smali_classes": 15319,
+      "dex_minus_smali": 0,
+      "smali_minus_dex": 0
+    }
+  }
+}
