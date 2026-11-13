@@ -1,10 +1,17 @@
 import org.gradle.api.tasks.Exec
+import groovy.json.JsonSlurper
 
 plugins {
     id("com.android.application")
 }
 
 val repoRoot = layout.projectDirectory.dir("../..").asFile
+// Version identity is independent of the pinned Android 3.21.0 upstream baseline.
+// Keep the AGP manifest in lockstep with the reviewed release-gate policy.
+val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
+val orekiVersionCode = releaseIdentity["versionCode"].toString().toInt()
+val orekiVersionName = requireNotNull(releaseIdentity["versionName"] as? String)
+
 
 val generateKotlinBindings by tasks.registering(Exec::class) {
     workingDir = repoRoot
@@ -22,8 +29,8 @@ android {
         applicationId = "kajfosz.antimatterdimensions.agpbridge"
         minSdk = 32
         targetSdk = 37
-        versionCode = 30210000
-        versionName = "3.21.0"
+        versionCode = orekiVersionCode
+        versionName = orekiVersionName
     }
 
     compileOptions {
