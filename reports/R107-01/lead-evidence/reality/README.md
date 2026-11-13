@@ -123,3 +123,49 @@ AVD 实测 EC 12 关全满、maxEP exponent 6,343,914、膨胀研究 5 已买，
 | scripts/build_mod.py | 新增 `patch_reality_achievement_waiver()`（z40 DS6 失败出口注入，幂等 marker）+ main 接线 |
 | work/r107-gates/ecscale/verify_static.py | 83 项静态契约（新增 20 项 REALITY） |
 | reports/R107-01/lead-evidence/reality/ | 本报告 + evidence/（build.log、APK/jadx 核验、静态 JSON、patched z40） |
+
+
+## 8. 第二轮修复（AVD e0962c48 失败后）：注入跳转极性 + DS6 分段诊断
+
+### 8.1 失败原因（已逐指令复核 z40 控制流）
+Dalvik 条件跳转语义复核：
+- `if-eqz vA, :L` = vA==0 时跳；`if-nez vA, :L` = vA!=0 时跳。
+第一版注入写的是 `if-eqz v7, :cond_4`：waiver effective=true → v7=1 → **不跳** → 落回 `goto :goto_3`（v7=0）→ DS6 false。
+与 AVD 完全吻合（Kotlin 日志 effective=true，但 DS6 A()=false）。
+`:cond_4` 语义复核（原版 smali + jadx）：
+`:cond_4 / :goto_2` → `pelle.c.q()`（= Player.p().d().b()，Pelle isDoomed）；
+`if-nez v0, :cond_5`：q()!=0（doomed）→ cond_5 把 v7 置 0；q()==0 → `:goto_4` 保留 v7 → 返回 true。
+即 `:cond_4` 是「成就项通过后的成功继续点」，同时包含最后的 !doomed 校验。
+修正：`if-eqz v7` → **`if-nez v7`**。豁免 true 跳成功继续点；false 保持原 `goto :goto_3`。
+TD8 / maxEP>=4000 / Pelle 三项完全不受影响。
+
+### 8.2 DS6 分段诊断（TAG=OREKI_DS6，1s 限频，仅在 original=false 时计算）
+在 OrekiRealityUnlock 内新增：
+- `td8Bought()` = `c01.a(8).B()`
+- `maxEpExponent()` = `Player.a.R().l().j().getExponent()`
+- `preRealityEvery()` = `t3.g()` 逐项 `A()`（null/empty 视为 true，与原版一致）
+- `waiverEffective()` = EC11/12 各 5/5
+- `pelleDoomed()` = `pelle.c.q()`
+- `result` = td8 && maxEP>=4000 && (preRealityEvery || waiver) && !doomed
+
+输出一行（值变化才打）：
+```
+I OREKI_DS6: td8=true maxEPexp=6343916 preRealityEvery=false waiverEffective=true pelleDoomed=false original=false result=true
+```
+下一轮若仍失败，这一行可直接指出是哪一项。
+
+### 8.3 验证结果（第二轮）
+| 项目 | 结果 | 证据 |
+| --- | --- | --- |
+| 静态验收 | **PASS 89/89** | evidence2/verify-static.json（新增极性契约 + 分段诊断契约） |
+| 构建 | **PASS** | evidence2/build.log：BUILD SUCCESSFUL in 1m 14s |
+| APK | **PASS** | build/gradle-stage/反物质维度.apk **SHA-256 b001faa71bdb7a24f801010f7c16cbe8df06b137e8215721e6f7e02ef947691b** |
+| 注入点 | **PASS** | work/mod/smali_classes2/z40.smali:607 `if-nez v7, :cond_4` |
+| APK 核验 | **PASS** | evidence2/apk-dex-checks.txt：classes2 waive 调用 1；classes4 含 OREKI_DS6/td8=/maxEPexp=/preRealityEvery=/pelleDoomed=；jadx z40 case24 中 waiver true 保持 true、仅 !waiver 归 false，Pelle q()=true 仍归 false |
+| AVD | **NOT RUN** | 由 Lead 执行（预期先见 OREKI_DS6 result=true → BUY id=6 → realities>=1） |
+
+### 8.4 预期 AVD（第二轮）
+1. `I OREKI_DS6: td8=true maxEPexp=6343916 preRealityEvery=false waiverEffective=true pelleDoomed=false original=false result=true`
+2. `OREKI_DIL_STUDIES: BUY id=6 ...`，`dilation.studies=[1,2,3,4,5,6]`
+3. `realities` 0 → **>=1**；0 FATAL；成就界面不变
+

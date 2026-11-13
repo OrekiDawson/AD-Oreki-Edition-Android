@@ -2233,7 +2233,7 @@ def patch_reality_achievement_waiver():
         "\n"
         "    move-result v7\n"
         "\n"
-        "    if-eqz v7, :cond_4\n"
+        "    if-nez v7, :cond_4\n"
         "\n"
         "    .line 277\n"
         "    goto :goto_3")

@@ -143,6 +143,149 @@ object OrekiRealityUnlock {
         }
     }
 
+
+    // ------------------------------------------------- [R107-REALITY 分段诊断]
+    // Lead AVD e0962c48 实测：OREKI_REALITY_UNLOCK effective=true 但 DS6 仍 false。
+    // 复核发现注入跳转极性写反：effective=true 时应跳成功点 :cond_4，原代码写成了 if-eqz(等价 v7==0 才跳)。
+    // 此处分段打印 DS6 的六项，便于下一轮 AVD 一次定位。TAG=OREKI_DS6，1s 限频（值变化才打）。
+    private const val TAG_DS6 = "OREKI_DS6"
+    private var ds6At = 0L
+    private var lastDs6 = ""
+
+    private val mCache = HashMap<String, Any>()
+    private val none = Any()
+
+    private fun mOf(target: Any?, name: String, paramCount: Int): Method? {
+        val c = target?.javaClass ?: return null
+        val key = c.name + "#" + name + "/" + paramCount
+        val cached = mCache[key]
+        if (cached != null) return cached as? Method
+        var found: Method? = null
+        var k: Class<*>? = c
+        while (k != null && found == null) {
+            for (m in k.declaredMethods) {
+                if (m.name == name && m.parameterCount == paramCount) {
+                    try {
+                        m.isAccessible = true
+                    } catch (_: Throwable) {
+                    }
+                    found = m
+                    break
+                }
+            }
+            k = k.superclass
+        }
+        mCache[key] = found ?: none
+        return found
+    }
+
+    private fun staticM(cls: Class<*>?, name: String, paramCount: Int): Method? {
+        if (cls == null) return null
+        val key = "S#" + cls.name + "#" + name + "/" + paramCount
+        val cached = mCache[key]
+        if (cached != null) return cached as? Method
+        var found: Method? = null
+        try {
+            for (m in cls.declaredMethods) {
+                if (m.name == name && m.parameterCount == paramCount) {
+                    try {
+                        m.isAccessible = true
+                    } catch (_: Throwable) {
+                    }
+                    found = m
+                    break
+                }
+            }
+        } catch (_: Throwable) {
+        }
+        mCache[key] = found ?: none
+        return found
+    }
+
+    private fun callM(obj: Any?, name: String, paramCount: Int): Any? = try {
+        mOf(obj, name, paramCount)?.invoke(obj)
+    } catch (_: Throwable) {
+        null
+    }
+
+    /** c01.a(8).B()：膨胀研究5（TD8）是否已购。 */
+    private fun td8Bought(): String = try {
+        val c01 = cls("c01") ?: return "?"
+        val study = staticM(c01, "a", 1)?.invoke(null, 8) ?: return "?"
+        val b = callM(study, "B", 0) as? Boolean ?: return "?"
+        b.toString()
+    } catch (_: Throwable) {
+        "?"
+    }
+
+    /** Player.a.R().l().j().getExponent()：本次现实 maxEP 指数。 */
+    private fun maxEpExponent(): String = try {
+        val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return "?"
+        val player = playerCls.getField("a").get(null) ?: return "?"
+        val records = callM(player, "R", 0) ?: return "?"
+        val reality = callM(records, "l", 0) ?: return "?"
+        val maxEp = callM(reality, "j", 0) ?: return "?"
+        val exp = callM(maxEp, "getExponent", 0) as? Double ?: return "?"
+        exp.toString()
+    } catch (_: Throwable) {
+        "?"
+    }
+
+    /** t3.g() 全部 preReality 成就 isUnlocked==true（null/empty 视为 true，与原版 smali 一致）。 */
+    private fun preRealityEvery(): String = try {
+        val t3 = cls("t3") ?: return "?"
+        val list = staticM(t3, "g", 0)?.invoke(null) ?: return "true"
+        val l = list as? java.util.List<*> ?: return "?"
+        val size = l.size
+        if (size == 0) return "true"
+        var i = 0
+        while (i < size) {
+            val item = l.get(i) ?: return "?"
+            val achUnlocked = callM(item, "A", 0) as? Boolean ?: return "?"
+            if (!achUnlocked) return "false"
+            i++
+        }
+        "true"
+    } catch (_: Throwable) {
+        "?"
+    }
+
+    /** pelle.c.q() = Player.p().d().b()（Pelle isDoomed）。 */
+    private fun pelleDoomed(): String = try {
+        val c = cls("kajfosz.antimatterdimensions.celestials.pelle.c") ?: return "?"
+        val v = staticM(c, "q", 0)?.invoke(null) as? Boolean ?: return "?"
+        v.toString()
+    } catch (_: Throwable) {
+        "?"
+    }
+
+    private fun logDs6(original: Boolean, waiver: Boolean) {
+        try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (ds6At != 0L && now - ds6At < 1000L) return
+            ds6At = now
+            val td8 = td8Bought()
+            val maxExp = maxEpExponent()
+            val every = preRealityEvery()
+            val doomed = pelleDoomed()
+            val expOk = try {
+                (maxExp.toDoubleOrNull() ?: -1.0) >= 4000.0
+            } catch (_: Throwable) {
+                false
+            }
+            val everyOk = every == "true" || waiver
+            val result = td8 == "true" && expOk && everyOk && doomed == "false"
+            val line = "td8=" + td8 + " maxEPexp=" + maxExp + " preRealityEvery=" + every +
+                " waiverEffective=" + waiver + " pelleDoomed=" + doomed +
+                " original=" + original + " result=" + result
+            if (line != lastDs6) {
+                lastDs6 = line
+                Log.i(TAG_DS6, line)
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
     /**
      * 只包装 DS6 的「全部 preReality 成就」布尔项。
      *
@@ -155,6 +298,7 @@ object OrekiRealityUnlock {
         return try {
             refreshCache()
             val effective = cachedEc11Full && cachedEc12Full
+            logDs6(original, effective)
             val line = "ec11=" + cachedEc11Full + " ec12=" + cachedEc12Full +
                 " original=" + original + " effective=" + effective
             if (line != lastLogged) {
