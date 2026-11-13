@@ -561,6 +561,16 @@ payload = {
         "R8 class merging 使部分 obf 类原类名不可恢复；只给可证明的角色与逐方法源函数，不猜测类名。",
     ],
 }
+tick_stats_path = WORK / "tick-closure-stats.json"
+if tick_stats_path.exists():
+    tick_stats = json.loads(tick_stats_path.read_text(encoding="utf-8"))
+    payload["extensions"] = {"tick_closure": {
+        "file": "tick-closure.json", "task": "task-10",
+        "closure_classes": tick_stats.get("closure_classes", 0),
+        "closure_methods": tick_stats.get("closure_methods", 0),
+        "hypotheses": tick_stats.get("hypotheses", 0),
+        "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。"}}
+
 OUTDIR.mkdir(parents=True, exist_ok=True)
 (OUTDIR / "3.21-semantic-kajfosz.json").write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
 

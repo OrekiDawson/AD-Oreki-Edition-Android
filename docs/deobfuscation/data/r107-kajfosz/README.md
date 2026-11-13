@@ -11,6 +11,7 @@
 | `3.21-semantic-kajfosz.json` | 主结果：1242 类 + 方法/字段级映射、逐条证据、置信度、统计、自检、限制 |
 | `3.21-semantic-kajfosz.csv` | 与默认包同 header 的宽表（每类一行；methods/fields 为映射条目的 JSON 数组） |
 | `handoff-focus.json` | 供 Kotlin 重建（task-4）/ Smali 钩子迁移（task-5）直接消费的聚焦映射（App/Game/MainActivity/Player/存档/自动购买器/设置/计费/分包入口） |
+| `tick-closure.json` | R107-01 task-10：Tick 关键闭包方法级语义（主循环/Game.gameTick/Player.save/load/Gson/协程调度）+ enjarify 卡死可检验假设 H1–H8；不改变本目录 1242/7439/6563 分母 |
 | `README.md` | 本文件（方法、schema、证据口径） |
 
 报告与独立验证在 `reports/R107-01/sem-kajfosz/`。

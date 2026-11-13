@@ -1,0 +1,998 @@
+{
+ "label": "R107-01",
+ "generated_at": "2026-11-13T23:38:24+0800",
+ "inputs": {
+  "official_apk": {
+   "path": "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk",
+   "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac"
+  },
+  "staged_apk": {
+   "path": "build/gradle-stage/unsigned.apk",
+   "sha256": "40bbc41235f20805c2e2e86e79598bd40da4283d49bc46ec9e79cf5cb268509b"
+  },
+  "android_jar": {
+   "path": "/home/oreki/Android/Sdk/platforms/android-37.2/android.jar",
+   "sha256": "2507cf762abe2171a8cb3c289837fc71f2e66e598f396f1cc10bb7dc10020329"
+  },
+  "d8": "/home/oreki/Android/Sdk/build-tools/34.0.0/d8",
+  "java": "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+  "enjarify_dir": "/home/oreki/private-staging/r107-tools/enjarify",
+  "m53_mode": "split"
+ },
+ "steps": {
+  "class_sets": {
+   "official_dex": {
+    "classes.dex": 10708,
+    "classes2.dex": 4611
+   },
+   "staged_dex": {
+    "classes.dex": 10150,
+    "classes2.dex": 4611,
+    "classes3.dex": 583,
+    "classes4.dex": 1131
+   },
+   "official_classes": 15319,
+   "union_three_dex": 15344,
+   "new_classes": 25,
+   "new_class_sample": [
+    "kajfosz/antimatterdimensions/OrekiChallengeAuto",
+    "kajfosz/antimatterdimensions/OrekiEcContinuation",
+    "kajfosz/antimatterdimensions/OrekiInstantChallenge",
+    "kajfosz/antimatterdimensions/OrekiSpeed",
+    "kajfosz/antimatterdimensions/oreki/OrekiAchAudit",
+    "kajfosz/antimatterdimensions/oreki/OrekiEternity",
+    "kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto",
+    "kajfosz/antimatterdimensions/oreki/OrekiPelleRecord",
+    "kajfosz/antimatterdimensions/oreki/OrekiReality",
+    "kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy"
+   ],
+   "exclusion_classes": 1065,
+   "shadow_classes": 72
+  },
+  "three_dex_input": {
+   "path": "/home/oreki/private-staging/r107-tools/work/agpdex2/modded-3dex-input.apk",
+   "sha256": "e25c65cff7ec612d3ffd75057874e8fcf5add2986762ec4cc36a292a6cbe9a81",
+   "dex_entries": [
+    "classes.dex",
+    "classes2.dex",
+    "classes3.dex"
+   ]
+  },
+  "enjarify_official": {
+   "jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/official-enjarify.jar",
+   "sha256": "18c7bb568773bf8d8c42147bb6574c6ede91114bdc28a35cf04bedd79ebd06cc",
+   "classes_translated": 15319,
+   "classes_errored": 0,
+   "reused": true,
+   "stdout_tail": []
+  },
+  "enjarify_modded": {
+   "jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/modded-enjarify.jar",
+   "sha256": "63639b88e263e1baf682e3bb8f23024aeeca630a24f67648b6150982723d11be",
+   "classes_translated": 15344,
+   "classes_errored": 0,
+   "seconds": 139.33,
+   "stdout_tail": [
+    "15000 classes processed",
+    "Output written to /home/oreki/private-staging/r107-tools/out/agpdex2/modded-enjarify.jar",
+    "15344 classes translated successfully, 0 classes had errors"
+   ]
+  },
+  "m53_split": {
+   "class": "/home/oreki/private-staging/r107-tools/out/agpdex2/m53-split.class",
+   "class_sha256": "326534c935cd30c986bd61c4a532fa214538764271ec383f0e39c394a1cd0d76",
+   "jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/modded-enjarify-m53split.jar",
+   "jar_sha256": "48eea042982e9cd70a356c45c2f8092f1f9b98b8e6826599f4f41a14a0855591",
+   "chunks": 2,
+   "jdk_verified": true,
+   "instruction_sequence_preserved": true,
+   "report": "/home/oreki/private-staging/r107-tools/work/agpdex2/m53-split-report.json",
+   "source_jar_sha256": "63639b88e263e1baf682e3bb8f23024aeeca630a24f67648b6150982723d11be"
+  },
+  "remap_official": {
+   "out_jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/official-selective.jar",
+   "sha256": "bce48f7c85b887fd1320ca9e797f8bce31dc5729dcc9ed88b483dfba09d7148a",
+   "stats": {
+    "KEPT": 15319,
+    "DROPPED": 0,
+    "GAME_REMAPPED": 72,
+    "FAILED": 1
+   },
+   "failures": [
+    "FAIL m53.class MethodTooLargeException"
+   ],
+   "seconds": 6.97
+  },
+  "remap_modded": {
+   "out_jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/modded-selective.jar",
+   "sha256": "fecb3ac7b399cb05c80686c03c2b5803fd5d1787302192fa8039b8aad355dd55",
+   "stats": {
+    "KEPT": 15344,
+    "DROPPED": 0,
+    "GAME_REMAPPED": 72,
+    "FAILED": 0
+   },
+   "failures": [],
+   "seconds": 6.22
+  },
+  "shadow_merge": {
+   "merged": 72,
+   "missing": []
+  },
+  "patch_classes": {
+   "new": 25,
+   "modified": 51,
+   "total": 76,
+   "modified_sample": [
+    "a02",
+    "androidx/recyclerview/widget/RecyclerView",
+    "as0",
+    "bm4",
+    "com/google/android/gms/auth/api/signin/internal/SignInHubActivity",
+    "com/google/android/recaptcha/internal/zzmo",
+    "dd5",
+    "f15",
+    "f82",
+    "fw"
+   ]
+  },
+  "patch_class_d8": {
+   "initial": {
+    "tag": "initial",
+    "results": {
+     "a02": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "androidx/recyclerview/widget/RecyclerView": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "as0": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "bm4": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "com/google/android/gms/auth/api/signin/internal/SignInHubActivity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "com/google/android/recaptcha/internal/zzmo": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "dd5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "f15": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "f82": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "fw": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "fw8": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/App": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/MainActivity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiChallengeAuto": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiEcContinuation": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiInstantChallenge": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiSpeed": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/a": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/celestials/effarig/a": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/celestials/pelle/b": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/challenge/antimatter/c": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/challenge/eternity/b": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1": {
+      "status": "FAIL",
+      "returncode": 1,
+      "stderr": [
+       "\tat com.android.tools.r8.D8.d(R8_8.2.2-dev_53a55043254cc5be8ef500331bba25d1b4ca4bc2cd66c555d4358bf672a1f10a:52)",
+       "\tat com.android.tools.r8.D8.c(R8_8.2.2-dev_53a55043254cc5be8ef500331bba25d1b4ca4bc2cd66c555d4358bf672a1f10a:1)",
+       "\tat com.android.tools.r8.utils.R0.a(R8_8.2.2-dev_53a55043254cc5be8ef500331bba25d1b4ca4bc2cd66c555d4358bf672a1f10a:28)",
+       "\t... 6 more",
+       "\tSuppressed: com.android.tools.r8.utils.T0: com.android.tools.r8.internal.Sb: Undefined value encountered during compilation. This is typically caused by invalid dex input that uses a register that is not defined on all control-flow paths leading to the use.",
+       "\t\tat com.android.tools.r8.utils.R0.a(R8_8.2.2-dev_53a55043254cc5be8ef500331bba25d1b4ca4bc2cd66c555d4358bf672a1f10a:149)",
+       "\t\t... 21 more",
+       "\tCaused by: [CIRCULAR REFERENCE: com.android.tools.r8.internal.Sb: Undefined value encountered during compilation. This is typically caused by invalid dex input that uses a register that is not defined on all control-flow paths leading to the use.]"
+      ]
+     },
+     "kajfosz/antimatterdimensions/mainactivity/l0": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiAchAudit": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiEternity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiPelleRecord": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiReality": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiStrategyData": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiUiTitle": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/SettingsClickListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/StageAssist": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/StageAssistToggleListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/StageConfirmListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/player/DeviceOptions$Appearance": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/player/Player$Options": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/player/h": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/c": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/e": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/f": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/shop/Purchases": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "l01": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "l5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "ll2": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "lz0": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "m53": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "nr5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "ps1": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "r75": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "rq": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "u81": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "u96": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "vc5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "vr8": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "wc2": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "x40": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "z63": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     }
+    },
+    "fail": [
+     "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1"
+    ]
+   },
+   "after_fallback": {
+    "tag": "after_fallback",
+    "results": {
+     "a02": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "androidx/recyclerview/widget/RecyclerView": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "as0": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "bm4": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "com/google/android/gms/auth/api/signin/internal/SignInHubActivity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "com/google/android/recaptcha/internal/zzmo": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "dd5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "f15": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "f82": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "fw": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "fw8": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/App": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/MainActivity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiChallengeAuto": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiEcContinuation": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiInstantChallenge": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/OrekiSpeed": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/a": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/celestials/effarig/a": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/celestials/pelle/b": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/challenge/antimatter/c": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/challenge/eternity/b": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/mainactivity/l0": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiAchAudit": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiEternity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiPelleRecord": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiReality": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiStrategyData": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/OrekiUiTitle": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/SettingsClickListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/StageAssist": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/StageAssistToggleListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/StageConfirmListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/player/DeviceOptions$Appearance": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/player/Player$Options": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/player/h": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/c": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/e": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/prestige/f": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "kajfosz/antimatterdimensions/shop/Purchases": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "l01": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "l5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "ll2": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "lz0": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "m53": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "nr5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "ps1": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "r75": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "rq": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "u81": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "u96": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "vc5": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "vr8": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "wc2": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "x40": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     },
+     "z63": {
+      "status": "PASS",
+      "returncode": 0,
+      "stderr": []
+     }
+    },
+    "fail": []
+   },
+   "fallback_applied": [
+    {
+     "class": "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1",
+     "reason": "patch-class D8 failure",
+     "official_sha256": "067c000ca7daa8eceb6ae0be18502f7a3ce9cef9cab327527987584aac8424e8",
+     "loses_mod_patch": true
+    }
+   ]
+  }
+ },
+ "checks": {
+  "class_set": {
+   "final_classes": 15344,
+   "expected_classes": 15344,
+   "missing": [],
+   "missing_count": 0,
+   "extra": [],
+   "extra_count": 0,
+   "residual_kotlin_definitions": [],
+   "residual_kotlin_definition_count": 0,
+   "excluded_present_count": 0
+  },
+  "whole_jar_d8": {
+   "returncode": 0,
+   "status": "PASS",
+   "dex_files": [
+    "classes.dex",
+    "classes2.dex"
+   ],
+   "dex_bytes": 16352352,
+   "stdout_tail": [],
+   "stderr_tail": [],
+   "seconds": 31.35
+  },
+  "m53_d8": {
+   "before_split": {
+    "class_bytes": 543068,
+    "class_sha256": "b0f7819fe51ce330a3f8336474e0cd7a3752277a1fbe20383aa58863f52a40a6",
+    "d8": {
+     "returncode": 0,
+     "status": "PASS",
+     "dex_files": [
+      "classes.dex"
+     ],
+     "dex_bytes": 398728,
+     "stdout_tail": [],
+     "stderr_tail": [],
+     "seconds": 8.0
+    }
+   },
+   "after_split": {
+    "class_bytes": 388960,
+    "class_sha256": "326534c935cd30c986bd61c4a532fa214538764271ec383f0e39c394a1cd0d76",
+    "d8": {
+     "returncode": 0,
+     "status": "PASS",
+     "dex_files": [
+      "classes.dex"
+     ],
+     "dex_bytes": 439620,
+     "stdout_tail": [],
+     "stderr_tail": [],
+     "seconds": 12.12
+    }
+   }
+  }
+ },
+ "output": {
+  "game_jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/game-final.jar",
+  "game_jar_sha256": "dff6332a14698cdd6621a366197115c183b902fb95837a5d30a36abf34d8f080",
+  "game_jar_bytes": 19415675,
+  "class_count": 15344
+ },
+ "status": "PASS",
+ "finished_at": "2026-11-13T23:48:16+0800"
+}

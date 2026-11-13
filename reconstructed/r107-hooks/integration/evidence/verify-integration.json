@@ -1,6 +1,6 @@
 {
  "task": "R107-01 integration batch1 static verification",
- "head_commit": "c652e443e8d0115947d857d3a6675f22937c0db3",
+ "head_commit": "b9544f1e9a31c26dcda48a0d19c64b6704489d1e",
  "patches": [
   {
    "patch": "0001-kotlin-batch1-add-classes.patch",

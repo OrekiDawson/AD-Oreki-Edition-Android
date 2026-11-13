@@ -100,6 +100,7 @@ checks = data["self_check"]["checks"]
 ver_checks = ver["checks"]
 both = checks + [x for x in ver_checks if x["check"] not in {y["check"] for y in checks}]
 
+JVMS_REF = "reports/R107-01/agp-dex/evidence/04-jvm-verify-final.txt"
 L = []
 A = L.append
 A("# R107-01 sem-kajfosz：kajfosz 包语义反混淆复核与扩写报告")
@@ -336,6 +337,29 @@ A("| 编译级验证（Kotlin 重建） | — | **NOT RUN**（由 task-4 负责�
 A("")
 A("状态标记：**PASS（静态复核/映射）+ NOT RUN（运行时/编译验证）**。")
 A("")
+
+# ---- Tick 关键闭包（task-10）----
+tick_path = REP / "tick-closure.md"
+tc_path = OUT / "tick-closure.json"
+if tc_path.exists():
+    tc = json.loads(tc_path.read_text(encoding="utf-8"))
+    A("")
+    A("## 8. Tick 关键闭包（task-10，承接本任务）")
+    A("")
+    A("为定位 enjarify 转换后运行期 Tick 卡死，另产出了方法级闭包文档（不改本报告 1242/7439/6563 分母）：")
+    A("")
+    A("- 闭包类：%d；闭包方法：%d；可检验假设：%d；SIGQUIT 热栈帧：%d。" % (
+        tc["scope"]["closure_classes"], sum(len(c["methods"]) for c in tc["classes"]),
+        len(tc["hypotheses"]), len(tc["chains"]["sigquit_hot_chain"]["frames_innermost_to_outermost"])))
+    A("- 卡死热栈（AntimatterGameThread）：" + " -> ".join(
+        f["frame"] for f in tc["chains"]["sigquit_hot_chain"]["frames_innermost_to_outermost"][:9]))
+    A("- 语义确认：rk8.G=BuildersKt.withContext、nc8.z=resumeCancellableWith、nc8.B=dispatch 包装、")
+    A("  cv0=Dispatchers.IO、dc2=LimitedDispatcher、tf2/vf2=LockFreeTaskQueue(async)、t01=DispatchedTask、")
+    A("  Player.k0=save（Gson+withContext(IO)+原子写文件）、Game.gameTick→Game.k→SpeedrunMilestone.x()→complete→save。")
+    A("- 关键证据：%s（rk8.G/t01.g/nc8.M/k51.e/q51.g/nl0.i 被判 JVMS VERIFY；ox0.f FORMAT 波及 ba1/cv0/dc2/gk0/j25/mu0）。" % JVMS_REF)
+    A("- 详细交付：docs/deobfuscation/data/r107-kajfosz/tick-closure.json、reports/R107-01/sem-kajfosz/tick-closure.md。")
+    A("")
+    A("Tick 闭包状态：静态语义 PASS；运行期假设 NOT RUN（需 agp-dex/Lead 做混合 DEX、AVD 插桩等实验）。")
 
 text = "\n".join(L).replace("@@@", chr(96) * 3).replace("@@", chr(96))
 (REP / "report.md").write_text(text, encoding="utf-8")

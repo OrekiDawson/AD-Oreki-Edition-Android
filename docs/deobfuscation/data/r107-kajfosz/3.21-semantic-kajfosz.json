@@ -3,7 +3,7 @@
  "kind": "r107-01-semantic-kajfosz-321",
  "generated_by": "work/r107-kajfosz/generate_outputs.py",
  "generated_for_task": "shared task-3（R107-01 kajfosz 包语义反混淆复核与扩写）",
- "generated_at": "2026-11-13T23:02:12+0800",
+ "generated_at": "2026-11-13T23:50:16+0800",
  "target": {
   "version_name": "3.21.0",
   "version_code": 30210000,
@@ -199917,5 +199917,15 @@
   "Web 上游对应仅作为领域/行为语义对照，Android Kotlin 移植并非逐行同构；未据此推断未读代码。",
   "R106-02 的 family_override 64 条按继承关系继承，未逐方法做 3.21 行为等价验证。",
   "R8 class merging 使部分 obf 类原类名不可恢复；只给可证明的角色与逐方法源函数，不猜测类名。"
- ]
+ ],
+ "extensions": {
+  "tick_closure": {
+   "file": "tick-closure.json",
+   "task": "task-10",
+   "closure_classes": 46,
+   "closure_methods": 50,
+   "hypotheses": 8,
+   "note": "Tick 关键闭包单独文档；不改变本文件 1242/7439/6563 分母与统计。"
+  }
+ }
 }

@@ -14,8 +14,10 @@
 | 正式管线 `scripts/agp_gamejar2.py`（3-dex 补丁输入 → game jar） | **PASS**（全流程真实执行） | `evidence/03-gamejar2-report.json`、`4 |
 | 整包 D8 / 76 个补丁相关类逐类 D8 | **PASS**（1 个已知非法类回退后 0 失败） | `4 |
 | **enjarify 产物 JVMS 校验（工具链信任度）** | **FAIL：5,195/15,344（33.9%）类不合法** | `5、`evidence/04-jvm-verify-final.txt` |
-| **Tick 运行期语义（AVD）** | **FAIL / BLOCKED**（AM 停止增长，协程调度链 100% CPU 自旋；Lead 实测，本子 Agent 未跑 AVD） | `6、`reports/R107-01/lead-evidence/native-blocker/` |
-| AGP release 构建 / AVD 冷启动 | **NOT RUN（本子 Agent）**；Lead 已实测冷启动 PASS、Tick FAIL | `6 |
+| **Tick 运行期语义（AVD）** | **FAIL / BLOCKED**（AM 停止增长，协程调度链 100% CPU 自旋；Lead 实测，本子 Agent 未跑 AVD） | 本文第 6 节、`reports/R107-01/lead-evidence/native-blocker/` |
+| 新 staged APK（23:04 构建）管线复跑 | **PASS**（game jar SHA `dff6332a…`） | §4.4、`evidence/11-gamejar2-report-newstaged.json` |
+| 混合转换器实验（dex2jar 热路径替换 8 类） | **离线部分可行 / AVD NOT RUN** | 本文 §10、`R107-01-hybrid-translator.md` |
+| AGP release 构建 / AVD 冷启动 | **NOT RUN（本子 Agent）**；Lead 已实测冷启动 PASS、Tick FAIL | 本文第 6 节 |
 | enjarify 丢注解（1,298 处 runtime 注解） | 已知限制，未修复 | `7.1 |
 | enjarify 静态常量负值符号缺陷（44 字段） | 已知缺陷（P2），未修复 | `7.2 |
 
@@ -85,6 +87,22 @@ python3 scripts/agp_gamejar2.py --official-apk <官方 base APK> --staged-apk <�
 与 Lead 手工产物（`out/final-game.jar`）对比：类名集合完全一致（15,344），**仅 2 个类字节不同**——`m53`（本管线拆分版 vs Lead 的 dex2jar 兜底版）与 `MainActivityAutomatorKt$updateAutomator$1`（本管线官方回退版 vs Lead 的补丁版）。其余 15,342 类逐字节相同 → 管线复现了 Lead 手工链。
 
 最终 integration jar 相对官方 DEX 的结构差异（`evidence/06-structure-final.json`）：类 missing 0 / extra 25（MOD 新增）；super/接口/访问标志 0 差异；字段/方法 missing 0；methods_extra 3（m53 helper + `rq.isWaiting`/`rq.waitStart` 两个 MOD 补丁新增）；field_value_diffs 44（全部为 enjarify 常量符号缺陷，见 `7.2）；over_limit_methods 0；非法名 181（与 DEX 相同）；不可解析引用 26（设备 hidden/libcore + MOD Kotlin 类绑定 AGP stdlib）。
+
+### 4.4 新 staged APK（23:04 构建）复跑
+
+Lead 重建后的 `build/gradle-stage/unsigned.apk` 实测 SHA-256 = **`40bbc41235f20805c2e2e86e79598bd40da4283d49bc46ec9e79cf5cb268509b`**
+（Lead 消息中的 `f3f5c44b…` 与本机实测不符，以实测为准；文件 mtime 23:04，构建内含 G1/G2/G4 + 货币修复）。
+
+同一条管线命令复跑结果（`evidence/11-gamejar2-report-newstaged.json`）：
+
+- 类集合与上次一致：official 15,319 / 3-dex 15,344 / MOD 新增 25 / 排除 1,065 / shadow 72
+- enjarify：官方 15,319/0 错（复用，SHA `18c7bb56…`）；补丁 3-dex **15,344/0 错**（新 SHA `63639b88…`，139.3s）
+- m53 拆分：与上次**逐位相同**（class SHA `326534c9…`，`jdk_verified=true`）
+- RemapSelective：官方 KEPT 15,319 / FAILED 1（m53 超限，预期）；补丁 KEPT 15,344 / FAILED 0
+- 补丁相关类逐类 D8：唯一失败仍为 `MainActivityAutomatorKt$updateAutomator$1`，自动回退 official（SHA `067c000c…`）；回退后 0 失败
+- 类集合核对 15,344/15,344，missing/extra/残留 kotlin/排除集残留全 0；整包 D8 PASS（16,352,352 B / 2 dex）；m53 拆分前后 D8 PASS
+- 产物 `out/agpdex2/game-final.jar`：15,344 类，19,415,675 B，SHA-256 **`dff6332a14698cdd6621a366197115c183b902fb95837a5d30a36abf34d8f080`**
+- 结论：管线在新 staged APK 上**可复现 PASS**；与旧快照产物结构/统计一致，game jar 因补丁内容变化而 SHA 不同（新增 G1/G2/G4/货币修复）。
 
 ## 5. 工具链信任度：enjarify 产物的 JVMS 校验审计（FAIL）
 
@@ -169,3 +187,16 @@ python3 scripts/dexfix/r107/verify_structure.py --dex-index <dex_index.json> \
   --android-jar $SDK/platforms/android-37.2/android.jar --jar final=<jar> \
   --rename 'kotlin/=oreki/shadow/kotlin/' --out-json /tmp/structure.json
 ```
+## 10. 混合转换器实验（dex2jar 热路径替换，供 AVD 二分）
+
+详细报告：`R107-01-hybrid-translator.md`。摘要：
+
+- dex2jar 产物 JVMS 不可校验率 **5.34%**（818/15,319，kotlin-fixed2-remap）与 **4.74%**（726/15,319，full-fixed-remap），
+  显著低于 enjarify 的 33.9%；接口 default 方法（`ox0.f`）在 dex2jar v52 中**合法**（enjarify v49 非法）。
+- 但 dex2jar 仍有 345 处 `Bad <init> method call`、344 处 `Bad type on operand stack`，以及 **13-14 处 `nc8.M Bad return type`**
+  （= R106-02 v7 APK VerifyError 同源）；cv0 的 dex2jar 合成构造器非法（D8 warning）。
+- 混合候选（新 staged 基线 + 8 类 dex2jar 替换：`ox0/gk0/dc2/tf2/vf2/t01/k51/cv0`，cv0 去掉合成构造器；
+  `rk8`/`nc8` 保留 enjarify）→ JVMS：替换类 + ba1 全部 VALID，整包不可校验 5,161/15,344（−34）；
+  **整包 D8 PASS、0 warning**；76 个补丁类逐类 D8 **0 失败**。
+- 结论：**混合转换器离线部分可行**，可作为 AVD 二分实验候选；但整包仍有 33.6% 不可校验类，
+  且 rk8/nc8 未修复 → **不可作为 Candidate 来源**。AVD 实验（对照 `dff6332a…` vs 混合 `f0ab60bd…`）由 Lead 执行。

@@ -224,12 +224,12 @@ KEY RESULTS（关键真值/顺序/格式对称性；长值已截断）:
     [f44] decode(encode(c,3)) => EX:java.util.zip.ZipException
     [f44] decode(encode(c,4)) => EX:java.util.zip.ZipException
     [f44] decode(encode(c,5)) => EX:java.util.zip.ZipException
-    [f44] decode(encode(d,0)) => java.lang.String:{"money"' �    
-    [f44] decode(encode(d,1)) => java.lang.String:{"money"'*�@ ]@4m
-    [f44] decode(encode(d,2)) => java.lang.String:{"money"'*ղ�sѫ�T�2�3�47�464h����������� G �
-    [f44] decode(encode(d,3)) => java.lang.String:{"money"'��G;�s�-�{�q�'Ms _G(�;u�3$�? �� 
-    [f44] decode(encode(d,4)) => java.lang.String:{"money"';p@C@  0�+;�G(   ���,Al
-    [f44] decode(encode(d,5)) => java.lang.String:{"money"';q�D@ , E����l�sY$钒��Yۻ�����������������Y'5�
+    [f44] decode(encode(d,0)) => java.lang.String:{"money".'.�....
+    [f44] decode(encode(d,1)) => java.lang.String:{"money".'*�@.]@4m
+    [f44] decode(encode(d,2)) => java.lang.String:{"money".'*ղ�sѫ�T�2�3�47�464h����������� ..G. �
+    [f44] decode(encode(d,3)) => java.lang.String:{"money".'.��G;�s�-.�{�q�'Ms _G(�;..u�3$�?...��.
+    [f44] decode(encode(d,4)) => java.lang.String:{"money".';p@C@..0�+;�G...(...��..�,Al
+    [f44] decode(encode(d,5)) => java.lang.String:{"money".';q�D@..., E.���..�l�sY$钒��Yۻ�����������������Y.'.5�
     [f44] decode(encode(e,0)) => java.lang.String:
     [f44] decode(encode(e,1)) => java.lang.String:{}
     [f44] decode(encode(e,2)) => java.lang.String:{"money":1.7976931348623157E308}

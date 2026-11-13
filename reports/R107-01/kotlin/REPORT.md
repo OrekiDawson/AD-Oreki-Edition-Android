@@ -267,3 +267,22 @@ grep -E '^OVERALL|^SUMMARY' reports/R107-01/kotlin/evidence/*.log
 
 源码文件：`reconstructed/kotlin/**`（8 个原类，未改动）、`reconstructed/r107/kotlin/**`（3 个新增闭包类）、
 `reconstructed/r107/verify/**`（桩 + harness + impl + 一键脚本）。
+
+---
+
+## 11. R107-01b 追加阶段：Tick/存档关键闭包（2026-11-13 23:54 +08）
+
+本节记录承接 AGP 原生路线 BLOCKED（enjarify Tick 卡死）后的新任务；完整方案见
+[TICK-CLOSURE-PLAN.md](TICK-CLOSURE-PLAN.md)，源码见 `reconstructed/r107-closure/`。
+
+| 项 | 判定 | 证据 |
+| --- | --- | --- |
+| Tick 卡死位置身份 | **第三方 R8 重打包协程调度器/Gson，不是第一方逻辑** | `evidence/tick-stack-identity.txt`、SIGQUIT |
+| R8 横向合并映射 | **确认**（Game→a、TickProfiler→utils/a、SpeedrunMilestone→speedrun/b、Autobuyers→autobuyer/a、MainActivity 顶层函数→mainactivity/c0） | `evidence/class-merge-map.txt` |
+| 叶级真实重建 f44/g44/th2 | **PASS**：三方差分（dex2jar/enjarify/Kotlin）335 checks / 0 fail；真实官方存档解码 prefix/length/suffix/hash 三方一致 | `evidence/closure-r107b/closure-parity.log` |
+| 默认包类型限制 / suspend Continuation ABI | **BLOCKED（已给最小复现与方案）** | plan §4.1/§4.2、`evidence/kotlin-default-package-limit/` |
+| APK/AVD/真实玩法 | **NOT RUN**（本轮约束禁止） | — |
+
+新增产物：`TICK-CLOSURE-PLAN.md`（类清单/ABI 桥边界/GameApi 复用/风险/分阶段估工/并入清单/未验证项）、
+`reconstructed/r107-closure/{kotlin,verify,run_verify_closure.sh,merge-exclude-additions.json,README.md}`、
+`reports/R107-01/kotlin/evidence/closure-r107b/`。

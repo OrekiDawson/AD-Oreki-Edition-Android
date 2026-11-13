@@ -47,6 +47,8 @@ SAVE_FILES = (
     f"/data/data/{PACKAGE}/files/player.json",
     f"/data/data/{PACKAGE}/files/playerBackup",
 )
+# adb 可能不在 PATH（例如仅安装了 SDK platform-tools）；支持 --adb 或 ADB_BIN 指定。
+ADB = os.environ.get("ADB_BIN", "adb")
 CRASH_PATTERNS = (
     ("fatal_exception", re.compile(r"FATAL EXCEPTION")),
     ("verify_error", re.compile(r"VerifyError")),
@@ -66,7 +68,7 @@ def sha256_file(path: Path) -> str:
 
 def adb(device: str, *args: str, timeout: int = 120) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["adb", "-s", device, *args], capture_output=True, text=True, timeout=timeout
+        [ADB, "-s", device, *args], capture_output=True, text=True, timeout=timeout
     )
 
 
@@ -75,7 +77,7 @@ def adb_shell(device: str, command: str, timeout: int = 120) -> subprocess.Compl
 
 
 def adb_bytes(device: str, *args: str, timeout: int = 120) -> bytes:
-    return subprocess.run(["adb", "-s", device, *args], capture_output=True, timeout=timeout).stdout
+    return subprocess.run([ADB, "-s", device, *args], capture_output=True, timeout=timeout).stdout
 
 
 def now() -> str:
@@ -117,7 +119,7 @@ class Gate:
 
     # ---------------- steps ----------------
     def preflight(self) -> bool:
-        devices = adb("adb" if False else self.device, "get-state", timeout=30)
+        devices = adb(self.device, "get-state", timeout=30)
         state = (devices.stdout + devices.stderr).strip()
         self.save_text("00-device-state.txt", f"device={self.device}\nstate={state}\n")
         if "device" not in state.split():
@@ -270,6 +272,8 @@ class Gate:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--device", required=True, help="adb 序列号，例如 emulator-5554")
+    parser.add_argument("--adb", default=os.environ.get("ADB_BIN", "adb"),
+                        help="adb 可执行文件路径（也可用 ADB_BIN 环境变量；默认 adb）")
     parser.add_argument("--apk", type=Path, required=True)
     parser.add_argument("--out-dir", required=True, type=Path)
     parser.add_argument("--mode", choices=("cold-start", "new-save", "restart", "all"), default="all")
@@ -278,6 +282,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--execute", action="store_true", help="真正执行；缺省只打印计划（dry-run）")
     args = parser.parse_args(argv)
 
+    global ADB
+    ADB = args.adb
     apk = args.apk.resolve()
     if not apk.is_file():
         print(f"FAIL: APK 不存在: {apk}", file=sys.stderr)
