@@ -94,8 +94,16 @@ def main() -> int:
              / "OrekiStageAuto.kt")
     st = stage.read_text(encoding="utf-8")
     # 取 computeHoldCrunch() 的函数体（Kotlin 用花括号，不能靠 .end method）
+    # 支持两种等价写法：表达式函数体（= try { ... }）与 block body
+    # （{ return try { ... } }）。AGP 9 内置 Kotlin 编译器要求后者，语义不变。
     _m = re.search(r"fun computeHoldCrunch\(\): Boolean = try \{(.*?)\n    \} catch",
                    st, re.S)
+    if not _m:
+        _m = re.search(
+            r"fun computeHoldCrunch\(\): Boolean \{\s*\n\s*return try \{(.*?)\n    \} catch",
+            st, re.S,
+        )
+    check("holdCrunch 函数体可提取（表达式或 block body）", _m is not None)
     hc_code = "\n".join(ln for ln in (_m.group(1) if _m else "").splitlines()
                          if not ln.strip().startswith("//"))
     check("holdCrunch 读 thisEternity.maxAM", "GameApi.thisEternityMaxAM()" in hc_code)
