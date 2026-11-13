@@ -551,10 +551,10 @@ def local_sftp_publish(root: Path, apk: Path, apk_info: dict[str, object],
             if sha256_file(downloaded) != apk_info["sha256"]:
                 raise RuntimeError("SFTP latest readback SHA256 mismatch")
             checksum = Path(scratch) / (DEFAULT_APK_NAME + ".sha256")
-            checksum.write_text(f"{apk_info['sha256']}  {DEFAULT_APK_NAME}\\n", encoding="utf-8")
+            checksum.write_text(f"{apk_info['sha256']}  {DEFAULT_APK_NAME}\n", encoding="utf-8")
             # The root checksum index is reconstructed for this single latest APK.
             root_index = Path(scratch) / "SHA256SUMS"
-            root_index.write_text(f"{apk_info['sha256']}  latest/{DEFAULT_APK_NAME}\\n", encoding="utf-8")
+            root_index.write_text(f"{apk_info['sha256']}  latest/{DEFAULT_APK_NAME}\n", encoding="utf-8")
             run(["rclone", "copyto", str(checksum),
                  remote_spec(remote, directory, f"latest/{DEFAULT_APK_NAME}.sha256")], check=True)
             run(["rclone", "copyto", str(root_index),
