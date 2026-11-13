@@ -219,3 +219,52 @@ r2 的 13 类 dex2jar 替换 + nc8.M 修复 → r3 的 75 接口替换 → FixIn
 结果：invalid **238 → 77**（verify_ok 15,254，99.5%），热路径 11 类全 VALID，整包 D8 **PASS**（0 warning），76 补丁类逐类 D8 **76/76 PASS**；
 jar `out/hybrid-translator/game-hybrid-r5cur.jar` SHA-256 `4912811b0a820413dde4f64f380c610bd3cecadd921ba07f61037643bce46070`（19,501,763 B）。
 风险：160 个 d2j 替换类中含 **108 个默认包游戏类**（语义风险显著高于 r4cur），仅作对照实验；AVD 先测 r4cur。
+
+## 13. 运行期回归（AVD）：r2cur / r4cur 不可作候选
+
+Lead AVD（emulator-5554，pm clear + 冷启动）实测：
+
+| 变体 | 结果 | 崩溃栈/异常 |
+| --- | --- | --- |
+| r1（8 类替换 + shadow） | **PASS** | Tick/存档/门禁正常 |
+| native-r2cur（含 rk8 闭包等 13 类替换） | **FAIL** | FATAL Firebase Background Thread → `IllegalStateException: Already suspended`；`ne1.l → rk8.G → DataStoreImpl$data$1.invokeSuspend` |
+| native-r4cur（`game-hybrid-r4cur.jar` `6b293ed7…`） | **FAIL** | `CoroutinesInternalError` → `ClassCastException: ld0 cannot be cast to s01`；`ContinuationImpl.releaseIntercepted → BaseContinuationImpl.resumeWith → q54.o` |
+
+**结论：JVMS 合法 ≠ 运行期等价；r2/r4 路线不可作 Candidate（即使 r4cur JVMS invalid 仅 238）。**
+
+### 13.1 为什么 r1 的 8 类可共存、rk8 闭包不行（ABI 分析）
+
+- **r1 的 8 类**（ox0/gk0/dc2/tf2/vf2/t01/k51/cv0）是 **dispatcher / 限流队列 / DispatchedTask 基础设施子系统**：
+  方法体是 `execute/dispatch/enqueue/poll/close/run` 等普通控制流，**不含 suspend 状态机实现**（方法体内不出现 `invokeSuspend`/Result 状态标签/COROUTINE_SUSPENDED 判定逻辑）；
+  与 shadow kotlin 的交互限于 `Result`/`EmptyList` 等值类型。d2j 替换后仍是「同一子系统的同类实现」，跨转换器接口封闭 → 实测 A/B PASS。
+- **rk8.G 是 suspend 函数实现**：签名 `G(ek0,km1,rj0)Ljava/lang/Object;`（接收 Continuation、返回 Object），方法体内联了 kotlinx 协程状态协议：
+  `"Already suspended"` 守卫、Unsafe CAS `s01.w`、sentinel `nc8.b`、`instanceof h30` 等（可从 enjarify 版 shadow `ContinuationImpl.releaseIntercepted` 字节码直接看到这些协议点）。
+  d2j 版 rk8.G 与 enjarify 版**结构差异显著**（指令数 198 → 152，跳转/异常区间布局不同）——即同一个 suspend 状态机的不同实现；
+  当它被 enjarify 调用方（`ne1.l`）调用、并与 enjarify/shadow 的 continuation 对象（`BaseContinuationImpl`/`ld0`/`s01`）交互时，label/Result/resume 握手不一致 → `Already suspended`（r2cur）。
+- **r4cur 的 CCE 机制**：enjarify 版 shadow `ContinuationImpl.releaseIntercepted` 对非空且非自身的 `intercepted` 字段执行 `checkcast s01`（R8 内联了 `DispatchedContinuation.releaseInterceptedContinuation` 的 Unsafe CAS 逻辑）；
+  正常流程 release 后字段被置为 `ld0`（EmptyContinuation），**再次 release 就会 ld0→s01 CCE** —— 说明某 continuation 被 resume/release 两次（状态机不变量破坏）。
+  这是 rk8/nc8 混用 + 75 接口替换 + FixInitSplice 对 2,698 个类构造链重写的**叠加后果**，时间盒内无法唯一归因；因此 r4cur 只能作实验，交付前必须 AVD 冒烟。
+- 判据：**任何跨转换器替换若触及 suspend 状态机实现或 continuation 构造协议，JVMS/D8 通过都没有运行期保证**；r1 证明的只是「dispatcher/queue 子系统级替换」可共存。
+
+## 14. 安全最小集 J8 / J8+fix（仅 8 类，可选叠加 FixInitSplice）
+
+基线：当前树 merged.jar → m53 拆分 → RemapSelective → 72 shadow 合并（与 r4cur 相同）；
+8 类字节**直接取自 AVD 已 PASS 的 `game-hybrid-final-newstaged.jar`**（保证与 r1 同一批实现），不引入 rk8/nc8 闭包、nc8.M 修复、75 接口替换。
+J8+fix = J8 上仅叠加 FixInitSplice（不删 8 类）。两者都应用与管线一致的 `updateAutomator$1` 官方回退（否则 D8 失败）。
+
+| 变体 | jar / SHA-256 | JVMS | 热路径 | D8 | 结构审计 |
+| --- | --- | --- | --- | --- | --- |
+| **J8**（8 类，首选安全最小集） | `out/hybrid-translator/game-hybrid-j8.jar` / `445de266be61442c43ad30e17f231f19b42978c0b2b215de589f81ddee8dd6a3`（19,415,849 B，15,344 类） | invalid **5,161**（verify_ok 10,170；与 r1 旧基线 5,161 完全同档） | ox0/gk0/dc2/tf2/vf2/t01/k51/cv0/ba1 VALID；rk8/nc8 仍 invalid（**与 AVD 已 PASS 的 r1 基线相同**） | 整包 **PASS**（0 warning）；76 补丁类 **76/76 PASS** | 类集合 15,344；内容 = 当前树 remap+shadow + 8 类同一批字节 + updateAutomator$1 官方回退 |
+| **J8+fix**（8 类 + FixInitSplice，不删 8 类） | `out/hybrid-translator/game-hybrid-j8-fix.jar` / `df8374389bf554db374d9e82d9bf4a8efedfc83938c45516f6cdb79d2750b2ac`（19,508,352 B，15,344 类） | invalid **2,432**（FORMAT 1,687 接口类未处理 + VERIFY 745；verify_ok 12,900） | rk8 仍 invalid；nc8 被 FixInitSplice 修复为 VALID；其余热路径 VALID | 整包 **PASS**（0 warning）；76 补丁类 **76/76 PASS** | changed 4,702 类；新增 2,705 个 synthetic `<init>`；**0 删除方法、0 字段变更** |
+
+- 8 类字节直接取自 `game-hybrid-final-newstaged.jar`（AVD 已 PASS 的 r1 实现），未引入 rk8/nc8 闭包、nc8.M 修复、75 接口替换。
+- J8 与旧 r1 差异：当前树 5 个补丁类（DeviceOptions$Appearance、Player$Options、player/h、prestige/c、shop/Purchases）+ 重打包字节；流程/审计指标一致。
+- **J8+fix 的风险**：FixInitSplice 改写了 4,702 个类（含 shadow 协程基类与构造链），虽然语义设计为等价，但 r4cur 的 CCE 已证明「构造/状态协议」改动可引发运行期回归；**交付前必须 AVD 冒烟（pm clear + 冷启动，0 FATAL/Coroutine 错误）**。
+- 建议 AVD 顺序：**J8（首选，应与 r1 等价 PASS）→ J8+fix（观察 FixInitSplice 是否安全）**；r2cur/r4cur 已判 FAIL，不得作候选。
+- 证据：`evidence/27-hybrid-j8-final.json`、`28-jvm-verify-hybrid-j8.txt`、`29-jvm-verify-hybrid-j8-fix.txt`、`hybrid-j8.sha256`。
+
+### 14.1 后续安全推进边界（结论）
+
+1. **可继续验证**：8 类 dispatcher/queue 子系统替换（J8）；FixInitSplice 单独叠加（J8+fix）需 AVD 冒烟。
+2. **禁止直接交付**：任何含 rk8、nc8 替换、接口扫描替换（75 接口）、或未冒烟的 FixInitSplice 版本（r2cur/r4cur/r5cur）。
+3. **若要继续压不可校验率**：优先只在 **非 suspend 状态机、非 continuation 协议**的类上做替换；rk8 这类 suspend 实现类应留给 Kotlin 重建，不能再跨转换器替换。

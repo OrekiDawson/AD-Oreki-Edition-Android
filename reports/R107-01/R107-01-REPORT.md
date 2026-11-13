@@ -290,3 +290,11 @@
 - 关键改进：修复前（同环境旧候选）首永恒后整段永恒层自动化停摆（TT=0、无第 2 次永恒）；修复后 30 分钟内 26 次永恒、TT/时间研究/EC 持续运转。
 - **未达现实**（realities=0）：EC 完成数 5,5,5（unlocked 3），EP 在 EC 模式归零；下一瓶颈=EC 完成数/时间研究路径与现实门槛（maxEP e4000），
   与 Web 侧「EP e4000 + 自动化策略」问题同构。证据：reports/R107-01/lead-evidence/hybrid-etlayer-fresh-run/（timeline/full-logcat）。
+
+### 10.10 AGP 原生安全最小集 J8 AVD 冒烟：PASS（原生候选恢复可运行）
+
+- J8（当前树 remap+shadow + 仅 r1 的 8 类 d2j 替换）：native-j8.apk（dd7ba1d5…；jar 03a93be3… 与 agp-dex J8 445de266… 同构）。
+- AVD：pm clear + 冷启动 PASS（TotalTime 905ms），player.json 创建（28,129 B）、AM 2.04e106（约 25s）、OREKI_TABGATE 正常、0 FATAL/VerifyError。
+- J8+fix（叠加 FixInitSplice，df837438…）：FAIL——FATAL EXCEPTION: AntimatterGameThread（FixInitSplice 改写协程/构造链不安全）；r2cur/r4cur/r5cur 同样不可用。
+- 结论：原生候选当前唯一可用形态=8 类最小替换 J8（JVMS invalid 5,161 与 r1 已 PASS 基线同档，rk8/nc8 保留 enjarify）。
+- 证据：reports/R107-01/lead-evidence/native-j8-smoke/、native-j8fix-smoke/。
