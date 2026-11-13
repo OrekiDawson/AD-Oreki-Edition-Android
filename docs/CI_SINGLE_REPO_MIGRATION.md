@@ -10,6 +10,7 @@
 
 ## 配置步骤（GitHub 管理员在网页完成）
 
+0. Android 仓 [Settings → Rules](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/settings/rules) **先创建 Active main Ruleset**：禁止直接推送、强推和删除；要求 PR、源码 CI PASS，未启用保护前不添加签名环境 Secrets。
 1. Android 仓 [Settings → Environments](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/settings/environments) 创建 `android-signing` 环境，限制 **Deployment branches: Selected branches → main**，并配置适当的人工审批保护。
 2. 在该环境的 Secrets 添加 `OREKI_KEYSTORE_B64`、`OREKI_KS_PASS` 和 `OREKI_BUILD_BUNDLE_TOKEN`。不要添加为无需保护的仓库级 Secret。
 3. 在该环境的 Variables 添加 `OREKI_BUILD_BUNDLE_URL`（**需要 Bearer 认证的私有 HTTPS 直链**）和 `OREKI_BUILD_BUNDLE_SHA256`（64 位十六进制）。公共仓仓库 Variable `OREKI_WEB_REF` 应为 Web main 上已审核的 **完整 40 位 SHA**；也可在仓库统一配置该变量。绝不使用浮动 `main`。
@@ -54,11 +55,12 @@
 
 ## 发布链仍待迁移，不得提前删除私有仓
 
-旧 `release.yml` 当前需要专用机器上的 `rclone onedrive:`、`gdrive:`、`gh` 登录以及 **本地 SSH/SFTP latest**。简单复制到 GitHub 托管 Runner 会把临时 Runner 的本地路径误标记为第四渠道 PASS；因此现阶段**不迁移一个假的“已完成发布”流程**。
+严格验收脚本与 read-only `release-gate-unified.yml` 已迁入公开 Android 仓，并通过与私有仓对应的证据回归测试；**它只校验，不发布**。旧 `release.yml` 当前仍需要专用机器上的 `rclone onedrive:`、`gdrive:`、`gh` 登录以及 **本地 SSH/SFTP latest**。简单复制到 GitHub 托管 Runner 会把临时 Runner 的本地路径误标记为第四渠道 PASS；因此现阶段**不迁移一个假的“已完成发布”流程**。
 
 要删除旧私有仓，还必须：
 
-- [ ] 在 Android 仓创建 **受保护的 `stable-release` 环境**并完成候选/验签/证据 Gate 迁移。
+- [x] 迁移只读 Candidate / Independent Verify / 固定验收与双端真实通关证据 Gate 代码和静态测试；生产运行仍待验证。
+- [ ] 在 Android 仓创建 **受保护的 `stable-release` 环境**并将只读 Gate 接到经过验证的发布适配器。
 - [ ] 在托管 Runner 上通过私有的 `rclone.conf` Secret 配置 OneDrive 和 GDrive；恢复 OneDrive 401 后进行实际大 APK 分片上传验证。
 - [ ] 使用经过验证的 SSH/SFTP 适配器，把第四渠道上传到真正的 Kubuntu 发布目录并回读 SHA-256，不能把 Runner 临时文件当成本地发布。
 - [ ] 新四渠道报告对部分失败保持 BLOCKED、保留旧 Latest、精确 SHA 匹配，实测失败路径。
