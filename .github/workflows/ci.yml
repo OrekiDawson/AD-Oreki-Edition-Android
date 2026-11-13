@@ -77,6 +77,8 @@ jobs:
           python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
       - name: Test four-channel delivery preflight and stable-release promotion
         run: python3 -m unittest discover -s scripts/tests -p 'test_delivery_preflight.py' -v
+      - name: Test immutable archive-only recovery without changing stable Latest
+        run: python3 -m unittest discover -s scripts/tests -p 'test_release_archive.py' -v
       - name: Validate baseline configuration format
         run: |
           python3 - <<'PY'

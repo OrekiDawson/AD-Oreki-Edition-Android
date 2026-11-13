@@ -268,6 +268,68 @@ def write_checksums(root: Path) -> None:
     atomic_write(root / "SHA256SUMS", ("\n".join(entries) + "\n") if entries else "")
 
 
+def verified_source_commit() -> str | None:
+    """Preserve the audited source SHA passed from the private delivery adapter."""
+    value = os.environ.get("OREKI_SOURCE_COMMIT", "")
+    return value if re.fullmatch(r"[0-9a-f]{40}", value) else None
+
+
+def archive_cloud_copy(channel: str, apk: Path, apk_info: dict[str, object],
+                       version: str) -> dict[str, object]:
+    """Archive a verified candidate without touching any stable/latest path.
+
+    Immutable copy refuses to replace a conflicting remote archive. This is
+    intentionally separate from --retry-failed, which is a stable delivery mode.
+    """
+    if channel == "onedrive":
+        env_name, kind, dir_env, default_dir = (
+            "AD_ONEDRIVE_REMOTE", "onedrive", "AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR)
+    elif channel == "gdrive":
+        env_name, kind, dir_env, default_dir = (
+            "AD_GDRIVE_REMOTE", "drive", "AD_GDRIVE_DIR", DEFAULT_GDRIVE_DIR)
+    else:
+        raise RuntimeError(f"Archive mode never touches latest or GitHub: {channel}")
+    remote, _ = resolve_remote(env_name, kind)
+    directory = setting(dir_env, default_dir)
+    if not remote or not directory:
+        raise RuntimeError(f"{channel}: archive remote/directory unavailable")
+    if sha256_file(apk) != apk_info["sha256"]:
+        raise RuntimeError("Archive source APK digest changed")
+    relpath = f"archive/{version}-{str(apk_info['sha256'])[:8]}/{DEFAULT_APK_NAME}"
+    target = remote_spec(remote, directory, relpath)
+    run(["rclone", "copyto", str(apk), target, "--immutable",
+         "--retries", "2", "--low-level-retries", "3"], check=True)
+    data = json.loads(run(["rclone", "lsjson", target, "--stat"], check=True).stdout)
+    if data.get("Size") != apk_info["size_bytes"]:
+        raise RuntimeError(f"{channel}: archived APK size does not match validated source")
+    return {"channel": channel, "status": "PASS", "remote": target,
+            "apk_sha256": apk_info["sha256"], "size_bytes": apk_info["size_bytes"]}
+
+
+def archive_only(root: Path, apk: Path, apk_info: dict[str, object],
+                 version: str, selected: list[str]) -> int:
+    """The archive receipt is separate; it never mutates release-info or latest."""
+    if not selected or any(channel not in ("onedrive", "gdrive") for channel in selected):
+        raise RuntimeError("--archive-only requires --only onedrive and/or --only gdrive")
+    results: list[dict[str, object]] = []
+    for channel in selected:
+        try:
+            results.append(archive_cloud_copy(channel, apk, apk_info, version))
+        except (OSError, RuntimeError, ValueError, subprocess.TimeoutExpired) as exc:
+            results.append({"channel": channel, "status": "BLOCKED", "detail": str(exc)})
+    receipt = {"schema_version": 1, "mode": "archive-only",
+               "version": version, "apk_sha256": apk_info["sha256"],
+               "source_commit": verified_source_commit(),
+               "channels": results,
+               "updated_at": datetime.now(timezone.utc).isoformat()}
+    dest = root / "archive-records" / f"{version}-{str(apk_info['sha256'])[:16]}.json"
+    atomic_write(dest, json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
+    for entry in results:
+        say(f"archive {entry['channel']}: {entry['status']}")
+    say(f"Archive receipt: {dest}; stable Latest and release-info unchanged")
+    return 0 if all(entry["status"] == "PASS" for entry in results) else 2
+
+
 def base_state(version: str, apk_info: dict[str, object], manifest: dict[str, object] | None) -> dict[str, object]:
     release = (manifest or {}).get("release") or {}
     build = (manifest or {}).get("build") or {}
@@ -280,7 +342,8 @@ def base_state(version: str, apk_info: dict[str, object], manifest: dict[str, ob
         "version_code": release.get("versionCode") or build.get("versionCode"),
         "apk_sha256": apk_info["sha256"],
         "size_bytes": apk_info["size_bytes"],
-        "source_commit": build.get("source_commit"),
+        "source_commit": (build.get("source_commit") or release.get("source_commit")
+                          or verified_source_commit()),
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "channels": {channel: {"status": "not-run"} for channel in CHANNELS},
     }
@@ -681,6 +744,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--local-only", action="store_true", help="只更新 SSH/SFTP 本地目录")
     parser.add_argument("--publish", action="store_true", help="显式执行正式渠道交付")
     parser.add_argument("--retry-failed", action="store_true", help="只重试本地 release-info.json 中失败的渠道")
+    parser.add_argument("--archive-only", action="store_true", help="只补发不可变云端归档；绝不修改稳定版 latest")
     parser.add_argument("--only", action="append", choices=CHANNELS, help="只处理指定渠道，可重复")
     parser.add_argument("--apk", help="已经验证的 APK 路径")
     parser.add_argument("--version", help="正式版本号，例如 3.21.0；不是任务编号")
@@ -698,7 +762,9 @@ def main() -> int:
         return preflight_write_channels()
     if args.dry_run and args.publish:
         raise RuntimeError("--dry-run 与 --publish 不能同时使用")
-    if not args.local_only and not args.dry_run and not args.publish:
+    if args.archive_only and (args.dry_run or args.publish or args.local_only or args.retry_failed):
+        raise RuntimeError("--archive-only 不得与发布、重试、dry-run 或 local-only 混用")
+    if not args.local_only and not args.dry_run and not args.publish and not args.archive_only:
         raise RuntimeError("正式云端/GitHub 交付必须显式使用 --publish")
     if not args.apk or not args.version:
         raise RuntimeError("需要同时提供 --apk 和 --version")
@@ -714,6 +780,9 @@ def main() -> int:
         raise RuntimeError("正式或本地交付必须提供已验证的 --manifest")
 
     root = local_dir()
+    if args.archive_only:
+        return archive_only(root, apk, apk_info, args.version, args.only or [])
+
     state = load_or_create_state(root, args.version, apk_info, manifest)
     if args.retry_failed:
         selected = [channel for channel in CHANNELS if (state.get("channels", {}).get(channel) or {}).get("status") == "failed"]
