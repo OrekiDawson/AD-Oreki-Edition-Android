@@ -132,6 +132,8 @@
 - `[读码]` 官方 Web 源码仓 `IvarK/AntimatterDimensionsSourceCode` 最新提交仍是 `5409e320`（2026-07-17），**无 3.21 对应提交或标签**。因此 3.21 的 Web 侧基线无法建立，`web.commit` 留空并由 `baseline verify` 明确报出。
 - `[实测]` 基线管理工具（Rust，零第三方依赖）五命令 `update / verify / diff / status / rollback` 全部可用；3.20 与 3.21 的 inventory 各 15319~15354 类，可用于后续增量 diff 而无需重复反编译。
 - `[实测]` `scripts/build_mod.py` 原有的 **25 处** `_baseline_version().startswith("3.20")` 分支已全部收敛为 `baseline/version-config.json` 的声明式配置（现存 0 处）。配置化改造后 3.20 构建仍 EXIT=0、产出 77.7 MiB APK，未破坏现有可构建状态。
+- `[实测]` **2026-11-13 起官方 Android 3.21.0 为正式冻结基线**：base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK SHA-256 `ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a`、versionCode `30210000`、minSdk 32 / targetSdk 37，与 `baseline/versions/3.21/manifest.json` 一致；不自动追新，完整升级条件见 `AGENTS.md` §9 / `docs/DELIVERY_RULES.md` §6。
+- `[读码]` **Web 冻结上游**：`IvarK/AntimatterDimensionsSourceCode` @ `5409e320cecef96a917cca1dfb68f1f183e499ca`（2026-07-17，AD 11.5 / Reality Update；与 `web/AD-Oreki-Edition/docs/SHARED_GAMEPLAY_STANDARD.md` 一致）。反混淆/Kotlin 目标固定 3.21.0，不因上游发版重置。
 
 ## 7. 仓库与产物
 
