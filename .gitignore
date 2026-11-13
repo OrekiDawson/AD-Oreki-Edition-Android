@@ -112,3 +112,6 @@ reports/**/tmp/
 
 # ---------- 基线工具编译产物（可由 cargo build --release 重新生成）----------
 /baseline/tools/target/
+
+# R107-01: agp-dex 工具链编译产物（不入库）
+scripts/dexfix/r107/build/

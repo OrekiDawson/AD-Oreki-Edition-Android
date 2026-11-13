@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "mode": "agp-package-with-legacy-game-dex",
+  "note": "已按设计排除旧链 classes4.dex（旧 Kotlin DEX）",
+  "inputs": {
+    "agp_apk": {
+      "path": "/tmp/r107/cand-mod.apk",
+      "sha256": "82a7ff684397afff6711a2f2b6a2e8f4c2444b9ffdde71fcbcf0dc65dd4929e9"
+    },
+    "game_apk": {
+      "path": "build/gradle-stage/unsigned.apk",
+      "sha256": "40bbc41235f20805c2e2e86e79598bd40da4283d49bc46ec9e79cf5cb268509b"
+    },
+    "bridge_apk": {
+      "path": "agp/app/build/outputs/apk/release/app-release-unsigned.apk",
+      "sha256": "b9797a01d0d7b20806f43a709ad5744908c78a9f7793f80a9836d341c205337a"
+    }
+  },
+  "output": {
+    "path": "/tmp/r107/hybrid3-candidate.apk",
+    "sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "bytes": 72416868
+  },
+  "signature": {
+    "cert_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+    "verified": true
+  },
+  "dex_entries": [
+    "classes.dex",
+    "classes2.dex",
+    "classes3.dex",
+    "classes4.dex"
+  ],
+  "dex_class_counts": {
+    "classes.dex": 10150,
+    "classes2.dex": 4611,
+    "classes3.dex": 583,
+    "classes4.dex": 1125
+  },
+  "replaced_agp_dex": [
+    "classes.dex",
+    "classes2.dex"
+  ],
+  "warnings": [
+    "本 APK 的游戏代码 DEX 来自旧链隔离构建（work/mod 补丁树），不是 AGP 编译产物。",
+    "AGP 原生游戏代码路线因 enjarify 运行期语义不保真（Tick 卡死）而 BLOCKED。",
+    "不得将本产物作为‘AGP 原生完整游戏构建’发布；正式发布仍须等 AGP 游戏代码/ Kotlin 重建路线通过验收。"
+  ],
+  "ok": true,
+  "staged": {
+    "path": "/home/oreki/private-staging/r107-candidate/antimatter-dimensions-R107-hybrid-AGPpackaged-c25c68dc.apk",
+    "sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "bytes": 72416868
+  },
+  "avd": {
+    "tested": true,
+    "result": "PASS",
+    "evidence": "reports/R107-01/lead-evidence/hybrid-candidate/",
+    "note": "install -r Success；COLD 启动 1.8s；MOD 中文深色界面；AM 5.98e90 持续增长；logcat 0 FATAL/VerifyError"
+  }
+}
