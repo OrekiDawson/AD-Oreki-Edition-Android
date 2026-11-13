@@ -202,7 +202,6 @@ jobs:
           work="$RUNNER_TEMP/validate"
           mkdir -p "$work"
           apk="candidate/antimatter-dimensions.apk"
-          size="$(stat -c %s "$apk")"
           tag="android-update-${version}-${sha8}-validate"
           cleanup() {
             set +e
