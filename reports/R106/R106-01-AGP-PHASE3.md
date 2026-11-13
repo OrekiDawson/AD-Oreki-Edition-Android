@@ -61,7 +61,7 @@ bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true
 
 ## 5. CI/CD 与门禁
 
-- 公开 Source CI（branch `r106/agp-phase3-fullgame`）：**见 PR run**（构建结论以 GitHub 实际 Run 为准）。
+- 公开 Source CI（PR #30，head `ff3934ff`，run `43428789895`）：**PASS**——Source checks 1m01s PASS、AGP 9.5.1 Kotlin DEX parity 1m19s PASS。
 - 默认 bridge 构建与阶段一 parity 本地复验 PASS（`assembleDebug` + ABI guard + `verify_agp_parity.py`）。
 - AGP-only 硬门禁**未删除、未放宽**：`python3 scripts/enforce_agp_only.py candidate` 仍返回 `FAIL: AGP_ONLY_BLOCKED`（Candidate 工作流尚未切换到 AGP Release，属预期 fail-closed）。
 - 未生成 `agp-provenance.json`，未发布 Candidate/稳定版，R103 Latest 未变。

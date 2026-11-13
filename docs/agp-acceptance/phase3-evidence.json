@@ -51,6 +51,13 @@
     "MOD 依赖 22 个原版混淆 smali 补丁 + 33 个 MOD smali 包装类；最终游戏 DEX 必须由 smali 汇编生成，AGP 不能编译 smali。",
     "唯一可用的 APK 注入点（SingleArtifact.APK transform）属于任务书 §2/§3 禁止的二次重包，不采用。"
   ],
+  "ci": {
+    "pull_request": 30,
+    "head_commit": "ff3934ff",
+    "run_id": 43428789895,
+    "source_checks": "PASS (1m01s)",
+    "agp_kotlin_dex_parity": "PASS (1m19s)"
+  },
   "gates": {
     "agp_only_policy": "enforce_agp_only.py candidate 仍 fail-closed（未发布）",
     "provenance_file_generated": false,
