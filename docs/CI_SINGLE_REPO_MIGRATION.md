@@ -25,6 +25,15 @@
 
 最终状态必须区分：三远端 PASS / 本地第四渠道 NOT RUN / 四渠道全部 PASS；不得把三渠道写成四渠道。
 
+## OneDrive 上传回退（2026-11-13）
+
+OneDrive 个人账号的 rclone 上传会话（`my.microsoftpersonalcontent.com`）当前返回
+`401 BadContextToken`，即使重新授权、升级 rclone、改用真实 IP 直连仍复现。发布工具因此在
+rclone 上传报 401 时回退到 Graph **simple upload**（≤240 MB）：先用 rclone 刷新并回写
+OAuth token（刷新令牌可重复使用，已验证），再用 `PUT /v1.0/drives/{id}/root:/path:/content`
+上传同一已验证 APK，并用返回元数据尺寸校验；临时探针上传后即删除，不覆盖稳定版。
+该回退只解决上传；个人内容主机的内容下载回读仍可能独立 401，需在真实渠道验收时单独记录。
+
 ## 需要的 GitHub 配置
 
 - `main` Ruleset（active）：禁删除/强推，必须 PR + Source CI（见 `/settings/rules`）。

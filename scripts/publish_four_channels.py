@@ -32,7 +32,9 @@ installToRelease/verifyRelease 生成的 release-manifest.json，避免把未验
 from __future__ import annotations
 
 import argparse
+import configparser
 import hashlib
+import http.client
 import json
 import os
 import re
@@ -40,6 +42,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 import uuid
 import zipfile
 from datetime import datetime, timezone
@@ -53,6 +56,7 @@ DEFAULT_APK_NAME = "反物质维度.apk"
 DEFAULT_ONEDRIVE_DIR = "Apps/AD-Oreki-Edition"
 DEFAULT_GDRIVE_DIR = "AD-Oreki-Edition"
 VERSION_RE = re.compile(r"^\d+(?:\.\d+)+$")
+GRAPH_ONEDRIVE_SIMPLE_LIMIT = 240 * 1024 * 1024  # Graph simple upload limit is 250 MB
 CHANNELS = ("local", "onedrive", "gdrive", "github")
 # GitHub-hosted 发布只负责三个远程渠道；本地第四渠道由开发机主动拉取完成。
 REMOTE_CHANNELS = ("github", "onedrive", "gdrive")
@@ -508,7 +512,16 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
                         raise RuntimeError("probe upload size mismatch")
                     say(f"{label}: verified short-lived remote write/read metadata")
                 except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
-                    failures.append(f"{label}: write authorization/readback failed: {exc}")
+                    if channel_name == "onedrive" and "401" in str(exc):
+                        try:
+                            say(f"{label}: rclone upload-session 401；改用 Graph simple upload 探针")
+                            onedrive_graph_fallback(remote, directory, payload, {}, probe=True)
+                            say(f"{label}: verified Graph simple-upload probe")
+                            uploaded = False
+                        except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as graph_exc:
+                            failures.append(f"{label}: graph fallback probe failed: {graph_exc}")
+                    else:
+                        failures.append(f"{label}: write authorization/readback failed: {exc}")
                 finally:
                     # Never delete a user file: unique name, only created by this run.
                     if uploaded:
@@ -786,6 +799,123 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def rclone_config_path() -> Path | None:
+    """Locate the staged rclone config (CI exports RCLONE_CONFIG)."""
+    explicit = os.environ.get("RCLONE_CONFIG")
+    if explicit and Path(explicit).is_file():
+        return Path(explicit)
+    fallback = Path.home() / ".config" / "rclone" / "rclone.conf"
+    return fallback if fallback.is_file() else None
+
+
+def onedrive_remote_settings(remote: str) -> tuple[str, Path]:
+    """Return (drive_id, staged config path) for an rclone OneDrive remote."""
+    config_path = rclone_config_path()
+    if config_path is None:
+        raise RuntimeError("OneDrive Graph fallback: rclone config not found")
+    parser = configparser.ConfigParser()
+    parser.read(config_path, encoding="utf-8")
+    if not parser.has_section(remote):
+        raise RuntimeError(f"OneDrive Graph fallback: remote {remote!r} missing in config")
+    drive_id = (parser[remote].get("drive_id") or "").strip()
+    if not drive_id:
+        raise RuntimeError("OneDrive Graph fallback: drive_id missing in rclone config")
+    return drive_id, config_path
+
+
+def onedrive_access_token(config_path: Path, remote: str) -> str:
+    """Read a fresh access token after rclone refreshed the staged config."""
+    parser = configparser.ConfigParser()
+    parser.read(config_path, encoding="utf-8")
+    raw = parser[remote].get("token") if parser.has_section(remote) else None
+    if not raw:
+        raise RuntimeError("OneDrive Graph fallback: token missing in rclone config")
+    token = json.loads(raw)
+    access = token.get("access_token")
+    if not isinstance(access, str) or len(access) < 50:
+        raise RuntimeError("OneDrive Graph fallback: access token unavailable")
+    return access
+
+
+def graph_onedrive_put(drive_id: str, remote_path: str, source: Path, access: str) -> dict:
+    """Upload one file through Graph simple upload and verify metadata size."""
+    size = source.stat().st_size
+    if size > GRAPH_ONEDRIVE_SIMPLE_LIMIT:
+        raise RuntimeError(f"OneDrive Graph fallback refuses {size} B: simple upload limit")
+    encoded = urllib.parse.quote(remote_path.strip("/"), safe="/")
+    connection = http.client.HTTPSConnection("graph.microsoft.com", timeout=900)
+    try:
+        connection.putrequest("PUT", f"/v1.0/drives/{drive_id}/root:/{encoded}:/content")
+        connection.putheader("Authorization", f"Bearer {access}")
+        connection.putheader("Content-Type", "application/octet-stream")
+        connection.putheader("Content-Length", str(size))
+        connection.endheaders()
+        with source.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                connection.send(chunk)
+        response = connection.getresponse()
+        body = response.read()
+        if response.status not in (200, 201):
+            raise RuntimeError(f"OneDrive Graph fallback upload failed: HTTP {response.status}")
+        data = json.loads(body.decode("utf-8"))
+        if not isinstance(data.get("size"), int) or data["size"] != size:
+            raise RuntimeError(f"OneDrive Graph fallback upload size mismatch: {data.get('size')} != {size}")
+        return data
+    finally:
+        connection.close()
+
+
+def graph_onedrive_delete(drive_id: str, remote_path: str, access: str) -> None:
+    encoded = urllib.parse.quote(remote_path.strip("/"), safe="/")
+    connection = http.client.HTTPSConnection("graph.microsoft.com", timeout=120)
+    try:
+        connection.putrequest("DELETE", f"/v1.0/drives/{drive_id}/root:/{encoded}")
+        connection.putheader("Authorization", f"Bearer {access}")
+        connection.putheader("Content-Length", "0")
+        connection.endheaders()
+        response = connection.getresponse()
+        response.read()
+        if response.status not in (200, 204, 404):
+            raise RuntimeError(f"OneDrive Graph fallback delete failed: HTTP {response.status}")
+    finally:
+        connection.close()
+
+
+def onedrive_graph_fallback(remote: str, directory: str, apk: Path,
+                            apk_info: dict[str, object], probe: bool = False) -> str:
+    """rclone upload-session 401 fallback: rclone refreshes OAuth, Graph uploads.
+
+    rclone owns refresh-token rotation and writes the refreshed token back to the
+    staged config; Graph simple upload then performs the actual upload. Remote size
+    is verified from Graph metadata. Content readback still depends on the personal
+    content host, which may independently return 401.
+    """
+    drive_id, config_path = onedrive_remote_settings(remote)
+    result = run(["rclone", "lsf", f"{remote}:", "--max-depth", "1"], timeout=180)
+    if result.returncode != 0:
+        raise RuntimeError("OneDrive Graph fallback: rclone token refresh failed")
+    access = onedrive_access_token(config_path, remote)
+    if probe:
+        probe_path = f"{directory.strip('/')}/.oreki-graph-probe-{uuid.uuid4().hex}.txt"
+        handle, name = tempfile.mkstemp(prefix="oreki-graph-probe-", suffix=".txt")
+        os.close(handle)
+        temp = Path(name)
+        try:
+            temp.write_bytes(b"oreki-graph-write-probe\n")
+            graph_onedrive_put(drive_id, probe_path, temp, access)
+        finally:
+            try:
+                graph_onedrive_delete(drive_id, probe_path, access)
+            finally:
+                temp.unlink(missing_ok=True)
+        return f"graph-simple-upload probe ok ({remote})"
+    if sha256_file(apk) != apk_info["sha256"]:
+        raise RuntimeError("OneDrive Graph fallback: APK digest differs from verified candidate")
+    remote_path = f"{directory.strip('/')}/{DEFAULT_APK_NAME}"
+    data = graph_onedrive_put(drive_id, remote_path, apk, access)
+    return f"graph-simple-upload {remote}:{remote_path} size={data.get('size')}"
+
+
 def main() -> int:
     args = parse_args()
     if args.check:
@@ -848,8 +978,15 @@ def main() -> int:
                 directory = setting("AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR)
                 if remote_src == "auto":
                     say(f"OneDrive remote 未显式配置，按唯一 onedrive 类型 remote 解析为 {remote}")
-                rclone_publish("OneDrive", remote, directory, apk, apk_info, args.dry_run)
-                set_channel(state, channel, "success", f"rclone copyto {remote}:{directory}/{DEFAULT_APK_NAME}")
+                try:
+                    rclone_publish("OneDrive", remote, directory, apk, apk_info, args.dry_run)
+                    detail = f"rclone copyto {remote}:{directory}/{DEFAULT_APK_NAME}"
+                except RuntimeError as exc:
+                    if args.dry_run or "401" not in str(exc):
+                        raise
+                    say("OneDrive: rclone upload-session 401；改用 Graph simple upload 回退（元数据尺寸校验）")
+                    detail = onedrive_graph_fallback(remote, directory, apk, apk_info)
+                set_channel(state, channel, "success", detail)
             elif channel == "gdrive":
                 remote, remote_src = resolve_remote("AD_GDRIVE_REMOTE", "drive")
                 directory = setting("AD_GDRIVE_DIR", DEFAULT_GDRIVE_DIR)
