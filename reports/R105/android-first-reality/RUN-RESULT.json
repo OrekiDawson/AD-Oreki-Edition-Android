@@ -1,0 +1,46 @@
+{
+ "id": "R105-03-android-combined-first-reality-attempt",
+ "apk_sha256": "033371bb56e9c31d9d5b0dc448763b828f0055103d9ebec575dcf2efde19bc21",
+ "source_branch": "r105-ep-scale @ 669664df0c8f6402ac0835450e7c6650411a9751",
+ "apk_kind": "IP 尺度修复 + EP 尺度候选（prestige.c.g 除数 308→30）",
+ "fresh_save": true,
+ "start_iso": "2026-11-13T13:08:41+08:00",
+ "window_s": 1938,
+ "stages_s": {
+  "antimatter": 18.8,
+  "first_break": 346.3,
+  "first_eternity": 375.7,
+  "second_break": 707.4,
+  "second_eternity": 1848.9
+ },
+ "first_eternity": {
+  "bigE_after": 1,
+  "EP_after": 31559438,
+  "note": "EP 尺度生效：首永恒即得 3.16e7 EP（对照 IP-only 候选为 EP 2）"
+ },
+ "second_eternity": {
+  "bigE_after": 2,
+  "EP_after": 76320000,
+  "elapsed_s": 1848.9
+ },
+ "final_state": {
+  "bigEternities": 2,
+  "eternityPoints": 76320000,
+  "realities": 0,
+  "isGameEnd": false,
+  "thisEternity_maxIP": 31400000000000,
+  "eternityUpgradeBits": 1
+ },
+ "verdict": "未到首次现实（窗口 1938 s）；第二永恒真实发生；EP 尺度机制在真实新档生效",
+ "observations": [
+  "首永恒即 EP 3.16e7（IP-only 候选为 EP 2），EP 尺度在真实新档生效。",
+  "但第二永恒比 IP-only 跑次更慢（1848.9 s vs 1307.2 s），同期 maxAM/IP 更低；EP 侧自动化是否把时间花在低收益路径需要下一轮分析。",
+  "现实要求 maxEP ≥ e4000，当前 EP e7.88，仍差约 3992 个数量级；EP mult/时间研究/无限维度链是下一阶段主战场。"
+ ],
+ "evidence": {
+  "timeline": "timeline.jsonl",
+  "events": "events.json",
+  "save": "FINAL-SAVE-first-reality-window.json",
+  "screenshot": "screenshots/stage-005-eternity.png"
+ }
+}
