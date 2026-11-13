@@ -53,18 +53,32 @@
 - [ ] 通过 AVD 的定向安装/运行验收，签名与原稳定包升级兼容，未验证不可写 PASS。
 - [ ] CI 的 Run ID、资源包 SHA、Android/Web SHA、APK SHA 存档。
 
-## 发布链仍待迁移，不得提前删除私有仓
+## 统一四渠道发布（新代码已落地，真实运行待验证）
 
-严格验收脚本与 read-only `release-gate-unified.yml` 已迁入公开 Android 仓，并通过与私有仓对应的证据回归测试；**它只校验，不发布**。旧 `release.yml` 当前仍需要专用机器上的 `rclone onedrive:`、`gdrive:`、`gh` 登录以及 **本地 SSH/SFTP latest**。简单复制到 GitHub 托管 Runner 会把临时 Runner 的本地路径误标记为第四渠道 PASS；因此现阶段**不迁移一个假的“已完成发布”流程**。
+`.github/workflows/release-gate-unified.yml` 是仅只读的验收验证；`.github/workflows/release-unified.yml` 才是手动、受保护的正式发布候选编排。后者已经使用 **GitHub-hosted Runner**，且使用同一源 SHA、APK SHA、candidate/verification Run ID 和已审核验收证据；**未经真实四渠道验收不得并入生产或删旧仓**。
 
-要删除旧私有仓，还必须：
+必须在 Android 仓创建受保护的 `stable-release` Environment（仅允许 `main`，需要人工审批）。
 
-- [x] 迁移只读 Candidate / Independent Verify / 固定验收与双端真实通关证据 Gate 代码和静态测试；生产运行仍待验证。
-- [ ] 在 Android 仓创建 **受保护的 `stable-release` 环境**并将只读 Gate 接到经过验证的发布适配器。
-- [ ] 在托管 Runner 上通过私有的 `rclone.conf` Secret 配置 OneDrive 和 GDrive；恢复 OneDrive 401 后进行实际大 APK 分片上传验证。
-- [ ] 使用经过验证的 SSH/SFTP 适配器，把第四渠道上传到真正的 Kubuntu 发布目录并回读 SHA-256，不能把 Runner 临时文件当成本地发布。
-- [ ] 新四渠道报告对部分失败保持 BLOCKED、保留旧 Latest、精确 SHA 匹配，实测失败路径。
-- [ ] 新仓完成真实候选、独立验签、AVD 和四渠道正式发布的端到端运行；且无未授权直推/PR 密钥旁路。
-- [ ] 停用旧仓的 dispatch、secrets 和 Runner 注册，更新调度文档，最后按用户授权删除旧仓。
+在 `stable-release` Environment Secrets 中设置 `OREKI_RCLONE_CONFIG_B64`：从真正持有 OneDrive、Google Drive、**实际 Kubuntu SFTP remote** 的本机 rclone.conf，经 `base64 -w0` 无损编码写入 GitHub Secret。它不能写入 Git、PR、Action Summary 或 ChatGPT 对话。该配置可能包含 OAuth refresh token 和 SSH 私钥，应按长期密钥管理。OneDrive 401 必须先重新授权并真实测通大文件分片上传。
 
-**未完成以上全部项目之前，旧仓和 R103 正式稳定版保持原状。** GitHub 当前连接没有创建 Secrets / 删除仓库的权限，不能声称迁移或删除已经完成。
+在 Environment Variables 中配置 `AD_LOCAL_SFTP_REMOTE` 和 `AD_LOCAL_SFTP_DIR`（真实 Kubuntu 发布目录），以及 `AD_ONEDRIVE_REMOTE`、`AD_ONEDRIVE_DIR`、`AD_GDRIVE_REMOTE`、`AD_GDRIVE_DIR`。新的 local 渠道不是 GitHub Runner 的临时文件：发布脚本会将文件传到配置的 SFTP remote，**回读整份 APK 并核验 SHA-256**，成功才给 local PASS。上传前会对三个远端分别执行短暂写入/删除探针，绝不覆盖既有 stable 最新版进行探测。
+
+**网络前提：** GitHub 托管 Runner 不能直接连接你 Kubuntu 局域网的 `192.168.x.x`；必须先通过经过验证且受防火墙限制的公开 SFTP 或临时安全隧道/VPN 访问真实 Kubuntu 文件路径。不得为了让 CI 连接而直接向公网裸露 SSH 或关闭访问控制。
+
+Hosted Artifact 保留原生成机的绝对路径，新 Publisher 通过明确的 `--portable-verify-report` 验证精确 APK SHA、不可变发布清单、verifyRelease 报告；旧本地发布模式仍要求路径完全相同。发布前的独立 Gate 已对原 manifest Blob 与 Candidate SHA 做过校验。
+
+该流程目前**仅具有代码与单测**，尚无真实生产运行记录；原四渠道发布仍以旧链为准。对 GitHub Actions 环境保护、凭据配置、OneDrive 大文件、SFTP 访问及云端 Latest 不可回滚风险必须完成真实验证。
+
+## 最后切换与删除旧私有仓
+
+- [x] 候选构建、独立验签与只读 Android/Web 验收 Gate 的新工作流/脚本已迁移并通过静态单测。
+- [x] 四渠道托管发布工作流与真实 SFTP 字节回读适配器已落盘，**仅通过代码检查，尚未获得实际发布 PASS**。
+- [ ] Android main Ruleset + `android-signing`、`stable-release` 两个保护环境建好。
+- [ ] JKS、密码、私有原版构建包、rclone 配置已直接从 Kubuntu 迁到相应保护环境。
+- [ ] GitHub-hosted 的真实 Candidate、Independent Verify 与 AVD 安装/升级实测 PASS。
+- [ ] OneDrive 401 修复、真实 GitHub/OneDrive/GDrive/Kubuntu SFTP 四渠道 SHA 核对 PASS。
+- [ ] 对中途故障、部分上传失败及保持上一稳定 Latest 的回滚路径实际测试 PASS。
+- [ ] 更新正式生产触发入口，注销旧仓 `oreki-builder` Runner/旧 secrets/dispatch；证明新链不会调用旧私有仓。
+- [ ] 再由仓库管理员删除 `AD-Oreki-Private-Build`。当前 GitHub 连接不提供删除仓库/管理 Secrets API，不可谎报已完成。
+
+**现在不能删除旧仓，也不能将新候选误称为稳定版。** 现有 R103 Latest 保持原样。
