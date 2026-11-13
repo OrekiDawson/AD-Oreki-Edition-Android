@@ -1,0 +1,465 @@
+name: Android candidate build
+
+'on':
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact commit SHA from the public Android main branch
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oreki-android-candidate
+  cancel-in-progress: false
+
+env:
+  PUBLIC_SOURCE: OrekiDawson/AD-Oreki-Edition-Android
+  EXPECTED_CERT_SHA256: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+
+jobs:
+  validate:
+    name: Validate source SHA and request
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      source_sha: ${{ steps.request.outputs.source_sha }}
+      web_ref: ${{ steps.web.outputs.web_ref }}
+    steps:
+      - name: Validate dispatch inputs against public main
+        id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          REQUEST_SOURCE: ${{ github.event.client_payload.source_repository }}
+          REQUEST_SHA: ${{ github.event.client_payload.source_sha }}
+          MANUAL_SHA: ${{ inputs.source_sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == repository_dispatch ]]; then
+            test "$REQUEST_SOURCE" = "$PUBLIC_SOURCE" || {
+              echo "::error::Unexpected source repository"
+              exit 1
+            }
+            sha="$REQUEST_SHA"
+          elif [[ "$EVENT_NAME" == workflow_dispatch ]]; then
+            sha="$MANUAL_SHA"
+          else
+            echo "::error::Unsupported trigger"
+            exit 1
+          fi
+          [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid source SHA"; exit 1; }
+          [[ "$sha" == "$GITHUB_SHA" ]] || { echo "::error::Requested source must be the current approved main SHA"; exit 1; }
+          actual="$(gh api "repos/$PUBLIC_SOURCE/commits/$sha" --jq '.sha')"
+          [[ "$actual" == "$sha" ]] || exit 1
+          status="$(gh api "repos/$PUBLIC_SOURCE/compare/main...$sha" --jq '.status')"
+          [[ "$status" == identical || "$status" == behind ]] || {
+            echo "::error::Source SHA is not on public main"
+            exit 1
+          }
+          echo "source_sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "::notice::Validated source $PUBLIC_SOURCE@$sha"
+      - name: Require a successful public Android Source CI run for the exact source SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.request.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid source SHA from validation"; exit 1; }
+          gh api "repos/$PUBLIC_SOURCE/actions/workflows/ci.yml/runs?head_sha=$SOURCE_SHA&per_page=30" \
+            --jq '.workflow_runs[] | select(.event == "push" and .conclusion == "success") | .head_sha' \
+            > /tmp/oreki-approved-android-ci.txt
+          grep -Fxq "$SOURCE_SHA" /tmp/oreki-approved-android-ci.txt || {
+            echo "::error::No successful Android Source CI push run for exact approved commit $SOURCE_SHA"
+            exit 1
+          }
+          echo "::notice::Android Source CI passed for the exact candidate source SHA"
+      - name: Require immutable Web strategy source from Web main
+        id: web
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WEB_REF: ${{ vars.OREKI_WEB_REF }}
+        run: |
+          set -euo pipefail
+          [[ "$WEB_REF" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::Configure OREKI_WEB_REF as an immutable 40-digit Web commit SHA; never fall back to main"
+            exit 1
+          }
+          actual="$(gh api "repos/OrekiDawson/AD-Oreki-Edition-Web/commits/$WEB_REF" --jq '.sha')"
+          [[ "$actual" == "$WEB_REF" ]] || { echo "::error::Web strategy commit does not exist"; exit 1; }
+          status="$(gh api "repos/OrekiDawson/AD-Oreki-Edition-Web/compare/main...$WEB_REF" --jq '.status')"
+          [[ "$status" == identical || "$status" == behind ]] || {
+            echo "::error::Web strategy SHA is not on trusted Web main history"
+            exit 1
+          }
+          echo "web_ref=$WEB_REF" >> "$GITHUB_OUTPUT"
+          echo "::notice::Validated Web strategy commit $WEB_REF"
+
+  build:
+    name: Build, sign, attest candidate
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: android-signing
+    env:
+      OREKI_BASELINE_DIR: ${{ runner.temp }}/oreki-private/baseline/current
+      OREKI_LEGACY_BASELINE_DIR: ${{ runner.temp }}/oreki-private/legacy
+      OREKI_RUNNER_ASSETS: ${{ runner.temp }}/oreki-private/assets
+    timeout-minutes: 120
+    steps:
+      - name: Prepare hosted Android SDK and Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Install pinned Android build tools
+        run: |
+          set -euo pipefail
+          sdkmanager --install 'platform-tools' 'platforms;android-34' 'build-tools;34.0.0' 'build-tools;35.0.0' >/dev/null
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Checkout approved public source
+        uses: actions/checkout@v4
+        with:
+          repository: OrekiDawson/AD-Oreki-Edition-Android
+          ref: ${{ needs.validate.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+      - name: Check out the pinned Web sources the Android build consumes
+        uses: actions/checkout@v4
+        with:
+          repository: OrekiDawson/AD-Oreki-Edition-Web
+          ref: ${{ needs.validate.outputs.web_ref }}
+          path: web/AD-Oreki-Edition
+          persist-credentials: false
+      - name: Verify Web checkout SHA before using its strategy files
+        env:
+          PINNED_WEB_SHA: ${{ needs.validate.outputs.web_ref }}
+        run: |
+          set -euo pipefail
+          actual="$(git -C web/AD-Oreki-Edition rev-parse HEAD)"
+          [[ "$actual" == "$PINNED_WEB_SHA" ]] || {
+            echo "::error::Actual Web strategy checkout does not match approved SHA"
+            exit 1
+          }
+      - name: Download and authenticate pinned private build resources
+        env:
+          BUNDLE_URL: ${{ vars.OREKI_BUILD_BUNDLE_URL }}
+          BUNDLE_SHA: ${{ vars.OREKI_BUILD_BUNDLE_SHA256 }}
+          BUNDLE_TOKEN: ${{ secrets.OREKI_BUILD_BUNDLE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          [[ "$BUNDLE_URL" =~ ^https:// ]] || { echo "::error::Require a private HTTPS bundle URL"; exit 1; }
+          [[ "$BUNDLE_SHA" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Require pinned SHA256 for build inputs"; exit 1; }
+          test -n "$BUNDLE_TOKEN" || { echo "::error::Missing bearer token for private build assets"; exit 1; }
+          archive="$RUNNER_TEMP/oreki-build-inputs.tar.gz"
+          curl --fail --silent --show-error --location --retry 2 --max-time 1800 \
+            -H "Authorization: Bearer $BUNDLE_TOKEN" --output "$archive" "$BUNDLE_URL"
+          printf '%s  %s\n' "$BUNDLE_SHA" "$archive" | sha256sum --check --status || {
+            echo "::error::Private build bundle digest differs from pinned input"; exit 1;
+          }
+          python3 - "$archive" "$RUNNER_TEMP/oreki-private" <<'PY'
+          import pathlib, sys, tarfile
+          archive, root = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+          root.mkdir(mode=0o700, parents=True, exist_ok=True)
+          with tarfile.open(archive, 'r:gz') as tar:
+              names = []
+              for member in tar:
+                  path = pathlib.PurePosixPath(member.name)
+                  if (path.is_absolute() or '..' in path.parts or not path.parts
+                          or path.parts[0] not in ('assets', 'baseline', 'legacy')
+                          or not (member.isfile() or member.isdir())):
+                      raise SystemExit('FAIL: unsafe bundle entry; only regular files and directories permitted')
+                  names.append(member.name)
+              if len(names) > 500000:
+                  raise SystemExit('FAIL: excessive build input bundle entries')
+              tar.extractall(root, filter='data')
+          for relative in ('assets/apktool.jar','assets/baseline-tool',
+                           'assets/kotlinc/bin/kotlinc',
+                           'assets/work-splits/xhdpi_decoded/apktool.yml',
+                           'assets/work-splits/mdpi_decoded_321/apktool.yml',
+                           'baseline/current/apktool.yml','legacy/apktool.yml'):
+              if not (root / relative).is_file():
+                  raise SystemExit('FAIL: missing pinned build resource ' + relative)
+          print('PASS: sha256-pinned private build resource bundle extracted safely')
+          PY
+          rm -f "$archive"
+      - name: Stage private builder tools and split trees
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSETS="$OREKI_RUNNER_ASSETS"
+          for asset in apktool.jar baseline-tool kotlinc/bin/kotlinc; do
+            test -s "$ASSETS/$asset" || { echo "::error::Missing resource $asset"; exit 1; }
+          done
+          for split in xhdpi_decoded mdpi_decoded_321; do
+            test -s "$ASSETS/work-splits/$split/apktool.yml" || exit 1
+          done
+          mkdir -p source/tools source/baseline/tools/target/release source/work
+          install -m 0644 "$ASSETS/apktool.jar" source/tools/apktool.jar
+          install -m 0755 "$ASSETS/baseline-tool" source/baseline/tools/target/release/baseline
+          rsync -a --delete "$ASSETS/kotlinc/" source/tools/kotlinc/
+          rsync -a "$ASSETS/work-splits/" source/work/
+          chmod +x source/tools/kotlinc/bin/kotlinc
+          echo "::notice::Runner has no persistent signing key or local proprietary baseline"
+      - name: Require the sha256-pinned decoded 3.21 baseline
+        env:
+          OREKI_BASELINE_DIR: ${{ env.OREKI_BASELINE_DIR }}
+        run: |
+          set -euo pipefail
+          [[ "$OREKI_BASELINE_DIR" == /* ]] || {
+            echo "::error::Set OREKI_BASELINE_DIR to an absolute private path on the runner"
+            exit 1
+          }
+          test -s "$OREKI_BASELINE_DIR/apktool.yml" || {
+            echo "::error::Decoded 3.21 baseline apktool.yml not found"
+            exit 1
+          }
+          echo "OREKI_BASE=$OREKI_BASELINE_DIR" >> "$GITHUB_ENV"
+          echo "::notice::Private APK baseline present; path not uploaded"
+      - name: Provide the cross-repository Web path the build fixtures expect
+        run: |
+          set -euo pipefail
+          # scripts/fixture_strategy_semantics.py and scripts/gen_smart_strategy.py
+          # resolve WORKSPACE = <repo>/<repo>/../.. — one level above the Actions workspace —
+          # then read web/AD-Oreki-Edition/src/core/*.json. Link that path at the pinned
+          # Web checkout so the fixture, the generator and build_mod.py read one file.
+          target="$GITHUB_WORKSPACE/../web/AD-Oreki-Edition"
+          mkdir -p "$(dirname "$target")"
+          ln -sfn "$GITHUB_WORKSPACE/web/AD-Oreki-Edition" "$target"
+          for f in src/core/oreki-smart-strategy.json src/core/oreki-tutorial-data.json; do
+            test -s "$target/$f" || { echo "::error::Missing Web build input $f"; exit 1; }
+          done
+          echo "::notice::Web build inputs linked from the pinned checkout"
+
+      - name: Link the private decoded baseline used by existing fixtures
+        env:
+          LEGACY_BASELINE_DIR: ${{ env.OREKI_LEGACY_BASELINE_DIR }}
+        run: |
+          set -euo pipefail
+          # scripts/fixture_crunch_mode_label.py (R73) and the smali diff notes read
+          # <repo>/work/base_decoded regardless of OREKI_BASE. Point that path at the
+          # dedicated runner's decoded tree instead of copying ~450 MB per run.
+          [[ "$LEGACY_BASELINE_DIR" == /* ]] || {
+            echo "::error::Set OREKI_LEGACY_BASELINE_DIR to the decoded tree on the runner"
+            exit 1
+          }
+          test -s "$LEGACY_BASELINE_DIR/apktool.yml" || { echo "::error::Legacy decoded tree missing apktool.yml"; exit 1; }
+          rm -rf "$GITHUB_WORKSPACE/source/work/base_decoded"
+          ln -s "$LEGACY_BASELINE_DIR" "$GITHUB_WORKSPACE/source/work/base_decoded"
+          test -s "$GITHUB_WORKSPACE/source/work/base_decoded/res/values/public.xml"
+          echo "::notice::Legacy decoded tree linked for the static fixtures"
+      - name: Preflight every build input before Gradle starts
+        env:
+          OREKI_BASELINE_DIR: ${{ env.OREKI_BASELINE_DIR }}
+        run: |
+          set -euo pipefail
+          fail=0
+          need() { if [[ -s "$1" ]]; then echo "  OK   $2"; else echo "::error::missing build input: $2 ($1)"; fail=1; fi; }
+          need source/tools/apktool.jar               'apktool jar'
+          need source/tools/kotlinc/bin/kotlinc       'Kotlin compiler'
+          need source/baseline/tools/target/release/baseline 'baseline tool'
+          need source/work/xhdpi_decoded/apktool.yml  'decoded config.xhdpi tree'
+          need source/work/mdpi_decoded_321/apktool.yml 'decoded config.mdpi tree'
+          # The signing key is loaded only after successful Kotlin / D8 compilation.
+          need "$OREKI_BASELINE_DIR/apktool.yml"        'decoded 3.21 baseline'
+          need source/scripts/payload                 'hand-written payload patches'
+          need source/scripts/fixture_strategy_semantics.py 'R67 strategy fixture'
+          need "$GITHUB_WORKSPACE/source/work/base_decoded/res/values/public.xml" 'legacy decoded tree (R73)'
+          need "$GITHUB_WORKSPACE/source/work/base_decoded/smali/kajfosz/antimatterdimensions/ui/autobuyers/AutobuyerSingleBoxView.smali" 'R73 target smali'
+          web="$GITHUB_WORKSPACE/../web/AD-Oreki-Edition/src/core"
+          need "$web/oreki-smart-strategy.json"        'Web smart-strategy JSON'
+          need "$web/oreki-tutorial-data.json"         'Web tutorial JSON'
+          python3 - "$web" <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          spec = json.loads((root / 'oreki-smart-strategy.json').read_text(encoding='utf-8'))
+          if spec.get('schemaVersion') != 1 or not isinstance(spec.get('stages'), list):
+              sys.exit('FAIL: smart-strategy JSON schema is not the expected shape')
+          strategies = spec.get('strategies')
+          if not isinstance(strategies, list) or not strategies:
+              sys.exit('FAIL: smart-strategy JSON carries no strategies')
+          tut = json.loads((root / 'oreki-tutorial-data.json').read_text(encoding='utf-8'))
+          if tut.get('schemaVersion') != 1 or not isinstance(tut.get('chapters'), list):
+              sys.exit('FAIL: tutorial JSON schema is not the expected shape')
+          print(f"  OK   Web JSON parsed: {len(spec['stages'])} stages, {len(strategies)} strategies, {len(tut['chapters'])} chapters")
+          PY
+          [[ "$fail" == 0 ]] || { echo '::error::Build inputs incomplete; aborting before Gradle'; exit 1; }
+          echo '::notice::All build inputs verified before Gradle'
+      - name: Compile the Kotlin sources before the DEX step
+        working-directory: source
+        run: |
+          set -euo pipefail
+          # buildKotlinDex resolves its D8 input list from fileTree(build/kt/classes) at
+          # Gradle configuration time. In a clean checkout that directory is still empty,
+          # so a single invocation hands D8 zero class files and the resulting dex holds
+          # only the Kotlin stdlib — R39 then correctly refuses to build. Compile first so
+          # the second invocation sees the classes; this mirrors how the project is built
+          # locally (incremental invocations).
+          bash ./gradlew compileKotlinClasses --offline --no-daemon --console=plain
+          count="$(find build/kt/classes -name '*.class' | wc -l)"
+          [[ "$count" -gt 0 ]] || { echo '::error::Kotlin compile produced no class files'; exit 1; }
+          echo "::notice::Kotlin classes compiled: $count"
+          bash ./gradlew buildKotlinDex --offline --no-daemon --console=plain
+          python3 - <<'PY'
+          import pathlib, sys
+          dex = pathlib.Path('build/kt/classes.dex')
+          if not dex.is_file() or dex.stat().st_size == 0:
+              sys.exit('FAIL: build/kt/classes.dex missing')
+          blob = dex.read_bytes()
+          if b'kajfosz/' not in blob:
+              sys.exit('FAIL: Kotlin DEX carries no kajfosz classes (D8 input list was empty)')
+          print(f"PASS: Kotlin DEX built with kajfosz classes ({dex.stat().st_size} bytes)")
+          PY
+
+      - name: Stage original production signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.OREKI_KEYSTORE_B64 }}
+          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          if [[ -z "$KEYSTORE_B64" || -z "$OREKI_KS_PASS" ]]; then
+            echo "::error::Missing production signing secrets"
+            exit 1
+          fi
+          install -d -m 700 "$RUNNER_TEMP/oreki-keys" source/keys
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/oreki-keys/oreki.jks"
+          test -s "$RUNNER_TEMP/oreki-keys/oreki.jks"
+          chmod 600 "$RUNNER_TEMP/oreki-keys/oreki.jks"
+          cp "$RUNNER_TEMP/oreki-keys/oreki.jks" source/keys/oreki.jks
+          chmod 600 source/keys/oreki.jks
+      - name: Run existing offline build and APK contract gates
+        working-directory: source
+        env:
+          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
+        run: |
+          set -euo pipefail
+          bash ./gradlew assembleRelease verifyRelease verifyPatchContract --offline --no-daemon --console=plain
+      - name: Generate the release manifest from the verified candidate
+        working-directory: source
+        env:
+          # installToRelease forces a real assembleRelease, which signs with the staged
+          # production keystore; the password must be present or the build stops at
+          # "缺少签名口令". This step runs after the keystore is staged from the secret.
+          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
+        run: |
+          set -euo pipefail
+          # installToRelease is the project's own audited manifest producer. It depends on
+          # verifyRelease + verifyPatchContract, refuses any hash/package/cert mismatch and
+          # writes build/release-manifest.json from the exact staged candidate. The
+          # runner-local release/ copy it also makes stays inside this ephemeral checkout:
+          # it is never uploaded and never published by this job.
+          bash ./gradlew installToRelease --offline --no-daemon --console=plain
+          test -s build/release-manifest.json || {
+            echo '::error::installToRelease did not write build/release-manifest.json'
+            exit 1
+          }
+      - name: Record exact Gradle stage APK, reports and release manifest
+        env:
+          SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
+          SOURCE_REPOSITORY: OrekiDawson/AD-Oreki-Edition-Android
+          WEB_REF: ${{ needs.validate.outputs.web_ref }}
+        run: |
+          set -euo pipefail
+          src="source/build/gradle-stage/反物质维度.apk"
+          release_report="source/build/gradle-reports/verify-release.json"
+          patch_report="source/build/gradle-reports/verify-patch-contract.json"
+          manifest="source/build/release-manifest.json"
+          for file in "$src" "$release_report" "$patch_report" "$manifest"; do
+            test -s "$file" || { echo "::error::Missing required candidate evidence: $file"; exit 1; }
+          done
+          install -d -m 700 "$RUNNER_TEMP/candidate"
+          cp "$src" "$RUNNER_TEMP/candidate/antimatter-dimensions.apk"
+          cp "$release_report" "$RUNNER_TEMP/candidate/verify-release.json"
+          cp "$patch_report" "$RUNNER_TEMP/candidate/verify-patch-contract.json"
+          cp "$manifest" "$RUNNER_TEMP/candidate/release-manifest.json"
+          export CANDIDATE_DIR="$RUNNER_TEMP/candidate"
+          export CANDIDATE_RUN_ID="$GITHUB_RUN_ID"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, sys
+          d = pathlib.Path(os.environ["CANDIDATE_DIR"])
+          apk_bytes = (d / "antimatter-dimensions.apk").read_bytes()
+          digest = hashlib.sha256(apk_bytes).hexdigest()
+          size = len(apk_bytes)
+          release = json.loads((d / "verify-release.json").read_text())
+          patch = json.loads((d / "verify-patch-contract.json").read_text())
+          expected_cert = os.environ["EXPECTED_CERT_SHA256"]
+          if release.get("failed") != 0 or not release.get("checks") or any(not row.get("ok") for row in release["checks"]):
+              sys.exit("FAIL: verifyRelease report did not pass")
+          if release.get("sha256") != digest or release.get("cert_sha256") != expected_cert:
+              sys.exit("FAIL: APK report SHA or signing identity mismatches candidate")
+          checks = patch.get("checks")
+          if not isinstance(checks, list) or len(checks) < 17 or any(not row.get("ok") for row in checks):
+              sys.exit("FAIL: patch-contract checks missing or failing")
+          if patch.get("total") != len(checks) or patch.get("passed") != len(checks):
+              sys.exit("FAIL: patch-contract summary inconsistent")
+          # installToRelease wrote this manifest from the exact staged APK and its
+          # verifyRelease report; reject it unless it names this candidate byte-for-byte.
+          manifest = json.loads((d / "release-manifest.json").read_text())
+          build = manifest.get("build") or {}
+          release_part = manifest.get("release") or {}
+          apk_name = "反物质维度.apk"
+          source_apk = str(build.get("source_apk") or "")
+          if manifest.get("schema") != 1:
+              sys.exit("FAIL: release manifest schema is not 1")
+          if not source_apk.startswith("/") or "/build/gradle-stage/" not in source_apk or pathlib.PurePosixPath(source_apk).name != apk_name:
+              sys.exit(f"FAIL: release manifest source_apk is not the staged candidate: {source_apk}")
+          if build.get("source_apk") != release.get("apk"):
+              sys.exit("FAIL: release manifest source_apk differs from verifyRelease report")
+          if build.get("source_sha256") != digest or build.get("source_size") != size:
+              sys.exit("FAIL: release manifest does not describe the exact candidate bytes")
+          if (build.get("package"), build.get("versionName"), build.get("versionCode"), build.get("cert_sha256")) != (
+                  release.get("package"), release.get("versionName"), release.get("versionCode"), expected_cert):
+              sys.exit("FAIL: release manifest identity differs from verifyRelease report")
+          if build.get("verify_failed") != 0:
+              sys.exit("FAIL: release manifest records a failed verifyRelease")
+          release_apk = str(release_part.get("apk") or "")
+          if not release_apk.startswith("/") or "/release/" not in release_apk or pathlib.PurePosixPath(release_apk).name != apk_name:
+              sys.exit(f"FAIL: release manifest release.apk is not the release copy: {release_apk}")
+          if release_part.get("sha256") != digest or release_part.get("size") != size:
+              sys.exit("FAIL: release manifest release entry does not match the candidate")
+          meta = {
+              "source_repository": os.environ["SOURCE_REPOSITORY"],
+              "web_ref": os.environ.get("WEB_REF", ""),
+              "source_sha": os.environ["SOURCE_SHA"],
+              "candidate_run_id": int(os.environ["CANDIDATE_RUN_ID"]),
+              "apk_file": "antimatter-dimensions.apk",
+              "sha256": digest,
+              "apk_bytes": size,
+              "package": release.get("package"),
+              "versionName": release.get("versionName"),
+              "versionCode": release.get("versionCode"),
+              "certificate_sha256": release.get("cert_sha256"),
+          }
+          (d / "candidate-metadata.json").write_text(json.dumps(meta, indent=2) + "\n")
+          manifest_sha = hashlib.sha256((d / "release-manifest.json").read_bytes()).hexdigest()
+          (d / "SHA256SUMS.txt").write_text(
+              f"{digest}  antimatter-dimensions.apk\n{manifest_sha}  release-manifest.json\n")
+          print("PASS: exact staged APK / SHA-256 / signed identity / contract reports / release manifest")
+          PY
+      - name: Verify signed APK and record cert evidence
+        run: |
+          set -euo pipefail
+          signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          test -n "$signer"
+          "$signer" verify --verbose --print-certs "$RUNNER_TEMP/candidate/antimatter-dimensions.apk" > "$RUNNER_TEMP/candidate/signature.txt"
+          grep -Fq "$EXPECTED_CERT_SHA256" "$RUNNER_TEMP/candidate/signature.txt" || {
+            echo "::error::Signing certificate does not match the existing stable APK"
+            exit 1
+          }
+      - name: Upload candidate (not a stable release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ad-oreki-candidate
+          path: ${{ runner.temp }}/candidate/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove temporary signing material
+        if: always()
+        run: |
+          rm -rf "$RUNNER_TEMP/oreki-keys" "$GITHUB_WORKSPACE/source/keys" || true
