@@ -74,6 +74,11 @@ jobs:
           [[ "$ACCEPTANCE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid acceptance commit"; exit 1; }
           [[ "$ACCEPTANCE_PATH" == docs/avd-acceptance/*/avd-checks.json ]] || { echo "::error::Acceptance path must be a committed avd-checks.json"; exit 1; }
 
+      - name: Check out repository tooling
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Verify candidate and verification runs succeeded
         env:
           GH_TOKEN: ${{ github.token }}
@@ -97,6 +102,14 @@ jobs:
           github-token: ${{ github.token }}
           path: candidate
 
+      - name: Download independent verification receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: ad-oreki-verification
+          run-id: ${{ inputs.verification_run_id }}
+          github-token: ${{ github.token }}
+          path: verification
+
       - name: Verify candidate artifact identity against inputs
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha256 }}
@@ -116,6 +129,28 @@ jobs:
           if meta.get("certificate_sha256") != os.environ.get("EXPECTED_CERT_SHA256"):
               sys.exit("FAIL: candidate certificate differs")
           print("PASS: candidate metadata matches requested run and SHA-256")
+          PY
+
+      - name: Verify verification receipt matches the selected candidate
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+          CANDIDATE_ID: ${{ inputs.candidate_run_id }}
+          VERIFICATION_ID: ${{ inputs.verification_run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, pathlib, sys
+          record = json.loads(pathlib.Path("verification/verification-record.json").read_text())
+          expected = os.environ["EXPECTED_SHA"]
+          if record.get("status") != "PASS":
+              sys.exit("FAIL: verification receipt is not PASS")
+          if record.get("sha256") != expected:
+              sys.exit("FAIL: verification receipt SHA differs from expected")
+          if int(record.get("candidate_run_id", -1)) != int(os.environ["CANDIDATE_ID"]):
+              sys.exit("FAIL: verification receipt candidate run differs")
+          if int(record.get("verification_run_id", -1)) != int(os.environ["VERIFICATION_ID"]):
+              sys.exit("FAIL: verification receipt verification run differs")
+          print("PASS: verification receipt matches the selected candidate")
           PY
 
       - name: Verify committed AVD minimal acceptance evidence
