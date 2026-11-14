@@ -99,3 +99,81 @@
 - CI 失败日志：run 43549378586 / job 132308037027、132308037305（`gh api .../actions/jobs/<id>/logs`）。
 - 本地构建日志：`agp/app/build/`（BUILD SUCCESSFUL in 32s）。
 - parity 结果：`agp-parity.json`。
+
+---
+
+## 附录 A：敏感信息扫描（PR #43 完整 diff，2026-11-14）
+
+- 扫描对象：`git diff -U0 origin/main...HEAD`（三点式 = GitHub PR 视图），共 **1,511,948** 条新增行、799 个变更文件；流式逐行扫描（不落盘、不加载大对象）。
+- 模式：PEM 私钥头、GitHub token（`ghp_/gho_/ghs_/ghu_/github_pat_`）、AWS `AKIA`、Slack `xox[baprs]-`、OpenAI 风格 `sk-`、Google `AIza`、JWT、URL userinfo（`scheme://user:pass@`）、`~/.ssh`/`.aws/credentials`/`.config/gcloud`/`.netrc`、以及「key/token/secret/password = "字面量"」赋值（排除 `getenv`/`process.env`/占位符）。
+- **凭据命中：0**；新增敏感文件名命中：0。
+- 覆盖性证明：同一 diff 中 `password` 出现 268 行、`token` 1173 行，均为字段名/变量名/文档描述，无字面量凭据值（脚本对赋值字面量单独判定且排除 env 读取）。
+- 两个 `.env` 命名文件**不是本 PR 改动**（`git diff --name-status origin/main...HEAD` 为空）：
+  - `.release.env.example`：仅发布目录/远程/仓库等**配置项**，无凭据；
+  - `reports/r96/round3-longrun-start.env`：仅 `START_EPOCH=<INT>`。
+- 非凭据观察（如实记录）：新增行中有 **838** 行包含本机绝对路径 `/home/oreki/...`，集中在 `reports/R10*/**` 的 Agent 证据 JSON/构建日志（如 `reports/R107-01/hooks/hook-ledger-updated.json`、`reports/R106-02/hook-ledger.json`、各 `build.log`）。这些是本地路径而非凭据，属 r107 证据提交带入；本 PR 不新增此类信息。
+- 结论：**PASS（无凭据/私钥泄露）**；建议后续把证据日志中的本机路径改为相对路径（非本轮范围）。
+
+## 附录 B：AGP-only fail-closed 门禁核对（整合分支）
+
+核对目标：「完整游戏 AGP 未验收前，Candidate/Verify/Release 必须阻断」的门禁路径没有被 #43 破坏。
+
+### B.1 门禁文件与 main 的差异
+
+| 文件 | vs `origin/main` |
+| --- | --- |
+| `.github/workflows/candidate-unified.yml` | **SAME** |
+| `.github/workflows/verify-unified.yml` | **SAME** |
+| `.github/workflows/release-gate-unified.yml` | **SAME** |
+| `.github/workflows/release-unified.yml` | **SAME** |
+| `.github/workflows/release-validate-unified.yml` | **SAME** |
+| `scripts/enforce_agp_only.py` | **SAME** |
+| `scripts/verify_release_gate.py` | **SAME** |
+| `scripts/release-gate-policy.json` | **SAME** |
+
+PR #43 对 CI 的唯一改动是 `.github/workflows/ci.yml` 增加 2 行：新增 `test_agp_fullgame_prepare.py` 单元测试步骤（测试变多，门禁未放宽）。
+
+### B.2 关键 fail-closed 证据（行号）
+
+- `scripts/enforce_agp_only.py:22-24`：`require()` 失败即 `raise ValueError("AGP_ONLY_BLOCKED: ...")`（fail-closed）。
+- `:27-55` `check_candidate`：AGP 9.5.1 固定、`applicationId` 必须是 `com.oreki.antimatterdimensions`、禁止独立 KGP、禁止旧链入口（`scripts/build_mod.py`/`apktool b`/`installToRelease` 等）。
+- `:58-82` `check_artifact`：只接受带 `agp-provenance.json` 且 builder=AGP、AGP 版本/任务/applicationId/APK SHA/源 SHA/run id 全部绑定的签名候选。
+- `:85-99`：异常路径 `parser.exit(1, "FAIL: ...")`，非零退出。
+- 调用点：`candidate-unified.yml:152`（candidate 模式）、`verify-unified.yml:59`、`release-gate-unified.yml:164`、`release-unified.yml:164,343`、`release-validate-unified.yml:114`（artifact 模式）。
+- `candidate-unified.yml:28` 只在 `main` 等受控 ref 运行；`:113` 使用受保护 `environment: android-signing`。
+- `ci.yml:133-139`：聚合门禁 `needs: [agp-kotlin-dex, source-policy]` + `if: always()`，任一失败即阻断（未被改动）。
+- `scripts/tests/test_agp_only_policy.py`：断言 5 个生产工作流都保留 gate 调用计数，并用 fixture 验证 bridge/legacy 必被拒绝；该测试在 ci.yml 中执行且本轮 PASS。
+
+### B.3 三棵树上的实际门禁判定（真实执行 `enforce_agp_only.py candidate`）
+
+| 树 | 判定 |
+| --- | --- |
+| `origin/main` | BLOCKED: AGP_ONLY_BLOCKED: AGP still builds a bridge or a different package |
+| `origin/r107-01/agp-runtime` | BLOCKED: 同上 |
+| **整合分支 HEAD** | BLOCKED: 同上 |
+
+结论：整合分支门禁**仍处于 fail-closed 阻断**，且阻断原因与 main 完全一致，不是 #43 引入的回归；#43 未修改任何门禁脚本/生产工作流。当前 `candidate` 档因 bridge applicationId 未落地真实游戏包而合法阻断，符合「AGP 原生完整游戏未验收前不得发布」的规则。
+
+## 附录 C：PR #43 合并到 main 的前置条件清单
+
+> 当前决定：**PR #43 保持 Draft，不合并 main**。以下条件全部满足前不得合并/发布。
+
+1. **AGP 原生完整游戏验收**
+   - `candidate-unified.yml`（受保护 `android-signing` 环境）真实跑通 `:app:assembleRelease`，产出包名 `com.oreki.antimatterdimensions` 的完整游戏 APK；
+   - `enforce_agp_only.py candidate` 与 `artifact` 两档均 PASS（当前仍 BLOCKED，见附录 B.3）；
+   - AVD 真实运行：安装/冷启动/存档/阶段门禁/自动购买器/Reality 结算。
+2. **R8 验收**
+   - 正式 Release 默认 R8 关闭（`agp/app/build.gradle.kts` 中 `oreki.r8` 为 opt-in，约 :77-90）；
+   - 相同源码 SHA/工具链、隔离 AVD 下完成 R8 开/关 A/B：APK 字节数、类/方法/DEX 数、mapping.txt、冷启动、Tick/UI、内存、存档重载、覆盖安装；
+   - 未验收前不得默认启用 Release R8。
+3. **存档与签名兼容**
+   - 证书身份 `95960bce…3197` 不变（`scripts/release-gate-policy.json:12`）；
+   - versionCode 严格大于历史最大值 `30210000`（`:10-11`，`modVersionState=planned-not-released` 保持到发布）；
+   - 旧存档可读、`adb install -r` 覆盖升级成功。
+4. **Android/Web 行为等价**
+   - `release-gate-policy.json:31-35` 要求 `required_completion_platforms=[android,web]` 且 `max_completion_seconds=10800`；
+   - 8 项必需检查全 PASS：`install-upgrade / launch / apk-signature-version / stage-gate-positive / stage-gate-negative / autobuyer-core / save-import / gui`（`:13-22`）。
+5. **流程**
+   - 必需 CI（源码规范 + AGP Kotlin DEX parity + Source checks）在合并候选 HEAD 上全 PASS（本轮已 PASS）；
+   - #43 合并后关闭 #31/#35（#35 的两处修复已包含）；R8 实验工作流为非必需检查；
+   - 正式发布仍走受保护门禁，禁止手动上传/绕过。
