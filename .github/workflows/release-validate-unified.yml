@@ -38,7 +38,7 @@ name: Android 发布流程验证（不发布）
         type: string
 
 permissions:
-  contents: write
+  contents: read
   actions: read
 
 concurrency:
@@ -52,6 +52,11 @@ env:
 jobs:
   validate:
     name: 验证三渠道交付，不发布稳定版
+    # R111 CI-7：仅该作业需要临时创建/删除 GitHub Release（contents: write）；
+    # 工作流顶层已降为只读，避免未来新增作业继承写权限。
+    permissions:
+      contents: write
+      actions: read
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: stable-release
