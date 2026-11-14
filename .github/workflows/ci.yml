@@ -146,7 +146,7 @@ jobs:
           echo "PASS: both parallel CI checks completed successfully"
 
   agp-kotlin-dex:
-    name: AGP 9.5.1 Kotlin DEX 一致性检查
+    name: AGP 9.5.1 Kotlin DEX parity
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
