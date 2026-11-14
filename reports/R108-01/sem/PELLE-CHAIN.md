@@ -34,13 +34,13 @@
 | 状态类 | Lcelestials/pelle/d;（PelleRiftState，abstract）：A()=reducedTo、B()=Player$PelleRift、C()=fill、D()=active、E()=percentage≥1、y()=percentage、z()=realPercentage、j()=effectValue、v()=checkMilestoneStates、x()=milestones | JADX 逐行；与 Web RiftState 对应 STRONG |
 | 里程碑 | Lcelestials/pelle/e;（RiftMilestoneState）：v(Continuation)=checkMilestoneState、k()=isUnlocked | CONFIRMED（lambda 名） |
 | 存档字段 | Player$PelleRift: active:Z(a/e)、fill:LBigDouble(b/f)、percentageSpent:D(c/g)、reducedTo:D(d/h)；Player$PelleRiftsPlayer a..e=chaos/decay/paradox/recursion/vacuum（保留名） | CONFIRMED（访问器→字段映射） |
-| **fill 精确写入点** | **未定位（UNKNOWN）**：全树中 fill 的 setter Player$PelleRift;->f(BigDouble)V 只有 Gson 存档适配器 player/f 调用；运行期分布：e(Z)=setActive（UI MainActivityCelestialsKt$…53$1$1 与 pelle/c.smali:6102）、h(D)=setReducedTo（GalaxyGenerator pelle/a.smali:811/1536）、g(D)=setPercentageSpent（sp0 UI 绑定）、c()/b()/a() 读取 | UNKNOWN；**Kotlin 不要直接写 fill** |
+| **fill 精确写入点（已定位）** | **Lcelestials/pelle/c;->i(D,Continuation)（Pelle.gameTick）内 rift 循环**：遍历 mh3.f（PelleRifts 列表）→ 若 isActive&&isMaxed 则 setActive(false)；否则 drain 货币 q（0.97^(diff/1000)）得 spent → **取 d.C()（=B().b()=fill BigDouble）调 add(spent) 原位突变** → 再用 al2.i(spentPercentage+1) 结果 clampMax（=maxValue）。fill 不需要 setter（BigDouble.add 是突变式），所以全树 setter 只有 Gson 是正常的。 | CONFIRMED（c.smali:6130-6330 逐指令：0x97 常量、BigDouble.add、clampMax、e(Z)=setActive） |
 
 ## 4. 3.21 可玩链缺口清单（给 Lead 排期）
 1. **Lai'tela entropy 分母 1e11 未缩放**（见 LAITELA-TIER.md §4）→ tier 0→8 结构性不可达。
 2. IU15/IU25/IM cap 已有 patch（Lead 已落）。
 3. **tier>8 无守卫** → 自动化必须自己停在 8。
-4. **rifts fill 写入点** 与 **strikes 运行时触发点** 未定位（两者都可能是 JADX skip 的 pelle/c.i）。
+4. **strikes 运行时触发点** 未定位（rifts fill 已定位，见 §3）。
 5. **dimboost 购买入口** 未定位（只有自动器类）。
 6. **PelleDisabledMechanic 枚举→机制名映射**未确认（影响自动化 isDisabled 判断）。
 
