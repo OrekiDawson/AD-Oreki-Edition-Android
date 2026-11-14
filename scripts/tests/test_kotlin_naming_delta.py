@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from check_kotlin_naming_delta import normalize_violation, newly_introduced
+from check_kotlin_naming import strip_comments_preserving_lines
 
 
 class NamingDeltaTests(unittest.TestCase):
@@ -30,6 +31,14 @@ class NamingDeltaTests(unittest.TestCase):
     def test_repeated_violation_counts_are_respected(self):
         v = ("a.kt", "N7", "xj0")
         self.assertEqual(newly_introduced(Counter({v: 1}), Counter({v: 2}))[v], 1)
+
+    def test_kdoc_abi_signature_is_not_a_call_violation(self):
+        source = """/** ABI: Lfoo/Bar;->c(Z)V */\nfun ok() = true\n"""
+        self.assertNotIn("->c(", strip_comments_preserving_lines(source))
+
+    def test_real_abi_call_remains_visible(self):
+        source = "fun bad() = value->c(true)\n"
+        self.assertIn("->c(", strip_comments_preserving_lines(source))
 
 
 if __name__ == "__main__":
