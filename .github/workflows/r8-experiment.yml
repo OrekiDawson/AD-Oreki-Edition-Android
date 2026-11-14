@@ -69,6 +69,10 @@ jobs:
       - name: 记录 APK、mapping 与 DEX 保留统计
         run: |
           set -euo pipefail
+          mapping='agp/app/build/outputs/mapping/release/mapping.txt'
+          if [ -f "$mapping" ]; then
+            cp "$mapping" r8-evidence/optimized/mapping.txt
+          fi
           python3 - <<'PY'
           import hashlib
           import json
@@ -81,14 +85,26 @@ jobs:
               apk = next((root / variant).glob('*.apk'))
               with zipfile.ZipFile(apk) as zf:
                   dex = [x for x in zf.namelist() if x.startswith('classes') and x.endswith('.dex')]
-              mapping = pathlib.Path('agp/app/build/outputs/mapping/release/mapping.txt')
+              mapping = root / variant / 'mapping.txt'
+              mapping_text = mapping.read_text(encoding='utf-8', errors='replace') if mapping.is_file() else ''
+              mapping_classes = sum(
+                  1 for line in mapping_text.splitlines()
+                  if ' -> ' in line and not line.startswith((' ', '\t')) and line.rstrip().endswith(':')
+              )
+              mapping_members = sum(
+                  1 for line in mapping_text.splitlines()
+                  if ' -> ' in line and line.startswith((' ', '\t'))
+              )
               rows.append({
                   'variant': variant,
                   'apk': str(apk),
                   'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(),
                   'size_bytes': apk.stat().st_size,
                   'dex_files': len(dex),
-                  'mapping_present': mapping.is_file() if variant == 'optimized' else False,
+                  'mapping_present': mapping.is_file(),
+                  'mapping_sha256': hashlib.sha256(mapping.read_bytes()).hexdigest() if mapping.is_file() else None,
+                  'mapping_class_entries': mapping_classes,
+                  'mapping_member_entries': mapping_members,
                   'avd': 'NOT RUN: experimental workflow does not publish or promote APKs',
               })
           (root / 'comparison.json').write_text(json.dumps(rows, indent=2) + '\n')
