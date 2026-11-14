@@ -89,6 +89,20 @@ android {
         buildTypes {
             getByName("release") {
                 signingConfig = signingConfigs.getByName("release")
+                // R109-01 R8 完整游戏隔离实验开关（默认关闭）。
+                // 完整游戏 AGP 链通过真实运行验收前，正式 Release 必须保持关闭；
+                // 只有显式 -Poreki.r8=true 才启用，产物只作实验证据，不作 Candidate。
+                val r8Enabled = providers.gradleProperty("oreki.r8")
+                    .map { it.equals("true", ignoreCase = true) }
+                    .getOrElse(false)
+                isMinifyEnabled = r8Enabled
+                isShrinkResources = false
+                if (r8Enabled) {
+                    proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro",
+                    )
+                }
             }
         }
         // 原版资源来自官方 3.21 基线（官方构建不跑 lint）；这些 lint 告警不是
