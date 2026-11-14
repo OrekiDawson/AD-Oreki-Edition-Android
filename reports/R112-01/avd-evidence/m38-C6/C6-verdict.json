@@ -1,0 +1,10 @@
+{
+ "tag": "C6",
+ "at": "2026-11-15T04:45:00+08:00",
+ "ui_texts_snapshot": [
+  "需要 2.00e248/无限 反物质"
+ ],
+ "player_writes_during_wait": [],
+ "status": "NOT RUN",
+ "note": "240s 长观察探针运行约 12 分钟后人工终止（AVD/adb 慢）；期间 player.json 未观察到写入，不构成 PASS 或 FAIL 证据"
+}
