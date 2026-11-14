@@ -57,6 +57,9 @@
 # 只有它为真时才允许撤销，避免把玩家真按住的按钮取消掉。
 .field private static sHolding:Z
 
+# [R109-01] 本次 hold 的起始时刻（elapsedRealtime 毫秒）。用于有界 hold 防死锁。
+.field private static sHoldSince:J
+
 
 # ---------------------------------------------------------------- 每帧入口
 # 返回 true 表示本帧已接管浇注（yo 已置真）。
@@ -111,6 +114,10 @@
     sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;->vp:Z
 
     sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHolding:Z
+
+    const-wide/16 v1, 0x0
+
+    sput-wide v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
 
     :ot_done
     :try_end_0
@@ -169,6 +176,13 @@
 
     # poured >= 1e24 → 已浇满，释放
     if-ltz v2, :ot_hno
+
+    # [R109-01 DIAG] 真机出现「保存档 poured=1e24 但 isHolding=true 压死现实」，
+    # 这里把实时 poured 打出来（只读）以确认内存值与存档是否一致。
+    const-string v3, "OREKI_TERESA_HOLD"
+    invoke-static {v0, v1}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v3, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
     :try_end_h
     goto :ot_hyes
 
@@ -185,6 +199,47 @@
     return v0
 
     :ot_hyes
+    # [R109-01] 有界 hold：首次进入记录时刻；超过 120s 强制释放，避免整局现实被永久压死。
+    sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
+
+    const-wide/16 v0, 0x0
+
+    cmp-long v2, v2, v0
+
+    if-nez v2, :ot_hold_set
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
+
+    sub-long v0, v0, v2
+
+    const-wide/32 v2, 0x2bf20
+
+    cmp-long v0, v0, v2
+
+    if-gez v0, :ot_hold_yes
+
+    const-string v1, "OREKI_TERESA_HOLD"
+
+    const-string v2, "hold timeout 180s -> release reality"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :ot_hold_set
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
+
+    :ot_hold_yes
     const/4 v0, 0x1
 
     return v0
