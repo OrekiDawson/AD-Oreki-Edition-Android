@@ -10,7 +10,7 @@
 | 单命令可复跑构建入口 | **PASS（待 receipt 收尾）** | `scripts/agp/build_fullgame_sig.sh`：官方 APK → dex2jar 参考 jar → 回填 → APK + build-receipt.json |
 | AGP R8 OFF 候选构建（含回填） | **PASS** | 81,577,939 B，SHA-256 `569b5aeff61bd61bb213f847f4ce8fa1ff57a3daad98f2c7d3186ecd0ac40a6b` |
 | APK 级 Signature 存在性 | **PASS** | dexdump 校验：新候选 classes.dex Laitela dims Signature=1、glyph Signature=3（两 dex 合计）；**旧候选 18716d87 全部为 0**（负向对照） |
-| AVD：smali 写出晚期存档 → AGP 读取 | **PASS** | 0 ClassCastException / JsonSyntaxException；离线结算正确解析 realities=12、Laitela dims=4、glyph effects 全为 int |
+| AVD：smali 写出晚期存档 → AGP 读取 | **READ_ONLY_PASS** | 0 ClassCastException / JsonSyntaxException；离线结算正确解析 realities=12、Laitela dims=4、glyph effects 全为 int；**未证明应用写档**（见判定语义） |
 | AVD：AGP 写档 → smali 读取 | **BLOCKED** | 现有晚期存档均为已通关存档；读档后进入「结束（Game End）」页，该页面不产生自动存档，未通关晚期夹具缺失 |
 | 180 分钟真实通关 | 复用 R110 证据 | 本次改动只恢复被转换器丢弃的注解元数据，不改变玩法闭包；按规则可复用 m12（114.3 min）/m13（112.25 min）原版 gameEnd 证据 |
 
@@ -57,6 +57,17 @@ D8 会把泛型签名拆成多段字符串存储（例如 `"Ljava/util/List<"`�
 | W1 | m13 早期存档（realities=0） | 读取/UI 均无异常，但同属已通关存档（fullGameCompletions 未定义时仍进入结束页），无自动存档 | `m13-W1/` |
 
 > 结论：**「存档读取」方向已在真实 AVD + 最终 APK 上复现 PASS**；「写入」方向缺少可用的「未通关晚期存档」夹具：现存所有含 Laitela/glyph 的晚期存档都处于通关后状态，游戏读档后停留在结束页（该页不写入 player.json，实测 11 分钟无写入）。该方向标记 **BLOCKED**，不以静态证据代替运行时 PASS。
+
+## 4.1 判定语义（Codex PR #71 P1 修正）
+
+`scripts/tests/r112/save_matrix.py` 的判定已收紧：
+
+- `status=PASS`：读取无异常 **且** 应用真实重写了 `player.json`（写档往返证据）；
+- `status=READ_ONLY_PASS`（退出码 3）：只有读取方向证据，`written_changed=false`，**不得**当作存档往返 PASS；
+- `status=FAIL`：崩溃 / 读档不可解析 / 关键泛型结构类型错误。
+
+本文件中所有 AVD 用例（A3/A4/A5、B1/B3/B4、W1）均为 **READ_ONLY_PASS**：游戏读档后停在片尾/结束页，
+不产生自动存档，因此写档方向仍为 **BLOCKED**。README 与报告已按同一语义更新。
 
 ## 5. 失败与阻塞（如实记录）
 

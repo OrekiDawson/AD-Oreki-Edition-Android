@@ -61,6 +61,9 @@ run_variant() {
 }
 
 RC=0
+# 只清理「本次构建期间新出现」的 Gradle/Kotlin 守护进程，避免误杀其他 Agent/工作树正在使用的同名进程
+DAEMON_PATTERN='KotlinCompileDaemon|org.gradle.launcher.daemon.bootstrap.GradleDaemon'
+DAEMONS_BEFORE=" $(pgrep -f "$DAEMON_PATTERN" 2>/dev/null | tr '\n' ' ')"
 if [ "$VARIANT" = "off" ] || [ "$VARIANT" = "both" ]; then
   run_variant r8off || RC=1
 fi
@@ -68,7 +71,11 @@ if [ "$VARIANT" = "on" ] || [ "$VARIANT" = "both" ]; then
   run_variant r8on -Poreki.r8=true || RC=1
 fi
 
-pkill -f KotlinCompileDaemon 2>/dev/null || true
-pkill -f "org.gradle.launcher.daemon.bootstrap.GradleDaemon" 2>/dev/null || true
+for pid in $(pgrep -f "$DAEMON_PATTERN" 2>/dev/null); do
+  case "$DAEMONS_BEFORE" in
+    *" $pid "*) : ;;                       # 构建前已存在：属于别的调用，保留
+    *) kill "$pid" 2>/dev/null || true ;;  # 本次构建新产生：清理
+  esac
+done
 echo "[r109] done rc=$RC"
 exit $RC

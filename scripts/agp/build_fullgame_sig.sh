@@ -98,14 +98,23 @@ need_file "$GAME_JAR"
 
 echo "[3/4] AGP Release APK 构建（variant=$VARIANT）"
 bash "$ROOT/scripts/agp/r109_build_ab.sh" --jar "$GAME_JAR" --variant "$VARIANT" --outdir "$OUTDIR/ab"
-APK="$OUTDIR/ab/$VARIANT/app-release.apk"
-need_file "$APK"
+case "$VARIANT" in
+  off) APKS=("$OUTDIR/ab/r8off/app-release.apk") ;;
+  on)  APKS=("$OUTDIR/ab/r8on/app-release.apk") ;;
+  both) APKS=("$OUTDIR/ab/r8off/app-release.apk" "$OUTDIR/ab/r8on/app-release.apk") ;;
+  *) echo "FAIL: 未知 variant $VARIANT" >&2; exit 2 ;;
+esac
+for apk in "${APKS[@]}"; do need_file "$apk"; done
+APK="${APKS[0]}"
+export APK_LIST
+APK_LIST=$(printf '%s\n' "${APKS[@]}")
 
 echo "[4/4] 输出 build-receipt.json"
 RECEIPT="$OUTDIR/build-receipt.json"
 python3 - "$RECEIPT" "$OFFICIAL_APK" "$STAGED_APK" "$REPORT" "$GAME_JAR" "$APK" "$VARIANT" "$ASM_JAR" "$DEX2JAR" <<PYEOF
 import hashlib, json, os, subprocess, sys, datetime
 receipt, official, staged, report_path, game_jar, apk, variant, asm_jar, dex2jar = sys.argv[1:10]
+apk_list = [p for p in os.environ.get("APK_LIST", "").splitlines() if p] or [apk]
 def sha(p):
     h = hashlib.sha256()
     with open(p, "rb") as fh:
@@ -128,11 +137,12 @@ data = {
                  "bytes": os.path.getsize(game_jar),
                  "class_count": report.get("output", {}).get("class_count")},
     "variant": variant,
-    "apk": {"path": apk, "sha256": sha(apk), "bytes": os.path.getsize(apk)},
+    "apks": [{"path": p, "sha256": sha(p), "bytes": os.path.getsize(p)} for p in apk_list],
 }
 json.dump(data, open(receipt, "w"), ensure_ascii=False, indent=1)
 print("receipt:", receipt)
-print("apk_sha256:", data["apk"]["sha256"])
+for item in data["apks"]:
+    print("apk:", item["path"], item["sha256"])
 print("game_jar_sha256:", data["game_jar"]["sha256"])
 print("signature_verify:", json.dumps(sig_verify, ensure_ascii=False))
 PYEOF

@@ -10,7 +10,7 @@
    1432
   ]
  },
- "captured_at": "2026-11-15T02:57:37+08:00",
+ "captured_at": "2026-11-15T03:31:53+08:00",
  "wait_seconds": 45,
  "process_alive": true,
  "crashes": {},
@@ -43,5 +43,7 @@
  },
  "written_is_injected": true,
  "written_changed": false,
- "PASS": true
+ "read_ok": true,
+ "status": "READ_ONLY_PASS",
+ "PASS": false
 }

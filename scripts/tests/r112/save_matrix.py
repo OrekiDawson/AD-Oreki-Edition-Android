@@ -9,6 +9,9 @@
   python3 scripts/tests/r112/save_matrix.py install --apk <apk> --out <dir>
   python3 scripts/tests/r112/save_matrix.py load --save <json> --tag S1 --out <dir> [--wait 35]
   python3 scripts/tests/r112/save_matrix.py list-device
+
+退出码：0=PASS（读取且应用真实写档）；3=READ_ONLY_PASS（仅读取方向证据，无应用写入）；
+1=FAIL；2=参数/工具错误。
 """
 from __future__ import annotations
 
@@ -223,11 +226,21 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     w = verdict["written_player"]
     verdict["written_is_injected"] = bool(inj_sha and w.get("sha256") == inj_sha)
     verdict["written_changed"] = (w.get("sha256") is not None and not verdict["written_is_injected"])
-    verdict["PASS"] = (bool(alive) and not crashes and state.get("parsed")
-                       and state.get("laitela_dims_typed") and state.get("glyph_effects_all_int"))
+    # 读取方向判定：进程存活、无崩溃、读出的存档可解析、关键泛型结构类型正确。
+    read_ok = (bool(alive) and not crashes and state.get("parsed")
+               and state.get("laitela_dims_typed") and state.get("glyph_effects_all_int"))
     if expect:
-        verdict["PASS"] = verdict["PASS"] and all(
-            state.get(f"expect_{k}") for k in expect)
+        read_ok = read_ok and all(state.get(f"expect_{k}") for k in expect)
+    verdict["read_ok"] = read_ok
+    # 只有「应用真的重写了 player.json」才算存档写入往返 PASS；
+    # 否则只是读取方向证据，必须显式标 READ_ONLY_PASS，不能冒充 PASS（Codex PR #71 P1）。
+    if read_ok and verdict["written_changed"]:
+        verdict["status"] = "PASS"
+    elif read_ok:
+        verdict["status"] = "READ_ONLY_PASS"
+    else:
+        verdict["status"] = "FAIL"
+    verdict["PASS"] = verdict["status"] == "PASS"
     (out_dir / f"{tag}-verdict.json").write_text(json.dumps(verdict, ensure_ascii=False, indent=1))
     return verdict
 
@@ -291,7 +304,12 @@ def main() -> int:
         manifest["verdict"] = v
         (out_dir / f"{args.tag}-manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1))
         print(json.dumps(manifest, ensure_ascii=False, indent=1))
-        return 0 if v["PASS"] else 1
+        if v["status"] == "PASS":
+            return 0
+        if v["status"] == "READ_ONLY_PASS":
+            print("NOTE: 读取方向 PASS（无应用写入证据），状态 READ_ONLY_PASS，不代表写档往返 PASS")
+            return 3
+        return 1
 
     return 2
 
