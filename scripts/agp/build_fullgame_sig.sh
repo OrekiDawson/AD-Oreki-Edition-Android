@@ -64,7 +64,8 @@ echo "[1/4] 官方 APK -> classes*.dex -> dex2jar 参考 jar"
 DEXDIR="$OUTDIR/dex"
 rm -rf "$DEXDIR"; mkdir -p "$DEXDIR"
 unzip -o -q "$OFFICIAL_APK" 'classes*.dex' -d "$DEXDIR"
-mapfile -t DEXES < <(find "$DEXDIR" -maxdepth 1 -name 'classes*.dex' | sort)
+# 固定 C 排序（classes.dex 在 classes2.dex 之前），保证参考 jar 回填顺序可复现
+mapfile -t DEXES < <(find "$DEXDIR" -maxdepth 1 -name 'classes*.dex' | LC_ALL=C sort)
 [ "${#DEXES[@]}" -ge 1 ] || { echo "FAIL: 官方 APK 中没有 classes*.dex" >&2; exit 2; }
 REF_ARGS=()
 REF_ROWS=""

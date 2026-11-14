@@ -7,7 +7,7 @@
 | 项目 | 结论 | 说明 |
 | --- | --- | --- |
 | Signature 回填接入正式构建 | **PASS** | `agp_gamejar2.py` 新增 `--sigbackfill-*`；回填后校验类集合、重跑整包 D8，并新增 javap fail-closed 校验 |
-| 单命令可复跑构建入口 | **PASS（待 receipt 收尾）** | `scripts/agp/build_fullgame_sig.sh`：官方 APK → dex2jar 参考 jar → 回填 → APK + build-receipt.json |
+| 单命令可复跑构建入口 | **PASS** | `scripts/agp/build_fullgame_sig.sh` 端到端完成：game jar `fa1b23d0…`（19,728,171 B）→ APK `bf1c413b…`（81,578,047 B，R8 OFF）+ `build-receipt.json`（含 `signature_verify` 全 true） |
 | AGP R8 OFF 候选构建（含回填） | **PASS** | 81,577,939 B，SHA-256 `569b5aeff61bd61bb213f847f4ce8fa1ff57a3daad98f2c7d3186ecd0ac40a6b` |
 | APK 级 Signature 存在性 | **PASS** | dexdump 校验：新候选 classes.dex Laitela dims Signature=1、glyph Signature=3（两 dex 合计）；**旧候选 18716d87 全部为 0**（负向对照） |
 | AVD：smali 写出晚期存档 → AGP 读取 | **READ_ONLY_PASS** | 0 ClassCastException / JsonSyntaxException；离线结算正确解析 realities=12、Laitela dims=4、glyph effects 全为 int；**未证明应用写档**（见判定语义） |
