@@ -106,23 +106,27 @@ object OrekiTeresaGate {
     }
 
     /** 一次性现实升级已买位数（Player\$Reality.upgradeBits 的 bitCount）。 */
-    private fun realityUpgradeBits(): Int = try {
-        val playerObject = player() ?: return -1
-        val reality = methodOf(playerObject, "Q", 0)?.invoke(playerObject) ?: return -1
-        val upgradeBits = methodOf(reality, "D", 0)?.invoke(reality) ?: return -1
-        (methodOf(upgradeBits, "a", 0)?.invoke(upgradeBits) as? Int) ?: -1
-    } catch (t: Throwable) {
-        -1
+    private fun realityUpgradeBits(): Int {
+        return try {
+            val playerObject = player() ?: return -1
+            val reality = methodOf(playerObject, "Q", 0)?.invoke(playerObject) ?: return -1
+            val upgradeBits = methodOf(reality, "D", 0)?.invoke(reality) ?: return -1
+            (methodOf(upgradeBits, "a", 0)?.invoke(upgradeBits) as? Int) ?: -1
+        } catch (t: Throwable) {
+            -1
+        }
     }
 
     /** 当前现实机器（Player\$Reality.u() = realityMachines）。 */
-    private fun realityMachines(): Double = try {
-        val playerObject = player() ?: return -1.0
-        val reality = methodOf(playerObject, "Q", 0)?.invoke(playerObject) ?: return -1.0
-        val machines = methodOf(reality, "u", 0)?.invoke(reality) ?: return -1.0
-        return bigDoubleValue(machines)
-    } catch (t: Throwable) {
-        -1.0
+    private fun realityMachines(): Double {
+        return try {
+            val playerObject = player() ?: return -1.0
+            val reality = methodOf(playerObject, "Q", 0)?.invoke(playerObject) ?: return -1.0
+            val machines = methodOf(reality, "u", 0)?.invoke(reality) ?: return -1.0
+            bigDoubleValue(machines)
+        } catch (t: Throwable) {
+            -1.0
+        }
     }
 
     private fun logLimited(message: String) {
