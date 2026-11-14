@@ -110,6 +110,35 @@ jobs:
           (root / 'comparison.json').write_text(json.dumps(rows, indent=2) + '\n')
           print(json.dumps(rows, indent=2))
           PY
+      - name: 记录类与方法保留统计
+        run: |
+          set -euo pipefail
+          apkanalyzer_bin="$(command -v apkanalyzer || true)"
+          if [ -z "$apkanalyzer_bin" ] && [ -n "${ANDROID_HOME:-}" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer" ]; then
+            apkanalyzer_bin="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+          fi
+          test -n "$apkanalyzer_bin" || { echo 'FAIL：Android SDK 未提供 apkanalyzer，无法记录类与方法保留统计'; exit 1; }
+          for variant in baseline optimized; do
+            apk="$(find "r8-evidence/$variant" -maxdepth 1 -type f -name '*.apk' -print -quit)"
+            test -n "$apk" || { echo "FAIL：$variant 缺少 APK"; exit 1; }
+            "$apkanalyzer_bin" dex packages --defined-only "$apk" > "r8-evidence/$variant/dex-packages.txt"
+            awk '/^ *C / { classes++ } /^ *M / { methods++ } END { printf "classes=%d\nmethods=%d\n", classes + 0, methods + 0 }' "r8-evidence/$variant/dex-packages.txt" > "r8-evidence/$variant/class-method-counts.txt"
+          done
+          python3 - <<'PY'
+          import json
+          import pathlib
+
+          root = pathlib.Path('r8-evidence')
+          stats = {}
+          for variant in ('baseline', 'optimized'):
+              values = {}
+              for line in (root / variant / 'class-method-counts.txt').read_text().splitlines():
+                  key, value = line.split('=', 1)
+                  values[key] = int(value)
+              stats[variant] = values
+          (root / 'class-method-stats.json').write_text(json.dumps(stats, indent=2) + '\n')
+          print(json.dumps(stats, indent=2))
+          PY
       - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
         run: |
           set -euo pipefail

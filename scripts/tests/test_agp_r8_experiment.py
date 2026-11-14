@@ -31,6 +31,12 @@ class AgpR8ExperimentTests(unittest.TestCase):
             text = workflow.read_text(encoding="utf-8")
             self.assertNotIn("oreki.r8=true", text)
 
+    def test_experiment_records_defined_class_and_method_counts(self):
+        workflow = (ROOT / ".github" / "workflows" / "r8-experiment.yml").read_text(encoding="utf-8")
+        self.assertIn("apkanalyzer_bin", workflow)
+        self.assertIn("dex packages --defined-only", workflow)
+        self.assertIn("class-method-stats.json", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
