@@ -84,7 +84,22 @@
 - 根因 2：旧 `OrekiIu15Sprint` 在 `amE>=TARGET` 且 `tryBuy()` 失败时**直接 return**，既不超时也不释放 ⇒ ID1~ID8 购买封锁永不解除 ⇒ 整局产量停摆、realities 不再增长。
 - 修复（build8，SHA 6cec5720…）：① `GameApi.imaginaryTryUnlock(field)` 周期调原版 `R()V`（IU15 冲刺 1s 一次；莱特拉 IU25 同样接入）；② 冲刺 `RUNNING` 增加「条件达标却买不到」的 15s 诊断日志与 60s 放弃/释放，不再静默 return；③ 30s 状态日志（amE/peak/canBuy/bought/capOk/clean）。
 - 验证状态：**AVD NOT RUN**（build8 跑次 09:48 已启动，结果见下一轮）。
-### B.6 待根因（不追认为 PASS）
+
+### B.6 build8/build10：IU15 冲刺的第二层死锁与莱特拉窗口标定（跨端同源）
+
+**build8 AVD 实测（`reports/R108-01/avd-evidence/m2-build8-iu15fix/`）**：
+
+- IM 上限 ×3000 已生效：`iMCap=4.363e10`（IM=3.87e10）。
+- 但 `iuBits=0`、`OREKI_IU15` 日志 **0 条**（从未 arm）：`maxID1=3.13e56986558`（本现实已被 ID 购买弄脏）。
+- 根因：旧 `canArm()` 要求 `GameApi.imUnlocked()`（本帧 IM>0）。IM 是否解锁取决于上一现实是否把 RM 顶到硬顶；等它成立时，现实重置后的干净窗口早已被 ID 购买破坏 ⇒ sprint 永不 arm ⇒ IU15 永不买入。
+- 修复（build10，SHA 741cf1b6）：① `canArm` 改为「干净现实 + `iu15AffordableByCap()`（iMCap 记录≥成本）即 arm」，不再等 IM 解锁；IM 在冲刺期间自然累积；② 仍未改变 `RUNNING` 的硬前置（maxID1==0、amE≥1e8、原版 `canBeBought`、真实扣费）。
+
+**莱特拉 tier 窗口（跨端同源标定）**：
+
+- Web 实测（web teammate）：默认速度现实周期 136–226s、AM 到入场线 4e8 的真实时刻 130–230s；原版 `thisRealityRealTime < 30s` 才 tier+1 ⇒ 结构性不可达（Web run-fixed 431s 内 laitelaRunning=0、tier 恒 0）。Web 已改 `OREKI_LAITELA_TIER_WINDOW_SEC=300` 并把入场/压现实窗口同步扩大。
+- Android 同步：build_mod 新增 `patch_laitela_tier_window()`，把 `Game.k(D)V` 中 `const-wide/high16 v12, 0x403e000000000000L # 30.0` **整行**改为 `const-wide v12, 0x4072c00000000000L # 300.0`（300.0 低 48 位非零，不能用 high16 形式——build9 曾因此 apktool `Invalid literal value` 失败，已修正并回读断言）；`OrekiLaitela` 的 `RUN_ENTER_MAX_REAL_MS=290000`、`HOLD_MAX_MS=250000`、run 在位窗口 300s 与 Web 同值。
+- 熵分母 2e7 与 tier 窗口 300s 组合后，理论上一轮现实内可完成「进 run → 熵满 → tier+1」。
+### B.7 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
 - **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
@@ -118,6 +133,8 @@
 | build6 | 3d1efee52113a9e24a4ea3b52b41b2644fc4715c3454b591ad8fb40ce574efd8 | + IM 上限×300 / IU25=5e9 / 莱特拉熵 2e7 / OrekiLaitela 驱动 |
 | build7 | f87d95907103420daa509b65a81733d04ab8c21766f68aba7674666d78b02a7e | + IM 上限倍率 3000（双端统一）、一次性 RU 每拍 8 个/tryUnlock 每拍（对齐 Web） |
 | build8 | 6cec572029443da1d831b16f89bdb78f2cebd618a19e50df20860e3411698d55 | + IU15 死锁修复（imaginaryTryUnlock + 买到不动的诊断/释放）+ IU25 tryUnlock 接线 |
+| build9 | —（构建失败） | 莱特拉窗口补丁首版用 const-wide/high16 写入 300.0 → apktool `Invalid literal value`；已修正为 const-wide 整行替换 |
+| build10 | 741cf1b6a73fb3aae8fba4b39daec496c52c7c7c50b85a80f14fe21f9cbf9916 | + IU15 arm 条件修正 + 莱特拉 tier 窗口 300s（const-wide 形式） |
 
 ## E. 技术迁移 / 语义反混淆
 
