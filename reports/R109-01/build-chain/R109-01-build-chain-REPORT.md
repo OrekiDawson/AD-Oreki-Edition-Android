@@ -142,6 +142,18 @@ ERROR: R8: Missing class com.amazon.privacypass.PrivacyPass (referenced from: vo
   官方 R8 必然也有等价的忽略配置。已加入**精确到包/类名**的 `-dontwarn`（`agp/app/proguard-rules.pro` §6），
   未使用全局通配 `-dontwarn`，未关闭优化。
 
+
+## 7.1 已尝试但不可靠的替代路径（防重复试错）
+
+为在宿主内存紧张时避免反复跑 Gradle，曾用 SDK cmdline-tools 自带 R8 9.3.16 对
+「过滤 JAR + Kotlin payload + kotlin-stdlib + annotations」做独立 R8 预览：
+
+- 首次缺 `org.jetbrains.annotations.NotNull/Nullable`（AGP 会提供该依赖，独立预览需手动补）；
+- 补齐 annotations-23.0.0 后 R8 9.3.16 内部 NPE（`Cannot invoke vp0.a(...) because "<local3>" is null`）。
+
+结论：**独立 R8 与 AGP 内置 R8 版本/输入集不同，预览结果不可作为失败根因证据**，已放弃该捷径；
+后续一律用 AGP 真实任务 `minifyReleaseWithR8` 取证（日志 `logs/`）。
+
 ## 8. keep 规则依据（不是猜测，不关闭优化）
 
 `agp/app/proguard-rules.pro` 每条规则的证据：
