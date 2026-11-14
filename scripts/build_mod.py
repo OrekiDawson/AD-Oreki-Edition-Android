@@ -1687,36 +1687,6 @@ def patch_smali():
         n += 1
     note(f"[4] 拷入 {n} 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）")
 
-    # 4.4b [R110-01 P0-C] AGP 基座专用：payload smali 里对「原版混淆 Kotlin 成员名」的引用
-    # 在 AGP 基座运行时会解析到 AGP 编译的 Maven kotlin-stdlib（成员未混淆）⇒ NoSuchFieldError。
-    # 真机证据（R8 OFF AGP 候选 ac33cc03，2026-11-14 18:22）：
-    #   FATAL EXCEPTION: AntimatterGameThread
-    #   java.lang.NoSuchFieldError: No field a of type Lkotlin/coroutines/EmptyCoroutineContext;
-    #   at OrekiEcContinuation.<clinit>
-    # 只在 OREKI_AGP_BASE=1 构建 AGP 基座时把这些引用改成官方名（普通 smali 构建不受影响）。
-    if os.environ.get("OREKI_AGP_BASE") == "1":
-        agp_kotlin_fixes = (
-            ("Lkotlin/coroutines/EmptyCoroutineContext;->a:",
-             "Lkotlin/coroutines/EmptyCoroutineContext;->INSTANCE:"),
-            ("Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:",
-             "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->COROUTINE_SUSPENDED:"),
-        )
-        fixed_sites = 0
-        for f in _psmali.rglob("*.smali"):
-            rel = f.relative_to(_psmali)
-            dst = smali_tree() / rel
-            if not dst.is_file():
-                continue
-            body = dst.read_text(encoding="utf-8")
-            new_body = body
-            for old_ref, new_ref in agp_kotlin_fixes:
-                fixed_sites += new_body.count(old_ref)
-                new_body = new_body.replace(old_ref, new_ref)
-            if new_body != body:
-                write_smali(dst, new_body, encoding="utf-8")
-        assert fixed_sites >= 4, f"AGP 基座 Kotlin 引用改写不足: {fixed_sites}"
-        note(f"[4] AGP 基座：payload smali 原版 Kotlin 混淆引用已改为官方名（{fixed_sites} 处）")
-
     # 4.5 [R75-C] 混淆符号别名重写：payload 是按 3.19 写的，3.20 的 R8 换了名字。
     #
     # 为什么不在 payload 源里改成 3.20 的名字：那样 3.19 基线立刻就坏了，
@@ -2862,6 +2832,36 @@ def resolve_alias_ref(rel: str, needle: str) -> tuple[Path, str]:
 
     path = _class_file_by_desc(desc, purpose=f"PAYLOAD_REFS {rel}")
     return path, rewrite_alias(needle, owner_desc=desc)
+
+def patch_agp_payload_shadow_prefix():
+    """R110-01 P0-C：AGP 基座最终一步，把 payload smali 的 Lkotlin/ 引用改成
+    Loreki/shadow/kotlin/（AGP 完整游戏 JAR 的 72 个 shadow 类副本，保留原版混淆成员名）。
+
+    必须在所有验证/补丁之后执行：既有断言读取的是未改写的 Lkotlin/ 文本。
+    真机证据（AGP R8 OFF 候选 ac33cc03，2026-11-14）：NoSuchFieldError
+    EmptyCoroutineContext.a；随后 NoSuchMethodError ContinuationImpl.<init>(Lrj0;Lek0;)V。
+    shadow 类 javap 结果：EmptyCoroutineContext.a / ContinuationImpl(rj0, ek0)，与本改写一致。
+    """
+    if os.environ.get("OREKI_AGP_BASE") != "1":
+        return
+    _psmali = PAYLOAD / "smali"
+    files = 0
+    refs = 0
+    for f in _psmali.rglob("*.smali"):
+        rel = f.relative_to(_psmali)
+        dst = smali_tree() / rel
+        if not dst.is_file():
+            continue
+        body = dst.read_text(encoding="utf-8")
+        count = body.count("Lkotlin/")
+        if count == 0:
+            continue
+        write_smali(dst, body.replace("Lkotlin/", "Loreki/shadow/kotlin/"), encoding="utf-8")
+        files += 1
+        refs += count
+    assert files >= 3, f"AGP 基座 shadow 前缀改写文件过少: {files}"
+    note(f"[R110 P0C] AGP 基座：payload smali Lkotlin/ -> Loreki/shadow/kotlin/（{files} 文件 / {refs} 处）")
+
 
 def verify_payload():
     refresh_touched()   # [R75] 先用 mtime 收集本次改写过的文件（见 .catch 自检处注释）
@@ -4251,17 +4251,10 @@ def patch_auto_enter_eternity_challenge():
     assert _alias_frag(
         "Lkotlin/coroutines/jvm/internal/ContinuationImpl;-><init>(Lvh0;Lii0;)V") in csrc, (
         "必须走两参构造：单参构造会调 getContext() 解引用 null")
-    if os.environ.get("OREKI_AGP_BASE") == "1":
-        # AGP 基座已在 4.4b 把引用改成 Maven kotlin-stdlib 的官方成员名。
-        assert "Lkotlin/coroutines/EmptyCoroutineContext;->INSTANCE:" in csrc, (
-            "AGP 基座：getContext 必须返回 EmptyCoroutineContext.INSTANCE")
-        assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->COROUTINE_SUSPENDED:" in csrc, (
-            "AGP 基座：invokeSuspend 必须返回 CoroutineSingletons.COROUTINE_SUSPENDED")
-    else:
-        assert "Lkotlin/coroutines/EmptyCoroutineContext;->a:" in csrc, (
-            "getContext 必须是非 null 的空上下文，否则 start$1.getContext() 仍会 NPE")
-        assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:" in csrc, (
-            "invokeSuspend 必须返回 CoroutineSingletons，避免沿 completion 链继续/死循环")
+    assert "Lkotlin/coroutines/EmptyCoroutineContext;->a:" in csrc, (
+        "getContext 必须是非 null 的空上下文，否则 start$1.getContext() 仍会 NPE")
+    assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:" in csrc, (
+        "invokeSuspend 必须返回 CoroutineSingletons，避免沿 completion 链继续/死循环")
     assert ".field public static final a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;" in csrc, (
         "必须是静态单例（不允许每帧 new）")
 
@@ -7703,6 +7696,8 @@ def main():
     # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
     # 结论：Android 主循环是 CPU 受限（单次 gameTick ≈22ms）而非 delay 受限，提频无效。
     # 保留函数体与 OrekiSpeed.frameMs 作为证据与后续候选基础，但不接入构建。
+    # [R110-01 P0-C] AGP 基座专用最终改写（必须排在所有验证/补丁之后）。
+    patch_agp_payload_shadow_prefix()
     if os.environ.get("OREKI_GRADLE_ASSEMBLY") == "1":
         note("[5] 补丁树已完成，APK 汇编/注入/规整交由 Gradle")
         (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
