@@ -397,7 +397,8 @@ object OrekiStageAuto {
 
                     // 符文自动装备：只填空槽、自身收敛，不受节拍约束；
                     // R91：但仍受总开关约束 —— 关闭后不得继续自动装备。
-                    if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph")) {
+                    if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph") &&
+                        !OrekiLaitela.shouldSuppressGlyphAuto()) {
                         GameApi.glyphTick()
                     }
 

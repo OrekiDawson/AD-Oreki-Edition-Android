@@ -171,6 +171,18 @@ object OrekiLaitela {
         0.0
     }
 
+    /**
+     * [R108-01] tier8 准备 IU25 期间是否应暂停「符文自动装备」。
+     * IU25 的 checkRequirement 要求 activeWithoutCompanion ≤ 1；本类会调原版「卸下全部」，
+     * 但 OrekiGlyphAuto 只填空槽，会在下一帧把符文又装回去 ⇒ 永远不满足。
+     */
+    @JvmStatic
+    fun shouldSuppressGlyphAuto(): Boolean = try {
+        isUnlocked() && !iu25Bought() && tier() >= 8
+    } catch (t: Throwable) {
+        false
+    }
+
     /** 已装备符文数（glyphs/i.h() = 原版 active 列表）。 */
     @JvmStatic
     fun activeGlyphCount(): Int = try {
