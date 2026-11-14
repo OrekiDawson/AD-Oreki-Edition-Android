@@ -1,0 +1,60 @@
+{
+ "save": {
+  "path": "reports/R112-01/fixtures/late-save-credits-done.json",
+  "sha256": "d5c1bd5819b75cd2a2db993f5ec9e83362f3508ec7fad2d84b703fec3334e47b"
+ },
+ "package": {
+  "version_code": "30210000",
+  "version_name": "3.21.0",
+  "last_update": "2026-11-15",
+  "first_install": "2026-11-13",
+  "pm_path": "package:/data/app/~~tzLZSb0wBm_VIL6EdTZitw==/com.oreki.antimatterdimensions-_gpI-HLmlTeMWkCiTxW9rA==/base.apk"
+ },
+ "at": "2026-11-15T03:29:06+08:00",
+ "verdict": {
+  "tag": "A5",
+  "tap_start": {
+   "attempted": true,
+   "found": false,
+   "text": null,
+   "bounds": null,
+   "fallback_tap": [
+    450,
+    1432
+   ]
+  },
+  "captured_at": "2026-11-15T03:30:29+08:00",
+  "wait_seconds": 45,
+  "process_alive": true,
+  "crashes": {},
+  "state": {
+   "parsed": true,
+   "realities": {
+    "exponent": 1.0,
+    "mantissa": 1.2
+   },
+   "laitela_dims_type": "list",
+   "laitela_dims_len": 4,
+   "laitela_dims_typed": true,
+   "glyph_effects_types": [
+    "int",
+    "int",
+    "int",
+    "int",
+    "int"
+   ],
+   "glyph_effects_all_int": true,
+   "isGameEnd": false
+  },
+  "written_player": {
+   "path": "reports/R112-01/avd-evidence/m16-A5/A5-written-player.json",
+   "sha256": "d5c1bd5819b75cd2a2db993f5ec9e83362f3508ec7fad2d84b703fec3334e47b",
+   "bytes": 33648
+  },
+  "written_is_injected": true,
+  "written_changed": false,
+  "read_ok": true,
+  "status": "READ_ONLY_PASS",
+  "PASS": false
+ }
+}

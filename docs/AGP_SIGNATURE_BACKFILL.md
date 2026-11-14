@@ -1,4 +1,4 @@
-# AGP 完整游戏：泛型 Signature 回填（#25 实验，R111-01）
+# AGP 完整游戏：泛型 Signature 回填（#25，R111 实验 → R112-01 正式接入）
 
 ## 问题
 
@@ -38,8 +38,53 @@ DEX 中的 `dalvik/annotation/Signature` 全部丢失：
    （例如：构建后校验关键类 Signature 数、存档往返 AVD 测试）；
 4. 旧 m13（AGP 坏格式）存档仍不可加载；修复只保证**新构建**写出的存档正确。必须先备份用户存档，不能要求用户迁移坏档。
 
-## 下一步
+## 正式集成（R112-01，2026-11-15）
 
-1. 把 SigBackfill 接入 `scripts/agp_gamejar2.py` 的 jar 产出步骤（或独立 Gradle 任务），生成可复现 game jar；
-2. 增加 CI 单元检查：hybrid jar 中 `Player$Laitela`/glyph 相关字段的 Signature 存在；
-3. AVD 回归：AGP 写档 → smali 读、smali 写档 → AGP 读、AGP 自身往返，全部 PASS 后再进入 #25 的正式门禁讨论。
+实验已在 R112-01 接入正式构建入口，不再依赖手工替换 DEX / 手工拼 jar：
+
+| 组件 | 作用 |
+|---|---|
+| `scripts/agp_gamejar2.py --sigbackfill-ref-jar/--sigbackfill-asm-jar/--sigbackfill-shadow-remap` | 在 game jar 产出后回填 Signature；**回填后校验类集合不变、重跑整包 D8**，任一步失败即构建 FAIL |
+| `SIGBACKFILL_REQUIRED_SIGNATURES`（agp_gamejar2.py 内） | 回填后用 `javap -v` 逐类校验关键泛型 Signature，缺失/不匹配即 FAIL（fail-closed） |
+| `scripts/agp/build_fullgame_sig.sh` | **单命令可复跑入口**：官方 APK → classes*.dex → dex2jar 参考 jar → agp_gamejar2.py（回填+校验）→ r109_build_ab.sh → APK + `build-receipt.json`（全部 SHA-256） |
+
+关键校验类（取自官方 3.21 DEX，与 R111 崩溃/格式错误直接相关）：
+
+- `kajfosz.antimatterdimensions.player.Player$Laitela` → `Ljava/util/List<Lkajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState;>;`
+- `kajfosz.antimatterdimensions.reality.glyphs.Glyph` → `Ljava/util/List<Lkajfosz/antimatterdimensions/reality/glyphs/a;>;`
+
+复现命令：
+
+```bash
+cd android/AD_Oreki_Edition_Android
+bash scripts/agp/build_fullgame_sig.sh \
+  --official-apk /home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk \
+  --staged-apk   build/gradle-stage/unsigned.apk \
+  --dex2jar      /home/oreki/private-staging/r10602-tools/dex-tools-v2.4/d2j-dex2jar.sh \
+  --asm-jar      <gradle>/lib/asm-9.10.1.jar \
+  --tools-dir    /home/oreki/private-staging/r112-tools \
+  --outdir       build/r112-agp-sig --variant off
+```
+
+### R112-01 实测结果
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 正式管线（agp_gamejar2 + 回填 + javap 校验 + 整包 D8） | **PASS** | `reports/R111-01/sigstep/gamejar2-sigstep-report.json`（R111 末次，15,344 类，回填后 D8 PASS，Signature 校验见 R112 复跑） |
+| 校验守卫负向测试 | **PASS**：未回填 jar → 两个关键类均 `present=false`；回填 jar → 均 `present=true` | R112-01 本机 javap 校验 |
+| AGP R8 OFF 候选构建（回填 jar） | **PASS**：81,577,939 B，SHA-256 `569b5aeff61bd61bb213f847f4ce8fa1ff57a3daad98f2c7d3186ecd0ac40a6b` | `build/r109-r8/ab-sig-r112/r8off/` |
+| AVD：加载 smali 写出的 R110 晚期存档 | **PASS**：0 ClassCastException / JsonSyntaxException；离线结算正确读取 realities=12、Laitela dims=4、glyph effects 全为 int | `reports/R112-01/avd-evidence/m4-A3/` |
+| AVD：AGP 写档 → smali 读 | **BLOCKED**：现有晚期存档均为已通关存档，读档后进入「结束页」不产生自动存档；未通关晚期夹具缺失 | 见 R112-01 报告 |
+
+## 限制 / 风险（R112-01 更新）
+
+1. 仅回填 `Signature`；其他 DEX 注解（`kotlin.Metadata`、运行时注解等）仍未恢复。R112-01 的 AVD 读档与 m13 单进程通关未发现问题，但**不能据此断言所有注解依赖路径安全**，需在后续轮次用静态清单 + 关键路径回归评估。
+2. `shadowRemap` 仍未启用：回填签名若引用 `kotlin/**` 且这些类被 RemapSelective 改名为 `oreki/shadow/kotlin/**`，签名会指向不存在的类。当前关键存档结构（`List<DarkMatterDimensionState>`、`List<glyph.a>`）不涉及 kotlin 类，且实测读写正常；是否启用需对 72 个 shadow 类逐类核对签名引用。
+3. 旧 m13（AGP 坏格式）存档仍不可加载；修复只保证**新构建**写出的存档正确。用户存档必须先备份，不要求迁移坏档。
+4. `build_fullgame_sig.sh` 依赖本机 dex2jar（2.4）与 ASM 9.x；CI 正式候选要使用它，需要把这两个输入作为受控构建输入（SHA 记录在 `build-receipt.json`）。
+
+## 下一步（R112-01 之后）
+
+1. 获得/构造**未通关**的晚期合法存档夹具（Reality≥1、未击败 Pelle），补齐「AGP 写档 → smali 读」运行时回归；
+2. 把 `build_fullgame_sig.sh` 接入 `candidate-unified.yml` 的受保护构建（需要把 dex2jar/ASM 作为受控输入），并加 CI 断言 `build-receipt.json` 的 `signature_verify` 全 true；
+3. 评估 `kotlin.Metadata` 等注解丢失的实际风险（静态调用面 + 反射路径清单），必要时扩大注解回填范围。

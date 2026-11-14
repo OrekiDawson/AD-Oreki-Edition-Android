@@ -1,0 +1,18 @@
+{
+ "apk": {
+  "path": "build/r109-r8/ab-sig-r112/r8off/app-release.apk",
+  "sha256": "569b5aeff61bd61bb213f847f4ce8fa1ff57a3daad98f2c7d3186ecd0ac40a6b",
+  "bytes": 81577939
+ },
+ "install_rc": 0,
+ "install_stdout": "Performing Streamed Install\nSuccess\n",
+ "install_stderr": "",
+ "package": {
+  "version_code": "30210000",
+  "version_name": "3.21.0",
+  "last_update": "2026-11-15",
+  "first_install": "2026-11-13",
+  "pm_path": "package:/data/app/~~tzLZSb0wBm_VIL6EdTZitw==/com.oreki.antimatterdimensions-_gpI-HLmlTeMWkCiTxW9rA==/base.apk"
+ },
+ "at": "2026-11-15T02:54:12+08:00"
+}

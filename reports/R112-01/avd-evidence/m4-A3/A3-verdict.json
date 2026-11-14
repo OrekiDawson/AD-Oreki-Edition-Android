@@ -1,0 +1,47 @@
+{
+ "tag": "A3",
+ "tap_start": {
+  "attempted": true,
+  "found": true,
+  "text": "开始游戏",
+  "bounds": [
+   278,
+   1842,
+   803,
+   1947
+  ],
+  "tap": [
+   540,
+   1894
+  ]
+ },
+ "captured_at": "2026-11-15T02:35:39+08:00",
+ "wait_seconds": 45,
+ "process_alive": true,
+ "crashes": {},
+ "state": {
+  "parsed": true,
+  "realities": {
+   "exponent": 1.0,
+   "mantissa": 1.2
+  },
+  "laitela_dims_type": "list",
+  "laitela_dims_len": 4,
+  "laitela_dims_typed": true,
+  "glyph_effects_types": [
+   "int",
+   "int",
+   "int",
+   "int",
+   "int"
+  ],
+  "glyph_effects_all_int": true,
+  "isGameEnd": false
+ },
+ "written_player": {
+  "path": "reports/R112-01/avd-evidence/m4-A3/A3-written-player.json",
+  "sha256": "86a11486d74fc1ca478596d8fbb66808f8ffb12215b583d607a8e4fbb0650191",
+  "bytes": 30254
+ },
+ "PASS": true
+}
