@@ -43,10 +43,17 @@ object OrekiLaitela {
 
     /** 与 Web 同义：反物质指数低于此值时进 run 填不满熵（laitela.js LAT_RUN_MIN_AM_EXP=4e8）。 */
     private const val RUN_MIN_AM_EXP = 4.0e8
-    /** 本现实真实时间上限：tier 只在 < 30 s 时推进（Web LAT_RUN_ENTER_MAX_REAL_MS=15000）。 */
-    private const val RUN_ENTER_MAX_REAL_MS = 15_000L
-    /** 压现实的最大时长，防死锁（Web LAT_TIER_WINDOW_MS=28000）。 */
-    private const val HOLD_MAX_MS = 28_000L
+    /**
+     * 本现实真实时间上限：进 run 的窗口。
+     *
+     * [R108-01] 与 Web 同步标定：原版 tier 判定窗口是 <30s，但默认速度下现实周期 136–226s
+     * （Web 实测）/ Android 更长，30s 结构性不可达。Web 已改为
+     * OREKI_LAITELA_TIER_WINDOW_SEC=300 且 LAT_RUN_ENTER_MAX_REAL_MS=290000；
+     * Android 同步：build_mod 把 Game.k(D)V 的 30.0 改成 300.0，本类窗口取 290s。
+     */
+    private const val RUN_ENTER_MAX_REAL_MS = 290_000L
+    /** 压现实的最大时长，防死锁（Web LAT_TIER_WINDOW_MS=250000，与 300s tier 窗口配套）。 */
+    private const val HOLD_MAX_MS = 250_000L
     /** 同一情况下日志限频。 */
     private const val LOG_MIN_MS = 30_000L
 
@@ -305,7 +312,7 @@ object OrekiLaitela {
             // ---- tier < 8：drive tier ----
             if (isRunning()) {
                 // run 在位：压现实（最多 HOLD_MAX_MS）等原版 tick 结算 entropy ⇒ tier+1
-                if (entropy() >= 0.0 && realMsSinceReality() < 30_000L && !holdExpired()) {
+                if (entropy() >= 0.0 && realMsSinceReality() < 300_000L && !holdExpired()) {
                     setHold(true)
                 } else {
                     setHold(false)

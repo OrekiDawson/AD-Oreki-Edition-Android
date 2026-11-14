@@ -7451,6 +7451,49 @@ def patch_laitela_entropy_divisor():
     note("[Oreki LAI-ENTROPY] 熵产量分母 1.0E11 -> 2.0E7（与 Web OREKI_LAITELA_ENTROPY_DIVISOR 同值）")
 
 
+
+
+# ---------------------------------------------------------------------------
+# [R108-01 LAI-WINDOW] 莱特拉 tier 判定窗口 30s -> 300s —— 与 Web 冻结上游同源标定
+#
+# 事实：原版 Game.k(D)V（a.smali 内）用 `Player$ThisReality.m().h()`（本现实真实秒数）
+#   与 30.0 比较，只有 < 30s 完成熵满才 tier+1（`:3976` const 0x403e000000000000L # 30.0；
+#   紧随 `if-gez` → `Player$Laitela.d()` +1 → `t(I)V` setTier → `v(D)V` setFastest=300.0）。
+# Web 冻结上游实测：默认速度现实周期 136–226s、AM 到入场线 4e8 的真实时刻 130–230s，
+#   30s 窗口结构性不可能；已改为 OREKI_LAITELA_TIER_WINDOW_SEC=300（laitela.js/game.js）。
+# 本补丁把同一条比较改成 300.0，其它（熵公式/tier 上限/奖励/速通记录）一行不动。
+# 注：同方法内另有既有 300.0 常量（setFastest 用），替换后文件中 300.0 会出现 2 次。
+LAI_TIER_WINDOW_OLD = "0x403e000000000000L"   # 30.0
+LAI_TIER_WINDOW_NEW = "0x4072c00000000000L"   # 300.0
+
+
+def patch_laitela_tier_window():
+    p = _class_file_by_desc("Lkajfosz/antimatterdimensions/a;", purpose="Game.k(D)V 莱特拉 tier 窗口")
+    src = p.read_text(encoding="utf-8")
+    # 注意：300.0 的低 48 位不为零（0x4072C0...），不能用 const-wide/high16（apktool 会报
+    # Invalid literal value）；必须整行换成 const-wide v12, 0x4072c00000000000L。
+    # 两个形式都写 v12/v13，寄存器语义一致；原版既有 300.0 是 const-wide v2（setFastest）。
+    old_line = "    const-wide/high16 v12, " + LAI_TIER_WINDOW_OLD + "    # 30.0"
+    new_line = "    const-wide v12, " + LAI_TIER_WINDOW_NEW + "    # 300.0"
+    if src.count(LAI_TIER_WINDOW_OLD) == 0:
+        assert src.count(new_line) == 1, "莱特拉 tier 窗口新行未找到（结构可能漂移）"
+        note("[Oreki LAI-WINDOW] tier 窗口已是 300s，跳过")
+        return
+    assert src.count(LAI_TIER_WINDOW_OLD) == 1, (
+        "莱特拉 tier 窗口 30.0 常量不唯一（结构可能漂移），拒绝改写")
+    assert src.count(old_line) == 1, "莱特拉 tier 窗口锚点行不唯一"
+    pos = src.find(old_line)
+    window = src[pos:pos + 4000]
+    assert "Lkajfosz/antimatterdimensions/player/Player$Laitela;->t(I)V" in window, (
+        "莱特拉 tier 写入锚点不在窗口内，结构已漂移，停止改写")
+    src = src.replace(old_line, new_line, 1)
+    write_smali(p, src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(LAI_TIER_WINDOW_OLD) == 0
+    assert after.count(new_line) == 1
+    note("[Oreki LAI-WINDOW] 莱特拉 tier 判定窗口 30.0s -> 300.0s（const-wide v12 形式；与 Web OREKI_LAITELA_TIER_WINDOW_SEC=300 同值）")
+
+
 def main():
     prepare()
     merge_split()
@@ -7564,6 +7607,8 @@ def main():
     patch_iu25_cost()
     #  ③ 莱特拉熵分母 1e11 -> 2e7（Web OREKI_LAITELA_ENTROPY_DIVISOR）——否则 tier0→8 不可达。
     patch_laitela_entropy_divisor()
+    #  ④ 莱特拉 tier 判定窗口 30s -> 300s（Web OREKI_LAITELA_TIER_WINDOW_SEC）——默认速度现实周期 >30s。
+    patch_laitela_tier_window()
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），

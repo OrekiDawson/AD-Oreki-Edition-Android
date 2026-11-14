@@ -343,10 +343,11 @@ object OrekiIu15Sprint {
         if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
         if (GameApi.isDoomed()) return false
         if (GameApi.inAnyChallenge()) return false
-        if (!GameApi.imUnlocked()) return false
-        // 攒够 IM 才有意义：上限必须覆盖 IU15 成本，否则永远买不起。
+        // [R108-01] 不再要求「本帧 IM 已解锁」：IM 是否解锁取决于上一现实是否把 RM 顶到硬顶，
+        // 而 maxID1 会在现实重置后的前几十毫秒内被 ID 购买弄脏。若等 IM 解锁再 arm，
+        // 干净现实窗口早已错过（build8 AVD 实测：maxID1=3.1e56986558、IU15 从未 arm）。
+        // 正确做法：**干净现实 + 上限足够就立即 arm 并封锁 ID 购买**，IM 在冲刺期间自然累积。
         if (!GameApi.iu15AffordableByCap()) return false
-        // 必须在干净现实里才开始；脏现实要等下一次真实重置。
         if (!isCleanReality()) return false
         true
     } catch (error: Throwable) {
