@@ -245,7 +245,7 @@ object OrekiIu15Sprint {
             if (GameApi.inAnyChallenge()) return false
             if (!GameApi.iu15AffordableByCap()) return false
             if (!isCleanReality()) return false
-            applyIdAutobuyerLockdown()
+            beginIdBuyBlock()
             if (phase == PHASE_IDLE) {
                 phase = PHASE_ARMED
                 val nowMs = System.currentTimeMillis()
@@ -309,7 +309,7 @@ object OrekiIu15Sprint {
             if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return
             if (GameApi.isDoomed() || GameApi.inAnyChallenge()) return
             if (!GameApi.iu15AffordableByCap()) return
-            applyIdAutobuyerLockdown()
+            beginIdBuyBlock()
             if (phase == PHASE_IDLE) {
                 val nowMs = System.currentTimeMillis()
                 phase = PHASE_ARMED
