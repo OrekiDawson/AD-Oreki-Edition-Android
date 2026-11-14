@@ -401,3 +401,15 @@
 - **Android 默认设置 180min 跑次（stagecap 生效，07:49:46 起）**：t≈421s 首次永恒；t≈541s EC 接近满；
   **t≈580s（≈9.7min）首次 reality**（real=0.0 即 realities=1）；t≈661s bigE=74、EC 重推中；0 FATAL。
 - 正在分析 reality 之后到 gameEnd 的自动化链路缺口（reports/R107-01/reality-chain/）。
+
+### 10.20 默认设置 180min 跑次结论：首 reality 后结构性停滞（FAIL，提前停止）与 reality 后链审计
+
+- **跑次结果**（stagecap 生效，07:49:46 起，t=901s 停止）：首次 reality t≈580s（≈9.7min）；之后 realities=1 长期不变，
+  `reality.machines=None / rebuyables=[0,0,0,0,0] / upgradeBits=0 / glyphs.active=0` ⇒ **现实循环无收益、无 RU/RM 累积**，
+  180min gameEnd 结构性不可达（非时间/性能问题）；0 FATAL/VerifyError。证据：reports/R107-01/lead-evidence/180min-default-run/（player-final.json）。
+- **reality 后链静态审计**（reports/R107-01/reality-chain/README.md，161 行，Web/Android 逐行证据）：Android reality 后仅有 4 个入口，
+  且都很弱：OrekiReality 固定每 2s 无条件重置（仅 Teresa hold 例外）、GlyphAuto 只填空槽、TeresaAuto 需 20 个 RU 全买才浇注、PelleRecord 只读。
+  P0 缺口：P0-1 现实节奏缺 shouldReality（2% RM 门控/DS1 10s 窗口/allRU 后 8s/15s/holdReality）；P0-2 现实升级无自动购买；
+  P0-3 天神链全缺（Effarig/Enslaved/V/Ra/Lai'tela）；P0-4 Pelle/终局全缺。
+- 已授权并派发实现：P0-1 现实节奏（Kotlin OrekiRealityPacing + OrekiReality smali ABI 钩子，纯门禁）+ P0-2 ABI 探针与实现；
+  P0-3/P0-4 后续。预计 P0-1+P0-2 落地后现实循环可转为「有收益现实→RU 买齐→Teresa 浇满」，是进入天神链的分水岭。
