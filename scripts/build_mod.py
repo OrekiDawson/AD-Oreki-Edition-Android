@@ -1687,6 +1687,36 @@ def patch_smali():
         n += 1
     note(f"[4] 拷入 {n} 个新增 smali 类（OrekiSpeed / 设置界面 / 点击处理）")
 
+    # 4.4b [R110-01 P0-C] AGP 基座专用：payload smali 里对「原版混淆 Kotlin 成员名」的引用
+    # 在 AGP 基座运行时会解析到 AGP 编译的 Maven kotlin-stdlib（成员未混淆）⇒ NoSuchFieldError。
+    # 真机证据（R8 OFF AGP 候选 ac33cc03，2026-11-14 18:22）：
+    #   FATAL EXCEPTION: AntimatterGameThread
+    #   java.lang.NoSuchFieldError: No field a of type Lkotlin/coroutines/EmptyCoroutineContext;
+    #   at OrekiEcContinuation.<clinit>
+    # 只在 OREKI_AGP_BASE=1 构建 AGP 基座时把这些引用改成官方名（普通 smali 构建不受影响）。
+    if os.environ.get("OREKI_AGP_BASE") == "1":
+        agp_kotlin_fixes = (
+            ("Lkotlin/coroutines/EmptyCoroutineContext;->a:",
+             "Lkotlin/coroutines/EmptyCoroutineContext;->INSTANCE:"),
+            ("Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:",
+             "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->COROUTINE_SUSPENDED:"),
+        )
+        fixed_sites = 0
+        for f in _psmali.rglob("*.smali"):
+            rel = f.relative_to(_psmali)
+            dst = smali_tree() / rel
+            if not dst.is_file():
+                continue
+            body = dst.read_text(encoding="utf-8")
+            new_body = body
+            for old_ref, new_ref in agp_kotlin_fixes:
+                fixed_sites += new_body.count(old_ref)
+                new_body = new_body.replace(old_ref, new_ref)
+            if new_body != body:
+                write_smali(dst, new_body, encoding="utf-8")
+        assert fixed_sites >= 4, f"AGP 基座 Kotlin 引用改写不足: {fixed_sites}"
+        note(f"[4] AGP 基座：payload smali 原版 Kotlin 混淆引用已改为官方名（{fixed_sites} 处）")
+
     # 4.5 [R75-C] 混淆符号别名重写：payload 是按 3.19 写的，3.20 的 R8 换了名字。
     #
     # 为什么不在 payload 源里改成 3.20 的名字：那样 3.19 基线立刻就坏了，
@@ -4221,10 +4251,17 @@ def patch_auto_enter_eternity_challenge():
     assert _alias_frag(
         "Lkotlin/coroutines/jvm/internal/ContinuationImpl;-><init>(Lvh0;Lii0;)V") in csrc, (
         "必须走两参构造：单参构造会调 getContext() 解引用 null")
-    assert "Lkotlin/coroutines/EmptyCoroutineContext;->a:" in csrc, (
-        "getContext 必须是非 null 的空上下文，否则 start$1.getContext() 仍会 NPE")
-    assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:" in csrc, (
-        "invokeSuspend 必须返回 CoroutineSingletons，避免沿 completion 链继续/死循环")
+    if os.environ.get("OREKI_AGP_BASE") == "1":
+        # AGP 基座已在 4.4b 把引用改成 Maven kotlin-stdlib 的官方成员名。
+        assert "Lkotlin/coroutines/EmptyCoroutineContext;->INSTANCE:" in csrc, (
+            "AGP 基座：getContext 必须返回 EmptyCoroutineContext.INSTANCE")
+        assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->COROUTINE_SUSPENDED:" in csrc, (
+            "AGP 基座：invokeSuspend 必须返回 CoroutineSingletons.COROUTINE_SUSPENDED")
+    else:
+        assert "Lkotlin/coroutines/EmptyCoroutineContext;->a:" in csrc, (
+            "getContext 必须是非 null 的空上下文，否则 start$1.getContext() 仍会 NPE")
+        assert "Lkotlin/coroutines/intrinsics/CoroutineSingletons;->a:" in csrc, (
+            "invokeSuspend 必须返回 CoroutineSingletons，避免沿 completion 链继续/死循环")
     assert ".field public static final a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;" in csrc, (
         "必须是静态单例（不允许每帧 new）")
 
