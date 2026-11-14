@@ -4053,6 +4053,18 @@
     "evidence": [
      "JADX a.java:541-615"
     ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Strikes 运行时触发（Android 端负面证据）",
+    "semantic_name": "Android 3.21 DEX 无运行时 strike 触发：Lnh3;->b()V 仅被 nh3 自身与 player/h.g（MainActivity:5072/12119 存档导入路径）调用；Web 的五个动作触发点（big-crunch/break-infinity/eternity/TT>114/dilation）在 Android 动作类中零调用。⇒ doomed 下 CrunchAutobuyerState 等以 hasStrike 为门的自动器会永久锁死；自动化需在真实动作后补调 Lnh3;->b()V（游戏自身解锁函数）或由 Lead 决定加 patch。",
+    "confidence": "confirmed",
+    "evidence": [
+     "grep Lnh3;->b()V 全树 → nh3.smali / player/h.smali；player/h.g 调用点 MainActivity.smali:5072/12119",
+     "CrunchAutobuyerState.smali:807-817 读 oh3.a.a()",
+     "Web 对照 web/src/core/{big-crunch.js:58,break-infinity-upgrades.js:16,eternity.js:149,time-theorems.js:66,dilation.js:10}"
+    ]
    }
   ],
   "counts": {

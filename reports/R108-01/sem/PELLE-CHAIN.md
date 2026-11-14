@@ -68,3 +68,9 @@
 | d / id4 ECs | web/src/core/time-theorems.js:66（totalPurchased>114 且末日） | 时间之理累计 |
 | e / id5 dilation | web/src/core/dilation.js:10/53、EnterDilationModal.js:35 | 开始膨胀时（id5 特例：重置 records） |
 - Android 侧实测：Lnh3;->b()（onUnlock）全树只有 nh3 自身与 player/h.g 调用；player/h.g 含 'Invalid save type' 字符串（存档导入路径）。**运行时动作触发调用点仍未定位**（候选：动作类直接写 Player$Pelle.progressBits，或 JADX skip 的 Pelle gameTick）。→ 自动化在 doomed 内可直接执行上述原版动作（crunch/break upgrade/eternity/TT/dilation）来自然解锁 strikes，不必自己写位。
+
+### 6.4 追加结论：Android 3.21 DEX 里**没有** strikes 的运行时动作触发点（M3 风险）
+- 全树 grep 证据：`Lnh3;->b()V`（onUnlock，唯一写 Player$Pelle.progressBits 的入口）只有两个调用者——nh3 自身与 **player/h;->g(Lbf2;MainActivity)**；后者由 **MainActivity.smali:5072 / 12119** 调用（存档导入/载入路径，方法内含 'Invalid save type'/'studies'/'define' 字符串）。
+- 对照 Web 冻结上游：strikes 是在**具体动作**里 trigger 的（big-crunch.js:58 / break-infinity-upgrades.js:16 / eternity.js:149 / time-theorems.js:66 / dilation.js:10,53），Android 对应动作类（prestige/e、prestige/c、prestige/f、autobuyer 等）**都没有**调用 nh3.b()（grep 零命中）。
+- 影响（M3）：`CrunchAutobuyerState` 在 doomed 下以 `Loh3;->a:Lnh3;->a()Z`（hasStrike）为门（CrunchAutobuyerState.smali:807-817，与 Web big-crunch-autobuyer.js:14-18 同义）。若运行时永不置位，则**末日态自动器永远锁死**，Pelle 阶段只能纯手动 → 自动化必须在原版动作真实发生的前提下补一次 `Lnh3;->b()V`（游戏自身的解锁函数，带通知/副作用），或由 Lead 决定加一个「动作后触发 strike」的小 patch。
+- 建议：优先让自动化**执行真实动作**（大坍缩/买 Break Infinity 升级/永恒/时间之理>114/开始膨胀）→ 随后调用对应 `Lnh3;->b()V`（仅当 hasStrike 为 false 且 doomed），语义上等价于 Web 的 trigger()，不伪造进度位：b() 内部仍走原版通知/records 重置/disabled-mechanic 解锁。
