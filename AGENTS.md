@@ -117,3 +117,12 @@
 - **先决阻塞和交付关系**：[Issue #25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的 AGP 原生完整游戏代码/运行语义为核心先决条件；[Issue #17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 跟踪正式 CI/CD 与四渠道交付。AGP 混合拼包、Bridge 冷启动或源码 CI PASS 不等于原生完整游戏 PASS，不得作为删除与发布完成凭据。
 - **最终验收后方可删除**：需要干净工作区的无脚本 AGP 完整构建，以及真实 APK 安装/冷启、Tick 持续运行、存档保存/恢复、关键阶段/挑战/自动购买器/GUI、原版签名/包名/版本升级兼容和独立 CI/CD 门禁的可追溯证据；失败保持 `BLOCKED`。删除后 CI 要阻止正式构建重新引用旧脚本/旧构建链；历史报告的文字引用可保留，不重写历史。
 - **执行边界**：这是现有开发目标的长期增量要求，**不新开 `/goal`、不重置计时、不改 R 编号**；服从 P0/P1、DeepSeek 峰谷全员停工、分支/PR/Required Checks 与 AGP-only fail-closed 规则。未满足验收前保留已验证稳定版，不强行宣布退役完成、不旁路发布。
+
+## 15. DeepSeek Lead 自主管理 CI/CD 与故障自愈（长期强制，2026-11-14）
+
+- **责任与范围**：在已有授权轮次、有效权限与非高峰时段，由 DeepSeek Lead 主动负责 Android CI/CD 的健康检查、故障定位、工作流/构建维护、修复 PR、测试结果跟踪与合规交付协调；同时关注 Web 与 Pages 的独立流水线，不得因 Android BLOCKED 让其他仓库停摆。详见 [交付长期规则第 10 节](docs/DELIVERY_RULES.md)。
+- **自动修复闭环**：发现失败 → 收集精确 Run/Job/源码 SHA 与日志 → 判定源码、环境、平台、权限或真实游戏错误 → 最小修复 → 独立分支/中文 Commit/PR → Required Checks → 合规合并 → 验证新结果。局部失败不等于整轮停工；只在有依据时有上限地重试，不删除测试、吞错误、修改预期或重复空跑制造 PASS。
+- **自主权限边界**：可在现有授权范围内查看 Actions、修复 Gradle/AGP/Kotlin/ABI/测试/Actions、优化缓存、协调共享资源、创建 PR、重跑获授权的非生产失败 Job；无须为每项低风险修复重复询问。合并须全部 Required Checks、关键审查和 Ruleset 条件满足；若存在强制人工批准/受保护环境审批，必须先获得，不得自行替代审批。
+- **独立验证及生产安全**：GitHub Actions 执行确定性的检查、构建、独立验签和验收，**不得在 CI 内重新接入 DeepSeek API 自动审查/诊断**；保留现有 Codex PR 审查。Android 正式 Candidate/Verify/Release 坚持 AGP 9.5.1 完整游戏、真实 AVD、原证书和四渠道同 SHA；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) / [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 阻塞未解不得用混合包或旧 `build_mod.py` 链冒充。正式发布仅在既有授权、受保护工作流和全部门禁通过后自动执行。
+- **绝对禁止**：关闭/削弱 Ruleset、跳过 Required Checks、强推、覆盖其他 Agent 修改、解密/输出 Secrets、手工旁路签名或发布、直接覆盖 Pages、伪造 PASS、未经授权升级冻结基线；失败要修门禁并标 `FAIL / BLOCKED / NOT RUN`，不是绕过。
+- **协作与时段**：服从第 7 节 DeepSeek 高峰期全员停工、现有 /goal 编号与工作树隔离。CI 日常维护授权不等于无限期后台 Agent 已启动，也不等于授权创建未经审批的持续监控。每轮记录目标仓库、故障、PR/Run/Commit、根因和真正的构建/设备/发布状态；Web/Pages 生产源 SHA 及部署仍通过受控流程；**Pages/oreki.net 的日常管理、正式部署协调、验收和故障恢复由 DeepSeek Lead 统一负责**（用户 2026-11-14 最新决定），不再保留 ChatGPT 专属管理职责；审批、Required Checks、保护环境和真实线上验收均不可绕过。

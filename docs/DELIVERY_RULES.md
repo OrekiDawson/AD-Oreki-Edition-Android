@@ -196,3 +196,26 @@
 
 - Lead 和后续 Agent 启动及分配迁移任务时必须继承本节，不另开已有轮次 `/goal`，不改变历史 R 编号、原版 3.21.0 冻结基线或已存在的 PR/工作树；按现有峰谷停工和 CI/PR 保护规则运行。
 - 每批记录功能迁移映射、源与目标路径、实证差异、代码/CI Run/AVD/APK SHA、`PASS / FAIL / BLOCKED / NOT RUN`、仍依赖旧脚本的条目和下一批依赖。P0/P1 修复与玩家正确性优先，不能为清理 Python 而破坏正在进行的开发或已验证稳定版。
+
+## 10. DeepSeek Lead CI/CD 自主管理与故障自愈（2026-11-14，长期强制）
+
+> 本节细化 [AGENTS.md](../AGENTS.md) 第 15 节。是已授权开发轮次中的持续责任规则，不是为 CI 添加模型 API 自动调用，更不代表全天候监控已经自动启用。与第 5 节的 CI/CD 硬门禁、AGP-only 和第 9 节的 `build_mod.py` 退役共同生效。
+
+### 10.1 主动监控与闭环处理
+
+- Lead 在允许的工作时段主动检查 Android Source CI、AGP Kotlin/DEX、完整游戏构建、Candidate/Verify/Release，联动查看 Web Node/Playwright 和 Pages 受控部署的相应状态。优先读现有 Run 证据，不为了“检查”频繁发起昂贵构建。
+- 故障闭环：精确仓库/Commit SHA/Run ID/失败 Job → 读取日志确定根因 → 分辨源码、环境、权限/Secrets 缺失、第三方平台故障、真实功能回归 → 最小修复 → 独立分支/PR → Required Checks → 合规合并 → 对新提交复验。不能拿旧 Run 的绿灯证明新 SHA。
+- 允许低风险自行修复和优化 Actions、Gradle、Kotlin/ABI 验证、依赖、缓存及增量任务；对偶发平台故障仅做有限、可追溯的重试，确定性错误必须修根因。必要时协作多个 Agent，但必须隔离文件/工作树，共享 AVD、签名、构建、部署独占。
+- CI 工作流维持确定性验证，禁止恢复 `deepseek-triage.yml` 或以其他名称在 CI 内自动调用 DeepSeek API 审查/诊断；沿用现有 Codex PR 审查及独立实测。清理失效或重复工作流只能经独立 PR，不能删除真正必要的测试或降低门禁。
+
+### 10.2 合规合并与生产发布
+
+- Lead 可在**已有授权**范围内操作 PR；只有 Required Checks 全部通过、关键审查问题解决、目标分支最新、Ruleset 允许、实际必需批准已获得时才可合并。若需要人工审批、受保护 Environment 或新的授权，保持 BLOCKED，不得自批或绕过。
+- Android 正式 Candidate/Verify/Release 必须采用真实 AGP 9.5.1 完整游戏构建和可信来源，经独立验签、必要 AVD/游戏验证后才允许按受保护发布流程进入 GitHub Releases、OneDrive、Google Drive；本地 Kubuntu 再主动拉取、验证同一 APK SHA 并原子更新 SFTP。AGP 游戏 DEX 仍 BLOCKED 时禁止用旧链或混合包替代。发布完成分阶段标记，不能以三远端成功冒充四渠道全 PASS。
+- Web 已通过独立 Node/Playwright 及目标 Android Chrome 验收时，可依现有授权和审批流程独立部署，不受 Android AGP 故障无故拖累。**Pages/oreki.net 正式部署管理改由 DeepSeek Lead 负责**（用户 2026-11-14 决定）；在已有发布授权、实际审批及受保护工作流门禁全部满足时可自主组织、触发和验证获批准的部署。不得因管理权移交而取代 Pages 的受控部署批准或 Web 源 SHA/CI Run/Artifact/线上验证。
+- 严禁关 Ruleset/跳 Required Checks/强推、泄漏 Secrets、降低安全扫描或 AVD 检验、修改冻结上游、手工签名/覆盖正式发布产物、用“模拟 PASS”冒充真实验收。流水线失效须修复或明确 BLOCKED，保留已合格稳定版和回滚路径。
+
+### 10.3 时段、职责交接与记录
+
+- 服从现有峰谷停工：工作日北京时间 09:00–12:00、14:00–18:00 全员禁止主动开发/CI/CD 操作，08:50/13:50 安全收尾；谷时恢复同一轮次，不重复 `/goal` 或改 R 编号。不得为管理方便自动开启独立新一轮；持续后台监测若需部署单独自动化须按其权限与时间控制明确配置，不能把这份规则文本视作已经有常驻任务。
+- 每次只记录必要的 CI 健康变化、失败分类、修复 PR/Commit SHA、实际 Actions Run、Kotlin/AGP/AVD/Playwright/部署或发行结果，以及 `PASS / FAIL / BLOCKED / NOT RUN` 与待跟进问题。对 AGP 构建 [#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、旧脚本退役 [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、四渠道 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 保持原 Issue 更新，不另开重复 Issue。

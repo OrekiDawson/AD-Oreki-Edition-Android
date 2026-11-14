@@ -6588,6 +6588,10 @@ def patch_tutorial_content():
     门控语义是「默认严格、失败即关闭」：不设环境变量 = 最严格。旧名
     OREKI_TUTORIAL_STRICT（=1 才严格）已作废 —— 默认放行的断言等于没有断言。
     """
+    if os.environ.get("OREKI_AGP_BASE") == "1":
+        note("[R110-C1] AGP 基座：教程资产由 Gradle verifyTutorialAsset 校验并从 scripts/payload/assets 打包；build_mod 不生成/复制")
+        return
+
     import json as _json
 
     import oreki_tutorial_gen as gen
