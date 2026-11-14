@@ -44,3 +44,11 @@ enjarify 转换丢失了原版 DEX 的 `dalvik/annotation/Signature` 泛型签�
 - smali 稳定版存档往返：PASS（R110 晚期存档实测）
 - AGP 候选存档往返：FAIL
 - 发布门禁：AGP 候选 BLOCKED
+## 转换器级证据（01:30 补充）
+
+- enjarify 源码注释明确：`parsedex.py` 仅读取 annotations 以跳过数据，**不输出任何注解**（`# We don't actually care about annotations but still need to read it to`）——
+  这是 enjarify 的设计选择，因此 JAR 丢失全部 DEX 注解（含 Signature）。
+- `javap -v` 复核 `game-hybrid-j8-r110-nosdk.jar` 内的 `Player$Laitela.class`：无 `Signature` 属性（与候选 APK 一致）。
+- 对照：`dex2jar` 对同一 DEX 的输出 `Player$Laitela.class` **保留 Signature**（`javap -v` 命中 2 处），
+  说明修复方向可行（修 enjarify 注解输出 / 注解回填 / 对需要泛型的类用 dex2jar 替换），但均需完整构建与存档往返回归后再考虑。
+- 因此存档 P0 的根因完全落在 DEX→JAR 转换器，不在 D8、AGP 打包或游戏业务代码。
