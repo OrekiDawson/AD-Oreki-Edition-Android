@@ -1184,6 +1184,10 @@ def _count_exact_line(text, target):
 
 def patch_changelog_zh():
     """[Oreki R40B] 把首启更新日志弹窗的最新 6 个版本换成简体中文（幂等）。"""
+    if os.environ.get("OREKI_AGP_BASE") == "1":
+        note("[R111-C2] AGP 基座：更新日志中文化由 Gradle generateChangelogZh 负责；build_mod 跳过")
+        return
+
     dst = MOD / "res" / "raw" / "changelog.txt"
     assert dst.is_file(), f"缺少 {dst}（apktool 未解出 res/raw/changelog.txt）"
     assert CHANGELOG_ZH_SRC.is_file(), f"缺少译文 {CHANGELOG_ZH_SRC}"

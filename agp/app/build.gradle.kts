@@ -157,7 +157,60 @@ if (fullGame) {
 }
 
 if (fullGame) {
-    // R110-01 C1（Issue #52 阶段一）：教程资产校验从 build_mod.py 迁到 Gradle Kotlin DSL。
+    // R111-01 C2（Issue #52 阶段二）：首启更新日志中文化从 build_mod.py 迁到 Gradle Kotlin DSL。
+// 输入：解码树 res/raw/changelog.txt（英文原文）+ scripts/payload/res/raw/changelog.zh.txt（译文）。
+// 输出：阶段目录 res/raw/changelog.txt（AGP 资源合并的实际输入）。
+// 与 patch_changelog_zh 等价：锚点切分 / 顶部版本对齐 / 条目与段落数断言 / 无未翻译 bullet / 尾部空行。
+if (fullGame) {
+    val changelogZhSrc = File(repoRoot, "scripts/payload/res/raw/changelog.zh.txt")
+    val decodedChangelog = File(decodedTree, "res/raw/changelog.txt")
+    val stagedChangelog = File(fullGameStage, "res/raw/changelog.txt")
+    tasks.register("generateChangelogZh") {
+        group = "oreki"
+        description = "把首启更新日志最新版本段替换为简体中文（等价 build_mod.patch_changelog_zh）"
+        dependsOn(prepareFullGameInputs)
+        inputs.files(decodedChangelog, changelogZhSrc)
+        outputs.file(stagedChangelog)
+        doLast {
+            val anchor = "<b>3.13.2</b>"
+            val doneMark = "本更新日志只保留自 3.14.0 起的版本记录"
+            val orig = decodedChangelog.readText(Charsets.UTF_8)
+            val zhRaw = changelogZhSrc.readText(Charsets.UTF_8)
+            if (orig.contains(doneMark)) {
+                logger.lifecycle("[oreki] 更新日志已中文化，跳过 generateChangelogZh")
+                return@doLast
+            }
+            val parts = orig.split(anchor)
+            if (parts.size != 2) throw GradleException("更新日志锚点不唯一: ${anchor}")
+            val headOrig = parts[0]
+            var zh = zhRaw
+            Regex("<b>(\d+\.\d+\.\d+)</b>").find(headOrig)?.let { m ->
+                val top = m.groupValues[1]
+                val zhMarker = "<b>$top</b>"
+                if (zh.contains(zhMarker)) zh = zh.substring(zh.indexOf(zhMarker))
+            }
+            fun bullets(text: String) = text.lines().count { it.startsWith("- ") }
+            fun exactLine(text: String, target: String) = text.lines().count { it == target }
+            if (bullets(zh) != bullets(headOrig)) {
+                throw GradleException("译文条目数 ${bullets(zh)} != 原文最新段 ${bullets(headOrig)}")
+            }
+            if (zh.contains(anchor)) throw GradleException("译文不应再出现上游锚点: $anchor")
+            listOf("NEW STUFF" to "新增", "IMPROVED STUFF" to "改进", "FIXED STUFF" to "修复", "REMOVED STUFF" to "移除").forEach { (en, cns) ->
+                if (exactLine(headOrig, en) != exactLine(zh, cns)) {
+                    throw GradleException("小节「$en」数量不一致: ${exactLine(headOrig, en)} / ${exactLine(zh, cns)}")
+                }
+            }
+            val untranslated = zh.lines().filter { it.startsWith("- ") && it.none { c -> c in '\u4e00'..'\u9fff' } }
+            if (untranslated.isNotEmpty()) throw GradleException("仍有未翻译 bullet: ${untranslated.first().take(80)}")
+            if (!zh.endsWith("\n\n")) throw GradleException("更新日志尾必须是「空行 + 换行」")
+            stagedChangelog.parentFile.mkdirs()
+            stagedChangelog.writeText(zh, Charsets.UTF_8)
+            logger.lifecycle("[oreki] changelog 已中文化: ${bullets(zh)} 条（Gradle 原生任务，不再经 build_mod）")
+        }
+    }
+}
+
+// R110-01 C1（Issue #52 阶段一）：教程资产校验从 build_mod.py 迁到 Gradle Kotlin DSL。
     // 源文件 scripts/payload/assets/oreki_tutorial.txt 是已提交的生成物（Web 单源 JSON 生成）。
     // 生产构建不再调用 Python 生成器；这里只做确定性校验，输入/输出显式声明以支持增量缓存。
     val tutorialAsset = File(repoRoot, "scripts/payload/assets/oreki_tutorial.txt")
@@ -211,6 +264,7 @@ tasks.named("preBuild") {
     if (fullGame) {
         dependsOn(prepareFullGameInputs)
         dependsOn("prepareFullGameAssets")
+        dependsOn("generateChangelogZh")
         dependsOn("verifyTutorialAsset")
     }
 }
