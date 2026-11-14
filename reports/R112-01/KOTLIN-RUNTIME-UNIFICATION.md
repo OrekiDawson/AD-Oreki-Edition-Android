@@ -58,6 +58,16 @@ MOD 新增类（25 个）对 Kotlin 的引用样板实测：
 3. 存档矩阵：AGP 写→AGP 读、AGP 写→smali 读、smali 写→AGP 读，含 Lai'tela/glyph 类型；
 4. 失败路径：回填/重映射失败必须构建失败（fail-closed）。
 
+## 4.5 运行时清单检查工具（2026-11-15 08:15 新增）
+
+`scripts/agp/check_runtime_inventory.py <game-jar>`：只读静态检查，输出
+classes_total / shadow_kotlin（72）/ kotlinx（120）/ plain_kotlin_ref 类数与样例 /
+新业务类对 kotlin 引用的 shadow 覆盖情况，并给出"plain kotlin refs 期望 0"摘要。
+用于修改 RemapSelective/shadow 机制前快速确认运行时边界，避免重复试错。
+
+注意：脚本按 `oreki/shadow/` 前缀还原原始内部名（**不能**按 `oreki/shadow/kotlin/` 切，否则会误报 missing_shadow）；
+jar 内新业务类只统计 `Oreki*` 命名（完整 25 类清单以管线报告为准）。
+
 ## 5. 当前处置
 
 - 2026-11-15 07:00 已回退全量 shadow（PR #77），主线恢复"存档可用"的旧行为；
