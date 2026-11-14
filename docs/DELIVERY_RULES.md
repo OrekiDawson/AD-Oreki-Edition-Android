@@ -219,3 +219,28 @@
 
 - 服从现有峰谷停工：工作日北京时间 09:00–12:00、14:00–18:00 全员禁止主动开发/CI/CD 操作，08:50/13:50 安全收尾；谷时恢复同一轮次，不重复 `/goal` 或改 R 编号。不得为管理方便自动开启独立新一轮；持续后台监测若需部署单独自动化须按其权限与时间控制明确配置，不能把这份规则文本视作已经有常驻任务。
 - 每次只记录必要的 CI 健康变化、失败分类、修复 PR/Commit SHA、实际 Actions Run、Kotlin/AGP/AVD/Playwright/部署或发行结果，以及 `PASS / FAIL / BLOCKED / NOT RUN` 与待跟进问题。对 AGP 构建 [#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、旧脚本退役 [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、四渠道 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 保持原 Issue 更新，不另开重复 Issue。
+
+## 11. Android 工程目录标准化与迁移验收（2026-11-14，长期强制）
+
+> 对应 [Issue #61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 和 [AGENTS.md 第 16 节](../AGENTS.md)。这是长期目录/构建架构目标，不意味着已完成迁移；不修改既有 R111、当前 /goal、任务编号、上游冻结和正式生产门禁。
+
+### 11.1 最终结构与职责边界
+
+- 最终以标准 AGP 9.5.1 Kotlin DSL 根工程为唯一正式生产入口：`app/build.gradle.kts`、`app/src/main/kotlin/`、`app/src/main/assets/`、`app/src/main/res/`、必要的 `app/src/test/`，根级 `settings.gradle.kts`、`build.gradle.kts` 和 `gradle/`。允许通过 Gradle Provider 声明的生成源码、资源、Manifest、ABI 变换等输入位于构建输出目录，不要求全部拷贝到 `src/main`；官方已冻结原版二进制与受保护私有构建输入不得因此公开入库。
+- `baseline/` 保存版本/ABI/索引与可公开的对照元数据；`reconstructed/` 留作尚未晋升的重建研究；`tools/` 负责 Rust/确定性工具；`scripts/` 负责非正式生产业务的诊断、验证、必要辅助与发布入口；`tests/`、`savestates/`、`docs/`、`reports/` 按实际需求与证据语义组织。不强制移动所有历史文件或修改历史报告链接，避免破坏可追溯性。
+- 当前根 Groovy 工程与 `agp/app` 双入口、`scripts/payload/kotlin` 等只是**过渡现状**，不是标准最终布局。不得将目录变更等同于 Kotlin 业务迁移成功、AGP 完整游戏可发布或 `build_mod.py` 退役完成。
+
+### 11.2 迁移阶段与依赖
+
+1. **S0 只读映射**：核实仓库 `origin/main`、R111 工作树/Agent、运行中 AVD/构建；盘点 Gradle Source Sets、Actions、脚本、共享 Web 内容、相对路径、生成绑定、签名、硬链接及本地资产，记录可追溯清单，不重复完整 JADX 导出。
+2. **S1 低风险闭包**：先通过独立 PR 落实长期规则、README/目录架构入口与必要的无冲突辅助结构；`scripts/`、`docs/` 分类若存在被引用的路径，必须先改消费端并验证，禁止按名称批量移动或删除历史证据。
+3. **S2 正式源码/资产闭包**：在 [#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) / [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 的实际原生链基础上，逐批接入经真实运行/ABI 核实的 Kotlin 生产类、教程资产、资源 Overlay、绑定与生成文件；每批明确旧→新路径和消费端更新，执行受影响的干净/增量构建及最低必要 AVD/资源/DEX 验收。
+4. **S3 根级 AGP 与双入口退役**：完整原生游戏构建、包名/资源 ID/Manifest/DEX/ABI、原签名、合法存档、覆盖升级、AVD、受保护 Candidate/Verify/Release 全部符合对应门禁后，才提升 `agp/app` 为根级 `app`，收敛 Kotlin DSL，删除不再需要的旧 Groovy/脚本依赖；不得用混合 DEX 或 Bridge 冒充完成。
+5. **S4 收口**：清理过时的路径引用与规则入口，补最小 CI 防回流和用户可读 README，按 Issue #61 清单逐项更新实测证据；无证据项目保留 OPEN、BLOCKED 或 NOT RUN。
+
+### 11.3 逐批验收、证据和保护
+
+- 迁移 PR 一项主目标、中文提交、无冲突 worktree；遵守 `/home/oreki/AD-Oreki-Unified/worktrees/android/` 和 `docs/WORKTREE_MAPPING.md`；在实际移动前核验所有者、源/目标、Git 跟踪与硬链接/未提交内容。禁止 `git reset --hard`、`git clean -fd`、强推、批量删除存档、唯一测试证据或旧稳定版。
+- 改动文件与相对路径引用要经 `rg`、Gradle/Actions/脚本、CI 测试核对；构建与运行验证按风险分层，至少覆盖静态引用、Gradle 配置、必要 Kotlin/DEX/资源兼容性；触及正式 APK、原版接线、签名/存档/GUI 时扩展必要真实 APK/AVD 验收。保留冻结 3.21.0 基线、原包名/证书、MOD 版本递增与 Web 既定行为等价。
+- 每个闭包报告：依赖 Issue、旧→新路径、源 SHA、Commit/PR、相关 Actions Run、改动前后关键输入/产物哈希、构建/AVD/发布状态及 `PASS / FAIL / BLOCKED / NOT RUN`。不把静态 CI PASS 当 AVD PASS，不用旧 Run 绿灯证明新 SHA，不为重排目录重跑无关 180 分钟全量验收。
+- 发布、Ruleset、Required Checks、Environment/Secrets、AGP-only fail-closed 和 DeepSeek 高峰停工规则的优先级不变。R111 正在执行时只能安排不冲突的 S0/S1，实质影响生产路径的 S2/S3 必须经当前 Lead 协调，禁止抢占 P0/P1、AVD、签名环境或创建新 /goal。

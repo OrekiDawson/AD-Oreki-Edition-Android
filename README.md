@@ -54,16 +54,28 @@
 
 ## 6. 目录边界
 
-| 路径 | 用途 |
+当前仓库同时存在两套构建入口（目录标准化为 Issue #61 的长期目标，分阶段推进，尚未完成）：
+
+- **根 Gradle（Groovy，旧链）**：`settings.gradle` / `build.gradle`，正式 APK 由 `scripts/build_mod.py`（apktool + smali 补丁）与 Kotlin→D8 链路生成；仅作过渡与隔离对照，正式生产门禁见 [AGENTS.md](AGENTS.md) §8。
+- **AGP 工程（Kotlin DSL）**：`agp/settings.gradle.kts` / `agp/app/build.gradle.kts`，CI 以 `./gradlew -p agp` 使用；完整游戏 AGP 原生构建为正式目标（[Issue #25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)）。
+
+| 路径 | 当前用途 |
 |---|---|
-| `scripts/payload/kotlin/` | Kotlin 业务与适配层 |
-| `scripts/payload/assets/` | 教程和运行资源 |
+| `scripts/payload/kotlin/` | AGP 与旧链共用的 Kotlin 业务/适配源码输入 |
+| `scripts/payload/assets/` | 教程资产源（AGP 经去重暂存打包） |
+| `scripts/payload/res/` | 资源类生成输入（如更新日志译文） |
+| `scripts/payload/lib/` | 旧链依赖库输入 |
+| `scripts/payload/smali/` | 旧链 smali 补丁输入（随 build_mod.py 退役，Issue #52） |
+| `agp/` | AGP 9.5.1 Kotlin DSL 工程（完整游戏构建目标） |
 | `baseline/` | 官方基线、版本配置和差异资料 |
 | `scripts/` | 构建、检查和验证入口 |
 | `build/` | 可再生中间产物与候选产物 |
 | `release/` | 通过发布门禁的产物 |
 | `savestates/` | 测试存档集合 |
-| `docs/` | 规则、事实和验证记录 |
+| `docs/` | 规则、事实和验证记录（目录迁移计划见 `docs/PROJECT_LAYOUT_S0.md`） |
+| `reports/` | 历史验证证据（唯一证据，不批量搬移） |
+
+目录标准化按 [Issue #61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 与 AGENTS.md §16 分阶段执行；根级 `app/`、`settings.gradle.kts`、`build.gradle.kts` 在 S3/S4 完成前不是当前真实结构，不要按目标结构提前搬动生产文件。
 
 ## 7. 修改与反馈
 
