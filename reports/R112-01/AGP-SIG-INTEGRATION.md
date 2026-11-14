@@ -135,6 +135,31 @@ D8 会把泛型签名拆成多段字符串存储（例如 `"Ljava/util/List<"`�
 - 验证：修复后构建 APK `ae55dde1…`，同一存档 AVD 运行 150s+ 无崩溃；守卫 `no_plain_kotlin_refs violations=[]`。
 - 影响面：所有历史 AGP R8 OFF 候选（含 `18716d87…`）都有此问题，属于此前未被覆盖的真实 P0。
 
+## 4.6 第五轮：存档注入属主坑与修复后候选读档复验（06:00–06:20）
+
+### 关键修正：存档注入必须用 app 的 uid/gid
+
+此前若干次 AVD 结果出现"注入晚期存档却显示新游戏/2.34e3 反物质"，本轮定位为**测试方法问题**：
+`pm clear` 后以 root 创建 `files/` 并写入 `player.json`（owner=root），app（u0_a248）读不到存档，
+静默回退到新游戏。正确做法：先启动一次让 app 自己创建数据目录，再按 app uid/gid 注入。
+`gate_autoplay.py` 已修复：注入前读取 `/data/data/<pkg>` 的 uid/gid，`chown -R` 目录并设置文件属主，
+数据目录不存在时明确报错（不静默失败）。
+
+### 修复后候选读档复验（真实 AVD）
+
+| 用例 | 结果 |
+| --- | --- |
+| smali 稳定版 + after-bigcrunch 存档（正确注入） | **PASS**：加载页显示离线结算（无限点数 2→120、无限次数 19→25），进入游戏后 **5s 内写回 player.json**（28,843 B） |
+| 修复后 AGP 候选 `ae55dde1…` + 同一存档 | **PASS**：加载页离线结算正常，进入真实游戏（HUD 117 无限点数 / 1.03e69 反物质），**0 FATAL/NoSuchFieldError** |
+| 静态 ABI 扫描（修复后 jar） | **PASS**：常量池 Class 引用中 **plain kotlin refs = 0**（全部指向 `oreki/shadow/kotlin/**`） |
+
+### 新观察（下一轮 P1 调查项）
+
+- 修复后 AGP 候选进入游戏后 60–240s 内 **player.json 无写入**（smali 稳定版 5s 内写回）；
+  可能在特定时机才写档，也可能是 AGP 构建的存/读档路径差异，需结合存档槽/存档时机继续定位（未下结论）。
+- 长离线跨度（>5000 分钟）存档在 **resume** 时出现"正在计算离线进度 0/1000"长时间不推进（启动时同一存档 0.9s 完成），
+  需确认是原版行为/MOD 行为/AVD 性能，并纳入测试脚本超时处理。
+
 ## 5. 失败与阻塞（如实记录）
 
 1. **片尾字幕/结束页阻塞自动化**：读档后游戏先进入片尾字幕（creditsFinished=false）或结束页（已通关存档），无法用 `input tap` 稳定跳过；新档（pm clear）还会弹云存档对话框。已在 `scripts/tests/r112/credits_wait_probe.sh` 记录 11 分钟无写入的结论。
