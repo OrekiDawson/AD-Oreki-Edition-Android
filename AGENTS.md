@@ -40,7 +40,7 @@
 
 - Python 可用于构建辅助、自动化测试、存档分析、调试及数据处理；优先复用现有工具，避免无必要的依赖和脚本膨胀。
 - Android 新增或修改的游戏业务逻辑仍必须使用 Kotlin；禁止新增 Java/Smali 游戏业务实现。Python 不得替代 Android Kotlin 业务代码。
-- 既有 Python 构建脚本允许必要的维护和 Bug 修复；迁移到 Gradle/Kotlin/Rust 应以实际收益和风险为依据，不强制为迁移而迁移。
+- **例外：`scripts/build_mod.py` 的彻底退役为用户明确指定的强制长期目标（见第 14 节）**。其他既有 Python 辅助脚本可根据实际收益与风险决定是否迁移；在退役完成前允许对 `build_mod.py` 做必要的故障修复和隔离对照，不得以此为理由无限期保留正式构建依赖。
 - GitHub 语言统计由 .gitattributes 的 Linguist 属性独立管理；只排除真实的生成或第三方内容，不伪装文件语言，不影响 Git 跟踪与构建。
 - 旧版已废止规则见 [归档](archive/rules-pre-reset-2026-11-11/python-strict-ban-2026-11-11.md)。
 
@@ -108,3 +108,12 @@
 
 - **强制读取并执行 [Git Main 与 CI/CD 同步协作规范](docs/GIT_MAIN_CICD_SYNC.md)**。每轮开发前和关键提交/推送前核对 `origin/main` 与工作分支，保护未提交内容、隔离并行 Agent 的工作树；禁止强推及绕过 Required Checks。
 - 该同步只针对本仓 MOD `main`，不是解冻上游原版；CI/CD 不负责自动更新 Agent 本地工作树。发布仍遵守现行构建、真实验收及多渠道门禁；DeepSeek 高峰期全员停工规则优先。
+
+## 14. `build_mod.py` 彻底退役（长期强制目标，2026-11-14）
+
+- **永久目标与范围**：按用户明确决定，最终**删除 `scripts/build_mod.py`**，正式 Android 构建、Candidate/Verify/Release 和相关生成/校验流程均不得再依赖该文件、Python 包装调用器或同功能换名脚本。不是只改名、简单把数千行文本补丁逻辑照搬到 Kotlin，或把旧链藏到 CI。详见 [Issue #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 与 `docs/DELIVERY_RULES.md` 第 9 节。
+- **目标实现**：正式游戏代码、资源、Manifest、DEX、APK 的构建以固定 **AGP 9.5.1 + Gradle Kotlin DSL + Kotlin 业务源码**为核心；可验证的底层工具按需使用 Kotlin/Rust，消除生产构建期 Python 依赖。禁止新增 Java/Smali 业务代码，禁止长期重新建立大规模原版 Smali 文本补丁链；必要 ABI 兼容桥必须有实证、最小化并可复查。
+- **分批迁移而非立即硬删**：先对 `build_mod.py` 实际执行函数建迁移清单，区分需要保留的行为、已由 Kotlin 接管的功能与无效历史代码；按资源/Manifest、混淆绑定、教程、业务补丁、构建期守卫及 CI 调用逐批迁移。优先复用已完成的 Kotlin/AGP 成果，单一可验证闭包、小 PR、最小必要测试；不得牺牲玩家真实结算、阶段门禁、自动购买器、UI、存档或 Android/Web 等价行为。
+- **先决阻塞和交付关系**：[Issue #25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的 AGP 原生完整游戏代码/运行语义为核心先决条件；[Issue #17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 跟踪正式 CI/CD 与四渠道交付。AGP 混合拼包、Bridge 冷启动或源码 CI PASS 不等于原生完整游戏 PASS，不得作为删除与发布完成凭据。
+- **最终验收后方可删除**：需要干净工作区的无脚本 AGP 完整构建，以及真实 APK 安装/冷启、Tick 持续运行、存档保存/恢复、关键阶段/挑战/自动购买器/GUI、原版签名/包名/版本升级兼容和独立 CI/CD 门禁的可追溯证据；失败保持 `BLOCKED`。删除后 CI 要阻止正式构建重新引用旧脚本/旧构建链；历史报告的文字引用可保留，不重写历史。
+- **执行边界**：这是现有开发目标的长期增量要求，**不新开 `/goal`、不重置计时、不改 R 编号**；服从 P0/P1、DeepSeek 峰谷全员停工、分支/PR/Required Checks 与 AGP-only fail-closed 规则。未满足验收前保留已验证稳定版，不强行宣布退役完成、不旁路发布。
