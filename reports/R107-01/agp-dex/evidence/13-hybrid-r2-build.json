@@ -1,0 +1,214 @@
+{
+ "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r2.jar",
+ "sha256": "46ceaf83cd01f59a33f499bb914fb2c3940edd6ebc7bf66f8b1b7a89a18c3f12",
+ "size": 19937008,
+ "head": "classes=15344 verify_ok=10348 invalid=4983 inconclusive=13",
+ "invalid_count": 4983,
+ "replaced_classes": [
+  "cv0",
+  "dc2",
+  "gk0",
+  "k51",
+  "lu2",
+  "ox0",
+  "qy0",
+  "rk8",
+  "t01",
+  "tf2",
+  "to2",
+  "tu2",
+  "vf2"
+ ],
+ "replaced_sources": {
+  "ox0": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "b9c75fdfefb4f909b3f4c9c9a2adcb88ebaf73456122fa3f79a554f588645064"
+  },
+  "gk0": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "f41c72ef23c3f27376709307038d83fc7b9f5219f5dedb9e29c862d5ee7cc01a"
+  },
+  "dc2": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "f8fb9aa1948b84b436d8316f80992f2aaa504c2ab64692f6474d88cec42456b0"
+  },
+  "tf2": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "39528bd10acaa13e960c3deb4c4bbd53d73f6729f9b1f0d1c5e4553b7fb52e85"
+  },
+  "vf2": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "efaa97d2290a833471b1d8ef917483325cc020b3e53fc38d92ff2828cbc342ea"
+  },
+  "t01": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "fb18585b6dd09f5af93d00a03e9353da047232f22163fc9430744f11e6b4a9f2"
+  },
+  "k51": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "sha256": "419d90f389c38ff3a406c8fa28521116a4bab3befad2558950b3ba93d2e657e1"
+  },
+  "cv0": {
+   "source": "dex2jar+strip-cv0-synthetic-ctor",
+   "dash_restore": 0,
+   "sha256": "4100e40f075374c1ce6f6c5d8fbadd318a2df1bcb134b702a49da0d84974bc4e"
+  },
+  "rk8": {
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 7,
+   "sha256": "a414a5843906603d0a067d7500641acca2f36d25cc7f9bb26877ef08d036db2d"
+  },
+  "lu2": {
+   "source": "dex2jar(dep-of-rk8)",
+   "dash_restore": 0,
+   "sha256": "5dc3ab162722d9ff185ae8c8d69b4ada00791deb19c0a19db7ca6bb278e0ee27"
+  },
+  "tu2": {
+   "source": "dex2jar(dep-of-rk8)",
+   "dash_restore": 0,
+   "sha256": "41604a7dbffe1e286f268b3199409f9aea4306a240f82a07481f171147d4ce60"
+  },
+  "qy0": {
+   "source": "dex2jar(dep-of-rk8)",
+   "dash_restore": 0,
+   "sha256": "cc0336ec4ce99b411f3ffff7e826a7dda6d3e7e76d3017a54a3c4457dcd6667f"
+  },
+  "to2": {
+   "source": "dex2jar(dep-of-rk8)",
+   "dash_restore": 0,
+   "sha256": "78c40a01380d5ce421573359dbe094c7f7de313fdd70455db896602234b6026e"
+  }
+ },
+ "hot_invalid": [],
+ "hot_valid": [
+  "ox0",
+  "gk0",
+  "dc2",
+  "tf2",
+  "vf2",
+  "t01",
+  "k51",
+  "cv0",
+  "rk8",
+  "nc8",
+  "ba1"
+ ],
+ "steps": [
+  {
+   "iter": 1,
+   "head": "classes=15344 verify_ok=10170 invalid=5161 inconclusive=13",
+   "replaced": [
+    "cv0",
+    "dc2",
+    "gk0",
+    "k51",
+    "ox0",
+    "rk8",
+    "t01",
+    "tf2",
+    "vf2"
+   ],
+   "replaced_count": 9,
+   "hot_invalid": [
+    "rk8",
+    "nc8"
+   ]
+  },
+  {
+   "iter": 2,
+   "head": "classes=15344 verify_ok=10229 invalid=5102 inconclusive=13",
+   "replaced": [
+    "cv0",
+    "dc2",
+    "gk0",
+    "k51",
+    "lu2",
+    "ox0",
+    "rk8",
+    "t01",
+    "tf2",
+    "vf2"
+   ],
+   "replaced_count": 10,
+   "hot_invalid": [
+    "rk8",
+    "nc8"
+   ]
+  },
+  {
+   "iter": 3,
+   "head": "classes=15344 verify_ok=10241 invalid=5090 inconclusive=13",
+   "replaced": [
+    "cv0",
+    "dc2",
+    "gk0",
+    "k51",
+    "lu2",
+    "ox0",
+    "rk8",
+    "t01",
+    "tf2",
+    "tu2",
+    "vf2"
+   ],
+   "replaced_count": 11,
+   "hot_invalid": [
+    "rk8",
+    "nc8"
+   ]
+  },
+  {
+   "iter": 4,
+   "head": "classes=15344 verify_ok=10319 invalid=5012 inconclusive=13",
+   "replaced": [
+    "cv0",
+    "dc2",
+    "gk0",
+    "k51",
+    "lu2",
+    "ox0",
+    "qy0",
+    "rk8",
+    "t01",
+    "tf2",
+    "tu2",
+    "vf2"
+   ],
+   "replaced_count": 12,
+   "hot_invalid": [
+    "rk8",
+    "nc8"
+   ]
+  },
+  {
+   "iter": 5,
+   "head": "classes=15344 verify_ok=10344 invalid=4987 inconclusive=13",
+   "replaced": [
+    "cv0",
+    "dc2",
+    "gk0",
+    "k51",
+    "lu2",
+    "ox0",
+    "qy0",
+    "rk8",
+    "t01",
+    "tf2",
+    "to2",
+    "tu2",
+    "vf2"
+   ],
+   "replaced_count": 13,
+   "hot_invalid": [
+    "nc8"
+   ]
+  }
+ ]
+}

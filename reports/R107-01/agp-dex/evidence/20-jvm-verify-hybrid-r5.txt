@@ -1,0 +1,150 @@
+classes=15344 verify_ok=15254 invalid=76 inconclusive=14
+== categories ==
+14	NoClassDefFoundError (inconclusive, 依赖缺失)
+1	VerifyError: (class: as3, method: b signature: (Lqc1;Luf0;)I) Call to wrong initialization method
+1	VerifyError: (class: bx, method: <init> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: cf1, method: b signature: (Lqc1;Luf0;)I) Call to wrong initialization method
+1	VerifyError: (class: com/google/android/gms/internal/ads/ec, method: I signature: (Lm79;)I) Call to wrong initialization method
+1	VerifyError: (class: com/google/android/gms/internal/ads/h3, method: j signature: (Lki8;)J) Call to wrong initialization method
+1	VerifyError: (class: com/google/android/gms/internal/ads/i6, method: descendingKeySet signature: ()Ljava/util/NavigableSet;) Incompatible object argument for in
+1	VerifyError: (class: com/google/android/gms/internal/ads/zzgvs, method: <init> signature: (Ljava/util/regex/Pattern;)V) Call to wrong initialization method
+1	VerifyError: (class: com/google/android/gms/internal/firebase-auth-api/zzn, method: <init> signature: (Ljava/util/regex/Pattern;)V) Call to wrong initialization
+1	VerifyError: (class: cx, method: <init> signature: (Lzw;)V) Call to wrong initialization method
+1	VerifyError: (class: cz6, method: a signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: d69, method: a signature: (Ls29;)Lw29;) Call to wrong initialization method
+1	VerifyError: (class: de7, method: <init> signature: (Lie7;Ljava/lang/String;B)V) Call to wrong initialization method
+1	VerifyError: (class: dg, method: <init> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: dz4, method: b signature: (Lqc1;Luf0;)I) Call to wrong initialization method
+1	VerifyError: (class: f7, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: fs7, method: a signature: (Ljava/lang/String;)V) Call to wrong initialization method
+3	VerifyError: (class: hu6, method: R0 signature: (Ljava/net/HttpURLConnection;Lfw5;Lzu5;)V) Call to wrong initialization method
+5	VerifyError: (class: hy7, method: i signature: (I[D[[D)Lhy7;) Call to wrong initialization method
+1	VerifyError: (class: is1, method: i signature: (Landroid/app/Activity;Landroid/app/AlertDialog;Ljava/lang/String;Landroid/content/DialogInterface$OnCancelListen
+1	VerifyError: (class: j46, method: f signature: (Lrs5;Luf0;)I) Call to wrong initialization method
+3	VerifyError: (class: jf2, method: E signature: (Lon;Loy4;)V) Call to wrong initialization method
+1	VerifyError: (class: jx, method: <init> signature: (I)V) Call to wrong initialization method
+1	VerifyError: (class: k00, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: k8, method: f signature: (Lo66;)Ljava/lang/Object;) Call to wrong initialization method
+1	VerifyError: (class: kajfosz/antimatterdimensions/oreki/OrekiUiTitle, method: of signature: (Lyn4;)Ljava/lang/String;) Incompatible object argument for function
+1	VerifyError: (class: kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch, method: run signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: kajfosz/antimatterdimensions/reality/imaginary_upgrades/b, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: kj3, method: <init> signature: (Lxi3;B)V) Call to wrong initialization method
+1	VerifyError: (class: kp4, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: lm8, method: <init> signature: (Ljava/lang/String;B)V) Call to wrong initialization method
+1	VerifyError: (class: m46, method: f signature: (Lrs5;Luf0;)I) Call to wrong initialization method
+1	VerifyError: (class: mh3, method: <clinit> signature: ()V) Call to wrong initialization method
+13	VerifyError: (class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+1	VerifyError: (class: ol2, method: <init> signature: (Loreki/shadow/kotlin/collections/builders/MapBuilder;B)V) Call to wrong initialization method
+1	VerifyError: (class: oreki/shadow/kotlin/collections/builders/ListBuilder$BuilderSubList, method: <init> signature: ([Ljava/lang/Object;IILoreki/shadow/kotlin/c
+1	VerifyError: (class: oreki/shadow/kotlin/collections/builders/ListBuilder, method: <init> signature: (I)V) Call to wrong initialization method
+1	VerifyError: (class: oreki/shadow/kotlin/collections/builders/SetBuilder, method: <init> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: oreki/shadow/kotlin/enums/EnumEntriesList, method: <init> signature: ([Ljava/lang/Enum;)V) Call to wrong initialization method
+1	VerifyError: (class: ov5, method: f signature: (Lrs5;Luf0;)I) Call to wrong initialization method
+1	VerifyError: (class: pc, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: pd6, method: <init> signature: (Landroid/content/Context;Landroid/os/Looper;Lst;Ltt;B)V) Call to wrong initialization method
+1	VerifyError: (class: ph4, method: q signature: (Lqt2;Ljava/nio/ByteBuffer;)Lot2;) Call to wrong initialization method
+1	VerifyError: (class: pm2, method: <init> signature: (Lrm2;)V) Call to wrong initialization method
+1	VerifyError: (class: rf4, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: rl2, method: <init> signature: (Loreki/shadow/kotlin/collections/builders/MapBuilder;)V) Call to wrong initialization method
+1	VerifyError: (class: rp2, method: G0 signature: (Lqi1;)I) Call to wrong initialization method
+1	VerifyError: (class: sj3, method: <init> signature: (Lm0;[Ljava/lang/Object;[Ljava/lang/Object;I)V) Call to wrong initialization method
+1	VerifyError: (class: sl2, method: <init> signature: (Loreki/shadow/kotlin/collections/builders/MapBuilder;)V) Call to wrong initialization method
+1	VerifyError: (class: th3, method: <clinit> signature: ()V) Call to wrong initialization method
+2	VerifyError: (class: ti5, method: e signature: (Lo56;)Lj56;) Call to wrong initialization method
+1	VerifyError: (class: uf4, method: <clinit> signature: ()V) Call to wrong initialization method
+1	VerifyError: (class: up3, method: <init> signature: (JJB)V) Call to wrong initialization method
+1	VerifyError: (class: wn5, method: handleMessage signature: (Landroid/os/Message;)V) Call to wrong initialization method
+1	VerifyError: (class: wr, method: b signature: (Lkajfosz/antimatterdimensions/MainActivity;Z)Landroid/text/SpannableStringBuilder;) Call to wrong initialization 
+1	VerifyError: (class: zi, method: b signature: (Lci;)Ldi;) Call to wrong initialization method
+== invalid ==
+androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures$Api33Ext5JavaImpl	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+as3	VERIFY	(class: as3, method: b signature: (Lqc1;Luf0;)I) Call to wrong initialization method
+bx	VERIFY	(class: bx, method: <init> signature: ()V) Call to wrong initialization method
+c96	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+cf1	VERIFY	(class: cf1, method: b signature: (Lqc1;Luf0;)I) Call to wrong initialization method
+com.google.android.gms.internal.ads.ec	VERIFY	(class: com/google/android/gms/internal/ads/ec, method: I signature: (Lm79;)I) Call to wrong initialization method
+com.google.android.gms.internal.ads.h3	VERIFY	(class: com/google/android/gms/internal/ads/h3, method: j signature: (Lki8;)J) Call to wrong initialization method
+com.google.android.gms.internal.ads.i6	VERIFY	(class: com/google/android/gms/internal/ads/i6, method: descendingKeySet signature: ()Ljava/util/NavigableSet;) Incompatible object argument for invokespecial
+com.google.android.gms.internal.ads.zzgvs	VERIFY	(class: com/google/android/gms/internal/ads/zzgvs, method: <init> signature: (Ljava/util/regex/Pattern;)V) Call to wrong initialization method
+com.google.android.gms.internal.firebase-auth-api.zzn	VERIFY	(class: com/google/android/gms/internal/firebase-auth-api/zzn, method: <init> signature: (Ljava/util/regex/Pattern;)V) Call to wrong initialization method
+cx	VERIFY	(class: cx, method: <init> signature: (Lzw;)V) Call to wrong initialization method
+cz6	VERIFY	(class: cz6, method: a signature: ()V) Call to wrong initialization method
+d69	VERIFY	(class: d69, method: a signature: (Ls29;)Lw29;) Call to wrong initialization method
+de7	VERIFY	(class: de7, method: <init> signature: (Lie7;Ljava/lang/String;B)V) Call to wrong initialization method
+dg	VERIFY	(class: dg, method: <init> signature: ()V) Call to wrong initialization method
+dz4	VERIFY	(class: dz4, method: b signature: (Lqc1;Luf0;)I) Call to wrong initialization method
+f7	VERIFY	(class: f7, method: <clinit> signature: ()V) Call to wrong initialization method
+fs7	VERIFY	(class: fs7, method: a signature: (Ljava/lang/String;)V) Call to wrong initialization method
+gp2	VERIFY	(class: jf2, method: E signature: (Lon;Loy4;)V) Call to wrong initialization method
+hp2	VERIFY	(class: jf2, method: E signature: (Lon;Loy4;)V) Call to wrong initialization method
+hu6	VERIFY	(class: hu6, method: R0 signature: (Ljava/net/HttpURLConnection;Lfw5;Lzu5;)V) Call to wrong initialization method
+hy7	VERIFY	(class: hy7, method: i signature: (I[D[[D)Lhy7;) Call to wrong initialization method
+is1	VERIFY	(class: is1, method: i signature: (Landroid/app/Activity;Landroid/app/AlertDialog;Ljava/lang/String;Landroid/content/DialogInterface$OnCancelListener;)V) Call to wrong initialization method
+j46	VERIFY	(class: j46, method: f signature: (Lrs5;Luf0;)I) Call to wrong initialization method
+jf2	VERIFY	(class: jf2, method: E signature: (Lon;Loy4;)V) Call to wrong initialization method
+jx	VERIFY	(class: jx, method: <init> signature: (I)V) Call to wrong initialization method
+k00	VERIFY	(class: k00, method: <clinit> signature: ()V) Call to wrong initialization method
+k8	VERIFY	(class: k8, method: f signature: (Lo66;)Ljava/lang/Object;) Call to wrong initialization method
+ka6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+kajfosz.antimatterdimensions.oreki.OrekiUiTitle	VERIFY	(class: kajfosz/antimatterdimensions/oreki/OrekiUiTitle, method: of signature: (Lyn4;)Ljava/lang/String;) Incompatible object argument for function call
+kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch	VERIFY	(class: kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch, method: run signature: ()V) Call to wrong initialization method
+kajfosz.antimatterdimensions.reality.imaginary_upgrades.b	VERIFY	(class: kajfosz/antimatterdimensions/reality/imaginary_upgrades/b, method: <clinit> signature: ()V) Call to wrong initialization method
+kj3	VERIFY	(class: kj3, method: <init> signature: (Lxi3;B)V) Call to wrong initialization method
+kp4	VERIFY	(class: kp4, method: <clinit> signature: ()V) Call to wrong initialization method
+l76	VERIFY	(class: ti5, method: e signature: (Lo56;)Lj56;) Call to wrong initialization method
+le4	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+lm8	VERIFY	(class: lm8, method: <init> signature: (Ljava/lang/String;B)V) Call to wrong initialization method
+m46	VERIFY	(class: m46, method: f signature: (Lrs5;Luf0;)I) Call to wrong initialization method
+mh3	VERIFY	(class: mh3, method: <clinit> signature: ()V) Call to wrong initialization method
+nq0	VERIFY	(class: hy7, method: i signature: (I[D[[D)Lhy7;) Call to wrong initialization method
+nr5	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+oa6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+oc2	VERIFY	(class: hy7, method: i signature: (I[D[[D)Lhy7;) Call to wrong initialization method
+ol2	VERIFY	(class: ol2, method: <init> signature: (Loreki/shadow/kotlin/collections/builders/MapBuilder;B)V) Call to wrong initialization method
+oreki.shadow.kotlin.collections.builders.ListBuilder$BuilderSubList	VERIFY	(class: oreki/shadow/kotlin/collections/builders/ListBuilder$BuilderSubList, method: <init> signature: ([Ljava/lang/Object;IILoreki/shadow/kotlin/collections/builders/ListBuilder$BuilderSubList;Loreki/shadow/kotlin/collections/builders/ListBuilder;)V) Call to wrong initialization method
+oreki.shadow.kotlin.collections.builders.ListBuilder	VERIFY	(class: oreki/shadow/kotlin/collections/builders/ListBuilder, method: <init> signature: (I)V) Call to wrong initialization method
+oreki.shadow.kotlin.collections.builders.SetBuilder	VERIFY	(class: oreki/shadow/kotlin/collections/builders/SetBuilder, method: <init> signature: ()V) Call to wrong initialization method
+oreki.shadow.kotlin.enums.EnumEntriesList	VERIFY	(class: oreki/shadow/kotlin/enums/EnumEntriesList, method: <init> signature: ([Ljava/lang/Enum;)V) Call to wrong initialization method
+ov5	VERIFY	(class: ov5, method: f signature: (Lrs5;Luf0;)I) Call to wrong initialization method
+ox6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+pa6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+pc	VERIFY	(class: pc, method: <clinit> signature: ()V) Call to wrong initialization method
+pd6	VERIFY	(class: pd6, method: <init> signature: (Landroid/content/Context;Landroid/os/Looper;Lst;Ltt;B)V) Call to wrong initialization method
+ph4	VERIFY	(class: ph4, method: q signature: (Lqt2;Ljava/nio/ByteBuffer;)Lot2;) Call to wrong initialization method
+pm2	VERIFY	(class: pm2, method: <init> signature: (Lrm2;)V) Call to wrong initialization method
+rf	VERIFY	(class: hy7, method: i signature: (I[D[[D)Lhy7;) Call to wrong initialization method
+rf4	VERIFY	(class: rf4, method: <clinit> signature: ()V) Call to wrong initialization method
+rl2	VERIFY	(class: rl2, method: <init> signature: (Loreki/shadow/kotlin/collections/builders/MapBuilder;)V) Call to wrong initialization method
+rp2	VERIFY	(class: rp2, method: G0 signature: (Lqi1;)I) Call to wrong initialization method
+rx6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+sj3	VERIFY	(class: sj3, method: <init> signature: (Lm0;[Ljava/lang/Object;[Ljava/lang/Object;I)V) Call to wrong initialization method
+sl2	VERIFY	(class: sl2, method: <init> signature: (Loreki/shadow/kotlin/collections/builders/MapBuilder;)V) Call to wrong initialization method
+su2	VERIFY	(class: hy7, method: i signature: (I[D[[D)Lhy7;) Call to wrong initialization method
+th3	VERIFY	(class: th3, method: <clinit> signature: ()V) Call to wrong initialization method
+ti5	VERIFY	(class: ti5, method: e signature: (Lo56;)Lj56;) Call to wrong initialization method
+uf4	VERIFY	(class: uf4, method: <clinit> signature: ()V) Call to wrong initialization method
+up3	VERIFY	(class: up3, method: <init> signature: (JJB)V) Call to wrong initialization method
+ux6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+w96	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+wn5	VERIFY	(class: wn5, method: handleMessage signature: (Landroid/os/Message;)V) Call to wrong initialization method
+wr	VERIFY	(class: wr, method: b signature: (Lkajfosz/antimatterdimensions/MainActivity;Z)Landroid/text/SpannableStringBuilder;) Call to wrong initialization method
+xu2	VERIFY	(class: hu6, method: R0 signature: (Ljava/net/HttpURLConnection;Lfw5;Lzu5;)V) Call to wrong initialization method
+yu0	VERIFY	(class: hu6, method: R0 signature: (Ljava/net/HttpURLConnection;Lfw5;Lzu5;)V) Call to wrong initialization method
+z96	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+zi	VERIFY	(class: zi, method: b signature: (Lci;)Ldi;) Call to wrong initialization method
+zx6	VERIFY	(class: nr5, method: I signature: (Ljava/lang/String;)Ljava/lang/String;) Call to wrong initialization method
+== inconclusive ==
+androidx.compose.ui.graphics.layer.c	NOCLASS	android/view/RenderNode
+androidx.window.area.reflectionguard.WindowAreaComponentApi3Requirements	NOCLASS	androidx/window/extensions/core/util/function/Consumer
+androidx.window.reflection.Consumer2	NOCLASS	androidx/window/extensions/core/util/function/Consumer
+androidx.window.reflection.JFunction2	NOCLASS	androidx/window/extensions/core/util/function/Function
+androidx.window.reflection.Predicate2	NOCLASS	androidx/window/extensions/core/util/function/Predicate
+kajfosz.antimatterdimensions.OrekiChallengeAuto	NOCLASS	kotlin/coroutines/jvm/internal/ContinuationImpl
+kajfosz.antimatterdimensions.OrekiEcContinuation	NOCLASS	kotlin/coroutines/jvm/internal/ContinuationImpl
+kajfosz.antimatterdimensions.oreki.OrekiEternity	NOCLASS	kotlin/coroutines/jvm/internal/ContinuationImpl
+kajfosz.antimatterdimensions.oreki.OrekiReality	NOCLASS	kotlin/coroutines/jvm/internal/ContinuationImpl
+kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntryListener	NOCLASS	kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity
+kajfosz.antimatterdimensions.oreki.tutorial.TutorialTabListener	NOCLASS	kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity
+lz3	NOCLASS	android/view/RenderNode
+mz3	NOCLASS	android/view/RenderNode
+xt7	NOCLASS	com/amazon/privacypass/PrivacyPass

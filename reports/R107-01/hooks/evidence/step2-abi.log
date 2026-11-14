@@ -1,0 +1,14 @@
+PASS BM-11  OrekiShopRules.clampStds(I)I
+PASS BM-12  OrekiEffarigRules.nerfFactor(ID)D
+PASS BM-13  OrekiEffarigRules.shardExponentDivisor()D
+PASS BM-22  OrekiIu15Rules.requirementAmExp()D
+PASS BM-23  OrekiGameEndRules.endState(DDZ)D
+PASS BM-32  OrekiCrunchRules.shouldAutoEnable(ZDZ)Z
+PASS BM-37  OrekiDimensionRules.batchFallbackToSingle(I)Z
+PASS BM-40  OrekiDimBoostRules.ad8Rounds(DD)D
+PASS DK-03  OrekiThemePolicy.isDark()Z
+PASS DK-08  OrekiUiDefaults.defaultNotation()Ljava/lang/String;
+PASS DK-09  OrekiUiDefaults.defaultNotation()Ljava/lang/String;
+契约交叉核对: 10 个 expect_invoke
+证据已写入 /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-hooks/evidence/abi-guard.json
+ABI GUARD: 11 个桥接方法，FAIL 0

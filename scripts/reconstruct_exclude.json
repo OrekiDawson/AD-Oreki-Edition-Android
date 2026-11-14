@@ -1,0 +1,25 @@
+{
+  "_comment": "R106-02 Kotlin 源码重建批次：这些 DEX descriptor 已由 reconstructed/kotlin/** 下的 Kotlin 源码重建，构建时应从游戏 game jar 中排除原版 class，避免重复类。",
+  "_generated_by": "reports/R106-02/kotlin-reconstruction.md / scripts/reconstruct_parity.py",
+  "_game_jar": "/home/oreki/private-staging/r10602/jars/gameclasses.jar",
+  "descriptors": [
+    "Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;",
+    "Lkajfosz/antimatterdimensions/autobuyer/TimeTheoremAutobuyerState;",
+    "Lkajfosz/antimatterdimensions/autobuyer/EPMultAutobuyerState;",
+    "Lkajfosz/antimatterdimensions/autobuyer/IPMultAutobuyerState;",
+    "Lkajfosz/antimatterdimensions/autobuyer/ReplicantiGalaxyAutobuyerState;",
+    "Lkajfosz/antimatterdimensions/reality/automator/AutomatorState;",
+    "Lkajfosz/antimatterdimensions/reality/automator/CommandState;",
+    "Lkajfosz/antimatterdimensions/reality/automator/AutomatorStackEntry$Persistent;"
+  ],
+  "classes": [
+    {"descriptor": "Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/AutobuyerState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/autobuyer/TimeTheoremAutobuyerState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/TimeTheoremAutobuyerState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/autobuyer/EPMultAutobuyerState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/EPMultAutobuyerState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/autobuyer/IPMultAutobuyerState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/IPMultAutobuyerState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/autobuyer/ReplicantiGalaxyAutobuyerState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/autobuyer/ReplicantiGalaxyAutobuyerState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/reality/automator/AutomatorState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/reality/automator/AutomatorState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/reality/automator/CommandState;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/reality/automator/CommandState.kt"},
+    {"descriptor": "Lkajfosz/antimatterdimensions/reality/automator/AutomatorStackEntry$Persistent;", "source": "reconstructed/kotlin/kajfosz/antimatterdimensions/reality/automator/AutomatorStackEntryPersistent.kt"}
+  ]
+}

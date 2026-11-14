@@ -1,0 +1,93 @@
+{
+  "tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod",
+  "checks": [
+    {
+      "id": "G1-eternity-group-covered",
+      "state": "PASS",
+      "detail": "eternity group children covered: ['timeStudies', 'eternityUpgrades', 'milestones', 'dilation']",
+      "evidence": []
+    },
+    {
+      "id": "G1-kotlin-gate-covers-eternity-layer",
+      "state": "FAIL",
+      "detail": "gate name list misses ['dilation', 'eternityChallenges']",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt: 905"
+      ]
+    },
+    {
+      "id": "G3-bm4-gate-markers",
+      "state": "PASS",
+      "detail": "marker R101P0_TAB_GATE count=2 (expected 2)",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/bm4.smali"
+      ]
+    },
+    {
+      "id": "G3-ll2-gate-marker",
+      "state": "PASS",
+      "detail": "marker R101P0_CATEGORY_GATE count=1 (expected 1)",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/ll2.smali"
+      ]
+    },
+    {
+      "id": "G3-w8-gate-marker",
+      "state": "PASS",
+      "detail": "marker R101P0_RESTORE_GATE count=1 (expected 1)",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali"
+      ]
+    },
+    {
+      "id": "G3-current-subtab-marker",
+      "state": "PASS",
+      "detail": "marker R101P0_CURRENT_SUBTAB_GATE count=1 (expected 1)",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali"
+      ]
+    },
+    {
+      "id": "G2-bm4-business-key",
+      "state": "FAIL",
+      "detail": "2/2 injection(s) do not load iget-object v0, p0, Luo4;->b:Ljava/lang/String;; glyph-key sites=[[373], [498]]",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/bm4.smali:372",
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/bm4.smali:497"
+      ]
+    },
+    {
+      "id": "G2-ll2-business-key",
+      "state": "PASS",
+      "detail": "1/1 injection(s) load iget-object v0, p0, Luo4;->b:Ljava/lang/String;",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/ll2.smali:287"
+      ]
+    },
+    {
+      "id": "G2-w8-business-key",
+      "state": "PASS",
+      "detail": "1/1 injection(s) load Luo4;->b:Ljava/lang/String;",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali:24482"
+      ]
+    },
+    {
+      "id": "G2-current-subtab-business-key",
+      "state": "PASS",
+      "detail": "1/1 injection(s) load Luo4;->b:Ljava/lang/String;",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/MainActivity.smali:54115"
+      ]
+    },
+    {
+      "id": "G3-bottom-action-gate",
+      "state": "PASS",
+      "detail": "bottom ETERNITY action gated by Kotlin",
+      "evidence": [
+        "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod/smali_classes2/kajfosz/antimatterdimensions/mainactivity/l0.smali"
+      ]
+    }
+  ],
+  "failed": 2
+}

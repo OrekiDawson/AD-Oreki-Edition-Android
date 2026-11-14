@@ -1,0 +1,179 @@
+# R107-01 DS1 (膨胀研究1) 原版需求证据 —— 解释为何"只买膨胀研究"不足以解锁现实
+
+## Android: z40.smali :pswitch_d （= z40(15) = 膨胀研究1 的 requirement lambda）
+
+    :pswitch_d
+    sget-object v0, Liq0;->U:Lhq0;
+
+    .line 398
+    .line 399
+    invoke-virtual {v0}, Lhq0;->K()Lkajfosz/antimatterdimensions/BigDouble;
+
+    .line 400
+    .line 401
+    .line 402
+    move-result-object v0
+
+    .line 403
+    sget-object v1, Lc01;->a:[Ld01;
+
+    .line 404
+    .line 405
+    aget-object v1, v1, v9
+
+    .line 406
+    .line 407
+    invoke-virtual {v1}, Ld01;->J()Lkajfosz/antimatterdimensions/BigDouble;
+
+    .line 408
+    .line 409
+    .line 410
+    move-result-object v1
+
+    .line 411
+    invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;->compareTo(Lkajfosz/antimatterdimensions/BigDouble;)I
+
+    .line 412
+    .line 413
+    .line 414
+    move-result v0
+
+    .line 415
+    if-ltz v0, :cond_6
+
+    .line 416
+    .line 417
+    move v0, v7
+
+    .line 418
+    goto :goto_5
+
+    .line 419
+    :cond_6
+    move v0, v9
+
+    .line 420
+    :goto_5
+    sget-object v1, Ldv3;->w:Lxu3;
+
+    .line 421
+    .line 422
+    invoke-virtual {v1}, Lxu3;->k()Z
+
+    .line 423
+    .line 424
+    .line 425
+    move-result v1
+
+    .line 426
+    if-eqz v1, :cond_7
+
+    .line 427
+    .line 428
+    if-eqz v0, :cond_7
+
+    .line 429
+    .line 430
+    invoke-static {}, Lx50;->a()Z
+
+    .line 431
+    .line 432
+    .line 433
+    move-result v1
+
+    .line 434
+    if-nez v1, :cond_7
+
+    .line 435
+    .line 436
+    sget-object v1, Lkajfosz/antimatterdimensions/celestials/pelle/c;->h:Lkajfosz/antimatterdimensions/celestials/pelle/c;
+
+    .line 437
+    .line 438
+    invoke-virtual {v1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    .line 439
+    .line 440
+    .line 441
+    invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;->q()Z
+
+    .line 442
+    .line 443
+    .line 444
+    move-result v1
+
+    .line 445
+    if-nez v1, :cond_7
+
+    .line 446
+    .line 447
+    goto/16 :goto_8
+
+    .line 448
+    .line 449
+    :cond_7
+    new-instance v1, Lz32;
+
+    .line 450
+    .line 451
+    const/16 v2, 0xe7
+
+    .line 452
+    .line 453
+    const/16 v3, 0xea
+
+    .line 454
+    .line 455
+    invoke-direct {v1, v2, v3, v7}, Lx32;-><init>(III)V
+
+    .line 456
+    .line 457
+    .line 458
+    instance-of v2, v1, Ljava/util/Collection;
+
+    .line 459
+    .line 460
+    if-eqz v2, :cond_9
+
+    .line 461
+    .line 462
+    move-object v2, v1
+
+    .line 463
+    check-cast v2, Ljava/util/Collection;
+
+## Android: c01.smali 注册表（膨胀研究 6 = a01；b01=id1 ... a01=id6）
+
+
+## Web 冻结上游: src/core/secret-formula/eternity/time-studies/dilation-time-studies.js
+
+export const dilationTimeStudies = [
+  {
+    id: 1,
+    description: "解锁时间膨胀",
+    cost: 5000,
+    requirement: () => {
+      const ttRequirement = Currency.timeTheorems.max.gte(TimeStudy.dilation.totalTimeTheoremRequirement);
+      if (Ra.unlocks.autoUnlockDilation.canBeApplied &&
+          ttRequirement &&
+          !isInCelestialReality() && !Pelle.isDoomed
+      ) {
+        return true;
+      }
+      const tsRequirement = [231, 232, 233, 234].some(id => TimeStudy(id).isBought);
+      if (Perk.bypassECDilation.canBeApplied) return tsRequirement;
+      const ecRequirement = EternityChallenge(11).isFullyCompleted && EternityChallenge(12).isFullyCompleted;
+      return tsRequirement && ecRequirement && ttRequirement;
+    }
+  },
+  {
+    id: 2,
+    description: "解锁第五时间维度",
+    cost: 1e6,
+    requirement: () => PlayerProgress.dilationUnlocked()
+  },
+  {
+    id: 3,
+    description: "解锁第六时间维度",
+    cost: 1e7,
+    requirement: () => TimeStudy.timeDimension(5).isBought

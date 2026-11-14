@@ -1,0 +1,882 @@
+{
+ "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r5.jar",
+ "sha256": "2f4cf3fa2ab25bd09be7eb56a7c73fa940c7a49d8f3299ee58e48c3f4804d436",
+ "size": 19501111,
+ "head": "classes=15344 verify_ok=15254 invalid=76 inconclusive=14",
+ "invalid_count": 76,
+ "replaced_roots": [
+  {
+   "class": "fv3",
+   "dependents": 6,
+   "dash_restore": 0,
+   "d2j_sha256": "5df29250f7d5abcfd34dcbee559ba41aa43bb28a04bcbb63fd34604198ad4f4b"
+  },
+  {
+   "class": "m85",
+   "dependents": 5,
+   "dash_restore": 0,
+   "d2j_sha256": "e55e64b13da89ce2a3d4289fec43c7d7c6d7a009659b6b59c4487c6ac1c796dd"
+  },
+  {
+   "class": "androidx/recyclerview/widget/LinearLayoutManager",
+   "dependents": 4,
+   "dash_restore": 0,
+   "d2j_sha256": "ae6192df117655f9df9a61e18fe5e0f494e9dee4088179ff8661b8e2b89ae306"
+  },
+  {
+   "class": "androidx/recyclerview/widget/RecyclerView",
+   "dependents": 4,
+   "dash_restore": 0,
+   "d2j_sha256": "0b7ed354090b32b7f793940fde162076cc3a90098789e6b26a06fc0d0fbcf8e2"
+  },
+  {
+   "class": "u48",
+   "dependents": 4,
+   "dash_restore": 0,
+   "d2j_sha256": "86885301f99b5092fe62b6b85de0007ad0f74d82a4df6c7e58510797e306580b"
+  },
+  {
+   "class": "m03",
+   "dependents": 4,
+   "dash_restore": 0,
+   "d2j_sha256": "232b4892c351a433c5621a42f3e1819ede4cf258af253e26fa4315003e314860"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxr",
+   "dependents": 3,
+   "dash_restore": 0,
+   "d2j_sha256": "a17d5427478421b3997f9635f5f30b60e76b344e63f5054bfe1c3da2fd65200d"
+  },
+  {
+   "class": "com/google/android/material/slider/BaseSlider",
+   "dependents": 3,
+   "dash_restore": 0,
+   "d2j_sha256": "013275fd1633154533f802faca950921e235c5d9bad946b33f9adc27f7e38aa9"
+  },
+  {
+   "class": "bx4",
+   "dependents": 2,
+   "dash_restore": 0,
+   "d2j_sha256": "32fac3a3df85793c40455b214fb025c92e1614c6c3f2b41c3eff0cea76139988"
+  },
+  {
+   "class": "hq2",
+   "dependents": 2,
+   "dash_restore": 0,
+   "d2j_sha256": "9b09e325dc62804e45039f82944a0ab1bfd6ecc962f111e97e3758054b108d54"
+  },
+  {
+   "class": "af1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "bce74a25b24d8982e09f40d21756f07716cda38fee78e1a8d64dbbf58e805f6d"
+  },
+  {
+   "class": "ak1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3d3b8580425fcbff31e73c732f59ca500192909fee8a3e56ad061ede039156e7"
+  },
+  {
+   "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "ad1708cc13283947c0f908d97d0d813ca08a30375a5d253e8dfaec820ee9a0b4"
+  },
+  {
+   "class": "aq7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b86cd15394006a16bf0b1ca73382c4dbdc2056e7c079561d0a823f1920583b06"
+  },
+  {
+   "class": "at5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "36e385f68fcbe9eed408038cba27324ddba00546209a5d244de71c2d29c1f0cb"
+  },
+  {
+   "class": "au8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f9e8945d21c9fbfda0b7b2df5bef9cce8416fee6fd73c75bacb7ef9f187a058c"
+  },
+  {
+   "class": "ay7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1b0d3d5ef9c693572cffd1409c70641283c68ae8a2df2f9c7704eb911a19ee5f"
+  },
+  {
+   "class": "bf4",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "4ae546405be4a756ac20a320d409c8648705a3cc2258958ef88b2a6f30e96050"
+  },
+  {
+   "class": "bi",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "4e411091ea05d41f012104896555a2a7a420a78bb247cf85f66d458d80fcb078"
+  },
+  {
+   "class": "bk1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "5ab8be8de13fd7c4211fdc2aa857fb752a14596adcd573547a829e09ff676a0c"
+  },
+  {
+   "class": "c0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b215b06dde86b328416d9961ab531878003dcd462477496ca5af9f125606355f"
+  },
+  {
+   "class": "c78",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b7cf0de9053f5f77918762788968d946ac3c8d5734afeaed3f77a0905ba47b5f"
+  },
+  {
+   "class": "cb1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "46812ca7fdc50eb783e5382a092166e737667faef4ebaf68aa2f5a07dbfc3899"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/d3",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b6cbe5123859aa367231c2a531a14a710a03eb9efcbdb69670b0e807f13a7fa6"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/g3",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "ddf80512b64217731e0b6c327966ce5f8e31deba3cc5a7c32ea5c13338ac8228"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/l",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "06b506e4d33f771da6de654da592484daa21db209ddc548168d29dc2fa068cd0"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/mc",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "21e22c65c9659790cbbcbe20a3223646032102671d33be127059858b2e5ea414"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/s",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "00c99052766986b33ea3a9989e88213a991d4a180141d38cb2d17c73b8425588"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgxw",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "4335a4e089155a3a330388f45fdbaedc46c0fdb35628014971604c48477b9610"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgyk",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1669d55a04c368ee5a5c5f081e8c9a641a7c73c3ba660fd3116df174c518d5c8"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzv",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "93ae4ec96bcfa1a7395e1925db9f641ce6cb828f7f60f7305ab4c8496b689af0"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhat",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "2a40f61ece2cda2fce73d255da6bdc1757b38c7bee1d79ecee666c91aa044742"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbd",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "7e2cbfa58fec59413ee5d51188283219080517448fe6dfef37891a88895f3a3a"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzhbe",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "e9f3354b2e939aa04110f841134568b1771f9e39f3ea59f1c197fbbd8f48996a"
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzbw",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "be5779b0f082383b22babb5016e835cdd9720df9bb435d2732283bb05b99add6"
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcq",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f005ba648287a3b9f41068404ea12a3a9dfe2e1408ad9b049da0335012340d3f"
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcw",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b89190528f9acb225d4b9c2eedc66fcd37ba24283582a12750f28a85cca0b2eb"
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzcx",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "d3ad26540cfc47e639d97942fd58acbf5f734ca0d16c88e13e8f10805c7375a2"
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzfs",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0d8d0522cbef491a6a266ef77237764191e2141c8f078c77da3eac68ac7dba7f"
+  },
+  {
+   "class": "com/google/android/gms/internal/fido/zzga",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0caa9c81b79af3891c9446aa30dd6d2ebd6ad4136a12ae45cfbe2958de45f7ab"
+  },
+  {
+   "class": "com/google/android/material/bottomappbar/BottomAppBar",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "242485262b2a814f8a99ad70941192f478e5881b476435641d6c1ee7a096c725"
+  },
+  {
+   "class": "com/google/android/material/focus/FocusRingDrawable",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "d613defd8aee73928845ac3736ec465cc849ee3d828cc94a0a570a19b00a0944"
+  },
+  {
+   "class": "com/google/android/material/textfield/TextInputLayout",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "21d4483c75717b411e8812cca3d1858b2e64f8699fa7cccf6a24a0dd57dc2a6b"
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Equals",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "ff91079306ac53a098bd81fd45684f2642e3caef639ddf4ef2aa2e978533694c"
+  },
+  {
+   "class": "com/google/common/base/Equivalence$Identity",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "e48b29d079b79b1e6971862a6618bcea5ac500fc9b49fb625c4b69b94397dea8"
+  },
+  {
+   "class": "com/google/common/collect/ByFunctionOrdering",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "2d5ccba8f84b458afa030ff49a79261fa6fb469fe1183977ca855509cd27969f"
+  },
+  {
+   "class": "com/google/common/collect/ComparatorOrdering",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "785a2afaba142e5d624e3a5d7d25387c49c5d506663071724b8720a108e57bf6"
+  },
+  {
+   "class": "com/google/common/collect/CompoundOrdering",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "436d848faf5850ad953b65302d25d74d91f787517dc30d24232fc0da5d5cb22d"
+  },
+  {
+   "class": "com/google/common/collect/NaturalOrdering",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "58b67a87b08b3943d0d060797ab63378eb9849101a76183638f4301a2cb94433"
+  },
+  {
+   "class": "com/google/common/collect/ReverseNaturalOrdering",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "50c4f72209175612090a79798cc6c2dd1690045819d8ea822764e3282f2114db"
+  },
+  {
+   "class": "com/google/common/collect/ReverseOrdering",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "ed0b8298044363a88ed318624f2cb6af6b9fe5681c419fa9984b19cf72677096"
+  },
+  {
+   "class": "com/google/common/collect/s",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "bb1677c0ef33a42f21cbd121fcc7636242ada0e2ae4fde50e6ad5a9c930704da"
+  },
+  {
+   "class": "com/google/common/hash/HashCode$BytesHashCode",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0f88ca2f1d196fbdb3975fb9d4899289c311f52f3bc377bbe610fb13526bbfe2"
+  },
+  {
+   "class": "com/google/firebase/database/connection/f",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "8dacc7ec8cf63c019f593c5a87935060249eab55b0acf5bd944e34bae3827875"
+  },
+  {
+   "class": "com/google/firebase/database/core/c",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "98a3a755bf345379fe577c0665b0bb59fcc84bd0d3f47d87a6fc708b4c567c82"
+  },
+  {
+   "class": "com/google/firebase/database/tubesock/c",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "18d3a317092402b77c0b20826eabb18cf29aa683c1ec133d5c6574f6748e61ac"
+  },
+  {
+   "class": "du8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "bb623986712b97f36661f54e3ecfd1c1c2fc38feada6359ceb12aaaa651c910a"
+  },
+  {
+   "class": "e69",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "dfc3b5dc27b5b34234df20da97d4d681fd74a18bf0ef11ad120bbbc08f87749a"
+  },
+  {
+   "class": "ei7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f6f647492dba38f13458c17d6ae6db25138992b41da1864d5d7b53726de4eacd"
+  },
+  {
+   "class": "ej8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "e63aed027c3ace23bd4c8d5b1a8a76802cfe4e26721f93828feafb548ed456d6"
+  },
+  {
+   "class": "fc9",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b459771d9d3f4bdd4d365f9a20cc3ed295b2ae9697c751bd0612d5d0615fed20"
+  },
+  {
+   "class": "fl8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "c8db531ba87ff873043541323af3cae9aac6debcaaebe0f0f96bc0e359e68c4d"
+  },
+  {
+   "class": "fv2",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b8cd5f72cc1eafb04c1043e8c7acf4af54b567d29849801540de7844da3238ed"
+  },
+  {
+   "class": "fw2",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "48969d9730705a174c8fcc68ec679270ee962b715f58637ea9d810972c76c99b"
+  },
+  {
+   "class": "g39",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1c418b3466835cb424cd78ae5b5f757e1818330413d10e313e14fab83e201000"
+  },
+  {
+   "class": "gb4",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "00aa343b56affba522ff6f6efb093cbf0f6264a361fe0dca2383b231dbc1bbfc"
+  },
+  {
+   "class": "gg8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "4b522f9a55837e3964d47cbec3fc3871e8e4c86133838a76f4e6d8e05a38692f"
+  },
+  {
+   "class": "gt1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "056a05a2a85eaafb593342b4c941a19664ca31659616a08a8e3e7d6d80c63344"
+  },
+  {
+   "class": "h79",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1810a0e2a212b9a50d950a0623f890d2d5188d0afe43b269c205dbb6196c2305"
+  },
+  {
+   "class": "hr",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0725fa016aa5259041262b9557d45885aceaf3947369fe47c15f8c7585973445"
+  },
+  {
+   "class": "ht1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "79e204a12b4673172438f35b8e25656aa9131e8ce2342a9af03e35dcfdf8e020"
+  },
+  {
+   "class": "hu4",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "7af6ddb3f306ddd3d9579be9ec6a8ccbea312b3d5f15efc3be97bd5a2d3f500b"
+  },
+  {
+   "class": "i56",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "21ea2f6a133538d339b29f8e9b7ab00f3aed09de1e5b8b5cc3fe5ccf2322c7f2"
+  },
+  {
+   "class": "i89",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "d15ba831d095c4a264b50dd01b40ae1716fec4a5d3501127a223db95c03e323f"
+  },
+  {
+   "class": "ik5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "49f0dc5233c72f089e0b6ad731ee979e2471b796658ec1b468d9ecc145db686f"
+  },
+  {
+   "class": "iv8",
+   "dependents": 1,
+   "dash_restore": 1,
+   "d2j_sha256": "bca5409ae259d2e0a2d2cde1683040b3a25d1f12d0be99995b4154e9fedb349c"
+  },
+  {
+   "class": "jp0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1af03877d0f07d948e2eb4360ae7bfc1a950c4e24493638932d16a6ab52da63c"
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/challenge/eternity/b",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "14df90dda6f2b73094cfb83c67eed07c9a92ec71958c00e8712b42654a782c71"
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/celestials/navigation/CelestialNavigationMapView",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "215fc1aa167b54263c9e1631f064f8427e84d8dd3c8746e7b9098df3815f046b"
+  },
+  {
+   "class": "kajfosz/antimatterdimensions/ui/other/StarBackgroundView",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "801cab416d79efbde986f714d954edc4b25b3854640c4be2bc7d367e960e8400"
+  },
+  {
+   "class": "kq2",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0633c9e804f37703ec5ae76b186439c34576601de59187fd4e14ad005f98101d"
+  },
+  {
+   "class": "kv5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1bdaf6769f41d746815c1dc54a37af427afa04a76a4e3f5051ec6fbb1d45ed2d"
+  },
+  {
+   "class": "m29",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "dbbe79a2d922aed466deacaa6eb57686c7317765611d544d8cc13aae47c5ee0e"
+  },
+  {
+   "class": "ma7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "738de2728f505d48c8406ced03af31c734f955ea377eacad19311d61487991c1"
+  },
+  {
+   "class": "mm0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "6e85a0052b5b4e22835eaae39878e9af3e82146a8682b272b7bda72ee691efea"
+  },
+  {
+   "class": "nz6",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "031b26bc38362f3c9ffc8013f18c9fe3ed28375d8a214fea882786a4a4d80b8c"
+  },
+  {
+   "class": "o27",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "21a3e6c84b8521be1865eafa2085d1339e2743ff03a3e4014cc62c07708ea191"
+  },
+  {
+   "class": "oi6",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "d289a3530b23d4111a2c83efe22b062d2a27925169a1714ba898e4e0d7bd0853"
+  },
+  {
+   "class": "or8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "8120d24962b4b6a8f837ebfda0d2dd6464299b96d5b36f8c3e2f0bb47406bea6"
+  },
+  {
+   "class": "ot0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "feb6106bea7c9228b9e45f19d1c61cc11b5305cdb1c150be20c98dac020d9cf9"
+  },
+  {
+   "class": "pn",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "cffacce3cc65476463a6eb467a58460a07c972fabc9caba69fd3d329f91d5448"
+  },
+  {
+   "class": "qi1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f9d3ac9f06855c10a9d7330a272dffcab00e730a64fbcf285b82a06b1d321201"
+  },
+  {
+   "class": "ql5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "8d474eb2e17baec90badedcb4de7137418f6d58d7dbae05c8a40fe7b98258519"
+  },
+  {
+   "class": "qn",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0d726d75741de4ee30660703fdaa52636aef83c2529472025c4a812095d81fbc"
+  },
+  {
+   "class": "r02",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f55e0dd41f1b3133a3e9922c1bc1ea2eb43991cb238c2ab051160b6c44ed24a6"
+  },
+  {
+   "class": "rj3",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "8c4cc9db3a88af60517576fe680972f3e517911d704cf2a52c06d7a6bf3a12b7"
+  },
+  {
+   "class": "ru8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3461b8421718ade19f4f10a5acd0686faf6c273840e84bed369161a496dabe49"
+  },
+  {
+   "class": "s0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "71ea0cdae3a8e03bbb851e5eacaf5e67ff171bb413a4a12bc405a124abba2576"
+  },
+  {
+   "class": "sj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "aa87b569789e63b1404a6246be4916ddd16037b7dc9dcceca54096f173e94a93"
+  },
+  {
+   "class": "sj5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "cde3977abccfcccb14d7cd3a6a192f0a9946da467f1f7e9a29f16fdade0549ae"
+  },
+  {
+   "class": "tj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "5498bffcc1e95e114aca534aa81ebd264bd55fe9c92668270d07ca224019ba97"
+  },
+  {
+   "class": "tu8",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "747166f04780774d6ce38750ff3275c2d9ff3194f6ba641403b723fcf6a62076"
+  },
+  {
+   "class": "uc0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "a355c49e42fcd0e6da4f8b96a6986d49fe877f44a0920256e57c705a445903f1"
+  },
+  {
+   "class": "uc5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "26eee932cf0ccddb8a09c72ec9024b91fb715b110636b9c945db9b994a3aa7de"
+  },
+  {
+   "class": "uj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3a75bfbdc70f3804769cc7b1738970a9ef3c5c4cf0727c8c4524b5bf1ff7fe75"
+  },
+  {
+   "class": "ul6",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "80f1f81d22e32dbbb264a951bfc36651d2a707389882d943abe8c73ec21c4dab"
+  },
+  {
+   "class": "ut7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "171d29737ea675e789b12db51bf04fb43eb8bc8f66a8bdadb532239dd76c7286"
+  },
+  {
+   "class": "v61",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "5e8005aa5bc14c05e0d62eb8420c357ff334e8b64154f8e10f9515f5b0cd1845"
+  },
+  {
+   "class": "vb7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3816268b3193f0cce1276dddbe86f23e961625d44b7c6637c91a1d104c70bb44"
+  },
+  {
+   "class": "vj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3dc042278abb7e50fb1f6d9f40e5e6499b8f7e5b31bdf9180850dc1fb6250989"
+  },
+  {
+   "class": "vo2",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "77b03d386874381c2ec46b39e4337f924e0218321d0b654b3c3a8afb0ca52e73"
+  },
+  {
+   "class": "wa",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "57081f0352c020ea72f0511373eacfbaa2ba10b431f626e85324768e24e3ad7f"
+  },
+  {
+   "class": "wj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3c5ab32e9176356592a9f3ce820c1ab629d741fa9511728d2c68f87968e28149"
+  },
+  {
+   "class": "wv8",
+   "dependents": 1,
+   "dash_restore": 1,
+   "d2j_sha256": "ec23dc60af17a490e84fa83fb01419da0f681998474ae890e06c8a174397acdc"
+  },
+  {
+   "class": "x14",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b2d6a3ae3e71326e0ae96301fc39952d0b473c8711af439286a3e4dc485048ee"
+  },
+  {
+   "class": "x58",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "7d86ba73509c40c7b0328bf109a9824f9d78269ed4c36fbfad76cad0fd29d39d"
+  },
+  {
+   "class": "x69",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "9a5450958e0846ab398c66f703551ffaabc377dc0703cc2a49660fb4c1ae96d2"
+  },
+  {
+   "class": "xa3",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "0215238ea946a76bdcf448b497813bd319430b7c3d3d31d085c4754e10be06d2"
+  },
+  {
+   "class": "xj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "c94ed3def7609e6269c966431fe6ba23c581272dc940c96bf38b8d952abe0aba"
+  },
+  {
+   "class": "xq3",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "e1507b84a8042e2d36bcfd2231182cdce060cb7a9b82e8f8fdec6680901142a5"
+  },
+  {
+   "class": "xs6",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "42ee2b14ab9c286783d2e08282a13b3fe9e1b299696de5befe35edbe90f50629"
+  },
+  {
+   "class": "xx7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "90a2b2d1717fa6bc7476757d3e514e607a981c0fa49d33ec82dc241e1629135f"
+  },
+  {
+   "class": "xz0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "e94b44f41596b393dd4b66f9d4822b9650a4ddbc131f29f20781293bcbc067d8"
+  },
+  {
+   "class": "y",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "ec991bf92babe05235d9f58c11201fd7728c8c6471edadc9c68d796c4b473157"
+  },
+  {
+   "class": "ye1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "59d33b7c6076eeff0639714008056f66302cc27cf9c1da7eb584d47fcdf77c98"
+  },
+  {
+   "class": "yi3",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "8b159d23ce1e9a107b2a8de171c221dbef06f96f39580432d34756bb319089ae"
+  },
+  {
+   "class": "yj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b12ddd02ee27fd3d80801c708a6e27307f535b08fbc5092b5bc53ead3828ba77"
+  },
+  {
+   "class": "yl5",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "c3bdbb8e1e4b388557597a22a099fef98653af26a6977fc4d2aa4b7e0684ed30"
+  },
+  {
+   "class": "yw",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "02f3e4384a5f6e775a3027fe2c6f2a18b15b3ba8f7464be29088fbc8c6ba8370"
+  },
+  {
+   "class": "yw0",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "17fc6e41e75365b19b19d4f7feba5765f36f3f7df9d79bc42e29c1a915d5c915"
+  },
+  {
+   "class": "z28",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "773c65e5f2320447d3123d88c5e96f33e61eff0a6a6f6c6e5798972ca6dc25ec"
+  },
+  {
+   "class": "za7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "3cbc7cf76d5cde924e7e5577d5bbc7f8984091380bdfaa792c937298e1cffe8f"
+  },
+  {
+   "class": "za9",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "b5f0d29287c4485e37fc9fa8b03f2ce6942305d8cfcc1c4d271212584579778b"
+  },
+  {
+   "class": "zj1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "083b6080a681e002d0792e4047dc6661df3542c07be8a1c46a8da3377c63d073"
+  },
+  {
+   "class": "zm7",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "1ed28a1a3fc6e1bf02dece34b8c642e31ead9bb9c75304bb4c4df02d1471cd65"
+  },
+  {
+   "class": "com/google/android/gms/internal/ads/zzgzj",
+   "dependents": 3,
+   "dash_restore": 0,
+   "d2j_sha256": "51dbdbfb6ba661840ce66d4e5cb65f60f7617f5966ccdeee0198cc2d91c82aa2"
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/Random$Default",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "bb6cead8b5ec4dadd11747d73ce90f649f82b1e43b79cbdb7c1fd659a54a9008"
+  },
+  {
+   "class": "oreki/shadow/kotlin/random/XorWowRandom",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f63167002f2a8ba170589dbe46af627628b47010190e4776aac9fda9888b80e7"
+  },
+  {
+   "class": "x33",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "7ecb4acfd74fa545eb58a222dfd745872c68f0de6f9de7461854c70ca8f8366e"
+  },
+  {
+   "class": "yc1",
+   "dependents": 1,
+   "dash_restore": 0,
+   "d2j_sha256": "f05f4c9e51e91c0fbf203ef6c824f1291b604d61b146b1468a48049634627be1"
+  }
+ ],
+ "steps": [
+  {
+   "iter": 1,
+   "head": "classes=15344 verify_ok=15092 invalid=238 inconclusive=14",
+   "replaced": 135
+  },
+  {
+   "iter": 2,
+   "head": "classes=15344 verify_ok=15247 invalid=83 inconclusive=14",
+   "replaced": 140
+  },
+  {
+   "iter": 3,
+   "head": "classes=15344 verify_ok=15254 invalid=76 inconclusive=14",
+   "replaced": 140
+  }
+ ],
+ "hot_valid": [
+  "ox0",
+  "gk0",
+  "dc2",
+  "tf2",
+  "vf2",
+  "t01",
+  "k51",
+  "cv0",
+  "rk8",
+  "nc8",
+  "ba1"
+ ],
+ "hot_invalid": [],
+ "base_r4": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r4.jar",
+ "base_r4_sha256": "a0a0261ebf8fdb8f4ac039b482cda6be7e37b2c0397280d3f22506bbed34a083"
+}

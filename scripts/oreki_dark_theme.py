@@ -230,6 +230,20 @@ def _replace_method(text: str, sig_line: str, body_lines: list[str]) -> tuple[st
     raise DarkThemeError(f"找不到方法 {sig_line}")
 
 
+# [R107-01 DK-03] isDark 恒真策略迁到 Kotlin（OrekiThemePolicy.isDark）。
+# Smali 只保留 invoke-static + return，不再内联 const/4 业务常量。
+OREKI_DK03_IS_DARK_BODY = [
+    "    .locals 1",
+    "",
+    f"    # {MARK} R107-01 DK-03 isDark 业务在 Kotlin（OrekiThemePolicy.isDark）",
+    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiThemePolicy;->isDark()Z",
+    "",
+    "    move-result v0",
+    "",
+    "    return v0",
+]
+
+
 def patch_appearance_class(mod: Path) -> str:
     p = _mod_smali(mod, PKG_DIR / "player" / "DeviceOptions$Appearance.smali")
     t = p.read_text(encoding="utf-8")
@@ -261,21 +275,16 @@ def patch_appearance_class(mod: Path) -> str:
         ])
     did.append("b()" if ok else "")
 
+    # [R107-01 DK-03] isDark 策略迁到 Kotlin（OrekiThemePolicy.isDark）。
     t, ok = _replace_method(
         t,
         ".method public final c()Z",
-        [
-            "    .locals 2",
-            "",
-            f"    # {MARK} isDark 恒 true",
-            "    const/4 p0, 0x1",
-            "",
-            "    return p0",
-        ])
+        OREKI_DK03_IS_DARK_BODY)
     did.append("c()" if ok else "")
 
     if not any(did):
         return "skip(三个访问器已是深色)"
+    assert "OrekiThemePolicy;->isDark()Z" in t, "DK-03 Kotlin trampoline 未写入"
     p.write_text(t, encoding="utf-8")
     return "ok(" + ",".join(x for x in did if x) + ")"
 
@@ -418,6 +427,20 @@ def _replace_once(path: Path, old: str, new: str, what: str, mark: str = "") -> 
     return True
 
 
+# [R107-01 DK-08/DK-09] 默认记数法字符串由 Kotlin 提供（OrekiUiDefaults.defaultNotation）。
+# 保留原 R31 marker 以便幂等（重复执行时 _replace_once 直接 skip）。
+OREKI_DK08_NOTATION_TRAMPOLINE = (
+    f"    # {MARK} R31 新档默认记数法 = 科学记数法（R107-01 由 Kotlin OrekiUiDefaults 提供）\n"
+    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;->defaultNotation()Ljava/lang/String;\n"
+    "\n"
+    "    move-result-object v0")
+OREKI_DK09_NOTATION_TRAMPOLINE = (
+    f"    # {MARK} R31 重开新档的记数法字符串 = 科学记数法（R107-01 由 Kotlin OrekiUiDefaults 提供）\n"
+    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;->defaultNotation()Ljava/lang/String;\n"
+    "\n"
+    "    move-result-object v1")
+
+
 def patch_default_notation(mod: Path) -> str:
     did = []
 
@@ -426,11 +449,13 @@ def patch_default_notation(mod: Path) -> str:
     if _replace_once(
             p,
             '    const-string v0, "Mixed scientific"',
-            f'    # {MARK} R31 新档默认记数法 = 科学记数法\n'
-            f'    const-string v0, "{NOTATION_ZH}"',
+            OREKI_DK08_NOTATION_TRAMPOLINE,
             "Player$Options.<init> 默认记数法",
             mark=f"{MARK} R31 新档默认记数法"):
         did.append("Options默认")
+        t8 = p.read_text(encoding="utf-8")
+        assert t8.count("OrekiUiDefaults;->defaultNotation") == 1, "DK-08 Kotlin trampoline 未写入"
+        assert '"Mixed scientific"' not in t8, "DK-08 旧默认字符串仍在"
 
     # 5.2 o43 静态初始化里的「当前记数法对象」 o43.v = o43.f（混合科学）
     #     → 改成 o43.a（科学记数法，ordinal 9）。o43.v 全仓只有 player/g.b() 一个读者，
@@ -463,11 +488,13 @@ def patch_default_notation(mod: Path) -> str:
     if _replace_once(
             p,
             f'    const-string v1, "{NOTATION_EN}"\n\n    .line 22\n    .line 23\n    {G0_CALL}',
-            f'    # {MARK} R31 重开新档的记数法字符串 = 科学记数法\n'
-            f'    const-string v1, "{NOTATION_ZH}"\n\n    .line 22\n    .line 23\n    {G0_CALL}',
+            f'{OREKI_DK09_NOTATION_TRAMPOLINE}\n\n    .line 22\n    .line 23\n    {G0_CALL}',
             "player/g.b() 新档记数法",
             mark=f"{MARK} R31 重开新档"):
         did.append("g.b")
+        t9 = p.read_text(encoding="utf-8")
+        assert t9.count("OrekiUiDefaults;->defaultNotation") == 1, "DK-09 Kotlin trampoline 未写入"
+        assert f'"{NOTATION_EN}"' not in t9, "DK-09 旧默认字符串仍在"
 
     return "ok(" + ",".join(did) + ")" if did else "skip(已是科学记数法)"
 
@@ -744,7 +771,9 @@ def verify(mod: Path) -> None:
         assert "ordinal()" not in seg, f"[DARK] {sig} 仍按 ordinal 分支，可能返回浅色"
     i = ap.find(".method public final c()Z")
     seg = ap[i:ap.find(".end method", i)]
-    assert "const/4 p0, 0x1" in seg, "[DARK] c() 未强制 true"
+    assert "OrekiThemePolicy;->isDark()Z" in seg, \
+        "[DARK] c() 未接入 Kotlin OrekiThemePolicy.isDark（R107-01 DK-03）"
+    assert "const/4 p0, 0x1" not in seg, "[DARK] c() 仍有 Smali 内联 true（业务未真正迁移）"
 
     if _is_baseline_321(mod):
         state = _mod_smali(mod, "jw0.smali").read_text(encoding="utf-8")
@@ -771,8 +800,10 @@ def verify(mod: Path) -> None:
 
     # ---- R31 UI 打磨守卫 ----
     opts = (_mod_smali(mod, PKG_DIR / "player" / "Player$Options.smali").read_text(encoding="utf-8"))
-    assert f'const-string v0, "{NOTATION_ZH}"' in opts, \
-        f"[UI] Player$Options 默认记数法不是 {NOTATION_ZH}（新档仍会显示混合科学记数法）"
+    assert "OrekiUiDefaults;->defaultNotation()Ljava/lang/String;" in opts, \
+        "[UI] Player$Options 默认记数法未接入 Kotlin OrekiUiDefaults（R107-01 DK-08）"
+    assert f'const-string v0, "{NOTATION_EN}"' not in opts, \
+        "[UI] Player$Options 仍有 Smali 内联 Mixed scientific（业务未真正迁移）"
 
     o43 = (_mod_smali(mod, "o43.smali").read_text(encoding="utf-8"))
     assert f"{MARK} R31 o43.v" in o43, "[UI] o43.v 未指向科学记数法对象（新档格式化仍按混合科学）"
@@ -782,7 +813,10 @@ def verify(mod: Path) -> None:
         "[UI] o43.a() 的 Mixed scientific 查表项被误删（记数法选择器会缺项）"
 
     pg = (_mod_smali(mod, PKG_DIR / "player" / "g.smali").read_text(encoding="utf-8"))
-    assert f'const-string v1, "{NOTATION_ZH}"' in pg, "[UI] player/g.b() 重开新档的记数法未改"
+    assert "OrekiUiDefaults;->defaultNotation()Ljava/lang/String;" in pg, \
+        "[UI] player/g.b() 重开新档记数法未接入 Kotlin OrekiUiDefaults（R107-01 DK-09）"
+    assert f'const-string v1, "{NOTATION_EN}"' not in pg, \
+        "[UI] player/g.b() 仍有 Smali 内联 Mixed scientific（业务未真正迁移）"
 
     ma = (_mod_smali(mod, PKG_DIR / "MainActivity.smali").read_text(encoding="utf-8"))
     assert f"{MARK} R44 缺省顶栏模式" in ma, \

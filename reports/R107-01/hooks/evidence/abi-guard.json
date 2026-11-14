@@ -1,0 +1,93 @@
+{
+ "records": [
+  {
+   "site": "BM-11",
+   "class": "OrekiShopRules",
+   "method": "clampStds",
+   "descriptor": "(I)I",
+   "javap_line": "public static final int clampStds(int);",
+   "ok": true
+  },
+  {
+   "site": "BM-12",
+   "class": "OrekiEffarigRules",
+   "method": "nerfFactor",
+   "descriptor": "(ID)D",
+   "javap_line": "public static final double nerfFactor(int, double);",
+   "ok": true
+  },
+  {
+   "site": "BM-13",
+   "class": "OrekiEffarigRules",
+   "method": "shardExponentDivisor",
+   "descriptor": "()D",
+   "javap_line": "public static final double shardExponentDivisor();",
+   "ok": true
+  },
+  {
+   "site": "BM-22",
+   "class": "OrekiIu15Rules",
+   "method": "requirementAmExp",
+   "descriptor": "()D",
+   "javap_line": "public static final double requirementAmExp();",
+   "ok": true
+  },
+  {
+   "site": "BM-23",
+   "class": "OrekiGameEndRules",
+   "method": "endState",
+   "descriptor": "(DDZ)D",
+   "javap_line": "public static final double endState(double, double, boolean);",
+   "ok": true
+  },
+  {
+   "site": "BM-32",
+   "class": "OrekiCrunchRules",
+   "method": "shouldAutoEnable",
+   "descriptor": "(ZDZ)Z",
+   "javap_line": "public static final boolean shouldAutoEnable(boolean, double, boolean);",
+   "ok": true
+  },
+  {
+   "site": "BM-37",
+   "class": "OrekiDimensionRules",
+   "method": "batchFallbackToSingle",
+   "descriptor": "(I)Z",
+   "javap_line": "public static final boolean batchFallbackToSingle(int);",
+   "ok": true
+  },
+  {
+   "site": "BM-40",
+   "class": "OrekiDimBoostRules",
+   "method": "ad8Rounds",
+   "descriptor": "(DD)D",
+   "javap_line": "public static final double ad8Rounds(double, double);",
+   "ok": true
+  },
+  {
+   "site": "DK-03",
+   "class": "OrekiThemePolicy",
+   "method": "isDark",
+   "descriptor": "()Z",
+   "javap_line": "public static final boolean isDark();",
+   "ok": true
+  },
+  {
+   "site": "DK-08",
+   "class": "OrekiUiDefaults",
+   "method": "defaultNotation",
+   "descriptor": "()Ljava/lang/String;",
+   "javap_line": "public static final java.lang.String defaultNotation();",
+   "ok": true
+  },
+  {
+   "site": "DK-09",
+   "class": "OrekiUiDefaults",
+   "method": "defaultNotation",
+   "descriptor": "()Ljava/lang/String;",
+   "javap_line": "public static final java.lang.String defaultNotation();",
+   "ok": true
+  }
+ ],
+ "failures": 0
+}

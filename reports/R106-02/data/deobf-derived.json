@@ -1,0 +1,671 @@
+{
+  "schema": 1,
+  "kind": "r106-02-deobf-derived",
+  "official": {
+    "version_name": "3.21.0",
+    "version_code": 30210000,
+    "xapk": {
+      "path": "/home/oreki/Antimatter+Dimensions_3.21.0_APKPure.xapk",
+      "size": 77787823,
+      "sha256": "ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a"
+    },
+    "base_apk": {
+      "entry": "kajfosz.antimatterdimensions.apk",
+      "path": "/tmp/r10602/kajfosz.antimatterdimensions.apk",
+      "size": 77633785,
+      "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+      "expected_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+      "sha256_match": true
+    },
+    "dex_count": 2,
+    "dex": [
+      {
+        "name": "classes.dex",
+        "sha256": "ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e",
+        "size": 10715480,
+        "dex_version": "037",
+        "class_defs": 10708,
+        "string_ids": 47225,
+        "type_ids": 13827,
+        "proto_ids": 15319,
+        "field_ids": 44251,
+        "method_ids": 65536
+      },
+      {
+        "name": "classes2.dex",
+        "sha256": "a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae",
+        "size": 5296656,
+        "dex_version": "037",
+        "class_defs": 4611,
+        "string_ids": 27088,
+        "type_ids": 7226,
+        "proto_ids": 6578,
+        "field_ids": 18078,
+        "method_ids": 26446
+      }
+    ]
+  },
+  "counts": {
+    "classes_total": 15319,
+    "first_party_classes": 10954,
+    "first_party_methods": 51397,
+    "first_party_fields": 41793,
+    "third_party_classes": 4365
+  },
+  "per_dex": [
+    {
+      "dex": "classes.dex",
+      "sha256": "ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e",
+      "size": 10715480,
+      "dex_version": "037",
+      "class_defs": 10708,
+      "first_party_classes": 7454,
+      "first_party_methods": 35653,
+      "first_party_fields": 28117
+    },
+    {
+      "dex": "classes2.dex",
+      "sha256": "a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae",
+      "size": 5296656,
+      "dex_version": "037",
+      "class_defs": 4611,
+      "first_party_classes": 3500,
+      "first_party_methods": 15744,
+      "first_party_fields": 13676
+    }
+  ],
+  "semantic_table": [
+    {
+      "descriptor": "Lb60;",
+      "semantic_name": "挑战类继承链基类（3.20 w50 的 CONFIRMED 后继，语义待复核）",
+      "confidence": "inferred",
+      "evidence": "bindings.json classes[b60<-w50] CONFIRMED; scripts/build_mod.py:339-340（3.20 挑战父类 b 的新版 super 为 w50，但「B()Z 解锁判定」归属存在歧义，未升级为 strong）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lbm4;",
+      "semantic_name": "阶段页签门禁（g()/h()，MainActivity.W8(Lbm4;ZZ) 消费）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:9839-9840/9960（bm4.g()/h() 阶段判据、W8 绕过点）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lc22;",
+      "semantic_name": "无限挑战注册表/入口",
+      "confidence": "confirmed",
+      "evidence": "bindings.json classes[c22<-q12] CONFIRMED; scripts/build_mod.py:439-443（3.19 Lpy1 无限挑战注册表 -> 3.20 Lq12）; docs/FACTS.md:8234（挑战入口 c22=无限）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lcu4;",
+      "semantic_name": "时间值对象工厂（PastRun/PastEternityRun/PastRealityRun 构造入口）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[cu4<-dt4] CONFIRMED; scripts/build_mod.py:477-484（3.19 Lnw4 工厂 -> 3.20 Ldt4）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lcw;",
+      "semantic_name": "kotlin.Unit 占位类",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[cw<-zv] CONFIRMED; scripts/build_mod.py:456-459（3.19 Liu -> 3.20 Lzv：Unit 占位类）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Ldw;",
+      "semantic_name": "Currency 抽象基类（3.20 aw 的 CONFIRMED 后继，存疑）",
+      "confidence": "inferred",
+      "evidence": "bindings.json classes[dw<-aw] CONFIRMED; scripts/build_mod.py:338-343（3.19 Lju=Currency 抽象基类 -> 3.20 aw）; 冲突：docs/FACTS.md:130 记 aw 在 3.21 已内联/合并，本轮未复核",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lee1;",
+      "semantic_name": "Firebase 相关类（3.20 Lud1 的 3.21 绑定）",
+      "confidence": "confirmed",
+      "evidence": "bindings.json classes[ee1<-ud1] CONFIRMED; docs/FACTS.md:8222（Firebase ABI 修复 3.20 Lud1 -> 3.21 ee1）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lek0;",
+      "semantic_name": "CoroutineContext 接口",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[ek0<-xj0] CONFIRMED; scripts/build_mod.py:444-449（ii0->xj0：ContinuationImpl 两参构造第二形参 CoroutineContext）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lf7;",
+      "semantic_name": "炼金资源表",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[f7<-e7] CONFIRMED; scripts/build_mod.py:415-421（3.19 Lu7 -> 3.20 Le7）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lf82;",
+      "semantic_name": "永恒解锁判据（Player.x()>0 || f82.p()）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8234/9839/9954; scripts/build_mod.py:7052-7085（f82.j() trampoline）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lf91;",
+      "semantic_name": "自动购买器状态单例（IP 倍率解锁判定配套）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[f91<-v81] CONFIRMED; scripts/build_mod.py:376-378（3.19 z51/s51 -> 3.20 v81/o81 自动器状态单例）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lfl0;",
+      "semantic_name": "Kotlin 工具门面（BigDouble.of / 数字格式化 / language toast 等静态工具）",
+      "confidence": "strong",
+      "evidence": "baseline/versions/3.21/bindings.json classes[fl0<-am0] CONFIRMED + methods（am0.p->fl0.r 为 BigDouble.of）; scripts/build_mod.py:451-459（3.19 Lwx0 工具门面 -> 3.20 am0）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lfm1;",
+      "semantic_name": "Kotlin 函数接口 ()Ljava/lang/Object;",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[fm1<-vl1] CONFIRMED; scripts/build_mod.py:394-400（3.19 ui1/3.20 vl1 函数接口）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lg02;",
+      "semantic_name": "Imaginary Upgrade 15 锁对象类型",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:127（3.21 的 IU15 锁对象类型由 Lwz1; 改为 Lg02;）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lgm1;",
+      "semantic_name": "协程启动接口（MainActivity.Companion.launchOnGameScope）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8570（3.21 MainActivity.Companion.launchOnGameScope 为 g.s(Lgm1;Z)，Eternity$confirmEternity$4 implements Lgm1;）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Li22;",
+      "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lii3;",
+      "semantic_name": "START 天赋基类（两跳结构推断）",
+      "confidence": "inferred",
+      "evidence": "bindings.json classes[ii3<-th3] CONFIRMED; scripts/build_mod.py:320-325（3.19/3.20 天赋三元组 继承 th3 / rf3）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Liq0;",
+      "semantic_name": "Currency 容器抽象基类（25 个货币状态字段 + 货币运算入口）",
+      "confidence": "confirmed",
+      "evidence": "baseline/versions/3.21/bindings.json classes[iq0<-bq0] CONFIRMED(shape_match); docs/FACTS.md:130（3.21 Currency 抽象基类 bq0 改名 iq0）; scripts/build_mod.py:333-336（Lbq0 abstract + 25 个 public static final 货币状态字段、唯一 o(BigDouble)->自身 add）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lis3;",
+      "semantic_name": "通用「可购买」基类（两跳结构推断）",
+      "confidence": "inferred",
+      "evidence": "bindings.json classes[is3<-qr3] CONFIRMED; scripts/build_mod.py:409-413（3.19 Lfp3 可购买基类 的结构对应者 3.20 Lqr3，未单列文字证据）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Liw;",
+      "semantic_name": "Application.onCreate 注册的回调",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[iw<-fw] CONFIRMED; scripts/build_mod.py:326-328（Application 原版 onCreate 注册 fw.a）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lj22;",
+      "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lk00;",
+      "semantic_name": "Break Infinity 升级表（12 条实例）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[k00<-h00] CONFIRMED; scripts/build_mod.py:483-490（3.19 Loy -> 3.20 Lh00）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lk22;",
+      "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lku4;",
+      "semantic_name": "单 double 值对象（时间值对象字段载体）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[ku4<-lt4] CONFIRMED; scripts/build_mod.py:344（3.19 Ltw4 单 double 值对象 -> 3.20 lt4）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Ll01;",
+      "semantic_name": "维度提升需求计算",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[l01<-c01] CONFIRMED; scripts/build_mod.py:366-373（3.19 Lkx0 -> 3.20 Lc01，含 5.0/15.0/20.0 常量）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Ll22;",
+      "semantic_name": "重置按钮点击处理类（C(ZZ)V，四按钮之一）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8267（游戏四个重置按钮 i22/j22/k22/l22.C(ZZ)V 都调 m01.n(Z)）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lld0;",
+      "semantic_name": "协程完成单例（already complete）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[ld0<-fd0] CONFIRMED; scripts/build_mod.py:339-340（协程完成单例 fd0 实现 kj0）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lll2;",
+      "semantic_name": "阶段解锁判据（ll2.g()）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:9960（ll2.g()/bm4.g() 共同决定阶段判据）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Llx3;",
+      "semantic_name": "异常兜底工具类",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[lx3<-qw3] CONFIRMED + methods（异常工具方法体等价）; scripts/build_mod.py:380-385",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lm01;",
+      "semantic_name": "维度提升/星系重置请求入口（h()/n(Z)/i()）",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:8264/8267/8286（3.21 真实入口 Lm01;->n(Z)V / c(DZZZ)V，计数 Player.u()/A()）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lm91;",
+      "semantic_name": "游戏内事件总线（BREAK_INFINITY 等事件派发）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[m91<-c91] CONFIRMED; scripts/build_mod.py:462-468（3.19 Lg61 事件总线 -> 3.20 Lc91）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Ln63;",
+      "semantic_name": "普通挑战入口",
+      "confidence": "confirmed",
+      "evidence": "bindings.json classes[n63<-z53] CONFIRMED; docs/FACTS.md:8234（挑战入口 n63=普通）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lnr5;",
+      "semantic_name": "IP 倍率自动购买器解锁判定",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[nr5<-os0] CONFIRMED + methods（os0.F()->nr5.u()「IP 倍率自动购买器解锁判定的唯一语义入口」）; scripts/build_mod.py:374-378",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Loh2;",
+      "semantic_name": "数字记数法（notation）相关类",
+      "confidence": "inferred",
+      "evidence": "docs/FACTS.md:8234（3.21 记数法相关：wi4/z63/Player$Options/oh2/player.h，未逐类核实职责）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lpp0;",
+      "semantic_name": "无限次数(infinities)货币状态类",
+      "confidence": "confirmed",
+      "evidence": "bindings.json classes[pp0<-ip0] CONFIRMED; docs/FACTS.md:9885/9907（iq0.e:Lpp0; 为真实 infinities 通道）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lrj0;",
+      "semantic_name": "Continuation 接口",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[rj0<-kj0] CONFIRMED; scripts/build_mod.py:402-408（vh0->kj0：public interface abstract + 恰好 2 方法，出现在 suspend 签名）; docs/FACTS.md:6267（Lvh0; 为 Continuation）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lrq;",
+      "semantic_name": "Automator 脚本状态",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[rq<-oq] CONFIRMED; scripts/build_mod.py:358-360（3.19 Lvo -> 3.20 Loq）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lt3;",
+      "semantic_name": "成就表（按 id 取成就）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[t3<-s3] CONFIRMED; scripts/build_mod.py:351-353（3.19 Lz3 -> 3.20 Ls3）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Ltw;",
+      "semantic_name": "位图型升级抽象基类（3.19 Lav 系）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[tw<-qw] CONFIRMED; scripts/build_mod.py:409-413（3.19 Lav 抽象子类 -> 3.20 Lqw）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lu81;",
+      "semantic_name": "OrekiSpeed EC12 闭包（unscale(D)D 调用点）",
+      "confidence": "inferred",
+      "evidence": "docs/FACTS.md:8234（3.21 契约修复：EC12 闭包 smali_classes2/u81.smali，OrekiSpeed.unscale(D)D）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lup0;",
+      "semantic_name": "永恒次数(eternities)货币状态类",
+      "confidence": "confirmed",
+      "evidence": "docs/FACTS.md:9885（iq0.z:Lup0; setter Player.E0 写 eternities）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lvp0;",
+      "semantic_name": "永恒点数状态类（3.20 op0 的 CONFIRMED 后继，存疑）",
+      "confidence": "inferred",
+      "evidence": "bindings.json classes[vp0<-op0] CONFIRMED; scripts/build_mod.py:348（ym0=永恒点状态 -> 3.20 op0）; 冲突：build_mod.py:515 把 3.21 iq0.d 记为 Lop0(eternityPoints)，FACTS.md:8286 记 iq0.d:Lop0=反物质，未复核",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lw63;",
+      "semantic_name": "时间研究注册表",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[w63<-i63] CONFIRMED; scripts/build_mod.py:386-393（3.19 l43/3.20 i63 时间研究表）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lw6;",
+      "semantic_name": "炼金资源 capped 判定",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[w6<-v6] CONFIRMED; scripts/build_mod.py:415-421（3.19 Ll7 -> 3.20 Lv6）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lwi4;",
+      "semantic_name": "数字记数法（notation）相关类",
+      "confidence": "inferred",
+      "evidence": "docs/FACTS.md:8234（3.21 记数法相关：wi4/z63/Player$Options/oh2/player.h，未逐类核实职责）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lx81;",
+      "semantic_name": "永恒挑战表/入口",
+      "confidence": "confirmed",
+      "evidence": "bindings.json classes[x81<-n81] CONFIRMED; scripts/build_mod.py:355-356; docs/FACTS.md:8234（挑战入口 x81=永恒）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Ly81;",
+      "semantic_name": "自动购买器状态单例（IP 倍率解锁判定配套）",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[y81<-o81] CONFIRMED; scripts/build_mod.py:376-378（3.19 z51/s51 -> 3.20 v81/o81 自动器状态单例）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lyp0;",
+      "semantic_name": "无限点数(IP)货币状态类",
+      "confidence": "strong",
+      "evidence": "bindings.json classes[yp0<-rp0] CONFIRMED; scripts/build_mod.py:347（bn0=无限点数状态 -> 3.20 rp0）; docs/FACTS.md:8286（iq0.w:Lyp0;=IP）",
+      "present_in_dex": true
+    },
+    {
+      "descriptor": "Lz63;",
+      "semantic_name": "数字记数法（notation）相关类",
+      "confidence": "inferred",
+      "evidence": "docs/FACTS.md:8234（3.21 记数法相关：wi4/z63/Player$Options/oh2/player.h，未逐类核实职责）",
+      "present_in_dex": true
+    }
+  ],
+  "unresolved_notes": [
+    "FACTS.md:4699-4704 的 Laz1/Lry1/Luu1/Lfp3/Lav/Lz3 来自 work/base_decoded（3.19.0 树），不能直接套到 3.21 同名短名（R8 短名跨版本复用）。",
+    "FACTS.md:406 的 ln0/ju 为 3.19/3.20 系 Currency 相关名；3.21 同名短名未复核，未登记。",
+    "build_mod.py:515 与 FACTS.md:8286 对 iq0.d 的语义（eternityPoints vs 反物质）互相冲突，故 Lop0; 未登记语义名，留待 JADX/REA 复核。",
+    "FACTS.md:9885 与 OBFUSCATION_ALIASES_321 头部注释对 iu/Currency 的描述存在冲突，已按明细注释取 Unit 占位类。"
+  ],
+  "third_party_packages_top": [
+    {
+      "package": "com.google",
+      "classes": 2258
+    },
+    {
+      "package": "androidx",
+      "classes": 1810
+    },
+    {
+      "package": "kotlinx",
+      "classes": 120
+    },
+    {
+      "package": "kotlin",
+      "classes": 72
+    },
+    {
+      "package": "org.chromium",
+      "classes": 41
+    },
+    {
+      "package": "android",
+      "classes": 40
+    },
+    {
+      "package": "com.skydoves",
+      "classes": 13
+    },
+    {
+      "package": "com.jaredrummler",
+      "classes": 5
+    },
+    {
+      "package": "com.android",
+      "classes": 3
+    },
+    {
+      "package": "eightbitlab",
+      "classes": 2
+    },
+    {
+      "package": "com.amrdeveloper",
+      "classes": 1
+    }
+  ],
+  "legacy_3_20": {
+    "source": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/class-index.csv",
+    "declared_label": "3.20（上游文件名/列名口径）",
+    "detected_version": "3.19.0（解码树 apktool.yml + 行数一致）",
+    "detection_evidence": [
+      "docs/deobfuscation/data/class-index.csv 行数 23190 == work/base_decoded smali 文件数 23190，且 work/base_decoded/apktool.yml versionName=3.19.0"
+    ],
+    "source_rows": 23190,
+    "descriptor_intersection_3_21_vs_legacy_index": 11807,
+    "exact_descriptor_rows": 11765,
+    "binding_confirmed_rows": 42,
+    "true_3_20_tree": {
+      "available": true,
+      "tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_320",
+      "version_name": "3.20.0",
+      "descriptor_count": 15354,
+      "descriptor_intersection_all": 15212,
+      "descriptor_intersection_first_party": 10941,
+      "note": "既有 class-index.csv 实测为 3.19.0 解码树；3.20 交集改由本机 work/base_decoded_320 解码树计算"
+    }
+  },
+  "migration_status": {
+    "unbound": 15244,
+    "hook_patched_local": 37,
+    "kotlin_binding_confirmed": 38
+  },
+  "bindings": {
+    "source": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/baseline/versions/3.21/bindings.json",
+    "schema": 1,
+    "legacy_version": "3.20",
+    "target_version": "3.21",
+    "confirmed_classes": 42,
+    "confirmed_methods": 10,
+    "target_classes_present_in_dex": 42,
+    "method_owner_classes_present_in_dex": 6
+  },
+  "local_work_tree": {
+    "patched_originals_available": true,
+    "patched_original_classes": 37,
+    "patched_original_classes_present_in_dex": 37,
+    "patched_original_descriptors_present_in_dex": [
+      "La02;",
+      "Lbm4;",
+      "Lf82;",
+      "Lfw;",
+      "Lkajfosz/antimatterdimensions/App;",
+      "Lkajfosz/antimatterdimensions/MainActivity;",
+      "Lkajfosz/antimatterdimensions/a;",
+      "Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/celestials/effarig/a;",
+      "Lkajfosz/antimatterdimensions/celestials/pelle/b;",
+      "Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
+      "Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+      "Lkajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState;",
+      "Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;",
+      "Lkajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1;",
+      "Lkajfosz/antimatterdimensions/mainactivity/l0;",
+      "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;",
+      "Lkajfosz/antimatterdimensions/player/Player$Options;",
+      "Lkajfosz/antimatterdimensions/player/h;",
+      "Lkajfosz/antimatterdimensions/prestige/c;",
+      "Lkajfosz/antimatterdimensions/prestige/e;",
+      "Lkajfosz/antimatterdimensions/prestige/f;",
+      "Lkajfosz/antimatterdimensions/shop/Purchases;",
+      "Ll01;",
+      "Ll5;",
+      "Lll2;",
+      "Llz0;",
+      "Lnr5;",
+      "Lrq;",
+      "Lu81;",
+      "Lx40;",
+      "Lz63;"
+    ],
+    "patched_original_descriptors": [
+      "La02;",
+      "Lbm4;",
+      "Lf82;",
+      "Lfw;",
+      "Lkajfosz/antimatterdimensions/App;",
+      "Lkajfosz/antimatterdimensions/MainActivity;",
+      "Lkajfosz/antimatterdimensions/a;",
+      "Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState;",
+      "Lkajfosz/antimatterdimensions/celestials/effarig/a;",
+      "Lkajfosz/antimatterdimensions/celestials/pelle/b;",
+      "Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
+      "Lkajfosz/antimatterdimensions/challenge/eternity/b;",
+      "Lkajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState;",
+      "Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;",
+      "Lkajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1;",
+      "Lkajfosz/antimatterdimensions/mainactivity/l0;",
+      "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;",
+      "Lkajfosz/antimatterdimensions/player/Player$Options;",
+      "Lkajfosz/antimatterdimensions/player/h;",
+      "Lkajfosz/antimatterdimensions/prestige/c;",
+      "Lkajfosz/antimatterdimensions/prestige/e;",
+      "Lkajfosz/antimatterdimensions/prestige/f;",
+      "Lkajfosz/antimatterdimensions/shop/Purchases;",
+      "Ll01;",
+      "Ll5;",
+      "Lll2;",
+      "Llz0;",
+      "Lnr5;",
+      "Lrq;",
+      "Lu81;",
+      "Lx40;",
+      "Lz63;"
+    ],
+    "base_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321",
+    "mod_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/mod",
+    "note": "来自本机 work/ 工作树（不提交）；缺失时 migration_status 只含 binding/unbound"
+  },
+  "jadx": {
+    "status": "NOT RUN",
+    "reason": "本轮不运行 JADX；仓库 work/output_code_321_r86|r88 存在 3.21 相关导出，但类覆盖 13,782/15,319（缺 1,641 类）且无输入 APK SHA-256 记录，不满足『完整且基线一致』，未复用"
+  },
+  "self_check": {
+    "csv_rows": 15319,
+    "csv_rows_equals_class_defs_total": true,
+    "class_defs_total": 15319,
+    "dexdump": {
+      "status": "PASS",
+      "full_check": {
+        "status": "PASS",
+        "classes_checked": 15319,
+        "mismatch_count": 0,
+        "mismatches": []
+      },
+      "dexdump": "/home/oreki/Android/Sdk/build-tools/34.0.0/dexdump",
+      "dexdump_identity": "dexdump（34.0.0；dexdump 无 --version，版本由 build-tools 目录标识）",
+      "samples": [
+        {
+          "dex": "classes.dex",
+          "descriptor": "La03;",
+          "parsed": {
+            "methods": 12,
+            "fields": 11
+          },
+          "dexdump": {
+            "methods": 12,
+            "fields": 11
+          },
+          "match": true
+        },
+        {
+          "dex": "classes2.dex",
+          "descriptor": "Ly63;",
+          "parsed": {
+            "methods": 15,
+            "fields": 4
+          },
+          "dexdump": {
+            "methods": 15,
+            "fields": 4
+          },
+          "match": true
+        },
+        {
+          "dex": "classes2.dex",
+          "descriptor": "Liq0;",
+          "parsed": {
+            "methods": 17,
+            "fields": 28
+          },
+          "dexdump": {
+            "methods": 17,
+            "fields": 28
+          },
+          "match": true
+        }
+      ]
+    },
+    "smali_tree": {
+      "status": "PASS",
+      "tree": "work/base_decoded_321",
+      "smali_classes": 15319,
+      "dex_minus_smali": 0,
+      "smali_minus_dex": 0
+    }
+  },
+  "evidence_sources": [
+    "baseline/versions/3.21/bindings.json（3.20->3.21 CONFIRMED 绑定）",
+    "docs/FACTS.md（3.21 逆向事实，行号见 evidence 列）",
+    "scripts/build_mod.py（混淆别名表的行内结构证据）",
+    "docs/deobfuscation/data/class-index.csv（既有索引，实测为 3.19.0 解码树）",
+    "reports/R106-01/smali-hook-evidence.txt（MOD 钩子分布）"
+  ]
+}

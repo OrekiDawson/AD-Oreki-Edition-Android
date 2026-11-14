@@ -1,0 +1,46 @@
+# date: 2026-11-13T21:29:18+08:00
+# gamejar: acab7437bf87c85eafa0c194a5410d6dd7455f7a705514c2d1c55eae830741cd  /home/oreki/private-staging/r10602/jars/gameclasses.jar
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from f78 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from el8 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from di5 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 2: invokespecial Lkajfosz/antimatterdimensions/reality/automator/Parser$CompareValue;<init>(Ljava/lang/String;)V, error: Constructor mismatch, expected constructor from kajfosz.antimatterdimensions.reality.automator.Parser$currencyRep$1 or its superclass, but was kajfosz.antimatterdimensions.reality.automator.Parser$CompareValue.<init>(java.lang.String).
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 2: invokespecial Ljava/util/concurrent/CancellationException;<init>(Ljava/lang/String;)V, error: Constructor mismatch, expected constructor from androidx.compose.runtime.LeftCompositionCancellationException or its superclass, but was java.util.concurrent.CancellationException.<init>(java.lang.String).
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from f65 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from hf5 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from gz5 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from go5 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Lkotlinx/coroutines/internal/a;<init>()V, error: Constructor mismatch, expected constructor from f52 or its superclass, but was kotlinx.coroutines.internal.a.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from ry1 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from u21 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from ts4 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from v54 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from vb7 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from n05 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 4: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from v41 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from lc5 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from wc4 or its superclass, but was java.lang.Object.<init>().
+WARNING: /home/oreki/private-staging/r10602/jars/gameclasses.jar: D8: Invalid stack map table at instruction index 1: invokespecial Ljava/lang/Object;<init>()V, error: Constructor mismatch, expected constructor from com.google.android.material.transformation.ExpandableBehavior or its superclass, but was java.lang.Object.<init>().
+
+> Task :app:mergeReleaseGlobalSynthetics UP-TO-DATE
+> Task :app:mergeExtDexRelease
+> Task :app:mergeDexRelease
+> Task :app:compileReleaseArtProfile
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleRelease
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m
+45 actionable tasks: 8 executed, 37 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html
+
+real	1m0.685s
+user	0m2.071s
+sys	0m0.577s

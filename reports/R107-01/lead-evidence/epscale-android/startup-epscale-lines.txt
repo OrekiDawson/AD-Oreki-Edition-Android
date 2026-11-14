@@ -1,0 +1,3 @@
+11-14 01:58:10.648 I/OREKI_IPSCALE(18676): IP_DIVISOR bootstrap original=308.0 effective=30.0
+11-14 01:58:10.648 I/OREKI_EPSCALE(18676): EP_DIVISOR bootstrap original=308.0 effective=30.0
+11-14 01:58:10.818 I/OREKI_GUI_STAGE(18676): GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0

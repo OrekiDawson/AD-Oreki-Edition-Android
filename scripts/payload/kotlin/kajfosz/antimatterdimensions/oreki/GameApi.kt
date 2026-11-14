@@ -864,6 +864,52 @@ internal object GameApi {
      */
     fun realitiesValue(): Any? = readGameField(player(), "realities")
 
+    // ------------------------------------------- [R107-01 A2] Web isOrekiBootstrapRun 的 Android 等价
+    //
+    // Web 基线（src/core/oreki-bootstrap.js）：
+    //   bootstrap = !PlayerProgress.realityUnlocked() || !TimeStudy.reality.isBought
+    // 其中 TimeStudy.reality = DilationTimeStudyState.studies[6]（膨胀研究 id 6，即解锁现实的
+    // 那一个）；每次现实重置都会清空 player.dilation.studies，所以该窗口在**每个现实循环**
+    // 内重新打开。EP 兑换除数 30 与膨胀研究 TT 成本 /1000 都以这个判据为准。
+    //
+    // Android 原实现只用 realities==0（OrekiEpGainScale），首次现实后立即回到 308，
+    // 导致 EP 收益骤降、现实链推进变慢。这里补上「当前现实是否已购买膨胀研究 6」判据，
+    // 全异常 fail-closed 返回 true（宁可给缩放，也不回到原版 308 尺度）。
+    private var mDilationGetter: java.lang.reflect.Method? = null
+    private var mDilationStudiesGetter: java.lang.reflect.Method? = null
+    private var mDilationResolved = false
+
+    fun isOrekiBootstrapRun(): Boolean {
+        val realities = realitiesValue() ?: return true
+        val cmpZero = compareToDouble(realities, 0.0) ?: return true
+        if (cmpZero <= 0) return true
+        return try {
+            val p = player() ?: return true
+            if (!mDilationResolved) {
+                mDilationResolved = true
+                mDilationGetter = try {
+                    p.javaClass.getMethod("t")
+                } catch (_: Throwable) {
+                    null
+                }
+                val dilation = mDilationGetter?.invoke(p)
+                mDilationStudiesGetter = dilation?.let {
+                    try {
+                        it.javaClass.getMethod("h")
+                    } catch (_: Throwable) {
+                        null
+                    }
+                }
+            }
+            val dilation = mDilationGetter?.invoke(p) ?: return true
+            @Suppress("UNCHECKED_CAST")
+            val studies = mDilationStudiesGetter?.invoke(dilation) as? List<*> ?: return true
+            studies.none { (it as? Number)?.toInt() == 6 }
+        } catch (_: Throwable) {
+            true
+        }
+    }
+
     /** [R98] `bigRealities`（可能为 Number，读不到返回 null）。 */
     fun bigRealitiesValue(): Any? = readGameField(player(), "bigRealities")
 
@@ -1956,6 +2002,59 @@ internal object GameApi {
         }
     }
 
+    /** 只写原版自动购买器配置字段（非玩家进度字段）：用于把接管后的默认「每帧永恒」改成 X_HIGHEST×10。 */
+    private fun writeGameField(owner: Any?, fieldName: String, value: Any?): Boolean {
+        if (owner == null) return false
+        return try {
+            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.set(owner, value)
+            true
+        } catch (error: Throwable) {
+            miss("write $fieldName", error)
+            false
+        }
+    }
+
+    // ------------------------------------------------ [R107-01 P0] 接管自动永恒时纠正结算模式
+    //
+    // 缺陷（与 Web 同一根因，web report reports/R107-01/ep-wall-fix/ 逐帧实证）：
+    // R104 首次永恒后接管原版「自动永恒」开关，但原版默认配置是 MODE=AMOUNT、amount=1
+    // ⇒ Player.canEternity 为真的每一帧立即永恒；永恒里程碑的被动 IP 又让 canEternity 很快恢复
+    // ⇒ 「每帧永恒重置」循环：thisEternity.maxIP 永远停在起始值、gainedEP 恒 ~1e5、EP 冻结、
+    // realities 卡住、isRealityAvailable 永假。
+    // 处理：仅在「新档首次接管 + 原版配置仍为默认值」时改为 MODE=X_HIGHEST、xHighest=10
+    // （等价 R50 的「收益 ≥ 10× 当前 EP」门槛），不覆盖玩家自定义配置。
+    private var eternityAutobuyerModeFixed = false
+
+    fun configureEternityAutobuyerXHighest(multiplier: Double): Boolean {
+        if (eternityAutobuyerModeFixed) return true
+        val state = autoEternityState() ?: return false
+        return try {
+            val mode = (readGameField(state, "mode") as? Int) ?: return false
+            val xHighest = readGameField(state, "xHighest")
+            val amount = readGameField(state, "amount")
+            val amountIsDefault = compareToDouble(amount, 1.0)?.let { it == 0 } ?: false
+            val xHighestIsDefault = compareToDouble(xHighest, 1.0)?.let { it == 0 } ?: false
+            if (mode != 0 || !amountIsDefault || !xHighestIsDefault) {
+                // 玩家已自定义：不改，直接标记完成。
+                eternityAutobuyerModeFixed = true
+                return true
+            }
+            val okMode = writeGameField(state, "mode", 2)
+            val okX = writeGameField(state, "xHighest", bigDouble(multiplier))
+            val verified = okMode && okX &&
+                (readGameField(state, "mode") as? Int) == 2 &&
+                compareToDouble(readGameField(state, "xHighest"), multiplier)?.let { it == 0 } == true
+            if (verified) {
+                eternityAutobuyerModeFixed = true
+                Log.i("OREKI_ET_GATE", "bootstrap: eternity autobuyer mode=X_HIGHEST xHighest=" + multiplier)
+            }
+            verified
+        } catch (error: Throwable) {
+            miss("eternity autobuyer mode", error)
+            false
+        }
+    }
+
     /** 三类挑战均退出、且已播种首个时间维度时，才允许商店自动购买。 */
     fun canAutomateEternityUpgrades(): Boolean {
         // 挑战判定复用 inAnyChallenge()，避免两套遍历在后续版本改字段时漂移。
@@ -2035,6 +2134,59 @@ internal object GameApi {
         return mQrB
     }
 
+    /**
+     * [R108-01] 对指定 Imaginary Upgrade 调原版「解锁复检」`R()V`。
+     *
+     * 一次性虚幻升级的「可购买」判据 `a(Z)Z` 里的 `A(Z)Z` 读的是
+     * `Player$Reality.imaginaryRequirementBits`（由 `R()` 在原版事件里刷新）。
+     * 无人值守路径不会触发原版事件 ⇒ 位图长期为 0 ⇒ `canBeBought` 恒 false，
+     * 表现为「amE/IM 都够但永远买不到」（R108-01 AVD 实测：amE=1.6e9、IM=4.5e10、iMCap=4.5e10、
+     * clean reality、iuBits=0，sprint 卡在 RUNNING 且封锁 ID 购买）。
+     *
+     * @param fieldName 注册表 `reality/imaginary_upgrades/b` 的静态字段名（IU15="k"、IU25="s"）
+     * @return true = 调用成功（不代表位图一定置位，位图仍由原版判定）
+     */
+    private var iuUnlockMethodResolved = false
+    private var iuUnlockMethod: Method? = null
+
+    fun imaginaryTryUnlock(fieldName: String): Boolean = try {
+        if (!iuUnlockMethodResolved) {
+            iuUnlockMethodResolved = true
+            // 一次性 Imaginary Upgrade 的 tryUnlock 在 3.21 是 `a.R()V` 吗？实测 class a 上不存在
+            // （AVD 日志 OREKI_API_MISS 86 次）。这里只解析一次：缺失即视为「原版用实时条件判定」，
+            // 返回 true 表示无需刷新，避免每拍刷日志。
+            iuUnlockMethod = try {
+                qr3Cls()?.getMethod("R")
+            } catch (_: Throwable) {
+                null
+            }
+            if (iuUnlockMethod == null) Log.i("OREKI_IU_BUY", "IU.R() 不存在：改用原版实时条件判定")
+        }
+        val m = iuUnlockMethod ?: return true
+        val holder = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.b") ?: return false
+        val upgrade = staticField(holder, fieldName)?.get(null) ?: return false
+        m.invoke(upgrade)
+        true
+    } catch (error: Throwable) {
+        false
+    }
+
+    /**
+     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxRM 达阈值）。
+     *
+     * 用途：莱特拉 tier8 阶段判断「现实研究 6 是否已在本现实买上」，据此决定是否
+     * 立刻进 run 买 IU25（IU25 的 checkRequirement 要 isRunning + maxAllowed==0 + DS6 + 符文≤1）。
+     * 只读原版判定，不写任何状态。
+     */
+    fun canReality(): Boolean = try {
+        val c = cls("kajfosz.antimatterdimensions.prestige.f") ?: return false
+        val m = method(c, "f", 0, "prestige/f.f()=canReality") ?: return false
+        (m.invoke(null) as? Boolean) ?: false
+    } catch (error: Throwable) {
+        miss("canReality", error)
+        false
+    }
+
     /** IU15 是否满足需求且未购买（原版 `qr3.a(Z)Z`）。 */
     fun iu15CanBeBought(): Boolean {
         val upgrade = iu15Obj() ?: return false
@@ -2063,7 +2215,12 @@ internal object GameApi {
         return try {
             val continuation = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
                 ?.let { staticField(it, "a")?.get(null) }
-            val result = call(mQrD(), upgrade, true, continuation)
+            var result = call(mQrD(), upgrade, true, continuation)
+            if (result == null) {
+                // 兜底：D 体内不使用 continuation，null 亦安全（与 OrekiRealityUpgrades 的 RU 购买同款）
+                result = call(mQrD(), upgrade, true, null)
+            }
+            Log.i("OREKI_IU_BUY", "IU15 purchase result=" + result + " bought=" + iu15Bought())
             // 原版返回 Boolean（或挂起时的 CoroutineSingletons），统一以 isBought 为准。
             result != null
         } catch (error: Throwable) {
@@ -2077,10 +2234,11 @@ internal object GameApi {
     private fun mQrD(): Method? {
         if (!mQrDResolved) {
             mQrDResolved = true
-            mQrD = method(
-                qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase",
-                paramTypeNames = listOf("boolean", "kotlin.coroutines.Continuation"),
-            )
+            // [R108-01 修复] 不能按 paramTypeNames 精确匹配：D 的第二个形参在 3.21 R8 后是
+            // 混淆类型 `Lrj0;`（不是字面 kotlin.coroutines.Continuation），精确匹配会解析失败
+            // ⇒ purchase 静默 null ⇒ AVD 实测「canBuy=true 却买不到」（OREKI_API_MISS 已证）。
+            // 只按名字+参数个数解析，实参仍传真实 continuation（null 也安全：D 体内不使用）。
+            mQrD = method(qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase")
         }
         return mQrD
     }
@@ -2641,6 +2799,48 @@ internal object GameApi {
         call(mEternityTick(), null)
         return true
     }
+    // ------------------------------------------------- [R107-01] 永恒层经济动作独立入口
+    //
+    // 缺陷（gate-gui 2026-11-14 AVD 实测）：`eternityTick()` 在门禁非 allow 时直接 return，
+    // 而 `OrekiEternity.tick()` 内部同时承载 TT/时间维度/时间研究/尝试永恒四件事 ⇒
+    // canEternity=false 的时段（例如刚完成一次永恒、maxIP 尚不足下一档）整段永恒层经济停摆：
+    // TT 恒 0、时间研究 0、时间维度不买、maxIP 增速被压低，EP 只能靠下一次永恒飞跃。
+    // Web 侧同样把「按永恒」与「买 TT/TD/TS」分开（src/core/oreki-eternity-automation.js
+    // tickEternity() 与 buyTimeTheorems/buyTimeDimensions/buyTimeStudies 各自独立）。
+    //
+    // 这里通过反射调用 OrekiEternity 的三个私有静态经济动作，**不修改既有 Smali 业务实现**；
+    // 是否「主动按永恒」仍只由 OrekiAutoEternityGate 决定（门禁语义不变）。
+    private var mEternityEconomy: Array<Method>? = null
+    private var mEternityEconomyResolved: Boolean = false
+    private fun eternityEconomyMethods(): Array<Method>? {
+        if (!mEternityEconomyResolved) {
+            mEternityEconomyResolved = true
+            mEternityEconomy = try {
+                val c = eternityCls() ?: return null
+                arrayOf("buyTimeTheorems", "buyTimeDimensions", "buyNormalStudies").map { name ->
+                    c.getDeclaredMethod(name).apply { isAccessible = true }
+                }.toTypedArray()
+            } catch (_: Throwable) {
+                null
+            }
+        }
+        return mEternityEconomy
+    }
+
+    /** 只执行永恒层经济动作（TT/TD/TS），绝不发起永恒结算；返回是否解析并调用成功。 */
+    fun eternityEconomyTick(): Boolean {
+        val methods = eternityEconomyMethods() ?: return false
+        var invoked = false
+        for (m in methods) {
+            try {
+                m.invoke(null)
+                invoked = true
+            } catch (_: Throwable) {
+            }
+        }
+        return invoked
+    }
+
     fun realityTick(): Boolean = (call(mRealityTick(), null) as? Boolean) ?: false
     fun glyphTick(): Boolean = (call(mGlyphTick(), null) as? Boolean) ?: false
     fun teresaTick(): Boolean = (call(mTeresaTick(), null) as? Boolean) ?: false

@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "hybrid": {
+    "apk": "/home/oreki/private-staging/r107-candidate/antimatter-dimensions-R107-hybrid-AGPpackaged-c25c68dc.apk",
+    "sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "bytes": 72416868,
+    "dex": {
+      "classes.dex": {
+        "classes": 10150,
+        "bytes": 12433576,
+        "sha256": "d3fbcab0ddb4a320d8e6a91e9d05d3ac360ecc17786c5f631589a2c57bcaa13b"
+      },
+      "classes2.dex": {
+        "classes": 4611,
+        "bytes": 6413784,
+        "sha256": "27141993d1b1091b7fbe7e1e865a89e0261eac90136cd1917982f86dd04323dd"
+      },
+      "classes3.dex": {
+        "classes": 583,
+        "bytes": 998372,
+        "sha256": "7cc05e767c4ce8489ba4811a6002f38de1c8c2c3167c920efa1dc44d9f365aae"
+      },
+      "classes4.dex": {
+        "classes": 1125,
+        "bytes": 2271920,
+        "sha256": "aa03505de9ccd0408f2aa6779e59bad68b3a77d83ade88e737a6c832329a8f67"
+      }
+    }
+  },
+  "r103": {
+    "apk": "/home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk",
+    "sha256": "380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965",
+    "bytes": 84605099,
+    "dex": {
+      "classes.dex": {
+        "classes": 10150,
+        "bytes": 12433576,
+        "sha256": "845a4e6ef48207514e718d7c785930a04b5a1d4df37d5bb3f447c5cc632f94d6"
+      },
+      "classes2.dex": {
+        "classes": 4611,
+        "bytes": 6413784,
+        "sha256": "70e4dc70f766892bd6a07036135a84c1810cd6113784738f9d70d07fafc14665"
+      },
+      "classes3.dex": {
+        "classes": 583,
+        "bytes": 998372,
+        "sha256": "7cc05e767c4ce8489ba4811a6002f38de1c8c2c3167c920efa1dc44d9f365aae"
+      },
+      "classes4.dex": {
+        "classes": 1131,
+        "bytes": 2828252,
+        "sha256": "b4df9144a3b2961c8495d0178421a8de32e6cebbe97f3bf3a4e53ee5d9aa46ab"
+      }
+    }
+  },
+  "agp_native_boot_only": {
+    "apk": "agp/app/build/outputs/apk/release/app-release.apk (已覆盖)",
+    "sha256": "4cff154077495fb6d65fee12842e5d33a6a64be67de1dc1bcea5a48ef54e28c7",
+    "bytes": 81363615,
+    "dex": {
+      "classes.dex": {
+        "classes": 6152,
+        "bytes": 6083816,
+        "sha256": "60250dcea3cd1ce9b9bb06bf94300e6529a6713421047e8afdc2d83eb25c8c30"
+      },
+      "classes2.dex": {
+        "classes": 10310,
+        "bytes": 12088616,
+        "sha256": "c2183e38332eb3b0521ba7715fd17d1a3b4aefe873e08fa8b4b389617c135826"
+      }
+    }
+  },
+  "evidence_sources": {
+    "hybrid_build_report": "reports/R107-01/lead-evidence/hybrid-package-report.json",
+    "agp_native_blocker_trace": "reports/R107-01/lead-evidence/native-blocker/sigquit-trace.txt",
+    "agp_native_blocker_shots": [
+      "reports/R107-01/lead-evidence/native-blocker/baseline-enjarify-t1.png",
+      "reports/R107-01/lead-evidence/native-blocker/baseline-enjarify-t2.png"
+    ],
+    "agp_native_boot_logcat": "reports/R107-01/lead-evidence/logcat-boot.txt",
+    "hybrid_avd_logcat": "reports/R107-01/lead-evidence/hybrid-candidate/logcat-final-candidate.txt",
+    "hybrid_package_script": "scripts/agp_hybrid_package.py"
+  },
+  "verified_dex_inputs": {
+    "method": "逐 classes*.dex 计算 SHA-256 并与声明的输入 APK 对照",
+    "game_apk": {
+      "path": "build/gradle-stage/unsigned.apk",
+      "bytes": 84448066,
+      "map": {
+        "hybrid classes.dex": "game classes.dex",
+        "hybrid classes2.dex": "game classes2.dex",
+        "hybrid classes3.dex": "game classes3.dex"
+      },
+      "result": "MATCH (3/3)"
+    },
+    "bridge_apk": {
+      "path": "agp/app/build/outputs/apk/release/app-release-unsigned.apk",
+      "sha256": "b9797a01d0d7b20806f43a709ad5744908c78a9f7793f80a9836d341c205337a",
+      "map": {
+        "hybrid classes4.dex": "bridge classes.dex"
+      },
+      "result": "MATCH (1/1)"
+    },
+    "excluded": {
+      "game classes4.dex": "9aa54a580eb27c8388fede2b1cf66b06bcb7e01c9ad7da83881fd1dcf7b449b2"
+    },
+    "verified": true
+  }
+}

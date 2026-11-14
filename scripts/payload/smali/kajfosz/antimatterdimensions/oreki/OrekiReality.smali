@@ -96,12 +96,33 @@
     # if-nez = v0!=0 才跳；正在浇注就跳走，不做现实
     if-nez v0, :oreki_real_no
 
+    # [Oreki R107-REALITY-PACING] Web shouldReality 等价门控（Kotlin 业务）：
+    #   realities==0 时恒 true（bootstrap 行为完全不变，仍按上面 2s/Teresa 逻辑）；
+    #   realities>=1 时实施 2% RM 收益 / DS1 10s 窗口 / allRU 后 8s·15s 间隔 / holdReality。
+    # 只读原版字段，异常 fail-closed false；不写任何存档字段。
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityPacing;->shouldReset(J)Z
+
+    move-result v0
+
+    if-eqz v0, :oreki_real_no
+
     # ③ 触发一次完整现实重置（原版自动器同一条路径）
     sget-object v0, Lkajfosz/antimatterdimensions/prestige/f;->a:Lkajfosz/antimatterdimensions/prestige/f;
 
     sget-object v1, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/prestige/f;->b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    # [Oreki R107-REALITY-PACING] 通知 Kotlin 已真实重置（重置 readySince/lastResetAt，供下一拍判 8s/15s 与 DS1 窗口）
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityPacing;->onRealityReset(J)V
 
     # ④ 记录时间戳 + 次数 + 打日志
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J

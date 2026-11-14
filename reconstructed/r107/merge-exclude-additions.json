@@ -1,0 +1,30 @@
+{
+  "_comment": "R107-01 追加的 Kotlin 重建类：并入生产前需从游戏 game jar/DEX 中排除这些原版 class，避免与 Kotlin DEX 重复。本文件只是建议追加项；scripts/reconstruct_exclude.json 属 Lead 所有，未在本轮修改。",
+  "_generated_by": "reports/R107-01/kotlin/REPORT.md（验证证据：reports/R107-01/kotlin/evidence/closure-parity.log）",
+  "_game_jar": "/home/oreki/private-staging/r10602/jars/gameclasses.jar",
+  "_validation": {
+    "abi_diffs": 0,
+    "behavior_fails": 0,
+    "serializable": false,
+    "verdict": "PASS"
+  },
+  "descriptors": [
+    "Lkajfosz/antimatterdimensions/reality/automator/Parser$ComparisonOperator;",
+    "Lkajfosz/antimatterdimensions/reality/automator/Parser$ScriptError;",
+    "Lkajfosz/antimatterdimensions/reality/automator/Parser$CompiledScript;"
+  ],
+  "classes": [
+    {
+      "descriptor": "Lkajfosz/antimatterdimensions/reality/automator/Parser$ComparisonOperator;",
+      "source": "reconstructed/r107/kotlin/kajfosz/antimatterdimensions/reality/automator/ParserComparisonOperator.kt"
+    },
+    {
+      "descriptor": "Lkajfosz/antimatterdimensions/reality/automator/Parser$ScriptError;",
+      "source": "reconstructed/r107/kotlin/kajfosz/antimatterdimensions/reality/automator/ParserScriptError.kt"
+    },
+    {
+      "descriptor": "Lkajfosz/antimatterdimensions/reality/automator/Parser$CompiledScript;",
+      "source": "reconstructed/r107/kotlin/kajfosz/antimatterdimensions/reality/automator/ParserCompiledScript.kt"
+    }
+  ]
+}

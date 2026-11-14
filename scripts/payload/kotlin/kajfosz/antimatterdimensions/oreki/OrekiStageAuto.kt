@@ -308,6 +308,11 @@ object OrekiStageAuto {
             // 该调用自身只读 + 状态迁移，不写任何存档字段。
             OrekiIu15Sprint.tick()
 
+            // [R108-01 PELLE] 终局驱动：IU25 买入后进入毁灭现实，买佩勒升级并按原版路径大灾变；
+            // gameEnd 只能由原版 GameEnd.gameLoop 置位（本类只读 Player.j0() 记录）。
+            // 放在早退之前：毁灭态下其余自动化全部跳过，必须由本驱动接管。
+            OrekiPelle.tick()
+
             // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
             GameApi.settleTimeTheoremReward()
 
@@ -348,7 +353,12 @@ object OrekiStageAuto {
             // 永远 brake=false、infinityUpgradeBits 恒 0 —— 实测候选 cf20aacd
             // 已复现该死锁（AVD 新档：首次无限后 IP 26 不消费、brake 恒 false）。
             if (!GameApi.isDoomed()) {
-                if (GameApi.isBroken()) {
+                // [R107-01 P1] 原判断只看「当前是否 Break」。永恒结算后 Break 会被重置，
+                // 而时间维度/时间定理/时间研究/永恒升级本来在永恒层就应被自动推进；
+                // gate-gui AVD 实测（首永恒 02:41:09 后）broken 持续 false ⇒ 整个永恒层自动化
+                // 被跳过：TT=0、时间研究 0、TD 不买、maxIP 停滞。改为「已 Break 或已进入永恒层」。
+                // 首次 Break 之前 bigE 恒 0，本块仍不会执行，R97 的阶段越界门禁语义不变。
+                if (GameApi.isBroken() || hasReachedEternityLayer()) {
                     // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
                     // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0
                     // ⇒ 膨胀永不解锁。放在这里的原因：
@@ -369,6 +379,11 @@ object OrekiStageAuto {
                     // 收益策略 / 同帧大坍缩互斥，全部满足才驱动原版永恒入口。
                     tickEternityGated()
 
+                    // [R107-01 RU-AUTO] 现实升级自动购买：Web 顺序是「先买 RU，再浇注/现实」
+                    // （oreki-celestial-automation.js:664-673）。放在 OrekiReality 之前，
+                    // 让 RM 先用于 RU；realities==0 时 tick() 内部直接 false（bootstrap 不变）。
+                    runScheduled("realityUpgrades") { OrekiRealityUpgrades.tick() }
+
                     // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
                     if (GameApi.strategyDrives("reality")) {
                         if (OrekiAutomationScheduler.allow("reality")) {
@@ -382,7 +397,8 @@ object OrekiStageAuto {
 
                     // 符文自动装备：只填空槽、自身收敛，不受节拍约束；
                     // R91：但仍受总开关约束 —— 关闭后不得继续自动装备。
-                    if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph")) {
+                    if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("glyph") &&
+                        !OrekiLaitela.shouldSuppressGlyphAuto()) {
                         GameApi.glyphTick()
                     }
 
@@ -390,6 +406,14 @@ object OrekiStageAuto {
                     // R91：同样纳入总开关 —— 关闭后立即停止自动浇注。
                     if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("teresa")) {
                         GameApi.teresaTick()
+                    }
+
+                    // [R108-01 LAI-25] 莱特拉（Lai'tela）tier 驱动 + IU25（佩勒入口）真实购买。
+                    // 最小终局链（与 Web 冻结上游 R37-A 一致）：IM → IU15 → 莱特拉 tier 0→8 → IU25 → 佩勒。
+                    // 纯 Kotlin 业务，只调原版 initializeRun / 原版升级购买 / 原版卸符文；
+                    // 内部 500ms 节流并受自动化总开关约束（关闭后立即停手，压现实也会释放）。
+                    if (OrekiAutomationScheduler.isEnabled()) {
+                        OrekiLaitela.tick()
                     }
                 } else {
                     // [R97] Break 前门禁诊断：限频记录「未完成 Break，永恒被拒绝」，
@@ -551,7 +575,10 @@ object OrekiStageAuto {
             // [R96 第十三轮] 永恒升级优先：EP 已够买「下一项未购买升级」时，
             // 本拍名额必须给它，否则 EP 会被时间维度 TD1 吃干（实测 bigE=8、EP=0、eupBits=0）。
             // 真实扣费仍走原版 `Upgrade.D(Z,Continuation)`；本判断只读余额与真实成本。
-            if (OrekiEternityEconomy.canAffordNextUpgrade()) {
+            // [R107-01] 只有「确实能买」时才占紧迫名额：canAutomateEternityUpgrades()=false 时
+            // buyEternityUpgrades() 恒 false，旧逻辑会让 eternity 名额空转并挤掉 idBuy
+            // （gate-gui AVD 实测：首永恒后 act idBuy=0、maxAM/maxIP 停滞）。
+            if (GameApi.canAutomateEternityUpgrades() && OrekiEternityEconomy.canAffordNextUpgrade()) {
                 return "eternity"
             }
             // 只要还有无限维度没解锁，本拍紧迫名额就给 idBuy。
@@ -903,9 +930,24 @@ object OrekiStageAuto {
 
     @JvmStatic
     fun vanillaEternityTabAllowed(tabName: String?): Boolean {
+        // [R107-01 G1] 永恒层名单必须覆盖原版 jp4 注册表里的全部永恒层业务键（Luo4.b）。
+        // 修复前漏了 dilation 与 eternityChallenges：两者落到 else -> true，
+        // 于是 MainActivity 的 currentSubTab -> jp4.b(String) -> W8 恢复路径可在首次永恒前
+        // 直达「时间膨胀」「永恒挑战」页面（R100/R101 同类 P0，R101 只测过 timeStudies）。
+        // 依据：jp4 注册表（eternity 分组 4 个子页签）+ Web 冻结上游 tabs.js
+        // （dilation: dilationUnlocked()/realityUnlocked()；eternityChallenges:
+        // realityUnlocked() || challenge.eternity.unlocked !== 0 || EC completions>0）。
         val allowed = when (tabName) {
-            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones" ->
+            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones",
+            "dilation", "eternityChallenges" ->
                 vanillaEternityUnlocked()
+            // [R107-01 G3 候选] 现实层：W8/currentSubTab 恢复路径同样不检查页签可见性，
+            // 若业务键未拦截，「现实前存档 + 现实后 currentSubTab」会打开现实/天神页面。
+            // 判据与 OrekiGuiStage.PHASE_REALITY 同源：realities / bigRealities 真实结算产物。
+            "reality", "celestials", "automator",
+            "glyphs", "realityUpgrades", "imaginaryUpgrades", "perks", "blackhole", "glyphAlchemy",
+            "celestialNavigation", "teresa", "effarig", "nameless", "v", "ra", "laitela", "pelle" ->
+                stageRealityReachedDirectRead()
             else -> true
         }
         val key = tabName ?: "<null>"
@@ -937,6 +979,35 @@ object OrekiStageAuto {
      * 永恒点数为正 / bigEternities 为正 / 永恒升级位图非空 / 现实已结算。
      * 任一读取失败按未到达处理（fail-closed）。
      */
+    /**
+     * [R107-01 G3 候选] 现实层门禁的直接读取，与 [stageEternityReachedDirectRead] 同构：
+     * 8 ms 帧内缓存、显式哨兵、fail-closed。判据只用真实结算产物
+     * （realities / bigRealities 为正），不读 Player.eternities 字段，不写任何状态。
+     */
+    private const val REALITY_GATE_CACHE_WINDOW_MS = 8L
+
+    @Volatile
+    private var directRealityGateCachedAtMs: Long = Long.MIN_VALUE
+
+    @Volatile
+    private var directRealityGateCachedValue: Boolean = false
+
+    private fun stageRealityReachedDirectRead(): Boolean {
+        val now = android.os.SystemClock.elapsedRealtime()
+        val cachedAt = directRealityGateCachedAtMs
+        if (cachedAt != Long.MIN_VALUE && now >= cachedAt && now - cachedAt < REALITY_GATE_CACHE_WINDOW_MS) {
+            return directRealityGateCachedValue
+        }
+        val result = try {
+            positiveRead { GameApi.realitiesValue() } || positiveRead { GameApi.bigRealitiesValue() }
+        } catch (_: Throwable) {
+            false
+        }
+        directRealityGateCachedValue = result
+        directRealityGateCachedAtMs = now
+        return result
+    }
+
     private fun stageEternityReachedDirectRead(): Boolean {
         val now = android.os.SystemClock.elapsedRealtime()
         val cachedAt = directEternityGateCachedAtMs
@@ -1982,7 +2053,9 @@ object OrekiStageAuto {
             GameApi.setAutoEternityActive(true)
             if (GameApi.autoEternityIsActive() == true) {
                 eternityAutobuyerAdopted = true
-                Log.i(TAG_ET_GATE, "bootstrap: adopted vanilla eternity autobuyer after unlock")
+                // [R107-01 P0] 同时纠正结算模式，避免「每帧永恒」把 maxIP/EP 卡死（与 Web 同源修复）。
+                GameApi.configureEternityAutobuyerXHighest(10.0)
+                Log.i(TAG_ET_GATE, "bootstrap: adopted vanilla eternity autobuyer after unlock (mode=X_HIGHEST x10)")
             }
         } catch (_: Throwable) {
         }
@@ -1994,6 +2067,15 @@ object OrekiStageAuto {
      * 判据顺序与 Web `eternityStageAllowed()` + `tickEternity()` 对齐；本方法只做
      * 「是否允许驱动」，不写任何存档字段、不改收益公式，也不接管玩家手动永恒。
      */
+    /** [R107-01] 是否已进入永恒层（曾完成过永恒）。用于区分「首次 Break 前」与「永恒结算后 Break 被重置」。 */
+    private fun hasReachedEternityLayer(): Boolean {
+        val bigE = GameApi.bigEternitiesValue()
+        if (bigE is Number && bigE.toDouble() > 0.0) return true
+        val e = GameApi.eternitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(e, 0.0) ?: return false
+        return cmp > 0
+    }
+
     private fun eternityGateReason(): String {
         // [R101 P0] 基础判据统一交给 Kotlin 门禁（总开关 / autoEternity 单项开关 /
         // Doomed / Break / canEternity）。这里只再叠加本帧的收益与节拍条件。
@@ -2016,8 +2098,22 @@ object OrekiStageAuto {
             val reason = eternityGateReason()
             val now = android.os.SystemClock.elapsedRealtime()
             if (crunchSkipFrames > 0) crunchSkipFrames--
+            // [R107-01] 门禁只拦「是否主动按永恒」，不拦永恒层经济动作（TT/时间维度/时间研究）。
+            // 总开关/自动永恒开关/Doomed/未 Break 时仍整体停手，与既有语义一致。
+            // [R107-01] 只排除「玩家关闭 / Doomed」；not-broken 在永恒层是常态（永恒结算重置 Break），
+            // 此时仍必须推进 TT/TD/TS，否则每次永恒后经济停摆（AVD 实测）。
+            val economyEligible = reason != "automation-off" && reason != "auto-eternity-off" &&
+                reason != "doomed"
             if (reason == "allow") {
                 GameApi.eternityTick()
+            } else if (economyEligible) {
+                GameApi.eternityEconomyTick()
+            }
+            // [R107-01 DIL-AUTO] 膨胀研究自动购买：与「是否主动按永恒」无关，只要经济层
+            // 可用（未关自动化/未关自动永恒/未 Doomed）就每帧尝试一次；一次最多买 1 个，
+            // 买不到当前 id 就停（严格 1..6 顺序）。门禁语义不变：本调用绝不发起永恒结算。
+            if (economyEligible) {
+                OrekiDilationStudies.tick()
             }
             val changed = reason != lastEtGateReason
             if ((changed && now - lastEtGateLogAt >= 1_000L) || now - lastEtGateLogAt >= 5_000L) {

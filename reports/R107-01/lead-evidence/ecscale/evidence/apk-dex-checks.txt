@@ -1,0 +1,15 @@
+# R107-01 APK static checks
+
+b4145763376267a17eb8b42f368ede2126a982e80eaa51cc416b6369005e0019  build/gradle-stage/反物质维度.apk
+84621483 bytes
+
+classes4 new classes:
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiBootstrapScale;'
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiDilationCostScale;'
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiEcRequirementScale;'
+
+classes2 bridges:
+EC apply calls: 2
+DIL applyForStudy calls: 23
+
+transition log string in classes4: 1

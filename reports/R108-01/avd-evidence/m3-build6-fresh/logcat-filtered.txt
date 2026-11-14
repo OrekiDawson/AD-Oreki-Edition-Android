@@ -1,0 +1,102 @@
+11-14 09:02:42.964 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP_STARTED intervalMs=16
+11-14 09:02:42.965 I/OREKI_SCHED( 5128): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-14 09:02:43.279 I/OREKI_TABGATE( 5128): tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-14 09:02:44.368 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP fps=9 frames=10 targets=0
+11-14 09:02:45.060 I/OREKI_TABGATE( 5128): tab=dimensions allowed=true eternityUnlocked=false
+11-14 09:02:45.063 I/OREKI_TABGATE( 5128): tab=automation allowed=true eternityUnlocked=false
+11-14 09:02:45.063 I/OREKI_TABGATE( 5128): tab=challenges allowed=true eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=infinity allowed=true eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=eternity allowed=false eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=reality allowed=false eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=celestials allowed=false eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=achievements allowed=true eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=optionsMainTab allowed=true eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=shopMainTab allowed=true eternityUnlocked=false
+11-14 09:02:45.065 I/OREKI_TABGATE( 5128): tab=infoMainTab allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=infinityDimensions allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=timeDimensions allowed=false eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=normalAchievements allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=secretAchievements allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=statistics allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=challengeTimes allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=graphs allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=speedrunRecords allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=howToPlay allowed=true eternityUnlocked=false
+11-14 09:02:45.067 I/OREKI_TABGATE( 5128): tab=about allowed=true eternityUnlocked=false
+11-14 09:02:45.094 I/OREKI_BOOTSTRAP_SCALE( 5128): DILATION_TT_COST original=1.0e0 scaled=1.0e0
+11-14 09:02:45.269 I/OREKI_IPSCALE( 5128): IP_DIVISOR bootstrap original=308.0 effective=30.0
+11-14 09:02:45.269 I/OREKI_EPSCALE( 5128): EP_DIVISOR bootstrap original=308.0 effective=30.0
+11-14 09:02:45.311 I/OREKI_EC_DIAG( 5128): unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 09:02:45.311 I/OREKI_SCHED( 5128): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 09:02:45.311 I/OREKI_SCHED( 5128): gui-tick #1 gapMs=1000
+11-14 09:02:45.311 I/OREKI_GUI_STAGE( 5128): GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-14 09:02:45.311 I/OREKI_GUI( 5128): STATE_CHANGED source=tick-sync:global-tick phase=before-first-infinity
+11-14 09:02:45.312 I/OREKI_GUI( 5128): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=true dirty=false force=true
+11-14 09:02:45.312 I/OREKI_AUTO_BEAT( 5128): gui-tick #1 gapMs=10000
+11-14 09:02:45.313 I/OREKI_ET_PROBE( 5128): autoEternity.isActive=false
+11-14 09:02:45.313 I/OREKI_ET_PROBE( 5128): autoEternity.canRun=false
+11-14 09:02:45.313 I/OREKI_ET_PROBE( 5128): prestige.c.b=false
+11-14 09:02:45.313 I/OREKI_ET_PROBE( 5128): MainActivity.mo=false
+11-14 09:02:45.313 I/OREKI_ET_PROBE( 5128): OrekiEternity.sEtPending=0 bigE=0 ep=0.0e0
+11-14 09:02:45.314 I/OREKI_PLAYER_INTENT( 5128): crunch baseline adopted current=0
+11-14 09:02:45.315 I/OREKI_CRUNCH_DEC( 5128): allow=true reason=pre-infinity
+11-14 09:02:45.315 I/OREKI_AU4C( 5128): policy -> TIME/10s (pre-break IP harvest)
+11-14 09:02:45.315 I/OREKI_PLAYER_INTENT( 5128): crunch interval baseline adopted current=1.0
+11-14 09:02:45.315 I/OREKI_AU4C( 5128): managed interval 1.0 -> 60.0 (pre-break)
+11-14 09:02:45.315 I/OREKI_EARLY( 5128): applied
+11-14 09:02:45.315 I/OREKI_EARLY( 5128): OREKI_AUB unlocked=9 already=0 nofield=0 activeOff=0 detail=dim1:on,dim2:on,dim3:on,dim4:on,dim5:on,dim6:on,dim7:on,dim8:on,tickspeed:on,
+11-14 09:02:45.338 I/OREKI_AU4C( 5128): policy -> interval=5.0s (target-driven)
+11-14 09:02:45.338 I/OREKI_AU4C( 5128): managed interval 60.0 -> 5.0 (eternity-zero)
+11-14 09:02:45.363 I/OREKI_ET_PROBE( 5128): ec unlocked=0 current=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 bigE=0 ep=0.0e0
+11-14 09:02:45.581 I/OREKI_NAV_REFRESH( 5128): NAV_REFRESH_APPLIED
+11-14 09:02:45.586 I/OREKI_GUI( 5128): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-14 09:02:45.586 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP fps=20 frames=25 targets=1
+11-14 09:02:46.322 I/OREKI_SCHED( 5128): gui-tick #2 gapMs=1000
+11-14 09:02:46.323 I/OREKI_GUI( 5128): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-14 09:02:46.326 I/OREKI_GUI( 5128): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-14 09:02:46.610 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP fps=50 frames=51 targets=3
+11-14 09:02:46.781 I/OREKI_NAV_REFRESH( 5128): NAV_REFRESH_APPLIED
+11-14 09:02:47.326 I/OREKI_SCHED( 5128): gui-tick #3 gapMs=1000
+11-14 09:02:47.326 I/OREKI_GUI( 5128): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-14 09:02:47.329 I/OREKI_GUI( 5128): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-14 09:02:47.627 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP fps=60 frames=61 targets=3
+11-14 09:02:47.982 I/OREKI_NAV_REFRESH( 5128): NAV_REFRESH_APPLIED
+11-14 09:02:48.329 I/OREKI_SCHED( 5128): gui-tick #4 gapMs=1000
+11-14 09:02:48.329 I/OREKI_GUI( 5128): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-14 09:02:48.341 I/OREKI_GUI( 5128): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-14 09:02:48.644 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP fps=60 frames=61 targets=3
+11-14 09:02:49.184 I/OREKI_NAV_REFRESH( 5128): NAV_REFRESH_APPLIED
+11-14 09:02:49.331 I/OREKI_SCHED( 5128): gui-tick #5 gapMs=1000
+11-14 09:02:49.332 I/OREKI_GUI( 5128): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-14 09:02:49.338 I/OREKI_GUI( 5128): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-14 09:02:49.660 I/OREKI_UIFRAME( 5128): UI_FRAME_PUMP fps=60 frames=61 targets=3
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=21
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=26
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=35
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=37
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=38
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=54
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=55
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=96
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=107
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=114
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=115
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=116
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=117
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=136
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=141
+11-14 09:02:50.330 W/OREKI_ACHAUDIT( 5128): MISMATCH id=144
+11-14 09:02:50.331 W/OREKI_ACHAUDIT( 5128): MISMATCH id=156
+11-14 09:02:50.331 W/OREKI_ACHAUDIT( 5128): MISMATCH id=174
+11-14 09:02:50.331 W/OREKI_ACHAUDIT( 5128): MISMATCH id=176
+11-14 09:02:50.331 W/OREKI_ACHAUDIT( 5128): MISMATCH id=186
+11-14 09:02:50.331 I/OREKI_ACHAUDIT( 5128): DONE scanned=144 unlocked=135 mismatch=20 used=0
+11-14 09:02:50.331 I/OREKI_GATE( 5128): GATE brake=false g=true c=false b=false mult=10000.0 rt=5108.0
+11-14 09:02:50.331 I/OREKI_SCHED( 5128): gui-tick #6 gapMs=1000
+11-14 09:02:50.332 I/OREKI_GUI( 5128): GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=false dirty=false force=true
+11-14 09:02:50.356 I/OREKI_GUI( 5128): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true

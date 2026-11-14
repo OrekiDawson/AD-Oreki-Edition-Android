@@ -1,0 +1,29 @@
+# 资源 ID 对照（R106-01 AGP 完整游戏构建）
+# date: 2026-11-13T20:48:16+08:00
+
+AGP APK: 87f5454e9234563ff92f1e05af35194be78a9d2a48c1077ec56a363f9055831b
+官方 3.21 base APK: 4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac
+旧链候选 APK: 380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965
+
+资源条目数：官方=14928 AGP=14976 旧链候选=14976
+
+## AGP vs 官方 3.21：同名不同 ID 数量
+0
+## AGP vs 旧链候选：同名不同 ID 数量（排除 _aapt_ 改名项）
+0
+
+## 官方有、AGP 缺（全部是 aapt2 生成资源改名项，共 34）
+34
+drawable/$avd_hide_password__0
+drawable/$avd_hide_password__1
+drawable/$avd_hide_password__2
+
+## 改名项示例（ID 与官方一致）
+drawable/_aapt_avd_hide_password__0 0x7f080000
+drawable/_aapt_mtrl_checkbox_button_checked_unchecked__0 0x7f08000c
+官方对应项：
+drawable/$avd_hide_password__0 0x7f080000
+drawable/$mtrl_checkbox_button_checked_unchecked__0 0x7f08000c
+
+## 结论
+AGP aapt2 输出与官方 3.21 资源 ID 完全一致（同名不同 ID=0）；仅 34 个 aapt2 生成资源因 AGP 文件名规则改名，ID 保持不变。

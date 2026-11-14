@@ -508,29 +508,31 @@ FIELD_ALIASES_320: dict[str, str] = {
 # `Lip0;`。3.20 对 Currency 状态类做了拆分，「字段名对、类型旧」的引用能通过
 # smali 汇编（它不校验），却在 ART 链接期抛 NoSuchFieldError ——
 # 构建、签名、安装全部成功，只有执行到那行才崩。每条都必须有结构证据。
-# R90 目标侧字段名映射：3.21 的 Currency 状态容器 iq0 对字段做了整体重排，
-# 不能沿用 3.20 的 w/g0/R。真实 DEX 字段表按类型逐项对应：
-#   bq0.w : Lrp0;  -> iq0.d0 : Lrp0;  （infinityPoints）
-#   bq0.g0: Lup0;  -> iq0.e  : Lpp0;  （infinities；3.21 的 iq0.z/Lup0 实为 eternities）
-#   bq0.R : Lop0;  -> iq0.d  : Lop0;  （eternityPoints）
+# R107-01 修正（原 R90 映射错误，证据见 reports/R107-01/lead-evidence/currency-alias-fix.md）：
+# 3.21 的 Currency 状态容器 iq0 对字段名整体重排，**不能按 3.20 的类型短名对应**，
+# 因为 3.20→3.21 的 R8 短名被整体重排（同一短名换了语义）。必须按**语义**映射：
+#   bq0.w : Lrp0;（3.20 infinityPoints） -> iq0.w : Lyp0;（3.21 infinityPoints；yp0.K() = Player.D()）
+#   bq0.g0: Lup0;（3.20 infinities）     -> iq0.e : Lpp0;（3.21 infinities；R101 已验证）
+#   bq0.R : Lop0;（3.20 eternityPoints） -> iq0.S : Lvp0;（3.21 eternityPoints；vp0.K() = Player.y()）
+# 反证（旧映射错在哪）：3.21 的 iq0.d0:Lrp0; 的 rp0.K() 走 Player.Celestials（laitela 资源），
+# iq0.d:Lop0; 的 op0.K() = Player.b()（antimatter）——都不是 IP/EP。旧映射会让
+# OrekiInstantChallenge 的挑战奖励把 IP 写进 darkMatter、EP 写进 antimatter（真实结算错误）。
+# bindings.json 自身也印证：classes.rp0 -> Lyp0;（3.20 IP 类映射到 3.21 yp0）、
+# classes.op0 -> Lvp0;（3.20 EP 类映射到 3.21 vp0）。
 # 字段名错但类型仍是 Currency 时 smali 能汇编，ART 却会在调用父类
 # Currency.add 时抛出 VerifyError，所以必须按真实字段身份映射。
 FIELD_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
-    ("bq0", "w"): ("iq0", "d0"),
+    ("bq0", "w"): ("iq0", "w"),
     ("bq0", "g0"): ("iq0", "e"),
-    ("bq0", "R"): ("iq0", "d"),
+    ("bq0", "R"): ("iq0", "S"),
 }
 
-# 3.21 的字段类型也必须按目标字段钉正：旧字段类型经过类别名级联后，
-# 会落到 3.20 同名字段对应的类，而不是 3.21 真实声明类型。
-#   iq0.d0 真实 Lrp0;（3.19 Lrp0 经别名会变成 Lyp0）
-#   iq0.e  真实 Lpp0;（3.19 Lsm0 经别名会变成 Lpp0，无需再改类型）
-#   iq0.d  真实 Lop0;（3.19 Lym0 经别名会变成 Lvp0）
+# 3.21 不再需要“字段类型钉正”式改写：字段名按语义修正后，payload 的 3.19 货币类型
+# 经 OBFUSCATION_ALIASES_320 + bindings 级联已落到 3.21 真实声明类型
+# （infinityPoints: bn0→rp0→yp0；eternityPoints: ym0→op0→vp0），与 iq0.w:Lyp0;、
+# iq0.S:Lvp0; 精确一致。保留空表只为维持调用点契约与 fail-closed 校验表。
 # 注意：iq0.z/Lup0 是 eternities 的 setter（Player.E0），绝不能当 infinities 用。
-FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {
-    ("iq0", "d0"): ("yp0", "rp0"),
-    ("iq0", "d"): ("vp0", "op0"),
-}
+FIELD_TYPE_ALIASES_321: dict[tuple[str, str], tuple[str, str]] = {}
 
 FIELD_TYPE_ALIASES_320: dict[tuple[str, str], tuple[str, str]] = {
     # 3.19 `Lln0;->e:Lsm0;` 是 infinities 位（sm0 = 通用计数状态，5 方法）。
@@ -2011,6 +2013,237 @@ def patch_speed_records():
     note("[R101-IP] prestige.e: gainedInfinityPoints 已接 OrekiIpGainScale（首次永恒前 308→30）")
 
 
+def patch_ep_gain_scale():
+    """[Oreki R105-EP] 现实解锁前把 EP 兑换除数 308 收到 30（对齐 Web src/game.js [Oreki AD9]）。
+
+    原版 prestige.c.g()（gainedEternityPoints）：
+        EP = 5^(log10(thisEternity.maxIP + gainedIP) / (308 - 佩勒递归) - 0.7) × totalEPMult
+    现实前的 maxIP 曲线按 div=308 换不到 e4000 EP，时间研究/现实链不可达。
+    Web 在 isOrekiBootstrapRun()（player.realities == 0）期间把除数收到 30。
+    这里只在除数装载点做一次机械转发，判据全部在 Kotlin OrekiEpGainScale.apply(D)D。
+    """
+    target = mod_file("smali/kajfosz/antimatterdimensions/prestige/c.smali")
+    src = target.read_text(encoding="utf-8")
+    marker = "; [Oreki R105-EP]"
+    if marker in src:
+        note("[R105-EP] prestige.c gainedEternityPoints 已打过补丁，跳过")
+        return
+    anchor = ("    .line 37\n"
+              "    const-wide v5, 0x4073400000000000L    # 308.0\n")
+    assert src.count(anchor) == 1, f"EP 兑换尺度锚点不唯一（{src.count(anchor)} 处）"
+    ins = (anchor +
+           "    # [Oreki R105-EP] 现实解锁前把 EP 兑换除数 308 收到 30（与 Web AD9 同规则）。\n"
+           "    # Kotlin 签名 apply(D)D：double 占两个寄存器槽，必须且只能传 {v5, v6}。\n"
+           "    invoke-static {v5, v6}, Lkajfosz/antimatterdimensions/oreki/OrekiEpGainScale;->apply(D)D\n"
+           "\n"
+           "    move-result-wide v5\n")
+    src = src.replace(anchor, ins, 1)
+    assert src.count("OrekiEpGainScale;->apply(D)D") == 1, "EP 兑换尺度转发应恰 1 处"
+    write_smali(target, src, encoding="utf-8")
+    note("[R105-EP] prestige.c: gainedEternityPoints 已接 OrekiEpGainScale（现实前 308→30）")
+
+
+# ---------------------------------------------------------------- R107-01 EC/DIL 缩放
+# Web 冻结基线（src/core/oreki-bootstrap.js）的 isOrekiBootstrapRun() 期间有两条数值缩放：
+#   1) EC 资源门槛 /100（src/core/time-studies/ec-time-study.js, OREKI_EC_REQUIREMENT_DIVISOR）
+#   2) 膨胀研究 TT 成本 /1000（src/core/time-studies/dilation-time-study.js, OREKI_DILATION_TT_DIVISOR）
+# 判据与数值换算全部在新 Kotlin（GameApi.isOrekiBootstrapRun / OrekiEcRequirementScale /
+# OrekiDilationCostScale），这里只做机械转发 + 构建期幂等/数量断言。
+#
+# EC 落点说明（与任务最初提示不同，已用 jadx+smali 调用链核实）：
+#   challenge/eternity/b->O(I)Z 是 **限制条件**判定（p 仅 EC4/EC12 非空；p 返回限制值，
+#   q 返回 Boolean），不是 IP/AM 资源门槛。资源门槛链是
+#     prestige.c.f()Z = thisEternity.antimatter >= prestige.c.h()
+#     prestige.c.h() = b.M(b.I()) = b.K() * growth^min(i,4)
+#   → 缩放 b.K() 的两个 return 即可让 M/h/f 与 UI 进度全部一致（M 用 K，J 用 K 反解）。
+DILATION_COST_READ_SITES = (
+    ("smali/av1.smali", 1),
+    ("smali/bv1.smali", 2),
+    ("smali/g91.smali", 1),
+    ("smali/is3.smali", 1),
+    ("smali/kajfosz/antimatterdimensions/a.smali", 2),
+    ("smali/kajfosz/antimatterdimensions/eternity/studies/c.smali", 1),
+    ("smali/kajfosz/antimatterdimensions/eternity/studies/d.smali", 5),
+    ("smali/kajfosz/antimatterdimensions/ui/celestials/navigation/c.smali", 2),
+    ("smali/uu1.smali", 1),
+    ("smali/uu4.smali", 1),
+    ("smali/wu1.smali", 2),
+    ("smali/x40.smali", 2),
+    ("smali/y40.smali", 1),
+    ("smali/zh.smali", 1),
+)
+
+
+def patch_ec_requirement_scale():
+    """[Oreki R107-EC] bootstrap 期 EC 资源门槛 /100（对齐 Web ec-time-study.js）。
+
+    Web: requirementTotal getter —— !isOrekiBootstrapRun() 时原版；
+    bootstrap 时 number 走 max(1, floor(base/100))、BigDouble 走 base.div(100).clampMin(1)。
+
+    Android 的等价单一缩放点是 challenge/eternity/b#K()（EC 基础门槛 BigDouble）：
+    它有两个 return（Pelle 分支 m / 普通 l），M(i)=K()*growth^min(i,4)、h()=M(I())、
+    f()=thisEternity.antimatter>=h()，全部由 K 派生，所以缩放 K 后资源门槛链与 UI 一致。
+    只改读取值，不写完成状态、不发资源、不绕过真实结算与 EC 进入流程。
+    """
+    target = mod_file("smali/kajfosz/antimatterdimensions/challenge/eternity/b.smali")
+    assert target.is_file(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    marker = "# [Oreki R107-EC]"
+    if marker in src:
+        note("[R107-EC] challenge/eternity/b.K() 已打过补丁，跳过")
+        return
+    sig = "public final K()Lkajfosz/antimatterdimensions/BigDouble;"
+    assert src.count(".method " + sig) == 1, "EC 基础门槛 K() 方法不唯一"
+    i, j = _scan_method(src, sig)
+    body = src[i:j]
+    bridge = ("Lkajfosz/antimatterdimensions/oreki/OrekiEcRequirementScale;"
+              "->apply(Ljava/lang/Object;)Ljava/lang/Object;")
+    returns = re.findall(r"    return-object (v\d+|p\d+)", body)
+    assert len(returns) == 2, f"K() 应有 2 个 return，实际 {len(returns)} 个"
+    for reg in returns:
+        old = f"    return-object {reg}"
+        assert body.count(old) == 1, f"K() 的 return-object {reg} 不唯一"
+        ins = ("    # [Oreki R107-EC] bootstrap 期 EC 资源门槛 /100（Web OREKI_EC_REQUIREMENT_DIVISOR）\n"
+               f"    invoke-static {{{reg}}}, {bridge}\n"
+               "\n"
+               f"    move-result-object {reg}\n"
+               "\n"
+               f"    check-cast {reg}, Lkajfosz/antimatterdimensions/BigDouble;\n"
+               "\n"
+               f"    return-object {reg}")
+        body = body.replace(old, ins, 1)
+    src = src[:i] + body + src[j:]
+    assert src.count("OrekiEcRequirementScale;->apply") == 2, "EC 门槛转发应为 2 处（K 的两个 return）"
+    write_smali(target, src, encoding="utf-8")
+    note("[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）")
+
+
+def patch_dilation_cost_scale():
+    """[Oreki R107-DIL] bootstrap 期膨胀研究 TT 成本 /1000（对齐 Web dilation-time-study.js）。
+
+    Android 的膨胀研究状态是 d01/a01/b01（均 extends is3），TT 成本存在 public final
+    字段 is3.i（构造自 fw.m1/G1/L1/R1/T1/C，对应 5000 / 1e6 / 1e7 / 1e8 / 1e9 / 0）。
+    原版既用 is3.x() getter，也在 TimeStudyTree/UI/自动购买里直接 iget 该字段（23 处）；
+    只改 x() 会让「树批量买」用原价、与显示/单买不一致，仍买不到研究 6。
+    因此把 23 处字段读取统一转发 Kotlin applyForStudy(study)：仅对膨胀研究且 bootstrap
+    窗口返回 cost/1000（clampMin 1），其它研究/窗口外原样返回。
+    只改价格读取，不改支付流程、不改已购状态、不发 TT。
+    """
+    marker = "# [Oreki R107-DIL]"
+    pat = re.compile(
+        r"^    iget-object (v\d+|p\d+), (v\d+|p\d+), Lis3;->i:"
+        r"Lkajfosz/antimatterdimensions/BigDouble;$",
+        re.M)
+    total = 0
+    skipped = 0
+    skipped_occurrences = 0
+    for rel, expected in DILATION_COST_READ_SITES:
+        target = mod_file(rel)
+        assert target.is_file(), f"缺少膨胀研究成本读取文件 {rel}（-> {target}）"
+        src = target.read_text(encoding="utf-8")
+        if marker in src:
+            skipped += 1
+            skipped_occurrences += expected
+            continue
+        found = len(pat.findall(src))
+        assert found == expected, (
+            f"{rel}: 期望 {expected} 处 is3.i 成本读取，实际 {found} 处"
+            f"（基线漂移；请重新核对再改补丁，不要盲目放宽断言）")
+
+        def _repl(match):
+            dst, source = match.group(1), match.group(2)
+            return (
+                "    # [Oreki R107-DIL] bootstrap 期膨胀研究 TT 成本 /1000（Web OREKI_DILATION_TT_DIVISOR）\n"
+                "    invoke-static {%s}, Lkajfosz/antimatterdimensions/oreki/OrekiDilationCostScale;"
+                "->applyForStudy(Ljava/lang/Object;)Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object %s\n"
+                "\n"
+                "    check-cast %s, Lkajfosz/antimatterdimensions/BigDouble;"
+                % (source, dst, dst))
+
+        new_src, n = pat.subn(_repl, src)
+        assert n == expected, f"{rel}: 替换 {n} 处，期望 {expected}"
+        write_smali(target, new_src, encoding="utf-8")
+        total += n
+    assert total + skipped_occurrences == 23, (
+        f"膨胀研究成本读取点应共 23 处，本次替换 {total} / 已打过 {skipped} 文件"
+        f"（{skipped_occurrences} 处）")
+    note("[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）")
+
+
+def patch_reality_achievement_waiver():
+    """[Oreki R107-REALITY] DS6（现实研究）里「全部 preReality 成就」这一项接入 Kotlin 豁免。
+
+    Web 冻结上游 `dilation-time-studies.js` DS6 条件：
+      TD8.isBought && maxEP.exponent >= 4000 &&
+      (Perk.firstPerk || Achievements.preReality.every(unlocked) || orekiAchievementsWaivedForReality()) &&
+      !Pelle.isDoomed
+    其中 orekiAchievementsWaivedForReality() = EC11/EC12 都满 5/5。
+
+    Android 的 DS6 判定在 `z40.smali :pswitch_4`（z40(24) 分支）：
+      ① 膨胀研究5（TD8）B()  → ② maxEP.exponent >= 4000 →
+      ③ vi3.a.k()（Perk/等价）为真则跳过成就；否则遍历 `t3.g()` 全部 preReality 成就，
+         任一 `a.A()==false` 就 `goto :goto_3`（结果 v7=0）→ ④ Pelle doomed 检查。
+    本补丁只把 ③ 的**失败出口**改成先问 Kotlin：
+      const/4 v1, 0x0 → OrekiRealityUnlock.waiveAchievements(false) → 若 true 跳到 :cond_4
+    因此 TD8 / maxEP / Pelle 三项仍原版真实校验；不写成就、解锁、进度字段。
+    """
+    target = mod_file("smali/z40.smali")
+    assert target.is_file(), f"缺少 {target}"
+    src = target.read_text(encoding="utf-8")
+    marker = "# [Oreki R107-REALITY]"
+    if marker in src:
+        note("[R107-REALITY] z40 DS6 成就豁免已打过补丁，跳过")
+        return
+    assert src.count(":pswitch_4") == 2, "z40 的 :pswitch_4 标签数量异常"
+    assert "Lkajfosz/antimatterdimensions/achievements/a;->A()Z" in src, "DS6 成就遍历锚点缺失"
+    assert "Lt3;->g()Ljava/util/List;" in src, "t3.g() preReality 成就列表锚点缺失"
+    anchor = ("    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/achievements/a;->A()Z\n"
+              "\n"
+              "    .line 272\n"
+              "    .line 273\n"
+              "    .line 274\n"
+              "    move-result v1\n"
+              "\n"
+              "    .line 275\n"
+              "    if-nez v1, :cond_3\n"
+              "\n"
+              "    .line 276\n"
+              "    .line 277\n"
+              "    goto :goto_3")
+    assert src.count(anchor) == 1, f"DS6 成就失败出口锚点不唯一（{src.count(anchor)} 处）"
+    ins = (
+        "    invoke-virtual {v1}, Lkajfosz/antimatterdimensions/achievements/a;->A()Z\n"
+        "\n"
+        "    .line 272\n"
+        "    .line 273\n"
+        "    .line 274\n"
+        "    move-result v1\n"
+        "\n"
+        "    .line 275\n"
+        "    if-nez v1, :cond_3\n"
+        "\n"
+        "    .line 276\n"
+        "    # [Oreki R107-REALITY] 全部 preReality 成就这一项失败时，EC11/EC12 各 5/5 则豁免\n"
+        "    # （Web orekiAchievementsWaivedForReality 同源）。TD8 / maxEP / Pelle 仍是原版真实校验。\n"
+        "    const/4 v1, 0x0\n"
+        "    invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityUnlock;"
+        "->waiveAchievements(Z)Z\n"
+        "\n"
+        "    move-result v7\n"
+        "\n"
+        "    if-nez v7, :cond_4\n"
+        "\n"
+        "    .line 277\n"
+        "    goto :goto_3")
+    src = src.replace(anchor, ins, 1)
+    assert src.count("OrekiRealityUnlock;->waiveAchievements(Z)Z") == 1, "赏免调用应恰 1 处"
+    assert marker in src, "标记写入失败"
+    write_smali(target, src, encoding="utf-8")
+    note("[R107-REALITY] z40 DS6：preReality 成就项已接 OrekiRealityUnlock（EC11/12 满则豁免）")
+
+
 def patch_recent_runs():
     """A2：最近十次无限（pastTenInfinities）的时间字段归一化。
 
@@ -2105,33 +2338,45 @@ def patch_recent_runs_er():
     note("[4m] prestige.c/f: 最近十次永恒与现实的 time 归一化完成（realTime 未改动）")
 
 
+# [R107-01 BM-11] getStds 的读取钳制业务迁到 Kotlin（OrekiShopRules.clampStds）。
+# Smali 只保留 iget + ABI 转发；下限常量与判据全部在 Kotlin，构建期再做回读断言。
+OREKI_STD_CLAMP_TRAMPOLINE = (
+    ".method public final getStds()I\n"
+    "    .locals 1\n"
+    "\n"
+    "    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I\n"
+    "\n"
+    "    # [R107-01 BM-11] 读取下限 10000 由 Kotlin OrekiShopRules.clampStds 承载\n"
+    "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;->clampStds(I)I\n"
+    "\n"
+    "    move-result v0\n"
+    "\n"
+    "    return v0\n"
+    ".end method\n")
+
+
 def patch_shop_coins():
-    """目标 D：商店金币（STD）余额全局下限 10000。
+    """目标 D：商店金币（STD）余额全局下限 10000（R107-01 起业务在 Kotlin）。
 
     唯一修正点 = Purchases.getStds() 读取边界：任何 UI、购买判定、
     存档载入/重置/新游戏都只能通过该方法拿到余额，因此在读取处钳制
     即可覆盖全部生命周期，且不需要在每帧或 UI 刷新里写入字段。
+
+    R107-01（task-5 / 主线 C）：判据迁入 Kotlin OrekiShopRules.clampStds，
+    Smali 只剩 iget + invoke-static ABI 转发；构建期回读断言保证：
+      * 桥接调用恰好 1 处；
+      * 旧 Smali 钳制立即数已清零（否则说明迁移没生效）。
     """
     p = smali_tree() /  OLD_PKG.replace(".", "/") / "shop" / "Purchases.smali"
     src = p.read_text(encoding="utf-8")
-    marker = "; Oreki: STD 下限"
-    assert marker not in src, "getStds 已被修补过（重复打补丁）"
-    new = (".method public final getStds()I\n"
-           "    .locals 2\n"
-           "\n"
-           "    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I\n"
-           "\n"
-           "    const/16 v1, 0x2710    # 10000 ; Oreki: STD 下限\n"
-           "\n"
-           "    if-ge v0, v1, :ok\n"
-           "\n"
-           "    const/16 v0, 0x2710\n"
-           "\n"
-           "    :ok\n"
-           "    return v0\n"
-           ".end method\n")
-    write_smali(p, _replace_method(src, "public final getStds()I", new), encoding="utf-8")
-    note("[4d] Purchases.getStds(): STD 余额读取下限 10000（覆盖新游戏/导入/重置/加载/商店刷新）")
+    bridge = "OrekiShopRules;->clampStds(I)I"
+    assert bridge not in src, "getStds 已迁移到 Kotlin（重复打补丁）"
+    write_smali(p, _replace_method(src, "public final getStds()I",
+                                   OREKI_STD_CLAMP_TRAMPOLINE), encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(bridge) == 1, "BM-11 trampoline 未写入或重复写入"
+    assert "const/16 v1, 0x2710" not in after, "BM-11 旧 Smali 钳制仍在（业务未真正迁移）"
+    note("[4d] Purchases.getStds(): STD 读取下限 10000 由 Kotlin OrekiShopRules 承载（Smali 仅 ABI 转发）")
 
 
 # ------------------------------------- 4e. 鹿颈长削弱收敛（双端同源，R32）
@@ -2808,14 +3053,14 @@ def verify_payload():
     assert "START perk 已购：" in r0, "R0 卡片摘要缺少 START 状态标签"
     note("[4c] START perk 一致性自检通过（startPerk -> rf3.k()；门槛文案仅存在于未购分支）")
 
-    # --- [4d] 商店金币下限（目标 D）---
+    # --- [4d] 商店金币下限（目标 D；R107-01 起业务在 Kotlin）---
     pur = (mod_file("smali/kajfosz/antimatterdimensions/shop/Purchases.smali")).read_text(encoding="utf-8")
     gs = _body(".method public final getStds()I", pur)
-    assert "; Oreki: STD 下限" in gs, "getStds 未应用金币下限补丁"
-    assert "const/16 v1, 0x2710" in gs, "getStds 缺少 10000 常量"
-    assert "if-ge v0, v1, :ok" in gs, "getStds 缺少 >=10000 的保留分支"
+    assert "OrekiShopRules;->clampStds(I)I" in gs, "getStds 未接入 Kotlin OrekiShopRules（BM-11）"
+    assert gs.count("OrekiShopRules;->clampStds(I)I") == 1, "getStds 桥接调用应唯一"
+    assert "0x2710" not in gs, "getStds 仍有 Smali 内联钳制（业务未真正迁移）"
     assert gs.count("return v0") == 1, "getStds 返回点应唯一"
-    note("[4d] 金币下限自检通过（getStds 读取边界钳制 >= 10000，单点覆盖全部生命周期）")
+    note("[4d] 金币下限自检通过（读取钳制由 Kotlin OrekiShopRules.clampStds 承载，Smali 仅 ABI 转发）")
 
     # --- [4e] 旧版存档导入的时间换算（2026-10-26 复核：保留，不得删除）---
     # 结论：d.smali 里的 ×100 不是无配对缺陷，而是上游 migrations.normalizeTimespans
@@ -5006,11 +5251,9 @@ def patch_instant_challenge_rewards():
     # FIELD_ALIASES_321/FIELD_TYPE_ALIASES_321 推导目标字段与真实类型，
     # 既避免第二套硬编码，也保留字段名和类型的 fail-closed 检查。
     if _profile_value("bindings"):
-        target_currency_fields = {}
-        for (oc, of), (tc, tf) in FIELD_ALIASES_321.items():
-            type_pair = FIELD_TYPE_ALIASES_321.get((tc, tf))
-            if type_pair is not None:
-                target_currency_fields[tf] = type_pair[1]
+        # [R107-01] 字段按语义映射后，payload 货币类型经 bindings 级联已落到真实声明
+        # 类型；显式登记「目标字段 -> 3.21 真实声明类型」以保持 fail-closed 校验。
+        target_currency_fields = {"w": "yp0", "S": "vp0"}
         currency_file = _class_file("Liq0;")
         assert currency_file is not None, "3.21 Currency 状态类 Liq0; 不存在"
         currency_body = currency_file.read_text(encoding="utf-8", errors="replace")
@@ -5021,6 +5264,14 @@ def patch_instant_challenge_rewards():
             )
             assert pat.search(currency_body), (
                 f"Liq0; Currency 位字段 {field_name}:L{type_name}; 不存在（ABI 绑定错误）")
+        # [R107-01] 反向守卫：旧的错误映射（IP→iq0.d0 / EP→iq0.d）绝不能回到生产代码，
+        # 否则挑战奖励会写进 darkMatter / antimatter（真实结算错误，非显示错误）。
+        for wrong in ("Liq0;->d0:Lrp0;", "Liq0;->d:Lop0;"):
+            assert wrong not in src, (
+                "OrekiInstantChallenge 使用了错误的 3.21 货币字段 " + wrong
+                + "（IP 应为 Liq0;->w:Lyp0;，EP 应为 Liq0;->S:Lvp0;）")
+        assert "Liq0;->w:Lyp0;" in src, "OrekiInstantChallenge 的 IP 结算字段缺失或被改错"
+        assert "Liq0;->S:Lvp0;" in src, "OrekiInstantChallenge 的 EP 结算字段缺失或被改错"
 
     # --- 5) 幂等：二次执行只校验不写盘 ---
     marker = "# [Oreki RIS] reward-instant-settle v1"
@@ -7085,6 +7336,164 @@ def patch_dimboost_ad8_slope():
         note("[R100 P0] f82.j() 已替换为 Kotlin 真实阶段判据（trampoline）")
 
 
+
+# ---------------------------------------------------------------------------
+# [R108-01 IM-CAP] 虚幻机器（IM）上限 ×300 —— 与 Web 冻结上游同源移植
+#
+# 事实（Web）：web/AD-Oreki-Edition/src/core/machines.js:25
+#   export const OREKI_IM_CAP_MULT = 300;
+#   baseIMCap = (max(log10(uncappedRM)-1000,0))^2 × (max(log10(uncappedRM)-1e5,1))^0.2 × MULT
+# 事实（Android 3.21）：baseIMCap = Lfh2;->a(LBigDouble;)D，原版无倍率；
+#   AVD 实测 EPexp≈6.42e6 时 iMCap=1.453e7，而 IU13=5e7 / IU14=3.5e8 / IU15=1e9 / IU25=5e9
+#   全部高于上限 ⇒ 依赖原版购买入口的莱特拉/佩勒链结构性不可达（R108-01 阻断 C-02）。
+#
+# 注入：在 fh2.a 的 return-wide v0 之前插入 Kotlin 转发（业务常量与边界在 Kotlin）。
+# 不改触发条件（仍要求 uncappedRM >= 1e1000）、不改 hardcapRM/RM 公式、不写存档字段。
+IM_CAP_APPLY_MARKER = "OrekiImCapScale;->apply(D)D"
+FH2_DESC = "Lfh2;"
+FH2_A_SIG = ".method public static a(Lkajfosz/antimatterdimensions/BigDouble;)D"
+
+
+def patch_im_cap_scale():
+    p = _class_file_by_desc(FH2_DESC, purpose="baseIMCap（IM 上限）")
+    src = p.read_text(encoding="utf-8")
+    if IM_CAP_APPLY_MARKER in src:
+        assert src.count(IM_CAP_APPLY_MARKER) == 1, "OrekiImCapScale 注入点不唯一"
+        note("[Oreki IM-CAP] fh2.a() 已注入上限倍率，跳过")
+        return
+    start = src.find(FH2_A_SIG)
+    assert start >= 0, "找不到 fh2.a(BigDouble)D（baseIMCap 公式），锚点失效"
+    end = src.find(".end method", start)
+    assert end > start, "fh2.a 方法体未闭合"
+    body = src[start:end]
+    assert body.count("mul-double/2addr v0, v2") == 1, "baseIMCap 公式结构漂移（mul-double 不唯一）"
+    assert body.count("return-wide v0") == 1, "baseIMCap 公式结构漂移（return 不唯一）"
+    inject = ("    # [R108-01 IM-CAP] 上限 ×300（Web OREKI_IM_CAP_MULT=300 同源）\n"
+              "    invoke-static {v0, v1}, "
+              "Lkajfosz/antimatterdimensions/oreki/OrekiImCapScale;->apply(D)D\n"
+              "\n"
+              "    move-result-wide v0\n"
+              "\n"
+              "    return-wide v0")
+    new_src = src[:start] + body.replace("    return-wide v0", inject, 1) + src[end:]
+    write_smali(p, new_src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(IM_CAP_APPLY_MARKER) == 1, "IM-CAP 注入写入失败"
+    note("[Oreki IM-CAP] fh2.a() baseIMCap 已接入 OrekiImCapScale.apply（×300）")
+
+
+# ---------------------------------------------------------------------------
+# [R108-01 IU25] 佩勒入口成本 1.6E15 -> 5e9 —— 与 Web 冻结上游同源移植
+#
+# 事实（Web）：web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js
+#   export const OREKI_IU25_COST = 5e9;
+# 事实（Android 3.21）：IU25 = reality/imaginary_upgrades/b;->s（Li02, id=14），
+#   成本常量 1.6E15 在 b.smali 内唯一；iMCap 补丁后上限 ~4.4e9 < 1.6e15 ⇒ 永远买不到。
+# 只改数据常量（真实购买流程 / 扣费 / onPurchased 一行不动）。
+IU25_COST_OLD = "0x4316bcc41e900000L"   # 1.6E15
+IU25_COST_NEW = "0x41f2a05f20000000L"   # 5.0E9
+
+
+def patch_iu25_cost():
+    p = _class_file_by_desc("Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;",
+                            purpose="IU25 成本")
+    src = p.read_text(encoding="utf-8")
+    if IU25_COST_NEW in src:
+        assert src.count(IU25_COST_NEW) == 1, "IU25 新成本常量不唯一"
+        assert IU25_COST_OLD.lower() not in src.lower(), "IU25 旧成本常量仍有残留"
+        note("[Oreki IU25] 成本已是 5e9，跳过")
+        return
+    assert src.count(IU25_COST_OLD) == 1, (
+        "IU25 成本常量不唯一或已消失（原版可能改动过）")
+    src = src.replace(IU25_COST_OLD, IU25_COST_NEW, 1)
+    write_smali(p, src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(IU25_COST_NEW) == 1 and IU25_COST_OLD.lower() not in after.lower()
+    assert "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->s:Li02;" in after
+    note("[Oreki IU25] 佩勒入口成本 1.6E15 -> 5e9（与 Web OREKI_IU25_COST 同值）")
+
+
+
+
+# ---------------------------------------------------------------------------
+# [R108-01 LAI-ENTROPY] 莱特拉熵产量分母 1e11 -> 2e7 —— 与 Web 冻结上游同源移植
+#
+# 事实（Web）：web/AD-Oreki-Edition/src/core/celestials/laitela/laitela.js:30
+#   export const OREKI_LAITELA_ENTROPY_DIVISOR = 2e7;
+#   原版 entropyGainPerSecond = clamp((log10(AM)/1e11)^2, 0, 100)/200。
+#   tier 只在「一次 run 内 entropy 满 1 且本现实真实秒数 < 30」时 +1，所以分母决定可行性：
+#   原版 1e11 在 AMexp≈8.8e9 时只有 3.87e-5/s（填满需 25,800 s）⇒ tier0→8 结构性不可达；
+#   2e7 在 AMexp≈1.15e8 时 0.165/s（~6 s 填满），Web 实测 tier 3→8 用 109.8 s。
+# 事实（Android 3.21）：a.smali:3684 唯一 const-wide 0x42374876e8000000L(1.0E11)，
+#   紧跟 div-double/2addr 进 Math.pow(.,2.0) —— 结构锚点唯一。
+# 只改这一条立即数；tier 推进条件、30s 窗口、run 清理逻辑一行不动。
+LAI_ENTROPY_DIV_OLD = "0x42374876e8000000L"   # 1.0E11
+LAI_ENTROPY_DIV_NEW = "0x417312d000000000L"   # 2.0E7
+
+
+def patch_laitela_entropy_divisor():
+    p = _class_file_by_desc("Lkajfosz/antimatterdimensions/a;", purpose="Game gameTick 内莱特拉熵公式")
+    src = p.read_text(encoding="utf-8")
+    if LAI_ENTROPY_DIV_NEW in src:
+        assert src.count(LAI_ENTROPY_DIV_NEW) == 1, "莱特拉熵除数新值不唯一"
+        assert LAI_ENTROPY_DIV_OLD.lower() not in src.lower(), "莱特拉熵除数旧值仍有残留"
+        note("[Oreki LAI-ENTROPY] 除数已是 2e7，跳过")
+        return
+    assert src.count(LAI_ENTROPY_DIV_OLD) == 1, (
+        "莱特拉熵除数常量不唯一或已消失（原版可能改动过）")
+    anchor = LAI_ENTROPY_DIV_OLD + "    # 1.0E11"
+    assert src.count(anchor) == 1, "莱特拉熵除数锚点（含注释）不唯一，结构可能漂移"
+    src = src.replace(anchor, LAI_ENTROPY_DIV_NEW + "    # 2.0E7", 1)
+    write_smali(p, src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(LAI_ENTROPY_DIV_NEW) == 1
+    assert LAI_ENTROPY_DIV_OLD.lower() not in after.lower()
+    note("[Oreki LAI-ENTROPY] 熵产量分母 1.0E11 -> 2.0E7（与 Web OREKI_LAITELA_ENTROPY_DIVISOR 同值）")
+
+
+
+
+# ---------------------------------------------------------------------------
+# [R108-01 LAI-WINDOW] 莱特拉 tier 判定窗口 30s -> 300s —— 与 Web 冻结上游同源标定
+#
+# 事实：原版 Game.k(D)V（a.smali 内）用 `Player$ThisReality.m().h()`（本现实真实秒数）
+#   与 30.0 比较，只有 < 30s 完成熵满才 tier+1（`:3976` const 0x403e000000000000L # 30.0；
+#   紧随 `if-gez` → `Player$Laitela.d()` +1 → `t(I)V` setTier → `v(D)V` setFastest=300.0）。
+# Web 冻结上游实测：默认速度现实周期 136–226s、AM 到入场线 4e8 的真实时刻 130–230s，
+#   30s 窗口结构性不可能；已改为 OREKI_LAITELA_TIER_WINDOW_SEC=300（laitela.js/game.js）。
+# 本补丁把同一条比较改成 300.0，其它（熵公式/tier 上限/奖励/速通记录）一行不动。
+# 注：同方法内另有既有 300.0 常量（setFastest 用），替换后文件中 300.0 会出现 2 次。
+LAI_TIER_WINDOW_OLD = "0x403e000000000000L"   # 30.0
+LAI_TIER_WINDOW_NEW = "0x4072c00000000000L"   # 300.0
+
+
+def patch_laitela_tier_window():
+    p = _class_file_by_desc("Lkajfosz/antimatterdimensions/a;", purpose="Game.k(D)V 莱特拉 tier 窗口")
+    src = p.read_text(encoding="utf-8")
+    # 注意：300.0 的低 48 位不为零（0x4072C0...），不能用 const-wide/high16（apktool 会报
+    # Invalid literal value）；必须整行换成 const-wide v12, 0x4072c00000000000L。
+    # 两个形式都写 v12/v13，寄存器语义一致；原版既有 300.0 是 const-wide v2（setFastest）。
+    old_line = "    const-wide/high16 v12, " + LAI_TIER_WINDOW_OLD + "    # 30.0"
+    new_line = "    const-wide v12, " + LAI_TIER_WINDOW_NEW + "    # 300.0"
+    if src.count(LAI_TIER_WINDOW_OLD) == 0:
+        assert src.count(new_line) == 1, "莱特拉 tier 窗口新行未找到（结构可能漂移）"
+        note("[Oreki LAI-WINDOW] tier 窗口已是 300s，跳过")
+        return
+    assert src.count(LAI_TIER_WINDOW_OLD) == 1, (
+        "莱特拉 tier 窗口 30.0 常量不唯一（结构可能漂移），拒绝改写")
+    assert src.count(old_line) == 1, "莱特拉 tier 窗口锚点行不唯一"
+    pos = src.find(old_line)
+    window = src[pos:pos + 4000]
+    assert "Lkajfosz/antimatterdimensions/player/Player$Laitela;->t(I)V" in window, (
+        "莱特拉 tier 写入锚点不在窗口内，结构已漂移，停止改写")
+    src = src.replace(old_line, new_line, 1)
+    write_smali(p, src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(LAI_TIER_WINDOW_OLD) == 0
+    assert after.count(new_line) == 1
+    note("[Oreki LAI-WINDOW] 莱特拉 tier 判定窗口 30.0s -> 300.0s（const-wide v12 形式；与 Web OREKI_LAITELA_TIER_WINDOW_SEC=300 同值）")
+
+
 def main():
     prepare()
     merge_split()
@@ -7094,6 +7503,12 @@ def main():
     patch_manifest()
     patch_smali()
     patch_speed_records()
+    patch_ep_gain_scale()
+    # [R107-01 EC/DIL] Web bootstrap 数值缩放（EC 门槛 /100、膨胀研究 TT /1000）
+    patch_ec_requirement_scale()
+    patch_dilation_cost_scale()
+    # [R107-REALITY] DS6 的「全部 preReality 成就」项接入 Kotlin 豁免（EC11/12 满 5/5）
+    patch_reality_achievement_waiver()
     patch_recent_runs()
     patch_recent_runs_er()
     patch_shop_coins()
@@ -7184,6 +7599,16 @@ def main():
     # 语义：endState >= 1 <=> 反物质指数 >= TARGET。只改两条 const-wide 的立即数，
     # 置位点（Player.I0 = setIsGameEnd）与 gameLoop 一行不动。
     patch_pelle_end_target()
+    # [R108-01 C-02] 双端等价的终局数值链：
+    #   ① IM 上限 ×300（Web OREKI_IM_CAP_MULT=300）——否则 IU13/14/15/25 永远买不到；
+    #   ② IU25（佩勒唯一入口）成本 1.6E15 -> 5e9（Web OREKI_IU25_COST）。
+    # 两处都只改数据/插一个 Kotlin 转发，购买入口与扣费流程原样；幂等 + 断言。
+    patch_im_cap_scale()
+    patch_iu25_cost()
+    #  ③ 莱特拉熵分母 1e11 -> 2e7（Web OREKI_LAITELA_ENTROPY_DIVISOR）——否则 tier0→8 不可达。
+    patch_laitela_entropy_divisor()
+    #  ④ 莱特拉 tier 判定窗口 30s -> 300s（Web OREKI_LAITELA_TIER_WINDOW_SEC）——默认速度现实周期 >30s。
+    patch_laitela_tier_window()
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），

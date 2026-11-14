@@ -1,0 +1,71 @@
+## zip 条目统计（unzip -l）
+ 87566801                     1626 files
+
+### 顶层条目数（按首段路径）
+   1581 res
+     23 assets
+      8 lib
+      8 kotlin
+      2 META-INF
+      1 resources.arsc
+      1 classes2.dex
+      1 classes.dex
+      1 AndroidManifest.xml
+
+### classes*.dex
+classes2.dex
+classes.dex
+
+### resources.arsc
+  file last modified on (DOS date/time):          1981 Jan 1 01:01:02
+---------                     -------
+ 15120776                     1 file
+
+### res 条目数
+1581
+### assets 条目数（含目录）
+23
+### assets 文件列表
+assets/dexopt/baseline.prof
+assets/dexopt/baseline.profm
+assets/fonts/fa-brands-400.ttf
+assets/fonts/fa-regular-400-Blank.ttf
+assets/fonts/fa-regular-400.ttf
+assets/fonts/fa-solid-900-Blank.ttf
+assets/fonts/fa-solid-900.ttf
+assets/fonts/MonospaceTypewriter-Blank.ttf
+assets/fonts/MonospaceTypewriter.ttf
+assets/fonts/Roboto-Bold.ttf
+assets/fonts/RobotoMono-Bold-Blank.ttf
+assets/fonts/RobotoMono-Bold.ttf
+assets/fonts/Symbola-Blank.ttf
+assets/fonts/Symbola.ttf
+assets/fonts/times-Blank.ttf
+assets/fonts/timesBold-Blank.ttf
+assets/fonts/timesBold.ttf
+assets/fonts/times.ttf
+assets/oreki_tutorial.txt
+assets/realityanimbg_landscape.mp4
+assets/realityanimbg_landscape_negate.mp4
+assets/realityanimbg_portrait.mp4
+assets/realityanimbg_portrait_negate.mp4
+### lib 条目
+lib/arm64-v8a/libandroidx.graphics.path.so
+lib/arm64-v8a/libdatastore_shared_counter.so
+lib/armeabi-v7a/libandroidx.graphics.path.so
+lib/armeabi-v7a/libdatastore_shared_counter.so
+lib/x86_64/libandroidx.graphics.path.so
+lib/x86_64/libdatastore_shared_counter.so
+lib/x86/libandroidx.graphics.path.so
+lib/x86/libdatastore_shared_counter.so
+
+### Manifest 组件统计
+activity               6
+activity-alias         28
+service                7
+receiver               5
+provider               2
+meta-data              22
+uses-permission        9
+uses-permission-sdk-23 0
+AndroidManifest.xml 大小: 66550 bytes (xmltree 文本)

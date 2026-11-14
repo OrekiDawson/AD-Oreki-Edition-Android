@@ -1,0 +1,12 @@
+{
+  "official_entries": 14928,
+  "agp_entries": 14976,
+  "same_name_diff_id_exact": 0,
+  "same_name_diff_id_normalized": 0,
+  "only_official_normalized": 34,
+  "only_agp_normalized": 82,
+  "aapt_renamed_entries": 0,
+  "all_ids_equal_after_normalize": false,
+  "official_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+  "agp_sha256": "50d01062a5ef05981e9f6bab156aa78716b72ec0d4bb77aeadd55c45f058e674"
+}

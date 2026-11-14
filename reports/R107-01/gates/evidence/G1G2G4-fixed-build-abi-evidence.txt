@@ -1,0 +1,99 @@
+# ABI 级证据：旧链新构建 build/gradle-stage/unsigned.apk（23:04，含 G1/G2/G4 补丁）
+# SHA-256: 40bbc41235f20805c2e2e86e79598bd40da4283d49bc46ec9e79cf5cb268509b
+
+## bm4.g()/h() 现在传业务键（Luo4.b = this.b），不再是字形（this.i）
+
+    public final String f() {
+        return b() ? "\uf068" : this.i;
+    }
+
+    public final boolean g() {
+        if (!OrekiStageAuto.vanillaEternityTabAllowed(this.b)) {
+            return false;
+        }
+        boolean z = false;
+        if (!b.c()) {
+            return c() && (d() || !this.g);
+        }
+        Double d = this.f;
+        if (d != null && d.doubleValue() < b.b() && !b.b) {
+            z = true;
+        }
+        return !z;
+    }
+
+    public final void h(boolean z) {
+        if (OrekiStageAuto.vanillaEternityTabAllowed(this.b)) {
+            if (z || Player.a.K().d()) {
+                MainActivity.Lo = this;
+            }
+        }
+    }
+
+
+## OrekiStageAuto.vanillaEternityTabAllowed switch 键列表（含 G1 dilation/eternityChallenges + G4 现实层）
+    /* JADX WARN: Code duplicated, block: B:80:0x00fd  */
+    @JvmStatic
+    public static final boolean vanillaEternityTabAllowed(String tabName) {
+        boolean allowed;
+        if (tabName != null) {
+            switch (tabName) {
+                case "eternityUpgrades":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                case "effarig":
+                case "glyphAlchemy":
+                    allowed = INSTANCE.stageRealityReachedDirectRead();
+                    break;
+                case "eternity":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                case "glyphs":
+                    allowed = INSTANCE.stageRealityReachedDirectRead();
+                    break;
+                case "timeStudies":
+                case "timeDimensions":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                case "teresa":
+                case "imaginaryUpgrades":
+                case "realityUpgrades":
+                case "laitela":
+                case "v":
+                case "ra":
+                    allowed = INSTANCE.stageRealityReachedDirectRead();
+                    break;
+                case "dilation":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                case "pelle":
+                case "perks":
+                case "reality":
+                case "celestialNavigation":
+                case "blackhole":
+                    allowed = INSTANCE.stageRealityReachedDirectRead();
+                    break;
+                case "milestones":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                case "automator":
+                case "nameless":
+                    allowed = INSTANCE.stageRealityReachedDirectRead();
+                    break;
+                case "eternityChallenges":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                case "celestials":
+                    allowed = INSTANCE.stageRealityReachedDirectRead();
+                    break;
+                default:
+                    allowed = true;
+                    break;
+            }
+        } else {
+            allowed = true;
+        }
+        String key = tabName == null ? "<null>" : tabName;
+        Boolean previous = tabGateLastState.put(key, Boolean.valueOf(allowed));
+        if (!Intrinsics.areEqual(previous, Boolean.valueOf(allowed))) {
+            Log.i("OREKI_TABGATE", "tab=" + key + " allowed=" + allowed + " eternityUnlocked=" + vanillaEternityUnlocked());

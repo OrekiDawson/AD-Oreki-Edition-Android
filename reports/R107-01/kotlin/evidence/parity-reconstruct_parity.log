@@ -1,0 +1,265 @@
+== 1) compile Kotlin (8 files) with tools/kotlinc ==
+   built: /tmp/r10602_recon_cy8y3ufg/reconstructed.jar
+== 0) preflight: gameclasses.jar 与运行时 jar 的 ABI 一致性 ==
+   [MATCH] kajfosz.antimatterdimensions.autobuyer.AutobuyerState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.reality.automator.AutomatorState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.reality.automator.CommandState (game-jar=yes runtime-jar=yes)
+   [MATCH] kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent (game-jar=yes runtime-jar=yes)
+   runtime jar: /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar (ABI 与 gameclasses.jar 一致)
+== 2) run reflection parity harness (isolated URLClassLoaders) ==
+
+CLASS                                                                    STATUS      ABI   DIFF BEHAVIOR    FIELDS    SKIPPED
+--------------------------------------------------------------------------------------------------------------------------------
+kajfosz.antimatterdimensions.autobuyer.AutobuyerState                    PARTIAL      25      0        8         2          1
+    SKIP: c()/d()/e()/g(): 依赖 Player/g/yd4/资源 ID，纯 JVM 无法无副作用执行
+kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState         PARTIAL       9      0        3         0          1
+    SKIP: g(): 依赖 vi3.N / celestials.pelle.c 游戏状态
+kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState              PARTIAL      13      0        2         0          1
+    SKIP: b()/g()/i(): 依赖 Player.a.c()/i51/n86 游戏状态
+kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState              PARTIAL      13      0        2         0          1
+    SKIP: b()/g()/i(): 依赖 Player/f91/celestials.pelle.c 游戏状态
+kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState    PARTIAL      13      0        2         0          1
+    SKIP: b()/g()/i(): 依赖 Player/f91/celestials.pelle.c 游戏状态
+kajfosz.antimatterdimensions.reality.automator.AutomatorState            PASS         45      0       27        14          0
+kajfosz.antimatterdimensions.reality.automator.CommandState              PARTIAL      27      0       29         8          0
+    INFO: ctor (int,int): 仅 ACC_SYNTHETIC 标志不同（benign，不影响链接 ABI） orig=[public throws [] synthetic] new=[public throws []]
+kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent PASS         17      0        8         2          0
+
+OVERALL: PARTIAL  (PASS=2 PARTIAL=6 FAIL=0)
+
+=== EVIDENCE JSON ===
+[
+  {
+    "class": "kajfosz.antimatterdimensions.autobuyer.AutobuyerState",
+    "status": "PARTIAL",
+    "abi": {
+      "checks": 25,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 8,
+      "fieldChecks": 2,
+      "passed": [
+        "field.isActive=java.lang.Boolean:true",
+        "b().default=java.lang.Boolean:true",
+        "f().default=java.lang.Boolean:true",
+        "f() after i(false)=java.lang.Boolean:false",
+        "b() after i(false)=java.lang.Boolean:false",
+        "f() after j()=java.lang.Boolean:true",
+        "h() no-throw=java.lang.String:ok",
+        "field.isActive=java.lang.Boolean:true"
+      ],
+      "fails": [],
+      "skipped": [
+        "c()/d()/e()/g(): 依赖 Player/g/yd4/资源 ID，纯 JVM 无法无副作用执行"
+      ]
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState",
+    "status": "PARTIAL",
+    "abi": {
+      "checks": 9,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 3,
+      "fieldChecks": 0,
+      "passed": [
+        "ctor.isActive.default=java.lang.Boolean:true",
+        "b().default(inherited, pure)=java.lang.Boolean:true",
+        "h() no-throw=java.lang.String:ok"
+      ],
+      "fails": [],
+      "skipped": [
+        "g(): 依赖 vi3.N / celestials.pelle.c 游戏状态"
+      ]
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState",
+    "status": "PARTIAL",
+    "abi": {
+      "checks": 13,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 2,
+      "fieldChecks": 0,
+      "passed": [
+        "ctor.isActive.default=java.lang.Boolean:true",
+        "h() no-throw=java.lang.String:ok"
+      ],
+      "fails": [],
+      "skipped": [
+        "b()/g()/i(): 依赖 Player.a.c()/i51/n86 游戏状态"
+      ]
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState",
+    "status": "PARTIAL",
+    "abi": {
+      "checks": 13,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 2,
+      "fieldChecks": 0,
+      "passed": [
+        "ctor.isActive.default=java.lang.Boolean:true",
+        "h() no-throw=java.lang.String:ok"
+      ],
+      "fails": [],
+      "skipped": [
+        "b()/g()/i(): 依赖 Player/f91/celestials.pelle.c 游戏状态"
+      ]
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState",
+    "status": "PARTIAL",
+    "abi": {
+      "checks": 13,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 2,
+      "fieldChecks": 0,
+      "passed": [
+        "ctor.isActive.default=java.lang.Boolean:true",
+        "h() no-throw=java.lang.String:ok"
+      ],
+      "fails": [],
+      "skipped": [
+        "b()/g()/i(): 依赖 Player/f91/celestials.pelle.c 游戏状态"
+      ]
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.reality.automator.AutomatorState",
+    "status": "PASS",
+    "abi": {
+      "checks": 45,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 27,
+      "fieldChecks": 14,
+      "passed": [
+        "field.editorScript=java.lang.Integer:1",
+        "field.followExecution=java.lang.Boolean:true",
+        "field.forceRestart=java.lang.Boolean:true",
+        "field.mode=java.lang.Integer:0",
+        "field.repeat=java.lang.Boolean:true",
+        "field.stack=List:java.util.ArrayList:0",
+        "field.topLevelScript=java.lang.Integer:1",
+        "a()=editorScript=java.lang.Integer:1",
+        "b()=followExecution=java.lang.Boolean:true",
+        "c()=forceRestart=java.lang.Boolean:true",
+        "d()=mode=java.lang.Integer:0",
+        "e()=repeat=java.lang.Boolean:true",
+        "f()=stack=java.lang.String:List:java.util.ArrayList:0",
+        "g()=topLevelScript=java.lang.Integer:1",
+        "a() after h(7)=java.lang.Integer:7",
+        "b() after i(false)=java.lang.Boolean:false",
+        "c() after j(false)=java.lang.Boolean:false",
+        "d() after k(3)=java.lang.Integer:3",
+        "e() after l(false)=java.lang.Boolean:false",
+        "g() after m(9)=java.lang.Integer:9",
+        "field.editorScript=java.lang.Integer:7",
+        "field.followExecution=java.lang.Boolean:false",
+        "field.forceRestart=java.lang.Boolean:false",
+        "field.mode=java.lang.Integer:3",
+        "field.repeat=java.lang.Boolean:false",
+        "field.stack=List:java.util.ArrayList:0",
+        "field.topLevelScript=java.lang.Integer:9"
+      ],
+      "fails": [],
+      "skipped": []
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.reality.automator.CommandState",
+    "status": "PARTIAL",
+    "abi": {
+      "checks": 27,
+      "diffs": [],
+      "info": [
+        "ctor (int,int): 仅 ACC_SYNTHETIC 标志不同（benign，不影响链接 ABI） orig=[public throws [] synthetic] new=[public throws []]"
+      ]
+    },
+    "behavior": {
+      "checks": 29,
+      "fieldChecks": 8,
+      "passed": [
+        "field.advanceOnPop=java.lang.Boolean:true",
+        "field.ifEndLine=java.lang.Integer:3",
+        "field.prestigeLevel=java.lang.Integer:2",
+        "field.timeMs=java.lang.Double:1.5",
+        "a()=advanceOnPop=java.lang.Boolean:true",
+        "b()=ifEndLine=java.lang.Integer:3",
+        "c()=prestigeLevel=java.lang.Integer:2",
+        "d()=timeMs=java.lang.Double:1.5",
+        "c() after e(9)=java.lang.Integer:9",
+        "d() after f(2.25)=java.lang.Double:2.25",
+        "field.advanceOnPop=java.lang.Boolean:true",
+        "field.ifEndLine=java.lang.Integer:3",
+        "field.prestigeLevel=java.lang.Integer:9",
+        "field.timeMs=java.lang.Double:2.25",
+        "ctor2(ifEndLine=5,mask=0).b()=java.lang.Integer:5",
+        "ctor2(ifEndLine=5,mask=0).a()=java.lang.Boolean:true",
+        "ctor2(ifEndLine=5,mask=0).d()=java.lang.Double:0.0",
+        "ctor2(ifEndLine=5,mask=4).b()=java.lang.Integer:5",
+        "ctor2(ifEndLine=5,mask=4).a()=java.lang.Boolean:false",
+        "ctor2(ifEndLine=5,mask=4).d()=java.lang.Double:0.0",
+        "ctor2(ifEndLine=5,mask=8).b()=java.lang.Integer:0",
+        "ctor2(ifEndLine=5,mask=8).a()=java.lang.Boolean:true",
+        "ctor2(ifEndLine=5,mask=8).d()=java.lang.Double:0.0",
+        "ctor2(ifEndLine=5,mask=12).b()=java.lang.Integer:0",
+        "ctor2(ifEndLine=5,mask=12).a()=java.lang.Boolean:false",
+        "ctor2(ifEndLine=5,mask=12).d()=java.lang.Double:0.0",
+        "ctor2(ifEndLine=0,mask=4).b()=java.lang.Integer:0",
+        "ctor2(ifEndLine=0,mask=4).a()=java.lang.Boolean:false",
+        "ctor2(ifEndLine=0,mask=4).d()=java.lang.Double:0.0"
+      ],
+      "fails": [],
+      "skipped": []
+    }
+  },
+  {
+    "class": "kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent",
+    "status": "PASS",
+    "abi": {
+      "checks": 17,
+      "diffs": [],
+      "info": []
+    },
+    "behavior": {
+      "checks": 8,
+      "fieldChecks": 2,
+      "passed": [
+        "b()=lineNumber=java.lang.Integer:7",
+        "a().d()=timeMs=java.lang.Double:2.0",
+        "a().c()=prestigeLevel=java.lang.Integer:1",
+        "b() after d(42)=java.lang.Integer:42",
+        "a().d() after c()=java.lang.Double:3.0",
+        "a().a() after c()=java.lang.Boolean:true",
+        "field.commandState=kajfosz.antimatterdimensions.reality.automator.CommandState",
+        "field.lineNumber=java.lang.Integer:42"
+      ],
+      "fails": [],
+      "skipped": []
+    }
+  }
+]

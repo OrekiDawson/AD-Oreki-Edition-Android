@@ -10072,3 +10072,111 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - 证据：`reports/R105/android-second-eternity/`（RUN-RESULT.json / timeline.jsonl / events.json /
   logs-key-slice.txt / FINAL-SAVE-second-eternity.json / screenshots / ep-mechanism）。
 
+
+## R106-01：AGP 9.5.1 阶段三（2026-11-13，BLOCKED）
+
+- 背景：R105-04 阶段一（AGP 内置 Kotlin 编译，PR #22/#23）与阶段二（兼容打包，PR #26）之后，
+  PR #28 已把「正式 Android 生产强制 AGP 9.5.1、旧链发布 fail-closed」写进 main（d0733f6a）。
+- 本轮实测：AGP 9.5.1 在 `-PorekiFullGame=true` 模式下真实接管原版 Manifest（6 activity、28 activity-alias）、
+  14,976 条资源、assets 与 4 ABI native libs，并用 `--stable-ids` 保持资源 ID
+  **与官方 3.21 完全一致（同名不同 ID = 0）**；`:app:assembleRelease` BUILD SUCCESSFUL，
+  产物 SHA-256 `87f5454e…5831b`、66,093,389 B、包名 `com.oreki.antimatterdimensions`、
+  证书 `95960bce…3197`（原证书）。
+- 阻塞：AGP 9.5.1 公开 artifact API 没有 DEX 输入/追加类型（D8 只消费 class 文件）；
+  `.dex` 文件依赖被静默忽略；MOD 依赖 22 个原版混淆 smali 补丁 + 33 个 MOD smali 包装类，
+  游戏 DEX 只能由 smali 汇编生成。AGP APK 因此缺游戏类，AVD 冷启动
+  `ClassNotFoundException: kajfosz.antimatterdimensions.App`。
+- 未二次重包、未生成 provenance、未发布 Candidate；R103 `android-update-3.21.0-3d924271` Latest 未变；
+  `enforce_agp_only.py candidate` 继续 fail-closed。
+- 证据：`reports/R106/R106-01-AGP-PHASE3.md`、`docs/agp-acceptance/phase3-evidence.json`、`reports/R106-01/`。
+- 恢复点：R106-01 阻塞证据齐全后收口，不启动 R106-02；下一步需用户授权评估
+  「22 个原版 smali 补丁点等价迁为 AGP 可编译形态」。
+
+
+## R106-02：AGP 游戏 DEX 过渡链与并行反混淆（2026-11-13，进行中）
+
+- 官方 3.21.0 base APK 复核 SHA-256 `4e9970a8…f527ac`；2 个 DEX 共 15,319 类（第一方 10,954：
+  默认包 9,712 + kajfosz 1,242；第一方方法 51,397、字段 41,793）。
+- descriptor 级完整第一方索引已建（`docs/deobfuscation/data/first-party-3.21-index.csv`）；
+  语义映射当前仅 49 类（confirmed 17/strong 23/inferred 9）、方法级 confirmed 10、字段级 0。
+  JADX 自动名、dex2jar 转换、VerifyError 修复都不计入语义反混淆。
+- AGP 过渡链：官方 DEX→dex2jar→JVM class（1,537 处 dash 名修复 + 4,388 处构造配对修复/
+  2,080 合成构造）→ AGP `-PorekiGameJar`；APK 含 16,390 类、原证书签名、资源 ID 与官方一致。
+- 冷启动仍 **FAIL**：最新 VerifyError `ee1.<init>` 对 `ke0.a` 的类型流访问；此前 kn6/k51 已按
+  DEX 证据修复。转换链当前不可作为正式 Candidate 来源；未发布、R103 Latest 不变。
+- 并行：6 个子 Agent（语义映射×2、Kotlin 重建、Smali 钩子台账、DEX 转换、测试/CI）运行中；
+  GUI/阶段门禁因名额暂 NOT STARTED。
+
+
+
+## R107-01：AGP 构建链首次产出可运行 MOD APK；enjarify 原生游戏代码路线 BLOCKED（2026-11-13 夜间，进行中）
+
+- **AGP 构建**：AGP 9.5.1 `-PorekiFullGame=true` 真实接管 Manifest/14,976 资源（同名不同 ID=0）/
+  assets/4 ABI native/原证书签名/APK 打包；MOD Kotlin 由 AGP 内置 Kotlin 2.2.10 编译为 classes4.dex。
+- **过渡候选（AVD 实测 PASS）**：`c25c68dc…3322fa3`（72,416,868 B），安装升级 Success、COLD 启动 1.8s、
+  进入游戏、MOD 简体中文深色 UI/顶栏当前页面/自定义导航/自动化可用、AM 5.98e90 持续增长、logcat 0 FATAL。
+  组成：AGP 输出的 Manifest/Resources/assets/native + AGP 编译 MOD Kotlin DEX（1125 类）+
+  过渡游戏&钩子 DEX classes.dex..3（10,150/4,611/583 类，来自 work/mod 补丁树）。
+  **游戏代码不是 AGP 编译产物，不得宣称为“AGP 原生完整游戏构建”**。
+- **官方 DEX→JVM 转换器结论**：Google enjarify 对官方两 DEX 15,319/15,319 类 0 错误；
+  选择性 shadow remap（仅官方 DEX 中真实存在的 72 个 kotlin/** 类改到 oreki/shadow/kotlin/**；
+  游戏类与 MOD 新增类的 kotlin 引用均按该集合映射，std/src 专有类保留给 AGP stdlib）后 D8 全量通过、
+  AGP 构建/签名/冷启动 PASS。**但运行期 Tick 卡死**：进入游戏后 AM 停止增长，SIGQUIT 显示
+  `Player.l0/k0 → rk8.G → nc8.z/B → cv0.k → dc2.k/q → tf2.d → vf2.d` 自旋（100% CPU，无 FATAL）；
+  无 MOD 钩子的官方 DEX enjarify 基线同样复现 → 归因 enjarify 运行期语义/协程调度不保真，
+  **判定 BLOCKED，不可作为 Candidate 来源**。证据 `reports/R107-01/lead-evidence/native-blocker/`。
+- **P0/P1 修复**：G1 永恒层页签名单补 dilation/eternityChallenges；G2 页签门禁注入取键由
+  `Lbm4;->i`（图标字形）改为 `Luo4;->b`（业务键）；G4 现实层 currentSubTab 越阶段 fail-closed 判据；
+  3.21 Currency 字段别名错误修复（IP `iq0.w:Lyp0;`、EP `iq0.S:Lvp0;`，原映射会写进暗物质/反物质）+
+  fail-closed 反向守卫。门禁接线审计 11/11 PASS；生成式回归 42/42 PASS。
+- **反混淆真实进度（分母未缩小）**：第一方 10,954 类 / 51,397 方法 / 41,793 字段；
+  默认包命名类 79（confirmed 37/strong 37/inferred 5/unknown 9,633）、方法 118、字段 63；
+  kajfosz 语义名 1,139/1,242、混淆方法真实语义 1,049/3,417、混淆字段 101/3,351。
+- **Kotlin 重建**：8 个遗留类审查/独立编译 PASS；桩驱动差分 harness 11/11 类、1960 checks、0 fail；
+  新增 3 类；BLOCKED：默认包类型在类型位置跨包引用（Kotlin 2.4.21 语言限制）。
+- **Smali 钩子迁移**：台账复核 20/54 站点 ERROR 0；11 站点/10 个 Kotlin 业务单元写成 Kotlin 并通过
+  kotlinc/单测/javap ABI/D8/真实 smali 汇编反查；**生产实际消除 0**（未集成，待 AVD 验证）。
+- **长期规则**：上游基线正式冻结（Android 3.21.0；Web 5409e320，2026-07-17）+ 选择性移植 +
+  独立 MOD 版本体系 + 7 条升级条件（Android commit 6fed583e；Web PR #13）。
+- **发布状态**：正式 Candidate/Verify/Release **BLOCKED**（AGP 原生游戏代码运行期未通过；CI 无 AGP
+  游戏代码链路）。R103 `android-update-3.21.0-3d924271` Latest 未变，未发布任何 APK。
+
+
+## R107-01 规则纠偏与页签门禁 AVD 实测事实（2026-11-13 深夜）
+
+- **上游监测边界纠偏**：允许对上游安全公告/重大缺陷/崩溃/存档/数据错误做**只读监测**用于评估选择性移植；
+  禁止未经用户授权自动升级、自动合并上游代码、修改冻结基线、自动改版本号或自动发布。
+- **基线升级三种边界**：研究评估（无需新授权，不得改冻结基线/整包替换；当前 P0 或 AGP 未完成不构成禁止研究评估的理由）/
+  用户授权（完整基线替换必须用户明确批准的新轮次）/ 正式发布门禁（完整升级发布前必判，条目见 DELIVERY_RULES 6.5.3）。
+- **versionCode 分离记录**：原版基线 versionCode `30210000` 与 MOD 独立发布 versionCode 分开登记；
+  每次新的正式发布 versionCode 必须**严格大于历史已发布最大值**（当前 `30210000`，R103 `android-update-3.21.0-3d924271`）。
+- **baseline/version-config.json 修正（按真实证据，非推测）**：`upstream.android.current_mod` 3.20.0→**3.21.0**、
+  `status` migration-in-progress→**released-stable**；新增 `baseline_version_code` / `mod_release_version_code` /
+  `mod_release_version_name` / `mod_release_tag` 与修正依据（candidate-metadata.json、GitHub Release）。原字段为 R85 快照。
+- **G1/G4 门禁 AVD 实测（混合候选 c25c68dc，AGP 打包过渡形态）**：
+  pm clear 新档 + 仅改 MyPrefsFile.currentSubTab → `tab=eternityChallenges allowed=false`、`tab=dilation allowed=false`、
+  `tab=glyphs allowed=false`，页面回退「反物质维度」且 prefs 被回写；对照旧候选 380dfbfb 同键 `allowed=true`（缺陷复现）。
+  合法永恒档（bigE=14、EP≈1.17e7）+ currentSubTab=timeStudies 正向真实打开时间研究页，永恒层全部 `allowed=true`。
+- **G2 AVD 实测**：修复后 ABI 反编译证实 `bm4.g()/h()` 调用 `vanillaEternityTabAllowed(this.b)`；
+  设备日志门禁收到全部业务键（timeDimensions/reality/celestials/automator/eternityChallenges），无 Δ/Ω/∞ 字形；FATAL 0。
+- **A1 自动购买器总开关回归 NOT RUN**：游戏运行页不向无障碍树暴露导航控件、uiautomator 因持续重绘无法 idle、
+  抽屉滑动/KEYCODE_MENU 无效 → 无法在真实 GUI 完成「关闭→2s→35s→重启」链路；不以历史 PASS 冒充。
+- **AVD 环境**：2026-11-13 23:34–23:45 独占 emulator-5554；实验前 /data/data 备份至
+  `/home/oreki/private-staging/r107-avd-backup/r107-data-backup-233411.tgz`，实验后已恢复并还原动画/省电/无障碍设置。
+- 证据：`reports/R107-01/gates/AVD-RESULTS.md`、`DEFECTS.md`、`evidence/avd/`。
+
+### R107-01 里程碑：Android 自动化首次真实解锁现实（2026-11-14 06:40，AVD 实测）
+
+- **EC1-12 全满**：修复「满级 EC 后自动化从不调用原版 respecTimeStudies」——EC1-3 打满后 TS 树停在列 121，
+  EC4 需要列 123（requiresST=[121,122]），K()=true 走 V 天神尾项（bootstrap V=0）⇒ A(123)=false ⇒ EC4 研究永不可买。
+  修复：OrekiEcAutomation 在已解锁 EC 满级时调用原版 eternity/studies/d.c(Z)V（退款/清树/unlocked 归 0），下一拍按新列重建；
+  3s 闸门、不写存档字段。AVD 实测 EC completions 由 [5,5,5,0...] → [5×12]。
+- **膨胀研究自动购买**：OrekiDilationStudies 反射原版注册表 c01.a / id 字段 in1.c / 购买入口 is3.D（真实扣 TT，成本经
+  OrekiDilationCostScale bootstrap /1000），每经济 tick 只买 1 个；AVD 实测 dilation.studies=[1,2,3,4,5]。
+  注意：payload Kotlin 不得使用 kotlin.Pair/sortedBy 等（游戏 DEX 为官方 R8 合并版 kotlin，实测 NoSuchMethodError: Pair.getSecond）。
+- **DS6（现实研究 6）成就豁免**：Web 基线 orekiAchievementsWaivedForReality 的 Android 等价——OrekiRealityUnlock.waiveAchievements
+  在 EC11 与 EC12 均 5/5 时豁免「全部 preReality 成就」一项，TD8/maxEP≥4000/Pelle 仍原版真实校验；
+  注入点在 z40 case24 的成就循环失败出口（条件跳转必须 if-nez：豁免 true 跳成功继续点 :cond_4）。
+- **首次 reality**：fresh 档 interval=1，约 14.6 分钟达成——OREKI_DS6 result=true → OREKI_DIL_STUDIES BUY id=6 →
+  real=0.301（bigE/EC/TT 重置为真实现实结算），0 FATAL/VerifyError/NoSuchMethodError。
+- 证据：reports/R107-01/lead-evidence/{reality-run,reality,ecfix,ecscale-run,dilstudies,ecdiag}/；APK b001faa7（旧链，含全部上述修复）。

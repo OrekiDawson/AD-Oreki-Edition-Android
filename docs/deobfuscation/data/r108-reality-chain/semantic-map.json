@@ -1,0 +1,4084 @@
+{
+ "schema": 1,
+ "kind": "r108-01-sem-reality-chain-321",
+ "generated_at": "2026-11-14T08:56:00+0800",
+ "generated_by": "R108-01 语义反混淆 teammate sem（只读证据采集，未改生产代码）",
+ "purpose": "Reality 之后链路（现实节奏/结算 → 天神链 → Pelle/gameEnd）的原版混淆类/方法/字段语义增量映射，服务 Kotlin 修补点的 ABI 定位。",
+ "target": {
+  "baseline": "官方 Android 3.21.0",
+  "base_apk_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+  "dex": [
+   "classes.dex ad0c1c23fea97460a98a5ad6e54325278be559def805b30d88a7091a788f8d8e",
+   "classes2.dex a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae"
+  ],
+  "note": "未重跑 JADX、未改历史映射；复用 work/base_decoded_321（3.21 官方解码树，含保留的 lambda 类名）与 work/output_code_321_r88（3.21 JADX 导出）。"
+ },
+ "denominator_reference": {
+  "first_party_classes": 10954,
+  "default_group": 9712,
+  "kajfosz_group": 1242,
+  "source": "docs/deobfuscation/data/first-party-3.21-index.csv + reports/R106-02/deobf-inventory.md §3.1",
+  "previous_counts": "R107-01：默认包已命名类 197/9712（confirmed 87/strong 91/inferred 19）；kajfosz 194 类 / 方法映射 1193 / 字段 1035（reports/R107-01/sem-kajfosz/）",
+  "this_round": "本文件只登记 Reality 后链路新增/复核条目，不缩小也不重算全量分母。"
+ },
+ "confidence_definitions": {
+  "confirmed": "DEX 直接保留标识（字段名/类名/字符串资源）或 两源独立一致（lambda 类名 + Web 公式/同名 API 且行为字面一致）。",
+  "strong": "单一直接结构证据：方法体创建 `Outer$originName$N` 协程/lambda 类名，或方法体与 Web 同名 API 行为逐句对应（无冲突）。",
+  "inferred": "行为模式匹配但存在多解，或仅由调用序列推断，未排除同名候选。",
+  "unknown": "证据不足，禁止当作语义确认使用。",
+  "evidence_rule": "每条必须给 文件:行（3.21 解码树/JADX/Web）或运行证据；找不到就写 UNKNOWN。"
+ },
+ "evidence_sources": [
+  "work/base_decoded_321/smali*（3.21 官方解码树；lambda 类名 `Outer$原方法名$N` 被 R8 保留，是本轮方法级主证据）",
+  "work/output_code_321_r88/sources/kajfosz/**（3.21 JADX 反编译；用于公式/字段读写的逐句对照）",
+  "web/AD-Oreki-Edition/src/core/{machines.js,reality-upgrades.js,celestials/**,glyphs/**,pelle/game-end.js}（冻结上游对应 API 名与公式）",
+  "reports/R107-01/reality-chain/p0-2-abi-probe.md（R107-01 只读 ABI 探针，本轮逐项复核）",
+  "reports/R107-01/sem-kajfosz/、docs/deobfuscation/data/r107-kajfosz/（R107-01 类级映射基线）"
+ ],
+ "classes": [
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/prestige/f;",
+   "semantic_name": "kajfosz.antimatterdimensions.prestige.Reality",
+   "confidence": "strong",
+   "identity_basis": "lambda this$0：Reality$giveGlyphs$1 / Reality$reality$1 / Reality$resetPlayer$1 的 this$0 字段类型指向本类；R107-01 已登记，本轮补充方法级证据",
+   "evidence": [
+    "work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/prestige/f.smali:7（static 单例 a）、:2589/3294/4819/5257/5434/6465/6821（各协程方法创建 Reality$*$N lambda）"
+   ],
+   "methods": [
+    {
+     "descriptor": "h(Lvv3;IIZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "giveGlyphs",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:2589 方法体 new-instance Lkajfosz/antimatterdimensions/prestige/Reality$giveGlyphs$1;（类名保留原函数名）",
+      "R107-01 sem-kajfosz 同结论（一致）"
+     ]
+    },
+    {
+     "descriptor": "i(Lvv3;ILkajfosz/antimatterdimensions/BigDouble;ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "giveRealityRewards",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:3294 方法体创建 Reality$giveRealityRewards$1（f.java:316-429 同一状态机）",
+      "与 Web reality.js 现实结算奖励入口同名；**更正 R107-01 将该方法标为 updatePastTenRealities 的结论**（类名证据不支持，见 corrections）"
+     ]
+    },
+    {
+     "descriptor": "j(IIZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "processAutoGlyph",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:4819 创建 Reality$processAutoGlyph$1"
+     ]
+    },
+    {
+     "descriptor": "k(Lvv3;ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "reality",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:5257 创建 Reality$reality$1；Web Reality.reality() 为现实主结算"
+     ]
+    },
+    {
+     "descriptor": "m(Lvv3;ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "realityReset",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:5434 创建 Reality$realityReset$1"
+     ]
+    },
+    {
+     "descriptor": "n(Lvv3;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "resetGlyphs",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:6465 创建 Reality$resetGlyphs$1"
+     ]
+    },
+    {
+     "descriptor": "o(Lvv3;ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "resetPlayer",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:6821 创建 Reality$resetPlayer$1"
+     ]
+    },
+    {
+     "descriptor": "d(Lkajfosz/antimatterdimensions/BigDouble;)Lkajfosz/antimatterdimensions/BigDouble;",
+     "semantic_name": "gainedRealityMachinesPerSecond",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:655 方法体 = fh2.g(EP).clampMax(fh2.d()).multiply(f.g()) 后 divide max(thisReality.realTime, 1.6666667e-5)：与 R107-01 p0-2-abi-probe §2 一致；是 RM/真实秒速率（UI 按钮用），**不是**单次收益",
+      "Web src/core/machines.js `gainedRealityMachines` = uncappedRM.clampMax(hardcapRM)（无时间除）→ 单次收益应在调用方自算，不能拿本方法当 gain"
+     ]
+    },
+    {
+     "descriptor": "g()I",
+     "semantic_name": "realityMachineMultiplier",
+     "confidence": "strong",
+     "evidence": [
+      "f.smali:1329 = p(false)+1；f.d() 用其乘 RM 基础值",
+      "Web src/core/machines.js realityMachineMultiplier = ShopPurchase.RMPurchases.currentMult * Teresa.rmMultiplier * Effects.max(1, PerkShopUpgrade.rmMult) * effarigrm * Achievement(167)"
+     ]
+    },
+    {
+     "descriptor": "p(Z)I",
+     "semantic_name": "realityMachineMultiplierImpl",
+     "confidence": "inferred",
+     "evidence": [
+      "f.smali:1373 读 celestials/nameless/a.q()D、f7.s(k6).j()、Player$Reality.r()D 等乘子后再 +1 由 g() 完成；实现体与 Web realityMachineMultiplier 组成大致对应，但未逐项排除"
+     ]
+    },
+    {
+     "descriptor": "q()V",
+     "semantic_name": "updateBestReality",
+     "confidence": "inferred",
+     "evidence": [
+      "f.smali:1525 读 Player$Records.l()(ThisReality).d()、reality/glyphs/i.A(null).k，写 ThisReality.r(D)（最佳记录更新形状）"
+     ]
+    },
+    {
+     "descriptor": "r(Lkajfosz/antimatterdimensions/BigDouble;)V",
+     "semantic_name": "updateThisRealityMaxRM",
+     "confidence": "inferred",
+     "evidence": [
+      "f.smali:1616 读 ThisReality.e()、调 f.d(p0) 后 clampMin 并写 ThisReality 记录"
+     ]
+    },
+    {
+     "descriptor": "c()Lw50;",
+     "semantic_name": "currentCelestial",
+     "confidence": "inferred",
+     "evidence": [
+      "f.smali:472 遍历 x50.a（Celestial 列表）并调 w50.d()；候选 currentCelestial / celestialWithRun，未唯一"
+     ]
+    },
+    {
+     "descriptor": "a()V",
+     "semantic_name": "UNKNOWN",
+     "confidence": "unknown",
+     "evidence": [
+      "f.smali:41 遍历 n63.a（挑战列表）与 th3.v（Pelle 升级）等，语义不唯一"
+     ]
+    },
+    {
+     "descriptor": "e()V",
+     "semantic_name": "UNKNOWN",
+     "confidence": "unknown",
+     "evidence": [
+      "f.smali:766 读 TickProfiler/Player.Auto 等，候选 gameTick 子阶段"
+     ]
+    },
+    {
+     "descriptor": "f()Z",
+     "semantic_name": "UNKNOWN",
+     "confidence": "unknown",
+     "evidence": [
+      "f.smali:1245 = (c01.a[5].B() && ThisReality.j() > f.b)，候选 canReality/isRealityAvailable，证据不足"
+     ]
+    },
+    {
+     "descriptor": "s(Lvv3;I)V",
+     "semantic_name": "UNKNOWN",
+     "confidence": "unknown",
+     "evidence": [
+      "f.smali:1750"
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "descriptor": "a:Lkajfosz/antimatterdimensions/prestige/f;",
+     "semantic_name": "singleton",
+     "confidence": "confirmed",
+     "evidence": [
+      "f.smali:7"
+     ]
+    },
+    {
+     "descriptor": "b:Lkajfosz/antimatterdimensions/BigDouble;",
+     "semantic_name": "UNKNOWN",
+     "confidence": "unknown",
+     "evidence": [
+      "f.smali:9；f()Z 中作为阈值参与比较，候选 realityRequirement"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/reality/upgrades/b;",
+   "semantic_name": "kajfosz.antimatterdimensions.reality.upgrades.RealityUpgrades",
+   "confidence": "strong",
+   "evidence": [
+    "wallet 注册表：static 字段 b..f 为 Lyw3;（可重复 RU1~5）见 b.smali:19-27；其余 Lkajfosz/antimatterdimensions/reality/upgrades/a; 为一次性 RU6~25（b.smali:29-67）",
+    "R107-01 p0-2-abi-probe §1 一致"
+   ],
+   "methods": [
+    {
+     "descriptor": "b()Z",
+     "semantic_name": "allBought",
+     "confidence": "confirmed",
+     "evidence": [
+      "b.smali:3805 方法体 = Player$Reality.D()(upgradeBits).a()(bitCount) == b.B.size()；Player$Reality.smali:87 字段名 upgradeBits 保留、BitSet.smali a()=Long.bitCount",
+      "Web reality-upgrades.js `RealityUpgrades.allBought` 同义"
+     ]
+    },
+    {
+     "descriptor": "a(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "autobuy",
+     "confidence": "strong",
+     "evidence": [
+      "b.smali 方法创建 RealityUpgrades$autobuy$1；R107-01 一致"
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "descriptor": "B:Ljava/util/List;",
+     "semantic_name": "allUpgradesList",
+     "confidence": "strong",
+     "evidence": [
+      "b.smali:9；b()Z 用其 size() 与 upgradeBits 基数比较"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/reality/upgrades/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.reality.upgrades.RealityUpgradeState",
+   "confidence": "strong",
+   "evidence": [
+    "a.smali:3 super Ltw;（位图型可购买基类）；注册表 b 的一次性 RU 字段类型"
+   ],
+   "methods": [
+    {
+     "descriptor": "N()Z",
+     "semantic_name": "canBeBought",
+     "confidence": "strong",
+     "evidence": [
+      "a.smali:526 方法体组合：字段 t（config.hasFailed lambda）invoke、yo2.d()、O()Z、A(false)Z、tw.B()Z（isBought）后返回真——与 Web BitPurchasableMechanicState.canBeBought 组成一致"
+     ]
+    },
+    {
+     "descriptor": "A(Z)Z",
+     "semantic_name": "isAvailableForPurchase",
+     "confidence": "confirmed",
+     "evidence": [
+      "a.smali:248 读 Player$Reality.E()=upgradeRequirementBits（Player$Reality.smali:89 字段名保留）并按 in1.c(id) 取位；与 Web `player.reality.upgReqs & (1<<id)` 逐字对应"
+     ]
+    },
+    {
+     "descriptor": "R()V",
+     "semantic_name": "tryUnlock",
+     "confidence": "strong",
+     "evidence": [
+      "a.smali:783 方法体：Player.P()（maxEP）compareTo fw.b、c01.a[5].B()（DS5）、字段 q（hasFailed）、lambda n（checkRequirement）、A(false) 守卫——与 Web tryUnlock：realityReached && !isAvailableForPurchase && checkRequirement 逐项对应"
+     ]
+    },
+    {
+     "descriptor": "C(ZZ)V",
+     "semantic_name": "onPurchased",
+     "confidence": "inferred",
+     "evidence": [
+      "a.smali:287；购买路径（uw3.D/is3.D 成功后）调 C(true,z)，与 Web onPurchased 位置一致（派发 REALITY_UPGRADE_BOUGHT/特例 id 9/10/20/24），未逐分支核对"
+     ]
+    },
+    {
+     "descriptor": "y()Liq0;",
+     "semantic_name": "currency",
+     "confidence": "strong",
+     "evidence": [
+      "a.smali:1281 返回 Currency 单例；Web RealityUpgradeState.currency = Currency.realityMachines"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lis3;",
+   "semantic_name": "kajfosz.antimatterdimensions.PurchasableMechanicState（可购买机制基类）",
+   "confidence": "strong",
+   "evidence": [
+    "is3.smali:2 super Lin1;；真实 RU 状态 a、Pelle 升级 vw3、膨胀研究 d01/a01/b01 等均 extends is3（R107-01 build_mod.py 注释/半默认包映射）"
+   ],
+   "methods": [
+    {
+     "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+     "semantic_name": "purchase",
+     "confidence": "strong",
+     "evidence": [
+      "R107-01 p0-2-abi-probe §1（is3.smali:181 起：a(z)->y().p(x())->E(true)->C(true,z)）；非 suspend，rj0 未使用可传 null"
+     ]
+    },
+    {
+     "descriptor": "x()Lkajfosz/antimatterdimensions/BigDouble;",
+     "semantic_name": "cost",
+     "confidence": "strong",
+     "evidence": [
+      "R107-01 p0-2-abi-probe §1（成本统一 x()；一次性字段/可重复 uw3 公式）"
+     ]
+    },
+    {
+     "descriptor": "B()Z",
+     "semantic_name": "isBought",
+     "confidence": "strong",
+     "evidence": [
+      "R107-01 p0-2-abi-probe §1（tw.B() 已买判定，被 a.N() 调用）"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Luw3;",
+   "semantic_name": "kajfosz.antimatterdimensions.RebuyableMechanicState（可重复购买机制基类）",
+   "confidence": "strong",
+   "evidence": [
+    "uw3.smali:2 super Lis3;；子类 yw3（RU1~5）、ec2（Perk 商店升级基类）",
+    "**对 R107-01 sem-default 名称『自动购买器升级项基类』的修正**：该类是 Web RebuyableMechanicState（可重复购买计数机制），不是自动购买器"
+   ],
+   "methods": [
+    {
+     "descriptor": "a(Z)Z",
+     "semantic_name": "canBeBought",
+     "confidence": "strong",
+     "evidence": [
+      "uw3.smali:267 调 is3.A(p1) 与 is3.z() 后返回；与 Web RebuyableMechanicState.canBeBought 组成一致"
+     ]
+    },
+    {
+     "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+     "semantic_name": "purchase",
+     "confidence": "strong",
+     "evidence": [
+      "R107-01 p0-2-abi-probe §1（uw3.smali:101-190：扣费 -> I()+1 -> J(I()J) 写计数 -> C(true,z)）；非 suspend"
+     ]
+    },
+    {
+     "descriptor": "I()J",
+     "semantic_name": "boughtAmount",
+     "confidence": "strong",
+     "evidence": [
+      "uw3.D 购买后 I()+1 再 J(count) 写回；Web RebuyableMechanicState.boughtAmount",
+      "count 落在 Player$Reality.rebuyables:[J]（Player$Reality.smali:71 字段名保留）"
+     ]
+    },
+    {
+     "descriptor": "J(J)V",
+     "semantic_name": "setBoughtAmount",
+     "confidence": "strong",
+     "evidence": [
+      "uw3.D 内写回计数；与 I() 配对"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lyw3;",
+   "semantic_name": "kajfosz.antimatterdimensions.reality.upgrades.RebuyableRealityUpgradeState（可重复 RU1~5）",
+   "confidence": "strong",
+   "evidence": [
+    "yw3.smali:1-2 `.class public final Lyw3; .super Luw3;`；注册表 b.smali:19-27 的 b..f 五个字段类型即 Lyw3;（RU1~5）",
+    "方法名与 reality/upgrades/a（一次性 RU）同族（F/I/J/K/k/s/w），属 Web RebuyableRealityUpgradeState"
+   ],
+   "methods": [
+    {
+     "descriptor": "F()Z",
+     "semantic_name": "isPossible",
+     "confidence": "inferred",
+     "evidence": [
+      "yw3.smali 方法列表与 a 同族；Web RebuyableRealityUpgradeState 覆写 isPossible/hasPlayerLock 等，未逐分支验证"
+     ]
+    },
+    {
+     "descriptor": "k()Z",
+     "semantic_name": "isEffectActive",
+     "confidence": "inferred",
+     "evidence": [
+      "同族方法，未逐分支验证"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Ltw;",
+   "semantic_name": "kajfosz.antimatterdimensions.BitPurchasableMechanicState（位图型可购买基类）",
+   "confidence": "strong",
+   "evidence": [
+    "tw.smali:1-2 `.class public abstract Ltw; .super Lis3;`；子类 w51、reality/upgrades/a；a.N() 内调用 tw.B() 作 isBought"
+   ]
+  },
+  {
+   "descriptor": "Lw50;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.Celestial（天体基类）",
+   "confidence": "strong",
+   "evidence": [
+    "w50.smali:1 `.class public abstract Lw50;`；构造入参为名称/描述 lambda 与子页配置；子类 celestials/pelle/c（Pelle, :2 super Lw50）、v/a、ra/a、effarig/a、nameless/a、laitela/a 同族"
+   ],
+   "methods": [
+    {
+     "descriptor": "c(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "initializeRun",
+     "confidence": "strong",
+     "evidence": [
+      "各子类覆写 c() 且方法体创建 `X$initializeRun$1`：effarig/a.smali:1006→:1052、nameless/a.smali:1787→:1833、v/a.smali:343、ra/a.smali:750",
+      "Web celestials/**.js 每个天体 `initializeRun()` 同名"
+     ]
+    },
+    {
+     "descriptor": "d()Z",
+     "semantic_name": "isRunning",
+     "confidence": "inferred",
+     "evidence": [
+      "子类统一覆写 d()Z；effarig/a:1261、nameless/a:1979、v/a:490、ra/a:897、laitela/a:1369、pelle/c:3673；Web Celestial 基类同组 getter，未逐类排除 isUnlocked 候选"
+     ]
+    },
+    {
+     "descriptor": "f(Z)V",
+     "semantic_name": "setRun",
+     "confidence": "inferred",
+     "evidence": [
+      "子类统一覆写 f(Z)V，与 Player$*.run 布尔配对（如 Player$Teresa.run:41）；候选 setRun/setUnlocked"
+     ]
+    },
+    {
+     "descriptor": "a()Ljava/lang/String;",
+     "semantic_name": "displayName",
+     "confidence": "inferred",
+     "evidence": [
+      "各子类 a() 返回本地化名称；pelle/c:3580"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/effarig/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.effarig.Effarig",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong；本轮补方法级"
+   ],
+   "methods": [
+    {
+     "descriptor": "c(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "initializeRun",
+     "confidence": "strong",
+     "evidence": [
+      "effarig/a.smali:1006 方法体 :1052 创建 Lkajfosz/antimatterdimensions/celestials/effarig/Effarig$initializeRun$1;"
+     ]
+    },
+    {
+     "descriptor": "g()I",
+     "semantic_name": "currentStage",
+     "confidence": "strong",
+     "evidence": [
+      "effarig/a.smali:196 返回 int 阶段；Web Effarig.currentStage（位索引）",
+      "h()LConstants$EffarigStage;（:350）为阶段枚举包装"
+     ]
+    },
+    {
+     "descriptor": "o(Lkajfosz/antimatterdimensions/BigDouble;)D",
+     "semantic_name": "nerfFactor",
+     "confidence": "strong",
+     "evidence": [
+      "effarig/a.smali:591 签名 (BigDouble)->D 与 Web Effarig.nerfFactor(power) 一致"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/nameless/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.nameless.Nameless（被奴役者 / Enslaved）",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong（nameless = Web Enslaved 的无名氏）；Player$Enslaved 字段名保留佐证（player/Player$Enslaved.smali）",
+    "本轮补 initializeRun 方法级"
+   ],
+   "methods": [
+    {
+     "descriptor": "c(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "initializeRun",
+     "confidence": "strong",
+     "evidence": [
+      "nameless/a.smali:1787 方法体 :1833 创建 Nameless$initializeRun$1"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/v/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.v.V",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong；本轮补方法级"
+   ],
+   "methods": [
+    {
+     "descriptor": "c(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "initializeRun",
+     "confidence": "strong",
+     "evidence": [
+      "v/a.smali:343 方法体创建 V$initializeRun$1"
+     ]
+    },
+    {
+     "descriptor": "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "UNKNOWN（候选 checkForUnlocks / updateTotalRunUnlocks）",
+     "confidence": "unknown",
+     "evidence": [
+      "v/a.smali:561；Web V 同时存在 checkForUnlocks(157) 与 updateTotalRunUnlocks(187)，无唯一证据"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/ra/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.ra.Ra",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong；本轮补方法级"
+   ],
+   "methods": [
+    {
+     "descriptor": "c(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "initializeRun",
+     "confidence": "strong",
+     "evidence": [
+      "ra/a.smali:750 创建 Ra$initializeRun$1"
+     ]
+    },
+    {
+     "descriptor": "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "checkForUnlocks",
+     "confidence": "strong",
+     "evidence": [
+      "ra/a.smali:968 创建 Ra$checkForUnlocks$1；Web Ra.checkForUnlocks 同名"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/ra/b;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.ra.RaUnlock 实例 A",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong；本轮补 onUnlock 方法级"
+   ],
+   "methods": [
+    {
+     "descriptor": "w(Lrj0;)Ljava/lang/Object;",
+     "semantic_name": "onUnlock",
+     "confidence": "strong",
+     "evidence": [
+      "ra/b.smali 创建 RaUnlocks$...$onUnlock$1（lambda 类名保留 onUnlock）"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.laitela.Laitela",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong；本轮补方法级"
+   ],
+   "methods": [
+    {
+     "descriptor": "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "annihilate",
+     "confidence": "strong",
+     "evidence": [
+      "laitela/a.smali:1440 创建 Laitela$annihilate$1；Web Laitela.annihilate 同名"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.pelle.Pelle",
+   "confidence": "strong",
+   "evidence": [
+    "pelle/c.smali:2 super Lw50（Celestial 基类）；R107-01 类级 strong"
+   ],
+   "methods": [
+    {
+     "descriptor": "g(ZZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "armageddon",
+     "confidence": "strong",
+     "evidence": [
+      "pelle/c.smali:3695 方法体创建 Pelle$armageddon$1；Web Pelle.armageddon(gainStuff)"
+     ]
+    },
+    {
+     "descriptor": "h(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "doom",
+     "confidence": "strong",
+     "evidence": [
+      "pelle/c.smali:4063 创建 Pelle$doom$1；Web Pelle 的 doom 进入路径"
+     ]
+    },
+    {
+     "descriptor": "i(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "gameTick",
+     "confidence": "strong",
+     "evidence": [
+      "pelle/c.smali:5792 创建 Pelle$gameTick$1；Web Pelle.gameLoop 驱动 tick"
+     ]
+    },
+    {
+     "descriptor": "p(Lkajfosz/antimatterdimensions/constants/Constants$PelleDisabledMechanic;)Z",
+     "semantic_name": "isDisabled",
+     "confidence": "confirmed",
+     "evidence": [
+      "pelle/c.smali:2922 唯一签名 (PelleDisabledMechanic)->bool；静态字段 n 为该 mechanic→lambda 的 Map（c.java:46）；Web Pelle.isDisabled(mechanic)"
+     ]
+    },
+    {
+     "descriptor": "o(Lkajfosz/antimatterdimensions/reality/glyphs/GlyphType;Landroid/graphics/Typeface;)Landroid/text/SpannableStringBuilder;",
+     "semantic_name": "getSpecialGlyphEffectDescription",
+     "confidence": "confirmed",
+     "evidence": [
+      "pelle/c.smali:2187 方法体使用 R.string.pelle_special_effect_infinity/time/dilation 等字符串；Web Pelle.getSpecialGlyphEffectDescription(type)"
+     ]
+    },
+    {
+     "descriptor": "d()Z",
+     "semantic_name": "isRunning",
+     "confidence": "inferred",
+     "evidence": [
+      "pelle/c.smali:3673 同族覆写（候选 isUnlocked）"
+     ]
+    },
+    {
+     "descriptor": "f(Z)V",
+     "semantic_name": "setRun",
+     "confidence": "inferred",
+     "evidence": [
+      "pelle/c.smali:3688 同族覆写"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/celestials/pelle/b;",
+   "semantic_name": "kajfosz.antimatterdimensions.celestials.pelle.GameEnd",
+   "confidence": "strong",
+   "evidence": [
+    "pelle/b.smali:1 抽象类，static 字段 a..f 布尔 + g double；创建 GameEnd$tick$1$1；R107-01 sem-kajfosz 类级 strong；docs/FACTS.md §58 与 hook-ledger BM-23 交叉"
+   ],
+   "methods": [
+    {
+     "descriptor": "b()D",
+     "semantic_name": "endState",
+     "confidence": "confirmed",
+     "evidence": [
+      "pelle/b.smali:69 方法体 = max((Player.isGameEnd?g:0) + ((log10(log10(Player$PelleRecords.totalAntimatter+1)+1) - 8.7)/(log10(9e15)-8.7)), 0)；与 Web pelte/game-end.js 原版 endState 公式逐字一致（Player$PelleRecords.smali:21 totalAntimatter 字段名保留）"
+     ]
+    },
+    {
+     "descriptor": "c()Z",
+     "semantic_name": "isGameEndReached",
+     "confidence": "confirmed",
+     "evidence": [
+      "pelle/b.smali:221 = b() >= 1.0；Web END_STATE_MARKERS.GAME_END = 1 且 gameLoop 以 endState>=GAME_END 置 isGameEnd"
+     ]
+    },
+    {
+     "descriptor": "d(D)V",
+     "semantic_name": "gameLoop",
+     "confidence": "confirmed",
+     "evidence": [
+      "pelle/b.smali:258 方法体：!Player.j0()(isGameEnd) 时 Player.I0(true)（isGameEnd=true），并 g += min(diff/1000/20, 0.1)（:258-323）；与 Web GameEnd.gameLoop(diff) 的 `additionalEnd += Math.min(diff/1000/20, 0.1)` 完全一致"
+     ]
+    },
+    {
+     "descriptor": "a()Z",
+     "semantic_name": "additionalEndActive",
+     "confidence": "inferred",
+     "evidence": [
+      "pelle/b.smali:23 = (c() || a) && !e；对应 Web additionalEnd 的生效条件（isGameEnd||creditsClosed 且 !removeAdditionalEnd），static a/e 未逐一确认"
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "descriptor": "g:D",
+     "semantic_name": "additionalEnd",
+     "confidence": "confirmed",
+     "evidence": [
+      "pelle/b.smali:19；endState 中 `Player.isGameEnd?g:0` 与 gameLoop 累加 min(diff/1000/20,0.1)——即 Web `_additionalEnd`"
+     ]
+    },
+    {
+     "descriptor": "e:Z",
+     "semantic_name": "removeAdditionalEnd",
+     "confidence": "inferred",
+     "evidence": [
+      "pelle/b.smali:15；a()Z 中作 !e 守卫"
+     ]
+    },
+    {
+     "descriptor": "a:Z",
+     "semantic_name": "creditsClosed",
+     "confidence": "inferred",
+     "evidence": [
+      "pelle/b.smali:7；a()Z 条件之一"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/player/Player;",
+   "semantic_name": "kajfosz.antimatterdimensions.player.Player",
+   "confidence": "confirmed",
+   "evidence": [
+    "Player.smali 存档根类（R107-01 batch2 confirmed）"
+   ],
+   "methods": [
+    {
+     "descriptor": "j0()Z",
+     "semantic_name": "isGameEnd",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player.smali:9295 读字段 isGameEnd（Player.smali:169 字段名保留）"
+     ]
+    },
+    {
+     "descriptor": "I0(Z)V",
+     "semantic_name": "setGameEnd",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player.smali:8542 写字段 isGameEnd（:169）"
+     ]
+    },
+    {
+     "descriptor": "Y0(Z)V",
+     "semantic_name": "setSavedFinalRiftCheckpoint",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player.smali:8952 写字段 savedFinalRiftCheckpoint（:199）"
+     ]
+    },
+    {
+     "descriptor": "W()Z",
+     "semantic_name": "savedFinalRiftCheckpoint",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player.smali:8892 读字段 savedFinalRiftCheckpoint（:199）"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+   "semantic_name": "kajfosz.antimatterdimensions.player.Player$Reality",
+   "confidence": "confirmed",
+   "evidence": [
+    "R107-01 batch2 confirmed（字段名保留，存档兼容）"
+   ],
+   "methods": [
+    {
+     "descriptor": "u()Lkajfosz/antimatterdimensions/BigDouble;",
+     "semantic_name": "realityMachines",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Reality.smali:937 读字段 realityMachines（:69 保留名）"
+     ]
+    },
+    {
+     "descriptor": "D()Lkajfosz/antimatterdimensions/BitSet;",
+     "semantic_name": "upgradeBits",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Reality.smali:427 读字段 upgradeBits（:87）"
+     ]
+    },
+    {
+     "descriptor": "E()Lkajfosz/antimatterdimensions/BitSet;",
+     "semantic_name": "upgradeRequirementBits",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Reality.smali:438 读字段 upgradeRequirementBits（:89）"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/player/Player$Teresa;",
+   "semantic_name": "kajfosz.antimatterdimensions.player.Player$Teresa",
+   "confidence": "confirmed",
+   "evidence": [
+    "R107-01 batch2 confirmed"
+   ],
+   "methods": [
+    {
+     "descriptor": "e()D",
+     "semantic_name": "pouredAmount",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Teresa.smali:186 读字段 pouredAmount（:37）"
+     ]
+    },
+    {
+     "descriptor": "m(D)V",
+     "semantic_name": "setPouredAmount",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Teresa.smali:289 写字段 pouredAmount（:37）"
+     ]
+    },
+    {
+     "descriptor": "h()Lkajfosz/antimatterdimensions/BitSet;",
+     "semantic_name": "unlockBits",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Teresa.smali:219 读字段 unlockBits（:43）"
+     ]
+    },
+    {
+     "descriptor": "d()[J",
+     "semantic_name": "perkShop",
+     "confidence": "confirmed",
+     "evidence": [
+      "Player$Teresa.smali:175 读字段 perkShop（:35）"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+   "semantic_name": "kajfosz.antimatterdimensions.reality.glyphs.Glyphs",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 sem-kajfosz 类级 strong；本轮补方法级（lambda 类名证据）"
+   ],
+   "methods": [
+    {
+     "descriptor": "a(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;Ljava/lang/Integer;ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "addToInventory",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:15060 创建 Glyphs$addToInventory$1"
+     ]
+    },
+    {
+     "descriptor": "j(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;Ljava/lang/Integer;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "equip",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:15847 创建 Glyphs$equip$1"
+     ]
+    },
+    {
+     "descriptor": "k(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;IILkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "removeGlyph",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:8811 创建 Glyphs$removeGlyph$1"
+     ]
+    },
+    {
+     "descriptor": "O()V",
+     "semantic_name": "refreshActive",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:4111 创建 Glyphs$refreshActive$N"
+     ]
+    },
+    {
+     "descriptor": "J(IZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "loadGlyphSet",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:10982 创建 Glyphs$loadGlyphSet$1"
+     ]
+    },
+    {
+     "descriptor": "P(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "respec",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:12245 创建 Glyphs$respec$1"
+     ]
+    },
+    {
+     "descriptor": "T(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "undo",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:12402 创建 Glyphs$undo$1"
+     ]
+    },
+    {
+     "descriptor": "U(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "undoAvailable",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:13760 创建 Glyphs$undoAvailable$1"
+     ]
+    },
+    {
+     "descriptor": "W(IILkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "unequip",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:13981 创建 Glyphs$unequip$1"
+     ]
+    },
+    {
+     "descriptor": "X(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "unequipAll",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:14349 创建 Glyphs$unequipAll$1"
+     ]
+    },
+    {
+     "descriptor": "Y(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;IILkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+     "semantic_name": "unequipInner",
+     "confidence": "strong",
+     "evidence": [
+      "glyphs/i.smali:14837 创建 Glyphs$unequipInner$1"
+     ]
+    }
+   ]
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+   "semantic_name": "kajfosz.antimatterdimensions.reality.imaginary_upgrades.ImaginaryUpgradeState",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 sem-kajfosz 类级 strong（this0：ImaginaryUpgradeState$4 内部类名保留）",
+    "方法族与 reality/upgrades/a 同构（A(Z)/C(ZZ)/K/L/M/N/O/…），本轮未逐方法对照 Web imaginary-upgrades.js → 方法级留 UNKNOWN"
+   ],
+   "methods": []
+  },
+  {
+   "descriptor": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;",
+   "semantic_name": "kajfosz.antimatterdimensions.reality.imaginary_upgrades.ImaginaryUpgrades",
+   "confidence": "strong",
+   "evidence": [
+    "R107-01 类级 strong；注册表（a(LContinuation)=autobuy 协程）"
+   ]
+  }
+ ],
+ "abi_checks_against_oreki_kotlin": [
+  {
+   "consumer": "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiRealityUpgrades.kt",
+   "verdict": "PASS（当前工作区；R107-01 提交 091010c0 版本曾有 MISMATCH，已被 R108-01 08:29 修复）",
+   "checks": [
+    {
+     "abi": "REGISTRY = kajfosz.antimatterdimensions.reality.upgrades.b",
+     "actual": "Lkajfosz/antimatterdimensions/reality/upgrades/b;",
+     "verdict": "OK",
+     "evidence": "b.smali:1"
+    },
+    {
+     "abi": "BASE_ONE_TIME = kajfosz.antimatterdimensions.reality.upgrades.a",
+     "actual": "Lkajfosz/antimatterdimensions/reality/upgrades/a;",
+     "verdict": "OK",
+     "evidence": "a.smali:1"
+    },
+    {
+     "abi": "REBUYABLE",
+     "actual": "Lyw3;（默认包，binary name 只能是 \"yw3\"）",
+     "verdict": "WORKTREE 已修为 \"yw3\"（kt:44）；git HEAD 091010c0 仍是错误 FQN \"kajfosz.antimatterdimensions.reality.upgrades.yw3\"",
+     "evidence": "yw3.smali:1 `.class public final Lyw3;`；b.smali:19-27 字段类型 Lyw3；HEAD 版本 Class.forName 必抛 ClassNotFoundException → resolve() 恒 false → RU 自动购买全失效"
+    },
+    {
+     "abi": "一次性 D(ZLrj0;)Ljava/lang/Boolean; / x() / N() / A(false) / R() / b()Z",
+     "actual": "全部存在且语义与探针一致",
+     "verdict": "OK",
+     "evidence": "p0-2-abi-probe.md §1 + 本文件 classes 段行号"
+    },
+    {
+     "abi": "isBought = B()Z",
+     "verdict": "OK（tw.B()/is3.B()）",
+     "evidence": "a.N() 调用 tw.B()"
+    }
+   ]
+  },
+  {
+   "consumer": "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiRealityPacing.kt",
+   "verdict": "PASS（静态 ABI 存在性核对；语义注意：f.d() 是 RM/秒，不是单次收益）",
+   "checks": [
+    {
+     "abi": "Player.a.Q().u() = realityMachines",
+     "verdict": "OK",
+     "evidence": "Player$Reality.smali:937/:69"
+    },
+    {
+     "abi": "prestige.c.g() = gainedEternityPoints",
+     "verdict": "OK（R107-01 探针已核）",
+     "evidence": "p0-2-abi-probe.md §2"
+    },
+    {
+     "abi": "fh2.g(BigDouble) / fh2.d()",
+     "verdict": "OK（static，签名匹配）",
+     "evidence": "fh2.smali 方法声明"
+    },
+    {
+     "abi": "prestige.f.g()I = RM 倍率；BigDouble.multiply(I)",
+     "verdict": "OK",
+     "evidence": "f.smali:1329；BigDouble.smali multiply(I) 存在"
+    },
+    {
+     "abi": "reality/upgrades/b.b()Z = 一次性已买齐",
+     "verdict": "OK（= allBought, upgradeBits.bitCount==B.size()）",
+     "evidence": "b.smali:3805"
+    },
+    {
+     "abi": "DS1 判定 c01.a(4).B()",
+     "verdict": "未在本轮复核（c01=膨胀研究表候选）",
+     "evidence": "—"
+    }
+   ]
+  },
+  {
+   "consumer": "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
+   "verdict": "PASS",
+   "checks": [
+    {
+     "abi": "Player.Reality.D()/BitSet.a() = 一次性 RU 已买位数",
+     "verdict": "OK",
+     "evidence": "Player$Reality.smali:427（upgradeBits）/BitSet.smali a()=Long.bitCount"
+    },
+    {
+     "abi": "Player.Celestials.f().e()/m(D) = pouredAmount get/set",
+     "verdict": "OK",
+     "evidence": "Player$Celestials.f() 读字段 teresa；Player$Teresa.smali:186/:289"
+    },
+    {
+     "abi": "MainActivity.yo 静态布尔 = 按住浇注",
+     "verdict": "OK（字段存在；主循环读取点见 a.smali:5733 r()V）",
+     "evidence": "MainActivity.smali:156 .field public static yo:Z"
+    }
+   ]
+  }
+ ],
+ "corrections_to_previous_rounds": [
+  {
+   "id": "C-01",
+   "target": "docs/deobfuscation/data/r107-kajfosz/3.21-semantic-kajfosz.json",
+   "item": "Lkajfosz/antimatterdimensions/prestige/f; -> i(...)",
+   "r107_claim": "updatePastTenRealities",
+   "this_round": "giveRealityRewards",
+   "evidence": [
+    "f.smali:3294 创建 Reality$giveRealityRewards$1（DEX 保留的 lambda 类名）",
+    "脚本侧 pastTenRealities.time 锚点实际在 jl2.smali:10279 / hl2.smali:859（build_mod.py A4），不依赖 f.i"
+   ],
+   "impact": "仅映射表语义更正；未发现依赖 f.i=updatePastTenRealities 的补丁，故无运行影响。历史文件未改（按纪律），仅在本轮文件登记。"
+  },
+  {
+   "id": "C-02",
+   "target": "docs/deobfuscation/data/r107-default/semantic.json",
+   "item": "Luw3;",
+   "r107_claim": "自动购买器升级项基类",
+   "this_round": "RebuyableMechanicState（可重复购买计数机制基类）",
+   "evidence": [
+    "uw3.smali:2 super Lis3;；子类 yw3=RU1~5 可重复、ec2=Perk 商店升级基类；uw3.I()J/J(J)V=boughtAmount get/set，D 购买时计数+1"
+   ],
+   "impact": "命名精确化；不影响既有补丁（无代码引用该名称）"
+  }
+ ],
+ "still_unknown": [
+  "Prestige/f 的 a()/e()/f()/s() 与字段 b 语义（UNKNOWN）",
+  "V 的 g(Continuation)（checkForUnlocks / updateTotalRunUnlocks 二选一）",
+  "Effarig 的 i()/j()/l()/m()/n()/k()/p() 静态方法族（仅 currentStage/nerfFactor 已定位）",
+  "Nameless(Enslaved) 的 A/B/i..z 静态方法族（仅 initializeRun 已定位）",
+  "Laitela 的 j..v 静态方法族（仅 annihilate 已定位）",
+  "Pelle 的 j()/k()/l()/m()/n()/q()/r()/s(Z,GlyphType) 与 GameEnd static a..f 精确语义",
+  "Perk 购买方法级入口（候选：vi3 注册表 + ii3/na4 购买流程；本轮未定位到可确认的单方法）",
+  "膨胀升级（DilationUpgrade / DilationRebuyable）购买方法级入口（候选 d01/a01/b01 膨胀研究 + 未定位的 DT 升级购买器）",
+  "ImaginaryUpgradeState 方法级（A/C/K..s 与 reality/upgrades/a 同构但未逐方法对照 Web）",
+  "Glyphs 其余方法（b/c/e/f/g/h/i/l/m/... 评分/排序/删除/背包整理）——只确认了 lambda 可证的 11 个入口"
+ ],
+ "method_level_audit_note": "本轮先做『lambda 类名可证』与『Web 公式字面一致』两类高置信证据；其余标注 UNKNOWN，禁止用占位命名当作语义确认。",
+ "counts": {
+  "class_entries": 22,
+  "total_mapped_entries": 108,
+  "by_confidence": {
+   "confirmed": 23,
+   "strong": 64,
+   "inferred": 15,
+   "unknown": 6
+  }
+ },
+ "batch2": {
+  "generated_at": "2026-11-14T09:45:00+0800",
+  "scope": "第 2 批：Perk / 膨胀升级 / Imaginary / Glyph 管理 / Effarig·V·Ra 购买入口",
+  "evidence_sources": [
+   "work/output_code_321_r88/sources/defpackage/*.java 与 kajfosz/**.java（3.21 JADX；本轮主证据：构造函数常量/字段类型/方法体）",
+   "work/base_decoded_321/smali*（方法体逐指令；字段访问器→保留字段映射）",
+   "web/AD-Oreki-Edition/src/core/{perks.js,secret-formula/eternity/dilation-upgrades.js,imaginary-upgrades.js,glyphs/auto-glyph-processor.js,secret-formula/celestials/effarig.js,celestials/V.js,celestials/ra/ra.js,infinity-upgrades.js}"
+  ],
+  "entries": [
+   {
+    "kind": "class",
+    "class": "Lis3;",
+    "descriptor": "Lis3;",
+    "semantic_name": "kajfosz.antimatterdimensions.PurchasableMechanicState（可购买机制基类：购买/成本/可负担/已买位）",
+    "confidence": "strong",
+    "evidence": [
+     "is3.smali:2 `.super Lin1;`",
+     "D 方法体：a(Z)->y().p(x())->E(true)->C(true,z)（is3.smali，R107-01 p0-2-abi-probe §1 一致）",
+     "z() 方法体：y().l(x())（余额检查）",
+     "JADX defpackage/is3.java 方法族 B/E/A/a/z/x/y/D"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（统一购买入口；z 由子类解释，rj0 传 null）",
+    "confidence": "confirmed",
+    "evidence": [
+     "is3.smali D 方法体",
+     "R107-01 p0-2-abi-probe.md §1: 非 suspend、rj0 未使用"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "a(Z)Z",
+    "semantic_name": "canBeBought（!B() && z() && A(p1)）",
+    "confidence": "confirmed",
+    "evidence": [
+     "is3.smali a(Z)Z 方法体：B()->z()->A(p1) 组合"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "z()Z",
+    "semantic_name": "canAfford（y().l(x())）",
+    "confidence": "confirmed",
+    "evidence": [
+     "is3.smali z()Z 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "x()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "cost（is3.i 字段）",
+    "confidence": "confirmed",
+    "evidence": [
+     "is3.smali x()Z 方法体 iget is3.i"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency（默认 imaginaryMachines：iq0.c0:Lxp0；子类覆写）",
+    "confidence": "confirmed",
+    "evidence": [
+     "is3.smali y() 方法体 sget iq0.c0:Lxp0"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "B()Z",
+    "semantic_name": "isBought（默认走 tw.J() 位图；子类可覆写）",
+    "confidence": "strong",
+    "evidence": [
+     "tw.smali B()Z 方法体：J().e(I())"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lis3;",
+    "descriptor": "E(Z)V",
+    "semantic_name": "setBought（默认走 tw.J().g(I()) 置位）",
+    "confidence": "strong",
+    "evidence": [
+     "tw.smali E(Z)V 方法体：J().g(I())"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lna4;",
+    "descriptor": "Lna4;",
+    "semantic_name": "kajfosz.antimatterdimensions.SetPurchasableMechanicState（集合型可购买基类：set=Player.Reality.perks）",
+    "confidence": "strong",
+    "evidence": [
+     "na4.smali:2 `.super Lis3;`",
+     "na4.B() 方法体：I()(set).contains(in1.c id)",
+     "na4.E(Z)V 方法体：I().add(id)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lna4;",
+    "descriptor": "B()Z",
+    "semantic_name": "isBought（Player.Reality.perks 列表包含本 id）",
+    "confidence": "confirmed",
+    "evidence": [
+     "na4.smali B()Z：Lna4.I()->List.contains(Integer.valueOf(in1.c))"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lna4;",
+    "descriptor": "E(Z)V",
+    "semantic_name": "setBought（向 perks 列表 add id）",
+    "confidence": "confirmed",
+    "evidence": [
+     "na4.smali E(Z)V：List.add(Integer.valueOf(in1.c))"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lna4;",
+    "descriptor": "I()Ljava/util/List;",
+    "semantic_name": "set（perks 列表；Player$Reality.t()）",
+    "confidence": "confirmed",
+    "evidence": [
+     "na4.I() 方法体：Player.Q().t()（Player$Reality.smali: t()=perks）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lii3;",
+    "descriptor": "Lii3;",
+    "semantic_name": "kajfosz.antimatterdimensions.perks.PerkState（天赋节点；extends na4）",
+    "confidence": "strong",
+    "evidence": [
+     "ii3.smali:2 `.super Lna4;`",
+     "ii3 ctor 以 fw.C(=1) 调 na4.<init>（cost=1）",
+     "vi3 注册表全部实例类型为 ii3/oi3/pi3/qi3/ri3/si3/ui3"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lii3;",
+    "descriptor": "A(Z)Z",
+    "semantic_name": "isAvailableForPurchase（id==0 || 任一 connectedPerk 已买）",
+    "confidence": "confirmed",
+    "evidence": [
+     "ii3.smali A(Z)Z：in1.c==0 或遍历 LinkedHashSet ii3.p 调 na4.B()；JADX defpackage/ii3.java 同语义"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lii3;",
+    "descriptor": "I()Ljava/util/List;",
+    "semantic_name": "set（perks 列表；覆写 na4 set 访问器）",
+    "confidence": "confirmed",
+    "evidence": [
+     "ii3.smali I() 方法体：Player.Q().t()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lii3;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency（perkPoints 货币：iq0.Z:Lzp0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "ii3.smali y()：sget-object iq0.Z:Lzp0;",
+     "JADX defpackage/ii3.java get currency -> Currency.perkPoints"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lii3;",
+    "descriptor": "<init>(ILfm1;Ljava/lang/String;Lfm1;Lfm1;Lfm1;ILfm1;)",
+    "semantic_name": "Perk 构造（cost 固定 1：fw.C）",
+    "confidence": "confirmed",
+    "evidence": [
+     "ii3.smali ctor 内 sget-object fw.C 后 invoke-direct na4.<init>(I,BigDouble,...)",
+     "Web perks.js: get cost(){ return 1; }"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lvi3;",
+    "descriptor": "Lvi3;",
+    "semantic_name": "kajfosz.antimatterdimensions.Perks（Perk 注册表，48 实例 + W:mx + X:List）",
+    "confidence": "confirmed",
+    "evidence": [
+     "vi3.smali static 字段：a:ui3、b..Q:ii3/R:oi3/S:pi3/T:qi3/U:ri3/V:si3、W:mx、X:List",
+     "JADX defpackage/vi3.java:11891 `X = kn6.H(ui3Var, ii3Var, ... )` 共 48 个实例（与 R107-01 报告『79 项』的 R.string.perk_* 计数口径不同，实例数以 DEX 为准）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lvi3;",
+    "descriptor": "X:Ljava/util/List;",
+    "semantic_name": "all（全部 Perk 实例列表，48 项）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/vi3.java:11891"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lin1;",
+    "descriptor": "c:I",
+    "semantic_name": "id（节点数字 id；Player$GlyphScoreType/Perk/RU 等通用）",
+    "confidence": "confirmed",
+    "evidence": [
+     "in1.smali 字段 `.field public final c:I`；na4.B() 以 in1.c 作列表元素比较"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lmx;",
+    "descriptor": "Lmx;",
+    "semantic_name": "kajfosz.antimatterdimensions.PerkCondition/购买条件策略（TalentStrategy；vi3.W）",
+    "confidence": "inferred",
+    "evidence": [
+     "vi3.W:Lmx;",
+     "mx.smali 唯一方法 a(Z)Z；R107-01 sem-default 命名『天赋购买条件/应用策略类』"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lmx;",
+    "descriptor": "a(Z)Z",
+    "semantic_name": "isAvailableForPurchase 条件判定（天赋组条件，按 byte 分支）",
+    "confidence": "inferred",
+    "evidence": [
+     "mx.smali a(Z)Z"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "s()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "perkPoints getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.smali: s() iget perkPoints（字段 :57 保留名）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "S(Lkajfosz/antimatterdimensions/BigDouble;)V",
+    "semantic_name": "setPerkPoints",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.S() iput perkPoints"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "t()Ljava/util/List;",
+    "semantic_name": "perks 列表 getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.t() iget perks"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "T(Ljava/util/ArrayList;)V",
+    "semantic_name": "setPerks",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.T() iput perks"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "semantic_name": "kajfosz.antimatterdimensions.eternity.dilation.DilationUpgrades（膨胀升级注册表）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/.../eternity/dilation/b.java: 静态字段 b:Lqw3; c:BigDouble; d:g01; e:i01; f/g/h/j/k/p/q:Le01; i:h01; l:j01; m/n/o:Lqw3; r/s/t:List",
+     "JADX 构造 id：b=qw3(0), d=g01(1), e=i01(2), f=e01(3), g=e01(4), h=e01(5), i=h01(6), j=e01(7), k=e01(8), l=j01(9), m=qw3(3), n=qw3(4), o=qw3(5), p=e01(10), q=e01(11)"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/a;",
+    "descriptor": "Lkajfosz/antimatterdimensions/eternity/dilation/a;",
+    "semantic_name": "kajfosz.antimatterdimensions.eternity.dilation.Dilation（膨胀公式/解锁协程；Dilation$unlock$1）",
+    "confidence": "strong",
+    "evidence": [
+     "a.smali:1-2 `.class final .../eternity/dilation/a; .super Object;`",
+     "方法 a(D)D/b..l+ m(Z,Continuation)=unlock 协程；目录内 Dilation$unlock$1.smali"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Le01;",
+    "descriptor": "Le01;",
+    "semantic_name": "kajfosz.antimatterdimensions.DilationUpgradeState（一次性膨胀升级；extends tw）",
+    "confidence": "confirmed",
+    "evidence": [
+     "e01.smali:2 `.super Ltw;`",
+     "e01 方法：A/F/I/J/K/s/y（无 D 覆写 → 购买走 is3.D）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lqw3;",
+    "descriptor": "Lqw3;",
+    "semantic_name": "kajfosz.antimatterdimensions.RebuyableDilationUpgradeState（可重复膨胀升级；extends ec2(=uw3 子类)）",
+    "confidence": "confirmed",
+    "evidence": [
+     "qw3.smali:2 `.super Lec2;`",
+     "qw3 方法：A/D/F/I/J/N/O/s/w/y（覆写 D=批量购买、I/J=已买次数）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lg01;",
+    "descriptor": "Lg01;",
+    "semantic_name": "qw3 子类（可重复升级特殊 onPurchased，覆写 C(ZZ)V）",
+    "confidence": "confirmed",
+    "evidence": [
+     "defpackage/g01.java: `public final class g01 extends qw3 { public final void C(boolean,boolean) }`"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Li01;",
+    "descriptor": "Li01;",
+    "semantic_name": "qw3 子类（覆写 O(J) setCount）",
+    "confidence": "confirmed",
+    "evidence": [
+     "defpackage/i01.java: extends qw3; 覆写 O(long)"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lh01;",
+    "descriptor": "Lh01;",
+    "semantic_name": "e01 子类（一次性升级特殊展示，覆写 l()）",
+    "confidence": "confirmed",
+    "evidence": [
+     "defpackage/h01.java: extends e01; 覆写 l()"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lj01;",
+    "descriptor": "Lj01;",
+    "semantic_name": "e01 子类（一次性升级特殊 onPurchased，覆写 C(ZZ)V）",
+    "confidence": "confirmed",
+    "evidence": [
+     "defpackage/j01.java: extends e01; 覆写 C(boolean,boolean)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqw3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase(bulk)（批量购买可重复膨胀升级；z=bulk）",
+    "confidence": "confirmed",
+    "evidence": [
+     "qw3.D 方法体：uw3.a(z) 可买判定 -> PerkShop 加成（hi3.c / vi3.Q）-> min(count,Player$Dilation.rebuyables[id]) -> BigDouble 等比数列成本 -> iq0 W(dilatedTime).p(cost) -> 计数写回",
+     "Web dilation.js buyDilationUpgrade(id,bulk) 同语义；Web 注释『Upgrades 1-3 可用 perk shop 升级批量购买』"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Le01;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（继承 is3.D；一次性升级；z=true）",
+    "confidence": "strong",
+    "evidence": [
+     "e01 无 D 覆写；is3.D 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Le01;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency（dilatedTime：iq0.W:Ltp0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "e01.smali y(): sget iq0.W:Ltp0;",
+     "Web DilationUpgradeState.currency = Currency.dilatedTime"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqw3;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency（dilatedTime：iq0.W:Ltp0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "qw3.smali y(): sget iq0.W:Ltp0;"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqw3;",
+    "descriptor": "I()J",
+    "semantic_name": "boughtAmount getter（Player$Dilation.rebuyables[id]）",
+    "confidence": "confirmed",
+    "evidence": [
+     "qw3.I() 覆写：读 Player$Dilation.g()[J（Player$Dilation.smali g()=rebuyables）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqw3;",
+    "descriptor": "J(J)V",
+    "semantic_name": "setBoughtAmount",
+    "confidence": "confirmed",
+    "evidence": [
+     "qw3.J(J) 覆写：写 Player$Dilation 计数"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Le01;",
+    "descriptor": "J()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "bits（Player$Dilation.j()=upgradeBits）",
+    "confidence": "confirmed",
+    "evidence": [
+     "e01.J() 覆写；Player$Dilation.smali: j()=upgradeBits"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Dilation;",
+    "descriptor": "g()[J",
+    "semantic_name": "rebuyables（可重复升级次数数组，索引=注册表 id 0..5）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Dilation.smali: g() iget rebuyables（字段 :保留名）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Dilation;",
+    "descriptor": "j()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "upgradeBits（一次性膨胀升级位图）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Dilation.j()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Dilation;",
+    "descriptor": "i()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "tachyonParticles",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Dilation.i()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Dilation;",
+    "descriptor": "c()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "dilatedTime",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Dilation.c()"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": null,
+    "semantic_name": "可重复膨胀升级 6 项 id→注册表字段：0=b、1=d、2=e、3=m、4=n、5=o（按创建 id 顺序）；Web 同名顺序为 dtGain, galaxyThreshold, tachyonGain, dtGainPelle, galaxyMultiplier, tickspeedPower（STRONG，仅顺序对应；**未解码 fw 常量，不把具体名字写死**）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX b.java 构造 id 与字段赋值顺序",
+     "Web secret-formula/eternity/dilation-upgrades.js id 1/2/3/11/12/13"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": null,
+    "semantic_name": "一次性膨胀升级 9 项 id→注册表字段：3=f、4=g、5=h、6=i(h01)、7=j、8=k、9=l(j01)、10=p、11=q（CONFIRMED by JADX ids）；Web 侧 id 为 4..10/14/15 且 3.21 Android 与冻结 Web 版本存在 id/集合差异 → 具体名字保持 UNKNOWN",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/.../eternity/dilation/b.java 构造 id",
+     "Web 数据库 id 表差异（Android 3.21 与 Web 冻结上游不同版本）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;",
+    "descriptor": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;",
+    "semantic_name": "kajfosz.antimatterdimensions.reality.imaginary_upgrades.ImaginaryUpgrades（想象升级注册表）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/.../reality/imaginary_upgrades/b.java: 静态字段 b..f:tw3（5 个可重复）、g..j/n/q/r:a（一次性）、k:g02、l:c02、m:d02、o:f02、p:j02、s:i02；t/u:List、v:ArrayList",
+     "JADX 构造 id：tw3(0..4)、a(0),a(1),a(2),a(3),a(9),a(12),a(13) 等（一次性 id 0..）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "descriptor": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "semantic_name": "kajfosz.antimatterdimensions.reality.imaginary_upgrades.ImaginaryUpgradeState（一次性；extends tw）",
+    "confidence": "confirmed",
+    "evidence": [
+     "a.smali:2 `.super Ltw;`",
+     "a 方法：A(Z)Z 可用判定、C(ZZ)V onPurchased、b()V、e()LBitSet=bits、K/L/M/N/O 等；无 D 覆写 → 购买=is3.D"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Ltw3;",
+    "descriptor": "Ltw3;",
+    "semantic_name": "kajfosz.antimatterdimensions.RebuyableImaginaryUpgradeState（可重复想象升级；extends uw3）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/tw3.java: `public final class tw3 extends uw3`；覆写 I()/J() 读写 Player$Reality.i()[J（imaginaryRebuyables）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（继承 is3.D；currency=imaginaryMachines）",
+    "confidence": "strong",
+    "evidence": [
+     "a 未覆写 D；is3.y() 默认返回 iq0.c0:Lxp0(imaginaryMachines)",
+     "Web imaginary-upgrades.js: ImaginaryUpgradeState.currency=Currency.imaginaryMachines"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ltw3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（继承 uw3.D；可重复计数）",
+    "confidence": "confirmed",
+    "evidence": [
+     "tw3 未覆写 D；uw3.D = 计数购买；tw3.I()/J() 读写 imaginaryRebuyables"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "descriptor": "e()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "bits（Player$Reality.k()=imaginaryUpgradeBits）",
+    "confidence": "strong",
+    "evidence": [
+     "a.e() 方法体读 Player.Q().k()；Player$Reality.k()=imaginaryUpgradeBits"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "descriptor": "A(Z)Z",
+    "semantic_name": "isAvailableForPurchase（imaginaryRequirementBits 位）",
+    "confidence": "strong",
+    "evidence": [
+     "a.A(Z)Z 读 Player$Reality.j()=imaginaryRequirementBits"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "descriptor": "C(ZZ)V",
+    "semantic_name": "onPurchased",
+    "confidence": "strong",
+    "evidence": [
+     "a.C(ZZ)V；is3.D 购买成功后调 C(true,z)",
+     "Web onPurchased 同位置"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/a;",
+    "descriptor": "b()V",
+    "semantic_name": "onPurchased 特例（部分升级的购买回调）",
+    "confidence": "inferred",
+    "evidence": [
+     "a.b()V；JADX defpackage/g02.java 覆写 C(ZZ)V 后重置 DarkMatterDimensionState[0]（对应 R107 sem-default『购买回调重置暗物质维度1』）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "k()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "imaginaryUpgradeBits",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.k() iget imaginaryUpgradeBits（字段 :保留名）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "j()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "imaginaryRequirementBits",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.j()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "i()[J",
+    "semantic_name": "imaginaryRebuyables",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.i()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "L([J)V",
+    "semantic_name": "setImaginaryRebuyables",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.L([J)"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Reality;",
+    "descriptor": "imaginaryMachines:D",
+    "semantic_name": "imaginaryMachines（货币数量 double）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Reality.smali 字段 imaginaryMachines:D（保留名）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Ldl;",
+    "descriptor": "Ldl;",
+    "semantic_name": "kajfosz.antimatterdimensions.AutoGlyphProcessor（自动符文评分/筛选；CONFIRMED 由 JADX 内容与 Web auto-glyph-processor.js 对应）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/dl.java: a()=scoreMode、b(Glyph)=thresholdValue、c()=types map、d(Glyph)=filterValue、e(List)=bestOf、f(Glyph)=score-threshold、h(Glyph)=shouldKeep",
+     "与 Web src/core/glyphs/auto-glyph-processor.js: scoreMode/thresholdValue/filterValue/bestOf 逐条对应"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ldl;",
+    "descriptor": "d(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;)D",
+    "semantic_name": "filterValue(glyph)（符文评分；按 scoreMode 分支）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/dl.java d(Glyph)：按 a() 0..6 分支返回分数；错误文案 `Unknown glyph score mode in score assignment`（与 Web 同文案）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ldl;",
+    "descriptor": "f(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;)D",
+    "semantic_name": "score − thresholdValue（加权分）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX dl.f(Glyph)：d(glyph) - b(glyph)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ldl;",
+    "descriptor": "h(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;)Z",
+    "semantic_name": "shouldKeep（分数 ≥ 阈值）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX dl.h(Glyph)：d(glyph) >= b(glyph)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ldl;",
+    "descriptor": "e(Ljava/util/List;)Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;",
+    "semantic_name": "bestOf(list)（取分数最高符文）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX dl.e(List)：迭代 f(Glyph) 取最大（Web auto-glyph-processor.js:130 filterBestOf 同实现）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ldl;",
+    "descriptor": "a()I",
+    "semantic_name": "scoreMode",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX dl.a() 读 Player.Q().d().d().c() 并把 2 归一到 1（与 Web AutoGlyphProcessor.scoreMode 同）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Ldl;",
+    "descriptor": "b(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;)I",
+    "semantic_name": "thresholdValue",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX dl.b(Glyph) 按 scoreMode 返回阈值，错误文案 `Unknown glyph score mode in threshold check`"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "q()Ljava/util/ArrayList;",
+    "semantic_name": "activeList（已装备符文列表副本；Player$Glyphs.a()=active）",
+    "confidence": "strong",
+    "evidence": [
+     "glyphs/i.q() 方法体：Player.Q().d().a()（Player$Glyphs.smali a()=active）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "r()Ljava/util/List;",
+    "semantic_name": "activeList 视图",
+    "confidence": "strong",
+    "evidence": [
+     "glyphs/i.r() 同上"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "E()Ljava/util/List;",
+    "semantic_name": "inventoryList 视图（Player$Glyphs.e()=inventory）",
+    "confidence": "strong",
+    "evidence": [
+     "glyphs/i.E() 方法体：Player$Glyphs.e()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "D()Ljava/util/ArrayList;",
+    "semantic_name": "inventoryList 副本",
+    "confidence": "strong",
+    "evidence": [
+     "glyphs/i.D() 方法体：new ArrayList(Player$Glyphs.e())"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "F()I",
+    "semantic_name": "protectedRows（受保护行数；Player$Glyphs.f()）",
+    "confidence": "strong",
+    "evidence": [
+     "glyphs/i.F() 方法体：Player$Glyphs.f()（字段 protectedRows）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "R(Ljava/util/Comparator;)V",
+    "semantic_name": "sort(comparator)（重排背包）",
+    "confidence": "strong",
+    "evidence": [
+     "glyphs/i.R(Comparator)：清空目标列表后按 Comparator 排序写入（Web Glyphs.sort）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "b0()V",
+    "semantic_name": "validate()（按 inventory 重建装备槽数组）",
+    "confidence": "inferred",
+    "evidence": [
+     "glyphs/i.b0() 方法体：E() 列表 + Player$Glyphs.h()[L...GlyphSet; 重建静态槽数组 e:[]"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lajfosz/antimatterdimensions/reality/glyphs/Glyph;",
+    "descriptor": "(Glyph 类)",
+    "semantic_name": "符文实体（level/rarity/strength/effects 访问器；评分输入）",
+    "confidence": "strong",
+    "evidence": [
+     "Glyph.smali: l()I=level、m()I=rarity、n()D=strength、i()List=effects、r()GlyphType、s()Z=isCompanion、b() copy"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lfr1;",
+    "descriptor": "Lfr1;",
+    "semantic_name": "符文献祭计算/应用（对应 Web glyph-sacrifices.js；与 AutoGlyphProcessor 分离）",
+    "confidence": "inferred",
+    "evidence": [
+     "JADX defpackage/fr1.java: a(Glyph)=献祭值、b(Glyph)=加献祭并扩散到其它类型、d(Glyph,boolean)/f(Glyph,boolean) 移除分支",
+     "glyphs/i.b(Glyph) 与 fr1 协同（献祭/丢弃）"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lb61;",
+    "descriptor": "Lb61;",
+    "semantic_name": "kajfosz.antimatterdimensions.celestials.effarig.EffarigUnlock 注册表（7 项）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: a=x51(0)、b=y51(1)、c=a61(2)、d=z51(3)、e=w51(4)、f=w51(5)、g=w51(6)、h=[x51,y51,a61,z51]",
+     "Web secret-formula/celestials/effarig.js: adjuster id0(1e7)、glyphFilter id1(2e8)、setSaves id2(3e9)、run id3(5e11)、infinity id4、eternity id5、reality id6 —— id 完全一致"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lw51;",
+    "descriptor": "Lw51;",
+    "semantic_name": "kajfosz.antimatterdimensions.EffarigUnlockState（extends tw 位图型解锁）",
+    "confidence": "confirmed",
+    "evidence": [
+     "w51.smali:2 `.super Ltw;`",
+     "w51 方法：F()Z、I()I、J()BitSet、K()String、k()Z、y()Liq0（无 D 覆写 → 购买=is3.D）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lw51;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency（relicShards：iq0.a0:Lcq0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "w51.y(): sget iq0.a0:Lcq0（Lcq0=relicShards 货币状态类，R107-01 sem-default 已确认）",
+     "Web EffarigUnlockState.purchase: Currency.relicShards.purchase(cost)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lw51;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（继承 is3.D：扣 relicShards → 置 unlockBits → onPurchased）",
+    "confidence": "strong",
+    "evidence": [
+     "w51 无 D 覆写；is3.D 方法体；tw.E(true) 写位（tw.E→J().g(I())）",
+     "Web EffarigUnlockState.purchase 同语义"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lw51;",
+    "descriptor": "J()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "bits（Player$Effarig.f()=unlockBits）",
+    "confidence": "confirmed",
+    "evidence": [
+     "w51.J()；Player$Effarig.smali f()=unlockBits"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lw51;",
+    "descriptor": "F()Z",
+    "semantic_name": "isUnlocked（位图已置位）",
+    "confidence": "strong",
+    "evidence": [
+     "w51.F()Z（位图检查）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lw51;",
+    "descriptor": "k()Z",
+    "semantic_name": "isEffectActive",
+    "confidence": "inferred",
+    "evidence": [
+     "w51.k()Z；Web EffarigUnlockState.isEffectActive = !Pelle.isDisabled('effarig')"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Effarig;",
+    "descriptor": "f()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "unlockBits",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Effarig.f() iget unlockBits"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lf45;",
+    "descriptor": "Lf45;",
+    "semantic_name": "kajfosz.antimatterdimensions.VRunUnlockState（V 目标/run unlock；tryComplete 推进）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/f45.java: 构造 (I,fm1,gm1,gm1,[Double],fm1,fm1,gm1,gm1,gm1,I,BigDouble,Constants$VReductionMode,I)；方法 a()I(目标 id)、b..g()D(条件/缩减)、h()Z、i()V(tryComplete)",
+     "Web V.js class VRunUnlockState（id/reduction/tryComplete）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lf45;",
+    "descriptor": "i()V",
+    "semantic_name": "tryComplete（V 目标达成推进：写 runUnlocks、通知、触发 updateTotalRunUnlocks）",
+    "confidence": "confirmed",
+    "evidence": [
+     "f45.i()V 方法体：读 Player$V.e()[D(runRecords)、Player$V.d()[Ljava/util/List(runGlyphs)、reality/glyphs/i.h()；写 Player$V.runUnlocks（Player$V.f()[I）、R.string 0x7f111065 通知、调 celestials/v/a.j()V"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lz35;",
+    "descriptor": "Lz35;",
+    "semantic_name": "kajfosz.antimatterdimensions.celestials.v.VUnlocks 注册表（7 项 + h:List）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/z35.java: a..g:Lx35; h:List; clinit 创建 7 个 VUnlock + List"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lx35;",
+    "descriptor": "Lx35;",
+    "semantic_name": "kajfosz.antimatterdimensions.VUnlockState（V 解锁位；extends in1）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/x35.java: extends in1；v()Z、k()Z、r()/s() 名称/描述；z35 clinit 传入条件 lambda"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lx35;",
+    "descriptor": "v()Z",
+    "semantic_name": "isUnlocked（Player$V.h()=unlockBits 位检查）",
+    "confidence": "confirmed",
+    "evidence": [
+     "x35.v() 方法体：Player.Q().p().g()(V).h()(unlockBits).BitSet.e(in1.c)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lx35;",
+    "descriptor": "k()Z",
+    "semantic_name": "isEffectActive（isUnlocked && !Pelle 禁用）",
+    "confidence": "inferred",
+    "evidence": [
+     "x35.k() 方法体：先调 v()，再 celestials/pelle/c.q() 判断 + 字段 k"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/v/a;",
+    "descriptor": "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+    "semantic_name": "checkForUnlocks（遍历 VUnlocks，满足条件则置 unlockBits）",
+    "confidence": "strong",
+    "evidence": [
+     "v/a.smali:561 起：sget z35.h(List) 迭代 → x35.v() → 条件 lambda → Player$V.h()(BitSet).g(id) 置位 + MainActivity.Oo 刷新",
+     "Web V.checkForUnlocks 同职责"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/v/a;",
+    "descriptor": "j()V",
+    "semantic_name": "updateTotalRunUnlocks（汇总 runUnlocks → spaceTheorems/ST）",
+    "confidence": "strong",
+    "evidence": [
+     "v/a.j() 方法体：Player$V.f()[I(runUnlocks) → 加权求和（kotlin collections N0）→ 更新 ST 相关字段"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "h()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "unlockBits",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.h()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "f()[I",
+    "semantic_name": "runUnlocks（8 个目标完成次数）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.f()[I"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "a()[I",
+    "semantic_name": "goalReductionSteps",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.a()[I"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "e()[D",
+    "semantic_name": "runRecords",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.e()[D"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "d()[Ljava/util/List;",
+    "semantic_name": "runGlyphs",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.d()[Ljava/util/List;"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "g()I",
+    "semantic_name": "STSpent",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.g()I"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$V;",
+    "descriptor": "o(I)V",
+    "semantic_name": "setSTSpent",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$V.o(I)V"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Ldv3;",
+    "descriptor": "Ldv3;",
+    "semantic_name": "kajfosz.antimatterdimensions.celestials.ra.RaUnlocks 注册表",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/dv3.java: a..g:Lxu3; h..i:Lcv3; C:List; clinit 创建 Ra unlock 实例"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lxu3;",
+    "descriptor": "Lxu3;",
+    "semantic_name": "kajfosz.antimatterdimensions.RaUnlockState（Ra 解锁位；extends in1）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/xu3.java: extends in1；v()Z=isUnlocked、k()Z=isEffectActive、w(Continuation)=onUnlock、s()=SpannableString；dv3 静态字段类型"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lxu3;",
+    "descriptor": "v()Z",
+    "semantic_name": "isUnlocked（Player$Ra.k()=unlockBits 位检查）",
+    "confidence": "confirmed",
+    "evidence": [
+     "xu3.v() 方法体：Player.Celestials.e()(Ra).k()(unlockBits).e(in1.c)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lxu3;",
+    "descriptor": "k()Z",
+    "semantic_name": "isEffectActive",
+    "confidence": "inferred",
+    "evidence": [
+     "xu3.k() 方法体：v() + Pelle 禁用判断 + 字段 k"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lxu3;",
+    "descriptor": "w(Lrj0;)Ljava/lang/Object;",
+    "semantic_name": "onUnlock（解锁回调，创建 RaUnlocks$...$onUnlock$1）",
+    "confidence": "strong",
+    "evidence": [
+     "ra/b/c 等创建 onUnlock lambda；R107-01 已登记 ra/b/c 类级"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/ra/a;",
+    "descriptor": "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+    "semantic_name": "checkForUnlocks（按宠物等级自动解锁 RaUnlocks）",
+    "confidence": "strong",
+    "evidence": [
+     "ra/a.smali:968 创建 Ra$checkForUnlocks$1；Web ra.js checkForUnlocks"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/ra/a;",
+    "descriptor": "o(I)D",
+    "semantic_name": "requiredMemoriesForLevel(level)（升级所需 memories）",
+    "confidence": "strong",
+    "evidence": [
+     "ra/a.smali:639；被 qu3.a()/qu3.h() 与 RaUpgradePopup 购买逻辑调用"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lqu3;",
+    "descriptor": "Lqu3;",
+    "semantic_name": "kajfosz.antimatterdimensions.RaPetState（Ra 宠物；抽象，子类 tu3/uu3/vu3 覆写 k()=data）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/qu3.java: 字段 a..k + j:pu3；方法 a()Z/b()D/c()I/d()D/e()D/f()D/g()D/h()Z/i()D/j()String/k()RaPet/l()Z/m()Z"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "a()Z",
+    "semantic_name": "memoryUpgradeCapped（b() ≥ 0.5×Ra.o(24)）",
+    "confidence": "strong",
+    "evidence": [
+     "qu3.a() 方法体：b() >= celestials/ra/a.o(24)*0.5；Web memoryUpgradeCapped 同公式"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "b()D",
+    "semantic_name": "memoryUpgradeCost",
+    "confidence": "inferred",
+    "evidence": [
+     "qu3.b() = pow(25, k().a()(memoryUpgrades)) * 5000；Web 记忆升级成本同结构"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "h()Z",
+    "semantic_name": "chunkUpgradeCapped（i() ≥ 0.5×Ra.o(24)）",
+    "confidence": "strong",
+    "evidence": [
+     "qu3.h() 方法体：i() >= celestials/ra/a.o(24)*0.5"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "i()D",
+    "semantic_name": "chunkUpgradeCost",
+    "confidence": "inferred",
+    "evidence": [
+     "qu3.i() = pow(5, k().e()(chunkUpgrades? 索引)) * 1000"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "c()I",
+    "semantic_name": "level",
+    "confidence": "strong",
+    "evidence": [
+     "qu3.c()：m() 时返回 k().b()=level，否则 0"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "d()D",
+    "semantic_name": "memories",
+    "confidence": "strong",
+    "evidence": [
+     "qu3.d() = k().c()=memories"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "l()Z",
+    "semantic_name": "levelCapped（level ≥ 25）",
+    "confidence": "strong",
+    "evidence": [
+     "qu3.l(): c() >= 0x19"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lqu3;",
+    "descriptor": "m()Z",
+    "semantic_name": "unlockActive（Ra unlock isEffectActive）",
+    "confidence": "strong",
+    "evidence": [
+     "qu3.m(): this.h(xu3).k()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/ui/celestials/ra/RaUpgradePopup$getBalloon$1$1;",
+    "descriptor": "invokeSuspend(Ljava/lang/Object;)Ljava/lang/Object;",
+    "semantic_name": "Ra 宠物升级购买（memoryUpgrade/chunkUpgrade/levelUp 的**唯一实现**，UI 内联）",
+    "confidence": "confirmed",
+    "evidence": [
+     "该 lambda 方法体：Ra.a.o(I)D 算成本 → Player$RaPet.h(D) 扣 memories、RaPet.g(I) 提升 level、RaPet.f(I)/j(I) 增计数 → 调 celestials/ra/a.g(Continuation) checkForUnlocks",
+     "无独立 purchaseMemoryUpgrade/purchaseChunkUpgrade 方法（与 Web 不同）→ Kotlin 重现需照抄本 lambda 逻辑"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "h(D)V",
+    "semantic_name": "setMemories",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.h(D) iput memories（字段 :保留名）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "g(I)V",
+    "semantic_name": "setLevel",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.g(I) iput level"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "j(I)V",
+    "semantic_name": "setMemoryUpgrades",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.j(I) iput memoryUpgrades"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "f(I)V",
+    "semantic_name": "setChunkUpgrades",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.f(I) iput chunkUpgrades"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "c()D",
+    "semantic_name": "memories getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.c() iget memories"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "b()I",
+    "semantic_name": "level getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.b() iget level"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "e()I",
+    "semantic_name": "memoryUpgrades getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.e() iget memoryUpgrades"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$RaPet;",
+    "descriptor": "a()I",
+    "semantic_name": "chunkUpgrades getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$RaPet.a() iget chunkUpgrades"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Ra;",
+    "descriptor": "b()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "chargedBits（已充能无限升级位图）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Ra.b() iget chargedBits（字段 :保留名）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Le22;",
+    "descriptor": "K()Z",
+    "semantic_name": "isCharged（无限升级是否已充能）",
+    "confidence": "confirmed",
+    "evidence": [
+     "e22.smali:432-479 K()：Player.Celestials.e()(Ra).b()(chargedBits).e(id)",
+     "Web infinity-upgrades.js: isCharged = player.celestials.ra.charged.has(id)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Le22;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase / charge（z=true 分支写 chargedBits；z=false 普通购买）",
+    "confidence": "strong",
+    "evidence": [
+     "e22.smali:231 D 方法体含 if-eqz/if-nez p1 分支；:356 `Player$Ra;->b()` + `BitSet;->g(I)V`（置充能位）",
+     "Web ChargedInfinityUpgradeState.charge()/uncharge() 与 InfinityUpgradeState.purchase 同文件",
+     "**ABI 风险**：z 语义需按实际调用点确认后再用"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Le22;",
+    "descriptor": "Le22;",
+    "semantic_name": "kajfosz.antimatterdimensions.InfinityUpgradeState（无限升级；含充能扩展 chargedEffect）",
+    "confidence": "confirmed",
+    "evidence": [
+     "m22 注册表 charged 相关 R.string（infinity_upgrade_*_charged）",
+     "e22 K()/D() 读写 Ra.chargedBits"
+    ]
+   }
+  ],
+  "counts": {
+   "total_entries": 129,
+   "by_kind": {
+    "class": 27,
+    "method": 97,
+    "field": 3,
+    "note": 2
+   },
+   "by_confidence": {
+    "strong": 33,
+    "confirmed": 86,
+    "inferred": 10
+   }
+  },
+  "abi_risks": [
+   "Le22;->D(ZLrj0;) 的 z 同时承担 purchase/charge 两种语义（e22.smali:231 分支、:356 置 chargedBits）；Kotlin 调用前必须按实际调用点确认 z 取值，不能默认。",
+   "Lqw3;->D(ZLrj0;) 的 Z 参数是 bulk（批量），不是『购买』语义；rj0 传 null。",
+   "一次性膨胀升级 Le01 / Effarig 解锁 Lw51 / 一次性想象升级 a 的购买都走继承的 is3.D（动态派发到子类 C/E/A），调用时用 invoke-virtual 即可；不要自己实现扣费。",
+   "Ra 宠物升级没有独立 purchase 方法：唯一实现在 UI 协程 lambda `RaUpgradePopup$getBalloon$1$1.invokeSuspend` 内联；Kotlin 重现需照抄 memories 扣减/level/memoryUpgrades/chunkUpgrades + 调 Ra.a.g() 复检，注意通知/成就副作用。",
+   "膨胀升级 id 与冻结 Web 不同版本：Android 可重复 id 0..5、一次性 id 3..11；Web 为 1..3/11..13 与 4..10/14/15。**禁止按 Web id 映射**，用注册表字段。",
+   "Perk 购买前提是 ii3.A() 可用（id==0 或前置连通天赋已买）；直接循环买会被 A() 拦下，需要按树/前置顺序或 BFS。",
+   "x35.k() 判 isEffectActive、v() 判 isUnlocked（与 Web VUnlockState 命名一致但 Android 是单字母，勿混）。",
+   "fr1 只是符文献祭计算/应用（inferred），不要当『删除/清理』入口。"
+  ],
+  "still_unknown": [
+   "Perk：Lmx 条件策略与天赋分组映射；Perk id→名称（需 R.string 解码）；na4.E(false) 移除分支未验证。",
+   "膨胀升级：注册表字段↔具体升级名的最终映射（需 fw BigDouble 常量解码或 R.string 解码）；h01/ i01 的覆写含义。",
+   "Glyph：i.m(i,Z,I)、i.N()、i.Z(Z)、i.c(IZ)I、i.i(Z)I、i.p()I、i.s()I、i.w()Z、i.K(II)Z 语义未唯一；『背包满清理/删除』未定位到单一方法（候选 i.Z(Z)/i.N()/fr1.d）。",
+   "Imaginary：各一次性/可重复升级 id→名称与效果（除 g02 重置暗物质维度1 已确认）。",
+   "Effarig：cost 常量（fw.L1/S1/V1/a2）未解码，名称按 Web id 顺序为 STRONG 非 CONFIRMED。",
+   "V：目标缩减（goalReductionSteps / nextNormalReductionCost）购买/花费入口未定位。",
+   "Ra：充能/取消充能的 UI 动作入口未定位（只确认 e22.K()/D() 支持层与 Player$Ra.chargedBits）；qu3.e()/g() 公式含义；Ra unlock id→名称。"
+  ]
+ },
+ "updated_at": "2026-11-14T09:30:00+0800",
+ "note_batch2": "第 2 批：Perk/膨胀升级/Imaginary/Glyph(AutoGlyphProcessor)/Effarig/V/Ra 购买入口；batch1 内容保持不变。",
+ "batch3": {
+  "generated_at": "2026-11-14T09:10:00+0800",
+  "scope": "第 3 批：fw 常量解码、膨胀升级/Effarig 名字确认、Pelle 升级购买、Game tick 挂接点、Glyph 删除/背包满、Teresa 浇注开关 ABI 更正",
+  "entries": [
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "fw 常量解码方法",
+    "semantic_name": "3.21 BigDouble 常量类 Lfw; 解码（复用 scripts/decode_bigdouble_constants.py；需把 3.19 的 Llu; 换成 Lfw; 且合成构造 marker 从 Lcr0; 换成 Lzt0;）",
+    "confidence": "confirmed",
+    "evidence": [
+     "work/base_decoded_321/smali_classes2/fw.smali <clinit> 线性模拟",
+     "scripts/decode_bigdouble_constants.py（原 3.19 版默认 lu.smali；本轮改为 fw.smali 并放宽 marker 前缀 IL[A-Za-z0-9_]+;）",
+     "解码结果与 Web 同名配置数值交叉一致（见下）"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "fw 关键常量值",
+    "semantic_name": "C=1.0；n1=1e4、l0=10、G1=1e6、L0=1e2、L1=1e7、S1=2e8、V1=3e9、a2=5e11；K1=5e6、O1=?（Web 同 id 为 2.5e7）、R1=1e8、T1=1e9、X1=1e10、Z1=1e11、b2=1e12、c2=2e12、e2=1e14、f2=1e15、g1=1e3、h2=1e16、i2=1e17、j2=1e18、k2=1e19、l2=1e20、m2=1e21、n2=1e22、o2=1e24、p2=1e25、r2=1e26、t2=1e30、u0=20、v2=1e45、x2=1e50、y2=1e55、Q1=5e7",
+    "confidence": "confirmed",
+    "evidence": [
+     "解码输出 /tmp/fw_consts.txt（301 个字段；本条目摘关键值）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "b:Lqw3;",
+    "semantic_name": "可重复膨胀升级 id=0 dtGain（初始 1e4、×10/级）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/eternity/dilation/b.java: new qw3(0, ...)；fw.n1=1e4 / fw.l0=10",
+     "Web secret-formula/eternity/dilation-upgrades.js: id/initialCost/increment 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "d:Lg01;",
+    "semantic_name": "可重复膨胀升级 id=1 galaxyThreshold（初始 1e6、×100/级）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/eternity/dilation/b.java: new g01(1, ...)；fw.G1=1e6 / fw.L0=1e2；g01 覆写 C(ZZ)=onPurchased（重置 TG，与 Web 同义）",
+     "Web secret-formula/eternity/dilation-upgrades.js: id/initialCost/increment 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "e:Li01;",
+    "semantic_name": "可重复膨胀升级 id=2 tachyonGain（初始 1e7、×20/级）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/eternity/dilation/b.java: new i01(2, ...)；fw.L1=1e7 / fw.u0=20；i01 覆写 O(J)",
+     "Web secret-formula/eternity/dilation-upgrades.js: id/initialCost/increment 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "m:Lqw3;",
+    "semantic_name": "可重复膨胀升级 id=3 dtGainPelle（初始 1e14、×100/级）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/eternity/dilation/b.java: new qw3(3, ...)；fw.e2=1e14 / fw.L0=1e2",
+     "Web secret-formula/eternity/dilation-upgrades.js: id/initialCost/increment 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "n:Lqw3;",
+    "semantic_name": "可重复膨胀升级 id=4 galaxyMultiplier（初始 1e15、×1e3/级）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/eternity/dilation/b.java: new qw3(4, ...)；fw.f2=1e15 / fw.g1=1e3",
+     "Web secret-formula/eternity/dilation-upgrades.js: id/initialCost/increment 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "o:Lqw3;",
+    "semantic_name": "可重复膨胀升级 id=5 tickspeedPower（初始 1e16、×1e4/级）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/eternity/dilation/b.java: new qw3(5, ...)；fw.h2=1e16 / fw.n1=1e4",
+     "Web secret-formula/eternity/dilation-upgrades.js: id/initialCost/increment 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "f:Le01;",
+    "semantic_name": "一次性膨胀升级 id=3 doubleGalaxies（cost 5e6）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(3, ...)；fw.K1=5e6",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "g:Le01;",
+    "semantic_name": "一次性膨胀升级 id=4 tdMultReplicanti（cost 1e9）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(4, ...)；fw.T1=1e9",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "h:Le01;",
+    "semantic_name": "一次性膨胀升级 id=5 ndMultDT（cost 5e7）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(5, ...)；fw.Q1=5e7",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "i:Lh01;",
+    "semantic_name": "一次性膨胀升级 id=6 ipMultDT（cost 2e12）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new h01(6, ...)；fw.c2=2e12",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "j:Le01;",
+    "semantic_name": "一次性膨胀升级 id=7 timeStudySplit（cost 1e10）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(7, ...)；fw.X1=1e10",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "k:Le01;",
+    "semantic_name": "一次性膨胀升级 id=8 dilationPenalty（cost 1e11）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(8, ...)；fw.Z1=1e11",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "l:Lj01;",
+    "semantic_name": "一次性膨胀升级 id=9 ttGenerator（cost 1e15）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new j01(9, ...)；fw.f2=1e15；j01 覆写 C(ZZ)=onPurchased（Web id10 同置 speedrun milestone）",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "p:Le01;",
+    "semantic_name": "一次性膨胀升级 id=10 galaxyThresholdPelle（cost 1e45）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(10, ...)；fw.v2=1e45",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lkajfosz/antimatterdimensions/eternity/dilation/b;",
+    "descriptor": "q:Le01;",
+    "semantic_name": "一次性膨胀升级 id=11 flatDilationMult（cost 1e55）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java: new e01(11, ...)；fw.y2=1e55",
+     "Web 同名 id/cost 一致（Android id 与 Web id 相差固定偏移，但成本与顺序完全对应）"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "膨胀升级 id 体系说明",
+    "semantic_name": "_buyDtGainUpgrades 对应可重复第 1 项（字段 b / id 0，dtGain）；Android 可重复 id 0..5、一次性 id 3..11 为**独立编号空间**（与 Web 1..3/11..13、4..10/14/15 不同），本轮已按 cost+id+子类行为三重对齐",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX b.java 构造 id + fw 常量 + Web 配置"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "a:Lx51;",
+    "semantic_name": "Effarig 解锁 id=0 adjuster（1e7）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new x51(0, ...)；fw.L1=1e7",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "b:Ly51;",
+    "semantic_name": "Effarig 解锁 id=1 glyphFilter（2e8）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new y51(1, ...)；fw.S1=2e8",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "c:La61;",
+    "semantic_name": "Effarig 解锁 id=2 setSaves（3e9）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new a61(2, ...)；fw.V1=3e9",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "d:Lz51;",
+    "semantic_name": "Effarig 解锁 id=3 run（5e11）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new z51(3, ...)；fw.a2=5e11",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "e:Lw51;",
+    "semantic_name": "Effarig 解锁 id=4 infinity（无 cost（阶段位））",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new w51(4, ...)；ctor cost=null",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "f:Lw51;",
+    "semantic_name": "Effarig 解锁 id=5 eternity（无 cost）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new w51(5, ...)；ctor cost=null",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lb61;",
+    "descriptor": "g:Lw51;",
+    "semantic_name": "Effarig 解锁 id=6 reality（无 cost）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/b61.java: new w51(6, ...)；ctor cost=null",
+     "Web secret-formula/celestials/effarig.js: id/cost 全等"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Perk cost 常量",
+    "semantic_name": "Perk cost = fw.C = 1.0（BigDouble 构造 mantissa=1.0, exp=0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "fw.smali:1220 附近 sput C 前 invoke BigDouble.<init>(DDZ) mantissa=1.0,exp=0",
+     "ii3 ctor 传 fw.C"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lth3;",
+    "descriptor": "Lth3;",
+    "semantic_name": "kajfosz.antimatterdimensions.PelleUpgrades（Pelle 升级注册表：可重复 5 + 一次性 23 + List C/D/E）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java 静态字段 a..e:vw3/sh3、f..B:ph3、C:D:List、E:ArrayList",
+     "clinit：5 个 vw3/sh3 + 23 个 ph3"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lvw3;",
+    "descriptor": "Lvw3;",
+    "semantic_name": "kajfosz.antimatterdimensions.RebuyablePelleUpgradeState（可重复 Pelle 升级；extends ec2→uw3）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/vw3.java: extends ec2；字段 n=name、o/p=BigDouble 成本参数、q=byte、r=BigDouble、s=gm1",
+     "覆写 I()/J() 读写 Player$Pelle.g()[J（rebuyables）、x()=成本公式 o^count * p^(count-q) clampMin 1 * r、y()=iq0.h0:Lbq0"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lph3;",
+    "descriptor": "Lph3;",
+    "semantic_name": "kajfosz.antimatterdimensions.PelleUpgradeState（一次性 Pelle 升级；extends na4）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/ph3.java: extends na4；A(Z) 覆写=Pelle 可用、I()=Player$Pelle.l()（upgrades 列表）、J()=!B()||Player$Pelle.k()、y()=iq0.h0:Lbq0"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lsh3;",
+    "descriptor": "Lsh3;",
+    "semantic_name": "Pelle 升级 glyphLevels 特例（onPurchased 触发 GLYPHS_CHANGED）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/sh3.java: extends vw3；C(ZZ)V 覆写：m91.a(\"GLYPHS_CHANGED\")、vq1.a()、MainActivity.vo=true"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "a:Lvw3;",
+    "semantic_name": "可重复 Pelle 升级 id=0 antimatterDimensionMult（cost 参数 [10,1e3,41,100]）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new vw3/sh3(0, \"antimatterDimensionMult\", ...) —— 名称是 DEX 字面量",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "b:Lvw3;",
+    "semantic_name": "可重复 Pelle 升级 id=1 timeSpeedMult（cost [20,1e3,30,1e5]）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new vw3/sh3(1, \"timeSpeedMult\", ...) —— 名称是 DEX 字面量",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "c:Lsh3;",
+    "semantic_name": "可重复 Pelle 升级 id=2 glyphLevels（cost [30,1e3,25,1e15]）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new vw3/sh3(2, \"glyphLevels\", ...) —— 名称是 DEX 字面量",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "d:Lvw3;",
+    "semantic_name": "可重复 Pelle 升级 id=3 infConversion（cost [40,1e3,20,1e18]）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new vw3/sh3(3, \"infConversion\", ...) —— 名称是 DEX 字面量",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "e:Lvw3;",
+    "semantic_name": "可重复 Pelle 升级 id=4 galaxyPower（cost [1000,1e3,10,1e30]）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new vw3/sh3(4, \"galaxyPower\", ...) —— 名称是 DEX 字面量",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "f:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=0 antimatterDimAutobuyers1（cost 1e5）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(0, ...)；sput 到字段 f（脚本解析字段映射）；fw.A1=1e5",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "g:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=1 dimBoostAutobuyer（cost 5e5）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(1, ...)；sput 到字段 g（脚本解析字段映射）；fw.D1=5e5",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "h:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=2 keepAutobuyers（cost 5e6）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(2, ...)；sput 到字段 h（脚本解析字段映射）；fw.K1=5e6",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "i:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=3 antimatterDimAutobuyers2（cost 2.5e7）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(3, ...)；sput 到字段 i（脚本解析字段映射）；fw.O1=?（按 Web 同 id 值 2.5e7 对齐）",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "j:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=4 galaxyAutobuyer（cost 1e8）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(4, ...)；sput 到字段 j（脚本解析字段映射）；fw.R1=1e8",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "k:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=5 tickspeedAutobuyer（cost 1e9）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(5, ...)；sput 到字段 k（脚本解析字段映射）；fw.T1=1e9",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "l:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=6 keepInfinityUpgrades（cost 1e10）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(6, ...)；sput 到字段 l（脚本解析字段映射）；fw.X1=1e10",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "m:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=7 dimBoostResetsNothing（cost 1e11）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(7, ...)；sput 到字段 m（脚本解析字段映射）；fw.Z1=1e11",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "n:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=8 keepBreakInfinityUpgrades（cost 1e12）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(8, ...)；sput 到字段 n（脚本解析字段映射）；fw.b2=1e12",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "o:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=9 IDAutobuyers（cost 1e14）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(9, ...)；sput 到字段 o（脚本解析字段映射）；fw.e2=1e14",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "p:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=10 keepInfinityChallenges（cost 1e15）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(10, ...)；sput 到字段 p（脚本解析字段映射）；fw.f2=1e15",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "q:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=11 galaxyNoResetDimboost（cost 1e16）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(11, ...)；sput 到字段 q（脚本解析字段映射）；fw.h2=1e16",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "r:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=12 replicantiAutobuyers（cost 1e17）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(12, ...)；sput 到字段 r（脚本解析字段映射）；fw.i2=1e17",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "s:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=13 replicantiGalaxyNoReset（cost 1e19）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(13, ...)；sput 到字段 s（脚本解析字段映射）；fw.k2=1e19",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "t:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=14 eternitiesNoReset（cost 1e20）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(14, ...)；sput 到字段 t（脚本解析字段映射）；fw.l2=1e20",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "u:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=15 timeStudiesNoReset（cost 1e21）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(15, ...)；sput 到字段 u（脚本解析字段映射）；fw.m2=1e21",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "v:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=16 replicantiStayUnlocked（cost 1e22）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(16, ...)；sput 到字段 v（脚本解析字段映射）；fw.n2=1e22",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "w:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=17 keepEternityUpgrades（cost 1e24）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(17, ...)；sput 到字段 w（脚本解析字段映射）；fw.o2=1e24",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "x:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=18 TDAutobuyers（cost 1e25）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(18, ...)；sput 到字段 x（脚本解析字段映射）；fw.p2=1e25",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "y:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=19 keepEternityChallenges（cost 1e26）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(19, ...)；sput 到字段 y（脚本解析字段映射）；fw.r2=1e26",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "z:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=20 dilationUpgradesNoReset（cost 1e45）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(20, ...)；sput 到字段 z（脚本解析字段映射）；fw.v2=1e45",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "A:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=21 tachyonParticlesNoReset（cost 1e50）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(21, ...)；sput 到字段 A（脚本解析字段映射）；fw.x2=1e50",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "field",
+    "class": "Lth3;",
+    "descriptor": "B:Lph3;",
+    "semantic_name": "一次性 Pelle 升级 id=22 replicantiGalaxyEM40（cost 1e30）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX defpackage/th3.java clinit: new ph3(22, ...)；sput 到字段 B（脚本解析字段映射）；fw.t2=1e30",
+     "Web secret-formula/celestials/pelle-upgrades.js 同名同 id 同 cost"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lvw3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（可重复 Pelle 升级；继承 uw3.D，计数写 Player$Pelle.g()[J）",
+    "confidence": "strong",
+    "evidence": [
+     "vw3 未覆写 D；uw3.D 方法体；vw3.I()/J() 覆写指向 Player$Pelle.g()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lph3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（一次性 Pelle 升级；继承 is3.D；set=Player$Pelle.upgrades 列表）",
+    "confidence": "strong",
+    "evidence": [
+     "ph3 未覆写 D；is3.D 方法体；na4.B()/E() 操作 ph3.I()=Player$Pelle.l()（upgrades）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lvw3;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency = realityShards（iq0.h0:Lbq0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "vw3.y()：sget iq0.h0:Lbq0",
+     "Lbq0 = 现实碎片（realityShards）货币状态类（R107-01 sem-default 已确认）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lph3;",
+    "descriptor": "y()Liq0;",
+    "semantic_name": "currency = realityShards（iq0.h0:Lbq0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "ph3.y()：sget iq0.h0:Lbq0"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lvw3;",
+    "descriptor": "x()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "cost（可重复公式：o^count * p^(count-q) clampMin 1 * r）",
+    "confidence": "confirmed",
+    "evidence": [
+     "vw3.x() 方法体：this.o.Pow(I()).multiply(this.p.Pow(I()-q).clampMin(fw.C)).multiply(this.r)",
+     "Web rebuyable cost: expWithIncreasedScale(...cost, rebuyables[id]) 同结构"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "g()[J",
+    "semantic_name": "rebuyables（Pelle 可重复升级次数）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.g() iget rebuyables"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "l()Ljava/util/List;",
+    "semantic_name": "upgrades（Pelle 一次性升级已买列表）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.l() iget upgrades"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "q(Ljava/util/ArrayList;)V",
+    "semantic_name": "setUpgrades",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.q(ArrayList) iput upgrades"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "f()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "realityShards",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.f() iget realityShards"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "i()D",
+    "semantic_name": "remnants",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.i() iget remnants"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "d()Lkajfosz/antimatterdimensions/BitSet;",
+    "semantic_name": "progressBits",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.d()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "h()Lkajfosz/antimatterdimensions/player/Player$PelleRecords;",
+    "semantic_name": "records",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.h()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "b()Z",
+    "semantic_name": "doomed getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.b() iget doomed"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Pelle;",
+    "descriptor": "m(Z)V",
+    "semantic_name": "setDoomed",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Pelle.m(Z) iput doomed"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "Lkajfosz/antimatterdimensions/a;",
+    "semantic_name": "kajfosz.antimatterdimensions.Game（游戏主循环/各 tick 子阶段）",
+    "confidence": "confirmed",
+    "evidence": [
+     "目录含 Game$gameTick$1/Game$autoBuyerTick$1/Game$applyAutoUnlockPerks$1/Game$autoUnlockDilation$1 等 lambda 类名（DEX 保留原名）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "a(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+    "semantic_name": "applyAutoUnlockPerks",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game$applyAutoUnlockPerks$1 lambda",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+    "semantic_name": "autoBuyerTick",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game$autoBuyerTick$1 lambda",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "c(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+    "semantic_name": "autoUnlockDilation",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game$autoUnlockDilation$1 lambda",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "f(Ljava/lang/Double;ZLjava/lang/Double;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
+    "semantic_name": "gameTick",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game$gameTick$1 lambda",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "r()V",
+    "semantic_name": "teresaPourRM",
+    "confidence": "confirmed",
+    "evidence": [
+     "a.smali:5733 r()：读 MainActivity.vp、wp4(pouredAmount) 1e24 上限、iq0.Y(RM) 扣减、Player$Teresa.m(D) 写 pouredAmount、推进 unlockBits（:5930-5968）",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "e(D)V",
+    "semantic_name": "dilationTick（DT/TP 生产 + 膨胀升级效果）",
+    "confidence": "strong",
+    "evidence": [
+     "a.java:156：iq0.U(dilatedTime).C(dilation.a.e()*dt)、iq0.W(TP).C(...)、c01.a[0].B()(DS1)、e01=fw... 读膨胀升级 b.f",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "k(D)V",
+    "semantic_name": "laitelaTick（现实失稳进度）",
+    "confidence": "strong",
+    "evidence": [
+     "a.java:355：laitela a.h.d()、Laitela f()/u() 累加、R.string.laitela_reality_destabilized_after_X",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "m(D)V",
+    "semantic_name": "enslavedTick（被奴役者 stored time）",
+    "confidence": "strong",
+    "evidence": [
+     "a.java:425：nameless a.h、Player.Enslaved h()(stored)、d2*=0.4 分支",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "d(D,Z)V",
+    "semantic_name": "raPetsTick（Ra 宠物 memories 生产）",
+    "confidence": "inferred",
+    "evidence": [
+     "a.java:89：celestials/ra/a.h、nameless x()、z35.g.v()、wu3.e 列表、qu3.g()*dt",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "n(D)V",
+    "semantic_name": "doomed/pelle 相关 tick（MainActivity.mo 门控 + InfinityUpgrade 生产）",
+    "confidence": "unknown",
+    "evidence": [
+     "a.java:444：if(MainActivity.mo){...iq0.w.C(m22.r.j()*d3)...}",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "t(DD)V",
+    "semantic_name": "记录更新（past runs / 时间记录）",
+    "confidence": "inferred",
+    "evidence": [
+     "a.java:615：Player.R().o()/i()/h()/k().f().a(...) + cu4 时间值",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "l()V",
+    "semantic_name": "候选 buyMaxAllDimensions（未唯一）",
+    "confidence": "unknown",
+    "evidence": [
+     "a.java:413",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "o(Z)Z",
+    "semantic_name": "候选 isPaused 组合（未唯一）",
+    "confidence": "unknown",
+    "evidence": [
+     "a.java:474",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "q()Z",
+    "semantic_name": "时间判定（now - Player.H() + 10000 < 0）",
+    "confidence": "unknown",
+    "evidence": [
+     "a.java:494",
+     "work/output_code_321_r88/sources/kajfosz/antimatterdimensions/a.java 方法体"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lfr1;",
+    "descriptor": "Lfr1;",
+    "semantic_name": "kajfosz.antimatterdimensions.GlyphSacrificeHandler（符文献祭/删除处理器；CONFIRMED 由方法行为与 Web glyph-sacrifices.js 对应）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/fr1.java：a/c/g=献祭值计算、b=献祭并扩散、d=按 sacMode 分支 getRidOfGlyph、e=deleteGlyph、f=牺牲/精炼"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lfr1;",
+    "descriptor": "d(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;Z)V",
+    "semantic_name": "getRidOfGlyph（按 GlyphFilter.sacMode 0/1/2 分支：牺牲/精炼/删除）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX fr1.d(Glyph,boolean)：读 Player.Q().d().d().d()(sacMode) 分支调用 e/f 等；与 Web AutoGlyphProcessor.getRidOfGlyph 的 switch(sacMode) 对应",
+     "调用方：glyphs/i（autoClean/deleteAllRejected）、prestige/f、celestials/pelle/c、ui/.../GlyphPopup（删除按钮）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lfr1;",
+    "descriptor": "e(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;)V",
+    "semantic_name": "deleteGlyph（从 inventory/装备槽移除 + GLYPHS_CHANGED）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX fr1.e(Glyph)：i.b0()、i.E().indexOf、i.e[level]=null、glyph.y(-1)、i.E().remove、vq1.c(glyph)、m91.a(\"GLYPHS_CHANGED\")",
+     "Web GlyphSacrificeHandler.deleteGlyph 同义"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lfr1;",
+    "descriptor": "b(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;)V",
+    "semantic_name": "sacrificeGlyph（献祭并扩散到其它类型）",
+    "confidence": "inferred",
+    "evidence": [
+     "JADX fr1.b(Glyph)：w6.f()/B()、f7.n.j() 等献祭表写入"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "c(IZ)I",
+    "semantic_name": "autoClean(threshold, deleteGlyphs)（按阈值清理背包，内部调 fr1.d）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX glyphs/i.c(int,boolean)：参数签名与 Web autoClean(threshold=5, deleteGlyphs=true) 一致；方法体含 fr1.d(glyph,true)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "i(Z)I",
+    "semantic_name": "deleteAllRejected(deleteGlyphs)（删除所有被过滤拒绝的符文）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX glyphs/i.i(boolean)：单 bool 参数与 Web deleteAllRejected(deleteGlyphs=true) 一致；方法体含 fr1.d(glyph,true) 与 fr1.e(glyph)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "m(Lkajfosz/antimatterdimensions/reality/glyphs/i;ZI)I",
+    "semantic_name": "findFreeIndex(useProtectedSlots)（默认参数：z=useProtectedSlots=false, mask）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX glyphs/i.m(i,boolean,int)：mask&1 → z=false；b0() 后扫 e[] 找 null 槽（受保护行判断 i<F()）",
+     "Web Glyphs.findFreeIndex(useProtectedSlots) 同义"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "N()V",
+    "semantic_name": "collapseEmptySlots（按类型整理空槽）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX glyphs/i.N()：HashMap byType + 重排 inventory 槽位",
+     "Web Glyphs.collapseEmptySlots 同义"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "b0()V",
+    "semantic_name": "validate（重建装备槽数组）",
+    "confidence": "inferred",
+    "evidence": [
+     "JADX glyphs/i.b0()"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "G()V",
+    "semantic_name": "processSortingAfterReality（低优先级批量通知合并）",
+    "confidence": "inferred",
+    "evidence": [
+     "JADX glyphs/i.G()：m91.e 计数 + d(1,2) + m91.f 去重批量发事件"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/reality/glyphs/i;",
+    "descriptor": "Z(Z)V",
+    "semantic_name": "UNKNOWN（操作 Player.Reality.requirementChecks，候选 bestUndoGlyphCount/undo 相关）",
+    "confidence": "unknown",
+    "evidence": [
+     "JADX glyphs/i.Z(boolean)：t() 列表 + companion*4 + Player.a.T().d().k(...)"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Teresa 浇注开关 ABI 更正（关键）",
+    "semantic_name": "3.21 浇注循环读 MainActivity.vp（qv 触摸监听器写入），payload OrekiTeresaAuto 写的 MainActivity.yo 是另一 UI 状态 → 浇注不生效",
+    "confidence": "confirmed",
+    "evidence": [
+     "kajfosz/antimatterdimensions/a.smali:5745 sget-boolean v2, MainActivity;->vp:Z（Game.r() 浇注循环）",
+     "smali_classes2/qv.smali:103/116 sput vp（View$OnTouchListener，浇注按钮按下/抬起）",
+     "MainActivity.smali:146 vp:Z、:156 yo:Z；yo 使用于 :47581/47589（view restore/refresh 路径）",
+     "payload: scripts/payload/smali/.../oreki/OrekiTeresaAuto.smali:89/105 仅写 yo",
+     "修复建议：读写 MainActivity;->vp:Z（每 tick 重新置 true，因为 qv 抬起会置 false）"
+    ]
+   }
+  ],
+  "counts": {
+   "total": 99,
+   "by_kind": {
+    "note": 5,
+    "field": 50,
+    "class": 6,
+    "method": 38
+   },
+   "by_confidence": {
+    "confirmed": 78,
+    "strong": 11,
+    "inferred": 5,
+    "unknown": 5
+   }
+  },
+  "still_unknown": [
+   "Glyph i.Z(Z) 语义；i.K(II)Z / i.p() / i.s() / i.c(IZ) 边界；fr1.b/f 与 Web sacrificeGlyph/attemptRefineGlyph 的精确对应",
+   "Game d(D,Z)/n(D)/l()/o(Z)/q()/i()/j()/g()/p() 精确语义（本轮只确认 a/b/c/f/r，e/k/m STRONG）",
+   "Pelle 升级 ph3 id3 (antimatterDimAutobuyers2) 的 O1 常量未解码（按 Web 值 2.5e7 对齐，STRONG 级）",
+   "Pelle 升级在 Pelle 之外是否可买/显示（ph3.A(Z)=celestials/pelle/c.q() 的实际含义待核）"
+  ],
+  "abi_corrections": [
+   {
+    "id": "ABI-CORR-01",
+    "target": "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
+    "issue": "浇注开关字段错：写 MainActivity.yo，但 3.21 Game.r() 浇注循环读 MainActivity.vp",
+    "severity": "P0（Teresa 自动浇注不生效）",
+    "evidence": [
+     "a.smali:5745",
+     "qv.smali:103/116",
+     "MainActivity.smali:146/156/47581/47589"
+    ],
+    "fix": "改写 MainActivity;->vp:Z（每 tick 置 true；sHolding 释放逻辑不变）"
+   }
+  ]
+ },
+ "batch4": {
+  "generated_at": "2026-11-14T09:30:00+0800",
+  "scope": "第 4 批：Lai'tela difficultyTier 状态机、Pelle 进入后可玩链、strikes/rifts 补证、pelle_end 3.21 路径核验",
+  "entries": [
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "semantic_name": "kajfosz.antimatterdimensions.celestials.laitela.Laitela",
+    "confidence": "strong",
+    "evidence": [
+     "laitela/a.smali：静态 p()=8-l()、q()=BigDouble、s()=p()==0（完全不稳定）、d()Z=isRunning、f(Z)V=setRun→Player$Laitela.z(Z)、g(Continuation)=annihilate",
+     "现有 batch1 已登记 initializeRun/annihilate 类级"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "d()Z",
+    "semantic_name": "isRunning（读 Player$Laitela.run）",
+    "confidence": "confirmed",
+    "evidence": [
+     "laitela/a.d()Z；Game.k(D) 首句即用它早退"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "f(Z)V",
+    "semantic_name": "setRun（initializeRun / clearCelestialRuns 的 run 标记写点）",
+    "confidence": "strong",
+    "evidence": [
+     "laitela/a.f(Z)V → Player$Laitela.z(Z)（Player.smali z(Z)=run）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "p()I",
+    "semantic_name": "maxAllowedDimension = 8 - difficultyTier",
+    "confidence": "confirmed",
+    "evidence": [
+     "laitela/a.p()：l()=difficultyTier，rsub-int/lit8 0x8"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "s()Z",
+    "semantic_name": "isFullyDestabilized（maxAllowedDimension==0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "laitela/a.s()：p()==0"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "q()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "realityReward（100^tier × (360/fastestCompletion)^2 clampMin 1，Web 同式）",
+    "confidence": "strong",
+    "evidence": [
+     "laitela/a.q() 与 Web laitela.js realityReward 对应；被完成文案调用"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "d()I / t(I)V",
+    "semantic_name": "difficultyTier get/set（字段保留名 difficultyTier:I）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.smali:322(getter)/:503(setter)，字段 :27"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "f()D / u(D)V",
+    "semantic_name": "entropy get/set（字段保留名 entropy:D）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.smali 访问器映射"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "g()D / v(D)V",
+    "semantic_name": "fastestCompletion get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.g()/v(D)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "p()D / C(D)V",
+    "semantic_name": "thisCompletion get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.p()/C(D)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "l()Z / z(Z)V",
+    "semantic_name": "run get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.l()/z(Z)"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela 熵产量公式（Android 3.21 原版）",
+    "semantic_name": "entropyGainPerSecond = clamp((log10(antimatter+1)/1e11)^2, 0, 100)/200（未做 Web OREKI_LAITELA_ENTROPY_DIVISOR=2e7 缩放）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game.k(D)：a.smali:3613-3750，常量 a.smali:3639 const-wide 0x42374876e8000000 = 1.0E11；br2.i(x,0,100)/200",
+     "build_mod.py / payload 中无 laitela entropy/2e7 相关 patch（grep 零命中）",
+     "Web 冻结上游已改 2e7（web/src/core/celestials/laitela/laitela.js:41 OREKI_LAITELA_ENTROPY_DIVISOR），注释给出实测：1e11 下 tier7 每次填满 ≈25800 秒 → 8 层不可达"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela tick 状态机（Game.k(D)V）",
+    "semantic_name": "1) !isRunning 早退；2) entropy>=0 时按上式累加；3) entropy>=1 结算：entropy=-1、thisCompletion=thisReality.realTime、fastestCompletion=min(旧,thisCompletion)、clearCelestialRuns、若 realTime<30 → tier=tier+1 且 fastestCompletion=300、完成文案/记录、若 maxAllowedDimension==0 触发 speedrun milestone",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game.k(D)：a.smali ~3544 方法起；entropy 累加 3613-3750；结算 3750-4050（:3783 u(-1.0)、:3790 C(thisReality m().h())、:3796 v(min)、:3930-ish prestige/f.c()=clearCelestialRuns、:4014 d()、:4028 t(d()+1)、:4033 v(300.0)）",
+     "Web game.js:1361-1418 laitelaRealityTick 同语义（entropy=-1 / thisCompletion / fastestCompletion=min / clearCelestialRuns / <30s → difficultyTier++ / fastestCompletion=300）"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "difficultyTier 无上限守卫（毁档风险）",
+    "semantic_name": "Android 与 Web 均 **未 clamp** tier：tier=8 时再完成一次 <30s 的 run 会把 tier 写成 9 → maxAllowedDimension=8-tier=-1 → IU25 要求 `maxAllowedDimension===0` 永不成立 → Pelle 解锁结构性失败。自动化必须在 tier==8 后停止进入/完成 Lai'tela run。",
+    "confidence": "confirmed",
+    "evidence": [
+     "a.smali:4014 d() → :4028 t(d()+1)：无 min/比较；laitela/a.s()=p()==0",
+     "Web oreki-endgame-automation.js 注释明确『difficultyTier++ 没有上限、全仓没有钳制』并自带守卫"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "entropy 何时复位",
+    "semantic_name": "- 完成时：entropy=-1（防重复弹窗）；- Reality 重置时：entropy=0。因此**每次 Reality 重置才能重新跑一次 Lai'tela run**（同一现实内 entropy 停在 -1，不再累积）。",
+    "confidence": "confirmed",
+    "evidence": [
+     "a.smali:3783 u(-1.0)（完成）",
+     "prestige/f.smali:6918 const-wide/16 v12,0x0 → :7796 Player$Laitela.u(v12,v13)（Reality 重置）；Web reality.js:701 同"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela 0→8 所需现实次数（推导）",
+    "semantic_name": "每次成功（thisRealityRealTime<30s 完成 run）tier+1；entropy 每现实只复位一次 ⇒ 每次 +1 需要一次 Reality 重置。0→8 = **8 次 Reality**，且每次该现实内必须在 30 秒内从『进入 run』到 entropy≥1（含 2 秒最低填满时间）。前提：先买 IU15（=Android b->k，1e9 IM）解锁 Lai'tela run。",
+    "confidence": "strong",
+    "evidence": [
+     "Web game.js:1384 / a.smali:4014-4028；Web laitela 注释『必须连续 8 次都在 30 秒内完成』"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lth3;",
+    "descriptor": "h:Lph3;",
+    "semantic_name": "keepAutobuyers（一次性 Pelle 升级 id2，cost 5e6 realityShards）",
+    "confidence": "confirmed",
+    "evidence": [
+     "th3.java:23 public static final ph3 h；clinit `h = ph3Var3 = new ph3(2, ..., fw.K1=5e6)`",
+     "Web secret-formula/celestials/pelle-upgrades.js keepAutobuyers id2 cost 5e6"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lph3;",
+    "descriptor": "B()Z（继承 na4.B）",
+    "semantic_name": "keepAutobuyers 已买判定（Player$Pelle.l() upgrades 列表含 id 2）",
+    "confidence": "strong",
+    "evidence": [
+     "ph3.I()=Player$Pelle.l()（upgrades）；na4.B()=I().contains(in1.c)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lph3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（继承 is3.D；cost=realityShards）",
+    "confidence": "strong",
+    "evidence": [
+     "ph3 无 D 覆写；is3.D 方法体；ph3.y()=iq0.h0:Lbq0(realityShards)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;",
+    "descriptor": "b()Z / i(Z)V",
+    "semantic_name": "isActive 读/写（可写开关；所有自动器继承）",
+    "confidence": "confirmed",
+    "evidence": [
+     "AutobuyerState.smali 字段 isActive:Z（:字段）、b()=iget isActive、i(Z)=iput isActive"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Auto;",
+    "descriptor": "e()/o()/i()/p()/j()",
+    "semantic_name": "bigCrunch / eternity / dimBoost / galaxy / dimensions[] 自动器实例 getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Auto 访问器→字段映射：e=bigCrunch、o=eternity、i=dimBoost、p=galaxy、j=dimensions"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Auto;",
+    "descriptor": "k()Z / G(Z)V",
+    "semantic_name": "disableContinuum get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Auto.k()/G(Z)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "p(Lkajfosz/antimatterdimensions/constants/Constants$PelleDisabledMechanic;)Z",
+    "semantic_name": "isDisabled(mechanic)（Pelle 下机制禁用判定；12 个枚举常量）",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/c.p(...) 唯一签名（batch1 已确认 getSpecialGlyphEffectDescription 外唯一 PelleDisabledMechanic 入参方法）",
+     "Constants$PelleDisabledMechanic 枚举 12 常量（a,b,c,d,e,f,v,w,x,y,z,S；名字被混淆，enum→mechanic 映射未确认）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "j()Z",
+    "semantic_name": "canArmageddon = remnantsGain(n()) >= 1",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/c.j()：n()>=1.0；n()=remnantsGain（records totalAM/EP/IP log 公式）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "n()D",
+    "semantic_name": "remnantsGain（floor((log10(log10(totalAM)+2)+log10(log10(totalEP)+2)+log10(log10(totalIP)+2))/1.64)^7.5 - remnants；含 Pelle disabled-mechanic 加成）",
+    "confidence": "strong",
+    "evidence": [
+     "pelle/c.n() 体：Player.Pelle.h()(records).a()/b()/c()（totalAM/EP/IP）+ oh3.e.a() 等加成；与 Web Pelle.remnantsGain 同结构"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "m()D / o(D)V",
+    "semantic_name": "remnants get/set（Player$Pelle.i()/o(D)）",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/c.m()=Player.Pelle.i()（remnants）；c.smali:3884 armageddon 内 o(n()+m()) 写回"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/h;",
+    "descriptor": "g(Lbf2;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+    "semantic_name": "存档导入/加载路径里重建 Pelle strike/disabled-mechanic 位（非运行时触发）",
+    "confidence": "strong",
+    "evidence": [
+     "player/h.g：多处 strings 'studies'/'define'/'Invalid save type'；:9548 nh3.a() / :9560 nh3.b()",
+     "说明：运行时 strike 触发点未定位（见 unknown）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/d;",
+    "descriptor": "B()Lkajfosz/antimatterdimensions/player/Player$PelleRift; / y()D / z()D / A()D / E()Z",
+    "semantic_name": "RiftState：数据 getter / percentage / realPercentage / reducedTo / isMaxed",
+    "confidence": "strong",
+    "evidence": [
+     "pelle/d：B()=Player.Pelle.j().a()；y()=percentage（reducedTo/spent 逻辑与 Web 一致）；z()=realPercentage；A()=reducedTo；E()=y()>=1"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/d;",
+    "descriptor": "v(Lrj0;)Ljava/lang/Object; / x()Ljava/util/List;",
+    "semantic_name": "checkMilestoneStates / milestones（RiftMilestoneState = Lcelestials/pelle/e;）",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/d.v 创建 PelleRiftState$checkMilestoneStates$1；e.v 创建 RiftMilestoneState$checkMilestoneState$1"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Rift fill 写入点（CONFIRMED）",
+    "semantic_name": "Pelle.gameTick（Lcelestials/pelle/c;->i(D,Continuation)）内 rift 循环：遍历 mh3.f（PelleRifts），isActive&&isMaxed 则 setActive(false)；否则对 rift 货币 q 做 after=value*0.97^(diff/1000)（常量 0x3fef0a3d70a3d70a），spent=value-after，随后 fill=d.C()（=B().b()=Player$PelleRift.fill BigDouble）add(spent) 原位突变，再 al2.i(spentPercentage+1) clampMax。fill 无 setter 调用是 BigDouble.add 突变语义所致，非缺失。",
+    "confidence": "confirmed",
+    "evidence": [
+     "work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/celestials/pelle/c.smali:6130-6330（逐指令：0.97、iq0 q、BigDouble.add/subtract/Multiply、clampMax、Player$PelleRift.e(Z)/c()）",
+     "mh3.f=PelleRifts 列表；mh3 静态字段 a:lh3(vacuum)/b:gh3(decay)/c:eh3/d:jh3/e:ih3",
+     "web/src/core/celestials/pelle/rifts.js fill(diff) 同语义（drain 1-0.03、spent、totalFill+=spent clamp maxValue）"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Pelle strike 运行时触发点",
+    "semantic_name": "未定位到运行时 trigger：nh3.b()（onUnlock）调用者只有 nh3 自身与 player/h.g（存档导入路径）；oh3.f（List）调用者为 rj2（MainActivity 脚手架）、player/h、oh3。候选触发点：player/h.g 或 pelle/c.i（JADX skip），均未逐指令证实。",
+    "confidence": "unknown",
+    "evidence": [
+     "grep Lnh3;->b()V / Loh3;->f 结果如上"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lm01;",
+    "descriptor": "Lm01;",
+    "semantic_name": "kajfosz.antimatterdimensions.DimensionBoost（dimboost 购买机制：a(Lk01;)Z=canBuy、b()=购买/买满、k(Ll01;Lk01;)=带请求购买）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/m01.java：a(k01)=canBuy（prestige/e.f()/Pelle/Ra 门控）、b()=new l01().a(1.0)+a(request) 后执行、k(l01,k01)",
+     "autobuyer/DimBoostAutobuyerState.smali q() 调用 Lm01;->a/i/k"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Ll01;",
+    "descriptor": "Ll01;",
+    "semantic_name": "DimensionBoost 请求构建器（a(D)Lk01; 生成请求；读挑战/成就/膨胀乘子）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/l01.java"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lk01;",
+    "descriptor": "Lk01;",
+    "semantic_name": "DimensionBoost 请求值对象（a()=可买判定、a:I=维度 tier、b:LBigDouble;=成本）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/k01.java"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Strikes 触发语义（Web 冻结上游）",
+    "semantic_name": "strike1=BigCrunch（Pelle.isDoomed）、strike2=购买 Break Infinity 升级、strike3=永恒、strike4=时间之理>114、strike5=开始膨胀；Android 运行时调用点未定位（nh3.b() 仅存档路径调用）",
+    "confidence": "strong",
+    "evidence": [
+     "web/src/core/{big-crunch.js:58,break-infinity-upgrades.js:16,eternity.js:149,time-theorems.js:66,dilation.js:10/53}",
+     "grep Lnh3;->b()V 仅 nh3.smali/player/h.smali"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela entropy 2e7 patch 点",
+    "semantic_name": "a.smali:3684 const-wide v10, 0x42374876e8000000L # 1.0E11（文件内唯一）→ 0x417312d000000000L # 2.0E7；只改数据常量，不改结算/30s/tier",
+    "confidence": "confirmed",
+    "evidence": [
+     "work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/a.smali:3684",
+     "grep -c 0x42374876e8000000L = 1",
+     "Web laitela.js:41 OREKI_LAITELA_ENTROPY_DIVISOR=2e7"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "d(D,Z)V",
+    "semantic_name": "Ra 宠物 memories 生产 tick（wu3.e 遍历 qu3：memories/memoryChunks 写回）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/a.java:89-155"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "g(Ljava/util/List;Ljava/lang/Integer;)D",
+    "semantic_name": "gameSpeed 倍率计算（Constants$GameSpeedEffect 列表）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:208-293"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "h(ILjava/util/List;)D",
+    "semantic_name": "gameSpeed 倍率（默认参数合成）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:293-300"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "i()D",
+    "semantic_name": "有效 gameSpeed（叠加 Nameless/Pelle 修正）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:300-315"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "j(Lkajfosz/antimatterdimensions/BigDouble;)V",
+    "semantic_name": "被动无限次数生成 infGen（写 infinities/partInfinitied）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:315-355（iq0.e.C、Player.S0、debug 'infGen'）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "l()V",
+    "semantic_name": "maxAllDimensions（买满所有 AD；prestige.e.f() 早退）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:413-425；AntimatterDimensionState.i(s(),2.147e9)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "n(D)V",
+    "semantic_name": "离线/模拟 tick（MainActivity.mo=simulating；InfinityUpgrade ipGen 生产 IP）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:444-474；s() 调试串 simulating=MainActivity.mo"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "p(Ljava/lang/String;Lfm1;)V",
+    "semantic_name": "崩溃日志辅助（Crashlytics）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:481-494"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "s(Ljava/lang/Double;DDLjava/lang/Double;)Ljava/lang/String;",
+    "semantic_name": "tick 调试串（diffInput/realDiff/diff/blackHoleSpeedup/simulating）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX a.java:541-615"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Strikes 运行时触发（Android 端负面证据）",
+    "semantic_name": "Android 3.21 DEX 无运行时 strike 触发：Lnh3;->b()V 仅被 nh3 自身与 player/h.g（MainActivity:5072/12119 存档导入路径）调用；Web 的五个动作触发点（big-crunch/break-infinity/eternity/TT>114/dilation）在 Android 动作类中零调用。⇒ doomed 下 CrunchAutobuyerState 等以 hasStrike 为门的自动器会永久锁死；自动化需在真实动作后补调 Lnh3;->b()V（游戏自身解锁函数）或由 Lead 决定加 patch。",
+    "confidence": "confirmed",
+    "evidence": [
+     "grep Lnh3;->b()V 全树 → nh3.smali / player/h.smali；player/h.g 调用点 MainActivity.smali:5072/12119",
+     "CrunchAutobuyerState.smali:807-817 读 oh3.a.a()",
+     "Web 对照 web/src/core/{big-crunch.js:58,break-infinity-upgrades.js:16,eternity.js:149,time-theorems.js:66,dilation.js:10}"
+    ]
+   }
+  ],
+  "counts": {
+   "total": 31,
+   "by_kind": {
+    "class": 1,
+    "method": 23,
+    "note": 7
+   },
+   "by_confidence": {
+    "strong": 9,
+    "confirmed": 20,
+    "unknown": 2
+   }
+  }
+ }
+}

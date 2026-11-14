@@ -1,0 +1,34 @@
+{
+  "_comment": "R107-01b 追加的 Kotlin 重建类（Tick/存档关键闭包第一批）。并入生产前需从游戏 game jar/DEX 排除这些原版 class，避免与 Kotlin DEX 重复。本文件只是建议追加项；scripts/reconstruct_exclude.json 属 Lead 所有，本轮未修改。",
+  "_generated_by": "reports/R107-01/kotlin/TICK-CLOSURE-PLAN.md；验证证据 reports/R107-01/kotlin/evidence/closure-r107b/closure-parity.log",
+  "_game_jar": "/home/oreki/private-staging/r10602/jars/gameclasses.jar",
+  "_validation": {
+    "three_way": ["dex2jar(gameclasses-v3.jar)", "enjarify(official-enjarify.jar)", "kotlin-rebuild"],
+    "abi_diffs": 0,
+    "behavior_fails": 0,
+    "checks": 335,
+    "verdict": "PASS(JVM-level)"
+  },
+  "descriptors": [
+    "Lf44;",
+    "Lg44;",
+    "Lth2;"
+  ],
+  "classes": [
+    {
+      "descriptor": "Lf44;",
+      "source": "reconstructed/r107-closure/kotlin/f44.kt",
+      "role": "存档字节格式编解码器（gzip/deflate + Base64 + 自定义字母表 + 头尾标记）"
+    },
+    {
+      "descriptor": "Lg44;",
+      "source": "reconstructed/r107-closure/kotlin/g44.kt",
+      "role": "存档格式注册表（8 个格式对象 + 探测顺序列表）"
+    },
+    {
+      "descriptor": "Lth2;",
+      "source": "reconstructed/r107-closure/kotlin/th2.kt",
+      "role": "线程工厂（AntimatterGameThread / GraphHistoryIO / ExoPlayer:AudioTrackReleaseThread）"
+    }
+  ]
+}

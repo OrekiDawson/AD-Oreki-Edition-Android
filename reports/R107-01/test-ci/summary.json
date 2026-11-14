@@ -1,0 +1,452 @@
+{
+  "schema": 1,
+  "round": "R107-01",
+  "agent": "test-ci",
+  "generated_at": "2026-11-14T06:54:13+08:00",
+  "candidate": {
+    "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk",
+    "sha256": "4cff154077495fb6d65fee12842e5d33a6a64be67de1dc1bcea5a48ef54e28c7",
+    "bytes": 81363615,
+    "verdict": "PASS",
+    "required": {
+      "required_total": 28,
+      "required_passed": 28,
+      "advisory_total": 12,
+      "advisory_failed": 2
+    },
+    "advisory_failed": [
+      "dex-version-matches-official",
+      "java-safe-descriptors"
+    ],
+    "key_checks": {
+      "package-name": {
+        "state": "PASS",
+        "actual": "com.oreki.antimatterdimensions"
+      },
+      "version-code": {
+        "state": "PASS",
+        "actual": "30210000"
+      },
+      "version-name": {
+        "state": "PASS",
+        "actual": "3.21.0"
+      },
+      "sdk-levels": {
+        "state": "PASS",
+        "actual": "minSdk=32 targetSdk=37"
+      },
+      "signature-cert": {
+        "state": "PASS",
+        "actual": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
+      },
+      "signature-scheme": {
+        "state": "PASS",
+        "actual": "signers=1 schemes={\"v1\": false, \"v2\": true, \"v3\": false, \"v3.1\": false, \"v4\": false}"
+      },
+      "dex-present": {
+        "state": "PASS",
+        "actual": "2 个 dex，versions={\"classes.dex\": \"039\", \"classes2.dex\": \"039\"}"
+      },
+      "class-total": {
+        "state": "PASS",
+        "actual": "16462 类（逐 dex 原始和 16462）"
+      },
+      "first-party-coverage": {
+        "state": "PASS",
+        "actual": "10954/10954（缺失 0）"
+      },
+      "official-class-coverage": {
+        "state": "PASS",
+        "actual": "官方 15319 类，精确命中 15313，改名后仍缺 6（其中 kotlin stdlib 6，其他 0）"
+      },
+      "resource-id-parity": {
+        "state": "PASS",
+        "actual": "同名不同 ID=0，官方有目标无=0，目标新增=48"
+      },
+      "native-abis": {
+        "state": "PASS",
+        "actual": "arm64-v8a, armeabi-v7a, x86, x86_64"
+      },
+      "native-libs-complete": {
+        "state": "PASS",
+        "actual": "2/2"
+      },
+      "assets-complete": {
+        "state": "PASS",
+        "actual": "22/22"
+      },
+      "reference-native-libs-bytes": {
+        "state": "PASS",
+        "actual": "不同=0 缺失=0"
+      }
+    },
+    "report": "evidence/candidate-4cff1540/accept-report.json"
+  },
+  "controls": {
+    "r103_stable": {
+      "sha256": "380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965",
+      "verdict": "FAIL",
+      "required_failed": [
+        "resource-id-parity"
+      ],
+      "note": "R103 为旧链产物：28 条 aapt-mangled 资源同名不同 ID；脚本仍能正确识别"
+    },
+    "official_base_apk": {
+      "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+      "verdict": "FAIL",
+      "required_failed": [
+        "native-abis",
+        "native-libs-complete"
+      ],
+      "note": "官方 base APK 不是 universal：无 lib/，故 ABI 两项 FAIL（符合预期）"
+    }
+  },
+  "r106_02_evidence_recheck": {
+    "status": "FAIL（脚本不可直接复跑；数据可复现）",
+    "bugs": [
+      "B1 absent_after_rename NameError（阻断复跑）",
+      "B2 resource_parity same_norm 生成式 kind/name 未定义（回归时崩溃而不是 FAIL）",
+      "B3 资源正则不匹配 ' PUBLIC' 后缀（apktool 产物只解析 37/14976）",
+      "B4 提交 JSON 的 check 集与提交脚本不一致（csv_missing_explained vs csv_absent_after_rename_are_kotlin_package）"
+    ],
+    "reproduced_files": "6 个输出中 5 个逐字节相同，identity txt 仅时间戳+1 条 check 不同",
+    "v7_numbers": {
+      "class_total": 16462,
+      "first_party_hit": "10954/10954",
+      "resource_same_name_diff_id": 0
+    },
+    "report": "01-r106-02-evidence-recheck.md"
+  },
+  "gate": {
+    "candidate_gate_blocked": true,
+    "candidate_gate_message": "FAIL: AGP_ONLY_BLOCKED: AGP still builds a bridge or a different package",
+    "blocked_requirements": [
+      "application-id-production",
+      "workflow-invokes-agp-release",
+      "forbidden:bash ./gradlew assembleRelease",
+      "forbidden:bash ./gradlew compileKotlinClasses",
+      "forbidden:bash ./gradlew buildKotlinDex",
+      "forbidden:installToRelease"
+    ],
+    "artifact_probes_blocked": [
+      "p1-empty-directory",
+      "p2-apk-only",
+      "p3-legacy-builder",
+      "p4-sha-mismatch"
+    ],
+    "self_declared_provenance_accepted": true,
+    "report": "03-gate-review.md"
+  },
+  "ci_plan": {
+    "report": "04-CI-PLAN.md",
+    "status": "草案，未改 workflow"
+  },
+  "avd_gate": {
+    "status": "EXECUTED",
+    "device": "emulator-5554",
+    "mode": "all",
+    "apk_sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "verdict": "PASS",
+    "checks": [
+      {
+        "id": "preflight",
+        "state": "PASS"
+      },
+      {
+        "id": "install-upgrade",
+        "state": "PASS"
+      },
+      {
+        "id": "new-save",
+        "state": "PASS"
+      },
+      {
+        "id": "launch",
+        "state": "PASS"
+      },
+      {
+        "id": "restart-load",
+        "state": "PASS"
+      },
+      {
+        "id": "save-file-persist",
+        "state": "PASS"
+      },
+      {
+        "id": "gui-screenshot",
+        "state": "PASS"
+      },
+      {
+        "id": "save-import",
+        "state": "NOT RUN"
+      },
+      {
+        "id": "stage-gate-positive",
+        "state": "NOT RUN"
+      },
+      {
+        "id": "stage-gate-negative",
+        "state": "NOT RUN"
+      },
+      {
+        "id": "autobuyer-core",
+        "state": "NOT RUN"
+      }
+    ],
+    "report": "reports/R107-01/test-ci/avd-gate-c25c68dc/avd-gate-report.json",
+    "doc": "05-avd-gate.md",
+    "notes": "执行项全部 PASS；save-import/stage-gate±/autobuyer-core NOT RUN；第一次执行的脚本误判已修正并重跑"
+  },
+  "v7_baseline": {
+    "sha256": "f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc",
+    "artifact_preserved": false,
+    "runtime": "NOT RUN",
+    "latest_runtime_evidence": "reports/R106-02/p0-repro/launch-fix6.txt（v6 APK，22:30，VerifyError nc8.M）",
+    "report": "06-v7-baseline.md"
+  },
+  "not_run": [
+    "AVD 冷启动/新建档/重启读档（等 Lead 授权窗口）",
+    "AVD 玩法门禁/自动购买器/GUI 60fps",
+    "真实 180 分钟通关",
+    "正式 CI candidate/verify/release run",
+    "provenance schema 2（未实现）",
+    "save-import / stage-gate-positive / stage-gate-negative / autobuyer-core（AVD 8 项验收，需 Lead 既有流程）",
+    "正式 candidate/verify/release CI run（正式发布 BLOCKED）"
+  ],
+  "scripts": [
+    "scripts/tests/r107/accept_apk.py",
+    "scripts/tests/r107/gate_failclosed.py",
+    "scripts/tests/r107/avd_gate.py"
+  ],
+  "hybrid_candidate": {
+    "path": "/home/oreki/private-staging/r107-candidate/antimatter-dimensions-R107-hybrid-AGPpackaged-c25c68dc.apk",
+    "sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+    "bytes": 72416868,
+    "verdict": "PASS",
+    "required": {
+      "required_total": 28,
+      "required_passed": 28,
+      "advisory_total": 12,
+      "advisory_failed": 4
+    },
+    "advisory_failed": [
+      "dex-count-matches-official",
+      "dex-version-matches-official",
+      "cross-dex-duplicates",
+      "java-safe-descriptors"
+    ],
+    "packaging_mode": "agp-package-with-legacy-game-dex",
+    "build_report": "reports/R107-01/lead-evidence/hybrid-package-report.json",
+    "dex": {
+      "classes.dex": {
+        "classes": 10150,
+        "bytes": 12433576,
+        "sha256": "d3fbcab0ddb4a320d8e6a91e9d05d3ac360ecc17786c5f631589a2c57bcaa13b"
+      },
+      "classes2.dex": {
+        "classes": 4611,
+        "bytes": 6413784,
+        "sha256": "27141993d1b1091b7fbe7e1e865a89e0261eac90136cd1917982f86dd04323dd"
+      },
+      "classes3.dex": {
+        "classes": 583,
+        "bytes": 998372,
+        "sha256": "7cc05e767c4ce8489ba4811a6002f38de1c8c2c3167c920efa1dc44d9f365aae"
+      },
+      "classes4.dex": {
+        "classes": 1125,
+        "bytes": 2271920,
+        "sha256": "aa03505de9ccd0408f2aa6779e59bad68b3a77d83ade88e737a6c832329a8f67"
+      }
+    },
+    "key_checks": {
+      "package-name": {
+        "state": "PASS",
+        "actual": "com.oreki.antimatterdimensions"
+      },
+      "version-code": {
+        "state": "PASS",
+        "actual": "30210000"
+      },
+      "version-name": {
+        "state": "PASS",
+        "actual": "3.21.0"
+      },
+      "sdk-levels": {
+        "state": "PASS",
+        "actual": "minSdk=32 targetSdk=37"
+      },
+      "signature-cert": {
+        "state": "PASS",
+        "actual": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
+      },
+      "signature-scheme": {
+        "state": "PASS",
+        "actual": "signers=1 schemes={\"v1\": false, \"v2\": false, \"v3\": true, \"v3.1\": false, \"v4\": false}"
+      },
+      "dex-present": {
+        "state": "PASS",
+        "actual": "4 个 dex，versions={\"classes.dex\": \"039\", \"classes2.dex\": \"039\", \"classes3.dex\": \"039\", \"classes4.dex\": \"039\"}"
+      },
+      "class-total": {
+        "state": "PASS",
+        "actual": "16403 类（逐 dex 原始和 16469）"
+      },
+      "first-party-coverage": {
+        "state": "PASS",
+        "actual": "10954/10954（缺失 0）"
+      },
+      "official-class-coverage": {
+        "state": "PASS",
+        "actual": "官方 15319 类，精确命中 15319，改名后仍缺 0（其中 kotlin stdlib 0，其他 0）"
+      },
+      "resource-id-parity": {
+        "state": "PASS",
+        "actual": "同名不同 ID=0，官方有目标无=0，目标新增=48"
+      },
+      "native-abis": {
+        "state": "PASS",
+        "actual": "arm64-v8a, armeabi-v7a, x86, x86_64"
+      },
+      "native-libs-complete": {
+        "state": "PASS",
+        "actual": "2/2"
+      },
+      "assets-complete": {
+        "state": "PASS",
+        "actual": "22/22"
+      },
+      "reference-native-libs-bytes": {
+        "state": "PASS",
+        "actual": "不同=0 缺失=0"
+      }
+    },
+    "report": "07-hybrid-candidate-audit.md",
+    "evidence": "evidence/hybrid-c25c68dc/",
+    "game_code_compiled_by": "legacy-dex",
+    "dex_source_verified": true
+  },
+  "agp_native_route": {
+    "status": "BLOCKED",
+    "reason": "enjarify 原生游戏代码可冷启动/MOD UI 正常，但 Tick 卡死；SIGQUIT 多线程停在 Player.k0/l0 更新链；无钩子基线同样卡死",
+    "evidence": [
+      "reports/R107-01/lead-evidence/native-blocker/sigquit-trace.txt",
+      "reports/R107-01/lead-evidence/native-blocker/baseline-enjarify-t1.png",
+      "reports/R107-01/lead-evidence/native-blocker/baseline-enjarify-t2.png",
+      "reports/R107-01/lead-evidence/logcat-boot.txt"
+    ],
+    "gate_requirement": "provenance 字段 game_code_compiled_by / game_dex_source / jvms_audit / agp_native_gameplay_status（03-gate-review §3.4+§3.5）；legacy-dex 不得标记 native",
+    "jvms_audit": {
+      "classes_total": 15344,
+      "jvms_invalid": 5195,
+      "invalid_ratio": 0.339,
+      "categories": {
+        "VerifyError_wrong_init_method": 3280,
+        "ClassFormatError": 1915
+      },
+      "pure_official_jar": {
+        "classes_total": 15319,
+        "jvms_invalid": 5194
+      },
+      "d8_blind_spot": "D8 整包与 76 个补丁相关类逐类 PASS、AGP 构建/签名/冷启动 PASS 均未发现",
+      "evidence": [
+        "reports/R107-01/agp-dex/R107-01-agp-dex-REPORT.md",
+        "reports/R107-01/agp-dex/evidence/04-jvm-verify-final.txt",
+        "scripts/dexfix/r107/java/JarVerifyAudit.java"
+      ],
+      "gate_requirement": "任何 agp-kotlin/agp-jvm-class 候选必须通过 JVMS 校验且 jvms_invalid=0（03-gate-review §3.5）"
+    }
+  },
+  "release_status": {
+    "formal_release": "BLOCKED",
+    "reasons": [
+      "AGP 原生游戏代码 Tick 卡死（BLOCKED）",
+      "最终候选 c25c68dc 为 AGP 打包 + 过渡游戏 DEX，非原生",
+      "CI 尚无 AGP 游戏代码链路；provenance 区分字段未实现",
+      "R103 Latest 未变：android-update-3.21.0-3d924271"
+    ]
+  },
+  "closure": {
+    "head": "c79e876a",
+    "branch": "r107-01/agp-runtime",
+    "static_gates": {
+      "enforce_agp_only_candidate": "BLOCK (fail-closed, exit=1, 6 conditions)",
+      "accept_apk_help": "PASS (exit=0)",
+      "gate_failclosed": "FAIL-CLOSED (candidate blocked; artifact 4/5 blocked, self-declared accepted)"
+    },
+    "artifact_audits": {
+      "hybrid_c25c68dc": {
+        "required": "28/28",
+        "form": "AGP 打包 + legacy-dex（过渡）",
+        "release": "BLOCKED"
+      },
+      "A2_native_enjarify": {
+        "sha256": "9b8e8cdd...",
+        "required": "28/28",
+        "runtime": "Tick FAIL / BLOCKED"
+      },
+      "B2_native_mixed": {
+        "sha256": "ebc502fd...",
+        "required": "28/28",
+        "runtime": "r1 Tick PASS；r2/r4 FAIL；J8 未验收"
+      },
+      "b001faa7_oldchain_allfixes": {
+        "sha256": "b001faa7...",
+        "required": "27/28 (resource 28)",
+        "role": "承载四项修复的 AVD 里程碑 APK"
+      }
+    },
+    "session_fixes": {
+      "ec_respec": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/ecscale-run (ec=[5x12], dil=[1..5])"
+      },
+      "dilation_studies_autobuy": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/dilstudies + reality-run BUY 1..6"
+      },
+      "ds6_achievement_waiver": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/reality-run OREKI_DS6 result=true"
+      },
+      "first_reality": {
+        "status": "PASS (AVD)",
+        "evidence": "lead-evidence/reality-run real=0.301 at t=875s (~14.6min)"
+      }
+    },
+    "milestone_apk": {
+      "path": "build/gradle-stage/反物质维度.apk",
+      "sha256": "b001faa71bdb7a24f801010f7c16cbe8df06b137e8215721e6f7e02ef947691b",
+      "bytes": 84637867
+    },
+    "delivery_rules_653": {
+      "gate1_stable_rollback": "PASS",
+      "gate2_agp_fullgame_runtime": "BLOCKED",
+      "gate3_no_open_p0": "BLOCKED/NOT PROVEN",
+      "gate4_save_signature_compat": "PARTIAL",
+      "gate5_dual_platform_equivalence": "NOT RUN",
+      "gate6_cost_benefit": "NOT RUN"
+    },
+    "release_gate_8_avd": {
+      "install-upgrade": "PASS",
+      "launch": "PASS",
+      "apk-signature-version": "PASS",
+      "stage-gate-positive": "PASS",
+      "stage-gate-negative": "PASS",
+      "autobuyer-core": "NOT RUN",
+      "save-import": "NOT RUN",
+      "gui": "PARTIAL"
+    },
+    "long_run_180min": {
+      "status": "NOT RUN (in progress)",
+      "started": "2026-11-14T06:40:09+08:00",
+      "latest_t_s": 661,
+      "gameEnd": false
+    },
+    "verdict": "技术成果可收口；正式发布 BLOCKED；R103 Latest 不变",
+    "docs": [
+      "08-closure-checklist.md",
+      "09-ci-native-options.md"
+    ]
+  }
+}

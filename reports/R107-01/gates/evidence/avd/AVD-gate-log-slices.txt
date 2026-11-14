@@ -1,0 +1,25 @@
+# G1 负向：currentSubTab=eternityChallenges（新档，首次永恒前）
+11-13 23:35:45.138 I/OREKI_TABGATE( 9884): tab=eternityChallenges allowed=false eternityUnlocked=false
+11-13 23:35:47.474 I/OREKI_TABGATE( 9884): tab=eternity allowed=false eternityUnlocked=false
+11-13 23:35:47.474 I/OREKI_TABGATE( 9884): tab=reality allowed=false eternityUnlocked=false
+11-13 23:35:47.474 I/OREKI_TABGATE( 9884): tab=celestials allowed=false eternityUnlocked=false
+
+# G1 负向：currentSubTab=dilation
+11-13 23:36:52.364 I/OREKI_TABGATE(10230): tab=dilation allowed=false eternityUnlocked=false
+
+# G4 负向：currentSubTab=glyphs（现实前）
+11-13 23:37:22.163 I/OREKI_TABGATE(10543): tab=glyphs allowed=false eternityUnlocked=false
+
+# 合法永恒档正向：启动时永恒层页签全部 allowed=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=autobuyers allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=automator allowed=false eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=normalChallenges allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=infinityChallenges allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=eternityChallenges allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=infinityUpgrades allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=breakInfinity allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=replicanti allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=timeStudies allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=eternityUpgrades allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=milestones allowed=true eternityUnlocked=true
+11-13 23:38:23.393 I/OREKI_TABGATE(10849): tab=dilation allowed=true eternityUnlocked=true

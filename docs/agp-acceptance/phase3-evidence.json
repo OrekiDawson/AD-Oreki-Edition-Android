@@ -1,0 +1,84 @@
+{
+  "phase": 3,
+  "round": "R106-01",
+  "date": "2026-11-13T20:50:00+08:00",
+  "status": "BLOCKED",
+  "summary": "AGP 9.5.1 已真实接管 Manifest/资源(含资源ID)/assets/native/MOD Kotlin DEX/正式签名，并产出完整包结构与可安装 APK；但游戏 DEX 无法由 AGP 生成（AGP 无 DEX 输入工件，MOD 依赖原版 smali 补丁），APK 缺游戏类导致冷启动崩溃。未二次重包、未发布。",
+  "agp_version": "9.5.1",
+  "gradle_version": "9.8.2",
+  "jdk": "21",
+  "compile_sdk": 37,
+  "application_id": "com.oreki.antimatterdimensions",
+  "build_command": "bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true",
+  "build_result": "BUILD SUCCESSFUL",
+  "inputs_script": "scripts/agp_prepare_fullgame.py",
+  "apk": {
+    "sha256": "87f5454e9234563ff92f1e05af35194be78a9d2a48c1077ec56a363f9055831b",
+    "size_bytes": 66093389,
+    "package": "com.oreki.antimatterdimensions",
+    "versionName": "3.21.0",
+    "versionCode": 30210000,
+    "cert_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+    "entries": 1625,
+    "res_entries": 1581,
+    "assets_entries": 23,
+    "native_libs": 8,
+    "dex_files": 1,
+    "dex_classes": 1143,
+    "game_classes_present": false,
+    "androidx_classes_present": false,
+    "mod_kotlin_classes": 30
+  },
+  "resource_ids": {
+    "official_base_apk_sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+    "legacy_candidate_apk_sha256": "380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965",
+    "official_entries": 14928,
+    "agp_entries": 14976,
+    "same_name_different_id_vs_official": 0,
+    "same_name_different_id_vs_legacy_excluding_renamed": 0,
+    "renamed_generated_resources": 34,
+    "rename_rule": "$name -> _aapt_name (内容与 ID 不变)"
+  },
+  "avd": {
+    "device": "emulator-5554 (ad-game-api37, API 37)",
+    "install": "PASS (adb install -r over signed candidate)",
+    "launch": "FAIL (ClassNotFoundException androidx.core.app.CoreComponentFactory; Unable to instantiate application kajfosz.antimatterdimensions.App)",
+    "restore": "PASS (reinstalled R105-04 candidate 380dfbfb, MainActivity resumed, 0 FATAL)"
+  },
+  "blockers": [
+    "AGP 9.5.1 公开 artifact API 没有 DEX 工件/追加能力；dexBuilderRelease 只消费 class 文件。",
+    "把 .dex 作为文件依赖会被 AGP 静默忽略：clean assembleRelease 仍 BUILD SUCCESSFUL 但产物仍只有 MOD DEX。",
+    "MOD 依赖 22 个原版混淆 smali 补丁 + 33 个 MOD smali 包装类；最终游戏 DEX 必须由 smali 汇编生成，AGP 不能编译 smali。",
+    "唯一可用的 APK 注入点（SingleArtifact.APK transform）属于任务书 §2/§3 禁止的二次重包，不采用。"
+  ],
+  "ci": {
+    "pull_request": 30,
+    "head_commit": "ff3934ff",
+    "run_id": 43428789895,
+    "source_checks": "PASS (1m01s)",
+    "agp_kotlin_dex_parity": "PASS (1m19s)"
+  },
+  "gates": {
+    "agp_only_policy": "enforce_agp_only.py candidate 仍 fail-closed（未发布）",
+    "provenance_file_generated": false,
+    "candidate_published": false,
+    "r103_latest_unchanged": true,
+    "formal_build_entry_replaced": false
+  },
+  "evidence_files": [
+    "reports/R106-01/build-agp-fullgame.log",
+    "reports/R106-01/apk-structure.txt",
+    "reports/R106-01/resource-id-parity.txt",
+    "reports/R106-01/agp-artifact-api.txt",
+    "reports/R106-01/dex-input-probe.log",
+    "reports/R106-01/smali-hook-evidence.txt",
+    "reports/R106-01/avd-crash-missing-dex.log",
+    "reports/R106-01/avd-crash-missing-dex.png",
+    "reports/R106-01/avd-restored-candidate.log",
+    "reports/R106-01/avd-restored-candidate.png"
+  ],
+  "next": [
+    "不启动 R106-02；R106-01 本轮在阻塞证据齐全后收口。",
+    "后续可行性：把 22 个原版 smali 补丁点等价迁为 AGP 可编译形态（纯 Kotlin 注入点 + 原版 DEX 不动），需用户授权并逐点验证。"
+  ]
+}

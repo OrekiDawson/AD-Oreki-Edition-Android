@@ -1,0 +1,61 @@
+diff --git a/scripts/oreki_dark_theme.py b/scripts/oreki_dark_theme.py
+index 69b2839..49ec47a 100644
+--- a/scripts/oreki_dark_theme.py
++++ b/scripts/oreki_dark_theme.py
+@@ -230,6 +230,20 @@ def _replace_method(text: str, sig_line: str, body_lines: list[str]) -> tuple[st
+     raise DarkThemeError(f"找不到方法 {sig_line}")
+ 
+ 
++# [R107-01 DK-03] isDark 恒真策略迁到 Kotlin（OrekiThemePolicy.isDark）。
++# Smali 只保留 invoke-static + return，不再内联 const/4 业务常量。
++OREKI_DK03_IS_DARK_BODY = [
++    "    .locals 1",
++    "",
++    f"    # {MARK} R107-01 DK-03 isDark 业务在 Kotlin（OrekiThemePolicy.isDark）",
++    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiThemePolicy;->isDark()Z",
++    "",
++    "    move-result v0",
++    "",
++    "    return v0",
++]
++
++
+ def patch_appearance_class(mod: Path) -> str:
+     p = _mod_smali(mod, PKG_DIR / "player" / "DeviceOptions$Appearance.smali")
+     t = p.read_text(encoding="utf-8")
+@@ -261,21 +275,16 @@ def patch_appearance_class(mod: Path) -> str:
+         ])
+     did.append("b()" if ok else "")
+ 
++    # [R107-01 DK-03] isDark 策略迁到 Kotlin（OrekiThemePolicy.isDark）。
+     t, ok = _replace_method(
+         t,
+         ".method public final c()Z",
+-        [
+-            "    .locals 2",
+-            "",
+-            f"    # {MARK} isDark 恒 true",
+-            "    const/4 p0, 0x1",
+-            "",
+-            "    return p0",
+-        ])
++        OREKI_DK03_IS_DARK_BODY)
+     did.append("c()" if ok else "")
+ 
+     if not any(did):
+         return "skip(三个访问器已是深色)"
++    assert "OrekiThemePolicy;->isDark()Z" in t, "DK-03 Kotlin trampoline 未写入"
+     p.write_text(t, encoding="utf-8")
+     return "ok(" + ",".join(x for x in did if x) + ")"
+ 
+@@ -744,7 +753,9 @@ def verify(mod: Path) -> None:
+         assert "ordinal()" not in seg, f"[DARK] {sig} 仍按 ordinal 分支，可能返回浅色"
+     i = ap.find(".method public final c()Z")
+     seg = ap[i:ap.find(".end method", i)]
+-    assert "const/4 p0, 0x1" in seg, "[DARK] c() 未强制 true"
++    assert "OrekiThemePolicy;->isDark()Z" in seg, \
++        "[DARK] c() 未接入 Kotlin OrekiThemePolicy.isDark（R107-01 DK-03）"
++    assert "const/4 p0, 0x1" not in seg, "[DARK] c() 仍有 Smali 内联 true（业务未真正迁移）"
+ 
+     if _is_baseline_321(mod):
+         state = _mod_smali(mod, "jw0.smali").read_text(encoding="utf-8")
