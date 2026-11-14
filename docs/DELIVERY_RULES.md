@@ -14,7 +14,7 @@
 
 - **Android 固定官方 3.21.0 冻结基线（2026-11-13 起，见第 6 节）；允许只读监测上游安全/重大缺陷，禁止未经用户授权自动升级、自动合并、修改冻结基线或发布**；上游更新按第 6.2 节选择性移植，完整基线替换按第 6.5 节三种边界（研究评估无需新授权 / 用户授权必须 / 正式发布门禁全部满足）。Web 固定 2026-07-17 冻结上游（见 Web 仓库规则）。新增或修改 Android 游戏业务必须用 Kotlin，不新增 Java/Smali 业务或 Kotlin 空壳；遵守 §67 语义命名，混淆名仅限有证据的 ABI 适配。
 - **正式 Android APK 构建强制 AGP 9.5.1，唯一生产入口。** 当前阶段一只有 AGP bridge 包，未通过原版 Manifest、资源 ID、DEX/native、原证书、安装升级和 AVD 真实游戏验收，故 Candidate/Verify/Release 必须拒绝旧链产物并 fail-closed 阻断正式新发布。旧 apktool 和独立 Kotlin→D8 链仅供隔离回归对照，不可直接签名、晋升、发布；已有稳定版继续保留。新链全部兼容验收通过后，才切换正式 Candidate 构建任务并解除阻断。AGP 内部正常使用 D8/R8/AAPT2 不属于禁止范围。
-- JADX/REA 优先复用现有导出与 ABI 索引；同一官方基线完整导出一次即可，基线变动或证据缺失才重做。优先复用稳定 JDK、SDK、Gradle、Rust、rg 等；Gradle 离线优先，缺依赖再联网；Python 合理用于现有构建与验证，不代替 Kotlin 业务。代码文本 LF。
+- JADX/REA 优先复用现有导出与 ABI 索引；同一官方基线完整导出一次即可，基线变动或证据缺失才重做。优先复用稳定 JDK、SDK、Gradle、Rust、rg 等；Gradle 离线优先，缺依赖再联网；Python 可合理用于非生产辅助与隔离验证，不代替 Kotlin 业务。**`scripts/build_mod.py` 为第 9 节强制退役例外，正式构建期 Python 依赖须逐步消除。**代码文本 LF。
 - 主动利用 logcat、AVD、截图、控件树、帧日志、源码及原版对照定位 Bug；优先根因修复，不能用遮挡 GUI、吞异常或编造状态蒙混过关。
 
 ## 3. 玩法、UI 与测试
@@ -168,3 +168,31 @@
 - 普通小 PR 照现有 Required Checks 快速合并，不新设逐次用户审批；大型 PR 必须说明风险与必要性，同样经 CI/PR 保护流程合并，不放宽原版真实玩法、AGP+R8、存档/签名及独立发布门禁。
 - 已合并的 PR #43 仅作为规模治理的经验参考，不倒退合并、不改写历史提交；如确需清理历史大文件，另行评估 Git LFS/持久备份/兼容性后走独立 PR，不把仓库体积治理升级为当前游戏 P0。
 - Lead 在后续轮次自动执行本规则；本次只变更规则文本，不修改任务编号、不重复 /goal、不启动 APK 构建或 Pages 部署；受 DeepSeek 高峰期全员停工及现行发布权限约束。
+
+## 9. `build_mod.py` 彻底退役的长期验收规则（2026-11-14，强制）
+
+> 本节细化 [AGENTS.md](../AGENTS.md) 第 14 节、[Issue #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)；仅确定长期架构目标与验收，不代表脚本已删除或 AGP 原生完整游戏已 PASS。与第 2、5 节的生产构建/CI/CD 门禁同时有效。
+
+### 9.1 不可回退的目标
+
+- **正式完成状态必须是物理删除 `scripts/build_mod.py`**，并确保 Android 正式构建、Candidate、独立 Verify、Release、教程/资源生成、ABI 校验和 CI/CD 不再调用它或换名复制品；禁止以“Gradle 执行 Python”“Kotlin 包一层 Python”“重命名旧脚本”“直接把旧 Smali 补丁文本逐行翻译”为完成。
+- 生产采用 **AGP 9.5.1 + Gradle Kotlin DSL + Kotlin**；必要的确定性 ABI/二进制工具可使用 Kotlin/Rust。Android 业务代码只用 Kotlin，不新增 Java/Smali 业务；原版兼容桥仅允许经验证、最小且可维护的接口方案，不把大规模 Smali 文本替换变成新的永久构建架构。消除正式构建期 Python 依赖，不强制为此重写无关研究/一次性测试脚本。
+
+### 9.2 迁移顺序与工作范围
+
+1. 以实际生效的 `build_mod.py main()` 调用和正式 Gradle/Actions 入口为准，逐项登记资源、Manifest、绑定/字段别名、原版 ABI hook、数值参数、玩法接线、教程/深色资源、校验与历史废弃分支。明确保留、替代、废弃及验证依据；不得猜测全部 Python 函数都仍是生产逻辑。
+2. 与 [Issue #25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 协同完成 AGP **原生完整游戏代码**的正确运行路径。旧 DEX→JVM 转换器的 VerifyError/Tick 自旋路线未经语义验收不能冒充成功；优先复用已有 Kotlin 重建，针对 Player/主循环/存档/阶段等必要闭包逐步突破。
+3. 将被实际使用的构建生成、校验和业务补丁分模块迁移到 Gradle Kotlin DSL、Kotlin 或必要的 Rust 工具。每批一个可核对的功能闭包，小 PR、输入输出指纹、最小必要回归；已由 Kotlin 替代或已废弃的逻辑不机械翻译。
+4. 移除根 Gradle、AGP、Actions、辅助脚本与发布链对旧脚本/旧 apktool 补丁树的生产引用；验证之后再删除文件与死入口，设置 CI 轻量守卫禁止重新依赖。历史文档/报告引用保留以供追溯。
+
+### 9.3 删除与完成验收
+
+- **构建**：无 `build_mod.py` 的干净工作区可重复生成完整、来源可追溯的 AGP 9.5.1 游戏 APK；不是 Bridge、混合拼包、静态检查或仅安装成功。记录源码/原版输入 SHA、编译与签名来源、APK SHA-256 及 ABI/资源证据。
+- **运行**：真实 AVD/必要真机验证冷启动、主循环 Tick 持续增长、游戏存档保存/恢复、阶段/挑战真实结算、自动购买器、GUI 与相应 Android/Web 等价行为；只覆盖受影响的关键功能与高风险路径，不为此无差别重跑全部历史回归。
+- **发行**：原包名、原签名证书、MOD versionCode 递增、存档兼容与覆盖安装成立，独立 Candidate/Verify/Release、Required Checks、受保护签名和四渠道同 SHA 的实际证据齐备。新链不达标必须维持 **AGP-only fail-closed / BLOCKED**，保留现有稳定版，不得退回旧链、手动上传或宣称完全退役。
+- **完成标记**：清点 `build_mod.py` 的所有生产调用为零、删除文件、CI 防回流并通过上述门禁后，才将 [Issue #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 标记完成；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的原生游戏构建和 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 的实际交付分别据各自证据结案，不能合并或 PR 绿灯就批量关闭。
+
+### 9.4 Agent 执行和状态记录
+
+- Lead 和后续 Agent 启动及分配迁移任务时必须继承本节，不另开已有轮次 `/goal`，不改变历史 R 编号、原版 3.21.0 冻结基线或已存在的 PR/工作树；按现有峰谷停工和 CI/PR 保护规则运行。
+- 每批记录功能迁移映射、源与目标路径、实证差异、代码/CI Run/AVD/APK SHA、`PASS / FAIL / BLOCKED / NOT RUN`、仍依赖旧脚本的条目和下一批依赖。P0/P1 修复与玩家正确性优先，不能为清理 Python 而破坏正在进行的开发或已验证稳定版。
