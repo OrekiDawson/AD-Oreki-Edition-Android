@@ -76,12 +76,12 @@ object OrekiLaitela {
     }
 
     private fun methodOf(target: Any?, name: String, paramCount: Int): Method? {
-        val c = target?.javaClass ?: return null
-        val key = c.name + "#" + name + "/" + paramCount
+        val clazz = target?.javaClass ?: return null
+        val key = clazz.name + "#" + name + "/" + paramCount
         val cached = methodCache[key]
         if (cached != null) return cached as? Method
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name == name && m.parameterCount == paramCount) {
@@ -97,10 +97,10 @@ object OrekiLaitela {
     }
 
     private fun staticField(className: String, field: String): Any? = try {
-        val c = cls(className) ?: return null
-        val f: Field = c.getField(field)
-        f.isAccessible = true
-        f.get(null)
+        val clazz = cls(className) ?: return null
+        val fieldRef: Field = clazz.getField(field)
+        fieldRef.isAccessible = true
+        fieldRef.get(null)
     } catch (t: Throwable) {
         null
     }
@@ -164,9 +164,9 @@ object OrekiLaitela {
         val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return 0.0
         val player = playerCls.getField("a").get(null) ?: return 0.0
         val reality = call(player, "Q", 0) ?: return 0.0
-        val f: Field = reality.javaClass.getField("imaginaryMachines")
-        f.isAccessible = true
-        (f.get(reality) as? Double) ?: 0.0
+        val field: Field = reality.javaClass.getField("imaginaryMachines")
+        field.isAccessible = true
+        (field.get(reality) as? Double) ?: 0.0
     } catch (t: Throwable) {
         0.0
     }
@@ -198,8 +198,8 @@ object OrekiLaitela {
         val inst = staticField(GLYPH_CLASS, "a") ?: return false
         val cont = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
             ?.getField("a")?.get(null)
-        val m = methodOf(inst, "X", 2) ?: return false
-        m.invoke(inst, true, cont)
+        val method = methodOf(inst, "X", 2) ?: return false
+        method.invoke(inst, true, cont)
         true
     } catch (t: Throwable) {
         Log.i(TAG, "unequipAll failed: " + t)
@@ -209,9 +209,9 @@ object OrekiLaitela {
     private fun realities(): Double = try {
         val v = GameApi.realitiesValue() ?: return 0.0
         // realities 是 BigDouble：优先读 mantissa/exponent，退化为 toString 判空
-        val m = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
-        val e = methodOf(v, "exponent", 0)?.invoke(v) as? Number
-        if (m != null && e != null) m.toDouble() * Math.pow(10.0, e.toDouble()) else 0.0
+        val mantissa = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
+        val exponent = methodOf(v, "exponent", 0)?.invoke(v) as? Number
+        if (mantissa != null && exponent != null) mantissa.toDouble() * Math.pow(10.0, exponent.toDouble()) else 0.0
     } catch (t: Throwable) {
         0.0
     }
@@ -263,9 +263,9 @@ object OrekiLaitela {
             lastTickAt = now
             // 现实代际检测：每次 realities 变化重置本现实计时（只读）
             // [R108-01] 现实代际用 OrekiRealityPacing 的真实重置计数（解析 BigDouble 不可靠）
-            val r = OrekiRealityPacing.resetCount().toDouble()
-            if (r != lastRealityCount) {
-                lastRealityCount = r
+            val resetCountValue = OrekiRealityPacing.resetCount().toDouble()
+            if (resetCountValue != lastRealityCount) {
+                lastRealityCount = resetCountValue
                 realityStartedAt = now
                 holdSince = 0L
             }
@@ -350,7 +350,7 @@ object OrekiLaitela {
             if (entropy() < 0.0) {
                 // 上一次 run 已完成，等现实重置把 entropy 清回 0
                 setHold(false)
-                logLimited("wait entropy<0 tier=" + tier + " realities=" + r)
+                logLimited("wait entropy<0 tier=" + tier + " realities=" + resetCountValue)
                 return false
             }
             val amExp = GameApi.antimatterExponent()
@@ -400,8 +400,8 @@ object OrekiLaitela {
         val inst = laitela() ?: return false
         val cont = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
             ?.getField("a")?.get(null)
-        val m = methodOf(inst, "c", 2) ?: return false
-        m.invoke(inst, true, cont)
+        val method = methodOf(inst, "c", 2) ?: return false
+        method.invoke(inst, true, cont)
         isRunning()
     } catch (t: Throwable) {
         Log.i(TAG, "enterRun failed: " + t)

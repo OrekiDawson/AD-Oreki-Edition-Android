@@ -170,21 +170,23 @@ object OrekiIu15Sprint {
      * @return true = 本帧应拒绝启动
      */
     @JvmStatic
-    fun shouldBlockEcStart(ecId: Int): Boolean = try {
-        if (ecId != 7) return false
-        if (isActive()) return true
-        // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
-        // 持续生产 ID8→…→ID1（Web 同款根因），即使 ID 购买被拦住，maxID1 也会变正。
-        // 因此「干净现实 + 上限足够 + 未买 IU15」期间必须连 EC7 一起拦。
-        if (iu15Bought()) return false
-        if (fails >= MAX_FAILS) return false
-        if (System.currentTimeMillis() < cooldownUntil) return false
-        if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
-        if (GameApi.isDoomed()) return false
-        if (!GameApi.iu15AffordableByCap()) return false
-        isCleanReality()
-    } catch (_: Throwable) {
-        false
+    fun shouldBlockEcStart(ecId: Int): Boolean {
+        return try {
+            if (ecId != 7) return false
+            if (isActive()) return true
+            // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
+            // 持续生产 ID8→…→ID1（Web 同款根因），即使 ID 购买被拦住，maxID1 也会变正。
+            // 因此「干净现实 + 上限足够 + 未买 IU15」期间必须连 EC7 一起拦。
+            if (iu15Bought()) return false
+            if (fails >= MAX_FAILS) return false
+            if (System.currentTimeMillis() < cooldownUntil) return false
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
+            if (GameApi.isDoomed()) return false
+            if (!GameApi.iu15AffordableByCap()) return false
+            isCleanReality()
+        } catch (_: Throwable) {
+            false
+        }
     }
 
     /**
@@ -247,8 +249,8 @@ object OrekiIu15Sprint {
     }
 
     private fun bdPart(v: Any?, name: String): Double? = try {
-        val m = v?.javaClass?.getMethod(name) ?: return null
-        (m.invoke(v) as? Number)?.toDouble()
+        val method = v?.javaClass?.getMethod(name) ?: return null
+        (method.invoke(v) as? Number)?.toDouble()
     } catch (t: Throwable) {
         null
     }
@@ -256,9 +258,9 @@ object OrekiIu15Sprint {
     private fun realitiesValue(): Double {
         return try {
             val v = GameApi.realitiesValue() ?: return -1.0
-            val m = bdPart(v, "mantissa")
-            val e = bdPart(v, "exponent")
-            if (m != null && e != null) m * Math.pow(10.0, e) else -1.0
+            val mantissa = bdPart(v, "mantissa")
+            val exponent = bdPart(v, "exponent")
+            if (mantissa != null && exponent != null) mantissa * Math.pow(10.0, exponent) else -1.0
         } catch (t: Throwable) {
             -1.0
         }
@@ -322,10 +324,10 @@ object OrekiIu15Sprint {
             val saved = ArrayList<Any>()
             var i = 0
             while (i < arr.size) {
-                val a = arr[i]
-                if (a != null && GameApi.isAutobuyerActive(a) == true) {
-                    GameApi.setAutobuyerActive(a, false)
-                    saved.add(a)
+                val autobuyer = arr[i]
+                if (autobuyer != null && GameApi.isAutobuyerActive(autobuyer) == true) {
+                    GameApi.setAutobuyerActive(autobuyer, false)
+                    saved.add(autobuyer)
                 }
                 i++
             }

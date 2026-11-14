@@ -73,12 +73,12 @@ object OrekiDilationStudies {
     }
 
     private fun findMethod(study: Any, name: String, paramCount: Int, firstParamBoolean: Boolean = false): Method? {
-        val c = study.javaClass
-        val key = c.name + "#" + name + "/" + paramCount + "/" + firstParamBoolean
+        val clazz = study.javaClass
+        val key = clazz.name + "#" + name + "/" + paramCount + "/" + firstParamBoolean
         val cached = methodCache[key]
         if (cached != null) return cached as? Method
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name != name || m.parameterCount != paramCount) continue
@@ -97,23 +97,23 @@ object OrekiDilationStudies {
     }
 
     private fun idField(study: Any): Field? {
-        val c = study.javaClass
-        val cached = fieldCache[c.name]
+        val clazz = study.javaClass
+        val cached = fieldCache[clazz.name]
         if (cached != null) return cached as? Field
         var found: Field? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             try {
-                val f = k.getDeclaredField("c")
-                if (f.type == java.lang.Integer.TYPE) {
-                    f.isAccessible = true
-                    found = f
+                val field = k.getDeclaredField("c")
+                if (field.type == java.lang.Integer.TYPE) {
+                    field.isAccessible = true
+                    found = field
                 }
             } catch (_: Throwable) {
             }
             k = k.superclass
         }
-        fieldCache[c.name] = found ?: noValue
+        fieldCache[clazz.name] = found ?: noValue
         return found
     }
 

@@ -115,16 +115,16 @@ internal object OrekiBootstrapScale {
         return try {
             val cls = study.javaClass
             val field = costFieldCache.getOrPut(cls) {
-                var c: Class<*>? = cls
+                var clazz: Class<*>? = cls
                 var found: Field? = null
-                while (c != null && c != Any::class.java) {
+                while (clazz != null && clazz != Any::class.java) {
                     found = try {
-                        c.getDeclaredField("i")
+                        clazz.getDeclaredField("i")
                     } catch (_: Throwable) {
                         null
                     }
                     if (found != null) break
-                    c = c.superclass
+                    clazz = clazz.superclass
                 }
                 found ?: throw NoSuchFieldException("i")
             }
