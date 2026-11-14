@@ -46,6 +46,21 @@ android {
     buildFeatures {
         buildConfig = false
     }
+
+    // R8 is an experiment until the complete AGP game APK passes runtime
+    // acceptance. Keep it opt-in so Candidate/Verify/Release remain unchanged.
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = providers.gradleProperty("oreki.r8")
+                .map { it.equals("true", ignoreCase = true) }
+                .getOrElse(false)
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+    }
 }
 
 tasks.named("preBuild") {
