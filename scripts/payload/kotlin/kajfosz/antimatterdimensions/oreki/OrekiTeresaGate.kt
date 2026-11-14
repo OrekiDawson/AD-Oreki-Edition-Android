@@ -45,6 +45,34 @@ object OrekiTeresaGate {
         null
     }
 
+    /**
+     * 读取 BigDouble 的数值。
+     *
+     * [R110-01 P0-B 修复] 冻结 3.21 ABI 暴露的是 getMantissa()D / getExponent()D
+     * （见 work/base_decoded_321/.../BigDouble.smali:4948/4959 与
+     * docs/deobfuscation/data/3.21-semantic-kajfosz.csv），不是 mantissa()/exponent()。
+     * 旧实现用后两个名字反射恒为 null ⇒ realityMachines() 恒 -1.0 ⇒ RM<=0 放行条件失效。
+     * 这里两种名字都尝试，避免 ABI 名字变化时静默失效。
+     */
+    private fun bigDoubleValue(value: Any?): Double {
+        if (value == null) return -1.0
+        val mantissa = (numberOf(value, "getMantissa", "mantissa")) ?: return -1.0
+        val exponent = (numberOf(value, "getExponent", "exponent")) ?: return -1.0
+        return if (mantissa <= 0.0) 0.0 else mantissa * Math.pow(10.0, exponent)
+    }
+
+    private fun numberOf(target: Any?, first: String, second: String): Double? {
+        for (candidate in arrayOf(first, second)) {
+            val method = methodOf(target, candidate, 0) ?: continue
+            try {
+                val result = method.invoke(target)
+                if (result is Number) return result.toDouble()
+            } catch (_: Throwable) {
+            }
+        }
+        return null
+    }
+
     private fun methodOf(target: Any?, name: String, paramCount: Int): Method? {
         val targetClass = target?.javaClass ?: return null
         val key = targetClass.name + "#" + name + "/" + paramCount
@@ -92,11 +120,7 @@ object OrekiTeresaGate {
         val playerObject = player() ?: return -1.0
         val reality = methodOf(playerObject, "Q", 0)?.invoke(playerObject) ?: return -1.0
         val machines = methodOf(reality, "u", 0)?.invoke(reality) ?: return -1.0
-        val mantissa = (methodOf(machines, "mantissa", 0)?.invoke(machines) as? Number)?.toDouble()
-            ?: return -1.0
-        val exponent = (methodOf(machines, "exponent", 0)?.invoke(machines) as? Number)?.toDouble()
-            ?: return -1.0
-        if (mantissa <= 0.0) 0.0 else mantissa * Math.pow(10.0, exponent)
+        return bigDoubleValue(machines)
     } catch (t: Throwable) {
         -1.0
     }
