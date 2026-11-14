@@ -56,7 +56,7 @@
 - 已知双端节奏差异（待裁）：Web 的 Teresa 浇注耗时 459.8s（设计约 2.3s），因 celestial 任务约 19s 才被调度一次 + OREKI_MAX_REAL_FRAME_MS=100 单次只累计 100ms；Android 走原版主循环 Game.r() 按帧累计，不存在该损失。
 
 
-### B.5 build7 跑次（IM 上限 3000）真实结果 —— M1 核心闭环达成 + 发现并修复 P0 死锁
+### B.4 build7 跑次（IM 上限 3000）真实结果 —— M1 核心闭环达成 + 发现并修复 P0 死锁
 
 **默认设置新档、10 分钟内首 reality、realities 0→2、RM 触顶 1e1000、RU 大量真实购买、Teresa 浇满 1e24**（证据：`reports/R108-01/avd-evidence/m2-build7-cap3000/`，原始 logcat 在 `~/private-staging/r108-evidence/`）。
 
@@ -85,7 +85,7 @@
 - 修复（build8，SHA 6cec5720…）：① `GameApi.imaginaryTryUnlock(field)` 周期调原版 `R()V`（IU15 冲刺 1s 一次；莱特拉 IU25 同样接入）；② 冲刺 `RUNNING` 增加「条件达标却买不到」的 15s 诊断日志与 60s 放弃/释放，不再静默 return；③ 30s 状态日志（amE/peak/canBuy/bought/capOk/clean）。
 - 验证状态：**AVD NOT RUN**（build8 跑次 09:48 已启动，结果见下一轮）。
 
-### B.6 build8/build10：IU15 冲刺的第二层死锁与莱特拉窗口标定（跨端同源）
+### B.5 build8/build10：IU15 冲刺的第二层死锁与莱特拉窗口标定（跨端同源）
 
 **build8 AVD 实测（`reports/R108-01/avd-evidence/m2-build8-iu15fix/`）**：
 
@@ -115,7 +115,7 @@
 - 同批（build12）还补了 Web `6988b92` 对应的「DS6 帧竞态」：tier8 阶段用 `GameApi.canReality()`（原版 `prestige/f.f()`，= DS6 在位）作代理判据，压住现实等 DS6+符文≤1+IM 够后再进 run 买 IU25；run 在位却买不到时放开现实让重置清 run。
 - 验证状态：build13 跑次 10:39 启动，**AVD NOT RUN（结果待下一轮）**。
 
-### B.8 IU15 冲刺决定性证据与购买入口 ABI 修复（build13/build17）
+### B.6 IU15 冲刺决定性证据与购买入口 ABI 修复（build13/build17）
 
 build13（EC7+ID 预封锁）AVD 实证（`reports/R108-01/avd-evidence/m2-build13-ec7block/`）：
 
@@ -132,19 +132,19 @@ build13（EC7+ID 预封锁）AVD 实证（`reports/R108-01/avd-evidence/m2-build
 - 同批带入 build15/16：**现实重置帧关闭 8 层 ID 原版自动购买器**（`maxID1` 是「ID1 达到过的最大量」而非购买记录 ⇒ 只拦购买不够）、EC7 预封锁、以及 `OrekiPelle` 终局驱动（doom / keepAutobuyers 优先升级 / armageddon / 只读 isGameEnd）。
 - 验证状态：build17 跑次 11:00 启动，**AVD 结果待下一轮**（若 IU15 真实买入 → 莱特拉解锁 → tier 驱动）。
 
-### B.9 Web 端已完成真实 gameEnd（双端对照的基准与设计验证）
+### B.7 Web 端已完成真实 gameEnd（双端对照的基准与设计验证）
 
 - **Web 默认设置全新存档真实浏览器跑次 gameEnd PASS @1867.9s（31.1 min）**，`endState=1.0417`、`isGameEnd=true`、pageerror 0（832 条 2s 采样）。
 - 关键里程碑：首现实 413.8s → IU15+Laitela 857.4s → Teresa 1096.1s → Effarig 解锁 1484.4s → **莱特拉 tier8 1771.8s** → **IU25+Pelle+doomed 1826.5s** → **gameEnd 1867.9s**；终态 realities=45、IM=1.02e10。
 - Web 三项真实阻断与本轮 Android 修复**一一对应**：① IM 上限 300→3000（Android 同值）；② 莱特拉 tier 窗口 30s→300s（Android 已同源 patch）；③ tier8 后 DS6 帧竞态压现实截帧（Android 已实现 `canReality()` 代理 + 压现实）。
 - 结论：R108-01 的 Android 修复方向已被 Web 端完整验证；Android 端剩余工作是「把同一条链在 3.21 基线上跑通」。Web 分支 `feat/r108-01-web-reality-chain`（HEAD `0e0aa24`）已 push、未 merge/未开 PR；oreki.net 未部署。
 
-### B.11 Web 交付状态（R108-01）
+### B.8 Web 交付状态（R108-01）
 
 - PR **#25 已合并**（`feat/r108-01-web-reality-chain` → main），main SHA **8914ea5b842aad34a36116b5947b3b03f6df6955**；Web 持续 CI（run 43551150141）success，PR CI 43549775285 success（含 Mobile Chromium smoke）。
 - **Web Pages 部署 BLOCKED**：按批准流程 dispatch「申请已批准的 Web Pages 部署」(run 43551377126, approved_sha=8914ea5b…) 失败于 `PAGES_DEPLOY_TOKEN` 为空：`BLOCKED：请在 web-production 环境设置 Pages Actions:write 凭据`。属外部凭据缺失，非代码问题；oreki.net **未部署、线上 SHA 未变**。
 - 结论：Web 端「真实 gameEnd PASS」已进入 main，但生产部署仍等凭据；Android 端继续独立推进。
-### B.12 待根因（不追认为 PASS）
+### B.9 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
 - **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
@@ -223,3 +223,11 @@ build13（EC7+ID 预封锁）AVD 实证（`reports/R108-01/avd-evidence/m2-build
 - 原始全量 logcat：`/home/oreki/private-staging/r108-evidence/`（非仓库）
 - `android/AD_Oreki_Edition_Android/reports/R108-01/{sem,chain}/`（语义映射与 ABI/设计）
 - Web：`reports/R108-01/web/`（默认设置真实跑次 samples/milestones；最终报告由 Web teammate 回填）
+
+### B.10 IU15 预封锁已真机生效（build19/build20）
+
+- build19 AVD 日志（11:36:27）：`OREKI_REALITY(1)` → `OREKI_IU15: 已关闭 8 层 ID 原版自动购买器 count=8` → `现实重置帧预封锁：已关 ID 自动器，等待干净现实冲刺` → `干净现实开始：amE=1e3.00e+00`。
+- 说明「现实重置帧关 ID 自动器 + EC7 预封锁」在 3.21 上真实有效；build17 已先一步实证 IU15 真实买入（`iuBits=16`，IM=4.38e10）。
+- 但代际检测依赖 tick 落点，仍可能错过重置帧（build19 直到 11:36 才抢到）。build20 增加**确定性钩子**：`OrekiRealityPacing.onRealityReset` 在 `prestige/f.b` 返回后同步调 `OrekiIu15Sprint.onRealityResetHook()`，此刻 maxID1 必为 0，直接关 8 层 ID 自动器并 armed（SHA 492085ae）。
+- 验证状态：build20 跑次 11:36 启动，**AVD 结果待下一轮**。
+
