@@ -13,6 +13,16 @@
 | `r109-tier8-credits-done.json` | `reports/R109-01/avd-evidence/m3-tier8-pelle/player-066.json` | `54d49989ea394b7049e8ff4a4dd1e808e689e3c0a99df4cf31e34fbc20475771` | R109 tier8-pelle（已通关） | B3：READ_ONLY_PASS（读取无异常，结束页） |
 | `m13-t030-credits-done.json` | `reports/R110-01/avd-evidence/m13-agp-fresh-180/player-030.json` | `cf64cf8aa9d28a162d4c6563a7d2180a877e90eb5641acd159f975e4b66afcaf` | m13 早期存档（realities=0，但按通关判定仍进结束页） | W1：READ_ONLY_PASS（读取无异常，无自动存档） |
 
+## 重要修正（R112-01 第二轮）
+
+**不要再用 `creditsFinished: false → true` 变换做兼容测试**：实测该变换会让游戏跳过正常启动链直接进入
+「结束（Game End）」页面，造成「读档停在结束页」的假象。原始存档（creditsFinished=false）在正常启动链
+（加载页 → 提示 → 开始游戏 → 更新日志 → 云存档 → 反作弊 → 语言）之后会进入**真实游戏**；
+已完成的存档（pelle.doomed=true）则正确地停在结束页。请用
+`scripts/tests/r112/gate_autoplay.py --save <原始存档>` 做读档/玩法验证。
+
+上述 6 个夹具保留作**负向/历史证据**，不再作为合法性兼容矩阵的输入。
+
 ## 已知限制
 
 - 现存所有含 Laitela/glyph 的晚期存档都是**已通关**存档：读档后游戏进入「结束（Game End）」

@@ -69,6 +69,28 @@ D8 会把泛型签名拆成多段字符串存储（例如 `"Ljava/util/List<"`�
 本文件中所有 AVD 用例（A3/A4/A5、B1/B3/B4、W1）均为 **READ_ONLY_PASS**：游戏读档后停在片尾/结束页，
 不产生自动存档，因此写档方向仍为 **BLOCKED**。README 与报告已按同一语义更新。
 
+## 4.2 第二轮修正：启动门禁与 creditsFinished 变换（2026-11-15 04:00–04:30）
+
+第一轮曾给存档夹具做 `creditsFinished: false → true` 变换（意图跳过片尾字幕），实测发现：
+
+- **该变换会让游戏直接进入「结束（Game End）」页面**，而不是进入游戏；因此第一轮的 A3/A4/A5/B1/B3/B4/W1
+  全部是「变换造成的假象」，不能作为读档/写档矩阵结论（已在 fixtures README 标注、重新判定）。
+- 使用**原始存档**（creditsFinished=false）时，游戏启动链为：
+  加载页（离线结算/提示/开始游戏）→ 更新日志「确定」→ 云存档「确定」→ 反作弊「确定」→ 语言「确定」→ **真实游戏**。
+- 已完成的存档（`celestials.pelle.doomed=true`，如 R110 control save）在启动链后正确地停在结束页——这是原版语义，不是加载失败。
+
+新增工具与证据：
+
+| 工具/证据 | 内容 |
+| --- | --- |
+| `scripts/tests/r112/gate_autoplay.py` | 按 UI 文本自动点掉启动门禁，进入游戏后采集截图/logcat/player.json 写入检测；退出码 0=PASS（进入游戏且无崩溃） |
+| m26（R112 第一轮末） | **有效存档 after-bigcrunch → 真实游戏**（反物质/维度/无限进度 HUD，截图 `reports/R112-01/avd-evidence/m26-dismiss-gates/final.png`），0 崩溃 |
+| m35（C1） | R110 control save（已通关）→ 结束页，0 崩溃（读档成功、原版语义） |
+| m38（C6，后台） | 有效存档进入游戏后 240s 观察 `player.json` 写入；用于判定 MOD 自动存档行为 |
+
+**写档方向**：进入游戏后 `player.json` 在 45–60s 窗口内仍**无写入**（MOD 另有 5 个存档槽/离线结算状态机，
+待下一轮继续定位真实写档路径）。因此「AGP 写档 → smali 读」保持 **BLOCKED**，不以任何静态证据替代。
+
 ## 5. 失败与阻塞（如实记录）
 
 1. **片尾字幕/结束页阻塞自动化**：读档后游戏先进入片尾字幕（creditsFinished=false）或结束页（已通关存档），无法用 `input tap` 稳定跳过；新档（pm clear）还会弹云存档对话框。已在 `scripts/tests/r112/credits_wait_probe.sh` 记录 11 分钟无写入的结论。
