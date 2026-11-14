@@ -15,7 +15,9 @@
 | bounded 修复：过滤程序 JAR | **PASS（离线，已生成过滤 JAR）** | §6、build/r109-r8/game-hybrid-r3-nosdk.jar |
 | 第二轮 R8（过滤后） | **FAIL（下一层：missing class）** | §7、logs/r8on-r3-v2-nosdk.log |
 | 缺失类根因（官方 DEX 自带悬空引用） | **PASS** | §7、inputs/r3-nosdk-missing-refs.json |
-| R8 ON 产出 APK / A/B 完整数据 | **PENDING**（等宿主内存窗口，见 §9） | — |
+| R8 ON 完整构建（过滤 + 定向 -dontwarn + keep） | **PASS（构建）**：APK 75,260,217 B | §9、ab-r8on-metrics.json |
+| R8 OFF/ON A/B 数据（同源同输入） | **PASS**（APK/DEX/类/方法/字段/mapping/耗时） | §9 |
+| R8 ON 静态 keep 校验 | **PASS 74/74**（类名/字段名存活 + 平台类仅合成存根） | ab-r8on-verify.json |
 | AVD 安装/冷启动/玩法验收 | **NOT RUN（Lead 执行）** | — |
 | Kotlin 编译阻塞修复 | **PASS**（commit a459cd50） | logs/baseline-r3-r8off.log（首轮 e: 行） |
 
@@ -191,12 +193,46 @@ ERROR: R8: Missing class com.amazon.privacypass.PrivacyPass (referenced from: vo
 Lead 已下发全队内存规则（同时最多 1 个 Gradle 构建、--no-daemon、-Xmx1536m、构建后清理守护进程；
 12:35–13:05 AVD 重启期间只做低内存工作）。本子 Agent 已释放自己的 Gradle/Kotlin 守护进程（回收约 4GB）。
 
-1. **13:05 后**：用过滤后 JAR + 定向 -dontwarn 跑 R8 ON（v3），记录下一层失败或产出 APK。
-2. 若 R8 ON 成功：产出 R8 OFF/ON 同源 A/B 数据（APK 字节数、SHA、DEX 数、类/方法/DEX 数、mapping.txt、
-   构建耗时），并把 APK 交给 Lead 做 AVD 冒烟（R8 ON 产物只作实验，不作 Candidate）。
-3. R8 ON 需要额外验证：`GameApi` 反射是否命中（logcat `OREKI_API_MISS`）、存档/Gson、协程、
-   Manifest 组件、WebView JS 桥。
-4. 报告与脚本随后续结果更新；AVD 结论一律由 Lead 填写。
+1. **AVD 安装验收（Lead 执行）**：先 R8 OFF 过滤后基线（build/r109-r8/ab/r8off/app-release.apk），
+   再 R8 ON 实验（build/r109-r8/ab/r8on/app-release.apk）；判据见 AVD-CHECKLIST.md。
+2. R8 ON 重点观察：logcat `OREKI_API_MISS`（GameApi 反射）、`NoSuchFieldError`（Gson 存档）、
+   Firebase/ads 初始化（其 consumer proguard 规则不在 DEX→JAR 转换里）、WebView JS 桥、Tick/存档。
+3. 若 AVD 发现 keep 不足：用首错类/成员补 keep，逐层修（一次只改一类），并记录 mapping 反混淆。
+4. A/B 是否扩大（例如再跑 enjarify 管线 JAR、J8 安全最小集）由 Lead 按剩余时间决定。
+
+
+## 9.1 A/B 结果（同一源码/输入/工具链，仅 -Poreki.r8 不同）
+
+构建命令：`bash scripts/agp/r109_build_ab.sh --jar build/r109-r8/game-hybrid-r3-nosdk.jar --variant both`
+（--no-daemon -Xmx1536m；两次独立构建）。
+
+| 指标 | R8 OFF | R8 ON | Δ |
+| --- | --- | --- | --- |
+| APK 字节数 | 81,496,343 | **75,260,217** | -6,236,126（**-7.65%**） |
+| APK SHA-256 | `1edc9894b0f08aca071af10e30df81a35732bc375e06eb44e918e0c9f1b4c2f3` | `465da0e0f3a9f30ebb66cea38d07cb1bfe8a9bcfff56438b42cde9bc88abf3c6` | — |
+| DEX 个数 | 2 | **1** | -1 |
+| DEX 合计字节 | 18,305,160 | **12,069,136** | -6,236,024（**-34.07%**） |
+| class_defs | 16,481 | **10,549** | -5,932（-35.99%） |
+| method_ids | 106,390 | **61,185** | -45,205（-42.49%） |
+| field_ids | 80,409 | **45,796** | -34,613（-43.05%） |
+| mapping.txt | 无（R8 OFF） | 10,966,733 B，SHA-256 `f657da87…c7d4`，10,562 类 / 129,417 成员 | — |
+| 构建墙钟 | 1m41s | 2m12s | +31s |
+| 静态 keep 校验（r109_verify_r8_output.py） | 74/74（未过滤版 70/74） | **74/74** | — |
+
+说明：
+- APK 总大小只降 7.65%，因为 assets 22.5MB + resources.arsc 15.1MB 未变（本实验未开资源收缩）；
+  代码体积（DEX）降 34.07%、方法数降 42.49% 才是 R8 的实际作用面。
+- 构建耗时 +31s 是 R8 优化/映射生成成本（暖缓存；冷缓存会更长）。
+- R8 ON 输出 DEX 中含 7 个 **R8 合成的平台存根类**（`SYNTHETIC`，仅 `<clinit>` 抛
+  `NoClassDefFoundError`），如 `android/media/MediaDrmThrowable`、`android/text/SegmentFinder`、
+  `android/window/OnBackInvokedCallback`；这些类都在 minSdk 32 之上（API 33–35），
+  是 R8 对被引用但低于运行 API 的平台类型的标准处理。API 37 AVD 上平台类优先，不影响运行；
+  API 32 设备上等价于「类不存在」。完整清单见 `build/r109-r8/ab/r8on/synthetic-stubs.json`
+  （被合成存根引用的 android 类共 7 个 + 1 个 `android/text/Layout$TextInclusionStrategy`）。
+- 证据：`reports/R109-01/build-chain/ab-r8off-metrics.json`、`ab-r8on-metrics.json`、
+  `ab-r8on-verify.json`、`ab-r8on-mapping.txt.gz`、`logs/r8on-ab-build.log.gz`。
+
+**R8 ON 只证明构建/静态 ABI 通过，运行语义 NOT RUN，必须由 Lead AVD 验收；产物不得作 Candidate。**
 
 ## 10. 复现命令（关键证据）
 

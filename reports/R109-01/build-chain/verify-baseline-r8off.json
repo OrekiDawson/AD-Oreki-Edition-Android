@@ -1,0 +1,451 @@
+{
+  "apk": "agp/app/build/outputs/apk/release/app-release.apk",
+  "checks": [
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/OrekiAuto",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/OrekiTrace",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/OrekiChallengeAuto",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/OrekiInstantChallenge",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/OrekiSpeed",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/OrekiEcContinuation",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/oreki/GameApi",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler",
+      "ok": true,
+      "detail": "smali->Kotlin ABI"
+    },
+    {
+      "kind": "class",
+      "name": "fl0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "dw",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "m22",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "iq0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "l01",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "m91",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "cu4",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "f7",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "ld0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "ui3",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "iw",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "vi3",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "k00",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "j5",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "w63",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "pp0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "l5",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "rj0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "ku4",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "x81",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "y81",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "vp0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "rq",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "nr5",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "zx1",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "c22",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "is3",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "tw",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "lx3",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "yp0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "t3",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "ii3",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "d51",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "ee1",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "w6",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "f91",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "fm1",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "b60",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "ek0",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "n63",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "cw",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/player/Player",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/BigDouble",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/BitSet",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/MainActivity",
+      "ok": true,
+      "detail": "GameApi 反射目标"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/App",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/MainActivity",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/shop/LoginActivity",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "class",
+      "name": "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "class",
+      "name": "com/google/firebase/components/ComponentDiscoveryService",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "class",
+      "name": "com/google/firebase/provider/FirebaseInitProvider",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "class",
+      "name": "androidx/startup/InitializationProvider",
+      "ok": true,
+      "detail": "Manifest 按名加载"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#antimatter",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#eternityPoints",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#eternities",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#realities",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#achievements",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#auto",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player#challenge",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player$Options#notation",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player$Options#autosaveInterval",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "field",
+      "name": "kajfosz/antimatterdimensions/player/Player$Auto#eternity",
+      "ok": true,
+      "detail": "Gson 存档键"
+    },
+    {
+      "kind": "absent",
+      "name": "android/media/MediaDrmThrowable",
+      "ok": false,
+      "detail": "从程序输入剔除的 SDK 重名类"
+    },
+    {
+      "kind": "absent",
+      "name": "android/text/SegmentFinder",
+      "ok": false,
+      "detail": "从程序输入剔除的 SDK 重名类"
+    },
+    {
+      "kind": "absent",
+      "name": "android/os/OutcomeReceiver",
+      "ok": false,
+      "detail": "从程序输入剔除的 SDK 重名类"
+    },
+    {
+      "kind": "absent",
+      "name": "android/telephony/TelephonyCallback",
+      "ok": false,
+      "detail": "从程序输入剔除的 SDK 重名类"
+    }
+  ],
+  "failed": 4,
+  "passed": 70
+}

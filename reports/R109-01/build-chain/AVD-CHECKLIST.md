@@ -5,11 +5,13 @@
 
 ## 1. 产物
 
-| 变体 | 路径 | 状态 |
-| --- | --- | --- |
-| R8 OFF 基线（mixed-r3 过滤前） | agp/app/build/outputs/apk/release/app-release.apk | 已构建 PASS（81,497,739 B，SHA 7d0365db…） |
-| R8 OFF 基线（过滤后 JAR，A/B 用） | 待 13:05 后重建 | PENDING |
-| R8 ON 实验 | 待 R8 v3（过滤 + 定向 -dontwarn + 存档 keep） | PENDING |
+| 变体 | 路径（工作树 _wt_r109_build） | SHA-256 / 大小 | 状态 |
+| --- | --- | --- | --- |
+| R8 OFF 基线（未过滤，仅供对照） | agp/app/build/outputs/apk/release/app-release.apk | 7d0365db… / 81,497,739 B | 构建 PASS |
+| **R8 OFF 基线（过滤后 JAR，A/B 对照）** | build/r109-r8/ab/r8off/app-release.apk | **1edc9894b0f08aca071af10e30df81a35732bc375e06eb44e918e0c9f1b4c2f3** / 81,496,343 B | 构建 PASS；AVD NOT RUN |
+| **R8 ON 实验（过滤 + 定向 -dontwarn + keep）** | build/r109-r8/ab/r8on/app-release.apk | **465da0e0f3a9f30ebb66cea38d07cb1bfe8a9bcfff56438b42cde9bc88abf3c6** / 75,260,217 B | 构建 PASS；AVD NOT RUN |
+
+A/B：R8 ON 相对 R8 OFF：APK -7.65%、DEX -34.07%、class_defs -35.99%、method_ids -42.49%、field_ids -43.05%（详见报告 §9.1）。
 
 基线 APK 签名/包信息（已核验，apksigner/aapt2）：
 

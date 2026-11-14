@@ -1,0 +1,40 @@
+{
+  "label": "r8off",
+  "apk": "/home/oreki/AD-Oreki-Unified/_wt_r109_build/build/r109-r8/ab/r8off/app-release.apk",
+  "apk_sha256": "1edc9894b0f08aca071af10e30df81a35732bc375e06eb44e918e0c9f1b4c2f3",
+  "apk_size_bytes": 81496343,
+  "dex_files": [
+    {
+      "class_defs_size": 6136,
+      "method_ids_size": 41467,
+      "field_ids_size": 24406,
+      "string_ids_size": 34001,
+      "type_ids_size": 8719,
+      "name": "classes.dex",
+      "size_bytes": 6083536
+    },
+    {
+      "class_defs_size": 10345,
+      "method_ids_size": 64923,
+      "field_ids_size": 56003,
+      "string_ids_size": 64352,
+      "type_ids_size": 13957,
+      "name": "classes2.dex",
+      "size_bytes": 12221624
+    }
+  ],
+  "entries_total": 1626,
+  "assets_bytes": 22548774,
+  "lib_bytes": 60292,
+  "arsc_bytes": 15120776,
+  "dex_count": 2,
+  "dex_total_bytes": 18305160,
+  "totals": {
+    "class_defs_size": 16481,
+    "method_ids_size": 106390,
+    "field_ids_size": 80409
+  },
+  "mapping": {
+    "mapping_present": false
+  }
+}

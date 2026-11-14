@@ -94,8 +94,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--apk", required=True)
     ap.add_argument("--json")
+    ap.add_argument("--stubs", help="R8 合成平台存根类清单 JSON（数组），这些类允许出现在输出中")
     args = ap.parse_args()
     classes, fields, methods, strings = load_apk(args.apk)
+    stub_set = set()
+    if args.stubs:
+        stub_set = {wrap(n[1:-1]) if n.startswith("L") else wrap(n) for n in json.load(open(args.stubs, encoding="utf-8"))}
     results = []
 
     def check(kind, name, ok, detail):
@@ -166,10 +170,17 @@ def main():
         "android/telephony/TelephonyCallback",
     ]
     for cls in removed:
-        check("absent", cls, "L" + cls + ";" not in classes, "从程序输入剔除的 SDK 重名类")
+        present = "L" + cls + ";" in classes
+        is_stub = ("L" + cls + ";") in stub_set
+        check(
+            "absent",
+            cls,
+            (not present) or is_stub,
+            "从程序输入剔除的 SDK 重名类（R8 合成 NCDFE 存根允许）" if present else "已剔除",
+        )
 
     failed = [r for r in results if not r["ok"]]
-    out = {"apk": args.apk, "checks": results, "failed": len(failed), "passed": len(results) - len(failed)}
+    out = {"apk": args.apk, "stub_classes": sorted(stub_set), "checks": results, "failed": len(failed), "passed": len(results) - len(failed)}
     print(json.dumps(out, indent=2, ensure_ascii=False))
     if args.json:
         open(args.json, "w", encoding="utf-8").write(json.dumps(out, indent=2, ensure_ascii=False) + chr(10))
