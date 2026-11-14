@@ -184,18 +184,39 @@ object OrekiIu15Sprint {
     @JvmStatic
     fun idBuyBlocked(): Boolean {
         return try {
-            if (!GameApi.autobuyersOn()) {
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) {
                 // 玩家关掉总开关：立即解除，不能把限制留在后面。
                 releaseNow("autobuyers-off")
                 return false
             }
-            if (!GameApi.imUnlocked()) return false
             if (iu15Bought()) {
                 if (isActive()) releaseNow("already-bought")
                 phase = PHASE_DONE
                 return false
             }
-            isActive()
+            // 已在接管态：拦截（原语义）
+            if (isActive()) return true
+            // [R108-01 关键修复] 预封锁：不依赖「先 arm 再拦」的时序。
+            // 购买守卫在**每次购买调用时**求值，此刻 maxID1 仍为 0（本现实还没买过 ID1），
+            // 所以只要满足「干净现实 + 上限足够 + 未毁灭/未挑战 + 总开关开」，就能在现实重置后
+            // 的第一次 ID 购买前把门关上；旧实现要等 tick 先 arm，而 arm 又要 imUnlocked/clean，
+            // 等价于输给原版 ID 自动购买器（AVD 实测 maxID1=9.1e56986405、IU15 从未 arm）。
+            if (fails >= MAX_FAILS) return false
+            if (System.currentTimeMillis() < cooldownUntil) return false
+            if (GameApi.isDoomed()) return false
+            if (GameApi.inAnyChallenge()) return false
+            if (!GameApi.iu15AffordableByCap()) return false
+            if (!isCleanReality()) return false
+            if (phase == PHASE_IDLE) {
+                phase = PHASE_ARMED
+                val nowMs = System.currentTimeMillis()
+                armMs = nowMs
+                startMs = nowMs
+                peakAmExp = 0.0
+                attempts += 1
+                Log.i(TAG, "预封锁接管：干净现实 + 上限足够，已封锁 ID1~ID8 购买")
+            }
+            true
         } catch (error: Throwable) {
             recordError("idBuyBlocked", error)
             false
