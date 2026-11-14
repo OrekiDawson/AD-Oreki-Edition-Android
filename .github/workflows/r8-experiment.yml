@@ -37,32 +37,21 @@ jobs:
       - name: 运行 R8 DSL 与 ABI Keep 单测
         run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
       - name: 构建未启用 R8 的 Release 对照 APK
+        # R111 CI-2：不再对该确定性构建做最多 3 次整包重试（最坏情况会白跑 ~9 分钟）。
+        # 构建失败即为真实失败：日志完整保留到 r8-evidence/logs，由失败证据上传；
+        # 平台性偶发失败通过手动重跑工作流处理，不掩盖确定性编译错误。
         run: |
           set -euo pipefail
-          for attempt in 1 2 3; do
-            if bash ./gradlew -p agp :app:assembleRelease --rerun-tasks --no-daemon --console=plain; then
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then exit 1; fi
-            echo "重试 Release 对照构建（第 $((attempt + 1)) 次）：依赖下载可能暂时受限"
-            sleep 20
-          done
-          mkdir -p r8-evidence/baseline
+          mkdir -p r8-evidence/baseline r8-evidence/logs
+          bash ./gradlew -p agp :app:assembleRelease --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8off-build.log
           apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
           test -n "$apk" || { echo 'FAIL：未找到未启用 R8 的 Release APK'; exit 1; }
           cp "$apk" r8-evidence/baseline/
       - name: 构建显式启用 R8 的 Release 实验 APK
         run: |
           set -euo pipefail
-          for attempt in 1 2 3; do
-            if bash ./gradlew -p agp :app:assembleRelease -Poreki.r8=true --rerun-tasks --no-daemon --console=plain; then
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then exit 1; fi
-            echo "重试 R8 Release 构建（第 $((attempt + 1)) 次）：依赖下载可能暂时受限"
-            sleep 20
-          done
-          mkdir -p r8-evidence/optimized
+          mkdir -p r8-evidence/optimized r8-evidence/logs
+          bash ./gradlew -p agp :app:assembleRelease -Poreki.r8=true --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8on-build.log
           apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
           test -n "$apk" || { echo 'FAIL：未找到启用 R8 的 Release APK'; exit 1; }
           cp "$apk" r8-evidence/optimized/
@@ -148,8 +137,11 @@ jobs:
             echo 'NOT RUN：当前 AGP 任务列表未提供 analyzeReleaseR8Config'
           fi
       - name: 上传 R8 对照证据（不用于发布）
+        # R111 CI-2：失败时也上传已产生的日志/半成品证据，避免诊断信息全部丢失；
+        # 成功后正常上传完整对照。产物仅实验用途，不参与 Candidate/Release。
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: android-r8-experiment-${{ github.sha }}
           path: r8-evidence
-          if-no-files-found: error
+          if-no-files-found: warn
