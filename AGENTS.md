@@ -95,3 +95,11 @@
 - **证据分层与保留期**：Git 报告保留结论、必要片段、复现命令、输入/源码/产物 SHA-256、CI Run ID、AVD/测试条件、`PASS / FAIL / BLOCKED / NOT RUN` 和原始证据索引；大体积原始日志、Trace、截图优先转受控归档或 Actions Artifacts。Actions Artifacts 会过期，唯一且必须长期保存的关键证据应另有持久、受权限保护的备份，必要时使用已配置且可用的 Git LFS；迁移前核验可取回性与 SHA，不先删原件。
 - **安全及历史**：日志/存档/产物入库或归档前检查凭据、个人数据和敏感内容，Secrets 不得写入 Git（含私有仓库）。既有 PR #43 和历史提交不回滚、不强推、不重写；后续需去重只能通过独立、无损、可追溯变更。规则从现在起适用于新 PR，不改变当前 /goal 编号、发布门禁或 DeepSeek 峰谷停工。
 - **落实**：每个新 PR 由 Lead 主动检查规模和数据重复；普通小 PR 不新增人工审批。详细执行方式见 `docs/DELIVERY_RULES.md` 第 8 节。
+
+
+## 12. Worktree 与目录治理（强制，R110-01 起）
+
+- 本仓所有 Git worktree 必须位于 /home/oreki/AD-Oreki-Unified/worktrees/android/，使用语义化目录名（如 actions、ci、r8-fullgame、r109-build、r110-fix）；禁止在仓库根或 /home/oreki 下新建 _wt_* 或其他平级工作目录。
+- 新建 worktree 使用 git worktree add 到上述目录，并在 /home/oreki/AD-Oreki-Unified/docs/WORKTREE_MAPPING.md 登记（旧路径→新路径、分支、HEAD）。
+- 本仓保持独立 Git 仓库：不转为 Git Submodule，不与其他仓库合并历史；根目录轻量项目管理仓库只引用本仓文本，不改变本仓 CI、签名、版本与发布门禁。
+- 目录整理/迁移类改动不得中断正在进行的 AVD 跑次、构建或验收：移动前确认无进程占用，保留分支、HEAD、未提交与未跟踪文件，移动后用 git status / worktree list 校验并记录 PASS/FAIL/BLOCKED。
