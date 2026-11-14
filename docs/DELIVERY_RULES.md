@@ -212,7 +212,7 @@
 
 - Lead 可在**已有授权**范围内操作 PR；只有 Required Checks 全部通过、关键审查问题解决、目标分支最新、Ruleset 允许、实际必需批准已获得时才可合并。若需要人工审批、受保护 Environment 或新的授权，保持 BLOCKED，不得自批或绕过。
 - Android 正式 Candidate/Verify/Release 必须采用真实 AGP 9.5.1 完整游戏构建和可信来源，经独立验签、必要 AVD/游戏验证后才允许按受保护发布流程进入 GitHub Releases、OneDrive、Google Drive；本地 Kubuntu 再主动拉取、验证同一 APK SHA 并原子更新 SFTP。AGP 游戏 DEX 仍 BLOCKED 时禁止用旧链或混合包替代。发布完成分阶段标记，不能以三远端成功冒充四渠道全 PASS。
-- Web 已通过独立 Node/Playwright 及目标 Android Chrome 验收时，可依现有授权和审批流程独立部署，不受 Android AGP 故障无故拖累。Pages 生产由 ChatGPT 按用户指定职责管理，DeepSeek Lead 的排障和 PR 自治不替代 Pages 受控部署批准与源 SHA/CI/Artifact/线上验证。
+- Web 已通过独立 Node/Playwright 及目标 Android Chrome 验收时，可依现有授权和审批流程独立部署，不受 Android AGP 故障无故拖累。**Pages/oreki.net 正式部署管理改由 DeepSeek Lead 负责**（用户 2026-11-14 决定）；在已有发布授权、实际审批及受保护工作流门禁全部满足时可自主组织、触发和验证获批准的部署。不得因管理权移交而取代 Pages 的受控部署批准或 Web 源 SHA/CI Run/Artifact/线上验证。
 - 严禁关 Ruleset/跳 Required Checks/强推、泄漏 Secrets、降低安全扫描或 AVD 检验、修改冻结上游、手工签名/覆盖正式发布产物、用“模拟 PASS”冒充真实验收。流水线失效须修复或明确 BLOCKED，保留已合格稳定版和回滚路径。
 
 ### 10.3 时段、职责交接与记录
