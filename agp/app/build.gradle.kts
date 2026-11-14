@@ -184,7 +184,7 @@ if (fullGame) {
             if (parts.size != 2) throw GradleException("更新日志锚点不唯一: ${anchor}")
             val headOrig = parts[0]
             var zh = zhRaw
-            Regex("<b>(\d+\.\d+\.\d+)</b>").find(headOrig)?.let { m ->
+            Regex("<b>(\\d+\\.\\d+\\.\\d+)</b>").find(headOrig)?.let { m ->
                 val top = m.groupValues[1]
                 val zhMarker = "<b>$top</b>"
                 if (zh.contains(zhMarker)) zh = zh.substring(zh.indexOf(zhMarker))
