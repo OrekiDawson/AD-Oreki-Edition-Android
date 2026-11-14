@@ -278,6 +278,37 @@ object OrekiIu15Sprint {
     }
 
     /**
+     * [R108-01] 现实重置钩子（由 `OrekiRealityPacing.onRealityReset` 在**每次真实重置后立即**调用）。
+     *
+     * 为什么必须在这里封锁：现实重置刚完成的那一帧，maxID1 必然为 0；但 ID 自动购买器/EC7
+     * 会在后续任何一帧把它弄脏。等 tick 发现代际变化已经晚一帧（AVD 实测多次被抢）。
+     * 本钩子在重置函数返回后同步执行，抢在下一帧购买之前关掉 8 层 ID 自动器，是确定性修复。
+     */
+    @JvmStatic
+    fun onRealityResetHook() {
+        try {
+            if (iu15Bought()) return
+            if (fails >= MAX_FAILS) return
+            if (System.currentTimeMillis() < cooldownUntil) return
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return
+            if (GameApi.isDoomed() || GameApi.inAnyChallenge()) return
+            if (!GameApi.iu15AffordableByCap()) return
+            applyIdAutobuyerLockdown()
+            if (phase == PHASE_IDLE) {
+                val nowMs = System.currentTimeMillis()
+                phase = PHASE_ARMED
+                armMs = nowMs
+                startMs = nowMs
+                peakAmExp = 0.0
+                attempts += 1
+                Log.i(TAG, "现实重置钩子：已关 ID 自动器并 armed（maxID1 刚归零）")
+            }
+        } catch (t: Throwable) {
+            recordError("resetHook", t)
+        }
+    }
+
+    /**
      * [R108-01] 关闭 8 层 ID 的原版自动购买器（真实开关调用，可恢复）。
      *
      * 事实：`maxID1` 是「ID1 达到过的最大量」，不只是购买记录；只要 EC7 奖励仍在产 ID8，

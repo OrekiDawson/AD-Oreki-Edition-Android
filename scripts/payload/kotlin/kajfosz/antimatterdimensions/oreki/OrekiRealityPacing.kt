@@ -249,6 +249,11 @@ object OrekiRealityPacing {
         resetCount += 1
         lastResetAt = nowMs
         readySince = 0L
+        // [R108-01] 重置完成即通知 IU15 冲刺封锁 ID 自动器（maxID1 此刻必为 0，确定性抢在下一帧前）
+        try {
+            OrekiIu15Sprint.onRealityResetHook()
+        } catch (_: Throwable) {
+        }
         logLimited("reset t=" + nowMs + " realities=" + (realities()?.toString() ?: "?"))
     }
 
