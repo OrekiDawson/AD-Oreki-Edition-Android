@@ -3891,12 +3891,13 @@
    {
     "kind": "note",
     "class": null,
-    "descriptor": "Rift fill 写入点（未定位，不写 UNKNOWN 升级）",
-    "semantic_name": "3.21 全树中 `Player$PelleRift;->f(BigDouble)`（fill 字段 setter）**只有 Gson 存档适配器 player/f 调用**；运行期没有 setter 调用。已确认的写入/读取：`e(Z)`=setActive（UI 切换 MainActivityCelestialsKt$…53$1$1 与 pelle/c.i）、`h(D)`=setReducedTo（GalaxyGenerator=pelle/a:811/1536）、`g(D)`=setPercentageSpent（sp0 UI 绑定）、`c()/b()/a()` 读取。fill 的真实运行时累加点未能定位（可能通过 BigDouble 原位更新或其它字段替代），**Kotlin 不要直接写 fill**。",
-    "confidence": "unknown",
+    "descriptor": "Rift fill 写入点（CONFIRMED）",
+    "semantic_name": "Pelle.gameTick（Lcelestials/pelle/c;->i(D,Continuation)）内 rift 循环：遍历 mh3.f（PelleRifts），isActive&&isMaxed 则 setActive(false)；否则对 rift 货币 q 做 after=value*0.97^(diff/1000)（常量 0x3fef0a3d70a3d70a），spent=value-after，随后 fill=d.C()（=B().b()=Player$PelleRift.fill BigDouble）add(spent) 原位突变，再 al2.i(spentPercentage+1) clampMax。fill 无 setter 调用是 BigDouble.add 突变语义所致，非缺失。",
+    "confidence": "confirmed",
     "evidence": [
-     "全树 grep：Player$PelleRift;->f( 仅 player/f.smali；;->h( 见 pelle/a.smali:811/1536；;->e( 见 pelle/c.smali:6102 与 MainActivityCelestialsKt$…53$1$1；;->g( 见 sp0.smali",
-     "pelle/c.i 内 PelleRift 相关行：c.smali:6091/6102/6300/6308/6476/6484"
+     "work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/celestials/pelle/c.smali:6130-6330（逐指令：0.97、iq0 q、BigDouble.add/subtract/Multiply、clampMax、Player$PelleRift.e(Z)/c()）",
+     "mh3.f=PelleRifts 列表；mh3 静态字段 a:lh3(vacuum)/b:gh3(decay)/c:eh3/d:jh3/e:ih3",
+     "web/src/core/celestials/pelle/rifts.js fill(diff) 同语义（drain 1-0.03、spent、totalFill+=spent clamp maxValue）"
     ]
    },
    {
