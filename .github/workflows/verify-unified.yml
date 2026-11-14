@@ -1,4 +1,4 @@
-name: Android APK 独立验签
+name: Android candidate verification
 
 'on':
   workflow_run:

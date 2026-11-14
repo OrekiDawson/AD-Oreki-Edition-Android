@@ -1,4 +1,4 @@
-name: Android 候选包构建与签名
+name: Android candidate build
 
 'on':
   workflow_dispatch:
