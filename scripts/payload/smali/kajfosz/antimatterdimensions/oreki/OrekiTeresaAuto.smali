@@ -174,11 +174,13 @@
 
     cmpl-double v2, v0, v2
 
-    # poured >= 1e24 → 已浇满，释放
-    if-ltz v2, :ot_hno
+    # [R109-01 P0 修复] poured >= 1e24 → 已浇满，释放。
+    # 原实现写的是 if-ltz（= v2 < 0 才跳），语义完全反了：poured 已满时反而继续 hold，
+    # 未满时反而放行。真机证据（13:07 OREKI_TERESA_HOLD=1.0E24 且 teresaHolding=true）
+    # 说明「浇满后现实被永久压死」，这是 R108-01 post-Teresa 停滞的根因。
+    if-gez v2, :ot_hno
 
-    # [R109-01 DIAG] 真机出现「保存档 poured=1e24 但 isHolding=true 压死现实」，
-    # 这里把实时 poured 打出来（只读）以确认内存值与存档是否一致。
+    # [R109-01 DIAG] 未浇满时打印实时 poured（只读），用于确认 hold 期间确实在浇。
     const-string v3, "OREKI_TERESA_HOLD"
     invoke-static {v0, v1}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;
     move-result-object v0
@@ -199,14 +201,16 @@
     return v0
 
     :ot_hyes
-    # [R109-01] 有界 hold：首次进入记录时刻；超过 120s 强制释放，避免整局现实被永久压死。
+    # [R109-01] 有界 hold：首次进入记录时刻；超过 180s 强制释放，避免整局现实被永久压死。
+    # 语义：sHoldSince == 0 ⇒ 首次 hold，记录时刻并放行；否则算 elapsed，
+    #       elapsed < 180s ⇒ 继续 hold；>= 180s ⇒ 释放。
     sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
 
     const-wide/16 v0, 0x0
 
     cmp-long v2, v2, v0
 
-    if-nez v2, :ot_hold_set
+    if-eqz v2, :ot_hold_set
 
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
