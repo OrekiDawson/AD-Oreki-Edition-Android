@@ -159,3 +159,87 @@ Web 冻结上游对应有 **reality（685 行）+ celestial（823）+ endgame（
   - `oreki-perk-automation.js:12-19,87,213`
   - `oreki-dilation-automation.js:150,404,434,530,562`
   - `oreki-smart-executor.js:191-276`
+
+
+## 8. 下轮实现（2026-11-14，按 Lead 授权）：P0-1 现实节奏门控
+
+### 8.1 改动
+| 文件 | 改动 |
+| --- | --- |
+| scripts/payload/kotlin/.../oreki/OrekiRealityPacing.kt | **新增 277 行**：shouldReset(J)Z / onRealityReset(J)V / setHold(Z,String)V；Web shouldReality 等价门控 |
+| scripts/payload/smali/.../oreki/OrekiReality.smali | **+21 行**：重置前调 shouldReset、重置后调 onRealityReset（最小 ABI 转发，原 2s/Teresa 逻辑保留） |
+| work/r107-gates/ecscale/verify_static.py | 新增 REALITY-PACING 契约（151 项，FAIL 0） |
+
+### 8.2 门控语义（只门禁，不改结算）
+- **realities == 0 → 恒 true**：bootstrap 行为完全不变（仍由原 2s + Teresa isHolding 驱动）；
+- realities >= 1：
+  1) holdReality（未来 V/深度挑战用 setHold 注入）为真 → false；
+  2) DS1（膨胀研究1，c01.a(4).B()）未买时给 10s 窗口 → false；
+  3) 8s（未买齐一次性 RU）/ 15s（已买齐）最小间隔；
+  4) 2% RM 收益门控：gain = fh2.g(prestige.c.g()).clampMax(fh2.d()).multiply(prestige.f.g()) vs have*0.02；
+  5) 兜底：距上次现实 interval*3 允许；
+- 读不到阶段/RM/升级状态 → fail-closed false（不重置、不清进度）；不写任何玩家/存档字段。
+
+### 8.3 静态验收（未跑 gradle/AVD，服从 180min 长跑）
+- verify_static.py：**151/151 PASS**（含：Kotlin ABI javap、bootstrap 不变、钩子位置/次数、原 2s/Teresa 保留、
+  OrekiReality.smali 单文件汇编通过、无写字段）。
+- 交付证据：work/r107-gates/ecscale/static-evidence/verify-static.json。
+
+### 8.4 P0-2 只读 ABI 探针
+- 结论见同目录 p0-2-abi-probe.md：RU 购买入口 = 继承/覆盖的 D(ZLrj0;)Ljava/lang/Boolean;，**非 suspend、可传 null**；
+  成本 x()LBigDouble;；可买 N()/A(false)/a(Z)；allRU = reality/upgrades/b.b()Z；一次性 tryUnlock = a.R()V；
+  收益公式已用于 P0-1。下一轮按「先 RU 后浇注」实现 RU1~5 + RU6~25（每拍 1 个一次性、成本升序）。
+
+### 8.5 待 Lead 决策/执行
+- 下一轮可先实现 P0-2（ABI 已确认），再 P0-3/P0-4 设计；
+- gradle/AVD 由 Lead 在 180min 跑次结束后执行（本轮未跑）。
+
+
+
+## 9. P0-2 实现（2026-11-14）：现实升级自动购买
+
+### 9.1 改动
+| 文件 | 改动 |
+| --- | --- |
+| scripts/payload/kotlin/.../oreki/OrekiRealityUpgrades.kt | **新增 395 行**：OrekiRealityUpgrades.tick()（RU1~5 循环 + RU6~25 成本升序每拍 1 个 + 每 10 拍 tryUnlock） |
+| scripts/payload/kotlin/.../oreki/OrekiAutomationScheduler.kt | +3 行：IDS 尾部追加 "realityUpgrades"（历史索引不变） |
+| scripts/payload/kotlin/.../oreki/OrekiStageAuto.kt | +5 行：永恒层门禁内、OrekiReality 之前 runScheduled("realityUpgrades") |
+| work/r107-gates/ecscale/verify_static.py | 新增 RU-AUTO 契约（**188 项，FAIL 0**） |
+
+### 9.2 实现要点（全走原版入口，不写字段）
+- **bootstrap 短路**：realities==0 → tick() 直接 false，不做任何反射/购买（现实前行为不变）。
+- 注册表：反射 reality/upgrades/b 的 static 字段，按类型分为：
+  - Lyw3;（uw3 子类）= 可重复 RU1~5；
+  - Lreality/upgrades/a; 子类 = 一次性 RU6~25（按 id 稳定排序，成本在每拍排序）。
+- 每拍顺序（对齐 Web oreki-celestial-automation.js:664-673「先 RU 后浇注」）：
+  1) RU1~5：a(true) 可买判定 → D(true,null) 循环购买（安全上限 100/拍）；
+  2) 每 10 拍：对未买一次性项调原版 a.R() tryUnlock（写 upgradeRequirementBits 的原版事件路径，不写购买记录）；
+  3) RU6~25：未买项按 x() 成本升序（手写插入排序 + 原版 BigDouble.compareTo）；每拍最多真实购买 1 个，
+     失败可继续尝试后续候选（最多 5 个），不产生第二笔购买。
+- 购买入口：统一 D(ZLrj0;)Ljava/lang/Boolean;，rj0 原版未使用 → 传 null；内部真实扣 RM、写购买位、刷 UI；
+  失败返回 false 且不写入。无 suspend/无 Continuation。
+- 不写任何存档字段、不伪造升级位、不绕 D() 内部校验；异常 fail-closed。
+- 日志 TAG=OREKI_RU_AUTO，购买成功时限频 10s 打一行（总量/拍号/RU 数量）。
+
+### 9.3 静态验收（未跑 gradle/AVD）
+- verify_static.py：**188/188 PASS**，含：RU 注册表/基类、D/x/B/a/R 入口、null continuation、
+  每 10 拍 tryUnlock、每拍一次性上限、手写排序、bootstrap 短路、调度器 IDS 追加、
+  StageAuto 接线且位于 OrekiReality 之前、javap ABI tick()Z、无写字段/无风险 stdlib（sortedBy/Pair/mapNotNull 等）。
+- 证据：work/r107-gates/ecscale/static-evidence/verify-static.json。
+
+### 9.4 预期 AVD（P0-1+P0-2 一起构建后）
+1. 首 reality 后：OREKI_RU_AUTO buy ok 日志出现；player.reality.upgradeBits 基数递增（RU6~25）；
+2. RU1~5 的 rebuyables 计数非零；RM 被 RU 消耗但继续增长；
+3. 一次性 20 个买齐后（成就 147 条件），OREKI_TERESA_AUTO 开始接管浇注（isHolding 变真），
+   OrekiReality 因 hold 暂停（P0-1 的 setHold/现有 isHolding 逻辑）；
+4. 0 FATAL/VerifyError/NoSuchMethodError；bootstrap（realities==0）日志/行为与旧版一致。
+
+### 9.5 风险
+- RM 竞争：先 RU 后浇注与 Web 相同；若一次性未买齐，Teresa 不会浇（原版语义）。
+- 枚举/重载：全部按类型/精确参数解析（methodExact），无排序/Pair 等 ABI 风险；
+  一次性 D 继承 is3，仅扣 RM/写购买位/C，不会触发 Reality 结算。
+- tryUnlock 写 requirementBits 是原版事件路径（Web tryUnlockRealityUpgrades 同义），非伪造购买记录。
+
+### 9.6 待 Lead
+- 本轮未跑 gradle/AVD、未 commit；P0-1 UUID pacing 与 P0-2 RU auto 可一起构建验证。
+

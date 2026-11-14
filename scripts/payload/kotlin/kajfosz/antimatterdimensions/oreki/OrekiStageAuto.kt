@@ -374,6 +374,11 @@ object OrekiStageAuto {
                     // 收益策略 / 同帧大坍缩互斥，全部满足才驱动原版永恒入口。
                     tickEternityGated()
 
+                    // [R107-01 RU-AUTO] 现实升级自动购买：Web 顺序是「先买 RU，再浇注/现实」
+                    // （oreki-celestial-automation.js:664-673）。放在 OrekiReality 之前，
+                    // 让 RM 先用于 RU；realities==0 时 tick() 内部直接 false（bootstrap 不变）。
+                    runScheduled("realityUpgrades") { OrekiRealityUpgrades.tick() }
+
                     // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
                     if (GameApi.strategyDrives("reality")) {
                         if (OrekiAutomationScheduler.allow("reality")) {

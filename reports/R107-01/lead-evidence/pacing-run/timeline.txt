@@ -1,0 +1,9 @@
+t_s|state
+20|NA
+40|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
+60|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
+80|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
+100|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
+120|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
+140|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
+161|real=None|RM=None|rebuy=[0, 0, 0, 0, 0]|upBits=0|glyph=0|gameEnd=False
