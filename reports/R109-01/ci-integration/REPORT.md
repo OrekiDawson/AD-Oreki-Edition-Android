@@ -78,17 +78,23 @@
 | 仓库策略 | `python3 scripts/check_repository_policy.py --base 068e93e9… --policy android` | **PASS**（798 files） |
 | Python 语法 | `python3 -m compileall -q scripts` | **PASS** |
 | CI unittest 套件 | deepseek/repository_policy/delivery_preflight/release_archive/version_contract/ci_migration/agp_only/unified_release/local_pull/agp_parity/naming_delta | **PASS**（全部 OK） |
-| GitHub Actions 实跑 | 本分支 push 后触发 | 见 PR checks（以真实 run 为准；未完成前不写成 PASS） |
+| GitHub Actions 实跑（PR #43，head `d10b890a`） | `gh pr checks 43` | **PASS**：run 43557161469 `源码规范与回归检查` pass 1m0s、`AGP 9.5.1 Kotlin DEX parity` pass 1m26s、`Source checks` pass；R8 实验工作流 43557161634 为 GitHub 托管非必需检查（不阻塞） |
 
 ## F. 状态
 
 - 本地复现 CI 两个失败：**PASS（已复现并修复）**。
 - 合并/整合：**PASS**（冲突 0）。
-- 真实 GitHub CI（新分支）：以 PR 的 checks 为准。
+- 真实 GitHub CI（PR #43）：**PASS**（run 43557161469：源码规范、AGP Kotlin DEX parity、Source checks 全 pass）。
 - AVD/真机功能验收：**NOT RUN**（本任务 ci-integration 不使用 AVD；功能验收由 Lead/其他 Agent 负责）。
 - 正式发布：**未发布**（本任务不发布）。
 
-## G. 证据
+## G. 交付
+
+- 分支：`r109-01/ci-integration`（已 push origin）
+- Draft PR：**#43** https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pull/43，`mergeable=MERGEABLE`。
+- 未合并 main、未强推、未发布 APK。
+
+## H. 证据
 
 - CI 失败日志：run 43549378586 / job 132308037027、132308037305（`gh api .../actions/jobs/<id>/logs`）。
 - 本地构建日志：`agp/app/build/`（BUILD SUCCESSFUL in 32s）。
