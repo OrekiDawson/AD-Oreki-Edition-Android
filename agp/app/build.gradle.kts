@@ -160,7 +160,7 @@ if (fullGame) {
     val tutorialAsset = File(repoRoot, "scripts/payload/assets/oreki_tutorial.txt")
     // R110-01 C1：解码树 assets 与 payload assets 去重暂存（始终只留 payload 版教程资产）
     val stagedAssets = File(repoRoot, "build/agp-fullgame-assets")
-    tasks.register("prepareFullGameAssets", Copy::class) {
+    tasks.register("prepareFullGameAssets", Sync::class) {
         from(File(decodedTree, "assets")) { exclude("oreki_tutorial.txt") }
         from(File(repoRoot, "scripts/payload/assets"))
         into(stagedAssets)
