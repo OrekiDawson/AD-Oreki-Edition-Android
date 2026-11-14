@@ -1,0 +1,80 @@
+11-14 15:41:36.215 I/OREKI_SCHED( 7374): gui-tick #1701 gapMs=3000
+11-14 15:41:39.220 I/OREKI_SCHED( 7374): gui-tick #1702 gapMs=3000
+11-14 15:41:39.221 I/OREKI_PELLE( 7374): Pelle doomed phase=broken remnants=621.0 gain=451.0 canArm=true break=true keep=true armageddons=15 resetsOff=217 gameEnd=false
+11-14 15:41:42.227 I/OREKI_SCHED( 7374): gui-tick #1703 gapMs=3000
+11-14 15:41:43.619 I/OREKI_SCHED( 7374): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:41:45.239 I/OREKI_SCHED( 7374): gui-tick #1704 gapMs=3000
+11-14 15:41:48.101 I/OREKI_SCHED( 8969): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-14 15:41:50.785 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:41:50.786 I/OREKI_SCHED( 8969): gui-tick #1 gapMs=3000
+11-14 15:41:50.791 I/OREKI_PELLE( 8969): Pelle doomed phase=broken remnants=621.0 gain=451.0 canArm=true break=true keep=true armageddons=0 resetsOff=0 gameEnd=false
+11-14 15:41:53.786 I/OREKI_SCHED( 8969): gui-tick #2 gapMs=3000
+11-14 15:41:56.519 I/OREKI_PELLE( 8969): GAME_END_REACHED isGameEnd=true（原版 GameEnd.gameLoop 置位）
+11-14 15:41:56.808 I/OREKI_SCHED( 8969): gui-tick #3 gapMs=3000
+11-14 15:41:59.819 I/OREKI_SCHED( 8969): gui-tick #4 gapMs=3000
+11-14 15:42:00.901 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:42:02.819 I/OREKI_SCHED( 8969): gui-tick #5 gapMs=3000
+11-14 15:42:05.828 I/OREKI_SCHED( 8969): gui-tick #6 gapMs=3000
+11-14 15:42:08.845 I/OREKI_SCHED( 8969): gui-tick #7 gapMs=3000
+11-14 15:42:11.029 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:42:11.862 I/OREKI_SCHED( 8969): gui-tick #8 gapMs=3000
+11-14 15:42:14.865 I/OREKI_SCHED( 8969): gui-tick #9 gapMs=3000
+11-14 15:42:17.869 I/OREKI_SCHED( 8969): gui-tick #10 gapMs=3000
+11-14 15:42:20.893 I/OREKI_SCHED( 8969): gui-tick #11 gapMs=3000
+11-14 15:42:21.188 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:42:23.913 I/OREKI_SCHED( 8969): gui-tick #12 gapMs=3000
+11-14 15:42:26.936 I/OREKI_SCHED( 8969): gui-tick #13 gapMs=3000
+11-14 15:42:29.950 I/OREKI_SCHED( 8969): gui-tick #14 gapMs=3000
+11-14 15:42:31.307 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:42:32.969 I/OREKI_SCHED( 8969): gui-tick #15 gapMs=3000
+11-14 15:42:35.986 I/OREKI_SCHED( 8969): gui-tick #16 gapMs=3000
+11-14 15:42:38.987 I/OREKI_SCHED( 8969): gui-tick #17 gapMs=3000
+11-14 15:42:41.439 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:42:42.009 I/OREKI_SCHED( 8969): gui-tick #18 gapMs=3000
+11-14 15:42:45.032 I/OREKI_SCHED( 8969): gui-tick #19 gapMs=3000
+11-14 15:42:48.048 I/OREKI_SCHED( 8969): gui-tick #20 gapMs=3000
+11-14 15:42:51.068 I/OREKI_SCHED( 8969): gui-tick #21 gapMs=3000
+11-14 15:42:51.583 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:42:54.086 I/OREKI_SCHED( 8969): gui-tick #22 gapMs=3000
+11-14 15:42:57.098 I/OREKI_SCHED( 8969): gui-tick #23 gapMs=3000
+11-14 15:43:00.119 I/OREKI_SCHED( 8969): gui-tick #24 gapMs=3000
+11-14 15:43:01.747 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:43:03.126 I/OREKI_SCHED( 8969): gui-tick #25 gapMs=3000
+11-14 15:43:06.133 I/OREKI_SCHED( 8969): gui-tick #26 gapMs=3000
+11-14 15:43:09.139 I/OREKI_SCHED( 8969): gui-tick #27 gapMs=3000
+11-14 15:43:11.884 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:43:12.146 I/OREKI_SCHED( 8969): gui-tick #28 gapMs=3000
+11-14 15:43:15.164 I/OREKI_SCHED( 8969): gui-tick #29 gapMs=3000
+11-14 15:43:18.164 I/OREKI_SCHED( 8969): gui-tick #30 gapMs=3000
+11-14 15:43:21.180 I/OREKI_SCHED( 8969): gui-tick #31 gapMs=3000
+11-14 15:43:22.003 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:43:24.182 I/OREKI_SCHED( 8969): gui-tick #32 gapMs=3000
+11-14 15:43:27.204 I/OREKI_SCHED( 8969): gui-tick #33 gapMs=3000
+11-14 15:43:30.215 I/OREKI_SCHED( 8969): gui-tick #34 gapMs=3000
+11-14 15:43:32.129 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:43:33.217 I/OREKI_SCHED( 8969): gui-tick #35 gapMs=3000
+11-14 15:43:36.225 I/OREKI_SCHED( 8969): gui-tick #36 gapMs=3000
+11-14 15:43:39.241 I/OREKI_SCHED( 8969): gui-tick #37 gapMs=3000
+11-14 15:43:42.224 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:43:42.250 I/OREKI_SCHED( 8969): gui-tick #38 gapMs=3000
+11-14 15:43:45.255 I/OREKI_SCHED( 8969): gui-tick #39 gapMs=3000
+11-14 15:43:48.272 I/OREKI_SCHED( 8969): gui-tick #40 gapMs=3000
+11-14 15:43:51.281 I/OREKI_SCHED( 8969): gui-tick #41 gapMs=3000
+11-14 15:43:52.368 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:43:54.294 I/OREKI_SCHED( 8969): gui-tick #42 gapMs=3000
+11-14 15:43:57.295 I/OREKI_SCHED( 8969): gui-tick #43 gapMs=3000
+11-14 15:44:00.303 I/OREKI_SCHED( 8969): gui-tick #44 gapMs=3000
+11-14 15:44:02.472 I/OREKI_SCHED( 8969): stagecap cap=3 configured=10 effective=3 realities=1.2e1（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-14 15:44:03.318 I/OREKI_SCHED( 8969): gui-tick #45 gapMs=3000
+11-14 15:44:03.469 D/AndroidRuntime( 9273): >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-14 15:44:03.474 I/AndroidRuntime( 9273): Using default boot image
+11-14 15:44:03.474 I/AndroidRuntime( 9273): Leaving lock profiling enabled
+11-14 15:44:03.628 D/AndroidRuntime( 9273): Calling main entry com.android.commands.uiautomator.Launcher
+11-14 15:44:04.867 D/AndroidRuntime( 9273): Shutting down VM
+11-14 15:44:06.333 I/OREKI_SCHED( 8969): gui-tick #46 gapMs=3000
+11-14 15:44:09.347 I/OREKI_SCHED( 8969): gui-tick #47 gapMs=3000
+11-14 15:45:12.621 D/AndroidRuntime( 9426): >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-14 15:45:12.627 I/AndroidRuntime( 9426): Using default boot image
+11-14 15:45:12.627 I/AndroidRuntime( 9426): Leaving lock profiling enabled
+11-14 15:45:12.778 D/AndroidRuntime( 9426): Calling main entry com.android.commands.uiautomator.Launcher
+11-14 15:45:13.988 D/AndroidRuntime( 9426): Shutting down VM
