@@ -1417,6 +1417,11 @@ object OrekiStageAuto {
     @JvmStatic
     fun tryBuyId1(): Boolean {
         return try {
+        // [R110-01 P0-B] IU15 冲刺期间禁止真实购买无限维度 1~8，保持 maxID1==0。
+        if (OrekiIu15Sprint.isBlockingIdBuy()) {
+            idDiag("sprint-blocks-id-buy")
+            return false
+        }
         if (!isBroken()) {
             idDiag("skip=not-broken")
             false
