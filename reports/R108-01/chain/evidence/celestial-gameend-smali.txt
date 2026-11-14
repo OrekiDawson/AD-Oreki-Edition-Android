@@ -1,0 +1,231 @@
+# 证据 1：GameEnd.gameLoop 调用点（Game，无条件每帧）
+
+    iput v10, v14, Lkajfosz/antimatterdimensions/Game$gameTick$1;->label:I
+
+    invoke-virtual {v1, v2, v3, v14}, Lkajfosz/antimatterdimensions/celestials/pelle/a;->i(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    if-ne v1, v15, :cond_1
+
+    goto :goto_47
+
+    .line 426
+    :goto_46
+    invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/celestials/pelle/b;->d(D)V
+
+    .line 427
+    sget-object v9, Lx81;->a:Ljava/util/List;
+
+    invoke-static {v6}, Lx81;->a(I)Lkajfosz/antimatterdimensions/challenge/eternity/b;
+
+    move-result-object v6
+
+# 证据 2：Teresa 浇注闸 = MainActivity.vp（Game.r() 头）
+.method public static r()V
+    .locals 11
+
+    .line 1
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    .line 2
+    .line 3
+    .line 4
+    move-result-wide v0
+
+    .line 5
+    sget-boolean v2, Lkajfosz/antimatterdimensions/MainActivity;->vp:Z
+
+    .line 6
+    .line 7
+    if-eqz v2, :cond_2
+
+    .line 8
+    .line 9
+    sget-wide v2, Lkajfosz/antimatterdimensions/a;->l:J
+
+    .line 10
+    .line 11
+    sub-long v2, v0, v2
+
+    .line 12
+    .line 13
+
+# 证据 3：Teresa 浇注公式写点（a.smali:5938 Player$Teresa.m(D)）
+    .line 75
+    invoke-static {}, Lwp4;->i()D
+
+    .line 76
+    .line 77
+    .line 78
+    move-result-wide v5
+
+    .line 79
+    const-wide v7, 0x44ea784379d99db4L    # 1.0E24
+
+    .line 80
+    .line 81
+    .line 82
+    .line 83
+    .line 84
+    invoke-static {}, Lwp4;->i()D
+
+    .line 85
+    .line 86
+    .line 87
+    move-result-wide v9
+
+    .line 88
+    sub-double/2addr v7, v9
+
+    .line 89
+    invoke-static {v3, v4, v7, v8}, Ljava/lang/Math;->min(DD)D
+
+    .line 90
+    .line 91
+    .line 92
+    move-result-wide v7
+
+    .line 93
+    add-double/2addr v7, v5
+
+    .line 94
+    sget-object v5, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    .line 95
+    .line 96
+    invoke-virtual {v5}, Lkajfosz/antimatterdimensions/player/Player;->p()Lkajfosz/antimatterdimensions/player/Player$Celestials;
+
+    .line 97
+    .line 98
+    .line 99
+    move-result-object v5
+
+    .line 100
+    invoke-virtual {v5}, Lkajfosz/antimatterdimensions/player/Player$Celestials;->f()Lkajfosz/antimatterdimensions/player/Player$Teresa;
+
+    .line 101
+    .line 102
+    .line 103
+    move-result-object v5
+
+    .line 104
+    invoke-virtual {v5, v7, v8}, Lkajfosz/antimatterdimensions/player/Player$Teresa;->m(D)V
+
+    .line 105
+    .line 106
+    .line 107
+    invoke-virtual {v2, v3, v4}, Ldw;->I(D)Liq0;
+
+    .line 108
+    .line 109
+    .line 110
+    sget-object v2, Lkajfosz/antimatterdimensions/player/Player;->a:Lkajfosz/antimatterdimensions/player/Player;
+
+    .line 111
+    .line 112
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player;->p()Lkajfosz/antimatterdimensions/player/Player$Celestials;
+
+    .line 113
+    .line 114
+    .line 115
+    move-result-object v2
+
+    .line 116
+    invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Celestials;->f()Lkajfosz/antimatterdimensions/player/Player$Teresa;
+
+# 证据 4：Teresa 解锁位推进（aq4 状态 -> Player$Teresa.h().g(id) + onUnlock）
+
+    .line 146
+    .line 147
+    .line 148
+    move-result v4
+
+    .line 149
+    if-eqz v4, :cond_1
+
+    .line 150
+    .line 151
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 152
+    .line 153
+    .line 154
+    move-result-object v4
+
+    .line 155
+    move-object v5, v4
+
+    .line 156
+    check-cast v5, Lxp4;
+
+    .line 157
+    .line 158
+    invoke-virtual {v5}, Lxp4;->d()Z
+
+    .line 159
+    .line 160
+    .line 161
+    move-result v6
+
+    .line 162
+    if-nez v6, :cond_0
+
+    .line 163
+    .line 164
+    sget-object v6, Lwp4;->h:Lwp4;
+
+    .line 165
+    .line 166
+    invoke-virtual {v6}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    .line 167
+    .line 168
+    .line 169
+    invoke-static {}, Lwp4;->i()D
+
+    .line 170
+    .line 171
+    .line 172
+    move-result-wide v6
+
+    .line 173
+    iget-wide v8, v5, Lxp4;->b:D
+
+    .line 174
+    .line 175
+    cmpl-double v5, v6, v8
+
+    .line 176
+    .line 177
+    if-ltz v5, :cond_0
+
+    .line 178
+    .line 179
+    invoke-virtual {v2, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 180
+    .line 181
+
+# 证据 5：MainActivity.yo 的真实用途（V/Ra 页签刷新，不是浇注）
+    :cond_58
+    const/16 v21, 0x0
+
+    .line 1637
+    .line 1638
+    :goto_16
+    sget-boolean v2, Lkajfosz/antimatterdimensions/MainActivity;->yo:Z
+
+    .line 1639
+    .line 1640
+    if-eqz v2, :cond_59
+
+    .line 1641
+    .line 1642
+    sput-boolean v21, Lkajfosz/antimatterdimensions/MainActivity;->yo:Z
+
+    .line 1643
+    .line 1644
+    invoke-static {v0}, Lrj2;->g(Lkajfosz/antimatterdimensions/MainActivity;)V
+
+    .line 1645
