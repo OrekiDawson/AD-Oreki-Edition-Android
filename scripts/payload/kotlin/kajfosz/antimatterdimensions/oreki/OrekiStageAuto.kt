@@ -147,6 +147,8 @@ object OrekiStageAuto {
     private const val RESCUE_COOLDOWN_MS = 20_000L
 
     private val lastRescueAt = java.util.HashMap<String, Long>()
+    /** [R110-01 P0-B] 原版永恒自动器强制复位节流（毫秒）。 */
+    private var lastEternityAutobuyerEnsureAt: Long = 0L
 
     // ------------------------------------------------- [R97] 永恒门禁与跨层互斥状态
     /** 上一次观测到的无限次数（用于识别大坍缩代际）。 */
@@ -383,6 +385,17 @@ object OrekiStageAuto {
                             } else {
                                 OrekiAutomationScheduler.noteNoop("reality")
                             }
+                        }
+                    }
+
+                    // [R110-01 P0-B] 现实重置后强制复位原版永恒自动器（30s 节流）：
+                    // 真机 m10 证据：现实重置后自动器被游戏恢复默认（mode=2/xHighest=1/isActive=false），
+                    // 导致 eternities 暴涨、EP 恒 0、realities 卡死、Laitela 等待熵清 0。
+                    val nowEternityGuardMs = System.currentTimeMillis()
+                    if (nowEternityGuardMs - lastEternityAutobuyerEnsureAt >= 30_000L) {
+                        lastEternityAutobuyerEnsureAt = nowEternityGuardMs
+                        if (GameApi.ensureEternityAutobuyerConfigured(10.0)) {
+                            Log.i("OREKI_ET_GATE", "guard: 已复位原版永恒自动器 mode=X_HIGHEST xHighest=10 isActive=true")
                         }
                     }
 

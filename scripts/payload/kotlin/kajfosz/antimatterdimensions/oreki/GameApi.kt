@@ -2055,6 +2055,35 @@ internal object GameApi {
         }
     }
 
+    /**
+     * [R110-01 P0-B] 强化版：每次现实重置后强制复位原版永恒自动器配置。
+     *
+     * 真机证据（m10 fresh 跑次 2026-11-14）：17:18:52 bootstrap 曾把 mode=X_HIGHEST/xHighest=10
+     * 写入并校验通过；17:28:16 现实重置后存档变回 mode=2/xHighest=1 且 isActive=false，
+     * 随后 eternities 从 0 涨到 5e88 而 EP 恒 0、realities 卡 2、Laitela 等待熵清 0 ⇒ 死锁。
+     * 该现象与 [R101 P0] 记录的「每帧永恒重置」一致，只是配置在现实重置后被游戏复位。
+     * 因此这里不再依赖一次性 flag：由调用方按节流周期反复调用，强制 mode=2、xHighest=10、isActive=true。
+     */
+    fun ensureEternityAutobuyerConfigured(multiplier: Double): Boolean {
+        val state = autoEternityState() ?: return false
+        return try {
+            var ok = true
+            val mode = readGameField(state, "mode") as? Int
+            if (mode != 2) ok = writeGameField(state, "mode", 2) && ok
+            val xHighestValue = readGameField(state, "xHighest")
+            val isTen = compareToDouble(xHighestValue, multiplier)?.let { it == 0 } == true
+            if (!isTen) ok = writeGameField(state, "xHighest", bigDouble(multiplier)) && ok
+            if (isAutobuyerActive(state) != true) {
+                setAutobuyerActive(state, true)
+                ok = (isAutobuyerActive(state) == true) && ok
+            }
+            ok
+        } catch (error: Throwable) {
+            miss("ensure eternity autobuyer", error)
+            false
+        }
+    }
+
     /** 三类挑战均退出、且已播种首个时间维度时，才允许商店自动购买。 */
     fun canAutomateEternityUpgrades(): Boolean {
         // 挑战判定复用 inAnyChallenge()，避免两套遍历在后续版本改字段时漂移。
