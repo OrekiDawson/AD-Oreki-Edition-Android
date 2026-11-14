@@ -322,17 +322,15 @@ jobs:
         working-directory: source
         run: |
           set -euo pipefail
-          # buildKotlinDex resolves its D8 input list from fileTree(build/kt/classes) at
-          # Gradle configuration time. In a clean checkout that directory is still empty,
-          # so a single invocation hands D8 zero class files and the resulting dex holds
-          # only the Kotlin stdlib — R39 then correctly refuses to build. Compile first so
-          # the second invocation sees the classes; this mirrors how the project is built
-          # locally (incremental invocations).
-          bash ./gradlew compileKotlinClasses --offline --no-daemon --console=plain
+          # buildKotlinDex 的 D8 class 列表在**执行期**收集，且任务链
+          # buildKotlinDex -> verifyKotlinAbi -> compileKotlinClasses 会先完成编译；
+          # 干净 checkout 单次调用即可得到含 kajfosz 业务类的 dex。
+          # R111 CI-3：移除多余的 compileKotlinClasses 预调用（旧注释基于 R102 之前的
+          # 配置期 fileTree 实现，现已不成立）。
+          bash ./gradlew buildKotlinDex --offline --no-daemon --console=plain
           count="$(find build/kt/classes -name '*.class' | wc -l)"
           [[ "$count" -gt 0 ]] || { echo '::error::Kotlin compile produced no class files'; exit 1; }
           echo "::notice::Kotlin classes compiled: $count"
-          bash ./gradlew buildKotlinDex --offline --no-daemon --console=plain
           python3 - <<'PY'
           import pathlib, sys
           dex = pathlib.Path('build/kt/classes.dex')
