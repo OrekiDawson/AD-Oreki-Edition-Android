@@ -9,7 +9,10 @@ import java.util.zip.*;
  * - 若类在排除集合（旧链 Kotlin DEX 提供的 stdlib/MOD Kotlin 类）则丢弃（由 AGP 提供）。
  * - 若类在官方类集合（游戏类，含被 MOD 补丁修改的原版类）：把对官方 kotlin/** 保留类
  *   （R8 混淆成员名）的引用重命名到 oreki/shadow/kotlin/**，类定义本身也重命名。
- * - 其他类（MOD 新增 smali 业务类）：保持引用原样，使它们绑定 AGP 内置 stdlib。
+ * - 其他类（MOD 新增 smali 业务类）：同样把对 shadow 集合内 kotlin/** 类的引用重命名到
+ *   oreki/shadow/kotlin/**，避免与 AGP 内置 stdlib 的成员名 ABI 不匹配
+ *   （R112-01 P0：OrekiEcContinuation 引用 kotlin/coroutines/EmptyCoroutineContext.a，
+ *    而 AGP stdlib 的字段名是 INSTANCE → NoSuchFieldError）。shadow 集合外的引用保持不动。
  * - m53 的超大 <clinit> 无法由 ASM 重写，使用预先准备好的 m53.class 替换。
  */
 public class RemapSelective {
@@ -53,11 +56,11 @@ public class RemapSelective {
                     try {
                         ClassReader cr = new ClassReader(ent.getValue());
                         ClassWriter cw = new ClassWriter(0);
-                        if (isGame) {
-                            cr.accept(new ClassRemapper(cw, gameRemap), 0);
-                            if (name.startsWith(PREFIX)) outName = NEW_PREFIX + name.substring(PREFIX.length());
-                        } else {
-                            cr.accept(cw, 0); // 不重写，保持
+                        // 所有保留类统一重映射：gameRemap 只改 shadow 集合内的 kotlin/** 引用，
+                        // 集合外的引用原样保留（仍绑定 AGP 内置 stdlib）。
+                        cr.accept(new ClassRemapper(cw, gameRemap), 0);
+                        if (shadow.contains(name) && name.startsWith(PREFIX)) {
+                            outName = NEW_PREFIX + name.substring(PREFIX.length());
                         }
                         bytes = cw.toByteArray();
                     } catch (Throwable t) {
