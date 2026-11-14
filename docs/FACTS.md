@@ -10180,3 +10180,26 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - **首次 reality**：fresh 档 interval=1，约 14.6 分钟达成——OREKI_DS6 result=true → OREKI_DIL_STUDIES BUY id=6 →
   real=0.301（bigE/EC/TT 重置为真实现实结算），0 FATAL/VerifyError/NoSuchMethodError。
 - 证据：reports/R107-01/lead-evidence/{reality-run,reality,ecfix,ecscale-run,dilstudies,ecdiag}/；APK b001faa7（旧链，含全部上述修复）。
+
+## R112-01：AGP 存档兼容与 Kotlin 混合运行时事实（2026-11-15 02:23–07:25）
+
+- **Signature 回填已入正式构建链**（PR #71）：`agp_gamejar2.py` 增加 dex2jar 参考 jar 输入、ASM SigBackfill、
+  javap fail-closed 校验；单命令入口 `scripts/agp/build_fullgame_sig.sh` 产出带 `build-receipt.json` 的 R8 OFF 候选。
+  APK DEX 级验证：`Player$Laitela.dimensions` 与 `Glyph.effects` 泛型签名存在；旧候选 `18716d87…` 为 0（负向对照）。
+- **AGP 完整游戏运行时清单（实测 jar）**：72 个官方 Kotlin 保留类被 shadow 改名为 `oreki/shadow/kotlin/**`；
+  120 个官方 kotlinx 类保持原名；AGP Kotlin stdlib 全量打包共存。MOD 新增业务类（25 个）引用的是
+  官方混淆形态（如 `ContinuationImpl.<init>(Lrj0;Lek0;)V`、`CoroutineSingletons`、`EmptyCoroutineContext.a`）。
+- **混合运行时是未解 P0**：
+  - 旧候选（新类绑定 AGP stdlib）：新档 90s 内正常写档（player.json/backups），但挑战自动化路径崩溃
+    `NoSuchFieldError EmptyCoroutineContext.a`；
+  - 全量 shadow 重映射（PR #75）后：崩溃消失、读档与游玩正常（117 IP/1.14e69 反物质），但**不写档**
+    （新档 180s×2 + 加载档 300s 轮询均 0 个 player 文件）；
+  - 定向 remap（仅 EmptyCoroutineContext）：新档即崩 `NoSuchMethodError ContinuationImpl.<init>(Lrj0;Lek0;)V`；
+  - 已**回退全量 shadow**（PR #77），main 恢复"存档可用"行为；ABI 崩溃保留未解决 P0，release 继续 BLOCKED。
+- **跨构建写档（早中期存档）= PASS**：AGP 写出的 `playerBackup.json` 注入 smali 稳定版后进入真实游戏并正常回写（PR #74）。
+- **AVD 测试工具事实**：`pm clear` 后必须以 app uid/gid 注入存档（否则静默回退新游戏，`gate_autoplay.py` 已修）；
+  MOD 自动存档主要写 `playerBackup*.json` 轮转，主 `player.json` 仅特定时机写。
+- **工具**：`scripts/tests/r112/gate_autoplay.py`（启动门禁自动驾驶）、`scripts/tests/r112/save_matrix.py`（矩阵判定）、
+  `scripts/agp/check_runtime_inventory.py`（运行时常量池引用清单，shadow 前缀需按 `oreki/shadow/` 还原）。
+- **文档**：`reports/R112-01/AGP-SIG-INTEGRATION.md`、`P0-AGP-KOTLIN-ABI-CRASH.md`、`CROSS-BUILD-WRITE.md`、
+  `KOTLIN-RUNTIME-UNIFICATION.md`（下一步实验计划）。
