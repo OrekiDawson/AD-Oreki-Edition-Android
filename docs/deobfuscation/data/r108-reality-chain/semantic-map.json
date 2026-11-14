@@ -2473,7 +2473,7 @@
    "Ra：充能/取消充能的 UI 动作入口未定位（只确认 e22.K()/D() 支持层与 Player$Ra.chargedBits）；qu3.e()/g() 公式含义；Ra unlock id→名称。"
   ]
  },
- "updated_at": "2026-11-14T09:10:00+0800",
+ "updated_at": "2026-11-14T09:30:00+0800",
  "note_batch2": "第 2 批：Perk/膨胀升级/Imaginary/Glyph(AutoGlyphProcessor)/Effarig/V/Ra 购买入口；batch1 内容保持不变。",
  "batch3": {
   "generated_at": "2026-11-14T09:10:00+0800",
@@ -3584,5 +3584,344 @@
     "fix": "改写 MainActivity;->vp:Z（每 tick 置 true；sHolding 释放逻辑不变）"
    }
   ]
+ },
+ "batch4": {
+  "generated_at": "2026-11-14T09:30:00+0800",
+  "scope": "第 4 批：Lai'tela difficultyTier 状态机、Pelle 进入后可玩链、strikes/rifts 补证、pelle_end 3.21 路径核验",
+  "entries": [
+   {
+    "kind": "class",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "semantic_name": "kajfosz.antimatterdimensions.celestials.laitela.Laitela",
+    "confidence": "strong",
+    "evidence": [
+     "laitela/a.smali：静态 p()=8-l()、q()=BigDouble、s()=p()==0（完全不稳定）、d()Z=isRunning、f(Z)V=setRun→Player$Laitela.z(Z)、g(Continuation)=annihilate",
+     "现有 batch1 已登记 initializeRun/annihilate 类级"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "d()Z",
+    "semantic_name": "isRunning（读 Player$Laitela.run）",
+    "confidence": "confirmed",
+    "evidence": [
+     "laitela/a.d()Z；Game.k(D) 首句即用它早退"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "f(Z)V",
+    "semantic_name": "setRun（initializeRun / clearCelestialRuns 的 run 标记写点）",
+    "confidence": "strong",
+    "evidence": [
+     "laitela/a.f(Z)V → Player$Laitela.z(Z)（Player.smali z(Z)=run）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "p()I",
+    "semantic_name": "maxAllowedDimension = 8 - difficultyTier",
+    "confidence": "confirmed",
+    "evidence": [
+     "laitela/a.p()：l()=difficultyTier，rsub-int/lit8 0x8"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "s()Z",
+    "semantic_name": "isFullyDestabilized（maxAllowedDimension==0）",
+    "confidence": "confirmed",
+    "evidence": [
+     "laitela/a.s()：p()==0"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/laitela/a;",
+    "descriptor": "q()Lkajfosz/antimatterdimensions/BigDouble;",
+    "semantic_name": "realityReward（100^tier × (360/fastestCompletion)^2 clampMin 1，Web 同式）",
+    "confidence": "strong",
+    "evidence": [
+     "laitela/a.q() 与 Web laitela.js realityReward 对应；被完成文案调用"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "d()I / t(I)V",
+    "semantic_name": "difficultyTier get/set（字段保留名 difficultyTier:I）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.smali:322(getter)/:503(setter)，字段 :27"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "f()D / u(D)V",
+    "semantic_name": "entropy get/set（字段保留名 entropy:D）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.smali 访问器映射"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "g()D / v(D)V",
+    "semantic_name": "fastestCompletion get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.g()/v(D)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "p()D / C(D)V",
+    "semantic_name": "thisCompletion get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.p()/C(D)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Laitela;",
+    "descriptor": "l()Z / z(Z)V",
+    "semantic_name": "run get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Laitela.l()/z(Z)"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela 熵产量公式（Android 3.21 原版）",
+    "semantic_name": "entropyGainPerSecond = clamp((log10(antimatter+1)/1e11)^2, 0, 100)/200（未做 Web OREKI_LAITELA_ENTROPY_DIVISOR=2e7 缩放）",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game.k(D)：a.smali:3613-3750，常量 a.smali:3639 const-wide 0x42374876e8000000 = 1.0E11；br2.i(x,0,100)/200",
+     "build_mod.py / payload 中无 laitela entropy/2e7 相关 patch（grep 零命中）",
+     "Web 冻结上游已改 2e7（web/src/core/celestials/laitela/laitela.js:41 OREKI_LAITELA_ENTROPY_DIVISOR），注释给出实测：1e11 下 tier7 每次填满 ≈25800 秒 → 8 层不可达"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela tick 状态机（Game.k(D)V）",
+    "semantic_name": "1) !isRunning 早退；2) entropy>=0 时按上式累加；3) entropy>=1 结算：entropy=-1、thisCompletion=thisReality.realTime、fastestCompletion=min(旧,thisCompletion)、clearCelestialRuns、若 realTime<30 → tier=tier+1 且 fastestCompletion=300、完成文案/记录、若 maxAllowedDimension==0 触发 speedrun milestone",
+    "confidence": "confirmed",
+    "evidence": [
+     "Game.k(D)：a.smali ~3544 方法起；entropy 累加 3613-3750；结算 3750-4050（:3783 u(-1.0)、:3790 C(thisReality m().h())、:3796 v(min)、:3930-ish prestige/f.c()=clearCelestialRuns、:4014 d()、:4028 t(d()+1)、:4033 v(300.0)）",
+     "Web game.js:1361-1418 laitelaRealityTick 同语义（entropy=-1 / thisCompletion / fastestCompletion=min / clearCelestialRuns / <30s → difficultyTier++ / fastestCompletion=300）"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "difficultyTier 无上限守卫（毁档风险）",
+    "semantic_name": "Android 与 Web 均 **未 clamp** tier：tier=8 时再完成一次 <30s 的 run 会把 tier 写成 9 → maxAllowedDimension=8-tier=-1 → IU25 要求 `maxAllowedDimension===0` 永不成立 → Pelle 解锁结构性失败。自动化必须在 tier==8 后停止进入/完成 Lai'tela run。",
+    "confidence": "confirmed",
+    "evidence": [
+     "a.smali:4014 d() → :4028 t(d()+1)：无 min/比较；laitela/a.s()=p()==0",
+     "Web oreki-endgame-automation.js 注释明确『difficultyTier++ 没有上限、全仓没有钳制』并自带守卫"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "entropy 何时复位",
+    "semantic_name": "- 完成时：entropy=-1（防重复弹窗）；- Reality 重置时：entropy=0。因此**每次 Reality 重置才能重新跑一次 Lai'tela run**（同一现实内 entropy 停在 -1，不再累积）。",
+    "confidence": "confirmed",
+    "evidence": [
+     "a.smali:3783 u(-1.0)（完成）",
+     "prestige/f.smali:6918 const-wide/16 v12,0x0 → :7796 Player$Laitela.u(v12,v13)（Reality 重置）；Web reality.js:701 同"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela 0→8 所需现实次数（推导）",
+    "semantic_name": "每次成功（thisRealityRealTime<30s 完成 run）tier+1；entropy 每现实只复位一次 ⇒ 每次 +1 需要一次 Reality 重置。0→8 = **8 次 Reality**，且每次该现实内必须在 30 秒内从『进入 run』到 entropy≥1（含 2 秒最低填满时间）。前提：先买 IU15（=Android b->k，1e9 IM）解锁 Lai'tela run。",
+    "confidence": "strong",
+    "evidence": [
+     "Web game.js:1384 / a.smali:4014-4028；Web laitela 注释『必须连续 8 次都在 30 秒内完成』"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lth3;",
+    "descriptor": "h:Lph3;",
+    "semantic_name": "keepAutobuyers（一次性 Pelle 升级 id2，cost 5e6 realityShards）",
+    "confidence": "confirmed",
+    "evidence": [
+     "th3.java:23 public static final ph3 h；clinit `h = ph3Var3 = new ph3(2, ..., fw.K1=5e6)`",
+     "Web secret-formula/celestials/pelle-upgrades.js keepAutobuyers id2 cost 5e6"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lph3;",
+    "descriptor": "B()Z（继承 na4.B）",
+    "semantic_name": "keepAutobuyers 已买判定（Player$Pelle.l() upgrades 列表含 id 2）",
+    "confidence": "strong",
+    "evidence": [
+     "ph3.I()=Player$Pelle.l()（upgrades）；na4.B()=I().contains(in1.c)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lph3;",
+    "descriptor": "D(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Boolean;",
+    "semantic_name": "purchase（继承 is3.D；cost=realityShards）",
+    "confidence": "strong",
+    "evidence": [
+     "ph3 无 D 覆写；is3.D 方法体；ph3.y()=iq0.h0:Lbq0(realityShards)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;",
+    "descriptor": "b()Z / i(Z)V",
+    "semantic_name": "isActive 读/写（可写开关；所有自动器继承）",
+    "confidence": "confirmed",
+    "evidence": [
+     "AutobuyerState.smali 字段 isActive:Z（:字段）、b()=iget isActive、i(Z)=iput isActive"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Auto;",
+    "descriptor": "e()/o()/i()/p()/j()",
+    "semantic_name": "bigCrunch / eternity / dimBoost / galaxy / dimensions[] 自动器实例 getter",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Auto 访问器→字段映射：e=bigCrunch、o=eternity、i=dimBoost、p=galaxy、j=dimensions"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/Player$Auto;",
+    "descriptor": "k()Z / G(Z)V",
+    "semantic_name": "disableContinuum get/set",
+    "confidence": "confirmed",
+    "evidence": [
+     "Player$Auto.k()/G(Z)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "p(Lkajfosz/antimatterdimensions/constants/Constants$PelleDisabledMechanic;)Z",
+    "semantic_name": "isDisabled(mechanic)（Pelle 下机制禁用判定；12 个枚举常量）",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/c.p(...) 唯一签名（batch1 已确认 getSpecialGlyphEffectDescription 外唯一 PelleDisabledMechanic 入参方法）",
+     "Constants$PelleDisabledMechanic 枚举 12 常量（a,b,c,d,e,f,v,w,x,y,z,S；名字被混淆，enum→mechanic 映射未确认）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "j()Z",
+    "semantic_name": "canArmageddon = remnantsGain(n()) >= 1",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/c.j()：n()>=1.0；n()=remnantsGain（records totalAM/EP/IP log 公式）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "n()D",
+    "semantic_name": "remnantsGain（floor((log10(log10(totalAM)+2)+log10(log10(totalEP)+2)+log10(log10(totalIP)+2))/1.64)^7.5 - remnants；含 Pelle disabled-mechanic 加成）",
+    "confidence": "strong",
+    "evidence": [
+     "pelle/c.n() 体：Player.Pelle.h()(records).a()/b()/c()（totalAM/EP/IP）+ oh3.e.a() 等加成；与 Web Pelle.remnantsGain 同结构"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/c;",
+    "descriptor": "m()D / o(D)V",
+    "semantic_name": "remnants get/set（Player$Pelle.i()/o(D)）",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/c.m()=Player.Pelle.i()（remnants）；c.smali:3884 armageddon 内 o(n()+m()) 写回"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/player/h;",
+    "descriptor": "g(Lbf2;Lkajfosz/antimatterdimensions/MainActivity;)Z",
+    "semantic_name": "存档导入/加载路径里重建 Pelle strike/disabled-mechanic 位（非运行时触发）",
+    "confidence": "strong",
+    "evidence": [
+     "player/h.g：多处 strings 'studies'/'define'/'Invalid save type'；:9548 nh3.a() / :9560 nh3.b()",
+     "说明：运行时 strike 触发点未定位（见 unknown）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/d;",
+    "descriptor": "B()Lkajfosz/antimatterdimensions/player/Player$PelleRift; / y()D / z()D / A()D / E()Z",
+    "semantic_name": "RiftState：数据 getter / percentage / realPercentage / reducedTo / isMaxed",
+    "confidence": "strong",
+    "evidence": [
+     "pelle/d：B()=Player.Pelle.j().a()；y()=percentage（reducedTo/spent 逻辑与 Web 一致）；z()=realPercentage；A()=reducedTo；E()=y()>=1"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/celestials/pelle/d;",
+    "descriptor": "v(Lrj0;)Ljava/lang/Object; / x()Ljava/util/List;",
+    "semantic_name": "checkMilestoneStates / milestones（RiftMilestoneState = Lcelestials/pelle/e;）",
+    "confidence": "confirmed",
+    "evidence": [
+     "pelle/d.v 创建 PelleRiftState$checkMilestoneStates$1；e.v 创建 RiftMilestoneState$checkMilestoneState$1"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Rift fill 写入点（未定位，不写 UNKNOWN 升级）",
+    "semantic_name": "3.21 全树中 `Player$PelleRift;->f(BigDouble)`（fill 字段 setter）**只有 Gson 存档适配器 player/f 调用**；运行期没有 setter 调用。已确认的写入/读取：`e(Z)`=setActive（UI 切换 MainActivityCelestialsKt$…53$1$1 与 pelle/c.i）、`h(D)`=setReducedTo（GalaxyGenerator=pelle/a:811/1536）、`g(D)`=setPercentageSpent（sp0 UI 绑定）、`c()/b()/a()` 读取。fill 的真实运行时累加点未能定位（可能通过 BigDouble 原位更新或其它字段替代），**Kotlin 不要直接写 fill**。",
+    "confidence": "unknown",
+    "evidence": [
+     "全树 grep：Player$PelleRift;->f( 仅 player/f.smali；;->h( 见 pelle/a.smali:811/1536；;->e( 见 pelle/c.smali:6102 与 MainActivityCelestialsKt$…53$1$1；;->g( 见 sp0.smali",
+     "pelle/c.i 内 PelleRift 相关行：c.smali:6091/6102/6300/6308/6476/6484"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Pelle strike 运行时触发点",
+    "semantic_name": "未定位到运行时 trigger：nh3.b()（onUnlock）调用者只有 nh3 自身与 player/h.g（存档导入路径）；oh3.f（List）调用者为 rj2（MainActivity 脚手架）、player/h、oh3。候选触发点：player/h.g 或 pelle/c.i（JADX skip），均未逐指令证实。",
+    "confidence": "unknown",
+    "evidence": [
+     "grep Lnh3;->b()V / Loh3;->f 结果如上"
+    ]
+   }
+  ],
+  "counts": {
+   "total": 31,
+   "by_kind": {
+    "class": 1,
+    "method": 23,
+    "note": 7
+   },
+   "by_confidence": {
+    "strong": 9,
+    "confirmed": 20,
+    "unknown": 2
+   }
+  }
  }
 }
