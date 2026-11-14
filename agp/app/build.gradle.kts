@@ -92,9 +92,11 @@ android {
         sourceSets["main"].apply {
             manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
             res.srcDirs(File(fullGameStage, "res"))
-            assets.srcDirs(File(decodedTree, "assets"))
-            // R110-01 C1：教程资产由 scripts/payload/assets 直接提供（不再经 build_mod 生成/复制）
-            assets.srcDirs(File(repoRoot, "scripts/payload/assets"))
+            // R110-01 C1：assets 由 prepareFullGameAssets 去重暂存后提供：
+            // 解码树里的 oreki_tutorial.txt 一律剔除（旧 build_mod 可能已写入），
+            // 统一取 scripts/payload/assets 的提交版本，避免同名资产双来源导致 AGP 资源合并失败。
+            assets.srcDirs(File(repoRoot, "build/agp-fullgame-assets"))
+
             jniLibs.srcDirs(File(decodedTree, "lib"))
         }
         androidResources {
@@ -156,6 +158,13 @@ if (fullGame) {
     // 源文件 scripts/payload/assets/oreki_tutorial.txt 是已提交的生成物（Web 单源 JSON 生成）。
     // 生产构建不再调用 Python 生成器；这里只做确定性校验，输入/输出显式声明以支持增量缓存。
     val tutorialAsset = File(repoRoot, "scripts/payload/assets/oreki_tutorial.txt")
+    // R110-01 C1：解码树 assets 与 payload assets 去重暂存（始终只留 payload 版教程资产）
+    val stagedAssets = File(repoRoot, "build/agp-fullgame-assets")
+    tasks.register("prepareFullGameAssets", Copy::class) {
+        from(File(decodedTree, "assets")) { exclude("oreki_tutorial.txt") }
+        from(File(repoRoot, "scripts/payload/assets"))
+        into(stagedAssets)
+    }
     tasks.register("verifyTutorialAsset") {
         group = "verification"
         description = "校验已提交的教程资产结构/编码/规模（不依赖 Python）"
@@ -189,6 +198,7 @@ tasks.named("preBuild") {
     dependsOn(generateKotlinBindings)
     if (fullGame) {
         dependsOn(prepareFullGameInputs)
+        dependsOn("prepareFullGameAssets")
         dependsOn("verifyTutorialAsset")
     }
 }
