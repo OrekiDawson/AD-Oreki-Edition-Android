@@ -2146,14 +2146,28 @@ internal object GameApi {
      * @param fieldName 注册表 `reality/imaginary_upgrades/b` 的静态字段名（IU15="k"、IU25="s"）
      * @return true = 调用成功（不代表位图一定置位，位图仍由原版判定）
      */
+    private var iuUnlockMethodResolved = false
+    private var iuUnlockMethod: Method? = null
+
     fun imaginaryTryUnlock(fieldName: String): Boolean = try {
+        if (!iuUnlockMethodResolved) {
+            iuUnlockMethodResolved = true
+            // 一次性 Imaginary Upgrade 的 tryUnlock 在 3.21 是 `a.R()V` 吗？实测 class a 上不存在
+            // （AVD 日志 OREKI_API_MISS 86 次）。这里只解析一次：缺失即视为「原版用实时条件判定」，
+            // 返回 true 表示无需刷新，避免每拍刷日志。
+            iuUnlockMethod = try {
+                qr3Cls()?.getMethod("R")
+            } catch (_: Throwable) {
+                null
+            }
+            if (iuUnlockMethod == null) Log.i("OREKI_IU_BUY", "IU.R() 不存在：改用原版实时条件判定")
+        }
+        val m = iuUnlockMethod ?: return true
         val holder = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.b") ?: return false
         val upgrade = staticField(holder, fieldName)?.get(null) ?: return false
-        val m = method(qr3Cls(), "R", 0, "IU.R()=tryUnlock") ?: return false
         m.invoke(upgrade)
         true
     } catch (error: Throwable) {
-        miss("imaginaryTryUnlock", error)
         false
     }
 
@@ -2201,7 +2215,12 @@ internal object GameApi {
         return try {
             val continuation = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
                 ?.let { staticField(it, "a")?.get(null) }
-            val result = call(mQrD(), upgrade, true, continuation)
+            var result = call(mQrD(), upgrade, true, continuation)
+            if (result == null) {
+                // 兜底：D 体内不使用 continuation，null 亦安全（与 OrekiRealityUpgrades 的 RU 购买同款）
+                result = call(mQrD(), upgrade, true, null)
+            }
+            Log.i("OREKI_IU_BUY", "IU15 purchase result=" + result + " bought=" + iu15Bought())
             // 原版返回 Boolean（或挂起时的 CoroutineSingletons），统一以 isBought 为准。
             result != null
         } catch (error: Throwable) {
@@ -2215,10 +2234,11 @@ internal object GameApi {
     private fun mQrD(): Method? {
         if (!mQrDResolved) {
             mQrDResolved = true
-            mQrD = method(
-                qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase",
-                paramTypeNames = listOf("boolean", "kotlin.coroutines.Continuation"),
-            )
+            // [R108-01 修复] 不能按 paramTypeNames 精确匹配：D 的第二个形参在 3.21 R8 后是
+            // 混淆类型 `Lrj0;`（不是字面 kotlin.coroutines.Continuation），精确匹配会解析失败
+            // ⇒ purchase 静默 null ⇒ AVD 实测「canBuy=true 却买不到」（OREKI_API_MISS 已证）。
+            // 只按名字+参数个数解析，实参仍传真实 continuation（null 也安全：D 体内不使用）。
+            mQrD = method(qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase")
         }
         return mQrD
     }
