@@ -250,7 +250,8 @@ object OrekiLaitela {
             if (lastTickAt != 0L && now - lastTickAt < 500L) return false
             lastTickAt = now
             // 现实代际检测：每次 realities 变化重置本现实计时（只读）
-            val r = realities()
+            // [R108-01] 现实代际用 OrekiRealityPacing 的真实重置计数（解析 BigDouble 不可靠）
+            val r = OrekiRealityPacing.resetCount().toDouble()
             if (r != lastRealityCount) {
                 lastRealityCount = r
                 realityStartedAt = now

@@ -246,13 +246,22 @@ object OrekiIu15Sprint {
         }
     }
 
-    private fun realitiesValue(): Double = try {
-        val v = GameApi.realitiesValue() ?: return -1.0
-        val m = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
-        val e = methodOf(v, "exponent", 0)?.invoke(v) as? Number
-        if (m != null && e != null) m.toDouble() * Math.pow(10.0, e.toDouble()) else -1.0
+    private fun bdPart(v: Any?, name: String): Double? = try {
+        val m = v?.javaClass?.getMethod(name) ?: return null
+        (m.invoke(v) as? Number)?.toDouble()
     } catch (t: Throwable) {
-        -1.0
+        null
+    }
+
+    private fun realitiesValue(): Double {
+        return try {
+            val v = GameApi.realitiesValue() ?: return -1.0
+            val m = bdPart(v, "mantissa")
+            val e = bdPart(v, "exponent")
+            if (m != null && e != null) m * Math.pow(10.0, e) else -1.0
+        } catch (t: Throwable) {
+            -1.0
+        }
     }
 
     /** 预封锁/预 arm 的共同条件（不含 maxID1 干净判断——那由调用方各自决定）。 */
@@ -359,7 +368,8 @@ object OrekiIu15Sprint {
             // [R108-01] 现实代际检测：现实重置后 maxID1 归零，是唯一能「从第一帧就封锁」的窗口。
             // 只要「未买 IU15 + iMCap 足够 + 未毁灭/未挑战」，就在重置的第一帧关掉 8 层 ID 自动器，
             // 否则 ID1 会在本帧被买/被 EC7 奖励产出，maxID1 立刻变脏、IU15 永久失败。
-            val rNow = realitiesValue()
+            // [R108-01] 用 OrekiRealityPacing 的真实重置计数作代际信号（比解析 BigDouble 可靠）。
+            val rNow = OrekiRealityPacing.resetCount().toDouble()
             if (rNow != realitiesSeen) {
                 realitiesSeen = rNow
                 if (canPreLock()) {
@@ -373,6 +383,18 @@ object OrekiIu15Sprint {
                         Log.i(TAG, "现实重置帧预封锁：已关 ID 自动器，等待干净现实冲刺")
                     }
                 }
+            }
+
+            // [R108-01] 兜底：任意帧只要「干净现实 + 上限足够」就立刻封锁并 arm，
+            // 代际检测可能因为 tick 落点错过重置帧（autobuyer 在同一帧内已买 ID1）。
+            if (!idAutoLocked && phase == PHASE_IDLE && canPreLock() && isCleanReality()) {
+                applyIdAutobuyerLockdown()
+                phase = PHASE_ARMED
+                armMs = now
+                startMs = now
+                peakAmExp = 0.0
+                attempts += 1
+                Log.i(TAG, "干净现实预封锁：已关 ID 自动器并进入 armed")
             }
 
             when (phase) {

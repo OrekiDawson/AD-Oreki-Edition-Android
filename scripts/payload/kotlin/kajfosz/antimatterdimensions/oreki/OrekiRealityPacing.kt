@@ -44,6 +44,10 @@ object OrekiRealityPacing {
     @Volatile private var lastLogAt: Long = 0L
     @Volatile private var lastLogSig: String = ""
 
+    /** [R108-01] 真实现实重置计数（由 smali 在 prestige/f.b 之后调用 onRealityReset 时自增）。
+     *  用作「现实代际」信号：比解析 BigDouble 更可靠，供 IU15 预封锁/莱特拉窗口使用。 */
+    @Volatile private var resetCount: Int = 0
+
     // ---------------------------------------------------------------- 反射缓存
     private val methodCache = HashMap<String, Any>()
     private val noValue = Any()
@@ -221,6 +225,10 @@ object OrekiRealityPacing {
 
     @JvmStatic
     fun isHeld(): Boolean = holdReason != null
+
+    /** [R108-01] 现实代际计数（每次真实重置 +1，进程内）。 */
+    @JvmStatic
+    fun resetCount(): Int = resetCount
     /**
      * [R108-01 证据] 只读导出当前 RM 与本次可得 RM，供 RU 自动购买/日志取证。
      * 读不到时返回 "?"，绝不写任何状态。
@@ -238,6 +246,7 @@ object OrekiRealityPacing {
     /** 每次真实重置成功后由 OrekiReality.smali 调用，重置计时。 */
     @JvmStatic
     fun onRealityReset(nowMs: Long) {
+        resetCount += 1
         lastResetAt = nowMs
         readySince = 0L
         logLimited("reset t=" + nowMs + " realities=" + (realities()?.toString() ?: "?"))
