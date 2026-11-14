@@ -131,7 +131,20 @@ build13（EC7+ID 预封锁）AVD 实证（`reports/R108-01/avd-evidence/m2-build
 - `imaginaryTryUnlock()` 只解析一次；方法缺失即视为「实时条件判定」并返回 success，避免每拍刷日志。
 - 同批带入 build15/16：**现实重置帧关闭 8 层 ID 原版自动购买器**（`maxID1` 是「ID1 达到过的最大量」而非购买记录 ⇒ 只拦购买不够）、EC7 预封锁、以及 `OrekiPelle` 终局驱动（doom / keepAutobuyers 优先升级 / armageddon / 只读 isGameEnd）。
 - 验证状态：build17 跑次 11:00 启动，**AVD 结果待下一轮**（若 IU15 真实买入 → 莱特拉解锁 → tier 驱动）。
-### B.9 待根因（不追认为 PASS）
+
+### B.9 Web 端已完成真实 gameEnd（双端对照的基准与设计验证）
+
+- **Web 默认设置全新存档真实浏览器跑次 gameEnd PASS @1867.9s（31.1 min）**，`endState=1.0417`、`isGameEnd=true`、pageerror 0（832 条 2s 采样）。
+- 关键里程碑：首现实 413.8s → IU15+Laitela 857.4s → Teresa 1096.1s → Effarig 解锁 1484.4s → **莱特拉 tier8 1771.8s** → **IU25+Pelle+doomed 1826.5s** → **gameEnd 1867.9s**；终态 realities=45、IM=1.02e10。
+- Web 三项真实阻断与本轮 Android 修复**一一对应**：① IM 上限 300→3000（Android 同值）；② 莱特拉 tier 窗口 30s→300s（Android 已同源 patch）；③ tier8 后 DS6 帧竞态压现实截帧（Android 已实现 `canReality()` 代理 + 压现实）。
+- 结论：R108-01 的 Android 修复方向已被 Web 端完整验证；Android 端剩余工作是「把同一条链在 3.21 基线上跑通」。Web 分支 `feat/r108-01-web-reality-chain`（HEAD `0e0aa24`）已 push、未 merge/未开 PR；oreki.net 未部署。
+
+### B.11 Web 交付状态（R108-01）
+
+- PR **#25 已合并**（`feat/r108-01-web-reality-chain` → main），main SHA **8914ea5b842aad34a36116b5947b3b03f6df6955**；Web 持续 CI（run 43551150141）success，PR CI 43549775285 success（含 Mobile Chromium smoke）。
+- **Web Pages 部署 BLOCKED**：按批准流程 dispatch「申请已批准的 Web Pages 部署」(run 43551377126, approved_sha=8914ea5b…) 失败于 `PAGES_DEPLOY_TOKEN` 为空：`BLOCKED：请在 web-production 环境设置 Pages Actions:write 凭据`。属外部凭据缺失，非代码问题；oreki.net **未部署、线上 SHA 未变**。
+- 结论：Web 端「真实 gameEnd PASS」已进入 main，但生产部署仍等凭据；Android 端继续独立推进。
+### B.12 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
 - **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
