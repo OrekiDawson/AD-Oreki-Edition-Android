@@ -127,6 +127,14 @@ D8 会把泛型签名拆成多段字符串存储（例如 `"Ljava/util/List<"`�
 
 **判定**：存档写入方向的**运行时闭环已在早中期数据范围达成 PASS**；晚期 glyph 写路径保持 BLOCKED（夹具缺口，非代码缺陷证据）。
 
+## 4.5 P0：Kotlin shadow ABI 崩溃（05:18 发现 → 05:45 修复，详见 P0-AGP-KOTLIN-ABI-CRASH.md）
+
+- 症状：AGP 候选游玩约 1 分钟崩溃 `NoSuchFieldError: No field a ... EmptyCoroutineContext`（`OrekiEcContinuation` → `OrekiChallengeAuto`）。
+- 根因：MOD 新增业务类保留了 plain `kotlin/**` 引用并绑定 AGP stdlib（字段名 `INSTANCE`），而官方 DEX 的 shadow 类字段是 `a`。
+- 修复：RemapSelective 对所有保留类统一应用 shadow 重映射；agp_gamejar2.py 增加常量池 Class 引用 fail-closed 守卫。
+- 验证：修复后构建 APK `ae55dde1…`，同一存档 AVD 运行 150s+ 无崩溃；守卫 `no_plain_kotlin_refs violations=[]`。
+- 影响面：所有历史 AGP R8 OFF 候选（含 `18716d87…`）都有此问题，属于此前未被覆盖的真实 P0。
+
 ## 5. 失败与阻塞（如实记录）
 
 1. **片尾字幕/结束页阻塞自动化**：读档后游戏先进入片尾字幕（creditsFinished=false）或结束页（已通关存档），无法用 `input tap` 稳定跳过；新档（pm clear）还会弹云存档对话框。已在 `scripts/tests/r112/credits_wait_probe.sh` 记录 11 分钟无写入的结论。

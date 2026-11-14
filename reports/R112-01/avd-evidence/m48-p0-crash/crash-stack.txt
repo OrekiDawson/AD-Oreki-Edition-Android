@@ -1,0 +1,13 @@
+11-15 05:18:52.165 E/AndroidRuntime(26171): FATAL EXCEPTION: AntimatterGameThread
+11-15 05:18:52.165 E/AndroidRuntime(26171): Process: com.oreki.antimatterdimensions, PID: 26171
+11-15 05:18:52.165 E/AndroidRuntime(26171): java.lang.NoSuchFieldError: No field a of type Lkotlin/coroutines/EmptyCoroutineContext; in class Lkotlin/coroutines/EmptyCoroutineContext; or its superclasses (declaration of 'kotlin.coroutines.EmptyCoroutineContext' appears in /data/app/~~mqo0Bwx_o5KGgPrgXmGTtg==/com.oreki.antimatterdimensions-mOYRweXvsoLfeDYSRCfuMA==/base.apk)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.OrekiEcContinuation.<init>(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:2)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.OrekiEcContinuation.<clinit>(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:2)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.OrekiChallengeAuto.tryNormal(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:24)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.OrekiChallengeAuto.tick(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:42)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.challenge.antimatter.c.b(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:10)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.a.f(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:2127)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.mainactivity.c0.d(dex-id-8d32670a26ed8097004e1203036d9731bcd28407:209)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at kajfosz.antimatterdimensions.mainactivity.MainActivityGameLoopKt$launchGameLoop$1.invokeSuspend(dex-id-8d32670a26ed8097004e1203036d9731bcd28407:27)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at oreki.shadow.kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(dex-id-b1e0caf0289099546a284035107b88d2eaa4cc31:7)
+11-15 05:18:52.165 E/AndroidRuntime(26171): 	at t01.run(dex-id-8d32670a26ed8097004e1203036d9731bcd28407:94)
