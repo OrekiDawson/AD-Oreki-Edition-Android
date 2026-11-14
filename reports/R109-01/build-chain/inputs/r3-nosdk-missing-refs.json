@@ -1,0 +1,156 @@
+{
+  "jar": "build/r109-r8/game-hybrid-r3-nosdk.jar",
+  "android_jar": "/home/oreki/Android/Sdk/platforms/android-37.2/android.jar",
+  "program_classes": 15322,
+  "library_classes": 6536,
+  "missing_count": 17,
+  "missing": [
+    {
+      "class": "sun/misc/Unsafe",
+      "referenced_by": [
+        "androidx/datastore/preferences/protobuf/f",
+        "androidx/room/coroutines/c",
+        "b59",
+        "b62",
+        "b78",
+        "cg0",
+        "com/google/android/gms/internal/ads/u9",
+        "com/google/android/gms/internal/firebase-auth-api/c0",
+        "com/google/android/gms/internal/measurement/f",
+        "com/google/android/recaptcha/internal/zzbw",
+        "com/google/android/recaptcha/internal/zzpo",
+        "com/google/android/recaptcha/internal/zzpp",
+        "com/google/android/recaptcha/internal/zzpq",
+        "com/google/android/recaptcha/internal/zzps",
+        "d36",
+        "dc2",
+        "e52",
+        "f62",
+        "fh8",
+        "gn8"
+      ],
+      "referenced_by_count": 61
+    },
+    {
+      "class": "libcore/io/Memory",
+      "referenced_by": [
+        "b59",
+        "com/google/android/recaptcha/internal/zzps",
+        "hu5",
+        "ln8",
+        "rl8",
+        "x36"
+      ],
+      "referenced_by_count": 6
+    },
+    {
+      "class": "kajfosz/antimatterdimensions/oreki/OrekiStageAuto",
+      "referenced_by": [
+        "bm4",
+        "ll2"
+      ],
+      "referenced_by_count": 2
+    },
+    {
+      "class": "kotlin/coroutines/intrinsics/CoroutineSingletons",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/OrekiChallengeAuto",
+        "kajfosz/antimatterdimensions/OrekiEcContinuation"
+      ],
+      "referenced_by_count": 2
+    },
+    {
+      "class": "kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener",
+        "kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener"
+      ],
+      "referenced_by_count": 2
+    },
+    {
+      "class": "android/view/RenderNode",
+      "referenced_by": [
+        "lz3",
+        "mz3"
+      ],
+      "referenced_by_count": 2
+    },
+    {
+      "class": "androidx/window/extensions/core/util/function/Consumer",
+      "referenced_by": [
+        "androidx/window/reflection/Consumer2"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "androidx/window/extensions/core/util/function/Function",
+      "referenced_by": [
+        "androidx/window/reflection/JFunction2"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "androidx/window/extensions/core/util/function/Predicate",
+      "referenced_by": [
+        "androidx/window/reflection/Predicate2"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "kotlin/coroutines/EmptyCoroutineContext",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/OrekiEcContinuation"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "kotlin/coroutines/jvm/internal/ContinuationImpl",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/OrekiEcContinuation"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "kotlin/coroutines/jvm/internal/SuspendLambda",
+      "referenced_by": [
+        "kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "com/amazon/privacypass/VerificationContext",
+      "referenced_by": [
+        "xt7"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "com/amazon/privacypass/PrivacyPass",
+      "referenced_by": [
+        "xt7"
+      ],
+      "referenced_by_count": 1
+    },
+    {
+      "class": "dalvik/system/VMStack",
+      "referenced_by": [
+        "yn5"
+      ],
+      "referenced_by_count": 1
+    }
+  ]
+}

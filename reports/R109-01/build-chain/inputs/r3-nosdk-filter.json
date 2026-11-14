@@ -1,0 +1,125 @@
+{
+  "input_jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar",
+  "input_jar_sha256": "3fb88bf9ffb2d7e9737221f3a01ff795db6b5f00cefc68deb6c651445a045756",
+  "android_jar": "/home/oreki/Android/Sdk/platforms/android-37.2/android.jar",
+  "android_jar_sha256": "2507cf762abe2171a8cb3c289837fc71f2e66e598f396f1cc10bb7dc10020329",
+  "output_jar": "build/r109-r8/game-hybrid-r3-nosdk.jar",
+  "output_jar_sha256": "29fd5f1139d2da799811a247cca314ed4fd7f8a6c317b1ea59e20b288cab8e85",
+  "output_jar_size": 19407398,
+  "classes_in": 15344,
+  "classes_out": 15322,
+  "removed_count": 22,
+  "removed": [
+    {
+      "name": "android/app/AppComponentFactory.class",
+      "bytes": 198,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/app/AppOpsManager$OnOpActiveChangedListener.class",
+      "bytes": 218,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/app/ForegroundServiceStartNotAllowedException.class",
+      "bytes": 276,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/app/ServiceStartNotAllowedException.class",
+      "bytes": 225,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/app/job/JobServiceEngine.class",
+      "bytes": 199,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/content/pm/PackageManager$OnChecksumsReadyListener.class",
+      "bytes": 225,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/media/AudioTrack$StreamEventCallback.class",
+      "bytes": 211,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/media/LoudnessCodecController$OnLoudnessCodecUpdateListener.class",
+      "bytes": 234,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/media/MediaDrmThrowable.class",
+      "bytes": 198,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/media/Spatializer$OnSpatializerStateChangedListener.class",
+      "bytes": 226,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/os/OutcomeReceiver.class",
+      "bytes": 193,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/service/credentials/CredentialProviderService.class",
+      "bytes": 223,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/telephony/TelephonyCallback$DisplayInfoListener.class",
+      "bytes": 222,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/telephony/TelephonyCallback.class",
+      "bytes": 202,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/text/SegmentFinder.class",
+      "bytes": 193,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/view/Choreographer$VsyncCallback.class",
+      "bytes": 207,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/view/ScrollCaptureCallback.class",
+      "bytes": 201,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/view/WindowInsetsAnimation$Callback.class",
+      "bytes": 210,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/view/autofill/AutofillManager$AutofillCallback.class",
+      "bytes": 221,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/view/translation/ViewTranslationCallback.class",
+      "bytes": 215,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/window/OnBackAnimationCallback.class",
+      "bytes": 249,
+      "byte_identical_to_android_jar": false
+    },
+    {
+      "name": "android/window/OnBackInvokedCallback.class",
+      "bytes": 203,
+      "byte_identical_to_android_jar": false
+    }
+  ],
+  "rule": "drop only android/*.class entries present in android.jar"
+}

@@ -1,0 +1,121 @@
+
+> Configure project :app
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:20:37: 'fun <U : Task> RegisteringDomainObjectDelegateProviderWithTypeAndAction<out TaskContainer, U>.provideDelegate(receiver: Any?, property: KProperty<*>): ExistingDomainObjectDelegate<TaskProvider<U>>' is deprecated. Use 'val task = tasks.register<Type>(name) { }' instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:20:37: 'fun <T : Any, C : PolymorphicDomainObjectContainer<T>, U : T> C.registering(type: KClass<U>, action: U.() -> Unit): RegisteringDomainObjectDelegateProviderWithTypeAndAction<out C, U>' is deprecated. Use 'val element = register<Type>(name) { }' instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:20:37: 'fun <T> ExistingDomainObjectDelegate<out T>.getValue(receiver: Any?, property: KProperty<*>): T' is deprecated. Use the named() API instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:28:36: 'fun <U : Task> RegisteringDomainObjectDelegateProviderWithTypeAndAction<out TaskContainer, U>.provideDelegate(receiver: Any?, property: KProperty<*>): ExistingDomainObjectDelegate<TaskProvider<U>>' is deprecated. Use 'val task = tasks.register<Type>(name) { }' instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:28:36: 'fun <T : Any, C : PolymorphicDomainObjectContainer<T>, U : T> C.registering(type: KClass<U>, action: U.() -> Unit): RegisteringDomainObjectDelegateProviderWithTypeAndAction<out C, U>' is deprecated. Use 'val element = register<Type>(name) { }' instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:28:36: 'fun <T> ExistingDomainObjectDelegate<out T>.getValue(receiver: Any?, property: KProperty<*>): T' is deprecated. Use the named() API instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:60:31: 'fun srcDirs(vararg srcDirs: Any): Any' is deprecated. Use `directories` mutable set instead.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:72:17: 'fun srcDirs(vararg srcDirs: Any): Any' is deprecated. Use `directories` mutable set instead.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:73:20: 'fun srcDirs(vararg srcDirs: Any): Any' is deprecated. Use `directories` mutable set instead.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:74:21: 'fun srcDirs(vararg srcDirs: Any): Any' is deprecated. Use `directories` mutable set instead.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:79:13: 'fun additionalParameters(vararg params: String): Unit' is deprecated. Replaced with property additionalParameters.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:155:35: 'fun <U : Task> RegisteringDomainObjectDelegateProviderWithTypeAndAction<out TaskContainer, U>.provideDelegate(receiver: Any?, property: KProperty<*>): ExistingDomainObjectDelegate<TaskProvider<U>>' is deprecated. Use 'val task = tasks.register<Type>(name) { }' instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:155:35: 'fun <T : Any, C : PolymorphicDomainObjectContainer<T>, U : T> C.registering(type: KClass<U>, action: U.() -> Unit): RegisteringDomainObjectDelegateProviderWithTypeAndAction<out C, U>' is deprecated. Use 'val element = register<Type>(name) { }' instead. See the Gradle 9.6 upgrading guide.
+w: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/app/build.gradle.kts:155:35: 'fun <T> ExistingDomainObjectDelegate<out T>.getValue(receiver: Any?, property: KProperty<*>): T' is deprecated. Use the named() API instead. See the Gradle 9.6 upgrading guide.
+[oreki] 游戏类输入: /home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar (19415223 bytes)
+
+> Task :app:generateKotlinBindings UP-TO-DATE
+> Task :app:prepareFullGameInputs UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :app:mergeReleaseNativeLibs UP-TO-DATE
+> Task :app:stripReleaseDebugSymbols UP-TO-DATE
+> Task :app:extractReleaseNativeSymbolTables UP-TO-DATE
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :app:generateReleaseResources UP-TO-DATE
+> Task :app:packageReleaseResources UP-TO-DATE
+> Task :app:processReleaseNavigationResources UP-TO-DATE
+> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:generateReleaseRFile UP-TO-DATE
+> Task :app:compileReleaseKotlin UP-TO-DATE
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:mergeReleaseArtProfile UP-TO-DATE
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:compileReleaseNavigationResources UP-TO-DATE
+> Task :app:mergeReleaseResources UP-TO-DATE
+> Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest UP-TO-DATE
+> Task :app:processReleaseManifest UP-TO-DATE
+> Task :app:processReleaseManifestForPackage UP-TO-DATE
+> Task :app:extractProguardFiles
+> Task :app:compressReleaseJavaRes UP-TO-DATE
+> Task :app:mergeReleaseJavaResource UP-TO-DATE
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets UP-TO-DATE
+> Task :app:compressReleaseAssets UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo UP-TO-DATE
+> Task :app:collectReleaseDependencies UP-TO-DATE
+> Task :app:sdkReleaseDependencyData UP-TO-DATE
+> Task :app:validateSigningRelease UP-TO-DATE
+> Task :app:writeReleaseAppMetadata UP-TO-DATE
+> Task :app:writeReleaseSigningConfigVersions UP-TO-DATE
+> Task :app:processReleaseResources
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:mergeReleaseGeneratedProguardFiles
+> Task :app:optimizeReleaseResources UP-TO-DATE
+
+> Task :app:minifyReleaseWithR8
+ERROR: R8: Library class android.media.MediaDrm$MediaDrmStateException implements program class android.media.MediaDrmThrowable (origin: /home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar:android/media/MediaDrmThrowable.class)
+ERROR: R8: Library class android.media.MediaDrmResetException implements program class android.media.MediaDrmThrowable (origin: /home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar:android/media/MediaDrmThrowable.class)
+ERROR: R8: Library class android.media.MediaDrmException implements program class android.media.MediaDrmThrowable (origin: /home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar:android/media/MediaDrmThrowable.class)
+ERROR: R8: Library class android.media.MediaCodec$CryptoException implements program class android.media.MediaDrmThrowable (origin: /home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar:android/media/MediaDrmThrowable.class)
+ERROR: R8: Library class android.text.GraphemeClusterSegmentFinder extends program class android.text.SegmentFinder (origin: /home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar:android/text/SegmentFinder.class)
+
+> Task :app:minifyReleaseWithR8 FAILED
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Unified/_wt_r109_build/agp/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:minifyReleaseWithR8' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing com.android.build.gradle.internal.tasks.R8Task$R8Runnable
+   > Compilation failed to complete
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 3m 48s
+41 actionable tasks: 5 executed, 36 up-to-date
+Command exited with non-zero status 1
+	Command being timed: "bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true -PorekiGameJar=/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-r3.jar -Poreki.r8=true --console=plain -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=768m"
+	User time (seconds): 1.98
+	System time (seconds): 24.50
+	Percent of CPU this job got: 11%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:48.72
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 100296
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 50154
+	Minor (reclaiming a frame) page faults: 80872
+	Voluntary context switches: 94887
+	Involuntary context switches: 13696
+	Swaps: 0
+	File system inputs: 9148392
+	File system outputs: 64
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+GRADLE_EXIT=1

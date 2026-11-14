@@ -107,3 +107,24 @@
 -keepclasseswithmembernames class * {
     native <methods>;
 }
+
+# (6) 目标性 -dontwarn：官方 DEX 自带的悬空引用（不是本轮转换引入）
+#
+# 证据：
+#  a) 本脚本 scripts/agp/r109_missing_refs.py 对过滤后 JAR + android.jar 全量扫描，
+#     实际缺失类共 17 个；其中 4 个 kotlin/* 与 4 个 kajfosz/.../oreki/* 由 Kotlin
+#     stdlib / payload 程序类在真实 R8 运行中解析（静态扫描的假阳性）。
+#  b) 其余 9 个在官方 3.21.0 base APK 的 DEX 中也没有类定义（用 DEX header 解析
+#     15,319 类逐一核对，见 reports/R109-01/build-chain/REPORT.md）：
+#     - com.amazon.privacypass.*            官方 classes.dex 的 xt7 引用，官方 APK 不含该类
+#     - androidx.window.extensions.core.util.function.*  同上（官方 APK 不含）
+#     - sun.misc.Unsafe / libcore.io.Memory / dalvik.system.VMStack /
+#       android.view.RenderNode           设备侧 hidden API，android.jar 不导出
+#  即这些是官方构建同样存在的「编译期可选依赖 / hidden API」悬空引用，不是本轮
+#  DEX->JAR 转换丢失的类。这里只按精确包/类名放行，不使用通配全局 -dontwarn。
+-dontwarn com.amazon.privacypass.**
+-dontwarn androidx.window.extensions.core.util.function.**
+-dontwarn sun.misc.Unsafe
+-dontwarn libcore.io.Memory
+-dontwarn dalvik.system.VMStack
+-dontwarn android.view.RenderNode
