@@ -725,7 +725,11 @@ def verifyAssembledAssets = { File apk ->
     def z = new java.util.zip.ZipFile(apk)
     try {
         def names = z.entries().toList()*.name
-        ['assets/oreki_tutorial.txt', 'assets/fonts/fa-solid-900.ttf', 'assets/dexopt/baseline.prof'].each { name ->
+        // [R110-01 C1] AGP 基座：教程资产改由 AGP 从 scripts/payload/assets 打包（Gradle verifyTutorialAsset），
+        // 该基座 APK 只是 AGP 的输入，不要求包含 oreki_tutorial.txt；普通 smali 构建仍强制校验。
+        def requiredAssets = ['assets/fonts/fa-solid-900.ttf', 'assets/dexopt/baseline.prof']
+        if (System.getenv('OREKI_AGP_BASE') != '1') requiredAssets.add(0, 'assets/oreki_tutorial.txt')
+        requiredAssets.each { name ->
             def entry = z.getEntry(name)
             if (entry == null || entry.size <= 0) throw new GradleException("APK 缺少有效资源：${name}")
         }

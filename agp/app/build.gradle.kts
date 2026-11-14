@@ -1,3 +1,6 @@
+import java.nio.ByteBuffer
+import java.nio.charset.CharacterCodingException
+import java.nio.charset.CodingErrorAction
 import org.gradle.api.tasks.Exec
 import groovy.json.JsonSlurper
 
@@ -92,7 +95,11 @@ android {
         sourceSets["main"].apply {
             manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
             res.srcDirs(File(fullGameStage, "res"))
-            assets.srcDirs(File(decodedTree, "assets"))
+            // R110-01 C1：assets 由 prepareFullGameAssets 去重暂存后提供：
+            // 解码树里的 oreki_tutorial.txt 一律剔除（旧 build_mod 可能已写入），
+            // 统一取 scripts/payload/assets 的提交版本，避免同名资产双来源导致 AGP 资源合并失败。
+            assets.srcDirs(File(repoRoot, "build/agp-fullgame-assets"))
+
             jniLibs.srcDirs(File(decodedTree, "lib"))
         }
         androidResources {
@@ -149,10 +156,62 @@ if (fullGame) {
     }
 }
 
+if (fullGame) {
+    // R110-01 C1（Issue #52 阶段一）：教程资产校验从 build_mod.py 迁到 Gradle Kotlin DSL。
+    // 源文件 scripts/payload/assets/oreki_tutorial.txt 是已提交的生成物（Web 单源 JSON 生成）。
+    // 生产构建不再调用 Python 生成器；这里只做确定性校验，输入/输出显式声明以支持增量缓存。
+    val tutorialAsset = File(repoRoot, "scripts/payload/assets/oreki_tutorial.txt")
+    // R110-01 C1：解码树 assets 与 payload assets 去重暂存（始终只留 payload 版教程资产）
+    val stagedAssets = File(repoRoot, "build/agp-fullgame-assets")
+    tasks.register("prepareFullGameAssets", Sync::class) {
+        from(File(decodedTree, "assets")) { exclude("oreki_tutorial.txt") }
+        from(File(repoRoot, "scripts/payload/assets"))
+        into(stagedAssets)
+    }
+    tasks.register("verifyTutorialAsset") {
+        group = "verification"
+        description = "校验已提交的教程资产结构/编码/规模（不依赖 Python）"
+        inputs.file(tutorialAsset).withPropertyName("orekiTutorialAsset")
+        doLast {
+            if (!tutorialAsset.isFile) throw GradleException("缺少教程资产: $tutorialAsset")
+            val bytes = tutorialAsset.readBytes()
+            if (bytes.isEmpty()) throw GradleException("教程资产为空")
+            if (bytes.size > 2 * 1024 * 1024) throw GradleException("教程资产超过 2MB 上限")
+            if (bytes.size >= 3 && bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()) {
+                throw GradleException("教程资产带 UTF-8 BOM")
+            }
+            // 严格 UTF-8 解码：非法字节序列必须让构建失败，不能用替换字符静默通过。
+            val text = try {
+                Charsets.UTF_8.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(bytes))
+                    .toString()
+            } catch (e: CharacterCodingException) {
+                throw GradleException("教程资产不是合法 UTF-8", e)
+            }
+            if (!text.contains("游戏内教程正文（构建期生成，请勿手改）")) {
+                throw GradleException("教程资产缺少文件头标记")
+            }
+            val ch = text.lineSequence().count { it.startsWith("CH|") }
+            val ph = text.lineSequence().count { it.startsWith("PH|") }
+            if (ph != 8) throw GradleException("PH 阶段提示应为 8 条，实际 $ph")
+            val marker = Regex("章节数: (\\d+)").find(text)
+                ?: throw GradleException("教程资产缺少「章节数: N」标记")
+            val declared = marker.groupValues[1].toInt()
+            if (ch != declared) throw GradleException("CH 记录 $ch != 章节数 $declared")
+            if (text.contains("|src/")) throw GradleException("教程资产出现源码路径（|src/）")
+            logger.lifecycle("[oreki] 教程资产校验通过: ${bytes.size} 字节 / $ch 章 / $ph 阶段提示")
+        }
+    }
+}
+
 tasks.named("preBuild") {
     dependsOn(generateKotlinBindings)
     if (fullGame) {
         dependsOn(prepareFullGameInputs)
+        dependsOn("prepareFullGameAssets")
+        dependsOn("verifyTutorialAsset")
     }
 }
 
