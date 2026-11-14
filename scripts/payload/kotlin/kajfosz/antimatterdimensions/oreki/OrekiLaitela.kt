@@ -421,7 +421,7 @@ object OrekiLaitela {
                     } else {
                         iu25HoldSince = 0L
                         setHold(false)
-                        logLimited("IU25 wait im=" + im + " cost=" + cost + " ds6=" + ds6 +
+                        logLimited("IU25 wait im=" + im + " cost=" + cost + " ds6=" + ds6Bought +
                             " glyphs=" + glyphs)
                     }
                     return false
