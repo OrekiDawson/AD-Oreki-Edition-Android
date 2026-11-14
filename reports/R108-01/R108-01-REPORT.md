@@ -106,6 +106,14 @@
 - 关键认识：ID 购买守卫是在**每次购买调用时**求值的，而此刻 `maxID1` 尚未因本次购买变正；所以不需要「先 arm 再拦」，只要守卫本身在「干净现实 + 上限足够」时就返回 true，就能在现实重置后的第一次 ID 购买前关门。
 - 实现：`idBuyBlocked()` 增加预封锁分支（总开关/毁灭/挑战/上限/失败上限/冷却全部不变；`maxID1` 已脏时放行，避免拖死成长），并顺带把相位推进到 ARMED（只一次日志）。
 - 验证状态：build11 跑次 10:23 启动，**AVD NOT RUN（结果待下一轮）**。
+
+**第四层发现（build11 AVD 实证，build13 修复）：EC7 奖励路径绕过 ID 购买封锁**
+
+- build11（购买期预封锁）实测：realities=1、`iMCap=4.358e10`、IU15 仍未买入，`maxID1=1.94e56937572` 依旧变正、`OREKI_IU15` 日志 0 条。
+- 根因（与 Web 冻结上游同源）：EC7 的完成奖励在 `TimeDimensions.tick()` 里持续生产 ID8，再经 `InfinityDimensions.tick()` 逐层产出 ID1 —— 即使 ID **购买**被完全拦住，`maxID1` 也会变正。所以「干净现实」的封锁必须连 **EC7 启动**一起拦。
+- 修复（build13，SHA fb6cbfe0）：`shouldBlockEcStart(7)` 增加与 ID 预封锁相同的条件（干净现实 + iMCap≥成本 + 未买 IU15 + 总开关/非毁灭/失败上限），不再只依赖 `isActive()`。
+- 同批（build12）还补了 Web `6988b92` 对应的「DS6 帧竞态」：tier8 阶段用 `GameApi.canReality()`（原版 `prestige/f.f()`，= DS6 在位）作代理判据，压住现实等 DS6+符文≤1+IM 够后再进 run 买 IU25；run 在位却买不到时放开现实让重置清 run。
+- 验证状态：build13 跑次 10:39 启动，**AVD NOT RUN（结果待下一轮）**。
 ### B.7 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
@@ -143,6 +151,8 @@
 | build9 | —（构建失败） | 莱特拉窗口补丁首版用 const-wide/high16 写入 300.0 → apktool `Invalid literal value`；已修正为 const-wide 整行替换 |
 | build10 | 741cf1b6a73fb3aae8fba4b39daec496c52c7c7c50b85a80f14fe21f9cbf9916 | + IU15 arm 条件修正 + 莱特拉 tier 窗口 300s（const-wide 形式） |
 | build11 | c75081c8622ee856004a2fb04b6189a463f8a7beb05e7e404eb28a9cf86455f9 | + IU15 购买期预封锁（守卫内直接拦，不等 arm） |
+| build12 | — | + 莱特拉 tier8 DS6 帧竞态处理（canReality 代理 + 压现实等 DS6）+ IU25 购买时序 |
+| build13 | fb6cbfe0f5293f8d8c43e6ceaedb80920f97bfbf13fc20f4549de8e9778bc244 | + IU15 预封锁同时拦 EC7（EC7 奖励会产 ID1，购买拦截不足） |
 
 ## E. 技术迁移 / 语义反混淆
 
