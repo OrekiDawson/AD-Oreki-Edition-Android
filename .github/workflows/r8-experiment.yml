@@ -41,13 +41,17 @@ jobs:
           set -euo pipefail
           bash ./gradlew -p agp :app:assembleRelease --rerun-tasks --no-daemon --console=plain
           mkdir -p r8-evidence/baseline
-          cp agp/app/build/outputs/apk/release/app-release.apk r8-evidence/baseline/
+          apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：未找到未启用 R8 的 Release APK'; exit 1; }
+          cp "$apk" r8-evidence/baseline/
       - name: 构建显式启用 R8 的 Release 实验 APK
         run: |
           set -euo pipefail
           bash ./gradlew -p agp :app:assembleRelease -Poreki.r8=true --rerun-tasks --no-daemon --console=plain
           mkdir -p r8-evidence/optimized
-          cp agp/app/build/outputs/apk/release/app-release.apk r8-evidence/optimized/
+          apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：未找到启用 R8 的 Release APK'; exit 1; }
+          cp "$apk" r8-evidence/optimized/
       - name: 记录 APK、mapping 与 DEX 保留统计
         run: |
           set -euo pipefail
