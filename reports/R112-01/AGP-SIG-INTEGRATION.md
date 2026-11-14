@@ -107,6 +107,26 @@ D8 会把泛型签名拆成多段字符串存储（例如 `"Ljava/util/List<"`�
 **写档方向（AGP 写 → smali 读）仍 BLOCKED**：无可用的「未通关且未卡离线结算」的晚期存档夹具；
 下一轮优先从真实设备/正常游玩路径导出一份未通关晚期存档，再完成运行时闭环。
 
+## 4.4 写档方向运行时验证（2026-11-15 05:00–05:20，**PASS，早中期存档范围**）
+
+第三轮发现：MOD 的自动存档实际写入 **`playerBackup*.json` 轮转文件**（主 `player.json` 只在特定时机写），
+因此「只看 player.json」会误判为"不写档"。实测证据链：
+
+1. AGP 候选（`bf1c413b`，R8 OFF + Signature 回填）在 AVD 正常游玩后写出
+   `playerBackup.json`（SHA-256 `99a80ab2…`，infinities=38、Laitela dims=4，29,131 B 级）；
+2. 把该文件作为 `player.json` 注入 **smali 稳定版**（`release/反物质维度.apk`，SHA-256 `f388dc50…`）；
+3. smali 稳定版 **成功读档并进入真实游戏**：「打破无限」页签、IP 1.04e42、反物质 1.10e420、挑战时间等正常显示，
+   0 崩溃，并在 10s 内**回写** `player.json`（28,167 B）与新的 `playerBackup*.json`。
+
+| 项目 | 结果 |
+| --- | --- |
+| AGP 写档（playerBackup.json）→ smali 稳定版读取 | **PASS**（真实 AVD，证据 `m44-D1/`：截图 + verdict + logcat） |
+| 写回（smali 读档后再次保存） | **PASS**（player.json 28,167 B 已更新） |
+| 覆盖的数据面 | 早中期存档：基本结构、Laitela dimensions（typed）、creditsFinished、infinities/IP/挑战记录等 |
+| 未覆盖的数据面 | **晚期 glyph effects 位掩码写路径**：现有晚期存档均为已通关存档，读档进入结束页且不产生自动存档；仍缺「未通关晚期」夹具 |
+
+**判定**：存档写入方向的**运行时闭环已在早中期数据范围达成 PASS**；晚期 glyph 写路径保持 BLOCKED（夹具缺口，非代码缺陷证据）。
+
 ## 5. 失败与阻塞（如实记录）
 
 1. **片尾字幕/结束页阻塞自动化**：读档后游戏先进入片尾字幕（creditsFinished=false）或结束页（已通关存档），无法用 `input tap` 稳定跳过；新档（pm clear）还会弹云存档对话框。已在 `scripts/tests/r112/credits_wait_probe.sh` 记录 11 分钟无写入的结论。
