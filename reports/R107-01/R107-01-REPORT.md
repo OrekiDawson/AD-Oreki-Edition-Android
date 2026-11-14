@@ -392,3 +392,12 @@
   日志 cap=1/configured=10/effective=1 → reality 后 cap=2（realities=1.0）；0 FATAL/VerifyError/NoSuchMethodError。
 - **默认设置 180 分钟真实跑次已启动**（fresh，07:49:46 起，stagecap 生效，60s 采样，gameEnd 即停）：证据 reports/R107-01/lead-evidence/180min-default-run/；
   跑次期间宿主 CPU 独占（Web 浏览器重型跑次暂停），以保证墙钟数据可信。
+
+### 10.19 Web 阶段化节拍已合并（PR #20 / ce0ec9db）与 Android 默认 180min 跑次早期里程碑
+
+- **Web**：oreki-smart-executor.js 实现 effective=min(配置,cap)（0→1s/1..9→2s/10..49→3s/≥50→5s），新增 19/19 静态回归并入 CI；
+  默认设置实测：首无限 6.3s / Break 10.4s / 首永恒 83.2s / 首 reality 427.0s（旧默认 2024.3s，约 4.7×）、r15 938.8s（旧 3969.4s）、r20 1177.4s；
+  49/49 定向验收 PASS；完整 180min/gameEnd NOT RUN（待窗口）。PR #20 已合并（CI 全绿）。
+- **Android 默认设置 180min 跑次（stagecap 生效，07:49:46 起）**：t≈421s 首次永恒；t≈541s EC 接近满；
+  **t≈580s（≈9.7min）首次 reality**（real=0.0 即 realities=1）；t≈661s bigE=74、EC 重推中；0 FATAL。
+- 正在分析 reality 之后到 gameEnd 的自动化链路缺口（reports/R107-01/reality-chain/）。
