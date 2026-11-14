@@ -322,6 +322,12 @@ def main() -> int:
                         help="复用 out_dir 下已存在且类数正确的 enjarify/中间 jar（迭代用；SHA 仍记录）")
     parser.add_argument("--report", default="")
     parser.add_argument("--label", default="R107-01")
+    parser.add_argument("--sigbackfill-ref-jar", action="append", default=[],
+                        help="dex2jar 参考 jar（可重复）；提供后对最终 game jar 回填泛型 Signature")
+    parser.add_argument("--sigbackfill-asm-jar", default="",
+                        help="ASM 9.x jar（Signature 回填工具编译用）")
+    parser.add_argument("--sigbackfill-shadow-remap", action="store_true",
+                        help="签名中 Lkotlin/ 前缀替换为 Loreki/shadow/kotlin/（与 RemapSelective 一致）")
     args = parser.parse_args()
 
     repo = Path(args.repo).resolve()
@@ -657,6 +663,38 @@ def main() -> int:
                                  out_dir / "d8-m53-after"),
             }
         report["checks"]["m53_d8"] = m53_evidence
+
+    # 可选：泛型 Signature 回填（enjarify 不输出 DEX 注解；见 docs/AGP_SIGNATURE_BACKFILL.md）
+    if args.sigbackfill_ref_jar:
+        require(bool(args.sigbackfill_asm_jar), "sigbackfill 需要 --sigbackfill-asm-jar")
+        sig_jar = out_dir / "game-hybrid-sig.jar"
+        sig_cmd = [args.python, str(Path(args.repo) / "scripts" / "agp" / "sig_backfill.py"),
+                   "--target-jar", str(final_jar), "--out-jar", str(sig_jar),
+                   "--asm-jar", args.sigbackfill_asm_jar, "--java-home", args.java_home]
+        for ref in args.sigbackfill_ref_jar:
+            sig_cmd.extend(["--ref-jar", ref])
+        if args.sigbackfill_shadow_remap:
+            sig_cmd.append("--shadow-remap")
+        sig_result = run(sig_cmd)
+        require(sig_result["returncode"] == 0,
+                "Signature 回填失败: " + sig_result["stdout"] + sig_result["stderr"])
+        sig_evidence = json.loads(sig_result["stdout"])
+        report["steps"]["signature_backfill"] = sig_evidence
+        final_jar = sig_jar
+        final_hashes = jar_class_hashes(final_jar)
+        final_classes = set(final_hashes)
+        sig_missing = sorted(expected_classes - final_classes)
+        sig_extra = sorted(final_classes - expected_classes)
+        require(not sig_missing and not sig_extra, "Signature 回填后类集合发生变化")
+        sig_d8 = d8_compile(args.d8, android_jar, [final_jar], out_dir / "d8-whole-sig")
+        report["checks"]["whole_jar_d8_after_sigbackfill"] = sig_d8
+        require(sig_d8["status"] == "PASS", "回填后整包 D8 编译失败: %s" % sig_d8["stderr_tail"])
+        report["output"] = {
+            "game_jar": str(final_jar),
+            "game_jar_sha256": sha256_file(final_jar),
+            "game_jar_bytes": final_jar.stat().st_size,
+            "class_count": len(final_classes),
+        }
 
     report["status"] = "PASS"
     report["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
