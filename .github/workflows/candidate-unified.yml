@@ -21,7 +21,7 @@ env:
 
 jobs:
   validate:
-    name: Validate source SHA and request
+    name: 验证源码 SHA 与候选请求
     # Pre-merge validation dispatches come from the migration branch, but the
     # source being built is always an approved main commit. A dispatch from main
     # additionally requires the requested SHA to be the dispatched commit.
@@ -107,7 +107,7 @@ jobs:
           echo "::notice::Validated Web strategy commit $WEB_REF"
 
   build:
-    name: Build, sign, attest candidate
+    name: 构建、签名并证明候选 APK
     needs: validate
     runs-on: ubuntu-latest
     environment: android-signing

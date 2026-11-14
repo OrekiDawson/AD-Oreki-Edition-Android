@@ -1,4 +1,4 @@
-name: Android release pipeline validation (no publish)
+name: Android 发布流程验证（不发布）
 
 # Deliberately NOT a stable release: this workflow validates the real
 # three-remote delivery path (GitHub / OneDrive / Google Drive) with the exact
@@ -51,7 +51,7 @@ env:
 
 jobs:
   validate:
-    name: Validate three-remote delivery without publishing stable
+    name: 验证三渠道交付，不发布稳定版
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: stable-release
