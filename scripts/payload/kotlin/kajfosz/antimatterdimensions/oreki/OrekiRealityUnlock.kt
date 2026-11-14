@@ -219,7 +219,8 @@ object OrekiRealityUnlock {
     }
 
     /** Player.a.R().l().j().getExponent()：本次现实 maxEP 指数。 */
-    private fun maxEpExponent(): String = try {
+    private fun maxEpExponent(): String {
+        return try {
         val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return "?"
         val player = playerCls.getField("a").get(null) ?: return "?"
         val records = callM(player, "R", 0) ?: return "?"
@@ -229,10 +230,12 @@ object OrekiRealityUnlock {
         exp.toString()
     } catch (_: Throwable) {
         "?"
+        }
     }
 
     /** t3.g() 全部 preReality 成就 isUnlocked==true（null/empty 视为 true，与原版 smali 一致）。 */
-    private fun preRealityEvery(): String = try {
+    private fun preRealityEvery(): String {
+        return try {
         val t3 = cls("t3") ?: return "?"
         val list = staticM(t3, "g", 0)?.invoke(null) ?: return "true"
         val l = list as? java.util.List<*> ?: return "?"
@@ -248,6 +251,7 @@ object OrekiRealityUnlock {
         "true"
     } catch (_: Throwable) {
         "?"
+        }
     }
 
     /** pelle.c.q() = Player.p().d().b()（Pelle isDoomed）。 */

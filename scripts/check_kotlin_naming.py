@@ -84,6 +84,12 @@ def is_upper_snake(name: str) -> bool:
     return bool(re.fullmatch(r"[A-Z][A-Z0-9_]*", name))
 
 
+def strip_comments_preserving_lines(source: str) -> str:
+    """Remove Kotlin line/block comments while preserving line boundaries."""
+    source = re.sub(r"/\*.*?\*/", lambda m: "".join("\n" if c == "\n" else " " for c in m.group(0)), source, flags=re.S)
+    return re.sub(r"//[^\n]*", lambda m: " " * len(m.group(0)), source)
+
+
 def main() -> int:
     global checks
     verbose = "--verbose" in sys.argv
@@ -169,11 +175,9 @@ def main() -> int:
         # 注意：只查调用形态，不查注释里说明 ABI 契约时写的完整类路径
         #      （例如「本方法签名被 Lkajfosz/antimatterdimensions/Xxx;->foo()V 调用」属正当留痕）。
         if not in_compat:
-            for m in re.finditer(r"->[a-zA-Z]\([^)]*\)", text):
-                line = text[:m.start()].count("\n") + 1
-                raw_line = text.splitlines()[line - 1].strip()
-                if raw_line.startswith(("//", "*", "#")):
-                    continue
+            code_text = strip_comments_preserving_lines(text)
+            for m in re.finditer(r"->[a-zA-Z]\([^)]*\)", code_text):
+                line = code_text[:m.start()].count("\n") + 1
                 checks += 1
                 add(rel, "N8 混淆符号只允许出现在兼容适配层",
                     f"第 {line} 行出现调用形态 {m.group(0)!r}")
