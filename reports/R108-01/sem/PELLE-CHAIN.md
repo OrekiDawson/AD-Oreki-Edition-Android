@@ -47,3 +47,24 @@
 ## 5. 边界
 - 只读分析；未改生产代码、未跑 gradle/AVD、未 push。
 - 数据已合入 docs/deobfuscation/data/r108-reality-chain/semantic-map.json 的 batch4 段（31 条）。
+
+## 6. 附录（Lead 追加）：dimboost / Galaxy 购买入口与 strikes 触发语义
+
+### 6.1 Dimension Boost（dimboost）购买入口
+- **Lm01;** = DimensionBoost 机制类（flat 包）：a(Lk01;)Z = canBuy（受 prestige/e.f()、Pelle 禁用、请求可买性、Ra 检查门控）、b() = 购买/买满入口（内部 new Ll01 request + a(request) 判定后执行）、k(Ll01;Lk01;)Li25; = 带请求的购买。
+- 请求构建：Ll01;（DimensionBoost request；a(D)Lk01; 生成请求，读挑战/成就/膨胀等乘子）、Lk01;（request 值对象：a()=可买判定、a:I=维度 tier、b:LBigDouble;=成本）。
+- 自动器路径：DimBoostAutobuyerState.tick → Lm01;->a(Lk01;)Z / Lm01;->i()D / Lm01;->k(Ll01;Lk01;)Li25;（证据：autobuyer/DimBoostAutobuyerState.smali q() 方法体）。
+- 置信：类/方法入口 STRONG；b() vs k() 的“买 1 个 / 买满”精确语义未逐行核，使用前先看 b() 返回（i25 单例）与 k() 参数。
+
+### 6.2 Galaxy 购买入口
+- Lkajfosz/antimatterdimensions/prestige/d;（Galaxy）：b(Continuation)=galaxyReset（购买/重置星系），e(Z,xm1,wm1,Continuation)=maxBuyGalaxies（批量买），a(wm1)Z=canBuy；自动器 GalaxyAutobuyerState.tick 使用 Lxm1;/Lwm1; 请求对象走同一路径。
+
+### 6.3 Strikes 触发语义（Web 冻结上游 CONFIRMED → Android 调用点仍 UNKNOWN）
+| strike（oh3 字段/id） | Web 触发点（file:line） | 含义 |
+| --- | --- | --- |
+| a / id1 infinity | web/src/core/big-crunch.js:58（Pelle.isDoomed 时 Big Crunch） | 按一次大坍缩即解锁（末日下自动器需要它） |
+| b / id2 powerGalaxies | web/src/core/break-infinity-upgrades.js:16 | 购买 Break Infinity 升级时 |
+| c / id3 eternity | web/src/core/eternity.js:149 | 进行一次永恒时 |
+| d / id4 ECs | web/src/core/time-theorems.js:66（totalPurchased>114 且末日） | 时间之理累计 |
+| e / id5 dilation | web/src/core/dilation.js:10/53、EnterDilationModal.js:35 | 开始膨胀时（id5 特例：重置 records） |
+- Android 侧实测：Lnh3;->b()（onUnlock）全树只有 nh3 自身与 player/h.g 调用；player/h.g 含 'Invalid save type' 字符串（存档导入路径）。**运行时动作触发调用点仍未定位**（候选：动作类直接写 Player$Pelle.progressBits，或 JADX skip 的 Pelle gameTick）。→ 自动化在 doomed 内可直接执行上述原版动作（crunch/break upgrade/eternity/TT/dilation）来自然解锁 strikes，不必自己写位。

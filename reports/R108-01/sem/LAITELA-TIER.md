@@ -76,3 +76,17 @@ Reality 重置: entropy = 0   ⇒ 下一个现实可再跑一次
 ## 6. 仍未确认
 - clearCelestialRuns 的精确 Android 实现（Game.k 内 prestige/f.c() 遍历，未逐指令列全）。
 - tier 在「完整游戏重置/新档」外的清零路径（Android 未发现 t(0) 写入点，仅 Gson 载入与 tick 写）。
+
+## 7. 附录（Lead 追加）：Lai'tela entropy 分母 patch 草案（只读，不落代码）
+
+- 精确位置：work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/a.smali:3684
+  const-wide v10, 0x42374876e8000000L    # 1.0E11
+  （该常量在 a.smali 内唯一，grep -c = 1；位于 Game.k(D)V 的熵累加段）
+- 与 Web 对齐值：OREKI_LAITELA_ENTROPY_DIVISOR = 2e7 → IEEE754 位模式 **0x417312d000000000L**（20000000.0）。
+- 建议实现（与 IU25 成本 patch 同风格，纯数据常量，build_mod 幂等注入）：
+  1. 目标文件通过类描述符定位更好：desc = Lkajfosz/antimatterdimensions/a;（Game；3.21 在 smali_classes2/，class_index 可解析）。
+  2. 断言：文件中 0x42374876e8000000L 出现次数 == 1；替换为 0x417312d000000000L（保留行尾注释同步为 # 2.0E7）。
+  3. 断言：替换后旧位模式 0 命中、新位模式 1 命中；再断言 Game.k(D)V 方法内 Player$Laitela.u(D)/d()I 锚点仍存在（结构未漂移）。
+  4. 幂等：发现新值已存在则跳过并断言旧值为 0。
+- 副作用评估：只影响 Lai'tela 熵产量（更快填满）；不改 entropy 阈值/结算/30s 判定/tier/存档字段；与 Web 冻结上游行为一致。数值：tier7 AM≈1.15e8 时 rate 从 6.6e-9/s 提到 (1.15e8/2e7)^2/200≈0.165/s（约 6 秒填满），30s 窗口可行。
+- 备选：Kotlin 包装需在熵累加处插入额外乘除指令（风险更高、收益无差别），不推荐。

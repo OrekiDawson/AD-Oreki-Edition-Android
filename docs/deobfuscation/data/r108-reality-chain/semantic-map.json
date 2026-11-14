@@ -3908,6 +3908,60 @@
     "evidence": [
      "grep Lnh3;->b()V / Loh3;->f 结果如上"
     ]
+   },
+   {
+    "kind": "class",
+    "class": "Lm01;",
+    "descriptor": "Lm01;",
+    "semantic_name": "kajfosz.antimatterdimensions.DimensionBoost（dimboost 购买机制：a(Lk01;)Z=canBuy、b()=购买/买满、k(Ll01;Lk01;)=带请求购买）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/m01.java：a(k01)=canBuy（prestige/e.f()/Pelle/Ra 门控）、b()=new l01().a(1.0)+a(request) 后执行、k(l01,k01)",
+     "autobuyer/DimBoostAutobuyerState.smali q() 调用 Lm01;->a/i/k"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Ll01;",
+    "descriptor": "Ll01;",
+    "semantic_name": "DimensionBoost 请求构建器（a(D)Lk01; 生成请求；读挑战/成就/膨胀乘子）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/l01.java"
+    ]
+   },
+   {
+    "kind": "class",
+    "class": "Lk01;",
+    "descriptor": "Lk01;",
+    "semantic_name": "DimensionBoost 请求值对象（a()=可买判定、a:I=维度 tier、b:LBigDouble;=成本）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX defpackage/k01.java"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Strikes 触发语义（Web 冻结上游）",
+    "semantic_name": "strike1=BigCrunch（Pelle.isDoomed）、strike2=购买 Break Infinity 升级、strike3=永恒、strike4=时间之理>114、strike5=开始膨胀；Android 运行时调用点未定位（nh3.b() 仅存档路径调用）",
+    "confidence": "strong",
+    "evidence": [
+     "web/src/core/{big-crunch.js:58,break-infinity-upgrades.js:16,eternity.js:149,time-theorems.js:66,dilation.js:10/53}",
+     "grep Lnh3;->b()V 仅 nh3.smali/player/h.smali"
+    ]
+   },
+   {
+    "kind": "note",
+    "class": null,
+    "descriptor": "Lai'tela entropy 2e7 patch 点",
+    "semantic_name": "a.smali:3684 const-wide v10, 0x42374876e8000000L # 1.0E11（文件内唯一）→ 0x417312d000000000L # 2.0E7；只改数据常量，不改结算/30s/tier",
+    "confidence": "confirmed",
+    "evidence": [
+     "work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/a.smali:3684",
+     "grep -c 0x42374876e8000000L = 1",
+     "Web laitela.js:41 OREKI_LAITELA_ENTROPY_DIVISOR=2e7"
+    ]
    }
   ],
   "counts": {
