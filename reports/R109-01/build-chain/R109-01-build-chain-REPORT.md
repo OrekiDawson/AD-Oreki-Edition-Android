@@ -151,13 +151,28 @@ ERROR: R8: Missing class com.amazon.privacypass.PrivacyPass (referenced from: vo
 2. GameApi 反射：`scripts/payload/kotlin/.../GameApi.kt` 的 48 处 `cls("...")` + 构建期生成的
    `OrekiBaselineBindings.kt` 40 条 3.20→3.21 映射；`scripts/agp/r109_r8_keepgen.py` 逐条核对类在
    mixed-r3 JAR 中存在后生成 keep（76 条；8 条 MISS 全部是 Kotlin payload 类，由 §1 keep 覆盖）。
-3. 存档兼容：Player 树由 Gson 序列化，字段名即 `player.json` 键；对 `player.**` 保留字段，
-   并对 `@SerializedName` 字段保名。
-4. Manifest 组件按 `work/mod/AndroidManifest.xml` 实际声明保留（App/MainActivity/LoginActivity/Provider 等）。
+3. 存档兼容：`savestates/**/*.json` 的键是**可读字段名**（antimatter/auto/achievements…），
+   decoded smali 里 Player 存档树字段名与之一一对应；`scripts/agp/r109_save_keepgen.py`
+   从 `player/Player*` 沿实例字段类型求闭包（102 类、0 enum），逐类 `-keepclassmembers ... { <fields>; }`。
+   （enjarify 丢失 runtime 注解，官方若用 @SerializedName 也会丢；实测该游戏存档键=字段名，故保名即可。）
+4. Manifest 按名加载的类：`scripts/agp/r109_manifest_keepgen.py` 从 `work/mod/AndroidManifest.xml` 的
+   `android:name`/`android:value` 提取类名（含 Firebase ComponentRegistrar、datatransport backend、
+   androidx.startup Initializer、组件），39 个在 game JAR 中真实存在的类逐条 `-keep class ... { *; }`。
 5. `@JavascriptInterface` 方法与 native 方法保名（WebView 桥 / JNI）。
+6. 已知不足（R8 ON 运行期风险，不在本实验的 PASS 判据内）：
+   - Room 生成类 `androidx.work.impl.WorkDatabase_Impl` 被 Room 按 `类名+"_Impl"` 反射加载，需单独 keep（v3 已加）；
+   - 官方 DEX 中有 94 个 smali 文件使用 `Class.forName`（GMS/Firebase/ads 等库内部按名字加载），
+     原官方 R8 构建由 AAR consumer rules 兜底；DEX→JAR 转换不携带这些规则，R8 ON 下这些库路径可能失效
+     （非核心玩法路径，AVD 冒烟需观察 Firebase/ads 日志）；
+   - `androidx.window` 等 optional 依赖的悬空引用已用精确 -dontwarn 处理（§7）。
 
 已知风险：`-keep class <混淆短名> { *; }` 该类 keep 会让这 76 个类不参与优化/压缩（为了反射正确性必须如此）；
 这些类只占 15,322 的 0.5%，不会导致「全量 keep」。R8 仍会优化其余 15,246 个程序类。
+
+## 8.1 Room 生成类 keep（v3 追加）
+
+`androidx.work.impl.WorkDatabase_Impl` 由 Room 按 `类名 + "_Impl"` 反射加载（游戏 DEX 内唯一 Room `_Impl`），
+在 v3 规则中加入 `-keep class androidx.work.impl.WorkDatabase_Impl { *; }`。
 
 ## 9. 待办与下一步（宿主内存受限，排期执行）
 

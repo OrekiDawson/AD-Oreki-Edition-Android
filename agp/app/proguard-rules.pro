@@ -273,3 +273,7 @@
 -dontwarn libcore.io.Memory
 -dontwarn dalvik.system.VMStack
 -dontwarn android.view.RenderNode
+
+# (7) Room 生成实现类：Room 按 类名+"_Impl" 反射加载（游戏 DEX 内唯一 Room _Impl）。
+# 证据：game JAR 内 androidx/work/impl/WorkDatabase_Impl.class；androidx.room 54 个类。
+-keep class androidx.work.impl.WorkDatabase_Impl { *; }
