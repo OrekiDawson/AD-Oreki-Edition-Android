@@ -45,8 +45,11 @@ object OrekiRealityUpgrades {
     private const val BIG_DOUBLE = "kajfosz.antimatterdimensions.BigDouble"
 
     private const val REBUYABLE_SAFE_MAX = 100
-    private const val ONE_TIME_CANDIDATES_PER_TICK = 5
-    private const val TRY_UNLOCK_EVERY = 10
+    // [R108-01] 与 Web 节奏对齐：Web 每拍「买得起就继续买」，tryUnlock 约 1 秒一次。
+    // 旧值（每拍最多 1 个一次性 + 每 10 拍才 tryUnlock）会让 20 项一次性 RU 至少花 20+ 拍。
+    private const val ONE_TIME_BUYS_PER_TICK = 8
+    private const val ONE_TIME_CANDIDATES_PER_TICK = 16
+    private const val TRY_UNLOCK_EVERY = 1
     private const val LOG_MIN_MS = 10_000L
 
     private var resolved = false
@@ -375,19 +378,28 @@ object OrekiRealityUpgrades {
                 }
             }
 
-            // 3) 一次性 RU6~25：成本升序；每拍最多真实购买 1 个，最多尝试 N 个候选
-            val ordered = unboughtOneTimeByCost()
-            var attempts = 0
-            var i = 0
-            while (i < ordered.size && attempts < ONE_TIME_CANDIDATES_PER_TICK) {
-                attempts++
-                if (purchase(ordered[i])) {
-                    bought = true
-                    boughtTotal++
-                    oneTimeBought++
-                    break
+            // 3) 一次性 RU6~25：成本升序；每拍最多真实购买 ONE_TIME_BUYS_PER_TICK 个（与 Web 对齐），
+            //    买不起就换下一个候选，绝不越过原版 canBeBought/扣费。
+            var buys = 0
+            while (buys < ONE_TIME_BUYS_PER_TICK) {
+                val ordered = unboughtOneTimeByCost()
+                if (ordered.isEmpty()) break
+                var attempts = 0
+                var boughtOne = false
+                var i = 0
+                while (i < ordered.size && attempts < ONE_TIME_CANDIDATES_PER_TICK) {
+                    attempts++
+                    if (purchase(ordered[i])) {
+                        bought = true
+                        boughtTotal++
+                        oneTimeBought++
+                        boughtOne = true
+                        break
+                    }
+                    i++
                 }
-                i++
+                if (!boughtOne) break
+                buys++
             }
 
             if (bought) {

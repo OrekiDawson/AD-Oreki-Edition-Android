@@ -28,8 +28,9 @@ object OrekiImCapScale {
 
     private const val TAG = "OREKI_IM_CAP"
 
-    /** 与 Web machines.js 的 OREKI_IM_CAP_MULT 严格同值（300.0）。 */
-    const val MULT: Double = 300.0
+    /** 与 Web machines.js 的 OREKI_IM_CAP_MULT 严格同值（3000.0；R108-01 Web 实测 300 在默认速度下仍
+     * 不足以买 IU15（上限 7.43e8 < 1e9）后上调，Android 同步取值以保证双端等价）。 */
+    const val MULT: Double = 3000.0
 
     @Volatile
     private var lastLogAt: Long = 0L

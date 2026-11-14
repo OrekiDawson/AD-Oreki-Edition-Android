@@ -44,9 +44,17 @@
 | m1-fresh-default（build3，08:33 起，默认设置新档） | 961dc2a9 | 首次 reality **t≈565–580 s（约 9.5 min）**（08:42:57 `OREKI_DIL_STUDIES BUY id=6` → 08:43:2x 现实重置；t=601 采样 realities=1）；重置后 `reality.realityMachines=5`、`maxRM=149`、`rebuyables=[2,2,2,1,1]`、`upgradeBits=1`、IM 已解锁并从 1.16e5 增长到 8.3e6（≈30s）；0 FATAL。**说明：本轮该跑次只跑到 t≈750s，未继续验证第二次 reality。** |
 | m1-inject-stall（build3，注入 R107-01 现实后停滞真实存档，诊断用） | 961dc2a9 | 确认 RU 类名修复生效（resolved rebuy=5 oneTime=20）；该档 DS6 已随现实重置清空 ⇒ canReality=false，未发生新现实（符合原版语义，不是缺陷） |
 | m2-fresh-long（build4=Teresa vp 修复，08:50 起 60min 计划） | fe5f0b80 | 首次 reality **t≈567 s**（08:59:25 DS6 购买 → 重置）；重置后 realities=1、**RM=0、rebuyables=[0,0,0,0,0]、upgradeBits=0**（与 build3 跑次的 RM=5/8 次购买不一致）；`OREKI_REALITY`/`OREKI_REALITY_PACING` 日志在本次跑次缺失（疑似 logd 丢弃，见 B.3）。本跑次在切换 build6 时提前停止（未跑到第二次现实）。 |
-| m3-build6-fresh（build6=全部补丁+莱特拉驱动，09:02:44 起 40min） | 3d1efee5 | 运行中；用于验证 IM 上限/IU15/莱特拉链，本报告截止时尚未到首次 reality（约 09:12） |
+| m3-build6-fresh（build6=全部补丁+莱特拉驱动，09:02:44 起 40min） | 3d1efee5 | 首次 reality **t≈570 s**（09:12:15；与另外两次一致 ≈9.5min）；**IM 上限 ×300 已真机生效**：重置后同一现实内 EP 涨到 1e3423337 时 iMCap=7.347856e8（= 原版 base 2.449e6 × 300），IM=2.70e8 增长中；realities=1、RM=0、maxRM=149（**与 build4 一样 RM=0，与 build3 的 RM=5 不一致，待根因**）；本跑次 logcat 因证据整理时误删原始文件（写句柄被 unlink），只保留 timeline/player 快照——下一轮跑次不得再删。 |
+| Web 默认设置跑次（web teammate，ce0ec9db + 修复 89dcd7d） | — | 首现实 434.2s；r10 709.6s、r20 1176.1s、r30 1547.1s、r50 2115.2s、r60 2566.2s；RM 27.84→1e1200；RU 20/20 @1176.1s；glyph 0→21（最高 28 级）；Teresa 解锁 1176.1s、浇注真实到 1e24（1635.9s）、Effarig stage1-4（1697.9/1719.4/1842s）、Enslaved 1719.4s；**V/Ra/Laitela/IU15/IU25/Pelle/gameEnd RUNNING/NOT RUN** |
 
-### B.3 待根因（不追认为 PASS）
+### B.3 跨端一致性新证据（Web 实测倒逼 Android 修）
+
+- Web teammate 在默认设置跑次中同样撞到 **IM 上限不足**：默认 10000× 下 EP 峰值平台 3.44e6 ⇒ log10(uncappedRM)≈2577 ⇒ 原版上限 (1577)^2×300=7.43e8 < IU15 成本 1e9 ⇒ IU15 冲刺永不成立 ⇒ Lai'tela/IU25/Pelle 全断。Web 已把 OREKI_IM_CAP_MULT 300→3000（上限 7.43e9）。
+- **Android 同步取值 3000**（OrekiImCapScale.MULT=3000），保持双端等价；Android 实测 ×300 时 iMCap=7.35e8（与公式一致），×3000 后理论 7.35e9 > IU25 5e9。
+- Android P0-2 节奏已按 Web 对照结果对齐：一次性 RU 每拍最多 8 个（原 1），tryUnlock 每拍（原每 10 拍）。
+- 已知双端节奏差异（待裁）：Web 的 Teresa 浇注耗时 459.8s（设计约 2.3s），因 celestial 任务约 19s 才被调度一次 + OREKI_MAX_REAL_FRAME_MS=100 单次只累计 100ms；Android 走原版主循环 Game.r() 按帧累计，不存在该损失。
+
+### B.4 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
 - **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
