@@ -31,7 +31,7 @@
 | 函数 | 行数 | 目标实现 | 状态 |
 |---|---|---|---|
 | patch_resources | 67 | AGP 资源合并 + stable-ids；改为 Gradle/Kotlin 资源任务或 Rust 资源变换 | NOT RUN |
-| patch_changelog_zh | 109 | Gradle 任务生成 res/raw/changelog.txt（源：Web 单一 JSON） | NOT RUN |
+| patch_changelog_zh | 109 | 已迁 Gradle 任务 generateChangelogZh（独占 build/agp-generated-res；AGP 基座跳过） | PASS（PR #64；本地产物逐字节一致，候选 APK 不变） |
 | patch_manifest | 117 | AGP manifest 处理（Gradle DSL）+ 必要 Rust 变换 | NOT RUN |
 | patch_tutorial_content | 278 | Gradle Kotlin DSL 任务生成 assets/oreki_tutorial.txt（源：Web 单源 JSON）；**下一项首选闭包 C1** | NOT RUN |
 | patch_tutorial_entry | 172 | Kotlin Activity 已在；入口注册迁入 AGP manifest/Kotlin | NOT RUN |
@@ -78,7 +78,7 @@
    - 验证：类集合/ABI 一致 + AVD 关键路径。
 3. **增量闭包（可独立 PR）**：
    - C1：tutorial asset 生成迁到 Gradle Kotlin DSL（AGP 消费 build/agp-generated/assets），build_mod 在 AGP 基座下跳过该生成；验证：与现有 payload 资产逐字节一致 + APK 含 asset + 教程页可开。
-   - C2：changelog 生成同上。
+   - C2：changelog 生成已迁 Gradle generateChangelogZh（PR #64）：输出目录独立、stage 排除原文、已翻译输入可识别；本地/候选 APK 与 patch_changelog_zh 产物逐字节一致（SHA-256 b5168107…），候选 APK 仍为 18716d87…。
    - C3：dark theme 迁到 AGP 资源 overlay。
    - C4：verify_* 迁到 CI 独立任务。
    - C5：dead/disabled 函数删除。
