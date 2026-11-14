@@ -1,0 +1,7 @@
+{
+  "mode": "expected-manifest",
+  "expected_classes": 29,
+  "agp_classes": 43,
+  "missing_in_agp": [],
+  "parity": true
+}

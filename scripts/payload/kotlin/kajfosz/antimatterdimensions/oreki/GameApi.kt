@@ -2502,7 +2502,7 @@ internal object GameApi {
         } catch (e: Throwable) {
             miss("op0.K()", e)
         }
-        return currencyValue(c)
+        return currencyValue(currency)
     }
     /** 给反物质加回一个增量（`op0.C(BigDouble)` 的原版 add 语义，会同步 records）。 */
     fun addAntimatter(delta: Any?) {
