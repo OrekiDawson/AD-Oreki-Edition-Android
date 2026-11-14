@@ -45,6 +45,7 @@
 | m1-inject-stall（build3，注入 R107-01 现实后停滞真实存档，诊断用） | 961dc2a9 | 确认 RU 类名修复生效（resolved rebuy=5 oneTime=20）；该档 DS6 已随现实重置清空 ⇒ canReality=false，未发生新现实（符合原版语义，不是缺陷） |
 | m2-fresh-long（build4=Teresa vp 修复，08:50 起 60min 计划） | fe5f0b80 | 首次 reality **t≈567 s**（08:59:25 DS6 购买 → 重置）；重置后 realities=1、**RM=0、rebuyables=[0,0,0,0,0]、upgradeBits=0**（与 build3 跑次的 RM=5/8 次购买不一致）；`OREKI_REALITY`/`OREKI_REALITY_PACING` 日志在本次跑次缺失（疑似 logd 丢弃，见 B.3）。本跑次在切换 build6 时提前停止（未跑到第二次现实）。 |
 | m3-build6-fresh（build6=全部补丁+莱特拉驱动，09:02:44 起 40min） | 3d1efee5 | 首次 reality **t≈570 s**（09:12:15；与另外两次一致 ≈9.5min）；**IM 上限 ×300 已真机生效**：重置后同一现实内 EP 涨到 1e3423337 时 iMCap=7.347856e8（= 原版 base 2.449e6 × 300），IM=2.70e8 增长中；realities=1、RM=0、maxRM=149（**与 build4 一样 RM=0，与 build3 的 RM=5 不一致，待根因**）；本跑次 logcat 因证据整理时误删原始文件（写句柄被 unlink），只保留 timeline/player 快照——下一轮跑次不得再删。 |
+| m2-build7-cap3000（build7，09:16 起 40min） | f87d9590 | 运行中（本轮收口时未到首次 reality）：验证 IM 上限 ×3000 下 IU15 冲刺 → 莱特拉 tier 驱动 → IU25；结果见下一轮报告。 |
 | Web 默认设置跑次（web teammate，ce0ec9db + 修复 89dcd7d） | — | 首现实 434.2s；r10 709.6s、r20 1176.1s、r30 1547.1s、r50 2115.2s、r60 2566.2s；RM 27.84→1e1200；RU 20/20 @1176.1s；glyph 0→21（最高 28 级）；Teresa 解锁 1176.1s、浇注真实到 1e24（1635.9s）、Effarig stage1-4（1697.9/1719.4/1842s）、Enslaved 1719.4s；**V/Ra/Laitela/IU15/IU25/Pelle/gameEnd RUNNING/NOT RUN** |
 
 ### B.3 跨端一致性新证据（Web 实测倒逼 Android 修）
@@ -86,6 +87,7 @@
 | build3 | 961dc2a9eadca10e21fb6343fb86c28699ff83c16d53c0617e9bd54e0ce887b4 | P0-1/P0-2 + RU 类名修复 |
 | build4 | fe5f0b80…（本轮日志记录前缀） | + Teresa vp 修复 + RU 扣费日志 |
 | build6 | 3d1efee52113a9e24a4ea3b52b41b2644fc4715c3454b591ad8fb40ce574efd8 | + IM 上限×300 / IU25=5e9 / 莱特拉熵 2e7 / OrekiLaitela 驱动 |
+| build7 | f87d95907103420daa509b65a81733d04ab8c21766f68aba7674666d78b02a7e | + IM 上限倍率 3000（双端统一）、一次性 RU 每拍 8 个/tryUnlock 每拍（对齐 Web） |
 
 ## E. 技术迁移 / 语义反混淆
 
