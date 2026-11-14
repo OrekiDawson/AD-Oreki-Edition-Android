@@ -114,7 +114,24 @@
 - 修复（build13，SHA fb6cbfe0）：`shouldBlockEcStart(7)` 增加与 ID 预封锁相同的条件（干净现实 + iMCap≥成本 + 未买 IU15 + 总开关/非毁灭/失败上限），不再只依赖 `isActive()`。
 - 同批（build12）还补了 Web `6988b92` 对应的「DS6 帧竞态」：tier8 阶段用 `GameApi.canReality()`（原版 `prestige/f.f()`，= DS6 在位）作代理判据，压住现实等 DS6+符文≤1+IM 够后再进 run 买 IU25；run 在位却买不到时放开现实让重置清 run。
 - 验证状态：build13 跑次 10:39 启动，**AVD NOT RUN（结果待下一轮）**。
-### B.7 待根因（不追认为 PASS）
+
+### B.8 IU15 冲刺决定性证据与购买入口 ABI 修复（build13/build17）
+
+build13（EC7+ID 预封锁）AVD 实证（`reports/R108-01/avd-evidence/m2-build13-ec7block/`）：
+
+- 10:54:41 真实现实重置后，`OREKI_REALITY(1)` → **`OREKI_IU15: 接管开始` / `干净现实开始：amE=1e7`**：干净现实窗口首次保住。
+- 86s 内 amE 冲到 **1.62e9**（≫ 1e8），日志 `买到条件却买不到：阻塞 59s canBuy=true bought=false capOk=true amE=1e1.62e+09`：
+  → 说明「干净现实 + 门槛 + 上限」全通过，唯独**原版购买调用失败**。
+- 根因（`OREKI_API_MISS` 直接证据）：`missing method IU.D(Z,Continuation)=purchase on a` —— 3.21 R8 后 D 的第二个形参类型是混淆类型 `Lrj0;`，旧解析用字面 `kotlin.coroutines.Continuation` 精确匹配 ⇒ Method=null ⇒ 调用静默返回 null。
+- 另证：`IU.R()=tryUnlock` 在 `class a` 上**不存在**（86 次 miss），一次性 IU 的可买判定是原版实时条件，无需也无可刷新。
+
+修复（build17，SHA 4a6a58bf）：
+
+- `GameApi.mQrD()` 改为只按「名字 D + 2 参」解析；实参先传真实 continuation，返回 null 时再以 `null` 重试（D 体内不使用 continuation，与 RU 购买同款）；新增 `OREKI_IU_BUY` 结果日志。
+- `imaginaryTryUnlock()` 只解析一次；方法缺失即视为「实时条件判定」并返回 success，避免每拍刷日志。
+- 同批带入 build15/16：**现实重置帧关闭 8 层 ID 原版自动购买器**（`maxID1` 是「ID1 达到过的最大量」而非购买记录 ⇒ 只拦购买不够）、EC7 预封锁、以及 `OrekiPelle` 终局驱动（doom / keepAutobuyers 优先升级 / armageddon / 只读 isGameEnd）。
+- 验证状态：build17 跑次 11:00 启动，**AVD 结果待下一轮**（若 IU15 真实买入 → 莱特拉解锁 → tier 驱动）。
+### B.9 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
 - **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
@@ -153,6 +170,8 @@
 | build11 | c75081c8622ee856004a2fb04b6189a463f8a7beb05e7e404eb28a9cf86455f9 | + IU15 购买期预封锁（守卫内直接拦，不等 arm） |
 | build12 | — | + 莱特拉 tier8 DS6 帧竞态处理（canReality 代理 + 压现实等 DS6）+ IU25 购买时序 |
 | build13 | fb6cbfe0f5293f8d8c43e6ceaedb80920f97bfbf13fc20f4549de8e9778bc244 | + IU15 预封锁同时拦 EC7（EC7 奖励会产 ID1，购买拦截不足） |
+| build15/16 | 2e7a8c19ecd83f5e…（build16） | + 现实重置帧关 ID 自动器 + EC7 预封锁 + OrekiPelle 终局驱动 |
+| build17 | 4a6a58bf078af303323f495a53a491067957aad71dffdca314399e730317db6f | + IU 购买入口解析修复（D 形参混淆类型）+ IU_BUY 日志 |
 
 ## E. 技术迁移 / 语义反混淆
 
