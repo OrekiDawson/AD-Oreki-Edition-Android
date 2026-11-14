@@ -313,6 +313,14 @@ object OrekiStageAuto {
             // 放在早退之前：毁灭态下其余自动化全部跳过，必须由本驱动接管。
             OrekiPelle.tick()
 
+            // [R109-01] 现实自动化静默门诊断（只读、30s 限频、不改变任何行为）。
+            // OrekiReality.smali 的第一条 guard 是 prestige/f.f()Z（canReality = DS6 已买 &&
+            // 本现实 maxEP >= 1e4000）；不成立时直接返回且**一行日志都不打**，
+            // 运行期表现就是「OREKI_REALITY / OREKI_REALITY_PACING 零日志、realities 不动」。
+            // 这里把四个只读判据打出来，让「为什么没现实」从静默变成可核对（R42-C 教训：
+            // 把异常/不满足伪装成不满足是最难查的坑）。
+            logRealityGateDiagnosticsIfDue()
+
             // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
             GameApi.settleTimeTheoremReward()
 
@@ -2075,6 +2083,39 @@ object OrekiStageAuto {
      * 「是否允许驱动」，不写任何存档字段、不改收益公式，也不接管玩家手动永恒。
      */
     /** [R107-01] 是否已进入永恒层（曾完成过永恒）。用于区分「首次 Break 前」与「永恒结算后 Break 被重置」。 */
+    @Volatile private var lastRealityGateLogAt: Long = 0L
+    @Volatile private var lastRealityGateSig: String = ""
+
+    /**
+     * [R109-01] 只读诊断：把现实自动化的前置判据每 30s 打一行（签名变化时立即打）。
+     *
+     * 为什么需要：`OrekiReality.smali` 的三条早退（canReality / 2s 防抖 / Teresa isHolding）
+     * 都是静默的，AVD 上只能看到「realities 不动」，无法区分是夹具状态、Teresa 占用还是 ABI。
+     * 本函数只读 `prestige/f.f()`（经 GameApi.canReality）、`c01.a[5].B()`（ds6Bought）、
+     * `records.thisReality.maxEP`、`realities`，不写任何状态、不参与判定。
+     */
+    private fun logRealityGateDiagnosticsIfDue() {
+        try {
+            if (GameApi.isDoomed()) return
+            val now = android.os.SystemClock.elapsedRealtime()
+            val can = GameApi.canReality()
+            val ds6 = GameApi.ds6Bought()
+            val maxEp = GameApi.thisRealityMaxEp()?.toString() ?: "?"
+            val realities = GameApi.realitiesValue()?.toString() ?: "?"
+            val sig = "canReality=" + can + " ds6=" + ds6 + " maxEP=" + maxEp +
+                " realities=" + realities
+            if (sig == lastRealityGateSig && now - lastRealityGateLogAt < 30_000L) return
+            lastRealityGateSig = sig
+            lastRealityGateLogAt = now
+            android.util.Log.i(
+                "OREKI_REALITY_GATE",
+                "canReality=" + can + " （= ds6 && thisReality.maxEP>=1e4000）" +
+                    " ds6=" + ds6 + " maxEP=" + maxEp + " realities=" + realities,
+            )
+        } catch (_: Throwable) {
+        }
+    }
+
     private fun hasReachedEternityLayer(): Boolean {
         val bigE = GameApi.bigEternitiesValue()
         if (bigE is Number && bigE.toDouble() > 0.0) return true

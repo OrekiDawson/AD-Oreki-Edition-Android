@@ -3425,6 +3425,32 @@ internal object GameApi {
         false
     }
 
+    private var mPlayerRecordsL: Method? = null
+    private var mPlayerRecordsLResolved = false
+    private fun mPlayerRecordsL(): Method? {
+        if (!mPlayerRecordsLResolved) {
+            mPlayerRecordsLResolved = true
+            mPlayerRecordsL = method(playerRecordsCls(), "l", 0, "Player.Records.l()=thisReality")
+        }
+        return mPlayerRecordsL
+    }
+
+    /**
+     * 本现实的 `records.thisReality.maxEP`（BigDouble）。
+     *
+     * 用途：`prestige/f.f()Z`（canReality）的第二半就是 `thisReality.j().compareTo(1e4000) >= 0`，
+     * 而 `Player$ThisReality.j()` 方法体是 `iget-object ->maxEP`（不是 maxRM）。
+     * 现实自动化的第一条静默 guard 正是它，这里只读出来做诊断，不参与任何判定。
+     */
+    fun thisRealityMaxEp(): Any? = try {
+        val records = call(mPlayerR(), player()) ?: return null
+        val thisReality = call(mPlayerRecordsL(), records) ?: return null
+        readGameField(thisReality, "maxEP")
+    } catch (e: Throwable) {
+        miss("thisRealityMaxEp", e)
+        null
+    }
+
     /**
      * DS6（膨胀研究 6 / Web `TimeStudy.reality`）是否已在本现实买上。
      *

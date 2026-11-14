@@ -36,6 +36,8 @@ REQUIRED = [
     ("GameApi.kt", "fun bigCrunchReset(): Boolean", "Infinity.i(Cont) 桥"),
     ("GameApi.kt", "fun ds6Bought(): Boolean", "膨胀研究 6 只读判据"),
     ("OrekiStageAuto.kt", "if (GameApi.isDoomed()) return", "doomed 时 applyCrunchPolicy 让路"),
+    ("OrekiStageAuto.kt", "logRealityGateDiagnosticsIfDue", "现实静默门只读诊断"),
+    ("GameApi.kt", "fun thisRealityMaxEp()", "canReality 第二半（thisReality.maxEP）只读桥"),
 ]
 
 # 终局链纪律：这些文件不得出现写存档字段的调用（只允许只读反射与原版入口）
