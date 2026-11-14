@@ -170,7 +170,8 @@ object OrekiIu15Sprint {
      * @return true = 本帧应拒绝启动
      */
     @JvmStatic
-    fun shouldBlockEcStart(ecId: Int): Boolean = try {
+    fun shouldBlockEcStart(ecId: Int): Boolean {
+        return try {
         if (ecId != 7) return false
         if (isActive()) return true
         // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
@@ -185,6 +186,7 @@ object OrekiIu15Sprint {
         isCleanReality()
     } catch (_: Throwable) {
         false
+        }
     }
 
     /**
