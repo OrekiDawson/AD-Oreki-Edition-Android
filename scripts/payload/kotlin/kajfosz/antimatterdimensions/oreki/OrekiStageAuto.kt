@@ -2244,6 +2244,9 @@ object OrekiStageAuto {
                     " justCrunch=" + (crunchSkipFrames > 0) +
                     " lastCrunch=" + lastCrunchAtMs +
                     " modIntervalMs=" + OrekiAutomationScheduler.intervalMs() +
+                    " canReal=" + GameApi.canReality() +
+                    " realResets=" + OrekiRealityPacing.resetCountValue() +
+                    " hold=" + OrekiRealityPacing.holdReasonText() +
                     " auto=" + OrekiAutomationScheduler.isEnabled()
             )
         } catch (_: Throwable) {
