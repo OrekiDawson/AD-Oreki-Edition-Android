@@ -2083,6 +2083,14 @@ object OrekiStageAuto {
      * 「是否允许驱动」，不写任何存档字段、不改收益公式，也不接管玩家手动永恒。
      */
     /** [R107-01] 是否已进入永恒层（曾完成过永恒）。用于区分「首次 Break 前」与「永恒结算后 Break 被重置」。 */
+    private fun hasReachedEternityLayer(): Boolean {
+        val bigE = GameApi.bigEternitiesValue()
+        if (bigE is Number && bigE.toDouble() > 0.0) return true
+        val e = GameApi.eternitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(e, 0.0) ?: return false
+        return cmp > 0
+    }
+
     @Volatile private var lastRealityGateLogAt: Long = 0L
     @Volatile private var lastRealityGateSig: String = ""
 
@@ -2116,13 +2124,6 @@ object OrekiStageAuto {
         }
     }
 
-    private fun hasReachedEternityLayer(): Boolean {
-        val bigE = GameApi.bigEternitiesValue()
-        if (bigE is Number && bigE.toDouble() > 0.0) return true
-        val e = GameApi.eternitiesValue() ?: return false
-        val cmp = GameApi.compareToDouble(e, 0.0) ?: return false
-        return cmp > 0
-    }
 
     private fun eternityGateReason(): String {
         // [R101 P0] 基础判据统一交给 Kotlin 门禁（总开关 / autoEternity 单项开关 /
