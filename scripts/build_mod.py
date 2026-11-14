@@ -7336,6 +7336,121 @@ def patch_dimboost_ad8_slope():
         note("[R100 P0] f82.j() 已替换为 Kotlin 真实阶段判据（trampoline）")
 
 
+
+# ---------------------------------------------------------------------------
+# [R108-01 IM-CAP] 虚幻机器（IM）上限 ×300 —— 与 Web 冻结上游同源移植
+#
+# 事实（Web）：web/AD-Oreki-Edition/src/core/machines.js:25
+#   export const OREKI_IM_CAP_MULT = 300;
+#   baseIMCap = (max(log10(uncappedRM)-1000,0))^2 × (max(log10(uncappedRM)-1e5,1))^0.2 × MULT
+# 事实（Android 3.21）：baseIMCap = Lfh2;->a(LBigDouble;)D，原版无倍率；
+#   AVD 实测 EPexp≈6.42e6 时 iMCap=1.453e7，而 IU13=5e7 / IU14=3.5e8 / IU15=1e9 / IU25=5e9
+#   全部高于上限 ⇒ 依赖原版购买入口的莱特拉/佩勒链结构性不可达（R108-01 阻断 C-02）。
+#
+# 注入：在 fh2.a 的 return-wide v0 之前插入 Kotlin 转发（业务常量与边界在 Kotlin）。
+# 不改触发条件（仍要求 uncappedRM >= 1e1000）、不改 hardcapRM/RM 公式、不写存档字段。
+IM_CAP_APPLY_MARKER = "OrekiImCapScale;->apply(D)D"
+FH2_DESC = "Lfh2;"
+FH2_A_SIG = ".method public static a(Lkajfosz/antimatterdimensions/BigDouble;)D"
+
+
+def patch_im_cap_scale():
+    p = _class_file_by_desc(FH2_DESC, purpose="baseIMCap（IM 上限）")
+    src = p.read_text(encoding="utf-8")
+    if IM_CAP_APPLY_MARKER in src:
+        assert src.count(IM_CAP_APPLY_MARKER) == 1, "OrekiImCapScale 注入点不唯一"
+        note("[Oreki IM-CAP] fh2.a() 已注入上限倍率，跳过")
+        return
+    start = src.find(FH2_A_SIG)
+    assert start >= 0, "找不到 fh2.a(BigDouble)D（baseIMCap 公式），锚点失效"
+    end = src.find(".end method", start)
+    assert end > start, "fh2.a 方法体未闭合"
+    body = src[start:end]
+    assert body.count("mul-double/2addr v0, v2") == 1, "baseIMCap 公式结构漂移（mul-double 不唯一）"
+    assert body.count("return-wide v0") == 1, "baseIMCap 公式结构漂移（return 不唯一）"
+    inject = ("    # [R108-01 IM-CAP] 上限 ×300（Web OREKI_IM_CAP_MULT=300 同源）\n"
+              "    invoke-static {v0, v1}, "
+              "Lkajfosz/antimatterdimensions/oreki/OrekiImCapScale;->apply(D)D\n"
+              "\n"
+              "    move-result-wide v0\n"
+              "\n"
+              "    return-wide v0")
+    new_src = src[:start] + body.replace("    return-wide v0", inject, 1) + src[end:]
+    write_smali(p, new_src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(IM_CAP_APPLY_MARKER) == 1, "IM-CAP 注入写入失败"
+    note("[Oreki IM-CAP] fh2.a() baseIMCap 已接入 OrekiImCapScale.apply（×300）")
+
+
+# ---------------------------------------------------------------------------
+# [R108-01 IU25] 佩勒入口成本 1.6E15 -> 5e9 —— 与 Web 冻结上游同源移植
+#
+# 事实（Web）：web/AD-Oreki-Edition/src/core/secret-formula/reality/imaginary-upgrades.js
+#   export const OREKI_IU25_COST = 5e9;
+# 事实（Android 3.21）：IU25 = reality/imaginary_upgrades/b;->s（Li02, id=14），
+#   成本常量 1.6E15 在 b.smali 内唯一；iMCap 补丁后上限 ~4.4e9 < 1.6e15 ⇒ 永远买不到。
+# 只改数据常量（真实购买流程 / 扣费 / onPurchased 一行不动）。
+IU25_COST_OLD = "0x4316bcc41e900000L"   # 1.6E15
+IU25_COST_NEW = "0x41f2a05f20000000L"   # 5.0E9
+
+
+def patch_iu25_cost():
+    p = _class_file_by_desc("Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;",
+                            purpose="IU25 成本")
+    src = p.read_text(encoding="utf-8")
+    if IU25_COST_NEW in src:
+        assert src.count(IU25_COST_NEW) == 1, "IU25 新成本常量不唯一"
+        assert IU25_COST_OLD.lower() not in src.lower(), "IU25 旧成本常量仍有残留"
+        note("[Oreki IU25] 成本已是 5e9，跳过")
+        return
+    assert src.count(IU25_COST_OLD) == 1, (
+        "IU25 成本常量不唯一或已消失（原版可能改动过）")
+    src = src.replace(IU25_COST_OLD, IU25_COST_NEW, 1)
+    write_smali(p, src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(IU25_COST_NEW) == 1 and IU25_COST_OLD.lower() not in after.lower()
+    assert "Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;->s:Li02;" in after
+    note("[Oreki IU25] 佩勒入口成本 1.6E15 -> 5e9（与 Web OREKI_IU25_COST 同值）")
+
+
+
+
+# ---------------------------------------------------------------------------
+# [R108-01 LAI-ENTROPY] 莱特拉熵产量分母 1e11 -> 2e7 —— 与 Web 冻结上游同源移植
+#
+# 事实（Web）：web/AD-Oreki-Edition/src/core/celestials/laitela/laitela.js:30
+#   export const OREKI_LAITELA_ENTROPY_DIVISOR = 2e7;
+#   原版 entropyGainPerSecond = clamp((log10(AM)/1e11)^2, 0, 100)/200。
+#   tier 只在「一次 run 内 entropy 满 1 且本现实真实秒数 < 30」时 +1，所以分母决定可行性：
+#   原版 1e11 在 AMexp≈8.8e9 时只有 3.87e-5/s（填满需 25,800 s）⇒ tier0→8 结构性不可达；
+#   2e7 在 AMexp≈1.15e8 时 0.165/s（~6 s 填满），Web 实测 tier 3→8 用 109.8 s。
+# 事实（Android 3.21）：a.smali:3684 唯一 const-wide 0x42374876e8000000L(1.0E11)，
+#   紧跟 div-double/2addr 进 Math.pow(.,2.0) —— 结构锚点唯一。
+# 只改这一条立即数；tier 推进条件、30s 窗口、run 清理逻辑一行不动。
+LAI_ENTROPY_DIV_OLD = "0x42374876e8000000L"   # 1.0E11
+LAI_ENTROPY_DIV_NEW = "0x417312d000000000L"   # 2.0E7
+
+
+def patch_laitela_entropy_divisor():
+    p = _class_file_by_desc("Lkajfosz/antimatterdimensions/a;", purpose="Game gameTick 内莱特拉熵公式")
+    src = p.read_text(encoding="utf-8")
+    if LAI_ENTROPY_DIV_NEW in src:
+        assert src.count(LAI_ENTROPY_DIV_NEW) == 1, "莱特拉熵除数新值不唯一"
+        assert LAI_ENTROPY_DIV_OLD.lower() not in src.lower(), "莱特拉熵除数旧值仍有残留"
+        note("[Oreki LAI-ENTROPY] 除数已是 2e7，跳过")
+        return
+    assert src.count(LAI_ENTROPY_DIV_OLD) == 1, (
+        "莱特拉熵除数常量不唯一或已消失（原版可能改动过）")
+    anchor = LAI_ENTROPY_DIV_OLD + "    # 1.0E11"
+    assert src.count(anchor) == 1, "莱特拉熵除数锚点（含注释）不唯一，结构可能漂移"
+    src = src.replace(anchor, LAI_ENTROPY_DIV_NEW + "    # 2.0E7", 1)
+    write_smali(p, src, encoding="utf-8")
+    after = p.read_text(encoding="utf-8")
+    assert after.count(LAI_ENTROPY_DIV_NEW) == 1
+    assert LAI_ENTROPY_DIV_OLD.lower() not in after.lower()
+    note("[Oreki LAI-ENTROPY] 熵产量分母 1.0E11 -> 2.0E7（与 Web OREKI_LAITELA_ENTROPY_DIVISOR 同值）")
+
+
 def main():
     prepare()
     merge_split()
@@ -7441,6 +7556,14 @@ def main():
     # 语义：endState >= 1 <=> 反物质指数 >= TARGET。只改两条 const-wide 的立即数，
     # 置位点（Player.I0 = setIsGameEnd）与 gameLoop 一行不动。
     patch_pelle_end_target()
+    # [R108-01 C-02] 双端等价的终局数值链：
+    #   ① IM 上限 ×300（Web OREKI_IM_CAP_MULT=300）——否则 IU13/14/15/25 永远买不到；
+    #   ② IU25（佩勒唯一入口）成本 1.6E15 -> 5e9（Web OREKI_IU25_COST）。
+    # 两处都只改数据/插一个 Kotlin 转发，购买入口与扣费流程原样；幂等 + 断言。
+    patch_im_cap_scale()
+    patch_iu25_cost()
+    #  ③ 莱特拉熵分母 1e11 -> 2e7（Web OREKI_LAITELA_ENTROPY_DIVISOR）——否则 tier0→8 不可达。
+    patch_laitela_entropy_divisor()
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），

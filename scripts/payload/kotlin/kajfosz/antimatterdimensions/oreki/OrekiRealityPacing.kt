@@ -221,6 +221,19 @@ object OrekiRealityPacing {
 
     @JvmStatic
     fun isHeld(): Boolean = holdReason != null
+    /**
+     * [R108-01 证据] 只读导出当前 RM 与本次可得 RM，供 RU 自动购买/日志取证。
+     * 读不到时返回 "?"，绝不写任何状态。
+     */
+    @JvmStatic
+    fun rmDebug(): String {
+        return try {
+            "have=" + (currentRealityMachines()?.toString() ?: "?") +
+                " gain=" + (gainedRealityMachines()?.toString() ?: "?")
+        } catch (t: Throwable) {
+            "?"
+        }
+    }
 
     /** 每次真实重置成功后由 OrekiReality.smali 调用，重置计时。 */
     @JvmStatic

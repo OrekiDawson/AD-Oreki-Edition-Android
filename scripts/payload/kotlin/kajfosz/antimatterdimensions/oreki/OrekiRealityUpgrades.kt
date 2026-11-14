@@ -37,7 +37,11 @@ object OrekiRealityUpgrades {
     private const val TAG = "OREKI_RU_AUTO"
     private const val REGISTRY = "kajfosz.antimatterdimensions.reality.upgrades.b"
     private const val BASE_ONE_TIME = "kajfosz.antimatterdimensions.reality.upgrades.a"
-    private const val REBUYABLE = "kajfosz.antimatterdimensions.reality.upgrades.yw3"
+    // [R108-01 修复] 可重复 RU1~5 的运行时类在**默认包**：registry b 的 b..f 字段类型是 Lyw3;，
+    // 证据 work/base_decoded_321/smali_classes2/yw3.smali 首行 ".class public final Lyw3;"（super Luw3;）。
+    // R107-01 误写成 "kajfosz.antimatterdimensions.reality.upgrades.yw3" → ClassNotFoundException
+    // → resolve() 永久失败，RU 自动购买整条不生效（AVD 2026-11-14 08:26 OREKI_RU_AUTO 日志实测）。
+    private const val REBUYABLE = "yw3"
     private const val BIG_DOUBLE = "kajfosz.antimatterdimensions.BigDouble"
 
     private const val REBUYABLE_SAFE_MAX = 100
@@ -342,7 +346,10 @@ object OrekiRealityUpgrades {
             if (!resolve()) return false
             tickNo++
 
+            // [R108-01 证据] 购买前后 RM 快照：证明「真实 RM 扣费」，不是伪造位图。
+            val rmBefore = OrekiRealityPacing.rmDebug()
             var bought = false
+            var oneTimeBought = 0
             // 1) RU1~5：循环 until 买不起/买不动，安全上限防失控
             var idx = 0
             while (idx < rebuyables.size) {
@@ -377,6 +384,7 @@ object OrekiRealityUpgrades {
                 if (purchase(ordered[i])) {
                     bought = true
                     boughtTotal++
+                    oneTimeBought++
                     break
                 }
                 i++
@@ -384,7 +392,9 @@ object OrekiRealityUpgrades {
 
             if (bought) {
                 logThrottled("buy ok total=" + boughtTotal + " tick=" + tickNo +
-                    " rebuy=" + rebuyables.size + " oneTime=" + oneTimes.size)
+                    " rebuy=" + rebuyables.size + " oneTime=" + oneTimes.size +
+                    " oneTimeBought=" + oneTimeBought +
+                    " rmBefore=" + rmBefore + " rmAfter=" + OrekiRealityPacing.rmDebug())
             }
             bought
         } catch (t: Throwable) {

@@ -829,7 +829,8 @@ object OrekiEcAutomation {
 
         /** 原版 respecTimeStudies：`kajfosz/antimatterdimensions/eternity/studies/d;->c(Z)V`。
          * 参数只控制是否弹「时间研究」页（这里传 false）；退研究/清 Tree/unlocked=0 都由原版完成。 */
-        fun respecTimeStudies(): Boolean? = try {
+        fun respecTimeStudies(): Boolean? {
+            return try {
             val c = cls("kajfosz.antimatterdimensions.eternity.studies.d") ?: return null
             var m: java.lang.reflect.Method? = null
             for (x in c.declaredMethods) {
@@ -849,9 +850,10 @@ object OrekiEcAutomation {
             }
             m.invoke(null, false)
             true
-        } catch (t: Throwable) {
-            Log.i(TAG, "respecTimeStudies failed: " + t)
-            null
+            } catch (t: Throwable) {
+                Log.i(TAG, "respecTimeStudies failed: " + t)
+                null
+            }
         }
 
         // ------------------------------------------------ [R107-01 EC4-DIAG] 只读诊断

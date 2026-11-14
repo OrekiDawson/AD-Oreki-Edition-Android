@@ -401,6 +401,14 @@ object OrekiStageAuto {
                     if (OrekiAutomationScheduler.isEnabled() && GameApi.strategyDrives("teresa")) {
                         GameApi.teresaTick()
                     }
+
+                    // [R108-01 LAI-25] 莱特拉（Lai'tela）tier 驱动 + IU25（佩勒入口）真实购买。
+                    // 最小终局链（与 Web 冻结上游 R37-A 一致）：IM → IU15 → 莱特拉 tier 0→8 → IU25 → 佩勒。
+                    // 纯 Kotlin 业务，只调原版 initializeRun / 原版升级购买 / 原版卸符文；
+                    // 内部 500ms 节流并受自动化总开关约束（关闭后立即停手，压现实也会释放）。
+                    if (OrekiAutomationScheduler.isEnabled()) {
+                        OrekiLaitela.tick()
+                    }
                 } else {
                     // [R97] Break 前门禁诊断：限频记录「未完成 Break，永恒被拒绝」，
                     // 使「未 Break 不会永恒」有可核对证据（不靠按钮或字段推断）。
