@@ -108,12 +108,35 @@ object OrekiPelle {
         null
     }
 
+    /**
+     * [R109-01 P0] 静态方法解析。
+     *
+     * 旧实现写成 methodOf(c, ...)，而 methodOf 以 target.javaClass 为起点 —— 传进去的是
+     * Class 对象，于是它去 java.lang.Class 上找 q()/j()/m()/n()，永远找不到并返回 null：
+     * 结果 isDoomed/canArmageddon/remnants/remnantsGain 全部恒为 false/0。
+     * 真机证据（14:10）：存档 doomed=true，日志却每 30s 打 "Pelle unlocked, doom ok=false"，
+     * 末日驱动整段未运行。这里改为直接在目标 Class 及其父类链上找静态方法。
+     */
     private fun staticCall(className: String, name: String, paramCount: Int, vararg args: Any?): Any? = try {
         val c = cls(className) ?: return null
-        val m = methodOf(c, name, paramCount) ?: return null
+        val m = staticMethodOf(c, name, paramCount) ?: return null
         m.invoke(null, *args)
     } catch (t: Throwable) {
         null
+    }
+
+    private fun staticMethodOf(c: Class<*>?, name: String, paramCount: Int): Method? {
+        var k = c
+        while (k != null) {
+            for (m in k.declaredMethods) {
+                if (m.name == name && m.parameterCount == paramCount) {
+                    try { m.isAccessible = true } catch (_: Throwable) {}
+                    return m
+                }
+            }
+            k = k.superclass
+        }
+        return null
     }
 
     private fun pelle(): Any? = staticField(PELLE_CLASS, "h")

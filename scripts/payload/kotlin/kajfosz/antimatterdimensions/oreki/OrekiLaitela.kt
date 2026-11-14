@@ -68,8 +68,15 @@ object OrekiLaitela {
      * maxAllowedDimension==0 永久不成立（Web R45·4 同一条证据链）。
      */
     private const val IU25_RUN_MAX_MS = 2_000L
-    /** tier 8 且「IM 已够、只差 DS6」时压现实的上限（Web IU25_HOLD_MAX_MS=240000）。 */
-    private const val IU25_HOLD_MAX_MS = 240_000L
+    /**
+     * tier 8 且「IM 已够、只差 DS6」时压现实的上限。
+     *
+     * Web 取 240000；Android 每次现实后 EC1-12 完成位会被原版清空，模组重打一遍
+     * 实测需 5–6 分钟才能买回 DS6 ⇒ 240s 会在 DS6 到手前到期，现实随即把 DS6 清掉，
+     * IU25 永远买不到（13:47 真机日志 held=false + EC 全 0）。这里放宽到 600s，
+     * 语义不变：仍是有界压现实，到期无条件放手，不会永久死锁。
+     */
+    private const val IU25_HOLD_MAX_MS = 600_000L
     /** Web OREKI_IU25_COST 兜底值：读不到原版成本 is3.x() 时使用（build_mod 已把成本改为 5e9）。 */
     private const val IU25_COST_FALLBACK = 5.0e9
     /** 同一情况下日志限频。 */
@@ -184,9 +191,23 @@ object OrekiLaitela {
         val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return 0.0
         val player = playerCls.getField("a").get(null) ?: return 0.0
         val reality = call(player, "Q", 0) ?: return 0.0
-        val f: Field = reality.javaClass.getField("imaginaryMachines")
-        f.isAccessible = true
-        (f.get(reality) as? Double) ?: 0.0
+        // [R109-01 P0] 3.21 的 Player$Reality.imaginaryMachines 是 **private** Double，
+        // 旧实现用 getField()（只找 public）必然抛 NoSuchFieldException 被吞成 0.0，
+        // 真机表现为 tier8 时日志恒 "IU25 wait im=0.0"（实际 IM=7.2e24）⇒ 不压现实
+        // ⇒ DS6 刚买到就被现实清掉，IU25 永远买不到。改用公开 getter h()D。
+        val viaGetter = call(reality, "h", 0) as? Double
+        if (viaGetter != null) return viaGetter
+        var c: Class<*>? = reality.javaClass
+        while (c != null) {
+            try {
+                val fd = c.getDeclaredField("imaginaryMachines")
+                fd.isAccessible = true
+                return (fd.get(reality) as? Double) ?: 0.0
+            } catch (_: NoSuchFieldException) {
+                c = c.superclass
+            }
+        }
+        0.0
     } catch (t: Throwable) {
         0.0
     }

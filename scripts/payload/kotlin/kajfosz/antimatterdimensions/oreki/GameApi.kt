@@ -3434,15 +3434,29 @@ internal object GameApi {
      * 这里只取前半（DS6 本身），因为 IU25 的 checkRequirement 只要求 DS6，不要求 maxEP。
      */
     fun ds6Bought(): Boolean = try {
-        val studiesCls = cls("c01") ?: return false
-        val studies = studiesCls.getField("a").get(null)
-        if (studies !is Array<*> || studies.size < 6) return false
-        val study = studies[5] ?: return false
-        val m = method(cls("na4"), "B", 0, "DilationStudy.B()=isBought") ?: return false
+        // [R109-01 P0] 真机根因（OREKI_API_MISS: missing ds6Bought: NullPointerException）：
+        // GameApi.cls() 会走 OrekiBaselineBindings 的 3.19→3.2x 改名表，"c01" 被改写成 "l01"；
+        // l01 是另一个真实类，其 a(I) 是实例方法 ⇒ invoke(null, 9) 抛 NPE ⇒ ds6 恒 false。
+        // 膨胀研究注册表在本基线里就是默认包 c01（prestige/f.f() 直接引用 Lc01;），
+        // 因此这里必须绕过改名表用原始类名加载。
+        // 判定链与 OrekiRealityPacing.dilationStudy1Bought 同源：c01.a(I)（I = 数组下标 + 4）
+        // 取对象，再 na4.B()（isBought）。c01.a(4)=DS1 已在生产跑次验证，故 DS6 = c01.a(9)。
+        val c01 = rawCls("c01") ?: return false
+        val factory = method(c01, "a", 1, "c01.a(I)=dilationStudy") ?: return false
+        val study = factory.invoke(null, 9) ?: return false
+        val m = method(rawCls("na4"), "B", 0, "DilationStudy.B()=isBought") ?: return false
         (m.invoke(study) as? Boolean) ?: false
     } catch (e: Throwable) {
         miss("ds6Bought", e)
         false
+    }
+
+    /** 绕过 OrekiBaselineBindings 改名表的原始类加载（仅用于已逐指令确认、且在本基线未被改名的类）。 */
+    private fun rawCls(name: String): Class<*>? = try {
+        Class.forName(name, false, GameApi::class.java.classLoader)
+    } catch (e: Throwable) {
+        miss("rawClass $name", e)
+        null
     }
 
     // ---------------------------------------------------------------- 调用工具
