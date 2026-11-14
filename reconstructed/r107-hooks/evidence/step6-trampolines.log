@@ -1,0 +1,15 @@
+PASS BM-11  商店 STD 读取下限  -> Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;.clampStds
+PASS BM-23  终局 endState 归一化  -> Lkajfosz/antimatterdimensions/oreki/OrekiGameEndRules;.endState
+PASS BM-12  Effarig nerfFactor 全公式  -> Lkajfosz/antimatterdimensions/oreki/OrekiEffarigRules;.nerfFactor
+PASS BM-13  Effarig 碎片指数除数  -> Lkajfosz/antimatterdimensions/oreki/OrekiEffarigRules;.shardExponentDivisor
+PASS BM-40  维度提升 AD8 斜率  -> Lkajfosz/antimatterdimensions/oreki/OrekiDimBoostRules;.ad8Rounds
+PASS BM-32  大坍缩自动器一次性启用  -> Lkajfosz/antimatterdimensions/oreki/OrekiCrunchRules;.shouldAutoEnable
+PASS BM-37  维度批量购买回退  -> Lkajfosz/antimatterdimensions/oreki/OrekiDimensionRules;.batchFallbackToSingle
+PASS DK-03  Appearance isDark 恒真  -> Lkajfosz/antimatterdimensions/oreki/OrekiThemePolicy;.isDark
+PASS DK-08  新档默认记数法  -> Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;.defaultNotation
+PASS DK-09  重开新档默认记数法  -> Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;.defaultNotation
+PASS BM-22 smali_classes2/a02.smali  -> Lkajfosz/antimatterdimensions/oreki/OrekiIu15Rules;.requirementAmExp
+PASS BM-22 smali_classes2/fw.smali  -> Lkajfosz/antimatterdimensions/oreki/OrekiIu15Rules;.requirementAmExp
+PASS BM-22 smali_classes2/x40.smali  -> Lkajfosz/antimatterdimensions/oreki/OrekiIu15Rules;.requirementAmExp
+证据已写入 /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reconstructed/r107-hooks/patches/hooks-patches.json
+TRAMPOLINE VERIFY: 13 个补丁全部汇编 + dexdump 通过

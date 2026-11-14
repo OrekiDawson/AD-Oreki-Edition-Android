@@ -1,0 +1,83 @@
+{
+  "evidence_dir": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R107-01/lead-evidence/epscale-android",
+  "logcat_lines": 21157,
+  "milestones": {
+    "first_infinity": {
+      "time": "11-14 02:00:23.826",
+      "line": "11-14 02:00:23.826 I/OREKI_GUI_STAGE(18676): GUI_GATE_CHANGED from=before-first-infinity to=infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0"
+    },
+    "break": {
+      "time": "11-14 02:03:44.167",
+      "line": "11-14 02:03:44.167 I/OREKI_BRKTRACE2(18676): x0-after brake=1"
+    },
+    "first_eternity": {
+      "time": "11-14 02:04:32.700",
+      "line": "11-14 02:04:32.700 I/OREKI_ET(18676): settled prove=ep/bigE ep=0.0e0->3.2353113e7 bigE=0->1 eternitiesField=1.0e0 autoSwitch=false autoCanRun=false pending=1 latch=false halt=false ec=0/0 t=12505326"
+    },
+    "second_eternity": {
+      "time": null,
+      "line": null
+    },
+    "reality": {
+      "time": null,
+      "line": null
+    }
+  },
+  "ep_samples": [
+    [
+      "2026-11-14 02:09:17",
+      7.51
+    ],
+    [
+      "2026-11-14 02:14:18",
+      7.51
+    ],
+    [
+      "2026-11-14 02:19:18",
+      7.51
+    ]
+  ],
+  "ep_latest": {
+    "wall": "2026-11-14 02:19:18",
+    "log10": 7.51
+  },
+  "freeze_detected": {
+    "window": [
+      [
+        "2026-11-14 02:09:17",
+        7.51
+      ],
+      [
+        "2026-11-14 02:14:18",
+        7.51
+      ],
+      [
+        "2026-11-14 02:19:18",
+        7.51
+      ]
+    ],
+    "delta": 0.0
+  },
+  "scale_lines": [
+    "11-14 01:58:10.648 I/OREKI_IPSCALE(18676): IP_DIVISOR bootstrap original=308.0 effective=30.0",
+    "11-14 01:58:10.648 I/OREKI_EPSCALE(18676): EP_DIVISOR bootstrap original=308.0 effective=30.0"
+  ],
+  "settle_lines": [
+    "11-14 02:04:32.700 I/OREKI_ET(18676): settled prove=ep/bigE ep=0.0e0->3.2353113e7 bigE=0->1 eternitiesField=1.0e0 autoSwitch=false autoCanRun=false pending=1 latch=false halt=false ec=0/0 t=12505326"
+  ],
+  "gate_lines_tail": [
+    "11-14 02:19:08.365 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384",
+    "11-14 02:19:13.371 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384",
+    "11-14 02:19:18.380 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384",
+    "11-14 02:19:23.400 I/OREKI_ET_GATE(18676): allow=false reason=cannot-eternity broken=true canEt=false ep=3.2353113e7 gain=1.3e1 bigE=1 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=1 latch=false halt=false lastCrunch=13114384"
+  ],
+  "automation_lines_tail": [
+    "11-14 02:19:12.881 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity",
+    "11-14 02:19:12.881 I/OREKI_SCHED(18676): act bulk @13385506ms gap=10019 taskGap=10019",
+    "11-14 02:19:22.896 I/OREKI_SCHED(18676): gui-tick #128 gapMs=10000",
+    "11-14 02:19:22.899 I/OREKI_SCHED(18676): noop ec",
+    "11-14 02:19:22.899 I/OREKI_SCHED(18676): deny noop-retry-wait task=eternity",
+    "11-14 02:19:22.900 I/OREKI_SCHED(18676): act bulk @13395525ms gap=10019 taskGap=10019"
+  ],
+  "samples": 5
+}

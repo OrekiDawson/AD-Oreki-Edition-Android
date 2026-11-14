@@ -1,0 +1,115 @@
+{
+ "classes_total": 1242,
+ "classes_named": 1139,
+ "classes_named_by_confidence": {
+  "strong": 78,
+  "confirmed": 1061
+ },
+ "classes_role_only": 97,
+ "classes_unknown": 6,
+ "classes_unknown_list": [
+  "Lkajfosz/antimatterdimensions/ui/celestials/navigation/c;",
+  "Lkajfosz/antimatterdimensions/ui/skins/c;",
+  "Lkajfosz/antimatterdimensions/ui/skins/e;",
+  "Lkajfosz/antimatterdimensions/ui/skins/f;",
+  "Lkajfosz/antimatterdimensions/ui/statistics/speedrun/b;",
+  "Lkajfosz/antimatterdimensions/ui/statistics/speedrun/c;"
+ ],
+ "methods_total": 7439,
+ "methods_mapped": 5071,
+ "methods_mapped_by_confidence": {
+  "confirmed": 4029,
+  "strong": 1036,
+  "inferred": 6
+ },
+ "fields_total": 6563,
+ "fields_mapped": 3313,
+ "fields_mapped_by_confidence": {
+  "confirmed": 3212,
+  "strong": 101
+ },
+ "self_check": "PASS",
+ "checks": [
+  {
+   "check": "classes_1242",
+   "status": "PASS",
+   "detail": "classes=1242"
+  },
+  {
+   "check": "descriptors_unique",
+   "status": "PASS",
+   "detail": "unique descriptors"
+  },
+  {
+   "check": "descriptors_match_index",
+   "status": "PASS",
+   "detail": "descriptor set == first-party index kajfosz"
+  },
+  {
+   "check": "class_def_index_unique",
+   "status": "PASS",
+   "detail": "class_def_index unique"
+  },
+  {
+   "check": "methods_total",
+   "status": "PASS",
+   "detail": "sum method_count=7439"
+  },
+  {
+   "check": "fields_total",
+   "status": "PASS",
+   "detail": "sum field_count=6563"
+  },
+  {
+   "check": "schema_fields",
+   "status": "PASS",
+   "detail": "缺失字段 0"
+  },
+  {
+   "check": "confidence_vocab",
+   "status": "PASS",
+   "detail": "非法置信度 0"
+  },
+  {
+   "check": "named_has_evidence",
+   "status": "PASS",
+   "detail": "命名类无证据 0"
+  },
+  {
+   "check": "mapped_method_has_evidence",
+   "status": "PASS",
+   "detail": "映射方法无证据 0"
+  },
+  {
+   "check": "mapped_field_has_evidence",
+   "status": "PASS",
+   "detail": "映射字段无证据 0"
+  },
+  {
+   "check": "mapped_methods_exist_in_smali",
+   "status": "PASS",
+   "detail": "映射方法在 smali 不存在 0"
+  },
+  {
+   "check": "mapped_fields_exist_in_smali",
+   "status": "PASS",
+   "detail": "映射字段在 smali 不存在 0"
+  },
+  {
+   "check": "named_plus_role_plus_unknown",
+   "status": "PASS",
+   "detail": "named 1139 + role-only 97 + unknown 6"
+  },
+  {
+   "check": "csv_header",
+   "status": "PASS",
+   "detail": "header == 默认包 schema"
+  },
+  {
+   "check": "csv_rows",
+   "status": "PASS",
+   "detail": "data rows=1242"
+  }
+ ],
+ "problems": []
+}

@@ -1,0 +1,36 @@
+# APK: agp/app/build/outputs/apk/release/app-release.apk
+# date: 2026-11-13T20:46:42+08:00
+
+## sha256
+87f5454e9234563ff92f1e05af35194be78a9d2a48c1077ec56a363f9055831b  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk
+
+## size
+66093389 bytes
+
+## badging
+package: name='com.oreki.antimatterdimensions' versionCode='30210000' versionName='3.21.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+sdkVersion:'32'
+targetSdkVersion:'37'
+
+## entries
+ 72167341                     1625 files
+classes dex:
+  2902308  1981-01-01 01:01   classes.dex
+resources.arsc:
+ 15120776  1981-01-01 01:01   resources.arsc
+res entries: 1581
+assets entries: 23
+native libs: 8
+
+## signer
+Signer #1 certificate DN: CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN
+Signer #1 certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+
+## dex classes
+1143
+game classes (App/MainActivity) present:
+0
+androidx classes present:
+0
+Oreki MOD classes present:
+30

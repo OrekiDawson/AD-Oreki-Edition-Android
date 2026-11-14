@@ -1,0 +1,20 @@
+--- a/build.gradle
++++ b/build.gradle
+@@ -541,7 +541,7 @@
+     if (src.count(gAnchor) != 1) throw new GradleException('R101 P0 bm4.g() 锚点不唯一')
+     def gInject = gAnchor +
+         "    # [R101P0_TAB_GATE] 页签业务门槛交给 Kotlin\n" +
+-        "    iget-object v0, p0, Lbm4;->i:Ljava/lang/String;\n" +
++        "    iget-object v0, p0, Luo4;->b:Ljava/lang/String;\n" +
+         "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
+         "    move-result v0\n" +
+         "    if-eqz v0, :oreki_r101_tab_locked\n" +
+@@ -556,7 +556,7 @@
+     if (src.count(hAnchor) != 1) throw new GradleException('R101 P0 bm4.h() 锚点不唯一')
+     def hInject = ".method public final h(Z)V\n    .locals 1\n\n" +
+         "    # [R101P0_TAB_GATE] 禁止非法页签程序选择\n" +
+-        "    iget-object v0, p0, Lbm4;->i:Ljava/lang/String;\n" +
++        "    iget-object v0, p0, Luo4;->b:Ljava/lang/String;\n" +
+         "    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z\n" +
+         "    move-result v0\n" +
+         "    if-eqz v0, :oreki_r101_tab_select_locked\n" +

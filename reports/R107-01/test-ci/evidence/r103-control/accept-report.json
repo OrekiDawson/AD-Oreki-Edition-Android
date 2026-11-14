@@ -1,0 +1,669 @@
+{
+  "schema": 1,
+  "label": "R103 stable candidate control",
+  "generated_at": "2026-11-13T22:49:29+08:00",
+  "tool": "scripts/tests/r107/accept_apk.py",
+  "verdict": "FAIL",
+  "required_failed": [
+    "resource-id-parity"
+  ],
+  "advisory_failed": [
+    "dex-count-matches-official",
+    "dex-version-matches-official",
+    "cross-dex-duplicates",
+    "java-safe-descriptors"
+  ],
+  "not_run": [
+    "reference-package",
+    "reference-permissions",
+    "reference-components",
+    "reference-assets",
+    "reference-native-libs",
+    "reference-dex-count",
+    "reference-class-total",
+    "reference-native-libs-bytes"
+  ],
+  "apk": {
+    "path": "/home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk",
+    "sha256": "380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965",
+    "bytes": 84605099
+  },
+  "official": {
+    "path": "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk",
+    "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac",
+    "bytes": 77633785,
+    "classes": 15319,
+    "dex": [
+      "classes.dex",
+      "classes2.dex"
+    ],
+    "xapk": {
+      "path": "/home/oreki/Antimatter+Dimensions_3.21.0_APKPure.xapk",
+      "sha256": "ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a"
+    },
+    "expected_libs_source": "XAPK Antimatter+Dimensions_3.21.0_APKPure.xapk 内全部 APK 的 lib/**",
+    "expected_libs": {
+      "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+      "lib/armeabi-v7a/libdatastore_shared_counter.so": "716c5d8d2cac8ca0edf65da8f139c7886b726ac79d542a14edeb94994ba6d3dc"
+    }
+  },
+  "reference": null,
+  "expected": {
+    "package": "com.oreki.antimatterdimensions",
+    "versionName": "3.21.0",
+    "versionCode": "30210000",
+    "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+    "sha256": null,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ]
+  },
+  "tools": {
+    "aapt2": "/home/oreki/Android/Sdk/build-tools/37.0.0/aapt2",
+    "apksigner": "/home/oreki/Android/Sdk/build-tools/37.0.0/apksigner",
+    "zipalign": "/home/oreki/Android/Sdk/build-tools/37.0.0/zipalign",
+    "dir": "/home/oreki/Android/Sdk/build-tools/37.0.0"
+  },
+  "inputs": {
+    "csv": {
+      "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/first-party-3.21-index.csv",
+      "sha256": "87bda35ecb11d32fd23b0abb097630ab25ae96fd9cd0e13ac5a4e4cb31b05dc9",
+      "rows": 15319,
+      "first_party": 10954
+    }
+  },
+  "checks": [
+    {
+      "id": "apk-present",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "文件存在且非空",
+      "actual": "84605099 bytes",
+      "evidence": "/home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk"
+    },
+    {
+      "id": "apk-sha256",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "任意 64 位小写 hex",
+      "actual": "380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965",
+      "evidence": "sha256sum 复算；--expect-sha256 为固定验收时按给定值比对"
+    },
+    {
+      "id": "package-name",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "com.oreki.antimatterdimensions",
+      "actual": "com.oreki.antimatterdimensions",
+      "evidence": "aapt2 dump badging 的 package: name"
+    },
+    {
+      "id": "version-code",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "30210000",
+      "actual": "30210000",
+      "evidence": "aapt2 dump badging；同时与官方 APK 对照：30210000"
+    },
+    {
+      "id": "version-name",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "3.21.0",
+      "actual": "3.21.0",
+      "evidence": "aapt2 dump badging；同时与官方 APK 对照：3.21.0"
+    },
+    {
+      "id": "sdk-levels",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "minSdk=None targetSdk=37（与官方一致）",
+      "actual": "minSdk=None targetSdk=37",
+      "evidence": "aapt2 dump badging，官方 APK 为基线"
+    },
+    {
+      "id": "signature-verifies",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "apksigner verify 通过",
+      "actual": true,
+      "evidence": "apksigner verify --verbose；exit=0"
+    },
+    {
+      "id": "signature-cert",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+      "actual": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+      "evidence": "apksigner --print-certs 的 certificate SHA-256（与既有稳定版签名身份一致）"
+    },
+    {
+      "id": "signature-scheme",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "1 个签名者且启用 v2 或 v3",
+      "actual": "signers=1 schemes={\"v1\": false, \"v2\": false, \"v3\": true, \"v3.1\": false, \"v4\": false}",
+      "evidence": "apksigner verify --verbose"
+    },
+    {
+      "id": "dex-present",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "至少 1 个 classes*.dex，DEX magic 有效（版本 035-039）",
+      "actual": "4 个 dex，versions={\"classes.dex\": \"039\", \"classes2.dex\": \"039\", \"classes3.dex\": \"039\", \"classes4.dex\": \"039\"}",
+      "evidence": "zip 条目 + DEX 头部解析；官方版本={\"classes.dex\": \"037\", \"classes2.dex\": \"037\"}"
+    },
+    {
+      "id": "class-total",
+      "tier": "required",
+      "state": "PASS",
+      "expected": ">= 官方 15319 类",
+      "actual": "16409 类（逐 dex 原始和 16475）",
+      "evidence": "脚本解析 DEX class_defs 去重计数；MOD 新增类不要求等于官方"
+    },
+    {
+      "id": "first-party-coverage",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "10954/10954 第一方类存在",
+      "actual": "10954/10954（缺失 0）",
+      "evidence": "基准 CSV /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/first-party-3.21-index.csv sha256=87bda35ecb11d32f…",
+      "details": {
+        "official_classes": 15319,
+        "target_classes": 16409,
+        "official_present_exact": 15319,
+        "official_missing_exact": 0,
+        "official_missing_after_rename": 0,
+        "official_missing_kotlin_stdlib": [],
+        "official_missing_other": [],
+        "csv_classes": 15319,
+        "csv_first_party": 10954,
+        "csv_first_party_hit": 10954,
+        "csv_first_party_missing": [],
+        "csv_first_party_missing_after_rename": [],
+        "target_extra_classes": 1090,
+        "target_extra_first_party_by_rule": 70,
+        "target_extra_sample": [
+          "Lcom/android/tools/r8/annotations/LambdaMethod;",
+          "Lkajfosz/antimatterdimensions/OrekiAuto;",
+          "Lkajfosz/antimatterdimensions/OrekiChallengeAuto;",
+          "Lkajfosz/antimatterdimensions/OrekiEcContinuation;",
+          "Lkajfosz/antimatterdimensions/OrekiInstantChallenge;",
+          "Lkajfosz/antimatterdimensions/OrekiSpeed;",
+          "Lkajfosz/antimatterdimensions/OrekiTrace;",
+          "Lkajfosz/antimatterdimensions/oreki/GameApi$0;",
+          "Lkajfosz/antimatterdimensions/oreki/GameApi;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutobuyerBeat;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener$Companion;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiBaselineBindings;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$Decision;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$LockedDimension;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy;"
+        ]
+      }
+    },
+    {
+      "id": "official-class-coverage",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "官方类全部存在（DEX 改名映射后仅允许 Lkotlin/** 由 AGP stdlib 替代）",
+      "actual": "官方 15319 类，精确命中 15319，改名后仍缺 0（其中 kotlin stdlib 0，其他 0）",
+      "evidence": "官方 APK DEX 描述符集合为分母；'-' 与 '_' 视为同一类（dex2jar 对非法标识符的改名）",
+      "details": {
+        "official_classes": 15319,
+        "target_classes": 16409,
+        "official_present_exact": 15319,
+        "official_missing_exact": 0,
+        "official_missing_after_rename": 0,
+        "official_missing_kotlin_stdlib": [],
+        "official_missing_other": [],
+        "csv_classes": 15319,
+        "csv_first_party": 10954,
+        "csv_first_party_hit": 10954,
+        "csv_first_party_missing": [],
+        "csv_first_party_missing_after_rename": [],
+        "target_extra_classes": 1090,
+        "target_extra_first_party_by_rule": 70,
+        "target_extra_sample": [
+          "Lcom/android/tools/r8/annotations/LambdaMethod;",
+          "Lkajfosz/antimatterdimensions/OrekiAuto;",
+          "Lkajfosz/antimatterdimensions/OrekiChallengeAuto;",
+          "Lkajfosz/antimatterdimensions/OrekiEcContinuation;",
+          "Lkajfosz/antimatterdimensions/OrekiInstantChallenge;",
+          "Lkajfosz/antimatterdimensions/OrekiSpeed;",
+          "Lkajfosz/antimatterdimensions/OrekiTrace;",
+          "Lkajfosz/antimatterdimensions/oreki/GameApi$0;",
+          "Lkajfosz/antimatterdimensions/oreki/GameApi;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutobuyerBeat;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener$Companion;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiBaselineBindings;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$Decision;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$LockedDimension;",
+          "Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy;"
+        ]
+      }
+    },
+    {
+      "id": "resource-id-parity",
+      "tier": "required",
+      "state": "FAIL",
+      "expected": "同名不同 ID=0（'_aapt_'→'$' 归一）且官方资源无缺失",
+      "actual": "同名不同 ID=28，官方有目标无=0，目标新增=48",
+      "evidence": "aapt2 dump resources 全量对照官方 base APK；目标新增（如 appcompat 资源）不阻断",
+      "details": {
+        "official_entries": 14928,
+        "target_entries": 14976,
+        "aapt_renamed_target_entries": 0,
+        "same_name_diff_id_exact": [
+          "drawable/$mtrl_checkbox_button_checked_unchecked__0",
+          "drawable/$mtrl_checkbox_button_checked_unchecked__1",
+          "drawable/$mtrl_checkbox_button_checked_unchecked__2",
+          "drawable/$mtrl_checkbox_button_icon_checked_indeterminate__0",
+          "drawable/$mtrl_checkbox_button_icon_checked_unchecked__0",
+          "drawable/$mtrl_checkbox_button_icon_checked_unchecked__1",
+          "drawable/$mtrl_checkbox_button_icon_checked_unchecked__2",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_checked__0",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__0",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__1",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__2",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_checked__0",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_checked__1",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_checked__2",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__0",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__1",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__2",
+          "drawable/$mtrl_checkbox_button_unchecked_checked__0",
+          "drawable/$mtrl_checkbox_button_unchecked_checked__1",
+          "drawable/$mtrl_checkbox_button_unchecked_checked__2",
+          "drawable/$mtrl_switch_thumb_checked_pressed__0",
+          "drawable/$mtrl_switch_thumb_checked_unchecked__0",
+          "drawable/$mtrl_switch_thumb_checked_unchecked__1",
+          "drawable/$mtrl_switch_thumb_pressed_checked__0",
+          "drawable/$mtrl_switch_thumb_pressed_unchecked__0",
+          "drawable/$mtrl_switch_thumb_unchecked_checked__0",
+          "drawable/$mtrl_switch_thumb_unchecked_checked__1",
+          "drawable/$mtrl_switch_thumb_unchecked_pressed__0"
+        ],
+        "same_name_diff_id_normalized": [
+          "drawable/$mtrl_checkbox_button_checked_unchecked__0",
+          "drawable/$mtrl_checkbox_button_checked_unchecked__1",
+          "drawable/$mtrl_checkbox_button_checked_unchecked__2",
+          "drawable/$mtrl_checkbox_button_icon_checked_indeterminate__0",
+          "drawable/$mtrl_checkbox_button_icon_checked_unchecked__0",
+          "drawable/$mtrl_checkbox_button_icon_checked_unchecked__1",
+          "drawable/$mtrl_checkbox_button_icon_checked_unchecked__2",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_checked__0",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__0",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__1",
+          "drawable/$mtrl_checkbox_button_icon_indeterminate_unchecked__2",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_checked__0",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_checked__1",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_checked__2",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__0",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__1",
+          "drawable/$mtrl_checkbox_button_icon_unchecked_indeterminate__2",
+          "drawable/$mtrl_checkbox_button_unchecked_checked__0",
+          "drawable/$mtrl_checkbox_button_unchecked_checked__1",
+          "drawable/$mtrl_checkbox_button_unchecked_checked__2",
+          "drawable/$mtrl_switch_thumb_checked_pressed__0",
+          "drawable/$mtrl_switch_thumb_checked_unchecked__0",
+          "drawable/$mtrl_switch_thumb_checked_unchecked__1",
+          "drawable/$mtrl_switch_thumb_pressed_checked__0",
+          "drawable/$mtrl_switch_thumb_pressed_unchecked__0",
+          "drawable/$mtrl_switch_thumb_unchecked_checked__0",
+          "drawable/$mtrl_switch_thumb_unchecked_checked__1",
+          "drawable/$mtrl_switch_thumb_unchecked_pressed__0"
+        ],
+        "only_official": [],
+        "only_target": [
+          "drawable/abc_ab_share_pack_mtrl_alpha",
+          "drawable/abc_btn_check_to_on_mtrl_000",
+          "drawable/abc_btn_check_to_on_mtrl_015",
+          "drawable/abc_btn_radio_to_on_mtrl_000",
+          "drawable/abc_btn_radio_to_on_mtrl_015",
+          "drawable/abc_btn_switch_to_on_mtrl_00001",
+          "drawable/abc_btn_switch_to_on_mtrl_00012",
+          "drawable/abc_cab_background_top_mtrl_alpha",
+          "drawable/abc_ic_commit_search_api_mtrl_alpha",
+          "drawable/abc_list_divider_mtrl_alpha",
+          "drawable/abc_list_focused_holo",
+          "drawable/abc_list_longpressed_holo",
+          "drawable/abc_list_pressed_holo_dark",
+          "drawable/abc_list_pressed_holo_light",
+          "drawable/abc_list_selector_disabled_holo_dark",
+          "drawable/abc_list_selector_disabled_holo_light",
+          "drawable/abc_menu_hardkey_panel_mtrl_mult",
+          "drawable/abc_popup_background_mtrl_mult",
+          "drawable/abc_scrubber_control_off_mtrl_alpha",
+          "drawable/abc_scrubber_control_to_pressed_mtrl_000",
+          "drawable/abc_scrubber_control_to_pressed_mtrl_005",
+          "drawable/abc_scrubber_primary_mtrl_alpha",
+          "drawable/abc_scrubber_track_mtrl_alpha",
+          "drawable/abc_spinner_mtrl_am_alpha",
+          "drawable/abc_switch_track_mtrl_alpha",
+          "drawable/abc_tab_indicator_mtrl_alpha",
+          "drawable/abc_text_select_handle_left_mtrl",
+          "drawable/abc_text_select_handle_middle_mtrl",
+          "drawable/abc_text_select_handle_right_mtrl",
+          "drawable/abc_textfield_activated_mtrl_alpha",
+          "drawable/abc_textfield_default_mtrl_alpha",
+          "drawable/abc_textfield_search_activated_mtrl_alpha",
+          "drawable/abc_textfield_search_default_mtrl_alpha",
+          "drawable/common_full_open_on_phone",
+          "drawable/common_google_signin_btn_icon_dark_normal_background",
+          "drawable/common_google_signin_btn_icon_light_normal_background",
+          "drawable/common_google_signin_btn_text_dark_normal_background",
+          "drawable/common_google_signin_btn_text_light_normal_background",
+          "drawable/cpv_alpha",
+          "drawable/cpv_ic_arrow_right_black_24dp",
+          "drawable/cpv_preset_checked",
+          "drawable/googleg_disabled_color_18",
+          "drawable/googleg_standard_color_18",
+          "drawable/ic_loadingreality_square",
+          "drawable/loading",
+          "string/oreki_shortcut_long",
+          "string/oreki_shortcut_short",
+          "xml/oreki_shortcuts"
+        ]
+      }
+    },
+    {
+      "id": "native-abis",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "包含 arm64-v8a, armeabi-v7a, x86, x86_64",
+      "actual": "arm64-v8a, armeabi-v7a, x86, x86_64",
+      "evidence": "lib/ 下共 8 个条目"
+    },
+    {
+      "id": "native-libs-complete",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "官方基线 2 个 .so 全部存在（来源：XAPK Antimatter+Dimensions_3.21.0_APKPure.xapk 内全部 APK 的 lib/**）",
+      "actual": "2/2",
+      "evidence": "缺失=[]",
+      "missing": []
+    },
+    {
+      "id": "assets-complete",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "官方 22 个 assets 全部存在",
+      "actual": "22/22",
+      "evidence": "缺失=[]；目标 assets 总数=23",
+      "missing": []
+    },
+    {
+      "id": "manifest-application",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "application=kajfosz.antimatterdimensions.App 且 debuggable=false",
+      "actual": "application=kajfosz.antimatterdimensions.App debuggable=False",
+      "evidence": "aapt2 dump xmltree AndroidManifest.xml"
+    },
+    {
+      "id": "manifest-components",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "第一方组件全部保留（30），activity-alias=28",
+      "actual": "缺失第一方=0，activity-alias=28",
+      "evidence": "官方 Manifest 第一方组件为基线；第三方广告/计费/GMS 组件允许有意移除",
+      "missing_first_party": []
+    },
+    {
+      "id": "launcher-intent",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "存在 MAIN + LAUNCHER",
+      "actual": "MAIN=True LAUNCHER=True",
+      "evidence": "aapt2 dump xmltree"
+    },
+    {
+      "id": "zip-safety",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "无危险路径、无重复条目、CRC 校验通过",
+      "actual": "unsafe=0 duplicates=0 corrupt=None",
+      "evidence": "zipfile 只读检查"
+    },
+    {
+      "id": "resources-arsc",
+      "tier": "required",
+      "state": "PASS",
+      "expected": "resources.arsc 存在且非空",
+      "actual": "13535116 bytes",
+      "evidence": "zip 条目大小"
+    },
+    {
+      "id": "dex-count-matches-official",
+      "tier": "advisory",
+      "state": "FAIL",
+      "expected": "2",
+      "actual": "4",
+      "evidence": "dex 数量与官方一致（非必需）"
+    },
+    {
+      "id": "dex-version-matches-official",
+      "tier": "advisory",
+      "state": "FAIL",
+      "expected": "{\"classes.dex\": \"037\", \"classes2.dex\": \"037\"}",
+      "actual": "{\"classes.dex\": \"039\", \"classes2.dex\": \"039\", \"classes3.dex\": \"039\", \"classes4.dex\": \"039\"}",
+      "evidence": "DEX 版本不同不影响 minSdk 32 运行（039 为 API 28+ 格式）；记录构建工具差异"
+    },
+    {
+      "id": "dex-header-integrity",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "adler32 checksum 与 header SHA-1 均自洽",
+      "actual": "checksum=True sha1=True",
+      "evidence": "DEX 头部完整性（检测截断/损坏）"
+    },
+    {
+      "id": "cross-dex-duplicates",
+      "tier": "advisory",
+      "state": "FAIL",
+      "expected": "0",
+      "actual": "66",
+      "evidence": "同一类描述符出现在多个 dex 的数量"
+    },
+    {
+      "id": "java-safe-descriptors",
+      "tier": "advisory",
+      "state": "FAIL",
+      "expected": "0 个含 '-' 或非法 Java 描述符",
+      "actual": "含 '-'=118 非法=118",
+      "evidence": "DEX type_ids 全量扫描；官方基线本身含 '-' 标识符，AGP 链已改名修复"
+    },
+    {
+      "id": "assets-extras",
+      "tier": "advisory",
+      "state": "INFO",
+      "expected": "记录目标新增 assets（MOD 新增资源允许，缺失由 assets-complete 阻断）",
+      "actual": "目标 23，官方 22，新增 1",
+      "evidence": "新增=[\"assets/oreki_tutorial.txt\"]",
+      "extras": [
+        "assets/oreki_tutorial.txt"
+      ]
+    },
+    {
+      "id": "resource-extras",
+      "tier": "advisory",
+      "state": "INFO",
+      "expected": "记录目标多出的资源（允许 appcompat 等），不阻断",
+      "actual": "48 条",
+      "evidence": "aapt2 dump resources；sample=[\"drawable/abc_ab_share_pack_mtrl_alpha\", \"drawable/abc_btn_check_to_on_mtrl_000\", \"drawable/abc_btn_check_to_on_mtrl_015\", \"drawable/abc_btn_radio_to_on_mtrl_000\", \"drawable/abc_btn_radio_to_on_mtrl_015\", \"drawable/abc_btn_switch_to_on_mtrl_00001\", \"drawable/abc_btn_switch_to_on_mtrl_00012\", \"drawable/abc_cab_background_top_mtrl_alpha\", \"drawable/abc_ic_commit_search_api_mtrl_alpha\", \"drawable/abc_list_divider_mtrl_alpha\"]",
+      "sample": [
+        "drawable/abc_ab_share_pack_mtrl_alpha",
+        "drawable/abc_btn_check_to_on_mtrl_000",
+        "drawable/abc_btn_check_to_on_mtrl_015",
+        "drawable/abc_btn_radio_to_on_mtrl_000",
+        "drawable/abc_btn_radio_to_on_mtrl_015",
+        "drawable/abc_btn_switch_to_on_mtrl_00001",
+        "drawable/abc_btn_switch_to_on_mtrl_00012",
+        "drawable/abc_cab_background_top_mtrl_alpha",
+        "drawable/abc_ic_commit_search_api_mtrl_alpha",
+        "drawable/abc_list_divider_mtrl_alpha",
+        "drawable/abc_list_focused_holo",
+        "drawable/abc_list_longpressed_holo",
+        "drawable/abc_list_pressed_holo_dark",
+        "drawable/abc_list_pressed_holo_light",
+        "drawable/abc_list_selector_disabled_holo_dark",
+        "drawable/abc_list_selector_disabled_holo_light",
+        "drawable/abc_menu_hardkey_panel_mtrl_mult",
+        "drawable/abc_popup_background_mtrl_mult",
+        "drawable/abc_scrubber_control_off_mtrl_alpha",
+        "drawable/abc_scrubber_control_to_pressed_mtrl_000"
+      ]
+    },
+    {
+      "id": "zipalign-16k",
+      "tier": "advisory",
+      "state": "PASS",
+      "expected": "zipalign -c -P 16 4 通过",
+      "actual": "exit=0",
+      "evidence": "16 KB zip 对齐检查（build-tools>=35 的 zipalign）"
+    },
+    {
+      "id": "manifest-component-counts",
+      "tier": "advisory",
+      "state": "INFO",
+      "expected": "第一方/alias 数量一致（其余差异记录）",
+      "actual": "{\"activity\": {\"official\": 17, \"target\": 6}, \"activity-alias\": {\"official\": 28, \"target\": 28}, \"service\": {\"official\": 12, \"target\": 7}, \"receiver\": {\"official\": 6, \"target\": 5}, \"provider\": {\"official\": 4, \"target\": 2}, \"meta-data\": {\"official\": 38, \"target\": 22}, \"uses-permission\": {\"official\": 16, \"target\": 9}}",
+      "evidence": "官方第三方广告/计费组件会减少 activity/service/provider 数量",
+      "details": {
+        "activity": {
+          "official": 17,
+          "target": 6
+        },
+        "activity-alias": {
+          "official": 28,
+          "target": 28
+        },
+        "service": {
+          "official": 12,
+          "target": 7
+        },
+        "receiver": {
+          "official": 6,
+          "target": 5
+        },
+        "provider": {
+          "official": 4,
+          "target": 2
+        },
+        "meta-data": {
+          "official": 38,
+          "target": 22
+        },
+        "uses-permission": {
+          "official": 16,
+          "target": 9
+        }
+      }
+    },
+    {
+      "id": "permissions-vs-official",
+      "tier": "advisory",
+      "state": "INFO",
+      "expected": "记录与官方的权限差异（MOD 有意移除广告/计费权限）",
+      "actual": "目标 9 / 官方 16",
+      "evidence": "官方有目标无=[\"android.permission.ACCESS_ADSERVICES_AD_ID\", \"android.permission.ACCESS_ADSERVICES_ATTRIBUTION\", \"android.permission.ACCESS_ADSERVICES_TOPICS\", \"com.android.vending.BILLING\", \"com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE\", \"com.google.android.gms.permission.AD_ID\", \"com.google.android.providers.gsf.permission.READ_GSERVICES\", \"kajfosz.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\"]；目标新增=[\"com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION\"]",
+      "missing": [
+        "android.permission.ACCESS_ADSERVICES_AD_ID",
+        "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
+        "android.permission.ACCESS_ADSERVICES_TOPICS",
+        "com.android.vending.BILLING",
+        "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+        "com.google.android.gms.permission.AD_ID",
+        "com.google.android.providers.gsf.permission.READ_GSERVICES",
+        "kajfosz.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+      ],
+      "extra": [
+        "com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+      ]
+    },
+    {
+      "id": "reference-package",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "与参照 APK 相同包名",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-permissions",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "权限集合与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-components",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "第一方组件与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-assets",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "assets 集合与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-native-libs",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "native libs 集合与参照 APK 一致",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-dex-count",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "dex 数量记录",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-class-total",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "类总数记录",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    },
+    {
+      "id": "reference-native-libs-bytes",
+      "tier": "advisory",
+      "state": "NOT RUN",
+      "expected": "参照 native libs 逐字节相同（SHA-256）",
+      "actual": "未提供 --reference-apk",
+      "evidence": "需要 --reference-apk 才执行"
+    }
+  ],
+  "summary": {
+    "required_total": 22,
+    "required_passed": 21,
+    "advisory_total": 18,
+    "advisory_failed": 4
+  }
+}

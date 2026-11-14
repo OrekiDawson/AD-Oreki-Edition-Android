@@ -1,0 +1,19 @@
+{
+  "device": "emulator-5554",
+  "apk": "/home/oreki/private-staging/r107-candidate/antimatter-dimensions-R107-hybrid-AGPpackaged-c25c68dc.apk",
+  "apk_sha256": "c25c68dcde2439d546c924ed947f14332085fe35e2f234ad6ed8b385e3322fa3",
+  "apk_bytes": 72416868,
+  "mode": "all",
+  "allow_clear": true,
+  "allow_root": true,
+  "execute": true,
+  "steps": [
+    "preflight",
+    "install",
+    "cold-start",
+    "new-save",
+    "restart-load",
+    "finalize"
+  ],
+  "authorization_env": "1"
+}

@@ -122,6 +122,11 @@ object OrekiEcAutomation {
 
     private const val TAG = "OREKI_EC_AUTO"
 
+    // [R107-01 EC4-DIAG] 只读诊断 TAG：定位 TRYBUY 前置研究 A() 假的具体分项。
+    // 30 秒限频、只读；诊断期使用，不改任何业务状态。
+    private const val TAG_DIAG2 = "OREKI_EC_DIAG2"
+    @Volatile private var lastDiag2At: Long = 0L
+
     /** 原版 EC 总数。 */
     private const val EC_COUNT = 12
 
@@ -143,6 +148,12 @@ object OrekiEcAutomation {
      * 避免同一关被连扣两次（SETTLE 一次 + D 一次）。START 后即清空。
      */
     @Volatile private var settledId: Int = 0
+
+    // [R107-01 EC4-FIX] 「当前已解锁 EC 已满级 → 原版 respec」的会话闸门：
+    // 同一个 (unlocked, completions) 快照 3 秒内最多触发一次，避免与其他模块
+    // （OrekiEternity.buyNormalStudies / UI）互相触发 respec 抖动。
+    @Volatile private var lastEcRespecKey: Int = -1
+    @Volatile private var lastEcRespecAt: Long = 0L
 
     // ------------------------------------------------------------ 对外唯一入口
 
@@ -179,6 +190,13 @@ object OrekiEcAutomation {
             note("in-challenge unlocked=" + unlocked)
             return false
         }
+        // [R107-01 EC4-FIX] 当前已解锁关已打满 5 次 → 先走原版 respecTimeStudies：
+        // 它会退研究、清 player.timestudy.studies，并把 challenge.eternity.unlocked 归 0
+        // （studies/d.c(Z)V 内部 b.E(false)）。不做这一步，EC4 需要的 123 列前置
+        // （143→133→123）会与已买的 121 列互斥：A(123) 的 A() 里 K()=true（requiresST 冲突）
+        // 后又要求 V 天神等级 ≥2（J()），bootstrap 期不可能满足 ⇒ A(143) 永远 false。
+        // Web 冻结上游同源：oreki-eternity-automation.js:665-687（EC 满级 → respecTimeStudies）。
+        if (respecIfCurrentEcMaxed(unlocked)) return true
 
         val target = nextTargetId()
         if (target == 0) {
@@ -194,11 +212,42 @@ object OrekiEcAutomation {
         return if (unlocked == target) start(study, target) else settle(study, target, unlocked)
     }
 
+
+    /**
+     * [R107-01 EC4-FIX] 当前已解锁的 EC 已满级时，调用**原版** `studies/d.c(false)V`（respecTimeStudies）：
+     *   - 退还全部普通时间研究 TT、清空 player.timestudy.studies；
+     *   - 当前 EC 研究 `b.E(false)` → `PlayerEternityChallenges.unlocked = 0`；
+     *   - 之后 buyNormalStudies 会按下一关目标列（EC4 → 列 123）重新买 123/133/143，
+     *     EC 研究 `D()` 才能把 unlocked 推进到 4。
+     *
+     * 只调用原版 UI 同款 respec 方法（prestige/c.smali:5290 的同一入口），不写任何存档字段、
+     * 不改 completions。同快照 3 秒内最多一次（防与其他模块抖动）。
+     *
+     * @return true = 本拍执行了 respec（调用方应 return true 占一拍）。
+     */
+    private fun respecIfCurrentEcMaxed(unlocked: Int): Boolean {
+        if (unlocked < 1 || unlocked > EC_COUNT) return false
+        val challenge = Abi.challenge(unlocked) ?: return false
+        val comps = Abi.completions(challenge) ?: return false
+        val max = Abi.maxCompletions(challenge) ?: return false
+        if (max <= 0 || comps < max) return false
+        val now = android.os.SystemClock.elapsedRealtime()
+        val key = unlocked * 100 + comps
+        if (lastEcRespecKey == key && now - lastEcRespecAt < 3000L) return false
+        lastEcRespecKey = key
+        lastEcRespecAt = now
+        val ok = Abi.respecTimeStudies()
+        note("RESPEC maxed id=" + unlocked + " comps=" + comps + "/" + max +
+            " ret=" + ok + " unlockedAfter=" + Abi.unlocked() +
+            " tt=" + Abi.theorem())
+        return true
+    }
+
     /** 最小未满级关号（1..12）；全部满级返回 0。 */
     private fun nextTargetId(): Int {
         for (id in 1..EC_COUNT) {
-            val c = Abi.challenge(id) ?: continue
-            if (Abi.isMaxedChallenge(c) != true) return id
+            val challengeObj = Abi.challenge(id) ?: continue
+            if (Abi.isMaxedChallenge(challengeObj) != true) return id
         }
         return 0
     }
@@ -278,10 +327,15 @@ object OrekiEcAutomation {
                 if (first != null) {
                     val t2 = Abi.ts(first)
                     val dbg = "b=" + Abi.tsBought(t2) + " a=" + Abi.tsCanBuy(t2)
-                    val r = if (t2 != null) Abi.tsBuy(t2) else null
-                    note("TRYBUY id=" + first + " " + dbg + " D=" + r + " tt=" + Abi.theorem() +
+                    val buyResult = if (t2 != null) Abi.tsBuy(t2) else null
+                    note("TRYBUY id=" + first + " " + dbg + " D=" + buyResult + " tt=" + Abi.theorem() +
                         " unlocked=" + Abi.unlocked())
-                    if (r == true) {
+                    // [R107-01 EC4-DIAG] 只读诊断：TRYBUY 失败时用独立 TAG/限频直接输出，
+                    // 不再被 note() 的 1s 限频吞掉（这是上一轮看不到 PAVE/PREPARE 的原因）。
+                    if (buyResult != true) {
+                        diag2(target, study, k)
+                    }
+                    if (buyResult == true) {
                         note("PREPARE id=" + target + " k=" + k + " paved-by-D=" + first +
                             " -> unlocked=" + Abi.unlocked())
                         return true
@@ -397,6 +451,61 @@ object OrekiEcAutomation {
         return false
     }
 
+
+    // ------------------------------------------------- [R107-01 EC4-DIAG] 只读诊断
+    //
+    // 目标：一次性把「EC 研究前置 TS 的 A() 为什么是 false」拆到最细：
+    //   · EC 研究自身 A(false)/A(true)/z()/B()、tailOk/prereqOk/globalBlocked；
+    //   · 前置 TS 链（k 数组递归 3 层）每条的 B/A0/A1/z/reqType/group/K()/r()/price/k；
+    //   · 当前 TimeStudyTree 的 c()/b()（DIMENSION_PATH 分支会看这两个值）；
+    //   · 12 个 EC 的 completions/max/unlocked/current。
+    // 全部只读（只调用原版查询方法），不买、不写字段、不改变任何状态。
+    private fun diag2(target: Int, study: Any?, k: List<Int>) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastDiag2At < 30_000L) return
+        lastDiag2At = now
+        try {
+            Log.i(TAG_DIAG2,
+                "ECSTUDY target=" + target + " unlocked=" + Abi.unlocked() +
+                    " current=" + Abi.current() +
+                    " comps=" + Abi.completions(Abi.challenge(target)) +
+                    " max=" + Abi.maxCompletions(Abi.challenge(target)) +
+                    " A0=" + Abi.tsA(study, false) + " A1=" + Abi.tsA(study, true) +
+                    " z=" + Abi.tsZ(study) + " B=" + Abi.tsBought(study) +
+                    " prereqOk=" + Abi.prereqOk(study) + " tail=" + Abi.tailOk(study) +
+                    " globalBlocked=" + Abi.globalBlocked() +
+                    " k=" + k + " price=" + Abi.priceText(study))
+            val sb = StringBuilder()
+            for (i in 1..12) {
+                val challengeObj = Abi.challenge(i) ?: continue
+                sb.append(' ').append(i).append('=').append(Abi.completions(challengeObj))
+                    .append('/').append(Abi.maxCompletions(challengeObj))
+                if (Abi.isMaxedChallenge(challengeObj) == true) sb.append('M')
+            }
+            Log.i(TAG_DIAG2, "ECS" + sb + " boughtGlobal=" + Abi.globalBlocked() + " tree=" + Abi.treeState())
+            val seen = HashSet<Int>()
+            fun walk(id: Int, depth: Int) {
+                if (depth > 3 || !seen.add(id)) return
+                val ts = Abi.ts(id)
+                if (ts == null) {
+                    Log.i(TAG_DIAG2, "TS id=" + id + " depth=" + depth + " lookup=null")
+                    return
+                }
+                Log.i(TAG_DIAG2,
+                    "TS id=" + id + " depth=" + depth + " B=" + Abi.tsBought(ts) +
+                        " A0=" + Abi.tsA(ts, false) + " A1=" + Abi.tsA(ts, true) +
+                        " z=" + Abi.tsZ(ts) + " reqType=" + Abi.tsReqType(ts) +
+                        " group=" + Abi.tsGroup(ts) + " K=" + Abi.tsKFlag(ts) +
+                        " r=" + Abi.tsReqLambda(ts) + " price=" + Abi.priceText(ts) +
+                        " k=" + Abi.tsPrereqs(ts))
+                for (pid in Abi.tsPrereqs(ts) ?: emptyList()) walk(pid, depth + 1)
+            }
+            for (id in k) walk(id, 0)
+        } catch (t: Throwable) {
+            Log.i(TAG_DIAG2, "diag2 failed: " + t)
+        }
+    }
+
     private fun note(what: String) {
         if (what == lastStep) return
         lastStep = what
@@ -434,39 +543,39 @@ object OrekiEcAutomation {
         }
 
         private fun factory(): Class<*>? {
-            var c = factoryCls
-            if (c == null) {
-                c = cls(STUDY_FACTORY)
-                factoryCls = c
+            var clazz = factoryCls
+            if (clazz == null) {
+                clazz = cls(STUDY_FACTORY)
+                factoryCls = clazz
             }
-            return c
+            return clazz
         }
 
         private fun registry(): Class<*>? {
-            var c = registryCls
-            if (c == null) {
-                c = cls(EC_REGISTRY)
-                registryCls = c
+            var clazz = registryCls
+            if (clazz == null) {
+                clazz = cls(EC_REGISTRY)
+                registryCls = clazz
             }
-            return c
+            return clazz
         }
 
         private fun tsRegistry(): Class<*>? {
-            var c = tsRegistryCls
-            if (c == null) {
-                c = cls(TS_REGISTRY)
-                tsRegistryCls = c
+            var clazz = tsRegistryCls
+            if (clazz == null) {
+                clazz = cls(TS_REGISTRY)
+                tsRegistryCls = clazz
             }
-            return c
+            return clazz
         }
 
         private fun currency(): Any? {
-            var c = currencyCls
-            if (c == null) {
-                c = cls(CURRENCY_HOLDER)
-                currencyCls = c
+            var clazz = currencyCls
+            if (clazz == null) {
+                clazz = cls(CURRENCY_HOLDER)
+                currencyCls = clazz
             }
-            val k = c ?: return null
+            val k = clazz ?: return null
             return try {
                 k.getField("U").get(null)
             } catch (t: Throwable) {
@@ -477,15 +586,15 @@ object OrekiEcAutomation {
 
         /** 在类层次里按「名字 + 参数个数」找方法，避开写死混淆父类名。 */
         private fun find(target: Any?, name: String, paramCount: Int): java.lang.reflect.Method? {
-            var c: Class<*>? = target?.javaClass
-            while (c != null) {
-                for (m in c.declaredMethods) {
+            var clazz: Class<*>? = target?.javaClass
+            while (clazz != null) {
+                for (m in clazz.declaredMethods) {
                     if (m.name == name && m.parameterCount == paramCount) {
                         m.isAccessible = true
                         return m
                     }
                 }
-                c = c.superclass
+                clazz = clazz.superclass
             }
             return null
         }
@@ -497,13 +606,13 @@ object OrekiEcAutomation {
          * 读不到返回 null，不影响业务路径。
          */
         fun intArray(target: Any?, field: String): List<Int>? = try {
-            var c: Class<*>? = target?.javaClass
-            var f: java.lang.reflect.Field? = null
-            while (c != null && f == null) {
-                f = try { c.getDeclaredField(field) } catch (e: NoSuchFieldException) { null }
-                c = c.superclass
+            var clazz: Class<*>? = target?.javaClass
+            var fieldRef: java.lang.reflect.Field? = null
+            while (clazz != null && fieldRef == null) {
+                fieldRef = try { clazz.getDeclaredField(field) } catch (e: NoSuchFieldException) { null }
+                clazz = clazz.superclass
             }
-            f?.let {
+            fieldRef?.let {
                 it.isAccessible = true
                 @Suppress("UNCHECKED_CAST")
                 (it.get(target) as? Array<Integer>)?.map { v -> v?.toInt() ?: -1 }
@@ -575,14 +684,14 @@ object OrekiEcAutomation {
          * 不是普通 `a(I)`；同时兼容纯 static `a(I)` 的形态，避免版本漂移。
          */
         fun ts(id: Int): Any? = try {
-            val c = tsRegistry() ?: return null
-            val self = try { c.getField("a").get(null) } catch (e: Throwable) { null }
-            val m2 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 2 }
+            val clazz = tsRegistry() ?: return null
+            val self = try { clazz.getField("a").get(null) } catch (e: Throwable) { null }
+            val m2 = clazz.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 2 }
             if (m2 != null) {
                 m2.isAccessible = true
                 m2.invoke(null, self, id)
             } else {
-                val m1 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 1 }
+                val m1 = clazz.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 1 }
                 if (m1 == null) null else {
                     m1.isAccessible = true
                     m1.invoke(null, id)
@@ -653,8 +762,8 @@ object OrekiEcAutomation {
 
         /** `vi3.D.k()Z`：原版全局闸门（`ii3.k() = na4.B() && !ii3.K()`）。 */
         fun globalBlocked(): Boolean? = try {
-            val c = cls(GLOBAL_GATE) ?: return null
-            val gate = c.getField("D").get(null) ?: return null
+            val clazz = cls(GLOBAL_GATE) ?: return null
+            val gate = clazz.getField("D").get(null) ?: return null
             find(gate, "k", 0)?.invoke(gate) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "ii3.k() failed: " + t)
@@ -673,14 +782,14 @@ object OrekiEcAutomation {
             if (dumpedTsMethods || ts == null) return
             dumpedTsMethods = true
             try {
-                var c: Class<*>? = ts.javaClass
+                var clazz: Class<*>? = ts.javaClass
                 var lvl = 0
-                while (c != null && lvl < 4) {
-                    val names = c.declaredMethods
+                while (clazz != null && lvl < 4) {
+                    val names = clazz.declaredMethods
                         .filter { it.name.length <= 3 }
                         .joinToString(",") { it.name + "/" + it.parameterCount + it.returnType.simpleName }
-                    Log.i(TAG, "tsDump L" + lvl + " " + c.simpleName + " :: " + names)
-                    c = c.superclass
+                    Log.i(TAG, "tsDump L" + lvl + " " + clazz.simpleName + " :: " + names)
+                    clazz = clazz.superclass
                     lvl++
                 }
             } catch (t: Throwable) {
@@ -705,8 +814,8 @@ object OrekiEcAutomation {
 
         /** 真买时间研究（`c.D(false,rj0)`）：原版扣 TT + `E(true)` + `C(true,false)`。 */
         fun tsBuy(ts: Any?): Boolean? = try {
-            val m = find(ts, "D", 2) ?: return null
-            m.invoke(ts, java.lang.Boolean.FALSE, continuation()) as? Boolean
+            val method = find(ts, "D", 2) ?: return null
+            method.invoke(ts, java.lang.Boolean.FALSE, continuation()) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "ts.D failed: " + t)
             null
@@ -717,15 +826,127 @@ object OrekiEcAutomation {
         /** 时间研究的行内前置数组（`qu4.k`）。 */
         fun tsPrereqs(ts: Any?): List<Int>? = intArray(ts, "k")
 
+
+        /** 原版 respecTimeStudies：`kajfosz/antimatterdimensions/eternity/studies/d;->c(Z)V`。
+         * 参数只控制是否弹「时间研究」页（这里传 false）；退研究/清 Tree/unlocked=0 都由原版完成。 */
+        fun respecTimeStudies(): Boolean? {
+            return try {
+            val clazz = cls("kajfosz.antimatterdimensions.eternity.studies.d") ?: return null
+            var method: java.lang.reflect.Method? = null
+            for (x in clazz.declaredMethods) {
+                if (x.name == "c" && x.parameterCount == 1 &&
+                    x.parameterTypes[0] == java.lang.Boolean.TYPE) {
+                    method = x
+                    try {
+                        x.isAccessible = true
+                    } catch (_: Throwable) {
+                    }
+                    break
+                }
+            }
+            if (method == null) {
+                Log.i(TAG, "respecTimeStudies: d.c(Z)V not found")
+                return null
+            }
+            method.invoke(null, false)
+            true
+            } catch (t: Throwable) {
+                Log.i(TAG, "respecTimeStudies failed: " + t)
+                null
+            }
+        }
+
+        // ------------------------------------------------ [R107-01 EC4-DIAG] 只读诊断
+        // 以下 helper 只做查询：A 的两种入参、z 余额、requirementType/group/K/r，
+        // 以及 TimeStudyTree 的 c()/b()。全部包 try/catch，失败返回 null/占位符，不改状态。
+
+        /** 原版需求判定两种入参：A(false) / A(true)（c.A(Z) 的 z 参数只影响个别分支）。 */
+        fun tsA(ts: Any?, flag: Boolean): Boolean? = try {
+            find(ts, "A", 1)?.invoke(ts, flag) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG_DIAG2, "ts.A(" + flag + ") failed: " + t)
+            null
+        }
+
+        /** 原版余额判定 z()Z（TT >= x()，x() 已接 bootstrap 缩放）。 */
+        fun tsZ(ts: Any?): Boolean? = try {
+            find(ts, "z", 0)?.invoke(ts) as? Boolean
+        } catch (t: Throwable) {
+            Log.i(TAG_DIAG2, "ts.z() failed: " + t)
+            null
+        }
+
+        /** qu4.l:Constants$TSRequirementType 的枚举名（AT_LEAST_ONE / ALL / DIMENSION_PATH）。 */
+        fun tsReqType(ts: Any?): String = try {
+            val field = findField(ts, "l") ?: return "?"
+            val v = field.get(ts) ?: return "null"
+            v.toString()
+        } catch (t: Throwable) {
+            "?"
+        }
+
+        /** c.t:I 维度/列分组下标（-1 = 未分组）。 */
+        fun tsGroup(ts: Any?): Int? = try {
+            findField(ts, "t")?.getInt(ts)
+        } catch (t: Throwable) {
+            null
+        }
+
+        /** 原版 c.K()Z（A() 最终判定的一环）。 */
+        fun tsKFlag(ts: Any?): Boolean? = try {
+            find(ts, "K", 0)?.invoke(ts) as? Boolean
+        } catch (t: Throwable) {
+            null
+        }
+
+        /** 原版 c.r requirement lambda 的布尔结果（A() 最终判定的第一环）。 */
+        fun tsReqLambda(ts: Any?): Boolean? = try {
+            val field = findField(ts, "r") ?: return null
+            val lambda = field.get(ts) ?: return null
+            find(lambda, "invoke", 0)?.invoke(lambda) as? Boolean
+        } catch (t: Throwable) {
+            null
+        }
+
+        /** 当前 TimeStudyTree cache.a.n 的 c()/b()（DIMENSION_PATH 分支比较值）。 */
+        fun treeState(): String = try {
+            val cacheCls = cls("kajfosz.antimatterdimensions.cache.a") ?: return "?"
+            val n = cacheCls.getField("n").get(null) ?: return "?"
+            val tree = find(n, "a", 0)?.invoke(n) ?: return "?"
+            val cResult = find(tree, "c", 0)?.invoke(tree)
+            val bResult = find(tree, "b", 0)?.invoke(tree)
+            "c=" + cResult + ",b=" + bResult
+        } catch (t: Throwable) {
+            "?(" + t + ")"
+        }
+
+        private fun findField(target: Any?, name: String): java.lang.reflect.Field? {
+            var clazz: Class<*>? = target?.javaClass
+            while (clazz != null) {
+                for (f in clazz.declaredFields) {
+                    if (f.name == name) {
+                        try {
+                            f.isAccessible = true
+                        } catch (_: Throwable) {
+                        }
+                        return f
+                    }
+                }
+                clazz = clazz.superclass
+            }
+            return null
+        }
+
+
         /** 诊断：把一串 TS 的「已买/价格/自身前置」打出来。 */
         fun tsChain(ids: List<Int>): String {
             val sb = StringBuilder("chain[")
             for (id in ids) {
-                val t = ts(id)
-                if (t == null) { sb.append(id).append(":?"); continue }
-                sb.append(id).append(":{bought=").append(tsBought(t))
-                    .append(",price=").append(tsPrice(t))
-                    .append(",k=").append(tsPrereqs(t)).append("} ")
+                val study = ts(id)
+                if (study == null) { sb.append(id).append(":?"); continue }
+                sb.append(id).append(":{bought=").append(tsBought(study))
+                    .append(",price=").append(tsPrice(study))
+                    .append(",k=").append(tsPrereqs(study)).append("} ")
             }
             return sb.append(']').toString()
         }
@@ -776,8 +997,8 @@ object OrekiEcAutomation {
         /** 原版扣费：`y().p(x())`（`iq0.p`：够就扣并返回 true，不够返回 false）。 */
         fun payPrice(study: Any?): Boolean? = try {
             val cur = currency() ?: return null
-            val p = price(study) ?: return null
-            find(cur, "p", 1)?.invoke(cur, p) as? Boolean
+            val priceValue = price(study) ?: return null
+            find(cur, "p", 1)?.invoke(cur, priceValue) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "payPrice failed: " + t)
             null
@@ -804,8 +1025,8 @@ object OrekiEcAutomation {
         /** 真实购买：`is3.D(true, continuation)`，同步返回 Boolean。 */
         fun buy(study: Any?): Boolean? = try {
             val cont = continuation()
-            val m = find(study, "D", 2) ?: return null
-            m.invoke(study, java.lang.Boolean.TRUE, cont) as? Boolean
+            val method = find(study, "D", 2) ?: return null
+            method.invoke(study, java.lang.Boolean.TRUE, cont) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "buy failed: " + t)
             null
@@ -814,8 +1035,8 @@ object OrekiEcAutomation {
         /** 原版 EC purchaseUntil：补齐该关的整条前置时间研究路径（带真实 ec 参数）。 */
         fun purchaseUntil(study: Any?): Boolean = try {
             val cont = continuation()
-            val m = find(study, "S", 1) ?: return false
-            m.invoke(study, cont)
+            val method = find(study, "S", 1) ?: return false
+            method.invoke(study, cont)
             true
         } catch (t: Throwable) {
             // [R97 真机] 只打包装异常没用：必须打出真实 cause，否则无从判定是
@@ -836,8 +1057,8 @@ object OrekiEcAutomation {
         /** 真实进入：`challenge.D(true, continuation)`（原版 start 状态机）。 */
         fun startChallenge(c: Any?): Boolean = try {
             val cont = continuation()
-            val m = find(c, "D", 2) ?: return false
-            m.invoke(c, java.lang.Boolean.TRUE, cont)
+            val method = find(c, "D", 2) ?: return false
+            method.invoke(c, java.lang.Boolean.TRUE, cont)
             true
         } catch (t: Throwable) {
             Log.i(TAG, "start failed: " + t)
@@ -849,16 +1070,16 @@ object OrekiEcAutomation {
             val sb = StringBuilder()
             val unlocked = unlocked() ?: -1
             for (id in 1..EC_COUNT) {
-                val s = study(id) ?: continue
+                val studyObj = study(id) ?: continue
                 sb.append(id).append(':')
                     .append(if (unlocked == id) 'B' else '-')
-                    .append(if (canBuyPrereq(s) == true) 'A' else '-')
-                    .append(if (canAfford(s) == true) 'Z' else '-')
-                    .append(if (alreadyBought(s) == true) 'T' else '-')
-                    .append(if (hasExclusiveFree(s) == true) 'O' else '-')
+                    .append(if (canBuyPrereq(studyObj) == true) 'A' else '-')
+                    .append(if (canAfford(studyObj) == true) 'Z' else '-')
+                    .append(if (alreadyBought(studyObj) == true) 'T' else '-')
+                    .append(if (hasExclusiveFree(studyObj) == true) 'O' else '-')
                     // k=前置研究数组、p=互斥/二级研究数组（qu4 定义），直接读真实对象，不靠推断。
-                    .append(" k=").append(intArray(s, "k"))
-                    .append(" p=").append(intArray(s, "p"))
+                    .append(" k=").append(intArray(studyObj, "k"))
+                    .append(" p=").append(intArray(studyObj, "p"))
                     .append(' ')
             }
             return ("unlocked=" + unlocked + " tt=" + theorem() + " " + sb.toString()).trim()

@@ -1,0 +1,15 @@
+372:    # [R101P0_TAB_GATE] 页签业务门槛交给 Kotlin
+373-    iget-object v0, p0, Lbm4;->i:Ljava/lang/String;
+374-    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z
+375-    move-result v0
+376-    if-eqz v0, :oreki_r101_tab_locked
+377-    goto :oreki_r101_tab_original
+378-    :oreki_r101_tab_locked
+--
+497:    # [R101P0_TAB_GATE] 禁止非法页签程序选择
+498-    iget-object v0, p0, Lbm4;->i:Ljava/lang/String;
+499-    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;->vanillaEternityTabAllowed(Ljava/lang/String;)Z
+500-    move-result v0
+501-    if-eqz v0, :oreki_r101_tab_select_locked
+502-    goto :oreki_r101_tab_select_original
+503-    :oreki_r101_tab_select_locked

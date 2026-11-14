@@ -1,0 +1,250 @@
+########## kajfosz.antimatterdimensions.autobuyer.AutobuyerState :: ORIGINAL (gameclasses-v3.jar) ##########
+public abstract class kajfosz.antimatterdimensions.autobuyer.AutobuyerState implements java.io.Serializable {
+  private boolean isActive;
+  public kajfosz.antimatterdimensions.autobuyer.AutobuyerState(boolean);
+  public boolean b();
+  public boolean c();
+  public boolean d();
+  public final java.lang.String e();
+  public final boolean f();
+  public boolean g();
+  public void h();
+  public void i(boolean);
+  public final void j();
+}
+########## kajfosz.antimatterdimensions.autobuyer.AutobuyerState :: RECONSTRUCTED ##########
+Compiled from "AutobuyerState.kt"
+public abstract class kajfosz.antimatterdimensions.autobuyer.AutobuyerState implements java.io.Serializable {
+  private boolean isActive;
+  public kajfosz.antimatterdimensions.autobuyer.AutobuyerState(boolean);
+  public boolean b();
+  public boolean c();
+  public boolean d();
+  public final java.lang.String e();
+  public final boolean f();
+  public boolean g();
+  public void h();
+  public void i(boolean);
+  public final void j();
+}
+
+########## kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState();
+  public final boolean g();
+  public final void h();
+}
+########## kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState :: RECONSTRUCTED ##########
+Compiled from "TimeTheoremAutobuyerState.kt"
+public final class kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState();
+  public final boolean g();
+  public final void h();
+}
+
+########## kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState();
+  public final boolean b();
+  public final boolean g();
+  public final void h();
+  public final void i(boolean);
+}
+########## kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState :: RECONSTRUCTED ##########
+Compiled from "EPMultAutobuyerState.kt"
+public final class kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState();
+  public final boolean b();
+  public final boolean g();
+  public final void i(boolean);
+  public final void h();
+}
+
+########## kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState();
+  public final boolean b();
+  public final boolean g();
+  public final void h();
+  public final void i(boolean);
+}
+########## kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState :: RECONSTRUCTED ##########
+Compiled from "IPMultAutobuyerState.kt"
+public final class kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState();
+  public final boolean b();
+  public final boolean g();
+  public final void i(boolean);
+  public final void h();
+}
+
+########## kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState();
+  public final boolean b();
+  public final boolean g();
+  public final void h();
+  public final void i(boolean);
+}
+########## kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState :: RECONSTRUCTED ##########
+Compiled from "ReplicantiGalaxyAutobuyerState.kt"
+public final class kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState extends kajfosz.antimatterdimensions.autobuyer.AutobuyerState {
+  public kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState();
+  public final boolean b();
+  public final boolean g();
+  public final void i(boolean);
+  public final void h();
+}
+
+########## kajfosz.antimatterdimensions.reality.automator.AutomatorState :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.reality.automator.AutomatorState implements java.io.Serializable {
+  private int editorScript;
+  private boolean followExecution;
+  private boolean forceRestart;
+  private int mode;
+  private boolean repeat;
+  private java.util.List<kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent> stack;
+  private int topLevelScript;
+  public kajfosz.antimatterdimensions.reality.automator.AutomatorState();
+  public final int a();
+  public final boolean b();
+  public final boolean c();
+  public final int d();
+  public final boolean e();
+  public final java.util.List f();
+  public final int g();
+  public final void h(int);
+  public final void i(boolean);
+  public final void j(boolean);
+  public final void k(int);
+  public final void l(boolean);
+  public final void m(int);
+}
+########## kajfosz.antimatterdimensions.reality.automator.AutomatorState :: RECONSTRUCTED ##########
+Compiled from "AutomatorState.kt"
+public final class kajfosz.antimatterdimensions.reality.automator.AutomatorState implements java.io.Serializable {
+  private int mode;
+  private int topLevelScript;
+  private int editorScript;
+  private boolean repeat;
+  private boolean forceRestart;
+  private boolean followExecution;
+  private java.util.List<kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent> stack;
+  public kajfosz.antimatterdimensions.reality.automator.AutomatorState();
+  public final int a();
+  public final boolean b();
+  public final boolean c();
+  public final int d();
+  public final boolean e();
+  public final java.util.List<kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent> f();
+  public final int g();
+  public final void h(int);
+  public final void i(boolean);
+  public final void j(boolean);
+  public final void k(int);
+  public final void l(boolean);
+  public final void m(int);
+}
+
+########## kajfosz.antimatterdimensions.reality.automator.CommandState :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.reality.automator.CommandState implements java.io.Serializable {
+  private boolean advanceOnPop;
+  private int ifEndLine;
+  private int prestigeLevel;
+  private double timeMs;
+  public kajfosz.antimatterdimensions.reality.automator.CommandState(double, int, int, boolean);
+  public kajfosz.antimatterdimensions.reality.automator.CommandState(int, int);
+  public final boolean a();
+  public final int b();
+  public final int c();
+  public final double d();
+  public final void e(int);
+  public final void f(double);
+}
+########## kajfosz.antimatterdimensions.reality.automator.CommandState :: RECONSTRUCTED ##########
+Compiled from "CommandState.kt"
+public final class kajfosz.antimatterdimensions.reality.automator.CommandState implements java.io.Serializable {
+  private boolean advanceOnPop;
+  private int ifEndLine;
+  private int prestigeLevel;
+  private double timeMs;
+  public kajfosz.antimatterdimensions.reality.automator.CommandState(double, int, int, boolean);
+  public kajfosz.antimatterdimensions.reality.automator.CommandState(int, int);
+  public final boolean a();
+  public final int b();
+  public final int c();
+  public final double d();
+  public final void e(int);
+  public final void f(double);
+}
+
+########## kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent implements java.io.Serializable {
+  private kajfosz.antimatterdimensions.reality.automator.CommandState commandState;
+  private int lineNumber;
+  public kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent(int, kajfosz.antimatterdimensions.reality.automator.CommandState);
+  public final kajfosz.antimatterdimensions.reality.automator.CommandState a();
+  public final int b();
+  public final void c(kajfosz.antimatterdimensions.reality.automator.CommandState);
+  public final void d(int);
+}
+########## kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent :: RECONSTRUCTED ##########
+Compiled from "AutomatorStackEntryPersistent.kt"
+public final class kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent implements java.io.Serializable {
+  private kajfosz.antimatterdimensions.reality.automator.CommandState commandState;
+  private int lineNumber;
+  public kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent(int, kajfosz.antimatterdimensions.reality.automator.CommandState);
+  public final kajfosz.antimatterdimensions.reality.automator.CommandState a();
+  public final int b();
+  public final void c(kajfosz.antimatterdimensions.reality.automator.CommandState);
+  public final void d(int);
+}
+
+########## kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator :: ORIGINAL (gameclasses-v3.jar) ##########
+public abstract class kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator {
+  public final java.lang.String a;
+  public kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator(java.lang.String);
+  public boolean a(kajfosz.antimatterdimensions.BigDouble, kajfosz.antimatterdimensions.BigDouble);
+  public final java.lang.String toString();
+}
+########## kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator :: RECONSTRUCTED ##########
+Compiled from "ParserComparisonOperator.kt"
+public abstract class kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator {
+  public final java.lang.String a;
+  public kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator(java.lang.String);
+  public boolean a(kajfosz.antimatterdimensions.BigDouble, kajfosz.antimatterdimensions.BigDouble);
+  public final java.lang.String toString();
+}
+
+########## kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError :: ORIGINAL (gameclasses-v3.jar) ##########
+public class kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError {
+  public final java.lang.String a;
+  public final int b;
+  public final java.lang.String c;
+  public kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError(int, java.lang.String, java.lang.String);
+  public final java.lang.String toString();
+}
+########## kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError :: RECONSTRUCTED ##########
+Compiled from "ParserScriptError.kt"
+public class kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError {
+  public final java.lang.String a;
+  public final int b;
+  public final java.lang.String c;
+  public kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError(int, java.lang.String, java.lang.String);
+  public final java.lang.String toString();
+}
+
+########## kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript :: ORIGINAL (gameclasses-v3.jar) ##########
+public final class kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript {
+  public final java.util.ArrayList a;
+  public final java.util.ArrayList b;
+  public kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript();
+}
+########## kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript :: RECONSTRUCTED ##########
+Compiled from "ParserCompiledScript.kt"
+public final class kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript {
+  public final java.util.ArrayList<java.lang.Object> a;
+  public final java.util.ArrayList<java.lang.Object> b;
+  public kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript();
+}
+

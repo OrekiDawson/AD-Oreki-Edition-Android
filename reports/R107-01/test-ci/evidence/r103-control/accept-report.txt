@@ -1,0 +1,182 @@
+# R107-01 APK 结构验收报告
+# 生成时间: 2026-11-13T22:49:29+08:00
+# 工具: scripts/tests/r107/accept_apk.py
+
+APK: /home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk
+SHA-256: 380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965
+大小: 84605099 bytes
+官方基线 APK: /home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk
+  官方 SHA-256: 4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac
+
+判定: FAIL
+required: 21/22 PASS，FAIL=1
+checks: FAIL=5, INFO=4, NOT RUN=8, PASS=23
+
+## 必需检查
+[PASS   ] apk-present
+    expected: 文件存在且非空
+    actual  : 84605099 bytes
+    evidence: /home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk
+[PASS   ] apk-sha256
+    expected: 任意 64 位小写 hex
+    actual  : 380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965
+    evidence: sha256sum 复算；--expect-sha256 为固定验收时按给定值比对
+[PASS   ] package-name
+    expected: com.oreki.antimatterdimensions
+    actual  : com.oreki.antimatterdimensions
+    evidence: aapt2 dump badging 的 package: name
+[PASS   ] version-code
+    expected: 30210000
+    actual  : 30210000
+    evidence: aapt2 dump badging；同时与官方 APK 对照：30210000
+[PASS   ] version-name
+    expected: 3.21.0
+    actual  : 3.21.0
+    evidence: aapt2 dump badging；同时与官方 APK 对照：3.21.0
+[PASS   ] sdk-levels
+    expected: minSdk=None targetSdk=37（与官方一致）
+    actual  : minSdk=None targetSdk=37
+    evidence: aapt2 dump badging，官方 APK 为基线
+[PASS   ] signature-verifies
+    expected: apksigner verify 通过
+    actual  : True
+    evidence: apksigner verify --verbose；exit=0
+[PASS   ] signature-cert
+    expected: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+    actual  : 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+    evidence: apksigner --print-certs 的 certificate SHA-256（与既有稳定版签名身份一致）
+[PASS   ] signature-scheme
+    expected: 1 个签名者且启用 v2 或 v3
+    actual  : signers=1 schemes={"v1": false, "v2": false, "v3": true, "v3.1": false, "v4": false}
+    evidence: apksigner verify --verbose
+[PASS   ] dex-present
+    expected: 至少 1 个 classes*.dex，DEX magic 有效（版本 035-039）
+    actual  : 4 个 dex，versions={"classes.dex": "039", "classes2.dex": "039", "classes3.dex": "039", "classes4.dex": "039"}
+    evidence: zip 条目 + DEX 头部解析；官方版本={"classes.dex": "037", "classes2.dex": "037"}
+[PASS   ] class-total
+    expected: >= 官方 15319 类
+    actual  : 16409 类（逐 dex 原始和 16475）
+    evidence: 脚本解析 DEX class_defs 去重计数；MOD 新增类不要求等于官方
+[PASS   ] first-party-coverage
+    expected: 10954/10954 第一方类存在
+    actual  : 10954/10954（缺失 0）
+    evidence: 基准 CSV /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/docs/deobfuscation/data/first-party-3.21-index.csv sha256=87bda35ecb11d32f…
+[PASS   ] official-class-coverage
+    expected: 官方类全部存在（DEX 改名映射后仅允许 Lkotlin/** 由 AGP stdlib 替代）
+    actual  : 官方 15319 类，精确命中 15319，改名后仍缺 0（其中 kotlin stdlib 0，其他 0）
+    evidence: 官方 APK DEX 描述符集合为分母；'-' 与 '_' 视为同一类（dex2jar 对非法标识符的改名）
+[FAIL   ] resource-id-parity
+    expected: 同名不同 ID=0（'_aapt_'→'$' 归一）且官方资源无缺失
+    actual  : 同名不同 ID=28，官方有目标无=0，目标新增=48
+    evidence: aapt2 dump resources 全量对照官方 base APK；目标新增（如 appcompat 资源）不阻断
+[PASS   ] native-abis
+    expected: 包含 arm64-v8a, armeabi-v7a, x86, x86_64
+    actual  : arm64-v8a, armeabi-v7a, x86, x86_64
+    evidence: lib/ 下共 8 个条目
+[PASS   ] native-libs-complete
+    expected: 官方基线 2 个 .so 全部存在（来源：XAPK Antimatter+Dimensions_3.21.0_APKPure.xapk 内全部 APK 的 lib/**）
+    actual  : 2/2
+    evidence: 缺失=[]
+[PASS   ] assets-complete
+    expected: 官方 22 个 assets 全部存在
+    actual  : 22/22
+    evidence: 缺失=[]；目标 assets 总数=23
+[PASS   ] manifest-application
+    expected: application=kajfosz.antimatterdimensions.App 且 debuggable=false
+    actual  : application=kajfosz.antimatterdimensions.App debuggable=False
+    evidence: aapt2 dump xmltree AndroidManifest.xml
+[PASS   ] manifest-components
+    expected: 第一方组件全部保留（30），activity-alias=28
+    actual  : 缺失第一方=0，activity-alias=28
+    evidence: 官方 Manifest 第一方组件为基线；第三方广告/计费/GMS 组件允许有意移除
+[PASS   ] launcher-intent
+    expected: 存在 MAIN + LAUNCHER
+    actual  : MAIN=True LAUNCHER=True
+    evidence: aapt2 dump xmltree
+[PASS   ] zip-safety
+    expected: 无危险路径、无重复条目、CRC 校验通过
+    actual  : unsafe=0 duplicates=0 corrupt=None
+    evidence: zipfile 只读检查
+[PASS   ] resources-arsc
+    expected: resources.arsc 存在且非空
+    actual  : 13535116 bytes
+    evidence: zip 条目大小
+
+## 附加检查
+[FAIL   ] dex-count-matches-official
+    expected: 2
+    actual  : 4
+    evidence: dex 数量与官方一致（非必需）
+[FAIL   ] dex-version-matches-official
+    expected: {"classes.dex": "037", "classes2.dex": "037"}
+    actual  : {"classes.dex": "039", "classes2.dex": "039", "classes3.dex": "039", "classes4.dex": "039"}
+    evidence: DEX 版本不同不影响 minSdk 32 运行（039 为 API 28+ 格式）；记录构建工具差异
+[PASS   ] dex-header-integrity
+    expected: adler32 checksum 与 header SHA-1 均自洽
+    actual  : checksum=True sha1=True
+    evidence: DEX 头部完整性（检测截断/损坏）
+[FAIL   ] cross-dex-duplicates
+    expected: 0
+    actual  : 66
+    evidence: 同一类描述符出现在多个 dex 的数量
+[FAIL   ] java-safe-descriptors
+    expected: 0 个含 '-' 或非法 Java 描述符
+    actual  : 含 '-'=118 非法=118
+    evidence: DEX type_ids 全量扫描；官方基线本身含 '-' 标识符，AGP 链已改名修复
+[INFO   ] assets-extras
+    expected: 记录目标新增 assets（MOD 新增资源允许，缺失由 assets-complete 阻断）
+    actual  : 目标 23，官方 22，新增 1
+    evidence: 新增=["assets/oreki_tutorial.txt"]
+[INFO   ] resource-extras
+    expected: 记录目标多出的资源（允许 appcompat 等），不阻断
+    actual  : 48 条
+    evidence: aapt2 dump resources；sample=["drawable/abc_ab_share_pack_mtrl_alpha", "drawable/abc_btn_check_to_on_mtrl_000", "drawable/abc_btn_check_to_on_mtrl_015", "drawable/abc_btn_radio_to_on_mtrl_000", "drawable/abc_btn_radio_to_on_mtrl_015", "drawable/abc_btn_switch_to_on_mtrl_00001", "drawable/abc_btn_switch_to_on_mtrl_00012", "drawable/abc_cab_background_top_mtrl_alpha", "drawable/abc_ic_commit_search_api_mtrl_alpha", "drawable/abc_list_divider_mtrl_alpha"]
+[PASS   ] zipalign-16k
+    expected: zipalign -c -P 16 4 通过
+    actual  : exit=0
+    evidence: 16 KB zip 对齐检查（build-tools>=35 的 zipalign）
+[INFO   ] manifest-component-counts
+    expected: 第一方/alias 数量一致（其余差异记录）
+    actual  : {"activity": {"official": 17, "target": 6}, "activity-alias": {"official": 28, "target": 28}, "service": {"official": 12, "target": 7}, "receiver": {"official": 6, "target": 5}, "provider": {"official": 4, "target": 2}, "meta-data": {"official": 38, "target": 22}, "uses-permission": {"official": 16, "target": 9}}
+    evidence: 官方第三方广告/计费组件会减少 activity/service/provider 数量
+[INFO   ] permissions-vs-official
+    expected: 记录与官方的权限差异（MOD 有意移除广告/计费权限）
+    actual  : 目标 9 / 官方 16
+    evidence: 官方有目标无=["android.permission.ACCESS_ADSERVICES_AD_ID", "android.permission.ACCESS_ADSERVICES_ATTRIBUTION", "android.permission.ACCESS_ADSERVICES_TOPICS", "com.android.vending.BILLING", "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE", "com.google.android.gms.permission.AD_ID", "com.google.android.providers.gsf.permission.READ_GSERVICES", "kajfosz.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"]；目标新增=["com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"]
+[NOT RUN] reference-package
+    expected: 与参照 APK 相同包名
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-permissions
+    expected: 权限集合与参照 APK 一致
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-components
+    expected: 第一方组件与参照 APK 一致
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-assets
+    expected: assets 集合与参照 APK 一致
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-native-libs
+    expected: native libs 集合与参照 APK 一致
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-dex-count
+    expected: dex 数量记录
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-class-total
+    expected: 类总数记录
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+[NOT RUN] reference-native-libs-bytes
+    expected: 参照 native libs 逐字节相同（SHA-256）
+    actual  : 未提供 --reference-apk
+    evidence: 需要 --reference-apk 才执行
+
+## 失败项
+- resource-id-parity: 同名不同 ID=28，官方有目标无=0，目标新增=48
+
+说明：本报告只覆盖 APK 结构/身份/覆盖/资源/ABI/签名，不代表 AVD 运行、玩法或发布验收。

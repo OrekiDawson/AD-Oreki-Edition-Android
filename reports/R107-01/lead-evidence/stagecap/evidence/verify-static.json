@@ -1,0 +1,630 @@
+{
+ "task": "R107-01 EC/DIL bootstrap scale static verification",
+ "generated_at": "2026-11-14 07:29:28 +0800",
+ "base_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/base_decoded_321",
+ "fake_tree": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-hooks-tmp/ecscale-static/mod",
+ "checks": [
+  {
+   "check": "临时基线副本就绪",
+   "ok": true,
+   "detail": "16 个 smali + apktool.yml"
+  },
+  {
+   "check": "补丁函数可执行（build_mod 当前源码）",
+   "ok": true,
+   "detail": "[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）\n[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）\n[R107-REALITY] z40 DS6：preReality 成就项已接 OrekiRealityUnlock（EC11/12 满则豁免）\nPRODUCER_OK\n"
+  },
+  {
+   "check": "EC 补丁输出说明",
+   "ok": true,
+   "detail": "[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）\n[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）\n[R107-REALITY] z40 DS6：preReality 成就项已接 OrekiRealityUnlock（EC11/12 满则豁免）\nPRODUCER_OK\n"
+  },
+  {
+   "check": "DIL 补丁输出说明",
+   "ok": true,
+   "detail": "[R107-EC] challenge/eternity/b.K(): EC 资源门槛 bootstrap /100 已接 Kotlin（2 处 return）\n[R107-DIL] 膨胀研究 TT 成本读取点已转发 Kotlin（23 处；bootstrap /1000，clampMin 1）\n[R107-REALITY] z40 DS6：preReality 成就项已接 OrekiRealityUnlock（EC11/12 满则豁免）\nPRODUCER_OK\n"
+  },
+  {
+   "check": "EC K() 两个 return 都转发 Kotlin",
+   "ok": true,
+   "detail": "count=2"
+  },
+  {
+   "check": "EC 转发后 check-cast 回 BigDouble",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "膨胀成本 23 处字段读取全部转发",
+   "ok": true,
+   "detail": "count=23"
+  },
+  {
+   "check": "is3.x() getter 也被转发（显示/单买一致）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "幂等标记存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "补丁幂等（二次执行不重复注入）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "被改 smali 全部单文件汇编通过",
+   "ok": true,
+   "detail": "ok=14 fails=[]"
+  },
+  {
+   "check": "基线绑定生成",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "新 Kotlin 文件存在（5 个）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "payload Kotlin 全量编译通过（含 5 个新类）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "javap ABI OrekiEcRequirementScale",
+   "ok": true,
+   "detail": "iEcRequirementScale.kt\"\npublic final class kajfosz.antimatterdimensions.oreki.OrekiEcRequirementScale {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiEcRequirementScale INSTANCE;\n  private static final double EC_REQUIREMENT_DIVISOR;\n  private kajfosz.antimatterdimensions.oreki.OrekiEcRequirementScale();\n  public static final java.lang.Object apply(java.lang.Object);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiDilationCostScale",
+   "ok": true,
+   "detail": "sions.oreki.OrekiDilationCostScale {\n  public static final kajfosz.antimatterdimensions.oreki.OrekiDilationCostScale INSTANCE;\n  private static final double DILATION_TT_DIVISOR;\n  private kajfosz.antimatterdimensions.oreki.OrekiDilationCostScale();\n  public static final java.lang.Object applyForStudy(java.lang.Object);\n  public static final java.lang.Object apply(java.lang.Object);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiDilationStudies",
+   "ok": true,
+   "detail": "ang.String, java.lang.Boolean);\n  static java.lang.Boolean boolOf$default(kajfosz.antimatterdimensions.oreki.OrekiDilationStudies, java.lang.Object, java.lang.String, java.lang.Boolean, int, java.lang.Object);\n  private final boolean ensureStudies();\n  private final java.lang.String ttText();\n  private final void logThrottled(java.lang.String);\n  public static final boolean tick();\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiRealityUnlock",
+   "ok": true,
+   "detail": ");\n  private final java.lang.Object callM(java.lang.Object, java.lang.String, int);\n  private final java.lang.String td8Bought();\n  private final java.lang.String maxEpExponent();\n  private final java.lang.String preRealityEvery();\n  private final java.lang.String pelleDoomed();\n  private final void logDs6(boolean, boolean);\n  public static final boolean waiveAchievements(boolean);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int effectiveIntervalSec();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int stageCapSec();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int getIntervalSec();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int intervalMs();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int effectiveIntervalSec();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int stageCapSec();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int getIntervalSec();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "javap ABI OrekiAutomationScheduler public static final int intervalMs();",
+   "ok": true,
+   "detail": "noteActed(java.lang.String, java.lang.String);\n  public static final void noteNoop(java.lang.String);\n  public static final void noteFail(java.lang.String);\n  private final void clearPending();\n  public static final java.lang.String statusLine();\n  public static final java.lang.String statsLine();\n  public static final long sinceLastActMs(java.lang.String);\n  public static final int servedCount(java.lang.String);\n  public static final void dbgState();\n  public static final void resetAll();\n  private final int idxOf(java.lang.String);\n  private final void logI(java.lang.String);\n  static {};\n}\n"
+  },
+  {
+   "check": "原版购买入口 is3.D(Z,Continuation) 存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "d01/a01/b01 不覆盖 D（继承 is3 原版入口）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "膨胀研究注册表 c01.a:[Ld01; 存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "研究 id 字段 in1.c:I 存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 成本读取必须经 OrekiDilationCostScale（bootstrap /1000）",
+   "ok": true,
+   "detail": "missing token applyForStudy"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 已购判定必须走原版 B()",
+   "ok": true,
+   "detail": "missing token boolOf(study, \"B\")"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 需求判定必须走原版 A(true)",
+   "ok": true,
+   "detail": "missing token boolOf(study, \"A\", true)"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 余额判定必须走原版 z()",
+   "ok": true,
+   "detail": "missing token boolOf(study, \"z\")"
+  },
+  {
+   "check": "OrekiDilationStudies 契约: 购买必须走原版 D(true,null)",
+   "ok": true,
+   "detail": "missing token findMethod(study, \"D\""
+  },
+  {
+   "check": "OrekiDilationStudies 契约: tick() 需 @JvmStatic 供调用方直连",
+   "ok": true,
+   "detail": "missing token @JvmStatic"
+  },
+  {
+   "check": "OrekiStageAuto 已接线 OrekiDilationStudies.tick()",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "接线位于 economyEligible 经济门禁分支（不发起永恒结算）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 契约: 独立诊断 TAG（不占 note 的 1s 限频）",
+   "ok": true,
+   "detail": "missing token TAG_DIAG2 = \"OREKI_EC_DIAG2\""
+  },
+  {
+   "check": "EC4-DIAG 契约: 诊断 30s 限频字段",
+   "ok": true,
+   "detail": "missing token lastDiag2At"
+  },
+  {
+   "check": "EC4-DIAG 契约: 诊断 30s 限频生效",
+   "ok": true,
+   "detail": "missing token now - lastDiag2At < 30_000L"
+  },
+  {
+   "check": "EC4-DIAG 契约: 只在 TRYBUY 失败时触发诊断",
+   "ok": true,
+   "detail": "missing token if (r != true) {"
+  },
+  {
+   "check": "EC4-DIAG 契约: 诊断调用点绑定目标 EC/研究/前置链",
+   "ok": true,
+   "detail": "missing token diag2(target, study, k)"
+  },
+  {
+   "check": "EC4-DIAG 契约: A(false)/A(true) 只读",
+   "ok": true,
+   "detail": "missing token fun tsA(ts: Any?, flag: Boolean)"
+  },
+  {
+   "check": "EC4-DIAG 契约: z() 余额只读",
+   "ok": true,
+   "detail": "missing token fun tsZ(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: requirementType 只读",
+   "ok": true,
+   "detail": "missing token fun tsReqType(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: 分组 t 只读",
+   "ok": true,
+   "detail": "missing token fun tsGroup(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: K() 只读",
+   "ok": true,
+   "detail": "missing token fun tsKFlag(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: r lambda 只读",
+   "ok": true,
+   "detail": "missing token fun tsReqLambda(ts: Any?)"
+  },
+  {
+   "check": "EC4-DIAG 契约: TimeStudyTree c()/b() 只读",
+   "ok": true,
+   "detail": "missing token fun treeState(): String"
+  },
+  {
+   "check": "EC4-DIAG 契约: EC 研究自身诊断行",
+   "ok": true,
+   "detail": "missing token ECSTUDY target="
+  },
+  {
+   "check": "EC4-DIAG 契约: 前置 TS 链诊断行",
+   "ok": true,
+   "detail": "missing token \"TS id=\""
+  },
+  {
+   "check": "EC4-DIAG 契约: 12 个 EC completions 诊断行",
+   "ok": true,
+   "detail": "missing token \"ECS\""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: E(true)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: E(false)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: y().p(",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: write",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: commit",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-DIAG 不含写入/结算调用: respec",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "EC4-FIX 契约: 满级判定入口",
+   "ok": true,
+   "detail": "missing token private fun respecIfCurrentEcMaxed(unlocked: Int)"
+  },
+  {
+   "check": "EC4-FIX 契约: 读取原版 completions",
+   "ok": true,
+   "detail": "missing token Abi.completions(challenge)"
+  },
+  {
+   "check": "EC4-FIX 契约: 读取原版 maxCompletions",
+   "ok": true,
+   "detail": "missing token Abi.maxCompletions(challenge)"
+  },
+  {
+   "check": "EC4-FIX 契约: 调用原版 studies/d.c(Z)V",
+   "ok": true,
+   "detail": "missing token Abi.respecTimeStudies()"
+  },
+  {
+   "check": "EC4-FIX 契约: 同快照 3s 闸门（防抖动）",
+   "ok": true,
+   "detail": "missing token lastEcRespecKey"
+  },
+  {
+   "check": "EC4-FIX 契约: RESPEC 日志",
+   "ok": true,
+   "detail": "missing token \"RESPEC maxed id=\""
+  },
+  {
+   "check": "EC4-FIX 契约: respec 后占一拍",
+   "ok": true,
+   "detail": "missing token return true"
+  },
+  {
+   "check": "EC4-FIX 在选目标前触发",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "基线 studies/d.c(Z)V（respecTimeStudies）存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "原版 UI/结算路径确实调用 studies/d.c(Z)V",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "respec 块不写 unlocked/不写 completions",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 DS6 成就失败出口已接 Kotlin 豁免",
+   "ok": true,
+   "detail": "count=1"
+  },
+  {
+   "check": "z40 豁免成功跳 :cond_4（if-nez v7：v7!=0 才跳；e0962c48 的 if-eqz 是极性错误）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 豁免前 const/4 v1, 0x0（original=false）",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 幂等标记存在",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 原版 DS6 分项保留: TD8：c01.a(8).B()",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 原版 DS6 分项保留: maxEP exponent >= 4000 常量",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 原版 DS6 分项保留: Pelle doomed 检查",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 原版 DS6 分项保留: preReality 成就列表",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "z40 原版 DS6 分项保留: 成就 isUnlocked",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: 诊断 TAG",
+   "ok": true,
+   "detail": "missing token TAG = \"OREKI_REALITY_UNLOCK\""
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: Smali 用 invoke-static 调",
+   "ok": true,
+   "detail": "missing token @JvmStatic"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: ABI 形状",
+   "ok": true,
+   "detail": "missing token fun waiveAchievements(original: Boolean): Boolean"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: 读 EC11",
+   "ok": true,
+   "detail": "missing token isFullyCompleted(11)"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: 读 EC12",
+   "ok": true,
+   "detail": "missing token isFullyCompleted(12)"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: 1s 缓存",
+   "ok": true,
+   "detail": "missing token CACHE_MS"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: original=true 原样保留（不改原版行为）",
+   "ok": true,
+   "detail": "missing token if (original) return true"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: DS6 分段诊断 TAG",
+   "ok": true,
+   "detail": "missing token TAG_DS6 = \"OREKI_DS6\""
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: 分段日志调用",
+   "ok": true,
+   "detail": "missing token logDs6(original, effective)"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: TD8 分段",
+   "ok": true,
+   "detail": "missing token td8Bought()"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: maxEP 分段",
+   "ok": true,
+   "detail": "missing token maxEpExponent()"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: preRealityEvery 分段",
+   "ok": true,
+   "detail": "missing token preRealityEvery()"
+  },
+  {
+   "check": "OrekiRealityUnlock 契约: Pelle 分段",
+   "ok": true,
+   "detail": "missing token pelleDoomed()"
+  },
+  {
+   "check": "OrekiRealityUnlock 不写字段: unlocked =",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiRealityUnlock 不写字段: completions =",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiRealityUnlock 不写字段: setProgress",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiRealityUnlock 不写字段: isUnlocked =",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "OrekiRealityUnlock 不写字段: .unlock(",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "STAGECAP 契约: 阶段上限只读入口",
+   "ok": true,
+   "detail": "missing token fun stageCapSec(): Int"
+  },
+  {
+   "check": "STAGECAP 契约: effective = min(configured, cap) 入口",
+   "ok": true,
+   "detail": "missing token fun effectiveIntervalSec(): Int"
+  },
+  {
+   "check": "STAGECAP 契约: 1s 阶段缓存",
+   "ok": true,
+   "detail": "missing token STAGE_CAP_CACHE_MS = 1000L"
+  },
+  {
+   "check": "STAGECAP 契约: 日志限频字段",
+   "ok": true,
+   "detail": "missing token stageCapLogAt"
+  },
+  {
+   "check": "STAGECAP 契约: 日志限频常量",
+   "ok": true,
+   "detail": "missing token STAGE_CAP_LOG_MS"
+  },
+  {
+   "check": "STAGECAP 契约: 只读 realities 判阶段",
+   "ok": true,
+   "detail": "missing token GameApi.realitiesValue()"
+  },
+  {
+   "check": "STAGECAP 契约: cap 边界 0",
+   "ok": true,
+   "detail": "missing token GameApi.compareToDouble(realities, 0.0)"
+  },
+  {
+   "check": "STAGECAP 契约: cap 边界 10",
+   "ok": true,
+   "detail": "missing token GameApi.compareToDouble(realities, 10.0)"
+  },
+  {
+   "check": "STAGECAP 契约: cap 边界 50",
+   "ok": true,
+   "detail": "missing token GameApi.compareToDouble(realities, 50.0)"
+  },
+  {
+   "check": "STAGECAP 契约: cap 1s（realities==0）",
+   "ok": true,
+   "detail": "missing token -> 1"
+  },
+  {
+   "check": "STAGECAP 契约: cap 2s（1..9）",
+   "ok": true,
+   "detail": "missing token -> 2"
+  },
+  {
+   "check": "STAGECAP 契约: cap 3s（10..49）",
+   "ok": true,
+   "detail": "missing token -> 3"
+  },
+  {
+   "check": "STAGECAP 契约: cap 5s（>=50）",
+   "ok": true,
+   "detail": "missing token else -> 5"
+  },
+  {
+   "check": "STAGECAP 契约: 全局 beat 用 effective",
+   "ok": true,
+   "detail": "missing token val effectiveMs = effectiveIntervalSec() * 1000L"
+  },
+  {
+   "check": "STAGECAP 契约: 全局统一节拍闸",
+   "ok": true,
+   "detail": "missing token now - beat < effectiveMs"
+  },
+  {
+   "check": "STAGECAP 契约: 单任务二次闸",
+   "ok": true,
+   "detail": "missing token now - last < effectiveMs"
+  },
+  {
+   "check": "STAGECAP 契约: GUI 强同步跟随 effective",
+   "ok": true,
+   "detail": "missing token val gap = effectiveIntervalSec() * 1000L"
+  },
+  {
+   "check": "STAGECAP 契约: 模块自守闸跟随 effective",
+   "ok": true,
+   "detail": "missing token fun intervalMs(): Int = effectiveIntervalSec() * 1000"
+  },
+  {
+   "check": "STAGECAP 契约: min 语义",
+   "ok": true,
+   "detail": "missing token return if (intervalSec < stageCapCacheSec) intervalSec else stageCapCacheSec"
+  },
+  {
+   "check": "UI/配置值不变: getIntervalSec 返回配置值",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "UI/配置值不变: setIntervalSec 仍写 intervalSec 并 persist",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "UI/配置值不变: statusLine 仍用配置值",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "STAGECAP 不写配置/存档: putInt(",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "STAGECAP 不写配置/存档: putBoolean(",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "STAGECAP 不写配置/存档: intervalSec =",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "STAGECAP 不写配置/存档: persist()",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "不再有配置间隔直接判闸（intervalSec * 1000L）",
+   "ok": true,
+   "detail": ""
+  }
+ ],
+ "total": 124,
+ "failed": 0
+}

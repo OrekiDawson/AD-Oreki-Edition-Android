@@ -1,0 +1,146 @@
+# DEX 第一方类覆盖（R106-02，只读）
+# 生成时间: 2026-11-13T21:46:18+08:00
+# APK: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/agp/app/build/outputs/apk/release/app-release.apk
+# 基准: docs/deobfuscation/data/first-party-3.21-index.csv（官方 3.21.0，15,319 类）
+
+## 计数
+CSV 类总数            = 15319
+CSV 第一方类(first_party=yes) = 10954
+APK 类总数(dexdump 去重)     = 16390
+APK 中命中的 CSV 第一方类    = 10954
+CSV 第一方类缺失            = 0
+APK 额外第一方类(命名规则)   = 65
+APK 额外其他类(第三方/MOD)   = 1119
+
+## 缺失的 CSV 第一方类（最多列 200）
+
+## APK 额外第一方类（最多列 200）
+  La15$$ExternalSyntheticThrowIAE2;
+  Lkajfosz/antimatterdimensions/OrekiAuto;
+  Lkajfosz/antimatterdimensions/OrekiTrace;
+  Lkajfosz/antimatterdimensions/R$anim;
+  Lkajfosz/antimatterdimensions/R$animator;
+  Lkajfosz/antimatterdimensions/R$array;
+  Lkajfosz/antimatterdimensions/R$attr;
+  Lkajfosz/antimatterdimensions/R$bool;
+  Lkajfosz/antimatterdimensions/R$color;
+  Lkajfosz/antimatterdimensions/R$dimen;
+  Lkajfosz/antimatterdimensions/R$drawable;
+  Lkajfosz/antimatterdimensions/R$font;
+  Lkajfosz/antimatterdimensions/R$id;
+  Lkajfosz/antimatterdimensions/R$integer;
+  Lkajfosz/antimatterdimensions/R$interpolator;
+  Lkajfosz/antimatterdimensions/R$layout;
+  Lkajfosz/antimatterdimensions/R$plurals;
+  Lkajfosz/antimatterdimensions/R$raw;
+  Lkajfosz/antimatterdimensions/R$string;
+  Lkajfosz/antimatterdimensions/R$style;
+  Lkajfosz/antimatterdimensions/R$xml;
+  Lkajfosz/antimatterdimensions/R;
+  Lkajfosz/antimatterdimensions/oreki/GameApi$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/GameApi;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutobuyerBeat;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener$Companion;
+  Lkajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener;
+  Lkajfosz/antimatterdimensions/oreki/OrekiBaselineBindings;
+  Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;
+  Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$Decision;
+  Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$LockedDimension;
+  Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation$Abi$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation$Abi;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEternityEconomy;
+  Lkajfosz/antimatterdimensions/oreki/OrekiEternityRules;
+  Lkajfosz/antimatterdimensions/oreki/OrekiGuiStage$Snapshot;
+  Lkajfosz/antimatterdimensions/oreki/OrekiGuiStage;
+  Lkajfosz/antimatterdimensions/oreki/OrekiIpGainScale;
+  Lkajfosz/antimatterdimensions/oreki/OrekiIu15Sprint;
+  Lkajfosz/antimatterdimensions/oreki/OrekiNavRefresh$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/OrekiNavRefresh$requestAsync$1$task$1;
+  Lkajfosz/antimatterdimensions/oreki/OrekiNavRefresh;
+  Lkajfosz/antimatterdimensions/oreki/OrekiPlayerIntent;
+  Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;
+  Lkajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves;
+  Lkajfosz/antimatterdimensions/oreki/OrekiUiFramePump$callback$1;
+  Lkajfosz/antimatterdimensions/oreki/OrekiUiFramePump;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda0;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda1;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda2;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda3;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda4;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda5;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda6;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda7;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda8;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$$ExternalSyntheticLambda9;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Chapter;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity$Record;
+  Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;
+
+## APK 额外其他类中 MOD/项目相关（com/oreki、oreki、kajfosz/antimatterdimensions 以外）前 60
+  Landroidx/compose/foundation/ClickableKt$clickable_O2vRcR0$$inlined$clickableWithIndicationIfNeeded$1;
+  Landroidx/compose/foundation/text/ComposableSingletons$BasicTextFieldKt$lambda_1$1;
+  Landroidx/compose/foundation/text/ComposableSingletons$CoreTextFieldKt$lambda_1$1;
+  Landroidx/compose/ui/platform/ComposableSingletons$Wrapper_androidKt$lambda$_1759434350$1;
+  Landroidx/compose/ui/window/ComposableSingletons$AndroidPopup_androidKt$lambda$_1131826196$1;
+  Lcom/google/android/gms/internal/firebase_auth_api/a0;
+  Lcom/google/android/gms/internal/firebase_auth_api/a1;
+  Lcom/google/android/gms/internal/firebase_auth_api/a;
+  Lcom/google/android/gms/internal/firebase_auth_api/b0;
+  Lcom/google/android/gms/internal/firebase_auth_api/b1;
+  Lcom/google/android/gms/internal/firebase_auth_api/b;
+  Lcom/google/android/gms/internal/firebase_auth_api/c0;
+  Lcom/google/android/gms/internal/firebase_auth_api/c1;
+  Lcom/google/android/gms/internal/firebase_auth_api/c;
+  Lcom/google/android/gms/internal/firebase_auth_api/d0;
+  Lcom/google/android/gms/internal/firebase_auth_api/d1;
+  Lcom/google/android/gms/internal/firebase_auth_api/d;
+  Lcom/google/android/gms/internal/firebase_auth_api/e0;
+  Lcom/google/android/gms/internal/firebase_auth_api/e1;
+  Lcom/google/android/gms/internal/firebase_auth_api/e;
+  Lcom/google/android/gms/internal/firebase_auth_api/f0;
+  Lcom/google/android/gms/internal/firebase_auth_api/f1;
+  Lcom/google/android/gms/internal/firebase_auth_api/f;
+  Lcom/google/android/gms/internal/firebase_auth_api/g0;
+  Lcom/google/android/gms/internal/firebase_auth_api/g1;
+  Lcom/google/android/gms/internal/firebase_auth_api/g;
+  Lcom/google/android/gms/internal/firebase_auth_api/h0;
+  Lcom/google/android/gms/internal/firebase_auth_api/h1;
+  Lcom/google/android/gms/internal/firebase_auth_api/h;
+  Lcom/google/android/gms/internal/firebase_auth_api/i0;
+  Lcom/google/android/gms/internal/firebase_auth_api/i1;
+  Lcom/google/android/gms/internal/firebase_auth_api/i;
+  Lcom/google/android/gms/internal/firebase_auth_api/j0;
+  Lcom/google/android/gms/internal/firebase_auth_api/j1;
+  Lcom/google/android/gms/internal/firebase_auth_api/j;
+  Lcom/google/android/gms/internal/firebase_auth_api/k0;
+  Lcom/google/android/gms/internal/firebase_auth_api/k1;
+  Lcom/google/android/gms/internal/firebase_auth_api/k;
+  Lcom/google/android/gms/internal/firebase_auth_api/l0;
+  Lcom/google/android/gms/internal/firebase_auth_api/l1;
+  Lcom/google/android/gms/internal/firebase_auth_api/l;
+  Lcom/google/android/gms/internal/firebase_auth_api/m0;
+  Lcom/google/android/gms/internal/firebase_auth_api/m1;
+  Lcom/google/android/gms/internal/firebase_auth_api/m;
+  Lcom/google/android/gms/internal/firebase_auth_api/n0;
+  Lcom/google/android/gms/internal/firebase_auth_api/n;
+  Lcom/google/android/gms/internal/firebase_auth_api/o0;
+  Lcom/google/android/gms/internal/firebase_auth_api/o;
+  Lcom/google/android/gms/internal/firebase_auth_api/p0;
+  Lcom/google/android/gms/internal/firebase_auth_api/p;
+  Lcom/google/android/gms/internal/firebase_auth_api/q0;
+  Lcom/google/android/gms/internal/firebase_auth_api/q;
+  Lcom/google/android/gms/internal/firebase_auth_api/r0;
+  Lcom/google/android/gms/internal/firebase_auth_api/r;
+  Lcom/google/android/gms/internal/firebase_auth_api/s0;
+  Lcom/google/android/gms/internal/firebase_auth_api/s;
+  Lcom/google/android/gms/internal/firebase_auth_api/t0;
+  Lcom/google/android/gms/internal/firebase_auth_api/t;
+  Lcom/google/android/gms/internal/firebase_auth_api/u0;
+  Lcom/google/android/gms/internal/firebase_auth_api/u;
+
+## MOD 类（Lcom/oreki/* 或 Loreki/*）数量: 0

@@ -1,0 +1,2211 @@
+{
+ "android_jar": "/home/oreki/Android/Sdk/platforms/android-37.2/android.jar",
+ "android_jar_classes": 6536,
+ "dex_classes": 15319,
+ "dex_fields": 59138,
+ "dex_index": "/home/oreki/private-staging/r107-tools/work/dex_index.json",
+ "dex_index_sha256": "727c301a753e862cd37cfcd5fa8cb31d309896c0f32f8a401acc336e52d4ccdd",
+ "dex_methods": 78101,
+ "generated_at": "2026-11-13T23:26:12+0800",
+ "renames": [
+  [
+   "kotlin/",
+   "oreki/shadow/kotlin/"
+  ]
+ ],
+ "results": [
+  {
+   "class_access_diffs": [],
+   "code_presence_diffs": [],
+   "dex_classes": 15319,
+   "dex_illegal_names": [
+    {
+     "kind": "class",
+     "name": "androidx/compose/foundation/ClickableKt$clickable-O2vRcR0$$inlined$clickableWithIndicationIfNeeded$1"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/foundation/text/ComposableSingletons$BasicTextFieldKt$lambda-1$1"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/foundation/text/ComposableSingletons$CoreTextFieldKt$lambda-1$1"
+    },
+    {
+     "class": "androidx/compose/material/ripple/RippleHostView",
+     "kind": "method",
+     "name": "setRippleProperties-biQXAtU"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AbstractComposeView",
+     "kind": "method",
+     "name": "getAutoClearFocusBehavior-4UtRPd4"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AbstractComposeView",
+     "kind": "method",
+     "name": "setAutoClearFocusBehavior-17tfJxM"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AndroidComposeView",
+     "kind": "method",
+     "name": "getPrimaryDirectionalMotionAxisOverride-dqNNBbU$ui$annotations"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AndroidComposeView",
+     "kind": "method",
+     "name": "getPrimaryDirectionalMotionAxisOverride-dqNNBbU$ui"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AndroidComposeView",
+     "kind": "method",
+     "name": "setPrimaryDirectionalMotionAxisOverride-r2epLt8$ui"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/ui/platform/ComposableSingletons$Wrapper_androidKt$lambda$-1759434350$1"
+    },
+    {
+     "class": "androidx/compose/ui/platform/ViewLayer",
+     "kind": "method",
+     "name": "getUnderlyingMatrix-sQKQjiQ"
+    },
+    {
+     "class": "androidx/compose/ui/platform/n",
+     "kind": "method",
+     "name": "getUnderlyingMatrix-sQKQjiQ"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/ui/window/ComposableSingletons$AndroidPopup_androidKt$lambda$-1131826196$1"
+    },
+    {
+     "class": "androidx/compose/ui/window/PopupLayout",
+     "kind": "method",
+     "name": "getPopupContentSize-bOM6tXw"
+    },
+    {
+     "class": "androidx/compose/ui/window/PopupLayout",
+     "kind": "method",
+     "name": "setPopupContentSize-fhxjrPA"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$27hAKj8hhFiHQnNA1lTKsiG-Oxw"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$EfEsA0oxTYc7AqOZZSNy2cLCz-o"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$I96JcpYfaG8OJdM-2J7UmFIJHiE"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$e26-TJ45BetGQtJZIcAQ5s9rm3c"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$xrkLPQ171M9o-LLsi3Kz8A_1kSE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/CredentialProviderController$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$frtSp-QNAEdzTZHBCRu3VcqA-Pg"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$JE-GM6T_V8V7e_XFAqAqKCqwbUo"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$Y1y08ow1t71qyW_X-seA_tVzVBA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$dCdZlrjuJxGw6qcci-__6ElYZ7U"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$udknnXJUkCi6PtqNHxZRjz-MAXc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$V4druqlY-hhCgN7H_7gBE-CCd2E"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$_grL4I3hEFlp7E-aiVKZRHqZH9s"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$LBZnVkbW-B8CRzdw0L5Xdm213kE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$YCaZPEfABwcobKMf-mdYs5IJGpc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$tO6y8ElnBXVfZNoZjI-XJpiQLZI"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$vw_ntyNwI101GixVLVll1-GMkj4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$-b-lnp2JJ6BeraMH13F3mUAieEk"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$1p-ZE-A12pkutKgK_hdgnOulY6Y"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$44MsiZlR-CUjGNnZfLkOd0Hys3k"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$OYhwB46TeeE95vp-UZIRG4p_SnE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$XYSM6gKR0lvMg-lQxjkap1gMtlI"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$hxvlTH6p-6Q13m2wUQfJXWRStzQ"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$n7aSE3U-rjxKeAFoZqoUaZPIb7o"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$waf9J2Q2iu-Jv6ng6bWVjqCO3M4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpassword/CredentialProviderCreatePasswordController",
+     "kind": "method",
+     "name": "$r8$lambda$GFlJXL-70gAT0nTUSI_7R5m2R5o"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpassword/CredentialProviderCreatePasswordController",
+     "kind": "method",
+     "name": "$r8$lambda$ZDcjyBeBdr5_-IwZB-yDEoQsuUU"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$AeGo3nOtF54WcYicQlEAv-rOAcg"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$bCd5Jy2AYJhGXNLDNqzJGx-_OPo"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$hFe-9y1VyKDgbIJEMfGGnLnEIuE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$iKFfRkDUQzn61dV-PjEc3lKL3iA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$pPG6tl2TOCJ1aQHZ-L9-lkML7nc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$-5-l1Ep-bOqnbMrFOX5fEkkTmLA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$5RPyhB3CzKio-gnyjjM7-vSpksQ"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$Cmnu7D1xBd3C-XXquA4NODPoz0k"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$a0GrM5QukP6bmXo0cH2qcS-PXsk"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$aHrcgRlEsXrMYr-nCfjpRjwptf4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$atnaNB8sJHcW55eNKpGyQV-aUBE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$bXb9Ndeg5lBtq-ddAQf_UODs8ts"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$vmSIjKvCYXLOA-Edstl3SfT4_g8"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createdigitalcredential/CreateDigitalCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$NdEOl-joMLAMc5d7oW9mmtxBZxM"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createdigitalcredential/CreateDigitalCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$vkKC_qUqVF9-wOBsyy-_S1A6Hoo"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$7hGjwWXCeLAYqMWxDzFfoJv-6w4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$RYYU7unT04J82y-G6JL9ut_wHGE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$YR-_lKTBH2zm3HC5e7AY2lh5Xr0"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$eaMWeJGgmTAdp-rnPfcm8sJpXI8"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$mA34QPzQkqAxxlL7Ec_C-PwO0jA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$H8m58jFF48xOVIW7wbb-qAohYTk"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$TIoKY2xikd5hwSIbqw-Kayv1nqw"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$a_6C8FvoS0-mJrJ_QxqiYGSfhnQ"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$bBGaLg-ROEB-WUhoK5OSTerPB8U"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$eKqAcBOVoI3C5613LPG-ls3vZIc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$tYbf8Lmz5Gwdn2OkpxSCygD-a34"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$yvnKpwglMNiBQxT4pAHzT8tD-Fs"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$zkGnpDDNsVFwHCJOiX-5XJVtI70"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/getcredential/GetCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$uOxAj9j1JzqXonniXxyEcP-Y2CA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/getdigitalcredential/CredentialProviderGetDigitalCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$42KrmWHVmTbDLoSyLGZlQ0lLk-g"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/signalcredentialstate/SignalCredentialStateController",
+     "kind": "method",
+     "name": "$r8$lambda$a1iprMjAVocEOB93f2u-yyTumBs"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/a"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/a0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/a1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/b"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/b0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/b1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/c"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/c0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/c1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/d"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/d0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/d1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/e"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/e0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/e1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/f"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/f0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/f1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/g"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/g0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/g1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/h"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/h0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/h1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/i"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/i0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/i1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/j"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/j0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/j1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/k"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/k0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/k1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/l"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/l0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/l1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/m"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/m0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/m1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/n"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/n0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/o"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/o0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/p"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/p0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/q"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/q0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/r"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/r0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/s"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/s0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/t"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/t0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/u"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/u0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/v"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/v0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/w"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/w0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/x"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/x0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/y"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/y0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/z"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/z0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaac"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaad"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaae"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzad"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzadc"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzadd"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaec"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzag"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzagb"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzah"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzak"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzakt"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzal"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzan"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzank"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzanm"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzann"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzanp"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzanx"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzao"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaol"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzap"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapd"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzape"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapf"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapl"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapz"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaq"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaqn"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaqz"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzar"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzas"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzn"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzue"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzyv"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzzo"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzzs"
+    },
+    {
+     "class": "com/google/android/recaptcha/Recaptcha",
+     "kind": "method",
+     "name": "getClient-BWLJW6A$default"
+    },
+    {
+     "class": "com/google/android/recaptcha/Recaptcha",
+     "kind": "method",
+     "name": "getClient-BWLJW6A"
+    },
+    {
+     "class": "com/google/android/recaptcha/RecaptchaClient",
+     "kind": "method",
+     "name": "execute-0E7RQCE"
+    },
+    {
+     "class": "com/google/android/recaptcha/RecaptchaClient",
+     "kind": "method",
+     "name": "execute-gIAlu-s"
+    },
+    {
+     "class": "com/google/android/recaptcha/internal/zzdc",
+     "kind": "method",
+     "name": "execute-0E7RQCE"
+    },
+    {
+     "class": "com/google/android/recaptcha/internal/zzdc",
+     "kind": "method",
+     "name": "execute-gIAlu-s"
+    },
+    {
+     "class": "le3",
+     "kind": "method",
+     "name": "getUnderlyingMatrix-sQKQjiQ"
+    }
+   ],
+   "extra_classes": [
+    "kajfosz/antimatterdimensions/OrekiChallengeAuto",
+    "kajfosz/antimatterdimensions/OrekiEcContinuation",
+    "kajfosz/antimatterdimensions/OrekiInstantChallenge",
+    "kajfosz/antimatterdimensions/OrekiSpeed",
+    "kajfosz/antimatterdimensions/oreki/OrekiAchAudit",
+    "kajfosz/antimatterdimensions/oreki/OrekiEternity",
+    "kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto",
+    "kajfosz/antimatterdimensions/oreki/OrekiPelleRecord",
+    "kajfosz/antimatterdimensions/oreki/OrekiReality",
+    "kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy",
+    "kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener",
+    "kajfosz/antimatterdimensions/oreki/OrekiStrategyData",
+    "kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto",
+    "kajfosz/antimatterdimensions/oreki/OrekiUiTitle",
+    "kajfosz/antimatterdimensions/oreki/SettingsClickListener",
+    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity",
+    "kajfosz/antimatterdimensions/oreki/StageAssist",
+    "kajfosz/antimatterdimensions/oreki/StageAssistToggleListener",
+    "kajfosz/antimatterdimensions/oreki/StageConfirmListener",
+    "kajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener",
+    "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry",
+    "kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener",
+    "kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress",
+    "kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener",
+    "kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch"
+   ],
+   "field_access_diffs": [],
+   "field_value_diffs": [
+    {
+     "class": "b51",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "i",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "API_NOT_AVAILABLE",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-5",
+     "field": "APP_NOT_INSTALLED",
+     "jar_cv": [
+      "Int",
+      251
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-7",
+     "field": "APP_UID_MISMATCH",
+     "jar_cv": [
+      "Int",
+      249
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-9",
+     "field": "CANNOT_BIND_TO_SERVICE",
+     "jar_cv": [
+      "Int",
+      247
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-17",
+     "field": "CLIENT_TRANSIENT_ERROR",
+     "jar_cv": [
+      "Int",
+      239
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-16",
+     "field": "CLOUD_PROJECT_NUMBER_IS_INVALID",
+     "jar_cv": [
+      "Int",
+      240
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-12",
+     "field": "GOOGLE_SERVER_UNAVAILABLE",
+     "jar_cv": [
+      "Int",
+      244
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-100",
+     "field": "INTERNAL_ERROR",
+     "jar_cv": [
+      "Int",
+      156
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-3",
+     "field": "NETWORK_ERROR",
+     "jar_cv": [
+      "Int",
+      253
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-13",
+     "field": "NONCE_IS_NOT_BASE64",
+     "jar_cv": [
+      "Int",
+      243
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-11",
+     "field": "NONCE_TOO_LONG",
+     "jar_cv": [
+      "Int",
+      245
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-10",
+     "field": "NONCE_TOO_SHORT",
+     "jar_cv": [
+      "Int",
+      246
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-6",
+     "field": "PLAY_SERVICES_NOT_FOUND",
+     "jar_cv": [
+      "Int",
+      250
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-15",
+     "field": "PLAY_SERVICES_VERSION_OUTDATED",
+     "jar_cv": [
+      "Int",
+      241
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-4",
+     "field": "PLAY_STORE_ACCOUNT_NOT_FOUND",
+     "jar_cv": [
+      "Int",
+      252
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-2",
+     "field": "PLAY_STORE_NOT_FOUND",
+     "jar_cv": [
+      "Int",
+      254
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-14",
+     "field": "PLAY_STORE_VERSION_OUTDATED",
+     "jar_cv": [
+      "Int",
+      242
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/IntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-8",
+     "field": "TOO_MANY_REQUESTS",
+     "jar_cv": [
+      "Int",
+      248
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "API_NOT_AVAILABLE",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-5",
+     "field": "APP_NOT_INSTALLED",
+     "jar_cv": [
+      "Int",
+      251
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-7",
+     "field": "APP_UID_MISMATCH",
+     "jar_cv": [
+      "Int",
+      249
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-9",
+     "field": "CANNOT_BIND_TO_SERVICE",
+     "jar_cv": [
+      "Int",
+      247
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-18",
+     "field": "CLIENT_TRANSIENT_ERROR",
+     "jar_cv": [
+      "Int",
+      238
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-16",
+     "field": "CLOUD_PROJECT_NUMBER_IS_INVALID",
+     "jar_cv": [
+      "Int",
+      240
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-12",
+     "field": "GOOGLE_SERVER_UNAVAILABLE",
+     "jar_cv": [
+      "Int",
+      244
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-19",
+     "field": "INTEGRITY_TOKEN_PROVIDER_INVALID",
+     "jar_cv": [
+      "Int",
+      237
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-100",
+     "field": "INTERNAL_ERROR",
+     "jar_cv": [
+      "Int",
+      156
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-3",
+     "field": "NETWORK_ERROR",
+     "jar_cv": [
+      "Int",
+      253
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-6",
+     "field": "PLAY_SERVICES_NOT_FOUND",
+     "jar_cv": [
+      "Int",
+      250
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-15",
+     "field": "PLAY_SERVICES_VERSION_OUTDATED",
+     "jar_cv": [
+      "Int",
+      241
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-2",
+     "field": "PLAY_STORE_NOT_FOUND",
+     "jar_cv": [
+      "Int",
+      254
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-14",
+     "field": "PLAY_STORE_VERSION_OUTDATED",
+     "jar_cv": [
+      "Int",
+      242
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-17",
+     "field": "REQUEST_HASH_TOO_LONG",
+     "jar_cv": [
+      "Int",
+      239
+     ]
+    },
+    {
+     "class": "com/google/android/play/core/integrity/model/StandardIntegrityErrorCode",
+     "desc": "I",
+     "dex_value": "-8",
+     "field": "TOO_MANY_REQUESTS",
+     "jar_cv": [
+      "Int",
+      248
+     ]
+    },
+    {
+     "class": "kajfosz/antimatterdimensions/autobuyer/DilationUpgradeAutobuyerState",
+     "desc": "J",
+     "dex_value": "-1",
+     "field": "d",
+     "jar_cv": [
+      "Long",
+      255
+     ]
+    },
+    {
+     "class": "kajfosz/antimatterdimensions/autobuyer/InfinityDimensionsAutobuyerState",
+     "desc": "J",
+     "dex_value": "-1",
+     "field": "d",
+     "jar_cv": [
+      "Long",
+      255
+     ]
+    },
+    {
+     "class": "kajfosz/antimatterdimensions/autobuyer/ReplicantiUpgradeAutobuyerState",
+     "desc": "J",
+     "dex_value": "-1",
+     "field": "d",
+     "jar_cv": [
+      "Long",
+      255
+     ]
+    },
+    {
+     "class": "kajfosz/antimatterdimensions/autobuyer/TimeDimensionsAutobuyerState",
+     "desc": "J",
+     "dex_value": "-1",
+     "field": "c",
+     "jar_cv": [
+      "Long",
+      255
+     ]
+    },
+    {
+     "class": "kajfosz/antimatterdimensions/reality/glyphs/f",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "c",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "kajfosz/antimatterdimensions/ui/reality/automator/MyCodeView",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "g0",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "oy2",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "b",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "oy2",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "c",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    },
+    {
+     "class": "oy2",
+     "desc": "I",
+     "dex_value": "-1",
+     "field": "d",
+     "jar_cv": [
+      "Int",
+      255
+     ]
+    }
+   ],
+   "field_values_unparsed": [],
+   "fields_extra": [],
+   "fields_missing": [],
+   "interface_diffs": [],
+   "jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/game-final.jar",
+   "jar_build_seconds": 2.49,
+   "jar_classes": 15344,
+   "jar_illegal_names": [
+    {
+     "kind": "class",
+     "name": "androidx/compose/foundation/ClickableKt$clickable-O2vRcR0$$inlined$clickableWithIndicationIfNeeded$1"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/foundation/text/ComposableSingletons$BasicTextFieldKt$lambda-1$1"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/foundation/text/ComposableSingletons$CoreTextFieldKt$lambda-1$1"
+    },
+    {
+     "class": "androidx/compose/material/ripple/RippleHostView",
+     "kind": "method",
+     "name": "setRippleProperties-biQXAtU"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AbstractComposeView",
+     "kind": "method",
+     "name": "getAutoClearFocusBehavior-4UtRPd4"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AbstractComposeView",
+     "kind": "method",
+     "name": "setAutoClearFocusBehavior-17tfJxM"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AndroidComposeView",
+     "kind": "method",
+     "name": "getPrimaryDirectionalMotionAxisOverride-dqNNBbU$ui$annotations"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AndroidComposeView",
+     "kind": "method",
+     "name": "getPrimaryDirectionalMotionAxisOverride-dqNNBbU$ui"
+    },
+    {
+     "class": "androidx/compose/ui/platform/AndroidComposeView",
+     "kind": "method",
+     "name": "setPrimaryDirectionalMotionAxisOverride-r2epLt8$ui"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/ui/platform/ComposableSingletons$Wrapper_androidKt$lambda$-1759434350$1"
+    },
+    {
+     "class": "androidx/compose/ui/platform/ViewLayer",
+     "kind": "method",
+     "name": "getUnderlyingMatrix-sQKQjiQ"
+    },
+    {
+     "class": "androidx/compose/ui/platform/n",
+     "kind": "method",
+     "name": "getUnderlyingMatrix-sQKQjiQ"
+    },
+    {
+     "kind": "class",
+     "name": "androidx/compose/ui/window/ComposableSingletons$AndroidPopup_androidKt$lambda$-1131826196$1"
+    },
+    {
+     "class": "androidx/compose/ui/window/PopupLayout",
+     "kind": "method",
+     "name": "getPopupContentSize-bOM6tXw"
+    },
+    {
+     "class": "androidx/compose/ui/window/PopupLayout",
+     "kind": "method",
+     "name": "setPopupContentSize-fhxjrPA"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$27hAKj8hhFiHQnNA1lTKsiG-Oxw"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$EfEsA0oxTYc7AqOZZSNy2cLCz-o"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$I96JcpYfaG8OJdM-2J7UmFIJHiE"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$e26-TJ45BetGQtJZIcAQ5s9rm3c"
+    },
+    {
+     "class": "androidx/credentials/playservices/CredentialProviderPlayServicesImpl",
+     "kind": "method",
+     "name": "$r8$lambda$xrkLPQ171M9o-LLsi3Kz8A_1kSE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/CredentialProviderController$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$frtSp-QNAEdzTZHBCRu3VcqA-Pg"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$JE-GM6T_V8V7e_XFAqAqKCqwbUo"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$Y1y08ow1t71qyW_X-seA_tVzVBA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$dCdZlrjuJxGw6qcci-__6ElYZ7U"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/ResponseUtils$Companion",
+     "kind": "method",
+     "name": "$r8$lambda$udknnXJUkCi6PtqNHxZRjz-MAXc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$V4druqlY-hhCgN7H_7gBE-CCd2E"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/createrestorecredential/CredentialProviderCreateRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$_grL4I3hEFlp7E-aiVKZRHqZH9s"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$LBZnVkbW-B8CRzdw0L5Xdm213kE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$YCaZPEfABwcobKMf-mdYs5IJGpc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$tO6y8ElnBXVfZNoZjI-XJpiQLZI"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/blockstore/getrestorecredential/CredentialProviderGetRestoreCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$vw_ntyNwI101GixVLVll1-GMkj4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$-b-lnp2JJ6BeraMH13F3mUAieEk"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$1p-ZE-A12pkutKgK_hdgnOulY6Y"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$44MsiZlR-CUjGNnZfLkOd0Hys3k"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$OYhwB46TeeE95vp-UZIRG4p_SnE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$XYSM6gKR0lvMg-lQxjkap1gMtlI"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$hxvlTH6p-6Q13m2wUQfJXWRStzQ"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$n7aSE3U-rjxKeAFoZqoUaZPIb7o"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/beginsignin/CredentialProviderBeginSignInController",
+     "kind": "method",
+     "name": "$r8$lambda$waf9J2Q2iu-Jv6ng6bWVjqCO3M4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpassword/CredentialProviderCreatePasswordController",
+     "kind": "method",
+     "name": "$r8$lambda$GFlJXL-70gAT0nTUSI_7R5m2R5o"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpassword/CredentialProviderCreatePasswordController",
+     "kind": "method",
+     "name": "$r8$lambda$ZDcjyBeBdr5_-IwZB-yDEoQsuUU"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$AeGo3nOtF54WcYicQlEAv-rOAcg"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$bCd5Jy2AYJhGXNLDNqzJGx-_OPo"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$hFe-9y1VyKDgbIJEMfGGnLnEIuE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$iKFfRkDUQzn61dV-PjEc3lKL3iA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/createpublickeycredential/CredentialProviderCreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$pPG6tl2TOCJ1aQHZ-L9-lkML7nc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$-5-l1Ep-bOqnbMrFOX5fEkkTmLA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$5RPyhB3CzKio-gnyjjM7-vSpksQ"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$Cmnu7D1xBd3C-XXquA4NODPoz0k"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$a0GrM5QukP6bmXo0cH2qcS-PXsk"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$aHrcgRlEsXrMYr-nCfjpRjwptf4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$atnaNB8sJHcW55eNKpGyQV-aUBE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$bXb9Ndeg5lBtq-ddAQf_UODs8ts"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identityauth/getsigninintent/CredentialProviderGetSignInIntentController",
+     "kind": "method",
+     "name": "$r8$lambda$vmSIjKvCYXLOA-Edstl3SfT4_g8"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createdigitalcredential/CreateDigitalCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$NdEOl-joMLAMc5d7oW9mmtxBZxM"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createdigitalcredential/CreateDigitalCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$vkKC_qUqVF9-wOBsyy-_S1A6Hoo"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$7hGjwWXCeLAYqMWxDzFfoJv-6w4"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$RYYU7unT04J82y-G6JL9ut_wHGE"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$YR-_lKTBH2zm3HC5e7AY2lh5Xr0"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$eaMWeJGgmTAdp-rnPfcm8sJpXI8"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpasswordcredential/CreatePasswordCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$mA34QPzQkqAxxlL7Ec_C-PwO0jA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$H8m58jFF48xOVIW7wbb-qAohYTk"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$TIoKY2xikd5hwSIbqw-Kayv1nqw"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$a_6C8FvoS0-mJrJ_QxqiYGSfhnQ"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$bBGaLg-ROEB-WUhoK5OSTerPB8U"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$eKqAcBOVoI3C5613LPG-ls3vZIc"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$tYbf8Lmz5Gwdn2OkpxSCygD-a34"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$yvnKpwglMNiBQxT4pAHzT8tD-Fs"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/createpublickeycredential/CreatePublicKeyCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$zkGnpDDNsVFwHCJOiX-5XJVtI70"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/getcredential/GetCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$uOxAj9j1JzqXonniXxyEcP-Y2CA"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/getdigitalcredential/CredentialProviderGetDigitalCredentialController",
+     "kind": "method",
+     "name": "$r8$lambda$42KrmWHVmTbDLoSyLGZlQ0lLk-g"
+    },
+    {
+     "class": "androidx/credentials/playservices/controllers/identitycredentials/signalcredentialstate/SignalCredentialStateController",
+     "kind": "method",
+     "name": "$r8$lambda$a1iprMjAVocEOB93f2u-yyTumBs"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/a"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/a0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/a1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/b"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/b0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/b1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/c"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/c0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/c1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/d"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/d0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/d1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/e"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/e0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/e1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/f"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/f0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/f1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/g"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/g0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/g1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/h"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/h0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/h1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/i"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/i0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/i1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/j"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/j0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/j1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/k"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/k0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/k1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/l"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/l0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/l1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/m"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/m0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/m1"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/n"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/n0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/o"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/o0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/p"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/p0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/q"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/q0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/r"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/r0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/s"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/s0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/t"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/t0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/u"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/u0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/v"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/v0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/w"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/w0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/x"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/x0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/y"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/y0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/z"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/z0"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaac"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaad"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaae"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzad"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzadc"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzadd"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaec"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzag"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzagb"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzah"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzak"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzakt"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzal"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzan"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzank"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzanm"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzann"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzanp"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzanx"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzao"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaol"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzap"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapd"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzape"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapf"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapl"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzapz"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaq"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaqn"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzaqz"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzar"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzas"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzn"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzue"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzyv"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzzo"
+    },
+    {
+     "kind": "class",
+     "name": "com/google/android/gms/internal/firebase-auth-api/zzzs"
+    },
+    {
+     "class": "com/google/android/recaptcha/Recaptcha",
+     "kind": "method",
+     "name": "getClient-BWLJW6A$default"
+    },
+    {
+     "class": "com/google/android/recaptcha/Recaptcha",
+     "kind": "method",
+     "name": "getClient-BWLJW6A"
+    },
+    {
+     "class": "com/google/android/recaptcha/RecaptchaClient",
+     "kind": "method",
+     "name": "execute-0E7RQCE"
+    },
+    {
+     "class": "com/google/android/recaptcha/RecaptchaClient",
+     "kind": "method",
+     "name": "execute-gIAlu-s"
+    },
+    {
+     "class": "com/google/android/recaptcha/internal/zzdc",
+     "kind": "method",
+     "name": "execute-0E7RQCE"
+    },
+    {
+     "class": "com/google/android/recaptcha/internal/zzdc",
+     "kind": "method",
+     "name": "execute-gIAlu-s"
+    },
+    {
+     "class": "le3",
+     "kind": "method",
+     "name": "getUnderlyingMatrix-sQKQjiQ"
+    }
+   ],
+   "jar_parse_errors": [],
+   "jar_residual_kotlin_refs_count": 4,
+   "jar_residual_kotlin_refs_sample": [
+    "kotlin/coroutines/EmptyCoroutineContext",
+    "kotlin/coroutines/intrinsics/CoroutineSingletons",
+    "kotlin/coroutines/jvm/internal/ContinuationImpl",
+    "kotlin/coroutines/jvm/internal/SuspendLambda"
+   ],
+   "jar_sha256": "e934e0d73b99aa031451806bb628341f4563a0fa38ed4059db7c3b9de466c05b",
+   "jar_unresolved_class_refs": [
+    "android/view/DisplayListCanvas",
+    "android/view/RenderNode",
+    "androidx/window/extensions/core/util/function/Consumer",
+    "androidx/window/extensions/core/util/function/Function",
+    "androidx/window/extensions/core/util/function/Predicate",
+    "com/amazon/privacypass/PrivacyPass",
+    "com/amazon/privacypass/VerificationContext",
+    "dalvik/system/VMStack",
+    "kajfosz/antimatterdimensions/OrekiAuto",
+    "kajfosz/antimatterdimensions/oreki/GameApi",
+    "kajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate",
+    "kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler",
+    "kajfosz/antimatterdimensions/oreki/OrekiAutomationUiListener",
+    "kajfosz/antimatterdimensions/oreki/OrekiEternityEconomy",
+    "kajfosz/antimatterdimensions/oreki/OrekiEternityRules",
+    "kajfosz/antimatterdimensions/oreki/OrekiIpGainScale",
+    "kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint",
+    "kajfosz/antimatterdimensions/oreki/OrekiStageAuto",
+    "kajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves",
+    "kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity",
+    "kotlin/coroutines/EmptyCoroutineContext",
+    "kotlin/coroutines/intrinsics/CoroutineSingletons",
+    "kotlin/coroutines/jvm/internal/ContinuationImpl",
+    "kotlin/coroutines/jvm/internal/SuspendLambda",
+    "libcore/io/Memory",
+    "sun/misc/Unsafe"
+   ],
+   "jar_unresolved_class_refs_count": 26,
+   "kotlin_prefix": "oreki/shadow/kotlin/",
+   "label": "final",
+   "max_stack_300_methods_count": 74449,
+   "max_stack_300_methods_sample": [
+    {
+     "class": "a",
+     "desc": "(IILjava/lang/String;)V",
+     "method": "<init>"
+    },
+    {
+     "class": "a",
+     "desc": "()Lkw;",
+     "method": "a"
+    },
+    {
+     "class": "a0",
+     "desc": "(Ljava/lang/Object;B)V",
+     "method": "<init>"
+    },
+    {
+     "class": "a0",
+     "desc": "(Ljava/util/Iterator;)V",
+     "method": "<init>"
+    },
+    {
+     "class": "a0",
+     "desc": "([Ljava/lang/Object;)V",
+     "method": "<init>"
+    }
+   ],
+   "method_access_diffs": [],
+   "methods_extra": [
+    {
+     "class": "m53",
+     "desc": "([Ljava/lang/Object;)V",
+     "method": "$$oreki$clinit$1"
+    },
+    {
+     "class": "rq",
+     "desc": "()Z",
+     "method": "isWaiting"
+    },
+    {
+     "class": "rq",
+     "desc": "()J",
+     "method": "waitStart"
+    }
+   ],
+   "methods_missing": [],
+   "missing_classes": [],
+   "over_limit_methods": [],
+   "signature": {
+    "class_access_diffs": 0,
+    "code_presence_diffs": 0,
+    "dex_illegal_names": 181,
+    "extra_classes": 25,
+    "field_access_diffs": 0,
+    "field_value_diffs": 44,
+    "fields_extra": 0,
+    "fields_missing": 0,
+    "interface_diffs": 0,
+    "jar_illegal_names": 181,
+    "jar_parse_errors": 0,
+    "jar_unresolved_class_refs": 26,
+    "max_stack_300_methods": 74449,
+    "method_access_diffs": 0,
+    "methods_extra": 3,
+    "methods_missing": 0,
+    "missing_classes": 0,
+    "over_limit_methods": 0,
+    "super_diffs": 0
+   },
+   "super_diffs": []
+  }
+ ]
+}

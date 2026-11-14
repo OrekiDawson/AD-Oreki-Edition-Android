@@ -1,0 +1,60 @@
+# R107-REALITY 第二轮（极性修复 + DS6 分段诊断）APK checks
+
+b001faa71bdb7a24f801010f7c16cbe8df06b137e8215721e6f7e02ef947691b  build/gradle-stage/反物质维度.apk
+84637867 bytes
+
+classes2 waiveAchievements call: 1
+classes4 OrekiRealityUnlock class: 1
+classes4 OREKI_DS6: 1
+classes4 td8=: 1
+classes4 maxEPexp=: 1
+classes4 preRealityEvery=: 1
+classes4 pelleDoomed=: 1
+
+jadx defpackage/z40.java case24 控制流:
+            case 23:
+                g gVar4 = MainActivity.bo;
+                return g.q(2131821847, new Object[0]);
+            case 24:
+                if (!c01.a(8).B() || Player.a.R().l().j().getExponent() < 4000.0d) {
+                    zWaiveAchievements = false;
+                } else if (vi3.a.k()) {
+                    c.h.getClass();
+                    if (c.q()) {
+                        zWaiveAchievements = false;
+                    }
+                } else {
+                    SparseIntArray sparseIntArray = t3.a;
+                    List listG = t3.g();
+                    if (listG == null || !listG.isEmpty()) {
+                        Iterator it3 = listG.iterator();
+                        while (true) {
+                            if (it3.hasNext()) {
+                                if (!((kajfosz.antimatterdimensions.achievements.a) it3.next()).A()) {
+                                    zWaiveAchievements = OrekiRealityUnlock.waiveAchievements(false);
+                                    if (!zWaiveAchievements) {
+                                        zWaiveAchievements = false;
+                                    }
+                                }
+                            }
+                            c.h.getClass();
+                            if (c.q()) {
+                                zWaiveAchievements = false;
+                            }
+                        }
+                    } else {
+                        c.h.getClass();
+                        if (c.q()) {
+                            zWaiveAchievements = false;
+                        }
+                    }
+                }
+                return Boolean.valueOf(zWaiveAchievements);
+            case 25:
+                c.h.getClass();
+                if (c.q()) {
+                    g gVar5 = MainActivity.bo;
+                    return g.q(2131821849, new Object[0]);
+                }
+                g gVar6 = MainActivity.bo;
+                return g.q(2131821848, new Object[0]);

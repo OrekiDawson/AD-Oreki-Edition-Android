@@ -1,0 +1,11 @@
+## 背景：IntervaledAutobuyerState.q(Lrj0;) 的参数类型 rj0 位于默认包。
+## 下面用同样的默认包类 yd4 复现 Kotlin 2.4.21 的两条解析行为。
+
+== T1: fun f(): Any? = yd4.b （表达式位置）==
+exit=0
+
+== T2: fun f(x: yd4): Any? = x （类型位置）==
+reports/R107-01/kotlin/evidence/kotlin-default-package-limit/T2_type_position_fail.kt:3:21: error: unresolved reference 'yd4'.
+class T2 { fun f(x: yd4): Any? = x }
+                    ^^^
+exit=1

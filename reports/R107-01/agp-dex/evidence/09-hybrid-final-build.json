@@ -1,0 +1,93 @@
+{
+ "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-final-newstaged.jar",
+ "sha256": "f0ab60bda2836c17407f56f0560bc02f3edea2cef28d936043a0d4af378d8065",
+ "size": 19415675,
+ "base_jar": "/home/oreki/private-staging/r107-tools/out/agpdex2/game-final.jar",
+ "base_sha256": "dff6332a14698cdd6621a366197115c183b902fb95837a5d30a36abf34d8f080",
+ "base_snapshot": "/home/oreki/private-staging/r107-tools/work/base-game-final-newstaged-dff6332a.jar",
+ "d2j_jar": "/home/oreki/private-staging/r10602/jars/kotlin-fixed2-remap.jar",
+ "replaced": [
+  {
+   "class": "ox0",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "b9c75fdfefb4f909b3f4c9c9a2adcb88ebaf73456122fa3f79a554f588645064",
+   "merged_sha256": "b9c75fdfefb4f909b3f4c9c9a2adcb88ebaf73456122fa3f79a554f588645064",
+   "bytes": 206
+  },
+  {
+   "class": "gk0",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "f41c72ef23c3f27376709307038d83fc7b9f5219f5dedb9e29c862d5ee7cc01a",
+   "merged_sha256": "f41c72ef23c3f27376709307038d83fc7b9f5219f5dedb9e29c862d5ee7cc01a",
+   "bytes": 1779
+  },
+  {
+   "class": "dc2",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "f8fb9aa1948b84b436d8316f80992f2aaa504c2ab64692f6474d88cec42456b0",
+   "merged_sha256": "f8fb9aa1948b84b436d8316f80992f2aaa504c2ab64692f6474d88cec42456b0",
+   "bytes": 2699
+  },
+  {
+   "class": "tf2",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "39528bd10acaa13e960c3deb4c4bbd53d73f6729f9b1f0d1c5e4553b7fb52e85",
+   "merged_sha256": "39528bd10acaa13e960c3deb4c4bbd53d73f6729f9b1f0d1c5e4553b7fb52e85",
+   "bytes": 1717
+  },
+  {
+   "class": "vf2",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "efaa97d2290a833471b1d8ef917483325cc020b3e53fc38d92ff2828cbc342ea",
+   "merged_sha256": "efaa97d2290a833471b1d8ef917483325cc020b3e53fc38d92ff2828cbc342ea",
+   "bytes": 3242
+  },
+  {
+   "class": "t01",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "fb18585b6dd09f5af93d00a03e9353da047232f22163fc9430744f11e6b4a9f2",
+   "merged_sha256": "fb18585b6dd09f5af93d00a03e9353da047232f22163fc9430744f11e6b4a9f2",
+   "bytes": 3100
+  },
+  {
+   "class": "k51",
+   "source": "dex2jar(kotlin-fixed2-remap)",
+   "dash_restore": 0,
+   "d2j_sha256": "419d90f389c38ff3a406c8fa28521116a4bab3befad2558950b3ba93d2e657e1",
+   "merged_sha256": "419d90f389c38ff3a406c8fa28521116a4bab3befad2558950b3ba93d2e657e1",
+   "bytes": 6060
+  },
+  {
+   "class": "cv0",
+   "source": "dex2jar+strip-cv0-synthetic-ctor",
+   "dash_restore": 0,
+   "d2j_sha256": "78b22d4b798b0cf8e29c4887542bef361230a46a166450307b6676da2fda4547",
+   "merged_sha256": "4100e40f075374c1ce6f6c5d8fbadd318a2df1bcb134b702a49da0d84974bc4e",
+   "bytes": 1031
+  }
+ ],
+ "kept_enjarify": {
+  "rk8": "enjarify 版（接口闭包 lu2/tu2/qy0/to2 的 v49 default 方法不可校验；本轮不扩闭包）",
+  "nc8": "enjarify 版（d2j nc8.M 仍返回 Exception，14 处 Bad return type = R106-02 v7 崩溃同源）"
+ },
+ "audit": {
+  "head": "classes=15344 verify_ok=10170 invalid=5161 inconclusive=13",
+  "replaced_valid": [
+   "ox0",
+   "gk0",
+   "dc2",
+   "tf2",
+   "vf2",
+   "t01",
+   "k51",
+   "cv0"
+  ],
+  "replaced_invalid": []
+ }
+}

@@ -1,0 +1,20 @@
+11-14 06:35:41.165 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=2.139809854493e6422004->1.25056198924456e6422006 bigE=285->286 eternitiesField=5.72e2 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false ec=0/0 t=28773790
+11-14 06:35:41.348 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=1.25056198924456e6422006->7.0109247517934e6422007 bigE=286->287 eternitiesField=5.74e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=11/0 t=28773974
+11-14 06:35:41.531 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=7.0109247517934e6422007->4.19607211929331e6422009 bigE=287->288 eternitiesField=5.76e2 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false ec=11/0 t=28774156
+11-14 06:35:41.710 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=4.19607211929331e6422009->2.32023123184116e6422011 bigE=288->289 eternitiesField=5.78e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=11/0 t=28774335
+11-14 06:35:41.893 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=2.32023123184116e6422011->1.34582776582064e6422013 bigE=289->290 eternitiesField=5.8e2 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false ec=11/0 t=28774519
+11-14 06:35:42.068 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=1.34582776582064e6422013->7.34420178564731e6422014 bigE=290->291 eternitiesField=5.82e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=11/0 t=28774694
+11-14 06:35:42.251 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=7.34420178564731e6422014->4.29241458522816e6422016 bigE=291->292 eternitiesField=5.84e2 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false ec=11/0 t=28774876
+11-14 06:35:42.307 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=4.29241458522816e6422016->4.29241458522816e6422016 bigE=292->294 eternitiesField=5.88e2 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false ec=0/0 t=28774932
+11-14 06:35:55.630 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=4.29241458522816e6422016->1.752511985189955e6422128 bigE=294->295 eternitiesField=5.9e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=0/0 t=28788255
+11-14 06:35:56.651 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=1.752511985189955e6422128->2.7928819500852877e6422191 bigE=295->296 eternitiesField=5.92e2 autoSwitch=true autoCanRun=false pending=0 latch=false halt=false ec=0/0 t=28789276
+11-14 06:35:56.725 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=2.7928819500852877e6422191->3.103624091744251e6494475 bigE=296->297 eternitiesField=5.94e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=0/0 t=28789350
+11-14 06:36:02.556 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=3.103624091744251e6494475->3.103624091744251e6494475 bigE=297->298 eternitiesField=5.96e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=11/0 t=28795181
+11-14 06:36:23.833 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=3.103624091744251e6494475->3.103624091744251e6494475 bigE=298->299 eternitiesField=5.98e2 autoSwitch=true autoCanRun=false pending=1 latch=false halt=false ec=12/0 t=28816458
+11-14 06:36:23.835 29259 29295 I OREKI_DIL_STUDIES: BUY id=1 cost=1.0e0 tt=1.21293e7
+11-14 06:36:23.862 29259 29295 I OREKI_DIL_STUDIES: BUY id=2 cost=1.0e0 tt=1.21303e7
+11-14 06:36:23.887 29259 29295 I OREKI_DIL_STUDIES: BUY id=3 cost=1.0e0 tt=1.2131799e7
+11-14 06:36:23.912 29259 29295 I OREKI_DIL_STUDIES: BUY id=4 cost=1.0e0 tt=1.2133298e7
+11-14 06:36:23.939 29259 29295 I OREKI_DIL_STUDIES: BUY id=5 cost=1.0e0 tt=1.2134797e7
+11-14 06:36:23.963 29259 29295 I OREKI_DIL_STUDIES: BUY id=6 cost=1.0e0 tt=1.2136296e7
+11-14 06:36:25.859 29259 29295 I OREKI_ET: settled prove=ep/bigE ep=3.103624091744251e6494475->0.0e0 bigE=299->0 eternitiesField=0.0e0 autoSwitch=false autoCanRun=false pending=1 latch=false halt=false ec=0/0 t=28818484

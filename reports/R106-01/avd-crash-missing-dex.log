@@ -1,0 +1,952 @@
+--------- beginning of main
+11-13 20:48:20.726  4639  4639 I adbd    : adbd service requested 'abb_exec:settings
+11-13 20:48:20.726  5121  5121 I abb     : StartCommandInProcess(73657474696e67730067657400676c6f settings.get.glo [truncated])
+11-13 20:48:20.728  4639  4639 I adbd    : adbd service requested 'abb_exec:package
+11-13 20:48:20.728  5121  5121 I abb     : StartCommandInProcess(7061636b61676500696e7374616c6c00 package.install. [truncated])
+--------- beginning of system
+11-13 20:48:20.737   668   734 D ActivityManager: sync unfroze 3673 com.google.android.verifier for 6
+11-13 20:48:20.738   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.738   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.738   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.738   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.738   668  1101 W ProcessStats: Tracking association SourceState{ae719f9 system/1000 ImpFg #4709} whose proc state 5 is better than process ProcessState{c43aec com.google.android.verifier/10157 pkg=com.google.android.verifier} proc state 14 (26 skipped)
+11-13 20:48:20.738   668   734 I VerifierController: Verifier com.google.android.verifier is connected on user 0
+11-13 20:48:20.742   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.743   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.745   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.749   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.750   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.751   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.753   462  4747 I netd    : tetherGetStats() -> {[]} <0.43ms>
+11-13 20:48:20.754   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.755   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.759   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.760   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.762   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.764   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.764   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.766   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.768   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.769   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.771   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.773   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.774   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.776   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.777   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.779   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.781   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.782   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.785   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.786   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.787   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.790   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.792   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.793   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.795   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.797   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.798   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.800   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.802   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.804   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.805   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.808   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.809   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.811   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.812   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.814   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.814   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.818   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.819   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.821   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.823   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.824   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.826   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.828   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.830   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.830   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.832   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.836   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.836   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.837   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.839   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.842   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.843   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.843   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.843   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: No service published for: persistent_data_block
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: android.os.ServiceManager$ServiceNotFoundException: No service published for: persistent_data_block
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.os.ServiceManager.getServiceOrThrow(ServiceManager.java:176)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.app.SystemServiceRegistry$91.createService(SystemServiceRegistry.java:1299)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.app.SystemServiceRegistry$91.createService(SystemServiceRegistry.java:1296)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.app.SystemServiceRegistry$StaticServiceFetcher.getService(SystemServiceRegistry.java:2863)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.app.SystemServiceRegistry.getSystemService(SystemServiceRegistry.java:2297)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.app.ContextImpl.getSystemService(ContextImpl.java:2450)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.content.Context.getSystemService(Context.java:4916)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageInstallerSession.markAsSealed(PackageInstallerSession.java:2651)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageInstallerSession.commit(PackageInstallerSession.java:2401)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.content.pm.PackageInstaller$Session.commit(PackageInstaller.java:2345)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageManagerShellCommand.doCommitSession(PackageManagerShellCommand.java:4459)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageManagerShellCommand.doRunInstall(PackageManagerShellCommand.java:1656)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageManagerShellCommand.runInstall(PackageManagerShellCommand.java:1577)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageManagerShellCommand.onCommand(PackageManagerShellCommand.java:249)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.os.ShellCommand.exec(ShellCommand.java:39)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageManagerService$IPackageManagerImpl.onShellCommand(PackageManagerService.java:7069)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.os.Binder.shellCommand(Binder.java:1088)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.os.Binder.onTransact(Binder.java:946)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.content.pm.IPackageManager$Stub.onTransact(IPackageManager.java:4786)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at com.android.server.pm.PackageManagerService$IPackageManagerImpl.onTransact(PackageManagerService.java:7053)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.os.Binder.execTransactInternal(Binder.java:1369)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: 	at android.os.Binder.execTransact(Binder.java:1323)
+11-13 20:48:20.844   668  1897 E SystemServiceRegistry: Manager wrapper not available: persistent_data_block
+11-13 20:48:20.969   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.970  3673  3751 I VerificationCheck: Verifying com.oreki.antimatterdimensions (id: 79e21fe3bf0f228ff58f886d412acb68)
+11-13 20:48:20.970  3673  3751 I VerificationForcedBackp: Forced Backport: skipped call
+11-13 20:48:20.970  3673  3751 I VerificationCheck: Verification finished for com.oreki.antimatterdimensions. Result: Pass(reason=FORCED_BACKPORT, message=null)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: Unable to fetch installer info. Defaulting to empty.
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: java.lang.IllegalStateException: `installerPackageName` is null
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at bgw.b(PG:107)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at bgt.aD(PG:24)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at bgt.b(PG:17)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at bgv.aD(PG:43)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at cxs.e(PG:11)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at dbz.run(PG:107)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at ake.run(PG:7)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at bsk.run(PG:44)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at ajm.run(PG:583)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at java.lang.Thread.run(Thread.java:1572)
+11-13 20:48:20.971  3673  3753 W PlatformVerificationMap: 	at alt.run(PG:58)
+11-13 20:48:20.971   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:20.973   668  8081 D NativeLibraryHelper: Punching extracted elf file libdatastore_shared_counter.so on fs:61267
+11-13 20:48:20.973   668  8081 D FileSystemUtils: Total number of LOAD segments 2
+11-13 20:48:20.973   668  8081 D FileSystemUtils: Size before punching holes st_blocks: 24, st_blksize: 4096, st_size: 6224
+11-13 20:48:20.973   668  8081 D FileSystemUtils: Size after punching holes st_blocks: 24, st_blksize: 4096, st_size: 6224
+11-13 20:48:20.973   668  8081 D NativeLibraryHelper: Punching extracted elf file libandroidx.graphics.path.so on fs:61267
+11-13 20:48:20.973   668  8081 D FileSystemUtils: Total number of LOAD segments 3
+11-13 20:48:20.973   668  8081 D FileSystemUtils: Size before punching holes st_blocks: 32, st_blksize: 4096, st_size: 10760
+11-13 20:48:20.973   668  8081 D FileSystemUtils: Size after punching holes st_blocks: 32, st_blksize: 4096, st_size: 10760
+11-13 20:48:20.984  6406  7449 I artd    : Merge skipped because there are no existing profiles
+11-13 20:48:20.984   668  3758 I ArtService: Adjusting the compiler filter for 'base.apk' of package 'com.oreki.antimatterdimensions' from 'speed-profile' to 'verify' because there is no valid profile
+11-13 20:48:20.984  6406  7449 I artd    : GetBestInfo: /data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk has no usable artifacts
+11-13 20:48:20.985  6406  7449 I artd    : Running dex2oat: /apex/com.android.art/bin/art_exec --drop-capabilities --set-task-profile=Dex2OatBootComplete --set-priority=background --keep-fds=6:7:8:9:10:11 -- /apex/com.android.art/bin/dex2oat64 --zip-fd=6 --zip-location=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk --oat-fd=7 --oat-location=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/oat/x86_64/base.odex --output-vdex-fd=8 --swap-fd=9 --class-loader-context-fds=10:11 --class-loader-context=PCL[]{PCL[/system_ext/framework/androidx.window.extensions.jar]#PCL[/system_ext/framework/androidx.window.sidecar.jar]} --classpath-dir=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA== --instruction-set=x86_64 --instruction-set-features=default --instruction-set-variant=x86_64 --compiler-filter=verify --compilation-reason=install --max-image-block-size=524288 --resolve-startup-const-strings=true --generate-mini-debug-info --runtime-arg -Xtarget-sdk-version:37 --runtime-arg -Xhidden-api-policy:enabled --assume-value=Landroid/os/Build$VERSION;->SDK_INT:37 --no-allow-profile-code --runtime-arg -Xms64m --runtime-arg -Xmx512m --comments=app-name:com.oreki.antimatterdimensions,app-version-name:3.21.0,app-version-code:30210000,art-version:370546200
+11-13 20:48:20.985  6406  7449 I artd    : Opened FDs: 6:/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk 7:/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/oat/x86_64/base.odex.DL3A8l.tmp 8:/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/oat/x86_64/base.vdex.RRYdax.tmp 9:/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/oat/x86_64/base.odex.swap.YzGEMQ.tmp 10:/system_ext/framework/androidx.window.sidecar.jar 11:/system_ext/framework/androidx.window.extensions.jar 
+11-13 20:48:20.991  8082  8082 W libprocessgroup: A JoinCgroup action in the SystemMemoryProcess profile is used for controller memory in the cgroup v2 hierarchy and will be ignored
+11-13 20:48:21.005  8082  8082 W dex2oat64: Unexpected CPU variant for x86: x86_64.
+11-13 20:48:21.005  8082  8082 W dex2oat64: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-13 20:48:21.005  8082  8082 W dex2oat64: Mismatch between dex2oat instruction set features to use (ISA: X86_64 Feature string: -ssse3,-sse4.1,-sse4.2,-avx,-avx2,-popcnt) and those from CPP defines (ISA: X86_64 Feature string: ssse3,sse4.1,sse4.2,-avx,-avx2,popcnt) for the command line:
+11-13 20:48:21.005  8082  8082 W dex2oat64: /apex/com.android.art/bin/dex2oat64 --zip-fd=6 --zip-location=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk --oat-fd=7 --oat-location=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/oat/x86_64/base.odex --output-vdex-fd=8 --swap-fd=9 --class-loader-context-fds=10:11 --class-loader-context=PCL[]{PCL[/system_ext/framework/androidx.window.extensions.jar]#PCL[/system_ext/framework/androidx.window.sidecar.jar]} --classpath-dir=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA== --instruction-set=x86_64 --instruction-set-features=default --instruction-set-variant=x86_64 --compiler-filter=verify --compilation-reason=install --max-image-block-size=524288 --resolve-startup-const-strings=true --generate-mini-debug-info --runtime-arg -Xtarget-sdk-version:37 --runtime-arg -Xhidden-api-policy:enabled --assume-value=Landroid/os/Build$VERSION;->SDK_INT:37 --no-allow-profile-code --runtime-arg -Xms64m --runtime-arg -Xmx512m --comments=app-name:com.oreki.antimatterdimensions,app-version-name:3.21.0,app-version-code:30210000,art-version:370546200
+11-13 20:48:21.005  8082  8082 I dex2oat64: /apex/com.android.art/bin/dex2oat64 --output-vdex-fd=8 --class-loader-context-fds=10:11 --class-loader-context=PCL[]{PCL[/system_ext/framework/androidx.window.extensions.jar]#PCL[/system_ext/framework/androidx.window.sidecar.jar]} --classpath-dir=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA== --compiler-filter=verify --compilation-reason=install --max-image-block-size=524288 --resolve-startup-const-strings=true --generate-mini-debug-info --assume-value=Landroid/os/Build$VERSION;->SDK_INT:37 --no-allow-profile-code --comments=app-name:com.oreki.antimatterdimensions,app-version-name:3.21.0,app-version-code:30210000,art-version:370546200
+11-13 20:48:21.014  8082  8082 I dex2oat64: Core platform API enforcement enabled from the hiddenapi_platform_enforcement flag and the device API level
+11-13 20:48:21.014  8082  8082 I dex2oat64: Using generational CollectorTypeCMC GC.
+11-13 20:48:21.063  8082  8085 I dex2oat64: Priority-to-niceness mapping: 19, 16, 13, 10, 0, -2, -4, -5, -6, -8
+11-13 20:48:21.066  8082  8082 I dex2oat64: dex2oat took 61.634ms (83.348ms cpu) (threads: 4) arena alloc=0B (0B) java alloc=742KB (759904B) native alloc=1635KB (1674656B) free=1016KB (1041104B)
+11-13 20:48:21.068  6406  7449 I artd    : dex2oat returned code 0
+11-13 20:48:21.070   668  3758 I ArtService: Dexopt result: [packageName = com.oreki.antimatterdimensions] DexContainerFileDexoptResult{dexContainerFile=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk, primaryAbi=true, abi=x86_64, actualCompilerFilter=verify, status=PERFORMED, dex2oatWallTimeMillis=82, dex2oatCpuTimeMillis=80, sizeBytes=58004, sizeBeforeBytes=0, extendedStatusFlags=[]}
+11-13 20:48:21.071   668  3766 E AppOps  : package pm not found, can't check for attributionTag null
+11-13 20:48:21.071   668  3766 E AppOps  : Bad call made by uid 1000. Package "pm" does not belong to uid 1000.
+11-13 20:48:21.071   668  3766 E AppOps  : Cannot noteOperation: non-application UID 1000
+11-13 20:48:21.071   668  3766 W CorePackageUpdate: Package com.oreki.antimatterdimensions no process with activities in it.
+11-13 20:48:21.071   668  3766 D KillAppBlocker: Adding uid 10248 for package com.oreki.antimatterdimensions
+11-13 20:48:21.071   668  3766 D KillAppBlocker: Found isolated uids [99005, 99007, 99008, 99009, 99011, 99013, 99015] for owner 10248
+11-13 20:48:21.071   668   692 I ActivityManager: Force stopping com.oreki.antimatterdimensions appid=10248 user=-1: killDueToPackageUpdate
+11-13 20:48:21.071   668   692 I WindowManager:   Force removing ActivityRecord{253734552 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t384}
+11-13 20:48:21.073   668  1901 W libbinder.Binder: Binder transaction to android.app.IActivityManager, function: UNKNOWN_FUNCTION_NAME, code: 1598246212, took 67134ms. Data bytes: 324 Reply bytes: 4 Flags: 16
+11-13 20:48:21.075   668   692 E ActivityManager: Unable to freeze binder for 8054: -11
+11-13 20:48:21.076   668   692 I ActivityManager: Killing 8054:com.oreki.antimatterdimensions/u0a248 (adj 0): stop com.oreki.antimatterdimensions due to killDueToPackageUpdate
+--------- beginning of kernel
+11-13 20:48:21.268     0     0 I binder  : 668:692 ioctl 400c620e 7bfb798f01ac returned -11
+11-13 20:48:21.269     0     0 I binder  : 668:692 ioctl 400c620e 7bfb798f01ac returned -11
+11-13 20:48:21.077   668   726 I AppsFilter: interaction: PackageSetting{a87fead com.android.microdroid.empty_payload/10227} -> PackageSetting{435f4b6 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.077   668   726 I AppsFilter: interaction: PackageSetting{8776110 com.labteto.dshmobile.debug/10246} -> PackageSetting{435f4b6 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.077   668   726 I AppsFilter: interaction: PackageSetting{596f496 kajfosz.antimatterdimensions.agpbridge/10249} -> PackageSetting{435f4b6 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.077   668   726 I AppsFilter: interaction: PackageSetting{a87fead com.android.microdroid.empty_payload/10227} -> PackageSetting{f049a05 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.077   668   726 I AppsFilter: interaction: PackageSetting{8776110 com.labteto.dshmobile.debug/10246} -> PackageSetting{f049a05 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.077   668   726 I AppsFilter: interaction: PackageSetting{596f496 kajfosz.antimatterdimensions.agpbridge/10249} -> PackageSetting{f049a05 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.078   668   726 I PackageManager: Update package com.oreki.antimatterdimensions code path from /data/app/~~lGtePh6wqF00OztWVSrpyw==/com.oreki.antimatterdimensions-BQUbZIbfBdig91Sysr7Jhw== to /data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==; Retain data and using new
+11-13 20:48:21.078   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-13 20:48:21.078   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-13 20:48:21.078   668   830 D InetDiagMessage: Destroyed live tcp sockets for uids={10248} in 0ms
+11-13 20:48:21.079   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-13 20:48:21.079   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-13 20:48:21.079   668   830 D InetDiagMessage: Destroyed live tcp sockets for uids={20248} in 1ms
+11-13 20:48:21.081   668   690 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): null
+11-13 20:48:21.081   668   690 D CoreBackPreview: Window{cf0107d u0 Application Error: com.oreki.antimatterdimensions}: Setting back callback null
+11-13 20:48:21.082   465   465 I Zygote  : Process 8054 exited due to signal 9 (Killed)
+11-13 20:48:21.084   927   989 V ShellTaskOrganizer: Task vanished taskId=384
+11-13 20:48:21.084   927   989 V ShellTaskOrganizer: Fullscreen Task Vanished: #384
+11-13 20:48:21.084   927   989 V ShellDesktopMode: Task Vanished: #384 closed=true
+11-13 20:48:21.084   927   989 D ShellPackageUpdate: PackageUpdateController: Removing handlePackageUpdate for task: 384
+11-13 20:48:21.084   668  1901 E WindowOrganizerController: Attempting to externally change a non-organized container: Task{93fd6f1 #384 type=standard A=10248:com.oreki.antimatterdimensions}={handlePackageUpdate:false,} playercount=2 taskorg=android.window.ITaskOrganizer$Stub$Proxy@4699f7a
+11-13 20:48:21.085   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:21.275     0     0 I binder  : release 8054:8054 transaction 4160010 out, still active
+11-13 20:48:21.276     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-13 20:48:21.085   927   989 D ShellDesktopMode: AppToWebRepository: Task 384 is vanishing. Removing task data from repository
+11-13 20:48:21.085  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:21.085   927   989 V AppCompat: SingleSurfaceLetterboxController: []
+11-13 20:48:21.085   927   989 V AppCompat: MultiSurfaceLetterboxController: []
+11-13 20:48:21.085   927   989 V AppCompat: LetterboxInputController: []
+11-13 20:48:21.085   927   989 V AppCompat: RoundedCornersLetterboxController: {}
+11-13 20:48:21.089   668   700 I libprocessgroup: Removed cgroup /sys/fs/cgroup/apps/uid_10248/pid_8054
+11-13 20:48:21.090   668  1901 W WindowManager: Failed looking up window session=Session{10984f4 927:u0a10189} callers=com.android.server.wm.WindowManagerService.windowForClient:6898 com.android.server.wm.WindowManagerService.relayoutWindow:2571 com.android.server.wm.Session.relayout:294 
+11-13 20:48:21.091   668  1901 W WindowManager: Failed looking up window session=Session{10984f4 927:u0a10189} callers=com.android.server.wm.WindowManagerService.removeClientToken:2319 com.android.server.wm.Session.remove:281 android.view.IWindowSession$Stub.onTransact:637 
+11-13 20:48:21.096   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.106   668   726 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-13 20:48:21.106   668   726 D PackageManager: Clear ephemeral installer activity
+11-13 20:48:21.300     0     0 I logd    : start watching /data/system/packages.list ...
+11-13 20:48:21.302     0     0 I logd    : ReadPackageList, total packages: 247
+11-13 20:48:21.111   668   692 E TransitionController: Set visible without transition ActivityRecord{135069430 u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t2} playing=false caller=com.android.server.wm.TaskFragment.resumeTopActivity:1571 
+11-13 20:48:21.111  1063  1063 D VRI[NexusLauncherActivity]: visibilityChanged oldVisibility=false newVisibility=true
+11-13 20:48:21.111   668   726 I PackageManager: installation completed for package:com.oreki.antimatterdimensions. Final code path: /data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==
+11-13 20:48:21.111   668   726 I AppsFilter: interaction: PackageSetting{de81ea7 com.android.microdroid.empty_payload/10227} -> PackageSetting{1221b5f com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.112   668   726 I AppsFilter: interaction: PackageSetting{1561f54 com.labteto.dshmobile.debug/10246} -> PackageSetting{1221b5f com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.112   668   726 I AppsFilter: interaction: PackageSetting{ba76b3b kajfosz.antimatterdimensions.agpbridge/10249} -> PackageSetting{1221b5f com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.113   668   753 W UsageStatsService: Unexpected activity event reported! (com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity event : 23 instanceId : 51520214)
+11-13 20:48:21.114   668   683 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{6ad1c44 0:com.oreki.antimatterdimensions/u0a248}
+11-13 20:48:21.114   668  1101 V ActivityManager: Got obituary of 8054:com.oreki.antimatterdimensions
+11-13 20:48:21.114   668   683 W libbinder.Binder: Binder transaction to android.app.IActivityManager, function: UNKNOWN_FUNCTION_NAME, code: 16, took 67125ms. Data bytes: 5568 Reply bytes: 4 Flags: 18
+11-13 20:48:21.114   668   726 I ActivityManager: Force stopping com.oreki.antimatterdimensions appid=10248 user=0: pkg removed
+11-13 20:48:21.114   584  1378 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.114   584  1378 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   692 V WindowManager: Unknown focus tokens, dropping reportFocusChanged
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.115   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.117   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.309     0     0 I binder  : 683:668 reply target not found
+11-13 20:48:21.310     0     0 I binder  : 668:683 transaction reply to 0:0 failed 4167074/29189/0, code 0 size 4-0 line 3365
+11-13 20:48:21.313     0     0 I binder  : send failed reply for transaction 4160010, target dead
+11-13 20:48:21.117   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.118   668   726 D PackageInstallerSession: Marking session 1497379916 as applied
+11-13 20:48:21.120   668   734 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.120   668   856 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_REMOVED on user 0
+11-13 20:48:21.121   668   794 W PackageConfigPersister: App-specific configuration not found for packageName: com.oreki.antimatterdimensions and userId: 0
+11-13 20:48:21.122  1063  1063 D SmartspaceInteractor: notifySmartspaceEvent: SmartspaceTargetEvent{mSmartspaceTarget=null, mSmartspaceActionId='null', mEventType=6}
+11-13 20:48:21.123   668   835 E AppOps  : attributionTag VCN not declared in manifest of android
+11-13 20:48:21.124  1063  1063 I Surface : Creating surface for consumer unnamed-1063-22 with slotExpansion=1 for 64 slots
+11-13 20:48:21.124  1063  1063 I Surface : Creating surface for consumer VRI[NexusLauncherActivity]#11(BLAST Consumer)11 with slotExpansion=1 for 64 slots
+11-13 20:48:21.124   668  1903 D WindowManager: setClientSurface Surface(name=VRI-com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity#386)/@0xae845d3 for 4febbf0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity
+11-13 20:48:21.128   668  1897 W ApplicationInfo: Large ApplicationInfo parcel: size=17500 package=com.google.android.googlequicksearchbox sharedLibs=3 resDirs=2 overlayPaths=2
+11-13 20:48:21.129   668   734 E AtomicFile: Failed to rename /data/system/install_sessions.xml.new to /data/system/install_sessions.xml
+11-13 20:48:21.129  4639  4639 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:am force-stop com.oreki.antimatterdimensions'
+11-13 20:48:21.130   668   877 D ShortcutService: received package broadcast intent: Intent { act=android.intent.action.PACKAGE_REMOVED dat=package: flg=0x4000010 (has extras) }
+11-13 20:48:21.132   668   856 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_ADDED on user 0
+11-13 20:48:21.133  1058  1210 I SatelliteAppTracker: onPackageUpdateFinished : com.oreki.antimatterdimensions
+11-13 20:48:21.134  1058  1210 I SatelliteAppTracker: onPackageModified : com.oreki.antimatterdimensions
+11-13 20:48:21.143   668   877 D ShortcutService: received package broadcast intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package: flg=0x4000010 (has extras) }
+11-13 20:48:21.143   668   877 D ShortcutService: replacing package: com.oreki.antimatterdimensions userId=0
+11-13 20:48:21.143   927  1447 D WallpaperService: onVisibilityChanged(true): com.android.systemui.wallpapers.ImageWallpaper$CanvasEngine@b14f48b
+11-13 20:48:21.147   668   683 W ApplicationInfo: Large ApplicationInfo parcel: size=17500 package=com.google.android.googlequicksearchbox sharedLibs=3 resDirs=2 overlayPaths=2
+11-13 20:48:21.148   927   927 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-13 20:48:21.148   927   927 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-13 20:48:21.149  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_user_active] +[state_resumed|state_user_active]
+11-13 20:48:21.150  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_user_active] +[]
+11-13 20:48:21.150  1063  1063 D RecentsView: onTaskRemoved: 384, not handling task stack changes
+11-13 20:48:21.150  1063  1063 D RecentsView: onTaskRemoved: 384, not handling task stack changes
+11-13 20:48:21.150  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:21.150   927   989 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=495
+11-13 20:48:21.150  1058  1058 E SmsApplication: com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+11-13 20:48:21.151   927   927 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-13 20:48:21.151  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_user_active] +[state_deferred_resumed]
+11-13 20:48:21.151  1063  1063 D StatsLog: LAUNCHER_ONRESUME
+11-13 20:48:21.154   668   698 D ActivityManager: sync unfroze 1302 com.google.android.permissioncontroller for 3
+11-13 20:48:21.155   668   885 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10248, mPackageName='com.oreki.antimatterdimensions, mAppProcessToken='null'}
+11-13 20:48:21.157  1063  1115 D QuickstepModelDelegate: notifyAppTargetEvent action=1 launchLocation=workspace/0/[-1,-1]/[1,1]
+11-13 20:48:21.160   668   885 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10248, mPackageName='com.oreki.antimatterdimensions, mAppProcessToken='null'}
+11-13 20:48:21.161  1058  1210 D SatelliteAppTracker: packageName: com.oreki.antimatterdimensions, value: null
+11-13 20:48:21.161  1058  1210 D SatelliteAppTracker: packageName: com.oreki.antimatterdimensions, value: null
+11-13 20:48:21.167  1568  8096 I AiAiEcho: AppIndexer Package:[com.oreki.antimatterdimensions] UserProfile:[0] Enabled:[true].
+11-13 20:48:21.167  1568  8096 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.oreki.antimatterdimensions], userId:[0], reason:[package is updated.].
+11-13 20:48:21.171   668   697 I AppBindingService: [Supervision app] feature disabled
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.180   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-13 20:48:21.181   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.181   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-13 20:48:21.181   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-13 20:48:21.181   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-13 20:48:21.181   668   789 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-13 20:48:21.181   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.181   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-13 20:48:21.182   668   789 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-13 20:48:21.185  1058  1181 V MessagingReadRestrictionAllowlistMonitor: onBroadcastReceived: No AppOp changes for package: com.oreki.antimatterdimensions
+11-13 20:48:21.189  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_window_focused|state_user_active] +[state_window_focused]
+11-13 20:48:21.194  1063  2152 W libc    : Access denied finding property "vendor.mesa.virtgpu.kumquat"
+11-13 20:48:21.197   668   668 D ActivityManager: sync unfroze 1802 com.android.keychain for 10
+11-13 20:48:21.198   668   668 D ActivityManager: sync unfroze 1149 com.android.settings for 10
+11-13 20:48:21.198   668   668 D ActivityManager: sync unfroze 2709 com.android.dynsystem:dynsystem for 10
+11-13 20:48:21.199   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.199   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.199   668   668 D ActivityManager: sync unfroze 2686 com.android.dynsystem for 10
+11-13 20:48:21.200   668   668 D ActivityManager: sync unfroze 2043 com.android.localtransport for 10
+11-13 20:48:21.202  1063  2152 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-13 20:48:21.204  1568  1794 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-13 20:48:21.204  1568  1794 I AiAiEcho: EchoTargets: 
+11-13 20:48:21.204  1568  1794 I AiAiEcho: Filtered by AiAi flag check: 
+11-13 20:48:21.204  1568  1794 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-13 20:48:21.205  1568  1794 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-13 20:48:21.205  1568  1794 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-13 20:48:21.217   668   784 I ImeTracker: com.google.android.apps.nexuslauncher:384ac2d7: onRequestHide at ORIGIN_SERVER reason HIDE_SAME_WINDOW_FOCUSED_WITHOUT_EDITOR fromUser false userId 0 displayId 0
+11-13 20:48:21.219  1063  1063 D InsetsController: hide(ime())
+11-13 20:48:21.220  1058  1058 D CarrierSvcBindHelper: onPackageUpdateFinished: com.oreki.antimatterdimensions
+11-13 20:48:21.220  1063  1063 I ImeTracker: com.google.android.apps.nexuslauncher:384ac2d7: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+11-13 20:48:21.221  1503  1503 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2259 
+11-13 20:48:21.224  1503  1503 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 0, locked = false
+11-13 20:48:21.224   668  1897 D ActivityManager: sync unfroze 1535 com.google.android.apps.wellbeing for 7
+11-13 20:48:21.225  1503  1503 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1446 onStartInput(EditorInfo{EditorInfo{packageName=com.google.android.apps.nexuslauncher, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-13 20:48:21.225  1503  1503 W AndroidIME: LatinIMEBase.updateInputViewCoverNavigation():327 Null input view, cannot update padding!
+11-13 20:48:21.226   668   784 W InputChannel-JNI: Channel already disposed.
+11-13 20:48:21.227  1503  1503 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+11-13 20:48:21.231   584  5843 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.231   584  5843 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.236   668  1900 W PackageConfigPersister: App-specific configuration not found for packageName: com.google.android.apps.nexuslauncher and userId: 0
+11-13 20:48:21.242  1063  1115 D AlphabeticIndexCompat: computeSectionName: cs: 反物质维度 sectionName: F
+11-13 20:48:21.244   668   824 D WifiClientModeImpl[11866:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-13 20:48:21.244   668   824 D WifiDataStall: tx tput in kbps: 37000
+11-13 20:48:21.244   668   824 D WifiDataStall: rx tput in kbps: 37000
+11-13 20:48:21.244   668   824 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-13 20:48:21.244   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:21.244   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:21.244   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:21.244   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:21.246   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:21.246   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:21.246  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:21.246  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:21.246  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:21.246  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:21.246  1063  1063 I SsBaseTemplateCard: Secondary card pane is null
+11-13 20:48:21.247   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:21.247   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:21.248  1063  1063 D AllAppsStore: setApps: apps.length=23
+11-13 20:48:21.248  1063  1063 D AllAppsStore: notifyUpdate: notifying listeners
+11-13 20:48:21.248  1063  1063 D AllAppsStore: setApps: apps.length=23
+11-13 20:48:21.248  1063  1063 D AllAppsStore: notifyUpdate: notifying listeners
+11-13 20:48:21.248  1063  1063 D ActivityAllAppsContainerView: onAppsUpdated; number of apps: 23
+11-13 20:48:21.248  1063  1063 D ActivityAllAppsContainerView: rebindAdapters: force: false
+11-13 20:48:21.248  1063  1063 D ActivityAllAppsContainerView: rebindAdapters: Not needed.
+11-13 20:48:21.248  1063  1063 D StatsLog: LAUNCHER_ALLAPPS_COUNT
+11-13 20:48:21.249   668   824 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: Clearing FastScrollerSections.
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: Adding apps with sections. HasPrivateApps: false
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: A with appInfoTitle: 安全
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: C with appInfoTitle: Chrome
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: D with appInfoTitle: 电话
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: F with appInfoTitle: 反物质维度
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: G with appInfoTitle: Gemini
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: M with appInfoTitle: Maps
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: O with appInfoTitle: Oreki Frame Observer
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: R with appInfoTitle: 日历
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: S with appInfoTitle: 设置
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: T with appInfoTitle: 通讯录
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: W with appInfoTitle: 文件
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: 相册
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: Y with appInfoTitle: 云端硬盘
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: Adding FastScrollSection duplicate to scroll to the bottom.
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: Clearing FastScrollerSections.
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: Adding apps with sections. HasPrivateApps: false
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: A with appInfoTitle: 安全
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: C with appInfoTitle: Chrome
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: D with appInfoTitle: 电话
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: F with appInfoTitle: 反物质维度
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: G with appInfoTitle: Gemini
+11-13 20:48:21.249   668   824 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: M with appInfoTitle: Maps
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: O with appInfoTitle: Oreki Frame Observer
+11-13 20:48:21.249   668   824 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: R with appInfoTitle: 日历
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: S with appInfoTitle: 设置
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: T with appInfoTitle: 通讯录
+11-13 20:48:21.249   668   824 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: W with appInfoTitle: 文件
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: 相册
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: Y with appInfoTitle: 云端硬盘
+11-13 20:48:21.249  1063  1063 D AlphabeticalAppsList: Adding FastScrollSection duplicate to scroll to the bottom.
+11-13 20:48:21.249   668   824 D WifiClientModeImpl[11866:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3006] from screen [on:0 period:-722228479] score=100
+11-13 20:48:21.253   668   668 W Looper  : Slow dispatch took 132ms main app=system_server main=true group=FOREGROUND h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@ab96781 m=0
+11-13 20:48:21.254   668   668 I Telecom : CarModeTracker: Package com.oreki.antimatterdimensions is not tracked.: SSH.oR@AOU🔒
+11-13 20:48:21.254   668   668 I Telecom : InCallController: updateCarModeForConnections: car mode apps: : SSH.oR@AOU🔒
+11-13 20:48:21.255   668   668 I Telecom : InCallController: update carmode current:UserHandle{0} parent:null: SSH.oR@AOU🔒
+11-13 20:48:21.256  1058  1058 D CarrierSvcBindHelper: No carrier app for: 0
+11-13 20:48:21.256  1058  1058 D CarrierSvcBindHelper: onPackageModified: com.oreki.antimatterdimensions
+11-13 20:48:21.256  1058  1058 D CarrierSvcBindHelper: No carrier app for: 0
+11-13 20:48:21.258   668  1907 I ActivityManager: Force stopping com.oreki.antimatterdimensions appid=10248 user=0: from pid 8092
+11-13 20:48:21.264   668  1907 I AppsFilter: interaction: PackageSetting{de81ea7 com.android.microdroid.empty_payload/10227} -> PackageSetting{41588b2 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.264   668  1907 I AppsFilter: interaction: PackageSetting{1561f54 com.labteto.dshmobile.debug/10246} -> PackageSetting{41588b2 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.264   668  1907 I AppsFilter: interaction: PackageSetting{ba76b3b kajfosz.antimatterdimensions.agpbridge/10249} -> PackageSetting{41588b2 com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:21.277   668   668 D AS.AudioService: received android.intent.action.PACKAGE_ADDED replacing: true archival: false for package com.oreki.antimatterdimensions with uid 10248
+11-13 20:48:21.277   668   856 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_RESTARTED on user 0
+11-13 20:48:21.278   668   856 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10248 package com.oreki.antimatterdimensions isStopped true
+11-13 20:48:21.283   668   691 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-13 20:48:21.286   668   764 I RoleService: Granting default roles...
+11-13 20:48:21.293  1058  1058 E SmsApplication: com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+11-13 20:48:21.296  1802  1813 W ndroid.keychain: Reducing the number of considered missed Gc histogram windows from 335 to 100
+11-13 20:48:21.297   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.297   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.310  1302  1302 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: com.oreki.antimatterdimensions, current user: UserHandle{0}, packageChangeEvent: UPDATE, intent user: UserHandle{0}
+11-13 20:48:21.323   668  3451 W SignedPackage: Package doesn't have required signing certificate: com.google.android.retaildemo
+11-13 20:48:21.324   668  3451 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms.supervision, role: android.app.role.SYSTEM_SUPERVISION, user: 0
+11-13 20:48:21.326  1058  1058 E SmsApplication: com.google.android.apps.messaging lost android:read_cell_broadcasts:  (fixing)
+11-13 20:48:21.328   668  3451 W SignedPackage: Package doesn't have required signing certificate: com.google.android.apps.work.clouddpc
+11-13 20:48:21.329  1058  1261 D ImsResolver: maybeAddedImsService, packageName: com.oreki.antimatterdimensions
+11-13 20:48:21.329  1058  1261 V ImsResolver: searchForImsServices: package=com.oreki.antimatterdimensions, users=[UserHandle{0}]
+11-13 20:48:21.329  1058  1261 V ImsResolver: searchForImsServices: package=com.oreki.antimatterdimensions, users=[UserHandle{0}]
+11-13 20:48:21.332  1058  1058 W VvmPkgInstalledRcvr: carrierVvmPkgAdded: carrier vvm packages doesn't contain com.oreki.antimatterdimensions
+11-13 20:48:21.335   668  3451 I Role    : com.google.android.gms not qualified for android.app.role.SYSTEM_DEPENDENCY_INSTALLER due to missing RequiredComponent{mFlags='0', mIntentFilterData=IntentFilterData{mAction='android.content.pm.action.INSTALL_DEPENDENCY', mCategories='[]', mDataScheme='null', mDataType='null'}, mMetaData=[], mPermission='android.permission.BIND_DEPENDENCY_INSTALLER', mQueryFlags=0} Requirement{mFeatureFlag=null, mMinTargetSdkVersion=1}
+11-13 20:48:21.335   668  3451 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.SYSTEM_DEPENDENCY_INSTALLER, user: 0
+11-13 20:48:21.337   668   668 W Looper  : Slow delivery took 205ms main app=system_server main=true group=FOREGROUND h=com.android.server.pm.UserManagerService$MainHandler c=com.android.server.pm.MultiuserNonComplianceLogger$$ExternalSyntheticLambda0@805d33f m=0
+11-13 20:48:21.337   668   668 V GameManagerService_GamePackageConfiguration: No android.game_mode_config meta-data found for package com.oreki.antimatterdimensions
+11-13 20:48:21.338   668   668 V GameManagerService: Inactive package config for com.oreki.antimatterdimensions:[Name:com.oreki.antimatterdimensions Modes: {}]
+11-13 20:48:21.338   668   668 V GameManagerService: Package configuration not found for com.oreki.antimatterdimensions
+11-13 20:48:21.338   668   916 I PackageManager: getInstalledPackages: callingUid=1000 flags=0 updatedFlags=786432 userId=0
+11-13 20:48:21.338   668   668 I PackageManager: getInstalledPackages: callingUid=1000 flags=134217728 updatedFlags=135004160 userId=0
+11-13 20:48:21.339   668  1630 I PackageManager: getInstalledPackages: callingUid=1000 flags=134217856 updatedFlags=135004288 userId=0
+11-13 20:48:21.339   668   668 D BackupManagerConstants: getFullBackupIntervalMilliseconds(...) returns 86400000
+11-13 20:48:21.339   668   668 D BackupManagerConstants: getFullBackupRequiredNetworkType(...) returns 2
+11-13 20:48:21.340   668   668 D BackupManagerConstants: getFullBackupRequireCharging(...) returns true
+11-13 20:48:21.340   668   668 I BackupManagerService: No delayed restore requests for the given dependency: com.oreki.antimatterdimensions
+11-13 20:48:21.342   668   668 D AS.AudioService: received android.intent.action.PACKAGE_REPLACED replacing: true archival: false for package com.oreki.antimatterdimensions with uid 10248
+11-13 20:48:21.343   668   668 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-13 20:48:21.343   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-13 20:48:21.343   668   668 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-13 20:48:21.343   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.343   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.343   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.346  1058  1058 D SatelliteController: packageStateChanged: package:com.oreki.antimatterdimensions defaultSmsPackageName: com.google.android.apps.messaging satelliteGatewayServicePackageName: 
+11-13 20:48:21.346   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.346   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.346   668   668 V AccessibilityManagerService: onUserStateChangedLocked for userId: 0, forceUpdate: false
+11-13 20:48:21.346   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_shortcut_target_service, current:{}, new:{}
+11-13 20:48:21.346   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_button_targets, current:{}, new:{}
+11-13 20:48:21.346   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_gesture_targets, current:{}, new:{}
+11-13 20:48:21.347   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_qs_targets, current:{}, new:{}
+11-13 20:48:21.347   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_key_gesture_targets, current:{}, new:{}
+11-13 20:48:21.347   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_top_row_key_targets, current:{}, new:{}
+11-13 20:48:21.347   668   668 V AccessibilityUserState: updateShortcutTargets: type:accessibility_quick_access_targets, current:{}, new:{}
+11-13 20:48:21.347   668   668 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-13 20:48:21.347   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.347   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.347   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.348   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.348   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.349   668   668 W AlarmManager: Package com.oreki.antimatterdimensions, uid 10248 lost permission to set exact alarms!
+11-13 20:48:21.353   668  3721 D IntervalStats: Unable to parse usage stats packages: [244]
+11-13 20:48:21.353   668   668 W Looper  : Drained
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668   668 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:21.353   668  3721 D IntervalStats: Unable to parse usage stats packages: [244, 266]
+11-13 20:48:21.354   668  3721 D IntervalStats: Unable to parse usage stats packages: [266, 269]
+11-13 20:48:21.354   668  3721 D IntervalStats: Unable to parse usage stats packages: [269, 270, 271, 272, 273]
+11-13 20:48:21.356  1302  1390 I PermissionControllerServiceImpl: Updating user sensitive for uid 10248
+11-13 20:48:21.357  1058  1058 D CarrierSvcBindHelper: onHandleForceStop: [com.oreki.antimatterdimensions]
+11-13 20:48:21.357  1058  1058 D CarrierSvcBindHelper: No carrier app for: 0
+11-13 20:48:21.363   668  3451 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.WALLET, user: 0
+11-13 20:48:21.379   668  3451 W SignedPackage: Cannot get ApplicationInfo for package: com.google.android.devicelockcontroller
+11-13 20:48:21.397   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.397   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.404   668  1630 I PackageManager: getInstalledPackages: callingUid=1000 flags=134217856 updatedFlags=135004288 userId=0
+11-13 20:48:21.406   668   678 I system_server: Background concurrent mark compact GC freed 26MB AllocSpace bytes, 49(1536KB) LOS objects, 38% free, 38MB/62MB, paused 3.240ms,1.301ms total 289.696ms
+11-13 20:48:21.617  1577  1577 W MediaProvider: WorkProfileOwnerApps cache is empty
+11-13 20:48:21.617  1577  1577 D PickerSyncLockManager: Trying to acquire lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@a9d332e[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-13 20:48:21.617  1577  1577 D CloseableReentrantLock: Successfully acquired lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@a9d332e[Locked by thread main]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-13 20:48:21.617  1577  1577 D CloseableReentrantLock: Successfully released lock com.android.providers.media.photopicker.sync.CloseableReentrantLock@a9d332e[Unlocked]. Lock Name = CLOUD_PROVIDER_LOCK. Threads that may be waiting to acquire this lock = []
+11-13 20:48:21.620   668   738 D ActivityManager: sync unfroze 1546 com.google.android.gms for 6
+11-13 20:48:21.632   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.632   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:21.638  1228  8109 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_REMOVED [CONTEXT service_id=17 ]
+11-13 20:48:21.638  1228  8109 I ProximityAuth: [RecentAppsMediator] Package added: (user=UserHandle{0}) com.oreki.antimatterdimensions
+11-13 20:48:21.642  1546  1546 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-13 20:48:21.655  1546  8122 I Auth    : [SupervisedAccountIntentOperation] onHandleIntent: android.intent.action.PACKAGE_ADDED [CONTEXT service_id=42 ]
+11-13 20:48:21.656  1546  1546 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-13 20:48:21.656  1546  1546 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS xflg=0x4 pkg=com.google.android.gms }
+11-13 20:48:21.659  1546  8125 I NearbyDiscovery: processGrantSlicePermission: com.oreki.antimatterdimensions [CONTEXT service_id=265 ]
+11-13 20:48:21.661   668  1901 I PackageManager: getInstalledPackages: callingUid=10210 flags=0 updatedFlags=786432 userId=0
+11-13 20:48:21.675  1546  8124 W SQLiteLog: (28) double-quoted string literal: "com.oreki.antimatterdimensions"
+11-13 20:48:21.677   668  1889 I PackageManager: getInstalledPackages: callingUid=10210 flags=0 updatedFlags=786432 userId=0
+11-13 20:48:21.696  1546  1546 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-13 20:48:21.696  1546  1546 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-13 20:48:21.706  1546  1576 I gle.android.gms: Waiting for a blocking GC ProfileSaver
+11-13 20:48:21.711   668  1889 W ActivityManager: Skipping manifest association check for null package. SourceUid: 10210, SourcePkg: null, TargetUid: 10210, TargetPkg: com.google.android.gms
+11-13 20:48:21.727  1546  1576 I gle.android.gms: WaitForGcToComplete blocked ProfileSaver on Background for 21.424ms
+11-13 20:48:22.123   668  1889 E AppOps  : attributionTag VCN not declared in manifest of android
+11-13 20:48:22.278  4639  4639 I adbd    : adbd service requested 'shell,v2,TERM=dumb,raw:am start -W -n com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity'
+11-13 20:48:22.290   668  1889 W ActivityTaskManager: callingPackage for (uid=0, pid=8134) has no WPC
+11-13 20:48:22.291   668  1889 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10248, packageName = null, attributionTag = null, token = android.os.Binder@fbd1e6c, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-13 20:48:22.292  1063  1063 D RecentsView: onTaskDisplayChanged: 385, new displayId = 0
+11-13 20:48:22.293   527   559 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for binder (0x734bf086efe0) with descriptor: '(not cached)'
+11-13 20:48:22.294   668  1889 D CorePackageUpdate: onRecentTaskRemoved Removing task: 384
+11-13 20:48:22.294   668  1889 D CorePackageUpdate: Couldn't find a persistent state for task= 384
+11-13 20:48:22.294   668  1889 V ActivityTaskManager: TaskLaunchParamsModifier: phase=3 task=Task{6863041 #385 type=standard A=10248:com.oreki.antimatterdimensions} activity=ActivityRecord{179133224 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t-1} display-from-task=0 display-id=0 task-display-area-windowing-mode=1 suggested-display-area=DefaultTaskDisplayArea@52274373 inherit-from-task=fullscreen non-freeform-task-display-area display-area=DefaultTaskDisplayArea@52274373 skip-bounds-fullscreen
+11-13 20:48:22.294   668  1889 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} with LAUNCH_MULTIPLE from uid 0 (com.android.shell) (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+11-13 20:48:22.294  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_window_focused|state_user_active] -[]
+11-13 20:48:22.294   927   989 V WindowManagerShell: Transition requested (#52): android.os.BinderProxy@7192d1 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=385 effectiveUid=10248 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity } baseActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} topActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} origActivity=null realActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} realActivityIsAppLockEnabled=false numActivities=1 lastActiveTime=8815965 supportsMultiWindow=true supportsMultiWindowWithoutConstraints=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.os.BinderProxy@9bd6136} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{f050837 kajfosz.antimatterdimensions.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isInteractive=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null leafTaskBoundsFromOptions= false capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransitionInfo = null, displayChanges = null, requestedLocation = null, userChange = null, windowingLayerChange = null, fullscreenRequestChange = null, flags = 0, debugId = 52 }
+11-13 20:48:22.294   927   989 W DisconnectHandler: No disconnect change found in the transition, not handling request.
+11-13 20:48:22.294   668   692 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10248, packageName = null, attributionTag = null, token = android.os.Binder@fbd1e6c, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-13 20:48:22.294  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_window_focused] -[state_user_active]
+11-13 20:48:22.295   927   989 V ShellDesktopMode: DesktopTasksController: skipping handleRequest reason=triggerTask's display doesn't support desktop mode
+11-13 20:48:22.295   927   989 D ShellSplitScreen: logExit: no-op, mLoggerSessionId is null
+11-13 20:48:22.295  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_window_focused] -[state_resumed|state_deferred_resumed]
+11-13 20:48:22.295  1063  1063 W SplitSelectStateCtor: Missing session instanceIds
+11-13 20:48:22.295  1063  1063 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+11-13 20:48:22.295   927   989 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=495
+11-13 20:48:22.295   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:22.295   927   989 D ShellDesktopMode: DesktopRepository(0): Removes freeform task: taskId=384
+11-13 20:48:22.295   927   989 W ShellDesktopMode: DesktopRepository(0): No display id found for task: taskId=384
+11-13 20:48:22.295   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:22.296   668  1897 I AppsFilter: interaction: PackageSetting{de81ea7 com.android.microdroid.empty_payload/10227} -> PackageSetting{6c48f7d com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:22.296   668  1897 I AppsFilter: interaction: PackageSetting{1561f54 com.labteto.dshmobile.debug/10246} -> PackageSetting{6c48f7d com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:22.296   668  1897 I AppsFilter: interaction: PackageSetting{ba76b3b kajfosz.antimatterdimensions.agpbridge/10249} -> PackageSetting{6c48f7d com.oreki.antimatterdimensions/10248} BLOCKED
+11-13 20:48:22.296   584  1378 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:22.297   668  1897 V WindowManager: Defer transition id=52 for TaskFragmentTransaction=android.os.Binder@d175e72
+11-13 20:48:22.297  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:22.298  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:22.298   668   856 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-13 20:48:22.298   668   856 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10248 package com.oreki.antimatterdimensions isStopped false
+11-13 20:48:22.298   668  1897 V WindowManager: Continue transition id=52 for TaskFragmentTransaction=android.os.Binder@d175e72
+11-13 20:48:22.298   927  1078 I Surface : Creating surface for consumer unnamed-927-29 with slotExpansion=1 for 64 slots
+11-13 20:48:22.302   668  1897 W InputChannel-JNI: Channel already disposed.
+11-13 20:48:22.304   465   465 D Zygote  : Forked child process 8139
+11-13 20:48:22.304   668   699 I ActivityManager: Start proc 8139:com.oreki.antimatterdimensions/u0a248 for next-top-activity {com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity}
+11-13 20:48:22.305  8139  8139 I libprocessgroup: Created cgroup /sys/fs/cgroup/apps/uid_10248/pid_8139
+11-13 20:48:22.308  8139  8139 I Zygote  : Process 8139 created for com.oreki.antimatterdimensions
+11-13 20:48:22.308  8139  8139 I atterdimensions: Using generational CollectorTypeCMC GC.
+11-13 20:48:22.309  8139  8139 W atterdimensions: Unexpected CPU variant for x86: x86_64.
+11-13 20:48:22.309  8139  8139 W atterdimensions: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, pantherlake, default
+11-13 20:48:22.312  8139  8139 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-13 20:48:22.318   668   690 V GameManagerService: setDefaultFrameRateOverride : 10248 , 60.0
+11-13 20:48:22.321  8139  8139 D CompatChangeReporter: Compat change id reported: 333566037; UID 10248; state: ENABLED
+11-13 20:48:22.321  8139  8139 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-13 20:48:22.321  8139  8139 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-13 20:48:22.323  8139  8139 D nativeloader: Configuring clns-9 for other apk /data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/lib/x86_64:/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.oreki.antimatterdimensions
+11-13 20:48:22.324  8139  8139 E LoadedApk: Unable to instantiate appComponentFactory
+11-13 20:48:22.324  8139  8139 E LoadedApk: java.lang.ClassNotFoundException: Didn't find class "androidx.core.app.CoreComponentFactory" on path: DexPathList[[zip file "/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk"],nativeLibraryDirectories=[/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/lib/x86_64, /data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:644)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:580)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.LoadedApk.createAppFactory(LoadedApk.java:300)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.LoadedApk.createOrUpdateClassLoaderLocked(LoadedApk.java:1187)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.LoadedApk.getClassLoader(LoadedApk.java:1283)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.LoadedApk.getResourcesInner(LoadedApk.java:1564)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.LoadedApk.getResources(LoadedApk.java:1542)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.ContextImpl.createAppContext(ContextImpl.java:3679)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.ContextImpl.createAppContext(ContextImpl.java:3669)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:8168)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(ActivityThread.java:0)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2761)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.os.Handler.dispatchMessageImpl(Handler.java:142)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.os.Handler.dispatchMessage(Handler.java:125)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.os.Looper.loopOnce(Looper.java:296)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.os.Looper.loop(Looper.java:397)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at android.app.ActivityThread.main(ActivityThread.java:9523)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at java.lang.reflect.Method.invoke(Native Method)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+11-13 20:48:22.324  8139  8139 E LoadedApk: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:939)
+11-13 20:48:22.329  8139  8139 V GraphicsEnvironment: Currently set values for:
+11-13 20:48:22.329  8139  8139 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-13 20:48:22.329  8139  8139 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-13 20:48:22.329  8139  8139 V GraphicsEnvironment: com.oreki.antimatterdimensions is not listed in per-application setting
+11-13 20:48:22.330  8139  8139 V GraphicsEnvironment: No special selections for ANGLE, returning default driver choice
+11-13 20:48:22.330  8139  8139 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-13 20:48:22.332  8139  8139 D CompatChangeReporter: Compat change id reported: 407952621; UID 10248; state: ENABLED
+11-13 20:48:22.332  8139  8139 D CompatChangeReporter: Compat change id reported: 419020719; UID 10248; state: ENABLED
+11-13 20:48:22.333  8139  8139 D AndroidRuntime: Shutting down VM
+11-13 20:48:22.333   927  1078 E ConsumerBase: [ImageReader-420x420f1u2816m2-927-8] abandonLocked: ConsumerBase is abandoned!
+--------- beginning of crash
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: FATAL EXCEPTION: main
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: Process: com.oreki.antimatterdimensions, PID: 8139
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: java.lang.RuntimeException: Unable to instantiate application kajfosz.antimatterdimensions.App package com.oreki.antimatterdimensions
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.LoadedApk.throwForNewApplicationFailure(LoadedApk.java:1707)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.LoadedApk.onNewApplicationFailed(LoadedApk.java:1697)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.LoadedApk.makeApplicationInner(LoadedApk.java:1662)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.LoadedApk.makeApplicationInner(LoadedApk.java:1590)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:8260)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(ActivityThread.java:0)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2761)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.os.Handler.dispatchMessageImpl(Handler.java:142)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:125)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:296)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:397)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9523)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:575)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:939)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "kajfosz.antimatterdimensions.App" on path: DexPathList[[zip file "/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk"],nativeLibraryDirectories=[/data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/lib/x86_64, /data/app/~~ai3VF_OjRjv7SeK8IKU3Jg==/com.oreki.antimatterdimensions-TL-72rR9LFfMlOzrS9P0YA==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:644)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:580)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.AppComponentFactory.instantiateApplication(AppComponentFactory.java:80)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.Instrumentation.newApplication(Instrumentation.java:1362)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	at android.app.LoadedApk.makeApplicationInner(LoadedApk.java:1658)
+11-13 20:48:22.333  8139  8139 E AndroidRuntime: 	... 12 more
+11-13 20:48:22.335  8139  8139 I Process : Sending signal. PID: 8139 SIG: 9
+11-13 20:48:22.336  1063  1063 D BaseActivity: Launcher flags updated: [state_started] -[state_window_focused]
+11-13 20:48:22.337   668  8151 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+11-13 20:48:22.342   927  1078 D SplashScreenView: Build android.window.SplashScreenView{b289140 V.E...... ......ID 0,0-0,0}
+11-13 20:48:22.342   927  1078 D SplashScreenView: Icon: view: android.widget.ImageView{4078879 V.ED..... ......I. 0,0-0,0 #1020575 android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@96029be size: 420
+11-13 20:48:22.342   927  1078 D SplashScreenView: Branding: view: android.view.View{19dda1f G.ED..... ......I. 0,0-0,0 #1020574 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-13 20:48:22.343   668  1907 D WindowManager: setClientSurface Surface(name=VRI-Splash Screen com.oreki.antimatterdimensions#390)/@0xdec552b for a7e281f Splash Screen com.oreki.antimatterdimensions
+11-13 20:48:22.344   668   738 I ActivityManager: Process com.oreki.antimatterdimensions (pid 8139) has died: fg  TOP 
+11-13 20:48:22.344   668   700 I libprocessgroup: Removed cgroup /sys/fs/cgroup/apps/uid_10248/pid_8139
+11-13 20:48:22.344   465   465 I Zygote  : Process 8139 exited due to signal 9 (Killed)
+11-13 20:48:22.345   668   738 W ActivityTaskManager: ProcessRecord{f1101d4 8139:com.oreki.antimatterdimensions/u0a248} is removed with pending start ActivityRecord{179133224 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t385}
+11-13 20:48:22.345   927  1077 I Surface : Creating surface for consumer unnamed-927-30 with slotExpansion=1 for 64 slots
+11-13 20:48:22.346   927  1077 I Surface : Creating surface for consumer VRI[antimatterdimensions]#21(BLAST Consumer)21 with slotExpansion=1 for 64 slots
+11-13 20:48:22.349   668   738 V WindowManager: Defer transition id=52 for TaskFragmentTransaction=android.os.Binder@9d58d88
+11-13 20:48:22.350   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:22.350   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-13 20:48:22.352   668   753 W UsageStatsService: Unexpected activity event reported! (com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity event : 23 instanceId : 219974118)
+11-13 20:48:22.352   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-13 20:48:22.352   668   830 D InetDiagMessage: Destroyed live tcp sockets for uids={10248} in 2ms
+11-13 20:48:22.352   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-13 20:48:22.353   668   830 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-13 20:48:22.353   668   830 D InetDiagMessage: Destroyed live tcp sockets for uids={20248} in 1ms
+11-13 20:48:22.371  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_user_active] +[state_resumed|state_user_active]
+11-13 20:48:22.372   927   989 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=495
+11-13 20:48:22.373  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_user_active] +[]
+11-13 20:48:22.374  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:22.374  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_user_active] +[state_deferred_resumed]
+11-13 20:48:22.374  1063  1063 D StatsLog: LAUNCHER_ONRESUME
+11-13 20:48:22.376   668   738 V WindowManager: Continue transition id=52 for TaskFragmentTransaction=android.os.Binder@9d58d88
+11-13 20:48:22.379   668   689 V WindowManager: Sent Transition (#52) createdAt=11-13 20:48:22.292 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=385 effectiveUid=10248 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity } baseActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} topActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} origActivity=null realActivity=ComponentInfo{com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} realActivityIsAppLockEnabled=false numActivities=1 lastActiveTime=8815965 supportsMultiWindow=true supportsMultiWindowWithoutConstraints=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{3a6f346 Task{6863041 #385 type=standard A=10248:com.oreki.antimatterdimensions}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 128 - 0, 0) topActivityInfo=ActivityInfo{a591907 kajfosz.antimatterdimensions.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isInteractive=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=null leafTaskBoundsFromOptions= false capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=503 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false isLeafTask= true eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 2400) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null topNonResizableActivityAspectRatio=-1.0} topActivityMainWindowFrame=null isAppBubble=false}, pipChange = null, remoteTransitionInfo = null, displayChanges = null, requestedLocation = null, userChange = null, windowingLayerChange = null, fullscreenRequestChange = null, flags = 0, debugId = 52 }
+11-13 20:48:22.379   668   689 V WindowManager:     startWCT=WindowContainerTransaction { changes= {} hops= [] flags= 0 errorCallbackToken=null taskFragmentOrganizer=null }
+11-13 20:48:22.379   668   689 V WindowManager:     info={id=52 t=OPEN f=0x0 trk=0 r=[] c=[]}
+11-13 20:48:22.379   927  2369 V WindowManagerShell: onTransitionReady(transaction=2869038157619)
+11-13 20:48:22.379  1063  1115 D QuickstepModelDelegate: notifyAppTargetEvent action=1 launchLocation=workspace/0/[-1,-1]/[1,1]
+11-13 20:48:22.379   927   989 V WindowManagerShell: onTransitionReady (#52) android.os.BinderProxy@7192d1: {id=52 t=OPEN f=0x0 trk=0 r=[] c=[]}
+11-13 20:48:22.379   927   989 V WindowManagerShell: No transition roots in (#52) android.os.BinderProxy@7192d1@0 so abort
+11-13 20:48:22.382   927   989 V WindowManagerShell: Transition animation finished (aborted=true), notifying core (#52) android.os.BinderProxy@7192d1@0
+11-13 20:48:22.384  1568  1794 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-13 20:48:22.384  1568  1794 I AiAiEcho: EchoTargets: 
+11-13 20:48:22.384  1568  1794 I AiAiEcho: Filtered by AiAi flag check: 
+11-13 20:48:22.384  1568  1794 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-13 20:48:22.384  1568  1794 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-13 20:48:22.384  1568  1794 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-13 20:48:22.384   668   689 V WindowManager: Finish Transition (#52): created at 11-13 20:48:22.292 collect-started=0.014ms request-sent=2.59ms started=3.245ms ready=84.655ms sent=85.446ms finished=92.566ms
+11-13 20:48:22.385   927   989 V WindowManagerShell: Track 0 became idle
+11-13 20:48:22.385   927   989 V WindowManagerShell: All active transition animations finished
+11-13 20:48:22.387   584  1378 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+11-13 20:48:22.397  1063  1063 D BaseActivity: Launcher flags updated: [state_started|state_resumed|state_deferred_resumed|state_window_focused|state_user_active] +[state_window_focused]
+11-13 20:48:22.405   668  1896 W WindowManager: Failed looking up window session=Session{10984f4 927:u0a10189} callers=com.android.server.wm.WindowManagerService.windowForClient:6898 com.android.server.wm.WindowManagerService.relayoutWindow:2571 com.android.server.wm.Session.relayout:294 
+11-13 20:48:22.405   668   784 I ImeTracker: com.google.android.apps.nexuslauncher:2582515c: onRequestHide at ORIGIN_SERVER reason HIDE_SAME_WINDOW_FOCUSED_WITHOUT_EDITOR fromUser false userId 0 displayId 0
+11-13 20:48:22.407   927   989 V RecentTasksController: generateList(getRecentTasks)
+11-13 20:48:22.407   927   989 V RecentTasksController: initializeDesksMap - allDeskIds: []
+11-13 20:48:22.407   668  1897 W WindowManager: Failed looking up window session=Session{10984f4 927:u0a10189} callers=com.android.server.wm.WindowManagerService.removeClientToken:2319 com.android.server.wm.Session.remove:281 android.view.IWindowSession$Stub.onTransact:637 
+11-13 20:48:22.407   927   989 V RecentTasksController: Task 385 is not an active desktop task
+11-13 20:48:22.407  1503  1503 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():2259 
+11-13 20:48:22.407   927   989 V RecentTasksController: Added fullscreen task: 385
+11-13 20:48:22.407   927   989 V RecentTasksController: Task 329 is not an active desktop task
+11-13 20:48:22.408   927   989 V RecentTasksController: Added fullscreen task: 329
+11-13 20:48:22.408   927   989 V RecentTasksController: Task 321 is not an active desktop task
+11-13 20:48:22.408   927   989 V RecentTasksController: Added fullscreen task: 321
+11-13 20:48:22.408   927   989 V RecentTasksController: generateList - complete
+11-13 20:48:22.408   668   784 W InputChannel-JNI: Channel already disposed.
+11-13 20:48:22.408  1503  1503 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 0, locked = false
+11-13 20:48:22.408   927   989 V ShellTaskOrganizer: Task appeared taskId=385 listener=FullscreenTaskListener
+11-13 20:48:22.408   927   989 V ShellTaskOrganizer: Fullscreen Task Appeared: #385
+11-13 20:48:22.408   927   989 D ShellPackageUpdate: PackageUpdateController: Setting handlePackageUpdate for task: 385
+11-13 20:48:22.409   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.409   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.409  1503  1503 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1446 onStartInput(EditorInfo{EditorInfo{packageName=com.google.android.apps.nexuslauncher, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+11-13 20:48:22.409  1063  1113 D PreloadThumbnailUseCase: Preloading thumbnails for task ids: [[id=321 windowingMode=0 user=0 lastActiveTime=18913] null, [id=329 windowingMode=0 user=0 lastActiveTime=18914] null, [id=385 windowingMode=1 user=0 lastActiveTime=8815965] null]
+11-13 20:48:22.409   668  1889 E WindowOrganizerController: Attempting to externally change a non-organized container: Task{6863041 #385 type=standard A=10248:com.oreki.antimatterdimensions}={handlePackageUpdate:true,} playercount=2 taskorg=android.window.ITaskOrganizer$Stub$Proxy@4699f7a
+11-13 20:48:22.410   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:22.410  1503  1503 W AndroidIME: LatinIMEBase.updateInputViewCoverNavigation():327 Null input view, cannot update padding!
+11-13 20:48:22.410   927   989 V ShellTaskOrganizer: Task vanished taskId=385
+11-13 20:48:22.410   927   989 V ShellTaskOrganizer: Fullscreen Task Vanished: #385
+11-13 20:48:22.410   927   989 V ShellDesktopMode: Task Vanished: #385 closed=true
+11-13 20:48:22.410   927   989 D ShellPackageUpdate: PackageUpdateController: Removing handlePackageUpdate for task: 385
+11-13 20:48:22.410   668  1896 E WindowOrganizerController: Attempting to externally change a non-organized container: Task{6863041 #385 type=standard A=10248:com.oreki.antimatterdimensions}={handlePackageUpdate:false,} playercount=2 taskorg=android.window.ITaskOrganizer$Stub$Proxy@4699f7a
+11-13 20:48:22.411  1503  1503 I Module  : DeviceLockedStatusModuleProvider$Module.updateDeviceLockedStatus():103 repeatCheckTimes = 1, locked = false
+11-13 20:48:22.411   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:22.412   927   989 D ShellDesktopMode: AppToWebRepository: Task 385 is vanishing. Removing task data from repository
+11-13 20:48:22.412   927   989 V AppCompat: SingleSurfaceLetterboxController: []
+11-13 20:48:22.412   927   989 V AppCompat: MultiSurfaceLetterboxController: []
+11-13 20:48:22.412   927   989 V AppCompat: LetterboxInputController: []
+11-13 20:48:22.412   927   989 V AppCompat: RoundedCornersLetterboxController: {}
+11-13 20:48:22.412   927   989 V RecentTasksController: Notify recent tasks changed
+11-13 20:48:22.416   668  1897 W PackageConfigPersister: App-specific configuration not found for packageName: com.google.android.apps.nexuslauncher and userId: 0
+11-13 20:48:22.426  1063  1063 D InsetsController: hide(ime())
+11-13 20:48:22.426  1063  1063 I ImeTracker: com.google.android.apps.nexuslauncher:2582515c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+11-13 20:48:22.428  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:22.428  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:22.428  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:22.428  1063  1063 D SsBaseTemplateCard: Passed-in item info is null
+11-13 20:48:22.428  1063  1063 I SsBaseTemplateCard: Secondary card pane is null
+11-13 20:48:22.447  1063  1063 D RecentsView: onTaskRemoved: 385, not handling task stack changes
+11-13 20:48:22.447  1063  1063 D RecentsView: onTaskRemoved: 385, not handling task stack changes
+11-13 20:48:22.447  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:22.447  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:22.447  1063  1063 D RecentTasksList: invalidateLoadedTasks - previous requestLoadId: -1
+11-13 20:48:22.513   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.513   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.610   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.610   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.710   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.710   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.817   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.817   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.935   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:22.935   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:23.051   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:23.051   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:23.151   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:23.151   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.251   668   824 D WifiClientModeImpl[11866:wlan0]: updateLinkLayerStatsRssiSpeedFrequencyCapabilities rssi=-50 TxLinkspeed=1 freq=2437 RxLinkSpeed=2
+11-13 20:48:24.251   668   824 D WifiDataStall: tx tput in kbps: 37000
+11-13 20:48:24.251   668   824 D WifiDataStall: rx tput in kbps: 37000
+11-13 20:48:24.251   668   824 V WifiConfigManager: Updating scan detail cache freq=2437 BSSID=02:15:b2:00:00:01 RSSI=-50 for "AndroidWifi"NONE
+11-13 20:48:24.251   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:24.251   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:24.251   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:24.252   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:24.252   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:24.252   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:24.252   668   824 D WifiThroughputPredictor:  utilization (LLS) 80 isBluetoothConnected: false final utilization: 80
+11-13 20:48:24.252   668   824 D WifiThroughputPredictor:  BW: 0 RSSI: -50 Nss: 1 Mode: 1 symDur: 4000 snrDb 30 bitPerTone: 4500 rate: 54 throughput: 37
+11-13 20:48:24.252   668   824 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-13 20:48:24.252   668   824 D WifiScoreCard: BSSID update SIGNAL_POLL ID: 2126983607 SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Calculated Tx : 0Mbps, Rx Link speed: 2Mbps, Max Supported Rx Link speed: 54Mbps, Calculated Rx : 0Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 100, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>
+11-13 20:48:24.252   668   824 D WifiScoreCard: txRate: 1 txSpeed: 1
+11-13 20:48:24.252   668   824 D WifiScoreCard: network update SIGNAL_POLL "AndroidWifi" ID: 2119655876 RSSI -50 txSpeed -1
+11-13 20:48:24.252   668   824 D WifiClientModeImpl[11866:wlan0]:  ClientModeImpl$L2ConnectedState screen=on 1 0 "AndroidWifi" 02:15:b2:00:00:01 rssi=-50 f=2437 sc=100 link=1 tx=0.0, 0.0, 0.0 rx=0.0 bcn=0 [on:0 tx:0 rx:0 period:3003] from screen [on:0 period:-722225476] score=100
+11-13 20:48:24.532   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.532   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.578   668   824 D WifiNetworkSelector: Current connected network: 0
+11-13 20:48:24.578   668   824 V WifiConnectivityManager: No full band scan because current network is sufficient
+11-13 20:48:24.578   668   824 V WifiConnectivityManager: schedulePeriodicScanTimer intervalMs 160000
+11-13 20:48:24.579   668   828 I WifiScanningService: Registering listener= com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@249d08a uid=1000 packageName=null workSource=WorkSource{1000}
+11-13 20:48:24.579   668   828 I WifiScanningService: start scan: ClientInfo[uid=1000, package=null, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@249d08a] package null AttributionTag null
+11-13 20:48:24.579   668   828 I WifiScanningService: addSingleScanRequest: ClientInfo[uid=1000, package=null, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@249d08a],WorkSource{1010}, ScanSettings {  type:HIGH ACCURACY band:unspecified ignoreLocationSettings:false period:0 reportEvents:3 numBssidsPerScan:0 maxScansToCache:0 rnrSetting:2 6GhzPscOnlyEnabled:false channels:[ 2437  ]  } 
+11-13 20:48:24.579   668   828 D WifiScanningService: replySucceeded onSuccess
+11-13 20:48:24.579   668   828 E Nl80211Native: getChannelsMhzForBand: Wiphy index not recorded for band 8
+11-13 20:48:24.579   668   828 E Nl80211Native: getChannelsMhzForBand: Wiphy index not recorded for band 16
+11-13 20:48:24.579   668   828 D Nl80211Native: Ignoring unsupported scan type 2
+11-13 20:48:24.579   668   828 I Nl80211Proxy: Sending Nl80211 message: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{56}, nlmsg_type{30()}, nlmsg_flags{5(NLM_F_REQUEST|NLM_F_ACK)}, nlmsg_seq{186}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{33}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{-32723}, nla_value{04000000}, }, StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }, StructNlAttr{ nla_len{12}, nla_type{-32724}, nla_value{0800000085090000}, }, StructNlAttr{ nla_len{8}, nla_type{158}, nla_value{00000000}, }]} }
+11-13 20:48:24.579   668   828 I Nl80211Proxy: Received NLMSG_ERROR with error 0 for message GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{56}, nlmsg_type{30()}, nlmsg_flags{5(NLM_F_REQUEST|NLM_F_ACK)}, nlmsg_seq{186}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{33}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{-32723}, nla_value{04000000}, }, StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }, StructNlAttr{ nla_len{12}, nla_type{-32724}, nla_value{0800000085090000}, }, StructNlAttr{ nla_len{8}, nla_type{158}, nla_value{00000000}, }]} }
+11-13 20:48:24.579   915   915 D wpa_supplicant: nl80211: Drv Event 33 (NL80211_CMD_TRIGGER_SCAN) received for wlan0
+11-13 20:48:24.579   915   915 D wpa_supplicant: wlan0: nl80211: Scan trigger
+11-13 20:48:24.579   915   915 D wpa_supplicant: wlan0: Event SCAN_STARTED (47) received
+11-13 20:48:24.579   915   915 D wpa_supplicant: wlan0: External program started a scan
+11-13 20:48:24.632   915   915 D wpa_supplicant: nl80211: Drv Event 34 (NL80211_CMD_NEW_SCAN_RESULTS) received for wlan0
+11-13 20:48:24.632   915   915 D wpa_supplicant: wlan0: nl80211: New scan results available
+11-13 20:48:24.632   915   915 D wpa_supplicant: nl80211: Scan probed for SSID ''
+11-13 20:48:24.632   915   915 D wpa_supplicant: nl80211: Scan included frequencies: 2437
+11-13 20:48:24.632   915   915 D wpa_supplicant: wlan0: Event SCAN_RESULTS (3) received
+11-13 20:48:24.632   668   824 D Nl80211Native: Received NL80211 broadcast: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{68}, nlmsg_type{30()}, nlmsg_flags{0()}, nlmsg_seq{0}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{34}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{1}, nla_value{00000000}, }, StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }, StructNlAttr{ nla_len{12}, nla_type{153}, nla_value{0100000000000000}, }, StructNlAttr{ nla_len{12}, nla_type{44}, nla_value{0800000085090000}, }, StructNlAttr{ nla_len{8}, nla_type{45}, nla_value{04000000}, }]} }
+11-13 20:48:24.632   915   915 D wpa_supplicant: nl80211: Received scan results (1 BSSes)
+11-13 20:48:24.632   915   915 D wpa_supplicant: nl80211: Scan results indicate BSS status with 02:15:b2:00:00:01 as associated
+11-13 20:48:24.632   668   824 D WifiNative: Scan result ready event
+11-13 20:48:24.632   915   915 D wpa_supplicant: wlan0: BSS: Start scan result update 60
+11-13 20:48:24.632   915   915 D wpa_supplicant: BSS: last_scan_res_used=1/32
+11-13 20:48:24.632   915   915 D wpa_supplicant: wlan0: New scan results available (own=0 ext=1)
+11-13 20:48:24.632   915   915 D wpa_supplicant: wlan0: Do not use results from externally requested scan operation for network selection
+11-13 20:48:24.633   668   828 I Nl80211Proxy: Sending Nl80211 message: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{20}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{187}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{5}, version{1}, reserved{0} }}, attributes{[]} }
+11-13 20:48:24.633   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.633   668   828 I Nl80211Proxy: Received NLMSG_DONE for message GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{20}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{187}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{5}, version{1}, reserved{0} }}, attributes{[]} }
+11-13 20:48:24.633   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.633   668   828 W Nl80211Utils: Malformed NEW_INTERFACE response: missing attributes
+11-13 20:48:24.633   668   828 I Nl80211Proxy: Sending Nl80211 message: GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{28}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{188}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{32}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }]} }
+11-13 20:48:24.633   668   828 I Nl80211Proxy: Received NLMSG_DONE for message GenericNetlinkMsg{ nlHeader{StructNlMsgHdr{ nlmsg_len{28}, nlmsg_type{30()}, nlmsg_flags{769(NLM_F_REQUEST|NLM_F_DUMP)}, nlmsg_seq{188}, nlmsg_pid{0} }}, genNlHeader{StructGenNlMsgHdr{ command{32}, version{1}, reserved{0} }}, attributes{[StructNlAttr{ nla_len{8}, nla_type{3}, nla_value{0F000000}, }]} }
+11-13 20:48:24.633   668   828 D WifiNative: get 1 scan results from nl80211
+11-13 20:48:24.634  1228  2672 I WifiScanner: onFullResults
+11-13 20:48:24.634   668   828 I WifiScanningService: singleScanResults: ClientInfo[uid=1000, package=null, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@249d08a],results=1
+11-13 20:48:24.634  1228  1306 I WifiScanner: onFullResults
+11-13 20:48:24.634   668   828 I WifiScanningService: singleScanResults listener: ClientInfo[uid=1000, package=android, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@112cf07],results=1
+11-13 20:48:24.634   668   824 D WifiScanRequestProxy: Scan results received
+11-13 20:48:24.634   668   824 D WifiScanRequestProxy: Received 1 scan results
+11-13 20:48:24.634   668   828 I WifiScanningService: singleScanResults listener: ClientInfo[uid=1000, package=android, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@9b3d415],results=1
+11-13 20:48:24.634   668   828 I WifiScanningService: singleScanResults listener: ClientInfo[uid=1000, package=android, attributionTag=null, com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@3baf769],results=1
+11-13 20:48:24.634   668   828 I WifiScanningService: singleScanResults listener: ClientInfo[uid=10210, package=com.google.android.gms, attributionTag=network_location_provider, android.net.wifi.IWifiScannerListener$Stub$Proxy@f178247],results=1
+11-13 20:48:24.634   668   828 I WifiScanningService: singleScanResults listener: ClientInfo[uid=10210, package=com.google.android.gms, attributionTag=fused_location_provider, android.net.wifi.IWifiScannerListener$Stub$Proxy@3840a08],results=1
+11-13 20:48:24.634   668   828 I WifiScanningService: Unregistering listener= com.android.server.wifi.scanner.WifiScannerInternal$ScanListener@249d08a uid=1000 packageName=null workSource=WorkSource{1000}
+11-13 20:48:24.635   668   824 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-13 20:48:24.635   668   824 V WifiConnectivityManager: AllSingleScanListener onResults: start network selection
+11-13 20:48:24.635   668   824 V WifiConfigManager: getSavedNetworkFromScanResult Found "AndroidWifi"NONE for AndroidWifi[[ESS]]
+11-13 20:48:24.635   668   824 D WifiNetworkSelector: Current connected network: 0
+11-13 20:48:24.636   668   824 D WifiNetworkSelector: wlan0: Current connected network already sufficient. Skip network selection.
+11-13 20:48:24.636   668   824 V WifiLastResortWatchdog: updateAvailableNetworks: size = 0
+11-13 20:48:24.636   668   824 V WifiLastResortWatchdog: mWatchdogFeatureEnabled: true
+11-13 20:48:24.636   668   824 V WifiLastResortWatchdog: mWatchdogAllowedToTrigger: true
+11-13 20:48:24.636   668   824 V WifiLastResortWatchdog: mRecentAvailableNetworks: 0
+11-13 20:48:24.636   668   824 V WifiLastResortWatchdog: mSsidFailureCount:
+11-13 20:48:24.636   668   824 V WifiConnectivityManager: AllSingleScanListener:  No candidates
+11-13 20:48:24.718  1058  1210 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+11-13 20:48:24.719  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-13 20:48:24.719  1058  1210 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-13 20:48:24.719  1058  1210 V SatelliteController: satelliteConfigParser is not ready
+11-13 20:48:24.719  1058  1210 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-13 20:48:24.720  1058  1210 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-13 20:48:24.720  1058  1210 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-13 20:48:24.720  1058  1210 V SatelliteController: satelliteConfigParser is not ready
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-13 20:48:24.720  1058  1210 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-13 20:48:24.720  1058  1210 V SatelliteController: satelliteConfigParser is not ready
+11-13 20:48:24.720  1058  1210 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectType: Checking connect type from PLMN config for subId: 1
+11-13 20:48:24.720  1058  1210 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-13 20:48:24.720  1058  1210 V SatelliteController: satelliteConfigParser is not ready
+11-13 20:48:24.720  1058  1210 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-13 20:48:24.720  1058  1210 D SatelliteController: getSatellitePerPlmnConfiguration: invalid subId or not supported via carrier.
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectType: config: null
+11-13 20:48:24.720  1058  1210 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-13 20:48:24.720  1058  1210 V SatelliteController: satelliteConfigParser is not ready
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectTypeViaConfigUpdater: return null (satelliteConfig is null)
+11-13 20:48:24.720  1058  1210 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+11-13 20:48:24.720  1058  1210 D TelephonyConfigUpdateInstallReceiver: getConfigParser: domain=satellite
+11-13 20:48:24.720  1058  1210 V SatelliteController: satelliteConfigParser is not ready
+11-13 20:48:24.720  1058  1210 D SatelliteController: isSatelliteAttachSupportedViaConfigupdater: return null (satelliteConfig is null)
+11-13 20:48:24.742   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.742   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.852   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.852   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.983   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:24.983   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.084   668  1681 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-13 20:48:25.084   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.084   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.087  4639  4639 I adbd    : adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d''
+11-13 20:48:25.298     0     0 I logd    : logdr: UID=0 GID=0 PID=8154 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-13 20:48:25.123  4639  4639 I adbd    : adbd service requested 'exec:screencap '-p''
+11-13 20:48:25.184   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.184   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.236  8159  8159 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+11-13 20:48:25.237  8159  8159 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-13 20:48:25.237  8159  8159 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-13 20:48:25.240   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.240   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.240   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.240   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.449     0     0 I servicemanager: Caller(pid=8159,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-13 20:48:25.456     0     0 I servicemanager: Caller(pid=8159,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-13 20:48:25.461     0     0 I servicemanager: Caller(pid=8159,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+11-13 20:48:25.330   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.331   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.430   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:25.430   527   572 W skia    : AGTM parsing failed flags.readFromStream(s) at 159
+11-13 20:48:26.365  4639  4639 I adbd    : adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d''
+11-13 20:48:26.574     0     0 I logd    : logdr: UID=0 GID=0 PID=8161 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

@@ -1,0 +1,181 @@
+{
+ "currency_container": "Liq0;",
+ "player_accessor_proof": "Player.<getter>() smali = iget/iput 到 R8 保留字段名",
+ "fields": [
+  {
+   "field": "d",
+   "declared_type": "Lop0;",
+   "player_field": "Player.antimatter",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:199 Currency.antimatter value=player.antimatter",
+   "android_resource": "R.string.antimatter_short"
+  },
+  {
+   "field": "e",
+   "declared_type": "Lpp0;",
+   "player_field": "Player.infinities",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:255 Currency.infinities value=player.infinities",
+   "android_resource": ""
+  },
+  {
+   "field": "f",
+   "declared_type": "Lpp0;",
+   "player_field": "Player.bankedInfinities",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:260 Currency.infinitiesBanked value=player.infinitiesBanked",
+   "android_resource": ""
+  },
+  {
+   "field": "v",
+   "declared_type": "Lpp0;",
+   "player_field": "Player.infinities + Player.bankedInfinities",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:265 Currency.infinitiesTotal",
+   "android_resource": ""
+  },
+  {
+   "field": "w",
+   "declared_type": "Lyp0;",
+   "player_field": "Player.infinityPoints",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:270 Currency.infinityPoints value=player.infinityPoints",
+   "android_resource": "cost_X_infinity_points_short"
+  },
+  {
+   "field": "x",
+   "declared_type": "Lpp0;",
+   "player_field": "Player.infinityPower",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:299 Currency.infinityPower value=player.infinityPower",
+   "android_resource": ""
+  },
+  {
+   "field": "y",
+   "declared_type": "Ldq0;",
+   "player_field": "Player.replicanti.amount",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:465 Currency.replicanti value=player.replicanti.amount",
+   "android_resource": ""
+  },
+  {
+   "field": "z",
+   "declared_type": "Lup0;",
+   "player_field": "Player.eternities",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:304 Currency.eternities value=player.eternities",
+   "android_resource": ""
+  },
+  {
+   "field": "S",
+   "declared_type": "Lvp0;",
+   "player_field": "Player.eternityPoints",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:317 Currency.eternityPoints value=player.eternityPoints",
+   "android_resource": "cost_X_eternity_points_short"
+  },
+  {
+   "field": "T",
+   "declared_type": "Lpp0;",
+   "player_field": "Player.timeShards",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:349 Currency.timeShards value=player.timeShards",
+   "android_resource": ""
+  },
+  {
+   "field": "U",
+   "declared_type": "Lhq0;",
+   "player_field": "Player.timestudy.theorem",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:354 Currency.timeTheorems value=player.timestudy.theorem",
+   "android_resource": "cost_X_time_theorems"
+  },
+  {
+   "field": "V",
+   "declared_type": "Lgq0;",
+   "player_field": "Player.dilation.tachyonParticles",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:378 Currency.tachyonParticles value=player.dilation.tachyonParticles",
+   "android_resource": ""
+  },
+  {
+   "field": "W",
+   "declared_type": "Ltp0;",
+   "player_field": "Player.dilation.dilatedTime",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:383 Currency.dilatedTime value=player.dilation.dilatedTime",
+   "android_resource": "cost_X_dilated_time_short"
+  },
+  {
+   "field": "X",
+   "declared_type": "Lpp0;",
+   "player_field": "Player.realities",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:391 Currency.realities value=player.realities",
+   "android_resource": ""
+  },
+  {
+   "field": "Y",
+   "declared_type": "Laq0;",
+   "player_field": "Player.reality.realityMachines",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:396 Currency.realityMachines value=player.reality.realityMachines",
+   "android_resource": "cost_X_reality_machines"
+  },
+  {
+   "field": "Z",
+   "declared_type": "Lzp0;",
+   "player_field": "Player.reality.perkPoints",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:410 Currency.perkPoints value=player.reality.perkPoints",
+   "android_resource": "cost_X_perk_points"
+  },
+  {
+   "field": "a0",
+   "declared_type": "Lcq0;",
+   "player_field": "Player.celestials.effarig.relicShards",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:415 Currency.relicShards value=player.celestials.effarig.relicShards",
+   "android_resource": "cost_X_relic_shards"
+  },
+  {
+   "field": "b0",
+   "declared_type": "Lfq0;",
+   "player_field": "Player.celestials.enslaved.stored",
+   "web_ref": "",
+   "android_resource": ""
+  },
+  {
+   "field": "c0",
+   "declared_type": "Lxp0;",
+   "player_field": "Player.reality.imaginaryMachines",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:420 Currency.imaginaryMachines value=player.reality.imaginaryMachines",
+   "android_resource": "cost_X_imaginary_machines"
+  },
+  {
+   "field": "d0",
+   "declared_type": "Lrp0;",
+   "player_field": "Player.celestials.laitela.darkMatter",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:427 Currency.darkMatter value=player.celestials.laitela.darkMatter",
+   "android_resource": "cost_X_dark_matter_short"
+  },
+  {
+   "field": "e0",
+   "declared_type": "Lqp0;",
+   "player_field": "Player.celestials.laitela.darkEnergy",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:439 Currency.darkEnergy value=player.celestials.laitela.darkEnergy",
+   "android_resource": ""
+  },
+  {
+   "field": "f0",
+   "declared_type": "Leq0;",
+   "player_field": "Player.celestials.laitela.singularities",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:450 Currency.singularities value=player.celestials.laitela.singularities",
+   "android_resource": ""
+  },
+  {
+   "field": "g0",
+   "declared_type": "Lsp0;",
+   "player_field": "mh3.b.y()（Pelle 裂隙链，待复核）",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:455 同类 Currency.remnants（未逐位互证）",
+   "android_resource": ""
+  },
+  {
+   "field": "h0",
+   "declared_type": "Lbq0;",
+   "player_field": "Player.celestials.pelle.realityShards",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:460 Currency.realityShards value=player.celestials.pelle.realityShards",
+   "android_resource": "cost_X_reality_shards"
+  },
+  {
+   "field": "i0",
+   "declared_type": "Lwp0;",
+   "player_field": "Player.galaxies + GalaxyGenerator.galaxies",
+   "web_ref": "web/AD-Oreki-Edition/src/core/currency.js:470 Currency.galaxyGeneratorGalaxies",
+   "android_resource": "cost_X_galaxies"
+  }
+ ]
+}

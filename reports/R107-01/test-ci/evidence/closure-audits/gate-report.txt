@@ -1,0 +1,82 @@
+# AGP-only 门禁 fail-closed 实测
+# 生成时间: 2026-11-14T06:52:31+08:00
+# repo HEAD: c79e876a0eaa8c2394fbc34fdd6e2c6d9816aac2
+# 被测 APK: /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/build/gradle-stage/反物质维度.apk
+#   sha256=b001faa71bdb7a24f801010f7c16cbe8df06b137e8215721e6f7e02ef947691b bytes=84637867
+
+## 1. 真实 candidate 档执行
+$ scripts/enforce_agp_only.py candidate
+exit=1
+FAIL: AGP_ONLY_BLOCKED: AGP still builds a bridge or a different package
+
+## 2. candidate 档条件逐条复算（不因首个失败短路）
+[PASS ] agp-plugin-pinned
+        requirement: agp/build.gradle.kts 固定 com.android.application 9.5.1
+        evidence   : plugins {
+[PASS ] agp-application-module
+        requirement: agp/app 是 AGP application 模块
+        evidence   : agp/app/build.gradle.kts 第 4 行 plugins { id("com.android.application") }
+[BLOCK] application-id-production
+        requirement: applicationId 字面量等于 com.oreki.antimatterdimensions
+        evidence   : 实际代码为条件表达式：applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "kajfosz.antimatterdimensions.agpbridge"；condition 识别=True
+        suggestion : 门禁适配新形态的最小改法：require(条件表达式的生产分支字面量) + require(非 fullGame 只允许 agpbridge)，并额外 require workflow 传 -PorekiFullGame=true。不得删掉条件分支（否则 CI 的 bridge 构建会变成生产 applicationId）。
+[PASS ] no-standalone-kgp
+        requirement: AGP 生产不得应用独立 KGP
+        evidence   : 两文件均未出现 org.jetbrains.kotlin.android
+[PASS ] built-in-kotlin-enabled
+        requirement: 不得显式关闭 AGP 内置 Kotlin
+        evidence   : 两文件均未出现 builtInKotlin=false
+[BLOCK] workflow-invokes-agp-release
+        requirement: candidate workflow 必须调用 bash ./gradlew -p agp :app:assembleRelease
+        evidence   : candidate-unified.yml 中只有旧链 assembleRelease/verifyRelease/installToRelease，没有 AGP release 任务
+        suggestion : 切 CI 时把构建步骤替换成 AGP 任务，并显式传 -PorekiFullGame=true / -PorekiGameJar= / -PorekiDecodedTree=。
+[BLOCK] forbidden:bash ./gradlew assembleRelease
+        requirement: candidate workflow 不得包含旧链入口：bash ./gradlew assembleRelease
+        evidence   : 命中
+        suggestion : AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。
+[BLOCK] forbidden:bash ./gradlew compileKotlinClasses
+        requirement: candidate workflow 不得包含旧链入口：bash ./gradlew compileKotlinClasses
+        evidence   : 命中
+        suggestion : AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。
+[BLOCK] forbidden:bash ./gradlew buildKotlinDex
+        requirement: candidate workflow 不得包含旧链入口：bash ./gradlew buildKotlinDex
+        evidence   : 命中
+        suggestion : AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。
+[PASS ] forbidden:scripts/build_mod.py
+        requirement: candidate workflow 不得包含旧链入口：scripts/build_mod.py
+        evidence   : 未命中
+        suggestion : AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。
+[PASS ] forbidden:apktool b
+        requirement: candidate workflow 不得包含旧链入口：apktool b
+        evidence   : 未命中
+        suggestion : AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。
+[BLOCK] forbidden:installToRelease
+        requirement: candidate workflow 不得包含旧链入口：installToRelease
+        evidence   : 命中
+        suggestion : AGP 生产 workflow 落地后必须删除这些旧链命令；删除前门禁保持阻断。
+
+当前阻断条件 6 条: application-id-production, workflow-invokes-agp-release, forbidden:bash ./gradlew assembleRelease, forbidden:bash ./gradlew compileKotlinClasses, forbidden:bash ./gradlew buildKotlinDex, forbidden:installToRelease
+
+## 3. workflow fail-closed 扫描
+[BLOCK (intended)] candidate-legacy-build-chain: candidate-unified.yml 仍是旧链：compileKotlinClasses/buildKotlinDex/assembleRelease verifyRelease verifyPatchContract/installToRelease，产物 source/build/gradle-stage/反物质维度.apk
+[BLOCK (intended)] verify-legacy-contract-report: verify-unified.yml 要求 verify-patch-contract.json >=17 条 checks 与 release-manifest.json（installToRelease 产物）；AGP 原生构建当前不产出这些报告，在新 report 契约落地前 verify 会 fail-closed。
+[BLOCK (intended)] release-gate-acceptance: release-gate-unified.yml 需要 pinned acceptance.json（8 项 AVD 检查 + 双端 <=10800s 真实通关）；当前无 R107-01 acceptance，必然拒绝发布。
+[MISSING] artifact-provenance-producer: 仓库内没有任何步骤生成 agp-provenance.json（grep 仅测试/门禁引用），candidate 也不会上传它；artifact 档因此永远拒绝当前产物。
+[INFO] workflow-judge: candidate/verify/release 三档当前全部阻断新发布（fail-closed 成立），但也阻止 R107-01 首个 AGP 原生候选进入正式流水线。
+
+## 4. artifact 档探针
+[BLOCK] p1-empty-directory (缺 APK)
+        gate_message: FAIL: AGP_ONLY_BLOCKED: candidate APK missing
+[BLOCK] p2-apk-only (缺 provenance 与 metadata)
+        gate_message: FAIL: AGP_ONLY_BLOCKED: AGP provenance and candidate metadata are required; legacy artifacts are rejected
+[BLOCK] p3-legacy-builder (provenance.builder=legacy-apktool)
+        gate_message: FAIL: AGP_ONLY_BLOCKED: candidate was not built by AGP
+[BLOCK] p4-sha-mismatch (provenance.apk_sha256 与 APK 不符)
+        gate_message: FAIL: AGP_ONLY_BLOCKED: AGP provenance APK hash mismatch
+[PASS] p5-self-declared-agp (自洽 provenance（全部字段自报）)
+        gate_message: PASS: AGP 9.5.1 production policy and provenance
+
+## 5. 结论
+- candidate 档：BLOCK（fail-closed 成立）
+- artifact 档：5 个探针中 4 个被阻断；自洽但自报的 provenance 被接受。
+- 自报 provenance 被接受说明：门禁验证的是“字段齐全且互相一致”，不证明 APK 真由 :app:assembleRelease 产出。R107-01 新构建形态必须补真实输入绑定字段（见 reports/R107-01/test-ci/03-gate-review.md）。

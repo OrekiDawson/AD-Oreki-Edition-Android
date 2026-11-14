@@ -1,0 +1,44 @@
+# ABI 级证据：候选 APK 380dfbfb 的 DEX 反编译出的 vanillaEternityTabAllowed
+# 命令：jadx-1.5.6 --single-class kajfosz.antimatterdimensions.oreki.OrekiStageAuto /home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk
+# APK SHA-256: 380dfbfb36738da9aed74456f849dbf181a034011157845df37777a030a3d965
+
+    public static final boolean vanillaEternityUnlocked() {
+        return INSTANCE.stageEternityReachedDirectRead();
+    }
+
+    /* JADX WARN: Can't fix incorrect switch cases order, some code will duplicate */
+    /* JADX WARN: Code duplicated, block: B:21:0x0037  */
+    /* JADX WARN: Code duplicated, block: B:22:0x003c  */
+    @JvmStatic
+    public static final boolean vanillaEternityTabAllowed(String tabName) {
+        boolean allowed;
+        if (tabName != null) {
+            switch (tabName) {
+                case "eternityUpgrades":
+                case "eternity":
+                case "timeStudies":
+                case "timeDimensions":
+                case "milestones":
+                    allowed = vanillaEternityUnlocked();
+                    break;
+                default:
+                    allowed = true;
+                    break;
+            }
+        } else {
+            allowed = true;
+        }
+        String key = tabName == null ? "<null>" : tabName;
+        Boolean previous = tabGateLastState.put(key, Boolean.valueOf(allowed));
+        if (!Intrinsics.areEqual(previous, Boolean.valueOf(allowed))) {
+            Log.i("OREKI_TABGATE", "tab=" + key + " allowed=" + allowed + " eternityUnlocked=" + vanillaEternityUnlocked());
+        }
+        return allowed;
+    }
+
+    private final boolean stageEternityReachedDirectRead() {
+        boolean z;
+        boolean z2;
+        boolean z3;
+        boolean z4;
+        long now = SystemClock.elapsedRealtime();

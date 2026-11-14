@@ -1,0 +1,18 @@
+# R107-01 EC4-DIAG APK checks
+
+687d48bb0a1fd59f0b79b340cc229b686bb116524f0af0fc132f3278ea42ef64  build/gradle-stage/反物质维度.apk
+84629675 bytes
+
+classes4:
+  OREKI_EC_DIAG2 strings: 1
+  ECSTUDY target= strings: 1
+  TS id= strings: 1
+  CollectionKt facade present: 1
+  Pair also in classes2 (duplicate source of previous crash): 1
+  CollectionsKt in classes2 (game dex): 0
+
+固定字符串（诊断行格式）:
+ prereqOk=
+	 reqType=
+ECSTUDY target=
+TS id=

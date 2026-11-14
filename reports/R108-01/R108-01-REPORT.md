@@ -1,0 +1,233 @@
+# R108-01 执行报告（轮内快照，2026-11-14 09:05 +08）
+
+> 轮次：R108-01（2026-11-14 08:23 +08 启动）。本文件是本轮**进行中**的真实快照，未完成项一律标注 FAIL / BLOCKED / NOT RUN，不做完成态追认。
+> 上一轮 R107-01 已暂停并保留全部代码/提交/证据，本轮不改写其历史。
+
+## A. 版本与仓库
+
+| 项 | 值 |
+| --- | --- |
+| Android main SHA（审查时） | efa11d3389b63b9312eb4171166ad3f15265a97f |
+| Android 技术分支 | r107-01/agp-runtime |
+| 技术分支起点 SHA | 78dba931c48e05eb503be1704db3fa7e2388b905 |
+| 技术分支本轮 HEAD（已推送） | e5b7dc8e676136202f0dc97e17b980529a5005ba |
+| Web main SHA | ce0ec9db26eb08791519185f816024568557288d |
+| Android 技术 PR | #31（Draft / OPEN，未合并；AGP 原生游戏代码仍 BLOCKED） |
+| Web 已合并 PR | #13/#15/#16/#17（规则/证据）、#18（EP e4000 墙）、#19（EP 墙证据）、#20（阶段化节拍） |
+| Git 工作区 | Android 分支工作区已提交+推送；Web 仓库本轮由 teammate 在 feat/r108-01-web-reality-chain 分支作业（未 push） |
+| 交接文件 | handoff/R107-01-交接-2026-11-14-终版.md 存在且已读（§0–§11）；「交接-2026-11-14.md」亦存在 |
+
+本轮真实提交（Android，已推送）：
+
+- `382bfabc`…`618c262c`：语义反混淆 batch1–4（382 条映射）+ IM/IU 方案 + Lai'tela/Pelle/strikes/rifts 报告 + CALL-TABLE + INDEX（sem）
+- `692c511f`、`72ec9aa7`：七天神/Pelle/GameEnd ABI + 最小终局链设计 + patch 落点（chain）
+- `81d607d5`：**P0 修复批**（Teresa 浇注 vp / RU 类名 / IM 上限×300 / IU25=5e9 / 莱特拉熵分母 2e7）+ 莱特拉 tier 驱动与 IU25 购买 Kotlin
+- 证据提交：M1/M2 真机采样（timeline + player.json 快照 + 过滤日志）
+
+## B. Reality 后成长（Android，AVD 实测）
+
+### B.1 已确认修复的真实缺陷（有构建与运行证据）
+
+| 缺陷 | 根因（证据） | 修复 | 状态 |
+| --- | --- | --- | --- |
+| RU 自动购买整条不生效 | `OrekiRealityUpgrades.REBUYABLE` 写成 `kajfosz.antimatterdimensions.reality.upgrades.yw3`，而 3.21 可重复 RU1~5 的运行时类在**默认包** `Lyw3;`（work/base_decoded_321/smali_classes2/yw3.smali:1、registry b.smali:19-27）→ ClassNotFoundException → resolve 恒 false | 改成 `yw3` | **PASS**：AVD 日志 `OREKI_RU_AUTO: resolved rebuy=5 oneTime=20`（08:43:32、09:00:35 两次跑次） |
+| Teresa 自动浇注永不生效 | 3.21 浇注主循环 `Game.r()` 读 `MainActivity;->vp:Z`（a.smali:5745 唯一读点；qv.smali:103/116 为按钮 OnTouch 写点）；payload 只写 `yo`（属 V/Ra 页签刷新路径） | OrekiTeresaAuto 改写 vp | 代码已修并进 build4/build6 APK；**AVD 行为验收 NOT RUN**（需要 20 个一次性 RU 买齐的条件） |
+| IM 上限结构性不足（M2/M3 阻断） | Android baseIMCap = `Lfh2;->a(BigDouble)D` 无缩放；AVD 实测 EPexp≈6.42e6 时 iMCap=1.453e7，而 IU13=5e7/IU14=3.5e8/IU15=1e9/IU25=5e9 ⇒ 原版购买入口永远买不到 | 新增 `OrekiImCapScale`（×300，与 Web `OREKI_IM_CAP_MULT=300` 同源）+ build_mod 在 fh2.a return 前插入转发 | 构建 PASS（`[Oreki IM-CAP] fh2.a() baseIMCap 已接入 OrekiImCapScale.apply（×300）`）；**AVD 验收 NOT RUN** |
+| IU25（佩勒唯一入口）成本不可负担 | 原版 1.6E15 IM（b.smali:3016），高于补丁后上限 | 幂等常量 1.6E15 → 5e9（与 Web `OREKI_IU25_COST=5e9` 同值） | 构建 PASS（`[Oreki IU25] 佩勒入口成本 1.6E15 -> 5e9`）；AVD NOT RUN |
+| 莱特拉 tier 0→8 不可达 | Android 熵公式分母仍是 1e11（a.smali:3684），Web 已改 2e7（laitela.js:30）；原式下 tier7 填满约 4.8 年 | 幂等常量 1e11 → 2e7 | 构建 PASS（`[Oreki LAI-ENTROPY] 熵产量分母 1.0E11 -> 2.0E7`）；AVD NOT RUN |
+| AGP 编译链阻断（CI） | `OrekiEcAutomation.kt:848`、`OrekiRealityUnlock.kt:240/245` 在 expression-body 函数里 return，被 AGP Kotlin 编译器拒绝 | 改为 block body | 源码已修（本地 py/编译待 CI 验证）；**CI 仍 BLOCKED**（见 D） |
+
+### B.2 真实运行数据（默认设置、未注入任何 Player 字段）
+
+| 跑次 | APK SHA-256 前缀 | 结果 |
+| --- | --- | --- |
+| m1-fresh-default（build3，08:33 起，默认设置新档） | 961dc2a9 | 首次 reality **t≈565–580 s（约 9.5 min）**（08:42:57 `OREKI_DIL_STUDIES BUY id=6` → 08:43:2x 现实重置；t=601 采样 realities=1）；重置后 `reality.realityMachines=5`、`maxRM=149`、`rebuyables=[2,2,2,1,1]`、`upgradeBits=1`、IM 已解锁并从 1.16e5 增长到 8.3e6（≈30s）；0 FATAL。**说明：本轮该跑次只跑到 t≈750s，未继续验证第二次 reality。** |
+| m1-inject-stall（build3，注入 R107-01 现实后停滞真实存档，诊断用） | 961dc2a9 | 确认 RU 类名修复生效（resolved rebuy=5 oneTime=20）；该档 DS6 已随现实重置清空 ⇒ canReality=false，未发生新现实（符合原版语义，不是缺陷） |
+| m2-fresh-long（build4=Teresa vp 修复，08:50 起 60min 计划） | fe5f0b80 | 首次 reality **t≈567 s**（08:59:25 DS6 购买 → 重置）；重置后 realities=1、**RM=0、rebuyables=[0,0,0,0,0]、upgradeBits=0**（与 build3 跑次的 RM=5/8 次购买不一致）；`OREKI_REALITY`/`OREKI_REALITY_PACING` 日志在本次跑次缺失（疑似 logd 丢弃，见 B.3）。本跑次在切换 build6 时提前停止（未跑到第二次现实）。 |
+| m3-build6-fresh（build6=全部补丁+莱特拉驱动，09:02:44 起 40min） | 3d1efee5 | 首次 reality **t≈570 s**（09:12:15；与另外两次一致 ≈9.5min）；**IM 上限 ×300 已真机生效**：重置后同一现实内 EP 涨到 1e3423337 时 iMCap=7.347856e8（= 原版 base 2.449e6 × 300），IM=2.70e8 增长中；realities=1、RM=0、maxRM=149（**与 build4 一样 RM=0，与 build3 的 RM=5 不一致，待根因**）；本跑次 logcat 因证据整理时误删原始文件（写句柄被 unlink），只保留 timeline/player 快照——下一轮跑次不得再删。 |
+| m2-build7-cap3000（build7，09:16 起 40min） | f87d9590 | 运行中（本轮收口时未到首次 reality）：验证 IM 上限 ×3000 下 IU15 冲刺 → 莱特拉 tier 驱动 → IU25；结果见下一轮报告。 |
+| Web 默认设置跑次（web teammate，ce0ec9db + 修复 89dcd7d） | — | 首现实 434.2s；r10 709.6s、r20 1176.1s、r30 1547.1s、r50 2115.2s、r60 2566.2s；RM 27.84→1e1200；RU 20/20 @1176.1s；glyph 0→21（最高 28 级）；Teresa 解锁 1176.1s、浇注真实到 1e24（1635.9s）、Effarig stage1-4（1697.9/1719.4/1842s）、Enslaved 1719.4s；**V/Ra/Laitela/IU15/IU25/Pelle/gameEnd RUNNING/NOT RUN** |
+
+### B.3 跨端一致性新证据（Web 实测倒逼 Android 修）
+
+- Web teammate 在默认设置跑次中同样撞到 **IM 上限不足**：默认 10000× 下 EP 峰值平台 3.44e6 ⇒ log10(uncappedRM)≈2577 ⇒ 原版上限 (1577)^2×300=7.43e8 < IU15 成本 1e9 ⇒ IU15 冲刺永不成立 ⇒ Lai'tela/IU25/Pelle 全断。Web 已把 OREKI_IM_CAP_MULT 300→3000（上限 7.43e9）。
+- **Android 同步取值 3000**（OrekiImCapScale.MULT=3000），保持双端等价；Android 实测 ×300 时 iMCap=7.35e8（与公式一致），×3000 后理论 7.35e9 > IU25 5e9。
+- Android P0-2 节奏已按 Web 对照结果对齐：一次性 RU 每拍最多 8 个（原 1），tryUnlock 每拍（原每 10 拍）。
+- 已知双端节奏差异（待裁）：Web 的 Teresa 浇注耗时 459.8s（设计约 2.3s），因 celestial 任务约 19s 才被调度一次 + OREKI_MAX_REAL_FRAME_MS=100 单次只累计 100ms；Android 走原版主循环 Game.r() 按帧累计，不存在该损失。
+
+
+### B.4 build7 跑次（IM 上限 3000）真实结果 —— M1 核心闭环达成 + 发现并修复 P0 死锁
+
+**默认设置新档、10 分钟内首 reality、realities 0→2、RM 触顶 1e1000、RU 大量真实购买、Teresa 浇满 1e24**（证据：`reports/R108-01/avd-evidence/m2-build7-cap3000/`，原始 logcat 在 `~/private-staging/r108-evidence/`）。
+
+| 观测 | 值（09:43 实时存档） |
+| --- | --- |
+| realities | 2 |
+| RM / maxRM | 9.99999897e999 / 1e1000（硬顶） |
+| 可重复 RU1~5 | [173, 173, 170, 170, 155]（真实购买、真实扣 RM） |
+| 一次性 RU 位图 | upgradeBits=852947 |
+| IM / iMCap | 4.5026e10 / 4.5027e10（×300 生效，与 baseIMCap 公式一致） |
+| Teresa pouredAmount | **1e+24（浇满）**，unlockBits=63（含 Effarig 解锁位） |
+| Effarig | run=false、unlockBits=0、relicShards=0（未进入/未买门票） |
+| Lai'tela / Pelle / gameEnd | tier=0 / doomed=false / endState=false |
+
+日志证据：
+
+- `OREKI_RU_AUTO: buy ok total=508 tick=3 ... oneTimeBought=8 rmBefore=have=1.0e1000 ... rmAfter=have=1.0e1000`（一次 tick 508 笔真实购买，RM 已在硬顶）
+- `OREKI_REALITY: 1`（真实重置打点）
+- `OREKI_IU15: 接管开始` / `干净现实开始：amE=1e7`
+
+**发现 P0 死锁（真实缺陷，已修复）**：
+
+- 现象：IU15 冲刺进入 RUNNING 后整局停滞——amE 实际已达 **1.6e9**（≫ 目标 1e8）、`maxID1=0`（干净现实）、IM/iMCap 都够，但 `iuBits=0`（IU15 从未买入），且 realities 停在 2。
+- 根因 1：一次性 Imaginary Upgrade 的「可买」判据依赖 `Player$Reality.imaginaryRequirementBits`，该位图只由原版事件路径 `R()`（tryUnlock）刷新；无人值守时无人调用 ⇒ `canBeBought` 恒 false。
+- 根因 2：旧 `OrekiIu15Sprint` 在 `amE>=TARGET` 且 `tryBuy()` 失败时**直接 return**，既不超时也不释放 ⇒ ID1~ID8 购买封锁永不解除 ⇒ 整局产量停摆、realities 不再增长。
+- 修复（build8，SHA 6cec5720…）：① `GameApi.imaginaryTryUnlock(field)` 周期调原版 `R()V`（IU15 冲刺 1s 一次；莱特拉 IU25 同样接入）；② 冲刺 `RUNNING` 增加「条件达标却买不到」的 15s 诊断日志与 60s 放弃/释放，不再静默 return；③ 30s 状态日志（amE/peak/canBuy/bought/capOk/clean）。
+- 验证状态：**AVD NOT RUN**（build8 跑次 09:48 已启动，结果见下一轮）。
+
+### B.5 build8/build10：IU15 冲刺的第二层死锁与莱特拉窗口标定（跨端同源）
+
+**build8 AVD 实测（`reports/R108-01/avd-evidence/m2-build8-iu15fix/`）**：
+
+- IM 上限 ×3000 已生效：`iMCap=4.363e10`（IM=3.87e10）。
+- 但 `iuBits=0`、`OREKI_IU15` 日志 **0 条**（从未 arm）：`maxID1=3.13e56986558`（本现实已被 ID 购买弄脏）。
+- 根因：旧 `canArm()` 要求 `GameApi.imUnlocked()`（本帧 IM>0）。IM 是否解锁取决于上一现实是否把 RM 顶到硬顶；等它成立时，现实重置后的干净窗口早已被 ID 购买破坏 ⇒ sprint 永不 arm ⇒ IU15 永不买入。
+- 修复（build10，SHA 741cf1b6）：① `canArm` 改为「干净现实 + `iu15AffordableByCap()`（iMCap 记录≥成本）即 arm」，不再等 IM 解锁；IM 在冲刺期间自然累积；② 仍未改变 `RUNNING` 的硬前置（maxID1==0、amE≥1e8、原版 `canBeBought`、真实扣费）。
+
+**莱特拉 tier 窗口（跨端同源标定）**：
+
+- Web 实测（web teammate）：默认速度现实周期 136–226s、AM 到入场线 4e8 的真实时刻 130–230s；原版 `thisRealityRealTime < 30s` 才 tier+1 ⇒ 结构性不可达（Web run-fixed 431s 内 laitelaRunning=0、tier 恒 0）。Web 已改 `OREKI_LAITELA_TIER_WINDOW_SEC=300` 并把入场/压现实窗口同步扩大。
+- Android 同步：build_mod 新增 `patch_laitela_tier_window()`，把 `Game.k(D)V` 中 `const-wide/high16 v12, 0x403e000000000000L # 30.0` **整行**改为 `const-wide v12, 0x4072c00000000000L # 300.0`（300.0 低 48 位非零，不能用 high16 形式——build9 曾因此 apktool `Invalid literal value` 失败，已修正并回读断言）；`OrekiLaitela` 的 `RUN_ENTER_MAX_REAL_MS=290000`、`HOLD_MAX_MS=250000`、run 在位窗口 300s 与 Web 同值。
+- 熵分母 2e7 与 tier 窗口 300s 组合后，理论上一轮现实内可完成「进 run → 熵满 → tier+1」。
+
+**第三层修复（build11，SHA c75081c8）：购买期预封锁**
+
+- build10 AVD 实测：`iMCap=4.36e10`（×3000 生效）、`maxID1=9.15e56986405`（干净窗口仍被抢）⇒ IU15 仍从未 arm。
+- 关键认识：ID 购买守卫是在**每次购买调用时**求值的，而此刻 `maxID1` 尚未因本次购买变正；所以不需要「先 arm 再拦」，只要守卫本身在「干净现实 + 上限足够」时就返回 true，就能在现实重置后的第一次 ID 购买前关门。
+- 实现：`idBuyBlocked()` 增加预封锁分支（总开关/毁灭/挑战/上限/失败上限/冷却全部不变；`maxID1` 已脏时放行，避免拖死成长），并顺带把相位推进到 ARMED（只一次日志）。
+- 验证状态：build11 跑次 10:23 启动，**AVD NOT RUN（结果待下一轮）**。
+
+**第四层发现（build11 AVD 实证，build13 修复）：EC7 奖励路径绕过 ID 购买封锁**
+
+- build11（购买期预封锁）实测：realities=1、`iMCap=4.358e10`、IU15 仍未买入，`maxID1=1.94e56937572` 依旧变正、`OREKI_IU15` 日志 0 条。
+- 根因（与 Web 冻结上游同源）：EC7 的完成奖励在 `TimeDimensions.tick()` 里持续生产 ID8，再经 `InfinityDimensions.tick()` 逐层产出 ID1 —— 即使 ID **购买**被完全拦住，`maxID1` 也会变正。所以「干净现实」的封锁必须连 **EC7 启动**一起拦。
+- 修复（build13，SHA fb6cbfe0）：`shouldBlockEcStart(7)` 增加与 ID 预封锁相同的条件（干净现实 + iMCap≥成本 + 未买 IU15 + 总开关/非毁灭/失败上限），不再只依赖 `isActive()`。
+- 同批（build12）还补了 Web `6988b92` 对应的「DS6 帧竞态」：tier8 阶段用 `GameApi.canReality()`（原版 `prestige/f.f()`，= DS6 在位）作代理判据，压住现实等 DS6+符文≤1+IM 够后再进 run 买 IU25；run 在位却买不到时放开现实让重置清 run。
+- 验证状态：build13 跑次 10:39 启动，**AVD NOT RUN（结果待下一轮）**。
+
+### B.6 IU15 冲刺决定性证据与购买入口 ABI 修复（build13/build17）
+
+build13（EC7+ID 预封锁）AVD 实证（`reports/R108-01/avd-evidence/m2-build13-ec7block/`）：
+
+- 10:54:41 真实现实重置后，`OREKI_REALITY(1)` → **`OREKI_IU15: 接管开始` / `干净现实开始：amE=1e7`**：干净现实窗口首次保住。
+- 86s 内 amE 冲到 **1.62e9**（≫ 1e8），日志 `买到条件却买不到：阻塞 59s canBuy=true bought=false capOk=true amE=1e1.62e+09`：
+  → 说明「干净现实 + 门槛 + 上限」全通过，唯独**原版购买调用失败**。
+- 根因（`OREKI_API_MISS` 直接证据）：`missing method IU.D(Z,Continuation)=purchase on a` —— 3.21 R8 后 D 的第二个形参类型是混淆类型 `Lrj0;`，旧解析用字面 `kotlin.coroutines.Continuation` 精确匹配 ⇒ Method=null ⇒ 调用静默返回 null。
+- 另证：`IU.R()=tryUnlock` 在 `class a` 上**不存在**（86 次 miss），一次性 IU 的可买判定是原版实时条件，无需也无可刷新。
+
+修复（build17，SHA 4a6a58bf）：
+
+- `GameApi.mQrD()` 改为只按「名字 D + 2 参」解析；实参先传真实 continuation，返回 null 时再以 `null` 重试（D 体内不使用 continuation，与 RU 购买同款）；新增 `OREKI_IU_BUY` 结果日志。
+- `imaginaryTryUnlock()` 只解析一次；方法缺失即视为「实时条件判定」并返回 success，避免每拍刷日志。
+- 同批带入 build15/16：**现实重置帧关闭 8 层 ID 原版自动购买器**（`maxID1` 是「ID1 达到过的最大量」而非购买记录 ⇒ 只拦购买不够）、EC7 预封锁、以及 `OrekiPelle` 终局驱动（doom / keepAutobuyers 优先升级 / armageddon / 只读 isGameEnd）。
+- 验证状态：build17 跑次 11:00 启动，**AVD 结果待下一轮**（若 IU15 真实买入 → 莱特拉解锁 → tier 驱动）。
+
+### B.7 Web 端已完成真实 gameEnd（双端对照的基准与设计验证）
+
+- **Web 默认设置全新存档真实浏览器跑次 gameEnd PASS @1867.9s（31.1 min）**，`endState=1.0417`、`isGameEnd=true`、pageerror 0（832 条 2s 采样）。
+- 关键里程碑：首现实 413.8s → IU15+Laitela 857.4s → Teresa 1096.1s → Effarig 解锁 1484.4s → **莱特拉 tier8 1771.8s** → **IU25+Pelle+doomed 1826.5s** → **gameEnd 1867.9s**；终态 realities=45、IM=1.02e10。
+- Web 三项真实阻断与本轮 Android 修复**一一对应**：① IM 上限 300→3000（Android 同值）；② 莱特拉 tier 窗口 30s→300s（Android 已同源 patch）；③ tier8 后 DS6 帧竞态压现实截帧（Android 已实现 `canReality()` 代理 + 压现实）。
+- 结论：R108-01 的 Android 修复方向已被 Web 端完整验证；Android 端剩余工作是「把同一条链在 3.21 基线上跑通」。Web 分支 `feat/r108-01-web-reality-chain`（HEAD `0e0aa24`）已 push、未 merge/未开 PR；oreki.net 未部署。
+
+### B.8 Web 交付状态（R108-01）
+
+- PR **#25 已合并**（`feat/r108-01-web-reality-chain` → main），main SHA **8914ea5b842aad34a36116b5947b3b03f6df6955**；Web 持续 CI（run 43551150141）success，PR CI 43549775285 success（含 Mobile Chromium smoke）。
+- **Web Pages 部署 BLOCKED**：按批准流程 dispatch「申请已批准的 Web Pages 部署」(run 43551377126, approved_sha=8914ea5b…) 失败于 `PAGES_DEPLOY_TOKEN` 为空：`BLOCKED：请在 web-production 环境设置 Pages Actions:write 凭据`。属外部凭据缺失，非代码问题；oreki.net **未部署、线上 SHA 未变**。
+- 结论：Web 端「真实 gameEnd PASS」已进入 main，但生产部署仍等凭据；Android 端继续独立推进。
+### B.9 待根因（不追认为 PASS）
+
+- **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
+- **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
+- RU6..RU25 一次性升级的真实购买推进、Teresa 浇注（pouredAmount 增长）、Effarig 解锁位：**NOT RUN**（需要更长的 post-reality 跑次）。
+- 当前 realities 增长与 RM 增长曲线（build3 只到 realities=1）**未验证**。
+
+## C. 真实 180 分钟通关
+
+| 项 | 状态 |
+| --- | --- |
+| Android 新档墙钟 ≤10,800 s 到 gameEnd | **NOT RUN**（现实循环尚未验证闭合，天神/Pelle/driver 仅部分落地） |
+| Web 新档墙钟 ≤10,800 s 到 gameEnd | **NOT RUN**（Web teammate 默认设置真实跑次进行中：t≈31min 时 r35、20/20 RU 已买、Teresa 已浇/Effarig stage3/Enslaved 已解锁；见 reports/R108-01/web/） |
+| 各里程碑时间 | Android：首 reality 约 565–580 s（两次跑次一致）；其余 NOT RUN。Web：首 reality 434.2 s、r5 434.2 s、r10 709.6 s、r15 945.6 s、r20 08:46:28、r30 08:52:39（详见 Web team run-default/milestone-*.json） |
+| 资源竞争说明 | 本轮 Android AVD 与 Web Chromium 真实跑次**并行**（宿主 load avg≈18/12 核），所有墙钟数据均带竞争噪声，不能作为最终 180min 结论；最终验收必须独占 CPU（规则 §4.4）。 |
+
+## D. AGP 原生生产链
+
+| 项 | 状态 |
+| --- | --- |
+| 是否产出完整可运行游戏 APK | **否 / BLOCKED**（本轮未改变 AGP 原生游戏代码路线结论：仅 8 类最小混合替换可运行；enjarify 全量 Tick 卡死；r2/r4/r5/J8+fix 协程 ABI 崩溃） |
+| 正式候选/验签/发布门禁 | **BLOCKED**（AGP-only fail-closed 保持；R103 `android-update-3.21.0-3d924271` 仍为 Latest，未发布任何新版本） |
+| CI（r107-01/agp-runtime） | 最近 5 次 run 均 failure：① `AGP 9.5.1 Kotlin DEX parity` 的 compileDebugKotlin 因 expression-body return 失败（本轮已修源码，待 CI 验证）；② `Source policy…/Block only NEW Kotlin naming violations` 报 “Missing trustworthy Git comparison base”（PR base=main 时会把整条分支的 Kotlin payload 当新增，含混淆标识符）；③ 上游必需汇总因此失败。**CI 修复未完成** |
+| 本轮 APK 来源 | 旧链（apktool 补丁树 + AGP 打包/签名编排，`./gradlew assembleRelease -PorekiForceBuild=1`），**provenance=legacy-dex，禁止作为正式 Candidate/发布** |
+
+构建产物（本地，未发布）：
+
+| APK | SHA-256 | 内容 |
+| --- | --- | --- |
+| build3 | 961dc2a9eadca10e21fb6343fb86c28699ff83c16d53c0617e9bd54e0ce887b4 | P0-1/P0-2 + RU 类名修复 |
+| build4 | fe5f0b80…（本轮日志记录前缀） | + Teresa vp 修复 + RU 扣费日志 |
+| build6 | 3d1efee52113a9e24a4ea3b52b41b2644fc4715c3454b591ad8fb40ce574efd8 | + IM 上限×300 / IU25=5e9 / 莱特拉熵 2e7 / OrekiLaitela 驱动 |
+| build7 | f87d95907103420daa509b65a81733d04ab8c21766f68aba7674666d78b02a7e | + IM 上限倍率 3000（双端统一）、一次性 RU 每拍 8 个/tryUnlock 每拍（对齐 Web） |
+| build8 | 6cec572029443da1d831b16f89bdb78f2cebd618a19e50df20860e3411698d55 | + IU15 死锁修复（imaginaryTryUnlock + 买到不动的诊断/释放）+ IU25 tryUnlock 接线 |
+| build9 | —（构建失败） | 莱特拉窗口补丁首版用 const-wide/high16 写入 300.0 → apktool `Invalid literal value`；已修正为 const-wide 整行替换 |
+| build10 | 741cf1b6a73fb3aae8fba4b39daec496c52c7c7c50b85a80f14fe21f9cbf9916 | + IU15 arm 条件修正 + 莱特拉 tier 窗口 300s（const-wide 形式） |
+| build11 | c75081c8622ee856004a2fb04b6189a463f8a7beb05e7e404eb28a9cf86455f9 | + IU15 购买期预封锁（守卫内直接拦，不等 arm） |
+| build12 | — | + 莱特拉 tier8 DS6 帧竞态处理（canReality 代理 + 压现实等 DS6）+ IU25 购买时序 |
+| build13 | fb6cbfe0f5293f8d8c43e6ceaedb80920f97bfbf13fc20f4549de8e9778bc244 | + IU15 预封锁同时拦 EC7（EC7 奖励会产 ID1，购买拦截不足） |
+| build15/16 | 2e7a8c19ecd83f5e…（build16） | + 现实重置帧关 ID 自动器 + EC7 预封锁 + OrekiPelle 终局驱动 |
+| build17 | 4a6a58bf078af303323f495a53a491067957aad71dffdca314399e730317db6f | + IU 购买入口解析修复（D 形参混淆类型）+ IU_BUY 日志 |
+
+## E. 技术迁移 / 语义反混淆
+
+- 第一方真实分母：**10,954 类**（默认包 9,712 + kajfosz 1,242）——沿用既有登记，本轮未重跑全量 JADX。
+- 本轮新增语义映射 **382 条**（CONFIRMED 211 / STRONG 129 / INFERRED 30 / UNKNOWN 12），全部带「文件:行」证据：`docs/deobfuscation/data/r108-reality-chain/semantic-map.json`，索引 `reports/R108-01/sem/INDEX.md`。
+- 覆盖重点：Reality 结算/RU 通用购买链（is3/uw3/yw3）、Perk、膨胀升级（id↔名称 CONFIRMED）、Imaginary（IM 上限/IU15/IU25）、Lai'tela tier 状态机、Pelle 升级表（5+23）、GameEnd、Glyph（AutoGlyphProcessor/删除链）、Game 主循环子阶段。
+- 新增可维护 Kotlin 业务：`OrekiImCapScale`（IM 上限倍率）、`OrekiLaitela`（莱特拉 tier 驱动 + IU25 购买 + 符文卸下）；修改 `OrekiRealityPacing`（rmDebug）、`OrekiRealityUpgrades`（类名修复/扣费证据）、`OrekiTeresaAuto`（vp）、`OrekiStageAuto`（接线）。
+- 仍保留的 ABI 转发：Smali 包装类继续只做转发（Teresa/Reality/Glyph/PelleRecord 等）；`OrekiLaitela`/`OrekiImCapScale` 的混淆符号出现在业务 Kotlin 中（CI N8 规则未通过，需后续把混淆名收口进 GameApi 或在兼容层白名单登记）。
+
+## F. 交付
+
+- 本轮**无新正式发布**；R103 Latest 未变；四渠道 NOT RUN；Web Pages 未部署。
+- GitHub：Android 分支已推送 `e5b7dc8e`；PR #31 仍 Draft/OPEN。
+- APK SHA-256 见 D；包名 `com.oreki.antimatterdimensions`、versionCode 30210000、签名证书 `95960bce…3197` 未变（本轮未发布）。
+
+## G. 未完成事项与恢复点
+
+**P0（阻断）**
+1. `FAIL/待根因`：post-reality RM=0（build4 跑次）与 RU 位图不复位问题——先用 build6 复跑并分析 RM 授予输入（OrekiRealityUpgrades 已加 rmBefore/rmAfter 日志）。
+2. `NOT RUN`：realities 连续增长 + 20 个一次性 RU 买齐 + Teresa pouredAmount 增长（Teresa vp 修复的行为验收）。
+3. `NOT RUN`：IM 上限 ×300 / IU15 冲刺 / 莱特拉 tier 0→8 / IU25 购买的真实 AVD 验证（`OrekiLaitela` 已接线并进 build6）。
+4. `NOT RUN`：Pelle doom/armageddon/keepAutobuyers/gameEnd 驱动（本轮只完成 ABI 与设计，未写 Kotlin）。
+5. `BLOCKED`：CI（AGP Kotlin DEX 编译 + naming delta 基准）与 AGP 原生游戏代码链；正式发布不可进行。
+
+**P1**：Glyph best/替换/删除（AutoGlyphProcessor 已确认入口）、Perk 自动购买、膨胀升级自动购买、Pelle strikes 运行时触发（Android DEX 无调用点，需动作后反射调 nh3.b() 或小 patch）、rifts active 驱动。
+
+**恢复点（下一轮直接从这里继续）**
+1. `adb install -r build/gradle-stage/反物质维度.apk`（build6，3d1efee5）+ `python3 scripts/tests/r108/m1_reality_loop.py --fresh` 跑 ≥30min，读 `reports/R108-01/avd-evidence/m3-build6-fresh/`。
+2. 若 RM=0 复现：查 `OREKI_RU_AUTO` 的 rmBefore/rmAfter 与 `prestige/f.b` 真实授予路径；不要凭猜改 GameApi。
+3. 若 RU 买齐：验证 `OREKI_LAITELA`（enterRun/tier）与 IU25；再写 `OrekiPelle`（设计已具备：reports/R108-01/chain/PELLE-LAITELA-DRIVE.md、reports/R108-01/sem/PELLE-CHAIN.md）。
+4. CI：先修 naming delta 的对比基准与 Kotlin ABI 白名单，再谈 AGP 原生候选。
+
+## 证据索引
+
+- `android/AD_Oreki_Edition_Android/reports/R108-01/avd-evidence/{m1-inject-stall,m1-fresh-default,m2-fresh-long,m3-build6-fresh}/`（timeline、player 快照、过滤日志）
+- 原始全量 logcat：`/home/oreki/private-staging/r108-evidence/`（非仓库）
+- `android/AD_Oreki_Edition_Android/reports/R108-01/{sem,chain}/`（语义映射与 ABI/设计）
+- Web：`reports/R108-01/web/`（默认设置真实跑次 samples/milestones；最终报告由 Web teammate 回填）
+
+### B.10 IU15 预封锁已真机生效（build19/build20）
+
+- build19 AVD 日志（11:36:27）：`OREKI_REALITY(1)` → `OREKI_IU15: 已关闭 8 层 ID 原版自动购买器 count=8` → `现实重置帧预封锁：已关 ID 自动器，等待干净现实冲刺` → `干净现实开始：amE=1e3.00e+00`。
+- 说明「现实重置帧关 ID 自动器 + EC7 预封锁」在 3.21 上真实有效；build17 已先一步实证 IU15 真实买入（`iuBits=16`，IM=4.38e10）。
+- 但代际检测依赖 tick 落点，仍可能错过重置帧（build19 直到 11:36 才抢到）。build20 增加**确定性钩子**：`OrekiRealityPacing.onRealityReset` 在 `prestige/f.b` 返回后同步调 `OrekiIu15Sprint.onRealityResetHook()`，此刻 maxID1 必为 0，直接关 8 层 ID 自动器并 armed（SHA 492085ae）。
+- 验证状态：build20 跑次 11:36 启动，**AVD 结果待下一轮**。
+

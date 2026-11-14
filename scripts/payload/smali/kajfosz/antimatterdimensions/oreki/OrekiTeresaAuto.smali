@@ -5,7 +5,7 @@
 # `public static r()V`，被主循环 `a.smali:14331` 每帧调用）：
 #
 #     long now = System.currentTimeMillis();
-#     if (MainActivity.yo) {                      // ← 「浇注按钮被按住」的标志
+#     if (MainActivity.vp) {                      // ← 「浇注按钮被按住」的标志
 #         double diff = (now - a.l) / 1000.0;     // 真实秒数差，不是游戏帧
 #         if (yr4.g()) {                          // g() == pouredAmount < 1e24
 #             yr4.i += diff;
@@ -17,10 +17,16 @@
 #         }
 #     }
 #
-# 也就是说：**原版把「浇注」完整地挂在 MainActivity.yo 这一个布尔值上**，
+# 也就是说：**原版把「浇注」完整地挂在 MainActivity.vp 这一个布尔值上**，
 # 只要它为 true，主循环每帧都会用真实墙钟时间差去浇、去扣 RM、去解锁。
 #
-# 因此本类**只做一件事**：条件成立时把 yo 置 true，不成立时撤销。
+# [R108-01 P0 修复] 3.21 基线的浇注开关字段是 MainActivity 的 vp:Z（不是 R62 时代的 yo）：
+#   · 唯一读取点：a.smali:5745（Game.r()，浇注主循环）；
+#   · 写入点：qv.smali:103/116（浇注按钮 OnTouchListener 按下/抬起）与 MainActivity.smali:31836/31865；
+#   · yo 在 3.21 属另一处 UI 状态（f45.smali / celestials/ra/c.smali / MainActivity:47581-47589），与浇注无关。
+#   旧实现只写 yo ⇒ 浇注循环永远读不到 ⇒ 即使 RU 买齐也不会浇（R107 AVD NOT RUN 未暴露）。
+#
+# 因此本类**只做一件事**：条件成立时把 vp 置 true，不成立时撤销。
 #   · 浇注量、速率、RM 扣费、解锁判定全部走原版同一段代码，没有第二套公式；
 #   · 时间基准天然是 `System.currentTimeMillis()` 的真实毫秒，不受 10000× 影响；
 #   · 主循环停了（切后台/暂停）就不浇，不存在「补算一大段」的隐患。
@@ -50,6 +56,9 @@
 # 本类是否正持有 yo（= 那个 true 是我们写的，不是玩家按的）。
 # 只有它为真时才允许撤销，避免把玩家真按住的按钮取消掉。
 .field private static sHolding:Z
+
+# [R109-01] 本次 hold 的起始时刻（elapsedRealtime 毫秒）。用于有界 hold 防死锁。
+.field private static sHoldSince:J
 
 
 # ---------------------------------------------------------------- 每帧入口
@@ -86,7 +95,7 @@
     # ---- 3. 条件成立：按住原版浇注开关 ----
     const/4 v1, 0x1
 
-    sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;->yo:Z
+    sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;->vp:Z
 
     sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHolding:Z
 
@@ -102,9 +111,13 @@
 
     const/4 v1, 0x0
 
-    sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;->yo:Z
+    sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;->vp:Z
 
     sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHolding:Z
+
+    const-wide/16 v1, 0x0
+
+    sput-wide v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
 
     :ot_done
     :try_end_0
@@ -161,8 +174,17 @@
 
     cmpl-double v2, v0, v2
 
-    # poured >= 1e24 → 已浇满，释放
-    if-ltz v2, :ot_hno
+    # [R109-01 P0 修复] poured >= 1e24 → 已浇满，释放。
+    # 原实现写的是 if-ltz（= v2 < 0 才跳），语义完全反了：poured 已满时反而继续 hold，
+    # 未满时反而放行。真机证据（13:07 OREKI_TERESA_HOLD=1.0E24 且 teresaHolding=true）
+    # 说明「浇满后现实被永久压死」，这是 R108-01 post-Teresa 停滞的根因。
+    if-gez v2, :ot_hno
+
+    # [R109-01 DIAG] 未浇满时打印实时 poured（只读），用于确认 hold 期间确实在浇。
+    const-string v3, "OREKI_TERESA_HOLD"
+    invoke-static {v0, v1}, Ljava/lang/String;->valueOf(D)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v3, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
     :try_end_h
     goto :ot_hyes
 
@@ -179,6 +201,49 @@
     return v0
 
     :ot_hyes
+    # [R109-01] 有界 hold：首次进入记录时刻；超过 180s 强制释放，避免整局现实被永久压死。
+    # 语义：sHoldSince == 0 ⇒ 首次 hold，记录时刻并放行；否则算 elapsed，
+    #       elapsed < 180s ⇒ 继续 hold；>= 180s ⇒ 释放。
+    sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
+
+    const-wide/16 v0, 0x0
+
+    cmp-long v2, v2, v0
+
+    if-eqz v2, :ot_hold_set
+
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
+
+    sub-long v0, v0, v2
+
+    const-wide/32 v2, 0x2bf20
+
+    cmp-long v0, v0, v2
+
+    if-gez v0, :ot_hold_yes
+
+    const-string v1, "OREKI_TERESA_HOLD"
+
+    const-string v2, "hold timeout 180s -> release reality"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :ot_hold_set
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;->sHoldSince:J
+
+    :ot_hold_yes
     const/4 v0, 0x1
 
     return v0

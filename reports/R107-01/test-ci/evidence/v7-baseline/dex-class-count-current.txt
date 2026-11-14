@@ -1,0 +1,22 @@
+## dexdump 类数统计（build-tools 34.0.0，当前 AGP Release）
+# APK SHA-256: f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc
+
+classes.dex        6678180 bytes  classes=6391  sha256=db7dd3338f23f0d9b58d76afbd04681d373d7230154997d4ef0f92d70344eaf8
+classes2.dex       11701628 bytes  classes=10071  sha256=fb66bd82d2e0665b1371f43903185e370b21b32386fb4b8c0e275c6596c7d6b2
+classes total = 16462
+
+## dexdump 类描述符去重后 = 16462（跨 dex 重复 0）
+## DEX type_ids 总数 = 23027；含 '-' 的类型描述符 = 0
+## 非法 Java 描述符 = 0
+
+## 抽样（前 10 个描述符）
+  La00;
+  La01;
+  La02;
+  La03;
+  La04;
+  La05;
+  La06;
+  La07;
+  La08;
+  La09;

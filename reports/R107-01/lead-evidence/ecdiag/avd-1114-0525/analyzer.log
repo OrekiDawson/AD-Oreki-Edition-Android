@@ -1,0 +1,348 @@
+采样 600s（EP/EC 需先到永恒层并让 EC 自动化重试）...
+{
+ "hypothesis": "NEED_TT（z=false：TT 不足，等资源） | 候选: TS 151 缺前置 [141, 142, 143]",
+ "blockers": [
+  {
+   "id": 171,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "1.5e1",
+   "k": [
+    161,
+    162
+   ],
+   "k_missing_in_chain": [
+    161,
+    162
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 161,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "7.0e0",
+   "k": [
+    151
+   ],
+   "k_missing_in_chain": [
+    151
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 151,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "8.0e0",
+   "k": [
+    141,
+    142,
+    143
+   ],
+   "k_missing_in_chain": [
+    141,
+    142,
+    143
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 141,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "3",
+   "price": "4.0e0",
+   "k": [
+    131
+   ],
+   "k_missing_in_chain": [],
+   "k_missing_anywhere": [
+    131
+   ]
+  },
+  {
+   "id": 142,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "4",
+   "price": "4.0e0",
+   "k": [
+    132
+   ],
+   "k_missing_in_chain": [],
+   "k_missing_anywhere": [
+    132
+   ]
+  },
+  {
+   "id": 143,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "5",
+   "price": "4.0e0",
+   "k": [
+    133
+   ],
+   "k_missing_in_chain": [
+    133
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 162,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "7.0e0",
+   "k": [
+    151
+   ],
+   "k_missing_in_chain": [
+    151
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 171,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "1.5e1",
+   "k": [
+    161,
+    162
+   ],
+   "k_missing_in_chain": [
+    161,
+    162
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 161,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "7.0e0",
+   "k": [
+    151
+   ],
+   "k_missing_in_chain": [
+    151
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 151,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "8.0e0",
+   "k": [
+    141,
+    142,
+    143
+   ],
+   "k_missing_in_chain": [
+    141,
+    142,
+    143
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 141,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "3",
+   "price": "4.0e0",
+   "k": [
+    131
+   ],
+   "k_missing_in_chain": [],
+   "k_missing_anywhere": [
+    131
+   ]
+  },
+  {
+   "id": 142,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "4",
+   "price": "4.0e0",
+   "k": [
+    132
+   ],
+   "k_missing_in_chain": [],
+   "k_missing_anywhere": [
+    132
+   ]
+  },
+  {
+   "id": 143,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "5",
+   "price": "4.0e0",
+   "k": [
+    133
+   ],
+   "k_missing_in_chain": [
+    133
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 162,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "7.0e0",
+   "k": [
+    151
+   ],
+   "k_missing_in_chain": [
+    151
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 171,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "1.5e1",
+   "k": [
+    161,
+    162
+   ],
+   "k_missing_in_chain": [
+    161,
+    162
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 161,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "7.0e0",
+   "k": [
+    151
+   ],
+   "k_missing_in_chain": [
+    151
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 151,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "-1",
+   "price": "8.0e0",
+   "k": [
+    141,
+    142,
+    143
+   ],
+   "k_missing_in_chain": [
+    141,
+    142,
+    143
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 141,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "3",
+   "price": "4.0e0",
+   "k": [
+    131
+   ],
+   "k_missing_in_chain": [],
+   "k_missing_anywhere": [
+    131
+   ]
+  },
+  {
+   "id": 142,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "4",
+   "price": "4.0e0",
+   "k": [
+    132
+   ],
+   "k_missing_in_chain": [],
+   "k_missing_anywhere": [
+    132
+   ]
+  },
+  {
+   "id": 143,
+   "reqType": "AT_LEAST_ONE",
+   "z": "false",
+   "r": "true",
+   "K": "false",
+   "group": "5",
+   "price": "4.0e0",
+   "k": [
+    133
+   ],
+   "k_missing_in_chain": [
+    133
+   ],
+   "k_missing_anywhere": []
+  },
+  {
+   "id": 162,
+   "reqType": "AT_LEAST_ONE",
+   "
+REPORT: work/r107-gates/ecdiag/avd-1114-0525/REPORT.md
+EXIT=0

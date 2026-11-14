@@ -1,0 +1,160 @@
+{
+ "counts": {
+  "classes_total": 1242,
+  "class_identity": {
+   "this0": 52,
+   "preserved": 1062,
+   "lambda_owner": 25,
+   "role_only": 96,
+   "merged_facade": 1,
+   "unknown": 6
+  },
+  "classes_semantic_name_nonempty": 1139,
+  "classes_role_nonempty": 134,
+  "classes_identity_or_role": 1236,
+  "classes_unknown": 6,
+  "class_confidence": {
+   "confirmed": 1061,
+   "strong": 172,
+   "inferred": 3,
+   "unknown": 6
+  },
+  "class_identity_by_confidence": {
+   "this0|strong": 52,
+   "preserved|strong": 1,
+   "preserved|confirmed": 1061,
+   "lambda_owner|strong": 25,
+   "role_only|strong": 93,
+   "role_only|inferred": 3,
+   "merged_facade|strong": 1,
+   "unknown|unknown": 6
+  },
+  "methods_total": 7439,
+  "methods_mapped": 5071,
+  "methods_mapped_confidence": {
+   "confirmed": 4029,
+   "strong": 1036,
+   "inferred": 6,
+   "unknown": 0
+  },
+  "methods_kind": {
+   "constructor": 1336,
+   "(none)": 2368,
+   "lambda_func": 158,
+   "framework": 1947,
+   "preserved_name": 739,
+   "accessor": 719,
+   "curated_r106": 142,
+   "curated": 22,
+   "lambda_func_source": 8
+  },
+  "methods_obf_total": 3417,
+  "methods_obf_mapped": 1049,
+  "methods_obf_mapped_confidence": {
+   "confirmed": 7,
+   "strong": 1036,
+   "inferred": 6,
+   "unknown": 0
+  },
+  "fields_total": 6563,
+  "fields_mapped": 3313,
+  "fields_mapped_confidence": {
+   "confirmed": 3212,
+   "strong": 101,
+   "inferred": 0,
+   "unknown": 0
+  },
+  "fields_kind": {
+   "(none)": 3250,
+   "framework": 1989,
+   "preserved_name": 1222,
+   "curated": 3,
+   "lateinit_property": 99
+  },
+  "fields_obf_total": 3351,
+  "fields_obf_mapped": 101,
+  "fields_obf_mapped_confidence": {
+   "confirmed": 0,
+   "strong": 101,
+   "inferred": 0,
+   "unknown": 0
+  },
+  "index_rows": 1242
+ },
+ "self_check": {
+  "status": "PASS",
+  "checks": [
+   {
+    "check": "classes_total",
+    "status": "PASS",
+    "detail": "records 1242 / expected 1242"
+   },
+   {
+    "check": "index_rows",
+    "status": "PASS",
+    "detail": "first-party index kajfosz rows 1242 / expected 1242"
+   },
+   {
+    "check": "methods_total",
+    "status": "PASS",
+    "detail": "methods 7439 / expected 7439"
+   },
+   {
+    "check": "fields_total",
+    "status": "PASS",
+    "detail": "fields 6563 / expected 6563"
+   },
+   {
+    "check": "confidence_sum",
+    "status": "PASS",
+    "detail": "confidence sum 1242 == 1242"
+   },
+   {
+    "check": "named_or_role_plus_unknown",
+    "status": "PASS",
+    "detail": "named/role 1236 + unknown 6 == 1242"
+   },
+   {
+    "check": "curated_members_exist",
+    "status": "PASS",
+    "detail": "curated 类/方法/字段全部存在于 smali（缺失 0）"
+   },
+   {
+    "check": "lateinit_verified",
+    "status": "PASS",
+    "detail": "lateinit 属性 99 条字符串复核 99/99"
+   },
+   {
+    "check": "no_auto_names",
+    "status": "PASS",
+    "detail": "无语义名使用 JADX/自动生成名（违规 0）"
+   },
+   {
+    "check": "no_obf_short_name_as_semantic",
+    "status": "PASS",
+    "detail": "无语义名只是把混淆 descriptor 回填（违规 0；Ra/V 等合法原名不计）"
+   },
+   {
+    "check": "mapped_methods_exist",
+    "status": "PASS",
+    "detail": "方法映射由 smali 方法表逐项生成（5071 条）"
+   },
+   {
+    "check": "mapped_fields_exist",
+    "status": "PASS",
+    "detail": "字段映射由 smali 字段表逐项生成（3313 条）"
+   },
+   {
+    "check": "r106_class_names_reviewed",
+    "status": "PASS",
+    "detail": "R106-02 的 1062 保留名 + 52 this$0 恢复全部独立复现（review_r106.json）"
+   },
+   {
+    "check": "r106_members_reviewed",
+    "status": "PASS",
+    "detail": "R106 curated/family 成员 149 条 descriptor 存在性复核通过（缺失 0）"
+   }
+  ],
+  "failed": []
+ }
+}

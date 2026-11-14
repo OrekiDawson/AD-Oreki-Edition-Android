@@ -54,6 +54,16 @@
     invoke-static {}, Lkajfosz/antimatterdimensions/prestige/f;->f()Z
     move-result v0
 
+    # [R109-01 DIAG] 只读：记录原版 canReality 实值（定位「canReal=true 但无 OREKI_REALITY」）
+    if-eqz v0, :diag_cr_false
+    const-string v1, "canReality=true"
+    goto :diag_cr_log
+    :diag_cr_false
+    const-string v1, "canReality=false"
+    :diag_cr_log
+    const-string v2, "OREKI_REALITY_DIAG"
+    invoke-static {v2, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     if-eqz v0, :oreki_real_no
 
     # ② 1 秒防抖
@@ -93,8 +103,42 @@
 
     move-result v0
 
+    # [R109-01 DIAG] 只读：记录 Teresa 压现实实值（第三条静默 guard）
+    if-eqz v0, :diag_th_false
+    const-string v1, "teresaHolding=true"
+    goto :diag_th_log
+    :diag_th_false
+    const-string v1, "teresaHolding=false"
+    :diag_th_log
+    const-string v2, "OREKI_REALITY_DIAG"
+    invoke-static {v2, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
     # if-nez = v0!=0 才跳；正在浇注就跳走，不做现实
     if-nez v0, :oreki_real_no
+
+    # [Oreki R107-REALITY-PACING] Web shouldReality 等价门控（Kotlin 业务）：
+    #   realities==0 时恒 true（bootstrap 行为完全不变，仍按上面 2s/Teresa 逻辑）；
+    #   realities>=1 时实施 2% RM 收益 / DS1 10s 窗口 / allRU 后 8s·15s 间隔 / holdReality。
+    # 只读原版字段，异常 fail-closed false；不写任何存档字段。
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityPacing;->shouldReset(J)Z
+
+    move-result v0
+
+    # [R109-01 DIAG] 只读：记录 pacing 判定
+    if-eqz v0, :diag_pc_false
+    const-string v1, "pacing=true"
+    goto :diag_pc_log
+    :diag_pc_false
+    const-string v1, "pacing=false"
+    :diag_pc_log
+    const-string v2, "OREKI_REALITY_DIAG"
+    invoke-static {v2, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    if-eqz v0, :oreki_real_no
 
     # ③ 触发一次完整现实重置（原版自动器同一条路径）
     sget-object v0, Lkajfosz/antimatterdimensions/prestige/f;->a:Lkajfosz/antimatterdimensions/prestige/f;
@@ -102,6 +146,13 @@
     sget-object v1, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;
 
     invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/prestige/f;->b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+
+    # [Oreki R107-REALITY-PACING] 通知 Kotlin 已真实重置（重置 readySince/lastResetAt，供下一拍判 8s/15s 与 DS1 窗口）
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v0
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityPacing;->onRealityReset(J)V
 
     # ④ 记录时间戳 + 次数 + 打日志
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
@@ -135,6 +186,15 @@
 
     :catch_r
     move-exception v0
+    # [R109-01 DIAG] 把被吞掉的异常打到日志（原来完全静默，无法定位）
+    :try_start_d
+    const-string v1, "OREKI_REALITY_DIAG"
+    invoke-virtual {v0}, Ljava/lang/Throwable;->toString()Ljava/lang/String;
+    move-result-object v2
+    invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_d
+    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_d} :diag_catch_swallow
+    :diag_catch_swallow
     const/4 v0, 0x0
     return v0
     .catch Ljava/lang/Throwable; {:try_start_r .. :try_end_r} :catch_r

@@ -1,0 +1,27 @@
+== R107-01 差分对照 harness ==
+   origin game jar = /home/oreki/private-staging/r10602/jars/gameclasses-v3.jar
+   reconstructed   = /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-kotlin/build-r107/recon8
+   closure jar     = /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-kotlin/build-r107/closure
+
+CLASS                                                                      VERDICT    ABI   DIFF BEHAVIOR   FAIL     SERIAL
+---------------------------------------------------------------------------------------------------------------------
+kajfosz.antimatterdimensions.autobuyer.AutobuyerState                      PASS       36      0      162      0       PASS
+kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState           PASS       12      0      322      0       PASS
+kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState                PASS       18      0      322      0       PASS
+kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState                PASS       18      0      642      0       PASS
+kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState      PASS       18      0      322      0       PASS
+kajfosz.antimatterdimensions.reality.automator.AutomatorState              PASS       66      0       51      0       PASS
+kajfosz.antimatterdimensions.reality.automator.CommandState                PASS       39      0       43      0       PASS
+    ABI INFO: ctor (int,int): 仅 ACC_SYNTHETIC 不同（benign；不影响 JVM 链接）；orig=[public throws [] synthetic] new=[public throws []]
+kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent PASS       24      0        9      0       PASS
+kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator   PASS       15      0       68      0       SKIP
+kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError          PASS       18      0       15      0       SKIP
+kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript       PASS       12      0        4      0       SKIP
+    ABI INFO: field.a.genericSignature orig=java.util.ArrayList new=java.util.ArrayList<java.lang.Object>
+    ABI INFO: field.b.genericSignature orig=java.util.ArrayList new=java.util.ArrayList<java.lang.Object>
+
+SUMMARY classes=11 pass=11 fail=0 checks=1960 fails=0
+###RESULT_JSON_BEGIN###
+[{"class":"kajfosz.antimatterdimensions.autobuyer.AutobuyerState","verdict":"PASS","abi":{"checks":36,"diffs":[],"info":[]},"behavior":{"checks":162,"fails":[]},"serial":{"suid_orig":-2747838844895466711,"suid_repl":-2747838844895466711,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.autobuyer.TimeTheoremAutobuyerState","verdict":"PASS","abi":{"checks":12,"diffs":[],"info":[]},"behavior":{"checks":322,"fails":[]},"serial":{"suid_orig":-6852020295027375930,"suid_repl":-6852020295027375930,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.autobuyer.EPMultAutobuyerState","verdict":"PASS","abi":{"checks":18,"diffs":[],"info":[]},"behavior":{"checks":322,"fails":[]},"serial":{"suid_orig":1498863582780313008,"suid_repl":1498863582780313008,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.autobuyer.IPMultAutobuyerState","verdict":"PASS","abi":{"checks":18,"diffs":[],"info":[]},"behavior":{"checks":642,"fails":[]},"serial":{"suid_orig":2305470996188080383,"suid_repl":2305470996188080383,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.autobuyer.ReplicantiGalaxyAutobuyerState","verdict":"PASS","abi":{"checks":18,"diffs":[],"info":[]},"behavior":{"checks":322,"fails":[]},"serial":{"suid_orig":134761778595963614,"suid_repl":134761778595963614,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.reality.automator.AutomatorState","verdict":"PASS","abi":{"checks":66,"diffs":[],"info":[]},"behavior":{"checks":51,"fails":[]},"serial":{"suid_orig":729545063075137537,"suid_repl":729545063075137537,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.reality.automator.CommandState","verdict":"PASS","abi":{"checks":39,"diffs":[],"info":["ctor (int,int): 仅 ACC_SYNTHETIC 不同（benign；不影响 JVM 链接）；orig=[public throws [] synthetic] new=[public throws []]"]},"behavior":{"checks":43,"fails":[]},"serial":{"suid_orig":-8818201754397017095,"suid_repl":-8818201754397017095,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.reality.automator.AutomatorStackEntry$Persistent","verdict":"PASS","abi":{"checks":24,"diffs":[],"info":[]},"behavior":{"checks":9,"fails":[]},"serial":{"suid_orig":1934483307840559468,"suid_repl":1934483307840559468,"status":"PASS"}},{"class":"kajfosz.antimatterdimensions.reality.automator.Parser$ComparisonOperator","verdict":"PASS","abi":{"checks":15,"diffs":[],"info":[]},"behavior":{"checks":68,"fails":[]},"serial":{"suid_orig":0,"suid_repl":0,"status":"SKIP"}},{"class":"kajfosz.antimatterdimensions.reality.automator.Parser$ScriptError","verdict":"PASS","abi":{"checks":18,"diffs":[],"info":[]},"behavior":{"checks":15,"fails":[]},"serial":{"suid_orig":0,"suid_repl":0,"status":"SKIP"}},{"class":"kajfosz.antimatterdimensions.reality.automator.Parser$CompiledScript","verdict":"PASS","abi":{"checks":12,"diffs":[],"info":["field.a.genericSignature orig=java.util.ArrayList new=java.util.ArrayList<java.lang.Object>","field.b.genericSignature orig=java.util.ArrayList new=java.util.ArrayList<java.lang.Object>"]},"behavior":{"checks":4,"fails":[]},"serial":{"suid_orig":0,"suid_repl":0,"status":"SKIP"}}]
+###RESULT_JSON_END###
+OVERALL: PASS

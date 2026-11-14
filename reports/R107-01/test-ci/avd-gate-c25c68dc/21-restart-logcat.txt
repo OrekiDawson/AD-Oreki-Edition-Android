@@ -1,0 +1,42 @@
+--------- beginning of kernel
+11-14 00:11:27.009 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-14 00:11:27.012 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-14 00:11:27.016 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found mapper/ranchu in device VINTF manifest.
+11-14 00:11:27.075 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.079 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.088 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.093 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.101 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/software in framework VINTF manifest.
+11-14 00:11:27.109 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.255 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.262 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.273 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.279 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.393 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.399 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.421 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.427 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.550 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.562 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.574 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:27.581 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:28.199 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:28.206 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:28.247 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:28.254 I/servicemanager(    0): Caller(pid=17762,uid=10248,sid=u:r:untrusted_app:s0:c248,c256,c512,c768) Found android.hardware.media.c2.IComponentStore/default in device VINTF manifest.
+11-14 00:11:29.368 I/binder  (    0): undelivered transaction 2553282, process died.
+11-14 00:11:29.370 I/binder  (    0): undelivered transaction 2553283, process died.
+11-14 00:11:29.372 I/binder  (    0): undelivered transaction 2553286, process died.
+11-14 00:11:29.374 I/binder  (    0): undelivered transaction 2553270, process died.
+11-14 00:11:30.066 W/servicemanager(    0): Isolated app with UID 99073 requested 'network_management', but the service is not allowed for isolated apps.
+11-14 00:11:30.072 W/servicemanager(    0): Isolated app with UID 99073 requested 'connectivity', but the service is not allowed for isolated apps.
+11-14 00:11:30.086 W/servicemanager(    0): Isolated app with UID 99073 requested 'content_capture', but the service is not allowed for isolated apps.
+11-14 00:11:30.227 W/servicemanager(    0): Isolated app with UID 99074 requested 'network_management', but the service is not allowed for isolated apps.
+11-14 00:11:30.246 W/servicemanager(    0): Isolated app with UID 99074 requested 'connectivity', but the service is not allowed for isolated apps.
+11-14 00:11:30.274 W/servicemanager(    0): Isolated app with UID 99074 requested 'content_capture', but the service is not allowed for isolated apps.
+11-14 00:11:30.681 I/servicemanager(    0): Caller(pid=17985,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-14 00:11:30.695 I/servicemanager(    0): Caller(pid=17985,uid=0,sid=u:r:su:s0) Found android.hardware.graphics.allocator.IAllocator/default in device VINTF manifest.
+11-14 00:11:30.706 I/servicemanager(    0): Caller(pid=17985,uid=0,sid=u:r:su:s0) Found mapper/ranchu in device VINTF manifest.
+11-14 00:11:31.260 I/logd    (    0): logdr: UID=0 GID=0 PID=17987 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+--------- beginning of main
+11-14 00:11:37.472 I/adbd    ( 6284): adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-v' 'time''

@@ -1,0 +1,31 @@
+# MOD 钩子在 smali 中的分布（R106-01 实测）
+# date: 2026-11-13T20:49:26+08:00
+
+payload 新增 smali 类数: 26
+引用 MOD Kotlin 类的 smali 文件总数: 38
+其中 payload 新增的 MOD smali 包装/业务类: 16
+其中被补丁的**原版**混淆 smali 文件: 22
+被补丁原版文件示例:
+  work/mod/smali/nr5.smali  (Lnr5;)
+  work/mod/smali/f82.smali  (Lf82;)
+  work/mod/smali_classes2/ll2.smali  (Lll2;)
+  work/mod/smali_classes2/u81.smali  (Lu81;)
+  work/mod/smali_classes2/bm4.smali  (Lbm4;)
+  work/mod/smali_classes2/kajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState.smali  (Lkajfosz/antimatterdimensions/autobuyer/GalaxyAutobuyerState;)
+  work/mod/smali_classes2/kajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState.smali  (Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;)
+  work/mod/smali_classes2/kajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState.smali  (Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;)
+  work/mod/smali_classes2/kajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState.smali  (Lkajfosz/antimatterdimensions/autobuyer/IntervaledAutobuyerState;)
+  work/mod/smali_classes2/kajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState.smali  (Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;)
+  work/mod/smali_classes2/kajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState.smali  (Lkajfosz/antimatterdimensions/autobuyer/TickspeedAutobuyerState;)
+
+## 旧链确实在改原版 smali（build_mod.py 证据）
+1409:def patch_smali():
+1410-    # 4.1 关卡时间差注入点：diff *= speedupFactor 之后乘以 Oreki 倍率
+1411-    a = smali_tree() /  OLD_PKG.replace(".", "/") / "a.smali"
+1422:    note("[4] a.smali (Game.gameTick): 游戏时间差 * 倍率 注入完成")
+3702:      challenge/antimatter/c->b(D, Continuation)          Challenges.update(diff)，由 Game.gameTick(a.f) 每帧调用
+5044:    Game.gameTick —— 即每帧每个自动购买器最多做一次采购决策。OrekiSpeed 放大的是
+
+## 结论
+MOD 的运行时入口由「原版混淆 smali 补丁 + MOD smali 包装 + Kotlin 业务类」共同组成；
+最终游戏 DEX 必须由 smali 汇编生成（旧链 apktool b），不是原版预编译 DEX，也不是 AGP 能编译的 JVM 源码。

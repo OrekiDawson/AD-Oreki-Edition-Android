@@ -1,0 +1,92 @@
+# R107-01b Tick 卡死栈类身份证据（源：work/output_code_321_r88 JADX + javap/smali）
+
+## 1) AntimatterGameThread 栈（reports/R107-01/lead-evidence/native-blocker/sigquit-trace.txt）
+532:"AntimatterGameThread" daemon prio=5 tid=33 Runnable
+533-  | group="main" sCount=0 ucsCount=0 flags=0 obj=0x224daf0 self=0x7ab677671c70
+534-  | sysTid=5961 nice=0 cgrp=top-app sched=0/0 handle=0x7ab4ab7180c0
+535-  | state=R schedstat=( 60023402472 15826708213 16662 ) utm=5935 stm=67 core=2 HZ=100
+536-  | stack=0x7ab4ab615000-0x7ab4ab617000 stackSize=1036KB
+537-  | held mutexes= "mutator lock"(shared held)
+538-  at vf2.d(unavailable:2)
+539-  at tf2.d(unavailable:11)
+540-  at dc2.q(unavailable:2)
+541-  at dc2.k(unavailable:23)
+542-  at cv0.k(unavailable:2)
+543-  at nc8.B(unavailable:0)
+544-  at nc8.z(unavailable:43)
+545-  at rk8.G(unavailable:108)
+546-  at kajfosz.antimatterdimensions.player.Player.k0(unavailable:371)
+
+## 2) 栈上各 DEX 类的 JADX 体特征（证明是第三方运行时）
+----- Lvf2; -----
+* 文件：work/output_code_321_r88/sources/defpackage/vf2.java
+3:import java.util.concurrent.atomic.AtomicReferenceArray;
+12:    private volatile /* synthetic */ Object _next$volatile;
+17:    public final /* synthetic */ AtomicReferenceArray d;
+21:        f = unsafe.objectFieldOffset(vf2.class.getDeclaredField("_next$volatile"));
+23:        e = new k51("REMOVE_FROZEN", (byte) 6);
+31:        this.d = new AtomicReferenceArray(i);
+* import 头部：
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import sun.misc.Unsafe;
+----- Ltf2; -----
+* 文件：work/output_code_321_r88/sources/defpackage/tf2.java
+8:    public static final /* synthetic */ long a = ug.a.objectFieldOffset(tf2.class.getDeclaredField("_cur$volatile"));
+9:    private volatile /* synthetic */ Object _cur$volatile = new vf2(8, false);
+* import 头部：
+import sun.misc.Unsafe;
+----- Ldc2; -----
+* 文件：work/output_code_321_r88/sources/defpackage/dc2.java
+99:        sb.append(".limitedParallelism(");
+* import 头部：
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+----- Lcv0; -----
+* 文件：work/output_code_321_r88/sources/defpackage/cv0.java
+18:        d = j25Var.p(nl0.E(i, 12, "kotlinx.coroutines.io.parallelism"));
+23:        throw new IllegalStateException("Cannot be invoked on Dispatchers.IO");
+43:        return "Dispatchers.IO";
+* import 头部：
+import java.util.concurrent.Executor;
+import kotlin.coroutines.EmptyCoroutineContext;
+----- Lnc8; -----
+* 文件：work/output_code_321_r88/sources/defpackage/nc8.java
+16:import com.google.firebase.components.DependencyCycleException;
+42:import kotlinx.coroutines.DispatchException;
+82:    public static final void B(gk0 gk0Var, ek0 ek0Var, Runnable runnable) throws DispatchException {
+86:            throw new DispatchException(th, gk0Var, ek0Var);
+90:    public static final boolean C(gk0 gk0Var, ek0 ek0Var) throws DispatchException {
+94:            throw new DispatchException(th, gk0Var, ek0Var);
+* import 头部：
+import android.R;
+import android.graphics.Paint;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.method.TransformationMethod;
+import android.util.Log;
+----- Lrk8; -----
+* 文件：work/output_code_321_r88/sources/defpackage/rk8.java
+68:import kotlin.coroutines.intrinsics.CoroutineSingletons;
+70:import kotlinx.coroutines.CoroutineStart;
+71:import kotlinx.coroutines.DispatchException;
+72:import kotlinx.coroutines.a;
+73:import kotlinx.coroutines.c;
+323:                    objZ = CoroutineSingletons.a;
+* import 头部：
+import android.R;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Point;
+import android.os.Binder;
+import android.os.Parcelable;
+
+## 3) 第一方类身份（对照）
+Player.k0/l0（suspend save）：
+5638:    public static /* synthetic */ Object l0(Player player, Context context, boolean z, int i, int i2, String str, rj0 rj0Var, int i3) {
+6359:    public final java.lang.Object k0(android.content.Context r22, boolean r23, int r24, int r25, java.lang.String r26, boolean r27, defpackage.rj0 r28) throws java.lang.Throwable {
+  public static java.lang.Object l0(kajfosz.antimatterdimensions.player.Player, android.content.Context, boolean, int, int, java.lang.String, rj0, int);
+  public final java.lang.Object k0(android.content.Context, boolean, int, int, java.lang.String, boolean, rj0);
+
+Game 的 this$0 类型（证明 Game 被合并为 Lkajfosz/antimatterdimensions/a;）：
+50:.field final synthetic this$0:Lkajfosz/antimatterdimensions/a;
+58:    iput-object p1, p0, Lkajfosz/antimatterdimensions/Game$gameTick$1;->this$0:Lkajfosz/antimatterdimensions/a;
+95:    iget-object p1, p0, Lkajfosz/antimatterdimensions/Game$gameTick$1;->this$0:Lkajfosz/antimatterdimensions/a;

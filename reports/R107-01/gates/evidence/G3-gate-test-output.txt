@@ -1,0 +1,52 @@
+== registry
+PASS  registry_parent_count_12  [actual=12]
+PASS  registry_child_count_43  [actual=43]
+PASS  registry_parent_uniqueness
+PASS  registry_child_uniqueness
+PASS  registry_every_child_has_group  [missing=[]]
+== G1 invariant: eternity group fully covered
+PASS  eternity_group_children_nonempty  [actual=[timeStudies, eternityUpgrades, milestones, dilation]]
+PASS  eternity_group_children_all_gated  [uncovered=[]]
+PASS  eternity_parent_group_gated
+== G1 regression: previously missed eternity-layer tabs
+PASS  G1_legacy_allows_pre_eternity_dilation  [old implementation allowed -> reproduced defect]
+PASS  G1_fixed_denies_pre_eternity_dilation
+PASS  G1_fixed_allows_post_eternity_dilation
+PASS  G1_legacy_allows_pre_eternity_eternityChallenges  [old implementation allowed -> reproduced defect]
+PASS  G1_fixed_denies_pre_eternity_eternityChallenges
+PASS  G1_fixed_allows_post_eternity_eternityChallenges
+== G1: no regression of already-gated keys
+PASS  legacy_gated_still_gated_pre_eternity
+PASS  legacy_gated_still_allowed_post_eternity
+PASS  legacy_gated_still_gated_pre_timeDimensions
+PASS  legacy_gated_still_allowed_post_timeDimensions
+PASS  legacy_gated_still_gated_pre_timeStudies
+PASS  legacy_gated_still_allowed_post_timeStudies
+PASS  legacy_gated_still_gated_pre_eternityUpgrades
+PASS  legacy_gated_still_allowed_post_eternityUpgrades
+PASS  legacy_gated_still_gated_pre_milestones
+PASS  legacy_gated_still_allowed_post_milestones
+== G3 (candidate): reality-layer tabs are also bypassable via W8 today
+PASS  reality_group_children_count_6  [actual=[glyphs, realityUpgrades, imaginaryUpgrades, perks, blackhole, glyphAlchemy]]
+PASS  celestials_group_children_count_8  [actual=[celestialNavigation, teresa, effarig, nameless, v, ra, laitela, pelle]]
+PASS  reality_group_children_all_classified  [unclassified=[]]
+PASS  celestials_group_children_all_classified  [unclassified=[]]
+PASS  automator_is_reality_layer
+PASS  G3_legacy_allows_reality_layer_pre_reality  [allowed=[glyphs, realityUpgrades, imaginaryUpgrades, perks, blackhole, glyphAlchemy, celestialNavigation, teresa, effarig, nameless, v, ra, laitela, pelle]]
+PASS  G3_proposed_denies_reality_layer_pre_reality  [leaked=[]]
+PASS  G3_proposed_allows_reality_layer_post_reality
+PASS  G3_eternity_layer_still_denied_without_eternity
+== no over-blocking of ordinary tabs
+PASS  ordinary_children_allowed_pre  [denied=[]]
+PASS  ordinary_parent_groups_allowed_pre  [parents=[dimensions, automation, challenges, infinity, achievements, statisticsMainTab, optionsMainTab, shopMainTab, infoMainTab] denied=[]]
+PASS  null_key_allowed_原版无键调用保持放行
+== G2: icon glyph path (bm4.i) cannot be gated by this ABI
+PASS  glyph_registry_nonempty  [count=43]
+PASS  G2_glyphs_detect_as_icon  [non-glyph=[]]
+PASS  G2_glyph_keys_always_allowed  [glyph path cannot block -> must be fixed at build.gradle (pass Luo4.b)]
+PASS  G2_glyph_collisions_exist  [collisions=[Ω, ∞, Δ, ]]
+== declared sets are exact
+PASS  eternity_layer_set_exact  [actual=[eternity, timeDimensions, timeStudies, eternityUpgrades, milestones, dilation, eternityChallenges]]
+PASS  reality_layer_size_17  [actual=17]
+
+SUMMARY passed=42 failed=0

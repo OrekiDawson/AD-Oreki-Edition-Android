@@ -1,0 +1,92 @@
+# R107-01b R8 横向类合并映射证据（重建单元 = DEX 类）
+
+## Game -> Lkajfosz/antimatterdimensions/a;
+Game$gameTick$1 构造器 this$0 字段：
+50:.field final synthetic this$0:Lkajfosz/antimatterdimensions/a;
+58:    iput-object p1, p0, Lkajfosz/antimatterdimensions/Game$gameTick$1;->this$0:Lkajfosz/antimatterdimensions/a;
+95:    iget-object p1, p0, Lkajfosz/antimatterdimensions/Game$gameTick$1;->this$0:Lkajfosz/antimatterdimensions/a;
+该类的 gameTick 委托调用：
+    l = {
+        0x148,
+        0x15e,
+        0x16e,
+        0x175,
+        0x177,
+        0x179,
+        0x181,
+        0x18d,
+first-party index：
+12675:classes2.dex,a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae,1965,Lkajfosz/antimatterdimensions/a;,0x0011,public final,Ljava/lang/Object;,0,21,12,yes,kajfosz,exact,Lkajfosz/antimatterdimensions/a;,,,,hook_patched_local,no
+javap 摘要：
+public final class kajfosz.antimatterdimensions.a {
+  public static final kajfosz.antimatterdimensions.a a;
+  public static boolean b;
+  public static boolean c;
+  public static volatile sz d;
+  public static long e;
+  public static long f;
+  public static boolean g;
+
+## MainActivity 顶层函数 -> Lkajfosz/antimatterdimensions/mainactivity/c0;
+c0.smali 构造 MainActivityGameLoopKt$gameLoop$1：
+371:    instance-of v1, v0, Lkajfosz/antimatterdimensions/mainactivity/MainActivityGameLoopKt$gameLoop$1;
+382:    check-cast v1, Lkajfosz/antimatterdimensions/mainactivity/MainActivityGameLoopKt$gameLoop$1;
+386:    iget v2, v1, Lkajfosz/antimatterdimensions/mainactivity/MainActivityGameLoopKt$gameLoop$1;->label:I
+c0 静态方法列表：
+.method public static final a(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final b(Lkajfosz/antimatterdimensions/MainActivity;J)V
+.method public static final c()V
+.method public static final d(ILkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+.method public static final e()V
+.method public static final f(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final g(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final h(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final i(Lkajfosz/antimatterdimensions/MainActivity;Lkajfosz/antimatterdimensions/ui/statistics/graphs/ResourceHistory$LoadKind;)V
+.method public static final j(Lkajfosz/antimatterdimensions/MainActivity;Z)V
+.method public static final k(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final l(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final m(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final n(Lkajfosz/antimatterdimensions/MainActivity;Z)V
+.method public static final o(Lkajfosz/antimatterdimensions/MainActivity;Z)V
+.method public static final p(Lkajfosz/antimatterdimensions/MainActivity;)V
+.method public static final q(Lkajfosz/antimatterdimensions/MainActivity;)V
+
+## SpeedrunMilestone -> Lkajfosz/antimatterdimensions/speedrun/b;
+578:    invoke-direct {v1, p0, v2}, Lkajfosz/antimatterdimensions/speedrun/SpeedrunMilestone$complete$1;-><init>(Lkajfosz/antimatterdimensions/speedrun/b;Lrj0;)V
+13630:classes2.dex,a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae,2920,Lkajfosz/antimatterdimensions/speedrun/b;,0x0011,public final,Lin1;,0,5,3,yes,kajfosz,exact,Lkajfosz/antimatterdimensions/speedrun/b;,,,,unbound,no
+
+## Autobuyers -> Lkajfosz/antimatterdimensions/autobuyer/a;
+12721:classes2.dex,a996aa95dfd861f953e469f209b11f48b6e24595b8dfaaf4aa7cfb2dd2fcd2ae,2011,Lkajfosz/antimatterdimensions/autobuyer/a;,0x0401,public abstract,Ljava/lang/Object;,0,6,3,yes,kajfosz,exact,Lkajfosz/antimatterdimensions/autobuyer/a;,,,,unbound,no
+62:    new-instance v0, Lkajfosz/antimatterdimensions/autobuyer/Autobuyers$1;
+
+## TickProfiler -> Lkajfosz/antimatterdimensions/utils/a;
+utils/a.<clinit> 使用 TickProfiler 枚举 entries：
+15:    sget-object v0, Lkajfosz/antimatterdimensions/utils/TickProfiler$Phase;->b:Lm81;
+47:    sget-object v1, Lkajfosz/antimatterdimensions/utils/TickProfiler$Counter;->b:Lm81;
+100:    sget-object v0, Lkajfosz/antimatterdimensions/utils/TickProfiler$Chain;->b:Lm81;
+javap：
+public final class kajfosz.antimatterdimensions.utils.a {
+  public static volatile boolean a;
+  static {};
+}
+
+## Gson / coroutines 重打包（第三方 DEX 类身份）
+u62 = JsonElement（h()/i()/l() 抛 Not a JSON Array/Object/Primitive）：
+25:        ne1.k(this, "Not a JSON Array: ");
+33:        ne1.k(this, "Not a JSON Object: ");
+41:        ne1.k(this, "Not a JSON Primitive: ");
+z62 = JsonObject（LinkedTreeMap）：
+3:import com.google.gson.internal.LinkedTreeMap;
+8:    public final LinkedTreeMap a;
+vf2/tf2/dc2/cv0 = kotlinx.coroutines 队列/调度器（见 tick-stack-identity.txt 详细）
+
+## 交叉验证：并行 task-10 的 tick-closure.json（docs/deobfuscation/data/r107-kajfosz/tick-closure.json）
+
+- 该文件（23:50 生成，46 类方法级闭环）对 SIGQUIT 帧的语义判定与本文件一致：
+  vf2.d=LockFreeTaskQueueCore.removeFirstOrNull、tf2.d=LockFreeTaskQueue.removeFirstOrNull、
+  dc2.q=obtainTaskOrRunBlock、dc2.k=LimitedDispatcher.dispatch、cv0.k=Dispatchers.IO.dispatch、
+  nc8.B=coroutine dispatch 包装、nc8.z=resumeCancellableWith、rk8.G=BuildersKt.withContext、
+  Player.k0=Player.save。
+- 该文件 H1/H2 指出 enjarify 输出含 JVMS 非法方法（rk8.G / ox0 接口 default），D8 静默接受、ART 运行语义未证明；
+  而官方 DEX 与转换 DEX 的闭包类指令级对比未发现漂移 → 卡死属“JVM 合法性/运行期”问题。
+- 本方案据此在 §1 补充该根因，并把“官方 DEX 前置混合实验”（H1 how_to_test）列入 P5 快速判别。

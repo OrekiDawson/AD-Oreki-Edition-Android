@@ -1,0 +1,66 @@
+# APK 结构审计（只读，当前 AGP Release）
+# APK SHA-256: f16c3cbf95da157dc9b4142fd78d6f6b76560e0c87ea6b22d7c047b2087f85dc
+# 官方 APK SHA-256: 4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac
+
+zip 条目数: 1626（官方 1730）
+解压后总字节: 87644841
+
+## 顶层条目数
+  AndroidManifest.xml=1
+  META-INF=2
+  assets=23
+  classes.dex=1
+  classes2.dex=1
+  kotlin=8
+  lib=8
+  res=1581
+  resources.arsc=1
+
+## classes*.dex
+  classes.dex 6678180 bytes
+  classes2.dex 11701628 bytes
+  dex magic 异常: 无
+
+## resources.arsc: 15120776 bytes（官方 13532584）
+## AndroidManifest.xml: 35672 bytes（官方 46916）
+
+## lib 条目 (8)
+  lib/arm64-v8a/libandroidx.graphics.path.so
+  lib/arm64-v8a/libdatastore_shared_counter.so
+  lib/armeabi-v7a/libandroidx.graphics.path.so
+  lib/armeabi-v7a/libdatastore_shared_counter.so
+  lib/x86/libandroidx.graphics.path.so
+  lib/x86/libdatastore_shared_counter.so
+  lib/x86_64/libandroidx.graphics.path.so
+  lib/x86_64/libdatastore_shared_counter.so
+
+## assets 条目 (23)
+  assets/dexopt/baseline.prof
+  assets/dexopt/baseline.profm
+  assets/fonts/MonospaceTypewriter-Blank.ttf
+  assets/fonts/MonospaceTypewriter.ttf
+  assets/fonts/Roboto-Bold.ttf
+  assets/fonts/RobotoMono-Bold-Blank.ttf
+  assets/fonts/RobotoMono-Bold.ttf
+  assets/fonts/Symbola-Blank.ttf
+  assets/fonts/Symbola.ttf
+  assets/fonts/fa-brands-400.ttf
+  assets/fonts/fa-regular-400-Blank.ttf
+  assets/fonts/fa-regular-400.ttf
+  assets/fonts/fa-solid-900-Blank.ttf
+  assets/fonts/fa-solid-900.ttf
+  assets/fonts/times-Blank.ttf
+  assets/fonts/times.ttf
+  assets/fonts/timesBold-Blank.ttf
+  assets/fonts/timesBold.ttf
+  assets/oreki_tutorial.txt
+  assets/realityanimbg_landscape.mp4
+  assets/realityanimbg_landscape_negate.mp4
+  assets/realityanimbg_portrait.mp4
+  assets/realityanimbg_portrait_negate.mp4
+
+## META-INF 条目 (2)
+  META-INF/com/android/build/gradle/app-metadata.properties
+  META-INF/version-control-info.textproto
+
+## 不安全路径: 无

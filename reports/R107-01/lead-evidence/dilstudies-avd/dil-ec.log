@@ -1,0 +1,20 @@
+11-14 05:15:48.773 26595 26631 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 05:16:18.775 26595 26631 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 05:16:48.791 26595 26631 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 05:17:18.798 26595 26631 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 05:17:48.821 26595 26631 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 05:18:18.840 26595 26631 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: resolve c01.a failed
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: java.lang.NoSuchMethodError: No virtual method getSecond()Ljava/lang/Object; in class Lkotlin/Pair; or its super classes (declaration of 'kotlin.Pair' appears in /data/app/~~Yh-UqwjN-BXKDaafBfC6Nw==/com.oreki.antimatterdimensions-t8iz5ig2IS62NIP2gu1Kgg==/base.apk!classes2.dex)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.oreki.OrekiDilationStudies$studies$$inlined$sortedBy$1.compare(Comparisons.kt:326)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at java.util.TimSort.countRunAndMakeAscending(TimSort.java:355)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at java.util.TimSort.sort(TimSort.java:220)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at java.util.Arrays.sort(Arrays.java:1284)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kotlin.collections.ArraysKt___ArraysJvmKt.sortWith(_ArraysJvm.kt:2206)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kotlin.collections.CollectionsKt___CollectionsKt.sortedWith(_Collections.kt:1260)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.oreki.OrekiDilationStudies.studies(OrekiDilationStudies.kt:235)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.oreki.OrekiDilationStudies.tick(OrekiDilationStudies.kt:184)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.oreki.OrekiStageAuto.tickEternityGated(OrekiStageAuto.kt:2097)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.oreki.OrekiStageAuto.onAutoBuyerTick(OrekiStageAuto.kt:375)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.a.b(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:0)
+11-14 05:18:43.743 26595 26631 E OREKI_DIL_STUDIES: 	at kajfosz.antimatterdimensions.a.f(r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae:118)

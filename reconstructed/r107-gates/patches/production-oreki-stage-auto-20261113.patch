@@ -1,0 +1,20 @@
+--- a/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt
++++ b/scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt
+@@ -903,8 +903,16 @@
+ 
+     @JvmStatic
+     fun vanillaEternityTabAllowed(tabName: String?): Boolean {
++        // [R107-01 G1] 永恒层名单必须覆盖原版 jp4 注册表里的全部永恒层业务键（Luo4.b）。
++        // 修复前漏了 dilation 与 eternityChallenges：两者落到 else -> true，
++        // 于是 MainActivity 的 currentSubTab -> jp4.b(String) -> W8 恢复路径可在首次永恒前
++        // 直达「时间膨胀」「永恒挑战」页面（R100/R101 同类 P0，R101 只测过 timeStudies）。
++        // 依据：jp4 注册表（eternity 分组 4 个子页签）+ Web 冻结上游 tabs.js
++        // （dilation: dilationUnlocked()/realityUnlocked()；eternityChallenges:
++        // realityUnlocked() || challenge.eternity.unlocked !== 0 || EC completions>0）。
+         val allowed = when (tabName) {
+-            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones" ->
++            "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones",
++            "dilation", "eternityChallenges" ->
+                 vanillaEternityUnlocked()
+             else -> true
+         }

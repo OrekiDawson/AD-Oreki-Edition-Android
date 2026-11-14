@@ -864,6 +864,52 @@ internal object GameApi {
      */
     fun realitiesValue(): Any? = readGameField(player(), "realities")
 
+    // ------------------------------------------- [R107-01 A2] Web isOrekiBootstrapRun 的 Android 等价
+    //
+    // Web 基线（src/core/oreki-bootstrap.js）：
+    //   bootstrap = !PlayerProgress.realityUnlocked() || !TimeStudy.reality.isBought
+    // 其中 TimeStudy.reality = DilationTimeStudyState.studies[6]（膨胀研究 id 6，即解锁现实的
+    // 那一个）；每次现实重置都会清空 player.dilation.studies，所以该窗口在**每个现实循环**
+    // 内重新打开。EP 兑换除数 30 与膨胀研究 TT 成本 /1000 都以这个判据为准。
+    //
+    // Android 原实现只用 realities==0（OrekiEpGainScale），首次现实后立即回到 308，
+    // 导致 EP 收益骤降、现实链推进变慢。这里补上「当前现实是否已购买膨胀研究 6」判据，
+    // 全异常 fail-closed 返回 true（宁可给缩放，也不回到原版 308 尺度）。
+    private var mDilationGetter: java.lang.reflect.Method? = null
+    private var mDilationStudiesGetter: java.lang.reflect.Method? = null
+    private var mDilationResolved = false
+
+    fun isOrekiBootstrapRun(): Boolean {
+        val realities = realitiesValue() ?: return true
+        val cmpZero = compareToDouble(realities, 0.0) ?: return true
+        if (cmpZero <= 0) return true
+        return try {
+            val playerObj = player() ?: return true
+            if (!mDilationResolved) {
+                mDilationResolved = true
+                mDilationGetter = try {
+                    playerObj.javaClass.getMethod("t")
+                } catch (_: Throwable) {
+                    null
+                }
+                val dilation = mDilationGetter?.invoke(playerObj)
+                mDilationStudiesGetter = dilation?.let {
+                    try {
+                        it.javaClass.getMethod("h")
+                    } catch (_: Throwable) {
+                        null
+                    }
+                }
+            }
+            val dilation = mDilationGetter?.invoke(playerObj) ?: return true
+            @Suppress("UNCHECKED_CAST")
+            val studies = mDilationStudiesGetter?.invoke(dilation) as? List<*> ?: return true
+            studies.none { (it as? Number)?.toInt() == 6 }
+        } catch (_: Throwable) {
+            true
+        }
+    }
+
     /** [R98] `bigRealities`（可能为 Number，读不到返回 null）。 */
     fun bigRealitiesValue(): Any? = readGameField(player(), "bigRealities")
 
@@ -1090,8 +1136,8 @@ internal object GameApi {
     }
     fun autoEternityCanRun(): Boolean = try {
         val state = call(mAutoEternityState(), auto()) ?: return false
-        val m = method(eternityAutobuyerCls(), "c", 0, "EternityAutobuyerState.c()=canRun") ?: return false
-        (call(m, state) as? Boolean) ?: false
+        val methodRef = method(eternityAutobuyerCls(), "c", 0, "EternityAutobuyerState.c()=canRun") ?: return false
+        (call(methodRef, state) as? Boolean) ?: false
     } catch (e: Throwable) { miss("autoEternityCanRun", e); false }
 
     /**
@@ -1507,9 +1553,9 @@ internal object GameApi {
      * 维度提升 / 星系 / 大坍缩的 `g()` **没有**该字段（纯挑战完成位），读不到返回 null。
      */
     fun isAutobuyerUnlockedFlag(a: Any?): Boolean? {
-        val f = autobuyerUnlockField(a) ?: return null
+        val unlockField = autobuyerUnlockField(a) ?: return null
         return try {
-            f.getBoolean(a)
+            unlockField.getBoolean(a)
         } catch (error: Throwable) {
             miss("read isUnlocked", error)
             null
@@ -1521,11 +1567,11 @@ internal object GameApi {
      * 字段不存在（维度提升/星系/大坍缩）返回 null，调用方必须自行区分「不支持」与「写失败」。
      */
     fun setAutobuyerUnlockedFlag(a: Any?, value: Boolean): Boolean? {
-        val f = autobuyerUnlockField(a) ?: return null
+        val unlockField = autobuyerUnlockField(a) ?: return null
         return try {
-            f.setBoolean(a, value)
+            unlockField.setBoolean(a, value)
             markAutobuyerUiDirty()
-            f.getBoolean(a)
+            unlockField.getBoolean(a)
         } catch (error: Throwable) {
             miss("write isUnlocked", error)
             null
@@ -1534,10 +1580,10 @@ internal object GameApi {
 
     private fun autobuyerUnlockField(a: Any?): Field? {
         if (a == null) return null
-        val c = a.javaClass
-        return autobuyerUnlockFieldCache.getOrPut(c) {
+        val clazz = a.javaClass
+        return autobuyerUnlockFieldCache.getOrPut(clazz) {
             try {
-                c.getDeclaredField("isUnlocked").apply { isAccessible = true }
+                clazz.getDeclaredField("isUnlocked").apply { isAccessible = true }
             } catch (_: NoSuchFieldException) {
                 null
             } catch (error: Throwable) {
@@ -1956,6 +2002,59 @@ internal object GameApi {
         }
     }
 
+    /** 只写原版自动购买器配置字段（非玩家进度字段）：用于把接管后的默认「每帧永恒」改成 X_HIGHEST×10。 */
+    private fun writeGameField(owner: Any?, fieldName: String, value: Any?): Boolean {
+        if (owner == null) return false
+        return try {
+            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.set(owner, value)
+            true
+        } catch (error: Throwable) {
+            miss("write $fieldName", error)
+            false
+        }
+    }
+
+    // ------------------------------------------------ [R107-01 P0] 接管自动永恒时纠正结算模式
+    //
+    // 缺陷（与 Web 同一根因，web report reports/R107-01/ep-wall-fix/ 逐帧实证）：
+    // R104 首次永恒后接管原版「自动永恒」开关，但原版默认配置是 MODE=AMOUNT、amount=1
+    // ⇒ Player.canEternity 为真的每一帧立即永恒；永恒里程碑的被动 IP 又让 canEternity 很快恢复
+    // ⇒ 「每帧永恒重置」循环：thisEternity.maxIP 永远停在起始值、gainedEP 恒 ~1e5、EP 冻结、
+    // realities 卡住、isRealityAvailable 永假。
+    // 处理：仅在「新档首次接管 + 原版配置仍为默认值」时改为 MODE=X_HIGHEST、xHighest=10
+    // （等价 R50 的「收益 ≥ 10× 当前 EP」门槛），不覆盖玩家自定义配置。
+    private var eternityAutobuyerModeFixed = false
+
+    fun configureEternityAutobuyerXHighest(multiplier: Double): Boolean {
+        if (eternityAutobuyerModeFixed) return true
+        val state = autoEternityState() ?: return false
+        return try {
+            val mode = (readGameField(state, "mode") as? Int) ?: return false
+            val xHighest = readGameField(state, "xHighest")
+            val amount = readGameField(state, "amount")
+            val amountIsDefault = compareToDouble(amount, 1.0)?.let { it == 0 } ?: false
+            val xHighestIsDefault = compareToDouble(xHighest, 1.0)?.let { it == 0 } ?: false
+            if (mode != 0 || !amountIsDefault || !xHighestIsDefault) {
+                // 玩家已自定义：不改，直接标记完成。
+                eternityAutobuyerModeFixed = true
+                return true
+            }
+            val okMode = writeGameField(state, "mode", 2)
+            val okX = writeGameField(state, "xHighest", bigDouble(multiplier))
+            val verified = okMode && okX &&
+                (readGameField(state, "mode") as? Int) == 2 &&
+                compareToDouble(readGameField(state, "xHighest"), multiplier)?.let { it == 0 } == true
+            if (verified) {
+                eternityAutobuyerModeFixed = true
+                Log.i("OREKI_ET_GATE", "bootstrap: eternity autobuyer mode=X_HIGHEST xHighest=" + multiplier)
+            }
+            verified
+        } catch (error: Throwable) {
+            miss("eternity autobuyer mode", error)
+            false
+        }
+    }
+
     /** 三类挑战均退出、且已播种首个时间维度时，才允许商店自动购买。 */
     fun canAutomateEternityUpgrades(): Boolean {
         // 挑战判定复用 inAnyChallenge()，避免两套遍历在后续版本改字段时漂移。
@@ -2035,6 +2134,59 @@ internal object GameApi {
         return mQrB
     }
 
+    /**
+     * [R108-01] 对指定 Imaginary Upgrade 调原版「解锁复检」`R()V`。
+     *
+     * 一次性虚幻升级的「可购买」判据 `a(Z)Z` 里的 `A(Z)Z` 读的是
+     * `Player$Reality.imaginaryRequirementBits`（由 `R()` 在原版事件里刷新）。
+     * 无人值守路径不会触发原版事件 ⇒ 位图长期为 0 ⇒ `canBeBought` 恒 false，
+     * 表现为「amE/IM 都够但永远买不到」（R108-01 AVD 实测：amE=1.6e9、IM=4.5e10、iMCap=4.5e10、
+     * clean reality、iuBits=0，sprint 卡在 RUNNING 且封锁 ID 购买）。
+     *
+     * @param fieldName 注册表 `reality/imaginary_upgrades/b` 的静态字段名（IU15="k"、IU25="s"）
+     * @return true = 调用成功（不代表位图一定置位，位图仍由原版判定）
+     */
+    private var iuUnlockMethodResolved = false
+    private var iuUnlockMethod: Method? = null
+
+    fun imaginaryTryUnlock(fieldName: String): Boolean = try {
+        if (!iuUnlockMethodResolved) {
+            iuUnlockMethodResolved = true
+            // 一次性 Imaginary Upgrade 的 tryUnlock 在 3.21 是 `a.R()V` 吗？实测 class a 上不存在
+            // （AVD 日志 OREKI_API_MISS 86 次）。这里只解析一次：缺失即视为「原版用实时条件判定」，
+            // 返回 true 表示无需刷新，避免每拍刷日志。
+            iuUnlockMethod = try {
+                qr3Cls()?.getMethod("R")
+            } catch (_: Throwable) {
+                null
+            }
+            if (iuUnlockMethod == null) Log.i("OREKI_IU_BUY", "IU.R() 不存在：改用原版实时条件判定")
+        }
+        val method = iuUnlockMethod ?: return true
+        val holder = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.b") ?: return false
+        val upgrade = staticField(holder, fieldName)?.get(null) ?: return false
+        method.invoke(upgrade)
+        true
+    } catch (error: Throwable) {
+        false
+    }
+
+    /**
+     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxRM 达阈值）。
+     *
+     * 用途：莱特拉 tier8 阶段判断「现实研究 6 是否已在本现实买上」，据此决定是否
+     * 立刻进 run 买 IU25（IU25 的 checkRequirement 要 isRunning + maxAllowed==0 + DS6 + 符文≤1）。
+     * 只读原版判定，不写任何状态。
+     */
+    fun canReality(): Boolean = try {
+        val clazz = cls("kajfosz.antimatterdimensions.prestige.f") ?: return false
+        val methodRef = method(clazz, "f", 0, "prestige/f.f()=canReality") ?: return false
+        (methodRef.invoke(null) as? Boolean) ?: false
+    } catch (error: Throwable) {
+        miss("canReality", error)
+        false
+    }
+
     /** IU15 是否满足需求且未购买（原版 `qr3.a(Z)Z`）。 */
     fun iu15CanBeBought(): Boolean {
         val upgrade = iu15Obj() ?: return false
@@ -2063,7 +2215,12 @@ internal object GameApi {
         return try {
             val continuation = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
                 ?.let { staticField(it, "a")?.get(null) }
-            val result = call(mQrD(), upgrade, true, continuation)
+            var result = call(mQrD(), upgrade, true, continuation)
+            if (result == null) {
+                // 兜底：D 体内不使用 continuation，null 亦安全（与 OrekiRealityUpgrades 的 RU 购买同款）
+                result = call(mQrD(), upgrade, true, null)
+            }
+            Log.i("OREKI_IU_BUY", "IU15 purchase result=" + result + " bought=" + iu15Bought())
             // 原版返回 Boolean（或挂起时的 CoroutineSingletons），统一以 isBought 为准。
             result != null
         } catch (error: Throwable) {
@@ -2077,10 +2234,11 @@ internal object GameApi {
     private fun mQrD(): Method? {
         if (!mQrDResolved) {
             mQrDResolved = true
-            mQrD = method(
-                qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase",
-                paramTypeNames = listOf("boolean", "kotlin.coroutines.Continuation"),
-            )
+            // [R108-01 修复] 不能按 paramTypeNames 精确匹配：D 的第二个形参在 3.21 R8 后是
+            // 混淆类型 `Lrj0;`（不是字面 kotlin.coroutines.Continuation），精确匹配会解析失败
+            // ⇒ purchase 静默 null ⇒ AVD 实测「canBuy=true 却买不到」（OREKI_API_MISS 已证）。
+            // 只按名字+参数个数解析，实参仍传真实 continuation（null 也安全：D 体内不使用）。
+            mQrD = method(qr3Cls(), "D", 2, "IU.D(Z,Continuation)=purchase")
         }
         return mQrD
     }
@@ -2314,8 +2472,8 @@ internal object GameApi {
     /** `m01.n(Z)V` —— Z=false 维度提升，Z=true 反物质星系（原版请求入口）。 */
     fun requestPrestigeReset(isGalaxy: Boolean) {
         try {
-            val m = method(prestigeHelperCls(), "n", 1, "m01.n(Z)=prestige reset")
-            call(m, null, isGalaxy)
+            val methodRef = method(prestigeHelperCls(), "n", 1, "m01.n(Z)=prestige reset")
+            call(methodRef, null, isGalaxy)
         } catch (e: Throwable) { miss("m01.n(Z)", e) }
     }
 
@@ -2334,27 +2492,27 @@ internal object GameApi {
      * 两次都失败才返回 null（调用方按不可读处理，不会误动作）。
      */
     fun antimatterValue(): Any? {
-        val c = antimatterCurrency() ?: return null
+        val currency = antimatterCurrency() ?: return null
         try {
-            val m = c.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 }
-            if (m != null) {
-                val direct = m.invoke(c)
+            val method = currency.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 }
+            if (method != null) {
+                val direct = method.invoke(currency)
                 if (direct != null) return direct
             }
         } catch (e: Throwable) {
             miss("op0.K()", e)
         }
-        return currencyValue(c)
+        return currencyValue(currency)
     }
     /** 给反物质加回一个增量（`op0.C(BigDouble)` 的原版 add 语义，会同步 records）。 */
     fun addAntimatter(delta: Any?) {
         if (delta == null) return
-        val c = antimatterCurrency() ?: return
-        val m = c.javaClass.methods.firstOrNull {
+        val currency = antimatterCurrency() ?: return
+        val method = currency.javaClass.methods.firstOrNull {
             it.name == "C" && it.parameterCount == 1 &&
                 it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
         } ?: run { miss("op0.C(BigDouble)", null); return }
-        try { m.invoke(c, delta) } catch (e: Throwable) { miss("op0.C(BigDouble)", e) }
+        try { method.invoke(currency, delta) } catch (e: Throwable) { miss("op0.C(BigDouble)", e) }
     }
     // ---------------------------------------------------------------- BitSet / 其它
 
@@ -2641,6 +2799,48 @@ internal object GameApi {
         call(mEternityTick(), null)
         return true
     }
+    // ------------------------------------------------- [R107-01] 永恒层经济动作独立入口
+    //
+    // 缺陷（gate-gui 2026-11-14 AVD 实测）：`eternityTick()` 在门禁非 allow 时直接 return，
+    // 而 `OrekiEternity.tick()` 内部同时承载 TT/时间维度/时间研究/尝试永恒四件事 ⇒
+    // canEternity=false 的时段（例如刚完成一次永恒、maxIP 尚不足下一档）整段永恒层经济停摆：
+    // TT 恒 0、时间研究 0、时间维度不买、maxIP 增速被压低，EP 只能靠下一次永恒飞跃。
+    // Web 侧同样把「按永恒」与「买 TT/TD/TS」分开（src/core/oreki-eternity-automation.js
+    // tickEternity() 与 buyTimeTheorems/buyTimeDimensions/buyTimeStudies 各自独立）。
+    //
+    // 这里通过反射调用 OrekiEternity 的三个私有静态经济动作，**不修改既有 Smali 业务实现**；
+    // 是否「主动按永恒」仍只由 OrekiAutoEternityGate 决定（门禁语义不变）。
+    private var mEternityEconomy: Array<Method>? = null
+    private var mEternityEconomyResolved: Boolean = false
+    private fun eternityEconomyMethods(): Array<Method>? {
+        if (!mEternityEconomyResolved) {
+            mEternityEconomyResolved = true
+            mEternityEconomy = try {
+                val clazz = eternityCls() ?: return null
+                arrayOf("buyTimeTheorems", "buyTimeDimensions", "buyNormalStudies").map { name ->
+                    clazz.getDeclaredMethod(name).apply { isAccessible = true }
+                }.toTypedArray()
+            } catch (_: Throwable) {
+                null
+            }
+        }
+        return mEternityEconomy
+    }
+
+    /** 只执行永恒层经济动作（TT/TD/TS），绝不发起永恒结算；返回是否解析并调用成功。 */
+    fun eternityEconomyTick(): Boolean {
+        val methods = eternityEconomyMethods() ?: return false
+        var invoked = false
+        for (m in methods) {
+            try {
+                m.invoke(null)
+                invoked = true
+            } catch (_: Throwable) {
+            }
+        }
+        return invoked
+    }
+
     fun realityTick(): Boolean = (call(mRealityTick(), null) as? Boolean) ?: false
     fun glyphTick(): Boolean = (call(mGlyphTick(), null) as? Boolean) ?: false
     fun teresaTick(): Boolean = (call(mTeresaTick(), null) as? Boolean) ?: false
@@ -2971,6 +3171,298 @@ internal object GameApi {
         } catch (e: Throwable) {
             miss("BigDouble.log10", e); null
         }
+    }
+
+    // ==================================================================
+    // [R109-01] 终局链（Pelle 末日阶段）与 DS6 的原版入口桥
+    //
+    // 原则：自动化只负责「在正确判据下按同一个原版按钮」，不写任何存档字段、不发货币。
+    // 证据（work/base_decoded_321，3.21 官方解码树）：
+    //
+    //  · 全部最大维度：Lkajfosz/antimatterdimensions/a;->l()V（Game.maxAll 方法体，
+    //    a.smali:4973-5120）：遍历 Player.v().a() 的 8 个 AntimatterDimensionState，
+    //    逐个 i(s(), 2.147483647E9)（= AntimatterDimensionState.i(LBigDouble;D)V 批量购买），
+    //    末尾 zt4.a()V（攻速「全部最大」）。唯一 UI 调用点 MainActivity$loadViewsMain$32$1:107。
+    //    该方法体首句 if (prestige/e.f()) return 是 UI 前置门（f()=canBigCrunch && !broken），
+    //    末日阶段需要早于 canBigCrunch 也推进，所以这里复刻**方法体**、不复刻 UI 门。
+    //  · 维度提升：Lm01;->n(Z)V（m01.smali:2092）。方法体首条 if (z || 挑战) return
+    //    ⇒ 只接受 z=false；需求 BigDouble 由 m01.h() 提供。
+    //  · 反物质星系：Lkajfosz/antimatterdimensions/prestige/d;->b(Lkotlin/coroutines/...;)Ljava/lang/Object;
+    //    （Galaxy.galaxyReset，d.java:67）；可买复判 d.a(Lwm1;)Z（d.java:35），
+    //    入参 wm1 由 new xm1() + xm1.a(J)（需求）+ xm1.i（维度层）构造，与 UI 按钮
+    //    ti2.java:870 的 d.a(new wm1(xm1Var3.a(Player.a.A()), xm1Var3.i)) 同式。
+    //  · 大坍缩：Lkajfosz/antimatterdimensions/prestige/e;->i(Lkotlin/coroutines/...;)Ljava/lang/Object;
+    //    （= Infinity.bigCrunchReset，e.java:166）。UI 大坍缩按钮唯一调用：
+    //    MainActivityBigCrunchKt$bigCrunchResetRequest$1:144；内部自带 e.b()（canBigCrunch）复判。
+    //  · DS6（膨胀研究 6 = Web TimeStudy.reality）：c01.a[5].B()Z；
+    //    与 Lprestige/f;->f()Z 首句同源（f.smali:1245-1270 的 sget-object c01;->a + index 5）。
+    //    注意 f() 的另一半是 Player.R().l().j() = ThisReality.maxEP >= fw.K3(1e4000)，
+    //    不是 maxRM（ThisReality.j() 方法体直接 iget-object maxEP）。
+    // ==================================================================
+
+    /** 原版 Game.maxAll 里传给 AntimatterDimensionState.i(cost,count) 的「无限」购买数。 */
+    private const val MAX_BUY_COUNT = 2147483647.0
+
+    private fun orekiContinuation(): Any? = try {
+        cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
+            ?.let { staticField(it, "a")?.get(null) }
+    } catch (_: Throwable) {
+        null
+    }
+
+    private var mPlayerV: Method? = null
+    private var mPlayerVResolved = false
+    private fun mPlayerV(): Method? {
+        if (!mPlayerVResolved) {
+            mPlayerVResolved = true
+            mPlayerV = method(playerCls(), "v", 0, "Player.v()=dimensions")
+        }
+        return mPlayerV
+    }
+
+    private var mDimsA: Method? = null
+    private var mDimsAResolved = false
+    private fun mDimsA(): Method? {
+        if (!mDimsAResolved) {
+            mDimsAResolved = true
+            mDimsA = method(
+                cls("kajfosz.antimatterdimensions.player.Player\$Dimensions"), "a", 0,
+                "Player.Dimensions.a()=dimensions",
+            )
+        }
+        return mDimsA
+    }
+
+    private var mDimCostS: Method? = null
+    private var mDimCostSResolved = false
+    private fun mDimCostS(): Method? {
+        if (!mDimCostSResolved) {
+            mDimCostSResolved = true
+            mDimCostS = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "s", 0, "AntimatterDimensionState.s()=cost",
+            )
+        }
+        return mDimCostS
+    }
+
+    private var mDimBuyMany: Method? = null
+    private var mDimBuyManyResolved = false
+    private fun mDimBuyMany(): Method? {
+        if (!mDimBuyManyResolved) {
+            mDimBuyManyResolved = true
+            mDimBuyMany = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "i", 2, "AntimatterDimensionState.i(cost,count)=buyMany",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble", "double"),
+            )
+        }
+        return mDimBuyMany
+    }
+
+    private var mTickspeedMax: Method? = null
+    private var mTickspeedMaxResolved = false
+    private fun mTickspeedMax(): Method? {
+        if (!mTickspeedMaxResolved) {
+            mTickspeedMaxResolved = true
+            mTickspeedMax = method(cls("zt4"), "a", 0, "zt4.a()=tickspeedBuyMax")
+        }
+        return mTickspeedMax
+    }
+
+    /** `Player.v().a()` 的 8 个反物质维度状态（只读）。 */
+    fun antimatterDimensionStates(): Array<*>? = try {
+        val container = call(mPlayerV(), player()) ?: return null
+        val arr = call(mDimsA(), container)
+        arr as? Array<*>
+    } catch (e: Throwable) {
+        miss("antimatterDimensionStates", e)
+        null
+    }
+
+    /**
+     * 原版「全部最大」的核心动作（Game.l()V 方法体，去掉它的 UI 前置门）。
+     *
+     * 对 8 个反物质维度各调用一次原版批量购买 `i(当前成本, MAX_BUY_COUNT)`，再调用原版
+     * 攻速「全部最大」`zt4.a()V`。购买本身仍由原版 `D(cost)`（canBuy + BigDouble 扣款）把关，
+     * 买不起就是 no-op —— 不创建任何货币，也不写字段。
+     *
+     * @return 实际驱动到的维度层数（0 = 读不到状态，未动作）
+     */
+    fun maxAllDimensions(): Int = try {
+        val dims = antimatterDimensionStates() ?: return 0
+        val costMethod = mDimCostS() ?: return 0
+        val buyMethod = mDimBuyMany() ?: return 0
+        var acted = 0
+        var i = 0
+        while (i < dims.size) {
+            val state = dims[i]
+            if (state != null) {
+                val cost = costMethod.invoke(state)
+                if (cost != null) {
+                    buyMethod.invoke(state, cost, MAX_BUY_COUNT)
+                    acted++
+                }
+            }
+            i++
+        }
+        if (acted > 0) call(mTickspeedMax(), null)
+        acted
+    } catch (e: Throwable) {
+        miss("maxAllDimensions", e)
+        0
+    }
+
+    private var mBigDoubleCompareBd: Method? = null
+    private var mBigDoubleCompareBdResolved = false
+    private fun mBigDoubleCompareBd(): Method? {
+        if (!mBigDoubleCompareBdResolved) {
+            mBigDoubleCompareBdResolved = true
+            // BigDouble.compareTo 有 (Double)/(Int)/(Long)/(Object)/(BigDouble) 五份重载，必须精确锁 (BigDouble)。
+            mBigDoubleCompareBd = method(
+                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
+        }
+        return mBigDoubleCompareBd
+    }
+
+    /** `BigDouble.compareTo(BigDouble)` → -1/0/1；任一侧不可读返回 null。 */
+    fun compareBigDouble(a: Any?, b: Any?): Int? {
+        if (a == null || b == null) return null
+        val m = mBigDoubleCompareBd() ?: return null
+        return try {
+            m.invoke(a, b) as? Int
+        } catch (e: Throwable) {
+            miss("BigDouble.compareTo(BigDouble)", e)
+            null
+        }
+    }
+
+    /**
+     * 原版「维度提升」请求入口：`m01.n(false)V`。
+     *
+     * 证据：`m01.smali:2092` 方法体首条 `if-nez p0` 后紧跟挑战守卫，`z=true` 直接 return
+     * ⇒ 只有 `false` 会真正执行维度提升；需求 BigDouble = `m01.h()`。
+     * 这里先用原版需求复判（本 MOD 不写任何提升计数），再调用同一入口。
+     */
+    fun requestDimensionBoost(): Boolean {
+        return try {
+            val requirement = dimensionBoostRequirement() ?: return false
+            val antimatter = antimatterValue() ?: return false
+            val cmp = compareBigDouble(antimatter, requirement) ?: return false
+            if (cmp < 0) return false
+            val m = method(
+                prestigeHelperCls(), "n", 1, "m01.n(Z)=dimensionBoostRequest",
+                paramTypeNames = listOf("boolean"),
+            ) ?: return false
+            m.invoke(null, false)
+            true
+        } catch (e: Throwable) {
+            miss("requestDimensionBoost", e)
+            false
+        }
+    }
+
+
+    /**
+     * 原版「反物质星系」请求入口：`prestige/d.b(Continuation)`（Galaxy.galaxyReset）。
+     *
+     * 必须先按原版 `d.a(wm1)` 复判可买（该方法里还包含挑战/毁灭等前置），否则会凭需求未达
+     * 也执行一次 galaxyReset（那会凭空 +1 星系）。`wm1` 的构造与 UI 按钮 ti2.java:870 完全一致：
+     * `new xm1()` → `xm1.a(Player.A())` 取需求、`xm1.i` 取维度层 → `new wm1(requirement, tier)`。
+     */
+    fun requestGalaxy(): Boolean {
+        return try {
+            val galaxyCls = cls("kajfosz.antimatterdimensions.prestige.d") ?: return false
+            val xm1Cls = cls("xm1") ?: return false
+            val wm1Cls = cls("wm1") ?: return false
+            val galaxies = galaxies() ?: return false
+            val bdCls = bigDoubleCls() ?: return false
+            val xm = xm1Cls.getDeclaredConstructor().newInstance()
+            val reqMethod = method(
+                xm1Cls, "a", 1, "xm1.a(J)=galaxyRequirement",
+                paramTypeNames = listOf("long"),
+            ) ?: return false
+            val requirement = reqMethod.invoke(xm, galaxies) ?: return false
+            val tier = xm1Cls.getField("i").getInt(xm)
+            val wm = wm1Cls.getDeclaredConstructor(bdCls, java.lang.Integer.TYPE)
+                .newInstance(requirement, java.lang.Integer.valueOf(tier))
+            val canMethod = method(
+                galaxyCls, "a", 1, "Galaxy.a(wm1)=canBeBought",
+                paramTypeNames = listOf("wm1"),
+            ) ?: return false
+            if (canMethod.invoke(null, wm) != true) return false
+            val galaxy = staticField(galaxyCls, "a")?.get(null) ?: return false
+            val resetMethod = method(galaxyCls, "b", 1, "Galaxy.b(Cont)=galaxyReset") ?: return false
+            resetMethod.invoke(galaxy, orekiContinuation())
+            true
+        } catch (e: Throwable) {
+            miss("requestGalaxy", e)
+            false
+        }
+    }
+
+
+    /**
+     * 原版「大坍缩」按钮同路径：`prestige/e.i(Continuation)`（Infinity.bigCrunchReset）。
+     *
+     * 方法内部自带 `e.b()`（canBigCrunch）复判，未达门槛时返回且不做任何重置 —— 与玩家点
+     * 大坍缩按钮完全一致。用于佩勒末日阶段「拉满大坍缩间隔所需的真实 IP」那一步
+     * （Web _pulseDoomedCrunch 的 bigCrunchResetRequest(true)）。
+     */
+    fun bigCrunchReset(): Boolean = try {
+        val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
+        val m = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
+        m.invoke(null, orekiContinuation())
+        true
+    } catch (e: Throwable) {
+        miss("bigCrunchReset", e)
+        false
+    }
+
+    /** 原版 `prestige/e.b()Z` = canBigCrunch（本无限 maxAM 已达无限门槛）。 */
+    fun canBigCrunch(): Boolean = try {
+        val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
+        (method(infinityCls, "b", 0, "Infinity.b()=canBigCrunch")?.invoke(null) as? Boolean)
+            ?: false
+    } catch (e: Throwable) {
+        miss("canBigCrunch", e)
+        false
+    }
+
+    /**
+     * DS6（膨胀研究 6 / Web `TimeStudy.reality`）是否已在本现实买上。
+     *
+     * 证据：`prestige/f.f()Z`（f.smali:1245-1270，JADX f.java:187-189）=
+     *   `c01.a[5].B()` && `Player.records.thisReality.maxEP >= fw.K3`（fw.K3 = 1e4000）；
+     * 其中 ThisReality.j() 方法体是 `iget-object maxEP`（不是 maxRM）。
+     * 这里只取前半（DS6 本身），因为 IU25 的 checkRequirement 只要求 DS6，不要求 maxEP。
+     */
+    fun ds6Bought(): Boolean = try {
+        // [R109-01 P0] 真机根因（OREKI_API_MISS: missing ds6Bought: NullPointerException）：
+        // GameApi.cls() 会走 OrekiBaselineBindings 的 3.19→3.2x 改名表，"c01" 被改写成 "l01"；
+        // l01 是另一个真实类，其 a(I) 是实例方法 ⇒ invoke(null, 9) 抛 NPE ⇒ ds6 恒 false。
+        // 膨胀研究注册表在本基线里就是默认包 c01（prestige/f.f() 直接引用 Lc01;），
+        // 因此这里必须绕过改名表用原始类名加载。
+        // 判定链与 OrekiRealityPacing.dilationStudy1Bought 同源：c01.a(I)（I = 数组下标 + 4）
+        // 取对象，再 na4.B()（isBought）。c01.a(4)=DS1 已在生产跑次验证，故 DS6 = c01.a(9)。
+        val c01 = rawCls("c01") ?: return false
+        val factory = method(c01, "a", 1, "c01.a(I)=dilationStudy") ?: return false
+        val study = factory.invoke(null, 9) ?: return false
+        val m = method(rawCls("na4"), "B", 0, "DilationStudy.B()=isBought") ?: return false
+        (m.invoke(study) as? Boolean) ?: false
+    } catch (e: Throwable) {
+        miss("ds6Bought", e)
+        false
+    }
+
+    /** 绕过 OrekiBaselineBindings 改名表的原始类加载（仅用于已逐指令确认、且在本基线未被改名的类）。 */
+    private fun rawCls(name: String): Class<*>? = try {
+        Class.forName(name, false, GameApi::class.java.classLoader)
+    } catch (e: Throwable) {
+        miss("rawClass $name", e)
+        null
     }
 
     // ---------------------------------------------------------------- 调用工具

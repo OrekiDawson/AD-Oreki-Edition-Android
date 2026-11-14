@@ -1,0 +1,4 @@
+11-14 03:29:57.045 22934 22934 I OREKI_TABGATE: tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-14 03:29:58.700 22934 22934 I OREKI_TABGATE: tab=dimensions allowed=true eternityUnlocked=false
+11-14 03:29:58.705 22934 22934 I OREKI_TABGATE: tab=automation allowed=true eternityUnlocked=false
+11-14 03:29:58.705 22934 22934 I OREKI_TABGATE: tab=challenges allowed=true eternityUnlocked=false

@@ -1,0 +1,19 @@
+## dexdump 类数统计（build-tools 34.0.0）
+classes.dex       6483820 bytes  classes=6193  stderr_bytes=0
+classes2.dex     11817948 bytes  classes=10197  stderr_bytes=0
+classes total = 16390
+
+## dexdump 类描述符去重
+16390
+
+## 抽样（前 10 个描述符）
+La;
+La0;
+La00;
+La01;
+La02;
+La03;
+La04;
+La05;
+La06;
+La07;

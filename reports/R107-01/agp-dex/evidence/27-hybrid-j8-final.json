@@ -1,0 +1,98 @@
+{
+ "j8": {
+  "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-j8.jar",
+  "sha256": "445de266be61442c43ad30e17f231f19b42978c0b2b215de589f81ddee8dd6a3",
+  "size": 19415849,
+  "classes": 15344,
+  "fallback": {
+   "class": "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1",
+   "source": "official-selective.jar",
+   "sha256": "067c000ca7daa8eceb6ae0be18502f7a3ce9cef9cab327527987584aac8424e8",
+   "loses_mod_patch": true
+  },
+  "audit": {
+   "head": "classes=15344 verify_ok=10170 invalid=5161 inconclusive=13",
+   "invalid": 5161,
+   "hot_valid": [
+    "ox0",
+    "gk0",
+    "dc2",
+    "tf2",
+    "vf2",
+    "t01",
+    "k51",
+    "cv0",
+    "ba1"
+   ],
+   "hot_invalid": [
+    "rk8",
+    "nc8"
+   ]
+  },
+  "d8_whole": {
+   "returncode": 0,
+   "dex": [
+    "classes.dex",
+    "classes2.dex"
+   ],
+   "dex_bytes": 16352676,
+   "stderr_tail": []
+  },
+  "d8_patch": {
+   "tested": 76,
+   "fail": [],
+   "fail_detail": {}
+  }
+ },
+ "j8_fix": {
+  "jar": "/home/oreki/private-staging/r107-tools/out/hybrid-translator/game-hybrid-j8-fix.jar",
+  "sha256": "df8374389bf554db374d9e82d9bf4a8efedfc83938c45516f6cdb79d2750b2ac",
+  "size": 19508352,
+  "classes": 15344,
+  "fallback": {
+   "class": "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1",
+   "source": "official-selective.jar",
+   "sha256": "067c000ca7daa8eceb6ae0be18502f7a3ce9cef9cab327527987584aac8424e8",
+   "loses_mod_patch": true
+  },
+  "audit": {
+   "head": "classes=15344 verify_ok=12900 invalid=2432 inconclusive=12",
+   "invalid": 2432,
+   "hot_valid": [
+    "ox0",
+    "gk0",
+    "dc2",
+    "tf2",
+    "vf2",
+    "t01",
+    "k51",
+    "cv0",
+    "nc8",
+    "ba1"
+   ],
+   "hot_invalid": [
+    "rk8"
+   ]
+  },
+  "d8_whole": {
+   "returncode": 0,
+   "dex": [
+    "classes.dex",
+    "classes2.dex"
+   ],
+   "dex_bytes": 16478672,
+   "stderr_tail": []
+  },
+  "d8_patch": {
+   "tested": 76,
+   "fail": [],
+   "fail_detail": {}
+  }
+ },
+ "structure_j8fix_vs_j8": {
+  "changed": 4702,
+  "added_methods": 2705,
+  "removed_method_classes": 0,
+  "field_changes": 0
+ }
+}

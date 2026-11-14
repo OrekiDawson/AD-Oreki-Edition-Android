@@ -1,0 +1,2 @@
+544:        "    iget-object v0, p0, Lbm4;->i:Ljava/lang/String;\n" +
+559:        "    iget-object v0, p0, Lbm4;->i:Ljava/lang/String;\n" +

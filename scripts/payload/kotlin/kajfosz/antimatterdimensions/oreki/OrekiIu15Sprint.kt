@@ -57,6 +57,16 @@ object OrekiIu15Sprint {
     /** 连续失败多少次后放弃接管（防止整局卡在限制态）。 */
     const val MAX_FAILS: Int = 3
 
+    /** [R108-01] 「条件已满足却买不到」的诊断/放弃阈值（毫秒）。
+     *  AVD 实测死锁：amE=1.6e9、maxID1=0、IM/iMCap 都够，但一次性 IU 的
+     *  imaginaryRequirementBits 从未被原版事件刷新 ⇒ canBeBought 恒 false ⇒
+     *  旧实现每帧直接 return，既不超时也不释放，封锁 ID 购买把整局卡在 realities=2。
+     */
+    private const val BUY_BLOCK_LOG_MS: Long = 15_000L
+    private const val BUY_BLOCK_GIVEUP_MS: Long = 60_000L
+    private const val STATUS_LOG_MS: Long = 30_000L
+    private const val UNLOCK_RETRY_MS: Long = 1_000L
+
     private const val PHASE_IDLE = "idle"
     private const val PHASE_ARMED = "armed"
     private const val PHASE_RUNNING = "running"
@@ -104,6 +114,29 @@ object OrekiIu15Sprint {
     @Volatile
     private var autobuyerWasOn: Boolean = true
 
+    /** [R108-01] 最近一次调原版 IU 解锁复检 `R()V` 的时刻。 */
+    @Volatile
+    private var lastUnlockAtMs: Long = 0L
+
+    /** [R108-01] 「amE 已达标但购买被拒」的起始时刻（0 = 未阻塞）。 */
+    @Volatile
+    private var buyBlockedSinceMs: Long = 0L
+
+    /** [R108-01] 运行期状态日志节流。 */
+    @Volatile
+    private var lastStatusAtMs: Long = 0L
+
+    /** [R108-01] 已观测到的 realities 代际（用于「现实重置后第一帧立刻封锁」）。 */
+    @Volatile
+    private var realitiesSeen: Double = -1.0
+
+    /** [R108-01] 是否已关闭 8 层 ID 的原版自动购买器（真实开关，不是写字段）。 */
+    @Volatile
+    private var idAutoLocked: Boolean = false
+
+    /** 被本模块关闭的自动购买器（恢复时只恢复这些）。 */
+    private var savedAutoObjs: Array<Any> = emptyArray()
+
     /** 把指数值格式化成日志用的短字符串（Kotlin 没有 JS 的 toExponential）。 */
     private fun fmtExp(value: Double): String =
         try {
@@ -137,10 +170,23 @@ object OrekiIu15Sprint {
      * @return true = 本帧应拒绝启动
      */
     @JvmStatic
-    fun shouldBlockEcStart(ecId: Int): Boolean = try {
-        isActive() && ecId == 7
-    } catch (_: Throwable) {
-        false
+    fun shouldBlockEcStart(ecId: Int): Boolean {
+        return try {
+            if (ecId != 7) return false
+            if (isActive()) return true
+            // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
+            // 持续生产 ID8→…→ID1（Web 同款根因），即使 ID 购买被拦住，maxID1 也会变正。
+            // 因此「干净现实 + 上限足够 + 未买 IU15」期间必须连 EC7 一起拦。
+            if (iu15Bought()) return false
+            if (fails >= MAX_FAILS) return false
+            if (System.currentTimeMillis() < cooldownUntil) return false
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
+            if (GameApi.isDoomed()) return false
+            if (!GameApi.iu15AffordableByCap()) return false
+            isCleanReality()
+        } catch (_: Throwable) {
+            false
+        }
     }
 
     /**
@@ -162,22 +208,153 @@ object OrekiIu15Sprint {
     @JvmStatic
     fun idBuyBlocked(): Boolean {
         return try {
-            if (!GameApi.autobuyersOn()) {
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) {
                 // 玩家关掉总开关：立即解除，不能把限制留在后面。
                 releaseNow("autobuyers-off")
                 return false
             }
-            if (!GameApi.imUnlocked()) return false
             if (iu15Bought()) {
                 if (isActive()) releaseNow("already-bought")
                 phase = PHASE_DONE
                 return false
             }
-            isActive()
+            // 已在接管态：拦截（原语义）
+            if (isActive()) return true
+            // [R108-01 关键修复] 预封锁：不依赖「先 arm 再拦」的时序。
+            // 购买守卫在**每次购买调用时**求值，此刻 maxID1 仍为 0（本现实还没买过 ID1），
+            // 所以只要满足「干净现实 + 上限足够 + 未毁灭/未挑战 + 总开关开」，就能在现实重置后
+            // 的第一次 ID 购买前把门关上；旧实现要等 tick 先 arm，而 arm 又要 imUnlocked/clean，
+            // 等价于输给原版 ID 自动购买器（AVD 实测 maxID1=9.1e56986405、IU15 从未 arm）。
+            if (fails >= MAX_FAILS) return false
+            if (System.currentTimeMillis() < cooldownUntil) return false
+            if (GameApi.isDoomed()) return false
+            if (GameApi.inAnyChallenge()) return false
+            if (!GameApi.iu15AffordableByCap()) return false
+            if (!isCleanReality()) return false
+            applyIdAutobuyerLockdown()
+            if (phase == PHASE_IDLE) {
+                phase = PHASE_ARMED
+                val nowMs = System.currentTimeMillis()
+                armMs = nowMs
+                startMs = nowMs
+                peakAmExp = 0.0
+                attempts += 1
+                Log.i(TAG, "预封锁接管：干净现实 + 上限足够，已封锁 ID1~ID8 购买")
+            }
+            true
         } catch (error: Throwable) {
             recordError("idBuyBlocked", error)
             false
         }
+    }
+
+    private fun bdPart(v: Any?, name: String): Double? = try {
+        val method = v?.javaClass?.getMethod(name) ?: return null
+        (method.invoke(v) as? Number)?.toDouble()
+    } catch (t: Throwable) {
+        null
+    }
+
+    private fun realitiesValue(): Double {
+        return try {
+            val v = GameApi.realitiesValue() ?: return -1.0
+            val mantissa = bdPart(v, "mantissa")
+            val exponent = bdPart(v, "exponent")
+            if (mantissa != null && exponent != null) mantissa * Math.pow(10.0, exponent) else -1.0
+        } catch (t: Throwable) {
+            -1.0
+        }
+    }
+
+    /** 预封锁/预 arm 的共同条件（不含 maxID1 干净判断——那由调用方各自决定）。 */
+    private fun canPreLock(): Boolean = try {
+        if (iu15Bought()) false
+        else if (fails >= MAX_FAILS) false
+        else if (System.currentTimeMillis() < cooldownUntil) false
+        else if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) false
+        else if (GameApi.isDoomed()) false
+        else if (GameApi.inAnyChallenge()) false
+        else GameApi.iu15AffordableByCap()
+    } catch (t: Throwable) {
+        false
+    }
+
+    /**
+     * [R108-01] 现实重置钩子（由 `OrekiRealityPacing.onRealityReset` 在**每次真实重置后立即**调用）。
+     *
+     * 为什么必须在这里封锁：现实重置刚完成的那一帧，maxID1 必然为 0；但 ID 自动购买器/EC7
+     * 会在后续任何一帧把它弄脏。等 tick 发现代际变化已经晚一帧（AVD 实测多次被抢）。
+     * 本钩子在重置函数返回后同步执行，抢在下一帧购买之前关掉 8 层 ID 自动器，是确定性修复。
+     */
+    @JvmStatic
+    fun onRealityResetHook() {
+        try {
+            if (iu15Bought()) return
+            if (fails >= MAX_FAILS) return
+            if (System.currentTimeMillis() < cooldownUntil) return
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return
+            if (GameApi.isDoomed() || GameApi.inAnyChallenge()) return
+            if (!GameApi.iu15AffordableByCap()) return
+            applyIdAutobuyerLockdown()
+            if (phase == PHASE_IDLE) {
+                val nowMs = System.currentTimeMillis()
+                phase = PHASE_ARMED
+                armMs = nowMs
+                startMs = nowMs
+                peakAmExp = 0.0
+                attempts += 1
+                Log.i(TAG, "现实重置钩子：已关 ID 自动器并 armed（maxID1 刚归零）")
+            }
+        } catch (t: Throwable) {
+            recordError("resetHook", t)
+        }
+    }
+
+    /**
+     * [R108-01] 关闭 8 层 ID 的原版自动购买器（真实开关调用，可恢复）。
+     *
+     * 事实：`maxID1` 是「ID1 达到过的最大量」，不只是购买记录；只要 EC7 奖励仍在产 ID8，
+     * ID8→…→ID1 会自动生产，maxID1 同帧变正。所以除了拦购买，还必须关掉会持续购买的
+     * 原版自动器，并（见 shouldBlockEcStart）拦 EC7。
+     */
+    private fun applyIdAutobuyerLockdown() {
+        if (idAutoLocked) return
+        try {
+            val arr = GameApi.dimensionAutobuyers() ?: return
+            val saved = ArrayList<Any>()
+            var i = 0
+            while (i < arr.size) {
+                val autobuyer = arr[i]
+                if (autobuyer != null && GameApi.isAutobuyerActive(autobuyer) == true) {
+                    GameApi.setAutobuyerActive(autobuyer, false)
+                    saved.add(autobuyer)
+                }
+                i++
+            }
+            val out = arrayOfNulls<Any>(saved.size)
+            i = 0
+            while (i < saved.size) { out[i] = saved[i]; i++ }
+            @Suppress("UNCHECKED_CAST")
+            savedAutoObjs = out as Array<Any>
+            idAutoLocked = true
+            Log.i(TAG, "已关闭 8 层 ID 原版自动购买器 count=" + savedAutoObjs.size)
+        } catch (e: Throwable) {
+            recordError("lockdown", e)
+        }
+    }
+
+    private fun restoreIdAutobuyers() {
+        if (!idAutoLocked) return
+        try {
+            var i = 0
+            while (i < savedAutoObjs.size) {
+                GameApi.setAutobuyerActive(savedAutoObjs[i], true)
+                i++
+            }
+        } catch (_: Throwable) {
+        }
+        idAutoLocked = false
+        savedAutoObjs = emptyArray()
     }
 
     /** IU15 是否已真实购买（只读）。 */
@@ -220,6 +397,39 @@ object OrekiIu15Sprint {
             }
 
             val now = System.currentTimeMillis()
+
+            // [R108-01] 现实代际检测：现实重置后 maxID1 归零，是唯一能「从第一帧就封锁」的窗口。
+            // 只要「未买 IU15 + iMCap 足够 + 未毁灭/未挑战」，就在重置的第一帧关掉 8 层 ID 自动器，
+            // 否则 ID1 会在本帧被买/被 EC7 奖励产出，maxID1 立刻变脏、IU15 永久失败。
+            // [R108-01] 用 OrekiRealityPacing 的真实重置计数作代际信号（比解析 BigDouble 可靠）。
+            val rNow = OrekiRealityPacing.resetCount().toDouble()
+            if (rNow != realitiesSeen) {
+                realitiesSeen = rNow
+                if (canPreLock()) {
+                    applyIdAutobuyerLockdown()
+                    if (phase == PHASE_IDLE) {
+                        phase = PHASE_ARMED
+                        armMs = now
+                        startMs = now
+                        peakAmExp = 0.0
+                        attempts += 1
+                        Log.i(TAG, "现实重置帧预封锁：已关 ID 自动器，等待干净现实冲刺")
+                    }
+                }
+            }
+
+            // [R108-01] 兜底：任意帧只要「干净现实 + 上限足够」就立刻封锁并 arm，
+            // 代际检测可能因为 tick 落点错过重置帧（autobuyer 在同一帧内已买 ID1）。
+            if (!idAutoLocked && phase == PHASE_IDLE && canPreLock() && isCleanReality()) {
+                applyIdAutobuyerLockdown()
+                phase = PHASE_ARMED
+                armMs = now
+                startMs = now
+                peakAmExp = 0.0
+                attempts += 1
+                Log.i(TAG, "干净现实预封锁：已关 ID 自动器并进入 armed")
+            }
+
             when (phase) {
                 PHASE_IDLE -> {
                     if (canArm()) {
@@ -234,9 +444,16 @@ object OrekiIu15Sprint {
                 PHASE_ARMED -> {
                     // 等一次真实现实重置：maxID1 归零后才开始计时，
                     // 否则「本现实已经脏了」的冲刺没有意义。
+                    // [R108-01] 同时在 armed 期就周期刷新原版 IU 解锁位图（R()V），
+                    // 否则 canBeBought 可能因为位图从未刷新而恒 false。
+                    if (now - lastUnlockAtMs >= UNLOCK_RETRY_MS) {
+                        lastUnlockAtMs = now
+                        GameApi.imaginaryTryUnlock("k")
+                    }
                     if (isCleanReality()) {
                         phase = PHASE_RUNNING
                         startMs = now
+                        lastStatusAtMs = now
                         startAmExp = GameApi.antimatterExponent()
                         peakAmExp = startAmExp
                         Log.i(TAG, "干净现实开始：amE=1e${fmtExp(startAmExp)}")
@@ -247,20 +464,44 @@ object OrekiIu15Sprint {
                 PHASE_RUNNING -> {
                     val amExp = GameApi.antimatterExponent()
                     if (amExp > peakAmExp) peakAmExp = amExp
+                    // [R108-01] 周期刷新原版 IU 解锁位图 + 状态日志（30s 一行）
+                    if (now - lastUnlockAtMs >= UNLOCK_RETRY_MS) {
+                        lastUnlockAtMs = now
+                        GameApi.imaginaryTryUnlock("k")
+                    }
+                    if (now - lastStatusAtMs >= STATUS_LOG_MS) {
+                        lastStatusAtMs = now
+                        Log.i(TAG, "冲刺中：amE=1e${fmtExp(amExp)} peak=1e${fmtExp(peakAmExp)} " +
+                            "canBuy=${GameApi.iu15CanBeBought()} bought=${GameApi.iu15Bought()} " +
+                            "capOk=${GameApi.iu15AffordableByCap()} clean=${isCleanReality()} " +
+                            "elapsed=${(now - startMs) / 1000}s")
+                    }
                     if (!isCleanReality()) {
                         fail("maxID1-nonzero", now)
                         return
                     }
                     if (amExp >= TARGET_AM_EXP) {
+                        if (buyBlockedSinceMs == 0L) buyBlockedSinceMs = now
                         if (tryBuy()) {
                             boughtAmExp = amExp
                             Log.i(TAG, "冲刺成功：IU15 已买入 amE=1e${fmtExp(amExp)} " +
                                 "用时 ${(now - startMs) / 1000}s")
                             releaseNow("bought")
+                            buyBlockedSinceMs = 0L
                             phase = PHASE_DONE
+                            return
                         }
+                        // [R108-01] 条件达标但购买被拒：不能再静默 return（旧缺陷）
+                        val blockedMs = now - buyBlockedSinceMs
+                        if (blockedMs >= BUY_BLOCK_LOG_MS) {
+                            Log.i(TAG, "买到条件却买不到：阻塞 ${blockedMs / 1000}s " +
+                                "canBuy=${GameApi.iu15CanBeBought()} bought=${GameApi.iu15Bought()} " +
+                                "capOk=${GameApi.iu15AffordableByCap()} amE=1e${fmtExp(amExp)}")
+                        }
+                        if (blockedMs >= BUY_BLOCK_GIVEUP_MS) fail("buy-rejected", now)
                         return
                     }
+                    buyBlockedSinceMs = 0L
                     if (now - startMs > SPRINT_MAX_MS) fail("timeout", now)
                 }
                 PHASE_COOLDOWN -> {
@@ -290,10 +531,11 @@ object OrekiIu15Sprint {
         if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
         if (GameApi.isDoomed()) return false
         if (GameApi.inAnyChallenge()) return false
-        if (!GameApi.imUnlocked()) return false
-        // 攒够 IM 才有意义：上限必须覆盖 IU15 成本，否则永远买不起。
+        // [R108-01] 不再要求「本帧 IM 已解锁」：IM 是否解锁取决于上一现实是否把 RM 顶到硬顶，
+        // 而 maxID1 会在现实重置后的前几十毫秒内被 ID 购买弄脏。若等 IM 解锁再 arm，
+        // 干净现实窗口早已错过（build8 AVD 实测：maxID1=3.1e56986558、IU15 从未 arm）。
+        // 正确做法：**干净现实 + 上限足够就立即 arm 并封锁 ID 购买**，IM 在冲刺期间自然累积。
         if (!GameApi.iu15AffordableByCap()) return false
-        // 必须在干净现实里才开始；脏现实要等下一次真实重置。
         if (!isCleanReality()) return false
         true
     } catch (error: Throwable) {
@@ -350,6 +592,7 @@ object OrekiIu15Sprint {
      */
     @JvmStatic
     fun releaseNow(reason: String) {
+        restoreIdAutobuyers()
         val wasActive = isActive()
         phase = if (phase == PHASE_DONE || phase == PHASE_GIVEUP) phase else PHASE_IDLE
         if (wasActive) {
