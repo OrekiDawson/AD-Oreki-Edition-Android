@@ -1,3 +1,6 @@
+import java.nio.ByteBuffer
+import java.nio.charset.CharacterCodingException
+import java.nio.charset.CodingErrorAction
 import org.gradle.api.tasks.Exec
 import groovy.json.JsonSlurper
 
@@ -180,11 +183,11 @@ if (fullGame) {
             // 严格 UTF-8 解码：非法字节序列必须让构建失败，不能用替换字符静默通过。
             val text = try {
                 Charsets.UTF_8.newDecoder()
-                    .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
-                    .decode(java.nio.ByteBuffer.wrap(bytes))
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(bytes))
                     .toString()
-            } catch (e: java.nio.charset.CharacterCodingException) {
+            } catch (e: CharacterCodingException) {
                 throw GradleException("教程资产不是合法 UTF-8", e)
             }
             if (!text.contains("游戏内教程正文（构建期生成，请勿手改）")) {
