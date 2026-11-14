@@ -99,6 +99,40 @@ def summary(p):
     }
 
 
+LOCK_PATH = "/tmp/r108_avd_run.lock"
+
+
+def acquire_lock():
+    """单实例锁：避免两个采样器同时对同一 AVD 做 pm clear / force-stop（会互相清档）。"""
+    import os as _os
+    try:
+        fd = _os.open(LOCK_PATH, _os.O_CREAT | _os.O_EXCL | _os.O_WRONLY)
+        _os.write(fd, str(_os.getpid()).encode())
+        _os.close(fd)
+        return True
+    except FileExistsError:
+        try:
+            other = int(open(LOCK_PATH).read().strip() or 0)
+        except Exception:
+            other = 0
+        if other and _os.path.exists(f"/proc/{other}"):
+            print(f"[R108-M1] 已有采样器在运行 pid={other}，拒绝并发（lock={LOCK_PATH}）", flush=True)
+            return False
+        try:
+            _os.unlink(LOCK_PATH)
+        except OSError:
+            pass
+        return acquire_lock()
+
+
+def release_lock():
+    import os as _os
+    try:
+        _os.unlink(LOCK_PATH)
+    except OSError:
+        pass
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
@@ -110,6 +144,9 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
+    if not acquire_lock():
+        raise SystemExit(2)
+    log(f"lock acquired pid={os.getpid()} lock={LOCK_PATH}")
     logcat_path = os.path.join(args.out, "logcat.txt")
     timeline_path = os.path.join(args.out, "timeline.jsonl")
 
@@ -168,6 +205,8 @@ def main():
         proc.wait(timeout=5)
     except Exception:
         proc.kill()
+
+    release_lock()
 
     # 5) 摘要
     lines = open(logcat_path, errors="replace").read().splitlines()
