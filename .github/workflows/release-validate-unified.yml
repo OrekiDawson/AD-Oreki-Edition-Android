@@ -75,7 +75,7 @@ jobs:
           [[ "$ACCEPTANCE_PATH" == docs/avd-acceptance/*/avd-checks.json ]] || { echo "::error::Acceptance path must be a committed avd-checks.json"; exit 1; }
 
       - name: Check out repository tooling
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -95,7 +95,7 @@ jobs:
           done
 
       - name: Download candidate artifact and verification receipt
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-candidate
           run-id: ${{ inputs.candidate_run_id }}
@@ -103,7 +103,7 @@ jobs:
           path: candidate
 
       - name: Download independent verification receipt
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-verification
           run-id: ${{ inputs.verification_run_id }}
