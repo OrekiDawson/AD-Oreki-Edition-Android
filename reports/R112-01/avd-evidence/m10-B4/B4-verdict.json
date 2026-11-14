@@ -1,0 +1,47 @@
+{
+ "tag": "B4",
+ "tap_start": {
+  "attempted": true,
+  "found": false,
+  "text": null,
+  "bounds": null,
+  "fallback_tap": [
+   450,
+   1432
+  ]
+ },
+ "captured_at": "2026-11-15T02:57:37+08:00",
+ "wait_seconds": 45,
+ "process_alive": true,
+ "crashes": {},
+ "state": {
+  "parsed": true,
+  "realities": {
+   "exponent": 3.0,
+   "mantissa": 1.731
+  },
+  "laitela_dims_type": "list",
+  "laitela_dims_len": 4,
+  "laitela_dims_typed": true,
+  "glyph_effects_types": [
+   "int",
+   "int",
+   "int",
+   "int",
+   "int",
+   "int",
+   "int",
+   "int"
+  ],
+  "glyph_effects_all_int": true,
+  "isGameEnd": false
+ },
+ "written_player": {
+  "path": "reports/R112-01/avd-evidence/m10-B4/B4-written-player.json",
+  "sha256": "22c0e2a270e7aa906c03fdadbe8abba5e31a43fca94b8c48251d667d8bce7eaf",
+  "bytes": 79460
+ },
+ "written_is_injected": true,
+ "written_changed": false,
+ "PASS": true
+}

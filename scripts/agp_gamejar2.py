@@ -44,6 +44,15 @@ DEFAULT_KNOWN_INVALID = [
     "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1",
 ]
 STAGED_DEX_FOR_ENJARIFY = ("classes.dex", "classes2.dex", "classes3.dex")
+# 回填后必须存在这些泛型 Signature（来自官方 DEX；enjarify 明确不输出注解）。
+# 缺失会让 Gson 丢失类型信息：读 -> LinkedTreeMap ClassCastException；写 -> 位掩码/列表格式错误。
+# 见 reports/R111-01/p0-agp-save-reload/ 与 docs/AGP_SIGNATURE_BACKFILL.md。
+SIGBACKFILL_REQUIRED_SIGNATURES = {
+    "kajfosz.antimatterdimensions.player.Player$Laitela":
+        "Ljava/util/List<Lkajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState;>;",
+    "kajfosz.antimatterdimensions.reality.glyphs.Glyph":
+        "Ljava/util/List<Lkajfosz/antimatterdimensions/reality/glyphs/a;>;",
+}
 
 
 # ---------------------------------------------------------------- 通用工具
@@ -87,6 +96,23 @@ def run(cmd: list[str], cwd: Path | None = None, env: dict | None = None,
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise SystemExit("FAIL: " + message)
+
+
+def verify_generic_signatures(jar: Path, java_home: str) -> dict:
+    """回填后用 javap 逐类校验关键泛型 Signature；缺失即由调用方 fail 构建。"""
+    javap = (Path(java_home) / "bin" / "javap") if java_home else Path(shutil.which("javap") or "")
+    if not javap.is_file():
+        return {"error": "找不到 javap（--java-home 需指向 JDK）：%s" % javap}
+    results = {}
+    for class_name, expected in SIGBACKFILL_REQUIRED_SIGNATURES.items():
+        proc = run([str(javap), "-v", "-p", "-cp", str(jar), class_name])
+        text = proc["stdout"] + proc["stderr"]
+        results[class_name] = {
+            "expected": expected,
+            "returncode": proc["returncode"],
+            "present": proc["returncode"] == 0 and "Signature:" in text and expected in text,
+        }
+    return results
 
 
 # ---------------------------------------------------------------- DEX 类集合
@@ -689,6 +715,11 @@ def main() -> int:
         sig_d8 = d8_compile(args.d8, android_jar, [final_jar], out_dir / "d8-whole-sig")
         report["checks"]["whole_jar_d8_after_sigbackfill"] = sig_d8
         require(sig_d8["status"] == "PASS", "回填后整包 D8 编译失败: %s" % sig_d8["stderr_tail"])
+        sig_verify = verify_generic_signatures(final_jar, args.java_home)
+        report["steps"]["signature_verify"] = sig_verify
+        require("error" not in sig_verify, "Signature 回填校验无法执行: " + str(sig_verify.get("error")))
+        sig_bad = sorted(name for name, item in sig_verify.items() if not item["present"])
+        require(not sig_bad, "Signature 回填校验失败（缺失或不匹配）: " + ", ".join(sig_bad))
         report["output"] = {
             "game_jar": str(final_jar),
             "game_jar_sha256": sha256_file(final_jar),
