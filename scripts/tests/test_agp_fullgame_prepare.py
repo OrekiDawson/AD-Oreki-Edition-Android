@@ -61,6 +61,8 @@ def make_tree(root: Path) -> Path:
     write(tree / "res" / "drawable" / "$gen__0.xml", GENERATED_DRAWABLE)
     write(tree / "res" / "drawable" / "parent.xml", PARENT_DRAWABLE)
     write(tree / "assets" / "data.txt", "asset")
+    # R111-01 C2：首启更新日志由 Gradle generateChangelogZh 独占生成，阶段目录必须排除英文原文。
+    write(tree / "res" / "raw" / "changelog.txt", "<b>3.21.0</b>\n")
     (tree / "lib" / "arm64-v8a").mkdir(parents=True)
     (tree / "lib" / "arm64-v8a" / "libdemo.so").write_bytes(b"\x7fELF")
     return tree
@@ -80,6 +82,8 @@ class PrepareFullGameTest(unittest.TestCase):
             self.assertIn("kajfosz.antimatterdimensions.MainActivity", manifest)
             self.assertTrue(evidence["manifest_normalized"]["removed_extract_native_libs"])
 
+            self.assertFalse((out / "res" / "raw" / "changelog.txt").exists(), "changelog 必须由 Gradle 生成，不得残留在阶段目录")
+            self.assertTrue(evidence["resources"]["changelog_excluded"])
             stable_ids = (out / "stable-ids.txt").read_text(encoding="utf-8")
             self.assertIn(f"{PACKAGE}:drawable/_aapt_gen__0 = 0x7f080000", stable_ids)
             self.assertIn(f"{PACKAGE}:string/app_name = 0x7f0f0001", stable_ids)

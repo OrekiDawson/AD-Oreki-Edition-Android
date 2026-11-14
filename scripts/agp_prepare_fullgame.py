@@ -181,6 +181,14 @@ def stage_resources(tree_res: Path, out_res: Path) -> tuple[dict[str, str], dict
         shutil.rmtree(out_res)
     shutil.copytree(tree_res, out_res)
 
+    # R111-01 C2：首启更新日志由 Gradle `generateChangelogZh` 在独立输出目录生成，
+    # 阶段目录不再携带英文原文：既避免同名资源双来源，也避免 prepare 的输出在后续任务
+    # 中被外部改写而每轮重跑（输出所有权保持单一）。
+    staged_changelog = out_res / "raw" / "changelog.txt"
+    changelog_excluded = staged_changelog.is_file()
+    if changelog_excluded:
+        staged_changelog.unlink()
+
     renamed: dict[str, str] = {}
     for path in sorted(out_res.rglob("*")):
         if not path.is_file() or "$" not in path.name:
@@ -220,6 +228,7 @@ def stage_resources(tree_res: Path, out_res: Path) -> tuple[dict[str, str], dict
         "staged_dir": out_res.name,
         "generated_renamed": len(renamed),
         "xml_rewritten": rewritten,
+        "changelog_excluded": changelog_excluded,
     }
 
 

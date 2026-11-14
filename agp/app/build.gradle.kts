@@ -94,7 +94,7 @@ android {
     if (fullGame) {
         sourceSets["main"].apply {
             manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
-            res.srcDirs(File(fullGameStage, "res"))
+            res.srcDirs(File(fullGameStage, "res"), File(repoRoot, "build/agp-generated-res"))
             // R110-01 C1：assets 由 prepareFullGameAssets 去重暂存后提供：
             // 解码树里的 oreki_tutorial.txt 一律剔除（旧 build_mod 可能已写入），
             // 统一取 scripts/payload/assets 的提交版本，避免同名资产双来源导致 AGP 资源合并失败。
@@ -157,7 +157,75 @@ if (fullGame) {
 }
 
 if (fullGame) {
-    // R110-01 C1（Issue #52 阶段一）：教程资产校验从 build_mod.py 迁到 Gradle Kotlin DSL。
+    // R111-01 C2（Issue #52 阶段二）：首启更新日志中文化从 build_mod.py 迁到 Gradle Kotlin DSL。
+// 输入：解码树 res/raw/changelog.txt（英文原文，或旧 build_mod 已翻译产物）
+//       + scripts/payload/res/raw/changelog.zh.txt（译文）。
+// 输出：build/agp-generated-res/raw/changelog.txt（本任务独占的独立输出目录）。
+// 阶段目录不再携带 changelog（agp_prepare_fullgame.stage_resources 排除），避免同名资源双来源；
+// 也避免改写 prepareFullGameInputs 的声明输出导致其每轮被判定失效后重跑。
+if (fullGame) {
+    val changelogZhSrc = File(repoRoot, "scripts/payload/res/raw/changelog.zh.txt")
+    val decodedChangelog = File(decodedTree, "res/raw/changelog.txt")
+    val generatedResDir = File(repoRoot, "build/agp-generated-res")
+    val generatedChangelog = File(generatedResDir, "raw/changelog.txt")
+    tasks.register("generateChangelogZh") {
+        group = "oreki"
+        description = "把首启更新日志最新版本段替换为简体中文（等价 build_mod.patch_changelog_zh）"
+        inputs.files(decodedChangelog, changelogZhSrc)
+        outputs.file(generatedChangelog)
+        doLast {
+            val anchor = "<b>3.13.2</b>"
+            val orig = decodedChangelog.readText(Charsets.UTF_8)
+            val zhRaw = changelogZhSrc.readText(Charsets.UTF_8)
+            val versionRegex = Regex("<b>([0-9]+\\.[0-9]+\\.[0-9]+)</b>")
+            fun topVersion(text: String) = versionRegex.find(text)?.groupValues?.get(1)
+            fun bullets(text: String) = text.lines().count { it.startsWith("- ") }
+            fun exactLine(text: String, target: String) = text.lines().count { it == target }
+            val zhTop = topVersion(zhRaw) ?: throw GradleException("译文缺少版本标题: $changelogZhSrc")
+            val zhStart = zhRaw.indexOf("<b>$zhTop</b>")
+            if (zhStart < 0) throw GradleException("译文缺少可定位的顶部版本标题 $zhTop")
+            val expected = zhRaw.substring(zhStart)
+            val translated: String = if (!orig.contains(anchor)) {
+                // 旧 build_mod.patch_changelog_zh 的产物：接受已有翻译，但不做静默覆盖；
+                // 必须与当前译文一致，否则让构建失败而不是悄悄写回另一份内容。
+                if (orig.trimEnd() != expected.trimEnd()) {
+                    throw GradleException("解码树 changelog 既无上游锚点也不等于当前译文，拒绝生成: $decodedChangelog")
+                }
+                orig
+            } else if (orig.split(anchor).size != 2) {
+                throw GradleException("更新日志锚点不唯一: $anchor")
+            } else {
+                val headOrig = orig.substringBefore(anchor)
+                val origTop = topVersion(headOrig) ?: throw GradleException("原文缺少版本标题")
+                val zhMarker = "<b>$origTop</b>"
+                if (!zhRaw.contains(zhMarker)) throw GradleException("译文缺少原文顶部版本 $origTop")
+                val zh = zhRaw.substring(zhRaw.indexOf(zhMarker))
+                if (bullets(zh) != bullets(headOrig)) {
+                    throw GradleException("译文条目数 ${bullets(zh)} != 原文最新段 ${bullets(headOrig)}")
+                }
+                if (zh.contains(anchor)) throw GradleException("译文不应再出现上游锚点: $anchor")
+                listOf("NEW STUFF" to "新增", "IMPROVED STUFF" to "改进", "FIXED STUFF" to "修复", "REMOVED STUFF" to "移除").forEach { (en, cns) ->
+                    if (exactLine(headOrig, en) != exactLine(zh, cns)) {
+                        throw GradleException("小节「$en」数量不一致: ${exactLine(headOrig, en)} / ${exactLine(zh, cns)}")
+                    }
+                }
+                val untranslated = zh.lines().filter { it.startsWith("- ") && it.none { c -> c in '\u4e00'..'\u9fff' } }
+                if (untranslated.isNotEmpty()) throw GradleException("仍有未翻译 bullet: ${untranslated.first().take(80)}")
+                if (!zh.endsWith("\n\n")) throw GradleException("更新日志尾必须是「空行 + 换行」")
+                zh
+            }
+            generatedChangelog.parentFile.mkdirs()
+            generatedChangelog.writeText(translated, Charsets.UTF_8)
+            logger.lifecycle("[oreki] changelog 已中文化: ${bullets(translated)} 条 -> $generatedChangelog")
+        }
+    }
+    // 资源合并必须在本任务之后读取 build/agp-generated-res。
+    tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Resources") }.configureEach {
+        dependsOn("generateChangelogZh")
+    }
+}
+
+// R110-01 C1（Issue #52 阶段一）：教程资产校验从 build_mod.py 迁到 Gradle Kotlin DSL。
     // 源文件 scripts/payload/assets/oreki_tutorial.txt 是已提交的生成物（Web 单源 JSON 生成）。
     // 生产构建不再调用 Python 生成器；这里只做确定性校验，输入/输出显式声明以支持增量缓存。
     val tutorialAsset = File(repoRoot, "scripts/payload/assets/oreki_tutorial.txt")
@@ -211,6 +279,7 @@ tasks.named("preBuild") {
     if (fullGame) {
         dependsOn(prepareFullGameInputs)
         dependsOn("prepareFullGameAssets")
+        dependsOn("generateChangelogZh")
         dependsOn("verifyTutorialAsset")
     }
 }
