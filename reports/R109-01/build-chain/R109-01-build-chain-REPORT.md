@@ -218,11 +218,17 @@ Lead 已下发全队内存规则（同时最多 1 个 Gradle 构建、--no-daemo
 | mapping.txt | 无（R8 OFF） | 10,966,733 B，SHA-256 `f657da87…c7d4`，10,562 类 / 129,417 成员 | — |
 | 构建墙钟 | 1m41s | 2m12s | +31s |
 | 静态 keep 校验（r109_verify_r8_output.py） | 74/74（未过滤版 70/74） | **74/74** | — |
+| Gson 存档字段保留（727 个实例字段，102 类闭包） | 727/727 | **727/727**（经 mapping 翻译后校验） | — |
 
 说明：
 - APK 总大小只降 7.65%，因为 assets 22.5MB + resources.arsc 15.1MB 未变（本实验未开资源收缩）；
   代码体积（DEX）降 34.07%、方法数降 42.49% 才是 R8 的实际作用面。
 - 构建耗时 +31s 是 R8 优化/映射生成成本（暖缓存；冷缓存会更长）。
+- 存档兼容静态验证（`scripts/agp/r109_save_field_check.py`）：从 decoded smali 求出的 Player 存档闭包
+  102 类 / 727 个实例字段（字段名即 Gson 键），R8 ON 输出经 mapping.txt 翻译后 **727/727 全部保留**；
+  R8 重命名了其中 6 个类（`AntimatterDimensionState→i2`、`AutomatorState→s4`、`nc→q15` 等），
+  但 Gson 只用字段名不用类名，故存档格式不受影响。R8 OFF 同项 727/727。证据
+  `reports/R109-01/build-chain/ab-r8on-save-fields.json`。
 - R8 ON 输出 DEX 中含 7 个 **R8 合成的平台存根类**（`SYNTHETIC`，仅 `<clinit>` 抛
   `NoClassDefFoundError`），如 `android/media/MediaDrmThrowable`、`android/text/SegmentFinder`、
   `android/window/OnBackInvokedCallback`；这些类都在 minSdk 32 之上（API 33–35），

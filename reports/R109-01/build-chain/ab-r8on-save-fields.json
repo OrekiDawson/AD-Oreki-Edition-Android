@@ -1,0 +1,8 @@
+{
+  "apk": "build/r109-r8/ab/r8on/app-release.apk",
+  "closure_classes": 102,
+  "expected_fields": 727,
+  "missing_fields": 0,
+  "mapping_used": true,
+  "missing": []
+}
