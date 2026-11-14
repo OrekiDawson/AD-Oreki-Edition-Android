@@ -274,38 +274,53 @@ object OrekiLaitela {
                 return false
             }
 
-            // ---- tier >= 8：唯一目标是 IU25（佩勒入口），不再压现实 ----
+            // ---- tier >= 8：唯一目标是 IU25（佩勒入口）----
+            // [R108-01] 与 Web 冻结上游同源的「DS6 帧竞态」处理：
+            // IU25 的 checkRequirement = isRunning && maxAllowedDimension==0 && DS6 && 符文<=1。
+            // 现实研究 6 一旦买上，下一次现实重置就会清掉；而 run 在位会让 8 层 ID 停产、
+            // EP 停滞 ⇒ 不能提前进 run。正确时序：压住现实 → 等 DS6 在位（用原版 canReality 代理）
+            // + 符文<=1 + IM 够 → 再进 run，下一拍买 IU25。
             if (tier >= 8) {
-                setHold(false)
                 val im = imaginaryMachines()
                 val glyphs = activeGlyphCount()
-                // [R108-01] 周期性调原版 IU 解锁复检 R()V：一次性 IU 的 requirementBits
-                // 无人值守时不会自动刷新，否则 IU25 会「条件全满足但 canBeBought 恒 false」。
+                // 周期性调原版 IU 解锁复检 R()V（一次性 IU 的 requirementBits 无人值守不会自动刷新）
                 if (now - lastIuUnlockAt >= 1_000L) {
                     lastIuUnlockAt = now
                     GameApi.imaginaryTryUnlock("s")
                 }
                 if (iuCanBeBought("s")) {
+                    setHold(false)
                     val ok = iuPurchase("s")
                     logLimited("IU25 purchase ok=" + ok + " im=" + im + " tier=" + tier +
                         " glyphs=" + glyphs + " running=" + isRunning())
                     return ok
                 }
-                // 符文条件是唯一由本 MOD 可主动改善的前置：>1 时调原版卸下全部（限频 30s）
+                // 符文条件是本 MOD 可主动改善的前置：>1 时调原版「卸下全部」（限频 30s）
                 if (glyphs > 1 && now - unequipTriedAt > LOG_MIN_MS) {
                     unequipTriedAt = now
                     val ok = unequipAll()
                     logLimited("IU25 blocked by glyphs=" + glyphs + " unequipAll=" + ok)
                     return ok
                 }
-                // 需要 isRunning + maxAllowed==0：IM 接近成本时才进 run（原版条件仍会再校验）
-                if (!isRunning() && im > 0.0 && iuCanBeBoughtAfterRun(im)) {
+                if (isRunning()) {
+                    // run 在位但仍买不到（多为 DS6 被现实清掉）：放开现实，让重置清 run，下一现实重试
+                    setHold(false)
+                    logLimited("IU25 run-in-place blocked im=" + im + " ds6=" + GameApi.canReality())
+                    return false
+                }
+                val capReady = im >= 4.5e9
+                // 原版 canReality 为 true ⇒ DS6 已在本现实买上（且 maxRM 达标），是可靠的代理判据
+                val ds6Ready = GameApi.canReality()
+                if (capReady && ds6Ready && glyphs <= 1) {
                     val ok = enterRun()
-                    logLimited("IU25 prep enterRun ok=" + ok + " im=" + im + " tier=" + tier)
+                    logLimited("IU25 prep enterRun ok=" + ok + " im=" + im + " ds6=" + ds6Ready +
+                        " glyphs=" + glyphs)
                     return ok
                 }
-                logLimited("IU25 wait im=" + im + " tier=" + tier + " glyphs=" + glyphs +
-                    " running=" + isRunning() + " ds6Gate=原版")
+                // 条件未齐：压住现实（最多 HOLD_MAX_MS），让 EC/DS6 在本现实内达成
+                if (!holdExpired()) setHold(true) else setHold(false)
+                logLimited("IU25 wait im=" + im + " ds6=" + ds6Ready + " glyphs=" + glyphs +
+                    " hold=" + (holdSince != 0L))
                 return false
             }
 

@@ -2157,6 +2157,22 @@ internal object GameApi {
         false
     }
 
+    /**
+     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxRM 达阈值）。
+     *
+     * 用途：莱特拉 tier8 阶段判断「现实研究 6 是否已在本现实买上」，据此决定是否
+     * 立刻进 run 买 IU25（IU25 的 checkRequirement 要 isRunning + maxAllowed==0 + DS6 + 符文≤1）。
+     * 只读原版判定，不写任何状态。
+     */
+    fun canReality(): Boolean = try {
+        val c = cls("kajfosz.antimatterdimensions.prestige.f") ?: return false
+        val m = method(c, "f", 0, "prestige/f.f()=canReality") ?: return false
+        (m.invoke(null) as? Boolean) ?: false
+    } catch (error: Throwable) {
+        miss("canReality", error)
+        false
+    }
+
     /** IU15 是否满足需求且未购买（原版 `qr3.a(Z)Z`）。 */
     fun iu15CanBeBought(): Boolean {
         val upgrade = iu15Obj() ?: return false

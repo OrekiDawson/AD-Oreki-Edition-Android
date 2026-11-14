@@ -160,7 +160,18 @@ object OrekiIu15Sprint {
      */
     @JvmStatic
     fun shouldBlockEcStart(ecId: Int): Boolean = try {
-        isActive() && ecId == 7
+        if (ecId != 7) return false
+        if (isActive()) return true
+        // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
+        // 持续生产 ID8→…→ID1（Web 同款根因），即使 ID 购买被拦住，maxID1 也会变正。
+        // 因此「干净现实 + 上限足够 + 未买 IU15」期间必须连 EC7 一起拦。
+        if (iu15Bought()) return false
+        if (fails >= MAX_FAILS) return false
+        if (System.currentTimeMillis() < cooldownUntil) return false
+        if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
+        if (GameApi.isDoomed()) return false
+        if (!GameApi.iu15AffordableByCap()) return false
+        isCleanReality()
     } catch (_: Throwable) {
         false
     }
