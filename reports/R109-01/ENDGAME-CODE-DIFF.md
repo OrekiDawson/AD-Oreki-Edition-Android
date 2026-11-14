@@ -105,3 +105,39 @@
 - 风险点：`requestGalaxy()` 的 `xm1`/`wm1` 构造是本轮新增反射面，若 3.21 运行期 `xm1` 无参构造不可见会 fail-closed 跳过（不崩、不发资源），日志会出 `OREKI_API_MISS missing requestGalaxy`；此时星系推进缺失，但 maxAll+维度提升仍可推进 AM。
 - 风险点：`Game.l()V` 的 UI 前置门 `prestige/e.f()`（canBigCrunch && !broken）被有意绕过。绕过的是「按钮可见性」，不是购买内部校验（`i()` 内 `D(cost)` 仍逐条判可买、真实扣款）。
 - 未做：Web 的 `deleteAllUnprotected()` 符文仓库清理（Android 无对应已核实 ABI，暂缓）；IU25 若长期被「仓库满 + 符文>1」阻塞，需要下一轮补。
+## 7. 追加：IU25 解锁位机制闭环证据（证明不需要 Kotlin 置位）
+
+- `reality/imaginary_upgrades/ImaginaryUpgradeState$4.smali:250-255`：每个一次性 IU 构造时用
+  `new Lua(upgrade, byte 0x0c)` 建合成 lambda，并注册到它的 `config.checkEvent` 事件（`$events` 逐个 `m91` 事件总线注册）。
+- 该 lambda 执行体（`ua.smali:640-720`，核心 `:282-314`）= Web `imaginary-upgrades.js:83-88 tryUnlock`：
+  `if (!A(true) && checkRequirement()) Player$Reality.j().g(id)`（`BitSet.g(I)V` 才是置位；`e(I)Z` 是读取）。
+- Web 侧 IU15/25 的 checkEvent = `GAME_EVENT.GAME_TICK_AFTER`（web `core/secret-formula/reality/imaginary-upgrades.js:217/364`），
+  Android 同一 config 结构 ⇒ 每 tick 自动复检。
+- ⇒ 只要 `tier==8 && isRunning && DS6 && 符文<=1` 同时成立并保持 ≥1 个 game tick，IU25 requirement bit 自动置位；
+  下一拍 `is3.a(Z)Z` 即 true。这正是 tier8 进 run 驻留上限取 `IU25_RUN_MAX_MS=2000`（熵 0.5/s 需 2s）的依据。
+- `GameApi.imaginaryTryUnlock` 仍是 no-op（`imaginary_upgrades/a` 上没有 `R()`），无害；旧「iuBits 恒 0」是条件从未同时成立，不是位图机制缺失。
+
+## 8. 追加：现实自动化静默门诊断（commit 04aece6f）
+
+`OrekiReality.smali` 的三条早退都是静默的（canReality / 2s 防抖 / `OrekiTeresaAuto.isHolding`），
+AVD 上只能看到「realities 不动 + OREKI_REALITY/PACING 零日志」。已新增只读诊断：
+
+- `OrekiStageAuto.logRealityGateDiagnosticsIfDue()` → 日志 tag `OREKI_REALITY_GATE`，30s 限频、签名变化立即：
+  `canReality=.. ds6=.. maxEP=.. realities=..`。
+- `GameApi.thisRealityMaxEp()`（`Player.records.thisReality.maxEP` 只读桥）。
+- 判读表：
+
+| 观察 | 结论 |
+| --- | --- |
+| canReality=false, ds6=false | 夹具未买膨胀研究 6（`dilation.studies` 不含 6）⇒ 夹具问题 |
+| canReality=false, ds6=true, maxEP<1e4000 | 本现实 EP 未达现实门槛 ⇒ 等 EP，不是代码问题 |
+| canReality=true, 仍无 OREKI_REALITY | 才轮到 Teresa isHolding / 2s 防抖 / pacing 三选一 |
+
+## 9. 提交清单（分支 r109-01/endgame）
+
+| commit | 内容 |
+| --- | --- |
+| 287ceead | 4 文件 Kotlin 终局链修复（+645/-43） |
+| a57a5041 | 本报告（ABI 证据 + canReality 更正 + AVD 验证步骤） |
+| cf8c87fb | `scripts/check_endgame_drivers.py` 轻量静态检查（pass=28 fail=0 PASS） |
+| 04aece6f | 现实静默门只读诊断 `OREKI_REALITY_GATE` + `thisRealityMaxEp()` |
