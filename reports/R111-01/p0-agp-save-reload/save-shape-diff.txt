@@ -1,0 +1,8 @@
+=== AGP-written save (m13 gameEnd) glyph inventory[0] ===
+{"effects": [{"A": {"a": {}, "b": false}, "B": {"a": {}, "b": {}}, "i": "powerpow", "j": 16, "k": 16, "l": 16, "m": "power", "n": {}, "o": {}, "p": {}, "q": {}, "r": {}, "s": {}, "t": {}, "u": {}, "v": {}, "w": {}, "x": "ADDITION", "y": true, "z": true, "c": 0, "e": {}, "h": "", "b": {}}, {"A": {"a": {}, "b": false}, "B": {"a": {}, "b": {}}, "i": "powermult", "j": 17, "k": 17, "l": 17, "m": "power", "n": {}, "o": {}, "p": {}, "q": {}, "r": {}, "s": {}, "t": {}, "v": {}, "w": {}, "x": "EMPOWER", 
+
+=== smali-written save (R110 m5) glyph inventory[0] ===
+{"effects": 983042, "id": 1, "idx": 20, "level": 5000, "rarity": 100.0, "type": "power"}
+
+effect array lengths (m13): [5, 5, 5, 4, 5]
+effect types (R110): ['int', 'int', 'int', 'int', 'int']

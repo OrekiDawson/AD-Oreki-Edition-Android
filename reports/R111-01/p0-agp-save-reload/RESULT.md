@@ -1,58 +1,46 @@
-# R111 P0：AGP 完整游戏候选（R8 OFF）晚期存档重载失败
+# R111 P0：AGP 完整游戏候选（R8 OFF）存档往返失败
 
-## 结论
+## 结论（修正版，已按 Codex P1 复核）
 
-- **AGP 候选 FAIL（存档兼容 P0）**：加载含 Lai'tela 数据的晚期存档时抛
-  `java.lang.ClassCastException: com.google.gson.internal.LinkedTreeMap cannot be cast to kajfosz.antimatterdimensions.celestials.laitela.DarkMatterDimensionState`，
-  游戏回退到 before-first-infinity 新局；**同一存档在 smali 稳定版 APK 上加载正常**。
-- 因此 m13 的 112 分钟通关只证明「新档 → 终局」游戏过程，**不证明 AGP 候选满足存档/重载与发布门禁**；AGP 候选继续 NOT release-ready。
+- **AGP 候选：存档写读双向 FAIL**。m13（AGP 候选）写出的晚期存档，smali 稳定版与 AGP 候选都无法加载；
+  AGP 候选连 smali 版写出的正常晚期存档也无法加载。
+- **smali 稳定版：存档往返 PASS**（用 smali 版写出的 R110 晚期存档实测加载正常、状态保持）。
+- 因此 m13 的 112 分钟通关只证明“单进程内游戏过程 PASS”，**不证明存档兼容与发布门禁**；
+  AGP 候选继续 NOT release-ready，Issue #25 保持 BLOCKED。
 
-## 复现
+## 实测矩阵（AVD ad-game-api37，同一设备、同一存档覆盖方式）
 
-1. 测试 APK：
-   - AGP 候选：`build/r109-r8/c2-generate-verify/r8off/app-release.apk`，SHA-256 `18716d87aa0127cbff7ea0b9186ad85ce0c4ec0e5eece39243aa204f923c909b`
-   - smali 稳定版（对照）：`release/反物质维度.apk`
-2. 存档：`reports/R110-01/avd-evidence/m13-agp-fresh-180/player-430.json`（m13 真实运行第 430 个采样，realities 9、Lai'tela 已解锁）。
-3. AVD `ad-game-api37`：`adb install -r -d <apk>` → 覆盖 files/player.json → 冷启动 → 点击“开始游戏”。
-4. 结果：
-   - AGP 候选：`agp-load-full-logcat.txt` 中 1 条 ClassCastException；`agp-after-load-player.json` 为回退后的新局状态（before-first-infinity）。
-   - smali 稳定版：`smali-load-full-logcat.txt` 中 0 条 ClassCastException；`smali-after-load-player.json` 保持 realities 9 与巨额反物质，游戏继续运行（OREKI_GATE 日志持续输出）。
+| 存档来源 | 存档 | smali 稳定版加载 | AGP R8 OFF 候选加载 |
+|---|---|---|---|
+| AGP（m13 gameEnd） | `player-0001-check.json`（isGameEnd=true, realities=9） | **FAIL** `JsonSyntaxException: Array must have size 1, but has size 5` | **FAIL** `ClassCastException: LinkedTreeMap → DarkMatterDimensionState` |
+| AGP（m13 运行中采样） | `player-430.json` | **FAIL** `Array must have size 1, but has size 2` | **FAIL** `ClassCastException: LinkedTreeMap → DarkMatterDimensionState` |
+| smali（R110 m5，laitela 8） | `control-smali-written-late-save.json` | **PASS**（0 异常，realities/laitela 保持） | **FAIL** `ClassCastException: LinkedTreeMap → DarkMatterDimensionState` |
 
-## 根因（已定位到字段级）
+证据文件：`agp-gameend-save-logcat.txt`、`smali-gameend-save-logcat.txt`、`agp-r110save-logcat.txt`、`smali-r110save-logcat.txt`、`smali-gameend-after.json`、`agp-gameend-after.json`、`smali-r110save-after.json`、`smali-gameend-save-screen.png`。
 
-AGP 完整游戏的游戏代码来自 enjarify 把官方 DEX 转成 JVM class 再经 D8 重新 dex（`game-hybrid-j8-*-nosdk.jar`）。
-enjarify 转换丢失了原版 DEX 里的 `dalvik/annotation/Signature` 泛型签名注解，导致 Gson 反序列化时：
+## 根因
 
-- 原版 `Player$Laitela.dimensions` 声明为 `Ljava/util/List;` 且带 Signature `Ljava/util/List<L...DarkMatterDimensionState;>;`；
-- 候选 APK 中该字段只剩裸 `Ljava/util/List;`（apktool 解码对照）：
-  - 基线：`work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/player/Player$Laitela.smali` 有完整 Signature；
-  - 候选：`/tmp/apk-cand-decode/smali/kajfosz/antimatterdimensions/player/Player$Laitela.smali` 无 Signature；
-- Gson 因此把数组元素反序列化为 `LinkedTreeMap`，原版 `player.h.f()` 的 `check-cast ...DarkMatterDimensionState` 抛异常，加载失败。
+AGP 完整游戏的游戏代码由 enjarify 把官方 DEX 转成 JVM class、再经 D8 重新 dex（`game-hybrid-j8-*-nosdk.jar`）。
+enjarify 转换丢失了原版 DEX 的 `dalvik/annotation/Signature` 泛型签名：
 
-规模化统计（按类比对 base smali 与候选 decode）：
+- 按类比对：base 含 Signature 的 **2,403** 个类中，候选缺失 **2,377**（98.9%）；
+- 具体字段：`Player$Laitela.dimensions` 基线为 `List<DarkMatterDimensionState>`（带 Signature），候选中只剩裸 `Ljava/util/List;`；
+- Gson 的 TypeToken/泛型适配因此失配：
+  - **读**：列表元素被反序列化为 `LinkedTreeMap`，原版 `player.h.f()` 的 `check-cast` 抛 ClassCastException；
+  - **写**：原本以数字位掩码序列化的 glyph effects（正常存档为 `983042` 这样的 int）被写成展开对象数组（AGP 存档中为 4–5 个对象），
+    smali 稳定版读到时触发原版 `Array must have size 1, but has size N` 的 JsonSyntaxException。
+- 结论：不是单字段，而是**存档格式读写双向不兼容**；凡依赖泛型/自定义适配的 Gson 路径都可能出错。
 
-- base 含 `Ldalvik/annotation/Signature;` 的类：**2,403**；
-- 候选中对应类丢失该注解：**2,377**（约 98.9%）。
+## 影响与后续
 
-说明这不是单字段问题，而是 enjarify JAR 转换的系统性元数据丢失；凡依赖泛型信息的 Gson/反射路径都可能受影响。
-（`apex` 输入与转换产物的其他缺陷已在 R107 记录：33.6% 类 JVMS 不可校验、Tick 阻塞等。）
-
-## 影响
-
-- AGP 候选不能作为正式发布或稳定版来源（存档兼容门禁 FAIL）。
-- 已发布稳定版（smali 链）不受影响，继续作为唯一合格版本。
-- Issue #25（AGP 原生完整游戏）仍 BLOCKED；修复方向：转换器保留 DEX 注解/泛型签名（Signature、Throws、AnnotationDefault 等），
-  或对 D8 产物做注解回填（需要严格验证，不得用改业务代码绕过）。
-
-## 证据文件
-
-- `agp-load-full-logcat.txt`（AGP 候选加载失败日志，含 stack）
-- `agp-after-load-player.json`（失败后回退状态）
-- `smali-load-full-logcat.txt`（smali 稳定版加载成功日志）
-- `smali-after-load-player.json`（成功加载后的状态）
+- AGP 候选不能作为 Candidate/Release 来源；已发布 smali 稳定版不受影响。
+- 修复方向（#25）：转换器必须保留 DEX 注解与泛型签名（Signature 等），或实现经过严格验证的注解回填；
+  禁止通过改游戏业务代码、吞异常或伪造 PASS 绕过。
+- 修复后必须重跑：AGP 写存档 → smali 读、smali 写存档 → AGP 读、AGP 自身读写往返，均为真实 AVD 验证。
 
 ## 状态
 
-- 游戏过程（m13 新档 112 分钟通关）：**PASS（限游戏运行本身）**
-- 存档重载：AGP 候选 **FAIL**；smali 稳定版 **PASS**
-- 发布门禁：AGP 候选 **BLOCKED（不得发布）**
+- 游戏过程（m13 新档 → gameEnd）：PASS（限单进程内）
+- smali 稳定版存档往返：PASS（R110 晚期存档实测）
+- AGP 候选存档往返：FAIL
+- 发布门禁：AGP 候选 BLOCKED
