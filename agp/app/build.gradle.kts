@@ -93,6 +93,8 @@ android {
             manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
             res.srcDirs(File(fullGameStage, "res"))
             assets.srcDirs(File(decodedTree, "assets"))
+            // R110-01 C1：教程资产由 scripts/payload/assets 直接提供（不再经 build_mod 生成/复制）
+            assets.srcDirs(File(repoRoot, "scripts/payload/assets"))
             jniLibs.srcDirs(File(decodedTree, "lib"))
         }
         androidResources {
@@ -149,10 +151,45 @@ if (fullGame) {
     }
 }
 
+if (fullGame) {
+    // R110-01 C1（Issue #52 阶段一）：教程资产校验从 build_mod.py 迁到 Gradle Kotlin DSL。
+    // 源文件 scripts/payload/assets/oreki_tutorial.txt 是已提交的生成物（Web 单源 JSON 生成）。
+    // 生产构建不再调用 Python 生成器；这里只做确定性校验，输入/输出显式声明以支持增量缓存。
+    val tutorialAsset = File(repoRoot, "scripts/payload/assets/oreki_tutorial.txt")
+    tasks.register("verifyTutorialAsset") {
+        group = "verification"
+        description = "校验已提交的教程资产结构/编码/规模（不依赖 Python）"
+        inputs.file(tutorialAsset).withPropertyName("orekiTutorialAsset")
+        doLast {
+            if (!tutorialAsset.isFile) throw GradleException("缺少教程资产: $tutorialAsset")
+            val bytes = tutorialAsset.readBytes()
+            if (bytes.isEmpty()) throw GradleException("教程资产为空")
+            if (bytes.size > 2 * 1024 * 1024) throw GradleException("教程资产超过 2MB 上限")
+            if (bytes.size >= 3 && bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()) {
+                throw GradleException("教程资产带 UTF-8 BOM")
+            }
+            val text = bytes.toString(Charsets.UTF_8)
+            if (!text.contains("游戏内教程正文（构建期生成，请勿手改）")) {
+                throw GradleException("教程资产缺少文件头标记")
+            }
+            val ch = text.lineSequence().count { it.startsWith("CH|") }
+            val ph = text.lineSequence().count { it.startsWith("PH|") }
+            if (ph != 8) throw GradleException("PH 阶段提示应为 8 条，实际 $ph")
+            val marker = Regex("章节数: (\\d+)").find(text)
+                ?: throw GradleException("教程资产缺少「章节数: N」标记")
+            val declared = marker.groupValues[1].toInt()
+            if (ch != declared) throw GradleException("CH 记录 $ch != 章节数 $declared")
+            if (text.contains("|src/")) throw GradleException("教程资产出现源码路径（|src/）")
+            logger.lifecycle("[oreki] 教程资产校验通过: ${bytes.size} 字节 / $ch 章 / $ph 阶段提示")
+        }
+    }
+}
+
 tasks.named("preBuild") {
     dependsOn(generateKotlinBindings)
     if (fullGame) {
         dependsOn(prepareFullGameInputs)
+        dependsOn("verifyTutorialAsset")
     }
 }
 
