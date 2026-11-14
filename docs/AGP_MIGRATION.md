@@ -6,6 +6,12 @@
 > 三种边界：研究评估无需新授权；完整替换须用户明确批准；正式发布门禁全部满足。迁移只改变构建链，不改变基线。AGP-only 门禁与 fail-closed
 > 规则继续有效（见 `docs/DELIVERY_RULES.md` 第 5 节）。
 
+> **基线冻结（2026-11-13）**：本文档所有 AGP 迁移均针对**冻结的官方 Android 3.21.0**
+> （base APK `4e9970a8…f527ac`、XAPK `ad1b367e…`、versionCode `30210000`），不因上游发版重做或
+> 改变目标基线。完整基线替换需满足 `AGENTS.md` 第 9 节 / `docs/DELIVERY_RULES.md` 第 6.5 节
+> 三种边界：研究评估无需新授权；完整替换须用户明确批准；正式发布门禁全部满足。迁移只改变构建链，不改变基线。AGP-only 门禁与 fail-closed
+> 规则继续有效（见 `docs/DELIVERY_RULES.md` 第 5 节）。
+
 ## 固定版本与兼容性
 
 | 项目 | 版本 | 说明 |

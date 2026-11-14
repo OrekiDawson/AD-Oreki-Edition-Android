@@ -1,0 +1,155 @@
+name: Android R8 实验构建（不发布）
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'agp/**'
+      - 'scripts/payload/kotlin/**'
+      - 'scripts/payload/smali/**'
+      - 'scripts/tests/test_agp_r8_experiment.py'
+      - '.github/workflows/r8-experiment.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  r8-experiment:
+    name: R8 优化前后 Release 对照（不发布）
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 检出实验源码
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: 配置 JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: 配置 Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: 配置 Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: 运行 R8 DSL 与 ABI Keep 单测
+        run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
+      - name: 构建未启用 R8 的 Release 对照 APK
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if bash ./gradlew -p agp :app:assembleRelease --rerun-tasks --no-daemon --console=plain; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            echo "重试 Release 对照构建（第 $((attempt + 1)) 次）：依赖下载可能暂时受限"
+            sleep 20
+          done
+          mkdir -p r8-evidence/baseline
+          apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：未找到未启用 R8 的 Release APK'; exit 1; }
+          cp "$apk" r8-evidence/baseline/
+      - name: 构建显式启用 R8 的 Release 实验 APK
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if bash ./gradlew -p agp :app:assembleRelease -Poreki.r8=true --rerun-tasks --no-daemon --console=plain; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            echo "重试 R8 Release 构建（第 $((attempt + 1)) 次）：依赖下载可能暂时受限"
+            sleep 20
+          done
+          mkdir -p r8-evidence/optimized
+          apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：未找到启用 R8 的 Release APK'; exit 1; }
+          cp "$apk" r8-evidence/optimized/
+      - name: 记录 APK、mapping 与 DEX 保留统计
+        run: |
+          set -euo pipefail
+          mapping='agp/app/build/outputs/mapping/release/mapping.txt'
+          if [ -f "$mapping" ]; then
+            cp "$mapping" r8-evidence/optimized/mapping.txt
+          fi
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import zipfile
+
+          root = pathlib.Path('r8-evidence')
+          rows = []
+          for variant in ('baseline', 'optimized'):
+              apk = next((root / variant).glob('*.apk'))
+              with zipfile.ZipFile(apk) as zf:
+                  dex = [x for x in zf.namelist() if x.startswith('classes') and x.endswith('.dex')]
+              mapping = root / variant / 'mapping.txt'
+              mapping_text = mapping.read_text(encoding='utf-8', errors='replace') if mapping.is_file() else ''
+              mapping_classes = sum(
+                  1 for line in mapping_text.splitlines()
+                  if ' -> ' in line and not line.startswith((' ', '\t')) and line.rstrip().endswith(':')
+              )
+              mapping_members = sum(
+                  1 for line in mapping_text.splitlines()
+                  if ' -> ' in line and line.startswith((' ', '\t'))
+              )
+              rows.append({
+                  'variant': variant,
+                  'apk': str(apk),
+                  'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(),
+                  'size_bytes': apk.stat().st_size,
+                  'dex_files': len(dex),
+                  'mapping_present': mapping.is_file(),
+                  'mapping_sha256': hashlib.sha256(mapping.read_bytes()).hexdigest() if mapping.is_file() else None,
+                  'mapping_class_entries': mapping_classes,
+                  'mapping_member_entries': mapping_members,
+                  'avd': 'NOT RUN: experimental workflow does not publish or promote APKs',
+              })
+          (root / 'comparison.json').write_text(json.dumps(rows, indent=2) + '\n')
+          print(json.dumps(rows, indent=2))
+          PY
+      - name: 记录类与方法保留统计
+        run: |
+          set -euo pipefail
+          apkanalyzer_bin="$(command -v apkanalyzer || true)"
+          if [ -z "$apkanalyzer_bin" ] && [ -n "${ANDROID_HOME:-}" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer" ]; then
+            apkanalyzer_bin="$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer"
+          fi
+          test -n "$apkanalyzer_bin" || { echo 'FAIL：Android SDK 未提供 apkanalyzer，无法记录类与方法保留统计'; exit 1; }
+          for variant in baseline optimized; do
+            apk="$(find "r8-evidence/$variant" -maxdepth 1 -type f -name '*.apk' -print -quit)"
+            test -n "$apk" || { echo "FAIL：$variant 缺少 APK"; exit 1; }
+            "$apkanalyzer_bin" dex packages --defined-only "$apk" > "r8-evidence/$variant/dex-packages.txt"
+            awk '/^ *C / { classes++ } /^ *M / { methods++ } END { printf "classes=%d\nmethods=%d\n", classes + 0, methods + 0 }' "r8-evidence/$variant/dex-packages.txt" > "r8-evidence/$variant/class-method-counts.txt"
+          done
+          python3 - <<'PY'
+          import json
+          import pathlib
+
+          root = pathlib.Path('r8-evidence')
+          stats = {}
+          for variant in ('baseline', 'optimized'):
+              values = {}
+              for line in (root / variant / 'class-method-counts.txt').read_text().splitlines():
+                  key, value = line.split('=', 1)
+                  values[key] = int(value)
+              stats[variant] = values
+          (root / 'class-method-stats.json').write_text(json.dumps(stats, indent=2) + '\n')
+          print(json.dumps(stats, indent=2))
+          PY
+      - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
+        run: |
+          set -euo pipefail
+          if bash ./gradlew -p agp :app:tasks --all --no-daemon --console=plain | grep -q 'analyzeReleaseR8Config'; then
+            bash ./gradlew -p agp :app:analyzeReleaseR8Config --no-daemon --console=plain
+          else
+            echo 'NOT RUN：当前 AGP 任务列表未提供 analyzeReleaseR8Config'
+          fi
+      - name: 上传 R8 对照证据（不用于发布）
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-r8-experiment-${{ github.sha }}
+          path: r8-evidence
+          if-no-files-found: error

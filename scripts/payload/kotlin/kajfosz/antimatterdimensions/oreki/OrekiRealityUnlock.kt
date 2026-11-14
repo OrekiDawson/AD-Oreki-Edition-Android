@@ -86,8 +86,8 @@ object OrekiRealityUnlock {
 
     /** 按方法名 + 0 参数在类层次里查找 int 返回的方法（I()=completions、L()=maxCompletions）。 */
     private fun intOf(target: Any?, name: String): Int? {
-        val c = target?.javaClass ?: return null
-        val key = c.name + "#" + name
+        val clazz = target?.javaClass ?: return null
+        val key = clazz.name + "#" + name
         val cached = intMethodCache[key]
         if (cached != null) {
             return try {
@@ -97,7 +97,7 @@ object OrekiRealityUnlock {
             }
         }
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name == name && m.parameterCount == 0 && m.returnType == java.lang.Integer.TYPE) {
@@ -124,9 +124,9 @@ object OrekiRealityUnlock {
     }
 
     private fun isFullyCompleted(id: Int): Boolean {
-        val c = challenge(id) ?: return false
-        val comps = intOf(c, "I") ?: return false
-        val max = intOf(c, "L") ?: return false
+        val challengeObj = challenge(id) ?: return false
+        val comps = intOf(challengeObj, "I") ?: return false
+        val max = intOf(challengeObj, "L") ?: return false
         return max > 0 && comps >= max
     }
 
@@ -156,12 +156,12 @@ object OrekiRealityUnlock {
     private val none = Any()
 
     private fun mOf(target: Any?, name: String, paramCount: Int): Method? {
-        val c = target?.javaClass ?: return null
-        val key = c.name + "#" + name + "/" + paramCount
+        val clazz = target?.javaClass ?: return null
+        val key = clazz.name + "#" + name + "/" + paramCount
         val cached = mCache[key]
         if (cached != null) return cached as? Method
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name == name && m.parameterCount == paramCount) {
@@ -210,10 +210,10 @@ object OrekiRealityUnlock {
 
     /** c01.a(8).B()：膨胀研究5（TD8）是否已购。 */
     private fun td8Bought(): String = try {
-        val c01 = cls("c01") ?: return "?"
-        val study = staticM(c01, "a", 1)?.invoke(null, 8) ?: return "?"
-        val b = callM(study, "B", 0) as? Boolean ?: return "?"
-        b.toString()
+        val dilationStudyClass = cls("c01") ?: return "?"
+        val study = staticM(dilationStudyClass, "a", 1)?.invoke(null, 8) ?: return "?"
+        val bought = callM(study, "B", 0) as? Boolean ?: return "?"
+        bought.toString()
     } catch (_: Throwable) {
         "?"
     }
@@ -234,14 +234,14 @@ object OrekiRealityUnlock {
     /** t3.g() 全部 preReality 成就 isUnlocked==true（null/empty 视为 true，与原版 smali 一致）。 */
     private fun preRealityEvery(): String {
         return try {
-        val t3 = cls("t3") ?: return "?"
-        val list = staticM(t3, "g", 0)?.invoke(null) ?: return "true"
-        val l = list as? java.util.List<*> ?: return "?"
-        val size = l.size
+        val achievementsClass = cls("t3") ?: return "?"
+        val list = staticM(achievementsClass, "g", 0)?.invoke(null) ?: return "true"
+        val items = list as? java.util.List<*> ?: return "?"
+        val size = items.size
         if (size == 0) return "true"
         var i = 0
         while (i < size) {
-            val item = l.get(i) ?: return "?"
+            val item = items.get(i) ?: return "?"
             val achUnlocked = callM(item, "A", 0) as? Boolean ?: return "?"
             if (!achUnlocked) return "false"
             i++
@@ -254,8 +254,8 @@ object OrekiRealityUnlock {
 
     /** pelle.c.q() = Player.p().d().b()（Pelle isDoomed）。 */
     private fun pelleDoomed(): String = try {
-        val c = cls("kajfosz.antimatterdimensions.celestials.pelle.c") ?: return "?"
-        val v = staticM(c, "q", 0)?.invoke(null) as? Boolean ?: return "?"
+        val clazz = cls("kajfosz.antimatterdimensions.celestials.pelle.c") ?: return "?"
+        val v = staticM(clazz, "q", 0)?.invoke(null) as? Boolean ?: return "?"
         v.toString()
     } catch (_: Throwable) {
         "?"
@@ -266,7 +266,7 @@ object OrekiRealityUnlock {
             val now = android.os.SystemClock.elapsedRealtime()
             if (ds6At != 0L && now - ds6At < 1000L) return
             ds6At = now
-            val td8 = td8Bought()
+            val td8BoughtState = td8Bought()
             val maxExp = maxEpExponent()
             val every = preRealityEvery()
             val doomed = pelleDoomed()
@@ -276,8 +276,8 @@ object OrekiRealityUnlock {
                 false
             }
             val everyOk = every == "true" || waiver
-            val result = td8 == "true" && expOk && everyOk && doomed == "false"
-            val line = "td8=" + td8 + " maxEPexp=" + maxExp + " preRealityEvery=" + every +
+            val result = td8BoughtState == "true" && expOk && everyOk && doomed == "false"
+            val line = "td8=" + td8BoughtState + " maxEPexp=" + maxExp + " preRealityEvery=" + every +
                 " waiverEffective=" + waiver + " pelleDoomed=" + doomed +
                 " original=" + original + " result=" + result
             if (line != lastDs6) {

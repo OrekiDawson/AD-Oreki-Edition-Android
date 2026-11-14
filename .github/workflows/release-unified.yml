@@ -1,4 +1,4 @@
-name: Android stable release (unified hosted four-channel)
+name: Android 稳定版正式发布（统一托管四渠道）
 
 # Fail closed: a stable publication needs every one of the following, verified by content:
 #   * the exact successful public Android candidate run,
@@ -58,7 +58,7 @@ env:
 
 jobs:
   gate:
-    name: Match pinned acceptance, candidate artifact and verification receipt
+    name: 匹配锁定的验收、候选 Artifact 与验签回执
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: stable-release
@@ -70,7 +70,7 @@ jobs:
       acceptance_blob_sha: ${{ steps.fetch_acceptance.outputs.acceptance_blob_sha }}
     steps:
       - name: Check out the public gate policy and verifier
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Validate explicit release intent
         env:
           CONFIRM: ${{ inputs.confirm }}
@@ -147,14 +147,14 @@ jobs:
           echo "acceptance_commit=$ACCEPTANCE_COMMIT" >> "$GITHUB_OUTPUT"
           echo "acceptance_blob_sha=$blob_sha" >> "$GITHUB_OUTPUT"
       - name: Download the exact candidate artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-candidate
           run-id: ${{ inputs.candidate_run_id }}
           github-token: ${{ github.token }}
           path: candidate
       - name: Download the exact verification receipt
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-verification
           run-id: ${{ inputs.verification_run_id }}
@@ -162,6 +162,23 @@ jobs:
           path: verification
       - name: Refuse legacy or unproven APK before any release authorization
         run: python3 scripts/enforce_agp_only.py artifact --candidate-dir candidate
+      - name: Block reused Android versionCode and unreleased MOD version state
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, sys
+          policy = json.loads(pathlib.Path("scripts/release-gate-policy.json").read_text(encoding="utf-8"))
+          candidate = json.loads(pathlib.Path("candidate/candidate-metadata.json").read_text(encoding="utf-8"))
+          code = int(policy["versionCode"])
+          last_stable = int(policy["lastPublishedVersionCode"])
+          if code <= last_stable:
+              sys.exit(f"FAIL: A NEW stable APK must increase versionCode: {code} <= {last_stable}")
+          if policy.get("modVersionState") != "ready-for-release":
+              sys.exit("FAIL: MOD version identity has not been reviewed for stable release")
+          if candidate.get("versionName") != policy.get("versionName") or str(candidate.get("versionCode")) != str(code):
+              sys.exit("FAIL: Candidate version differs from reviewed release identity")
+          print("PASS: Strict versionCode increment and approved MOD version identity")
+          PY
       - name: Enforce the fail-closed release gate
         id: gate
         env:
@@ -254,7 +271,7 @@ jobs:
 
 
   publish:
-    name: Deliver exact APK to GitHub Releases, OneDrive and Google Drive
+    name: 将精确 APK 发布到 GitHub Releases、OneDrive 和 Google Drive
     needs: gate
     runs-on: ubuntu-latest
     environment: stable-release
@@ -272,12 +289,12 @@ jobs:
       AD_GDRIVE_DIR: ${{ vars.AD_GDRIVE_DIR }}
     steps:
       - name: Checkout exactly the audited uploader commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.delivery_tool_sha }}
           persist-credentials: false
       - name: Checkout mandatory AGP policy from this release workflow commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           path: agp-policy
@@ -316,7 +333,7 @@ jobs:
           test -s "$conf" && chmod 600 "$conf"
           echo "RCLONE_CONFIG=$conf" >> "$GITHUB_ENV"
       - name: Download approved candidate artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-candidate
           run-id: ${{ inputs.candidate_run_id }}
@@ -420,7 +437,7 @@ jobs:
           PY
       - name: Upload channel status artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ad-oreki-unified-release-status
           path: ${{ runner.temp }}/unified-release-status.json

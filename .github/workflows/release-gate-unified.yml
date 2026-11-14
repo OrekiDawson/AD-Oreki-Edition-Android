@@ -1,4 +1,4 @@
-name: Android release acceptance gate (migration, no publish)
+name: Android 稳定版发布验收（迁移阶段，不发布）
 
 # Fail closed: a stable publication needs every one of the following, verified by content:
 #   * the exact successful public Android candidate run,
@@ -58,7 +58,7 @@ env:
 
 jobs:
   gate:
-    name: Match pinned acceptance, candidate artifact and verification receipt
+    name: 匹配锁定的验收、候选 Artifact 与验签回执
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: android-release-review
@@ -70,7 +70,7 @@ jobs:
       acceptance_blob_sha: ${{ steps.fetch_acceptance.outputs.acceptance_blob_sha }}
     steps:
       - name: Check out the public gate policy and verifier
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Validate explicit release intent
         env:
           CONFIRM: ${{ inputs.confirm }}
@@ -147,14 +147,14 @@ jobs:
           echo "acceptance_commit=$ACCEPTANCE_COMMIT" >> "$GITHUB_OUTPUT"
           echo "acceptance_blob_sha=$blob_sha" >> "$GITHUB_OUTPUT"
       - name: Download the exact candidate artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-candidate
           run-id: ${{ inputs.candidate_run_id }}
           github-token: ${{ github.token }}
           path: candidate
       - name: Download the exact verification receipt
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-verification
           run-id: ${{ inputs.verification_run_id }}

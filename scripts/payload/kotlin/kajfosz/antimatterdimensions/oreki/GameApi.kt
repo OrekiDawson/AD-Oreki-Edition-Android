@@ -884,15 +884,15 @@ internal object GameApi {
         val cmpZero = compareToDouble(realities, 0.0) ?: return true
         if (cmpZero <= 0) return true
         return try {
-            val p = player() ?: return true
+            val playerObj = player() ?: return true
             if (!mDilationResolved) {
                 mDilationResolved = true
                 mDilationGetter = try {
-                    p.javaClass.getMethod("t")
+                    playerObj.javaClass.getMethod("t")
                 } catch (_: Throwable) {
                     null
                 }
-                val dilation = mDilationGetter?.invoke(p)
+                val dilation = mDilationGetter?.invoke(playerObj)
                 mDilationStudiesGetter = dilation?.let {
                     try {
                         it.javaClass.getMethod("h")
@@ -901,7 +901,7 @@ internal object GameApi {
                     }
                 }
             }
-            val dilation = mDilationGetter?.invoke(p) ?: return true
+            val dilation = mDilationGetter?.invoke(playerObj) ?: return true
             @Suppress("UNCHECKED_CAST")
             val studies = mDilationStudiesGetter?.invoke(dilation) as? List<*> ?: return true
             studies.none { (it as? Number)?.toInt() == 6 }
@@ -1136,8 +1136,8 @@ internal object GameApi {
     }
     fun autoEternityCanRun(): Boolean = try {
         val state = call(mAutoEternityState(), auto()) ?: return false
-        val m = method(eternityAutobuyerCls(), "c", 0, "EternityAutobuyerState.c()=canRun") ?: return false
-        (call(m, state) as? Boolean) ?: false
+        val methodRef = method(eternityAutobuyerCls(), "c", 0, "EternityAutobuyerState.c()=canRun") ?: return false
+        (call(methodRef, state) as? Boolean) ?: false
     } catch (e: Throwable) { miss("autoEternityCanRun", e); false }
 
     /**
@@ -1553,9 +1553,9 @@ internal object GameApi {
      * 维度提升 / 星系 / 大坍缩的 `g()` **没有**该字段（纯挑战完成位），读不到返回 null。
      */
     fun isAutobuyerUnlockedFlag(a: Any?): Boolean? {
-        val f = autobuyerUnlockField(a) ?: return null
+        val unlockField = autobuyerUnlockField(a) ?: return null
         return try {
-            f.getBoolean(a)
+            unlockField.getBoolean(a)
         } catch (error: Throwable) {
             miss("read isUnlocked", error)
             null
@@ -1567,11 +1567,11 @@ internal object GameApi {
      * 字段不存在（维度提升/星系/大坍缩）返回 null，调用方必须自行区分「不支持」与「写失败」。
      */
     fun setAutobuyerUnlockedFlag(a: Any?, value: Boolean): Boolean? {
-        val f = autobuyerUnlockField(a) ?: return null
+        val unlockField = autobuyerUnlockField(a) ?: return null
         return try {
-            f.setBoolean(a, value)
+            unlockField.setBoolean(a, value)
             markAutobuyerUiDirty()
-            f.getBoolean(a)
+            unlockField.getBoolean(a)
         } catch (error: Throwable) {
             miss("write isUnlocked", error)
             null
@@ -1580,10 +1580,10 @@ internal object GameApi {
 
     private fun autobuyerUnlockField(a: Any?): Field? {
         if (a == null) return null
-        val c = a.javaClass
-        return autobuyerUnlockFieldCache.getOrPut(c) {
+        val clazz = a.javaClass
+        return autobuyerUnlockFieldCache.getOrPut(clazz) {
             try {
-                c.getDeclaredField("isUnlocked").apply { isAccessible = true }
+                clazz.getDeclaredField("isUnlocked").apply { isAccessible = true }
             } catch (_: NoSuchFieldException) {
                 null
             } catch (error: Throwable) {
@@ -2191,10 +2191,10 @@ internal object GameApi {
             }
             if (iuUnlockMethod == null) Log.i("OREKI_IU_BUY", "IU.R() 不存在：改用原版实时条件判定")
         }
-        val m = iuUnlockMethod ?: return true
+        val method = iuUnlockMethod ?: return true
         val holder = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.b") ?: return false
         val upgrade = staticField(holder, fieldName)?.get(null) ?: return false
-        m.invoke(upgrade)
+        method.invoke(upgrade)
         true
     } catch (error: Throwable) {
         false
@@ -2208,9 +2208,9 @@ internal object GameApi {
      * 只读原版判定，不写任何状态。
      */
     fun canReality(): Boolean = try {
-        val c = cls("kajfosz.antimatterdimensions.prestige.f") ?: return false
-        val m = method(c, "f", 0, "prestige/f.f()=canReality") ?: return false
-        (m.invoke(null) as? Boolean) ?: false
+        val clazz = cls("kajfosz.antimatterdimensions.prestige.f") ?: return false
+        val methodRef = method(clazz, "f", 0, "prestige/f.f()=canReality") ?: return false
+        (methodRef.invoke(null) as? Boolean) ?: false
     } catch (error: Throwable) {
         miss("canReality", error)
         false
@@ -2501,8 +2501,8 @@ internal object GameApi {
     /** `m01.n(Z)V` —— Z=false 维度提升，Z=true 反物质星系（原版请求入口）。 */
     fun requestPrestigeReset(isGalaxy: Boolean) {
         try {
-            val m = method(prestigeHelperCls(), "n", 1, "m01.n(Z)=prestige reset")
-            call(m, null, isGalaxy)
+            val methodRef = method(prestigeHelperCls(), "n", 1, "m01.n(Z)=prestige reset")
+            call(methodRef, null, isGalaxy)
         } catch (e: Throwable) { miss("m01.n(Z)", e) }
     }
 
@@ -2521,27 +2521,27 @@ internal object GameApi {
      * 两次都失败才返回 null（调用方按不可读处理，不会误动作）。
      */
     fun antimatterValue(): Any? {
-        val c = antimatterCurrency() ?: return null
+        val currency = antimatterCurrency() ?: return null
         try {
-            val m = c.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 }
-            if (m != null) {
-                val direct = m.invoke(c)
+            val method = currency.javaClass.methods.firstOrNull { it.name == "K" && it.parameterCount == 0 }
+            if (method != null) {
+                val direct = method.invoke(currency)
                 if (direct != null) return direct
             }
         } catch (e: Throwable) {
             miss("op0.K()", e)
         }
-        return currencyValue(c)
+        return currencyValue(currency)
     }
     /** 给反物质加回一个增量（`op0.C(BigDouble)` 的原版 add 语义，会同步 records）。 */
     fun addAntimatter(delta: Any?) {
         if (delta == null) return
-        val c = antimatterCurrency() ?: return
-        val m = c.javaClass.methods.firstOrNull {
+        val currency = antimatterCurrency() ?: return
+        val method = currency.javaClass.methods.firstOrNull {
             it.name == "C" && it.parameterCount == 1 &&
                 it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
         } ?: run { miss("op0.C(BigDouble)", null); return }
-        try { m.invoke(c, delta) } catch (e: Throwable) { miss("op0.C(BigDouble)", e) }
+        try { method.invoke(currency, delta) } catch (e: Throwable) { miss("op0.C(BigDouble)", e) }
     }
     // ---------------------------------------------------------------- BitSet / 其它
 
@@ -2845,9 +2845,9 @@ internal object GameApi {
         if (!mEternityEconomyResolved) {
             mEternityEconomyResolved = true
             mEternityEconomy = try {
-                val c = eternityCls() ?: return null
+                val clazz = eternityCls() ?: return null
                 arrayOf("buyTimeTheorems", "buyTimeDimensions", "buyNormalStudies").map { name ->
-                    c.getDeclaredMethod(name).apply { isAccessible = true }
+                    clazz.getDeclaredMethod(name).apply { isAccessible = true }
                 }.toTypedArray()
             } catch (_: Throwable) {
                 null
@@ -3375,21 +3375,24 @@ internal object GameApi {
      * ⇒ 只有 `false` 会真正执行维度提升；需求 BigDouble = `m01.h()`。
      * 这里先用原版需求复判（本 MOD 不写任何提升计数），再调用同一入口。
      */
-    fun requestDimensionBoost(): Boolean = try {
-        val requirement = dimensionBoostRequirement() ?: return false
-        val antimatter = antimatterValue() ?: return false
-        val cmp = compareBigDouble(antimatter, requirement) ?: return false
-        if (cmp < 0) return false
-        val m = method(
-            prestigeHelperCls(), "n", 1, "m01.n(Z)=dimensionBoostRequest",
-            paramTypeNames = listOf("boolean"),
-        ) ?: return false
-        m.invoke(null, false)
-        true
-    } catch (e: Throwable) {
-        miss("requestDimensionBoost", e)
-        false
+    fun requestDimensionBoost(): Boolean {
+        return try {
+            val requirement = dimensionBoostRequirement() ?: return false
+            val antimatter = antimatterValue() ?: return false
+            val cmp = compareBigDouble(antimatter, requirement) ?: return false
+            if (cmp < 0) return false
+            val m = method(
+                prestigeHelperCls(), "n", 1, "m01.n(Z)=dimensionBoostRequest",
+                paramTypeNames = listOf("boolean"),
+            ) ?: return false
+            m.invoke(null, false)
+            true
+        } catch (e: Throwable) {
+            miss("requestDimensionBoost", e)
+            false
+        }
     }
+
 
     /**
      * 原版「反物质星系」请求入口：`prestige/d.b(Continuation)`（Galaxy.galaxyReset）。
@@ -3398,34 +3401,37 @@ internal object GameApi {
      * 也执行一次 galaxyReset（那会凭空 +1 星系）。`wm1` 的构造与 UI 按钮 ti2.java:870 完全一致：
      * `new xm1()` → `xm1.a(Player.A())` 取需求、`xm1.i` 取维度层 → `new wm1(requirement, tier)`。
      */
-    fun requestGalaxy(): Boolean = try {
-        val galaxyCls = cls("kajfosz.antimatterdimensions.prestige.d") ?: return false
-        val xm1Cls = cls("xm1") ?: return false
-        val wm1Cls = cls("wm1") ?: return false
-        val galaxies = galaxies() ?: return false
-        val bdCls = bigDoubleCls() ?: return false
-        val xm = xm1Cls.getDeclaredConstructor().newInstance()
-        val reqMethod = method(
-            xm1Cls, "a", 1, "xm1.a(J)=galaxyRequirement",
-            paramTypeNames = listOf("long"),
-        ) ?: return false
-        val requirement = reqMethod.invoke(xm, galaxies) ?: return false
-        val tier = xm1Cls.getField("i").getInt(xm)
-        val wm = wm1Cls.getDeclaredConstructor(bdCls, java.lang.Integer.TYPE)
-            .newInstance(requirement, java.lang.Integer.valueOf(tier))
-        val canMethod = method(
-            galaxyCls, "a", 1, "Galaxy.a(wm1)=canBeBought",
-            paramTypeNames = listOf("wm1"),
-        ) ?: return false
-        if (canMethod.invoke(null, wm) != true) return false
-        val galaxy = staticField(galaxyCls, "a")?.get(null) ?: return false
-        val resetMethod = method(galaxyCls, "b", 1, "Galaxy.b(Cont)=galaxyReset") ?: return false
-        resetMethod.invoke(galaxy, orekiContinuation())
-        true
-    } catch (e: Throwable) {
-        miss("requestGalaxy", e)
-        false
+    fun requestGalaxy(): Boolean {
+        return try {
+            val galaxyCls = cls("kajfosz.antimatterdimensions.prestige.d") ?: return false
+            val xm1Cls = cls("xm1") ?: return false
+            val wm1Cls = cls("wm1") ?: return false
+            val galaxies = galaxies() ?: return false
+            val bdCls = bigDoubleCls() ?: return false
+            val xm = xm1Cls.getDeclaredConstructor().newInstance()
+            val reqMethod = method(
+                xm1Cls, "a", 1, "xm1.a(J)=galaxyRequirement",
+                paramTypeNames = listOf("long"),
+            ) ?: return false
+            val requirement = reqMethod.invoke(xm, galaxies) ?: return false
+            val tier = xm1Cls.getField("i").getInt(xm)
+            val wm = wm1Cls.getDeclaredConstructor(bdCls, java.lang.Integer.TYPE)
+                .newInstance(requirement, java.lang.Integer.valueOf(tier))
+            val canMethod = method(
+                galaxyCls, "a", 1, "Galaxy.a(wm1)=canBeBought",
+                paramTypeNames = listOf("wm1"),
+            ) ?: return false
+            if (canMethod.invoke(null, wm) != true) return false
+            val galaxy = staticField(galaxyCls, "a")?.get(null) ?: return false
+            val resetMethod = method(galaxyCls, "b", 1, "Galaxy.b(Cont)=galaxyReset") ?: return false
+            resetMethod.invoke(galaxy, orekiContinuation())
+            true
+        } catch (e: Throwable) {
+            miss("requestGalaxy", e)
+            false
+        }
     }
+
 
     /**
      * 原版「大坍缩」按钮同路径：`prestige/e.i(Continuation)`（Infinity.bigCrunchReset）。

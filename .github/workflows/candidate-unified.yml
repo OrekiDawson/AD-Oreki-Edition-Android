@@ -21,7 +21,7 @@ env:
 
 jobs:
   validate:
-    name: Validate source SHA and request
+    name: 验证源码 SHA 与候选请求
     # Pre-merge validation dispatches come from the migration branch, but the
     # source being built is always an approved main commit. A dispatch from main
     # additionally requires the requested SHA to be the dispatched commit.
@@ -107,7 +107,7 @@ jobs:
           echo "::notice::Validated Web strategy commit $WEB_REF"
 
   build:
-    name: Build, sign, attest candidate
+    name: 构建、签名并证明候选 APK
     needs: validate
     runs-on: ubuntu-latest
     environment: android-signing
@@ -118,11 +118,11 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Prepare hosted Android SDK and Gradle
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
         with:
           # The runner image no longer provides the obsolete `tools` package;
           # only preinstall platform-tools here, pinned build-tools come next.
@@ -131,7 +131,7 @@ jobs:
         run: |
           set -euo pipefail
           sdkmanager --install 'platform-tools' 'platforms;android-34' 'build-tools;34.0.0' 'build-tools;35.0.0' >/dev/null
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Install ripgrep required by patch-contract verification
         run: |
           set -euo pipefail
@@ -141,7 +141,7 @@ jobs:
           fi
           rg --version
       - name: Checkout approved public source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: OrekiDawson/AD-Oreki-Edition-Android
           ref: ${{ needs.validate.outputs.source_sha }}
@@ -151,7 +151,7 @@ jobs:
         working-directory: source
         run: python3 scripts/enforce_agp_only.py candidate
       - name: Check out the pinned Web sources the Android build consumes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: OrekiDawson/AD-Oreki-Edition-Web
           ref: ${{ needs.validate.outputs.web_ref }}
@@ -481,7 +481,7 @@ jobs:
             exit 1
           }
       - name: Upload candidate (not a stable release)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ad-oreki-candidate
           path: ${{ runner.temp }}/candidate/

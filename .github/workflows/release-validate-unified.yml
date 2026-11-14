@@ -1,4 +1,4 @@
-name: Android release pipeline validation (no publish)
+name: Android 发布流程验证（不发布）
 
 # Deliberately NOT a stable release: this workflow validates the real
 # three-remote delivery path (GitHub / OneDrive / Google Drive) with the exact
@@ -51,7 +51,7 @@ env:
 
 jobs:
   validate:
-    name: Validate three-remote delivery without publishing stable
+    name: 验证三渠道交付，不发布稳定版
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: stable-release
@@ -75,7 +75,7 @@ jobs:
           [[ "$ACCEPTANCE_PATH" == docs/avd-acceptance/*/avd-checks.json ]] || { echo "::error::Acceptance path must be a committed avd-checks.json"; exit 1; }
 
       - name: Check out repository tooling
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -95,7 +95,7 @@ jobs:
           done
 
       - name: Download candidate artifact and verification receipt
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-candidate
           run-id: ${{ inputs.candidate_run_id }}
@@ -103,7 +103,7 @@ jobs:
           path: candidate
 
       - name: Download independent verification receipt
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ad-oreki-verification
           run-id: ${{ inputs.verification_run_id }}
@@ -234,7 +234,7 @@ jobs:
           GDRIVE_ROOT: ${{ vars.AD_GDRIVE_DIR }}
         run: |
           set -euo pipefail
-          version="3.21.0"
+          version="$(python3 -c 'import json; print(json.load(open("scripts/release-gate-policy.json"))["versionName"])')"
           sha8="${EXPECTED_SHA:0:8}"
           work="$RUNNER_TEMP/validate"
           mkdir -p "$work"

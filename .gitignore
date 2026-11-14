@@ -115,3 +115,4 @@ reports/**/tmp/
 
 # R107-01: agp-dex 工具链编译产物（不入库）
 scripts/dexfix/r107/build/
+agp-parity.json

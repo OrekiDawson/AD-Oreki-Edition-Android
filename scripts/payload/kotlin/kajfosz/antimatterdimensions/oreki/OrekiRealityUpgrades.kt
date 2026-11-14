@@ -72,12 +72,12 @@ object OrekiRealityUpgrades {
     }
 
     private fun methodOf(target: Any?, name: String, paramCount: Int): Method? {
-        val c = target?.javaClass ?: return null
-        val key = c.name + "#" + name + "/" + paramCount
+        val clazz = target?.javaClass ?: return null
+        val key = clazz.name + "#" + name + "/" + paramCount
         val cached = methodCache[key]
         if (cached != null) return cached as? Method
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name == name && m.parameterCount == paramCount) {
@@ -130,9 +130,9 @@ object OrekiRealityUpgrades {
     }
 
     private fun fieldOf(target: Any?, name: String): Field? {
-        var c: Class<*>? = target?.javaClass
-        while (c != null) {
-            for (f in c.declaredFields) {
+        var clazz: Class<*>? = target?.javaClass
+        while (clazz != null) {
+            for (f in clazz.declaredFields) {
                 if (f.name == name) {
                     try {
                         f.isAccessible = true
@@ -141,7 +141,7 @@ object OrekiRealityUpgrades {
                     return f
                 }
             }
-            c = c.superclass
+            clazz = clazz.superclass
         }
         return null
     }
@@ -168,8 +168,8 @@ object OrekiRealityUpgrades {
 
     /** 原版购买 `D(true, null)`；真实扣 RM/写购买位由原版完成，失败不写入。 */
     private fun purchase(target: Any): Boolean = try {
-        val m = methodOf(target, "D", 2) ?: return false
-        m.invoke(target, true, null) as? Boolean ?: false
+        val method = methodOf(target, "D", 2) ?: return false
+        method.invoke(target, true, null) as? Boolean ?: false
     } catch (t: Throwable) {
         Log.i(TAG, "D() failed: " + t)
         false
@@ -273,11 +273,11 @@ object OrekiRealityUpgrades {
         val costs = ArrayList<Any>()
         var i = 0
         while (i < oneTimes.size) {
-            val u = oneTimes[i]
-            if (!isBought(u)) {
-                val c = costOf(u)
-                objs.add(u)
-                costs.add(c ?: noValue)
+            val upgrade = oneTimes[i]
+            if (!isBought(upgrade)) {
+                val cost = costOf(upgrade)
+                objs.add(upgrade)
+                costs.add(cost ?: noValue)
             }
             i++
         }
@@ -299,12 +299,12 @@ object OrekiRealityUpgrades {
             while (j >= 0) {
                 val prev = costArr[j]
                 if (prev === noValue || cost === noValue) break
-                val c = try {
+                val comparison = try {
                     cmp?.invoke(cost, prev) as? Int
                 } catch (_: Throwable) {
                     null
                 } ?: break
-                if (c >= 0) break
+                if (comparison >= 0) break
                 arr[j + 1] = arr[j]
                 costArr[j + 1] = costArr[j]
                 j--
@@ -356,11 +356,11 @@ object OrekiRealityUpgrades {
             // 1) RU1~5：循环 until 买不起/买不动，安全上限防失控
             var idx = 0
             while (idx < rebuyables.size) {
-                val u = rebuyables[idx]
+                val upgrade = rebuyables[idx]
                 var n = 0
                 while (n < REBUYABLE_SAFE_MAX) {
-                    if (!rebuyableCanBuy(u)) break
-                    if (!purchase(u)) break
+                    if (!rebuyableCanBuy(upgrade)) break
+                    if (!purchase(upgrade)) break
                     bought = true
                     boughtTotal++
                     n++
@@ -372,8 +372,8 @@ object OrekiRealityUpgrades {
             if (tickNo % TRY_UNLOCK_EVERY == 0L) {
                 var i = 0
                 while (i < oneTimes.size) {
-                    val u = oneTimes[i]
-                    if (!isBought(u)) tryUnlock(u)
+                    val upgrade = oneTimes[i]
+                    if (!isBought(upgrade)) tryUnlock(upgrade)
                     i++
                 }
             }

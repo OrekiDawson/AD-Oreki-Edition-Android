@@ -246,8 +246,8 @@ object OrekiEcAutomation {
     /** 最小未满级关号（1..12）；全部满级返回 0。 */
     private fun nextTargetId(): Int {
         for (id in 1..EC_COUNT) {
-            val c = Abi.challenge(id) ?: continue
-            if (Abi.isMaxedChallenge(c) != true) return id
+            val challengeObj = Abi.challenge(id) ?: continue
+            if (Abi.isMaxedChallenge(challengeObj) != true) return id
         }
         return 0
     }
@@ -327,15 +327,15 @@ object OrekiEcAutomation {
                 if (first != null) {
                     val t2 = Abi.ts(first)
                     val dbg = "b=" + Abi.tsBought(t2) + " a=" + Abi.tsCanBuy(t2)
-                    val r = if (t2 != null) Abi.tsBuy(t2) else null
-                    note("TRYBUY id=" + first + " " + dbg + " D=" + r + " tt=" + Abi.theorem() +
+                    val buyResult = if (t2 != null) Abi.tsBuy(t2) else null
+                    note("TRYBUY id=" + first + " " + dbg + " D=" + buyResult + " tt=" + Abi.theorem() +
                         " unlocked=" + Abi.unlocked())
                     // [R107-01 EC4-DIAG] 只读诊断：TRYBUY 失败时用独立 TAG/限频直接输出，
                     // 不再被 note() 的 1s 限频吞掉（这是上一轮看不到 PAVE/PREPARE 的原因）。
-                    if (r != true) {
+                    if (buyResult != true) {
                         diag2(target, study, k)
                     }
-                    if (r == true) {
+                    if (buyResult == true) {
                         note("PREPARE id=" + target + " k=" + k + " paved-by-D=" + first +
                             " -> unlocked=" + Abi.unlocked())
                         return true
@@ -477,10 +477,10 @@ object OrekiEcAutomation {
                     " k=" + k + " price=" + Abi.priceText(study))
             val sb = StringBuilder()
             for (i in 1..12) {
-                val c = Abi.challenge(i) ?: continue
-                sb.append(' ').append(i).append('=').append(Abi.completions(c))
-                    .append('/').append(Abi.maxCompletions(c))
-                if (Abi.isMaxedChallenge(c) == true) sb.append('M')
+                val challengeObj = Abi.challenge(i) ?: continue
+                sb.append(' ').append(i).append('=').append(Abi.completions(challengeObj))
+                    .append('/').append(Abi.maxCompletions(challengeObj))
+                if (Abi.isMaxedChallenge(challengeObj) == true) sb.append('M')
             }
             Log.i(TAG_DIAG2, "ECS" + sb + " boughtGlobal=" + Abi.globalBlocked() + " tree=" + Abi.treeState())
             val seen = HashSet<Int>()
@@ -543,39 +543,39 @@ object OrekiEcAutomation {
         }
 
         private fun factory(): Class<*>? {
-            var c = factoryCls
-            if (c == null) {
-                c = cls(STUDY_FACTORY)
-                factoryCls = c
+            var clazz = factoryCls
+            if (clazz == null) {
+                clazz = cls(STUDY_FACTORY)
+                factoryCls = clazz
             }
-            return c
+            return clazz
         }
 
         private fun registry(): Class<*>? {
-            var c = registryCls
-            if (c == null) {
-                c = cls(EC_REGISTRY)
-                registryCls = c
+            var clazz = registryCls
+            if (clazz == null) {
+                clazz = cls(EC_REGISTRY)
+                registryCls = clazz
             }
-            return c
+            return clazz
         }
 
         private fun tsRegistry(): Class<*>? {
-            var c = tsRegistryCls
-            if (c == null) {
-                c = cls(TS_REGISTRY)
-                tsRegistryCls = c
+            var clazz = tsRegistryCls
+            if (clazz == null) {
+                clazz = cls(TS_REGISTRY)
+                tsRegistryCls = clazz
             }
-            return c
+            return clazz
         }
 
         private fun currency(): Any? {
-            var c = currencyCls
-            if (c == null) {
-                c = cls(CURRENCY_HOLDER)
-                currencyCls = c
+            var clazz = currencyCls
+            if (clazz == null) {
+                clazz = cls(CURRENCY_HOLDER)
+                currencyCls = clazz
             }
-            val k = c ?: return null
+            val k = clazz ?: return null
             return try {
                 k.getField("U").get(null)
             } catch (t: Throwable) {
@@ -586,15 +586,15 @@ object OrekiEcAutomation {
 
         /** 在类层次里按「名字 + 参数个数」找方法，避开写死混淆父类名。 */
         private fun find(target: Any?, name: String, paramCount: Int): java.lang.reflect.Method? {
-            var c: Class<*>? = target?.javaClass
-            while (c != null) {
-                for (m in c.declaredMethods) {
+            var clazz: Class<*>? = target?.javaClass
+            while (clazz != null) {
+                for (m in clazz.declaredMethods) {
                     if (m.name == name && m.parameterCount == paramCount) {
                         m.isAccessible = true
                         return m
                     }
                 }
-                c = c.superclass
+                clazz = clazz.superclass
             }
             return null
         }
@@ -606,13 +606,13 @@ object OrekiEcAutomation {
          * 读不到返回 null，不影响业务路径。
          */
         fun intArray(target: Any?, field: String): List<Int>? = try {
-            var c: Class<*>? = target?.javaClass
-            var f: java.lang.reflect.Field? = null
-            while (c != null && f == null) {
-                f = try { c.getDeclaredField(field) } catch (e: NoSuchFieldException) { null }
-                c = c.superclass
+            var clazz: Class<*>? = target?.javaClass
+            var fieldRef: java.lang.reflect.Field? = null
+            while (clazz != null && fieldRef == null) {
+                fieldRef = try { clazz.getDeclaredField(field) } catch (e: NoSuchFieldException) { null }
+                clazz = clazz.superclass
             }
-            f?.let {
+            fieldRef?.let {
                 it.isAccessible = true
                 @Suppress("UNCHECKED_CAST")
                 (it.get(target) as? Array<Integer>)?.map { v -> v?.toInt() ?: -1 }
@@ -684,14 +684,14 @@ object OrekiEcAutomation {
          * 不是普通 `a(I)`；同时兼容纯 static `a(I)` 的形态，避免版本漂移。
          */
         fun ts(id: Int): Any? = try {
-            val c = tsRegistry() ?: return null
-            val self = try { c.getField("a").get(null) } catch (e: Throwable) { null }
-            val m2 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 2 }
+            val clazz = tsRegistry() ?: return null
+            val self = try { clazz.getField("a").get(null) } catch (e: Throwable) { null }
+            val m2 = clazz.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 2 }
             if (m2 != null) {
                 m2.isAccessible = true
                 m2.invoke(null, self, id)
             } else {
-                val m1 = c.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 1 }
+                val m1 = clazz.declaredMethods.firstOrNull { it.name == "a" && it.parameterCount == 1 }
                 if (m1 == null) null else {
                     m1.isAccessible = true
                     m1.invoke(null, id)
@@ -762,8 +762,8 @@ object OrekiEcAutomation {
 
         /** `vi3.D.k()Z`：原版全局闸门（`ii3.k() = na4.B() && !ii3.K()`）。 */
         fun globalBlocked(): Boolean? = try {
-            val c = cls(GLOBAL_GATE) ?: return null
-            val gate = c.getField("D").get(null) ?: return null
+            val clazz = cls(GLOBAL_GATE) ?: return null
+            val gate = clazz.getField("D").get(null) ?: return null
             find(gate, "k", 0)?.invoke(gate) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "ii3.k() failed: " + t)
@@ -782,14 +782,14 @@ object OrekiEcAutomation {
             if (dumpedTsMethods || ts == null) return
             dumpedTsMethods = true
             try {
-                var c: Class<*>? = ts.javaClass
+                var clazz: Class<*>? = ts.javaClass
                 var lvl = 0
-                while (c != null && lvl < 4) {
-                    val names = c.declaredMethods
+                while (clazz != null && lvl < 4) {
+                    val names = clazz.declaredMethods
                         .filter { it.name.length <= 3 }
                         .joinToString(",") { it.name + "/" + it.parameterCount + it.returnType.simpleName }
-                    Log.i(TAG, "tsDump L" + lvl + " " + c.simpleName + " :: " + names)
-                    c = c.superclass
+                    Log.i(TAG, "tsDump L" + lvl + " " + clazz.simpleName + " :: " + names)
+                    clazz = clazz.superclass
                     lvl++
                 }
             } catch (t: Throwable) {
@@ -814,8 +814,8 @@ object OrekiEcAutomation {
 
         /** 真买时间研究（`c.D(false,rj0)`）：原版扣 TT + `E(true)` + `C(true,false)`。 */
         fun tsBuy(ts: Any?): Boolean? = try {
-            val m = find(ts, "D", 2) ?: return null
-            m.invoke(ts, java.lang.Boolean.FALSE, continuation()) as? Boolean
+            val method = find(ts, "D", 2) ?: return null
+            method.invoke(ts, java.lang.Boolean.FALSE, continuation()) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "ts.D failed: " + t)
             null
@@ -831,12 +831,12 @@ object OrekiEcAutomation {
          * 参数只控制是否弹「时间研究」页（这里传 false）；退研究/清 Tree/unlocked=0 都由原版完成。 */
         fun respecTimeStudies(): Boolean? {
             return try {
-            val c = cls("kajfosz.antimatterdimensions.eternity.studies.d") ?: return null
-            var m: java.lang.reflect.Method? = null
-            for (x in c.declaredMethods) {
+            val clazz = cls("kajfosz.antimatterdimensions.eternity.studies.d") ?: return null
+            var method: java.lang.reflect.Method? = null
+            for (x in clazz.declaredMethods) {
                 if (x.name == "c" && x.parameterCount == 1 &&
                     x.parameterTypes[0] == java.lang.Boolean.TYPE) {
-                    m = x
+                    method = x
                     try {
                         x.isAccessible = true
                     } catch (_: Throwable) {
@@ -844,11 +844,11 @@ object OrekiEcAutomation {
                     break
                 }
             }
-            if (m == null) {
+            if (method == null) {
                 Log.i(TAG, "respecTimeStudies: d.c(Z)V not found")
                 return null
             }
-            m.invoke(null, false)
+            method.invoke(null, false)
             true
             } catch (t: Throwable) {
                 Log.i(TAG, "respecTimeStudies failed: " + t)
@@ -878,8 +878,8 @@ object OrekiEcAutomation {
 
         /** qu4.l:Constants$TSRequirementType 的枚举名（AT_LEAST_ONE / ALL / DIMENSION_PATH）。 */
         fun tsReqType(ts: Any?): String = try {
-            val f = findField(ts, "l") ?: return "?"
-            val v = f.get(ts) ?: return "null"
+            val field = findField(ts, "l") ?: return "?"
+            val v = field.get(ts) ?: return "null"
             v.toString()
         } catch (t: Throwable) {
             "?"
@@ -901,8 +901,8 @@ object OrekiEcAutomation {
 
         /** 原版 c.r requirement lambda 的布尔结果（A() 最终判定的第一环）。 */
         fun tsReqLambda(ts: Any?): Boolean? = try {
-            val f = findField(ts, "r") ?: return null
-            val lambda = f.get(ts) ?: return null
+            val field = findField(ts, "r") ?: return null
+            val lambda = field.get(ts) ?: return null
             find(lambda, "invoke", 0)?.invoke(lambda) as? Boolean
         } catch (t: Throwable) {
             null
@@ -913,17 +913,17 @@ object OrekiEcAutomation {
             val cacheCls = cls("kajfosz.antimatterdimensions.cache.a") ?: return "?"
             val n = cacheCls.getField("n").get(null) ?: return "?"
             val tree = find(n, "a", 0)?.invoke(n) ?: return "?"
-            val c = find(tree, "c", 0)?.invoke(tree)
-            val b = find(tree, "b", 0)?.invoke(tree)
-            "c=" + c + ",b=" + b
+            val cResult = find(tree, "c", 0)?.invoke(tree)
+            val bResult = find(tree, "b", 0)?.invoke(tree)
+            "c=" + cResult + ",b=" + bResult
         } catch (t: Throwable) {
             "?(" + t + ")"
         }
 
         private fun findField(target: Any?, name: String): java.lang.reflect.Field? {
-            var c: Class<*>? = target?.javaClass
-            while (c != null) {
-                for (f in c.declaredFields) {
+            var clazz: Class<*>? = target?.javaClass
+            while (clazz != null) {
+                for (f in clazz.declaredFields) {
                     if (f.name == name) {
                         try {
                             f.isAccessible = true
@@ -932,7 +932,7 @@ object OrekiEcAutomation {
                         return f
                     }
                 }
-                c = c.superclass
+                clazz = clazz.superclass
             }
             return null
         }
@@ -942,11 +942,11 @@ object OrekiEcAutomation {
         fun tsChain(ids: List<Int>): String {
             val sb = StringBuilder("chain[")
             for (id in ids) {
-                val t = ts(id)
-                if (t == null) { sb.append(id).append(":?"); continue }
-                sb.append(id).append(":{bought=").append(tsBought(t))
-                    .append(",price=").append(tsPrice(t))
-                    .append(",k=").append(tsPrereqs(t)).append("} ")
+                val study = ts(id)
+                if (study == null) { sb.append(id).append(":?"); continue }
+                sb.append(id).append(":{bought=").append(tsBought(study))
+                    .append(",price=").append(tsPrice(study))
+                    .append(",k=").append(tsPrereqs(study)).append("} ")
             }
             return sb.append(']').toString()
         }
@@ -997,8 +997,8 @@ object OrekiEcAutomation {
         /** 原版扣费：`y().p(x())`（`iq0.p`：够就扣并返回 true，不够返回 false）。 */
         fun payPrice(study: Any?): Boolean? = try {
             val cur = currency() ?: return null
-            val p = price(study) ?: return null
-            find(cur, "p", 1)?.invoke(cur, p) as? Boolean
+            val priceValue = price(study) ?: return null
+            find(cur, "p", 1)?.invoke(cur, priceValue) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "payPrice failed: " + t)
             null
@@ -1025,8 +1025,8 @@ object OrekiEcAutomation {
         /** 真实购买：`is3.D(true, continuation)`，同步返回 Boolean。 */
         fun buy(study: Any?): Boolean? = try {
             val cont = continuation()
-            val m = find(study, "D", 2) ?: return null
-            m.invoke(study, java.lang.Boolean.TRUE, cont) as? Boolean
+            val method = find(study, "D", 2) ?: return null
+            method.invoke(study, java.lang.Boolean.TRUE, cont) as? Boolean
         } catch (t: Throwable) {
             Log.i(TAG, "buy failed: " + t)
             null
@@ -1035,8 +1035,8 @@ object OrekiEcAutomation {
         /** 原版 EC purchaseUntil：补齐该关的整条前置时间研究路径（带真实 ec 参数）。 */
         fun purchaseUntil(study: Any?): Boolean = try {
             val cont = continuation()
-            val m = find(study, "S", 1) ?: return false
-            m.invoke(study, cont)
+            val method = find(study, "S", 1) ?: return false
+            method.invoke(study, cont)
             true
         } catch (t: Throwable) {
             // [R97 真机] 只打包装异常没用：必须打出真实 cause，否则无从判定是
@@ -1057,8 +1057,8 @@ object OrekiEcAutomation {
         /** 真实进入：`challenge.D(true, continuation)`（原版 start 状态机）。 */
         fun startChallenge(c: Any?): Boolean = try {
             val cont = continuation()
-            val m = find(c, "D", 2) ?: return false
-            m.invoke(c, java.lang.Boolean.TRUE, cont)
+            val method = find(c, "D", 2) ?: return false
+            method.invoke(c, java.lang.Boolean.TRUE, cont)
             true
         } catch (t: Throwable) {
             Log.i(TAG, "start failed: " + t)
@@ -1070,16 +1070,16 @@ object OrekiEcAutomation {
             val sb = StringBuilder()
             val unlocked = unlocked() ?: -1
             for (id in 1..EC_COUNT) {
-                val s = study(id) ?: continue
+                val studyObj = study(id) ?: continue
                 sb.append(id).append(':')
                     .append(if (unlocked == id) 'B' else '-')
-                    .append(if (canBuyPrereq(s) == true) 'A' else '-')
-                    .append(if (canAfford(s) == true) 'Z' else '-')
-                    .append(if (alreadyBought(s) == true) 'T' else '-')
-                    .append(if (hasExclusiveFree(s) == true) 'O' else '-')
+                    .append(if (canBuyPrereq(studyObj) == true) 'A' else '-')
+                    .append(if (canAfford(studyObj) == true) 'Z' else '-')
+                    .append(if (alreadyBought(studyObj) == true) 'T' else '-')
+                    .append(if (hasExclusiveFree(studyObj) == true) 'O' else '-')
                     // k=前置研究数组、p=互斥/二级研究数组（qu4 定义），直接读真实对象，不靠推断。
-                    .append(" k=").append(intArray(s, "k"))
-                    .append(" p=").append(intArray(s, "p"))
+                    .append(" k=").append(intArray(studyObj, "k"))
+                    .append(" p=").append(intArray(studyObj, "p"))
                     .append(' ')
             }
             return ("unlocked=" + unlocked + " tt=" + theorem() + " " + sb.toString()).trim()

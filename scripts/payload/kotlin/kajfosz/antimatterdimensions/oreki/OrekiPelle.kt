@@ -73,12 +73,12 @@ object OrekiPelle {
     }
 
     private fun methodOf(target: Any?, name: String, paramCount: Int): Method? {
-        val c = target?.javaClass ?: return null
-        val key = c.name + "#" + name + "/" + paramCount
+        val clazz = target?.javaClass ?: return null
+        val key = clazz.name + "#" + name + "/" + paramCount
         val cached = methodCache[key]
         if (cached != null) return cached as? Method
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name == name && m.parameterCount == paramCount) {
@@ -94,10 +94,10 @@ object OrekiPelle {
     }
 
     private fun staticField(className: String, field: String): Any? = try {
-        val c = cls(className) ?: return null
-        val f: Field = c.getField(field)
-        f.isAccessible = true
-        f.get(null)
+        val clazz = cls(className) ?: return null
+        val fieldRef: Field = clazz.getField(field)
+        fieldRef.isAccessible = true
+        fieldRef.get(null)
     } catch (t: Throwable) {
         null
     }
@@ -118,9 +118,9 @@ object OrekiPelle {
      * 末日驱动整段未运行。这里改为直接在目标 Class 及其父类链上找静态方法。
      */
     private fun staticCall(className: String, name: String, paramCount: Int, vararg args: Any?): Any? = try {
-        val c = cls(className) ?: return null
-        val m = staticMethodOf(c, name, paramCount) ?: return null
-        m.invoke(null, *args)
+        val clazz = cls(className) ?: return null
+        val method = staticMethodOf(clazz, name, paramCount) ?: return null
+        method.invoke(null, *args)
     } catch (t: Throwable) {
         null
     }
@@ -195,8 +195,8 @@ object OrekiPelle {
         if (cached != null) return cached
         val out = ArrayList<Any>()
         try {
-            val c = cls(UPGRADE_REGISTRY) ?: return emptyArray()
-            for (f in c.declaredFields) {
+            val clazz = cls(UPGRADE_REGISTRY) ?: return emptyArray()
+            for (f in clazz.declaredFields) {
                 if (!java.lang.reflect.Modifier.isStatic(f.modifiers)) continue
                 val type = f.type ?: continue
                 if (type.isPrimitive) continue
@@ -231,8 +231,8 @@ object OrekiPelle {
     private fun doom(): Boolean = try {
         val inst = pelle() ?: return false
         val cont = continuation()
-        val m = methodOf(inst, "h", 1) ?: return false
-        m.invoke(inst, cont)
+        val method = methodOf(inst, "h", 1) ?: return false
+        method.invoke(inst, cont)
         isDoomed()
     } catch (t: Throwable) {
         Log.i(TAG, "doom failed: " + t)
@@ -242,8 +242,8 @@ object OrekiPelle {
     private fun armageddon(): Boolean = try {
         val inst = pelle() ?: return false
         val cont = continuation()
-        val m = methodOf(inst, "g", 3) ?: return false
-        m.invoke(inst, true, true, cont)
+        val method = methodOf(inst, "g", 3) ?: return false
+        method.invoke(inst, true, true, cont)
         armageddons++
         Log.i(TAG, "armageddon #" + armageddons + " remnantsGain=" + remnantsGain())
         true

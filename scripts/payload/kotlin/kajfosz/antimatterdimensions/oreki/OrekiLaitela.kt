@@ -103,12 +103,12 @@ object OrekiLaitela {
     }
 
     private fun methodOf(target: Any?, name: String, paramCount: Int): Method? {
-        val c = target?.javaClass ?: return null
-        val key = c.name + "#" + name + "/" + paramCount
+        val clazz = target?.javaClass ?: return null
+        val key = clazz.name + "#" + name + "/" + paramCount
         val cached = methodCache[key]
         if (cached != null) return cached as? Method
         var found: Method? = null
-        var k: Class<*>? = c
+        var k: Class<*>? = clazz
         while (k != null && found == null) {
             for (m in k.declaredMethods) {
                 if (m.name == name && m.parameterCount == paramCount) {
@@ -124,10 +124,10 @@ object OrekiLaitela {
     }
 
     private fun staticField(className: String, field: String): Any? = try {
-        val c = cls(className) ?: return null
-        val f: Field = c.getField(field)
-        f.isAccessible = true
-        f.get(null)
+        val clazz = cls(className) ?: return null
+        val fieldRef: Field = clazz.getField(field)
+        fieldRef.isAccessible = true
+        fieldRef.get(null)
     } catch (t: Throwable) {
         null
     }
@@ -187,30 +187,33 @@ object OrekiLaitela {
 
     /** 当前 IM 余额（只读；Player$Reality.imaginaryMachines，3.21 是普通 Double）。 */
     @JvmStatic
-    fun imaginaryMachines(): Double = try {
-        val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return 0.0
-        val player = playerCls.getField("a").get(null) ?: return 0.0
-        val reality = call(player, "Q", 0) ?: return 0.0
-        // [R109-01 P0] 3.21 的 Player$Reality.imaginaryMachines 是 **private** Double，
-        // 旧实现用 getField()（只找 public）必然抛 NoSuchFieldException 被吞成 0.0，
-        // 真机表现为 tier8 时日志恒 "IU25 wait im=0.0"（实际 IM=7.2e24）⇒ 不压现实
-        // ⇒ DS6 刚买到就被现实清掉，IU25 永远买不到。改用公开 getter h()D。
-        val viaGetter = call(reality, "h", 0) as? Double
-        if (viaGetter != null) return viaGetter
-        var c: Class<*>? = reality.javaClass
-        while (c != null) {
-            try {
-                val fd = c.getDeclaredField("imaginaryMachines")
-                fd.isAccessible = true
-                return (fd.get(reality) as? Double) ?: 0.0
-            } catch (_: NoSuchFieldException) {
-                c = c.superclass
+    fun imaginaryMachines(): Double {
+        return try {
+            val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return 0.0
+            val player = playerCls.getField("a").get(null) ?: return 0.0
+            val reality = call(player, "Q", 0) ?: return 0.0
+            // [R109-01 P0] 3.21 的 Player$Reality.imaginaryMachines 是 **private** Double，
+            // 旧实现用 getField()（只找 public）必然抛 NoSuchFieldException 被吞成 0.0，
+            // 真机表现为 tier8 时日志恒 "IU25 wait im=0.0"（实际 IM=7.2e24）⇒ 不压现实
+            // ⇒ DS6 刚买到就被现实清掉，IU25 永远买不到。改用公开 getter h()D。
+            val viaGetter = call(reality, "h", 0) as? Double
+            if (viaGetter != null) return viaGetter
+            var clazz: Class<*>? = reality.javaClass
+            while (clazz != null) {
+                try {
+                    val fieldRef = clazz.getDeclaredField("imaginaryMachines")
+                    fieldRef.isAccessible = true
+                    return (fieldRef.get(reality) as? Double) ?: 0.0
+                } catch (_: NoSuchFieldException) {
+                    clazz = clazz.superclass
+                }
             }
+            0.0
+        } catch (t: Throwable) {
+            0.0
         }
-        0.0
-    } catch (t: Throwable) {
-        0.0
     }
+
 
     /**
      * [R108-01] tier8 准备 IU25 期间是否应暂停「符文自动装备」。
@@ -239,8 +242,8 @@ object OrekiLaitela {
         val inst = staticField(GLYPH_CLASS, "a") ?: return false
         val cont = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
             ?.getField("a")?.get(null)
-        val m = methodOf(inst, "X", 2) ?: return false
-        m.invoke(inst, true, cont)
+        val method = methodOf(inst, "X", 2) ?: return false
+        method.invoke(inst, true, cont)
         true
     } catch (t: Throwable) {
         Log.i(TAG, "unequipAll failed: " + t)
@@ -250,9 +253,9 @@ object OrekiLaitela {
     private fun realities(): Double = try {
         val v = GameApi.realitiesValue() ?: return 0.0
         // realities 是 BigDouble：优先读 mantissa/exponent，退化为 toString 判空
-        val m = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
-        val e = methodOf(v, "exponent", 0)?.invoke(v) as? Number
-        if (m != null && e != null) m.toDouble() * Math.pow(10.0, e.toDouble()) else 0.0
+        val mantissa = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
+        val exponent = methodOf(v, "exponent", 0)?.invoke(v) as? Number
+        if (mantissa != null && exponent != null) mantissa.toDouble() * Math.pow(10.0, exponent.toDouble()) else 0.0
     } catch (t: Throwable) {
         0.0
     }
@@ -304,9 +307,9 @@ object OrekiLaitela {
             lastTickAt = now
             // 现实代际检测：每次 realities 变化重置本现实计时（只读）
             // [R108-01] 现实代际用 OrekiRealityPacing 的真实重置计数（解析 BigDouble 不可靠）
-            val r = OrekiRealityPacing.resetCount().toDouble()
-            if (r != lastRealityCount) {
-                lastRealityCount = r
+            val resetCountValue = OrekiRealityPacing.resetCount().toDouble()
+            if (resetCountValue != lastRealityCount) {
+                lastRealityCount = resetCountValue
                 realityStartedAt = now
                 holdSince = 0L
             }
@@ -354,7 +357,7 @@ object OrekiLaitela {
                 // DS6（膨胀研究 6）是 IU25 checkRequirement 的一条：直接读原版 c01.a[5].B()，
                 // 与 prestige/f.f() 首句同源；比 canReality() 更贴近 Web TimeStudy.reality.isBought
                 // （canReality 还要求本现实 maxEP ≥ 1e4000，会漏掉 DS6 已在位但 maxEP 未达的帧）。
-                val ds6 = GameApi.ds6Bought()
+                val ds6Bought = GameApi.ds6Bought()
                 // 一次性 IU 的解锁位由原版每 tick 事件置位；保留周期复检调用（原版为 no-op 时无副作用）。
                 if (now - lastIuUnlockAt >= 1_000L) {
                     lastIuUnlockAt = now
@@ -390,7 +393,7 @@ object OrekiLaitela {
                     if (iu25RunAt == 0L) iu25RunAt = now
                     if (now - iu25RunAt <= IU25_RUN_MAX_MS && !holdExpired()) {
                         setHold(true)
-                        logLimited("IU25 run in place wait bit ds6=" + ds6 + " im=" + im +
+                        logLimited("IU25 run in place wait bit ds6=" + ds6Bought + " im=" + im +
                             " glyphs=" + glyphs + " ent=" + entropy())
                         return false
                     }
@@ -398,18 +401,18 @@ object OrekiLaitela {
                     setHold(false)
                     iu25RunAt = 0L
                     logLimited("IU25 run timeout, exit run (防 tier→9) im=" + im +
-                        " ds6=" + ds6 + " glyphs=" + glyphs + " ent=" + entropy())
+                        " ds6=" + ds6Bought + " glyphs=" + glyphs + " ent=" + entropy())
                     return false
                 }
                 iu25RunAt = 0L
 
                 // ④ 四前置同时就位才进 run（Web R47-A 口径：ds6 && im>=cost；符文<=1 另判）
-                val ready = ds6 && im >= cost && glyphs <= 1
+                val ready = ds6Bought && im >= cost && glyphs <= 1
                 if (!ready) {
                     // 关键：只有在「IM 已够、只差 DS6」时才有界压现实去截 DS6 那一帧。
                     // IM 只能由现实重置产出（RM→IM），无差别压现实会把 IM 的增长一起压死
                     // （Web R47-A 已推翻旧策略；旧 Android 实现正是无条件 setHold(true)）。
-                    if (!ds6 && im >= cost) {
+                    if (!ds6Bought && im >= cost) {
                         if (iu25HoldSince == 0L) iu25HoldSince = now
                         val held = now - iu25HoldSince < IU25_HOLD_MAX_MS
                         setHold(held)
@@ -418,7 +421,7 @@ object OrekiLaitela {
                     } else {
                         iu25HoldSince = 0L
                         setHold(false)
-                        logLimited("IU25 wait im=" + im + " cost=" + cost + " ds6=" + ds6 +
+                        logLimited("IU25 wait im=" + im + " cost=" + cost + " ds6=" + ds6Bought +
                             " glyphs=" + glyphs)
                     }
                     return false
@@ -440,7 +443,7 @@ object OrekiLaitela {
                     iu25RunAt = now
                     setHold(true)
                     logLimited("IU25 enterRun ok tier=" + tier + " im=" + im + " cost=" + cost +
-                        " ds6=" + ds6 + " glyphs=" + glyphs + " ent=" + ent)
+                        " ds6=" + ds6Bought + " glyphs=" + glyphs + " ent=" + ent)
                 } else {
                     setHold(false)
                     logLimited("IU25 enterRun failed tier=" + tier)
@@ -461,7 +464,7 @@ object OrekiLaitela {
             if (entropy() < 0.0) {
                 // 上一次 run 已完成，等现实重置把 entropy 清回 0
                 setHold(false)
-                logLimited("wait entropy<0 tier=" + tier + " realities=" + r)
+                logLimited("wait entropy<0 tier=" + tier + " realities=" + resetCountValue)
                 return false
             }
             val amExp = GameApi.antimatterExponent()
@@ -511,9 +514,9 @@ object OrekiLaitela {
     private fun iu25Cost(): Double = try {
         val up = staticField(IU_REGISTRY, "s") ?: return IU25_COST_FALLBACK
         val v = call(up, "x", 0) ?: return IU25_COST_FALLBACK
-        val m = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
-        val e = methodOf(v, "exponent", 0)?.invoke(v) as? Number
-        if (m != null && e != null) m.toDouble() * Math.pow(10.0, e.toDouble()) else IU25_COST_FALLBACK
+        val mantissaNumber = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
+        val exponentNumber = methodOf(v, "exponent", 0)?.invoke(v) as? Number
+        if (mantissaNumber != null && exponentNumber != null) mantissaNumber.toDouble() * Math.pow(10.0, exponentNumber.toDouble()) else IU25_COST_FALLBACK
     } catch (t: Throwable) {
         IU25_COST_FALLBACK
     }
@@ -529,23 +532,26 @@ object OrekiLaitela {
      * 全部停产（`InfinityDimensionState.O()`：tier > p() 返回 0），且熵一旦满就把 tier 顶到 9。
      */
     @JvmStatic
-    fun exitRun(): Boolean = try {
-        if (!isRunning()) return true
-        val inst = laitela() ?: return false
-        val m = methodOf(inst, "f", 1) ?: return false
-        m.invoke(inst, false)
-        !isRunning()
-    } catch (t: Throwable) {
-        Log.i(TAG, "exitRun failed: " + t)
-        false
+    fun exitRun(): Boolean {
+        return try {
+            if (!isRunning()) return true
+            val inst = laitela() ?: return false
+            val exitMethod = methodOf(inst, "f", 1) ?: return false
+            exitMethod.invoke(inst, false)
+            !isRunning()
+        } catch (t: Throwable) {
+            Log.i(TAG, "exitRun failed: " + t)
+            false
+        }
     }
+
 
     private fun enterRun(): Boolean = try {
         val inst = laitela() ?: return false
         val cont = cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
             ?.getField("a")?.get(null)
-        val m = methodOf(inst, "c", 2) ?: return false
-        m.invoke(inst, true, cont)
+        val method = methodOf(inst, "c", 2) ?: return false
+        method.invoke(inst, true, cont)
         isRunning()
     } catch (t: Throwable) {
         Log.i(TAG, "enterRun failed: " + t)

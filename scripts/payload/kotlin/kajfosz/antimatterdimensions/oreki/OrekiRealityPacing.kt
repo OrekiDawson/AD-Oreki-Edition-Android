@@ -145,8 +145,8 @@ object OrekiRealityPacing {
 
     /** DS1（膨胀研究1，c01.a(4) = 内部 id1）是否已购买。 */
     private fun dilationStudy1Bought(): Boolean? = try {
-        val c01 = cls("c01") ?: return null
-        val study = methodOf(c01, "a", 1)?.invoke(null, 4) ?: return null
+        val dilationStudyClass = cls("c01") ?: return null
+        val study = methodOf(dilationStudyClass, "a", 1)?.invoke(null, 4) ?: return null
         call(study, "B", 0) as? Boolean
     } catch (t: Throwable) {
         null
@@ -176,9 +176,9 @@ object OrekiRealityPacing {
     private fun gainedRealityMachines(): Any? = try {
         val bdCls = cls(EXIST_BIG_DOUBLE) ?: return null
         val gainedEp = callStatic("kajfosz.antimatterdimensions.prestige.c", "g", 0) ?: return null
-        val fh2 = cls("fh2") ?: return null
-        val base = methodExact(fh2, "g", bdCls)?.invoke(null, gainedEp) ?: return null
-        val cap = methodExact(fh2, "d")?.invoke(null) ?: return null
+        val realityMachineFormulaClass = cls("fh2") ?: return null
+        val base = methodExact(realityMachineFormulaClass, "g", bdCls)?.invoke(null, gainedEp) ?: return null
+        val cap = methodExact(realityMachineFormulaClass, "d")?.invoke(null) ?: return null
         val mult = callStatic("kajfosz.antimatterdimensions.prestige.f", "g", 0) as? Int ?: return null
         val clamped = methodExact(bdCls, "clampMax", bdCls)?.invoke(base, cap) ?: return null
         methodExact(bdCls, "multiply", java.lang.Integer.TYPE)?.invoke(clamped, mult)
@@ -294,12 +294,12 @@ object OrekiRealityPacing {
             }
             if (readySince == 0L) readySince = nowMs
 
-            val ds1 = dilationStudy1Bought()
-            if (ds1 == null) {
+            val study1Bought = dilationStudy1Bought()
+            if (study1Bought == null) {
                 logLimited("veto=ds1-unreadable realities=" + realities)
                 return false
             }
-            if (!ds1 && nowMs - readySince < DS1_WINDOW_MS) {
+            if (!study1Bought && nowMs - readySince < DS1_WINDOW_MS) {
                 logLimited("wait=ds1-window elapsed=" + (nowMs - readySince) +
                     " realities=" + realities)
                 return false
