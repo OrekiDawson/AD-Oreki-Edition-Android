@@ -3962,6 +3962,96 @@
      "grep -c 0x42374876e8000000L = 1",
      "Web laitela.js:41 OREKI_LAITELA_ENTROPY_DIVISOR=2e7"
     ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "d(D,Z)V",
+    "semantic_name": "Ra 宠物 memories 生产 tick（wu3.e 遍历 qu3：memories/memoryChunks 写回）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX kajfosz/antimatterdimensions/a.java:89-155"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "g(Ljava/util/List;Ljava/lang/Integer;)D",
+    "semantic_name": "gameSpeed 倍率计算（Constants$GameSpeedEffect 列表）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:208-293"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "h(ILjava/util/List;)D",
+    "semantic_name": "gameSpeed 倍率（默认参数合成）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:293-300"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "i()D",
+    "semantic_name": "有效 gameSpeed（叠加 Nameless/Pelle 修正）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:300-315"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "j(Lkajfosz/antimatterdimensions/BigDouble;)V",
+    "semantic_name": "被动无限次数生成 infGen（写 infinities/partInfinitied）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:315-355（iq0.e.C、Player.S0、debug 'infGen'）"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "l()V",
+    "semantic_name": "maxAllDimensions（买满所有 AD；prestige.e.f() 早退）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:413-425；AntimatterDimensionState.i(s(),2.147e9)"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "n(D)V",
+    "semantic_name": "离线/模拟 tick（MainActivity.mo=simulating；InfinityUpgrade ipGen 生产 IP）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:444-474；s() 调试串 simulating=MainActivity.mo"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "p(Ljava/lang/String;Lfm1;)V",
+    "semantic_name": "崩溃日志辅助（Crashlytics）",
+    "confidence": "strong",
+    "evidence": [
+     "JADX a.java:481-494"
+    ]
+   },
+   {
+    "kind": "method",
+    "class": "Lkajfosz/antimatterdimensions/a;",
+    "descriptor": "s(Ljava/lang/Double;DDLjava/lang/Double;)Ljava/lang/String;",
+    "semantic_name": "tick 调试串（diffInput/realDiff/diff/blackHoleSpeedup/simulating）",
+    "confidence": "confirmed",
+    "evidence": [
+     "JADX a.java:541-615"
+    ]
    }
   ],
   "counts": {

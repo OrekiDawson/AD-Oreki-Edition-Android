@@ -132,3 +132,29 @@
 6. **Ra 宠物升级无独立方法**：必须照抄 UI lambda 逻辑（memories 扣减 + level/memoryUpgrades/chunkUpgrades + Ra.a.g() 复检）。
 7. **iMCap 缩放**：改 Lfh2;->a(BigDouble)D 返回值（见 IM-CAP-PATCH.md），MULT 建议 300。
 8. **IU25 成本**：b.smali:3016 常量 1.6E15→5e9；IU15 门槛已被 build_mod 缩到 1e8。
+
+## K. 附录：Game 子阶段补全（Lkajfosz/antimatterdimensions/a;，JADX + smali 证据）
+
+| 方法描述符 | 语义 | 置信 | 证据 |
+| --- | --- | --- | --- |
+| a(Continuation) | applyAutoUnlockPerks | CONFIRMED | Game$applyAutoUnlockPerks$1 lambda |
+| b(Continuation) | autoBuyerTick | CONFIRMED | Game$autoBuyerTick$1 |
+| c(Continuation) | autoUnlockDilation | CONFIRMED | Game$autoUnlockDilation$1 |
+| d(D,Z)V | Ra 宠物 memories 生产 tick（qu3.g() 产出 → RaPet memoris/memoryChunks 写回；Ra 记忆乘区） | STRONG | a.java:89-155（wu3.e 遍历 qu3、qu3.k().i()/h()、f7.m.A()） |
+| e(D)V | 膨胀 tick（DT/TP 生产 + 膨胀升级效果） | STRONG | a.java:156（iq0.U.C(dilation.a.e()*dt)、iq0.W、c01.a[0].B()） |
+| f(Double,Z,Double,Continuation) | gameTick（主 tick；内部顺序：Pelle.gameTick → GalaxyGenerator.tick → GameEnd.gameLoop 等） | CONFIRMED | Game$gameTick$1；a.smali:14435/14443/14478 |
+| g(List,Integer)D + h(I,List)D | gameSpeed 倍率计算（按 Constants$GameSpeedEffect 列表；无参默认全效果） | STRONG | a.java:208-300 |
+| i()D | 有效 gameSpeed（叠加 nameless/Pelle 修正） | STRONG | a.java:300-315 |
+| j(BigDouble)V | **被动无限次数生成（infGen）**：写 iq0.e(infinities) 与 Player.S0(partInfinitied)；异常时置 c=true 并 Crashlytics 上报 | STRONG | a.java:315-355（bigDoubleCopy、iq0.e.C、Player.a.S0、debug 'infGen'） |
+| k(D)V | **Lai'tela tick**（熵累加/结算/tier++/30s/clearCelestialRuns；JADX 与 smali 双证） | CONFIRMED | a.java:355-500；a.smali 3544-4300（详见 LAITELA-TIER.md） |
+| l()V | **maxAllDimensions**（买满所有 AD；prestige.e.f() 时早退，循环 AntimatterDimensionState.i(s(), 2.147e9)） | STRONG | a.java:413-425 |
+| m(D)V | Enslaved（被奴役者）stored time tick | STRONG | a.java:425-445（nameless a、Player.Enslaved.h()、0.4 分支） |
+| n(D)V | **离线/模拟 tick**（MainActivity.mo='simulating' 门控；InfinityUpgrade ipGen 生产 IP） | STRONG | a.java:444-474；s() 调试串 'simulating=MainActivity.mo' |
+| o(Z)Z | 暂停/时间异常判定的组合（c 标志 || !z&&q()） | UNKNOWN | a.java:474-481 |
+| p(String,fm1)V | 崩溃日志辅助（Crashlytics） | STRONG | a.java:481-494（fe1 日志、IllegalStateException） |
+| q()Z | 时钟异常/回拨判定（now - Player.H() + 10000 < 0） | UNKNOWN | a.java:494-498 |
+| r()V | **Teresa 浇注 tick**（MainActivity.vp 门控；1e24 上限/扣 RM/unlockBits） | CONFIRMED | a.java:498-541；a.smali:5733-5968 |
+| s(Double,double,double,Double)String | tick 调试串（diffInput/realDiff/diff/blackHoleSpeedup/simulating/gameSpeedup） | CONFIRMED | a.java:541-615 |
+| t(D,D)V | 记录更新（past runs / real-time 记录，cu4 时间值） | INFERRED | a.java:615-650 |
+
+说明：a()/b()/c()/f() 为 suspend（Continuation 参数）；其余为同步 static。挂接自动化时建议只在 a/f 或 StageAuto 的 runScheduled 内调用，不要在 g/i/j 这类纯计算入口注入副作用。
