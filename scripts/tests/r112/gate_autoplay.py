@@ -41,7 +41,9 @@ CRASH = (
     ("verifyerror", re.compile(r"VerifyError")),
     ("process_died", re.compile(r"Process " + re.escape(PKG) + r" .* has died")),
 )
-GAME_TEXTS = ("你拥有", "维度提升", "反物质星系", "购买最大数量")
+GAME_TEXTS = ("你拥有", "维度提升", "反物质星系", "购买最大数量", "无限进度")
+OFFLINE_TEXTS = ("正在计算离线进度", "加速 ×2", "跳过")
+STUCK_MARK = "已计算 0/1000"
 GATE_TEXTS = ("开始游戏", "确定", "跳过", "继续", "是")
 
 
@@ -73,12 +75,30 @@ def ui_dump(out_dir: Path, tag: str) -> str:
     return local.read_text(errors="replace") if local.is_file() else ""
 
 
+NODE_RE = re.compile(r"<node\b[^>]*>")
+
+
+def parse_nodes(xml: str) -> list[dict]:
+    """按节点解析属性（uiautomator 的属性顺序不保证 text 在 bounds 前）。"""
+    out = []
+    for m in NODE_RE.finditer(xml):
+        tag = m.group(0)
+        attrs = dict(re.findall(r'([\w-]+)="([^"]*)"', tag))
+        b = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", attrs.get("bounds", ""))
+        if not b:
+            continue
+        x1, y1, x2, y2 = map(int, b.groups())
+        out.append({"text": attrs.get("text", "").strip(), "clickable": attrs.get("clickable") == "true",
+                    "id": attrs.get("resource-id", ""), "bounds": (x1, y1, x2, y2)})
+    return out
+
+
 def find_tap(xml: str, text: str) -> tuple[int, int] | None:
-    m = re.search(r'text="' + re.escape(text) + r'"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
-    if not m:
-        return None
-    x1, y1, x2, y2 = map(int, m.groups())
-    return (x1 + x2) // 2, (y1 + y2) // 2
+    for n in parse_nodes(xml):
+        if n["text"] == text or (text in n["text"] and len(n["text"]) <= len(text) + 2):
+            x1, y1, x2, y2 = n["bounds"]
+            return (x1 + x2) // 2, (y1 + y2) // 2
+    return None
 
 
 def texts(xml: str) -> list[str]:
@@ -132,8 +152,15 @@ def main() -> int:
             steps.append({"step": step, "event": "in_game", "texts": ts[:6]})
             break
         acted = ""
+        # 离线结算卡死：连续多次「已计算 0/1000」→ 记录并退出（不阻断其他用例）
+        if any(t.startswith(STUCK_MARK) for t in ts):
+            stuck_hits = sum(1 for s in steps if s.get("stuck"))
+            steps.append({"step": step, "event": "offline_stuck", "texts": ts[:3], "stuck": True})
+            if stuck_hits >= 3:
+                reached = False
+                break
         # 离线结算/提示页：优先「跳过」离线模拟，其次「开始游戏」
-        for label in ("是", "跳过", "开始游戏", "确定", "继续", "好的"):
+        for label in ("跳过", "是", "开始游戏", "确定", "继续", "好的"):
             pos = find_tap(xml, label)
             if pos:
                 sh(f"input tap {pos[0]} {pos[1]}")
@@ -141,9 +168,9 @@ def main() -> int:
                 break
         if not acted:
             # 教程提示：点「下一条」
-            m = re.search(r'resource-id="[^"]*nextTipButton"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
-            if m:
-                x1, y1, x2, y2 = map(int, m.groups())
+            tip = next((n for n in parse_nodes(xml) if n["id"].endswith("nextTipButton")), None)
+            if tip:
+                x1, y1, x2, y2 = tip["bounds"]
                 sh(f"input tap {(x1 + x2) // 2} {(y1 + y2) // 2}")
                 acted = "nextTip"
         steps.append({"step": step, "acted": acted, "texts": ts[:4]})
