@@ -3346,21 +3346,24 @@ internal object GameApi {
      * ⇒ 只有 `false` 会真正执行维度提升；需求 BigDouble = `m01.h()`。
      * 这里先用原版需求复判（本 MOD 不写任何提升计数），再调用同一入口。
      */
-    fun requestDimensionBoost(): Boolean = try {
-        val requirement = dimensionBoostRequirement() ?: return false
-        val antimatter = antimatterValue() ?: return false
-        val cmp = compareBigDouble(antimatter, requirement) ?: return false
-        if (cmp < 0) return false
-        val m = method(
-            prestigeHelperCls(), "n", 1, "m01.n(Z)=dimensionBoostRequest",
-            paramTypeNames = listOf("boolean"),
-        ) ?: return false
-        m.invoke(null, false)
-        true
-    } catch (e: Throwable) {
-        miss("requestDimensionBoost", e)
-        false
+    fun requestDimensionBoost(): Boolean {
+        return try {
+            val requirement = dimensionBoostRequirement() ?: return false
+            val antimatter = antimatterValue() ?: return false
+            val cmp = compareBigDouble(antimatter, requirement) ?: return false
+            if (cmp < 0) return false
+            val m = method(
+                prestigeHelperCls(), "n", 1, "m01.n(Z)=dimensionBoostRequest",
+                paramTypeNames = listOf("boolean"),
+            ) ?: return false
+            m.invoke(null, false)
+            true
+        } catch (e: Throwable) {
+            miss("requestDimensionBoost", e)
+            false
+        }
     }
+
 
     /**
      * 原版「反物质星系」请求入口：`prestige/d.b(Continuation)`（Galaxy.galaxyReset）。
@@ -3369,34 +3372,37 @@ internal object GameApi {
      * 也执行一次 galaxyReset（那会凭空 +1 星系）。`wm1` 的构造与 UI 按钮 ti2.java:870 完全一致：
      * `new xm1()` → `xm1.a(Player.A())` 取需求、`xm1.i` 取维度层 → `new wm1(requirement, tier)`。
      */
-    fun requestGalaxy(): Boolean = try {
-        val galaxyCls = cls("kajfosz.antimatterdimensions.prestige.d") ?: return false
-        val xm1Cls = cls("xm1") ?: return false
-        val wm1Cls = cls("wm1") ?: return false
-        val galaxies = galaxies() ?: return false
-        val bdCls = bigDoubleCls() ?: return false
-        val xm = xm1Cls.getDeclaredConstructor().newInstance()
-        val reqMethod = method(
-            xm1Cls, "a", 1, "xm1.a(J)=galaxyRequirement",
-            paramTypeNames = listOf("long"),
-        ) ?: return false
-        val requirement = reqMethod.invoke(xm, galaxies) ?: return false
-        val tier = xm1Cls.getField("i").getInt(xm)
-        val wm = wm1Cls.getDeclaredConstructor(bdCls, java.lang.Integer.TYPE)
-            .newInstance(requirement, java.lang.Integer.valueOf(tier))
-        val canMethod = method(
-            galaxyCls, "a", 1, "Galaxy.a(wm1)=canBeBought",
-            paramTypeNames = listOf("wm1"),
-        ) ?: return false
-        if (canMethod.invoke(null, wm) != true) return false
-        val galaxy = staticField(galaxyCls, "a")?.get(null) ?: return false
-        val resetMethod = method(galaxyCls, "b", 1, "Galaxy.b(Cont)=galaxyReset") ?: return false
-        resetMethod.invoke(galaxy, orekiContinuation())
-        true
-    } catch (e: Throwable) {
-        miss("requestGalaxy", e)
-        false
+    fun requestGalaxy(): Boolean {
+        return try {
+            val galaxyCls = cls("kajfosz.antimatterdimensions.prestige.d") ?: return false
+            val xm1Cls = cls("xm1") ?: return false
+            val wm1Cls = cls("wm1") ?: return false
+            val galaxies = galaxies() ?: return false
+            val bdCls = bigDoubleCls() ?: return false
+            val xm = xm1Cls.getDeclaredConstructor().newInstance()
+            val reqMethod = method(
+                xm1Cls, "a", 1, "xm1.a(J)=galaxyRequirement",
+                paramTypeNames = listOf("long"),
+            ) ?: return false
+            val requirement = reqMethod.invoke(xm, galaxies) ?: return false
+            val tier = xm1Cls.getField("i").getInt(xm)
+            val wm = wm1Cls.getDeclaredConstructor(bdCls, java.lang.Integer.TYPE)
+                .newInstance(requirement, java.lang.Integer.valueOf(tier))
+            val canMethod = method(
+                galaxyCls, "a", 1, "Galaxy.a(wm1)=canBeBought",
+                paramTypeNames = listOf("wm1"),
+            ) ?: return false
+            if (canMethod.invoke(null, wm) != true) return false
+            val galaxy = staticField(galaxyCls, "a")?.get(null) ?: return false
+            val resetMethod = method(galaxyCls, "b", 1, "Galaxy.b(Cont)=galaxyReset") ?: return false
+            resetMethod.invoke(galaxy, orekiContinuation())
+            true
+        } catch (e: Throwable) {
+            miss("requestGalaxy", e)
+            false
+        }
     }
+
 
     /**
      * 原版「大坍缩」按钮同路径：`prestige/e.i(Continuation)`（Infinity.bigCrunchReset）。
