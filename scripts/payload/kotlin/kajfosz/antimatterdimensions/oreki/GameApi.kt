@@ -2134,6 +2134,29 @@ internal object GameApi {
         return mQrB
     }
 
+    /**
+     * [R108-01] 对指定 Imaginary Upgrade 调原版「解锁复检」`R()V`。
+     *
+     * 一次性虚幻升级的「可购买」判据 `a(Z)Z` 里的 `A(Z)Z` 读的是
+     * `Player$Reality.imaginaryRequirementBits`（由 `R()` 在原版事件里刷新）。
+     * 无人值守路径不会触发原版事件 ⇒ 位图长期为 0 ⇒ `canBeBought` 恒 false，
+     * 表现为「amE/IM 都够但永远买不到」（R108-01 AVD 实测：amE=1.6e9、IM=4.5e10、iMCap=4.5e10、
+     * clean reality、iuBits=0，sprint 卡在 RUNNING 且封锁 ID 购买）。
+     *
+     * @param fieldName 注册表 `reality/imaginary_upgrades/b` 的静态字段名（IU15="k"、IU25="s"）
+     * @return true = 调用成功（不代表位图一定置位，位图仍由原版判定）
+     */
+    fun imaginaryTryUnlock(fieldName: String): Boolean = try {
+        val holder = cls("kajfosz.antimatterdimensions.reality.imaginary_upgrades.b") ?: return false
+        val upgrade = staticField(holder, fieldName)?.get(null) ?: return false
+        val m = method(qr3Cls(), "R", 0, "IU.R()=tryUnlock") ?: return false
+        m.invoke(upgrade)
+        true
+    } catch (error: Throwable) {
+        miss("imaginaryTryUnlock", error)
+        false
+    }
+
     /** IU15 是否满足需求且未购买（原版 `qr3.a(Z)Z`）。 */
     fun iu15CanBeBought(): Boolean {
         val upgrade = iu15Obj() ?: return false

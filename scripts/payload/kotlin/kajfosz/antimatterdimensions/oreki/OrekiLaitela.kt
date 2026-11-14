@@ -57,6 +57,7 @@ object OrekiLaitela {
     @Volatile private var lastLogSig: String = ""
     @Volatile private var unequipTriedAt: Long = 0L
     @Volatile private var lastTickAt: Long = 0L
+    @Volatile private var lastIuUnlockAt: Long = 0L
 
     private val methodCache = HashMap<String, Any>()
     private val noValue = Any()
@@ -271,6 +272,12 @@ object OrekiLaitela {
                 setHold(false)
                 val im = imaginaryMachines()
                 val glyphs = activeGlyphCount()
+                // [R108-01] 周期性调原版 IU 解锁复检 R()V：一次性 IU 的 requirementBits
+                // 无人值守时不会自动刷新，否则 IU25 会「条件全满足但 canBeBought 恒 false」。
+                if (now - lastIuUnlockAt >= 1_000L) {
+                    lastIuUnlockAt = now
+                    GameApi.imaginaryTryUnlock("s")
+                }
                 if (iuCanBeBought("s")) {
                     val ok = iuPurchase("s")
                     logLimited("IU25 purchase ok=" + ok + " im=" + im + " tier=" + tier +

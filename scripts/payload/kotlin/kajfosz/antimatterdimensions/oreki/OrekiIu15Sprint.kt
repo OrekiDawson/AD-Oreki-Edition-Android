@@ -57,6 +57,16 @@ object OrekiIu15Sprint {
     /** 连续失败多少次后放弃接管（防止整局卡在限制态）。 */
     const val MAX_FAILS: Int = 3
 
+    /** [R108-01] 「条件已满足却买不到」的诊断/放弃阈值（毫秒）。
+     *  AVD 实测死锁：amE=1.6e9、maxID1=0、IM/iMCap 都够，但一次性 IU 的
+     *  imaginaryRequirementBits 从未被原版事件刷新 ⇒ canBeBought 恒 false ⇒
+     *  旧实现每帧直接 return，既不超时也不释放，封锁 ID 购买把整局卡在 realities=2。
+     */
+    private const val BUY_BLOCK_LOG_MS: Long = 15_000L
+    private const val BUY_BLOCK_GIVEUP_MS: Long = 60_000L
+    private const val STATUS_LOG_MS: Long = 30_000L
+    private const val UNLOCK_RETRY_MS: Long = 1_000L
+
     private const val PHASE_IDLE = "idle"
     private const val PHASE_ARMED = "armed"
     private const val PHASE_RUNNING = "running"
@@ -103,6 +113,18 @@ object OrekiIu15Sprint {
      */
     @Volatile
     private var autobuyerWasOn: Boolean = true
+
+    /** [R108-01] 最近一次调原版 IU 解锁复检 `R()V` 的时刻。 */
+    @Volatile
+    private var lastUnlockAtMs: Long = 0L
+
+    /** [R108-01] 「amE 已达标但购买被拒」的起始时刻（0 = 未阻塞）。 */
+    @Volatile
+    private var buyBlockedSinceMs: Long = 0L
+
+    /** [R108-01] 运行期状态日志节流。 */
+    @Volatile
+    private var lastStatusAtMs: Long = 0L
 
     /** 把指数值格式化成日志用的短字符串（Kotlin 没有 JS 的 toExponential）。 */
     private fun fmtExp(value: Double): String =
@@ -234,9 +256,16 @@ object OrekiIu15Sprint {
                 PHASE_ARMED -> {
                     // 等一次真实现实重置：maxID1 归零后才开始计时，
                     // 否则「本现实已经脏了」的冲刺没有意义。
+                    // [R108-01] 同时在 armed 期就周期刷新原版 IU 解锁位图（R()V），
+                    // 否则 canBeBought 可能因为位图从未刷新而恒 false。
+                    if (now - lastUnlockAtMs >= UNLOCK_RETRY_MS) {
+                        lastUnlockAtMs = now
+                        GameApi.imaginaryTryUnlock("k")
+                    }
                     if (isCleanReality()) {
                         phase = PHASE_RUNNING
                         startMs = now
+                        lastStatusAtMs = now
                         startAmExp = GameApi.antimatterExponent()
                         peakAmExp = startAmExp
                         Log.i(TAG, "干净现实开始：amE=1e${fmtExp(startAmExp)}")
@@ -247,20 +276,44 @@ object OrekiIu15Sprint {
                 PHASE_RUNNING -> {
                     val amExp = GameApi.antimatterExponent()
                     if (amExp > peakAmExp) peakAmExp = amExp
+                    // [R108-01] 周期刷新原版 IU 解锁位图 + 状态日志（30s 一行）
+                    if (now - lastUnlockAtMs >= UNLOCK_RETRY_MS) {
+                        lastUnlockAtMs = now
+                        GameApi.imaginaryTryUnlock("k")
+                    }
+                    if (now - lastStatusAtMs >= STATUS_LOG_MS) {
+                        lastStatusAtMs = now
+                        Log.i(TAG, "冲刺中：amE=1e${fmtExp(amExp)} peak=1e${fmtExp(peakAmExp)} " +
+                            "canBuy=${GameApi.iu15CanBeBought()} bought=${GameApi.iu15Bought()} " +
+                            "capOk=${GameApi.iu15AffordableByCap()} clean=${isCleanReality()} " +
+                            "elapsed=${(now - startMs) / 1000}s")
+                    }
                     if (!isCleanReality()) {
                         fail("maxID1-nonzero", now)
                         return
                     }
                     if (amExp >= TARGET_AM_EXP) {
+                        if (buyBlockedSinceMs == 0L) buyBlockedSinceMs = now
                         if (tryBuy()) {
                             boughtAmExp = amExp
                             Log.i(TAG, "冲刺成功：IU15 已买入 amE=1e${fmtExp(amExp)} " +
                                 "用时 ${(now - startMs) / 1000}s")
                             releaseNow("bought")
+                            buyBlockedSinceMs = 0L
                             phase = PHASE_DONE
+                            return
                         }
+                        // [R108-01] 条件达标但购买被拒：不能再静默 return（旧缺陷）
+                        val blockedMs = now - buyBlockedSinceMs
+                        if (blockedMs >= BUY_BLOCK_LOG_MS) {
+                            Log.i(TAG, "买到条件却买不到：阻塞 ${blockedMs / 1000}s " +
+                                "canBuy=${GameApi.iu15CanBeBought()} bought=${GameApi.iu15Bought()} " +
+                                "capOk=${GameApi.iu15AffordableByCap()} amE=1e${fmtExp(amExp)}")
+                        }
+                        if (blockedMs >= BUY_BLOCK_GIVEUP_MS) fail("buy-rejected", now)
                         return
                     }
+                    buyBlockedSinceMs = 0L
                     if (now - startMs > SPRINT_MAX_MS) fail("timeout", now)
                 }
                 PHASE_COOLDOWN -> {

@@ -55,7 +55,36 @@
 - Android P0-2 节奏已按 Web 对照结果对齐：一次性 RU 每拍最多 8 个（原 1），tryUnlock 每拍（原每 10 拍）。
 - 已知双端节奏差异（待裁）：Web 的 Teresa 浇注耗时 459.8s（设计约 2.3s），因 celestial 任务约 19s 才被调度一次 + OREKI_MAX_REAL_FRAME_MS=100 单次只累计 100ms；Android 走原版主循环 Game.r() 按帧累计，不存在该损失。
 
-### B.4 待根因（不追认为 PASS）
+
+### B.5 build7 跑次（IM 上限 3000）真实结果 —— M1 核心闭环达成 + 发现并修复 P0 死锁
+
+**默认设置新档、10 分钟内首 reality、realities 0→2、RM 触顶 1e1000、RU 大量真实购买、Teresa 浇满 1e24**（证据：`reports/R108-01/avd-evidence/m2-build7-cap3000/`，原始 logcat 在 `~/private-staging/r108-evidence/`）。
+
+| 观测 | 值（09:43 实时存档） |
+| --- | --- |
+| realities | 2 |
+| RM / maxRM | 9.99999897e999 / 1e1000（硬顶） |
+| 可重复 RU1~5 | [173, 173, 170, 170, 155]（真实购买、真实扣 RM） |
+| 一次性 RU 位图 | upgradeBits=852947 |
+| IM / iMCap | 4.5026e10 / 4.5027e10（×300 生效，与 baseIMCap 公式一致） |
+| Teresa pouredAmount | **1e+24（浇满）**，unlockBits=63（含 Effarig 解锁位） |
+| Effarig | run=false、unlockBits=0、relicShards=0（未进入/未买门票） |
+| Lai'tela / Pelle / gameEnd | tier=0 / doomed=false / endState=false |
+
+日志证据：
+
+- `OREKI_RU_AUTO: buy ok total=508 tick=3 ... oneTimeBought=8 rmBefore=have=1.0e1000 ... rmAfter=have=1.0e1000`（一次 tick 508 笔真实购买，RM 已在硬顶）
+- `OREKI_REALITY: 1`（真实重置打点）
+- `OREKI_IU15: 接管开始` / `干净现实开始：amE=1e7`
+
+**发现 P0 死锁（真实缺陷，已修复）**：
+
+- 现象：IU15 冲刺进入 RUNNING 后整局停滞——amE 实际已达 **1.6e9**（≫ 目标 1e8）、`maxID1=0`（干净现实）、IM/iMCap 都够，但 `iuBits=0`（IU15 从未买入），且 realities 停在 2。
+- 根因 1：一次性 Imaginary Upgrade 的「可买」判据依赖 `Player$Reality.imaginaryRequirementBits`，该位图只由原版事件路径 `R()`（tryUnlock）刷新；无人值守时无人调用 ⇒ `canBeBought` 恒 false。
+- 根因 2：旧 `OrekiIu15Sprint` 在 `amE>=TARGET` 且 `tryBuy()` 失败时**直接 return**，既不超时也不释放 ⇒ ID1~ID8 购买封锁永不解除 ⇒ 整局产量停摆、realities 不再增长。
+- 修复（build8，SHA 6cec5720…）：① `GameApi.imaginaryTryUnlock(field)` 周期调原版 `R()V`（IU15 冲刺 1s 一次；莱特拉 IU25 同样接入）；② 冲刺 `RUNNING` 增加「条件达标却买不到」的 15s 诊断日志与 60s 放弃/释放，不再静默 return；③ 30s 状态日志（amE/peak/canBuy/bought/capOk/clean）。
+- 验证状态：**AVD NOT RUN**（build8 跑次 09:48 已启动，结果见下一轮）。
+### B.6 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
 - **日志缺失**：m2-fresh-long 中 `OREKI_REALITY`（OrekiReality 真实重置打点）与 `OREKI_REALITY_PACING` 全缺，但 DS6 购买与 realities=1 均真实发生；代码已核（APK 内 OrekiReality 含 pacing 调用，dexdump 验证）。怀疑 logd 在 TT_REWARD 高频刷屏下丢行（原始 logcat 已存 private-staging）；下一轮改用 `adb logcat -b main` 独立缓冲或降低刷屏日志频率取证。
@@ -88,6 +117,7 @@
 | build4 | fe5f0b80…（本轮日志记录前缀） | + Teresa vp 修复 + RU 扣费日志 |
 | build6 | 3d1efee52113a9e24a4ea3b52b41b2644fc4715c3454b591ad8fb40ce574efd8 | + IM 上限×300 / IU25=5e9 / 莱特拉熵 2e7 / OrekiLaitela 驱动 |
 | build7 | f87d95907103420daa509b65a81733d04ab8c21766f68aba7674666d78b02a7e | + IM 上限倍率 3000（双端统一）、一次性 RU 每拍 8 个/tryUnlock 每拍（对齐 Web） |
+| build8 | 6cec572029443da1d831b16f89bdb78f2cebd618a19e50df20860e3411698d55 | + IU15 死锁修复（imaginaryTryUnlock + 买到不动的诊断/释放）+ IU25 tryUnlock 接线 |
 
 ## E. 技术迁移 / 语义反混淆
 
