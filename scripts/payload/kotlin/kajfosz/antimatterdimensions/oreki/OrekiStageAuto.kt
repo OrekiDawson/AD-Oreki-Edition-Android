@@ -1809,6 +1809,13 @@ object OrekiStageAuto {
         try {
             // R85：坍缩模式/间隔属于 MOD 接管，关闭总开关后立即让路给玩家。
             if (!OrekiAutomationScheduler.isEnabled()) return
+            // [R109-01] 末日阶段（Pelle）的策略与常规阶段相反，必须整体让路给 OrekiPelle：
+            // Web R38-M/R40-A5 的实测结论是「反物质必须单调增长」——GameEnd 判据读的是
+            // records.totalAntimatter 峰值，任何大坍缩都会把反物质清零并压住峰值
+            // （Web 实测 pamE 105 秒零增长，同期 ad1 涨了 186 个数量级）。
+            // OrekiPelle.tick() 在本函数之前已经按 Web _stopDoomedResets 关掉两个自动器；
+            // 这里若继续执行阶段策略，会把它们重新打开并写坍缩间隔/模式，直接破坏上述前提。
+            if (GameApi.isDoomed()) return
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
 

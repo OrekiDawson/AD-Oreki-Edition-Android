@@ -3173,6 +3173,278 @@ internal object GameApi {
         }
     }
 
+    // ==================================================================
+    // [R109-01] 终局链（Pelle 末日阶段）与 DS6 的原版入口桥
+    //
+    // 原则：自动化只负责「在正确判据下按同一个原版按钮」，不写任何存档字段、不发货币。
+    // 证据（work/base_decoded_321，3.21 官方解码树）：
+    //
+    //  · 全部最大维度：Lkajfosz/antimatterdimensions/a;->l()V（Game.maxAll 方法体，
+    //    a.smali:4973-5120）：遍历 Player.v().a() 的 8 个 AntimatterDimensionState，
+    //    逐个 i(s(), 2.147483647E9)（= AntimatterDimensionState.i(LBigDouble;D)V 批量购买），
+    //    末尾 zt4.a()V（攻速「全部最大」）。唯一 UI 调用点 MainActivity$loadViewsMain$32$1:107。
+    //    该方法体首句 if (prestige/e.f()) return 是 UI 前置门（f()=canBigCrunch && !broken），
+    //    末日阶段需要早于 canBigCrunch 也推进，所以这里复刻**方法体**、不复刻 UI 门。
+    //  · 维度提升：Lm01;->n(Z)V（m01.smali:2092）。方法体首条 if (z || 挑战) return
+    //    ⇒ 只接受 z=false；需求 BigDouble 由 m01.h() 提供。
+    //  · 反物质星系：Lkajfosz/antimatterdimensions/prestige/d;->b(Lkotlin/coroutines/...;)Ljava/lang/Object;
+    //    （Galaxy.galaxyReset，d.java:67）；可买复判 d.a(Lwm1;)Z（d.java:35），
+    //    入参 wm1 由 new xm1() + xm1.a(J)（需求）+ xm1.i（维度层）构造，与 UI 按钮
+    //    ti2.java:870 的 d.a(new wm1(xm1Var3.a(Player.a.A()), xm1Var3.i)) 同式。
+    //  · 大坍缩：Lkajfosz/antimatterdimensions/prestige/e;->i(Lkotlin/coroutines/...;)Ljava/lang/Object;
+    //    （= Infinity.bigCrunchReset，e.java:166）。UI 大坍缩按钮唯一调用：
+    //    MainActivityBigCrunchKt$bigCrunchResetRequest$1:144；内部自带 e.b()（canBigCrunch）复判。
+    //  · DS6（膨胀研究 6 = Web TimeStudy.reality）：c01.a[5].B()Z；
+    //    与 Lprestige/f;->f()Z 首句同源（f.smali:1245-1270 的 sget-object c01;->a + index 5）。
+    //    注意 f() 的另一半是 Player.R().l().j() = ThisReality.maxEP >= fw.K3(1e4000)，
+    //    不是 maxRM（ThisReality.j() 方法体直接 iget-object maxEP）。
+    // ==================================================================
+
+    /** 原版 Game.maxAll 里传给 AntimatterDimensionState.i(cost,count) 的「无限」购买数。 */
+    private const val MAX_BUY_COUNT = 2147483647.0
+
+    private fun orekiContinuation(): Any? = try {
+        cls("kajfosz.antimatterdimensions.OrekiEcContinuation")
+            ?.let { staticField(it, "a")?.get(null) }
+    } catch (_: Throwable) {
+        null
+    }
+
+    private var mPlayerV: Method? = null
+    private var mPlayerVResolved = false
+    private fun mPlayerV(): Method? {
+        if (!mPlayerVResolved) {
+            mPlayerVResolved = true
+            mPlayerV = method(playerCls(), "v", 0, "Player.v()=dimensions")
+        }
+        return mPlayerV
+    }
+
+    private var mDimsA: Method? = null
+    private var mDimsAResolved = false
+    private fun mDimsA(): Method? {
+        if (!mDimsAResolved) {
+            mDimsAResolved = true
+            mDimsA = method(
+                cls("kajfosz.antimatterdimensions.player.Player\$Dimensions"), "a", 0,
+                "Player.Dimensions.a()=dimensions",
+            )
+        }
+        return mDimsA
+    }
+
+    private var mDimCostS: Method? = null
+    private var mDimCostSResolved = false
+    private fun mDimCostS(): Method? {
+        if (!mDimCostSResolved) {
+            mDimCostSResolved = true
+            mDimCostS = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "s", 0, "AntimatterDimensionState.s()=cost",
+            )
+        }
+        return mDimCostS
+    }
+
+    private var mDimBuyMany: Method? = null
+    private var mDimBuyManyResolved = false
+    private fun mDimBuyMany(): Method? {
+        if (!mDimBuyManyResolved) {
+            mDimBuyManyResolved = true
+            mDimBuyMany = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "i", 2, "AntimatterDimensionState.i(cost,count)=buyMany",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble", "double"),
+            )
+        }
+        return mDimBuyMany
+    }
+
+    private var mTickspeedMax: Method? = null
+    private var mTickspeedMaxResolved = false
+    private fun mTickspeedMax(): Method? {
+        if (!mTickspeedMaxResolved) {
+            mTickspeedMaxResolved = true
+            mTickspeedMax = method(cls("zt4"), "a", 0, "zt4.a()=tickspeedBuyMax")
+        }
+        return mTickspeedMax
+    }
+
+    /** `Player.v().a()` 的 8 个反物质维度状态（只读）。 */
+    fun antimatterDimensionStates(): Array<*>? = try {
+        val container = call(mPlayerV(), player()) ?: return null
+        val arr = call(mDimsA(), container)
+        arr as? Array<*>
+    } catch (e: Throwable) {
+        miss("antimatterDimensionStates", e)
+        null
+    }
+
+    /**
+     * 原版「全部最大」的核心动作（Game.l()V 方法体，去掉它的 UI 前置门）。
+     *
+     * 对 8 个反物质维度各调用一次原版批量购买 `i(当前成本, MAX_BUY_COUNT)`，再调用原版
+     * 攻速「全部最大」`zt4.a()V`。购买本身仍由原版 `D(cost)`（canBuy + BigDouble 扣款）把关，
+     * 买不起就是 no-op —— 不创建任何货币，也不写字段。
+     *
+     * @return 实际驱动到的维度层数（0 = 读不到状态，未动作）
+     */
+    fun maxAllDimensions(): Int = try {
+        val dims = antimatterDimensionStates() ?: return 0
+        val costMethod = mDimCostS() ?: return 0
+        val buyMethod = mDimBuyMany() ?: return 0
+        var acted = 0
+        var i = 0
+        while (i < dims.size) {
+            val state = dims[i]
+            if (state != null) {
+                val cost = costMethod.invoke(state)
+                if (cost != null) {
+                    buyMethod.invoke(state, cost, MAX_BUY_COUNT)
+                    acted++
+                }
+            }
+            i++
+        }
+        if (acted > 0) call(mTickspeedMax(), null)
+        acted
+    } catch (e: Throwable) {
+        miss("maxAllDimensions", e)
+        0
+    }
+
+    private var mBigDoubleCompareBd: Method? = null
+    private var mBigDoubleCompareBdResolved = false
+    private fun mBigDoubleCompareBd(): Method? {
+        if (!mBigDoubleCompareBdResolved) {
+            mBigDoubleCompareBdResolved = true
+            // BigDouble.compareTo 有 (Double)/(Int)/(Long)/(Object)/(BigDouble) 五份重载，必须精确锁 (BigDouble)。
+            mBigDoubleCompareBd = method(
+                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
+        }
+        return mBigDoubleCompareBd
+    }
+
+    /** `BigDouble.compareTo(BigDouble)` → -1/0/1；任一侧不可读返回 null。 */
+    fun compareBigDouble(a: Any?, b: Any?): Int? {
+        if (a == null || b == null) return null
+        val m = mBigDoubleCompareBd() ?: return null
+        return try {
+            m.invoke(a, b) as? Int
+        } catch (e: Throwable) {
+            miss("BigDouble.compareTo(BigDouble)", e)
+            null
+        }
+    }
+
+    /**
+     * 原版「维度提升」请求入口：`m01.n(false)V`。
+     *
+     * 证据：`m01.smali:2092` 方法体首条 `if-nez p0` 后紧跟挑战守卫，`z=true` 直接 return
+     * ⇒ 只有 `false` 会真正执行维度提升；需求 BigDouble = `m01.h()`。
+     * 这里先用原版需求复判（本 MOD 不写任何提升计数），再调用同一入口。
+     */
+    fun requestDimensionBoost(): Boolean = try {
+        val requirement = dimensionBoostRequirement() ?: return false
+        val antimatter = antimatterValue() ?: return false
+        val cmp = compareBigDouble(antimatter, requirement) ?: return false
+        if (cmp < 0) return false
+        val m = method(
+            prestigeHelperCls(), "n", 1, "m01.n(Z)=dimensionBoostRequest",
+            paramTypeNames = listOf("boolean"),
+        ) ?: return false
+        m.invoke(null, false)
+        true
+    } catch (e: Throwable) {
+        miss("requestDimensionBoost", e)
+        false
+    }
+
+    /**
+     * 原版「反物质星系」请求入口：`prestige/d.b(Continuation)`（Galaxy.galaxyReset）。
+     *
+     * 必须先按原版 `d.a(wm1)` 复判可买（该方法里还包含挑战/毁灭等前置），否则会凭需求未达
+     * 也执行一次 galaxyReset（那会凭空 +1 星系）。`wm1` 的构造与 UI 按钮 ti2.java:870 完全一致：
+     * `new xm1()` → `xm1.a(Player.A())` 取需求、`xm1.i` 取维度层 → `new wm1(requirement, tier)`。
+     */
+    fun requestGalaxy(): Boolean = try {
+        val galaxyCls = cls("kajfosz.antimatterdimensions.prestige.d") ?: return false
+        val xm1Cls = cls("xm1") ?: return false
+        val wm1Cls = cls("wm1") ?: return false
+        val galaxies = galaxies() ?: return false
+        val bdCls = bigDoubleCls() ?: return false
+        val xm = xm1Cls.getDeclaredConstructor().newInstance()
+        val reqMethod = method(
+            xm1Cls, "a", 1, "xm1.a(J)=galaxyRequirement",
+            paramTypeNames = listOf("long"),
+        ) ?: return false
+        val requirement = reqMethod.invoke(xm, galaxies) ?: return false
+        val tier = xm1Cls.getField("i").getInt(xm)
+        val wm = wm1Cls.getDeclaredConstructor(bdCls, java.lang.Integer.TYPE)
+            .newInstance(requirement, java.lang.Integer.valueOf(tier))
+        val canMethod = method(
+            galaxyCls, "a", 1, "Galaxy.a(wm1)=canBeBought",
+            paramTypeNames = listOf("wm1"),
+        ) ?: return false
+        if (canMethod.invoke(null, wm) != true) return false
+        val galaxy = staticField(galaxyCls, "a")?.get(null) ?: return false
+        val resetMethod = method(galaxyCls, "b", 1, "Galaxy.b(Cont)=galaxyReset") ?: return false
+        resetMethod.invoke(galaxy, orekiContinuation())
+        true
+    } catch (e: Throwable) {
+        miss("requestGalaxy", e)
+        false
+    }
+
+    /**
+     * 原版「大坍缩」按钮同路径：`prestige/e.i(Continuation)`（Infinity.bigCrunchReset）。
+     *
+     * 方法内部自带 `e.b()`（canBigCrunch）复判，未达门槛时返回且不做任何重置 —— 与玩家点
+     * 大坍缩按钮完全一致。用于佩勒末日阶段「拉满大坍缩间隔所需的真实 IP」那一步
+     * （Web _pulseDoomedCrunch 的 bigCrunchResetRequest(true)）。
+     */
+    fun bigCrunchReset(): Boolean = try {
+        val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
+        val m = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
+        m.invoke(null, orekiContinuation())
+        true
+    } catch (e: Throwable) {
+        miss("bigCrunchReset", e)
+        false
+    }
+
+    /** 原版 `prestige/e.b()Z` = canBigCrunch（本无限 maxAM 已达无限门槛）。 */
+    fun canBigCrunch(): Boolean = try {
+        val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
+        (method(infinityCls, "b", 0, "Infinity.b()=canBigCrunch")?.invoke(null) as? Boolean)
+            ?: false
+    } catch (e: Throwable) {
+        miss("canBigCrunch", e)
+        false
+    }
+
+    /**
+     * DS6（膨胀研究 6 / Web `TimeStudy.reality`）是否已在本现实买上。
+     *
+     * 证据：`prestige/f.f()Z`（f.smali:1245-1270，JADX f.java:187-189）=
+     *   `c01.a[5].B()` && `Player.records.thisReality.maxEP >= fw.K3`（fw.K3 = 1e4000）；
+     * 其中 ThisReality.j() 方法体是 `iget-object maxEP`（不是 maxRM）。
+     * 这里只取前半（DS6 本身），因为 IU25 的 checkRequirement 只要求 DS6，不要求 maxEP。
+     */
+    fun ds6Bought(): Boolean = try {
+        val studiesCls = cls("c01") ?: return false
+        val studies = studiesCls.getField("a").get(null)
+        if (studies !is Array<*> || studies.size < 6) return false
+        val study = studies[5] ?: return false
+        val m = method(cls("na4"), "B", 0, "DilationStudy.B()=isBought") ?: return false
+        (m.invoke(study) as? Boolean) ?: false
+    } catch (e: Throwable) {
+        miss("ds6Bought", e)
+        false
+    }
+
     // ---------------------------------------------------------------- 调用工具
 
     /**
