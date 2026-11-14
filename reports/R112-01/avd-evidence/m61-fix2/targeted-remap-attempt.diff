@@ -1,0 +1,103 @@
+diff --git a/scripts/agp_gamejar2.py b/scripts/agp_gamejar2.py
+index e1b54b63..d82e0a1a 100644
+--- a/scripts/agp_gamejar2.py
++++ b/scripts/agp_gamejar2.py
+@@ -40,6 +40,11 @@ DEFAULT_OFFICIAL_SHA = "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c12
+ EXPECTED_OFFICIAL_CLASSES = 15319
+ SHADOW_PREFIX = "kotlin/"
+ SHADOW_NEW_PREFIX = "oreki/shadow/kotlin/"
++# R112-01 P0：MOD 新增业务类默认绑定 AGP stdlib；仅这些「已证实 ABI 不兼容」的 kotlin 类
++# 需要定向 shadow 重映射（见 docs/AGP_SIGNATURE_BACKFILL.md 与 P0-AGP-KOTLIN-ABI-CRASH.md）。
++FORCED_SHADOW_KOTLIN = {
++    "kotlin/coroutines/EmptyCoroutineContext",
++}
+ DEFAULT_KNOWN_INVALID = [
+     "kajfosz/antimatterdimensions/mainactivity/MainActivityAutomatorKt$updateAutomator$1",
+ ]
+@@ -303,10 +308,11 @@ def java_main(java: str, classpath: list[str], main_class: str, args: list[str],
+ 
+ def remap_selective(java: str, classpath: list[str], in_jar: Path, out_jar: Path,
+                     official_file: Path, exclusion_file: Path, shadow_file: Path,
+-                    m53_fix_jar: str) -> dict:
++                    m53_fix_jar: str, forced_file: Path | None = None) -> dict:
+     result = java_main(java, classpath, "RemapSelective",
+                        [str(in_jar), str(out_jar), str(official_file),
+-                        str(exclusion_file), str(shadow_file), m53_fix_jar])
++                        str(exclusion_file), str(shadow_file), m53_fix_jar,
++                    str(forced_file) if forced_file else ""])
+     require(result["returncode"] == 0,
+             "RemapSelective 失败:\n" + result["stdout"][-4000:] + result["stderr"][-4000:])
+     stats = {}
+@@ -473,6 +479,10 @@ def main() -> int:
+ 
+     official_file = work_dir / "official-classes.txt"
+     exclusion_file = work_dir / "exclusion-classes.txt"
++    forced_file = work_dir / "forced-shadow.txt"
++    missing_forced = sorted(FORCED_SHADOW_KOTLIN - shadow_classes)
++    require(not missing_forced, "FORCED_SHADOW_KOTLIN 不在官方 shadow 集合: %s" % missing_forced)
++    forced_file.write_text("\n".join(sorted(FORCED_SHADOW_KOTLIN)) + "\n", encoding="utf-8")
+     shadow_file = work_dir / "shadow-classes.txt"
+     official_file.write_text("\n".join(sorted(official_classes)) + "\n", encoding="utf-8")
+     exclusion_file.write_text("\n".join(sorted(exclusion_classes)) + "\n", encoding="utf-8")
+@@ -552,10 +562,10 @@ def main() -> int:
+     modded_selective = out_dir / "modded-selective.jar"
+     report["steps"]["remap_official"] = remap_selective(
+         java, asm_classpath, official_enjarify, official_selective,
+-        official_file, empty_file, shadow_file, "")
++        official_file, empty_file, shadow_file, "", forced_file)
+     report["steps"]["remap_modded"] = remap_selective(
+         java, asm_classpath, remap_input, modded_selective,
+-        official_file, exclusion_file, shadow_file, m53_fix_jar)
++        official_file, exclusion_file, shadow_file, m53_fix_jar, forced_file)
+     require(report["steps"]["remap_modded"]["stats"].get("KEPT", 0) == len(union_three_dex),
+             "RemapSelective 保留类数异常: %s vs %d"
+             % (report["steps"]["remap_modded"]["stats"].get("KEPT"), len(union_three_dex)))
+@@ -774,7 +784,7 @@ def main() -> int:
+         }
+ 
+     # 9.5) fail-closed：最终 jar 不得残留对 shadow 集合内 kotlin/** 类的原始引用（R112-01 P0）
+-    plain_ref_check = scan_plain_kotlin_class_refs(final_jar, shadow_classes)
++    plain_ref_check = scan_plain_kotlin_class_refs(final_jar, set(FORCED_SHADOW_KOTLIN))
+     report["checks"]["no_plain_kotlin_refs"] = plain_ref_check
+     require(plain_ref_check["violation_count"] == 0,
+             "存在未重映射的 kotlin 引用（ABI 风险，可能有 NoSuchFieldError）: %s"
+diff --git a/scripts/dexfix/r107/java/RemapSelective.java b/scripts/dexfix/r107/java/RemapSelective.java
+index ec71ae72..de9c1761 100644
+--- a/scripts/dexfix/r107/java/RemapSelective.java
++++ b/scripts/dexfix/r107/java/RemapSelective.java
+@@ -23,6 +23,7 @@ public class RemapSelective {
+         Set<String> official = readSet(args[2]);
+         Set<String> exclusion = readSet(args[3]);
+         Set<String> shadow = readSet(args[4]);
++        Set<String> forced = (args.length > 6 && !args[6].isEmpty()) ? readSet(args[6]) : new HashSet<>();
+         byte[] m53fix = null;
+         if (args.length > 5 && !args[5].isEmpty()) {
+             try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(Path.of(args[5])))) {
+@@ -42,6 +43,15 @@ public class RemapSelective {
+                 return n;
+             }
+         };
++        // R112-01 P0 折中：MOD 新增业务类默认仍绑定 AGP stdlib（保存/协程路径依赖它），
++        // 只对「已证实 ABI 不兼容」的 kotlin 类做定向 shadow 重映射（forced），避免全量重映射
++        // 破坏 MOD 存档协程路径（实测全量重映射会导致不写档）。
++        Remapper forcedRemap = new Remapper() {
++            @Override public String map(String n) {
++                if (forced.contains(n) && shadow.contains(n)) return NEW_PREFIX + n.substring(PREFIX.length());
++                return n;
++            }
++        };
+         int kept=0, dropped=0, failed=0, remapped=0;
+         List<String> failures = new ArrayList<>();
+         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(out))) {
+@@ -56,9 +66,8 @@ public class RemapSelective {
+                     try {
+                         ClassReader cr = new ClassReader(ent.getValue());
+                         ClassWriter cw = new ClassWriter(0);
+-                        // 所有保留类统一重映射：gameRemap 只改 shadow 集合内的 kotlin/** 引用，
+-                        // 集合外的引用原样保留（仍绑定 AGP 内置 stdlib）。
+-                        cr.accept(new ClassRemapper(cw, gameRemap), 0);
++                        // game 类全量 shadow 重映射；新增业务类只做 forced 定向重映射。
++                        cr.accept(new ClassRemapper(cw, isGame ? gameRemap : forcedRemap), 0);
+                         if (shadow.contains(name) && name.startsWith(PREFIX)) {
+                             outName = NEW_PREFIX + name.substring(PREFIX.length());
+                         }

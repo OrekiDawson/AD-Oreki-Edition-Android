@@ -160,6 +160,22 @@ D8 会把泛型签名拆成多段字符串存储（例如 `"Ljava/util/List<"`�
 - 长离线跨度（>5000 分钟）存档在 **resume** 时出现"正在计算离线进度 0/1000"长时间不推进（启动时同一存档 0.9s 完成），
   需确认是原版行为/MOD 行为/AVD 性能，并纳入测试脚本超时处理。
 
+## 4.7 第六轮：全量 shadow 重映射引入存档回归 → 回退（2026-11-15 06:00–07:00）
+
+PR #75 的"所有保留类统一 shadow 重映射"修复了 `EmptyCoroutineContext` 崩溃，但 AVD A/B 对照发现**引入更严重的回归**：
+
+| 构建 | 新档 90–180s 是否写档 | 崩溃情况 |
+| --- | --- | --- |
+| 旧候选 `18716d87…`（新类绑定 AGP stdlib） | **写**（player.json 29,506 B + backups，t≈85s） | 挑战自动化路径 `NoSuchFieldError EmptyCoroutineContext.a` |
+| PR #75 后 `ae55dde1…`（全量 shadow） | **完全不写**（N1/N3：0 个 player 文件，180s） | 该路径不再崩溃 |
+| 定向 remap `15a21f5d…`（只强制 EmptyCoroutineContext） | 未及验证 | 新档即崩 `NoSuchMethodError ContinuationImpl.<init>(Lrj0;Lek0;)V` |
+
+**结论（本轮未解决）**：MOD 新增业务类与官方 DEX 的 Kotlin 运行时是"混合运行时"：
+- 新类绑定 AGP stdlib → 存档/协程正常，但遇到官方混淆命名的 Kotlin 类（如 `EmptyCoroutineContext.a`、`ContinuationImpl.<init>(Lj0;Lk0;)V`）会 NoSuchField/NoSuchMethod；
+- 新类全量绑定官方 shadow 运行时 → 这些错消失，但存档协程不再落盘（根因未定位，疑似两套 Kotlin/协程版本混用导致协程静默不恢复）。
+- 因此 PR #75 的全局重映射被**回退**：主线恢复"存档可用"的旧行为，ABI 崩溃作为**未解决 P0**保留；
+  正确方向是统一 Kotlin/协程运行时（例如把 MOD 业务类整体按官方运行时重新编译，或为 kotlinx 也建立一致的 shadow/remap），需要独立轮次设计验证。
+
 ## 5. 失败与阻塞（如实记录）
 
 1. **片尾字幕/结束页阻塞自动化**：读档后游戏先进入片尾字幕（creditsFinished=false）或结束页（已通关存档），无法用 `input tap` 稳定跳过；新档（pm clear）还会弹云存档对话框。已在 `scripts/tests/r112/credits_wait_probe.sh` 记录 11 分钟无写入的结论。
