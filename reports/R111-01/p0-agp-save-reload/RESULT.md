@@ -52,3 +52,16 @@ enjarify 转换丢失了原版 DEX 的 `dalvik/annotation/Signature` 泛型签�
 - 对照：`dex2jar` 对同一 DEX 的输出 `Player$Laitela.class` **保留 Signature**（`javap -v` 命中 2 处），
   说明修复方向可行（修 enjarify 注解输出 / 注解回填 / 对需要泛型的类用 dex2jar 替换），但均需完整构建与存档往返回归后再考虑。
 - 因此存档 P0 的根因完全落在 DEX→JAR 转换器，不在 D8、AGP 打包或游戏业务代码。
+## 实验修复验证（01:40，未进入正式构建）
+
+- 工具：`scripts/agp/sigbackfill/SigBackfill.java` + `scripts/agp/sig_backfill.py`（见 docs/AGP_SIGNATURE_BACKFILL.md）；
+- 用 dex2jar 对官方 classes.dex/classes2.dex 的产物作参考，回填 `game-hybrid-j8-r110-nosdk.jar` 的 Signature：
+  - 回填后 jar：19,720,024 B，SHA-256 `95f24e0cbaa13cc8e98a22c24b66f14d39aef0fedfe87d38714003175fcd1b46`（2,372 个类被修改）；
+  - `javap -v Player$Laitela.class` 确认 Signature 恢复；
+- 用回填 jar 构建 AGP R8 OFF 候选：APK 81,576,531 B，SHA-256 `2646cc2dab692460a01204a937e88ce8e2eb4f2dbd8a774ff9913e2b585870be`；
+- AVD 实测：
+  - 加载 smali 写出的 R110 晚期存档：**PASS**（0 ClassCastException/JsonSyntaxException，realities/laitela 保持）；
+  - 存档往返（force-stop → 冷启动 → 读档）：**PASS**（0 异常，状态保持）；
+  - 读档后 glyph effects 仍为 int（983042），写侧格式正确。
+- 证据：`sigfix-load-logcat.txt`、`sigfix-reload-logcat.txt`、`sigfix-after-load.json`、`sigfix-after-reload.json`、`sigfix-screen.png`。
+- 限制：仅回填 Signature；旧 m13 坏档仍不可读；工具尚未接入正式构建（下一步：并入 agp_gamejar2/Gradle 任务 + CI 守卫 + 三方存档往返回归）。
