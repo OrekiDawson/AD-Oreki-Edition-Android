@@ -308,6 +308,11 @@ object OrekiStageAuto {
             // 该调用自身只读 + 状态迁移，不写任何存档字段。
             OrekiIu15Sprint.tick()
 
+            // [R108-01 PELLE] 终局驱动：IU25 买入后进入毁灭现实，买佩勒升级并按原版路径大灾变；
+            // gameEnd 只能由原版 GameEnd.gameLoop 置位（本类只读 Player.j0() 记录）。
+            // 放在早退之前：毁灭态下其余自动化全部跳过，必须由本驱动接管。
+            OrekiPelle.tick()
+
             // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
             GameApi.settleTimeTheoremReward()
 
