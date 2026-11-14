@@ -383,11 +383,11 @@ object OrekiAutomationScheduler {
         if (realities == null) {
             cap = INTERVAL_MIN
         } else {
-            val cmp0 = GameApi.compareToDouble(realities, 0.0)
+            val realitiesCompareZero = GameApi.compareToDouble(realities, 0.0)
             val cmp10 = GameApi.compareToDouble(realities, 10.0)
             val cmp50 = GameApi.compareToDouble(realities, 50.0)
             cap = when {
-                cmp0 == null || cmp0 <= 0 -> 1
+                realitiesCompareZero == null || realitiesCompareZero <= 0 -> 1
                 cmp10 == null -> 1
                 cmp10 < 0 -> 2
                 cmp50 == null -> 3

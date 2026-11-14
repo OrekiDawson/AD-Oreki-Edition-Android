@@ -210,8 +210,8 @@ object OrekiRealityUnlock {
 
     /** c01.a(8).B()：膨胀研究5（TD8）是否已购。 */
     private fun td8Bought(): String = try {
-        val c01 = cls("c01") ?: return "?"
-        val study = staticM(c01, "a", 1)?.invoke(null, 8) ?: return "?"
+        val dilationStudyClass = cls("c01") ?: return "?"
+        val study = staticM(dilationStudyClass, "a", 1)?.invoke(null, 8) ?: return "?"
         val bought = callM(study, "B", 0) as? Boolean ?: return "?"
         bought.toString()
     } catch (_: Throwable) {
@@ -234,8 +234,8 @@ object OrekiRealityUnlock {
     /** t3.g() 全部 preReality 成就 isUnlocked==true（null/empty 视为 true，与原版 smali 一致）。 */
     private fun preRealityEvery(): String {
         return try {
-        val t3 = cls("t3") ?: return "?"
-        val list = staticM(t3, "g", 0)?.invoke(null) ?: return "true"
+        val achievementsClass = cls("t3") ?: return "?"
+        val list = staticM(achievementsClass, "g", 0)?.invoke(null) ?: return "true"
         val items = list as? java.util.List<*> ?: return "?"
         val size = items.size
         if (size == 0) return "true"
@@ -266,7 +266,7 @@ object OrekiRealityUnlock {
             val now = android.os.SystemClock.elapsedRealtime()
             if (ds6At != 0L && now - ds6At < 1000L) return
             ds6At = now
-            val td8 = td8Bought()
+            val td8BoughtState = td8Bought()
             val maxExp = maxEpExponent()
             val every = preRealityEvery()
             val doomed = pelleDoomed()
@@ -276,8 +276,8 @@ object OrekiRealityUnlock {
                 false
             }
             val everyOk = every == "true" || waiver
-            val result = td8 == "true" && expOk && everyOk && doomed == "false"
-            val line = "td8=" + td8 + " maxEPexp=" + maxExp + " preRealityEvery=" + every +
+            val result = td8BoughtState == "true" && expOk && everyOk && doomed == "false"
+            val line = "td8=" + td8BoughtState + " maxEPexp=" + maxExp + " preRealityEvery=" + every +
                 " waiverEffective=" + waiver + " pelleDoomed=" + doomed +
                 " original=" + original + " result=" + result
             if (line != lastDs6) {
