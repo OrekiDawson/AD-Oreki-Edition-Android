@@ -118,6 +118,20 @@ object OrekiIu15Sprint {
     @Volatile
     private var lastUnlockAtMs: Long = 0L
 
+    /**
+     * [R110-01 P0-B] 冲刺期间拦截「无限维度 1~8」的真实购买。
+     *
+     * 真机证据（m8 fresh 跑次 2026-11-14 16:42-16:52）：旧实现调用
+     * GameApi.dimensionAutobuyers() 并关掉 8 个自动器 —— 那是**反物质维度**自动器
+     * （GameApi.kt 明确注释「8 个反物质维度自动器」），关掉后 AM 产量归零，
+     * amE 卡在 1e1 整整 10 分钟直到 sprint 超时；而 IU15 要求的 maxID1 是**无限维度 1**
+     * 的购买量，与反物质维度自动器无关 ⇒ 旧封锁既无效又自锁。
+     * 修正：不再动任何原版自动器；改为在冲刺期间拦截 idBuy 入口（tryBuyId1），
+     * 保持 maxID1==0 的同时让反物质维度正常产出，冲刺才有意义。
+     */
+    @Volatile
+    private var idBuyGuardOn: Boolean = false
+
     /** [R108-01] 「amE 已达标但购买被拒」的起始时刻（0 = 未阻塞）。 */
     @Volatile
     private var buyBlockedSinceMs: Long = 0L
@@ -170,21 +184,23 @@ object OrekiIu15Sprint {
      * @return true = 本帧应拒绝启动
      */
     @JvmStatic
-    fun shouldBlockEcStart(ecId: Int): Boolean = try {
-        if (ecId != 7) return false
-        if (isActive()) return true
-        // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
-        // 持续生产 ID8→…→ID1（Web 同款根因），即使 ID 购买被拦住，maxID1 也会变正。
-        // 因此「干净现实 + 上限足够 + 未买 IU15」期间必须连 EC7 一起拦。
-        if (iu15Bought()) return false
-        if (fails >= MAX_FAILS) return false
-        if (System.currentTimeMillis() < cooldownUntil) return false
-        if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
-        if (GameApi.isDoomed()) return false
-        if (!GameApi.iu15AffordableByCap()) return false
-        isCleanReality()
-    } catch (_: Throwable) {
-        false
+    fun shouldBlockEcStart(ecId: Int): Boolean {
+        return try {
+            if (ecId != 7) return false
+            if (isActive()) return true
+            // [R108-01] 预封锁同样覆盖 EC7 启动：EC7 的完成奖励会在 TimeDimensions 里
+            // 持续生产 ID8→…→ID1（Web 同款根因），即使 ID 购买被拦住，maxID1 也会变正。
+            // 因此「干净现实 + 上限足够 + 未买 IU15」期间必须连 EC7 一起拦。
+            if (iu15Bought()) return false
+            if (fails >= MAX_FAILS) return false
+            if (System.currentTimeMillis() < cooldownUntil) return false
+            if (!GameApi.autobuyersOn() || !OrekiAutomationScheduler.isEnabled()) return false
+            if (GameApi.isDoomed()) return false
+            if (!GameApi.iu15AffordableByCap()) return false
+            isCleanReality()
+        } catch (_: Throwable) {
+            false
+        }
     }
 
     /**
@@ -247,8 +263,8 @@ object OrekiIu15Sprint {
     }
 
     private fun bdPart(v: Any?, name: String): Double? = try {
-        val m = v?.javaClass?.getMethod(name) ?: return null
-        (m.invoke(v) as? Number)?.toDouble()
+        val method = v?.javaClass?.getMethod(name) ?: return null
+        (method.invoke(v) as? Number)?.toDouble()
     } catch (t: Throwable) {
         null
     }
@@ -256,9 +272,9 @@ object OrekiIu15Sprint {
     private fun realitiesValue(): Double {
         return try {
             val v = GameApi.realitiesValue() ?: return -1.0
-            val m = bdPart(v, "mantissa")
-            val e = bdPart(v, "exponent")
-            if (m != null && e != null) m * Math.pow(10.0, e) else -1.0
+            val mantissa = bdPart(v, "mantissa")
+            val exponent = bdPart(v, "exponent")
+            if (mantissa != null && exponent != null) mantissa * Math.pow(10.0, exponent) else -1.0
         } catch (t: Throwable) {
             -1.0
         }
@@ -315,6 +331,21 @@ object OrekiIu15Sprint {
      * ID8→…→ID1 会自动生产，maxID1 同帧变正。所以除了拦购买，还必须关掉会持续购买的
      * 原版自动器，并（见 shouldBlockEcStart）拦 EC7。
      */
+    /** [R110-01 P0-B] 冲刺开始：只打开 ID 购买拦截（不改任何原版自动器）。 */
+    private fun beginIdBuyBlock() {
+        if (idBuyGuardOn) return
+        idBuyGuardOn = true
+        try {
+            Log.i(TAG, "已拦截无限维度 1~8 购买（保留反物质维度自动器正常产出）")
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** [R110-01 P0-B] 供 OrekiStageAuto.tryBuyId1 判断：冲刺期间禁止真实购买无限维度。 */
+    @JvmStatic
+    fun isBlockingIdBuy(): Boolean =
+        idBuyGuardOn && (phase == PHASE_ARMED || phase == PHASE_RUNNING)
+
     private fun applyIdAutobuyerLockdown() {
         if (idAutoLocked) return
         try {
@@ -322,10 +353,10 @@ object OrekiIu15Sprint {
             val saved = ArrayList<Any>()
             var i = 0
             while (i < arr.size) {
-                val a = arr[i]
-                if (a != null && GameApi.isAutobuyerActive(a) == true) {
-                    GameApi.setAutobuyerActive(a, false)
-                    saved.add(a)
+                val autobuyer = arr[i]
+                if (autobuyer != null && GameApi.isAutobuyerActive(autobuyer) == true) {
+                    GameApi.setAutobuyerActive(autobuyer, false)
+                    saved.add(autobuyer)
                 }
                 i++
             }
@@ -404,7 +435,7 @@ object OrekiIu15Sprint {
             if (rNow != realitiesSeen) {
                 realitiesSeen = rNow
                 if (canPreLock()) {
-                    applyIdAutobuyerLockdown()
+                    beginIdBuyBlock()
                     if (phase == PHASE_IDLE) {
                         phase = PHASE_ARMED
                         armMs = now
@@ -418,8 +449,8 @@ object OrekiIu15Sprint {
 
             // [R108-01] 兜底：任意帧只要「干净现实 + 上限足够」就立刻封锁并 arm，
             // 代际检测可能因为 tick 落点错过重置帧（autobuyer 在同一帧内已买 ID1）。
-            if (!idAutoLocked && phase == PHASE_IDLE && canPreLock() && isCleanReality()) {
-                applyIdAutobuyerLockdown()
+            if (!idBuyGuardOn && phase == PHASE_IDLE && canPreLock() && isCleanReality()) {
+                beginIdBuyBlock()
                 phase = PHASE_ARMED
                 armMs = now
                 startMs = now
@@ -590,6 +621,7 @@ object OrekiIu15Sprint {
      */
     @JvmStatic
     fun releaseNow(reason: String) {
+        idBuyGuardOn = false
         restoreIdAutobuyers()
         val wasActive = isActive()
         phase = if (phase == PHASE_DONE || phase == PHASE_GIVEUP) phase else PHASE_IDLE

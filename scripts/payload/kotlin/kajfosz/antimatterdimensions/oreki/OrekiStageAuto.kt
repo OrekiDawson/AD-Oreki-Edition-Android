@@ -1417,6 +1417,11 @@ object OrekiStageAuto {
     @JvmStatic
     fun tryBuyId1(): Boolean {
         return try {
+        // [R110-01 P0-B] IU15 冲刺期间禁止真实购买无限维度 1~8，保持 maxID1==0。
+        if (OrekiIu15Sprint.isBlockingIdBuy()) {
+            idDiag("sprint-blocks-id-buy")
+            return false
+        }
         if (!isBroken()) {
             idDiag("skip=not-broken")
             false
@@ -2086,8 +2091,8 @@ object OrekiStageAuto {
     private fun hasReachedEternityLayer(): Boolean {
         val bigE = GameApi.bigEternitiesValue()
         if (bigE is Number && bigE.toDouble() > 0.0) return true
-        val e = GameApi.eternitiesValue() ?: return false
-        val cmp = GameApi.compareToDouble(e, 0.0) ?: return false
+        val eternities = GameApi.eternitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(eternities, 0.0) ?: return false
         return cmp > 0
     }
 
@@ -2101,8 +2106,8 @@ object OrekiStageAuto {
         val gain = GameApi.gainedEternityPointsValue()
         val ep = GameApi.eternityPointsValue()
         if (gain != null && ep != null) {
-            val c = GameApi.compareBigDoubles(gain, ep)
-            if (c != null && c < 0) return "ep-gain-too-low"
+            val comparison = GameApi.compareBigDoubles(gain, ep)
+            if (comparison != null && comparison < 0) return "ep-gain-too-low"
         }
         return "allow"
     }
@@ -2228,11 +2233,11 @@ object OrekiStageAuto {
     /** [R97] 解析 1.23e45 形式的数值字符串，仅用于诊断判据比较。 */
     private fun parseNum(v: String?): Double? {
         if (v == null) return null
-        val t = v.trim()
-        val i = t.indexOf('e', ignoreCase = true)
+        val text = v.trim()
+        val i = text.indexOf('e', ignoreCase = true)
         return try {
-            if (i < 0) t.toDouble()
-            else t.substring(0, i).toDouble() * Math.pow(10.0, t.substring(i + 1).toDouble())
+            if (i < 0) text.toDouble()
+            else text.substring(0, i).toDouble() * Math.pow(10.0, text.substring(i + 1).toDouble())
         } catch (_: Throwable) {
             null
         }
