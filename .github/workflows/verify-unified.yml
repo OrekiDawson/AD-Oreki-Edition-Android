@@ -1,4 +1,4 @@
-name: Android candidate verification
+name: Android APK 独立验签
 
 'on':
   workflow_run:
@@ -21,7 +21,7 @@ env:
 
 jobs:
   verify:
-    name: Independently verify exact APK and candidate run
+    name: 独立验证精确 APK 与候选构建
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 40

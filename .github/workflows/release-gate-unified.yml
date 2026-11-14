@@ -1,4 +1,4 @@
-name: Android release acceptance gate (migration, no publish)
+name: Android 稳定版发布验收（迁移阶段，不发布）
 
 # Fail closed: a stable publication needs every one of the following, verified by content:
 #   * the exact successful public Android candidate run,
@@ -58,7 +58,7 @@ env:
 
 jobs:
   gate:
-    name: Match pinned acceptance, candidate artifact and verification receipt
+    name: 匹配锁定的验收、候选 Artifact 与验签回执
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: android-release-review

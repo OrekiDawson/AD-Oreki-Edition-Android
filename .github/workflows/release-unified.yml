@@ -1,4 +1,4 @@
-name: Android stable release (unified hosted four-channel)
+name: Android 稳定版正式发布（统一托管四渠道）
 
 # Fail closed: a stable publication needs every one of the following, verified by content:
 #   * the exact successful public Android candidate run,
@@ -58,7 +58,7 @@ env:
 
 jobs:
   gate:
-    name: Match pinned acceptance, candidate artifact and verification receipt
+    name: 匹配锁定的验收、候选 Artifact 与验签回执
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: stable-release
@@ -271,7 +271,7 @@ jobs:
 
 
   publish:
-    name: Deliver exact APK to GitHub Releases, OneDrive and Google Drive
+    name: 将精确 APK 发布到 GitHub Releases、OneDrive 和 Google Drive
     needs: gate
     runs-on: ubuntu-latest
     environment: stable-release
