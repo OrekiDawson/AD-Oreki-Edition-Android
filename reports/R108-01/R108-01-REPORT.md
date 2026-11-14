@@ -99,6 +99,13 @@
 - Web 实测（web teammate）：默认速度现实周期 136–226s、AM 到入场线 4e8 的真实时刻 130–230s；原版 `thisRealityRealTime < 30s` 才 tier+1 ⇒ 结构性不可达（Web run-fixed 431s 内 laitelaRunning=0、tier 恒 0）。Web 已改 `OREKI_LAITELA_TIER_WINDOW_SEC=300` 并把入场/压现实窗口同步扩大。
 - Android 同步：build_mod 新增 `patch_laitela_tier_window()`，把 `Game.k(D)V` 中 `const-wide/high16 v12, 0x403e000000000000L # 30.0` **整行**改为 `const-wide v12, 0x4072c00000000000L # 300.0`（300.0 低 48 位非零，不能用 high16 形式——build9 曾因此 apktool `Invalid literal value` 失败，已修正并回读断言）；`OrekiLaitela` 的 `RUN_ENTER_MAX_REAL_MS=290000`、`HOLD_MAX_MS=250000`、run 在位窗口 300s 与 Web 同值。
 - 熵分母 2e7 与 tier 窗口 300s 组合后，理论上一轮现实内可完成「进 run → 熵满 → tier+1」。
+
+**第三层修复（build11，SHA c75081c8）：购买期预封锁**
+
+- build10 AVD 实测：`iMCap=4.36e10`（×3000 生效）、`maxID1=9.15e56986405`（干净窗口仍被抢）⇒ IU15 仍从未 arm。
+- 关键认识：ID 购买守卫是在**每次购买调用时**求值的，而此刻 `maxID1` 尚未因本次购买变正；所以不需要「先 arm 再拦」，只要守卫本身在「干净现实 + 上限足够」时就返回 true，就能在现实重置后的第一次 ID 购买前关门。
+- 实现：`idBuyBlocked()` 增加预封锁分支（总开关/毁灭/挑战/上限/失败上限/冷却全部不变；`maxID1` 已脏时放行，避免拖死成长），并顺带把相位推进到 ARMED（只一次日志）。
+- 验证状态：build11 跑次 10:23 启动，**AVD NOT RUN（结果待下一轮）**。
 ### B.7 待根因（不追认为 PASS）
 
 - **post-reality RM 不一致**：build3 跑次重置后 RM=5 且买到 8 个可重复 RU + 1 个一次性 RU；build4 跑次重置后 RM=0、RU 位图 0。两者 EPexp 相近（e8.3e5 vs e6.3e6）。需要下一轮用 build6 + 更细日志（RM before/after 已加进 OrekiRealityUpgrades）定位「是一次重置还是两次重置 / RM 授予以哪个 EP 为输入」。
@@ -135,6 +142,7 @@
 | build8 | 6cec572029443da1d831b16f89bdb78f2cebd618a19e50df20860e3411698d55 | + IU15 死锁修复（imaginaryTryUnlock + 买到不动的诊断/释放）+ IU25 tryUnlock 接线 |
 | build9 | —（构建失败） | 莱特拉窗口补丁首版用 const-wide/high16 写入 300.0 → apktool `Invalid literal value`；已修正为 const-wide 整行替换 |
 | build10 | 741cf1b6a73fb3aae8fba4b39daec496c52c7c7c50b85a80f14fe21f9cbf9916 | + IU15 arm 条件修正 + 莱特拉 tier 窗口 300s（const-wide 形式） |
+| build11 | c75081c8622ee856004a2fb04b6189a463f8a7beb05e7e404eb28a9cf86455f9 | + IU15 购买期预封锁（守卫内直接拦，不等 arm） |
 
 ## E. 技术迁移 / 语义反混淆
 
