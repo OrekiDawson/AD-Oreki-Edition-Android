@@ -1,0 +1,21 @@
+=== BASE (official APK) dimensions field ===
+29:.field private dimensions:Ljava/util/List;
+30-    .annotation system Ldalvik/annotation/Signature;
+31-        value = {
+32-            "Ljava/util/List<",
+33-            "Lkajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState;",
+34-            ">;"
+35-        }
+36-    .end annotation
+37-.end field
+38-
+39-.field private entropy:D
+
+=== AGP candidate dimensions field ===
+17:.field private dimensions:Ljava/util/List;
+18-
+19-.field private entropy:D
+20-
+21-.field private fastestCompletion:D
+22-
+23-.field private lastCheckedMilestones:D
