@@ -54,9 +54,36 @@ object OrekiLaitela {
     private const val RUN_ENTER_MAX_REAL_MS = 290_000L
     /** 压现实的最大时长，防死锁（Web LAT_TIER_WINDOW_MS=250000，与 300s tier 窗口配套）。 */
     private const val HOLD_MAX_MS = 250_000L
+    /**
+     * [R109-01] tier 8 阶段「进 run 买 IU25」的最长驻留（真实毫秒）。
+     *
+     * Web driveLaitela 能在**同一拍**里先 iu25.tryUnlock() 再 purchase()，所以它
+     * 「买不上就同拍 clearCelestialRuns()」。Android 的一次性 IU「解锁位」不是可调用方法：
+     * 它由原版 GAME_EVENT.GAME_TICK_AFTER 事件里的合成 lambda（ua）在
+     * A(Z)==false && checkRequirement() 时执行 Player$Reality.j().g(id)
+     * （ua.smali:282-314；对照 Web core/imaginary-upgrades.js:83-88 tryUnlock）。
+     * 因此 run 至少要活过一个游戏 tick 位图才会置位；A(Z) 里 BitSet.e(I)Z 取该位。
+     * 熵在 0.5/s 上限下约 2 s 填满，2 s 内没买到就立刻撤 run —— 否则熵满会让
+     * Game.k(D)V 无上限 difficultyTier++ 把 8 顶成 9，IU25 的
+     * maxAllowedDimension==0 永久不成立（Web R45·4 同一条证据链）。
+     */
+    private const val IU25_RUN_MAX_MS = 2_000L
+    /**
+     * tier 8 且「IM 已够、只差 DS6」时压现实的上限。
+     *
+     * Web 取 240000；Android 每次现实后 EC1-12 完成位会被原版清空，模组重打一遍
+     * 实测需 5–6 分钟才能买回 DS6 ⇒ 240s 会在 DS6 到手前到期，现实随即把 DS6 清掉，
+     * IU25 永远买不到（13:47 真机日志 held=false + EC 全 0）。这里放宽到 600s，
+     * 语义不变：仍是有界压现实，到期无条件放手，不会永久死锁。
+     */
+    private const val IU25_HOLD_MAX_MS = 600_000L
+    /** Web OREKI_IU25_COST 兜底值：读不到原版成本 is3.x() 时使用（build_mod 已把成本改为 5e9）。 */
+    private const val IU25_COST_FALLBACK = 5.0e9
     /** 同一情况下日志限频。 */
     private const val LOG_MIN_MS = 30_000L
 
+    @Volatile private var iu25RunAt: Long = 0L
+    @Volatile private var iu25HoldSince: Long = 0L
     @Volatile private var lastRealityCount: Double = -1.0
     @Volatile private var realityStartedAt: Long = 0L
     @Volatile private var holdSince: Long = 0L
@@ -164,9 +191,23 @@ object OrekiLaitela {
         val playerCls = cls("kajfosz.antimatterdimensions.player.Player") ?: return 0.0
         val player = playerCls.getField("a").get(null) ?: return 0.0
         val reality = call(player, "Q", 0) ?: return 0.0
-        val field: Field = reality.javaClass.getField("imaginaryMachines")
-        field.isAccessible = true
-        (field.get(reality) as? Double) ?: 0.0
+        // [R109-01 P0] 3.21 的 Player$Reality.imaginaryMachines 是 **private** Double，
+        // 旧实现用 getField()（只找 public）必然抛 NoSuchFieldException 被吞成 0.0，
+        // 真机表现为 tier8 时日志恒 "IU25 wait im=0.0"（实际 IM=7.2e24）⇒ 不压现实
+        // ⇒ DS6 刚买到就被现实清掉，IU25 永远买不到。改用公开 getter h()D。
+        val viaGetter = call(reality, "h", 0) as? Double
+        if (viaGetter != null) return viaGetter
+        var clazz: Class<*>? = reality.javaClass
+        while (clazz != null) {
+            try {
+                val fieldRef = clazz.getDeclaredField("imaginaryMachines")
+                fieldRef.isAccessible = true
+                return (fieldRef.get(reality) as? Double) ?: 0.0
+            } catch (_: NoSuchFieldException) {
+                clazz = clazz.superclass
+            }
+        }
+        0.0
     } catch (t: Throwable) {
         0.0
     }
@@ -278,12 +319,25 @@ object OrekiLaitela {
                 return false
             }
             if (iu25Bought()) {
+                // [R109-01] 买到 IU25 后必须撤掉 run：tier 8 时 maxAllowedDimension=0，
+                // 原版 InfinityDimensionState.O() 对 tier>p() 的层返回 0 ⇒ 8 层无限维度全停产，
+                // 留着 run 会把佩勒阶段的产量按死（Web driveLaitela 同款 clearCelestialRuns()）。
+                if (isRunning()) exitRun()
                 setHold(false)
+                iu25HoldSince = 0L
                 return false
             }
             val tier = tier()
             if (tier < 0) {
                 setHold(false)
+                return false
+            }
+            if (tier > 8) {
+                // [R109-01] tier 越过 8 不可逆：IU25 的 checkRequirement 要 maxAllowedDimension === 0
+                // （= 8 - tier），tier 9 之后该条件永久不成立。这里只记录、不写任何存档字段，
+                // 真正防止它发生的是下面 tier>=8 分支的「买不上就撤 run」（Web R45·4）。
+                setHold(false)
+                logLimited("tier=" + tier + " 已越过 8（不可逆）：IU25 maxAllowedDimension=" + maxAllowedDimension())
                 return false
             }
 
@@ -295,46 +349,103 @@ object OrekiLaitela {
             // + 符文<=1 + IM 够 → 再进 run，下一拍买 IU25。
             if (tier >= 8) {
                 val im = imaginaryMachines()
-                val glyphs = activeGlyphCount()
-                // 周期性调原版 IU 解锁复检 R()V（一次性 IU 的 requirementBits 无人值守不会自动刷新）
+                val cost = iu25Cost()
+                var glyphs = activeGlyphCount()
+                // DS6（膨胀研究 6）是 IU25 checkRequirement 的一条：直接读原版 c01.a[5].B()，
+                // 与 prestige/f.f() 首句同源；比 canReality() 更贴近 Web TimeStudy.reality.isBought
+                // （canReality 还要求本现实 maxEP ≥ 1e4000，会漏掉 DS6 已在位但 maxEP 未达的帧）。
+                val ds6 = GameApi.ds6Bought()
+                // 一次性 IU 的解锁位由原版每 tick 事件置位；保留周期复检调用（原版为 no-op 时无副作用）。
                 if (now - lastIuUnlockAt >= 1_000L) {
                     lastIuUnlockAt = now
                     GameApi.imaginaryTryUnlock("s")
                 }
+
+                // ① 位图已置位 ⇒ 原版 canBeBought 为 true，立刻真实购买（同拍；不等熵）
                 if (iuCanBeBought("s")) {
                     setHold(false)
                     val ok = iuPurchase("s")
-                    logLimited("IU25 purchase ok=" + ok + " im=" + im + " tier=" + tier +
-                        " glyphs=" + glyphs + " running=" + isRunning())
-                    return ok
+                    if (ok || iu25Bought()) {
+                        // 买到就撤 run，否则 8 层无限维度停产（Web same）
+                        if (isRunning()) exitRun()
+                        iu25HoldSince = 0L
+                        iu25RunAt = 0L
+                        logLimited("IU25 purchase ok im=" + im + " tier=" + tier + " glyphs=" + glyphs)
+                        return true
+                    }
+                    logLimited("IU25 canBeBought but purchase failed im=" + im + " glyphs=" + glyphs)
                 }
-                // 符文条件是本 MOD 可主动改善的前置：>1 时调原版「卸下全部」（限频 30s）
+
+                // ② 符文条件是本 MOD 可主动改善的前置：>1 时调原版「卸下全部」（限频 30s）
                 if (glyphs > 1 && now - unequipTriedAt > LOG_MIN_MS) {
                     unequipTriedAt = now
                     val ok = unequipAll()
+                    glyphs = activeGlyphCount()
                     logLimited("IU25 blocked by glyphs=" + glyphs + " unequipAll=" + ok)
                     return ok
                 }
+
+                // ③ run 在位：这是「为买 IU25 而进」的 run，只驻留 IU25_RUN_MAX_MS（防 tier→9）
                 if (isRunning()) {
-                    // run 在位但仍买不到（多为 DS6 被现实清掉）：放开现实，让重置清 run，下一现实重试
+                    if (iu25RunAt == 0L) iu25RunAt = now
+                    if (now - iu25RunAt <= IU25_RUN_MAX_MS && !holdExpired()) {
+                        setHold(true)
+                        logLimited("IU25 run in place wait bit ds6=" + ds6 + " im=" + im +
+                            " glyphs=" + glyphs + " ent=" + entropy())
+                        return false
+                    }
+                    exitRun()
                     setHold(false)
-                    logLimited("IU25 run-in-place blocked im=" + im + " ds6=" + GameApi.canReality())
+                    iu25RunAt = 0L
+                    logLimited("IU25 run timeout, exit run (防 tier→9) im=" + im +
+                        " ds6=" + ds6 + " glyphs=" + glyphs + " ent=" + entropy())
                     return false
                 }
-                val capReady = im >= 4.5e9
-                // 原版 canReality 为 true ⇒ DS6 已在本现实买上（且 maxRM 达标），是可靠的代理判据
-                val ds6Ready = GameApi.canReality()
-                if (capReady && ds6Ready && glyphs <= 1) {
-                    val ok = enterRun()
-                    logLimited("IU25 prep enterRun ok=" + ok + " im=" + im + " ds6=" + ds6Ready +
-                        " glyphs=" + glyphs)
-                    return ok
+                iu25RunAt = 0L
+
+                // ④ 四前置同时就位才进 run（Web R47-A 口径：ds6 && im>=cost；符文<=1 另判）
+                val ready = ds6 && im >= cost && glyphs <= 1
+                if (!ready) {
+                    // 关键：只有在「IM 已够、只差 DS6」时才有界压现实去截 DS6 那一帧。
+                    // IM 只能由现实重置产出（RM→IM），无差别压现实会把 IM 的增长一起压死
+                    // （Web R47-A 已推翻旧策略；旧 Android 实现正是无条件 setHold(true)）。
+                    if (!ds6 && im >= cost) {
+                        if (iu25HoldSince == 0L) iu25HoldSince = now
+                        val held = now - iu25HoldSince < IU25_HOLD_MAX_MS
+                        setHold(held)
+                        logLimited("IU25 wait ds6（压现实 im=" + im + " cost=" + cost +
+                            " held=" + held + "）")
+                    } else {
+                        iu25HoldSince = 0L
+                        setHold(false)
+                        logLimited("IU25 wait im=" + im + " cost=" + cost + " ds6=" + ds6 +
+                            " glyphs=" + glyphs)
+                    }
+                    return false
                 }
-                // 条件未齐：压住现实（最多 HOLD_MAX_MS），让 EC/DS6 在本现实内达成
-                if (!holdExpired()) setHold(true) else setHold(false)
-                logLimited("IU25 wait im=" + im + " ds6=" + ds6Ready + " glyphs=" + glyphs +
-                    " hold=" + (holdSince != 0L))
-                return false
+                iu25HoldSince = 0L
+
+                // ⑤ 残熵 >0.9（上一轮被撤 run 留下的进度）：本帧不起 run。
+                // 现实重置会把熵清 0；主动撤 run 不会。此时起 run 会一两帧内结算 ⇒ tier→9。
+                val ent = entropy()
+                if (ent > 0.9) {
+                    setHold(false)
+                    logLimited("IU25 残熵 " + ent + " 未清零，本帧不起 run（等现实重置）")
+                    return false
+                }
+
+                // ⑥ 进 run 并压现实；解锁位由原版下一 tick 事件置位，下一拍再买
+                val ok = enterRun()
+                if (ok) {
+                    iu25RunAt = now
+                    setHold(true)
+                    logLimited("IU25 enterRun ok tier=" + tier + " im=" + im + " cost=" + cost +
+                        " ds6=" + ds6 + " glyphs=" + glyphs + " ent=" + ent)
+                } else {
+                    setHold(false)
+                    logLimited("IU25 enterRun failed tier=" + tier)
+                }
+                return ok
             }
 
             // ---- tier < 8：drive tier ----
@@ -390,10 +501,43 @@ object OrekiLaitela {
         }
     }
 
-    private fun iuCanBeBoughtAfterRun(im: Double): Boolean {
-        // IM 达到 IU25 成本（5e9，Web OREKI_IU25_COST）的 90% 就尝试进 run；
-        // 原版 checkRequirement 仍会逐条校验 run/维度上限/DS6/符文，不存在越权。
-        return im >= 4.5e9
+    /**
+     * [R109-01] IU25 当前真实成本（原版 `is3.x()` = 成本 BigDouble；build_mod 已把 1.6e15 改为 5e9）。
+     *
+     * 只用于「何时进 run」的策略判断，**不参与购买校验** —— 购买仍交给原版 `is3.a(Z)Z`
+     * （内部逐条复核 IM 成本 + 符文 + DS6 + maxAllowedDimension==0）。
+     * 读不到时回退 Web `OREKI_IU25_COST` = 5e9（保守值，宁可晚进 run 也不早进）。
+     */
+    private fun iu25Cost(): Double = try {
+        val up = staticField(IU_REGISTRY, "s") ?: return IU25_COST_FALLBACK
+        val v = call(up, "x", 0) ?: return IU25_COST_FALLBACK
+        val m = methodOf(v, "mantissa", 0)?.invoke(v) as? Number
+        val e = methodOf(v, "exponent", 0)?.invoke(v) as? Number
+        if (m != null && e != null) m.toDouble() * Math.pow(10.0, e.toDouble()) else IU25_COST_FALLBACK
+    } catch (t: Throwable) {
+        IU25_COST_FALLBACK
+    }
+
+    /**
+     * [R109-01] 原版「清空当前天神 run」：`Lcelestials/laitela/a;->f(Z)V` → `Player$Laitela.z(Z)`。
+     *
+     * 证据：`laitela/a.smali:1408` 的 `f(Z)V` 第 11 行 `invoke-virtual {p0, p1}, Player$Laitela;->z(Z)`
+     * （run 字段 setter）；Web 侧等价物是 `clearCelestialRuns()`。只清 run 标志，
+     * 不改 tier / entropy / 解锁位。
+     *
+     * 为什么必须能主动退 run：tier 8 时 `maxAllowedDimension=0`，`run` 在位会让 8 层无限维度
+     * 全部停产（`InfinityDimensionState.O()`：tier > p() 返回 0），且熵一旦满就把 tier 顶到 9。
+     */
+    @JvmStatic
+    fun exitRun(): Boolean = try {
+        if (!isRunning()) return true
+        val inst = laitela() ?: return false
+        val m = methodOf(inst, "f", 1) ?: return false
+        m.invoke(inst, false)
+        !isRunning()
+    } catch (t: Throwable) {
+        Log.i(TAG, "exitRun failed: " + t)
+        false
     }
 
     private fun enterRun(): Boolean = try {

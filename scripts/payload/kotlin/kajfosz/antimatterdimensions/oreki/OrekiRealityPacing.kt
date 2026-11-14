@@ -257,6 +257,14 @@ object OrekiRealityPacing {
         logLimited("reset t=" + nowMs + " realities=" + (realities()?.toString() ?: "?"))
     }
 
+    /** [R109-01 DIAG] 当前压现实原因（只读；null = 未压）。供 EDP_FRAME 心跳输出。 */
+    @JvmStatic
+    fun holdReasonText(): String = holdReason ?: "none"
+
+    /** [R109-01 DIAG] 现实重置计数（进程内），供心跳对照。 */
+    @JvmStatic
+    fun resetCountValue(): Int = resetCount
+
     /**
      * 是否允许本次现实重置。
      *

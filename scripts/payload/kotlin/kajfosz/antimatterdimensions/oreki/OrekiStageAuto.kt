@@ -367,6 +367,25 @@ object OrekiStageAuto {
                     //   · 排在其它主动购买之前，使 EC 有工作时不至于被前面的任务长期挤掉；
                     //     没有可推进事项时 step() 返回 false ⇒ noteNoop 不占节拍，让位给其它任务；
                     //   · 必须在 Break 门禁之后（EC 只可能在永恒之后存在，提前触碰即越阶段）。
+                    // [R109-01 REALITY-STARVE] 现实自动化必须**排在所有动作之前**拿本拍名额。
+                    //
+                    // 真机证据（12:16–12:26 m1 跑次）：EC/infinityUpgrades 每 2s 连续 act，
+                    // 全局节拍 lastBeatAt 被它们持续占用；现实检查排在其后 ⇒ allow("reality")
+                    // 恒被 deny interval（deny 日志 10s 限流，所以看不见），realities 10 分钟不涨。
+                    // 同一存档重启 App 后（节拍空闲的第一帧）现实立刻触发 ⇒ 归因确认是
+                    // **调度饥饿**，不是 canReality/Teresa hold/pacing 判据。
+                    // 修法：只调整调用顺序（与 R82 的 urgentTask 同一思路），仍走完整 allow 闸门；
+                    // OrekiReality 自身还有 1s 防抖 + OrekiRealityPacing 的 2s/8s/15s 门槛。
+                    if (GameApi.strategyDrives("reality")) {
+                        if (OrekiAutomationScheduler.allow("reality")) {
+                            if (GameApi.realityTick()) {
+                                OrekiAutomationScheduler.noteActed("reality")
+                            } else {
+                                OrekiAutomationScheduler.noteNoop("reality")
+                            }
+                        }
+                    }
+
                     runScheduled("ec") { OrekiEcAutomation.step() }
 
                     // R81：先尝试真实永恒商店，再把剩余资源交给既有永恒自动化。
@@ -383,17 +402,6 @@ object OrekiStageAuto {
                     // （oreki-celestial-automation.js:664-673）。放在 OrekiReality 之前，
                     // 让 RM 先用于 RU；realities==0 时 tick() 内部直接 false（bootstrap 不变）。
                     runScheduled("realityUpgrades") { OrekiRealityUpgrades.tick() }
-
-                    // 现实自动化（受节拍管辖；tick()Z 只有真重置了才 noteActed）
-                    if (GameApi.strategyDrives("reality")) {
-                        if (OrekiAutomationScheduler.allow("reality")) {
-                            if (GameApi.realityTick()) {
-                                OrekiAutomationScheduler.noteActed("reality")
-                            } else {
-                                OrekiAutomationScheduler.noteNoop("reality")
-                            }
-                        }
-                    }
 
                     // 符文自动装备：只填空槽、自身收敛，不受节拍约束；
                     // R91：但仍受总开关约束 —— 关闭后不得继续自动装备。
@@ -1809,6 +1817,13 @@ object OrekiStageAuto {
         try {
             // R85：坍缩模式/间隔属于 MOD 接管，关闭总开关后立即让路给玩家。
             if (!OrekiAutomationScheduler.isEnabled()) return
+            // [R109-01] 末日阶段（Pelle）的策略与常规阶段相反，必须整体让路给 OrekiPelle：
+            // Web R38-M/R40-A5 的实测结论是「反物质必须单调增长」——GameEnd 判据读的是
+            // records.totalAntimatter 峰值，任何大坍缩都会把反物质清零并压住峰值
+            // （Web 实测 pamE 105 秒零增长，同期 ad1 涨了 186 个数量级）。
+            // OrekiPelle.tick() 在本函数之前已经按 Web _stopDoomedResets 关掉两个自动器；
+            // 这里若继续执行阶段策略，会把它们重新打开并写坍缩间隔/模式，直接破坏上述前提。
+            if (GameApi.isDoomed()) return
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
 
@@ -2244,6 +2259,9 @@ object OrekiStageAuto {
                     " justCrunch=" + (crunchSkipFrames > 0) +
                     " lastCrunch=" + lastCrunchAtMs +
                     " modIntervalMs=" + OrekiAutomationScheduler.intervalMs() +
+                    " canReal=" + GameApi.canReality() +
+                    " realResets=" + OrekiRealityPacing.resetCountValue() +
+                    " hold=" + OrekiRealityPacing.holdReasonText() +
                     " auto=" + OrekiAutomationScheduler.isEnabled()
             )
         } catch (_: Throwable) {

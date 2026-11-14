@@ -1469,6 +1469,32 @@ def patch_smali():
     write_smali(a, asrc2, encoding="utf-8")
     note("[4] a.smali (a.d): Ra 记忆 sqrt(F) / momentumTime F / Laitela 暗物质 sqrt(F)")
 
+    # 4.1c [R110-01] Pelle 末日阶段的时间差也必须吃倍率
+    #
+    # 与 4.1b 同一类问题：`celestials/pelle/c;->i(D,Cont)`（Pelle.gameTick）拿到的是
+    # `move-wide/from16 v2, p2` 拷出来的**未加速** raw diff，而不是 4.1 注入点里
+    # 已乘过倍率的 `Ref$DoubleRef.element`（维度产量等子 tick 用的是后者）。
+    #
+    # 实测（2026-11-14 AVD，R109 注入夹具存档，只读采样，未写任何进度字段）：
+    #   · 倍率 100× → 10000×：维度产量提升 ~115×（倍率对产量生效）；
+    #   · 同区间 Pelle 现实碎片入账恒为 ~2.7e6/s（完全不吃倍率，只按墙钟）。
+    #   Web `src/game.js` 的唯一放大点让 `Pelle.gameLoop(diff)` 同口径吃倍率，
+    #   所以这是双端行为差异，也是 Doom 后期被墙钟卡死（买不起 1e10+ 碎片的
+    #   佩勒可重复升级）的根因之一。
+    # 只补 Pelle 这一处；blackHole / realTime 系入口按设计使用真实时间，不动。
+    asrc3 = a.read_text(encoding="utf-8")
+    pelle_call = ("    invoke-virtual {v1, v2, v3, v14}, "
+                  "Lkajfosz/antimatterdimensions/celestials/pelle/c;->i("
+                  "DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;\n")
+    assert asrc3.count(pelle_call) == 1, "Pelle.gameTick 调用点不唯一"
+    pelle_patch = ("    # [Oreki R110-01] Doom 阶段与其它机制同口径：时间差 × 全局倍率\n"
+                   "    invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D\n"
+                   "\n"
+                   "    move-result-wide v2\n"
+                   "\n") + pelle_call
+    write_smali(a, asrc3.replace(pelle_call, pelle_patch), encoding="utf-8")
+    note("[4] a.smali (Game.gameTick -> Pelle.i): Doom 时间差 x 倍率 注入完成")
+
     # 4.2 默认语言 en -> zh_CN
     #
     # 【R33 修复】同一个 `language` 偏好键在 MainActivity 里被**两处**用不同默认值读取，
@@ -2952,13 +2978,24 @@ def verify_payload():
         "realityUpgradesAll 未指向原版 allBought 判定（与成就 147 条件同源）"
     note("[4b] 147 条件同源自检通过（realityUpgradesAll -> upgrades/b.b()）")
 
-    # 时间侧：倍率注入点必须唯一，否则会重复乘算
+    # 时间侧：倍率注入点必须精确可控，否则会重复乘算。
+    # R110-01 起有 **两处** 有意注入（此前是 1 处）：
+    #   ① gameTick 主时间差（v12/v13）：维度产量、时间统计等；
+    #   ② Pelle Doom 时间差（v2/v3）：现实碎片入账 / 裂痕填充 —— 它拿的是
+    #      `move-wide/from16 v2, p2` 的 raw diff，不走 ①（实测 100×/10000× 碎片速率相同）。
+    # 两处都必须存在且只能是这两处；任何第三处都视为重复乘算，构建失败。
     apply_hits = 0
     for p in (smali_tree() / "kajfosz").rglob("*.smali"):
         txt = p.read_text(encoding="utf-8", errors="ignore")
         apply_hits += txt.count("}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D")
-    assert apply_hits == 1, f"OrekiSpeed.apply 调用点应为 1 处，实际 {apply_hits} 处"
-    note(f"[4b] 时间倍率注入点唯一性通过（apply 调用 {apply_hits} 处）")
+    assert apply_hits == 2, \
+        f"OrekiSpeed.apply 调用点应为 2 处（gameTick 主差 + Pelle 末日差），实际 {apply_hits} 处"
+    game_smali = (mod_file("smali/kajfosz/antimatterdimensions/a.smali")).read_text(encoding="utf-8")
+    assert "invoke-static {v12, v13}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D" in game_smali, \
+        "gameTick 主时间差倍率注入丢失"
+    assert "invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->apply(D)D" in game_smali, \
+        "Pelle 末日时间差倍率注入丢失（R110-01 4.1c）"
+    note(f"[4b] 时间倍率注入点通过（apply 调用 {apply_hits} 处：gameTick 主差 + Pelle 末日差）")
 
     # [Oreki AA] L3 成就位自检必须挂在 OrekiSpeed.apply 里，且只挂一次。
     # 挂两次 = 每帧多跑一遍 104 位谓词；一次都没有 = 通关验收拿不到 DONE 行。
