@@ -131,11 +131,18 @@ def main() -> int:
         if not save.is_file():
             sys.exit(f"存档不存在: {save}")
         shutil.copy(save, out / "injected-save.json")
+        # 目录/属主必须与 app 一致：pm clear 后若以 root 创建 files/，app 读不到 player.json，
+        # 会静默回退到新游戏（R112-01 实测坑）。优先取 app 数据目录 uid；不存在则要求先启动一次。
+        pkg_dir = f"/data/data/{PKG}"
+        uid = sh(f"stat -c %u {pkg_dir}").stdout.strip()
+        gid = sh(f"stat -c %g {pkg_dir}").stdout.strip()
+        if not uid.isdigit():
+            sys.exit(f"应用数据目录不存在（{pkg_dir}）：请先启动一次应用再注入存档")
         sh(f"mkdir -p {FILES}")
         adb("push", str(save), "/data/local/tmp/_ga.json")
-        uid = sh(f"stat -c %u {FILES}").stdout.strip()
+        sh(f"chown -R {uid}:{gid} {FILES}")
         sh(f"cp -f /data/local/tmp/_ga.json {PLAYER}")
-        sh(f"chown {uid}:{uid} {PLAYER}")
+        sh(f"chown {uid}:{gid} {PLAYER}")
         sh(f"chmod 660 {PLAYER}")
         sh("rm -f /data/local/tmp/_ga.json")
     sh("logcat -c")
