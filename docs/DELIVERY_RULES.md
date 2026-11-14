@@ -196,3 +196,14 @@
 
 - Lead 和后续 Agent 启动及分配迁移任务时必须继承本节，不另开已有轮次 `/goal`，不改变历史 R 编号、原版 3.21.0 冻结基线或已存在的 PR/工作树；按现有峰谷停工和 CI/PR 保护规则运行。
 - 每批记录功能迁移映射、源与目标路径、实证差异、代码/CI Run/AVD/APK SHA、`PASS / FAIL / BLOCKED / NOT RUN`、仍依赖旧脚本的条目和下一批依赖。P0/P1 修复与玩家正确性优先，不能为清理 Python 而破坏正在进行的开发或已验证稳定版。
+## 10. CI/CD 自主管理与故障自愈（2026-11-14，强制）
+
+- **角色与授权**：DeepSeek Lead 负责本项目 CI/CD 日常管理与故障自愈；GitHub Actions 是独立执行与验证系统；Ruleset、受保护 Environment、Required Checks、分支保护是不可绕过边界。Lead 可自主检查 Actions 状态与失败日志、定位修复构建/测试/缓存/权限/依赖/工作流问题、创建修复分支与中文 Commit、Push、PR，并按既有权限在门禁通过后合并。
+- **范围**：Android、Web、GitHub Pages；frame-observer 仅在其构建/测试/集成受影响时处理。操作前读取最新 origin/main、AGENTS.md、本规则、相关 Issue/PR、Actions 状态与已有工作树/分支，避免重复与覆盖。
+- **自愈闭环**：发现故障 → 真实失败步骤日志 → 根因 → 最小修改 → PR → CI 验证 → 合规合并 → 复核 Run。区分源码错误/环境错误/平台故障/密钥缺失/业务回归；偶发网络故障允许有上限重试；确定性编译错误必须修源码；禁止删测试、吞异常或改断言制造 PASS；禁止重复无新证据的失败尝试；局部 BLOCKED 继续推进其他工作。
+- **状态分层（不得跨级替代）**：源码 CI PASS ≠ AGP Kotlin 编译 PASS ≠ 完整游戏 APK 构建 PASS ≠ AVD 真实运行 PASS ≠ Candidate/Verify PASS ≠ Release PASS。AGP 原生完整游戏未达正式准入前，Candidate/Verify/Release fail-closed；禁止用 build_mod.py、旧 apktool 补丁树或混合拼包冒充原生完整构建。
+- **Web/Pages**：Web CI 覆盖 Node、必要单测、Playwright/移动 Chromium、存档/核心机制/受影响 GUI 定向验收并核对源码 SHA 与产物；Pages 仅经现有受控工作流，验证已批准 Web main SHA 与成功 CI Run 后部署，部署后核对线上 SHA 与 Android Chrome 默认视口。禁止直接改 Pages 生产内容或绕过工作流。
+- **自动合并**：PR 无未解决关键审查问题、Required Checks 全通过、无真实冲突/未处理高风险回归、符合 Ruleset 与权限、无需用户额外批准时，方可自动合并；否则保持开放并修复。
+- **自动发布**：必须走受保护 CI/CD。Android 链路：可信源码 SHA → AGP 完整游戏构建 → 签名 → 独立验签 → 必要 AVD 验收 → 正式 Release → GitHub Releases / OneDrive / Google Drive → 开发机主动下载校验 → 本地 SFTP；四渠道同一 APK SHA-256；开发机不得被 Actions 主动 SFTP 推送；条件未满足不得更新 Latest；两小时节奏不得凌驾质量与安全门禁。
+- **禁止**：关闭/削弱 Ruleset、跳过 Required Checks、强制合并失败 PR、强推或覆写其他 Agent 工作、签名私钥/Token/密码入仓库或日志、读取并输出 Secrets 明文、无证据旧产物冒充新产物、伪造 CI/AVD/通关/签名/发布结果、手动上传 APK 或覆盖 Pages 绕过流水线、自动升级冻结上游基线；不得在 CI 工作流中加入 DeepSeek API 自动诊断/审查，保留现有 Codex PR 审查与确定性测试。
+- **峰谷与长期维护**：遵守 DeepSeek 峰谷全员停工与收尾窗口；谷时继续同一轮、不重复 /goal。每次允许时段主动检查 Source CI、AGP Kotlin/DEX、完整游戏构建、Candidate/Verify/Release、Web Playwright、Pages 线上版本、阻塞 PR/Issue、失败频率/重复执行/构建耗时/缓存命中；无需为检查反复触发构建，已明确问题优先修复而非反复出状态报告；旧工作流失效/重复/冲突时可在独立 PR 合理整合，但必须保留必要安全门禁。

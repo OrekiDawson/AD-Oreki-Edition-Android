@@ -117,3 +117,14 @@
 - **先决阻塞和交付关系**：[Issue #25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的 AGP 原生完整游戏代码/运行语义为核心先决条件；[Issue #17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 跟踪正式 CI/CD 与四渠道交付。AGP 混合拼包、Bridge 冷启动或源码 CI PASS 不等于原生完整游戏 PASS，不得作为删除与发布完成凭据。
 - **最终验收后方可删除**：需要干净工作区的无脚本 AGP 完整构建，以及真实 APK 安装/冷启、Tick 持续运行、存档保存/恢复、关键阶段/挑战/自动购买器/GUI、原版签名/包名/版本升级兼容和独立 CI/CD 门禁的可追溯证据；失败保持 `BLOCKED`。删除后 CI 要阻止正式构建重新引用旧脚本/旧构建链；历史报告的文字引用可保留，不重写历史。
 - **执行边界**：这是现有开发目标的长期增量要求，**不新开 `/goal`、不重置计时、不改 R 编号**；服从 P0/P1、DeepSeek 峰谷全员停工、分支/PR/Required Checks 与 AGP-only fail-closed 规则。未满足验收前保留已验证稳定版，不强行宣布退役完成、不旁路发布。
+## 15. CI/CD 自主管理与故障自愈（强制，2026-11-14）
+
+- **授权与角色**：DeepSeek Lead 是本项目 CI/CD 的日常维护负责人；GitHub Actions 是独立执行与验证系统；Ruleset、受保护 Environment、Required Checks 与分支保护是不可绕过的安全边界。Lead 不需要用户逐次确认即可检查 Actions 状态/失败日志、定位并修复构建/测试/缓存/权限/依赖/工作流问题、创建修复分支与中文 Commit、Push、PR，并按既有权限在门禁通过后合并。
+- **负责仓库**：主要范围为 Android、Web、GitHub Pages 三个仓库；frame-observer 仅在其构建/测试/集成受影响时处理。其他仓库不自动纳入。每次操作前读取最新 origin/main、AGENTS.md、现行长期规则、相关 Issue/PR 与 Actions 状态，并核对已有 Agent 工作树/分支，避免重复与覆盖。
+- **故障自愈闭环**：发现故障 → 获取真实失败步骤日志 → 定位根因 → 最小修改 → PR → CI 验证 → 合规合并 → 复核 Run 状态。区分源码错误、构建环境错误、平台服务故障、密钥缺失与真实业务回归；偶发网络故障允许有上限重试，确定性编译错误必须修源码；不得删测试、吞异常或改断言制造 PASS；不得重复无新证据的失败方案。局部 Blocked 继续推进其他不冲突工作，不因此停止整轮。
+- **AGP 状态分层**：源码 CI PASS ≠ AGP Kotlin 编译 PASS ≠ 完整游戏 APK 构建 PASS ≠ AVD 真实运行 PASS ≠ Candidate/Verify PASS ≠ 稳定版 Release PASS；上一级成功不得替代下一级验收。AGP 真实完整游戏未达到正式准入前，Candidate/Verify/Release 继续 fail-closed；禁止用 `build_mod.py`、旧 apktool 补丁树或混合拼包冒充完整 AGP 原生构建。
+- **Web/Pages**：Web CI 负责 Node、必要单测、Playwright/移动 Chromium、存档/核心机制与受影响 GUI 的定向验收并核对源码 SHA 与产物一致；Pages 只经现有受控工作流验证已批准的 Web main SHA 与成功 CI Run 后部署 oreki.net，部署后核对线上 SHA 与 Android Chrome 默认视口行为。禁止直接改 Pages 生产内容或绕过工作流。Android 与 Web 门禁互不替代。
+- **自动合并**：仅当 PR 无未解决关键审查问题、Required Checks 全部通过、无真实冲突/未处理高风险回归、符合 Ruleset 与合并权限且不需要用户额外批准时自动合并；否则保持开放并修复，不得绕过。
+- **自动发布**：必须经受保护 CI/CD 工作流。Android 流程为「可信源码 SHA → AGP 完整游戏构建 → 签名 → 独立验签 → 必要 AVD 验收 → 正式 Release → GitHub Releases / OneDrive / Google Drive → 开发机主动下载校验 → 本地 SFTP」，四渠道必须同一 APK SHA-256；开发机不得被 Actions 主动 SFTP 推送；条件未满足不得更新 Latest。两小时稳定版节奏仍受质量与安全门禁约束。
+- **禁止事项**：不得关闭/削弱 Ruleset、跳过 Required Checks、强推或覆写其他 Agent 工作、把签名私钥/Token/密码写入仓库或日志、读取并输出 Secrets 明文、用旧产物冒充新产物、伪造 CI/AVD/通关/签名/发布结果、手动上传 APK 或直接覆盖 Pages 绕过流水线、自动升级冻结上游基线；**不得在 CI 工作流中加入 DeepSeek API 自动诊断/审查**——Lead 管理 CI/CD 不等于让 Actions 调用 DeepSeek API；保留现有 Codex PR 审查与确定性测试机制。
+- **峰谷与记录**：严格遵守 DeepSeek 峰谷规则（工作日 09:00–12:00 / 14:00–18:00 高峰全员停工，08:50/13:50 开始收尾）；谷时继续同一轮，不重复 /goal。每次允许工作时段主动检查 Source CI、AGP Kotlin/DEX、完整游戏构建、Candidate/Verify/Release、Web Playwright、Pages 线上版本、阻塞 PR/Issue、失败频率与缓存命中；不需要为检查反复触发构建，已明确问题优先修复而非反复出状态报告。
