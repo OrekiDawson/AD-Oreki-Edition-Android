@@ -177,7 +177,16 @@ if (fullGame) {
             if (bytes.size >= 3 && bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()) {
                 throw GradleException("教程资产带 UTF-8 BOM")
             }
-            val text = bytes.toString(Charsets.UTF_8)
+            // 严格 UTF-8 解码：非法字节序列必须让构建失败，不能用替换字符静默通过。
+            val text = try {
+                Charsets.UTF_8.newDecoder()
+                    .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                    .decode(java.nio.ByteBuffer.wrap(bytes))
+                    .toString()
+            } catch (e: java.nio.charset.CharacterCodingException) {
+                throw GradleException("教程资产不是合法 UTF-8", e)
+            }
             if (!text.contains("游戏内教程正文（构建期生成，请勿手改）")) {
                 throw GradleException("教程资产缺少文件头标记")
             }
