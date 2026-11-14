@@ -103,6 +103,14 @@
 
     move-result v0
 
+    # [R110-01 P0-B] hold 最终复核（Kotlin 业务，Smali 只转发）：
+    # fresh 档真机证据：upgradeBits=0、realityMachines=0、poured=149 时 isHolding 仍为 true，
+    # 导致 reality 15 分钟不重置（realities 卡 1）。复核要求 RU 20/20 且 RM>0，
+    # 并给每次 hold 180s 墙钟上限 + 60s 冷却，保证现实中一定会发生。
+    invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaGate;->check(Z)Z
+
+    move-result v0
+
     # [R109-01 DIAG] 只读：记录 Teresa 压现实实值（第三条静默 guard）
     if-eqz v0, :diag_th_false
     const-string v1, "teresaHolding=true"
