@@ -41,6 +41,8 @@ run_variant() {
   local log="$OUTDIR/$name/build.log"
   mkdir -p "$OUTDIR/$name"
   echo "[r109] build $name (xmx=$XMX)"
+  # 清掉上一次 R8 构建残留的 mapping，避免 R8 OFF 变体误把旧 mapping 当本变体产物。
+  rm -f "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt"
   ( cd "$ROOT" && bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true \
       -PorekiGameJar="$JAR" "$@" --console=plain --no-daemon \
       -Dorg.gradle.jvmargs="-Xmx$XMX -XX:MaxMetaspaceSize=768m" > "$log" 2>&1 )
