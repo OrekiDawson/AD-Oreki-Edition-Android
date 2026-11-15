@@ -144,12 +144,9 @@ object OrekiIu15Sprint {
     @Volatile
     private var realitiesSeen: Double = -1.0
 
-    /** [R108-01] 是否已关闭 8 层 ID 的原版自动购买器（真实开关，不是写字段）。 */
-    @Volatile
-    private var idAutoLocked: Boolean = false
-
-    /** 被本模块关闭的自动购买器（恢复时只恢复这些）。 */
-    private var savedAutoObjs: Array<Any> = emptyArray()
+    // [R114-01 P1-4 收口] 原「封锁 8 层自动器并内存恢复」的 idAutoLocked/savedAutoObjs 字段已删除。
+    // R110-01 P0-B 起冲刺不再写任何原版自动器状态（只靠 idBuyGuardOn 拦截 ID 购买入口），
+    // 因此不存在「进程在 armed/running 被杀死 ⇒ 自动器永久关闭」的路径，也无需 oreki_prefs 持久化恢复。
 
     /** 把指数值格式化成日志用的短字符串（Kotlin 没有 JS 的 toExponential）。 */
     private fun fmtExp(value: Double): String =
@@ -346,45 +343,11 @@ object OrekiIu15Sprint {
     fun isBlockingIdBuy(): Boolean =
         idBuyGuardOn && (phase == PHASE_ARMED || phase == PHASE_RUNNING)
 
-    private fun applyIdAutobuyerLockdown() {
-        if (idAutoLocked) return
-        try {
-            val arr = GameApi.dimensionAutobuyers() ?: return
-            val saved = ArrayList<Any>()
-            var i = 0
-            while (i < arr.size) {
-                val autobuyer = arr[i]
-                if (autobuyer != null && GameApi.isAutobuyerActive(autobuyer) == true) {
-                    GameApi.setAutobuyerActive(autobuyer, false)
-                    saved.add(autobuyer)
-                }
-                i++
-            }
-            val out = arrayOfNulls<Any>(saved.size)
-            i = 0
-            while (i < saved.size) { out[i] = saved[i]; i++ }
-            @Suppress("UNCHECKED_CAST")
-            savedAutoObjs = out as Array<Any>
-            idAutoLocked = true
-            Log.i(TAG, "已关闭 8 层 ID 原版自动购买器 count=" + savedAutoObjs.size)
-        } catch (e: Throwable) {
-            recordError("lockdown", e)
-        }
-    }
-
-    private fun restoreIdAutobuyers() {
-        if (!idAutoLocked) return
-        try {
-            var i = 0
-            while (i < savedAutoObjs.size) {
-                GameApi.setAutobuyerActive(savedAutoObjs[i], true)
-                i++
-            }
-        } catch (_: Throwable) {
-        }
-        idAutoLocked = false
-        savedAutoObjs = emptyArray()
-    }
+    // [R114-01 P1-4 收口] applyIdAutobuyerLockdown()/restoreIdAutobuyers() 已删除。
+    // 事实链（读码）：R110-01 P0-B 把「关 8 个自动器」换成 idBuyGuardOn 购买入口拦截，
+    // 因为旧实现关的是 8 个**反物质维度**自动器（GameApi.dimensionAutobuyers 注释明示），
+    // 会令 AM 产量归零、冲刺自锁；此后两方法在 main 上已无调用点（仅 releaseNow 里一次空转 restore）。
+    // 删除后：不写自动器状态 ⇒ 无需跨进程持久化恢复；进程重启不会留下永久关闭的自动器。
 
     /** IU15 是否已真实购买（只读）。 */
     @JvmStatic
@@ -622,7 +585,6 @@ object OrekiIu15Sprint {
     @JvmStatic
     fun releaseNow(reason: String) {
         idBuyGuardOn = false
-        restoreIdAutobuyers()
         val wasActive = isActive()
         phase = if (phase == PHASE_DONE || phase == PHASE_GIVEUP) phase else PHASE_IDLE
         if (wasActive) {
