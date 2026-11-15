@@ -30,7 +30,7 @@ LEDGER = ROOT / "build" / "release-build-ledger.json"
 
 # 真正影响 APK 内容的输入（相对路径前缀）。纯文档/报告/规则一律不纳入。
 INPUT_DIRS = (
-    "scripts/payload/kotlin",
+    "app/src/main/kotlin",
     "scripts/payload/smali",
     "scripts/payload/assets",
     "scripts/payload/res",

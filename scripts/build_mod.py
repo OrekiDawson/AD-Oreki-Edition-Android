@@ -29,6 +29,9 @@ WORK = ROOT / "work"
 BASE = Path(os.environ.get("OREKI_BASE") or (WORK / "base_decoded")).resolve()
 SPLIT = WORK / "xhdpi_decoded"
 PAYLOAD = ROOT / "scripts" / "payload"
+# [R113-01] Issue #61 阶段一：生产 Kotlin 源码已迁到标准 Android 布局
+# app/src/main/kotlin（原 scripts/payload/kotlin）。这里是唯一来源，禁止再写回旧路径。
+KOTLIN_SRC = ROOT / "app" / "src" / "main" / "kotlin"
 # [R80] 补丁工作目录可切换：OREKI_MOD 指向一份**独立目录**（例如 work/mod_r80），
 # 让 3.20 迁移在干净树上打补丁，不去碰可能被中途打断的 work/mod。
 # 默认行为不变，仍是 work/mod。
@@ -96,7 +99,7 @@ def _stage_auto_kt() -> str:
     为什么单独封一个函数：下面有 6 处守卫要读它，集中一处便于
     「迁移到别的文件」时只改一行。
     """
-    p = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.kt"
+    p = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.kt"
     assert p.is_file(), f"缺少 {p}（OrekiStageAuto 已转 Kotlin，Smali 版应已删除）"
     return p.read_text(encoding="utf-8")
 
@@ -2620,7 +2623,7 @@ def verify_break_shop_kotlin():
     `tick()I` 必须在 ABI 清单里；ID1 预留判据必须留在生产调用链上。
     运行期正确性仍由 AVD / logcat / 原版存档字段验证，不能由本函数冒充。
     """
-    kt = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz"
+    kt = (KOTLIN_SRC / "kajfosz"
           / "antimatterdimensions" / "oreki" / "OrekiBreakShop.kt")
     assert kt.is_file(), "[R87] 缺少 OrekiBreakShop.kt（Kotlin 迁移丢失）"
     src = kt.read_text(encoding="utf-8")
@@ -2659,7 +2662,7 @@ def verify_kotlin_gameapi_aliases():
 
     这条守卫把两边的映射逐条比对，不一致直接失败。
     """
-    kt = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "GameApi.kt"
+    kt = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "GameApi.kt"
     assert kt.is_file(), f"GameApi.kt 不存在: {kt}"
     src = kt.read_text(encoding="utf-8")
 
@@ -3035,7 +3038,7 @@ def verify_payload():
     # 我们自己写的类里 —— 它是我们新增后又被删掉的死代码，原版从不引用它）。
     au_refs = 0
     for _root in [ROOT / "scripts" / "payload" / "smali",
-                  ROOT / "scripts" / "payload" / "kotlin"]:
+                  KOTLIN_SRC]:
         if not _root.is_dir():
             continue
         for p in _root.rglob("*"):
@@ -4981,10 +4984,10 @@ def patch_id_autobuyer_guard():
                     / "infinity" / "InfinityDimensionState.smali")
     mod_iu = (smali_tree() /  "kajfosz" / "antimatterdimensions" / "reality"
               / "imaginary_upgrades" / "b.smali")
-    # [R83] OrekiAuto 已整类迁到 Kotlin（payload/kotlin/.../OrekiAuto.kt），
+    # [R83] OrekiAuto 已整类迁到 Kotlin（app/src/main/kotlin/.../OrekiAuto.kt），
     # MOD 树里不再有对应 .smali。守卫逻辑改由 Kotlin 断言（见下方 kt 校验）。
-    kt_auto = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "OrekiAuto.kt"
-    kt_iu15 = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions"
+    kt_auto = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "OrekiAuto.kt"
+    kt_iu15 = (KOTLIN_SRC / "kajfosz" / "antimatterdimensions"
                / "oreki" / "OrekiIu15Sprint.kt")
 
     # ---- 锚点校验（无论开关都做，防止原版更新后静默漂移）----
@@ -5415,7 +5418,7 @@ def verify_eternity_chain():
         "[ET1] TT 必须走 GameApi.timeTheoremBuyMax(Z)J 版本桥（原版唯一真实购买入口）"
     assert "Lix4;->a(Z)J" not in body, "[ET1] 不得直接写死 3.20 的 ix4.a(Z)J"
     assert "const/4 v0, 0x1" in body, "[ET1] TT 必须 buyMax(true)"
-    _gameapi_tt = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" /
+    _gameapi_tt = (ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" /
                    "antimatterdimensions" / "oreki" / "GameApi.kt").read_text(encoding="utf-8")
     assert "methodOrNull(cls(\"zu4\"), \"a\", 1, boolType)" in _gameapi_tt, \
         "[ET1] 3.21 时间定理入口必须是 zu4.a(Z)J"

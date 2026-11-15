@@ -5,7 +5,7 @@ on:
   pull_request:
     paths:
       - 'agp/**'
-      - 'scripts/payload/kotlin/**'
+      - 'app/src/main/kotlin/**'
       - 'scripts/payload/smali/**'
       - 'scripts/tests/test_agp_r8_experiment.py'
       - '.github/workflows/r8-experiment.yml'

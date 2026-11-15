@@ -33,7 +33,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-KT = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions"
+KT = ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" / "antimatterdimensions"
 BUILD_MOD = ROOT / "scripts" / "build_mod.py"
 BUILD_KT = ROOT / "scripts" / "build_kotlin.py"
 

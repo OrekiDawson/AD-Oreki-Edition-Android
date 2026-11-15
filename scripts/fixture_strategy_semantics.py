@@ -468,7 +468,7 @@ def main() -> int:
     check("drives 具备 fail-open（sStage < 0 放行）", "if-ltz v0, :dr_yes" in drives_body)
     # [R78] OrekiStageAuto 已转 Kotlin：改读 Kotlin 源码，仍是"3 处 drives() 调用"
     # （reality / glyph / teresa 三个分支），语义不变。
-    _kt = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt")
+    _kt = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt")
     if _kt.is_file():
         _cnt = _kt.read_text(encoding="utf-8").count("GameApi.strategyDrives(")
     else:

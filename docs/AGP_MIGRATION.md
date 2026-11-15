@@ -26,7 +26,8 @@
 
 - agp/ 是独立真实 AGP Application 工程：agp/settings.gradle.kts、agp/build.gradle.kts、
   agp/app/build.gradle.kts、agp/app/src/main/AndroidManifest.xml。
-- agp/app 直接编译现有 Kotlin 业务源码 scripts/payload/kotlin/** 与生成的
+- agp/app 直接编译现有 Kotlin 业务源码 app/src/main/kotlin/**（R113-01 从
+  scripts/payload/kotlin/** 迁入，Issue #61 S2-6）与生成的
   build/kt/generated/OrekiBaselineBindings.kt（generateKotlinBindings 任务保证先生成）。
 - 产物：agp/app/build/outputs/apk/debug/app-debug.apk
   - package kajfosz.antimatterdimensions.agpbridge
