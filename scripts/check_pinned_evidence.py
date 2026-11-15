@@ -6,6 +6,7 @@ any repository. Structural blob checks are not a substitute for actual runs.
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 from urllib.parse import quote
@@ -31,12 +32,30 @@ def main():
     report = json.load(open(args.acceptance, encoding="utf-8"))
     errors = []
     cache = {}
+    # 两提交模型：acceptance.json 在 commit A（--android-commit），真实证据文件在
+    # commit B = report["evidence_commit_sha"]；B 必须是 A 的祖先且可达 trusted main。
+    # 这样避免“证据文件所在 commit 必须等于包含 acceptance.json 的 commit”的内容寻址自引用。
+    declared = report.get("evidence_commit_sha")
+    if not isinstance(declared, str) or not re.fullmatch(r"[0-9a-f]{40}", declared):
+        errors.append("acceptance.json evidence_commit_sha must be an exact 40-digit commit")
+        declared = None
+    android_ref_checked = False
     for run in report.get("completion_runs", []):
         platform = run["platform"]
         repo = ANDROID if platform == "android" else WEB
         ref = run["evidence_commit_sha"]
-        if platform == "android" and ref != args.android_commit:
-            errors.append("Android evidence must use exact pinned acceptance commit")
+        if platform == "android":
+            if ref != declared:
+                errors.append("Android evidence commit must equal declared evidence_commit_sha")
+            elif not android_ref_checked:
+                gh(f"repos/{ANDROID}/commits/{declared}")
+                trusted = gh(f"repos/{ANDROID}/compare/main...{declared}")
+                if trusted.get("status") not in ("identical", "behind"):
+                    errors.append("Android evidence commit not reachable from trusted main")
+                relation = gh(f"repos/{ANDROID}/compare/{declared}...{args.android_commit}")
+                if relation.get("status") not in ("ahead", "identical"):
+                    errors.append("Android evidence commit must be an ancestor of pinned acceptance commit")
+                android_ref_checked = True
         if platform == "web" and ref not in cache:
             relation = gh(f"repos/{WEB}/compare/{args.web_ref}...{ref}")
             status = relation.get("status")
@@ -60,14 +79,16 @@ def main():
                     data.get("sha") != item["git_blob_sha"] or
                     data.get("size") != item["size_bytes"]):
                 errors.append(f"{platform} evidence file missing/blob mismatched: {path}")
-    # A screenshot path string alone is not evidence: check actual Git blobs.
+    # A screenshot path string alone is not evidence: check actual Git blobs at evidence commit B.
     for path in report.get("screenshots", []):
-        data = gh(f"repos/{ANDROID}/contents/{quote(path, safe='/')}?ref={args.android_commit}")
+        if not declared:
+            break
+        data = gh(f"repos/{ANDROID}/contents/{quote(path, safe='/')}?ref={declared}")
         if data.get("type") != "file" or data.get("size", 0) < 8:
             errors.append(f"AVD screenshot missing or empty: {path}")
     if errors:
         raise ValueError("; ".join(errors))
-    print("PASS: pinned Android/Web source ancestry, evidence git blobs, and screenshot files exist")
+    print("PASS: pinned Android evidence commit is ancestor of acceptance pin; Web evidence descends build SHA; blobs/screenshots exist")
 
 
 if __name__ == "__main__":
