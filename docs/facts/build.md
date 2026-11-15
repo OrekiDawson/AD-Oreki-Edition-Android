@@ -558,7 +558,23 @@ ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/andr
 - `[读码]` candidate 不再执行 `buildKotlinDex`：类描述符校验额外并入 `scripts/kotlin_business_classes.txt` 与
   `app/src/main/kotlin` 顶层声明作为 Kotlin 类证据，避免误报。
 - **NOT RUN**：真实 candidate workflow run（AGP-only 门禁仍 fail-closed）、真实 `assembleRelease`/APK/AVD。
-- **剩余（C4c）**：`verify_payload`（693 行）依赖 build 期 `TOUCHED_FILES` 注册表，需改为「MOD 树 vs 解码基线」差异重建 touched 集；
-  在 C4c 前继续在生产构建执行（fail-closed 不降）。
+- **剩余（C4c）**：`verify_payload` 已由 R114-02 C4c 迁出（见 [f-r114-02-c4c](#f-r114-02-c4c)）。
 - 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §8；报告 `reports/R114-02/agents/buildmod-retirement-c4b-tree-checks.md`。 `[实测] + [读码]`
+
+
+<a id="f-r114-02-c4c"></a>
+## R114-02 C4c：verify_payload 迁树级独立校验（CONFIRMED，2026-11-16）
+
+- `[实测]` `build_mod.verify_payload`（693 行）迁入 `scripts/verify_build_contracts.py::check_payload`（树级模式），
+  build_mod 删除 `verify_payload`、`refresh_touched`、`PAYLOAD_MUST_EXIST`、`PAYLOAD_REFS` 与随之变死的 `_stage_auto_kt`：
+  6,532 → **5,644 行（-888）**，顶层函数 85 → 81；`resolve_alias_ref` 保留（被 `test_r80_alias_rewrite.py` 直接调用）。
+- `[实测]` touched 集改为「MOD 树 vs 解码基线」差异重建（新增/内容变化），真实树得到 **77 文件（25 payload + 52 补丁改写）**；
+  `lint_smali_literals` 扫描 77 文件 0 问题，负例注入非法字面量下标时 rc=1（fail-closed）。
+- `[实测]` 别名换算不复制常量表：由 `baseline/versions/3.20/compatibility.json` + `3.21/compatibility.json` +
+  `bindings.json` 组合；与生产 `rewrite_alias` 对 41 项 PAYLOAD_REFS 逐条比对 **0 差异**。
+- `[实测]` 新旧等价：旧 `build_mod.verify_payload` 喂同一 77 文件 touched 集 **PASS**；新 verifier 真实树 **10/10 PASS**。
+- `[读码]` 公开 CI 默认只跑 5 条源码级校验，树级 5 条（含 payload）显式 SKIP；candidate 树级 step 增加
+  `--legacy-base "$OREKI_LEGACY_BASELINE_DIR"`（R73 夹具资源 ID 来自旧版解码树）。
+- **NOT RUN**：真实 candidate workflow（AGP-only 门禁 fail-closed，且 C4c PR 堆叠在未合并的 C4b #129 之上）、APK/AVD。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §9；报告 `reports/R114-02/agents/buildmod-retirement-c4c-payload.md`。 `[实测] + [读码]`
 

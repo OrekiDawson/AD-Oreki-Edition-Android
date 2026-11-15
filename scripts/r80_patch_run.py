@@ -48,7 +48,6 @@ STEPS = [
     ("patch_shop_coins", bm.patch_shop_coins),
     ("patch_effarig_nerf", bm.patch_effarig_nerf),
     ("patch_effarig_shard_divisor", bm.patch_effarig_shard_divisor),
-    ("verify_payload", bm.verify_payload),
     ("patch_ad_bonus", bm.patch_ad_bonus),
     ("patch_automator_waiting", bm.patch_automator_waiting),
     ("patch_autobuyer_cadence", bm.patch_autobuyer_cadence),

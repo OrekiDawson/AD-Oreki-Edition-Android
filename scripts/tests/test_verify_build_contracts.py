@@ -33,6 +33,8 @@ MIGRATED = (
     "check_ec_chain_mechanisms", "check_challenge_auto_polarity",
     "verify_eternity_chain", "verify_pelle_record", "verify_smali_field_types_320",
     "check_smali_descriptors",
+    # C4c：payload 全量契约（树级）
+    "verify_payload",
 )
 
 
@@ -54,13 +56,14 @@ class ContractVerifierTest(unittest.TestCase):
         statuses = {name: status for name, status, _ in results}
         for name, status in statuses.items():
             if status == "skip":
-                self.assertIn(name, ("eternity_chain", "pelle_record",
-                                     "smali_descriptors", "smali_field_types"),
+                self.assertIn(name, ("eternity_chain", "pelle_record", "smali_descriptors",
+                                     "smali_field_types", "payload"),
                               "树级校验之外的检查不应被跳过：" + name)
             else:
                 self.assertEqual(status, "pass", name + " 在源码树上必须 PASS")
         self.assertEqual(sorted(n for n, s in statuses.items() if s == "skip"),
-                         ["eternity_chain", "pelle_record", "smali_descriptors", "smali_field_types"],
+                         ["eternity_chain", "payload", "pelle_record",
+                          "smali_descriptors", "smali_field_types"],
                          "树级校验缺树时必须显式 SKIP（公开 CI 不假装执行）")
         self.assertEqual(sorted(n for n, s in statuses.items() if s == "pass"),
                          ["au4b", "break_shop_kotlin", "challenge_polarity",
@@ -117,6 +120,8 @@ class TreeCheckWiringTest(unittest.TestCase):
                         "树级校验必须排在 AGP 打包之前（失败即阻断候选）")
         self.assertIn("--mod-tree work/mod", workflow)
         self.assertIn('--decoded-tree "$OREKI_BASE"', workflow)
+        self.assertIn('--legacy-base "$OREKI_LEGACY_BASELINE_DIR"', workflow,
+                      "payload 的 R73 夹具需要旧版解码树（注入块资源 ID 来自旧树）")
 
     def test_public_ci_does_not_fake_tree_checks(self):
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")

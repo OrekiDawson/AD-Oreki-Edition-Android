@@ -7,7 +7,7 @@
 
 | 项 | 值 |
 |---|---|
-| scripts/build_mod.py | **6,532 行** / 85 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54、C4 -175、C4b -862） |
+| scripts/build_mod.py | **5,644 行** / 81 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54、C4 -175、C4b -862、C4c -888） |
 | main() 实际启用调用 | 53 个（另 1 个未接入主流程的保留函数：patch_autobuyer_unlock，仅被诊断链 patch_debug_trace 调用；verify / patch_frame_cadence 已在 C5 清理） |
 | 启用函数代码量 | 5,587 行（约占全文件 72%；不含 R114-02 C1 已删除段） |
 | 生产依赖 | 根 build.gradle -> `python3 scripts/build_mod.py`（OREKI_GRADLE_ASSEMBLY=1）生成 work/mod 补丁树；AGP 完整游戏构建以 `-PorekiDecodedTree=work/mod` 读取该树（manifest/res/assets/lib/smali 输入） |
@@ -61,7 +61,7 @@
 | verify_kotlin_gameapi_aliases / verify_break_shop_kotlin / verify_au4b | 64/29/80 | **已迁** `scripts/verify_build_contracts.py`（源码 CI Required Checks 执行，不 import build_mod；含变异自测） | **PASS**（R114-02 C4，见 §7） |
 | verify_eternity_chain / verify_pelle_record / verify_smali_field_types_320 / check_smali_descriptors | 179/76/45/12 | **已迁** `scripts/verify_build_contracts.py` 的 `--mod-tree`/`--decoded-tree` 模式；在 candidate 私有 runner 的 pinned full-game tree 就位后、AGP 打包前以独立 step 执行 | **PASS**（R114-02 C4b，见 §8；真实 candidate run NOT RUN） |
 | check_challenge_auto_polarity / check_ec_chain_mechanisms | 63/7 | **已迁**：确认二者只读 payload 源（不依赖补丁树），并入源码级校验（公开 CI） | **PASS**（R114-02 C4b，见 §8） |
-| verify_payload | 693 | **仍待迁（C4c）**：依赖 build 期 `TOUCHED_FILES` 注册表（write_smali 记录被补丁写的文件），独立脚本需改为「把 MOD 树与解码基线做差异」来重建 touched 集；设计需 Lead 确认。当前仍在生产构建执行（fail-closed 不降） | NOT RUN（C4c） |
+| verify_payload | 693 | **已迁** `scripts/verify_build_contracts.py::check_payload`（`--mod-tree`+`--decoded-tree`+可选 `--legacy-base`）；touched 集改为「MOD 树 vs 解码基线」差异重建（本机 77 文件），别名换算从 baseline compatibility/bindings 组合（41/41 引用自检与旧实现一致） | **PASS**（R114-02 C4c，见 §9；真实 candidate run NOT RUN） |
 
 ### F. 已禁用/历史证据（核实后移除）
 
@@ -85,6 +85,7 @@
    - C3：dark theme 迁到 AGP 资源 overlay。
    - C4：verify_* 迁到 CI 独立任务（**已完成主体**，R114-02：C4 迁 3 条源码级；C4b 迁 2 条扩展源码级 + 4 条树级；仅剩 verify_payload 见 §8.5/C4c）。
    - C5：dead/disabled 函数删除（**已完成**，R114-02：AST 可达性 + 调用链属性守卫，详见 §6）。
+   - C4c：payload 全量契约迁移（**已完成**，R114-02：`verify_payload` 迁树级校验 + touched 差异重建，详见 §9）。
 4. **最终删除条件**（Issue #52 清单）：全部满足后才删除 build_mod.py，并加 CI 守卫阻止重新引用。
 
 ## 3. 本轮已完成
@@ -333,4 +334,47 @@ C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tr
 （`write_smali()` 在打补丁时登记被写文件），独立脚本没有该状态；等价改造需要先用
 「MOD 树 vs 解码基线」差异重建 touched 集（约 2.3 万文件对比），并重新验证其 `.catch`/字面量 lint 语义。
 这是设计决策 + 一定工作量，建议作为 C4c 单独立项；在 C4c 前它继续在生产构建执行，fail-closed 不降。
+
+
+
+## 9. R114-02 C4c 闭包：verify_payload 迁树级独立校验（Issue #52）
+
+> 分支 `r114-02/buildmod-c4c`（基于 `r114-02/buildmod-c4b`，因 #129 暂不合并而堆叠）；基线 `origin/main ec14bf0c` 的 C4b 分支内容。目标：把 693 行 `verify_payload` 迁出生产构建，touched 集改为差异重建，并保持 lint/夹具语义与 fail-closed。
+
+### 9.1 迁出范围（16 条子检查 + 693 行）
+
+`verify_payload()`（693 行）整体迁入 `scripts/verify_build_contracts.py::check_payload`（树级模式），覆盖：21 个 payload 类齐全、41 项混淆类引用自检、`.catch` 三标签自检、`lint_smali_literals`、4 个 fixture（策略语义/坍缩策略/坍缩模式标题/永恒判定）、StageAssist/ORekiSpeed/Effarig 收敛、START perk、商店钳制、旧存档 ×100、归一化（4f/4g/4i/4j/4m）、AU-DEL、[3C] 助战三约束、[R41] 极性表、[T2] 动态速度。
+
+- **touched 集重建**：生产构建依赖 `write_smali()` 的 `TOUCHED_FILES`；独立脚本没有该状态，改为
+  「MOD 树 vs 解码基线」差异：新增（payload 拷贝）或内容变化（patch_* 改写）的 smali 文件。
+  本机真实树得到 **77 个文件（25 payload + 52 被补丁改写）**，`lint_smali_literals` 扫描 77 文件、问题 0 处。
+- **别名换算不复制常量表**：从 `baseline/versions/3.20/compatibility.json`（class/method/field/package 表）
+  + `baseline/versions/3.21/compatibility.json`（classes_320_to_target / method_refs）
+  + `bindings.json`（CONFIRMED methods）组合出 3.19→3.21 映射；
+  **与生产 `rewrite_alias` 对 41 项 PAYLOAD_REFS 逐条比对 0 差异**，2 处 `rewrite_alias` 断言结果一致。
+- **R73 夹具解码树**：注入块资源 ID 来自旧版树，新增 `--legacy-base`（缺省回退 `--decoded-tree`）；
+  `fixture_crunch_mode_label.py` 改为 `OREKI_LEGACY_BASE → OREKI_BASE → work/base_decoded` 环境链（不再写死路径）。
+- **生产构建不再执行**：build_mod 删除 `verify_payload`、`refresh_touched`、`PAYLOAD_MUST_EXIST`、`PAYLOAD_REFS`，
+  以及随之变死的 `_stage_auto_kt`；`main()` 调用替换为迁移说明。
+  `build_mod.py` 6,532 → **5,644 行（-888）**，顶层函数 85 → 81。
+  `resolve_alias_ref` 保留：`scripts/test_r80_alias_rewrite.py` 直接调用它验证生产别名重写（非死代码）。
+- **消费端**：candidate 树级校验 step 增加 `--legacy-base "$OREKI_LEGACY_BASELINE_DIR"`；公开 CI 仍只跑源码级
+  （payload 显式 SKIP，不假装执行）。
+
+### 9.2 验证（本机实测 + 新旧等价，2026-11-16）
+
+| 命令 | 结果 |
+|---|---|
+| `verify_build_contracts.py`（无树，公开 CI 口径） | **PASS 5 项执行 / 10 项登记**，树级 5 条（含 payload）显式 SKIP |
+| `verify_build_contracts.py --selftest` | **PASS：15 条源码变异全部被拦住** |
+| `--mod-tree <真实 work/mod> --decoded-tree <base_decoded_321> --legacy-base <base_decoded>` | **PASS 10/10**（本机真实树；耗时 5.4 s） |
+| touched 集与 lint | 77 文件；`lint_smali_literals` 0 问题；**lint 负例**（注入 `const/16 v3,0x8000` + 字面量下标）rc=1 |
+| **新旧等价**：C4b 分支的旧 `build_mod.verify_payload`，喂**同一 77 文件 touched 集** | **OLD PASS**（新 10/10 亦 PASS，语义一致） |
+| 守卫测试 6/6、死代码 4/4、C1 8/8、compileall、facts governance | PASS |
+
+### 9.3 未决 / NOT RUN
+
+- **NOT RUN**：真实 candidate workflow（AGP-only 门禁仍 fail-closed；且 #129 未合并，C4c 堆叠在其上）、真实 `assembleRelease`/APK/AVD。
+- **PR 堆叠**：C4c PR 以 `r114-02/buildmod-c4b` 为 base（#129 内容）；Lead 合并 #129 后需把 C4c PR base 改为 main 再合并。
+- 风险同 §8.4：candidate 消费 pinned full-game tree，若 bundle modtree 落后于 source SHA，payload 契约会 FAIL（有意 fail-closed）。
 
