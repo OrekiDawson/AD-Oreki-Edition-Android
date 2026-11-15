@@ -746,7 +746,7 @@ def apply(mod: Path) -> dict:
 
 
 def verify(mod: Path) -> None:
-    """构建期守卫（建议由 build_mod.verify_payload 调用）。任一条不满足就抛错。"""
+    """构建期守卫（R114-02 C4c 起由 scripts/verify_build_contracts.py 调用）。任一条不满足就抛错。"""
     mod = Path(mod)
     styles = (mod / "res" / "values" / "styles.xml").read_text(encoding="utf-8")
     m = re.search(r'<style name="AppTheme" parent="@style/([^"]+)">', styles)
