@@ -43,7 +43,7 @@ BASE = ROOT / "work" / "base_decoded_321"
 BUILD_MOD = ROOT / "scripts" / "build_mod.py"
 DARK_THEME = ROOT / "scripts" / "oreki_dark_theme.py"
 GRADLE = ROOT / "build.gradle"
-KOTLIN_DIR = ROOT / "scripts" / "payload" / "kotlin"
+KOTLIN_DIR = ROOT / "app" / "src" / "main" / "kotlin"
 PAYLOAD_SMALI = ROOT / "scripts" / "payload" / "smali"
 BUILD_KOTLIN = ROOT / "scripts" / "build_kotlin.py"
 R106_01 = ROOT / "reports" / "R106-01" / "smali-hook-evidence.txt"
@@ -332,27 +332,27 @@ def K(fqcn, symbol, file):
 
 
 OK = "kajfosz.antimatterdimensions.oreki.OrekiStageAuto"
-OKT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt"
+OKT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt"
 OIU = "kajfosz.antimatterdimensions.oreki.OrekiIu15Sprint"
-OIUT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.kt"
+OIUT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIu15Sprint.kt"
 OAUTO = "kajfosz.antimatterdimensions.OrekiAuto"
-OAUTOT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiAuto.kt"
+OAUTOT = "app/src/main/kotlin/kajfosz/antimatterdimensions/OrekiAuto.kt"
 OGATE = "kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGate"
-OGATET = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate.kt"
+OGATET = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiAutoEternityGate.kt"
 OIPS = "kajfosz.antimatterdimensions.oreki.OrekiIpGainScale"
-OIPST = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIpGainScale.kt"
+OIPST = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIpGainScale.kt"
 OECA = "kajfosz.antimatterdimensions.oreki.OrekiEcAutomation"
-OECAT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiEcAutomation.kt"
+OECAT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiEcAutomation.kt"
 OGUI = "kajfosz.antimatterdimensions.oreki.OrekiGuiStage"
-OGUIT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGuiStage.kt"
+OGUIT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGuiStage.kt"
 ONAV = "kajfosz.antimatterdimensions.oreki.OrekiNavRefresh"
-ONAVT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiNavRefresh.kt"
+ONAVT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiNavRefresh.kt"
 OGAMEAPI = "kajfosz.antimatterdimensions.oreki.GameApi"
-OGAMEAPIT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt"
+OGAMEAPIT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt"
 OTRACE = "kajfosz.antimatterdimensions.OrekiTrace"
-OTRACET = "scripts/payload/kotlin/kajfosz/antimatterdimensions/OrekiTrace.kt"
+OTRACET = "app/src/main/kotlin/kajfosz/antimatterdimensions/OrekiTrace.kt"
 OTUT = "kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity"
-OTUTT = "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt"
+OTUTT = "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt"
 
 
 def bm(site_id, func, refs, **kw):
@@ -1886,7 +1886,7 @@ def build_report() -> dict:
             "baseline_tree": "work/base_decoded_321",
             "baseline_tree_note": "work/base_decoded_321 是官方 3.21.0 反编译树；"
                                   "work/base_decoded 实测为 3.19.0 且布局不同，禁止当 3.21 基线对比。",
-            "kotlin_payload": "scripts/payload/kotlin",
+            "kotlin_payload": "app/src/main/kotlin",
             "payload_smali": "scripts/payload/smali",
             "version_config": "baseline/version-config.json",
         },

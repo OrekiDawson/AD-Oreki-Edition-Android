@@ -408,11 +408,11 @@ tasks.register('compileKotlinClasses', Exec) {
         out.mkdirs()
     }
     commandLine kotlinCompiler, '-nowarn', '-classpath', androidJar.absolutePath
-    fileTree(new File(repoRoot, 'scripts/payload/kotlin')) { include '**/*.kt' }.files.sort { it.path }.each { args it.absolutePath }
+    fileTree(new File(repoRoot, 'app/src/main/kotlin')) { include '**/*.kt' }.files.sort { it.path }.each { args it.absolutePath }
     args new File(repoRoot, 'build/kt/generated/OrekiBaselineBindings.kt').absolutePath,
         '-d', new File(repoRoot, 'build/kt/classes').absolutePath
     kotlinEnv.each { k, v -> environment k, v }
-    inputs.dir(new File(repoRoot, "scripts/payload/kotlin"))
+    inputs.dir(new File(repoRoot, "app/src/main/kotlin"))
     inputs.file(new File(repoRoot, "build/kt/generated/OrekiBaselineBindings.kt"))
     inputs.file(androidJar)
     inputs.files(fileTree(new File(repoRoot, "tools/kotlinc/lib")) { include "*.jar" })

@@ -7,7 +7,7 @@
 | 项 | 现状 |
 |---|---|
 | 构建入口 | 仓库根有 Groovy `settings.gradle` + `build.gradle`（旧链：apktool + smali 补丁 + Kotlin→D8 + 签名编排）；另有独立 `agp/` Gradle 构建（Kotlin DSL，`agp/settings.gradle.kts`、`agp/app/build.gradle.kts`），CI 用 `./gradlew -p agp` |
-| AGP 业务 Kotlin | `agp/app/build.gradle.kts` 的 `sourceSets["main"].kotlin.srcDirs` = `scripts/payload/kotlin` + `build/kt/generated`（生成绑定） |
+| AGP 业务 Kotlin | `agp/app/build.gradle.kts` 的 `sourceSets["main"].kotlin.srcDirs` = `app/src/main/kotlin` + `build/kt/generated`（生成绑定）。R113-01（2026-11-15）已从 `scripts/payload/kotlin` 迁入 |
 | 完整游戏资源 | `res` 来自 `build/agp-fullgame/res`（由 `scripts/agp_prepare_fullgame.py` 从解码树生成）；`assets` 来自 `build/agp-fullgame-assets`（C1 去重暂存）；`jniLibs` 来自解码树 `lib`；Manifest/stable-ids 来自 stage |
 | 旧链资源 | 根 Groovy 构建以 `scripts/payload/{smali,res,assets,lib,templates}` 与 `work/mod` 补丁树为输入；`scripts/build_mod.py` 负责补丁与验证 |
 | payload 体量 | kotlin 36 / smali 29 / lib 8 / res 1 / assets 1 / templates 1 个文件 |
@@ -29,7 +29,7 @@
 
 | 旧路径 | 目标路径 | 安全等级 | 先决条件 |
 |---|---|---|---|
-| `scripts/payload/kotlin/**` | `app/src/main/kotlin/**` | BLOCKED（高风险） | 需同时更新根 build.gradle、agp source set、candidate workflow、命名/AIB 守卫与测试；并完成 S3 根级 app 提升 |
+| `scripts/payload/kotlin/**` | `app/src/main/kotlin/**` | **已迁移（S2-6 PASS，R113-01）** | 已同步更新根 build.gradle、agp source set、命名/ABI 守卫、脚本消费者与 CI 路径过滤；S3 根级 app 模块提升仍 NOT RUN |
 | `build/kt/generated/**` | Gradle 生成任务输出（显式 directory property） | 中风险 | 先固化生成任务输入/输出；目前已是 build 产物，无需入库搬移 |
 | `scripts/payload/assets/**` | `app/src/main/assets/**` | 中风险 | 与 C1 去重暂存合并；需验证 AGP 合并与教程读取 |
 | `scripts/payload/res/**`（译文本） | `app/src/main/res/**` 或生成目录 | 中风险 | 与 C2 changelog 生成任务合并；验证资源合并无重复 |
@@ -58,7 +58,7 @@
 - **S2-3**：`scripts/payload/assets` → AGP assets 源（更新 C1 去重暂存与 smali 构建路径）。
 - **S2-4**：`scripts/payload/res` → 生成资源目录（随 C2 完成）。
 - **S2-5**：`scripts/payload/lib` → AGP 依赖/`app/libs`（需列出全部引用并验证）。
-- **S2-6**：`scripts/payload/kotlin` → 根级 `app/src/main/kotlin`（需 S3 前期；小步：先加到 AGP source set 双读验证编译一致，再切换）。
+- **S2-6**：`scripts/payload/kotlin` → 根级 `app/src/main/kotlin`。**已执行（R113-01，2026-11-15）**：36 个 .kt 全部 `git mv`（保留历史），唯一源目录，无双源重复编译；`agp/app` source set、根 `build.gradle` 的 `compileKotlinClasses`、`build_mod.py`/`check_kotlin_naming.py`/`gen_kotlin_stubs.py`/`release_budget.py`/`r109_r8_keepgen.py`/`fixture_*`、CI 路径过滤与测试断言已全量替换；验证证据见 `reports/R113-01/LAYOUT-MIGRATION.md`。
 - **S3**：`agp/app` 提升根级 `app/`，`settings.gradle.kts`/根 `build.gradle.kts` 成为唯一入口；需完整游戏原生构建与正式门禁 PASS。
 - **S4**：删除旧 Groovy 入口、`build_mod.py`、失效 payload 路径；CI 增加禁止回流的守卫。
 
@@ -68,4 +68,5 @@
 
 - S0：PASS（盘点完成）。
 - S1：README/文档修正与 Issue 记录（见后续 PR）。
-- S2/S3/S4：NOT RUN（依赖 #25/#52 与正式门禁）。
+- S2-6（生产 Kotlin 源码位置）：**PASS（R113-01）**。
+- S2 其余子项 / S3（`agp/app` 与根 `settings.gradle.kts` 提升为唯一入口）/ S4：NOT RUN（依赖 #25/#52 与正式门禁）。

@@ -28,7 +28,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-KT_ROOT = ROOT / "scripts" / "payload" / "kotlin"
+# [R113-01] Issue #61 阶段一：生产 Kotlin 源码已迁到标准 Android 布局。
+KT_ROOT = ROOT / "app" / "src" / "main" / "kotlin"
 
 # ---------------------------------------------------------------- 允许的例外
 

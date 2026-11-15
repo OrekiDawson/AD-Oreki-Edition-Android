@@ -55,7 +55,7 @@ jobs:
             const risk=platform==='Android' ? [
               ['AGP/R8/Gradle', /^(agp|gradle)\/|(^|\/)(build\.gradle(\.kts)?|proguard-rules\.pro)$/],
               ['CI/签名/正式发布', /^\.github\/workflows\/|^scripts\/(publish_|release_|enforce_agp)/],
-              ['Kotlin 业务与混淆 ABI', /^scripts\/payload\/kotlin\/|^scripts\/build_mod\.py$|\.smali$/],
+              ['Kotlin 业务与混淆 ABI', /^app\/src\/main\/kotlin\/|^scripts\/payload\/kotlin\/|^scripts\/build_mod\.py$|\.smali$/],
               ['存档/基线/版本', /^baseline\/|(^|\/)(save|player|version-config)/i]
             ] : [
               ['CI/Pages 部署', /^\.github\/workflows\/|^scripts\/(check_deploy|check_pages|publish)/],

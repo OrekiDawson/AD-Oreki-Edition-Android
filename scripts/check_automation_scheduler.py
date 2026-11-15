@@ -47,10 +47,10 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-KT_DIR = ROOT / "scripts" / "payload" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki"
+KT_DIR = ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki"
 SCHED = KT_DIR / "OrekiAutomationScheduler.kt"
 STAGE = KT_DIR / "OrekiStageAuto.kt"
-LISTENER = (ROOT / "scripts" / "payload" / "kotlin" / "kajfosz"
+LISTENER = (ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz"
             / "antimatterdimensions" / "oreki" / "OrekiAutomationUiListener.kt")
 
 checks = 0
