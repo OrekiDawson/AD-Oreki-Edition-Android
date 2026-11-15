@@ -50,8 +50,18 @@ EXPECTATIONS: dict[str, dict] = {
         "must_ref_member": [(SHADOW_LAMBDA, "<init>", "(ILrj0;)V")],
         "forbid_plain": [PLAIN_CONT, PLAIN_EC, PLAIN_CS, PLAIN_LAMBDA],
     },
+    # 依据真实 jar（modded-selective.jar）实测的调用点：官方 challenge/eternity studies 的
+    # suspend 函数形参在重映射后必须是 shadow ContinuationImpl。
     "kajfosz/antimatterdimensions/OrekiChallengeAuto": {
-        "must_ref_descriptor": [f"L{SHADOW_CONT};"],
+        "must_ref_member": [
+            ("kajfosz/antimatterdimensions/eternity/studies/c", "N",
+             f"(L{SHADOW_CONT};)Ljava/lang/Object;"),
+            ("kajfosz/antimatterdimensions/challenge/antimatter/infinity/a", "D",
+             f"(ZL{SHADOW_CONT};)Ljava/lang/Object;"),
+            ("kajfosz/antimatterdimensions/challenge/antimatter/normal/a", "D",
+             f"(ZL{SHADOW_CONT};)Ljava/lang/Object;"),
+            (SHADOW_CS, "a", None),
+        ],
         "forbid_plain": [PLAIN_CONT, PLAIN_EC, PLAIN_CS],
     },
     "kajfosz/antimatterdimensions/oreki/OrekiEternity": {
@@ -147,7 +157,8 @@ def check_class(class_name: str, data: bytes) -> list[str]:
             want = f"{owner}.{name}" + (f":{desc}" if desc else "")
             problems.append(f"{class_name}: 缺少必需引用 {want}")
     for token in expect.get("must_ref_descriptor", []):
-        if token not in info.utf8.values():
+        # 描述符可能内嵌在方法签名串里（如 "(Lx;)Ljava/lang/Object;"），按子串匹配。
+        if not any(token in value for value in info.utf8.values()):
             problems.append(f"{class_name}: 缺少必需描述符 {token}")
     for plain in expect.get("forbid_plain", []):
         if plain in info.utf8.values():
