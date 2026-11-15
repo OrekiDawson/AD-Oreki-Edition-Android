@@ -120,8 +120,13 @@ internal object OrekiAutoEternityAdoption {
         // 导致第 1 次 Reality 复位无法与「本现实内玩家手动关闭」区分。这里先单独判 0。
         val versusZero = GameApi.compareToDouble(value, 0.0) ?: return ""
         if (versusZero <= 0) return "0"
-        val mantissa = numberMember(value, "mantissa")
-        val exponent = numberMember(value, "exponent")
+        // [Codex P1] 3.21.0 冰冻基线的 BigDouble 暴露 **Java getter** getMantissa()D / getExponent()D
+        // （证据：docs/deobfuscation/data/r107-kajfosz/3.21-semantic-kajfosz.csv 成员表），不是
+        // Kotlin 风格 mantissa()/exponent()。旧实现只按后者找 ⇒ 永远读不到、每次都退化到 log10
+        // 量化串（1e6 与 1e6+1 同为 L6000000），反而引入更低阈值的 token 碰撞。
+        // 这里按「getter 优先、兼容两种命名」查找，并限定无参 + 返回 double，读不到才退化。
+        val mantissa = numberMember(value, "getMantissa", "mantissa")
+        val exponent = numberMember(value, "getExponent", "exponent")
         if (mantissa != null && exponent != null) {
             val exp = exponent.toLong()
             val mantissaValue = mantissa.toDouble()
@@ -140,13 +145,17 @@ internal object OrekiAutoEternityAdoption {
         return "L" + Math.round(log10 * 1_000_000.0)
     }
 
-    /** 读对象的无参 Number 成员（BigDouble.mantissa()/exponent()）；读不到返回 null（fail-closed）。 */
-    private fun numberMember(value: Any, name: String): Number? = try {
+    /**
+     * 读对象的无参 double 成员（优先 BigDouble.getMantissa()D / getExponent()D，兼容 mantissa()/exponent()）；
+     * 读不到返回 null（fail-closed）。
+     */
+    private fun numberMember(value: Any, vararg candidateNames: String): Number? = try {
         var clazz: Class<*>? = value.javaClass
         var found: java.lang.reflect.Method? = null
         while (clazz != null && found == null) {
             for (method in clazz.declaredMethods) {
-                if (method.name == name && method.parameterCount == 0) {
+                if (method.name in candidateNames && method.parameterCount == 0 &&
+                    method.returnType == java.lang.Double.TYPE
                     try { method.isAccessible = true } catch (_: Throwable) {}
                     found = method
                     break
