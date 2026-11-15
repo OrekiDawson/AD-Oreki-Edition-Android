@@ -3507,6 +3507,252 @@ internal object GameApi {
         null
     }
 
+    // ==================================================================
+    // [R114-01 P1-1] 膨胀（Dilation）真实入口桥
+    //
+    // 背景：reports/R114-01/agents/dilation-gap.md + Issue #98 P1-1 —— MOD 从未启动膨胀，
+    // 而 V 的 mainUnlock「dilatedTime」判据 = 本现实 maxDT（web src/core/secret-formula/celestials/v.js:96-102,256），
+    // 3.21 的 patch_v_unlock_thresholds 未生效 ⇒ 门槛仍为原版 1e320 ⇒ maxDT 恒 0 时 V/Ra 结构性不可达。
+    //
+    // 证据（work/base_decoded_321 = 3.21 官方解码树；全部为直接调用点）：
+    //  · 启动/退出：prestige/c;->p(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;
+    //    = Eternity.startDilatedEternity（prestige/c.smali:6220；内联类 Eternity$startDilatedEternity$1 :6223；
+    //    DS1 守卫 c01.a[0].B() :6388；成就 136 :6443-6455；调 Eternity.eternity :6487；setActive(true) :6529）。
+    //    已 active 时同一入口 = 退出膨胀（web src/core/dilation.js:46-49）。
+    //  · active：eternity/dilation/a;->j()Z（a.smali:1695-1716，方法体即 Player$Dilation.a()）。
+    //  · TP：Player$Dilation;->i()LBigDouble;（Player$Dilation.smali:254-265，字段 tachyonParticles :45）。
+    //  · DT：Player$Dilation;->c()LBigDouble;（:188-199，字段 dilatedTime :25）。
+    //  · rebuyables：[J（Player$Dilation;->g()，:232-243；字段 rebuyables :33，3.21 长度 6）。
+    //  · 本现实 maxDT：Player$ThisReality;->i()LBigDouble;（Player$ThisReality.smali:334-345，字段 maxDT :37）。
+    //  · dtGain 幂级购买：DilationUpgrades（eternity/dilation/b）的可重复状态 qw3，入口
+    //    qw3;->D(ZL...;)Ljava/lang/Boolean;（qw3.smali:255），内部真实扣 Currency.dilatedTime（iq0.W:Ltp0，iq0.smali:18）。
+    //    dtGain 的识别（不猜）：clinit 第一个 qw3 构造 = (id=0, initialCost=fw.n1=1e4, increment=fw.l0=1e1)
+    //    （b.smali:105-122；fw.smali:2867 与 :1893），与 web dtGain config id1 / initialCost 1e4 / increment 10
+    //    （src/core/secret-formula/eternity/dilation-upgrades.js:25-30）逐项一致。id 字段 = in1.c:I。
+    // ==================================================================
+
+    private const val DILATION_CLASS = "kajfosz.antimatterdimensions.eternity.dilation.a"
+    private const val DILATION_UPGRADES_CLASS = "kajfosz.antimatterdimensions.eternity.dilation.b"
+    private const val PRESTIGE_ETERNITY_CLASS = "kajfosz.antimatterdimensions.prestige.c"
+
+    private var mPlayerDilationMethod: Method? = null
+    private var mPlayerDilationResolved = false
+    private fun playerDilationMethod(): Method? {
+        if (!mPlayerDilationResolved) {
+            mPlayerDilationResolved = true
+            mPlayerDilationMethod = method(playerCls(), "t", 0, "Player.t()=Dilation")
+        }
+        return mPlayerDilationMethod
+    }
+
+    /** 每次重新取 Player.a 再调 `Player.t()`（Player.a 可能在读档时被替换，见 [player] 注释）。 */
+    private fun dilationState(): Any? = call(playerDilationMethod(), player())
+
+    /** 深层字段读取（沿类层次找 declared field，只读）。 */
+    private fun fieldValueDeep(target: Any?, name: String): Any? {
+        if (target == null) return null
+        var k: Class<*>? = target.javaClass
+        while (k != null) {
+            try {
+                val f = k.getDeclaredField(name)
+                f.isAccessible = true
+                return f.get(target)
+            } catch (_: Throwable) {
+            }
+            k = k.superclass
+        }
+        return null
+    }
+
+    /** `PlayerProgress.dilationUnlocked()` 的等价读取：`player.dilation.studies` 含 1（DS1）。 */
+    fun dilationUnlocked(): Boolean {
+        val studies = readGameField(dilationState(), "studies") as? List<*> ?: return false
+        for (study in studies) {
+            if ((study as? Number)?.toInt() == 1) return true
+        }
+        return false
+    }
+
+    private var mDilationActive: Method? = null
+    private var mDilationActiveResolved = false
+    private fun dilationActiveMethod(): Method? {
+        if (!mDilationActiveResolved) {
+            mDilationActiveResolved = true
+            mDilationActive = method(cls(DILATION_CLASS), "j", 0, "Dilation.isActive")
+        }
+        return mDilationActive
+    }
+
+    /** 是否处于膨胀状态（`Dilation.j()` = `Player$Dilation.a()`）。 */
+    fun dilationActive(): Boolean = (call(dilationActiveMethod(), null) as? Boolean) ?: false
+
+    private var mDilationTp: Method? = null
+    private var mDilationTpResolved = false
+    private fun dilationTpMethod(): Method? {
+        if (!mDilationTpResolved) {
+            mDilationTpResolved = true
+            mDilationTp = method(cls(DILATION_CLASS), "i", 0, "Dilation.tachyonParticles")
+        }
+        return mDilationTp
+    }
+
+    /** 速子粒子（BigDouble）；读不到返回 null。 */
+    fun dilationTachyonParticlesValue(): Any? = call(dilationTpMethod(), null)
+
+    private var mDilationDt: Method? = null
+    private var mDilationDtResolved = false
+    private fun dilationDtMethod(): Method? {
+        if (!mDilationDtResolved) {
+            mDilationDtResolved = true
+            mDilationDt = method(dilationStateClass(), "c", 0, "Player\$Dilation.dilatedTime")
+        }
+        return mDilationDt
+    }
+
+    private var mDilationStateClass: Class<*>? = null
+    private var mDilationStateClassResolved = false
+    private fun dilationStateClass(): Class<*>? {
+        if (!mDilationStateClassResolved) {
+            mDilationStateClassResolved = true
+            mDilationStateClass = try {
+                Class.forName("kajfosz.antimatterdimensions.player.Player\$Dilation", false, GameApi::class.java.classLoader)
+            } catch (e: Throwable) {
+                miss("Player\$Dilation", e)
+                null
+            }
+        }
+        return mDilationStateClass
+    }
+
+    /** 当前膨胀时间（BigDouble）。 */
+    fun dilatedTimeValue(): Any? = call(dilationDtMethod(), dilationState())
+
+    /** 可重复膨胀升级等级数组（`Player$Dilation.g()[J`）。 */
+    fun dilationRebuyablesValue(): LongArray? = try {
+        val m = method(dilationStateClass(), "g", 0, "Player\$Dilation.rebuyables") ?: return null
+        m.invoke(dilationState()) as? LongArray
+    } catch (e: Throwable) {
+        miss("dilationRebuyables", e); null
+    }
+
+    private var mThisReality: Method? = null
+    private var mThisRealityResolved = false
+    private fun thisRealityInstance(): Any? {
+        if (!mThisRealityResolved) mThisRealityResolved = true
+        val records = try {
+            val m = method(playerCls(), "R", 0, "Player.R()=Records") ?: return null
+            m.invoke(player())
+        } catch (_: Throwable) {
+            null
+        } ?: return null
+        return try {
+            val m = mThisReality ?: method(records.javaClass, "l", 0, "Records.l()=ThisReality")?.also { mThisReality = it }
+            call(m, records)
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    /** 本现实最大膨胀时间（`Player$ThisReality.maxDT`）。 */
+    fun thisRealityMaxDTValue(): Any? = try {
+        val thisReality = thisRealityInstance() ?: return null
+        val m = method(thisReality.javaClass, "i", 0, "ThisReality.maxDT") ?: return null
+        m.invoke(thisReality)
+    } catch (e: Throwable) {
+        miss("thisRealityMaxDT", e); null
+    }
+
+    /** dtGain（可重复）当前等级：`rebuyables[0]`（id=0 见本节注释）。 */
+    fun dtGainLevel(): Int {
+        val arr = dilationRebuyablesValue() ?: return -1
+        return if (arr.isNotEmpty()) arr[0].toInt() else -1
+    }
+
+    private var mStartDilatedEternity: Method? = null
+    private var mStartDilatedEternityResolved = false
+    private fun startDilatedEternityMethod(): Method? {
+        if (!mStartDilatedEternityResolved) {
+            mStartDilatedEternityResolved = true
+            val c = cls(PRESTIGE_ETERNITY_CLASS)
+            val candidate = method(c, "p", 2, "Eternity.startDilatedEternity")
+            mStartDilatedEternity = if (candidate != null &&
+                candidate.parameterTypes.isNotEmpty() &&
+                candidate.parameterTypes[0] == java.lang.Boolean.TYPE) candidate else null
+        }
+        return mStartDilatedEternity
+    }
+
+    /**
+     * 原版「开始/退出膨胀」：调用 `Eternity.startDilatedEternity(auto)`。
+     * 未处于膨胀时：走一次真实永恒重置并置 active=true；已处于膨胀时：走一次真实永恒重置并退出。
+     * 返回 true = 调用已发出（不代表 active 已切换，调用方必须回读）。
+     */
+    fun startOrExitDilatedEternity(): Boolean {
+        return try {
+            val c = cls(PRESTIGE_ETERNITY_CLASS) ?: return false
+            val singleton = staticField(c, "a")?.get(null) ?: return false
+            val m = startDilatedEternityMethod() ?: return false
+            m.invoke(singleton, true, orekiContinuation())
+            true
+        } catch (e: Throwable) {
+            miss("startOrExitDilatedEternity", e)
+            false
+        }
+    }
+
+    private var mDtGainUpgrade: Any? = null
+    private var mDtGainUpgradeResolved = false
+    private var mDtGainPurchase: Method? = null
+
+    /** 解析 dtGain 升级对象：DilationUpgrades 静态字段中 id==0 且 initialCost==1e4（证据见本节注释）。 */
+    private fun dtGainUpgrade(): Any? {
+        if (mDtGainUpgradeResolved) return mDtGainUpgrade
+        mDtGainUpgradeResolved = true
+        val upgrades = cls(DILATION_UPGRADES_CLASS)
+        if (upgrades == null) {
+            miss("DilationUpgrades class", null)
+            return null
+        }
+        var found: Any? = null
+        try {
+            for (f in upgrades.declaredFields) {
+                if (!java.lang.reflect.Modifier.isStatic(f.modifiers)) continue
+                val value = try {
+                    f.isAccessible = true
+                    f.get(null)
+                } catch (_: Throwable) {
+                    null
+                } ?: continue
+                val id = (fieldValueDeep(value, "c") as? Number)?.toInt() ?: continue
+                if (id != 0) continue
+                val initialCostLog = log10BigDouble(fieldValueDeep(value, "k")) ?: continue
+                if (kotlin.math.abs(initialCostLog - 4.0) > 1e-6) continue
+                found = value
+                break
+            }
+        } catch (e: Throwable) {
+            miss("dtGain resolve", e)
+        }
+        mDtGainUpgrade = found
+        if (found == null) miss("dtGain upgrade (id=0, initialCost=1e4)", null)
+        return mDtGainUpgrade
+    }
+
+    /** 通过原版 `qw3.D(true, null)` 真实购买 dtGain（内部再判 cap/余额并真实扣 DT）。 */
+    fun buyDtGainUpgrade(): Boolean {
+        val upgrade = dtGainUpgrade() ?: return false
+        return try {
+            val m = mDtGainPurchase ?: methodOrNull(upgrade.javaClass, "D", 2)?.also {
+                mDtGainPurchase = it
+            } ?: return false
+            if (m.parameterTypes.isEmpty() || m.parameterTypes[0] != java.lang.Boolean.TYPE) return false
+            (m.invoke(upgrade, true, null) as? Boolean) ?: false
+        } catch (e: Throwable) {
+            miss("buyDtGain", e)
+            false
+        }
+    }
+
     // ---------------------------------------------------------------- 调用工具
 
     /**
