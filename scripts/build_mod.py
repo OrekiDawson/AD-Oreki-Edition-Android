@@ -6687,7 +6687,7 @@ def patch_tutorial_content():
     # （方法定义 1 次 + loadData 里唯一一次调用）。多于 2 次说明又接回了第二份正文。
     # 注意计数用「不带 -> 的裸名」：定义行是 `.method ... readAssetInto(...)V`，没有 `->`。
     # 这里刻意不按文件名断言 —— 旧版文件名不该再出现在任何脚本里。
-    _early_act = (PAYLOAD / "kotlin" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    _early_act = (KOTLIN_SRC / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
                   / "TutorialActivity.kt")
     assert _early_act.is_file(), "[R94] 缺少 Kotlin TutorialActivity.kt"
     asrc_txt_early = _early_act.read_text(encoding="utf-8")
@@ -6696,7 +6696,7 @@ def patch_tutorial_content():
     note(f"[R40H] 上一版正文已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
 
     # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
-    tut_dir = PAYLOAD / "kotlin" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
+    tut_dir = KOTLIN_SRC / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
     act = tut_dir / "TutorialActivity.kt"
     assert act.is_file(), "[R94] 缺少 Kotlin TutorialActivity.kt"
     asrc_txt = act.read_text(encoding="utf-8")
@@ -6972,7 +6972,7 @@ def patch_tutorial_entry():
     # 表现为按钮一次都不出现而 logcat 无异常、容器 childCount 恒为 2。
     assert ent.count("if-eqz p1, :done") >= 2, \
         "[T1] 断言失败：addEntry/addEntryOnce 的判空分支写反（if-nez p1 会直接返回）"
-    act_src = (PAYLOAD / "kotlin" / OLD_PKG.replace(".", "/") / "oreki" / "tutorial" / "TutorialActivity.kt").read_text(encoding="utf-8")
+    act_src = (KOTLIN_SRC / OLD_PKG.replace(".", "/") / "oreki" / "tutorial" / "TutorialActivity.kt").read_text(encoding="utf-8")
     assert ": Activity()" in act_src, "[T1] 断言失败：Kotlin 教程类不是 Activity 子类"
     assert "Oreki 教程" in act_src, "[T1] 断言失败：教程标题缺失"
     # R27：addFull 的判空也曾写反（`if-nez p1` 是非空就返回），
