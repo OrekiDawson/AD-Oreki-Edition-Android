@@ -7,7 +7,7 @@
 
 | 项 | 值 |
 |---|---|
-| scripts/build_mod.py | **7,394 行** / 99 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54） |
+| scripts/build_mod.py | **7,219 行** / 96 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54、C4 -175） |
 | main() 实际启用调用 | 53 个（另 1 个未接入主流程的保留函数：patch_autobuyer_unlock，仅被诊断链 patch_debug_trace 调用；verify / patch_frame_cadence 已在 C5 清理） |
 | 启用函数代码量 | 5,587 行（约占全文件 72%；不含 R114-02 C1 已删除段） |
 | 生产依赖 | 根 build.gradle -> `python3 scripts/build_mod.py`（OREKI_GRADLE_ASSEMBLY=1）生成 work/mod 补丁树；AGP 完整游戏构建以 `-PorekiDecodedTree=work/mod` 读取该树（manifest/res/assets/lib/smali 输入） |
@@ -58,7 +58,8 @@
 
 | 函数 | 行数 | 目标 | 状态 |
 |---|---|---|---|
-| verify_kotlin_gameapi_aliases / verify_break_shop_kotlin / verify_au4b / verify_eternity_chain / verify_pelle_record / verify_smali_field_types_320 / check_smali_descriptors / check_challenge_auto_polarity / check_ec_chain_mechanisms | 66/31/82/181/78/47/14/91/9 | Kotlin/JUnit 或 CI 独立校验任务（读取构建产物，不依赖 build_mod） | NOT RUN |
+| verify_kotlin_gameapi_aliases / verify_break_shop_kotlin / verify_au4b | 64/29/80 | **已迁** `scripts/verify_build_contracts.py`（源码 CI Required Checks 执行，不 import build_mod；含变异自测） | **PASS**（R114-02 C4，见 §7） |
+| verify_eternity_chain / verify_pelle_record / verify_smali_field_types_320 / check_smali_descriptors / check_challenge_auto_polarity / check_ec_chain_mechanisms | 179/76/45/12/63/7 | 同上；但这些读 **work/mod 补丁树或私有解码基线**（别名已重写），需 C4b：独立脚本 + `--mod-tree` 模式，在候选链（树已产出后）执行 | NOT RUN（C4b） |
 | verify_payload | 734 | 拆分为「产物 ABI 校验」CI 任务 + Kotlin 单测 | NOT RUN |
 
 ### F. 已禁用/历史证据（核实后移除）
@@ -81,7 +82,7 @@
    - C1：tutorial asset 生成迁出生产构建（**已完成**，R114-02：AGP 任务 `prepareFullGameAssets`/`verifyTutorialAsset` 消费提交资产；legacy 链 `stage_tutorial_assets()` 只原样落盘；新鲜度由独立校验把关，详见 §5）。
    - C2：changelog 生成已迁 Gradle generateChangelogZh（PR #64）：输出目录独立、stage 排除原文、已翻译输入可识别；本地/候选 APK 与 patch_changelog_zh 产物逐字节一致（SHA-256 b5168107…），候选 APK 仍为 18716d87…。
    - C3：dark theme 迁到 AGP 资源 overlay。
-   - C4：verify_* 迁到 CI 独立任务。
+   - C4：verify_* 迁到 CI 独立任务（**部分完成**，R114-02：三条源码级校验已迁 `scripts/verify_build_contracts.py` 并接入源码 CI；树级校验见 §7.4 的 C4b）。
    - C5：dead/disabled 函数删除（**已完成**，R114-02：AST 可达性 + 调用链属性守卫，详见 §6）。
 4. **最终删除条件**（Issue #52 清单）：全部满足后才删除 build_mod.py，并加 CI 守卫阻止重新引用。
 
@@ -204,4 +205,68 @@
 - C5 **PASS**：死代码按 AST 口径清零（可达性守卫 = 空集），仍被消费的函数一个未动，构建脚本语法与 C1 守卫无回归。
 - 下一步建议：C4（`verify_*` 构建期守卫迁 CI 独立任务）；或经 Lead 批准后做 C5b（诊断链 `patch_debug_trace` +
   `patch_autobuyer_unlock` 一并退役）。
+
+
+
+## 7. R114-02 C4 闭包：源码级 verify_* 迁 CI 独立任务（Issue #52）
+
+> 分支 `r114-02/buildmod-c4`；基线 `origin/main 959661ff`（C5 已合并）。目标：把 `build_mod.py` 中**可在源码上判定**的 verify_* 迁成独立校验，生产构建不再执行；fail-closed 强度与证据不降。
+
+### 7.1 迁出范围（源码级，本轮 3 条）
+
+| 原函数（行数） | 校验内容 | 新实现 |
+|---|---|---|
+| `verify_kotlin_gameapi_aliases`（64） | GameApi.ALIAS_320 与 3.21 基线证据同步（5 个 R79 已证名必须覆盖）、禁止裸 `cls("短名")`、货币扣费入口锁定 p/o（i/u 不得当购买入口） | `scripts/verify_build_contracts.py::check_gameapi_aliases`：**改用 `baseline/versions/3.21/compatibility.json` 的 payload_name→from320 证据行**作为权威源（比原先只对 Python 常量表更强，且不再依赖 build_mod） |
+| `verify_break_shop_kotlin`（29） | OrekiBreakShop.kt 的 tick()/ID1 预留/原版购买入口；Smali 双写禁止；ABI 类清单登记 | `check_break_shop_kotlin`：ABI 清单改用 `scripts/kotlin_business_classes.txt`（CI parity 同源） |
+| `verify_au4b`（80） | applyCrunchPolicy 存在/顺序、一次性闩锁、写 mode 的 3 处受限、xHighest>=10 保留、禁私有字段 | `check_au4b`：Kotlin 源码断言逐条等价迁移（含 why 文案） |
+
+- **生产构建不再执行**：`build_mod.main()` 删除这三处调用（替换为指向新脚本的注释），三个函数体删除；`build_mod.py` 7,394 → **7,219 行（-175）**。
+- **消费端切换**：`.github/workflows/ci.yml` 的 source-policy 新增
+  `Verify Kotlin build contracts (migrated out of build_mod)`（正常 + `--selftest`）与
+  `Test build-contract verifier migration guard`；失败即 Required Checks 红。
+- **fail-closed 不降**：候选链 validate 步骤要求「同一 source SHA 已有成功的 Source CI run」，
+  因此候选 SHA 必须先通过本校验；同时 `--selftest` 对每条断言做 10 条变异，
+  证明断言不是恒真（自测本身在 CI 执行）。
+- **证据**：脚本支持 `--json build/...json`（per-check ok/detail + 总 ok），CI stdout 逐条 PASS/FAIL。
+
+### 7.2 新脚本
+
+`scripts/verify_build_contracts.py`（标准库；不 import build_mod）：
+
+- `--only <name>` 单跑；`--json PATH` 写证据；`--selftest` 变异自测（10 条：别名值/证据缺失/裸 cls/扣费入口/表结构、Break tick/smali 双写/ABI 未登记、AU4b 缺失/闩锁/setter/私有字段）。
+- 退出码：全过 0，任一失败 1（fail-closed）。
+- 新增 `scripts/tests/test_verify_build_contracts.py`（4 项）：脚本在当前树全过、自测拦住变异、脚本不 import build_mod、build_mod 不再定义/调用这三条校验。
+
+### 7.3 验证（本机实测，2026-11-16）
+
+| 命令 | 结果 |
+|---|---|
+| `python3 scripts/verify_build_contracts.py` | **PASS 3/3** |
+| `python3 scripts/verify_build_contracts.py --selftest` | **PASS：10 条变异全部被拦住** |
+| `python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v` | **PASS（4/4）** |
+| `python3 -m unittest discover -s scripts/tests -p 'test_buildmod_dead_code_retirement.py'` | **PASS（4/4）**（C5 死代码守卫：删完 3 个函数后死集合仍为空） |
+| `python3 -m unittest discover -s scripts/tests -p 'test_buildmod_tutorial_retirement.py'` | **PASS（8/8）**（C1 守卫无回归） |
+| `python3 -m compileall -q scripts` | **PASS** |
+| `python3 scripts/check_facts_governance.py` | **PASS** |
+
+### 7.4 剩余树级校验（C4b，未在本轮迁移）
+
+以下函数依赖 **work/mod 补丁树**（别名已被 patch_smali 重写）或**私有解码基线**，无法在公开源码 CI 判定：
+
+| 函数 | 依赖 |
+|---|---|
+| `verify_eternity_chain`（179）、`verify_pelle_record`（76） | work/mod 的已重写 payload + Kotlin 源码 |
+| `check_challenge_auto_polarity`（63）、`check_ec_chain_mechanisms`+_verify_ec_r40b（134） | work/mod 的已重写 OrekiChallengeAuto.smali |
+| `check_smali_descriptors`（12） | 私有解码基线 + 补丁树（外部脚本 `check_smali_descriptors.py`） |
+| `verify_smali_field_types_320`（45） | 私有解码基线（`OREKI_BASE`） |
+| `verify_payload`（693） | work/mod 全树 + TOUCHED_FILES 跟踪 |
+
+C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tree` 模式，在 candidate 私有 runner 的
+「build_mod 产出树之后、Gradle 打包之前」以独立 step 执行（仍不是 build_mod 执行），并保留同等断言与失败证据。
+在 C4b 完成前，这些校验仍在生产构建中执行（未迁移即不删，fail-closed 不降）。
+
+### 7.5 结论
+
+- C4（源码级）**PASS**：3 条校验迁出生产构建、改由源码 CI 执行且带变异自测；build_mod 净减 175 行、未动任何仍被生产消费的补丁逻辑；C1/C5 守卫无回归。
+- 下一步：C4b（树级 verify_* 独立化 + candidate 链 step），或按 Lead 优先级切 C3。
 

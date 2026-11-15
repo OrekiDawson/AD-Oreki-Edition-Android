@@ -526,3 +526,20 @@ ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/andr
 - **NOT RUN**：真实 `./gradlew assembleRelease`、APK 内资产字节、教程页 AVD 打开（需私有解码基线与独占 AVD，本轮未占用）。
 - 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §5；报告 `reports/R114-02/agents/buildmod-retirement-c1-tutorial-asset.md`。 `[实测] + [读码]`
 
+
+<a id="f-r114-02-c4"></a>
+## R114-02 C4：源码级 verify_* 迁出生产构建（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/build_mod.py` 的 `verify_kotlin_gameapi_aliases` / `verify_break_shop_kotlin` / `verify_au4b`（64/29/80 行）
+  已迁到独立脚本 `scripts/verify_build_contracts.py`：build_mod 不再定义或调用它们（7,394 → 7,219 行），
+  也不再由 Android 生产构建执行；改由源码 CI（Required Checks）执行，失败即阻断合并。
+- `[实测]` 新脚本 **不 import build_mod**；GameApi 别名校验改用 `baseline/versions/3.21/compatibility.json` 的
+  `payload_name→from320` 证据行作为权威源（比原先只对比 Python 常量表更强），并保留 `cls("短名")` 与货币 `p/o` 扣费入口守护。
+- `[实测]` `--selftest` 对每条断言做 10 条变异（别名值/证据缺失/裸 cls/扣费入口/表结构、Break tick/smali 双写/ABI 未登记、
+  AU4b 缺失/闩锁/setter/私有字段），全部被拦住；本机 `verify_build_contracts.py` 3/3 PASS + selftest PASS。
+- `[读码]` fail-closed 不变：候选链 validate 要求「同一 source SHA 已有成功的 Source CI run」，候选 SHA 必须先通过本校验。
+- **剩余树级校验（C4b，NOT RUN）**：`verify_eternity_chain` / `verify_pelle_record` / `check_challenge_auto_polarity` /
+  `check_ec_chain_mechanisms` / `check_smali_descriptors` / `verify_smali_field_types_320` / `verify_payload` 依赖 work/mod 补丁树
+  （别名已重写）或私有解码基线，无法在公开源码 CI 判定；在 C4b 完成前仍在生产构建执行（未迁移即不删）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §7；报告 `reports/R114-02/agents/buildmod-retirement-c4-verify-ci.md`。 `[实测] + [读码]`
+

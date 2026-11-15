@@ -47,7 +47,6 @@ STEPS = [
     ("patch_shop_coins", bm.patch_shop_coins),
     ("patch_effarig_nerf", bm.patch_effarig_nerf),
     ("patch_effarig_shard_divisor", bm.patch_effarig_shard_divisor),
-    ("verify_kotlin_gameapi_aliases", bm.verify_kotlin_gameapi_aliases),
     ("verify_payload", bm.verify_payload),
     ("patch_ad_bonus", bm.patch_ad_bonus),
     ("patch_automator_waiting", bm.patch_automator_waiting),
@@ -61,7 +60,6 @@ STEPS = [
     ("patch_r74_temp_diag", bm.patch_r74_temp_diag),
     ("patch_ip_mult_autobuyer", bm.patch_ip_mult_autobuyer),
     ("patch_stage_auto_hook", bm.patch_stage_auto_hook),
-    ("verify_au4b", bm.verify_au4b),
     ("verify_eternity_chain", bm.verify_eternity_chain),
     # [R94] patch_break_gate / verify_break_gate 已随 OrekiBreakGate.smali 一起删除：
     # 这两条 STEPS 只会 AttributeError，R114-02 C5 清理掉（历史见 BUILDMOD_RETIREMENT_LEDGER）。

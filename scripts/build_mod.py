@@ -2606,101 +2606,6 @@ def mod_file(rel: str) -> Path:
     return MOD / rel
 
 
-def verify_break_shop_kotlin():
-    """[R87] Break 商店 Kotlin 迁移与 ID1 预留回归守卫。
-
-    这不是行为测试，而是构建期契约：Kotlin 是唯一实现，不能再出现同名 Smali；
-    `tick()I` 必须在 ABI 清单里；ID1 预留判据必须留在生产调用链上。
-    运行期正确性仍由 AVD / logcat / 原版存档字段验证，不能由本函数冒充。
-    """
-    kt = (KOTLIN_SRC / "kajfosz"
-          / "antimatterdimensions" / "oreki" / "OrekiBreakShop.kt")
-    assert kt.is_file(), "[R87] 缺少 OrekiBreakShop.kt（Kotlin 迁移丢失）"
-    src = kt.read_text(encoding="utf-8")
-    for token, why in (
-        ("fun tick(): Int", "tick()I 是 OrekiStageAuto 的唯一调用入口"),
-        ("fun id1ReserveRequirement()", "ID1 预留窗口判据"),
-        ("fun leavesId1Reserve(", "真实扣费后的门槛预测"),
-        ("GameApi.breakUpgradePurchase(", "必须走原版 D(Z,Continuation) 购买入口"),
-        ("GameApi.breakUpgradeCanBuy(", "必须走原版可购买判定"),
-    ):
-        assert token in src, f"[R87] OrekiBreakShop 缺少 {why}: {token}"
-    # 不写位图是购买入口合同的一部分；源码注释可以提到原版字段名，
-    # 因此这里只检查实际调用链，而不是做全文子串否决（避免误伤说明文字）。
-    assert "GameApi.breakUpgradePurchase(" in src, \
-        "[R87] 必须通过原版购买入口，不能自己写已购位图"
-    smali = (ROOT / "scripts" / "payload" / "smali" / "kajfosz"
-             / "antimatterdimensions" / "oreki" / "OrekiBreakShop.smali")
-    assert not smali.exists(), "[R87] OrekiBreakShop.smali 仍存在：Kotlin 与 Smali 双写"
-    assert "kajfosz.antimatterdimensions.oreki.OrekiBreakShop" in _kotlin_owned_classes(), \
-        "[R87] OrekiBreakShop 未登记到 KOTLIN_OWNED_CLASSES"
-    note("[R87] Break 商店 Kotlin 迁移契约通过（tick/ABI/ID1 预留/原版购买入口）")
-
-
-def verify_kotlin_gameapi_aliases():
-    """[R79] Kotlin GameApi 的混淆名表必须与 Python 的 OBFUSCATION_ALIASES_320 同步。
-
-    为什么需要这条守卫：R79 发现 3.20 的 R8 **回收复用**了旧混淆短名 ——
-    `az1` / `bn0` / `fp3` / `ln0` / `uu1` 在 3.20 里仍然存在，但全部变成了
-    完全无关的类（结构 Jaccard 0.00~0.07）。GameApi 原本把这些名字写死在
-    `cls("az1")` 里，3.20 下会**静默反射到错误类**（不是抛异常，而是方法找不到
-    或拿到不相干的值），比崩溃更难排查。
-
-    R79 把 GameApi 改成基线感知（ALIAS_320 + obf()），但两边各存一份映射必然漂移：
-    Python 侧负责重写 Smali 描述符，Kotlin 侧负责运行时反射查找，**任一边漏改
-    就会造成「Smali 补丁打到对的类、Kotlin 却反射到错的类」这种最难查的故障**。
-
-    这条守卫把两边的映射逐条比对，不一致直接失败。
-    """
-    kt = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "GameApi.kt"
-    assert kt.is_file(), f"GameApi.kt 不存在: {kt}"
-    src = kt.read_text(encoding="utf-8")
-
-    # R81 使用 Java HashMap，避免原版精简 Pair 的 component1 ABI 冲突；
-    # 守卫仍逐条检查内容，不因容器实现改变而放宽映射一致性。
-    m = re.search(r"private val ALIAS_320: Map<String, String> = java\.util\.HashMap<String, String>\(\)\.apply \{(.*?)\n    \}", src, re.S)
-    assert m, "GameApi.kt 里找不到 ALIAS_320 映射表（结构被改动？）"
-    kt_map = dict(re.findall(r'put\("([a-z0-9]+)",\s*"([a-z0-9]+)"\)', m.group(1)))
-
-    py_map = {k: v for k, v in OBFUSCATION_ALIASES_320.items()
-              if k in ("az1", "bn0", "fp3", "ln0", "uu1")}
-
-    assert kt_map == py_map, (
-        "Kotlin GameApi.ALIAS_320 与 build_mod.OBFUSCATION_ALIASES_320 不一致：\n"
-        f"  Kotlin: {kt_map}\n  Python: {py_map}\n"
-        "两边必须同步 —— Python 重写 Smali 描述符，Kotlin 负责运行时反射查找。")
-
-    # 还必须确认这 5 个名字在 Kotlin 源里都走了 obf()，没有残留裸 cls("短名")
-    #
-    # [R80] 必须先剔除注释行再比对：说明性注释里天然会出现 `cls("az1")` 这种
-    # 「R78 之前就是这么写的」反例文字，按整文件子串匹配会把自己写的文档判成违规。
-    code_only = "\n".join(
-        ln for ln in src.splitlines()
-        if not ln.lstrip().startswith("//") and not ln.lstrip().startswith("*")
-    )
-    for old in kt_map:
-        bare = f'cls("{old}")'
-        assert bare not in code_only, (
-            f"GameApi.kt 里仍有硬编码混淆名 {bare} —— 3.20 下会反射到被 R8 复用的无关类。"
-            f"必须写成 cls(obf(\"{old}\"))。")
-
-    note(f"[4b-KT] GameApi 别名表与 Python 同步：{len(kt_map)} 条，无裸混淆名")
-
-    # [R82] 扣费入口硬守卫：必须锁定原版 `Currency.o(BigDouble)Z`（判够 + subtract + m 写回）。
-    # 字节码证据（base_decoded_320/smali_classes2/bq0.smali）：
-    #   · i(BigDouble)Z 1050-1074：只 compareTo 后返回布尔，**不扣钱**；
-    #   · u(BigDouble)Lbq0; 1206-1220：只 subtract + m()，不校验余额；
-    #   · o(BigDouble)Z 1122-1140：`if (i(cost)) { u(cost); return true; }` = 原版 purchase。
-    # R81 曾把 i() 当购买入口，导致「涨级但不扣费」——这是伪造进度，必须在构建期拦住。
-    # [R96] 3.21 把该组合方法改名为 `p(BigDouble)Z`（l=判够、v=扣减、p=两者组合，逐指令核对）；
-    # 绑定必须「p 优先、o 兜底」，且两个名字都要来自探测式解析（不能写死单版本）。
-    assert 'methodOrNull(currencyHolderCls(), "p", 1, bigDoubleType)' in code_only, (
-        "[R82/R96] GameApi.currencyBuy 未锁定 3.21 的 Currency.p(BigDouble)Z（判够+扣减）")
-    assert 'methodOrNull(currencyHolderCls(), "o", 1, bigDoubleType)' in code_only, (
-        "[R82] GameApi.currencyBuy 缺少 3.20 的 Currency.o(BigDouble)Z 兜底 —— "
-        "i() 只判余额不扣钱、u() 不判余额，两者都会造成免费升级或负余额。")
-    assert '"i", 1, "Currency.i(BigDouble)=buy"' not in code_only, (
-        "[R82] GameApi 仍把 Currency.i(BigDouble)Z 标成 buy —— 它只是余额比较，不扣费。")
 
 
 def rewrite_alias(text: str, owner_desc: str = "") -> str:
@@ -5782,86 +5687,6 @@ def patch_autobuyer_crunch_after_infinity():
     note("[Oreki AU4] 大坍缩自动购买器：首次无限后解锁（追加 hasInfinity；极性 if-eqz 已修正）")
 
 
-def verify_au4b():
-    """[Oreki AU4b] 大坍缩策略默认值修正的构建期守卫。
-
-    三条硬约束：
-      1. `applyCrunchPolicy()` 必须存在；
-      2. 它必须在 `onAutoBuyerTick` 里**排在任何分支之前**无条件调用
-         （放在 hasInfinity 分流之后的话，已进入永恒/毁灭的存档就再也修正不到）；
-      3. 只能改策略（mode/xHighest），不得直接写私有字段、不得碰 interval/cost/重置。
-    """
-    # [R78] 改读 Kotlin 源码。三条硬约束的语义完全不变，只是句柄换成 Kotlin 写法。
-    s = _stage_auto_kt()
-    assert "fun applyCrunchPolicy()" in s, "[AU4b] 缺少 applyCrunchPolicy()"
-    i_call = s.index("applyCrunchPolicy()")          # onAutoBuyerTick 里的调用点
-    i_inf = s.index("GameApi.hasInfinity()")
-    assert i_call < i_inf, "[AU4b] applyCrunchPolicy 必须排在 hasInfinity 分流之前"
-
-    # [R78] 以下改成对 Kotlin 源码做等价断言（原断言是 Smali 助记符级）。
-    # 每条都保留原来的 why —— 断言盯的是**意图**，不是旧实现的写法。
-    _m = re.search(r"\n    fun applyCrunchPolicy\(\) \{(.*?)\n    \}\n", s, re.S)
-    assert _m is not None, "[AU4b] 无法定位 applyCrunchPolicy() 函数体"
-    body = _m.group(1)
-
-    assert "GameApi.crunchUnlocked(crunch)" in body, \
-        "[AU4b] 必须先判解锁（对齐 Web 的 unlocked）"
-    assert "GameApi.crunchMode(crunch)" in body, "[AU4b] 必须读 mode"
-
-    # [R74] 语义：**不再每帧改写 mode**，只在进程内第一次进入时写一次。
-    #
-    # [R80] 字段已按 §67 命名规范改为 `crunchPolicyInitialized`（原 `sCrunchPolicyInit`）。
-    # 断言取「新旧名任一存在」：历史分支仍可通过，迁移后的代码也不会被旧断言误判。
-    _latch_field = "crunchPolicyInitialized" if "crunchPolicyInitialized" in s else "sCrunchPolicyInit"
-    assert f"var {_latch_field}" in s, \
-        "[AU4b] 必须有「归一化只做一次」的闩锁（R74：每帧改写 mode 会吞掉玩家的 AMOUNT 选择）"
-    assert f"if ({_latch_field}) return" in body, \
-        "[AU4b] 已初始化时必须直接返回（等价于原来的 if-nez 首次分支）"
-    assert f"{_latch_field} = true" in body, "[AU4b] 缺少首次校准时的闩锁置位"
-    assert "if (GameApi.crunchMode(crunch) != MODE_X_HIGHEST) return" in body, \
-        "[AU4b] 非 X_HIGHEST 模式必须原样保留（尊重玩家选择）"
-
-    # 红线（精确版）：写 mode 只允许出现在「一次性初始化」分支里。
-    # 早期写成「本方法不得出现 a(I)V」是错的：初始化分支本身必须写一次才能给出默认策略。
-    # 正确判据：每次 setCrunchMode 之前，**同一个分支内**必须已有一次性闩锁置位。
-    #
-    # [R80 修复] 旧判据用「前 N 字符窗口内出现某固定字段名」，有两个问题：
-    #   ① 字段名随 §67 命名规范化而变（sCrunchPolicyInit → crunchPolicyInitialized）；
-    #   ② 该方法里其实有**两个**初始化闩锁，分属不同分支：
-    #        crunchTimeModeInitialized（早期分支，后面跟着 setCrunchMode）
-    #        crunchPolicyInitialized（终局分支，只校准 xHighest，不写 mode）
-    #      只认其中一个必然误报另一个。
-    # 现在改为：从「最近的 `if (!XxxInitialized) {` 块」判断，允许任意以
-    # Initialized 结尾的闩锁名，语义与 R74 的设计意图完全一致。
-    _a_positions = [mm.start() for mm in re.finditer(r"GameApi\.setCrunchMode\(", body)]
-    # [R96] 现为三处一次性写 mode：Break 前 TIME/60s、Break 后 TIME/1s、目标保护暂停（TIME+大间隔）。
-    assert len(_a_positions) <= 3, \
-        f"[AU4b] 写 mode 的次数异常（{len(_a_positions)} 次）：最多三处一次性初始化"
-    for _p in _a_positions:
-        _window = body[max(0, _p - 1600):_p]
-        _guarded = bool(re.search(r"if\s*\(\s*!\s*\w*Initialized\s*\)\s*\{", _window)) or \
-            ("pauseReason != decision.reason" in _window)
-        assert _guarded, \
-            "[AU4b] 写 mode 必须在一次性初始化块或暂停原因变化分支内，禁止每帧改写（R74 根因）"
-        _latched = bool(re.search(r"\w*Initialized\s*=\s*true", _window)) or ("pauseReason = decision.reason" in _window)
-        assert _latched, "[AU4b] 该初始化块必须先置位闩锁（含暂停原因），再写 mode"
-
-    # xHighest 只在校准分支内、且仅在 < 10 时写入
-    # [R80] 局部变量按 §67 命名规范改为 `highestVersusTen`；断言接受历史三种写法。
-    assert (("val highestVersusTen = cmp(xh, 10.0)" in body and
-             "if (highestVersusTen != null && highestVersusTen < 0)" in body)
-            or ("val comparisonResult = cmp(xh, 10.0)" in body and
-                "if (comparisonResult != null && comparisonResult < 0)" in body)
-            or ("val c = cmp(xh, 10.0)" in body and "if (c != null && c < 0)" in body)), \
-        "[AU4b] xHighest >= 10 时必须原样保留（R64 语义：== 10 也要跳过）"
-    assert "GameApi.setCrunchXHighest(" in body, "[AU4b] 必须走公开 setter 写 xHighest"
-    assert "GameApi.crunchXHighest(crunch)" in body, "[AU4b] 必须走公开 getter 读 xHighest"
-    assert "->mode:" not in body and "->xHighest:" not in body, \
-        "[AU4b] 禁止直接读写私有字段（AU8）"
-    for banned in ("->interval", "->cost", "->lastTick", ".interval =", ".cost ="):
-        assert banned not in body, f"[AU4b] 不得触碰 {banned}"
-
-    note("[Oreki AU4b] 大坍缩策略守卫通过（X_HIGHEST/10，与 Web 一致，只改策略）")
 
 
 def verify_smali_field_types_320():
@@ -7268,8 +7093,8 @@ def main():
     patch_shop_coins()
     patch_effarig_nerf()
     patch_effarig_shard_divisor()
-    verify_kotlin_gameapi_aliases()
-    verify_break_shop_kotlin()
+    # [R114-02 C4] GameApi 别名 / Break 商店 / AU4b 三条 Kotlin 契约校验已迁出生产构建：
+    # 见 scripts/verify_build_contracts.py（源码 CI Required Checks 执行，fail-closed）。
     verify_payload()
     patch_ad_bonus()
     patch_automator_waiting()
@@ -7286,7 +7111,7 @@ def main():
     patch_r74_temp_diag()
     patch_ip_mult_autobuyer()
     patch_stage_auto_hook()
-    verify_au4b()
+    # [R114-02 C4] AU4b 契约校验已迁 scripts/verify_build_contracts.py（源码 CI 执行）
     # [Oreki ET1] 永恒层四步（TT / 时间维度 / 时间研究 / 按永恒）的契约守卫。
     # 只读 MOD 文本、零副作用；放在钩子安装之后、UI 补丁之前。
     verify_eternity_chain()
