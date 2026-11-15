@@ -367,6 +367,18 @@ jobs:
           ln -s "$tree" source/work/mod
           echo "::notice::AGP full-game inputs verified (jar=$actual)"
 
+      - name: Verify tree-level build contracts on the pinned full-game tree
+        working-directory: source
+        run: |
+          set -euo pipefail
+          # R114-02 C4b（Issue #52）：树级 verify_* 已迁出 build_mod，改由这里在
+          # 「pinned full-game tree 就位之后、AGP 打包之前」独立执行，失败即阻断候选。
+          # 公开源码 CI 没有树，脚本对这些检查显式 SKIP（不假装执行）。
+          test -d work/mod || { echo '::error::work/mod missing after staging pinned tree'; exit 1; }
+          python3 scripts/verify_build_contracts.py \
+            --mod-tree work/mod --decoded-tree "$OREKI_BASE" \
+            --json build/verify-tree-contracts.json
+
       - name: Build AGP 9.5.1 full-game release APK
         working-directory: source
         env:

@@ -7,7 +7,7 @@
 
 | 项 | 值 |
 |---|---|
-| scripts/build_mod.py | **7,219 行** / 96 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54、C4 -175） |
+| scripts/build_mod.py | **6,532 行** / 85 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54、C4 -175、C4b -862） |
 | main() 实际启用调用 | 53 个（另 1 个未接入主流程的保留函数：patch_autobuyer_unlock，仅被诊断链 patch_debug_trace 调用；verify / patch_frame_cadence 已在 C5 清理） |
 | 启用函数代码量 | 5,587 行（约占全文件 72%；不含 R114-02 C1 已删除段） |
 | 生产依赖 | 根 build.gradle -> `python3 scripts/build_mod.py`（OREKI_GRADLE_ASSEMBLY=1）生成 work/mod 补丁树；AGP 完整游戏构建以 `-PorekiDecodedTree=work/mod` 读取该树（manifest/res/assets/lib/smali 输入） |
@@ -59,8 +59,9 @@
 | 函数 | 行数 | 目标 | 状态 |
 |---|---|---|---|
 | verify_kotlin_gameapi_aliases / verify_break_shop_kotlin / verify_au4b | 64/29/80 | **已迁** `scripts/verify_build_contracts.py`（源码 CI Required Checks 执行，不 import build_mod；含变异自测） | **PASS**（R114-02 C4，见 §7） |
-| verify_eternity_chain / verify_pelle_record / verify_smali_field_types_320 / check_smali_descriptors / check_challenge_auto_polarity / check_ec_chain_mechanisms | 179/76/45/12/63/7 | 同上；但这些读 **work/mod 补丁树或私有解码基线**（别名已重写），需 C4b：独立脚本 + `--mod-tree` 模式，在候选链（树已产出后）执行 | NOT RUN（C4b） |
-| verify_payload | 734 | 拆分为「产物 ABI 校验」CI 任务 + Kotlin 单测 | NOT RUN |
+| verify_eternity_chain / verify_pelle_record / verify_smali_field_types_320 / check_smali_descriptors | 179/76/45/12 | **已迁** `scripts/verify_build_contracts.py` 的 `--mod-tree`/`--decoded-tree` 模式；在 candidate 私有 runner 的 pinned full-game tree 就位后、AGP 打包前以独立 step 执行 | **PASS**（R114-02 C4b，见 §8；真实 candidate run NOT RUN） |
+| check_challenge_auto_polarity / check_ec_chain_mechanisms | 63/7 | **已迁**：确认二者只读 payload 源（不依赖补丁树），并入源码级校验（公开 CI） | **PASS**（R114-02 C4b，见 §8） |
+| verify_payload | 693 | **仍待迁（C4c）**：依赖 build 期 `TOUCHED_FILES` 注册表（write_smali 记录被补丁写的文件），独立脚本需改为「把 MOD 树与解码基线做差异」来重建 touched 集；设计需 Lead 确认。当前仍在生产构建执行（fail-closed 不降） | NOT RUN（C4c） |
 
 ### F. 已禁用/历史证据（核实后移除）
 
@@ -82,7 +83,7 @@
    - C1：tutorial asset 生成迁出生产构建（**已完成**，R114-02：AGP 任务 `prepareFullGameAssets`/`verifyTutorialAsset` 消费提交资产；legacy 链 `stage_tutorial_assets()` 只原样落盘；新鲜度由独立校验把关，详见 §5）。
    - C2：changelog 生成已迁 Gradle generateChangelogZh（PR #64）：输出目录独立、stage 排除原文、已翻译输入可识别；本地/候选 APK 与 patch_changelog_zh 产物逐字节一致（SHA-256 b5168107…），候选 APK 仍为 18716d87…。
    - C3：dark theme 迁到 AGP 资源 overlay。
-   - C4：verify_* 迁到 CI 独立任务（**部分完成**，R114-02：三条源码级校验已迁 `scripts/verify_build_contracts.py` 并接入源码 CI；树级校验见 §7.4 的 C4b）。
+   - C4：verify_* 迁到 CI 独立任务（**已完成主体**，R114-02：C4 迁 3 条源码级；C4b 迁 2 条扩展源码级 + 4 条树级；仅剩 verify_payload 见 §8.5/C4c）。
    - C5：dead/disabled 函数删除（**已完成**，R114-02：AST 可达性 + 调用链属性守卫，详见 §6）。
 4. **最终删除条件**（Issue #52 清单）：全部满足后才删除 build_mod.py，并加 CI 守卫阻止重新引用。
 
@@ -269,4 +270,67 @@ C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tr
 
 - C4（源码级）**PASS**：3 条校验迁出生产构建、改由源码 CI 执行且带变异自测；build_mod 净减 175 行、未动任何仍被生产消费的补丁逻辑；C1/C5 守卫无回归。
 - 下一步：C4b（树级 verify_* 独立化 + candidate 链 step），或按 Lead 优先级切 C3。
+
+
+
+## 8. R114-02 C4b 闭包：树级 verify_* 迁 candidate 独立 step（Issue #52）
+
+> 分支 `r114-02/buildmod-c4b`；基线 `origin/main f3b7b554`（C4 已合并）。目标：给 verifier 增加 `--mod-tree`/`--decoded-tree`，把依赖补丁树/解码基线的 verify_* 迁出生产构建，在 **candidate 私有 runner 的树产出后** 以独立 step 执行；公开 CI 不假装执行树级检查；未迁移前不删生产构建调用。
+
+### 8.1 迁出范围
+
+| 原 build_mod 校验（行数） | 新位置 | 执行环境 |
+|---|---|---|
+| `check_ec_chain_mechanisms` + `_verify_ec_r40b`（134） | `verify_build_contracts.py::check_ec_chain` | **源码级**（只读 payload 源；公开 CI） |
+| `check_challenge_auto_polarity`（63） | `check_challenge_polarity` | **源码级**（payload 源；公开 CI） |
+| `verify_eternity_chain`（179） | `check_eternity_chain` | 树级（`--mod-tree`；candidate step） |
+| `verify_pelle_record`（76） | `check_pelle_record` | 树级（`--mod-tree`；candidate step） |
+| `verify_smali_field_types_320`（45） | `check_smali_field_types` | 树级（`--mod-tree` + `--decoded-tree`） |
+| `check_smali_descriptors`（12，外部脚本） | `check_smali_descriptors`（复用 `scripts/check_smali_descriptors.py`，注入 `OREKI_BASE`） | 树级（`--decoded-tree`） |
+
+- 迁移方式：从 build_mod **逐条迁移**（断言与错误文案保持不变），路径/别名/note 依赖换成 verifier 内只读 shim：
+  `_ModRoot/_ModPath`（多 smali 根代理）、`_payload_smali()`、`_stage_auto_kt()`、`_scan_method()`、`obfuscation_aliases()`（由 compatibility 证据行 `payload_name→to321` 推导）。
+- **生产构建不再执行**：build_mod 删除 6 个校验函数 + 4 个私有 helper（`_ec_flat/_ec_flatten_all/_ec_src_path/_verify_ec_r40b`）+ `ec_chain_selftest` + `CA_SMALI/CA_SMALI_R40B/EC_RED_LINES` 常量 + `OREKI_EC_SELFTEST` 入口；main() 调用替换为迁移说明。
+  `build_mod.py` 7,394 → **6,532 行（-862）**，顶层函数 96 → 85。
+- **未迁移即不删**：`verify_payload`（693 行）仍留在生产构建（依赖 build 期 `TOUCHED_FILES`；见 §8.5）。
+
+### 8.2 消费端切换
+
+- **公开 CI（不假装执行树级）**：`ci.yml` 继续跑 `python3 scripts/verify_build_contracts.py`（默认）——现在覆盖 5 条源码级校验；树级 4 条显式 `SKIP`（输出 SKIP，不是 PASS）。`--selftest` 覆盖 15 条源码变异。
+- **candidate 私有 runner**：`.github/workflows/candidate-unified.yml` 新增
+  `Verify tree-level build contracts on the pinned full-game tree`，位置在
+  `Verify pinned AGP full-game inputs`（pinned tree 就位）之后、`Build AGP 9.5.1 full-game release APK` 之前：
+  `python3 scripts/verify_build_contracts.py --mod-tree work/mod --decoded-tree "$OREKI_BASE" --json build/verify-tree-contracts.json`。
+  失败即阻断候选（fail-closed）。
+- **Kotlin 类证据**：candidate 不再执行 `buildKotlinDex`，类描述符校验额外并入
+  `scripts/kotlin_business_classes.txt` 与 `app/src/main/kotlin` 顶层声明（`check_smali_descriptors.py` 新增
+  `_kotlin_declared_descriptors()/_kotlin_source_descriptors()`），避免把合法的 Kotlin 业务类引用误判为缺失。
+- **迁移守卫测试**：`scripts/tests/test_verify_build_contracts.py` 增为 6 项，新增：
+  · 公开 CI 口径：源码级必须全 PASS、树级必须显式 SKIP（防止假装执行）；
+  · candidate workflow 必须把树级 step 排在 pinned tree 之后、AGP 打包之前；
+  · 公开 CI 不得出现 `--mod-tree`/`--decoded-tree`。
+
+### 8.3 验证（本机实测，2026-11-16）
+
+| 命令 | 结果 |
+|---|---|
+| `python3 scripts/verify_build_contracts.py`（公开 CI 口径，无树） | **PASS 5 项执行 / 9 项登记**，4 条树级显式 SKIP |
+| `python3 scripts/verify_build_contracts.py --selftest` | **PASS：15 条变异全部被拦住** |
+| `python3 scripts/verify_build_contracts.py --mod-tree <真实 work/mod> --decoded-tree <真实 3.21 解码树>` | **PASS 9/9**（本机主检出树：eternity/pelle/descriptors/field_types 全过；证据 JSON `verify-tree-contracts.json`，SHA-256 `e31d107b…`） |
+| **新旧等价对照**：同一真实树上跑旧 build_mod 6 个校验函数（`OREKI_BASE/OREKI_MOD` 指同树） | **OLD 6/6 PASS**，与新 9/9 结果一致（含 `check_smali_descriptors` 15406 类） |
+| `test_verify_build_contracts.py` / `test_buildmod_dead_code_retirement.py` / `test_buildmod_tutorial_retirement.py` | **PASS（6/6、4/4、8/8）** |
+| `python3 -m compileall -q scripts` / `check_facts_governance.py` | **PASS** |
+
+### 8.4 未决 / NOT RUN
+
+- **NOT RUN**：真实 candidate workflow（AGP-only 门禁仍 fail-closed，私 runner step 尚未实际执行）；本机用主检出的真实树验证了 verifier 的树级路径与新旧等价。
+- **风险（交 Lead 决策）**：candidate 现在直接消费 **pinned full-game tree（私有 bundle）**，不再由 build_mod 现场生成树。树级校验会比较该 pinned 树与当前 payload/Kotlin 源码；若 bundle 的 modtree 落后于 source SHA，校验会 FAIL —— 这是有意 fail-closed（防止用过期树发布），需要 Lead/CI 负责人确认 bundle 更新节奏与失败语义。
+- **NOT RUN**：真实 `assembleRelease`/APK/AVD（未占 AVD、未签名）。
+
+### 8.5 剩余：verify_payload（C4c，未迁移）
+
+`verify_payload`（693 行）是本轮唯一未迁的构建期校验，原因：它依赖 build 期 `TOUCHED_FILES` 注册表
+（`write_smali()` 在打补丁时登记被写文件），独立脚本没有该状态；等价改造需要先用
+「MOD 树 vs 解码基线」差异重建 touched 集（约 2.3 万文件对比），并重新验证其 `.catch`/字面量 lint 语义。
+这是设计决策 + 一定工作量，建议作为 C4c 单独立项；在 C4c 前它继续在生产构建执行，fail-closed 不降。
 
