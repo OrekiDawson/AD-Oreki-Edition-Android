@@ -59,7 +59,10 @@ def main():
         line = f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {m}"
         log.append(line); print(line, flush=True)
     adb("root", timeout=15); time.sleep(1)
-    adb("install", "-r", "-d", args.apk, timeout=180)
+    install_out = adb("install", "-r", "-d", args.apk, timeout=180)
+    if "Success" not in install_out:
+        print("FAIL: install 未成功，终止（不清数据）: " + install_out.strip()[:300], flush=True)
+        return 2
     adb("shell", "am", "force-stop", PKG, timeout=15)
     adb("shell", "pm", "clear", PKG, timeout=30)
     adb("shell", "am", "start", "-W", "-n", ACT, timeout=60); time.sleep(15)

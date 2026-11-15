@@ -51,7 +51,10 @@ def main():
     apk = "build/r113-hybrid6/ab/r8off/app-release.apk"
     note(f"install {apk}")
     adb("root", timeout=15); time.sleep(1)
-    adb("install", "-r", "-d", apk, timeout=180)
+    install_out = adb("install", "-r", "-d", apk, timeout=180)
+    if "Success" not in install_out:
+        print("FAIL: install 未成功，终止（不清数据）: " + install_out.strip()[:300], flush=True)
+        return 2
     adb("shell", "am", "force-stop", PKG, timeout=15)
     adb("shell", "pm", "clear", PKG, timeout=30)
     adb("shell", "am", "start", "-W", "-n", ACT, timeout=60); time.sleep(18)
@@ -59,10 +62,12 @@ def main():
     # 后台持续抓 logcat
     logcat = subprocess.Popen([ADB, "logcat", "-v", "time"], stdout=open(OUT / "180min-logcat.txt", "w"),
                               stderr=subprocess.DEVNULL)
+    # 真实墙钟从**首次启动新档**开始计（含引导与所有操作），不再从 drive() 结束算起。
+    start = time.time()
+    note(f"game start epoch={int(start)}")
     adb("shell", "am", "start", "-W", "-n", ACT, timeout=60)
     drive()
-    start = time.time()
-    note(f"run start epoch={int(start)}")
+    note(f"onboarding done epoch={int(time.time())} elapsed={round(time.time() - start, 1)}s")
     samples = []
     next_sample = 300
     while time.time() - start < DURATION:
