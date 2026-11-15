@@ -1,8 +1,8 @@
 # R114-01 事实库后续收口（facts-followup）
 
 - 日期：2026-11-15
-- 分支：`docs/r114-facts-followup`（独立 worktree `worktrees/android/facts-followup`）
-- 基线：`origin/main` 4a800464 + PR #93 的 3 个 commit（本分支为其叠加分支，PR base=main，需先合并 #93）
+- 分支：`docs/r114-facts-followup-v2`（独立 worktree `worktrees/android/facts-followup`；重接到 #93 合并后的 main，取代已关闭的 PR #94）
+- 基线：`origin/main` `8e288779`（#93 squash 合并后的 main；已含主题事实库与守卫）
 - 范围：只改文档与 Python 证据脚本的引用字符串；不构建 APK、不跑 Gradle/AVD、不碰主工作树与签名。
 
 ## 1. 目标与结果
@@ -76,6 +76,6 @@ CI 守卫日志：PASS: root index 121 lines (limit 400); 31 facts files; larges
 
 ## 7. 依赖与后续
 
-- 本分支叠加在 #93 之上：**必须先合并 #93**，否则本 PR 的 diff 含 #93 全部改动。
+- 本分支基于 #93 合并后的 main（8e288779），**不再叠加其它 PR**；原 PR #94 因 base 变更关闭，由本 PR 取代。
 - worktree 登记：`/home/oreki/AD-Oreki-Unified/docs/WORKTREE_MAPPING.md` 需由 Lead 补登（文件在主工作树外，本轮隔离约束内不改）。
 - 若后续重新生成 R107 证据 JSON/CSV，输出中的引用将自动使用新路径+锚点；旧文件不再回写。
