@@ -62,6 +62,9 @@ internal object OrekiAutoEternityGate {
     private var freshSessionChecked = false
     private var freshSession = false
 
+    /** 采样 freshSession 时所属存档身份（records.gameCreatedTime）；换存档即重采样。 */
+    private var freshSessionSaveId = ""
+
     /** 只读零判断：BigDouble 走 compareTo(D)，原生 Number 直接转 double（bigEternities 是 Number）。 */
     private fun isZeroValue(v: Any?): Boolean? = when (v) {
         null -> null
@@ -80,11 +83,24 @@ internal object OrekiAutoEternityGate {
      * 永久判成"非新档"，正是 R104 首个候选版实测失败的原因）。
      */
     private fun noteFreshSession() {
+        // [R114-01 P0 补 / Codex P1] 「本会话是否从全新档启动」必须绑定到**当前存档**。
+        //
+        // 缺陷：freshSession 在会话内只采样一次。若本会话先从全新档启动（freshSession=true、
+        // 引导层接管自动永恒），随后玩家导入一个已有进度的存档（该档玩家明确关闭了自动永恒），
+        // 旧实现仍按 freshSession=true 走引导层，把导入档的开关重新打开并改成 X_HIGHEST×10
+        // ⇒ 不是玩家意愿。OrekiAutoEternityAdoption.bindSave() 已按存档身份重置托管状态，
+        // 这里同样按存档身份重采样，两者口径一致。
+        val saveId = GameApi.saveIdentity()
+        if (freshSessionChecked && saveId != null && saveId != freshSessionSaveId) {
+            freshSessionChecked = false
+            freshSession = false
+        }
         if (freshSessionChecked) return
         val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return
         val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return
         freshSession = eZero && bZero
         freshSessionChecked = true
+        if (saveId != null) freshSessionSaveId = saveId
     }
 
     private fun neverEternitied(): Boolean {
