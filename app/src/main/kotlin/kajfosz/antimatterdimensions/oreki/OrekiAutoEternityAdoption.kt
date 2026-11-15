@@ -43,6 +43,7 @@ internal object OrekiAutoEternityAdoption {
     private const val KEY_ADOPTED = "oreki.autoEternity.adopted"
     private const val KEY_USER_CLOSED = "oreki.autoEternity.userClosed"
     private const val KEY_ENABLED_REALITIES = "oreki.autoEternity.enabledRealities"
+    private const val KEY_SAVE_ID = "oreki.autoEternity.saveId"
 
     /** 补回开关的最小间隔（避免写入失败时每帧重试刷屏）。 */
     private const val RETRY_INTERVAL_MS = 1_000L
@@ -57,6 +58,9 @@ internal object OrekiAutoEternityAdoption {
 
     /** MOD 最近一次成功置 true 时所在的现实序号。落盘。 */
     private var enabledRealities = ""
+
+    /** 这些状态所属的存档身份（records.gameCreatedTime）；换存档即失效。落盘。 */
+    private var saveId = ""
 
     private var lastAttemptAt = 0L
     private var lastLogKey = ""
@@ -78,6 +82,7 @@ internal object OrekiAutoEternityAdoption {
             adopted = sp.getBoolean(KEY_ADOPTED, false)
             userClosed = sp.getBoolean(KEY_USER_CLOSED, false)
             enabledRealities = sp.getString(KEY_ENABLED_REALITIES, "") ?: ""
+            saveId = sp.getString(KEY_SAVE_ID, "") ?: ""
         } catch (_: Throwable) {
             // 读盘失败：保持内存默认值（不接管、不阻拦）
         }
@@ -90,6 +95,7 @@ internal object OrekiAutoEternityAdoption {
                 .putBoolean(KEY_ADOPTED, adopted)
                 .putBoolean(KEY_USER_CLOSED, userClosed)
                 .putString(KEY_ENABLED_REALITIES, enabledRealities)
+                .putString(KEY_SAVE_ID, saveId)
                 .apply()
         } catch (_: Throwable) {
             // 写盘失败不影响本会话判定，只是重启后需要重新观察
@@ -105,9 +111,35 @@ internal object OrekiAutoEternityAdoption {
      */
     private fun realityToken(): String {
         val value = GameApi.realitiesValue() ?: return ""
+        // [Codex P1] realities==1 的 log10 也是 0，旧实现会与「0 次现实」返回同一个 token，
+        // 导致第 1 次 Reality 复位无法与「本现实内玩家手动关闭」区分。这里先单独判 0。
+        val versusZero = GameApi.compareToDouble(value, 0.0) ?: return ""
+        if (versusZero <= 0) return "0"
         val log10 = GameApi.log10BigDouble(value) ?: return ""
-        if (!log10.isFinite() || log10 <= 0.0) return "0"
-        return Math.round(Math.pow(10.0, log10)).toString()
+        if (!log10.isFinite()) return "?"
+        // 至少为 1：现实中永不为负，且 log10(1)=0 必须返回 "1" 而不是 "0"。
+        val count = Math.round(Math.pow(10.0, log10))
+        return if (count < 1L) "1" else count.toString()
+    }
+
+    /**
+     * [Codex P1] 把托管状态绑定到当前存档：导入/切换存档时旧状态必须失效。
+     *
+     * 身份来源 = records.gameCreatedTime（每个存档唯一）。读不到（存档尚未就绪）时
+     * 不做任何改动（fail-closed），等下次调用再判定。
+     */
+    private fun bindSave() {
+        val current = GameApi.saveIdentity() ?: return
+        if (current == saveId) return
+        // 首次记录（saveId 为空）或换存档：清空旧存档的托管状态，重新观察真实开关。
+        if (saveId.isNotEmpty()) {
+            log("save changed: reset adoption state old=" + saveId + " new=" + current)
+        }
+        saveId = current
+        adopted = false
+        userClosed = false
+        enabledRealities = ""
+        persist()
     }
 
     /**
@@ -120,6 +152,7 @@ internal object OrekiAutoEternityAdoption {
     fun driveWhileLocked(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
         load()
+        bindSave()
         if (!adopted || userClosed) return false
         return !GameApi.autoEternityUnlocked()
     }
@@ -140,6 +173,7 @@ internal object OrekiAutoEternityAdoption {
     @JvmStatic
     fun managed(): Boolean {
         load()
+        bindSave()
         return adopted || userClosed
     }
 
@@ -164,6 +198,7 @@ internal object OrekiAutoEternityAdoption {
         try {
             if (!OrekiAutomationScheduler.isEnabled()) return
             load()
+            bindSave()
             val active = GameApi.autoEternityIsActive()
             val token = realityToken()
             if (active == true) {

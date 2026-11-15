@@ -827,6 +827,27 @@ internal object GameApi {
     /** `player().records`。 */
     fun records(): Any? = call(mPlayerR(), player())
 
+    /**
+     * [R114-01] 存档身份：`Player.records.gameCreatedTime`（存档创建毫秒时间戳）。
+     *
+     * 用途：把 MOD 的「原版开关托管」状态绑定到**具体存档**。玩家导入或切换到另一个存档时，
+     * 上一个存档的 adopted / userClosed / enabledRealities 必须失效，否则会把新存档里
+     * 玩家明确关闭的开关误判成「Reality 复位」并强行重开（Codex P1，PR #92）。
+     *
+     * 只读，不写任何字段；读不到返回 null（调用方按「身份未知」fail-closed，不改状态）。
+     */
+    @JvmStatic
+    fun saveIdentity(): String? {
+        return try {
+            val rec = records() ?: return null
+            val value = readGameField(rec, "gameCreatedTime") ?: return null
+            value.toString()
+        } catch (e: Throwable) {
+            miss("saveIdentity", e)
+            null
+        }
+    }
+
     /** `player().breakInfinityUpgradeBits`（BitSet）。 */
     fun breakUpgradeBits(): Any? = call(mPlayerO(), player())
 
