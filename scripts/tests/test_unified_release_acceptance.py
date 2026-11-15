@@ -1,5 +1,6 @@
 """Negative-policy regressions: enough PASS counts must never authorize release."""
 import copy
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -8,15 +9,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from verify_release_acceptance import AcceptanceError, REQUIRED_CHECKS, check_report
 
 SHA, SOURCE, WEB, ACCEPT = "a" * 64, "b" * 40, "c" * 40, "d" * 40
+# 发布版本字段从受审查的 policy 派生，避免 policy bump 后 fixture 与真源漂移。
+POLICY = json.loads(
+    (Path(__file__).resolve().parents[2] / "scripts" / "release-gate-policy.json").read_text("utf-8"))
 
 
 def valid():
     return {
         "schema": 1, "verdict": "PASS", "apk_sha256": SHA, "source_sha": SOURCE,
         "candidate_run_id": 100, "verification_run_id": 101,
-        "package": "com.oreki.antimatterdimensions",
-        "versionName": "3.21.0", "versionCode": "30210000",
-        "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+        "package": POLICY["package"],
+        "versionName": POLICY["versionName"], "versionCode": POLICY["versionCode"],
+        "certificate_sha256": POLICY["certificate_sha256"],
         "checks": [{"id": i, "state": "PASS", "evidence": "AVD screenshot"} for i in sorted(REQUIRED_CHECKS)],
         "screenshots": ["docs/avd-acceptance/example/screen.png"],
         "completion_runs": [
@@ -45,6 +49,11 @@ def verify(report):
 class StableReleaseGateTests(unittest.TestCase):
     def test_all_required_checks_pass(self):
         self.assertEqual(verify(valid()), len(REQUIRED_CHECKS))
+
+    def test_fixture_matches_approved_release_policy(self):
+        report = valid()
+        for key in ("package", "versionName", "versionCode", "certificate_sha256"):
+            self.assertEqual(report[key], POLICY[key], key)
 
     def test_unrelated_pass_count_never_substitutes_mandatory_check(self):
         r = valid()

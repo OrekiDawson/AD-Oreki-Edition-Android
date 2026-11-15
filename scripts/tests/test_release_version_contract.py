@@ -17,6 +17,13 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertGreaterEqual(int(policy["versionCode"]), int(policy["lastPublishedVersionCode"]))
         self.assertEqual(policy["package"], "com.oreki.antimatterdimensions")
 
+    def test_ready_for_release_policy_has_strictly_greater_version_code(self):
+        # release-unified 的发布守卫：ready-for-release 时 versionCode 必须严格大于已发布最大值，
+        # 否则会拒绝发布（release-unified.yml 的 lastPublishedVersionCode/modVersionState 检查）。
+        policy = json.loads((ROOT / "scripts/release-gate-policy.json").read_text("utf-8"))
+        if policy.get("modVersionState") == "ready-for-release":
+            self.assertGreater(int(policy["versionCode"]), int(policy["lastPublishedVersionCode"]))
+
     def test_agp_reads_reviewed_version_instead_of_hardcoding_baseline(self):
         app = (ROOT / "agp/app/build.gradle.kts").read_text("utf-8")
         self.assertIn('release-gate-policy.json', app)
