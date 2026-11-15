@@ -126,6 +126,31 @@ class ABatchGuardTests(unittest.TestCase):
         joined = "\n".join(guard.check_class(name, data))
         self.assertIn("缺少必需引用", joined)
 
+    def test_reality_plain_descriptor_embedded_is_rejected(self):
+        """Codex P2 回归：只出现在方法描述符里的 plain ContinuationImpl 也必须被抓到。"""
+        b = ClassFileBuilder()
+        name = "kajfosz/antimatterdimensions/oreki/OrekiReality"
+        b.cls(name)
+        b.cls("java/lang/Object")
+        plain = "kotlin/coroutines/jvm/internal/ContinuationImpl"
+        b.ref("kajfosz/antimatterdimensions/prestige/f", "b",
+              "(L" + plain + ";)Ljava/lang/Object;")
+        data = b.build(name, "java/lang/Object")
+        joined = "\n".join(guard.check_class(name, data))
+        self.assertIn("残留 plain 描述符", joined)
+        self.assertIn("缺少必需引用", joined)
+
+    def test_reality_shadow_descriptor_embedded_passes(self):
+        b = ClassFileBuilder()
+        name = "kajfosz/antimatterdimensions/oreki/OrekiReality"
+        b.cls(name)
+        b.cls("java/lang/Object")
+        shadow = "oreki/shadow/kotlin/coroutines/jvm/internal/ContinuationImpl"
+        b.ref("kajfosz/antimatterdimensions/prestige/f", "b",
+              "(L" + shadow + ";)Ljava/lang/Object;")
+        data = b.build(name, "java/lang/Object")
+        self.assertEqual(guard.check_class(name, data), [])
+
     def test_missing_shadow_member_is_rejected(self):
         b = ClassFileBuilder()
         name = "kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch"

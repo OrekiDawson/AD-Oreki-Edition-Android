@@ -64,10 +64,20 @@ EXPECTATIONS: dict[str, dict] = {
         ],
         "forbid_plain": [PLAIN_CONT, PLAIN_EC, PLAIN_CS],
     },
+    # 这两个类只把协程类型放在**方法引用描述符**里（无独立 Class 常量），
+    # 因此必须按成员描述符断言，否则 plain/ shadow 两种绑定都会被放行。
     "kajfosz/antimatterdimensions/oreki/OrekiEternity": {
+        "must_ref_member": [
+            ("kajfosz/antimatterdimensions/dimension/time/TimeDimensionState", "i",
+             f"(ZL{SHADOW_CONT};)Ljava/lang/Object;"),
+        ],
         "forbid_plain": [PLAIN_CONT, PLAIN_EC, PLAIN_CS],
     },
     "kajfosz/antimatterdimensions/oreki/OrekiReality": {
+        "must_ref_member": [
+            ("kajfosz/antimatterdimensions/prestige/f", "b",
+             f"(L{SHADOW_CONT};)Ljava/lang/Object;"),
+        ],
         "forbid_plain": [PLAIN_CONT, PLAIN_EC, PLAIN_CS],
     },
 }
@@ -160,11 +170,16 @@ def check_class(class_name: str, data: bytes) -> list[str]:
         # 描述符可能内嵌在方法签名串里（如 "(Lx;)Ljava/lang/Object;"），按子串匹配。
         if not any(token in value for value in info.utf8.values()):
             problems.append(f"{class_name}: 缺少必需描述符 {token}")
+    values = list(info.utf8.values())
     for plain in expect.get("forbid_plain", []):
-        if plain in info.utf8.values():
+        # ① 独立 Class 常量：精确匹配（避免 shadow 名 "oreki/shadow/kotlin/..." 里的子串误报）
+        if plain in values:
             problems.append(f"{class_name}: 残留 plain 类引用 {plain}（会绑定 AGP stdlib）")
-        if f"L{plain};" in info.utf8.values():
-            problems.append(f"{class_name}: 残留 plain 描述符 L{plain};（会绑定 AGP stdlib）")
+        # ② 内嵌在方法/字段描述符里：按 "L<name>;" 子串匹配。
+        #    shadow 形态是 "Loreki/shadow/kotlin/..."，不含 "Lkotlin/..."，不会误报。
+        needle = f"L{plain};"
+        if any(needle in v for v in values):
+            problems.append(f"{class_name}: 残留 plain 描述符 {needle}（会绑定 AGP stdlib）")
     return problems
 
 
