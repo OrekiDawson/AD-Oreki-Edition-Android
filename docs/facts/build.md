@@ -455,3 +455,57 @@ ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/andr
 - **AVD 联合验收**（同一 APK）：新档首写 40.2s、HOME 保存、重启读取、5 分钟自动化 0 ABI 崩溃/ANR；
   合法晚期存档（SHA `75f570c5…`，realities=12）读取正常且 120s 后写回 `01e67bf8…`（29,912 B 合法 JSON）。
 - 证据：`reports/R113-01/P0-CLOSURE.md`、`reports/R113-01/avd-evidence/r113-hybrid6/`。
+
+<a id="f-candidate-bundle-hosting"></a>
+## candidate 私有 build bundle 托管位置（CONFIRMED + 待更新风险，2026-11-15）
+
+- **托管位置**：`candidate-unified` 的私有 build inputs 托管在 **OrekiDawson/AD-Oreki-Unified** draft release `r114-build-inputs`
+  （release id `446153821`，draft=true）；当前 asset `751450755` `oreki-build-inputs-r114.tar.gz` 493,408,095 B，
+  `state=starter`（上传中/未完成，2026-11-15 15:37 创建）。旧仓 `OrekiDawson/AD-Oreki-Build-Inputs` 实测 **HTTP 404**（废记，不得再引用）。
+- **CI 读取方式**：`.github/workflows/candidate-unified.yml:172-173` 使用 repo variables `OREKI_BUILD_BUNDLE_URL` / `OREKI_BUILD_BUNDLE_SHA256`，
+  下载步骤要求 HTTPS + 64 位 SHA + `secrets.OREKI_BUILD_BUNDLE_TOKEN`（:176-205）；game jar 由 `OREKI_GAME_JAR_SHA256` 钉住（:343-354）。
+- **Environment 变量实测**（`repos/.../environments/android-signing/variables`）：
+  `OREKI_BUILD_BUNDLE_SHA256=7d7644f7fbb5fce2f2964b0ef6a1248e3ea05d722e5b00d639d975512bb16f72`、
+  `OREKI_GAME_JAR_SHA256=5f0fcf39acaced6b6c29d48469f8510d89c20f25ad411eb14958ba8ae517faf8`、
+  `OREKI_BUILD_BUNDLE_URL=https://api.github.com/repos/OrekiDawson/AD-Oreki-Unified/releases/assets/751422489`。
+- **风险/待更新（CONFIRMED）**：URL 指向的旧 asset `751422489` 已 **404**（实测），release 当前只有 `751450755`（starter）；
+  ⇒ 在变量更新为 `.../assets/751450755` 且新 bundle 完成上传（state=uploaded）前，candidate 下载步骤会失败；SHA 也需按新 bundle 实测更新。
+- 证据：`gh api repos/OrekiDawson/AD-Oreki-Unified/releases/446153821/assets`、`.../assets/751422489`（404）、
+  `repos/OrekiDawson/AD-Oreki-Edition-Android/environments/android-signing/variables`。 `[实测]`
+
+<a id="f-programmatic-approval"></a>
+## 受保护 Environment 的程序化审批（CONFIRMED，PR #112）
+
+- GitHub Actions `pending_deployments` 审批必须提交 **`environment_ids[]` 数组**；只传 `state`/`comment` 会 HTTP 422。
+  脚本 `scripts/ci/approve_pending_deployment.sh`（PR #112，OPEN、尚未合并）从 `GET .../actions/runs/<run_id>/pending_deployments`
+  读取 `environment.id` 与 `current_user_can_approve`，按可选环境名过滤后 POST：
+  `-f state=approved -F "environment_ids[]=<id>"`；无匹配环境 fail-closed、无 pending 返回 NO_PENDING_DEPLOYMENT。
+- **实测**：修正后成功审批 run `43730492485`（PR #112 描述）；原实现未传 `environment_ids` 导致 422。
+- **边界**：程序化审批只使用仓库所有者已授权 `gh` 身份；保留 Environment 保护、Required Checks、签名密钥与源码 SHA 校验；
+  `AGENTS.md §16` 已写明「发布授权已长期授予，Environment Reviewer 按所有者身份程序化审批」。
+- 证据：PR #112（diff 新增脚本）、AGENTS.md §16、run `43730492485`。 `[读码] + [实测]`
+
+<a id="f-agp-v3-signing-risk"></a>
+## AGP fullGame 的 v3 签名配置与 v2+v3 门禁（CONFIRMED 配置 + UNKNOWN 产物实测，2026-11-15）
+
+- `[读码]` **CONFIRMED 配置**：`agp/app/build.gradle.kts:122` 在 `fullGame` release signingConfig 设置 `enableV3Signing = true`
+  （#108 合并 `eb9612f5`；注释称「保留 v1/v2 现有行为，只补 v3」）。
+- `[读码]` **CONFIRMED 门禁**：CI candidate 硬要求 **v2 且 v3**——`.github/workflows/candidate-unified.yml:435-452` 用 apksigner
+  分别 grep `Verified using v2 scheme ... true` / `v3 scheme ... true`；`scripts/verify_release.py:199-217` 对 API 24-27/28-32
+  分别验 v2/v3，`签名方案 v2+v3` 为硬 check。
+- `[实测冲突]` **UNKNOWN（待复核）**：本机 apksigner 37.0.0 对现有 AGP 产物实测为 **v2=true / v3=false**（v2-only）：
+  `agp/app/build/outputs/apk/release/app-release.apk`（81,584,175 B，11-15 21:58）与 `build/r114-final/ab/r8off/app-release.apk`；
+  另有 build_mod 旧链日志 `build/_r104_build_*.log:353-355` 记录 **v2=false / v3=true**（v3-only）。当前证据无法证实「AGP 配置产物为 v3-only」，
+  需在干净构建后复测 AGP 产物的签名方案。
+- **待验证/风险**：`scripts/ci/build_agp_candidate.sh` 目前只校验、**不重签**（`OREKI_REQUIRE_V3` 默认 false，仅 WARN；:15/:54/:57）；
+  若 CI 直接消费 v2-only 的 AGP 产物，candidate 的 v2+v3 校验会 FAIL；需 v2+v3 重签（生产 keystore）或修好 AGP 签名配置后实测。
+- 证据：PR #108、PR #109、本地 `apksigner verify --verbose --print-certs <apk>` 实测。 `[读码] + [实测]`
+
+<a id="f-kotlin-naming-gates"></a>
+## Kotlin 命名门禁：全量审计 advisory、delta 硬门禁（CONFIRMED，2026-11-15）
+
+- `[实测]` `scripts/check_kotlin_naming.py` 全量审计在 main 仍报 **15 项历史违规**（检查 3758 项、37 个 Kotlin 文件，扫描 `app/src/main/kotlin`），
+  退出码 1。CI `.github/workflows/ci.yml:48-50` 该步 **continue-on-error: true（advisory）**，不阻断。
+- `[读码]` 真正硬门禁是 **delta**：`ci.yml:52-67` 调 `scripts/check_kotlin_naming_delta.py --base <PR base sha>`，只拦新增违规；
+  无可靠 base（workflow_dispatch / 全 0 sha）时 exit 0 并提示 full audit remains advisory。
+- **纪律**：不得把「全量审计 15 项失败」当成本轮回归；新增命名违规必须修，历史债务只在 advisory 列表跟踪。 `[实测] + [读码]`

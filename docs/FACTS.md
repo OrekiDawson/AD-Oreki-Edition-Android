@@ -98,6 +98,7 @@
 - **R114-01 自动永恒托管语义（CONFIRMED）**：[facts/automation/eternity-reality.md#f-r114-01-adoption](facts/automation/eternity-reality.md#f-r114-01-adoption)。
 - **Dilation 自动化缺口（UNKNOWN/INFERRED）**：[facts/open-questions.md#f-dilation-gap](facts/open-questions.md#f-dilation-gap)。
 - **V 解锁门槛 Android 实际值（CONFIRMED）**：[facts/game/reality.md#f-v-unlock-thresholds-android](facts/game/reality.md#f-v-unlock-thresholds-android)。
+- **发布链 / CI 门禁（R114-01）**：bundle 托管 [facts/build.md#f-candidate-bundle-hosting](facts/build.md#f-candidate-bundle-hosting)、程序化审批 [facts/build.md#f-programmatic-approval](facts/build.md#f-programmatic-approval)、AGP v3 签名风险 [facts/build.md#f-agp-v3-signing-risk](facts/build.md#f-agp-v3-signing-risk)、Kotlin 命名门禁 [facts/build.md#f-kotlin-naming-gates](facts/build.md#f-kotlin-naming-gates)。
 - **V 解锁 3.21 真类名与 build_mod 不可达分支（CONFIRMED）**：[facts/android-internals.md#f-v-unlock-classes-321](facts/android-internals.md#f-v-unlock-classes-321)。
 - **AGP 构建链 / 运行时**：最新事实 [facts/build.md#f-r113-01](facts/build.md#f-r113-01)（R113-01 livelock 根因与修复）、[facts/build.md#f-r112-01](facts/build.md#f-r112-01)（R112-01 存档兼容）。
 - **已修复根因（防静默改回）**：[facts/methodology.md#f-10](facts/methodology.md#f-10)。
