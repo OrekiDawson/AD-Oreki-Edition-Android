@@ -1,0 +1,506 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+    #0              : 'Landroid/app/Application$ActivityLifecycleCallbacks;'
+    #1              : 'Ljava/lang/Runnable;'
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'sInstalled'
+      type          : 'Z'
+      access        : 0x000a (PRIVATE STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'sRetry'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'act'
+      type          : 'Landroid/app/Activity;'
+      access        : 0x0002 (PRIVATE)
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 1
+      ins           : 1
+      outs          : 1
+      insns size    : 4 16-bit code units
+8b6b60:                                        |[8b6b60] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.<init>:()V
+8b6b70: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b6b76: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'addEntry'
+      type          : '(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 5
+      insns size    : 88 16-bit code units
+8b6b78:                                        |[8b6b78] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.addEntry:(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
+8b6b88: 1205                                   |0000: const/4 v5, #int 0 // #0
+8b6b8a: 3807 5600                              |0001: if-eqz v7, 0057 // +0056
+8b6b8e: 2200 3a04                              |0003: new-instance v0, Landroid/widget/TextView; // type@043a
+8b6b92: 7020 c615 6000                         |0005: invoke-direct {v0, v6}, Landroid/widget/TextView;.<init>:(Landroid/content/Context;)V // method@15c6
+8b6b98: 1a01 b1b4                              |0008: const-string v1, "打开 Oreki 中文教程" // string@b4b1
+8b6b9c: 6e20 3b16 1000                         |000a: invoke-virtual {v0, v1}, Landroid/widget/TextView;.setText:(Ljava/lang/CharSequence;)V // method@163b
+8b6ba2: 1221                                   |000d: const/4 v1, #int 2 // #2
+8b6ba4: 1502 8041                              |000e: const/high16 v2, #int 1098907648 // #4180
+8b6ba8: 6e30 4416 1002                         |0010: invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;.setTextSize:(IF)V // method@1644
+8b6bae: 1402 d778 00ff                         |0013: const v2, #float -1.70769e+38 // #ff0078d7
+8b6bb4: 6e20 1211 2000                         |0016: invoke-virtual {v0, v2}, Landroid/view/View;.setBackgroundColor:(I)V // method@1112
+8b6bba: 1402 d778 00ff                         |0019: const v2, #float -1.70769e+38 // #ff0078d7
+8b6bc0: 7110 8706 0200                         |001c: invoke-static {v2}, Landroid/content/res/ColorStateList;.valueOf:(I)Landroid/content/res/ColorStateList; // method@0687
+8b6bc6: 0c02                                   |001f: move-result-object v2
+8b6bc8: 12f2                                   |0020: const/4 v2, #int -1 // #ff
+8b6bca: 6e20 4016 2000                         |0021: invoke-virtual {v0, v2}, Landroid/widget/TextView;.setTextColor:(I)V // method@1640
+8b6bd0: 1302 1100                              |0024: const/16 v2, #int 17 // #11
+8b6bd4: 6e20 1d16 2000                         |0026: invoke-virtual {v0, v2}, Landroid/widget/TextView;.setGravity:(I)V // method@161d
+8b6bda: 1302 0c00                              |0029: const/16 v2, #int 12 // #c
+8b6bde: 7120 989e 2600                         |002b: invoke-static {v6, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.dpToPx:(Landroid/content/Context;I)I // method@9e98
+8b6be4: 0a02                                   |002e: move-result v2
+8b6be6: 1203                                   |002f: const/4 v3, #int 0 // #0
+8b6be8: 6e52 4811 3032                         |0030: invoke-virtual {v0, v3, v2, v3, v2}, Landroid/view/View;.setPadding:(IIII)V // method@1148
+8b6bee: 2201 041e                              |0033: new-instance v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener; // type@1e04
+8b6bf2: 1202                                   |0035: const/4 v2, #int 0 // #0
+8b6bf4: 7030 a79e 6102                         |0036: invoke-direct {v1, v6, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.<init>:(Landroid/app/Activity;I)V // method@9ea7
+8b6bfa: 6e20 3e11 1000                         |0039: invoke-virtual {v0, v1}, Landroid/view/View;.setOnClickListener:(Landroid/view/View$OnClickListener;)V // method@113e
+8b6c00: 1301 0800                              |003c: const/16 v1, #int 8 // #8
+8b6c04: 7120 989e 1600                         |003e: invoke-static {v6, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.dpToPx:(Landroid/content/Context;I)I // method@9e98
+8b6c0a: 0a01                                   |0041: move-result v1
+8b6c0c: 2202 1c04                              |0042: new-instance v2, Landroid/widget/LinearLayout$LayoutParams; // type@041c
+8b6c10: 12f3                                   |0044: const/4 v3, #int -1 // #ff
+8b6c12: 12e4                                   |0045: const/4 v4, #int -2 // #fe
+8b6c14: 7030 2015 3204                         |0046: invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;.<init>:(II)V // method@1520
+8b6c1a: 5921 7b04                              |0049: iput v1, v2, Landroid/widget/LinearLayout$LayoutParams;.topMargin:I // field@047b
+8b6c1e: 5921 7604                              |004b: iput v1, v2, Landroid/widget/LinearLayout$LayoutParams;.bottomMargin:I // field@0476
+8b6c22: 1203                                   |004d: const/4 v3, #int 0 // #0
+8b6c24: 1a01 2ca0                              |004e: const-string v1, "oreki_tutorial_entry" // string@a02c
+8b6c28: 6e20 6411 1000                         |0050: invoke-virtual {v0, v1}, Landroid/view/View;.setTag:(Ljava/lang/Object;)V // method@1164
+8b6c2e: 6e40 a711 0723                         |0053: invoke-virtual {v7, v0, v3, v2}, Landroid/view/ViewGroup;.addView:(Landroid/view/View;ILandroid/view/ViewGroup$LayoutParams;)V // method@11a7
+8b6c34: 1215                                   |0056: const/4 v5, #int 1 // #1
+8b6c36: 0f05                                   |0057: return v5
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'addEntryOnce'
+      type          : '(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 2
+      outs          : 2
+      insns size    : 36 16-bit code units
+8b6c38:                                        |[8b6c38] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.addEntryOnce:(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z
+8b6c48: 1201                                   |0000: const/4 v1, #int 0 // #0
+8b6c4a: 3804 2200                              |0001: if-eqz v4, 0023 // +0022
+8b6c4e: 1a00 2ca0                              |0003: const-string v0, "oreki_tutorial_entry" // string@a02c
+8b6c52: 6e20 2310 0400                         |0005: invoke-virtual {v4, v0}, Landroid/view/View;.findViewWithTag:(Ljava/lang/Object;)Landroid/view/View; // method@1023
+8b6c58: 0c00                                   |0008: move-result-object v0
+8b6c5a: 3800 0900                              |0009: if-eqz v0, 0012 // +0009
+8b6c5e: 1a00 9fb4                              |000b: const-string v0, "容器里已有入口按钮，跳过" // string@b49f
+8b6c62: 7110 9c9e 0000                         |000d: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6c68: 1211                                   |0010: const/4 v1, #int 1 // #1
+8b6c6a: 2812                                   |0011: goto 0023 // +0012
+8b6c6c: 7120 959e 4300                         |0012: invoke-static {v3, v4}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.addEntry:(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z // method@9e95
+8b6c72: 0a01                                   |0015: move-result v1
+8b6c74: 6e10 c011 0400                         |0016: invoke-virtual {v4}, Landroid/view/ViewGroup;.getChildCount:()I // method@11c0
+8b6c7a: 0a00                                   |0019: move-result v0
+8b6c7c: 7110 b791 0000                         |001a: invoke-static {v0}, Ljava/lang/String;.valueOf:(I)Ljava/lang/String; // method@91b7
+8b6c82: 0c00                                   |001d: move-result-object v0
+8b6c84: 1a02 005f                              |001e: const-string v2, "OrekiTutorial" // string@5f00
+8b6c88: 7120 3d0e 0200                         |0020: invoke-static {v2, v0}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b6c8e: 0f01                                   |0023: return v1
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'attach'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 3
+      ins           : 1
+      outs          : 1
+      insns size    : 12 16-bit code units
+8b6c90:                                        |[8b6c90] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.attach:(Landroid/app/Activity;)V
+8b6ca0: 3802 0b00                              |0000: if-eqz v2, 000b // +000b
+8b6ca4: 7110 a69e 0200                         |0002: invoke-static {v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.tryInsert:(Landroid/app/Activity;)Z // method@9ea6
+8b6caa: 0a00                                   |0005: move-result v0
+8b6cac: 3900 0500                              |0006: if-nez v0, 000b // +0005
+8b6cb0: 7110 a59e 0200                         |0008: invoke-static {v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.schedule:(Landroid/app/Activity;)V // method@9ea5
+8b6cb6: 0e00                                   |000b: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'dpToPx'
+      type          : '(Landroid/content/Context;I)I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 2
+      outs          : 1
+      insns size    : 15 16-bit code units
+8b6cb8:                                        |[8b6cb8] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.dpToPx:(Landroid/content/Context;I)I
+8b6cc8: 6e10 b505 0300                         |0000: invoke-virtual {v3}, Landroid/content/Context;.getResources:()Landroid/content/res/Resources; // method@05b5
+8b6cce: 0c00                                   |0003: move-result-object v0
+8b6cd0: 6e10 a706 0000                         |0004: invoke-virtual {v0}, Landroid/content/res/Resources;.getDisplayMetrics:()Landroid/util/DisplayMetrics; // method@06a7
+8b6cd6: 0c00                                   |0007: move-result-object v0
+8b6cd8: 5200 f003                              |0008: iget v0, v0, Landroid/util/DisplayMetrics;.density:F // field@03f0
+8b6cdc: 8241                                   |000a: int-to-float v1, v4
+8b6cde: a802 0001                              |000b: mul-float v2, v0, v1
+8b6ce2: 8720                                   |000d: float-to-int v0, v2
+8b6ce4: 0f00                                   |000e: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'findTab'
+      type          : '(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 7
+      ins           : 2
+      outs          : 4
+      insns size    : 36 16-bit code units
+8b6ce8:                                        |[8b6ce8] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.findTab:(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout;
+8b6cf8: 1204                                   |0000: const/4 v4, #int 0 // #0
+8b6cfa: 6e10 ea03 0500                         |0001: invoke-virtual {v5}, Landroid/app/Activity;.getResources:()Landroid/content/res/Resources; // method@03ea
+8b6d00: 0c00                                   |0004: move-result-object v0
+8b6d02: 6e10 e803 0500                         |0005: invoke-virtual {v5}, Landroid/app/Activity;.getPackageName:()Ljava/lang/String; // method@03e8
+8b6d08: 0c01                                   |0008: move-result-object v1
+8b6d0a: 1a02 4095                              |0009: const-string v2, "id" // string@9540
+8b6d0e: 6e40 aa06 6012                         |000b: invoke-virtual {v0, v6, v2, v1}, Landroid/content/res/Resources;.getIdentifier:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I // method@06aa
+8b6d14: 0a02                                   |000e: move-result v2
+8b6d16: 3802 1300                              |000f: if-eqz v2, 0022 // +0013
+8b6d1a: 6e20 db03 2500                         |0011: invoke-virtual {v5, v2}, Landroid/app/Activity;.findViewById:(I)Landroid/view/View; // method@03db
+8b6d20: 0c02                                   |0014: move-result-object v2
+8b6d22: 3802 0d00                              |0015: if-eqz v2, 0022 // +000d
+8b6d26: 1f02 8103                              |0017: check-cast v2, Landroid/view/ViewGroup; // type@0381
+8b6d2a: 6e20 bf11 4200                         |0019: invoke-virtual {v2, v4}, Landroid/view/ViewGroup;.getChildAt:(I)Landroid/view/View; // method@11bf
+8b6d30: 0c02                                   |001c: move-result-object v2
+8b6d32: 3802 0500                              |001d: if-eqz v2, 0022 // +0005
+8b6d36: 1f02 1d04                              |001f: check-cast v2, Landroid/widget/LinearLayout; // type@041d
+8b6d3a: 1102                                   |0021: return-object v2
+8b6d3c: 1204                                   |0022: const/4 v4, #int 0 // #0
+8b6d3e: 1104                                   |0023: return-object v4
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #6              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'hasLaidOutContent'
+      type          : '(Landroid/app/Activity;)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 2
+      insns size    : 22 16-bit code units
+8b6d40:                                        |[8b6d40] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.hasLaidOutContent:(Landroid/app/Activity;)Z
+8b6d50: 1200                                   |0000: const/4 v0, #int 0 // #0
+8b6d52: 3803 1400                              |0001: if-eqz v3, 0015 // +0014
+8b6d56: 1401 0200 0201                         |0003: const v1, #float 2.38772e-38 // #01020002
+8b6d5c: 6e20 db03 1300                         |0006: invoke-virtual {v3, v1}, Landroid/app/Activity;.findViewById:(I)Landroid/view/View; // method@03db
+8b6d62: 0c01                                   |0009: move-result-object v1
+8b6d64: 3801 0b00                              |000a: if-eqz v1, 0015 // +000b
+8b6d68: 1f01 8103                              |000c: check-cast v1, Landroid/view/ViewGroup; // type@0381
+8b6d6c: 6e10 c011 0100                         |000e: invoke-virtual {v1}, Landroid/view/ViewGroup;.getChildCount:()I // method@11c0
+8b6d72: 0a02                                   |0011: move-result v2
+8b6d74: 3c02 0300                              |0012: if-gtz v2, 0015 // +0003
+8b6d78: 1210                                   |0014: const/4 v0, #int 1 // #1
+8b6d7a: 0f00                                   |0015: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #7              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'install'
+      type          : '(Landroid/content/Context;)V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 2
+      insns size    : 29 16-bit code units
+8b6d7c:                                        |[8b6d7c] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.install:(Landroid/content/Context;)V
+8b6d8c: 6300 5d5c                              |0000: sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.sInstalled:Z // field@5c5d
+8b6d90: 3900 1a00                              |0002: if-nez v0, 001c // +001a
+8b6d94: 3804 1800                              |0004: if-eqz v4, 001c // +0018
+8b6d98: 6e10 9d05 0400                         |0006: invoke-virtual {v4}, Landroid/content/Context;.getApplicationContext:()Landroid/content/Context; // method@059d
+8b6d9e: 0c00                                   |0009: move-result-object v0
+8b6da0: 3900 0300                              |000a: if-nez v0, 000d // +0003
+8b6da4: 0740                                   |000c: move-object v0, v4
+8b6da6: 1f00 0901                              |000d: check-cast v0, Landroid/app/Application; // type@0109
+8b6daa: 2201 031e                              |000f: new-instance v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry; // type@1e03
+8b6dae: 7010 949e 0100                         |0011: invoke-direct {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.<init>:()V // method@9e94
+8b6db4: 6e20 5b04 1000                         |0014: invoke-virtual {v0, v1}, Landroid/app/Application;.registerActivityLifecycleCallbacks:(Landroid/app/Application$ActivityLifecycleCallbacks;)V // method@045b
+8b6dba: 1211                                   |0017: const/4 v1, #int 1 // #1
+8b6dbc: 6a01 5d5c                              |0018: sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.sInstalled:Z // field@5c5d
+8b6dc0: 2802                                   |001a: goto 001c // +0002
+8b6dc2: 0d01                                   |001b: move-exception v1
+8b6dc4: 0e00                                   |001c: return-void
+      catches       : 1
+        0x0006 - 0x001a
+          Ljava/lang/Exception; -> 0x001b
+      positions     :
+      locals        :
+
+    #8              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'log'
+      type          : '(Ljava/lang/String;)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 2
+      insns size    : 6 16-bit code units
+8b6dd8:                                        |[8b6dd8] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.log:(Ljava/lang/String;)V
+8b6de8: 1a00 005f                              |0000: const-string v0, "OrekiTutorial" // string@5f00
+8b6dec: 7120 3d0e 1000                         |0002: invoke-static {v0, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b6df2: 0e00                                   |0005: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #9              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'schedule'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 7
+      ins           : 1
+      outs          : 4
+      insns size    : 48 16-bit code units
+8b6df4:                                        |[8b6df4] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.schedule:(Landroid/app/Activity;)V
+8b6e04: 3806 2f00                              |0000: if-eqz v6, 002f // +002f
+8b6e08: 6000 5e5c                              |0002: sget v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.sRetry:I // field@5c5e
+8b6e0c: 1301 0a00                              |0004: const/16 v1, #int 10 // #a
+8b6e10: 3410 0300                              |0006: if-lt v0, v1, 0009 // +0003
+8b6e14: 2827                                   |0008: goto 002f // +0027
+8b6e16: d800 0001                              |0009: add-int/lit8 v0, v0, #int 1 // #01
+8b6e1a: 6700 5e5c                              |000b: sput v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.sRetry:I // field@5c5e
+8b6e1e: 1a01 9eb4                              |000d: const-string v1, "安排重试" // string@b49e
+8b6e22: 7110 9c9e 0100                         |000f: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6e28: 2202 031e                              |0012: new-instance v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry; // type@1e03
+8b6e2c: 7010 949e 0200                         |0014: invoke-direct {v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.<init>:()V // method@9e94
+8b6e32: 5b26 5c5c                              |0017: iput-object v6, v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.act:Landroid/app/Activity; // field@5c5c
+8b6e36: 6e10 ec03 0600                         |0019: invoke-virtual {v6}, Landroid/app/Activity;.getWindow:()Landroid/view/Window; // method@03ec
+8b6e3c: 0c03                                   |001c: move-result-object v3
+8b6e3e: 6e10 6612 0300                         |001d: invoke-virtual {v3}, Landroid/view/Window;.getDecorView:()Landroid/view/View; // method@1266
+8b6e44: 0c03                                   |0020: move-result-object v3
+8b6e46: 1604 2003                              |0021: const-wide/16 v4, #int 800 // #320
+8b6e4a: 6e40 f010 2354                         |0023: invoke-virtual {v3, v2, v4, v5}, Landroid/view/View;.postDelayed:(Ljava/lang/Runnable;J)Z // method@10f0
+8b6e50: 2809                                   |0026: goto 002f // +0009
+8b6e52: 0d00                                   |0027: move-exception v0
+8b6e54: 6e10 1b92 0000                         |0028: invoke-virtual {v0}, Ljava/lang/Throwable;.toString:()Ljava/lang/String; // method@921b
+8b6e5a: 0c00                                   |002b: move-result-object v0
+8b6e5c: 7110 9c9e 0000                         |002c: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6e62: 0e00                                   |002f: return-void
+      catches       : 1
+        0x0012 - 0x0026
+          Ljava/lang/Exception; -> 0x0027
+      positions     :
+      locals        :
+
+    #10              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'tryInsert'
+      type          : '(Landroid/app/Activity;)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 2
+      insns size    : 76 16-bit code units
+8b6e74:                                        |[8b6e74] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.tryInsert:(Landroid/app/Activity;)Z
+8b6e84: 1a00 b0a5                              |0000: const-string v0, "scrollView_about" // string@a5b0
+8b6e88: 7120 999e 0300                         |0002: invoke-static {v3, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.findTab:(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout; // method@9e99
+8b6e8e: 0c02                                   |0005: move-result-object v2
+8b6e90: 7120 969e 2300                         |0006: invoke-static {v3, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.addEntryOnce:(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z // method@9e96
+8b6e96: 0a02                                   |0009: move-result v2
+8b6e98: 1a00 b1a5                              |000a: const-string v0, "scrollView_howToPlay" // string@a5b1
+8b6e9c: 7120 999e 0300                         |000c: invoke-static {v3, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.findTab:(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout; // method@9e99
+8b6ea2: 0c02                                   |000f: move-result-object v2
+8b6ea4: 7120 969e 2300                         |0010: invoke-static {v3, v2}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.addEntryOnce:(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z // method@9e96
+8b6eaa: 0a02                                   |0013: move-result v2
+8b6eac: 1a00 b2a5                              |0014: const-string v0, "scrollView_options" // string@a5b2
+8b6eb0: 7120 999e 0300                         |0016: invoke-static {v3, v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.findTab:(Landroid/app/Activity;Ljava/lang/String;)Landroid/widget/LinearLayout; // method@9e99
+8b6eb6: 0c01                                   |0019: move-result-object v1
+8b6eb8: 3801 0700                              |001a: if-eqz v1, 0021 // +0007
+8b6ebc: 7120 969e 1300                         |001c: invoke-static {v3, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.addEntryOnce:(Landroid/app/Activity;Landroid/widget/LinearLayout;)Z // method@9e96
+8b6ec2: 0a00                                   |001f: move-result v0
+8b6ec4: 2819                                   |0020: goto 0039 // +0019
+8b6ec6: 7110 9a9e 0300                         |0021: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.hasLaidOutContent:(Landroid/app/Activity;)Z // method@9e9a
+8b6ecc: 0a00                                   |0024: move-result v0
+8b6ece: 3800 0900                              |0025: if-eqz v0, 002e // +0009
+8b6ed2: 1a00 beb4                              |0027: const-string v0, "本 Activity 无 scrollView_options（非游戏主界面），不再重试" // string@b4be
+8b6ed6: 7110 9c9e 0000                         |0029: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6edc: 1210                                   |002c: const/4 v0, #int 1 // #1
+8b6ede: 280c                                   |002d: goto 0039 // +000c
+8b6ee0: 1200                                   |002e: const/4 v0, #int 0 // #0
+8b6ee2: 280a                                   |002f: goto 0039 // +000a
+8b6ee4: 0d00                                   |0030: move-exception v0
+8b6ee6: 6e10 1b92 0000                         |0031: invoke-virtual {v0}, Ljava/lang/Throwable;.toString:()Ljava/lang/String; // method@921b
+8b6eec: 0c00                                   |0034: move-result-object v0
+8b6eee: 7110 9c9e 0000                         |0035: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6ef4: 1200                                   |0038: const/4 v0, #int 0 // #0
+8b6ef6: 3800 0c00                              |0039: if-eqz v0, 0045 // +000c
+8b6efa: 1201                                   |003b: const/4 v1, #int 0 // #0
+8b6efc: 6701 5e5c                              |003c: sput v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.sRetry:I // field@5c5e
+8b6f00: 1a01 bfb4                              |003e: const-string v1, "本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数" // string@b4bf
+8b6f04: 7110 9c9e 0100                         |0040: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6f0a: 1210                                   |0043: const/4 v0, #int 1 // #1
+8b6f0c: 0f00                                   |0044: return v0
+8b6f0e: 1a01 20a0                              |0045: const-string v1, "options 容器未就绪，稍后重试" // string@a020
+8b6f12: 7110 9c9e 0100                         |0047: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6f18: 1200                                   |004a: const/4 v0, #int 0 // #0
+8b6f1a: 0f00                                   |004b: return v0
+      catches       : 1
+        0x0000 - 0x002f
+          Ljava/lang/Exception; -> 0x0030
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivityCreated'
+      type          : '(Landroid/app/Activity;Landroid/os/Bundle;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 3
+      ins           : 3
+      outs          : 0
+      insns size    : 1 16-bit code units
+8b6f2c:                                        |[8b6f2c] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivityCreated:(Landroid/app/Activity;Landroid/os/Bundle;)V
+8b6f3c: 0e00                                   |0000: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivityDestroyed'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 0
+      insns size    : 1 16-bit code units
+8b6f40:                                        |[8b6f40] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivityDestroyed:(Landroid/app/Activity;)V
+8b6f50: 0e00                                   |0000: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivityPaused'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 0
+      insns size    : 1 16-bit code units
+8b6f54:                                        |[8b6f54] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivityPaused:(Landroid/app/Activity;)V
+8b6f64: 0e00                                   |0000: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivityResumed'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 1
+      insns size    : 4 16-bit code units
+8b6f68:                                        |[8b6f68] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivityResumed:(Landroid/app/Activity;)V
+8b6f78: 7110 979e 0100                         |0000: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.attach:(Landroid/app/Activity;)V // method@9e97
+8b6f7e: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivitySaveInstanceState'
+      type          : '(Landroid/app/Activity;Landroid/os/Bundle;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 3
+      ins           : 3
+      outs          : 0
+      insns size    : 1 16-bit code units
+8b6f80:                                        |[8b6f80] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivitySaveInstanceState:(Landroid/app/Activity;Landroid/os/Bundle;)V
+8b6f90: 0e00                                   |0000: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivityStarted'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 1
+      insns size    : 4 16-bit code units
+8b6f94:                                        |[8b6f94] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivityStarted:(Landroid/app/Activity;)V
+8b6fa4: 7110 979e 0100                         |0000: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.attach:(Landroid/app/Activity;)V // method@9e97
+8b6faa: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #6              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'onActivityStopped'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 0
+      insns size    : 1 16-bit code units
+8b6fac:                                        |[8b6fac] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.onActivityStopped:(Landroid/app/Activity;)V
+8b6fbc: 0e00                                   |0000: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #7              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;)
+      name          : 'run'
+      type          : '()V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 1
+      insns size    : 11 16-bit code units
+8b6fc0:                                        |[8b6fc0] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntry.run:()V
+8b6fd0: 1a00 d3b4                              |0000: const-string v0, "重试回调" // string@b4d3
+8b6fd4: 7110 9c9e 0000                         |0002: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.log:(Ljava/lang/String;)V // method@9e9c
+8b6fda: 5410 5c5c                              |0005: iget-object v0, v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.act:Landroid/app/Activity; // field@5c5c
+8b6fde: 7110 979e 0000                         |0007: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry;.attach:(Landroid/app/Activity;)V // method@9e97
+8b6fe4: 0e00                                   |000a: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6133            -

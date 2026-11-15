@@ -1,0 +1,102 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiReality;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiReality;)
+      name          : 'sCount'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiReality;)
+      name          : 'sLast'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiReality;)
+      name          : 'tick'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 2
+      insns size    : 127 16-bit code units
+8b344c:                                        |[8b344c] kajfosz.antimatterdimensions.oreki.OrekiReality.tick:()Z
+8b345c: 7100 f69e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/f;.f:()Z // method@9ef6
+8b3462: 0a00                                   |0003: move-result v0
+8b3464: 3800 0500                              |0004: if-eqz v0, 0009 // +0005
+8b3468: 1a01 ed7d                              |0006: const-string v1, "canReality=true" // string@7ded
+8b346c: 2803                                   |0008: goto 000b // +0003
+8b346e: 1a01 ec7d                              |0009: const-string v1, "canReality=false" // string@7dec
+8b3472: 1a02 8a5e                              |000b: const-string v2, "OREKI_REALITY_DIAG" // string@5e8a
+8b3476: 7120 3d0e 1200                         |000d: invoke-static {v2, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b347c: 3800 6100                              |0010: if-eqz v0, 0071 // +0061
+8b3480: 7100 bb0c 0000                         |0012: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b3486: 0b00                                   |0015: move-result-wide v0
+8b3488: 6102 345c                              |0016: sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiReality;.sLast:J // field@5c34
+8b348c: 9c04 0002                              |0018: sub-long v4, v0, v2
+8b3490: 1602 d007                              |001a: const-wide/16 v2, #int 2000 // #7d0
+8b3494: 3104 0402                              |001c: cmp-long v4, v4, v2
+8b3498: 3a04 5300                              |001e: if-ltz v4, 0071 // +0053
+8b349c: 7100 579e 0000                         |0020: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.isHolding:()Z // method@9e57
+8b34a2: 0a00                                   |0023: move-result v0
+8b34a4: 7110 599e 0000                         |0024: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaGate;.check:(Z)Z // method@9e59
+8b34aa: 0a00                                   |0027: move-result v0
+8b34ac: 3800 0500                              |0028: if-eqz v0, 002d // +0005
+8b34b0: 1a01 fbaf                              |002a: const-string v1, "teresaHolding=true" // string@affb
+8b34b4: 2803                                   |002c: goto 002f // +0003
+8b34b6: 1a01 faaf                              |002d: const-string v1, "teresaHolding=false" // string@affa
+8b34ba: 1a02 8a5e                              |002f: const-string v2, "OREKI_REALITY_DIAG" // string@5e8a
+8b34be: 7120 3d0e 1200                         |0031: invoke-static {v2, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b34c4: 3900 3d00                              |0034: if-nez v0, 0071 // +003d
+8b34c8: 7100 bb0c 0000                         |0036: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b34ce: 0b00                                   |0039: move-result-wide v0
+8b34d0: 7120 479e 1000                         |003a: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityPacing;.shouldReset:(J)Z // method@9e47
+8b34d6: 0a00                                   |003d: move-result v0
+8b34d8: 3800 0500                              |003e: if-eqz v0, 0043 // +0005
+8b34dc: 1a01 6da0                              |0040: const-string v1, "pacing=true" // string@a06d
+8b34e0: 2803                                   |0042: goto 0045 // +0003
+8b34e2: 1a01 6ca0                              |0043: const-string v1, "pacing=false" // string@a06c
+8b34e6: 1a02 8a5e                              |0045: const-string v2, "OREKI_REALITY_DIAG" // string@5e8a
+8b34ea: 7120 3d0e 1200                         |0047: invoke-static {v2, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b34f0: 3800 2700                              |004a: if-eqz v0, 0071 // +0027
+8b34f4: 6200 765c                              |004c: sget-object v0, Lkajfosz/antimatterdimensions/prestige/f;.a:Lkajfosz/antimatterdimensions/prestige/f; // field@5c76
+8b34f8: 6201 0a5c                              |004e: sget-object v1, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b34fc: 6e20 f59e 1000                         |0050: invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/prestige/f;.b:(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9ef5
+8b3502: 7100 bb0c 0000                         |0053: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b3508: 0b00                                   |0056: move-result-wide v0
+8b350a: 7120 469e 1000                         |0057: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiRealityPacing;.onRealityReset:(J)V // method@9e46
+8b3510: 7100 bb0c 0000                         |005a: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b3516: 0b00                                   |005d: move-result-wide v0
+8b3518: 6800 345c                              |005e: sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiReality;.sLast:J // field@5c34
+8b351c: 6000 335c                              |0060: sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiReality;.sCount:I // field@5c33
+8b3520: d800 0001                              |0062: add-int/lit8 v0, v0, #int 1 // #01
+8b3524: 6700 335c                              |0064: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiReality;.sCount:I // field@5c33
+8b3528: 1a01 895e                              |0066: const-string v1, "OREKI_REALITY" // string@5e89
+8b352c: 7110 b791 0000                         |0068: invoke-static {v0}, Ljava/lang/String;.valueOf:(I)Ljava/lang/String; // method@91b7
+8b3532: 0c00                                   |006b: move-result-object v0
+8b3534: 7120 3d0e 0100                         |006c: invoke-static {v1, v0}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b353a: 1210                                   |006f: const/4 v0, #int 1 // #1
+8b353c: 0f00                                   |0070: return v0
+8b353e: 1200                                   |0071: const/4 v0, #int 0 // #0
+8b3540: 0f00                                   |0072: return v0
+8b3542: 0d00                                   |0073: move-exception v0
+8b3544: 1a01 8a5e                              |0074: const-string v1, "OREKI_REALITY_DIAG" // string@5e8a
+8b3548: 6e10 1b92 0000                         |0076: invoke-virtual {v0}, Ljava/lang/Throwable;.toString:()Ljava/lang/String; // method@921b
+8b354e: 0c02                                   |0079: move-result-object v2
+8b3550: 7120 3d0e 2100                         |007a: invoke-static {v1, v2}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3556: 1200                                   |007d: const/4 v0, #int 0 // #0
+8b3558: 0f00                                   |007e: return v0
+      catches       : 2
+        0x0000 - 0x0070
+          Ljava/lang/Throwable; -> 0x0073
+        0x0074 - 0x007d
+          Ljava/lang/Throwable; -> 0x007d
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6121            -

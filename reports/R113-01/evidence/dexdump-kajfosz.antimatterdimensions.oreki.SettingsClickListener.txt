@@ -1,0 +1,217 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+    #0              : 'Landroid/view/View$OnClickListener;'
+  Static fields     -
+  Instance fields   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'act'
+      type          : 'Landroid/app/Activity;'
+      access        : 0x0012 (PRIVATE FINAL)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'action'
+      type          : 'I'
+      access        : 0x0012 (PRIVATE FINAL)
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'edit'
+      type          : 'Landroid/widget/EditText;'
+      access        : 0x0012 (PRIVATE FINAL)
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'preset'
+      type          : 'D'
+      access        : 0x0002 (PRIVATE)
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'stage'
+      type          : 'I'
+      access        : 0x0002 (PRIVATE)
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : '<init>'
+      type          : '(ILandroid/widget/EditText;Landroid/app/Activity;)V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 6
+      ins           : 4
+      outs          : 1
+      insns size    : 17 16-bit code units
+8b5588:                                        |[8b5588] kajfosz.antimatterdimensions.oreki.SettingsClickListener.<init>:(ILandroid/widget/EditText;Landroid/app/Activity;)V
+8b5598: 7010 5791 0200                         |0000: invoke-direct {v2}, Ljava/lang/Object;.<init>:()V // method@9157
+8b559e: 5923 525c                              |0003: iput v3, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.action:I // field@5c52
+8b55a2: 5b24 535c                              |0005: iput-object v4, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.edit:Landroid/widget/EditText; // field@5c53
+8b55a6: 5b25 515c                              |0007: iput-object v5, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b55aa: 1600 0000                              |0009: const-wide/16 v0, #int 0 // #0
+8b55ae: 5a20 545c                              |000b: iput-wide v0, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.preset:D // field@5c54
+8b55b2: 1200                                   |000d: const/4 v0, #int 0 // #0
+8b55b4: 5920 555c                              |000e: iput v0, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.stage:I // field@5c55
+8b55b8: 0e00                                   |0010: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : '<init>'
+      type          : '(ILandroid/widget/EditText;Landroid/app/Activity;I)V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 7
+      ins           : 5
+      outs          : 1
+      insns size    : 16 16-bit code units
+8b55bc:                                        |[8b55bc] kajfosz.antimatterdimensions.oreki.SettingsClickListener.<init>:(ILandroid/widget/EditText;Landroid/app/Activity;I)V
+8b55cc: 7010 5791 0200                         |0000: invoke-direct {v2}, Ljava/lang/Object;.<init>:()V // method@9157
+8b55d2: 5923 525c                              |0003: iput v3, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.action:I // field@5c52
+8b55d6: 5b24 535c                              |0005: iput-object v4, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.edit:Landroid/widget/EditText; // field@5c53
+8b55da: 5b25 515c                              |0007: iput-object v5, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b55de: 1600 0000                              |0009: const-wide/16 v0, #int 0 // #0
+8b55e2: 5a20 545c                              |000b: iput-wide v0, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.preset:D // field@5c54
+8b55e6: 5926 555c                              |000d: iput v6, v2, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.stage:I // field@5c55
+8b55ea: 0e00                                   |000f: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'toast'
+      type          : '(Ljava/lang/String;)V'
+      access        : 0x0002 (PRIVATE)
+      code          -
+      registers     : 5
+      ins           : 2
+      outs          : 3
+      insns size    : 11 16-bit code units
+8b55ec:                                        |[8b55ec] kajfosz.antimatterdimensions.oreki.SettingsClickListener.toast:(Ljava/lang/String;)V
+8b55fc: 5430 515c                              |0000: iget-object v0, v3, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b5600: 1201                                   |0002: const/4 v1, #int 0 // #0
+8b5602: 7130 4b16 4001                         |0003: invoke-static {v0, v4, v1}, Landroid/widget/Toast;.makeText:(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast; // method@164b
+8b5608: 0c00                                   |0006: move-result-object v0
+8b560a: 6e10 4c16 0000                         |0007: invoke-virtual {v0}, Landroid/widget/Toast;.show:()V // method@164c
+8b5610: 0e00                                   |000a: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'onClick'
+      type          : '(Landroid/view/View;)V'
+      access        : 0x0011 (PUBLIC FINAL)
+      code          -
+      registers     : 10
+      ins           : 2
+      outs          : 3
+      insns size    : 166 16-bit code units
+8b5614:                                        |[8b5614] kajfosz.antimatterdimensions.oreki.SettingsClickListener.onClick:(Landroid/view/View;)V
+8b5624: 5280 525c                              |0000: iget v0, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.action:I // field@5c52
+8b5628: 2b00 9600 0000                         |0002: packed-switch v0, 00000098 // +00000096
+8b562e: 0e00                                   |0005: return-void
+8b5630: 5481 535c                              |0006: iget-object v1, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.edit:Landroid/widget/EditText; // field@5c53
+8b5634: 5382 545c                              |0008: iget-wide v2, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.preset:D // field@5c54
+8b5638: 7120 d99d 3200                         |000a: invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;.format:(D)Ljava/lang/String; // method@9dd9
+8b563e: 0c04                                   |000d: move-result-object v4
+8b5640: 6e20 3b16 4100                         |000e: invoke-virtual {v1, v4}, Landroid/widget/TextView;.setText:(Ljava/lang/CharSequence;)V // method@163b
+8b5646: 0e00                                   |0011: return-void
+8b5648: 5481 535c                              |0012: iget-object v1, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.edit:Landroid/widget/EditText; // field@5c53
+8b564c: 6e10 d714 0100                         |0014: invoke-virtual {v1}, Landroid/widget/EditText;.getText:()Landroid/text/Editable; // method@14d7
+8b5652: 0c01                                   |0017: move-result-object v1
+8b5654: 6e10 5f91 0100                         |0018: invoke-virtual {v1}, Ljava/lang/Object;.toString:()Ljava/lang/String; // method@915f
+8b565a: 0c01                                   |001b: move-result-object v1
+8b565c: 6e10 b391 0100                         |001c: invoke-virtual {v1}, Ljava/lang/String;.trim:()Ljava/lang/String; // method@91b3
+8b5662: 0c01                                   |001f: move-result-object v1
+8b5664: 7110 c090 0100                         |0020: invoke-static {v1}, Ljava/lang/Double;.parseDouble:(Ljava/lang/String;)D // method@90c0
+8b566a: 0b02                                   |0023: move-result-wide v2
+8b566c: 2803                                   |0024: goto 0027 // +0003
+8b566e: 0d01                                   |0025: move-exception v1
+8b5670: 286b                                   |0026: goto 0091 // +006b
+8b5672: 7120 e49d 3200                         |0027: invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;.set:(D)Z // method@9de4
+8b5678: 0a04                                   |002a: move-result v4
+8b567a: 3804 6600                              |002b: if-eqz v4, 0091 // +0066
+8b567e: 7120 d99d 3200                         |002d: invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;.format:(D)Ljava/lang/String; // method@9dd9
+8b5684: 0c01                                   |0030: move-result-object v1
+8b5686: 2204 4a1b                              |0031: new-instance v4, Ljava/lang/StringBuilder; // type@1b4a
+8b568a: 7010 bc91 0400                         |0033: invoke-direct {v4}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b5690: 1a05 a2b4                              |0036: const-string v5, "已保存：游戏速度 ×" // string@b4a2
+8b5694: 6e20 c991 5400                         |0038: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b569a: 6e20 c991 1400                         |003b: invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b56a0: 6e10 da91 0400                         |003e: invoke-virtual {v4}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b56a6: 0c01                                   |0041: move-result-object v1
+8b56a8: 7020 609e 1800                         |0042: invoke-direct {v8, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.toast:(Ljava/lang/String;)V // method@9e60
+8b56ae: 5481 515c                              |0045: iget-object v1, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b56b2: 6e10 dc03 0100                         |0047: invoke-virtual {v1}, Landroid/app/Activity;.finish:()V // method@03dc
+8b56b8: 0e00                                   |004a: return-void
+8b56ba: 1802 0000 0000 0088 c340               |004b: const-wide v2, #double 10000 // #40c3880000000000
+8b56c4: 7120 e49d 3200                         |0050: invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;.set:(D)Z // method@9de4
+8b56ca: 1a01 a3b4                              |0053: const-string v1, "已恢复默认：游戏速度 ×10000" // string@b4a3
+8b56ce: 7020 609e 1800                         |0055: invoke-direct {v8, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.toast:(Ljava/lang/String;)V // method@9e60
+8b56d4: 5481 515c                              |0058: iget-object v1, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b56d8: 6e10 dc03 0100                         |005a: invoke-virtual {v1}, Landroid/app/Activity;.finish:()V // method@03dc
+8b56de: 0e00                                   |005d: return-void
+8b56e0: 1a01 cdb4                              |005e: const-string v1, "该入口默认关闭，原因见下方「阶段辅助」说明" // string@b4cd
+8b56e4: 7020 609e 1800                         |0060: invoke-direct {v8, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.toast:(Ljava/lang/String;)V // method@9e60
+8b56ea: 0e00                                   |0063: return-void
+8b56ec: 5281 555c                              |0064: iget v1, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.stage:I // field@5c55
+8b56f0: 2202 0301                              |0066: new-instance v2, Landroid/app/AlertDialog$Builder; // type@0103
+8b56f4: 5483 515c                              |0068: iget-object v3, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b56f8: 7020 3c04 3200                         |006a: invoke-direct {v2, v3}, Landroid/app/AlertDialog$Builder;.<init>:(Landroid/content/Context;)V // method@043c
+8b56fe: 7110 749e 0100                         |006d: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.dialogTitle:(I)Ljava/lang/String; // method@9e74
+8b5704: 0c03                                   |0070: move-result-object v3
+8b5706: 6e20 4804 3200                         |0071: invoke-virtual {v2, v3}, Landroid/app/AlertDialog$Builder;.setTitle:(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder; // method@0448
+8b570c: 7110 729e 0100                         |0074: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.dialogMessage:(I)Ljava/lang/String; // method@9e72
+8b5712: 0c03                                   |0077: move-result-object v3
+8b5714: 6e20 4004 3200                         |0078: invoke-virtual {v2, v3}, Landroid/app/AlertDialog$Builder;.setMessage:(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder; // method@0440
+8b571a: 1a03 a5b4                              |007b: const-string v3, "强制点亮" // string@b4a5
+8b571e: 2204 001e                              |007d: new-instance v4, Lkajfosz/antimatterdimensions/oreki/StageConfirmListener; // type@1e00
+8b5722: 5485 515c                              |007f: iget-object v5, v8, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.act:Landroid/app/Activity; // field@5c51
+8b5726: 7030 8e9e 5401                         |0081: invoke-direct {v4, v5, v1}, Lkajfosz/antimatterdimensions/oreki/StageConfirmListener;.<init>:(Landroid/app/Activity;I)V // method@9e8e
+8b572c: 6e30 4604 3204                         |0084: invoke-virtual {v2, v3, v4}, Landroid/app/AlertDialog$Builder;.setPositiveButton:(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder; // method@0446
+8b5732: 1a03 94b4                              |0087: const-string v3, "取消" // string@b494
+8b5736: 1204                                   |0089: const/4 v4, #int 0 // #0
+8b5738: 6e30 4204 3204                         |008a: invoke-virtual {v2, v3, v4}, Landroid/app/AlertDialog$Builder;.setNegativeButton:(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder; // method@0442
+8b573e: 6e10 4a04 0200                         |008d: invoke-virtual {v2}, Landroid/app/AlertDialog$Builder;.show:()Landroid/app/AlertDialog; // method@044a
+8b5744: 0e00                                   |0090: return-void
+8b5746: 1a01 d0b4                              |0091: const-string v1, "输入无效：请输入 0.000001 ~ 1000000000 之间的数字" // string@b4d0
+8b574a: 7020 609e 1800                         |0093: invoke-direct {v8, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.toast:(Ljava/lang/String;)V // method@9e60
+8b5750: 0e00                                   |0096: return-void
+8b5752: 0000                                   |0097: nop // spacer
+8b5754: 0001 0500 0000 0000 0400 0000 1000 ... |0098: packed-switch-data (14 units)
+      catches       : 1
+        0x0020 - 0x0024
+          Ljava/lang/Exception; -> 0x0025
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'setPreset'
+      type          : '(D)V'
+      access        : 0x0011 (PUBLIC FINAL)
+      code          -
+      registers     : 3
+      ins           : 3
+      outs          : 0
+      insns size    : 3 16-bit code units
+8b5780:                                        |[8b5780] kajfosz.antimatterdimensions.oreki.SettingsClickListener.setPreset:(D)V
+8b5790: 5a01 545c                              |0000: iput-wide v1, v0, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.preset:D // field@5c54
+8b5794: 0e00                                   |0002: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;)
+      name          : 'setStage'
+      type          : '(I)V'
+      access        : 0x0011 (PUBLIC FINAL)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 0
+      insns size    : 3 16-bit code units
+8b5798:                                        |[8b5798] kajfosz.antimatterdimensions.oreki.SettingsClickListener.setStage:(I)V
+8b57a8: 5901 555c                              |0000: iput v1, v0, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;.stage:I // field@5c55
+8b57ac: 0e00                                   |0002: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6127            -

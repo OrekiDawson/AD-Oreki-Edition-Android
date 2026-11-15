@@ -1,0 +1,500 @@
+# ABI 证据：官方 3.21 混淆 Kotlin 协程运行时 vs AGP kotlin-stdlib 2.0.20
+
+生成时间：2026-11-15T09:29:09+08:00
+官方参考 jar：build/r112-agp-sig/ref-classes2.jar（官方 APK classes2.dex 经 dex2jar 生成）
+AGP stdlib：~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.0.20/.../kotlin-stdlib-2.0.20.jar
+官方 smali：work/base_decoded_321/{smali,smali_classes2}（apktool 反编译官方 3.21 基线）
+
+## 1) 官方 DEX：kotlin.coroutines.EmptyCoroutineContext（javap -p -c）
+
+```
+public final class kotlin.coroutines.EmptyCoroutineContext implements ek0,java.io.Serializable {
+  public static final kotlin.coroutines.EmptyCoroutineContext a;
+
+  static {};
+    Code:
+         0: new           #2                  // class kotlin/coroutines/EmptyCoroutineContext
+         3: dup
+         4: invokespecial #15                 // Method "<init>":()V
+         7: putstatic     #17                 // Field a:Lkotlin/coroutines/EmptyCoroutineContext;
+        10: return
+
+  private kotlin.coroutines.EmptyCoroutineContext();
+    Code:
+         0: aload_0
+         1: invokespecial #19                 // Method java/lang/Object."<init>":()V
+         4: return
+
+  public final java.lang.Object fold(java.lang.Object, km1);
+    Code:
+         0: aload_1
+         1: areturn
+
+  public final ck0 get(dk0);
+    Code:
+         0: aload_1
+         1: invokevirtual #27                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         4: pop
+         5: aconst_null
+         6: areturn
+
+  public final int hashCode();
+    Code:
+         0: iconst_0
+         1: ireturn
+
+  public final ek0 minusKey(dk0);
+    Code:
+         0: aload_1
+         1: invokevirtual #27                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         4: pop
+         5: aload_0
+         6: areturn
+
+  public final ek0 plus(ek0);
+    Code:
+         0: aload_1
+         1: invokevirtual #27                 // Method java/lang/Object.getClass:()Ljava/lang/Class;
+         4: pop
+         5: aload_1
+         6: areturn
+
+  public final java.lang.String toString();
+    Code:
+         0: ldc           #37                 // String EmptyCoroutineContext
+         2: areturn
+}
+```
+
+## 2) AGP stdlib 2.0.20：kotlin.coroutines.EmptyCoroutineContext（javap -p）
+
+```
+Compiled from "CoroutineContextImpl.kt"
+public final class kotlin.coroutines.EmptyCoroutineContext implements kotlin.coroutines.CoroutineContext,java.io.Serializable {
+  public static final kotlin.coroutines.EmptyCoroutineContext INSTANCE;
+  private static final long serialVersionUID;
+  private kotlin.coroutines.EmptyCoroutineContext();
+  private final java.lang.Object readResolve();
+  public <E extends kotlin.coroutines.CoroutineContext$Element> E get(kotlin.coroutines.CoroutineContext$Key<E>);
+  public <R> R fold(R, kotlin.jvm.functions.Function2<? super R, ? super kotlin.coroutines.CoroutineContext$Element, ? extends R>);
+  public kotlin.coroutines.CoroutineContext plus(kotlin.coroutines.CoroutineContext);
+  public kotlin.coroutines.CoroutineContext minusKey(kotlin.coroutines.CoroutineContext$Key<?>);
+  public int hashCode();
+  public java.lang.String toString();
+  static {};
+}
+```
+
+## 3) 官方 DEX：kotlin.coroutines.jvm.internal.ContinuationImpl（javap -p）
+
+```
+public abstract class kotlin.coroutines.jvm.internal.ContinuationImpl extends kotlin.coroutines.jvm.internal.BaseContinuationImpl {
+  private final ek0 _context;
+  private transient rj0 intercepted;
+  public kotlin.coroutines.jvm.internal.ContinuationImpl(rj0);
+  public kotlin.coroutines.jvm.internal.ContinuationImpl(rj0, ek0);
+  public ek0 getContext();
+  public final rj0 intercepted();
+  public void releaseIntercepted();
+}
+```
+
+## 4) AGP stdlib 2.0.20：kotlin.coroutines.jvm.internal.ContinuationImpl（javap -p）
+
+```
+Compiled from "ContinuationImpl.kt"
+public abstract class kotlin.coroutines.jvm.internal.ContinuationImpl extends kotlin.coroutines.jvm.internal.BaseContinuationImpl {
+  private final kotlin.coroutines.CoroutineContext _context;
+  private transient kotlin.coroutines.Continuation<java.lang.Object> intercepted;
+  public kotlin.coroutines.jvm.internal.ContinuationImpl(kotlin.coroutines.Continuation<java.lang.Object>, kotlin.coroutines.CoroutineContext);
+  public kotlin.coroutines.jvm.internal.ContinuationImpl(kotlin.coroutines.Continuation<java.lang.Object>);
+  public kotlin.coroutines.CoroutineContext getContext();
+  public final kotlin.coroutines.Continuation<java.lang.Object> intercepted();
+  protected void releaseIntercepted();
+}
+```
+
+## 5) 官方 DEX 中被 R8 混淆的协程类型（javap -p）
+
+结论：rj0=Continuation、ek0=CoroutineContext、ck0=Element、dk0=Key、ld0=CompletedContinuation、gm1=Function1、km1=Function2。
+
+### rj0
+```
+public interface rj0 {
+  public abstract ek0 getContext();
+  public abstract void resumeWith(java.lang.Object);
+}
+```
+
+### ek0
+```
+public interface ek0 {
+  public abstract java.lang.Object fold(java.lang.Object, km1);
+  public abstract ck0 get(dk0);
+  public abstract ek0 minusKey(dk0);
+  public abstract ek0 plus(ek0);
+}
+```
+
+### ck0
+```
+public interface ck0 extends ek0 {
+  public abstract dk0 getKey();
+}
+```
+
+### dk0
+```
+public interface dk0 {
+}
+```
+
+### ld0
+```
+public final class ld0 implements rj0 {
+  public static final ld0 a;
+  static {};
+  public final ek0 getContext();
+  public final void resumeWith(java.lang.Object);
+  public final java.lang.String toString();
+}
+```
+
+### gm1
+```
+public interface gm1 extends im1 {
+  public abstract java.lang.Object invoke(java.lang.Object);
+}
+```
+
+### km1
+```
+public interface km1 extends im1 {
+  public abstract java.lang.Object invoke(java.lang.Object, java.lang.Object);
+}
+```
+
+### lim1
+```
+错误: 找不到类: lim1
+```
+
+## 6) 官方 smali 类头（work/base_decoded_321）
+
+### smali_classes2/kotlin/coroutines/EmptyCoroutineContext.smali
+```smali
+.class public final Lkotlin/coroutines/EmptyCoroutineContext;
+.super Ljava/lang/Object;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+# interfaces
+.implements Lek0;
+.implements Ljava/io/Serializable;
+
+
+# static fields
+.field public static final a:Lkotlin/coroutines/EmptyCoroutineContext;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 1
+
+    .line 1
+    new-instance v0, Lkotlin/coroutines/EmptyCoroutineContext;
+
+    .line 2
+    .line 3
+```
+
+### smali_classes2/kotlin/coroutines/jvm/internal/ContinuationImpl.smali
+```smali
+.class public abstract Lkotlin/coroutines/jvm/internal/ContinuationImpl;
+.super Lkotlin/coroutines/jvm/internal/BaseContinuationImpl;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+
+# instance fields
+.field private final _context:Lek0;
+
+.field private transient intercepted:Lrj0;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Lrj0;"
+        }
+    .end annotation
+.end field
+
+
+# direct methods
+.method public constructor <init>(Lrj0;)V
+    .locals 1
+
+    .line 1
+```
+
+### smali_classes2/rj0.smali
+```smali
+.class public interface abstract Lrj0;
+.super Ljava/lang/Object;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+
+# virtual methods
+.method public abstract getContext()Lek0;
+.end method
+
+.method public abstract resumeWith(Ljava/lang/Object;)V
+.end method
+```
+
+### smali_classes2/ek0.smali
+```smali
+.class public interface abstract Lek0;
+.super Ljava/lang/Object;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+
+# virtual methods
+.method public abstract fold(Ljava/lang/Object;Lkm1;)Ljava/lang/Object;
+.end method
+
+.method public abstract get(Ldk0;)Lck0;
+.end method
+
+.method public abstract minusKey(Ldk0;)Lek0;
+.end method
+
+.method public abstract plus(Lek0;)Lek0;
+.end method
+```
+
+### smali_classes2/ld0.smali
+```smali
+.class public final Lld0;
+.super Ljava/lang/Object;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+# interfaces
+.implements Lrj0;
+
+
+# static fields
+.field public static final a:Lld0;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 1
+
+    .line 1
+    new-instance v0, Lld0;
+
+    .line 2
+    .line 3
+    invoke-direct {v0}, Ljava/lang/Object;-><init>()V
+```
+
+### smali_classes2/gm1.smali
+```smali
+.class public interface abstract Lgm1;
+.super Ljava/lang/Object;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+# interfaces
+.implements Lim1;
+
+
+# virtual methods
+.method public abstract invoke(Ljava/lang/Object;)Ljava/lang/Object;
+.end method
+```
+
+### smali_classes2/km1.smali
+```smali
+.class public interface abstract Lkm1;
+.super Ljava/lang/Object;
+.source "r8-map-id-bcb28ddbbbc9e426b444a02d92a6603dc8fc9a397300f18f41f5a8df77b40eae"
+
+# interfaces
+.implements Lim1;
+
+
+# virtual methods
+.method public abstract invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+.end method
+```
+
+## 7) AGP stdlib 2.0.20：CoroutineSingletons / SuspendLambda 对照（javap -p）
+
+```
+Compiled from "Intrinsics.kt"
+public final class kotlin.coroutines.intrinsics.CoroutineSingletons extends java.lang.Enum<kotlin.coroutines.intrinsics.CoroutineSingletons> {
+  public static final kotlin.coroutines.intrinsics.CoroutineSingletons COROUTINE_SUSPENDED;
+  public static final kotlin.coroutines.intrinsics.CoroutineSingletons UNDECIDED;
+  public static final kotlin.coroutines.intrinsics.CoroutineSingletons RESUMED;
+  private static final kotlin.coroutines.intrinsics.CoroutineSingletons[] $VALUES;
+  private static final kotlin.enums.EnumEntries $ENTRIES;
+  private kotlin.coroutines.intrinsics.CoroutineSingletons();
+  public static kotlin.coroutines.intrinsics.CoroutineSingletons[] values();
+  public static kotlin.coroutines.intrinsics.CoroutineSingletons valueOf(java.lang.String);
+  public static kotlin.enums.EnumEntries<kotlin.coroutines.intrinsics.CoroutineSingletons> getEntries();
+  private static final kotlin.coroutines.intrinsics.CoroutineSingletons[] $values();
+  static {};
+}
+
+Compiled from "ContinuationImpl.kt"
+public abstract class kotlin.coroutines.jvm.internal.SuspendLambda extends kotlin.coroutines.jvm.internal.ContinuationImpl implements kotlin.jvm.internal.FunctionBase<java.lang.Object>, kotlin.coroutines.jvm.internal.SuspendFunction {
+  private final int arity;
+  public kotlin.coroutines.jvm.internal.SuspendLambda(int, kotlin.coroutines.Continuation<java.lang.Object>);
+  public int getArity();
+  public kotlin.coroutines.jvm.internal.SuspendLambda(int);
+  public java.lang.String toString();
+}
+```
+
+## 8) 当前 staged DEX 中 OrekiEcContinuation 的真实常量池引用（dexdump -d）
+
+```
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/OrekiEcContinuation;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Lkotlin/coroutines/jvm/internal/ContinuationImpl;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : 'a'
+      type          : 'Lkajfosz/antimatterdimensions/OrekiEcContinuation;'
+      access        : 0x0019 (PUBLIC STATIC FINAL)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : '<clinit>'
+      type          : '()V'
+      access        : 0x10008 (STATIC CONSTRUCTOR)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 1
+      insns size    : 8 16-bit code units
+8b1eb4:                                        |[8b1eb4] kajfosz.antimatterdimensions.OrekiEcContinuation.<clinit>:()V
+8b1ec4: 2200 bf1d                              |0000: new-instance v0, Lkajfosz/antimatterdimensions/OrekiEcContinuation; // type@1dbf
+8b1ec8: 7010 cf9d 0000                         |0002: invoke-direct {v0}, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.<init>:()V // method@9dcf
+8b1ece: 6900 0a5c                              |0005: sput-object v0, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1ed2: 0e00                                   |0007: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10002 (PRIVATE CONSTRUCTOR)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 3
+      insns size    : 8 16-bit code units
+8b1ed4:                                        |[8b1ed4] kajfosz.antimatterdimensions.OrekiEcContinuation.<init>:()V
+8b1ee4: 6200 9560                              |0000: sget-object v0, Lld0;.a:Lld0; // field@6095
+8b1ee8: 6201 505e                              |0002: sget-object v1, Lkotlin/coroutines/EmptyCoroutineContext;.a:Lkotlin/coroutines/EmptyCoroutineContext; // field@5e50
+8b1eec: 7030 f0a1 0301                         |0004: invoke-direct {v3, v0, v1}, Lkotlin/coroutines/jvm/internal/ContinuationImpl;.<init>:(Lrj0;Lek0;)V // method@a1f0
+8b1ef2: 0e00                                   |0007: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+```
+
+## 9) OrekiChallengeAuto.tryNormal 对 OrekiEcContinuation 的取用（dexdump -d 片段）
+
+```
+8b1caa: 7100 cd9d 0000                         |002d: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.tryNormal:()Z // method@9dcd
+8b1cb0: 0a03                                   |0030: move-result v3
+8b1cb2: 3903 0300                              |0031: if-nez v3, 0034 // +0003
+8b1cb6: 0e00                                   |0033: return-void
+8b1cb8: 7100 cc9d 0000                         |0034: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.tryInfinity:()Z // method@9dcc
+8b1cbe: 0a03                                   |0037: move-result v3
+8b1cc0: 3903 0300                              |0038: if-nez v3, 003b // +0003
+8b1cc4: 0e00                                   |003a: return-void
+8b1cc6: 2877                                   |003b: goto 00b2 // +0077
+8b1cc8: 6e10 b79e 0100                         |003c: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.a:()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges; // method@9eb7
+8b1cce: 0c02                                   |003f: move-result-object v2
+8b1cd0: 6e10 c29e 0200                         |0040: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.f:()I // method@9ec2
+8b1cd6: 0a03                                   |0043: move-result v3
+8b1cd8: 3803 2000                              |0044: if-eqz v3, 0064 // +0020
+8b1cdc: 7110 dfe7 0300                         |0046: invoke-static {v3}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b1ce2: 0c04                                   |0049: move-result-object v4
+8b1ce4: 3804 6800                              |004a: if-eqz v4, 00b2 // +0068
+8b1ce8: 6e10 079e 0400                         |004c: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b1cee: 0a05                                   |004f: move-result v5
+8b1cf0: 3805 0d00                              |0050: if-eqz v5, 005d // +000d
+8b1cf4: 7110 2a6c 0300                         |0052: invoke-static {v3}, Ld51;.a:(I)Lkajfosz/antimatterdimensions/eternity/studies/b; // method@6c2a
+8b1cfa: 0c04                                   |0055: move-result-object v4
+8b1cfc: 3804 5c00                              |0056: if-eqz v4, 00b2 // +005c
+8b1d00: 1205                                   |0058: const/4 v5, #int 0 // #0
+8b1d02: 6e20 0f9e 5400                         |0059: invoke-virtual {v4, v5}, Lkajfosz/antimatterdimensions/eternity/studies/b;.E:(Z)V // method@9e0f
+8b1d08: 0e00                                   |005c: return-void
+8b1d0a: 1215                                   |005d: const/4 v5, #int 1 // #1
+8b1d0c: 6206 0a5c                              |005e: sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1d10: 6e30 039e 5406                         |0060: invoke-virtual {v4, v5, v6}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.D:(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e03
+8b1d16: 0e00                                   |0063: return-void
+8b1d18: 1215                                   |0064: const/4 v5, #int 1 // #1
+8b1d1a: 1306 0c00                              |0065: const/16 v6, #int 12 // #c
+8b1d1e: 3665 4b00                              |0067: if-gt v5, v6, 00b2 // +004b
+8b1d22: 7110 dfe7 0500                         |0069: invoke-static {v5}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b1d28: 0c06                                   |006c: move-result-object v6
+8b1d2a: 3806 4200                              |006d: if-eqz v6, 00af // +0042
+8b1d2e: 6e10 079e 0600                         |006f: invoke-virtual {v6}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b1d34: 0a07                                   |0072: move-result v7
+8b1d36: 3907 3c00                              |0073: if-nez v7, 00af // +003c
+8b1d3a: 7110 2a6c 0500                         |0075: invoke-static {v5}, Ld51;.a:(I)Lkajfosz/antimatterdimensions/eternity/studies/b; // method@6c2a
+8b1d40: 0c07                                   |0078: move-result-object v7
+8b1d42: 3807 3600                              |0079: if-eqz v7, 00af // +0036
+8b1d46: 7110 c99d 0700                         |007b: invoke-static {v7}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.fillEcRequirement:(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z // method@9dc9
+8b1d4c: 0a08                                   |007e: move-result v8
+8b1d4e: 3908 0300                              |007f: if-nez v8, 0082 // +0003
+8b1d52: 0e00                                   |0081: return-void
+8b1d54: 1209                                   |0082: const/4 v9, #int 0 // #0
+8b1d56: 6e20 0e9e 9700                         |0083: invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;.A:(Z)Z // method@9e0e
+8b1d5c: 0a09                                   |0086: move-result v9
+8b1d5e: 3809 1b00                              |0087: if-eqz v9, 00a2 // +001b
+8b1d62: 6e10 7a8c 0700                         |0089: invoke-virtual {v7}, Lis3;.z:()Z // method@8c7a
+8b1d68: 0a09                                   |008c: move-result v9
+8b1d6a: 3809 2200                              |008d: if-eqz v9, 00af // +0022
+8b1d6e: 6e10 109e 0700                         |008f: invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;.O:()Z // method@9e10
+8b1d74: 0a09                                   |0092: move-result v9
+8b1d76: 3809 0900                              |0093: if-eqz v9, 009c // +0009
+8b1d7a: 7110 ca9d 0500                         |0095: invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecForEc:(I)Z // method@9dca
+8b1d80: 0a09                                   |0098: move-result v9
+8b1d82: 3809 1600                              |0099: if-eqz v9, 00af // +0016
+8b1d86: 0e00                                   |009b: return-void
+8b1d88: 6209 0a5c                              |009c: sget-object v9, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1d8c: 6e20 119e 9700                         |009e: invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;.S:(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e11
+8b1d92: 0e00                                   |00a1: return-void
+8b1d94: 1218                                   |00a2: const/4 v8, #int 1 // #1
+8b1d96: 1209                                   |00a3: const/4 v9, #int 0 // #0
+8b1d98: 6e30 768c 8709                         |00a4: invoke-virtual {v7, v8, v9}, Lis3;.D:(ZLrj0;)Ljava/lang/Boolean; // method@8c76
+8b1d9e: 0c08                                   |00a7: move-result-object v8
+8b1da0: 6e10 5490 0800                         |00a8: invoke-virtual {v8}, Ljava/lang/Boolean;.booleanValue:()Z // method@9054
+8b1da6: 0a08                                   |00ab: move-result v8
+8b1da8: 3808 0300                              |00ac: if-eqz v8, 00af // +0003
+8b1dac: 0e00                                   |00ae: return-void
+8b1dae: d805 0501                              |00af: add-int/lit8 v5, v5, #int 1 // #01
+8b1db2: 28b4                                   |00b1: goto 0065 // -004c
+8b1db4: 0e00                                   |00b2: return-void
+8b1db6: 0d00                                   |00b3: move-exception v0
+8b1db8: 0e00                                   |00b4: return-void
+      catches       : 1
+        0x0000 - 0x00b2
+          Ljava/lang/Exception; -> 0x00b3
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'tryInfinity'
+      type          : '()Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 3
+```

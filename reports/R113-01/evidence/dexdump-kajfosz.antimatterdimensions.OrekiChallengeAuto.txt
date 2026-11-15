@@ -1,0 +1,333 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/OrekiChallengeAuto;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'frame'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'respecCount'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #2              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'respecFrame'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #3              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'respecLastId'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 1
+      ins           : 1
+      outs          : 1
+      insns size    : 4 16-bit code units
+8b1b2c:                                        |[8b1b2c] kajfosz.antimatterdimensions.OrekiChallengeAuto.<init>:()V
+8b1b3c: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b1b42: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'fillEcRequirement'
+      type          : '(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 10
+      ins           : 1
+      outs          : 3
+      insns size    : 67 16-bit code units
+8b1b44:                                        |[8b1b44] kajfosz.antimatterdimensions.OrekiChallengeAuto.fillEcRequirement:(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z
+8b1b54: 5490 97a1                              |0000: iget-object v0, v9, Lzw4;.k:[Ljava/lang/Integer; // field@a197
+8b1b58: 3800 3f00                              |0002: if-eqz v0, 0041 // +003f
+8b1b5c: 2101                                   |0004: array-length v1, v0
+8b1b5e: 3901 3c00                              |0005: if-nez v1, 0041 // +003c
+8b1b62: 1202                                   |0007: const/4 v2, #int 0 // #0
+8b1b64: 3512 3900                              |0008: if-ge v2, v1, 0041 // +0039
+8b1b68: 4603 0002                              |000a: aget-object v3, v0, v2
+8b1b6c: 3803 2e00                              |000c: if-eqz v3, 003a // +002e
+8b1b70: 6e10 5391 0300                         |000e: invoke-virtual {v3}, Ljava/lang/Number;.intValue:()I // method@9153
+8b1b76: 0a03                                   |0011: move-result v3
+8b1b78: 6204 b792                              |0012: sget-object v4, Lw63;.a:Lw63; // field@92b7
+8b1b7c: 7120 1fe2 3400                         |0014: invoke-static {v4, v3}, Lw63;.a:(Lw63;I)Lkajfosz/antimatterdimensions/eternity/studies/c; // method@e21f
+8b1b82: 0c04                                   |0017: move-result-object v4
+8b1b84: 3804 2200                              |0018: if-eqz v4, 003a // +0022
+8b1b88: 6e10 139e 0400                         |001a: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;.B:()Z // method@9e13
+8b1b8e: 0a05                                   |001d: move-result v5
+8b1b90: 3805 1f00                              |001e: if-eqz v5, 003d // +001f
+8b1b94: 1216                                   |0020: const/4 v6, #int 1 // #1
+8b1b96: 1207                                   |0021: const/4 v7, #int 0 // #0
+8b1b98: 6e30 149e 6407                         |0022: invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;.D:(ZLrj0;)Ljava/lang/Boolean; // method@9e14
+8b1b9e: 0c06                                   |0025: move-result-object v6
+8b1ba0: 3806 0800                              |0026: if-eqz v6, 002e // +0008
+8b1ba4: 6e10 5490 0600                         |0028: invoke-virtual {v6}, Ljava/lang/Boolean;.booleanValue:()Z // method@9054
+8b1baa: 0a06                                   |002b: move-result v6
+8b1bac: 3906 1300                              |002c: if-nez v6, 003f // +0013
+8b1bb0: 6206 0a5c                              |002e: sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1bb4: 6e20 159e 6400                         |0030: invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;.N:(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e15
+8b1bba: 6e10 139e 0400                         |0033: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;.B:()Z // method@9e13
+8b1bc0: 0a06                                   |0036: move-result v6
+8b1bc2: 3906 0800                              |0037: if-nez v6, 003f // +0008
+8b1bc6: 2801                                   |0039: goto 003a // +0001
+8b1bc8: d802 0201                              |003a: add-int/lit8 v2, v2, #int 1 // #01
+8b1bcc: 28cc                                   |003c: goto 0008 // -0034
+8b1bce: 1200                                   |003d: const/4 v0, #int 0 // #0
+8b1bd0: 0f00                                   |003e: return v0
+8b1bd2: 1210                                   |003f: const/4 v0, #int 1 // #1
+8b1bd4: 0f00                                   |0040: return v0
+8b1bd6: 1200                                   |0041: const/4 v0, #int 0 // #0
+8b1bd8: 0f00                                   |0042: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'respecForEc'
+      type          : '(I)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 1
+      insns size    : 41 16-bit code units
+8b1bdc:                                        |[8b1bdc] kajfosz.antimatterdimensions.OrekiChallengeAuto.respecForEc:(I)Z
+8b1bec: 6000 095c                              |0000: sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecLastId:I // field@5c09
+8b1bf0: 3330 2500                              |0002: if-ne v0, v3, 0027 // +0025
+8b1bf4: 6000 075c                              |0004: sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecCount:I // field@5c07
+8b1bf8: 1301 2000                              |0006: const/16 v1, #int 32 // #20
+8b1bfc: 3410 1f00                              |0008: if-lt v0, v1, 0027 // +001f
+8b1c00: 6000 065c                              |000a: sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.frame:I // field@5c06
+8b1c04: 6001 085c                              |000c: sget v1, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecFrame:I // field@5c08
+8b1c08: b110                                   |000e: sub-int/2addr v0, v1
+8b1c0a: 1302 7800                              |000f: const/16 v2, #int 120 // #78
+8b1c0e: 3420 0400                              |0011: if-lt v0, v2, 0015 // +0004
+8b1c12: 3a00 1400                              |0013: if-ltz v0, 0027 // +0014
+8b1c16: 6703 095c                              |0015: sput v3, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecLastId:I // field@5c09
+8b1c1a: 6000 065c                              |0017: sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.frame:I // field@5c06
+8b1c1e: 6700 085c                              |0019: sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecFrame:I // field@5c08
+8b1c22: 6000 075c                              |001b: sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecCount:I // field@5c07
+8b1c26: d800 0001                              |001d: add-int/lit8 v0, v0, #int 1 // #01
+8b1c2a: 6700 075c                              |001f: sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecCount:I // field@5c07
+8b1c2e: 1210                                   |0021: const/4 v0, #int 1 // #1
+8b1c30: 7110 169e 0000                         |0022: invoke-static {v0}, Lkajfosz/antimatterdimensions/eternity/studies/d;.b:(Z)V // method@9e16
+8b1c36: 1210                                   |0025: const/4 v0, #int 1 // #1
+8b1c38: 0f00                                   |0026: return v0
+8b1c3a: 1200                                   |0027: const/4 v0, #int 0 // #0
+8b1c3c: 0f00                                   |0028: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'tick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 10
+      ins           : 0
+      outs          : 3
+      insns size    : 181 16-bit code units
+8b1c40:                                        |[8b1c40] kajfosz.antimatterdimensions.OrekiChallengeAuto.tick:()V
+8b1c50: 6000 065c                              |0000: sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.frame:I // field@5c06
+8b1c54: d800 0001                              |0002: add-int/lit8 v0, v0, #int 1 // #01
+8b1c58: 6700 065c                              |0004: sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.frame:I // field@5c06
+8b1c5c: 6200 745c                              |0006: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b1c60: 6e10 e79e 0000                         |0008: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.q:()Lkajfosz/antimatterdimensions/player/Player$Challenge; // method@9ee7
+8b1c66: 0c01                                   |000b: move-result-object v1
+8b1c68: 6e10 b99e 0100                         |000c: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.c:()Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges; // method@9eb9
+8b1c6e: 0c02                                   |000f: move-result-object v2
+8b1c70: 6e10 c69e 0200                         |0010: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges;.g:()I // method@9ec6
+8b1c76: 0a02                                   |0013: move-result v2
+8b1c78: 3802 0300                              |0014: if-eqz v2, 0017 // +0003
+8b1c7c: 0e00                                   |0016: return-void
+8b1c7e: 6e10 b89e 0100                         |0017: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.b:()Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges; // method@9eb8
+8b1c84: 0c02                                   |001a: move-result-object v2
+8b1c86: 6e10 c49e 0200                         |001b: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;.c:()I // method@9ec4
+8b1c8c: 0a02                                   |001e: move-result v2
+8b1c8e: 3802 0300                              |001f: if-eqz v2, 0022 // +0003
+8b1c92: 0e00                                   |0021: return-void
+8b1c94: 6e10 b79e 0100                         |0022: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.a:()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges; // method@9eb7
+8b1c9a: 0c02                                   |0025: move-result-object v2
+8b1c9c: 6e10 c09e 0200                         |0026: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.b:()I // method@9ec0
+8b1ca2: 0a02                                   |0029: move-result v2
+8b1ca4: 3802 0300                              |002a: if-eqz v2, 002d // +0003
+8b1ca8: 0e00                                   |002c: return-void
+8b1caa: 7100 cd9d 0000                         |002d: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.tryNormal:()Z // method@9dcd
+8b1cb0: 0a03                                   |0030: move-result v3
+8b1cb2: 3903 0300                              |0031: if-nez v3, 0034 // +0003
+8b1cb6: 0e00                                   |0033: return-void
+8b1cb8: 7100 cc9d 0000                         |0034: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.tryInfinity:()Z // method@9dcc
+8b1cbe: 0a03                                   |0037: move-result v3
+8b1cc0: 3903 0300                              |0038: if-nez v3, 003b // +0003
+8b1cc4: 0e00                                   |003a: return-void
+8b1cc6: 2877                                   |003b: goto 00b2 // +0077
+8b1cc8: 6e10 b79e 0100                         |003c: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.a:()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges; // method@9eb7
+8b1cce: 0c02                                   |003f: move-result-object v2
+8b1cd0: 6e10 c29e 0200                         |0040: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.f:()I // method@9ec2
+8b1cd6: 0a03                                   |0043: move-result v3
+8b1cd8: 3803 2000                              |0044: if-eqz v3, 0064 // +0020
+8b1cdc: 7110 dfe7 0300                         |0046: invoke-static {v3}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b1ce2: 0c04                                   |0049: move-result-object v4
+8b1ce4: 3804 6800                              |004a: if-eqz v4, 00b2 // +0068
+8b1ce8: 6e10 079e 0400                         |004c: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b1cee: 0a05                                   |004f: move-result v5
+8b1cf0: 3805 0d00                              |0050: if-eqz v5, 005d // +000d
+8b1cf4: 7110 2a6c 0300                         |0052: invoke-static {v3}, Ld51;.a:(I)Lkajfosz/antimatterdimensions/eternity/studies/b; // method@6c2a
+8b1cfa: 0c04                                   |0055: move-result-object v4
+8b1cfc: 3804 5c00                              |0056: if-eqz v4, 00b2 // +005c
+8b1d00: 1205                                   |0058: const/4 v5, #int 0 // #0
+8b1d02: 6e20 0f9e 5400                         |0059: invoke-virtual {v4, v5}, Lkajfosz/antimatterdimensions/eternity/studies/b;.E:(Z)V // method@9e0f
+8b1d08: 0e00                                   |005c: return-void
+8b1d0a: 1215                                   |005d: const/4 v5, #int 1 // #1
+8b1d0c: 6206 0a5c                              |005e: sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1d10: 6e30 039e 5406                         |0060: invoke-virtual {v4, v5, v6}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.D:(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e03
+8b1d16: 0e00                                   |0063: return-void
+8b1d18: 1215                                   |0064: const/4 v5, #int 1 // #1
+8b1d1a: 1306 0c00                              |0065: const/16 v6, #int 12 // #c
+8b1d1e: 3665 4b00                              |0067: if-gt v5, v6, 00b2 // +004b
+8b1d22: 7110 dfe7 0500                         |0069: invoke-static {v5}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b1d28: 0c06                                   |006c: move-result-object v6
+8b1d2a: 3806 4200                              |006d: if-eqz v6, 00af // +0042
+8b1d2e: 6e10 079e 0600                         |006f: invoke-virtual {v6}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b1d34: 0a07                                   |0072: move-result v7
+8b1d36: 3907 3c00                              |0073: if-nez v7, 00af // +003c
+8b1d3a: 7110 2a6c 0500                         |0075: invoke-static {v5}, Ld51;.a:(I)Lkajfosz/antimatterdimensions/eternity/studies/b; // method@6c2a
+8b1d40: 0c07                                   |0078: move-result-object v7
+8b1d42: 3807 3600                              |0079: if-eqz v7, 00af // +0036
+8b1d46: 7110 c99d 0700                         |007b: invoke-static {v7}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.fillEcRequirement:(Lkajfosz/antimatterdimensions/eternity/studies/b;)Z // method@9dc9
+8b1d4c: 0a08                                   |007e: move-result v8
+8b1d4e: 3908 0300                              |007f: if-nez v8, 0082 // +0003
+8b1d52: 0e00                                   |0081: return-void
+8b1d54: 1209                                   |0082: const/4 v9, #int 0 // #0
+8b1d56: 6e20 0e9e 9700                         |0083: invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;.A:(Z)Z // method@9e0e
+8b1d5c: 0a09                                   |0086: move-result v9
+8b1d5e: 3809 1b00                              |0087: if-eqz v9, 00a2 // +001b
+8b1d62: 6e10 7a8c 0700                         |0089: invoke-virtual {v7}, Lis3;.z:()Z // method@8c7a
+8b1d68: 0a09                                   |008c: move-result v9
+8b1d6a: 3809 2200                              |008d: if-eqz v9, 00af // +0022
+8b1d6e: 6e10 109e 0700                         |008f: invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;.O:()Z // method@9e10
+8b1d74: 0a09                                   |0092: move-result v9
+8b1d76: 3809 0900                              |0093: if-eqz v9, 009c // +0009
+8b1d7a: 7110 ca9d 0500                         |0095: invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;.respecForEc:(I)Z // method@9dca
+8b1d80: 0a09                                   |0098: move-result v9
+8b1d82: 3809 1600                              |0099: if-eqz v9, 00af // +0016
+8b1d86: 0e00                                   |009b: return-void
+8b1d88: 6209 0a5c                              |009c: sget-object v9, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1d8c: 6e20 119e 9700                         |009e: invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;.S:(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e11
+8b1d92: 0e00                                   |00a1: return-void
+8b1d94: 1218                                   |00a2: const/4 v8, #int 1 // #1
+8b1d96: 1209                                   |00a3: const/4 v9, #int 0 // #0
+8b1d98: 6e30 768c 8709                         |00a4: invoke-virtual {v7, v8, v9}, Lis3;.D:(ZLrj0;)Ljava/lang/Boolean; // method@8c76
+8b1d9e: 0c08                                   |00a7: move-result-object v8
+8b1da0: 6e10 5490 0800                         |00a8: invoke-virtual {v8}, Ljava/lang/Boolean;.booleanValue:()Z // method@9054
+8b1da6: 0a08                                   |00ab: move-result v8
+8b1da8: 3808 0300                              |00ac: if-eqz v8, 00af // +0003
+8b1dac: 0e00                                   |00ae: return-void
+8b1dae: d805 0501                              |00af: add-int/lit8 v5, v5, #int 1 // #01
+8b1db2: 28b4                                   |00b1: goto 0065 // -004c
+8b1db4: 0e00                                   |00b2: return-void
+8b1db6: 0d00                                   |00b3: move-exception v0
+8b1db8: 0e00                                   |00b4: return-void
+      catches       : 1
+        0x0000 - 0x00b2
+          Ljava/lang/Exception; -> 0x00b3
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'tryInfinity'
+      type          : '()Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 3
+      insns size    : 49 16-bit code units
+8b1dcc:                                        |[8b1dcc] kajfosz.antimatterdimensions.OrekiChallengeAuto.tryInfinity:()Z
+8b1ddc: 1210                                   |0000: const/4 v0, #int 1 // #1
+8b1dde: 1301 0800                              |0001: const/16 v1, #int 8 // #8
+8b1de2: 3610 2c00                              |0003: if-gt v0, v1, 002f // +002c
+8b1de6: 7110 1b45 0000                         |0005: invoke-static {v0}, Lc22;.a:(I)Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a; // method@451b
+8b1dec: 0c02                                   |0008: move-result-object v2
+8b1dee: 3802 2300                              |0009: if-eqz v2, 002c // +0023
+8b1df2: 6e10 fe9d 0200                         |000b: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.K:()Z // method@9dfe
+8b1df8: 0a03                                   |000e: move-result v3
+8b1dfa: 3903 1d00                              |000f: if-nez v3, 002c // +001d
+8b1dfe: 6e10 3740 0200                         |0011: invoke-virtual {v2}, Lb60;.B:()Z // method@4037
+8b1e04: 0a03                                   |0014: move-result v3
+8b1e06: 3803 1700                              |0015: if-eqz v3, 002c // +0017
+8b1e0a: 1213                                   |0017: const/4 v3, #int 1 // #1
+8b1e0c: 6204 0a5c                              |0018: sget-object v4, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1e10: 6e30 ff9d 3204                         |001a: invoke-virtual {v2, v3, v4}, Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;.D:(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9dff
+8b1e16: 0c02                                   |001d: move-result-object v2
+8b1e18: 6203 515e                              |001e: sget-object v3, Lkotlin/coroutines/intrinsics/CoroutineSingletons;.a:Lkotlin/coroutines/intrinsics/CoroutineSingletons; // field@5e51
+8b1e1c: 3332 0a00                              |0020: if-ne v2, v3, 002a // +000a
+8b1e20: 1f02 161b                              |0022: check-cast v2, Ljava/lang/Boolean; // type@1b16
+8b1e24: 6e10 5490 0200                         |0024: invoke-virtual {v2}, Ljava/lang/Boolean;.booleanValue:()Z // method@9054
+8b1e2a: 0a02                                   |0027: move-result v2
+8b1e2c: 3802 0400                              |0028: if-eqz v2, 002c // +0004
+8b1e30: 1210                                   |002a: const/4 v0, #int 1 // #1
+8b1e32: 0f00                                   |002b: return v0
+8b1e34: d800 0001                              |002c: add-int/lit8 v0, v0, #int 1 // #01
+8b1e38: 28d3                                   |002e: goto 0001 // -002d
+8b1e3a: 1200                                   |002f: const/4 v0, #int 0 // #0
+8b1e3c: 0f00                                   |0030: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/OrekiChallengeAuto;)
+      name          : 'tryNormal'
+      type          : '()Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 3
+      insns size    : 49 16-bit code units
+8b1e40:                                        |[8b1e40] kajfosz.antimatterdimensions.OrekiChallengeAuto.tryNormal:()Z
+8b1e50: 1210                                   |0000: const/4 v0, #int 1 // #1
+8b1e52: 1301 0c00                              |0001: const/16 v1, #int 12 // #c
+8b1e56: 3610 2c00                              |0003: if-gt v0, v1, 002f // +002c
+8b1e5a: 7110 74b1 0000                         |0005: invoke-static {v0}, Ln63;.a:(I)Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a; // method@b174
+8b1e60: 0c02                                   |0008: move-result-object v2
+8b1e62: 3802 2300                              |0009: if-eqz v2, 002c // +0023
+8b1e66: 6e10 fe9d 0200                         |000b: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.K:()Z // method@9dfe
+8b1e6c: 0a03                                   |000e: move-result v3
+8b1e6e: 3903 1d00                              |000f: if-nez v3, 002c // +001d
+8b1e72: 6e10 009e 0200                         |0011: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;.B:()Z // method@9e00
+8b1e78: 0a03                                   |0014: move-result v3
+8b1e7a: 3803 1700                              |0015: if-eqz v3, 002c // +0017
+8b1e7e: 1213                                   |0017: const/4 v3, #int 1 // #1
+8b1e80: 6204 0a5c                              |0018: sget-object v4, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1e84: 6e30 019e 3204                         |001a: invoke-virtual {v2, v3, v4}, Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;.D:(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e01
+8b1e8a: 0c02                                   |001d: move-result-object v2
+8b1e8c: 6203 515e                              |001e: sget-object v3, Lkotlin/coroutines/intrinsics/CoroutineSingletons;.a:Lkotlin/coroutines/intrinsics/CoroutineSingletons; // field@5e51
+8b1e90: 3332 0a00                              |0020: if-ne v2, v3, 002a // +000a
+8b1e94: 1f02 161b                              |0022: check-cast v2, Ljava/lang/Boolean; // type@1b16
+8b1e98: 6e10 5490 0200                         |0024: invoke-virtual {v2}, Ljava/lang/Boolean;.booleanValue:()Z // method@9054
+8b1e9e: 0a02                                   |0027: move-result v2
+8b1ea0: 3802 0400                              |0028: if-eqz v2, 002c // +0004
+8b1ea4: 1210                                   |002a: const/4 v0, #int 1 // #1
+8b1ea6: 0f00                                   |002b: return v0
+8b1ea8: d800 0001                              |002c: add-int/lit8 v0, v0, #int 1 // #01
+8b1eac: 28d3                                   |002e: goto 0001 // -002d
+8b1eae: 1200                                   |002f: const/4 v0, #int 0 // #0
+8b1eb0: 0f00                                   |0030: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : 24318 (OrekiChallengeAuto.smali)
+
+Class #6113            -

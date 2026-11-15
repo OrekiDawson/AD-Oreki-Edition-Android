@@ -1,0 +1,866 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/OrekiSpeed;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'DEF'
+      type          : 'D'
+      access        : 0x001a (PRIVATE STATIC FINAL)
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'MAXD'
+      type          : 'D'
+      access        : 0x001a (PRIVATE STATIC FINAL)
+    #2              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sCtx'
+      type          : 'Landroid/content/Context;'
+      access        : 0x000a (PRIVATE STATIC)
+    #3              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sDynamic'
+      type          : 'Z'
+      access        : 0x000a (PRIVATE STATIC)
+    #4              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sLastAdjust'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+    #5              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sLastSample'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+    #6              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sLoaded'
+      type          : 'Z'
+      access        : 0x000a (PRIVATE STATIC)
+    #7              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sMult'
+      type          : 'D'
+      access        : 0x000a (PRIVATE STATIC)
+    #8              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sRamps'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #9              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sRecordsNorm'
+      type          : 'Z'
+      access        : 0x000a (PRIVATE STATIC)
+    #10              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sSignal'
+      type          : 'Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+    #11              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sStagnant'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : '<clinit>'
+      type          : '()V'
+      access        : 0x10008 (STATIC CONSTRUCTOR)
+      code          -
+      registers     : 2
+      ins           : 0
+      outs          : 0
+      insns size    : 20 16-bit code units
+8b21c8:                                        |[8b21c8] kajfosz.antimatterdimensions.OrekiSpeed.<clinit>:()V
+8b21d8: 1800 0000 0000 0088 c340               |0000: const-wide v0, #double 10000 // #40c3880000000000
+8b21e2: 6800 0b5c                              |0005: sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.DEF:D // field@5c0b
+8b21e6: 6800 125c                              |0007: sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sMult:D // field@5c12
+8b21ea: 1800 0000 0000 006a f840               |0009: const-wide v0, #double 100000 // #40f86a0000000000
+8b21f4: 6800 0c5c                              |000e: sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.MAXD:D // field@5c0c
+8b21f8: 1210                                   |0010: const/4 v0, #int 1 // #1
+8b21fa: 6a00 0e5c                              |0011: sput-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b21fe: 0e00                                   |0013: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'apply'
+      type          : '(D)D'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 6
+      ins           : 2
+      outs          : 0
+      insns size    : 16 16-bit code units
+8b2200:                                        |[8b2200] kajfosz.antimatterdimensions.OrekiSpeed.apply:(D)D
+8b2210: 7100 7e9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.onTick:()V // method@9e7e
+8b2216: 7100 329e 0000                         |0003: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;.tick:()V // method@9e32
+8b221c: 7100 d79d 0000                         |0006: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.autotune:()V // method@9dd7
+8b2222: 7100 e09d 0000                         |0009: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b2228: 0b00                                   |000c: move-result-wide v0
+8b222a: ad02 0400                              |000d: mul-double v2, v4, v0
+8b222e: 1002                                   |000f: return-wide v2
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'autotune'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 16
+      ins           : 0
+      outs          : 2
+      insns size    : 138 16-bit code units
+8b2230:                                        |[8b2230] kajfosz.antimatterdimensions.OrekiSpeed.autotune:()V
+8b2240: 6300 0e5c                              |0000: sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b2244: 3800 8700                              |0002: if-eqz v0, 0089 // +0087
+8b2248: 7100 bb0c 0000                         |0004: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b224e: 0b00                                   |0007: move-result-wide v0
+8b2250: 6102 105c                              |0008: sget-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sLastSample:J // field@5c10
+8b2254: 9c04 0002                              |000a: sub-long v4, v0, v2
+8b2258: 1606 e803                              |000c: const-wide/16 v6, #int 1000 // #3e8
+8b225c: 3108 0406                              |000e: cmp-long v8, v4, v6
+8b2260: 3b08 7900                              |0010: if-gez v8, 0089 // +0079
+8b2264: 6800 105c                              |0012: sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sLastSample:J // field@5c10
+8b2268: 1606 d007                              |0014: const-wide/16 v6, #int 2000 // #7d0
+8b226c: 3108 0406                              |0016: cmp-long v8, v4, v6
+8b2270: 3d08 0300                              |0018: if-lez v8, 001b // +0003
+8b2274: 2802                                   |001a: goto 001c // +0002
+8b2276: 0464                                   |001b: move-wide v4, v6
+8b2278: 7100 e79d 0000                         |001c: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.signal:()Ljava/lang/String; // method@9de7
+8b227e: 0c06                                   |001f: move-result-object v6
+8b2280: 3806 6900                              |0020: if-eqz v6, 0089 // +0069
+8b2284: 6207 155c                              |0022: sget-object v7, Lkajfosz/antimatterdimensions/OrekiSpeed;.sSignal:Ljava/lang/String; // field@5c15
+8b2288: 3807 0800                              |0024: if-eqz v7, 002c // +0008
+8b228c: 6e20 8e91 7600                         |0026: invoke-virtual {v6, v7}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b2292: 0a08                                   |0029: move-result v8
+8b2294: 3808 0900                              |002a: if-eqz v8, 0033 // +0009
+8b2298: 6906 155c                              |002c: sput-object v6, Lkajfosz/antimatterdimensions/OrekiSpeed;.sSignal:Ljava/lang/String; // field@5c15
+8b229c: 1608 0000                              |002e: const-wide/16 v8, #int 0 // #0
+8b22a0: 6808 165c                              |0030: sput-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;.sStagnant:J // field@5c16
+8b22a4: 0e00                                   |0032: return-void
+8b22a6: 6108 165c                              |0033: sget-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;.sStagnant:J // field@5c16
+8b22aa: bb48                                   |0035: add-long/2addr v8, v4
+8b22ac: 6808 165c                              |0036: sput-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;.sStagnant:J // field@5c16
+8b22b0: 160a a00f                              |0038: const-wide/16 v10, #int 4000 // #fa0
+8b22b4: 310c 080a                              |003a: cmp-long v12, v8, v10
+8b22b8: 3b0c 4d00                              |003c: if-gez v12, 0089 // +004d
+8b22bc: 610a 0f5c                              |003e: sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;.sLastAdjust:J // field@5c0f
+8b22c0: 9c0a 000a                              |0040: sub-long v10, v0, v10
+8b22c4: 160c 8813                              |0042: const-wide/16 v12, #int 5000 // #1388
+8b22c8: 310e 0a0c                              |0044: cmp-long v14, v10, v12
+8b22cc: 3b0e 4300                              |0046: if-gez v14, 0089 // +0043
+8b22d0: 610a 125c                              |0048: sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;.sMult:D // field@5c12
+8b22d4: 7120 bd90 ba00                         |004a: invoke-static {v10, v11}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b22da: 0a0c                                   |004d: move-result v12
+8b22dc: 390c 0400                              |004e: if-nez v12, 0052 // +0004
+8b22e0: 610a 0b5c                              |0050: sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;.DEF:D // field@5c0b
+8b22e4: 160c 0000                              |0052: const-wide/16 v12, #int 0 // #0
+8b22e8: 300e 0a0c                              |0054: cmpg-double v14, v10, v12
+8b22ec: 3c0e 0300                              |0056: if-gtz v14, 0059 // +0003
+8b22f0: 2803                                   |0058: goto 005b // +0003
+8b22f2: 610a 0b5c                              |0059: sget-wide v10, Lkajfosz/antimatterdimensions/OrekiSpeed;.DEF:D // field@5c0b
+8b22f6: 180c 0000 0000 006a f840               |005b: const-wide v12, #double 100000 // #40f86a0000000000
+8b2300: 300e 0a0c                              |0060: cmpg-double v14, v10, v12
+8b2304: 3b0e 0300                              |0062: if-gez v14, 0065 // +0003
+8b2308: 0e00                                   |0064: return-void
+8b230a: 1908 0040                              |0065: const-wide/high16 v8, #long 4611686018427387904 // #4000
+8b230e: ad02 0a08                              |0067: mul-double v2, v10, v8
+8b2312: 6108 0c5c                              |0069: sget-wide v8, Lkajfosz/antimatterdimensions/OrekiSpeed;.MAXD:D // field@5c0c
+8b2316: 300c 0208                              |006b: cmpg-double v12, v2, v8
+8b231a: 3d0c 0300                              |006d: if-lez v12, 0070 // +0003
+8b231e: 0482                                   |006f: move-wide v2, v8
+8b2320: 2f0c 020a                              |0070: cmpl-double v12, v2, v10
+8b2324: 3d0c 1700                              |0072: if-lez v12, 0089 // +0017
+8b2328: 6802 125c                              |0074: sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sMult:D // field@5c12
+8b232c: 7120 e19d 3200                         |0076: invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;.persistMult:(D)V // method@9de1
+8b2332: 7100 bb0c 0000                         |0079: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b2338: 0b02                                   |007c: move-result-wide v2
+8b233a: 6802 0f5c                              |007d: sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sLastAdjust:J // field@5c0f
+8b233e: 1602 0000                              |007f: const-wide/16 v2, #int 0 // #0
+8b2342: 6802 165c                              |0081: sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sStagnant:J // field@5c16
+8b2346: 6002 135c                              |0083: sget v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sRamps:I // field@5c13
+8b234a: d802 0201                              |0085: add-int/lit8 v2, v2, #int 1 // #01
+8b234e: 6702 135c                              |0087: sput v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sRamps:I // field@5c13
+8b2352: 0e00                                   |0089: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'effectiveMult'
+      type          : '()D'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 2
+      insns size    : 20 16-bit code units
+8b2354:                                        |[8b2354] kajfosz.antimatterdimensions.OrekiSpeed.effectiveMult:()D
+8b2364: 7100 fb9d 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;.q:()Z // method@9dfb
+8b236a: 0a00                                   |0003: move-result v0
+8b236c: 3800 0b00                              |0004: if-eqz v0, 000f // +000b
+8b2370: 7100 e09d 0000                         |0006: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b2376: 0b00                                   |0009: move-result-wide v0
+8b2378: 7120 4691 1000                         |000a: invoke-static {v0, v1}, Ljava/lang/Math;.sqrt:(D)D // method@9146
+8b237e: 0b00                                   |000d: move-result-wide v0
+8b2380: 1000                                   |000e: return-wide v0
+8b2382: 7100 e09d 0000                         |000f: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b2388: 0b00                                   |0012: move-result-wide v0
+8b238a: 1000                                   |0013: return-wide v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'format'
+      type          : '(D)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 2
+      insns size    : 16 16-bit code units
+8b238c:                                        |[8b238c] kajfosz.antimatterdimensions.OrekiSpeed.format:(D)Ljava/lang/String;
+8b239c: 8b60                                   |0000: double-to-long v0, v6
+8b239e: 8602                                   |0001: long-to-double v2, v0
+8b23a0: 2f04 0206                              |0002: cmpl-double v4, v2, v6
+8b23a4: 3904 0700                              |0004: if-nez v4, 000b // +0007
+8b23a8: 7120 b891 1000                         |0006: invoke-static {v0, v1}, Ljava/lang/String;.valueOf:(J)Ljava/lang/String; // method@91b8
+8b23ae: 0c00                                   |0009: move-result-object v0
+8b23b0: 1100                                   |000a: return-object v0
+8b23b2: 7120 b591 7600                         |000b: invoke-static {v6, v7}, Ljava/lang/String;.valueOf:(D)Ljava/lang/String; // method@91b5
+8b23b8: 0c00                                   |000e: move-result-object v0
+8b23ba: 1100                                   |000f: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'frameMs'
+      type          : '()J'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 0
+      outs          : 0
+      insns size    : 34 16-bit code units
+8b23bc:                                        |[8b23bc] kajfosz.antimatterdimensions.OrekiSpeed.frameMs:()J
+8b23cc: 7100 e09d 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b23d2: 0b00                                   |0003: move-result-wide v0
+8b23d4: 1902 f03f                              |0004: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b23d8: 3004 0002                              |0006: cmpg-double v4, v0, v2
+8b23dc: 3d04 1700                              |0008: if-lez v4, 001f // +0017
+8b23e0: 1902 2040                              |000a: const-wide/high16 v2, #long 4620693217682128896 // #4020
+8b23e4: 2f04 0002                              |000c: cmpl-double v4, v0, v2
+8b23e8: 3d04 0300                              |000e: if-lez v4, 0011 // +0003
+8b23ec: 0420                                   |0010: move-wide v0, v2
+8b23ee: 1902 3940                              |0011: const-wide/high16 v2, #long 4627730092099895296 // #4039
+8b23f2: ce02                                   |0013: div-double/2addr v2, v0
+8b23f4: 1904 0840                              |0014: const-wide/high16 v4, #long 4613937818241073152 // #4008
+8b23f8: 3006 0204                              |0016: cmpg-double v6, v2, v4
+8b23fc: 3b06 0400                              |0018: if-gez v6, 001c // +0004
+8b2400: 8b20                                   |001a: double-to-long v0, v2
+8b2402: 1000                                   |001b: return-wide v0
+8b2404: 1600 0300                              |001c: const-wide/16 v0, #int 3 // #3
+8b2408: 1000                                   |001e: return-wide v0
+8b240a: 1600 1900                              |001f: const-wide/16 v0, #int 25 // #19
+8b240e: 1000                                   |0021: return-wide v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #6              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'init'
+      type          : '(Landroid/content/Context;)V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 3
+      insns size    : 67 16-bit code units
+8b2410:                                        |[8b2410] kajfosz.antimatterdimensions.OrekiSpeed.init:(Landroid/content/Context;)V
+8b2420: 6300 115c                              |0000: sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sLoaded:Z // field@5c11
+8b2424: 3900 4000                              |0002: if-nez v0, 0042 // +0040
+8b2428: 1210                                   |0004: const/4 v0, #int 1 // #1
+8b242a: 6a00 115c                              |0005: sput-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sLoaded:Z // field@5c11
+8b242e: 3804 3b00                              |0007: if-eqz v4, 0042 // +003b
+8b2432: 6904 0d5c                              |0009: sput-object v4, Lkajfosz/antimatterdimensions/OrekiSpeed;.sCtx:Landroid/content/Context; // field@5c0d
+8b2436: 7110 799e 0400                         |000b: invoke-static {v4}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.init:(Landroid/content/Context;)V // method@9e79
+8b243c: 7110 349e 0400                         |000e: invoke-static {v4}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;.init:(Landroid/content/Context;)V // method@9e34
+8b2442: 1a01 2ba0                              |0011: const-string v1, "oreki_prefs" // string@a02b
+8b2446: 1202                                   |0013: const/4 v2, #int 0 // #0
+8b2448: 6e30 b605 1402                         |0014: invoke-virtual {v4, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b244e: 0c01                                   |0017: move-result-object v1
+8b2450: 1a02 aeae                              |0018: const-string v2, "speed_multiplier" // string@aeae
+8b2454: 1403 0040 1c46                         |001a: const v3, #float 10000 // #461c4000
+8b245a: 7230 3706 2103                         |001d: invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;.getFloat:(Ljava/lang/String;F)F // method@0637
+8b2460: 0a02                                   |0020: move-result v2
+8b2462: 8922                                   |0021: float-to-double v2, v2
+8b2464: 6802 125c                              |0022: sput-wide v2, Lkajfosz/antimatterdimensions/OrekiSpeed;.sMult:D // field@5c12
+8b2468: 1a02 4ea3                              |0024: const-string v2, "records_norm" // string@a34e
+8b246c: 1203                                   |0026: const/4 v3, #int 0 // #0
+8b246e: 7230 3806 2103                         |0027: invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;.getInt:(Ljava/lang/String;I)I // method@0638
+8b2474: 0a02                                   |002a: move-result v2
+8b2476: 1213                                   |002b: const/4 v3, #int 1 // #1
+8b2478: 3332 0400                              |002c: if-ne v2, v3, 0030 // +0004
+8b247c: 6a03 145c                              |002e: sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;.sRecordsNorm:Z // field@5c14
+8b2480: 1a02 adae                              |0030: const-string v2, "speed_dynamic" // string@aead
+8b2484: 1213                                   |0032: const/4 v3, #int 1 // #1
+8b2486: 7230 3806 2103                         |0033: invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;.getInt:(Ljava/lang/String;I)I // method@0638
+8b248c: 0a02                                   |0036: move-result v2
+8b248e: 1213                                   |0037: const/4 v3, #int 1 // #1
+8b2490: 3902 0500                              |0038: if-nez v2, 003d // +0005
+8b2494: 6a03 0e5c                              |003a: sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b2498: 2804                                   |003c: goto 0040 // +0004
+8b249a: 1203                                   |003d: const/4 v3, #int 0 // #0
+8b249c: 6a03 0e5c                              |003e: sput-boolean v3, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b24a0: 2802                                   |0040: goto 0042 // +0002
+8b24a2: 0d01                                   |0041: move-exception v1
+8b24a4: 0e00                                   |0042: return-void
+      catches       : 1
+        0x0011 - 0x0040
+          Ljava/lang/Exception; -> 0x0041
+      positions     :
+      locals        :
+
+    #7              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'isDynamic'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 0
+      insns size    : 3 16-bit code units
+8b24b8:                                        |[8b24b8] kajfosz.antimatterdimensions.OrekiSpeed.isDynamic:()Z
+8b24c8: 6300 0e5c                              |0000: sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b24cc: 0f00                                   |0002: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #8              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'migrateBest'
+      type          : '(Lku4;)V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 11
+      ins           : 1
+      outs          : 2
+      insns size    : 71 16-bit code units
+8b24d0:                                        |[8b24d0] kajfosz.antimatterdimensions.OrekiSpeed.migrateBest:(Lku4;)V
+8b24e0: 6200 0d5c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sCtx:Landroid/content/Context; // field@5c0d
+8b24e4: 3800 4400                              |0002: if-eqz v0, 0046 // +0044
+8b24e8: 6300 145c                              |0004: sget-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sRecordsNorm:Z // field@5c14
+8b24ec: 3900 4000                              |0006: if-nez v0, 0046 // +0040
+8b24f0: 1210                                   |0008: const/4 v0, #int 1 // #1
+8b24f2: 6a00 145c                              |0009: sput-boolean v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sRecordsNorm:Z // field@5c14
+8b24f6: 7100 e29d 0000                         |000b: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.persistRecordsNorm:()V // method@9de2
+8b24fc: 53a0 105f                              |000e: iget-wide v0, v10, Lku4;.a:D // field@5f10
+8b2500: 6102 755c                              |0010: sget-wide v2, Lkajfosz/antimatterdimensions/player/Player;.c:D // field@5c75
+8b2504: 2f04 0002                              |0012: cmpl-double v4, v0, v2
+8b2508: 3804 3200                              |0014: if-eqz v4, 0046 // +0032
+8b250c: 1602 0000                              |0016: const-wide/16 v2, #int 0 // #0
+8b2510: 3004 0002                              |0018: cmpg-double v4, v0, v2
+8b2514: 3d04 2c00                              |001a: if-lez v4, 0046 // +002c
+8b2518: 6204 745c                              |001c: sget-object v4, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b251c: 6e10 e09e 0400                         |001e: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b2522: 0c04                                   |0021: move-result-object v4
+8b2524: 6e10 cc9e 0400                         |0022: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/player/Player$Records;.j:()Lkajfosz/antimatterdimensions/player/Player$ThisEternity; // method@9ecc
+8b252a: 0c04                                   |0025: move-result-object v4
+8b252c: 6e10 d09e 0400                         |0026: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.f:()Lku4; // method@9ed0
+8b2532: 0c04                                   |0029: move-result-object v4
+8b2534: 5342 105f                              |002a: iget-wide v2, v4, Lku4;.a:D // field@5f10
+8b2538: 1604 0000                              |002c: const-wide/16 v4, #int 0 // #0
+8b253c: 3006 0204                              |002e: cmpg-double v6, v2, v4
+8b2540: 3d06 1000                              |0030: if-lez v6, 0040 // +0010
+8b2544: 7100 e09d 0000                         |0032: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b254a: 0b04                                   |0035: move-result-wide v4
+8b254c: ad06 0204                              |0036: mul-double v6, v2, v4
+8b2550: 1904 e03f                              |0038: const-wide/high16 v4, #long 4602678819172646912 // #3fe0
+8b2554: ad06 0604                              |003a: mul-double v6, v6, v4
+8b2558: 3008 0006                              |003c: cmpg-double v8, v0, v6
+8b255c: 3d08 0800                              |003e: if-lez v8, 0046 // +0008
+8b2560: 7120 e89d 1000                         |0040: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/OrekiSpeed;.unscale:(D)D // method@9de8
+8b2566: 0b00                                   |0043: move-result-wide v0
+8b2568: 5aa0 105f                              |0044: iput-wide v0, v10, Lku4;.a:D // field@5f10
+8b256c: 0e00                                   |0046: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #9              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'modeLabel'
+      type          : '()Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 2
+      insns size    : 38 16-bit code units
+8b2570:                                        |[8b2570] kajfosz.antimatterdimensions.OrekiSpeed.modeLabel:()Ljava/lang/String;
+8b2580: 2200 4a1b                              |0000: new-instance v0, Ljava/lang/StringBuilder; // type@1b4a
+8b2584: 7010 bc91 0000                         |0002: invoke-direct {v0}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b258a: 6301 0e5c                              |0005: sget-boolean v1, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b258e: 3801 0500                              |0007: if-eqz v1, 000c // +0005
+8b2592: 1a01 cab4                              |0009: const-string v1, "自动（当前 " // string@b4ca
+8b2596: 2803                                   |000b: goto 000e // +0003
+8b2598: 1a01 afb4                              |000c: const-string v1, "手动（" // string@b4af
+8b259c: 6e20 c991 1000                         |000e: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b25a2: 7100 e09d 0000                         |0011: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b25a8: 0b02                                   |0014: move-result-wide v2
+8b25aa: 7120 d99d 3200                         |0015: invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;.format:(D)Ljava/lang/String; // method@9dd9
+8b25b0: 0c01                                   |0018: move-result-object v1
+8b25b2: 6e20 c991 1000                         |0019: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b25b8: 1a01 82b4                              |001c: const-string v1, "×）" // string@b482
+8b25bc: 6e20 c991 1000                         |001e: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b25c2: 6e10 da91 0000                         |0021: invoke-virtual {v0}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b25c8: 0c00                                   |0024: move-result-object v0
+8b25ca: 1100                                   |0025: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #10              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'mul'
+      type          : '(DD)D'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 4
+      outs          : 2
+      insns size    : 16 16-bit code units
+8b25cc:                                        |[8b25cc] kajfosz.antimatterdimensions.OrekiSpeed.mul:(DD)D
+8b25dc: ad00 0406                              |0000: mul-double v0, v4, v6
+8b25e0: 7100 e09d 0000                         |0002: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b25e6: 0b02                                   |0005: move-result-wide v2
+8b25e8: cd20                                   |0006: mul-double/2addr v0, v2
+8b25ea: 7120 bd90 1000                         |0007: invoke-static {v0, v1}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b25f0: 0a02                                   |000a: move-result v2
+8b25f2: 3802 0400                              |000b: if-eqz v2, 000f // +0004
+8b25f6: 1600 0000                              |000d: const-wide/16 v0, #int 0 // #0
+8b25fa: 1000                                   |000f: return-wide v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #11              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'mult'
+      type          : '()D'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 2
+      insns size    : 30 16-bit code units
+8b25fc:                                        |[8b25fc] kajfosz.antimatterdimensions.OrekiSpeed.mult:()D
+8b260c: 6100 125c                              |0000: sget-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sMult:D // field@5c12
+8b2610: 7120 bd90 1000                         |0002: invoke-static {v0, v1}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b2616: 0a04                                   |0005: move-result v4
+8b2618: 3904 1500                              |0006: if-nez v4, 001b // +0015
+8b261c: 1802 8ded b5a0 f7c6 b03e               |0008: const-wide v2, #double 1e-06 // #3eb0c6f7a0b5ed8d
+8b2626: 3004 0002                              |000d: cmpg-double v4, v0, v2
+8b262a: 3a04 0c00                              |000f: if-ltz v4, 001b // +000c
+8b262e: 1802 0000 0000 65cd cd41               |0011: const-wide v2, #double 1e+09 // #41cdcd6500000000
+8b2638: 2f04 0002                              |0016: cmpl-double v4, v0, v2
+8b263c: 3c04 0300                              |0018: if-gtz v4, 001b // +0003
+8b2640: 1000                                   |001a: return-wide v0
+8b2642: 6100 0b5c                              |001b: sget-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.DEF:D // field@5c0b
+8b2646: 1000                                   |001d: return-wide v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #12              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'persistMult'
+      type          : '(D)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 6
+      ins           : 2
+      outs          : 3
+      insns size    : 28 16-bit code units
+8b2648:                                        |[8b2648] kajfosz.antimatterdimensions.OrekiSpeed.persistMult:(D)V
+8b2658: 6200 0d5c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sCtx:Landroid/content/Context; // field@5c0d
+8b265c: 3800 1900                              |0002: if-eqz v0, 001b // +0019
+8b2660: 1a01 2ba0                              |0004: const-string v1, "oreki_prefs" // string@a02b
+8b2664: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b2666: 6e30 b605 1002                         |0007: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b266c: 0c00                                   |000a: move-result-object v0
+8b266e: 7210 3406 0000                         |000b: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b2674: 0c00                                   |000e: move-result-object v0
+8b2676: 1a01 aeae                              |000f: const-string v1, "speed_multiplier" // string@aeae
+8b267a: 8c42                                   |0011: double-to-float v2, v4
+8b267c: 7230 2d06 1002                         |0012: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;.putFloat:(Ljava/lang/String;F)Landroid/content/SharedPreferences$Editor; // method@062d
+8b2682: 0c00                                   |0015: move-result-object v0
+8b2684: 7210 2906 0000                         |0016: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b268a: 2802                                   |0019: goto 001b // +0002
+8b268c: 0d00                                   |001a: move-exception v0
+8b268e: 0e00                                   |001b: return-void
+      catches       : 1
+        0x0004 - 0x0019
+          Ljava/lang/Exception; -> 0x001a
+      positions     :
+      locals        :
+
+    #13              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'persistRecordsNorm'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 3
+      insns size    : 28 16-bit code units
+8b26a0:                                        |[8b26a0] kajfosz.antimatterdimensions.OrekiSpeed.persistRecordsNorm:()V
+8b26b0: 6200 0d5c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sCtx:Landroid/content/Context; // field@5c0d
+8b26b4: 3800 1900                              |0002: if-eqz v0, 001b // +0019
+8b26b8: 1a01 2ba0                              |0004: const-string v1, "oreki_prefs" // string@a02b
+8b26bc: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b26be: 6e30 b605 1002                         |0007: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b26c4: 0c00                                   |000a: move-result-object v0
+8b26c6: 7210 3406 0000                         |000b: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b26cc: 0c00                                   |000e: move-result-object v0
+8b26ce: 1a01 4ea3                              |000f: const-string v1, "records_norm" // string@a34e
+8b26d2: 1212                                   |0011: const/4 v2, #int 1 // #1
+8b26d4: 7230 2e06 1002                         |0012: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;.putInt:(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor; // method@062e
+8b26da: 0c00                                   |0015: move-result-object v0
+8b26dc: 7210 2906 0000                         |0016: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b26e2: 2802                                   |0019: goto 001b // +0002
+8b26e4: 0d00                                   |001a: move-exception v0
+8b26e6: 0e00                                   |001b: return-void
+      catches       : 1
+        0x0004 - 0x0019
+          Ljava/lang/Exception; -> 0x001a
+      positions     :
+      locals        :
+
+    #14              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'rampCount'
+      type          : '()I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 0
+      insns size    : 3 16-bit code units
+8b26f8:                                        |[8b26f8] kajfosz.antimatterdimensions.OrekiSpeed.rampCount:()I
+8b2708: 6000 135c                              |0000: sget v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sRamps:I // field@5c13
+8b270c: 0f00                                   |0002: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #15              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'set'
+      type          : '(D)Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 3
+      insns size    : 57 16-bit code units
+8b2710:                                        |[8b2710] kajfosz.antimatterdimensions.OrekiSpeed.set:(D)Z
+8b2720: 7120 bd90 7600                         |0000: invoke-static {v6, v7}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b2726: 0a00                                   |0003: move-result v0
+8b2728: 3900 3300                              |0004: if-nez v0, 0037 // +0033
+8b272c: 1802 8ded b5a0 f7c6 b03e               |0006: const-wide v2, #double 1e-06 // #3eb0c6f7a0b5ed8d
+8b2736: 2f00 0602                              |000b: cmpl-double v0, v6, v2
+8b273a: 3d00 2a00                              |000d: if-lez v0, 0037 // +002a
+8b273e: 1802 0000 0000 65cd cd41               |000f: const-wide v2, #double 1e+09 // #41cdcd6500000000
+8b2748: 2f00 0602                              |0014: cmpl-double v0, v6, v2
+8b274c: 3c00 2100                              |0016: if-gtz v0, 0037 // +0021
+8b2750: 6806 125c                              |0018: sput-wide v6, Lkajfosz/antimatterdimensions/OrekiSpeed;.sMult:D // field@5c12
+8b2754: 6204 0d5c                              |001a: sget-object v4, Lkajfosz/antimatterdimensions/OrekiSpeed;.sCtx:Landroid/content/Context; // field@5c0d
+8b2758: 3804 1900                              |001c: if-eqz v4, 0035 // +0019
+8b275c: 1a00 2ba0                              |001e: const-string v0, "oreki_prefs" // string@a02b
+8b2760: 1201                                   |0020: const/4 v1, #int 0 // #0
+8b2762: 6e30 b605 0401                         |0021: invoke-virtual {v4, v0, v1}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b2768: 0c00                                   |0024: move-result-object v0
+8b276a: 7210 3406 0000                         |0025: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b2770: 0c00                                   |0028: move-result-object v0
+8b2772: 1a01 aeae                              |0029: const-string v1, "speed_multiplier" // string@aeae
+8b2776: 8c62                                   |002b: double-to-float v2, v6
+8b2778: 7230 2d06 1002                         |002c: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;.putFloat:(Ljava/lang/String;F)Landroid/content/SharedPreferences$Editor; // method@062d
+8b277e: 0c00                                   |002f: move-result-object v0
+8b2780: 7210 2906 0000                         |0030: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b2786: 2802                                   |0033: goto 0035 // +0002
+8b2788: 0d00                                   |0034: move-exception v0
+8b278a: 1210                                   |0035: const/4 v0, #int 1 // #1
+8b278c: 0f00                                   |0036: return v0
+8b278e: 1200                                   |0037: const/4 v0, #int 0 // #0
+8b2790: 0f00                                   |0038: return v0
+      catches       : 1
+        0x001e - 0x0033
+          Ljava/lang/Exception; -> 0x0034
+      positions     :
+      locals        :
+
+    #16              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'setDynamic'
+      type          : '(Z)Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 7
+      ins           : 1
+      outs          : 3
+      insns size    : 43 16-bit code units
+8b27a4:                                        |[8b27a4] kajfosz.antimatterdimensions.OrekiSpeed.setDynamic:(Z)Z
+8b27b4: 6a06 0e5c                              |0000: sput-boolean v6, Lkajfosz/antimatterdimensions/OrekiSpeed;.sDynamic:Z // field@5c0e
+8b27b8: 3906 0900                              |0002: if-nez v6, 000b // +0009
+8b27bc: 1600 0000                              |0004: const-wide/16 v0, #int 0 // #0
+8b27c0: 6800 165c                              |0006: sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sStagnant:J // field@5c16
+8b27c4: 1200                                   |0008: const/4 v0, #int 0 // #0
+8b27c6: 6900 155c                              |0009: sput-object v0, Lkajfosz/antimatterdimensions/OrekiSpeed;.sSignal:Ljava/lang/String; // field@5c15
+8b27ca: 1200                                   |000b: const/4 v0, #int 0 // #0
+8b27cc: 3806 0300                              |000c: if-eqz v6, 000f // +0003
+8b27d0: 1210                                   |000e: const/4 v0, #int 1 // #1
+8b27d2: 6201 0d5c                              |000f: sget-object v1, Lkajfosz/antimatterdimensions/OrekiSpeed;.sCtx:Landroid/content/Context; // field@5c0d
+8b27d6: 3801 1800                              |0011: if-eqz v1, 0029 // +0018
+8b27da: 1a02 2ba0                              |0013: const-string v2, "oreki_prefs" // string@a02b
+8b27de: 1203                                   |0015: const/4 v3, #int 0 // #0
+8b27e0: 6e30 b605 2103                         |0016: invoke-virtual {v1, v2, v3}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b27e6: 0c01                                   |0019: move-result-object v1
+8b27e8: 7210 3406 0100                         |001a: invoke-interface {v1}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b27ee: 0c01                                   |001d: move-result-object v1
+8b27f0: 1a02 adae                              |001e: const-string v2, "speed_dynamic" // string@aead
+8b27f4: 7230 2e06 2100                         |0020: invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences$Editor;.putInt:(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor; // method@062e
+8b27fa: 0c01                                   |0023: move-result-object v1
+8b27fc: 7210 2906 0100                         |0024: invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b2802: 2802                                   |0027: goto 0029 // +0002
+8b2804: 0d01                                   |0028: move-exception v1
+8b2806: 1210                                   |0029: const/4 v0, #int 1 // #1
+8b2808: 0f00                                   |002a: return v0
+      catches       : 1
+        0x0013 - 0x0027
+          Ljava/lang/Exception; -> 0x0028
+      positions     :
+      locals        :
+
+    #17              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'sigOf'
+      type          : '(Lkajfosz/antimatterdimensions/BigDouble;)J'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 2
+      insns size    : 23 16-bit code units
+8b281c:                                        |[8b281c] kajfosz.antimatterdimensions.OrekiSpeed.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J
+8b282c: 3804 1400                              |0000: if-eqz v4, 0014 // +0014
+8b2830: 6e10 9f9d 0400                         |0002: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/BigDouble;.log10:()D // method@9d9f
+8b2836: 0b00                                   |0005: move-result-wide v0
+8b2838: 7120 bd90 1000                         |0006: invoke-static {v0, v1}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b283e: 0a02                                   |0009: move-result v2
+8b2840: 3802 0a00                              |000a: if-eqz v2, 0014 // +000a
+8b2844: 1902 5940                              |000c: const-wide/high16 v2, #long 4636737291354636288 // #4059
+8b2848: cd20                                   |000e: mul-double/2addr v0, v2
+8b284a: 7120 4191 1000                         |000f: invoke-static {v0, v1}, Ljava/lang/Math;.round:(D)J // method@9141
+8b2850: 0b00                                   |0012: move-result-wide v0
+8b2852: 1000                                   |0013: return-wide v0
+8b2854: 1600 0000                              |0014: const-wide/16 v0, #int 0 // #0
+8b2858: 1000                                   |0016: return-wide v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #18              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'signal'
+      type          : '()Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 3
+      insns size    : 169 16-bit code units
+8b285c:                                        |[8b285c] kajfosz.antimatterdimensions.OrekiSpeed.signal:()Ljava/lang/String;
+8b286c: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2870: 3800 a500                              |0002: if-eqz v0, 00a7 // +00a5
+8b2874: 2201 4a1b                              |0004: new-instance v1, Ljava/lang/StringBuilder; // type@1b4a
+8b2878: 7010 bc91 0100                         |0006: invoke-direct {v1}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b287e: 6e10 e29e 0000                         |0009: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.b:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ee2
+8b2884: 0c02                                   |000c: move-result-object v2
+8b2886: 7110 e69d 0200                         |000d: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b288c: 0b02                                   |0010: move-result-wide v2
+8b288e: 6e30 c591 2103                         |0011: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b2894: 1304 7c00                              |0014: const/16 v4, #int 124 // #7c
+8b2898: 6e20 c191 4100                         |0016: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b289e: 6e10 da9e 0000                         |0019: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.C:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eda
+8b28a4: 0c02                                   |001c: move-result-object v2
+8b28a6: 7110 e69d 0200                         |001d: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b28ac: 0b02                                   |0020: move-result-wide v2
+8b28ae: 6e30 c591 2103                         |0021: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b28b4: 1304 7c00                              |0024: const/16 v4, #int 124 // #7c
+8b28b8: 6e20 c191 4100                         |0026: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b28be: 6e10 db9e 0000                         |0029: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.D:()Lkajfosz/antimatterdimensions/BigDouble; // method@9edb
+8b28c4: 0c02                                   |002c: move-result-object v2
+8b28c6: 7110 e69d 0200                         |002d: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b28cc: 0b02                                   |0030: move-result-wide v2
+8b28ce: 6e30 c591 2103                         |0031: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b28d4: 1304 7c00                              |0034: const/16 v4, #int 124 // #7c
+8b28d8: 6e20 c191 4100                         |0036: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b28de: 6e10 dc9e 0000                         |0039: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.E:()Lkajfosz/antimatterdimensions/BigDouble; // method@9edc
+8b28e4: 0c02                                   |003c: move-result-object v2
+8b28e6: 7110 e69d 0200                         |003d: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b28ec: 0b02                                   |0040: move-result-wide v2
+8b28ee: 6e30 c591 2103                         |0041: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b28f4: 1304 7c00                              |0044: const/16 v4, #int 124 // #7c
+8b28f8: 6e20 c191 4100                         |0046: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b28fe: 6e10 ea9e 0000                         |0049: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.x:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eea
+8b2904: 0c02                                   |004c: move-result-object v2
+8b2906: 7110 e69d 0200                         |004d: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b290c: 0b02                                   |0050: move-result-wide v2
+8b290e: 6e30 c591 2103                         |0051: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b2914: 1304 7c00                              |0054: const/16 v4, #int 124 // #7c
+8b2918: 6e20 c191 4100                         |0056: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b291e: 6e10 de9e 0000                         |0059: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.P:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ede
+8b2924: 0c02                                   |005c: move-result-object v2
+8b2926: 7110 e69d 0200                         |005d: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b292c: 0b02                                   |0060: move-result-wide v2
+8b292e: 6e30 c591 2103                         |0061: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b2934: 1304 7c00                              |0064: const/16 v4, #int 124 // #7c
+8b2938: 6e20 c191 4100                         |0066: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b293e: 6e10 e09e 0000                         |0069: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b2944: 0c02                                   |006c: move-result-object v2
+8b2946: 6e10 cc9e 0200                         |006d: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Records;.j:()Lkajfosz/antimatterdimensions/player/Player$ThisEternity; // method@9ecc
+8b294c: 0c02                                   |0070: move-result-object v2
+8b294e: 6e10 d29e 0200                         |0071: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.h:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ed2
+8b2954: 0c02                                   |0074: move-result-object v2
+8b2956: 7110 e69d 0200                         |0075: invoke-static {v2}, Lkajfosz/antimatterdimensions/OrekiSpeed;.sigOf:(Lkajfosz/antimatterdimensions/BigDouble;)J // method@9de6
+8b295c: 0b02                                   |0078: move-result-wide v2
+8b295e: 6e30 c591 2103                         |0079: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b2964: 1304 7c00                              |007c: const/16 v4, #int 124 // #7c
+8b2968: 6e20 c191 4100                         |007e: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b296e: 6e10 e89e 0000                         |0081: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.u:()D // method@9ee8
+8b2974: 0b02                                   |0084: move-result-wide v2
+8b2976: 8b22                                   |0085: double-to-long v2, v2
+8b2978: 6e30 c591 2103                         |0086: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b297e: 1304 7c00                              |0089: const/16 v4, #int 124 // #7c
+8b2982: 6e20 c191 4100                         |008b: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b2988: 6e10 d99e 0000                         |008e: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.A:()J // method@9ed9
+8b298e: 0b02                                   |0091: move-result-wide v2
+8b2990: 6e30 c591 2103                         |0092: invoke-virtual {v1, v2, v3}, Ljava/lang/StringBuilder;.append:(J)Ljava/lang/StringBuilder; // method@91c5
+8b2996: 1304 7c00                              |0095: const/16 v4, #int 124 // #7c
+8b299a: 6e20 c191 4100                         |0097: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(C)Ljava/lang/StringBuilder; // method@91c1
+8b29a0: 6e10 e59e 0000                         |009a: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.m:()Z // method@9ee5
+8b29a6: 0a02                                   |009d: move-result v2
+8b29a8: 6e20 c491 2100                         |009e: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b29ae: 6e10 da91 0100                         |00a1: invoke-virtual {v1}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b29b4: 0c05                                   |00a4: move-result-object v5
+8b29b6: 1105                                   |00a5: return-object v5
+8b29b8: 0d03                                   |00a6: move-exception v3
+8b29ba: 1200                                   |00a7: const/4 v0, #int 0 // #0
+8b29bc: 1100                                   |00a8: return-object v0
+      catches       : 1
+        0x0004 - 0x00a6
+          Ljava/lang/Exception; -> 0x00a6
+      positions     :
+      locals        :
+
+    #19              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'unscale'
+      type          : '(D)D'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 2
+      insns size    : 35 16-bit code units
+8b29d0:                                        |[8b29d0] kajfosz.antimatterdimensions.OrekiSpeed.unscale:(D)D
+8b29e0: 7120 bd90 7600                         |0000: invoke-static {v6, v7}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b29e6: 0a04                                   |0003: move-result v4
+8b29e8: 3804 0300                              |0004: if-eqz v4, 0007 // +0003
+8b29ec: 1006                                   |0006: return-wide v6
+8b29ee: 7100 e09d 0000                         |0007: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b29f4: 0b00                                   |000a: move-result-wide v0
+8b29f6: 7120 bd90 1000                         |000b: invoke-static {v0, v1}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b29fc: 0a04                                   |000e: move-result v4
+8b29fe: 3804 0300                              |000f: if-eqz v4, 0012 // +0003
+8b2a02: 1006                                   |0011: return-wide v6
+8b2a04: 7120 bb90 1000                         |0012: invoke-static {v0, v1}, Ljava/lang/Double;.isInfinite:(D)Z // method@90bb
+8b2a0a: 0a04                                   |0015: move-result v4
+8b2a0c: 3804 0300                              |0016: if-eqz v4, 0019 // +0003
+8b2a10: 1006                                   |0018: return-wide v6
+8b2a12: 1602 0000                              |0019: const-wide/16 v2, #int 0 // #0
+8b2a16: 3004 0002                              |001b: cmpg-double v4, v0, v2
+8b2a1a: 3d04 0500                              |001d: if-lez v4, 0022 // +0005
+8b2a1e: ae00 0600                              |001f: div-double v0, v6, v0
+8b2a22: 1000                                   |0021: return-wide v0
+8b2a24: 1006                                   |0022: return-wide v6
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #20              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'unscaleBy'
+      type          : '(DD)D'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 4
+      outs          : 2
+      insns size    : 17 16-bit code units
+8b2a28:                                        |[8b2a28] kajfosz.antimatterdimensions.OrekiSpeed.unscaleBy:(DD)D
+8b2a38: 7120 bd90 7600                         |0000: invoke-static {v6, v7}, Ljava/lang/Double;.isNaN:(D)Z // method@90bd
+8b2a3e: 0a00                                   |0003: move-result v0
+8b2a40: 3800 0300                              |0004: if-eqz v0, 0007 // +0003
+8b2a44: 1004                                   |0006: return-wide v4
+8b2a46: 1602 0000                              |0007: const-wide/16 v2, #int 0 // #0
+8b2a4a: 3000 0602                              |0009: cmpg-double v0, v6, v2
+8b2a4e: 3d00 0500                              |000b: if-lez v0, 0010 // +0005
+8b2a52: ae00 0406                              |000d: div-double v0, v4, v6
+8b2a56: 1000                                   |000f: return-wide v0
+8b2a58: 1004                                   |0010: return-wide v4
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #21              : (in Lkajfosz/antimatterdimensions/OrekiSpeed;)
+      name          : 'waitingText'
+      type          : '(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 2
+      insns size    : 70 16-bit code units
+8b2a5c:                                        |[8b2a5c] kajfosz.antimatterdimensions.OrekiSpeed.waitingText:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+8b2a6c: 7100 dd91 0000                         |0000: invoke-static {}, Ljava/lang/System;.currentTimeMillis:()J // method@91dd
+8b2a72: 0b00                                   |0003: move-result-wide v0
+8b2a74: 7100 c6ca 0000                         |0004: invoke-static {}, Lrq;.waitStart:()J // method@cac6
+8b2a7a: 0b02                                   |0007: move-result-wide v2
+8b2a7c: bc20                                   |0008: sub-long/2addr v0, v2
+8b2a7e: 1602 e803                              |0009: const-wide/16 v2, #int 1000 // #3e8
+8b2a82: be20                                   |000b: div-long/2addr v0, v2
+8b2a84: 1602 0000                              |000c: const-wide/16 v2, #int 0 // #0
+8b2a88: 3104 0002                              |000e: cmp-long v4, v0, v2
+8b2a8c: 3b04 0400                              |0010: if-gez v4, 0014 // +0004
+8b2a90: 1600 0000                              |0012: const-wide/16 v0, #int 0 // #0
+8b2a94: 2202 4a1b                              |0014: new-instance v2, Ljava/lang/StringBuilder; // type@1b4a
+8b2a98: 7010 bc91 0200                         |0016: invoke-direct {v2}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b2a9e: 1a03 c9b4                              |0019: const-string v3, "等待中：" // string@b4c9
+8b2aa2: 6e20 c991 3200                         |001b: invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2aa8: 0c02                                   |001e: move-result-object v2
+8b2aaa: 6e20 c991 6200                         |001f: invoke-virtual {v2, v6}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2ab0: 0c02                                   |0022: move-result-object v2
+8b2ab2: 1a03 d9b4                              |0023: const-string v3, "（第 " // string@b4d9
+8b2ab6: 6e20 c991 3200                         |0025: invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2abc: 0c02                                   |0028: move-result-object v2
+8b2abe: 6e20 c991 7200                         |0029: invoke-virtual {v2, v7}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2ac4: 0c02                                   |002c: move-result-object v2
+8b2ac6: 1a03 1204                              |002d: const-string v3, " 行，已等待 " // string@0412
+8b2aca: 6e20 c991 3200                         |002f: invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2ad0: 0c02                                   |0032: move-result-object v2
+8b2ad2: 7120 b891 1000                         |0033: invoke-static {v0, v1}, Ljava/lang/String;.valueOf:(J)Ljava/lang/String; // method@91b8
+8b2ad8: 0c03                                   |0036: move-result-object v3
+8b2ada: 6e20 c991 3200                         |0037: invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2ae0: 0c02                                   |003a: move-result-object v2
+8b2ae2: 1a03 1104                              |003b: const-string v3, " 秒）" // string@0411
+8b2ae6: 6e20 c991 3200                         |003d: invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2aec: 0c02                                   |0040: move-result-object v2
+8b2aee: 6e10 da91 0200                         |0041: invoke-virtual {v2}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b2af4: 0c00                                   |0044: move-result-object v0
+8b2af6: 1100                                   |0045: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6116            -

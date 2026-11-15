@@ -1,0 +1,67 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/OrekiEcContinuation;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Lkotlin/coroutines/jvm/internal/ContinuationImpl;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : 'a'
+      type          : 'Lkajfosz/antimatterdimensions/OrekiEcContinuation;'
+      access        : 0x0019 (PUBLIC STATIC FINAL)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : '<clinit>'
+      type          : '()V'
+      access        : 0x10008 (STATIC CONSTRUCTOR)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 1
+      insns size    : 8 16-bit code units
+8b1eb4:                                        |[8b1eb4] kajfosz.antimatterdimensions.OrekiEcContinuation.<clinit>:()V
+8b1ec4: 2200 bf1d                              |0000: new-instance v0, Lkajfosz/antimatterdimensions/OrekiEcContinuation; // type@1dbf
+8b1ec8: 7010 cf9d 0000                         |0002: invoke-direct {v0}, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.<init>:()V // method@9dcf
+8b1ece: 6900 0a5c                              |0005: sput-object v0, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b1ed2: 0e00                                   |0007: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10002 (PRIVATE CONSTRUCTOR)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 3
+      insns size    : 8 16-bit code units
+8b1ed4:                                        |[8b1ed4] kajfosz.antimatterdimensions.OrekiEcContinuation.<init>:()V
+8b1ee4: 6200 9560                              |0000: sget-object v0, Lld0;.a:Lld0; // field@6095
+8b1ee8: 6201 505e                              |0002: sget-object v1, Lkotlin/coroutines/EmptyCoroutineContext;.a:Lkotlin/coroutines/EmptyCoroutineContext; // field@5e50
+8b1eec: 7030 f0a1 0301                         |0004: invoke-direct {v3, v0, v1}, Lkotlin/coroutines/jvm/internal/ContinuationImpl;.<init>:(Lrj0;Lek0;)V // method@a1f0
+8b1ef2: 0e00                                   |0007: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiEcContinuation;)
+      name          : 'invokeSuspend'
+      type          : '(Ljava/lang/Object;)Ljava/lang/Object;'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 3
+      ins           : 2
+      outs          : 0
+      insns size    : 3 16-bit code units
+8b1ef4:                                        |[8b1ef4] kajfosz.antimatterdimensions.OrekiEcContinuation.invokeSuspend:(Ljava/lang/Object;)Ljava/lang/Object;
+8b1f04: 6200 515e                              |0000: sget-object v0, Lkotlin/coroutines/intrinsics/CoroutineSingletons;.a:Lkotlin/coroutines/intrinsics/CoroutineSingletons; // field@5e51
+8b1f08: 1100                                   |0002: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6114            -

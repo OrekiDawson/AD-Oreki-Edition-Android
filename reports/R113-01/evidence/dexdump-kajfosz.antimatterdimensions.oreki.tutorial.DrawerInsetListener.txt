@@ -1,0 +1,62 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+    #0              : 'Landroid/view/View$OnApplyWindowInsetsListener;'
+  Static fields     -
+  Instance fields   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;)
+      name          : 'a'
+      type          : 'I'
+      access        : 0x0012 (PRIVATE FINAL)
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;)
+      name          : '<init>'
+      type          : '(I)V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 1
+      insns size    : 6 16-bit code units
+8b6afc:                                        |[8b6afc] kajfosz.antimatterdimensions.oreki.tutorial.DrawerInsetListener.<init>:(I)V
+8b6b0c: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b6b12: 5901 5b5c                              |0003: iput v1, v0, Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;.a:I // field@5c5b
+8b6b16: 0e00                                   |0005: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;)
+      name          : 'onApplyWindowInsets'
+      type          : '(Landroid/view/View;Landroid/view/WindowInsets;)Landroid/view/WindowInsets;'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 7
+      ins           : 3
+      outs          : 5
+      insns size    : 28 16-bit code units
+8b6b18:                                        |[8b6b18] kajfosz.antimatterdimensions.oreki.tutorial.DrawerInsetListener.onApplyWindowInsets:(Landroid/view/View;Landroid/view/WindowInsets;)Landroid/view/WindowInsets;
+8b6b28: 6000 8603                              |0000: sget v0, Landroid/os/Build$VERSION;.SDK_INT:I // field@0386
+8b6b2c: 1301 1e00                              |0002: const/16 v1, #int 30 // #1e
+8b6b30: 3410 0d00                              |0004: if-lt v0, v1, 0011 // +000d
+8b6b34: 7100 8812 0000                         |0006: invoke-static {}, Landroid/view/WindowInsets$Type;.systemBars:()I // method@1288
+8b6b3a: 0a00                                   |0009: move-result v0
+8b6b3c: 6e20 9312 0600                         |000a: invoke-virtual {v6, v0}, Landroid/view/WindowInsets;.getInsets:(I)Landroid/graphics/Insets; // method@1293
+8b6b42: 0c00                                   |000d: move-result-object v0
+8b6b44: 5200 1603                              |000e: iget v0, v0, Landroid/graphics/Insets;.top:I // field@0316
+8b6b48: 2805                                   |0010: goto 0015 // +0005
+8b6b4a: 6e10 9f12 0600                         |0011: invoke-virtual {v6}, Landroid/view/WindowInsets;.getSystemWindowInsetTop:()I // method@129f
+8b6b50: 0a00                                   |0014: move-result v0
+8b6b52: 5241 5b5c                              |0015: iget v1, v4, Lkajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener;.a:I // field@5c5b
+8b6b56: b010                                   |0017: add-int/2addr v0, v1
+8b6b58: 6e51 4811 1510                         |0018: invoke-virtual {v5, v1, v0, v1, v1}, Landroid/view/View;.setPadding:(IIII)V // method@1148
+8b6b5e: 1106                                   |001b: return-object v6
+      catches       : (none)
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6132            -

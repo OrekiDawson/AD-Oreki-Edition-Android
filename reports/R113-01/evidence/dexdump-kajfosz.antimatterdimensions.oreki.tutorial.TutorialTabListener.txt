@@ -1,0 +1,57 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+    #0              : 'Landroid/view/View$OnClickListener;'
+  Static fields     -
+  Instance fields   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;)
+      name          : 'a'
+      type          : 'Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;'
+      access        : 0x0012 (PRIVATE FINAL)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;)
+      name          : 'b'
+      type          : 'I'
+      access        : 0x0012 (PRIVATE FINAL)
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;)
+      name          : '<init>'
+      type          : '(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 3
+      ins           : 3
+      outs          : 1
+      insns size    : 8 16-bit code units
+8b71e0:                                        |[8b71e0] kajfosz.antimatterdimensions.oreki.tutorial.TutorialTabListener.<init>:(Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;I)V
+8b71f0: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b71f6: 5b01 615c                              |0003: iput-object v1, v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;.a:Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity; // field@5c61
+8b71fa: 5902 625c                              |0005: iput v2, v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;.b:I // field@5c62
+8b71fe: 0e00                                   |0007: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;)
+      name          : 'onClick'
+      type          : '(Landroid/view/View;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 4
+      ins           : 2
+      outs          : 2
+      insns size    : 10 16-bit code units
+8b7200:                                        |[8b7200] kajfosz.antimatterdimensions.oreki.tutorial.TutorialTabListener.onClick:(Landroid/view/View;)V
+8b7210: 5420 615c                              |0000: iget-object v0, v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;.a:Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity; // field@5c61
+8b7214: 3800 0700                              |0002: if-eqz v0, 0009 // +0007
+8b7218: 5221 625c                              |0004: iget v1, v2, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener;.b:I // field@5c62
+8b721c: 6e20 929e 1000                         |0006: invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;.onTabClick:(I)V // method@9e92
+8b7222: 0e00                                   |0009: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6136            -

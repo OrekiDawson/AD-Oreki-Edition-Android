@@ -1,0 +1,49 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 1
+      ins           : 1
+      outs          : 1
+      insns size    : 4 16-bit code units
+8b7224:                                        |[8b7224] kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch.<init>:()V
+8b7234: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b723a: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;)
+      name          : 'run'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 3
+      ins           : 0
+      outs          : 3
+      insns size    : 14 16-bit code units
+8b723c:                                        |[8b723c] kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch.run:()V
+8b724c: 2200 231e                              |0000: new-instance v0, Lkajfosz/antimatterdimensions/prestige/Eternity$confirmEternity$4; // type@1e23
+8b7250: 1211                                   |0002: const/4 v1, #int 1 // #1
+8b7252: 1202                                   |0003: const/4 v2, #int 0 // #0
+8b7254: 7030 f4a1 1002                         |0004: invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;.<init>:(ILrj0;)V // method@a1f4
+8b725a: 1f00 9717                              |0007: check-cast v0, Lgm1; // type@1797
+8b725e: 1211                                   |0009: const/4 v1, #int 1 // #1
+8b7260: 7120 1d9e 1000                         |000a: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/g;.s:(Lgm1;Z)V // method@9e1d
+8b7266: 0e00                                   |000d: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : 24319 (OrekiEternityLaunch.java)
+
+Class #6137            -
