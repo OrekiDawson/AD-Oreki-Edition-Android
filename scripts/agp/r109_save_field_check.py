@@ -145,6 +145,23 @@ def main():
     ap.add_argument("--mapping", help="R8 mapping.txt（用于把期望类/字段翻译成重命名后的名字）")
     args = ap.parse_args()
     expected, closure = closure_fields(args.decoded_tree)
+    # fail-closed：decoded tree 缺失或不含 Player 类时，闭包为空，
+    # 旧实现会以「0 期望字段、0 缺失」返回 0，把"构建输入缺失"伪装成"存档字段兼容 PASS"。
+    # 见 R113-01 Codex 审查 P2。
+    if not closure or not expected:
+        report = {
+            "apk": args.apk,
+            "decoded_tree": args.decoded_tree,
+            "closure_classes": len(closure),
+            "expected_fields": len(expected),
+            "verdict": "FAIL",
+            "reason": "Gson 存档闭包为空：decoded tree 缺失或不含 Player 类，无法证明字段兼容",
+        }
+        text = json.dumps(report, indent=2, ensure_ascii=False)
+        print(text)
+        if args.json:
+            open(args.json, "w", encoding="utf-8").write(text + chr(10))
+        return 2
     actual = apk_fields(args.apk)
     class_map, field_map = ({}, {})
     if args.mapping:

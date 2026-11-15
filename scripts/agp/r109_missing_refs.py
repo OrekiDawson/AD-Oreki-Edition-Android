@@ -15,6 +15,7 @@ import argparse
 import json
 import pathlib
 import struct
+import sys
 import zipfile
 
 
@@ -36,6 +37,13 @@ def parse_class_refs(data):
             off += 2
             utf8[i] = data[off:off + ln].decode("utf-8", "replace")
             off += ln
+        elif tag in (5, 6):  # Long / Double
+            # Constant pool 双槽：Long/Double 占 2 个 entry（8 字节数据 + 跳过一个索引）。
+            # 旧实现未处理 tag 5/6，遇到含 long/double 常量的类会抛 ValueError，
+            # 而 scan() 又把该异常当成"解析失败=没引用"静默跳过，导致整个类的
+            # 缺失依赖从报告里消失（fail-open）。见 R113-01 Codex 审查 P2。
+            off += 8
+            i += 1
         elif tag in (3, 4, 9, 10, 11, 12, 17, 18):
             if tag == 7:
                 pass
@@ -83,6 +91,8 @@ def scan(jar_path, lib_jar):
     lib = jar_classes(lib_jar)
     known = prog | lib
     missing = {}
+    # 解析失败的类必须显式上报：把"解析不了"当成"没有缺失引用"会静默漏报。
+    parse_errors = []
     with zipfile.ZipFile(jar_path) as zf:
         for info in zf.infolist():
             if not info.filename.endswith(".class"):
@@ -90,14 +100,15 @@ def scan(jar_path, lib_jar):
             owner = info.filename[:-6]
             try:
                 refs = parse_class_refs(zf.read(info.filename))
-            except ValueError:
+            except ValueError as exc:
+                parse_errors.append({"class": owner, "error": str(exc)})
                 continue
             for r in refs:
                 if r not in known and not r.startswith(("java/lang/", "java/util/", "java/io/", "java/lang/invoke/")):
                     missing.setdefault(r, []).append(owner)
                 elif r not in known:
                     missing.setdefault(r, []).append(owner)
-    return prog, lib, missing
+    return prog, lib, missing, parse_errors
 
 
 def main():
@@ -106,13 +117,15 @@ def main():
     ap.add_argument("--android-jar", required=True)
     ap.add_argument("--out")
     args = ap.parse_args()
-    prog, lib, missing = scan(pathlib.Path(args.jar), pathlib.Path(args.android_jar))
+    prog, lib, missing, parse_errors = scan(pathlib.Path(args.jar), pathlib.Path(args.android_jar))
     report = {
         "jar": args.jar,
         "android_jar": args.android_jar,
         "program_classes": len(prog),
         "library_classes": len(lib),
         "missing_count": len(missing),
+        "parse_error_count": len(parse_errors),
+        "parse_errors": parse_errors[:50],
         "missing": [
             {"class": k, "referenced_by": sorted(v)[:20], "referenced_by_count": len(v)}
             for k, v in sorted(missing.items(), key=lambda kv: -len(kv[1]))
@@ -121,9 +134,14 @@ def main():
     text = json.dumps(report, indent=2, ensure_ascii=False)
     if args.out:
         pathlib.Path(args.out).write_text(text + "\n", encoding="utf-8")
-    print("program=%d lib=%d missing=%d" % (len(prog), len(lib), len(missing)))
+    print("program=%d lib=%d missing=%d parse_errors=%d" % (len(prog), len(lib), len(missing), len(parse_errors)))
     for m in report["missing"][:40]:
         print("  %-70s refs=%d  e.g. %s" % (m["class"], m["referenced_by_count"], m["referenced_by"][0]))
+    if parse_errors:
+        # fail-closed：有类解析失败说明报告不完整，不能当 PASS 返回。
+        for item in parse_errors[:20]:
+            print("  UNPARSED %s: %s" % (item["class"], item["error"]), file=sys.stderr)
+        return 2
     return 0
 
 
