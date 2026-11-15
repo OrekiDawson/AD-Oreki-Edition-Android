@@ -382,3 +382,22 @@ R79 收尾时 `work/mod` 有被后台探测中途写入的痕迹（`a.smali` mti
 - `[实测]` APK 候选 `build/gradle-stage/反物质维度.apk`（SHA-256 前缀 `ffaf5b20237b9383`），设备 `emulator-5554`，包名 `com.oreki.antimatterdimensions`。使用 `android/savestates/16. 1Inf.txt` 解码存档时，logcat 为 `OREKI_STATS_GATE stage=false/false`，统计页没有“本次永恒/本次现实”区块，截图 `/tmp/oreki-stat-loop.png`。
 - `[实测]` 使用 `android/savestates/152. 2.5e4EP+21TT.txt` 解码存档时，logcat 为 `OREKI_STATS_GATE stage=true/false`，统计页显示永恒区块并显示“115 次永恒”，截图 `/tmp/oreki-et-stat.png`。
 - `[未验证]` 尚未用真实现实结算后的存档完成 `stage=true/true` 截图；现实区块不得因入口存在或兼容字段初始化而提前显示。
+
+<a id="f-eventhub-abi-shortname"></a>
+## EventHub ABI 必须用短名 cls("c91")（CONFIRMED，2026-11-15）
+
+- **结论**：`GameApi.mBreakEventDispatch()` 必须用短名 `cls("c91")`（绑定表 classes.c91→`Lm91;`）；用带点全名
+  `cls("kajfosz.antimatterdimensions.c91")` 会绕过绑定映射直通 `Class.forName` ⇒ `ClassNotFoundException`，
+  `BREAK_INFINITY` 事件从未广播（成就/GUI 不同步，不崩溃）。
+- **证据**：R113 180min logcat:21164 `W/OREKI_API_MISS: missing class kajfosz.antimatterdimensions.c91: ClassNotFoundException`
+  （logcat 工作树未跟踪）；旧代码 `app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt:2604`；修复 PR #97（改成 `cls("c91")`）。
+- `[读码] + [实测]`；关联 Issue #99、PR #97。**规则**：3.21 ABI 若绑定表给短名，一律 `cls("<短名>")`，不要传带点全名。
+
+<a id="f-oreki-ui-title-deadcode"></a>
+## OrekiUiTitle.of 签名/类型不一致是死代码（CONFIRMED，VerifyError 风险）
+
+- **结论**：`OrekiUiTitle.smali` 的 `of(Lyn4;)` 方法体仍调用 `Lrq4;->a()`，签名参数与实现类型不一致（yn4 vs rq4）。
+  当前无调用点（`oreki_dark_theme.py:834` 有断言、三棵构建树无引用）⇒ **死代码**；一旦被调用即 ART VerifyError。
+- **证据**：R113 180min logcat:10349 `dex2oat64 ... OrekiUiTitle.of(yn4) failed to verify: this argument Reference: yn4 not instance of Reference: rq4`
+  （logcat 未入库）；Issue #99 P2-1。
+- **建议**：从 `build_mod.py` 注入清单移除该类，或修正 `of` 的类型；修正前不得新增调用点。 `[读码] + [实测]`；关联 Issue #99。

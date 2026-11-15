@@ -530,3 +530,22 @@ Android 教程由 `scripts/oreki_tutorial_gen.py` 从同一源生成，本轮回
 - 因此本轮「零手动通关」目标仍差这一段：玩家需要手动买 12 条 Break 升级。
 
 ---
+
+<a id="f-ec-autostart-gate"></a>
+## EC 自动进入必须过 challengeAutoStartAllowed()（CONFIRMED，PR #97）
+
+- **结论**：EC 自动进入/结算链必须在入口过 `OrekiAutoEternityGate.challengeAutoStartAllowed()`；否则玩家手动关闭自动永恒后，
+  在 `canEternity` 为真的窗口仍可能触发一次**真实永恒**（`challenge/eternity/b;->D` → `prestige/c;->d`），违反玩家意愿。
+- **证据**：PR #97；旧 Kotlin `OrekiEcAutomation.runOnce()` 直接调 `Abi.buy` / `Abi.startChallenge`
+  （`app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiEcAutomation.kt:175/274/278`），legacy smali 链已有该门禁而 Kotlin 链缺失；
+  修复在 `runOnce()` 入口加同一判据（纵深防御，仅结算窗口阻止，其余时段 EC 照常推进）。
+- `[读码]`；修复后 AVD 功能回归 **NOT RUN**（AVD 被长跑独占，PR #97 记录）。关联 Issue #98/#99、PR #97。
+
+<a id="f-iu15-lock-recovery"></a>
+## IU15 冲刺的自动器封锁恢复只驻内存（CONFIRMED，Issue #98 P1-4）
+
+- **结论**：`OrekiIu15Sprint` 把「关闭哪些 8 层 ID 自动器」存入内存数组 `savedAutoObjs`（`OrekiIu15Sprint.kt:351-374`），
+  恢复 `restoreIdAutobuyers()` 只按内存列表恢复（`:375-388`）。armed/running 期间进程被杀 ⇒ 原版 `Autobuyers.reset()` 不恢复单项 `isActive`
+  ⇒ 这些自动器**永久关闭**，玩家需手动重开。
+- **证据**：Issue #98 P1-4；代码路径同上；原版 reset 语义见 Web `autobuyers.js:150-154`。
+- **建议**：把被封锁的自动器索引与恢复值落盘 `oreki_prefs`，启动时对账恢复。 `[读码]`；AVD 复现 NOT RUN。
