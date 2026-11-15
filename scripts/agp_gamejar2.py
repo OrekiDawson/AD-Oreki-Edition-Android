@@ -254,7 +254,19 @@ def ensure_asm_tools(repo: Path, java_home: Path) -> list[str]:
     tools_dir = repo / "scripts" / "dexfix" / "r107"
     classes = tools_dir / "build" / "classes"
     classpath_file = tools_dir / "build" / "asm-classpath.txt"
-    if not (classes / "BigClinitSplitter.class").is_file() or not classpath_file.is_file():
+    compiled = classes / "BigClinitSplitter.class"
+    # 只在缺少产物时编译是不够的：java 源码改动（例如 RemapSelective 的重映射策略）
+    # 会继续跑旧的 .class，导致"源码已改、产物没变"的假成功。这里按 mtime 判断陈旧。
+    # （R113-01 实测：改了 RemapSelective.java 后 Jar 仍保持旧绑定。）
+    sources = sorted((tools_dir / "java").glob("*.java"))
+    stale = False
+    if not compiled.is_file() or not classpath_file.is_file():
+        stale = True
+    elif sources:
+        oldest_class = min(p.stat().st_mtime for p in classes.glob("*.class"))
+        newest_source = max(p.stat().st_mtime for p in sources)
+        stale = newest_source > oldest_class
+    if stale:
         result = run(["bash", str(tools_dir / "build_asm_tools.sh")], cwd=repo,
                      env={"JAVA_HOME": str(java_home)})
         require(result["returncode"] == 0, "ASM 工具编译失败:\n" + result["stdout"] + result["stderr"])
