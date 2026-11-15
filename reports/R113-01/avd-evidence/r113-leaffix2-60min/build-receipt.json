@@ -1,0 +1,56 @@
+{
+ "schema": 1,
+ "label": "R112-01-sigfullgame",
+ "created_at": "2026-11-15T16:42:15+08:00",
+ "official_apk": {
+  "path": "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk",
+  "sha256": "4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac"
+ },
+ "staged_apk": {
+  "path": "build/gradle-stage/unsigned.apk",
+  "sha256": "cf38a654de0565f8bae33234c2b02888d594d8cc98d6aeb4b694d550c2e78485"
+ },
+ "input_tools": {
+  "dex2jar": "/home/oreki/private-staging/r10602-tools/dex-tools-v2.4/d2j-dex2jar.sh",
+  "asm_jar": "/home/oreki/.local/opt/gradle-9.9.0/lib/asm-9.10.1.jar",
+  "asm_jar_sha256": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb"
+ },
+ "reference_jars": [
+  {
+   "ref": "build/r113-leaffix2/ref-classes.jar",
+   "ref_sha256": "a31a7fbbad8cab6a86ff109c9c68064b2bc9714d9dab49f2ba9886aa5b62c84a",
+   "output": "SigBackfill: classes=10599 changed=1479 shadowRemap=false"
+  },
+  {
+   "ref": "build/r113-leaffix2/ref-classes2.jar",
+   "ref_sha256": "90f7750dcd58d69391e2371bb34874ca65d800d37ea5c5eb691f5da4ad490d88",
+   "output": "SigBackfill: classes=4541 changed=893 shadowRemap=false"
+  }
+ ],
+ "signature_verify": {
+  "kajfosz.antimatterdimensions.player.Player$Laitela": {
+   "expected": "Ljava/util/List<Lkajfosz/antimatterdimensions/celestials/laitela/DarkMatterDimensionState;>;",
+   "returncode": 0,
+   "present": true
+  },
+  "kajfosz.antimatterdimensions.reality.glyphs.Glyph": {
+   "expected": "Ljava/util/List<Lkajfosz/antimatterdimensions/reality/glyphs/a;>;",
+   "returncode": 0,
+   "present": true
+  }
+ },
+ "game_jar": {
+  "path": "/home/oreki/private-staging/r113-leaffix2-tools/out/agpdex2/game-hybrid-sig.jar",
+  "sha256": "fe64bae3d8f09bd8d3fc9cdbe40d911dbfac30b5f8e9060ede68727e3bb106ae",
+  "bytes": 19727606,
+  "class_count": 15344
+ },
+ "variant": "off",
+ "apks": [
+  {
+   "path": "build/r113-leaffix2/ab/r8off/app-release.apk",
+   "sha256": "9b8a2da6751e743f90a8b55a4e2e6062d10794c9067f56cbc6aadfe36074e7d1",
+   "bytes": 81579615
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+TS realities={'exponent': 0.0, 'mantissa': 0.0} eternities={'exponent': 0.0, 'mantissa': 1.0} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 1.0} eternities={'exponent': 2.0, 'mantissa': 1.18} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 1.0} eternities={'exponent': 2.0, 'mantissa': 4.54} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 0.0, 'mantissa': 0.0} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 88.0, 'mantissa': 3.03326437058406} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 88.0, 'mantissa': 6.1311767329297} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 88.0, 'mantissa': 9.22984249620283} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 89.0, 'mantissa': 1.23277961407921} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 89.0, 'mantissa': 1.54257085031361} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 89.0, 'mantissa': 1.85238995206248} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 89.0, 'mantissa': 2.16219666913788} credits=False
+TS realities={'exponent': 0.0, 'mantissa': 2.0} eternities={'exponent': 89.0, 'mantissa': 2.47200648238125} credits=False
