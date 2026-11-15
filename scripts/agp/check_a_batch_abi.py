@@ -95,6 +95,7 @@ class ClassInfo:
         self.name_and_type: dict[int, tuple[int, int]] = {}
         self.members: list[tuple[str, str, str]] = []  # (tag kind, owner, name:desc)
         self.super_name = ""
+        self.interfaces: list[str] = []
         self.this_name = ""
 
 
@@ -138,6 +139,11 @@ def parse_class(data: bytes) -> ClassInfo:
     super_idx = struct.unpack_from(">H", data, pos + 4)[0]
     info.this_name = info.utf8.get(info.classes.get(this_idx, -1), "")
     info.super_name = info.utf8.get(info.classes.get(super_idx, -1), "")
+    iface_count = struct.unpack_from(">H", data, pos + 6)[0]
+    info.interfaces = [
+        info.utf8.get(info.classes.get(struct.unpack_from(">H", data, pos + 8 + 2 * i)[0], -1), "")
+        for i in range(iface_count)
+    ]
     for owner_idx, nat_idx in refs:
         owner = info.utf8.get(info.classes.get(owner_idx, -1), "")
         name_idx, desc_idx = info.name_and_type.get(nat_idx, (-1, -1))

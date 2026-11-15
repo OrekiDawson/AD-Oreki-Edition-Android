@@ -1,0 +1,103 @@
+{
+ "tag": "hybrid6-late",
+ "apk": "build/r113-hybrid6/ab/r8off/app-release.apk",
+ "apk_sha256": "f2f72a61e96ff4f2cf14defa7e35fb5a70c24cab57322478128343059a9c5982",
+ "fixture": "savestates/late/player-r109-m3-206.json",
+ "fixture_sha256": "75f570c5af04c0485d36e02c019f83c1ea30ea456470073c31e36c86885eb72b",
+ "note": "verdict 由运行日志与落盘文件人工汇总：verify_late.py 在最后截图步骤因 text=True 解码 PNG 崩溃，采集数据完整（progress/logcat 已落盘）",
+ "samples": [
+  {
+   "t": 30,
+   "pid": "2008",
+   "player": "75f570c5af04",
+   "backups": "1"
+  },
+  {
+   "t": 60.1,
+   "pid": "2008",
+   "player": "75f570c5af04",
+   "backups": "1"
+  },
+  {
+   "t": 90.1,
+   "pid": "2008",
+   "player": "75f570c5af04",
+   "backups": "1"
+  },
+  {
+   "t": 120.2,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  },
+  {
+   "t": 150.2,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  },
+  {
+   "t": 180.3,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  },
+  {
+   "t": 210.3,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  },
+  {
+   "t": 240.4,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  },
+  {
+   "t": 270.4,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  },
+  {
+   "t": 300.5,
+   "pid": "2008",
+   "player": "01e67bf85f01",
+   "backups": "1"
+  }
+ ],
+ "player_changed": true,
+ "first_write_seconds": 120.2,
+ "final_player": {
+  "size_bytes": 29912,
+  "sha256": "01e67bf85f01eafc814e34d003a248b20f88f5eef0d730e2bee42d2a42425401",
+  "valid_json": true,
+  "has_laitela": true,
+  "has_realities_keys": true
+ },
+ "gates_tapped": [
+  "0:开始游戏"
+ ],
+ "offline_simulation": "away 1340.7 min, simulated 1340.7 min, 999 crunches, completed",
+ "markers": {
+  "OREKI_TT_REWARD": 1187,
+  "OREKI_UIFRAME": 370,
+  "OREKI_TABGATE": 57,
+  "OREKI_ET_PROBE": 13,
+  "OREKI_CRUNCH": 12,
+  "OREKI_GUI": 11,
+  "OREKI_SCHED": 10,
+  "OREKI_NAV_REFRESH": 8,
+  "OREKI_LEAF": 7,
+  "OREKI_DIL_STUDIES": 7,
+  "OREKI_LAITELA": 4,
+  "OREKI_ET_GATE": 4
+ },
+ "crash_count": 0,
+ "anr_count": 0,
+ "evidence": [
+  "hybrid6-late-late-logcat.txt",
+  "late-progress.txt (前一轮 5 分钟无驱动观测)"
+ ]
+}
