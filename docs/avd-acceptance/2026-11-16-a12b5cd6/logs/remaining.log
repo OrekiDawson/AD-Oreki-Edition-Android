@@ -1,0 +1,13 @@
+[01:07:35] [1] stage-gate-negative（全新档，未放行永恒）
+[01:07:56] fresh-negative: GUI_GATE_CHANGED lines=1
+[01:07:56] [2] save-import（写入合法永恒存档 bigE=14 / autoEt=false）
+[01:08:24] after-import bigE=
+[01:08:24] stage-gate-positive allowed=true lines=23
+[01:08:24] [3] autobuyer-core（合法存档阶段智能购买真实动作）
+[01:08:59] autobuyer-related log lines=68
+[01:08:59] [4] gui（OREKI_UIFRAME fps）
+[01:08:59] max fps=60
+[01:08:59] [5] version（dumpsys）
+    versionCode=30210001 minSdk=32 targetSdk=37
+    versionName=3.21.0
+[01:09:00] DONE
