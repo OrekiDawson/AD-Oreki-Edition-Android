@@ -30,7 +30,8 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki"
+# [R113-01] Issue #61 阶段一：生产 Kotlin 源码位于标准 Android 布局。
+SRC = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
        / "OrekiStageAuto.kt")
 
 checks = 0

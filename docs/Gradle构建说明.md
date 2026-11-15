@@ -6,12 +6,12 @@
 ## 1. 为什么是方案 B，不是标准 AGP 工程
 
 > **2026-11-05 修订**：早期版本这里写「仓库零 Java/Kotlin 源码」，已不符合现状。
-> 现在 `scripts/payload/kotlin/` 下有 6 个 Kotlin 业务文件，经 `kotlinc → D8` 进 APK。
+> 现在生产 Kotlin 源码位于 `app/src/main/kotlin/`（R113-01 前为 `scripts/payload/kotlin/`），经 `kotlinc → D8` 进 APK。
 > 但**仍然不是标准 AGP 工程**：原版游戏代码没有源码形态，只能走 apktool 反编译树 + 补丁重建。
 
 | 判据 | 方案 A：标准 AGP 工程 | 方案 B：Gradle 编排现有流水线 |
 |---|---|---|
-| 有无可编译源码 | **部分有**：MOD 业务在 `scripts/payload/kotlin/`（Kotlin），原版游戏仍只有混淆后的 APK | 不依赖原版源码 |
+| 有无可编译源码 | **部分有**：MOD 业务在 `app/src/main/kotlin/`（Kotlin），原版游戏仍只有混淆后的 APK | 不依赖原版源码 |
 | 现有产物怎么来 | AGP 无法产出：产物必须经 apktool 反编译树 → smali 补丁 → 重建 → zipalign → apksigner | 原样复用 |
 | 存量补丁 | 会全部丢失（EC12 限时、速度倍率、自动购买节奏、挑战即时完成都是 smali/资源级补丁） | 全部保留 |
 | 风险 | 等于重写已稳定的构建链，回归面不可控 | 零行为变更，只加编排层 |
@@ -24,7 +24,7 @@
 MOD 的新业务逻辑一律用 Kotlin 实现，执行路径固定为：
 
 ```
-scripts/payload/kotlin/**.kt
+app/src/main/kotlin/**.kt
   → kotlinc（tools/kotlinc，JDK 21）
   → build/kt/classes/
   → d8（tools/bt/android-14）

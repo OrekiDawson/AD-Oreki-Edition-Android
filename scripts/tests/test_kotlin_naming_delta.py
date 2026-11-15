@@ -5,7 +5,11 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_kotlin_naming_delta import normalize_violation, newly_introduced
+from check_kotlin_naming_delta import (
+    normalize_violation,
+    newly_introduced,
+    parse_name_status,
+)
 from check_kotlin_naming import strip_comments_preserving_lines
 
 
@@ -27,6 +31,30 @@ class NamingDeltaTests(unittest.TestCase):
         old = normalize_violation("a.kt", "N8", "第 21 行出现调用形态 '->a()'")
         new = normalize_violation("a.kt", "N8", "第 70 行出现调用形态 '->a()'")
         self.assertEqual(old, new)
+
+    def test_pure_move_pairs_old_path_with_new_path(self):
+        """R113-01 目录迁移：git mv 后必须能把新旧路径配对，历史债不算新增。"""
+        status = "R100\tscripts/payload/kotlin/A.kt\tapp/src/main/kotlin/A.kt\n"
+        self.assertEqual(
+            parse_name_status(status),
+            [("scripts/payload/kotlin/A.kt", "app/src/main/kotlin/A.kt")],
+        )
+
+    def test_move_plus_new_violation_is_still_blocked(self):
+        status = (
+            "R100\tscripts/payload/kotlin/A.kt\tapp/src/main/kotlin/A.kt\n"
+            "M\tapp/src/main/kotlin/B.kt\n"
+        )
+        files = parse_name_status(status)
+        self.assertEqual(len(files), 2)
+        # 同一逻辑键下新增违规仍必须失败（判据不放宽）。
+        old = Counter({("app/src/main/kotlin/B.kt", "N7", "bq0"): 1})
+        new = Counter({("app/src/main/kotlin/B.kt", "N7", "bq0"): 2})
+        self.assertEqual(newly_introduced(old, new).total(), 1)
+
+    def test_non_kotlin_and_unmanaged_paths_are_ignored(self):
+        status = "A\tapp/src/main/kotlin/A.java\nA\tscripts/payload/smali/A.smali\n"
+        self.assertEqual(parse_name_status(status), [])
 
     def test_repeated_violation_counts_are_respected(self):
         v = ("a.kt", "N7", "xj0")

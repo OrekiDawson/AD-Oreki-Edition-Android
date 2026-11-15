@@ -46,7 +46,7 @@ CrunchAutobuyerState …）。R77 只有一个调度器时用反射凑合是可�
   · 只生成 Kotlin 源码**实际引用到**的类（白名单），不追求覆盖全树 —— 覆盖全树会
     产生上万个 stub 且编译极慢，且绝大多数与业务无关。
 
-白名单来自 `scripts/payload/kotlin/` 下 Kotlin 源码里的 `Lpkg/Class;` 引用，
+白名单来自 `app/src/main/kotlin/` 下 Kotlin 源码里的 `Lpkg/Class;` 引用，
 加上递归展开的参数/返回类型（因为调用 `Player.c()` 返回 `Player$Auto`，
 就必须也声明 `Player$Auto` 才能继续调它的方法）。
 
@@ -68,7 +68,8 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-KT_SRC = ROOT / "scripts" / "payload" / "kotlin"
+# [R113-01] Issue #61 阶段一：生产 Kotlin 源码位于标准 Android 布局。
+KT_SRC = ROOT / "app" / "src" / "main" / "kotlin"
 OUT_DIR = ROOT / "build" / "kt-stubs"
 STUB_SRC = OUT_DIR / "src"
 STUB_CLASSES = OUT_DIR / "classes"
