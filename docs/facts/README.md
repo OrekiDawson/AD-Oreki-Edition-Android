@@ -99,6 +99,8 @@
 | OrekiUiTitle.of 死代码 | [android-internals.md#f-oreki-ui-title-deadcode](android-internals.md#f-oreki-ui-title-deadcode) | CONFIRMED | 新增 | Issue #99 |
 | EC 自动进入门禁 | [automation/strategy.md#f-ec-autostart-gate](automation/strategy.md#f-ec-autostart-gate) | CONFIRMED | 新增 | PR #97 |
 | IU15 冲刺封锁恢复 | [automation/strategy.md#f-iu15-lock-recovery](automation/strategy.md#f-iu15-lock-recovery) | CONFIRMED | 新增 | Issue #98 |
+| Android V DT 门槛 1e30（dilation-gap 早期结论） | [game/reality.md#f-v-unlock-thresholds-android](game/reality.md#f-v-unlock-thresholds-android) | SUPERSEDED | 部分 | 1e320（同条目） |
+| V 解锁 3.21 真类名与 build_mod 不可达分支 | [android-internals.md#f-v-unlock-classes-321](android-internals.md#f-v-unlock-classes-321) | CONFIRMED | 新增 | Issue #98 |
 
 ## 八、维护流程
 

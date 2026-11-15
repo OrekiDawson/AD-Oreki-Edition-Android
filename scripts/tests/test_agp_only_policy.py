@@ -59,6 +59,34 @@ class AgpOnlyPolicyTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "non-AGP"):
                 policy.check_candidate(root)
 
+    def test_candidate_accepts_fullgame_conditional_application_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "agp/app").mkdir(parents=True)
+            (root / ".github/workflows").mkdir(parents=True)
+            (root / "agp/build.gradle.kts").write_text(
+                'plugins { id("com.android.application") version "9.5.1" apply false }'
+            )
+            app = root / "agp/app/build.gradle.kts"
+            workflow = root / policy.WORKFLOW
+            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n")
+            # 真实 fullGame 条件表达式：真分支 MOD 包名、假分支已知 bridge 包名 → 允许（生产形态）
+            app.write_text('plugins { id("com.android.application") }\n'
+                           'applicationId = if (fullGame) "com.oreki.antimatterdimensions" '
+                           'else "kajfosz.antimatterdimensions.agpbridge"\n')
+            policy.check_candidate(root)
+            # 条件表达式真分支写成 bridge → fail-closed 拒绝
+            app.write_text('plugins { id("com.android.application") }\n'
+                           'applicationId = if (fullGame) "kajfosz.antimatterdimensions.agpbridge" '
+                           'else "com.oreki.antimatterdimensions"\n')
+            with self.assertRaisesRegex(ValueError, "bridge"):
+                policy.check_candidate(root)
+            # 条件表达式缺少已知 bridge 假分支 → 不给通过（fail-closed）
+            app.write_text('plugins { id("com.android.application") }\n'
+                           'applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "unknown"\n')
+            with self.assertRaisesRegex(ValueError, "bridge"):
+                policy.check_candidate(root)
+
     def test_legacy_candidate_artifact_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -34,5 +34,9 @@
   `scripts/build_mod.py:7035/7107-7108`），实际门槛仍为原版 **1e320**，见 [V 门槛 Android 实际值](game/reality.md#f-v-unlock-thresholds-android)。
 - `[推断]` 无膨胀 ⇒ `maxDT` 不增长 ⇒ `dilatedTime >= 1e320` 不成立 ⇒ V（及后续 Ra）结构性不可达；
   与 [C.8.3 六项条件](game/reality.md#f-8-3) 关联，但 C.8.3 的缩放值仅 Web 生效（Android 以本节与 V 门槛条目为准）。
+- `[读码]` 3.21 实值校验：三常量 **10000 / 1e320 / 1e320000**、分母 **/10000.0 / /320.0 / /320000.0**；
+  真类名（w35/u35/fw/xd4/yp4）与 build_mod 不可达分支见 [3.21 真类名](android-internals.md#f-v-unlock-classes-321)。
+- `[推断]` **V 不阻塞 credits/Pelle 硬链**：Pelle 解锁条件 = IU25（不依赖膨胀）；GameEnd 读 Pelle totalAM；
+  无 rebuyables 只会让 Pelle rift 明显减速（INFERRED）。Issue #98 P1-1。
 - 待验证：① AVD 实跑确认 maxDT 恒 0（NOT RUN）；② 修复方案（新 Kotlin `OrekiDilation`：启动膨胀→等 TP→买 dtGain→观测 maxDT，走原版入口/扣费）。
 - 关联：Issue #98。

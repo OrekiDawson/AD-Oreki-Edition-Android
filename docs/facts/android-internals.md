@@ -401,3 +401,21 @@ R79 收尾时 `work/mod` 有被后台探测中途写入的痕迹（`a.smali` mti
 - **证据**：R113 180min logcat:10349 `dex2oat64 ... OrekiUiTitle.of(yn4) failed to verify: this argument Reference: yn4 not instance of Reference: rq4`
   （logcat 未入库）；Issue #99 P2-1。
 - **建议**：从 `build_mod.py` 注入清单移除该类，或修正 `of` 的类型；修正前不得新增调用点。 `[读码] + [实测]`；关联 Issue #99。
+
+<a id="f-v-unlock-classes-321"></a>
+## V 解锁门槛的 3.21 真类名与 build_mod 不可达分支（CONFIRMED，2026-11-15）
+
+- **3.21 真类名**（私有基线 `work/base_decoded_321/`，工作树未跟踪）：V.mainUnlock 配置类 **`w35`**
+  （`smali_classes2/w35.smali:1-30`：6 个 `u35` 静态字段 `a..f` + `g:Ljava/util/List`，构造 6 个 `new-instance Lu35;` 后 `sput-object ... g`）；
+  显示常量 **`fw.n1` / `fw.Y2` / `fw.y4`**（`fw.smali:301/479/617`，均为 `BigDouble`）；归一化/分母类 **`xd4`**
+  （`xd4.smali:306` realities/10000.0、`:96` dilatedTime/320.0、`:442` replicanti/320000.0）。
+- **V 进度源**：`yp4` 的 `packed-switch` case26（第 27 项）→ `:pswitch_2` = `Player.a.R().l().i()`，
+  即 `Player$ThisReality.i()`（`Player$ThisReality.smali:334-345`）= **`ThisReality.maxDT`**；分母为 `/320.0`。
+- **build_mod 不可达分支**：`scripts/build_mod.py:7035 patch_v_unlock_thresholds()` 只识别 3.20 的 `Ls55`/`Lu55` shape
+  （`:7094-7112` 检查 `Ls55` 条目 + `g:List` + `new-instance>=6`）；3.21 的 `u55` 已是 WeakHashMap 工具类 ⇒ shape 不成立，
+  在 `:7107-7108` 提前 return；`:7113-7160` 的常量替换（含 1e30/1e20000）与 `:7180-7250` 的 `c15` 分母替换在 3.21 **全部不可达**。
+  `build/build.log:165` 明写「V 阶段门槛同步按指令暂缓」。
+- **结论**：Android 3.21 三常量实际值 = **10000 现实 / 1e320 dilatedTime / 1e320000 replicanti**（与 3.21 原版一致），
+  分母 = **/10000.0、/320.0、/320000.0**；不是 Web 的 200 / 1e30 / 1e20000 与 /200 / /30 / /20000。
+- 证据：Issue #98 P1-2；工作区报告 [android-logic-hunter-v-threshold.md](https://github.com/OrekiDawson/AD-Oreki-Unified/blob/main/reports/R114-01/agents/android-logic-hunter-v-threshold.md)
+  （AD-Oreki-Unified 工作区报告，本仓未入库）；私有基线路径同上。 `[读码]`
