@@ -97,6 +97,7 @@
 - **R114-01 经济链（TT/DS6/canReality）**：[facts/game/eternity.md#f-r114-01-economy](facts/game/eternity.md#f-r114-01-economy)。
 - **R114-01 自动永恒托管语义（CONFIRMED）**：[facts/automation/eternity-reality.md#f-r114-01-adoption](facts/automation/eternity-reality.md#f-r114-01-adoption)。
 - **Dilation 自动化缺口（UNKNOWN/INFERRED）**：[facts/open-questions.md#f-dilation-gap](facts/open-questions.md#f-dilation-gap)。
+- **V 解锁门槛 Android 实际值（CONFIRMED）**：[facts/game/reality.md#f-v-unlock-thresholds-android](facts/game/reality.md#f-v-unlock-thresholds-android)。
 - **AGP 构建链 / 运行时**：最新事实 [facts/build.md#f-r113-01](facts/build.md#f-r113-01)（R113-01 livelock 根因与修复）、[facts/build.md#f-r112-01](facts/build.md#f-r112-01)（R112-01 存档兼容）。
 - **已修复根因（防静默改回）**：[facts/methodology.md#f-10](facts/methodology.md#f-10)。
 - **SUPERSEDED 登记**：[facts/README.md](facts/README.md) 第七节；被推翻条目的链接在各自主题文件顶部状态行。

@@ -8,6 +8,9 @@
 <a id="f-8-3"></a>
 ## 8.3 V（薇）解锁的六项条件与缩放后的取值
 
+> **状态：SUPERSEDED（Android 侧部分）** —— 下列缩放值只在 **Web** 生效；Android 3.21 构建的 `patch_v_unlock_thresholds()` 已按指令暂缓，
+> 实际门槛仍为原版，见 [V 门槛 Android 实际值](#f-v-unlock-thresholds-android)。
+
 `VUnlocks.vAchievementUnlock.requirement()` = 六项 `mainUnlock` 的
 `.every(e => e.progress() >= 1)`（`src/core/secret-formula/celestials/v.js:230-235`）。
 Oreki Edition 缩放后（`v.js:43-45`）：
@@ -25,6 +28,19 @@ Oreki Edition 缩放后（`v.js:43-45`）：
 `[读码+实测]`
 
 **纪律**：改阈值时 `requirement` 显示值与 `progress` 分母**必须同步**，否则 `progress` 永远到不了 1。 `[读码]`
+
+<a id="f-v-unlock-thresholds-android"></a>
+## V 解锁门槛的 Android 实际值（CONFIRMED，2026-11-15）
+
+> 本条更正 [C.8.3](#f-8-3) 在 Android 侧的适用范围：C.8.3 的 200 / 1e30 / 1e20000 是 **Web** 缩放值，
+> Android 3.21 构建**未应用**该缩放。把该缩放当作 Android 实际值的说法标 SUPERSEDED，本节为 Android 权威值。
+
+- `[读码]` `scripts/build_mod.py:7035 patch_v_unlock_thresholds()` 在 3.21 基线因 `u55` 不是已验证的 V.mainUnlock 结构
+  （缺少 `Ls55` 条目或 `g:List`）**按指令暂缓**（`:7107-7108`），不写缩放常量。
+- `[读码]` Android 3.21 实际 V 门槛仍为原版：**10000 现实 / 1e320 dilatedTime / 1e320000 replicanti**（其余三项同原版）。
+  证据：Issue #98 P1-2；`build/build.log:165` 记录暂缓（构建日志未入库，工作树证据路径）。
+- `[推断]` 与 [Dilation 缺口](../open-questions.md#f-dilation-gap) 叠加：无膨胀 + 1e320 DT ⇒ V/Ra 结构性不可达（INFERRED，AVD NOT RUN）。
+- 关联：Issue #98。
 
 <a id="f-8-5"></a>
 ## 8.5 36 空间定理只可能来自 RU0~RU5
