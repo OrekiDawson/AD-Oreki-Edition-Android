@@ -827,6 +827,27 @@ internal object GameApi {
     /** `player().records`。 */
     fun records(): Any? = call(mPlayerR(), player())
 
+    /**
+     * [R114-01] 存档身份：`Player.records.gameCreatedTime`（存档创建毫秒时间戳）。
+     *
+     * 用途：把 MOD 的「原版开关托管」状态绑定到**具体存档**。玩家导入或切换到另一个存档时，
+     * 上一个存档的 adopted / userClosed / enabledRealities 必须失效，否则会把新存档里
+     * 玩家明确关闭的开关误判成「Reality 复位」并强行重开（Codex P1，PR #92）。
+     *
+     * 只读，不写任何字段；读不到返回 null（调用方按「身份未知」fail-closed，不改状态）。
+     */
+    @JvmStatic
+    fun saveIdentity(): String? {
+        return try {
+            val rec = records() ?: return null
+            val value = readGameField(rec, "gameCreatedTime") ?: return null
+            value.toString()
+        } catch (e: Throwable) {
+            miss("saveIdentity", e)
+            null
+        }
+    }
+
     /** `player().breakInfinityUpgradeBits`（BitSet）。 */
     fun breakUpgradeBits(): Any? = call(mPlayerO(), player())
 
@@ -3064,13 +3085,30 @@ internal object GameApi {
         }
         timeTheoremGrantFailures = 0
         timeTheoremPurchasesSettled = total
-        Log.i(
-            TAG_TT_REWARD,
-            "tt-reward delta=" + delta + " extra=" + extra + " granted=" + granted +
-                " total=" + (delta * TIME_THEOREM_REWARD_MULTIPLIER) +
-                " multiplier=" + TIME_THEOREM_REWARD_MULTIPLIER + " cumulative=" + total,
-        )
+        timeTheoremRewardCount++
+        // [R114-01 PERF] 成功补发日志节流。
+        //
+        // 缺陷（R114-01 AVD 实测）：永恒层经济恢复后本方法每帧都会真实买到 TT
+        // （实测 delta=2/次、约 38 次/秒），原实现**每次**打一行 Log.i ⇒ 2 分钟刷出
+        // 56,526 行、logcat 7.7 MB，主线程 I/O 被拖死（同帧 UI_FRAME_PUMP fps 掉到 54、
+        // uiautomator dump 超时、调度 gpTick 间隔被拉长）。日志用于取证，不用于驱动逻辑，
+        // 因此改为「前 10 次全打，之后最长每 30 秒一行」，汇总值不丢。
+        val nowMs = android.os.SystemClock.elapsedRealtime()
+        if (timeTheoremRewardCount <= 10 || nowMs - timeTheoremRewardLastLogAt >= 30_000L) {
+            timeTheoremRewardLastLogAt = nowMs
+            Log.i(
+                TAG_TT_REWARD,
+                "tt-reward delta=" + delta + " extra=" + extra + " granted=" + granted +
+                    " total=" + (delta * TIME_THEOREM_REWARD_MULTIPLIER) +
+                    " multiplier=" + TIME_THEOREM_REWARD_MULTIPLIER + " cumulative=" + total +
+                    " count=" + timeTheoremRewardCount,
+            )
+        }
     }
+
+    /** [R114-01 PERF] 成功补发次数与日志节流时间戳（仅用于诊断日志，不参与任何游戏判据）。 */
+    private var timeTheoremRewardCount: Long = 0L
+    private var timeTheoremRewardLastLogAt: Long = 0L
 
     /** 单帧购买次数合理上限；超过即判定为切换存档（见 settleTimeTheoremReward 注释）。 */
     private const val MAX_REASONABLE_DELTA: Long = 50L

@@ -62,6 +62,9 @@ internal object OrekiAutoEternityGate {
     private var freshSessionChecked = false
     private var freshSession = false
 
+    /** 采样 freshSession 时所属存档身份（records.gameCreatedTime）；换存档即重采样。 */
+    private var freshSessionSaveId = ""
+
     /** 只读零判断：BigDouble 走 compareTo(D)，原生 Number 直接转 double（bigEternities 是 Number）。 */
     private fun isZeroValue(v: Any?): Boolean? = when (v) {
         null -> null
@@ -80,11 +83,24 @@ internal object OrekiAutoEternityGate {
      * 永久判成"非新档"，正是 R104 首个候选版实测失败的原因）。
      */
     private fun noteFreshSession() {
+        // [R114-01 P0 补 / Codex P1] 「本会话是否从全新档启动」必须绑定到**当前存档**。
+        //
+        // 缺陷：freshSession 在会话内只采样一次。若本会话先从全新档启动（freshSession=true、
+        // 引导层接管自动永恒），随后玩家导入一个已有进度的存档（该档玩家明确关闭了自动永恒），
+        // 旧实现仍按 freshSession=true 走引导层，把导入档的开关重新打开并改成 X_HIGHEST×10
+        // ⇒ 不是玩家意愿。OrekiAutoEternityAdoption.bindSave() 已按存档身份重置托管状态，
+        // 这里同样按存档身份重采样，两者口径一致。
+        val saveId = GameApi.saveIdentity()
+        if (freshSessionChecked && saveId != null && saveId != freshSessionSaveId) {
+            freshSessionChecked = false
+            freshSession = false
+        }
         if (freshSessionChecked) return
         val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return
         val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return
         freshSession = eZero && bZero
         freshSessionChecked = true
+        if (saveId != null) freshSessionSaveId = saveId
     }
 
     private fun neverEternitied(): Boolean {
@@ -109,6 +125,18 @@ internal object OrekiAutoEternityGate {
         return !GameApi.autoEternityUnlocked()
     }
 
+    /**
+     * [R114-01 P0] MOD 托管窗口：原版自动器**未解锁**时的放行判据。
+     *
+     * 真机证据（R113-01 180 分钟跑次）：reality 结算后原版 `auto.eternity.isActive` 被原版
+     * `Autobuyers.reset()` 置回 false（里程碑「本现实 100 次永恒」在 reality 清零后未达），
+     * 此后 gate 恒 reason=auto-eternity-off ⇒ 主动永恒永久停摆 ⇒ realities 卡在 2。
+     *
+     * 判据全部交给 OrekiAutoEternityAdoption（落盘、区分玩家手动关闭、跨重启有效）：
+     * 只有「MOD 已接管 且 玩家未手动关闭 且 自动器未解锁」才放行。
+     * 已解锁时一律只认原版开关真实值（玩家手动关闭立刻生效）。
+     */
+    private fun adoptionDriveActive(): Boolean = OrekiAutoEternityAdoption.driveWhileLocked()
     /** 原版完整 canTick（含总开关 / 解锁 / canEternity），仅用于诊断。 */
     @JvmStatic
     fun autoEternityCanRun(): Boolean = GameApi.autoEternityCanRun()
@@ -121,7 +149,9 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun reason(): String {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
-        if (!autoEternitySwitchOn() && !bootstrapActive()) return "auto-eternity-off"
+        if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive()) {
+            return "auto-eternity-off"
+        }
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
@@ -152,6 +182,8 @@ internal object OrekiAutoEternityGate {
         if (autoEternitySwitchOn()) return true
         // [R104 P0] 新档引导窗口内同样放行挑战自动化（否则 EC 链在新档永不启动）。
         if (bootstrapActive()) return true
+        // [R114-01 P0] MOD 托管窗口（原版自动器未解锁）同样放行：否则 reality 后 EC 链停摆。
+        if (adoptionDriveActive()) return true
         val settlementNow = GameApi.canEternity()
         if (settlementNow) logChallengeBlocked()
         return !settlementNow

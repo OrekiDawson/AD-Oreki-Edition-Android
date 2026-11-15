@@ -196,6 +196,15 @@ object OrekiAutomationScheduler {
     @Volatile
     private var ctx: Context? = null
 
+    /**
+     * [R114-01 P0] 供其它 Kotlin 模块读取同一份 oreki_prefs。
+     *
+     * 只暴露 Context 本身，不暴露任何游戏状态；调用方自行 getSharedPreferences(PREFS)。
+     * 返回 null 表示尚未 init（读盘不可用）——调用方必须按「读不到」fail-closed 处理。
+     */
+    @JvmStatic
+    fun contextOrNull(): Context? = ctx
+
     // 诊断计数（累计，不清零；清零点见 setEnabled(false)）
     @Volatile
     private var noopSkips: Int = 0

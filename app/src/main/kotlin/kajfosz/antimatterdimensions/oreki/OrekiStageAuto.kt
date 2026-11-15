@@ -2048,31 +2048,36 @@ object OrekiStageAuto {
     }
 
     /**
-     * [R104 P0] 新档引导期一次性接管原版「自动永恒」开关。
+     * [R114-01 P0] 原版「自动永恒」开关托管 + 新档引导期一次性接管。
      *
-     * 背景：全新存档的 `auto.eternity.isActive` 默认 false，且在自动器解锁前没有 UI 开关。
-     * R101 门禁把 isActive=false 一律当玩家关闭，导致新档在 canEternity 后永久停在无限层
-     * （R104-01 实测 t≈7 min 起 allow=false reason=auto-eternity-off，EP 恒 0）。
+     * ## 两层职责
+     * 1. **托管层（每帧）**：`OrekiAutoEternityAdoption.ensure()`。
+     *    原版 Reality 结算会派发 REALITY_RESET_AFTER → `Autobuyers.reset()` →
+     *    `EternityAutobuyerState.reset()`，在「本现实 100 次永恒」里程碑未达时把
+     *    `isActive` 置 false（Web 同源 eternity-autobuyer.js:105-109）。真机证据：
+     *    R113-01 180 分钟跑次 13:02:46 isActive true→false、realities 1→2，此后
+     *    1965 条 reason=auto-eternity-off、realities 卡 2 至结束。
+     *    托管层负责「原版复位后补回 true / 玩家手动关闭则粘滞尊重 / 跨重启有效」，
+     *    判据全部落盘（oreki_prefs），不依赖一次性内存标记。
      *
-     * 顺序：全新档启动 → 门禁引导窗口允许 MOD 驱动首次永恒 → 原版里程碑解锁自动器
-     * → 本方法一次性写 `isActive=true`（走原版开关，真实读取回校验）→ 之后门禁只认开关。
-     * 载入已有进度的存档（freshSession=false）不会走到这里。
+     * 2. **新档引导层（R104 P0 语义不变）**：全新存档的 `auto.eternity.isActive` 默认 false，
+     *    且自动器解锁前没有 UI 开关；本会话从从未永恒过的全新档启动时，解锁后一次性写 true
+     *    （走原版开关，真实读取回校验）。载入已有进度的存档不会走到这一层。
      */
-    private var eternityAutobuyerAdopted = false
-
     private fun ensureEternityAutobuyerBootstrap() {
-        if (eternityAutobuyerAdopted) return
         try {
             if (!OrekiAutomationScheduler.isEnabled()) return
+            // ---- 1) 托管层：原版 Reality 复位后的开关恢复 / 玩家手动关闭尊重 ----
+            OrekiAutoEternityAdoption.ensure()
+            // ---- 2) 新档引导层（R104 P0）----
+            // 托管层一旦建立（已接管 或 玩家手动关闭），引导层立即让位：
+            // 否则会把玩家刚关闭的开关每帧重新打开，违反「玩家手动关闭必须尊重」。
+            if (OrekiAutoEternityAdoption.managed()) return
             if (!OrekiAutoEternityGate.freshSessionBootstrapEligible()) return
-            if (GameApi.autoEternityIsActive() == true) {
-                eternityAutobuyerAdopted = true
-                return
-            }
+            if (GameApi.autoEternityIsActive() == true) return
             if (!GameApi.autoEternityUnlocked()) return
             GameApi.setAutoEternityActive(true)
             if (GameApi.autoEternityIsActive() == true) {
-                eternityAutobuyerAdopted = true
                 // [R107-01 P0] 同时纠正结算模式，避免「每帧永恒」把 maxIP/EP 卡死（与 Web 同源修复）。
                 GameApi.configureEternityAutobuyerXHighest(10.0)
                 Log.i(TAG_ET_GATE, "bootstrap: adopted vanilla eternity autobuyer after unlock (mode=X_HIGHEST x10)")
@@ -2122,8 +2127,11 @@ object OrekiStageAuto {
             // 总开关/自动永恒开关/Doomed/未 Break 时仍整体停手，与既有语义一致。
             // [R107-01] 只排除「玩家关闭 / Doomed」；not-broken 在永恒层是常态（永恒结算重置 Break），
             // 此时仍必须推进 TT/TD/TS，否则每次永恒后经济停摆（AVD 实测）。
-            val economyEligible = reason != "automation-off" && reason != "auto-eternity-off" &&
-                reason != "doomed"
+            // [R113-01 P0] auto-eternity-off 只应停「主动按永恒」，不能连带停掉永恒层经济：
+            // 60 分钟真机证据（r113-leaffix2-60min）：reality 结算后开关复位为关，
+            // ET_GATE 之后 483 条全是 reason=auto-eternity-off ⇒ TT/TD/TS 全部停摆
+            // ⇒ DS6 永不可得 ⇒ canReality 恒 false ⇒ realities 卡在 2。
+            val economyEligible = reason != "automation-off" && reason != "doomed"
             if (reason == "allow") {
                 GameApi.eternityTick()
             } else if (economyEligible) {
