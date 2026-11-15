@@ -137,7 +137,7 @@ R79 实测 `.workbuddy/mcp-tool-list.json` 的 11 个 server 条目里**没有 r
 | `patch_ad_bonus` | B/C 段命中 0 | B 段锚点动态构造（`t5/r5`）；C 段新增 `_ad_t5_anchors_c()`（`ja4→qw3`） |
 | `verify_payload` | `z3` 路径打开错文件 | 新增 `_ref_path()`：**文件路径 basename 也套别名**，`smali/z3.smali → smali/s3.smali` 再由 `mod_file()` 跨 dex 回落 |
 
-**同时新增的守卫**：`verify_kotlin_gameapi_aliases()` —— 强制
+**同时新增的守卫**：`verify_kotlin_gameapi_aliases()`（R114-02 C4 起迁到 `scripts/verify_build_contracts.py`，由源码 CI 执行；build_mod 不再执行）—— 强制
 `GameApi.kt` 的 `ALIAS_320` 与 `build_mod.OBFUSCATION_ALIASES_320` **逐条一致**，
 并禁止 `cls("短名")` 裸写。这条守卫直接针对 R79 发现的最危险故障模式：
 R8 回收复用旧短名后，Kotlin 反射会**静默指向错误类**（不抛异常）。

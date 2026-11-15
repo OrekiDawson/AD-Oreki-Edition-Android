@@ -407,7 +407,7 @@ R73 的观察「6 次点击后 mode=2」当时被解释为「不走 Q()」，实
 
 - `scripts/fixture_crunch_policy.py`（11 项）：`a(I)V` 次数 ≤2、每次都在 `sCrunch*Init`
   置位之后、无旧的两态兜底、不碰私有字段、保留 `if-eq v1, v2, :ret_p`、有 `.catch` 兜底。
-- `build_mod.py` 的 `verify_au4b` 同步改为**精确版**：不再要求「必须有 a(I)V」，
+- `build_mod.py` 的 `verify_au4b` 同步改为**精确版**（R114-02 C4 起迁到 `scripts/verify_build_contracts.py`，CI 执行）：不再要求「必须有 a(I)V」，
   而是要求「每次 a(I)V 都紧跟一次性闩锁」。
 - 已接入 4b 断言链。
 

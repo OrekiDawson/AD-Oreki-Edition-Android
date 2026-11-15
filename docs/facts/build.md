@@ -509,3 +509,37 @@ ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/andr
 - `[读码]` 真正硬门禁是 **delta**：`ci.yml:52-67` 调 `scripts/check_kotlin_naming_delta.py --base <PR base sha>`，只拦新增违规；
   无可靠 base（workflow_dispatch / 全 0 sha）时 exit 0 并提示 full audit remains advisory。
 - **纪律**：不得把「全量审计 15 项失败」当成本轮回归；新增命名违规必须修，历史债务只在 advisory 列表跟踪。 `[实测] + [读码]`
+
+<a id="f-r114-02-c1"></a>
+## R114-02 C1：教程资产生产路径迁出 build_mod.py（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/build_mod.py` 的 `patch_tutorial_content()`（278 行：构建期从 Web 单源 JSON 生成资产 + 三层断言 + 落盘回读 + 渲染层接线/极性守卫）已删除，改为
+  `stage_tutorial_assets()`：只把**已提交**的 `scripts/payload/assets/oreki_tutorial.txt`（200,880 B，SHA-256 `6bab3f8b978eda78e73e40c7a97dbce966f952f03ce34932be437721cd86b8ed`）
+  原样拷进 `work/mod/assets` 并清理 `*legacy*` 残留。生产构建不再导入 `oreki_tutorial_gen`、不再读 `web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json`。
+- `[读码]` 消费端：AGP 完整游戏 `agp/app/build.gradle.kts` 的 `prepareFullGameAssets`（剔除解码树同名旧资产）+ `verifyTutorialAsset`（结构/编码/规模/PH/章节数，无 Python）
+  消费同一份提交资产；legacy 链由 `stage_tutorial_assets()` 落盘。教程渲染层 `TutorialActivity.kt` 仍只读唯一 asset。
+- `[实测]` 新鲜度改由独立校验把关：`scripts/verify_tutorial_zh.py` A1/A2 逐字节重生成比对（本机 34/34 PASS）、
+  `scripts/tests/test_buildmod_tutorial_retirement.py`（8/8 PASS，覆盖「生成器不许回潮」「主入口只调 staging」「AGP 消费同一资产」「staging 原样拷贝+legacy 清洗」），
+  以及 candidate workflow 新增「提交资产与钉住 Web 检出逐字节一致」步骤（AGP-only 门禁解除后生效）。
+- `[实测]` 生成器 `oreki_tutorial_gen.py` 的「唯一内容源」展示路径改为规范相对路径（`web/AD-Oreki-Edition/...`），使主检出/工作树/CI 不同布局生成**逐字节相同**的资产，
+  保证新鲜度比对与候选可复现性。
+- **NOT RUN**：真实 `./gradlew assembleRelease`、APK 内资产字节、教程页 AVD 打开（需私有解码基线与独占 AVD，本轮未占用）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §5；报告 `reports/R114-02/agents/buildmod-retirement-c1-tutorial-asset.md`。 `[实测] + [读码]`
+
+
+<a id="f-r114-02-c4"></a>
+## R114-02 C4：源码级 verify_* 迁出生产构建（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/build_mod.py` 的 `verify_kotlin_gameapi_aliases` / `verify_break_shop_kotlin` / `verify_au4b`（64/29/80 行）
+  已迁到独立脚本 `scripts/verify_build_contracts.py`：build_mod 不再定义或调用它们（7,394 → 7,219 行），
+  也不再由 Android 生产构建执行；改由源码 CI（Required Checks）执行，失败即阻断合并。
+- `[实测]` 新脚本 **不 import build_mod**；GameApi 别名校验改用 `baseline/versions/3.21/compatibility.json` 的
+  `payload_name→from320` 证据行作为权威源（比原先只对比 Python 常量表更强），并保留 `cls("短名")` 与货币 `p/o` 扣费入口守护。
+- `[实测]` `--selftest` 对每条断言做 10 条变异（别名值/证据缺失/裸 cls/扣费入口/表结构、Break tick/smali 双写/ABI 未登记、
+  AU4b 缺失/闩锁/setter/私有字段），全部被拦住；本机 `verify_build_contracts.py` 3/3 PASS + selftest PASS。
+- `[读码]` fail-closed 不变：候选链 validate 要求「同一 source SHA 已有成功的 Source CI run」，候选 SHA 必须先通过本校验。
+- **剩余树级校验（C4b，NOT RUN）**：`verify_eternity_chain` / `verify_pelle_record` / `check_challenge_auto_polarity` /
+  `check_ec_chain_mechanisms` / `check_smali_descriptors` / `verify_smali_field_types_320` / `verify_payload` 依赖 work/mod 补丁树
+  （别名已重写）或私有解码基线，无法在公开源码 CI 判定；在 C4b 完成前仍在生产构建执行（未迁移即不删）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §7；报告 `reports/R114-02/agents/buildmod-retirement-c4-verify-ci.md`。 `[实测] + [读码]`
+

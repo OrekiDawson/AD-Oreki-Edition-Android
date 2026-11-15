@@ -89,4 +89,65 @@
   证据：`reports/R107-01/lead-evidence/native-blocker/`。
 - **下一步路线**：以 Kotlin 关键闭包重建（Player/主循环/存档/阶段）替代整包转换器；
   转换器仅保留为离线对照/实验，不再作为生产输入。
+## 阶段五（R114-02，2026-11-16）：生产 Kotlin Source Set 输入显式化 —— 生成绑定 Gradle 原生化
 
+闭包范围：`agp/app/build.gradle.kts` + 本文件。**不改游戏业务语义、不改 resources/Manifest、不改 R8 规则、不改 scripts/**。
+
+### 5.1 生产构建真实输入清单（文件 → 来源 → 是否生成物）
+
+| 输入 | 路径 | 来源 | 生成物 |
+| --- | --- | --- | --- |
+| 生产 Kotlin 业务源码 | `app/src/main/kotlin/**`（37 个 `.kt`） | R113-01 由 `scripts/payload/kotlin/**` `git mv` 迁入（已提交） | 否（提交物） |
+| 生成的基线绑定 | `build/kt/generated/OrekiBaselineBindings.kt` | 旧：`python3 scripts/build_kotlin.py --generate-bindings`；**本闭包起**：Gradle 任务 `generateKotlinBindings` 从 `baseline/version-config.json` → `versions["3.21"].bindings`=`baseline/versions/3.21/bindings.json` 的 `status=CONFIRMED` 条目生成 | 是 |
+| 版本身份 | `scripts/release-gate-policy.json`（versionCode/versionName） | 已提交 | 否 |
+| Bridge Manifest | `agp/app/src/main/AndroidManifest.xml` | 已提交 | 否 |
+| 解码树（仅 fullGame） | `work/mod/**`（`AndroidManifest.xml`、`res/`、`assets/`、`lib/`、`smali*`） | `scripts/build_mod.py`（`OREKI_GRADLE_ASSEMBLY=1`）生成；`work/` 全目录 gitignore | 是 |
+| 规范化 fullGame 输入 | `build/agp-fullgame/**`（`AndroidManifest.xml`、`res/`、`stable-ids.txt`、`fullgame-inputs.json`） | Exec 任务 `prepareFullGameInputs` → `scripts/agp_prepare_fullgame.py --decoded-tree work/mod --out build/agp-fullgame` | 是 |
+| fullGame Manifest / 资源 / 资源 ID | 上述 `build/agp-fullgame/AndroidManifest.xml`、`res/`、`stable-ids.txt` | 由解码树规范化；`--stable-ids` 固定原版资源 ID | 是 |
+| fullGame assets | `build/agp-fullgame-assets/**` | Sync 任务 `prepareFullGameAssets`：`work/mod/assets`（排除 `oreki_tutorial.txt`）+ 已提交的 `scripts/payload/assets` | 是 |
+| 变更日志中文 | `build/agp-generated-res/raw/changelog.txt` | Gradle 任务 `generateChangelogZh`：`work/mod/res/raw/changelog.txt` + 已提交的 `scripts/payload/res/raw/changelog.zh.txt` | 是 |
+| 教程资产 | `scripts/payload/assets/oreki_tutorial.txt`（校验输入） | 已提交（Web 单源 JSON 的生成物，但作为资产已入库）；`verifyTutorialAsset` 只读校验 | 否（构建期不再生成） |
+| 游戏 JVM 类（仅 fullGame） | `-PorekiGameJar=<jar>`（当前 `build/r109-r8/game-hybrid-j8-r110.jar`，SHA-256 `0032dc81…fb85`） | `scripts/agp_gamejar.py` / `agp_gamejar2.py`：官方 3.21.0 DEX → dex2jar/enjarify → Signature 回填/过滤；gitignore | 是 |
+| 原生库（仅 fullGame） | `work/mod/lib/**` → `jniLibs` | 解码树（官方基线 .so，4 ABI） | 是（解码物） |
+| CI ABI 守卫输入 | `scripts/build_kotlin.py` 的 `EXPECTED_ABI` | 已提交；CI `--verify-abi` 与旧 Groovy 链仍使用（本闭包未改） | 否 |
+| 目录迁移策略 | `scripts/agp/directory-layout.json`（phase=`nested-new`） | 已提交；`check_directory_layout.py` fail-closed 校验 | 否 |
+
+`scripts/agp/*` 均为构建/验证工具而**不是** Kotlin 源输入：`build_fullgame_sig.sh`（R112 单命令构建入口）、
+`r109_build_ab.sh`（AGP Release A/B 构建）、`check_a_batch_abi.py`（A 批协程 ABI fail-closed）、
+`r109_r8_keepgen.py`/`r109_verify_r8_output.py`/`r109_apk_metrics.py`（R8 实验，属 r8-on 专项）、
+`check_runtime_inventory.py`/`r109_save_*.py`/`sig_backfill.py`（诊断/回填）、`directory-layout.json`（策略）。
+
+### 5.2 本闭包改动
+
+- `agp/app/build.gradle.kts`：`generateKotlinBindings` 由 `Exec(python3 scripts/build_kotlin.py --generate-bindings)`
+  改为**工程内 Gradle 任务**：读取 `baseline/version-config.json` 的 `current` 与 `versions[<ver>].bindings`，
+  仅取 `status=CONFIRMED` 且有目标描述符的条目，按与旧 Python 实现相同的描述符规范化规则（去 `;`、去前缀 `L`、`/`→`.`）
+  排序生成 `build/kt/generated/OrekiBaselineBindings.kt`。输入（version config + bindings 表）、输出（单一 `.kt` 文件）
+  显式声明；`preBuild` 仍显式依赖该任务；Source Set 仍显式登记 `app/src/main/kotlin` 与 `build/kt/generated`。
+- `scripts/build_kotlin.py` **未修改**；旧 Groovy 根构建、CI `--verify-abi`、`reconstructed/` 校验脚本仍可用。本闭包只解除
+  **AGP 生产构建**对 Python 的生成调用（Issue #52 的一小步，不是退役完成）。
+
+### 5.3 验证（真实结果，2026-11-16 本机）
+
+| 检查 | 命令 | 结果 |
+| --- | --- | --- |
+| 生成一致性 | `bash ./gradlew -p agp :app:generateKotlinBindings` | **PASS**：42 条 CONFIRMED / 1,963 B / SHA-256 `e998839e6f768328c49fc390d481585c6e060bc92c95a662876a6e5a49efa7c1`，与旧 Python 输出 `cmp` 逐字节一致 |
+| 增量正确性 | 二次运行同任务 | **PASS**：`UP-TO-DATE`（无冗余重跑） |
+| Bridge 构建 | `bash ./gradlew -p agp :app:assembleDebug :app:copyAgpKotlinClasses` | **PASS**：`BUILD SUCCESSFUL` |
+| Bridge A/B | 基线（Python Exec）与本改动各构建一次 | **PASS**：APK 逐字节相同 `b4916bff…58604` |
+| ABI 守卫 | `python3 scripts/build_kotlin.py --verify-abi --classes agp/app/build/agp-kotlin-classes` | **PASS** |
+| DEX parity | `python3 scripts/verify_agp_parity.py --expected-classes scripts/kotlin_business_classes.txt --agp-apk .../app-debug.apk` | **PASS**：expected 29 / AGP 45 / `missing_in_agp=[]` |
+| DEX 抽查 | 解析 APK `classes*.dex` | **PASS**：`classes5.dex` 含 `Lkajfosz/antimatterdimensions/oreki/OrekiBaselineBindings;` |
+| fullGame Release | `bash scripts/agp/r109_build_ab.sh --jar build/r109-r8/game-hybrid-j8-r110.jar --variant off --outdir build/r11402-agp-native/ab` | **PASS**：81,518,407 B / SHA-256 `35ec57586be69fd3e57dae9b0f6288ca8757609d524de2d31133c01bd1295b4d`；16,505 个 class_defs / 2 个 DEX / 4 ABI native / 23 assets / `resources.arsc`；包名 `com.oreki.antimatterdimensions`、versionCode `30210001`、targetSdk 37 |
+| fullGame A/B | 基线（Python Exec）与本改动各构建一次，并复跑一次 | **PASS**：三份 APK 逐字节相同 `35ec5758…95b4d`（控制组=新实现=复跑） |
+| 目录迁移策略 | `python3 scripts/check_directory_layout.py` | **PASS**：`phase=nested-new; active sources registered` |
+| 相关 CI 等测 | ABI/parity/fullgame-prepare/repository-policy/facts-governance/compileall | **PASS** |
+| AVD 真机运行 | — | **NOT RUN**（本闭包不改游戏语义且不占共享 AVD；发布级 AVD 验收由 Lead 安排在独占资源上执行） |
+
+### 5.4 未完成 / 后续
+
+- 完整游戏输入准备（`scripts/agp_prepare_fullgame.py`）、解码树 `work/mod`（`build_mod.py`）、游戏 JAR 转换仍依赖 Python，
+  属 buildmod-retirement / R8 专项，本闭包未触碰；AGP-only 门禁继续 fail-closed。
+- 根 Groovy `build.gradle` 的同名 `generateKotlinBindings`（旧链）未迁移：S3 根级入口切换的前置条件未满足（Issue #25 / #61）。
+- 事实库条目：为避免与并行 facts 专项的工作树写入冲突，本闭包事实暂记录于本文件与 `reports/R114-02/agents/`；
+  facts 收敛时由 Lead/facts 负责人补一条引用（不新增平行事实文件）。
