@@ -1,0 +1,316 @@
+#!/usr/bin/env python3
+'''Fail-closed governance check for the docs facts library (R114-01 facts-split).
+
+Stdlib only and read-only. Verifies the tracked checkout against the facts-library
+rules: root index is at most 400 lines, every topic file is at most 1200 lines,
+every local link in the root index AND in every topic file resolves to an existing
+file and anchor, every topic file is reachable from the root index, fact anchors
+are unique (duplicate occurrences are preserved during validation), no rolling or
+backup FACTS files exist (including topic-named backups), and all checked
+Markdown is UTF-8 with LF line endings.
+
+Exit 0 = PASS. Exit 1 = FAIL, printing the file, the reason and actual line counts.
+'''
+from __future__ import annotations
+
+import fnmatch
+import sys
+from pathlib import Path
+
+ROOT_LIMIT = 400
+TOPIC_LIMIT = 1200
+ROOT_INDEX = Path('docs/FACTS.md')
+FACTS_DIR = Path('docs/facts')
+BANNED_NAMES = (
+    'FACTS2.md',
+    'FACTS_NEW.md',
+    'FACTS_CONTINUED.md',
+    '*.diverged.bak',
+    'FACTS_*.bak',
+    'FACTS*.bak',
+)
+Q = chr(34)
+FENCE = chr(96) * 3
+CR = bytes((13,))
+
+
+def line_count(text):
+    return len(text.splitlines())
+
+
+def decode(path, problems):
+    raw = path.read_bytes()
+    if CR in raw:
+        problems.append('%s: contains CR (LF required)' % path)
+    try:
+        return raw.decode('utf-8')
+    except UnicodeDecodeError as exc:
+        problems.append('%s: not valid UTF-8 (%s)' % (path, exc))
+        return None
+
+
+def id_occurrences(text):
+    '''Return every explicit anchor occurrence in document order (never a set).'''
+    out = []
+    marker = '<a id=' + Q
+    i = text.find(marker)
+    while i >= 0:
+        j = text.find(Q, i + len(marker))
+        if j < 0:
+            break
+        out.append(text[i + len(marker):j])
+        i = text.find(marker, j)
+    return out
+
+
+def slugify(title):
+    out = []
+    for ch in title.strip().lower():
+        if ch.isalnum() or ch in '-_':
+            out.append(ch)
+        elif ch.isspace():
+            out.append('-')
+        elif ord(ch) > 127:
+            out.append(ch)
+    slug = ''.join(out)
+    while '--' in slug:
+        slug = slug.replace('--', '-')
+    return slug.strip('-')
+
+
+def heading_slugs(text):
+    slugs = set()
+    in_fence = False
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith(FENCE) or s.startswith('~~~'):
+            in_fence = not in_fence
+            continue
+        if in_fence or not s.startswith('#'):
+            continue
+        level = len(s) - len(s.lstrip('#'))
+        title = s[level:].strip()
+        if title:
+            slugs.add(slugify(title))
+    return slugs
+
+
+def anchors(text):
+    combined = set(id_occurrences(text))
+    combined.update(heading_slugs(text))
+    return combined
+
+
+def raw_links(text):
+    out = []
+    i = 0
+    while True:
+        j = text.find('](', i)
+        if j < 0:
+            break
+        if j > 0 and text[j - 1] == '!':
+            i = j + 2
+            continue
+        k = text.find(')', j + 2)
+        if k < 0:
+            break
+        target = text[j + 2:k].strip()
+        if target.startswith('<') and target.endswith('>'):
+            target = target[1:-1]
+        if ' ' in target:
+            target = target.split(' ')[0]
+        out.append(target)
+        i = k + 1
+    return out
+
+
+def local_links(text):
+    '''Inline links outside fenced blocks and inline code spans.'''
+    out = []
+    in_fence = False
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith(FENCE) or s.startswith('~~~'):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        parts = line.split(chr(96))
+        out.extend(raw_links(''.join(parts[0::2])))
+    return out
+
+
+def is_external(target):
+    low = target.lower()
+    return (low.startswith('http://') or low.startswith('https://')
+            or low.startswith('mailto:') or low.startswith('tel:'))
+
+
+def resolve_link(source, target):
+    '''Return (path, anchor); path is None when the link targets the same file.'''
+    anchor = None
+    if '#' in target:
+        path_part, anchor = target.split('#', 1)
+    else:
+        path_part = target
+    if path_part == '':
+        return source, anchor
+    return (source.parent / path_part).resolve(), anchor
+
+
+def inside(root, path):
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def validate_links(root, source, content, texts, problems):
+    rel = source.relative_to(root)
+    for target in local_links(content):
+        if is_external(target):
+            continue
+        resolved, anchor = resolve_link(source, target)
+        if not inside(root, resolved):
+            problems.append('%s: link escapes repository: %s' % (rel, target))
+            continue
+        if not resolved.is_file():
+            problems.append('%s: broken relative link: %s' % (rel, target))
+            continue
+        if not anchor:
+            continue
+        target_text = texts.get(resolved)
+        if target_text is None:
+            target_text = decode(resolved, problems)
+            if target_text is None:
+                continue
+            texts[resolved] = target_text
+        if anchor not in anchors(target_text):
+            problems.append('%s: missing anchor #%s in %s'
+                          % (rel, anchor, resolved.relative_to(root)))
+
+
+def banned_files(root, problems):
+    candidates = []
+    docs = root / 'docs'
+    if docs.is_dir():
+        candidates.extend(p for p in docs.rglob('*') if p.is_file())
+    candidates.extend(p for p in root.glob('FACTS*') if p.is_file())
+    candidates.extend(p for p in root.glob('*diverged*') if p.is_file())
+    seen = set()
+    for path in candidates:
+        key = path.resolve()
+        if key in seen:
+            continue
+        seen.add(key)
+        if key == (root / ROOT_INDEX).resolve():
+            continue
+        name = path.name.lower()
+        if any(fnmatch.fnmatch(name, pat.lower()) for pat in BANNED_NAMES):
+            problems.append('%s: banned rolling/backup facts file' % path.relative_to(root))
+
+
+def check(root):
+    root = root.resolve()
+    problems = []
+    root_index = root / ROOT_INDEX
+    if not root_index.is_file():
+        return ['%s: missing root facts index' % root_index]
+    texts = {}
+    text = decode(root_index, problems)
+    if text is None:
+        return problems
+    texts[root_index.resolve()] = text
+    count = line_count(text)
+    if count == 0:
+        problems.append('%s: root index is empty' % ROOT_INDEX)
+    if count > ROOT_LIMIT:
+        problems.append('%s: root index has %d lines (limit %d)' % (ROOT_INDEX, count, ROOT_LIMIT))
+
+    facts_root = root / FACTS_DIR
+    if not facts_root.is_dir():
+        return problems + ['%s: missing facts directory' % FACTS_DIR]
+    topics = sorted(p.resolve() for p in facts_root.rglob('*.md') if p.is_file())
+    if not topics:
+        problems.append('%s: contains no topic files' % FACTS_DIR)
+    for path in topics:
+        content = decode(path, problems)
+        if content is None:
+            continue
+        texts[path] = content
+        n = line_count(content)
+        rel = path.relative_to(root)
+        if n == 0:
+            problems.append('%s: topic file is empty' % rel)
+        if n > TOPIC_LIMIT:
+            problems.append('%s: topic file has %d lines (limit %d)' % (rel, n, TOPIC_LIMIT))
+
+    # local links must resolve from every checked file (root index and topics)
+    for path in [root_index.resolve()] + topics:
+        content = texts.get(path)
+        if content is not None:
+            validate_links(root, path, content, texts, problems)
+
+    # fact anchor ids unique; keep occurrences so same-file duplicates are visible
+    seen = {}
+    for path in [root_index.resolve()] + topics:
+        content = texts.get(path)
+        if content is None:
+            continue
+        rel = path.relative_to(root)
+        for fid in id_occurrences(content):
+            if fid in seen:
+                problems.append('%s: duplicate fact id %s (also in %s)' % (rel, fid, seen[fid]))
+            else:
+                seen[fid] = rel
+
+    # every topic file reachable from the root index
+    visited = set()
+    queue = [root_index.resolve()]
+    while queue:
+        current = queue.pop()
+        if current in visited or not current.is_file():
+            continue
+        visited.add(current)
+        content = texts.get(current)
+        if content is None:
+            content = decode(current, problems)
+            if content is None:
+                continue
+            texts[current] = content
+        for target in local_links(content):
+            if is_external(target):
+                continue
+            resolved, _anchor = resolve_link(current, target)
+            if inside(root, resolved) and resolved.is_file() and resolved not in visited:
+                queue.append(resolved)
+    for path in topics:
+        if path not in visited:
+            problems.append('%s: topic file is not reachable from %s'
+                          % (path.relative_to(root), ROOT_INDEX))
+
+    banned_files(root, problems)
+    return problems
+
+
+def main(argv):
+    root = Path(argv[1]) if len(argv) > 1 else Path(__file__).resolve().parents[1]
+    problems = check(root)
+    if problems:
+        print('FAIL: facts library governance violations: %d' % len(problems))
+        for item in problems:
+            print('  - ' + item)
+        return 1
+    root = root.resolve()
+    root_index = root / ROOT_INDEX
+    count = line_count(root_index.read_text(encoding='utf-8'))
+    facts_files = sorted((root / FACTS_DIR).rglob('*.md'))
+    biggest = max((line_count(p.read_text(encoding='utf-8')) for p in facts_files), default=0)
+    print('PASS: root index %d lines (limit %d); %d facts files; largest topic %d lines (limit %d); all local links validated'
+          % (count, ROOT_LIMIT, len(facts_files), biggest, TOPIC_LIMIT))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
