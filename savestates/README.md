@@ -11,6 +11,7 @@
 | `mod/` | MOD 存档（含修复前后） |
 | `regression/` | 回归验证用（合法进度不退化等） |
 | `fixtures/` | 构造的测试夹具（非真实玩家进度） |
+| `late/` | **R113-01 新增**：合法未通关晚期存档（realities=9 / Lai'tela / 8 glyph / 未通关），来源与 SHA 见 `late/README.md` |
 
 ## 注入方法（必须同时覆盖备份，否则会被回滚）
 

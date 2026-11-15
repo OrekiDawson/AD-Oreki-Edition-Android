@@ -55,6 +55,17 @@
    "bigEternities": 14,
    "infinities": 126617.0,
    "eternityPoints": 66042.094657793
+  },
+  {
+   "path": "savestates/late/player-r110-m13-440.json",
+   "sha256": "3b0577a24074561ec87624f8ee70d79808c2120c2922540719742548f8c99eaa",
+   "bytes": 34624,
+   "realities": 9.0,
+   "creditsFinished": false,
+   "laitela_dimensions": 4,
+   "glyphs": 8,
+   "lastUpdate": 1794671593527,
+   "provenance": "R110-01 avd-evidence/m13-agp-fresh-180/player-440.json（AGP 候选真实 180 分钟新档跑次自动存档导出，原样复制）"
   }
  ]
 }
