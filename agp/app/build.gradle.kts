@@ -10,6 +10,14 @@ plugins {
 
 val repoRoot = layout.projectDirectory.dir("../..").asFile
 
+/** 把绑定表里的 JVM 描述符（`Liq0;` / `Lkajfosz/...`）转成可 Class.forName 的二进制类名。 */
+fun orekiDescriptorToBinaryName(raw: String): String {
+    var text = raw.trim()
+    if (text.endsWith(";")) text = text.substring(0, text.length - 1)
+    if (text.startsWith("L") && text.length > 1) text = text.substring(1)
+    return text.replace('/', '.')
+}
+
 // Version identity is independent of the pinned Android 3.21.0 upstream baseline.
 // Keep the AGP manifest in lockstep with the reviewed release-gate policy.
 val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
@@ -27,12 +35,91 @@ val fullGameStage = File(repoRoot, providers.gradleProperty("orekiFullGameStage"
 // 脚本：scripts/agp_gamejar.py；来源 SHA-256 必须随候选记录。
 val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
 
-val generateKotlinBindings by tasks.registering(Exec::class) {
-    workingDir = repoRoot
-    commandLine("python3", "scripts/build_kotlin.py", "--generate-bindings")
-    inputs.file(File(repoRoot, "baseline/version-config.json"))
-    inputs.file(File(repoRoot, "scripts/build_kotlin.py"))
-    outputs.file(File(repoRoot, "build/kt/generated/OrekiBaselineBindings.kt"))
+// [R114-02] 生产 Kotlin 生成输入显式化（Issue #61 阶段 S2 / Issue #52 去 Python）：
+// 基线绑定原由 `python3 scripts/build_kotlin.py --generate-bindings`（Exec）在 preBuild
+// 阶段注入 build/kt/generated/，属于「脚本注入的 Source Set 输入」。现改为本工程内的
+// Gradle 任务，从已提交的 baseline/version-config.json + bindings.json 确定性生成：
+// 输入/输出显式声明、可增量、不依赖 Python。生成结果必须与旧实现逐字节一致
+// （42 条 CONFIRMED / 1,963 字节 / SHA-256 e998839e6f768328c49fc390d481585c6e060bc92c95a662876a6e5a49efa7c1）。
+val orekiVersionConfigFile = File(repoRoot, "baseline/version-config.json")
+val orekiVersionConfig = JsonSlurper().parse(orekiVersionConfigFile) as Map<*, *>
+val orekiCurrentVersion = requireNotNull(orekiVersionConfig["current"] as? String) {
+    "baseline/version-config.json 缺少 current 版本号"
+}
+val orekiVersionProfile =
+    ((orekiVersionConfig["versions"] as? Map<*, *>)?.get(orekiCurrentVersion) as? Map<*, *>)
+        ?: throw GradleException("baseline/version-config.json 缺少 $orekiCurrentVersion 的版本配置")
+// 绑定表路径由版本配置登记；缺失即为配置错误，不静默退化成空映射。
+val orekiBindingsFile = File(
+    repoRoot,
+    requireNotNull(orekiVersionProfile["bindings"] as? String) {
+        "baseline/version-config.json 的 $orekiCurrentVersion 缺少 bindings 路径"
+    },
+)
+val orekiGeneratedBindingsDir = File(repoRoot, "build/kt/generated")
+val orekiGeneratedBindingsFile = File(orekiGeneratedBindingsDir, "OrekiBaselineBindings.kt")
+
+val generateKotlinBindings = tasks.register("generateKotlinBindings") {
+    group = "oreki"
+    description = "从已提交基线配置生成 OrekiBaselineBindings.kt（Gradle 原生生成，不调用 Python）"
+    inputs.file(orekiVersionConfigFile).withPropertyName("orekiVersionConfig")
+    inputs.file(orekiBindingsFile).withPropertyName("orekiBaselineBindings")
+    outputs.file(orekiGeneratedBindingsFile).withPropertyName("orekiBaselineBindingsKt")
+    doLast {
+        // 任务动作内重新读取输入，保证增量/缓存判定与实际内容一致。
+        val config = JsonSlurper().parse(orekiVersionConfigFile) as Map<*, *>
+        val version = requireNotNull(config["current"] as? String) { "缺少 current 版本号" }
+        val profile = ((config["versions"] as? Map<*, *>)?.get(version) as? Map<*, *>)
+            ?: throw GradleException("缺少基线版本配置: " + version)
+        val bindingsRel = requireNotNull(profile["bindings"] as? String) { "版本缺少 bindings 路径: " + version }
+        val data = JsonSlurper().parse(File(repoRoot, bindingsRel)) as Map<*, *>
+        val classes = data["classes"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
+        // 只有 CONFIRMED 且有目标描述符的条目进入映射；PARTIAL/UNCONFIRMED 不当 ABI 事实。
+        val mapping = sortedMapOf<String, String>()
+        for ((old, entry) in classes) {
+            val item = entry as? Map<*, *> ?: continue
+            if (item["status"] != "CONFIRMED") continue
+            val target = item["to"] as? String
+            if (target.isNullOrEmpty()) continue
+            mapping[old.toString()] = orekiDescriptorToBinaryName(target)
+        }
+        val rows = mutableListOf(
+            "package kajfosz.antimatterdimensions.oreki",
+            "",
+            "/** 构建时由真实基线绑定生成；未确认符号不参与运行时解析。 */",
+            "internal object OrekiBaselineBindings {",
+            "    private val confirmed = java.util.HashMap<String, String>().apply {",
+        )
+        for ((old, target) in mapping) {
+            rows.add("        put(\"" + old + "\", \"" + target + "\")")
+        }
+        rows.addAll(
+            listOf(
+                "    }",
+                "",
+                "    @JvmStatic",
+                "    private fun normalize(name: String): String {",
+                "        var s = name",
+                "        if (s.endsWith(\";\")) s = s.substring(0, s.length - 1)",
+                "        if (s.startsWith(\"L\") && s.length > 1) s = s.substring(1)",
+                "        return s.replace('/', '.')",
+                "    }",
+                "",
+                "    fun className(name: String): String = if (name.contains('.')) name else normalize(confirmed[name] ?: name)",
+                "",
+                "    /** 当前目标版是否真的有这条绑定；GameApi 用它决定是否先做 3.19→3.20 名称级联。 */",
+                "    @JvmStatic",
+                "    fun isBound(name: String): Boolean = confirmed.containsKey(name)",
+                "}",
+                "",
+            ),
+        )
+        orekiGeneratedBindingsFile.parentFile.mkdirs()
+        orekiGeneratedBindingsFile.writeText(rows.joinToString("\n"), Charsets.UTF_8)
+        logger.lifecycle(
+            "[oreki] 基线绑定生成：" + version + "，CONFIRMED=" + mapping.size + " -> " + orekiGeneratedBindingsFile,
+        )
+    }
 }
 
 val prepareFullGameInputs by tasks.registering(Exec::class) {
@@ -69,6 +156,10 @@ android {
 
     // [R113-01] 生产 Kotlin 源码统一到标准 Android 布局 app/src/main/kotlin（Issue #61 阶段一）。
     // 旧 scripts/payload/kotlin 由 git mv 迁入；此处是唯一源目录，避免双源重复编译同名类。
+    // [R114-02] 生成绑定目录是 generateKotlinBindings 的独占输出（Gradle 原生生成，非脚本注入），
+    // 显式登记为第二个 Source Set 输入；preBuild 依赖生成任务，保证编译前已就绪。
+    // 注意：第二项保留与 orekiGeneratedBindingsDir 同源的字面量路径 ——
+    // scripts/check_directory_layout.py 按该字面量做 fail-closed 校验。
     sourceSets["main"].kotlin.srcDirs(
         File(repoRoot, "app/src/main/kotlin"),
         File(repoRoot, "build/kt/generated"),

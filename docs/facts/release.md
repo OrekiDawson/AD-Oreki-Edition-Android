@@ -149,3 +149,47 @@
 - `[Web]` R91 源提交 `0dda298`（6 个文件：5 个修改 + 1 个新增测试）已推送；Pages 部署提交 `945fed2` 已推送；线上 `https://oreki.net/src/core/oreki-early-automation.js` 返回 200、包含 `shouldRequestBeat`，SHA-256 `43D9C12062CB6C033A300D53915C43E1B4B4DD10AEFB4FDDE7716B4D3E24EBB4`。R91 定向夹具 13/13；相关回归 74 项、教程校验 2189/2189 为执行记录（Agent E 本轮未重跑）。
 - `[发布边界]` `release/反物质维度.apk` 仍为 3.20 稳定版，SHA-256 `82156A4055D36522BF247CCF37606E07CEF9D37C79BB46BE1DA727FF3D590051`；R89 `95F3917544986A1608F6FF5DECA616AF2FE87A9ED5760AC4950B012DD0A77A96`、R90 `41D14A8318166224D065CD79EC751F4F4F1222A600FDA2170B3A0406B474B7CB` 均保留。R91 尚未写入 `release/`、未上传双云盘、未 commit/push，不得写成已正式发布。
 - `[未验证]` 智能调度 1/10/60 秒、关闭停止、真实购买扣款、存档退出恢复、挑战结算、全新存档、真实 180 分钟墙钟、教程/UI 详验均 PENDING；AVD 详细结果未确认前，R91 只能称交付候选。
+
+<a id="f-apksigner-v2-min-sdk-caliber"></a>
+## apksigner verify 的 v2 报告口径：minSdk 32 的 APK 必须显式 --min-sdk-version 24（CONFIRMED，2026-11-16）
+
+- **结论**：对 minSdk=32 且 v2+v3 签名的 APK，直接 `apksigner verify --verbose` 会按 v3 路径验证并输出 `v2=false`（并非 v2 签名缺失）；
+  必须显式 `--min-sdk-version 24`（或按 API 24–27 / 28–32 两段验证）才能正确报告 `v2=true`。
+- **实测**（本机 build-tools **36.0.0 与 37.0.0 均复现**）：candidate APK `a12b5cd6…`（81,587,691 B，minSdk 32，v2+v3）：
+  - 默认 `apksigner verify --verbose`：`Verified using v2 scheme: false`、`v3 scheme: true`；
+  - `--min-sdk-version 24`：`v2: true`、`v3: true`。
+  （对照：v2-only 的本地 APK 默认即报 `v2=true`，不会出现该误报。）
+- **现有实现已按正确口径**：`scripts/ci/prepare_apk_tool_report.py:66-69` 分别用
+  `--min-sdk-version 24 --max-sdk-version 27`（v2）与 `--min-sdk-version 28 --max-sdk-version 32`（v3）；
+  `scripts/verify_release.py:219-236` 据此判定「签名方案 v2+v3」；release 政策要求 v2+v3。
+- **纪律**：默认 verify 的 `v2=false` 不得作为「缺 v2」的证据；判 v2 必须带 `--min-sdk-version 24`。 `[实测] + [读码]`
+
+<a id="f-release-version-single-source"></a>
+## 发布身份单一来源：scripts/release-gate-policy.json（CONFIRMED，2026-11-16）
+
+- **唯一来源**：`scripts/release-gate-policy.json` 是 versionCode / versionName / modVersion 的唯一发布身份来源；当前
+  `versionCode=30210001`、`modVersion=1.0.1`、`modVersionState=ready-for-release`、`versionName=3.21.0`（#116 合并 `e3f881e7`）。
+  **bump 版本只需改 policy**，不得另改脚本常量。
+- **派生方（必须读 policy，否则 fail-closed）**：
+  - AGP 构建：`agp/app/build.gradle.kts:15-17/61-62` 从 policy 读取 versionCode/versionName；
+  - `scripts/verify_release.py:35-37`（RELEASE_POLICY_FILE）；`scripts/verify_patch_contract.py:993`；
+  - `scripts/pull_stable_release.py:36-37`（POLICY_PATH，第四渠道拉取校验）；
+  - `.github/workflows/verify-unified.yml:137` 按 `source_sha` 取 policy 到 `candidate/approved-release-policy.json`；
+  - `.github/workflows/release-validate-unified.yml:242` 读 policy 的 versionName；
+  - `scripts/tests/test_release_version_contract.py:11-45` 断言 AGP/verify/release-validate 不再硬编码旧 30210000。
+- **纠正记录**：#117（合并 `d3ff9197`）把 candidate verifier 的发布身份由硬编码改为 policy 派生；
+  仍硬编码旧 versionCode/Name 的依赖方会与 policy 冲突并 fail-closed，不得用自报值替代 policy。
+- 证据：#116 `e3f881e7`、#117 `d3ff9197`、policy 文件与上述 file:line。 `[读码]`
+
+<a id="f-candidate-30210001-status"></a>
+## candidate 30210001 链路现状（CONFIRMED，2026-11-16）
+
+- **运行**：Android candidate build run `43735315296`（source_sha `d3ff9197`）success；Android candidate verification run `43735739171` success。
+- **产物**（`ad-oreki-candidate` artifact 的 `candidate-metadata.json` / `release-manifest.json` / `verify-release.json`）：
+  APK `antimatter-dimensions.apk` SHA-256 `a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87`、81,587,691 B；
+  versionCode `30210001` / versionName `3.21.0`；证书 `95960bce…3197`；builder AGP 9.5.1 / `:app:assembleRelease`；
+  `verify-release.json` failed=0、v2+v3=true（`--min-sdk-version 24` 口径）；game jar SHA `5f0fcf39…`、build bundle SHA `8131dfb2…`。
+- **仍未进 release-gate**：release gate workflow 必填 `acceptance_commit_sha` / `acceptance_path`（pinned AVD acceptance.json）；
+  当前 `reports/R114-01/avd-evidence/acceptance-a12b5cd6/` 不存在（本次检查无该目录）⇒ AVD 验收与 release-gate 尚未执行，
+  **candidate ≠ stable**（NOT RUN/BLOCKED，不得写成已发布）。
+- 证据：`gh run view 43735315296 / 43735739171`、artifact 解包元数据、`.github/workflows/release-gate-unified.yml` 输入定义。 `[实测]`

@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-16T01:06:35+08:00",
+  "tool": "scripts/tests/r107/avd_gate.py",
+  "status": "EXECUTED",
+  "device": "emulator-5554",
+  "apk": {
+    "path": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/candidate-43735315296/ad-oreki-candidate/antimatter-dimensions.apk",
+    "sha256": "a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87",
+    "bytes": 81587691
+  },
+  "mode": "all",
+  "checks": [
+    {
+      "id": "preflight",
+      "state": "PASS",
+      "evidence": "设备在线: emulator-5554；属性=37 | sdk_gphone64_x86_64 | 17",
+      "at": "2026-11-16T01:06:03+08:00"
+    },
+    {
+      "id": "install-upgrade",
+      "state": "PASS",
+      "evidence": "adb install -r -g antimatter-dimensions.apk: Success",
+      "at": "2026-11-16T01:06:05+08:00"
+    },
+    {
+      "id": "new-save",
+      "state": "PASS",
+      "evidence": "pm clear+冷启动: pid=7021 crashes={'fatal_exception': 0, 'verify_error': 0, 'class_not_found': 0, 'anr': 0, 'process_died': 0} screenshot=03-new-save.png",
+      "at": "2026-11-16T01:06:09+08:00"
+    },
+    {
+      "id": "launch",
+      "state": "PASS",
+      "evidence": "am start -W: Status=ok:True pid=7170 resumed=topResumedActivity=ActivityRecord{256035147 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t663}\n  ResumedActivity: ActivityRecord{256035147 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t663} crashes={'fatal_exception': 0, 'verify_error': 0, 'class_not_found': 0, 'anr': 0, 'process_died': 0} screenshot=12-cold-start.png",
+      "at": "2026-11-16T01:06:19+08:00"
+    },
+    {
+      "id": "restart-load",
+      "state": "PASS",
+      "evidence": "force-stop+重启: Status=ok:True pid=7484 resumed=topResumedActivity=ActivityRecord{10454603 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t664}\n  ResumedActivity: ActivityRecord{10454603 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t664} crashes={'fatal_exception': 0, 'verify_error': 0, 'class_not_found': 0, 'anr': 0, 'process_died': 0} save_before={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846} save_after={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup02.json': 28062} screenshot=22-restart.png",
+      "at": "2026-11-16T01:06:35+08:00"
+    },
+    {
+      "id": "save-file-persist",
+      "state": "PASS",
+      "evidence": "重启前存档={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846}；重启后存档={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup02.json': 28062}",
+      "at": "2026-11-16T01:06:35+08:00"
+    },
+    {
+      "id": "gui-screenshot",
+      "state": "PASS",
+      "evidence": "截图 3 张: ['03-new-save.png', '12-cold-start.png', '22-restart.png']；均 >20KB=True",
+      "at": "2026-11-16T01:06:35+08:00"
+    },
+    {
+      "id": "save-import",
+      "state": "NOT RUN",
+      "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+      "at": "2026-11-16T01:06:35+08:00"
+    },
+    {
+      "id": "stage-gate-positive",
+      "state": "NOT RUN",
+      "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+      "at": "2026-11-16T01:06:35+08:00"
+    },
+    {
+      "id": "stage-gate-negative",
+      "state": "NOT RUN",
+      "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+      "at": "2026-11-16T01:06:35+08:00"
+    },
+    {
+      "id": "autobuyer-core",
+      "state": "NOT RUN",
+      "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+      "at": "2026-11-16T01:06:35+08:00"
+    }
+  ],
+  "artifacts": {
+    "00-plan.json": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/00-plan.json",
+    "00-device-state.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/00-device-state.txt",
+    "00-device-props.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/00-device-props.txt",
+    "01-install.log": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/01-install.log",
+    "01-package.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/01-package.txt",
+    "02-pm-clear.log": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/02-pm-clear.log",
+    "03-new-save-start.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/03-new-save-start.txt",
+    "03-new-save-logcat.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/03-new-save-logcat.txt",
+    "03-new-save.png": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/03-new-save.png",
+    "10-cold-start.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/10-cold-start.txt",
+    "11-cold-start-logcat.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/11-cold-start-logcat.txt",
+    "12-cold-start.png": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/12-cold-start.png",
+    "20-save-files-stat.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/20-save-files-stat.txt",
+    "21-restart-start.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/21-restart-start.txt",
+    "21-restart-logcat.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/21-restart-logcat.txt",
+    "22-restart.png": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/22-restart.png",
+    "20-save-files.txt": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/20-save-files.txt"
+  },
+  "acceptance_fragment": {
+    "schema": 1,
+    "apk_sha256": "a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87",
+    "checks": [
+      {
+        "id": "install-upgrade",
+        "state": "PASS",
+        "evidence": "adb install -r -g antimatter-dimensions.apk: Success",
+        "at": "2026-11-16T01:06:05+08:00"
+      },
+      {
+        "id": "new-save",
+        "state": "PASS",
+        "evidence": "pm clear+冷启动: pid=7021 crashes={'fatal_exception': 0, 'verify_error': 0, 'class_not_found': 0, 'anr': 0, 'process_died': 0} screenshot=03-new-save.png",
+        "at": "2026-11-16T01:06:09+08:00"
+      },
+      {
+        "id": "launch",
+        "state": "PASS",
+        "evidence": "am start -W: Status=ok:True pid=7170 resumed=topResumedActivity=ActivityRecord{256035147 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t663}\n  ResumedActivity: ActivityRecord{256035147 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t663} crashes={'fatal_exception': 0, 'verify_error': 0, 'class_not_found': 0, 'anr': 0, 'process_died': 0} screenshot=12-cold-start.png",
+        "at": "2026-11-16T01:06:19+08:00"
+      },
+      {
+        "id": "restart-load",
+        "state": "PASS",
+        "evidence": "force-stop+重启: Status=ok:True pid=7484 resumed=topResumedActivity=ActivityRecord{10454603 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t664}\n  ResumedActivity: ActivityRecord{10454603 u0 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity t664} crashes={'fatal_exception': 0, 'verify_error': 0, 'class_not_found': 0, 'anr': 0, 'process_died': 0} save_before={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846} save_after={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup02.json': 28062} screenshot=22-restart.png",
+        "at": "2026-11-16T01:06:35+08:00"
+      },
+      {
+        "id": "save-file-persist",
+        "state": "PASS",
+        "evidence": "重启前存档={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846}；重启后存档={'/data/data/com.oreki.antimatterdimensions/files/player.json': 27990, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup0.json': 27846, '/data/data/com.oreki.antimatterdimensions/files/speedrunBackup02.json': 28062}",
+        "at": "2026-11-16T01:06:35+08:00"
+      },
+      {
+        "id": "gui-screenshot",
+        "state": "PASS",
+        "evidence": "截图 3 张: ['03-new-save.png', '12-cold-start.png', '22-restart.png']；均 >20KB=True",
+        "at": "2026-11-16T01:06:35+08:00"
+      },
+      {
+        "id": "save-import",
+        "state": "NOT RUN",
+        "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+        "at": "2026-11-16T01:06:35+08:00"
+      },
+      {
+        "id": "stage-gate-positive",
+        "state": "NOT RUN",
+        "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+        "at": "2026-11-16T01:06:35+08:00"
+      },
+      {
+        "id": "stage-gate-negative",
+        "state": "NOT RUN",
+        "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+        "at": "2026-11-16T01:06:35+08:00"
+      },
+      {
+        "id": "autobuyer-core",
+        "state": "NOT RUN",
+        "evidence": "不在本脚本范围：需真实存档/GUI 门禁/自动购买器流程，由 Lead 补测",
+        "at": "2026-11-16T01:06:35+08:00"
+      }
+    ],
+    "screenshots": [
+      "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/03-new-save.png",
+      "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/12-cold-start.png",
+      "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/22-restart.png"
+    ],
+    "verdict": "PASS",
+    "note": "本 fragment 只覆盖冷启动/新建档/重启读档；save-import/阶段门禁/自动购买器 NOT RUN，不得单独作为稳定版 acceptance.json。"
+  },
+  "verdict": "PASS"
+}

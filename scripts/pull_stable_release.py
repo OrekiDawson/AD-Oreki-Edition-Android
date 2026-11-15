@@ -31,10 +31,15 @@ from pathlib import Path
 DEFAULT_REPO = "OrekiDawson/AD-Oreki-Edition-Android"
 DEFAULT_DEST = Path.home() / "Releases" / "AD-Oreki-Edition"
 DEFAULT_APK_NAME = "反物质维度.apk"
-EXPECTED_CERT_SHA256 = "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
-EXPECTED_PACKAGE = "com.oreki.antimatterdimensions"
-EXPECTED_VERSION_NAME = "3.21.0"
-EXPECTED_VERSION_CODE = "30210000"
+# 发布身份从受审查的 release policy 派生，避免 policy bump 后第四渠道拉取仍按旧
+# versionCode 拒绝新稳定版（Codex P1：EXPECTED_VERSION_CODE 硬编码 30210000）。
+# policy 与脚本同仓（scripts/release-gate-policy.json），开发机 checkout 即可读取。
+POLICY_PATH = Path(__file__).with_name("release-gate-policy.json")
+POLICY = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+EXPECTED_CERT_SHA256 = POLICY["certificate_sha256"]
+EXPECTED_PACKAGE = POLICY["package"]
+EXPECTED_VERSION_NAME = POLICY["versionName"]
+EXPECTED_VERSION_CODE = str(POLICY["versionCode"])
 TAG_RE = re.compile(r"^android-update-(\d+(?:\.\d+)+)-([0-9a-f]{8})$")
 SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 USER_AGENT = "oreki-local-channel-pull/1.0"
