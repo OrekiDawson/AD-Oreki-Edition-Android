@@ -95,7 +95,6 @@ STEPS = [
     ("patch_r74_temp_diag", bm.patch_r74_temp_diag),
     ("patch_ip_mult_autobuyer", bm.patch_ip_mult_autobuyer),
     ("patch_stage_auto_hook", bm.patch_stage_auto_hook),
-    ("verify_au4b", bm.verify_au4b),
     ("verify_eternity_chain", bm.verify_eternity_chain),
     # [R94] patch_break_gate / verify_break_gate 已随 OrekiBreakGate.smali 一起删除：
     # 这两条 STEPS 只会 AttributeError，R114-02 C5 清理掉（历史见 BUILDMOD_RETIREMENT_LEDGER）。
