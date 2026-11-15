@@ -504,6 +504,7 @@ IP 只能靠 `ipGen` 被动收入（1e6 → 2.4e7），而 Android 3.19.0 的 ID
 同步修 `if-gtz` → `if-gez`：`compareTo` 在 xHighest==10 时返回 0，原写法不退出 ⇒
 每帧重写 `P(10)` 并打一行 `OREKI_AU4B`（R63 实测 7.5 分钟 14314 行）。改后 <10 才写、==10 跳过、>10 保留。
 `build_mod.py` 的极性表条目与 `verify_au4b` 断言已同步更新（不是删除守卫）。
+（R114-02 C4 起该断言迁到 `scripts/verify_build_contracts.py`，由源码 CI 执行。）
 
 ### 102.4 四、教程与代码对齐（新增长期规则的首次执行）
 
