@@ -254,7 +254,7 @@ def build_report(*, policy: dict, identity: dict, checks_data: dict,
 
 def validate_existing(path, *, policy: dict, identity: dict, candidate_run: int,
                       verification_run: int, source_sha: str, web_ref: str,
-                      acceptance_commit: str, repo_root) -> dict:
+                      acceptance_commit: str, evidence_commit: str, repo_root) -> dict:
     target = pathlib.Path(path)
     if not target.is_file():
         raise BuilderError("acceptance 文件不存在: " + str(target))
@@ -262,6 +262,8 @@ def validate_existing(path, *, policy: dict, identity: dict, candidate_run: int,
         data = json.loads(target.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise BuilderError("acceptance 文件无法解析: " + str(exc)) from exc
+    if data.get("evidence_commit_sha") != evidence_commit:
+        raise BuilderError("acceptance.json evidence_commit_sha 与参数不一致")
     validate_screenshots(data.get("screenshots"), repo_root)
     try:
         VRA.check_report(data, sha256=identity["sha256"], candidate_run=candidate_run,
@@ -309,6 +311,7 @@ def main(argv=None) -> int:
                           verification_run=args.verification_run_id,
                           source_sha=args.source_sha, web_ref=args.web_ref,
                           acceptance_commit=args.acceptance_commit,
+                          evidence_commit=args.evidence_commit,
                           repo_root=args.repo_root)
         print("PASS: acceptance.json 通过 verify_release_acceptance 校验: " + args.validate_existing)
         return 0

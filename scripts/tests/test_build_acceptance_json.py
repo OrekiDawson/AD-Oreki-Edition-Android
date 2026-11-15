@@ -133,8 +133,8 @@ class AcceptanceBuilderTests(unittest.TestCase):
         with self.assertRaisesRegex(B.BuilderError, "completion_runs"):
             self.build(payload)
         payload = checks_payload()
-        payload["completion_runs"][0]["evidence_commit_sha"] = "e" * 40
-        with self.assertRaisesRegex(B.BuilderError, "evidence commit"):
+        payload["completion_runs"][0]["evidence_commit_sha"] = "f" * 40
+        with self.assertRaisesRegex(B.BuilderError, "declared evidence_commit_sha"):
             self.build(payload)
 
     def test_checks_file_evidence_commit_conflict_rejected(self):
