@@ -52,9 +52,20 @@
 | 修改脚本语法 | `compile()` 逐文件（不写 pyc） | **PASS**：4/4 SYNTAX OK |
 | whitespace / CRLF | `git diff --check` + 字节扫描 | **PASS**：无 CRLF、无空白错误 |
 | Gradle / AVD / APK 构建 | — | **NOT RUN**（按约束禁止） |
-| GitHub CI | — | **NOT RUN**（提交后由 Actions 执行） |
+| GitHub CI（PR #94） | Actions run 43717673423 | **PASS**：4 项检查全 pass，守卫日志含同一 PASS 行与 11 tests OK |
 
-## 5. 依赖与后续
+## 5. CI 结果（PR #94，2026-11-15）
+
+| 检查 | 结果 |
+| --- | --- |
+| 源码规范与回归检查 | **PASS**（53s；含事实库守卫与 11 项回归） |
+| AGP 9.5.1 Kotlin DEX parity | **PASS**（1m26s） |
+| Source checks (no proprietary APK baseline) | **PASS**（3s） |
+| 自动 PR 规模与风险提示 | **PASS**（10s） |
+
+CI 守卫日志：PASS: root index 121 lines (limit 400); 31 facts files; largest topic 676 lines (limit 1200)；Ran 11 tests ... OK。
+
+## 6. 依赖与后续
 
 - 本分支叠加在 #93 之上：**必须先合并 #93**，否则本 PR 的 diff 含 #93 全部改动。
 - worktree 登记：`/home/oreki/AD-Oreki-Unified/docs/WORKTREE_MAPPING.md` 需由 Lead 补登（文件在主工作树外，本轮隔离约束内不改）。
