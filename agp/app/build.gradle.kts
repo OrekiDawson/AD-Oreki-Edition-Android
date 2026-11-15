@@ -119,6 +119,9 @@ android {
                 // 背景：verify_release.py 的硬口径是 v2+v3（"签名方案 v2+v3"）；
                 // AGP 默认只产出 v2，导致 AGP 候选在 verify 阶段必 FAIL。
                 // 这里保留 v1/v2 现有行为，只补 v3（不放松 verifier）。
+                // [R114-01 B9 修正] 仅设 enableV3Signing=true 时实测产物为 v3-only（apksigner:
+                // v2=false/v3=true），而 verify_release 硬口径是 v2+v3。两者必须显式同时开启。
+                enableV2Signing = true
                 enableV3Signing = true
             }
         }
