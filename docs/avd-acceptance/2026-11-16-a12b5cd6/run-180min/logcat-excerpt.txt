@@ -1,0 +1,400 @@
+11-16 01:09:15.942 I/OREKI_SCHED( 8262): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-16 01:09:19.319 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:19.319 I/OREKI_SCHED( 8262): gui-tick #1 gapMs=1000
+11-16 01:09:19.325 I/OREKI_ET_ADOPT( 8262): save changed: reset adoption state old=1794762479834 new=1794322357621
+11-16 01:09:19.327 I/OREKI_SCHED( 8262): noop reality
+11-16 01:09:19.328 I/OREKI_SCHED( 8262): act eternity @11359994ms gap=-1 taskGap=-1
+11-16 01:09:19.332 I/OREKI_SCHED( 8262): deny frame-held task=realityUpgrades
+11-16 01:09:20.319 I/OREKI_SCHED( 8262): gui-tick #2 gapMs=1000
+11-16 01:09:20.329 I/OREKI_SCHED( 8262): act infinityUpgrades @11360996ms gap=1002 taskGap=-1
+11-16 01:09:21.318 I/OREKI_SCHED( 8262): gui-tick #3 gapMs=1000
+11-16 01:09:21.330 I/OREKI_SCHED( 8262): act infinityUpgrades @11361996ms gap=1000 taskGap=1000
+11-16 01:09:22.319 I/OREKI_SCHED( 8262): gui-tick #4 gapMs=1000
+11-16 01:09:22.332 I/OREKI_SCHED( 8262): act infinityUpgrades @11362999ms gap=1003 taskGap=1003
+11-16 01:09:23.345 I/OREKI_SCHED( 8262): gui-tick #5 gapMs=1000
+11-16 01:09:23.348 I/OREKI_SCHED( 8262): act infinityUpgrades @11364014ms gap=1015 taskGap=1015
+11-16 01:09:24.355 I/OREKI_SCHED( 8262): gui-tick #6 gapMs=1000
+11-16 01:09:24.358 I/OREKI_SCHED( 8262): act infinityUpgrades @11365024ms gap=1010 taskGap=1010
+11-16 01:09:25.374 I/OREKI_SCHED( 8262): gui-tick #7 gapMs=1000
+11-16 01:09:25.379 I/OREKI_SCHED( 8262): act infinityUpgrades @11366045ms gap=1021 taskGap=1021
+11-16 01:09:26.373 I/OREKI_SCHED( 8262): gui-tick #8 gapMs=1000
+11-16 01:09:26.401 I/OREKI_SCHED( 8262): act infinityUpgrades @11367068ms gap=1023 taskGap=1023
+11-16 01:09:27.375 I/OREKI_SCHED( 8262): gui-tick #9 gapMs=1000
+11-16 01:09:27.406 I/OREKI_SCHED( 8262): act infinityUpgrades @11368073ms gap=1005 taskGap=1005
+11-16 01:09:28.402 I/OREKI_SCHED( 8262): gui-tick #10 gapMs=1000
+11-16 01:09:28.431 I/OREKI_SCHED( 8262): act infinityUpgrades @11369098ms gap=1025 taskGap=1025
+11-16 01:09:29.333 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:09:29.397 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:29.423 I/OREKI_SCHED( 8262): gui-tick #11 gapMs=1000
+11-16 01:09:29.456 I/OREKI_SCHED( 8262): act infinityUpgrades @11370122ms gap=1024 taskGap=1024
+11-16 01:09:30.435 I/OREKI_SCHED( 8262): gui-tick #12 gapMs=1000
+11-16 01:09:30.463 I/OREKI_SCHED( 8262): act infinityUpgrades @11371130ms gap=1008 taskGap=1008
+11-16 01:09:31.456 I/OREKI_SCHED( 8262): gui-tick #13 gapMs=1000
+11-16 01:09:31.495 I/OREKI_SCHED( 8262): act infinityUpgrades @11372162ms gap=1032 taskGap=1032
+11-16 01:09:32.472 I/OREKI_SCHED( 8262): gui-tick #14 gapMs=1000
+11-16 01:09:32.505 I/OREKI_SCHED( 8262): act infinityUpgrades @11373172ms gap=1010 taskGap=1010
+11-16 01:09:33.493 I/OREKI_SCHED( 8262): gui-tick #15 gapMs=1000
+11-16 01:09:33.523 I/OREKI_SCHED( 8262): act infinityUpgrades @11374190ms gap=1018 taskGap=1018
+11-16 01:09:34.523 I/OREKI_SCHED( 8262): gui-tick #16 gapMs=1000
+11-16 01:09:34.526 I/OREKI_SCHED( 8262): act infinityUpgrades @11375192ms gap=1002 taskGap=1002
+11-16 01:09:35.543 I/OREKI_SCHED( 8262): gui-tick #17 gapMs=1000
+11-16 01:09:35.545 I/OREKI_SCHED( 8262): act infinityUpgrades @11376211ms gap=1019 taskGap=1019
+11-16 01:09:36.555 I/OREKI_SCHED( 8262): gui-tick #18 gapMs=1000
+11-16 01:09:36.559 I/OREKI_SCHED( 8262): act infinityUpgrades @11377226ms gap=1015 taskGap=1015
+11-16 01:09:37.573 I/OREKI_SCHED( 8262): gui-tick #19 gapMs=1000
+11-16 01:09:37.591 I/OREKI_SCHED( 8262): act infinityUpgrades @11378257ms gap=1031 taskGap=1031
+11-16 01:09:38.584 I/OREKI_SCHED( 8262): gui-tick #20 gapMs=1000
+11-16 01:09:38.615 I/OREKI_SCHED( 8262): act sacrifice @11379281ms gap=1024 taskGap=-1
+11-16 01:09:39.338 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:09:39.519 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:39.595 I/OREKI_SCHED( 8262): gui-tick #21 gapMs=1000
+11-16 01:09:39.622 I/OREKI_SCHED( 8262): act infinityUpgrades @11380289ms gap=1008 taskGap=2032
+11-16 01:09:40.609 I/OREKI_SCHED( 8262): gui-tick #22 gapMs=1000
+11-16 01:09:40.635 I/OREKI_SCHED( 8262): act infinityUpgrades @11381302ms gap=1013 taskGap=1013
+11-16 01:09:41.630 I/OREKI_SCHED( 8262): gui-tick #23 gapMs=1000
+11-16 01:09:41.657 I/OREKI_SCHED( 8262): act infinityUpgrades @11382323ms gap=1021 taskGap=1021
+11-16 01:09:42.647 I/OREKI_SCHED( 8262): gui-tick #24 gapMs=1000
+11-16 01:09:42.678 I/OREKI_SCHED( 8262): act infinityUpgrades @11383344ms gap=1021 taskGap=1021
+11-16 01:09:43.647 I/OREKI_SCHED( 8262): gui-tick #25 gapMs=1000
+11-16 01:09:43.703 I/OREKI_SCHED( 8262): act infinityUpgrades @11384370ms gap=1026 taskGap=1026
+11-16 01:09:44.667 I/OREKI_SCHED( 8262): gui-tick #26 gapMs=1000
+11-16 01:09:44.727 I/OREKI_SCHED( 8262): act infinityUpgrades @11385394ms gap=1024 taskGap=1024
+11-16 01:09:45.696 I/OREKI_SCHED( 8262): gui-tick #27 gapMs=1000
+11-16 01:09:45.735 I/OREKI_SCHED( 8262): act infinityUpgrades @11386401ms gap=1007 taskGap=1007
+11-16 01:09:46.698 I/OREKI_SCHED( 8262): gui-tick #28 gapMs=1000
+11-16 01:09:46.760 I/OREKI_SCHED( 8262): act infinityUpgrades @11387426ms gap=1025 taskGap=1025
+11-16 01:09:47.719 I/OREKI_SCHED( 8262): gui-tick #29 gapMs=1000
+11-16 01:09:47.780 I/OREKI_SCHED( 8262): act infinityUpgrades @11388446ms gap=1020 taskGap=1020
+11-16 01:09:48.729 I/OREKI_SCHED( 8262): gui-tick #30 gapMs=1000
+11-16 01:09:48.790 I/OREKI_SCHED( 8262): act infinityUpgrades @11389457ms gap=1011 taskGap=1011
+11-16 01:09:49.340 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:09:49.669 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:49.752 I/OREKI_SCHED( 8262): gui-tick #31 gapMs=1000
+11-16 01:09:49.808 I/OREKI_SCHED( 8262): noop reality
+11-16 01:09:49.815 I/OREKI_SCHED( 8262): act infinityUpgrades @11390481ms gap=1024 taskGap=1024
+11-16 01:09:50.773 I/OREKI_SCHED( 8262): gui-tick #32 gapMs=1000
+11-16 01:09:50.849 I/OREKI_SCHED( 8262): act infinityUpgrades @11391515ms gap=1034 taskGap=1034
+11-16 01:09:51.795 I/OREKI_SCHED( 8262): gui-tick #33 gapMs=1000
+11-16 01:09:51.855 I/OREKI_SCHED( 8262): act infinityUpgrades @11392521ms gap=1006 taskGap=1006
+11-16 01:09:52.814 I/OREKI_SCHED( 8262): gui-tick #34 gapMs=1000
+11-16 01:09:52.869 I/OREKI_SCHED( 8262): act infinityUpgrades @11393535ms gap=1014 taskGap=1014
+11-16 01:09:53.830 I/OREKI_SCHED( 8262): gui-tick #35 gapMs=1000
+11-16 01:09:53.899 I/OREKI_SCHED( 8262): act infinityUpgrades @11394566ms gap=1031 taskGap=1031
+11-16 01:09:54.841 I/OREKI_SCHED( 8262): gui-tick #36 gapMs=1000
+11-16 01:09:54.936 I/OREKI_SCHED( 8262): act infinityUpgrades @11395603ms gap=1037 taskGap=1037
+11-16 01:09:55.848 I/OREKI_SCHED( 8262): gui-tick #37 gapMs=1000
+11-16 01:09:55.959 I/OREKI_SCHED( 8262): act infinityUpgrades @11396626ms gap=1023 taskGap=1023
+11-16 01:09:56.885 I/OREKI_SCHED( 8262): gui-tick #38 gapMs=1000
+11-16 01:09:56.975 I/OREKI_SCHED( 8262): act infinityUpgrades @11397642ms gap=1016 taskGap=1016
+11-16 01:09:57.900 I/OREKI_SCHED( 8262): gui-tick #39 gapMs=1000
+11-16 01:09:57.977 I/OREKI_SCHED( 8262): act infinityUpgrades @11398644ms gap=1002 taskGap=1002
+11-16 01:09:58.903 I/OREKI_SCHED( 8262): gui-tick #40 gapMs=1000
+11-16 01:09:58.990 I/OREKI_SCHED( 8262): act infinityUpgrades @11399657ms gap=1013 taskGap=1013
+11-16 01:09:59.347 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:09:59.794 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:59.911 I/OREKI_SCHED( 8262): gui-tick #41 gapMs=1000
+11-16 01:09:59.991 I/OREKI_SCHED( 8262): act infinityUpgrades @11400657ms gap=1000 taskGap=1000
+11-16 01:10:00.938 I/OREKI_SCHED( 8262): gui-tick #42 gapMs=1000
+11-16 01:10:01.008 I/OREKI_SCHED( 8262): act infinityUpgrades @11401674ms gap=1017 taskGap=1017
+11-16 01:10:01.944 I/OREKI_SCHED( 8262): gui-tick #43 gapMs=1000
+11-16 01:10:02.034 I/OREKI_SCHED( 8262): act infinityUpgrades @11402700ms gap=1026 taskGap=1026
+11-16 01:10:02.972 I/OREKI_SCHED( 8262): gui-tick #44 gapMs=1000
+11-16 01:10:03.035 I/OREKI_SCHED( 8262): act infinityUpgrades @11403702ms gap=1002 taskGap=1002
+11-16 01:10:03.988 I/OREKI_SCHED( 8262): gui-tick #45 gapMs=1000
+11-16 01:10:04.043 I/OREKI_SCHED( 8262): act infinityUpgrades @11404710ms gap=1008 taskGap=1008
+11-16 01:10:04.996 I/OREKI_SCHED( 8262): gui-tick #46 gapMs=1000
+11-16 01:10:05.058 I/OREKI_SCHED( 8262): act infinityUpgrades @11405724ms gap=1014 taskGap=1014
+11-16 01:10:06.012 I/OREKI_SCHED( 8262): gui-tick #47 gapMs=1000
+11-16 01:10:06.067 I/OREKI_SCHED( 8262): act infinityUpgrades @11406733ms gap=1009 taskGap=1009
+11-16 01:10:07.023 I/OREKI_SCHED( 8262): gui-tick #48 gapMs=1000
+11-16 01:10:07.085 I/OREKI_SCHED( 8262): act infinityUpgrades @11407751ms gap=1018 taskGap=1018
+11-16 01:10:08.025 I/OREKI_SCHED( 8262): gui-tick #49 gapMs=1000
+11-16 01:10:08.088 I/OREKI_SCHED( 8262): act infinityUpgrades @11408754ms gap=1003 taskGap=1003
+11-16 01:10:09.026 I/OREKI_SCHED( 8262): gui-tick #50 gapMs=1000
+11-16 01:10:09.101 I/OREKI_SCHED( 8262): act infinityUpgrades @11409768ms gap=1014 taskGap=1014
+11-16 01:10:09.356 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:10:09.932 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:10:10.047 I/OREKI_SCHED( 8262): gui-tick #51 gapMs=1000
+11-16 01:10:10.107 I/OREKI_SCHED( 8262): act infinityUpgrades @11410773ms gap=1005 taskGap=1005
+11-16 01:10:11.071 I/OREKI_SCHED( 8262): gui-tick #52 gapMs=1000
+11-16 01:10:11.128 I/OREKI_SCHED( 8262): act infinityUpgrades @11411795ms gap=1022 taskGap=1022
+11-16 01:10:12.096 I/OREKI_SCHED( 8262): gui-tick #53 gapMs=1000
+11-16 01:10:12.160 I/OREKI_SCHED( 8262): act infinityUpgrades @11412826ms gap=1031 taskGap=1031
+11-16 01:10:13.102 I/OREKI_SCHED( 8262): gui-tick #54 gapMs=1000
+11-16 01:10:13.185 I/OREKI_SCHED( 8262): act infinityUpgrades @11413851ms gap=1025 taskGap=1025
+11-16 01:10:14.117 I/OREKI_SCHED( 8262): gui-tick #55 gapMs=1000
+11-16 01:10:14.191 I/OREKI_SCHED( 8262): act infinityUpgrades @11414858ms gap=1007 taskGap=1007
+11-16 01:10:15.118 I/OREKI_SCHED( 8262): gui-tick #56 gapMs=1000
+11-16 01:10:15.199 I/OREKI_SCHED( 8262): act infinityUpgrades @11415865ms gap=1007 taskGap=1007
+11-16 01:10:16.127 I/OREKI_SCHED( 8262): gui-tick #57 gapMs=1000
+11-16 01:10:16.213 I/OREKI_SCHED( 8262): act infinityUpgrades @11416879ms gap=1014 taskGap=1014
+11-16 01:10:17.144 I/OREKI_SCHED( 8262): gui-tick #58 gapMs=1000
+11-16 01:10:17.240 I/OREKI_SCHED( 8262): act infinityUpgrades @11417906ms gap=1027 taskGap=1027
+11-16 01:10:18.173 I/OREKI_SCHED( 8262): gui-tick #59 gapMs=1000
+11-16 01:10:18.259 I/OREKI_SCHED( 8262): act infinityUpgrades @11418925ms gap=1019 taskGap=1019
+11-16 01:10:19.193 I/OREKI_SCHED( 8262): gui-tick #60 gapMs=1000
+11-16 01:10:19.275 I/OREKI_SCHED( 8262): act infinityUpgrades @11419942ms gap=1017 taskGap=1017
+11-16 01:10:19.369 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:10:20.057 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:10:20.216 I/OREKI_SCHED( 8262): gui-tick #61 gapMs=1000
+11-16 01:10:20.277 I/OREKI_SCHED( 8262): noop reality
+11-16 01:10:20.279 I/OREKI_SCHED( 8262): act infinityUpgrades @11420945ms gap=1003 taskGap=1003
+11-16 01:10:21.236 I/OREKI_SCHED( 8262): gui-tick #62 gapMs=1000
+11-16 01:10:21.292 I/OREKI_SCHED( 8262): act infinityUpgrades @11421958ms gap=1013 taskGap=1013
+11-16 01:10:22.254 I/OREKI_SCHED( 8262): gui-tick #63 gapMs=1000
+11-16 01:10:22.316 I/OREKI_SCHED( 8262): act infinityUpgrades @11422983ms gap=1025 taskGap=1025
+11-16 01:10:23.282 I/OREKI_SCHED( 8262): gui-tick #64 gapMs=1000
+11-16 01:10:23.338 I/OREKI_SCHED( 8262): act infinityUpgrades @11424005ms gap=1022 taskGap=1022
+11-16 01:10:24.297 I/OREKI_SCHED( 8262): gui-tick #65 gapMs=1000
+11-16 01:10:24.365 I/OREKI_SCHED( 8262): act infinityUpgrades @11425032ms gap=1027 taskGap=1027
+11-16 01:10:25.298 I/OREKI_SCHED( 8262): gui-tick #66 gapMs=1000
+11-16 01:10:25.380 I/OREKI_SCHED( 8262): act infinityUpgrades @11426047ms gap=1015 taskGap=1015
+11-16 01:10:26.320 I/OREKI_SCHED( 8262): gui-tick #67 gapMs=1000
+11-16 01:10:26.385 I/OREKI_SCHED( 8262): act infinityUpgrades @11427051ms gap=1004 taskGap=1004
+11-16 01:10:27.329 I/OREKI_SCHED( 8262): gui-tick #68 gapMs=1000
+11-16 01:10:27.385 I/OREKI_SCHED( 8262): act infinityUpgrades @11428051ms gap=1000 taskGap=1000
+11-16 01:10:28.348 I/OREKI_SCHED( 8262): gui-tick #69 gapMs=1000
+11-16 01:10:28.405 I/OREKI_SCHED( 8262): act infinityUpgrades @11429072ms gap=1021 taskGap=1021
+11-16 01:10:29.365 I/OREKI_SCHED( 8262): gui-tick #70 gapMs=1000
+11-16 01:10:29.371 I/OREKI_SCHED( 8262): deny noop-retry-wait task=reality
+11-16 01:10:29.419 I/OREKI_SCHED( 8262): act infinityUpgrades @11430086ms gap=1014 taskGap=1014
+11-16 01:10:30.157 I/OREKI_SCHED( 8262): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:10:30.372 I/OREKI_SCHED( 8262): gui-tick #71 gapMs=1000
+11-16 01:10:30.427 I/OREKI_SCHED( 8262): act infinityUpgrades @11431094ms gap=1008 taskGap=1008
+11-16 01:10:31.393 I/OREKI_SCHED( 8262): gui-tick #72 gapMs=1000
+11-16 01:10:31.454 I/OREKI_SCHED( 8262): act infinityUpgrades @11432121ms gap=1027 taskGap=1027
+11-16 01:10:32.417 I/OREKI_SCHED( 8262): gui-tick #73 gapMs=1000
+11-16 01:10:32.470 I/OREKI_SCHED( 8262): act infinityUpgrades @11433136ms gap=1015 taskGap=1015
+11-16 01:10:33.447 I/OREKI_SCHED( 8262): gui-tick #74 gapMs=1000
+11-16 01:10:33.486 I/OREKI_SCHED( 8262): act infinityUpgrades @11434152ms gap=1016 taskGap=1016
+11-16 01:10:34.452 I/OREKI_SCHED( 8262): gui-tick #75 gapMs=1000
+11-16 01:10:34.495 I/OREKI_SCHED( 8262): act infinityUpgrades @11435161ms gap=1009 taskGap=1009
+11-16 01:10:35.480 I/OREKI_SCHED( 8262): gui-tick #76 gapMs=1000
+11-16 01:10:35.512 I/OREKI_SCHED( 8262): act infinityUpgrades @11436179ms gap=1018 taskGap=1018
+11-16 01:10:36.489 I/OREKI_SCHED( 8262): gui-tick #77 gapMs=1000
+11-16 01:10:36.515 I/OREKI_SCHED( 8262): act infinityUpgrades @11437182ms gap=1003 taskGap=1003
+11-16 01:10:37.492 I/OREKI_SCHED( 8262): gui-tick #78 gapMs=1000
+11-16 01:10:37.530 I/OREKI_SCHED( 8262): act infinityUpgrades @11438197ms gap=1015 taskGap=1015
+11-16 01:10:38.497 I/OREKI_SCHED( 8262): gui-tick #79 gapMs=1000
+11-16 01:10:38.541 I/OREKI_SCHED( 8262): act infinityUpgrades @11439208ms gap=1011 taskGap=1011
+11-16 01:10:42.906 I/OREKI_SCHED( 8580): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-16 01:10:46.621 I/OREKI_SCHED( 8580): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:10:46.624 I/OREKI_SCHED( 8580): gui-tick #1 gapMs=1000
+11-16 01:10:47.627 I/OREKI_SCHED( 8580): gui-tick #2 gapMs=1000
+11-16 01:10:48.640 I/OREKI_SCHED( 8580): gui-tick #3 gapMs=1000
+11-16 01:10:49.660 I/OREKI_SCHED( 8580): gui-tick #4 gapMs=1000
+11-16 01:10:50.661 I/OREKI_SCHED( 8580): gui-tick #5 gapMs=1000
+11-16 01:10:51.689 I/OREKI_SCHED( 8580): gui-tick #6 gapMs=1000
+11-16 01:10:52.688 I/OREKI_SCHED( 8580): gui-tick #7 gapMs=1000
+11-16 01:10:53.710 I/OREKI_SCHED( 8580): gui-tick #8 gapMs=1000
+11-16 01:10:54.734 I/OREKI_SCHED( 8580): gui-tick #9 gapMs=1000
+11-16 01:10:55.738 I/OREKI_SCHED( 8580): gui-tick #10 gapMs=1000
+11-16 01:10:58.869 I/OREKI_SCHED( 8863): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-16 01:11:06.762 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:11:06.762 I/OREKI_SCHED( 8863): gui-tick #1 gapMs=1000
+11-16 01:11:06.770 I/OREKI_ET_ADOPT( 8863): save changed: reset adoption state old=1794762646491 new=1794762666111
+11-16 01:11:07.759 I/OREKI_SCHED( 8863): gui-tick #2 gapMs=1000
+11-16 01:11:08.762 I/OREKI_SCHED( 8863): gui-tick #3 gapMs=1000
+11-16 01:11:09.776 I/OREKI_SCHED( 8863): gui-tick #4 gapMs=1000
+11-16 01:11:10.779 I/OREKI_SCHED( 8863): gui-tick #5 gapMs=1000
+11-16 01:11:11.836 I/OREKI_SCHED( 8863): gui-tick #6 gapMs=1000
+11-16 01:11:12.846 I/OREKI_SCHED( 8863): gui-tick #7 gapMs=1000
+11-16 01:11:13.852 I/OREKI_SCHED( 8863): gui-tick #8 gapMs=1000
+11-16 01:11:14.864 I/OREKI_SCHED( 8863): gui-tick #9 gapMs=1000
+11-16 01:11:15.883 I/OREKI_SCHED( 8863): gui-tick #10 gapMs=1000
+11-16 01:11:16.912 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:11:16.912 I/OREKI_SCHED( 8863): gui-tick #11 gapMs=1000
+11-16 01:11:17.950 I/OREKI_SCHED( 8863): gui-tick #12 gapMs=1000
+11-16 01:11:18.953 I/OREKI_SCHED( 8863): gui-tick #13 gapMs=1000
+11-16 01:11:19.965 I/OREKI_SCHED( 8863): gui-tick #14 gapMs=1000
+11-16 01:11:20.983 I/OREKI_SCHED( 8863): gui-tick #15 gapMs=1000
+11-16 01:11:22.000 I/OREKI_SCHED( 8863): gui-tick #16 gapMs=1000
+11-16 01:11:23.022 I/OREKI_SCHED( 8863): gui-tick #17 gapMs=1000
+11-16 01:11:24.031 I/OREKI_SCHED( 8863): gui-tick #18 gapMs=1000
+11-16 01:11:25.046 I/OREKI_SCHED( 8863): gui-tick #19 gapMs=1000
+11-16 01:11:26.047 I/OREKI_SCHED( 8863): gui-tick #20 gapMs=1000
+11-16 01:11:27.067 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:11:27.068 I/OREKI_SCHED( 8863): gui-tick #21 gapMs=1000
+11-16 01:11:28.089 I/OREKI_SCHED( 8863): gui-tick #22 gapMs=1000
+11-16 01:11:29.104 I/OREKI_SCHED( 8863): gui-tick #23 gapMs=1000
+11-16 01:11:30.115 I/OREKI_SCHED( 8863): gui-tick #24 gapMs=1000
+11-16 01:11:31.136 I/OREKI_SCHED( 8863): gui-tick #25 gapMs=1000
+11-16 01:11:32.140 I/OREKI_SCHED( 8863): gui-tick #26 gapMs=1000
+11-16 01:11:33.141 I/OREKI_SCHED( 8863): gui-tick #27 gapMs=1000
+11-16 01:11:34.159 I/OREKI_SCHED( 8863): gui-tick #28 gapMs=1000
+11-16 01:11:35.160 I/OREKI_SCHED( 8863): gui-tick #29 gapMs=1000
+11-16 01:11:36.166 I/OREKI_SCHED( 8863): gui-tick #30 gapMs=1000
+11-16 01:11:37.168 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:11:37.168 I/OREKI_SCHED( 8863): gui-tick #31 gapMs=1000
+11-16 01:11:38.187 I/OREKI_SCHED( 8863): gui-tick #32 gapMs=1000
+11-16 01:11:39.192 I/OREKI_SCHED( 8863): gui-tick #33 gapMs=1000
+11-16 01:11:40.194 I/OREKI_SCHED( 8863): gui-tick #34 gapMs=1000
+11-16 01:11:41.218 I/OREKI_SCHED( 8863): gui-tick #35 gapMs=1000
+11-16 01:11:42.233 I/OREKI_SCHED( 8863): gui-tick #36 gapMs=1000
+11-16 01:11:43.255 I/OREKI_SCHED( 8863): gui-tick #37 gapMs=1000
+11-16 01:11:44.263 I/OREKI_SCHED( 8863): gui-tick #38 gapMs=1000
+11-16 01:11:45.345 I/OREKI_SCHED( 8863): gui-tick #39 gapMs=1000
+11-16 01:11:46.355 I/OREKI_SCHED( 8863): gui-tick #40 gapMs=1000
+11-16 01:11:47.387 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:11:47.388 I/OREKI_SCHED( 8863): gui-tick #41 gapMs=1000
+11-16 01:11:48.402 I/OREKI_SCHED( 8863): gui-tick #42 gapMs=1000
+11-16 01:11:49.414 I/OREKI_SCHED( 8863): gui-tick #43 gapMs=1000
+11-16 01:11:50.435 I/OREKI_SCHED( 8863): gui-tick #44 gapMs=1000
+11-16 01:11:51.452 I/OREKI_SCHED( 8863): gui-tick #45 gapMs=1000
+11-16 01:11:52.452 I/OREKI_SCHED( 8863): gui-tick #46 gapMs=1000
+11-16 01:11:53.489 I/OREKI_SCHED( 8863): gui-tick #47 gapMs=1000
+11-16 01:11:54.521 I/OREKI_SCHED( 8863): gui-tick #48 gapMs=1000
+11-16 01:11:55.539 I/OREKI_SCHED( 8863): gui-tick #49 gapMs=1000
+11-16 01:11:56.545 I/OREKI_SCHED( 8863): gui-tick #50 gapMs=1000
+11-16 01:11:57.569 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:11:57.569 I/OREKI_SCHED( 8863): gui-tick #51 gapMs=1000
+11-16 01:11:58.573 I/OREKI_SCHED( 8863): gui-tick #52 gapMs=1000
+11-16 01:11:59.597 I/OREKI_SCHED( 8863): gui-tick #53 gapMs=1000
+11-16 01:12:00.617 I/OREKI_SCHED( 8863): gui-tick #54 gapMs=1000
+11-16 01:12:01.637 I/OREKI_SCHED( 8863): gui-tick #55 gapMs=1000
+11-16 01:12:02.638 I/OREKI_SCHED( 8863): gui-tick #56 gapMs=1000
+11-16 01:12:03.640 I/OREKI_SCHED( 8863): gui-tick #57 gapMs=1000
+11-16 01:12:04.658 I/OREKI_SCHED( 8863): gui-tick #58 gapMs=1000
+11-16 01:12:05.671 I/OREKI_SCHED( 8863): gui-tick #59 gapMs=1000
+11-16 01:12:06.680 I/OREKI_SCHED( 8863): gui-tick #60 gapMs=1000
+11-16 01:12:07.682 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:12:07.682 I/OREKI_SCHED( 8863): gui-tick #61 gapMs=1000
+11-16 01:12:08.690 I/OREKI_SCHED( 8863): gui-tick #62 gapMs=1000
+11-16 01:12:09.698 I/OREKI_SCHED( 8863): gui-tick #63 gapMs=1000
+11-16 01:12:10.723 I/OREKI_SCHED( 8863): gui-tick #64 gapMs=1000
+11-16 01:12:11.747 I/OREKI_SCHED( 8863): gui-tick #65 gapMs=1000
+11-16 01:12:12.761 I/OREKI_SCHED( 8863): gui-tick #66 gapMs=1000
+11-16 01:12:13.762 I/OREKI_SCHED( 8863): gui-tick #67 gapMs=1000
+11-16 01:12:14.780 I/OREKI_SCHED( 8863): gui-tick #68 gapMs=1000
+11-16 01:12:15.786 I/OREKI_SCHED( 8863): gui-tick #69 gapMs=1000
+11-16 01:12:16.789 I/OREKI_SCHED( 8863): gui-tick #70 gapMs=1000
+11-16 01:12:17.813 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:12:17.813 I/OREKI_SCHED( 8863): gui-tick #71 gapMs=1000
+11-16 01:12:18.831 I/OREKI_SCHED( 8863): gui-tick #72 gapMs=1000
+11-16 01:12:19.849 I/OREKI_SCHED( 8863): gui-tick #73 gapMs=1000
+11-16 01:12:20.863 I/OREKI_SCHED( 8863): gui-tick #74 gapMs=1000
+11-16 01:12:21.887 I/OREKI_SCHED( 8863): gui-tick #75 gapMs=1000
+11-16 01:12:22.903 I/OREKI_SCHED( 8863): gui-tick #76 gapMs=1000
+11-16 01:12:23.909 I/OREKI_SCHED( 8863): gui-tick #77 gapMs=1000
+11-16 01:12:24.911 I/OREKI_SCHED( 8863): gui-tick #78 gapMs=1000
+11-16 01:12:25.924 I/OREKI_SCHED( 8863): gui-tick #79 gapMs=1000
+11-16 01:12:26.923 I/OREKI_SCHED( 8863): gui-tick #80 gapMs=1000
+11-16 01:12:27.949 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:12:27.949 I/OREKI_SCHED( 8863): gui-tick #81 gapMs=1000
+11-16 01:12:28.956 I/OREKI_SCHED( 8863): gui-tick #82 gapMs=1000
+11-16 01:12:29.957 I/OREKI_SCHED( 8863): gui-tick #83 gapMs=1000
+11-16 01:12:30.968 I/OREKI_SCHED( 8863): gui-tick #84 gapMs=1000
+11-16 01:12:32.001 I/OREKI_SCHED( 8863): gui-tick #85 gapMs=1000
+11-16 01:12:33.017 I/OREKI_SCHED( 8863): gui-tick #86 gapMs=1000
+11-16 01:12:34.041 I/OREKI_SCHED( 8863): gui-tick #87 gapMs=1000
+11-16 01:12:35.055 I/OREKI_SCHED( 8863): gui-tick #88 gapMs=1000
+11-16 01:12:36.056 I/OREKI_SCHED( 8863): gui-tick #89 gapMs=1000
+11-16 01:12:37.059 I/OREKI_SCHED( 8863): gui-tick #90 gapMs=1000
+11-16 01:12:38.078 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:12:38.078 I/OREKI_SCHED( 8863): gui-tick #91 gapMs=1000
+11-16 01:12:39.088 I/OREKI_SCHED( 8863): gui-tick #92 gapMs=1000
+11-16 01:12:40.094 I/OREKI_SCHED( 8863): gui-tick #93 gapMs=1000
+11-16 01:12:41.114 I/OREKI_SCHED( 8863): gui-tick #94 gapMs=1000
+11-16 01:12:42.125 I/OREKI_SCHED( 8863): gui-tick #95 gapMs=1000
+11-16 01:12:43.149 I/OREKI_SCHED( 8863): gui-tick #96 gapMs=1000
+11-16 01:12:44.165 I/OREKI_SCHED( 8863): gui-tick #97 gapMs=1000
+11-16 01:12:45.173 I/OREKI_SCHED( 8863): gui-tick #98 gapMs=1000
+11-16 01:12:46.186 I/OREKI_SCHED( 8863): gui-tick #99 gapMs=1000
+11-16 01:12:47.185 I/OREKI_SCHED( 8863): gui-tick #100 gapMs=1000
+11-16 01:12:48.206 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:12:48.206 I/OREKI_SCHED( 8863): gui-tick #101 gapMs=1000
+11-16 01:12:49.217 I/OREKI_SCHED( 8863): gui-tick #102 gapMs=1000
+11-16 01:12:50.225 I/OREKI_SCHED( 8863): gui-tick #103 gapMs=1000
+11-16 01:12:51.227 I/OREKI_SCHED( 8863): gui-tick #104 gapMs=1000
+11-16 01:12:52.246 I/OREKI_SCHED( 8863): gui-tick #105 gapMs=1000
+11-16 01:12:53.257 I/OREKI_SCHED( 8863): gui-tick #106 gapMs=1000
+11-16 01:12:54.278 I/OREKI_SCHED( 8863): gui-tick #107 gapMs=1000
+11-16 01:12:55.294 I/OREKI_SCHED( 8863): gui-tick #108 gapMs=1000
+11-16 01:12:56.303 I/OREKI_SCHED( 8863): gui-tick #109 gapMs=1000
+11-16 01:12:57.311 I/OREKI_SCHED( 8863): gui-tick #110 gapMs=1000
+11-16 01:12:58.331 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:12:58.331 I/OREKI_SCHED( 8863): gui-tick #111 gapMs=1000
+11-16 01:12:59.354 I/OREKI_SCHED( 8863): gui-tick #112 gapMs=1000
+11-16 01:13:00.367 I/OREKI_SCHED( 8863): gui-tick #113 gapMs=1000
+11-16 01:13:01.385 I/OREKI_SCHED( 8863): gui-tick #114 gapMs=1000
+11-16 01:13:02.405 I/OREKI_SCHED( 8863): gui-tick #115 gapMs=1000
+11-16 01:13:03.429 I/OREKI_SCHED( 8863): gui-tick #116 gapMs=1000
+11-16 01:13:04.435 I/OREKI_SCHED( 8863): gui-tick #117 gapMs=1000
+11-16 01:13:05.441 I/OREKI_SCHED( 8863): gui-tick #118 gapMs=1000
+11-16 01:13:06.458 I/OREKI_SCHED( 8863): gui-tick #119 gapMs=1000
+11-16 01:13:07.466 I/OREKI_SCHED( 8863): gui-tick #120 gapMs=1000
+11-16 01:13:08.471 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:13:08.471 I/OREKI_SCHED( 8863): gui-tick #121 gapMs=1000
+11-16 01:13:09.493 I/OREKI_SCHED( 8863): gui-tick #122 gapMs=1000
+11-16 01:13:10.498 I/OREKI_SCHED( 8863): gui-tick #123 gapMs=1000
+11-16 01:13:11.498 I/OREKI_SCHED( 8863): gui-tick #124 gapMs=1000
+11-16 01:13:12.519 I/OREKI_SCHED( 8863): gui-tick #125 gapMs=1000
+11-16 01:13:13.547 I/OREKI_SCHED( 8863): gui-tick #126 gapMs=1000
+11-16 01:13:14.563 I/OREKI_SCHED( 8863): gui-tick #127 gapMs=1000
+11-16 01:13:15.577 I/OREKI_SCHED( 8863): gui-tick #128 gapMs=1000
+11-16 01:13:16.579 I/OREKI_SCHED( 8863): gui-tick #129 gapMs=1000
+11-16 01:13:17.580 I/OREKI_SCHED( 8863): gui-tick #130 gapMs=1000
+11-16 01:13:18.582 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:13:18.582 I/OREKI_SCHED( 8863): gui-tick #131 gapMs=1000
+11-16 01:13:19.601 I/OREKI_SCHED( 8863): gui-tick #132 gapMs=1000
+11-16 01:13:20.631 I/OREKI_SCHED( 8863): gui-tick #133 gapMs=1000
+11-16 01:13:21.637 I/OREKI_SCHED( 8863): gui-tick #134 gapMs=1000
+11-16 01:13:22.649 I/OREKI_SCHED( 8863): gui-tick #135 gapMs=1000
+11-16 01:13:23.666 I/OREKI_SCHED( 8863): gui-tick #136 gapMs=1000
+11-16 01:13:24.675 I/OREKI_SCHED( 8863): gui-tick #137 gapMs=1000
+11-16 01:13:24.810 I/OREKI_SCHED( 8863): noop breakUpgrades
+11-16 01:13:24.811 I/OREKI_SCHED( 8863): act infinityUpgrades @11605477ms gap=-1 taskGap=-1
+11-16 01:13:24.811 I/OREKI_SCHED( 8863): deny frame-held task=breakShop
+11-16 01:13:25.680 I/OREKI_SCHED( 8863): gui-tick #138 gapMs=1000
+11-16 01:13:25.814 I/OREKI_SCHED( 8863): act infinityUpgrades @11606481ms gap=1004 taskGap=1004
+11-16 01:13:26.691 I/OREKI_SCHED( 8863): gui-tick #139 gapMs=1000
+11-16 01:13:26.818 I/OREKI_SCHED( 8863): act infinityUpgrades @11607484ms gap=1003 taskGap=1003
+11-16 01:13:27.714 I/OREKI_SCHED( 8863): gui-tick #140 gapMs=1000
+11-16 01:13:27.830 I/OREKI_SCHED( 8863): act infinityUpgrades @11608497ms gap=1013 taskGap=1013
+11-16 01:13:28.720 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:13:28.720 I/OREKI_SCHED( 8863): gui-tick #141 gapMs=1000
+11-16 01:13:28.831 I/OREKI_SCHED( 8863): act infinityUpgrades @11609498ms gap=1001 taskGap=1001
+11-16 01:13:29.733 I/OREKI_SCHED( 8863): gui-tick #142 gapMs=1000
+11-16 01:13:29.851 I/OREKI_SCHED( 8863): act infinityUpgrades @11610517ms gap=1019 taskGap=1019
+11-16 01:13:30.736 I/OREKI_SCHED( 8863): gui-tick #143 gapMs=1000
+11-16 01:13:30.869 I/OREKI_SCHED( 8863): act infinityUpgrades @11611535ms gap=1018 taskGap=1018
+11-16 01:13:31.746 I/OREKI_SCHED( 8863): gui-tick #144 gapMs=1000
+11-16 01:13:31.875 I/OREKI_SCHED( 8863): act infinityUpgrades @11612541ms gap=1006 taskGap=1006
+11-16 01:13:32.758 I/OREKI_SCHED( 8863): gui-tick #145 gapMs=1000
+11-16 01:13:32.895 I/OREKI_SCHED( 8863): act infinityUpgrades @11613562ms gap=1021 taskGap=1021
+11-16 01:13:33.758 I/OREKI_SCHED( 8863): gui-tick #146 gapMs=1000
+11-16 01:13:33.915 I/OREKI_SCHED( 8863): act infinityUpgrades @11614581ms gap=1019 taskGap=1019
+11-16 01:13:34.770 I/OREKI_SCHED( 8863): gui-tick #147 gapMs=1000
+11-16 01:13:34.821 I/OREKI_SCHED( 8863): deny noop-retry-wait task=breakUpgrades
+11-16 01:13:34.934 I/OREKI_SCHED( 8863): act infinityUpgrades @11615601ms gap=1020 taskGap=1020
+11-16 01:13:35.777 I/OREKI_SCHED( 8863): gui-tick #148 gapMs=1000
+11-16 01:13:35.946 I/OREKI_SCHED( 8863): act infinityUpgrades @11616612ms gap=1011 taskGap=1011
+11-16 01:13:36.795 I/OREKI_SCHED( 8863): gui-tick #149 gapMs=1000
+11-16 01:13:36.950 I/OREKI_SCHED( 8863): act infinityUpgrades @11617617ms gap=1005 taskGap=1005
+11-16 01:13:37.816 I/OREKI_SCHED( 8863): gui-tick #150 gapMs=1000
+11-16 01:13:37.971 I/OREKI_SCHED( 8863): act infinityUpgrades @11618638ms gap=1021 taskGap=1021
+11-16 01:13:38.836 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:13:38.836 I/OREKI_SCHED( 8863): gui-tick #151 gapMs=1000
+11-16 01:13:38.996 I/OREKI_SCHED( 8863): act infinityUpgrades @11619662ms gap=1024 taskGap=1024
+11-16 01:13:39.852 I/OREKI_SCHED( 8863): gui-tick #152 gapMs=1000
+11-16 01:13:40.010 I/OREKI_SCHED( 8863): act infinityUpgrades @11620677ms gap=1015 taskGap=1015
+11-16 01:13:40.865 I/OREKI_SCHED( 8863): gui-tick #153 gapMs=1000
+11-16 01:13:41.013 I/OREKI_SCHED( 8863): act bulk @11621680ms gap=1003 taskGap=-1
+11-16 01:13:41.887 I/OREKI_SCHED( 8863): gui-tick #154 gapMs=1000
+11-16 01:13:42.016 I/OREKI_SCHED( 8863): act bulk @11622682ms gap=1002 taskGap=1002
+11-16 01:13:42.911 I/OREKI_SCHED( 8863): gui-tick #155 gapMs=1000
+11-16 01:13:43.038 I/OREKI_SCHED( 8863): act bulk @11623705ms gap=1023 taskGap=1023
+11-16 01:13:43.924 I/OREKI_SCHED( 8863): gui-tick #156 gapMs=1000
+11-16 01:13:44.064 I/OREKI_SCHED( 8863): act infinityUpgrades @11624730ms gap=1025 taskGap=4053
+11-16 01:13:44.846 I/OREKI_SCHED( 8863): deny noop-retry-wait task=breakUpgrades
+11-16 01:13:44.924 I/OREKI_SCHED( 8863): gui-tick #157 gapMs=1000
+11-16 01:13:45.080 I/OREKI_SCHED( 8863): act bulk @11625746ms gap=1016 taskGap=2041
+11-16 01:13:45.946 I/OREKI_SCHED( 8863): gui-tick #158 gapMs=1000
+11-16 01:13:46.099 I/OREKI_SCHED( 8863): act bulk @11626766ms gap=1020 taskGap=1020
+11-16 01:13:46.962 I/OREKI_SCHED( 8863): gui-tick #159 gapMs=1000
+11-16 01:13:47.123 I/OREKI_SCHED( 8863): act bulk @11627789ms gap=1023 taskGap=1023
+11-16 01:13:47.965 I/OREKI_SCHED( 8863): gui-tick #160 gapMs=1000
+11-16 01:13:48.147 I/OREKI_SCHED( 8863): act bulk @11628813ms gap=1024 taskGap=1024
+11-16 01:13:48.964 I/OREKI_SCHED( 8863): stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:13:48.964 I/OREKI_SCHED( 8863): gui-tick #161 gapMs=1000
+11-16 01:13:49.147 I/OREKI_SCHED( 8863): act bulk @11629813ms gap=1000 taskGap=1000
