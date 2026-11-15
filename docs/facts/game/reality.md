@@ -18,7 +18,7 @@ Oreki Edition 缩放后（`v.js:43-45`）：
 | 项 | 缩放值 | 常量 |
 |---|---|---|
 | realities | 200 | `OREKI_V_UNLOCK_REALITIES` |
-| dilatedTime | `1e30` | `OREKI_V_UNLOCK_DILATED_TIME` |
+| dilatedTime | `1e30`（仅 Web；Android 为 1e320，见下条） | `OREKI_V_UNLOCK_DILATED_TIME` |
 | replicanti | `1e20000` | `OREKI_V_UNLOCK_REPLICANTI` |
 | eternities / infinities / realityMachines | 保持原版（`1e70` / `1e160` / `1e60`） | — |
 
@@ -40,6 +40,12 @@ Oreki Edition 缩放后（`v.js:43-45`）：
 - `[读码]` Android 3.21 实际 V 门槛仍为原版：**10000 现实 / 1e320 dilatedTime / 1e320000 replicanti**（其余三项同原版）。
   证据：Issue #98 P1-2；`build/build.log:165` 记录暂缓（构建日志未入库，工作树证据路径）。
 - `[推断]` 与 [Dilation 缺口](../open-questions.md#f-dilation-gap) 叠加：无膨胀 + 1e320 DT ⇒ V/Ra 结构性不可达（INFERRED，AVD NOT RUN）。
+- `[读码]` 3.21 真类名（私有基线 `work/base_decoded_321/`）：V.mainUnlock 配置类 **w35**（`u35` a..f + `g:List`）、
+  显示常量 **fw.n1 / fw.Y2 / fw.y4**、分母类 **xd4**（realities/10000.0、dilatedTime/320.0、replicanti/320000.0）；
+  V 进度源 `yp4` case26 = `Player.a.R().l().i()` = `Player$ThisReality.i()` = `maxDT`。见 [3.21 真类名](../android-internals.md#f-v-unlock-classes-321)。
+- **SUPERSEDED 记录（不静默删）**：早期 `reports/R114-01/agents/dilation-gap.md` 与事实草稿的「Android DT 门槛 1e30」结论**错误**：
+  `build_mod.py:7133` 的 1e30 常量只在 3.20 `u55` shape 分支生效，3.21 在 `:7107-7108` 提前 return，属不可达分支；
+  正确值为 **1e320**（分母 320.0）。本条保留为更正记录，不得再引用 1e30 作为 Android 值。
 - 关联：Issue #98。
 
 <a id="f-8-5"></a>
