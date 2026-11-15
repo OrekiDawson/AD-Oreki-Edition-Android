@@ -120,10 +120,10 @@ C("Lkajfosz/antimatterdimensions/a;",
 M("Lkajfosz/antimatterdimensions/a;", "f(Ljava/lang/Double;ZLjava/lang/Double;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
   "gameTick（每帧游戏主 Tick）", "confirmed",
   [S + "/a.smali（方法 f 创建 Game$gameTick$1 状态机；状态机类名编码函数名 gameTick）",
-   "hook-ledger.json#BM-01（Game.gameTick）+ docs/facts/automation/strategy.md#f-87", WEB + "/game.js:886 gameLoop"])
+   "hook-ledger.json#BM-01（Game.gameTick）+ docs/facts/automation/infinity-buyers.md#f-96", WEB + "/game.js:886 gameLoop"])
 M("Lkajfosz/antimatterdimensions/a;", "b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
   "autoBuyerTick（自动购买器 Tick）", "confirmed",
-  [S + "/a.smali（方法 b 创建 Game$autoBuyerTick$1）", "hook-ledger.json#BM-34 + docs/facts/automation/strategy.md#f-87"])
+  [S + "/a.smali（方法 b 创建 Game$autoBuyerTick$1）", "hook-ledger.json#BM-34 + docs/facts/automation/infinity-buyers.md#f-96"])
 M("Lkajfosz/antimatterdimensions/a;", "a(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
   "applyAutoUnlockPerks（自动解锁/特权应用）", "strong",
   [S + "/a.smali（方法 a 创建 Game$applyAutoUnlockPerks$1）"])
@@ -133,10 +133,10 @@ M("Lkajfosz/antimatterdimensions/a;", "c(Lkotlin/coroutines/jvm/internal/Continu
 M("Lkajfosz/antimatterdimensions/a;", "d(DZ)V", "advanceGameTime（推进游戏时间）", "strong",
   ["hook-ledger.json#BM-02（Ra 记忆/momentumTime/Laitela 暗物质统一入口）"])
 M("Lkajfosz/antimatterdimensions/a;", "r()V", "gameMainLoopTick（主循环每帧入口，含特蕾莎浇注处理）", "strong",
-  ["docs/facts/game/mechanics.md#f-91（a.smali:14331 每帧调用 public static r()V）"])
+  ["docs/facts/game/reality.md#f-100（a.smali:14331 每帧调用 public static r()V）"])
 F("Lkajfosz/antimatterdimensions/a;", "l",
   "lastTeresaPourTimestamp（上次特蕾莎浇注时间戳）", "strong",
-  ["docs/facts/game/mechanics.md#f-91（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
+  ["docs/facts/game/reality.md#f-100（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
 
 C("Lkajfosz/antimatterdimensions/player/Player;",
   "kajfosz.antimatterdimensions.player.Player",
@@ -442,7 +442,7 @@ C("Lkajfosz/antimatterdimensions/Game$autoBuyerTick$1;", "",
 # 字段
 F("Lkajfosz/antimatterdimensions/MainActivity;", "yo",
   "teresaPourButtonHeld（特蕾莎浇注按钮按住状态，主循环 a.r() 读取）", "strong",
-  ["docs/facts/game/mechanics.md#f-91（MainActivity.yo = 浇注按钮被按住）"])
+  ["docs/facts/game/reality.md#f-100（MainActivity.yo = 浇注按钮被按住）"])
 F("Lkajfosz/antimatterdimensions/Game$gameTick$1;", "result", "协程状态机结果槽（编译器强制）", "confirmed",
   ["Kotlin 协程 ABI 强制字段"])
 

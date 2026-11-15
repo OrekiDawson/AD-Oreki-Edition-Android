@@ -635,17 +635,17 @@ _GAME = "Lkajfosz/antimatterdimensions/a;"
 _m(_GAME, "f(Ljava/lang/Double;,Z,Ljava/lang/Double;,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "gameTick", "strong",
    ["hook-ledger.json#BM-01（semantic_hint=Game.gameTick；build_mod.py:1421 锚点）",
-    "docs/facts/automation/strategy.md#f-87（Game.autoBuyerTick 与 gameTick 关系）"])
+    "docs/facts/automation/infinity-buyers.md#f-96（Game.autoBuyerTick 与 gameTick 关系）"])
 _m(_GAME, "b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "autoBuyerTick", "strong",
    ["hook-ledger.json#BM-34（Game.autoBuyerTick 入口）",
-    "docs/facts/automation/strategy.md#f-87（该挂起体内调用现实升级/膨胀自动购买）"])
+    "docs/facts/automation/infinity-buyers.md#f-96（该挂起体内调用现实升级/膨胀自动购买）"])
 _m(_GAME, "d(D,Z)V", "advanceGameTime", "strong",
    ["hook-ledger.json#BM-02（Ra 记忆/momentumTime/Laitela 暗物质统一入口）"])
 _m(_GAME, "r()V", "gameMainLoopTick", "strong",
-   ["docs/facts/game/mechanics.md#f-91（a.smali:14331 每帧调用 public static r()V；含特蕾莎浇注处理）"])
+   ["docs/facts/game/reality.md#f-100（a.smali:14331 每帧调用 public static r()V；含特蕾莎浇注处理）"])
 _m(_GAME, "l:J", "lastTeresaPourTimestamp", "strong",
-   ["docs/facts/game/mechanics.md#f-91（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
+   ["docs/facts/game/reality.md#f-100（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
 
 _P_E = "Lkajfosz/antimatterdimensions/prestige/e;"
 _m(_P_E, "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
@@ -815,7 +815,7 @@ _m(_MA, "O2()V", "clearTopBarTitle", "strong",
 _m(_MA, "W8(Lbm4;,Z,Z)V", "showTab", "strong",
    ["hook-ledger.json#GR-04（MainActivity.W8(bm4,boolean,boolean)：页面路由/恢复）"])
 _m(_MA, "yo:Z", "teresaPourButtonHeld", "strong",
-   ["docs/facts/game/mechanics.md#f-91（MainActivity.yo = 浇注按钮被按住，主循环 a.r() 读它）"])
+   ["docs/facts/game/reality.md#f-100（MainActivity.yo = 浇注按钮被按住，主循环 a.r() 读它）"])
 _m("Lkajfosz/antimatterdimensions/mainactivity/l0;",
    "C(Lkajfosz/antimatterdimensions/MainActivity;,Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;,"
    "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;,"
