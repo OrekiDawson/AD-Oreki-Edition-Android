@@ -79,6 +79,17 @@ jar 内新业务类只统计 `Oreki*` 命名（完整 25 类清单以管线报�
 - 下一步建议：改用 **adb 直接调用**（如 `am broadcast` 无入口）不可行；可考虑在 fix1 构建上注入最小日志埋点（构建期插桩 save 方法），
   或先用无障碍 content-desc 全量 dump 导航菜单结构后再点击。
 
+## 4.7 strace A/B（2026-11-15 07:32–08:00，**决定性证据**）
+
+用 `strace -f -e trace=openat,write,rename...` 附着实机进程：
+
+- **全量 shadow（ae55dde1…）**：约 20 分钟 / 1,638,550 行 syscall 日志，`player` 引用 **0**、`.json` 引用 **0**；
+  覆盖率已验证（app 数据目录 pcache/profile 写入 51 次可见）⇒ **保存逻辑从未被调用**，不是写失败/权限问题。
+- **旧候选（18716d87…）**：50 秒内 8 条 player 文件 syscall（`player.tmp`/`playerBackup*.tmp` O_WRONLY|O_CREAT|O_TRUNC + O_RDONLY），存档正常执行。
+
+⇒ 根因确认在"混合 Kotlin 运行时导致保存触发/协程路径不执行"，修复方向保持 P1 重编译 / P2 kotlinx shadow / P3 隔离。
+证据：`reports/R112-01/avd-evidence/m68-strace/STRACE-AB.md`。
+
 ## 5. 当前处置
 
 - 2026-11-15 07:00 已回退全量 shadow（PR #77），主线恢复"存档可用"的旧行为；
