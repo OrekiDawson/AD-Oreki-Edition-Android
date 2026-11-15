@@ -1,38 +1,46 @@
-# savestates/late —— 合法未通关晚期存档夹具（R113-01）
+# savestates/late —— 晚期存档夹具（R113-01）
 
-## 来源可追溯
+本目录**区分两类夹具**：合法可加载的交互相存，与已知损坏的负向夹具。二者不可混用。
+
+## 1. 合法夹具：`player-r109-m3-206.json`（正向矩阵用）
 
 | 项 | 内容 |
 | --- | --- |
-| 文件 | `savestates/late/player-r110-m13-440.json` |
-| SHA-256 | `3b0577a24074561ec87624f8ee70d79808c2120c2922540719742548f8c99eaa` |
-| 字节数 | 34,624 |
-| 副本来源 | `reports/R110-01/avd-evidence/m13-agp-fresh-180/player-440.json`（同一 SHA-256，逐字节相同，未做任何改写） |
-| 产生方式 | R110-01 的 **AGP 候选真实 180 分钟新档跑次**（m13）在 AVD `ad-game-api37` 中正常游玩、由游戏自身自动存档写出的 `player.json`，运行期被证据脚本按时间点导出 |
+| 文件 | `savestates/late/player-r109-m3-206.json` |
+| SHA-256 | `75f570c5af04c0485d36e02c019f83c1ea30ea456470073c31e36c86885eb72b` |
+| 字节数 | 32,491 |
+| 副本来源 | `reports/R109-01/avd-evidence/m3-tier8-pelle/player-206.json`（逐字节相同，未改写） |
+| 产生方式 | R109-01 `m3-tier8-pelle` 真实 AVD 跑次中，游戏自身自动存档写出的 `player.json`，按时间点导出（同目录 logcat 含真实 MOD 运行诊断 `OREKI_REALITY_PACING` / `OREKI_ET_GATE` / `OREKI_LAITELA`） |
 | 游戏版本 | 官方基线 3.21.0（包名 `com.oreki.antimatterdimensions`） |
-| 存档 `lastUpdate` | 1794671593527（2026-11-14T15:53:13.527Z） |
+| `lastUpdate` | 1794636610003（2026-11-14T06:10:10.003Z） |
 
-## 关键状态（读取自文件本身，未修改任何字段）
+状态（读取自文件本身，未改任何字段）：
 
-- `realities` = 9
-- `creditsFinished` = **false**（未通关，未进入结束界面）
-- `celestials.laitela.dimensions` = 4 项（真实 Lai'tela 暗物质维度数组）
-- `reality.glyphs.inventory` = 8 个真实 glyph，`effects` 为整数位掩码（正是 `Glyph.effects` 泛型 Signature 路径）
-- Pelle 相关状态存在（晚期阶段）
+- `realities` = 12，`creditsFinished` = **false**（未通关）
+- `celestials.laitela.dimensions` = 4 项（类型化对象数组）
+- `reality.glyphs.inventory` = **11** 个真实 glyph，`effects` 全为**整数位掩码**
+  （`[20480, 256, 1024, 1536, 48, 327680, 589824, 20480, 1, 2560, 160]`）
+- `reality.glyphs.sets` = 7 组（真实 glyph 套装数据）
 
-## 用途
+结构健康度（`scripts/tests/r112/save_matrix.py` 的 `check_state`）：`glyph_effects_all_int=true`、`laitela_dims_typed=true`、`laitela_dims_len=4` → **可作为合法兼容输入**。
 
-1. 晚期存档「写」方向矩阵：AGP 写 → AGP 读、AGP 写 → Smali 读、Smali 写 → AGP 读；
-2. `Player$Laitela.dimensions` 与 `Glyph.effects` 的泛型 Signature / 运行时类型回归；
-3. 进程重启后的读档一致性与 GUI 阶段显示。
+用途：晚期存档写/读矩阵（AGP→AGP、AGP→Smali、Smali→AGP）、`Player$Laitela.dimensions` 与 `Glyph.effects` 泛型 Signature 回归、进程重启一致性。
 
-## 合法性与约束（强制）
+## 2. 负向夹具：`invalid/pre-sig-glyph-effects-r110-m13-440.json`（禁止当合法输入）
 
-- 该文件来自**真实游玩**产生的存档，仅做原样复制；**禁止**手工修改任何字段（包括 `creditsFinished`、`realities`、glyph、资源、阶段）；
-- 禁止用它冒充"手动存档验证自动存档"：写路径验证必须观察游戏自身写盘行为；
-- 测试时必须使用隔离 AVD，并在注入前备份设备现有 `files/`（不得覆盖用户正式存档）；
-- 该存档 `lastUpdate` 距今已有离线跨度，加载时会出现离线结算；这是真实状态，**不得**为了缩短结算而改写时间字段。
+| 项 | 内容 |
+| --- | --- |
+| 文件 | `savestates/late/invalid/pre-sig-glyph-effects-r110-m13-440.json` |
+| SHA-256 | `3b0577a24074561ec87624f8ee70d79808c2120c2922540719742548f8c99eaa` |
+| 来源 | `reports/R110-01/avd-evidence/m13-agp-fresh-180/player-440.json`（逐字节相同） |
+| 性质 | **已知损坏存档**：8 个 glyph 的 `effects` 被写成**对象数组**而不是整数位掩码，属于 `docs/AGP_SIGNATURE_BACKFILL.md` 记录的 Signature 回填前写档缺陷 |
+| 判据 | `save_matrix.check_state` → `glyph_effects_all_int=false` |
 
-## 注入方法
+用途：仅用于**失败路径**验证 —— 读取该存档时必须给出明确错误或被安全拒绝，**不得静默重置**为新游戏、不得抛未捕获异常导致崩溃。禁止把它当作"合法晚期存档"参与正向兼容矩阵。
 
-见 `savestates/README.md` 的注入命令；注意同时覆盖 `playerBackup*.json`，否则会被备份回滚。
+## 强制约束
+
+- 两类夹具都只做原样复制；**禁止**手工改写任何字段（`creditsFinished`、`realities`、glyph、资源、阶段、时间）；
+- 写路径验证必须观察游戏自身写盘行为，不得以手工生成 JSON 冒充自动存档；
+- 测试须使用隔离 AVD，注入前先备份设备现有 `files/`，不得覆盖用户正式存档；
+- `lastUpdate` 的离线跨度是真实状态，不得为缩短离线结算而改写。

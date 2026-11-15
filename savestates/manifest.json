@@ -57,15 +57,25 @@
    "eternityPoints": 66042.094657793
   },
   {
-   "path": "savestates/late/player-r110-m13-440.json",
-   "sha256": "3b0577a24074561ec87624f8ee70d79808c2120c2922540719742548f8c99eaa",
-   "bytes": 34624,
-   "realities": 9.0,
+   "path": "savestates/late/player-r109-m3-206.json",
+   "sha256": "75f570c5af04c0485d36e02c019f83c1ea30ea456470073c31e36c86885eb72b",
+   "bytes": 32491,
+   "role": "legal-late",
+   "realities": {"exponent": 1.0, "mantissa": 1.2},
    "creditsFinished": false,
    "laitela_dimensions": 4,
-   "glyphs": 8,
-   "lastUpdate": 1794671593527,
-   "provenance": "R110-01 avd-evidence/m13-agp-fresh-180/player-440.json（AGP 候选真实 180 分钟新档跑次自动存档导出，原样复制）"
+   "glyphs": 11,
+   "glyph_effects_all_int": true,
+   "lastUpdate": 1794636610003,
+   "provenance": "R109-01 avd-evidence/m3-tier8-pelle/player-206.json（真实 AVD 跑次自动存档导出，原样复制）"
+  },
+  {
+   "path": "savestates/late/invalid/pre-sig-glyph-effects-r110-m13-440.json",
+   "sha256": "3b0577a24074561ec87624f8ee70d79808c2120c2922540719742548f8c99eaa",
+   "bytes": 34624,
+   "role": "negative-malformed",
+   "reason": "glyph.effects 为对象数组（Signature 回填前写档缺陷），verify 判据 glyph_effects_all_int=false；仅用于失败路径，禁止作为合法兼容输入",
+   "provenance": "R110-01 avd-evidence/m13-agp-fresh-180/player-440.json（原样复制）"
   }
  ]
 }
