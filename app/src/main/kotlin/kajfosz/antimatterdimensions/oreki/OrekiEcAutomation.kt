@@ -173,6 +173,17 @@ object OrekiEcAutomation {
     }
 
     private fun runOnce(): Boolean {
+        // [R114-01 P1 门禁对齐] 原版「进入永恒挑战」在 canEternity 为真时会先执行一次**真实永恒**
+        // （challenge/eternity/b;->D 内部调 prestige/c;->d）。legacy smali 自动化链已用
+        // OrekiAutoEternityGate.challengeAutoStartAllowed() 守这道门，但 Kotlin 的
+        // OrekiEcAutomation.start()/settle() 直接调 Abi.buy / Abi.startChallenge，
+        // **没有**该门禁 ⇒ 玩家手动关闭自动永恒后仍可能被这条链真实结算（违反 R101/§14 的用户意愿优先）。
+        // 这里在业务入口加同一道判据（纵深防御，不依赖调用方）：只在「进入/购买会真实结算」的窗口阻止，
+        // 其余时段（开关开启、或 canEternity=false 时进入不会结算）照常推进 EC，不改变正常链路。
+        if (!OrekiAutoEternityGate.challengeAutoStartAllowed()) {
+            OrekiAutoEternityGate.logChallengeBlocked()
+            return false
+        }
         val unlocked = Abi.unlocked()
         if (unlocked == null) {
             note("state-unreadable")
