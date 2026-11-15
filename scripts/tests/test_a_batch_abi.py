@@ -96,6 +96,36 @@ class ABatchGuardTests(unittest.TestCase):
         self.assertIn("缺少必需引用 oreki/shadow/kotlin/coroutines/EmptyCoroutineContext.a", joined)
         self.assertIn("残留 plain 类引用 kotlin/coroutines/EmptyCoroutineContext", joined)
 
+    def test_challenge_auto_descriptor_embedded_refs_pass(self):
+        """Codex P1 回归：协程类型内嵌在方法引用描述符里时也必须被判为已绑定。"""
+        b = ClassFileBuilder()
+        name = "kajfosz/antimatterdimensions/OrekiChallengeAuto"
+        b.cls(name)
+        b.cls("java/lang/Object")
+        shadow = "oreki/shadow/kotlin/coroutines/jvm/internal/ContinuationImpl"
+        b.ref("kajfosz/antimatterdimensions/eternity/studies/c", "N",
+              "(L" + shadow + ";)Ljava/lang/Object;")
+        b.ref("kajfosz/antimatterdimensions/challenge/antimatter/infinity/a", "D",
+              "(ZL" + shadow + ";)Ljava/lang/Object;")
+        b.ref("kajfosz/antimatterdimensions/challenge/antimatter/normal/a", "D",
+              "(ZL" + shadow + ";)Ljava/lang/Object;")
+        b.ref("oreki/shadow/kotlin/coroutines/intrinsics/CoroutineSingletons", "a",
+              "Loreki/shadow/kotlin/coroutines/intrinsics/CoroutineSingletons;", tag=9)
+        data = b.build(name, "java/lang/Object")
+        self.assertEqual(guard.check_class(name, data), [])
+
+    def test_challenge_auto_plain_continuation_is_rejected(self):
+        b = ClassFileBuilder()
+        name = "kajfosz/antimatterdimensions/OrekiChallengeAuto"
+        b.cls(name)
+        b.cls("java/lang/Object")
+        plain = "kotlin/coroutines/jvm/internal/ContinuationImpl"
+        b.ref("kajfosz/antimatterdimensions/eternity/studies/c", "N",
+              "(L" + plain + ";)Ljava/lang/Object;")
+        data = b.build(name, "java/lang/Object")
+        joined = "\n".join(guard.check_class(name, data))
+        self.assertIn("缺少必需引用", joined)
+
     def test_missing_shadow_member_is_rejected(self):
         b = ClassFileBuilder()
         name = "kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch"
