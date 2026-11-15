@@ -1,0 +1,61 @@
+[
+  {
+    "id": "apk-signature-version",
+    "state": "PASS",
+    "evidence": "APK SHA-256=a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87 bytes=81587691；apksigner（--min-sdk-version 24）v2=true/v3=true，证书 95960bce…3197；versionCode=30210001 versionName=3.21.0（aapt + dumpsys 复核）",
+    "screenshots": []
+  },
+  {
+    "id": "install-upgrade",
+    "state": "PASS",
+    "evidence": "avd_gate install-upgrade PASS：adb install -r -g antimatter-dimensions.apk Success（从已装 30210000 升级到 30210001，同签名身份）",
+    "screenshots": []
+  },
+  {
+    "id": "launch",
+    "state": "PASS",
+    "evidence": "avd_gate launch PASS：am start -W Status=ok True，pid 存活，resumed=MainActivity，crashes={fatal_exception:0,verify_error:0,class_not_found:0,anr:0,process_died:0}",
+    "screenshots": []
+  },
+  {
+    "id": "stage-gate-negative",
+    "state": "PASS",
+    "evidence": "全新档（pm clear）冷启动：OREKI_TABGATE tab=eternity allowed=false eternityUnlocked=false；未解锁阶段被原版门禁拦下",
+    "screenshots": [
+      "screenshots/20-fresh-negative.png"
+    ]
+  },
+  {
+    "id": "save-import",
+    "state": "PASS",
+    "evidence": "写入合法永恒存档 savestates/regression/legal-eternity-preserved.json（uid/属主修正）后冷启动：OREKI_TABGATE tab=eternity allowed=true eternityUnlocked=true；GUI_GATE_CHANGED to=eternity eternity=true source=ep=1,bigE=1,eu=1，即导入存档被真实加载",
+    "screenshots": [
+      "screenshots/21-imported-eternity.png"
+    ]
+  },
+  {
+    "id": "stage-gate-positive",
+    "state": "PASS",
+    "evidence": "导入合法永恒存档后：tab=eternity allowed=true eternityUnlocked=true；GUI_GATE_CHANGED from=none to=eternity（详见 logs/save-import2.log）",
+    "screenshots": [
+      "screenshots/21-imported-eternity.png"
+    ]
+  },
+  {
+    "id": "autobuyer-core",
+    "state": "PASS",
+    "evidence": "OREKI_SCHED init 调度：已启用 · 间隔 10 秒 · 单任务档；stagecap cap=1 configured=10 effective=1；后续 151 条自动购买/决策日志（OREKI_SCHED/OREKI_AUTOBUY/BUY），真实动作非注入",
+    "screenshots": []
+  },
+  {
+    "id": "gui",
+    "state": "PASS",
+    "evidence": "OREKI_UIFRAME 实测最大 fps=60（>=30 门槛）；深色主题/顶栏「当前页面」见截图；avd_gate 截图均 >20KB",
+    "screenshots": [
+      "screenshots/01-main.png",
+      "screenshots/03-new-save.png",
+      "screenshots/12-cold-start.png",
+      "screenshots/22-restart.png"
+    ]
+  }
+]

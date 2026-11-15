@@ -1,0 +1,8 @@
+[01:09:15] app_uid=10248
+-rw-rw---- 1 u0_a248 u0_a248 29314 2026-11-16 01:09 /data/data/com.oreki.antimatterdimensions/files/player.json
+[01:09:46] after-import bigE=
+[01:09:46] stage-gate-positive tab=eternity allowed=true lines=1
+[01:09:46] [autobuyer] wait 40s on legal save
+[01:10:26] autobuyer purchase/decision lines=151
+[01:10:26] max fps=46
+[01:10:26] DONE
