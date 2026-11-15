@@ -77,6 +77,10 @@ jobs:
           }
           git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
           python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
+      - name: Test staged AGP directory migration policy
+        run: python3 -m unittest discover -s scripts/tests -p 'test_directory_layout.py' -v
+      - name: Enforce staged AGP production Kotlin source directories
+        run: python3 scripts/check_directory_layout.py
       - name: Test four-channel delivery preflight and stable-release promotion
         run: python3 -m unittest discover -s scripts/tests -p 'test_delivery_preflight.py' -v
       - name: Test immutable archive-only recovery without changing stable Latest
