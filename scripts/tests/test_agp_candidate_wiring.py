@@ -1,5 +1,6 @@
 """Regression tests for the AGP candidate wiring (R114-01)."""
 import importlib.util
+import os
 import pathlib
 import tempfile
 import unittest
@@ -86,6 +87,35 @@ class AgpCandidateWiringTests(unittest.TestCase):
         self.assertEqual(report["sign_v3"]["exit"], 0)
         self.assertTrue(report["prepared_dir"].endswith("prepared"))
         self.assertEqual(len(calls), 4)
+
+    def test_workflow_resigns_with_v2_and_v3_before_evidence(self):
+        text = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("Re-sign AGP APK with both v2 and v3 schemes", text)
+        self.assertIn("--v2-signing-enabled true", text)
+        self.assertIn("--v3-signing-enabled true", text)
+        self.assertIn("--min-sdk-version 24", text)
+        resign = text.index("Re-sign AGP APK with both v2 and v3 schemes")
+        provenance = text.index("Write AGP provenance, candidate metadata and release manifest")
+        self.assertLess(resign, provenance)
+
+    def test_tool_report_honors_android_sdk_env(self):
+        spec = importlib.util.spec_from_file_location(
+            "prepare_apk_tool_report_env", ROOT / "scripts/ci/prepare_apk_tool_report.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            sdk = pathlib.Path(temporary) / "sdk"
+            tool = sdk / "build-tools" / "37.0.0" / "aapt2"
+            tool.parent.mkdir(parents=True)
+            tool.write_text("", encoding="utf-8")
+            saved = dict(os.environ)
+            try:
+                os.environ["ANDROID_SDK_ROOT"] = str(sdk)
+                os.environ.pop("ANDROID_HOME", None)
+                self.assertEqual(module.default_android_tool("aapt2"), str(tool))
+            finally:
+                os.environ.clear()
+                os.environ.update(saved)
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -32,14 +33,25 @@ def run(command, cwd=None):
 
 
 def default_android_tool(name: str) -> str:
-    home = pathlib.Path.home()
-    candidates = sorted((home / "Android" / "Sdk" / "build-tools").glob("*/" + name))
-    if not candidates:
-        found = shutil.which(name)
-        if not found:
-            raise SystemExit("FAIL: 找不到 " + name)
-        return found
-    return str(candidates[-1])
+    """按 CI 与本地常见位置查找 Android build-tools 可执行文件。
+
+    CI runner 由 android-actions/setup-android 安装到 ANDROID_SDK_ROOT/build-tools，
+    本地则在 ~/Android/Sdk；两者都必须支持，否则脚本在 runner 上找不到 aapt2。
+    """
+    roots = []
+    for env_name in ("ANDROID_SDK_ROOT", "ANDROID_HOME"):
+        value = os.environ.get(env_name)
+        if value:
+            roots.append(pathlib.Path(value))
+    roots.append(pathlib.Path.home() / "Android" / "Sdk")
+    for root in roots:
+        candidates = sorted((root / "build-tools").glob("*/" + name))
+        if candidates:
+            return str(candidates[-1])
+    found = shutil.which(name)
+    if not found:
+        raise SystemExit("FAIL: 找不到 " + name + "（ANDROID_SDK_ROOT/ANDROID_HOME/build-tools 与 PATH 均未命中）")
+    return found
 
 
 def make_report(apk: pathlib.Path, out_dir: pathlib.Path, apktool_jar: pathlib.Path, runner=None):
