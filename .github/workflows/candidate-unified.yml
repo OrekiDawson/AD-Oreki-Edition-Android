@@ -196,7 +196,7 @@ jobs:
               for member in tar:
                   path = pathlib.PurePosixPath(member.name)
                   if (path.is_absolute() or '..' in path.parts or not path.parts
-                          or path.parts[0] not in ('assets', 'baseline', 'legacy')
+                          or path.parts[0] not in ('assets', 'baseline', 'legacy', 'gamejar', 'modtree')
                           or not (member.isfile() or member.isdir())):
                       raise SystemExit('FAIL: unsafe bundle entry; only regular files and directories permitted')
                   names.append(member.name)
@@ -207,7 +207,10 @@ jobs:
                            'assets/kotlinc/bin/kotlinc',
                            'assets/work-splits/xhdpi_decoded/apktool.yml',
                            'assets/work-splits/mdpi_decoded_321/apktool.yml',
-                           'baseline/current/apktool.yml','legacy/apktool.yml'):
+                           'baseline/current/apktool.yml','legacy/apktool.yml',
+                           'gamejar/game-hybrid-sig.jar',
+                           'modtree/AndroidManifest.xml',
+                           'modtree/res/values/public.xml'):
               if not (root / relative).is_file():
                   raise SystemExit('FAIL: missing pinned build resource ' + relative)
           print('PASS: sha256-pinned private build resource bundle extracted safely')
@@ -318,30 +321,6 @@ jobs:
           PY
           [[ "$fail" == 0 ]] || { echo '::error::Build inputs incomplete; aborting before Gradle'; exit 1; }
           echo '::notice::All build inputs verified before Gradle'
-      - name: Compile the Kotlin sources before the DEX step
-        working-directory: source
-        run: |
-          set -euo pipefail
-          # buildKotlinDex 的 D8 class 列表在**执行期**收集，且任务链
-          # buildKotlinDex -> verifyKotlinAbi -> compileKotlinClasses 会先完成编译；
-          # 干净 checkout 单次调用即可得到含 kajfosz 业务类的 dex。
-          # R111 CI-3：移除多余的 compileKotlinClasses 预调用（旧注释基于 R102 之前的
-          # 配置期 fileTree 实现，现已不成立）。
-          bash ./gradlew buildKotlinDex --offline --no-daemon --console=plain
-          count="$(find build/kt/classes -name '*.class' | wc -l)"
-          [[ "$count" -gt 0 ]] || { echo '::error::Kotlin compile produced no class files'; exit 1; }
-          echo "::notice::Kotlin classes compiled: $count"
-          python3 - <<'PY'
-          import pathlib, sys
-          dex = pathlib.Path('build/kt/classes.dex')
-          if not dex.is_file() or dex.stat().st_size == 0:
-              sys.exit('FAIL: build/kt/classes.dex missing')
-          blob = dex.read_bytes()
-          if b'kajfosz/' not in blob:
-              sys.exit('FAIL: Kotlin DEX carries no kajfosz classes (D8 input list was empty)')
-          print(f"PASS: Kotlin DEX built with kajfosz classes ({dex.stat().st_size} bytes)")
-          PY
-
       - name: Stage original production signing key
         env:
           KEYSTORE_B64: ${{ secrets.OREKI_KEYSTORE_B64 }}
@@ -359,130 +338,122 @@ jobs:
           chmod 600 "$RUNNER_TEMP/oreki-keys/oreki.jks"
           cp "$RUNNER_TEMP/oreki-keys/oreki.jks" source/keys/oreki.jks
           chmod 600 source/keys/oreki.jks
-      - name: Run existing offline build and APK contract gates
-        working-directory: source
+      - name: Verify pinned AGP full-game inputs
         env:
-          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
+          OREKI_GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
         run: |
           set -euo pipefail
-          bash ./gradlew assembleRelease verifyRelease verifyPatchContract --offline --no-daemon --console=plain
-      - name: Generate the release manifest from the verified candidate
-        working-directory: source
-        env:
-          # installToRelease forces a real assembleRelease, which signs with the staged
-          # production keystore; the password must be present or the build stops at
-          # "缺少签名口令". This step runs after the keystore is staged from the secret.
-          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
-        run: |
-          set -euo pipefail
-          # installToRelease is the project's own audited manifest producer. It depends on
-          # verifyRelease + verifyPatchContract, refuses any hash/package/cert mismatch and
-          # writes build/release-manifest.json from the exact staged candidate. The
-          # runner-local release/ copy it also makes stays inside this ephemeral checkout:
-          # it is never uploaded and never published by this job.
-          bash ./gradlew installToRelease --offline --no-daemon --console=plain
-          test -s build/release-manifest.json || {
-            echo '::error::installToRelease did not write build/release-manifest.json'
-            exit 1
+          bundle="$GITHUB_WORKSPACE/.oreki-private"
+          jar="$bundle/gamejar/game-hybrid-sig.jar"
+          tree="$bundle/modtree"
+          test -s "$jar" || { echo '::error::Missing pinned game jar in bundle'; exit 1; }
+          test -f "$tree/AndroidManifest.xml" || { echo '::error::Missing full-game decoded tree manifest'; exit 1; }
+          test -f "$tree/res/values/public.xml" || { echo '::error::Missing full-game decoded tree public.xml'; exit 1; }
+          actual="$(sha256sum "$jar" | cut -d' ' -f1)"
+          [[ "$actual" == "$OREKI_GAME_JAR_SHA256" ]] || {
+            echo "::error::game jar SHA mismatch actual=$actual pinned=$OREKI_GAME_JAR_SHA256"; exit 1;
           }
-      - name: Record exact Gradle stage APK, reports and release manifest
+          mkdir -p source/work
+          rm -rf source/work/mod
+          ln -s "$tree" source/work/mod
+          echo "::notice::AGP full-game inputs verified (jar=$actual)"
+
+      - name: Build AGP 9.5.1 full-game release APK
+        working-directory: source
+        env:
+          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
+          OREKI_GAME_JAR: ${{ github.workspace }}/.oreki-private/gamejar/game-hybrid-sig.jar
+        run: |
+          set -euo pipefail
+          test -s "$OREKI_GAME_JAR"
+          # 正式路径：AGP 9.5.1 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
+          bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true -PorekiGameJar="$OREKI_GAME_JAR" --no-daemon --console=plain
+          apk="agp/app/build/outputs/apk/release/app-release.apk"
+          test -s "$apk" || { echo '::error::AGP release APK missing'; exit 1; }
+          mkdir -p "$GITHUB_WORKSPACE/candidate"
+          cp "$apk" "$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
+          echo "::notice::AGP candidate APK staged"
+
+      - name: Prepare APK tool report for contract verifiers
+        working-directory: source
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/prepare_apk_tool_report.py \
+            --apk "$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk" \
+            --out-dir build/ci-tools \
+            --report build/ci-tools/tool-report.json \
+            --apktool-jar tools/apktool.jar
+
+      - name: Verify AGP APK against release and patch contracts
+        working-directory: source
+        env:
+          OREKI_BASE: ${{ env.OREKI_BASELINE_DIR }}
+        run: |
+          set -euo pipefail
+          cand="$GITHUB_WORKSPACE/candidate"
+          python3 scripts/verify_release.py \
+            --apk "$cand/antimatter-dimensions.apk" \
+            --json "$cand/verify-release.json" \
+            --tool-report build/ci-tools/tool-report.json \
+            --prepared-dir "$(pwd)/build/ci-tools/prepared"
+          python3 scripts/verify_patch_contract.py \
+            --apk "$cand/antimatter-dimensions.apk" \
+            --tool-report build/ci-tools/tool-report.json \
+            --prepared-dir "$(pwd)/build/ci-tools/prepared" \
+            --json "$cand/verify-patch-contract.json"
+
+      - name: Write AGP provenance, candidate metadata and release manifest
+        working-directory: source
         env:
           SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
-          SOURCE_REPOSITORY: OrekiDawson/AD-Oreki-Edition-Android
           WEB_REF: ${{ needs.validate.outputs.web_ref }}
+          OREKI_GAME_JAR_SHA256: ${{ vars.OREKI_GAME_JAR_SHA256 }}
+          OREKI_BUNDLE_SHA256: ${{ vars.OREKI_BUILD_BUNDLE_SHA256 }}
         run: |
           set -euo pipefail
-          src="source/build/gradle-stage/反物质维度.apk"
-          release_report="source/build/gradle-reports/verify-release.json"
-          patch_report="source/build/gradle-reports/verify-patch-contract.json"
-          manifest="source/build/release-manifest.json"
-          for file in "$src" "$release_report" "$patch_report" "$manifest"; do
-            test -s "$file" || { echo "::error::Missing required candidate evidence: $file"; exit 1; }
-          done
-          install -d -m 700 "$RUNNER_TEMP/candidate"
-          cp "$src" "$RUNNER_TEMP/candidate/antimatter-dimensions.apk"
-          cp "$release_report" "$RUNNER_TEMP/candidate/verify-release.json"
-          cp "$patch_report" "$RUNNER_TEMP/candidate/verify-patch-contract.json"
-          cp "$manifest" "$RUNNER_TEMP/candidate/release-manifest.json"
-          export CANDIDATE_DIR="$RUNNER_TEMP/candidate"
-          export CANDIDATE_RUN_ID="$GITHUB_RUN_ID"
-          python3 - <<'PY'
-          import hashlib, json, os, pathlib, sys
-          d = pathlib.Path(os.environ["CANDIDATE_DIR"])
-          apk_bytes = (d / "antimatter-dimensions.apk").read_bytes()
-          digest = hashlib.sha256(apk_bytes).hexdigest()
-          size = len(apk_bytes)
-          release = json.loads((d / "verify-release.json").read_text())
-          patch = json.loads((d / "verify-patch-contract.json").read_text())
-          expected_cert = os.environ["EXPECTED_CERT_SHA256"]
-          if release.get("failed") != 0 or not release.get("checks") or any(not row.get("ok") for row in release["checks"]):
-              sys.exit("FAIL: verifyRelease report did not pass")
-          if release.get("sha256") != digest or release.get("cert_sha256") != expected_cert:
-              sys.exit("FAIL: APK report SHA or signing identity mismatches candidate")
-          checks = patch.get("checks")
-          if not isinstance(checks, list) or len(checks) < 17 or any(not row.get("ok") for row in checks):
-              sys.exit("FAIL: patch-contract checks missing or failing")
-          if patch.get("total") != len(checks) or patch.get("passed") != len(checks):
-              sys.exit("FAIL: patch-contract summary inconsistent")
-          # installToRelease wrote this manifest from the exact staged APK and its
-          # verifyRelease report; reject it unless it names this candidate byte-for-byte.
-          manifest = json.loads((d / "release-manifest.json").read_text())
-          build = manifest.get("build") or {}
-          release_part = manifest.get("release") or {}
-          apk_name = "反物质维度.apk"
-          source_apk = str(build.get("source_apk") or "")
-          if manifest.get("schema") != 1:
-              sys.exit("FAIL: release manifest schema is not 1")
-          if not source_apk.startswith("/") or "/build/gradle-stage/" not in source_apk or pathlib.PurePosixPath(source_apk).name != apk_name:
-              sys.exit(f"FAIL: release manifest source_apk is not the staged candidate: {source_apk}")
-          if build.get("source_apk") != release.get("apk"):
-              sys.exit("FAIL: release manifest source_apk differs from verifyRelease report")
-          if build.get("source_sha256") != digest or build.get("source_size") != size:
-              sys.exit("FAIL: release manifest does not describe the exact candidate bytes")
-          if (build.get("package"), build.get("versionName"), build.get("versionCode"), build.get("cert_sha256")) != (
-                  release.get("package"), release.get("versionName"), release.get("versionCode"), expected_cert):
-              sys.exit("FAIL: release manifest identity differs from verifyRelease report")
-          if build.get("verify_failed") != 0:
-              sys.exit("FAIL: release manifest records a failed verifyRelease")
-          release_apk = str(release_part.get("apk") or "")
-          if not release_apk.startswith("/") or "/release/" not in release_apk or pathlib.PurePosixPath(release_apk).name != apk_name:
-              sys.exit(f"FAIL: release manifest release.apk is not the release copy: {release_apk}")
-          if release_part.get("sha256") != digest or release_part.get("size") != size:
-              sys.exit("FAIL: release manifest release entry does not match the candidate")
-          meta = {
-              "source_repository": os.environ["SOURCE_REPOSITORY"],
-              "web_ref": os.environ.get("WEB_REF", ""),
-              "source_sha": os.environ["SOURCE_SHA"],
-              "candidate_run_id": int(os.environ["CANDIDATE_RUN_ID"]),
-              "apk_file": "antimatter-dimensions.apk",
-              "sha256": digest,
-              "apk_bytes": size,
-              "package": release.get("package"),
-              "versionName": release.get("versionName"),
-              "versionCode": release.get("versionCode"),
-              "certificate_sha256": release.get("cert_sha256"),
-          }
-          (d / "candidate-metadata.json").write_text(json.dumps(meta, indent=2) + "\n")
-          manifest_sha = hashlib.sha256((d / "release-manifest.json").read_bytes()).hexdigest()
-          (d / "SHA256SUMS.txt").write_text(
-              f"{digest}  antimatter-dimensions.apk\n{manifest_sha}  release-manifest.json\n")
-          print("PASS: exact staged APK / SHA-256 / signed identity / contract reports / release manifest")
-          PY
-      - name: Verify signed APK and record cert evidence
+          cand="$GITHUB_WORKSPACE/candidate"
+          mkdir -p build/gradle-stage release
+          cp "$cand/antimatter-dimensions.apk" "build/gradle-stage/反物质维度.apk"
+          cp "$cand/antimatter-dimensions.apk" "release/反物质维度.apk"
+          version_name="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionName"])')"
+          version_code="$(python3 -c 'import json;print(json.load(open("scripts/release-gate-policy.json"))["versionCode"])')"
+          python3 scripts/ci/write_agp_provenance.py \
+            --candidate-dir "$cand" \
+            --apk "$cand/antimatter-dimensions.apk" \
+            --source-sha "$SOURCE_SHA" \
+            --web-ref "$WEB_REF" \
+            --candidate-run-id "$GITHUB_RUN_ID" \
+            --game-jar "$GITHUB_WORKSPACE/.oreki-private/gamejar/game-hybrid-sig.jar" \
+            --game-jar-sha256 "$OREKI_GAME_JAR_SHA256" \
+            --bundle-sha256 "$OREKI_BUNDLE_SHA256" \
+            --version-name "$version_name" \
+            --version-code "$version_code" \
+            --certificate-sha256 "$EXPECTED_CERT_SHA256" \
+            --verify-release "$cand/verify-release.json" \
+            --repo-root "$GITHUB_WORKSPACE/source"
+
+      - name: Verify signed APK, v2+v3 schemes and record cert evidence
         run: |
           set -euo pipefail
           signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
           test -n "$signer"
-          "$signer" verify --verbose --print-certs "$RUNNER_TEMP/candidate/antimatter-dimensions.apk" > "$RUNNER_TEMP/candidate/signature.txt"
-          grep -Fq "$EXPECTED_CERT_SHA256" "$RUNNER_TEMP/candidate/signature.txt" || {
+          cand="$GITHUB_WORKSPACE/candidate"
+          "$signer" verify --verbose --print-certs "$cand/antimatter-dimensions.apk" > "$cand/signature.txt"
+          grep -Fq "$EXPECTED_CERT_SHA256" "$cand/signature.txt" || {
             echo "::error::Signing certificate does not match the existing stable APK"
             exit 1
+          }
+          grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$cand/signature.txt" || {
+            echo "::error::APK is missing v2 signature"; exit 1;
+          }
+          grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" "$cand/signature.txt" || {
+            echo "::error::APK is missing v3 signature (enableV3Signing)"; exit 1;
           }
       - name: Upload candidate (not a stable release)
         uses: actions/upload-artifact@v7
         with:
           name: ad-oreki-candidate
-          path: ${{ runner.temp }}/candidate/
+          path: ${{ github.workspace }}/candidate/
           if-no-files-found: error
           retention-days: 14
       - name: Remove temporary signing material
