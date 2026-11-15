@@ -10216,3 +10216,20 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - **夹具**：新增合法未通关晚期存档 `savestates/late/player-r109-m3-206.json`（SHA `75f570c5af04c0485d36e02c019f83c1ea30ea456470073c31e36c86885eb72b`，realities=12、creditsFinished=false、laitela dimensions=4、11 glyph 且 effects 全为整数）；另存已知损坏存档 `savestates/late/invalid/pre-sig-glyph-effects-r110-m13-440.json` 仅作负向夹具（effects 为对象数组，读取须明确失败、不得静默重置）。
 - **证据**：`reports/R113-01/KOTLIN-MIGRATION-MATRIX.md`、`reports/R113-01/SAVE-P0-AB.md`、`reports/R113-01/evidence/`；AVD 原始 logcat 与截图在 Git 外 `/home/oreki/private-staging/r113-avd-evidence/r113-save-ab/`（含 SHA256SUMS.txt）。
 - **下一步最小验证**：JADX 定位 `Player.k0:371` / `vf2.d` 循环是否因 Infinity/NaN 或错误类型分支不收敛；在 shadow 构建上二分「禁用 `SpeedrunMilestone.complete` 调用」，若 tick 与 30s 写档恢复即锁定该协程。
+
+### R113-01 追加：AGP 逻辑线程 livelock 根因与修复（2026-11-15 12:00–12:50）
+
+- **根因**：R112/R113 管线把官方类转换从「enjarify + 8 类 dex2jar（R107 J8）」改为**全量 enjarify**；
+  enjarify 对 kotlinx.coroutines 调度类（vf2/dc2/tf2/t01 等）的转换与 dex2jar/R110 构建指令级不同，
+  游戏逻辑线程在 `SpeedrunMilestone$complete` 协程链进入忙循环（Runnable、utm≈127s、tick 停止），
+  周期存档与 HOME 保存都不触发。全量 dex2jar 也不可用：dex2jar v2.4 把 `new 子类 + invoke-direct 父类构造器`
+  改写成 `new 父类`，ART `VerifyError`（kn6.z / k51.e）。
+- **修复**（PR #88）：`agp_gamejar2.py --hybrid-classes`（官方基础 enjarify + `ox0,gk0,dc2,tf2,vf2,t01` 换 dex2jar 版本）；
+  补丁类检测改为 enjarify↔enjarify；最终 jar = 官方基础 + 仅补丁覆盖；RemapSelective 支持类名还原映射；
+  新增 hierarchy / dash_rename fail-closed 守卫。
+- **构建**：APK `f2f72a61e96ff4f2cf14defa7e35fb5a70c24cab57322478128343059a9c5982`、
+  jar `dec24f57614967e81b37f856cb52e589e35aa8697e719fb88c84e2164b63adc8`（15,344 类）；
+  A 批 ABI / Signature / 整包 D8 全 PASS。
+- **AVD 联合验收**（同一 APK）：新档首写 40.2s、HOME 保存、重启读取、5 分钟自动化 0 ABI 崩溃/ANR；
+  合法晚期存档（SHA `75f570c5…`，realities=12）读取正常且 120s 后写回 `01e67bf8…`（29,912 B 合法 JSON）。
+- 证据：`reports/R113-01/P0-CLOSURE.md`、`reports/R113-01/avd-evidence/r113-hybrid6/`。
