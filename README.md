@@ -13,7 +13,7 @@
 先阅读：
 
 1. [Android 当前规则](AGENTS.md)
-2. [当前事实](docs/FACTS.md)
+2. [当前事实总索引](docs/FACTS.md)（主题事实在 [docs/facts/](docs/facts/README.md)）
 3. [暂停状态与本地资产](PROJECT_PAUSED.md)
 4. [规则索引](docs/RULES_INDEX.md)
 
@@ -86,7 +86,7 @@
 
 ## 8. 上游基线与 MOD 版本
 
-- **基线冻结（2026-11-13 起）**：固定官方 Android 3.21.0；允许只读监测上游安全/重大缺陷，禁止未经授权自动升级、合并、改基线或发布；base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK `ad1b367e…`、versionCode `30210000`、minSdk 32 / targetSdk 37（见 `baseline/versions/3.21/manifest.json` 与 `docs/FACTS.md` 第 6 节）。
+- **基线冻结（2026-11-13 起）**：固定官方 Android 3.21.0；允许只读监测上游安全/重大缺陷，禁止未经授权自动升级、合并、改基线或发布；base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK `ad1b367e…`、versionCode `30210000`、minSdk 32 / targetSdk 37（见 `baseline/versions/3.21/manifest.json` 与 `docs/facts/build.md#f-6`）。
 - **选择性上游移植**：安全/崩溃/存档/数据错误优先评估；性能需实测收益；重大新玩法单独评估；普通 UI/重构/混淆/纯版本号默认不跟进。移植必须记录上游来源与验证结果，不得整包替换。
 - **独立 MOD 版本**：产品版本 Oreki Edition 从 `1.0.0` 起；Android **每次正式发布 `versionCode` 必须严格大于历史已发布最大值**（当前 `30210000`），且**原版基线 versionCode 与 MOD 发布 versionCode 分开记录**；不得改变包名、签名身份，不得破坏存档与覆盖升级。versionName/标签/文件名/更新机制验证后渐进迁移。
 - **反混淆/Kotlin 目标固定 3.21.0**：复用现有 JADX 导出、第一方索引与 Kotlin 重建成果，不因上游发版重置。
