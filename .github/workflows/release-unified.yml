@@ -315,9 +315,11 @@ jobs:
           PY
           sudo install -m 0755 "/tmp/rclone-extract/rclone-v${version}-linux-amd64/rclone" /usr/local/bin/rclone
           rclone version
-          rclone help backend onedrive | grep -q 'onedrive-upload-cutoff' || {
-            echo "::error::rclone lacks --onedrive-upload-cutoff"; exit 1;
-          }
+          # set -o pipefail 下 rclone | grep -q 会因 grep 提前退出触发 SIGPIPE(141)，误报缺 flag。改为先捕获再匹配。
+          rclone_help="$(rclone help backend onedrive 2>&1 || true)"
+          if ! grep -q 'onedrive-upload-cutoff' <<<"$rclone_help"; then
+            echo "::error::rclone lacks --onedrive-upload-cutoff"; exit 1
+          fi
           command -v gh
       - name: Stage restricted cloud credentials
         env:
