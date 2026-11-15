@@ -7,10 +7,11 @@
 
 | 项 | 值 |
 |---|---|
-| scripts/build_mod.py | 7,716 行 / 347,779 字符 / 103 个函数 |
-| main() 实际启用调用 | 53 个（另 3 个显式禁用/证据函数：patch_autobuyer_unlock、verify、patch_frame_cadence） |
-| 启用函数代码量 | 5,587 行（约占全文件 72%） |
+| scripts/build_mod.py | **7,394 行** / 99 个顶层函数 + 2 个类（R114-02 前 7,694 行；C1 -246、C5 -54） |
+| main() 实际启用调用 | 53 个（另 1 个未接入主流程的保留函数：patch_autobuyer_unlock，仅被诊断链 patch_debug_trace 调用；verify / patch_frame_cadence 已在 C5 清理） |
+| 启用函数代码量 | 5,587 行（约占全文件 72%；不含 R114-02 C1 已删除段） |
 | 生产依赖 | 根 build.gradle -> `python3 scripts/build_mod.py`（OREKI_GRADLE_ASSEMBLY=1）生成 work/mod 补丁树；AGP 完整游戏构建以 `-PorekiDecodedTree=work/mod` 读取该树（manifest/res/assets/lib/smali 输入） |
+| 已解除的生产依赖（R114-02 C1） | 教程资产生成：构建不再调用 `oreki_tutorial_gen`、不再读 Web 单源 JSON、不再重写提交物；唯一输入是已提交且经 Gradle `verifyTutorialAsset` + 独立 CI 校验的 `scripts/payload/assets/oreki_tutorial.txt` |
 | AGP 现状 | R8 OFF 完整游戏 APK AVD 门禁 **PASS**（18716d87…，2026-11-14 19:15）；R8 ON 构建 PASS（566b8b74…）但运行 **FAIL**（ClassCastException，见 §4） |
 | 正式门禁 | Candidate/Verify/Release 仍 fail-closed；未发布 |
 
@@ -33,7 +34,7 @@
 | patch_resources | 67 | AGP 资源合并 + stable-ids；改为 Gradle/Kotlin 资源任务或 Rust 资源变换 | NOT RUN |
 | patch_changelog_zh | 109 | 已迁 Gradle 任务 generateChangelogZh（独占 build/agp-generated-res；AGP 基座跳过） | PASS（PR #64；本地产物逐字节一致，候选 APK 不变） |
 | patch_manifest | 117 | AGP manifest 处理（Gradle DSL）+ 必要 Rust 变换 | NOT RUN |
-| patch_tutorial_content | 278 | Gradle Kotlin DSL 任务生成 assets/oreki_tutorial.txt（源：Web 单源 JSON）；**下一项首选闭包 C1** | NOT RUN |
+| patch_tutorial_content | 278 | 已迁：生成/三层断言移出生产构建；AGP 用 Gradle `verifyTutorialAsset` 校验提交资产，legacy 链只做原样落盘（`stage_tutorial_assets`） | **PASS**（R114-02 C1，见 §5；真实 APK/AVD NOT RUN） |
 | patch_tutorial_entry | 172 | Kotlin Activity 已在；入口注册迁入 AGP manifest/Kotlin | NOT RUN |
 | oreki_dark_theme（内联导入） | — | AGP 资源 overlay / Kotlin Theme 应用 | NOT RUN |
 
@@ -64,10 +65,10 @@
 
 | 项 | 证据 | 处置 |
 |---|---|---|
-| patch_autobuyer_unlock（未启用） | 注释记录实测无效 | 保留一行说明后删除函数体 |
-| patch_frame_cadence（未启用） | 实测否证（CPU 受限） | 同上 |
-| verify（未启用） | 旧聚合入口 | 删除 |
-| assert_mod_complete / smali_file | 前者被 test_r80_alias_rewrite.py 使用（保留）；后者 grep 全仓仅定义 | smali_file 可删除（随 C5 闭包） |
+| patch_autobuyer_unlock（生产路径未启用） | AST 可达性复核：仍被 `patch_debug_trace()`（`OREKI_DEBUG_TRACE=1` 诊断路径）调用 | **保留**（不满足「无调用才删」；删除须连同诊断链一起退役，待 Lead 决定；见 §6.4） |
+| patch_frame_cadence（未启用） | 实测否证（CPU 受限），全仓无调用 | **已删除**（R114-02 C5，-36 行；main() 保留一行退役说明） |
+| verify（未启用） | 旧聚合入口，函数体早已不存在（仅一处错误注释残留） | **已清理注释**（指向真实 `oreki_dark_theme.verify(MOD)`） |
+| assert_mod_complete / smali_file | 前者被 test_r80_alias_rewrite.py 使用（保留）；后者全仓无调用 | **smali_file 已删除**（R114-02 C5，-8 行） |
 
 ## 2. 阶段计划与依赖
 
@@ -77,11 +78,11 @@
    - 能力：常量变换、方法体钩子插入（调用 Kotlin 静态入口）、类/字段修复；
    - 验证：类集合/ABI 一致 + AVD 关键路径。
 3. **增量闭包（可独立 PR）**：
-   - C1：tutorial asset 生成迁到 Gradle Kotlin DSL（AGP 消费 build/agp-generated/assets），build_mod 在 AGP 基座下跳过该生成；验证：与现有 payload 资产逐字节一致 + APK 含 asset + 教程页可开。
+   - C1：tutorial asset 生成迁出生产构建（**已完成**，R114-02：AGP 任务 `prepareFullGameAssets`/`verifyTutorialAsset` 消费提交资产；legacy 链 `stage_tutorial_assets()` 只原样落盘；新鲜度由独立校验把关，详见 §5）。
    - C2：changelog 生成已迁 Gradle generateChangelogZh（PR #64）：输出目录独立、stage 排除原文、已翻译输入可识别；本地/候选 APK 与 patch_changelog_zh 产物逐字节一致（SHA-256 b5168107…），候选 APK 仍为 18716d87…。
    - C3：dark theme 迁到 AGP 资源 overlay。
    - C4：verify_* 迁到 CI 独立任务。
-   - C5：dead/disabled 函数删除。
+   - C5：dead/disabled 函数删除（**已完成**，R114-02：AST 可达性 + 调用链属性守卫，详见 §6）。
 4. **最终删除条件**（Issue #52 清单）：全部满足后才删除 build_mod.py，并加 CI 守卫阻止重新引用。
 
 ## 3. 本轮已完成
@@ -96,3 +97,111 @@
 - mapping.txt 还原：dz = kotlinx.coroutines.flow.internal.SafeCollector，sc = androidx.datastore.core.DataStoreImpl$data$1，pb7 = ua4（原版混淆类），cast 目标 rn6 = s94、实际 ea3 = i25（均为原版混淆类）。
 - 判断：R8 把「游戏 JAR 内原版混淆的库类」与「AGP 依赖中未混淆库类」同时作为程序输入，类型/接口关系与转换产物语义不一致 => 运行期类型混淆；属转换路线语义问题，非 keep 规则可解，与既有结论「DEX->JVM 转换语义不可信」一致。
 - 处置：R8 ON 保持实验 opt-in，不作为 Candidate/发布依据；记录 FAIL/BLOCKED。
+
+
+## 5. R114-02 C1 闭包：教程资产生产路径迁移（Issue #52）
+
+> 分支 `r114-02/buildmod-retirement`；基线 `origin/main e200ec02`。目标：让「教程资产生成」不再是生产构建依赖，同时不降低内容新鲜度与打包保障。
+
+### 5.1 改动（最小闭包）
+
+| 项 | 旧行为 | 新行为 |
+|---|---|---|
+| 生产脚本 | `build_mod.main()` 调 `patch_tutorial_content()`：构建期从 Web 单源 JSON **重写** `scripts/payload/assets/oreki_tutorial.txt`，再做三层生成断言 + 落盘回读 + 渲染层接线/极性守卫（278 行） | `build_mod.main()` 调 `stage_tutorial_assets()`：只把**已提交**资产原样拷进 `work/mod/assets`，保留「旧版 legacy 残留必须清掉」的清洗；生成器/生成断言全部移出生产构建（净 -246 行） |
+| 资产来源 | 每次构建按当次 Web 工作区重新生成（候选内容随环境漂移） | 唯一输入 = 已提交、已评审的 `scripts/payload/assets/oreki_tutorial.txt`（200,880 B，SHA-256 `6bab3f8b978eda78e73e40c7a97dbce966f952f03ce34932be437721cd86b8ed`） |
+| 校验消费端 | 生成器三道断言在构建期跑 | AGP：Gradle `verifyTutorialAsset`（结构/编码/规模/PH/章节数，无 Python）+ `prepareFullGameAssets`（剔除解码树同名旧资产）；独立校验：`scripts/verify_tutorial_zh.py` A1/A2 逐字节重生成比对 + 新 CI 退役守卫测试；候选链新增 freshness 步骤（对钉住的 Web 检出复算） |
+| 生成器定位 | 构建期依赖 | 离线创作工具（`scripts/oreki_tutorial_gen.py`），并修正内容源展示路径为规范相对路径，使不同检出布局生成**逐字节相同**的资产（可复现/可比对） |
+| 开发探针 | `probe_patches.py` / `r80_patch_run.py` 引用已删函数 | 改引用 `stage_tutorial_assets`，避免断链 |
+
+### 5.2 消费端切换（实际生效路径）
+
+- 根 `build.gradle` -> `python3 scripts/build_mod.py`（`OREKI_GRADLE_ASSEMBLY=1`）：只落盘提交资产，不再生成/翻译教程。
+- AGP 完整游戏：`agp/app/build.gradle.kts` 的 `prepareFullGameAssets` + `verifyTutorialAsset` 消费**同一份**提交资产；解码树 `assets/oreki_tutorial.txt` 一律剔除（此前已合入，C1 的另一半）。
+- 候选链：`.github/workflows/candidate-unified.yml` 在钉住的 Web 检出就位后新增「教程资产与单源 JSON 逐字节一致」步骤（fail-closed；AGP-only 门禁解除后即生效）。
+- 源码 CI：`.github/workflows/ci.yml` 新增退役守卫测试（防止 Python 生成器回潮 / 资产结构漂移 / 消费端被改回去）。
+
+### 5.3 验证（本机实测，2026-11-16）
+
+| 命令 | 结果 |
+|---|---|
+| `python3 -m compileall -q scripts` | **PASS** |
+| `python3 -m unittest discover -s scripts/tests -p 'test_buildmod_tutorial_retirement.py' -v` | **PASS（8/8）**：资产结构/编码、主入口只调 staging、生成器耦合=0、staging 原样拷贝+legacy 清洗、AGP 消费同一资产、Web 单源逐字节新鲜度 |
+| `python3 scripts/verify_tutorial_zh.py` | **PASS（34/34）** |
+| 生成器复算：`generate()` 产物 vs 提交资产 | **逐字节一致**（200,880 B；含规范相对路径后的可复现性验证） |
+| `python3 scripts/check_facts_governance.py` 及相关守卫测试（facts/agp_only/ci_migration/fullgame_prepare/repository_policy） | **PASS** |
+
+### 5.4 NOT RUN / 仍需把关
+
+- `./gradlew assembleRelease`、APK 内资产字节、教程页真实打开（AVD）：**NOT RUN**（需要私有解码基线/apktool/签名环境与独占 AVD；本轮未占用 AVD/签名，不发布 APK）。
+- 候选链 freshness 步骤：**NOT RUN**（candidate workflow 目前被 AGP-only fail-closed 门禁挡在 validate 阶段；解除后自动生效）。
+- PR Required Checks：合并前由 CI 实际执行（本机仅跑同款测试命令）。
+
+### 5.5 结论与下一步
+
+- C1 在「生产构建不再生成/翻译教程资产」这一目标上 **PASS**；build_mod.py 净减 246 行，教程相关行仅剩 staging。
+- 下一候选闭包（建议顺序）：C5 dead/disabled 函数删除（`patch_autobuyer_unlock` / `patch_frame_cadence` / `verify` / `smali_file`，纯删除、可 AST 验证）-> C4 `verify_*` 迁 CI 独立任务 -> C3 dark theme 资源 overlay -> C2 残留清理（`patch_changelog_zh` 在 legacy 链仍执行，AGP 已有 Gradle 任务）。
+
+
+
+## 6. R114-02 C5 闭包：AST 确认无调用后纯删除死代码（Issue #52）
+
+> 分支 `r114-02/buildmod-c5`；基线 `origin/main 95c61c83`（C1 已合并）。口径：**AST 证明无任何入口可达才删除；仍被消费的函数一律不动。**
+
+### 6.1 判定方法（可复跑）
+
+- 解析 `scripts/build_mod.py` 顶层定义；构造可达性根：
+  1) 模块级可执行代码（含 `if __name__ == "__main__"` 的断言自测入口）；
+  2) `main()`；
+  3) 仓库内其它 Python 的 `bm.<attr>` / `build_mod.<attr>` / `from build_mod import ...` 消费点
+     （`probe_patches.py`、`r80_patch_run.py`、`test_r80_alias_rewrite.py` 等）。
+- 从根做闭包；未进入闭包的顶层定义即死代码。结果：**103 个顶层定义 → 死代码 2 个**。
+- 该判定已固化为 `scripts/tests/test_buildmod_dead_code_retirement.py`（4 项），CI 常跑。
+
+### 6.2 实际删除（纯删除，无行为变化）
+
+| 符号 | 行数 | AST 证据 | 处置 |
+|---|---|---|---|
+| `smali_file` | 8 | 全仓无调用（仅定义；内部也无人引用） | **删除** |
+| `patch_frame_cadence` | 36 | 全仓无调用（main() 只有注释；2026-10-28 实测否证） | **删除**，main() 保留一行退役说明 |
+| `verify` | — | 函数体早已不存在；main() 仅有一处错误注释指向它 | 注释改为真实调用 `oreki_dark_theme.verify(MOD)` |
+| `patch_autobuyer_unlock` | 62 | **仍有调用**：`patch_debug_trace()`（`OREKI_DEBUG_TRACE=1` 诊断路径） | **保留**（不满足删除口径；见 §6.4） |
+
+顺带清理（同属调用链断链，属纯删除）：
+- `scripts/probe_patches.py` / `scripts/r80_patch_run.py` 中 `patch_break_gate` / `verify_break_gate` 两条 STEPS：
+  这两个函数已在 R94 随 `OrekiBreakGate.smali` 删除，探针只会在运行时 `AttributeError`；改为一行历史说明。
+- 新增 `scripts/tests/test_buildmod_dead_code_retirement.py`：
+  ① 死代码可达性守卫（死集合必须为空）；② 已退役符号不得复活；③ `patch_autobuyer_unlock` 的调用方必须仍是
+  `patch_debug_trace`（防止悄悄删除有调用者的函数）；④ 调用链工具的全部 `bm.<attr>` 必须真实存在（删函数漏改调用方即红）。
+
+结果：`build_mod.py` 7,448 → **7,394 行（-54）**；顶层函数 101 → 99；没有修改任何仍被消费的函数，没有改 Gradle/R8/游戏语义。
+
+### 6.3 验证（本机实测，2026-11-16）
+
+| 命令 | 结果 |
+|---|---|
+| `python3 -m compileall -q scripts` | **PASS** |
+| `python3 -m unittest discover -s scripts/tests -p 'test_buildmod_dead_code_retirement.py' -v` | **PASS（4/4）**：死代码集合为空、退役符号未复活、诊断链调用方断言、调用链属性存在性 |
+| `python3 -m unittest discover -s scripts/tests -p 'test_buildmod_tutorial_retirement.py' -v` | **PASS（8/8）**（C1 守卫未回归） |
+| `python3 scripts/verify_patch_contract.py` 的 `check_build_mod_main` 子检查 | **PASS 3/3**（含「main() 未启用已否证的 patch_frame_cadence()」） |
+| `python3 scripts/check_facts_governance.py` | **PASS** |
+| 调链工具属性核对（probe_patches / r80_patch_run / test_r80_alias_rewrite 的 `bm.<attr>`） | **全部存在（0 missing）** |
+
+### 6.4 偏差与未决
+
+- `patch_autobuyer_unlock` 未删除：AST 显示它仍被 `patch_debug_trace()` 调用，删除必须连诊断链一起退役
+  （`patch_debug_trace` 自身也只在 `OREKI_DEBUG_TRACE=1` 下生效）。按本闭包「不触碰仍被消费的函数」口径保持原样，
+  已在 `main()` 注释与测试中记录事实；是否退役诊断链由 Lead 决定，作为后续 C5b。
+- 预置缺陷（C5 **之前**已存在，本轮不修，仅记录）：`scripts/build_control.py` 访问 `bm.TOOLS` / `bm.build_sign`、
+  `scripts/agentc_build_dark.py` 访问 `build_mod.build_sign` —— 这几个属性在历史构建链移除后就不存在了，
+  两个脚本是 R5/R2x 时代旧开发工具，不在 build_mod 调用链上；如需要可另开清理闭包。
+- **NOT RUN**：真实 `./gradlew assembleRelease` / APK / AVD（需要私有解码基线与独占 AVD，本轮未占用）。
+- **NOT RUN**：`scripts/test_r80_alias_rewrite.py` 在本机因基线版本配置漂移在 import 期失败
+  （worktree `versionName=''`；主检出 HEAD 同样的失败为 `3.19.0` vs 配置 3.20），与 C5 删除无关；
+  该失败发生在 baseline_profile 检测阶段，不在被删函数路径上。
+
+### 6.5 结论与下一步
+
+- C5 **PASS**：死代码按 AST 口径清零（可达性守卫 = 空集），仍被消费的函数一个未动，构建脚本语法与 C1 守卫无回归。
+- 下一步建议：C4（`verify_*` 构建期守卫迁 CI 独立任务）；或经 Lead 批准后做 C5b（诊断链 `patch_debug_trace` +
+  `patch_autobuyer_unlock` 一并退役）。
+

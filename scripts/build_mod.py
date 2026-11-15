@@ -880,16 +880,6 @@ def obfuscation_aliases() -> dict[str, str]:
     return dict(table)
 
 
-def smali_file(rel: str) -> Path:
-    """按「包内相对路径」定位一个 smali 文件（跨 dex 根目录）。"""
-    hits = [root / rel for root in smali_roots() if (root / rel).is_file()]
-    if not hits:
-        raise AssertionError(
-            f"缺少 smali 文件: {rel}（已查 {[r.name for r in smali_roots()]}）")
-    assert len(hits) == 1, f"同名类出现在多个 dex: {[str(h) for h in hits]}"
-    return hits[0]
-
-
 # ---------------------------------------------------------------------------
 # [R80] 类描述符索引：按「类描述符」定位真实类文件，而不是按文件所在目录猜。
 #
@@ -5332,44 +5322,6 @@ def patch_instant_challenge_rewards():
     note("[Oreki RIS] 挑战进入即完成已改为「真实结算收益」：IP / 无限次数 / EP + 最速记录 + 幂等闸门")
 
 
-def patch_frame_cadence():
-    """[Oreki AF] 主循环帧间隔按倍率缩放（2026-10-28）。
-
-    MainActivityGameLoopKt.gameLoop 固定一个 25ms 目标间隔，每帧只调用一次
-    Game.gameTick —— 即每帧每个自动购买器最多做一次采购决策。OrekiSpeed 放大的是
-    游戏时间，不放大帧数：F=10000 时一帧横跨 250 游戏秒，采购密度却仍是 40 次/秒。
-
-    ab_cadence 实测（同一存档、同样 20s 墙钟）：
-      F=1     Δbought 1380  ΔdimBoost 21   Δt 0.1e6 ms
-      F=10000 Δbought 11290 ΔdimBoost 176  Δt 581.9e6 ms
-    游戏时间涨了约 5800 倍，采购次数只涨 8 倍 —— 说明采购机会数被帧率锁死，
-    与游戏时间无关，本项即为该断层。
-
-    修法：把 5 处 `const-wide/16 v18, 0x19`（=25ms，全部位于 gameLoop 内）
-    换成 OrekiSpeed.frameMs()。F<=1 返回 25（语义完全不变）；F>1 返回
-    25/min(F,8)，下限 3ms。只改「目标间隔」，不碰任何时间记账：
-    realTimePlayed / totalTimePlayed / 离线结算仍由 gameTick 内的 diff 决定，
-    总量与帧率无关，只有采购决策密度随帧率上升。
-    """
-    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "mainactivity" / "c0.smali"
-    assert target.exists(), f"缺少 {target}"
-    # 按字节处理：read_text 会做换行归一化（CRLF -> LF），这里必须原样保留
-    src = target.read_bytes()
-    if b"OrekiSpeed;->frameMs()J" in src:
-        note("[Oreki AF] 帧间隔补丁已存在，跳过")
-        return
-    old = b"    const-wide/16 v18, 0x19\r\n"
-    n = src.count(old)
-    assert n == 5, f"帧间隔常量出现 {n} 次，预期 5（gameLoop 结构可能已变）"
-    new = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->frameMs()J\r\n"
-           b"\r\n"
-           b"    move-result-wide v18\r\n")
-    out = src.replace(old, new)
-    target.write_bytes(out)
-    assert out.count(b"OrekiSpeed;->frameMs()J") == 5, "补丁写入失败"
-    note("[Oreki AF] gameLoop 的 5 处 25ms 目标间隔已改为 OrekiSpeed.frameMs()")
-
-
 def _scan_method(src, sig):
     """返回 (方法起点, 方法终点) 字符下标；sig 形如 'public final g()Z'。"""
     head = ".method " + sig
@@ -6517,308 +6469,62 @@ def patch_stage_auto_hook():
     note("[Oreki AU8] 私有字段访问守卫通过（lastTick / isActive 均走公开访问器）")
 
 
-# ---------------------------------------------------------------- R40H 教程正文
+# ---------------------------------------------------------------- R40H 教程正文（R114-02 起只消费提交资产）
 # 产物是一个纯文本 assets，不再是 smali 常量：正文是五位数千字规模，写成
 # const-string 会撑出上万行 smali 并顶到 65,535 常量池边界；assets 不走 aapt、
-# 不占资源 ID、不产生常量池压力，而且构建期能按字节做编码与结构断言。
-# 只允许这一份。旧版正文已由用户明确要求删除（2026-10-31），构建期反向守卫
-# 见下方「旧版正文禁止回归」段；那里的判定不看文件名，只看读取调用次数，
-# 避免把已删除的文件名再写回脚本（`rg "旧版文件名" scripts/` 必须为 0）。
+# 不占资源 ID、不产生常量池压力。
+#
+# [R114-02 C1 / Issue #52] 生成与三层断言已迁出生产构建：
+#   · 唯一输入是**已提交**的 scripts/payload/assets/oreki_tutorial.txt；
+#   · 结构/编码/规模由 AGP Gradle 任务 verifyTutorialAsset（agp/app/build.gradle.kts）校验；
+#   · 与 Web 单源 JSON 的新鲜度由 scripts/verify_tutorial_zh.py（A1/A2 逐字节重生成比对）
+#     与 scripts/tests/test_buildmod_tutorial_retirement.py（Web 检出可用时复算）把关；
+#   · 生成器 scripts/oreki_tutorial_gen.py 降级为离线创作工具，不再是构建期依赖。
+# 本函数只做构建必需的最小动作：把提交资产原样拷进补丁树（apktool 只打包 work/mod）。
 TUTORIAL_ASSETS = ("oreki_tutorial.txt",)
 
 
-def _tutorial_literals(src):
-    """抽出 smali 里的 const-string 字面量。
+def stage_tutorial_assets():
+    """[R114-02 C1] 教程资产：把已提交、已独立校验的 assets 原样落进补丁树。
 
-    只用来断言「界面文案必须简体中文」——`fontSize` / `addFontRow` 是代码标识符，
-    不是给人看的文案，所以只扫字面量、不扫标识符。
+    为什么不再在构建期生成（R40H 旧行为）：
+      · 旧行为每次构建都从 Web 单源 JSON 重写提交物，构建因此依赖跨仓库 Web 检出，
+        并把「内容版本」隐式绑定到当次 Web 工作区，候选可复现性差；
+      · AGP 完整游戏构建（R110-01 C1）已改为直接消费提交物 + Gradle verifyTutorialAsset，
+        旧链再生成一份等于同一功能双实现，与 Issue #52「单一实现 + 可复现」相悖。
+    新鲜度没有放弃，而是换了把关位置：离线生成器 + 独立校验在本地/CI 显式跑，失败即红；
+    构建只负责保证「提交的字节 = 打进 APK 的字节」。
     """
-    out = []
-    for m in re.finditer(r'const-string(?:/jumbo)?\s+v\d+,\s*"((?:[^"\\]|\\.)*)"', src):
-        out.append(m.group(1))
-    return out
-
-
-def patch_tutorial_content():
-    """[Oreki R40H] 教程正文：构建期从 Web 单源 JSON 生成 assets 文本 + 三层断言。
-
-    背景（R40F 盘点）：正文原先硬编码在 TutorialActivity.smali 的 const-string
-    里，与 Web 侧各维护一份，已经分叉过一次（Android 10 章 / Web 7 章）。
-    现在 Android 不再保存正文，构建时读
-    `web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json`（只读）生成
-    `payload/assets/oreki_tutorial.txt`，并把它拷进 work/mod/assets/ 参与打包。
-
-    为什么必须在这里断言：生成器出问题时**能编过、能装上**，只是界面空白或少章，
-    只有装机肉眼才看得见。所以三道关（全部在 scripts/oreki_tutorial_gen.py 里）：
-      ① 一级断言（常开）  JSON 语法 / schemaVersion / 章节数量 / id 唯一连续 / 字段类型；
-      ② 二级断言（常开，OREKI_TUTORIAL_ALLOW_DRAFT=1 才放宽 draft 门槛）
-         draft 全 false、steps 非空、numbers[].src 非空、automation ≥120 字且提到
-         总开关 / 自动购买器 / 自动化页、无占位词、无禁用译名；
-         译名词表与 Web 共读 docs/教程术语表.md 第四节；
-      ③ 回读校验（常开）  把刚生成的文本按分隔符解回结构，与 JSON 逐字段比对，
-         另加 UTF-8 无 BOM / 编码往返 / 体积上限 2 MB / 每条记录正好 3 段。
-
-    本函数再补两层「落盘之后」的检查：
-      ④ 对 work/mod/assets/ 里那份**真正会被打包的字节**重跑编码 + 结构 + 回读；
-      ⑤ 渲染层接线断言 + 极性守卫（构建期红线按全文子串扫描，注释里也不行）。
-
-    门控语义是「默认严格、失败即关闭」：不设环境变量 = 最严格。旧名
-    OREKI_TUTORIAL_STRICT（=1 才严格）已作废 —— 默认放行的断言等于没有断言。
-    """
-    if os.environ.get("OREKI_AGP_BASE") == "1":
-        note("[R110-C1] AGP 基座：教程资产由 Gradle verifyTutorialAsset 校验并从 scripts/payload/assets 打包；build_mod 不生成/复制")
-        return
-
-    import json as _json
-
-    import oreki_tutorial_gen as gen
-
-    strict = os.environ.get("OREKI_TUTORIAL_ALLOW_DRAFT") != "1"
-    try:
-        stats = gen.generate(strict=strict)
-    except gen.TutorialContentError as e:
-        note("!! [R40H] 教程内容校验失败，禁止构建：")
-        for ln in str(e).splitlines():
-            note("   " + ln)
-        raise AssertionError(
-            f"[R40H] 教程内容校验失败（allow_draft={'0' if strict else '1'}）") from None
-
-    note(f"[R40H] 教程正文由 JSON 生成：{stats['chapters']} 章 / {stats['records']} 条记录 / "
-         f"{stats['cjk']} 汉字 / {stats['bytes']} 字节，回读 {stats['records']} 条逐字一致")
-    note(f"[R40H] draft 章节 {stats['drafts']} 个；"
-         f"二级断言={'严格（draft 也不许留）' if strict else '放宽（仅放行 draft 章）'}；"
-         f"stage 映射 {stats['stage_map']}")
-
-    # ---- ① 拷进实际编译树（patch_smali 只 rglob *.smali，assets 要单独拷）----
     asrc = PAYLOAD / "assets"
     adst = MOD / "assets"
     adst.mkdir(parents=True, exist_ok=True)
+    staged = []
     for name in TUTORIAL_ASSETS:
         src = asrc / name
-        assert src.is_file(), f"[R40H] payload 缺 assets/{name}"
+        assert src.is_file(), (
+            f"[R114-02] 缺少已提交教程资产 scripts/payload/assets/{name}；"
+            "构建不再生成它，请先用 scripts/oreki_tutorial_gen.py 从 Web 单源 JSON 生成并提交")
+        raw = src.read_bytes()
+        assert raw, f"[R114-02] 教程资产 {name} 是空文件"
+        assert not raw.startswith(b"\xef\xbb\xbf"), f"[R114-02] 教程资产 {name} 带 UTF-8 BOM"
+        raw.decode("utf-8")  # 非法 UTF-8 直接让构建失败，不留替换字符
         shutil.copy2(src, adst / name)
-        assert (adst / name).stat().st_size == src.stat().st_size, \
-            f"[R40H] assets/{name} 未正确落进 work/mod 树"
-    note(f"[R40H] assets 已进 mod 树：{', '.join(TUTORIAL_ASSETS)}")
+        dst = adst / name
+        assert dst.is_file() and dst.stat().st_size == len(raw), \
+            f"[R114-02] assets/{name} 未正确落进补丁树"
+        staged.append(name)
 
-    # ---- ② 对「真正会被打包的那份字节」重做编码 / 结构 / 回读 ----
-    raw = (adst / "oreki_tutorial.txt").read_bytes()
-    assert raw, "[R40H] assets/oreki_tutorial.txt 是空文件"
-    assert not raw.startswith(b"\xef\xbb\xbf"), \
-        "[R40H] assets 带 UTF-8 BOM —— 某些读取路径会把 BOM 当正文首字符"
-    assert len(raw) <= gen.MAX_ASSET_BYTES, \
-        f"[R40H] assets 体积 {len(raw)} 字节超过 2 MB 上限"
-    text = raw.decode("utf-8")          # 解不开就是 UnicodeDecodeError，直接炸构建
-    # 编码回读探针：这句中文是我们自己写进文件头的固定串，读回来必须一字不差。
-    assert "游戏内教程正文（构建期生成，请勿手改）" in text, \
-        "[R40H] assets 读回来的中文与写入的不一致（编码链路损坏）"
-    cjk_new = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
-    assert cjk_new >= 1000, f"[R40H] 新版正文只有 {cjk_new} 个汉字，疑似生成物截断"
-
-    doc = _json.loads(Path(stats["json"]).read_text(encoding="utf-8"))
-    # 渲染单元 = 18 章正文 + 7 篇附录。两者都进 assets、都会出现在页签条上，
-    # 所以「章数」断言必须按单元算，不能只数 chapters（否则附录一加就误报）。
-    ids = ([c.get("id") for c in doc["chapters"]]
-           + [a.get("id") for a in (doc.get("appendices") or [])])
-    try:
-        rr = gen.verify_roundtrip(text, doc, gen.build_text(doc)[1])
-    except gen.TutorialContentError as e:
-        note(f"!! [R40H] 回读校验失败：{e}")
-        raise AssertionError("[R40H] 重新读回 work/mod 里的 assets 与 JSON 不一致") from None
-
-    # 章节数只认 JSON 实际长度，绝不写死：id 顺序必须等于数组顺序。
-    assert rr["chapters"] == len(ids), \
-        f"[R40H] 回读单元数 {rr['chapters']} != JSON 单元数 {len(ids)}"
-    assert [c[0][2] for c in gen.parse_text(text)] == ids, \
-        "[R40H] 生成物里的章节 id 顺序与 JSON 数组顺序不一致"
-    assert f"章节数: {len(ids)}" in text, \
-        "[R40H] 文件头「章节数: N」与 JSON 实际单元数不一致（生成器可能写死了章数）"
-
-    # ---- ②b 附录 / 阶段提示（PH）结构守卫 ----
-    # 附录：7 个 apx_* 必须全在，且每篇都必须有 TITLE —— 渲染层无条件画章标题，
-    # 缺 TITLE 会画出一条 22sp 的空白粗体行（见 TutorialActivity.addHeading）。
-    apx_ids = [a.get("id") for a in (doc.get("appendices") or [])]
-    units_parsed = gen.parse_text(text)
-    by_id = {u[0][2]: u for u in units_parsed if u}
-    for aid in apx_ids:
-        assert aid in by_id, f"[R40H] 附录 {aid} 没有 CH 记录"
-        assert len(by_id[aid]) > 1 and by_id[aid][1][0] == "TITLE", \
-            f"[R40H] 附录 {aid} 的第二条记录不是 TITLE（页面会出现空白大标题）"
-    ch_lines = [ln for ln in text.splitlines() if ln.startswith("CH|")]
-    assert len(ch_lines) == len(ids), \
-        f"[R40H] 生成物里 CH 记录 {len(ch_lines)} 条 != 渲染单元 {len(ids)} 个"
-    # PH：条数必须等于渲染层档位数（TutorialProgress.stage() 返回 0~7），
-    # 每条的目标章必须在 CH 集合里，否则「你现在该做什么」点下去跳不到章。
-    ph_lines = [ln for ln in text.splitlines() if ln.startswith("PH|")]
-    assert len(ph_lines) == gen.STAGE_COUNT, \
-        f"[R40H] PH 记录 {len(ph_lines)} 条 != 渲染层档位 {gen.STAGE_COUNT} 档"
-    for ln in ph_lines:
-        seg = ln.split("|")
-        assert len(seg) == 5, f"[R40H] PH 记录不是 5 段：{ln[:60]!r}"
-        assert seg[2] in ids, f"[R40H] PH 指向不存在的章 {seg[2]!r}（{ln[:60]!r}）"
-    note(f"[R40H] 渲染单元 {len(ids)} 个（正文 {len(doc['chapters'])} + 附录 {len(apx_ids)}），"
-         f"PH 记录 {len(ph_lines)} 条，章数/附录/阶段提示守卫通过")
-
-    # ---- ②c 正文里不许出现源码路径 ----
-    # 用户明确要求「源码路径、行号直接删除，不在教程正文展示」。记录格式是
-    # TAG|flag|text，所以「text 以 src/ 开头」在文件里表现为 "|src/"。
-    # 与 gen.py 里 numbers[].src 的字段级断言互为补位：那边防 JSON 留字段，
-    # 这边防有人把溯源拼进正文文本。
-    assert "|src/" not in text, \
-        "[R40H] assets 里出现源码路径（|src/）—— 教程正文不展示 文件:行"
-
-    # ---- ③ 上一版正文禁止回归（用户 2026-10-31 明确指令：Android 版把旧正文删了）----
-    # 反转为**禁止**：payload 里不许再出现任何 legacy 变体的教程 assets，
-    # 已经落进 work/mod 的旧文件也必须在拷 assets 时清掉，否则 apktool 会把上一轮
-    # 残留的 legacy 文本一起打进 APK（静默复活，最坏情况）。
-    legacy_variants = sorted(
-        p.name for p in asrc.glob("*legacy*")
-        if p.is_file() and p.suffix == ".txt")
-    assert not legacy_variants, (
-        "[R40H] payload/assets 里仍有上一版正文文件 "
-        f"{legacy_variants} —— 用户已要求删除上一版正文，禁止重新落盘")
+    # 上一版正文残留必须清掉：apktool 会把 work/mod 里的文件一起打进 APK（静默复活最坏情况）。
     for stale in sorted(adst.glob("*legacy*")):
         if stale.is_file():
             stale.unlink()
-            note(f"[R40H] 清掉 work/mod 里的旧版残留：{stale.name}")
+            note(f"[R114-02] 清掉补丁树里的旧版教程残留：{stale.name}")
     assert not sorted(adst.glob("*legacy*")), \
-        "[R40H] work/mod/assets 里仍有 legacy 教程文件（会被一起打进 APK）"
-    # 渲染层也不许再去读多份 assets：readAssetInto 只能出现 2 次
-    # （方法定义 1 次 + loadData 里唯一一次调用）。多于 2 次说明又接回了第二份正文。
-    # 注意计数用「不带 -> 的裸名」：定义行是 `.method ... readAssetInto(...)V`，没有 `->`。
-    # 这里刻意不按文件名断言 —— 旧版文件名不该再出现在任何脚本里。
-    _early_act = (KOTLIN_SRC / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-                  / "TutorialActivity.kt")
-    assert _early_act.is_file(), "[R94] 缺少 Kotlin TutorialActivity.kt"
-    asrc_txt_early = _early_act.read_text(encoding="utf-8")
-    assert 'assets.open("oreki_tutorial.txt")' in asrc_txt_early, \
-        "[R40H] Kotlin TutorialActivity 没有从唯一教程 asset 读取正文"
-    note(f"[R40H] 上一版正文已删除并加反向守卫：assets 只有 {', '.join(TUTORIAL_ASSETS)}")
+        "[R114-02] 补丁树仍有 legacy 教程文件（会被一起打进 APK）"
 
-    # ---- ④ 渲染层接线：正文只能来自 assets，不许又写回 smali ----
-    tut_dir = KOTLIN_SRC / OLD_PKG.replace(".", "/") / "oreki" / "tutorial"
-    act = tut_dir / "TutorialActivity.kt"
-    assert act.is_file(), "[R94] 缺少 Kotlin TutorialActivity.kt"
-    asrc_txt = act.read_text(encoding="utf-8")
+    note(f"[R114-02] 教程资产按提交物落进补丁树：{', '.join(staged)}"
+         "（构建期不再生成/翻译；校验在 Gradle verifyTutorialAsset + CI 退役守卫）")
 
-    for needle, why in (
-        ('assets.open("oreki_tutorial.txt")', "没有走 AssetManager 读正文"),
-        ("line.split('|', limit = 3)", "没有按竖线切分记录"),
-        ("showChapter(currentChapter)", "没有「只渲染当前章」的入口"),
-        ("buildChapterPicker()", "没有章节目录"),
-        ("initialChapter()", "打开时没有按阶段定位"),
-        ('getDeclaredMethod("stage")', "没有用 stage() 定位"),
-        ('putInt("font_scale", fontScale)', "字号偏好没有持久化"),
-    ):
-        assert needle in asrc_txt, f"[R40H] TutorialActivity 接线缺失：{why}（{needle}）"
-
-    # 两套并存是明确禁止的：旧的 smali 常量类必须已删除
-    assert "TutorialContent" not in asrc_txt, \
-        "[R40H] TutorialActivity 仍在引用 TutorialContent（两套正文并存）"
-    assert not (tut_dir / "TutorialContent.smali").exists(), \
-        "[R40H] payload 里还留着 TutorialContent.smali（方案已改为 assets）"
-
-    # 正文不许回到 smali：只统计 const-string 字面量里的汉字（注释不算）。
-    # 界面文案是几百字量级，正文一旦被贴回来立刻跳到几千。
-    lit_cjk = sum(1 for lit in re.findall(r'(?s)"([^"\\]*(?:\\.[^"\\]*)*)"', asrc_txt)
-                  for c in lit if "\u4e00" <= c <= "\u9fff")
-    assert lit_cjk < 600, \
-        f"[R40H] TutorialActivity 的 const-string 里有 {lit_cjk} 个汉字，正文像是又被写回 smali 了"
-
-    # 界面文案一律简体中文：只查 const-string 字面量里的英文界面词（标识符不算）。
-    for lit in _tutorial_literals(asrc_txt):
-        for bad in ("Chapter", "Font", "Back", "Tutorial", "Settings", "Close"):
-            if bad in lit:
-                raise AssertionError(
-                    f"[R40H] TutorialActivity 界面文案出现英文「{bad}」：{lit!r}")
-
-    # 红线：手写渲染层不得触碰存档字段（构建期红线守卫按全文子串扫，注释里也不行）。
-    for banned in ("PlayerEternityChallenges;->h(I)V", "PlayerNormalChallenges;->n(I)V",
-                   "PlayerInfinityChallenges;->i(I)V", "->F(I)V", "completions"):
-        assert banned not in asrc_txt, f"[R40H] TutorialActivity 触碰了存档字段（红线）：{banned}"
-
-    # [R94] 教程 UI 已整体迁移到 Kotlin（TutorialActivity.kt），原「smali 指令序列」守卫
-    # 不再适用。这里按源文件类型分流：Kotlin 源用语义级断言，旧 Smali 源保留原指令级守卫。
-    _is_kotlin_tutorial = ".method" not in asrc_txt
-    if _is_kotlin_tutorial:
-        for good, why in (
-            ("if (chapters.isNotEmpty()) {", "有章节才渲染正文"),
-            ("coerceIn(0, chapters.lastIndex)", "章号上界钳制"),
-            ('assets.open("oreki_tutorial.txt")', "正文只来自唯一 assets"),
-            ("TutorialProgress", "阶段提示走原版 stage()"),
-            ('record.tag == "CH"', "章记录识别"),
-        ):
-            assert good in asrc_txt, f"[R40H] 教程 Kotlin 守卫缺少 `{good}`（{why}）"
-        note("[R40H] 教程渲染层（Kotlin）语义守卫通过：章节门控 / 钳制 / assets 单一正文 / 阶段提示")
-    else:
-        # 极性守卫（指令序列锚定，与 check_challenge_auto_polarity 同一手法）。
-        # R40H 开发期实际踩到多次零比较/大小比较写反。后果不是崩溃，而是
-        # 「只剩章标题、正文一个字都不显示」或「永远停在第 1 章」—— 能编过、能装机，
-        # 只有肉眼才看得见，正是本任务要拦的那一类。逐条钉死：
-        #   if-gtz = 大于 0 才跳；if-ltz = 小于 0 才跳；if-gez = 大于等于 0 才跳。
-        for good, bad, why in (
-            ("if-gtz v0, :has_chapters", "if-lez v0, :has_chapters", "有章节才渲染正文"),
-            # 章号上界钳制：合法索引（p1 < chCount）才跳去 :high_ok 跳过钳位。
-            # 2026-10-31 R42 更正：此条原写 good=if-ge / bad=if-lt，**极性反了**。
-            # if-ge p1, v0 = 「p1 >= chCount 才跳」⇒ 合法索引反而不跳，直接落到
-            # add-int/lit8 p1, v0, -1 被钳成 chCount-1 —— 合法章节号
-            # 都会被钳成最后一章（表现为页签带废弃前缀 +「⑩」）。
-            # 章数：18 章正文 + 7 个附录（apx_*）= 25 个 CH 记录（旧版 11 章已删除）。
-            # 与同文件内两处已写对的样本对齐：:1487 if-gez p1, :low_ok（下界）、
-            # :1534 if-lt v4, v0, :not_last（末章区间）。
-            ("if-lt p1, v0, :high_ok", "if-ge p1, v0, :high_ok", "章号上界钳制（合法索引才跳）"),
-            ("if-lt v4, v0, :not_last", "if-ge v4, v0, :not_last", "末章区间取 lines.size()"),
-            ("if-ne v9, v8, :grp_done", "if-eq v9, v8, :grp_done", "同 TAG 才合并成一块"),
-            ("if-nez v2, :no_header", "if-eqz v2, :no_header", "「具体操作」小标题只画一次"),
-            ("if-ltz v3, :fill_next", "if-gez v3, :fill_next", "CH 之前出现的记录丢弃"),
-            ("if-eq v3, v4, :read_loop", "if-ne v3, v4, :read_loop", "跳过 # 注释行"),
-            ("if-le v1, p1, :join_append", "if-gt v1, p1, :join_append", "拼接时首条不加换行"),
-            # stage 0~2 归 early：必须「stage >= 3 才跳」，即 if-ge。
-            # 2026-10-31 更正：此条原写 good=if-lt p1 / bad=if-ge p1，
-            # ① 寄存器错（stageKeyFor(I) 是静态方法，参数在 p0，不是 p1），
-            # ② 极性也错（if-lt 会让 stage 0~2 跳走返回空串，恰好是本条要防的故障）。
-            # 它把正确写法当成「写反的」禁掉，同时把写反的当成必须存在 —— 于是构建必红。
-            ("if-ge p0, v0, :sk_early", "if-lt p0, v0, :sk_early", "stage 0~2 归 early"),
-            ("if-ltz v2, :trunc", "if-gez v2, :trunc", "页签取全角空格之后的标题"),
-            ("if-lt p1, v0, :is_font", "if-ge p1, v0, :is_font", "字号 / 章节动作分流"),
-            # R43：SUB 从「只画本章第一条」改成「按原位逐条画」（附录小标题靠它）。
-            # 写反的表现：if-ne 会让 SUB 全部跳过（附录小标题消失）；第二行若写 if-le，
-            # CH/TITLE/STAGE 也会被当成正文画出来（页面出现重复标题）。
-            ("if-eq v8, v9, :rec_render", "if-ne v8, v9, :rec_render", "SUB 也要渲染"),
-            ("if-gt v8, v9, :rec_render", "if-le v8, v9, :rec_render", "正文标签走 addGroup"),
-            ("if-lez v0, :note_done", "if-gtz v0, :note_done", "副标题空值跳过"),
-            ("if-lez v0, :sec_body", "if-gtz v0, :sec_body", "小节标题空值跳过"),
-        ):
-            assert good in asrc_txt, f"[R40H] 极性守卫：缺少 `{good}`（{why}）"
-            assert bad not in asrc_txt, f"[R40H] 极性守卫：出现写反的 `{bad}`（{why}）"
-
-        # R43：SUB 走 addNote（无中文标签的次要色正文），不再单独扫一遍「第一条 SUB」。
-        assert ":sub_loop" not in asrc_txt, \
-            "[R40H] showChapter 里还留着 sub_loop —— 它只画第一条 SUB，会让附录小标题丢失"
-        ag0 = asrc_txt.find(".method private final addGroup(III)V")
-        ag1 = asrc_txt.find(".end method", ag0)
-        assert ag0 > 0 and ag1 > ag0, "[R40H] 找不到 addGroup"
-        ag = asrc_txt[ag0:ag1]
-        assert "if-ne p1, v1, :not_sub" in ag and "addNote(Ljava/lang/String;)V" in ag, \
-            "[R40H] addGroup 没有 SUB -> addNote 分支（附录小标题会退化成 18sp 蓝色小节标题）"
-
-        # R43：阶段提示（PH）必须从 assets 读，不许又写回 smali。
-        prg = (tut_dir / "TutorialProgress.smali").read_text(encoding="utf-8")
-        for key in ("当前阶段：开局", "当前阶段：维度提升", "当前阶段：佩勒"):
-            assert key not in prg, \
-                f"[R40H] TutorialProgress 里还写死着阶段提示「{key}」—— 应迁到 JSON 的 progressHints"
-        for line in _tutorial_literals(prg):
-            assert "下一步：" not in line, \
-                f"[R40H] TutorialProgress 里还有阶段提示文案：{line[:40]!r}"
-        for needle, why in (
-            ("->indexHints()V", "没有建 PH 索引"),
-            ("->chapterForId(Ljava/lang/String;)I", "没有按 chapterId 找章（跳转用）"),
-            ('const-string v6, "PH"', "没有识别 PH 记录"),
-            ("phChapter:[Ljava/lang/String;", "没有存 PH 的 chapterId"),
-        ):
-            assert needle in asrc_txt, f"[R40H] 阶段提示接线缺失：{why}（{needle}）"
-
-    note("[R40H] 教程渲染层接线断言通过（Activity 只显示，正文全部来自 assets）")
 
 
 def patch_tutorial_entry():
@@ -7592,9 +7298,9 @@ def main():
     verify_pelle_record()
     # [R82] 3.20 字段类型守卫：拦住「构建成功但运行期 NoSuchFieldError」的注入
     verify_smali_field_types_320()
-    # [R40H] 教程正文：从 Web 单源 JSON 生成 TutorialContent.smali（必须先于
+    # [R114-02 C1] 教程资产：构建只消费已提交并已独立校验的 bytes（必须先于
     # patch_tutorial_entry，后者的断言要求教程类已进 mod 树）。
-    patch_tutorial_content()
+    stage_tutorial_assets()
     patch_tutorial_entry()
     # 【A/B 对照专用】OREKI_NO_AB2=1 只关掉「批量买不起时退化为买 1 个」这一条，
     # 其余补丁全部保留。用于生成「修复前」对照 APK，验证 AB2 单独一项的效果。
@@ -7605,12 +7311,9 @@ def main():
         patch_autobuyer_batch_fallback()
     if os.environ.get("OREKI_DEBUG_TRACE") == "1":
         patch_debug_trace()
-    # patch_autobuyer_unlock()  【2026-10-28 R5.5 实测未生效 + 与「保留手动玩法」冲突，未启用】
-    # 实测：四条 isUnlocked 分支全部改写成功、构建通过，但新档干净窗口 60s 内
-    # 反物质恒为 10.0、第一维度恒为 0 —— 自动购买器根本没被驱动。
-    # 说明真正的门控在「每帧 tick 驱动」或「自动化页解锁」，不在 g()。
-    # 另外 R5.5 补充令要求保留手动购买维度/升级等有决策意义的操作，
-    # 无条件全开自动购买器与该要求相悖。函数体保留作证据与后续候选。
+    # patch_autobuyer_unlock() 经 AST 复核：生产路径不启用，但仍被 OREKI_DEBUG_TRACE=1 的
+    # patch_debug_trace() 调用（R5.5 实测未生效，见函数 docstring）。R114-02 C5 按「无调用才删」
+    # 的标准未删除；要删除须连同诊断链 patch_debug_trace 一起退役，待 Lead 决定。
     patch_ec12_restriction()
     patch_instant_challenge()
     # [R34 Agent C] 自动进入永恒挑战（Web buyEcStudiesAndStart 的 Android 对位）。
@@ -7660,7 +7363,7 @@ def main():
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），
-    # verify() 的 8 条守卫任一失败即抛错中止，不会带着半套 UI 产出 APK。
+    # oreki_dark_theme.verify(MOD) 的 8 条守卫任一失败即抛错中止，不会带着半套 UI 产出 APK。
     #
     # 导入兜底：只有 `python scripts/build_mod.py` 直接调用时 sys.path[0] 才是 scripts/，
     # 被 Gradle 用别的 cwd 或 `-m` 方式调用时 `import oreki_dark_theme` 会 ImportError。
@@ -7672,11 +7375,8 @@ def main():
     for _dk, _dv in oreki_dark_theme.apply(MOD).items():
         note(f"[DARK] {_dk:14s} {_dv}")
     oreki_dark_theme.verify(MOD)
-    # patch_frame_cadence()  【2026-10-28 实测否证，未启用】
-    # 提频方案对照：F=10000/20s 下 Δbought 11300（基线 11290）、dimBoost 176（基线 176）、
-    # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
-    # 结论：Android 主循环是 CPU 受限（单次 gameTick ≈22ms）而非 delay 受限，提频无效。
-    # 保留函数体与 OrekiSpeed.frameMs 作为证据与后续候选基础，但不接入构建。
+    # [R114-02 C5] 已退役：patch_frame_cadence（2026-10-28 实测否证 CPU 受限，从未接入构建；
+    # 证据保留在 docs/BUILDMOD_RETIREMENT_LEDGER.md §6）。
     if os.environ.get("OREKI_GRADLE_ASSEMBLY") == "1":
         note("[5] 补丁树已完成，APK 汇编/注入/规整交由 Gradle")
         (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
