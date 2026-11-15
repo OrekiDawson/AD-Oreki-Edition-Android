@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Fail-closed governance check for the docs facts library (R114-01 facts-split).
+'''Fail-closed governance check for the docs facts library (R114-01 facts-split).
 
 Stdlib only and read-only. Verifies the tracked checkout against the facts-library
 rules: root index is at most 400 lines, every topic file is at most 1200 lines,
-local links in the root index resolve to existing files and anchors, every topic
-file is reachable from the root index, fact anchors are unique, no rolling or
-backup FACTS files exist, and all checked Markdown is UTF-8 with LF line endings.
+every local link in the root index AND in every topic file resolves to an existing
+file and anchor, every topic file is reachable from the root index, fact anchors
+are unique (duplicate occurrences are preserved during validation), no rolling or
+backup FACTS files exist (including topic-named backups), and all checked
+Markdown is UTF-8 with LF line endings.
 
 Exit 0 = PASS. Exit 1 = FAIL, printing the file, the reason and actual line counts.
-"""
+'''
 from __future__ import annotations
 
 import fnmatch
@@ -19,21 +21,26 @@ ROOT_LIMIT = 400
 TOPIC_LIMIT = 1200
 ROOT_INDEX = Path('docs/FACTS.md')
 FACTS_DIR = Path('docs/facts')
-BANNED_NAMES = ('FACTS2.md', 'FACTS_NEW.md', 'FACTS_CONTINUED.md', '*.diverged.bak', 'FACTS_*.bak')
+BANNED_NAMES = (
+    'FACTS2.md',
+    'FACTS_NEW.md',
+    'FACTS_CONTINUED.md',
+    '*.diverged.bak',
+    'FACTS_*.bak',
+    'FACTS*.bak',
+)
 Q = chr(34)
+FENCE = chr(96) * 3
+CR = bytes((13,))
 
 
 def line_count(text):
     return len(text.splitlines())
 
 
-def read_bytes(path):
-    return path.read_bytes()
-
-
 def decode(path, problems):
-    raw = read_bytes(path)
-    if b'\r' in raw:
+    raw = path.read_bytes()
+    if CR in raw:
         problems.append('%s: contains CR (LF required)' % path)
     try:
         return raw.decode('utf-8')
@@ -42,17 +49,18 @@ def decode(path, problems):
         return None
 
 
-def explicit_ids(text):
-    ids = set()
+def id_occurrences(text):
+    '''Return every explicit anchor occurrence in document order (never a set).'''
+    out = []
     marker = '<a id=' + Q
     i = text.find(marker)
     while i >= 0:
         j = text.find(Q, i + len(marker))
         if j < 0:
             break
-        ids.add(text[i + len(marker):j])
+        out.append(text[i + len(marker):j])
         i = text.find(marker, j)
-    return ids
+    return out
 
 
 def slugify(title):
@@ -73,10 +81,9 @@ def slugify(title):
 def heading_slugs(text):
     slugs = set()
     in_fence = False
-    fence = chr(96) * 3
     for line in text.splitlines():
         s = line.strip()
-        if s.startswith(fence) or s.startswith('~~~'):
+        if s.startswith(FENCE) or s.startswith('~~~'):
             in_fence = not in_fence
             continue
         if in_fence or not s.startswith('#'):
@@ -89,7 +96,7 @@ def heading_slugs(text):
 
 
 def anchors(text):
-    combined = explicit_ids(text)
+    combined = set(id_occurrences(text))
     combined.update(heading_slugs(text))
     return combined
 
@@ -117,13 +124,30 @@ def raw_links(text):
     return out
 
 
+def local_links(text):
+    '''Inline links outside fenced blocks and inline code spans.'''
+    out = []
+    in_fence = False
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith(FENCE) or s.startswith('~~~'):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        parts = line.split(chr(96))
+        out.extend(raw_links(''.join(parts[0::2])))
+    return out
+
+
 def is_external(target):
     low = target.lower()
-    return low.startswith('http://') or low.startswith('https://') or low.startswith('mailto:') or low.startswith('tel:')
+    return (low.startswith('http://') or low.startswith('https://')
+            or low.startswith('mailto:') or low.startswith('tel:'))
 
 
-def resolve_link(root, source, target):
-    """Return (path, anchor) for a local link, path may be None when same-file."""
+def resolve_link(source, target):
+    '''Return (path, anchor); path is None when the link targets the same file.'''
     anchor = None
     if '#' in target:
         path_part, anchor = target.split('#', 1)
@@ -131,16 +155,60 @@ def resolve_link(root, source, target):
         path_part = target
     if path_part == '':
         return source, anchor
-    candidate = (source.parent / path_part).resolve()
-    return candidate, anchor
+    return (source.parent / path_part).resolve(), anchor
 
 
 def inside(root, path):
     try:
-        path.relative_to(root.resolve())
+        path.relative_to(root)
         return True
     except ValueError:
         return False
+
+
+def validate_links(root, source, content, texts, problems):
+    rel = source.relative_to(root)
+    for target in local_links(content):
+        if is_external(target):
+            continue
+        resolved, anchor = resolve_link(source, target)
+        if not inside(root, resolved):
+            problems.append('%s: link escapes repository: %s' % (rel, target))
+            continue
+        if not resolved.is_file():
+            problems.append('%s: broken relative link: %s' % (rel, target))
+            continue
+        if not anchor:
+            continue
+        target_text = texts.get(resolved)
+        if target_text is None:
+            target_text = decode(resolved, problems)
+            if target_text is None:
+                continue
+            texts[resolved] = target_text
+        if anchor not in anchors(target_text):
+            problems.append('%s: missing anchor #%s in %s'
+                          % (rel, anchor, resolved.relative_to(root)))
+
+
+def banned_files(root, problems):
+    candidates = []
+    docs = root / 'docs'
+    if docs.is_dir():
+        candidates.extend(p for p in docs.rglob('*') if p.is_file())
+    candidates.extend(p for p in root.glob('FACTS*') if p.is_file())
+    candidates.extend(p for p in root.glob('*diverged*') if p.is_file())
+    seen = set()
+    for path in candidates:
+        key = path.resolve()
+        if key in seen:
+            continue
+        seen.add(key)
+        if key == (root / ROOT_INDEX).resolve():
+            continue
+        name = path.name.lower()
+        if any(fnmatch.fnmatch(name, pat.lower()) for pat in BANNED_NAMES):
+            problems.append('%s: banned rolling/backup facts file' % path.relative_to(root))
 
 
 def check(root):
@@ -178,38 +246,26 @@ def check(root):
         if n > TOPIC_LIMIT:
             problems.append('%s: topic file has %d lines (limit %d)' % (rel, n, TOPIC_LIMIT))
 
-    # 3) local links from the root index resolve (file + anchor)
-    for target in raw_links(texts[root_index.resolve()]):
-        if is_external(target):
-            continue
-        resolved, anchor = resolve_link(root, root_index, target)
-        if not inside(root, resolved):
-            problems.append('%s: link escapes repository: %s' % (ROOT_INDEX, target))
-            continue
-        if not resolved.is_file():
-            problems.append('%s: broken link target: %s' % (ROOT_INDEX, target))
-            continue
-        if anchor:
-            target_text = texts.get(resolved)
-            if target_text is None:
-                target_text = decode(resolved, problems) or ''
-                texts[resolved] = target_text
-            if anchor not in anchors(target_text):
-                problems.append('%s: missing anchor #%s in %s' % (ROOT_INDEX, anchor, resolved.relative_to(root)))
+    # local links must resolve from every checked file (root index and topics)
+    for path in [root_index.resolve()] + topics:
+        content = texts.get(path)
+        if content is not None:
+            validate_links(root, path, content, texts, problems)
 
-    # 5) fact anchor ids unique
+    # fact anchor ids unique; keep occurrences so same-file duplicates are visible
     seen = {}
-    for path in [root_index] + topics:
-        content = texts.get(path.resolve())
+    for path in [root_index.resolve()] + topics:
+        content = texts.get(path)
         if content is None:
             continue
-        for fid in explicit_ids(content):
+        rel = path.relative_to(root)
+        for fid in id_occurrences(content):
             if fid in seen:
-                problems.append('%s: duplicate fact id %s (also in %s)' % (path.relative_to(root), fid, seen[fid]))
+                problems.append('%s: duplicate fact id %s (also in %s)' % (rel, fid, seen[fid]))
             else:
-                seen[fid] = path.relative_to(root)
+                seen[fid] = rel
 
-    # 4) every topic file reachable from the root index
+    # every topic file reachable from the root index
     visited = set()
     queue = [root_index.resolve()]
     while queue:
@@ -223,25 +279,18 @@ def check(root):
             if content is None:
                 continue
             texts[current] = content
-        for target in raw_links(content):
+        for target in local_links(content):
             if is_external(target):
                 continue
-            resolved, _anchor = resolve_link(root, current, target)
+            resolved, _anchor = resolve_link(current, target)
             if inside(root, resolved) and resolved.is_file() and resolved not in visited:
                 queue.append(resolved)
     for path in topics:
         if path not in visited:
-            problems.append('%s: topic file is not reachable from %s' % (path.relative_to(root), ROOT_INDEX))
+            problems.append('%s: topic file is not reachable from %s'
+                          % (path.relative_to(root), ROOT_INDEX))
 
-    # 6) no rolling or backup FACTS files
-    candidates = list(root.glob('FACTS*')) + list((root / 'docs').rglob('FACTS*'))
-    for path in candidates:
-        if not path.is_file():
-            continue
-        if path.resolve() == root_index.resolve():
-            continue
-        if any(fnmatch.fnmatch(path.name.lower(), pat.lower()) for pat in BANNED_NAMES):
-            problems.append('%s: banned rolling/backup facts file' % path.relative_to(root))
+    banned_files(root, problems)
     return problems
 
 
@@ -253,11 +302,12 @@ def main(argv):
         for item in problems:
             print('  - ' + item)
         return 1
-    root_index = root.resolve() / ROOT_INDEX
+    root = root.resolve()
+    root_index = root / ROOT_INDEX
     count = line_count(root_index.read_text(encoding='utf-8'))
-    facts_files = sorted((root.resolve() / FACTS_DIR).rglob('*.md'))
+    facts_files = sorted((root / FACTS_DIR).rglob('*.md'))
     biggest = max((line_count(p.read_text(encoding='utf-8')) for p in facts_files), default=0)
-    print('PASS: root index %d lines (limit %d); %d facts files; largest topic %d lines (limit %d)'
+    print('PASS: root index %d lines (limit %d); %d facts files; largest topic %d lines (limit %d); all local links validated'
           % (count, ROOT_LIMIT, len(facts_files), biggest, TOPIC_LIMIT))
     return 0
 

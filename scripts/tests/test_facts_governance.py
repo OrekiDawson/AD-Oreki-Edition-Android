@@ -53,7 +53,7 @@ class FactsGovernanceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = build_tree(tmp, root_extra='see [missing](facts/missing.md)')
             problems = gov.check(root)
-            self.assertTrue(any('broken link target' in p for p in problems), problems)
+            self.assertTrue(any('broken relative link' in p for p in problems), problems)
 
     def test_missing_anchor_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -103,6 +103,29 @@ class FactsGovernanceTest(unittest.TestCase):
             problems = gov.check(Path(tmp))
             self.assertTrue(problems)
 
+
+    def test_same_file_duplicate_fact_id_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = build_tree(tmp)
+            topic = root / 'docs' / 'facts' / 'topic.md'
+            topic.write_text(topic.read_text(encoding='utf-8') + '<a id=' + chr(34) + 'f-1' + chr(34) + '></a>' + chr(10), encoding='utf-8')
+            problems = gov.check(root)
+            self.assertTrue(any('duplicate fact id f-1' in p for p in problems), problems)
+
+    def test_broken_topic_relative_link_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = build_tree(tmp)
+            topic = root / 'docs' / 'facts' / 'topic.md'
+            topic.write_text(topic.read_text(encoding='utf-8') + 'see [missing](missing.md)' + chr(10), encoding='utf-8')
+            problems = gov.check(root)
+            self.assertTrue(any('broken relative link' in p for p in problems), problems)
+
+    def test_topic_named_backup_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = build_tree(tmp)
+            (root / 'docs' / 'facts' / 'topic.md.diverged.bak').write_text('# backup' + chr(10), encoding='utf-8')
+            problems = gov.check(root)
+            self.assertTrue(any('banned rolling/backup facts file' in p for p in problems), problems)
 
 if __name__ == '__main__':
     unittest.main()
