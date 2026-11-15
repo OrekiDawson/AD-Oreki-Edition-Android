@@ -105,6 +105,8 @@
 | Kotlin 命名全量 advisory / delta 硬门禁 | [build.md#f-kotlin-naming-gates](build.md#f-kotlin-naming-gates) | CONFIRMED | 新增 | — |
 | Android V DT 门槛 1e30（dilation-gap 早期结论） | [game/reality.md#f-v-unlock-thresholds-android](game/reality.md#f-v-unlock-thresholds-android) | SUPERSEDED | 部分 | 1e320（同条目） |
 | V 解锁 3.21 真类名与 build_mod 不可达分支 | [android-internals.md#f-v-unlock-classes-321](android-internals.md#f-v-unlock-classes-321) | CONFIRMED | 新增 | Issue #98 |
+| C.8.3 Web V realities=200（旧值） | [game/reality.md#f-8-3](game/reality.md#f-8-3) | SUPERSEDED | 部分（Web 数值陈旧） | 60（现行）；Android 1e320 见 f-v 条目 |
+| 双端常量对账（11 EQUIVALENT / 1 DIFF / 2 UNKNOWN） | [game/mechanics.md#f-parity-constants-2026-11-16](game/mechanics.md#f-parity-constants-2026-11-16) | CONFIRMED（含 DIFF/UNKNOWN 标注） | 新增 | R114-02 对账 |
 
 ## 八、维护流程
 

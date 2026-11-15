@@ -304,3 +304,36 @@ A30 新档，起点 = 2026年11月1日 17:57:29（真实读数），相对时刻
 - 16 这个上限在 smali 里的具体落点（自然上限还是显式 clamp）；
 - Android UI 侧读 `Player;->u()D` 后是否有 `min(16, …)` 之类的格式化；
 - Web 侧 `src/core/dimboost.js` 与维度页组件是否同样处理。
+
+<a id="f-parity-constants-2026-11-16"></a>
+## 双端常量对账（11 EQUIVALENT / 1 DIFF / 2 UNKNOWN，2026-11-16）
+
+> 结论来自 R114-02 只读常量核对（14 项、file:line 证据）：`reports/R114-02/agents/android-logic-hunter-parity-constants.md`；
+> 矩阵对应行 `reports/R114-01/web/consistency-matrix.md` §1 第 4 行（工作区报告，未入库本仓）。
+> 口径：EQUIVALENT＝有效值/语义相同；DIFF＝不同；UNKNOWN＝证据不足（**不得当一致或 PASS**）。
+
+- **EQUIVALENT（11 项，`[读码]`）**：
+  1. IU25 成本 **5e9**（Web `imaginary-upgrades.js:21/355`；Android `build_mod.py:7441-7461` + `build.log:169` + `OrekiLaitela.kt:81` 兜底）；
+  2. EC 资源门槛除数 **100**（Web `ec-time-study.js:10/118-124`，仅 bootstrap 窗口；Android `OrekiEcRequirementScale.kt:32-50` + `GameApi.kt:903-928`，窗口同义）；
+  3. EC 最大完成数 **5**（EC1/Enslaved 1000；Web `eternity-challenge.js:82-84` / 原版 `L()`）；
+  4. IU15 AM 门槛 **1e8**（`imaginary-upgrades.js:49` / `build_mod.py:4748-4825` + `OrekiIu15Sprint.kt:49`）；
+  5. IM 上限倍率 **3000**（`machines.js:45` / `OrekiImCapScale.kt:33` + `build_mod.py:7405-7430`）；
+  6. 现实前 EP 除数 **30**（`game.js:127/598` / `OrekiEpGainScale.kt:25`）；
+  7. 首次永恒前 IP 除数 **30**（`game.js:124/161` / `OrekiIpGainScale.kt:37`）；
+  8. 膨胀研究 TT 除数 **1000**（`dilation-time-study.js:9/49` / `OrekiDilationCostScale.kt:34`）；
+  9. Laitela 熵分母 **2e7**（`laitela.js:30/100` / `build_mod.py:7482-7499`）；
+  10. Laitela tier 窗口 **300 s**（`laitela.js:48` / `build_mod.py:7518-7542`）；
+  11. Pelle/GameEnd 常量 OFFSET=1 / TARGET=1e3（`game-end.js:59-70` / `build_mod.py:4877-4954`，Android 用 1001.0 等价公式）。
+- **DIFF（1 项）**：**V 三项阈值** —— Web 现行 **60 / 1e30 / 1e20000**（`v.js:65-67`）；
+  Android 3.21 实际 **10000 / 1e320 / 1e320000**（`build_mod.py:7094-7112` shape 不匹配、`build.log:165` 暂缓；
+  APK 级实测见 [V 门槛 Android 实际值](reality.md#f-v-unlock-thresholds-android)）。
+- **UNKNOWN（2 项，禁止写 PASS）**：
+  1. **EC12 限时口径**：Web 用累计器 `inGameTime`（`time.js:70-88`，注释明确不能按当前倍率反推）；Android 在 EC12 判定前用
+     `OrekiSpeed.unscale`（`build_mod.py:3944-3990`，value/当前倍率）⇒ 变速历史下可能不等价；3.21 记录是否有累计器未逐指令确认。
+  2. **RU 一次性成本 /1000**：Web `reality-upgrades.js:9/38-43` 只缩放 id≥6；Android `build_mod.py`/payload 未见等价实现
+     （`OrekiRealityUpgrades.kt:167/273` 只读原版成本），但 base RU 成本未逐字段取证 ⇒ 不能断言 DIFF/EQUIVALENT。
+- **陈旧文档记录（不改代码，仅登记）**：`OrekiImCapScale.kt:15` 注释与 `build/build.log:168` 仍写 `×300`，实测两端均 **3000**
+  （行为 EQUIVALENT，仅注释/日志陈旧，由后续闭包处理）；`build_mod.py:7113-7160/7180-7250` 的 3.20 V 目标 `realities=200`
+  已落后 Web 现行 60（`:7171` 注释），未来重写 3.21 补丁必须用 60。
+- **矩阵更新建议**：`reports/R114-01/web/consistency-matrix.md` §1 第 4 行 UNKNOWN → **DIFF（仅 V 阈值）**；IU25 与 EC 门槛除数改判 EQUIVALENT。
+  `[读码]`（V 另有 APK 级 `[实测]`）
