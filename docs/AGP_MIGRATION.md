@@ -151,3 +151,13 @@
 - 根 Groovy `build.gradle` 的同名 `generateKotlinBindings`（旧链）未迁移：S3 根级入口切换的前置条件未满足（Issue #25 / #61）。
 - 事实库条目：为避免与并行 facts 专项的工作树写入冲突，本闭包事实暂记录于本文件与 `reports/R114-02/agents/`；
   facts 收敛时由 Lead/facts 负责人补一条引用（不新增平行事实文件）。
+## 阶段五续（R114-02 C3，2026-11-16）：fullGame 输入迁移接口设计 + 只读盘点加固（docs-only）
+
+本闭包为**设计与盘点文档**，不改 `agp/app/build.gradle.kts`、`scripts/**`、R8/发布配置与候选构建链，不产出 candidate 变更。内容：
+
+- 现状与所有权矩阵（S0–S10 阶段、产物、owner、迁移状态）；
+- Gradle ↔ buildmod 迁移接口：阶段任务拆分、显式切换开关与双跑对照、输出所有权、回退步骤、证据 schema 目标态；
+- Source Set / 资源输入**只读**盘点加固设计（输入清单模型 + G1 SourceSet 白名单 / G2 生成输入归属 / G3 fullGame 输入一致性（C2 已实现，PR #126）/ G4 输入清单漂移报告）；
+- 待 Lead/buildmod 决定事项（里程碑归属、切换开关、schema 升级、CI 接入时机、迁移顺序建议）与每阶段验收/回退口径。
+
+详见 [AGP_FULLGAME_INPUT_INTERFACE.md](AGP_FULLGAME_INPUT_INTERFACE.md)。
