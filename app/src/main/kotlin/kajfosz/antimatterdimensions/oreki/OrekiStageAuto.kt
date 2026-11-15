@@ -274,6 +274,12 @@ object OrekiStageAuto {
             // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
             OrekiAutomationScheduler.beginFrame()
 
+            // [R114-01 §B/F5] MOD 总开关关闭时集中释放现实 hold：
+            // 此时下方整块自动化都不执行，若不释放会让 OrekiRealityPacing 残留 veto 影响后续判定。
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                OrekiRealityPacing.releaseAllHolds("automation-off")
+            }
+
             // [R99 §12] 双调度器 tick 强制 GUI 同步。
             // 必须在所有早退之前：即使本拍没有成功动作、或处于首次无限前的早返回分支，
             // 也照样完成一次状态一致性检查（规则明确禁止「无动作就跳过刷新路径」）。
@@ -358,6 +364,10 @@ object OrekiStageAuto {
                 // gate-gui AVD 实测（首永恒 02:41:09 后）broken 持续 false ⇒ 整个永恒层自动化
                 // 被跳过：TT=0、时间研究 0、TD 不买、maxIP 停滞。改为「已 Break 或已进入永恒层」。
                 // 首次 Break 之前 bigE 恒 0，本块仍不会执行，R97 的阶段越界门禁语义不变。
+                if (!GameApi.isBroken() && !hasReachedEternityLayer()) {
+                    // [R114-01 §B/F5] 未到永恒层：本帧不会驱动 reality/laitela/ec，释放残留 hold。
+                    OrekiRealityPacing.releaseAllHolds("pre-eternity-layer")
+                }
                 if (GameApi.isBroken() || hasReachedEternityLayer()) {
                     // [R97] 永恒挑战（EC）自动推进 —— Kotlin 业务实现（替代旧的 Smali EC 分支）。
                     // 由 R96 证据确认的断链：EC 研究从未真实买到 ⇒ unlocked 恒 0 ⇒ 完成数恒 0

@@ -248,6 +248,23 @@ object OrekiRealityPacing {
         if (removed) logLimited("hold=" + holdReasonText())
     }
 
+    /**
+     * [R114-01 §B/F5] 集中释放全部 hold（MOD 关闭 / 未到永恒层等「本帧不再驱动任何自动化」场景）。
+     * 只清进程内存态，不写存档；防止步骤不再被调度时 hold 残留影响后续 pacing。
+     */
+    @JvmStatic
+    fun releaseAllHolds(reason: String) {
+        val hadAny = synchronized(holds) {
+            if (holds.isEmpty()) {
+                false
+            } else {
+                holds.clear()
+                true
+            }
+        }
+        if (hadAny) logLimited("hold=none reason=" + reason)
+    }
+
     @JvmStatic
     fun isHeld(): Boolean = synchronized(holds) { holds.isNotEmpty() }
 

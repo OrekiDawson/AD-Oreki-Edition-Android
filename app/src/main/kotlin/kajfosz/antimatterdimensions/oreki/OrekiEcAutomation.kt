@@ -195,11 +195,21 @@ object OrekiEcAutomation {
     private const val TAG_REALITY_HOLD = "OREKI_REALITY_HOLD"
     private const val HOLD_DS1_WINDOW = "ds1-window"
     private const val DS1_WINDOW_MAX_MS = 180_000L
+    /** [F1] 超时释放后到下一次可重新 hold 的最小间隔（给 Reality 至少一次执行机会）。 */
+    private const val DS1_WINDOW_REARM_COOLDOWN_MS = 20_000L
+    /** [F1] 单个 Reality 代际内累计 hold 上限；超过即 give-up，把节奏交还 Reality。 */
+    private const val DS1_WINDOW_TOTAL_MAX_MS = 600_000L
     private const val HOLD_LOG_MIN_MS = 10_000L
 
     @Volatile private var ds1WindowHeld = false
     @Volatile private var ds1WindowStartedAt = 0L
     @Volatile private var ds1WindowLastLogAt = 0L
+    // [F1] 释放可靠性状态：代际闸（resetCount 变化前不再 hold）+ 冷却 + 累计预算。
+    @Volatile private var ds1WindowResetGen = -1
+    @Volatile private var ds1WindowReArmAt = 0L
+    @Volatile private var ds1WindowReArmReset = -1
+    @Volatile private var ds1WindowTotalHeldMs = 0L
+    @Volatile private var ds1WindowGaveUp = false
 
 
     /** [R114-01 P1 EC-TREE] 只读：当前是否处于备树期（门禁/诊断用）。 */
@@ -286,7 +296,11 @@ object OrekiEcAutomation {
         val target0 = nextTargetId()
         val study0 = if (target0 == 0) null else Abi.study(target0)
         val prepActive = updateTreePrep(target0, study0)
-        if (!prepActive) {
+        // [F3] 只有「MOD 暂停自动永恒确实生效」时才允许跳过门禁；
+        // paused=false（玩家手动关闭/未接管/写入失败）时必须继续走原门禁，
+        // 否则 EC 自动进入会在 canEternity 帧触发真实永恒结算，绕过玩家意愿。
+        val epochPausedByMod = prepActive && OrekiAutoEternityAdoption.isEternityPausedForEcTree()
+        if (!epochPausedByMod) {
             if (!OrekiAutoEternityGate.challengeAutoStartAllowed()) {
                 OrekiAutoEternityGate.logChallengeBlocked()
                 return false
@@ -391,8 +405,11 @@ object OrekiEcAutomation {
         return try {
             val now = android.os.SystemClock.elapsedRealtime()
             val active = isTreePrepActive()
+            // [F4] 挑战进行中不启动备树：否则会 hold/pause/respec 后马上被 inAnyChallenge 早退，
+            // 白白清空时间研究树并压 Reality 到 stall 释放。
             val wanted = OrekiAutomationScheduler.isEnabled() && !GameApi.isDoomed() &&
-                GameApi.isBroken() && target in EC_TREE_FIRST_TARGET..EC_COUNT &&
+                GameApi.isBroken() && !GameApi.inAnyChallenge() &&
+                target in EC_TREE_FIRST_TARGET..EC_COUNT &&
                 study != null && Abi.current() != target
             if (!wanted) {
                 if (active) endTreePrep(if (target == 0) "all-maxed" else "not-needed")
@@ -483,10 +500,24 @@ object OrekiEcAutomation {
     private fun tickRealityWindow() {
         try {
             val now = android.os.SystemClock.elapsedRealtime()
+            val reset = OrekiRealityPacing.resetCount()
+            // [F1] Reality 代际变化即重置 F1 的全部闸门（冷却/预算/give-up）。
+            if (reset != ds1WindowResetGen) {
+                ds1WindowResetGen = reset
+                ds1WindowReArmAt = 0L
+                ds1WindowReArmReset = -1
+                ds1WindowTotalHeldMs = 0L
+                ds1WindowGaveUp = false
+            }
             val automationOn = OrekiAutomationScheduler.isEnabled()
             val doomed = GameApi.isDoomed()
-            // realities == 0 时没有「自动 Reality」可言，压住无意义（且 resetCount 仅进程内计数）。
-            val preReality = OrekiRealityPacing.resetCount() <= 0
+            // [F6] 用真实 realities 判断「已解锁 Reality」，不再依赖进程内 resetCount（重启后为 0）。
+            val realitiesCmp = try {
+                GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+            } catch (_: Throwable) {
+                null
+            }
+            val preReality = realitiesCmp == null || realitiesCmp <= 0
             val iu25 = try {
                 OrekiLaitela.iu25Bought()
             } catch (_: Throwable) {
@@ -497,20 +528,46 @@ object OrekiEcAutomation {
             } catch (_: Throwable) {
                 false
             }
+            val tier = try {
+                OrekiLaitela.tier()
+            } catch (_: Throwable) {
+                -1
+            }
             val ecPairFull = isEcCompletionsFull(11) && isEcCompletionsFull(12)
-            val open = automationOn && !doomed && !preReality && !iu25 && (ecPairFull || dilationStudy6Bought)
+            // [F2] tier<8 时 Reality 重置是 Laitela 升 tier 的唯一途径（entropy<0 等待 / 290s 入场窗口）
+            // ⇒ tier 未到 8 时绝不压 Reality，否则 tier 冻结、IU25 永远不可买。
+            val tierReady = tier >= 8
+            val wanted = automationOn && !doomed && !preReality && !iu25 && tierReady &&
+                (ecPairFull || dilationStudy6Bought)
+            // [F1] 超时后必须同时满足：冷却已过 ∧ 至少发生过一次真实 Reality 代际变化；
+            // 且单个 Reality 代际内累计 hold 不超过预算（超预算 give-up，交还 Reality 节奏）。
+            val reArmBlocked = now < ds1WindowReArmAt ||
+                (ds1WindowReArmReset >= 0 && reset == ds1WindowReArmReset)
+            val budgetLeft = ds1WindowTotalHeldMs < DS1_WINDOW_TOTAL_MAX_MS
+            val open = wanted && !ds1WindowGaveUp && budgetLeft && !reArmBlocked
             if (open) {
                 if (!ds1WindowHeld) {
                     ds1WindowHeld = true
                     ds1WindowStartedAt = now
                     OrekiRealityPacing.addHold(HOLD_DS1_WINDOW)
-                    logHold("start dilationStudy6=" + dilationStudy6Bought + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, true)
+                    logHold("start dilationStudy6=" + dilationStudy6Bought + " ec11_12_full=" + ecPairFull +
+                        " iu25=" + iu25 + " tier=" + tier + " reset=" + reset, true)
                 } else if (now - ds1WindowStartedAt >= DS1_WINDOW_MAX_MS) {
                     releaseDs1Window("timeout", now)
+                    // [F1] 超时后设冷却 + 代际闸；下一次 hold 必须等 resetCount 变化。
+                    ds1WindowReArmAt = now + DS1_WINDOW_REARM_COOLDOWN_MS
+                    ds1WindowReArmReset = reset
+                    logHold("ds1-window cooldown " + DS1_WINDOW_REARM_COOLDOWN_MS +
+                        "ms wait-reset=" + reset, true)
                 } else {
-                    logHold("hold dilationStudy6=" + dilationStudy6Bought + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, false)
+                    logHold("hold dilationStudy6=" + dilationStudy6Bought + " ec11_12_full=" + ecPairFull +
+                        " iu25=" + iu25 + " tier=" + tier, false)
                 }
                 return
+            }
+            if (wanted && !open) {
+                logHold("ds1-window cooldown blocked reArmAt=" + ds1WindowReArmAt + " reset=" + reset +
+                    " totalHeldMs=" + ds1WindowTotalHeldMs + " gaveUp=" + ds1WindowGaveUp, false)
             }
             if (ds1WindowHeld) {
                 val reason = when {
@@ -518,6 +575,7 @@ object OrekiEcAutomation {
                     !automationOn -> "automation-off"
                     doomed -> "doomed"
                     preReality -> "pre-reality"
+                    !tierReady -> "laitela-tier-low"
                     else -> "condition-closed"
                 }
                 releaseDs1Window(reason, now)
@@ -534,11 +592,18 @@ object OrekiEcAutomation {
         ds1WindowHeld = false
         val heldMs = if (ds1WindowStartedAt != 0L) (now - ds1WindowStartedAt) else 0L
         ds1WindowStartedAt = 0L
+        ds1WindowTotalHeldMs += heldMs
         try {
             OrekiRealityPacing.removeHold(HOLD_DS1_WINDOW)
         } catch (_: Throwable) {
         }
-        logHold("end reason=" + reason + " heldMs=" + heldMs, true)
+        logHold("end reason=" + reason + " heldMs=" + heldMs +
+            " totalHeldMs=" + ds1WindowTotalHeldMs, true)
+        if (ds1WindowTotalHeldMs >= DS1_WINDOW_TOTAL_MAX_MS && !ds1WindowGaveUp) {
+            ds1WindowGaveUp = true
+            logHold("ds1-window give-up totalHeldMs=" + ds1WindowTotalHeldMs +
+                " (交还 Reality 节奏，等到下一次 Reality 代际变化再评估)", true)
+        }
     }
 
     private fun logHold(what: String, force: Boolean) {
