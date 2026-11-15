@@ -23,6 +23,48 @@ LIB_PREFIX = (
 )
 FIELD_RE = re.compile(r"^\.field\s+(?P<mods>[^\n]*?)\s(?P<name>[A-Za-z_$][A-Za-z0-9_$]*):(?P<desc>\[*(?:L[^;]+;|[BCDFIJSZ]))", re.M)
 CLASS_RE = re.compile(r"^\.class[^\n]* (L[^;]+;)\s*$", re.M)
+DESC_TYPE = re.compile(r"L([A-Za-z_$][A-Za-z0-9_$/]*);")
+FIELD_LINE = re.compile(
+    r"^\.field\s+(?P<mods>[^\n]*?)\s(?P<name>[A-Za-z_$][A-Za-z0-9_$]*):(?P<desc>\[*\S+)",
+    re.M,
+)
+
+
+def iter_fields(txt: str):
+    """逐字段产出 (name, desc, is_static, signature_types)。
+
+    smali 的泛型信息在 .field 的 Signature 注解里：
+
+        .field public glyphs:Ljava/util/List;
+            .annotation system Ldalvik/annotation/Signature;
+                value = { "Ljava/util/List<", "Lkajfosz/.../Glyph;", ">;" }
+            .end annotation
+        .end field
+
+    只沿擦除后的字段描述符走闭包会在 Ljava/util/List; 处停住，漏掉 Glyph /
+    GlyphUndoData 等真实存档可达类：keep 规则缺字段、字段校验也判不出来。
+    见 R113-01 Codex 审查 P2。
+    """
+    starts = [m.start() for m in FIELD_LINE.finditer(txt)]
+    fields = []
+    for index, start in enumerate(starts):
+        end = starts[index + 1] if index + 1 < len(starts) else len(txt)
+        chunk = txt[start:end]
+        for stop in ("\n.method ", "\n.class "):
+            cut = chunk.find(stop)
+            if cut != -1:
+                chunk = chunk[:cut]
+        m = FIELD_LINE.match(chunk)
+        if not m:
+            continue
+        sig_types: list[str] = []
+        if "annotation/Signature;" in chunk:
+            for literal in re.findall(r'"([^"]*)"', chunk):
+                for match in DESC_TYPE.finditer(literal):
+                    sig_types.append("L" + match.group(1) + ";")
+        fields.append((m.group("name"), m.group("desc"), "static" in (m.group("mods") or ""), sig_types))
+    return fields
+
 
 
 def dex_field_ids(data):
@@ -83,9 +125,13 @@ def parse_mapping(path):
         if cur_orig is None:
             continue
         s = line.strip()
-        m = re.match(r"^(\S+) -> (\S+)$", s)
-        if m and "(" not in m.group(1):
-            field_map[(cur_orig, m.group(1))] = m.group(2)
+        # R8 字段映射行带类型前缀，例如 "double antimatter -> b" 或
+        # "com.foo.Bar glyphs -> a"；旧正则只接受单个无空格 token，
+        # 这类行会被整条丢弃，导致 --mapping 模式下字段名翻译失效并误报缺失字段。
+        # 见 R113-01 Codex 审查 P2。
+        m = re.match(r"^(?:(?P<type>\S+)\s+)?(?P<orig>\S+) -> (?P<renamed>\S+)$", s)
+        if m and "(" not in m.group("orig"):
+            field_map[(cur_orig, m.group("orig"))] = m.group("renamed")
     return class_map, field_map
 
 
@@ -106,32 +152,29 @@ def closure_fields(decoded):
                 m = CLASS_RE.search(txt)
                 if not m:
                     continue
-                fields = []
-                for mm in FIELD_RE.finditer(txt):
-                    mods = mm.group("mods") or ""
-                    fields.append((mm.group("name"), mm.group("desc"), "static" in mods))
-                info[m.group(1)] = fields
+                info[m.group(1)] = iter_fields(txt)
     seed = [c for c in info if c.startswith("Lkajfosz/antimatterdimensions/player/Player")]
     closure = set(seed)
     frontier = list(seed)
     while frontier:
         nxt = []
         for cls in frontier:
-            for _n, desc, is_static in info[cls]:
+            for _n, desc, is_static, sig_types in info[cls]:
                 if is_static:
                     continue
-                bt = desc
-                while bt.startswith("["):
-                    bt = bt[1:]
-                if not bt.startswith("L") or bt.startswith(LIB_PREFIX):
-                    continue
-                if bt in info and bt not in closure:
-                    closure.add(bt)
-                    nxt.append(bt)
+                # 擦除描述符 + 泛型 Signature 里的元素类型都要跟进（List<Glyph> → Glyph）。
+                for bt in [desc, *sig_types]:
+                    while bt.startswith("["):
+                        bt = bt[1:]
+                    if not bt.startswith("L") or bt.startswith(LIB_PREFIX):
+                        continue
+                    if bt in info and bt not in closure:
+                        closure.add(bt)
+                        nxt.append(bt)
         frontier = nxt
     expected = set()
     for cls in closure:
-        for name, _desc, is_static in info[cls]:
+        for name, _desc, is_static, _sigs in info[cls]:
             if not is_static:
                 expected.add((cls, name))
     return expected, closure

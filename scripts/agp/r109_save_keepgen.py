@@ -26,6 +26,39 @@ LIB_PREFIX = (
 )
 FIELD_RE = re.compile(r"^\.field\s+(?P<mods>[^\n]*?)\s(?P<name>[A-Za-z_$][A-Za-z0-9_$]*):(?P<desc>\[*(?:L[^;]+;|[BCDFIJSZ]))", re.M)
 CLASS_RE = re.compile(r"^\.class[^\n]* (L[^;]+;)\s*$", re.M)
+DESC_TYPE = re.compile(r"L([A-Za-z_$][A-Za-z0-9_$/]*);")
+FIELD_LINE = re.compile(
+    r"^\.field\s+(?P<mods>[^\n]*?)\s(?P<name>[A-Za-z_$][A-Za-z0-9_$]*):(?P<desc>\[*\S+)",
+    re.M,
+)
+
+
+def iter_fields(txt: str):
+    """逐字段产出 (name, desc, is_static, signature_types)。
+
+    泛型信息在 .field 的 Signature 注解里（如 List<Glyph>）。只沿擦除描述符走闭包会
+    在 Ljava/util/List; 停住，漏掉 Glyph / GlyphUndoData 等真实存档可达类，导致
+    生成的 keep 规则缺字段（R8 实验下存档字段可能被重命名）。见 R113-01 Codex 审查 P2。
+    """
+    starts = [m.start() for m in FIELD_LINE.finditer(txt)]
+    fields = []
+    for index, start in enumerate(starts):
+        end = starts[index + 1] if index + 1 < len(starts) else len(txt)
+        chunk = txt[start:end]
+        for stop in ("\n.method ", "\n.class "):
+            cut = chunk.find(stop)
+            if cut != -1:
+                chunk = chunk[:cut]
+        m = FIELD_LINE.match(chunk)
+        if not m:
+            continue
+        sig_types: list[str] = []
+        if "annotation/Signature;" in chunk:
+            for literal in re.findall(r'"([^"]*)"', chunk):
+                for match in DESC_TYPE.finditer(literal):
+                    sig_types.append("L" + match.group(1) + ";")
+        fields.append((m.group("name"), m.group("desc"), "static" in (m.group("mods") or ""), sig_types))
+    return fields
 
 
 def main():
@@ -52,11 +85,7 @@ def main():
                 m = CLASS_RE.search(txt)
                 if not m:
                     continue
-                fields = []
-                for mm in FIELD_RE.finditer(txt):
-                    mods = mm.group("mods") or ""
-                    fields.append((mm.group("name"), mm.group("desc"), "static" in mods))
-                info[m.group(1)] = {"fields": fields, "is_enum": ".super Ljava/lang/Enum;" in txt}
+                info[m.group(1)] = {"fields": iter_fields(txt), "is_enum": ".super Ljava/lang/Enum;" in txt}
 
     seed = [c for c in info if c.startswith(args.seed_prefix)]
     closure = set(seed)
@@ -64,17 +93,18 @@ def main():
     while frontier:
         nxt = []
         for cls in frontier:
-            for _name, desc, is_static in info[cls]["fields"]:
+            for _name, desc, is_static, sig_types in info[cls]["fields"]:
                 if is_static:
                     continue
-                bt = desc
-                while bt.startswith("["):
-                    bt = bt[1:]
-                if not bt.startswith("L") or bt.startswith(LIB_PREFIX):
-                    continue
-                if bt in info and bt not in closure:
-                    closure.add(bt)
-                    nxt.append(bt)
+                # 擦除描述符 + 泛型 Signature 元素类型一起跟进（List<Glyph> → Glyph）。
+                for bt in [desc, *sig_types]:
+                    while bt.startswith("["):
+                        bt = bt[1:]
+                    if not bt.startswith("L") or bt.startswith(LIB_PREFIX):
+                        continue
+                    if bt in info and bt not in closure:
+                        closure.add(bt)
+                        nxt.append(bt)
         frontier = nxt
 
     enums = sorted(c for c in closure if info[c]["is_enum"])

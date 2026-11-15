@@ -38,6 +38,22 @@ def jar_entries(jar):
         return set(zf.namelist())
 
 
+def unescape_kotlin_literal(text: str) -> str:
+    r"""还原 Kotlin 源码字符串字面量里的转义（\$ \" \\ \n \t 等）。
+
+    GameApi.kt 里嵌套类名写作 cls("...Player\$Auto")；Kotlin 源码中的 \$
+    只是转义，真实类名是 Player$Auto。旧实现把反斜杠当字面量带进类名，
+    class_exists 会去查 Player\$Auto.class，把已存在的类误报成 MISS 并漏掉 keep 规则
+    （R8 实验里这类反射目标就可能被重命名/裁剪）。见 R113-01 Codex 审查 P1。
+    """
+    escapes = {"n": "\n", "t": "\t", "r": "\r", "\\": "\\", '"': '"', "'": "'", "$": "$"}
+
+    def repl(match: re.Match) -> str:
+        return escapes.get(match.group(1), match.group(1))
+
+    return re.sub(r"\\(.)", repl, text)
+
+
 def class_exists(name, entries):
     return name.replace(".", "/") + ".class" in entries
 
@@ -59,7 +75,8 @@ def main():
         else:
             missing.append(value)
     src = GAMEAPI.read_text(encoding="utf-8")
-    for literal in re.findall(r'cls\("([^"]+)"\)', src):
+    for raw_literal in re.findall(r'cls\("([^"]+)"\)', src):
+        literal = unescape_kotlin_literal(raw_literal)
         name = ALIAS_320.get(literal, literal)
         name = bindings.get(name, name)
         if class_exists(name, entries):

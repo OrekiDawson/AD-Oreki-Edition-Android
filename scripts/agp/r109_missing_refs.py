@@ -14,9 +14,16 @@ InterfaceMethodref / MethodType / NameAndType 的类索引顺序）一次性列�
 import argparse
 import json
 import pathlib
+import re
 import struct
 import sys
 import zipfile
+
+# 字段/方法描述符里内嵌的对象类型：Lpkg/Cls;（数组前缀无影响）。
+DESC_TYPE = re.compile(r"L([A-Za-z_$][A-Za-z0-9_$/]*);")
+# 判断一个 Utf8 常量是否是描述符（字段描述符或方法描述符）。
+FIELD_DESC = re.compile(r"^\[*L[A-Za-z_$][A-Za-z0-9_$/]*;$|^\[*[BCDFIJSZ]$")
+METHOD_DESC = re.compile(r"^\(.*\).+$")
 
 
 def parse_class_refs(data):
@@ -78,6 +85,15 @@ def parse_class_refs(data):
         name = utf8.get(ci)
         if name and not name.startswith("["):
             refs.add(name)
+    # 依赖也可能只出现在字段类型 / 方法签名的描述符里（javac 不保证为每个类型建
+    # CONSTANT_Class）；只扫 Class 常量会漏报。这里再从描述符 Utf8 里补一次。
+    for text in utf8.values():
+        if not text or "L" not in text:
+            continue
+        if not (FIELD_DESC.match(text) or METHOD_DESC.match(text)):
+            continue
+        for match in DESC_TYPE.finditer(text):
+            refs.add(match.group(1))
     return refs
 
 

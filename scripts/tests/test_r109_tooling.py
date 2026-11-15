@@ -9,7 +9,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "agp"))
 
 import r109_missing_refs  # noqa: E402
+import r109_r8_keepgen  # noqa: E402
 import r109_save_field_check  # noqa: E402
+import r109_save_keepgen  # noqa: E402
 
 
 def _utf8(s: str) -> bytes:
@@ -106,6 +108,100 @@ class SaveFieldClosureTests(unittest.TestCase):
             finally:
                 sys.argv = old_argv
             self.assertEqual(result, 2)
+
+
+class KotlinLiteralAndDescriptorTests(unittest.TestCase):
+    def test_kotlin_escaped_dollar_is_decoded(self):
+        # GameApi.kt 里嵌套类名写作 cls("...Player\$Auto")，真实类名是 Player$Auto。
+        self.assertEqual(
+            r109_r8_keepgen.unescape_kotlin_literal(r"kajfosz.antimatterdimensions.player.Player\$Auto"),
+            "kajfosz.antimatterdimensions.player.Player$Auto",
+        )
+
+    def test_kotlin_escaped_quote_and_backslash(self):
+        self.assertEqual(r109_r8_keepgen.unescape_kotlin_literal(r'a\"b\\c'), 'a"b\\c')
+
+    def test_descriptor_only_dependency_is_reported(self):
+        # 只在字段/方法描述符里出现的类型（没有 CONSTANT_Class）也必须被扫到。
+        data = build_classfile([
+            (1, struct.pack(">H", 1) + b"x"),
+            (1, struct.pack(">H", 9) + b"LMissing;"),
+            # 长度前缀必须与字节数一致（"()LMiss2;" 是 9 字节），否则读出的 Utf8 会被截断。
+            (1, struct.pack(">H", len(b"()LMiss2;")) + b"()LMiss2;"),
+        ])
+        refs = r109_missing_refs.parse_class_refs(data)
+        self.assertIn("Missing", refs)
+        self.assertIn("Miss2", refs)
+
+
+class GenericSignatureClosureTests(unittest.TestCase):
+    def _write_tree(self, root: Path) -> Path:
+        smali = root / "smali"
+        smali.mkdir(parents=True)
+        (smali / "Player.smali").write_text(
+            ".class public Lkajfosz/antimatterdimensions/player/Player;\n"
+            ".super Ljava/lang/Object;\n"
+            ".field public glyphs:Ljava/util/List;\n"
+            "    .annotation system Ldalvik/annotation/Signature;\n"
+            "        value = {\n"
+            '            "Ljava/util/List<",\n'
+            '            "Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;",\n'
+            '            ">;"\n'
+            "        }\n"
+            "    .end annotation\n"
+            ".end field\n",
+            encoding="utf-8",
+        )
+        (smali / "Glyph.smali").write_text(
+            ".class public Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;\n"
+            ".super Ljava/lang/Object;\n"
+            ".field public effects:J\n",
+            encoding="utf-8",
+        )
+        return smali
+
+    def test_generic_element_joins_field_check_closure(self):
+        with tempfile.TemporaryDirectory() as td:
+            tree = Path(td) / "tree"
+            self._write_tree(tree)
+            expected, closure = r109_save_field_check.closure_fields(tree)
+            self.assertIn("Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;", closure)
+            self.assertIn(
+                ("Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;", "effects"),
+                expected,
+            )
+
+    def test_generic_element_joins_keepgen_closure(self):
+        with tempfile.TemporaryDirectory() as td:
+            tree = Path(td) / "tree"
+            self._write_tree(tree)
+            rules = Path(td) / "rules.pro"
+            old_argv = sys.argv
+            sys.argv = ["r109_save_keepgen.py", "--decoded-tree", str(tree), "--out", str(rules)]
+            try:
+                rc = r109_save_keepgen.main()
+            finally:
+                sys.argv = old_argv
+            self.assertEqual(rc, 0)
+            text = rules.read_text(encoding="utf-8")
+            self.assertIn("reality.glyphs.Glyph", text)
+
+
+class R8MappingParseTests(unittest.TestCase):
+    def test_field_mapping_with_type_prefix_is_parsed(self):
+        with tempfile.TemporaryDirectory() as td:
+            mapping = Path(td) / "mapping.txt"
+            mapping.write_text(
+                "com.foo.Bar -> a:\n"
+                "    double antimatter -> b\n"
+                "    com.foo.Baz glyphs -> c\n"
+                "    1:1:void m():1:1 -> d\n",
+                encoding="utf-8",
+            )
+            class_map, field_map = r109_save_field_check.parse_mapping(mapping)
+            self.assertEqual(class_map.get("com.foo.Bar"), "a")
+            self.assertEqual(field_map.get(("com.foo.Bar", "antimatter")), "b")
+            self.assertEqual(field_map.get(("com.foo.Bar", "glyphs")), "c")
 
 
 if __name__ == "__main__":
