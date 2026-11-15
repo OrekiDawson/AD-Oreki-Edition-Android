@@ -23,6 +23,16 @@ public class RemapSelective {
         Set<String> official = readSet(args[2]);
         Set<String> exclusion = readSet(args[3]);
         Set<String> shadow = readSet(args[4]);
+        Map<String, String> extra = new LinkedHashMap<>();
+        if (args.length > 6 && !args[6].isEmpty()) {
+            for (String line : Files.readAllLines(Path.of(args[6]))) {
+                String t = line.trim();
+                if (t.isEmpty() || t.startsWith("#")) continue;
+                int sp = t.indexOf(' ');
+                if (sp <= 0) throw new IllegalArgumentException("extra-map 行格式错误: " + t);
+                extra.put(t.substring(0, sp), t.substring(sp + 1).trim());
+            }
+        }
         byte[] m53fix = null;
         if (args.length > 5 && !args[5].isEmpty()) {
             try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(Path.of(args[5])))) {
@@ -39,7 +49,8 @@ public class RemapSelective {
         Remapper gameRemap = new Remapper() {
             @Override public String map(String n) {
                 if (shadow.contains(n)) return NEW_PREFIX + n.substring(PREFIX.length());
-                return n;
+                String mapped = extra.get(n);
+                return mapped != null ? mapped : n;
             }
         };
         int kept=0, dropped=0, failed=0, remapped=0;
@@ -49,7 +60,8 @@ public class RemapSelective {
                 String name = ent.getKey().substring(0, ent.getKey().length()-6);
                 if (exclusion.contains(name)) { dropped++; continue; }
                 boolean isGame = official.contains(name);
-                byte[] bytes; String outName = name;
+                // dex2jar 类名还原：把 sanitized('_') 条目改回官方 '-' 名（R113-01）
+                byte[] bytes; String outName = extra.getOrDefault(name, name);
                 if (name.equals("m53") && m53fix != null) {
                     bytes = m53fix; // 已经是 shadow 重命名后的字节
                 } else {

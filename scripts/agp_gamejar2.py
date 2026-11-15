@@ -187,6 +187,32 @@ def write_jar_from_entries(path: Path, entries: dict[str, bytes]) -> None:
             archive.writestr(info, entries[name])
 
 
+def build_dash_name_map(official_classes: set[str], jar_class_names: list[str]) -> dict[str, str]:
+    """dex2jar 把类名里的 '-' 改写成 '_'；建立还原映射 sanitized -> 官方名。
+
+    只处理官方类集合里确实含 '-' 的名字；若改写后与另一个官方类同名则 fail-closed。
+    """
+    jar_set = set(jar_class_names)
+    official_set = set(official_classes)
+    mapping: dict[str, str] = {}
+    for name in sorted(official_set):
+        if "-" not in name:
+            continue
+        sanitized = name.replace("-", "_")
+        if sanitized == name or sanitized not in jar_set:
+            continue
+        if sanitized in official_set:
+            raise SystemExit("FAIL: dex2jar 类名还原冲突 %s -> %s" % (sanitized, name))
+        mapping[sanitized] = name
+    return mapping
+
+
+def write_extra_map(path: Path, mapping: dict[str, str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = ["# from to"] + ["%s %s" % (src, dst) for src, dst in sorted(mapping.items())]
+    path.write_text(chr(10).join(lines) + chr(10), encoding="utf-8")
+
+
 def jar_class_count(jar: Path) -> int:
     with zipfile.ZipFile(jar) as archive:
         return sum(1 for name in archive.namelist() if name.endswith(".class"))
@@ -317,10 +343,15 @@ def java_main(java: str, classpath: list[str], main_class: str, args: list[str],
 
 def remap_selective(java: str, classpath: list[str], in_jar: Path, out_jar: Path,
                     official_file: Path, exclusion_file: Path, shadow_file: Path,
-                    m53_fix_jar: str) -> dict:
+                    m53_fix_jar: str, extra_map: str = "") -> dict:
+    """extra_map：额外类名映射文件（每行 "from to"），用于 dex2jar '-'->'_' 类名还原。
+
+    R113-01：dex2jar 把非法类名里的 '-' 改成 '_'，而官方 DEX 与补丁 enjarify 侧仍是 '-'。
+    混用转换器时必须用同一套类名进入后续校验，否则 class_set 会误判缺类/多类。
+    """
     result = java_main(java, classpath, "RemapSelective",
                        [str(in_jar), str(out_jar), str(official_file),
-                        str(exclusion_file), str(shadow_file), m53_fix_jar])
+                        str(exclusion_file), str(shadow_file), m53_fix_jar, extra_map])
     require(result["returncode"] == 0,
             "RemapSelective 失败:\n" + result["stdout"][-4000:] + result["stderr"][-4000:])
     stats = {}
@@ -408,6 +439,14 @@ def main() -> int:
                         help="复用 out_dir 下已存在且类数正确的 enjarify/中间 jar（迭代用；SHA 仍记录）")
     parser.add_argument("--report", default="")
     parser.add_argument("--label", default="R107-01")
+    parser.add_argument("--hybrid-classes", default="",
+                        help="逗号分隔的类（内部名）：官方基础用 enjarify，但这些类改用 --official-jar 的 "
+                             "dex2jar 版本替换（R107 J8 已验证形态：ox0,gk0,dc2,tf2,vf2,t01,k51,cv0,ba1）。"
+                             "R113-01 根因：enjarify 对协程调度类的转换导致逻辑线程 livelock。")
+    parser.add_argument("--official-jar", action="append", default=[],
+                        help="官方类基础 jar（dex2jar 产物，可重复）。提供后跳过官方 enjarify 并合并这些 jar。"
+                             "R113-01 根因：enjarify 转换 kotlinx.coroutines 调度类（vf2/dc2/tf2/t01）"
+                             "与 dex2jar/R110 已验证构建不一致，导致游戏逻辑线程 livelock。")
     parser.add_argument("--sigbackfill-ref-jar", action="append", default=[],
                         help="dex2jar 参考 jar（可重复）；提供后对最终 game jar 回填泛型 Signature")
     parser.add_argument("--sigbackfill-asm-jar", default="",
@@ -505,21 +544,105 @@ def main() -> int:
         "dex_entries": list(STAGED_DEX_FOR_ENJARIFY),
     }
 
-    # 4) enjarify
+    # 4) 官方类基础 jar：始终 enjarify（用于补丁类检测）；提供 --official-jar 时
+    #    额外合并 dex2jar 产物作为最终官方类基础（R113-01：enjarify 对 kotlinx 调度类
+    #    vf2/dc2/tf2/t01 的转换会 livelock，R110 的 dex2jar 路径已真实跑通 180 分钟）。
     official_enjarify = out_dir / "official-enjarify.jar"
     modded_enjarify = out_dir / "modded-enjarify.jar"
     print("[3/9] enjarify 官方 APK ...")
     report["steps"]["enjarify_official"] = enjarify(
         official_apk, official_enjarify, Path(args.enjarify_dir), args.python,
         expected_classes=len(official_classes), reuse=args.reuse_existing)
+    require(report["steps"]["enjarify_official"]["classes_errored"] == 0,
+            "官方 enjarify 存在失败类: %d" % report["steps"]["enjarify_official"]["classes_errored"])
+    official_base = official_enjarify
+    if args.official_jar:
+        merged = out_dir / "official-dex2jar-merged.jar"
+        sources = [Path(item) for item in args.official_jar]
+        for source in sources:
+            require(source.is_file(), "缺少官方 dex2jar jar: %s" % source)
+        if (args.reuse_existing and merged.is_file()
+                and jar_class_count(merged) == len(official_classes)):
+            reused = True
+        else:
+            merged_entries: dict[str, bytes] = {}
+            for source in sources:
+                merged_entries.update(read_jar_entries(source))
+            write_jar_from_entries(merged, merged_entries)
+            reused = False
+        merged_count = jar_class_count(merged)
+        require(merged_count == len(official_classes),
+                "官方 dex2jar jar 类数异常: %d vs %d" % (merged_count, len(official_classes)))
+        report["steps"]["dex2jar_official"] = {
+            "converter": "dex2jar",
+            "reason": "R113-01：enjarify 对 kotlinx.coroutines 调度类（vf2/dc2/tf2/t01）的转换 "
+                      "与 dex2jar/R110 已验证构建不一致，游戏逻辑线程在 speedrun 协程调度上 livelock；"
+                      "官方类基础改用 dex2jar 产物，补丁类仍用 enjarify 覆盖",
+            "sources": [{"jar": str(item), "sha256": sha256_file(item)} for item in sources],
+            "merged_jar": str(merged),
+            "merged_sha256": sha256_file(merged),
+            "class_count": merged_count,
+            "reused": reused,
+        }
+        if args.hybrid_classes:
+            # R107 已验证的 J8 形态：官方基础保留 enjarify，只把这些热路径类替换成
+            # dex2jar 版本。R113-01 实测：全量 dex2jar 基类会因 dex2jar 的
+            # new/init 重写导致 VerifyError（kn6.z），而 enjarify 全量基类会 livelock。
+            hybrid_names = [item.strip() for item in args.hybrid_classes.split(",") if item.strip()]
+            merged_entries_all = read_jar_entries(merged)
+            base_entries = read_jar_entries(official_enjarify)
+            replaced: list[str] = []
+            missing_hybrid: list[str] = []
+            for name in hybrid_names:
+                key = name + ".class"
+                if key in merged_entries_all:
+                    base_entries[key] = merged_entries_all[key]
+                    replaced.append(name)
+                else:
+                    missing_hybrid.append(name)
+            require(not missing_hybrid, "dex2jar jar 缺少 hybrid 类: %s" % missing_hybrid)
+            hybrid_jar = out_dir / "official-hybrid-j8.jar"
+            write_jar_from_entries(hybrid_jar, base_entries)
+            report["steps"]["hybrid_j8"] = {
+                "classes": replaced,
+                "count": len(replaced),
+                "jar": str(hybrid_jar),
+                "sha256": sha256_file(hybrid_jar),
+                "class_count": len(base_entries),
+                "rationale": "R107 J8 已验证形态；R113-01 实测 enjarify 的协程调度类转换会 livelock",
+            }
+            official_base = hybrid_jar
+            print("[3/9] 官方类基础 = enjarify + %d 个 dex2jar 热路径类（J8 形态）: %s"
+                  % (len(replaced), ", ".join(replaced)))
+        else:
+            official_base = merged
+            print("[3/9] 官方类基础改用 dex2jar 产物：%d 个 jar -> %s (%d 类)"
+                  % (len(sources), official_base.name, merged_count))
     print("[4/9] enjarify 3-dex 补丁输入 ...")
     report["steps"]["enjarify_modded"] = enjarify(
         three_dex_apk, modded_enjarify, Path(args.enjarify_dir), args.python,
         expected_classes=len(union_three_dex), reuse=args.reuse_existing)
     require(report["steps"]["enjarify_modded"]["classes_errored"] == 0,
             "补丁 enjarify 存在失败类: %d" % report["steps"]["enjarify_modded"]["classes_errored"])
-    require(report["steps"]["enjarify_official"]["classes_errored"] == 0,
-            "官方 enjarify 存在失败类: %d" % report["steps"]["enjarify_official"]["classes_errored"])
+
+    # 4.5) 补丁类检测：**同一 enjarify 转换器**之间比较，避免混用转换器时
+    #      "所有类都像被修改"导致逐类 D8 失控（实测 1525+ 次 D8）。
+    modded_raw_hashes = jar_class_hashes(modded_enjarify)
+    official_raw_hashes = jar_class_hashes(official_enjarify)
+    modified_classes = sorted(
+        name for name, digest in modded_raw_hashes.items()
+        if name in official_raw_hashes and official_raw_hashes[name] != digest
+        and name in official_classes and not name.startswith(SHADOW_PREFIX))
+    if args.m53_mode == "split" and "m53" in official_raw_hashes:
+        modified_classes = sorted(set(modified_classes) | {"m53"})
+    report["steps"]["patch_detection"] = {
+        "converter": "enjarify",
+        "official_classes": len(official_classes),
+        "modified": len(modified_classes),
+        "modified_sample": modified_classes[:10],
+        "m53_forced": bool(args.m53_mode == "split" and "m53" in official_raw_hashes),
+    }
+    print("[4.5/9] 补丁类检测（enjarify 对 enjarify）: 修改 %d 类" % len(modified_classes))
 
     # 5) m53 处理
     asm_classpath = ensure_asm_tools(repo, java_home)
@@ -560,13 +683,26 @@ def main() -> int:
             "jar_sha256": sha256_file(Path(args.m53_fallback_jar)),
         }
 
-    # 6) RemapSelective：官方 + 补丁各一份
+    # 6) RemapSelective：官方基础 + 补丁各一份（官方侧含 dex2jar 类名还原映射）
     print("[6/9] RemapSelective 官方/补丁 ...")
     official_selective = out_dir / "official-selective.jar"
     modded_selective = out_dir / "modded-selective.jar"
+    extra_map_path = ""
+    if args.official_jar and not args.hybrid_classes:
+        base_names = [name[:-6] for name in read_jar_entries(official_base) if name.endswith(".class")]
+        dash_map = build_dash_name_map(official_classes, base_names)
+        if dash_map:
+            extra_map_path = str(work_dir / "dash-name-map.txt")
+            write_extra_map(Path(extra_map_path), dash_map)
+        report["steps"]["dash_name_map"] = {
+            "entries": len(dash_map),
+            "path": extra_map_path,
+            "sample": dict(sorted(dash_map.items())[:3]),
+        }
+        print("[6/9] dex2jar 类名还原映射: %d 条" % len(dash_map))
     report["steps"]["remap_official"] = remap_selective(
-        java, asm_classpath, official_enjarify, official_selective,
-        official_file, empty_file, shadow_file, "")
+        java, asm_classpath, official_base, official_selective,
+        official_file, empty_file, shadow_file, "", extra_map_path)
     report["steps"]["remap_modded"] = remap_selective(
         java, asm_classpath, remap_input, modded_selective,
         official_file, exclusion_file, shadow_file, m53_fix_jar)
@@ -574,56 +710,52 @@ def main() -> int:
             "RemapSelective 保留类数异常: %s vs %d"
             % (report["steps"]["remap_modded"]["stats"].get("KEPT"), len(union_three_dex)))
 
-    # 7) 合并官方 72 个 shadow 类
-    print("[7/9] 合并官方 shadow 类 ...")
-    modded_entries = read_jar_entries(modded_selective)
+    # 7) 组装最终 jar：官方基础（dex2jar 或 enjarify）+ 仅补丁类用补丁版本覆盖 + shadow
+    print("[7/9] 组装最终 jar（官方基础 + 补丁覆盖）...")
     official_entries = read_jar_entries(official_selective)
+    modded_entries = read_jar_entries(modded_selective)
+    final_entries = dict(official_entries)
+    patch_related = sorted(set(new_classes) | set(modified_classes))
+    overlaid: list[str] = []
+    missing_patch: list[str] = []
+    for name in patch_related:
+        key = name + ".class"
+        if key in modded_entries:
+            final_entries[key] = modded_entries[key]
+            overlaid.append(name)
+        else:
+            missing_patch.append(name)
+    require(not missing_patch, "补丁类在补丁 jar 中缺失: %s" % missing_patch[:10])
     merged_shadow = 0
-    missing_shadow = []
+    missing_shadow: list[str] = []
     for name in sorted(shadow_classes):
         shadow_name = SHADOW_NEW_PREFIX + name[len(SHADOW_PREFIX):]
         key = shadow_name + ".class"
         if key in official_entries:
-            modded_entries[key] = official_entries[key]
+            final_entries[key] = official_entries[key]
+            merged_shadow += 1
+        elif key in modded_entries:
+            final_entries[key] = modded_entries[key]
             merged_shadow += 1
         else:
             missing_shadow.append(shadow_name)
     require(merged_shadow == 72, "shadow 类合并数不是 72: %d" % merged_shadow)
-    report["steps"]["shadow_merge"] = {
-        "merged": merged_shadow,
-        "missing": missing_shadow,
-    }
-
-    # 8) 补丁相关类 D8 检测 + 自动回退
-    patch_classes = sorted(new_classes) + sorted(
-        [name for name in official_classes if not name.startswith(SHADOW_PREFIX)])
-    final_jar = out_dir / "game-final.jar"
-
-    def materialize(entries: dict[str, bytes]) -> None:
-        write_jar_from_entries(final_jar, entries)
-
-    materialize(modded_entries)
-    final_hashes = jar_class_hashes(final_jar)
-    official_hashes = jar_class_hashes(official_selective)
-    renamed_official = {
-        (SHADOW_NEW_PREFIX + name[len(SHADOW_PREFIX):]) if name.startswith(SHADOW_PREFIX) else name
-        for name in official_classes
-    }
-    modified_classes = sorted(
-        name for name in final_hashes
-        if name in official_hashes and name in renamed_official
-        and final_hashes[name] != official_hashes[name]
-        and name not in shadow_classes
-    )
-    patch_related = sorted(set(new_classes) | set(modified_classes))
+    report["steps"]["shadow_merge"] = {"merged": merged_shadow, "missing": missing_shadow}
     report["steps"]["patch_classes"] = {
         "new": len(new_classes),
         "modified": len(modified_classes),
         "total": len(patch_related),
+        "overlaid": len(overlaid),
         "modified_sample": modified_classes[:10],
+        "base_source": "dex2jar" if args.official_jar else "enjarify",
     }
     print("[8/9] 补丁相关类: 新增 %d + 修改 %d = %d，逐类 D8 检测 ..."
           % (len(new_classes), len(modified_classes), len(patch_related)))
+
+    final_jar = out_dir / "game-final.jar"
+
+    def materialize(entries: dict[str, bytes]) -> None:
+        write_jar_from_entries(final_jar, entries)
 
     def per_class_d8(entries: dict[str, bytes], classes: list[str], tag: str) -> dict:
         tmp = Path(tempfile.mkdtemp(prefix="d8patch-", dir=str(work_dir)))
@@ -641,7 +773,6 @@ def main() -> int:
                 class_file = single / "c.class"
                 class_file.write_bytes(entries[key])
                 out = tmp / ("out-" + hashlib.sha1(name.encode()).hexdigest()[:10])
-                # d8 只接受 class 文件/jar/dex 作为 program input，不接受目录
                 d8 = d8_compile(args.d8, android_jar, [class_file], out)
                 results[name] = {"status": d8["status"], "returncode": d8["returncode"],
                                  "stderr": d8["stderr_tail"] if d8["status"] == "FAIL" else []}
@@ -650,7 +781,8 @@ def main() -> int:
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    first_pass = per_class_d8(modded_entries, patch_related, "initial")
+    materialize(final_entries)
+    first_pass = per_class_d8(final_entries, patch_related, "initial")
     fallback_applied: list[dict] = []
     forced = list(args.fallback_class)
     candidates = sorted(set(first_pass["fail"]) | set(forced))
@@ -659,14 +791,14 @@ def main() -> int:
         if name == "m53":
             report.setdefault("warnings", []).append("m53 由 --m53-mode 处理，不参与普通回退")
             continue
-        if name.startswith(SHADOW_PREFIX) or name not in official_hashes:
+        key = name + ".class"
+        if key not in official_entries:
             report.setdefault("warnings", []).append("无法回退到官方版本: " + name)
             continue
         if not auto_fallback_enabled and name in first_pass["fail"]:
             report.setdefault("warnings", []).append("检测到非法类但自动回退已关闭: " + name)
             continue
-        key = name + ".class"
-        modded_entries[key] = official_entries[key]
+        final_entries[key] = official_entries[key]
         fallback_applied.append({
             "class": name,
             "reason": "patch-class D8 failure" if name in first_pass["fail"] else "forced",
@@ -674,9 +806,8 @@ def main() -> int:
             "loses_mod_patch": name in modified_classes,
         })
     if fallback_applied:
-        materialize(modded_entries)
-        final_hashes = jar_class_hashes(final_jar)
-    second_pass = per_class_d8(modded_entries, patch_related, "after_fallback")
+        materialize(final_entries)
+    second_pass = per_class_d8(final_entries, patch_related, "after_fallback")
     report["steps"]["patch_class_d8"] = {
         "initial": first_pass,
         "after_fallback": second_pass,
@@ -684,6 +815,11 @@ def main() -> int:
     }
     require(not second_pass["fail"],
             "回退后仍有补丁类 D8 失败: %s" % second_pass["fail"])
+    final_hashes = jar_class_hashes(final_jar)
+    renamed_official = {
+        (SHADOW_NEW_PREFIX + name[len(SHADOW_PREFIX):]) if name.startswith(SHADOW_PREFIX) else name
+        for name in official_classes
+    }
 
     # 9) 整包 D8 + 类集合保真 + report
     print("[9/9] 整包 D8 与类集合核对 ...")
@@ -709,6 +845,52 @@ def main() -> int:
     require(not residual_kotlin, "最终 jar 仍存在 kotlin/** 类定义")
     require(not excluded_present, "最终 jar 仍存在排除集类定义")
 
+    # 9.5) 层级/类名完整性守卫（R113-01 fail-closed）：
+    #   dex2jar 基础 jar 的类名还原必须彻底——漏改父类/接口或引用会得到
+    #   VerifyError（实测 kn6.z 返回类型不符）；因此逐类校验父类/接口可解析，
+    #   并要求 107 个还原前的 sanitized 名字在最终 jar 中已不存在。
+    import sys as _sys
+    _sys.path.insert(0, str(repo / "scripts" / "agp"))
+    from check_a_batch_abi import parse_class as _parse_class
+    # 只要求"本 jar 应提供的类"（官方类/新增类/shadow 类）的父类可解析；
+    # 平台与 AGP 依赖（org.json、dalvik.system 等）由系统/AGP 提供，不在此列。
+    expected_parents = set(renamed_official) | set(new_classes)
+    missing_supers: list[dict] = []
+    for key, blob in final_entries.items():
+        if not key.endswith(".class"):
+            continue
+        name = key[:-6]
+        info = _parse_class(blob)
+        parents = ([info.super_name] if info.super_name else []) + list(info.interfaces)
+        for parent in parents:
+            if not parent or parent + ".class" in final_entries:
+                continue
+            if parent not in expected_parents:
+                continue
+            missing_supers.append({"class": name, "missing_parent": parent})
+    dash_residual: list[str] = []
+    if args.official_jar and not args.hybrid_classes:
+        sanitized_names = {src for src in dash_map} if dash_map else set()
+        for key, blob in final_entries.items():
+            if not key.endswith(".class"):
+                continue
+            info = _parse_class(blob)
+            if sanitized_names & set(info.utf8.values()):
+                dash_residual.append(key[:-6])
+    report["checks"]["hierarchy"] = {
+        "missing_parent_count": len(missing_supers),
+        "missing": missing_supers[:10],
+    }
+    report["checks"]["dash_rename"] = {
+        "renamed": len(dash_map) if (args.official_jar and not args.hybrid_classes) else 0,
+        "residual_classes": len(dash_residual),
+        "residual_sample": dash_residual[:10],
+    }
+    require(not missing_supers,
+            "最终 jar 存在无法解析的父类/接口: %s" % missing_supers[:10])
+    require(not dash_residual,
+            "最终 jar 仍引用 dex2jar sanitized 类名: %s" % dash_residual[:10])
+
     report["output"] = {
         "game_jar": str(final_jar),
         "game_jar_sha256": sha256_file(final_jar),
@@ -726,7 +908,14 @@ def main() -> int:
         if before_dir.exists():
             shutil.rmtree(before_dir)
         before_dir.mkdir(parents=True)
-        with zipfile.ZipFile(official_enjarify) as archive:
+        # 官方基础 jar 不一定是 enjarify 产物（--official-jar 时是 dex2jar 合并 jar）；
+        # 若其中没有 m53.class，退回补丁 enjarify jar 取证据字节。
+        m53_evidence_source = official_enjarify
+        with zipfile.ZipFile(m53_evidence_source) as archive:
+            m53_names = set(archive.namelist())
+        if "m53.class" not in m53_names:
+            m53_evidence_source = modded_enjarify
+        with zipfile.ZipFile(m53_evidence_source) as archive:
             (before_dir / "m53.class").write_bytes(archive.read("m53.class"))
         m53_evidence["before_split"] = {
             "class_bytes": (before_dir / "m53.class").stat().st_size,

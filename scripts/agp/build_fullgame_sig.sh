@@ -92,6 +92,9 @@ python3 "$ROOT/scripts/agp_gamejar2.py" \
   --label "R112-01-sigfullgame" \
   --report "$REPORT" \
   --sigbackfill-asm-jar "$ASM_JAR" \
+  --official-jar "$OUTDIR/ref-classes.jar" \
+  --official-jar "$OUTDIR/ref-classes2.jar" \
+  --hybrid-classes "ox0,gk0,dc2,tf2,vf2,t01" \
   "${REF_ARGS[@]}" $REUSE
 need_file "$REPORT"
 GAME_JAR=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['output']['game_jar'])" "$REPORT")
