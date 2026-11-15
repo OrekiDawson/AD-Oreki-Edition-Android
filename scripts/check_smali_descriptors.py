@@ -103,6 +103,56 @@ def collect_defined() -> set:
     return defined
 
 
+def _kotlin_declared_descriptors() -> set:
+    """从提交的 Kotlin ABI 类清单读描述符（R114-02 C4b）。
+
+    candidate 私有 runner 现在直接消费 pinned full-game tree，不再执行
+    buildKotlinDex，因此 build/kt/classes.dex 可能不存在；而 payload 里对
+    Kotlin 业务类的引用（OrekiAutomationScheduler / TutorialActivity 等）是合法的。
+    这里用 scripts/kotlin_business_classes.txt（CI parity 同源清单）补上这部分证据：
+    每行形如 Lkajfosz/antimatterdimensions/oreki/OrekiBreakShop;。
+    """
+    import os as _os
+    path = _os.environ.get("OREKI_KOTLIN_CLASSES_FILE") or (ROOT / "scripts" / "kotlin_business_classes.txt")
+    p = Path(path)
+    if not p.is_file():
+        return set()
+    found = set()
+    for ln in p.read_text(encoding="utf-8").splitlines():
+        s = ln.strip()
+        if s.startswith("L") and s.endswith(";"):
+            found.add(s)
+    return found
+
+
+def _kotlin_source_descriptors() -> set:
+    """从 Kotlin 源码的顶层 class/object/interface 声明推导类描述符（R114-02 C4b）。
+
+    candidate 私有 runner 直接消费 pinned full-game tree，不再执行 buildKotlinDex，
+    build/kt/classes.dex 可能不存在。payload 对 Kotlin 业务类的引用是合法的，
+    因此额外从 tracked Kotlin 源码（app/src/main/kotlin）收集顶层声明作为证据。
+    只处理顶层声明：payload 引用的都是顶层业务类；嵌套/伴生类不在此列。
+    """
+    root = ROOT / "app" / "src" / "main" / "kotlin"
+    if not root.is_dir():
+        return set()
+    declar = re.compile(
+        r"^\s*(?:(?:public|internal|private|protected|data|sealed|open|abstract|enum|"
+        r"annotation|value|inline|expect|actual|fun)\s+)*"
+        r"(class|object|interface)\s+([A-Za-z_][A-Za-z0-9_]*)",
+        re.M)
+    found = set()
+    for kt in root.rglob("*.kt"):
+        text = kt.read_text(encoding="utf-8", errors="ignore")
+        m = re.search(r"^\s*package\s+([\w.]+)", text, re.M)
+        if not m:
+            continue
+        pkg = m.group(1).replace(".", "/")
+        for kind, name in declar.findall(text):
+            found.add("L" + pkg + "/" + name + ";")
+    return found
+
+
 def _kotlin_dex_descriptors() -> set:
     """从 Kotlin 编译产物 dex 里读出类描述符（`Lpkg/Class;` 形式）。
 
@@ -131,7 +181,11 @@ def main() -> int:
     defined = collect_defined()
     # [R77] Kotlin 已接管的类：它们只在 build/kt/classes.dex 里，不在 smali 树中。
     # 不把它们算作"已定义"，就会把正常的 Kotlin 迁移误报成"引用了不存在的类"。
+    # [R114-02 C4b] candidate 现在直接消费 pinned tree、不再执行 buildKotlinDex，
+    # dex 可能不存在；额外并入提交的 ABI 类清单（scripts/kotlin_business_classes.txt）。
     defined |= _kotlin_dex_descriptors()
+    defined |= _kotlin_declared_descriptors()
+    defined |= _kotlin_source_descriptors()
     problems = {}
     for f in sorted(PAYLOAD.rglob("*.smali")):
         txt = strip_comments(f.read_text(encoding="utf-8", errors="ignore"))

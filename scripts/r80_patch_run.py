@@ -35,6 +35,7 @@ with redirect_stdout(io.StringIO()):
 
 # 按 build_mod.main() 的真实顺序；只列会写 smali / 校验 smali 的步骤
 STEPS = [
+    # [R114-02 C4b] 已迁出的校验不再探测：verify_eternity_chain, verify_pelle_record, check_smali_descriptors, check_challenge_auto_polarity, check_ec_chain_mechanisms
     ("prepare", bm.prepare),
     ("merge_split", bm.merge_split),
     ("patch_resources", bm.patch_resources),
@@ -47,7 +48,6 @@ STEPS = [
     ("patch_shop_coins", bm.patch_shop_coins),
     ("patch_effarig_nerf", bm.patch_effarig_nerf),
     ("patch_effarig_shard_divisor", bm.patch_effarig_shard_divisor),
-    ("verify_payload", bm.verify_payload),
     ("patch_ad_bonus", bm.patch_ad_bonus),
     ("patch_automator_waiting", bm.patch_automator_waiting),
     ("patch_autobuyer_cadence", bm.patch_autobuyer_cadence),
@@ -60,19 +60,14 @@ STEPS = [
     ("patch_r74_temp_diag", bm.patch_r74_temp_diag),
     ("patch_ip_mult_autobuyer", bm.patch_ip_mult_autobuyer),
     ("patch_stage_auto_hook", bm.patch_stage_auto_hook),
-    ("verify_eternity_chain", bm.verify_eternity_chain),
     # [R94] patch_break_gate / verify_break_gate 已随 OrekiBreakGate.smali 一起删除：
     # 这两条 STEPS 只会 AttributeError，R114-02 C5 清理掉（历史见 BUILDMOD_RETIREMENT_LEDGER）。
-    ("verify_pelle_record", bm.verify_pelle_record),
     ("stage_tutorial_assets", bm.stage_tutorial_assets),
     ("patch_tutorial_entry", bm.patch_tutorial_entry),
     ("patch_autobuyer_batch_fallback", bm.patch_autobuyer_batch_fallback),
     ("patch_ec12_restriction", bm.patch_ec12_restriction),
     ("patch_instant_challenge", bm.patch_instant_challenge),
     ("patch_auto_enter_eternity_challenge", bm.patch_auto_enter_eternity_challenge),
-    ("check_smali_descriptors", bm.check_smali_descriptors),
-    ("check_challenge_auto_polarity", bm.check_challenge_auto_polarity),
-    ("check_ec_chain_mechanisms", bm.check_ec_chain_mechanisms),
     ("patch_id_autobuyer_guard", bm.patch_id_autobuyer_guard),
     ("patch_instant_challenge_rewards", bm.patch_instant_challenge_rewards),
     ("patch_v_unlock_thresholds", bm.patch_v_unlock_thresholds),
