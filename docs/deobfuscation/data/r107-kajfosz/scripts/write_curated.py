@@ -120,10 +120,10 @@ C("Lkajfosz/antimatterdimensions/a;",
 M("Lkajfosz/antimatterdimensions/a;", "f(Ljava/lang/Double;ZLjava/lang/Double;Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
   "gameTick（每帧游戏主 Tick）", "confirmed",
   [S + "/a.smali（方法 f 创建 Game$gameTick$1 状态机；状态机类名编码函数名 gameTick）",
-   "hook-ledger.json#BM-01（Game.gameTick）+ docs/FACTS.md §96.1", WEB + "/game.js:886 gameLoop"])
+   "hook-ledger.json#BM-01（Game.gameTick）+ docs/facts/automation/strategy.md#f-87", WEB + "/game.js:886 gameLoop"])
 M("Lkajfosz/antimatterdimensions/a;", "b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
   "autoBuyerTick（自动购买器 Tick）", "confirmed",
-  [S + "/a.smali（方法 b 创建 Game$autoBuyerTick$1）", "hook-ledger.json#BM-34 + docs/FACTS.md §96.1"])
+  [S + "/a.smali（方法 b 创建 Game$autoBuyerTick$1）", "hook-ledger.json#BM-34 + docs/facts/automation/strategy.md#f-87"])
 M("Lkajfosz/antimatterdimensions/a;", "a(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
   "applyAutoUnlockPerks（自动解锁/特权应用）", "strong",
   [S + "/a.smali（方法 a 创建 Game$applyAutoUnlockPerks$1）"])
@@ -133,10 +133,10 @@ M("Lkajfosz/antimatterdimensions/a;", "c(Lkotlin/coroutines/jvm/internal/Continu
 M("Lkajfosz/antimatterdimensions/a;", "d(DZ)V", "advanceGameTime（推进游戏时间）", "strong",
   ["hook-ledger.json#BM-02（Ra 记忆/momentumTime/Laitela 暗物质统一入口）"])
 M("Lkajfosz/antimatterdimensions/a;", "r()V", "gameMainLoopTick（主循环每帧入口，含特蕾莎浇注处理）", "strong",
-  ["docs/FACTS.md §100.5（a.smali:14331 每帧调用 public static r()V）"])
+  ["docs/facts/game/mechanics.md#f-91（a.smali:14331 每帧调用 public static r()V）"])
 F("Lkajfosz/antimatterdimensions/a;", "l",
   "lastTeresaPourTimestamp（上次特蕾莎浇注时间戳）", "strong",
-  ["docs/FACTS.md §100.5（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
+  ["docs/facts/game/mechanics.md#f-91（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
 
 C("Lkajfosz/antimatterdimensions/player/Player;",
   "kajfosz.antimatterdimensions.player.Player",
@@ -242,11 +242,11 @@ C("Lkajfosz/antimatterdimensions/celestials/pelle/b;",
   "kajfosz.antimatterdimensions.celestials.pelle.GameEnd",
   "游戏终局（GameEnd）：endState 计算与终局状态", "strong", "docs+lambda_owner",
   ["hook-ledger.json#BM-23（celestials/pelle/b->b()D = GameEnd.endState）",
-   "docs/FACTS.md §58（GameEnd.endState 读 PelleRecords.totalAntimatter）",
+   "docs/facts/game/endgame.md#f-58（GameEnd.endState 读 PelleRecords.totalAntimatter）",
    S + "/celestials/pelle/b.smali（创建 GameEnd$... lambda）",
    WEB + "/core/celestials/pelle/game-end.js"])
 M("Lkajfosz/antimatterdimensions/celestials/pelle/b;", "b()D", "endState（终局进度 0..1）", "strong",
-  ["docs/FACTS.md §58 + hook-ledger BM-23"])
+  ["docs/facts/game/endgame.md#f-58 + hook-ledger BM-23"])
 C("Lkajfosz/antimatterdimensions/multipliertab/a;",
   "kajfosz.antimatterdimensions.multipliertab.MultiplierTabTree",
   "乘数页签数据树 MultiplierTabTree：AD/ID/TD/IP/EP 效果来源分组与目标效果映射",
@@ -442,7 +442,7 @@ C("Lkajfosz/antimatterdimensions/Game$autoBuyerTick$1;", "",
 # 字段
 F("Lkajfosz/antimatterdimensions/MainActivity;", "yo",
   "teresaPourButtonHeld（特蕾莎浇注按钮按住状态，主循环 a.r() 读取）", "strong",
-  ["docs/FACTS.md §100.5（MainActivity.yo = 浇注按钮被按住）"])
+  ["docs/facts/game/mechanics.md#f-91（MainActivity.yo = 浇注按钮被按住）"])
 F("Lkajfosz/antimatterdimensions/Game$gameTick$1;", "result", "协程状态机结果槽（编译器强制）", "confirmed",
   ["Kotlin 协程 ABI 强制字段"])
 
