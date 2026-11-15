@@ -633,7 +633,9 @@ def main() -> int:
         name for name, digest in modded_raw_hashes.items()
         if name in official_raw_hashes and official_raw_hashes[name] != digest
         and name in official_classes and not name.startswith(SHADOW_PREFIX))
-    if args.m53_mode == "split" and "m53" in official_raw_hashes:
+    # split 模式用拆分后的 m53；fallback 模式用 --m53-fallback-jar 提供的已 shadow 改名版本。
+    # 两种模式都必须把 m53 放进覆盖集，否则最终 jar 会保留原始超大 clinit（D8 失败）。
+    if "m53" in official_raw_hashes:
         modified_classes = sorted(set(modified_classes) | {"m53"})
     report["steps"]["patch_detection"] = {
         "converter": "enjarify",

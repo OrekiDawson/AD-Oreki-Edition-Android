@@ -83,7 +83,10 @@ def main():
     apk_sha = hashlib.sha256(Path(args.apk).read_bytes()).hexdigest()
     note(f"install sha={apk_sha[:16]}")
     adb("root", timeout=15); time.sleep(1)
-    adb("install", "-r", "-d", args.apk, timeout=180)
+    install_out = adb("install", "-r", "-d", args.apk, timeout=180)
+    if "Success" not in install_out:
+        print("FAIL: install 未成功，终止（不清数据）: " + install_out.strip()[:300], flush=True)
+        return 2
     adb("shell", "am", "force-stop", PKG, timeout=15)
     adb("shell", "pm", "clear", PKG, timeout=30)
     adb("shell", "am", "start", "-W", "-n", ACT, timeout=60); time.sleep(18)
@@ -147,6 +150,9 @@ def main():
         tmp = "/data/local/tmp/late-player.json"
         subprocess.run([ADB, "push", args.late_file, tmp], capture_output=True, timeout=60)
         adb("shell", f"cp {tmp} {FILES}/player.json && chown {uid}:{gid} {FILES}/player.json && restorecon {FILES}/player.json", timeout=20)
+        injected_sha = hashlib.sha256(data).hexdigest()
+        on_device = adb("shell", f"sha256sum {FILES}/player.json", timeout=15).strip().split()
+        fixture_injected = bool(on_device) and on_device[0] == injected_sha
         adb("logcat", "-c", timeout=20)
         adb("shell", "am", "start", "-W", "-n", ACT, timeout=60)
         time.sleep(75)
@@ -157,10 +163,31 @@ def main():
         crashes4 = [ln for ln in logcat4.splitlines()
                     if "FATAL EXCEPTION" in ln or "NoSuchFieldError" in ln or "NoSuchMethodError" in ln
                     or "ClassCastException" in ln]
-        late_ok = bool(pid) and not crashes4
-        late_info = {"pid": pid, "crashes": crashes4[:5], "markers": m4,
-                     "hashes": late_hashes.splitlines()[:6],
-                     "reloaded_written": any(l.split()[-1].startswith("player.json") for l in late_hashes.splitlines() if l.strip())}
+        # 晚期存档必须证明：夹具成功注入 → 游戏加载出晚期状态 → 应用自己写出新档 → 重启可读
+        late_markers = {k: v for k, v in m4.items()
+                        if k in ("OREKI_LAITELA", "OREKI_PELLE", "OREKI_RU_AUTO",
+                                 "OREKI_REALITY_DIAG", "OREKI_TT_REWARD", "OREKI_ET_GATE")}
+        loaded_late_state = bool(late_markers)
+        saved_lines = [l for l in late_hashes.splitlines() if l.strip()]
+        saved_hashes = [l.split()[0] for l in saved_lines if l.split()]
+        app_written = any(h != injected_sha for h in saved_hashes)
+        restart_lines = []
+        restart_ok = False
+        if app_written:
+            adb("shell", "am", "force-stop", PKG, timeout=15); time.sleep(2)
+            adb("shell", "am", "start", "-W", "-n", ACT, timeout=60); time.sleep(20)
+            restart_pid = adb("shell", "pidof", PKG, timeout=10).strip()
+            restart_lines = adb("shell", f"cd {FILES} && sha256sum player*.json 2>/dev/null", timeout=20).strip().splitlines()
+            restart_ok = bool(restart_pid) and bool(restart_lines)
+            adb("shell", "am", "force-stop", PKG, timeout=15)
+        late_ok = (fixture_injected and loaded_late_state and app_written and restart_ok
+                   and bool(pid) and not crashes4)
+        late_info = {"pid": pid, "crashes": crashes4[:5], "markers": late_markers,
+                     "fixture_injected": fixture_injected,
+                     "loaded_late_state": loaded_late_state,
+                     "app_written_new_save": app_written,
+                     "restart_readable": restart_ok,
+                     "hashes": saved_lines[:6], "restart_hashes": restart_lines[:4]}
         adb("shell", "am", "force-stop", PKG, timeout=15)
 
     verdict = {

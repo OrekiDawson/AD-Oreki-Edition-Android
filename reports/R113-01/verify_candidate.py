@@ -54,7 +54,10 @@ def main():
         log.append(line); print(line, flush=True)
     note(f"install {args.apk} sha={hashlib.sha256(Path(args.apk).read_bytes()).hexdigest()[:16]}")
     adb("root", timeout=15); time.sleep(1)
-    adb("install", "-r", "-d", args.apk, timeout=180)
+    install_out = adb("install", "-r", "-d", args.apk, timeout=180)
+    if "Success" not in install_out:
+        print("FAIL: install 未成功，终止（不清数据）: " + install_out.strip()[:300], flush=True)
+        return 2
     adb("shell", "am", "force-stop", PKG, timeout=15)
     adb("shell", "pm", "clear", PKG, timeout=30)
     adb("shell", "am", "start", "-W", "-n", ACT, timeout=60)
@@ -105,7 +108,6 @@ def main():
     for m in re.finditer(r"OREKI_[A-Z_]+", logcat):
         markers[m.group(0)] = markers.get(m.group(0), 0) + 1
     crashes = [ln for ln in logcat.splitlines() if "FATAL EXCEPTION" in ln or "NoSuchFieldError" in ln or "NoSuchMethodError" in ln]
-    saves = [ln for ln in chr(10).join(s["hashes"] for s in samples).splitlines() if ln.strip()]
     verdict = {
         "tag": args.tag, "apk": args.apk, "reached_game": ingame,
         "samples_with_player": sum(1 for s in samples if any("player.json" in l for l in s["hashes"])),
