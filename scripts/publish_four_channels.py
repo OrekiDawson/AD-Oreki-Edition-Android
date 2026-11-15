@@ -128,8 +128,22 @@ def run(cmd: list[str], *, check: bool = False, timeout: int = 3600) -> subproce
     return result
 
 
-RATE_LIMIT_BACKOFF_SECONDS = (15, 45)  # 探针：3 次尝试
-RATE_LIMIT_UPLOAD_BACKOFF_SECONDS = (15, 45, 60)  # 上传：再给一次 60s 配额恢复窗口
+RATE_LIMIT_PROBE_BACKOFF_SECONDS = (15, 45, 90, 120, 180)  # 探针：最多 6 次尝试，约 7.5 分钟
+RATE_LIMIT_UPLOAD_BACKOFF_SECONDS = (15, 45, 90, 120, 180)  # 上传：最多 6 次尝试，耗尽即 FAIL
+AUTH_ERROR_MARKERS = ("401", "invalid_grant", "insufficient permissions", "insufficientPermissions",
+                      "permission denied", "forbidden", "Unauthorized", "authentication")
+
+
+class RateLimitExhausted(RuntimeError):
+    """有限退避后仍被共享 client_id 限流（外部原因，调用方决定 WARN 或 FAIL）。"""
+
+
+def _is_auth_error(exc: BaseException) -> bool:
+    """认证/权限错误（非限流）：必须立即失败，绝不重试掩盖。"""
+    if _is_rate_limit_error(exc):
+        return False
+    text = str(exc)
+    return any(marker in text for marker in AUTH_ERROR_MARKERS)
 SLEEP = time.sleep
 
 
@@ -145,7 +159,7 @@ def run_with_rate_limit_retry(action, *, label: str, sleeper=None, backoff=None)
     非限流错误立即抛出；限流重试耗尽后抛 RuntimeError，由调用方如实记为外部配额失败。
     """
     sleep = sleeper or SLEEP
-    delays = backoff or RATE_LIMIT_BACKOFF_SECONDS
+    delays = backoff if backoff is not None else RATE_LIMIT_PROBE_BACKOFF_SECONDS
     attempts = len(delays) + 1
     last_error = None
     for attempt in range(1, attempts + 1):
@@ -160,7 +174,7 @@ def run_with_rate_limit_retry(action, *, label: str, sleeper=None, backoff=None)
             if not _is_rate_limit_error(exc):
                 raise
             say(f"{label}: RATE_LIMIT/配额错误（第 {attempt}/{attempts} 次）：{str(exc)[:200]}")
-    raise RuntimeError(
+    raise RateLimitExhausted(
         f"{label}: 共享 client_id 配额限制，退避重试 {attempts} 次后仍失败（外部原因）：{last_error}")
 
 
@@ -590,7 +604,9 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
 
                 try:
                     if channel_name == "gdrive":
-                        run_with_rate_limit_retry(attempt_probe, label=f"{label} write probe")
+                        run_with_rate_limit_retry(
+                            attempt_probe, label=f"{label} write probe",
+                            backoff=RATE_LIMIT_PROBE_BACKOFF_SECONDS)
                     else:
                         attempt_probe()
                     say(f"{label}: verified short-lived remote write/read metadata")
@@ -603,9 +619,13 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
                             say(f"{label}: verified Graph simple-upload probe")
                         except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as graph_exc:
                             failures.append(f"{label}: graph fallback probe failed: {graph_exc}")
-                    elif channel_name == "gdrive" and _is_rate_limit_error(exc):
-                        failures.append(f"{label}: RATE_LIMIT/共享 client_id 配额限制"
-                                        f"（已退避重试 {len(RATE_LIMIT_BACKOFF_SECONDS) + 1} 次）：{str(exc)[:200]}")
+                    elif channel_name == "gdrive" and isinstance(exc, RateLimitExhausted):
+                        # 瞬时限流：探针已做约 7.5 分钟退避，仍限流时只告警并继续；
+                        # 真正的上传路径还会再重试，失败时由发布 job fail-closed。
+                        say(f"{label}: WARN 外部共享 client_id 瞬时限流，探针跳过，继续后续上传校验"
+                            f"（{str(exc)[:200]}）")
+                    elif channel_name == "gdrive" and _is_auth_error(exc):
+                        failures.append(f"{label}: 认证/权限错误（立即失败，不重试）：{str(exc)[:200]}")
                     else:
                         failures.append(f"{label}: write authorization/readback failed: {exc}")
                 finally:
@@ -696,8 +716,12 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, apk:
     if dry_run:
         return
     if channel == "Google Drive":
-        run_with_rate_limit_retry(lambda: run(command, check=True), label="Google Drive 上传",
-                                 backoff=RATE_LIMIT_UPLOAD_BACKOFF_SECONDS)
+        try:
+            run_with_rate_limit_retry(lambda: run(command, check=True),
+                                      label="Google Drive 上传",
+                                      backoff=RATE_LIMIT_UPLOAD_BACKOFF_SECONDS)
+        except RateLimitExhausted as exc:
+            raise RuntimeError(f"共享 client_id 配额限制，上传重试耗尽：{exc}") from exc
     else:
         run(command, check=True)
     # 上传后回读远端大小，确认确实落到了固定文件而不是只拿到客户端成功码。
