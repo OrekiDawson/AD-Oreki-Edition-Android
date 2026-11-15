@@ -43,6 +43,10 @@ jobs:
       # 生成器/三层断言不再进入生产构建；CI 同时防止「Python 生成器回潮」。
       - name: Test build_mod tutorial-asset retirement guard
         run: python3 -m unittest discover -s scripts/tests -p 'test_buildmod_tutorial_retirement.py' -v
+      # R114-02 C5（Issue #52）：AST 死代码退役守卫 —— 死代码必须为空，已退役符号不得复活，
+      # 调用链工具的 bm.<attr> 必须真实存在（删函数漏改调用方即红）。
+      - name: Test build_mod dead-code retirement guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_buildmod_dead_code_retirement.py' -v
       - name: Ensure DeepSeek AI review and failure triage remain disabled
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Verify DeepSeek off-peak billing calendar and time boundaries
