@@ -273,18 +273,38 @@ class ReleasePreflightProbeTests(unittest.TestCase):
         return fake_run, calls
 
     def test_gdrive_rate_limit_retries_then_succeeds(self):
-        fake_run, _ = self._gdrive_fake_run(failures=2)
-        sleeps = []
-        with mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s)):
-            self.assertEqual(self._run(fake_run, channels=["gdrive"]), 0)
-        self.assertEqual(sleeps, [15, 45])
-
-    def test_gdrive_rate_limit_exhausted_fails_closed(self):
         fake_run, _ = self._gdrive_fake_run(failures=3)
         sleeps = []
         with mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s)):
+            self.assertEqual(self._run(fake_run, channels=["gdrive"]), 0)
+        self.assertEqual(sleeps, [15, 45, 90])
+
+    def test_gdrive_rate_limit_exhausted_only_warns_and_continues(self):
+        fake_run, _ = self._gdrive_fake_run(failures=6)
+        sleeps = []
+        messages = []
+        with (mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s)),
+              mock.patch.object(p, "say", side_effect=lambda m: messages.append(m))):
+            self.assertEqual(self._run(fake_run, channels=["gdrive"]), 0)
+        self.assertEqual(sleeps, [15, 45, 90, 120, 180])
+        self.assertTrue(any("WARN" in m and "瞬时限流" in m for m in messages))
+
+    def test_gdrive_auth_error_fails_immediately_without_retry(self):
+        def fake_run(cmd, **kwargs):
+            if cmd[:2] == ["git", "-C"]:
+                return types.SimpleNamespace(stdout="b" * 40, returncode=0)
+            if cmd[:3] == ["gh", "api", "-X"]:
+                return types.SimpleNamespace(stdout="{}", returncode=0)
+            if cmd[:2] == ["rclone", "copyto"] and "gdrive:" in cmd[3]:
+                raise RuntimeError("HTTP error 401 Unauthorized: invalid_grant")
+            if cmd[:2] == ["rclone", "lsjson"]:
+                return types.SimpleNamespace(stdout=json.dumps({"Size": 30}), returncode=0)
+            return types.SimpleNamespace(stdout="{}", returncode=0)
+
+        sleeps = []
+        with mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s)):
             self.assertEqual(self._run(fake_run, channels=["gdrive"]), 2)
-        self.assertEqual(sleeps, [15, 45])
+        self.assertEqual(sleeps, [])
 
 
 class GdriveUploadRetryTests(unittest.TestCase):
@@ -326,11 +346,16 @@ class GdriveUploadRetryTests(unittest.TestCase):
         self.assertIsNone(error)
         self.assertEqual(sleeps, [15])
 
+    def test_gdrive_upload_retries_multiple_rate_limits_then_succeeds(self):
+        error, sleeps, _ = self._publish(failures=3)
+        self.assertIsNone(error)
+        self.assertEqual(sleeps, [15, 45, 90])
+
     def test_gdrive_upload_exhausted_raises_external_quota_error(self):
-        error, sleeps, _ = self._publish(failures=4)
+        error, sleeps, _ = self._publish(failures=6)
         self.assertIsNotNone(error)
-        self.assertIn("RATE_LIMIT", str(error))
-        self.assertEqual(sleeps, [15, 45, 60])
+        self.assertIn("共享 client_id 配额限制", str(error))
+        self.assertEqual(sleeps, [15, 45, 90, 120, 180])
 
     def test_non_rate_limit_upload_error_is_not_retried(self):
         calls = []
