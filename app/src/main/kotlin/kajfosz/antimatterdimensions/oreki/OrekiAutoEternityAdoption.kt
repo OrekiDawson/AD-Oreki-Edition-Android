@@ -107,7 +107,12 @@ internal object OrekiAutoEternityAdoption {
     /**
      * 当前现实序号（稳定字符串）。用于区分「本现实内 MOD 已经开过开关」与「现实刚重置」。
      *
-     * realities 是 BigDouble：用 log10 还原成整数计数（现实次数在实际玩法里远小于 1e15）。
+     * [R114-01 P3] 旧实现用 `round(10^log10)` 还原整数：realities 超过约 1e18 后
+     * Double→Long 饱和成 `Long.MAX_VALUE`，此后 token 恒定不变 ⇒ 每次原版现实复位都会被
+     * 当成「本现实内玩家手动关闭」而停止补回自动永恒开关。
+     * 新实现优先读 BigDouble 的 mantissa()/exponent()：< 1e15 保持旧 token 形状（兼容已落盘的
+     * enabledRealities，避免升级后误判），≥ 1e15 改用稳定十进制规约字符串（永不溢出，且值变化必改 token）。
+     * 读不到 mantissa/exponent 时退化为 log10 的量化字符串（仍不做数值还原，绝不饱和）。
      */
     private fun realityToken(): String {
         val value = GameApi.realitiesValue() ?: return ""
@@ -115,11 +120,50 @@ internal object OrekiAutoEternityAdoption {
         // 导致第 1 次 Reality 复位无法与「本现实内玩家手动关闭」区分。这里先单独判 0。
         val versusZero = GameApi.compareToDouble(value, 0.0) ?: return ""
         if (versusZero <= 0) return "0"
+        val mantissa = numberMember(value, "mantissa")
+        val exponent = numberMember(value, "exponent")
+        if (mantissa != null && exponent != null) {
+            val exp = exponent.toLong()
+            val m = mantissa.toDouble()
+            // < 1e15 时保持旧 token 形状（"2"/"12345"）；该区间整数可被 Double 精确表示，
+            // Math.round 不会饱和，因此与旧行为完全一致（兼容已落盘的 enabledRealities）。
+            if (exp in 0L..14L && m.isFinite()) {
+                val count = Math.round(m * Math.pow(10.0, exp.toDouble()))
+                return if (count < 1L) "1" else count.toString()
+            }
+            // ≥ 1e15：用 mantissa/exponent 规约字符串，保证 realities 继续增长时 token 必变。
+            return "m" + canonicalMantissa(m) + "e" + exp
+        }
+        // fail-closed 退路：读不到 BigDouble 分量时用 log10 的量化字符串（不还原数值，不会饱和）。
         val log10 = GameApi.log10BigDouble(value) ?: return ""
         if (!log10.isFinite()) return "?"
-        // 至少为 1：现实中永不为负，且 log10(1)=0 必须返回 "1" 而不是 "0"。
-        val count = Math.round(Math.pow(10.0, log10))
-        return if (count < 1L) "1" else count.toString()
+        return "L" + Math.round(log10 * 1_000_000.0)
+    }
+
+    /** 读对象的无参 Number 成员（BigDouble.mantissa()/exponent()）；读不到返回 null（fail-closed）。 */
+    private fun numberMember(value: Any, name: String): Number? = try {
+        var k: Class<*>? = value.javaClass
+        var found: java.lang.reflect.Method? = null
+        while (k != null && found == null) {
+            for (m in k.declaredMethods) {
+                if (m.name == name && m.parameterCount == 0) {
+                    try { m.isAccessible = true } catch (_: Throwable) {}
+                    found = m
+                    break
+                }
+            }
+            k = k.superclass
+        }
+        found?.invoke(value) as? Number
+    } catch (_: Throwable) {
+        null
+    }
+
+    /** Double 的稳定十进制规约：去掉尾随 ".0"，NaN/Inf 不应出现（出现时返回 "?"）。 */
+    private fun canonicalMantissa(m: Double): String {
+        if (!m.isFinite()) return "?"
+        val text = java.lang.Double.toString(m)
+        return if (text.endsWith(".0")) text.substring(0, text.length - 2) else text
     }
 
     /**
