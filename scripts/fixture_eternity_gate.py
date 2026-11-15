@@ -74,7 +74,7 @@ def main() -> int:
     check("EP 门槛乘数提取成功", m_mult is not None)
     if m_mult is not None:
         check("EP 门槛乘数判定在 Kotlin（OrekiEternityRules 转发）", True, "Kotlin-only")
-        rules = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/OrekiEternityRules.kt").read_text(encoding="utf-8")
+        rules = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiEternityRules.kt").read_text(encoding="utf-8")
         check("Kotlin 倍率 = 1（双端统一）", "ETERNITY_SETTLEMENT_MULTIPLIER: Int = 1" in rules, "×1")
         check("Kotlin 倍率不得为 10（会把永恒次数/里程碑卡死）", "Int = 10" not in rules, "×1")
         check("Smali 不再出现硬编码倍率 0xa", "const/4 v2, 0xa" not in body, "无硬编码")
@@ -90,7 +90,7 @@ def main() -> int:
     #   · 「不能依赖 p()」这一条仍然成立：p() 含「已解锁」语义，一旦解锁就永久放开，
     #     坍缩会把峰值清零。R82 用的是 `idUnlocked(id1)` 作**释放条件**（解锁后不再 hold），
     #     与「用 p() 当阈值」是两件事，这里改为断言真实门槛来源。
-    stage = (ROOT / "scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki"
+    stage = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
              / "OrekiStageAuto.kt")
     st = stage.read_text(encoding="utf-8")
     # 取 computeHoldCrunch() 的函数体（Kotlin 用花括号，不能靠 .end method）

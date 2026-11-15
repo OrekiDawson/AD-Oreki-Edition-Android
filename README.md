@@ -61,7 +61,8 @@
 
 | 路径 | 当前用途 |
 |---|---|
-| `scripts/payload/kotlin/` | AGP 与旧链共用的 Kotlin 业务/适配源码输入 |
+| `app/src/main/kotlin/` | 生产 Kotlin 业务/适配源码（标准 Android 布局；AGP 与旧链共用，R113-01 迁入） |
+| `scripts/payload/smali/` | 旧链 smali 业务补丁输入（随 `build_mod.py` 退役） |
 | `scripts/payload/assets/` | 教程资产源（AGP 经去重暂存打包） |
 | `scripts/payload/res/` | 资源类生成输入（如更新日志译文） |
 | `scripts/payload/lib/` | 旧链依赖库输入 |

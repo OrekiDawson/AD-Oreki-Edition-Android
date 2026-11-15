@@ -67,8 +67,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // [R113-01] 生产 Kotlin 源码统一到标准 Android 布局 app/src/main/kotlin（Issue #61 阶段一）。
+    // 旧 scripts/payload/kotlin 由 git mv 迁入；此处是唯一源目录，避免双源重复编译同名类。
     sourceSets["main"].kotlin.srcDirs(
-        File(repoRoot, "scripts/payload/kotlin"),
+        File(repoRoot, "app/src/main/kotlin"),
         File(repoRoot, "build/kt/generated"),
     )
 

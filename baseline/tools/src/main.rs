@@ -526,7 +526,10 @@ fn fingerprint_part(mode: &str, digest: String, files: usize, elapsed: u128) -> 
 
 fn fingerprint_value(root: &Path, base: &Path, release_out: &str, tutorial: &str) -> Result<Json, String> {
     let content_targets = [
-        ("payload_kotlin", root.join("scripts/payload/kotlin")),
+        // R113-01（Issue #61 S2-6）：生产 Kotlin 源码已迁到 app/src/main/kotlin。
+        // 指纹标签沿用 payload_kotlin（消费端按 label 读），路径必须指向真实源码目录，
+        // 否则 Kotlin-only 改动不会让 assembleRelease 指纹失效 → 旧 APK 被判定 UP-TO-DATE。
+        ("payload_kotlin", root.join("app/src/main/kotlin")),
         ("payload_smali", root.join("scripts/payload/smali")),
         ("payload_assets", root.join("scripts/payload/assets")),
         ("payload_res", root.join("scripts/payload/res")),
