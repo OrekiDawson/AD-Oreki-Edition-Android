@@ -10,12 +10,13 @@ from verify_completion_evidence import check_completion
 ANDROID = "a" * 40
 WEB = "b" * 40
 ACCEPT = "c" * 40
+EVID = "e" * 40
 
 def example():
-    return {"completion_runs": [
+    return {"evidence_commit_sha": EVID, "completion_runs": [
         {
             "platform": platform, "source_sha": sha,
-            "evidence_commit_sha": ACCEPT if platform == "android" else WEB,
+            "evidence_commit_sha": EVID if platform == "android" else WEB,
             "started_at": "2026-11-13T00:00:00+08:00",
             "finished_at": "2026-11-13T02:59:59+08:00",
             "elapsed_seconds": 10799, "fresh_save": True, "game_end": True,
@@ -67,10 +68,20 @@ class CompletionGateTests(unittest.TestCase):
         report["completion_runs"][1]["source_sha"] = "e" * 40
         self.assertTrue(any("source_sha" in x for x in verify(report)))
 
-    def test_unpinned_android_commit_fails(self):
+    def test_android_commit_must_match_declared_evidence_commit(self):
         report = example()
         report["completion_runs"][0]["evidence_commit_sha"] = ANDROID
-        self.assertTrue(any("Android evidence commit" in x for x in verify(report)))
+        self.assertTrue(any("declared evidence_commit_sha" in x for x in verify(report)))
+
+    def test_missing_declared_evidence_commit_fails(self):
+        report = example()
+        report.pop("evidence_commit_sha")
+        self.assertTrue(any("evidence_commit_sha" in x for x in verify(report)))
+
+    def test_malformed_declared_evidence_commit_fails(self):
+        report = example()
+        report["evidence_commit_sha"] = "not-a-sha"
+        self.assertTrue(any("evidence_commit_sha" in x for x in verify(report)))
 
     def test_relative_path_traversal_fails(self):
         report = example()

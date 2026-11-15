@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from verify_release_acceptance import AcceptanceError, REQUIRED_CHECKS, check_report
 
 SHA, SOURCE, WEB, ACCEPT = "a" * 64, "b" * 40, "c" * 40, "d" * 40
+EVID = "e" * 40
 # 发布版本字段从受审查的 policy 派生，避免 policy bump 后 fixture 与真源漂移。
 POLICY = json.loads(
     (Path(__file__).resolve().parents[2] / "scripts" / "release-gate-policy.json").read_text("utf-8"))
@@ -17,6 +18,7 @@ POLICY = json.loads(
 def valid():
     return {
         "schema": 1, "verdict": "PASS", "apk_sha256": SHA, "source_sha": SOURCE,
+        "evidence_commit_sha": EVID,
         "candidate_run_id": 100, "verification_run_id": 101,
         "package": POLICY["package"],
         "versionName": POLICY["versionName"], "versionCode": POLICY["versionCode"],
@@ -26,7 +28,7 @@ def valid():
         "completion_runs": [
             {
                 "platform": name, "source_sha": sha,
-                "evidence_commit_sha": ACCEPT if name == "android" else WEB,
+                "evidence_commit_sha": EVID if name == "android" else WEB,
                 "started_at": "2026-11-13T00:00:00+08:00",
                 "finished_at": "2026-11-13T02:30:00+08:00",
                 "elapsed_seconds": 9000,
@@ -54,6 +56,18 @@ class StableReleaseGateTests(unittest.TestCase):
         report = valid()
         for key in ("package", "versionName", "versionCode", "certificate_sha256"):
             self.assertEqual(report[key], POLICY[key], key)
+
+    def test_missing_evidence_commit_rejected(self):
+        report = valid()
+        report.pop("evidence_commit_sha")
+        with self.assertRaisesRegex(AcceptanceError, "evidence_commit_sha"):
+            verify(report)
+
+    def test_android_evidence_commit_must_match_declared(self):
+        report = valid()
+        report["completion_runs"][0]["evidence_commit_sha"] = ACCEPT
+        with self.assertRaisesRegex(AcceptanceError, "declared evidence_commit_sha"):
+            verify(report)
 
     def test_unrelated_pass_count_never_substitutes_mandatory_check(self):
         r = valid()
