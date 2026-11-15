@@ -378,3 +378,71 @@ C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tr
 - **PR 堆叠**：C4c PR 以 `r114-02/buildmod-c4b` 为 base（#129 内容）；Lead 合并 #129 后需把 C4c PR base 改为 main 再合并。
 - 风险同 §8.4：candidate 消费 pinned full-game tree，若 bundle modtree 落后于 source SHA，payload 契约会 FAIL（有意 fail-closed）。
 
+## 10. 发布后路线图：build_mod 剩余依赖清单（R114-02 C4 系列收口）
+
+> 编号说明：§8（C4b）与 §9（C4c）由PR #129/#131 引入（均已合并）；本节固定为 §10，避免合并后重号。
+
+> 本节为**发布窗口冻结期**的状态汇总与后续路线图：不修改构建链、不触发构建。统计口径：**C4b/C4c 合并后的目标状态**（`r114-02/buildmod-c4c`）。
+
+### 10.1 C4 系列状态与合并顺序
+
+| 闭包 | 内容 | 状态 | 证据 |
+|---|---|---|---|
+| C1 教程资产 | 生成迁出生产构建；Gradle verify + CI 守卫 | **已合并**（PR #121 → `95c61c83`） | §5 |
+| C5 死代码 | AST 可达性纯删除（`smali_file`/`patch_frame_cadence` 等） | **已合并**（PR #124 → `959661ff`） | §6 |
+| C4 源码级 verify | 3 条源码级校验迁 `verify_build_contracts.py` | **已合并**（PR #127 → `f3b7b554`） | §7 |
+| C4b 树级 verify | 6 条（2 源码级 + 4 树级）迁 candidate 独立 step | **已合并**（PR #129 -> 56e4363e） | 分支 `r114-02/buildmod-c4b` |
+| C4c payload | `verify_payload` 693 行迁树级校验 + touched 差异重建 | **已合并**（PR #131 -> 5107480b） | 分支 `r114-02/buildmod-c4c` |
+
+- **合并顺序**：发布窗口内 #129、#131 均冻结（二者改 build_mod/candidate 链，而候选 `a12b5cd6` 已构建）；发布完成后 **先 #129（C4b）→ 再 #131（C4c）**（均已完成）。
+- `#131` base 保持 `main`（为让 Required Checks 触发）；合并 #129 后若 #131 diff 仍包含 C4b 内容，按 `origin/main` 重建 C4c 分支（内容等价，仅提交历史不同）。
+- 合并后 `build_mod.py` 目标状态：**5,644 行 / 81 个顶层函数 + 2 个类**（当前 main 为 7,219 / 96）；main() 生产调用 43 个。
+
+### 10.2 剩余依赖清单（合并 #129+#131 后）
+
+**文件总量**：`scripts/build_mod.py` 5,644 行；`scripts/oreki_dark_theme.py` 877 行（被 build_mod import）。
+
+| 分组 | 代表函数 | 行数 | 生产消费端 / 阻塞 |
+|---|---|---|---|
+| 基线/补丁树准备 | `prepare` `merge_split` `patch_resources` `patch_manifest` | 213 | 根 `build.gradle:assembleRelease`；**AGP 原生资源/Manifest/Source Set**（Issue #61） |
+| 教程入口/资产 | `stage_tutorial_assets` `patch_tutorial_entry` | 211 | 同上；入口注册需 AGP manifest/Kotlin |
+| 更新日志 | `patch_changelog_zh` | 61 | AGP 已有等价 Gradle 任务（C2）；待删 build_mod 段 |
+| 字节码/文本补丁主链 | `patch_smali` | 374 | **核心阻塞**：需 Rust/Kotlin 字节码变换器（Issue #25） |
+| 数值缩放 | 13 个 `patch_*` | 688 | 原版常量变换；目标为字节码常量变换器或 Kotlin 重建 |
+| 挑战/结算/钩子 | 10 个 `patch_*` | 1,134 | 原版方法体钩子 → ABI hook 变换器（Issue #25） |
+| 自动购买器/调度 | 11 个 `patch_*` | 715 | 同上（调度/模式钩子） |
+| 诊断（env 门控） | `patch_r74_temp_diag` `patch_debug_trace` | 181 | 结论已固化，可随诊断链退役（C5b） |
+| UI 深色/中文化 | `oreki_dark_theme.py`（apply/verify 8 守卫） | 877 | 迁 AGP 资源 overlay / Kotlin Theme（C3）；需与 agp-native 协调 |
+
+**生产消费端（真实）**：
+
+1. **`work/mod` 补丁树生产者（release-critical）**：`scripts/ci/build_bundle_r114.sh` 第 [3/6] 步 `cp -a "$AD/work/mod/." "$STAGE/modtree/"` → 私有 bundle `modtree` → candidate 的 `work/mod`（AGP 打包输入）。树的来源是本地 `./gradlew assembleRelease`（→ build_mod）。**退役 build_mod 必须同时解决「bundle modtree 由谁生产」**。
+2. **根 `build.gradle:assembleRelease`（legacy 本地链）**：`python3 scripts/build_mod.py`（`OREKI_GRADLE_ASSEMBLY=1`）；其产物 `build/gradle-stage/unsigned.apk` 供 `scripts/agp/build_fullgame_sig.sh --staged-apk` 与本地 AGP 完整游戏构建使用。
+3. **AGP 完整游戏输入**：`agp/app/build.gradle.kts` `-PorekiDecodedTree=work/mod`（manifest/res/assets/lib/smali 输入）；线上 candidate 用 pinned bundle，本地用 build_mod 产物。
+4. **验证/工具文本依赖（非运行时）**：`scripts/verify_patch_contract.py` 读 `build_mod.main()` 文本；`probe_patches.py`/`r80_patch_run.py` 加载 build_mod 执行补丁探测；`test_r80_alias_rewrite.py` 调 `rewrite_alias/resolve_alias_ref/_class_file_by_desc`；`hook_ledger_build.py`/deobf 工具引用历史行号锚点（文档证据，不改写）；`fixture_crunch_mode_label.py` 校验 build_mod 注入块文本。删除 build_mod 前须先迁走/退役这些消费点。
+
+### 10.3 建议闭包顺序（R114-03+，每项独立 PR + Required Checks）
+
+| 序 | 闭包 | 内容 | 预计规模 | 阻塞/前置 |
+|---|---|---|---|---|
+| D1 | **bundle modtree 官方化** | 让 pinned bundle 的 `modtree` 由「干净工作区 AGP 原生构建」产出；或改为 candidate 内由 AGP 直接生成，不再消费本地树 | 中 | Issue #25/#61 主线；需 CI/Lead 协调 bundle 发布流程 |
+| D2 | **字节码变换器** | `patch_smali`（374 行文本注入/别名重写）→ Rust/Kotlin JAR 变换器（常量/方法体钩子/类修复） | 大 | 核心；需 ABI 映射与 AVD 验证 |
+| D3 | **数值/机制批** | 688 + 1,134 + 715 行 `patch_*` 按 Kotlin 已接管/常量/钩子分类迁移；优先已由 Kotlin 决策的项 | 大（可分批） | D2 |
+| D4 | **资源/Manifest/教程入口** | 213 + 211 行 → AGP Source Set / manifest DSL / Kotlin 入口（C1 已给出模式） | 中 | agp-native 协调 Gradle 文件 |
+| D5 | **UI 深色（C3）+ 诊断链（C5b）** | `oreki_dark_theme.py` 877 行 → AGP 资源 overlay；诊断链退役 | 中 | D4 |
+| D6 | **物理删除 + CI 守卫** | 删除 `scripts/build_mod.py`/`oreki_dark_theme.py`；CI 增加「禁止正式构建重新引用旧脚本」守卫（grep workflow/build.gradle）；`verify_patch_contract.py` 去掉 build_mod 文本依赖 | 小 | D1–D5 |
+
+### 10.4 最终删除条件（Issue #52 / AGENTS §14 复述，保持 fail-closed）
+
+1. 干净工作区、**无 build_mod** 的 AGP 完整构建产出候选 APK；
+2. 真实 APK 安装/冷启/Tick/存档保存恢复/关键阶段与自动购买器/GUI 验收 PASS；
+3. 原包名/签名/versionCode/覆盖升级兼容 PASS；
+4. Candidate/Verify/Release 门禁与四渠道交付不依赖旧链；
+5. bundle modtree 的产出链不再经过 build_mod；
+6. CI 有守卫阻止重新引用旧脚本/旧链；历史报告文字引用保留不改写。
+
+### 10.5 现阶段的临时纪律
+
+- 发布窗口内**不动** #129/#131、不改 candidate 链、不触发正式构建；
+- 新闭包（如 D1–D6）必须以「不影响发布」为前提，独立分支 + PR + Required Checks；
+- build_mod 剩余依赖未清零前，不得删除或旁路任何仍在生产消费的函数/脚本。
