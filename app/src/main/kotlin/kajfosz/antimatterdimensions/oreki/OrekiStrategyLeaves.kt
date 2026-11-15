@@ -55,6 +55,20 @@ object OrekiStrategyLeaves {
                 // 阶段驱动整体错位。改用与 OrekiStageAuto.eternitiesZero() 同一套
                 // 真实判据（永恒点数 / BigEternities / 永恒升级位）覆盖 smali 结果。
                 "progress.eternityUnlocked" -> bool(eternityUnlocked())
+                // [R113-01] 7 个 celestial.* 叶子此前完全未接线（实测 unknownLeaf=8 /
+                // degraded=1，策略在首次 reality 后不再前进、OREKI_GOAL 卡在 stage=13）。
+                // 这里用玩家存档中已存在的位域/计数器做保守判据；读不到时返回 false
+                // （比 NaN 更能让策略继续推进；明确注释保留可追溯性）。
+                "celestial.teresaUnlocked" -> bool(teresaUnlocked())
+                "celestial.effarigUnlocked" -> bool(effarigUnlocked())
+                "celestial.enslavedUnlocked" -> bool(enslavedUnlocked())
+                "celestial.vUnlocked" -> bool(vUnlocked())
+                "celestial.raUnlocked" -> bool(raUnlocked())
+                "celestial.laitelaUnlocked" -> bool(laitelaUnlocked())
+                "celestial.pelleUnlocked" -> bool(pelleUnlocked())
+                // automator.unlocked：Web 判据 = AutomatorPoints 足够或 forceUnlock。
+                // 这里只读可观测的 forceUnlock（读不到即 false），避免 NaN 触发 degraded。
+                "automator.unlocked" -> bool(automatorUnlocked())
                 else -> if (name in handledBySmali) Double.NaN else unwired(name)
             }
         } catch (error: Throwable) {
@@ -69,6 +83,56 @@ object OrekiStrategyLeaves {
         }
         return Double.NaN
     }
+
+
+    // ===== [R113-01] celestial.* 叶子（位域/计数判据；读不到时 false）=====
+
+    private fun playerField(name: String): Any? {
+        val player = playerInstance() ?: return null
+        return field(player, name)
+    }
+
+    private fun celestial(name: String): Any? {
+        val celestials = playerField("celestials") ?: return null
+        return field(celestials, name)
+    }
+
+    private fun celestialUnlockBits(name: String): Int {
+        val obj = celestial(name) ?: return 0
+        return (field(obj, "unlockBits") as? Number)?.toInt() ?: 0
+    }
+
+    // 特蕾莎解锁：unlockBits 至少买过一个特蕾莎升级（原版页签判据是成就 147，
+    // 3.21 真机存档中该成就位与 unlockBits 组合不可靠，此处以可观测的解锁位为准）。
+    private fun teresaUnlocked(): Boolean = celestialUnlockBits("teresa") != 0
+
+    // 鹿颈长页签 = TeresaUnlocks.effarig（teresa.unlockBits bit3，见
+    // web core/secret-formula/celestials/teresa.js:15-20）
+    private fun effarigUnlocked(): Boolean = (celestialUnlockBits("teresa") and (1 shl 3)) != 0
+
+    // 无名氏页签 = EffarigUnlock.eternity（effarig.unlockBits id=5）
+    private fun enslavedUnlocked(): Boolean = (celestialUnlockBits("effarig") and (1 shl 5)) != 0
+
+    // 薇页签 = Achievement(151)。快速判据：鹿颈长 reality 阶段位（id=6）已买 ⇒ 必然已过 151。
+    private fun vUnlocked(): Boolean = (celestialUnlockBits("effarig") and (1 shl 6)) != 0
+
+    // 太阳神页签 = VUnlocks.raUnlock（v.unlockBits id=6）
+    private fun raUnlocked(): Boolean = (celestialUnlockBits("v") and (1 shl 6)) != 0
+
+    private fun automatorUnlocked(): Boolean {
+        val reality = playerField("reality") ?: return false
+        val automator = field(reality, "automator") ?: return false
+        return field(automator, "forceUnlock") == true
+    }
+
+    private fun imaginaryUpgradeBits(): Int {
+        val reality = playerField("reality") ?: return 0
+        return (field(reality, "imaginaryUpgradeBits") as? Number)?.toInt() ?: 0
+    }
+
+    // 莱特拉 = ImaginaryUpgrade(15)；佩勒 = ImaginaryUpgrade(25)
+    private fun laitelaUnlocked(): Boolean = (imaginaryUpgradeBits() and (1 shl 15)) != 0
+    private fun pelleUnlocked(): Boolean = (imaginaryUpgradeBits() and (1 shl 25)) != 0
 
     private fun bool(value: Boolean): Double = if (value) 1.0 else 0.0
 

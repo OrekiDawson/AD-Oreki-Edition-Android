@@ -1,0 +1,10 @@
+stage=16 打破无限前阶段 goal=break-infinity unknownLeaf=0 degraded=0
+stage=13 无限维度与永恒前置 goal=unlock-eternity unknownLeaf=0 degraded=0
+stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0
+stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0
+stage=12 第一次现实 goal=start-reality-loop unknownLeaf=0 degraded=0
+stage=12 第一次现实 goal=start-reality-loop unknownLeaf=0 degraded=0
+stage=12 第一次现实 goal=start-reality-loop unknownLeaf=0 degraded=0
+stage=12 第一次现实 goal=start-reality-loop unknownLeaf=0 degraded=0
+stage=12 第一次现实 goal=start-reality-loop unknownLeaf=0 degraded=0
+stage=13 无限维度与永恒前置 goal=unlock-eternity unknownLeaf=0 degraded=0
