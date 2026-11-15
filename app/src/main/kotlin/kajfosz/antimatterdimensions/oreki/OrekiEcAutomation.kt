@@ -155,6 +155,79 @@ object OrekiEcAutomation {
     @Volatile private var lastEcRespecKey: Int = -1
     @Volatile private var lastEcRespecAt: Long = 0L
 
+    // ------------------------------------- [R114-01 P1 EC-TREE] 备树期状态机
+    //
+    // 背景（reports/R114-01/agents/econ-analyst-credits-blocker.md）：EC10 需要时间研究 181 的
+    // 完整传递前置链 181←171←161/162←151←141/142/143←131←121←111←101←91←81←71←61（共 18 项）；
+    // 而**每次真实永恒都会清空时间研究树**，EC 自动化又一拍只买 1 件 ⇒ 深层链永远买不齐
+    // ⇒ EC10/11/12 永不完成 ⇒ DS1 不可买 ⇒ IU25/Pelle/credits 结构性不可达。
+    //
+    // 本段只做三件事（全部走原版入口，不写存档字段）：
+    //   ① 备树期暂停「真实永恒」：Adoption 托管层提供窄接口把原版自动永恒开关置 false，
+    //      并把现实压住（OrekiRealityPacing.setHold("ec-tree")）；
+    //   ② 备树期每拍有界批量购买（最多 EC_TREE_BATCH_MAX 件，仍走原版 D()）；
+    //   ③ 备树开始时按目标 EC 调一次原版 respecTimeStudies（清旧列/旧分叉再重建）。
+    // 硬上限 + 停滞释放：任何情况下单次备树 ≤ EC_TREE_MAX_MS，连续 EC_TREE_STALL_MS 无进展即释放，
+    // 释放后立即恢复原逻辑（开关/现实门禁由 Adoption + OrekiRealityPacing 还原），绝不死锁整局。
+    private const val EC_TREE_FIRST_TARGET = 10      // 只对 EC10/11/12 备树（1..9 的短链保持原状）
+    private const val EC_TREE_MAX_MS = 90_000L       // 单次备树硬上限
+    private const val EC_TREE_STALL_MS = 20_000L     // 连续无进展即释放
+    private const val EC_TREE_RESTART_COOLDOWN_MS = 20_000L
+    private const val EC_TREE_RESPEC_MIN_INTERVAL_MS = 120_000L
+    private const val EC_TREE_BATCH_MAX = 12         // 每拍最多真实购买件数（仅备树期）
+
+    @Volatile private var treePrepStartedAt = 0L
+    @Volatile private var treePrepLastProgressAt = 0L
+    @Volatile private var treePrepEndedAt = 0L
+    @Volatile private var treePrepLastRespecAt = 0L
+    @Volatile private var treePrepTarget = 0
+    @Volatile private var treePrepStarts = 0
+    @Volatile private var treePrepBuys = 0
+
+    /** [R114-01 P1 EC-TREE] 只读：当前是否处于备树期（门禁/诊断用）。 */
+    @JvmStatic
+    fun isTreePrepActive(): Boolean = treePrepStartedAt != 0L
+
+    /**
+     * [R114-01 P1 EC-TREE] DS1（第 1 个膨胀研究）需求分项诊断，只读。
+     *
+     * DS1 的原版判据（web 冻结源 `dilation-time-studies.js:6-18`）由三组条件组成：
+     *   ① TT 上限 ≥ 12900（用 max 而不是当前余额）；
+     *   ② EC11 与 EC12 各自完成满 5 次；
+     *   ③ 231/232/233/234 中至少买过一个。
+     * 本函数把三组各自展开，供 `OREKI_DIL_STUDIES` 的 WAIT 行定位「req=false 到底缺哪一项」。
+     * 限频由调用方负责；任何反射失败只返回占位符，不影响购买语义。
+     */
+    @JvmStatic
+    fun ds1DiagText(): String {
+        return try {
+            val sb = StringBuilder()
+            sb.append("ttMax=").append(Abi.theoremMax())
+            sb.append(" ec11=").append(ecFullText(11))
+            sb.append(" ec12=").append(ecFullText(12))
+            sb.append(" ts23=")
+            for (id in 231..234) {
+                val study = Abi.ts(id)
+                sb.append(id).append(':').append(if (study == null) "?" else Abi.tsBought(study).toString())
+                if (id < 234) sb.append(',')
+            }
+            sb.toString()
+        } catch (t: Throwable) {
+            "diag-failed=" + t
+        }
+    }
+
+    private fun ecFullText(id: Int): String {
+        return try {
+            val challenge = Abi.challenge(id) ?: return "?"
+            val comps = Abi.completions(challenge) ?: return "?"
+            val max = Abi.maxCompletions(challenge) ?: return "?"
+            if (max > 0 && comps >= max) "true" else "false(" + comps + "/" + max + ")"
+        } catch (_: Throwable) {
+            "?"
+        }
+    }
+
     // ------------------------------------------------------------ 对外唯一入口
 
     /**
@@ -180,14 +253,23 @@ object OrekiEcAutomation {
         // **没有**该门禁 ⇒ 玩家手动关闭自动永恒后仍可能被这条链真实结算（违反 R101/§14 的用户意愿优先）。
         // 这里在业务入口加同一道判据（纵深防御，不依赖调用方）：只在「进入/购买会真实结算」的窗口阻止，
         // 其余时段（开关开启、或 canEternity=false 时进入不会结算）照常推进 EC，不改变正常链路。
-        if (!OrekiAutoEternityGate.challengeAutoStartAllowed()) {
-            OrekiAutoEternityGate.logChallengeBlocked()
-            return false
-        }
+        // [R114-01 P1 EC-TREE] 备树判定必须先于门禁：备树期 MOD 主动暂停了原版自动永恒开关，
+        // 若仍按 challengeAutoStartAllowed()（内含 autoEternitySwitchOn()）判，会把 MOD 自己的暂停
+        // 当成「玩家关闭」而让 EC 自动化整段停摆（本修复要解除的死锁之一）。
+        // 顺序：先算 unlocked/target/study → 决定「备树 or 正常门禁」→ 再走原有阶段保护。
         val unlocked = Abi.unlocked()
         if (unlocked == null) {
             note("state-unreadable")
             return false
+        }
+        val target0 = nextTargetId()
+        val study0 = if (target0 == 0) null else Abi.study(target0)
+        val prepActive = updateTreePrep(target0, study0)
+        if (!prepActive) {
+            if (!OrekiAutoEternityGate.challengeAutoStartAllowed()) {
+                OrekiAutoEternityGate.logChallengeBlocked()
+                return false
+            }
         }
         // [R97 P0 阶段保护] 永恒挑战只可能在打破无限之后存在。
         // 手机包真机出现过「首次无限、Break 未完成」就被推进后期内容的情况；
@@ -209,18 +291,39 @@ object OrekiEcAutomation {
         // Web 冻结上游同源：oreki-eternity-automation.js:665-687（EC 满级 → respecTimeStudies）。
         if (respecIfCurrentEcMaxed(unlocked)) return true
 
-        val target = nextTargetId()
+        val target = target0
         if (target == 0) {
             note("all-maxed")
+            endTreePrep("all-maxed")
             return false
         }
-        val study = Abi.study(target)
+        val study = study0
         if (study == null) {
             note("study-unresolved id=" + target)
+            endTreePrep("study-unresolved")
             return false
         }
 
-        return if (unlocked == target) start(study, target) else settle(study, target, unlocked)
+        if (unlocked == target) {
+            val entered = start(study, target)
+            if (entered) endTreePrep("entered")
+            return entered
+        }
+        var progressed = settle(study, target, unlocked)
+        if (progressed) markTreePrepProgress()
+        // [R114-01 P1 EC-TREE] 备树期有界批量：单拍最多真实购买 EC_TREE_BATCH_MAX 件
+        // （每条仍走原版 D()/a()，真扣 TT；非备树期保持原「一拍一件」不变）。
+        if (progressed && isTreePrepActive()) {
+            var extra = 1
+            while (extra < EC_TREE_BATCH_MAX) {
+                if (Abi.prereqOk(study) == true) break
+                val again = settle(study, target, Abi.unlocked() ?: unlocked)
+                if (!again) break
+                extra++
+                markTreePrepProgress()
+            }
+        }
+        return progressed
     }
 
 
@@ -252,6 +355,101 @@ object OrekiEcAutomation {
             " ret=" + ok + " unlockedAfter=" + Abi.unlocked() +
             " tt=" + Abi.theorem())
         return true
+    }
+
+    // ------------------------------------------- [R114-01 P1 EC-TREE] 备树状态机实现
+
+    /**
+     * 每拍判定/推进「备树期」。返回 true = 本拍处于备树期（调用方应跳过 challengeAutoStartAllowed 门禁，
+     * 因为备树期开关是 MOD 主动暂停的，不是玩家关闭）。
+     *
+     * 进入条件（全部满足）：模块总开关/已 Break/非 Doomed；目标 EC ∈ [10..12] 且本关尚未进入（current != target）。
+     * 退出条件（任一）：已进入目标 EC / 目标变化 / 超过硬上限 / 连续无进展 / 异常。
+     */
+    private fun updateTreePrep(target: Int, study: Any?): Boolean {
+        return try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            val active = isTreePrepActive()
+            val wanted = OrekiAutomationScheduler.isEnabled() && !GameApi.isDoomed() &&
+                GameApi.isBroken() && target in EC_TREE_FIRST_TARGET..EC_COUNT &&
+                study != null && Abi.current() != target
+            if (!wanted) {
+                if (active) endTreePrep(if (target == 0) "all-maxed" else "not-needed")
+                return false
+            }
+            if (!active) {
+                if (now - treePrepEndedAt < EC_TREE_RESTART_COOLDOWN_MS) return false
+                treePrepStartedAt = now
+                treePrepLastProgressAt = now
+                treePrepTarget = target
+                treePrepStarts++
+                // ① 压住现实：备树期不能让 Reality 结算清空 EC/时间研究树。
+                OrekiRealityPacing.setHold(true, "ec-tree")
+                // ② 暂停真实永恒（窄接口；未接管/玩家已关闭时返回 false，此时 fail-open 仍继续备树，
+                //    只在日志里记录「暂停未生效，备树可能被永恒打断」）。
+                val paused = OrekiAutoEternityAdoption.beginEternityPauseForEcTree()
+                // ③ 按目标 EC 重铺：清旧列/旧分叉（120s 内不重复 respec，避免把已铺进度反复清掉）。
+                val respec = if (now - treePrepLastRespecAt >= EC_TREE_RESPEC_MIN_INTERVAL_MS) {
+                    treePrepLastRespecAt = now
+                    Abi.respecTimeStudies()
+                } else {
+                    null
+                }
+                note("TREEPREP start target=" + target + " paused=" + paused +
+                    " respec=" + respec + " tt=" + Abi.theorem() +
+                    " k=" + Abi.tsPrereqs(study))
+                Log.i(TAG, "treeprep start target=" + target + " paused=" + paused +
+                    " respec=" + respec + " tt=" + Abi.theorem())
+                return true
+            }
+            // 备树进行中：重申现实压住（Laitela 可能覆盖 reason，但两者都希望压住现实）。
+            OrekiRealityPacing.setHold(true, "ec-tree")
+            if (target != treePrepTarget) {
+                endTreePrep("target-changed")
+                return false
+            }
+            if (now - treePrepStartedAt >= EC_TREE_MAX_MS) {
+                endTreePrep("timeout")
+                return false
+            }
+            if (now - treePrepLastProgressAt >= EC_TREE_STALL_MS) {
+                endTreePrep("stall")
+                return false
+            }
+            true
+        } catch (t: Throwable) {
+            endTreePrep("exception")
+            Log.i(TAG, "treeprep update failed: " + t)
+            false
+        }
+    }
+
+    /** 备树期进展标记（每真实买到 1 件或进入 EC 时调用）。 */
+    private fun markTreePrepProgress() {
+        treePrepLastProgressAt = android.os.SystemClock.elapsedRealtime()
+        treePrepBuys++
+    }
+
+    /** 结束备树：恢复现实门禁 + 恢复自动永恒开关（只还原本模块动过的东西）。 */
+    private fun endTreePrep(reason: String) {
+        if (!isTreePrepActive()) return
+        treePrepStartedAt = 0L
+        treePrepEndedAt = android.os.SystemClock.elapsedRealtime()
+        try {
+            // 只释放自己持有的 hold（Laitela 等其它模块的 hold 不动）。
+            if (OrekiRealityPacing.holdReasonText() == "ec-tree") {
+                OrekiRealityPacing.setHold(false, null)
+            }
+        } catch (_: Throwable) {
+        }
+        try {
+            OrekiAutoEternityAdoption.endEternityPauseForEcTree()
+        } catch (_: Throwable) {
+        }
+        note("TREEPREP end reason=" + reason + " buys=" + treePrepBuys +
+            " tt=" + Abi.theorem() + " unlocked=" + Abi.unlocked())
+        Log.i(TAG, "treeprep end reason=" + reason + " buys=" + treePrepBuys +
+            " tt=" + Abi.theorem() + " unlocked=" + Abi.unlocked())
     }
 
     /** 最小未满级关号（1..12）；全部满级返回 0。 */
@@ -1001,6 +1199,14 @@ object OrekiEcAutomation {
         fun theorem(): String = try {
             val cur = currency() ?: return "?"
             find(cur, "L", 0)?.invoke(cur)?.toString() ?: "?"
+        } catch (t: Throwable) {
+            "?"
+        }
+
+        /** [R114-01 P1 EC-TREE] TT 上限（`hq0.K()`）：DS1 判据用的是上限而不是当前余额。 */
+        fun theoremMax(): String = try {
+            val cur = currency() ?: return "?"
+            find(cur, "K", 0)?.invoke(cur)?.toString() ?: "?"
         } catch (t: Throwable) {
             "?"
         }

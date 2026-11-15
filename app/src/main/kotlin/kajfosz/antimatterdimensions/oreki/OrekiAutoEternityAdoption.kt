@@ -44,6 +44,9 @@ internal object OrekiAutoEternityAdoption {
     private const val KEY_USER_CLOSED = "oreki.autoEternity.userClosed"
     private const val KEY_ENABLED_REALITIES = "oreki.autoEternity.enabledRealities"
     private const val KEY_SAVE_ID = "oreki.autoEternity.saveId"
+    // [R114-01 P1 EC-TREE] 备树期 MOD 主动暂停标记（时间戳；0 = 未暂停）。落盘用于崩溃/被杀自愈。
+    private const val KEY_EC_TREE_PAUSE_AT = "oreki.autoEternity.ecTreePauseAt"
+    private const val EC_TREE_PAUSE_STALE_MS = 150_000L
 
     /** 补回开关的最小间隔（避免写入失败时每帧重试刷屏）。 */
     private const val RETRY_INTERVAL_MS = 1_000L
@@ -61,6 +64,12 @@ internal object OrekiAutoEternityAdoption {
 
     /** 这些状态所属的存档身份（records.gameCreatedTime）；换存档即失效。落盘。 */
     private var saveId = ""
+
+    /** [R114-01 P1 EC-TREE] 备树暂停时间戳（落盘，0=未暂停）。 */
+    private var ecTreePausedAt = 0L
+
+    /** 内存态：当前是否处于 EC 备树暂停（= ecTreePausedAt != 0 或本次会话刚 begin）。 */
+    private var ecTreePause = false
 
     private var lastAttemptAt = 0L
     private var lastLogKey = ""
@@ -83,6 +92,8 @@ internal object OrekiAutoEternityAdoption {
             userClosed = sp.getBoolean(KEY_USER_CLOSED, false)
             enabledRealities = sp.getString(KEY_ENABLED_REALITIES, "") ?: ""
             saveId = sp.getString(KEY_SAVE_ID, "") ?: ""
+            ecTreePausedAt = sp.getLong(KEY_EC_TREE_PAUSE_AT, 0L)
+            ecTreePause = ecTreePausedAt != 0L
         } catch (_: Throwable) {
             // 读盘失败：保持内存默认值（不接管、不阻拦）
         }
@@ -96,6 +107,7 @@ internal object OrekiAutoEternityAdoption {
                 .putBoolean(KEY_USER_CLOSED, userClosed)
                 .putString(KEY_ENABLED_REALITIES, enabledRealities)
                 .putString(KEY_SAVE_ID, saveId)
+                .putLong(KEY_EC_TREE_PAUSE_AT, ecTreePausedAt)
                 .apply()
         } catch (_: Throwable) {
             // 写盘失败不影响本会话判定，只是重启后需要重新观察
@@ -177,6 +189,73 @@ internal object OrekiAutoEternityAdoption {
         return adopted || userClosed
     }
 
+
+    // ------------------------------------------------- [R114-01 P1 EC-TREE] 备树期窄接口
+    //
+    // 背景（reports/R114-01/agents/econ-analyst-credits-blocker.md）：EC10 需要 18 个时间研究
+    // 的传递前置链（181←171←161/162←151←141/142/143←131←121←111←101←91←81←71←61），
+    // 而每次**真实永恒**都会清空时间研究树 ⇒ 树永远买不齐 ⇒ EC10/11/12 永不完成。
+    // 备树期必须暂停真实永恒；但原版自动永恒开关同时也是玩家意愿开关，直接写 false 会被
+    // [ensure] 误判为「玩家手动关闭」（enabledRealities == token ⇒ userClosed 粘滞），
+    // 因此这里提供唯一窄接口：由 MOD 主动暂停/恢复，并落盘时间戳做崩溃自愈。
+    // 语义边界：只写自动永恒开关本身；MOD 总开关关闭/玩家已手动关闭/未接管时不动作。
+
+    /**
+     * 备树期暂停「自动永恒」：把原版开关置 false，并记录暂停时间戳（落盘）。
+     * @return true = 已确认开关为 false（暂停生效）；false = 未接管/玩家关闭/写入失败（调用方应保守处理）。
+     */
+    @JvmStatic
+    fun beginEternityPauseForEcTree(): Boolean {
+        return try {
+            if (!OrekiAutomationScheduler.isEnabled()) return false
+            load()
+            bindSave()
+            // 玩家手动关闭 / 未接管：绝不接管开关（尊重玩家意愿）。
+            if (userClosed || !adopted) return false
+            ecTreePause = true
+            ecTreePausedAt = SystemClock.elapsedRealtime()
+            persist()
+            if (GameApi.autoEternityIsActive() == true) {
+                GameApi.setAutoEternityActive(false)
+            }
+            val off = GameApi.autoEternityIsActive() == false
+            log("ec-tree pause begin off=" + off)
+            off
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /** 备树结束（或自愈）：清暂停标记并恢复原版开关（恢复失败只记日志，不回滚暂停标记以外的任何状态）。 */
+    @JvmStatic
+    fun endEternityPauseForEcTree() {
+        try {
+            load()
+            if (!ecTreePause && ecTreePausedAt == 0L) return
+            ecTreePause = false
+            ecTreePausedAt = 0L
+            persist()
+            if (!OrekiAutomationScheduler.isEnabled()) return
+            if (userClosed) return
+            if (GameApi.autoEternityUnlocked() && GameApi.autoEternityIsActive() != true) {
+                GameApi.setAutoEternityActive(true)
+                if (GameApi.autoEternityIsActive() == true) {
+                    enabledRealities = realityToken()
+                    persist()
+                }
+            }
+            log("ec-tree pause end active=" + GameApi.autoEternityIsActive())
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** 只读：当前是否处于备树暂停（诊断/门禁用）。 */
+    @JvmStatic
+    fun isEternityPausedForEcTree(): Boolean {
+        load()
+        return ecTreePause
+    }
+
     // ------------------------------------------------------------------ 主状态机
 
     /**
@@ -199,6 +278,41 @@ internal object OrekiAutoEternityAdoption {
             if (!OrekiAutomationScheduler.isEnabled()) return
             load()
             bindSave()
+            // [R114-01 P1 EC-TREE] 备树暂停优先于一切「开关为 false」的判读：
+            //   · 暂停中：不把 false 当成玩家手动关闭；若外部已打开则视为暂停结束（清标记）。
+            //   · 陈旧暂停（进程在暂停窗口内被杀/崩溃）：释放并重新打开开关，
+            //     否则下面的「本现实已启用过又变关闭 ⇒ userClosed」会把开关永久判死。
+            val pauseNowMs = SystemClock.elapsedRealtime()
+            // 注：elapsedRealtime 在**重启后**会归零，持久化值可能大于当前值（负差值）——
+            // 也必须视为陈旧暂停，否则会被误判成「玩家关闭」而永久停掉自动永恒。
+            if (ecTreePause && ecTreePausedAt != 0L &&
+                (pauseNowMs < ecTreePausedAt ||
+                    pauseNowMs - ecTreePausedAt >= EC_TREE_PAUSE_STALE_MS)
+            ) {
+                val elapsed = pauseNowMs - ecTreePausedAt
+                ecTreePause = false
+                ecTreePausedAt = 0L
+                persist()
+                log("ec-tree pause stale-release elapsed=" + elapsed)
+                if (adopted && !userClosed && GameApi.autoEternityUnlocked() && GameApi.autobuyersOn()) {
+                    GameApi.setAutoEternityActive(true)
+                    if (GameApi.autoEternityIsActive() == true) {
+                        enabledRealities = realityToken()
+                        persist()
+                        log("ec-tree pause stale re-enabled")
+                    }
+                }
+                return
+            }
+            if (ecTreePause) {
+                if (GameApi.autoEternityIsActive() == true) {
+                    ecTreePause = false
+                    ecTreePausedAt = 0L
+                    persist()
+                    log("ec-tree pause cleared by external-on")
+                }
+                return
+            }
             val active = GameApi.autoEternityIsActive()
             val token = realityToken()
             if (active == true) {

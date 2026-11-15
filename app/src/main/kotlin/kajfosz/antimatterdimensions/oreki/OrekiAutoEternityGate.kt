@@ -149,6 +149,9 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun reason(): String {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
+        // [R114-01 P1 EC-TREE] 备树期真实永恒被 MOD 主动暂停（Adoption 窄接口），
+        // 这里显式区分「MOD 暂停」与「玩家关闭」，避免日志/排障误判。
+        if (OrekiEcAutomation.isTreePrepActive()) return "ec-tree-prep"
         if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive()) {
             return "auto-eternity-off"
         }

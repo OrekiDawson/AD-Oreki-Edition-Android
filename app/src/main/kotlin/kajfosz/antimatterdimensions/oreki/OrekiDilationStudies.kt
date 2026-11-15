@@ -57,6 +57,9 @@ object OrekiDilationStudies {
     private var resolveErrorLogged = false
     private var lastLogAt = 0L
 
+    /** [R114-01 P1 EC-TREE] DS1 需求分项诊断的独立限频（避免每帧反射；与 WAIT 日志同频即可）。 */
+    private var lastDs1DiagAt = 0L
+
     // ---------------------------------------------------------------- 反射缓存
     private val noValue = Any()
     private val methodCache = HashMap<String, Any>()
@@ -222,9 +225,23 @@ object OrekiDilationStudies {
                 val affordable = boolOf(study, "z") ?: return false
                 val cost = OrekiDilationCostScale.applyForStudy(study)
                 if (!requirement || !affordable) {
+                    // [R114-01 P1 EC-TREE] DS1 的 req 分项诊断：原版判据由「TT 上限 / EC11&EC12 满 /
+                    // 231~234 任一」三组组成，这里把它们各自展开，便于下一轮直接定位缺哪一组。
+                    // 只读、限频与 WAIT 同频；不改购买语义（仍以原版 A(true) 为准）。
+                    val diag = if (id == 1) {
+                        val now = android.os.SystemClock.elapsedRealtime()
+                        if (now - lastDs1DiagAt >= LOG_INTERVAL_MS) {
+                            lastDs1DiagAt = now
+                            " " + OrekiEcAutomation.ds1DiagText()
+                        } else {
+                            ""
+                        }
+                    } else {
+                        ""
+                    }
                     logThrottled(
                         "WAIT id=" + id + " req=" + requirement + " afford=" + affordable +
-                            " cost=" + cost + " tt=" + ttText()
+                            " cost=" + cost + " tt=" + ttText() + diag
                     )
                     return false
                 }
