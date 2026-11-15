@@ -9,8 +9,9 @@
   5. m53.<clinit>（enjarify 产物 87942 字节，超 JVM 65535 限制，任何 ASM 重写都会失败）处理：
      - split（默认）：BigClinitSplitter 拆成 <clinit> + 一个 static helper（JDK verifier 通过）；
      - fallback：使用预先准备好的「已 shadow 改名」m53.class（来源 SHA 记入报告，来自 dex2jar 过渡产物）。
-  6. RemapSelective：官方类集合内的类把 kotlin/** 引用重命名到 oreki/shadow/kotlin/**；
-     MOD 新增 smali 类保持引用指向 AGP 内置 stdlib；排除集合 = classes4.dex 类集合 − 官方类集合；
+  6. RemapSelective：所有保留类把 shadow 集合内 kotlin/** 引用重命名到 oreki/shadow/kotlin/**；
+     MOD 新增 smali 类不再绑定 AGP 内置 stdlib（R112/R113 P0：EmptyCoroutineContext.a 字段名/ContinuationImpl 构造器不一致）；
+     排除集合 = classes4.dex 类集合 − 官方类集合；
   7. 用官方管线产出的 72 个 shadow 类覆盖 modded jar 中的同名类（消除 enjarify 重复类合并歧义）；
   8. 补丁相关类逐类 D8 检测，失败类自动回退官方版本并登记（当前预期 1 个）；
   9. D8 整包编译验证 + m53 拆分前后 D8 验证 + 类集合保真核对；
@@ -189,6 +190,53 @@ def write_jar_from_entries(path: Path, entries: dict[str, bytes]) -> None:
 def jar_class_count(jar: Path) -> int:
     with zipfile.ZipFile(jar) as archive:
         return sum(1 for name in archive.namelist() if name.endswith(".class"))
+
+
+def scan_plain_kotlin_class_refs(jar: Path, shadow_classes: set[str]) -> dict:
+    """扫描 jar 内 class 文件常量池的 Class 引用（tag=7），找出未重映射的 kotlin/** 类。
+
+    R112/R113 P0：MOD 新增业务类曾保留对 kotlin/coroutines/EmptyCoroutineContext 的引用，
+    运行时绑定 AGP 内置 stdlib（字段名 INSTANCE），而官方 DEX 是 a → NoSuchFieldError；
+    ContinuationImpl 构造器也会因默认包混淆类型 (Lrj0;Lek0;)V 不匹配而 NoSuchMethodError。
+    本检查在构建期拦截同类问题（fail-closed）。
+    """
+    def class_refs(data: bytes) -> list[str]:
+        if len(data) < 10 or data[:4] != b"\xca\xfe\xba\xbe":
+            return []
+        count = struct.unpack_from(">H", data, 8)[0]
+        pos = 10
+        utf8: dict[int, str] = {}
+        class_refs_idx: list[int] = []
+        sizes = {3: 4, 4: 4, 5: 8, 6: 8, 7: 2, 8: 2, 9: 4, 10: 4, 11: 4,
+                 12: 4, 15: 3, 16: 2, 17: 4, 18: 4, 19: 2, 20: 2}
+        idx = 1
+        while idx < count:
+            tag = data[pos]
+            if tag == 1:
+                length = struct.unpack_from(">H", data, pos + 1)[0]
+                utf8[idx] = data[pos + 3:pos + 3 + length].decode("utf-8", "replace")
+                pos += 3 + length
+            elif tag in sizes:
+                if tag == 7:
+                    class_refs_idx.append(struct.unpack_from(">H", data, pos + 1)[0])
+                pos += 1 + sizes[tag]
+                if tag in (5, 6):
+                    idx += 1
+            else:
+                return []
+            idx += 1
+        return [utf8.get(i, "") for i in class_refs_idx]
+
+    violations = []
+    with zipfile.ZipFile(jar) as archive:
+        for entry in archive.namelist():
+            if not entry.endswith(".class"):
+                continue
+            for ref in class_refs(archive.read(entry)):
+                if ref in shadow_classes:
+                    violations.append({"class": entry[:-6], "ref": ref})
+    return {"violations": violations[:50], "violation_count": len(violations),
+            "checked_shadow_classes": len(shadow_classes)}
 
 
 def jar_class_hashes(jar: Path) -> dict[str, str]:
@@ -726,6 +774,14 @@ def main() -> int:
             "game_jar_bytes": final_jar.stat().st_size,
             "class_count": len(final_classes),
         }
+
+    # 9.5) fail-closed：最终 jar 不得残留对 shadow 集合内 kotlin/** 类的原始引用
+    #（R112/R113 P0：新类绑定 AGP stdlib 会在运行期抛 NoSuchFieldError/NoSuchMethodError）
+    plain_ref_check = scan_plain_kotlin_class_refs(final_jar, shadow_classes)
+    report["checks"]["no_plain_kotlin_refs"] = plain_ref_check
+    require(plain_ref_check["violation_count"] == 0,
+            "存在未重映射的 kotlin 引用（ABI 风险，可能有 NoSuchFieldError）: %s"
+            % plain_ref_check["violations"][:5])
 
     report["status"] = "PASS"
     report["finished_at"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
