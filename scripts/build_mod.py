@@ -880,16 +880,6 @@ def obfuscation_aliases() -> dict[str, str]:
     return dict(table)
 
 
-def smali_file(rel: str) -> Path:
-    """按「包内相对路径」定位一个 smali 文件（跨 dex 根目录）。"""
-    hits = [root / rel for root in smali_roots() if (root / rel).is_file()]
-    if not hits:
-        raise AssertionError(
-            f"缺少 smali 文件: {rel}（已查 {[r.name for r in smali_roots()]}）")
-    assert len(hits) == 1, f"同名类出现在多个 dex: {[str(h) for h in hits]}"
-    return hits[0]
-
-
 # ---------------------------------------------------------------------------
 # [R80] 类描述符索引：按「类描述符」定位真实类文件，而不是按文件所在目录猜。
 #
@@ -5332,44 +5322,6 @@ def patch_instant_challenge_rewards():
     note("[Oreki RIS] 挑战进入即完成已改为「真实结算收益」：IP / 无限次数 / EP + 最速记录 + 幂等闸门")
 
 
-def patch_frame_cadence():
-    """[Oreki AF] 主循环帧间隔按倍率缩放（2026-10-28）。
-
-    MainActivityGameLoopKt.gameLoop 固定一个 25ms 目标间隔，每帧只调用一次
-    Game.gameTick —— 即每帧每个自动购买器最多做一次采购决策。OrekiSpeed 放大的是
-    游戏时间，不放大帧数：F=10000 时一帧横跨 250 游戏秒，采购密度却仍是 40 次/秒。
-
-    ab_cadence 实测（同一存档、同样 20s 墙钟）：
-      F=1     Δbought 1380  ΔdimBoost 21   Δt 0.1e6 ms
-      F=10000 Δbought 11290 ΔdimBoost 176  Δt 581.9e6 ms
-    游戏时间涨了约 5800 倍，采购次数只涨 8 倍 —— 说明采购机会数被帧率锁死，
-    与游戏时间无关，本项即为该断层。
-
-    修法：把 5 处 `const-wide/16 v18, 0x19`（=25ms，全部位于 gameLoop 内）
-    换成 OrekiSpeed.frameMs()。F<=1 返回 25（语义完全不变）；F>1 返回
-    25/min(F,8)，下限 3ms。只改「目标间隔」，不碰任何时间记账：
-    realTimePlayed / totalTimePlayed / 离线结算仍由 gameTick 内的 diff 决定，
-    总量与帧率无关，只有采购决策密度随帧率上升。
-    """
-    target = smali_tree() /  "kajfosz" / "antimatterdimensions" / "mainactivity" / "c0.smali"
-    assert target.exists(), f"缺少 {target}"
-    # 按字节处理：read_text 会做换行归一化（CRLF -> LF），这里必须原样保留
-    src = target.read_bytes()
-    if b"OrekiSpeed;->frameMs()J" in src:
-        note("[Oreki AF] 帧间隔补丁已存在，跳过")
-        return
-    old = b"    const-wide/16 v18, 0x19\r\n"
-    n = src.count(old)
-    assert n == 5, f"帧间隔常量出现 {n} 次，预期 5（gameLoop 结构可能已变）"
-    new = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;->frameMs()J\r\n"
-           b"\r\n"
-           b"    move-result-wide v18\r\n")
-    out = src.replace(old, new)
-    target.write_bytes(out)
-    assert out.count(b"OrekiSpeed;->frameMs()J") == 5, "补丁写入失败"
-    note("[Oreki AF] gameLoop 的 5 处 25ms 目标间隔已改为 OrekiSpeed.frameMs()")
-
-
 def _scan_method(src, sig):
     """返回 (方法起点, 方法终点) 字符下标；sig 形如 'public final g()Z'。"""
     head = ".method " + sig
@@ -7359,12 +7311,9 @@ def main():
         patch_autobuyer_batch_fallback()
     if os.environ.get("OREKI_DEBUG_TRACE") == "1":
         patch_debug_trace()
-    # patch_autobuyer_unlock()  【2026-10-28 R5.5 实测未生效 + 与「保留手动玩法」冲突，未启用】
-    # 实测：四条 isUnlocked 分支全部改写成功、构建通过，但新档干净窗口 60s 内
-    # 反物质恒为 10.0、第一维度恒为 0 —— 自动购买器根本没被驱动。
-    # 说明真正的门控在「每帧 tick 驱动」或「自动化页解锁」，不在 g()。
-    # 另外 R5.5 补充令要求保留手动购买维度/升级等有决策意义的操作，
-    # 无条件全开自动购买器与该要求相悖。函数体保留作证据与后续候选。
+    # patch_autobuyer_unlock() 经 AST 复核：生产路径不启用，但仍被 OREKI_DEBUG_TRACE=1 的
+    # patch_debug_trace() 调用（R5.5 实测未生效，见函数 docstring）。R114-02 C5 按「无调用才删」
+    # 的标准未删除；要删除须连同诊断链 patch_debug_trace 一起退役，待 Lead 决定。
     patch_ec12_restriction()
     patch_instant_challenge()
     # [R34 Agent C] 自动进入永恒挑战（Web buyEcStudiesAndStart 的 Android 对位）。
@@ -7414,7 +7363,7 @@ def main():
     # [R32 Agent C] UI 线接线：全页面深色模式 / 顶栏「当前页面」标题 /
     # 「打开 Oreki 中文教程」按钮 #0078D7 / 默认科学记数法 / 三条缺失中文。
     # 8 个子补丁全部幂等（二次 apply 输出 skip 且字节不变），
-    # verify() 的 8 条守卫任一失败即抛错中止，不会带着半套 UI 产出 APK。
+    # oreki_dark_theme.verify(MOD) 的 8 条守卫任一失败即抛错中止，不会带着半套 UI 产出 APK。
     #
     # 导入兜底：只有 `python scripts/build_mod.py` 直接调用时 sys.path[0] 才是 scripts/，
     # 被 Gradle 用别的 cwd 或 `-m` 方式调用时 `import oreki_dark_theme` 会 ImportError。
@@ -7426,11 +7375,8 @@ def main():
     for _dk, _dv in oreki_dark_theme.apply(MOD).items():
         note(f"[DARK] {_dk:14s} {_dv}")
     oreki_dark_theme.verify(MOD)
-    # patch_frame_cadence()  【2026-10-28 实测否证，未启用】
-    # 提频方案对照：F=10000/20s 下 Δbought 11300（基线 11290）、dimBoost 176（基线 176）、
-    # fps 44.6（基线约 40）、CPU 28170ms。1.5 倍 CPU 只换 1.1 倍帧率，购买量差异在噪声内。
-    # 结论：Android 主循环是 CPU 受限（单次 gameTick ≈22ms）而非 delay 受限，提频无效。
-    # 保留函数体与 OrekiSpeed.frameMs 作为证据与后续候选基础，但不接入构建。
+    # [R114-02 C5] 已退役：patch_frame_cadence（2026-10-28 实测否证 CPU 受限，从未接入构建；
+    # 证据保留在 docs/BUILDMOD_RETIREMENT_LEDGER.md §6）。
     if os.environ.get("OREKI_GRADLE_ASSEMBLY") == "1":
         note("[5] 补丁树已完成，APK 汇编/注入/规整交由 Gradle")
         (BUILD / "build.log").write_text("\n".join(log), encoding="utf-8")
