@@ -1,6 +1,6 @@
 # 游戏机制：现实层与符文
 
-> 本文件是 [事实库](../../README.md) 的主题分册，沿用根索引的证据等级与写入纪律。
+> 本文件是 [事实库](../README.md) 的主题分册，沿用根索引的证据等级与写入纪律。
 > 收录：现实重置、符文（Glyph）、V 解锁与 Reality 自动永恒。
 
 ---
@@ -267,8 +267,8 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 <a id="f-r114-01-reality"></a>
 ## R114-01 · Reality 结算后自动永恒复位：原版根因（2026-11-15）
 
-> 拆分自原 `docs/FACTS.md`「R114-01」单一事实节；P0 证据与修复见 [自动化·永恒/现实层](../../automation/eternity-reality.md#f-r114-01-fix)，
-> 位号见 [天体](../../game/celestials.md#f-r114-01-bits)，经济链见 [永恒层](../../game/eternity.md#f-r114-01-economy)。
+> 拆分自原 `docs/FACTS.md`「R114-01」单一事实节；P0 证据与修复见 [自动化·永恒/现实层](../automation/eternity-reality.md#f-r114-01-fix)，
+> 位号见 [天体](../game/celestials.md#f-r114-01-bits)，经济链见 [永恒层](../game/eternity.md#f-r114-01-economy)。
 
 - **P0 根因（原版设计，非 MOD 写坏）**：原版 Reality 结算清空本现实 eternities → 派发
   `REALITY_RESET_AFTER` → `Autobuyers.reset()` → `EternityAutobuyerState.reset()`：

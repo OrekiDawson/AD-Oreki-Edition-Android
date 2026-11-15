@@ -1,6 +1,6 @@
 # 自动化：永恒/现实层与策略驱动
 
-> 本文件是 [事实库](../../README.md) 的主题分册，沿用根索引的证据等级与写入纪律。
+> 本文件是 [事实库](../README.md) 的主题分册，沿用根索引的证据等级与写入纪律。
 > 收录：永恒层、现实层自动化、首次永恒闸门与策略驱动。
 
 ---
@@ -617,7 +617,7 @@ Web 不需要新增代码：它的坍缩策略本来就允许反物质继续成�
 <a id="f-r114-01-fix"></a>
 ## R114-01 · 自动永恒复位：真实证据、修复与 Web 对齐（2026-11-15）
 
-> 拆分自原 `docs/FACTS.md`「R114-01」单一事实节；原版复位根因见 [现实层](../../game/reality.md#f-r114-01-reality)。
+> 拆分自原 `docs/FACTS.md`「R114-01」单一事实节；原版复位根因见 [现实层](../game/reality.md#f-r114-01-reality)。
 
 - **Android 真实证据（R113-01 180 分钟跑次）**：`reports/R113-01/avd-evidence/r113-180min/180min-logcat.txt`
   12:53:22 `OREKI_ET_PROBE autoEternity.isActive=true`（R104 引导接管）→

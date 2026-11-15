@@ -604,8 +604,8 @@
 | 文件 | 旧引用 | 对应新位置 |
 | --- | --- | --- |
 | scripts/deobf_semantic_kajfosz.py | FACTS §58 | [game/endgame.md#f-58](game/endgame.md#f-58) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §96.1 | [automation/strategy.md#f-86](automation/strategy.md#f-86) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §100.5 | [automation/strategy.md#f-90](automation/strategy.md#f-90) |
+| scripts/deobf_semantic_kajfosz.py | FACTS §96.1 | [automation/strategy.md#f-87](automation/strategy.md#f-87) |
+| scripts/deobf_semantic_kajfosz.py | FACTS §100.5 | [game/mechanics.md#f-91](game/mechanics.md#f-91) |
 | scripts/deobf_semantic_kajfosz.py | FACTS §86.11.6 | [methodology.md#f-86-11](methodology.md#f-86-11) |
 | scripts/deobf_semantic_kajfosz.py | FACTS §86.12.1 | [automation/infinity-buyers.md#f-86-12](automation/infinity-buyers.md#f-86-12) |
 | scripts/deobf_semantic_kajfosz.py | FACTS §9 | [android-internals.md#f-9](android-internals.md#f-9) |
