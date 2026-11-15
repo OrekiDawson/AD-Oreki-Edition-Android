@@ -144,6 +144,7 @@ object OrekiStrategyLeaves {
 
     private fun imaginaryUpgradeBits(): Long = bitSetMask(playerField("reality"), "imaginaryUpgradeBits")
 
+    // 莱特拉 = ImaginaryUpgrade(15)；佩勒 = ImaginaryUpgrade(25)
     // [R114-01 P1] Android 3.21 的 imaginaryUpgradeBits 位号用**移植版内部 id**，不是 Web 的 15/25。
     //
     // 证据（原版解码树 work/base_decoded_321/smali_classes2/.../reality/imaginary_upgrades/b.smali）：
@@ -153,6 +154,8 @@ object OrekiStrategyLeaves {
     // 存档印证：savestates/late/player-r109-m3-206.json（realities=12、Laitela tier8 已解锁、
     //   Pelle 未解锁）imaginaryUpgradeBits = 16 = 1<<4；R113-01 180 分钟 final-player.json 同为 16。
     // 旧实现用 shl15/shl25 ⇒ 两个叶子恒 false ⇒ 策略阶段永驻 stage3（太阳神），stage 2/1/0 不可达。
+    // 实测（R114-01 真新档 fix3 跑次，realities 升到 3、imaginaryMachines 达 4.7e10）：
+    //   修正后策略阶段按天神经真实锁位推进（stage 10/12 → 2 莱特拉），不再永驻 stage3。
     private fun laitelaUnlocked(): Boolean = (imaginaryUpgradeBits() and (1L shl 4)) != 0L
     private fun pelleUnlocked(): Boolean = (imaginaryUpgradeBits() and (1L shl 14)) != 0L
     private fun bool(value: Boolean): Double = if (value) 1.0 else 0.0
