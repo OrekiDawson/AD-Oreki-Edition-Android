@@ -21,13 +21,13 @@ class UnifiedMigrationTests(unittest.TestCase):
 
     def test_secret_stage_and_cleanup(self):
         text = (ROOT / ".github/workflows/candidate-unified.yml").read_text()
-        compile_pos = text.index("      - name: Compile the Kotlin sources before the DEX step")
         key_pos = text.index("      - name: Stage original production signing key")
-        build_pos = text.index("      - name: Run existing offline build and APK contract gates")
+        build_pos = text.index("      - name: Build AGP 9.5.1 full-game release APK")
+        evidence_pos = text.index("      - name: Write AGP provenance, candidate metadata and release manifest")
         cleanup_pos = text.index("      - name: Remove temporary signing material")
-        self.assertLess(compile_pos, key_pos)
         self.assertLess(key_pos, build_pos)
-        self.assertLess(build_pos, cleanup_pos)
+        self.assertLess(build_pos, evidence_pos)
+        self.assertLess(evidence_pos, cleanup_pos)
         self.assertIn("if: always()", text[cleanup_pos:cleanup_pos + 130])
         self.assertIn("secrets.OREKI_KEYSTORE_B64", text)
         self.assertIn("secrets.OREKI_KS_PASS", text)
