@@ -1198,11 +1198,19 @@ def generate(json_path: Path | None = None, out_path: Path | None = None,
     return stats
 
 
+# 内容源的规范展示路径。教程资产是提交物，生成结果必须与检出位置无关：
+# 工作树（worktrees/android/<role>）与 CI（<workspace>/source）下 REPO_ROOT 不同，
+# 若把绝对路径写进文件头，同一份 JSON 会生成不同字节，破坏「逐字节新鲜度比对」。
 def _rel(path: Path) -> str:
+    resolved = path.resolve()
+    parts = resolved.parts
+    for i in range(len(parts) - 1):
+        if parts[i] == "web" and parts[i + 1] == "AD-Oreki-Edition":
+            return "/".join(parts[i:])
     try:
-        return path.resolve().relative_to(REPO_ROOT).as_posix()
+        return resolved.relative_to(REPO_ROOT).as_posix()
     except ValueError:
-        return path.as_posix()
+        return resolved.as_posix()
 
 
 def selftest() -> int:

@@ -258,7 +258,8 @@ jobs:
           # scripts/fixture_strategy_semantics.py and scripts/gen_smart_strategy.py
           # resolve WORKSPACE = <repo>/<repo>/../.. — one level above the Actions workspace —
           # then read web/AD-Oreki-Edition/src/core/*.json. Link that path at the pinned
-          # Web checkout so the fixture, the generator and build_mod.py read one file.
+          # Web checkout so the fixtures and the tutorial freshness check read one file.
+          # (R114-02 C1: build_mod.py 不再在构建期生成教程资产，也不再读该 JSON。)
           target="$GITHUB_WORKSPACE/../web/AD-Oreki-Edition"
           mkdir -p "$(dirname "$target")"
           ln -sfn "$GITHUB_WORKSPACE/web/AD-Oreki-Edition" "$target"
@@ -266,6 +267,14 @@ jobs:
             test -s "$target/$f" || { echo "::error::Missing Web build input $f"; exit 1; }
           done
           echo "::notice::Web build inputs linked from the pinned checkout"
+      - name: Verify the committed tutorial asset matches the pinned Web single source
+        working-directory: source
+        run: |
+          set -euo pipefail
+          # R114-02 C1（Issue #52）：生产构建不再从 Web JSON 生成教程资产，只消费已提交字节。
+          # 这里对**钉住的 Web 检出**做逐字节重生成比对，防止提交物落后于单源 JSON
+          # 而静默发布旧教程（freshness 由候选链 fail-closed 把关）。
+          python3 scripts/verify_tutorial_zh.py | tail -n 6
 
       - name: Link the private decoded baseline used by existing fixtures
         env:
