@@ -268,6 +268,12 @@ def validate_existing(path, *, policy: dict, identity: dict, candidate_run: int,
         raise BuilderError("acceptance 文件无法解析: " + str(exc)) from exc
     if data.get("evidence_commit_sha") != evidence_commit:
         raise BuilderError("acceptance.json evidence_commit_sha 与参数不一致")
+    # release-gate 会额外校验这两个字段（verify_release_gate.validate_acceptance），
+    # --validate-existing 必须同口径拒绝，避免 builder 报 PASS 而保护门禁才 FAIL。
+    if data.get("source_repository") != policy["public_source_repository"]:
+        raise BuilderError("acceptance.json source_repository 与 policy 不一致")
+    if data.get("apk_bytes") != identity["size_bytes"]:
+        raise BuilderError("acceptance.json apk_bytes 与 APK 实际大小不一致")
     validate_screenshots(data.get("screenshots"), repo_root)
     try:
         VRA.check_report(data, sha256=identity["sha256"], candidate_run=candidate_run,

@@ -176,11 +176,16 @@ class AcceptanceBuilderTests(unittest.TestCase):
                       verification_run=43735739171, source_sha=SOURCE, web_ref=WEB,
                       acceptance_commit=ACCEPT, evidence_commit=EVID, repo_root=self.repo_root)
         self.assertEqual(B.validate_existing(target, **common)["versionCode"], "30210001")
-        mutated = json.loads(json.dumps(report))
-        mutated["versionCode"] = "30210000"
-        target.write_text(json.dumps(mutated, ensure_ascii=False), encoding="utf-8")
-        with self.assertRaisesRegex(B.BuilderError, "未通过"):
-            B.validate_existing(target, **common)
+        for field, value, message in (
+            ("versionCode", "30210000", "未通过"),
+            ("apk_bytes", 1, "apk_bytes"),
+            ("source_repository", "wrong/repo", "source_repository"),
+        ):
+            mutated = json.loads(json.dumps(report))
+            mutated[field] = value
+            target.write_text(json.dumps(mutated, ensure_ascii=False), encoding="utf-8")
+            with self.assertRaisesRegex(B.BuilderError, message):
+                B.validate_existing(target, **common)
 
     def test_cli_generates_only_after_validation_and_validates_existing(self):
         checks_file = self.repo_root / "checks.json"
