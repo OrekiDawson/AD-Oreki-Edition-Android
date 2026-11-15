@@ -16,12 +16,24 @@ PREFIXES = {"android": "docs/avd-acceptance/", "web": "reports/R104/web/"}
 
 def check_completion(report: dict, *, android_sha: str, web_sha: str,
                      acceptance_commit: str, max_seconds: int = 10800) -> list[str]:
+    """校验 completion_runs。
+
+    两提交模型（2026-11-16）：acceptance.json 位于 commit A，而真实证据文件位于
+    更早的 commit B = report["evidence_commit_sha"]（B 必须是 A 的祖先、且 B 在
+    Android main 历史内；祖先/可达性由 scripts/check_pinned_evidence.py 用 GitHub API 校验）。
+    这样避免了“文件必须包含自身所在 commit 的 sha”的内容寻址自引用；
+    source_sha / 时长 / fresh_save / game_end / 证据路径等检查均未放宽。
+    """
     issues: list[str] = []
     runs = report.get("completion_runs")
     if not isinstance(runs, list) or len(runs) != 2:
         return ["completion_runs must contain exactly one Android and one Web real fresh-save run"]
     if not isinstance(max_seconds, int) or isinstance(max_seconds, bool) or max_seconds <= 0:
         return ["max_seconds policy invalid"]
+    declared_evidence_commit = report.get("evidence_commit_sha")
+    if (not isinstance(declared_evidence_commit, str)
+            or not SHA.fullmatch(declared_evidence_commit)):
+        issues.append("evidence_commit_sha must be an exact 40-digit commit containing the evidence files")
     seen = set()
     for i, run in enumerate(runs):
         label = f"completion_runs[{i}]"
@@ -36,12 +48,12 @@ def check_completion(report: dict, *, android_sha: str, web_sha: str,
         expected_sha = android_sha if platform == "android" else web_sha
         if not SHA.fullmatch(expected_sha or "") or run.get("source_sha") != expected_sha:
             issues.append(f"{label}: source_sha differs from approved {platform} source")
-        expected_evidence_commit = acceptance_commit if platform == "android" else None
         commit = run.get("evidence_commit_sha")
         if not isinstance(commit, str) or not SHA.fullmatch(commit):
             issues.append(f"{label}: evidence_commit_sha is not an exact 40-digit commit")
-        elif expected_evidence_commit and commit != expected_evidence_commit:
-            issues.append(f"{label}: Android evidence commit must equal pinned acceptance commit")
+        elif platform == "android" and isinstance(declared_evidence_commit, str) \
+                and SHA.fullmatch(declared_evidence_commit) and commit != declared_evidence_commit:
+            issues.append(f"{label}: Android evidence commit must equal declared evidence_commit_sha")
         for key in ("fresh_save", "game_end"):
             if run.get(key) is not True:
                 issues.append(f"{label}: {key} must be true, not inferred")
