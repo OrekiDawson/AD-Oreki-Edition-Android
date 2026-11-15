@@ -42,6 +42,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.parse
 import uuid
 import zipfile
@@ -125,6 +126,78 @@ def run(cmd: list[str], *, check: bool = False, timeout: int = 3600) -> subproce
         detail = (result.stderr or result.stdout).strip()
         raise RuntimeError(f"命令失败（{result.returncode}）：{' '.join(cmd)}\n{detail}")
     return result
+
+
+RATE_LIMIT_BACKOFF_SECONDS = (15, 45)  # 探针：3 次尝试
+RATE_LIMIT_UPLOAD_BACKOFF_SECONDS = (15, 45, 60)  # 上传：再给一次 60s 配额恢复窗口
+SLEEP = time.sleep
+
+
+def _is_rate_limit_error(exc: BaseException) -> bool:
+    text = str(exc)
+    return any(marker in text for marker in (
+        "RATE_LIMIT_EXCEEDED", "Quota exceeded", "userRateLimitExceeded", "rateLimitExceeded"))
+
+
+def run_with_rate_limit_retry(action, *, label: str, sleeper=None, backoff=None):
+    """对 gdrive 共享 client_id 的 403 RATE_LIMIT 做有限退避重试（3 次）。
+
+    非限流错误立即抛出；限流重试耗尽后抛 RuntimeError，由调用方如实记为外部配额失败。
+    """
+    sleep = sleeper or SLEEP
+    delays = backoff or RATE_LIMIT_BACKOFF_SECONDS
+    attempts = len(delays) + 1
+    last_error = None
+    for attempt in range(1, attempts + 1):
+        if attempt > 1:
+            delay = delays[attempt - 2]
+            say(f"{label}: RATE_LIMIT 退避 {delay}s 后重试（第 {attempt}/{attempts} 次）")
+            sleep(delay)
+        try:
+            return action()
+        except (OSError, RuntimeError, subprocess.CalledProcessError, subprocess.TimeoutExpired, ValueError) as exc:
+            last_error = exc
+            if not _is_rate_limit_error(exc):
+                raise
+            say(f"{label}: RATE_LIMIT/配额错误（第 {attempt}/{attempts} 次）：{str(exc)[:200]}")
+    raise RuntimeError(
+        f"{label}: 共享 client_id 配额限制，退避重试 {attempts} 次后仍失败（外部原因）：{last_error}")
+
+
+def github_write_probe(repo: str) -> None:
+    """用创建/删除唯一临时 tag ref 的真实写探针验证 contents:write。
+
+    GITHUB_TOKEN 安装令牌的 .permissions.push 常为 false（即使已授予 contents:write），
+    因此不能再用只读权限字段判断；临时 ref 指向当前 HEAD 提交，成功后立即删除，
+    不触碰 release tags / latest / 历史。
+    """
+    head = run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], timeout=30)
+    target_sha = (head.stdout or "").strip()
+    if head.returncode != 0 or not target_sha:
+        raise RuntimeError("无法读取本地 HEAD 提交作为临时 ref 目标")
+    name = "oreki-preflight-" + uuid.uuid4().hex
+    full_ref = "refs/tags/" + name
+    created = False
+    try:
+        post = run(["gh", "api", "-X", "POST", f"repos/{repo}/git/refs",
+                    "-f", f"ref={full_ref}", "-f", f"sha={target_sha}"], timeout=45)
+        if post.returncode != 0:
+            raise RuntimeError("创建临时 ref 失败：" + (post.stderr or post.stdout or "").strip()[-300:])
+        created = True
+        say(f"github: 已创建临时 ref {full_ref}（真实写探针）")
+        delete = run(["gh", "api", "-X", "DELETE",
+                      f"repos/{repo}/git/refs/tags/{name}"], timeout=45)
+        if delete.returncode != 0:
+            raise RuntimeError(f"删除临时 ref 失败（可能残留 {full_ref}）："
+                               + (delete.stderr or delete.stdout or "").strip()[-300:])
+        created = False
+        say("github: 临时 ref 已删除（contents:write 真实写探针通过）")
+    finally:
+        if created:
+            cleanup = run(["gh", "api", "-X", "DELETE",
+                           f"repos/{repo}/git/refs/tags/{name}"], timeout=45)
+            if cleanup.returncode != 0:
+                say(f"github: WARNING 临时 ref {full_ref} 清理失败，请人工删除")
 
 
 def sha256_file(path: Path) -> str:
@@ -476,6 +549,8 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
 
     A small probe cannot guarantee a later large multipart upload, but it catches
     expired OAuth tokens before overwriting a known-good local latest.
+    GitHub 使用创建/删除唯一临时 ref 的真实写探针（不能用 .permissions.push 判断安装令牌）；
+    gdrive 对共享 client_id 的 403 RATE_LIMIT 做有限退避重试，仍失败则如实 fail-closed。
     """
     failures: list[str] = []
     root = local_dir()
@@ -486,7 +561,7 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
     else:
         with tempfile.TemporaryDirectory(prefix="oreki-upload-preflight-") as scratch:
             payload = Path(scratch) / "write-probe.txt"
-            payload.write_text("oreki-release-write-preflight\n", encoding="utf-8")
+            payload.write_text("oreki-release-write-preflight" + chr(10), encoding="utf-8")
             selected = channels or list(REMOTE_CHANNELS)
             for label, env_name, kind, dir_name, default_dir in (
                 ("onedrive", "AD_ONEDRIVE_REMOTE", "onedrive", "AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR),
@@ -502,7 +577,9 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
                     continue
                 target = remote_spec(remote, directory, f".oreki-write-probe-{uuid.uuid4().hex}.txt")
                 uploaded = False
-                try:
+
+                def attempt_probe():
+                    nonlocal uploaded
                     run(["rclone", "copyto", str(payload), target,
                          "--retries", "1", "--low-level-retries", "1"], check=True, timeout=90)
                     uploaded = True
@@ -510,22 +587,28 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
                                           check=True, timeout=45).stdout)
                     if meta.get("Size") != payload.stat().st_size:
                         raise RuntimeError("probe upload size mismatch")
+
+                try:
+                    if channel_name == "gdrive":
+                        run_with_rate_limit_retry(attempt_probe, label=f"{label} write probe")
+                    else:
+                        attempt_probe()
                     say(f"{label}: verified short-lived remote write/read metadata")
-                except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
+                except (OSError, RuntimeError, subprocess.CalledProcessError,
+                        subprocess.TimeoutExpired, ValueError) as exc:
                     if channel_name == "onedrive" and "401" in str(exc):
                         try:
                             say(f"{label}: rclone upload-session 401；改用 Graph simple upload 探针")
                             onedrive_graph_fallback(remote, directory, payload, {}, probe=True)
                             say(f"{label}: verified Graph simple-upload probe")
-                            # Preserve the original uploaded flag: if the rclone probe
-                            # did create a remote file before readback failed, finally
-                            # must still delete it (otherwise a stray probe remains).
                         except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as graph_exc:
                             failures.append(f"{label}: graph fallback probe failed: {graph_exc}")
+                    elif channel_name == "gdrive" and _is_rate_limit_error(exc):
+                        failures.append(f"{label}: RATE_LIMIT/共享 client_id 配额限制"
+                                        f"（已退避重试 {len(RATE_LIMIT_BACKOFF_SECONDS) + 1} 次）：{str(exc)[:200]}")
                     else:
                         failures.append(f"{label}: write authorization/readback failed: {exc}")
                 finally:
-                    # Never delete a user file: unique name, only created by this run.
                     if uploaded:
                         try:
                             run(["rclone", "deletefile", target], check=True, timeout=45)
@@ -536,14 +619,19 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
         failures.append("github: repository or gh CLI unavailable")
     else:
         auth = run(["gh", "auth", "status", "--hostname", "github.com"], timeout=30)
-        permission = run(["gh", "api", f"repos/{repo}", "--jq", ".permissions.push"], timeout=30)
-        if auth.returncode or permission.returncode or permission.stdout.strip() != "true":
-            failures.append("github: authenticated repository push permission not confirmed")
+        if auth.returncode:
+            failures.append("github: gh authentication not confirmed")
+        else:
+            try:
+                github_write_probe(repo)
+            except (OSError, RuntimeError, subprocess.CalledProcessError,
+                    subprocess.TimeoutExpired) as exc:
+                failures.append(f"github: write probe failed: {exc}")
     if failures:
         for issue in failures:
             say(f"PREFLIGHT FAIL: {issue}")
         return 2
-    say("PREFLIGHT PASS: selected remote probes cleaned, gh authorization present; latest unchanged")
+    say("PREFLIGHT PASS: selected remote probes cleaned, gh write probe cleaned; latest unchanged")
     return 0
 
 
@@ -607,7 +695,11 @@ def rclone_publish(channel: str, remote: str | None, directory: str | None, apk:
     say(f"{channel}: {' '.join(command)}")
     if dry_run:
         return
-    run(command, check=True)
+    if channel == "Google Drive":
+        run_with_rate_limit_retry(lambda: run(command, check=True), label="Google Drive 上传",
+                                 backoff=RATE_LIMIT_UPLOAD_BACKOFF_SECONDS)
+    else:
+        run(command, check=True)
     # 上传后回读远端大小，确认确实落到了固定文件而不是只拿到客户端成功码。
     stat = run(["rclone", "lsjson", target, "--stat"], check=True)
     try:

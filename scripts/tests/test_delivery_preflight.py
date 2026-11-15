@@ -22,6 +22,10 @@ class DeliveryPreflightTests(unittest.TestCase):
             commands = []
             def fake_run(args, **kw):
                 commands.append(args)
+                if args[:2] == ["git", "-C"]:
+                    return types.SimpleNamespace(stdout="a" * 40 + "\n", stderr="", returncode=0)
+                if args[:3] == ["gh", "api", "-X"]:
+                    return types.SimpleNamespace(stdout="{}", stderr="", returncode=0)
                 if args[:2] == ["rclone", "copyto"] and "onedrive:" in args[3]:
                     raise RuntimeError("HTTP error 401 Unauthorized")
                 if args[:2] == ["rclone", "lsjson"]:
@@ -47,6 +51,10 @@ class DeliveryPreflightTests(unittest.TestCase):
             calls = []
             def run(args, **kwargs):
                 calls.append(args)
+                if args[:2] == ["git", "-C"]:
+                    return types.SimpleNamespace(stdout="a" * 40 + "\n", stderr="", returncode=0)
+                if args[:3] == ["gh", "api", "-X"]:
+                    return types.SimpleNamespace(stdout="{}", stderr="", returncode=0)
                 if args[:2] == ["rclone", "lsjson"]:
                     return types.SimpleNamespace(stdout=json.dumps({"Size": len(b"oreki-release-write-preflight\n")}), returncode=0)
                 if args[:2] == ["gh", "api"]:
@@ -197,6 +205,154 @@ class OneDriveSinglePartCutoffTests(unittest.TestCase):
         self.assertIn("b00f00b3266c3764413afe599d3ec316f6f43b3e0ea8a0bc1d186d2133e46df7", text)
         self.assertIn("rclone-v${version}-linux-amd64", text)
         self.assertIn("onedrive-upload-cutoff", text)
+
+
+class ReleasePreflightProbeTests(unittest.TestCase):
+    REPO = "OrekiDawson/AD-Oreki-Edition-Android"
+
+    def _run(self, fake_run, channels=None, root=None):
+        with (mock.patch.object(p, "local_dir", return_value=root or Path(tempfile.mkdtemp())),
+              mock.patch.object(p, "command_exists", return_value=True),
+              mock.patch.object(p, "resolve_remote",
+                                side_effect=lambda env_name, kind: (
+                                    ("onedrive", "env") if kind == "onedrive" else ("gdrive", "env"))),
+              mock.patch.object(p, "setting", side_effect=lambda k, default=None: default),
+              mock.patch.object(p, "github_repo", return_value=self.REPO),
+              mock.patch.object(p, "run", side_effect=fake_run)):
+            return p.preflight_write_channels(channels)
+
+    def test_github_write_probe_creates_and_deletes_unique_ref(self):
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            if cmd[:2] == ["git", "-C"]:
+                return types.SimpleNamespace(stdout="b" * 40 + "\n", stderr="", returncode=0)
+            return types.SimpleNamespace(stdout="{}", stderr="", returncode=0)
+
+        with mock.patch.object(p, "run", side_effect=fake_run):
+            p.github_write_probe(self.REPO)
+        post = [c for c in calls if c[:3] == ["gh", "api", "-X"] and c[3] == "POST"]
+        delete = [c for c in calls if c[:3] == ["gh", "api", "-X"] and c[3] == "DELETE"]
+        self.assertEqual(len(post), 1)
+        self.assertEqual(len(delete), 1)
+        self.assertTrue(any("refs/tags/oreki-preflight-" in arg for arg in post[0]))
+        self.assertTrue(any("refs/tags/oreki-preflight-" in arg for arg in delete[0]))
+
+    def test_github_probe_failure_blocks_preflight(self):
+        def fake_run(cmd, **kwargs):
+            if cmd[:2] == ["git", "-C"]:
+                return types.SimpleNamespace(stdout="b" * 40 + "\n", stderr="", returncode=0)
+            if cmd[:3] == ["gh", "api", "-X"] and cmd[3] == "POST":
+                return types.SimpleNamespace(stdout="", stderr="Resource not accessible", returncode=1)
+            if cmd[:2] == ["rclone", "lsjson"]:
+                return types.SimpleNamespace(stdout=json.dumps({"Size": 30}), stderr="", returncode=0)
+            return types.SimpleNamespace(stdout="{}", stderr="", returncode=0)
+
+        self.assertEqual(self._run(fake_run), 2)
+
+    def _gdrive_fake_run(self, failures, successes_after=0):
+        state = {"calls": 0}
+        calls = []
+
+        def fake_run(cmd, **kwargs):
+            calls.append(cmd)
+            if cmd[:2] == ["git", "-C"]:
+                return types.SimpleNamespace(stdout="b" * 40 + "\n", stderr="", returncode=0)
+            if cmd[:3] == ["gh", "api", "-X"]:
+                return types.SimpleNamespace(stdout="{}", stderr="", returncode=0)
+            if cmd[:2] == ["rclone", "copyto"] and "gdrive:" in cmd[3]:
+                state["calls"] += 1
+                if state["calls"] <= failures:
+                    raise RuntimeError("googleapi: Error 403: Quota exceeded, RATE_LIMIT_EXCEEDED")
+                return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+            if cmd[:2] == ["rclone", "lsjson"]:
+                return types.SimpleNamespace(stdout=json.dumps({"Size": 30}), stderr="", returncode=0)
+            return types.SimpleNamespace(stdout="{}", stderr="", returncode=0)
+
+        return fake_run, calls
+
+    def test_gdrive_rate_limit_retries_then_succeeds(self):
+        fake_run, _ = self._gdrive_fake_run(failures=2)
+        sleeps = []
+        with mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s)):
+            self.assertEqual(self._run(fake_run, channels=["gdrive"]), 0)
+        self.assertEqual(sleeps, [15, 45])
+
+    def test_gdrive_rate_limit_exhausted_fails_closed(self):
+        fake_run, _ = self._gdrive_fake_run(failures=3)
+        sleeps = []
+        with mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s)):
+            self.assertEqual(self._run(fake_run, channels=["gdrive"]), 2)
+        self.assertEqual(sleeps, [15, 45])
+
+
+class GdriveUploadRetryTests(unittest.TestCase):
+    def _publish(self, failures):
+        calls = []
+        state = {"calls": 0}
+        with tempfile.TemporaryDirectory() as tmp:
+            apk = Path(tmp) / "candidate.apk"
+            apk.write_bytes(b"candidate-bytes")
+            info = {"sha256": hashlib.sha256(b"candidate-bytes").hexdigest(),
+                    "size_bytes": apk.stat().st_size}
+
+            def fake_run(cmd, **kwargs):
+                calls.append(cmd)
+                if cmd[:2] == ["rclone", "copyto"]:
+                    state["calls"] += 1
+                    if state["calls"] <= failures:
+                        raise RuntimeError("googleapi: Error 403: Quota exceeded, RATE_LIMIT_EXCEEDED")
+                    return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+                if cmd[:2] == ["rclone", "lsjson"]:
+                    return types.SimpleNamespace(stdout=json.dumps({"Size": len(b"candidate-bytes")}),
+                                                 stderr="", returncode=0)
+                return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+
+            sleeps = []
+            with (mock.patch.object(p, "run", side_effect=fake_run),
+                  mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s))):
+                result = None
+                error = None
+                try:
+                    p.rclone_publish("Google Drive", "gdrive", "AD-Oreki-Edition", apk, info, False)
+                except RuntimeError as exc:
+                    error = exc
+                result = (error, sleeps, calls)
+        return result
+
+    def test_gdrive_upload_retries_rate_limit_then_succeeds(self):
+        error, sleeps, _ = self._publish(failures=1)
+        self.assertIsNone(error)
+        self.assertEqual(sleeps, [15])
+
+    def test_gdrive_upload_exhausted_raises_external_quota_error(self):
+        error, sleeps, _ = self._publish(failures=4)
+        self.assertIsNotNone(error)
+        self.assertIn("RATE_LIMIT", str(error))
+        self.assertEqual(sleeps, [15, 45, 60])
+
+    def test_non_rate_limit_upload_error_is_not_retried(self):
+        calls = []
+        sleeps = []
+        with tempfile.TemporaryDirectory() as tmp:
+            apk = Path(tmp) / "candidate.apk"
+            apk.write_bytes(b"candidate-bytes")
+            info = {"sha256": hashlib.sha256(b"candidate-bytes").hexdigest(),
+                    "size_bytes": apk.stat().st_size}
+
+            def fake_run(cmd, **kwargs):
+                calls.append(cmd)
+                if cmd[:2] == ["rclone", "copyto"]:
+                    raise RuntimeError("permission denied, not a rate limit")
+                return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+
+            with (mock.patch.object(p, "run", side_effect=fake_run),
+                  mock.patch.object(p, "SLEEP", side_effect=lambda s: sleeps.append(s))):
+                with self.assertRaisesRegex(RuntimeError, "permission denied"):
+                    p.rclone_publish("Google Drive", "gdrive", "AD-Oreki-Edition", apk, info, False)
+        self.assertEqual(sleeps, [])
+        self.assertEqual(len([c for c in calls if c[:2] == ["rclone", "copyto"]]), 1)
 
 
 if __name__ == "__main__":
