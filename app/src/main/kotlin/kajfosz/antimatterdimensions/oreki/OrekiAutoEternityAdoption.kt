@@ -156,6 +156,7 @@ internal object OrekiAutoEternityAdoption {
             for (method in clazz.declaredMethods) {
                 if (method.name in candidateNames && method.parameterCount == 0 &&
                     method.returnType == java.lang.Double.TYPE
+                ) {
                     try { method.isAccessible = true } catch (_: Throwable) {}
                     found = method
                     break
