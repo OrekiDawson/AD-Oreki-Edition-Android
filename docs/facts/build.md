@@ -538,8 +538,27 @@ ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/andr
 - `[实测]` `--selftest` 对每条断言做 10 条变异（别名值/证据缺失/裸 cls/扣费入口/表结构、Break tick/smali 双写/ABI 未登记、
   AU4b 缺失/闩锁/setter/私有字段），全部被拦住；本机 `verify_build_contracts.py` 3/3 PASS + selftest PASS。
 - `[读码]` fail-closed 不变：候选链 validate 要求「同一 source SHA 已有成功的 Source CI run」，候选 SHA 必须先通过本校验。
-- **剩余树级校验（C4b，NOT RUN）**：`verify_eternity_chain` / `verify_pelle_record` / `check_challenge_auto_polarity` /
-  `check_ec_chain_mechanisms` / `check_smali_descriptors` / `verify_smali_field_types_320` / `verify_payload` 依赖 work/mod 补丁树
-  （别名已重写）或私有解码基线，无法在公开源码 CI 判定；在 C4b 完成前仍在生产构建执行（未迁移即不删）。
+- **树级校验**：已由 R114-02 C4b 迁出（见 [f-r114-02-c4b](#f-r114-02-c4b)）；仅剩 `verify_payload` 未迁（C4c）。
 - 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §7；报告 `reports/R114-02/agents/buildmod-retirement-c4-verify-ci.md`。 `[实测] + [读码]`
+
+
+<a id="f-r114-02-c4b"></a>
+## R114-02 C4b：树级 verify_* 迁 candidate 独立 step（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/verify_build_contracts.py` 新增 `--mod-tree` / `--decoded-tree`，迁入 6 条校验：
+  源码级 2 条（`check_ec_chain_mechanisms`+`_verify_ec_r40b`、`check_challenge_auto_polarity`，只读 payload 源，公开 CI 执行）、
+  树级 4 条（`verify_eternity_chain`、`verify_pelle_record`、`verify_smali_field_types_320`、`check_smali_descriptors`）。
+  build_mod 删除这些函数/helper/常量与 `OREKI_EC_SELFTEST` 入口：7,394 → **6,532 行（-862）**，顶层函数 96 → 85。
+- `[实测]` 公开 CI 口径：默认运行只跑 5 条源码级校验；树级 4 条**显式 SKIP**（不是 PASS），且 `ci.yml` 不出现 `--mod-tree`/`--decoded-tree`；
+  `--selftest` 15 条源码变异全部被拦住。
+- `[实测]` candidate 私有 runner：`candidate-unified.yml` 新增 `Verify tree-level build contracts on the pinned full-game tree`，
+  在 pinned full-game tree 就位之后、AGP 打包之前执行 `--mod-tree work/mod --decoded-tree "$OREKI_BASE"`，失败即阻断候选。
+- `[实测·本机]` 用主检出的真实 `work/mod` + `base_decoded_321` 跑 verifier：**9/9 PASS**（证据 JSON SHA-256 `e31d107b…`）；
+  同一树上跑旧 build_mod 6 个校验函数：**OLD 6/6 PASS**（新旧等价）。
+- `[读码]` candidate 不再执行 `buildKotlinDex`：类描述符校验额外并入 `scripts/kotlin_business_classes.txt` 与
+  `app/src/main/kotlin` 顶层声明作为 Kotlin 类证据，避免误报。
+- **NOT RUN**：真实 candidate workflow run（AGP-only 门禁仍 fail-closed）、真实 `assembleRelease`/APK/AVD。
+- **剩余（C4c）**：`verify_payload`（693 行）依赖 build 期 `TOUCHED_FILES` 注册表，需改为「MOD 树 vs 解码基线」差异重建 touched 集；
+  在 C4c 前继续在生产构建执行（fail-closed 不降）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §8；报告 `reports/R114-02/agents/buildmod-retirement-c4b-tree-checks.md`。 `[实测] + [读码]`
 
