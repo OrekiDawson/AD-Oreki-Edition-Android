@@ -54,13 +54,18 @@ IU15 之后 265 s 窗口（522 条）：amE >= 1e10 仅 2 条
 `[读码]`（公式）+ `[实测]`（阈值失效）／改后收益 `[推断]`
 
 <a id="f-r114-01-bits"></a>
-## R114-01 · imaginaryUpgradeBits 位号修正（P1，2026-11-15）
+## R114-01 · imaginaryUpgradeBits 位号修正（P1，CONFIRMED；2026-11-15）
 
-> 拆分自原 `docs/FACTS.md`「R114-01」单一事实节；该条同时是虚构升级 ABI 事实。
+> **状态：CONFIRMED（位号 bit4 / bit14）**；旧实现 `shl15` / `shl25` 标 **SUPERSEDED**（替代结论即本条）。
+> 本条同时是虚构升级 ABI 事实；修正自原 `docs/FACTS.md`「R114-01」事实节。
 
-- **imaginaryUpgradeBits 位号修正（P1，同一分支）**：Android 3.21 移植版的位号＝移植版内部 id，
-  不是 Web 的 15/25。证据 `work/base_decoded_321/smali_classes2/.../reality/imaginary_upgrades/b.smali:1489`
-  （莱特拉解锁 `b;->k:Lg02;` 构造 id=0x4）、`:3012`（佩勒解锁 `b;->s:Li02;` 构造 id=0xe）；
-  存档印证 `savestates/late/player-r109-m3-206.json`（realities=12、Laitela tier8、Pelle 未解锁）
-  与 R113-01 final 存档 `imaginaryUpgradeBits=16=1<<4`。原实现 shl15/shl25 ⇒
-  `celestial.laitelaUnlocked`/`celestial.pelleUnlocked` 恒 false ⇒ 策略 stage3 永驻、stage 2/1/0 不可达。
+- Android 3.21 移植的 `imaginaryUpgradeBits` 位号＝移植版内部 id，不是 Web 的 15/25：
+  **莱特拉（Laitela）= bit4**（构造 id=`0x4`，十进制 4）、**佩勒（Pelle）= bit14**（构造 id=`0xe`，十进制 14）。
+  证据 `work/base_decoded_321/smali_classes2/.../reality/imaginary_upgrades/b.smali:1489`
+  （`b;->k:Lg02;` 构造 id=0x4）、`:3012`（`b;->s:Li02;` 构造 id=0xe）（私有基线，工作树未跟踪）。
+- 存档印证：`savestates/late/player-r109-m3-206.json`（realities=12、Laitela tier8、Pelle 未解锁）与
+  R113-01 final 存档 `imaginaryUpgradeBits=16=1<<4`（莱特拉 bit4）一致。
+- 影响：旧 `shl15` / `shl25` ⇒ `celestial.laitelaUnlocked` / `celestial.pelleUnlocked` 恒 false ⇒
+  策略 stage3 永驻、stage 2/1/0 不可达。 `[读码]` + `[实测]`
+
+**SUPERSEDED**：旧 `shl15` / `shl25` 位号实现已被本修正取代，不得再按 15/25 引用。

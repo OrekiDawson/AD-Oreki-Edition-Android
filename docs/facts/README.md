@@ -91,6 +91,8 @@
 | C.107 符文「已装备」归因 | [game/reality.md#f-98](game/reality.md#f-98) | SUPERSEDED | 部分 | C.108 |
 | C.114 R67「入口改对就会触发」 | [automation/eternity-reality.md#f-105](automation/eternity-reality.md#f-105) | SUPERSEDED | 部分 | C.115 |
 | C.58 Android endState 字段无写入路径（原「待 REA 证实」） | [game/endgame.md#f-58](game/endgame.md#f-58) | CONFIRMED | 整节 | C.61 |
+| imaginaryUpgradeBits 旧实现 `shl15`/`shl25` | [game/celestials.md#f-r114-01-bits](game/celestials.md#f-r114-01-bits) | SUPERSEDED | 部分 | bit4 / bit14（同条目） |
+| R114-01 MOD 自动永恒开关托管语义 | [automation/eternity-reality.md#f-r114-01-adoption](automation/eternity-reality.md#f-r114-01-adoption) | CONFIRMED | 新增 | — |
 
 ## 八、维护流程
 

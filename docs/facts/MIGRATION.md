@@ -588,6 +588,11 @@
 | Android 真实证据 + 修复 + Web 对齐 | [automation/eternity-reality.md](automation/eternity-reality.md) | [#f-r114-01-fix](automation/eternity-reality.md#f-r114-01-fix) |
 | imaginaryUpgradeBits 位号 | [game/celestials.md](game/celestials.md) | [#f-r114-01-bits](game/celestials.md#f-r114-01-bits) |
 | TT / DS6 / canReality 判据 | [game/eternity.md](game/eternity.md) | [#f-r114-01-economy](game/eternity.md#f-r114-01-economy) |
+| 新增 FACT：MOD 自动永恒开关托管语义 | [automation/eternity-reality.md](automation/eternity-reality.md) | [#f-r114-01-adoption](automation/eternity-reality.md#f-r114-01-adoption) |
+| 新增 UNKNOWN/INFERRED：Dilation 自动化缺口 | [open-questions.md](open-questions.md) | [#f-dilation-gap](open-questions.md#f-dilation-gap) |
+
+2026-11-15 后续：`f-r114-01-reality` 升为 CONFIRMED（R113-01 180min + R114-01 真新档双重 AVD 证据）；
+`f-r114-01-bits` 修正为莱特拉 bit4 / 佩勒 bit14，旧 `shl15`/`shl25` 实现标 SUPERSEDED。
 
 ## 五、重复与备份文件处置
 

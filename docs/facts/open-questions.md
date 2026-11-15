@@ -20,3 +20,16 @@
   §19 的绝对下限目前只约束 ≤900px 窄屏，**桌面档未纳入**。 `[实测]`
 - 通知洪水治理只改了 **Web**。Android 是原版 Kotlin 逻辑（smali 补丁改不动
   `notify` 的 Kotlin 类），**两端通知条行为目前不等价**。 `[读码]`
+
+<a id="f-dilation-gap"></a>
+## Dilation 自动化缺口（UNKNOWN / INFERRED，2026-11-15）
+
+- `[未知]` Android 侧尚未找到「启动膨胀（Start Dilation）」「发 TP」「购买膨胀升级」的自动化实现代码；
+  需全仓复核 Kotlin 业务层、ABI 桥与策略叶子后才能确认是否存在。Lead 指定证据报告：
+  `reports/R114-01/agents/dilation-gap.md`（记录时工作树未找到该文件、未入库）。
+- `[读码]` V 解锁的 `dilatedTime` 项门槛被 MOD 缩放为 **1e30**（`scripts/build_mod.py:7129-7136`，
+  `[Oreki V] dilatedTime 门槛 1e320 -> 1e30`）。
+- `[推断]` 若自动化不启动膨胀，本现实 `maxDT` 无法增长，`dilatedTime >= 1e30` 不成立 ⇒ V 的该项不可达，
+  与 [C.8.3 六项条件](game/reality.md#f-8-3) 互证。
+- 待验证：① 膨胀启动/TP/升级是否真的无代码；② 若缺，补哪一层（Kotlin 业务 vs ABI）；
+  ③ 真实 AVD 跑次确认 maxDT 是否推进。
