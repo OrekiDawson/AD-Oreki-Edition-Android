@@ -70,6 +70,15 @@ class AgpProvenanceTests(unittest.TestCase):
             self.assertIn("antimatter-dimensions.apk", sums)
             self.assertIn("agp-provenance.json", sums)
 
+    def test_fullgame_release_signing_enables_v3(self):
+        build = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+        self.assertIn("enableV3Signing = true", build)
+        start = build.find('create("release")')
+        self.assertGreaterEqual(start, 0)
+        end = build.find("buildTypes", start)
+        self.assertGreater(end, start)
+        self.assertIn("enableV3Signing = true", build[start:end])
+
     def test_rejects_game_jar_sha_mismatch(self):
         with tempfile.TemporaryDirectory() as temporary:
             tmp = pathlib.Path(temporary)
