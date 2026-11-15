@@ -52,3 +52,19 @@
 - **FAIL（仍存在）**：新档 180 分钟通关仍不可达——第 2 次现实后 `realities` 卡在 2；
   根因链指向「TT/TS 树重购 → DS6（reality 研究）未买 → `canReality=false`」，
   以及 RU/glyph 进度停滞；需在下一轮继续定位（不在本轮猜测性改游戏进度逻辑）。
+## 追加：Codex 审查修正（BitSet 读取）
+
+Codex 在 PR #91 指出 `Player$Teresa/Effarig/V.unlockBits` 与 `Player$Reality.imaginaryUpgradeBits` 的类型是
+`Lkajfosz/antimatterdimensions/BitSet;`，不是数字；原实现 `as? Number` 会恒为 null ⇒ 叶子恒 false。
+
+### 修正
+
+- 新增 `bitSetMask(owner, fieldName)`：反射调用 `BitSet.f()J`（`BitSet.smali:360-369` 返回内部 long 位掩码），
+  失败时返回 0（保守 false，不触发 degrade）。
+- 所有 7 个 celestial 叶子与 `automator.unlocked` 均改走该读取。
+
+### 复验（构建 `build/r113-leaffix3`）
+
+- APK：`1bc6705a4d36bf36645996bfa452cd07ccf134178792ee513ed2b0bd71dbb677`，jar `ea57a665…`。
+- 晚期合法夹具 `savestages/late/player-r109-m3-206.json`（SHA `75f570c5…`）：`unknownLeaf=0`、无 unwired、无崩溃；stage=6。
+- 全新存档 12 分钟：`unknownLeaf=0`（21 次采样）、unwired 0、FATAL/NoSuchFieldError/NoSuchMethodError 0；stage 覆盖 16/12/10/9/8。

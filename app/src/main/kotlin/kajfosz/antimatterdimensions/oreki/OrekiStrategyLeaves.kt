@@ -97,27 +97,44 @@ object OrekiStrategyLeaves {
         return field(celestials, name)
     }
 
-    private fun celestialUnlockBits(name: String): Int {
-        val obj = celestial(name) ?: return 0
-        return (field(obj, "unlockBits") as? Number)?.toInt() ?: 0
+    /**
+     * 读 3.21 原版 `kajfosz.antimatterdimensions.BitSet` 的位掩码。
+     *
+     * 冻结基线里 `Player$Teresa.unlockBits` / `Player$Effarig.unlockBits` /
+     * `Player$V.unlockBits` / `Player$Reality.imaginaryUpgradeBits` 都是
+     * `Lkajfosz/antimatterdimensions/BitSet;`，不是数字；直接强转 Number 恒失败。
+     * 该类的 `f()J` 返回内部 long 位掩码（BitSet.smali:360-369），`e(I)Z` 测单 bit。
+     * 因此这里反射调用 `f()` 取 long；任何一步失败都返回 0（保守 false，不触发 degrade）。
+     */
+    private fun bitSetMask(owner: Any?, fieldName: String): Long {
+        val set = field(owner ?: return 0L, fieldName) ?: return 0L
+        return try {
+            val getter = set.javaClass.getMethod("f")
+            (getter.invoke(set) as? Number)?.toLong() ?: 0L
+        } catch (error: Throwable) {
+            Log.w(TAG, "bitset " + fieldName + " error: " + error.javaClass.simpleName)
+            0L
+        }
     }
+
+    private fun celestialUnlockBits(name: String): Long = bitSetMask(celestial(name), "unlockBits")
 
     // 特蕾莎解锁：unlockBits 至少买过一个特蕾莎升级（原版页签判据是成就 147，
     // 3.21 真机存档中该成就位与 unlockBits 组合不可靠，此处以可观测的解锁位为准）。
-    private fun teresaUnlocked(): Boolean = celestialUnlockBits("teresa") != 0
+    private fun teresaUnlocked(): Boolean = celestialUnlockBits("teresa") != 0L
 
     // 鹿颈长页签 = TeresaUnlocks.effarig（teresa.unlockBits bit3，见
     // web core/secret-formula/celestials/teresa.js:15-20）
-    private fun effarigUnlocked(): Boolean = (celestialUnlockBits("teresa") and (1 shl 3)) != 0
+    private fun effarigUnlocked(): Boolean = (celestialUnlockBits("teresa") and (1L shl 3)) != 0L
 
     // 无名氏页签 = EffarigUnlock.eternity（effarig.unlockBits id=5）
-    private fun enslavedUnlocked(): Boolean = (celestialUnlockBits("effarig") and (1 shl 5)) != 0
+    private fun enslavedUnlocked(): Boolean = (celestialUnlockBits("effarig") and (1L shl 5)) != 0L
 
     // 薇页签 = Achievement(151)。快速判据：鹿颈长 reality 阶段位（id=6）已买 ⇒ 必然已过 151。
-    private fun vUnlocked(): Boolean = (celestialUnlockBits("effarig") and (1 shl 6)) != 0
+    private fun vUnlocked(): Boolean = (celestialUnlockBits("effarig") and (1L shl 6)) != 0L
 
     // 太阳神页签 = VUnlocks.raUnlock（v.unlockBits id=6）
-    private fun raUnlocked(): Boolean = (celestialUnlockBits("v") and (1 shl 6)) != 0
+    private fun raUnlocked(): Boolean = (celestialUnlockBits("v") and (1L shl 6)) != 0L
 
     private fun automatorUnlocked(): Boolean {
         val reality = playerField("reality") ?: return false
@@ -125,15 +142,11 @@ object OrekiStrategyLeaves {
         return field(automator, "forceUnlock") == true
     }
 
-    private fun imaginaryUpgradeBits(): Int {
-        val reality = playerField("reality") ?: return 0
-        return (field(reality, "imaginaryUpgradeBits") as? Number)?.toInt() ?: 0
-    }
+    private fun imaginaryUpgradeBits(): Long = bitSetMask(playerField("reality"), "imaginaryUpgradeBits")
 
     // 莱特拉 = ImaginaryUpgrade(15)；佩勒 = ImaginaryUpgrade(25)
-    private fun laitelaUnlocked(): Boolean = (imaginaryUpgradeBits() and (1 shl 15)) != 0
-    private fun pelleUnlocked(): Boolean = (imaginaryUpgradeBits() and (1 shl 25)) != 0
-
+    private fun laitelaUnlocked(): Boolean = (imaginaryUpgradeBits() and (1L shl 15)) != 0L
+    private fun pelleUnlocked(): Boolean = (imaginaryUpgradeBits() and (1L shl 25)) != 0L
     private fun bool(value: Boolean): Double = if (value) 1.0 else 0.0
 
     /**
