@@ -492,23 +492,23 @@ object OrekiEcAutomation {
             } catch (_: Throwable) {
                 false
             }
-            val ds6 = try {
+            val ds6Bought = try {
                 GameApi.ds6Bought()
             } catch (_: Throwable) {
                 false
             }
             val ecPairFull = isEcCompletionsFull(11) && isEcCompletionsFull(12)
-            val open = automationOn && !doomed && !preReality && !iu25 && (ecPairFull || ds6)
+            val open = automationOn && !doomed && !preReality && !iu25 && (ecPairFull || ds6Bought)
             if (open) {
                 if (!ds1WindowHeld) {
                     ds1WindowHeld = true
                     ds1WindowStartedAt = now
                     OrekiRealityPacing.addHold(HOLD_DS1_WINDOW)
-                    logHold("start ds6=" + ds6 + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, true)
+                    logHold("start ds6=" + ds6Bought + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, true)
                 } else if (now - ds1WindowStartedAt >= DS1_WINDOW_MAX_MS) {
                     releaseDs1Window("timeout", now)
                 } else {
-                    logHold("hold ds6=" + ds6 + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, false)
+                    logHold("hold ds6=" + ds6Bought + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, false)
                 }
                 return
             }
