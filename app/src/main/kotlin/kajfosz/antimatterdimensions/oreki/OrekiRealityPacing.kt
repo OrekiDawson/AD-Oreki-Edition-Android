@@ -38,7 +38,11 @@ object OrekiRealityPacing {
     private const val GAIN_FRACTION = 0.02
     private const val LOG_MIN_MS = 5_000L
 
-    @Volatile private var holdReason: String? = null
+    // [R114-01 §B] 多 hold 组合：多个自动化会同时要求压现实（Laitela 等 run / EC 备树 / DS1-IU25 窗口），
+    // 旧的单槽位会被后写者覆盖（例如 Laitela 的 removeHold 把 EC 备树的 hold 清掉）。
+    private val holds = java.util.LinkedHashSet<String>()
+    /** 仅用于 [holdReasonText] 展示与日志的优先级；阻塞语义只看集合是否非空。 */
+    private val HOLD_PRIORITY = arrayOf("ds1-window", "ec-tree", "laitela")
     @Volatile private var lastResetAt: Long = 0L
     @Volatile private var readySince: Long = 0L
     @Volatile private var lastLogAt: Long = 0L
@@ -214,17 +218,38 @@ object OrekiRealityPacing {
 
     // ---------------------------------------------------------------- 对外 API
     /**
-     * [R107-01] 外部（未来 V/深度挑战自动化）可压住现实：
-     * `setHold(true, "v-finish")` / `setHold(false, null)`。当前无调用方，默认不压。
+     * [R114-01 §B] 兼容入口：`setHold(true, reason)` 等价 [addHold]；
+     * `setHold(false, reason)` 只移除该 reason；`setHold(false, null)` 清空全部 hold（legacy）。
+     * 新代码应直接用 [addHold]/[removeHold]（组合语义，不会误清别人的 hold）。
      */
     @JvmStatic
     fun setHold(hold: Boolean, reason: String?) {
-        holdReason = if (hold) (reason ?: "hold") else null
-        logLimited("hold=" + (holdReason ?: "none"))
+        if (hold) {
+            addHold(reason ?: "hold")
+        } else if (reason != null) {
+            removeHold(reason)
+        } else {
+            synchronized(holds) { holds.clear() }
+            logLimited("hold=none")
+        }
+    }
+
+    /** [R114-01 §B] 新增一个压现实原因（幂等；不会覆盖其它 hold）。 */
+    @JvmStatic
+    fun addHold(reason: String) {
+        val added = synchronized(holds) { holds.add(reason) }
+        if (added) logLimited("hold=" + holdReasonText())
+    }
+
+    /** [R114-01 §B] 移除一个压现实原因（幂等；只移除自己的，不动其它 hold）。 */
+    @JvmStatic
+    fun removeHold(reason: String) {
+        val removed = synchronized(holds) { holds.remove(reason) }
+        if (removed) logLimited("hold=" + holdReasonText())
     }
 
     @JvmStatic
-    fun isHeld(): Boolean = holdReason != null
+    fun isHeld(): Boolean = synchronized(holds) { holds.isNotEmpty() }
 
     /** [R108-01] 现实代际计数（每次真实重置 +1，进程内）。 */
     @JvmStatic
@@ -257,9 +282,16 @@ object OrekiRealityPacing {
         logLimited("reset t=" + nowMs + " realities=" + (realities()?.toString() ?: "?"))
     }
 
-    /** [R109-01 DIAG] 当前压现实原因（只读；null = 未压）。供 EDP_FRAME 心跳输出。 */
+    /** [R109-01 DIAG] 当前压现实原因（只读；"none" = 未压）。多 hold 时按优先级返回一个代表值。 */
     @JvmStatic
-    fun holdReasonText(): String = holdReason ?: "none"
+    fun holdReasonText(): String {
+        val snapshot = synchronized(holds) { holds.toList() }
+        if (snapshot.isEmpty()) return "none"
+        for (priority in HOLD_PRIORITY) {
+            if (snapshot.contains(priority)) return priority
+        }
+        return snapshot.first()
+    }
 
     /** [R109-01 DIAG] 现实重置计数（进程内），供心跳对照。 */
     @JvmStatic
@@ -287,8 +319,8 @@ object OrekiRealityPacing {
                 readySince = 0L
                 return true
             }
-            val hold = holdReason
-            if (hold != null) {
+            val hold = holdReasonText()
+            if (hold != "none") {
                 logLimited("veto=hold(" + hold + ") realities=" + realities + " t=" + nowMs)
                 return false
             }

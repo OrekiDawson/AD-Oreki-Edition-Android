@@ -279,10 +279,10 @@ object OrekiLaitela {
         try {
             if (hold) {
                 if (holdSince == 0L) holdSince = android.os.SystemClock.elapsedRealtime()
-                OrekiRealityPacing.setHold(true, "laitela")
+                OrekiRealityPacing.addHold("laitela")
             } else {
                 holdSince = 0L
-                OrekiRealityPacing.setHold(false, null)
+                OrekiRealityPacing.removeHold("laitela")
             }
         } catch (_: Throwable) {}
     }

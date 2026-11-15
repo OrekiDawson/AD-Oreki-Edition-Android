@@ -184,6 +184,24 @@ object OrekiEcAutomation {
     @Volatile private var treePrepStarts = 0
     @Volatile private var treePrepBuys = 0
 
+    // ------------------------------- [R114-01 §B] DS1 / IU25 现实窗口 hold
+    //
+    // 真实首阻塞（reports/R114-01/agents/econ-analyst-ec-tree-verify.md §A）：
+    // 每次 Reality 都会清零 EC 完成数（web reality.js:651），而 DS1→DS6→IU25 需要同帧窗口
+    // （DS6 已买 ∧ Laitela running ∧ 符文≤1）。旧轮次里 DS6 在 21:46:20.989 买到、
+    // Reality 于 21:46:35 结算、IU25 没买上（存档 imaginaryUpgradeBits=16）。
+    // 这里只在「窗口打开」时压住自动 Reality（OrekiRealityPacing.addHold），
+    // 买到 IU25 / 条件消失 / 180s 硬上限即释放；只读原版状态，不写存档字段。
+    private const val TAG_REALITY_HOLD = "OREKI_REALITY_HOLD"
+    private const val HOLD_DS1_WINDOW = "ds1-window"
+    private const val DS1_WINDOW_MAX_MS = 180_000L
+    private const val HOLD_LOG_MIN_MS = 10_000L
+
+    @Volatile private var ds1WindowHeld = false
+    @Volatile private var ds1WindowStartedAt = 0L
+    @Volatile private var ds1WindowLastLogAt = 0L
+
+
     /** [R114-01 P1 EC-TREE] 只读：当前是否处于备树期（门禁/诊断用）。 */
     @JvmStatic
     fun isTreePrepActive(): Boolean = treePrepStartedAt != 0L
@@ -238,6 +256,9 @@ object OrekiEcAutomation {
      */
     @JvmStatic
     fun step(): Boolean = try {
+        // [R114-01 §B] 现实窗口维护必须在业务早退之前执行：即使本拍不推进 EC，
+        // 也要保证 DS1/IU25 窗口的 hold 被正确建立/释放（fail-open）。
+        tickRealityWindow()
         runOnce()
     } catch (t: Throwable) {
         // 每帧调用，异常绝不能把主循环打崩；但要留痕，避免又变成「在跑但无动作」。
@@ -384,7 +405,7 @@ object OrekiEcAutomation {
                 treePrepTarget = target
                 treePrepStarts++
                 // ① 压住现实：备树期不能让 Reality 结算清空 EC/时间研究树。
-                OrekiRealityPacing.setHold(true, "ec-tree")
+                OrekiRealityPacing.addHold("ec-tree")
                 // ② 暂停真实永恒（窄接口；未接管/玩家已关闭时返回 false，此时 fail-open 仍继续备树，
                 //    只在日志里记录「暂停未生效，备树可能被永恒打断」）。
                 val paused = OrekiAutoEternityAdoption.beginEternityPauseForEcTree()
@@ -403,7 +424,7 @@ object OrekiEcAutomation {
                 return true
             }
             // 备树进行中：重申现实压住（Laitela 可能覆盖 reason，但两者都希望压住现实）。
-            OrekiRealityPacing.setHold(true, "ec-tree")
+            OrekiRealityPacing.addHold("ec-tree")
             if (target != treePrepTarget) {
                 endTreePrep("target-changed")
                 return false
@@ -436,10 +457,8 @@ object OrekiEcAutomation {
         treePrepStartedAt = 0L
         treePrepEndedAt = android.os.SystemClock.elapsedRealtime()
         try {
-            // 只释放自己持有的 hold（Laitela 等其它模块的 hold 不动）。
-            if (OrekiRealityPacing.holdReasonText() == "ec-tree") {
-                OrekiRealityPacing.setHold(false, null)
-            }
+            // [R114-01 §B] 只释放自己持有的 hold（多 hold 组合下不会误清 Laitela/ds1-window）。
+            OrekiRealityPacing.removeHold("ec-tree")
         } catch (_: Throwable) {
         }
         try {
@@ -451,6 +470,99 @@ object OrekiEcAutomation {
         Log.i(TAG, "treeprep end reason=" + reason + " buys=" + treePrepBuys +
             " tt=" + Abi.theorem() + " unlocked=" + Abi.unlocked())
     }
+
+    // --------------------------------------- [R114-01 §B] DS1 / IU25 现实窗口实现
+
+    /**
+     * 每拍维护「DS1 → DS6 → IU25」窗口的现实 hold（只压自动 Reality，不改任何收益/结算判据）。
+     *
+     * 窗口打开（任一）：`EC11 与 EC12 各满 5 次` **或** `DS6 已买`；且 IU25 未买。
+     * 释放：IU25 已买 / 条件消失 / 自动化关闭 / Doomed / 尚未 Reality 解锁 / 180s 硬上限 / 异常。
+     * 失败 fail-open：异常路径只移除自己的 hold，不触碰 Laitela 或 EC 备树的 hold。
+     */
+    private fun tickRealityWindow() {
+        try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            val automationOn = OrekiAutomationScheduler.isEnabled()
+            val doomed = GameApi.isDoomed()
+            // realities == 0 时没有「自动 Reality」可言，压住无意义（且 resetCount 仅进程内计数）。
+            val preReality = OrekiRealityPacing.resetCount() <= 0
+            val iu25 = try {
+                OrekiLaitela.iu25Bought()
+            } catch (_: Throwable) {
+                false
+            }
+            val ds6 = try {
+                GameApi.ds6Bought()
+            } catch (_: Throwable) {
+                false
+            }
+            val ecPairFull = isEcCompletionsFull(11) && isEcCompletionsFull(12)
+            val open = automationOn && !doomed && !preReality && !iu25 && (ecPairFull || ds6)
+            if (open) {
+                if (!ds1WindowHeld) {
+                    ds1WindowHeld = true
+                    ds1WindowStartedAt = now
+                    OrekiRealityPacing.addHold(HOLD_DS1_WINDOW)
+                    logHold("start ds6=" + ds6 + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, true)
+                } else if (now - ds1WindowStartedAt >= DS1_WINDOW_MAX_MS) {
+                    releaseDs1Window("timeout", now)
+                } else {
+                    logHold("hold ds6=" + ds6 + " ec11_12_full=" + ecPairFull + " iu25=" + iu25, false)
+                }
+                return
+            }
+            if (ds1WindowHeld) {
+                val reason = when {
+                    iu25 -> "iu25-bought"
+                    !automationOn -> "automation-off"
+                    doomed -> "doomed"
+                    preReality -> "pre-reality"
+                    else -> "condition-closed"
+                }
+                releaseDs1Window(reason, now)
+            }
+        } catch (t: Throwable) {
+            // fail-open：任何异常都立刻释放，绝不让 hold 永久卡住自动 Reality。
+            releaseDs1Window("exception", android.os.SystemClock.elapsedRealtime())
+            Log.i(TAG_REALITY_HOLD, "window tick failed: " + t)
+        }
+    }
+
+    private fun releaseDs1Window(reason: String, now: Long) {
+        if (!ds1WindowHeld) return
+        ds1WindowHeld = false
+        val heldMs = if (ds1WindowStartedAt != 0L) (now - ds1WindowStartedAt) else 0L
+        ds1WindowStartedAt = 0L
+        try {
+            OrekiRealityPacing.removeHold(HOLD_DS1_WINDOW)
+        } catch (_: Throwable) {
+        }
+        logHold("end reason=" + reason + " heldMs=" + heldMs, true)
+    }
+
+    private fun logHold(what: String, force: Boolean) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (!force && now - ds1WindowLastLogAt < HOLD_LOG_MIN_MS) return
+        ds1WindowLastLogAt = now
+        Log.i(TAG_REALITY_HOLD, what)
+    }
+
+    /** [R114-01 §B] 只读：某关是否已完成满 5 次（原版 completions/maxCompletions）。 */
+    private fun isEcCompletionsFull(id: Int): Boolean {
+        return try {
+            val challenge = Abi.challenge(id) ?: return false
+            val comps = Abi.completions(challenge) ?: return false
+            val max = Abi.maxCompletions(challenge) ?: return false
+            max > 0 && comps >= max
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /** [R114-01 §B] 只读诊断：当前是否持有 DS1/IU25 窗口 hold。 */
+    @JvmStatic
+    fun isDs1WindowHeld(): Boolean = ds1WindowHeld
 
     /** 最小未满级关号（1..12）；全部满级返回 0。 */
     private fun nextTargetId(): Int {
