@@ -1,0 +1,41 @@
+{
+  "label": "r114-final",
+  "built_at": "2026-11-15T22:0x+08:00",
+  "base_commit": "33e15f78704bb2beef1745ccdf557fb0600e6846",
+  "base_branch": "main",
+  "includes": [
+    "PR #92 Reality P0/Eternity adoption",
+    "PR #97 EC gate + EventHub shortname",
+    "PR #100 facts"
+  ],
+  "variant": "r8off",
+  "apk": {
+    "path": "build/r114-final/ab/r8off/app-release.apk",
+    "sha256": "f7f900ae61f41a52f1c0308c1a044e171d2d6914d059f487669a841cdeb8c51a",
+    "bytes": 81584175,
+    "package": "com.oreki.antimatterdimensions",
+    "versionCode": 30210000,
+    "versionName": "3.21.0",
+    "native_code": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "signer_v2_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+    "signer_dn": "CN=AD Oreki Edition, OU=Personal Mod, O=Oreki, L=Local, ST=Local, C=CN"
+  },
+  "toolchain": {
+    "gradle": "9.8.2",
+    "agp": "9.5.1",
+    "r8": "off",
+    "jdk_for_build": "java-21-openjdk-amd64 (scripts/agp/r109_build_ab.sh)",
+    "host_java_default": "openjdk 25.0.5",
+    "game_jar": "/home/oreki/private-staging/r113-leaffix4-tools/out/agpdex2/game-hybrid-sig.jar"
+  },
+  "equivalent_to": "build/r114-fix6/ab/r8off/app-release.apk (identical sha256)",
+  "notes": [
+    "versionCode 30210000 equals historical published max (R103); any NEW official release must bump versionCode (rules §11).",
+    "AVD 真跑: build/r114-fix6 已做过安装/启动/保存档冒烟(realities=9 存档), 正式 180 分钟新档长跑使用本 APK 于 22:04:55 开始。"
+  ]
+}
