@@ -124,15 +124,15 @@ internal object OrekiAutoEternityAdoption {
         val exponent = numberMember(value, "exponent")
         if (mantissa != null && exponent != null) {
             val exp = exponent.toLong()
-            val m = mantissa.toDouble()
+            val mantissaValue = mantissa.toDouble()
             // < 1e15 时保持旧 token 形状（"2"/"12345"）；该区间整数可被 Double 精确表示，
             // Math.round 不会饱和，因此与旧行为完全一致（兼容已落盘的 enabledRealities）。
-            if (exp in 0L..14L && m.isFinite()) {
-                val count = Math.round(m * Math.pow(10.0, exp.toDouble()))
+            if (exp in 0L..14L && mantissaValue.isFinite()) {
+                val count = Math.round(mantissaValue * Math.pow(10.0, exp.toDouble()))
                 return if (count < 1L) "1" else count.toString()
             }
             // ≥ 1e15：用 mantissa/exponent 规约字符串，保证 realities 继续增长时 token 必变。
-            return "m" + canonicalMantissa(m) + "e" + exp
+            return "m" + canonicalMantissa(mantissaValue) + "e" + exp
         }
         // fail-closed 退路：读不到 BigDouble 分量时用 log10 的量化字符串（不还原数值，不会饱和）。
         val log10 = GameApi.log10BigDouble(value) ?: return ""
@@ -142,17 +142,17 @@ internal object OrekiAutoEternityAdoption {
 
     /** 读对象的无参 Number 成员（BigDouble.mantissa()/exponent()）；读不到返回 null（fail-closed）。 */
     private fun numberMember(value: Any, name: String): Number? = try {
-        var k: Class<*>? = value.javaClass
+        var clazz: Class<*>? = value.javaClass
         var found: java.lang.reflect.Method? = null
-        while (k != null && found == null) {
-            for (m in k.declaredMethods) {
-                if (m.name == name && m.parameterCount == 0) {
-                    try { m.isAccessible = true } catch (_: Throwable) {}
-                    found = m
+        while (clazz != null && found == null) {
+            for (method in clazz.declaredMethods) {
+                if (method.name == name && method.parameterCount == 0) {
+                    try { method.isAccessible = true } catch (_: Throwable) {}
+                    found = method
                     break
                 }
             }
-            k = k.superclass
+            clazz = clazz.superclass
         }
         found?.invoke(value) as? Number
     } catch (_: Throwable) {
@@ -160,9 +160,9 @@ internal object OrekiAutoEternityAdoption {
     }
 
     /** Double 的稳定十进制规约：去掉尾随 ".0"，NaN/Inf 不应出现（出现时返回 "?"）。 */
-    private fun canonicalMantissa(m: Double): String {
-        if (!m.isFinite()) return "?"
-        val text = java.lang.Double.toString(m)
+    private fun canonicalMantissa(value: Double): String {
+        if (!value.isFinite()) return "?"
+        val text = java.lang.Double.toString(value)
         return if (text.endsWith(".0")) text.substring(0, text.length - 2) else text
     }
 
