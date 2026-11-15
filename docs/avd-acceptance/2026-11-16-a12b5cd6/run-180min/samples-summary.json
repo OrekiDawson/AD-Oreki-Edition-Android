@@ -1,0 +1,41 @@
+{
+ "count": 37,
+ "first": {
+  "realities": "0.0e0.0",
+  "eternities": "1.0e0.0",
+  "bigE": "1",
+  "ep": "7.5865742e7.0",
+  "ip": "0.0e0.0",
+  "inf": "0.0e0.0",
+  "tt": "0.0e0.0",
+  "studies": 0,
+  "dilStudies": [],
+  "dt": "0.0e0.0",
+  "autoEt": false,
+  "autobuyersOn": true,
+  "creditsFinished": false,
+  "fullGameCompletions": 0,
+  "laitela_unlocked": true,
+  "cel_keys": [],
+  "t": 300.6
+ },
+ "last": {
+  "realities": "9.0e0.0",
+  "eternities": "0.0e0.0",
+  "bigE": "0",
+  "ep": "0.0e0.0",
+  "ip": "0.0e0.0",
+  "inf": "0.0e0.0",
+  "tt": "0.0e0.0",
+  "studies": 0,
+  "dilStudies": [],
+  "dt": "0.0e0.0",
+  "autoEt": false,
+  "autobuyersOn": true,
+  "creditsFinished": true,
+  "fullGameCompletions": 0,
+  "laitela_unlocked": true,
+  "cel_keys": [],
+  "t": 10813.1
+ }
+}
