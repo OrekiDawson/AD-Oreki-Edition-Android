@@ -109,6 +109,18 @@ internal object OrekiAutoEternityGate {
         return !GameApi.autoEternityUnlocked()
     }
 
+    /**
+     * [R114-01 P0] MOD 托管窗口：原版自动器**未解锁**时的放行判据。
+     *
+     * 真机证据（R113-01 180 分钟跑次）：reality 结算后原版 `auto.eternity.isActive` 被原版
+     * `Autobuyers.reset()` 置回 false（里程碑「本现实 100 次永恒」在 reality 清零后未达），
+     * 此后 gate 恒 reason=auto-eternity-off ⇒ 主动永恒永久停摆 ⇒ realities 卡在 2。
+     *
+     * 判据全部交给 OrekiAutoEternityAdoption（落盘、区分玩家手动关闭、跨重启有效）：
+     * 只有「MOD 已接管 且 玩家未手动关闭 且 自动器未解锁」才放行。
+     * 已解锁时一律只认原版开关真实值（玩家手动关闭立刻生效）。
+     */
+    private fun adoptionDriveActive(): Boolean = OrekiAutoEternityAdoption.driveWhileLocked()
     /** 原版完整 canTick（含总开关 / 解锁 / canEternity），仅用于诊断。 */
     @JvmStatic
     fun autoEternityCanRun(): Boolean = GameApi.autoEternityCanRun()
@@ -121,7 +133,9 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun reason(): String {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
-        if (!autoEternitySwitchOn() && !bootstrapActive()) return "auto-eternity-off"
+        if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive()) {
+            return "auto-eternity-off"
+        }
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
@@ -152,6 +166,8 @@ internal object OrekiAutoEternityGate {
         if (autoEternitySwitchOn()) return true
         // [R104 P0] 新档引导窗口内同样放行挑战自动化（否则 EC 链在新档永不启动）。
         if (bootstrapActive()) return true
+        // [R114-01 P0] MOD 托管窗口（原版自动器未解锁）同样放行：否则 reality 后 EC 链停摆。
+        if (adoptionDriveActive()) return true
         val settlementNow = GameApi.canEternity()
         if (settlementNow) logChallengeBlocked()
         return !settlementNow
