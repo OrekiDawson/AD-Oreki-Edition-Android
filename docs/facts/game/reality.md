@@ -8,16 +8,17 @@
 <a id="f-8-3"></a>
 ## 8.3 V（薇）解锁的六项条件与缩放后的取值
 
-> **状态：SUPERSEDED（Android 侧部分）** —— 下列缩放值只在 **Web** 生效；Android 3.21 构建的 `patch_v_unlock_thresholds()` 已按指令暂缓，
-> 实际门槛仍为原版，见 [V 门槛 Android 实际值](#f-v-unlock-thresholds-android)。
+> **状态：SUPERSEDED（Web 数值陈旧 + Android 未应用）** —— 下表为 Web 缩放值的历史快照：`realities` 旧值 200 已被
+> Web 现行 **60** 取代（v.js:65-67，R37-A 下调）；Android 3.21 构建的 `patch_v_unlock_thresholds()` 已按指令暂缓、
+> 实际门槛仍为原版。权威值见 [V 门槛 Android 实际值](#f-v-unlock-thresholds-android) 与 [双端常量对账](mechanics.md#f-parity-constants-2026-11-16)。
 
 `VUnlocks.vAchievementUnlock.requirement()` = 六项 `mainUnlock` 的
 `.every(e => e.progress() >= 1)`（`src/core/secret-formula/celestials/v.js:230-235`）。
-Oreki Edition 缩放后（`v.js:43-45`）：
+Oreki Edition 缩放后（`v.js:65-67`）：
 
 | 项 | 缩放值 | 常量 |
 |---|---|---|
-| realities | 200 | `OREKI_V_UNLOCK_REALITIES` |
+| realities | 60（Web 现行；R37-A 由 200 下调） | `OREKI_V_UNLOCK_REALITIES` |
 | dilatedTime | `1e30`（仅 Web；Android 为 1e320，见下条） | `OREKI_V_UNLOCK_DILATED_TIME` |
 | replicanti | `1e20000` | `OREKI_V_UNLOCK_REPLICANTI` |
 | eternities / infinities / realityMachines | 保持原版（`1e70` / `1e160` / `1e60`） | — |
@@ -32,13 +33,17 @@ Oreki Edition 缩放后（`v.js:43-45`）：
 <a id="f-v-unlock-thresholds-android"></a>
 ## V 解锁门槛的 Android 实际值（CONFIRMED，2026-11-15）
 
-> 本条更正 [C.8.3](#f-8-3) 在 Android 侧的适用范围：C.8.3 的 200 / 1e30 / 1e20000 是 **Web** 缩放值，
+> 本条更正 [C.8.3](#f-8-3) 在 Android 侧的适用范围：C.8.3 表格中的 realities=200 为陈旧值，现行 Web 为 **60 / 1e30 / 1e20000**，
 > Android 3.21 构建**未应用**该缩放。把该缩放当作 Android 实际值的说法标 SUPERSEDED，本节为 Android 权威值。
 
 - `[读码]` `scripts/build_mod.py:7035 patch_v_unlock_thresholds()` 在 3.21 基线因 `u55` 不是已验证的 V.mainUnlock 结构
   （缺少 `Ls55` 条目或 `g:List`）**按指令暂缓**（`:7107-7108`），不写缩放常量。
 - `[读码]` Android 3.21 实际 V 门槛仍为原版：**10000 现实 / 1e320 dilatedTime / 1e320000 replicanti**（其余三项同原版）。
   证据：Issue #98 P1-2；`build/build.log:165` 记录暂缓（构建日志未入库，工作树证据路径）。
+- `[读码]` **与 Web 现行值对比（DIFF）**：Web 为 **60 / 1e30 / 1e20000**（`v.js:65-67`）；Android 为 **10000 / 1e320 / 1e320000**，
+  两端不同（R114-02 对账，见 [双端常量对账](mechanics.md#f-parity-constants-2026-11-16)）；Web 的 realities 已由 200 下调为 60（R37-A）。
+- **SUPERSEDED 记录（Web 旧值，不静默删）**：C.8.3 表格中的 `realities=200` 是 Web 旧值，现行 Web 为 **60**；
+  该表已在本轮更正并标 SUPERSEDED；Android 侧缩放从未生效（见上）。
 - `[推断]` 与 [Dilation 缺口](../open-questions.md#f-dilation-gap) 叠加：无膨胀 + 1e320 DT ⇒ V/Ra 结构性不可达（INFERRED，AVD NOT RUN）。
 - `[读码]` 3.21 真类名（私有基线 `work/base_decoded_321/`）：V.mainUnlock 配置类 **w35**（`u35` a..f + `g:List`）、
   显示常量 **fw.n1 / fw.Y2 / fw.y4**、分母类 **xd4**（realities/10000.0、dilatedTime/320.0、replicanti/320000.0）；
