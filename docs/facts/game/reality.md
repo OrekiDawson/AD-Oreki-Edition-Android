@@ -267,6 +267,8 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 <a id="f-r114-01-reality"></a>
 ## R114-01 · Reality 结算后自动永恒复位：原版根因（2026-11-15）
 
+> **状态：CONFIRMED（2026-11-15，双重 AVD 证据）** —— 原版复位链与 MOD 托管补回均有真实跑次证据；本条为唯一权威条目（不另设重复 FACT）。
+
 > 拆分自原 `docs/FACTS.md`「R114-01」单一事实节；P0 证据与修复见 [自动化·永恒/现实层](../automation/eternity-reality.md#f-r114-01-fix)，
 > 位号见 [天体](../game/celestials.md#f-r114-01-bits)，经济链见 [永恒层](../game/eternity.md#f-r114-01-economy)。
 
@@ -275,3 +277,13 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
   「本现实 100 次永恒」里程碑未达时把 `auto.eternity.isActive` 置 false。
   Web 同源证据：`src/core/reality.js:643/733`、`src/core/autobuyers/autobuyers.js:159/150-154`、
   `src/core/autobuyers/eternity-autobuyer.js:105-109`、`src/core/secret-formula/eternity/eternity-milestones.js:141-144`（eternities: 100）。
+
+**证据（新增，2026-11-15）**：
+
+- `[实测]` **R113-01 180 分钟跑次**（logcat `reports/R113-01/avd-evidence/r113-180min/180min-logcat.txt`，工作树未跟踪/未入库）：
+  12:53:22.386 `OREKI_ET_PROBE autoEternity.isActive=true` → 13:02:46.743 `OREKI_REALITY_DIAG canReality=true`、
+  13:02:46.744 `OREKI_REALITY_PACING reset ... realities=2.0e0`（1→2）→ **13:02:46.771 `autoEternity.isActive=false`（复位后 27 ms）**；
+  13:03:15.361 起至 15:47:20.151 `OREKI_ET_GATE reason=auto-eternity-off` 共 **1965 条**，该时段 ep=0.0e0/bigE=0/canEt=false，eternities 冻结。
+- `[实测]` **R114-01 真新档 180 分钟跑次**（logcat `reports/R114-01/avd-evidence/fresh-180min/logcat.txt`，工作树未跟踪/未入库）：
+  20:26:53.965 `autoEternity.isActive=false` → **20:27:22.480 `true`（28.515 s 恢复）**，证明托管层在 Reality 复位后把开关补回；
+  同期 realities 2→3（t=1901.2 s）→4（t=2603.5 s），`p0-watch.txt` 记录 `P0-ACCEPT realities>=3`。

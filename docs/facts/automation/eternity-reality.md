@@ -644,3 +644,21 @@ Web 不需要新增代码：它的坍缩策略本来就允许反物质继续成�
   +105/-12，新增开关归属观察（`_observeEternityAutobuyerSwitch`）与已解锁只认真实值的门禁；
   回归 `check_eternity_gate.mjs` 87 项 0 失败、诊断用例 22/22、`check_stage_gate.mjs` 18 项 PASS；
   Playwright 真实浏览器端到端 NOT RUN。
+
+<a id="f-r114-01-adoption"></a>
+## R114-01 · MOD 自动永恒开关托管语义（OrekiAutoEternityAdoption，CONFIRMED）
+
+> **状态：CONFIRMED（2026-11-15，AVD fresh 180min：realities 2→3→4，复位后 28.5 s 恢复）**。
+> 实现与验证见 PR #92（记录时 OPEN）；本条只写语义契约，修复叙事见 [#f-r114-01-fix](eternity-reality.md#f-r114-01-fix)。
+
+- **落盘状态**：`adopted` / `userClosed` / `enabledRealities` / `saveId` 四项落盘 `oreki_prefs`；
+  `saveId` 绑定当前存档身份（commit `1246ee2e`），换存档后托管状态失效，不会把旧档的「已接管」带到新档。
+- **Reality 复位后补回**：realities 计数变化即把 `auto.eternity.isActive` 补回 true（commit `70a8329a`）；
+  应用重启/读档后仍有效，不依赖一次性内存标记。
+- **玩家手动关闭粘滞尊重**：本现实已启用过又被玩家关闭 → 不再自动打开；
+  手动关闭识别前移到总开关/未解锁早退之前（commit `b19d184b`），避免被后续逻辑覆盖。
+- **引导层让位**：托管层（managed）就绪后，R104 新档引导层让位，不覆盖玩家手动关闭（commit `aadebba7`）。
+- **门禁语义**：已解锁只认原版开关真实值；未解锁且「已接管 && 玩家未关」才由 `adoptionDriveActive()` 放行。
+- **证据**：commit `70a8329a` / `aadebba7` / `1246ee2e` / `b19d184b` + PR #92；
+  AVD `reports/R114-01/avd-evidence/fresh-180min/`（工作树未跟踪/未入库）：`autoEternity.isActive=false` 20:26:53.965 → `true` 20:27:22.480（28.515 s），
+  realities 2→3（t=1901.2 s）→4（t=2603.5 s）。 `[读码]` + `[实测]`
