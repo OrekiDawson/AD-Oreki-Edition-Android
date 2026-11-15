@@ -177,7 +177,9 @@
   3. **Manifest 规范化复核**：解码 Manifest 必须带 `package==applicationId` 与 `android:extractNativeLibs`；阶段 Manifest 必须两者都已移除。
   4. **`fullgame-inputs.json` 指纹/统计复核**：`public.xml`/`Manifest` SHA-256 与真实输入一致、资源条数与 `stable_ids_entries` 与 public.xml 一致、存在 MAIN/LAUNCHER 入口。
   5. 输出 `build/agp-fullgame-verify/stable-ids-verify.json`（applicationId、资源数、stable-ids 字节数/SHA-256、输入 SHA-256、checks）；任一不一致 fail-closed。
+  6. **换行归一化对齐 Python**：Python `stage_resources` 用 `read_text()`（universal newline，CRLF/CR→LF）归一化后写 LF；Gradle 校验对 `public.xml` 与阶段 `oreki_public_ids.xml` 做**等价归一化**再比较，避免外部 CRLF 解码树被误判（Codex P2 修复）。stable-ids 仍保持逐字节比较（Python 始终写 LF）。
 - 不改 `scripts/agp_prepare_fullgame.py`、不改 Python 侧任何文件、不改 AGP 输入/输出；校验任务只读 + 单一证据输出，可增量。
+- 新增按需自测任务 `verifyFullGameInputsCrlfSelfTest`（`group=verification`，不进入 `preBuild`/CI/发布门禁）：自建最小 CRLF 合成树调用 `scripts/agp_prepare_fullgame.py`（只读）做正/负向验证，输出 `build/fullgame-inputs-crlf-selftest/result.json`。
 
 **验证（真实结果，2026-11-16）**
 
@@ -188,6 +190,9 @@
 | 负向 A（stable-ids 漂移） | 篡改一行 ID 后 `-x :app:prepareFullGameInputs` 运行 | **PASS（fail-closed）**：`stable-ids.txt 与 public.xml 独立重算结果不一致（首处差异第 1 行；期望 …= 0x7f010002；实际 …= 0x7f0109ff）` |
 | 负向 B（输入指纹漂移） | 篡改 `fullgame-inputs.json` 资源条数后运行 | **PASS（fail-closed）**：`fullgame-inputs.json 资源条数 14972 != public.xml 14973` |
 | 恢复后复跑 | `prepareFullGameInputs --rerun-tasks` 重建产物 | **PASS**：stable-ids 回到 `13e9953a…`、fullgame-inputs.json `dab0d9a0…`，校验通过 |
+| CRLF 正向自测 | `./gradlew -p agp :app:verifyFullGameInputsCrlfSelfTest` | **PASS**：合成 CRLF 解码树（含 `$` 资源名以触发 Python 的 LF 归一化路径）→ Python prepare → 校验 PASS（2 条资源 / stable-ids 133 B）；二次运行 `UP-TO-DATE` |
+| CRLF 负向自测 | 同任务内两处篡改 | **PASS（fail-closed）**：篡改 stable-ids → 报「不一致（首处差异第 1 行）」；篡改阶段 `oreki_public_ids.xml`（`_aapt_`→`_aaptX_`）→ 报「`$` 名称改写结果不一致（第 3 行）」 |
+| 修复前 A/B | 临时关闭归一化后运行 CRLF 自测 | **FAIL（预期，证明缺陷存在）**：`阶段 res/values/oreki_public_ids.xml 与 public.xml 的 $ 名称改写结果不一致`；恢复归一化后 **PASS** |
 | fullGame Release A/B | 加校验任务前后 `r109_build_ab.sh --variant off` | **PASS**：APK 仍为 `35ec57586be69fd3e57dae9b0f6288ca8757609d524de2d31133c01bd1295b4d`（与 C1 基线逐字节相同，校验只读） |
 | bridge A/B | `assembleDebug` | **PASS**：APK 仍为 `b4916bff…8604`（校验任务仅 fullGame 注册） |
 | ABI / DEX parity / 目录策略 / facts / compileall | 见结果报告 | **PASS** |
