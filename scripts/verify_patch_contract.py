@@ -977,16 +977,32 @@ def load_version_config():
 
 
 def load_expected_version():
+    """候选 APK 的发布身份（versionName/versionCode）只认 MOD 发布 policy。
+
+    3.21 基线 manifest 里的 version_name/version_code 是**原版基线身份**
+    （versionCode 恒为 30210000），MOD 每次发布必须严格递增 versionCode；
+    二者按规则分开登记，不能再用基线 versionCode 校验候选 APK。
+    """
     cfg = json.loads(VERSION_CONFIG.read_text(encoding="utf-8"))
     current = cfg.get("current")
     man = BINDINGS_DIR / current / "manifest.json"
     if not man.is_file():
         raise ContractFailure(f"缺少 {man}")
-    meta = json.loads(man.read_text(encoding="utf-8"))["android"]
+    baseline = json.loads(man.read_text(encoding="utf-8"))["android"]
+    try:
+        policy = json.loads((ROOT / "scripts" / "release-gate-policy.json").read_text(encoding="utf-8"))
+        version_name = str(policy["versionName"]).strip()
+        version_code = str(policy["versionCode"]).strip()
+    except (OSError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        raise ContractFailure(f"发布 policy 不可用：{exc}") from exc
+    if not version_name or not version_code.isdigit():
+        raise ContractFailure(f"发布 policy 版本字段非法：{version_name!r}/{version_code!r}")
     return {
         "version": current,
-        "version_name": meta.get("version_name"),
-        "version_code": str(meta.get("version_code")),
+        "version_name": version_name,
+        "version_code": version_code,
+        "baseline_version_name": baseline.get("version_name"),
+        "baseline_version_code": str(baseline.get("version_code")),
     }
 
 

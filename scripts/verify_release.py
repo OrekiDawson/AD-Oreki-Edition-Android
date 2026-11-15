@@ -3,7 +3,7 @@
 """候选 APK 语义校验（由 Gradle verifyRelease 调用）。
 
 不是看源码，而是检查 Gradle 已准备好的**候选 APK 本身**，确认：
-  1. 包名 / versionName / versionCode 与预期一致；
+  1. 包名 / versionName / versionCode 与 scripts/release-gate-policy.json 的发布身份一致；
   2. 签名方案与证书指纹是项目个人密钥（未更换签名）；
   3. EC12 限时补丁真的在 dex 里（OrekiSpeed.unscale 紧邻限时比较）；
   4. 挑战进入即完成补丁真的在 dex 里（OrekiInstantChallenge.tick 存在且被 Challenges.update 调用）。
@@ -32,6 +32,9 @@ EXPECT_PKG = "com.oreki.antimatterdimensions"
 # 这正是 R96 交接里「13/15、旧包也一样」的真实原因，不是解析失败。
 # OREKI_BASE 仍可显式覆盖（迁移验证用），相对路径按仓库根解析，与 Gradle 的 file() 一致。
 CONFIG_FILE = ROOT / "baseline" / "version-config.json"
+# 候选 APK 的发布身份（MOD versionName/versionCode）只认 scripts/release-gate-policy.json；
+# baseline 的 apktool.yml 记录的是原版基线身份（versionCode 固定 30210000），两者按规则分开登记。
+RELEASE_POLICY_FILE = ROOT / "scripts" / "release-gate-policy.json"
 
 
 def _resolve_base_dir() -> Path:
@@ -75,12 +78,27 @@ def _read_base_version() -> tuple[str | None, str | None]:
     return (name, code)
 
 
+def _read_release_identity() -> tuple[str, str]:
+    """候选 APK 的 versionName/versionCode 以 MOD 发布 policy 为唯一真源。"""
+    try:
+        policy = json.loads(RELEASE_POLICY_FILE.read_text(encoding="utf-8"))
+        name = str(policy["versionName"]).strip()
+        code = str(policy["versionCode"]).strip()
+    except (OSError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"发布 policy 不可用 {RELEASE_POLICY_FILE}: {exc}") from exc
+    if not name or not code.isdigit():
+        raise RuntimeError(f"发布 policy 的 versionName/versionCode 非法：{name!r}/{code!r}")
+    return name, code
+
+
 try:
     _BASE_DIR: Path | None = _resolve_base_dir()
-    EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_base_version()
+    _BASELINE_VERSION: tuple[str, str] | None = _read_base_version()
+    EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_release_identity()
     _BASE_ERROR: str | None = None
 except (RuntimeError, OSError) as _exc:  # 延迟到 main 报错，避免 import 期硬退出
     _BASE_DIR = None
+    _BASELINE_VERSION = None
     EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = (None, None)
     _BASE_ERROR = str(_exc)
 EXPECT_CERT = "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
@@ -142,7 +160,8 @@ def main():
     if _BASE_ERROR:
         print(f"!! 基线不可用：{_BASE_ERROR}")
         return 2
-    print(f"基线: {_BASE_DIR}  期望 versionName={EXPECT_VERSION_NAME} versionCode={EXPECT_VERSION_CODE}")
+    print(f"基线: {_BASE_DIR}  基线身份={_BASELINE_VERSION}（原版）")
+    print(f"发布身份(policy): versionName={EXPECT_VERSION_NAME} versionCode={EXPECT_VERSION_CODE}")
 
     apk = Path(args.apk)
     if not apk.exists():
