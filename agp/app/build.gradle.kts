@@ -2,7 +2,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
 import org.gradle.api.tasks.Exec
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import java.security.MessageDigest
+import javax.xml.parsers.DocumentBuilderFactory
 
 plugins {
     id("com.android.application")
@@ -18,6 +21,215 @@ fun orekiDescriptorToBinaryName(raw: String): String {
     return text.replace('/', '.')
 }
 
+/** SHA-256（十六进制小写）；用于与 Python 侧 fullgame-inputs.json 指纹做独立复核。 */
+fun orekiSha256(bytes: ByteArray): String {
+    val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
+    val builder = StringBuilder(digest.size * 2)
+    for (byte in digest) {
+        builder.append("%02x".format(byte.toInt() and 0xFF))
+    }
+    return builder.toString()
+}
+
+/** 以非命名空间模式解析受信本地 XML（public.xml / manifest）；失败即抛 GradleException。 */
+fun orekiXmlDocument(file: File): org.w3c.dom.Document {
+    val factory = DocumentBuilderFactory.newInstance()
+    factory.isNamespaceAware = false
+    return try {
+        factory.newDocumentBuilder().parse(file)
+    } catch (error: Exception) {
+        throw GradleException("[oreki] XML 解析失败: " + file + "：" + error.message, error)
+    }
+}
+
+/** 统一换行：Python 侧 read_text() 是 universal newline（CRLF/CR→LF），校验必须等价归一化。 */
+fun orekiNormalizeNewlines(text: String): String = text.replace("\r\n", "\n").replace('\r', '\n')
+
+/**
+ * fullGame 输入校验核心（常规任务与 CRLF 自测任务共用）。
+ * 独立重算 public.xml → stable-ids 期望字节并逐字节比对 Python 产物，复核阶段资源改写、
+ * Manifest 规范化与 fullgame-inputs.json 指纹；任一漂移抛 GradleException（fail-closed）。
+ * 成功返回 (资源数, stable-ids 字节数, stable-ids SHA-256)。
+ */
+fun orekiVerifyFullGameInputs(
+    decodedRoot: File,
+    stageRoot: File,
+    applicationId: String,
+    evidenceFile: File,
+): Triple<Int, Int, String> {
+    val decodedPublicXml = File(decodedRoot, "res/values/public.xml")
+    val decodedManifest = File(decodedRoot, "AndroidManifest.xml")
+    val stagedManifest = File(stageRoot, "AndroidManifest.xml")
+    val stagedStableIds = File(stageRoot, "stable-ids.txt")
+    val stagedPublicIds = File(stageRoot, "res/values/oreki_public_ids.xml")
+    val stagedRawPublicXml = File(stageRoot, "res/values/public.xml")
+    val inputEvidence = File(stageRoot, "fullgame-inputs.json")
+
+    // 1) 解码树 public.xml 逐条校验，并按文档顺序重算 stable-ids 期望字节。
+    val publicXmlBytes = decodedPublicXml.readBytes()
+    val publicDoc = orekiXmlDocument(decodedPublicXml)
+    val publicNodes = publicDoc.getElementsByTagName("public")
+    if (publicNodes.length == 0) {
+        throw GradleException("[oreki] fullGame 输入校验失败: public.xml 没有任何 <public> 资源: " + decodedPublicXml)
+    }
+    val publicEntries = ArrayList<Triple<String, String, String>>()
+    val seenNames = HashMap<String, String>()
+    val seenIds = HashMap<String, String>()
+    for (index in 0 until publicNodes.length) {
+        val element = publicNodes.item(index) as org.w3c.dom.Element
+        val typeName = element.getAttribute("type")
+        val name = element.getAttribute("name")
+        val rawId = element.getAttribute("id")
+        if (typeName.isEmpty() || name.isEmpty() || rawId.isEmpty()) {
+            throw GradleException("[oreki] fullGame 输入校验失败: public.xml 第 " + (index + 1) + " 条缺少 type/name/id")
+        }
+        val hex = rawId.removePrefix("0x").removePrefix("0X")
+        val value = hex.toLongOrNull(16)
+            ?: throw GradleException("[oreki] fullGame 输入校验失败: public.xml 非法资源 ID: " + rawId)
+        if (value < 0x7F000000L || value > 0x7FFFFFFFL) {
+            throw GradleException(
+                "[oreki] fullGame 输入校验失败: public.xml 资源 ID 不在 0x7f 包内: " + rawId + " (" + typeName + "/" + name + ")",
+            )
+        }
+        val resourceId = "0x%08x".format(value)
+        val key = typeName + "/" + name
+        if (seenNames.put(key, resourceId) != null) {
+            throw GradleException("[oreki] fullGame 输入校验失败: public.xml 资源重复: " + key)
+        }
+        if (seenIds.put(resourceId, key) != null) {
+            throw GradleException("[oreki] fullGame 输入校验失败: public.xml 资源 ID 冲突: " + resourceId)
+        }
+        publicEntries.add(Triple(resourceId, typeName, name))
+    }
+    fun renamedPublicName(name: String): String =
+        if (name.contains('$')) "_aapt_" + name.replace("$", "") else name
+
+    val expectedStableIds = StringBuilder()
+    for ((resourceId, typeName, name) in publicEntries) {
+        expectedStableIds
+            .append(applicationId).append(':')
+            .append(typeName).append('/')
+            .append(renamedPublicName(name))
+            .append(" = ").append(resourceId).append('\n')
+    }
+    val expectedStableIdsBytes = expectedStableIds.toString().toByteArray(Charsets.UTF_8)
+    val actualStableIdsBytes = stagedStableIds.readBytes()
+    if (!expectedStableIdsBytes.contentEquals(actualStableIdsBytes)) {
+        val expectedLines = expectedStableIds.toString().lines()
+        val actualLines = stagedStableIds.readText(Charsets.UTF_8).lines()
+        var diffLine = 0
+        while (diffLine < minOf(expectedLines.size, actualLines.size) &&
+            expectedLines[diffLine] == actualLines[diffLine]
+        ) {
+            diffLine++
+        }
+        throw GradleException(
+            "[oreki] fullGame 输入校验失败: stable-ids.txt 与 public.xml 独立重算结果不一致（期望 " +
+                expectedStableIdsBytes.size + " B / 实际 " + actualStableIdsBytes.size + " B；首处差异第 " +
+                (diffLine + 1) + " 行；期望=" + (expectedLines.getOrNull(diffLine) ?: "<EOF>") +
+                "；实际=" + (actualLines.getOrNull(diffLine) ?: "<EOF>") + "）",
+        )
+    }
+    // 2) 阶段 res/values/oreki_public_ids.xml 应等于 public.xml 仅做 name="$X" → name="_aapt_X" 改写。
+    //    Python stage_resources 的 read_text() 使用 universal newline，写回为 LF；因此这里先做
+    //    等价换行归一化（CRLF/CR → LF）再逐行比较，避免外部 CRLF 解码树被误判。
+    val decodedPublicText = orekiNormalizeNewlines(decodedPublicXml.readText(Charsets.UTF_8))
+    val expectedPublicIdsText = Regex("name=\"\\$([A-Za-z0-9_]+)\"").replace(decodedPublicText) { match ->
+        "name=\"_aapt_" + match.groupValues[1] + "\""
+    }
+    val stagedPublicIdsText = orekiNormalizeNewlines(stagedPublicIds.readText(Charsets.UTF_8))
+    if (expectedPublicIdsText != stagedPublicIdsText) {
+        val expectedLines = expectedPublicIdsText.lines()
+        val actualLines = stagedPublicIdsText.lines()
+        var diffLine = 0
+        while (diffLine < minOf(expectedLines.size, actualLines.size) &&
+            expectedLines[diffLine] == actualLines[diffLine]
+        ) {
+            diffLine++
+        }
+        throw GradleException(
+            "[oreki] fullGame 输入校验失败: 阶段 res/values/oreki_public_ids.xml 与 public.xml 的 \$ 名称改写结果不一致" +
+                "（首处差异第 " + (diffLine + 1) + " 行；期望=" + (expectedLines.getOrNull(diffLine) ?: "<EOF>") +
+                "；实际=" + (actualLines.getOrNull(diffLine) ?: "<EOF>") + "）",
+        )
+    }
+    if (stagedRawPublicXml.exists()) {
+        throw GradleException("[oreki] fullGame 输入校验失败: 阶段 res/values/public.xml 仍存在（AGP 会丢弃该文件: " + stagedRawPublicXml + "）")
+    }
+    // 3) Manifest 规范化：解码树带 package + extractNativeLibs，阶段产物必须两者都移除。
+    val decodedManifestBytes = decodedManifest.readBytes()
+    val decodedManifestText = orekiNormalizeNewlines(decodedManifestBytes.toString(Charsets.UTF_8))
+    val decodedRootTag = Regex("<manifest\\b[^>]*>").find(decodedManifestText)
+        ?: throw GradleException("[oreki] fullGame 输入校验失败: 解码 Manifest 没有 <manifest> 根元素")
+    val decodedPackage = Regex("\\bpackage=\"([^\"]*)\"").find(decodedRootTag.value)?.groupValues?.get(1)
+        ?: throw GradleException("[oreki] fullGame 输入校验失败: 解码 Manifest 缺少 package 属性")
+    if (decodedPackage != applicationId) {
+        throw GradleException("[oreki] fullGame 输入校验失败: 解码 Manifest package=" + decodedPackage + " 与 applicationId=" + applicationId + " 不一致")
+    }
+    if (!Regex("<application\\b[^>]*?\\s+android:extractNativeLibs=\"[^\"]*\"").containsMatchIn(decodedManifestText)) {
+        throw GradleException("[oreki] fullGame 输入校验失败: 解码 Manifest 缺少 android:extractNativeLibs（无法验证移除行为）")
+    }
+    val stagedManifestText = orekiNormalizeNewlines(stagedManifest.readText(Charsets.UTF_8))
+    if (Regex("<manifest\\b[^>]*\\bpackage=\"").containsMatchIn(stagedManifestText)) {
+        throw GradleException("[oreki] fullGame 输入校验失败: 阶段 Manifest 仍带 package 属性")
+    }
+    if (Regex("<application\\b[^>]*?\\s+android:extractNativeLibs=\"").containsMatchIn(stagedManifestText)) {
+        throw GradleException("[oreki] fullGame 输入校验失败: 阶段 Manifest 仍带 android:extractNativeLibs")
+    }
+    // 4) fullgame-inputs.json 指纹/统计必须与真实输入一致。
+    @Suppress("UNCHECKED_CAST")
+    val evidence = JsonSlurper().parse(inputEvidence) as Map<String, Any?>
+    if (evidence["package"]?.toString() != applicationId) {
+        throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json package=" + evidence["package"] + " 与 applicationId=" + applicationId + " 不一致")
+    }
+    val source = evidence["source"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 缺少 source")
+    if (source["public_xml_sha256"]?.toString() != orekiSha256(publicXmlBytes)) {
+        throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 的 public.xml 指纹与真实输入不一致")
+    }
+    if (source["manifest_sha256"]?.toString() != orekiSha256(decodedManifestBytes)) {
+        throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 的 Manifest 指纹与真实输入不一致")
+    }
+    val resources = evidence["resources"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 缺少 resources")
+    if (resources["resources"]?.toString()?.toIntOrNull() != publicEntries.size) {
+        throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 资源条数 " + resources["resources"] + " != public.xml " + publicEntries.size)
+    }
+    val outputs = evidence["outputs"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 缺少 outputs")
+    if (outputs["stable_ids_entries"]?.toString()?.toIntOrNull() != publicEntries.size) {
+        throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json stable_ids_entries " + outputs["stable_ids_entries"] + " != " + publicEntries.size)
+    }
+    val components = evidence["components"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullGame 输入校验失败: fullgame-inputs.json 缺少 components")
+    val launcherActivities = components["launcher_activities"] as? List<*> ?: emptyList<Any?>()
+    val launcherAliases = components["launcher_aliases"] as? List<*> ?: emptyList<Any?>()
+    if (launcherActivities.isEmpty() && launcherAliases.isEmpty()) {
+        throw GradleException("[oreki] fullGame 输入校验失败: Manifest 没有 MAIN/LAUNCHER 入口（冷启动验收前提）")
+    }
+    // 5) 输出可复查证据（调用方独占目录，不写 prepareFullGameInputs 的输出树）。
+    evidenceFile.parentFile.mkdirs()
+    val stableIdsSha256 = orekiSha256(actualStableIdsBytes)
+    val verifyEvidence = linkedMapOf<String, Any>(
+        "schema" to 1,
+        "stage" to "agp-fullgame-inputs-verify",
+        "applicationId" to applicationId,
+        "resources" to publicEntries.size,
+        "stable_ids_bytes" to actualStableIdsBytes.size,
+        "stable_ids_sha256" to stableIdsSha256,
+        "decoded_public_xml_sha256" to orekiSha256(publicXmlBytes),
+        "decoded_manifest_sha256" to orekiSha256(decodedManifestBytes),
+        "checks" to linkedMapOf<String, Any>(
+            "stable_ids_byte_equal" to true,
+            "staged_public_ids_transform_equal" to true,
+            "manifest_normalized" to true,
+            "input_evidence_consistent" to true,
+            "newline_normalized_like_python" to true,
+        ),
+    )
+    evidenceFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(verifyEvidence)) + "\n", Charsets.UTF_8)
+    return Triple(publicEntries.size, actualStableIdsBytes.size, stableIdsSha256)
+}
 // Version identity is independent of the pinned Android 3.21.0 upstream baseline.
 // Keep the AGP manifest in lockstep with the reviewed release-gate policy.
 val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
@@ -372,10 +584,207 @@ if (fullGame) {
     }
 }
 
+if (fullGame) {
+    // [R114-02 C2] fullGame 输入准备链的 Python 依赖盘点与 Gradle 原生校验（Issue #52 / #61）。
+    // scripts/agp_prepare_fullgame.py 负责 Manifest 规范化、res 阶段化与 stable-ids 生成；
+    // 该脚本文件所有权属 buildmod-retirement（本闭包不修改、不替换它）。这里把「public.xml /
+    // stable-ids 校验」责任独立迁到 Gradle：从解码树 public.xml 重新计算 aapt2 --stable-ids
+    // 期望字节，并独立复核阶段产物（Manifest 规范化、oreki_public_ids.xml 改写、输入指纹），
+    // 任何漂移 fail-closed。校验只读，不改变任何 AGP 输入/输出（A/B 要求 fullGame APK 逐字节不变）。
+    // 校验核心见 orekiVerifyFullGameInputs(...)，与 CRLF 自测任务共用同一实现。
+    val orekiFullGameApplicationId = requireNotNull(android.defaultConfig.applicationId) {
+        "完整游戏模式必须已设置 applicationId"
+    }
+    val orekiDecodedPublicXml = File(decodedTree, "res/values/public.xml")
+    val orekiDecodedManifest = File(decodedTree, "AndroidManifest.xml")
+    val orekiStagedManifest = File(fullGameStage, "AndroidManifest.xml")
+    val orekiStagedStableIds = File(fullGameStage, "stable-ids.txt")
+    val orekiStagedPublicIds = File(fullGameStage, "res/values/oreki_public_ids.xml")
+    val orekiInputEvidence = File(fullGameStage, "fullgame-inputs.json")
+    val orekiVerifyEvidence = File(repoRoot, "build/agp-fullgame-verify/stable-ids-verify.json")
+
+    tasks.register("verifyFullGameInputs") {
+        group = "verification"
+        description =
+            "Gradle 原生独立校验 fullGame 输入：public.xml → stable-ids 期望字节、Manifest 规范化、" +
+                "阶段 oreki_public_ids.xml 改写、fullgame-inputs.json 指纹/统计"
+        dependsOn(prepareFullGameInputs)
+        inputs.file(orekiDecodedPublicXml).withPropertyName("orekiDecodedPublicXml")
+        inputs.file(orekiDecodedManifest).withPropertyName("orekiDecodedManifest")
+        inputs.file(orekiStagedManifest).withPropertyName("orekiStagedManifest")
+        inputs.file(orekiStagedStableIds).withPropertyName("orekiStagedStableIds")
+        inputs.file(orekiStagedPublicIds).withPropertyName("orekiStagedPublicIds")
+        inputs.file(orekiInputEvidence).withPropertyName("orekiInputEvidence")
+        outputs.file(orekiVerifyEvidence).withPropertyName("orekiVerifyEvidence")
+        doLast {
+            val summary = orekiVerifyFullGameInputs(
+                decodedTree,
+                fullGameStage,
+                orekiFullGameApplicationId,
+                orekiVerifyEvidence,
+            )
+            logger.lifecycle(
+                "[oreki] fullGame 输入校验通过：资源 " + summary.first + " 条 / stable-ids " +
+                    summary.second + " B / SHA-256 " + summary.third + " -> " + orekiVerifyEvidence,
+            )
+        }
+    }
+}
+
+// [R114-02 C2 修复] CRLF 解码树自测（按需运行，不进入 preBuild 与发布门禁）：
+// Python 侧 stage_resources 用 read_text()（universal newline）归一化后写 LF；Gradle 校验必须做
+// 等价归一化，否则外部 CRLF 解码树会被误判失败（Codex P2）。本任务自建最小合成 CRLF 解码树 →
+// 调 scripts/agp_prepare_fullgame.py（只读使用，不修改）生成阶段产物 → 正向应 PASS、两处篡改应
+// fail-closed；输出证据 JSON。CI 未接该任务（不改 ci.yml）。
+val orekiCrlfSelfTestDir = File(repoRoot, "build/fullgame-inputs-crlf-selftest")
+val orekiCrlfSelfTestResult = File(orekiCrlfSelfTestDir, "result.json")
+val orekiExecRunner = providers
+tasks.register("verifyFullGameInputsCrlfSelfTest") {
+    group = "verification"
+    description = "CRLF 解码树正/负向自测：Python prepare 产物经 Gradle 校验（含换行归一化）应 PASS；篡改后应 fail-closed"
+    inputs.file(File(repoRoot, "scripts/agp_prepare_fullgame.py")).withPropertyName("orekiPrepareFullGameScript")
+    outputs.file(orekiCrlfSelfTestResult).withPropertyName("orekiCrlfSelfTestResult")
+    doLast {
+        val crlf = "\r\n"
+        val appId = "com.oreki.antimatterdimensions"
+        val decodedDir = File(orekiCrlfSelfTestDir, "decoded")
+        val stageDir = File(orekiCrlfSelfTestDir, "stage")
+        val negStableDir = File(orekiCrlfSelfTestDir, "stage-neg-stable")
+        val negIdsDir = File(orekiCrlfSelfTestDir, "stage-neg-ids")
+
+        // 1) 合成最小 CRLF 解码树（含一个 $ 资源名以触发 Python 的 XML 改写/LF 归一化路径）。
+        orekiCrlfSelfTestDir.deleteRecursively()
+        File(decodedDir, "res/values").mkdirs()
+        File(decodedDir, "res/drawable").mkdirs()
+        File(decodedDir, "lib/arm64-v8a").mkdirs()
+        File(decodedDir, "assets").mkdirs()
+        File(decodedDir, "AndroidManifest.xml").writeText(
+            listOf(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"" + appId + "\" android:versionCode=\"30210000\" android:versionName=\"3.21.0\">",
+                "    <application android:extractNativeLibs=\"true\" android:label=\"crlf-selftest\">",
+                "        <activity android:name=\".CrlfSelfTestActivity\">",
+                "            <intent-filter>",
+                "                <action android:name=\"android.intent.action.MAIN\" />",
+                "                <category android:name=\"android.intent.category.LAUNCHER\" />",
+                "            </intent-filter>",
+                "        </activity>",
+                "    </application>",
+                "</manifest>",
+                "",
+            ).joinToString(crlf),
+            Charsets.UTF_8,
+        )
+        File(decodedDir, "res/values/public.xml").writeText(
+            listOf(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+                "<resources>",
+                "    <public type=\"drawable\" name=\"\$crlf_probe__0\" id=\"0x7f080000\" />",
+                "    <public type=\"string\" name=\"app_name\" id=\"0x7f0f0000\" />",
+                "</resources>",
+                "",
+            ).joinToString(crlf),
+            Charsets.UTF_8,
+        )
+        File(decodedDir, "res/drawable/\$crlf_probe__0.xml").writeText(
+            "<shape xmlns:android=\"http://schemas.android.com/apk/res/android\" android:shape=\"rectangle\" />" + crlf,
+            Charsets.UTF_8,
+        )
+        File(decodedDir, "lib/arm64-v8a/libcrlfprobe.so").writeBytes(byteArrayOf(1, 2, 3, 4))
+        File(decodedDir, "assets/crlf-probe.txt").writeText("crlf-probe\n", Charsets.UTF_8)
+
+        // 2) 用（只读使用的）Python 生成阶段产物，模拟真实 prepareFullGameInputs。
+        val prep = orekiExecRunner.exec {
+            workingDir = repoRoot
+            commandLine(
+                "python3",
+                "scripts/agp_prepare_fullgame.py",
+                "--decoded-tree", decodedDir.relativeTo(repoRoot).path,
+                "--out", stageDir.relativeTo(repoRoot).path,
+            )
+        }
+        if (prep.result.get().exitValue != 0) {
+            throw GradleException(
+                "[oreki] CRLF 自测失败: prepare_fullgame 非零退出 " + prep.result.get().exitValue +
+                    "；stdout=" + prep.standardOutput.asText.get() + "；stderr=" + prep.standardError.asText.get(),
+            )
+        }
+
+        // 3) 正向：CRLF 解码树 → 校验必须 PASS（修复前会在 oreki_public_ids.xml 比较处误判失败）。
+        val positive = orekiVerifyFullGameInputs(
+            decodedDir,
+            stageDir,
+            appId,
+            File(orekiCrlfSelfTestDir, "positive.json"),
+        )
+
+        // 4) 负向 A：篡改 stable-ids → 必须 fail-closed。
+        stageDir.copyRecursively(negStableDir, overwrite = true)
+        val stableIdsFile = File(negStableDir, "stable-ids.txt")
+        val stableText = stableIdsFile.readText(Charsets.UTF_8)
+        val idStart = stableText.indexOf(" = 0x")
+        if (idStart < 0) throw GradleException("[oreki] CRLF 自测失败: 合成 stable-ids 没有 ID 行")
+        val lineEnd = stableText.indexOf('\n', idStart).let { if (it < 0) stableText.length else it }
+        stableIdsFile.writeText(
+            stableText.substring(0, idStart) + " = 0x7f0fffff" + stableText.substring(lineEnd),
+            Charsets.UTF_8,
+        )
+        val negStableMessage = try {
+            orekiVerifyFullGameInputs(decodedDir, negStableDir, appId, File(orekiCrlfSelfTestDir, "negative-stable.json"))
+            null
+        } catch (error: GradleException) {
+            error.message
+        }
+        if (negStableMessage == null) {
+            throw GradleException("[oreki] CRLF 自测失败: 篡改 stable-ids 未被 fail-closed 拦截")
+        }
+
+        // 5) 负向 B：篡改阶段 oreki_public_ids.xml（CRLF 归一化比较路径）→ 必须 fail-closed。
+        stageDir.copyRecursively(negIdsDir, overwrite = true)
+        val idsFile = File(negIdsDir, "res/values/oreki_public_ids.xml")
+        val idsText = idsFile.readText(Charsets.UTF_8)
+        if (!idsText.contains("name=\"_aapt_")) {
+            throw GradleException("[oreki] CRLF 自测失败: 合成阶段 oreki_public_ids.xml 未包含 _aapt_ 改名")
+        }
+        idsFile.writeText(idsText.replaceFirst("name=\"_aapt_", "name=\"_aaptX_"), Charsets.UTF_8)
+        val negIdsMessage = try {
+            orekiVerifyFullGameInputs(decodedDir, negIdsDir, appId, File(orekiCrlfSelfTestDir, "negative-ids.json"))
+            null
+        } catch (error: GradleException) {
+            error.message
+        }
+        if (negIdsMessage == null) {
+            throw GradleException("[oreki] CRLF 自测失败: 篡改 oreki_public_ids.xml 未被 fail-closed 拦截")
+        }
+
+        // 6) 证据输出（确定性内容，供增量与审计）。
+        val resultMap = linkedMapOf<String, Any>(
+            "schema" to 1,
+            "stage" to "fullgame-inputs-crlf-selftest",
+            "decodedTreeNewline" to "CRLF",
+            "positive" to linkedMapOf<String, Any>(
+                "resources" to positive.first,
+                "stable_ids_bytes" to positive.second,
+                "stable_ids_sha256" to positive.third,
+            ),
+            "negativeStableIdsFailClosed" to true,
+            "negativeStagedIdsFailClosed" to true,
+            "negativeStableIdsMessage" to (negStableMessage ?: ""),
+            "negativeStagedIdsMessage" to (negIdsMessage ?: ""),
+        )
+        orekiCrlfSelfTestResult.parentFile.mkdirs()
+        orekiCrlfSelfTestResult.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(resultMap)) + "\n", Charsets.UTF_8)
+        logger.lifecycle(
+            "[oreki] CRLF 输入自测通过：positive resources=" + positive.first +
+                " / stable-ids " + positive.second + " B；两处篡改均 fail-closed",
+        )
+    }
+}
 tasks.named("preBuild") {
     dependsOn(generateKotlinBindings)
     if (fullGame) {
         dependsOn(prepareFullGameInputs)
+        dependsOn("verifyFullGameInputs")
         dependsOn("prepareFullGameAssets")
         dependsOn("generateChangelogZh")
         dependsOn("verifyTutorialAsset")
