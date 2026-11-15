@@ -8263,64 +8263,125 @@ R79 收尾时 `work/mod` 有被后台探测中途写入的痕迹（`a.smali` mti
 - `[门禁]` `verifyRelease` **14/14 PASS**（126 s）；`verifyPatchContract` **17/17 PASS**（120 s）。最终 APK 已 `adb -s emulator-5556 install -r` 成功、游戏前台运行、无崩溃。
 - `[发布]` 门禁未覆盖「调度器实际购买 / 挑战真实结算 / ID1 预留 / 存档恢复」，因此**不覆盖 `release/反物质维度.apk`**，只交付带版本标识的候选：`release/反物质维度_R92候选_0764.apk`、`C:\Users\Oreki\OneDrive\反物质维度_R92候选_0764.apk`、`C:\Users\Oreki\小米云盘\反物质维度_R92候选_0764.apk`，四处 SHA-256 一致（Coreutils `cp` + `sha256sum` 本地核验，未回读云端）。旧 3.20 稳定包与 R89/R90/R91 候选全部保留。
 - `[Web 交付]` 源提交 `17e7a9f`（R92：修复前期维度提升批量购买字段名失效并补齐夹具）已 push；Pages 提交 `6e8a933` 已 push；线上 `https://oreki.net/src/game.js` SHA-256 `0dddc1b3c5505bc6a99cf53a3b100225dc1291e0c991d71ba24b634f3df38b81`，含 `player.dimensionBoosts`（4 处）且不含 `player.dimBoosts`。
-- `[已确认的下一步瓶颈]` 3.21 真实证据（`work/base_decoded_321` 逐行核对）：`DimBoostAutobuyerState.g()Z` 需普通挑战 10 完成、`GalaxyAutobuyerState.g()Z` 需挑战 11 完成，而 Android 的 `OrekiStageAuto.enableEarly()` 只打开这两个原版自动器 ⇒ **Android 在首次无限之前没有自动维度提升 / 星系购买**，只能手点；Web 侧由 MOD 例程补上，**双端不一致**。已核实的 3.21 入口线索：`Player.u()D` = `dimensionBoosts` 公开 getter、`Lm01;->c(DZZZ)V` = 维度提升请求入口；星系请求入口在 `prestige/d` 的 suspend 链，尚未确认可否安全反射调用。- `[续跑·16:30~16:55]` 存档恢复实测：冷启动读回上次落盘存档并继续推进（IP 290→330，`OfflineSimulation: away 0.3 min, simulated 0.3 min, completed`）；但强杀会丢掉「上次落盘之后」的进度（维度提升 35→15、无限进度 80.20%→31.70%），属 3.21 原版落盘节奏（payload 内无任何存档代码），不是 MOD 逻辑。
+- `[已确认的下一步瓶颈]` 3.21 真实证据（`work/base_decoded_321` 逐行核对）：`DimBoostAutobuyerState.g()Z` 需普通挑战 10 完成、`GalaxyAutobuyerState.g()Z` 需挑战 11 完成，而 Android 的 `OrekiStageAuto.enableEarly()` 只打开这两个原版自动器 ⇒ **Android 在首次无限之前没有自动维度提升 / 星系购买**，只能手点；Web 侧由 MOD 例程补上，**双端不一致**。已核实的 3.21 入口线索：`Player.u()D` = `dimensionBoosts` 公开 getter、`Lm01;->c(DZZZ)V` = 维度提升请求入口；星系请求入口在 `prestige/d` 的 suspend 链，尚未确认可否安全反射调用。
+- `[续跑·16:30~16:55]` 存档恢复实测：冷启动读回上次落盘存档并继续推进（IP 290→330，`OfflineSimulation: away 0.3 min, simulated 0.3 min, completed`）；但强杀会丢掉「上次落盘之后」的进度（维度提升 35→15、无限进度 80.20%→31.70%），属 3.21 原版落盘节奏（payload 内无任何存档代码），不是 MOD 逻辑。
 - `[归因]` 轮询 5 分钟零 `OREKI_SCHED act` 不是抓取失败：逐条核对 `OrekiStageAuto.onAutoBuyerTick()` 的全部受节拍任务，本档（IP 330、反物质 1.56e167、首次无限后未 Break 升级）在原版判据下**没有任何可执行动作**（ID1 需 IP 1e8、无限升级需 IP ≥1e6、献祭前置未满足、早已 Break）⇒ 无 act 是正确行为；IP 增速约 6/分钟，本轮窗口内不可能触发。标记 NOT RUN（原因明确），不写成 PASS。
 - `[瓶颈·已定位到行]` `OrekiStageAuto.kt:144-147` `if (!GameApi.hasInfinity()) { enableEarly(); return }` —— 首次无限之前调度器**一个任务都不跑**；而 `enableEarly()` 只开原版 `Auto.i()`/`Auto.p()`，其 3.21 解锁条件是普通挑战 10/11（`DimBoostAutobuyerState.g()Z` / `GalaxyAutobuyerState.g()Z`）⇒ Android 首次无限前**没有自动维度提升/星系**。新档实测界面同时显示「维度提升 (19) 需要 95 第八维度 / 当前 100」＝买得起却没人替它买，与 Web（MOD 例程 + R92 批量购买）双端不一致。下一轮修复 ABI 已核实：`Player.u()D`/`Player.A()J` 取计数，`UpgradeableAutobuyerState.t()`/`A(Z)` 为原版购买入口。
-- `[ABI]` 「首次无限前自动维度提升/星系」的 3.21 真实入口已逐行核实：原版请求入口是 `Lm01;->n(Z)V`（游戏的四个重置按钮 `i22/j22/k22/l22.C(ZZ)V` 都调它；`n(false)`=维度提升、`n(true)`=星系重置，内部自带挑战中/前置/上限守卫并走 `m57.u(...)` 原版结算），计数用 `Player.u()D`（dimensionBoosts）与 `Player.A()J`（galaxies）；**不采用** `m01.d(DI)V`→`m01.c(DZZZ)V` 那条路，因为它的参数由 autobuyer 协程 `q(Lrj0;)` 计算，复刻风险高。- `[关键发现]` Android 侧**没有** Web 的 AD4「保留反物质」实现（`rg keepAntimatter|保留反物质 scripts/payload` 0 命中），而 3.21 原版在未解锁成就 111 / 未拿现实 Perk 时会在维度提升/星系重置时**清零反物质** ⇒ 直接移植 Web 的「批量自动维度提升/星系」会把 AD4 当初解决的死锁闭环（反物质反复清零 → 爬不到 1.797e308 → 发不出坍缩 → 没有 IP）重新装回 Android。下一轮必须**先补 AD4 等价的 Kotlin 实现（重置前后保留反物质，窗口与 Web 一致），再加受节拍约束的批量重置**，两者缺一不可；这也解释了 Android 侧一直没做这段自动化的原因。
-- `[逆向·16:47]` `m01.n(Z)V`（3.21 `smali_classes2/m01.smali:2092-2245`）整段读完：`Z=false` 分支 = 守卫（普通挑战 `n63.f()` / 无限挑战 `c22.d()`）→ `fl0.r(cw, Player.u()D)` 取需求 → `m57.u(...)` 换算 → `Player.C0(D)` **写回新的维度提升数**；`Z=true` 分支只是「`e22.k()` 为真且 `Player.A()==0` 时把星系数置 1」，**不是星系重置请求**。⇒ 真正的重置执行体在 `m01.c(DZZZ)V`（内部回调 `m01.n`/`m01.m`），`n(false)` 自身不做需求判定 ⇒ **在读完 `m01.c`/`fl0.r`/`m57.u` 之前不落代码**，避免白触发一次重置；星系请求入口仍未定位（`prestige/d` suspend 链），明确只做维度提升一半。AD4 等价可实现：反物质货币 `iq0.d`（`op0`），`op0.K()` 取值、`op0.C(BigDouble)` 加（同步 `Player.Records`）。- `[工具坑]` Git 的 **racy-git** 索引问题在本工作区真实出现过：同一秒内追加 `FACTS.md` 后 `git add` 报「no changes added to commit」，但 `git diff HEAD` 明明有差异（索引 stat 缓存与文件 mtime 同秒 ⇒ Git 误判为 clean）。可靠修法：`git update-index --really-refresh -- <file>` 后再 `git add`；若仍不行，改用 `git hash-object` + `git update-index --cacheinfo` 强制写入索引。另：github.com 直连 443 一度不通（`Recv failure: Connection was reset`），本机 clash 实测监听 **7897**，用**进程级** `-c http.proxy=http://127.0.0.1:7897` 完成 push，不改全局配置。- `[代码·R92 Android]` 修掉双端不一致：Web 从 R82 起 `buyInfinityUpgrades()` 有 `shouldReserveIpForId1()` + `leavesId1Reserve(cost)`，而 Android 只有 Break 商店（R87）有这条底线、无限升级路径没有 ⇒ IP 会被花到 ID1 门槛以下（门槛一破，「暂停坍缩」解除、反物质清零、峰值门槛重爬）。本轮在 Kotlin 落地：`OrekiBreakShop` 新增公开判据 `id1ReserveActive()`（首次永恒前 + ID1 未解锁 + IP 已达标），`OrekiStageAuto.buyInfinityUpgrades()` 在窗口内暂停无限升级购买（保守到底线；Web 是按单条 cost 精算，差异已记录）。`build_kotlin.py` 通过（`classes4.dex` 2,665,088 B），`check_automation_scheduler.py` 新增 3 条静态断言后 **50/50 全过**；提交 `2aef2cd`。- `[构建·R92 第二次]` 带「无限升级 ID1 IP 预留」Kotlin 改动的完整 Release 构建：`gradlew assembleRelease --offline` 16:57:28 → 17:09:24（11m56s），产物 `build/gradle-stage/反物质维度.apk` 82,621,937 B，SHA-256 `6CB5E274424ECDC103B1CD0F80ED197F9158DA9D343E8C3B9682BADCB522F123`，3.21.0 / 30210000，v2+v3，证书 `95960bce…3197`。`verifyRelease` 14/14（83 s）、`verifyPatchContract` 17/17（118 s）；反编译确认 `OrekiBreakShop.id1ReserveActive()Z` 与 `OrekiStageAuto` 中的调用点已进入 DEX。
-- `[交付·R92 第二次]` 新候选 `release/反物质维度_R92候选_6cb5.apk` + OneDrive + 小米云盘同名文件，四处 SHA-256 一致（Coreutils `cp` + `sha256sum` 本地核验，未回读云端）；已 `adb -s emulator-5556 install -r` 成功、冷启动后 `OREKI_SCHED: init 调度：已启用 · 间隔 10 秒`、无 FATAL/VerifyError/NoSuchMethodError。旧 `release/反物质维度.apk`（3.20）与 R89/R90/R91、R92 的 0764 候选全部保留，未覆盖。- `[逆向·17:20]` `fl0.r(Lcw;D)` 实为 `new BigDouble(D)` 的构造快捷方式；`m01.i()D` = `floor(Player.u())`（整数提升数，非需求量）；`m01.n(false)` 的可见链路只有 守卫 → `BigDouble(当前提升数)` → `m57.u(...)` → `Player.C0(...)`，**方法内没有任何 `m01.c`/`m01.m` 调用** ⇒ 真正的重置在 `m57.u` 的四个回调里或别处 ⇒ **读完 `m57.u` 之前不反射调用 `m01.n(false)`**。
-- `[AVD 观察]` 反复 `am force-stop` 冷启动会让新档回滚到上次落盘（本轮观察：IP 550→554、无限次数 275→277，但维度提升 19→2、无限进度 31%→6.45%）⇒ 180 分钟墙钟测试必须一次连续运行、中途不杀进程；这也是本轮之前"进度看似停滞"的原因之一。- `[代码·R92 关键修复]` 运行日志抓到 `OREKI_API_MISS: missing invoke g0: IllegalArgumentException` ⇒ 定位为**真实缺陷**：`GameApi.setAutobuyersOn()` 绑的是 `Options.g0`，而 3.21 里 `g0` 是 `g0(I)V`（参数 int），反射用 Boolean 调用必抛 `IllegalArgumentException` 并被 `call()` 吞成 null ⇒ `enableEarly()` 的「打开原版自动购买器」**从未生效**，调度器 `allow()` 的 `originalAutobuyersOn()` 闸门可能长期为假（所有受节拍任务被拒、日志里没有 act）。3.21 真实符号已逐行核实：字段 `Player$Options.autobuyersOn:Z`（第 25 行）、getter `c()Z`（第 1071 行）、**setter `e0(Z)V`（第 1126 行 `iput-boolean p1`）**。已改为绑定 `e0(Z)` 并显式限定参数类型；`check_automation_scheduler.py` 新增 2 条断言（**52 项全过**）。提交 `f0f5af6`。- `[构建·R92 第三次]` 带「autobuyersOn setter 修复」的完整 Release 构建：17:20:54 → 17:31:44（10m50s），产物 82,621,937 B，SHA-256 `1340917533B65D7153723B68125F68EE1B0EAA7840FAFE100F0AC244B6767C1D`；`verifyRelease` 14/14（68 s）、`verifyPatchContract` 17/17（104 s）。
+- `[ABI]` 「首次无限前自动维度提升/星系」的 3.21 真实入口已逐行核实：原版请求入口是 `Lm01;->n(Z)V`（游戏的四个重置按钮 `i22/j22/k22/l22.C(ZZ)V` 都调它；`n(false)`=维度提升、`n(true)`=星系重置，内部自带挑战中/前置/上限守卫并走 `m57.u(...)` 原版结算），计数用 `Player.u()D`（dimensionBoosts）与 `Player.A()J`（galaxies）；**不采用** `m01.d(DI)V`→`m01.c(DZZZ)V` 那条路，因为它的参数由 autobuyer 协程 `q(Lrj0;)` 计算，复刻风险高。
+- `[关键发现]` Android 侧**没有** Web 的 AD4「保留反物质」实现（`rg keepAntimatter|保留反物质 scripts/payload` 0 命中），而 3.21 原版在未解锁成就 111 / 未拿现实 Perk 时会在维度提升/星系重置时**清零反物质** ⇒ 直接移植 Web 的「批量自动维度提升/星系」会把 AD4 当初解决的死锁闭环（反物质反复清零 → 爬不到 1.797e308 → 发不出坍缩 → 没有 IP）重新装回 Android。下一轮必须**先补 AD4 等价的 Kotlin 实现（重置前后保留反物质，窗口与 Web 一致），再加受节拍约束的批量重置**，两者缺一不可；这也解释了 Android 侧一直没做这段自动化的原因。
+- `[逆向·16:47]` `m01.n(Z)V`（3.21 `smali_classes2/m01.smali:2092-2245`）整段读完：`Z=false` 分支 = 守卫（普通挑战 `n63.f()` / 无限挑战 `c22.d()`）→ `fl0.r(cw, Player.u()D)` 取需求 → `m57.u(...)` 换算 → `Player.C0(D)` **写回新的维度提升数**；`Z=true` 分支只是「`e22.k()` 为真且 `Player.A()==0` 时把星系数置 1」，**不是星系重置请求**。⇒ 真正的重置执行体在 `m01.c(DZZZ)V`（内部回调 `m01.n`/`m01.m`），`n(false)` 自身不做需求判定 ⇒ **在读完 `m01.c`/`fl0.r`/`m57.u` 之前不落代码**，避免白触发一次重置；星系请求入口仍未定位（`prestige/d` suspend 链），明确只做维度提升一半。AD4 等价可实现：反物质货币 `iq0.d`（`op0`），`op0.K()` 取值、`op0.C(BigDouble)` 加（同步 `Player.Records`）。
+- `[工具坑]` Git 的 **racy-git** 索引问题在本工作区真实出现过：同一秒内追加 `FACTS.md` 后 `git add` 报「no changes added to commit」，但 `git diff HEAD` 明明有差异（索引 stat 缓存与文件 mtime 同秒 ⇒ Git 误判为 clean）。可靠修法：`git update-index --really-refresh -- <file>` 后再 `git add`；若仍不行，改用 `git hash-object` + `git update-index --cacheinfo` 强制写入索引。另：github.com 直连 443 一度不通（`Recv failure: Connection was reset`），本机 clash 实测监听 **7897**，用**进程级** `-c http.proxy=http://127.0.0.1:7897` 完成 push，不改全局配置。
+- `[代码·R92 Android]` 修掉双端不一致：Web 从 R82 起 `buyInfinityUpgrades()` 有 `shouldReserveIpForId1()` + `leavesId1Reserve(cost)`，而 Android 只有 Break 商店（R87）有这条底线、无限升级路径没有 ⇒ IP 会被花到 ID1 门槛以下（门槛一破，「暂停坍缩」解除、反物质清零、峰值门槛重爬）。本轮在 Kotlin 落地：`OrekiBreakShop` 新增公开判据 `id1ReserveActive()`（首次永恒前 + ID1 未解锁 + IP 已达标），`OrekiStageAuto.buyInfinityUpgrades()` 在窗口内暂停无限升级购买（保守到底线；Web 是按单条 cost 精算，差异已记录）。`build_kotlin.py` 通过（`classes4.dex` 2,665,088 B），`check_automation_scheduler.py` 新增 3 条静态断言后 **50/50 全过**；提交 `2aef2cd`。
+- `[构建·R92 第二次]` 带「无限升级 ID1 IP 预留」Kotlin 改动的完整 Release 构建：`gradlew assembleRelease --offline` 16:57:28 → 17:09:24（11m56s），产物 `build/gradle-stage/反物质维度.apk` 82,621,937 B，SHA-256 `6CB5E274424ECDC103B1CD0F80ED197F9158DA9D343E8C3B9682BADCB522F123`，3.21.0 / 30210000，v2+v3，证书 `95960bce…3197`。`verifyRelease` 14/14（83 s）、`verifyPatchContract` 17/17（118 s）；反编译确认 `OrekiBreakShop.id1ReserveActive()Z` 与 `OrekiStageAuto` 中的调用点已进入 DEX。
+- `[交付·R92 第二次]` 新候选 `release/反物质维度_R92候选_6cb5.apk` + OneDrive + 小米云盘同名文件，四处 SHA-256 一致（Coreutils `cp` + `sha256sum` 本地核验，未回读云端）；已 `adb -s emulator-5556 install -r` 成功、冷启动后 `OREKI_SCHED: init 调度：已启用 · 间隔 10 秒`、无 FATAL/VerifyError/NoSuchMethodError。旧 `release/反物质维度.apk`（3.20）与 R89/R90/R91、R92 的 0764 候选全部保留，未覆盖。
+- `[逆向·17:20]` `fl0.r(Lcw;D)` 实为 `new BigDouble(D)` 的构造快捷方式；`m01.i()D` = `floor(Player.u())`（整数提升数，非需求量）；`m01.n(false)` 的可见链路只有 守卫 → `BigDouble(当前提升数)` → `m57.u(...)` → `Player.C0(...)`，**方法内没有任何 `m01.c`/`m01.m` 调用** ⇒ 真正的重置在 `m57.u` 的四个回调里或别处 ⇒ **读完 `m57.u` 之前不反射调用 `m01.n(false)`**。
+- `[AVD 观察]` 反复 `am force-stop` 冷启动会让新档回滚到上次落盘（本轮观察：IP 550→554、无限次数 275→277，但维度提升 19→2、无限进度 31%→6.45%）⇒ 180 分钟墙钟测试必须一次连续运行、中途不杀进程；这也是本轮之前"进度看似停滞"的原因之一。
+- `[代码·R92 关键修复]` 运行日志抓到 `OREKI_API_MISS: missing invoke g0: IllegalArgumentException` ⇒ 定位为**真实缺陷**：`GameApi.setAutobuyersOn()` 绑的是 `Options.g0`，而 3.21 里 `g0` 是 `g0(I)V`（参数 int），反射用 Boolean 调用必抛 `IllegalArgumentException` 并被 `call()` 吞成 null ⇒ `enableEarly()` 的「打开原版自动购买器」**从未生效**，调度器 `allow()` 的 `originalAutobuyersOn()` 闸门可能长期为假（所有受节拍任务被拒、日志里没有 act）。3.21 真实符号已逐行核实：字段 `Player$Options.autobuyersOn:Z`（第 25 行）、getter `c()Z`（第 1071 行）、**setter `e0(Z)V`（第 1126 行 `iput-boolean p1`）**。已改为绑定 `e0(Z)` 并显式限定参数类型；`check_automation_scheduler.py` 新增 2 条断言（**52 项全过**）。提交 `f0f5af6`。
+- `[构建·R92 第三次]` 带「autobuyersOn setter 修复」的完整 Release 构建：17:20:54 → 17:31:44（10m50s），产物 82,621,937 B，SHA-256 `1340917533B65D7153723B68125F68EE1B0EAA7840FAFE100F0AC244B6767C1D`；`verifyRelease` 14/14（68 s）、`verifyPatchContract` 17/17（104 s）。
 - `[修复验证]` 新包安装到 `emulator-5556` 并冷启动后：**`OREKI_API_MISS: missing invoke g0` 不再出现**（旧包每次启动 1 条），`OREKI_SCHED: init 调度：已启用 · 间隔 10 秒` 与 `OREKI_EARLY: applied` 正常 ⇒ e0(Z) setter 绑定生效。游戏内随后推进到 **无限进度 99.72%**（反物质 2.42e307、维度提升 35、第八维度 180、IP 652），维度提升已买得起但**原版 autobuyer 仍锁在挑战 10/11** ⇒ 仍无 `OREKI_SCHED act`（act 需 sacrifice 倍数 ≥2 或 IP 跨门槛）。
 - `[交付·R92 第三次]` `release/反物质维度_R92候选_1340.apk` + OneDrive + 小米云盘同名文件，四处 SHA-256 一致；旧 3.20 稳定包与 6cb5/0764 候选保留。
+
 ## 125. 首次无限前自动成长与正式发布（2026-11-07 18:02 +08 开始）
 
 - `[时间]` R93 实际开始 2026-11-07 18:02:15 +08；双小时节点 20:02:15 +08，不重置计时。
 - `[根因·关键]` `1340` 在 AVD 上运行期只有 `OREKI_SCHED init` / `OREKI_EARLY applied` / `OREKI_GATE` / `OREKI_CRUNCH`，**没有任何 act/deny/noop** ⇒ `OrekiStageAuto.onAutoBuyerTick()` 一直走 `!GameApi.hasInfinity()` 早退分支 ⇒ 在已有多次无限的存档上 `hasInfinity()` 仍为 false，sacrifice/bulk/infinityUpgrades/idBuy 等**全部受节拍任务从未执行**。旧实现的 `infinities()` → `compareToDouble` 反射链任一环失败都静默变 false。修复：`OrekiAuto.hasInfinity()` 改为直接读 `BigDouble.toDouble() > 0`（提交 `97c0734`，`build_kotlin.py` 通过、`check_automation_scheduler.py` 52/52）。
 - `[实测·UI]` 游戏内真实导航（☰ → 自动化 → 自动购买器）确认：自动购买器总开关「已启用」；`自动进行 维度提升` 已勾选、间隔 4.000 秒；`自动购买 反物质星系`、`无限维度 / 第一无限维度 / 无限点数倍率` 均勾选。在真实 UI 内把 `献祭` 玩家阈值 2.00 → 1.05（证据 `reports/r93-avd/03/05/06-*.png`）后仍无 act，与上述根因一致。
-- `[修正]` R92 的表述需精确化：原版「自动进行维度提升」在**首次无限之后**可用（与 Web AU3 的 `canBeUpgraded || infinityUnlocked()` 一致）；缺口只在**首次无限之前**。因此 R93 的实现必须在首次无限后让位给原版自动器，避免双重执行。- `[构建·R93 第一次]` 18:10:17 → 18:29:37 完整 Release 构建（含 R93 的 hasInfinity 健壮化 + prestigeBatch 首次无限前维度提升），APK 82,626,033 B，SHA-256 `78D765807427B22B12CDA823E1AE2327BE68D572879D833F99C18D3AFCA5D7A6`；`verifyRelease` 14/14、`verifyPatchContract` 17/17、`check_automation_scheduler.py` 57/57。
+- `[修正]` R92 的表述需精确化：原版「自动进行维度提升」在**首次无限之后**可用（与 Web AU3 的 `canBeUpgraded || infinityUnlocked()` 一致）；缺口只在**首次无限之前**。因此 R93 的实现必须在首次无限后让位给原版自动器，避免双重执行。
+- `[构建·R93 第一次]` 18:10:17 → 18:29:37 完整 Release 构建（含 R93 的 hasInfinity 健壮化 + prestigeBatch 首次无限前维度提升），APK 82,626,033 B，SHA-256 `78D765807427B22B12CDA823E1AE2327BE68D572879D833F99C18D3AFCA5D7A6`；`verifyRelease` 14/14、`verifyPatchContract` 17/17、`check_automation_scheduler.py` 57/57。
 - `[调度链路]` R93 首次观察到真实调度器执行日志 `OREKI_SCHED: noop prestigeBatch` + `deny noop-retry-wait task=prestigeBatch`（R92 时完全为零）⇒ `allow()`/`noteNoop()` 链路已工作；但 `hasInfinity()` 在游戏内仍为 false（已反编译确认 OrekiAuto 的 toDouble 路径在 APK 内、`Player.C()` 确为 infinities），导致后无限阶段任务仍不执行；**第一条真实 act 仍未取得**，不写成 PASS。
-- `[交付·R93]` `release/反物质维度_R93候选_78d7.apk` + OneDrive + 小米云盘，四处 SHA-256 一致；旧 3.20 稳定包与 R92 候选全部保留。- `[交付·R93 最终]` 最终构建 18:59:42 → 19:09:15，APK 82,626,033 B，SHA-256 `30AFA7103C784A0D6FEB785B2284D96A490CB2C776E87D45652C98246E5E4EB3`；`verifyRelease` 14/14、`verifyPatchContract` 17/17；交付 `release/反物质维度_R93候选_30af.apk` + OneDrive + 小米云盘（四处 SHA 一致），旧 3.20 与 R92 候选保留。
+- `[交付·R93]` `release/反物质维度_R93候选_78d7.apk` + OneDrive + 小米云盘，四处 SHA-256 一致；旧 3.20 稳定包与 R92 候选全部保留。
+- `[交付·R93 最终]` 最终构建 18:59:42 → 19:09:15，APK 82,626,033 B，SHA-256 `30AFA7103C784A0D6FEB785B2284D96A490CB2C776E87D45652C98246E5E4EB3`；`verifyRelease` 14/14、`verifyPatchContract` 17/17；交付 `release/反物质维度_R93候选_30af.apk` + OneDrive + 小米云盘（四处 SHA 一致），旧 3.20 与 R92 候选保留。
 - `[R93 Android 生产修改]` ①`OrekiAuto.hasInfinity()` 多源判定（`97c0734`/`6c5e430`）；②`GameApi.player()` 不再缓存 null（`58d3624`）；③`hasInfinity` 反射必须选静态桥（`502dc5c`）；④新增 `prestigeBatch` 首次无限前自动维度提升 + `withKeptAntimatter`（`2735fe5`）。`check_automation_scheduler.py` 57/57。
 - `[调度链路]` R93 首次出现真实执行日志 `OREKI_SCHED: noop prestigeBatch` / `deny noop-retry-wait task=prestigeBatch`（R92 为零）⇒ allow/noteNoop 链路已工作；但 `hasInfinity()` 在游戏内仍为 false，**第一条真实 act 仍未取得**，三项运行门禁与 180 分钟墙钟维持 NOT RUN。
-- `[Web R93]` 修复「先买计数频率再同拍重置 ⇒ 反物质白扣、倍率恒为基础值」：`buyMaxTickSpeed()` 移到维度提升/星系重置之后；源提交 `72cce3b`（merge RG02 后 HEAD `c0559c3`）、Pages `8619567`，线上 `src/game.js` SHA-256 `7a83ccef394b9ae4e9b7b956ef8c7076c7d66de868bee8d8b508670a2c06be4e`；定向 5/5、R92 16/16、R90 7/7、回归全 exit 0。- `[RG02 同步]` 以 GitHub origin/main 为准完整读取 12 个规则文件（Android `0d4c771`、Web `3ca3fec`），两仓共享规则逐文件 blob 比对全部 SAME；本地 ff-only 到最新规则提交。**RG02-04（候选 APK 仅本地）自本轮读取后生效**：曾在读取前复制到双网盘的 R92/R93 候选按「历史云端候选不自动删除」保留，但**此后不再向双网盘复制任何候选**；只有正式稳定版才允许双网盘交付。
-- `[诊断]` 一次性探针（3 秒）输出 `inf=0.0e0 ip=null broken=false hasInf=false boosts=0.0` —— 触发时存档尚未加载，不能据此判定 in-game 值；in-game 持续 `noop prestigeBatch` 仍是 hasInfinity 为 false 的独立证据。下一轮按 RG02-02 完整核实 `Player.C()`/`Player.m()`/`Player.infinities` 的完整描述符后再绑定，禁止短名猜测。- `[纠正·19:33]` 「无 act」诊断修正：游戏内实测 0 永恒点数、IP 1.37e3、反物质 3.37e154、`broken=false`、`infinities=0.0e0` ⇒ 存档**尚未完成第一次无限**，`hasInfinity()==false` 是正确状态。真正问题在 `autoPrestigeBatch()` 内部提前返回（最可能是 `eternitiesZero()` 反射链或维度提升需求判据）；下一轮先加一次性诊断日志定位，不再盲改。- `[R94 开始]` 2026-11-07 20:27:03 +08；Android `3ab910b`、Web `c1d14f4`。
+- `[Web R93]` 修复「先买计数频率再同拍重置 ⇒ 反物质白扣、倍率恒为基础值」：`buyMaxTickSpeed()` 移到维度提升/星系重置之后；源提交 `72cce3b`（merge RG02 后 HEAD `c0559c3`）、Pages `8619567`，线上 `src/game.js` SHA-256 `7a83ccef394b9ae4e9b7b956ef8c7076c7d66de868bee8d8b508670a2c06be4e`；定向 5/5、R92 16/16、R90 7/7、回归全 exit 0。
+- `[RG02 同步]` 以 GitHub origin/main 为准完整读取 12 个规则文件（Android `0d4c771`、Web `3ca3fec`），两仓共享规则逐文件 blob 比对全部 SAME；本地 ff-only 到最新规则提交。**RG02-04（候选 APK 仅本地）自本轮读取后生效**：曾在读取前复制到双网盘的 R92/R93 候选按「历史云端候选不自动删除」保留，但**此后不再向双网盘复制任何候选**；只有正式稳定版才允许双网盘交付。
+- `[诊断]` 一次性探针（3 秒）输出 `inf=0.0e0 ip=null broken=false hasInf=false boosts=0.0` —— 触发时存档尚未加载，不能据此判定 in-game 值；in-game 持续 `noop prestigeBatch` 仍是 hasInfinity 为 false 的独立证据。下一轮按 RG02-02 完整核实 `Player.C()`/`Player.m()`/`Player.infinities` 的完整描述符后再绑定，禁止短名猜测。
+- `[纠正·19:33]` 「无 act」诊断修正：游戏内实测 0 永恒点数、IP 1.37e3、反物质 3.37e154、`broken=false`、`infinities=0.0e0` ⇒ 存档**尚未完成第一次无限**，`hasInfinity()==false` 是正确状态。真正问题在 `autoPrestigeBatch()` 内部提前返回（最可能是 `eternitiesZero()` 反射链或维度提升需求判据）；下一轮先加一次性诊断日志定位，不再盲改。
+- `[R94 开始]` 2026-11-07 20:27:03 +08；Android `3ab910b`、Web `c1d14f4`。
 - `[R94 根因·关键]` `antimatterValue()` 恒 null 的真因是**绑定表把字段描述符当类名**：`scripts/build_kotlin.py` 用 `entry["to"].split(".")[-1].rstrip(";")` 处理 `Liq0;` 这类无包名描述符，结果留下前缀 `L` → 生成 `put("bq0","Liq0")`、`put("rp0","Lyp0")` → `Class.forName("Liq0")` 必失败 → `currencyHolderCls()`/`currencyImplCls()` 为 null → 运行期 `OREKI_API_MISS: missing class bq0 / rp0`（R93 实测）。修复：新增 `_descriptor_to_binary_name()`（去 `;`、去 `L`、`/`→`.`），并在生成的 `OrekiBaselineBindings.className()` 加运行时 `normalize()` 兜底；生成结果 `bq0→iq0`、`rp0→yp0`。该修复同时纠正所有短名重映射绑定（RG02-02）。
 - `[R94 ABI 核对]` `iq0.d:Lop0;`=反物质、`op0.K()LBigDouble;`/`op0.C(BigDouble)Liq0;`、`iq0.w:Lyp0;`=IP、`m01.h()LBigDouble;`/`m01.n(Z)V`/`m01.i()D`、`Player.u()D`/`Player.A()J` 全部按 3.21 反编译树原文核对。
 - `[R94 构建]` 唯一一次：20:29:56→20:39:51（9分55秒），预算闸门 `round=R94 used=0/1 ALLOW`；APK 82,626,033 B SHA-256 `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1`；`verifyRelease` 14/14、`verifyPatchContract` 17/17。
-- `[R94 第一条 act]` 真实取得：`act bulk` / `act sacrifice` 共 12 条/2 分钟，`gap≈10020ms`、`sacrifice taskGap≈50139ms`；同屏前后 65 s 反物质 3.11e102→4.35e119；离线结算 23 s 反物质 1.09e50→9.69e142、无限次数 886→887（`reports/r94-avd/`）。- `[R94 Web]` Web 修真实缺陷「选项页默认间隔写成 3 秒而实际为 10 秒」+ 教程第 1/2 章 automation 失真 + 附录 F 新增「保留反物质」；源 `29c34ae`、Pages `3780af0`，线上 game.js/教程数据/OptionsGameplayTab.js SHA-256 均与本地一致；定向测试 17/17、R90 7/7、R92 16/16、R93 5/5、R88 4/4、R82 17/17。
+- `[R94 第一条 act]` 真实取得：`act bulk` / `act sacrifice` 共 12 条/2 分钟，`gap≈10020ms`、`sacrifice taskGap≈50139ms`；同屏前后 65 s 反物质 3.11e102→4.35e119；离线结算 23 s 反物质 1.09e50→9.69e142、无限次数 886→887（`reports/r94-avd/`）。
+- `[R94 Web]` Web 修真实缺陷「选项页默认间隔写成 3 秒而实际为 10 秒」+ 教程第 1/2 章 automation 失真 + 附录 F 新增「保留反物质」；源 `29c34ae`、Pages `3780af0`，线上 game.js/教程数据/OptionsGameplayTab.js SHA-256 均与本地一致；定向测试 17/17、R90 7/7、R92 16/16、R93 5/5、R88 4/4、R82 17/17。
 - `[R94 瓶颈定位]` 下一段时间墙：`big-crunch-autobuyer.js` 的 `waitingForId1Peak`（Break 后 ID1 未解锁 + IP≥1e8 + 本纪峰值<1e1100 ⇒ 自动坍缩停摆），需按该窗口量化后再提速。
-- `[R94 命名]` 新增 Kotlin 业务代码全部可读命名；诊断字段 `probeAt/probeLeft` 重命名为 `diagnosticProbeNextAtMillis/diagnosticProbeRemaining`（仅日志；当前 APK 内为旧名，下轮构建包含）。- `[R94 save/restart]` PASS：重启后离线摘要「反物质 2.38e136→2.81e225、维度提升 13→31」、调度器 `init 已启用·间隔10秒` 持久化；重启后立即 `act bulk` + `deny frame-held task=infinityUpgrades`（同帧单动作守卫真实生效）。
-- `[R94 未完成]` 总开关真实关闭测试 NOT RUN：选项页/搜索/底部导航均未暴露 Oreki 调度开关入口（Manifest 无独立 Oreki 设置 Activity）——这本身是**玩家找不到总开关**的产品缺陷线索，列入下一轮待修。- `[R94 总开关·PASS]` 玩家真实路径：选项 → 打开 Oreki 中文教程 → 打开 Oreki 设置 → 「启用 Oreki 智能调度」勾选框。关闭后返回游戏 50 s 内 **0 act** 且日志持续 `deny disabled task=eternity`；重新勾选后 50 s 内 **5 act**（`act bulk` 每 ≈10 s）+ `deny frame-held task=infinityUpgrades`。此前「入口缺失」判断已纠正（入口在教程页右上角）。
-- `[R94 证据目录]` `reports/r94-avd/`：act 前后截图、离线结算 886→887、重启持久化 2.38e136→2.81e225 / 提升 13→31、开关前后 19/20/22/23/28/29 截图与 logcat-switch-final.txt。- `[R94 挑战]` NOT RUN：存档普通挑战 1~4 已全部「已完成」，无新可进入项；需在新档长跑中于首次无限后立即验证。
-- `[R94 总结]` P0 修复 + 首条 act + 总开关 + save/restart + 构建预算(1 次) + 双门禁 全 PASS；prestigeBatch(阶段不适用)/星系(未实现)/挑战(已完成)/ID1(未达门槛)/180 分钟(未跑) 均 NOT RUN 且原因明确；候选 `C7307BF2…58B1` 仅本地交付。- `[R94 新档·关键]` 全新存档（`pm clear`）墙钟起点 **2026-11-07 21:05:34**，APK `C7307BF2…58B1`；**约 3 分 16 秒后完成首次无限**（21:08:50 截图：6 无限点数、维度提升 11、星系 2、无限进度 33.13%、解锁粘滞键）。`antimatterValue()` 修复实证：探针 `pb … am=2.65e88/6.92e144/4.51e121/8.59e252`（非 null 且随进度增长）。
+- `[R94 命名]` 新增 Kotlin 业务代码全部可读命名；诊断字段 `probeAt/probeLeft` 重命名为 `diagnosticProbeNextAtMillis/diagnosticProbeRemaining`（仅日志；当前 APK 内为旧名，下轮构建包含）。
+- `[R94 save/restart]` PASS：重启后离线摘要「反物质 2.38e136→2.81e225、维度提升 13→31」、调度器 `init 已启用·间隔10秒` 持久化；重启后立即 `act bulk` + `deny frame-held task=infinityUpgrades`（同帧单动作守卫真实生效）。
+- `[R94 未完成]` 总开关真实关闭测试 NOT RUN：选项页/搜索/底部导航均未暴露 Oreki 调度开关入口（Manifest 无独立 Oreki 设置 Activity）——这本身是**玩家找不到总开关**的产品缺陷线索，列入下一轮待修。
+- `[R94 总开关·PASS]` 玩家真实路径：选项 → 打开 Oreki 中文教程 → 打开 Oreki 设置 → 「启用 Oreki 智能调度」勾选框。关闭后返回游戏 50 s 内 **0 act** 且日志持续 `deny disabled task=eternity`；重新勾选后 50 s 内 **5 act**（`act bulk` 每 ≈10 s）+ `deny frame-held task=infinityUpgrades`。此前「入口缺失」判断已纠正（入口在教程页右上角）。
+- `[R94 证据目录]` `reports/r94-avd/`：act 前后截图、离线结算 886→887、重启持久化 2.38e136→2.81e225 / 提升 13→31、开关前后 19/20/22/23/28/29 截图与 logcat-switch-final.txt。
+- `[R94 挑战]` NOT RUN：存档普通挑战 1~4 已全部「已完成」，无新可进入项；需在新档长跑中于首次无限后立即验证。
+- `[R94 总结]` P0 修复 + 首条 act + 总开关 + save/restart + 构建预算(1 次) + 双门禁 全 PASS；prestigeBatch(阶段不适用)/星系(未实现)/挑战(已完成)/ID1(未达门槛)/180 分钟(未跑) 均 NOT RUN 且原因明确；候选 `C7307BF2…58B1` 仅本地交付。
+- `[R94 新档·关键]` 全新存档（`pm clear`）墙钟起点 **2026-11-07 21:05:34**，APK `C7307BF2…58B1`；**约 3 分 16 秒后完成首次无限**（21:08:50 截图：6 无限点数、维度提升 11、星系 2、无限进度 33.13%、解锁粘滞键）。`antimatterValue()` 修复实证：探针 `pb … am=2.65e88/6.92e144/4.51e121/8.59e252`（非 null 且随进度增长）。
 - `[R94 修正]` 首次无限前的维度提升**实际由原版自动购买器承担**（`enableEarly()` 打开，4 秒间隔），`prestigeBatch` 全程 noop、未产生 act ⇒ R92/R93「首次无限前没有自动维度提升」的判断在本版不成立；MOD 该任务属冗余（且预判用 `m01.h()=2.0`，非原版 AD8 判据），下一轮应删除或改用一致判据并去重。
-- `[R94 长跑]` 新档会话持续运行（未 force-stop），当前 6 无限点数 / 0 永恒，作为跨轮 180 分钟基线保留。- `[R94 长跑·21:16]` 新档 16 无限点数、反物质 8.45e110；**挑战 1~4 在玩家全程未操作的情况下已「已完成」** ⇒ 挑战自动完成链路真实生效，但 logcat 无逐项挑战日志（观测缺口，下轮补）。
-- `[R94 新缺陷线索]` `OREKI_GOAL: stage=-1 - goal=- unknownLeaf=2 degraded=1` 连续输出 ⇒ 目标解析器降级、策略层退化为固定顺序；下一轮第一优先定位（很可能又是绑定/字段读取失败）。- `[R94 长跑里程碑]` 21:05:34 起点 → 21:08:50 首次无限（3m16s）→ 21:09:37 12 IP/1.27e115 → 21:12:56 **24 IP/反物质 4.10e258**（逼近 Break 1.797e308），挑战 1~4 已完成；`act bulk` 持续 ≈10 s 节拍。- `[R94 长跑·21:12:32]` 新档约 7 分钟：**30 无限点数**、反物质 5.61e99（坍缩后）、挑战 1~4 已完成、act 29 条（bulk 25/sacrifice 4）、`OREKI_CRUNCH: 8`；会话持续。- `[R94 OREKI_GOAL 定位]` 降级来自 `OrekiSmartStrategy.leaf()`：未接线叶子走 `:l_doom` 分支累加 sUnknown 并返回 NaN（fail-closed），`unknownLeaf=2` 即本次识别有 2 次落到未接线叶子；`drives()` 对 sStage<0 fail-open。下一轮：用 `sLeafNames` 与 `leaf()` 分支做差集列出未接线叶子 → 接线或改早期阶段 JSON 条件；该 Smali 类按 CORE §5 应整类迁 Kotlin（债务）。- `[R94 策略夹具]` `fixture_strategy_semantics.py` **77/77 PASS**（19 阶段/19 叶子/73 子句），数据语义与 Web 源一致 ⇒ `OREKI_GOAL` 降级不是数据错误，而是 `leaf()` 对后期叶子（`celestial.*`/`progress.dilationUnlocked`/`automator.unlocked`）**未接线**导致 NaN fail-closed；`drives()` fail-open 故自动化仍按固定顺序推进。
-- `[R94 长跑·21:17:30]` 新档约 12 分钟：**60 无限点数**、反物质 2.65e77、维度提升 (9)、星系 (1)、进度 25.12%、act 58 条（bulk 49/sacrifice 9）。- `[R94 长跑·21:18:07]` 约 13 分钟：**62 无限点数**、反物质 3.70e264（逼近 Break 1.797e308）、维度提升 (32)、星系 (2)、进度 85.83%；act 62 / deny 72 / noop 24。
-- `[R94 Web 专项2]` 已派发第二个 Web Agent（不占 Android 构建预算）：目标为「首次无限→首次永恒」的 ID1 峰值窗口（`big-crunch-autobuyer.js:144/170-186` 的 `waitingForId1Peak` 停摆）+ 同阶段下一瓶颈；要求有证据、测试、部署与线上核验。- `[R94 长跑·21:28:31]` 约 23 分钟：**3.20e6 无限点数**、反物质 4.76e221、0 永恒；「打破无限」页提示需自动大坍缩间隔 0.1 s，调度器已在执行 `act crunchInterval` 逐级购买；act 累计 124 条。13 分钟→23 分钟 IP 从 62 涨到 3.2e6（≈5 万倍）。
+- `[R94 长跑]` 新档会话持续运行（未 force-stop），当前 6 无限点数 / 0 永恒，作为跨轮 180 分钟基线保留。
+- `[R94 长跑·21:16]` 新档 16 无限点数、反物质 8.45e110；**挑战 1~4 在玩家全程未操作的情况下已「已完成」** ⇒ 挑战自动完成链路真实生效，但 logcat 无逐项挑战日志（观测缺口，下轮补）。
+- `[R94 新缺陷线索]` `OREKI_GOAL: stage=-1 - goal=- unknownLeaf=2 degraded=1` 连续输出 ⇒ 目标解析器降级、策略层退化为固定顺序；下一轮第一优先定位（很可能又是绑定/字段读取失败）。
+- `[R94 长跑里程碑]` 21:05:34 起点 → 21:08:50 首次无限（3m16s）→ 21:09:37 12 IP/1.27e115 → 21:12:56 **24 IP/反物质 4.10e258**（逼近 Break 1.797e308），挑战 1~4 已完成；`act bulk` 持续 ≈10 s 节拍。
+- `[R94 长跑·21:12:32]` 新档约 7 分钟：**30 无限点数**、反物质 5.61e99（坍缩后）、挑战 1~4 已完成、act 29 条（bulk 25/sacrifice 4）、`OREKI_CRUNCH: 8`；会话持续。
+- `[R94 OREKI_GOAL 定位]` 降级来自 `OrekiSmartStrategy.leaf()`：未接线叶子走 `:l_doom` 分支累加 sUnknown 并返回 NaN（fail-closed），`unknownLeaf=2` 即本次识别有 2 次落到未接线叶子；`drives()` 对 sStage<0 fail-open。下一轮：用 `sLeafNames` 与 `leaf()` 分支做差集列出未接线叶子 → 接线或改早期阶段 JSON 条件；该 Smali 类按 CORE §5 应整类迁 Kotlin（债务）。
+- `[R94 策略夹具]` `fixture_strategy_semantics.py` **77/77 PASS**（19 阶段/19 叶子/73 子句），数据语义与 Web 源一致 ⇒ `OREKI_GOAL` 降级不是数据错误，而是 `leaf()` 对后期叶子（`celestial.*`/`progress.dilationUnlocked`/`automator.unlocked`）**未接线**导致 NaN fail-closed；`drives()` fail-open 故自动化仍按固定顺序推进。
+- `[R94 长跑·21:17:30]` 新档约 12 分钟：**60 无限点数**、反物质 2.65e77、维度提升 (9)、星系 (1)、进度 25.12%、act 58 条（bulk 49/sacrifice 9）。
+- `[R94 长跑·21:18:07]` 约 13 分钟：**62 无限点数**、反物质 3.70e264（逼近 Break 1.797e308）、维度提升 (32)、星系 (2)、进度 85.83%；act 62 / deny 72 / noop 24。
+- `[R94 Web 专项2]` 已派发第二个 Web Agent（不占 Android 构建预算）：目标为「首次无限→首次永恒」的 ID1 峰值窗口（`big-crunch-autobuyer.js:144/170-186` 的 `waitingForId1Peak` 停摆）+ 同阶段下一瓶颈；要求有证据、测试、部署与线上核验。
+- `[R94 长跑·21:28:31]` 约 23 分钟：**3.20e6 无限点数**、反物质 4.76e221、0 永恒；「打破无限」页提示需自动大坍缩间隔 0.1 s，调度器已在执行 `act crunchInterval` 逐级购买；act 累计 124 条。13 分钟→23 分钟 IP 从 62 涨到 3.2e6（≈5 万倍）。
 - `[R94 Web 专项2 · ID1 峰值窗口结论]` `waitingForId1Peak`（`big-crunch-autobuyer.js:144 / 170-186`）窗口**真实存在但不是可安全提速的墙**：HOLD 阈值与 ID1 门槛同源（`DC.E1100`=UNLOCK_REQUIREMENTS[1]、`DC.E8`=BASE_COSTS[1]=ipRequirement，`infinity-dimension.js:41-59/87-102`），而大坍缩会清零当前反物质（`big-crunch.js:159` 只清 thisInfinity.maxAM），所以「暂停坍缩等峰值」是设计必需、不能取消。窗口内的峰值爬升**不由 MOD 节拍决定**：原版自动购买器首次无限后即解锁且默认 active（AU2/AU3），有效间隔 = interval/F（`autobuyer.js:117-118`；10000× 下维度提升 0.4ms、星系 2ms、维度 0.05~0.12ms），并在帧内最多 32 微步里触发（`game.js:989-1004/1220-1229`）；受统一节拍约束的只有 `early`（解锁并买 ID1）与 `eternityReset`（触发首次永恒）两个真动作 ⇒ 该阶段墙钟上界 ≈ 2 拍 + 亚秒～数秒自然爬升，占 180 分钟目标 <0.25%。**未改任何生产代码/数值/门槛**；新增 `scripts/test-r94-id1-peak-window.mjs` **20/20**（阈值同源、HOLD/释放边界、`willInfinity` 拦截、maxAM 连续更新、强制坍缩调用点白名单、微步/有效间隔量化）。证据与推导见 `docs/R94_ID1峰值窗口量化.md`。
 - `[R94 Web 专项2 · 教程同步]` 修一处玩家可见失真（本批 R94 Web 改动的未同步项）：附录 F（`apx_automation.body`）第 1/2 章仍写「每帧固定顺序：买计数频率 → 维度提升 → 星系 → 维度」与「每帧处理」，既与已按统一节拍改写的第 1/2 章 `automation` 字段矛盾，也与 `src/game.js:355-380` 的真实顺序、`oreki-smart-executor.js` 默认 10 s 节拍矛盾。已只同步附录 F 两段并 `node scripts/gen_tutorial_module.mjs` 重生成 `.gen.js`（`validate_tutorial` **2189/2189**）；`test-scheduler-beat` 扩到 **22/22**，反向还原旧文案实测 FAIL 3 项。
 - `[R94 Web 专项2 · 下一瓶颈]` Web 真正有量级的墙在**开局（首次无限之前）**：此时原版维度/提升/星系购买器尚未解锁，唯一的 `tryOrekiEarlyRoutine` 受 10 s 全局节拍约束。R94 本地 headless 探针 ~159 s 时 maxAM 仅 1e96、维度提升 10、`served.routine=16`（≈每 10 s 一次）；对照 R78 之前的 R45 基线 4.2 s 破无限 ⇒ 开场采购密度比 ID1 窗口大 1~2 个数量级。调整它需要主 Agent/用户裁决「全局节拍 vs 开局例外」，本轮未动生产代码。另：第 4/6/7/8/11 章 `automation` 字段与附录 F 对应段落仍残留「每帧」表述，属同一类文档失真，列入下轮统一核对。
-- `[R94 Web 专项2 · 部署]` 源提交 `2e5fe22` 已 push `main`。`python _deploy/deploy_pages.py` 生成部署副本（清单 863 项、import 闭包 PASS、site 变更仅 `src/core/oreki-tutorial-data.gen.js`），Pages 提交 `c2f8f12` 已 push，Actions run **42377575177**（head `c2f8f12`）completed/success。线上 `https://oreki.net/src/core/oreki-tutorial-data.gen.js` 200、237,681 B，去 CRLF 归一化 SHA-256 `0A67D36C978CAB363901784AC03F278CA0ACE30DE1B18F9FFD549BF61E102DB4` 与本轮源 HEAD 一致；本轮未改生产代码，`https://oreki.net/src/game.js` 200、归一化 SHA-256 `BF527E32FEDC8FC306EE778F0F2E1B5E8D91C2F1B9323AA559B1FA1FD6C1FE91` 与 HEAD 一致（线上仍是前批 `29c34ae` 内容）。- `[R94 Web 专项2·结论]` ID1 峰值窗口（`big-crunch-autobuyer.js:138-186`）判定为**设计必需、不可安全提速**：坍缩清零当前反物质，峰值只能靠不坍缩的当前值涨到 1e1100；三个提速候选全部否决；墙钟上界 ≈2 拍+数秒，占 180 分钟目标 <0.25%（Web `docs/R94_ID1峰值窗口量化.md`）。顺带修复教程附录 F 第 1/2 章「每帧固定顺序」失真。
+- `[R94 Web 专项2 · 部署]` 源提交 `2e5fe22` 已 push `main`。`python _deploy/deploy_pages.py` 生成部署副本（清单 863 项、import 闭包 PASS、site 变更仅 `src/core/oreki-tutorial-data.gen.js`），Pages 提交 `c2f8f12` 已 push，Actions run **42377575177**（head `c2f8f12`）completed/success。线上 `https://oreki.net/src/core/oreki-tutorial-data.gen.js` 200、237,681 B，去 CRLF 归一化 SHA-256 `0A67D36C978CAB363901784AC03F278CA0ACE30DE1B18F9FFD549BF61E102DB4` 与本轮源 HEAD 一致；本轮未改生产代码，`https://oreki.net/src/game.js` 200、归一化 SHA-256 `BF527E32FEDC8FC306EE778F0F2E1B5E8D91C2F1B9323AA559B1FA1FD6C1FE91` 与 HEAD 一致（线上仍是前批 `29c34ae` 内容）。
+- `[R94 Web 专项2·结论]` ID1 峰值窗口（`big-crunch-autobuyer.js:138-186`）判定为**设计必需、不可安全提速**：坍缩清零当前反物质，峰值只能靠不坍缩的当前值涨到 1e1100；三个提速候选全部否决；墙钟上界 ≈2 拍+数秒，占 180 分钟目标 <0.25%（Web `docs/R94_ID1峰值窗口量化.md`）。顺带修复教程附录 F 第 1/2 章「每帧固定顺序」失真。
 - `[R94 Web 专项2·交付]` `test-r94-id1-peak-window.mjs` 20/20、`test-scheduler-beat` 22/22、R90/R92/R93/R82/early-ipmult 全过、`validate_tutorial` 2189/2189；Web 源 `2e5fe22`/`15adca3`、Pages `c2f8f12`，线上教程数据与 game.js SHA 已核验。
-- `[R94 下一目标]` Web 真正的墙在**开局（首次无限前）**：原版购买器未解锁，唯一购买自动化 `tryOrekiEarlyRoutine` 受 10 s 全局节拍约束，R94 探针 ~159 s 仅 maxAM 1e96（served.routine=16），对照 R45 基线 4.2 s 破无限差 1~2 个数量级；是否给开局节拍例外需用户裁决。- `[R94 里程碑·21:36:45]` 约 31 分钟：**打破无限已解锁**（按钮点亮）、2.19e7 无限点数、0 永恒、反物质 3.37e65、act 148 条；首次无限（3m16s）后的第二个关键里程碑。- `[R94 正式发布·21:45]` **Android 3.21 稳定版已发布**：`release/反物质维度.apk` = `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1`（82,626,033 B），本地+OneDrive+小米云盘三处 SHA 一致；旧 3.20 备份 `release/反物质维度_3.20稳定版_备份_82156a40.apk`（`82156A40…0051`）；签名证书与旧版相同（可原地升级）。门禁：1 次构建 + 14/14 + 17/17 + 57/57 + v2/v3 + 真实运行。
+- `[R94 下一目标]` Web 真正的墙在**开局（首次无限前）**：原版购买器未解锁，唯一购买自动化 `tryOrekiEarlyRoutine` 受 10 s 全局节拍约束，R94 探针 ~159 s 仅 maxAM 1e96（served.routine=16），对照 R45 基线 4.2 s 破无限差 1~2 个数量级；是否给开局节拍例外需用户裁决。
+- `[R94 里程碑·21:36:45]` 约 31 分钟：**打破无限已解锁**（按钮点亮）、2.19e7 无限点数、0 永恒、反物质 3.37e65、act 148 条；首次无限（3m16s）后的第二个关键里程碑。
+- `[R94 正式发布·21:45]` **Android 3.21 稳定版已发布**：`release/反物质维度.apk` = `C7307BF28587FF9FDB51A930F808A89EB17D98BF4811619007F41F69249958B1`（82,626,033 B），本地+OneDrive+小米云盘三处 SHA 一致；旧 3.20 备份 `release/反物质维度_3.20稳定版_备份_82156a40.apk`（`82156A40…0051`）；签名证书与旧版相同（可原地升级）。门禁：1 次构建 + 14/14 + 17/17 + 57/57 + v2/v3 + 真实运行。
 - `[R94 发布已知限制]` ①自动打破无限缺失（需玩家点一次，长跑 ~32 min 观察）；②`OREKI_GOAL stage=-1 degraded=1`（后期叶子未接线，策略退化但 fail-open）；③首次永恒/180 分钟终局未达成。
-- `[R94 README 修正]` 删除「候选已复制双网盘」错误表述；`当前稳定发布` = 3.21.0 / 30210000 / `C7307BF2…`。- `[R94 Break 激活·PASS]` **21:28:38**（起点 +23m04s）自动化真实打破无限：`x0-before brake=0` → `x0-after brake=1` + `OREKI_BRK2`；`Player.m()`=`player.brake`、`Player.x0(Z)` 写该字段，由 Kotlin `tryBreakInfinity()` 在 `crunchMaxedInterval` 通过后调用原版 setter + `maxAllIntervalsForFree()`，未人工点击。
+- `[R94 README 修正]` 删除「候选已复制双网盘」错误表述；`当前稳定发布` = 3.21.0 / 30210000 / `C7307BF2…`。
+- `[R94 Break 激活·PASS]` **21:28:38**（起点 +23m04s）自动化真实打破无限：`x0-before brake=0` → `x0-after brake=1` + `OREKI_BRK2`；`Player.m()`=`player.brake`、`Player.x0(Z)` 写该字段，由 Kotlin `tryBreakInfinity()` 在 `crunchMaxedInterval` 通过后调用原版 setter + `maxAllIntervalsForFree()`，未人工点击。
 - `[R94 新缺陷·P0级]` `OrekiBreakGate.tick()` DEX **VerifyError**：`rp0` vs `yp0` 类型不匹配（旧 Smali 业务类硬编码 3.20 类型），`breakGate` 任务每拍失败（`OREKI_API_MISS: missing invoke tick: VerifyError`），break 商店后续自动化失效；主链未阻塞（`breakUpgrades` Kotlin 路径完成 Break）。修法：按 CORE §5 整类迁 Kotlin，禁止直接补 Smali。
 - `[R94 进度·21:46]` 41 分钟：6.82e7 IP、0 永恒、反物质 1.87e80、act 179（sacrifice 73/bulk 72/infinityUpgrades 17/crunchInterval 15/breakUpgrades 1）；ID1 未解锁、首次永恒未达成。
-- `[R94 README 修正2]` 已知限制①由「未自动打破」更正为「`OrekiBreakGate` VerifyError（breakGate 失效，Break 已由 breakUpgrades 完成）」。- `[R94 ID1 窗口]` 21:50:46（约 45 分钟）：IP **9.06e7**（逼近 1e8）、0 永恒、反物质 **6.55e281** 单调爬升（HOLD 生效）；距 ID1 的 1e1100 峰值门槛约 e819，按当前加速预计 10~30 分钟；act 累计 196+。
-- `[R94 下一轮预备]` 已写 `OrekiBreakGate` Kotlin 迁移设计（711 行/5 方法、ABI 保留、删除 smali、契约检查、单独一轮完成），以及 ID1 窗口观测点。- `[R94 API 缺口清单]` 长跑 50 分钟 logcat 去重：`missing invoke tick: VerifyError` **267 次**（OrekiBreakGate，break 商店自动化失效）；`missing method Currency.o(BigDouble)=purchase on iq0` 1 次（观察）。已验证正常：`idIpRequirement`（ID 类静态字段 `f`，ID1 IP 门槛 1e8）、`iq0.d/w`、`Player.m/x0`、`m01.h/n/i`、`Player.u/A` ⇒ ID1 IP 预留判据有效。
-- `[R94 状态·21:55]` IP 在 2.8e7~9.3e7 间随升级购买波动、反物质随坍缩在 e157~e281 重置、act 208；未跨 1e8 → HOLD 未触发 → ID1/首次永恒未达成；属正常爬升，无死锁证据。- `[R94 双端核对]` ID1 IP 预留语义一致：Web `oreki-early-automation.js:183-194` 的 `shouldReserveIpForId1()` 同样要求「IP ≥ ID1.ipRequirement」才预留，`:278-287` 的 `leavesId1Reserve()` 为纯算术预测；Android `OrekiBreakShop.kt:113-120` 逐条对应 ⇒ **不存在移植缺陷**，IP 未过 1e8 属收敛前正常爬升，不构成 P0，不动紧急构建。- `[R94 清理·af1f8d0]` 删除冗余 `prestigeBatch`（实测由原版自动器承担、`m01.h()` 返回 2.0 非 AD8 判据）与全部诊断探针；`OrekiStageAuto.kt`、`OrekiAutomationScheduler.kt`、`check_automation_scheduler.py`（57→52 项）；`build_kotlin.py` RC=0（classes4.dex 2,669,156 B）、契约 52/52。将随下一轮构建进入 APK。- `[R94 清理2·1388b9f]` 删除 VerifyError 的 `OrekiBreakGate` 死类（旧 Smali 引用 3.20 类型 `rp0`，3.21 为 `yp0`，DEX 校验器拒绝；仅自引用；break 商店由 Kotlin `OrekiBreakShop` 承担）⇒ 6 文件 −751 行；`build_kotlin.py` RC=0（classes4.dex 2,668,132 B）、契约 51/51。将随下一轮构建进入 APK，验收点：`OREKI_API_MISS` 归零 + `breakShop` 正常。- `[R94 长跑受阻·关键]` 22:02 起游戏被**原版反作弊冻结**（弹窗原文「系统当前时间早于你上一次游玩的时间 → 游戏将冻结」）：tick 仍在跑（`OREKI_GATE rt` 增长）但数值不动、`act` 停在 227 条。冻结前 IP 已实测 **1.86e8 > 1e8**（ID1 IP 门槛达成，证据：离线弹窗「无限点数 1.85e8 → 1.86e8」）。高度怀疑 MOD ×10000 速度注入把游戏时间增量写回时间戳，使存档"上次游玩时间"远超真实时间。**未通过改系统时间/改存档绕过**；本次长跑记 BLOCKED（非 PASS、非死锁）；修复前不再启动新长跑。- `[R94 更正·关键]` 长跑**并未冻结**：`adb root` 读取存档 `player.json` 增量比对 —— `lastUpdate` +60007 ms、`infinityPoints` 2.41e8→**2.51e8**、存档持续更新 ⇒ 游戏逻辑正常；先前「静止截图」是 `打破无限` 页不显示实时数值 + 弹窗链所致，上一节 BLOCKED 结论**作废**。仍待核实：`brake=false`（Eternity 后原版行为 vs 异常）与 `eternities=11` 的字段语义（EP=0、replicanti 未解锁，矛盾，不据此宣称首次永恒）。
-- `[R94 方法]` 长跑观测改用**存档增量**（`player.json` 的 `lastUpdate`/`infinityPoints`），不再依赖静态页面截图。- `[R94 存档核对·22:22]` `player.json` 实测：`bigEternities=0`、`eternityUpgradeBits=0`、`EP=0`、`thisEternity.realTime≈71.8min`（覆盖整轮）⇒ **首次永恒未达成**；`eternities=11` 字段语义矛盾，不采信。ID1 未解锁（本纪 maxAM 1.70e321 ≪ 1e1100）。694 次无限、IP 2.51e8、提升 19、星系 1。
-- `[R94 Break 回归·待查]` 21:28:38 曾实测 Break 激活（brake 0→1），当前存档 `brake=false` ⇒ 反物质被钉在 `Number.MAX_VALUE`、坍缩前停摆；全 payload 未发现 `setBrake(false)` 调用点，原因未明，需构建级诊断（记录 brake 变化时刻/调用栈）后修。- `[R94 Break 丢失·静态定位]` 3.21 全树 `Player->brake` 只有 1 个写入点（`x0(Z)` setter），调用者仅 2 处：原版「打破无限」按钮（`MainActivityBreakInfinityKt$loadViewsBreakInfinity$1$1:420`，先判 `m()`+`CrunchAutobuyerState.v()` 再 `x0(true)`）与整局重置 `prestige/f.a():400`；Kotlin 侧只有 `setBrake(true)`，无 `setBrake(false)`。推断：Break 丢失后原版把大坍缩间隔恢复未满 ⇒ `tryBreakInfinity()` 的 `crunchMaxedInterval` 前置不成立 ⇒ **无法自愈**，反物质钉在 MAX_VALUE、IP 缓慢增长。下一轮：①`breakUpgrades` 里先买满间隔再重试 Break（自愈）；②首次检测到 brake true→false 时打印 `OREKI_BREAK_LOST`（含 IP/间隔/时间）定位丢失时刻。- `[R94 生产修复·待构建]` `OrekiStageAuto.kt` 新增 Break 自愈：`breakUpgrades` 内若 `!isBroken()` 且间隔未满 → 先 `upgradeCrunchInterval()` 买满再 `tryBreakInfinity()`；新增 `detectBreakLoss()` 在 true→false 时打印一次 `OREKI_BREAK: break-lost ip= maxed= infinities=`。验证：`build_kotlin.py` RC=0（classes4.dex 2,668,808 B）、契约 51/51。**未构建**（R94 预算已用），随下一轮构建生效。- `[R94 构建预算账本缺陷]` 20:39:51 的 R94 主构建已产出 `c7307bf2…9958B1`，但 `assembleRelease.doLast` 里的 `exec --record-success` **未执行**（账本 mtime 停在 20:30:28，builds=[]、allow=true）⇒ RG02-13 失效。已改为独立 `releaseBudgetRecord` 任务 + `finalizedBy`；**诚实记账：R94 主构建 1/1 已用**，不利用 allow=true 再跑常规构建，只保留一次紧急重建。
-- `[R94 首次永恒·UI 实证]` 复制器页显示解锁价 **1e140 IP**（当前 3.0e8，差 e132），`EP=0`、`eternityUpgradeBits=0`、`thisEternity` 覆盖整轮 ⇒ 首次永恒未达成（存档 `eternities=11` 语义仍待查）。- `[R94 Web 改动·5555f3f/b203fb1]` 教程附录 F 6 处「每帧」校正为**共享节拍**表述（`oreki-smart-executor.js:107` 默认 10 秒，真动作 ≥ 间隔）；`gen_tutorial_module.mjs` 生成 18 章/237910 B，`validate_tutorial.mjs` 通过（E4 automation 36 项）；线上 `https://oreki.net/src/core/oreki-tutorial-data.gen.js` 部署后 75 秒核验 **HTTP 200 / SHA a441f25e… / 新措辞命中**。- `[R94 证据修正]` `OREKI_GATE` 的 `brake=` 自首条（13:06:07）到 Break 后（13:28:38 有 `x0-after brake=1`）**始终为 false** ⇒ 该字段绑定不可靠（`b=` 在 Break 后翻转，更接近真实状态）；「Break 丢失」的直接依据改为存档 `brake=false` + 反物质钉在 `Number.MAX_VALUE`。长跑未冻结：`OREKI_BRKUP_ST ip` 8.23e7→1.34e8→2.35e8→**3.37e8**（13:49→14:25）。- `[R94 双端教程同步]` Android 教程由 Web 单源 JSON 生成：`oreki_tutorial_gen.py` 重新生成 25 章/1308 条/49657 汉字/197950 字节，回读逐字一致；产物 `scripts/payload/assets/oreki_tutorial.txt` 差异 27+/16−，命中「共享节拍」「每 10 秒最多一个真动作」「等下一拍重试」⇒ 双端附录 F 一致，随下一轮构建进入 APK。- `[R94 存档键名核实]` `player/i.smali` 依据版本旗标在 `"brake"`/`"break"` 两个键间切换读写，本机存档 `"brake": false` 且读路径同样读 `"brake"` ⇒ **读写一致，brake=false 是真实存档值**；加载链不重置 brake（`f.a()` 调用者仅 `jw3:23`/`f:8513`）⇒ break 丢失只能来自 `x0(false)` 显式调用，来源待 `OREKI_BREAK` 诊断。原版按钮是 **toggle**（`game.js:111`），Kotlin 用 setter `x0(true)` 方向安全。- `[R94 契约测试]` `check_automation_scheduler.py` 新增第 15 组 6 条断言钉住 Break 自愈（crunchIntervalIsMaxed 存在、块内先买满间隔再 tryBreakInfinity、detectBreakLoss 在 crunchProbe 之后、独立 OREKI_BREAK 标签）→ **57 项检查失败 0 项**。- `[R94 硬性结论]` 未 Break 时反物质上限 = `Number.MAX_VALUE`，单次坍缩 IP ≈ `10^(308.25/30−0.7)` ≈ **3.76e9**，全部倍数后约 **1e15** 量级；而复制器需 **1e140 IP**、ID1 需 **1e1100 maxAM** ⇒ **未 Break 时数学上不可达**。故 Break 丢失是 180 分钟目标的**确证 P0 阻断**；当前长跑（IP 3.4e8、694 无限）不可能再产出新里程碑。修复已在源码就绪（`6b90469`+`7ccab34`），只差一次构建 + AVD 验收。- `[R94 长跑终止·FAIL]` 21:05:34→**22:51:30**（1h45m56s），用户裁决 A 结束。终态：IP 3.37e8、694 无限、反物质钉 `1.7976931e308`、`brake=false`、EP 0、无 ID1/无永恒。**判定 FAIL：Break 未自动重新激活导致无法通关，不记为 180 分钟成功。** 证据：`reports/r94-avd/80-final-stop.png`、`player-final-stop-20261107-225130.json`、`playerBackup-…json`、`logcat-full-run-….txt`（6.5 MB）。- `[R94 紧急重建交付]` 23:10:31 完成（10m54s），新 APK **`b513be9b8d58e68ae1255739d782a45a7ac4c4ea1388dc5eab0832a8a06cc833`**（82,621,937 B）；`verify_release` **14/14**（`OREKI_BASE=work/base_decoded_321`）、`verify_patch_contract` 17/17、`check_automation_scheduler` 57/57、签名一致；已交付 `release/` + OneDrive + 小米云盘（三处 SHA 一致），旧稳定版备份为 `反物质维度_3.21初版_备份_c7307bf2.apk`。R94 实跑 2 次完整构建（20:39 + 23:10），首次未记账（已修），本次按用户裁决作 RG02-12 紧急重建。
-- `[R94 新长跑]` 全新存档起点 **23:18:18**（安装 23:17:32、`pm clear`、`init 已启用·间隔10秒`、`EARLY applied`；`logcat -c` 后 20 秒 VerifyError **0 条**）。- `[R94 教程同步]` 第 5 章补充「间隔已满自动按原版同序激活 Break；被清回未打破则下一拍重买间隔再激活」；Web `b64fdde` + Pages `6e72da5`，线上 238,229 B / SHA `45174749…` 与本地一致、新措辞命中；Android assets 由同源重生（1308 条逐字一致）。
-- `[R94 新长跑·23:23]` 起点 23:18:18；23:23 已 22 条 act、3 次无限、IP 6、反物质 1.86e177、提升 25、星系 1；`OREKI_API_MISS`/`VerifyError` 0 条；Break 预计 ~23:41 自动触发。- `[R94 Break 激活·证据]` 新长跑 **23:42:43** 自动激活 Break（`OREKI_BRKTRACE2 x0-after brake=1`、`OREKI_BRK2`、`act breakUpgrades 1`，前置 crunchInterval 15 条已买满）；23:46:47 `thisEternity.maxAM = 4.62e317 > Number.MAX_VALUE` ⇒ **反物质已突破硬上限，Break 生效被物理证据确认**。
-- `[R94 更正·重要]` 上一轮**并非 Break 丢失**：上一轮终止前 `thisEternity.maxAM = 1.696e321` 同样 >1e308 ⇒ Break 一直生效。`player.json` 的 `brake` 键与 `OREKI_GATE.brake` 字段**都不可靠**（本次内存已 true、maxAM 已破上限，存档仍 false）。上一轮 FAIL 的真实原因是进度量级不足（ID1 需 1e1100，当时 1.7e321）。以后判 Break 状态用「maxAM 是否 > `Number.MAX_VALUE`」交叉验证，不看字段名。- `[R94 自动监视]` 新增 `scripts/run_watch.py`（每 20 s 只读 player.json，跨门槛时追加 `reports/r94-avd/timeline.md`）：IP≥1e8（ID1 IP 门槛）、IP≥1e140（复制器）、本永恒 maxAM≥1e308（Break 生效物理判据）、≥1e1100（ID1 反物质门槛）。已后台运行（PID 39492）。- `[R94 监视器修复]` `run_watch.py` 首版用 `mantissa*10**exponent` 换算，maxAM=4.6e317 触发 `OverflowError` 被吞成 0 ⇒ 静默失效。改为 **log10 域**（`exponent+log10(mantissa)`）+ `math.log10(limit)` 比较 + 30 s 心跳；实测已记录「本永恒峰值 ≥ 1e308」于 23:50:42，监视器常驻。- `[R94 ID1 窗口抖动·阻塞]` 00:05:59 实测 `OREKI_HOLD: hold=1` → 35 ms 后 `hold=0`，本永恒峰值此后停在 4.62e317 不再增长 ⇒ ID1 的 1e1100 门槛无法推进。已逐条排除「IP 被消耗」：`infinityUpgradeBits=131071`、`ipMultUpgrades=8` 不变（下一档 1e9 买不起）、`breakInfinityUpgradeBits=0`；IP 单调上升（早前 7.99→6.37 疑为存档非原子读取）。修复方向：①hold 加迟滞（进入 `IP>=req`、退出 `IP<req*0.5`）；②翻转时打印 `ip/ipReq/maxAM/peakReq/broken/eternitiesZero`；③核对 `eternitiesZero()` 绑定（存档 `eternities` 字段读作 11，语义存疑）。需一次构建，R94 预算已用尽。- `[R94 Break 持久化缺陷·关键]` 23:42:43 Break 激活 → 23:46:47 存档 `thisEternity.maxAM=4.62e317`（物理证明生效）→ 00:22 反物质又压回 `1.82e308`、`OREKI_GATE b=true` 但存档 `brake=false`、`breakUpgrades` act 仍 1 次 ⇒ **`isBroken()` 读的不是真实 `Player.brake` 字段**，且 Break 未持久化，自愈从未触发。修复：①绑定真实 brake 字段并比对日志；②改用字段判据每拍幂等重设；③验证 Break 后存档 `brake=true`；④对齐 hold 抖动与 Break 重置时刻。- `[R94 Player 缓存修复·b180600]` `GameApi.player()` 不再缓存 `Player.a` 实例（游戏运行中会替换单例），只缓存反射 Field 句柄、每次重读；这是「x0(true) 写在旧实例、isBroken() 读旧实例 true、真实 brake=false」的根因修复。契约 64/64。
-- `[R94 PR#2 合并]` Codex 教程 Kotlin UI（`TutorialActivity.kt` 281 行，删除 smali 4587 行）已无冲突合并进 main；`build_kotlin.py` RC=0（classes.dex 2,706,892 B）、64/64 通过；合并后已删除临时分支。教程 UI **未经 APK 实机验证，不得称已交付**，随下一次获准构建验收。- `[R94 授权重建成功·交付]` 第 4 次尝试成功（11m44s），新 APK **`bbc7a334ee08407fee97a3ecd3d4078976095123f8c9081604ccf8b6b1f263f1`**（82,630,129 B）；`verify_release` 14/14、`verify_patch_contract` 17/17、签名一致；已交付 `release/` + OneDrive + 小米云盘（三处一致），旧版备份 `反物质维度_3.21第2版_备份_b513be9b.apk`。构建期守卫随实现更新（fixture 47/47、R41 极性表、R40H 教程 Kotlin 分流）。账本 `used=2/1`（用户授权）。
-- `[R94 run3]` 新长跑起点 **01:22:27**（install 01:22:08 + pm clear），日志 `init 已启用·间隔10秒`、`EARLY applied`、无 API_MISS/VerifyError；监视器已切换到 `timeline-run3.md`。待验收：Break 持久化、反物质突破 MAX_VALUE、hold 不抖动、ID1、教程 Kotlin UI 页面。- `[R94 run3 Break 持久化·关键成功]` 01:59:35 `OREKI_BRK2`（x0-before 0 → after 1），**存档 `player.json` 实测 `"brake": true`** —— R94 首次看到 Break 真正写入存档，直接验证 `Player.a` 实例缓存修复生效；crunchInterval 15 → breakUpgrades 1 → breakShop 3。当时 IP 8.9e7、无限 872、本永恒峰值 1e397.9。
-- `[R94 调度饥饿·真瓶颈]` 任务顺序 sacrifice→bulk→infinityUpgrades→crunchInterval→breakUpgrades→idBuy；×10000 下 bulk/sacrifice 几乎每拍成功 ⇒ 下游被 `deny frame-held` 饿死（前 19 分钟 crunchInterval=0，直到 infinityUpgrades 买满才拿到节拍）。下一轮修：高频任务让位/冷却配额 + 契约断言「下游任务 M 秒内至少 1 次节拍」。- `[R94 根因确认·eternities 字段]` 存档序列化器把 `Player.a.eternities` 写成 `"eternities"`，实测值 **11**，但 UI 永恒点数 0、bigEternities 0、eternityUpgradeBits 0、thisEternity 跨全程 ⇒ `Player.x()` 绑定无误但语义不可用。旧 `eternitiesZero()`（eternities==0）**恒为 false**，使 `resolveUrgentTask` 永不返回 idBuy、`computeHoldCrunch` 永不进入 ⇒ 峰值停 1e397.9、ID1 全链路卡死。已改判据为「永恒点数==0 且永恒升级为空（bigEternities 兜底）」，任一读取失败 fail-closed；契约 78 项。- `[R94 授权构建#5·交付 run4]` 用户授权后构建成功（12m8s）→ **`48c8b8ae5dd619a772e5e4b4552860a7a5ced5e0859094761a6359b67edef0de`**（82,630,129 B），14/14 + 17/17，已交付 release + OneDrive + 小米云盘（三处一致），旧版备份 `_3.21第3版_备份_bbc7a334.apk`。账本按用户授权登记 `user_authorizations` 后放行（used=3/1，非静默篡改）。
-- `[R94 run4]` 起点 **09:46:19**；**调度饥饿修复实测生效**：crunchInterval 11 分钟 6 次（run3 前 19 分钟 0 次），Break 预计 ~10:10。已知噪声：`missing eternity upgrade registry` 每帧刷屏（3.21 无该字段，判据不受影响，下版抑制）。- `[R94 Break 前 IP 经济根因]` run4 存档实测 `auto.bigCrunch` = AMOUNT 模式且 **amount=1** ⇒ 反物质刚到 1 就填塌，每次 IP 收益≈0 ⇒ 坍缩间隔升级买不动 ⇒ Break 永远到不了（run4 18 分钟 IP 仅 59，maxAM 已 1e358）。已修：`applyCrunchPolicy` 在未 Break 时强制 **TIME 模式 + 10 秒**收割 IP（只在本 MOD 接管期间，总开关关闭即让路），契约 81 项。
+- `[R94 README 修正2]` 已知限制①由「未自动打破」更正为「`OrekiBreakGate` VerifyError（breakGate 失效，Break 已由 breakUpgrades 完成）」。
+- `[R94 ID1 窗口]` 21:50:46（约 45 分钟）：IP **9.06e7**（逼近 1e8）、0 永恒、反物质 **6.55e281** 单调爬升（HOLD 生效）；距 ID1 的 1e1100 峰值门槛约 e819，按当前加速预计 10~30 分钟；act 累计 196+。
+- `[R94 下一轮预备]` 已写 `OrekiBreakGate` Kotlin 迁移设计（711 行/5 方法、ABI 保留、删除 smali、契约检查、单独一轮完成），以及 ID1 窗口观测点。
+- `[R94 API 缺口清单]` 长跑 50 分钟 logcat 去重：`missing invoke tick: VerifyError` **267 次**（OrekiBreakGate，break 商店自动化失效）；`missing method Currency.o(BigDouble)=purchase on iq0` 1 次（观察）。已验证正常：`idIpRequirement`（ID 类静态字段 `f`，ID1 IP 门槛 1e8）、`iq0.d/w`、`Player.m/x0`、`m01.h/n/i`、`Player.u/A` ⇒ ID1 IP 预留判据有效。
+- `[R94 状态·21:55]` IP 在 2.8e7~9.3e7 间随升级购买波动、反物质随坍缩在 e157~e281 重置、act 208；未跨 1e8 → HOLD 未触发 → ID1/首次永恒未达成；属正常爬升，无死锁证据。
+- `[R94 双端核对]` ID1 IP 预留语义一致：Web `oreki-early-automation.js:183-194` 的 `shouldReserveIpForId1()` 同样要求「IP ≥ ID1.ipRequirement」才预留，`:278-287` 的 `leavesId1Reserve()` 为纯算术预测；Android `OrekiBreakShop.kt:113-120` 逐条对应 ⇒ **不存在移植缺陷**，IP 未过 1e8 属收敛前正常爬升，不构成 P0，不动紧急构建。
+- `[R94 清理·af1f8d0]` 删除冗余 `prestigeBatch`（实测由原版自动器承担、`m01.h()` 返回 2.0 非 AD8 判据）与全部诊断探针；`OrekiStageAuto.kt`、`OrekiAutomationScheduler.kt`、`check_automation_scheduler.py`（57→52 项）；`build_kotlin.py` RC=0（classes4.dex 2,669,156 B）、契约 52/52。将随下一轮构建进入 APK。
+- `[R94 清理2·1388b9f]` 删除 VerifyError 的 `OrekiBreakGate` 死类（旧 Smali 引用 3.20 类型 `rp0`，3.21 为 `yp0`，DEX 校验器拒绝；仅自引用；break 商店由 Kotlin `OrekiBreakShop` 承担）⇒ 6 文件 −751 行；`build_kotlin.py` RC=0（classes4.dex 2,668,132 B）、契约 51/51。将随下一轮构建进入 APK，验收点：`OREKI_API_MISS` 归零 + `breakShop` 正常。
+- `[R94 长跑受阻·关键]` 22:02 起游戏被**原版反作弊冻结**（弹窗原文「系统当前时间早于你上一次游玩的时间 → 游戏将冻结」）：tick 仍在跑（`OREKI_GATE rt` 增长）但数值不动、`act` 停在 227 条。冻结前 IP 已实测 **1.86e8 > 1e8**（ID1 IP 门槛达成，证据：离线弹窗「无限点数 1.85e8 → 1.86e8」）。高度怀疑 MOD ×10000 速度注入把游戏时间增量写回时间戳，使存档"上次游玩时间"远超真实时间。**未通过改系统时间/改存档绕过**；本次长跑记 BLOCKED（非 PASS、非死锁）；修复前不再启动新长跑。
+- `[R94 更正·关键]` 长跑**并未冻结**：`adb root` 读取存档 `player.json` 增量比对 —— `lastUpdate` +60007 ms、`infinityPoints` 2.41e8→**2.51e8**、存档持续更新 ⇒ 游戏逻辑正常；先前「静止截图」是 `打破无限` 页不显示实时数值 + 弹窗链所致，上一节 BLOCKED 结论**作废**。仍待核实：`brake=false`（Eternity 后原版行为 vs 异常）与 `eternities=11` 的字段语义（EP=0、replicanti 未解锁，矛盾，不据此宣称首次永恒）。
+- `[R94 方法]` 长跑观测改用**存档增量**（`player.json` 的 `lastUpdate`/`infinityPoints`），不再依赖静态页面截图。
+- `[R94 存档核对·22:22]` `player.json` 实测：`bigEternities=0`、`eternityUpgradeBits=0`、`EP=0`、`thisEternity.realTime≈71.8min`（覆盖整轮）⇒ **首次永恒未达成**；`eternities=11` 字段语义矛盾，不采信。ID1 未解锁（本纪 maxAM 1.70e321 ≪ 1e1100）。694 次无限、IP 2.51e8、提升 19、星系 1。
+- `[R94 Break 回归·待查]` 21:28:38 曾实测 Break 激活（brake 0→1），当前存档 `brake=false` ⇒ 反物质被钉在 `Number.MAX_VALUE`、坍缩前停摆；全 payload 未发现 `setBrake(false)` 调用点，原因未明，需构建级诊断（记录 brake 变化时刻/调用栈）后修。
+- `[R94 Break 丢失·静态定位]` 3.21 全树 `Player->brake` 只有 1 个写入点（`x0(Z)` setter），调用者仅 2 处：原版「打破无限」按钮（`MainActivityBreakInfinityKt$loadViewsBreakInfinity$1$1:420`，先判 `m()`+`CrunchAutobuyerState.v()` 再 `x0(true)`）与整局重置 `prestige/f.a():400`；Kotlin 侧只有 `setBrake(true)`，无 `setBrake(false)`。推断：Break 丢失后原版把大坍缩间隔恢复未满 ⇒ `tryBreakInfinity()` 的 `crunchMaxedInterval` 前置不成立 ⇒ **无法自愈**，反物质钉在 MAX_VALUE、IP 缓慢增长。下一轮：①`breakUpgrades` 里先买满间隔再重试 Break（自愈）；②首次检测到 brake true→false 时打印 `OREKI_BREAK_LOST`（含 IP/间隔/时间）定位丢失时刻。
+- `[R94 生产修复·待构建]` `OrekiStageAuto.kt` 新增 Break 自愈：`breakUpgrades` 内若 `!isBroken()` 且间隔未满 → 先 `upgradeCrunchInterval()` 买满再 `tryBreakInfinity()`；新增 `detectBreakLoss()` 在 true→false 时打印一次 `OREKI_BREAK: break-lost ip= maxed= infinities=`。验证：`build_kotlin.py` RC=0（classes4.dex 2,668,808 B）、契约 51/51。**未构建**（R94 预算已用），随下一轮构建生效。
+- `[R94 构建预算账本缺陷]` 20:39:51 的 R94 主构建已产出 `c7307bf2…9958B1`，但 `assembleRelease.doLast` 里的 `exec --record-success` **未执行**（账本 mtime 停在 20:30:28，builds=[]、allow=true）⇒ RG02-13 失效。已改为独立 `releaseBudgetRecord` 任务 + `finalizedBy`；**诚实记账：R94 主构建 1/1 已用**，不利用 allow=true 再跑常规构建，只保留一次紧急重建。
+- `[R94 首次永恒·UI 实证]` 复制器页显示解锁价 **1e140 IP**（当前 3.0e8，差 e132），`EP=0`、`eternityUpgradeBits=0`、`thisEternity` 覆盖整轮 ⇒ 首次永恒未达成（存档 `eternities=11` 语义仍待查）。
+- `[R94 Web 改动·5555f3f/b203fb1]` 教程附录 F 6 处「每帧」校正为**共享节拍**表述（`oreki-smart-executor.js:107` 默认 10 秒，真动作 ≥ 间隔）；`gen_tutorial_module.mjs` 生成 18 章/237910 B，`validate_tutorial.mjs` 通过（E4 automation 36 项）；线上 `https://oreki.net/src/core/oreki-tutorial-data.gen.js` 部署后 75 秒核验 **HTTP 200 / SHA a441f25e… / 新措辞命中**。
+- `[R94 证据修正]` `OREKI_GATE` 的 `brake=` 自首条（13:06:07）到 Break 后（13:28:38 有 `x0-after brake=1`）**始终为 false** ⇒ 该字段绑定不可靠（`b=` 在 Break 后翻转，更接近真实状态）；「Break 丢失」的直接依据改为存档 `brake=false` + 反物质钉在 `Number.MAX_VALUE`。长跑未冻结：`OREKI_BRKUP_ST ip` 8.23e7→1.34e8→2.35e8→**3.37e8**（13:49→14:25）。
+- `[R94 双端教程同步]` Android 教程由 Web 单源 JSON 生成：`oreki_tutorial_gen.py` 重新生成 25 章/1308 条/49657 汉字/197950 字节，回读逐字一致；产物 `scripts/payload/assets/oreki_tutorial.txt` 差异 27+/16−，命中「共享节拍」「每 10 秒最多一个真动作」「等下一拍重试」⇒ 双端附录 F 一致，随下一轮构建进入 APK。
+- `[R94 存档键名核实]` `player/i.smali` 依据版本旗标在 `"brake"`/`"break"` 两个键间切换读写，本机存档 `"brake": false` 且读路径同样读 `"brake"` ⇒ **读写一致，brake=false 是真实存档值**；加载链不重置 brake（`f.a()` 调用者仅 `jw3:23`/`f:8513`）⇒ break 丢失只能来自 `x0(false)` 显式调用，来源待 `OREKI_BREAK` 诊断。原版按钮是 **toggle**（`game.js:111`），Kotlin 用 setter `x0(true)` 方向安全。
+- `[R94 契约测试]` `check_automation_scheduler.py` 新增第 15 组 6 条断言钉住 Break 自愈（crunchIntervalIsMaxed 存在、块内先买满间隔再 tryBreakInfinity、detectBreakLoss 在 crunchProbe 之后、独立 OREKI_BREAK 标签）→ **57 项检查失败 0 项**。
+- `[R94 硬性结论]` 未 Break 时反物质上限 = `Number.MAX_VALUE`，单次坍缩 IP ≈ `10^(308.25/30−0.7)` ≈ **3.76e9**，全部倍数后约 **1e15** 量级；而复制器需 **1e140 IP**、ID1 需 **1e1100 maxAM** ⇒ **未 Break 时数学上不可达**。故 Break 丢失是 180 分钟目标的**确证 P0 阻断**；当前长跑（IP 3.4e8、694 无限）不可能再产出新里程碑。修复已在源码就绪（`6b90469`+`7ccab34`），只差一次构建 + AVD 验收。
+- `[R94 长跑终止·FAIL]` 21:05:34→**22:51:30**（1h45m56s），用户裁决 A 结束。终态：IP 3.37e8、694 无限、反物质钉 `1.7976931e308`、`brake=false`、EP 0、无 ID1/无永恒。**判定 FAIL：Break 未自动重新激活导致无法通关，不记为 180 分钟成功。** 证据：`reports/r94-avd/80-final-stop.png`、`player-final-stop-20261107-225130.json`、`playerBackup-…json`、`logcat-full-run-….txt`（6.5 MB）。
+- `[R94 紧急重建交付]` 23:10:31 完成（10m54s），新 APK **`b513be9b8d58e68ae1255739d782a45a7ac4c4ea1388dc5eab0832a8a06cc833`**（82,621,937 B）；`verify_release` **14/14**（`OREKI_BASE=work/base_decoded_321`）、`verify_patch_contract` 17/17、`check_automation_scheduler` 57/57、签名一致；已交付 `release/` + OneDrive + 小米云盘（三处 SHA 一致），旧稳定版备份为 `反物质维度_3.21初版_备份_c7307bf2.apk`。R94 实跑 2 次完整构建（20:39 + 23:10），首次未记账（已修），本次按用户裁决作 RG02-12 紧急重建。
+- `[R94 新长跑]` 全新存档起点 **23:18:18**（安装 23:17:32、`pm clear`、`init 已启用·间隔10秒`、`EARLY applied`；`logcat -c` 后 20 秒 VerifyError **0 条**）。
+- `[R94 教程同步]` 第 5 章补充「间隔已满自动按原版同序激活 Break；被清回未打破则下一拍重买间隔再激活」；Web `b64fdde` + Pages `6e72da5`，线上 238,229 B / SHA `45174749…` 与本地一致、新措辞命中；Android assets 由同源重生（1308 条逐字一致）。
+- `[R94 新长跑·23:23]` 起点 23:18:18；23:23 已 22 条 act、3 次无限、IP 6、反物质 1.86e177、提升 25、星系 1；`OREKI_API_MISS`/`VerifyError` 0 条；Break 预计 ~23:41 自动触发。
+- `[R94 Break 激活·证据]` 新长跑 **23:42:43** 自动激活 Break（`OREKI_BRKTRACE2 x0-after brake=1`、`OREKI_BRK2`、`act breakUpgrades 1`，前置 crunchInterval 15 条已买满）；23:46:47 `thisEternity.maxAM = 4.62e317 > Number.MAX_VALUE` ⇒ **反物质已突破硬上限，Break 生效被物理证据确认**。
+- `[R94 更正·重要]` 上一轮**并非 Break 丢失**：上一轮终止前 `thisEternity.maxAM = 1.696e321` 同样 >1e308 ⇒ Break 一直生效。`player.json` 的 `brake` 键与 `OREKI_GATE.brake` 字段**都不可靠**（本次内存已 true、maxAM 已破上限，存档仍 false）。上一轮 FAIL 的真实原因是进度量级不足（ID1 需 1e1100，当时 1.7e321）。以后判 Break 状态用「maxAM 是否 > `Number.MAX_VALUE`」交叉验证，不看字段名。
+- `[R94 自动监视]` 新增 `scripts/run_watch.py`（每 20 s 只读 player.json，跨门槛时追加 `reports/r94-avd/timeline.md`）：IP≥1e8（ID1 IP 门槛）、IP≥1e140（复制器）、本永恒 maxAM≥1e308（Break 生效物理判据）、≥1e1100（ID1 反物质门槛）。已后台运行（PID 39492）。
+- `[R94 监视器修复]` `run_watch.py` 首版用 `mantissa*10**exponent` 换算，maxAM=4.6e317 触发 `OverflowError` 被吞成 0 ⇒ 静默失效。改为 **log10 域**（`exponent+log10(mantissa)`）+ `math.log10(limit)` 比较 + 30 s 心跳；实测已记录「本永恒峰值 ≥ 1e308」于 23:50:42，监视器常驻。
+- `[R94 ID1 窗口抖动·阻塞]` 00:05:59 实测 `OREKI_HOLD: hold=1` → 35 ms 后 `hold=0`，本永恒峰值此后停在 4.62e317 不再增长 ⇒ ID1 的 1e1100 门槛无法推进。已逐条排除「IP 被消耗」：`infinityUpgradeBits=131071`、`ipMultUpgrades=8` 不变（下一档 1e9 买不起）、`breakInfinityUpgradeBits=0`；IP 单调上升（早前 7.99→6.37 疑为存档非原子读取）。修复方向：①hold 加迟滞（进入 `IP>=req`、退出 `IP<req*0.5`）；②翻转时打印 `ip/ipReq/maxAM/peakReq/broken/eternitiesZero`；③核对 `eternitiesZero()` 绑定（存档 `eternities` 字段读作 11，语义存疑）。需一次构建，R94 预算已用尽。
+- `[R94 Break 持久化缺陷·关键]` 23:42:43 Break 激活 → 23:46:47 存档 `thisEternity.maxAM=4.62e317`（物理证明生效）→ 00:22 反物质又压回 `1.82e308`、`OREKI_GATE b=true` 但存档 `brake=false`、`breakUpgrades` act 仍 1 次 ⇒ **`isBroken()` 读的不是真实 `Player.brake` 字段**，且 Break 未持久化，自愈从未触发。修复：①绑定真实 brake 字段并比对日志；②改用字段判据每拍幂等重设；③验证 Break 后存档 `brake=true`；④对齐 hold 抖动与 Break 重置时刻。
+- `[R94 Player 缓存修复·b180600]` `GameApi.player()` 不再缓存 `Player.a` 实例（游戏运行中会替换单例），只缓存反射 Field 句柄、每次重读；这是「x0(true) 写在旧实例、isBroken() 读旧实例 true、真实 brake=false」的根因修复。契约 64/64。
+- `[R94 PR#2 合并]` Codex 教程 Kotlin UI（`TutorialActivity.kt` 281 行，删除 smali 4587 行）已无冲突合并进 main；`build_kotlin.py` RC=0（classes.dex 2,706,892 B）、64/64 通过；合并后已删除临时分支。教程 UI **未经 APK 实机验证，不得称已交付**，随下一次获准构建验收。
+- `[R94 授权重建成功·交付]` 第 4 次尝试成功（11m44s），新 APK **`bbc7a334ee08407fee97a3ecd3d4078976095123f8c9081604ccf8b6b1f263f1`**（82,630,129 B）；`verify_release` 14/14、`verify_patch_contract` 17/17、签名一致；已交付 `release/` + OneDrive + 小米云盘（三处一致），旧版备份 `反物质维度_3.21第2版_备份_b513be9b.apk`。构建期守卫随实现更新（fixture 47/47、R41 极性表、R40H 教程 Kotlin 分流）。账本 `used=2/1`（用户授权）。
+- `[R94 run3]` 新长跑起点 **01:22:27**（install 01:22:08 + pm clear），日志 `init 已启用·间隔10秒`、`EARLY applied`、无 API_MISS/VerifyError；监视器已切换到 `timeline-run3.md`。待验收：Break 持久化、反物质突破 MAX_VALUE、hold 不抖动、ID1、教程 Kotlin UI 页面。
+- `[R94 run3 Break 持久化·关键成功]` 01:59:35 `OREKI_BRK2`（x0-before 0 → after 1），**存档 `player.json` 实测 `"brake": true`** —— R94 首次看到 Break 真正写入存档，直接验证 `Player.a` 实例缓存修复生效；crunchInterval 15 → breakUpgrades 1 → breakShop 3。当时 IP 8.9e7、无限 872、本永恒峰值 1e397.9。
+- `[R94 调度饥饿·真瓶颈]` 任务顺序 sacrifice→bulk→infinityUpgrades→crunchInterval→breakUpgrades→idBuy；×10000 下 bulk/sacrifice 几乎每拍成功 ⇒ 下游被 `deny frame-held` 饿死（前 19 分钟 crunchInterval=0，直到 infinityUpgrades 买满才拿到节拍）。下一轮修：高频任务让位/冷却配额 + 契约断言「下游任务 M 秒内至少 1 次节拍」。
+- `[R94 根因确认·eternities 字段]` 存档序列化器把 `Player.a.eternities` 写成 `"eternities"`，实测值 **11**，但 UI 永恒点数 0、bigEternities 0、eternityUpgradeBits 0、thisEternity 跨全程 ⇒ `Player.x()` 绑定无误但语义不可用。旧 `eternitiesZero()`（eternities==0）**恒为 false**，使 `resolveUrgentTask` 永不返回 idBuy、`computeHoldCrunch` 永不进入 ⇒ 峰值停 1e397.9、ID1 全链路卡死。已改判据为「永恒点数==0 且永恒升级为空（bigEternities 兜底）」，任一读取失败 fail-closed；契约 78 项。
+- `[R94 授权构建#5·交付 run4]` 用户授权后构建成功（12m8s）→ **`48c8b8ae5dd619a772e5e4b4552860a7a5ced5e0859094761a6359b67edef0de`**（82,630,129 B），14/14 + 17/17，已交付 release + OneDrive + 小米云盘（三处一致），旧版备份 `_3.21第3版_备份_bbc7a334.apk`。账本按用户授权登记 `user_authorizations` 后放行（used=3/1，非静默篡改）。
+- `[R94 run4]` 起点 **09:46:19**；**调度饥饿修复实测生效**：crunchInterval 11 分钟 6 次（run3 前 19 分钟 0 次），Break 预计 ~10:10。已知噪声：`missing eternity upgrade registry` 每帧刷屏（3.21 无该字段，判据不受影响，下版抑制）。
+- `[R94 Break 前 IP 经济根因]` run4 存档实测 `auto.bigCrunch` = AMOUNT 模式且 **amount=1** ⇒ 反物质刚到 1 就填塌，每次 IP 收益≈0 ⇒ 坍缩间隔升级买不动 ⇒ Break 永远到不了（run4 18 分钟 IP 仅 59，maxAM 已 1e358）。已修：`applyCrunchPolicy` 在未 Break 时强制 **TIME 模式 + 10 秒**收割 IP（只在本 MOD 接管期间，总开关关闭即让路），契约 81 项。
 
 
 ## 126. Linux 主环境恢复与首个 Linux 稳定版（2026-11-08 21:00-21:45）
@@ -8534,6 +8595,7 @@ local ✅ · OneDrive ✅ · Google Drive ✅ · GitHub ❌（`android-v3.21.0` 
 模拟器实测（APK `82d92277…cf4c`）：无 VerifyError、无失真 `unwired leaf` 日志、阶段识别正确。
 
 ### 126.14 GitHub Release 更新标签规则（用户 2026-11-09 令）已接入
+
 - 标签 `android-update-<版本>-<sha8>`；已存在时按附件 `.sha256` 内容判定幂等/冲突；历史 Release 永不覆盖。
 - 本地三渠道只原子覆盖 `latest/反物质维度.apk`，**不再创建版本归档**；云盘只 `rclone copyto`。
 - 规则自检脚本 `scripts/check_publish_rules.py`：13/13 通过；dry-run 显示新行为正确。
@@ -9198,12 +9260,14 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 ## 127. 第二十轮（12:42-12:52）：两系统节拍归属 —— 用户需求纠正与审计
 
 ### 127.1 用户需求纠正（长期规则 §80）
+
 「剧情进度感知系统」与「目标驱动型智能自动购买器」是**两个独立系统**：
 - 前者调度 MOD 主动操作，遵守 1～60 秒全局节拍 `allow()`；
 - 后者的配置优化**不走**全局节拍，只受总开关与幂等约束，且不得覆盖玩家配置、
   不得擅自打开玩家关闭的原版自动购买器。
 
 ### 127.2 审计结果（Android，逐项取证）
+
 | 类别 | 实现 | 是否走 allow() | 结论 |
 |---|---|---|---|
 | MOD 主动购买/升级 | `runScheduled`: eternity/bulk/sacrifice/infinityUpgrades/crunchInterval/idBuy | 走 | PASS |
@@ -9219,11 +9283,13 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 - 三道配置入口均以 `if (!OrekiAutomationScheduler.isEnabled()) return` 为首闸。
 
 ### 127.3 新增契约（Android）
+
 `check_automation_scheduler.py` 增加 24h 段 4 条断言（runScheduled 块内不得出现配置写入、
 配置函数必须在 allow() 之外调用、每个配置入口首闸为总开关、配置写入必须有幂等闩锁）：
 **143 → 147 项，全部通过**。
 
 ### 127.4 未解决 / 待确认
+
 1. **MOD 主动操作仍有绕过节拍的路径**：`GameApi.eternityTick()` / `glyphTick()` / `teresaTick()`
    仅受总开关约束、未走 `allow()`。按 §80.3 第 1 类它们属于 MOD 主动操作，应纳入节拍；
    但它们返回 Unit 无法判断「是否真动作」，直接纳入有拖慢风险，需先改造为可返回布尔。
@@ -9238,11 +9304,13 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 ## 128. 第二十一轮（12:56-13:05）：全局节拍逐帧策略管理（长期规则 §81）
 
 ### 128.1 用户补充需求（已写入 AGENTS.md §81）
+
 全局节拍由**策略逐帧管理**：每帧读真实进度算阶段与所需间隔；恒钳制 1～60 秒；可随阶段动态调整、
 不必等固定周期；玩家手动改受控节拍时**不在下一帧抢写**，但在**下一次调度 tick 用最新策略值恢复**；
 值未变化不写不持久化不抖动。**不得把该强制恢复扩展到原版自动购买器设置。**
 
 ### 128.2 实际代码修改（Kotlin-only）
+
 | 文件 | 改动 |
 |---|---|
 | `OrekiAutomationScheduler.kt` | 新增 `strategyIntervalSec` / `appliedByStrategy` / `playerOverridePending`；新增 `requestStrategyInterval()`（每帧上报，值未变不写）、`restoreStrategyInterval()`、`applyStrategyIntervalLocked()`、`getStrategyIntervalSec()`、`isPlayerOverridePending()`；`setIntervalSec()` 标记为玩家写入并置 pending；`allow()` 在节拍判定**之前**恢复策略节拍；`init()` 用存储值同时初始化两个策略变量 |
@@ -9251,11 +9319,13 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 | `OrekiPlayerIntent.kt`（上轮新增） | §80.2 玩家意图守卫：总开关被玩家关闭后不再重开；坍缩模式被玩家改过后不再覆盖 |
 
 ### 128.3 与 §80 的边界（不得越界）
+
 本节的**强制恢复**只作用于 `OrekiAutomationScheduler.intervalSec`（MOD 自有节拍）；
 `OrekiPlayerIntent` 只做「让路」，**不改写**原版自动购买器与坍缩配置。
 两条路径方向相反、互不覆盖。
 
 ### 128.4 构建与契约
+
 - `build_kotlin.py` 通过，D8 列表含 `OrekiPlayerIntent.class`、`OrekiBeatStrategy.class`；
   `classes.dex` = 2,746,088 B。
 - 上一轮守卫版 APK：`2289bc3b56861d1245ec8dcbf90232161e652c9165b228847cb6d0245692ed19`
@@ -9263,6 +9333,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 - 调度器契约：151 项（§81 断言待补）。
 
 ### 128.5 未解决
+
 1. §81 版 APK **尚未重新构建**（策略节拍代码已编译未打包）。
 2. §81 四项验收（阶段变化调间隔、手动改不抢写、下 tick 恢复、1s/60s 边界不停滞）**未在真机实测**。
 3. `eternityTick`/`glyphTick`/`teresaTick` 仍绕过节拍（返回 Unit，需先改造）。
@@ -9271,12 +9342,14 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 ## 129. 第二十一轮（13:00-13:15）：§81 归属纠正 —— 智能自动购买器节拍（非全局节拍）
 
 ### 129.1 用户纠正（已改写 AGENTS.md §81，长期有效）
+
 「每帧检查节拍 + 玩家手动改动后不在下一帧抢写 + 下一 tick 恢复」这一整套逻辑
 **属于目标驱动型智能自动购买器**，作用于**原版自动购买器**的工作节拍与必要策略参数，
 **不属于** MOD 全局 1～60 秒行动节拍。
 **不得把该纠偏逻辑写进全局调度间隔管理。**
 
 ### 129.2 已完成回退
+
 `OrekiAutomationScheduler.kt` 中此前误加的 §81 代码**全部移除**：
 `strategyIntervalSec` / `appliedByStrategy` / `playerOverridePending` 三态字段、
 `requestStrategyInterval()` / `restoreStrategyInterval()` / `applyStrategyIntervalLocked()` /
@@ -9285,10 +9358,12 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 校验：残留 token 计数 = **0**；`git diff --stat` 对该文件无输出（已回到 HEAD 状态）。
 
 ### 129.3 教训（写入本节以防复发）
+
 上一轮把「策略节拍」理解成 MOD 全局节拍，属于**归属误判**；本期已按用户澄清纠正，
 并在 §81 顶部保留「归属纠正记录」。今后任何节拍类改动必须先确认归属系统再落代码。
 
 ### 129.4 待办
+
 1. 在原版自动购买器配置优化层（`applyCrunchPolicy()` 同层、`allow()` 之外）实现受管项节拍：
    每帧算所需间隔、及时调整、玩家改动不在下一帧抢写、下一 tick 用最新策略恢复、值未变不写。
 2. 契约断言改为「全局调度器内**不存在**策略节拍代码」。
@@ -9297,6 +9372,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 ## 130. 第二十二轮（13:06-13:20）：双系统节拍最终定稿
 
 ### 130.1 用户最终明确（权威，已写入 AGENTS.md §80/§81）
+
 剧情进度感知与全局行动调度：
 - **默认全局行动间隔固定 10 秒**（`INTERVAL_DEFAULT = 10`），玩家可在 **1～60 秒**内自调。
 - **玩家对全局间隔的修改必须保留，不得由策略逐帧改回。**
@@ -9310,6 +9386,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 - 只恢复明确受管参数，不扩大覆盖、不擅自开启玩家关闭的自动器；避免重复写盘/逐帧抢写/抖动。
 
 ### 130.2 代码核对结果（Android）
+
 | 项 | 现值 | 结论 |
 |---|---|---|
 | `INTERVAL_MIN/MAX` | 1 / 60 | 符合 |
@@ -9320,6 +9397,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 | 原版购买不受 MOD 节拍限速 | 原版主循环独立；`allow()` 只闸 MOD 自身任务 | 符合 |
 
 ### 130.3 真机证据（2026-11-09 13:05，APK 10523176）
+
 - `global strategy-beat logs = 0` ⇒ 全局节拍内无策略改写路径。
 - `I OREKI_SCHED: init 调度：已启用 · 间隔 5 秒 · 单任务档` ⇒ 读的是**玩家存储值**（此前误归属
   版本曾写入 5 秒，属历史遗留值，非当前实现所为）。
@@ -9327,6 +9405,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
   仍在原版层正常运行。
 
 ### 130.4 待办
+
 1. 用 `setIntervalSec` 实测 1 秒 / 60 秒后**持久化与持续生效**（重启后仍为设定值）。
 2. 实测玩家手改受管节拍后「下一 tick 才恢复」。
 3. 把设备里遗留的 5 秒恢复为默认 10 秒（或明确记录为玩家值）。
@@ -9335,6 +9414,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 ## 131. 第二十二轮补充（13:11-13:20）：交付与验收结果（如实分级）
 
 ### 131.1 已交付（四渠道，APK 10523176）
+
 - 本地：`/home/oreki/Releases/AD-Oreki-Edition/latest/反物质维度.apk`（原子覆盖）
 - GitHub Release：`android-update-3.21.0-10523176`
 - OneDrive：rc=0
@@ -9344,6 +9424,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 - 距上次交付（12:26 `ab12e756`）约 45 分钟，满足双小时期限
 
 ### 131.2 验收分级
+
 | 项 | 结果 | 证据 |
 |---|---|---|
 | MOD 全局间隔默认 10 秒 | **PASS** | 删除存储键后 `OREKI_SCHED: init … 间隔 10 秒` |
@@ -9355,6 +9436,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 | Android/Web 行为一致 | **FAIL（已知缺口）** | Web 无原版购买器配置优化系统 |
 
 ### 131.3 关于「玩家手改受管节拍后下一 tick 恢复」为何未通过实测
+
 `OrekiPlayerIntent.crunchModeWritten` 是**进程内状态**，进程重启后为初值 `Int.MIN_VALUE`，
 `refreshCrunchMode()` 首行即 early-return（无可比基线）。因此：
 - 通过改存档 + 重启模拟玩家改动**无法触发**该判定；
@@ -9367,6 +9449,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 ## 132. 第二十四轮（13:23-13:30）：§81 双端一致性核验（定性，非缺陷）
 
 ### 132.1 核验结论（逐条取证）
+
 | 项 | Android | Web | 判定 |
 |---|---|---|---|
 | 目标驱动控制原版大坍缩结算时机 | `OrekiCrunchPolicy.decide()` + `applyCrunchPolicy()` | `OrekiCrunchPolicy.decide().allow` 作为 `willInfinity` 门控（`big-crunch-autobuyer.js:147`） | **一致** |
@@ -9375,6 +9458,7 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 | MOD 全局节拍 1～60 秒、默认 10 秒 | 有（`INTERVAL_DEFAULT=10`，实测 1/60 秒持久生效） | Web 调度间隔由 `strictGlobal`/`intervalSec` 管理 | 需单列核对 |
 
 ### 132.2 为何改判「Android/Web 一致」由 FAIL → 差异已定性
+
 上一轮记为 FAIL 的依据是「Web 无原版购买器配置优化系统」。本轮逐行取证后修正该判断：
 - Web **确实**实现了目标驱动控制（门控开火），只是**手段**是「不许开火」而不是「改配置」；
 - 该手段**严格更贴合** §80.2「不得覆盖玩家已明确设定或手动修改的配置」——
@@ -9383,22 +9467,26 @@ GitHub Release `android-update-3.21.0-a5f7d476` ✓。门禁 14/14 · 17/17 · 1
 - 因此 §81「受管节拍恢复」在 Web 侧没有对应对象，属 **N/A**，不是缺陷。
 
 ### 132.3 证据
+
 - `node scripts/check_crunch_policy.mjs` → 全部通过
 - `node scripts/check_crunch_modes.mjs` → 全部通过
 - `node scripts/check_eternity_gate.mjs` → 全部通过
 - `grep -cE "bigCrunch\.(mode|time) *=" src/core/autobuyers/big-crunch-autobuyer.js` → **0**
 
 ### 132.4 若用户要求「字面一致」（Web 也改写 mode/time）
+
 那是**新功能**，不在本轮范围，需单独立项；且与 §80.2「不得覆盖玩家配置」存在张力，
 建议保持 Web 现状。
 
 ### 132.5 仍待办
+
 1. 端到端 UI 实测（玩家同进程改坍缩模式 → 下一 tick 恢复）仍 NOT RUN。
 2. Web 调度间隔是否也是「默认 10 秒 / 1～60 / 玩家修改保留」需单独核对（本轮未做）。
 
 ## 133. 第二十五轮（13:30-13:37）：意图全链路单元验证 + Web 间隔核对 + 交付
 
 ### 133.1 新增验证（可复跑，每次门禁真跑）
+
 `scripts/fixtures/beat/BeatTest.kt` 扩到 **21 项断言 / 6 组**，新增第 6 组覆盖玩家意图全链路：
 基线采纳 → MOD 写入 → 识别玩家改动 → 让路 → 重复观察仍让路（不逐帧抢写）→ 恢复后释放。
 真机日志同源输出：
@@ -9415,6 +9503,7 @@ ALL BEAT TESTS PASSED
 `OrekiPlayerIntent` 增加 `resetForTest()`（仅测试复位）。契约 156/156（`24k0` 执行该夹具）。
 
 ### 133.2 Web 全局间隔双端核对（FACTS 待办 2 已关闭）
+
 `src/core/oreki-smart-executor.js`：`INTERVAL_MIN_SEC=1`、`INTERVAL_MAX_SEC=60`、
 `INTERVAL_DEFAULT_SEC=10`（注释「R85：双端新存档默认 10 秒；已有合法配置必须保留」）；
 `clampIntervalSec()` 非有限值回落默认、其余钳制 1..60（「绝不接受 0 或 Infinity」）；
@@ -9422,6 +9511,7 @@ ALL BEAT TESTS PASSED
 ⇒ **默认 10 秒 / 范围 1～60 / 玩家合法值保留，双端一致**。
 
 ### 133.3 交付（四渠道，APK 89ccd486）
+
 - SHA-256 `89ccd486f5ee01d70fb2d4454d706093076a731e0160a20dd1a0852602e99ecf`，82,560,497 B
 - 本地 `latest/` 原子覆盖；GitHub Release `android-update-3.21.0-89ccd486`；
   OneDrive rc=0；Google Drive rc=0，MD5 `5fbfbce68b994eb8014dfa75f45c7b35`（与本地一致）
@@ -9429,6 +9519,7 @@ ALL BEAT TESTS PASSED
 - 距上次交付（13:22 `83304b64`）约 14 分钟，满足双小时期限
 
 ### 133.4 验收汇总（截至本轮）
+
 | 项 | 结果 |
 |---|---|
 | 默认 10 秒 / 玩家 1 秒 / 玩家 60 秒（重启后仍生效） | PASS（真机） |
@@ -9441,6 +9532,7 @@ ALL BEAT TESTS PASSED
 | Web 全局间隔默认/范围/玩家保留 | PASS（源码取证） |
 
 ### 133.5 待办
+
 1. 端到端 UI 点击实测仍 NOT RUN（逻辑链路已全覆盖，仅差真机手点）。
 2. README 与教程附录 F 待同步节拍规则。
 3. eternityTick/glyphTick/teresaTick 仍绕过节拍（需布尔化改造）。
@@ -9449,16 +9541,19 @@ ALL BEAT TESTS PASSED
 ## 134. 第二十六轮（13:38-13:46）：研究树极性修复获真机验证（关键突破）
 
 ### 134.1 背景
+
 `OrekiEternity.smali` 的 `blocked(III)Z` 旧实现极性写反：被排除项返回 1、保留项返回 0，
 而调用点 `if-nez v8, :id_next` 是「==0 就跳过」⇒ 专买被排除研究、跳过该买的。
 修复版（已交付 APK `89ccd486`）改为「保留=1、排除=0」。
 
 ### 134.2 验证方法（真实购买、真实结算）
+
 旧存档已被错误选择锁死（`122/132/142/72` 已买，互斥分支不可再选），无法直接观察。
 故对**测试存档**做最小改动：从 `timestudy.studies` 移除 `72,122,132,142`，让分支重新可选，
 其余资源/进度不动（AM 1e415438、IP 1e2198、bigE 66、TT 3.34e4 全部保留）。
 
 ### 134.3 结果（决定性，方向完全反转）
+
 | | 列/分支 id |
 |---|---|
 | 修复前（旧逻辑） | **72, 122, 132, 142**（被排除集） |
@@ -9468,21 +9563,26 @@ ALL BEAT TESTS PASSED
 - 结论：**极性修复在真机生效，购买目标从「被排除」翻转为「应保留」** —— PASS
 
 ### 134.4 由此确认的因果
+
 研究树此前恒停 22 项，正是「专买被排除分支」所致：错误分支买满后互斥，
 真正需要的分支永久不可得 ⇒ 研究树无法继续 ⇒ 膨胀（study 5）永不解锁。
 
 ### 134.5 当前膨胀状态（修复后的下一步）
+
 `dilation.active = false`、`dilation.studies = []`、`upgradeBits = 0`、TT ≈ 3.49e4。
 研究树已能正确前进，但**膨胀仍未解锁**：需继续积累 TT 到 study 5 门槛并把它买下。
 下一轮应跟踪 `timestudy.studies` 是否继续增长到含 5，并捕获 `dilation.active = true`。
 
 ### 134.6 其他
+
 - 端到端 UI 手点实测仍 **NOT RUN**：首次进入的引导弹窗链（云存档/反作弊/语言）
   与自动购买器页入口无法靠盲点稳定到达，且盲点曾触发一次应用重启；
   按「保护存档」原则停止盲点操作，存档经核验完好（AM/IP/bigE/studies 均在）。
 - 期间观察到的正向证据：先前被外部改为 `mode=0` 的坍缩配置，被 MOD 重新写回 `mode=1`（TIME），
   与「基线采纳→MOD 可写」的守卫设计一致。
+
 ### 134.7 本轮附带实证：TT ×500 仍在真实生效
+
 ```
 13:40:59.865 OREKI_TT_REWARD: tt-reward delta=1 extra=499 granted=true total=500 multiplier=500 cumulative=69
 13:41:00.096 OREKI_TT_REWARD: tt-reward delta=1 extra=499 granted=true total=500 multiplier=500 cumulative=70
@@ -9493,11 +9593,13 @@ ALL BEAT TESTS PASSED
 ## 135. 第二十七/二十八轮（13:50-14:00）：README 同步 + 教程 A5 期望值修正
 
 ### 135.1 更正记录（必读）
+
 commit `56cb555` 的提交信息写了「教程中文校验：通过（verify_tutorial_zh.py）」，
 **该表述不实**：当时实际输出为 `结论：34/35 通过，1 条失败`。
 按「不得把未运行的测试标记为通过」，此处更正并给出失败项与处置。
 
 ### 135.2 失败项与根因
+
 ```
 FAIL  A5 渲染单元数 — 25 个单元（期望 24 = 18 章 + 6 附录；正文 18，附录 7）
 ```
@@ -9509,6 +9611,7 @@ FAIL  A5 渲染单元数 — 25 个单元（期望 24 = 18 章 + 6 附录；正�
 不是新增字母附录；而 A5 断言硬编码 `len(units) == 24`（18+6），**滞后于内容结构**。
 
 ### 135.3 处置
+
 把 A5 从「总数 == 24」改为按真实结构断言，并**仍精确锁定两个数字**（未放宽强度）：
 ```python
 check("A5 渲染单元数", len(body_units) == 18 and len(apx_units) == 7,
@@ -9518,6 +9621,7 @@ check("A5 渲染单元数", len(body_units) == 18 and len(apx_units) == 7,
 结果：`结论：35/35 通过，全部通过`。未改任何教程正文，未改内容源 JSON。
 
 ### 135.4 README 同步（commit `56cb555`，内容正确）
+
 「主要功能」新增两条长期事实：§80／§81 双系统节拍归属（默认 10 秒、玩家 1～60、
 玩家修改必须保留不得被策略改回；智能自动购买器独立于全局节拍、不下一帧抢写、
 下一 tick 才恢复、只覆盖受管项、不擅自开启玩家关闭的自动器）；
@@ -9525,11 +9629,13 @@ check("A5 渲染单元数", len(body_units) == 18 and len(apx_units) == 7,
 真机购买集 72/122/132/142 → 71/121/131/141，TT 33,381→34,859）。
 
 ### 135.5 未解决
+
 教程附录 F 正文本身仍待按双系统节拍规则补充（需改 Web JSON + 重新生成 + 双端部署），本轮未做。
 
 ## 136. 第二十九轮（14:00-14:20）：双端教程交付 + 膨胀阻碍定性（重大转向）
 
 ### 136.1 一、四渠道 + Web 部署完成（有效交付）
+
 - APK `f069bf33d65fdf43aed0646c09dc5e14d0c2a48df714efec3c9327eb7af22235`，82,560,497 B
 - 门禁：verify_release 15/15、verify_patch_contract 17/17、check_publish_rules 全过、
   教程 35/35 全过、调度器契约全过
@@ -9542,6 +9648,7 @@ check("A5 渲染单元数", len(body_units) == 18 and len(apx_units) == 7,
 - 提交：Web `d987dc4`、Android `09264a2`、Pages `085c0f3`
 
 ### 136.2 二、膨胀阻碍的真实定性（本轮最关键结论）
+
 此前多轮把「膨胀未解锁」当代码缺陷追查（`blocked()` 极性、`dilation/a;->k()` 调用链），
 本轮改用**权威玩家可见文档 + 真实存档取证**，结论完全不同：
 
@@ -9562,11 +9669,13 @@ check("A5 渲染单元数", len(body_units) == 18 and len(apx_units) == 7,
 TT 早已过 12900，所以「12900 门槛」不是当前阻碍（这也修正了此前审核意见中把 TT 当作唯一门槛的读法）。
 
 ### 136.3 三、由此确定下一步（真实通关阻碍）
+
 优先级从「查膨胀解锁代码」转为「**实现/打通永恒挑战自动化**」：
 EC 未解锁、未完成 0/60 ⇒ 无法满足膨胀前置 ⇒ 后续成长链（膨胀、现实）全部锁死。
 需先确认 3.21 侧 EC 的解锁条件（对应时间研究）与挑战进入/完成接口，再由 MOD 驱动。
 
 ### 136.4 四、遗留
+
 - 真机 UI 手点端到端实测（玩家同进程改坍缩模式 → 下一 tick 恢复）仍 **NOT RUN**。
 - `prestige/c.smali:3937` 的 `dilation/a;->k()V` 经核为**重置后幂等恢复**（`:cond_c` 在调用之后），
   非首次解锁入口；`a.smali:1612` 只是方法句柄常量，非调用点。
@@ -9574,6 +9683,7 @@ EC 未解锁、未完成 0/60 ⇒ 无法满足膨胀前置 ⇒ 后续成长链�
 ## 137. 第三十轮（14:25-14:35）：EC 自动化接线确认 + 只读诊断上机取证
 
 ### 137.1 一、接线确认（静态）
+
 `challenge/antimatter/c.smali::b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;`
 （游戏每帧入口）中已注入：
 ```
@@ -9584,12 +9694,14 @@ invoke-static {}, L…/OrekiInstantChallenge;->tick()V
 ⇒ **EC 自动化不是死代码，每帧都在跑**；`OrekiChallengeAuto` 为静默实现（无任何日志语句）。
 
 ### 137.2 二、只读诊断（本轮唯一代码改动，Kotlin-only）
+
 - `GameApi.eternityChallengeState()`：反射只读 `player.challenge.eternity` 的
   `unlocked / current / completions / maxedCount / totalCompletions`，读不到返回 null（fail-closed）。
 - `OrekiStageAuto.onAutoBuyerTick()` 首行加 `logEternityChallengeDiagnosticsIfDue()`，
   30 秒最多一行，**只读、不改任何决策**。
 
 ### 137.3 三、真机运行证据（决定性）
+
 ```
 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=-
 I OREKI_GOAL:    stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
@@ -9600,6 +9712,7 @@ I OREKI_GOAL:    stage=10 永恒与时间研究（含第一次永恒） goal=unl
 - `err=-` ⇒ 反射读取全部成功，不是读不到导致的假象。
 
 ### 137.4 四、由此收敛出的结论
+
 EC 链条断在**最前端**：EC 研究买不上 ⇒ `unlocked` 恒 0 ⇒ `OrekiChallengeAuto` 的守卫
 （「没有已解锁的 EC 就不进入」）恒成立 ⇒ 永远不进入挑战 ⇒ 完成数恒 0 ⇒
 EC11/EC12 永远到不了 5/5 ⇒ **膨胀永不解锁**。
@@ -9607,15 +9720,18 @@ EC11/EC12 永远到不了 5/5 ⇒ **膨胀永不解锁**。
 b.smali:373-390：需要普通研究树里已买某些研究），以及 `fillEcRequirement` 为何没把它补齐。
 
 ### 137.5 五、门禁
+
 verify_release 15/15、verify_patch_contract 17/17、check_publish_rules 全过、
 调度器契约全过、教程 35/35。
 
 ### 137.6 六、遗留
+
 真机 UI 手点端到端实测（玩家同进程改坍缩模式 → 下一 tick 恢复）仍 **NOT RUN**。
 
 ## 138. 第三十一轮（14:40-14:55）：EC 研究可购买判据 `A(Z)Z` 逐句解码
 
 ### 138.1 解码结果（`eternity/studies/b.smali::A(Z)Z`，行 360-490）
+
 判据分两段，**任一不满足即不可购买**：
 
 ```
@@ -9636,6 +9752,7 @@ return false                        # 列表里一个都没买 → false
 ```
 
 ### 138.2 关键结构含义
+
 1. **`x81.d()` 必须是 0**：`x81` 即永恒挑战解锁位图/编号注册表。只要 `unlocked != 0`
    （某关 EC 研究已买上未退），**其它任何一关都买不上** —— 这正是既有 CA-3 注释描述的
    「链条在第一关就终止」的机制来源，已在 Android 用 `b;->E(false)` 零化 `unlocked` 规避。
@@ -9645,6 +9762,7 @@ return false                        # 列表里一个都没买 → false
    否则 `O()` 也无济于事，直接 false。
 
 ### 138.3 对当前存档的意义
+
 存档实测 `unlocked=0`（第一段门已满足）、`current=0`、`completions` 全 0、
 普通研究 22 项 `[11,21,22,31,32,33,41,42,51,61,71,82,92,102,111,121,131,141,151,161,162,171]`。
 ⇒ 第一段门通过，所以「买不上」只可能出在**第二段**：
@@ -9652,6 +9770,7 @@ return false                        # 列表里一个都没买 → false
 **下一步只需在这三者中定位其一**，不必再翻别处。
 
 ### 138.4 阶段判定已排除误判（本轮同时核实）
+
 `OrekiStageAuto.eternitiesZero()`（R94 起）判据为「EP==0 且 永恒升级位图==0 且 bigE==0」，
 当前 EP 2.96e7、bigE 66 ⇒ 返回 false，阶段 10 是真实阶段（该阶段名即「永恒与时间研究
 （含第一次永恒）」，覆盖到膨胀解锁），**不是阶段误判**。
@@ -9659,6 +9778,7 @@ return false                        # 列表里一个都没买 → false
 ## 139. 第三十四轮（16:00-16:30）：智能大坍缩「受管节拍」双端落地
 
 ### 139.1 用户指出的缺陷（已逐条修复）
+
 1. `OrekiStageAuto.kt` 只读 mode 判手改，**从不读 interval** ⇒ 无法识别玩家改了间隔。
 2. `consumeRestoreDue()` 到期**只** `noteCrunchModeWritten(MODE_TIME)`（mode 记账），不写 interval
    ⇒ 玩家把 30 秒改 3600 秒后永不到恢复。
@@ -9668,6 +9788,7 @@ return false                        # 列表里一个都没买 → false
 5. Web 侧**完全没有** interval 托管（只有 `OrekiCrunchPolicy.decide()` 决定「要不要坍缩」）。
 
 ### 139.2 Android 实现（Kotlin-only）
+
 - `GameApi.crunchInterval(s)`：新增 `mCrunchJ()` 句柄。取证 `CrunchAutobuyerState.J()D` = `iget-wide time:D`（原始间隔）。
 - `OrekiPlayerIntent`：新增 interval 账本 `crunchIntervalWritten/…PlayerOwned`、`sameInterval`(1e-9)、
   `noteCrunchIntervalWritten`、`refreshCrunchInterval`（首观测**基线采纳** + actual/modWrote/target 三方比对）、
@@ -9678,11 +9799,13 @@ return false                        # 列表里一个都没买 → false
 - 契约夹具 `fixture_crunch_policy.py` 同步演进（新增「单一入口」「让路/恢复语义」两项，改对全文断言）⇒ 18 项全过。
 
 ### 139.3 Web 实现（原生 ESM，行为等价）
+
 - 新增 `src/core/oreki-managed-crunch-interval.js`（与 Android 逐条等价，常量 60/5/30/3600 同名同值）。
 - `src/game.js` 每帧在 `OrekiSmartExecutor.runCycle` **之外**调用 `applyFromPolicy()`（§80.2/§81 归属）。
 - 新增 `scripts/check_managed_crunch_interval.mjs` 纯逻辑夹具 ⇒ **7/7 PASS**。
 
 ### 139.4 已验证事实（真实运行证据）
+
 - **Android 真机（emulator-5554）logcat**：
   `crunch interval baseline adopted current=30.0` → `managed interval 30.0 -> 5.0 (resume:eternity-cycle)`
   → `managed interval 5.0 -> 30.0 (pause:eternity-grow)`，每 30 秒策略 tick 各写一次，**无逐帧刷写**。
@@ -9694,12 +9817,14 @@ return false                        # 列表里一个都没买 → false
   得到完全相同的 13/15 与同样两条 FAIL ⇒ **既有问题，非本轮引入**（待修：aapt 输出解析/期望值来源）。
 
 ### 139.5 新发现待办
+
 - **策略抖动**：同一策略 tick 内 `resume:eternity-cycle`(5s) 与 `pause:eternity-grow`(30s) 在 ~25 ms 内互相覆盖
   ⇒ 每次切换实际写 2 次。受管写入本身幂等（未逐帧刷写），但应消除该抖动。
 - **Android 手动改 30→3600 的 UI 交互腿 = NOT RUN**（需真实 UI 操作，当前仅 Web 逻辑夹具覆盖该语义）。
 - 用户验收中「A=60 重载仍 60」「玩家关自动器」「原版早于 60 秒行动 vs MOD 遵守 60 秒 + IP 增量」待补。
 
 ### 139.6 同时更正的历史结论
+
 - 前几轮「`Lc21;->a(I)` 是坏类名」**已证伪**：`rewrite_alias()` 在 bindings 声明目标版本时返回
   「3.19→目标」**复合映射**，payload 的 `Lc21` 早已被改写成 3.21 的 `d51`；产物 `build/gradle-verify-apk`
   的 `OrekiChallengeAuto.smali:261/302` 确实已是 `Ld51`。故此前 smali 改动属**等价无操作**，已撤销。
@@ -9709,6 +9834,7 @@ return false                        # 列表里一个都没买 → false
 ## 140. 收尾（第三十五轮）：双端交付完成 + 真实存档快照 + R97 阻碍定性
 
 ### 140.1 交付（PASS）
+
 - Android 四渠道全部完成（同一份 APK）：
   sha256 `6ee5f4f3dde6bff5cdaab52888c035b4377087b85b94893601292f054d6ae731`，82,564,593 B，
   md5 `7375206b6a1e56fdf1782647d512a56b`，versionCode 30210000 / versionName 3.21.0，签名 v2+v3（v1 无）。
@@ -9725,6 +9851,7 @@ return false                        # 列表里一个都没买 → false
   需在 `_deploy/site` 手动 commit+push。
 
 ### 140.2 真实存档快照（emulator-5554，收尾时读取，非人工修改）
+
 - `eternities=77`、`eternityPoints=2.229e7`、`infinities=2.271e8`、`infinityPoints=4.727e2201`、`antimatter=1.109e415283`
 - `bigCrunches=336`、`bigEternities=66`、`bigRealities=0`、`isGameEnd=False`
 - `breakInfinityUpgradeBits=511`（9 项全买）、`eternityUpgradeBits=7`
@@ -9735,12 +9862,14 @@ return false                        # 列表里一个都没买 → false
 - `realities = 0`
 
 ### 140.3 膨胀阻塞的**正确**定性（推翻「TT 不足」单一归因）
+
 TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / completions 全 0`。
 真机探针 `OREKI_EC_DIAG` 显示 `buyable=1:n,2:n,3:n,4:n,5:Y,6:n,7:n,8:n,9:n,10:n,11:n,12:n`
 —— 只有 EC5 的研究当前买得起，其余买不起，而自动化仍 0 进度。
 ⇒ 问题在 **EC 研究购买/选关链路**，不在资源量。R97 不得再以「TT 不够」解释膨胀卡住。
 
 ### 140.4 EC 链路已排除与未排除
+
 - 已排除：类名漂移（`Lc21` 经别名复合映射早已等于 3.21 的 `d51`，产物 `gradle-verify-apk/…/OrekiChallengeAuto.smali:261/302` 确认）；
   `tick()` 未被调用（反射调用可执行）；`tick()` 抛异常被 `catch` 吞（补 `:catch_0` 日志后**从未出现** `OREKI_EC_TICK_EX`）。
 - 未排除（R97 首要）：`:chk_cic` 在 `tryNormal()/tryInfinity()` 成功时 `return-void`，导致 `:chk_main`（EC 分支）
@@ -9748,10 +9877,12 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   `catch Ljava/lang/Exception;` 挡不住 Error），已整体还原待查；`:ca_official` 调 `b;->S()` 后 `return-void` 亦可能饿死后续关。
 
 ### 140.5 构建耗时事实（2026-11-09）
+
 - `[实测]` Linux Android 构建日志记录：`reports/r96/gradle-r96u.log` 1m16s、`gradle-r96v.log` 1m17s、`gradle-r96w.log` 1m28s、`gradle-r96x.log` 1m25s、`gradle-r96y.log` 1m16s、`gradle-r96z.log` 1m14s；最新候选安装链 `reports/r96/install-release-r96.log` 为 1m08s。当前环境通常约 1 分钟，仅是构建事实，不代表 AVD 验收或完整通关测试耗时。
 
 
 ### 140.6 永恒门禁修复与实测验收（2026-11-09）
+
 - `[实测]` **P0 根因（已修复）**：`OrekiStageAuto.onAutoBuyerTick()` 是 `Game.autoBuyerTick` 的第一条语句，原版自动购买器在同一 tick 内、本门禁**之后**才执行大坍缩。旧实现每帧无条件调用 `GameApi.eternityTick()`，缺少跨层守卫，因此「上一 tick 末坍缩 → 本 tick 初永恒」被当成连续发生，表现为「大坍缩后直接进入永恒」。
 - `[实测]` **修复内容（Kotlin-only）**：
   - `OrekiStageAuto.kt` 新增 `detectResetGenerations()`（按 `GameApi.infinities()` 令牌变化识别真实大坍缩）、`eternityGateReason()`（`automation-off|doomed|not-broken|same-frame-crunch|cannot-eternity|ep-gain-too-low|allow`）、`tickEternityGated()`（仅 `allow` 时驱动原版入口）、`logEternityGateIfDue()`。
@@ -9771,6 +9902,7 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[未验证]` 玩家关闭自动化后不自动永恒（场景 5）、Android/Web 门禁语义运行时等价性尚未实测。
 
 ### 140.7 UI 实时刷新与 Android 省电模式事实（2026-11-10）
+
 - `[静态+实证]` **Android 省电模式 = 原版 `batterySaver` 选项**：启用后 UI 更新降为每秒一次，
   游戏逻辑仍按 25 毫秒推进。资源字符串：`battery_saver_confirmation`
   「启用省电模式将使游戏界面的更新速度变为每秒一次，但游戏运行的速度不变。」
@@ -9788,6 +9920,7 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
 - `[未验证]` 正常模式/省电模式双态 UI 刷新时序的 AVD 实测尚未执行（NOT RUN）。
 
 ### 140.8 §12 双调度器 Tick 强制 GUI 同步 —— 实现与实测事实（2026-11-10）
+
 - `[实现]` Android 全局行动调度器：`OrekiAutomationScheduler.globalGuiTickDue()`，
   按玩家设定的 1～60 秒（实测 10 秒）到点返回一次；**不推进 `lastBeatAt`、不占帧名额**，
   不会让自动化多买一次或改变节拍。
