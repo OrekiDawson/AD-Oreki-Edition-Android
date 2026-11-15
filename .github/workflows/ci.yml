@@ -32,6 +32,11 @@ jobs:
           test -s docs/DELIVERY_RULES.md
           test -s .github/pull_request_template.md
           grep -Fq 'DELIVERY_RULES.md' AGENTS.md
+      # R114-01 facts-split：事实库永久防膨胀守卫（根 <=400 行、主题 <=1200 行、链接/锚点、ID 唯一、无滚动文件、LF）。
+      - name: Enforce facts library governance (root <=400 lines, topics <=1200, links, IDs, LF)
+        run: python3 scripts/check_facts_governance.py
+      - name: Test facts library governance guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_facts_governance.py' -v
       - name: Validate Python build helper syntax
         run: python3 -m compileall -q scripts
       - name: Ensure DeepSeek AI review and failure triage remain disabled

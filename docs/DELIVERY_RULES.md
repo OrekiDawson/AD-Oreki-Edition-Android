@@ -31,6 +31,7 @@
 - 已有授权轮次内可正常中文 Commit/Push，不再为每次无风险提交反复索取授权；每轮成功或失败都推送已完成、可追溯成果及证据。普通已验证修改可以推 main；高风险、密钥、CI/CD、构建迁移及未过门禁改动使用分支/PR，CI 合格后合并。禁止强推、丢弃他人改动。Push 不代表稳定发行。
 - **两小时至少一份合格稳定版**是明确的交付节奏目标；真实门禁和现行 DeepSeek 峰谷安全规则优先。无合格版时如实说明超期、阻碍与修复进度，不可发布失败包充数。
 - 正式 Android 发布为 GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道同一已验收 APK、同一 SHA256，优先复用既有发布脚本。避免无意义云端回读等待；按最低必要方式确认交付，本地使用 cp 与 sha256sum；保存旧稳定版备份，不替换签名、不误发历史包。
+- **事实库入口**：工程事实以 `docs/FACTS.md`（导航索引）与 `docs/facts/`（主题分册）为准；结构上限、禁止滚动文件与按需读取纪律见 `AGENTS.md` 第 17 节；旧章节/旧编号映射见 `docs/facts/MIGRATION.md`；CI 守卫 `scripts/check_facts_governance.py`。
 - 并行 Agent 分清文件与任务；共享 AVD、签名环境、最终构建和正式发行独占。收尾同步必要 FACTS/tasks/README/教程及报告；`frame-observer` 有修改同步 Push。授权轮次真实完成后停止，不自动开启新轮；因高峰或阻碍中止而未完成的目标应保留 `blocked/paused` 及真实验收状态，不得标成 `complete`。
 - **Lead 与高峰优先级（2026-11-14，强制）**：非高峰期 Lead 不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工，应协调或转做其他可执行任务；**DeepSeek 高峰期间 Lead、所有子 Agent、其他模型及自动化开发全部停止**，不得换模型继续开发，也不得启动构建、测试、Git/CI/CD、发布或部署。北京时间工作日 09:00–12:00、14:00–18:00 高峰，08:50/13:50 开始安全收尾并在峰前停止；周末和中国法定节假日按已核实规则低谷。峰前保存代码/证据/恢复点、解除 Goal 激活但不虚报完成，低谷恢复同一轮。细则以本仓 `AGENTS.md` 峰谷章节和实际生效的全局规则为准；该停工要求优先于 Lead 持续推进和两小时交付节奏。
 
@@ -51,7 +52,7 @@
 
 ### 6.1 上游基线正式冻结
 
-- Android 唯一基线为官方 **3.21.0**：base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK SHA-256 `ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a`、versionCode `30210000`、minSdk 32 / targetSdk 37；权威登记：`baseline/versions/3.21/manifest.json`、`docs/FACTS.md` 第 6 节。
+- Android 唯一基线为官方 **3.21.0**：base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK SHA-256 `ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a`、versionCode `30210000`、minSdk 32 / targetSdk 37；权威登记：`baseline/versions/3.21/manifest.json`、`docs/facts/build.md#f-6`。
 - Web 唯一基线为 **2026-07-17 冻结上游** `IvarK/AntimatterDimensionsSourceCode` @ `5409e320cecef96a917cca1dfb68f1f183e499ca`，登记在 `web/AD-Oreki-Edition/docs/SHARED_GAMEPLAY_STANDARD.md` 与 Web `docs/FACTS.md`。
 - **上游监测与自动追新边界**：允许对上游做**只读监测**（安全公告、重大缺陷/崩溃/存档/数据错误、重要修复的公开信息），用于评估是否需要选择性移植；**禁止未经用户授权自动升级、自动合并上游代码、修改冻结基线、自动改版本号或自动发布**。`baseline update` 等工具只在受控轮次手工使用，不得接入定时任务或自动触发。完整基线替换只能在用户明确批准的新轮次进行。
 
@@ -108,7 +109,7 @@
 
 ### 6.6 记录与禁止
 
-- 冻结基线与选择性移植事实写入 `docs/FACTS.md`；不改历史任务编号、历史交付记录与历史发布。
+- 冻结基线与选择性移植事实写入 `docs/facts/` 对应主题文件（根索引只做导航）；不改历史任务编号、历史交付记录与历史发布。
 - 禁止：**未经用户授权的自动追上游/自动合并上游代码**、自动改版本号、未验证整包替换、以“上游已发版”为由跳过正式发布门禁、借基线升级放宽任何构建/CI/发布门禁。允许且鼓励只读监测上游安全与重大缺陷信息用于评估。
 - 不为落实本节触发任何原版升级、重建、重签名或发布；规则落地与构建/发布解耦。
 
