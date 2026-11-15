@@ -100,7 +100,7 @@ STEPS = [
     ("patch_break_gate", bm.patch_break_gate),
     ("verify_break_gate", bm.verify_break_gate),
     ("verify_pelle_record", bm.verify_pelle_record),
-    ("patch_tutorial_content", bm.patch_tutorial_content),
+    ("stage_tutorial_assets", bm.stage_tutorial_assets),
     ("patch_tutorial_entry", bm.patch_tutorial_entry),
     ("patch_autobuyer_batch_fallback", bm.patch_autobuyer_batch_fallback),
     ("patch_ec12_restriction", bm.patch_ec12_restriction),

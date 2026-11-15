@@ -101,6 +101,7 @@
 - **发布链 / CI 门禁（R114-01）**：bundle 托管 [facts/build.md#f-candidate-bundle-hosting](facts/build.md#f-candidate-bundle-hosting)、程序化审批 [facts/build.md#f-programmatic-approval](facts/build.md#f-programmatic-approval)、AGP v3 签名风险 [facts/build.md#f-agp-v3-signing-risk](facts/build.md#f-agp-v3-signing-risk)、Kotlin 命名门禁 [facts/build.md#f-kotlin-naming-gates](facts/build.md#f-kotlin-naming-gates)。
 - **V 解锁 3.21 真类名与 build_mod 不可达分支（CONFIRMED）**：[facts/android-internals.md#f-v-unlock-classes-321](facts/android-internals.md#f-v-unlock-classes-321)。
 - **AGP 构建链 / 运行时**：最新事实 [facts/build.md#f-r113-01](facts/build.md#f-r113-01)（R113-01 livelock 根因与修复）、[facts/build.md#f-r112-01](facts/build.md#f-r112-01)（R112-01 存档兼容）。
+- **build_mod 退役（Issue #52）**：C1 教程资产生产路径迁出生产构建、消费端与新鲜度守卫 [facts/build.md#f-r114-02-c1](facts/build.md#f-r114-02-c1)。
 - **已修复根因（防静默改回）**：[facts/methodology.md#f-10](facts/methodology.md#f-10)。
 - **SUPERSEDED 登记**：[facts/README.md](facts/README.md) 第七节；被推翻条目的链接在各自主题文件顶部状态行。
 
