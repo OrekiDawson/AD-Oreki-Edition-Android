@@ -2070,6 +2070,9 @@ object OrekiStageAuto {
             // ---- 1) 托管层：原版 Reality 复位后的开关恢复 / 玩家手动关闭尊重 ----
             OrekiAutoEternityAdoption.ensure()
             // ---- 2) 新档引导层（R104 P0）----
+            // 托管层一旦建立（已接管 或 玩家手动关闭），引导层立即让位：
+            // 否则会把玩家刚关闭的开关每帧重新打开，违反「玩家手动关闭必须尊重」。
+            if (OrekiAutoEternityAdoption.managed()) return
             if (!OrekiAutoEternityGate.freshSessionBootstrapEligible()) return
             if (GameApi.autoEternityIsActive() == true) return
             if (!GameApi.autoEternityUnlocked()) return

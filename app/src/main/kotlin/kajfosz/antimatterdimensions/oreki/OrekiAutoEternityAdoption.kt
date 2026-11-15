@@ -131,6 +131,18 @@ internal object OrekiAutoEternityAdoption {
         return userClosed
     }
 
+    /**
+     * 本开关是否已由托管层接管（已接管 或 玩家明确关闭过）。
+     *
+     * 新档引导层用它在「托管已经建立」之后立即让位：
+     * 否则引导层会在每一帧把玩家刚手动关闭的开关重新打开，违反「玩家手动关闭必须尊重」。
+     */
+    @JvmStatic
+    fun managed(): Boolean {
+        load()
+        return adopted || userClosed
+    }
+
     // ------------------------------------------------------------------ 主状态机
 
     /**
