@@ -121,6 +121,13 @@ class AcceptanceBuilderTests(unittest.TestCase):
         with self.assertRaisesRegex(B.BuilderError, "screenshots"):
             self.build(payload)
 
+    def test_duplicate_screenshot_rejected(self):
+        payload = checks_payload()
+        payload["screenshots"] = ["docs/avd-acceptance/test/01.png",
+                                  "docs/avd-acceptance/test/01.png"]
+        with self.assertRaisesRegex(B.BuilderError, "重复路径"):
+            self.build(payload)
+
     def test_identity_mismatch_rejected(self):
         with self.assertRaisesRegex(B.BuilderError, "version_code"):
             self.build(ident=identity(version_code="30210000"))

@@ -190,9 +190,13 @@ def validate_screenshots(screenshots, repo_root) -> None:
     if not isinstance(screenshots, list) or not screenshots:
         raise BuilderError("screenshots 必须是非空数组（至少一张真实 AVD 截图）")
     root = pathlib.Path(repo_root).resolve()
+    seen = set()
     for index, item in enumerate(screenshots):
         if not isinstance(item, str) or not item.strip():
             raise BuilderError(f"screenshots[{index}] 不是有效路径")
+        if item in seen:
+            raise BuilderError(f"screenshots[{index}] 重复路径（release gate 会拒绝）: {item}")
+        seen.add(item)
         rel = pathlib.PurePosixPath(item)
         if rel.is_absolute() or ".." in rel.parts or "\\" in item:
             raise BuilderError(f"screenshots[{index}] 路径不安全: {item}")
