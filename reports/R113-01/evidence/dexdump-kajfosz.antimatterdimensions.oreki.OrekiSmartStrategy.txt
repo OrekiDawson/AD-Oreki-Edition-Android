@@ -1,0 +1,508 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sDegraded'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sEvalAt'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sEvals'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sLoggedAt'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sLoggedStage'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sStage'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+    #6              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'sUnknown'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'drives'
+      type          : '(Ljava/lang/String;)Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 2
+      insns size    : 49 16-bit code units
+8b3578:                                        |[8b3578] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.drives:(Ljava/lang/String;)Z
+8b3588: 6000 3a5c                              |0000: sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sStage:I // field@5c3a
+8b358c: 3a00 2b00                              |0002: if-ltz v0, 002d // +002b
+8b3590: 1a00 35a3                              |0004: const-string v0, "reality" // string@a335
+8b3594: 6e20 8e91 0400                         |0006: invoke-virtual {v4, v0}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b359a: 0a00                                   |0009: move-result v0
+8b359c: 3900 1300                              |000a: if-nez v0, 001d // +0013
+8b35a0: 1a00 9593                              |000c: const-string v0, "glyph" // string@9395
+8b35a4: 6e20 8e91 0400                         |000e: invoke-virtual {v4, v0}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b35aa: 0a00                                   |0011: move-result v0
+8b35ac: 3900 0b00                              |0012: if-nez v0, 001d // +000b
+8b35b0: 1a00 f9af                              |0014: const-string v0, "teresa" // string@aff9
+8b35b4: 6e20 8e91 0400                         |0016: invoke-virtual {v4, v0}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b35ba: 0a00                                   |0019: move-result v0
+8b35bc: 3900 0300                              |001a: if-nez v0, 001d // +0003
+8b35c0: 2811                                   |001c: goto 002d // +0011
+8b35c2: 1a00 fc93                              |001d: const-string v0, "growth" // string@93fc
+8b35c6: 7110 4d9e 0000                         |001f: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.stEq:(Ljava/lang/String;)Z // method@9e4d
+8b35cc: 0a00                                   |0022: move-result v0
+8b35ce: 3900 0c00                              |0023: if-nez v0, 002f // +000c
+8b35d2: 1a00 8485                              |0025: const-string v0, "fastUnlock" // string@8584
+8b35d6: 7110 4d9e 0000                         |0027: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.stEq:(Ljava/lang/String;)Z // method@9e4d
+8b35dc: 0a00                                   |002a: move-result v0
+8b35de: 3900 0400                              |002b: if-nez v0, 002f // +0004
+8b35e2: 1210                                   |002d: const/4 v0, #int 1 // #1
+8b35e4: 0f00                                   |002e: return v0
+8b35e6: 1200                                   |002f: const/4 v0, #int 0 // #0
+8b35e8: 0f00                                   |0030: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'evalStage'
+      type          : '(I)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 17
+      ins           : 1
+      outs          : 1
+      insns size    : 141 16-bit code units
+8b35ec:                                        |[8b35ec] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.evalStage:(I)Z
+8b35fc: 6200 4c5c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sTermCnt:[I // field@5c4c
+8b3600: 3800 8900                              |0002: if-eqz v0, 008b // +0089
+8b3604: 4401 0010                              |0004: aget v1, v0, v16
+8b3608: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b360a: 3512 8400                              |0007: if-ge v2, v1, 008b // +0084
+8b360e: 6200 4d5c                              |0009: sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sTermOff:[I // field@5c4d
+8b3612: 3800 8000                              |000b: if-eqz v0, 008b // +0080
+8b3616: 4400 0010                              |000d: aget v0, v0, v16
+8b361a: b020                                   |000f: add-int/2addr v0, v2
+8b361c: 6203 3f5c                              |0010: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sClauseCnt:[I // field@5c3f
+8b3620: 3803 7900                              |0012: if-eqz v3, 008b // +0079
+8b3624: 4404 0300                              |0014: aget v4, v3, v0
+8b3628: 6203 405c                              |0016: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sClauseOff:[I // field@5c40
+8b362c: 3803 7300                              |0018: if-eqz v3, 008b // +0073
+8b3630: 4405 0300                              |001a: aget v5, v3, v0
+8b3634: 1206                                   |001c: const/4 v6, #int 0 // #0
+8b3636: 1217                                   |001d: const/4 v7, #int 1 // #1
+8b3638: 3546 6500                              |001e: if-ge v6, v4, 0083 // +0065
+8b363c: 9008 0506                              |0020: add-int v8, v5, v6
+8b3640: 6203 465c                              |0022: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sLeaf:[I // field@5c46
+8b3644: 3803 6700                              |0024: if-eqz v3, 008b // +0067
+8b3648: 4409 0308                              |0026: aget v9, v3, v8
+8b364c: 7110 4b9e 0900                         |0028: invoke-static {v9}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.leaf:(I)D // method@9e4b
+8b3652: 0b0a                                   |002b: move-result-wide v10
+8b3654: 2f03 0a0a                              |002c: cmpl-double v3, v10, v10
+8b3658: 3a03 3500                              |002e: if-ltz v3, 0063 // +0035
+8b365c: 6203 415c                              |0030: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sConst:[I // field@5c41
+8b3660: 3803 5900                              |0032: if-eqz v3, 008b // +0059
+8b3664: 440c 0308                              |0034: aget v12, v3, v8
+8b3668: 6203 425c                              |0036: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sConsts:[D // field@5c42
+8b366c: 3803 5300                              |0038: if-eqz v3, 008b // +0053
+8b3670: 450e 030c                              |003a: aget-wide v14, v3, v12
+8b3674: 6203 495c                              |003c: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sOp:[I // field@5c49
+8b3678: 3803 4d00                              |003e: if-eqz v3, 008b // +004d
+8b367c: 440c 0308                              |0040: aget v12, v3, v8
+8b3680: 2f03 0a0e                              |0042: cmpl-double v3, v10, v14
+8b3684: 120d                                   |0044: const/4 v13, #int 0 // #0
+8b3686: 32dc 1200                              |0045: if-eq v12, v13, 0057 // +0012
+8b368a: 121d                                   |0047: const/4 v13, #int 1 // #1
+8b368c: 32dc 1300                              |0048: if-eq v12, v13, 005b // +0013
+8b3690: 122d                                   |004a: const/4 v13, #int 2 // #2
+8b3692: 32dc 1400                              |004b: if-eq v12, v13, 005f // +0014
+8b3696: 124d                                   |004d: const/4 v13, #int 4 // #4
+8b3698: 32dc 1a00                              |004e: if-eq v12, v13, 0068 // +001a
+8b369c: 125d                                   |0050: const/4 v13, #int 5 // #5
+8b369e: 32dc 1b00                              |0051: if-eq v12, v13, 006c // +001b
+8b36a2: 120c                                   |0053: const/4 v12, #int 0 // #0
+8b36a4: 3903 1c00                              |0054: if-nez v3, 0070 // +001c
+8b36a8: 281b                                   |0056: goto 0071 // +001b
+8b36aa: 120c                                   |0057: const/4 v12, #int 0 // #0
+8b36ac: 3b03 1800                              |0058: if-gez v3, 0070 // +0018
+8b36b0: 2817                                   |005a: goto 0071 // +0017
+8b36b2: 120c                                   |005b: const/4 v12, #int 0 // #0
+8b36b4: 3a03 1400                              |005c: if-ltz v3, 0070 // +0014
+8b36b8: 2813                                   |005e: goto 0071 // +0013
+8b36ba: 120c                                   |005f: const/4 v12, #int 0 // #0
+8b36bc: 3d03 1000                              |0060: if-lez v3, 0070 // +0010
+8b36c0: 280f                                   |0062: goto 0071 // +000f
+8b36c2: 1213                                   |0063: const/4 v3, #int 1 // #1
+8b36c4: 6703 355c                              |0064: sput v3, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sDegraded:I // field@5c35
+8b36c8: 1207                                   |0066: const/4 v7, #int 0 // #0
+8b36ca: 281c                                   |0067: goto 0083 // +001c
+8b36cc: 120c                                   |0068: const/4 v12, #int 0 // #0
+8b36ce: 3803 0700                              |0069: if-eqz v3, 0070 // +0007
+8b36d2: 2806                                   |006b: goto 0071 // +0006
+8b36d4: 120c                                   |006c: const/4 v12, #int 0 // #0
+8b36d6: 3c03 0300                              |006d: if-gtz v3, 0070 // +0003
+8b36da: 2802                                   |006f: goto 0071 // +0002
+8b36dc: 121c                                   |0070: const/4 v12, #int 1 // #1
+8b36de: 6203 485c                              |0071: sget-object v3, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sNeg:[I // field@5c48
+8b36e2: 3803 1800                              |0073: if-eqz v3, 008b // +0018
+8b36e6: 440d 0308                              |0075: aget v13, v3, v8
+8b36ea: 1203                                   |0077: const/4 v3, #int 0 // #0
+8b36ec: 380d 0400                              |0078: if-eqz v13, 007c // +0004
+8b36f0: df0c 0c01                              |007a: xor-int/lit8 v12, v12, #int 1 // #01
+8b36f4: 390c 0400                              |007c: if-nez v12, 0080 // +0004
+8b36f8: 1207                                   |007e: const/4 v7, #int 0 // #0
+8b36fa: 2804                                   |007f: goto 0083 // +0004
+8b36fc: d806 0601                              |0080: add-int/lit8 v6, v6, #int 1 // #01
+8b3700: 289c                                   |0082: goto 001e // -0064
+8b3702: 3807 0400                              |0083: if-eqz v7, 0087 // +0004
+8b3706: 1213                                   |0085: const/4 v3, #int 1 // #1
+8b3708: 0f03                                   |0086: return v3
+8b370a: d802 0201                              |0087: add-int/lit8 v2, v2, #int 1 // #01
+8b370e: 2900 7eff                              |0089: goto/16 0007 // -0082
+8b3712: 1203                                   |008b: const/4 v3, #int 0 // #0
+8b3714: 0f03                                   |008c: return v3
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'goalOf'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 3
+      ins           : 1
+      outs          : 0
+      insns size    : 18 16-bit code units
+8b3718:                                        |[8b3718] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.goalOf:(I)Ljava/lang/String;
+8b3728: 3a02 0f00                              |0000: if-ltz v2, 000f // +000f
+8b372c: 12f0                                   |0002: const/4 v0, #int -1 // #ff
+8b372e: 3202 0c00                              |0003: if-eq v2, v0, 000f // +000c
+8b3732: 6200 445c                              |0005: sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sGoals:[Ljava/lang/String; // field@5c44
+8b3736: 3800 0800                              |0007: if-eqz v0, 000f // +0008
+8b373a: 2101                                   |0009: array-length v1, v0
+8b373c: 3512 0500                              |000a: if-ge v2, v1, 000f // +0005
+8b3740: 4600 0002                              |000c: aget-object v0, v0, v2
+8b3744: 1100                                   |000e: return-object v0
+8b3746: 1a00 1d0b                              |000f: const-string v0, "-" // string@0b1d
+8b374a: 1100                                   |0011: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'leaf'
+      type          : '(I)D'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 11
+      ins           : 1
+      outs          : 2
+      insns size    : 276 16-bit code units
+8b374c:                                        |[8b374c] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.leaf:(I)D
+8b375c: 6200 475c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sLeafNames:[Ljava/lang/String; // field@5c47
+8b3760: 3800 0901                              |0002: if-eqz v0, 010b // +0109
+8b3764: 2101                                   |0004: array-length v1, v0
+8b3766: 3a0a 0601                              |0005: if-ltz v10, 010b // +0106
+8b376a: 351a 0401                              |0007: if-ge v10, v1, 010b // +0104
+8b376e: 4600 000a                              |0009: aget-object v0, v0, v10
+8b3772: 7110 569e 0000                         |000b: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyLeaves;.evaluate:(Ljava/lang/String;)D // method@9e56
+8b3778: 0b06                                   |000e: move-result-wide v6
+8b377a: 2f08 0606                              |000f: cmpl-double v8, v6, v6
+8b377e: 3a08 0300                              |0011: if-ltz v8, 0014 // +0003
+8b3782: 1006                                   |0013: return-wide v6
+8b3784: 1a01 75a1                              |0014: const-string v1, "player.break" // string@a175
+8b3788: 6e20 8e91 1000                         |0016: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b378e: 0a01                                   |0019: move-result v1
+8b3790: 3801 0d00                              |001a: if-eqz v1, 0027 // +000d
+8b3794: 6201 745c                              |001c: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b3798: 6e10 e59e 0100                         |001e: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.m:()Z // method@9ee5
+8b379e: 0a01                                   |0021: move-result v1
+8b37a0: 3801 ef00                              |0022: if-eqz v1, 0111 // +00ef
+8b37a4: 1902 f03f                              |0024: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b37a8: 1002                                   |0026: return-wide v2
+8b37aa: 1a01 76a1                              |0027: const-string v1, "player.dimensionBoosts" // string@a176
+8b37ae: 6e20 8e91 1000                         |0029: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b37b4: 0a01                                   |002c: move-result v1
+8b37b6: 3801 0900                              |002d: if-eqz v1, 0036 // +0009
+8b37ba: 6201 745c                              |002f: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b37be: 6e10 e89e 0100                         |0031: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.u:()D // method@9ee8
+8b37c4: 0b02                                   |0034: move-result-wide v2
+8b37c6: 1002                                   |0035: return-wide v2
+8b37c8: 1a01 77a1                              |0036: const-string v1, "player.infinities" // string@a177
+8b37cc: 6e20 8e91 1000                         |0038: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b37d2: 0a01                                   |003b: move-result v1
+8b37d4: 3801 0d00                              |003c: if-eqz v1, 0049 // +000d
+8b37d8: 6201 745c                              |003e: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b37dc: 6e10 da9e 0100                         |0040: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.C:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eda
+8b37e2: 0c01                                   |0043: move-result-object v1
+8b37e4: 6e10 a79d 0100                         |0044: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;.toDouble:()D // method@9da7
+8b37ea: 0b02                                   |0047: move-result-wide v2
+8b37ec: 1002                                   |0048: return-wide v2
+8b37ee: 1a01 78a1                              |0049: const-string v1, "player.realities" // string@a178
+8b37f2: 6e20 8e91 1000                         |004b: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b37f8: 0a01                                   |004e: move-result v1
+8b37fa: 3801 0d00                              |004f: if-eqz v1, 005c // +000d
+8b37fe: 6201 745c                              |0051: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b3802: 6e10 de9e 0100                         |0053: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.P:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ede
+8b3808: 0c01                                   |0056: move-result-object v1
+8b380a: 6e10 a79d 0100                         |0057: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;.toDouble:()D // method@9da7
+8b3810: 0b02                                   |005a: move-result-wide v2
+8b3812: 1002                                   |005b: return-wide v2
+8b3814: 1a01 36a2                              |005c: const-string v1, "progress.infinityUnlocked" // string@a236
+8b3818: 6e20 8e91 1000                         |005e: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b381e: 0a01                                   |0061: move-result v1
+8b3820: 3801 0b00                              |0062: if-eqz v1, 006d // +000b
+8b3824: 7100 c79d 0000                         |0064: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiAuto;.hasInfinity:()Z // method@9dc7
+8b382a: 0a01                                   |0067: move-result v1
+8b382c: 3801 a900                              |0068: if-eqz v1, 0111 // +00a9
+8b3830: 1902 f03f                              |006a: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b3834: 1002                                   |006c: return-wide v2
+8b3836: 1a01 f8a0                              |006d: const-string v1, "pelle.doomed" // string@a0f8
+8b383a: 6e20 8e91 1000                         |006f: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b3840: 0a01                                   |0072: move-result v1
+8b3842: 3801 0b00                              |0073: if-eqz v1, 007e // +000b
+8b3846: 7100 fb9d 0000                         |0075: invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;.q:()Z // method@9dfb
+8b384c: 0a01                                   |0078: move-result v1
+8b384e: 3801 9800                              |0079: if-eqz v1, 0111 // +0098
+8b3852: 1902 f03f                              |007b: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b3856: 1002                                   |007d: return-wide v2
+8b3858: 1a01 4f7e                              |007e: const-string v1, "challenge.normalRunning" // string@7e4f
+8b385c: 6e20 8e91 1000                         |0080: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b3862: 0a01                                   |0083: move-result v1
+8b3864: 3801 1500                              |0084: if-eqz v1, 0099 // +0015
+8b3868: 6201 745c                              |0086: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b386c: 6e10 e79e 0100                         |0088: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.q:()Lkajfosz/antimatterdimensions/player/Player$Challenge; // method@9ee7
+8b3872: 0c01                                   |008b: move-result-object v1
+8b3874: 6e10 b99e 0100                         |008c: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.c:()Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges; // method@9eb9
+8b387a: 0c01                                   |008f: move-result-object v1
+8b387c: 6e10 c69e 0100                         |0090: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges;.g:()I // method@9ec6
+8b3882: 0a00                                   |0093: move-result v0
+8b3884: 3800 7d00                              |0094: if-eqz v0, 0111 // +007d
+8b3888: 1902 f03f                              |0096: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b388c: 1002                                   |0098: return-wide v2
+8b388e: 1a01 4e7e                              |0099: const-string v1, "challenge.infinityRunning" // string@7e4e
+8b3892: 6e20 8e91 1000                         |009b: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b3898: 0a01                                   |009e: move-result v1
+8b389a: 3801 1500                              |009f: if-eqz v1, 00b4 // +0015
+8b389e: 6201 745c                              |00a1: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b38a2: 6e10 e79e 0100                         |00a3: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.q:()Lkajfosz/antimatterdimensions/player/Player$Challenge; // method@9ee7
+8b38a8: 0c01                                   |00a6: move-result-object v1
+8b38aa: 6e10 b89e 0100                         |00a7: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.b:()Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges; // method@9eb8
+8b38b0: 0c01                                   |00aa: move-result-object v1
+8b38b2: 6e10 c49e 0100                         |00ab: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;.c:()I // method@9ec4
+8b38b8: 0a00                                   |00ae: move-result v0
+8b38ba: 3800 6200                              |00af: if-eqz v0, 0111 // +0062
+8b38be: 1902 f03f                              |00b1: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b38c2: 1002                                   |00b3: return-wide v2
+8b38c4: 1a01 4d7e                              |00b4: const-string v1, "challenge.eternityRunning" // string@7e4d
+8b38c8: 6e20 8e91 1000                         |00b6: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b38ce: 0a01                                   |00b9: move-result v1
+8b38d0: 3801 1500                              |00ba: if-eqz v1, 00cf // +0015
+8b38d4: 6201 745c                              |00bc: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b38d8: 6e10 e79e 0100                         |00be: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.q:()Lkajfosz/antimatterdimensions/player/Player$Challenge; // method@9ee7
+8b38de: 0c01                                   |00c1: move-result-object v1
+8b38e0: 6e10 b79e 0100                         |00c2: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.a:()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges; // method@9eb7
+8b38e6: 0c01                                   |00c5: move-result-object v1
+8b38e8: 6e10 c09e 0100                         |00c6: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.b:()I // method@9ec0
+8b38ee: 0a00                                   |00c9: move-result v0
+8b38f0: 3800 4700                              |00ca: if-eqz v0, 0111 // +0047
+8b38f4: 1902 f03f                              |00cc: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b38f8: 1002                                   |00ce: return-wide v2
+8b38fa: 1a01 35a2                              |00cf: const-string v1, "progress.eternityUnlocked" // string@a235
+8b38fe: 6e20 8e91 1000                         |00d1: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b3904: 0a01                                   |00d4: move-result v1
+8b3906: 3801 1500                              |00d5: if-eqz v1, 00ea // +0015
+8b390a: 6201 745c                              |00d7: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b390e: 6e10 ea9e 0100                         |00d9: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.x:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eea
+8b3914: 0c01                                   |00dc: move-result-object v1
+8b3916: 6e10 a79d 0100                         |00dd: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;.toDouble:()D // method@9da7
+8b391c: 0b02                                   |00e0: move-result-wide v2
+8b391e: 1604 0000                              |00e1: const-wide/16 v4, #int 0 // #0
+8b3922: 2f00 0204                              |00e3: cmpl-double v0, v2, v4
+8b3926: 3d00 2c00                              |00e5: if-lez v0, 0111 // +002c
+8b392a: 1902 f03f                              |00e7: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b392e: 1002                                   |00e9: return-wide v2
+8b3930: 1a01 37a2                              |00ea: const-string v1, "progress.realityUnlocked" // string@a237
+8b3934: 6e20 8e91 1000                         |00ec: invoke-virtual {v0, v1}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b393a: 0a01                                   |00ef: move-result v1
+8b393c: 3801 1500                              |00f0: if-eqz v1, 0105 // +0015
+8b3940: 6201 745c                              |00f2: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b3944: 6e10 de9e 0100                         |00f4: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.P:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ede
+8b394a: 0c01                                   |00f7: move-result-object v1
+8b394c: 6e10 a79d 0100                         |00f8: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;.toDouble:()D // method@9da7
+8b3952: 0b02                                   |00fb: move-result-wide v2
+8b3954: 1604 0000                              |00fc: const-wide/16 v4, #int 0 // #0
+8b3958: 2f00 0204                              |00fe: cmpl-double v0, v2, v4
+8b395c: 3d00 1100                              |0100: if-lez v0, 0111 // +0011
+8b3960: 1902 f03f                              |0102: const-wide/high16 v2, #long 4607182418800017408 // #3ff0
+8b3964: 1002                                   |0104: return-wide v2
+8b3966: 6001 3b5c                              |0105: sget v1, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sUnknown:I // field@5c3b
+8b396a: d801 0101                              |0107: add-int/lit8 v1, v1, #int 1 // #01
+8b396e: 6701 3b5c                              |0109: sput v1, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sUnknown:I // field@5c3b
+8b3972: 1802 0000 0000 0000 f87f               |010b: const-wide v2, #double nan // #7ff8000000000000
+8b397c: 1002                                   |0110: return-wide v2
+8b397e: 1602 0000                              |0111: const-wide/16 v2, #int 0 // #0
+8b3982: 1002                                   |0113: return-wide v2
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'nameOf'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 3
+      ins           : 1
+      outs          : 0
+      insns size    : 18 16-bit code units
+8b3984:                                        |[8b3984] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.nameOf:(I)Ljava/lang/String;
+8b3994: 3a02 0f00                              |0000: if-ltz v2, 000f // +000f
+8b3998: 12f0                                   |0002: const/4 v0, #int -1 // #ff
+8b399a: 3202 0c00                              |0003: if-eq v2, v0, 000f // +000c
+8b399e: 6200 4e5c                              |0005: sget-object v0, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sTitles:[Ljava/lang/String; // field@5c4e
+8b39a2: 3800 0800                              |0007: if-eqz v0, 000f // +0008
+8b39a6: 2101                                   |0009: array-length v1, v0
+8b39a8: 3512 0500                              |000a: if-ge v2, v1, 000f // +0005
+8b39ac: 4600 0002                              |000c: aget-object v0, v0, v2
+8b39b0: 1100                                   |000e: return-object v0
+8b39b2: 1a00 1d0b                              |000f: const-string v0, "-" // string@0b1d
+8b39b6: 1100                                   |0011: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'stEq'
+      type          : '(Ljava/lang/String;)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 2
+      insns size    : 20 16-bit code units
+8b39b8:                                        |[8b39b8] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.stEq:(Ljava/lang/String;)Z
+8b39c8: 6000 3a5c                              |0000: sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sStage:I // field@5c3a
+8b39cc: 3a00 1000                              |0002: if-ltz v0, 0012 // +0010
+8b39d0: 6201 4b5c                              |0004: sget-object v1, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.sStrategies:[Ljava/lang/String; // field@5c4b
+8b39d4: 3801 0c00                              |0006: if-eqz v1, 0012 // +000c
+8b39d8: 2112                                   |0008: array-length v2, v1
+8b39da: 3520 0900                              |0009: if-ge v0, v2, 0012 // +0009
+8b39de: 4601 0100                              |000b: aget-object v1, v1, v0
+8b39e2: 6e20 8e91 4100                         |000d: invoke-virtual {v1, v4}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b39e8: 0a00                                   |0010: move-result v0
+8b39ea: 0f00                                   |0011: return v0
+8b39ec: 1200                                   |0012: const/4 v0, #int 0 // #0
+8b39ee: 0f00                                   |0013: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #6              : (in Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;)
+      name          : 'tick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 0
+      outs          : 2
+      insns size    : 161 16-bit code units
+8b39f0:                                        |[8b39f0] kajfosz.antimatterdimensions.oreki.OrekiSmartStrategy.tick:()V
+8b3a00: 7100 bb0c 0000                         |0000: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b3a06: 0b00                                   |0003: move-result-wide v0
+8b3a08: 6102 365c                              |0004: sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sEvalAt:J // field@5c36
+8b3a0c: 9c02 0002                              |0006: sub-long v2, v0, v2
+8b3a10: 1604 d007                              |0008: const-wide/16 v4, #int 2000 // #7d0
+8b3a14: 3102 0204                              |000a: cmp-long v2, v2, v4
+8b3a18: 3a02 9400                              |000c: if-ltz v2, 00a0 // +0094
+8b3a1c: 6800 365c                              |000e: sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sEvalAt:J // field@5c36
+8b3a20: 7100 559e 0000                         |0010: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStrategyData;.fill:()V // method@9e55
+8b3a26: 1202                                   |0013: const/4 v2, #int 0 // #0
+8b3a28: 6702 3b5c                              |0014: sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sUnknown:I // field@5c3b
+8b3a2c: 6702 355c                              |0016: sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sDegraded:I // field@5c35
+8b3a30: 12f2                                   |0018: const/4 v2, #int -1 // #ff
+8b3a32: 1203                                   |0019: const/4 v3, #int 0 // #0
+8b3a34: 1304 1300                              |001a: const/16 v4, #int 19 // #13
+8b3a38: 3543 0b00                              |001c: if-ge v3, v4, 0027 // +000b
+8b3a3c: 7110 499e 0300                         |001e: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.evalStage:(I)Z // method@9e49
+8b3a42: 0a04                                   |0021: move-result v4
+8b3a44: 3904 0500                              |0022: if-nez v4, 0027 // +0005
+8b3a48: d803 0301                              |0024: add-int/lit8 v3, v3, #int 1 // #01
+8b3a4c: 28f4                                   |0026: goto 001a // -000c
+8b3a4e: 1304 1300                              |0027: const/16 v4, #int 19 // #13
+8b3a52: 3543 0300                              |0029: if-ge v3, v4, 002c // +0003
+8b3a56: 0132                                   |002b: move v2, v3
+8b3a58: 6702 3a5c                              |002c: sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sStage:I // field@5c3a
+8b3a5c: 6004 375c                              |002e: sget v4, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sEvals:I // field@5c37
+8b3a60: d804 0401                              |0030: add-int/lit8 v4, v4, #int 1 // #01
+8b3a64: 6704 375c                              |0032: sput v4, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sEvals:I // field@5c37
+8b3a68: 6004 395c                              |0034: sget v4, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sLoggedStage:I // field@5c39
+8b3a6c: 3342 0c00                              |0036: if-ne v2, v4, 0042 // +000c
+8b3a70: 6104 385c                              |0038: sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sLoggedAt:J // field@5c38
+8b3a74: 9c04 0004                              |003a: sub-long v4, v0, v4
+8b3a78: 1606 3075                              |003c: const-wide/16 v6, #int 30000 // #7530
+8b3a7c: 3104 0406                              |003e: cmp-long v4, v4, v6
+8b3a80: 3a04 6000                              |0040: if-ltz v4, 00a0 // +0060
+8b3a84: 6800 385c                              |0042: sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sLoggedAt:J // field@5c38
+8b3a88: 6702 395c                              |0044: sput v2, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sLoggedStage:I // field@5c39
+8b3a8c: 2204 4a1b                              |0046: new-instance v4, Ljava/lang/StringBuilder; // type@1b4a
+8b3a90: 7010 bc91 0400                         |0048: invoke-direct {v4}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b3a96: 1a05 ccae                              |004b: const-string v5, "stage=" // string@aecc
+8b3a9a: 6e20 c991 5400                         |004d: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3aa0: 6e20 c491 2400                         |0050: invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b3aa6: 1a05 e700                              |0053: const-string v5, " " // string@00e7
+8b3aaa: 6e20 c991 5400                         |0055: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3ab0: 7110 4c9e 0200                         |0058: invoke-static {v2}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.nameOf:(I)Ljava/lang/String; // method@9e4c
+8b3ab6: 0c05                                   |005b: move-result-object v5
+8b3ab8: 6e20 c991 5400                         |005c: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3abe: 1a05 7002                              |005f: const-string v5, " goal=" // string@0270
+8b3ac2: 6e20 c991 5400                         |0061: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3ac8: 7110 4a9e 0200                         |0064: invoke-static {v2}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.goalOf:(I)Ljava/lang/String; // method@9e4a
+8b3ace: 0c05                                   |0067: move-result-object v5
+8b3ad0: 6e20 c991 5400                         |0068: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3ad6: 1a05 ce03                              |006b: const-string v5, " unknownLeaf=" // string@03ce
+8b3ada: 6e20 c991 5400                         |006d: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3ae0: 6005 3b5c                              |0070: sget v5, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sUnknown:I // field@5c3b
+8b3ae4: 6e20 c491 5400                         |0072: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b3aea: 1a05 fb01                              |0075: const-string v5, " degraded=" // string@01fb
+8b3aee: 6e20 c991 5400                         |0077: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3af4: 6005 355c                              |007a: sget v5, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.sDegraded:I // field@5c35
+8b3af8: 6e20 c491 5400                         |007c: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b3afe: 1a05 7803                              |007f: const-string v5, " s0=" // string@0378
+8b3b02: 6e20 c991 5400                         |0081: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b3b08: 1205                                   |0084: const/4 v5, #int 0 // #0
+8b3b0a: 7110 499e 0500                         |0085: invoke-static {v5}, Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy;.evalStage:(I)Z // method@9e49
+8b3b10: 0a05                                   |0088: move-result v5
+8b3b12: 6e20 c491 5400                         |0089: invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b3b18: 6e10 da91 0400                         |008c: invoke-virtual {v4}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b3b1e: 0c04                                   |008f: move-result-object v4
+8b3b20: 1a05 865e                              |0090: const-string v5, "OREKI_GOAL" // string@5e86
+8b3b24: 7120 3d0e 4500                         |0092: invoke-static {v5, v4}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3b2a: 280b                                   |0095: goto 00a0 // +000b
+8b3b2c: 0d00                                   |0096: move-exception v0
+8b3b2e: 6e10 1392 0000                         |0097: invoke-virtual {v0}, Ljava/lang/Throwable;.getMessage:()Ljava/lang/String; // method@9213
+8b3b34: 0c00                                   |009a: move-result-object v0
+8b3b36: 1a01 875e                              |009b: const-string v1, "OREKI_GOAL_EXC" // string@5e87
+8b3b3a: 7120 3d0e 0100                         |009d: invoke-static {v1, v0}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3b40: 0e00                                   |00a0: return-void
+      catches       : 1
+        0x0000 - 0x0095
+          Ljava/lang/Throwable; -> 0x0096
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6122            -

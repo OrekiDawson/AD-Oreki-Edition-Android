@@ -1,0 +1,100 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiGlyphAuto;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiGlyphAuto;)
+      name          : 'tick'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 16
+      ins           : 0
+      outs          : 2
+      insns size    : 131 16-bit code units
+8b3274:                                        |[8b3274] kajfosz.antimatterdimensions.oreki.OrekiGlyphAuto.tick:()Z
+8b3284: 6200 7b5c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/reality/glyphs/i;.e:[Lkajfosz/antimatterdimensions/reality/glyphs/Glyph; // field@5c7b
+8b3288: 3800 7d00                              |0002: if-eqz v0, 007f // +007d
+8b328c: 2101                                   |0004: array-length v1, v0
+8b328e: 1202                                   |0005: const/4 v2, #int 0 // #0
+8b3290: 3512 0900                              |0006: if-ge v2, v1, 000f // +0009
+8b3294: 4603 0002                              |0008: aget-object v3, v0, v2
+8b3298: 3903 0600                              |000a: if-nez v3, 0010 // +0006
+8b329c: d802 0201                              |000c: add-int/lit8 v2, v2, #int 1 // #01
+8b32a0: 28f8                                   |000e: goto 0006 // -0008
+8b32a2: 2870                                   |000f: goto 007f // +0070
+8b32a4: 6203 745c                              |0010: sget-object v3, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b32a8: 6e10 df9e 0300                         |0012: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;.Q:()Lkajfosz/antimatterdimensions/player/Player$Reality; // method@9edf
+8b32ae: 0c03                                   |0015: move-result-object v3
+8b32b0: 6e10 c99e 0300                         |0016: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$Reality;.d:()Lkajfosz/antimatterdimensions/player/Player$Glyphs; // method@9ec9
+8b32b6: 0c03                                   |0019: move-result-object v3
+8b32b8: 6e10 bc9e 0300                         |001a: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$Glyphs;.e:()Ljava/util/List; // method@9ebc
+8b32be: 0c03                                   |001d: move-result-object v3
+8b32c0: 3803 6100                              |001e: if-eqz v3, 007f // +0061
+8b32c4: 7210 f694 0300                         |0020: invoke-interface {v3}, Ljava/util/List;.size:()I // method@94f6
+8b32ca: 0a04                                   |0023: move-result v4
+8b32cc: 1205                                   |0024: const/4 v5, #int 0 // #0
+8b32ce: 1208                                   |0025: const/4 v8, #int 0 // #0
+8b32d0: 1606 0000                              |0026: const-wide/16 v6, #int 0 // #0
+8b32d4: 3545 3a00                              |0028: if-ge v5, v4, 0062 // +003a
+8b32d8: 7220 eb94 5300                         |002a: invoke-interface {v3, v5}, Ljava/util/List;.get:(I)Ljava/lang/Object; // method@94eb
+8b32de: 0c09                                   |002d: move-result-object v9
+8b32e0: 1f09 2b1e                              |002e: check-cast v9, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph; // type@1e2b
+8b32e4: 3809 2f00                              |0030: if-eqz v9, 005f // +002f
+8b32e8: 120a                                   |0032: const/4 v10, #int 0 // #0
+8b32ea: 351a 0900                              |0033: if-ge v10, v1, 003c // +0009
+8b32ee: 460b 000a                              |0035: aget-object v11, v0, v10
+8b32f2: 329b 2800                              |0037: if-eq v11, v9, 005f // +0028
+8b32f6: d80a 0a01                              |0039: add-int/lit8 v10, v10, #int 1 // #01
+8b32fa: 28f8                                   |003b: goto 0033 // -0008
+8b32fc: 6e10 fc9e 0900                         |003c: invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;.h:()Lkajfosz/antimatterdimensions/reality/glyphs/GlyphType; // method@9efc
+8b3302: 0c0a                                   |003f: move-result-object v10
+8b3304: 380a 0e00                              |0040: if-eqz v10, 004e // +000e
+8b3308: 6e10 5f91 0a00                         |0042: invoke-virtual {v10}, Ljava/lang/Object;.toString:()Ljava/lang/String; // method@915f
+8b330e: 0c0a                                   |0045: move-result-object v10
+8b3310: 1a0b c880                              |0046: const-string v11, "companion" // string@80c8
+8b3314: 6e20 8f91 ba00                         |0048: invoke-virtual {v10, v11}, Ljava/lang/String;.equalsIgnoreCase:(Ljava/lang/String;)Z // method@918f
+8b331a: 0a0a                                   |004b: move-result v10
+8b331c: 390a 1300                              |004c: if-nez v10, 005f // +0013
+8b3320: 6e10 fd9e 0900                         |004e: invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;.m:()I // method@9efd
+8b3326: 0a0a                                   |0051: move-result v10
+8b3328: 83aa                                   |0052: int-to-double v10, v10
+8b332a: 6e10 fb9e 0900                         |0053: invoke-virtual {v9}, Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;.e:()D // method@9efb
+8b3330: 0b0c                                   |0056: move-result-wide v12
+8b3332: ad0a 0a0c                              |0057: mul-double v10, v10, v12
+8b3336: 2f0e 0a06                              |0059: cmpl-double v14, v10, v6
+8b333a: 3d0e 0400                              |005b: if-lez v14, 005f // +0004
+8b333e: 0798                                   |005d: move-object v8, v9
+8b3340: 04a6                                   |005e: move-wide v6, v10
+8b3342: d805 0501                              |005f: add-int/lit8 v5, v5, #int 1 // #01
+8b3346: 28c7                                   |0061: goto 0028 // -0039
+8b3348: 3808 1d00                              |0062: if-eqz v8, 007f // +001d
+8b334c: 7120 019f 2800                         |0064: invoke-static {v8, v2}, Lkajfosz/antimatterdimensions/reality/glyphs/i;.L:(Lkajfosz/antimatterdimensions/reality/glyphs/Glyph;I)V // method@9f01
+8b3352: 1a00 845e                              |0067: const-string v0, "OREKI_GLYPH" // string@5e84
+8b3356: 7110 b791 0200                         |0069: invoke-static {v2}, Ljava/lang/String;.valueOf:(I)Ljava/lang/String; // method@91b7
+8b335c: 0c01                                   |006c: move-result-object v1
+8b335e: 7120 3d0e 1000                         |006d: invoke-static {v0, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3364: 2811                                   |0070: goto 0081 // +0011
+8b3366: 0d00                                   |0071: move-exception v0
+8b3368: 6e10 1192 0000                         |0072: invoke-virtual {v0}, Ljava/lang/Throwable;.getClass:()Ljava/lang/Class; // method@9211
+8b336e: 0c0f                                   |0075: move-result-object v15
+8b3370: 6e10 9e90 0f00                         |0076: invoke-virtual {v15}, Ljava/lang/Class;.getSimpleName:()Ljava/lang/String; // method@909e
+8b3376: 0c0f                                   |0079: move-result-object v15
+8b3378: 1a0e 855e                              |007a: const-string v14, "OREKI_GLYPH_EXC" // string@5e85
+8b337c: 7120 3d0e fe00                         |007c: invoke-static {v14, v15}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3382: 1200                                   |007f: const/4 v0, #int 0 // #0
+8b3384: 0f00                                   |0080: return v0
+8b3386: 1210                                   |0081: const/4 v0, #int 1 // #1
+8b3388: 0f00                                   |0082: return v0
+      catches       : 1
+        0x0000 - 0x0070
+          Ljava/lang/Throwable; -> 0x0071
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6119            -

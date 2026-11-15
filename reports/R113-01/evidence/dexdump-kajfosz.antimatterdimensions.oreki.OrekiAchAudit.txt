@@ -1,0 +1,192 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;)
+      name          : 'sLast'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;)
+      name          : 'gate'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 3
+      insns size    : 109 16-bit code units
+8b2af8:                                        |[8b2af8] kajfosz.antimatterdimensions.oreki.OrekiAchAudit.gate:()V
+8b2b08: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2b0c: 6e10 e49e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.c:()Lkajfosz/antimatterdimensions/player/Player$Auto; // method@9ee4
+8b2b12: 0c00                                   |0005: move-result-object v0
+8b2b14: 6e10 b39e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Auto;.e:()Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState; // method@9eb3
+8b2b1a: 0c00                                   |0009: move-result-object v0
+8b2b1c: 2201 4a1b                              |000a: new-instance v1, Ljava/lang/StringBuilder; // type@1b4a
+8b2b20: 7010 bc91 0100                         |000c: invoke-direct {v1}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b2b26: 1a02 b31f                              |000f: const-string v2, "GATE brake=" // string@1fb3
+8b2b2a: 6e20 c991 2100                         |0011: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2b30: 6202 745c                              |0014: sget-object v2, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2b34: 6e10 e59e 0200                         |0016: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player;.m:()Z // method@9ee5
+8b2b3a: 0a02                                   |0019: move-result v2
+8b2b3c: 6e20 ca91 2100                         |001a: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Z)Ljava/lang/StringBuilder; // method@91ca
+8b2b42: 1a02 6b02                              |001d: const-string v2, " g=" // string@026b
+8b2b46: 6e20 c991 2100                         |001f: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2b4c: 6e10 f29d 0000                         |0022: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;.g:()Z // method@9df2
+8b2b52: 0a02                                   |0025: move-result v2
+8b2b54: 6e20 ca91 2100                         |0026: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Z)Ljava/lang/StringBuilder; // method@91ca
+8b2b5a: 1a02 d701                              |0029: const-string v2, " c=" // string@01d7
+8b2b5e: 6e20 c991 2100                         |002b: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2b64: 6e10 f19d 0000                         |002e: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;.c:()Z // method@9df1
+8b2b6a: 0a02                                   |0031: move-result v2
+8b2b6c: 6e20 ca91 2100                         |0032: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Z)Ljava/lang/StringBuilder; // method@91ca
+8b2b72: 1a02 bf01                              |0035: const-string v2, " b=" // string@01bf
+8b2b76: 6e20 c991 2100                         |0037: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2b7c: 7100 f19e 0000                         |003a: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;.b:()Z // method@9ef1
+8b2b82: 0a02                                   |003d: move-result v2
+8b2b84: 6e20 ca91 2100                         |003e: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Z)Ljava/lang/StringBuilder; // method@91ca
+8b2b8a: 1a02 1603                              |0041: const-string v2, " mult=" // string@0316
+8b2b8e: 6e20 c991 2100                         |0043: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2b94: 7100 e09d 0000                         |0046: invoke-static {}, Lkajfosz/antimatterdimensions/OrekiSpeed;.mult:()D // method@9de0
+8b2b9a: 0b04                                   |0049: move-result-wide v4
+8b2b9c: 6e30 c291 4105                         |004a: invoke-virtual {v1, v4, v5}, Ljava/lang/StringBuilder;.append:(D)Ljava/lang/StringBuilder; // method@91c2
+8b2ba2: 1a02 7603                              |004d: const-string v2, " rt=" // string@0376
+8b2ba6: 6e20 c991 2100                         |004f: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2bac: 6202 745c                              |0052: sget-object v2, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2bb0: 6e10 e09e 0200                         |0054: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b2bb6: 0c02                                   |0057: move-result-object v2
+8b2bb8: 6e10 cb9e 0200                         |0058: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Records;.i:()Lku4; // method@9ecb
+8b2bbe: 0c02                                   |005b: move-result-object v2
+8b2bc0: 5324 105f                              |005c: iget-wide v4, v2, Lku4;.a:D // field@5f10
+8b2bc4: 6e30 c291 4105                         |005e: invoke-virtual {v1, v4, v5}, Ljava/lang/StringBuilder;.append:(D)Ljava/lang/StringBuilder; // method@91c2
+8b2bca: 6e10 da91 0100                         |0061: invoke-virtual {v1}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b2bd0: 0c01                                   |0064: move-result-object v1
+8b2bd2: 1a02 835e                              |0065: const-string v2, "OREKI_GATE" // string@5e83
+8b2bd6: 7120 3d0e 1200                         |0067: invoke-static {v2, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b2bdc: 2802                                   |006a: goto 006c // +0002
+8b2bde: 0d00                                   |006b: move-exception v0
+8b2be0: 0e00                                   |006c: return-void
+      catches       : 1
+        0x0000 - 0x006a
+          Ljava/lang/Throwable; -> 0x006b
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;)
+      name          : 'tick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 14
+      ins           : 0
+      outs          : 2
+      insns size    : 204 16-bit code units
+8b2bf4:                                        |[8b2bf4] kajfosz.antimatterdimensions.oreki.OrekiAchAudit.tick:()V
+8b2c04: 7100 be0c 0000                         |0000: invoke-static {}, Landroid/os/SystemClock;.uptimeMillis:()J // method@0cbe
+8b2c0a: 0b0c                                   |0003: move-result-wide v12
+8b2c0c: 6100 2a5c                              |0004: sget-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;.sLast:J // field@5c2a
+8b2c10: 1602 0000                              |0006: const-wide/16 v2, #int 0 // #0
+8b2c14: 3104 0002                              |0008: cmp-long v4, v0, v2
+8b2c18: 3804 0b00                              |000a: if-eqz v4, 0015 // +000b
+8b2c1c: 9c02 0c00                              |000c: sub-long v2, v12, v0
+8b2c20: 1604 8813                              |000e: const-wide/16 v4, #int 5000 // #1388
+8b2c24: 3106 0204                              |0010: cmp-long v6, v2, v4
+8b2c28: 3b06 0600                              |0012: if-gez v6, 0018 // +0006
+8b2c2c: 0e00                                   |0014: return-void
+8b2c2e: 680c 2a5c                              |0015: sput-wide v12, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;.sLast:J // field@5c2a
+8b2c32: 0e00                                   |0017: return-void
+8b2c34: 680c 2a5c                              |0018: sput-wide v12, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;.sLast:J // field@5c2a
+8b2c38: 1202                                   |001a: const/4 v2, #int 0 // #0
+8b2c3a: 1203                                   |001b: const/4 v3, #int 0 // #0
+8b2c3c: 1204                                   |001c: const/4 v4, #int 0 // #0
+8b2c3e: 1205                                   |001d: const/4 v5, #int 0 // #0
+8b2c40: 6200 4a82                              |001e: sget-object v0, Lt3;.c:[Lkajfosz/antimatterdimensions/achievements/a; // field@824a
+8b2c44: 2101                                   |0020: array-length v1, v0
+8b2c46: 3512 4100                              |0021: if-ge v2, v1, 0062 // +0041
+8b2c4a: 4606 0002                              |0023: aget-object v6, v0, v2
+8b2c4e: d803 0301                              |0025: add-int/lit8 v3, v3, #int 1 // #01
+8b2c52: 6e10 ec9d 0600                         |0027: invoke-virtual {v6}, Lkajfosz/antimatterdimensions/achievements/a;.A:()Z // method@9dec
+8b2c58: 0a07                                   |002a: move-result v7
+8b2c5a: 3907 3400                              |002b: if-nez v7, 005f // +0034
+8b2c5e: d804 0401                              |002d: add-int/lit8 v4, v4, #int 1 // #01
+8b2c62: 1218                                   |002f: const/4 v8, #int 1 // #1
+8b2c64: 5469 195c                              |0030: iget-object v9, v6, Lkajfosz/antimatterdimensions/achievements/a;.k:Lfm1; // field@5c19
+8b2c68: 3809 0c00                              |0032: if-eqz v9, 003e // +000c
+8b2c6c: 7210 607b 0900                         |0034: invoke-interface {v9}, Lfm1;.invoke:()Ljava/lang/Object; // method@7b60
+8b2c72: 0c09                                   |0037: move-result-object v9
+8b2c74: 1f09 161b                              |0038: check-cast v9, Ljava/lang/Boolean; // type@1b16
+8b2c78: 6e10 5490 0900                         |003a: invoke-virtual {v9}, Ljava/lang/Boolean;.booleanValue:()Z // method@9054
+8b2c7e: 0a08                                   |003d: move-result v8
+8b2c80: 3808 2100                              |003e: if-eqz v8, 005f // +0021
+8b2c84: d805 0501                              |0040: add-int/lit8 v5, v5, #int 1 // #01
+8b2c88: 220a 4a1b                              |0042: new-instance v10, Ljava/lang/StringBuilder; // type@1b4a
+8b2c8c: 7010 bc91 0a00                         |0044: invoke-direct {v10}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b2c92: 1a0b 145b                              |0047: const-string v11, "MISMATCH id=" // string@5b14
+8b2c96: 6e20 c991 ba00                         |0049: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2c9c: 5269 1a5c                              |004c: iget v9, v6, Lkajfosz/antimatterdimensions/achievements/a;.m:I // field@5c1a
+8b2ca0: da09 090a                              |004e: mul-int/lit8 v9, v9, #int 10 // #0a
+8b2ca4: 526b 1b5c                              |0050: iget v11, v6, Lkajfosz/antimatterdimensions/achievements/a;.n:I // field@5c1b
+8b2ca8: b0b9                                   |0052: add-int/2addr v9, v11
+8b2caa: 6e20 c491 9a00                         |0053: invoke-virtual {v10, v9}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2cb0: 6e10 da91 0a00                         |0056: invoke-virtual {v10}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b2cb6: 0c0a                                   |0059: move-result-object v10
+8b2cb8: 1a0b 805e                              |005a: const-string v11, "OREKI_ACHAUDIT" // string@5e80
+8b2cbc: 7120 430e ab00                         |005c: invoke-static {v11, v10}, Landroid/util/Log;.w:(Ljava/lang/String;Ljava/lang/String;)I // method@0e43
+8b2cc2: d802 0201                              |005f: add-int/lit8 v2, v2, #int 1 // #01
+8b2cc6: 28c0                                   |0061: goto 0021 // -0040
+8b2cc8: 220a 4a1b                              |0062: new-instance v10, Ljava/lang/StringBuilder; // type@1b4a
+8b2ccc: 7010 bc91 0a00                         |0064: invoke-direct {v10}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b2cd2: 1a0b 6e18                              |0067: const-string v11, "DONE scanned=" // string@186e
+8b2cd6: 6e20 c991 ba00                         |0069: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2cdc: 6e20 c491 3a00                         |006c: invoke-virtual {v10, v3}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2ce2: 1a0b cf03                              |006f: const-string v11, " unlocked=" // string@03cf
+8b2ce6: 6e20 c991 ba00                         |0071: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2cec: 6e20 c491 4a00                         |0074: invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2cf2: 1a0b 0703                              |0077: const-string v11, " mismatch=" // string@0307
+8b2cf6: 6e20 c991 ba00                         |0079: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2cfc: 6e20 c491 5a00                         |007c: invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2d02: 1a0b d503                              |007f: const-string v11, " used=" // string@03d5
+8b2d06: 6e20 c991 ba00                         |0081: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2d0c: 7100 8a9e 0000                         |0084: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.usedState:()I // method@9e8a
+8b2d12: 0a09                                   |0087: move-result v9
+8b2d14: 6e20 c491 9a00                         |0088: invoke-virtual {v10, v9}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2d1a: 6e10 da91 0a00                         |008b: invoke-virtual {v10}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b2d20: 0c0a                                   |008e: move-result-object v10
+8b2d22: 1a0b 805e                              |008f: const-string v11, "OREKI_ACHAUDIT" // string@5e80
+8b2d26: 7120 3d0e ab00                         |0091: invoke-static {v11, v10}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b2d2c: 7100 319e 0000                         |0094: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit;.gate:()V // method@9e31
+8b2d32: 2834                                   |0097: goto 00cb // +0034
+8b2d34: 0d00                                   |0098: move-exception v0
+8b2d36: 220a 4a1b                              |0099: new-instance v10, Ljava/lang/StringBuilder; // type@1b4a
+8b2d3a: 7010 bc91 0a00                         |009b: invoke-direct {v10}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b2d40: 1a0b 390e                              |009e: const-string v11, "ABORT scanned=" // string@0e39
+8b2d44: 6e20 c991 ba00                         |00a0: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2d4a: 6e20 c491 3a00                         |00a3: invoke-virtual {v10, v3}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2d50: 1a0b cf03                              |00a6: const-string v11, " unlocked=" // string@03cf
+8b2d54: 6e20 c991 ba00                         |00a8: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2d5a: 6e20 c491 4a00                         |00ab: invoke-virtual {v10, v4}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2d60: 1a0b 0703                              |00ae: const-string v11, " mismatch=" // string@0307
+8b2d64: 6e20 c991 ba00                         |00b0: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2d6a: 6e20 c491 5a00                         |00b3: invoke-virtual {v10, v5}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2d70: 1a0b d503                              |00b6: const-string v11, " used=" // string@03d5
+8b2d74: 6e20 c991 ba00                         |00b8: invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b2d7a: 7100 8a9e 0000                         |00bb: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.usedState:()I // method@9e8a
+8b2d80: 0a09                                   |00be: move-result v9
+8b2d82: 6e20 c491 9a00                         |00bf: invoke-virtual {v10, v9}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b2d88: 6e10 da91 0a00                         |00c2: invoke-virtual {v10}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b2d8e: 0c0a                                   |00c5: move-result-object v10
+8b2d90: 1a0b 805e                              |00c6: const-string v11, "OREKI_ACHAUDIT" // string@5e80
+8b2d94: 7120 3a0e ab00                         |00c8: invoke-static {v11, v10}, Landroid/util/Log;.e:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3a
+8b2d9a: 0e00                                   |00cb: return-void
+      catches       : 1
+        0x001e - 0x0097
+          Ljava/lang/Throwable; -> 0x0098
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6117            -

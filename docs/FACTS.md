@@ -10203,3 +10203,16 @@ TT 早已达标；真实阻断是 **EC 全 0**：`unlocked=0 / current=0 / compl
   `scripts/agp/check_runtime_inventory.py`（运行时常量池引用清单，shadow 前缀需按 `oreki/shadow/` 还原）。
 - **文档**：`reports/R112-01/AGP-SIG-INTEGRATION.md`、`P0-AGP-KOTLIN-ABI-CRASH.md`、`CROSS-BUILD-WRITE.md`、
   `KOTLIN-RUNTIME-UNIFICATION.md`（下一步实验计划）。
+
+## R113-01：目录标准化 S2-6、A 批协程 ABI 守卫与 AGP 逻辑线程 livelock（2026-11-15 09:13–10:30）
+
+- **目录标准化 S2-6 完成（Issue #61）**：生产 Kotlin 源码 36 个 `.kt` 由 `scripts/payload/kotlin/**` `git mv` 迁至 `app/src/main/kotlin/**`（保留 Git 历史）。唯一源目录：`agp/app` source set、根 `build.gradle` 的 `compileKotlinClasses`、`build_mod.py(KOTLIN_SRC)`、`check_kotlin_naming.py`、`gen_kotlin_stubs.py`、`release_budget.py`、`r109_r8_keepgen.py`、`fixture_*`、`hook_ledger_build.py`、`check_automation_scheduler.py`、`test_r83_iu15_kotlin.py`、`baseline/tools/src/main.rs` 指纹目标、CI 路径过滤与测试断言全部同步（PR #83，main `ca619e7d`）。
+  验证：AGP 完整游戏 APK 与迁移前**逐字节相同**（同 jar `afd52117…` → APK `15a21f5d57c4b2e0c513398a17944a512b95fe17d186036dc1e234c395958d17`）；bridge 构建 + `build_kotlin.py --verify-abi` PASS；命名增量守卫支持 git mv 重命名配对（36 moved / old 15 / current 15 / 无新增）。新增 main 侧分阶段门禁 `scripts/check_directory_layout.py`（PR #84），迁移后 phase=`nested-new`。
+- **ASM 工具陈旧产物缺陷**：`ensure_asm_tools()` 原先只在 `.class` 缺失时编译，修改 `RemapSelective.java` 后管线仍执行旧 class（jar 保持 plain 绑定）。已改为按源码 mtime 重编译（PR #87）。
+- **A 批协程 ABI 绑定修复 + fail-closed 守卫**（PR #87）：`RemapSelective` 对全部保留类统一 shadow 重映射；`agp_gamejar2.py` 恢复 `no_plain_kotlin_refs` 守卫；新增 `scripts/agp/check_a_batch_abi.py` 对 5 个 A 批类逐条断言协程 ABI。真实构建：game jar `c0d293b47ca8f7e3…`（15,344 类）、APK `3233197ec84f75f8…`（81,577,939 B），`[2.5/4]` 守卫 PASS、Signature 回填 `Player$Laitela`/`Glyph` PASS。
+- **AGP 完整游戏 P0 根因改写（关键事实）**：全量 shadow 候选在**真实进入游戏后游戏逻辑线程 livelock**——`AntimatterGameThread` 停在 `SpeedrunMilestone$complete$1.invokeSuspend → Player.l0/k0 → rk8.G → nc8.z/B → cv0.k → dc2.k/q → tf2.d → vf2.d`，Runnable、utm≈127s，两个 DefaultDispatcher worker 同样空转；`tick_changed=false`，4 分钟 0 个存档文件（连 `speedrunBackup0.json` 都没有），HOME/force-stop 也不写；但 UI 线程（`OREKI_UIFRAME`）存活。
+  对照：smali 稳定版同线程 `Waiting/park`，冷启动后约 65s 首写 `player.json`、之后每 30s 一次，HOME 后立即再写（周期 + onPause/onStop 两条通道）。旧候选 `bf1c413b`：新档冷启动约 6s 即 `NoSuchFieldError EmptyCoroutineContext.a` FATAL；注入真实存档后也冻结且 0 写档（两张间隔 45s 截图逐字节相同）⇒ **「旧候选存档正常」不适用于该 APK**。
+  因此 R112「全量 shadow 不落盘」方向成立，但原因是**混合运行时下 speedrun 协程/大数路径不收敛的忙循环**，不是保存链断裂、也不是异常被吞；旧候选的崩溃只是更早掩盖了同一冻结。
+- **夹具**：新增合法未通关晚期存档 `savestates/late/player-r109-m3-206.json`（SHA `75f570c5af04c0485d36e02c019f83c1ea30ea456470073c31e36c86885eb72b`，realities=12、creditsFinished=false、laitela dimensions=4、11 glyph 且 effects 全为整数）；另存已知损坏存档 `savestates/late/invalid/pre-sig-glyph-effects-r110-m13-440.json` 仅作负向夹具（effects 为对象数组，读取须明确失败、不得静默重置）。
+- **证据**：`reports/R113-01/KOTLIN-MIGRATION-MATRIX.md`、`reports/R113-01/SAVE-P0-AB.md`、`reports/R113-01/evidence/`；AVD 原始 logcat 与截图在 Git 外 `/home/oreki/private-staging/r113-avd-evidence/r113-save-ab/`（含 SHA256SUMS.txt）。
+- **下一步最小验证**：JADX 定位 `Player.k0:371` / `vf2.d` 循环是否因 Infinity/NaN 或错误类型分支不收敛；在 shadow 构建上二分「禁用 `SpeedrunMilestone.complete` 调用」，若 tick 与 30s 写档恢复即锁定该协程。

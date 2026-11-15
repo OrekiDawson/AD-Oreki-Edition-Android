@@ -1,0 +1,56 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+    #0              : 'Landroid/widget/CompoundButton$OnCheckedChangeListener;'
+  Static fields     -
+  Instance fields   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;)
+      name          : 'act'
+      type          : 'Landroid/app/Activity;'
+      access        : 0x0012 (PRIVATE FINAL)
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;)
+      name          : '<init>'
+      type          : '(Landroid/app/Activity;)V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 2
+      ins           : 2
+      outs          : 1
+      insns size    : 6 16-bit code units
+8b6a40:                                        |[8b6a40] kajfosz.antimatterdimensions.oreki.StageAssistToggleListener.<init>:(Landroid/app/Activity;)V
+8b6a50: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b6a56: 5b01 585c                              |0003: iput-object v1, v0, Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;.act:Landroid/app/Activity; // field@5c58
+8b6a5a: 0e00                                   |0005: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;)
+      name          : 'onCheckedChanged'
+      type          : '(Landroid/widget/CompoundButton;Z)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 4
+      ins           : 3
+      outs          : 1
+      insns size    : 13 16-bit code units
+8b6a5c:                                        |[8b6a5c] kajfosz.antimatterdimensions.oreki.StageAssistToggleListener.onCheckedChanged:(Landroid/widget/CompoundButton;Z)V
+8b6a6c: 7110 829e 0300                         |0000: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.setEnabled:(Z)V // method@9e82
+8b6a72: 5410 585c                              |0003: iget-object v0, v1, Lkajfosz/antimatterdimensions/oreki/StageAssistToggleListener;.act:Landroid/app/Activity; // field@5c58
+8b6a76: 3800 0700                              |0005: if-eqz v0, 000c // +0007
+8b6a7a: 6e10 1604 0000                         |0007: invoke-virtual {v0}, Landroid/app/Activity;.recreate:()V // method@0416
+8b6a80: 2802                                   |000a: goto 000c // +0002
+8b6a82: 0d00                                   |000b: move-exception v0
+8b6a84: 0e00                                   |000c: return-void
+      catches       : 1
+        0x0007 - 0x000a
+          Ljava/lang/Exception; -> 0x000b
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6130            -

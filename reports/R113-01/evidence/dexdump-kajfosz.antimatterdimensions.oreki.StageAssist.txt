@@ -1,0 +1,1167 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/StageAssist;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'pending'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'sCtx'
+      type          : 'Landroid/content/Context;'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'ach147'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 1
+      insns size    : 11 16-bit code units
+8b5d9c:                                        |[8b5d9c] kajfosz.antimatterdimensions.oreki.StageAssist.ach147:()Z
+8b5dac: 1300 9300                              |0000: const/16 v0, #int 147 // #93
+8b5db0: 7110 e4d1 0000                         |0002: invoke-static {v0}, Lt3;.a:(I)Lkajfosz/antimatterdimensions/achievements/a; // method@d1e4
+8b5db6: 0c00                                   |0005: move-result-object v0
+8b5db8: 6e10 ec9d 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/achievements/a;.A:()Z // method@9dec
+8b5dbe: 0a00                                   |0009: move-result v0
+8b5dc0: 0f00                                   |000a: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'alchemyCapped'
+      type          : '()I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 2
+      insns size    : 28 16-bit code units
+8b5dc4:                                        |[8b5dc4] kajfosz.antimatterdimensions.oreki.StageAssist.alchemyCapped:()I
+8b5dd4: 6200 6b46                              |0000: sget-object v0, Lf7;.v:Ljava/util/List; // field@466b
+8b5dd8: 7210 f694 0000                         |0002: invoke-interface {v0}, Ljava/util/List;.size:()I // method@94f6
+8b5dde: 0a01                                   |0005: move-result v1
+8b5de0: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b5de2: 1203                                   |0007: const/4 v3, #int 0 // #0
+8b5de4: 3513 1300                              |0008: if-ge v3, v1, 001b // +0013
+8b5de8: 7220 eb94 3000                         |000a: invoke-interface {v0, v3}, Ljava/util/List;.get:(I)Ljava/lang/Object; // method@94eb
+8b5dee: 0c04                                   |000d: move-result-object v4
+8b5df0: 1f04 9e2d                              |000e: check-cast v4, Lw6; // type@2d9e
+8b5df4: 6e10 30e2 0400                         |0010: invoke-virtual {v4}, Lw6;.w:()Z // method@e230
+8b5dfa: 0a05                                   |0013: move-result v5
+8b5dfc: 3805 0400                              |0014: if-eqz v5, 0018 // +0004
+8b5e00: d802 0201                              |0016: add-int/lit8 v2, v2, #int 1 // #01
+8b5e04: d803 0301                              |0018: add-int/lit8 v3, v3, #int 1 // #01
+8b5e08: 28ee                                   |001a: goto 0008 // -0012
+8b5e0a: 0f02                                   |001b: return v2
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'alchemyTotal'
+      type          : '()I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 1
+      insns size    : 7 16-bit code units
+8b5e0c:                                        |[8b5e0c] kajfosz.antimatterdimensions.oreki.StageAssist.alchemyTotal:()I
+8b5e1c: 6200 6b46                              |0000: sget-object v0, Lf7;.v:Ljava/util/List; // field@466b
+8b5e20: 7210 f694 0000                         |0002: invoke-interface {v0}, Ljava/util/List;.size:()I // method@94f6
+8b5e26: 0a00                                   |0005: move-result v0
+8b5e28: 0f00                                   |0006: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'buttonLabel'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 0
+      insns size    : 26 16-bit code units
+8b5e2c:                                        |[8b5e2c] kajfosz.antimatterdimensions.oreki.StageAssist.buttonLabel:(I)Ljava/lang/String;
+8b5e3c: 2b01 1000 0000                         |0000: packed-switch v1, 00000010 // +00000010
+8b5e42: 1a00 b3b4                              |0003: const-string v0, "执行" // string@b4b3
+8b5e46: 1100                                   |0005: return-object v0
+8b5e48: 1a00 a7b4                              |0006: const-string v0, "强制点亮第 1–13 行未解锁成就" // string@b4a7
+8b5e4c: 1100                                   |0008: return-object v0
+8b5e4e: 1a00 a6b4                              |0009: const-string v0, "强制点亮成就 147（需二次确认）" // string@b4a6
+8b5e52: 1100                                   |000b: return-object v0
+8b5e54: 1a00 a8b4                              |000c: const-string v0, "强制点亮第 1–17 行未解锁成就" // string@b4a8
+8b5e58: 1100                                   |000e: return-object v0
+8b5e5a: 0000                                   |000f: nop // spacer
+8b5e5c: 0001 0300 0100 0000 0600 0000 0900 ... |0010: packed-switch-data (10 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'canWrite'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 0
+      insns size    : 16 16-bit code units
+8b5e70:                                        |[8b5e70] kajfosz.antimatterdimensions.oreki.StageAssist.canWrite:()Z
+8b5e80: 7100 7b9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.isEnabled:()Z // method@9e7b
+8b5e86: 0a00                                   |0003: move-result v0
+8b5e88: 3800 0800                              |0004: if-eqz v0, 000c // +0008
+8b5e8c: 7100 7a9e 0000                         |0006: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.isDoomed:()Z // method@9e7a
+8b5e92: 0a00                                   |0009: move-result v0
+8b5e94: 3900 0400                              |000a: if-nez v0, 000e // +0004
+8b5e98: 1200                                   |000c: const/4 v0, #int 0 // #0
+8b5e9a: 0f00                                   |000d: return v0
+8b5e9c: 1210                                   |000e: const/4 v0, #int 1 // #1
+8b5e9e: 0f00                                   |000f: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'cardSummary'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 2
+      insns size    : 26 16-bit code units
+8b5ea0:                                        |[8b5ea0] kajfosz.antimatterdimensions.oreki.StageAssist.cardSummary:(I)Ljava/lang/String;
+8b5eb0: 7110 6e9e 0300                         |0000: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.cardSummary0:(I)Ljava/lang/String; // method@9e6e
+8b5eb6: 0c00                                   |0003: move-result-object v0
+8b5eb8: 2804                                   |0004: goto 0008 // +0004
+8b5eba: 0d01                                   |0005: move-exception v1
+8b5ebc: 1a00 c2b4                              |0006: const-string v0, "状态读取失败（不影响游戏本体）" // string@b4c2
+8b5ec0: 2201 4a1b                              |0008: new-instance v1, Ljava/lang/StringBuilder; // type@1b4a
+8b5ec4: 7010 bc91 0100                         |000a: invoke-direct {v1}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b5eca: 1a02 88b4                              |000d: const-string v2, "【强制解锁 · 不校验条件】\n" // string@b488
+8b5ece: 6e20 c991 2100                         |000f: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b5ed4: 6e20 c991 0100                         |0012: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b5eda: 6e10 da91 0100                         |0015: invoke-virtual {v1}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b5ee0: 0c00                                   |0018: move-result-object v0
+8b5ee2: 1100                                   |0019: return-object v0
+      catches       : 1
+        0x0000 - 0x0004
+          Ljava/lang/Throwable; -> 0x0005
+      positions     :
+      locals        :
+
+    #6              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'cardSummary0'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 2
+      insns size    : 56 16-bit code units
+8b5ef4:                                        |[8b5ef4] kajfosz.antimatterdimensions.oreki.StageAssist.cardSummary0:(I)Ljava/lang/String;
+8b5f04: 2b03 2e00 0000                         |0000: packed-switch v3, 0000002e // +0000002e
+8b5f0a: 1a00 0000                              |0003: const-string v0, "" // string@0000
+8b5f0e: 1100                                   |0005: return-object v0
+8b5f10: 7100 869e 0000                         |0006: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.summaryR0:()Ljava/lang/String; // method@9e86
+8b5f16: 0c00                                   |0009: move-result-object v0
+8b5f18: 280a                                   |000a: goto 0014 // +000a
+8b5f1a: 7100 879e 0000                         |000b: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.summaryTeresa:()Ljava/lang/String; // method@9e87
+8b5f20: 0c00                                   |000e: move-result-object v0
+8b5f22: 2805                                   |000f: goto 0014 // +0005
+8b5f24: 7100 859e 0000                         |0010: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.summaryPelle:()Ljava/lang/String; // method@9e85
+8b5f2a: 0c00                                   |0013: move-result-object v0
+8b5f2c: 2201 4a1b                              |0014: new-instance v1, Ljava/lang/StringBuilder; // type@1b4a
+8b5f30: 7010 bc91 0100                         |0016: invoke-direct {v1}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b5f36: 6e20 c991 0100                         |0019: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b5f3c: 1a00 a200                              |001c: const-string v0, "\n\n【适用时机】\n" // string@00a2
+8b5f40: 6e20 c991 0100                         |001e: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b5f46: 7110 839e 0300                         |0021: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.stageHint:(I)Ljava/lang/String; // method@9e83
+8b5f4c: 0c00                                   |0024: move-result-object v0
+8b5f4e: 6e20 c991 0100                         |0025: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b5f54: 6e10 da91 0100                         |0028: invoke-virtual {v1}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b5f5a: 0c00                                   |002b: move-result-object v0
+8b5f5c: 1100                                   |002c: return-object v0
+8b5f5e: 0000                                   |002d: nop // spacer
+8b5f60: 0001 0300 0100 0000 0600 0000 0b00 ... |002e: packed-switch-data (10 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #7              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'clearFlag'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 3
+      insns size    : 28 16-bit code units
+8b5f74:                                        |[8b5f74] kajfosz.antimatterdimensions.oreki.StageAssist.clearFlag:()V
+8b5f84: 6200 575c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b5f88: 3800 1900                              |0002: if-eqz v0, 001b // +0019
+8b5f8c: 1a01 2ba0                              |0004: const-string v1, "oreki_prefs" // string@a02b
+8b5f90: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b5f92: 6e30 b605 1002                         |0007: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b5f98: 0c00                                   |000a: move-result-object v0
+8b5f9a: 7210 3406 0000                         |000b: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b5fa0: 0c00                                   |000e: move-result-object v0
+8b5fa2: 1a01 ceae                              |000f: const-string v1, "stage_assist" // string@aece
+8b5fa6: 1202                                   |0011: const/4 v2, #int 0 // #0
+8b5fa8: 7230 2e06 1002                         |0012: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;.putInt:(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor; // method@062e
+8b5fae: 0c00                                   |0015: move-result-object v0
+8b5fb0: 7210 2906 0000                         |0016: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b5fb6: 2802                                   |0019: goto 001b // +0002
+8b5fb8: 0d00                                   |001a: move-exception v0
+8b5fba: 0e00                                   |001b: return-void
+      catches       : 1
+        0x0004 - 0x0019
+          Ljava/lang/Exception; -> 0x001a
+      positions     :
+      locals        :
+
+    #8              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'countTotalRows'
+      type          : '(II)I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 0
+      insns size    : 21 16-bit code units
+8b5fcc:                                        |[8b5fcc] kajfosz.antimatterdimensions.oreki.StageAssist.countTotalRows:(II)I
+8b5fdc: 1200                                   |0000: const/4 v0, #int 0 // #0
+8b5fde: 6201 4a82                              |0001: sget-object v1, Lt3;.c:[Lkajfosz/antimatterdimensions/achievements/a; // field@824a
+8b5fe2: 2112                                   |0003: array-length v2, v1
+8b5fe4: 1203                                   |0004: const/4 v3, #int 0 // #0
+8b5fe6: 3523 0f00                              |0005: if-ge v3, v2, 0014 // +000f
+8b5fea: 4604 0103                              |0007: aget-object v4, v1, v3
+8b5fee: 5245 1a5c                              |0009: iget v5, v4, Lkajfosz/antimatterdimensions/achievements/a;.m:I // field@5c1a
+8b5ff2: 3465 0600                              |000b: if-lt v5, v6, 0011 // +0006
+8b5ff6: 3675 0400                              |000d: if-gt v5, v7, 0011 // +0004
+8b5ffa: d800 0001                              |000f: add-int/lit8 v0, v0, #int 1 // #01
+8b5ffe: d803 0301                              |0011: add-int/lit8 v3, v3, #int 1 // #01
+8b6002: 28f2                                   |0013: goto 0005 // -000e
+8b6004: 0f00                                   |0014: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #9              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'countUnlockedRows'
+      type          : '(II)I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 9
+      ins           : 2
+      outs          : 1
+      insns size    : 27 16-bit code units
+8b6008:                                        |[8b6008] kajfosz.antimatterdimensions.oreki.StageAssist.countUnlockedRows:(II)I
+8b6018: 1200                                   |0000: const/4 v0, #int 0 // #0
+8b601a: 6201 4a82                              |0001: sget-object v1, Lt3;.c:[Lkajfosz/antimatterdimensions/achievements/a; // field@824a
+8b601e: 2112                                   |0003: array-length v2, v1
+8b6020: 1203                                   |0004: const/4 v3, #int 0 // #0
+8b6022: 3523 1500                              |0005: if-ge v3, v2, 001a // +0015
+8b6026: 4604 0103                              |0007: aget-object v4, v1, v3
+8b602a: 5245 1a5c                              |0009: iget v5, v4, Lkajfosz/antimatterdimensions/achievements/a;.m:I // field@5c1a
+8b602e: 3475 0c00                              |000b: if-lt v5, v7, 0017 // +000c
+8b6032: 3685 0a00                              |000d: if-gt v5, v8, 0017 // +000a
+8b6036: 6e10 ec9d 0400                         |000f: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/achievements/a;.A:()Z // method@9dec
+8b603c: 0a06                                   |0012: move-result v6
+8b603e: 3806 0400                              |0013: if-eqz v6, 0017 // +0004
+8b6042: d800 0001                              |0015: add-int/lit8 v0, v0, #int 1 // #01
+8b6046: d803 0301                              |0017: add-int/lit8 v3, v3, #int 1 // #01
+8b604a: 28ec                                   |0019: goto 0005 // -0014
+8b604c: 0f00                                   |001a: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #10              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'dialogMessage'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 2
+      insns size    : 33 16-bit code units
+8b6050:                                        |[8b6050] kajfosz.antimatterdimensions.oreki.StageAssist.dialogMessage:(I)Ljava/lang/String;
+8b6060: 7110 739e 0300                         |0000: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.dialogMessage0:(I)Ljava/lang/String; // method@9e73
+8b6066: 0c00                                   |0003: move-result-object v0
+8b6068: 2804                                   |0004: goto 0008 // +0004
+8b606a: 0d01                                   |0005: move-exception v1
+8b606c: 1a00 b5b4                              |0006: const-string v0, "无法读取当前清单。确认后仍会按该阶段范围执行。\n\n【代价】本操作不校验成就条件，直接把成就位写成已解锁；会写入永久标记，该存档将无法用于「真实通关」验收，且不可撤销。" // string@b4b5
+8b6070: 2201 4a1b                              |0008: new-instance v1, Ljava/lang/StringBuilder; // type@1b4a
+8b6074: 7010 bc91 0100                         |000a: invoke-direct {v1}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b607a: 6e20 c991 0100                         |000d: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6080: 1a00 a200                              |0010: const-string v0, "\n\n【适用时机】\n" // string@00a2
+8b6084: 6e20 c991 0100                         |0012: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b608a: 7110 839e 0300                         |0015: invoke-static {v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.stageHint:(I)Ljava/lang/String; // method@9e83
+8b6090: 0c00                                   |0018: move-result-object v0
+8b6092: 6e20 c991 0100                         |0019: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6098: 6e10 da91 0100                         |001c: invoke-virtual {v1}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b609e: 0c00                                   |001f: move-result-object v0
+8b60a0: 1100                                   |0020: return-object v0
+      catches       : 1
+        0x0000 - 0x0004
+          Ljava/lang/Throwable; -> 0x0005
+      positions     :
+      locals        :
+
+    #11              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'dialogMessage0'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 6
+      ins           : 1
+      outs          : 2
+      insns size    : 82 16-bit code units
+8b60b4:                                        |[8b60b4] kajfosz.antimatterdimensions.oreki.StageAssist.dialogMessage0:(I)Ljava/lang/String;
+8b60c4: 2b05 4800 0000                         |0000: packed-switch v5, 00000048 // +00000048
+8b60ca: 1a00 0000                              |0003: const-string v0, "" // string@0000
+8b60ce: 1100                                   |0005: return-object v0
+8b60d0: 1210                                   |0006: const/4 v0, #int 1 // #1
+8b60d2: 1301 0d00                              |0007: const/16 v1, #int 13 // #d
+8b60d6: 2805                                   |0009: goto 000e // +0005
+8b60d8: 1210                                   |000a: const/4 v0, #int 1 // #1
+8b60da: 1301 1100                              |000b: const/16 v1, #int 17 // #11
+8b60de: 2801                                   |000d: goto 000e // +0001
+8b60e0: 7120 719e 1000                         |000e: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countUnlockedRows:(II)I // method@9e71
+8b60e6: 0a02                                   |0011: move-result v2
+8b60e8: 7120 709e 1000                         |0012: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countTotalRows:(II)I // method@9e70
+8b60ee: 0a03                                   |0015: move-result v3
+8b60f0: 2204 4a1b                              |0016: new-instance v4, Ljava/lang/StringBuilder; // type@1b4a
+8b60f4: 7010 bc91 0400                         |0018: invoke-direct {v4}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b60fa: 1a00 a1b4                              |001b: const-string v0, "将点亮该范围内尚未解锁的 " // string@b4a1
+8b60fe: 6e20 c991 0400                         |001d: invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6104: 9100 0302                              |0020: sub-int v0, v3, v2
+8b6108: 6e20 c491 0400                         |0022: invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b610e: 1a00 0d04                              |0025: const-string v0, " 个成就（该范围共 " // string@040d
+8b6112: 6e20 c991 0400                         |0027: invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6118: 6e20 c491 3400                         |002a: invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b611e: 1a00 0e04                              |002d: const-string v0, " 个）。\n\n" // string@040e
+8b6122: 6e20 c991 0400                         |002f: invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6128: 1210                                   |0032: const/4 v0, #int 1 // #1
+8b612a: 3305 0800                              |0033: if-ne v5, v0, 003b // +0008
+8b612e: 1a00 89b4                              |0035: const-string v0, "不含第 14–18 行。\n\n【代价】本操作不校验这 104 个成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。执行后不可撤销。" // string@b489
+8b6132: 6e20 c991 0400                         |0037: invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6138: 2806                                   |003a: goto 0040 // +0006
+8b613a: 1a00 8ab4                              |003b: const-string v0, "不含第 18 行（181–188）。\nPelle 的解锁条件（IU25 + 第 1–17 行全满 + 全部炼金资源 capped）不会因本操作而满足，仍需你自行达成。\nDoomed 是 Pelle 机制内的状态，此时本功能完全禁用。\n\n【代价】本操作不校验这些成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。执行后不可撤销。" // string@b48a
+8b613e: 6e20 c991 0400                         |003d: invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6144: 6e10 da91 0400                         |0040: invoke-virtual {v4}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b614a: 0c00                                   |0043: move-result-object v0
+8b614c: 1100                                   |0044: return-object v0
+8b614e: 1a00 a0b4                              |0045: const-string v0, "将点亮成就 147「Master of Reality」。\n\n该操作不会购买任何 Reality Upgrade，也不会补发任何升级效果：点亮后 Teresa 的入口会立即可见（原版 MainActivity 用 147 的解锁状态控制该布局），但进入 Teresa 的现实仍需你自行向 Container 倒入 1e14 RM。\n\n【代价】本操作不校验该成就的达成条件，直接把成就位写成已解锁；会写入不可清除的永久标记 stage_assist_used，此后该存档不能用于「真实通关」验收。执行后不可撤销。" // string@b4a0
+8b6152: 1100                                   |0047: return-object v0
+8b6154: 0001 0300 0100 0000 0600 0000 4500 ... |0048: packed-switch-data (10 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #12              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'dialogTitle'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 0
+      insns size    : 26 16-bit code units
+8b6168:                                        |[8b6168] kajfosz.antimatterdimensions.oreki.StageAssist.dialogTitle:(I)Ljava/lang/String;
+8b6178: 2b01 1000 0000                         |0000: packed-switch v1, 00000010 // +00000010
+8b617e: 1a00 d5b4                              |0003: const-string v0, "阶段辅助" // string@b4d5
+8b6182: 1100                                   |0005: return-object v0
+8b6184: 1a00 91b4                              |0006: const-string v0, "初次 Reality · 成就辅助" // string@b491
+8b6188: 1100                                   |0008: return-object v0
+8b618a: 1a00 e467                              |0009: const-string v0, "Teresa · 成就 147" // string@67e4
+8b618e: 1100                                   |000b: return-object v0
+8b6190: 1a00 3b60                              |000c: const-string v0, "Pelle / Doom · 成就辅助" // string@603b
+8b6194: 1100                                   |000e: return-object v0
+8b6196: 0000                                   |000f: nop // spacer
+8b6198: 0001 0300 0100 0000 0600 0000 0900 ... |0010: packed-switch-data (10 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #13              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'doomedText'
+      type          : '()Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 0
+      insns size    : 12 16-bit code units
+8b61ac:                                        |[8b61ac] kajfosz.antimatterdimensions.oreki.StageAssist.doomedText:()Ljava/lang/String;
+8b61bc: 7100 7a9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.isDoomed:()Z // method@9e7a
+8b61c2: 0a00                                   |0003: move-result v0
+8b61c4: 3900 0500                              |0004: if-nez v0, 0009 // +0005
+8b61c8: 1a00 96b4                              |0006: const-string v0, "否（可写入）" // string@b496
+8b61cc: 1100                                   |0008: return-object v0
+8b61ce: 1a00 bab4                              |0009: const-string v0, "是（Pelle 机制内状态，本功能禁用全部写入）" // string@b4ba
+8b61d2: 1100                                   |000b: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #14              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'hintPelle'
+      type          : '()Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 7
+      ins           : 0
+      outs          : 2
+      insns size    : 94 16-bit code units
+8b61d4:                                        |[8b61d4] kajfosz.antimatterdimensions.oreki.StageAssist.hintPelle:()Ljava/lang/String;
+8b61e4: 7100 7a9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.isDoomed:()Z // method@9e7a
+8b61ea: 0a00                                   |0003: move-result v0
+8b61ec: 3800 0500                              |0004: if-eqz v0, 0009 // +0005
+8b61f0: 1a00 8419                              |0006: const-string v0, "Doomed 状态：本功能全部写入被禁用，离开 Doomed 后才能执行。" // string@1984
+8b61f4: 1100                                   |0008: return-object v0
+8b61f6: 1210                                   |0009: const/4 v0, #int 1 // #1
+8b61f8: 1301 1100                              |000a: const/16 v1, #int 17 // #11
+8b61fc: 7120 719e 1000                         |000c: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countUnlockedRows:(II)I // method@9e71
+8b6202: 0a02                                   |000f: move-result v2
+8b6204: 7120 709e 1000                         |0010: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countTotalRows:(II)I // method@9e70
+8b620a: 0a03                                   |0013: move-result v3
+8b620c: 9104 0302                              |0014: sub-int v4, v3, v2
+8b6210: 7100 7c9e 0000                         |0016: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.iu25:()Z // method@9e7c
+8b6216: 0a05                                   |0019: move-result v5
+8b6218: 7100 699e 0000                         |001a: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.alchemyCapped:()I // method@9e69
+8b621e: 0a06                                   |001d: move-result v6
+8b6220: 7100 6a9e 0000                         |001e: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.alchemyTotal:()I // method@9e6a
+8b6226: 0a00                                   |0021: move-result v0
+8b6228: 3904 0900                              |0022: if-nez v4, 002b // +0009
+8b622c: 3805 0700                              |0024: if-eqz v5, 002b // +0007
+8b6230: 3306 0500                              |0026: if-ne v6, v0, 002b // +0005
+8b6234: 1a00 3d60                              |0028: const-string v0, "Pelle 入场条件已全部满足：无需执行（点亮只会补成就位与倍率）。" // string@603d
+8b6238: 1100                                   |002a: return-object v0
+8b623a: 2201 4a1b                              |002b: new-instance v1, Ljava/lang/StringBuilder; // type@1b4a
+8b623e: 7010 bc91 0100                         |002d: invoke-direct {v1}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b6244: 1a02 d1b4                              |0030: const-string v2, "适用窗口：Reality 后期、Doom 之前。缺口 " // string@b4d1
+8b6248: 6e20 c991 2100                         |0032: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b624e: 6e20 c491 4100                         |0035: invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6254: 1a02 1004                              |0038: const-string v2, " 个；点亮只补第 1–17 行的成就位与倍率，不会满足 Pelle 入场条件（当前 IU25=" // string@0410
+8b6258: 6e20 c991 2100                         |003a: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b625e: 7110 8b9e 0500                         |003d: invoke-static {v5}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b6264: 0c02                                   |0040: move-result-object v2
+8b6266: 6e20 c991 2100                         |0041: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b626c: 1a02 dbb4                              |0044: const-string v2, "，炼金 capped " // string@b4db
+8b6270: 6e20 c991 2100                         |0046: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6276: 6e20 c491 6100                         |0049: invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b627c: 1a02 d50b                              |004c: const-string v2, "/" // string@0bd5
+8b6280: 6e20 c991 2100                         |004e: invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6286: 6e20 c491 0100                         |0051: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b628c: 1a00 dab4                              |0054: const-string v0, "，全部炼金资源仍需各自达到上限）。" // string@b4da
+8b6290: 6e20 c991 0100                         |0056: invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6296: 6e10 da91 0100                         |0059: invoke-virtual {v1}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b629c: 0c00                                   |005c: move-result-object v0
+8b629e: 1100                                   |005d: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #15              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'hintRows13'
+      type          : '()Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 2
+      insns size    : 61 16-bit code units
+8b62a0:                                        |[8b62a0] kajfosz.antimatterdimensions.oreki.StageAssist.hintRows13:()Ljava/lang/String;
+8b62b0: 1210                                   |0000: const/4 v0, #int 1 // #1
+8b62b2: 1301 0d00                              |0001: const/16 v1, #int 13 // #d
+8b62b6: 7120 719e 1000                         |0003: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countUnlockedRows:(II)I // method@9e71
+8b62bc: 0a02                                   |0006: move-result v2
+8b62be: 7120 709e 1000                         |0007: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countTotalRows:(II)I // method@9e70
+8b62c4: 0a03                                   |000a: move-result v3
+8b62c6: 9104 0302                              |000b: sub-int v4, v3, v2
+8b62ca: 2200 4a1b                              |000d: new-instance v0, Ljava/lang/StringBuilder; // type@1b4a
+8b62ce: 7010 bc91 0000                         |000f: invoke-direct {v0}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b62d4: 7100 849e 0000                         |0012: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.startPerk:()Z // method@9e84
+8b62da: 0a01                                   |0015: move-result v1
+8b62dc: 3801 0800                              |0016: if-eqz v1, 001e // +0008
+8b62e0: 1a01 7b64                              |0018: const-string v1, "START（Reality perk 0）已购买：Reality 的成就门槛已被移除——研究树上的「Unlock Reality」只要求前置研究与 e4000 EP，这 13 行不再是门槛。此时点亮它们只剩行内解锁与成就倍率（整行 ×1.25、每个 ×1.03）的收益。" // string@647b
+8b62e4: 6e20 c991 1000                         |001a: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b62ea: 2806                                   |001d: goto 0023 // +0006
+8b62ec: 1a01 c5b4                              |001e: const-string v1, "第 1–13 行是 Reality 的门槛：研究树上的「Unlock Reality」要求 e4000 EP 且这 13 行全满；Reality 重置会把这 13 行清空（已买 ACHNR 后不再清空，并会立即补齐这 13 行）。请在解锁 Reality 之前使用，或重置后发现行数掉光时用来恢复。" // string@b4c5
+8b62f0: 6e20 c991 1000                         |0020: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b62f6: 3904 0800                              |0023: if-nez v4, 002b // +0008
+8b62fa: 1a01 df00                              |0025: const-string v1, "\n当前这 13 行已满：再执行不会解锁任何成就。" // string@00df
+8b62fe: 6e20 c991 1000                         |0027: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6304: 280e                                   |002a: goto 0038 // +000e
+8b6306: 1a01 de00                              |002b: const-string v1, "\n当前缺口 " // string@00de
+8b630a: 6e20 c991 1000                         |002d: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6310: 6e20 c491 4000                         |0030: invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6316: 1a01 0f04                              |0033: const-string v1, " 个：现在执行可提前拿到行内解锁（41 两个无限升级 / 75 第四无限维度 / 118 牺牲不再重置 AD / 133 开局自带全部无限挑战 / 138 移除研究负面）与 ×1.03、×1.25 倍率。" // string@040f
+8b631a: 6e20 c991 1000                         |0035: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6320: 6e10 da91 0000                         |0038: invoke-virtual {v0}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b6326: 0c00                                   |003b: move-result-object v0
+8b6328: 1100                                   |003c: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #16              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'hintTeresa'
+      type          : '()Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 2
+      ins           : 0
+      outs          : 0
+      insns size    : 21 16-bit code units
+8b632c:                                        |[8b632c] kajfosz.antimatterdimensions.oreki.StageAssist.hintTeresa:()Ljava/lang/String;
+8b633c: 7100 689e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.ach147:()Z // method@9e68
+8b6342: 0a00                                   |0003: move-result v0
+8b6344: 3800 0500                              |0004: if-eqz v0, 0009 // +0005
+8b6348: 1a00 acb4                              |0006: const-string v0, "成就 147 已解锁：无需执行。" // string@b4ac
+8b634c: 1100                                   |0008: return-object v0
+8b634e: 7100 7f9e 0000                         |0009: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.realityUpgradesAll:()Z // method@9e7f
+8b6354: 0a00                                   |000c: move-result v0
+8b6356: 3800 0500                              |000d: if-eqz v0, 0012 // +0005
+8b635a: 1a00 c3b4                              |000f: const-string v0, "现实升级已全部购买：147 会自然达成，此时执行只剩 +1.03× 成就倍率，没有前置收益。建议留到下一次 Reality。" // string@b4c3
+8b635e: 1100                                   |0011: return-object v0
+8b6360: 1a00 d2b4                              |0012: const-string v0, "适用窗口：进入 Reality 后、买齐 Reality Upgrade 之前。买齐之前点亮 147，Teresa 的入口立即可见；买齐之后则由原版条件自然达成，补点就没意义了。" // string@b4d2
+8b6364: 1100                                   |0014: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #17              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'init'
+      type          : '(Landroid/content/Context;)V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 3
+      insns size    : 23 16-bit code units
+8b6368:                                        |[8b6368] kajfosz.antimatterdimensions.oreki.StageAssist.init:(Landroid/content/Context;)V
+8b6378: 3803 1600                              |0000: if-eqz v3, 0016 // +0016
+8b637c: 6903 575c                              |0002: sput-object v3, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b6380: 1a00 2ba0                              |0004: const-string v0, "oreki_prefs" // string@a02b
+8b6384: 1201                                   |0006: const/4 v1, #int 0 // #0
+8b6386: 6e30 b605 0301                         |0007: invoke-virtual {v3, v0, v1}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b638c: 0c00                                   |000a: move-result-object v0
+8b638e: 1a01 ceae                              |000b: const-string v1, "stage_assist" // string@aece
+8b6392: 1202                                   |000d: const/4 v2, #int 0 // #0
+8b6394: 7230 3806 1002                         |000e: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;.getInt:(Ljava/lang/String;I)I // method@0638
+8b639a: 0a00                                   |0011: move-result v0
+8b639c: 6700 565c                              |0012: sput v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.pending:I // field@5c56
+8b63a0: 2802                                   |0014: goto 0016 // +0002
+8b63a2: 0d00                                   |0015: move-exception v0
+8b63a4: 0e00                                   |0016: return-void
+      catches       : 1
+        0x0004 - 0x0014
+          Ljava/lang/Exception; -> 0x0015
+      positions     :
+      locals        :
+
+    #18              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'isDoomed'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 0
+      insns size    : 5 16-bit code units
+8b63b8:                                        |[8b63b8] kajfosz.antimatterdimensions.oreki.StageAssist.isDoomed:()Z
+8b63c8: 7100 fb9d 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;.q:()Z // method@9dfb
+8b63ce: 0a00                                   |0003: move-result v0
+8b63d0: 0f00                                   |0004: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #19              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'isEnabled'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 3
+      insns size    : 22 16-bit code units
+8b63d4:                                        |[8b63d4] kajfosz.antimatterdimensions.oreki.StageAssist.isEnabled:()Z
+8b63e4: 6200 575c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b63e8: 3800 1200                              |0002: if-eqz v0, 0014 // +0012
+8b63ec: 1a01 2ba0                              |0004: const-string v1, "oreki_prefs" // string@a02b
+8b63f0: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b63f2: 6e30 b605 1002                         |0007: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b63f8: 0c00                                   |000a: move-result-object v0
+8b63fa: 1a01 cfae                              |000b: const-string v1, "stage_assist_enabled" // string@aecf
+8b63fe: 1202                                   |000d: const/4 v2, #int 0 // #0
+8b6400: 7230 3606 1002                         |000e: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;.getBoolean:(Ljava/lang/String;Z)Z // method@0636
+8b6406: 0a00                                   |0011: move-result v0
+8b6408: 2803                                   |0012: goto 0015 // +0003
+8b640a: 0d00                                   |0013: move-exception v0
+8b640c: 1200                                   |0014: const/4 v0, #int 0 // #0
+8b640e: 0f00                                   |0015: return v0
+      catches       : 1
+        0x0004 - 0x0012
+          Ljava/lang/Exception; -> 0x0013
+      positions     :
+      locals        :
+
+    #20              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'iu25'
+      type          : '()Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 7
+      ins           : 0
+      outs          : 2
+      insns size    : 37 16-bit code units
+8b6420:                                        |[8b6420] kajfosz.antimatterdimensions.oreki.StageAssist.iu25:()Z
+8b6430: 6200 7d5c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/reality/imaginary_upgrades/b;.u:Ljava/util/List; // field@5c7d
+8b6434: 7210 f694 0000                         |0002: invoke-interface {v0}, Ljava/util/List;.size:()I // method@94f6
+8b643a: 0a01                                   |0005: move-result v1
+8b643c: 12f2                                   |0006: const/4 v2, #int -1 // #ff
+8b643e: 1203                                   |0007: const/4 v3, #int 0 // #0
+8b6440: 1204                                   |0008: const/4 v4, #int 0 // #0
+8b6442: 3514 1300                              |0009: if-ge v4, v1, 001c // +0013
+8b6446: 7220 eb94 4000                         |000b: invoke-interface {v0, v4}, Ljava/util/List;.get:(I)Ljava/lang/Object; // method@94eb
+8b644c: 0c05                                   |000e: move-result-object v5
+8b644e: 1f05 ca2a                              |000f: check-cast v5, Ltw; // type@2aca
+8b6452: 6e10 72d6 0500                         |0011: invoke-virtual {v5}, Ltw;.I:()I // method@d672
+8b6458: 0a06                                   |0014: move-result v6
+8b645a: 3726 0400                              |0015: if-le v6, v2, 0019 // +0004
+8b645e: 0162                                   |0017: move v2, v6
+8b6460: 0753                                   |0018: move-object v3, v5
+8b6462: d804 0401                              |0019: add-int/lit8 v4, v4, #int 1 // #01
+8b6466: 28ee                                   |001b: goto 0009 // -0012
+8b6468: 3803 0700                              |001c: if-eqz v3, 0023 // +0007
+8b646c: 6e10 71d6 0300                         |001e: invoke-virtual {v3}, Ltw;.B:()Z // method@d671
+8b6472: 0a00                                   |0021: move-result v0
+8b6474: 0f00                                   |0022: return v0
+8b6476: 1200                                   |0023: const/4 v0, #int 0 // #0
+8b6478: 0f00                                   |0024: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #21              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'markUsed'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 3
+      insns size    : 45 16-bit code units
+8b647c:                                        |[8b647c] kajfosz.antimatterdimensions.oreki.StageAssist.markUsed:()V
+8b648c: 7100 8a9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.usedState:()I // method@9e8a
+8b6492: 0a00                                   |0003: move-result v0
+8b6494: 1211                                   |0004: const/4 v1, #int 1 // #1
+8b6496: 3310 2700                              |0005: if-ne v0, v1, 002c // +0027
+8b649a: 6200 575c                              |0007: sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b649e: 3800 1c00                              |0009: if-eqz v0, 0025 // +001c
+8b64a2: 1a01 2ba0                              |000b: const-string v1, "oreki_prefs" // string@a02b
+8b64a6: 1202                                   |000d: const/4 v2, #int 0 // #0
+8b64a8: 6e30 b605 1002                         |000e: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b64ae: 0c00                                   |0011: move-result-object v0
+8b64b0: 7210 3406 0000                         |0012: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b64b6: 0c00                                   |0015: move-result-object v0
+8b64b8: 1a01 d0ae                              |0016: const-string v1, "stage_assist_used" // string@aed0
+8b64bc: 1212                                   |0018: const/4 v2, #int 1 // #1
+8b64be: 7230 2c06 1002                         |0019: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;.putBoolean:(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor; // method@062c
+8b64c4: 0c00                                   |001c: move-result-object v0
+8b64c6: 7210 2b06 0000                         |001d: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.commit:()Z // method@062b
+8b64cc: 0a00                                   |0020: move-result v0
+8b64ce: 3900 0400                              |0021: if-nez v0, 0025 // +0004
+8b64d2: 2809                                   |0023: goto 002c // +0009
+8b64d4: 0d00                                   |0024: move-exception v0
+8b64d6: 1a00 805e                              |0025: const-string v0, "OREKI_ACHAUDIT" // string@5e80
+8b64da: 1a01 db5a                              |0027: const-string v1, "MARK_FAILED stage_assist_used 写入失败（L2 视为未知，不是清白）" // string@5adb
+8b64de: 7120 3a0e 1000                         |0029: invoke-static {v0, v1}, Landroid/util/Log;.e:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3a
+8b64e4: 0e00                                   |002c: return-void
+      catches       : 1
+        0x000b - 0x0023
+          Ljava/lang/Exception; -> 0x0024
+      positions     :
+      locals        :
+
+    #22              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'onTick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 2
+      ins           : 0
+      outs          : 1
+      insns size    : 17 16-bit code units
+8b64f8:                                        |[8b64f8] kajfosz.antimatterdimensions.oreki.StageAssist.onTick:()V
+8b6508: 6000 565c                              |0000: sget v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.pending:I // field@5c56
+8b650c: 3800 0e00                              |0002: if-eqz v0, 0010 // +000e
+8b6510: 1201                                   |0004: const/4 v1, #int 0 // #0
+8b6512: 6701 565c                              |0005: sput v1, Lkajfosz/antimatterdimensions/oreki/StageAssist;.pending:I // field@5c56
+8b6516: 7100 6f9e 0000                         |0007: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.clearFlag:()V // method@9e6f
+8b651c: 7110 819e 0000                         |000a: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.run:(I)I // method@9e81
+8b6522: 0a01                                   |000d: move-result v1
+8b6524: 2802                                   |000e: goto 0010 // +0002
+8b6526: 0d00                                   |000f: move-exception v0
+8b6528: 0e00                                   |0010: return-void
+      catches       : 1
+        0x000a - 0x000e
+          Ljava/lang/Throwable; -> 0x000f
+      positions     :
+      locals        :
+
+    #23              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'realityUpgradesAll'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 0
+      insns size    : 5 16-bit code units
+8b653c:                                        |[8b653c] kajfosz.antimatterdimensions.oreki.StageAssist.realityUpgradesAll:()Z
+8b654c: 7100 029f 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/reality/upgrades/b;.b:()Z // method@9f02
+8b6552: 0a00                                   |0003: move-result v0
+8b6554: 0f00                                   |0004: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #24              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'request'
+      type          : '(I)V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 3
+      insns size    : 35 16-bit code units
+8b6558:                                        |[8b6558] kajfosz.antimatterdimensions.oreki.StageAssist.request:(I)V
+8b6568: 7100 7b9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.isEnabled:()Z // method@9e7b
+8b656e: 0a00                                   |0003: move-result v0
+8b6570: 3800 1e00                              |0004: if-eqz v0, 0022 // +001e
+8b6574: 6704 565c                              |0006: sput v4, Lkajfosz/antimatterdimensions/oreki/StageAssist;.pending:I // field@5c56
+8b6578: 6200 575c                              |0008: sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b657c: 3800 1800                              |000a: if-eqz v0, 0022 // +0018
+8b6580: 1a01 2ba0                              |000c: const-string v1, "oreki_prefs" // string@a02b
+8b6584: 1202                                   |000e: const/4 v2, #int 0 // #0
+8b6586: 6e30 b605 1002                         |000f: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b658c: 0c00                                   |0012: move-result-object v0
+8b658e: 7210 3406 0000                         |0013: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b6594: 0c00                                   |0016: move-result-object v0
+8b6596: 1a01 ceae                              |0017: const-string v1, "stage_assist" // string@aece
+8b659a: 7230 2e06 1004                         |0019: invoke-interface {v0, v1, v4}, Landroid/content/SharedPreferences$Editor;.putInt:(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor; // method@062e
+8b65a0: 0c00                                   |001c: move-result-object v0
+8b65a2: 7210 2906 0000                         |001d: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b65a8: 2802                                   |0020: goto 0022 // +0002
+8b65aa: 0d00                                   |0021: move-exception v0
+8b65ac: 0e00                                   |0022: return-void
+      catches       : 1
+        0x000c - 0x0020
+          Ljava/lang/Exception; -> 0x0021
+      positions     :
+      locals        :
+
+    #25              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'run'
+      type          : '(I)I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 4
+      insns size    : 64 16-bit code units
+8b65c0:                                        |[8b65c0] kajfosz.antimatterdimensions.oreki.StageAssist.run:(I)I
+8b65d0: 7100 7a9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.isDoomed:()Z // method@9e7a
+8b65d6: 0a00                                   |0003: move-result v0
+8b65d8: 3900 2f00                              |0004: if-nez v0, 0033 // +002f
+8b65dc: 2b04 3000 0000                         |0006: packed-switch v4, 00000036 // +00000030
+8b65e2: 12e0                                   |0009: const/4 v0, #int -2 // #fe
+8b65e4: 0f00                                   |000a: return v0
+8b65e6: 1210                                   |000b: const/4 v0, #int 1 // #1
+8b65e8: 1301 0d00                              |000c: const/16 v1, #int 13 // #d
+8b65ec: 1202                                   |000e: const/4 v2, #int 0 // #0
+8b65ee: 1203                                   |000f: const/4 v3, #int 0 // #0
+8b65f0: 7140 899e 1032                         |0010: invoke-static {v0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.unlockRows:(IIZZ)I // method@9e89
+8b65f6: 0a00                                   |0013: move-result v0
+8b65f8: 3d00 0500                              |0014: if-lez v0, 0019 // +0005
+8b65fc: 7100 7d9e 0000                         |0016: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.markUsed:()V // method@9e7d
+8b6602: 0f00                                   |0019: return v0
+8b6604: 7100 889e 0000                         |001a: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.unlock147:()I // method@9e88
+8b660a: 0a00                                   |001d: move-result v0
+8b660c: 3d00 0500                              |001e: if-lez v0, 0023 // +0005
+8b6610: 7100 7d9e 0000                         |0020: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.markUsed:()V // method@9e7d
+8b6616: 0f00                                   |0023: return v0
+8b6618: 1210                                   |0024: const/4 v0, #int 1 // #1
+8b661a: 1301 1100                              |0025: const/16 v1, #int 17 // #11
+8b661e: 1202                                   |0027: const/4 v2, #int 0 // #0
+8b6620: 1203                                   |0028: const/4 v3, #int 0 // #0
+8b6622: 7140 899e 1032                         |0029: invoke-static {v0, v1, v2, v3}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.unlockRows:(IIZZ)I // method@9e89
+8b6628: 0a00                                   |002c: move-result v0
+8b662a: 3d00 0500                              |002d: if-lez v0, 0032 // +0005
+8b662e: 7100 7d9e 0000                         |002f: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.markUsed:()V // method@9e7d
+8b6634: 0f00                                   |0032: return v0
+8b6636: 12f0                                   |0033: const/4 v0, #int -1 // #ff
+8b6638: 0f00                                   |0034: return v0
+8b663a: 0000                                   |0035: nop // spacer
+8b663c: 0001 0300 0100 0000 0500 0000 1400 ... |0036: packed-switch-data (10 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #26              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'setEnabled'
+      type          : '(Z)V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 1
+      outs          : 3
+      insns size    : 27 16-bit code units
+8b6650:                                        |[8b6650] kajfosz.antimatterdimensions.oreki.StageAssist.setEnabled:(Z)V
+8b6660: 6200 575c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b6664: 3800 1800                              |0002: if-eqz v0, 001a // +0018
+8b6668: 1a01 2ba0                              |0004: const-string v1, "oreki_prefs" // string@a02b
+8b666c: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b666e: 6e30 b605 1002                         |0007: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b6674: 0c00                                   |000a: move-result-object v0
+8b6676: 7210 3406 0000                         |000b: invoke-interface {v0}, Landroid/content/SharedPreferences;.edit:()Landroid/content/SharedPreferences$Editor; // method@0634
+8b667c: 0c00                                   |000e: move-result-object v0
+8b667e: 1a01 cfae                              |000f: const-string v1, "stage_assist_enabled" // string@aecf
+8b6682: 7230 2c06 1004                         |0011: invoke-interface {v0, v1, v4}, Landroid/content/SharedPreferences$Editor;.putBoolean:(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor; // method@062c
+8b6688: 0c00                                   |0014: move-result-object v0
+8b668a: 7210 2906 0000                         |0015: invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;.apply:()V // method@0629
+8b6690: 2802                                   |0018: goto 001a // +0002
+8b6692: 0d00                                   |0019: move-exception v0
+8b6694: 0e00                                   |001a: return-void
+      catches       : 1
+        0x0004 - 0x0018
+          Ljava/lang/Exception; -> 0x0019
+      positions     :
+      locals        :
+
+    #27              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'stageHint'
+      type          : '(I)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 0
+      insns size    : 32 16-bit code units
+8b66a8:                                        |[8b66a8] kajfosz.antimatterdimensions.oreki.StageAssist.stageHint:(I)Ljava/lang/String;
+8b66b8: 2b01 1600 0000                         |0000: packed-switch v1, 00000016 // +00000016
+8b66be: 1a00 bdb4                              |0003: const-string v0, "未指定阶段。" // string@b4bd
+8b66c2: 1100                                   |0005: return-object v0
+8b66c4: 7100 779e 0000                         |0006: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.hintRows13:()Ljava/lang/String; // method@9e77
+8b66ca: 0c00                                   |0009: move-result-object v0
+8b66cc: 1100                                   |000a: return-object v0
+8b66ce: 7100 789e 0000                         |000b: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.hintTeresa:()Ljava/lang/String; // method@9e78
+8b66d4: 0c00                                   |000e: move-result-object v0
+8b66d6: 1100                                   |000f: return-object v0
+8b66d8: 7100 769e 0000                         |0010: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.hintPelle:()Ljava/lang/String; // method@9e76
+8b66de: 0c00                                   |0013: move-result-object v0
+8b66e0: 1100                                   |0014: return-object v0
+8b66e2: 0000                                   |0015: nop // spacer
+8b66e4: 0001 0300 0100 0000 0600 0000 0b00 ... |0016: packed-switch-data (10 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #28              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'startPerk'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 1
+      insns size    : 7 16-bit code units
+8b66f8:                                        |[8b66f8] kajfosz.antimatterdimensions.oreki.StageAssist.startPerk:()Z
+8b6708: 6200 808f                              |0000: sget-object v0, Lvi3;.a:Lui3; // field@8f80
+8b670c: 6e10 5d8b 0000                         |0002: invoke-virtual {v0}, Lii3;.k:()Z // method@8b5d
+8b6712: 0a00                                   |0005: move-result v0
+8b6714: 0f00                                   |0006: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #29              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'summaryPelle'
+      type          : '()Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 2
+      insns size    : 99 16-bit code units
+8b6718:                                        |[8b6718] kajfosz.antimatterdimensions.oreki.StageAssist.summaryPelle:()Ljava/lang/String;
+8b6728: 1210                                   |0000: const/4 v0, #int 1 // #1
+8b672a: 1301 1100                              |0001: const/16 v1, #int 17 // #11
+8b672e: 7120 719e 1000                         |0003: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countUnlockedRows:(II)I // method@9e71
+8b6734: 0a02                                   |0006: move-result v2
+8b6736: 7120 709e 1000                         |0007: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countTotalRows:(II)I // method@9e70
+8b673c: 0a03                                   |000a: move-result v3
+8b673e: 2200 4a1b                              |000b: new-instance v0, Ljava/lang/StringBuilder; // type@1b4a
+8b6742: 7010 bc91 0000                         |000d: invoke-direct {v0}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b6748: 1a01 c7b4                              |0010: const-string v1, "第 1–17 行：已解锁 " // string@b4c7
+8b674c: 6e20 c991 1000                         |0012: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6752: 6e20 c491 2000                         |0015: invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6758: 1a01 3e01                              |0018: const-string v1, " / " // string@013e
+8b675c: 6e20 c991 1000                         |001a: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6762: 6e20 c491 3000                         |001d: invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6768: 1a01 dcb4                              |0020: const-string v1, "，缺口 " // string@b4dc
+8b676c: 6e20 c991 1000                         |0022: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6772: 9101 0302                              |0025: sub-int v1, v3, v2
+8b6776: 6e20 c491 1000                         |0027: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b677c: 1a01 e300                              |002a: const-string v1, "\n炼金资源已达上限：" // string@00e3
+8b6780: 6e20 c991 1000                         |002c: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6786: 7100 699e 0000                         |002f: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.alchemyCapped:()I // method@9e69
+8b678c: 0a01                                   |0032: move-result v1
+8b678e: 6e20 c491 1000                         |0033: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6794: 1a01 3e01                              |0036: const-string v1, " / " // string@013e
+8b6798: 6e20 c991 1000                         |0038: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b679e: 7100 6a9e 0000                         |003b: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.alchemyTotal:()I // method@9e6a
+8b67a4: 0a01                                   |003e: move-result v1
+8b67a6: 6e20 c491 1000                         |003f: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b67ac: 1a01 e500                              |0042: const-string v1, "\n虚幻升级 25：" // string@00e5
+8b67b0: 6e20 c991 1000                         |0044: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b67b6: 7100 7c9e 0000                         |0047: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.iu25:()Z // method@9e7c
+8b67bc: 0a01                                   |004a: move-result v1
+8b67be: 7110 8b9e 0100                         |004b: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b67c4: 0c01                                   |004e: move-result-object v1
+8b67c6: 6e20 c991 1000                         |004f: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b67cc: 1a01 dd00                              |0052: const-string v1, "\n已被毁灭：" // string@00dd
+8b67d0: 6e20 c991 1000                         |0054: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b67d6: 7100 759e 0000                         |0057: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.doomedText:()Ljava/lang/String; // method@9e75
+8b67dc: 0c01                                   |005a: move-result-object v1
+8b67de: 6e20 c991 1000                         |005b: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b67e4: 6e10 da91 0000                         |005e: invoke-virtual {v0}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b67ea: 0c00                                   |0061: move-result-object v0
+8b67ec: 1100                                   |0062: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #30              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'summaryR0'
+      type          : '()Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 2
+      insns size    : 95 16-bit code units
+8b67f0:                                        |[8b67f0] kajfosz.antimatterdimensions.oreki.StageAssist.summaryR0:()Ljava/lang/String;
+8b6800: 1210                                   |0000: const/4 v0, #int 1 // #1
+8b6802: 1301 0d00                              |0001: const/16 v1, #int 13 // #d
+8b6806: 7120 719e 1000                         |0003: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countUnlockedRows:(II)I // method@9e71
+8b680c: 0a02                                   |0006: move-result v2
+8b680e: 7120 709e 1000                         |0007: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.countTotalRows:(II)I // method@9e70
+8b6814: 0a03                                   |000a: move-result v3
+8b6816: 2200 4a1b                              |000b: new-instance v0, Ljava/lang/StringBuilder; // type@1b4a
+8b681a: 7010 bc91 0000                         |000d: invoke-direct {v0}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b6820: 1a01 c6b4                              |0010: const-string v1, "第 1–13 行：已解锁 " // string@b4c6
+8b6824: 6e20 c991 1000                         |0012: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b682a: 6e20 c491 2000                         |0015: invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6830: 1a01 3e01                              |0018: const-string v1, " / " // string@013e
+8b6834: 6e20 c991 1000                         |001a: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b683a: 6e20 c491 3000                         |001d: invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6840: 1a01 dcb4                              |0020: const-string v1, "，缺口 " // string@b4dc
+8b6844: 6e20 c991 1000                         |0022: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b684a: 9101 0302                              |0025: sub-int v1, v3, v2
+8b684e: 6e20 c491 1000                         |0027: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(I)Ljava/lang/StringBuilder; // method@91c4
+8b6854: 1a01 d000                              |002a: const-string v1, "\nSTART perk 已购：" // string@00d0
+8b6858: 6e20 c991 1000                         |002c: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b685e: 7100 849e 0000                         |002f: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.startPerk:()Z // method@9e84
+8b6864: 0a01                                   |0032: move-result v1
+8b6866: 7110 8b9e 0100                         |0033: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b686c: 0c01                                   |0036: move-result-object v1
+8b686e: 6e20 c991 1000                         |0037: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6874: 1a01 e400                              |003a: const-string v1, "\n现实升级全买：" // string@00e4
+8b6878: 6e20 c991 1000                         |003c: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b687e: 7100 7f9e 0000                         |003f: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.realityUpgradesAll:()Z // method@9e7f
+8b6884: 0a01                                   |0042: move-result v1
+8b6886: 7110 8b9e 0100                         |0043: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b688c: 0c01                                   |0046: move-result-object v1
+8b688e: 6e20 c991 1000                         |0047: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6894: 1a01 e000                              |004a: const-string v1, "\n成就 147 已解锁：" // string@00e0
+8b6898: 6e20 c991 1000                         |004c: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b689e: 7100 689e 0000                         |004f: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.ach147:()Z // method@9e68
+8b68a4: 0a01                                   |0052: move-result v1
+8b68a6: 7110 8b9e 0100                         |0053: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b68ac: 0c01                                   |0056: move-result-object v1
+8b68ae: 6e20 c991 1000                         |0057: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b68b4: 6e10 da91 0000                         |005a: invoke-virtual {v0}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b68ba: 0c00                                   |005d: move-result-object v0
+8b68bc: 1100                                   |005e: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #31              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'summaryTeresa'
+      type          : '()Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 2
+      ins           : 0
+      outs          : 2
+      insns size    : 47 16-bit code units
+8b68c0:                                        |[8b68c0] kajfosz.antimatterdimensions.oreki.StageAssist.summaryTeresa:()Ljava/lang/String;
+8b68d0: 2200 4a1b                              |0000: new-instance v0, Ljava/lang/StringBuilder; // type@1b4a
+8b68d4: 7010 bc91 0000                         |0002: invoke-direct {v0}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b68da: 1a01 adb4                              |0005: const-string v1, "成就 147（现实专精）：" // string@b4ad
+8b68de: 6e20 c991 1000                         |0007: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b68e4: 7100 689e 0000                         |000a: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.ach147:()Z // method@9e68
+8b68ea: 0a01                                   |000d: move-result v1
+8b68ec: 7110 8b9e 0100                         |000e: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b68f2: 0c01                                   |0011: move-result-object v1
+8b68f4: 6e20 c991 1000                         |0012: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b68fa: 1a01 e400                              |0015: const-string v1, "\n现实升级全买：" // string@00e4
+8b68fe: 6e20 c991 1000                         |0017: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6904: 7100 7f9e 0000                         |001a: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.realityUpgradesAll:()Z // method@9e7f
+8b690a: 0a01                                   |001d: move-result v1
+8b690c: 7110 8b9e 0100                         |001e: invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/StageAssist;.yn:(Z)Ljava/lang/String; // method@9e8b
+8b6912: 0c01                                   |0021: move-result-object v1
+8b6914: 6e20 c991 1000                         |0022: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b691a: 1a01 e200                              |0025: const-string v1, "\n点亮只让 Teresa 入口立即可见；不会购买 Reality Upgrade，也不会补发升级效果；进入 Teresa 的现实仍需 1e14 RM。" // string@00e2
+8b691e: 6e20 c991 1000                         |0027: invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b6924: 6e10 da91 0000                         |002a: invoke-virtual {v0}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b692a: 0c00                                   |002d: move-result-object v0
+8b692c: 1100                                   |002e: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #32              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'unlock147'
+      type          : '()I'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 3
+      ins           : 0
+      outs          : 3
+      insns size    : 21 16-bit code units
+8b6930:                                        |[8b6930] kajfosz.antimatterdimensions.oreki.StageAssist.unlock147:()I
+8b6940: 1300 9300                              |0000: const/16 v0, #int 147 // #93
+8b6944: 7110 e4d1 0000                         |0002: invoke-static {v0}, Lt3;.a:(I)Lkajfosz/antimatterdimensions/achievements/a; // method@d1e4
+8b694a: 0c00                                   |0005: move-result-object v0
+8b694c: 3800 0d00                              |0006: if-eqz v0, 0013 // +000d
+8b6950: 6e10 ec9d 0000                         |0008: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/achievements/a;.A:()Z // method@9dec
+8b6956: 0a01                                   |000b: move-result v1
+8b6958: 3801 0700                              |000c: if-eqz v1, 0013 // +0007
+8b695c: 1211                                   |000e: const/4 v1, #int 1 // #1
+8b695e: 6e30 ed9d 1001                         |000f: invoke-virtual {v0, v1, v1}, Lkajfosz/antimatterdimensions/achievements/a;.E:(ZZ)V // method@9ded
+8b6964: 0f01                                   |0012: return v1
+8b6966: 1200                                   |0013: const/4 v0, #int 0 // #0
+8b6968: 0f00                                   |0014: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #33              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'unlockRows'
+      type          : '(IIZZ)I'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 12
+      ins           : 4
+      outs          : 3
+      insns size    : 38 16-bit code units
+8b696c:                                        |[8b696c] kajfosz.antimatterdimensions.oreki.StageAssist.unlockRows:(IIZZ)I
+8b697c: 7100 e5d1 0000                         |0000: invoke-static {}, Lt3;.d:()I // method@d1e5
+8b6982: 0a07                                   |0003: move-result v7
+8b6984: 6201 4a82                              |0004: sget-object v1, Lt3;.c:[Lkajfosz/antimatterdimensions/achievements/a; // field@824a
+8b6988: 2112                                   |0006: array-length v2, v1
+8b698a: 1203                                   |0007: const/4 v3, #int 0 // #0
+8b698c: 3523 1700                              |0008: if-ge v3, v2, 001f // +0017
+8b6990: 4604 0103                              |000a: aget-object v4, v1, v3
+8b6994: 5245 1a5c                              |000c: iget v5, v4, Lkajfosz/antimatterdimensions/achievements/a;.m:I // field@5c1a
+8b6998: 3485 0e00                              |000e: if-lt v5, v8, 001c // +000e
+8b699c: 3695 0c00                              |0010: if-gt v5, v9, 001c // +000c
+8b69a0: 6e10 ec9d 0400                         |0012: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/achievements/a;.A:()Z // method@9dec
+8b69a6: 0a06                                   |0015: move-result v6
+8b69a8: 3806 0300                              |0016: if-eqz v6, 0019 // +0003
+8b69ac: 2804                                   |0018: goto 001c // +0004
+8b69ae: 6e30 ed9d a40b                         |0019: invoke-virtual {v4, v10, v11}, Lkajfosz/antimatterdimensions/achievements/a;.E:(ZZ)V // method@9ded
+8b69b4: d803 0301                              |001c: add-int/lit8 v3, v3, #int 1 // #01
+8b69b8: 28ea                                   |001e: goto 0008 // -0016
+8b69ba: 7100 e5d1 0000                         |001f: invoke-static {}, Lt3;.d:()I // method@d1e5
+8b69c0: 0a00                                   |0022: move-result v0
+8b69c2: 9100 0007                              |0023: sub-int v0, v0, v7
+8b69c6: 0f00                                   |0025: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #34              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'usedState'
+      type          : '()I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 3
+      insns size    : 27 16-bit code units
+8b69c8:                                        |[8b69c8] kajfosz.antimatterdimensions.oreki.StageAssist.usedState:()I
+8b69d8: 6200 575c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/oreki/StageAssist;.sCtx:Landroid/content/Context; // field@5c57
+8b69dc: 3800 1700                              |0002: if-eqz v0, 0019 // +0017
+8b69e0: 1a01 2ba0                              |0004: const-string v1, "oreki_prefs" // string@a02b
+8b69e4: 1202                                   |0006: const/4 v2, #int 0 // #0
+8b69e6: 6e30 b605 1002                         |0007: invoke-virtual {v0, v1, v2}, Landroid/content/Context;.getSharedPreferences:(Ljava/lang/String;I)Landroid/content/SharedPreferences; // method@05b6
+8b69ec: 0c00                                   |000a: move-result-object v0
+8b69ee: 1a01 d0ae                              |000b: const-string v1, "stage_assist_used" // string@aed0
+8b69f2: 1202                                   |000d: const/4 v2, #int 0 // #0
+8b69f4: 7230 3606 1002                         |000e: invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;.getBoolean:(Ljava/lang/String;Z)Z // method@0636
+8b69fa: 0a00                                   |0011: move-result v0
+8b69fc: 3800 0400                              |0012: if-eqz v0, 0016 // +0004
+8b6a00: 1210                                   |0014: const/4 v0, #int 1 // #1
+8b6a02: 0f00                                   |0015: return v0
+8b6a04: 1200                                   |0016: const/4 v0, #int 0 // #0
+8b6a06: 0f00                                   |0017: return v0
+8b6a08: 0d00                                   |0018: move-exception v0
+8b6a0a: 12f0                                   |0019: const/4 v0, #int -1 // #ff
+8b6a0c: 0f00                                   |001a: return v0
+      catches       : 1
+        0x0004 - 0x0018
+          Ljava/lang/Exception; -> 0x0018
+      positions     :
+      locals        :
+
+    #35              : (in Lkajfosz/antimatterdimensions/oreki/StageAssist;)
+      name          : 'yn'
+      type          : '(Z)Ljava/lang/String;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 0
+      insns size    : 8 16-bit code units
+8b6a20:                                        |[8b6a20] kajfosz.antimatterdimensions.oreki.StageAssist.yn:(Z)Ljava/lang/String;
+8b6a30: 3801 0500                              |0000: if-eqz v1, 0005 // +0005
+8b6a34: 1a00 b9b4                              |0002: const-string v0, "是" // string@b4b9
+8b6a38: 1100                                   |0004: return-object v0
+8b6a3a: 1a00 95b4                              |0005: const-string v0, "否" // string@b495
+8b6a3e: 1100                                   |0007: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6129            -

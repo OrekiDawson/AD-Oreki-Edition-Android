@@ -1,0 +1,103 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;)
+      name          : '<init>'
+      type          : '()V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 1
+      ins           : 1
+      outs          : 1
+      insns size    : 4 16-bit code units
+8b70d4:                                        |[8b70d4] kajfosz.antimatterdimensions.oreki.tutorial.TutorialProgress.<init>:()V
+8b70e4: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b70ea: 0e00                                   |0003: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress;)
+      name          : 'stage'
+      type          : '()I'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 3
+      insns size    : 106 16-bit code units
+8b70ec:                                        |[8b70ec] kajfosz.antimatterdimensions.oreki.tutorial.TutorialProgress.stage:()I
+8b70fc: 7100 fb9d 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;.q:()Z // method@9dfb
+8b7102: 0a00                                   |0003: move-result v0
+8b7104: 3800 0400                              |0004: if-eqz v0, 0008 // +0004
+8b7108: 1270                                   |0006: const/4 v0, #int 7 // #7
+8b710a: 0f00                                   |0007: return v0
+8b710c: 6200 745c                              |0008: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b7110: 3800 5b00                              |000a: if-eqz v0, 0065 // +005b
+8b7114: 6e10 de9e 0000                         |000c: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.P:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ede
+8b711a: 0c01                                   |000f: move-result-object v1
+8b711c: 1602 0000                              |0010: const-wide/16 v2, #int 0 // #0
+8b7120: 6e30 949d 2103                         |0012: invoke-virtual {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(D)I // method@9d94
+8b7126: 0a01                                   |0015: move-result v1
+8b7128: 3d01 1300                              |0016: if-lez v1, 0029 // +0013
+8b712c: 1301 9300                              |0018: const/16 v1, #int 147 // #93
+8b7130: 7110 e4d1 0100                         |001a: invoke-static {v1}, Lt3;.a:(I)Lkajfosz/antimatterdimensions/achievements/a; // method@d1e4
+8b7136: 0c01                                   |001d: move-result-object v1
+8b7138: 1250                                   |001e: const/4 v0, #int 5 // #5
+8b713a: 3801 0900                              |001f: if-eqz v1, 0028 // +0009
+8b713e: 6e10 ec9d 0100                         |0021: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/achievements/a;.A:()Z // method@9dec
+8b7144: 0a01                                   |0024: move-result v1
+8b7146: 3901 0300                              |0025: if-nez v1, 0028 // +0003
+8b714a: 1260                                   |0027: const/4 v0, #int 6 // #6
+8b714c: 0f00                                   |0028: return v0
+8b714e: 6e10 ea9e 0000                         |0029: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.x:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eea
+8b7154: 0c01                                   |002c: move-result-object v1
+8b7156: 6e30 949d 2103                         |002d: invoke-virtual {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(D)I // method@9d94
+8b715c: 0a01                                   |0030: move-result v1
+8b715e: 3d01 0400                              |0031: if-lez v1, 0035 // +0004
+8b7162: 1240                                   |0033: const/4 v0, #int 4 // #4
+8b7164: 0f00                                   |0034: return v0
+8b7166: 6e10 da9e 0000                         |0035: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.C:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eda
+8b716c: 0c01                                   |0038: move-result-object v1
+8b716e: 6e30 949d 2103                         |0039: invoke-virtual {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(D)I // method@9d94
+8b7174: 0a01                                   |003c: move-result v1
+8b7176: 3d01 0400                              |003d: if-lez v1, 0041 // +0004
+8b717a: 1230                                   |003f: const/4 v0, #int 3 // #3
+8b717c: 0f00                                   |0040: return v0
+8b717e: 6e10 e29e 0000                         |0041: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.b:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ee2
+8b7184: 0c01                                   |0044: move-result-object v1
+8b7186: 1802 7dc3 9425 ad49 b254               |0045: const-wide v2, #double 1e+100 // #54b249ad2594c37d
+8b7190: 6e30 949d 2103                         |004a: invoke-virtual {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(D)I // method@9d94
+8b7196: 0a01                                   |004d: move-result v1
+8b7198: 3a01 0400                              |004e: if-ltz v1, 0052 // +0004
+8b719c: 1220                                   |0050: const/4 v0, #int 2 // #2
+8b719e: 0f00                                   |0051: return v0
+8b71a0: 6e10 e29e 0000                         |0052: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.b:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ee2
+8b71a6: 0c01                                   |0055: move-result-object v1
+8b71a8: 1802 0000 0020 5fa0 0242               |0056: const-wide v2, #double 1e+10 // #4202a05f20000000
+8b71b2: 6e30 949d 2103                         |005b: invoke-virtual {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(D)I // method@9d94
+8b71b8: 0a01                                   |005e: move-result v1
+8b71ba: 3a01 0400                              |005f: if-ltz v1, 0063 // +0004
+8b71be: 1210                                   |0061: const/4 v0, #int 1 // #1
+8b71c0: 0f00                                   |0062: return v0
+8b71c2: 1200                                   |0063: const/4 v0, #int 0 // #0
+8b71c4: 0f00                                   |0064: return v0
+8b71c6: 1200                                   |0065: const/4 v0, #int 0 // #0
+8b71c8: 0f00                                   |0066: return v0
+8b71ca: 0d01                                   |0067: move-exception v1
+8b71cc: 1200                                   |0068: const/4 v0, #int 0 // #0
+8b71ce: 0f00                                   |0069: return v0
+      catches       : 1
+        0x0000 - 0x0067
+          Ljava/lang/Throwable; -> 0x0067
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6135            -

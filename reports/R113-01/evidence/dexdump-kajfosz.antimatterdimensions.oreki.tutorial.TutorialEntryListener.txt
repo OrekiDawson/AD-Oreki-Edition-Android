@@ -1,0 +1,102 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+    #0              : 'Landroid/view/View$OnClickListener;'
+  Static fields     -
+  Instance fields   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;)
+      name          : 'a'
+      type          : 'Landroid/app/Activity;'
+      access        : 0x0012 (PRIVATE FINAL)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;)
+      name          : 'b'
+      type          : 'I'
+      access        : 0x0012 (PRIVATE FINAL)
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;)
+      name          : '<init>'
+      type          : '(Landroid/app/Activity;I)V'
+      access        : 0x10001 (PUBLIC CONSTRUCTOR)
+      code          -
+      registers     : 3
+      ins           : 3
+      outs          : 1
+      insns size    : 8 16-bit code units
+8b6fe8:                                        |[8b6fe8] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntryListener.<init>:(Landroid/app/Activity;I)V
+8b6ff8: 7010 5791 0000                         |0000: invoke-direct {v0}, Ljava/lang/Object;.<init>:()V // method@9157
+8b6ffe: 5b01 5f5c                              |0003: iput-object v1, v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.a:Landroid/app/Activity; // field@5c5f
+8b7002: 5902 605c                              |0005: iput v2, v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.b:I // field@5c60
+8b7006: 0e00                                   |0007: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;)
+      name          : 'start'
+      type          : '(Landroid/app/Activity;Ljava/lang/Class;)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 6
+      ins           : 2
+      outs          : 3
+      insns size    : 25 16-bit code units
+8b7008:                                        |[8b7008] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntryListener.start:(Landroid/app/Activity;Ljava/lang/Class;)V
+8b7018: 3804 1800                              |0000: if-eqz v4, 0018 // +0018
+8b701c: 2200 4601                              |0002: new-instance v0, Landroid/content/Intent; // type@0146
+8b7020: 7030 e205 4005                         |0004: invoke-direct {v0, v4, v5}, Landroid/content/Intent;.<init>:(Landroid/content/Context;Ljava/lang/Class;)V // method@05e2
+8b7026: 6e20 2604 0400                         |0007: invoke-virtual {v4, v0}, Landroid/app/Activity;.startActivity:(Landroid/content/Intent;)V // method@0426
+8b702c: 280e                                   |000a: goto 0018 // +000e
+8b702e: 0d00                                   |000b: move-exception v0
+8b7030: 6e10 1b92 0000                         |000c: invoke-virtual {v0}, Ljava/lang/Throwable;.toString:()Ljava/lang/String; // method@921b
+8b7036: 0c01                                   |000f: move-result-object v1
+8b7038: 1212                                   |0010: const/4 v2, #int 1 // #1
+8b703a: 7130 4b16 1402                         |0011: invoke-static {v4, v1, v2}, Landroid/widget/Toast;.makeText:(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast; // method@164b
+8b7040: 0c01                                   |0014: move-result-object v1
+8b7042: 6e10 4c16 0100                         |0015: invoke-virtual {v1}, Landroid/widget/Toast;.show:()V // method@164c
+8b7048: 0e00                                   |0018: return-void
+      catches       : 1
+        0x0002 - 0x000a
+          Ljava/lang/Exception; -> 0x000b
+      positions     :
+      locals        :
+
+  Virtual methods   -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;)
+      name          : 'onClick'
+      type          : '(Landroid/view/View;)V'
+      access        : 0x0001 (PUBLIC)
+      code          -
+      registers     : 6
+      ins           : 2
+      outs          : 2
+      insns size    : 52 16-bit code units
+8b705c:                                        |[8b705c] kajfosz.antimatterdimensions.oreki.tutorial.TutorialEntryListener.onClick:(Landroid/view/View;)V
+8b706c: 5240 605c                              |0000: iget v0, v4, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.b:I // field@5c60
+8b7070: 2b00 2600 0000                         |0002: packed-switch v0, 00000028 // +00000026
+8b7076: 0e00                                   |0005: return-void
+8b7078: 5440 5f5c                              |0006: iget-object v0, v4, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.a:Landroid/app/Activity; // field@5c5f
+8b707c: 1c01 021e                              |0008: const-class v1, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity; // type@1e02
+8b7080: 7120 a99e 1000                         |000a: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.start:(Landroid/app/Activity;Ljava/lang/Class;)V // method@9ea9
+8b7086: 0e00                                   |000d: return-void
+8b7088: 5440 5f5c                              |000e: iget-object v0, v4, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.a:Landroid/app/Activity; // field@5c5f
+8b708c: 3800 0500                              |0010: if-eqz v0, 0015 // +0005
+8b7090: 6e10 dc03 0000                         |0012: invoke-virtual {v0}, Landroid/app/Activity;.finish:()V // method@03dc
+8b7096: 0e00                                   |0015: return-void
+8b7098: 5440 5f5c                              |0016: iget-object v0, v4, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.a:Landroid/app/Activity; // field@5c5f
+8b709c: 1c01 fd1d                              |0018: const-class v1, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity; // type@1dfd
+8b70a0: 7120 a99e 1000                         |001a: invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.start:(Landroid/app/Activity;Ljava/lang/Class;)V // method@9ea9
+8b70a6: 0e00                                   |001d: return-void
+8b70a8: 5440 5f5c                              |001e: iget-object v0, v4, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener;.a:Landroid/app/Activity; // field@5c5f
+8b70ac: 3800 0700                              |0020: if-eqz v0, 0027 // +0007
+8b70b0: 1f00 021e                              |0022: check-cast v0, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity; // type@1e02
+8b70b4: 6e10 939e 0000                         |0024: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity;.openChapterDrawer:()V // method@9e93
+8b70ba: 0e00                                   |0027: return-void
+8b70bc: 0001 0400 0000 0000 0400 0000 0c00 ... |0028: packed-switch-data (12 units)
+      catches       : (none)
+      positions     :
+      locals        :
+
+  source_file_idx   : -1 (unknown)
+
+Class #6134            -

@@ -1,0 +1,124 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;)
+      name          : 'sHoldSince'
+      type          : 'J'
+      access        : 0x000a (PRIVATE STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;)
+      name          : 'sHolding'
+      type          : 'Z'
+      access        : 0x000a (PRIVATE STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;)
+      name          : 'isHolding'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 2
+      insns size    : 86 16-bit code units
+8b53d8:                                        |[8b53d8] kajfosz.antimatterdimensions.oreki.OrekiTeresaAuto.isHolding:()Z
+8b53e8: 6300 505c                              |0000: sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHolding:Z // field@5c50
+8b53ec: 3800 2700                              |0002: if-eqz v0, 0029 // +0027
+8b53f0: 6200 745c                              |0004: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b53f4: 6e10 e69e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.p:()Lkajfosz/antimatterdimensions/player/Player$Celestials; // method@9ee6
+8b53fa: 0c00                                   |0009: move-result-object v0
+8b53fc: 3800 1f00                              |000a: if-eqz v0, 0029 // +001f
+8b5400: 6e10 b69e 0000                         |000c: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Celestials;.f:()Lkajfosz/antimatterdimensions/player/Player$Teresa; // method@9eb6
+8b5406: 0c00                                   |000f: move-result-object v0
+8b5408: 3800 1900                              |0010: if-eqz v0, 0029 // +0019
+8b540c: 6e10 cf9e 0000                         |0012: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Teresa;.e:()D // method@9ecf
+8b5412: 0b00                                   |0015: move-result-wide v0
+8b5414: 1802 b49d d979 4378 ea44               |0016: const-wide v2, #double 1e+24 // #44ea784379d99db4
+8b541e: 2f02 0002                              |001b: cmpl-double v2, v0, v2
+8b5422: 3b02 0c00                              |001d: if-gez v2, 0029 // +000c
+8b5426: 1a03 8b5e                              |001f: const-string v3, "OREKI_TERESA_HOLD" // string@5e8b
+8b542a: 7120 b591 1000                         |0021: invoke-static {v0, v1}, Ljava/lang/String;.valueOf:(D)Ljava/lang/String; // method@91b5
+8b5430: 0c00                                   |0024: move-result-object v0
+8b5432: 7120 3d0e 0300                         |0025: invoke-static {v3, v0}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b5438: 2806                                   |0028: goto 002e // +0006
+8b543a: 1200                                   |0029: const/4 v0, #int 0 // #0
+8b543c: 0f00                                   |002a: return v0
+8b543e: 0d00                                   |002b: move-exception v0
+8b5440: 1200                                   |002c: const/4 v0, #int 0 // #0
+8b5442: 0f00                                   |002d: return v0
+8b5444: 6102 4f5c                              |002e: sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHoldSince:J // field@5c4f
+8b5448: 1600 0000                              |0030: const-wide/16 v0, #int 0 // #0
+8b544c: 3102 0200                              |0032: cmp-long v2, v2, v0
+8b5450: 3802 1a00                              |0034: if-eqz v2, 004e // +001a
+8b5454: 7100 bb0c 0000                         |0036: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b545a: 0b00                                   |0039: move-result-wide v0
+8b545c: 6102 4f5c                              |003a: sget-wide v2, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHoldSince:J // field@5c4f
+8b5460: 9c00 0002                              |003c: sub-long v0, v0, v2
+8b5464: 1702 20bf 0200                         |003e: const-wide/32 v2, #float 2.52234e-40 // #0002bf20
+8b546a: 3100 0002                              |0041: cmp-long v0, v0, v2
+8b546e: 3b00 1100                              |0043: if-gez v0, 0054 // +0011
+8b5472: 1a01 8b5e                              |0045: const-string v1, "OREKI_TERESA_HOLD" // string@5e8b
+8b5476: 1a02 ab94                              |0047: const-string v2, "hold timeout 180s -> release reality" // string@94ab
+8b547a: 7120 3d0e 2100                         |0049: invoke-static {v1, v2}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b5480: 1200                                   |004c: const/4 v0, #int 0 // #0
+8b5482: 0f00                                   |004d: return v0
+8b5484: 7100 bb0c 0000                         |004e: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b548a: 0b00                                   |0051: move-result-wide v0
+8b548c: 6800 4f5c                              |0052: sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHoldSince:J // field@5c4f
+8b5490: 1210                                   |0054: const/4 v0, #int 1 // #1
+8b5492: 0f00                                   |0055: return v0
+      catches       : 1
+        0x0000 - 0x0028
+          Ljava/lang/Throwable; -> 0x002b
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;)
+      name          : 'tick'
+      type          : '()Z'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 0
+      outs          : 1
+      insns size    : 47 16-bit code units
+8b54a4:                                        |[8b54a4] kajfosz.antimatterdimensions.oreki.OrekiTeresaAuto.tick:()Z
+8b54b4: 1203                                   |0000: const/4 v3, #int 0 // #0
+8b54b6: 6200 745c                              |0001: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b54ba: 6e10 df9e 0000                         |0003: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.Q:()Lkajfosz/antimatterdimensions/player/Player$Reality; // method@9edf
+8b54c0: 0c00                                   |0006: move-result-object v0
+8b54c2: 3800 1700                              |0007: if-eqz v0, 001e // +0017
+8b54c6: 6e10 c89e 0000                         |0009: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Reality;.D:()Lkajfosz/antimatterdimensions/BitSet; // method@9ec8
+8b54cc: 0c01                                   |000c: move-result-object v1
+8b54ce: 3801 1100                              |000d: if-eqz v1, 001e // +0011
+8b54d2: 6e10 a89d 0100                         |000f: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BitSet;.a:()I // method@9da8
+8b54d8: 0a01                                   |0012: move-result v1
+8b54da: 1302 1400                              |0013: const/16 v2, #int 20 // #14
+8b54de: 3521 0900                              |0015: if-ge v1, v2, 001e // +0009
+8b54e2: 1211                                   |0017: const/4 v1, #int 1 // #1
+8b54e4: 6a01 015c                              |0018: sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;.vp:Z // field@5c01
+8b54e8: 6a01 505c                              |001a: sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHolding:Z // field@5c50
+8b54ec: 0113                                   |001c: move v3, v1
+8b54ee: 280e                                   |001d: goto 002b // +000e
+8b54f0: 6301 505c                              |001e: sget-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHolding:Z // field@5c50
+8b54f4: 3801 0b00                              |0020: if-eqz v1, 002b // +000b
+8b54f8: 1201                                   |0022: const/4 v1, #int 0 // #0
+8b54fa: 6a01 015c                              |0023: sput-boolean v1, Lkajfosz/antimatterdimensions/MainActivity;.vp:Z // field@5c01
+8b54fe: 6a01 505c                              |0025: sput-boolean v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHolding:Z // field@5c50
+8b5502: 1601 0000                              |0027: const-wide/16 v1, #int 0 // #0
+8b5506: 6801 4f5c                              |0029: sput-wide v1, Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto;.sHoldSince:J // field@5c4f
+8b550a: 2803                                   |002b: goto 002e // +0003
+8b550c: 0d00                                   |002c: move-exception v0
+8b550e: 1203                                   |002d: const/4 v3, #int 0 // #0
+8b5510: 0f03                                   |002e: return v3
+      catches       : 1
+        0x0001 - 0x002b
+          Ljava/lang/Throwable; -> 0x002c
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6125            -

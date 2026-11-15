@@ -97,6 +97,11 @@ need_file "$REPORT"
 GAME_JAR=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['output']['game_jar'])" "$REPORT")
 need_file "$GAME_JAR"
 
+echo "[2.5/4] A 批协程 ABI fail-closed 守卫（R113-01）"
+# 5 个 MOD 新增类直接触碰官方混淆 Kotlin 运行时；其协程 ABI 必须全部绑定 shadow 集合。
+# 违反即失败：把 P0（运行期 NoSuchFieldError/NoSuchMethodError）提前成构建期失败。
+python3 "$ROOT/scripts/agp/check_a_batch_abi.py" --jar "$GAME_JAR"
+
 echo "[3/4] AGP Release APK 构建（variant=$VARIANT）"
 bash "$ROOT/scripts/agp/r109_build_ab.sh" --jar "$GAME_JAR" --variant "$VARIANT" --outdir "$OUTDIR/ab"
 case "$VARIANT" in

@@ -1,0 +1,74 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;)
+      name          : 'sInit'
+      type          : 'Z'
+      access        : 0x000a (PRIVATE STATIC)
+      value         : false
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;)
+      name          : 'sLastExp'
+      type          : 'I'
+      access        : 0x000a (PRIVATE STATIC)
+      value         : -2147483648
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;)
+      name          : 'tick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 0
+      outs          : 2
+      insns size    : 71 16-bit code units
+8b339c:                                        |[8b339c] kajfosz.antimatterdimensions.oreki.OrekiPelleRecord.tick:()V
+8b33ac: 7100 fb9d 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/celestials/pelle/c;.q:()Z // method@9dfb
+8b33b2: 0a00                                   |0003: move-result v0
+8b33b4: 3800 4000                              |0004: if-eqz v0, 0044 // +0040
+8b33b8: 6201 745c                              |0006: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b33bc: 6e10 e29e 0100                         |0008: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.b:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ee2
+8b33c2: 0c00                                   |000b: move-result-object v0
+8b33c4: 6e10 e69e 0100                         |000c: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.p:()Lkajfosz/antimatterdimensions/player/Player$Celestials; // method@9ee6
+8b33ca: 0c02                                   |000f: move-result-object v2
+8b33cc: 6e10 b59e 0200                         |0010: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Celestials;.d:()Lkajfosz/antimatterdimensions/player/Player$Pelle; // method@9eb5
+8b33d2: 0c02                                   |0013: move-result-object v2
+8b33d4: 6e10 bd9e 0200                         |0014: invoke-virtual {v2}, Lkajfosz/antimatterdimensions/player/Player$Pelle;.h:()Lkajfosz/antimatterdimensions/player/Player$PelleRecords; // method@9ebd
+8b33da: 0c03                                   |0017: move-result-object v3
+8b33dc: 6e10 be9e 0300                         |0018: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$PelleRecords;.a:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ebe
+8b33e2: 0c02                                   |001b: move-result-object v2
+8b33e4: 6e20 959d 2000                         |001c: invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(Lkajfosz/antimatterdimensions/BigDouble;)I // method@9d95
+8b33ea: 0a02                                   |001f: move-result v2
+8b33ec: 3d02 2400                              |0020: if-lez v2, 0044 // +0024
+8b33f0: 6e10 969d 0000                         |0022: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;.copy:()Lkajfosz/antimatterdimensions/BigDouble; // method@9d96
+8b33f6: 0c02                                   |0025: move-result-object v2
+8b33f8: 6e20 bf9e 2300                         |0026: invoke-virtual {v3, v2}, Lkajfosz/antimatterdimensions/player/Player$PelleRecords;.d:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9ebf
+8b33fe: 6e10 9f9d 0000                         |0029: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;.log10:()D // method@9d9f
+8b3404: 0b04                                   |002c: move-result-wide v4
+8b3406: 8a46                                   |002d: double-to-int v6, v4
+8b3408: 6303 315c                              |002e: sget-boolean v3, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;.sInit:Z // field@5c31
+8b340c: 3803 0600                              |0030: if-eqz v3, 0036 // +0006
+8b3410: 6007 325c                              |0032: sget v7, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;.sLastExp:I // field@5c32
+8b3414: 3376 1000                              |0034: if-ne v6, v7, 0044 // +0010
+8b3418: 1213                                   |0036: const/4 v3, #int 1 // #1
+8b341a: 6a03 315c                              |0037: sput-boolean v3, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;.sInit:Z // field@5c31
+8b341e: 6706 325c                              |0039: sput v6, Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord;.sLastExp:I // field@5c32
+8b3422: 7120 b591 5400                         |003b: invoke-static {v4, v5}, Ljava/lang/String;.valueOf:(D)Ljava/lang/String; // method@91b5
+8b3428: 0c03                                   |003e: move-result-object v3
+8b342a: 1a06 885e                              |003f: const-string v6, "OREKI_PELLE_REC" // string@5e88
+8b342e: 7120 3d0e 3600                         |0041: invoke-static {v6, v3}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3434: 2802                                   |0044: goto 0046 // +0002
+8b3436: 0d00                                   |0045: move-exception v0
+8b3438: 0e00                                   |0046: return-void
+      catches       : 1
+        0x0000 - 0x0044
+          Ljava/lang/Exception; -> 0x0045
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6120            -

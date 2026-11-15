@@ -1,0 +1,431 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiEternity;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'sEcHoldTtl'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'sEtBefore'
+      type          : 'D'
+      access        : 0x0009 (PUBLIC STATIC)
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'sEtPending'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'sEtTtl'
+      type          : 'I'
+      access        : 0x0009 (PUBLIC STATIC)
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'sRu10GaveUp'
+      type          : 'Z'
+      access        : 0x0009 (PUBLIC STATIC)
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'sRu10Since'
+      type          : 'D'
+      access        : 0x0009 (PUBLIC STATIC)
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'blocked'
+      type          : '(III)Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 7
+      ins           : 3
+      outs          : 0
+      insns size    : 65 16-bit code units
+8b2dac:                                        |[8b2dac] kajfosz.antimatterdimensions.oreki.OrekiEternity.blocked:(III)Z
+8b2dbc: 1203                                   |0000: const/4 v3, #int 0 // #0
+8b2dbe: 1302 0200                              |0001: const/16 v2, #int 2 // #2
+8b2dc2: 1300 7900                              |0003: const/16 v0, #int 121 // #79
+8b2dc6: 9101 0400                              |0005: sub-int v1, v4, v0
+8b2dca: 3431 0a00                              |0007: if-lt v1, v3, 0011 // +000a
+8b2dce: 3621 0800                              |0009: if-gt v1, v2, 0011 // +0008
+8b2dd2: 9100 0500                              |000b: sub-int v0, v5, v0
+8b2dd6: 3301 3200                              |000d: if-ne v1, v0, 003f // +0032
+8b2dda: 1200                                   |000f: const/4 v0, #int 0 // #0
+8b2ddc: 0f00                                   |0010: return v0
+8b2dde: 1300 8300                              |0011: const/16 v0, #int 131 // #83
+8b2de2: 9101 0400                              |0013: sub-int v1, v4, v0
+8b2de6: 3431 0c00                              |0015: if-lt v1, v3, 0021 // +000c
+8b2dea: 3621 0a00                              |0017: if-gt v1, v2, 0021 // +000a
+8b2dee: 9100 0500                              |0019: sub-int v0, v5, v0
+8b2df2: d800 000a                              |001b: add-int/lit8 v0, v0, #int 10 // #0a
+8b2df6: 3301 2200                              |001d: if-ne v1, v0, 003f // +0022
+8b2dfa: 1200                                   |001f: const/4 v0, #int 0 // #0
+8b2dfc: 0f00                                   |0020: return v0
+8b2dfe: 1300 8d00                              |0021: const/16 v0, #int 141 // #8d
+8b2e02: 9101 0400                              |0023: sub-int v1, v4, v0
+8b2e06: 3431 0c00                              |0025: if-lt v1, v3, 0031 // +000c
+8b2e0a: 3621 0a00                              |0027: if-gt v1, v2, 0031 // +000a
+8b2e0e: 9100 0500                              |0029: sub-int v0, v5, v0
+8b2e12: d800 0014                              |002b: add-int/lit8 v0, v0, #int 20 // #14
+8b2e16: 3301 1200                              |002d: if-ne v1, v0, 003f // +0012
+8b2e1a: 1200                                   |002f: const/4 v0, #int 0 // #0
+8b2e1c: 0f00                                   |0030: return v0
+8b2e1e: 1300 4700                              |0031: const/16 v0, #int 71 // #47
+8b2e22: 9101 0400                              |0033: sub-int v1, v4, v0
+8b2e26: 3431 0a00                              |0035: if-lt v1, v3, 003f // +000a
+8b2e2a: 3621 0800                              |0037: if-gt v1, v2, 003f // +0008
+8b2e2e: 9100 0600                              |0039: sub-int v0, v6, v0
+8b2e32: 3301 0400                              |003b: if-ne v1, v0, 003f // +0004
+8b2e36: 1200                                   |003d: const/4 v0, #int 0 // #0
+8b2e38: 0f00                                   |003e: return v0
+8b2e3a: 1210                                   |003f: const/4 v0, #int 1 // #1
+8b2e3c: 0f00                                   |0040: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'buyNormalStudies'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 14
+      ins           : 0
+      outs          : 3
+      insns size    : 121 16-bit code units
+8b2e40:                                        |[8b2e40] kajfosz.antimatterdimensions.oreki.OrekiEternity.buyNormalStudies:()V
+8b2e50: 1209                                   |0000: const/4 v9, #int 0 // #0
+8b2e52: 1216                                   |0001: const/4 v6, #int 1 // #1
+8b2e54: 130d 0c00                              |0002: const/16 v13, #int 12 // #c
+8b2e58: 36d6 1200                              |0004: if-gt v6, v13, 0016 // +0012
+8b2e5c: 7110 dfe7 0600                         |0006: invoke-static {v6}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b2e62: 0c07                                   |0009: move-result-object v7
+8b2e64: 3807 0800                              |000a: if-eqz v7, 0012 // +0008
+8b2e68: 6e10 079e 0700                         |000c: invoke-virtual {v7}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b2e6e: 0a08                                   |000f: move-result v8
+8b2e70: 3808 0500                              |0010: if-eqz v8, 0015 // +0005
+8b2e74: d806 0601                              |0012: add-int/lit8 v6, v6, #int 1 // #01
+8b2e78: 28f0                                   |0014: goto 0004 // -0010
+8b2e7a: 0169                                   |0015: move v9, v6
+8b2e7c: 130a 7900                              |0016: const/16 v10, #int 121 // #79
+8b2e80: 130d 0400                              |0018: const/16 v13, #int 4 // #4
+8b2e84: 33d9 0500                              |001a: if-ne v9, v13, 001f // +0005
+8b2e88: 130a 7b00                              |001c: const/16 v10, #int 123 // #7b
+8b2e8c: 2807                                   |001e: goto 0025 // +0007
+8b2e8e: 130d 0800                              |001f: const/16 v13, #int 8 // #8
+8b2e92: 33d9 0400                              |0021: if-ne v9, v13, 0025 // +0004
+8b2e96: 130a 7b00                              |0023: const/16 v10, #int 123 // #7b
+8b2e9a: 130b 4700                              |0025: const/16 v11, #int 71 // #47
+8b2e9e: 130d 0c00                              |0027: const/16 v13, #int 12 // #c
+8b2ea2: 7110 dfe7 0d00                         |0029: invoke-static {v13}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b2ea8: 0c07                                   |002c: move-result-object v7
+8b2eaa: 3807 1800                              |002d: if-eqz v7, 0045 // +0018
+8b2eae: 6e10 079e 0700                         |002f: invoke-virtual {v7}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b2eb4: 0a08                                   |0032: move-result v8
+8b2eb6: 3908 1200                              |0033: if-nez v8, 0045 // +0012
+8b2eba: 130d 0b00                              |0035: const/16 v13, #int 11 // #b
+8b2ebe: 7110 dfe7 0d00                         |0037: invoke-static {v13}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b2ec4: 0c07                                   |003a: move-result-object v7
+8b2ec6: 3807 0a00                              |003b: if-eqz v7, 0045 // +000a
+8b2eca: 6e10 079e 0700                         |003d: invoke-virtual {v7}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b2ed0: 0a08                                   |0040: move-result v8
+8b2ed2: 3808 0400                              |0041: if-eqz v8, 0045 // +0004
+8b2ed6: 130b 4900                              |0043: const/16 v11, #int 73 // #49
+8b2eda: 620c 0a5c                              |0045: sget-object v12, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b2ede: 6204 b892                              |0047: sget-object v4, Lw63;.d:Landroid/util/SparseIntArray; // field@92b8
+8b2ee2: 6e10 7d0e 0400                         |0049: invoke-virtual {v4}, Landroid/util/SparseIntArray;.size:()I // method@0e7d
+8b2ee8: 0a03                                   |004c: move-result v3
+8b2eea: 1202                                   |004d: const/4 v2, #int 0 // #0
+8b2eec: 3632 2800                              |004e: if-gt v2, v3, 0076 // +0028
+8b2ef0: 6e20 7b0e 2400                         |0050: invoke-virtual {v4, v2}, Landroid/util/SparseIntArray;.keyAt:(I)I // method@0e7b
+8b2ef6: 0a06                                   |0053: move-result v6
+8b2ef8: 7130 399e a60b                         |0054: invoke-static {v6, v10, v11}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.blocked:(III)Z // method@9e39
+8b2efe: 0a08                                   |0057: move-result v8
+8b2f00: 3908 1b00                              |0058: if-nez v8, 0073 // +001b
+8b2f04: 620d b792                              |005a: sget-object v13, Lw63;.a:Lw63; // field@92b7
+8b2f08: 7120 1fe2 6d00                         |005c: invoke-static {v13, v6}, Lw63;.a:(Lw63;I)Lkajfosz/antimatterdimensions/eternity/studies/c; // method@e21f
+8b2f0e: 0c07                                   |005f: move-result-object v7
+8b2f10: 3807 1300                              |0060: if-eqz v7, 0073 // +0013
+8b2f14: 6e10 139e 0700                         |0062: invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;.B:()Z // method@9e13
+8b2f1a: 0a08                                   |0065: move-result v8
+8b2f1c: 3908 0d00                              |0066: if-nez v8, 0073 // +000d
+8b2f20: 1218                                   |0068: const/4 v8, #int 1 // #1
+8b2f22: 6e20 129e 8700                         |0069: invoke-virtual {v7, v8}, Lkajfosz/antimatterdimensions/eternity/studies/c;.A:(Z)Z // method@9e12
+8b2f28: 0a08                                   |006c: move-result v8
+8b2f2a: 3808 0600                              |006d: if-eqz v8, 0073 // +0006
+8b2f2e: 1218                                   |006f: const/4 v8, #int 1 // #1
+8b2f30: 6e30 149e 870c                         |0070: invoke-virtual {v7, v8, v12}, Lkajfosz/antimatterdimensions/eternity/studies/c;.D:(ZLrj0;)Ljava/lang/Boolean; // method@9e14
+8b2f36: d802 0201                              |0073: add-int/lit8 v2, v2, #int 1 // #01
+8b2f3a: 28d9                                   |0075: goto 004e // -0027
+8b2f3c: 2802                                   |0076: goto 0078 // +0002
+8b2f3e: 0d0d                                   |0077: move-exception v13
+8b2f40: 0e00                                   |0078: return-void
+      catches       : 1
+        0x0000 - 0x0076
+          Ljava/lang/Throwable; -> 0x0077
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'buyTimeDimensions'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 5
+      ins           : 0
+      outs          : 3
+      insns size    : 38 16-bit code units
+8b2f54:                                        |[8b2f54] kajfosz.antimatterdimensions.oreki.OrekiEternity.buyTimeDimensions:()V
+8b2f64: 7100 419e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternityEconomy;.isEternityPointsBeyondReserve:()Z // method@9e41
+8b2f6a: 0a04                                   |0003: move-result v4
+8b2f6c: 3804 1f00                              |0004: if-eqz v4, 0023 // +001f
+8b2f70: 6200 745c                              |0006: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2f74: 6e10 e99e 0000                         |0008: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.v:()Lkajfosz/antimatterdimensions/player/Player$Dimensions; // method@9ee9
+8b2f7a: 0c00                                   |000b: move-result-object v0
+8b2f7c: 6e10 bb9e 0000                         |000c: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Dimensions;.c:()[Lkajfosz/antimatterdimensions/dimension/time/TimeDimensionState; // method@9ebb
+8b2f82: 0c00                                   |000f: move-result-object v0
+8b2f84: 2101                                   |0010: array-length v1, v0
+8b2f86: 1212                                   |0011: const/4 v2, #int 1 // #1
+8b2f88: 3612 1100                              |0012: if-gt v2, v1, 0023 // +0011
+8b2f8c: 7110 0b9e 0200                         |0014: invoke-static {v2}, Lkajfosz/antimatterdimensions/dimension/time/a;.a:(I)Lkajfosz/antimatterdimensions/dimension/time/TimeDimensionState; // method@9e0b
+8b2f92: 0c03                                   |0017: move-result-object v3
+8b2f94: 3803 0800                              |0018: if-eqz v3, 0020 // +0008
+8b2f98: 1214                                   |001a: const/4 v4, #int 1 // #1
+8b2f9a: 6200 0a5c                              |001b: sget-object v0, Lkajfosz/antimatterdimensions/OrekiEcContinuation;.a:Lkajfosz/antimatterdimensions/OrekiEcContinuation; // field@5c0a
+8b2f9e: 6e30 0a9e 4300                         |001d: invoke-virtual {v3, v4, v0}, Lkajfosz/antimatterdimensions/dimension/time/TimeDimensionState;.i:(ZLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object; // method@9e0a
+8b2fa4: d802 0201                              |0020: add-int/lit8 v2, v2, #int 1 // #01
+8b2fa8: 28f0                                   |0022: goto 0012 // -0010
+8b2faa: 2802                                   |0023: goto 0025 // +0002
+8b2fac: 0d00                                   |0024: move-exception v0
+8b2fae: 0e00                                   |0025: return-void
+      catches       : 1
+        0x0000 - 0x0023
+          Ljava/lang/Throwable; -> 0x0024
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'buyTimeTheorems'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 1
+      ins           : 0
+      outs          : 1
+      insns size    : 7 16-bit code units
+8b2fc0:                                        |[8b2fc0] kajfosz.antimatterdimensions.oreki.OrekiEternity.buyTimeTheorems:()V
+8b2fd0: 1210                                   |0000: const/4 v0, #int 1 // #1
+8b2fd2: 7110 309e 0000                         |0001: invoke-static {v0}, Lkajfosz/antimatterdimensions/oreki/GameApi;.timeTheoremBuyMax:(Z)J // method@9e30
+8b2fd8: 2802                                   |0004: goto 0006 // +0002
+8b2fda: 0d00                                   |0005: move-exception v0
+8b2fdc: 0e00                                   |0006: return-void
+      catches       : 1
+        0x0000 - 0x0004
+          Ljava/lang/Throwable; -> 0x0005
+      positions     :
+      locals        :
+
+    #4              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'ecHoldForStart'
+      type          : '()Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 6
+      ins           : 0
+      outs          : 1
+      insns size    : 51 16-bit code units
+8b2ff0:                                        |[8b2ff0] kajfosz.antimatterdimensions.oreki.OrekiEternity.ecHoldForStart:()Z
+8b3000: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b3004: 6e10 e79e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.q:()Lkajfosz/antimatterdimensions/player/Player$Challenge; // method@9ee7
+8b300a: 0c00                                   |0005: move-result-object v0
+8b300c: 6e10 b79e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.a:()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges; // method@9eb7
+8b3012: 0c01                                   |0009: move-result-object v1
+8b3014: 6e10 c09e 0100                         |000a: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.b:()I // method@9ec0
+8b301a: 0a02                                   |000d: move-result v2
+8b301c: 3902 2100                              |000e: if-nez v2, 002f // +0021
+8b3020: 6e10 c29e 0100                         |0010: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.f:()I // method@9ec2
+8b3026: 0a03                                   |0013: move-result v3
+8b3028: 3d03 1b00                              |0014: if-lez v3, 002f // +001b
+8b302c: 7110 dfe7 0300                         |0016: invoke-static {v3}, Lx81;.a:(I)Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7df
+8b3032: 0c04                                   |0019: move-result-object v4
+8b3034: 3804 1500                              |001a: if-eqz v4, 002f // +0015
+8b3038: 6e10 079e 0400                         |001c: invoke-virtual {v4}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b303e: 0a05                                   |001f: move-result v5
+8b3040: 3805 0f00                              |0020: if-eqz v5, 002f // +000f
+8b3044: 6000 2b5c                              |0022: sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEcHoldTtl:I // field@5c2b
+8b3048: 1301 2c01                              |0024: const/16 v1, #int 300 // #12c
+8b304c: 3510 0300                              |0026: if-ge v0, v1, 0029 // +0003
+8b3050: 2807                                   |0028: goto 002f // +0007
+8b3052: d800 0001                              |0029: add-int/lit8 v0, v0, #int 1 // #01
+8b3056: 6700 2b5c                              |002b: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEcHoldTtl:I // field@5c2b
+8b305a: 1210                                   |002d: const/4 v0, #int 1 // #1
+8b305c: 0f00                                   |002e: return v0
+8b305e: 1200                                   |002f: const/4 v0, #int 0 // #0
+8b3060: 6700 2b5c                              |0030: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEcHoldTtl:I // field@5c2b
+8b3064: 0f00                                   |0032: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #5              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'holdForRu10'
+      type          : '()Z'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 8
+      ins           : 0
+      outs          : 3
+      insns size    : 85 16-bit code units
+8b3068:                                        |[8b3068] kajfosz.antimatterdimensions.oreki.OrekiEternity.holdForRu10:()Z
+8b3078: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b307c: 6e10 ea9e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.x:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eea
+8b3082: 0c00                                   |0005: move-result-object v0
+8b3084: 2201 ba1d                              |0006: new-instance v1, Lkajfosz/antimatterdimensions/BigDouble; // type@1dba
+8b3088: 1602 0000                              |0008: const-wide/16 v2, #int 0 // #0
+8b308c: 7030 869d 2103                         |000a: invoke-direct {v1, v2, v3}, Lkajfosz/antimatterdimensions/BigDouble;.<init>:(D)V // method@9d86
+8b3092: 6e20 959d 1000                         |000d: invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(Lkajfosz/antimatterdimensions/BigDouble;)I // method@9d95
+8b3098: 0a00                                   |0010: move-result v0
+8b309a: 3c00 4000                              |0011: if-gtz v0, 0051 // +0040
+8b309e: 6300 2f5c                              |0013: sget-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sRu10GaveUp:Z // field@5c2f
+8b30a2: 3900 3c00                              |0015: if-nez v0, 0051 // +003c
+8b30a6: 6200 745c                              |0017: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b30aa: 6e10 db9e 0000                         |0019: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.D:()Lkajfosz/antimatterdimensions/BigDouble; // method@9edb
+8b30b0: 0c00                                   |001c: move-result-object v0
+8b30b2: 6e10 9f9d 0000                         |001d: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;.log10:()D // method@9d9f
+8b30b8: 0b04                                   |0020: move-result-wide v4
+8b30ba: 1806 0000 0000 0000 7940               |0021: const-wide v6, #double 400 // #4079000000000000
+8b30c4: 2f00 0406                              |0026: cmpl-double v0, v4, v6
+8b30c8: 3b00 2900                              |0028: if-gez v0, 0051 // +0029
+8b30cc: 6104 305c                              |002a: sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sRu10Since:D // field@5c30
+8b30d0: 1606 0000                              |002c: const-wide/16 v6, #int 0 // #0
+8b30d4: 2f00 0406                              |002e: cmpl-double v0, v4, v6
+8b30d8: 3900 1200                              |0030: if-nez v0, 0042 // +0012
+8b30dc: 7100 bb0c 0000                         |0032: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b30e2: 0b06                                   |0035: move-result-wide v6
+8b30e4: 8666                                   |0036: long-to-double v6, v6
+8b30e6: cc46                                   |0037: sub-double/2addr v6, v4
+8b30e8: 1804 0000 0000 0000 2440               |0038: const-wide v4, #double 10 // #4024000000000000
+8b30f2: 2f00 0604                              |003d: cmpl-double v0, v6, v4
+8b30f6: 3c00 0b00                              |003f: if-gtz v0, 004a // +000b
+8b30fa: 2812                                   |0041: goto 0053 // +0012
+8b30fc: 7100 bb0c 0000                         |0042: invoke-static {}, Landroid/os/SystemClock;.elapsedRealtime:()J // method@0cbb
+8b3102: 0b04                                   |0045: move-result-wide v4
+8b3104: 8644                                   |0046: long-to-double v4, v4
+8b3106: 6804 305c                              |0047: sput-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sRu10Since:D // field@5c30
+8b310a: 280a                                   |0049: goto 0053 // +000a
+8b310c: 1210                                   |004a: const/4 v0, #int 1 // #1
+8b310e: 6a00 2f5c                              |004b: sput-boolean v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sRu10GaveUp:Z // field@5c2f
+8b3112: 1604 0000                              |004d: const-wide/16 v4, #int 0 // #0
+8b3116: 6804 305c                              |004f: sput-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sRu10Since:D // field@5c30
+8b311a: 1200                                   |0051: const/4 v0, #int 0 // #0
+8b311c: 0f00                                   |0052: return v0
+8b311e: 1210                                   |0053: const/4 v0, #int 1 // #1
+8b3120: 0f00                                   |0054: return v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #6              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'tick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 0
+      ins           : 0
+      outs          : 0
+      insns size    : 13 16-bit code units
+8b3124:                                        |[8b3124] kajfosz.antimatterdimensions.oreki.OrekiEternity.tick:()V
+8b3134: 7100 3c9e 0000                         |0000: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.buyTimeTheorems:()V // method@9e3c
+8b313a: 7100 3b9e 0000                         |0003: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.buyTimeDimensions:()V // method@9e3b
+8b3140: 7100 3a9e 0000                         |0006: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.buyNormalStudies:()V // method@9e3a
+8b3146: 7100 409e 0000                         |0009: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.tryEternity:()V // method@9e40
+8b314c: 0e00                                   |000c: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #7              : (in Lkajfosz/antimatterdimensions/oreki/OrekiEternity;)
+      name          : 'tryEternity'
+      type          : '()V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 10
+      ins           : 0
+      outs          : 2
+      insns size    : 130 16-bit code units
+8b3150:                                        |[8b3150] kajfosz.antimatterdimensions.oreki.OrekiEternity.tryEternity:()V
+8b3160: 6000 2d5c                              |0000: sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtPending:I // field@5c2d
+8b3164: 3800 2300                              |0002: if-eqz v0, 0025 // +0023
+8b3168: 6201 745c                              |0004: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b316c: 6e10 ea9e 0100                         |0006: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.x:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eea
+8b3172: 0c01                                   |0009: move-result-object v1
+8b3174: 6e10 9f9d 0100                         |000a: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;.log10:()D // method@9d9f
+8b317a: 0b02                                   |000d: move-result-wide v2
+8b317c: 6104 2c5c                              |000e: sget-wide v4, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtBefore:D // field@5c2c
+8b3180: 2f00 0204                              |0010: cmpl-double v0, v2, v4
+8b3184: 3800 0600                              |0012: if-eqz v0, 0018 // +0006
+8b3188: 1200                                   |0014: const/4 v0, #int 0 // #0
+8b318a: 6700 2d5c                              |0015: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtPending:I // field@5c2d
+8b318e: 285f                                   |0017: goto 0076 // +005f
+8b3190: 6000 2e5c                              |0018: sget v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtTtl:I // field@5c2e
+8b3194: d800 00ff                              |001a: add-int/lit8 v0, v0, #int -1 // #ff
+8b3198: 6700 2e5c                              |001c: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtTtl:I // field@5c2e
+8b319c: 3d00 0300                              |001e: if-lez v0, 0021 // +0003
+8b31a0: 2856                                   |0020: goto 0076 // +0056
+8b31a2: 1200                                   |0021: const/4 v0, #int 0 // #0
+8b31a4: 6700 2d5c                              |0022: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtPending:I // field@5c2d
+8b31a8: 2852                                   |0024: goto 0076 // +0052
+8b31aa: 7100 539e 0000                         |0025: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStageAuto;.holdCrunch:()Z // method@9e53
+8b31b0: 0a00                                   |0028: move-result v0
+8b31b2: 3900 4d00                              |0029: if-nez v0, 0076 // +004d
+8b31b6: 7100 ef9e 0000                         |002b: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;.f:()Z // method@9eef
+8b31bc: 0a00                                   |002e: move-result v0
+8b31be: 3800 4700                              |002f: if-eqz v0, 0076 // +0047
+8b31c2: 7100 3e9e 0000                         |0031: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.holdForRu10:()Z // method@9e3e
+8b31c8: 0a00                                   |0034: move-result v0
+8b31ca: 3900 4100                              |0035: if-nez v0, 0076 // +0041
+8b31ce: 7100 3d9e 0000                         |0037: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.ecHoldForStart:()Z // method@9e3d
+8b31d4: 0a00                                   |003a: move-result v0
+8b31d6: 3900 3b00                              |003b: if-nez v0, 0076 // +003b
+8b31da: 7100 f09e 0000                         |003d: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;.g:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ef0
+8b31e0: 0c00                                   |0040: move-result-object v0
+8b31e2: 6201 745c                              |0041: sget-object v1, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b31e6: 6e10 eb9e 0100                         |0043: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player;.y:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eeb
+8b31ec: 0c01                                   |0046: move-result-object v1
+8b31ee: 6e10 969d 0100                         |0047: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;.copy:()Lkajfosz/antimatterdimensions/BigDouble; // method@9d96
+8b31f4: 0c01                                   |004a: move-result-object v1
+8b31f6: 7100 429e 0000                         |004b: invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiEternityRules;.eternitySettlementMultiplier:()I // method@9e42
+8b31fc: 0a02                                   |004e: move-result v2
+8b31fe: 6e20 a09d 2100                         |004f: invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;.multiply:(I)Lkajfosz/antimatterdimensions/BigDouble; // method@9da0
+8b3204: 0c01                                   |0052: move-result-object v1
+8b3206: 6e20 959d 1000                         |0053: invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(Lkajfosz/antimatterdimensions/BigDouble;)I // method@9d95
+8b320c: 0a00                                   |0056: move-result v0
+8b320e: 3a00 1f00                              |0057: if-ltz v0, 0076 // +001f
+8b3212: 7100 ee9e 0000                         |0059: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;.run:()V // method@9eee
+8b3218: 1210                                   |005c: const/4 v0, #int 1 // #1
+8b321a: 6700 2d5c                              |005d: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtPending:I // field@5c2d
+8b321e: 1300 5802                              |005f: const/16 v0, #int 600 // #258
+8b3222: 6700 2e5c                              |0061: sput v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtTtl:I // field@5c2e
+8b3226: 6200 745c                              |0063: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b322a: 6e10 ea9e 0000                         |0065: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.x:()Lkajfosz/antimatterdimensions/BigDouble; // method@9eea
+8b3230: 0c00                                   |0068: move-result-object v0
+8b3232: 6e10 9f9d 0000                         |0069: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/BigDouble;.log10:()D // method@9d9f
+8b3238: 0b00                                   |006c: move-result-wide v0
+8b323a: 6800 2c5c                              |006d: sput-wide v0, Lkajfosz/antimatterdimensions/oreki/OrekiEternity;.sEtBefore:D // field@5c2c
+8b323e: 1a00 815e                              |006f: const-string v0, "OREKI_ET" // string@5e81
+8b3242: 1a01 3299                              |0071: const-string v1, "launch via OrekiEternityLaunch (original no-confirm path)" // string@9932
+8b3246: 7120 3d0e 1000                         |0073: invoke-static {v0, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b324c: 280b                                   |0076: goto 0081 // +000b
+8b324e: 0d00                                   |0077: move-exception v0
+8b3250: 6e10 1392 0000                         |0078: invoke-virtual {v0}, Ljava/lang/Throwable;.getMessage:()Ljava/lang/String; // method@9213
+8b3256: 0c01                                   |007b: move-result-object v1
+8b3258: 1a02 825e                              |007c: const-string v2, "OREKI_ET_EXC" // string@5e82
+8b325c: 7120 3d0e 1200                         |007e: invoke-static {v2, v1}, Landroid/util/Log;.i:(Ljava/lang/String;Ljava/lang/String;)I // method@0e3d
+8b3262: 0e00                                   |0081: return-void
+      catches       : 1
+        0x0000 - 0x0076
+          Ljava/lang/Throwable; -> 0x0077
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6118            -

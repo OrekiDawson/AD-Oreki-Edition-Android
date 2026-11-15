@@ -1,0 +1,222 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/OrekiInstantChallenge;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/OrekiInstantChallenge;)
+      name          : 'restoreMaxAM'
+      type          : '(Lkajfosz/antimatterdimensions/BigDouble;)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 2
+      ins           : 1
+      outs          : 2
+      insns size    : 14 16-bit code units
+8b1f0c:                                        |[8b1f0c] kajfosz.antimatterdimensions.OrekiInstantChallenge.restoreMaxAM:(Lkajfosz/antimatterdimensions/BigDouble;)V
+8b1f1c: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b1f20: 6e10 e09e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b1f26: 0c00                                   |0005: move-result-object v0
+8b1f28: 6e10 cd9e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Records;.k:()Lkajfosz/antimatterdimensions/player/Player$ThisInfinity; // method@9ecd
+8b1f2e: 0c00                                   |0009: move-result-object v0
+8b1f30: 6e20 d89e 1000                         |000a: invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;.j:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9ed8
+8b1f36: 0e00                                   |000d: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #1              : (in Lkajfosz/antimatterdimensions/OrekiInstantChallenge;)
+      name          : 'rewardAntimatter'
+      type          : '(Lkajfosz/antimatterdimensions/challenge/antimatter/b;)Lkajfosz/antimatterdimensions/BigDouble;'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 11
+      ins           : 1
+      outs          : 3
+      insns size    : 122 16-bit code units
+8b1f38:                                        |[8b1f38] kajfosz.antimatterdimensions.OrekiInstantChallenge.rewardAntimatter:(Lkajfosz/antimatterdimensions/challenge/antimatter/b;)Lkajfosz/antimatterdimensions/BigDouble;
+8b1f48: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b1f4c: 6e10 e09e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b1f52: 0c00                                   |0005: move-result-object v0
+8b1f54: 6e10 cd9e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Records;.k:()Lkajfosz/antimatterdimensions/player/Player$ThisInfinity; // method@9ecd
+8b1f5a: 0c00                                   |0009: move-result-object v0
+8b1f5c: 6e10 d59e 0000                         |000a: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;.d:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ed5
+8b1f62: 0c01                                   |000d: move-result-object v1
+8b1f64: 6e10 fd9d 0a00                         |000e: invoke-virtual {v10}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.J:()Lkajfosz/antimatterdimensions/BigDouble; // method@9dfd
+8b1f6a: 0c02                                   |0011: move-result-object v2
+8b1f6c: 6e20 959d 2100                         |0012: invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(Lkajfosz/antimatterdimensions/BigDouble;)I // method@9d95
+8b1f72: 0a03                                   |0015: move-result v3
+8b1f74: 3b03 0500                              |0016: if-gez v3, 001b // +0005
+8b1f78: 6e20 d89e 2000                         |0018: invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;.j:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9ed8
+8b1f7e: 6203 ee54                              |001b: sget-object v3, Liq0;.w:Lyp0; // field@54ee
+8b1f82: 7100 f39e 0000                         |001d: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;.d:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ef3
+8b1f88: 0c04                                   |0020: move-result-object v4
+8b1f8a: 6e20 4870 4300                         |0021: invoke-virtual {v3, v4}, Ldw;.C:(Lkajfosz/antimatterdimensions/BigDouble;)Liq0; // method@7048
+8b1f90: 7100 f29e 0000                         |0024: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;.c:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ef2
+8b1f96: 0c04                                   |0027: move-result-object v4
+8b1f98: 1605 0000                              |0028: const-wide/16 v5, #int 0 // #0
+8b1f9c: 6e30 a49d 5406                         |002a: invoke-virtual {v4, v5, v6}, Lkajfosz/antimatterdimensions/BigDouble;.round:(J)Lkajfosz/antimatterdimensions/BigDouble; // method@9da4
+8b1fa2: 0c04                                   |002d: move-result-object v4
+8b1fa4: 6203 eb54                              |002e: sget-object v3, Liq0;.e:Lpp0; // field@54eb
+8b1fa8: 6e20 4870 4300                         |0030: invoke-virtual {v3, v4}, Ldw;.C:(Lkajfosz/antimatterdimensions/BigDouble;)Liq0; // method@7048
+8b1fae: 7100 f49e 0000                         |0033: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/e;.l:()V // method@9ef4
+8b1fb4: 6203 745c                              |0036: sget-object v3, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b1fb8: 6e10 e09e 0300                         |0038: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b1fbe: 0c03                                   |003b: move-result-object v3
+8b1fc0: 6e10 cc9e 0300                         |003c: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$Records;.j:()Lkajfosz/antimatterdimensions/player/Player$ThisEternity; // method@9ecc
+8b1fc6: 0c03                                   |003f: move-result-object v3
+8b1fc8: 6e10 d19e 0300                         |0040: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.g:()Lku4; // method@9ed1
+8b1fce: 0c04                                   |0043: move-result-object v4
+8b1fd0: 7110 dd9d 0400                         |0044: invoke-static {v4}, Lkajfosz/antimatterdimensions/OrekiSpeed;.migrateBest:(Lku4;)V // method@9ddd
+8b1fd6: 6e10 d79e 0000                         |0047: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;.f:()Lku4; // method@9ed7
+8b1fdc: 0c05                                   |004a: move-result-object v5
+8b1fde: 5355 105f                              |004b: iget-wide v5, v5, Lku4;.a:D // field@5f10
+8b1fe2: 7120 e89d 6500                         |004d: invoke-static {v5, v6}, Lkajfosz/antimatterdimensions/OrekiSpeed;.unscale:(D)D // method@9de8
+8b1fe8: 0b05                                   |0050: move-result-wide v5
+8b1fea: 5347 105f                              |0051: iget-wide v7, v4, Lku4;.a:D // field@5f10
+8b1fee: 3009 0507                              |0053: cmpg-double v9, v5, v7
+8b1ff2: 3a09 0400                              |0055: if-ltz v9, 0059 // +0004
+8b1ff6: 5a45 105f                              |0057: iput-wide v5, v4, Lku4;.a:D // field@5f10
+8b1ffa: 6e10 d09e 0300                         |0059: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.f:()Lku4; // method@9ed0
+8b2000: 0c04                                   |005c: move-result-object v4
+8b2002: 6e10 d69e 0000                         |005d: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$ThisInfinity;.e:()Lku4; // method@9ed6
+8b2008: 0c05                                   |0060: move-result-object v5
+8b200a: 5355 105f                              |0061: iget-wide v5, v5, Lku4;.a:D // field@5f10
+8b200e: 5347 105f                              |0063: iget-wide v7, v4, Lku4;.a:D // field@5f10
+8b2012: 3009 0507                              |0065: cmpg-double v9, v5, v7
+8b2016: 3a09 0400                              |0067: if-ltz v9, 006b // +0004
+8b201a: 5a45 105f                              |0069: iput-wide v5, v4, Lku4;.a:D // field@5f10
+8b201e: 6203 745c                              |006b: sget-object v3, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2022: 6e10 e19e 0300                         |006d: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player;.T:()Lkajfosz/antimatterdimensions/player/Player$RequirementChecks; // method@9ee1
+8b2028: 0c03                                   |0070: move-result-object v3
+8b202a: 6e10 ce9e 0300                         |0071: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/player/Player$RequirementChecks;.d:()Lkajfosz/antimatterdimensions/player/Player$RealityChecks; // method@9ece
+8b2030: 0c03                                   |0074: move-result-object v3
+8b2032: 1204                                   |0075: const/4 v4, #int 0 // #0
+8b2034: 6e20 ca9e 4300                         |0076: invoke-virtual {v3, v4}, Lkajfosz/antimatterdimensions/player/Player$RealityChecks;.q:(Z)V // method@9eca
+8b203a: 1101                                   |0079: return-object v1
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #2              : (in Lkajfosz/antimatterdimensions/OrekiInstantChallenge;)
+      name          : 'rewardEternity'
+      type          : '(Lkajfosz/antimatterdimensions/challenge/eternity/b;I)V'
+      access        : 0x000a (PRIVATE STATIC)
+      code          -
+      registers     : 8
+      ins           : 2
+      outs          : 2
+      insns size    : 45 16-bit code units
+8b203c:                                        |[8b203c] kajfosz.antimatterdimensions.OrekiInstantChallenge.rewardEternity:(Lkajfosz/antimatterdimensions/challenge/eternity/b;I)V
+8b204c: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b2050: 6e10 e09e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.R:()Lkajfosz/antimatterdimensions/player/Player$Records; // method@9ee0
+8b2056: 0c00                                   |0005: move-result-object v0
+8b2058: 6e10 cc9e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Records;.j:()Lkajfosz/antimatterdimensions/player/Player$ThisEternity; // method@9ecc
+8b205e: 0c00                                   |0009: move-result-object v0
+8b2060: 6e10 d39e 0000                         |000a: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.i:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ed3
+8b2066: 0c01                                   |000d: move-result-object v1
+8b2068: d802 07ff                              |000e: add-int/lit8 v2, v7, #int -1 // #ff
+8b206c: 3a02 0300                              |0010: if-ltz v2, 0013 // +0003
+8b2070: 1202                                   |0012: const/4 v2, #int 0 // #0
+8b2072: 6e20 069e 2600                         |0013: invoke-virtual {v6, v2}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.M:(I)Lkajfosz/antimatterdimensions/BigDouble; // method@9e06
+8b2078: 0c02                                   |0016: move-result-object v2
+8b207a: 6e20 959d 2100                         |0017: invoke-virtual {v1, v2}, Lkajfosz/antimatterdimensions/BigDouble;.compareTo:(Lkajfosz/antimatterdimensions/BigDouble;)I // method@9d95
+8b2080: 0a03                                   |001a: move-result v3
+8b2082: 3b03 0500                              |001b: if-gez v3, 0020 // +0005
+8b2086: 6e20 d49e 2000                         |001d: invoke-virtual {v0, v2}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.t:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9ed4
+8b208c: 6203 e854                              |0020: sget-object v3, Liq0;.S:Lvp0; // field@54e8
+8b2090: 7100 f09e 0000                         |0022: invoke-static {}, Lkajfosz/antimatterdimensions/prestige/c;.g:()Lkajfosz/antimatterdimensions/BigDouble; // method@9ef0
+8b2096: 0c04                                   |0025: move-result-object v4
+8b2098: 6e20 4870 4300                         |0026: invoke-virtual {v3, v4}, Ldw;.C:(Lkajfosz/antimatterdimensions/BigDouble;)Liq0; // method@7048
+8b209e: 6e20 d49e 1000                         |0029: invoke-virtual {v0, v1}, Lkajfosz/antimatterdimensions/player/Player$ThisEternity;.t:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9ed4
+8b20a4: 0e00                                   |002c: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+    #3              : (in Lkajfosz/antimatterdimensions/OrekiInstantChallenge;)
+      name          : 'tick'
+      type          : '()V'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 8
+      ins           : 0
+      outs          : 2
+      insns size    : 136 16-bit code units
+8b20a8:                                        |[8b20a8] kajfosz.antimatterdimensions.OrekiInstantChallenge.tick:()V
+8b20b8: 6200 745c                              |0000: sget-object v0, Lkajfosz/antimatterdimensions/player/Player;.a:Lkajfosz/antimatterdimensions/player/Player; // field@5c74
+8b20bc: 6e10 e79e 0000                         |0002: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player;.q:()Lkajfosz/antimatterdimensions/player/Player$Challenge; // method@9ee7
+8b20c2: 0c00                                   |0005: move-result-object v0
+8b20c4: 6e10 b99e 0000                         |0006: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.c:()Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges; // method@9eb9
+8b20ca: 0c01                                   |0009: move-result-object v1
+8b20cc: 6e10 c69e 0100                         |000a: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges;.g:()I // method@9ec6
+8b20d2: 0a02                                   |000d: move-result v2
+8b20d4: 3d02 1b00                              |000e: if-lez v2, 0029 // +001b
+8b20d8: 7110 74b1 0200                         |0010: invoke-static {v2}, Ln63;.a:(I)Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a; // method@b174
+8b20de: 0c03                                   |0013: move-result-object v3
+8b20e0: 6e10 fe9d 0300                         |0014: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.K:()Z // method@9dfe
+8b20e6: 0a04                                   |0017: move-result v4
+8b20e8: 3904 0d00                              |0018: if-nez v4, 0025 // +000d
+8b20ec: 7110 d29d 0300                         |001a: invoke-static {v3}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;.rewardAntimatter:(Lkajfosz/antimatterdimensions/challenge/antimatter/b;)Lkajfosz/antimatterdimensions/BigDouble; // method@9dd2
+8b20f2: 0c05                                   |001d: move-result-object v5
+8b20f4: 1206                                   |001e: const/4 v6, #int 0 // #0
+8b20f6: 6e20 fc9d 6300                         |001f: invoke-virtual {v3, v6}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.E:(Z)V // method@9dfc
+8b20fc: 7110 d19d 0500                         |0022: invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;.restoreMaxAM:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9dd1
+8b2102: 1204                                   |0025: const/4 v4, #int 0 // #0
+8b2104: 6e20 c79e 4100                         |0026: invoke-virtual {v1, v4}, Lkajfosz/antimatterdimensions/player/Player$PlayerNormalChallenges;.n:(I)V // method@9ec7
+8b210a: 6e10 b89e 0000                         |0029: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.b:()Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges; // method@9eb8
+8b2110: 0c01                                   |002c: move-result-object v1
+8b2112: 6e10 c49e 0100                         |002d: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;.c:()I // method@9ec4
+8b2118: 0a02                                   |0030: move-result v2
+8b211a: 3d02 1d00                              |0031: if-lez v2, 004e // +001d
+8b211e: 7100 1c45 0000                         |0033: invoke-static {}, Lc22;.c:()Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a; // method@451c
+8b2124: 0c03                                   |0036: move-result-object v3
+8b2126: 3803 1300                              |0037: if-eqz v3, 004a // +0013
+8b212a: 6e10 fe9d 0300                         |0039: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.K:()Z // method@9dfe
+8b2130: 0a04                                   |003c: move-result v4
+8b2132: 3904 0d00                              |003d: if-nez v4, 004a // +000d
+8b2136: 7110 d29d 0300                         |003f: invoke-static {v3}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;.rewardAntimatter:(Lkajfosz/antimatterdimensions/challenge/antimatter/b;)Lkajfosz/antimatterdimensions/BigDouble; // method@9dd2
+8b213c: 0c05                                   |0042: move-result-object v5
+8b213e: 1206                                   |0043: const/4 v6, #int 0 // #0
+8b2140: 6e20 fc9d 6300                         |0044: invoke-virtual {v3, v6}, Lkajfosz/antimatterdimensions/challenge/antimatter/b;.E:(Z)V // method@9dfc
+8b2146: 7110 d19d 0500                         |0047: invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;.restoreMaxAM:(Lkajfosz/antimatterdimensions/BigDouble;)V // method@9dd1
+8b214c: 1204                                   |004a: const/4 v4, #int 0 // #0
+8b214e: 6e20 c59e 4100                         |004b: invoke-virtual {v1, v4}, Lkajfosz/antimatterdimensions/player/Player$PlayerInfinityChallenges;.i:(I)V // method@9ec5
+8b2154: 6e10 b79e 0000                         |004e: invoke-virtual {v0}, Lkajfosz/antimatterdimensions/player/Player$Challenge;.a:()Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges; // method@9eb7
+8b215a: 0c01                                   |0051: move-result-object v1
+8b215c: 6e10 c09e 0100                         |0052: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.b:()I // method@9ec0
+8b2162: 0a02                                   |0055: move-result v2
+8b2164: 3d02 3100                              |0056: if-lez v2, 0087 // +0031
+8b2168: 7100 e0e7 0000                         |0058: invoke-static {}, Lx81;.c:()Lkajfosz/antimatterdimensions/challenge/eternity/b; // method@e7e0
+8b216e: 0c03                                   |005b: move-result-object v3
+8b2170: 3803 2000                              |005c: if-eqz v3, 007c // +0020
+8b2174: 6e10 059e 0300                         |005e: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.I:()I // method@9e05
+8b217a: 0a06                                   |0061: move-result v6
+8b217c: 1305 d007                              |0062: const/16 v5, #int 2000 // #7d0
+8b2180: 6e10 079e 0300                         |0064: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.y:()Z // method@9e07
+8b2186: 0a04                                   |0067: move-result v4
+8b2188: 3904 0b00                              |0068: if-nez v4, 0073 // +000b
+8b218c: d805 05ff                              |006a: add-int/lit8 v5, v5, #int -1 // #ff
+8b2190: 3d05 0700                              |006c: if-lez v5, 0073 // +0007
+8b2194: 1204                                   |006e: const/4 v4, #int 0 // #0
+8b2196: 6e20 049e 4300                         |006f: invoke-virtual {v3, v4}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.F:(Z)V // method@9e04
+8b219c: 28f2                                   |0072: goto 0064 // -000e
+8b219e: 6e10 059e 0300                         |0073: invoke-virtual {v3}, Lkajfosz/antimatterdimensions/challenge/eternity/b;.I:()I // method@9e05
+8b21a4: 0a04                                   |0076: move-result v4
+8b21a6: 3764 0500                              |0077: if-le v4, v6, 007c // +0005
+8b21aa: 7120 d39d 4300                         |0079: invoke-static {v3, v4}, Lkajfosz/antimatterdimensions/OrekiInstantChallenge;.rewardEternity:(Lkajfosz/antimatterdimensions/challenge/eternity/b;I)V // method@9dd3
+8b21b0: 6e10 c19e 0100                         |007c: invoke-virtual {v1}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.e:()Lkajfosz/antimatterdimensions/BitSet; // method@9ec1
+8b21b6: 0c04                                   |007f: move-result-object v4
+8b21b8: 6e20 a99d 2400                         |0080: invoke-virtual {v4, v2}, Lkajfosz/antimatterdimensions/BitSet;.c:(I)V // method@9da9
+8b21be: 1204                                   |0083: const/4 v4, #int 0 // #0
+8b21c0: 6e20 c39e 4100                         |0084: invoke-virtual {v1, v4}, Lkajfosz/antimatterdimensions/player/Player$PlayerEternityChallenges;.h:(I)V // method@9ec3
+8b21c6: 0e00                                   |0087: return-void
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6115            -

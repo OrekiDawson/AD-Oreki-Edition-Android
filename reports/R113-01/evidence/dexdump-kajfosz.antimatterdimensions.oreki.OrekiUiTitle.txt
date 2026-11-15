@@ -1,0 +1,45 @@
+  Class descriptor  : 'Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle;'
+  Access flags      : 0x0011 (PUBLIC FINAL)
+  Superclass        : 'Ljava/lang/Object;'
+  Interfaces        -
+  Static fields     -
+  Instance fields   -
+  Direct methods    -
+    #0              : (in Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle;)
+      name          : 'of'
+      type          : '(Lyn4;)Ljava/lang/String;'
+      access        : 0x0009 (PUBLIC STATIC)
+      code          -
+      registers     : 4
+      ins           : 1
+      outs          : 2
+      insns size    : 41 16-bit code units
+8b5524:                                        |[8b5524] kajfosz.antimatterdimensions.oreki.OrekiUiTitle.of:(Lyn4;)Ljava/lang/String;
+8b5534: 6e10 b8ca 0300                         |0000: invoke-virtual {v3}, Lrq4;.a:()Ljava/lang/String; // method@cab8
+8b553a: 0c00                                   |0003: move-result-object v0
+8b553c: 5431 b19c                              |0004: iget-object v1, v3, Lyn4;.j:Lmi2; // field@9cb1
+8b5540: 3901 0300                              |0006: if-nez v1, 0009 // +0003
+8b5544: 1100                                   |0008: return-object v0
+8b5546: 6e10 b8ca 0100                         |0009: invoke-virtual {v1}, Lrq4;.a:()Ljava/lang/String; // method@cab8
+8b554c: 0c01                                   |000c: move-result-object v1
+8b554e: 6e20 8e91 0100                         |000d: invoke-virtual {v1, v0}, Ljava/lang/String;.equals:(Ljava/lang/Object;)Z // method@918e
+8b5554: 0a02                                   |0010: move-result v2
+8b5556: 3802 0300                              |0011: if-eqz v2, 0014 // +0003
+8b555a: 1101                                   |0013: return-object v1
+8b555c: 2202 4a1b                              |0014: new-instance v2, Ljava/lang/StringBuilder; // type@1b4a
+8b5560: 7010 bc91 0200                         |0016: invoke-direct {v2}, Ljava/lang/StringBuilder;.<init>:()V // method@91bc
+8b5566: 6e20 c991 1200                         |0019: invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b556c: 1a01 0a04                              |001c: const-string v1, " · " // string@040a
+8b5570: 6e20 c991 1200                         |001e: invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b5576: 6e20 c991 0200                         |0021: invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;.append:(Ljava/lang/String;)Ljava/lang/StringBuilder; // method@91c9
+8b557c: 6e10 da91 0200                         |0024: invoke-virtual {v2}, Ljava/lang/StringBuilder;.toString:()Ljava/lang/String; // method@91da
+8b5582: 0c00                                   |0027: move-result-object v0
+8b5584: 1100                                   |0028: return-object v0
+      catches       : (none)
+      positions     :
+      locals        :
+
+  Virtual methods   -
+  source_file_idx   : -1 (unknown)
+
+Class #6126            -
