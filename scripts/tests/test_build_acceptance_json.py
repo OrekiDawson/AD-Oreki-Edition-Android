@@ -15,6 +15,7 @@ POLICY = json.loads((ROOT / "scripts" / "release-gate-policy.json").read_text(en
 SOURCE = "b" * 40
 WEB = "c" * 40
 ACCEPT = "d" * 40
+EVID = "e" * 40
 
 
 def identity(**overrides):
@@ -41,7 +42,7 @@ def checks_payload():
         ],
         "completion_runs": [
             {
-                "platform": "android", "source_sha": SOURCE, "evidence_commit_sha": ACCEPT,
+                "platform": "android", "source_sha": SOURCE, "evidence_commit_sha": EVID,
                 "started_at": "2026-11-15T20:00:00+08:00",
                 "finished_at": "2026-11-15T22:30:00+08:00",
                 "elapsed_seconds": 9000, "fresh_save": True, "game_end": True,
@@ -69,17 +70,19 @@ class AcceptanceBuilderTests(unittest.TestCase):
         shot.parent.mkdir(parents=True)
         shot.write_bytes(b"png-bytes")
 
-    def build(self, payload=None, ident=None, acceptance_commit=ACCEPT):
+    def build(self, payload=None, ident=None, acceptance_commit=ACCEPT, evidence_commit=EVID):
         return B.build_report(
             policy=POLICY, identity=ident or identity(), checks_data=payload or checks_payload(),
             candidate_run=43735315296, verification_run=43735739171,
             source_sha=SOURCE, web_ref=WEB, acceptance_commit=acceptance_commit,
+            evidence_commit=evidence_commit,
             device="emulator-5554 (ad-game-api37)",
             accepted_at="2026-11-16T01:00:00+08:00", repo_root=self.repo_root)
 
     def test_generated_report_passes_gate_validator(self):
         report = self.build()
         self.assertEqual(report["versionCode"], "30210001")
+        self.assertEqual(report["evidence_commit_sha"], EVID)
         self.assertEqual(report["apk_sha256"], "a" * 64)
         self.assertEqual(len(report["checks"]), len(POLICY["required_checks"]))
         # 门禁同款校验器复核（与 release-gate 使用同一函数）
@@ -134,13 +137,37 @@ class AcceptanceBuilderTests(unittest.TestCase):
         with self.assertRaisesRegex(B.BuilderError, "evidence commit"):
             self.build(payload)
 
+    def test_checks_file_evidence_commit_conflict_rejected(self):
+        payload = checks_payload()
+        payload["evidence_commit_sha"] = ACCEPT
+        original = B.read_apk_identity
+        B.read_apk_identity = lambda apk: identity()
+        try:
+          with self.assertRaisesRegex(B.BuilderError, "evidence_commit_sha"):
+            B.main([
+                "--apk", str(self.repo_root / "fake.apk"),
+                "--candidate-run-id", "43735315296", "--verification-run-id", "43735739171",
+                "--source-sha", SOURCE, "--web-ref", WEB, "--acceptance-commit", ACCEPT,
+                "--evidence-commit", EVID,
+                "--checks-file", str(self._write_checks(payload)),
+                "--out", str(self.repo_root / "out.json"),
+                "--repo-root", str(self.repo_root),
+            ])
+        finally:
+            B.read_apk_identity = original
+
+    def _write_checks(self, payload):
+        path = self.repo_root / "checks-conflict.json"
+        path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        return path
+
     def test_validate_existing_roundtrip_and_mutation_rejected(self):
         report = self.build()
         target = self.repo_root / "docs/avd-acceptance/test/acceptance.json"
         target.write_text(json.dumps(report, ensure_ascii=False), encoding="utf-8")
         common = dict(policy=POLICY, identity=identity(), candidate_run=43735315296,
                       verification_run=43735739171, source_sha=SOURCE, web_ref=WEB,
-                      acceptance_commit=ACCEPT, repo_root=self.repo_root)
+                      acceptance_commit=ACCEPT, evidence_commit=EVID, repo_root=self.repo_root)
         self.assertEqual(B.validate_existing(target, **common)["versionCode"], "30210001")
         mutated = json.loads(json.dumps(report))
         mutated["versionCode"] = "30210000"
@@ -156,6 +183,7 @@ class AcceptanceBuilderTests(unittest.TestCase):
             "--apk", str(self.repo_root / "fake.apk"),
             "--candidate-run-id", "43735315296", "--verification-run-id", "43735739171",
             "--source-sha", SOURCE, "--web-ref", WEB, "--acceptance-commit", ACCEPT,
+            "--evidence-commit", EVID,
             "--checks-file", str(checks_file), "--out", str(out),
             "--repo-root", str(self.repo_root),
         ]

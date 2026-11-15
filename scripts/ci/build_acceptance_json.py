@@ -31,9 +31,11 @@ checks 输入 JSON 结构（字段均由真实 AVD 执行者填写，不得留�
     --verification-run-id ... --source-sha ... --web-ref ... --acceptance-commit ... \
     --validate-existing docs/avd-acceptance/<dir>/acceptance.json
 
-已知约束（不伪造即必须遵守）：verify_completion_evidence 要求完成记录的 Android
-evidence_commit_sha 等于 pinned acceptance commit；调用者需先确定该 commit 再生成文件，
-工具不会替调用者编造该 SHA。
+两提交模型（2026-11-16）：acceptance.json 位于 commit A（--acceptance-commit），
+真实证据文件位于更早的 commit B（--evidence-commit，B 必须是 A 的祖先且可达 Android main）。
+verify_completion_evidence 会要求 Android completion 的 evidence_commit_sha == report.evidence_commit_sha；
+祖先/可达性由 scripts/check_pinned_evidence.py 在 release gate 用 GitHub API 校验。
+工具不编造 commit SHA：B 必须由调用者从真实证据提交中取得。
 """
 from __future__ import annotations
 
@@ -200,11 +202,10 @@ def validate_screenshots(screenshots, repo_root) -> None:
             raise BuilderError(f"screenshots[{index}] 指向的文件不存在: {item}")
 
 
-def validate_completion(policy: dict, completion_runs, acceptance_commit: str,
+def validate_completion(policy: dict, report: dict, acceptance_commit: str,
                         source_sha: str, web_ref: str) -> None:
     max_seconds = int(policy["max_completion_seconds"])
-    issues = VCE.check_completion({"completion_runs": completion_runs},
-                                  android_sha=source_sha, web_sha=web_ref,
+    issues = VCE.check_completion(report, android_sha=source_sha, web_sha=web_ref,
                                   acceptance_commit=acceptance_commit,
                                   max_seconds=max_seconds)
     if issues:
@@ -213,20 +214,19 @@ def validate_completion(policy: dict, completion_runs, acceptance_commit: str,
 
 def build_report(*, policy: dict, identity: dict, checks_data: dict,
                  candidate_run: int, verification_run: int, source_sha: str,
-                 web_ref: str, acceptance_commit: str, device: str,
-                 accepted_at: str, repo_root) -> dict:
+                 web_ref: str, acceptance_commit: str, evidence_commit: str,
+                 device: str, accepted_at: str, repo_root) -> dict:
     if not isinstance(checks_data, dict):
         raise BuilderError("checks 输入文件必须是 JSON 对象")
     validate_identity(policy, identity)
     checks = validate_checks(policy, checks_data.get("checks"))
     validate_screenshots(checks_data.get("screenshots"), repo_root)
-    validate_completion(policy, checks_data.get("completion_runs"),
-                        acceptance_commit, source_sha, web_ref)
     report = {
         "schema": 1,
         "verdict": "PASS",
         "source_repository": policy["public_source_repository"],
         "source_sha": source_sha,
+        "evidence_commit_sha": evidence_commit,
         "web_ref": web_ref,
         "candidate_run_id": candidate_run,
         "verification_run_id": verification_run,
@@ -242,6 +242,7 @@ def build_report(*, policy: dict, identity: dict, checks_data: dict,
         "screenshots": list(checks_data.get("screenshots") or []),
         "completion_runs": checks_data.get("completion_runs"),
     }
+    validate_completion(policy, report, acceptance_commit, source_sha, web_ref)
     try:
         VRA.check_report(report, sha256=identity["sha256"], candidate_run=candidate_run,
                          verification_run=verification_run, source_sha=source_sha,
@@ -279,6 +280,7 @@ def main(argv=None) -> int:
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--web-ref", required=True)
     parser.add_argument("--acceptance-commit", required=True)
+    parser.add_argument("--evidence-commit", required=True)
     parser.add_argument("--checks-file", default="")
     parser.add_argument("--out", default="")
     parser.add_argument("--device", default="")
@@ -288,7 +290,8 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     for name, value in (("source_sha", args.source_sha), ("web_ref", args.web_ref),
-                        ("acceptance_commit", args.acceptance_commit)):
+                        ("acceptance_commit", args.acceptance_commit),
+                        ("evidence_commit", args.evidence_commit)):
         if not HEX40.fullmatch(str(value)):
             raise BuilderError(f"{name} 必须是 40 位小写 hex")
     if args.candidate_run_id <= 0 or args.verification_run_id <= 0:
@@ -316,6 +319,9 @@ def main(argv=None) -> int:
         checks_data = json.loads(pathlib.Path(args.checks_file).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise BuilderError("checks 输入文件无法解析: " + str(exc)) from exc
+    declared_in_file = str(checks_data.get("evidence_commit_sha") or "").strip()
+    if declared_in_file and declared_in_file != args.evidence_commit:
+        raise BuilderError("checks 输入的 evidence_commit_sha 与 --evidence-commit 不一致")
     device = (args.device or str(checks_data.get("device") or "")).strip()
     if not device:
         raise BuilderError("缺少 device（--device 或 checks 输入文件 device 字段）")
@@ -326,7 +332,8 @@ def main(argv=None) -> int:
                           candidate_run=args.candidate_run_id,
                           verification_run=args.verification_run_id,
                           source_sha=args.source_sha, web_ref=args.web_ref,
-                          acceptance_commit=args.acceptance_commit, device=device,
+                          acceptance_commit=args.acceptance_commit,
+                          evidence_commit=args.evidence_commit, device=device,
                           accepted_at=accepted_at, repo_root=args.repo_root)
     out = pathlib.Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
