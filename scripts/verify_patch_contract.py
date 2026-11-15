@@ -363,14 +363,45 @@ def parse_clinit_ordinals(clinit: str, formatter: str, holder: str):
     return out
 
 
+def _last_sput_reg(text: str, holder: str, field: str, type_desc: str):
+    pat = (r"sput-object (v\d+), " + re.escape(holder) + r"->" + re.escape(field)
+           + r":" + re.escape(tdesc(type_desc)) + r";")
+    regs = re.findall(pat, text)
+    return regs[-1] if regs else None
+
+
+def _resolve_move_alias(text: str, reg: str) -> str:
+    """按 move-object/move-object/from16 的目标 -> 源 解析别名（最多 4 跳）。"""
+    for _ in range(4):
+        m = re.search(r"move-object(?:/from16)?\s+" + re.escape(reg) + r",\s*(v\d+)", text)
+        if not m:
+            break
+        reg = m.group(1)
+    return reg
+
+
 def static_assigns_from(clinit: str, holder: str, src_field: str,
                         src_type: str, dst_field: str, dst_type: str) -> bool:
-    """<clinit> 中是否存在 sget-object 源字段 -> sput-object 目标字段。"""
-    pat = (r"sget-object (v\d+), " + re.escape(holder) + r"->" + re.escape(src_field)
-           + r":" + re.escape(tdesc(src_type)) + r";"
-           r"[\s\S]{0,300}?sput-object \1, " + re.escape(holder) + r"->"
-           + re.escape(dst_field) + r":" + re.escape(tdesc(dst_type)) + r";")
-    return re.search(pat, clinit) is not None
+    """<clinit> 中目标字段是否直接或经寄存器别名取自源字段。
+
+    真实产物形态：
+      * 旧：sget-object vX, holder->src; ... sput-object vX, holder->dst;
+      * D8/AGP：sput-object v0, holder->src; ... move-object/from16 v26, v0;
+        sput-object v26, holder->dst;
+    比较 源字段最后写入寄存器 与 目标字段最后写入寄存器（解析别名后）；仍是
+    目标取自源 的依赖判定，不放宽。
+    """
+    src_reg = _last_sput_reg(clinit, holder, src_field, src_type)
+    if src_reg is None:
+        sget = re.search(r"sget-object (v\d+), " + re.escape(holder) + r"->"
+                         + re.escape(src_field) + r":" + re.escape(tdesc(src_type)) + r";", clinit)
+        if sget is None:
+            return False
+        src_reg = sget.group(1)
+    dst_reg = _last_sput_reg(clinit, holder, dst_field, dst_type)
+    if dst_reg is None:
+        return False
+    return _resolve_move_alias(clinit, dst_reg) == _resolve_move_alias(clinit, src_reg)
 
 
 def count_in(text: str, needle: str) -> int:
@@ -462,7 +493,13 @@ def discover_options(index: SmaliIndex):
 
 def discover_new_save(index: SmaliIndex, holder: str, formatter: str,
                       formatter_super: str, options: str, setter_ref: str):
-    """定位重开新档路径：new Player + holder.v/w + const-string Scientific + Options setter。"""
+    """定位新档默认写入路径，返回 (file, header, body, mode)。
+
+    3.21 实际两种形态（AGP 与旧链真实产物一致）：
+      * legacy：new Player + holder.v/w + "Scientific" + Options setter；
+      * json：player 包新档分支以 const-string "Scientific" 作为默认值，并通过
+        字段名 "notation" 写入（Kotlin OrekiUiDefaults.defaultNotation() 同源）。
+    """
     cands = []
     files = index.scan_markers(['"Scientific"'])['"Scientific"']
     for p in files:
@@ -471,14 +508,21 @@ def discover_new_save(index: SmaliIndex, holder: str, formatter: str,
         if not cls or not cls.startswith("Lkajfosz/antimatterdimensions/player/"):
             continue
         for header, body in iter_methods(text):
-            if ("new-instance" in body and "Lkajfosz/antimatterdimensions/player/Player;" in body
-                    and "sput-object" in body and "->a:Lkajfosz/antimatterdimensions/player/Player;" in body
-                    and f"{holder}->v:{tdesc(formatter)};" in body
-                    and f"{holder}->w:{tdesc(formatter_super)};" in body
-                    and '"Scientific"' in body
-                    and f"{options}->{setter_ref}" in body):
-                cands.append((p, header, body))
-    return need_unique(cands, "重开新档路径（new Player + v/w + Scientific + setter）")
+            if '"Scientific"' not in body:
+                continue
+            if "Lkajfosz/antimatterdimensions/player/Player;" not in body:
+                continue
+            legacy = ("new-instance" in body and "sput-object" in body
+                      and f"{holder}->v:{tdesc(formatter)};" in body
+                      and f"{holder}->w:{tdesc(formatter_super)};" in body
+                      and f"{options}->{setter_ref}" in body)
+            json_default = ('"notation"' in body
+                            and f"{holder}->w:{tdesc(formatter_super)};" in body)
+            if legacy:
+                cands.append((p, header, body, "legacy"))
+            elif json_default:
+                cands.append((p, header, body, "json"))
+    return need_unique(cands, "重开新档路径（Scientific 默认写入）")
 
 
 def discover_read_path(index: SmaliIndex, holder: str):
@@ -555,6 +599,26 @@ def check_template(subs):
             "templates 目录不应存在该文件" if polluted else "")
 
 
+def ec12_sequence_pattern():
+    """3.21 EC12 严格相邻序列（寄存器自适应）。
+
+    语义：unscale 返回值必须直接进入限时比较（cmpg-double 使用同一 wide 寄存器），
+    且该序列在唯一目标文件里只出现 1 次。历史配置的 v6/anchor 只记录旧 D8 布局；
+    AGP/旧链当前产物实测寄存器为 v2（两产物此段 smali 逐字一致），故按捕获寄存器比较。
+    """
+    return re.compile(
+        r"OrekiSpeed;->unscale\(D\)D\s*\n\s*move-result-wide (v\d+)\s*\n\s*"
+        r"cmpg-double (v\d+), \1, (v\d+)")
+
+
+def challenge_update_suspend_ok(header: str) -> bool:
+    """3.21 Challenges.update 为 suspend；R113-01 A 批协程 shadow ABI（PR #87）后
+    基础 ContinuationImpl 与 oreki/shadow/... 两种描述符在真实产物中均合法。"""
+    return re.search(
+        r"b\(DL(?:oreki/shadow/)?kotlin/coroutines/jvm/internal/ContinuationImpl;\)Ljava/lang/Object;",
+        header) is not None
+
+
 def check_ec12(index: SmaliIndex, subs):
     needle = "OrekiSpeed;->unscale(D)D"
     # EC12 闭包文件/寄存器/锚点来自 3.21 真实 baseline 配置（由真实 DEX 推导），
@@ -563,14 +627,9 @@ def check_ec12(index: SmaliIndex, subs):
     cfg = load_version_config()
     closure = cfg.get("ec12_closure", {})
     expected_file = closure.get("file", "")
-    expected_anchor = closure.get("anchor", "").strip()
-    reg = closure.get("reg", "v6")
-    if not expected_file or not expected_anchor:
-        raise ContractFailure("3.21 version-config.json 缺少 ec12_closure.file/anchor")
-    seq = re.compile(
-        r"OrekiSpeed;->unscale\(D\)D\s*\n\s*move-result-wide "
-        + re.escape(reg) + r"\s*\n\s*" + re.escape(expected_anchor))
-
+    if not expected_file:
+        raise ContractFailure("3.21 version-config.json 缺少 ec12_closure.file")
+    seq = ec12_sequence_pattern()
     hits = []
     files = index.scan_markers([needle])[needle]
     for p in files:
@@ -595,7 +654,9 @@ def check_ec12(index: SmaliIndex, subs):
     add_sub(subs, True, "EC12 unscale 唯一目标", index.rel(p))
     add_sub(subs, n == 1, "目标文件内严格相邻序列只出现 1 次", f"count={n}")
     add_sub(subs, "Lku4;->h()D" in body, "同方法读取 thisEternity.time（Lku4.h()D）")
-    add_sub(subs, expected_anchor in body, "EC12 锚点与 3.21 配置一致", expected_anchor)
+    captured = seq.search(body)
+    add_sub(subs, captured is not None, "限时比较直接使用 unscale 结果（寄存器自适应）",
+            ("unscale_reg=" + captured.group(1)) if captured else "未命中")
     add_sub(subs, index.rel(p) == expected_file, "EC12 闭包文件与 3.21 配置一致",
             f"实际 {index.rel(p)}，配置 {expected_file}")
 
@@ -621,8 +682,8 @@ def check_challenge_tick(index: SmaliIndex, subs):
         add_sub(subs, False, "Challenges.update 内 tick 位置唯一", f"命中 {len(hits)} 个方法")
         raise ContractFailure("Challenges.update 内 tick 位置不唯一")
     header, body = hits[0]
-    add_sub(subs, "b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;" in header,
-            "3.21 Challenges.update 为 suspend b(D, ContinuationImpl)", header)
+    add_sub(subs, challenge_update_suspend_ok(header),
+            "3.21 Challenges.update 为 suspend b(D, ContinuationImpl；shadow ABI 可接受)", header)
     add_sub(subs, "OrekiChallengeAuto;->tick()V" in body,
             "同方法先调用 OrekiChallengeAuto.tick()（自动进入挑战）")
     add_sub(subs, body.find("OrekiChallengeAuto;->tick()V") < body.find(needle),
@@ -749,17 +810,41 @@ def check_notation_identity(index: SmaliIndex, subs, formatter_info, holder_info
     add_sub(subs, w_writes == 2, "z63 内对 w 的写入只有 2 处（<clinit> + d(I)）", f"实际 {w_writes}")
 
 
+def ctor_notation_default(ctor_body: str):
+    """Player$Options.<init> 内 const-string "Scientific" -> iput notation（旧形态）。"""
+    m = re.search(r'const-string (v\d+), "([^"]*)"'
+                  r'[\s\S]{0,300}?iput-object \1, p0, ' + re.escape(PLAYER_OPTIONS)
+                  + r'->notation:Ljava/lang/String;', ctor_body)
+    return m.group(2) if m else None
+
+
+def ui_defaults_notation_scientific(index: SmaliIndex):
+    """Kotlin OrekiUiDefaults.defaultNotation() 是否返回 "Scientific"（当前默认值来源）。
+
+    该类不在预置 class 索引里，按 marker 扫描后校验 .class 描述符。
+    """
+    for path in sorted(index.root.rglob("OrekiUiDefaults.smali")):
+        try:
+            cls = index.class_of_file(path)
+        except ContractFailure:
+            continue
+        if cls != "Lkajfosz/antimatterdimensions/oreki/OrekiUiDefaults;":
+            continue
+        for header, body in iter_methods(index.read(path)):
+            if method_sig(header) == ("defaultNotation", "()Ljava/lang/String;") and '"Scientific"' in body:
+                return True, index.rel(path)
+    return False, ""
+
+
 def check_notation_defaults(index: SmaliIndex, subs, formatter_info, holder_info):
     p, cls, super_cls, header, body = formatter_info
     hp, hcls, chdr, clinit = holder_info
     op, ctor, getter, setter = discover_options(index)
-    otext = index.read(op)
-    ctor_body = ctor[1]
-    m = re.search(r'const-string (v\d+), "([^"]*)"'
-                  r'[\s\S]{0,300}?iput-object \1, p0, ' + re.escape(PLAYER_OPTIONS)
-                  + r'->notation:Ljava/lang/String;', ctor_body)
-    add_sub(subs, bool(m) and m.group(2) == "Scientific",
-            '新档默认 Options.notation = "Scientific"', f"实际 {m.group(2)!r}" if m else "未找到")
+    ctor_value = ctor_notation_default(ctor[1])
+    ui_ok, ui_path = ui_defaults_notation_scientific(index)
+    add_sub(subs, ctor_value == "Scientific" or ui_ok,
+            '新档默认 Options.notation = "Scientific"（构造器或 Kotlin 默认）',
+            "ctor=" + repr(ctor_value) + " kotlin=" + (ui_path or "未命中"))
     add_sub(subs, "->notation:Ljava/lang/String;" in getter[1],
             "Options.notation getter 读取真实字段")
     add_sub(subs, "iput-object p1, p0, " + PLAYER_OPTIONS + "->notation:Ljava/lang/String;" in setter[1],
@@ -770,15 +855,20 @@ def check_notation_defaults(index: SmaliIndex, subs, formatter_info, holder_info
     setter_name, setter_desc = setter_sig
     setter_ref = setter_name + setter_desc
     try:
-        np, nheader, nbody = discover_new_save(index, hcls, cls, super_cls, PLAYER_OPTIONS, setter_ref)
+        np, nheader, nbody, nmode = discover_new_save(index, hcls, cls, super_cls, PLAYER_OPTIONS, setter_ref)
     except ContractFailure as e:
         add_sub(subs, False, "重开新档路径写入 Scientific", str(e))
         return
-    add_sub(subs, True, "重开新档路径写入 Scientific", f"{index.rel(np)} / {nheader}")
-    add_sub(subs, f"{hcls}->v:{tdesc(cls)};" in nbody, "重开新档设置 z63.v")
-    add_sub(subs, f"{hcls}->w:{tdesc(super_cls)};" in nbody, "重开新档设置 z63.w")
-    add_sub(subs, '"Scientific"' in nbody, '重开新档写入 "Scientific"')
-    add_sub(subs, f"{PLAYER_OPTIONS}->{setter_ref}" in nbody, "重开新档调用 Options setter")
+    add_sub(subs, True, "重开新档路径写入 Scientific", index.rel(np) + " / " + nheader + " / mode=" + nmode)
+    if nmode == "legacy":
+        add_sub(subs, f"{hcls}->v:{tdesc(cls)};" in nbody, "重开新档设置 z63.v")
+        add_sub(subs, f"{hcls}->w:{tdesc(super_cls)};" in nbody, "重开新档设置 z63.w")
+        add_sub(subs, '"Scientific"' in nbody, '重开新档写入 "Scientific"')
+        add_sub(subs, f"{PLAYER_OPTIONS}->{setter_ref}" in nbody, "重开新档调用 Options setter")
+    else:
+        add_sub(subs, f"{hcls}->w:{tdesc(super_cls)};" in nbody, "重开新档读取默认记数法持有字段 z63.w")
+        add_sub(subs, '"Scientific"' in nbody, '重开新档默认写入 "Scientific"（JSON 默认路径）')
+        add_sub(subs, '"notation"' in nbody, '重开新档使用真实字段名 "notation"')
 
 
 def check_notation_read(index: SmaliIndex, subs, formatter_info, holder_info):
