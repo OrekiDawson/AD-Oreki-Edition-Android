@@ -31,8 +31,8 @@
 | --- | --- |
 | FACTS §9 | `docs/facts/android-internals.md#f-9` |
 | FACTS §58 | `docs/facts/game/endgame.md#f-58` |
-| FACTS §96.1 | `docs/facts/automation/strategy.md#f-87` |
-| FACTS §100.5 | `docs/facts/game/mechanics.md#f-91` |
+| FACTS §96.1 | `docs/facts/automation/infinity-buyers.md#f-96` |
+| FACTS §100.5 | `docs/facts/game/reality.md#f-100` |
 | FACTS §86.11.6 | `docs/facts/methodology.md#f-86-11` |
 | FACTS §86.12.1 | `docs/facts/automation/infinity-buyers.md#f-86-12` |
 
@@ -47,7 +47,7 @@
 | 检查 | 命令 | 结果 |
 | --- | --- | --- |
 | 事实库守卫 | `python3 scripts/check_facts_governance.py` | **PASS**：root 121/400 lines；31 facts files；largest topic 676/1200 |
-| 守卫回归 | `python3 -m unittest discover -s scripts/tests -p 'test_facts_governance.py'` | **PASS**：11 tests OK |
+| 守卫回归 | `python3 -m unittest discover -s scripts/tests -p 'test_facts_governance.py'` | **PASS**：14 tests OK |
 | 全库本地链接/锚点 | `python3 .tmp/linkcheck.py` | **PASS**：0 problems |
 | 修改脚本语法 | `compile()` 逐文件（不写 pyc） | **PASS**：4/4 SYNTAX OK |
 | whitespace / CRLF | `git diff --check` + 字节扫描 | **PASS**：无 CRLF、无空白错误 |
@@ -63,9 +63,18 @@
 | Source checks (no proprietary APK baseline) | **PASS**（3s） |
 | 自动 PR 规模与风险提示 | **PASS**（10s） |
 
-CI 守卫日志：PASS: root index 121 lines (limit 400); 31 facts files; largest topic 676 lines (limit 1200)；Ran 11 tests ... OK。
+CI 守卫日志：PASS: root index 121 lines (limit 400); 31 facts files; largest topic 676 lines (limit 1200)；Ran 14 tests ... OK。
 
-## 6. 依赖与后续
+## 6. Codex 评审修复（2026-11-15，PR #94）
+
+| Finding | 修复 | 验证 |
+| --- | --- | --- |
+| P1 重复 anchor 被 set 吞掉 | 合并 #93 的 54c7bcc1：id_occurrences() 保留出现序列，同文件/跨文件重复均报错 | 夹具 test_same_file_duplicate_fact_id_fails；14 tests OK |
+| P1 topic 命名备份未被拦截 | 合并 #93 的 54c7bcc1：禁止扫描覆盖 docs/ 全树（*.diverged.bak 等） | 夹具 test_topic_named_backup_fails |
+| P1 §96.1/§100.5 误按 C.N 映射 | 本提交修正：§96.1 → automation/infinity-buyers.md#f-96；§100.5 → game/reality.md#f-100；4 个脚本 16 处 + MIGRATION 同步 | 锚点存在；守卫 PASS |
+| P2 docs/docs/facts 重复前缀 | 本提交修正 build_tick_closure.py 的 docs/docs/facts/... → docs/facts/... | 守卫/语法检查 PASS |
+
+## 7. 依赖与后续
 
 - 本分支叠加在 #93 之上：**必须先合并 #93**，否则本 PR 的 diff 含 #93 全部改动。
 - worktree 登记：`/home/oreki/AD-Oreki-Unified/docs/WORKTREE_MAPPING.md` 需由 Lead 补登（文件在主工作树外，本轮隔离约束内不改）。
