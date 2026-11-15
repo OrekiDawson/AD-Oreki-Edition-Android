@@ -2601,7 +2601,11 @@ internal object GameApi {
         if (!mBreakEventDispatchResolved) {
             mBreakEventDispatchResolved = true
             mBreakEventDispatch = method(
-                cls("kajfosz.antimatterdimensions.c91"),
+                // [R114-01 ABI-FIX] 必须走短名 + 绑定表：3.21 里该 EventHub 是**默认包**类
+                // Lm91;（bindings.json classes.c91→Lm91;），带点全名 cls("...c91") 会直通
+                // Class.forName 绕过绑定表 ⇒ ClassNotFoundException（R113 180min logcat:21164
+                // OREKI_API_MISS missing class ...c91）。短名 cls("c91") 才会经映射解析到 m91。
+                cls("c91"),
                 "a",
                 1,
                 "EventHub(a)(String)=BREAK_INFINITY",

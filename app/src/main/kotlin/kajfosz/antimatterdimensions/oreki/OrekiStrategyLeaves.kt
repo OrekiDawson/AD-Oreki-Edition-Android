@@ -144,7 +144,6 @@ object OrekiStrategyLeaves {
 
     private fun imaginaryUpgradeBits(): Long = bitSetMask(playerField("reality"), "imaginaryUpgradeBits")
 
-    // 莱特拉 = ImaginaryUpgrade(15)；佩勒 = ImaginaryUpgrade(25)
     // [R114-01 P1] Android 3.21 的 imaginaryUpgradeBits 位号用**移植版内部 id**，不是 Web 的 15/25。
     //
     // 证据（原版解码树 work/base_decoded_321/smali_classes2/.../reality/imaginary_upgrades/b.smali）：
