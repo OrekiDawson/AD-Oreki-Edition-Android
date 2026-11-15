@@ -224,14 +224,20 @@ internal object OrekiAutoEternityAdoption {
             // 读不到开关（null）失败关闭：不写、不推定
             if (active != false) return
             if (userClosed) return
-            if (!GameApi.autoEternityUnlocked()) return
-            if (!GameApi.autobuyersOn()) return
+            // [Codex P2] 玩家手动关闭的识别必须排在「原版总开关 / 未解锁」早退**之前**：
+            // 玩家可能先关「自动购买器总开关」再关「自动永恒」；旧顺序会直接 return，
+            // 导致同一现实内的手动关闭没被持久化；若此前经历一次 Reality 复位（token 变化），
+            // 之后解锁时会被误判成「原版复位」而强行重开，违背玩家意愿。
+            // 判据只需：本现实内 MOD 曾经启用过该开关（enabledRealities == token）且现在为关。
             if (token.isNotEmpty() && enabledRealities == token) {
                 userClosed = true
                 persist()
                 log("user-manual-off detected（本现实已由 MOD 启用过，尊重玩家关闭）realities=" + token)
                 return
             }
+            // 以下早退只挡住「主动写开关」这件事，不影响上面的 opt-out 记录。
+            if (!GameApi.autoEternityUnlocked()) return
+            if (!GameApi.autobuyersOn()) return
             if (!adopted) return
             val now = SystemClock.elapsedRealtime()
             if (now - lastAttemptAt < RETRY_INTERVAL_MS) return
