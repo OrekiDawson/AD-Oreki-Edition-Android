@@ -617,7 +617,7 @@ CLASS_CURATED = {
     "Lkajfosz/antimatterdimensions/celestials/pelle/b;": (
         "GameEnd", "strong",
         ["hook-ledger.json#BM-23（celestials/pelle/b->b()D = GameEnd.endState）",
-         "docs/FACTS.md §58（GameEnd.endState 读 PelleRecords.totalAntimatter）",
+         "docs/facts/game/endgame.md#f-58（GameEnd.endState 读 PelleRecords.totalAntimatter）",
          "web 上游：src/core/game-end.js"],
     ),
 }
@@ -635,27 +635,27 @@ _GAME = "Lkajfosz/antimatterdimensions/a;"
 _m(_GAME, "f(Ljava/lang/Double;,Z,Ljava/lang/Double;,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "gameTick", "strong",
    ["hook-ledger.json#BM-01（semantic_hint=Game.gameTick；build_mod.py:1421 锚点）",
-    "docs/FACTS.md §96.1（Game.autoBuyerTick 与 gameTick 关系）"])
+    "docs/facts/automation/strategy.md#f-87（Game.autoBuyerTick 与 gameTick 关系）"])
 _m(_GAME, "b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "autoBuyerTick", "strong",
    ["hook-ledger.json#BM-34（Game.autoBuyerTick 入口）",
-    "docs/FACTS.md §96.1（该挂起体内调用现实升级/膨胀自动购买）"])
+    "docs/facts/automation/strategy.md#f-87（该挂起体内调用现实升级/膨胀自动购买）"])
 _m(_GAME, "d(D,Z)V", "advanceGameTime", "strong",
    ["hook-ledger.json#BM-02（Ra 记忆/momentumTime/Laitela 暗物质统一入口）"])
 _m(_GAME, "r()V", "gameMainLoopTick", "strong",
-   ["docs/FACTS.md §100.5（a.smali:14331 每帧调用 public static r()V；含特蕾莎浇注处理）"])
+   ["docs/facts/game/mechanics.md#f-91（a.smali:14331 每帧调用 public static r()V；含特蕾莎浇注处理）"])
 _m(_GAME, "l:J", "lastTeresaPourTimestamp", "strong",
-   ["docs/FACTS.md §100.5（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
+   ["docs/facts/game/mechanics.md#f-91（a.l 为上次浇注时间戳：(now - a.l)/1000.0 得真实秒差）"])
 
 _P_E = "Lkajfosz/antimatterdimensions/prestige/e;"
 _m(_P_E, "g(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "updateBestInfinityRecord", "strong",
-   ["hook-ledger.json#BM-07a/BM-08（bestInfinity 记录比较/归一化）", "docs/FACTS.md §9"])
+   ["hook-ledger.json#BM-07a/BM-08（bestInfinity 记录比较/归一化）", "docs/facts/android-internals.md#f-9"])
 _m(_P_E, "d()Lkajfosz/antimatterdimensions/BigDouble;", "ipExchangeDivisor", "strong",
    ["hook-ledger.json#BM-07c（首次永恒前 IP 兑换除数 308→30，Web AD8）"])
 _m(_P_E, "h(Z,Z,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "bigCrunchReset", "strong",
-   ["docs/FACTS.md §9（prestige/e;->h(ZZ,Continuation) = 完整大坍缩重置）"])
+   ["docs/facts/android-internals.md#f-9（prestige/e;->h(ZZ,Continuation) = 完整大坍缩重置）"])
 _m("Lkajfosz/antimatterdimensions/prestige/c;",
    "j(Z,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "updatePastTenEternities", "strong",
@@ -666,7 +666,7 @@ _m("Lkajfosz/antimatterdimensions/prestige/f;",
    ["hook-ledger.json#BM-10（pastTenRealities.time 归一化）"])
 
 _m("Lkajfosz/antimatterdimensions/celestials/pelle/b;", "b()D", "endState", "confirmed",
-   ["docs/FACTS.md §58（GameEnd.endState：PelleRecords.totalAntimatter → log10 → /(log10(TARGET)-1)）",
+   ["docs/facts/game/endgame.md#f-58（GameEnd.endState：PelleRecords.totalAntimatter → log10 → /(log10(TARGET)-1)）",
     "hook-ledger.json#BM-23"])
 _m("Lkajfosz/antimatterdimensions/celestials/effarig/a;",
    "o(Lkajfosz/antimatterdimensions/BigDouble;)D", "nerfFactor", "strong",
@@ -728,25 +728,25 @@ _m(_UAS, "y(D)V", "setInterval", "strong", ["jadx y(D)：this.interval = d"])
 _m(_UAS, "z(D)V", "setIntervalRaw", "inferred", ["jadx z(D)：this.interval = d（无副作用）"])
 
 _CRUNCH = "Lkajfosz/antimatterdimensions/autobuyer/CrunchAutobuyerState;"
-_m(_CRUNCH, "c()Z", "canTick", "strong", ["hook-ledger.json#BM-32/BM-35", "docs/FACTS.md §86.11.6"])
+_m(_CRUNCH, "c()Z", "canTick", "strong", ["hook-ledger.json#BM-32/BM-35", "docs/facts/methodology.md#f-86-11"])
 _m(_CRUNCH, "g()Z", "isUnlocked", "strong", ["hook-ledger.json#BM-29"])
 _m(_CRUNCH, "E()Lkajfosz/antimatterdimensions/BigDouble;", "getAmount", "strong",
-   ["docs/FACTS.md §86.11.6（读 amount 的方法 E()/F()）"])
+   ["docs/facts/methodology.md#f-86-11（读 amount 的方法 E()/F()）"])
 _m(_CRUNCH, "F()Lkajfosz/antimatterdimensions/BigDouble;", "getAmountAlt", "strong",
-   ["docs/FACTS.md §86.11.6（读 amount 的方法 E()/F()）"])
+   ["docs/facts/methodology.md#f-86-11（读 amount 的方法 E()/F()）"])
 _m(_CRUNCH, "M(Lkajfosz/antimatterdimensions/BigDouble;)V", "setAmount", "strong",
-   ["docs/FACTS.md §86.11.6（写 amount = iput-object 目标字段）"])
+   ["docs/facts/methodology.md#f-86-11（写 amount = iput-object 目标字段）"])
 _m(_CRUNCH, "N(Z)V", "setIncreaseWithMult", "strong",
-   ["docs/FACTS.md §86.11.6（写 increaseWithMult:Z）"])
-_m(_CRUNCH, "I()I", "getMode", "strong", ["docs/FACTS.md §86.11.6（读 mode:I）"])
-_m(_CRUNCH, "a(I)V", "setMode", "strong", ["docs/FACTS.md §86.11.6（写 mode:I）"])
-_m(_CRUNCH, "O(D)V", "setTime", "strong", ["docs/FACTS.md §86.11.6（写 time:D）"])
+   ["docs/facts/methodology.md#f-86-11（写 increaseWithMult:Z）"])
+_m(_CRUNCH, "I()I", "getMode", "strong", ["docs/facts/methodology.md#f-86-11（读 mode:I）"])
+_m(_CRUNCH, "a(I)V", "setMode", "strong", ["docs/facts/methodology.md#f-86-11（写 mode:I）"])
+_m(_CRUNCH, "O(D)V", "setTime", "strong", ["docs/facts/methodology.md#f-86-11（写 time:D）"])
 _m(_CRUNCH, "L()Lkajfosz/antimatterdimensions/BigDouble;", "getXHighest", "strong",
-   ["docs/FACTS.md §86.11.6（读 xHighest）"])
+   ["docs/facts/methodology.md#f-86-11（读 xHighest）"])
 _m(_CRUNCH, "P(Lkajfosz/antimatterdimensions/BigDouble;)V", "setXHighest", "strong",
-   ["docs/FACTS.md §86.11.6（写 xHighest）"])
+   ["docs/facts/methodology.md#f-86-11（写 xHighest）"])
 _m(_CRUNCH, "G()Lkajfosz/antimatterdimensions/BigDouble;", "compositeXHighestThreshold", "strong",
-   ["docs/FACTS.md §86.11.6（G() 同时读 xHighest 与 amount 的复合阈值，不是纯 getter）"])
+   ["docs/facts/methodology.md#f-86-11（G() 同时读 xHighest 与 amount 的复合阈值，不是纯 getter）"])
 
 _m("Lkajfosz/antimatterdimensions/autobuyer/DimBoostAutobuyerState;", "g()Z", "isUnlocked", "strong",
    ["hook-ledger.json#BM-28/BM-41（g() = isUnlocked 基础解锁 trampoline）"])
@@ -755,51 +755,51 @@ _m("Lkajfosz/antimatterdimensions/autobuyer/AntimatterDimensionAutobuyerState;",
 
 _IDS = "Lkajfosz/antimatterdimensions/dimension/infinity/InfinityDimensionState;"
 _m(_IDS, "i()V", "buySingle", "strong",
-   ["docs/FACTS.md §86.12.1（i()V = buySingle，smali :1724-1737/:1892 逐指令核对）"])
+   ["docs/facts/automation/infinity-buyers.md#f-86-12（i()V = buySingle，smali :1724-1737/:1892 逐指令核对）"])
 _m(_IDS, "h(Z)V", "buyMax", "strong",
-   ["docs/FACTS.md §86.12.1（h(Z)V = buyMax(auto)，smali :1454/:1544/:1592/:1656）",
+   ["docs/facts/automation/infinity-buyers.md#f-86-12（h(Z)V = buyMax(auto)，smali :1454/:1544/:1592/:1656）",
     "hook-ledger.json#BM-24"])
 _m(_IDS, "M()Z", "unlock", "strong",
-   ["docs/FACTS.md §86.12.1（M()Z = unlock，派发 INFINITY_DIMENSION_UNLOCKED）"])
-_m(_IDS, "G()Z", "isUnlocked", "strong", ["docs/FACTS.md §86.12.1（G()Z = isUnlocked，smali :881）"])
-_m(_IDS, "y()J", "getPurchases", "strong", ["docs/FACTS.md §86.12.1（y()J = purchases，smali :3936）"])
+   ["docs/facts/automation/infinity-buyers.md#f-86-12（M()Z = unlock，派发 INFINITY_DIMENSION_UNLOCKED）"])
+_m(_IDS, "G()Z", "isUnlocked", "strong", ["docs/facts/automation/infinity-buyers.md#f-86-12（G()Z = isUnlocked，smali :881）"])
+_m(_IDS, "y()J", "getPurchases", "strong", ["docs/facts/automation/infinity-buyers.md#f-86-12（y()J = purchases，smali :3936）"])
 _m(_IDS, "p()Z", "canUnlock", "strong",
-   ["docs/FACTS.md §86.12.1（p()Z = canUnlock：maxAM/门槛 + IP 条件）"])
+   ["docs/facts/automation/infinity-buyers.md#f-86-12（p()Z = canUnlock：maxAM/门槛 + IP 条件）"])
 _m(_IDS, "D()Z", "isAvailableForPurchase", "strong",
-   ["docs/FACTS.md §86.12.1（D()Z = isAvailableForPurchase，smali :608-612）"])
+   ["docs/facts/automation/infinity-buyers.md#f-86-12（D()Z = isAvailableForPurchase，smali :608-612）"])
 _m("Lkajfosz/antimatterdimensions/dimension/antimatter/AntimatterDimensionState;",
    "i(Lkajfosz/antimatterdimensions/BigDouble;,D)V", "buyBulk", "strong",
    ["hook-ledger.json#BM-37（AntimatterDimensionState.i(BigDouble,D)：批量购买）"])
 
 _CH_B = "Lkajfosz/antimatterdimensions/challenge/antimatter/b;"
 _m(_CH_B, "K()Z", "isCompleted", "strong",
-   ["docs/FACTS.md §9（challenge/antimatter/b.K()Z = H().e(id)，true = 该关已完成）"])
+   ["docs/facts/android-internals.md#f-9（challenge/antimatter/b.K()Z = H().e(id)，true = 该关已完成）"])
 _m(_CH_B, "H()Lkajfosz/antimatterdimensions/BitSet;", "completedBitSet", "strong",
-   ["docs/FACTS.md §9（H() 返回完成位 BitSet：基类 PlayerInfinityChallenges.b()）"])
+   ["docs/facts/android-internals.md#f-9（H() 返回完成位 BitSet：基类 PlayerInfinityChallenges.b()）"])
 _m(_CH_B, "y()Z", "isCompleted", "strong",
-   ["docs/FACTS.md §9（challenge/antimatter/b.y() = K() 即「已完成」）"])
+   ["docs/facts/android-internals.md#f-9（challenge/antimatter/b.y() = K() 即「已完成」）"])
 _CH_N = "Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;"
 _m(_CH_N, "D(Z,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "startChallenge", "strong",
-   ["docs/FACTS.md §9（normal/a.D(Z,Continuation)：真正写入 current 后返回 true = 成功进入）"])
+   ["docs/facts/android-internals.md#f-9（normal/a.D(Z,Continuation)：真正写入 current 后返回 true = 成功进入）"])
 _m(_CH_N, "B()Z", "canUnlock", "strong",
-   ["docs/FACTS.md §9（normal/a.B()Z：id==1 或已完成 或 反物质 ≤ lu.b 即解锁）"])
+   ["docs/facts/android-internals.md#f-9（normal/a.B()Z：id==1 或已完成 或 反物质 ≤ lu.b 即解锁）"])
 _CH_I = "Lkajfosz/antimatterdimensions/challenge/antimatter/infinity/a;"
 _m(_CH_I, "D(Z,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "startChallenge", "strong",
-   ["docs/FACTS.md §9（挑战 start 族：infinity 分支与 normal 同型 D(Z,Continuation)）"])
+   ["docs/facts/android-internals.md#f-9（挑战 start 族：infinity 分支与 normal 同型 D(Z,Continuation)）"])
 _CH_E = "Lkajfosz/antimatterdimensions/challenge/eternity/b;"
 _m(_CH_E, "D(Z,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "startChallenge", "strong",
    ["hook-ledger.json#BM-18（EC 唯一启动入口）"])
 _m(_CH_E, "E(Z)Z", "canBuyStudy", "strong",
-   ["docs/FACTS.md §9（start 不是 E(Z)Z；E(Z)Z = 这一关研究还能不能买）"])
+   ["docs/facts/android-internals.md#f-9（start 不是 E(Z)Z；E(Z)Z = 这一关研究还能不能买）"])
 _m(_CH_E, "y()Z", "isMaxed", "strong",
-   ["docs/FACTS.md §9（challenge/eternity/b.y() = I() == L() 即已满级）"])
+   ["docs/facts/android-internals.md#f-9（challenge/eternity/b.y() = I() == L() 即已满级）"])
 _m(_CH_E, "I()I", "completions", "inferred",
-   ["docs/FACTS.md §9（I() == L() 判满级 → I() 为完成次数）"])
+   ["docs/facts/android-internals.md#f-9（I() == L() 判满级 → I() 为完成次数）"])
 _m(_CH_E, "L()I", "maxCompletions", "inferred",
-   ["docs/FACTS.md §9（I() == L() 判满级 → L() 为完成上限）"])
+   ["docs/facts/android-internals.md#f-9（I() == L() 判满级 → L() 为完成上限）"])
 _m("Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
    "b(D,Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "update", "strong",
@@ -807,7 +807,7 @@ _m("Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
 _m("Lkajfosz/antimatterdimensions/challenge/antimatter/c;",
    "a(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;",
    "startChallenge", "strong",
-   ["docs/FACTS.md §9（c;->a(Continuation) → prestige/e;->h(ZZ,Continuation) 完整大坍缩重置）"])
+   ["docs/facts/android-internals.md#f-9（c;->a(Continuation) → prestige/e;->h(ZZ,Continuation) 完整大坍缩重置）"])
 
 _MA = "Lkajfosz/antimatterdimensions/MainActivity;"
 _m(_MA, "O2()V", "clearTopBarTitle", "strong",
@@ -815,7 +815,7 @@ _m(_MA, "O2()V", "clearTopBarTitle", "strong",
 _m(_MA, "W8(Lbm4;,Z,Z)V", "showTab", "strong",
    ["hook-ledger.json#GR-04（MainActivity.W8(bm4,boolean,boolean)：页面路由/恢复）"])
 _m(_MA, "yo:Z", "teresaPourButtonHeld", "strong",
-   ["docs/FACTS.md §100.5（MainActivity.yo = 浇注按钮被按住，主循环 a.r() 读它）"])
+   ["docs/facts/game/mechanics.md#f-91（MainActivity.yo = 浇注按钮被按住，主循环 a.r() 读它）"])
 _m("Lkajfosz/antimatterdimensions/mainactivity/l0;",
    "C(Lkajfosz/antimatterdimensions/MainActivity;,Lkajfosz/antimatterdimensions/player/DeviceOptions$Skin;,"
    "Lkajfosz/antimatterdimensions/player/DeviceOptions$Appearance;,"

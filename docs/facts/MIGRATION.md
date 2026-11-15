@@ -597,17 +597,32 @@
 - 原 `## 118.2` 的 REA 环境表与 `## 117.1` 完全重复，已改为引用 `C.126 §117.1`（同一事实只留一处权威条目）。
 - 主题文件去重后：完全重复长行 0 处；轮次台账内对同一环境/哈希的**上下文复述**按「历史记录原样保留」处理。
 
-## 六、尚未清理的旧引用（不在本 PR 改动范围）
+## 六、旧引用迁移结果（R114-01 followup，2026-11-15）
 
-下列文件仍按旧编号引用事实（R107 反混淆证据的生成脚本，改动会改变已归档证据输出）：
+R107/反混淆证据**脚本**中的旧 FACTS 章节号已改为新路径 + 锚点（共 51 处，4 个文件）；
+生成物（JSON/CSV/报告文本）保留旧编号，不重写已归档证据；查询旧编号用第三节别名表。
 
-| 文件 | 旧引用 | 对应新位置 |
-| --- | --- | --- |
-| scripts/deobf_semantic_kajfosz.py | FACTS §58 | [game/endgame.md#f-58](game/endgame.md#f-58) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §96.1 | [automation/strategy.md#f-87](automation/strategy.md#f-87) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §100.5 | [game/mechanics.md#f-91](game/mechanics.md#f-91) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §86.11.6 | [methodology.md#f-86-11](methodology.md#f-86-11) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §86.12.1 | [automation/infinity-buyers.md#f-86-12](automation/infinity-buyers.md#f-86-12) |
-| scripts/deobf_semantic_kajfosz.py | FACTS §9 | [android-internals.md#f-9](android-internals.md#f-9) |
-| docs/deobfuscation/data/r107-kajfosz/scripts/*.py | 同上 §58/§96.1/§100.5 | 同上 |
+| 文件 | 旧引用 | 新位置 | 替换数 |
+| --- | --- | --- | --- |
+| scripts/deobf_semantic_kajfosz.py | §58 / §96.1 / §100.5 / §86.11.6 / §86.12.1 / §9 | endgame#f-58 / strategy#f-87 / mechanics#f-91 / methodology#f-86-11 / infinity-buyers#f-86-12 / android-internals#f-9 | 38 |
+| docs/deobfuscation/data/r107-kajfosz/scripts/write_report.py | FACTS §58 / §96.1 / §100.5 | 同上 | 5 |
+| docs/deobfuscation/data/r107-kajfosz/scripts/write_curated.py | §58 / §96.1 / §100.5 | 同上 | 7 |
+| docs/deobfuscation/data/r107-kajfosz/scripts/build_tick_closure.py | FACTS §96.1 | [automation/strategy.md#f-87](automation/strategy.md#f-87) | 1 |
 
+统一映射：
+
+| 旧引用 | 新位置 |
+| --- | --- |
+| FACTS §9 | [android-internals.md#f-9](android-internals.md#f-9) |
+| FACTS §58 | [game/endgame.md#f-58](game/endgame.md#f-58) |
+| FACTS §96.1 | [automation/strategy.md#f-87](automation/strategy.md#f-87) |
+| FACTS §100.5 | [game/mechanics.md#f-91](game/mechanics.md#f-91) |
+| FACTS §86.11.6 | [methodology.md#f-86-11](methodology.md#f-86-11) |
+| FACTS §86.12.1 | [automation/infinity-buyers.md#f-86-12](automation/infinity-buyers.md#f-86-12) |
+
+仍含旧编号的**历史生成物**（只供追溯，不重新生成）：
+
+- docs/deobfuscation/data/3.21-semantic-kajfosz.json / .csv
+- docs/deobfuscation/data/r107-kajfosz/（3.21-semantic-kajfosz.json / .csv、batch2-player-prestige-challenge-autobuyer.json、tick-closure.json、handoff-focus.json）
+- docs/deobfuscation/data/r108-reality-chain/semantic-map.json
+- reports/ 下的历史报告文本（按「不改写历史报告」保留原文，旧编号经第三节别名表解析）

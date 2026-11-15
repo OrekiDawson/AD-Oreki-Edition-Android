@@ -115,7 +115,7 @@ game = cls("Lkajfosz/antimatterdimensions/a;", "a", "kajfosz.antimatterdimension
                                "调用点：gameTick（a.smali 相对 997）、a.smali:11145/14325"],
                     callees=["Lkajfosz/antimatterdimensions/speedrun/b;->x()V"]),
                meth("b", "b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;", "", "Ljava/lang/Object;",
-                    "autoBuyerTick", "confirmed", ["hook-ledger BM-34；docs/FACTS §96.1；Game$autoBuyerTick$1"]),
+                    "autoBuyerTick", "confirmed", ["hook-ledger BM-34；docs/docs/facts/automation/strategy.md#f-87；Game$autoBuyerTick$1"]),
                meth("d", "d(DZ)V", "DZ", "V", "advanceGameTime（推进游戏时间）", "strong", ["hook-ledger BM-02"]),
                meth("t", "t(DD)V", "DD", "V", "帧末时间/记录更新（待逐行细化）", "inferred", ["a.smali gameTick 内调用 a.t"]),
                meth("o", "o(Z)Z", "Z", "Z", "tick 门禁：c 标志 || (!arg && q())", "strong",
