@@ -1909,7 +1909,10 @@ object OrekiStageAuto {
             // [待 3.21 核对] realities 字段绑定仍需在官方包复核（见 Issue #163）。
             val inEternityLayer = !OrekiStageAuto.eternitiesZero() ||
                 (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0
-            val resumeInterval = if (isBroken() && inEternityLayer) {
+            // [R116-02-01 真新档修复] Reality 会重置 Break（isBroken=false），但此时已处于永恒层，
+            // 仍必须用成长窗口：否则回落到 5 秒高频 crunch，maxAM 被反复清空，
+            // IP 只有约 1.1 数量级/分钟（1400 秒实测 e53→e75，无法到 e308）。
+            val resumeInterval = if (inEternityLayer) {
                 OrekiCrunchPolicy.eternityWaitSeconds()
             } else {
                 PRE_BREAK_CRUNCH_SECONDS
@@ -1961,7 +1964,9 @@ object OrekiStageAuto {
                 // 必须同时按 isBroken() 与是否已进入永恒层（realities>0 || eternities>0）分流：
                 //   · 首次永恒前（含刚 Break、eternities 仍为 0）→ 保持 5 秒 farming 节奏；
                 //   · 已进入永恒层（含 Reality 后 eternities 被清零但 realities>0）→ 成长窗口。
-                val zeroInterval = if (isBroken() && inEternityLayer) {
+                // [R116-02-01 真新档修复] 同 resume：Reality 后 isBroken=false 但仍在永恒层，
+                // 必须用成长窗口而不是 5 秒，否则 IP 增长被高频 crunch 压制。
+                val zeroInterval = if (inEternityLayer) {
                     OrekiCrunchPolicy.eternityWaitSeconds()
                 } else {
                     POST_BREAK_RESUME_SECONDS
