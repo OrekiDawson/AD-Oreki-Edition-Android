@@ -114,8 +114,10 @@ Bot 判定有误时只能补充证据请求复核或走人工例外，**不得�
 8. 用 App token 创建/更新 `Oreki Audit / review`（绑定完整 head SHA + 幂等 `external_id`）；
 9. 记录 `oreki-audit-report.json`（事件、SHA、预检、结论、token 指标）。
 
-定时任务：`schedule` 若解析不到目标 PR 会安静跳过（不发 Check、不调模型）——积压恢复需等 MVP 2 的 PR 扫描实现，
-当前**未实现**，如实标 NOT RUN。
+定时任务（已实现）：`schedule` / `workflow_dispatch` 未指定 PR 时，`select_backlog_pr()` 按 `updated_at` 倒序扫描开放 PR，
+只挑「非 draft、state=open、base=main、同仓（非 fork）、该 head SHA 尚未完成过真实审查」的最新一个，然后走同一条
+preflight → Serge → Check 流程；积压为空时安静跳过（不发 Check、不调模型）。新增 4 项选择逻辑单测（总计 36 tests）。
+注意：定时任务同样受高峰/余额守卫约束——被拦下时发布 failure 而**不是** success，且下次定时/新 Commit 会重试。
 
 ## 十、真实状态（2026-11-16 13:30）
 
