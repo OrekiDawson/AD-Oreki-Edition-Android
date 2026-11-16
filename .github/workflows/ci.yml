@@ -79,7 +79,14 @@ jobs:
             echo "::error::Missing trustworthy Git comparison base for naming-debt guard"
             exit 1
           }
-          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
+          # [R116-02-01] base SHA 可能因 main 重写而不可达：回退到 main 的浅克隆，
+          # 保证命名增量检查在合法比较基上运行，而不是直接判失败。
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA" || \
+            git fetch --no-tags --filter=blob:none --depth=1 origin main
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA=$(git rev-parse FETCH_HEAD)
+            echo "::warning::base $BASE_SHA unreachable; falling back to origin/main=$BASE_SHA"
+          fi
           python3 scripts/check_kotlin_naming_delta.py --base "$BASE_SHA"
       - name: Test new source policy guards
         run: python3 -m unittest discover -s scripts/tests -p 'test_repository_policy.py' -v
@@ -96,7 +103,12 @@ jobs:
             echo "::error::Missing trustworthy base SHA for repository policy"
             exit 1
           }
-          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA" || \
+            git fetch --no-tags --filter=blob:none --depth=1 origin main
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA=$(git rev-parse FETCH_HEAD)
+            echo "::warning::base $BASE_SHA unreachable; falling back to origin/main=$BASE_SHA"
+          fi
           python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
       - name: Test staged AGP directory migration policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_directory_layout.py' -v
