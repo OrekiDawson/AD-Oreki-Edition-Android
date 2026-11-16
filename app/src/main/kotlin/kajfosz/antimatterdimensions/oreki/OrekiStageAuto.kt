@@ -118,12 +118,6 @@ object OrekiStageAuto {
      */
     private const val POST_BREAK_RESUME_SECONDS = 5.0
 
-    /**
-     * [R116-02-01 Kody] 永恒层「窗口到期」放行时必须让 autobuyer 立即结算一次。
-     * pause 期间 autobuyer 关闭、TIME 模式不计时，若 resume 仍写 600 秒，一帧内永远不会到期
-     * ⇒ 放行拍实际不产生坍缩。这里用原版允许的最小正间隔，让到期那一拍真的执行一次 crunch。
-     */
-    private const val CRUNCH_RESUME_MIN_SECONDS = 1.6667E-5
 
     /**
      * [R96 第三轮] 经济任务饥饿阈值（毫秒）。
@@ -1904,24 +1898,20 @@ object OrekiStageAuto {
                 writeManagedCrunchInterval(crunch, pauseSeconds, restoreDue, "pause:" + decision.reason)
                 return
             }
+            // [R116-02-01 Kody P1] 间隔写入必须**每帧无条件**执行：加载存档时 pauseReason 初始为 null，
+            // 旧实现会把 resume 写入整个跳过，导致「TIME 仍 5 秒但策略已改为放行」。
+            // [R116-02-01 Kody P2] 只有「已进入永恒层」（realities>0 或 eternities>0）才用成长窗口；
+            // 首次永恒前的 farming 路径（eternitiesZero && isBroken）必须保持 5 秒，
+            // 否则会把首永恒前的 IP 农场拖慢 120 倍。
+            val inEternityLayer = GameApi.realitiesValue() > 0.0 || GameApi.eternitiesValue() > 0.0
+            val resumeInterval = if (isBroken() && inEternityLayer) {
+                OrekiCrunchPolicy.eternityWaitSeconds()
+            } else {
+                PRE_BREAK_CRUNCH_SECONDS
+            }
+            writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
             if (pauseReason != null) {
                 pauseReason = null
-                // [R96] Break 前沿用 60 秒收割间隔；Break 后放行用 5 秒下限，
-                // 真正的结算时机由目标驱动策略每拍判断（不是固定节奏）。
-                // [R116-02-01] Break 后必须给反物质足够的成长窗口：TIME 模式 5 秒内 maxAM 只到
-                // ~e2730，单次坍缩收益≈e91，IP 永远到不了 1.8e308（R116-01 长跑 40 分钟停在 e91）。
-                // R114-01 通关存档用 AMOUNT 模式（amount=e4.6e8）单次收益 10^1.5e7，同一机制下
-                // 60 秒成长即可让 maxAM 到 e1.6e9（实测存档值）⇒ 收益 10^5.4e7。
-                // 这里改用 R99 已有的自适应成长窗口（60s 起，无翻倍则翻倍，上限 1800s）。
-                // [R116-02-01 简化] autobuyer 持续 active，节奏由 TIME interval 控制：
-                // Break 后写成长窗口（600s 起），让反物质有足够时间累积 maxAM；
-                // 期间不暂停 autobuyer，避免「暂停不计时」导致窗口失效。
-                val resumeInterval = if (isBroken()) {
-                    OrekiCrunchPolicy.eternityWaitSeconds()
-                } else {
-                    PRE_BREAK_CRUNCH_SECONDS
-                }
-                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
                 Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
             }
 
@@ -1945,12 +1935,11 @@ object OrekiStageAuto {
                     targetIntervalInitialized = true
                     Log.i(TAG_AU4C, "policy -> interval=" + POST_BREAK_RESUME_SECONDS + "s (target-driven)")
                 }
-                // [R116-02-01 Kody] 该分支在「未 Break」和「Reality 后 eternities 被清零」两种情况下
-                // 都会命中，必须按 isBroken() 分流：
-                //   · 未 Break（早期 IP 农场）→ 保持原 5 秒，避免拖慢 Break；
-                //   · 已 Break（含 Reality 后）→ 使用自适应成长窗口，否则会把策略写入的
-                //     600–1800 秒覆盖回 5 秒，IP 永远到不了 1.8e308。
-                val zeroInterval = if (isBroken()) {
+                // [R116-02-01 Kody] 该分支在「未 Break」「首次 Break 后未首永恒」「Reality 后」都会命中，
+                // 必须同时按 isBroken() 与是否已进入永恒层（realities>0 || eternities>0）分流：
+                //   · 首次永恒前（含刚 Break、eternities 仍为 0）→ 保持 5 秒 farming 节奏；
+                //   · 已进入永恒层（含 Reality 后 eternities 被清零但 realities>0）→ 成长窗口。
+                val zeroInterval = if (isBroken() && inEternityLayer) {
                     OrekiCrunchPolicy.eternityWaitSeconds()
                 } else {
                     POST_BREAK_RESUME_SECONDS

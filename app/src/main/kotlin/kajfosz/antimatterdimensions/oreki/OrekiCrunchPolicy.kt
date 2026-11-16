@@ -218,10 +218,10 @@ object OrekiCrunchPolicy {
                 return Decision(true, "eternity-hold-timeout")
             }
             eternityHoldStartedAt = 0L
-            // [R116-02-01 简化] 不再用「暂停 autobuyer + 窗口放行」控制节奏：
-            // 实测 pause 期间 autobuyer 不计时、resume 一帧无法结算，窗口反复失效。
-            // 改为让 autobuyer 持续 active，由 TIME interval（eternityWaitSeconds，600s 起）
-            // 决定真实结算节奏；反物质在生产链中持续推进，无需暂停。
+            // [R116-02-01 简化] autobuyer 保持 active，由 TIME interval 决定结算节奏。
+            // [待 3.21 核对] 「pause 期间 autobuyer 不计时」「TIME interval 以真实秒计」目前是
+            // 推断 + 旧包实测混合结论；尚未在官方 3.21 包上逐字段核对 auto.bigCrunch 的
+            // mode/time/interval 语义。若基线语义不同，本策略仍需再次调整，见 Issue #163。
             return Decision(true, "eternity-window")
             // [R116-02-01 修复] 投影与 gainVersusIp() 都基于 gainedInfinityPoints() 的投影值，
             // 而该投影在高频坍缩下可达 e1.2e6、实际单次结算只涨几十个数量级（实测）。
