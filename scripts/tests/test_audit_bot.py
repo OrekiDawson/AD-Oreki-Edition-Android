@@ -321,3 +321,65 @@ class BacklogScan(unittest.TestCase):
         self.assertIsNone(self.runner.select_backlog_pr(
             [self._pr(1, "2026-11-16T05:00:00Z")], lambda p: True, self.repo))
 
+
+
+class PricingDelegation(unittest.TestCase):
+    """峰谷判定必须复用 scripts/deepseek_pricing.py（唯一事实源），不得各自硬编码。"""
+
+    def test_matches_authoritative_module(self):
+        import sys
+        from pathlib import Path as _P
+        sys.path.insert(0, str(_P(__file__).resolve().parents[2] / "scripts"))
+        from deepseek_pricing import pricing_window as authoritative
+        samples = [
+            datetime(2026, 11, 16, 9, 0, tzinfo=BJ),
+            datetime(2026, 11, 16, 11, 59, tzinfo=BJ),
+            datetime(2026, 11, 16, 12, 0, tzinfo=BJ),
+            datetime(2026, 11, 16, 14, 0, tzinfo=BJ),
+            datetime(2026, 11, 16, 17, 59, tzinfo=BJ),
+            datetime(2026, 11, 16, 18, 0, tzinfo=BJ),
+            datetime(2026, 11, 21, 10, 0, tzinfo=BJ),   # 周六
+            datetime(2026, 5, 1, 10, 0, tzinfo=BJ),     # 劳动节法定假日
+            datetime(2026, 2, 14, 10, 0, tzinfo=BJ),    # 调休上班日（官方口径仍低谷）
+            datetime(2026, 11, 16, 2, 30, tzinfo=timezone.utc),  # 10:30 CST
+        ]
+        for moment in samples:
+            with self.subTest(moment=moment.isoformat()):
+                self.assertEqual(preflight.pricing_window(moment), authoritative(moment))
+                self.assertEqual(preflight.is_peak(moment), authoritative(moment)[0] == "peak")
+
+    def test_holiday_and_makeup_are_offpeak(self):
+        self.assertFalse(preflight.is_peak(datetime(2026, 10, 1, 10, 0, tzinfo=BJ)))
+        self.assertFalse(preflight.is_peak(datetime(2026, 9, 20, 10, 0, tzinfo=BJ)))  # 调休上班日
+
+    def test_fallback_is_conservative_and_labelled(self):
+        import builtins
+        real_import = builtins.__import__
+
+        def fake_import(name, *a, **kw):
+            if name == "deepseek_pricing":
+                raise ImportError("simulated missing module")
+            return real_import(name, *a, **kw)
+
+        builtins.__import__ = fake_import
+        try:
+            window, reason = preflight.pricing_window(datetime(2026, 11, 16, 10, 0, tzinfo=BJ))
+            self.assertEqual(window, "peak")
+            self.assertTrue(reason.startswith("fallback:"))
+            window2, reason2 = preflight.pricing_window(datetime(2026, 11, 16, 12, 30, tzinfo=BJ))
+            self.assertEqual(window2, "offpeak")
+            self.assertTrue(reason2.startswith("fallback:"))
+        finally:
+            builtins.__import__ = real_import
+
+    def test_decide_reports_pricing_source(self):
+        r = preflight.decide(now=datetime(2026, 11, 16, 12, 30, tzinfo=BJ), check_balance=False,
+                             api_key=None, repo="OrekiDawson/AD-Oreki-Edition-Android", pr=1,
+                             sha="a" * 40, trigger="pull_request_target",
+                             head_repo="OrekiDawson/AD-Oreki-Edition-Android",
+                             base_repo="OrekiDawson/AD-Oreki-Edition-Android", base_ref="main",
+                             default_branch="main", author_is_bot=False, diff_chars=100)
+        self.assertEqual(r["pricing_source"], "deepseek_pricing")
+        self.assertFalse(r["peak"])
+        self.assertTrue(r["allow"], r["reasons"])
+

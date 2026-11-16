@@ -33,12 +33,34 @@ RULES_VERSION = "android-2026-11-16"
 BALANCE_URL = "https://api.deepseek.com/user/balance"
 
 
+def pricing_window(now: datetime) -> tuple[str, str]:
+    """用项目唯一事实源 `scripts/deepseek_pricing.py` 判定峰谷。
+
+    该模块已实现：北京时间（Asia/Shanghai）、工作日 09:00-12:00 / 14:00-18:00（右开区间）、
+    周末（含调休上班日仍算低谷）、2026/2027 中国法定节假日、以及未知年份的保守默认。
+    这里不复制粘贴日期表，避免两处事实漂移。
+
+    失败时（模块缺失/导入错误/非法输入）回退到内置保守窗口，并用 `fallback:` 前缀标注来源，
+    使调用方可追踪——绝不因异常而放行付费调用。
+    """
+    try:
+        import sys as _sys
+        from pathlib import Path as _Path
+        scripts_dir = _Path(__file__).resolve().parents[2] / "scripts"
+        if str(scripts_dir) not in _sys.path:
+            _sys.path.insert(0, str(scripts_dir))
+        from deepseek_pricing import pricing_window as _pw  # type: ignore
+        return _pw(now)
+    except Exception as exc:  # 模块不可用 → 保守回退（与官方窗口一致）
+        bj = now.astimezone(BEIJING)
+        in_window = any(start <= bj.hour < end for start, end in PEAK_WINDOWS)
+        peak = bj.weekday() < 5 and in_window
+        return ("peak" if peak else "offpeak"), "fallback:" + type(exc).__name__
+
+
 def is_peak(now: datetime) -> bool:
-    """北京时间工作日高峰判定；周末与法定节假日（由调用方传入 conservative=false 时不额外处理）不算高峰。"""
-    bj = now.astimezone(BEIJING)
-    if bj.weekday() >= 5:
-        return False
-    return any(start <= bj.hour < end for start, end in PEAK_WINDOWS)
+    """是否处于 DeepSeek 高峰计费窗口（由 `pricing_window` 计算，含节假日/调休）。"""
+    return pricing_window(now)[0] == "peak"
 
 
 def balance_cny(api_key: str, url: str = BALANCE_URL, timeout: int = 20) -> Decimal | None:
@@ -107,7 +129,8 @@ def decide(*, now: datetime, check_balance: bool, api_key: str | None, repo: str
            pr_open: bool = True, author_association: str | None = None) -> dict:
     key = idempotency_key(repo, pr, sha, rules_version)
     reasons: list[str] = []
-    if is_peak(now):
+    window, window_reason = pricing_window(now)
+    if window == "peak":
         reasons.append("peak-window")
     if not diff_within_cap(diff_chars):
         reasons.append("diff-too-large:%d>%d" % (diff_chars, MAX_DIFF_CHARS))
@@ -137,7 +160,10 @@ def decide(*, now: datetime, check_balance: bool, api_key: str | None, repo: str
         "head_sha": sha,
         "pr": int(pr),
         "repo": repo,
-        "peak": is_peak(now),
+        "peak": window == "peak",
+        "pricing_window": window,
+        "pricing_reason": window_reason,
+        "pricing_source": "fallback" if window_reason.startswith("fallback:") else "deepseek_pricing",
         "diff_chars": diff_chars,
         "balance_cny": str(balance) if balance is not None else None,
         "checked_balance": bool(check_balance),
