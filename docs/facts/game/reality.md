@@ -364,7 +364,10 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 
 3. **60 秒成长窗口不足** `[实测]`（记录于 `8306afc9` 提交信息与 `OrekiCrunchPolicy.kt` 注释；原始 logcat 未入库）
    - 60 s 窗口内反物质只长到 maxAM≈e1050 ⇒ 单次坍缩 IP 仅 +35 个数量级；按 div=30 换算，IP 到 1.8e308 需 maxAM≈e9240 ⇒ 约 500–600 秒真实成长。
-   - 修复前等待/放行语义不一致 `[读码]`：`eternity-grow` 等待上限 `ETERNITY_GROW_WAIT_NS=300 s`（期间暂停 autobuyer，**反物质仍在增长**），
+   - 修复前等待/放行语义不一致 `[读码]`：`eternity-grow` 有**两条**等待分支——
+     ① `OrekiCrunchPolicy.kt:231` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)`（`ETERNITY_GROW_WAIT_NS=300 s`，触发条件为投影 < 1.8e308）；
+     ② `OrekiCrunchPolicy.kt:300` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)`（`ETERNITY_GROW_WAIT_LIMIT_NS=2_400_000_000_000L` 即 2400 s，触发条件为窗口未到期）。
+     两者相差 8 倍，引用「等待窗口不足」结论时必须注明走的是哪条分支（期间均暂停 autobuyer，**反物质仍在增长**），
   但放行时 `OrekiStageAuto.kt:1901-1902` 写入的是 Break 后固定 `POST_BREAK_RESUME_SECONDS=5.0` ⇒ 恢复后每 5 s 真实时间即坍缩、maxAM 无法成长；
   暂停路径写入的 TIME 阈值（60 s）在 autobuyer 关闭期间不产生坍缩，**不能**解释成「只成长 60 s」。修复后等待时长与 resume 阈值统一为同一动态窗口（600 s 起）。
 
@@ -405,8 +408,10 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 - **与既有事实区分**：`[automation/eternity-reality.md#f-r114-01-adoption](../automation/eternity-reality.md#f-r114-01-adoption)` 记录的「Reality 后 28.5 s
   `auto.eternity.isActive` false→true」是**托管层补开关**；Issue #163 的「Reality 后 5 秒内 autoSwitch=true / etUnlock=true」是 R114-01 跑次读数。
   两者字段与机制不同，不得互相替代。
-- **修复效果待验证**：PR #169「一次性永恒升级购买放宽」目标是让原版 `EternityAutobuyerState.h()` 不关闭自动永恒开关；
-  其效果需 AVD 采集 `auto.eternity.isActive` / `eternityUpgradeBits` 确认，本表未采集（**NOT RUN**）。
+- **修复效果待验证（原假设已否定）**：PR #169「一次性永恒升级购买放宽」与 `auto.eternity.isActive` 的因果关系**尚未证实**，
+  且本条前文 `[取码]` 已说明解锁/关闭由「本现实 100 次永恒」里程碑决定（`GameApi.kt:1184-1188`）。
+  早前「目标是让原版 `EternityAutobuyerState.h()` 不关闭开关」的表述属于**已否定的假设**，不得再作为该改动的作用机制；
+  实际作用仍需 AVD 采集 `auto.eternity.isActive` / `eternityUpgradeBits` 确认（**NOT RUN**）。
 - **前序方案效果**：PR #158（realities>0 走收益驱动）合并后，R116-01 定向回归 Reality 后 301.5 s IP `e17→e67`（**有效**）；
   但 30210002（含 #158 + #162）仍在 `e91 @3060 s` 停滞（**不足以突破**）。R115-01 跑次是 #158 **之前**的故障对照
   （见 [collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)），不能用来评价 #158 的效果。
