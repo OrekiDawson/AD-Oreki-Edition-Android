@@ -1,0 +1,7 @@
+*** first infinity t=87s inf=12.0 ***
+*** BREAK t=117s IP=2.7739422031086004e+30 ***
+[break-log] 11-16 12:24:06.458 I/OREKI_BREAK(13671): break-lost ip=0.0e0 maxed=false infinities=0.0e0
+[stage-eternity] 11-16 12:24:06.458 I/OREKI_GUI_STAGE(13671): GUI_GATE_CHANGED from=infinity to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0
+[tab-eternity] 11-16 12:24:06.468 I/OREKI_TABGATE(13671): tab=eternity allowed=true eternityUnlocked=true
+*** ETERNITY t=147s EP=313535149.0 brake_was=True ***
+[done]
