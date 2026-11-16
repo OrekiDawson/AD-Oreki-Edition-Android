@@ -1619,6 +1619,9 @@ object OrekiStageAuto {
     private var crunchPolicyErrorLogged: Boolean = false
     private var crunchPausedByStagePolicy: Boolean = false
 
+    /** [R116-02-01] 原版即时坍缩短路阶段（Infinity.j()==true），MOD 自己按窗口结算的最近触发时刻。 */
+    private var lastManagedCrunchAtMs = 0L
+
     /**
      * [R101 P0] 类初始化发生在本类被 Game.autoBuyerTick 首次调用的瞬间，
      * 早于同一个 autoBuyerTick 里原版 autoBig 的首次 tick。若玩家已经过了首次永恒
@@ -1857,6 +1860,29 @@ object OrekiStageAuto {
             }
 
             val decision = OrekiCrunchPolicy.decide()
+
+            // [R116-02-01 真新档实测根因·决定性修复]
+            // 原版 Infinity.j() = !Player.a.m() || ...，而 m() 是 imaginaryMachines。
+            // 它为 false 时原版 CrunchAutobuyerState.q() 的 `if (e.j() || mode判断)`
+            // 每 tick 立即坍缩，mode/interval/amount 全部失效：
+            // 实测 infinities 908 秒涨到 1.5 亿、maxAM 永远停在 e67、IP 锁死、永恒够不到 e308。
+            // 该阶段必须由 MOD 自己按成长窗口调用 crunch，绝不能让 autobuyer 保持活跃。
+            if (decision.allow && GameApi.infinityAutoCrunchShortcut()) {
+                if (GameApi.isAutobuyerActive(crunch) == true) {
+                    GameApi.setAutobuyerActive(crunch, false)
+                    crunchPausedByStagePolicy = true
+                    Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
+                }
+                val windowMs = (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                val nowMs = System.currentTimeMillis()
+                if (nowMs - lastManagedCrunchAtMs >= windowMs) {
+                    if (GameApi.bigCrunchReset()) {
+                        lastManagedCrunchAtMs = nowMs
+                        Log.i(TAG_AU4C, "managed crunch fired (window=" + windowMs + "ms)")
+                    }
+                }
+                return
+            }
 
             if (decision.allow && crunchPausedByStagePolicy &&
                 GameApi.isAutobuyerActive(crunch) == false) {

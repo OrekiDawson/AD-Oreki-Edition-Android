@@ -826,7 +826,25 @@ internal object GameApi {
      * 后果：MOD 永远认为「未 Break」，pre-break / break-empty / pre-infinity 等
      * 分支持续生效，Reality 后 IP 收益被死死限制（实测存档 brake=true 但策略判 false）。
      */
-    fun isBroken(): Boolean = (readGameField(player(), "brake") as? Boolean) ?: false
+    fun isBroken(): Boolean {
+        val direct = readGameField(player(), "brake") as? Boolean
+        if (direct == null) {
+            // [R116-02-01 诊断] 字段名反射失败时 dump 一次 Player 的字段名，确认真实 DEX 名。
+            if (!isBrokenDiagnosed) {
+                isBrokenDiagnosed = true
+                try {
+                    val names = player()?.javaClass?.declaredFields?.joinToString(",") { it.name }
+                    android.util.Log.i("OREKI_BROKEN", "dump brake missing; fields=" + names)
+                } catch (e: Throwable) {
+                    android.util.Log.i("OREKI_BROKEN", "dump failed: " + e)
+                }
+            }
+            return false
+        }
+        return direct
+    }
+
+    private var isBrokenDiagnosed = false
 
     /** `player().options`。 */
     fun options(): Any? = call(mPlayerK(), player())
@@ -3460,6 +3478,24 @@ internal object GameApi {
      * 大坍缩按钮完全一致。用于佩勒末日阶段「拉满大坍缩间隔所需的真实 IP」那一步
      * （Web _pulseDoomedCrunch 的 bigCrunchResetRequest(true)）。
      */
+    /**
+     * 原版 `Infinity.j()`：`!Player.a.m() || n63.f() || c22.d()`。
+     *
+     * [R116-02-01 真新档实测根因] `Player.a.m()` 是 `imaginaryMachines`（想象机器）。
+     * 它为 false 时 `j()` 恒为 true，于是原版 `CrunchAutobuyerState.q()` 的判定
+     * `if (e.j() || mode判断)` **每个 tick 立即坍缩**，mode/interval/amount 全部失效。
+     * 实测：imaginaryMachines 缺失（false）时 infinities 908 秒涨到 1.5 亿，
+     * maxAM 永远只有 e67 量级，IP 被锁死、永恒永远够不到 e308。
+     * 该阶段必须由 MOD 自己按成长窗口调用 crunch，而不是让 autobuyer 保持活跃。
+     */
+    fun infinityAutoCrunchShortcut(): Boolean = try {
+        val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e")
+        val m = infinityCls?.let { method(it, "j", 0, "Infinity.j()") }
+        (m?.invoke(null) as? Boolean) ?: false
+    } catch (e: Throwable) {
+        false
+    }
+
     fun bigCrunchReset(): Boolean = try {
         val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
         val m = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
