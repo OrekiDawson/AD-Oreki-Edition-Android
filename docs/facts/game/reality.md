@@ -330,19 +330,23 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 1. **bigCrunch 被固定为 TIME 模式（MODE_TIME=1）** `[读码]`
    - `OrekiStageAuto.kt:81` `MODE_TIME = 1`；`:1839/:1885/:1933/:1948` 在托管时 `setCrunchMode(crunch, MODE_TIME)`；
      Break 后 resume interval 固定为 `POST_BREAK_RESUME_SECONDS = 5.0`（`:119`、`:1901`、`:1926`）。
-   - 模式语义 `[读码]`：`AUTO_CRUNCH_MODE = { AMOUNT: 0, TIME: 1, X_HIGHEST: 2 }`（Web `src/core/constants.js:202-206`，与 Kotlin `MODE_TIME=1`/`MODE_X_HIGHEST=2` 一致）。
-   - 对照 `[读码]（提交记录）`：修复提交 `8306afc9` 记录 R114-01 通关存档为 **AMOUNT 模式**（amount=e4.6e8、interval=150000）。
+   - 模式判据 `[读码]`：`AUTO_CRUNCH_MODE = { AMOUNT: 0, TIME: 1, X_HIGHEST: 2 }`（Web `src/core/constants.js:202-206`，与 Kotlin `MODE_TIME=1`/`MODE_X_HIGHEST=2` 一致）：
+     AMOUNT = 单次坍缩收益 ≥ **固定 amount 阈值**（`gainedInfinityPoints().gte(this.amount)`）；TIME = 本无限真实时间 > `time` 秒；
+     X_HIGHEST = 单次收益 ≥ 历史最高收益 × `xHighest`（`highestPrevPrestige.times(xHighest)`）。**AMOUNT 不是「上次收益倍数」**（倍数语义只属于 X_HIGHEST）。
+   - 对照 `[读码]（提交记录）`：修复提交 `8306afc9` 记录 R114-01 通关存档为 AMOUNT（amount=e4.6e8、interval=150000）。
      本轮可复核的 `reports/R114-01/device-save-backup/files/` 确有 mode=0/interval=150000 快照（`playerBackup2.json`、`speedrunBackup010.json`），
      但该批备份 realities=0、amount=e0，**不是通关存档** ⇒ amount=e4.6e8 只能按提交记录转写，未独立复核。
-   - 机制影响：TIME 模式按固定秒数坍缩（5 s），maxAM 来不及成长；AMOUNT 模式按「上次收益倍数」推进，单次可跨更多数量级
-     （修复注释：同一机制下 60 s 成长即可让 maxAM 到 e1.6e9，收益 10^5.4e7）。
+   - 机制影响：MOD 的 `writeManagedCrunchInterval` 写的是 **TIME 模式的 `time` 秒值**（`OrekiStageAuto.kt:735-772`）：恢复时 `time=5.0 s`、暂停时写 3600 s；
+     TIME 下每 5 s 真实时间即可触发坍缩，maxAM 来不及成长；AMOUNT 则等单次收益达到绝对阈值才坍缩
+     （修复注释：60 s 成长可让 maxAM 到 e1.6e9、收益 10^5.4e7）。
 
 2. **`eternity-hold` 与 `eternity-ip-ready` 同帧反复翻转（抖动）** `[实测]`
    - 修复前 hold 判据只要求 `canEternity()`；Reality 后 IP 被清零，但 `canEternity` 读的是**跨永恒 maxIP 记录**，仍可能为真
      ⇒ 同一帧「暂停坍缩」与「放行坍缩」互相覆盖，interval 在 5/3600 之间抖动（记录：每 300 ms 交替、autobuyer 约 1.3 次/秒）。
    - 实测（`run-180min-30210002/logcat.txt`）：21:58:48.715–.840（125 ms）内出现 `hold-timeout → hold → ip-ready → rate-limit → hold` 五次决策；
      `OREKI_CRUNCH_DEC` 计数 `eternity-hold=295`、`eternity-rate-limit=333`、`eternity-ip-ready=44`；
-     `OREKI_AU4C` 中 `policy -> pause (eternity-hold)` 295 次、`policy -> resume (eternity-ip-ready)` 44 次，`policy -> interval=5.0s (target-driven)` 仅 1 次。
+     `OREKI_AU4C`（2 s 日志节流）中 `autoBig paused (eternity-hold)` 294 次、`paused (eternity-rate-limit)` 159 次、`autoBig resumed` 51 次，`policy -> interval=5.0s (target-driven)` 仅 1 次。
+   - 计数口径：以上均为**整份 logcat** 统计；Issue #163 正文记录的 rate-limit=309、cannot-eternity=214 是另一统计窗口（口径不同），引用时须注明，不能与本节数字直接比较。
    - 坍缩频率实测：`OREKI_CRUNCH` 在 22:1x 时段 594 个秒采样、平均 **1.13 次/秒**（最大 2 次/秒），与提交记录「约 1.3 次/秒」同量级。
    - 后果：maxAM 被反复清空、单次收益恒定在低量级；终态 `thisInfinity.maxAM` 指数 1.6e9 而 IP 仅 e91（`verdict.bottleneck_evidence`）。
 
@@ -380,9 +384,20 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 
 - 全部跑次 `fatal_count=0`、`anr_count=0`；首无限 154.7–155.4 s、首永恒 395.5–396.1 s、首现实 606.6–637.4 s。
 - 证据：`reports/R116-01/avd-evidence/{run-180min-30210002,fix-verify-nolimit,verify-window,verify-noflicker,verify-etupg,verify-w600}/`（`verdict.json`/`samples.json`/`run.log`/`logcat.txt`）。
+- **Reality 后 `etUnlock`/`auto.eternity.isActive` 实测（30210002）** `[实测]`：`etUnlock=true` 仅出现于 21:59:53–22:01:57（首次现实 **22:02:26 之前**）；
+  Reality 后全程 `etUnlock=false`（末条 22:42:46）；`verdict.bottleneck_evidence` 记 `autoEternityUnlocked=false`、`auto_eternity_isActive=false`、`eternityUpgradeBits=0`。
+- **与既有事实区分**：`[automation/eternity-reality.md#f-r114-01-adoption](../automation/eternity-reality.md#f-r114-01-adoption)` 记录的「Reality 后 28.5 s
+  `auto.eternity.isActive` false→true」是**托管层补开关**；Issue #163 的「Reality 后 5 秒内 autoSwitch=true / etUnlock=true」是 R114-01 跑次读数。
+  两者字段与机制不同，不得互相替代。
+- **修复效果待验证**：PR #169「一次性永恒升级购买放宽」目标是让原版 `EternityAutobuyerState.h()` 不关闭自动永恒开关；
+  其效果需 AVD 采集 `auto.eternity.isActive` / `eternityUpgradeBits` 确认，本表未采集（**NOT RUN**）。
+- **前序方案局限**：PR #158（realities>0 走收益驱动）**有效但不足以突破** —— R115-01 跑次仍停在 IP e112
+  （见 [collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)）。
 
 ### 四、边界与未决
 
 - 本条只登记「Reality 后坍缩节奏」的三条根因与修复；**180 分钟通关仍未验收（NOT RUN）**，不得据此写 PASS。
 - 60 s 窗口 maxAM≈e1050 与 R114 AMOUNT `amount=e4.6e8` 均来自提交 `8306afc9` 的记录值，原始 logcat/通关存档未入库，本轮无法独立复核。
 - Issue #163 中 23:12 评论的「Reality 后 antimatter 完全冻结」现象在 R3 修复后未复现，**未作为已确认根因登记**。
+- R114-01 原始 logcat（`reports/R114-01/avd-evidence/fresh-180min/logcat.txt`；Issue #163 写作 `fresh-180min-final/`）本轮在工作区**未找到**，
+  R114 对照仅依据既有事实条目与 `reports/R114-01/device-save-backup/` 存档快照，未做 logcat 级对照。

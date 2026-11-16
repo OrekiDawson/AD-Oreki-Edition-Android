@@ -47,7 +47,7 @@
 | [testing-tools.md](testing-tools.md) | 433 | frame-observer、uiautomator、AVD 隔离与取证方法 |
 | [methodology.md](methodology.md) | 676 | 取证纪律、误判案例、极性/断言陷阱、已修复根因 |
 | [game/eternity.md](game/eternity.md) | 331 | 永恒、TT/EP、DS1/DS6、解锁链、ID1 链与判据 |
-| [game/reality.md](game/reality.md) | 388 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
+| [game/reality.md](game/reality.md) | 403 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
 | [game/celestials.md](game/celestials.md) | 66 | 莱特拉、佩勒、虚构升级与 imaginaryUpgradeBits 位号 |
 | [game/challenges.md](game/challenges.md) | 141 | 挑战、永恒挑战（EC）与真实结算 |
 | [game/endgame.md](game/endgame.md) | 299 | 终局判据、endState、门禁与真实通关路径 |
