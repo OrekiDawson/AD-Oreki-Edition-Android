@@ -226,3 +226,57 @@ class AutoTriggerOutcome(unittest.TestCase):
         self.assertEqual(self._decide(verdict=bad)[0], "failure")
         self.assertEqual(self._decide(verdict=good)[0], "success")
 
+
+
+class CommentTriggerAndRetry(unittest.TestCase):
+    """Codex P1 回归：评论触发、Check 端点、token 变量、被阻断后的重试。"""
+
+    def test_issue_comment_member_allowed(self):
+        ok, reasons = preflight.trust_gate(
+            trigger="issue_comment", head_repo="o/r", base_repo="o/r", author_is_bot=False,
+            base_ref="main", default_branch="main", author_association="MEMBER")
+        self.assertTrue(ok, reasons)
+
+    def test_issue_comment_non_member_and_bot_rejected(self):
+        ok, reasons = preflight.trust_gate(
+            trigger="issue_comment", head_repo="o/r", base_repo="o/r", author_is_bot=False,
+            base_ref="main", default_branch="main", author_association="NONE")
+        self.assertFalse(ok)
+        self.assertTrue(any("untrusted-comment-author" in r for r in reasons))
+        ok, reasons = preflight.trust_gate(
+            trigger="issue_comment", head_repo="o/r", base_repo="o/r", author_is_bot=True,
+            base_ref="main", default_branch="main", author_association="MEMBER")
+        self.assertFalse(ok)
+        self.assertIn("self-authored-comment", reasons)
+
+    def test_pull_request_event_still_rejected(self):
+        ok, _ = preflight.trust_gate(
+            trigger="pull_request", head_repo="o/r", base_repo="o/r", author_is_bot=False,
+            base_ref="main", default_branch="main")
+        self.assertFalse(ok)
+
+    def test_check_runs_endpoint_is_commit_scoped(self):
+        url = checks_adapter.check_runs_list_url("https://api.github.com", "o/r", "a" * 40)
+        self.assertIn("/commits/" + "a" * 40 + "/check-runs", url)
+        self.assertNotIn("/repos/o/r/check-runs", url)
+
+    def test_token_fallback_gh_token(self):
+        import os as _os
+        old = dict(_os.environ)
+        try:
+            _os.environ.pop("GITHUB_TOKEN", None)
+            _os.environ["GH_TOKEN"] = "tok-gh"
+            self.assertEqual(checks_adapter.resolve_token(), "tok-gh")
+        finally:
+            _os.environ.clear()
+            _os.environ.update(old)
+
+    def test_blocked_failure_can_retry_but_real_review_skips(self):
+        import oreki_auto_runner as runner  # noqa: E402
+        blocked = {"status": "completed", "output": {"summary": "preflight-blocked:peak-window"}}
+        self.assertFalse(runner.prior_review_skippable(blocked))
+        self.assertFalse(runner.prior_review_skippable({"status": "in_progress", "output": {"summary": "clean:P2=0"}}))
+        self.assertTrue(runner.prior_review_skippable({"status": "completed", "output": {"summary": "clean:P2=0"}}))
+        self.assertTrue(runner.prior_review_skippable(
+            {"status": "completed", "output": {"summary": "blocking-findings:P0=1,P1=0"}}))
+

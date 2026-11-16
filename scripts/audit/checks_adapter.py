@@ -108,12 +108,24 @@ def _request(url: str, token: str, method: str = "GET", payload: dict | None = N
     return json.loads(body) if body.strip() else {}
 
 
+def resolve_token(env: dict | None = None) -> str:
+    """App/工作流 token：兼容 GITHUB_TOKEN 与 GH_TOKEN（GitHub Actions 两种命名都常见）。"""
+    e = env if env is not None else __import__("os").environ
+    return (e.get("GITHUB_TOKEN") or e.get("GH_TOKEN") or "").strip()
+
+
+def check_runs_list_url(api_url: str, repo: str, sha: str) -> str:
+    """按 commit 列出 check runs；仓库级 /check-runs 不是受支持的列表端点。"""
+    owner, _, name = repo.partition("/")
+    return (api_url.rstrip("/") + "/repos/" + owner + "/" + name + "/commits/" + sha +
+            "/check-runs?check_name=" + CHECK_NAME.replace(" ", "+") + "&filter=all&per_page=50")
+
+
 def publish(*, api_url: str, repo: str, head_sha: str, token: str, payload: dict) -> dict:
     """幂等发布：同一 external_id 已存在则 PATCH，否则 POST。"""
     owner, _, name = repo.partition("/")
     base = api_url.rstrip("/") + "/repos/" + owner + "/" + name + "/check-runs"
-    existing = _request(base + "?check_name=" + CHECK_NAME.replace(" ", "+") +
-                        "&filter=all&per_page=50", token)
+    existing = _request(check_runs_list_url(api_url, repo, head_sha), token)
     for run in existing.get("check_runs", []) or []:
         if run.get("external_id") == payload.get("external_id") and run.get("head_sha") == head_sha:
             return _request(api_url.rstrip("/") + "/repos/" + owner + "/" + name +
@@ -154,7 +166,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"conclusion": concl, "reason": reason, "payload": payload,
                           "verdict": verdict}, ensure_ascii=False))
         return 0 if concl == EXIT_SUCCESS else 1
-    token = __import__("os").environ.get("GITHUB_TOKEN", "")
+    token = resolve_token()
     if not token:
         print(json.dumps({"conclusion": EXIT_FAILURE, "reason": "missing-app-token"}, ensure_ascii=False))
         return 1

@@ -69,27 +69,42 @@ def diff_within_cap(chars: int, cap: int = MAX_DIFF_CHARS) -> bool:
     return 0 <= chars <= cap
 
 
+TRUSTED_ASSOCIATIONS = ("MEMBER", "OWNER", "COLLABORATOR")
+AUTO_TRIGGERS = ("pull_request_target", "schedule", "workflow_dispatch")
+
+
 def trust_gate(*, trigger: str, head_repo: str, base_repo: str, author_is_bot: bool,
-               base_ref: str, default_branch: str, pr_open: bool = True) -> tuple[bool, list[str]]:
-    """只对受信任事件自动审查：默认分支上的 pull_request_target、同仓 PR、非 Bot 自触发。"""
+               base_ref: str, default_branch: str, pr_open: bool = True,
+               author_association: str | None = None) -> tuple[bool, list[str]]:
+    """受信任事件判定。
+
+    - pull_request_target：同仓（非 fork）、默认分支、非 Bot 自触发；
+    - issue_comment：由仓库成员/所有者/协作者显式触发的手动复审（文档里的 @oreki-audit review）；
+    - schedule / workflow_dispatch：只做积压恢复，仍需其它门禁（余额/高峰）通过。
+    任何其它事件一律拒绝。
+    """
     reasons: list[str] = []
-    if trigger != "pull_request_target":
+    if trigger not in AUTO_TRIGGERS + ("issue_comment",):
         reasons.append("untrusted-trigger:" + trigger)
+    if trigger == "issue_comment":
+        if (author_association or "").upper() not in TRUSTED_ASSOCIATIONS:
+            reasons.append("untrusted-comment-author:" + str(author_association))
+    else:
+        if head_repo.strip().lower() != base_repo.strip().lower():
+            reasons.append("fork-pr-requires-manual-trigger")
+        if base_ref != default_branch:
+            reasons.append("base-not-default")
     if not pr_open:
         reasons.append("pr-not-open")
-    if head_repo.strip().lower() != base_repo.strip().lower():
-        reasons.append("fork-pr-requires-manual-trigger")
     if author_is_bot:
         reasons.append("self-authored-comment")
-    if base_ref != default_branch:
-        reasons.append("base-not-default")
     return (not reasons), reasons
 
 
 def decide(*, now: datetime, check_balance: bool, api_key: str | None, repo: str, pr: int, sha: str,
            trigger: str, head_repo: str, base_repo: str, base_ref: str, default_branch: str,
            author_is_bot: bool, diff_chars: int, rules_version: str = RULES_VERSION,
-           pr_open: bool = True) -> dict:
+           pr_open: bool = True, author_association: str | None = None) -> dict:
     key = idempotency_key(repo, pr, sha, rules_version)
     reasons: list[str] = []
     if is_peak(now):
@@ -98,7 +113,8 @@ def decide(*, now: datetime, check_balance: bool, api_key: str | None, repo: str
         reasons.append("diff-too-large:%d>%d" % (diff_chars, MAX_DIFF_CHARS))
     ok_trust, trust_reasons = trust_gate(trigger=trigger, head_repo=head_repo, base_repo=base_repo,
                                          author_is_bot=author_is_bot, base_ref=base_ref,
-                                         default_branch=default_branch, pr_open=pr_open)
+                                         default_branch=default_branch, pr_open=pr_open,
+                                         author_association=author_association)
     if not ok_trust:
         reasons.extend(trust_reasons)
     balance = None

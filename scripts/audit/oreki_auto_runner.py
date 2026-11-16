@@ -33,7 +33,7 @@ ALLOWED_REPOS_DEFAULT = (
     "orekidawson/ad-oreki-edition-android",
     "orekidawson/ad-oreki-edition-web",
 )
-AUTO_EVENTS = {"pull_request_target", "workflow_dispatch", "schedule"}
+AUTO_EVENTS = {"pull_request_target", "workflow_dispatch", "schedule", "issue_comment"}
 
 
 def repo_allowed(repo: str, allowed: tuple[str, ...] = ALLOWED_REPOS_DEFAULT) -> bool:
@@ -51,6 +51,10 @@ def validate_event(*, event_name: str, action: str | None, pr: dict | None,
         reasons.append("event-not-supported:" + event_name)
     if actor_type == "Bot":
         reasons.append("bot-self-trigger")
+    if event_name == "issue_comment":
+        if action != "created":
+            reasons.append("action-not-reviewable:" + str(action))
+        return (not reasons, reasons)
     if event_name == "pull_request_target":
         if action not in ("opened", "reopened", "synchronize", "ready_for_review"):
             reasons.append("action-not-reviewable:" + str(action))
@@ -123,18 +127,26 @@ def _resolve_pr_number(payload: dict) -> int:
 
 
 def _existing_check(api_url: str, repo: str, sha: str, token: str, external_id: str) -> bool:
-    owner, _, name = repo.partition("/")
-    url = (api_url.rstrip("/") + "/repos/" + owner + "/" + name +
-           "/commits/" + sha + "/check-runs?check_name=" + ca.CHECK_NAME.replace(" ", "+") +
-           "&filter=all&per_page=50")
+    url = ca.check_runs_list_url(api_url, repo, sha)
     try:
         data = ca._request(url, token)  # noqa: SLF001 - 同模块内复用
     except Exception:
         return False
     for run in data.get("check_runs", []) or []:
-        if run.get("external_id") == external_id and run.get("status") == "completed":
+        if run.get("external_id") == external_id and prior_review_skippable(run):
             return True
     return False
+
+
+REVIEWED_SUMMARY_PREFIXES = ("clean:", "blocking-findings:", "no-blocking-findings:")
+
+
+def prior_review_skippable(run: dict) -> bool:
+    """只有『真的完成过一次审查』才跳过；被高峰/余额/无 Diff/报错拦下的 completed failure 必须允许重试。"""
+    if run.get("status") != "completed":
+        return False
+    summary = str(((run.get("output") or {}).get("summary")) or "")
+    return summary.startswith(REVIEWED_SUMMARY_PREFIXES)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -165,8 +177,20 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, ensure_ascii=False))
         return 0 if ok else 1
 
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
+    token = ca.resolve_token()
     api_url = os.environ.get("GITHUB_API_URL", "https://api.github.com")
+    # issue_comment / schedule 的 payload 不含完整 PR 对象：用 API 补齐（仍然只读）
+    if owner and name and pr_number and (not head_sha or not pr or "head" not in (pr or {})):
+        try:
+            pr = ca._request(api_url.rstrip("/") + "/repos/" + owner + "/" + name +
+                             "/pulls/" + str(pr_number), token)  # noqa: SLF001
+            head_sha = str(((pr or {}).get("head") or {}).get("sha") or "")
+            report["head_sha"] = head_sha
+            ok, reasons = validate_event(event_name=event_name, action=action, pr=pr, repo=repo,
+                                         allowed=allowed, actor_type=actor_type)
+            report["event_ok"], report["event_reasons"] = ok, reasons
+        except Exception as exc:
+            report["pr_fetch_error"] = type(exc).__name__
     llm_key = os.environ.get("OREKI_AUDIT_LLM_KEY") or ""
     if not (owner and name and pr_number and head_sha and token):
         report["fatal"] = "missing-context"
@@ -195,7 +219,8 @@ def main(argv: list[str] | None = None) -> int:
                          head_repo=((pr or {}).get("head") or {}).get("repo", {}).get("full_name", repo),
                          base_repo=repo, base_ref=((pr or {}).get("base") or {}).get("ref", "main"),
                          default_branch="main", author_is_bot=actor_type == "Bot",
-                         diff_chars=diff_chars) if ok else {
+                         diff_chars=diff_chars,
+                         author_association=(payload.get("comment") or {}).get("author_association")) if ok else {
         "allow": False, "reasons": reasons, "idempotency_key": external_id}
     report["preflight"] = decision
 
