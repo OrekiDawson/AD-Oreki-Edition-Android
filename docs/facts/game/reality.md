@@ -344,7 +344,10 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 2. **`eternity-hold` 与 `eternity-ip-ready` 同帧反复翻转（抖动）** `[实测]（观测）+ [读码]（判据）`
    - 修复前 hold 判据只要求 `canEternity()`；其判据是 **`records.thisEternity.maxIP ≥ Player.eternityGoal`**
      （`GameApi.kt:3129`；`GameApi.kt:3178` 注释明确是「本永恒 maxIP」，**不是跨永恒记录**）。
-     机制解释 `[推断]`：一次坍缩会把当前 IP 清零，但 `thisEternity.maxIP` 仍 ≥ 门槛 ⇒ canEternity 持续为真 ⇒ 旧 hold 每拍暂停；
+     机制解释 `[推断]`：`canEternity` 只看 `thisEternity.maxIP`、不看当前 IP 余额；当前 IP 可能低于该记录
+     （本永恒起步时为 0，或被时间研究 / IP 倍率等消费）⇒ canEternity 仍为真 ⇒ 旧 hold 每拍暂停；
+     注：坍缩本身**不**重置 IP 余额（`bigCrunchGiveRewards()` 执行 `Currency.infinityPoints.add(infinityPoints)`，
+     `docs/official_src/big-crunch.js:64-71`）；余额下降的具体消费点本条未取证（`[未知]`）。
      同拍投影达标的 `eternity-ip-ready` 又放行 ⇒ 同一帧互相覆盖，`time` 在 5/3600 之间抖动（观测：每 300 ms 交替、约 1.3 次/秒）。
    - 抖动实测窗口在**首次永恒（396.1 s）之后、首次现实（637.4 s）之前**的永恒累积段（样本 21:58:48，t≈419 s）；
      Reality 之后日志中 `eternity-hold` 计数为 **0**（该段只有 `ip-ready=40` / `rate-limit=40`）。
@@ -370,7 +373,7 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 | `5bb19bdb` | 清理限流移除后的死代码（Kody 审查意见） |
 | `8306afc9` | 节奏修复本体 + 采纳 Kody critical（投影复核） |
 
-- **hold 收紧** `[读码]`：`canEternity() && log10(当前 IP) ≥ ETERNITY_IP_LOG10(1.8e308)` 才 hold（`OrekiCrunchPolicy.kt:203-217`），消除「IP 已清零但 canEternity 仍真」造成的抖动。
+- **hold 收紧** `[读码]`：`canEternity() && log10(当前 IP) ≥ ETERNITY_IP_LOG10(1.8e308)` 才 hold（`OrekiCrunchPolicy.kt:203-217`），消除「canEternity 为真但当前 IP 低于 1.8e308」造成的抖动（余额与 maxIP 记录可能不一致）。
 - **成长窗口 60→600 秒** `[读码]`：`ETERNITY_GROW_START_SECONDS = 600.0`；`waitWithin("eternity-grow", eternityGrowSeconds×1e9)` 与 resume 写入的 interval 共用同一动态值。
 - **resume interval 动态化** `[读码]`：`OrekiStageAuto` Break 后 resume 改用 `OrekiCrunchPolicy.eternityWaitSeconds()`（`OrekiStageAuto.kt:1901-1910`、`:1933-1936`），不再固定 5 s。
 - **Kody critical（投影复核）** `[读码]`：放行前用「上次放行至今的真实 IP 增量」复核 `gainedInfinityPoints()` 投影；增量不足且未跨门槛时只跳过本次放行并返回 `eternity-projection-suspect`，**不进入暂停态、不压缩成长窗口**。
