@@ -280,3 +280,44 @@ class CommentTriggerAndRetry(unittest.TestCase):
         self.assertTrue(runner.prior_review_skippable(
             {"status": "completed", "output": {"summary": "blocking-findings:P0=1,P1=0"}}))
 
+
+
+class BacklogScan(unittest.TestCase):
+    """schedule/workflow_dispatch 积压扫描（原 NOT RUN，本轮补齐）。"""
+
+    def setUp(self):
+        import oreki_auto_runner as runner  # noqa: E402
+        self.runner = runner
+        self.repo = "OrekiDawson/AD-Oreki-Edition-Android"
+
+    def _pr(self, number, updated, draft=False, base="main", head_repo=None, state="open"):
+        return {"number": number, "updated_at": updated, "draft": draft, "state": state,
+                "base": {"ref": base},
+                "head": {"sha": ("%040x" % number), "repo": {"full_name": head_repo or self.repo}}}
+
+    def test_picks_newest_eligible(self):
+        prs = [self._pr(1, "2026-11-16T01:00:00Z"), self._pr(2, "2026-11-16T05:00:00Z")]
+        picked = self.runner.select_backlog_pr(prs, lambda p: False, self.repo)
+        self.assertEqual(picked["number"], 2)
+
+    def test_skips_draft_fork_non_main_closed(self):
+        prs = [
+            self._pr(1, "2026-11-16T06:00:00Z", draft=True),
+            self._pr(2, "2026-11-16T05:30:00Z", head_repo="evil/fork"),
+            self._pr(3, "2026-11-16T05:00:00Z", base="dev"),
+            self._pr(4, "2026-11-16T04:00:00Z", state="closed"),
+            self._pr(5, "2026-11-16T03:00:00Z"),
+        ]
+        picked = self.runner.select_backlog_pr(prs, lambda p: False, self.repo)
+        self.assertEqual(picked["number"], 5)
+
+    def test_skips_already_reviewed(self):
+        prs = [self._pr(1, "2026-11-16T05:00:00Z"), self._pr(2, "2026-11-16T04:00:00Z")]
+        picked = self.runner.select_backlog_pr(prs, lambda p: p["number"] == 1, self.repo)
+        self.assertEqual(picked["number"], 2)
+
+    def test_none_when_backlog_empty(self):
+        self.assertIsNone(self.runner.select_backlog_pr([], lambda p: False, self.repo))
+        self.assertIsNone(self.runner.select_backlog_pr(
+            [self._pr(1, "2026-11-16T05:00:00Z")], lambda p: True, self.repo))
+

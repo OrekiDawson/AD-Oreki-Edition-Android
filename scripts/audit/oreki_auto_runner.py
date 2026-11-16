@@ -138,6 +138,33 @@ def _existing_check(api_url: str, repo: str, sha: str, token: str, external_id: 
     return False
 
 
+def select_backlog_pr(prs: list, is_reviewed, repo: str) -> dict | None:
+    """定时/补偿任务：按更新时间倒序挑一个值得复审的开放 PR。
+
+    规则与事件触发保持一致：非 draft、state=open、base=main、同仓（非 fork）、
+    且该 head SHA 尚未完成过审查（is_reviewed 回调由调用方用 Check 幂等键判定）。
+    找不到返回 None（表示积压为空或全部已审）。
+    """
+    def _sort_key(pr: dict) -> str:
+        return str(pr.get("updated_at") or "")
+
+    for pr in sorted(prs or [], key=_sort_key, reverse=True):
+        if pr.get("draft") or pr.get("state") != "open":
+            continue
+        if (pr.get("base") or {}).get("ref") != "main":
+            continue
+        head = ((pr.get("head") or {}).get("repo") or {}).get("full_name") or ""
+        if head.strip().lower() != repo.strip().lower():
+            continue
+        try:
+            if is_reviewed(pr):
+                continue
+        except Exception:
+            continue
+        return pr
+    return None
+
+
 REVIEWED_SUMMARY_PREFIXES = ("clean:", "blocking-findings:", "no-blocking-findings:")
 
 
@@ -179,6 +206,34 @@ def main(argv: list[str] | None = None) -> int:
 
     token = ca.resolve_token()
     api_url = os.environ.get("GITHUB_API_URL", "https://api.github.com")
+    # schedule / workflow_dispatch 未指定 PR 时：扫描积压，挑一个未审查的最新 PR 复审。
+    if event_name in ("schedule", "workflow_dispatch") and not pr_number and owner and name:
+        try:
+            open_prs = ca._request(api_url.rstrip("/") + "/repos/" + owner + "/" + name +
+                                   "/pulls?state=open&per_page=50&sort=updated&direction=desc",
+                                   token)  # noqa: SLF001
+        except Exception as exc:
+            report["backlog_error"] = type(exc).__name__
+            open_prs = []
+        picked = select_backlog_pr(
+            open_prs if isinstance(open_prs, list) else [],
+            lambda p: _existing_check(api_url, repo, str(((p.get("head") or {}).get("sha") or "")),
+                                      token, pf.idempotency_key(repo, int(p.get("number") or 0),
+                                                               str(((p.get("head") or {}).get("sha") or "")))),
+            repo)
+        report["backlog_scanned"] = len(open_prs) if isinstance(open_prs, list) else 0
+        if picked is None:
+            report["skipped"] = "backlog-empty"
+            print(json.dumps(report, ensure_ascii=False))
+            return 0
+        pr = picked
+        pr_number = int(picked.get("number") or 0)
+        head_sha = str(((picked.get("head") or {}).get("sha") or ""))
+        report.update({"pr": pr_number, "head_sha": head_sha, "picked_from_backlog": True})
+        ok, reasons = validate_event(event_name="pull_request_target", action="synchronize", pr=pr,
+                                     repo=repo, allowed=allowed, actor_type="User")
+        report["event_ok"], report["event_reasons"] = ok, reasons
+        event_name = "pull_request_target"  # 后续 preflight 按 PR 事件口径处理
     # issue_comment / schedule 的 payload 不含完整 PR 对象：用 API 补齐（仍然只读）
     if owner and name and pr_number and (not head_sha or not pr or "head" not in (pr or {})):
         try:
