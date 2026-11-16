@@ -218,15 +218,11 @@ object OrekiCrunchPolicy {
                 return Decision(true, "eternity-hold-timeout")
             }
             eternityHoldStartedAt = 0L
-            val projectedEternityIp = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
-            if (projectedEternityIp != null && projectedEternityIp < ETERNITY_IP_LOG10) {
-                // 等待时长必须与 resume 时写入的 interval 一致（同一 eternityGrowSeconds），
-                // 否则 pause 300s 却只让 autobuyer 跑 60s，收益被截断。
-                return waitWithin(
-                    "eternity-grow",
-                    (eternityGrowSeconds * 1_000_000_000.0).toLong()
-                )
-            }
+            // [R116-02-01 简化] 不再用「暂停 autobuyer + 窗口放行」控制节奏：
+            // 实测 pause 期间 autobuyer 不计时、resume 一帧无法结算，窗口反复失效。
+            // 改为让 autobuyer 持续 active，由 TIME interval（eternityWaitSeconds，600s 起）
+            // 决定真实结算节奏；反物质在生产链中持续推进，无需暂停。
+            return Decision(true, "eternity-window")
             // [R116-02-01 修复] 投影与 gainVersusIp() 都基于 gainedInfinityPoints() 的投影值，
             // 而该投影在高频坍缩下可达 e1.2e6、实际单次结算只涨几十个数量级（实测）。
             // 只要投影 ≥ 门槛就会每帧放行，等于让 autobuyer 永久高频运行、600 秒窗口失效

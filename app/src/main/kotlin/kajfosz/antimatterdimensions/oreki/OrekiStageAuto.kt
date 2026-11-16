@@ -1913,10 +1913,11 @@ object OrekiStageAuto {
                 // R114-01 通关存档用 AMOUNT 模式（amount=e4.6e8）单次收益 10^1.5e7，同一机制下
                 // 60 秒成长即可让 maxAM 到 e1.6e9（实测存档值）⇒ 收益 10^5.4e7。
                 // 这里改用 R99 已有的自适应成长窗口（60s 起，无翻倍则翻倍，上限 1800s）。
-                // [R116-02-01 Kody] 永恒层窗口到期后必须真正结算一次：autobuyer 在 pause 期间不计时，
-                // 因此 resume 写窗口值等于永不结算。用最小正间隔让其立即执行一次 crunch。
+                // [R116-02-01 简化] autobuyer 持续 active，节奏由 TIME interval 控制：
+                // Break 后写成长窗口（600s 起），让反物质有足够时间累积 maxAM；
+                // 期间不暂停 autobuyer，避免「暂停不计时」导致窗口失效。
                 val resumeInterval = if (isBroken()) {
-                    CRUNCH_RESUME_MIN_SECONDS
+                    OrekiCrunchPolicy.eternityWaitSeconds()
                 } else {
                     PRE_BREAK_CRUNCH_SECONDS
                 }
@@ -1950,7 +1951,7 @@ object OrekiStageAuto {
                 //   · 已 Break（含 Reality 后）→ 使用自适应成长窗口，否则会把策略写入的
                 //     600–1800 秒覆盖回 5 秒，IP 永远到不了 1.8e308。
                 val zeroInterval = if (isBroken()) {
-                    CRUNCH_RESUME_MIN_SECONDS
+                    OrekiCrunchPolicy.eternityWaitSeconds()
                 } else {
                     POST_BREAK_RESUME_SECONDS
                 }
