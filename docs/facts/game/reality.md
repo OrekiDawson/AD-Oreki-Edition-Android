@@ -378,8 +378,10 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 - **成长窗口 60→600 秒** `[读码]`：`ETERNITY_GROW_START_SECONDS = 600.0`；`waitWithin("eternity-grow", eternityGrowSeconds×1e9)` 与 resume 写入的 interval 共用同一动态值。
 - **resume interval 动态化** `[读码]`：`OrekiStageAuto` Break 后 resume 改用 `OrekiCrunchPolicy.eternityWaitSeconds()`（`OrekiStageAuto.kt:1901-1910`、`:1933-1936`），不再固定 5 s。
 - **Kody critical（投影复核）** `[读码]`：放行前用「上次放行至今的真实 IP 增量」复核 `gainedInfinityPoints()` 投影；增量不足且未跨门槛时只跳过本次放行并返回 `eternity-projection-suspect`，**不进入暂停态、不压缩成长窗口**。
-- **一次性永恒升级购买放宽** `[读码]`：`buyEternityUpgrades()` 去掉 `canAutomateEternityUpgrades()` 前置（该前置要求时间维度 1），改为「非挑战中 + EP 足够」即购买，仍走原版商店与真实扣费；
-  使 Reality 后 `etUnlock`/`auto.eternity.isActive` 得以保持（原版 `EternityAutobuyerState.h()` 仅在自动永恒升级已购买时不关闭开关）。
+- **一次性永恒升级购买放宽** `[读码]`：`buyEternityUpgrades()` 去掉 `canAutomateEternityUpgrades()` 前置（该前置要求时间维度 1），改为「非挑战中 + EP 足够」即购买，仍走原版商店与真实扣费。
+  **不得**据此宣称 Reality 后 `etUnlock`/`auto.eternity.isActive` 会被保持：原版 `EternityAutobuyerState` 的解锁/关闭判定是「本现实 100 次永恒」里程碑
+  （`GameApi.kt:1184-1188` 取证 `g()Z`→`f91.r`/`y81.w()` 为里程碑判定；与既有事实 [f-r114-01-reality](reality.md#f-r114-01-reality) 的复位链一致），与一次性升级购买无关。
+  该改动的实际作用需 AVD 采集 `auto.eternity.isActive`/`eternityUpgradeBits` 确认（**NOT RUN**）。
 - **状态**：PR #169 记录时 **OPEN**（未合并）；合并前 main（`f178a21e`）仍是旧行为。
 
 ### 三、真新档验证数据（`[实测]`，同一 AVD、pm clear；定向回归 ≤15 分钟，**不是** 180 分钟通关验收）
