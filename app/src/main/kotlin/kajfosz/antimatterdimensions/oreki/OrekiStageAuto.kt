@@ -1622,6 +1622,9 @@ object OrekiStageAuto {
     /** [R116-02-01] 原版即时坍缩短路阶段（Infinity.j()==true），MOD 自己按窗口结算的最近触发时刻。 */
     private var lastManagedCrunchAtMs = 0L
 
+    /** [AU4b] 永恒层「主动切 TIME」的一次性初始化闩锁（避免每帧改写 mode）。 */
+    private var eternityLayerModeInitialized = false
+
     /** [R116-02-01] 已观察到的 realities 比较值，用于在新 Reality 后重置坍缩窗口。 */
     private var lastRealitiesSeen = Int.MIN_VALUE
 
@@ -1978,12 +1981,17 @@ object OrekiStageAuto {
             // 成长保护（实测存档 mode=0 + amount=10^2.3e8，会长期不结算或按玩家阈值连续结算）。
             // 永恒层由 MOD 调度器负责节奏，因此这里在玩家未手动占用模式时切到 TIME，
             // 让成长窗口真正生效；首次永恒前不切，保持原版 farming 行为。
-            if (isBroken() && inEternityLayer && GameApi.crunchMode(crunch) != MODE_TIME &&
-                OrekiPlayerIntent.mayRewriteCrunchMode()
-            ) {
-                GameApi.setCrunchMode(crunch, MODE_TIME)
-                OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
-                Log.i(TAG_AU4C, "policy -> mode=TIME (eternity-layer growth window)")
+            if (!eternityLayerModeInitialized) {
+                if (isBroken() && inEternityLayer &&
+                    GameApi.crunchMode(crunch) != MODE_TIME &&
+                    OrekiPlayerIntent.mayRewriteCrunchMode()
+                ) {
+                    // [AU4b] 一次性初始化：用闩锁保证只写一次，禁止每帧改写（R74 根因）。
+                    eternityLayerModeInitialized = true
+                    GameApi.setCrunchMode(crunch, MODE_TIME)
+                    OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+                    Log.i(TAG_AU4C, "policy -> mode=TIME (eternity-layer growth window)")
+                }
             }
             val willEnterZeroBranch =
                 OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME
