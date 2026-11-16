@@ -54,6 +54,11 @@ Check 语义：P0/P1 > 0 → `failure`；审查通过 → `success`；P2 只记�
 
 - 硬门禁在 **模型调用前**执行（`preflight.py`，非 Prompt 口头约定）：高峰、余额 <¥10、
   余额查询失败、Diff 超限、非受信任触发 → 直接不调用模型，并发布 failure（或不发布）。
+- **峰谷时间由代码判定，不硬编码**：`preflight.pricing_window()` 直接复用项目唯一事实源
+  `scripts/deepseek_pricing.py`（北京时间 Asia/Shanghai、工作日 09:00–12:00/14:00–18:00 右开区间、
+  周末、**调休上班日仍算低谷**、2026/2027 中国法定节假日、未知年份保守默认）。
+  预检输出带 `pricing_window / pricing_reason / pricing_source`；模块缺失时回退内置保守窗口并标 `fallback:`，
+  任何异常都不会放行付费调用。
 - 上限：`max_diff_chars=180000`、`llm_max_tokens=8192`、`tool_max_iterations=4`、
   单 job `timeout-minutes: 20`、`concurrency` 按 PR+SHA 串行。
 - 恢复：低谷时段同一工作流自动恢复积压（同一 SHA 幂等，不重复审查）。
