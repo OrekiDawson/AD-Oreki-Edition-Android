@@ -488,3 +488,5 @@ R73 的观察「6 次点击后 mode=2」当时被解释为「不走 Q()」，实
 ### 五、边界
 
 - 本条只证明「IP 不再冻结」与修复后定向回归时序；**修复后的 180 分钟真新档长跑在记录时点仍在运行**（2026-11-16 20:09:59 启动，APK `4bbfc1c1…`），结果 NOT RUN，不得提前写 PASS。
+- 后续（R116-02-01）：Reality 后仍存在「bigCrunch 固定 TIME + hold/ip-ready 抖动 + 60 秒成长窗口不足」的节奏问题，
+  根因、修复与实测曲线见 [game/reality.md#f-r116-02-01-reality-crunch-cadence](../game/reality.md#f-r116-02-01-reality-crunch-cadence)（PR #169）。
