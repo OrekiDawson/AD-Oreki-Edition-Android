@@ -1867,7 +1867,10 @@ object OrekiStageAuto {
             // 每 tick 立即坍缩，mode/interval/amount 全部失效：
             // 实测 infinities 908 秒涨到 1.5 亿、maxAM 永远停在 e67、IP 锁死、永恒够不到 e308。
             // 该阶段必须由 MOD 自己按成长窗口调用 crunch，绝不能让 autobuyer 保持活跃。
-            if (decision.allow && GameApi.infinityAutoCrunchShortcut()) {
+            // [R116-02-01 回归修复] 只在**已经发生 Infinity 之后**接管：
+            // 首无限之前必须让原版 autobuyer 即时坍缩（那正是 155s 首无限的来源），
+            // 否则 600s 窗口会把首无限直接阻断（实测 t=305s infinities 仍为 0）。
+            if (decision.allow && GameApi.hasInfinity() && GameApi.infinityAutoCrunchShortcut()) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
