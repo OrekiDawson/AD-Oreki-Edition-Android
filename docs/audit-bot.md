@@ -94,3 +94,37 @@ Bot 判定有误时只能补充证据请求复核或走人工例外，**不得�
 | GitHub App 注册 / 私钥 / 安装 | **BLOCKED（需用户操作）** |
 | 真实 PR 身份与 Check 证据 | **NOT RUN** |
 | Required Check 启用 | **NOT RUN**（须先有真实证据） |
+
+## 九、自动触发（MVP 1/2 已实现，取代官方 Action 直跑）
+
+上游事实（pinned `6668325d`）：`reviewbot/triggers.py:35` 的 `build_review_request()` 只接受
+`issue_comment` / `pull_request_review_comment`，且要求评论以 mention 开头、作者为 MEMBER/OWNER/COLLABORATOR、
+非 Bot。因此在 `pull_request_target` / `schedule` 下直接调用官方 Action 会被**跳过**。
+
+本仓实现 `scripts/audit/oreki_auto_runner.py`（不伪造评论事件）：
+1. 读 Actions Event Payload（`GITHUB_EVENT_PATH`/`OREKI_AUDIT_EVENT_NAME`）；
+2. 仓库白名单（默认 Android/Web 两仓，**注意拼写 `orekidawson`**）+ 事件类型 + PR 状态 + 同仓 + 非 Bot 自触发；
+3. 从 PR API 取 head SHA；Draft / 非 main / 非 open / fork 一律不审；
+4. 复用 `preflight.py`：北京高峰、CNY 余额 ≥¥10、Diff ≤18 万字符、幂等键；
+5. 已存在同 `external_id` 的 completed Check → 直接跳过（不重复付费）；
+6. 调用上游真实引擎：`Config.from_env()` / `GitHubClient` / `ReviewRequest(trigger_comment_id=0, commenter="oreki-audit")`
+   → `prepare_review()` → 再读一次 PR SHA 防并发 → `publish_review()`；
+7. 结论映射（fail-closed）：预检阻断 / 无 Diff / **Diff 被截断（truncated_chunks>0）** /
+   SHA 在审查中变化 / 判决尾注缺失 / 尾注 SHA 不符 / P0·P1 未解决 → `failure`；仅 P2 或全 0 → `success`；
+8. 用 App token 创建/更新 `Oreki Audit / review`（绑定完整 head SHA + 幂等 `external_id`）；
+9. 记录 `oreki-audit-report.json`（事件、SHA、预检、结论、token 指标）。
+
+定时任务：`schedule` 若解析不到目标 PR 会安静跳过（不发 Check、不调模型）——积压恢复需等 MVP 2 的 PR 扫描实现，
+当前**未实现**，如实标 NOT RUN。
+
+## 十、真实状态（2026-11-16 13:30）
+
+| 项 | 状态 |
+|---|---|
+| 自动触发适配器 + 事件/守卫/结论单元测试 | **PASS（26 项）** |
+| 官方 Action 在非评论事件会被跳过（上游读码确认） | **已验证** |
+| 白名单拼写 bug（`orekidawn`→`orekidawson`） | 已由单元测试发现并修复 |
+| GitHub App 注册/私钥/安装 | **BLOCKED（需用户）** |
+| 真实自动审查 E2E（无评论触发、App 身份、行内评论、新 SHA 复审） | **NOT RUN** |
+| schedule 积压扫描 | **NOT RUN（未实现）** |
+

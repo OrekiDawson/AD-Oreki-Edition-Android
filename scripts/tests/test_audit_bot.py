@@ -125,3 +125,104 @@ class Verdict(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AutoTriggerEvent(unittest.TestCase):
+    def setUp(self):
+        import oreki_auto_runner as runner  # noqa: E402
+        self.runner = runner
+        self.pr = {
+            "draft": False, "state": "open",
+            "base": {"ref": "main"},
+            "head": {"sha": "a" * 40, "repo": {"full_name": "OrekiDawson/AD-Oreki-Edition-Android"}},
+        }
+
+    def test_opened_triggers(self):
+        ok, reasons = self.runner.validate_event(
+            event_name="pull_request_target", action="opened", pr=self.pr,
+            repo="OrekiDawson/AD-Oreki-Edition-Android")
+        self.assertTrue(ok, reasons)
+
+    def test_synchronize_and_ready_trigger(self):
+        for action in ("synchronize", "ready_for_review", "reopened"):
+            ok, reasons = self.runner.validate_event(
+                event_name="pull_request_target", action=action, pr=self.pr,
+                repo="OrekiDawson/AD-Oreki-Edition-Android")
+            self.assertTrue(ok, (action, reasons))
+
+    def test_draft_skipped(self):
+        pr = dict(self.pr, draft=True)
+        ok, reasons = self.runner.validate_event(
+            event_name="pull_request_target", action="opened", pr=pr,
+            repo="OrekiDawson/AD-Oreki-Edition-Android")
+        self.assertFalse(ok)
+        self.assertIn("draft-pr", reasons)
+
+    def test_forbidden_cases(self):
+        cases = [
+            dict(event_name="pull_request", action="opened", pr=self.pr,
+                 repo="OrekiDawson/AD-Oreki-Edition-Android", actor_type="User"),
+            dict(event_name="pull_request_target", action="opened", pr=self.pr,
+                 repo="someone/other", actor_type="User"),
+            dict(event_name="pull_request_target", action="opened", pr=self.pr,
+                 repo="OrekiDawson/AD-Oreki-Edition-Android", actor_type="Bot"),
+            dict(event_name="pull_request_target", action="closed", pr=self.pr,
+                 repo="OrekiDawson/AD-Oreki-Edition-Android", actor_type="User"),
+        ]
+        for case in cases:
+            ok, reasons = self.runner.validate_event(**case)
+            self.assertFalse(ok, case)
+            self.assertTrue(reasons)
+
+    def test_fork_and_base(self):
+        fork = dict(self.pr, head={"sha": "a" * 40, "repo": {"full_name": "evil/fork"}})
+        ok, reasons = self.runner.validate_event(
+            event_name="pull_request_target", action="opened", pr=fork,
+            repo="OrekiDawson/AD-Oreki-Edition-Android")
+        self.assertFalse(ok)
+        self.assertIn("fork-pr-not-auto-reviewed", reasons)
+        devbase = dict(self.pr, base={"ref": "dev"})
+        ok, reasons = self.runner.validate_event(
+            event_name="pull_request_target", action="opened", pr=devbase,
+            repo="OrekiDawson/AD-Oreki-Edition-Android")
+        self.assertFalse(ok)
+        self.assertIn("base-not-main", reasons)
+
+
+class AutoTriggerOutcome(unittest.TestCase):
+    def setUp(self):
+        import oreki_auto_runner as runner  # noqa: E402
+        self.runner = runner
+        self.sha = "c" * 40
+
+    def _decide(self, **kw):
+        base = dict(preflight_allow=True, preflight_reasons=[], draft={"summary": "x"},
+                    current_head_sha=self.sha, reviewed_sha=self.sha, truncated=0, verdict=None)
+        base.update(kw)
+        return self.runner.decide_outcome(**base)
+
+    def test_preflight_block_is_failure(self):
+        self.assertEqual(self._decide(preflight_allow=False, preflight_reasons=["peak-window"])[0], "failure")
+
+    def test_no_diff_and_truncated_are_failure(self):
+        self.assertEqual(self._decide(draft=None)[0], "failure")
+        concl, reason = self._decide(truncated=3)
+        self.assertEqual(concl, "failure")
+        self.assertIn("truncated", reason)
+
+    def test_stale_sha_is_failure(self):
+        concl, reason = self._decide(reviewed_sha="d" * 40)
+        self.assertEqual(concl, "failure")
+        self.assertIn("stale", reason)
+
+    def test_missing_verdict_is_failure(self):
+        self.assertEqual(self._decide(verdict=None)[0], "failure")
+
+    def test_blocking_vs_clean(self):
+        bad = checks_adapter.parse_verdict(
+            '<!-- oreki-audit-verdict {"p0":1,"p1":0,"p2":0,"reviewed_sha":"' + self.sha + '"} -->')
+        good = checks_adapter.parse_verdict(
+            '<!-- oreki-audit-verdict {"p0":0,"p1":0,"p2":2,"reviewed_sha":"' + self.sha + '"} -->')
+        self.assertEqual(self._decide(verdict=bad)[0], "failure")
+        self.assertEqual(self._decide(verdict=good)[0], "success")
+

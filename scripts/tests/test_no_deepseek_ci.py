@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRUSTED_AUDIT_WORKFLOW = "oreki-audit.yml"
 SERGE_PIN = "huggingface/serge@6668325d7a4a2e9c3fe814f95f249df0ec347cfd"
+RUNNER = "scripts/audit/oreki_auto_runner.py"
 APP_TOKEN_PIN = "actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547"
 
 
@@ -37,7 +38,10 @@ class NoDeepSeekReviewInCi(unittest.TestCase):
         self.assertIn("scripts/audit/preflight.py", text)
         self.assertIn("pull_request_target", text)
         self.assertIn("OREKI_AUDIT_ENABLED", text)
-        self.assertIn("scripts/audit/checks_adapter.py", text)
+        # 自动触发经我们自己的薄适配器调用上游引擎（官方 Action 在非评论事件会被跳过）
+        self.assertIn(RUNNER, text)
+        self.assertIn("prepare_review", (ROOT / RUNNER).read_text(encoding="utf-8"))
+        self.assertIn("publish_review", (ROOT / RUNNER).read_text(encoding="utf-8"))
         # 绝不能在受信任工作流里 checkout/执行 PR head
         self.assertNotIn("refs/pull/", text)
         self.assertNotIn("actions/checkout@", text.replace("actions/checkout@%s" % "11d5960a326750d5838078e36cf38b85af677262", ""))
