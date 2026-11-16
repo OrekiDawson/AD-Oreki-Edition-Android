@@ -55,6 +55,21 @@ class Trust(unittest.TestCase):
                                            base_ref="main", default_branch="main")
         self.assertTrue(ok, reasons)
 
+    def test_manual_trusted_comment_allows_fork(self):
+        ok, reasons = preflight.trust_gate(trigger="issue_comment", head_repo="fork/r",
+                                           base_repo="o/r", author_is_bot=False,
+                                           base_ref="main", default_branch="main",
+                                           manual_author_trusted=True)
+        self.assertTrue(ok, reasons)
+
+    def test_manual_untrusted_comment_rejects(self):
+        ok, reasons = preflight.trust_gate(trigger="issue_comment", head_repo="o/r",
+                                           base_repo="o/r", author_is_bot=False,
+                                           base_ref="main", default_branch="main",
+                                           manual_author_trusted=False)
+        self.assertFalse(ok)
+        self.assertIn("manual-author-not-trusted", reasons)
+
     def test_rejections(self):
         cases = [
             dict(trigger="pull_request", head_repo="o/r", base_repo="o/r", author_is_bot=False,
@@ -89,6 +104,10 @@ class Verdict(unittest.TestCase):
         self.assertEqual((v["p0"], v["p1"], v["p2"]), (0, 0, 1))
         self.assertIsNone(checks_adapter.parse_verdict("no trailer"))
         self.assertIsNone(checks_adapter.parse_verdict("<!-- oreki-audit-verdict {bad} -->"))
+        self.assertIsNone(checks_adapter.parse_verdict(
+            '<!-- oreki-audit-verdict {"p0":0,"p1":0,"p2":"bad","reviewed_sha":"%s"} -->' % SHA))
+        self.assertIsNone(checks_adapter.parse_verdict(
+            '<!-- oreki-audit-verdict {"p0":0,"p1":0,"p2":-1,"reviewed_sha":"%s"} -->' % SHA))
 
     def test_conclusions(self):
         c = checks_adapter.conclusion
