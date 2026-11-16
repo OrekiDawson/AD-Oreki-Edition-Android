@@ -38,6 +38,25 @@ object OrekiRealityPacing {
     private const val GAIN_FRACTION = 0.02
     private const val LOG_MIN_MS = 5_000L
 
+    /**
+     * [R116-01 P0] 首次现实前的「永恒里程碑链」门槛（本现实永恒次数 ≥ 100）。
+     *
+     * 原版 Reality 结算后 `Autobuyers.reset()` 会在「本现实 100 次永恒」里程碑未达成时
+     * 把 `auto.eternity.isActive` 置回 false；同时 reality 会把本现实 eternities 清零。
+     * 若首次现实在里程碑之前发生，自动永恒可能被关闭、EP 长期为 0，IP 只能靠无限慢涨，
+     * `canEternity` 长时间不成立。R115-01 真新档 180 分钟长跑出现过该状态，而 R114-01
+     * 同基线的通关跑次首次现实发生在 eternities 已 ≥100 之后（完整证据见 PR 描述与 reports/）。
+     */
+    private const val FIRST_REALITY_ETERNITIES_GATE = 100.0
+
+    /** 首次现实等待上限（真墙钟 20 分钟）：判据误判时兜底放行，绝不永久卡死。 */
+    private const val FIRST_REALITY_CHAIN_WAIT_MS = 1_200_000L
+
+    @Volatile private var firstRealityWaitAt: Long = 0L
+
+    /** 兜底放行过一次后持久豁免，避免「放行→清零→再等 20 分钟」的周期拖死现实节奏。 */
+    @Volatile private var firstRealityGateWaived = false
+
     @Volatile private var holdReason: String? = null
     @Volatile private var lastResetAt: Long = 0L
     @Volatile private var readySince: Long = 0L
@@ -266,6 +285,19 @@ object OrekiRealityPacing {
     fun resetCountValue(): Int = resetCount
 
     /**
+     * [R116-01 P0] 本现实永恒次数是否已达「100 次永恒」里程碑。
+     *
+     * 读的是 `Player.eternities`（**本现实**计数，Reality 结算会将其清零），
+     * 不是 lifetime 记录；R115-01 卡死存档在 reality 后该字段实测为 0，可反证语义。
+     * 读不到返回 false（fail-closed，由 [FIRST_REALITY_CHAIN_WAIT_MS] 兜底）。
+     */
+    private fun eternityChainEstablished(): Boolean {
+        val value = GameApi.eternitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(value, FIRST_REALITY_ETERNITIES_GATE) ?: return false
+        return cmp >= 0
+    }
+
+    /**
      * 是否允许本次现实重置。
      *
      * @param nowMs `SystemClock.elapsedRealtime()`。
@@ -285,6 +317,21 @@ object OrekiRealityPacing {
             if (cmpZero <= 0) {
                 lastResetAt = 0L
                 readySince = 0L
+                // [R116-01 P0] 首次现实先等本现实永恒里程碑链建立（eternities ≥ 100）。
+                //
+                // 该门槛不是唯一防线（OrekiCrunchPolicy 已让 reality>0 走永恒层收益驱动）；
+                // 它的作用是尽量避免「永恒链尚未稳定就现实」。兜底放行一次后持久豁免，
+                // 否则会出现「放行→reality 清零 eternities→再次等待」的周期性拖慢。
+                if (!firstRealityGateWaived && !eternityChainEstablished()) {
+                    if (firstRealityWaitAt == 0L) firstRealityWaitAt = nowMs
+                    if (nowMs - firstRealityWaitAt < FIRST_REALITY_CHAIN_WAIT_MS) {
+                        logLimited("wait=first-reality-chain eternities<100 t=" + nowMs)
+                        return false
+                    }
+                    firstRealityGateWaived = true
+                    logLimited("allow=first-reality-chain-waived t=" + nowMs)
+                }
+                firstRealityWaitAt = 0L
                 return true
             }
             val hold = holdReason
