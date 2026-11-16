@@ -70,14 +70,17 @@ def diff_within_cap(chars: int, cap: int = MAX_DIFF_CHARS) -> bool:
 
 
 def trust_gate(*, trigger: str, head_repo: str, base_repo: str, author_is_bot: bool,
-               base_ref: str, default_branch: str, pr_open: bool = True) -> tuple[bool, list[str]]:
+               base_ref: str, default_branch: str, pr_open: bool = True,
+               manual_author_trusted: bool = False) -> tuple[bool, list[str]]:
     """只对受信任事件自动审查：默认分支上的 pull_request_target、同仓 PR、非 Bot 自触发。"""
     reasons: list[str] = []
-    if trigger != "pull_request_target":
+    if trigger not in ("pull_request_target", "issue_comment"):
         reasons.append("untrusted-trigger:" + trigger)
+    if trigger == "issue_comment" and not manual_author_trusted:
+        reasons.append("manual-author-not-trusted")
     if not pr_open:
         reasons.append("pr-not-open")
-    if head_repo.strip().lower() != base_repo.strip().lower():
+    if trigger != "issue_comment" and head_repo.strip().lower() != base_repo.strip().lower():
         reasons.append("fork-pr-requires-manual-trigger")
     if author_is_bot:
         reasons.append("self-authored-comment")
@@ -89,7 +92,7 @@ def trust_gate(*, trigger: str, head_repo: str, base_repo: str, author_is_bot: b
 def decide(*, now: datetime, check_balance: bool, api_key: str | None, repo: str, pr: int, sha: str,
            trigger: str, head_repo: str, base_repo: str, base_ref: str, default_branch: str,
            author_is_bot: bool, diff_chars: int, rules_version: str = RULES_VERSION,
-           pr_open: bool = True) -> dict:
+           pr_open: bool = True, manual_author_trusted: bool = False) -> dict:
     key = idempotency_key(repo, pr, sha, rules_version)
     reasons: list[str] = []
     if is_peak(now):
@@ -98,7 +101,8 @@ def decide(*, now: datetime, check_balance: bool, api_key: str | None, repo: str
         reasons.append("diff-too-large:%d>%d" % (diff_chars, MAX_DIFF_CHARS))
     ok_trust, trust_reasons = trust_gate(trigger=trigger, head_repo=head_repo, base_repo=base_repo,
                                          author_is_bot=author_is_bot, base_ref=base_ref,
-                                         default_branch=default_branch, pr_open=pr_open)
+                                         default_branch=default_branch, pr_open=pr_open,
+                                         manual_author_trusted=manual_author_trusted)
     if not ok_trust:
         reasons.extend(trust_reasons)
     balance = None
@@ -147,6 +151,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--default-branch", default="main")
     ap.add_argument("--author-is-bot", default="false")
     ap.add_argument("--pr-open", default="true")
+    ap.add_argument("--manual-author-trusted", default="false")
     ap.add_argument("--diff-chars", type=int, required=True)
     ap.add_argument("--rules-version", default=RULES_VERSION)
     ap.add_argument("--now")
@@ -171,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
         diff_chars=args.diff_chars,
         rules_version=args.rules_version,
         pr_open=args.pr_open.strip().lower() == "true",
+        manual_author_trusted=args.manual_author_trusted.strip().lower() == "true",
     )
     text = json.dumps(result, ensure_ascii=False)
     print(text)
