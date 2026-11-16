@@ -818,8 +818,15 @@ internal object GameApi {
         return mPlayerBigC
     }
 
-    /** 是否已 Break（`Player.m()`）。 */
-    fun isBroken(): Boolean = (call(mPlayerM(), player()) as? Boolean) ?: false
+    /**
+     * 是否已 Break（**`Player.brake` 字段，原版把 break 拼成 brake**）。
+     *
+     * [R116-02-01 真新档实测修复] 旧实现绑定 `Player.m()`，而该方法返回
+     * `imaginaryMachines`（Reality 前置布尔），**根本不是 Break 状态**。
+     * 后果：MOD 永远认为「未 Break」，pre-break / break-empty / pre-infinity 等
+     * 分支持续生效，Reality 后 IP 收益被死死限制（实测存档 brake=true 但策略判 false）。
+     */
+    fun isBroken(): Boolean = (readGameField(player(), "brake") as? Boolean) ?: false
 
     /** `player().options`。 */
     fun options(): Any? = call(mPlayerK(), player())
