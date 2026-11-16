@@ -73,12 +73,27 @@ def validate_event(*, event_name: str, action: str | None, pr: dict | None,
     return (not reasons, reasons)
 
 
+# 可自愈的阻断原因：等高峰结束/充值/密钥修复后，新的 Commit 或定时任务会自动重审。
+# 这类原因发布 neutral（GitHub 视作不阻断），避免 Required Check 在高峰或临时余额不足时
+# 把仓库所有 PR 全部锁死；真正的审查失败（P0/P1、模型错误、尾注缺失、被截断）仍是 failure。
+DEFERRED_BLOCK_PREFIXES = ("peak-window", "balance-below-min", "balance-key-missing",
+                           "balance-query-failed")
+
+
+def classify_block(preflight_reasons: list[str]) -> tuple[str, str]:
+    """把预检阻断映射为 Check 结论：可自愈 → neutral，其余 → failure。"""
+    reasons = list(preflight_reasons or ["unknown"])
+    reason_text = "preflight-blocked:" + ",".join(reasons)
+    deferred = all(any(r.startswith(p) for p in DEFERRED_BLOCK_PREFIXES) for r in reasons)
+    return ("neutral" if deferred else "failure"), reason_text
+
+
 def decide_outcome(*, preflight_allow: bool, preflight_reasons: list[str], draft: dict | None,
                    current_head_sha: str, reviewed_sha: str | None, truncated: int,
                    verdict: dict | None, publish_error: str | None = None) -> tuple[str, str]:
     """把审查结果映射成 Check 结论。fail-closed：只有确证『完整审查且无 P0/P1』才 success。"""
     if not preflight_allow:
-        return "failure", "preflight-blocked:" + ",".join(preflight_reasons or ["unknown"])
+        return classify_block(preflight_reasons)
     if publish_error:
         return "failure", "publish-failed:" + publish_error
     if draft is None:

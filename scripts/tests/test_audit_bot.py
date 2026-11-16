@@ -202,8 +202,13 @@ class AutoTriggerOutcome(unittest.TestCase):
         base.update(kw)
         return self.runner.decide_outcome(**base)
 
-    def test_preflight_block_is_failure(self):
-        self.assertEqual(self._decide(preflight_allow=False, preflight_reasons=["peak-window"])[0], "failure")
+    def test_preflight_block_policy(self):
+        # 可自愈阻断（高峰/余额）→ neutral，避免 Required Check 在高峰锁死仓库；
+        # 不可自愈阻断（不可信触发、Diff 超限）→ failure。
+        self.assertEqual(self._decide(preflight_allow=False, preflight_reasons=["peak-window"])[0], "neutral")
+        self.assertEqual(
+            self._decide(preflight_allow=False, preflight_reasons=["untrusted-trigger:issue_comment"])[0],
+            "failure")
 
     def test_no_diff_and_truncated_are_failure(self):
         self.assertEqual(self._decide(draft=None)[0], "failure")
@@ -452,4 +457,42 @@ class VerdictContract(unittest.TestCase):
         self.assertIsNotNone(v)
         self.assertEqual((v["p0"], v["p1"], v["p2"]), (0, 0, 2))
         self.assertEqual(v["reviewed_sha"], sha)
+
+
+
+class DeferredPreflightBlocks(unittest.TestCase):
+    """高峰/余额类阻断必须 neutral（不锁死 PR），其余阻断才是 failure。"""
+
+    def setUp(self):
+        import oreki_auto_runner as runner
+        self.runner = runner
+
+    def test_empty_or_missing_reasons_fail_closed(self):
+        self.assertEqual(self.runner.classify_block([])[0], "failure")
+        self.assertEqual(self.runner.classify_block(None)[0], "failure")
+        self.assertIn("unknown", self.runner.classify_block([])[1])
+
+    def test_peak_window_is_neutral(self):
+        c, r = self.runner.classify_block(["peak-window"])
+        self.assertEqual(c, "neutral")
+        self.assertIn("peak-window", r)
+
+    def test_balance_reasons_are_neutral(self):
+        for reason in ("balance-below-min:9.99", "balance-key-missing", "balance-query-failed:TimeoutError"):
+            with self.subTest(reason=reason):
+                self.assertEqual(self.runner.classify_block([reason])[0], "neutral")
+
+    def test_untrusted_and_diff_are_failure(self):
+        self.assertEqual(self.runner.classify_block(["untrusted-trigger:issue_comment"])[0], "failure")
+        self.assertEqual(self.runner.classify_block(["diff-too-large:200000>180000"])[0], "failure")
+
+    def test_mixed_reasons_fail_closed(self):
+        self.assertEqual(self.runner.classify_block(["peak-window", "diff-too-large:1>0"])[0], "failure")
+
+    def test_decide_outcome_uses_classification(self):
+        c, r = self.runner.decide_outcome(preflight_allow=False, preflight_reasons=["peak-window"],
+                                          draft=None, current_head_sha="a" * 40, reviewed_sha=None,
+                                          truncated=0, verdict=None)
+        self.assertEqual(c, "neutral")
+        self.assertIn("preflight-blocked", r)
 

@@ -145,7 +145,22 @@ preflight → Serge → Check 流程；积压为空时安静跳过（不发 Chec
 | Secrets | `OREKI_AUDIT_LLM_KEY` **已由本地 0600 密钥文件写入**；`OREKI_AUDIT_APP_PRIVATE_KEY` **缺失**（只能在 App 设置页生成并下载，无 REST API） |
 | 上游固定 | `reviewbot 0.1.0` @ `6668325d7a4a2e9c3fe814f95f249df0ec347cfd`；**已在本机 venv 真实安装**，`Config.from_env` / `GitHubClient` / `ReviewRequest` / `prepare_review` / `publish_review` 五个签名与适配器调用**逐一核对一致** |
 | 余额守卫 | 用真实 Secret 实跑：`balance_cny=96.07`（通过），唯一阻断为 `peak-window`（17:21 属高峰）——**未做任何绕过**；E2E 排在 18:00 后 |
-| 前置闸门 | 工作流新增 `Check audit prerequisites`：App ID / 私钥 / LLM Key 任一缺失时 **安静跳过（不发 Check、不判失败）** |
+| 前置闸门 | 工作流新增 `Check audit prerequisites`：App ID / 私钥 / LLM Key 任一缺失时发布 **neutral** 同名 Check（标题暴露缺少哪一项），只告警、不判失败；配置补齐后新 Commit 自动重审 |
+
+### 端到端真实验收（2026-11-16 18:05–18:22，北京时间）
+
+| 场景 | PR | 结果 |
+|---|---|---|
+| 修复后干净 PR | #151 | run **43846706435** success；Bot Review 为 `oreki-audit[bot]`（COMMENTED），尾注 `{"p0":0,"p1":0,"p2":0,"reviewed_sha":"c4487fbd…"}`；Check `Oreki Audit / review` = **success** 且绑定该 head SHA |
+| 故意缺陷（反转 ¥10 保护） | #154（已关闭） | run **43847050116**：Bot `CHANGES_REQUESTED`，尾注 `{"p0":1,"p1":0,"p2":0}`；Check = **failure**，reason `blocking-findings:P0=1,P1=0` |
+| 新 Commit 复审 | #151 synchronize | 每个新 SHA 都产生新 run 与新 Check（幂等键随 SHA 变化） |
+
+### 可自愈阻断 → neutral（避免 Required Check 锁死仓库）
+
+高峰 `peak-window`、余额 `balance-below-min:* / balance-key-missing / balance-query-failed` 这类**可自愈**阻断
+发布 **neutral**（GitHub 视为不阻断），等低谷/充值后的新 Commit 或定时任务自动重审；
+真正的审查失败（P0/P1、模型错误、尾注缺失、Diff 截断、SHA 不匹配）仍是 **failure**。
+前置缺失时由一个兜底步骤用 `GITHUB_TOKEN` 发布 neutral 同名 Check，避免 Required Check 把 PR 卡死。
 
 ### 仍需仓库所有者完成的两步（无 API 可替代）
 1. （已完成）App **Key pairs → New key** 生成私钥，保存为
@@ -154,4 +169,15 @@ preflight → Serge → Check 流程；积压为空时安静跳过（不发 Chec
 2. 打开 <https://github.com/apps/oreki-audit/installations/new>，仅勾选 `AD-Oreki-Edition-Android` 与 `AD-Oreki-Edition-Web` 安装。
 
 完成上述两步后，我可以直接：写入 `OREKI_AUDIT_APP_PRIVATE_KEY` → 开启 `OREKI_AUDIT_ENABLED` → 18:00 后 dispatch 真实 E2E（自动触发 + App Bot 身份 + Check + 新 SHA 复审）。
+
+
+### 关于 Required Check 的启用边界（2026-11-16 18:35 结论）
+
+本轮**不启用** `Oreki Audit / review` 作为 Required Check。真实审查意见指出两个绕过面：
+
+1. 可自愈阻断改判 neutral 后，GitHub 把 neutral 视为满足 Required Check —— 高峰/余额期间**未审查的新 commit 也能合并**；
+2. 前置缺失兜底 Check 由 `GITHUB_TOKEN` 发布，若 Required Check 限定在 Oreki Audit App，该兜底无法解锁 PR。
+
+因此保持**非阻断模式**（检查可见、可人工要求 Bot 审查，但不作为合并硬门禁）。将来启用必须具备：
+① 可自愈阻断改回 failure（接受高峰期间不许合并的代价）；② Required Check 按**名称**匹配而非绑定单一 App，或兜底 Check 也由 App 发布；③ 文档写明高峰人工例外流程。
 

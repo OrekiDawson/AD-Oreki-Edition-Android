@@ -36,6 +36,11 @@ concurrency:
 jobs:
   audit:
     if: vars.OREKI_AUDIT_ENABLED == 'true'
+    # checks:write 只属于这一个作业；GitHub 无 step 级权限，故放作业级最小化暴露面。
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -68,7 +73,45 @@ jobs:
             echo "audit prerequisites present"
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
+            missing=""
+            [ -n "$APP_ID" ] || missing="$missing App ID"
+            [ -n "$APP_KEY" ] || missing="$missing 私钥"
+            [ -n "$LLM_KEY" ] || missing="$missing LLM Key"
+            echo "missing=${missing# }" >> "$GITHUB_OUTPUT"
             echo "::notice title=Oreki Audit::App ID / private key / LLM key 未全部配置，跳过本次审查（不发布 Check，不判失败）"
+          fi
+
+      - name: Publish neutral check when prerequisites missing
+        # 只有 prereq 步骤本身成功但没有就绪时才发兜底；prereq 报错/被跳过要如实失败，
+        # 不能用一个中性 Check 把真实配置故障藏起来。
+        if: steps.prereq.outcome == 'success' && steps.prereq.outputs.ready != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MISSING: ${{ steps.prereq.outputs.missing }}
+        run: |
+          set -uo pipefail
+          if [ -z "${HEAD_SHA:-}" ]; then
+            echo "no pull_request head (schedule/dispatch) — nothing to publish"
+            exit 0
+          fi
+          MISSING="${MISSING:-}"
+          TITLE="审查未启用（缺少 ${MISSING:-App ID / 私钥 / LLM Key}）"
+          # 兜底发布不能把 job 弄红：token 可能缺少 checks:write（例如 fork 事件），
+          # 失败时只告警，让前置问题在 warning 与日志中可见。
+          if gh api -X POST "repos/${{ github.repository }}/check-runs" \
+            -f name="Oreki Audit / review" \
+            -f head_sha="$HEAD_SHA" \
+            -f status=completed \
+            -f conclusion=neutral \
+            -f external_id="prereq-missing:${PR_NUMBER}:${HEAD_SHA}" \
+            -f "output[title]=$TITLE" \
+            -f "output[summary]=App ID / 私钥 / LLM Key 未全部配置，本次未审查；配置完成后新 Commit 会自动重审。"
+          then
+            echo "neutral check published for $HEAD_SHA"
+          else
+            echo "::warning title=Oreki Audit::兜底 neutral Check 发布失败（token 可能缺少 checks:write），不判失败"
           fi
 
       - name: Mint GitHub App installation token
