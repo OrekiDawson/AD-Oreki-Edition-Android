@@ -341,11 +341,11 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      TIME 下每 5 s 真实时间即可触发坍缩，maxAM 来不及成长；AMOUNT 则等单次收益达到绝对阈值才坍缩
      （修复注释：60 s 成长可让 maxAM 到 e1.6e9、收益 10^5.4e7）。
 
-2. **`eternity-hold` 与 `eternity-ip-ready` 同帧反复翻转（抖动）** `[实测]`
+2. **`eternity-hold` 与 `eternity-ip-ready` 同帧反复翻转（抖动）** `[实测]（观测）+ [读码]（判据）`
    - 修复前 hold 判据只要求 `canEternity()`；其判据是 **`records.thisEternity.maxIP ≥ Player.eternityGoal`**
      （`GameApi.kt:3129`；`GameApi.kt:3178` 注释明确是「本永恒 maxIP」，**不是跨永恒记录**）。
-     一次坍缩会把当前 IP 清零，但 `thisEternity.maxIP` 仍 ≥ 门槛 ⇒ canEternity 持续为真 ⇒ 旧 hold 每拍暂停；
-     同拍投影达标的 `eternity-ip-ready` 又放行 ⇒ 同一帧互相覆盖，`time` 在 5/3600 之间抖动（记录：每 300 ms 交替、约 1.3 次/秒）。
+     机制解释 `[推断]`：一次坍缩会把当前 IP 清零，但 `thisEternity.maxIP` 仍 ≥ 门槛 ⇒ canEternity 持续为真 ⇒ 旧 hold 每拍暂停；
+     同拍投影达标的 `eternity-ip-ready` 又放行 ⇒ 同一帧互相覆盖，`time` 在 5/3600 之间抖动（观测：每 300 ms 交替、约 1.3 次/秒）。
    - 抖动实测窗口在**首次永恒（396.1 s）之后、首次现实（637.4 s）之前**的永恒累积段（样本 21:58:48，t≈419 s）；
      Reality 之后日志中 `eternity-hold` 计数为 **0**（该段只有 `ip-ready=40` / `rate-limit=40`）。
      ⇒ Reality 后的主要问题是根因 1/3（TIME 5 s 强制节奏 + 成长窗口不足），不是 hold 抖动。
