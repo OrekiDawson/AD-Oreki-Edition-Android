@@ -335,7 +335,7 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      AMOUNT = 单次坍缩收益 ≥ **固定 amount 阈值**（`gainedInfinityPoints().gte(this.amount)`）；TIME = 本无限真实时间 > `time` 秒；
      X_HIGHEST = 单次收益 ≥ 历史最高收益 × `xHighest`（`highestPrevPrestige.times(xHighest)`）。**AMOUNT 不是「上次收益倍数」**（倍数语义只属于 X_HIGHEST）。
    - 对照 `[读码]（提交记录）`：修复提交 `8306afc9` 记录 R114-01 通关存档为 AMOUNT（amount=e4.6e8、interval=150000）。
-     本轮可复核的 `reports/R114-01/device-save-backup/files/` 确有 mode=0/interval=150000 快照（`playerBackup2.json`、`speedrunBackup010.json`），
+     本轮可复核的**根工作区** `reports/R114-01/device-save-backup/files/`（Android 仓内无此目录）确有 mode=0/interval=150000 快照（`playerBackup2.json`、`speedrunBackup010.json`），
      但该批备份 realities=0、amount=e0，**不是通关存档** ⇒ amount=e4.6e8 只能按提交记录转写，未独立复核。
    - 机制影响：MOD 的 `writeManagedCrunchInterval` 写的是 **TIME 模式的 `time` 秒值**（`OrekiStageAuto.kt:735-772`）：恢复时 `time=5.0 s`、暂停时写 3600 s；
      TIME 下每 5 s 真实时间即可触发坍缩，maxAM 来不及成长；AMOUNT 则等单次收益达到绝对阈值才坍缩
@@ -354,7 +354,8 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      ⇒ Reality 后的主要问题是根因 1/3（TIME 5 s 强制节奏 + 成长窗口不足），不是 hold 抖动。
    - 实测（`run-180min-30210002/logcat.txt`）：21:58:48.715–.840（125 ms）内出现 `hold-timeout → hold → ip-ready → rate-limit → hold` 五次决策；
      `OREKI_CRUNCH_DEC` 计数 `eternity-hold=295`、`eternity-rate-limit=333`、`eternity-ip-ready=44`；
-     `OREKI_AU4C`（2 s 日志节流）中 `autoBig paused` 共 458 次（hold 294 + rate-limit 159 + id-peak-wait 5）、`autoBig resumed` 51 次；
+     `OREKI_AU4C`（普通 `Log.i`、无节流；`autoBig paused` 仅在 `isActive` 跳变时打印、`policy -> pause` 仅在 `pauseReason` 变化时打印，故计数低于 `OREKI_CRUNCH_DEC` 是门控所致）中
+     `autoBig paused` 共 458 次（hold 294 + rate-limit 159 + id-peak-wait 5）、`autoBig resumed` 51 次；
      `managed interval` 写入 108 次，其中 `3600.0 -> 5.0` 49 次、`5.0 -> 3600.0` 48 次 —— 暂停/放行反复翻转的直接频次证据。
      注：`policy -> interval=5.0s (target-driven)` 只打一次（`targetIntervalInitialized` 惰性标记，`OrekiStageAuto.kt:1922-1925`），**不能**当频次证据。
    - 计数口径：以上均为**整份 logcat** 统计；Issue #163 正文记录的 rate-limit=309、cannot-eternity=214 是另一统计窗口（口径不同），引用时须注明，不能与本节数字直接比较。
@@ -411,5 +412,5 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 - 本条只登记「Reality 后坍缩节奏」的三条根因与修复；**180 分钟通关仍未验收（NOT RUN）**，不得据此写 PASS。
 - 60 s 窗口 maxAM≈e1050 与 R114 AMOUNT `amount=e4.6e8` 均来自提交 `8306afc9` 的记录值，原始 logcat/通关存档未入库，本轮无法独立复核。
 - Issue #163 中 23:12 评论的「Reality 后 antimatter 完全冻结」现象在 R3 修复后未复现，**未作为已确认根因登记**。
-- R114-01 原始 logcat（`reports/R114-01/avd-evidence/fresh-180min/logcat.txt`；Issue #163 写作 `fresh-180min-final/`）本轮在工作区**未找到**，
-  R114 对照仅依据既有事实条目与 `reports/R114-01/device-save-backup/` 存档快照，未做 logcat 级对照。
+- R114-01 原始 logcat（`reports/R114-01/avd-evidence/fresh-180min/logcat.txt`；Issue #163 写作 `fresh-180min-final/`）本轮在 Android 仓与根工作区均**未找到**；
+  R114 对照仅依据既有事实条目与**根工作区** `reports/R114-01/device-save-backup/` 存档快照（该目录不在 Android 仓内），**未做 logcat 级对照**。
