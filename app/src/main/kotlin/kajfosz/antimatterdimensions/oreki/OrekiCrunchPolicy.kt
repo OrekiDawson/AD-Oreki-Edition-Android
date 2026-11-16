@@ -99,22 +99,9 @@ object OrekiCrunchPolicy {
     /** 上次永恒层周期结算/收益结算的时刻（nanoTime）；0 = 未初始化。 */
     private var lastEternityCycleAt: Long = 0L
 
-    /** [R116-01 P0] 永恒层两次「放行坍缩」之间的最小间隔（真墙钟）。 */
-    private const val ETERNITY_ALLOW_MIN_INTERVAL_MS = 60_000L
-    @Volatile private var lastEternityAllowAt: Long = 0L
-
     /** [R116-01 P0] canEternity hold 的上限：超时仍无结算就放行一次增长，避免无限停滞。 */
     private const val ETERNITY_HOLD_MAX_MS = 180_000L
     @Volatile private var eternityHoldStartedAt: Long = 0L
-
-    /** 是否被最小间隔限流。 */
-    private fun eternityRateLimited(nowMs: Long): Boolean =
-        lastEternityAllowAt != 0L && nowMs - lastEternityAllowAt < ETERNITY_ALLOW_MIN_INTERVAL_MS
-
-    /** 记录一次放行（供后续限流）。 */
-    private fun noteEternityAllow(nowMs: Long) {
-        lastEternityAllowAt = nowMs
-    }
 
     /** [R99] 当前永恒层成长窗口（秒），供 `OrekiStageAuto` 写入坍缩间隔。 */
     @JvmStatic
@@ -225,7 +212,6 @@ object OrekiCrunchPolicy {
                 return Decision(true, "eternity-hold-timeout")
             }
             eternityHoldStartedAt = 0L
-            val nowMs = android.os.SystemClock.elapsedRealtime()
             val projectedEternityIp = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
             if (projectedEternityIp != null && projectedEternityIp < ETERNITY_IP_LOG10) {
                 return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)
@@ -235,7 +221,6 @@ object OrekiCrunchPolicy {
                 // 大坍缩自动器长期关停（isActive=false / time=3600），autobuyer 一帧都跑不到，
                 // 真新档首现实后 IP 增速反而从 ~1 数量级/分钟降到 0.4。
                 // 移除限流后同一真新档首现实 60 秒内 IP 从 e17 跳到 e53（R114 同路径）。
-                noteEternityAllow(nowMs)
                 waitStartedAt = 0L
                 return Decision(true, "eternity-ip-ready")
             }
