@@ -168,5 +168,5 @@
 - 使用 Kodus **在线托管版（Community BYOK）** 对 Android/Web PR 提供独立 AI 审查，不在普通 GitHub Actions 中调用收费模型。
 - Lead 在 PR 提交、合并前读取可用的 Kody 审查意见；有具体代码证据的 P0/P1 先修复、推送新 Commit 并复核。未实际运行时写 `KODY NOT RUN`，不得伪造 PASS。
 - 审查仅作辅助意见，不能代替已有 Required Checks、APK、AVD、签名、CI/CD 或发布验收；不自动 APPROVE、合并或发布。
-- 在线审查不自动继承本项目高峰/余额安全守卫；当前仓库保持手动审查，只有合规低谷且可用余额 ≥¥10 时允许发起付费调用。
+- 在线审查不自动继承本项目高峰/余额安全守卫；Kodus Cloud 在线自动触发由云端设置决定，本仓不伪造高峰/余额熔断；Lead 主动请求审查前必须在低谷、余额 ≥¥10。若云端无法设置硬性限制，应由账户持有人关闭自动收费审查。
 - 配置与剩余账户侧操作见 [docs/KODUS_REVIEW_SETUP.md](docs/KODUS_REVIEW_SETUP.md)，专项规则见 `.kody/rules/`。

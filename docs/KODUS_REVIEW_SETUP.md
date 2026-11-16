@@ -23,20 +23,19 @@ Kodus Cloud 与现有 DeepSeek Harness Lead 分离；Lead 收到可信 P0/P1 后
 3. 在 Kodus 的仓库选择界面启用这两个仓库。
 4. 在 Kodus 的 BYOK 配置界面填写账户所有者自有的 DeepSeek API Key，
    按实际账户确认模型、端点、额度和计费。不要把密钥放入仓库、Actions 或 PR。
-5. 每仓开启 `kodus Config File Overrides Web Preferences`（若当前 Kodus 版本仍使用此选项），
-   核实 `kodus-config.yml` 真正被加载，并检查 `.kody/rules/` 的适用性。
+5. 以 Kodus Cloud Dashboard 的仓库设置为准配置自动/手动审查、模型、过滤路径及审查规则；
+   核实 `.kody/rules/` 的适用性。本仓**不提供会覆盖云端自动触发的 `kodus-config.yml`**。
 6. 在满足项目非高峰、余额 ≥¥10 的条件下，使用一个真实测试 PR 验证 Kody 评论作者、
    行内建议及新 Commit 复审，记录 PASS / FAIL / BLOCKED / NOT RUN。
 
 ## 自动触发与费用限制
 
-当前仓库配置是**手动审查模式**：`automatedReviewActive: false`、
-`reviewCadence: manual`。这是为了满足现有工作日高峰停工和 DeepSeek
-余额 <¥10 禁止付费调用的约束。Kodus 云端自动 webhook **不会自动继承**
-开发机上的时间及余额守卫。Kodus 的套餐或 Budget 告警不等于硬性停止请求。
+当前审查触发策略由 Kodus Cloud 后台决定；已观察到 Kody 在 PR 上运行，但不能由此推断峰谷或余额门禁已落实。
+Kodus 云端自动 webhook **不会自动继承**开发机上的时间及余额守卫。
+Kodus 套餐或 Budget 告警不等于硬性停止请求。
 
-如需将 Kodus Cloud 改为每次 PR 自动审查，必须先确认在线服务确有可靠、
-可执行的费用与时间限制，或由用户明确更改这项策略；否则不得悄悄打开收费自动化。
+如果 Kodus Cloud 当前已自动审查 PR，请在其后台核实费用和时间策略；无法满足原有硬性约束时，
+应在云端关闭自动收费审查或先取得用户对该策略的明确变更授权，而不是依赖本地脚本提供保护。
 
 请勿将 Kodus 设为 Required Check，除非 GitHub 可可靠验证检查来源、
 最新 Head SHA、服务不可用和阻断状态；不能把普通评论当成实际设备验收。
