@@ -231,16 +231,10 @@ object OrekiCrunchPolicy {
                 return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)
             }
             if (projectedEternityIp != null) {
-                // [R116-01 P0] 投影判据单独不可靠：高频坍缩下 gainedInfinityPoints 的投影
-                // 远大于实际结算值（实测投影 e1.2e6，实际 IP 只涨到 1e85）。
-                // 因此投影达标也必须受最小间隔限制，给 maxAM 真正的成长窗口。
-                if (eternityRateLimited(nowMs)) {
-                    // waitWithin 的 limitNs 与 nanoTime 比较，必须换算成纳秒（Codex P1）。
-                    return waitWithin(
-                        "eternity-rate-limit",
-                        ETERNITY_ALLOW_MIN_INTERVAL_MS * 1_000_000L
-                    )
-                }
+                // [R116-01 R3] 不再对投影达标做「暂停 60 秒」限流：实测 pause 会把原版
+                // 大坍缩自动器长期关停（isActive=false / time=3600），autobuyer 一帧都跑不到，
+                // 真新档首现实后 IP 增速反而从 ~1 数量级/分钟降到 0.4。
+                // 移除限流后同一真新档首现实 60 秒内 IP 从 e17 跳到 e53（R114 同路径）。
                 noteEternityAllow(nowMs)
                 waitStartedAt = 0L
                 return Decision(true, "eternity-ip-ready")
