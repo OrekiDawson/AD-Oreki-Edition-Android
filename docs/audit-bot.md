@@ -181,3 +181,16 @@ preflight → Serge → Check 流程；积压为空时安静跳过（不发 Chec
 因此保持**非阻断模式**（检查可见、可人工要求 Bot 审查，但不作为合并硬门禁）。将来启用必须具备：
 ① 可自愈阻断改回 failure（接受高峰期间不许合并的代价）；② Required Check 按**名称**匹配而非绑定单一 App，或兜底 Check 也由 App 发布；③ 文档写明高峰人工例外流程。
 
+
+### 常驻形态与可用性（2026-11-16 18:40 如实标注）
+
+- **本机没有任何常驻进程/开机自启单元**：`systemctl --user is-enabled oreki-audit-bot.service` 返回 `not-found`，
+  `oreki_daemon.py` 不在 `main`（曾提出 PR #156，**已按用户决定关闭、未合并**），本机进程数为 0。
+- **常驻 = GitHub Actions（服务端）**：审查由 GitHub 托管 runner 执行，仓库不需要、也不应该依赖某个人的开发机在线。
+- **触发面**：`pull_request_target`（opened / reopened / synchronize / ready_for_review）+ 定时 `schedule`（UTC 04:15、10:15 → 北京时间 12:15、18:15，均在低谷）+ 手动 `workflow_dispatch`。
+- **可用性取决于**：GitHub Actions 服务、仓库变量 `OREKI_AUDIT_APP_ID` / `OREKI_AUDIT_ENABLED`、Secrets
+  `OREKI_AUDIT_APP_PRIVATE_KEY` / `OREKI_AUDIT_LLM_KEY` 与 App 安装状态；任一缺失时发布 neutral 兜底 Check 并告警。
+- **不承诺实时**：仓库**没有** webhook 服务器，也没有本机守护进程，因此不存在"秒级审查"；
+  事件触发通常在 1–3 分钟内出结果，定时任务负责补漏。
+- **门禁与费用**：高峰窗口（北京时间 09:00–12:00、14:00–18:00，含法定节假日判定）与余额 <¥10 时**不调用模型**。
+
