@@ -29,7 +29,7 @@
 | 官方 XAPK SHA-256 | `ad1b367ecf872bd71c12b714622424511599177f3a4b9c1a6bb4493bee0dc68a` | [build.md#f-6](facts/build.md#f-6) |
 | 官方 versionCode / SDK | `30210000`；minSdk 32 / targetSdk 37；包名 `kajfosz.antimatterdimensions` | [build.md#f-6](facts/build.md#f-6) |
 | Web 上游冻结 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320cecef96a917cca1dfb68f1f183e499ca`（2026-07-17） | [environment.md#f-2](facts/environment.md#f-2) |
-| MOD 版本规则 | 产品名 Oreki Edition；正式发布 versionCode 必须严格大于历史最大值（当前 `30210000`，来自 R103）；规则见 `AGENTS.md` §9 与 `docs/DELIVERY_RULES.md` | [release.md](facts/release.md) |
+| MOD 版本规则 | 产品名 Oreki Edition；正式发布 versionCode 必须严格大于历史最大值（当前 `30210001`，来自公开 `android-update-3.21.0-a12b5cd6`；下一发布 `30210002` 见 PR #160）；规则见 `AGENTS.md` §9 与 `docs/DELIVERY_RULES.md` | [release.md#f-r116-01-version-30210002](facts/release.md#f-r116-01-version-30210002) |
 
 ## 四、主题索引
 
@@ -39,7 +39,7 @@
 | --- | --- | --- |
 | [facts/environment.md](facts/environment.md) | 85 | 环境实测、常用命令、仓库与产物、外部参考 ID |
 | [facts/build.md](facts/build.md) | 457 | 3.21.0 基线冻结、Gradle/JDK/SDK、构建守卫、APK 指纹、AGP 迁移 |
-| [facts/release.md](facts/release.md) | 151 | 签名、四渠道交付、发布源、回滚与版本记录 |
+| [facts/release.md](facts/release.md) | 212 | 签名、四渠道交付、发布源、回滚与版本记录 |
 | [facts/android-internals.md](facts/android-internals.md) | 384 | REA/smali 逆向、混淆名映射、ABI 语义、GUI 门控 |
 | [facts/kotlin-migration.md](facts/kotlin-migration.md) | 355 | Kotlin 业务类转译、ABI 适配层与迁移里程碑 |
 | [facts/testing-tools.md](facts/testing-tools.md) | 433 | frame-observer、uiautomator、AVD 隔离与取证方法 |
@@ -55,7 +55,7 @@
 | [facts/game/challenges.md](facts/game/challenges.md) | 141 | 挑战、永恒挑战（EC）与真实结算 |
 | [facts/game/endgame.md](facts/game/endgame.md) | 299 | 终局判据、endState、门禁与真实通关路径 |
 | [facts/game/pelle.md](facts/game/pelle.md) | 132 | 佩勒阶段、player.break 与数值边界 |
-| [facts/game/mechanics.md](facts/game/mechanics.md) | 306 | 数值恒等式、后期天花板、IP/维度语义与双端差异 |
+| [facts/game/mechanics.md](facts/game/mechanics.md) | 358 | 数值恒等式、后期天花板、IP/维度语义与双端差异 |
 
 ### 自动化与执行层
 
@@ -65,8 +65,8 @@
 | [facts/automation/infinity-buyers.md](facts/automation/infinity-buyers.md) | 472 | 无限层购买链、首次永恒后硬门与修复 |
 | [facts/automation/strategy.md](facts/automation/strategy.md) | 532 | 智能策略/执行层、解释器与阈值语义 |
 | [facts/automation/break-strategy.md](facts/automation/break-strategy.md) | 374 | 膨胀链活锁、Break 后二次停滞与缺口细化 |
-| [facts/automation/collapse.md](facts/automation/collapse.md) | 424 | 大坍缩模式、UI 重绘与逐帧策略 |
-| [facts/automation/eternity-reality.md](facts/automation/eternity-reality.md) | 646 | 永恒/现实层自动化、首次永恒闸门与复位 |
+| [facts/automation/collapse.md](facts/automation/collapse.md) | 485 | 大坍缩模式、UI 重绘与逐帧策略 |
+| [facts/automation/eternity-reality.md](facts/automation/eternity-reality.md) | 686 | 永恒/现实层自动化、首次永恒闸门与复位 |
 | [facts/automation/beats.md](facts/automation/beats.md) | 419 | 双系统节拍归属、意图链路与相关交付 |
 
 ### Web、教程与未决
@@ -96,6 +96,7 @@
 - **R114-01 P1（imaginaryUpgradeBits 位号）**：[facts/game/celestials.md#f-r114-01-bits](facts/game/celestials.md#f-r114-01-bits)。
 - **R114-01 经济链（TT/DS6/canReality）**：[facts/game/eternity.md#f-r114-01-economy](facts/game/eternity.md#f-r114-01-economy)。
 - **R114-01 自动永恒托管语义（CONFIRMED）**：[facts/automation/eternity-reality.md#f-r114-01-adoption](facts/automation/eternity-reality.md#f-r114-01-adoption)。
+- **R116-01 P0（R115-01 180 分钟真新档 FAIL：现实后坍缩策略误判致 IP 冻结）**：根因与修复 [facts/automation/collapse.md#f-r116-01-real-deadlock](facts/automation/collapse.md#f-r116-01-real-deadlock)（PR #158 / main 386fd09b）；首现实「eternities ≥100」门槛 [facts/automation/eternity-reality.md#f-r116-01-first-reality-gate](facts/automation/eternity-reality.md#f-r116-01-first-reality-gate)；现实后 IP 除数归因 [facts/game/mechanics.md#f-r116-01-ip-divisor-after-reality](facts/game/mechanics.md#f-r116-01-ip-divisor-after-reality)；发布身份 30210001→30210002 [facts/release.md#f-r116-01-version-30210002](facts/release.md#f-r116-01-version-30210002)。
 - **Dilation 自动化缺口（UNKNOWN/INFERRED）**：[facts/open-questions.md#f-dilation-gap](facts/open-questions.md#f-dilation-gap)。
 - **V 解锁门槛 Android 实际值（CONFIRMED）**：[facts/game/reality.md#f-v-unlock-thresholds-android](facts/game/reality.md#f-v-unlock-thresholds-android)。
 - **发布链 / CI 门禁（R114-01）**：bundle 托管 [facts/build.md#f-candidate-bundle-hosting](facts/build.md#f-candidate-bundle-hosting)、程序化审批 [facts/build.md#f-programmatic-approval](facts/build.md#f-programmatic-approval)、AGP v3 签名风险 [facts/build.md#f-agp-v3-signing-risk](facts/build.md#f-agp-v3-signing-risk)、Kotlin 命名门禁 [facts/build.md#f-kotlin-naming-gates](facts/build.md#f-kotlin-naming-gates)。

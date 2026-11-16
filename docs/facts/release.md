@@ -193,3 +193,20 @@
   当前 `reports/R114-01/avd-evidence/acceptance-a12b5cd6/` 不存在（本次检查无该目录）⇒ AVD 验收与 release-gate 尚未执行，
   **candidate ≠ stable**（NOT RUN/BLOCKED，不得写成已发布）。
 - 证据：`gh run view 43735315296 / 43735739171`、artifact 解包元数据、`.github/workflows/release-gate-unified.yml` 输入定义。 `[实测]`
+- **补充（2026-11-16）**：#158 合并后 `386fd09b` 重建的候选**同样报 30210001 但 APK 内容不同**，发布身份冲突与递增方案见 [R116-01 发布身份](#f-r116-01-version-30210002)。
+
+<a id="f-r116-01-version-30210002"></a>
+## R116-01 · 发布身份：30210001 已被公开占用 → PR #160 递增 30210002（CONFIRMED，2026-11-16）
+
+> 与 [发布身份单一来源](#f-release-version-single-source)、[candidate 30210001 链路现状](#f-candidate-30210001-status) 配套阅读。
+
+- **公开版本已占用 30210001 `[实测]`**：Release `android-update-3.21.0-a12b5cd6`（tag 创建 2026-11-15）资产 `AD-Oreki-Edition-3.21.0.apk` 81,587,691 B；
+  versionCode `30210001` / versionName `3.21.0` / 证书 `95960bce…3197`（`docs/avd-acceptance/2026-11-16-a12b5cd6/README.md`、`gh release view android-update-3.21.0-a12b5cd6`）。
+- **修复后候选与公开版同码不同内容 `[实测]`**：#158 合并后源码 `386fd09b` 的 candidate build run `43857877145` success、
+  独立 verification run `43858789481` success；产物 APK SHA-256 `4bbfc1c12b1875a2c8ba5bf962e1502d39c4077de0b58faeec9a5f66921307c6`、81,591,787 B、
+  versionCode 仍 `30210001`、AGP 9.5.1 / `:app:assembleRelease`（`reports/R116-01/candidate/candidate-metadata.json`、`verify-release.json`）。
+  ⇒ **同一 versionCode 对应两份不同 APK**，该候选不得作为新的发布身份（覆盖升级与用户辨识都会错乱）。
+- **递增方案 `[实测]`**：PR #160（OPEN，head `r116-01/version-30210002`，commit `b0d44c93`）只改单一来源 `scripts/release-gate-policy.json`：
+  `versionCode 30210002`、`modVersion 1.0.2`、`lastPublishedVersionCode 30210001`。
+  **未合并前 main（`386fd09b`）的 policy 仍是 30210001 / 1.0.1**，不得把 #160 当已生效。
+- **规则接口**：新发布的 versionCode 必须严格大于历史已发布最大值（现为 `30210001`）；发布身份唯一来源仍是 `scripts/release-gate-policy.json`。
