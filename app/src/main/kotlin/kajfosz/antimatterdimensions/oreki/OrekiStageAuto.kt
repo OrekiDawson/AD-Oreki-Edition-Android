@@ -1903,7 +1903,9 @@ object OrekiStageAuto {
             // [R116-02-01 Kody P2] 只有「已进入永恒层」（realities>0 或 eternities>0）才用成长窗口；
             // 首次永恒前的 farming 路径（eternitiesZero && isBroken）必须保持 5 秒，
             // 否则会把首永恒前的 IP 农场拖慢 120 倍。
-            val inEternityLayer = GameApi.realitiesValue() > 0.0 || GameApi.eternitiesValue() > 0.0
+            val inEternityLayer =
+                (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0 ||
+                    (GameApi.compareToDouble(GameApi.eternitiesValue(), 0.0) ?: 0) > 0
             val resumeInterval = if (isBroken() && inEternityLayer) {
                 OrekiCrunchPolicy.eternityWaitSeconds()
             } else {
