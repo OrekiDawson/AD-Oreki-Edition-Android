@@ -1,3 +1,4 @@
+import os
 """Oreki Audit Bot 静态/单元测试（不联网、不调用模型、不接触任何密钥）。"""
 import json
 import sys
@@ -382,4 +383,44 @@ class PricingDelegation(unittest.TestCase):
         self.assertEqual(r["pricing_source"], "deepseek_pricing")
         self.assertFalse(r["peak"])
         self.assertTrue(r["allow"], r["reasons"])
+
+
+
+class LlmEnvBridge(unittest.TestCase):
+    """上游 Config.from_env 直接读 LLM_API_KEY；仓库 secret 名为 OREKI_AUDIT_LLM_KEY，必须桥接。"""
+
+    def setUp(self):
+        import oreki_auto_runner as runner
+        self.runner = runner
+        self._saved = {k: os.environ.get(k) for k in ("LLM_API_KEY", "OREKI_AUDIT_LLM_KEY")}
+
+    def tearDown(self):
+        for k, v in self._saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+    def test_maps_repo_secret_name_to_upstream_env(self):
+        os.environ.pop("LLM_API_KEY", None)
+        got = self.runner.ensure_llm_env("sk-test")
+        self.assertEqual(got, "sk-test")
+        self.assertEqual(os.environ["LLM_API_KEY"], "sk-test")
+
+    def test_does_not_override_existing_llm_api_key(self):
+        os.environ["LLM_API_KEY"] = "sk-existing"
+        got = self.runner.ensure_llm_env("sk-other")
+        self.assertEqual(got, "sk-existing")
+        self.assertEqual(os.environ["LLM_API_KEY"], "sk-existing")
+
+    def test_empty_key_leaves_env_untouched(self):
+        os.environ.pop("LLM_API_KEY", None)
+        self.assertEqual(self.runner.ensure_llm_env(""), "")
+        self.assertNotIn("LLM_API_KEY", os.environ)
+
+    def test_config_env_requirement_is_satisfied(self):
+        """桥接后 Config.from_env 不再因 LLM_API_KEY 缺失抛 KeyError。"""
+        os.environ.pop("LLM_API_KEY", None)
+        self.runner.ensure_llm_env("sk-test")
+        self.assertIn("LLM_API_KEY", os.environ)
 
