@@ -189,9 +189,11 @@
   APK `antimatter-dimensions.apk` SHA-256 `a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87`、81,587,691 B；
   versionCode `30210001` / versionName `3.21.0`；证书 `95960bce…3197`；builder AGP 9.5.1 / `:app:assembleRelease`；
   `verify-release.json` failed=0、v2+v3=true（`--min-sdk-version 24` 口径）；game jar SHA `5f0fcf39…`、build bundle SHA `8131dfb2…`。
-- **仍未进 release-gate**：release gate workflow 必填 `acceptance_commit_sha` / `acceptance_path`（pinned AVD acceptance.json）；
-  当前 `reports/R114-01/avd-evidence/acceptance-a12b5cd6/` 不存在（本次检查无该目录）⇒ AVD 验收与 release-gate 尚未执行，
-  **candidate ≠ stable**（NOT RUN/BLOCKED，不得写成已发布）。
+- **发布状态更新（2026-11-16 核对，SUPERSEDED 原结论）**：该候选 APK（SHA `a12b5cd6…`、versionCode 30210001）
+  已于 2026-11-15 作为公开 Release `android-update-3.21.0-a12b5cd6` 发布（`gh release view android-update-3.21.0-a12b5cd6`：
+  publishedAt 2026-11-15T21:04:53Z；资产与上列 SHA/字节数/版本号一致，R115-01 报告亦记录「与公开 Release 完全一致」）。
+  因此 `30210001` **已被公开占用**，旧结论「candidate ≠ stable、不得写成已发布」不再适用，替代结论见
+  [R116-01 发布身份](#f-r116-01-version-30210002)。
 - 证据：`gh run view 43735315296 / 43735739171`、artifact 解包元数据、`.github/workflows/release-gate-unified.yml` 输入定义。 `[实测]`
 - **补充（2026-11-16）**：#158 合并后 `386fd09b` 重建的候选**同样报 30210001 但 APK 内容不同**，发布身份冲突与递增方案见 [R116-01 发布身份](#f-r116-01-version-30210002)。
 
