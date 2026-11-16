@@ -2153,7 +2153,10 @@ object OrekiStageAuto {
         if (!GameApi.canEternity()) return "cannot-eternity"
         val gain = GameApi.gainedEternityPointsValue()
         val ep = GameApi.eternityPointsValue()
-        if (gain != null && ep != null) {
+        // [R116-02-01] EP==0（首次永恒）时不适用「收益必须高于当前 EP」判据：
+        // 此时任何正收益都是净增长，而 0 基线会让比较结果恒为「不足」，
+        // 真新档实测因此卡在 ep-gain-too-low（IP 已到 e357、首永恒仍不结算）。
+        if (gain != null && ep != null && GameApi.compareToDouble(ep, 0.0) != 0) {
             val comparison = GameApi.compareBigDoubles(gain, ep)
             if (comparison != null && comparison < 0) return "ep-gain-too-low"
         }
