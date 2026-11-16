@@ -57,7 +57,7 @@
 | [automation/infinity-buyers.md](automation/infinity-buyers.md) | 472 | 无限层购买链、首次永恒后硬门与修复 |
 | [automation/strategy.md](automation/strategy.md) | 532 | 智能策略/执行层、解释器与阈值语义 |
 | [automation/break-strategy.md](automation/break-strategy.md) | 374 | 膨胀链活锁、Break 后二次停滞与缺口细化 |
-| [automation/collapse.md](automation/collapse.md) | 485 | 大坍缩模式、UI 重绘与逐帧策略 |
+| [automation/collapse.md](automation/collapse.md) | 490 | 大坍缩模式、UI 重绘与逐帧策略 |
 | [automation/eternity-reality.md](automation/eternity-reality.md) | 686 | 永恒/现实层自动化、首次永恒闸门与复位 |
 | [automation/beats.md](automation/beats.md) | 419 | 双系统节拍归属、意图链路与相关交付 |
 | [web.md](web.md) | 510 | Web 玩法事实、线上部署、Pages 与真实通关读数 |

@@ -459,7 +459,12 @@ R73 的观察「6 次点击后 mode=2」当时被解释为「不走 Q()」，实
 
 ### 三、修复（PR #158 → main `386fd09b`）`[读码]`
 
-- `OrekiCrunchPolicy.decide()`：判据由「仅 `eternitiesZero()`」改为 `if (!OrekiStageAuto.eternitiesZero() || hasReality())` ⇒ **realities>0 一律走永恒层收益驱动**（一次坍缩值得 ≥10× 当前 IP 才结算），不再高频清零（`OrekiCrunchPolicy.kt:180-192`、`:208`）。
+- `OrekiCrunchPolicy.decide()`：判据由「仅 `eternitiesZero()`」改为 `if (!OrekiStageAuto.eternitiesZero() || hasReality())` ⇒ **realities>0 不再落入新档高频坍缩分支**，改走永恒层门控（`OrekiCrunchPolicy.kt:192`）。**该分支的实际放行顺序**（`OrekiCrunchPolicy.kt:196-262`）：
+  1. `canEternity()` 为真 → 立即放行 `eternity-ready`；
+  2. 否则读原版投影 `gainedInfinityPoints()`：`log10` < `log10(MAX_VALUE)`（≈308.25，即 1.797e308）→ 等待 `eternity-grow`（`ETERNITY_GROW_WAIT_NS=300 s` 到点由 `stall-eternity-grow` 放行）；达到门槛 → 放行 `eternity-ip-ready`；
+  3. **只有投影读不到时**才用 `gainVersusIp()`（一次坍缩相对当前 IP 的数量级）≥1.0（10×）放行 `eternity-ip-jump`；
+  4. 仍不放行时按自适应成长窗口（60 s 起倍增、上限 1800 s）到点放行 `eternity-cycle`，窗口内以 `ETERNITY_GROW_WAIT_LIMIT_NS=2.4e12 ns`（40 分钟）兜底。
+  ⇒ **10× 不是主判据**；本条目的「不再高频坍缩」指不再走新档分支，回归预期应按上述 1–4 门控写，不得写成「≥10× 才结算」。
 - `hasReality()`（`OrekiCrunchPolicy.kt:129-148`）：读 `GameApi.realitiesValue()>0`；**读取失败 fail-safe 走收益驱动**，不得 fail-closed 退回本类要修的死锁路径。
 - 首现实门槛另移到 `OrekiRealityPacing`（本现实 eternities ≥100 + 20 分钟兜底 + 持久豁免），见 [automation/eternity-reality.md#f-r116-01-first-reality-gate](eternity-reality.md#f-r116-01-first-reality-gate)。
 - 复审采纳（#158 第二提交 `67425147`）：持久豁免、统一读取失败方向与日志、源码移除一次性证据。
