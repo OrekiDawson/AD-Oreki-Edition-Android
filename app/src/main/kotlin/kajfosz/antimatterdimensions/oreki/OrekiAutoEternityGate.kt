@@ -155,7 +155,59 @@ internal object OrekiAutoEternityGate {
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
+        // [R115-01 P0] 首次永恒不得由自动化在首个合法帧抢按（见 firstEternityDwellRemainingMs）。
+        if (firstEternityDwellRemainingMs() > 0L) return "first-eternity-dwell"
         return REASON_ALLOW
+    }
+
+    // ---------------------------------------------------- [R115-01 P0] 首次永恒驻留窗口
+    //
+    // 实测缺陷（2026-11-16 真 APK + 独占 AVD，报告 reports/R115-01/）：
+    //   打破无限后约 25 秒，一次坍缩把 IP 推到 2.756e342（≥ 1.797e308），canEternity 首次为真；
+    //   同一秒内新档引导窗口即发起**真实永恒结算**
+    //   （logcat: OREKI_CRUNCH_DEC reason=eternity-ready → OREKI_ET settled ep 0→1.2125e8）。
+    //   玩家可见症状即「刚打破无限就解锁永恒」：无限层被自动化瞬间跳过。
+    //   阶段门禁本身没有泄漏（EP=0 时永恒页签 allowed=false，DEX trampoline 齐全）。
+    //
+    // 语义（只约束「自动化替玩家按首次永恒」，不改变任何游戏机制）：
+    //   · 只作用于**首次永恒**（尚未永恒过）且玩家**没有亲自开启**原版自动永恒开关的引导/托管窗口；
+    //   · 玩家手动按永恒走原版 UI 入口，不经过本门禁，随时可用（手动优先）；
+    //   · 玩家一旦打开「自动永恒」开关，立即按原语义执行，不再驻留；
+    //   · 已永恒过的存档完全不受影响（自动化长跑节奏不变）。
+    //   · 驻留期结束后仍由原版 canEternity + 自动永恒真实结算，绝不伪造。
+    private const val FIRST_ETERNITY_DWELL_MS = 180_000L
+
+    private var dwellStartedAtMs: Long = 0L
+    private var dwellSaveId: String = ""
+
+    /**
+     * 首次永恒自动结算前的剩余驻留时间（毫秒）；0 = 不驻留、可立即自动结算。
+     *
+     * 计时从「本次存档里 canEternity 首次为真」开始；资格消失（例如玩家花掉 IP）即重置，
+     * 换存档（saveIdentity 变化）也重置，避免跨档继承旧计时。
+     */
+    @JvmStatic
+    fun firstEternityDwellRemainingMs(): Long {
+        // 玩家亲自打开自动化 = 明确授权自动结算，不驻留。
+        if (autoEternitySwitchOn()) return 0L
+        // 非首次永恒：既有自动化节奏不受影响。
+        if (!neverEternitied()) return 0L
+        if (!GameApi.canEternity()) {
+            dwellStartedAtMs = 0L
+            return 0L
+        }
+        val saveId = GameApi.saveIdentity() ?: ""
+        if (saveId != dwellSaveId) {
+            dwellSaveId = saveId
+            dwellStartedAtMs = 0L
+        }
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (dwellStartedAtMs == 0L) {
+            dwellStartedAtMs = now
+            return FIRST_ETERNITY_DWELL_MS
+        }
+        val elapsed = now - dwellStartedAtMs
+        return if (elapsed >= FIRST_ETERNITY_DWELL_MS) 0L else FIRST_ETERNITY_DWELL_MS - elapsed
     }
 
     /** 是否放行（等价 reason() == REASON_ALLOW）。 */
@@ -179,6 +231,8 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun challengeAutoStartAllowed(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
+        // [R115-01 P0] 首次永恒驻留期间禁止「自动进入 EC 顺带真实永恒」的旁路。
+        if (firstEternityDwellRemainingMs() > 0L) return false
         if (autoEternitySwitchOn()) return true
         // [R104 P0] 新档引导窗口内同样放行挑战自动化（否则 EC 链在新档永不启动）。
         if (bootstrapActive()) return true
