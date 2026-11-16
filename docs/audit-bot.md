@@ -147,6 +147,21 @@ preflight → Serge → Check 流程；积压为空时安静跳过（不发 Chec
 | 余额守卫 | 用真实 Secret 实跑：`balance_cny=96.07`（通过），唯一阻断为 `peak-window`（17:21 属高峰）——**未做任何绕过**；E2E 排在 18:00 后 |
 | 前置闸门 | 工作流新增 `Check audit prerequisites`：App ID / 私钥 / LLM Key 任一缺失时 **安静跳过（不发 Check、不判失败）** |
 
+### 端到端真实验收（2026-11-16 18:05–18:22，北京时间）
+
+| 场景 | PR | 结果 |
+|---|---|---|
+| 修复后干净 PR | #151 | run **43846706435** success；Bot Review 为 `oreki-audit[bot]`（COMMENTED），尾注 `{"p0":0,"p1":0,"p2":0,"reviewed_sha":"c4487fbd…"}`；Check `Oreki Audit / review` = **success** 且绑定该 head SHA |
+| 故意缺陷（反转 ¥10 保护） | #154（已关闭） | run **43847050116**：Bot `CHANGES_REQUESTED`，尾注 `{"p0":1,"p1":0,"p2":0}`；Check = **failure**，reason `blocking-findings:P0=1,P1=0` |
+| 新 Commit 复审 | #151 synchronize | 每个新 SHA 都产生新 run 与新 Check（幂等键随 SHA 变化） |
+
+### 可自愈阻断 → neutral（避免 Required Check 锁死仓库）
+
+高峰 `peak-window`、余额 `balance-below-min:* / balance-key-missing / balance-query-failed` 这类**可自愈**阻断
+发布 **neutral**（GitHub 视为不阻断），等低谷/充值后的新 Commit 或定时任务自动重审；
+真正的审查失败（P0/P1、模型错误、尾注缺失、Diff 截断、SHA 不匹配）仍是 **failure**。
+前置缺失时由一个兜底步骤用 `GITHUB_TOKEN` 发布 neutral 同名 Check，避免 Required Check 把 PR 卡死。
+
 ### 仍需仓库所有者完成的两步（无 API 可替代）
 1. （已完成）App **Key pairs → New key** 生成私钥，保存为
    `/home/oreki/.config/oreki-audit/oreki-audit.private-key.pem`（0600），并以 `gh secret set` 写入 `OREKI_AUDIT_APP_PRIVATE_KEY`。

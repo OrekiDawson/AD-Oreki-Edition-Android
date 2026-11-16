@@ -28,6 +28,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  checks: write   # 仅用于前置缺失时发布 neutral 兜底 Check，避免 Required Check 把 PR 卡死
 
 concurrency:
   group: oreki-audit-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.pull_request.head.sha || github.sha }}
@@ -70,6 +71,28 @@ jobs:
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "::notice title=Oreki Audit::App ID / private key / LLM key 未全部配置，跳过本次审查（不发布 Check，不判失败）"
           fi
+
+      - name: Publish neutral check when prerequisites missing
+        if: steps.prereq.outputs.ready != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HEAD_SHA:-}" ]; then
+            echo "no pull_request head (schedule/dispatch) — nothing to publish"
+            exit 0
+          fi
+          gh api -X POST "repos/${{ github.repository }}/check-runs" \
+            -f name="Oreki Audit / review" \
+            -f head_sha="$HEAD_SHA" \
+            -f status=completed \
+            -f conclusion=neutral \
+            -f external_id="prereq-missing:${PR_NUMBER}:${HEAD_SHA}" \
+            -f "output[title]=审查未启用" \
+            -f "output[summary]=App ID / 私钥 / LLM Key 未全部配置，本次未审查；配置完成后新 Commit 会自动重审。"
+          echo "neutral check published for $HEAD_SHA"
 
       - name: Mint GitHub App installation token
         if: steps.prereq.outputs.ready == 'true'
