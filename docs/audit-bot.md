@@ -143,8 +143,9 @@ preflight → Serge → Check 流程；积压为空时安静跳过（不发 Chec
 | 前置闸门 | 工作流新增 `Check audit prerequisites`：App ID / 私钥 / LLM Key 任一缺失时 **安静跳过（不发 Check、不判失败）** |
 
 ### 仍需仓库所有者完成的两步（无 API 可替代）
-1. 打开 <https://github.com/settings/apps/oreki-audit> → 页面底部 **Private keys → Generate a private key**，把下载的 `.pem` 保存到
-   `/home/oreki/.config/oreki-audit/oreki-audit.private-key.pem`（目录已存在，0600）。
+1. （已完成）App **Key pairs → New key** 生成私钥，保存为
+   `/home/oreki/.config/oreki-audit/oreki-audit.private-key.pem`（0600），并以 `gh secret set` 写入 `OREKI_AUDIT_APP_PRIVATE_KEY`。
+   注意：App ID 用**仓库变量** `vars.OREKI_AUDIT_APP_ID`（不是 Secret），工作流与前置闸门均按变量读取。
 2. 打开 <https://github.com/apps/oreki-audit/installations/new>，仅勾选 `AD-Oreki-Edition-Android` 与 `AD-Oreki-Edition-Web` 安装。
 
 完成上述两步后，我可以直接：写入 `OREKI_AUDIT_APP_PRIVATE_KEY` → 开启 `OREKI_AUDIT_ENABLED` → 18:00 后 dispatch 真实 E2E（自动触发 + App Bot 身份 + Check + 新 SHA 复审）。

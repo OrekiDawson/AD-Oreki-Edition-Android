@@ -14,7 +14,7 @@
 # - 任何未执行/被阻断/被截断/判决缺失：发布 failure，绝不用 success/neutral/skipped 冒充。
 #
 # 启用前置（docs/audit-bot.md）：App 已注册并安装、仓库变量 OREKI_AUDIT_ENABLED=true、
-# Secrets：OREKI_AUDIT_APP_ID / OREKI_AUDIT_APP_PRIVATE_KEY / OREKI_AUDIT_LLM_KEY。
+# 变量：OREKI_AUDIT_APP_ID / OREKI_AUDIT_ENABLED；Secrets：OREKI_AUDIT_APP_PRIVATE_KEY / OREKI_AUDIT_LLM_KEY。
 name: Oreki Audit
 
 on:
@@ -58,7 +58,7 @@ jobs:
       - name: Check audit prerequisites (App ID + private key present)
         id: prereq
         env:
-          APP_ID: ${{ secrets.OREKI_AUDIT_APP_ID }}
+          APP_ID: ${{ vars.OREKI_AUDIT_APP_ID }}
           APP_KEY: ${{ secrets.OREKI_AUDIT_APP_PRIVATE_KEY }}
           LLM_KEY: ${{ secrets.OREKI_AUDIT_LLM_KEY }}
         run: |
@@ -76,7 +76,7 @@ jobs:
         id: bot
         uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547
         with:
-          app-id: ${{ secrets.OREKI_AUDIT_APP_ID }}
+          app-id: ${{ vars.OREKI_AUDIT_APP_ID }}
           private-key: ${{ secrets.OREKI_AUDIT_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
