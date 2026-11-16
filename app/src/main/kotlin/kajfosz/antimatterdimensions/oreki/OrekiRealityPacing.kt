@@ -282,14 +282,11 @@ object OrekiRealityPacing {
     fun resetCountValue(): Int = resetCount
 
     /**
-     * 是否允许本次现实重置。
-     *
-     * @param nowMs `SystemClock.elapsedRealtime()`。
-     * @return true = 允许（bootstrap 恒 true）；false = 本次跳过（不改变任何状态）。
-     */
-    /**
      * [R116-01 P0] 本现实永恒次数是否已达「100 次永恒」里程碑。
-     * 只读原版真实字段；读不到返回 false（fail-closed，等上限兜底）。
+     *
+     * 读的是 `Player.eternities`（**本现实**计数，Reality 结算会将其清零），
+     * 不是 lifetime 记录；R115-01 卡死存档在 reality 后该字段实测为 0，可反证语义。
+     * 读不到返回 false（fail-closed，由 [FIRST_REALITY_CHAIN_WAIT_MS] 兜底）。
      */
     private fun eternityChainEstablished(): Boolean {
         val value = GameApi.eternitiesValue() ?: return false
@@ -297,6 +294,12 @@ object OrekiRealityPacing {
         return cmp >= 0
     }
 
+    /**
+     * 是否允许本次现实重置。
+     *
+     * @param nowMs `SystemClock.elapsedRealtime()`。
+     * @return true = 允许（bootstrap 恒 true）；false = 本次跳过（不改变任何状态）。
+     */
     @JvmStatic
     fun shouldReset(nowMs: Long): Boolean {
         return try {
