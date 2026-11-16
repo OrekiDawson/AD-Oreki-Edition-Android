@@ -138,6 +138,19 @@ def _existing_check(api_url: str, repo: str, sha: str, token: str, external_id: 
     return False
 
 
+def ensure_llm_env(llm_key: str) -> str:
+    """把仓库里的 `OREKI_AUDIT_LLM_KEY` 映射为上游 Serge 读取的 `LLM_API_KEY`。
+
+    上游 `Config.from_env` 用 `os.environ["LLM_API_KEY"]` 直接取值（缺失即 KeyError），
+    因此这里显式桥接；已有 `LLM_API_KEY` 时不覆盖（便于本地自定义）。
+    返回最终生效的 key（可能为空字符串）。
+    """
+    effective = os.environ.get("LLM_API_KEY") or (llm_key or "")
+    if effective:
+        os.environ["LLM_API_KEY"] = effective
+    return effective
+
+
 def select_backlog_pr(prs: list, is_reviewed, repo: str) -> dict | None:
     """定时/补偿任务：按更新时间倒序挑一个值得复审的开放 PR。
 
@@ -246,7 +259,7 @@ def main(argv: list[str] | None = None) -> int:
             report["event_ok"], report["event_reasons"] = ok, reasons
         except Exception as exc:
             report["pr_fetch_error"] = type(exc).__name__
-    llm_key = os.environ.get("OREKI_AUDIT_LLM_KEY") or ""
+    llm_key = ensure_llm_env(os.environ.get("OREKI_AUDIT_LLM_KEY") or "")
     if not (owner and name and pr_number and head_sha and token):
         report["fatal"] = "missing-context"
         print(json.dumps(report, ensure_ascii=False))
