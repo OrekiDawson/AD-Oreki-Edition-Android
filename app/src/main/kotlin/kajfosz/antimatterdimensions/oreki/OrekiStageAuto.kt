@@ -1880,10 +1880,17 @@ object OrekiStageAuto {
                 lastRealitiesSeen = realitiesNow
                 lastManagedCrunchAtMs = 0L
             }
-            // [R116-02-01 停滞再修] 接管必须独立于 decision.allow：
-            // Reality 后 eternities=0、IP 不足 ⇒ 策略返回 allow=false（cannot-eternity），
-            // 若接管被 allow 挡住就会走「暂停 autobuyer」分支且完全不再 crunch，
-            // 实测 t=908→1209 ip 恒为 624、infinities 恒为 12（301 秒零进展）。
+            // [R116-02-01 停滞再修·证据等级说明]
+            // 设计依据（读码）：Reality 后 eternities=0、IP 不足 ⇒ 策略返回 allow=false
+            // （cannot-eternity）；若接管被 allow 挡住就会走「暂停 autobuyer」分支且不再 crunch。
+            // 观察（已复现的存档读数，非「根因已证实」）：verify-win 跑次 t=908→1209 期间
+            // ip 恒为 e2(624)、infinities 恒为 12，共 301 秒零进展。
+            // 所依赖的绑定：GameApi.infinityAutoCrunchShortcut() 反射 prestige.e.j()。
+            //   官方 3.21 smali 实证：work/base_decoded_321/smali_classes2/
+            //   kajfosz/antimatterdimensions/prestige/e.smali:1335 的 .method public static j()Z。
+            //   真机 logcat 实证（verify-buyer / run-180-buyer）：接管分支确实进入，
+            //   logcat 出现 stage-policy -> autoBig paused (auto-crunch-shortcut) 共 3 次
+            //   （2026-11-17 06:40:07、06:48:51 等），即 helper 返回 true、绑定有效。
             if (GameApi.hasInfinity() && GameApi.infinityAutoCrunchShortcut()) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
