@@ -422,3 +422,69 @@ R73 的观察「6 次点击后 mode=2」当时被解释为「不走 Q()」，实
    **教训：改完 build_mod 的断言，必须用同一份源码在本地预演一遍，再启动构建。**
 
 ---
+
+---
+
+<a id="f-r116-01-real-deadlock"></a>
+## R116-01 · 现实后坍缩策略误判致 IP 冻结：R115-01 180 分钟真新档 FAIL 的根因与修复（CONFIRMED，2026-11-16）
+
+> 证据：`reports/R115-01/avd-evidence/run-180min-fixed/`（FAIL 跑次）、`reports/R116-01/fix-verify/`（修复后定向回归）、
+> `app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy.kt`。修复 PR #158 已合并 main `386fd09b`（2026-11-16T11:23:22Z）。
+> 首次现实门槛见 [automation/eternity-reality.md#f-r116-01-first-reality-gate](eternity-reality.md#f-r116-01-first-reality-gate)；
+> Reality 复位链见 [game/reality.md#f-r114-01-reality](../game/reality.md#f-r114-01-reality)；
+> 除数归因见 [game/mechanics.md#f-r116-01-ip-divisor-after-reality](../game/mechanics.md#f-r116-01-ip-divisor-after-reality)。
+
+### 一、R115-01 真新档 180 分钟长跑 = FAIL `[实测]`
+
+| 项 | 实测值 |
+| --- | --- |
+| APK | SHA-256 `34575fdb1b45f737e42affe78d48dbb0de8b62557ed5e39d75cef4f4a2734a9a`（versionCode 30210001） |
+| 存档 | `pm clear` 真新档（12:49:11） |
+| 跑次 | 12:49:26 启动 → `duration_seconds=10818.1`（跑满 180 分钟） |
+| 里程碑 | first-infinity 264.8 s；first-eternity 405.4 s；realities 0→1 605.6 s |
+| 终态 | realities=1、eternities=0、EP=0、bigE=0、IP=`2.818e112`、creditsFinished=false、isGameEnd=false、fullGameCompletions=0 |
+| 崩溃 | 游戏 FATAL=0、ANR=0（整份 logcat 无 `FATAL EXCEPTION` / `ANR in`） |
+| 结论 | realities 自 605.6 s 起 10212 s（170 分钟）无任何变化；未通关 |
+
+- 无独立 `verdict.json`；结论取 `run.log` 末尾 `VERDICT` 行 + `milestones.json` + `final-player.json` + `samples.json` + `logcat.txt`。
+- `final-player.json`：`bigCrunches=883`、`bigEternities=0`、`bigRealities=1`、`eternityUpgradeBits=0`、`infinities=2.013e9`。
+
+### 二、根因：现实后仍被判为「首次永恒前的新档爬坡」`[读码]` + `[实测]`
+
+1. `OrekiStageAuto.eternitiesZero()` 判据 = `EP==0 && eternityUpgradeBits==0 && bigE==0`（R94 起）；改前 `OrekiCrunchPolicy.decide()` 用它**单独**判断「首次永恒前」。
+2. 原版 Reality 结算清零本现实 `eternities` / EP / bigE（见 [game/reality.md#f-r114-01-reality](../game/reality.md#f-r114-01-reality)）⇒ 三个字段归零 ⇒ `eternitiesZero()==true` ⇒ **reality 后误判为新档高频坍缩分支**。
+3. 高频坍缩使单次坍缩收益恒定、`maxAM` 长不起来 ⇒ `maxIP` 停在 e112 量级（< 1.797e308 硬门槛）⇒ `canEternity` 永不成立。
+4. 实测（R115 logcat）：`OREKI_CRUNCH` 每秒恰好 +5000 infinities（`inf=2.014443661e9->2.014448661e9`，`ip=2.91879872771337e112`，ep=0，bigE=0）；
+   `OREKI_ET_GATE reason=cannot-eternity` 共 **2090 条**，终条 `canEt=false ep=0.0e0 bigE=0`。
+
+### 三、修复（PR #158 → main `386fd09b`）`[读码]`
+
+- `OrekiCrunchPolicy.decide()`：判据由「仅 `eternitiesZero()`」改为 `if (!OrekiStageAuto.eternitiesZero() || hasReality())` ⇒ **realities>0 不再落入新档高频坍缩分支**，改走永恒层门控（`OrekiCrunchPolicy.kt:192`）。**该分支的实际放行顺序**（`OrekiCrunchPolicy.kt:196-262`）：
+  1. `canEternity()` 为真 → 立即放行 `eternity-ready`；
+  2. 否则读原版投影 `gainedInfinityPoints()`：`log10` < `log10(MAX_VALUE)`（≈308.25，即 1.797e308）→ 等待 `eternity-grow`（`ETERNITY_GROW_WAIT_NS=300 s` 到点由 `stall-eternity-grow` 放行）；达到门槛 → 放行 `eternity-ip-ready`；
+  3. **只有投影读不到时**才用 `gainVersusIp()`（一次坍缩相对当前 IP 的数量级）≥1.0（10×）放行 `eternity-ip-jump`；
+  4. 仍不放行时按自适应成长窗口（60 s 起倍增、上限 1800 s）到点放行 `eternity-cycle`，窗口内以 `ETERNITY_GROW_WAIT_LIMIT_NS=2.4e12 ns`（40 分钟）兜底。
+  ⇒ **10× 不是主判据**；本条目的「不再高频坍缩」指不再走新档分支，回归预期应按上述 1–4 门控写，不得写成「≥10× 才结算」。
+- `hasReality()`（`OrekiCrunchPolicy.kt:129-148`）：读 `GameApi.realitiesValue()>0`；**读取失败 fail-safe 走收益驱动**，不得 fail-closed 退回本类要修的死锁路径。
+- 首现实门槛另移到 `OrekiRealityPacing`（本现实 eternities ≥100 + 20 分钟兜底 + 持久豁免），见 [automation/eternity-reality.md#f-r116-01-first-reality-gate](eternity-reality.md#f-r116-01-first-reality-gate)。
+- 复审采纳（#158 第二提交 `67425147`）：持久豁免、统一读取失败方向与日志、源码移除一次性证据。
+
+### 四、修复后定向回归（真新档 AVD，APK `f4691b37…`，963.3 s）`[实测]`
+
+| 项 | 实测值 |
+| --- | --- |
+| 首次无限 | t=159.3 s |
+| canEternity 首次为真 | ≤ t≈206 s（首条 `OREKI_ET_GATE reason=first-eternity-dwell canEt=true boot=true fresh=true`；t0≈18:58:18） |
+| 首永恒驻留 | 19:01:44.566 起 → 19:04:44.110 `allow=true`（驻留 179.5 s），随后真实结算 |
+| 首次永恒 | t=400.6 s |
+| eternities | 1（t=420.6）→14（t=540.9）→**119（t=571.0，`autoEt` 由 false 翻 true）**→303（t=631.7） |
+| 首次现实 | t=641.7 s（`canReality=true` 首次 19:08:27.227） |
+| Reality 后 IP | t=641.7 `2.21e17` → t=943.2 `3.22e67`（301.5 s，约 50 个数量级；对照 R115 跑次 165 分钟仅 e66→e112 = 46 个数量级） |
+| 崩溃 | 游戏进程（PID 22002）FATAL=0、ANR=0；logcat 唯一 `FATAL EXCEPTION` 来自测试脚本 `uiautomator`（PID 22576，`UiAutomationService already registered`） |
+
+- 该跑次 `verdict.json` 为 `pass=false`，原因只是 963 s 到点未到终局（`creditsFinished=false`、`isGameEnd=false`），**不是回归失败**；同样不得据此写「已通关」。
+- 证据：`reports/R116-01/fix-verify/{verdict.json,milestones.json,final-player.json,samples.json,run.log,logcat.txt}`。
+
+### 五、边界
+
+- 本条只证明「IP 不再冻结」与修复后定向回归时序；**修复后的 180 分钟真新档长跑在记录时点仍在运行**（2026-11-16 20:09:59 启动，APK `4bbfc1c1…`），结果 NOT RUN，不得提前写 PASS。

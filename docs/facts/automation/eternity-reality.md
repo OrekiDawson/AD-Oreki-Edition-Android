@@ -662,3 +662,25 @@ Web 不需要新增代码：它的坍缩策略本来就允许反物质继续成�
 - **证据**：commit `70a8329a` / `aadebba7` / `1246ee2e` / `b19d184b` + PR #92；
   AVD `reports/R114-01/avd-evidence/fresh-180min/`（工作树未跟踪/未入库）：`autoEternity.isActive=false` 20:26:53.965 → `true` 20:27:22.480（28.515 s），
   realities 2→3（t=1901.2 s）→4（t=2603.5 s）。 `[读码]` + `[实测]`
+
+---
+
+<a id="f-r116-01-first-reality-gate"></a>
+## R116-01 · 首次现实的「100 次永恒」里程碑门槛（OrekiRealityPacing，CONFIRMED，2026-11-16）
+
+> 代码：`app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiRealityPacing.kt`；修复 PR #158 / main `386fd09b`。
+> 配套：[自动化·大坍缩#f-r116-01-real-deadlock](collapse.md#f-r116-01-real-deadlock)（R115-01 FAIL 根因）、
+> [游戏·现实#f-r114-01-reality](../game/reality.md#f-r114-01-reality)（原版 Reality 复位链）。
+
+- **门槛语义 `[读码]`**：`shouldReset()` 在 realities==0（首次现实前）时先要求**本现实** `Player.eternities ≥ 100`
+  （`FIRST_REALITY_ETERNITIES_GATE = 100.0`，`OrekiRealityPacing.kt:50`、`:288-297`）。
+  缘由：原版 Reality 结算后 `Autobuyers.reset()` 在「本现实 100 次永恒」里程碑未达成时把 `auto.eternity.isActive` 置 false（R114-01 P0 复位链）；
+  先建立永恒里程碑链再现实，可避免刚现实就掉出自动化。
+- **兜底与持久豁免 `[读码]`**：等待上限 `FIRST_REALITY_CHAIN_WAIT_MS = 1_200_000`（20 分钟真墙钟，`:52-53`）；
+  到时仍不满足则放行一次并置 `firstRealityGateWaived` **持久豁免**（`:57`、`:320-334`），避免「放行 → reality 清零 eternities → 再等 20 分钟」的周期拖慢。
+- **读取失败方向 `[读码]`**：`eternityChainEstablished()` 读 `Player.eternities` 失败返回 false（视为未达成，由 20 分钟兜底放行）；
+  与 `OrekiCrunchPolicy.hasReality()` 的 fail-safe（视为已进入现实循环）方向不同，两者不得互相替代。
+- **非唯一防线**：该门槛只降低「永恒链未稳就现实」的概率；真正的死锁修复在坍缩判据（见 `f-r116-01-real-deadlock`）。
+- **AVD 佐证 `[实测]`**：R116-01 真新档定向回归（APK `f4691b37…`）首现实前 eternities 已达 303，
+  `OREKI_REALITY_PACING` 共 148 条**全部** `hold=none`，**未进入该等待分支**；首现实 t=641.7 s。
+  即门槛在实际跑次中是代码级保护、未触发等待，不能据此写「已被真实跑次验证卡住过」。

@@ -337,3 +337,22 @@ A30 新档，起点 = 2026年11月1日 17:57:29（真实读数），相对时刻
   已落后 Web 现行 60（`:7171` 注释），未来重写 3.21 补丁必须用 60。
 - **矩阵更新建议**：`reports/R114-01/web/consistency-matrix.md` §1 第 4 行 UNKNOWN → **DIFF（仅 V 阈值）**；IU25 与 EC 门槛除数改判 EQUIVALENT。
   `[读码]`（V 另有 APK 级 `[实测]`）
+
+---
+
+<a id="f-r116-01-ip-divisor-after-reality"></a>
+## R116-01 · 现实后 IP 除数判据与 IP 增速归因（OrekiIpGainScale，CONFIRMED，2026-11-16）
+
+> 代码：`app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiIpGainScale.kt`。
+> 与本文件[双端常量对账](#f-parity-constants-2026-11-16)第 7 条（首次永恒前 IP 除数 30）互补：本条补「**现实之后**仍为 30」的 Android 判据。
+
+- **判据 `[读码]`**：`readBootstrapRun()` = `OrekiStageAuto.eternitiesZero() || GameApi.isOrekiBootstrapRun()`。
+  前半段即「首次永恒前」；后半段对齐 Web 的 `isOrekiBootstrapRun()`（现实未解锁，或本现实未买膨胀研究 6）。
+- **现实后仍返回 30 `[读码]`**：Reality 结算把本现实 eternities 清零 ⇒ `eternitiesZero()==true` ⇒ 无论 `realities>0`，除数都取 `PRE_REALITY_DIVISOR = 30.0`；
+  不存在「现实后立刻回 308」的实现。
+- **实测 `[实测]`**：logcat `OREKI_IPSCALE IP_DIVISOR bootstrap original=308.0 effective=30.0`；
+  R116-01 定向回归 Reality 后 IP 在 301.5 s 内由 `2.21e17` 涨到 `3.22e67`（约 50 个数量级）。
+- **归因结论**：**Reality 后 IP 慢的主因是坍缩频率 / 单次坍缩收益，不是除数**。R115-01 FAIL 跑次里除数路径同样正常，
+  但每秒 +5000 infinities 的高频坍缩把 `maxAM`/IP 压在 e112（见 [automation/collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)）。
+- **取证纪律**：`OREKI_IPSCALE` 受 `loggedOnce` 保护，**只在首次生效时打一行**；不得用「没有第二条日志」推断除数回退 308，
+  也不得把该行位置当作阶段判据。
