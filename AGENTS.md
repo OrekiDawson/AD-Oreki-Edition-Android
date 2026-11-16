@@ -162,3 +162,19 @@
 - **后台任务例外**：**已启动、确认不会消耗任何大模型 Token 的后台任务可以保持运行**，例如独立的 systemd 180 分钟真新档长跑、纯本地构建/日志采集、已有 CI 作业或非 AI 数据备份；不因余额低自动杀死它们，也不以此例外启动新任务。若后台进程/工作流会调用 DeepSeek 或任何其他付费 LLM，必须安全停止其 AI 调用；必须保留运行状态、隔离资源和事实证据，不伪称其结果已由 Agent 验收。
 - **恢复条件**：先确认余额**不低于 ¥10.00**、用户未另行暂停，且满足第 7 节非高峰时段及其他安全/权限约束，再从文件交接和同一 Goal 的恢复点继续，优先复用现有 Agent；不会自动发起新 Goal。补款后不凭支付成功截图推断 API 可用余额，需实际核验。
 - **状态与告知**：记录余额检查时间、来源和 `LOW_BALANCE_PAUSED / BALANCE_UNKNOWN / RESUMED`，只记录必要状态，不记录敏感凭证或个人支付资料；向用户简要说明哪些 Agent 已关闭、哪些不耗 Token 的后台任务仍在运行。此预算保护优先于第 7 节的低谷连续开发和第 8 节每两小时发布节奏，但**不得削弱已有 CI/CD/签名/发布保护**，也不得借暂停伪造稳定版。
+
+## 20. Oreki Audit Bot 审查闭环（强制，R115-01 轮内追加）
+
+- **职责分离**：独立 GitHub App「Oreki Audit Bot」审查 PR 并发布 `Oreki Audit / review` Check；
+  Harness 只负责修复与提交新 Commit；GitHub Ruleset 决定能否合并。三者不得互相冒充。
+- **强制读取点**：Lead 在 ① Subagent 提交 PR 后、② 准备合并前、③ 标记任务 DONE 前、
+  ④ 收到 Bot P0/P1 评论后、⑤ Candidate/Release Gate 前，必须先读取该 PR 最新 head SHA 的
+  `Oreki Audit / review` 结论与审查评论。
+- **存在未解决 P0/P1 时**：先修复（新 Commit → Bot 对新 SHA 复审），不得继续该工作流的下一个开发任务；
+  可并行推进与本 PR 无关的紧急 P0 与不占资源的任务。
+- **不得伪造**：Harness 不能用自己的总结、标签、重跑或权限把 Bot 的 FAILURE 改成 SUCCESS；
+  旧 SHA 的 PASS 不适用于新 SHA；服务不可用时如实记录 `BLOCKED/NOT RUN`，不关闭 Ruleset、不删除检查。
+- **异议流程**：认为审查有误时，补代码与运行证据请求 Bot 复核，或走正式人工例外；不得静默跳过。
+- **实现、权限、启用步骤与真实状态**见 [docs/audit-bot.md](docs/audit-bot.md)；
+  Android 规则 `.ai/review-rules.md`，Web 规则在 Web 仓同名文件。
+

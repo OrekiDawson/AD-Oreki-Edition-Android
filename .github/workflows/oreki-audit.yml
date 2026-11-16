@@ -1,0 +1,84 @@
+# Oreki Audit —— 独立 GitHub App 自动审查（无评论触发、无 Webhook 服务）
+#
+# 为什么不用官方 Action 直接跑：上游 reviewbot/triggers.py 的 build_review_request()
+# 只接受 issue_comment / pull_request_review_comment，且要求评论以 mention 开头；
+# 在 pull_request_target / schedule 下直接调用官方 Action 会被**跳过**。
+# 因此本工作流调用 scripts/audit/oreki_auto_runner.py：直接构造 ReviewRequest 并调用
+# 上游真实引擎 prepare_review()/publish_review()，不伪造任何评论事件。
+#
+# 安全边界（不可放宽）：
+# - 只在默认分支运行受信任工作流；**绝不 checkout/执行 PR head**，不跑 PR 里的脚本/构建。
+# - Diff 与元数据全部经 GitHub API 读取。
+# - 评论与 Check 使用 GitHub App installation token（作者是 App Bot，不是 github-actions[bot]）。
+# - 模型调用前必须通过 scripts/audit/preflight.py：北京高峰窗口、CNY 余额≥¥10、Diff 上限、信任、幂等。
+# - 任何未执行/被阻断/被截断/判决缺失：发布 failure，绝不用 success/neutral/skipped 冒充。
+#
+# 启用前置（docs/audit-bot.md）：App 已注册并安装、仓库变量 OREKI_AUDIT_ENABLED=true、
+# Secrets：OREKI_AUDIT_APP_ID / OREKI_AUDIT_APP_PRIVATE_KEY / OREKI_AUDIT_LLM_KEY。
+name: Oreki Audit
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+  schedule:
+    - cron: "15 4 * * *"
+    - cron: "15 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: oreki-audit-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: vars.OREKI_AUDIT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout default branch (never PR head)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned review engine (reviewbot @ Serge SHA)
+        run: |
+          pip install --disable-pip-version-check \
+            "reviewbot @ git+https://github.com/huggingface/serge@6668325d7a4a2e9c3fe814f95f249df0ec347cfd"
+
+      - name: Mint GitHub App installation token
+        id: bot
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547
+        with:
+          app-id: ${{ secrets.OREKI_AUDIT_APP_ID }}
+          private-key: ${{ secrets.OREKI_AUDIT_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Run Oreki Audit (auto-trigger)
+        id: audit
+        env:
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
+          OREKI_AUDIT_LLM_KEY: ${{ secrets.OREKI_AUDIT_LLM_KEY }}
+          OREKI_AUDIT_EVENT_NAME: ${{ github.event_name }}
+          OREKI_AUDIT_REPORT: oreki-audit-report.json
+          LLM_API_BASE: https://api.deepseek.com/v1
+          LLM_MODEL: deepseek-chat
+          LLM_MAX_TOKENS: "8192"
+          MAX_DIFF_CHARS: "180000"
+          TOOL_MAX_ITERATIONS: "4"
+          REVIEW_RULES_PATH: .ai/review-rules.md
+        run: |
+          set +e
+          python3 scripts/audit/oreki_auto_runner.py
+          echo "runner_rc=$?"
+          cat oreki-audit-report.json 2>/dev/null || true
