@@ -138,6 +138,23 @@ def _existing_check(api_url: str, repo: str, sha: str, token: str, external_id: 
     return False
 
 
+def build_trigger_body(head_sha: str) -> str:
+    """构造送给审查引擎的 `trigger_comment`（会进入 Prompt）。
+
+    审查规则由引擎自行从仓库 `.ai/review-rules.md` 读取；这里额外把**硬性判决尾注契约**
+    写进请求体，避免模型漏写导致 fail-closed 误判 `verdict-trailer-missing`。
+    """
+    sha = (head_sha or "").strip().lower()
+    return (
+        "自动审查请求（Oreki Audit Bot）。请按仓库 .ai/review-rules.md 的 P0/P1/P2 定义审查本 PR 的完整 diff。\n"
+        "硬性输出契约（缺失或格式不符将自动判 FAILURE，无法合并）：\n"
+        "在审查正文的**最后单独一行**给出判决尾注，格式严格为：\n"
+        f'<!-- oreki-audit-verdict {{"p0":<数量>,"p1":<数量>,"p2":<数量>,"reviewed_sha":"{sha}"}} -->\n'
+        f"其中 reviewed_sha 必须是当前 PR head {sha}；p0/p1/p2 填你实际发现的问题数量（整数，无问题填 0）。\n"
+        "不要省略这一行，不要修改键名或改成代码块。"
+    )
+
+
 def ensure_llm_env(llm_key: str) -> str:
     """把仓库里的 `OREKI_AUDIT_LLM_KEY` 映射为上游 Serge 读取的 `LLM_API_KEY`。
 
@@ -307,7 +324,8 @@ def main(argv: list[str] | None = None) -> int:
             cfg = Config.from_env(require_app=False, require_web=False)
             gh = GitHubClient(token)
             req = ReviewRequest(owner=owner, repo=name, number=pr_number, trigger_comment_id=0,
-                                trigger_comment_body="auto:oreki-audit", commenter="oreki-audit")
+                                trigger_comment_body=build_trigger_body(head_sha),
+                                commenter="oreki-audit")
             draft = prepare_review(cfg, gh, req)
             if draft is not None:
                 latest = gh.get_pr(owner, name, pr_number)
