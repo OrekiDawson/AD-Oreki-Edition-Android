@@ -1931,9 +1931,17 @@ object OrekiStageAuto {
                     targetIntervalInitialized = true
                     Log.i(TAG_AU4C, "policy -> interval=" + POST_BREAK_RESUME_SECONDS + "s (target-driven)")
                 }
-                // [R116-02-01 Codex P1] 此分支在 Break Infinity 之前也会执行；用 600s 会把
-                // 早期 IP 农场拖慢 120 倍。早期保持原 5 秒节奏，自适应窗口只用于 eternity 成长路径。
-                writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
+                // [R116-02-01 Kody] 该分支在「未 Break」和「Reality 后 eternities 被清零」两种情况下
+                // 都会命中，必须按 isBroken() 分流：
+                //   · 未 Break（早期 IP 农场）→ 保持原 5 秒，避免拖慢 Break；
+                //   · 已 Break（含 Reality 后）→ 使用自适应成长窗口，否则会把策略写入的
+                //     600–1800 秒覆盖回 5 秒，IP 永远到不了 1.8e308。
+                val zeroInterval = if (isBroken()) {
+                    OrekiCrunchPolicy.eternityWaitSeconds()
+                } else {
+                    POST_BREAK_RESUME_SECONDS
+                }
+                writeManagedCrunchInterval(crunch, zeroInterval, restoreDue, "eternity-zero")
                 return
             }
 

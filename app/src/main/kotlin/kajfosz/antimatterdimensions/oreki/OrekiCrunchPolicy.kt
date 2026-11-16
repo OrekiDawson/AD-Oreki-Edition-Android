@@ -227,24 +227,12 @@ object OrekiCrunchPolicy {
                     (eternityGrowSeconds * 1_000_000_000.0).toLong()
                 )
             }
-            // [R116-02-01 Kody] 不再用 gainedInfinityPoints() 投影直接放行：实测投影可达 e1.2e6
-            // 而实际单次结算只涨几十个数量级，投影驱动会退化成高频低收益往复。
-            // 这里继续往下走，由 gainVersusIp()（本次坍缩相对当前 IP 的真实收益比）决定是否值得放行。
-            // 只看「这一次坍缩值不值得」：收益 ≥10× 当前 IP 才结算。
-            // 刻意**不**用 canEternity 当放行理由：永恒层里 canEternity 长期为真
-            // （maxIP 早已过 1.797e308），而真正决定能否结算的是 OrekiEternity 的
-            // 「gainedEP ≥ 10×EP」门槛；用它放行等于又回到无条件坍缩（实测 maxIP 平台 1e593）。
-            val leapEternity = gainVersusIp()
-            if (leapEternity != null && leapEternity >= 1.0) {
-                waitStartedAt = 0L
-                lastEternityCycleAt = System.nanoTime()
-                // [R99] 一次真正的大跃升：窗口回落到起点，重新按需扩张。
-                if (eternityGrowSeconds > ETERNITY_GROW_START_SECONDS) {
-                    Log.i(TAG, "eternity jump rewarded -> window reset to " + ETERNITY_GROW_START_SECONDS + "s")
-                    eternityGrowSeconds = ETERNITY_GROW_START_SECONDS
-                }
-                return Decision(true, "eternity-ip-jump")
-            }
+            // [R116-02-01 修复] 投影与 gainVersusIp() 都基于 gainedInfinityPoints() 的投影值，
+            // 而该投影在高频坍缩下可达 e1.2e6、实际单次结算只涨几十个数量级（实测）。
+            // 只要投影 ≥ 门槛就会每帧放行，等于让 autobuyer 永久高频运行、600 秒窗口失效
+            // （实测 infinities 每秒 +100 万、IP 只涨 0.3 数量级/秒）。
+            // 因此永恒层不再用任何投影值放行，统一由下面的「自适应成长窗口」控制：
+            // 窗口内一律等待，到期才放行一帧让 autobuyer 真正结算一次。
             // [R99] 自适应成长窗口（替代固定 30 秒周期）。
             //
             // 固定 30 秒时反物质每次只长到 e24321 就被清空 ⇒ 单次坍缩收益恒定
