@@ -123,7 +123,7 @@
 - **责任与范围**：在已有授权轮次、有效权限与非高峰时段，由 DeepSeek Lead 主动负责 Android CI/CD 的健康检查、故障定位、工作流/构建维护、修复 PR、测试结果跟踪与合规交付协调；同时关注 Web 与 Pages 的独立流水线，不得因 Android BLOCKED 让其他仓库停摆。详见 [交付长期规则第 10 节](docs/DELIVERY_RULES.md)。
 - **自动修复闭环**：发现失败 → 收集精确 Run/Job/源码 SHA 与日志 → 判定源码、环境、平台、权限或真实游戏错误 → 最小修复 → 独立分支/中文 Commit/PR → Required Checks → 合规合并 → 验证新结果。局部失败不等于整轮停工；只在有依据时有上限地重试，不删除测试、吞错误、修改预期或重复空跑制造 PASS。
 - **自主权限边界**：可在现有授权范围内查看 Actions、修复 Gradle/AGP/Kotlin/ABI/测试/Actions、优化缓存、协调共享资源、创建 PR、重跑获授权的非生产失败 Job；无须为每项低风险修复重复询问。合并须全部 Required Checks、关键审查和 Ruleset 条件满足；若存在强制人工批准/受保护环境审批，必须先获得，不得自行替代审批。
-- **独立验证及生产安全**：GitHub Actions 执行确定性的检查、构建、独立验签和验收，**不得在 CI 内重新接入 DeepSeek API 自动审查/诊断**；保留现有 Codex PR 审查。Android 正式 Candidate/Verify/Release 坚持 AGP 9.5.1 完整游戏、真实 AVD、原证书和四渠道同 SHA；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) / [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 阻塞未解不得用混合包或旧 `build_mod.py` 链冒充。正式发布仅在既有授权、受保护工作流和全部门禁通过后自动执行。
+- **独立验证及生产安全**：GitHub Actions 执行确定性的检查、构建、独立验签和验收，**不得在普通 CI 内重新接入 DeepSeek API 自动审查/诊断**；使用经授权的 Kodus Cloud 在线审查，必要的 Codex 审查不作为唯一通路。Android 正式 Candidate/Verify/Release 坚持 AGP 9.5.1 完整游戏、真实 AVD、原证书和四渠道同 SHA；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) / [#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 阻塞未解不得用混合包或旧 `build_mod.py` 链冒充。正式发布仅在既有授权、受保护工作流和全部门禁通过后自动执行。
 - **绝对禁止**：关闭/削弱 Ruleset、跳过 Required Checks、强推、覆盖其他 Agent 修改、解密/输出 Secrets、手工旁路签名或发布、直接覆盖 Pages、伪造 PASS、未经授权升级冻结基线；失败要修门禁并标 `FAIL / BLOCKED / NOT RUN`，不是绕过。
 - **协作与时段**：服从第 7 节 DeepSeek 高峰期全员停工、现有 /goal 编号与工作树隔离。CI 日常维护授权不等于无限期后台 Agent 已启动，也不等于授权创建未经审批的持续监控。每轮记录目标仓库、故障、PR/Run/Commit、根因和真正的构建/设备/发布状态；Web/Pages 生产源 SHA 及部署仍通过受控流程；**Pages/oreki.net 的日常管理、正式部署协调、验收和故障恢复由 DeepSeek Lead 统一负责**（用户 2026-11-14 最新决定），不再保留 ChatGPT 专属管理职责；审批、Required Checks、保护环境和真实线上验收均不可绕过。
 
@@ -163,18 +163,10 @@
 - **恢复条件**：先确认余额**不低于 ¥10.00**、用户未另行暂停，且满足第 7 节非高峰时段及其他安全/权限约束，再从文件交接和同一 Goal 的恢复点继续，优先复用现有 Agent；不会自动发起新 Goal。补款后不凭支付成功截图推断 API 可用余额，需实际核验。
 - **状态与告知**：记录余额检查时间、来源和 `LOW_BALANCE_PAUSED / BALANCE_UNKNOWN / RESUMED`，只记录必要状态，不记录敏感凭证或个人支付资料；向用户简要说明哪些 Agent 已关闭、哪些不耗 Token 的后台任务仍在运行。此预算保护优先于第 7 节的低谷连续开发和第 8 节每两小时发布节奏，但**不得削弱已有 CI/CD/签名/发布保护**，也不得借暂停伪造稳定版。
 
-## 20. Oreki Audit Bot 审查闭环（强制，R115-01 轮内追加）
+## 20. Kodus Cloud 代码审查（R116-01 用户选择）
 
-- **职责分离**：独立 GitHub App「Oreki Audit Bot」审查 PR 并发布 `Oreki Audit / review` Check；
-  Harness 只负责修复与提交新 Commit；GitHub Ruleset 决定能否合并。三者不得互相冒充。
-- **强制读取点**：Lead 在 ① Subagent 提交 PR 后、② 准备合并前、③ 标记任务 DONE 前、
-  ④ 收到 Bot P0/P1 评论后、⑤ Candidate/Release Gate 前，必须先读取该 PR 最新 head SHA 的
-  `Oreki Audit / review` 结论与审查评论。
-- **存在未解决 P0/P1 时**：先修复（新 Commit → Bot 对新 SHA 复审），不得继续该工作流的下一个开发任务；
-  可并行推进与本 PR 无关的紧急 P0 与不占资源的任务。
-- **不得伪造**：Harness 不能用自己的总结、标签、重跑或权限把 Bot 的 FAILURE 改成 SUCCESS；
-  旧 SHA 的 PASS 不适用于新 SHA；服务不可用时如实记录 `BLOCKED/NOT RUN`，不关闭 Ruleset、不删除检查。
-- **异议流程**：认为审查有误时，补代码与运行证据请求 Bot 复核，或走正式人工例外；不得静默跳过。
-- **实现、权限、启用步骤与真实状态**见 [docs/audit-bot.md](docs/audit-bot.md)；
-  Android 规则 `.ai/review-rules.md`，Web 规则在 Web 仓同名文件。
-
+- 使用 Kodus **在线托管版（Community BYOK）** 对 Android/Web PR 提供独立 AI 审查，不在普通 GitHub Actions 中调用收费模型。
+- Lead 在 PR 提交、合并前读取可用的 Kody 审查意见；有具体代码证据的 P0/P1 先修复、推送新 Commit 并复核。未实际运行时写 `KODY NOT RUN`，不得伪造 PASS。
+- 审查仅作辅助意见，不能代替已有 Required Checks、APK、AVD、签名、CI/CD 或发布验收；不自动 APPROVE、合并或发布。
+- 在线审查不自动继承本项目高峰/余额安全守卫；当前仓库保持手动审查，只有合规低谷且可用余额 ≥¥10 时允许发起付费调用。
+- 配置与剩余账户侧操作见 [docs/KODUS_REVIEW_SETUP.md](docs/KODUS_REVIEW_SETUP.md)，专项规则见 `.kody/rules/`。
