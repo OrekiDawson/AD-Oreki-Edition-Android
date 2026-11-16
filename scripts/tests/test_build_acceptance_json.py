@@ -81,7 +81,8 @@ class AcceptanceBuilderTests(unittest.TestCase):
 
     def test_generated_report_passes_gate_validator(self):
         report = self.build()
-        self.assertEqual(report["versionCode"], "30210001")
+        # [R116-01] 发布身份由 scripts/release-gate-policy.json 唯一决定，测试不再固化具体版本号
+        self.assertEqual(report["versionCode"], POLICY["versionCode"])
         self.assertEqual(report["evidence_commit_sha"], EVID)
         self.assertEqual(report["apk_sha256"], "a" * 64)
         self.assertEqual(len(report["checks"]), len(POLICY["required_checks"]))
@@ -175,7 +176,7 @@ class AcceptanceBuilderTests(unittest.TestCase):
         common = dict(policy=POLICY, identity=identity(), candidate_run=43735315296,
                       verification_run=43735739171, source_sha=SOURCE, web_ref=WEB,
                       acceptance_commit=ACCEPT, evidence_commit=EVID, repo_root=self.repo_root)
-        self.assertEqual(B.validate_existing(target, **common)["versionCode"], "30210001")
+        self.assertEqual(B.validate_existing(target, **common)["versionCode"], POLICY["versionCode"])
         for field, value, message in (
             ("versionCode", "30210000", "未通过"),
             ("apk_bytes", 1, "apk_bytes"),
