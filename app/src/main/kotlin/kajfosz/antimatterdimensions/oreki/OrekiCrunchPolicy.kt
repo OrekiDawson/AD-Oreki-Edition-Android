@@ -99,6 +99,23 @@ object OrekiCrunchPolicy {
     /** 上次永恒层周期结算/收益结算的时刻（nanoTime）；0 = 未初始化。 */
     private var lastEternityCycleAt: Long = 0L
 
+    /** [R116-01 P0] 永恒层两次「放行坍缩」之间的最小间隔（真墙钟）。 */
+    private const val ETERNITY_ALLOW_MIN_INTERVAL_MS = 60_000L
+    @Volatile private var lastEternityAllowAt: Long = 0L
+
+    /** [R116-01 P0] canEternity hold 的上限：超时仍无结算就放行一次增长，避免无限停滞。 */
+    private const val ETERNITY_HOLD_MAX_MS = 180_000L
+    @Volatile private var eternityHoldStartedAt: Long = 0L
+
+    /** 是否被最小间隔限流。 */
+    private fun eternityRateLimited(nowMs: Long): Boolean =
+        lastEternityAllowAt != 0L && nowMs - lastEternityAllowAt < ETERNITY_ALLOW_MIN_INTERVAL_MS
+
+    /** 记录一次放行（供后续限流）。 */
+    private fun noteEternityAllow(nowMs: Long) {
+        lastEternityAllowAt = nowMs
+    }
+
     /** [R99] 当前永恒层成长窗口（秒），供 `OrekiStageAuto` 写入坍缩间隔。 */
     @JvmStatic
     fun eternityWaitSeconds(): Double = eternityGrowSeconds
@@ -194,14 +211,37 @@ object OrekiCrunchPolicy {
             // 反复重置 IP/maxIP。未达到 canEternity 时，只有原版投影
             // gainedInfinityPoints() 达到 1.797e308 才放行；否则等待 maxAM 成长。
             if (GameApi.canEternity()) {
-                waitStartedAt = 0L
-                return Decision(true, "eternity-ready")
+                // [R116-01 P0] canEternity 为真时**不得放行坍缩**：一次坍缩会立刻把 IP 重置，
+                // 门禁在下一帧就看不到资格，永恒链永远错过窗口。实测真新档长跑出现
+                // 363 次 eternity-ready 却 0 次真实结算，IP 卡在 1e85 量级。
+                // 但 hold 必须有上限（Codex P1）：若自动永恒被玩家关闭或 EP 收益门槛拒绝，
+                // 无限暂停坍缩会让存档彻底停滞；超时后放行一次增长。
+                val holdNow = android.os.SystemClock.elapsedRealtime()
+                if (eternityHoldStartedAt == 0L) eternityHoldStartedAt = holdNow
+                if (holdNow - eternityHoldStartedAt < ETERNITY_HOLD_MAX_MS) {
+                    return Decision(false, "eternity-hold")
+                }
+                eternityHoldStartedAt = 0L
+                return Decision(true, "eternity-hold-timeout")
             }
+            eternityHoldStartedAt = 0L
+            val nowMs = android.os.SystemClock.elapsedRealtime()
             val projectedEternityIp = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
             if (projectedEternityIp != null && projectedEternityIp < ETERNITY_IP_LOG10) {
                 return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)
             }
             if (projectedEternityIp != null) {
+                // [R116-01 P0] 投影判据单独不可靠：高频坍缩下 gainedInfinityPoints 的投影
+                // 远大于实际结算值（实测投影 e1.2e6，实际 IP 只涨到 1e85）。
+                // 因此投影达标也必须受最小间隔限制，给 maxAM 真正的成长窗口。
+                if (eternityRateLimited(nowMs)) {
+                    // waitWithin 的 limitNs 与 nanoTime 比较，必须换算成纳秒（Codex P1）。
+                    return waitWithin(
+                        "eternity-rate-limit",
+                        ETERNITY_ALLOW_MIN_INTERVAL_MS * 1_000_000L
+                    )
+                }
+                noteEternityAllow(nowMs)
                 waitStartedAt = 0L
                 return Decision(true, "eternity-ip-ready")
             }
@@ -267,11 +307,19 @@ object OrekiCrunchPolicy {
         // `thisEternity.maxIP ≥ eternityGoal(1.797e308)`，只等峰值永远到不了。
         // 现在按「这一拍坍缩值不值得」排序，全部读原版真实状态。
 
-        // 1) 已经够永恒：立刻放行，让原版 canEternity + 自动永恒结算。
+        // 1) 已经够永恒：暂停坍缩，让原版 canEternity + 自动永恒在下一帧完成结算。
+        //    放行坍缩会把 IP 立刻重置，门禁与 180s 驻留都会错过资格（R116-01 实测）。
         if (GameApi.canEternity()) {
-            waitStartedAt = 0L
-            return Decision(true, "eternity-ready")
+            // 首永恒前同样 hold，但保留 180s 上限，避免门禁不结算时永久停滞（Codex P1）。
+            val holdNow = android.os.SystemClock.elapsedRealtime()
+            if (eternityHoldStartedAt == 0L) eternityHoldStartedAt = holdNow
+            if (holdNow - eternityHoldStartedAt < ETERNITY_HOLD_MAX_MS) {
+                return Decision(false, "eternity-hold")
+            }
+            eternityHoldStartedAt = 0L
+            return Decision(true, "eternity-hold-timeout")
         }
+        eternityHoldStartedAt = 0L
 
         // 2) 下一次坍缩至少让 IP 涨一个数量级 → 立刻结算，保持 IP 增长循环。
         //    这一条必须排在「等 ID 峰值」之前：实测 ID6→ID7 的峰值要 +8141 指数
