@@ -1211,12 +1211,10 @@ object OrekiStageAuto {
      */
     /** 每拍最多购买一项一次性永恒升级；实际成本和奖励仍由原版商店处理。 */
     private fun buyEternityUpgrades(): Boolean {
-        // [R116-01 R3] 一次性永恒升级（含「自动永恒」升级 f91.r）跨 Reality 永久保留；
-        // 原版 EternityAutobuyerState.h() 只在 f91.r.w() 为假时关闭自动永恒开关。
-        // 旧条件要求「时间维度1已购买」，真新档 reality 前从未买过该升级 ⇒ reality 后
-        // etUnlock=false、自动永恒永久停摆、IP 只能靠慢速积累（R114-01 通关跑次则保持 true）。
-        // 这里放宽为：非挑战中且 EP 足够即购买，仍走原版商店入口与真实扣费。
-        if (GameApi.inAnyChallenge()) return false
+        // [R116-02-01 Kody] 恢复原版解锁/开关门禁：不能用 inAnyChallenge() 整体替换
+        // canAutomateEternityUpgrades()（否则等于绕过原版自动化解锁与玩家开关，属越权购买）。
+        // Reality 后 etUnlock 的问题另行以「真实解锁 + 玩家开关」方案评估（Issue #163）。
+        if (!GameApi.canAutomateEternityUpgrades()) return false
         for (upgrade in GameApi.eternityUpgrades()) {
             if (GameApi.upgradeBought(upgrade)) continue
             if (GameApi.upgradeBuy(upgrade)) {
@@ -1933,7 +1931,9 @@ object OrekiStageAuto {
                     targetIntervalInitialized = true
                     Log.i(TAG_AU4C, "policy -> interval=" + POST_BREAK_RESUME_SECONDS + "s (target-driven)")
                 }
-                writeManagedCrunchInterval(crunch, OrekiCrunchPolicy.eternityWaitSeconds(), restoreDue, "eternity-zero")
+                // [R116-02-01 Codex P1] 此分支在 Break Infinity 之前也会执行；用 600s 会把
+                // 早期 IP 农场拖慢 120 倍。早期保持原 5 秒节奏，自适应窗口只用于 eternity 成长路径。
+                writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
                 return
             }
 

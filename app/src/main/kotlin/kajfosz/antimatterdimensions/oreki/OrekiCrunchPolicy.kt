@@ -96,8 +96,6 @@ object OrekiCrunchPolicy {
     /** 当前成长窗口（秒）；跨帧保留，成功跃升后回落到起点。 */
     private var eternityGrowSeconds: Double = ETERNITY_GROW_START_SECONDS
 
-    /** [R116-02-01 Kody#1] 上次放行时的 IP log10；用于用真实增量复核投影，避免虚高投影驱动高频坍缩。 */
-    private var lastAllowIpLog10: Double? = null
 
     /** 上一次窗口结算时的 IP log10；用于判断这一窗口是否「值得」。 */
     private var lastCycleIpLog10: Double? = null
@@ -229,26 +227,9 @@ object OrekiCrunchPolicy {
                     (eternityGrowSeconds * 1_000_000_000.0).toLong()
                 )
             }
-            if (projectedEternityIp != null) {
-                // [R116-02-01 Kody#1] 投影在高频坍缩下可能远高于实际结算（实测投影 e1.2e6、
-                // 实际 IP 只到 1e85）。这里用「上次放行至今的真实 IP 增量」复核投影：
-                // 真实增量不足投影的一半、且尚未跨过永恒门槛时，只跳过本次放行并继续等待，
-                // 不使用暂停态、不压缩成长窗口。
-                val currentIpLog = GameApi.log10BigDouble(GameApi.infinityPoints())
-                val previous = lastAllowIpLog10
-                if (currentIpLog != null && previous != null) {
-                    val realGain = currentIpLog - previous
-                    if (realGain >= 0.0 && realGain < 30.0 && realGain < projectedEternityIp * 0.5) {
-                        return waitWithin(
-                            "eternity-projection-suspect",
-                            (eternityGrowSeconds * 1_000_000_000.0).toLong()
-                        )
-                    }
-                }
-                if (currentIpLog != null) lastAllowIpLog10 = currentIpLog
-                waitStartedAt = 0L
-                return Decision(true, "eternity-ip-ready")
-            }
+            // [R116-02-01 Kody] 不再用 gainedInfinityPoints() 投影直接放行：实测投影可达 e1.2e6
+            // 而实际单次结算只涨几十个数量级，投影驱动会退化成高频低收益往复。
+            // 这里继续往下走，由 gainVersusIp()（本次坍缩相对当前 IP 的真实收益比）决定是否值得放行。
             // 只看「这一次坍缩值不值得」：收益 ≥10× 当前 IP 才结算。
             // 刻意**不**用 canEternity 当放行理由：永恒层里 canEternity 长期为真
             // （maxIP 早已过 1.797e308），而真正决定能否结算的是 OrekiEternity 的
