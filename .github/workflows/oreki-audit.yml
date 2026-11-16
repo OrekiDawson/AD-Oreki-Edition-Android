@@ -82,7 +82,9 @@ jobs:
           fi
 
       - name: Publish neutral check when prerequisites missing
-        if: steps.prereq.outputs.ready != 'true'
+        # 只有 prereq 步骤本身成功但没有就绪时才发兜底；prereq 报错/被跳过要如实失败，
+        # 不能用一个中性 Check 把真实配置故障藏起来。
+        if: steps.prereq.outcome == 'success' && steps.prereq.outputs.ready != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}

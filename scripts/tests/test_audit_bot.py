@@ -467,6 +467,11 @@ class DeferredPreflightBlocks(unittest.TestCase):
         import oreki_auto_runner as runner
         self.runner = runner
 
+    def test_empty_or_missing_reasons_fail_closed(self):
+        self.assertEqual(self.runner.classify_block([])[0], "failure")
+        self.assertEqual(self.runner.classify_block(None)[0], "failure")
+        self.assertIn("unknown", self.runner.classify_block([])[1])
+
     def test_peak_window_is_neutral(self):
         c, r = self.runner.classify_block(["peak-window"])
         self.assertEqual(c, "neutral")
