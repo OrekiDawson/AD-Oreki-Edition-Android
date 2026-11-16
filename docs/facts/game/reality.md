@@ -328,8 +328,9 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 ### 一、三条根因
 
 1. **bigCrunch 被固定为 TIME 模式（MODE_TIME=1）** `[读码]`
-   - `OrekiStageAuto.kt:81` `MODE_TIME = 1`；`:1839/:1885/:1933/:1948` 在托管时 `setCrunchMode(crunch, MODE_TIME)`；
-     Break 后 resume interval 固定为 `POST_BREAK_RESUME_SECONDS = 5.0`（`:119`、`:1901`、`:1926`）。
+   - `OrekiStageAuto.kt:81` `MODE_TIME = 1`；`:1885/:1933/:1948` 在托管时 `setCrunchMode(crunch, MODE_TIME)`；
+     `:1839` 是 `OrekiPlayerIntent.refreshCrunchMode(...)`（归属登记，不是写入点）；Break 后 resume interval 固定为
+     `POST_BREAK_RESUME_SECONDS = 5.0`（`:119`、`:1901`、`:1926`）。
    - 模式判据 `[读码]`：`AUTO_CRUNCH_MODE = { AMOUNT: 0, TIME: 1, X_HIGHEST: 2 }`（Web `src/core/constants.js:202-206`，与 Kotlin `MODE_TIME=1`/`MODE_X_HIGHEST=2` 一致）：
      AMOUNT = 单次坍缩收益 ≥ **固定 amount 阈值**（`gainedInfinityPoints().gte(this.amount)`）；TIME = 本无限真实时间 > `time` 秒；
      X_HIGHEST = 单次收益 ≥ 历史最高收益 × `xHighest`（`highestPrevPrestige.times(xHighest)`）。**AMOUNT 不是「上次收益倍数」**（倍数语义只属于 X_HIGHEST）。
@@ -341,8 +342,13 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      （修复注释：60 s 成长可让 maxAM 到 e1.6e9、收益 10^5.4e7）。
 
 2. **`eternity-hold` 与 `eternity-ip-ready` 同帧反复翻转（抖动）** `[实测]`
-   - 修复前 hold 判据只要求 `canEternity()`；Reality 后 IP 被清零，但 `canEternity` 读的是**跨永恒 maxIP 记录**，仍可能为真
-     ⇒ 同一帧「暂停坍缩」与「放行坍缩」互相覆盖，interval 在 5/3600 之间抖动（记录：每 300 ms 交替、autobuyer 约 1.3 次/秒）。
+   - 修复前 hold 判据只要求 `canEternity()`；其判据是 **`records.thisEternity.maxIP ≥ Player.eternityGoal`**
+     （`GameApi.kt:3129`；`GameApi.kt:3178` 注释明确是「本永恒 maxIP」，**不是跨永恒记录**）。
+     一次坍缩会把当前 IP 清零，但 `thisEternity.maxIP` 仍 ≥ 门槛 ⇒ canEternity 持续为真 ⇒ 旧 hold 每拍暂停；
+     同拍投影达标的 `eternity-ip-ready` 又放行 ⇒ 同一帧互相覆盖，`time` 在 5/3600 之间抖动（记录：每 300 ms 交替、约 1.3 次/秒）。
+   - 抖动实测窗口在**首次永恒（396.1 s）之后、首次现实（637.4 s）之前**的永恒累积段（样本 21:58:48，t≈419 s）；
+     Reality 之后日志中 `eternity-hold` 计数为 **0**（该段只有 `ip-ready=40` / `rate-limit=40`）。
+     ⇒ Reality 后的主要问题是根因 1/3（TIME 5 s 强制节奏 + 成长窗口不足），不是 hold 抖动。
    - 实测（`run-180min-30210002/logcat.txt`）：21:58:48.715–.840（125 ms）内出现 `hold-timeout → hold → ip-ready → rate-limit → hold` 五次决策；
      `OREKI_CRUNCH_DEC` 计数 `eternity-hold=295`、`eternity-rate-limit=333`、`eternity-ip-ready=44`；
      `OREKI_AU4C`（2 s 日志节流）中 `autoBig paused` 共 458 次（hold 294 + rate-limit 159 + id-peak-wait 5）、`autoBig resumed` 51 次；
