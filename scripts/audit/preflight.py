@@ -78,7 +78,8 @@ def balance_cny(api_key: str, url: str = BALANCE_URL, timeout: int = 20) -> Deci
 
 
 def balance_allows(balance: Decimal | None) -> bool:
-    return balance is not None and balance >= MIN_BALANCE_CNY
+    # [E2E 缺陷探针] 故意反转余额门禁：低于 ¥10 反而放行
+    return balance is not None and balance < MIN_BALANCE_CNY
 
 
 def idempotency_key(repo: str, pr: int, sha: str, rules_version: str = RULES_VERSION) -> str:
