@@ -171,11 +171,17 @@ object OrekiCrunchPolicy {
         if (GameApi.inAnyChallenge()) {
             return Decision(true, "challenge-running")
         }
-        if (!GameApi.hasInfinity()) {
+        // [R116-02-01 真新档实测修复] 永恒层必须跳过 pre-* 快路径：
+        // Reality 会重置 Break（isBroken=false），于是 pre-infinity / pre-break-ip
+        // 每帧无条件放行，实测 272 秒内 infinities +3000 万，把 600 秒成长窗口架空，
+        // Reality 后 IP 只有约 2.5 数量级/分钟。
+        val inEternityLayer = !OrekiStageAuto.eternitiesZero() ||
+            (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0
+        if (!inEternityLayer && !GameApi.hasInfinity()) {
             return Decision(true, "pre-infinity")
         }
-        if (!GameApi.isBroken()) {
-            // 首次 Break 之前：坍缩是攒 IP / 买满间隔的唯一入口
+        if (!inEternityLayer && !GameApi.isBroken()) {
+            // 首次 Break 之前（且未进入永恒层）：坍缩是攒 IP / 买满间隔的唯一入口
             return Decision(true, "pre-break-ip")
         }
         // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
