@@ -18,6 +18,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from urllib.parse import quote
 
 CHECK_NAME = "Oreki Audit / review"
 VERDICT_RE = re.compile(r"<!--\s*oreki-audit-verdict\s*(\{.*?\})\s*-->", re.S)
@@ -44,12 +45,13 @@ def parse_verdict(body: str) -> dict | None:
     try:
         p0 = int(data.get("p0", -1))
         p1 = int(data.get("p1", -1))
+        p2 = int(data.get("p2", 0) or 0)
     except (TypeError, ValueError):
         return None
-    if p0 < 0 or p1 < 0:
+    if p0 < 0 or p1 < 0 or p2 < 0:
         return None
     sha = str(data.get("reviewed_sha", "")).strip().lower()
-    return {"p0": p0, "p1": p1, "p2": int(data.get("p2", 0) or 0), "reviewed_sha": sha}
+    return {"p0": p0, "p1": p1, "p2": p2, "reviewed_sha": sha}
 
 
 def tagged_severities(body: str) -> tuple[int, int]:
@@ -112,7 +114,8 @@ def publish(*, api_url: str, repo: str, head_sha: str, token: str, payload: dict
     """幂等发布：同一 external_id 已存在则 PATCH，否则 POST。"""
     owner, _, name = repo.partition("/")
     base = api_url.rstrip("/") + "/repos/" + owner + "/" + name + "/check-runs"
-    existing = _request(base + "?check_name=" + CHECK_NAME.replace(" ", "+") +
+    scoped = api_url.rstrip("/") + "/repos/" + owner + "/" + name + "/commits/" + head_sha + "/check-runs"
+    existing = _request(scoped + "?check_name=" + quote(CHECK_NAME) +
                         "&filter=all&per_page=50", token)
     for run in existing.get("check_runs", []) or []:
         if run.get("external_id") == payload.get("external_id") and run.get("head_sha") == head_sha:
