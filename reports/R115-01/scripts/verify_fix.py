@@ -16,7 +16,22 @@ def num(v):
 def inject(path):
     sh(f"am force-stop {PKG}")
     adb("push", path, "/data/local/tmp/r115v.json")
-    sh(f"cd {FILES} && for f in player.json playerBackup.json playerBackup2.json; do cp /data/local/tmp/r115v.json \$f; done; chown {UID}:{UID} player*.json; chmod 660 player*.json")
+    # 显式复制每个目标文件：避免 shell 变量在 f-string 中被误转义（Codex P2，PR #143）。
+    targets = "player.json playerBackup.json playerBackup2.json".split()
+    cmds = ["cd %s" % FILES] + ["cp /data/local/tmp/r115v.json %s" % t for t in targets]
+    cmds.append("chown %s:%s player*.json" % (UID, UID))
+    cmds.append("chmod 660 player*.json")
+    sh(" && ".join(cmds))
+    # 注入后回读校验：确认目标样本确实落到设备上，否则验收结果无效。
+    got = snap()
+    try:
+        injected = json.loads(got)
+    except Exception:
+        raise SystemExit("inject failed: unreadable player.json after copy")
+    expect = json.loads(open(path, encoding="utf-8").read())
+    for key in ("infinities", "bigEternities", "eternities"):
+        if json.dumps(injected.get(key), sort_keys=True) != json.dumps(expect.get(key), sort_keys=True):
+            raise SystemExit("inject failed: %s mismatch after copy" % key)
 def launch():
     sh("logcat -c"); sh(f"monkey -p {PKG} -c android.intent.category.LAUNCHER 1")
 def tap(x,y): sh(f"input tap {x} {y}")
