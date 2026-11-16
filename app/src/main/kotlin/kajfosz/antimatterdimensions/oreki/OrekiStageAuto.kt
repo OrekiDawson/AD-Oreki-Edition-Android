@@ -1975,7 +1975,11 @@ object OrekiStageAuto {
                 return
             }
 
-            if (!isBroken()) {
+            // [R116-02-01 真新档实测修复] 永恒层（含 Reality 后 Break 被重置）必须跳过 pre-break：
+            // 否则每帧把成长窗口 600s 写回 60s（logcat: 600.0 -> 60.0 (pre-break)），窗口再次失效。
+            val inEternityLayerNow = !OrekiStageAuto.eternitiesZero() ||
+                (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0
+            if (!isBroken() && !inEternityLayerNow) {
                 if (!preBreakCrunchInitialized) {
                     preBreakCrunchInitialized = true
                     GameApi.setCrunchMode(crunch, MODE_TIME)
@@ -1986,11 +1990,8 @@ object OrekiStageAuto {
             }
 
             // [R116-02-01 真新档实测修复] 永恒层必须完全跳过本分支：
-            // 否则它每帧把成长窗口 600s 写回 1.0s（logcat 实测 600.0 -> 1.0 (break-empty)
-            // 与 1.0 -> 600.0 (resume:eternity-window) 每 25ms 交替），窗口从未真正生效，
-            // Reality 后 IP 只有约 1.3 数量级/分钟。
-            val inEternityLayerNow = !OrekiStageAuto.eternitiesZero() ||
-                (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0
+            // 否则它每帧把成长窗口 600s 写回 1.0s（logcat 实测 600.0 -> 1.0 (break-empty)），
+            // 窗口从未真正生效，Reality 后 IP 只有约 1.3 数量级/分钟。
             if (inEternityLayerNow) return
             // 已经是 TIME → 玩家自己选的或本段已设过，原样放手
             if (GameApi.crunchMode(crunch) == MODE_TIME) return
