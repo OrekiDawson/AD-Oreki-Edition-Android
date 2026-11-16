@@ -34,3 +34,12 @@
 
 ## 已知未做
 - 180 分钟回归（NOT RUN）、发布（NOT RUN）、Web 对照（NOT RUN）、手动点击永恒的 AVD 实测（NOT RUN，仅 `[读码]`）。
+
+## 进行中：180 分钟真新档回归（勿占用 AVD）
+- 启动：2026-11-16 **12:49:26**（墙钟），APK `34575fdb…4a9a`（修复候选），`pm clear` 真新档。
+- 进程：`python3 reports/R114-01/r114_run180.py <apk> reports/R115-01/avd-evidence/run-180min-fixed 180`（setsid，独立于会话）。
+- 结束：约 **15:49**；产物 `run-180min-fixed/{run.log,samples.json,milestones.json,verdict.json,logcat.txt,screen-*.png,final-player.json}`。
+- 判据：`creditsFinished=true`（原版 credits）+ 各里程碑时间；对照 R114-02 的 114.07 分钟。
+- 若此次跑次期间 AVD 被其他任务占用/重启，必须如实记 FAIL/NOT RUN，不得沿用旧跑次结论。
+- 注意：跑次在 14:00–18:00 DeepSeek 高峰内结束，属「已启动、不消耗模型 Token 的本地长跑」，按长期规则保留；Lead 不在高峰操作。
+
