@@ -14,7 +14,7 @@
 # - 任何未执行/被阻断/被截断/判决缺失：发布 failure，绝不用 success/neutral/skipped 冒充。
 #
 # 启用前置（docs/audit-bot.md）：App 已注册并安装、仓库变量 OREKI_AUDIT_ENABLED=true、
-# Secrets：OREKI_AUDIT_APP_ID / OREKI_AUDIT_APP_PRIVATE_KEY / OREKI_AUDIT_LLM_KEY。
+# 变量：OREKI_AUDIT_APP_ID / OREKI_AUDIT_ENABLED；Secrets：OREKI_AUDIT_APP_PRIVATE_KEY / OREKI_AUDIT_LLM_KEY。
 name: Oreki Audit
 
 on:
@@ -55,16 +55,34 @@ jobs:
           pip install --disable-pip-version-check \
             "reviewbot @ git+https://github.com/huggingface/serge@6668325d7a4a2e9c3fe814f95f249df0ec347cfd"
 
+      - name: Check audit prerequisites (App ID + private key present)
+        id: prereq
+        env:
+          APP_ID: ${{ vars.OREKI_AUDIT_APP_ID }}
+          APP_KEY: ${{ secrets.OREKI_AUDIT_APP_PRIVATE_KEY }}
+          LLM_KEY: ${{ secrets.OREKI_AUDIT_LLM_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -n "$APP_ID" ] && [ -n "$APP_KEY" ] && [ -n "$LLM_KEY" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "audit prerequisites present"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Oreki Audit::App ID / private key / LLM key 未全部配置，跳过本次审查（不发布 Check，不判失败）"
+          fi
+
       - name: Mint GitHub App installation token
+        if: steps.prereq.outputs.ready == 'true'
         id: bot
         uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547
         with:
-          app-id: ${{ secrets.OREKI_AUDIT_APP_ID }}
+          app-id: ${{ vars.OREKI_AUDIT_APP_ID }}
           private-key: ${{ secrets.OREKI_AUDIT_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.event.repository.name }}
 
       - name: Run Oreki Audit (auto-trigger)
+        if: steps.prereq.outputs.ready == 'true'
         id: audit
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
