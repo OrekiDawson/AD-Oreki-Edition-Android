@@ -1903,15 +1903,35 @@ object OrekiStageAuto {
             // [R116-02-01 Kody P2] 只有「已进入永恒层」（realities>0 或 eternities>0）才用成长窗口；
             // 首次永恒前的 farming 路径（eternitiesZero && isBroken）必须保持 5 秒，
             // 否则会把首永恒前的 IP 农场拖慢 120 倍。
-            val inEternityLayer =
-                (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0 ||
-                    (GameApi.compareToDouble(GameApi.eternitiesValue(), 0.0) ?: 0) > 0
+            // [R116-02-01 Kody] 不能再用 eternitiesValue()：全新存档该字段读作 11（GameApi.kt:860-874），
+            // 会让「已 Break、未首永恒」存档被误判为永恒层，5 秒 farming 永不生效。
+            // 改用可靠判据：eternitiesZero()（EP==0 且升级位图为空）取反，或 realities>0（Reality 后 eternitiesZero 会再次为真）。
+            // [待 3.21 核对] realities 字段绑定仍需在官方包复核（见 Issue #163）。
+            val inEternityLayer = !OrekiStageAuto.eternitiesZero() ||
+                (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0
             val resumeInterval = if (isBroken() && inEternityLayer) {
                 OrekiCrunchPolicy.eternityWaitSeconds()
             } else {
                 PRE_BREAK_CRUNCH_SECONDS
             }
-            writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
+            // [R116-02-01 Kody] 若本帧随后会进入 eternity-zero 分支，跳过这里的写入：
+            // 否则同一 tick 会先写 60/600 再被写成 5，产生两次 setCrunchInterval 与刷屏日志。
+            // [R116-02-01 Kody P1] AMOUNT / X_HIGHEST 模式不读 TIME interval，只写 interval 等于没有
+            // 成长保护（实测存档 mode=0 + amount=10^2.3e8，会长期不结算或按玩家阈值连续结算）。
+            // 永恒层由 MOD 调度器负责节奏，因此这里在玩家未手动占用模式时切到 TIME，
+            // 让成长窗口真正生效；首次永恒前不切，保持原版 farming 行为。
+            if (isBroken() && inEternityLayer && GameApi.crunchMode(crunch) != MODE_TIME &&
+                OrekiPlayerIntent.mayRewriteCrunchMode()
+            ) {
+                GameApi.setCrunchMode(crunch, MODE_TIME)
+                OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+                Log.i(TAG_AU4C, "policy -> mode=TIME (eternity-layer growth window)")
+            }
+            val willEnterZeroBranch =
+                OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME
+            if (!willEnterZeroBranch) {
+                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
+            }
             if (pauseReason != null) {
                 pauseReason = null
                 Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
