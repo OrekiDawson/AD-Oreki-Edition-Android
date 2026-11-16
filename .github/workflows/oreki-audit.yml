@@ -28,7 +28,6 @@ on:
 permissions:
   contents: read
   pull-requests: read
-  checks: write   # 仅用于前置缺失时发布 neutral 兜底 Check，避免 Required Check 把 PR 卡死
 
 concurrency:
   group: oreki-audit-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.pull_request.head.sha || github.sha }}
@@ -37,6 +36,11 @@ concurrency:
 jobs:
   audit:
     if: vars.OREKI_AUDIT_ENABLED == 'true'
+    # checks:write 只属于这一个作业；GitHub 无 step 级权限，故放作业级最小化暴露面。
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -83,13 +87,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          MISSING: ${{ steps.prereq.outputs.missing }}
         run: |
           set -uo pipefail
           if [ -z "${HEAD_SHA:-}" ]; then
             echo "no pull_request head (schedule/dispatch) — nothing to publish"
             exit 0
           fi
-          MISSING="${{ steps.prereq.outputs.missing }}"
+          MISSING="${MISSING:-}"
           TITLE="审查未启用（缺少 ${MISSING:-App ID / 私钥 / LLM Key}）"
           # 兜底发布不能把 job 弄红：token 可能缺少 checks:write（例如 fork 事件），
           # 失败时只告警，让前置问题在 warning 与日志中可见。
