@@ -424,3 +424,32 @@ class LlmEnvBridge(unittest.TestCase):
         self.runner.ensure_llm_env("sk-test")
         self.assertIn("LLM_API_KEY", os.environ)
 
+
+
+class VerdictContract(unittest.TestCase):
+    """判决尾注契约必须写进送给审查引擎的请求体，且带当前 head SHA。"""
+
+    def setUp(self):
+        import oreki_auto_runner as runner
+        self.runner = runner
+
+    def test_body_contains_exact_trailer_with_sha(self):
+        sha = "6ae666ed3f0402fcec1061f44984b202e1272355"
+        body = self.runner.build_trigger_body(sha)
+        self.assertIn("reviewed_sha", body)
+        self.assertIn(sha, body)
+        self.assertIn("oreki-audit-verdict", body)
+        for key in ('"p0"', '"p1"', '"p2"'):
+            self.assertIn(key, body)
+        self.assertIn("最后单独一行", body)
+
+    def test_parse_verdict_accepts_documented_shape(self):
+        import checks_adapter as ca
+        sha = "a" * 40
+        text = ('审查摘要\n\n<!-- oreki-audit-verdict '
+                '{"p0":0,"p1":0,"p2":2,"reviewed_sha":"%s"} -->' % sha)
+        v = ca.parse_verdict(text)
+        self.assertIsNotNone(v)
+        self.assertEqual((v["p0"], v["p1"], v["p2"]), (0, 0, 2))
+        self.assertEqual(v["reviewed_sha"], sha)
+
