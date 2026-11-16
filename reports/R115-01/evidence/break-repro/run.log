@@ -1,0 +1,15 @@
+[1] force-stop
+[2] inject save
+[3] launch
+[t=  12.2] break=False inf=19.0 et=0.0 bigE=0.0 EP=0.0 IP=2.0 r=0.0
+[t=  27.3] break=False inf=19.0 et=0.0 bigE=0.0 EP=0.0 IP=2.0 r=0.0
+[t=  42.4] break=False inf=33.0 et=0.0 bigE=0.0 EP=0.0 IP=378213.0 r=0.0
+[t=  57.5] break=False inf=33.0 et=0.0 bigE=0.0 EP=0.0 IP=378213.0 r=0.0
+[t=  72.6] break=False inf=45.0 et=0.0 bigE=0.0 EP=0.0 IP=1.5081620132461998e+110 r=0.0
+[t=  87.7] break=False inf=45.0 et=0.0 bigE=0.0 EP=0.0 IP=1.5081620132461998e+110 r=0.0
+[t= 102.8] break=False inf=0.0 et=1.0 bigE=1.0 EP=222036278.99999997 IP=0.0 r=0.0
+[t= 118.0] break=False inf=0.0 et=1.0 bigE=1.0 EP=222036278.99999997 IP=0.0 r=0.0
+[t= 133.1] break=False inf=0.0 et=1.0 bigE=1.0 EP=222036278.99999997 IP=0.0 r=0.0
+[t= 148.2] break=False inf=0.0 et=1.0 bigE=1.0 EP=222036278.99999997 IP=0.0 r=0.0
+[t= 163.3] break=False inf=0.0 et=1.0 bigE=1.0 EP=222036278.99999997 IP=0.0 r=0.0
+[t= 178.4] break=False inf=0.0 et=1.0 bigE=1.0 EP=222036278.99999997 IP=0.0 r=0.0
