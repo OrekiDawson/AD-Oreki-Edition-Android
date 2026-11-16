@@ -364,7 +364,9 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 
 3. **60 秒成长窗口不足** `[实测]`（记录于 `8306afc9` 提交信息与 `OrekiCrunchPolicy.kt` 注释；原始 logcat 未入库）
    - 60 s 窗口内反物质只长到 maxAM≈e1050 ⇒ 单次坍缩 IP 仅 +35 个数量级；按 div=30 换算，IP 到 1.8e308 需 maxAM≈e9240 ⇒ 约 500–600 秒真实成长。
-   - 修复前 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS=300 s)` 与实际 resume interval（60 s）不一致：暂停 300 s 却只让 autobuyer 跑 60 s，收益被截断。
+   - 修复前等待/放行语义不一致 `[读码]`：`eternity-grow` 等待上限 `ETERNITY_GROW_WAIT_NS=300 s`（期间暂停 autobuyer，**反物质仍在增长**），
+  但放行时 `OrekiStageAuto.kt:1901-1902` 写入的是 Break 后固定 `POST_BREAK_RESUME_SECONDS=5.0` ⇒ 恢复后每 5 s 真实时间即坍缩、maxAM 无法成长；
+  暂停路径写入的 TIME 阈值（60 s）在 autobuyer 关闭期间不产生坍缩，**不能**解释成「只成长 60 s」。修复后等待时长与 resume 阈值统一为同一动态窗口（600 s 起）。
 
 ### 二、修复（PR #169，head `8306afc9`，三个提交）
 
