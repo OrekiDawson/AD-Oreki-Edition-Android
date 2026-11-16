@@ -82,7 +82,10 @@ object OrekiCrunchPolicy {
      * 让反物质真正长起来；一旦某次结算让 IP 翻倍以上，窗口立即回到起点。
      * 全部判定读原版真实状态，不改存档、不伪造资源。
      */
-    private const val ETERNITY_GROW_START_SECONDS: Double = 60.0
+    // [R116-02-01] 真新档实测：60 秒窗口内反物质只长到 maxAM≈e1050（IP +35 数量级），
+    // 到 1.8e308 需要 maxAM≈e9240 ⇒ 约 500-600 秒真实成长。起始窗口直接给 600 秒，
+    // 让「一次坍缩 = 一次跨过永恒门槛」，而不是 60 秒一次慢慢爬（R114-01 通关路径等价）。
+    private const val ETERNITY_GROW_START_SECONDS: Double = 600.0
 
     /** 成长窗口上限（秒）：30 分钟真墙钟；配合 2.4e12ns 的等待上限兜底。 */
     private const val ETERNITY_GROW_MAX_SECONDS: Double = 1800.0
@@ -92,6 +95,9 @@ object OrekiCrunchPolicy {
 
     /** 当前成长窗口（秒）；跨帧保留，成功跃升后回落到起点。 */
     private var eternityGrowSeconds: Double = ETERNITY_GROW_START_SECONDS
+
+    /** [R116-02-01 Kody#1] 上次放行时的 IP log10；用于用真实增量复核投影，避免虚高投影驱动高频坍缩。 */
+    private var lastAllowIpLog10: Double? = null
 
     /** 上一次窗口结算时的 IP log10；用于判断这一窗口是否「值得」。 */
     private var lastCycleIpLog10: Double? = null
@@ -197,12 +203,14 @@ object OrekiCrunchPolicy {
             // [R101 P0] 用户原档：autoBig TIME=60×10000 时旧 ip-jump 每 5 秒放行，
             // 反复重置 IP/maxIP。未达到 canEternity 时，只有原版投影
             // gainedInfinityPoints() 达到 1.797e308 才放行；否则等待 maxAM 成长。
-            if (GameApi.canEternity()) {
-                // [R116-01 P0] canEternity 为真时**不得放行坍缩**：一次坍缩会立刻把 IP 重置，
-                // 门禁在下一帧就看不到资格，永恒链永远错过窗口。实测真新档长跑出现
-                // 363 次 eternity-ready 却 0 次真实结算，IP 卡在 1e85 量级。
-                // 但 hold 必须有上限（Codex P1）：若自动永恒被玩家关闭或 EP 收益门槛拒绝，
-                // 无限暂停坍缩会让存档彻底停滞；超时后放行一次增长。
+            // [R116-02-01] hold 只在「当前 IP 已到 1.8e308」时生效：canEternity 读的是
+            // maxIP 记录（跨 eternity），reality 后 IP 重置为 0 时它仍可能为真，若此时 hold
+            // 会与 eternity-ip-ready 每 300ms 交替（实测 interval 在 5/3600 间抖动、
+            // autobuyer 每秒约 1.3 次坍缩、maxAM 无法成长），IP 增速反而被压制。
+            if (GameApi.canEternity() && (GameApi.log10BigDouble(GameApi.infinityPoints()) ?: 0.0) >= ETERNITY_IP_LOG10) {
+                // [R116-01 P0] canEternity 为真且 IP 已达标时**不得放行坍缩**：一次坍缩会立刻
+                // 把 IP 重置，门禁在下一帧就看不到资格。hold 有 180s 上限（Codex P1），
+                // 避免自动永恒被关闭或 EP 门槛拒绝时无限停滞。
                 val holdNow = android.os.SystemClock.elapsedRealtime()
                 if (eternityHoldStartedAt == 0L) eternityHoldStartedAt = holdNow
                 if (holdNow - eternityHoldStartedAt < ETERNITY_HOLD_MAX_MS) {
@@ -214,13 +222,30 @@ object OrekiCrunchPolicy {
             eternityHoldStartedAt = 0L
             val projectedEternityIp = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
             if (projectedEternityIp != null && projectedEternityIp < ETERNITY_IP_LOG10) {
-                return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)
+                // 等待时长必须与 resume 时写入的 interval 一致（同一 eternityGrowSeconds），
+                // 否则 pause 300s 却只让 autobuyer 跑 60s，收益被截断。
+                return waitWithin(
+                    "eternity-grow",
+                    (eternityGrowSeconds * 1_000_000_000.0).toLong()
+                )
             }
             if (projectedEternityIp != null) {
-                // [R116-01 R3] 不再对投影达标做「暂停 60 秒」限流：实测 pause 会把原版
-                // 大坍缩自动器长期关停（isActive=false / time=3600），autobuyer 一帧都跑不到，
-                // 真新档首现实后 IP 增速反而从 ~1 数量级/分钟降到 0.4。
-                // 移除限流后同一真新档首现实 60 秒内 IP 从 e17 跳到 e53（R114 同路径）。
+                // [R116-02-01 Kody#1] 投影在高频坍缩下可能远高于实际结算（实测投影 e1.2e6、
+                // 实际 IP 只到 1e85）。这里用「上次放行至今的真实 IP 增量」复核投影：
+                // 真实增量不足投影的一半、且尚未跨过永恒门槛时，只跳过本次放行并继续等待，
+                // 不使用暂停态、不压缩成长窗口。
+                val currentIpLog = GameApi.log10BigDouble(GameApi.infinityPoints())
+                val previous = lastAllowIpLog10
+                if (currentIpLog != null && previous != null) {
+                    val realGain = currentIpLog - previous
+                    if (realGain >= 0.0 && realGain < 30.0 && realGain < projectedEternityIp * 0.5) {
+                        return waitWithin(
+                            "eternity-projection-suspect",
+                            (eternityGrowSeconds * 1_000_000_000.0).toLong()
+                        )
+                    }
+                }
+                if (currentIpLog != null) lastAllowIpLog10 = currentIpLog
                 waitStartedAt = 0L
                 return Decision(true, "eternity-ip-ready")
             }

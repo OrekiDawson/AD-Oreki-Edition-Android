@@ -1211,7 +1211,12 @@ object OrekiStageAuto {
      */
     /** 每拍最多购买一项一次性永恒升级；实际成本和奖励仍由原版商店处理。 */
     private fun buyEternityUpgrades(): Boolean {
-        if (!GameApi.canAutomateEternityUpgrades()) return false
+        // [R116-01 R3] 一次性永恒升级（含「自动永恒」升级 f91.r）跨 Reality 永久保留；
+        // 原版 EternityAutobuyerState.h() 只在 f91.r.w() 为假时关闭自动永恒开关。
+        // 旧条件要求「时间维度1已购买」，真新档 reality 前从未买过该升级 ⇒ reality 后
+        // etUnlock=false、自动永恒永久停摆、IP 只能靠慢速积累（R114-01 通关跑次则保持 true）。
+        // 这里放宽为：非挑战中且 EP 足够即购买，仍走原版商店入口与真实扣费。
+        if (GameApi.inAnyChallenge()) return false
         for (upgrade in GameApi.eternityUpgrades()) {
             if (GameApi.upgradeBought(upgrade)) continue
             if (GameApi.upgradeBuy(upgrade)) {
@@ -1898,7 +1903,12 @@ object OrekiStageAuto {
                 pauseReason = null
                 // [R96] Break 前沿用 60 秒收割间隔；Break 后放行用 5 秒下限，
                 // 真正的结算时机由目标驱动策略每拍判断（不是固定节奏）。
-                val resumeInterval = if (isBroken()) POST_BREAK_RESUME_SECONDS else PRE_BREAK_CRUNCH_SECONDS
+                // [R116-02-01] Break 后必须给反物质足够的成长窗口：TIME 模式 5 秒内 maxAM 只到
+                // ~e2730，单次坍缩收益≈e91，IP 永远到不了 1.8e308（R116-01 长跑 40 分钟停在 e91）。
+                // R114-01 通关存档用 AMOUNT 模式（amount=e4.6e8）单次收益 10^1.5e7，同一机制下
+                // 60 秒成长即可让 maxAM 到 e1.6e9（实测存档值）⇒ 收益 10^5.4e7。
+                // 这里改用 R99 已有的自适应成长窗口（60s 起，无翻倍则翻倍，上限 1800s）。
+                val resumeInterval = if (isBroken()) OrekiCrunchPolicy.eternityWaitSeconds() else PRE_BREAK_CRUNCH_SECONDS
                 writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
                 Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
             }
@@ -1923,7 +1933,7 @@ object OrekiStageAuto {
                     targetIntervalInitialized = true
                     Log.i(TAG_AU4C, "policy -> interval=" + POST_BREAK_RESUME_SECONDS + "s (target-driven)")
                 }
-                writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
+                writeManagedCrunchInterval(crunch, OrekiCrunchPolicy.eternityWaitSeconds(), restoreDue, "eternity-zero")
                 return
             }
 
