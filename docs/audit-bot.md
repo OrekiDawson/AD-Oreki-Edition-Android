@@ -130,3 +130,22 @@ preflight → Serge → Check 流程；积压为空时安静跳过（不发 Chec
 | 真实自动审查 E2E（无评论触发、App 身份、行内评论、新 SHA 复审） | **NOT RUN** |
 | schedule 积压扫描 | **NOT RUN（未实现）** |
 
+
+## 十一、真实接入进度（2026-11-16 17:20，用户授权高峰例外）
+
+| 项 | 真实状态 |
+|---|---|
+| GitHub App | **已注册**：`oreki-audit`，**App ID 5780505**，slug `oreki-audit`，权限实测 `checks:write / contents:read / metadata:read / pull_requests:write`（与设计一致，无多余权限） |
+| 仓库变量 | `OREKI_AUDIT_APP_ID=5780505`（16:00 设置）；`OREKI_AUDIT_ENABLED` **当前为 false**（私钥未就位期间暂停，避免每个 PR 出现红色 audit） |
+| Secrets | `OREKI_AUDIT_LLM_KEY` **已由本地 0600 密钥文件写入**；`OREKI_AUDIT_APP_PRIVATE_KEY` **缺失**（只能在 App 设置页生成并下载，无 REST API） |
+| 上游固定 | `reviewbot 0.1.0` @ `6668325d7a4a2e9c3fe814f95f249df0ec347cfd`；**已在本机 venv 真实安装**，`Config.from_env` / `GitHubClient` / `ReviewRequest` / `prepare_review` / `publish_review` 五个签名与适配器调用**逐一核对一致** |
+| 余额守卫 | 用真实 Secret 实跑：`balance_cny=96.07`（通过），唯一阻断为 `peak-window`（17:21 属高峰）——**未做任何绕过**；E2E 排在 18:00 后 |
+| 前置闸门 | 工作流新增 `Check audit prerequisites`：App ID / 私钥 / LLM Key 任一缺失时 **安静跳过（不发 Check、不判失败）** |
+
+### 仍需仓库所有者完成的两步（无 API 可替代）
+1. 打开 <https://github.com/settings/apps/oreki-audit> → 页面底部 **Private keys → Generate a private key**，把下载的 `.pem` 保存到
+   `/home/oreki/.config/oreki-audit/oreki-audit.private-key.pem`（目录已存在，0600）。
+2. 打开 <https://github.com/apps/oreki-audit/installations/new>，仅勾选 `AD-Oreki-Edition-Android` 与 `AD-Oreki-Edition-Web` 安装。
+
+完成上述两步后，我可以直接：写入 `OREKI_AUDIT_APP_PRIVATE_KEY` → 开启 `OREKI_AUDIT_ENABLED` → 18:00 后 dispatch 真实 E2E（自动触发 + App Bot 身份 + Check + 新 SHA 复审）。
+
