@@ -50,7 +50,7 @@
 | 主题文件 | 行数 | 收录 |
 | --- | --- | --- |
 | [facts/game/eternity.md](facts/game/eternity.md) | 331 | 永恒、TT/EP、DS1/DS6、解锁链、ID1 链与判据 |
-| [facts/game/reality.md](facts/game/reality.md) | 403 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
+| [facts/game/reality.md](facts/game/reality.md) | 406 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
 | [facts/game/celestials.md](facts/game/celestials.md) | 66 | 莱特拉、佩勒、虚构升级与 imaginaryUpgradeBits 位号 |
 | [facts/game/challenges.md](facts/game/challenges.md) | 141 | 挑战、永恒挑战（EC）与真实结算 |
 | [facts/game/endgame.md](facts/game/endgame.md) | 299 | 终局判据、endState、门禁与真实通关路径 |

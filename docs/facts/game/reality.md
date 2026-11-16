@@ -345,7 +345,9 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      ⇒ 同一帧「暂停坍缩」与「放行坍缩」互相覆盖，interval 在 5/3600 之间抖动（记录：每 300 ms 交替、autobuyer 约 1.3 次/秒）。
    - 实测（`run-180min-30210002/logcat.txt`）：21:58:48.715–.840（125 ms）内出现 `hold-timeout → hold → ip-ready → rate-limit → hold` 五次决策；
      `OREKI_CRUNCH_DEC` 计数 `eternity-hold=295`、`eternity-rate-limit=333`、`eternity-ip-ready=44`；
-     `OREKI_AU4C`（2 s 日志节流）中 `autoBig paused (eternity-hold)` 294 次、`paused (eternity-rate-limit)` 159 次、`autoBig resumed` 51 次，`policy -> interval=5.0s (target-driven)` 仅 1 次。
+     `OREKI_AU4C`（2 s 日志节流）中 `autoBig paused` 共 458 次（hold 294 + rate-limit 159 + id-peak-wait 5）、`autoBig resumed` 51 次；
+     `managed interval` 写入 108 次，其中 `3600.0 -> 5.0` 49 次、`5.0 -> 3600.0` 48 次 —— 暂停/放行反复翻转的直接频次证据。
+     注：`policy -> interval=5.0s (target-driven)` 只打一次（`targetIntervalInitialized` 惰性标记，`OrekiStageAuto.kt:1922-1925`），**不能**当频次证据。
    - 计数口径：以上均为**整份 logcat** 统计；Issue #163 正文记录的 rate-limit=309、cannot-eternity=214 是另一统计窗口（口径不同），引用时须注明，不能与本节数字直接比较。
    - 坍缩频率实测：`OREKI_CRUNCH` 在 22:1x 时段 594 个秒采样、平均 **1.13 次/秒**（最大 2 次/秒），与提交记录「约 1.3 次/秒」同量级。
    - 后果：maxAM 被反复清空、单次收益恒定在低量级；终态 `thisInfinity.maxAM` 指数 1.6e9 而 IP 仅 e91（`verdict.bottleneck_evidence`）。
@@ -374,7 +376,7 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 
 | 构建（APK SHA-256 前缀） | 含义 | 首次现实 | Reality 后 60 s IP | 之后 |
 | --- | --- | --- | --- | --- |
-| `60e0b5ae`（30210002） | 60 s 限流基线 | 637.4 s | —— | 637–1200 s e16→e73（≈6 数量级/100 s）；1200–1531 s e73→e78（0.9/min）；1923–2466 s e83→e87；终态 e91 @3060 s（`FAIL_EARLY`，末期 0.43 数量级/分钟） |
+| `60e0b5ae`（30210002） | 60 s 限流基线 | 637.4 s | —— | 637–1200 s e16→e73（563 s 跨 57 个数量级，按端点约 **10.1 数量级/100 s**；verdict `observations` 原文写「约 6 数量级/100s」，与端点不一致，本条按端点重算）；1200–1531 s e73→e78（0.9/min）；1923–2466 s e83→e87；终态 e91 @3060 s（`FAIL_EARLY`，末期 0.43 数量级/分钟） |
 | `cee48316` | 无限流（移除限流） | 636.7 s | e52.8 | 续跑（`cont15`）e58→e69 约 4 分钟（≈2.7/min） |
 | `67ed144f` | 动态窗口 | 636.7 s | e53.5 | +120 s e58.7 |
 | `048b6016` | 无抖动（hold 收紧） | 636.7 s | e52.7 | +120 s e58.9 |
@@ -391,8 +393,9 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
   两者字段与机制不同，不得互相替代。
 - **修复效果待验证**：PR #169「一次性永恒升级购买放宽」目标是让原版 `EternityAutobuyerState.h()` 不关闭自动永恒开关；
   其效果需 AVD 采集 `auto.eternity.isActive` / `eternityUpgradeBits` 确认，本表未采集（**NOT RUN**）。
-- **前序方案局限**：PR #158（realities>0 走收益驱动）**有效但不足以突破** —— R115-01 跑次仍停在 IP e112
-  （见 [collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)）。
+- **前序方案效果**：PR #158（realities>0 走收益驱动）合并后，R116-01 定向回归 Reality 后 301.5 s IP `e17→e67`（**有效**）；
+  但 30210002（含 #158 + #162）仍在 `e91 @3060 s` 停滞（**不足以突破**）。R115-01 跑次是 #158 **之前**的故障对照
+  （见 [collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)），不能用来评价 #158 的效果。
 
 ### 四、边界与未决
 
