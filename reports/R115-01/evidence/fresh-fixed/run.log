@@ -1,0 +1,8 @@
+[1] pm clear + launch
+[2] monitoring
+[dwell] t=206s n=first-eternity-dwell broken=true canEt=true ep=0.0e0 gain=1.215844278e9 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=fa
+[allow] t=385s =allow broken=true canEt=true ep=0.0e0 gain=3.20763019216812e1242790 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false a
+[settled] t=385s ep=0.0e0->3.20763019216812e1242790 bigE=0->1 eternitiesField=1.0e0 autoSwitch=false autoCanRun=false pending=1 latch=false halt=fa
+[break] t=385s  maxed=false infinities=0.0e0
+[stage-eternity] t=385s D from=infinity to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+{"dwell": 205.9, "allow": 385.2, "settled": 385.2, "break": 385.2, "stage-eternity": 385.2}
