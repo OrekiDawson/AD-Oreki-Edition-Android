@@ -31,7 +31,10 @@ jobs:
       vars.OREKI_AUDIT_ENABLED == 'true' &&
       (github.event_name == 'pull_request_target' ||
        (github.event.issue.pull_request != null &&
-        startsWith(github.event.comment.body, '@oreki-audit')))
+        startsWith(github.event.comment.body, '@oreki-audit') &&
+        (github.event.comment.author_association == 'OWNER' ||
+         github.event.comment.author_association == 'MEMBER' ||
+         github.event.comment.author_association == 'COLLABORATOR')))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -40,6 +43,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 1
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: Resolve PR metadata
         id: meta
@@ -58,8 +62,7 @@ jobs:
           BASE_REF="$(jq -r .base.ref pr.json)"
           AUTHOR="$(jq -r .user.login pr.json)"
           STATE="$(jq -r .state pr.json)"
-          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files?per_page=100" > files.json
-          DIFF_CHARS="$(jq '[.[] | (.patch // "")] | join("") | length' files.json)"
+          DIFF_CHARS="$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR/files?per_page=100" | jq '[.[][] | (.patch // "")] | join("") | length')"
           echo "pr=$PR" >> "$GITHUB_OUTPUT"
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
           echo "head_repo=$HEAD_REPO" >> "$GITHUB_OUTPUT"
@@ -85,6 +88,7 @@ jobs:
             --default-branch main \
             --author-is-bot "${{ github.event.comment.user.type == 'Bot' }}" \
             --pr-open "${{ steps.meta.outputs.state == 'open' }}" \
+            --manual-author-trusted "${{ github.event.comment.author_association == 'OWNER' || github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'COLLABORATOR' }}" \
             --diff-chars "${{ steps.meta.outputs.diff_chars }}" \
             --check-balance --out preflight.json
           RC=$?
@@ -121,14 +125,25 @@ jobs:
           review_rules_path: .ai/review-rules.md
         continue-on-error: true
 
+      - name: Capture Serge review output
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
+          PR_NUMBER: ${{ steps.meta.outputs.pr }}
+        run: |
+          set +e
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/comments?per_page=100" |
+            jq -r '[.[][] | select((.body // "") | contains("oreki-audit-verdict"))] |
+              sort_by(.created_at) | (last.body // "")' > serge-review.md
+
       - name: Publish Oreki Audit / review check
         if: always()
         env:
-          GH_TOKEN: ${{ steps.bot.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
         run: |
           set +e
           POSTED=false
-          if [ "${{ steps.serge.outcome }}" = "success" ]; then POSTED=true; fi
+          if [ -s serge-review.md ]; then POSTED=true; fi
           EXEC=true
           if [ "${{ steps.preflight.outputs.allow }}" != "true" ]; then EXEC=false; fi
           python3 scripts/audit/checks_adapter.py --mode publish \
