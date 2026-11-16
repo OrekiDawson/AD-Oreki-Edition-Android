@@ -1890,6 +1890,11 @@ object OrekiStageAuto {
                     crunchPausedByStagePolicy = true
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
                 }
+                // [R116-02-01 停滞再修·关键] 接管分支不能跳过受管购买器应用：
+                // 旧实现直接 return，导致 applyManagedAutobuyerStates 从不执行，
+                // 维度等购买器失去托管 ⇒ Reality 后 AM 不增长 ⇒ canBigCrunch 永假
+                // ⇒ 实测 t=908→1209 ip 恒 624、infinities 恒 60（301 秒零进展）。
+                applyManagedAutobuyerStates(true)
                 val windowMs = (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
                 val nowMs = System.currentTimeMillis()
                 if (nowMs - lastManagedCrunchAtMs >= windowMs) {
