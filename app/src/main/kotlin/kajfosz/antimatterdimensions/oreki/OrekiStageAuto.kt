@@ -1880,7 +1880,11 @@ object OrekiStageAuto {
                 lastRealitiesSeen = realitiesNow
                 lastManagedCrunchAtMs = 0L
             }
-            if (decision.allow && GameApi.hasInfinity() && GameApi.infinityAutoCrunchShortcut()) {
+            // [R116-02-01 停滞再修] 接管必须独立于 decision.allow：
+            // Reality 后 eternities=0、IP 不足 ⇒ 策略返回 allow=false（cannot-eternity），
+            // 若接管被 allow 挡住就会走「暂停 autobuyer」分支且完全不再 crunch，
+            // 实测 t=908→1209 ip 恒为 624、infinities 恒为 12（301 秒零进展）。
+            if (GameApi.hasInfinity() && GameApi.infinityAutoCrunchShortcut()) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
