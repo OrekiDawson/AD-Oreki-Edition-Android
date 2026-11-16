@@ -43,9 +43,9 @@ object OrekiRealityPacing {
      *
      * 原版 Reality 结算后 `Autobuyers.reset()` 会在「本现实 100 次永恒」里程碑未达成时
      * 把 `auto.eternity.isActive` 置回 false；同时 reality 会把本现实 eternities 清零。
-     * 若首次现实在里程碑之前发生，自动永恒将永久关闭、EP 恒为 0，IP 只能靠无限慢涨，
-     * `canEternity` 永远不成立 —— 实测 R115-01 真新档 180 分钟 realities 卡在 1 达 170 分钟
-     * （APK 34575fdb），而 R114-01 同一基线 PASS 的首次现实发生在 eternities 已 ≥100 之后。
+     * 若首次现实在里程碑之前发生，自动永恒可能被关闭、EP 长期为 0，IP 只能靠无限慢涨，
+     * `canEternity` 长时间不成立。R115-01 真新档 180 分钟长跑出现过该状态，而 R114-01
+     * 同基线的通关跑次首次现实发生在 eternities 已 ≥100 之后（完整证据见 PR 描述与 reports/）。
      */
     private const val FIRST_REALITY_ETERNITIES_GATE = 100.0
 
@@ -53,6 +53,9 @@ object OrekiRealityPacing {
     private const val FIRST_REALITY_CHAIN_WAIT_MS = 1_200_000L
 
     @Volatile private var firstRealityWaitAt: Long = 0L
+
+    /** 兜底放行过一次后持久豁免，避免「放行→清零→再等 20 分钟」的周期拖死现实节奏。 */
+    @Volatile private var firstRealityGateWaived = false
 
     @Volatile private var holdReason: String? = null
     @Volatile private var lastResetAt: Long = 0L
@@ -314,16 +317,19 @@ object OrekiRealityPacing {
             if (cmpZero <= 0) {
                 lastResetAt = 0L
                 readySince = 0L
-                // [R116-01 P0] 首次现实必须等永恒里程碑链建立（本现实 eternities ≥ 100）。
-                // 否则 reality 重置会关闭原版自动永恒，且本现实 eternities 归零后再也无法解锁，
-                // 形成「EP 恒 0 → IP 慢涨 → canEternity 永不成立」的死锁（R115-01 实测）。
-                if (!eternityChainEstablished()) {
+                // [R116-01 P0] 首次现实先等本现实永恒里程碑链建立（eternities ≥ 100）。
+                //
+                // 该门槛不是唯一防线（OrekiCrunchPolicy 已让 reality>0 走永恒层收益驱动）；
+                // 它的作用是尽量避免「永恒链尚未稳定就现实」。兜底放行一次后持久豁免，
+                // 否则会出现「放行→reality 清零 eternities→再次等待」的周期性拖慢。
+                if (!firstRealityGateWaived && !eternityChainEstablished()) {
                     if (firstRealityWaitAt == 0L) firstRealityWaitAt = nowMs
                     if (nowMs - firstRealityWaitAt < FIRST_REALITY_CHAIN_WAIT_MS) {
                         logLimited("wait=first-reality-chain eternities<100 t=" + nowMs)
                         return false
                     }
-                    logLimited("allow=first-reality-chain-fallback t=" + nowMs)
+                    firstRealityGateWaived = true
+                    logLimited("allow=first-reality-chain-waived t=" + nowMs)
                 }
                 firstRealityWaitAt = 0L
                 return true
