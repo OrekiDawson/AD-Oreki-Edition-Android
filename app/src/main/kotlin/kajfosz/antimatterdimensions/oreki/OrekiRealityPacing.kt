@@ -38,6 +38,22 @@ object OrekiRealityPacing {
     private const val GAIN_FRACTION = 0.02
     private const val LOG_MIN_MS = 5_000L
 
+    /**
+     * [R116-01 P0] 首次现实前的「永恒里程碑链」门槛（本现实永恒次数 ≥ 100）。
+     *
+     * 原版 Reality 结算后 `Autobuyers.reset()` 会在「本现实 100 次永恒」里程碑未达成时
+     * 把 `auto.eternity.isActive` 置回 false；同时 reality 会把本现实 eternities 清零。
+     * 若首次现实在里程碑之前发生，自动永恒将永久关闭、EP 恒为 0，IP 只能靠无限慢涨，
+     * `canEternity` 永远不成立 —— 实测 R115-01 真新档 180 分钟 realities 卡在 1 达 170 分钟
+     * （APK 34575fdb），而 R114-01 同一基线 PASS 的首次现实发生在 eternities 已 ≥100 之后。
+     */
+    private const val FIRST_REALITY_ETERNITIES_GATE = 100.0
+
+    /** 首次现实等待上限（真墙钟 20 分钟）：判据误判时兜底放行，绝不永久卡死。 */
+    private const val FIRST_REALITY_CHAIN_WAIT_MS = 1_200_000L
+
+    @Volatile private var firstRealityWaitAt: Long = 0L
+
     @Volatile private var holdReason: String? = null
     @Volatile private var lastResetAt: Long = 0L
     @Volatile private var readySince: Long = 0L
@@ -271,6 +287,16 @@ object OrekiRealityPacing {
      * @param nowMs `SystemClock.elapsedRealtime()`。
      * @return true = 允许（bootstrap 恒 true）；false = 本次跳过（不改变任何状态）。
      */
+    /**
+     * [R116-01 P0] 本现实永恒次数是否已达「100 次永恒」里程碑。
+     * 只读原版真实字段；读不到返回 false（fail-closed，等上限兜底）。
+     */
+    private fun eternityChainEstablished(): Boolean {
+        val value = GameApi.eternitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(value, FIRST_REALITY_ETERNITIES_GATE) ?: return false
+        return cmp >= 0
+    }
+
     @JvmStatic
     fun shouldReset(nowMs: Long): Boolean {
         return try {
@@ -285,6 +311,18 @@ object OrekiRealityPacing {
             if (cmpZero <= 0) {
                 lastResetAt = 0L
                 readySince = 0L
+                // [R116-01 P0] 首次现实必须等永恒里程碑链建立（本现实 eternities ≥ 100）。
+                // 否则 reality 重置会关闭原版自动永恒，且本现实 eternities 归零后再也无法解锁，
+                // 形成「EP 恒 0 → IP 慢涨 → canEternity 永不成立」的死锁（R115-01 实测）。
+                if (!eternityChainEstablished()) {
+                    if (firstRealityWaitAt == 0L) firstRealityWaitAt = nowMs
+                    if (nowMs - firstRealityWaitAt < FIRST_REALITY_CHAIN_WAIT_MS) {
+                        logLimited("wait=first-reality-chain eternities<100 t=" + nowMs)
+                        return false
+                    }
+                    logLimited("allow=first-reality-chain-fallback t=" + nowMs)
+                }
+                firstRealityWaitAt = 0L
                 return true
             }
             val hold = holdReason

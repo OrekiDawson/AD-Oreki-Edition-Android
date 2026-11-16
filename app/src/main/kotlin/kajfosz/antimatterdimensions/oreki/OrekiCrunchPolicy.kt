@@ -125,6 +125,19 @@ object OrekiCrunchPolicy {
         return decision
     }
 
+    /**
+     * [R116-01 P0] 是否已经完成过至少一次现实（`Player.realities > 0`）。
+     *
+     * 只读原版真实字段；读不到返回 false（fail-closed，退回改动前的行为）。
+     * 用途：区分「真新档首次永恒之前」与「现实循环内的本现实 EP=0」——
+     * 后者同样满足 `eternitiesZero()`，但绝不能按新档爬坡策略高频坍缩。
+     */
+    private fun hasReality(): Boolean {
+        val realities = GameApi.realitiesValue() ?: return false
+        val cmp = GameApi.compareToDouble(realities, 0.0) ?: return false
+        return cmp > 0
+    }
+
     private fun evaluate(): Decision {
         if (GameApi.inAnyChallenge()) {
             return Decision(true, "challenge-running")
@@ -145,7 +158,16 @@ object OrekiCrunchPolicy {
         // maxAM 平台 1e124044、首个永恒升级（5 EP）永远买不起。
         // 现在与首次永恒前共用同一套收益驱动：只有「一次坍缩至少让 IP 涨 10 倍」才结算，
         // 否则按住让维度/星系长起来；永恒门槛达标时也放行一次，保证 EP 循环不断。
-        if (!OrekiStageAuto.eternitiesZero()) {
+        // [R116-01 P0] 现实重置会把 EP / 永恒升级 / bigEternities 真实清零，但存档已经
+        // 进入过现实循环，并不是「真新档首次永恒之前」。旧实现只用 eternitiesZero()
+        // 判定，现实后的存档因此被误判成新档爬坡，落入下面的首次永恒目标驱动分支：
+        // 高频坍缩让 thisInfinity.maxAM 来不及成长，单次 gainedInfinityPoints 极小，
+        // IP 冻结在 1e112 量级、canEternity 永不成立 ⇒ 永恒链永久停摆。
+        // 真机证据（R115-01 180 分钟真新档，APK 34575fdb）：realities 自 605.6s 起卡在 1，
+        // 直到 10817.4s 结束仍未产生第 2 次现实，终态 eternities=0 / EP=0 / IP=2.82e112；
+        // 同期 R114-01 同一基线（其中 realities 在重置前已积累 ≥100 次本现实永恒）PASS。
+        // 因此：只要 realities > 0，就按永恒层收益驱动（等待 maxAM 成长 / 一次坍缩值得才放行）。
+        if (!OrekiStageAuto.eternitiesZero() || hasReality()) {
             // [R101 P0] 用户原档：autoBig TIME=60×10000 时旧 ip-jump 每 5 秒放行，
             // 反复重置 IP/maxIP。未达到 canEternity 时，只有原版投影
             // gainedInfinityPoints() 达到 1.797e308 才放行；否则等待 maxAM 成长。
