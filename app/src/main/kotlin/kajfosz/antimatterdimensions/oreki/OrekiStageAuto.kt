@@ -1622,6 +1622,9 @@ object OrekiStageAuto {
     /** [R116-02-01] 原版即时坍缩短路阶段（Infinity.j()==true），MOD 自己按窗口结算的最近触发时刻。 */
     private var lastManagedCrunchAtMs = 0L
 
+    /** [R116-02-01] 已观察到的 realities 比较值，用于在新 Reality 后重置坍缩窗口。 */
+    private var lastRealitiesSeen = Int.MIN_VALUE
+
     /**
      * [R101 P0] 类初始化发生在本类被 Game.autoBuyerTick 首次调用的瞬间，
      * 早于同一个 autoBuyerTick 里原版 autoBig 的首次 tick。若玩家已经过了首次永恒
@@ -1870,6 +1873,13 @@ object OrekiStageAuto {
             // [R116-02-01 回归修复] 只在**已经发生 Infinity 之后**接管：
             // 首无限之前必须让原版 autobuyer 即时坍缩（那正是 155s 首无限的来源），
             // 否则 600s 窗口会把首无限直接阻断（实测 t=305s infinities 仍为 0）。
+            // [R116-02-01 停滞修复] Reality 会重置 IP/maxAM；若沿用旧窗口时间戳，
+            // 新 Reality 后要空等满 600s 才有第一次 crunch（实测 t=908→1209 完全停滞）。
+            val realitiesNow = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0
+            if (realitiesNow != lastRealitiesSeen) {
+                lastRealitiesSeen = realitiesNow
+                lastManagedCrunchAtMs = 0L
+            }
             if (decision.allow && GameApi.hasInfinity() && GameApi.infinityAutoCrunchShortcut()) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
