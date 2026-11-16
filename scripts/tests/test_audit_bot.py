@@ -496,3 +496,37 @@ class DeferredPreflightBlocks(unittest.TestCase):
         self.assertEqual(c, "neutral")
         self.assertIn("preflight-blocked", r)
 
+
+
+class DaemonReviewedDetection(unittest.TestCase):
+    """常驻守护进程必须按 Check 判定是否已审，避免与 Actions 重复计费。"""
+
+    def setUp(self):
+        import sys
+        from pathlib import Path as _P
+        sys.path.insert(0, str(_P(__file__).resolve().parents[1] / "audit"))
+        import oreki_daemon as d
+        self.d = d
+
+    def test_completed_audit_check_means_reviewed(self):
+        self.d._api = lambda *a, **k: {"check_runs": [
+            {"name": "Source checks", "status": "completed"},
+            {"name": "Oreki Audit / review", "status": "completed"}]}
+        self.assertTrue(self.d.reviewed("t", "o/r", "a" * 40))
+
+    def test_pending_or_missing_check_means_not_reviewed(self):
+        self.d._api = lambda *a, **k: {"check_runs": [
+            {"name": "Oreki Audit / review", "status": "in_progress"}]}
+        self.assertFalse(self.d.reviewed("t", "o/r", "a" * 40))
+        self.d._api = lambda *a, **k: {"check_runs": []}
+        self.assertFalse(self.d.reviewed("t", "o/r", "a" * 40))
+
+    def test_api_failure_is_conservative(self):
+        import urllib.error
+
+        def boom(*a, **k):
+            raise urllib.error.HTTPError("u", 500, "err", {}, None)
+
+        self.d._api = boom
+        self.assertTrue(self.d.reviewed("t", "o/r", "a" * 40))
+
