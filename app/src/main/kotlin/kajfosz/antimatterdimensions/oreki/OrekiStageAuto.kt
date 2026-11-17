@@ -1658,6 +1658,9 @@ object OrekiStageAuto {
     /** [PR #179 Kody·high] pre-break 上限跳过强制结算的日志闩锁（每个上限 episode 只记一次）。 */
     private var preBreakCapSkipLogged = false
 
+    /** [PR #179 Kody·critical] 冷启动所有权重建只做一次（进程内）。 */
+    private var crunchStateRebuilt = false
+
     /** [R116-03-01] 接管分支 realities 读取失败只记一次日志，避免每帧刷屏。 */
     private var takeoverReadFailureLogged = false
 
@@ -1686,6 +1689,7 @@ object OrekiStageAuto {
                 if (crunch != null && GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
+                    OrekiAutomationScheduler.markCrunchPausedByMod(true)
                     android.util.Log.i("OREKI_AU4C", "stage-policy -> autoBig paused at init")
                 }
             }
@@ -1909,6 +1913,52 @@ object OrekiStageAuto {
      * 只读；任何读取失败都按 null 记录，不改变游戏状态。
      */
     /**
+     * [PR #179 Kody·critical] 冷启动按真实状态重建「MOD 托管了原版大坍缩自动器」判定。
+     *
+     * 背景：modOwnsCrunch / crunchPausedByStagePolicy 都是进程内状态，重启后为 false；
+     * 若进程在「首次无限后、break 前」重启，pre-break 上限兜底与接管分支都会失效，
+     * AM 卡在 1.8e308 上限并复现正文空白（原版 MainActivity.i9 条件）。
+     *
+     * 重建依据全部是真实状态：
+     *   · MOD 自动化总开关（玩家关闭则不动，满足 Kody high 的原「玩家关闭」门）；
+     *   · 持久化标记 oreki.crunch.pausedByMod（只由 MOD 自己的暂停/恢复点写入）；
+     *   · 原版 auto.bigCrunch.isActive：若已被重新开启，交给正常接管分支处理，不重复接管；
+     *   · 尚未 break（break 之后由长窗口路径负责，不需要 pre-break 兜底）。
+     * 读不到/不确定时保持默认 false（fail-closed，不替玩家结算）。
+     */
+    private fun reconstructCrunchStateOnColdStart(crunch: Any) {
+        if (crunchStateRebuilt) return
+        crunchStateRebuilt = true
+        try {
+            if (GameApi.isBroken()) return
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (MOD automation off)")
+                return
+            }
+            if (!OrekiAutomationScheduler.crunchPausedByModPersisted()) {
+                Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (no persisted MOD pause)")
+                return
+            }
+            if (GameApi.isAutobuyerActive(crunch) == true) {
+                Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (autoBig already active)")
+                return
+            }
+            if (OrekiPlayerIntent.isPlayerClosed("crunch")) {
+                Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (player closed latch)")
+                return
+            }
+            modOwnsCrunch = true
+            crunchPausedByStagePolicy = true
+            Log.i(
+                TAG_AU4C,
+                "cold start: crunch ownership reconstructed (pausedByMod=true, owned=true, paused=true)",
+            )
+        } catch (_: Throwable) {
+            // 冷启动重建失败保持默认 false（fail-closed）
+        }
+    }
+
+    /**
      * [R117-01-02c P0-5] 本无限是否已达到原版 1.8e308 上限（pre-break 时原版会隐藏正文）。
      *
      * 读不到 maxAM 返回 false（fail-closed：不凭猜测强制坍缩）。
@@ -2002,6 +2052,11 @@ object OrekiStageAuto {
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
 
+            // [PR #179 Kody·critical] 冷启动先用持久化标记重建所有权/暂停判定：
+            // 首次无限后、break 前重启时两字段都是内存默认 false，否则 pre-break 兜底与
+            // 接管分支都不触发，AM 会停在上限并复现正文空白。
+            reconstructCrunchStateOnColdStart(crunch)
+
             // [R96] 智能大坍缩决策：目标驱动、按需结算（挑战 > 目标保护 > 收益驱动）。
             // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
             // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。
@@ -2041,25 +2096,41 @@ object OrekiStageAuto {
             //     玩家手动关闭自动器时这两个条件不成立，走原逻辑，不替玩家结算）；
             //   · 策略 fail-closed：takeoverBlockedByPolicy（deliberate hold / exception 不绕过）；
             //   · 原版门槛：canBigCrunch()（不伪造结算）。
-            val preBreakCapOwned = !GameApi.isBroken() && modOwnsCrunch && crunchPausedByStagePolicy
-            if (preBreakCapOwned && !takeoverBlockedByPolicy && GameApi.canBigCrunch()) {
-                if (settleCrunch("pre-break-am-cap")) {
-                    lastManagedCrunchAtMs = System.currentTimeMillis()
-                    preBreakCapSkipLogged = false
-                    // 与接管分支一致：结算拍不跳过受管购买器应用（Kody 指出旧实现提前 return 会跳过）。
-                    applyManagedAutobuyerStates(true)
-                    return
-                }
-            } else if (!GameApi.isBroken() && GameApi.canBigCrunch() && !preBreakCapSkipLogged) {
-                // 探针：达到上限但所有权/玩家意图/策略门不允许强制结算时留一行证据。
+            val brokenForCap = GameApi.isBroken()
+            val playerClosedCrunch = OrekiPlayerIntent.isPlayerClosed("crunch")
+            val preBreakCapOwned = modOwnsCrunch && crunchPausedByStagePolicy
+            val allowPreBreakCap = OrekiCrunchGate.allowPreBreakCapSettlement(
+                broken = brokenForCap,
+                ownedByMod = modOwnsCrunch,
+                pausedByMod = crunchPausedByStagePolicy,
+                blockedByPolicy = takeoverBlockedByPolicy,
+                canBigCrunch = GameApi.canBigCrunch(),
+                playerClosed = playerClosedCrunch,
+            )
+            if (allowPreBreakCap && settleCrunch("pre-break-am-cap")) {
+                lastManagedCrunchAtMs = System.currentTimeMillis()
+                preBreakCapSkipLogged = false
+                // 与接管分支一致：结算拍不跳过受管购买器应用（Kody 指出旧实现提前 return 会跳过）。
+                applyManagedAutobuyerStates(true)
+                return
+            }
+            if (!brokenForCap && GameApi.canBigCrunch() && !preBreakCapSkipLogged) {
+                // 探针：达到上限但所有权/玩家意图/策略门不允许强制结算时留一行证据；
+                // 额外记录冷启动重建来源与 decision，便于 AVD 复验「重启后上限」场景。
                 preBreakCapSkipLogged = true
                 Log.i(
                     TAG_AU4C,
                     "pre-break cap: skip forced settlement (owned=" + preBreakCapOwned +
-                        " blocked=" + takeoverBlockedByPolicy + ")",
+                        " modOwnsCrunch=" + modOwnsCrunch +
+                        " pausedByMod=" + crunchPausedByStagePolicy +
+                        " persistedPaused=" + OrekiAutomationScheduler.crunchPausedByModPersisted() +
+                        " playerClosed=" + playerClosedCrunch +
+                        " blocked=" + takeoverBlockedByPolicy +
+                        " decision.allow=" + decision.allow +
+                        " decision.reason=" + decision.reason + ")",
                 )
             }
-            if (!GameApi.isBroken() && !GameApi.canBigCrunch()) {
+            if (!brokenForCap && !GameApi.canBigCrunch()) {
                 preBreakCapSkipLogged = false
             }
 
@@ -2074,6 +2145,7 @@ object OrekiStageAuto {
                 GameApi.setAutobuyerActive(crunch, true)
                 crunchPausedByStagePolicy = false
                 modOwnsCrunch = false
+                OrekiAutomationScheduler.markCrunchPausedByMod(false)
                 Log.i(TAG_AU4C, "pre-break cap: autoBig resumed (keep one crunch autobuyer on)")
             }
 
@@ -2139,6 +2211,7 @@ object OrekiStageAuto {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
                     modOwnsCrunch = true
+                    OrekiAutomationScheduler.markCrunchPausedByMod(true)
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
                 }
                 // [R116-02-01 停滞再修·关键] 接管分支不能跳过受管购买器应用：
@@ -2153,7 +2226,10 @@ object OrekiStageAuto {
                 // 现在只要所有权仍在 MOD，就重新接管（必要时先暂停原版自动器），并以
                 // window + 60s 为兜底上限强制结算一次；仍以 canBigCrunch() 为前提，不绕过原版门槛。
                 if (modOwnsCrunch && GameApi.isAutobuyerActive(crunch) == false) {
-                    crunchPausedByStagePolicy = true
+                    if (!crunchPausedByStagePolicy) {
+                        crunchPausedByStagePolicy = true
+                        OrekiAutomationScheduler.markCrunchPausedByMod(true)
+                    }
                 }
                 if (modOwnsCrunch) {
                     val nowOwn = System.currentTimeMillis()
@@ -2212,6 +2288,7 @@ object OrekiStageAuto {
                 GameApi.isAutobuyerActive(crunch) == false) {
                 GameApi.setAutobuyerActive(crunch, true)
                 crunchPausedByStagePolicy = false
+                OrekiAutomationScheduler.markCrunchPausedByMod(false)
                 Log.i(TAG_AU4C, "stage-policy -> autoBig resumed")
             }
 
@@ -2222,6 +2299,7 @@ object OrekiStageAuto {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
+                    OrekiAutomationScheduler.markCrunchPausedByMod(true)
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (" + decision.reason + ")")
                 }
                 // [R99] 永恒层等待用「自适应成长窗口」（60s 起，无收益翻倍即翻倍，上限 1800s）；

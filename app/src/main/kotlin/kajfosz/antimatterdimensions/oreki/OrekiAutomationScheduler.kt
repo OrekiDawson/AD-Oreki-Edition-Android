@@ -282,6 +282,41 @@ object OrekiAutomationScheduler {
         logI("init ${statusLine()}")
     }
 
+    /**
+     * [PR #179 Kody·critical] MOD 是否在上次会话暂停了原版大坍缩自动器（持久化）。
+     *
+     * 冷启动时 modOwnsCrunch / crunchPausedByStagePolicy 都是内存默认 false，
+     * 只靠它们会把「进程在首次无限后、break 前重启」误判成「玩家关闭自动器」，
+     * 导致 pre-break 上限兜底与接管分支都不触发、AM 卡在上限并复现正文空白。
+     * 这个标记只由 MOD 自己的暂停/恢复点写入，用于跨进程重建所有权判据。
+     */
+    private const val KEY_CRUNCH_PAUSED = "oreki.crunch.pausedByMod"
+
+    /** 记录/清除「MOD 暂停了原版大坍缩自动器」标记（只写 oreki_prefs，不碰存档）。 */
+    @JvmStatic
+    fun markCrunchPausedByMod(paused: Boolean) {
+        val currentContext = ctx ?: return
+        try {
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_CRUNCH_PAUSED, paused)
+                .apply()
+        } catch (_: Throwable) {
+            // 写盘失败不影响运行，只是冷启动可能无法重建
+        }
+    }
+
+    /** 读取「MOD 上次会话暂停过原版大坍缩自动器」标记；读不到按 false（fail-closed）。 */
+    @JvmStatic
+    fun crunchPausedByModPersisted(): Boolean {
+        val currentContext = ctx ?: return false
+        return try {
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_CRUNCH_PAUSED, false)
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
     private fun persist() {
         val currentContext = ctx ?: return
         try {
