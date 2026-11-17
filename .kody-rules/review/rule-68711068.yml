@@ -1,9 +1,0 @@
-title: 阶段解锁与页面门禁
-rule: 审查无限、永恒、现实等阶段的入口、菜单、导航和页面可达性。尚未达到阶段解锁条件时不得显示或进入对应页面，特别关注第一次大坍缩后永恒入口、时间研究、时间维度和无限挑战的异常可见性。避免通过污染Player状态或仅隐藏图标规避门禁。
-severity: critical
-scope: pull-request
-examples: []
-inheritance:
-  inheritable: true
-  exclude: []
-  include: []
