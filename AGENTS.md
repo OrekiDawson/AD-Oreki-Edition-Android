@@ -99,8 +99,8 @@
 
 ## 12. Worktree 与目录治理（强制，R110-01 起）
 
-- 本仓所有 Git worktree 必须位于 /home/oreki/AD-Oreki-Unified/worktrees/android/，使用语义化目录名（如 actions、ci、r8-fullgame、r109-build、r110-fix）；禁止在仓库根或 /home/oreki 下新建 _wt_* 或其他平级工作目录。
-- 新建 worktree 使用 git worktree add 到上述目录，并在 /home/oreki/AD-Oreki-Unified/docs/WORKTREE_MAPPING.md 登记（旧路径→新路径、分支、HEAD）。
+- 本仓所有 Git worktree 必须位于 /home/oreki/AD-Oreki-Edition/工作树/android/（2026-11-17 本地路径迁移后的现路径；旧路径 /home/oreki/AD-Oreki-Unified/worktrees/android/ 已不存在），使用语义化目录名（如 actions、ci、r8-fullgame、r109-build、r110-fix）；禁止在仓库根或 /home/oreki 下新建 _wt_* 或其他平级工作目录。
+- 新建 worktree 使用 git worktree add 到上述目录，并在 /home/oreki/AD-Oreki-Edition/文档/WORKTREE_MAPPING.md 登记（旧路径→新路径、分支、HEAD）。
 - 本仓保持独立 Git 仓库：不转为 Git Submodule，不与其他仓库合并历史；根目录轻量项目管理仓库只引用本仓文本，不改变本仓 CI、签名、版本与发布门禁。
 - 目录整理/迁移类改动不得中断正在进行的 AVD 跑次、构建或验收：移动前确认无进程占用，保留分支、HEAD、未提交与未跟踪文件，移动后用 git status / worktree list 校验并记录 PASS/FAIL/BLOCKED。
 
@@ -169,7 +169,7 @@
 - Lead 在 PR 提交、合并前读取可用的 Kody 审查意见；有具体代码证据的 P0/P1 先修复、推送新 Commit 并复核。未实际运行时写 `KODY NOT RUN`，不得伪造 PASS。
 - 审查仅作辅助意见，不能代替已有 Required Checks、APK、AVD、签名、CI/CD 或发布验收；不自动 APPROVE、合并或发布。
 - 在线审查不自动继承本项目高峰/余额安全守卫；当前仓库保持手动审查，只有合规低谷且可用余额 ≥¥10 时允许发起付费调用。
-- 配置与剩余账户侧操作见 [docs/KODUS_REVIEW_SETUP.md](docs/KODUS_REVIEW_SETUP.md)，专项规则见 `.kody/rules/`。
+- **配置唯一来源为云端（2026-11-17 用户决定）**：本仓不再保存 `.kody/`、`.kody-rules/`、`kodus-config.yml`、`default-kodus-config.yml` 等仓库侧配置；审查参数与 Kody Rules 全部在 https://app.kodus.io 维护（也可用官方 `kodus rules` / `kodus config remote` 命令）。现状与维护方式见 [docs/KODUS_REVIEW_SETUP.md](docs/KODUS_REVIEW_SETUP.md)。
 
 ## 21. Kody/Kodus 分级审查与 PR 合并门禁（强制，2026-11-17）
 
