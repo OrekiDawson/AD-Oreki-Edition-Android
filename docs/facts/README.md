@@ -47,7 +47,7 @@
 | [testing-tools.md](testing-tools.md) | 433 | frame-observer、uiautomator、AVD 隔离与取证方法 |
 | [methodology.md](methodology.md) | 676 | 取证纪律、误判案例、极性/断言陷阱、已修复根因 |
 | [game/eternity.md](game/eternity.md) | 331 | 永恒、TT/EP、DS1/DS6、解锁链、ID1 链与判据 |
-| [game/reality.md](game/reality.md) | 277 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
+| [game/reality.md](game/reality.md) | 427 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
 | [game/celestials.md](game/celestials.md) | 66 | 莱特拉、佩勒、虚构升级与 imaginaryUpgradeBits 位号 |
 | [game/challenges.md](game/challenges.md) | 141 | 挑战、永恒挑战（EC）与真实结算 |
 | [game/endgame.md](game/endgame.md) | 299 | 终局判据、endState、门禁与真实通关路径 |
@@ -57,7 +57,7 @@
 | [automation/infinity-buyers.md](automation/infinity-buyers.md) | 472 | 无限层购买链、首次永恒后硬门与修复 |
 | [automation/strategy.md](automation/strategy.md) | 532 | 智能策略/执行层、解释器与阈值语义 |
 | [automation/break-strategy.md](automation/break-strategy.md) | 374 | 膨胀链活锁、Break 后二次停滞与缺口细化 |
-| [automation/collapse.md](automation/collapse.md) | 490 | 大坍缩模式、UI 重绘与逐帧策略 |
+| [automation/collapse.md](automation/collapse.md) | 492 | 大坍缩模式、UI 重绘与逐帧策略 |
 | [automation/eternity-reality.md](automation/eternity-reality.md) | 686 | 永恒/现实层自动化、首次永恒闸门与复位 |
 | [automation/beats.md](automation/beats.md) | 419 | 双系统节拍归属、意图链路与相关交付 |
 | [web.md](web.md) | 510 | Web 玩法事实、线上部署、Pages 与真实通关读数 |
@@ -103,6 +103,7 @@
 | 首次现实「eternities ≥100」门槛 | [automation/eternity-reality.md#f-r116-01-first-reality-gate](automation/eternity-reality.md#f-r116-01-first-reality-gate) | CONFIRMED | 新增 | 同条目（代码级保护） |
 | 现实后 IP 除数仍为 30（不是 308） | [game/mechanics.md#f-r116-01-ip-divisor-after-reality](game/mechanics.md#f-r116-01-ip-divisor-after-reality) | CONFIRMED | 新增 | 同条目 |
 | versionCode 30210001 已被公开占用，下一发布 30210002 | [release.md#f-r116-01-version-30210002](release.md#f-r116-01-version-30210002) | CONFIRMED | 新增 | PR #160（OPEN） |
+| Reality 后坍缩节奏（TIME 固定 / hold 抖动 / 60 s 窗口） | [game/reality.md#f-r116-02-01-reality-crunch-cadence](game/reality.md#f-r116-02-01-reality-crunch-cadence) | CONFIRMED | 新增 | Issue #163 / PR #169（OPEN） |
 | candidate 私有 bundle 托管位置 | [build.md#f-candidate-bundle-hosting](build.md#f-candidate-bundle-hosting) | CONFIRMED | 新增（含 env 变量待更新风险） | — |
 | 受保护 Environment 程序化审批（environment_ids） | [build.md#f-programmatic-approval](build.md#f-programmatic-approval) | CONFIRMED | 新增 | PR #112 待合并 |
 | AGP fullGame v3 签名配置与产物实测 | [build.md#f-agp-v3-signing-risk](build.md#f-agp-v3-signing-risk) | UNKNOWN（配置 CONFIRMED/产物待复核） | 新增 | 需干净构建复测 + v2+v3 重签 |
