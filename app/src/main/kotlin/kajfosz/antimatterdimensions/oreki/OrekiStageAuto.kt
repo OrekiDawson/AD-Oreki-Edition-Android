@@ -84,6 +84,15 @@ object OrekiStageAuto {
      * （reports/R117-01/agents/reality-econ.md §5.2）。**仍以 canBigCrunch() 为前提。**
      */
     private const val MANAGED_CRUNCH_FALLBACK_GRACE_MS = 60_000L
+
+    /**
+     * [R117-01-02c P0-5] 原版「反物质达上限」判定阈值（log10）。
+     *
+     * 依据：原版 MainActivity.i9 在「AM 达到 1.8e308 上限且 break=false」时把正文容器置 GONE，
+     * 只剩坍缩横幅 —— 这是「首无限后正文空白」的直接触发条件。log10(1.797e308)=308.254，
+     * 取 308.2 留一点余量，宁可稍早结算也不让 UI 进入隐藏态。
+     */
+    private const val AM_CAP_LOG10 = 308.2
     private const val TAG_ID = "OREKI_ID"
     private const val TAG_ID_UNLOCK = "OREKI_ID_UNLOCK"
     private const val TAG_BRK2 = "OREKI_BRK2"
@@ -1891,6 +1900,24 @@ object OrekiStageAuto {
      * infinities 前后 / thisInfinity 时间 / auto.eternity 开关 / modOwnsCrunch。
      * 只读；任何读取失败都按 null 记录，不改变游戏状态。
      */
+    /**
+     * [R117-01-02c P0-5] 本无限是否已达到原版 1.8e308 上限（pre-break 时原版会隐藏正文）。
+     *
+     * 读不到 maxAM 返回 false（fail-closed：不凭猜测强制坍缩）。
+     */
+    private fun amAtCap(): Boolean {
+        val log = GameApi.log10BigDouble(GameApi.thisInfinityMaxAM()) ?: return false
+        return log >= AM_CAP_LOG10
+    }
+
+    /**
+     * [R117-01-02c P0-5] 是否处于「首无限后、break 前」阶段。
+     *
+     * 该阶段禁止 600–1800s 长窗口：原版在 AM 上限且 break=false 时会隐藏正文容器，
+     * 长窗口持留会让空白屏持续数分钟（R117-01 AVD 实测约 6 分钟）。
+     */
+    private fun isPreBreakPhase(): Boolean = !GameApi.isBroken() && !isInEternityLayer()
+
     private fun logCrunchProbe(where: String, infinitiesBefore: Any?, settled: Boolean) {
         try {
             val crunch = GameApi.crunchState()
@@ -1906,6 +1933,7 @@ object OrekiStageAuto {
                 TAG_CRUNCH_PROBE,
                 where +
                     " brake=" + GameApi.isBroken() +
+                    " amAtCap=" + amAtCap() +
                     " maxAMlog=" + GameApi.log10BigDouble(GameApi.thisInfinityMaxAM()) +
                     " ipGainLog=" + GameApi.log10BigDouble(GameApi.gainedInfinityPoints()) +
                     " canBigCrunch=" + GameApi.canBigCrunch() +
@@ -1991,6 +2019,17 @@ object OrekiStageAuto {
             // [R117-01-02c P0-1] 30 秒只读心跳探针：记录受管坍缩是否真的按 maxAM 结算。
             maybeLogCrunchProbe()
 
+            // [R117-01-02c P0-5] pre-break 禁止长窗口持留：
+            // 原版 MainActivity.i9 在「AM 达 1.8e308 上限且 break=false」时把正文容器置 GONE，
+            // 只剩坍缩横幅。只要还没 break 且已可结算，就立即结算一次，不允许任何
+            // 600–1800s 窗口或 3600s 暂停在此阶段持留（仍先判 canBigCrunch()，不伪造结算）。
+            if (!GameApi.isBroken() && GameApi.canBigCrunch() &&
+                settleCrunch("pre-break-am-cap")
+            ) {
+                lastManagedCrunchAtMs = System.currentTimeMillis()
+                return
+            }
+
             // [R116-02-01 真新档实测根因·决定性修复]
             // 原版 Infinity.j() = !Player.a.m() || ...，而 m() = Player.brake（player.break，
             // [R117-01-02c P1-1] 旧注释误写 imaginaryMachines；Player.smali:10598-10607 实读 brake）。
@@ -2072,7 +2111,12 @@ object OrekiStageAuto {
                 }
                 if (modOwnsCrunch) {
                     val nowOwn = System.currentTimeMillis()
-                    val windowOwnMs = (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                    // [R117-01-02c P0-5] pre-break 不允许长窗口：与主窗口同口径用 60s。
+                    val windowOwnMs = if (isPreBreakPhase()) {
+                        (PRE_BREAK_CRUNCH_SECONDS * 1000.0).toLong()
+                    } else {
+                        (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                    }
                     if (lastManagedCrunchAtMs <= 0L) {
                         lastManagedCrunchAtMs = nowOwn
                         Log.i(TAG_AU4C, "managed crunch: baseline re-established (ownership fallback)")
@@ -2091,7 +2135,13 @@ object OrekiStageAuto {
                 if (!crunchPausedByStagePolicy) {
                     return
                 }
-                val windowMs = (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                // [R117-01-02c P0-5] 长窗口只允许在 break 之后或永恒层使用；
+                // pre-break（首无限后、break 前）保持 60s，避免 AM 到上限后正文被原版隐藏。
+                val windowMs = if (isPreBreakPhase()) {
+                    (PRE_BREAK_CRUNCH_SECONDS * 1000.0).toLong()
+                } else {
+                    (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                }
                 val nowMs = System.currentTimeMillis()
                 // [R116-03-01 Kody] 窗口基线：lastManagedCrunchAtMs<=0 表示「尚未建立基线」
                 // （冷启动首帧 / 新 Reality 后）。旧实现直接与 0 比较，首帧即满足 now-0>=window，
