@@ -3,7 +3,7 @@ summary:
     使用简体中文生成简洁、可核验的 PR 摘要：说明变更目的、受影响的游戏机制或界面、关键风险、验证证据和未完成事项。不要覆盖原有 PR
     描述中的任务说明、验收标准或上下文；不要编造测试结果、发布状态或时间进度。
   behaviourForNewCommits: concatenate
-reviewMode: heavy
+reviewMode: balanced
 businessLogic:
   recheckOn: push
 reviewCadence:
