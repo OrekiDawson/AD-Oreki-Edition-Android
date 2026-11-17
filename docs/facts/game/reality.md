@@ -359,7 +359,7 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      `managed interval` 写入 108 次，其中 `3600.0 -> 5.0` 49 次、`5.0 -> 3600.0` 48 次 —— 暂停/放行反复翻转的直接频次证据。
      注：`policy -> interval=5.0s (target-driven)` 只打一次（`targetIntervalInitialized` 惰性标记，`OrekiStageAuto.kt:1922-1925`），**不能**当频次证据。
    - 计数口径：以上均为**整份 logcat** 统计；Issue #163 正文记录的 rate-limit=309、cannot-eternity=214 是另一统计窗口（口径不同），引用时须注明，不能与本节数字直接比较。
-   - 计数口径更正 `[实测]`：`OREKI_CRUNCH` 的 `crunch detected` 被 `lastCrunchLogAt` 限速为 **≤1 条/秒**（`OrekiStageAuto.kt:1999`），原「22:1x 时段 594 个秒采样、平均 1.13 次/秒」是**日志条数**而非坍缩次数，不能当作坍缩率/频次证据；提交记录「约 1.3 次/秒」同属未校准口径。可用的未节流证据是 `OREKI_CRUNCH_DEC` 状态迁移与 `managed interval` 写入（见根因 3）。
+   - 计数口径更正 `[实测]`：`OREKI_CRUNCH` 的 `crunch detected` 被 `lastCrunchLogAt` 限速为 **≤1 条/秒**（`OrekiStageAuto.kt:1999`），原「22:1x 时段 594 个秒采样、平均 1.13 次/秒」是**日志条数**而非坍缩次数，不能当作坍缩率/频次证据；提交记录「约 1.3 次/秒」同属未校准口径。可用的未节流证据是 `OREKI_CRUNCH_DEC` 的**决策状态迁移**（每个 60 s 周期一条，`OrekiCrunchPolicy.logOnChange` 仅在 allow/reason 变化时打印，**不是坍缩次数**）与 `managed interval` 写入（见根因 3）；二者只证明窗口/放行节奏，不能当作坍缩频次或坍缩次数证据。
    - 后果：maxAM 被反复清空、单次收益恒定在低量级；终态 `thisInfinity.maxAM` 指数 1.6e9 而 IP 仅 e91（`verdict.bottleneck_evidence`）。
 
 3. **60 秒成长窗口不足** `[实测]`（记录于 `8306afc9` 提交信息与 `OrekiCrunchPolicy.kt` 注释；原始 logcat 未入库）
