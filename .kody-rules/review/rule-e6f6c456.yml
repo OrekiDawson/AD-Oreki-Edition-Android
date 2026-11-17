@@ -1,0 +1,9 @@
+title: 游戏进度与资源真实性
+rule: 禁止通过伪造资源数量、游戏进度、成就、挑战完成状态、无限、永恒、现实次数或存档字段实现加速。所有进度必须来自游戏实际执行结果。目标为真实墙钟时间180分钟内通关。仅报告引入真实违规行为的变更。
+severity: critical
+scope: pull-request
+examples: []
+inheritance:
+  inheritable: true
+  exclude: []
+  include: []
