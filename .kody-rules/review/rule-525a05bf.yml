@@ -1,0 +1,9 @@
+title: 挑战与结算完整性
+rule: 所有无限挑战、永恒挑战及其他挑战必须通过真实游戏机制进入并完成。不得直接设置挑战完成标记、绕过胜利判据、伪造结算或无条件授予成就。第一次大坍缩后不得立即自动打破无限。任何加速必须保留正确的解锁条件和结算过程。
+severity: critical
+scope: pull-request
+examples: []
+inheritance:
+  inheritable: true
+  exclude: []
+  include: []
