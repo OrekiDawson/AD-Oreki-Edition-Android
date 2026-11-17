@@ -31,12 +31,12 @@
 | `automatedReviewActive` | `true` |
 | `reviewCadence.type` / `pushesToTrigger` | `auto_pause` / 3 |
 | `isRequestChangesActive` | `true` |
-| 活跃 Kody Rules | 20 条（含「文档与代码注释使用简体中文」，medium / file / `**/*`） |
+| 活跃 Kody Rules | **0 条**（2026-11-17 云端实测 `kodus rules view --json` 返回 `[]`；原 20 条随集中式配置同步移除，内容可在 git 历史回滚，且按用户决策不再重建） |
 | `suggestionControl` | `severityLevelFilter=low`、`groupingMode=minimal`、limits low=3 / medium=5 / high=5 |
 
 ## 维护方式
 
-- 规则与审查参数只在云端 UI 或官方 CLI 修改：`kodus rules view|create|update|pause|resume|delete`、`kodus config remote show|set`。
+- 规则与审查参数只在云端 UI 或官方 CLI 修改：`kodus rules view|pause|resume`、`kodus config remote show|set`；**不再 `create`/`update` 新自定义规则**（见 `AGENTS.md` §24）。
 - 仓库侧变更流程只保留文档约定（如 `AGENTS.md` 的合并门禁），不再镜像云端配置。
 - 不要运行 `kodus config centralized sync` 把旧仓库文件回写云端；规则以云端当前列表为准。
 
