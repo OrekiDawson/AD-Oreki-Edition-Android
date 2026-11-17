@@ -359,7 +359,7 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      `managed interval` 写入 108 次，其中 `3600.0 -> 5.0` 49 次、`5.0 -> 3600.0` 48 次 —— 暂停/放行反复翻转的直接频次证据。
      注：`policy -> interval=5.0s (target-driven)` 只打一次（`targetIntervalInitialized` 惰性标记，`OrekiStageAuto.kt:1922-1925`），**不能**当频次证据。
    - 计数口径：以上均为**整份 logcat** 统计；Issue #163 正文记录的 rate-limit=309、cannot-eternity=214 是另一统计窗口（口径不同），引用时须注明，不能与本节数字直接比较。
-   - 坍缩频率实测：`OREKI_CRUNCH` 在 22:1x 时段 594 个秒采样、平均 **1.13 次/秒**（最大 2 次/秒），与提交记录「约 1.3 次/秒」同量级。
+   - 计数口径更正 `[实测]`：`OREKI_CRUNCH` 的 `crunch detected` 被 `lastCrunchLogAt` 限速为 **≤1 条/秒**（`OrekiStageAuto.kt:1999`），原「22:1x 时段 594 个秒采样、平均 1.13 次/秒」是**日志条数**而非坍缩次数，不能当作坍缩率/频次证据；提交记录「约 1.3 次/秒」同属未校准口径。可用的未节流证据是 `OREKI_CRUNCH_DEC` 状态迁移与 `managed interval` 写入（见根因 3）。
    - 后果：maxAM 被反复清空、单次收益恒定在低量级；终态 `thisInfinity.maxAM` 指数 1.6e9 而 IP 仅 e91（`verdict.bottleneck_evidence`）。
 
 3. **60 秒成长窗口不足** `[实测]`（记录于 `8306afc9` 提交信息与 `OrekiCrunchPolicy.kt` 注释；原始 logcat 未入库）
@@ -368,8 +368,8 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
      ① `OrekiCrunchPolicy.kt:231` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)`（`ETERNITY_GROW_WAIT_NS=300 s`，触发条件为投影 < 1.8e308）；
      ② `OrekiCrunchPolicy.kt:300` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)`（`ETERNITY_GROW_WAIT_LIMIT_NS=2_400_000_000_000L` 即 2400 s，**仅当投影不可读**——`GameApi.log10BigDouble(GameApi.gainedInfinityPoints())` 返回 null——且窗口未到期时触发；投影可读时必然在 `:231` 或 `:237-246` 返回）。
      两者相差 8 倍，引用「等待窗口不足」结论时必须注明走的是哪条分支（期间均暂停 autobuyer，**反物质仍在增长**）。
-   - 「60 s 成长窗口」的实际来源 `[读码]`：修复前 `eternity-rate-limit` 的最小放行间隔 `ETERNITY_ALLOW_MIN_INTERVAL_MS = 60_000L`（`OrekiCrunchPolicy.kt:103`、`:111-112`、`:237-243`）——每次放行后 60 s 内不允许再次坍缩，期间暂停 autobuyer；放行时 `OrekiStageAuto.kt:1901-1902` 又写入固定 `POST_BREAK_RESUME_SECONDS=5.0` ⇒ 两次坍缩之间实际成长时间 ≈ 60 s + 5 s ≈ 65 s。**5 s 与 60 s 不是同一参数的两个取值**：60 s 是最小放行间隔，5 s 是恢复后的 TIME 触发间隔，两者串接构成「约 60 秒的成长窗口不足」。
-     实测口径印证：30210002 Reality 后该段 `ip-ready=40` / `rate-limit=40`，按 60 s 限流 × 40 轮 ≈ 2400 s，与首次现实 637.4 s 至终态 3060 s 的实际跨度吻合。
+   - 「60 s 成长窗口」的实际来源 `[读码]`：修复前 `eternity-rate-limit` 的最小放行间隔 `ETERNITY_ALLOW_MIN_INTERVAL_MS = 60_000L`（`OrekiCrunchPolicy.kt:103`、`:111-112`、`:237-243`）——每次放行后 60 s 内不允许再次坍缩，期间暂停 autobuyer；放行帧 `OrekiStageAuto.kt:1901-1902` 写入固定 `POST_BREAK_RESUME_SECONDS=5.0`。**5 s 落在 60 s 窗口内部**（从放行时刻起算的下一个 60 s 内），不是与 60 s 相加，故两次放行的间隔为 60 s，成长窗口仍约 60 s。
+     实测口径（30210002，首次现实 22:02:26 之后）：`OREKI_CRUNCH_DEC` 仅在决策状态变化时打印，其 `eternity-ip-ready` / `eternity-rate-limit` 各 40 条、相邻两条严格相隔 60 s（22:02:50、22:03:50 …），`managed interval` 同步 `3600→5→3600`。因此「40」是**决策状态迁移次数**（40 个 60 s 周期，合计约 2400 s），**不是坍缩次数**；它印证的是「60 s 成长窗口」，不能当频次证据。
    - 暂停路径写入的 TIME 阈值取决于暂停原因 `[读码]`（`OrekiStageAuto.kt:1876-1880`）：`eternity-grow` 写自适应窗口 `OrekiCrunchPolicy.eternityWaitSeconds()`（60 s 起、无收益翻倍即翻倍、上限 1800 s）；`eternity-hold` / `eternity-rate-limit` / `id-peak-wait` 等其余原因写 `CRUNCH_PAUSE_SECONDS = 3600.0`（`:96`）。autobuyer 关闭期间两种取值都不产生坍缩，写入的秒值本身不决定成长时长，**不能**用「暂停阈值 60 s」解释成长窗口。
    - 修复后：移除 60 s 最小放行间隔（`301f2a92`）；`ETERNITY_GROW_START_SECONDS` 初值 60→600 s，`eternity-grow` 等待时长与 resume 写入共用同一动态窗口（600 s 起、上限 1800 s）。
 
