@@ -1942,15 +1942,31 @@ internal object GameApi {
     // 同类另有 (D)/(I)/(J)/(Object) 重载，因此必须用 paramTypeNames 锁定 BigDouble 这一份。
     private var mBigDoubleCompareBigDouble: java.lang.reflect.Method? = null
     private var mBigDoubleCompareBigDoubleResolved: Boolean = false
+    private var compareBigDoubleRetryAtMs: Long = 0L
+    private var compareBigDoubleMissLogged: Boolean = false
     private fun mBigDoubleCompareBigDouble(): java.lang.reflect.Method? {
-        if (!mBigDoubleCompareBigDoubleResolved) {
-            mBigDoubleCompareBigDoubleResolved = true
-            mBigDoubleCompareBigDouble = method(
-                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
-                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
-            )
+        // [R116-03-01 Kody·critical] 只在**解析成功**时置 resolved；失败按 60s 退避重试，
+        // 避免首次瞬时失败把句柄永久固化为 null，使 compareBigDoubles 恒返回 null、
+        // realities 变化判据静默走失败分支。
+        if (mBigDoubleCompareBigDoubleResolved) return mBigDoubleCompareBigDouble
+        val now = System.currentTimeMillis()
+        if (now < compareBigDoubleRetryAtMs) return null
+        val parsed = method(
+            bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
+            paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+        )
+        if (parsed == null) {
+            compareBigDoubleRetryAtMs = now + 60_000L
+            if (!compareBigDoubleMissLogged) {
+                compareBigDoubleMissLogged = true
+                miss("BigDouble.compareTo(BigDouble)",
+                    IllegalStateException("compareTo(BigDouble) not found; retry in 60s"))
+            }
+            return null
         }
-        return mBigDoubleCompareBigDouble
+        mBigDoubleCompareBigDouble = parsed
+        mBigDoubleCompareBigDoubleResolved = true
+        return parsed
     }
 
     fun compareBigDoubles(a: Any?, b: Any?): Int? {
