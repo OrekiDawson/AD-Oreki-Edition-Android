@@ -99,8 +99,8 @@
 
 ## 12. Worktree 与目录治理（强制，R110-01 起）
 
-- 本仓所有 Git worktree 必须位于 /home/oreki/AD-Oreki-Unified/worktrees/android/，使用语义化目录名（如 actions、ci、r8-fullgame、r109-build、r110-fix）；禁止在仓库根或 /home/oreki 下新建 _wt_* 或其他平级工作目录。
-- 新建 worktree 使用 git worktree add 到上述目录，并在 /home/oreki/AD-Oreki-Unified/docs/WORKTREE_MAPPING.md 登记（旧路径→新路径、分支、HEAD）。
+- 本仓所有 Git worktree 必须位于 /home/oreki/AD-Oreki-Edition/工作树/android/（2026-11-17 本地路径迁移后的现路径；旧路径 /home/oreki/AD-Oreki-Unified/worktrees/android/ 已不存在），使用语义化目录名（如 actions、ci、r8-fullgame、r109-build、r110-fix）；禁止在仓库根或 /home/oreki 下新建 _wt_* 或其他平级工作目录。
+- 新建 worktree 使用 git worktree add 到上述目录，并在 /home/oreki/AD-Oreki-Edition/文档/WORKTREE_MAPPING.md 登记（旧路径→新路径、分支、HEAD）。
 - 本仓保持独立 Git 仓库：不转为 Git Submodule，不与其他仓库合并历史；根目录轻量项目管理仓库只引用本仓文本，不改变本仓 CI、签名、版本与发布门禁。
 - 目录整理/迁移类改动不得中断正在进行的 AVD 跑次、构建或验收：移动前确认无进程占用，保留分支、HEAD、未提交与未跟踪文件，移动后用 git status / worktree list 校验并记录 PASS/FAIL/BLOCKED。
 
@@ -169,7 +169,7 @@
 - Lead 在 PR 提交、合并前读取可用的 Kody 审查意见；有具体代码证据的 P0/P1 先修复、推送新 Commit 并复核。未实际运行时写 `KODY NOT RUN`，不得伪造 PASS。
 - 审查仅作辅助意见，不能代替已有 Required Checks、APK、AVD、签名、CI/CD 或发布验收；不自动 APPROVE、合并或发布。
 - 在线审查不自动继承本项目高峰/余额安全守卫；当前仓库保持手动审查，只有合规低谷且可用余额 ≥¥10 时允许发起付费调用。
-- 配置与剩余账户侧操作见 [docs/KODUS_REVIEW_SETUP.md](docs/KODUS_REVIEW_SETUP.md)，专项规则见 `.kody/rules/`。
+- **配置唯一来源为云端（2026-11-17 用户决定）**：本仓不再保存 `.kody/`、`.kody-rules/`、`kodus-config.yml`、`default-kodus-config.yml` 等仓库侧配置；审查参数与 Kody Rules 全部在 https://app.kodus.io 维护（也可用官方 `kodus rules` / `kodus config remote` 命令）。现状与维护方式见 [docs/KODUS_REVIEW_SETUP.md](docs/KODUS_REVIEW_SETUP.md)。
 
 ## 21. Kody/Kodus 分级审查与 PR 合并门禁（强制，2026-11-17）
 
@@ -194,3 +194,16 @@
 6. **质量与验收**：统一使用仓库既有的 UTF-8 编码、术语表与 Markdown 规范；PR 检查新增/变更文字是否符合中文化要求，并执行与改动范围对应的最小必要验证。仅文字或注释改动不机械触发完整游戏/设备回归；但若改动影响代码生成、注释驱动工具、文档构建、导航链接或可见 UI 文案，必须验证相应功能。未运行的测试记 NOT RUN，不得冒充 PASS。
 7. **仓库特别约束**：Kotlin/KDoc、Gradle 构建脚本注释及自维护的反编译映射说明按本规则中文化；原版 DEX/Smali、混淆标识、JNI/ABI 描述符、包名、签名参数与第三方源码原样保留，禁止为翻译影响 Kotlin→DEX→APK 兼容性。
 
+## 23. 主动处理 GitHub Issues 与 Pull Requests（长期强制，2026-11-17）
+
+本节是本仓所有 Agent 的日常交付职责，补充现行 Kody 风险分级、CI/CD、授权和停工规则，不降低任何硬门禁。
+
+1. **主动巡检，不等用户催办**：在已授权 Goal 的低谷启动、关键提交或 CI/Kody 结果到达、Subagent 交接及正常收口时，Lead 应主动检查管理范围内开放的 GitHub Issues、PR、审查评论、Checks、阻塞和合并条件。维护动态待办队列并优先处理真实 P0/P1；不得只处理用户点名的一条后对其他可执行事项长期放任。不把本规则理解为在无运行会话时自动常驻后台，也不做高频空轮询。
+2. **Issue 闭环**：主动去重、核对最新代码与证据、复现并分级、确定负责人及下一步；能够在当前授权范围内修复的直接分派/修复，关联 Commit、PR、最小必要验收结果并回复 Issue。确有外部依赖则写明阻塞、解除条件和恢复点；已真实解决且核实交付时才关闭，禁止未经核实批量关闭、误报 PASS 或以创建 Issue 代替修复。
+3. **PR 闭环**：主动检查新建、待审、需修改、CI 失败、冲突与长期停滞的 PR；读取完整 Diff、普通评论、Reviews、Review Threads、Kody 意见及 Checks，逐条给出采纳修复、证据反驳、非阻塞延期或 BLOCKED 结论。可执行的修复直接提交、最小验证、回复并解决已处理线程；不能以 PR 评论替代真实修改。
+4. **及时合并合格 PR**：对当前授权范围内、最新 HEAD 已获适用的完整 Kody 审查、真实阻塞问题已清零、全部 Review Threads 已处理、Required Checks/Ruleset/审批及必要测试均满足的 PR，Lead 应主动按既有策略合并，不为日常已授权合并反复要求用户许可；高风险、签名、部署和特殊审批仍严格受控。GitHub `mergeable=true`、CI 绿灯、只回复意见均不能单独作为合并许可。
+5. **审查触发与 Skipped**：初审按仓库已配置的自动流程；提交真实修复后按现行规则触发必要复审。Kody 显示 `Skipped`、未变化或无新 Commit 时，不反复发送同一审查请求、不造空提交或无意义改文件；先核对审查覆盖的实际 HEAD、原意见与后台状态。若无法证明最终 HEAD 已满足强制 Kody 门禁，保持 `BLOCKED` 并记录原因，不把 `Skipped` 直接记 PASS，也不机械要求重复空审查。全部仓库统一 `Balanced`，禁止 `Heavy`。
+6. **失败和陈旧项处理**：对 CI 故障、冲突、阻塞审查、失效链接或已被新提交取代的 PR，主动定位真实原因，优先最小修复、合法重跑或更新描述；只有证据充分、不会遗失有效工作时才注明原因后关闭/替换陈旧 PR，禁止强推、覆盖他人提交、绕过检查或因等待外部审核让整个有价值任务队列停摆。
+7. **Lead 分派与交接**：Issue/PR 整理、定向修复、复核可委派给不冲突的 Subagent；Lead 用文件下发唯一编号、责任仓库/文件和验收标准，Subagent 用文件回报 Commit、测试和阻塞，Lead 验证后作出合并/复派/继续/收口决定。AVD、正式构建、签名、部署等独占资源不可争抢。
+8. **及时报告与硬约束**：每次有效工作回合简明列出实际处理的 Issue/PR 链接、状态、修复/合并 SHA、Kody 与 CI 结论、遗留阻塞和下一步；没有执行的步骤明确 `NOT RUN`。用户暂停、高峰全员停工、DeepSeek 余额保护、权限与仓库现行安全门禁优先；不得为“主动”在停工时或授权外执行写操作、构建、部署、收费审查。
+9. **仓库特别约束**：优先处理阶段门禁、存档、崩溃、Reality/坍缩/自动购买器等 P0/P1；Android 业务修复只用 Kotlin，按影响采用真实 APK/AVD 最小必要验证；AGP/R8、签名和发布维持独立保护。

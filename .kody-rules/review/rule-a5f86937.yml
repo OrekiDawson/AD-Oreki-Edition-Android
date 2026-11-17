@@ -1,9 +1,0 @@
-title: 自动购买器正确性
-rule: 检查自动购买器是否使用真实资源与原版合法购买接口，是否遵守玩家手动配置、开关、阈值、优先级及阶段限制。防止调度器饥饿、重复购买、越权购买、错误解锁和无效循环。新档Android/Web解锁策略必须一致。
-severity: critical
-scope: pull-request
-examples: []
-inheritance:
-  inheritable: true
-  exclude: []
-  include: []

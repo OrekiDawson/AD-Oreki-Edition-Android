@@ -1,55 +1,58 @@
-# Kodus Cloud（Community BYOK）PR 审查
+# Kodus 审查配置（云端唯一来源）
 
-## 生效边界
+## 决策（2026-11-17）
 
-本项目改回 **Kodus 在线托管版**，不是自托管 Kodus，不依赖 GitHub Actions 调用 DeepSeek。
-Oreki Audit Bot 的代码、专用 GitHub Actions 和执行器已退出生产审查链路；历史 R115-01
-审查与测试报告作为证据保留，不重写历史。
+自 2026-11-17 起，Android 仓**不再保存任何 Kodus/Kody 仓库配置或规则文件**，审查配置与 Kody Rules 全部由 Kodus 线上（https://app.kodus.io）维护。
 
-Kodus 官网：https://app.kodus.io
-官方计划：https://kodus.io/pricing/
+本仓已移除：
 
-Kodus 评论仅是独立审查意见，不替代 GitHub Required Checks、Android AVD/真实 APK、
-签名、Candidate/Verify/Release Gate、Web Playwright 与 Pages 验收。
-Kodus Cloud 与现有 DeepSeek Harness Lead 分离；Lead 收到可信 P0/P1 后先检查、
-修复并提交新 Commit，再对照 Kodus 最新审查意见。
+- `.kody/rules/*.md`（3 个规则正文）
+- `.kody-rules/review/*.yml`（10 个集中式规则导出）
+- `kodus-config.yml`、`default-kodus-config.yml`
+- `AD-Oreki-Edition-Android/kodus-config.yml`、`AD-Oreki-Edition-Web/kodus-config.yml`（历史遗留嵌套副本）
 
-## 一次性线上配置（需账户所有者授权）
+不要再向仓库提交上述任何文件；仓库侧的 `kodus-config.yml` 在云端本就不生效（见下），保留只会让审查口径产生歧义。
 
-1. 在 https://app.kodus.io 使用 GitHub 登录现有 Workspace，选择 GitHub 集成。
-2. 在 GitHub 安装/调整 Kodus GitHub App，仅允许：
-   `OrekiDawson/AD-Oreki-Edition-Android` 和
-   `OrekiDawson/AD-Oreki-Edition-Web`。不额外授权 Wiki。
-3. 在 Kodus 的仓库选择界面启用这两个仓库。
-4. 在 Kodus 的 BYOK 配置界面填写账户所有者自有的 DeepSeek API Key，
-   按实际账户确认模型、端点、额度和计费。不要把密钥放入仓库、Actions 或 PR。
-5. 每仓开启 `kodus Config File Overrides Web Preferences`（若当前 Kodus 版本仍使用此选项），
-   核实 `kodus-config.yml` 真正被加载，并检查 `.kody/rules/` 的适用性。
-6. 在满足项目非高峰、余额 ≥¥10 的条件下，使用一个真实测试 PR 验证 Kody 评论作者、
-   行内建议及新 Commit 复审，记录 PASS / FAIL / BLOCKED / NOT RUN。
+## 长期审查强度约束（云端口径）
 
-## 自动触发与费用限制
+- **所有仓库、所有 PR 的 Kody Code Review 强度统一为 Balanced，严格禁止 Heavy。**
+- 由于 `kodyConfigFileOverridesWebPreferences = false`，该强度只能在 Kodus 云端生效，仓库文件无法约束；仓库删除配置不等于改变强度，也不等于放弃该约束。
+- 本版 Kodus 云端以 `suggestionControl`（`severityLevelFilter`、`groupingMode`、`severityLimits`）与 `reviewCadence` 表达审查强度；不得把 `reviewMode` 字面写回仓库来"代表"云端已配置。
+- **可核对口径**：本版 Kodus 云端**没有** `reviewMode` 这种字面字段，`kodus config remote show` 只能读到 `suggestionControl.severityLevelFilter`、`suggestionControl.groupingMode`、`suggestionControl.severityLimits.*`、`reviewCadence.*` 与 `automatedReviewActive`；**不能用该命令直接判定“是否 Balanced”**，也不要凭这些数值猜测强度。
+- 强度是否处于 Balanced，以 https://app.kodus.io 该仓库/团队的 Code Review 设置页为准；CLI 仅用于核对上述可读字段与规则列表（`kodus rules view`）。若无法访问云端页面，则该项记 `NOT RUN`，不得在 PR/报告中宣称“云端已为 Balanced”。
 
-当前仓库配置是**手动审查模式**：`automatedReviewActive: false`、
-`reviewCadence: manual`。这是为了满足现有工作日高峰停工和 DeepSeek
-余额 <¥10 禁止付费调用的约束。Kodus 云端自动 webhook **不会自动继承**
-开发机上的时间及余额守卫。Kodus 的套餐或 Budget 告警不等于硬性停止请求。
+## 线上现状（2026-11-17 实测读取）
 
-如需将 Kodus Cloud 改为每次 PR 自动审查，必须先确认在线服务确有可靠、
-可执行的费用与时间限制，或由用户明确更改这项策略；否则不得悄悄打开收费自动化。
+用 `kodus config remote show` 与 `kodus rules view --json` 读取的云端真值：
 
-请勿将 Kodus 设为 Required Check，除非 GitHub 可可靠验证检查来源、
-最新 Head SHA、服务不可用和阻断状态；不能把普通评论当成实际设备验收。
+| 项 | 值 |
+| --- | --- |
+| `kodusConfigFileOverridesWebPreferences` | `false`（仓库配置文件不覆盖云端） |
+| `automatedReviewActive` | `true` |
+| `reviewCadence.type` / `pushesToTrigger` | `auto_pause` / 3 |
+| `isRequestChangesActive` | `true` |
+| 活跃 Kody Rules | 20 条（含「文档与代码注释使用简体中文」，medium / file / `**/*`） |
+| `suggestionControl` | `severityLevelFilter=low`、`groupingMode=minimal`、limits low=3 / medium=5 / high=5 |
 
-## 移除旧 Oreki Audit 的账户侧操作
+## 维护方式
 
-仓库代码移除**不会**自动删除 GitHub App、仓库 Secrets 或 Actions variables。
-账户所有者还需要在 GitHub App 的设置中卸载并删除 `oreki-audit`
-（App ID 历史记录：5780505），并从 Android/Web 两仓移除
-`OREKI_AUDIT_APP_PRIVATE_KEY`、`OREKI_AUDIT_LLM_KEY`、
-`OREKI_AUDIT_APP_ID`、`OREKI_AUDIT_ENABLED`，按实际变量/Secret
-类别逐项确认。不要删除原有 GitHub 登录凭据。
+- 规则与审查参数只在云端 UI 或官方 CLI 修改：`kodus rules view|create|update|pause|resume|delete`、`kodus config remote show|set`。
+- 仓库侧变更流程只保留文档约定（如 `AGENTS.md` 的合并门禁），不再镜像云端配置。
+- 不要运行 `kodus config centralized sync` 把旧仓库文件回写云端；规则以云端当前列表为准。
 
-本地 `~/.oreki-audit-access-token` 和 `~/.config/oreki-audit/`（如仍存在）
-属于独立主机文件，需在确认用途后由有权访问该主机的 Agent 安全清理，
-不可因 GitHub 仓库文件不存在就宣称已删除本地凭据。
+## 账户侧清理待办（仍有效，未因删除仓库文件而消失）
+
+仓库代码移除**不会**自动删除 GitHub App、仓库 Secrets 或 Actions variables。账户所有者仍需：
+
+1. 在 GitHub App 设置中卸载并删除 `oreki-audit`（历史 App ID 5780505）；
+2. 从 Android/Web 两仓移除 `OREKI_AUDIT_APP_PRIVATE_KEY`、`OREKI_AUDIT_LLM_KEY`、`OREKI_AUDIT_APP_ID`、`OREKI_AUDIT_ENABLED`，按实际 Secrets/Variables 类别逐项确认；
+3. 本机 `~/.oreki-audit-access-token` 与 `~/.config/oreki-audit/`（如仍存在）需在确认用途后由有权访问该主机的 Agent 安全清理；
+4. 不要删除原有 GitHub 登录凭据。
+
+以上属于账户侧操作，仓库内无法自动化验证；未完成前应保持待办状态，不得因 `docs/KODUS_REVIEW_SETUP.md` 已重写就宣称清理完成。
+
+## 合并门禁不变
+
+- 仍要求 Kody 对 PR **当前最终 HEAD SHA** 完成审查，并读取 Review Threads、Review Summary、普通评论与 Checks 后才能合并（本仓 `AGENTS.md` **§21**；总仓为 §31）。
+- 排队、Auto-pause、`skipping`、失败、超时、仅审查旧 SHA 均不算完成。
+- Kodus 不可访问时标记 **BLOCKED**，不得用 CI 绿灯代替 Kody 审查。
