@@ -1655,6 +1655,9 @@ object OrekiStageAuto {
     /** [R117-01-02c P0-1] 30 秒心跳探针的最近打印时刻。 */
     private var lastCrunchProbeAtMs = 0L
 
+    /** [PR #179 Kody·high] pre-break 上限跳过强制结算的日志闩锁（每个上限 episode 只记一次）。 */
+    private var preBreakCapSkipLogged = false
+
     /** [R116-03-01] 接管分支 realities 读取失败只记一次日志，避免每帧刷屏。 */
     private var takeoverReadFailureLogged = false
 
@@ -2021,25 +2024,51 @@ object OrekiStageAuto {
 
             val decision = OrekiCrunchPolicy.decide()
 
+            // [PR #179 Kody·high] 策略的 fail-closed 拒绝（deliberate hold / exception）必须在
+            // 任何 pre-break 兜底之前算出：兜底只允许忽略「成长窗口/暂停时长」，不允许绕过
+            // 策略 fail-closed、所有权（modOwnsCrunch）或玩家关闭意图（crunchPausedByStagePolicy）。
+            val takeoverBlockedByPolicy = !decision.allow &&
+                (decision.reason == "eternity-hold" || decision.reason.startsWith("exception:"))
+
             // [R117-01-02c P0-1] 30 秒只读心跳探针：记录受管坍缩是否真的按 maxAM 结算。
             maybeLogCrunchProbe()
 
-            // [R117-01-02c P0-5] pre-break 禁止长窗口持留：
+            // [R117-01-02c P0-5 + PR #179 Kody·high] pre-break 禁止长窗口持留：
             // 原版 MainActivity.i9 在「AM 达 1.8e308 上限且 break=false」时把正文容器置 GONE，
-            // 只剩坍缩横幅。只要还没 break 且已可结算，就立即结算一次，不允许任何
-            // 600–1800s 窗口或 3600s 暂停在此阶段持留（仍先判 canBigCrunch()，不伪造结算）。
-            if (!GameApi.isBroken() && GameApi.canBigCrunch() &&
-                settleCrunch("pre-break-am-cap")
-            ) {
-                lastManagedCrunchAtMs = System.currentTimeMillis()
-                return
+            // 只剩坍缩横幅。修复目标仍是不让 MOD 自己的 600–1800s 窗口/3600s 暂停把正文
+            // 卡在隐藏态，但兜底**只允许忽略成长窗口/暂停时长**，不得绕过：
+            //   · 所有权：modOwnsCrunch && crunchPausedByStagePolicy（MOD 确实托管着原版自动器；
+            //     玩家手动关闭自动器时这两个条件不成立，走原逻辑，不替玩家结算）；
+            //   · 策略 fail-closed：takeoverBlockedByPolicy（deliberate hold / exception 不绕过）；
+            //   · 原版门槛：canBigCrunch()（不伪造结算）。
+            val preBreakCapOwned = !GameApi.isBroken() && modOwnsCrunch && crunchPausedByStagePolicy
+            if (preBreakCapOwned && !takeoverBlockedByPolicy && GameApi.canBigCrunch()) {
+                if (settleCrunch("pre-break-am-cap")) {
+                    lastManagedCrunchAtMs = System.currentTimeMillis()
+                    preBreakCapSkipLogged = false
+                    // 与接管分支一致：结算拍不跳过受管购买器应用（Kody 指出旧实现提前 return 会跳过）。
+                    applyManagedAutobuyerStates(true)
+                    return
+                }
+            } else if (!GameApi.isBroken() && GameApi.canBigCrunch() && !preBreakCapSkipLogged) {
+                // 探针：达到上限但所有权/玩家意图/策略门不允许强制结算时留一行证据。
+                preBreakCapSkipLogged = true
+                Log.i(
+                    TAG_AU4C,
+                    "pre-break cap: skip forced settlement (owned=" + preBreakCapOwned +
+                        " blocked=" + takeoverBlockedByPolicy + ")",
+                )
+            }
+            if (!GameApi.isBroken() && !GameApi.canBigCrunch()) {
+                preBreakCapSkipLogged = false
             }
 
             // [R117-01-02c P0-7] pre-break 上限阶段不要把所有坍缩自动器都关掉：
             // 上面已在同一 tick 内尝试过 MOD 结算；若本帧没结算成功（canBigCrunch 暂假等），
             // 至少恢复一个原版自动器（MOD 曾暂停它时），保证下一 tick 有一次真实坍缩，
             // 避免 AM 长期停在 1.8e308 上限把原版正文容器按 i9 条件隐藏。
-            if (!GameApi.isBroken() && amAtCap() && crunchPausedByStagePolicy &&
+            if (!GameApi.isBroken() && !takeoverBlockedByPolicy && amAtCap() &&
+                modOwnsCrunch && crunchPausedByStagePolicy &&
                 GameApi.isAutobuyerActive(crunch) == false
             ) {
                 GameApi.setAutobuyerActive(crunch, true)
@@ -2092,8 +2121,7 @@ object OrekiStageAuto {
             //   （2026-11-17 06:40:07、06:48:51 等），即 helper 返回 true、绑定有效。
             // [R116-03-01 Kody] 排除策略明确 deny 的 deliberate hold 与 fail-closed 异常：
             // 这两类不应被接管分支强制破窗；仅「资源不足型 deny」与 allow 才接管。
-            val takeoverBlockedByPolicy = !decision.allow &&
-                (decision.reason == "eternity-hold" || decision.reason.startsWith("exception:"))
+            // takeoverBlockedByPolicy 已在 decision 之后计算（PR #179 Kody·high 前置，供兜底共用）。
             // [R116-03-01 真机定位·严重回归修复] 原判据用 `hasInfinity()` 作为硬网关，
             // 但**首次永恒会把 infinities 清零**，于是 `hasInfinity()` 变假 ⇒ 接管整段被关掉，
             // 而原版自动器已被 MOD 暂停 ⇒ 两份都停 ⇒ 完全停滞（实测 t=1026~1087 infinities 恒 0）。
