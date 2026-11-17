@@ -101,7 +101,7 @@ object OrekiAutomationScheduler {
      * 时会被反复续期，等于把 Break 饿死。这里只对 Break 关键任务强制重试，
      * 其他任务保持原有退避，避免全局退避失效。
      */
-    private val FORCE_RETRY_TASKS = setOf("breakUpgrades", "breakShop")
+    private val FORCE_RETRY_TASKS = setOf("breakUpgrades")
     private const val FORCE_RETRY_AFTER_NOOP_WAITS = 2
 
     /**

@@ -468,7 +468,12 @@ object OrekiStageAuto {
                 // `allow("breakUpgrades")` 恒被 `deny frame-held` ⇒ Break 永远不触发。
                 // Break 是首次 Break 前唯一的一次性关键解锁，必须优先拿本拍名额；
                 // 未买满间隔时这里也先补买（只做一次真实动作，仍受全局节拍约束）。
-                if (OrekiAutomationScheduler.allow("breakUpgrades")) {
+                // [R117-01-02c P0-6] 已 break 时本任务没有工作：直接跳过 allow/noteNoop，
+                // 避免每帧 noop + force-retry 刷屏（AVD 实测 19k 条/16 分钟）。brake 被原版
+                // 重置为 false 时会重新进入下面的自愈路径。
+                if (GameApi.isBroken()) {
+                    // 无动作：Break 已解锁
+                } else if (OrekiAutomationScheduler.allow("breakUpgrades")) {
                     val wasBroken = GameApi.isBroken()
                     if (!wasBroken) {
                         // [R94] 实测：Break 可能被原版重置路径清掉（存档 brake=false），
