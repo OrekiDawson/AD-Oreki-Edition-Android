@@ -2504,7 +2504,7 @@ internal object GameApi {
 
     /** `Player.u()D` —— 维度提升计数。 */
     fun dimensionBoosts(): Double? = try {
-        (method(playerCls(), "u", 0, "Player.u()=dimensionBoosts")?.let { m -> call(m, player()) } as? Number)?.toDouble()
+        (method(playerCls(), "u", 0, "Player.u()=dimensionBoosts")?.let { boostGetter -> call(boostGetter, player()) } as? Number)?.toDouble()
     } catch (e: Throwable) { miss("Player.u()", e); null }
 
     /** `Player.A()J` —— 反物质星系计数。 */
@@ -3490,16 +3490,16 @@ internal object GameApi {
      */
     fun infinityAutoCrunchShortcut(): Boolean = try {
         val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e")
-        val m = infinityCls?.let { method(it, "j", 0, "Infinity.j()") }
-        (m?.invoke(null) as? Boolean) ?: false
+        val shortcutMethod = infinityCls?.let { method(it, "j", 0, "Infinity.j()") }
+        (shortcutMethod?.invoke(null) as? Boolean) ?: false
     } catch (e: Throwable) {
         false
     }
 
     fun bigCrunchReset(): Boolean = try {
         val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
-        val m = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
-        m.invoke(null, orekiContinuation())
+        val resetMethod = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
+        resetMethod.invoke(null, orekiContinuation())
         true
     } catch (e: Throwable) {
         miss("bigCrunchReset", e)
