@@ -337,7 +337,7 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
    - 对照 `[读码]（提交记录）`：修复提交 `8306afc9` 记录 R114-01 通关存档为 AMOUNT（amount=e4.6e8、interval=150000）。
      本轮可复核的**根工作区** `reports/R114-01/device-save-backup/files/`（Android 仓内无此目录）确有 mode=0/interval=150000 快照（`playerBackup2.json`、`speedrunBackup010.json`），
      但该批备份 realities=0、amount=e0，**不是通关存档** ⇒ amount=e4.6e8 只能按提交记录转写，未独立复核。
-   - 机制影响：MOD 的 `writeManagedCrunchInterval` 写的是 **TIME 模式的 `time` 秒值**（`OrekiStageAuto.kt:735-772`）：恢复时 `time=5.0 s`、暂停时写 3600 s；
+   - 机制影响：MOD 的 `writeManagedCrunchInterval` 写的是 **TIME 模式的 `time` 秒值**（`OrekiStageAuto.kt:735-772`）：恢复时 `time=5.0 s`、暂停时写 3600 s（`eternity-grow` 暂停例外，写自适应窗口，见根因 3）；
      TIME 下每 5 s 真实时间即可触发坍缩，maxAM 来不及成长；AMOUNT 则等单次收益达到绝对阈值才坍缩
      （修复注释：60 s 成长可让 maxAM 到 e1.6e9、收益 10^5.4e7）。
 
@@ -366,10 +366,12 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
    - 60 s 窗口内反物质只长到 maxAM≈e1050 ⇒ 单次坍缩 IP 仅 +35 个数量级；按 div=30 换算，IP 到 1.8e308 需 maxAM≈e9240 ⇒ 约 500–600 秒真实成长。
    - 修复前等待/放行语义不一致 `[读码]`：`eternity-grow` 有**两条**等待分支——
      ① `OrekiCrunchPolicy.kt:231` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)`（`ETERNITY_GROW_WAIT_NS=300 s`，触发条件为投影 < 1.8e308）；
-     ② `OrekiCrunchPolicy.kt:300` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)`（`ETERNITY_GROW_WAIT_LIMIT_NS=2_400_000_000_000L` 即 2400 s，触发条件为窗口未到期）。
-     两者相差 8 倍，引用「等待窗口不足」结论时必须注明走的是哪条分支（期间均暂停 autobuyer，**反物质仍在增长**），
-  但放行时 `OrekiStageAuto.kt:1901-1902` 写入的是 Break 后固定 `POST_BREAK_RESUME_SECONDS=5.0` ⇒ 恢复后每 5 s 真实时间即坍缩、maxAM 无法成长；
-  暂停路径写入的 TIME 阈值（60 s）在 autobuyer 关闭期间不产生坍缩，**不能**解释成「只成长 60 s」。修复后等待时长与 resume 阈值统一为同一动态窗口（600 s 起）。
+     ② `OrekiCrunchPolicy.kt:300` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)`（`ETERNITY_GROW_WAIT_LIMIT_NS=2_400_000_000_000L` 即 2400 s，**仅当投影不可读**——`GameApi.log10BigDouble(GameApi.gainedInfinityPoints())` 返回 null——且窗口未到期时触发；投影可读时必然在 `:231` 或 `:237-246` 返回）。
+     两者相差 8 倍，引用「等待窗口不足」结论时必须注明走的是哪条分支（期间均暂停 autobuyer，**反物质仍在增长**）。
+   - 「60 s 成长窗口」的实际来源 `[读码]`：修复前 `eternity-rate-limit` 的最小放行间隔 `ETERNITY_ALLOW_MIN_INTERVAL_MS = 60_000L`（`OrekiCrunchPolicy.kt:103`、`:111-112`、`:237-243`）——每次放行后 60 s 内不允许再次坍缩，期间暂停 autobuyer；放行时 `OrekiStageAuto.kt:1901-1902` 又写入固定 `POST_BREAK_RESUME_SECONDS=5.0` ⇒ 两次坍缩之间实际成长时间 ≈ 60 s + 5 s ≈ 65 s。**5 s 与 60 s 不是同一参数的两个取值**：60 s 是最小放行间隔，5 s 是恢复后的 TIME 触发间隔，两者串接构成「约 60 秒的成长窗口不足」。
+     实测口径印证：30210002 Reality 后该段 `ip-ready=40` / `rate-limit=40`，按 60 s 限流 × 40 轮 ≈ 2400 s，与首次现实 637.4 s 至终态 3060 s 的实际跨度吻合。
+   - 暂停路径写入的 TIME 阈值取决于暂停原因 `[读码]`（`OrekiStageAuto.kt:1876-1880`）：`eternity-grow` 写自适应窗口 `OrekiCrunchPolicy.eternityWaitSeconds()`（60 s 起、无收益翻倍即翻倍、上限 1800 s）；`eternity-hold` / `eternity-rate-limit` / `id-peak-wait` 等其余原因写 `CRUNCH_PAUSE_SECONDS = 3600.0`（`:96`）。autobuyer 关闭期间两种取值都不产生坍缩，写入的秒值本身不决定成长时长，**不能**用「暂停阈值 60 s」解释成长窗口。
+   - 修复后：移除 60 s 最小放行间隔（`301f2a92`）；`ETERNITY_GROW_START_SECONDS` 初值 60→600 s，`eternity-grow` 等待时长与 resume 写入共用同一动态窗口（600 s 起、上限 1800 s）。
 
 ### 二、修复（PR #169，head `8306afc9`，三个提交）
 
