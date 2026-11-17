@@ -1,9 +1,0 @@
-title: Android/Web核心行为一致
-rule: 影响游戏机制、资源计算、挑战结算、自动购买器、解锁条件、存档或界面功能的变更，必须检查Android和Web是否保持语义等价。允许技术实现不同、版本号不同，但禁止实际玩家行为出现无意差异。允许跨PR分阶段实施，但必须明确记录差异与后续任务，不得误报为已同步完成。
-severity: critical
-scope: pull-request
-examples: []
-inheritance:
-  inheritable: true
-  exclude: []
-  include: []
