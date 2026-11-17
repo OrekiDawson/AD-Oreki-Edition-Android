@@ -18,7 +18,8 @@
 - **所有仓库、所有 PR 的 Kody Code Review 强度统一为 Balanced，严格禁止 Heavy。**
 - 由于 `kodyConfigFileOverridesWebPreferences = false`，该强度只能在 Kodus 云端生效，仓库文件无法约束；仓库删除配置不等于改变强度，也不等于放弃该约束。
 - 本版 Kodus 云端以 `suggestionControl`（`severityLevelFilter`、`groupingMode`、`severityLimits`）与 `reviewCadence` 表达审查强度；不得把 `reviewMode` 字面写回仓库来"代表"云端已配置。
-- 每次调整强度后，必须用 `kodus config remote show` 复核云端实际取值，并记录时间与来源。
+- **可核对口径**：本版 Kodus 云端**没有** `reviewMode` 这种字面字段，`kodus config remote show` 只能读到 `suggestionControl.severityLevelFilter`、`suggestionControl.groupingMode`、`suggestionControl.severityLimits.*`、`reviewCadence.*` 与 `automatedReviewActive`；**不能用该命令直接判定“是否 Balanced”**，也不要凭这些数值猜测强度。
+- 强度是否处于 Balanced，以 https://app.kodus.io 该仓库/团队的 Code Review 设置页为准；CLI 仅用于核对上述可读字段与规则列表（`kodus rules view`）。若无法访问云端页面，则该项记 `NOT RUN`，不得在 PR/报告中宣称“云端已为 Balanced”。
 
 ## 线上现状（2026-11-17 实测读取）
 
