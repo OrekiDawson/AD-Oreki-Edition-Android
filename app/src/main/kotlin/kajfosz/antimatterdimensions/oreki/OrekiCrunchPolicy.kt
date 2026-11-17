@@ -175,8 +175,11 @@ object OrekiCrunchPolicy {
         // Reality 会重置 Break（isBroken=false），于是 pre-infinity / pre-break-ip
         // 每帧无条件放行，实测 272 秒内 infinities +3000 万，把 600 秒成长窗口架空，
         // Reality 后 IP 只有约 2.5 数量级/分钟。
+        // [R116-03-02 失败安全] realities 读取失败时按「已在永恒层」处理，
+        // 否则会退回 pre-infinity / pre-break-ip 的每帧放行分支（R116-02 已观测到该路径清空 maxAM）。
+        val realitiesCmp = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
         val inEternityLayer = !OrekiStageAuto.eternitiesZero() ||
-            (GameApi.compareToDouble(GameApi.realitiesValue(), 0.0) ?: 0) > 0
+            realitiesCmp == null || realitiesCmp > 0
         if (!inEternityLayer && !GameApi.hasInfinity()) {
             return Decision(true, "pre-infinity")
         }

@@ -87,6 +87,12 @@ jobs:
             BASE_SHA=$(git rev-parse FETCH_HEAD)
             echo "::warning::base $BASE_SHA unreachable; falling back to origin/main=$BASE_SHA"
           fi
+          # [R116-03-01 Kody] 回退后 BASE_SHA 可能等于 HEAD：此时增量检查会空跑（无 diff ⇒ 恒无违规），
+          # 等于把 fail-closed 的守卫静默变成 always-pass。这里显式拦截，保持 fail-closed。
+          if [ "$BASE_SHA" = "$(git rev-parse HEAD)" ]; then
+            echo "::error::comparison base equals HEAD; naming-debt guard would run vacuously"
+            exit 1
+          fi
           python3 scripts/check_kotlin_naming_delta.py --base "$BASE_SHA"
       - name: Test new source policy guards
         run: python3 -m unittest discover -s scripts/tests -p 'test_repository_policy.py' -v
@@ -108,6 +114,11 @@ jobs:
           if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
             BASE_SHA=$(git rev-parse FETCH_HEAD)
             echo "::warning::base $BASE_SHA unreachable; falling back to origin/main=$BASE_SHA"
+          fi
+          # [R116-03-01 Kody] 同 naming 守卫：base 等于 HEAD 时策略检查会空跑，显式 fail-closed。
+          if [ "$BASE_SHA" = "$(git rev-parse HEAD)" ]; then
+            echo "::error::comparison base equals HEAD; repository policy guard would run vacuously"
+            exit 1
           fi
           python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
       - name: Test staged AGP directory migration policy

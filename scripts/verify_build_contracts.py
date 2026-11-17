@@ -1757,9 +1757,13 @@ def _impl_payload():
     #      必须切 TIME + 10 秒才能把反物质滚起来；
     #   ② Break 后（crunchTimeModeInitialized）：早期 TIME/1s。
     # 守卫语义不变：**任何一处都不得每帧改写 mode**（R74 根因），且只能是 MODE_TIME。
+    # [R116-03-01] 上限由 3 提到 4：新增的第 4 处是「永恒层主动切 TIME」的一次性初始化
+    # （AMOUNT/X_HIGHEST 不读 TIME interval，不切则 600s 成长窗口无效），
+    # 同样受 eternityLayerModeInitialized 闩锁与 OrekiPlayerIntent.mayRewriteCrunchMode() 保护。
+    # 守卫语义不变：任何一处都不得每帧改写 mode，且只能切 MODE_TIME。
     _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
-    assert len(_set_mode_calls) == 3, (
-        f"[R74] setCrunchMode 调用点应恰好 3 处（Break 前 / Break 后 / 目标保护暂停，均一次性），实际 {len(_set_mode_calls)} 处")
+    assert len(_set_mode_calls) == 4, (
+        f"[R74] setCrunchMode 调用点应恰好 4 处（Break 前 / Break 后 / 目标保护暂停 / 永恒层切 TIME，均一次性），实际 {len(_set_mode_calls)} 处")
     for _call in _set_mode_calls:
         assert "MODE_TIME" in _call, f"[R74] setCrunchMode 只允许切 TIME，实际：{_call}"
     # 取「TIME 模式一次性初始化」分支的代码块

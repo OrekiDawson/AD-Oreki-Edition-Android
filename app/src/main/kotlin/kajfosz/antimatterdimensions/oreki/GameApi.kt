@@ -819,12 +819,18 @@ internal object GameApi {
     }
 
     /**
-     * 是否已 Break（**`Player.brake` 字段，原版把 break 拼成 brake**）。
+     * 是否已 Break（**`Player.brake` 字段；原版把 break 拼成 brake**）。
      *
-     * [R116-02-01 真新档实测修复] 旧实现绑定 `Player.m()`，而该方法返回
-     * `imaginaryMachines`（Reality 前置布尔），**根本不是 Break 状态**。
-     * 后果：MOD 永远认为「未 Break」，pre-break / break-empty / pre-infinity 等
-     * 分支持续生效，Reality 后 IP 收益被死死限制（实测存档 brake=true 但策略判 false）。
+     * 证据等级：
+     * - [读码·官方 3.21 smali 实证] `work/base_decoded_321/smali_classes2/
+     *   kajfosz/antimatterdimensions/player/Player.smali:127` = `.field private brake:Z`，
+     *   即字段名、类型（Z=boolean）在冻结基线中确认存在。
+     * - [读码] 旧实现绑定 `Player.m()`；该方法返回 `imaginaryMachines`（Reality 前置布尔），
+     *   语义上不是 Break 状态。
+     * - [观察] 真新档存档中 `brake=true`，而旧判据给出 false。
+     *
+     * 失败语义：fail-closed —— 字段读取失败时返回 false（按「未 Break」处理），
+     * 且首次失败会 dump 一次 Player 字段名到 logcat 便于定位，不静默吞掉。
      */
     fun isBroken(): Boolean {
         val direct = readGameField(player(), "brake") as? Boolean
@@ -897,6 +903,15 @@ internal object GameApi {
      * 全部为零。因此它**不得单独作为阶段判据**（R98 §3.2），
      * 只能与真实结算产物交叉核对，见 [OrekiGuiStage]。
      */
+    /**
+     * `Player.eternities`（BigDouble）。
+     *
+     * 证据等级：[读码·官方 3.21 smali 实证]
+     * `work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/player/Player.smali:149`
+     * = `.field private eternities:Lkajfosz/antimatterdimensions/BigDouble;`。
+     * 注意：[观察] 全新存档该字段可能读作 11（并非 0），所以「是否已永恒」不能用它单判，
+     * 见 OrekiStageAuto.eternitiesZero() 的判据。
+     */
     fun eternitiesValue(): Any? = readGameField(player(), "eternities")
 
     /** [R94] `bigEternities`（可能为 Number，读不到返回 null）。 */
@@ -907,6 +922,14 @@ internal object GameApi {
      *
      * 这是原版 `f82.p()` 的判据（`realities > 0`），也是现实层级的真实结算产物；
      * 现实重置会把 `eternities` 清零，所以永恒阶段判定必须把本字段计入。
+     */
+    /**
+     * `Player.realities`（BigDouble）。
+     *
+     * 证据等级：[读码·官方 3.21 smali 实证]
+     * `work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/player/Player.smali:185`
+     * = `.field private realities:Lkajfosz/antimatterdimensions/BigDouble;`。
+     * 读不到返回 null（调用方必须自行决定 fail-open / fail-safe，不得静默当作 0）。
      */
     fun realitiesValue(): Any? = readGameField(player(), "realities")
 
@@ -1403,6 +1426,15 @@ internal object GameApi {
      * 接收者为空时必须直接返回 null：旧实现在 null 上 `Method.invoke` 会抛
      * NullPointerException 并被 `miss()` 打成「缺少 compareTo」，把上游的
      * 「读不到对象」误报成「方法不存在」，掩盖了真正原因。
+     */
+    /**
+     * `BigDouble.compareTo(D)I` 的包装；返回负数/0/正数，读不到返回 null。
+     *
+     * 证据等级：[读码·官方 3.21 smali 实证]
+     * `work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/BigDouble.smali:3801`
+     * = `.method public final compareTo(D)I`。同类还有 (I)/(J)/(Object)/(BigDouble) 四份重载，
+     * 因此绑定必须用 `paramTypeNames = listOf("double")` 锁定 (D) 这一份。
+     * 调用方必须处理 null（fail-closed 或 fail-safe 由调用方决定）。
      */
     fun compareToDouble(a: Any?, b: Double): Int? {
         if (a == null) return null
@@ -3488,12 +3520,38 @@ internal object GameApi {
      * maxAM 永远只有 e67 量级，IP 被锁死、永恒永远够不到 e308。
      * 该阶段必须由 MOD 自己按成长窗口调用 crunch，而不是让 autobuyer 保持活跃。
      */
-    fun infinityAutoCrunchShortcut(): Boolean = try {
-        val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e")
-        val shortcutMethod = infinityCls?.let { method(it, "j", 0, "Infinity.j()") }
-        (shortcutMethod?.invoke(null) as? Boolean) ?: false
-    } catch (e: Throwable) {
-        false
+    // [R116-03-01 Kody] 缓存式解析：启动时解析一次 Method 句柄，之后每帧只 invoke。
+    // 旧实现每帧重新 cls()+method() 查找，解析失败还会每帧走 miss() 刷 logcat。
+    private var mInfinityShortcut: java.lang.reflect.Method? = null
+    private var mInfinityShortcutResolved: Boolean = false
+    private var infinityShortcutMissLogged: Boolean = false
+    private fun mInfinityShortcut(): java.lang.reflect.Method? {
+        if (!mInfinityShortcutResolved) {
+            mInfinityShortcutResolved = true
+            mInfinityShortcut = cls("kajfosz.antimatterdimensions.prestige.e")
+                ?.let { method(it, "j", 0, "Infinity.j()") }
+        }
+        return mInfinityShortcut
+    }
+
+    fun infinityAutoCrunchShortcut(): Boolean {
+        val shortcutMethod = mInfinityShortcut()
+        if (shortcutMethod == null) {
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("infinityAutoCrunchShortcut", IllegalStateException("prestige.e.j() unresolved"))
+            }
+            return false
+        }
+        return try {
+            (shortcutMethod.invoke(null) as? Boolean) ?: false
+        } catch (e: Throwable) {
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("infinityAutoCrunchShortcut", e)
+            }
+            false
+        }
     }
 
     fun bigCrunchReset(): Boolean = try {
