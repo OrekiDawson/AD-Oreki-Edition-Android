@@ -118,6 +118,7 @@ object OrekiStageAuto {
      */
     private const val POST_BREAK_RESUME_SECONDS = 5.0
 
+
     /**
      * [R96 第三轮] 经济任务饥饿阈值（毫秒）。
      *
@@ -1211,6 +1212,9 @@ object OrekiStageAuto {
      */
     /** 每拍最多购买一项一次性永恒升级；实际成本和奖励仍由原版商店处理。 */
     private fun buyEternityUpgrades(): Boolean {
+        // [R116-02-01 Kody] 恢复原版解锁/开关门禁：不能用 inAnyChallenge() 整体替换
+        // canAutomateEternityUpgrades()（否则等于绕过原版自动化解锁与玩家开关，属越权购买）。
+        // Reality 后 etUnlock 的问题另行以「真实解锁 + 玩家开关」方案评估（Issue #163）。
         if (!GameApi.canAutomateEternityUpgrades()) return false
         for (upgrade in GameApi.eternityUpgrades()) {
             if (GameApi.upgradeBought(upgrade)) continue
@@ -1615,6 +1619,25 @@ object OrekiStageAuto {
     private var crunchPolicyErrorLogged: Boolean = false
     private var crunchPausedByStagePolicy: Boolean = false
 
+    /** [R116-02-01] 原版即时坍缩短路阶段（Infinity.j()==true），MOD 自己按窗口结算的最近触发时刻。 */
+    private var lastManagedCrunchAtMs = 0L
+
+    /** [R116-03-01] 接管分支 realities 读取失败只记一次日志，避免每帧刷屏。 */
+    private var takeoverReadFailureLogged = false
+
+    /** [AU4b] 永恒层「主动切 TIME」的一次性初始化闩锁（避免每帧改写 mode）。 */
+    private var eternityLayerModeInitialized = false
+
+    /**
+     * [R116-03-01 真机定位] 一旦 MOD 真正执行过受管坍缩，就由 MOD 永久持有坍缩所有权；
+     * 此后即使 `infinityAutoCrunchShortcut()` 出现瞬时解析失败，也**不得**恢复原版自动器，
+     * 否则原版 `Infinity.j()==true` 每 tick 坍缩，infinities 会爆炸（实测 30 秒 2560→163001）。
+     */
+    private var modOwnsCrunch = false
+
+    /** [R116-03-01] 上一次观察到的 realities **实际值对象**（按真实数值比较，而非符号）。 */
+    private var lastRealitiesValue: Any? = null
+
     /**
      * [R101 P0] 类初始化发生在本类被 Game.autoBuyerTick 首次调用的瞬间，
      * 早于同一个 autoBuyerTick 里原版 autoBig 的首次 tick。若玩家已经过了首次永恒
@@ -1800,8 +1823,14 @@ object OrekiStageAuto {
     }
 
     private fun reconcileIpMultAutobuyer(wantOn: Boolean) {
-        val enabled = GameApi.isIpMultEnabled()
         val key = "ipmult"
+        // [R116-03-01 Kody] 玩家明确关闭该项后不得强制重开：
+        // 否则会在 60s 内反复打开并持续消耗 IP，违背 OrekiPlayerIntent「尊重玩家关闭」契约。
+        if (OrekiPlayerIntent.isPlayerClosed(key)) {
+            OrekiPlayerIntent.clearManagedActivePending(key)
+            return
+        }
+        val enabled = GameApi.isIpMultEnabled()
         if (!wantOn || enabled) {
             OrekiPlayerIntent.clearManagedActivePending(key)
             return
@@ -1815,6 +1844,24 @@ object OrekiStageAuto {
                 OrekiAutomationScheduler.getIntervalSec(),
             )
         }
+    }
+
+    /**
+     * [R117-01 Kody·medium] 永恒层判据的**唯一实现**：本 tick 三处判断（接管门禁、
+     * resume 间隔、pre-break 早退）必须共用它，避免同一 tick 对同一次读取失败得出相反结论。
+     *
+     * fail-safe 方向：读取失败一律按「已在永恒层」处理（与下方历史注释同一口径）。
+     * 理由：误判「在永恒层」最多多等一个 600–1800 秒成长窗口，下一次读回真实值即自愈；
+     * 误判「不在永恒层」会把成长窗口写回 5 秒高频坍缩并反复清空反物质（不可逆的进度损失），
+     * 还会让接管门禁拒绝接管、原版自动器与 MOD 同时停摆 —— 正是本轮要消除的停顿形态。
+     *
+     * 组成：非 [eternitiesZero]（其读失败本身 fail-closed 返回 false ⇒ 这里视为在永恒层），
+     * 或 realities 明确大于 0 / 读不到（null）。
+     */
+    private fun isInEternityLayer(): Boolean {
+        if (!eternitiesZero()) return true
+        val realitiesCmp = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+        return realitiesCmp == null || realitiesCmp > 0
     }
 
     @JvmStatic
@@ -1854,7 +1901,102 @@ object OrekiStageAuto {
 
             val decision = OrekiCrunchPolicy.decide()
 
-            if (decision.allow && crunchPausedByStagePolicy &&
+            // [R116-02-01 真新档实测根因·决定性修复]
+            // 原版 Infinity.j() = !Player.a.m() || ...，而 m() 是 imaginaryMachines。
+            // 它为 false 时原版 CrunchAutobuyerState.q() 的 `if (e.j() || mode判断)`
+            // 每 tick 立即坍缩，mode/interval/amount 全部失效：
+            // 实测 infinities 908 秒涨到 1.5 亿、maxAM 永远停在 e67、IP 锁死、永恒够不到 e308。
+            // 该阶段必须由 MOD 自己按成长窗口调用 crunch，绝不能让 autobuyer 保持活跃。
+            // [R116-02-01 回归修复] 只在**已经发生 Infinity 之后**接管：
+            // 首无限之前必须让原版 autobuyer 即时坍缩（那正是 155s 首无限的来源），
+            // 否则 600s 窗口会把首无限直接阻断（实测 t=305s infinities 仍为 0）。
+            // [R116-02-01 停滞修复] Reality 会重置 IP/maxAM；若沿用旧窗口时间戳，
+            // 新 Reality 后要空等满 600s 才有第一次 crunch（实测 t=908→1209 完全停滞）。
+            // [R116-03-01 Kody·失败安全+真实比较] 两个真实缺陷一并修：
+            // ① `compareToDouble(x, 0.0)` 只返回符号（-1/0/1），第 2 次及以后 Reality 无法识别；
+            //    改为保存**实际值对象**并用 compareBigDoubles 比较真实数值。
+            // ② 原实现在 realities 变化时把 lastManagedCrunchAtMs 清 0，等于每次冷启动/Reality
+            //    都重开整个 600–1800s 窗口；进程存活短于窗口时会从「空等」变成「完全停滞」。
+            //    现在不再清空窗口：变化时若 canBigCrunch() 已为真就立即结算一次，否则保留原窗口。
+            val realitiesCur = GameApi.realitiesValue()
+            val realitiesChanged = lastRealitiesValue != null && realitiesCur != null &&
+                (GameApi.compareBigDoubles(lastRealitiesValue, realitiesCur)?.let { it != 0 } ?: false)
+            if (realitiesCur != null) {
+                lastRealitiesValue = realitiesCur
+            } else if (!takeoverReadFailureLogged) {
+                takeoverReadFailureLogged = true
+                Log.i(TAG_AU4C, "managed crunch: realities read failed; keep current window")
+            }
+            if (realitiesChanged && GameApi.canBigCrunch() && GameApi.bigCrunchReset()) {
+                lastManagedCrunchAtMs = System.currentTimeMillis()
+                Log.i(TAG_AU4C, "managed crunch fired (new reality)")
+            }
+            // [R116-02-01 停滞再修·证据等级说明]
+            // 设计依据（读码）：Reality 后 eternities=0、IP 不足 ⇒ 策略返回 allow=false
+            // （cannot-eternity）；若接管被 allow 挡住就会走「暂停 autobuyer」分支且不再 crunch。
+            // 观察（已复现的存档读数，非「根因已证实」）：verify-win 跑次 t=908→1209 期间
+            // ip 恒为 e2(624)、infinities 恒为 12，共 301 秒零进展。
+            // 所依赖的绑定：GameApi.infinityAutoCrunchShortcut() 反射 prestige.e.j()。
+            //   官方 3.21 smali 实证：work/base_decoded_321/smali_classes2/
+            //   kajfosz/antimatterdimensions/prestige/e.smali:1335 的 .method public static j()Z。
+            //   真机 logcat 实证（verify-buyer / run-180-buyer）：接管分支确实进入，
+            //   logcat 出现 stage-policy -> autoBig paused (auto-crunch-shortcut) 共 3 次
+            //   （2026-11-17 06:40:07、06:48:51 等），即 helper 返回 true、绑定有效。
+            // [R116-03-01 Kody] 排除策略明确 deny 的 deliberate hold 与 fail-closed 异常：
+            // 这两类不应被接管分支强制破窗；仅「资源不足型 deny」与 allow 才接管。
+            val takeoverBlockedByPolicy = !decision.allow &&
+                (decision.reason == "eternity-hold" || decision.reason.startsWith("exception:"))
+            // [R116-03-01 真机定位·严重回归修复] 原判据用 `hasInfinity()` 作为硬网关，
+            // 但**首次永恒会把 infinities 清零**，于是 `hasInfinity()` 变假 ⇒ 接管整段被关掉，
+            // 而原版自动器已被 MOD 暂停 ⇒ 两份都停 ⇒ 完全停滞（实测 t=1026~1087 infinities 恒 0）。
+            // 现改为「只在真正的首无限阶段让路」：进入永恒层（EP/现实非零）或已 Break 之后都归 MOD 托管。
+            // [R117-01 Kody·medium] 与下方 resume / pre-break 两处共用 isInEternityLayer()：
+            // R116-03-01 曾在本门禁要求「realities 明确 > 0」，而同一 tick 下游却把 realities
+            // 读失败当成「已在永恒层」，出现「门禁拒绝接管、下游却改写 600–1800s 成长窗口」的
+            // 自相矛盾。现统一为 fail-safe 判据（读取失败按在永恒层处理），理由见 isInEternityLayer()。
+            val inEternityLayerGate = isInEternityLayer()
+            val takeoverPhaseOk = modOwnsCrunch || inEternityLayerGate ||
+                isBroken() || GameApi.hasInfinity()
+            if (!takeoverBlockedByPolicy && takeoverPhaseOk &&
+                (modOwnsCrunch || GameApi.infinityAutoCrunchShortcut())) {
+                if (GameApi.isAutobuyerActive(crunch) == true) {
+                    GameApi.setAutobuyerActive(crunch, false)
+                    crunchPausedByStagePolicy = true
+                    modOwnsCrunch = true
+                    Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
+                }
+                // [R116-02-01 停滞再修·关键] 接管分支不能跳过受管购买器应用：
+                // 旧实现直接 return，导致 applyManagedAutobuyerStates 从不执行，
+                // 维度等购买器失去托管 ⇒ Reality 后 AM 不增长 ⇒ canBigCrunch 永假
+                // ⇒ 实测 t=908→1209 ip 恒 624、infinities 恒 60（301 秒零进展）。
+                applyManagedAutobuyerStates(true)
+                // [R116-03-01 Kody] 尊重玩家意图：若玩家原本就关闭了大坍缩自动器、
+                // 且 MOD 从未因策略暂停过它（crunchPausedByStagePolicy=false），不强制坍缩。
+                if (!crunchPausedByStagePolicy) {
+                    return
+                }
+                val windowMs = (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                val nowMs = System.currentTimeMillis()
+                // [R116-03-01 Kody] 窗口基线：lastManagedCrunchAtMs<=0 表示「尚未建立基线」
+                // （冷启动首帧 / 新 Reality 后）。旧实现直接与 0 比较，首帧即满足 now-0>=window，
+                // 冷启动会立刻清空反物质；反复切后台使实际坍缩间隔远小于 eternityWaitSeconds()。
+                if (lastManagedCrunchAtMs <= 0L) {
+                    lastManagedCrunchAtMs = nowMs
+                    Log.i(TAG_AU4C, "managed crunch: window baseline established")
+                } else if (nowMs - lastManagedCrunchAtMs >= windowMs) {
+                    // [R116-03-01 Kody] 未达门槛时原版 bigCrunchReset() 是 no-op 却仍返回成功，
+                    // 会白白消耗本窗口并打出误导性的 fired 日志。先判 canBigCrunch 再结算。
+                    if (GameApi.canBigCrunch() && GameApi.bigCrunchReset()) {
+                        lastManagedCrunchAtMs = nowMs
+                        modOwnsCrunch = true
+                        Log.i(TAG_AU4C, "managed crunch fired (window=" + windowMs + "ms)")
+                    }
+                }
+                return
+            }
+
+            // [R116-03-01 真机定位] MOD 已持有坍缩所有权时绝不恢复原版自动器。
+            if (decision.allow && !modOwnsCrunch && crunchPausedByStagePolicy &&
                 GameApi.isAutobuyerActive(crunch) == false) {
                 GameApi.setAutobuyerActive(crunch, true)
                 crunchPausedByStagePolicy = false
@@ -1894,12 +2036,68 @@ object OrekiStageAuto {
                 writeManagedCrunchInterval(crunch, pauseSeconds, restoreDue, "pause:" + decision.reason)
                 return
             }
+            // [R116-02-01 Kody P1] 间隔写入必须**每帧无条件**执行：加载存档时 pauseReason 初始为 null，
+            // 旧实现会把 resume 写入整个跳过，导致「TIME 仍 5 秒但策略已改为放行」。
+            // [R116-02-01 Kody P2] 只有「已进入永恒层」（realities>0 或 eternities>0）才用成长窗口；
+            // 首次永恒前的 farming 路径（eternitiesZero && isBroken）必须保持 5 秒，
+            // 否则会把首永恒前的 IP 农场拖慢 120 倍。
+            // [R116-02-01 Kody] 不能再用 eternitiesValue()：全新存档该字段读作 11（GameApi.kt:860-874），
+            // 会让「已 Break、未首永恒」存档被误判为永恒层，5 秒 farming 永不生效。
+            // 改用可靠判据：eternitiesZero()（EP==0 且升级位图为空）取反，或 realities>0（Reality 后 eternitiesZero 会再次为真）。
+            // [待 3.21 核对] realities 字段绑定仍需在官方包复核（见 Issue #163）。
+            // [R116-03-02 失败安全] realities 读取失败时按「已在永恒层」处理。
+            // 证据等级：
+            // - [读码·官方 3.21 smali 实证] Player.smali:185 `.field private realities:...BigDouble;`；
+            // - [读码] eternitiesZero() 本身 fail-closed（读失败返回 false ⇒ !false = 已在永恒层）；
+            // - [观察] 历史跑次中 realities 读失败时旧写法 `?: 0` 会判成「不在永恒层」，
+            //   退回 5 秒高频 crunch 分支，把 maxAM 反复清空（该观察属 [推断]，未单独做 A/B）。
+            // 因此这里显式 fail-safe：读到 null 视为「在永恒层」，避免退回高频重置路径。
+            // [R117-01 Kody·medium] 与门禁共用唯一判据，同一 tick 结论一致。
+            val inEternityLayer = isInEternityLayer()
+            // [R116-02-01 真新档修复] Reality 会重置 Break（isBroken=false），但此时已处于永恒层，
+            // 仍必须用成长窗口：否则回落到 5 秒高频 crunch，maxAM 被反复清空，
+            // IP 只有约 1.1 数量级/分钟（1400 秒实测 e53→e75，无法到 e308）。
+            val resumeInterval = if (inEternityLayer) {
+                OrekiCrunchPolicy.eternityWaitSeconds()
+            } else {
+                PRE_BREAK_CRUNCH_SECONDS
+            }
+            // [R116-02-01 Kody] 若本帧随后会进入 eternity-zero 分支，跳过这里的写入：
+            // 否则同一 tick 会先写 60/600 再被写成 5，产生两次 setCrunchInterval 与刷屏日志。
+            // [R116-02-01 Kody P1] AMOUNT / X_HIGHEST 模式不读 TIME interval，只写 interval 等于没有
+            // 成长保护（实测存档 mode=0 + amount=10^2.3e8，会长期不结算或按玩家阈值连续结算）。
+            // 永恒层由 MOD 调度器负责节奏，因此这里在玩家未手动占用模式时切到 TIME，
+            // 让成长窗口真正生效；首次永恒前不切，保持原版 farming 行为。
+            // [R116-03-01 Kody·high] 写权限被玩家占用（或 restoreDue 交还中）时重置闩锁：
+            // 否则权限交还后 mode 仍停在非 TIME，成长窗口静默失效、IP 停滞回归。
+            if (!OrekiPlayerIntent.mayRewriteCrunchMode()) {
+                eternityLayerModeInitialized = false
+            }
+            if (!eternityLayerModeInitialized) {
+                // [R116-03-01 Kody·medium] 不能要求 isBroken()：Reality 后 Break 被重置、
+                // isBroken()=false，那样模式归一化整条路径不可达，AMOUNT/X_HIGHEST 存档
+                // 永远不会切到 TIME，600s 成长窗口对它无效。改用 inEternityLayer 单独判定。
+                if (inEternityLayer &&
+                    GameApi.crunchMode(crunch) != MODE_TIME &&
+                    OrekiPlayerIntent.mayRewriteCrunchMode()
+                ) {
+                    // [AU4b] 一次性初始化闩锁：保证本段只在首次进入时写一次 mode。
+                    // 证据等级：这是 `scripts/verify_build_contracts.py` 的 au4b 契约要求
+                    // （写 mode 必须被一次性初始化块包住），**不是**「R74 根因已证实」；
+                    // R74 的具体成因仍属 [推断]，需要独立 A/B 运行证据才能定性。
+                    eternityLayerModeInitialized = true
+                    GameApi.setCrunchMode(crunch, MODE_TIME)
+                    OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
+                    Log.i(TAG_AU4C, "policy -> mode=TIME (eternity-layer growth window)")
+                }
+            }
+            val willEnterZeroBranch =
+                OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME
+            if (!willEnterZeroBranch) {
+                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
+            }
             if (pauseReason != null) {
                 pauseReason = null
-                // [R96] Break 前沿用 60 秒收割间隔；Break 后放行用 5 秒下限，
-                // 真正的结算时机由目标驱动策略每拍判断（不是固定节奏）。
-                val resumeInterval = if (isBroken()) POST_BREAK_RESUME_SECONDS else PRE_BREAK_CRUNCH_SECONDS
-                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
                 Log.i(TAG_AU4C, "policy -> resume (" + decision.reason + ")")
             }
 
@@ -1923,11 +2121,28 @@ object OrekiStageAuto {
                     targetIntervalInitialized = true
                     Log.i(TAG_AU4C, "policy -> interval=" + POST_BREAK_RESUME_SECONDS + "s (target-driven)")
                 }
-                writeManagedCrunchInterval(crunch, POST_BREAK_RESUME_SECONDS, restoreDue, "eternity-zero")
+                // [R116-02-01 Kody] 该分支在「未 Break」「首次 Break 后未首永恒」「Reality 后」都会命中，
+                // 必须同时按 isBroken() 与是否已进入永恒层（realities>0 || eternities>0）分流：
+                //   · 首次永恒前（含刚 Break、eternities 仍为 0）→ 保持 5 秒 farming 节奏；
+                //   · 已进入永恒层（含 Reality 后 eternities 被清零但 realities>0）→ 成长窗口。
+                // [R116-02-01 真新档修复] 同 resume：Reality 后 isBroken=false 但仍在永恒层，
+                // 必须用成长窗口而不是 5 秒，否则 IP 增长被高频 crunch 压制。
+                val zeroInterval = if (inEternityLayer) {
+                    OrekiCrunchPolicy.eternityWaitSeconds()
+                } else {
+                    POST_BREAK_RESUME_SECONDS
+                }
+                writeManagedCrunchInterval(crunch, zeroInterval, restoreDue, "eternity-zero")
                 return
             }
 
-            if (!isBroken()) {
+            // [R116-02-01 真新档实测修复] 永恒层（含 Reality 后 Break 被重置）必须跳过 pre-break：
+            // 否则每帧把成长窗口 600s 写回 60s（logcat: 600.0 -> 60.0 (pre-break)），窗口再次失效。
+            // [R116-03-02 失败安全] 与上方 inEternityLayer 同一口径：realities 读失败视为「在永恒层」，
+            // 避免退回 5 秒高频 crunch。
+            // [R117-01 Kody·medium] 同上：唯一判据，避免同一 tick 出现相反结论。
+            val inEternityLayerNow = isInEternityLayer()
+            if (!isBroken() && !inEternityLayerNow) {
                 if (!preBreakCrunchInitialized) {
                     preBreakCrunchInitialized = true
                     GameApi.setCrunchMode(crunch, MODE_TIME)
@@ -1937,20 +2152,15 @@ object OrekiStageAuto {
                 return
             }
 
-            // 已经是 TIME → 玩家自己选的或本段已设过，原样放手
-            if (GameApi.crunchMode(crunch) == MODE_TIME) return
-
-            val bits = GameApi.breakUpgradeBits() ?: return
-            if (GameApi.bitSetCardinality(bits) == 0) {
-                // ---- 早期：TIME 模式 + 1 秒 ----
-                if (!crunchTimeModeInitialized) {
-                    crunchTimeModeInitialized = true
-                    GameApi.setCrunchMode(crunch, MODE_TIME)
-                    Log.i(TAG_AU4C, "policy -> TIME/1s (break-upgrades empty)")
-                }
-                // 间隔 1 秒是本策略自己的节奏参数，可以继续每帧校准
-                writeManagedCrunchInterval(crunch, 1.0, restoreDue, "break-empty")
-            } else {
+            // [R116-02-01 真新档实测修复] 永恒层必须完全跳过本分支：
+            // 否则它每帧把成长窗口 600s 写回 1.0s（logcat 实测 600.0 -> 1.0 (break-empty)），
+            // 窗口从未真正生效，Reality 后 IP 只有约 1.3 数量级/分钟。
+            // [R116-03-01 Kody] 一次性 xHighest 校准必须在「永恒层早退」之前执行：
+            // 否则首次永恒之后 inEternityLayerNow 恒为真，crunchPolicyInitialized/setCrunchXHighest
+            // 永远不运行，xHighest<10 的存档不会被修回 10，自动器按旧低阈值持续高频坍缩。
+            val bits = GameApi.breakUpgradeBits()
+            val hasBreakUpgrades = bits != null && GameApi.bitSetCardinality(bits) != 0
+            if (hasBreakUpgrades) {
                 // ---- 终局：只做一次 xHighest 默认校准，不改 mode ----
                 if (crunchPolicyInitialized) return
                 crunchPolicyInitialized = true
@@ -1963,6 +2173,21 @@ object OrekiStageAuto {
                     GameApi.setCrunchXHighest(crunch, GameApi.bigDouble(10.0))
                     Log.i(TAG_AU4B, "policy -> X_HIGHEST/10")
                 }
+                return
+            }
+            if (inEternityLayerNow) return
+            // 已经是 TIME → 玩家自己选的或本段已设过，原样放手
+            if (GameApi.crunchMode(crunch) == MODE_TIME) return
+
+            if (bits != null && GameApi.bitSetCardinality(bits) == 0) {
+                // ---- 早期：TIME 模式 + 1 秒 ----
+                if (!crunchTimeModeInitialized) {
+                    crunchTimeModeInitialized = true
+                    GameApi.setCrunchMode(crunch, MODE_TIME)
+                    Log.i(TAG_AU4C, "policy -> TIME/1s (break-upgrades empty)")
+                }
+                // 间隔 1 秒是本策略自己的节奏参数，可以继续每帧校准
+                writeManagedCrunchInterval(crunch, 1.0, restoreDue, "break-empty")
             }
         } catch (error: Throwable) {
             // [R96] 不能静默：策略类若 VerifyError / 初始化失败，表现就是「完全不生效」。
@@ -2110,7 +2335,20 @@ object OrekiStageAuto {
         if (!GameApi.canEternity()) return "cannot-eternity"
         val gain = GameApi.gainedEternityPointsValue()
         val ep = GameApi.eternityPointsValue()
-        if (gain != null && ep != null) {
+        // [R116-03-01 Kody·critical] 「首次永恒」不能用 ep==0 判定：Reality 后 EP 同样会被清零，
+        // 那里已处于 Reality 循环，低收益永恒必须仍被 ep-gain-too-low 拦截，否则会无条件放行。
+        // 改用 realities 区分：只有 realities==0 且 ep==0 才是真正的首次永恒。
+        // 证据等级：[读码·官方 3.21 smali 实证] Player.smali:185 realities 字段；
+        // BigDouble.smali:4087 `.method public compareTo(BigDouble)I`（compareBigDoubles 走这条）。
+        // realities 不可读时回退旧启发式（ep==0），避免把真新档首永恒卡死。
+        val realitiesCmpGate = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+        val epCmpZero = if (ep == null) null else GameApi.compareToDouble(ep, 0.0)
+        val isTrueFirstEternity = when {
+            realitiesCmpGate == null -> epCmpZero == 0
+            realitiesCmpGate > 0 -> false
+            else -> epCmpZero == 0
+        }
+        if (!isTrueFirstEternity && gain != null && ep != null) {
             val comparison = GameApi.compareBigDoubles(gain, ep)
             if (comparison != null && comparison < 0) return "ep-gain-too-low"
         }
