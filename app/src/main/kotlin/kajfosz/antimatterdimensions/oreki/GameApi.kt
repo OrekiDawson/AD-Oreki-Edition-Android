@@ -2100,8 +2100,32 @@ internal object GameApi {
     // ---------------------------------------------------------------- R81 永恒商店兼容入口
 
     /** 只读取原版字段；名称来自序列化契约，禁止以此入口直接修改玩家存档。 */
+    // [R116-03-01 Kody] 缓存 Field 句柄：旧实现每帧 `getDeclaredField` + `setAccessible`，
+    // 而 realities/eternities 等字段在 onAutoBuyerTick 内被反复读取，属每帧反射分配。
+    // 按「类名 + 字段名」缓存；解析失败不缓存，保留可重试。
+    private val gameFieldCache = java.util.concurrent.ConcurrentHashMap<String, java.lang.reflect.Field>()
+    private fun gameField(owner: Any, fieldName: String): java.lang.reflect.Field? {
+        val key = owner.javaClass.name + "#" + fieldName
+        gameFieldCache[key]?.let { return it }
+        return try {
+            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }
+                .also { gameFieldCache[key] = it }
+        } catch (error: Throwable) {
+            null
+        }
+    }
+
     private fun readGameField(owner: Any?, fieldName: String): Any? {
         if (owner == null) return null
+        val cached = gameField(owner, fieldName)
+        if (cached != null) {
+            return try {
+                cached.get(owner)
+            } catch (error: Throwable) {
+                miss("read $fieldName", error)
+                null
+            }
+        }
         return try {
             owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.get(owner)
         } catch (error: Throwable) {

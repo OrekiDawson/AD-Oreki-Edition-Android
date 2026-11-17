@@ -1932,9 +1932,13 @@ object OrekiStageAuto {
             // 但**首次永恒会把 infinities 清零**，于是 `hasInfinity()` 变假 ⇒ 接管整段被关掉，
             // 而原版自动器已被 MOD 暂停 ⇒ 两份都停 ⇒ 完全停滞（实测 t=1026~1087 infinities 恒 0）。
             // 现改为「只在真正的首无限阶段让路」：进入永恒层（EP/现实非零）或已 Break 之后都归 MOD 托管。
+            // [R116-03-01 Kody·critical] 读取失败不能并入 fail-open：
+            // 旧写法 `realitiesCmpGate == null ||` 会在首无限阶段把「读不到」当成「已进永恒层」，
+            // 从而停用玩家原版自动器并干等受管窗口，正是本 PR 要消除的停滞。
+            // 现要求 realities 明确大于 0 才视为在永恒层；读失败时仅靠 eternitiesZero() 判定。
             val realitiesCmpGate = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
             val inEternityLayerGate = !OrekiStageAuto.eternitiesZero() ||
-                realitiesCmpGate == null || realitiesCmpGate > 0
+                (realitiesCmpGate != null && realitiesCmpGate > 0)
             val takeoverPhaseOk = modOwnsCrunch || inEternityLayerGate ||
                 isBroken() || GameApi.hasInfinity()
             if (!takeoverBlockedByPolicy && takeoverPhaseOk &&
