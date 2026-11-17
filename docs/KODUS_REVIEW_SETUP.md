@@ -41,6 +41,15 @@ Kodus Cloud 与现有 DeepSeek Harness Lead 分离；Lead 收到可信 P0/P1 后
 请勿将 Kodus 设为 Required Check，除非 GitHub 可可靠验证检查来源、
 最新 Head SHA、服务不可用和阻断状态；不能把普通评论当成实际设备验收。
 
+## 审查强度（长期规则）
+
+- 所有仓库、所有 PR 的 Kody Code Review 强度统一为 **Balanced**，**禁止 Heavy**。
+- 仓库侧真值：`kodus-config.yml` 的 `reviewMode` 必须是 `balanced`；`default-kodus-config.yml` 的默认值同为 `balanced`。
+- 2026-11-17 核实：Android 仓 `kodus-config.yml` 曾为 `reviewMode: heavy`（与本规则冲突），已在 PR #174 修正；Web 仓当时已是 `balanced`。
+- 云端边界：Kodus 站点上的「Config File Overrides Web Preferences」若未开启，云端偏好可能覆盖仓库文件；该项只能在 app.kodus.io 由账户所有者核实，仓库改动不等于云端已生效。核实前不得宣称「云端已为 Balanced」。
+- 观测事实（2026-11-17）：纯配置文件（1 文件 +1/-1 行）PR 上 Kody 返回 `skipped`（2 秒完成，`Code Review Skipped`）。按现行合并门禁，`skipping` 不计为审查通过；此类 PR 需要与代码变更合并提交，或由账户所有者确认云端策略。
+- 本条只修正仓库侧配置与文档，不改变 Required Checks、Ruleset 或历史记录。
+
 ## 移除旧 Oreki Audit 的账户侧操作
 
 仓库代码移除**不会**自动删除 GitHub App、仓库 Secrets 或 Actions variables。
