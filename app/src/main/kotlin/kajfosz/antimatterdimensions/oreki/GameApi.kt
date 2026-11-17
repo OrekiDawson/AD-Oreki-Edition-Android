@@ -3520,16 +3520,31 @@ internal object GameApi {
      * maxAM 永远只有 e67 量级，IP 被锁死、永恒永远够不到 e308。
      * 该阶段必须由 MOD 自己按成长窗口调用 crunch，而不是让 autobuyer 保持活跃。
      */
-    // [R116-03-01 Kody] 缓存式解析：启动时解析一次 Method 句柄，之后每帧只 invoke。
+    // [R116-03-01 Kody] 缓存式解析：解析一次 Method 句柄，之后每帧只 invoke。
     // 旧实现每帧重新 cls()+method() 查找，解析失败还会每帧走 miss() 刷 logcat。
+    // [R116-03-01 Kody·critical] 只在**校验通过**时缓存：必须同时满足
+    //   static、0 参数、返回 boolean（官方 3.21 `prestige/e.smali:1335` =
+    //   `.method public static j()Z`）。校验失败不置 resolved，保留可重试，
+    //   避免一次瞬时失败被永久缓存成 null 使受管坍缩静默失效。
     private var mInfinityShortcut: java.lang.reflect.Method? = null
     private var mInfinityShortcutResolved: Boolean = false
     private var infinityShortcutMissLogged: Boolean = false
     private fun mInfinityShortcut(): java.lang.reflect.Method? {
         if (!mInfinityShortcutResolved) {
-            mInfinityShortcutResolved = true
-            mInfinityShortcut = cls("kajfosz.antimatterdimensions.prestige.e")
+            val candidate = cls("kajfosz.antimatterdimensions.prestige.e")
                 ?.let { method(it, "j", 0, "Infinity.j()") }
+            val valid = candidate != null &&
+                java.lang.reflect.Modifier.isStatic(candidate.modifiers) &&
+                candidate.parameterCount == 0 &&
+                (candidate.returnType == java.lang.Boolean.TYPE)
+            if (valid) {
+                mInfinityShortcut = candidate
+                mInfinityShortcutResolved = true
+            } else if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("mInfinityShortcut", IllegalStateException(
+                    "prestige.e.j() 校验失败（期望 static ()Z），保留可重试"))
+            }
         }
         return mInfinityShortcut
     }

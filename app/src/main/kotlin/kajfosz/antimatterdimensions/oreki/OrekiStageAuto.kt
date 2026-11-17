@@ -1628,8 +1628,8 @@ object OrekiStageAuto {
     /** [AU4b] 永恒层「主动切 TIME」的一次性初始化闩锁（避免每帧改写 mode）。 */
     private var eternityLayerModeInitialized = false
 
-    /** [R116-02-01] 已观察到的 realities 比较值，用于在新 Reality 后重置坍缩窗口。 */
-    private var lastRealitiesSeen = Int.MIN_VALUE
+    /** [R116-03-01] 上一次观察到的 realities **实际值对象**（按真实数值比较，而非符号）。 */
+    private var lastRealitiesValue: Any? = null
 
     /**
      * [R101 P0] 类初始化发生在本类被 Game.autoBuyerTick 首次调用的瞬间，
@@ -1887,17 +1887,24 @@ object OrekiStageAuto {
             // 否则 600s 窗口会把首无限直接阻断（实测 t=305s infinities 仍为 0）。
             // [R116-02-01 停滞修复] Reality 会重置 IP/maxAM；若沿用旧窗口时间戳，
             // 新 Reality 后要空等满 600s 才有第一次 crunch（实测 t=908→1209 完全停滞）。
-            // [R116-03-01 Kody·失败安全] realities 读取失败时不再当作 0：
-            // 旧写法 `?: 0` 会让「新 Reality 后重置窗口」静默失效（无日志），本 PR 修复的
-            // 「新 Reality 后空等 600s」会回归。现在：读到 null 时保留上次窗口并打一次日志，
-            // 读到值且变化时重置窗口。
-            val realitiesCmpTakeover = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
-            if (realitiesCmpTakeover != null && realitiesCmpTakeover != lastRealitiesSeen) {
-                lastRealitiesSeen = realitiesCmpTakeover
-                lastManagedCrunchAtMs = 0L
-            } else if (realitiesCmpTakeover == null && !takeoverReadFailureLogged) {
+            // [R116-03-01 Kody·失败安全+真实比较] 两个真实缺陷一并修：
+            // ① `compareToDouble(x, 0.0)` 只返回符号（-1/0/1），第 2 次及以后 Reality 无法识别；
+            //    改为保存**实际值对象**并用 compareBigDoubles 比较真实数值。
+            // ② 原实现在 realities 变化时把 lastManagedCrunchAtMs 清 0，等于每次冷启动/Reality
+            //    都重开整个 600–1800s 窗口；进程存活短于窗口时会从「空等」变成「完全停滞」。
+            //    现在不再清空窗口：变化时若 canBigCrunch() 已为真就立即结算一次，否则保留原窗口。
+            val realitiesCur = GameApi.realitiesValue()
+            val realitiesChanged = lastRealitiesValue != null && realitiesCur != null &&
+                (GameApi.compareBigDoubles(lastRealitiesValue, realitiesCur)?.let { it != 0 } ?: false)
+            if (realitiesCur != null) {
+                lastRealitiesValue = realitiesCur
+            } else if (!takeoverReadFailureLogged) {
                 takeoverReadFailureLogged = true
                 Log.i(TAG_AU4C, "managed crunch: realities read failed; keep current window")
+            }
+            if (realitiesChanged && GameApi.canBigCrunch() && GameApi.bigCrunchReset()) {
+                lastManagedCrunchAtMs = System.currentTimeMillis()
+                Log.i(TAG_AU4C, "managed crunch fired (new reality)")
             }
             // [R116-02-01 停滞再修·证据等级说明]
             // 设计依据（读码）：Reality 后 eternities=0、IP 不足 ⇒ 策略返回 allow=false
