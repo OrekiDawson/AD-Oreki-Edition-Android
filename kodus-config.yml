@@ -1,43 +1,77 @@
-# Kodus/Kody PR review configuration. Requires enabling "kodus Config File Overrides Web Preferences"
-# for EACH repository in Kodus UI; the file alone does not activate Kody.
-# Kodus Cloud Community BYOK: manual until cloud-side peak/¥10 budget hard guards are verified.
-version: 2.0
-automatedReviewActive: false
-reviewMode: balanced
+summary:
+  customInstructions: >-
+    使用简体中文生成简洁、可核验的 PR 摘要：说明变更目的、受影响的游戏机制或界面、关键风险、验证证据和未完成事项。不要覆盖原有 PR
+    描述中的任务说明、验收标准或上下文；不要编造测试结果、发布状态或时间进度。
+  behaviourForNewCommits: concatenate
+reviewMode: heavy
+businessLogic:
+  recheckOn: push
 reviewCadence:
-  type: manual
-runOnDraft: false
-showStatusFeedback: true
-pullRequestApprovalActive: false
-isRequestChangesActive: false
-enableCommittableSuggestions: false
+  type: auto_pause
+suggestionControl:
+  severityLevelFilter: low
+v2PromptOverrides:
+  generation:
+    main: >-
+      {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"使用简体中文审查。只报告与本次变更直接相关、能够明确解释且具有实际影响的问题。优先报告真实逻辑错误、崩溃、安全风险、性能退化、跨端不一致、存档损坏风险以及时序或时间进度异常。每条建议指出文件、代码位置、触发条件、后果及最小修复建议。区分已证实的问题与推测，避免风格偏好、无关重构和无证据建议。不要求无关的全量测试。不自动修改代码，不自动批准或合并
+      Pull
+      Request。建议正文不要重复标题，先说明问题影响，再说明最小改法；每条建议最多两句话，不使用代码块，只在行内代码中标识符；避免寒暄和主观措辞，使用严格、技术化的主动语态。"}]}]}
+kodyKnowledgeApproval:
+  enabled: true
+isRequestChangesActive: true
 repoInstructionsEnabled: true
 kodyRulesGeneratorEnabled: false
-reviewOptions:
-  bug: true
-  security: true
-  performance: true
-  business_logic: true
-suggestionControl:
-  severityLevelFilter: medium
-  applyFiltersToKodyRules: false
-summary:
-  generatePRSummary: false
-ignorePaths:
-  - "**/*.apk"
-  - "**/*.aab"
-  - "**/*.xapk"
-  - "**/*.dex"
-  - "**/*.jar"
-  - "**/*.zip"
-  - "**/*.png"
-  - "**/*.jpg"
-  - "**/*.jpeg"
-  - "**/*.webp"
-  - "**/*.gif"
-  - "**/*.pdf"
-  - "reports/**"
-  - "evidence/**"
-  - "**/node_modules/**"
-  - "**/build/**"
-  - "**/dist/**"
+customMessages:
+  startReviewMessage:
+    content: >-
+      # PR 摘要（由 [Kody](https://kodus.io) 🤖 创建）
+
+
+      ## 代码审查已开始！🚀
+
+
+      ✋ 你好，Agent！我正在检查本次变更涉及的文件，并开始审查。请耐心等待到审查完成，不要提前合并。如需更多细节，请查看后续审查意见。
+      [Kody](https://kodus.io)
+
+
+      @reviewCadence
+
+
+      @changedFiles
+
+
+      @changeSummary
+  endReviewMessage:
+    content: |-
+      ## 代码审查已完成！🔥
+
+      Kody 已根据当前配置完成本次代码审查。请阅读所有审查线程，逐条核实实际问题并在修复后正式标记为已解决；未解决的线程不得为了合并而关闭。
+
+      <details>
+      <summary>Kody 使用与配置指南</summary>
+
+      <details>
+      <summary>如何与 Kody 交互</summary>
+
+      - **请求审查：** 如需手动触发，可在 PR 根评论中使用 @kody start-review。
+      - **提供反馈：** 对有帮助的意见使用 👍，对需要改进的意见使用 👎。
+
+      </details>
+
+      <details>
+      <summary>提供上下文（文件与工具）</summary>
+
+      在 PR 描述或评论中补充任务单、验收标准、Bug 复现或验证证据、API 契约、功能开关、设计规范及相关文件路径，以便进行更准确的审查。
+
+      </details>
+
+      <details>
+      <summary>当前 Kody 配置</summary>
+
+      @reviewOptions
+
+      </details>
+
+      **[打开配置页面。](https://app.kodus.io/settings/code-review/global/general)**
+
+      </details>
