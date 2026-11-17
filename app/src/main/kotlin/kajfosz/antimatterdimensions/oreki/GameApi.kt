@@ -1396,16 +1396,34 @@ internal object GameApi {
     }
     private var mBigDoubleCompareDouble: Method? = null
     private var mBigDoubleCompareDoubleResolved: Boolean = false
+    private var compareDoubleRetryAtMs: Long = 0L
+    private var compareDoubleMissLogged: Boolean = false
     private fun mBigDoubleCompareDouble(): Method? {
-        if (!mBigDoubleCompareDoubleResolved) {
-            mBigDoubleCompareDoubleResolved = true
-            // 必须锁定 `(D)I`：同类还有 (I)/(J)/(Object)/(BigDouble) 四份同参数个数重载。
-            mBigDoubleCompareDouble = method(
-                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)",
-                paramTypeNames = listOf("double"),
-            )
+        // [R117-01 Kody·medium] 只在**解析成功**时置 resolved；失败按 60s 退避重试。
+        // 旧实现在查找前就置 resolved=true，首次瞬时失败会把 `compareTo(D)` 永久锁存为 null，
+        // 于是 compareToDouble() 整局返回 null、依赖它的永恒层判据静默退化（读取失败被当成错误阶段）。
+        if (mBigDoubleCompareDoubleResolved) return mBigDoubleCompareDouble
+        val now = System.currentTimeMillis()
+        if (now < compareDoubleRetryAtMs) return null
+        // 必须锁定 `(D)I`：同类还有 (I)/(J)/(Object)/(BigDouble) 四份同参数个数重载。
+        val parsed = method(
+            bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)",
+            paramTypeNames = listOf("double"),
+        )
+        if (parsed == null) {
+            compareDoubleRetryAtMs = now + 60_000L
+            if (!compareDoubleMissLogged) {
+                compareDoubleMissLogged = true
+                miss(
+                    "BigDouble.compareTo(D)",
+                    IllegalStateException("compareTo(D) not found; retry in 60s"),
+                )
+            }
+            return null
         }
-        return mBigDoubleCompareDouble
+        mBigDoubleCompareDouble = parsed
+        mBigDoubleCompareDoubleResolved = true
+        return parsed
     }
 
     /** 构造 `BigDouble(double)`。 */
@@ -2111,23 +2129,22 @@ internal object GameApi {
             owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }
                 .also { gameFieldCache[key] = it }
         } catch (error: Throwable) {
+            // [R117-01 Kody·medium] 查找失败只在唯一一次查找处记录原因；
+            // 调用方不再重复查找（见 readGameField）。
+            miss("field $fieldName on ${owner.javaClass.simpleName}", error)
             null
         }
     }
 
     private fun readGameField(owner: Any?, fieldName: String): Any? {
         if (owner == null) return null
-        val cached = gameField(owner, fieldName)
-        if (cached != null) {
-            return try {
-                cached.get(owner)
-            } catch (error: Throwable) {
-                miss("read $fieldName", error)
-                null
-            }
-        }
+        // [R117-01 Kody·medium] gameField() 返回 null 说明同一次 getDeclaredField/setAccessible
+        // 刚刚抛过异常（gameField 已记录 miss）。旧实现在这里原样再查找一次，必然再次失败，
+        // 使每帧每次读取失败付出两次反射查找 + 两次异常，正好放大本方法想消除的每帧开销。
+        // 失败不缓存、下一次读取仍会重试，保持「可重试」语义。
+        val cached = gameField(owner, fieldName) ?: return null
         return try {
-            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.get(owner)
+            cached.get(owner)
         } catch (error: Throwable) {
             miss("read $fieldName", error)
             null
@@ -3466,19 +3483,12 @@ internal object GameApi {
         0
     }
 
-    private var mBigDoubleCompareBd: Method? = null
-    private var mBigDoubleCompareBdResolved = false
-    private fun mBigDoubleCompareBd(): Method? {
-        if (!mBigDoubleCompareBdResolved) {
-            mBigDoubleCompareBdResolved = true
-            // BigDouble.compareTo 有 (Double)/(Int)/(Long)/(Object)/(BigDouble) 五份重载，必须精确锁 (BigDouble)。
-            mBigDoubleCompareBd = method(
-                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
-                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
-            )
-        }
-        return mBigDoubleCompareBd
-    }
+    // [R117-01 Kody·medium] `compareBigDouble` 与 `compareBigDoubles` 解析的是同一个
+    // `compareTo(BigDouble)I`（BigDouble 有 (D)/(I)/(J)/(Object)/(BigDouble) 五份重载，必须精确锁这一份）。
+    // 旧实现为它单独保留了一个「查找前先置 resolved」的闩锁，首次失败同样会永久锁存为 null；
+    // 现直接复用已带「失败 60s 退避重试、成功才固化」语义的 mBigDoubleCompareBigDouble()，
+    // 避免同一重载存在两份互不一致的句柄状态。
+    private fun mBigDoubleCompareBd(): Method? = mBigDoubleCompareBigDouble()
 
     /** `BigDouble.compareTo(BigDouble)` → -1/0/1；任一侧不可读返回 null。 */
     fun compareBigDouble(a: Any?, b: Any?): Int? {

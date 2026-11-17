@@ -1846,6 +1846,24 @@ object OrekiStageAuto {
         }
     }
 
+    /**
+     * [R117-01 Kody·medium] 永恒层判据的**唯一实现**：本 tick 三处判断（接管门禁、
+     * resume 间隔、pre-break 早退）必须共用它，避免同一 tick 对同一次读取失败得出相反结论。
+     *
+     * fail-safe 方向：读取失败一律按「已在永恒层」处理（与下方历史注释同一口径）。
+     * 理由：误判「在永恒层」最多多等一个 600–1800 秒成长窗口，下一次读回真实值即自愈；
+     * 误判「不在永恒层」会把成长窗口写回 5 秒高频坍缩并反复清空反物质（不可逆的进度损失），
+     * 还会让接管门禁拒绝接管、原版自动器与 MOD 同时停摆 —— 正是本轮要消除的停顿形态。
+     *
+     * 组成：非 [eternitiesZero]（其读失败本身 fail-closed 返回 false ⇒ 这里视为在永恒层），
+     * 或 realities 明确大于 0 / 读不到（null）。
+     */
+    private fun isInEternityLayer(): Boolean {
+        if (!eternitiesZero()) return true
+        val realitiesCmp = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+        return realitiesCmp == null || realitiesCmp > 0
+    }
+
     @JvmStatic
     fun applyCrunchPolicy() {
         try {
@@ -1932,13 +1950,11 @@ object OrekiStageAuto {
             // 但**首次永恒会把 infinities 清零**，于是 `hasInfinity()` 变假 ⇒ 接管整段被关掉，
             // 而原版自动器已被 MOD 暂停 ⇒ 两份都停 ⇒ 完全停滞（实测 t=1026~1087 infinities 恒 0）。
             // 现改为「只在真正的首无限阶段让路」：进入永恒层（EP/现实非零）或已 Break 之后都归 MOD 托管。
-            // [R116-03-01 Kody·critical] 读取失败不能并入 fail-open：
-            // 旧写法 `realitiesCmpGate == null ||` 会在首无限阶段把「读不到」当成「已进永恒层」，
-            // 从而停用玩家原版自动器并干等受管窗口，正是本 PR 要消除的停滞。
-            // 现要求 realities 明确大于 0 才视为在永恒层；读失败时仅靠 eternitiesZero() 判定。
-            val realitiesCmpGate = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
-            val inEternityLayerGate = !OrekiStageAuto.eternitiesZero() ||
-                (realitiesCmpGate != null && realitiesCmpGate > 0)
+            // [R117-01 Kody·medium] 与下方 resume / pre-break 两处共用 isInEternityLayer()：
+            // R116-03-01 曾在本门禁要求「realities 明确 > 0」，而同一 tick 下游却把 realities
+            // 读失败当成「已在永恒层」，出现「门禁拒绝接管、下游却改写 600–1800s 成长窗口」的
+            // 自相矛盾。现统一为 fail-safe 判据（读取失败按在永恒层处理），理由见 isInEternityLayer()。
+            val inEternityLayerGate = isInEternityLayer()
             val takeoverPhaseOk = modOwnsCrunch || inEternityLayerGate ||
                 isBroken() || GameApi.hasInfinity()
             if (!takeoverBlockedByPolicy && takeoverPhaseOk &&
@@ -2036,9 +2052,8 @@ object OrekiStageAuto {
             // - [观察] 历史跑次中 realities 读失败时旧写法 `?: 0` 会判成「不在永恒层」，
             //   退回 5 秒高频 crunch 分支，把 maxAM 反复清空（该观察属 [推断]，未单独做 A/B）。
             // 因此这里显式 fail-safe：读到 null 视为「在永恒层」，避免退回高频重置路径。
-            val realitiesCmp = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
-            val inEternityLayer = !OrekiStageAuto.eternitiesZero() ||
-                realitiesCmp == null || realitiesCmp > 0
+            // [R117-01 Kody·medium] 与门禁共用唯一判据，同一 tick 结论一致。
+            val inEternityLayer = isInEternityLayer()
             // [R116-02-01 真新档修复] Reality 会重置 Break（isBroken=false），但此时已处于永恒层，
             // 仍必须用成长窗口：否则回落到 5 秒高频 crunch，maxAM 被反复清空，
             // IP 只有约 1.1 数量级/分钟（1400 秒实测 e53→e75，无法到 e308）。
@@ -2125,9 +2140,8 @@ object OrekiStageAuto {
             // 否则每帧把成长窗口 600s 写回 60s（logcat: 600.0 -> 60.0 (pre-break)），窗口再次失效。
             // [R116-03-02 失败安全] 与上方 inEternityLayer 同一口径：realities 读失败视为「在永恒层」，
             // 避免退回 5 秒高频 crunch。
-            val realitiesCmpNow = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
-            val inEternityLayerNow = !OrekiStageAuto.eternitiesZero() ||
-                realitiesCmpNow == null || realitiesCmpNow > 0
+            // [R117-01 Kody·medium] 同上：唯一判据，避免同一 tick 出现相反结论。
+            val inEternityLayerNow = isInEternityLayer()
             if (!isBroken() && !inEternityLayerNow) {
                 if (!preBreakCrunchInitialized) {
                     preBreakCrunchInitialized = true
