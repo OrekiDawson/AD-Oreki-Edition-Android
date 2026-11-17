@@ -1936,14 +1936,28 @@ internal object GameApi {
     }
 
     /** BigDouble 之间比较：<0 / 0 / >0，失败返回 null（精确锁定 `(BigDouble)I`）。 */
+    // [R116-03-01 Kody] 缓存 compareTo(BigDouble) 句柄：旧实现每次 `a.javaClass.methods` 返回新数组
+    // 再做 firstOrNull 线性扫描，而该函数在 onAutoBuyerTick 内每 tick 调用一次，属新增每帧反射分配。
+    // 证据：[读码·官方 3.21 smali 实证] `BigDouble.smali:4087` = `.method public compareTo(BigDouble)I`；
+    // 同类另有 (D)/(I)/(J)/(Object) 重载，因此必须用 paramTypeNames 锁定 BigDouble 这一份。
+    private var mBigDoubleCompareBigDouble: java.lang.reflect.Method? = null
+    private var mBigDoubleCompareBigDoubleResolved: Boolean = false
+    private fun mBigDoubleCompareBigDouble(): java.lang.reflect.Method? {
+        if (!mBigDoubleCompareBigDoubleResolved) {
+            mBigDoubleCompareBigDoubleResolved = true
+            mBigDoubleCompareBigDouble = method(
+                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
+        }
+        return mBigDoubleCompareBigDouble
+    }
+
     fun compareBigDoubles(a: Any?, b: Any?): Int? {
         if (a == null || b == null) return null
+        val compareMethod = mBigDoubleCompareBigDouble() ?: return null
         return try {
-            val compareMethod = a.javaClass.methods.firstOrNull {
-                it.name == "compareTo" && it.parameterCount == 1 &&
-                    it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
-            }
-            compareMethod?.invoke(a, b) as? Int
+            compareMethod.invoke(a, b) as? Int
         } catch (e: Throwable) {
             miss("BigDouble.compareTo(BigDouble)", e); null
         }
@@ -3511,42 +3525,62 @@ internal object GameApi {
      * （Web _pulseDoomedCrunch 的 bigCrunchResetRequest(true)）。
      */
     /**
-     * 原版 `Infinity.j()`：`!Player.a.m() || n63.f() || c22.d()`。
+     * 原版 `Infinity.j()`（证据分级，勿当作已验证语义）：
+     * - [读码·官方 3.21 smali **签名形状**对照] `prestige/e.smali:1335`
+     *   = `.method public static j()Z`，即「静态、0 参、返回 Z」与这里缓存校验的三项一致；
+     * - [读码·反编译] 方法体为 `!Player.a.m() || n63.f() || c22.d()`，其中 `Player.a.m()`
+     *   返回 `imaginaryMachines`；**方法体语义仍属待核对**，未在官方包上逐指令比对；
+     * - [观察] 真新档跑次中 `imaginaryMachines` 缺失（false）时 infinities 908 秒涨到约 1.5 亿、
+     *   maxAM 停在 e67 量级、IP 锁死；logcat 出现
+     *   `stage-policy -> autoBig paused (auto-crunch-shortcut)` 共 3 次，说明该 helper 运行期返回 true。
      *
-     * [R116-02-01 真新档实测根因] `Player.a.m()` 是 `imaginaryMachines`（想象机器）。
-     * 它为 false 时 `j()` 恒为 true，于是原版 `CrunchAutobuyerState.q()` 的判定
-     * `if (e.j() || mode判断)` **每个 tick 立即坍缩**，mode/interval/amount 全部失效。
-     * 实测：imaginaryMachines 缺失（false）时 infinities 908 秒涨到 1.5 亿，
-     * maxAM 永远只有 e67 量级，IP 被锁死、永恒永远够不到 e308。
-     * 该阶段必须由 MOD 自己按成长窗口调用 crunch，而不是让 autobuyer 保持活跃。
+     * 因此本函数只声明「签名形状与解码树一致 + 运行期确实返回 true」，不宣称方法体语义已证实。
      */
-    // [R116-03-01 Kody] 缓存式解析：解析一次 Method 句柄，之后每帧只 invoke。
-    // 旧实现每帧重新 cls()+method() 查找，解析失败还会每帧走 miss() 刷 logcat。
-    // [R116-03-01 Kody·critical] 只在**校验通过**时缓存：必须同时满足
-    //   static、0 参数、返回 boolean（官方 3.21 `prestige/e.smali:1335` =
-    //   `.method public static j()Z`）。校验失败不置 resolved，保留可重试，
-    //   避免一次瞬时失败被永久缓存成 null 使受管坍缩静默失效。
+    // [R116-03-01 Kody] 缓存式解析：只在**三项校验全部通过**时缓存并置 resolved。
+    // [R116-03-01 Kody·critical] 解析失败不永久缓存：区分「类未找到 / 方法未找到 / 签名不符」三类，
+    // 各自打一次日志并进入退避（类/方法缺失 60s、签名不符 600s），避免每帧 cls()+method() 反射。
     private var mInfinityShortcut: java.lang.reflect.Method? = null
     private var mInfinityShortcutResolved: Boolean = false
+    private var infinityShortcutRetryAtMs: Long = 0L
     private var infinityShortcutMissLogged: Boolean = false
+    private var infinityShortcutMismatchLogged: Boolean = false
     private fun mInfinityShortcut(): java.lang.reflect.Method? {
-        if (!mInfinityShortcutResolved) {
-            val candidate = cls("kajfosz.antimatterdimensions.prestige.e")
-                ?.let { method(it, "j", 0, "Infinity.j()") }
-            val valid = candidate != null &&
-                java.lang.reflect.Modifier.isStatic(candidate.modifiers) &&
-                candidate.parameterCount == 0 &&
-                (candidate.returnType == java.lang.Boolean.TYPE)
-            if (valid) {
-                mInfinityShortcut = candidate
-                mInfinityShortcutResolved = true
-            } else if (!infinityShortcutMissLogged) {
+        if (mInfinityShortcutResolved) return mInfinityShortcut
+        val now = System.currentTimeMillis()
+        if (now < infinityShortcutRetryAtMs) return null
+        val clsRef = cls("kajfosz.antimatterdimensions.prestige.e")
+        if (clsRef == null) {
+            infinityShortcutRetryAtMs = now + 60_000L
+            if (!infinityShortcutMissLogged) {
                 infinityShortcutMissLogged = true
-                miss("mInfinityShortcut", IllegalStateException(
-                    "prestige.e.j() 校验失败（期望 static ()Z），保留可重试"))
+                miss("mInfinityShortcut", IllegalStateException("class prestige.e not found"))
             }
+            return null
         }
-        return mInfinityShortcut
+        val candidate = method(clsRef, "j", 0, "Infinity.j()")
+        if (candidate == null) {
+            infinityShortcutRetryAtMs = now + 60_000L
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("mInfinityShortcut", IllegalStateException("method j() not found"))
+            }
+            return null
+        }
+        val shapeOk = java.lang.reflect.Modifier.isStatic(candidate.modifiers) &&
+            candidate.parameterCount == 0 &&
+            (candidate.returnType == java.lang.Boolean.TYPE)
+        if (!shapeOk) {
+            infinityShortcutRetryAtMs = now + 600_000L
+            if (!infinityShortcutMismatchLogged) {
+                infinityShortcutMismatchLogged = true
+                miss("mInfinityShortcut", IllegalStateException(
+                    "signature mismatch (expect static ()Z): " + candidate))
+            }
+            return null
+        }
+        mInfinityShortcut = candidate
+        mInfinityShortcutResolved = true
+        return candidate
     }
 
     fun infinityAutoCrunchShortcut(): Boolean {

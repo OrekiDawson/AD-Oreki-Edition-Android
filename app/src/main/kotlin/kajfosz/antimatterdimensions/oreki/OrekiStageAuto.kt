@@ -1628,6 +1628,13 @@ object OrekiStageAuto {
     /** [AU4b] 永恒层「主动切 TIME」的一次性初始化闩锁（避免每帧改写 mode）。 */
     private var eternityLayerModeInitialized = false
 
+    /**
+     * [R116-03-01 真机定位] 一旦 MOD 真正执行过受管坍缩，就由 MOD 永久持有坍缩所有权；
+     * 此后即使 `infinityAutoCrunchShortcut()` 出现瞬时解析失败，也**不得**恢复原版自动器，
+     * 否则原版 `Infinity.j()==true` 每 tick 坍缩，infinities 会爆炸（实测 30 秒 2560→163001）。
+     */
+    private var modOwnsCrunch = false
+
     /** [R116-03-01] 上一次观察到的 realities **实际值对象**（按真实数值比较，而非符号）。 */
     private var lastRealitiesValue: Any? = null
 
@@ -1921,10 +1928,13 @@ object OrekiStageAuto {
             // 这两类不应被接管分支强制破窗；仅「资源不足型 deny」与 allow 才接管。
             val takeoverBlockedByPolicy = !decision.allow &&
                 (decision.reason == "eternity-hold" || decision.reason.startsWith("exception:"))
-            if (!takeoverBlockedByPolicy && GameApi.hasInfinity() && GameApi.infinityAutoCrunchShortcut()) {
+            // [R116-03-01] 已持有所有权后即使 shortcut 瞬时解析失败也继续托管，避免两份都被停掉。
+            if (!takeoverBlockedByPolicy && GameApi.hasInfinity() &&
+                (modOwnsCrunch || GameApi.infinityAutoCrunchShortcut())) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
+                    modOwnsCrunch = true
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
                 }
                 // [R116-02-01 停滞再修·关键] 接管分支不能跳过受管购买器应用：
@@ -1950,13 +1960,15 @@ object OrekiStageAuto {
                     // 会白白消耗本窗口并打出误导性的 fired 日志。先判 canBigCrunch 再结算。
                     if (GameApi.canBigCrunch() && GameApi.bigCrunchReset()) {
                         lastManagedCrunchAtMs = nowMs
+                        modOwnsCrunch = true
                         Log.i(TAG_AU4C, "managed crunch fired (window=" + windowMs + "ms)")
                     }
                 }
                 return
             }
 
-            if (decision.allow && crunchPausedByStagePolicy &&
+            // [R116-03-01 真机定位] MOD 已持有坍缩所有权时绝不恢复原版自动器。
+            if (decision.allow && !modOwnsCrunch && crunchPausedByStagePolicy &&
                 GameApi.isAutobuyerActive(crunch) == false) {
                 GameApi.setAutobuyerActive(crunch, true)
                 crunchPausedByStagePolicy = false
