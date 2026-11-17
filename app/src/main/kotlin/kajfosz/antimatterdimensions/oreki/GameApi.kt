@@ -1383,6 +1383,92 @@ internal object GameApi {
     /** `thisEternity.maxAM`（BigDouble）。 */
     fun thisEternityMaxAM(): Any? = call(mThisEternityH(), call(mRecordsJ(), records()))
 
+    // ---------------------------------------------------------------- [R117-01-02c] thisInfinity 只读探针
+    //
+    // 受管坍缩「是否真的按 maxAM 结算」需要同时读 thisInfinity.maxAM / realTime / time。
+    // 绑定证据（冻结 3.21 基线，[读码·smali 实证]）：
+    //   · Player$Records.k() = thisInfinity（Player$Records.smali:502-511）；
+    //   · Player$ThisInfinity.d() = maxAM / e() = realTime / f() = time
+    //     （Player$ThisInfinity.smali:169-215）；
+    //   · ku4.g() = a/60000 分钟（ku4.smali:1472-1491），这里 ×60 换回秒。
+    // 全部只读，不写任何存档字段。
+    private var thisInfinityClassCache: Class<*>? = null
+    private var thisInfinityClsResolved: Boolean = false
+    private fun thisInfinityCls(): Class<*>? {
+        if (!thisInfinityClsResolved) {
+            thisInfinityClsResolved = true
+            thisInfinityClassCache = cls("kajfosz.antimatterdimensions.player.Player\$ThisInfinity")
+        }
+        return thisInfinityClassCache
+    }
+
+    private var mRecordsK: Method? = null
+    private var mRecordsKResolved: Boolean = false
+    private fun mRecordsK(): Method? {
+        if (!mRecordsKResolved) {
+            mRecordsKResolved = true
+            mRecordsK = method(playerRecordsCls(), "k", 0, "Records.k()=thisInfinity")
+        }
+        return mRecordsK
+    }
+
+    private var mThisInfinityD: Method? = null
+    private var mThisInfinityDResolved: Boolean = false
+    private fun mThisInfinityD(): Method? {
+        if (!mThisInfinityDResolved) {
+            mThisInfinityDResolved = true
+            mThisInfinityD = method(thisInfinityCls(), "d", 0, "ThisInfinity.d()=maxAM")
+        }
+        return mThisInfinityD
+    }
+
+    private var mThisInfinityE: Method? = null
+    private var mThisInfinityEResolved: Boolean = false
+    private fun mThisInfinityE(): Method? {
+        if (!mThisInfinityEResolved) {
+            mThisInfinityEResolved = true
+            mThisInfinityE = method(thisInfinityCls(), "e", 0, "ThisInfinity.e()=realTime")
+        }
+        return mThisInfinityE
+    }
+
+    private var mThisInfinityF: Method? = null
+    private var mThisInfinityFResolved: Boolean = false
+    private fun mThisInfinityF(): Method? {
+        if (!mThisInfinityFResolved) {
+            mThisInfinityFResolved = true
+            mThisInfinityF = method(thisInfinityCls(), "f", 0, "ThisInfinity.f()=time")
+        }
+        return mThisInfinityF
+    }
+
+    /** `records.thisInfinity`（只读探针用）。 */
+    fun thisInfinity(): Any? = call(mRecordsK(), records())
+
+    /** `records.thisInfinity.maxAM`（BigDouble，只读探针用）。 */
+    fun thisInfinityMaxAM(): Any? = call(mThisInfinityD(), thisInfinity())
+
+    /** `records.thisInfinity.realTime`（秒；内部按 ku4.g() 分钟 ×60）。 */
+    fun thisInfinityRealTimeSeconds(): Double? =
+        ku4Minutes(call(mThisInfinityE(), thisInfinity()))?.times(60.0)
+
+    /** `records.thisInfinity.time`（秒；内部按 ku4.g() 分钟 ×60）。 */
+    fun thisInfinityTimeSeconds(): Double? =
+        ku4Minutes(call(mThisInfinityF(), thisInfinity()))?.times(60.0)
+
+    /** ku4（时间对象）→ 分钟：`ku4.g()` 返回 `a/60000`（ku4.smali:1472-1491 实读）。 */
+    private fun ku4Minutes(value: Any?): Double? {
+        if (value == null) return null
+        val getter = try {
+            value.javaClass.methods.firstOrNull {
+                it.name == "g" && it.parameterCount == 0 && it.returnType == java.lang.Double.TYPE
+            }
+        } catch (_: Throwable) {
+            null
+        }
+        return (call(getter, value) as? Number)?.toDouble()
+    }
+
     // ---------------------------------------------------------------- BigDouble
 
     private var mBigDoubleInit: Method? = null
@@ -1568,6 +1654,17 @@ internal object GameApi {
     }
 
     fun crunchMode(s: Any?): Int = (call(mCrunchI(), s) as? Int) ?: -1
+
+    /**
+     * `auto.bigCrunch.amount`（AMOUNT 模式阈值，BigDouble）。只读探针用。
+     *
+     * 字段名来自 Gson 序列化契约（存档 JSON 的 `auto.bigCrunch.amount`），
+     * 与 mode/interval 同属自动器配置字段，不是玩家进度。
+     */
+    fun crunchAmount(s: Any?): Any? = readGameField(s, "amount")
+
+    /** 写入 AMOUNT 阈值（自动化配置；失败返回 false，不伪造成功）。 */
+    fun setCrunchAmount(s: Any?, v: Any?): Boolean = writeGameField(s, "amount", v)
     fun setCrunchMode(s: Any?, mode: Int) {
         call(mCrunchA(), s, mode)
         markAutobuyerUiDirty()
@@ -2321,7 +2418,8 @@ internal object GameApi {
     }
 
     /**
-     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxRM 达阈值）。
+     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxEP ≥ 1e4000）。
+     * [R117-01-02c P1-1] 旧注释误写 maxRM；prestige/f.smali:1245-1327 实读 thisReality.maxEP。
      *
      * 用途：莱特拉 tier8 阶段判断「现实研究 6 是否已在本现实买上」，据此决定是否
      * 立刻进 run 买 IU25（IU25 的 checkRequirement 要 isRunning + maxAllowed==0 + DS6 + 符文≤1）。

@@ -68,6 +68,22 @@ object OrekiStageAuto {
     private const val TAG_EDP_FRAME = "EDP_FRAME"
     private const val TAG_AU4B = "OREKI_AU4B"
     private const val TAG_AU4C = "OREKI_AU4C"
+
+    /** [R117-01-02c P0-1] 受管坍缩只读探针：只在心跳与结算前后打印，不改任何行为。 */
+    private const val TAG_CRUNCH_PROBE = "OREKI_CRUNCH_PROBE"
+
+    /** [R117-01-02c P0-1] 心跳探针最小间隔（30 秒），避免每帧日志拖慢模拟。 */
+    private const val CRUNCH_PROBE_INTERVAL_MS = 30_000L
+
+    /**
+     * [R117-01-02c P0-2] 受管坍缩兜底的额外宽限（毫秒）。
+     *
+     * 正常路径在 `lastManagedCrunchAtMs + window` 到期且 `canBigCrunch()` 为真时结算；
+     * 若窗口逻辑因状态复位（Reality 把 auto.bigCrunch.isActive 置 false 等）被跳过，
+     * 最多再等这么久就强制结算一次，避免 maxAM 涨到 1e1.6e9 而 IP 冻在 e91
+     * （reports/R117-01/agents/reality-econ.md §5.2）。**仍以 canBigCrunch() 为前提。**
+     */
+    private const val MANAGED_CRUNCH_FALLBACK_GRACE_MS = 60_000L
     private const val TAG_ID = "OREKI_ID"
     private const val TAG_ID_UNLOCK = "OREKI_ID_UNLOCK"
     private const val TAG_BRK2 = "OREKI_BRK2"
@@ -1622,6 +1638,9 @@ object OrekiStageAuto {
     /** [R116-02-01] 原版即时坍缩短路阶段（Infinity.j()==true），MOD 自己按窗口结算的最近触发时刻。 */
     private var lastManagedCrunchAtMs = 0L
 
+    /** [R117-01-02c P0-1] 30 秒心跳探针的最近打印时刻。 */
+    private var lastCrunchProbeAtMs = 0L
+
     /** [R116-03-01] 接管分支 realities 读取失败只记一次日志，避免每帧刷屏。 */
     private var takeoverReadFailureLogged = false
 
@@ -1864,6 +1883,74 @@ object OrekiStageAuto {
         return realitiesCmp == null || realitiesCmp > 0
     }
 
+    /**
+     * [R117-01-02c P0-1] 受管坍缩只读探针。
+     *
+     * 目的：把 reality-econ 的「读码推断」升级为运行实测——同一时刻记录
+     * brake / maxAM / 单次坍缩 IP / canBigCrunch / 原版自动器配置 /
+     * infinities 前后 / thisInfinity 时间 / auto.eternity 开关 / modOwnsCrunch。
+     * 只读；任何读取失败都按 null 记录，不改变游戏状态。
+     */
+    private fun logCrunchProbe(where: String, infinitiesBefore: Any?, settled: Boolean) {
+        try {
+            val crunch = GameApi.crunchState()
+            val autoBig = if (crunch == null) {
+                "null"
+            } else {
+                "active=" + GameApi.isAutobuyerActive(crunch) +
+                    ",interval=" + GameApi.crunchInterval(crunch) +
+                    ",mode=" + GameApi.crunchMode(crunch) +
+                    ",amount=" + (GameApi.crunchAmount(crunch)?.toString() ?: "null")
+            }
+            Log.i(
+                TAG_CRUNCH_PROBE,
+                where +
+                    " brake=" + GameApi.isBroken() +
+                    " maxAMlog=" + GameApi.log10BigDouble(GameApi.thisInfinityMaxAM()) +
+                    " ipGainLog=" + GameApi.log10BigDouble(GameApi.gainedInfinityPoints()) +
+                    " canBigCrunch=" + GameApi.canBigCrunch() +
+                    " autoBig{" + autoBig + "}" +
+                    " inf=" + (infinitiesBefore?.toString() ?: "null") + "->" +
+                    (GameApi.infinities()?.toString() ?: "null") +
+                    " thisInfTime=" + GameApi.thisInfinityTimeSeconds() +
+                    " thisInfRealTime=" + GameApi.thisInfinityRealTimeSeconds() +
+                    " eternities=" + (GameApi.eternitiesValue()?.toString() ?: "null") +
+                    " autoEt=" + GameApi.autoEternityIsActive() +
+                    " modOwnsCrunch=" + modOwnsCrunch +
+                    " settled=" + settled,
+            )
+        } catch (_: Throwable) {
+            // 探针绝不向游戏 tick 抛异常
+        }
+    }
+
+    /** [R117-01-02c P0-1] 30 秒心跳探针（节流，避免每帧日志）。 */
+    private fun maybeLogCrunchProbe() {
+        val now = System.currentTimeMillis()
+        if (lastCrunchProbeAtMs > 0L && now - lastCrunchProbeAtMs < CRUNCH_PROBE_INTERVAL_MS) return
+        lastCrunchProbeAtMs = now
+        logCrunchProbe("heartbeat", GameApi.infinities(), false)
+    }
+
+    /**
+     * [R117-01-02c P0-1/P0-2] 唯一受管结算入口：先 `canBigCrunch()` 再 `bigCrunchReset()`，
+     * 前后各记录一行探针。返回是否真的结算（原版 `bigCrunchReset()` 未达门槛时是 no-op，不返回成功）。
+     */
+    private fun settleCrunch(where: String): Boolean {
+        val before = try {
+            GameApi.infinities()
+        } catch (_: Throwable) {
+            null
+        }
+        val settled = try {
+            GameApi.canBigCrunch() && GameApi.bigCrunchReset()
+        } catch (_: Throwable) {
+            false
+        }
+        logCrunchProbe(where, before, settled)
+        return settled
+    }
+
     @JvmStatic
     fun applyCrunchPolicy() {
         try {
@@ -1901,8 +1988,12 @@ object OrekiStageAuto {
 
             val decision = OrekiCrunchPolicy.decide()
 
+            // [R117-01-02c P0-1] 30 秒只读心跳探针：记录受管坍缩是否真的按 maxAM 结算。
+            maybeLogCrunchProbe()
+
             // [R116-02-01 真新档实测根因·决定性修复]
-            // 原版 Infinity.j() = !Player.a.m() || ...，而 m() 是 imaginaryMachines。
+            // 原版 Infinity.j() = !Player.a.m() || ...，而 m() = Player.brake（player.break，
+            // [R117-01-02c P1-1] 旧注释误写 imaginaryMachines；Player.smali:10598-10607 实读 brake）。
             // 它为 false 时原版 CrunchAutobuyerState.q() 的 `if (e.j() || mode判断)`
             // 每 tick 立即坍缩，mode/interval/amount 全部失效：
             // 实测 infinities 908 秒涨到 1.5 亿、maxAM 永远停在 e67、IP 锁死、永恒够不到 e308。
@@ -1927,7 +2018,7 @@ object OrekiStageAuto {
                 takeoverReadFailureLogged = true
                 Log.i(TAG_AU4C, "managed crunch: realities read failed; keep current window")
             }
-            if (realitiesChanged && GameApi.canBigCrunch() && GameApi.bigCrunchReset()) {
+            if (realitiesChanged && settleCrunch("managed-new-reality")) {
                 lastManagedCrunchAtMs = System.currentTimeMillis()
                 Log.i(TAG_AU4C, "managed crunch fired (new reality)")
             }
@@ -1970,6 +2061,31 @@ object OrekiStageAuto {
                 // 维度等购买器失去托管 ⇒ Reality 后 AM 不增长 ⇒ canBigCrunch 永假
                 // ⇒ 实测 t=908→1209 ip 恒 624、infinities 恒 60（301 秒零进展）。
                 applyManagedAutobuyerStates(true)
+                // [R117-01-02c P0-2] 所有权兜底：MOD 一旦接管过坍缩（modOwnsCrunch），
+                // 原版 Reality 复位可能把 auto.bigCrunch.isActive 置 false，而恢复路径又把
+                // crunchPausedByStagePolicy 清成 false；旧实现随后按「玩家关闭」早退，
+                // 从此无人结算 —— reality-econ §5.2 的 maxAM=10^1.6e9、IP 冻在 e91 即此形态。
+                // 现在只要所有权仍在 MOD，就重新接管（必要时先暂停原版自动器），并以
+                // window + 60s 为兜底上限强制结算一次；仍以 canBigCrunch() 为前提，不绕过原版门槛。
+                if (modOwnsCrunch && GameApi.isAutobuyerActive(crunch) == false) {
+                    crunchPausedByStagePolicy = true
+                }
+                if (modOwnsCrunch) {
+                    val nowOwn = System.currentTimeMillis()
+                    val windowOwnMs = (OrekiCrunchPolicy.eternityWaitSeconds() * 1000.0).toLong()
+                    if (lastManagedCrunchAtMs <= 0L) {
+                        lastManagedCrunchAtMs = nowOwn
+                        Log.i(TAG_AU4C, "managed crunch: baseline re-established (ownership fallback)")
+                    } else if (nowOwn - lastManagedCrunchAtMs >=
+                        windowOwnMs + MANAGED_CRUNCH_FALLBACK_GRACE_MS &&
+                        GameApi.canBigCrunch()
+                    ) {
+                        if (settleCrunch("managed-ownership-fallback")) {
+                            lastManagedCrunchAtMs = nowOwn
+                        }
+                        return
+                    }
+                }
                 // [R116-03-01 Kody] 尊重玩家意图：若玩家原本就关闭了大坍缩自动器、
                 // 且 MOD 从未因策略暂停过它（crunchPausedByStagePolicy=false），不强制坍缩。
                 if (!crunchPausedByStagePolicy) {
@@ -1983,10 +2099,10 @@ object OrekiStageAuto {
                 if (lastManagedCrunchAtMs <= 0L) {
                     lastManagedCrunchAtMs = nowMs
                     Log.i(TAG_AU4C, "managed crunch: window baseline established")
-                } else if (nowMs - lastManagedCrunchAtMs >= windowMs) {
+                } else if (nowMs - lastManagedCrunchAtMs >= windowMs && GameApi.canBigCrunch()) {
                     // [R116-03-01 Kody] 未达门槛时原版 bigCrunchReset() 是 no-op 却仍返回成功，
                     // 会白白消耗本窗口并打出误导性的 fired 日志。先判 canBigCrunch 再结算。
-                    if (GameApi.canBigCrunch() && GameApi.bigCrunchReset()) {
+                    if (settleCrunch("managed-window")) {
                         lastManagedCrunchAtMs = nowMs
                         modOwnsCrunch = true
                         Log.i(TAG_AU4C, "managed crunch fired (window=" + windowMs + "ms)")
@@ -2057,7 +2173,12 @@ object OrekiStageAuto {
             // [R116-02-01 真新档修复] Reality 会重置 Break（isBroken=false），但此时已处于永恒层，
             // 仍必须用成长窗口：否则回落到 5 秒高频 crunch，maxAM 被反复清空，
             // IP 只有约 1.1 数量级/分钟（1400 秒实测 e53→e75，无法到 e308）。
-            val resumeInterval = if (inEternityLayer) {
+            // [R117-01-02c P0-3] break 之后不允许 100ms 级高频坍缩：IP/次 = 10^(maxAMlog/308-0.75)，
+            // 坍缩越频繁单次 maxAM 越小、IP 越少（reality-econ §4.3）。因此 break 后与永恒层
+            // 共用同一个成长窗口（600–1800s），让每次结算吃到大的 maxAM；未 break 的首无限前
+            // 仍保留 60s 的 PRE_BREAK_CRUNCH_SECONDS。
+            val growthWindow = inEternityLayer || GameApi.isBroken()
+            val resumeInterval = if (growthWindow) {
                 OrekiCrunchPolicy.eternityWaitSeconds()
             } else {
                 PRE_BREAK_CRUNCH_SECONDS
@@ -2077,7 +2198,7 @@ object OrekiStageAuto {
                 // [R116-03-01 Kody·medium] 不能要求 isBroken()：Reality 后 Break 被重置、
                 // isBroken()=false，那样模式归一化整条路径不可达，AMOUNT/X_HIGHEST 存档
                 // 永远不会切到 TIME，600s 成长窗口对它无效。改用 inEternityLayer 单独判定。
-                if (inEternityLayer &&
+                if (growthWindow &&
                     GameApi.crunchMode(crunch) != MODE_TIME &&
                     OrekiPlayerIntent.mayRewriteCrunchMode()
                 ) {
@@ -2127,7 +2248,9 @@ object OrekiStageAuto {
                 //   · 已进入永恒层（含 Reality 后 eternities 被清零但 realities>0）→ 成长窗口。
                 // [R116-02-01 真新档修复] 同 resume：Reality 后 isBroken=false 但仍在永恒层，
                 // 必须用成长窗口而不是 5 秒，否则 IP 增长被高频 crunch 压制。
-                val zeroInterval = if (inEternityLayer) {
+                // [R117-01-02c P0-3] 与 resume 同一口径：break 后必须用成长窗口，
+                // 否则 TIME/5s 会在 break 阶段把 maxAM 反复清零，单次坍缩 IP 只有 e68–e79。
+                val zeroInterval = if (inEternityLayer || GameApi.isBroken()) {
                     OrekiCrunchPolicy.eternityWaitSeconds()
                 } else {
                     POST_BREAK_RESUME_SECONDS
