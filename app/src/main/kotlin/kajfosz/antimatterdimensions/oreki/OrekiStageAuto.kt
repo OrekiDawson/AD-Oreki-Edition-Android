@@ -2030,6 +2030,19 @@ object OrekiStageAuto {
                 return
             }
 
+            // [R117-01-02c P0-7] pre-break 上限阶段不要把所有坍缩自动器都关掉：
+            // 上面已在同一 tick 内尝试过 MOD 结算；若本帧没结算成功（canBigCrunch 暂假等），
+            // 至少恢复一个原版自动器（MOD 曾暂停它时），保证下一 tick 有一次真实坍缩，
+            // 避免 AM 长期停在 1.8e308 上限把原版正文容器按 i9 条件隐藏。
+            if (!GameApi.isBroken() && amAtCap() && crunchPausedByStagePolicy &&
+                GameApi.isAutobuyerActive(crunch) == false
+            ) {
+                GameApi.setAutobuyerActive(crunch, true)
+                crunchPausedByStagePolicy = false
+                modOwnsCrunch = false
+                Log.i(TAG_AU4C, "pre-break cap: autoBig resumed (keep one crunch autobuyer on)")
+            }
+
             // [R116-02-01 真新档实测根因·决定性修复]
             // 原版 Infinity.j() = !Player.a.m() || ...，而 m() = Player.brake（player.break，
             // [R117-01-02c P1-1] 旧注释误写 imaginaryMachines；Player.smali:10598-10607 实读 brake）。

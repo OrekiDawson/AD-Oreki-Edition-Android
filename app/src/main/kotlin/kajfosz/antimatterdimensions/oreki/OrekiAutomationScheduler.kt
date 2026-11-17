@@ -92,6 +92,19 @@ object OrekiAutomationScheduler {
     private const val NOOP_RETRY_MS = 3000L
 
     /**
+     * [R117-01-02c P0-6] Break 关键任务：连续 FORCE_RETRY_AFTER_NOOP_WAITS 次被
+     * noop 静默窗挡住后强制放行一次。
+     *
+     * 实测（R117-01 AVD，android-avd 定向复核）：首无限后 AM 到上限，
+     * logcat 出现 70s+ 连续 deny noop-retry-wait task=breakUpgrades，
+     * break 一直买不到，正文空白。noop 静默窗 3s 在「每帧重试同一无进展动作」
+     * 时会被反复续期，等于把 Break 饿死。这里只对 Break 关键任务强制重试，
+     * 其他任务保持原有退避，避免全局退避失效。
+     */
+    private val FORCE_RETRY_TASKS = setOf("breakUpgrades", "breakShop")
+    private const val FORCE_RETRY_AFTER_NOOP_WAITS = 2
+
+    /**
      * 阶段紧迫任务（R82）。
      *
      * 背景：R81 真机日志里 `sacrifice` 每拍都成功、`idBuy` 一次都没轮到 ——
@@ -133,6 +146,9 @@ object OrekiAutomationScheduler {
     private val served = IntArray(IDS.size)
     private val noopStreak = IntArray(IDS.size)
     private val noopUntil = LongArray(IDS.size)
+
+    /** [R117-01-02c P0-6] 同一任务连续被 noop 静默窗拒绝的次数（强制重试用）。 */
+    private val noopWaitStreak = IntArray(IDS.size)
     private val reserve = LongArray(IDS.size)
 
     /** 全系统唯一节拍：最近一次"真执行"时刻（elapsedRealtime 毫秒）。 */
@@ -540,7 +556,25 @@ object OrekiAutomationScheduler {
 
         // ---- no-op 重试节流 ----
         val noopAt = noopUntil[idx]
-        if (noopAt > 0L && noopAt > now) return deny("noop-retry-wait", taskId)
+        if (noopAt > 0L && noopAt > now) {
+            // [R117-01-02c P0-6] Break 关键任务不允许被 noop 静默窗长期饿死：
+            // 连续 N 次被挡后清零静默窗、强制放行一次；其余任务保持原退避。
+            noopWaitStreak[idx]++
+            if (taskId != null && taskId in FORCE_RETRY_TASKS &&
+                noopWaitStreak[idx] >= FORCE_RETRY_AFTER_NOOP_WAITS
+            ) {
+                noopWaitStreak[idx] = 0
+                noopUntil[idx] = 0L
+                try {
+                    android.util.Log.i(TAG, "force-retry " + taskId + " after " + FORCE_RETRY_AFTER_NOOP_WAITS + " noop-waits")
+                } catch (_: Throwable) {
+                }
+            } else {
+                return deny("noop-retry-wait", taskId)
+            }
+        } else {
+            noopWaitStreak[idx] = 0
+        }
 
         // ---- [R77] 全局统一节拍：所有任务的第一道闸 ----
         // [R107-01 STAGECAP] 两道闸都用「实际生效间隔 = min(配置, 阶段上限)」，
@@ -650,6 +684,7 @@ object OrekiAutomationScheduler {
         lastAct[idx] = now
         served[idx]++
         noopStreak[idx] = 0
+        noopWaitStreak[idx] = 0
         failUntil[idx] = 0L
         attemptCount++
         actionCount++
@@ -698,6 +733,7 @@ object OrekiAutomationScheduler {
     private fun clearPending() {
         failUntil.fill(0L)
         noopStreak.fill(0)
+        noopWaitStreak.fill(0)
         noopUntil.fill(0L)
         reserve.fill(0L)
         frameActed = false
@@ -768,6 +804,7 @@ object OrekiAutomationScheduler {
         failUntil.fill(0L)
         served.fill(0)
         noopStreak.fill(0)
+        noopWaitStreak.fill(0)
         noopUntil.fill(0L)
         reserve.fill(0L)
         lastBeatAt = 0L
