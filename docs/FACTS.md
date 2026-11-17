@@ -50,7 +50,7 @@
 | 主题文件 | 行数 | 收录 |
 | --- | --- | --- |
 | [facts/game/eternity.md](facts/game/eternity.md) | 331 | 永恒、TT/EP、DS1/DS6、解锁链、ID1 链与判据 |
-| [facts/game/reality.md](facts/game/reality.md) | 277 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
+| [facts/game/reality.md](facts/game/reality.md) | 427 | 现实重置、符文（Glyph）、V 解锁、Reality 自动永恒 |
 | [facts/game/celestials.md](facts/game/celestials.md) | 66 | 莱特拉、佩勒、虚构升级与 imaginaryUpgradeBits 位号 |
 | [facts/game/challenges.md](facts/game/challenges.md) | 141 | 挑战、永恒挑战（EC）与真实结算 |
 | [facts/game/endgame.md](facts/game/endgame.md) | 299 | 终局判据、endState、门禁与真实通关路径 |
@@ -65,7 +65,7 @@
 | [facts/automation/infinity-buyers.md](facts/automation/infinity-buyers.md) | 472 | 无限层购买链、首次永恒后硬门与修复 |
 | [facts/automation/strategy.md](facts/automation/strategy.md) | 532 | 智能策略/执行层、解释器与阈值语义 |
 | [facts/automation/break-strategy.md](facts/automation/break-strategy.md) | 374 | 膨胀链活锁、Break 后二次停滞与缺口细化 |
-| [facts/automation/collapse.md](facts/automation/collapse.md) | 490 | 大坍缩模式、UI 重绘与逐帧策略 |
+| [facts/automation/collapse.md](facts/automation/collapse.md) | 492 | 大坍缩模式、UI 重绘与逐帧策略 |
 | [facts/automation/eternity-reality.md](facts/automation/eternity-reality.md) | 686 | 永恒/现实层自动化、首次永恒闸门与复位 |
 | [facts/automation/beats.md](facts/automation/beats.md) | 419 | 双系统节拍归属、意图链路与相关交付 |
 
@@ -98,6 +98,7 @@
 - **R114-01 自动永恒托管语义（CONFIRMED）**：[facts/automation/eternity-reality.md#f-r114-01-adoption](facts/automation/eternity-reality.md#f-r114-01-adoption)。
 - **R116-01 P0（R115-01 180 分钟真新档 FAIL：现实后坍缩策略误判致 IP 冻结）**：根因与修复 [facts/automation/collapse.md#f-r116-01-real-deadlock](facts/automation/collapse.md#f-r116-01-real-deadlock)（PR #158 / main 386fd09b）；首现实「eternities ≥100」门槛 [facts/automation/eternity-reality.md#f-r116-01-first-reality-gate](facts/automation/eternity-reality.md#f-r116-01-first-reality-gate)；现实后 IP 除数归因 [facts/game/mechanics.md#f-r116-01-ip-divisor-after-reality](facts/game/mechanics.md#f-r116-01-ip-divisor-after-reality)；发布身份 30210001→30210002 [facts/release.md#f-r116-01-version-30210002](facts/release.md#f-r116-01-version-30210002)。
 - **Dilation 自动化缺口（UNKNOWN/INFERRED）**：[facts/open-questions.md#f-dilation-gap](facts/open-questions.md#f-dilation-gap)。
+- **R116-02-01（Reality 后坍缩节奏：TIME 固定 / hold 抖动 / 60 s 窗口不足）**：根因、修复与真新档曲线 [facts/game/reality.md#f-r116-02-01-reality-crunch-cadence](facts/game/reality.md#f-r116-02-01-reality-crunch-cadence)（Issue #163 / PR #169），180 分钟通关仍 NOT RUN。
 - **V 解锁门槛 Android 实际值（CONFIRMED）**：[facts/game/reality.md#f-v-unlock-thresholds-android](facts/game/reality.md#f-v-unlock-thresholds-android)。
 - **发布链 / CI 门禁（R114-01）**：bundle 托管 [facts/build.md#f-candidate-bundle-hosting](facts/build.md#f-candidate-bundle-hosting)、程序化审批 [facts/build.md#f-programmatic-approval](facts/build.md#f-programmatic-approval)、AGP v3 签名风险 [facts/build.md#f-agp-v3-signing-risk](facts/build.md#f-agp-v3-signing-risk)、Kotlin 命名门禁 [facts/build.md#f-kotlin-naming-gates](facts/build.md#f-kotlin-naming-gates)。
 - **V 解锁 3.21 真类名与 build_mod 不可达分支（CONFIRMED）**：[facts/android-internals.md#f-v-unlock-classes-321](facts/android-internals.md#f-v-unlock-classes-321)。
