@@ -1928,8 +1928,16 @@ object OrekiStageAuto {
             // 这两类不应被接管分支强制破窗；仅「资源不足型 deny」与 allow 才接管。
             val takeoverBlockedByPolicy = !decision.allow &&
                 (decision.reason == "eternity-hold" || decision.reason.startsWith("exception:"))
-            // [R116-03-01] 已持有所有权后即使 shortcut 瞬时解析失败也继续托管，避免两份都被停掉。
-            if (!takeoverBlockedByPolicy && GameApi.hasInfinity() &&
+            // [R116-03-01 真机定位·严重回归修复] 原判据用 `hasInfinity()` 作为硬网关，
+            // 但**首次永恒会把 infinities 清零**，于是 `hasInfinity()` 变假 ⇒ 接管整段被关掉，
+            // 而原版自动器已被 MOD 暂停 ⇒ 两份都停 ⇒ 完全停滞（实测 t=1026~1087 infinities 恒 0）。
+            // 现改为「只在真正的首无限阶段让路」：进入永恒层（EP/现实非零）或已 Break 之后都归 MOD 托管。
+            val realitiesCmpGate = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+            val inEternityLayerGate = !OrekiStageAuto.eternitiesZero() ||
+                realitiesCmpGate == null || realitiesCmpGate > 0
+            val takeoverPhaseOk = modOwnsCrunch || inEternityLayerGate ||
+                isBroken() || GameApi.hasInfinity()
+            if (!takeoverBlockedByPolicy && takeoverPhaseOk &&
                 (modOwnsCrunch || GameApi.infinityAutoCrunchShortcut())) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
