@@ -33,7 +33,10 @@ import android.util.Log
  * ## 语义边界
  * · MOD 总开关（OrekiAutomationScheduler.isEnabled）关闭时完全不动开关；
  * · 原版「自动购买器」总开关（player.options.autobuyersOn）关闭时不启用（与 Web 一致）；
- * · 自动器未解锁（本现实 eternities < 100，界面无开关）时不写入，只允许门禁驱动；
+ * · 自动器未解锁（本现实 eternities < 100，界面无开关）时一般只允许门禁驱动；
+ *    **例外 [R117-01-02c P0-4]**：Reality 之后（realities > 0）且本现实 eternities < 100 的窗口，
+ *    原版 reset 已把开关置 false 而玩家无法在界面表达意愿，此时由本层写回 true，
+ *    保证解锁瞬间自动永恒立即可用；玩家手动关闭（userClosed）与原版总开关关闭仍然优先；
  * · 读不到开关时 fail-closed（不写、不推定）。
  */
 internal object OrekiAutoEternityAdoption {
@@ -202,6 +205,24 @@ internal object OrekiAutoEternityAdoption {
      * 只有「MOD 已接管 且 玩家未手动关闭」才放行 —— 未解锁时玩家无法表达意愿，
      * 而 MOD 接管是玩家此前打开/新档引导的结果；玩家手动关过则一律不放行。
      */
+    /**
+     * [R117-01-02c P0-4] 是否处于「Reality 之后、本现实 eternities < 100」窗口。
+     *
+     * 该窗口内原版自动永恒未解锁（界面无开关），Reality 重置把 eternities 清零后
+     * `EternityAutobuyerState.reset()` 会把 isActive 置 false；若 MOD 不补回，
+     * 即使之后解锁也会一直保持关闭（R113-01 实测 realities 卡 2）。
+     *
+     * 判据只读原版真实字段；realities/eternities 读不到一律返回 false（fail-closed，不写开关）。
+     */
+    private fun inPostRealityLockedWindow(): Boolean {
+        val realities = GameApi.realitiesValue() ?: return false
+        val versusZero = GameApi.compareToDouble(realities, 0.0) ?: return false
+        if (versusZero <= 0) return false
+        val eternities = GameApi.eternitiesValue() ?: return false
+        val versus100 = GameApi.compareToDouble(eternities, 100.0) ?: return false
+        return versus100 < 0
+    }
+
     @JvmStatic
     fun driveWhileLocked(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
@@ -290,8 +311,27 @@ internal object OrekiAutoEternityAdoption {
                 return
             }
             // 以下早退只挡住「主动写开关」这件事，不影响上面的 opt-out 记录。
-            if (!GameApi.autoEternityUnlocked()) return
             if (!GameApi.autobuyersOn()) return
+            // [R117-01-02c P0-4] Reality 后锁定窗口：原版 reset 在 eternities<100 时关掉开关，
+            // 而界面没有开关、玩家无法表达意愿。这里写回 true 并纳入托管，
+            // 使解锁瞬间自动永恒即可工作；userClosed（玩家手动关闭）与总开关关闭仍优先，
+            // 且写入后立即回读校验，不伪造成功。
+            if (inPostRealityLockedWindow()) {
+                val nowLocked = SystemClock.elapsedRealtime()
+                if (nowLocked - lastAttemptAt < RETRY_INTERVAL_MS) return
+                lastAttemptAt = nowLocked
+                GameApi.setAutoEternityActive(true)
+                if (GameApi.autoEternityIsActive() == true) {
+                    adopted = true
+                    if (token.isNotEmpty()) enabledRealities = token
+                    persist()
+                    log("re-enabled after reality reset (locked window, eternities<100) realities=" + token)
+                } else {
+                    log("locked-window re-enable did not stick realities=" + token)
+                }
+                return
+            }
+            if (!GameApi.autoEternityUnlocked()) return
             if (!adopted) return
             val now = SystemClock.elapsedRealtime()
             if (now - lastAttemptAt < RETRY_INTERVAL_MS) return

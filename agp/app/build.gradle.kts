@@ -447,6 +447,11 @@ android {
     }
 }
 
+dependencies {
+    // [PR #179 Kody·critical] 纯判据单测依赖：只进 test classpath，不进入 APK。
+    testImplementation("junit:junit:4.13.2")
+}
+
 if (fullGame) {
     val jar = gameJar
     if (jar == null || !jar.isFile) {
