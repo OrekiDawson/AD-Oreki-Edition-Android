@@ -47,6 +47,24 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun autoEternitySwitchOn(): Boolean = GameApi.autoEternityIsActive() == true
 
+    /**
+     * [R119-01 P1 / Web #69 parity] 自动永恒未解锁且存档已永恒过时，读档/冷启动
+     * 丢失 freshSession 内存 latch 不应被当成玩家关闭。
+     *
+     * 未解锁时界面没有该开关，玩家无法表达关闭意愿；只要 MOD 自动化与原版自动购买器
+     * 总开关都开启、且没有落盘的玩家手动关闭记录，就允许 MOD 继续驱动永恒/EC 入口。
+     * 已解锁时仍只认原版开关真实值，本判据不生效。
+     */
+    @JvmStatic
+    fun lockedLayerDriveAllowed(
+        automationEnabled: Boolean,
+        autobuyersOn: Boolean,
+        autoEternityUnlocked: Boolean,
+        everEternitied: Boolean,
+        userClosed: Boolean,
+    ): Boolean = automationEnabled && autobuyersOn && !autoEternityUnlocked &&
+        everEternitied && !userClosed
+
     // ------------------------------------------------------- [R104 P0] 新档引导窗口
     //
     // 问题（R104-01 实测）：全新存档的 `auto.eternity.isActive` 默认 false，而该自动器
@@ -149,7 +167,15 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun reason(): String {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
-        if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive()) {
+        if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive() &&
+            !lockedLayerDriveAllowed(
+                automationEnabled = OrekiAutomationScheduler.isEnabled(),
+                autobuyersOn = GameApi.autobuyersOn(),
+                autoEternityUnlocked = GameApi.autoEternityUnlocked(),
+                everEternitied = !neverEternitied(),
+                userClosed = OrekiAutoEternityAdoption.userClosedByPlayer(),
+            )
+        ) {
             return "auto-eternity-off"
         }
         if (GameApi.isDoomed()) return "doomed"
@@ -238,6 +264,16 @@ internal object OrekiAutoEternityGate {
         if (bootstrapActive()) return true
         // [R114-01 P0] MOD 托管窗口（原版自动器未解锁）同样放行：否则 reality 后 EC 链停摆。
         if (adoptionDriveActive()) return true
+        // [R119-01 P1 / Web #69 parity] 读档/冷启动丢失 freshSession latch 时，
+        // 已永恒过且自动永恒仍未解锁的存档仍须继续 EC 链；玩家无法在界面上关闭该开关。
+        if (lockedLayerDriveAllowed(
+                automationEnabled = OrekiAutomationScheduler.isEnabled(),
+                autobuyersOn = GameApi.autobuyersOn(),
+                autoEternityUnlocked = GameApi.autoEternityUnlocked(),
+                everEternitied = !neverEternitied(),
+                userClosed = OrekiAutoEternityAdoption.userClosedByPlayer(),
+            )
+        ) return true
         val settlementNow = GameApi.canEternity()
         if (settlementNow) logChallengeBlocked()
         return !settlementNow
