@@ -291,31 +291,70 @@ object OrekiAutomationScheduler {
      * 这个标记只由 MOD 自己的暂停/恢复点写入，用于跨进程重建所有权判据。
      */
     private const val KEY_CRUNCH_PAUSED = "oreki.crunch.pausedByMod"
+    private const val KEY_CRUNCH_PAUSED_SAVE_ID = "oreki.crunch.pausedByMod.saveId"
 
-    /** 记录/清除「MOD 暂停了原版大坍缩自动器」标记（只写 oreki_prefs，不碰存档）。 */
+    /**
+     * 记录/清除「MOD 暂停了原版大坍缩自动器」标记（只写 oreki_prefs，不碰存档）。
+     *
+     * 暂停必须同步落盘：本标记要覆盖的正是进程被 LMK 杀死或空白屏时强制停止的场景，
+     * `apply()` 可能来不及完成。恢复只清除标记，继续使用非阻塞写入。
+     * 同时记录存档身份，避免切换到另一份“玩家自行关闭坍缩”的存档时复用旧所有权。
+     */
     @JvmStatic
     fun markCrunchPausedByMod(paused: Boolean) {
         val currentContext = ctx ?: return
         try {
-            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            val editor = currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .putBoolean(KEY_CRUNCH_PAUSED, paused)
-                .apply()
+            if (paused) {
+                val saveId = GameApi.saveIdentity()
+                if (saveId.isNullOrEmpty()) {
+                    editor.remove(KEY_CRUNCH_PAUSED_SAVE_ID)
+                } else {
+                    editor.putString(KEY_CRUNCH_PAUSED_SAVE_ID, saveId)
+                }
+                editor.commit()
+            } else {
+                editor.remove(KEY_CRUNCH_PAUSED_SAVE_ID)
+                editor.apply()
+            }
         } catch (_: Throwable) {
             // 写盘失败不影响运行，只是冷启动可能无法重建
         }
     }
 
-    /** 读取「MOD 上次会话暂停过原版大坍缩自动器」标记；读不到按 false（fail-closed）。 */
+    /**
+     * 读取「MOD 上次会话暂停过原版大坍缩自动器」标记。
+     *
+     * 返回 null 表示上下文、标记或存档身份暂时不可读，调用方应保留重建机会并下一拍重试。
+     * 标记与当前存档身份不一致时清除陈旧标记并返回 false，绝不跨档接管。
+     */
     @JvmStatic
-    fun crunchPausedByModPersisted(): Boolean {
-        val currentContext = ctx ?: return false
+    fun crunchPausedByModPersistedOrNull(): Boolean? {
+        val currentContext = ctx ?: return null
         return try {
-            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getBoolean(KEY_CRUNCH_PAUSED, false)
+            val preferences = currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            if (!preferences.getBoolean(KEY_CRUNCH_PAUSED, false)) return false
+            val pausedSaveId = preferences.getString(KEY_CRUNCH_PAUSED_SAVE_ID, null)
+            val currentSaveId = GameApi.saveIdentity()
+            if (pausedSaveId.isNullOrEmpty() || currentSaveId.isNullOrEmpty()) return null
+            if (pausedSaveId != currentSaveId) {
+                preferences.edit()
+                    .putBoolean(KEY_CRUNCH_PAUSED, false)
+                    .remove(KEY_CRUNCH_PAUSED_SAVE_ID)
+                    .apply()
+                return false
+            }
+            true
         } catch (_: Throwable) {
-            false
+            null
         }
     }
+
+    /** 仅供诊断日志使用的布尔快照；不可读按 false，但冷启动重建必须使用可空版本。 */
+    @JvmStatic
+    fun crunchPausedByModPersisted(): Boolean =
+        crunchPausedByModPersistedOrNull() ?: false
 
     private fun persist() {
         val currentContext = ctx ?: return

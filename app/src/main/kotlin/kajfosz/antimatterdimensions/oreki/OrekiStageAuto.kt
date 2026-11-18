@@ -1689,7 +1689,7 @@ object OrekiStageAuto {
                 if (crunch != null && GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
-                    OrekiAutomationScheduler.markCrunchPausedByMod(true)
+                    markCrunchPausedByMod()
                     android.util.Log.i("OREKI_AU4C", "stage-policy -> autoBig paused at init")
                 }
             }
@@ -1826,7 +1826,12 @@ object OrekiStageAuto {
             reconcileManagedAutobuyer("dimboost", GameApi.dimBoostAutobuyer(), true)
             reconcileManagedAutobuyer("galaxy", GameApi.galaxyAutobuyer(), true)
             reconcileManagedAutobuyer("sacrifice", GameApi.sacrificeAutobuyer(), true)
-            reconcileManagedAutobuyer("crunch", GameApi.crunchState(), wantCrunch)
+            reconcileManagedAutobuyer(
+                "crunch",
+                GameApi.crunchState(),
+                wantCrunch,
+                ownedByMod = modOwnsCrunch,
+            )
             reconcileIpMultAutobuyer(true)
         } catch (error: Throwable) {
             if (!crunchPolicyErrorLogged) {
@@ -1836,7 +1841,12 @@ object OrekiStageAuto {
         }
     }
 
-    private fun reconcileManagedAutobuyer(key: String, autobuyer: Any?, wantOn: Boolean) {
+    private fun reconcileManagedAutobuyer(
+        key: String,
+        autobuyer: Any?,
+        wantOn: Boolean,
+        ownedByMod: Boolean = false,
+    ) {
         if (autobuyer == null) return
         val active = GameApi.isAutobuyerActive(autobuyer) ?: return
 
@@ -1852,6 +1862,16 @@ object OrekiStageAuto {
             OrekiPlayerIntent.clearManagedActivePending(key)
             return
         }
+
+        // MOD 自己关闭的是预期状态，不能把它登记成玩家意图。
+        // `ownedByMod` 仅用于大坍缩：其原版自动器由 MOD 托管时，关闭是所有权的一部分。
+        if (ownedByMod) {
+            OrekiPlayerIntent.clearPlayerClosed(key)
+            OrekiPlayerIntent.clearManagedActivePending(key)
+            return
+        }
+
+        if (!OrekiCrunchGate.shouldInferPlayerClosed(active, wantOn, ownedByMod)) return
 
         // 策略想要开、实际是关：按 R98 §5.3 / §81.1.9 判定为「玩家主动关闭」，
         // 只登记一票否决闩锁，**永不自动重开**（此前会在此处 setAutobuyerActive(true)，
@@ -1928,27 +1948,38 @@ object OrekiStageAuto {
      */
     private fun reconstructCrunchStateOnColdStart(crunch: Any) {
         if (crunchStateRebuilt) return
-        crunchStateRebuilt = true
         try {
-            if (GameApi.isBroken()) return
+            if (GameApi.isBroken()) {
+                crunchStateRebuilt = true
+                return
+            }
             if (!OrekiAutomationScheduler.isEnabled()) {
+                crunchStateRebuilt = true
                 Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (MOD automation off)")
                 return
             }
-            if (!OrekiAutomationScheduler.crunchPausedByModPersisted()) {
+            val persistedPaused =
+                OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() ?: return
+            if (!persistedPaused) {
+                crunchStateRebuilt = true
                 Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (no persisted MOD pause)")
                 return
             }
-            if (GameApi.isAutobuyerActive(crunch) == true) {
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            if (active) {
+                crunchStateRebuilt = true
                 Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (autoBig already active)")
                 return
             }
             if (OrekiPlayerIntent.isPlayerClosed("crunch")) {
+                crunchStateRebuilt = true
                 Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (player closed latch)")
                 return
             }
+            crunchStateRebuilt = true
             modOwnsCrunch = true
             crunchPausedByStagePolicy = true
+            OrekiPlayerIntent.clearPlayerClosed("crunch")
             Log.i(
                 TAG_AU4C,
                 "cold start: crunch ownership reconstructed (pausedByMod=true, owned=true, paused=true)",
@@ -1956,6 +1987,12 @@ object OrekiStageAuto {
         } catch (_: Throwable) {
             // 冷启动重建失败保持默认 false（fail-closed）
         }
+    }
+
+    /** MOD 主动暂停原版大坍缩自动器：消除自身动作造成的玩家关闭误判，并同步写入跨进程标记。 */
+    private fun markCrunchPausedByMod() {
+        OrekiPlayerIntent.clearPlayerClosed("crunch")
+        OrekiAutomationScheduler.markCrunchPausedByMod(true)
     }
 
     /**
@@ -2096,11 +2133,11 @@ object OrekiStageAuto {
             //     玩家手动关闭自动器时这两个条件不成立，走原逻辑，不替玩家结算）；
             //   · 策略 fail-closed：takeoverBlockedByPolicy（deliberate hold / exception 不绕过）；
             //   · 原版门槛：canBigCrunch()（不伪造结算）。
-            val brokenForCap = GameApi.isBroken()
+            val preBreakPhase = isPreBreakPhase()
             val playerClosedCrunch = OrekiPlayerIntent.isPlayerClosed("crunch")
             val preBreakCapOwned = modOwnsCrunch && crunchPausedByStagePolicy
             val allowPreBreakCap = OrekiCrunchGate.allowPreBreakCapSettlement(
-                broken = brokenForCap,
+                preBreak = preBreakPhase,
                 ownedByMod = modOwnsCrunch,
                 pausedByMod = crunchPausedByStagePolicy,
                 blockedByPolicy = takeoverBlockedByPolicy,
@@ -2114,7 +2151,7 @@ object OrekiStageAuto {
                 applyManagedAutobuyerStates(true)
                 return
             }
-            if (!brokenForCap && GameApi.canBigCrunch() && !preBreakCapSkipLogged) {
+            if (preBreakPhase && GameApi.canBigCrunch() && !preBreakCapSkipLogged) {
                 // 探针：达到上限但所有权/玩家意图/策略门不允许强制结算时留一行证据；
                 // 额外记录冷启动重建来源与 decision，便于 AVD 复验「重启后上限」场景。
                 preBreakCapSkipLogged = true
@@ -2130,7 +2167,7 @@ object OrekiStageAuto {
                         " decision.reason=" + decision.reason + ")",
                 )
             }
-            if (!brokenForCap && !GameApi.canBigCrunch()) {
+            if (preBreakPhase && !GameApi.canBigCrunch()) {
                 preBreakCapSkipLogged = false
             }
 
@@ -2138,7 +2175,7 @@ object OrekiStageAuto {
             // 上面已在同一 tick 内尝试过 MOD 结算；若本帧没结算成功（canBigCrunch 暂假等），
             // 至少恢复一个原版自动器（MOD 曾暂停它时），保证下一 tick 有一次真实坍缩，
             // 避免 AM 长期停在 1.8e308 上限把原版正文容器按 i9 条件隐藏。
-            if (!GameApi.isBroken() && !takeoverBlockedByPolicy && amAtCap() &&
+            if (preBreakPhase && !takeoverBlockedByPolicy && amAtCap() &&
                 modOwnsCrunch && crunchPausedByStagePolicy &&
                 GameApi.isAutobuyerActive(crunch) == false
             ) {
@@ -2147,6 +2184,7 @@ object OrekiStageAuto {
                 modOwnsCrunch = false
                 OrekiAutomationScheduler.markCrunchPausedByMod(false)
                 Log.i(TAG_AU4C, "pre-break cap: autoBig resumed (keep one crunch autobuyer on)")
+                return
             }
 
             // [R116-02-01 真新档实测根因·决定性修复]
@@ -2211,7 +2249,7 @@ object OrekiStageAuto {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
                     modOwnsCrunch = true
-                    OrekiAutomationScheduler.markCrunchPausedByMod(true)
+                    markCrunchPausedByMod()
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
                 }
                 // [R116-02-01 停滞再修·关键] 接管分支不能跳过受管购买器应用：
@@ -2228,7 +2266,7 @@ object OrekiStageAuto {
                 if (modOwnsCrunch && GameApi.isAutobuyerActive(crunch) == false) {
                     if (!crunchPausedByStagePolicy) {
                         crunchPausedByStagePolicy = true
-                        OrekiAutomationScheduler.markCrunchPausedByMod(true)
+                        markCrunchPausedByMod()
                     }
                 }
                 if (modOwnsCrunch) {
@@ -2299,7 +2337,7 @@ object OrekiStageAuto {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
                     crunchPausedByStagePolicy = true
-                    OrekiAutomationScheduler.markCrunchPausedByMod(true)
+                    markCrunchPausedByMod()
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (" + decision.reason + ")")
                 }
                 // [R99] 永恒层等待用「自适应成长窗口」（60s 起，无收益翻倍即翻倍，上限 1800s）；
