@@ -236,6 +236,9 @@ internal object OrekiAutoEternityAdoption {
     @JvmStatic
     fun userClosedByPlayer(): Boolean {
         load()
+        // [R119-01 P1] 门禁可能先于 ensure()/driveWhileLocked() 调用：这里同样按存档身份
+        // 重置，避免把上一个存档的 userClosed 带到新存档而误挡 EC 链。
+        bindSave()
         return userClosed
     }
 
