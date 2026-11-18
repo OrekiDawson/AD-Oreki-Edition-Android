@@ -402,6 +402,9 @@ object OrekiAutomationScheduler {
                 // R85：取消调度之外同步解除 IU15 临时限制，避免玩家关掉智能
                 // 开关之后仍被购买入口/挑战守卫接管；历史节拍时间戳保持不变。
                 OrekiIu15Sprint.releaseNow("automation-off")
+                // [R118-01 P1] 托管期间被 MOD 暂停的原版大坍缩自动器必须交还玩家，
+                // 否则关闭总开关后会同时失去 MOD 结算与原版自动坍缩（Web 无此差异）。
+                OrekiStageAuto.onAutomationDisabled()
             }
         }
         persist()

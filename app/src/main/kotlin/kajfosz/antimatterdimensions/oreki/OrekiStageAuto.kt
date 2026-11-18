@@ -1996,6 +1996,44 @@ object OrekiStageAuto {
     }
 
     /**
+     * [R118-01 P1] 玩家关闭 MOD 全局自动化时立即交还坍缩所有权。
+     *
+     * 托管期间 MOD 会暂停原版大坍缩自动器；若关闭总开关后只停止托管而不恢复自动器，
+     * 玩家会同时失去 MOD 结算与原版自动坍缩（Web 侧由原版自动器自行运行，不会出现
+     * 该差异）。这里只在 MOD 确实托管/暂停过且自动器仍关闭时恢复，玩家原本关闭的
+     * 自动器不强行打开；读取失败则保持现状（fail-closed，保留下次冷启动重建机会）。
+     */
+    @JvmStatic
+    fun onAutomationDisabled() {
+        try {
+            val persistedPaused =
+                OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
+            if (!modOwnsCrunch && !crunchPausedByStagePolicy && !persistedPaused) return
+            val crunch = GameApi.crunchState() ?: return
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            if (OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
+                    ownedByMod = modOwnsCrunch,
+                    pausedByMod = crunchPausedByStagePolicy,
+                    persistedPaused = persistedPaused,
+                    active = active,
+                )
+            ) {
+                GameApi.setAutobuyerActive(crunch, true)
+            }
+            modOwnsCrunch = false
+            crunchPausedByStagePolicy = false
+            OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            Log.i(
+                TAG_AU4C,
+                "automation-off: crunch ownership released, autoBig active=" +
+                    GameApi.isAutobuyerActive(crunch),
+            )
+        } catch (_: Throwable) {
+            // 关闭自动化流程不得因恢复动作异常而中断
+        }
+    }
+
+    /**
      * [R117-01-02c P0-5] 本无限是否已达到原版 1.8e308 上限（pre-break 时原版会隐藏正文）。
      *
      * 读不到 maxAM 返回 false（fail-closed：不凭猜测强制坍缩）。

@@ -50,4 +50,12 @@ public class OrekiCrunchGateTest {
         assertFalse(OrekiCrunchGate.shouldInferPlayerClosed(true, true, false));
         assertFalse(OrekiCrunchGate.shouldInferPlayerClosed(false, false, false));
     }
+
+    @Test
+    public void automationDisabled_restoresOnlyModPausedCrunch() {
+        assertTrue(OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(true, true, true, false));
+        assertTrue(OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(false, false, true, false));
+        assertFalse(OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(false, false, false, false));
+        assertFalse(OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(true, true, false, true));
+    }
 }

@@ -42,4 +42,18 @@ object OrekiCrunchGate {
         wantOn: Boolean,
         ownedByMod: Boolean,
     ): Boolean = !active && wantOn && !ownedByMod
+
+    /**
+     * 玩家关闭 MOD 全局自动化时，是否应把 MOD 暂停的原版大坍缩自动器交还玩家。
+     *
+     * 只有「MOD 曾经托管/暂停过」且自动器当前仍关闭时才恢复；玩家原本就关闭的
+     * 自动器（无托管、无暂停、无持久化标记）不得被强行打开。
+     */
+    @JvmStatic
+    fun shouldRestoreCrunchOnAutomationDisabled(
+        ownedByMod: Boolean,
+        pausedByMod: Boolean,
+        persistedPaused: Boolean,
+        active: Boolean,
+    ): Boolean = (ownedByMod || pausedByMod || persistedPaused) && !active
 }
