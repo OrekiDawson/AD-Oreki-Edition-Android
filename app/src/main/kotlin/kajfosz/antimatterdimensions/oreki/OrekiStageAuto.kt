@@ -1662,8 +1662,8 @@ object OrekiStageAuto {
     /** [R116-03-01] 接管分支 realities 读取失败只记一次日志，避免每帧刷屏。 */
     private var takeoverReadFailureLogged = false
 
-    /** [AU4b] 永恒层「主动切 TIME」的一次性初始化闩锁（避免每帧改写 mode）。 */
-    private var eternityLayerModeInitialized = false
+    /** 本会话已完成受管 mode 校正的调度 Tick；与 interval 共享同一拍语义。 */
+    private var appliedManagedCrunchModeTickId = 0L
 
     /**
      * [R116-03-01 真机定位] 一旦 MOD 真正执行过受管坍缩，就由 MOD 永久持有坍缩所有权；
@@ -1935,6 +1935,12 @@ object OrekiStageAuto {
 
     /** 大坍缩 mode 与 time 同属策略受管配置；全部策略目标都使用 TIME，阈值由 time 控制。 */
     private fun applyManagedCrunchMode() {
+        if (!OrekiManagedAutobuyerAuthority.isNewConfigTick(
+                managedConfigTickId,
+                appliedManagedCrunchModeTickId,
+            )
+        ) return
+        appliedManagedCrunchModeTickId = managedConfigTickId
         val crunch = GameApi.crunchState() ?: return
         if (!GameApi.crunchUnlocked(crunch)) return
         val actual = GameApi.crunchMode(crunch)
@@ -2238,6 +2244,9 @@ object OrekiStageAuto {
 
             val decision = OrekiCrunchPolicy.decide()
             managedCrunchTarget = decision.allow
+            // mode 与 interval 属于同一调度策略。先在本调度 Tick 统一校正 mode，
+            // 后续阶段分支读取到的才是当拍目标，不再等下一个 Tick。
+            applyManagedCrunchMode()
 
             // [PR #179 Kody·high] 策略的 fail-closed 拒绝（deliberate hold / exception）必须在
             // 任何 pre-break 兜底之前算出：兜底只允许忽略「成长窗口/暂停时长」，不允许绕过
@@ -2506,18 +2515,8 @@ object OrekiStageAuto {
             }
             // [R116-02-01 Kody] 若本帧随后会进入 eternity-zero 分支，跳过这里的写入：
             // 否则同一 tick 会先写 60/600 再被写成 5，产生两次 setCrunchInterval 与刷屏日志。
-            // [R116-02-01 Kody P1] AMOUNT / X_HIGHEST 模式不读 TIME interval，只写 interval 等于没有
-            // 成长保护（实测存档 mode=0 + amount=10^2.3e8，会长期不结算或按玩家阈值连续结算）。
-            // 永恒层由 MOD 调度器负责节奏，因此这里在玩家未手动占用模式时切到 TIME，
-            // 让成长窗口真正生效；首次永恒前不切，保持原版 farming 行为。
-            if (!eternityLayerModeInitialized) {
-                // [R116-03-01 Kody·medium] 不能要求 isBroken()：Reality 后 Break 被重置、
-                // isBroken()=false，那样模式归一化整条路径不可达，AMOUNT/X_HIGHEST 存档
-                // 永远不会切到 TIME，600s 成长窗口对它无效。改用 inEternityLayer 单独判定。
-                if (growthWindow && GameApi.crunchMode(crunch) == MODE_TIME) {
-                    eternityLayerModeInitialized = true
-                }
-            }
+            // AMOUNT / X_HIGHEST 不读取 TIME interval；受管 mode 已在上方同一调度 Tick
+            // 统一校正为 TIME，因此这里只依据当拍真实 mode 选择后续 interval 写入路径。
             val willEnterZeroBranch =
                 OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME
             if (!willEnterZeroBranch) {
@@ -2574,7 +2573,7 @@ object OrekiStageAuto {
             if (!isBroken() && !inEternityLayerNow) {
                 if (!preBreakCrunchInitialized) {
                     preBreakCrunchInitialized = true
-                    Log.i(TAG_AU4C, "policy -> TIME/10s (pre-break IP harvest)")
+                    Log.i(TAG_AU4C, "policy -> managed interval/10s (pre-break IP harvest)")
                 }
                 writeManagedCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS, restoreDue, "pre-break")
                 return
