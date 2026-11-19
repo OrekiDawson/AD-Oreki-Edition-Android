@@ -51,7 +51,7 @@
 .method static constructor <clinit>()V
     .locals 2
 
-    const-wide v0, 0x40c3880000000000L    # 10000.0
+    const-wide v0, 0x40a7700000000000L    # 3000.0
 
     sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->DEF:D
 
@@ -86,6 +86,10 @@
 
     sput-object p0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sCtx:Landroid/content/Context;
 
+    # [R120-01] 仅在新安装/清除应用数据后的首次启动写入 3000× 新档默认；
+    # 已存在的 speed_multiplier 偏好保持不变。业务判定在 Kotlin OrekiGamePace。
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiGamePace;->applyDefaultIfUnset(Landroid/content/Context;)V
+
     # 旧的按行号批量解锁已停用，不再初始化（唯一入口是 StageAssist）
 
     invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/StageAssist;->init(Landroid/content/Context;)V
@@ -112,7 +116,7 @@
 
     const-string v2, "speed_multiplier"
 
-    const v3, 0x461c4000    # 10000.0f
+    const v3, 0x453b8000    # 3000.0f
 
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
     move-result v2
