@@ -55,7 +55,7 @@ jobs:
           python3 scripts/verify_build_contracts.py --selftest
       - name: Test build-contract verifier migration guard
         run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
-      - name: Ensure DeepSeek AI review and failure triage remain disabled
+      - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Verify DeepSeek off-peak billing calendar and time boundaries
         run: python3 -m unittest discover -s scripts/tests -p 'test_deepseek_pricing.py' -v
@@ -159,6 +159,7 @@ jobs:
             .github/workflows/candidate-unified.yml \
             .github/workflows/r8-experiment.yml \
             .github/workflows/pr-review-summary.yml \
+            .github/workflows/codex-deepseek-review.yml \
             .github/workflows/verify-unified.yml \
             .github/workflows/release-gate-unified.yml \
             .github/workflows/release-unified.yml \

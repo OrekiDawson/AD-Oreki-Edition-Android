@@ -200,14 +200,14 @@
 
 ## 10. DeepSeek Lead CI/CD 自主管理与故障自愈（2026-11-14，长期强制）
 
-> 本节细化 [AGENTS.md](../AGENTS.md) 第 15 节。是已授权开发轮次中的持续责任规则，不是为 CI 添加模型 API 自动调用，更不代表全天候监控已经自动启用。与第 5 节的 CI/CD 硬门禁、AGP-only 和第 9 节的 `build_mod.py` 退役共同生效。
+> 本节细化 [AGENTS.md](../AGENTS.md) 第 15 节。是已授权开发轮次中的持续责任规则；付费模型只允许内部 PR 的专用只读审查工作流，不代表全天候监控已经自动启用。与第 5 节的 CI/CD 硬门禁、AGP-only 和第 9 节的 `build_mod.py` 退役共同生效。
 
 ### 10.1 主动监控与闭环处理
 
 - Lead 在允许的工作时段主动检查 Android Source CI、AGP Kotlin/DEX、完整游戏构建、Candidate/Verify/Release，联动查看 Web Node/Playwright 和 Pages 受控部署的相应状态。优先读现有 Run 证据，不为了“检查”频繁发起昂贵构建。
 - 故障闭环：精确仓库/Commit SHA/Run ID/失败 Job → 读取日志确定根因 → 分辨源码、环境、权限/Secrets 缺失、第三方平台故障、真实功能回归 → 最小修复 → 独立分支/PR → Required Checks → 合规合并 → 对新提交复验。不能拿旧 Run 的绿灯证明新 SHA。
 - 允许低风险自行修复和优化 Actions、Gradle、Kotlin/ABI 验证、依赖、缓存及增量任务；对偶发平台故障仅做有限、可追溯的重试，确定性错误必须修根因。必要时协作多个 Agent，但必须隔离文件/工作树，共享 AVD、签名、构建、部署独占。
-- CI 工作流维持确定性验证，禁止恢复 `deepseek-triage.yml` 或以其他名称在 CI 内自动调用 DeepSeek API 审查/诊断；沿用现有 Codex PR 审查及独立实测。清理失效或重复工作流只能经独立 PR，不能删除真正必要的测试或降低门禁。
+- CI 工作流维持确定性验证，禁止恢复 `deepseek-triage.yml` 或新增第二个付费模型审查入口；只允许经验证的 `codex-deepseek-review.yml` 在内部 PR 上以只读、限 Diff、限时、同 Head SHA 去重方式执行，且不得写源码、自动合并或发布。清理失效或重复工作流只能经独立 PR，不能删除真正必要的测试或降低门禁。
 
 ### 10.2 合规合并与生产发布
 
