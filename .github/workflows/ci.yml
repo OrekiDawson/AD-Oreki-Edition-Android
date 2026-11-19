@@ -57,6 +57,11 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
       - name: Ensure DeepSeek AI review and failure triage remain disabled
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
+      - name: Validate cross-repo review, shared quota and Publisher
+        run: |
+          node scripts/tests/test_review_context.mjs
+          node scripts/tests/test_audit_quota.mjs
+          node scripts/tests/test_publish_review.mjs
       - name: Verify DeepSeek off-peak billing calendar and time boundaries
         run: python3 -m unittest discover -s scripts/tests -p 'test_deepseek_pricing.py' -v
       # Existing source baseline has 67 naming violations (first CI run).
@@ -150,15 +155,18 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: android-actionlint-${{ runner.os }}-${{ runner.arch }}-v1.7.12
-      # actionlint 必须覆盖仓库内全部工作流：ci.yml 自身与其高频的 pull_request_target 摘要
-      # 工作流此前不在检查列表中，语法/表达式错误只能在运行时暴露。
+      # actionlint 必须覆盖仓库内全部工作流。固定版本尚不识别 GitHub 的
+      # concurrency.queue，仅忽略该已知语法差异，不忽略其他错误。
       - name: Lint every repository workflow with pinned actionlint
         run: |
           go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 \
+            -ignore 'unexpected key "queue"' \
             .github/workflows/ci.yml \
             .github/workflows/candidate-unified.yml \
+            .github/workflows/codex-deepseek-review.yml \
             .github/workflows/r8-experiment.yml \
             .github/workflows/pr-review-summary.yml \
+            .github/workflows/kody-trigger.yml \
             .github/workflows/verify-unified.yml \
             .github/workflows/release-gate-unified.yml \
             .github/workflows/release-unified.yml \
