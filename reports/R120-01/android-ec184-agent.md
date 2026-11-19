@@ -105,14 +105,18 @@ python3 -m py_compile scripts/fixture_eternity_gate.py scripts/verify_build_cont
 - 新增驻留判据 2 项单测 PASS；
 - APK/AVD：环境 BLOCKED，见 `reports/R120-01/avd-install-blocked.md`。
 
-最终源码（含挑战中禁止收益豁免、Reality 历史修复与 v2/v3 签名修复）AGP r8off APK：
+最终源码（含挑战中禁止收益豁免、Reality 历史修复与 APK 签名复核）AGP r8off APK：
 
 - 路径：`agp/app/build/outputs/apk/release/app-release.apk`
-- SHA-256：`ca1a0982232b71cced9f81a7f04e21615d1ad7434a051c510f84560673ebd935`
+- 包名/版本：`com.oreki.antimatterdimensions`，versionCode `30210002`，versionName `3.21.0`
+- SHA-256：`04140726e8e375e486a035f26ca211d14c15da78e2f3448b6d1fcc663c85f57b`
 - V3 证书：`95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`
-- 签名：API 24–27 分段 v2 PASS、API 28–32 分段 v3 PASS
+- 签名：APK Signature Scheme v3 `Verifies`；当前包 `minSdk=32`、`targetSdk=37`，
+  因此不以不存在的 v2 签名宣称低 API 兼容。
 - 构建：PASS
-- AVD：安装 PASS；进程启动、Activity resumed PASS；系统级 `system` ANR 挡住游戏画面，GUI 功能验收 BLOCKED。
+- 安装：`adb install -r` PASS；从 AVD 回拉已安装 `base.apk` 的 SHA-256 与构建包一致。
+- AVD：进程存在、`topResumedActivity` 为游戏 Activity，均为 PASS；系统级 `system` ANR
+  挡住游戏画面，GUI 功能验收 BLOCKED。不得据此宣称 AVD GUI 全面 PASS。
 
 ## R120-01 Kody 复审修复（2026-11-20）
 
