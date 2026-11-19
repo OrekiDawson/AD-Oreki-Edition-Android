@@ -15,12 +15,16 @@ object OrekiGamePace {
     private const val SPEED_KEY = "speed_multiplier"
     private const val SPEED_CLASS = "kajfosz.antimatterdimensions.OrekiSpeed"
 
+    /** Smali 兼容层读取默认值的唯一入口，避免在平台边界复制业务常量。 */
+    @JvmStatic
+    fun defaultSpeed(): Double = DEFAULT_SPEED
+
     @JvmStatic
     fun applyDefaultIfUnset(context: Context?) {
         val ctx = context ?: return
         val prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.contains(SPEED_KEY)) return
-        setSpeed(DEFAULT_SPEED)
+        setSpeed(defaultSpeed())
     }
 
     @JvmStatic
@@ -31,7 +35,7 @@ object OrekiGamePace {
                 .putBoolean("speed_default_reset_seen", true)
                 .apply()
         }
-        setSpeed(DEFAULT_SPEED)
+        setSpeed(defaultSpeed())
     }
 
     private fun setSpeed(value: Double) {

@@ -9,5 +9,6 @@ public class OrekiGamePaceTest {
     @Test
     public void newSaveDefaultTargetsThreeHourPace() {
         assertEquals(3000.0, OrekiGamePace.DEFAULT_SPEED, 0.0);
+        assertEquals(3000.0, OrekiGamePace.defaultSpeed(), 0.0);
     }
 }

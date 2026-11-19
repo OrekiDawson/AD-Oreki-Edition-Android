@@ -51,7 +51,8 @@
 .method static constructor <clinit>()V
     .locals 2
 
-    const-wide v0, 0x40a7700000000000L    # 3000.0
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiGamePace;->defaultSpeed()D
+    move-result-wide v0
 
     sput-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->DEF:D
 
@@ -116,7 +117,9 @@
 
     const-string v2, "speed_multiplier"
 
-    const v3, 0x453b8000    # 3000.0f
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiGamePace;->defaultSpeed()D
+    move-result-wide v3
+    double-to-float v3, v3
 
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
     move-result v2
