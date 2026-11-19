@@ -130,11 +130,11 @@ object OrekiEcAutomation {
     /** 原版 EC 总数。 */
     private const val EC_COUNT = 12
 
-    /** EC1/EC4 入口门禁的短周期缓存；避免主循环每帧重复遍历挑战并做反射查找。 */
+    /** 只缓存昂贵的“下一未满 EC”扫描；入口达成状态每帧重新读取。 */
     private const val ENTRY_GATE_CACHE_MS = 1_000L
     private var entryGateExemptCachedAtMs: Long = -1L
     private var entryGateExemptCachedSaveId: String = ""
-    private var entryGateExemptCachedValue: Boolean = false
+    private var entryGateCachedTargetId: Int = 0
 
     /** 只在步骤变化时打日志，避免刷屏（每拍最多一条）。 */
     @Volatile private var lastStep: String = ""
@@ -287,20 +287,23 @@ object OrekiEcAutomation {
         if (GameApi.inAnyChallenge()) return false
         val now = android.os.SystemClock.elapsedRealtime()
         val saveId = GameApi.saveIdentity() ?: ""
-        if (saveId == entryGateExemptCachedSaveId &&
+        val target = if (saveId == entryGateExemptCachedSaveId &&
             entryGateExemptCachedAtMs >= 0L &&
             now - entryGateExemptCachedAtMs in 0L..ENTRY_GATE_CACHE_MS
         ) {
-            return entryGateExemptCachedValue
+            entryGateCachedTargetId
+        } else {
+            nextTargetId().also {
+                entryGateExemptCachedAtMs = now
+                entryGateExemptCachedSaveId = saveId
+                entryGateCachedTargetId = it
+            }
         }
-        val target = nextTargetId()
-        val study = if (target == 1 || target == 4) Abi.study(target) else null
-        val entryGoalMet = if (study != null) Abi.entryGoalMet(study) else null
-        val result = shouldExemptEntryEternityGainGate(target, entryGoalMet)
-        entryGateExemptCachedAtMs = now
-        entryGateExemptCachedSaveId = saveId
-        entryGateExemptCachedValue = result
-        return result
+        if (target != 1 && target != 4) return false
+        // 目标达成状态会在完成次数、永恒或无限次数变化时立即改变，不能缓存布尔结果。
+        val study = Abi.study(target) ?: return false
+        val entryGoalMet = Abi.entryGoalMet(study) ?: return false
+        return shouldExemptEntryEternityGainGate(target, entryGoalMet)
     }
 
     /** 纯判据：只认下一目标 EC1/EC4 且入口目标尚未达成。 */
