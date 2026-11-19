@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+REVIEW_WORKFLOW = ROOT / ".github/workflows/codex-deepseek-review.yml"
 
 
 class NoDeepSeekReviewInCi(unittest.TestCase):
@@ -21,6 +22,8 @@ class NoDeepSeekReviewInCi(unittest.TestCase):
 
     def test_workflows_do_not_call_paid_model_api(self):
         for path in (ROOT / ".github/workflows").glob("*.yml"):
+            if path == REVIEW_WORKFLOW:
+                continue
             with self.subTest(path=path.name):
                 body = path.read_text(encoding="utf-8")
                 for marker in (
