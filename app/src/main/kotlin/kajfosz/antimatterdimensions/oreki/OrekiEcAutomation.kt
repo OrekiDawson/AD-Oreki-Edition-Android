@@ -263,6 +263,31 @@ object OrekiEcAutomation {
         return 0
     }
 
+    /**
+     * [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口未达成时，是否应越过
+     * EP 收益门槛继续真实永恒。
+     *
+     * EC1 的入口资源是永恒次数，EC4 是无限次数；当前 `gainedEP < EP` 门槛会在
+     * `et<100`、自动永恒尚未解锁的读档场景中压住入口资源增长。仅当下一目标是
+     * EC1/EC4 且官方 `e51.O()`（requirementCurrent >= requirementTotal）为 false
+     * 时豁免，其他 EC 和正常收益节奏不变。
+     *
+     * 本方法只读官方对象，不写 `unlocked`、完成位、资源或存档。
+     */
+    @JvmStatic
+    fun entryEternityGainGateExempt(): Boolean {
+        val target = nextTargetId()
+        if (target != 1 && target != 4) return false
+        val study = Abi.study(target) ?: return false
+        val entryGoalMet = Abi.entryGoalMet(study) ?: return false
+        return shouldExemptEntryEternityGainGate(target, entryGoalMet)
+    }
+
+    /** 纯判据：只认下一目标 EC1/EC4 且入口目标尚未达成。 */
+    @JvmStatic
+    fun shouldExemptEntryEternityGainGate(targetEcId: Int, entryGoalMet: Boolean?): Boolean =
+        (targetEcId == 1 || targetEcId == 4) && entryGoalMet == false
+
     // ------------------------------------------------------------ 阶段 B：真实进入
 
     /**
@@ -762,6 +787,14 @@ object OrekiEcAutomation {
             Log.i(TAG, "O() failed: " + t)
             null
         }
+
+        /**
+         * EC 入口目标是否已达成。
+         *
+         * 官方 `e51.O()` 为 `requirementCurrent >= requirementTotal`
+         * （`x.compareTo(U()) >= 0`）；这是只读查询，不会推进或结算挑战。
+         */
+        fun entryGoalMet(study: Any?): Boolean? = hasExclusiveFree(study)
 
         /** `T()Z`：e51 上 = `requirementBits.e(id)`（本关此前已解锁/已买过）。 */
         fun alreadyBought(study: Any?): Boolean? = try {

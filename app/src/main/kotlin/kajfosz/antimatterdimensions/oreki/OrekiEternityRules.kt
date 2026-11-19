@@ -32,7 +32,26 @@ object OrekiEternityRules {
      */
     private const val ETERNITY_SETTLEMENT_MULTIPLIER: Int = 1
 
+    /**
+     * [R120-01 / Android #184] Smali 内的 EP 收益门槛乘数。
+     *
+     * 默认仍为 ×1；下一目标为 EC1/EC4 且入口未达成时返回 0，使
+     * `gainedEP.compareTo(EP * 0) < 0` 不成立。这样外层 Kotlin 门禁与 Smali
+     * 内层门槛使用同一 Kotlin 判据，避免只放开一层后仍被下一层永久阻断。
+     */
+    @JvmStatic
+    fun eternitySettlementMultiplierFor(targetEcId: Int, entryGoalMet: Boolean?): Int =
+        if (OrekiEcAutomation.shouldExemptEntryEternityGainGate(targetEcId, entryGoalMet)) {
+            0
+        } else {
+            ETERNITY_SETTLEMENT_MULTIPLIER
+        }
+
     /** Smali 转发入口：永恒结算倍率。 */
     @JvmStatic
-    fun eternitySettlementMultiplier(): Int = ETERNITY_SETTLEMENT_MULTIPLIER
+    fun eternitySettlementMultiplier(): Int {
+        // 入口目标读取失败时保持原 ×1，不在未知状态放宽结算节奏。
+        val exemption = OrekiEcAutomation.entryEternityGainGateExempt()
+        return if (exemption) 0 else ETERNITY_SETTLEMENT_MULTIPLIER
+    }
 }
