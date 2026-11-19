@@ -299,6 +299,8 @@ object OrekiStageAuto {
 
             // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
             OrekiAutomationScheduler.beginFrame()
+            managedConfigTickId = 0L
+            managedCrunchTarget = null
 
             // [R99 §12] 双调度器 tick 强制 GUI 同步。
             // 必须在所有早退之前：即使本拍没有成功动作、或处于首次无限前的早返回分支，
@@ -307,7 +309,13 @@ object OrekiStageAuto {
             // 但两者的「强制」语义都会保留（不会因去重丢掉状态变化）。
             try {
                 GameApi.retryPendingGuiSync()
-                if (OrekiAutomationScheduler.globalGuiTickDue()) {
+                val schedulerTickDue = OrekiAutomationScheduler.globalGuiTickDue()
+                managedConfigTickId = if (schedulerTickDue) {
+                    OrekiAutomationScheduler.guiTickCount().toLong()
+                } else {
+                    0L
+                }
+                if (schedulerTickDue) {
                     GameApi.forceGuiTickSync("global-tick")
                 }
                 if (OrekiAutobuyerBeat.consumeGuiSyncDue(OrekiAutomationScheduler.getIntervalSec())) {
@@ -349,6 +357,7 @@ object OrekiStageAuto {
             // 载入已有进度的存档不会触发，R101 P0 的「玩家关闭即尊重」语义保持。
             ensureEternityAutobuyerBootstrap()
             applyCrunchPolicy()
+            applyManagedAutobuyerStates(managedCrunchTarget)
             crunchProbe()
             detectBreakLoss()
 
@@ -756,43 +765,29 @@ object OrekiStageAuto {
      *
      * 每帧语义（幂等，可每帧调用）：
      *   1. 读实际值 `crunchInterval()`（失败即放弃，fail-closed，不猜）；
-     *   2. `refreshCrunchInterval(actual, desired)` 判定玩家是否手改并登记待恢复；
-     *   3. `restoreDue` 到点时先解除玩家占用，随后用**当帧最新**目标写回一次；
-     *   4. 玩家占用中 → 不抢写，仅确保只登记一次恢复时机；
-     *   5. 实际值已等于目标 → 不写、不持久化（避免逐帧抖动，§81.1 第 7 条）。
+     *   2. 新调度 Tick 读取真实值；玩家修改只存活到本拍，随后按策略目标恢复；
+     *   3. 只有成功读到当前值后才消费本调度 Tick；
+     *   4. 实际值已等于目标 → 不写、不持久化（避免逐帧抖动，§81.1 第 7 条）。
      *
      * @return true = 本次真的写入了；false = 跳过（相等/被占用/读不到）
      */
     private fun writeManagedCrunchInterval(
         crunch: Any?,
         desiredSeconds: Double,
-        restoreDue: Boolean,
         reason: String
     ): Boolean {
+        val tickId = managedConfigTickId
+        if (!OrekiManagedAutobuyerAuthority.isNewConfigTick(tickId, appliedManagedIntervalTickId)) return false
         val actual = GameApi.crunchInterval(crunch) ?: return false
-        OrekiPlayerIntent.refreshCrunchInterval(actual, desiredSeconds)
-
-        if (restoreDue) {
-            // 恢复时机已到：归属交还策略（只解除占用，不在此写值）。
-            OrekiPlayerIntent.releaseCrunchIntervalToMod()
-        }
-        if (!OrekiPlayerIntent.mayRewriteCrunchInterval()) {
-            // 玩家占用中：本帧不抢写，只登记「下一次调度 tick 再恢复」。
-            OrekiAutobuyerBeat.deferRestore(OrekiAutomationScheduler.getIntervalSec())
-            return false
-        }
-        val diff = kotlin.math.abs(actual - desiredSeconds)
-        if (diff <= 1e-9) {
-            // 值未变化 —— 不写、不持久化。
-            OrekiPlayerIntent.noteCrunchIntervalWritten(actual)
+        appliedManagedIntervalTickId = tickId
+        if (!OrekiManagedAutobuyerAuthority.doubleNeedsWrite(actual, desiredSeconds)) {
             return false
         }
         GameApi.setCrunchInterval(crunch, desiredSeconds)
-        OrekiPlayerIntent.noteCrunchIntervalWritten(desiredSeconds)
         Log.i(
             TAG_AU4C,
             "managed interval " + actual + " -> " + desiredSeconds +
-                " (" + reason + (if (restoreDue) ", restore" else "") + ")"
+                " (" + reason + ")"
         )
         return true
     }
@@ -1664,8 +1659,8 @@ object OrekiStageAuto {
     /** [R116-03-01] 接管分支 realities 读取失败只记一次日志，避免每帧刷屏。 */
     private var takeoverReadFailureLogged = false
 
-    /** [AU4b] 永恒层「主动切 TIME」的一次性初始化闩锁（避免每帧改写 mode）。 */
-    private var eternityLayerModeInitialized = false
+    /** 本会话已完成受管 mode 校正的调度 Tick；与 interval 共享同一拍语义。 */
+    private var appliedManagedCrunchModeTickId = 0L
 
     /**
      * [R116-03-01 真机定位] 一旦 MOD 真正执行过受管坍缩，就由 MOD 永久持有坍缩所有权；
@@ -1706,6 +1701,17 @@ object OrekiStageAuto {
      * 每个进程校准一次，之后由暂停/恢复循环维护；玩家手动改间隔后不再覆盖。
      */
     private var targetIntervalInitialized: Boolean = false
+
+    /** 当前帧对应的调度器 Tick；0 = 本帧不是调度 tick。 */
+    private var managedConfigTickId: Long = 0L
+    /** 最近一次已应用受管启用/mode 配置的调度 Tick，保证同 Tick 只写一次。 */
+    private var appliedManagedConfigTickId: Long = 0L
+    /** 最近一次已应用受管坍缩 interval 的调度 Tick，保证多分支同 Tick 不重复写。 */
+    private var appliedManagedIntervalTickId: Long = 0L
+    /** 本调度 Tick 内 pre-break 上限兜底刚恢复过原版大坍缩自动器。 */
+    private var crunchKeepAliveTickId: Long = 0L
+    /** 本调度 Tick 已由当前大坍缩策略算出的启停目标；null = 尚未进入决策或未知。 */
+    private var managedCrunchTarget: Boolean? = null
 
     /** [R94] 诊断计数器（每 300 帧打一次窗口判据）。 */
     private var holdProbeTick: Int = 0
@@ -1812,26 +1818,88 @@ object OrekiStageAuto {
     /**
      * 恢复智能策略明确托管的原版自动购买器开关。
      *
-     * 玩家手动关闭后只登记；恢复时刻按当前 MOD 全局间隔推迟到下一次策略 tick，
-     * 不在下一帧抢写。这里不参与 `allow()`，因此不会把原版自动器的正常购买限速。
+     * 调度器策略是受管配置的唯一权威来源：只在实际调度 Tick 上应用一次，
+     * 玩家手动改动可存活到下一次有效 Tick，随后无条件恢复当前策略目标。
+     * 这里不参与 `allow()`，因此不会把原版自动器的正常购买限速。
      */
-    private fun applyManagedAutobuyerStates(wantCrunch: Boolean) {
+    private fun applyManagedAutobuyerStates(wantCrunch: Boolean?) {
         if (!OrekiAutomationScheduler.isEnabled()) return
         if (!GameApi.autobuyersOn()) return
+        // Pelle 毁灭现实只由 OrekiPelle 的末日相位机驱动；基础托管写入必须整体让路，
+        // 否则会把已在末日禁用的原版自动器重新打开，破坏反物质单调增长与通关判据。
+        if (GameApi.isDoomed()) return
+        // IU15 冲刺是同一调度策略中的临时整体让路阶段，不能由基础恒开目标覆盖。
+        if (OrekiIu15Sprint.isActive()) return
+        val tickId = managedConfigTickId
+        if (!OrekiManagedAutobuyerAuthority.isNewConfigTick(tickId, appliedManagedConfigTickId)) return
+        appliedManagedConfigTickId = tickId
         try {
             GameApi.dimensionAutobuyers()?.forEachIndexed { i, dim ->
-                reconcileManagedAutobuyer("dim" + (i + 1), dim, true)
+                if (reconcileManagedAutobuyer("dim" + (i + 1), dim, true)) {
+                    reconcileIntField(
+                        "dim" + (i + 1) + ".mode",
+                        GameApi.dimensionAutobuyerMode(dim),
+                        OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10,
+                    ) { GameApi.setDimensionAutobuyerMode(dim, it) }
+                }
             }
-            reconcileManagedAutobuyer("tickspeed", GameApi.tickspeedAutobuyer(), true)
-            reconcileManagedAutobuyer("dimboost", GameApi.dimBoostAutobuyer(), true)
-            reconcileManagedAutobuyer("galaxy", GameApi.galaxyAutobuyer(), true)
-            reconcileManagedAutobuyer("sacrifice", GameApi.sacrificeAutobuyer(), true)
-            reconcileManagedAutobuyer(
-                "crunch",
-                GameApi.crunchState(),
-                wantCrunch,
-                ownedByMod = modOwnsCrunch,
-            )
+            val tickspeed = GameApi.tickspeedAutobuyer()
+            if (reconcileManagedAutobuyer("tickspeed", tickspeed, true)) {
+                reconcileIntField(
+                    "tickspeed.mode",
+                    GameApi.tickspeedAutobuyerMode(tickspeed),
+                    OrekiManagedAutobuyerAuthority.TICKSPEED_MODE_BUY_SINGLE,
+                ) { GameApi.setTickspeedAutobuyerMode(tickspeed, it) }
+            }
+            val dimboost = GameApi.dimBoostAutobuyer()
+            if (reconcileManagedAutobuyer("dimboost", dimboost, true)) {
+                reconcileBooleanField(
+                    "dimboost.limitDimBoosts",
+                    GameApi.dimBoostLimitDimBoosts(dimboost),
+                    false,
+                ) { GameApi.setDimBoostLimitDimBoosts(dimboost, it) }
+                reconcileBooleanField(
+                    "dimboost.limitUntilGalaxies",
+                    GameApi.dimBoostLimitUntilGalaxies(dimboost),
+                    false,
+                ) { GameApi.setDimBoostLimitUntilGalaxies(dimboost, it) }
+            }
+            val galaxy = GameApi.galaxyAutobuyer()
+            if (reconcileManagedAutobuyer("galaxy", galaxy, true)) {
+                reconcileBooleanField(
+                    "galaxy.limitGalaxies",
+                    GameApi.galaxyLimitGalaxies(galaxy),
+                    false,
+                ) { GameApi.setGalaxyLimitGalaxies(galaxy, it) }
+            }
+            val sacrifice = GameApi.sacrificeAutobuyer()
+            if (reconcileManagedAutobuyer("sacrifice", sacrifice, true)) {
+                reconcileBigDoubleField(
+                    "sacrifice.multiplier",
+                    GameApi.sacrificeMultiplier(),
+                    OrekiManagedAutobuyerAuthority.SACRIFICE_MULTIPLIER,
+                ) { GameApi.setSacrificeMultiplier(it) }
+            }
+            if (wantCrunch != null) {
+                val crunch = GameApi.crunchState()
+                // 原版短路径/成长窗口由 MOD 接管时，策略有效目标仍是“原版自动器关闭”；
+                // 否则调度器会在同一 tick 把刚暂停的自动器重新打开，形成动作争夺。
+                val effectiveCrunchTarget =
+                    OrekiManagedAutobuyerAuthority.effectiveCrunchTarget(
+                        wantCrunch,
+                        modOwnsCrunch,
+                        crunchPausedByStagePolicy,
+                    )
+                // applyCrunchPolicy 的 pre-break 上限保活会在本拍真实打开原版自动器；
+                // 紧随其后的统一对账不得在同一拍再写回 false，否则保活语义退化为 no-op。
+                val keptAliveThisTick = managedConfigTickId > 0L &&
+                    crunchKeepAliveTickId == managedConfigTickId
+                val crunchTarget = if (keptAliveThisTick) true else effectiveCrunchTarget
+                if (reconcileManagedAutobuyer("crunch", crunch, crunchTarget)) {
+                    applyManagedCrunchMode()
+                    applyManagedCrunchThresholds(crunch)
+                }
+            }
             reconcileIpMultAutobuyer(true)
         } catch (error: Throwable) {
             if (!crunchPolicyErrorLogged) {
@@ -1845,65 +1913,112 @@ object OrekiStageAuto {
         key: String,
         autobuyer: Any?,
         wantOn: Boolean,
-        ownedByMod: Boolean = false,
-    ) {
-        if (autobuyer == null) return
-        val active = GameApi.isAutobuyerActive(autobuyer) ?: return
-
-        // 玩家自己重新打开了它 → 解除一票否决闩锁，允许后续按策略管理。
-        if (active) {
-            OrekiPlayerIntent.clearPlayerClosed(key)
-            OrekiPlayerIntent.clearManagedActivePending(key)
-            return
-        }
-
-        // 策略希望关闭 → 不需要对抗，清掉登记。
-        if (!wantOn) {
-            OrekiPlayerIntent.clearManagedActivePending(key)
-            return
-        }
-
-        // MOD 自己关闭的是预期状态，不能把它登记成玩家意图。
-        // `ownedByMod` 仅用于大坍缩：其原版自动器由 MOD 托管时，关闭是所有权的一部分。
-        if (ownedByMod) {
-            OrekiPlayerIntent.clearPlayerClosed(key)
-            OrekiPlayerIntent.clearManagedActivePending(key)
-            return
-        }
-
-        if (!OrekiCrunchGate.shouldInferPlayerClosed(active, wantOn, ownedByMod)) return
-
-        // 策略想要开、实际是关：按 R98 §5.3 / §81.1.9 判定为「玩家主动关闭」，
-        // 只登记一票否决闩锁，**永不自动重开**（此前会在此处 setAutobuyerActive(true)，
-        // 导致真机上玩家关闭后 8 秒内被强行打开 —— 第 38 轮实测缺陷）。
+    ): Boolean {
+        if (autobuyer == null) return false
+        val active = GameApi.isAutobuyerActive(autobuyer) ?: return false
+        if (GameApi.isAutobuyerActuallyUnlocked(autobuyer) != true) return false
+        OrekiPlayerIntent.clearPlayerClosed(key)
         OrekiPlayerIntent.clearManagedActivePending(key)
-        if (OrekiPlayerIntent.notePlayerClosed(key)) {
-            Log.i(TAG_AU4C, "managed[" + key + "]: player closed -> respect, no auto re-enable")
+        if (OrekiManagedAutobuyerAuthority.activeNeedsWrite(active, wantOn)) {
+            GameApi.setAutobuyerActive(autobuyer, wantOn)
+            val after = GameApi.isAutobuyerActive(autobuyer)
+            Log.i(TAG_AU4C, "managed[" + key + "] tick=" + managedConfigTickId +
+                " active " + active + " -> " + (after ?: "unreadable") + " target=" + wantOn)
         }
+        return true
     }
 
     private fun reconcileIpMultAutobuyer(wantOn: Boolean) {
         val key = "ipmult"
-        // [R116-03-01 Kody] 玩家明确关闭该项后不得强制重开：
-        // 否则会在 60s 内反复打开并持续消耗 IP，违背 OrekiPlayerIntent「尊重玩家关闭」契约。
-        if (OrekiPlayerIntent.isPlayerClosed(key)) {
-            OrekiPlayerIntent.clearManagedActivePending(key)
-            return
-        }
+        if (!GameApi.hasInfinity()) return
         val enabled = GameApi.isIpMultEnabled()
-        if (!wantOn || enabled) {
-            OrekiPlayerIntent.clearManagedActivePending(key)
-            return
-        }
-        if (OrekiPlayerIntent.consumeManagedActiveRestoreDue(key)) {
-            GameApi.setIpMultEnabled(true)
-            Log.i(TAG_AU4C, "managed[ipmult]: restored at strategy tick")
-        } else {
-            OrekiPlayerIntent.noteManagedActiveDisabled(
-                key,
-                OrekiAutomationScheduler.getIntervalSec(),
+        OrekiPlayerIntent.clearPlayerClosed(key)
+        OrekiPlayerIntent.clearManagedActivePending(key)
+        if (!OrekiManagedAutobuyerAuthority.activeNeedsWrite(enabled, wantOn)) return
+        GameApi.setIpMultEnabled(wantOn)
+        Log.i(TAG_AU4C, "managed[ipmult] tick=" + managedConfigTickId +
+            " active " + enabled + " -> " + GameApi.isIpMultEnabled() + " target=" + wantOn)
+    }
+
+    /** 大坍缩 mode 与 time 同属策略受管配置；全部策略目标都使用 TIME，阈值由 time 控制。 */
+    private fun applyManagedCrunchMode() {
+        if (!OrekiManagedAutobuyerAuthority.isNewConfigTick(
+                managedConfigTickId,
+                appliedManagedCrunchModeTickId,
             )
+        ) return
+        appliedManagedCrunchModeTickId = managedConfigTickId
+        val crunch = GameApi.crunchState() ?: return
+        if (!GameApi.crunchUnlocked(crunch)) return
+        val actual = GameApi.crunchMode(crunch)
+        val target = OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME
+        if (!OrekiManagedAutobuyerAuthority.integerNeedsWrite(actual, target)) return
+        GameApi.setCrunchMode(crunch, target)
+        Log.i(TAG_AU4C, "managed[crunch.mode] tick=" + managedConfigTickId +
+            " mode " + actual + " -> " + target)
+    }
+
+    private fun reconcileIntField(
+        key: String,
+        actual: Int?,
+        target: Int,
+        write: (Int) -> Unit,
+    ) {
+        if (!OrekiManagedAutobuyerAuthority.integerNeedsWrite(actual ?: -1, target)) return
+        write(target)
+        Log.i(TAG_AU4C, "managed[" + key + "] tick=" + managedConfigTickId +
+            " " + actual + " -> " + target)
+    }
+
+    private fun reconcileBooleanField(
+        key: String,
+        actual: Boolean?,
+        target: Boolean,
+        write: (Boolean) -> Unit,
+    ) {
+        if (actual == null || actual == target) return
+        write(target)
+        Log.i(TAG_AU4C, "managed[" + key + "] tick=" + managedConfigTickId +
+            " " + actual + " -> " + target)
+    }
+
+    private fun reconcileBigDoubleField(
+        key: String,
+        actual: Any?,
+        target: Double,
+        write: (Any) -> Unit,
+    ) {
+        val targetValue = GameApi.bigDouble(target) ?: return
+        val comparison = GameApi.compareBigDoubles(actual, targetValue) ?: return
+        if (comparison == 0) return
+        write(targetValue)
+        Log.i(TAG_AU4C, "managed[" + key + "] tick=" + managedConfigTickId +
+            " " + actual + " -> " + target)
+    }
+
+    /** 大坍缩三个非节拍配置字段；mode/time 由 writeManagedCrunchInterval 独占。 */
+    private fun applyManagedCrunchThresholds(crunch: Any?) {
+        if (crunch == null || !GameApi.crunchUnlocked(crunch)) return
+        reconcileBigDoubleField(
+            "crunch.amount",
+            GameApi.crunchAmount(crunch),
+            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD,
+        ) {
+            if (!GameApi.setCrunchAmount(crunch, it)) {
+                Log.e(TAG_AU4C, "managed[crunch.amount] write failed")
+            }
         }
+        reconcileBigDoubleField(
+            "crunch.xHighest",
+            GameApi.crunchXHighest(crunch),
+            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD,
+        ) { GameApi.setCrunchXHighest(crunch, it) }
+        val increase = GameApi.crunchIncreaseWithMult(crunch)
+        reconcileBooleanField(
+            "crunch.increaseWithMult",
+            increase,
+            false,
+        ) { GameApi.setCrunchIncreaseWithMult(crunch, it) }
     }
 
     /**
@@ -1969,11 +2084,6 @@ object OrekiStageAuto {
             if (active) {
                 crunchStateRebuilt = true
                 Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (autoBig already active)")
-                return
-            }
-            if (OrekiPlayerIntent.isPlayerClosed("crunch")) {
-                crunchStateRebuilt = true
-                Log.i(TAG_AU4C, "cold start: pre-break crunch rebuild skipped (player closed latch)")
                 return
             }
             crunchStateRebuilt = true
@@ -2135,24 +2245,12 @@ object OrekiStageAuto {
             // [R96] 智能大坍缩决策：目标驱动、按需结算（挑战 > 目标保护 > 收益驱动）。
             // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
             // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。
-            // [R96 §80.2] 读当前 mode 与 MOD 上次写入值比对，识别玩家手动改动。
-            OrekiPlayerIntent.refreshCrunchMode(GameApi.crunchMode(crunch), MODE_TIME)
-
-            // [R96 §81] 到恢复时机：解除玩家占用，稍后按**当时最新**策略值重写一次。
-            // 注意这只是配置恢复时机，原版自动购买器始终按自身间隔正常购买。
-            // [R96 第三十四轮] 到恢复时机：解除玩家占用，稍后按**当时最新**策略值各写一次。
-            // 只解除占用、不在此写值；写值由下面各分支用当帧算出的目标完成（§81.1 第 5 条）。
-            // 注意这只是配置恢复时机，原版自动购买器始终按自身间隔正常运行。
-            val restoreDue = OrekiAutobuyerBeat.consumeRestoreDue()
-
-            if (restoreDue) {
-                if (!OrekiPlayerIntent.mayRewriteCrunchMode()) {
-                    OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
-                }
-                OrekiPlayerIntent.releaseCrunchIntervalToMod()
-            }
-
+            // 受管 mode/interval/active 只在新调度 Tick 恢复，旧玩家占用状态机已退出。
             val decision = OrekiCrunchPolicy.decide()
+            managedCrunchTarget = decision.allow
+            // mode 与 interval 属于同一调度策略。先在本调度 Tick 统一校正 mode，
+            // 后续阶段分支读取到的才是当拍目标，不再等下一个 Tick。
+            applyManagedCrunchMode()
 
             // [PR #179 Kody·high] 策略的 fail-closed 拒绝（deliberate hold / exception）必须在
             // 任何 pre-break 兜底之前算出：兜底只允许忽略「成长窗口/暂停时长」，不允许绕过
@@ -2172,7 +2270,8 @@ object OrekiStageAuto {
             //   · 策略 fail-closed：takeoverBlockedByPolicy（deliberate hold / exception 不绕过）；
             //   · 原版门槛：canBigCrunch()（不伪造结算）。
             val preBreakPhase = isPreBreakPhase()
-            val playerClosedCrunch = OrekiPlayerIntent.isPlayerClosed("crunch")
+            // 受管大坍缩以调度策略为准；旧 playerClosed 永久闩锁不再参与决策。
+            val playerClosedCrunch = false
             val preBreakCapOwned = modOwnsCrunch && crunchPausedByStagePolicy
             val allowPreBreakCap = OrekiCrunchGate.allowPreBreakCapSettlement(
                 preBreak = preBreakPhase,
@@ -2185,8 +2284,6 @@ object OrekiStageAuto {
             if (allowPreBreakCap && settleCrunch("pre-break-am-cap")) {
                 lastManagedCrunchAtMs = System.currentTimeMillis()
                 preBreakCapSkipLogged = false
-                // 与接管分支一致：结算拍不跳过受管购买器应用（Kody 指出旧实现提前 return 会跳过）。
-                applyManagedAutobuyerStates(true)
                 return
             }
             if (preBreakPhase && GameApi.canBigCrunch() && !preBreakCapSkipLogged) {
@@ -2218,6 +2315,7 @@ object OrekiStageAuto {
                 GameApi.isAutobuyerActive(crunch) == false
             ) {
                 GameApi.setAutobuyerActive(crunch, true)
+                crunchKeepAliveTickId = managedConfigTickId
                 crunchPausedByStagePolicy = false
                 modOwnsCrunch = false
                 OrekiAutomationScheduler.markCrunchPausedByMod(false)
@@ -2290,11 +2388,6 @@ object OrekiStageAuto {
                     markCrunchPausedByMod()
                     Log.i(TAG_AU4C, "stage-policy -> autoBig paused (auto-crunch-shortcut)")
                 }
-                // [R116-02-01 停滞再修·关键] 接管分支不能跳过受管购买器应用：
-                // 旧实现直接 return，导致 applyManagedAutobuyerStates 从不执行，
-                // 维度等购买器失去托管 ⇒ Reality 后 AM 不增长 ⇒ canBigCrunch 永假
-                // ⇒ 实测 t=908→1209 ip 恒 624、infinities 恒 60（301 秒零进展）。
-                applyManagedAutobuyerStates(true)
                 // [R117-01-02c P0-2] 所有权兜底：MOD 一旦接管过坍缩（modOwnsCrunch），
                 // 原版 Reality 复位可能把 auto.bigCrunch.isActive 置 false，而恢复路径又把
                 // crunchPausedByStagePolicy 清成 false；旧实现随后按「玩家关闭」早退，
@@ -2368,9 +2461,6 @@ object OrekiStageAuto {
                 Log.i(TAG_AU4C, "stage-policy -> autoBig resumed")
             }
 
-            // 开关恢复与模式/间隔恢复同属智能自动购买器配置路径，但不占用动作节拍。
-            applyManagedAutobuyerStates(decision.allow)
-
             if (!decision.allow) {
                 if (GameApi.isAutobuyerActive(crunch) == true) {
                     GameApi.setAutobuyerActive(crunch, false)
@@ -2388,18 +2478,13 @@ object OrekiStageAuto {
                 }
                 if (pauseReason != decision.reason) {
                     pauseReason = decision.reason
-                    // [R96 §80.2] 玩家已手动改过坍缩模式则不再覆盖。
-                    if (OrekiPlayerIntent.mayRewriteCrunchMode()) {
-                        GameApi.setCrunchMode(crunch, MODE_TIME)
-                        OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
-                    }
                     Log.i(TAG_AU4C, "policy -> pause (" + decision.reason + ")")
                 }
                 // [R96 第三十四轮 · 关键修复] 间隔写入**不再**被 `pauseReason` 相等与否包住。
                 // 旧实现里等待原因不变就一直跳过写入，导致玩家把 30 秒改成 3600 秒后
                 // 永远恢复不回来（策略以为「已经设过 30 了」）。现在每帧都按当帧目标走
                 // 受管写入：目标与实读值相等则不写（幂等），不等且未被玩家占用才写。
-                writeManagedCrunchInterval(crunch, pauseSeconds, restoreDue, "pause:" + decision.reason)
+                writeManagedCrunchInterval(crunch, pauseSeconds, "pause:" + decision.reason)
                 return
             }
             // [R116-02-01 Kody P1] 间隔写入必须**每帧无条件**执行：加载存档时 pauseReason 初始为 null，
@@ -2435,37 +2520,12 @@ object OrekiStageAuto {
             }
             // [R116-02-01 Kody] 若本帧随后会进入 eternity-zero 分支，跳过这里的写入：
             // 否则同一 tick 会先写 60/600 再被写成 5，产生两次 setCrunchInterval 与刷屏日志。
-            // [R116-02-01 Kody P1] AMOUNT / X_HIGHEST 模式不读 TIME interval，只写 interval 等于没有
-            // 成长保护（实测存档 mode=0 + amount=10^2.3e8，会长期不结算或按玩家阈值连续结算）。
-            // 永恒层由 MOD 调度器负责节奏，因此这里在玩家未手动占用模式时切到 TIME，
-            // 让成长窗口真正生效；首次永恒前不切，保持原版 farming 行为。
-            // [R116-03-01 Kody·high] 写权限被玩家占用（或 restoreDue 交还中）时重置闩锁：
-            // 否则权限交还后 mode 仍停在非 TIME，成长窗口静默失效、IP 停滞回归。
-            if (!OrekiPlayerIntent.mayRewriteCrunchMode()) {
-                eternityLayerModeInitialized = false
-            }
-            if (!eternityLayerModeInitialized) {
-                // [R116-03-01 Kody·medium] 不能要求 isBroken()：Reality 后 Break 被重置、
-                // isBroken()=false，那样模式归一化整条路径不可达，AMOUNT/X_HIGHEST 存档
-                // 永远不会切到 TIME，600s 成长窗口对它无效。改用 inEternityLayer 单独判定。
-                if (growthWindow &&
-                    GameApi.crunchMode(crunch) != MODE_TIME &&
-                    OrekiPlayerIntent.mayRewriteCrunchMode()
-                ) {
-                    // [AU4b] 一次性初始化闩锁：保证本段只在首次进入时写一次 mode。
-                    // 证据等级：这是 `scripts/verify_build_contracts.py` 的 au4b 契约要求
-                    // （写 mode 必须被一次性初始化块包住），**不是**「R74 根因已证实」；
-                    // R74 的具体成因仍属 [推断]，需要独立 A/B 运行证据才能定性。
-                    eternityLayerModeInitialized = true
-                    GameApi.setCrunchMode(crunch, MODE_TIME)
-                    OrekiPlayerIntent.noteCrunchModeWritten(MODE_TIME)
-                    Log.i(TAG_AU4C, "policy -> mode=TIME (eternity-layer growth window)")
-                }
-            }
+            // AMOUNT / X_HIGHEST 不读取 TIME interval；受管 mode 已在上方同一调度 Tick
+            // 统一校正为 TIME，因此这里只依据当拍真实 mode 选择后续 interval 写入路径。
             val willEnterZeroBranch =
                 OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME
             if (!willEnterZeroBranch) {
-                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
+                writeManagedCrunchInterval(crunch, resumeInterval, "resume:" + decision.reason)
             }
             if (pauseReason != null) {
                 pauseReason = null
@@ -2505,7 +2565,7 @@ object OrekiStageAuto {
                 } else {
                     POST_BREAK_RESUME_SECONDS
                 }
-                writeManagedCrunchInterval(crunch, zeroInterval, restoreDue, "eternity-zero")
+                writeManagedCrunchInterval(crunch, zeroInterval, "eternity-zero")
                 return
             }
 
@@ -2518,10 +2578,9 @@ object OrekiStageAuto {
             if (!isBroken() && !inEternityLayerNow) {
                 if (!preBreakCrunchInitialized) {
                     preBreakCrunchInitialized = true
-                    GameApi.setCrunchMode(crunch, MODE_TIME)
-                    Log.i(TAG_AU4C, "policy -> TIME/10s (pre-break IP harvest)")
+                    Log.i(TAG_AU4C, "policy -> managed interval/10s (pre-break IP harvest)")
                 }
-                writeManagedCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS, restoreDue, "pre-break")
+                writeManagedCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS, "pre-break")
                 return
             }
 
@@ -2556,11 +2615,10 @@ object OrekiStageAuto {
                 // ---- 早期：TIME 模式 + 1 秒 ----
                 if (!crunchTimeModeInitialized) {
                     crunchTimeModeInitialized = true
-                    GameApi.setCrunchMode(crunch, MODE_TIME)
                     Log.i(TAG_AU4C, "policy -> TIME/1s (break-upgrades empty)")
                 }
                 // 间隔 1 秒是本策略自己的节奏参数，可以继续每帧校准
-                writeManagedCrunchInterval(crunch, 1.0, restoreDue, "break-empty")
+                writeManagedCrunchInterval(crunch, 1.0, "break-empty")
             }
         } catch (error: Throwable) {
             // [R96] 不能静默：策略类若 VerifyError / 初始化失败，表现就是「完全不生效」。

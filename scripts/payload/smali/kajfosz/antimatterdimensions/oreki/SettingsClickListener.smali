@@ -169,11 +169,11 @@
     return-void
 
     :case_reset
-    const-wide v2, 0x40c3880000000000L    # 10000.0
+    iget-object v1, p0, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->act:Landroid/app/Activity;
 
-    invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->set(D)Z
+    invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiGamePace;->resetDefault(Landroid/content/Context;)V
 
-    const-string v1, "已恢复默认：游戏速度 ×10000"
+    const-string v1, "已恢复默认：游戏速度 ×3000"
 
     invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->toast(Ljava/lang/String;)V
 

@@ -126,9 +126,8 @@ _n_direct = text.count("setCrunchInterval(crunch,")
 check("间隔写入收拢到 writeManagedCrunchInterval 单一入口",
       _n_direct == 1,
       f"直接写间隔处 {_n_direct} 处（应仅受管入口内 1 处）")
-check("受管入口实现了让路与恢复语义",
-      "mayRewriteCrunchInterval" in text and "releaseCrunchIntervalToMod" in text
-      and "noteCrunchIntervalWritten" in text
+check("受管入口由调度 Tick 唯一对账",
+      "isNewConfigTick" in text and "GameApi.crunchInterval(crunch)" in text
       and "writeManagedCrunchInterval(" in text)
 
 # ---- 7. xHighest 只在 < 10 时补默认 ----
@@ -146,7 +145,8 @@ check("未解锁时直接返回",
 # ⇒ 反物质刚到 1 就填塌、每次 IP 收益≈0、填塌间隔升级买不动。
 # 现要求：未 Break 时**必须**切 TIME 模式 + 常量间隔收割 IP，且 mode 只设一次。
 check("未 Break 时按 TIME + 常量间隔收割 IP",
-      "if (!isBroken()) {" in code and "PRE_BREAK_CRUNCH_SECONDS" in code)
+      "if (!isBroken() && !inEternityLayerNow)" in code
+      and "PRE_BREAK_CRUNCH_SECONDS" in code)
 
 # ---- 10. Break 升级位图判据 ----
 check("按 Break 升级位图基数分支", "bitSetCardinality(bits)" in code)

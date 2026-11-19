@@ -55,7 +55,7 @@ jobs:
           python3 scripts/verify_build_contracts.py --selftest
       - name: Test build-contract verifier migration guard
         run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
-      - name: Ensure DeepSeek AI review and failure triage remain disabled
+      - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Validate cross-repo review, shared quota and Publisher
         run: |

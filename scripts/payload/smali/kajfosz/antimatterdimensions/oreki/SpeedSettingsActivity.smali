@@ -274,7 +274,7 @@
     const/16 v2, 0x3e8
     invoke-static {p0, v7, v6, v2}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addPreset(Landroid/app/Activity;Landroid/widget/LinearLayout;Landroid/widget/EditText;I)V
 
-    const/16 v2, 0x2710
+    const/16 v2, 0xbb8
     invoke-static {p0, v7, v6, v2}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addPreset(Landroid/app/Activity;Landroid/widget/LinearLayout;Landroid/widget/EditText;I)V
 
     const v2, 0x186a0
@@ -287,7 +287,7 @@
     invoke-direct {p0, v0, v6, v2, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAction(Landroid/widget/LinearLayout;Landroid/widget/EditText;ILjava/lang/String;)V
 
     const/4 v2, 0x2
-    const-string v3, "恢复默认（×10000）"
+    const-string v3, "恢复默认（×3000）"
 
     invoke-direct {p0, v0, v6, v2, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAction(Landroid/widget/LinearLayout;Landroid/widget/EditText;ILjava/lang/String;)V
 
