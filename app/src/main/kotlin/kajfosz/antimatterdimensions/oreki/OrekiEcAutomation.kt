@@ -130,6 +130,12 @@ object OrekiEcAutomation {
     /** 原版 EC 总数。 */
     private const val EC_COUNT = 12
 
+    /** EC1/EC4 入口门禁的短周期缓存；避免主循环每帧重复遍历挑战并做反射查找。 */
+    private const val ENTRY_GATE_CACHE_MS = 1_000L
+    private var entryGateExemptCachedAtMs: Long = -1L
+    private var entryGateExemptCachedSaveId: String = ""
+    private var entryGateExemptCachedValue: Boolean = false
+
     /** 只在步骤变化时打日志，避免刷屏（每拍最多一条）。 */
     @Volatile private var lastStep: String = ""
 
@@ -279,11 +285,22 @@ object OrekiEcAutomation {
         // 挑战进行中不得因 EC1/EC4 入口未达成而放宽收益门槛，否则可能在中途
         // 真实永恒并把当前挑战重置；入口推进只发生在挑战外。
         if (GameApi.inAnyChallenge()) return false
+        val now = android.os.SystemClock.elapsedRealtime()
+        val saveId = GameApi.saveIdentity() ?: ""
+        if (saveId == entryGateExemptCachedSaveId &&
+            entryGateExemptCachedAtMs >= 0L &&
+            now - entryGateExemptCachedAtMs in 0L..ENTRY_GATE_CACHE_MS
+        ) {
+            return entryGateExemptCachedValue
+        }
         val target = nextTargetId()
-        if (target != 1 && target != 4) return false
-        val study = Abi.study(target) ?: return false
-        val entryGoalMet = Abi.entryGoalMet(study) ?: return false
-        return shouldExemptEntryEternityGainGate(target, entryGoalMet)
+        val study = if (target == 1 || target == 4) Abi.study(target) else null
+        val entryGoalMet = if (study != null) Abi.entryGoalMet(study) else null
+        val result = shouldExemptEntryEternityGainGate(target, entryGoalMet)
+        entryGateExemptCachedAtMs = now
+        entryGateExemptCachedSaveId = saveId
+        entryGateExemptCachedValue = result
+        return result
     }
 
     /** 纯判据：只认下一目标 EC1/EC4 且入口目标尚未达成。 */

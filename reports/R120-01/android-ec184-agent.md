@@ -105,9 +105,25 @@ python3 -m py_compile scripts/fixture_eternity_gate.py scripts/verify_build_cont
 - 新增驻留判据 2 项单测 PASS；
 - APK/AVD：环境 BLOCKED，见 `reports/R120-01/avd-install-blocked.md`。
 
-最终源码（含挑战中禁止收益豁免）AGP r8off APK：
+最终源码（含挑战中禁止收益豁免、Reality 历史修复与 v2/v3 签名修复）AGP r8off APK：
 
-- 路径：`build/r120-01-final/r8off/app-release.apk`
-- SHA-256：`74bc5a77de804ede5f8ebfdd3080e8970d3b447331ba975ee7e767183047ddd4`
+- 路径：`agp/app/build/outputs/apk/release/app-release.apk`
+- SHA-256：`ca1a0982232b71cced9f81a7f04e21615d1ad7434a051c510f84560673ebd935`
 - V3 证书：`95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`
-- 构建：PASS；AVD 安装/运行仍为 BLOCKED。
+- 签名：API 24–27 分段 v2 PASS、API 28–32 分段 v3 PASS
+- 构建：PASS
+- AVD：安装 PASS；进程启动、Activity resumed PASS；系统级 `system` ANR 挡住游戏画面，GUI 功能验收 BLOCKED。
+
+## R120-01 Kody 复审修复（2026-11-20）
+
+- 修复 Reality 后 `eternities` / `bigEternities` 被原版清零时的首次永恒误判：
+  `neverEternitied()` 现在同时要求 `realities` / `bigRealities` 为零，只有四项
+  历史计数均为零才是真正首次永恒。任一读取失败按非首次处理，避免旧档被 180 秒驻留反复卡住。
+- 修复 EC1/EC4 入口门禁每帧重复遍历挑战与反射查找：入口判据增加 1 秒短周期缓存；
+  挑战状态仍每帧立即检查，进入挑战时不会复用挑战外的豁免结果。
+- 单测：`OrekiAutoEternityGateTest` 新增 Reality 历史正反极性；AGP
+  `:app:testDebugUnitTest` PASS。
+- 门禁夹具：`python3 scripts/fixture_eternity_gate.py` 56 项、0 失败。
+- 公共 CI 契约：`python3 scripts/verify_build_contracts.py` 5 项 PASS、树级 5 项显式 SKIP。
+- EC4 Kody 结论不成立：冻结上游 `ec-time-studies.js` 使用 `Currency.infinitiesTotal`，
+  即当前无限次数加 banked；真实永恒只重置前者。
