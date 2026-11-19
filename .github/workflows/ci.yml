@@ -57,6 +57,11 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
       - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
+      - name: Validate cross-repo review, shared quota and Publisher
+        run: |
+          node scripts/tests/test_review_context.mjs
+          node scripts/tests/test_audit_quota.mjs
+          node scripts/tests/test_publish_review.mjs
       - name: Verify DeepSeek off-peak billing calendar and time boundaries
         run: python3 -m unittest discover -s scripts/tests -p 'test_deepseek_pricing.py' -v
       # Existing source baseline has 67 naming violations (first CI run).
