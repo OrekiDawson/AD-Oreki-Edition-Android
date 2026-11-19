@@ -2009,7 +2009,7 @@ object OrekiStageAuto {
         reconcileBooleanField(
             "crunch.increaseWithMult",
             increase,
-            true,
+            false,
         ) { GameApi.setCrunchIncreaseWithMult(crunch, it) }
     }
 

@@ -23,7 +23,7 @@ public class OrekiManagedAutobuyerScenarioTest {
         int tickspeedMode = 1;
         int crunchAmount = 99;
         int crunchXHighest = 99;
-        boolean increaseWithMult = false;
+        boolean increaseWithMult = true;
         boolean dimBoostLimited = true;
         boolean galaxyLimited = true;
         long appliedTick = 0;
@@ -74,8 +74,8 @@ public class OrekiManagedAutobuyerScenarioTest {
                 crunchXHighest = 10;
                 writes.add("crunch.xHighest");
             }
-            if (!increaseWithMult) {
-                increaseWithMult = true;
+            if (increaseWithMult) {
+                increaseWithMult = false;
                 writes.add("crunch.increaseWithMult");
             }
             if (OrekiManagedAutobuyerAuthority.integerNeedsWrite(
@@ -108,7 +108,7 @@ public class OrekiManagedAutobuyerScenarioTest {
         model.modes.replaceAll((key, value) -> 1);
         model.crunchAmount = 999;
         model.crunchXHighest = 999;
-        model.increaseWithMult = false;
+        model.increaseWithMult = true;
         model.dimBoostLimited = true;
         model.galaxyLimited = true;
         model.clearWrites();
@@ -127,7 +127,7 @@ public class OrekiManagedAutobuyerScenarioTest {
         assertEquals(100, model.modes.get("tickspeed").intValue());
         assertEquals(10, model.crunchAmount);
         assertEquals(10, model.crunchXHighest);
-        assertTrue(model.increaseWithMult);
+        assertFalse(model.increaseWithMult);
         assertFalse(model.dimBoostLimited);
         assertFalse(model.galaxyLimited);
         assertTrue(model.writes.size() >= 12);

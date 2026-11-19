@@ -39,7 +39,7 @@
 - 献祭：`isActive`、`multiplier=2`
 - 无限点数倍率：`isActive`
 - 大坍缩：有效 `isActive`、`mode=TIME`、`time`、`amount=10`、
-  `xHighest=10`、`increaseWithMult=true`
+  `xHighest=10`、`increaseWithMult=false`
 
 ## 验证证据
 
