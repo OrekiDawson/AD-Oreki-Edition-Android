@@ -48,6 +48,17 @@ internal object OrekiAutoEternityGate {
     fun autoEternitySwitchOn(): Boolean = GameApi.autoEternityIsActive() == true
 
     /**
+     * [R120-01 P0] 只有原版自动永恒已经解锁时，`isActive=true` 才可能代表玩家
+     * 亲自开启并授权自动结算。未解锁时 R118/R119 会由 MOD 持久化该字段以重建
+     * 跨读档所有权；这层内部状态不得绕过首次永恒 180 s 驻留。
+     */
+    @JvmStatic
+    fun playerSwitchBypassesFirstEternityDwell(
+        autoEternitySwitchOn: Boolean,
+        autoEternityUnlocked: Boolean,
+    ): Boolean = autoEternitySwitchOn && autoEternityUnlocked
+
+    /**
      * [R119-01 P1 / Web #69 parity] 自动永恒未解锁且存档已永恒过时，读档/冷启动
      * 丢失 freshSession 内存 latch 不应被当成玩家关闭。
      *
@@ -214,8 +225,13 @@ internal object OrekiAutoEternityGate {
      */
     @JvmStatic
     fun firstEternityDwellRemainingMs(): Long {
-        // 玩家亲自打开自动化 = 明确授权自动结算，不驻留。
-        if (autoEternitySwitchOn()) return 0L
+        // 只有已解锁后的开关才是玩家可表达的意图；未解锁时 true 可能是 MOD 的
+        // 跨读档所有权持久化，仍必须经过首次永恒驻留。
+        if (playerSwitchBypassesFirstEternityDwell(
+                autoEternitySwitchOn(),
+                GameApi.autoEternityUnlocked(),
+            )
+        ) return 0L
         // 非首次永恒：既有自动化节奏不受影响。
         if (!neverEternitied()) return 0L
         if (!GameApi.canEternity()) {

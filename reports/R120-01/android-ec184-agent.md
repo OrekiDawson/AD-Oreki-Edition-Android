@@ -85,3 +85,22 @@ python3 -m py_compile scripts/fixture_eternity_gate.py scripts/verify_build_cont
 
 - `O()` 入口目标依赖官方 requirement 缓存；若首次查询发生在缓存未初始化时返回 false，本修复会 fail-closed 保持原门槛，不会误放宽。
 - 尚未在真实 APK 上验证完整读档曲线；不得以单测替代 AVD/真机 PASS。
+
+## R120-01 追加 P0：首次永恒驻留不得被未解锁开关绕过
+
+真实 Web 新档回归在 t=21 s 记录 `isActive=true / eAutoUnl=false`，并于 t=101 s
+发生首次永恒，证明 R118/R119 为跨读档所有权持久化的未解锁开关会被旧驻留判据
+误认为玩家亲自开启。Android 同源代码存在同一语义缺口。
+
+修复：
+
+- `OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell()` 只允许
+  `isActive=true && autoEternityUnlocked=true` 绕过驻留；
+- 未解锁时由 MOD 写入的 `isActive=true` 仍开始 180 s 驻留；
+- 新增锁定开关不绕过、已解锁开关绕过的正反极性单测。
+
+验证：
+
+- AGP `:app:testDebugUnitTest`：BUILD SUCCESSFUL；
+- 新增驻留判据 2 项单测 PASS；
+- APK/AVD：环境 BLOCKED，见 `reports/R120-01/avd-install-blocked.md`。
