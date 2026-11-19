@@ -1665,6 +1665,29 @@ internal object GameApi {
 
     /** 写入 AMOUNT 阈值（自动化配置；失败返回 false，不伪造成功）。 */
     fun setCrunchAmount(s: Any?, v: Any?): Boolean = writeGameField(s, "amount", v)
+    private var mCrunchH: Method? = null
+    private var mCrunchHResolved: Boolean = false
+    private fun mCrunchH(): Method? {
+        if (!mCrunchHResolved) {
+            mCrunchHResolved = true
+            mCrunchH = method(crunchCls(), "H", 0, "Crunch.H()=increaseWithMult")
+        }
+        return mCrunchH
+    }
+    private var mCrunchN: Method? = null
+    private var mCrunchNResolved: Boolean = false
+    private fun mCrunchN(): Method? {
+        if (!mCrunchNResolved) {
+            mCrunchNResolved = true
+            mCrunchN = method(crunchCls(), "N", 1, "Crunch.N(Z)=setIncreaseWithMult")
+        }
+        return mCrunchN
+    }
+    fun crunchIncreaseWithMult(s: Any?): Boolean? = call(mCrunchH(), s) as? Boolean
+    fun setCrunchIncreaseWithMult(s: Any?, value: Boolean) {
+        call(mCrunchN(), s, value)
+        markAutobuyerUiDirty()
+    }
     fun setCrunchMode(s: Any?, mode: Int) {
         call(mCrunchA(), s, mode)
         markAutobuyerUiDirty()
@@ -1690,6 +1713,181 @@ internal object GameApi {
     fun crunchBuy(s: Any?) = call(mCrunchUpA(), s, false)
 
     // ---------------------------------------------------------------- 自动购买器基类
+
+    private var mDimAutobuyerMode: Method? = null
+    private var mDimAutobuyerModeResolved: Boolean = false
+    private fun mDimAutobuyerMode(): Method? {
+        if (!mDimAutobuyerModeResolved) {
+            mDimAutobuyerModeResolved = true
+            mDimAutobuyerMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.AntimatterDimensionAutobuyerState"),
+                "E", 0, "AntimatterDimensionAutobuyerState.E()=mode",
+            )
+        }
+        return mDimAutobuyerMode
+    }
+    private var mDimAutobuyerSetMode: Method? = null
+    private var mDimAutobuyerSetModeResolved: Boolean = false
+    private fun mDimAutobuyerSetMode(): Method? {
+        if (!mDimAutobuyerSetModeResolved) {
+            mDimAutobuyerSetModeResolved = true
+            mDimAutobuyerSetMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.AntimatterDimensionAutobuyerState"),
+                "a", 1, "AntimatterDimensionAutobuyerState.a(I)=setMode",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mDimAutobuyerSetMode
+    }
+    fun dimensionAutobuyerMode(a: Any?): Int? = call(mDimAutobuyerMode(), a) as? Int
+    fun setDimensionAutobuyerMode(a: Any?, mode: Int) {
+        call(mDimAutobuyerSetMode(), a, mode)
+        markAutobuyerUiDirty()
+    }
+
+    private var mTickspeedAutobuyerMode: Method? = null
+    private var mTickspeedAutobuyerModeResolved: Boolean = false
+    private fun mTickspeedAutobuyerMode(): Method? {
+        if (!mTickspeedAutobuyerModeResolved) {
+            mTickspeedAutobuyerModeResolved = true
+            mTickspeedAutobuyerMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.TickspeedAutobuyerState"),
+                "D", 0, "TickspeedAutobuyerState.D()=mode",
+            )
+        }
+        return mTickspeedAutobuyerMode
+    }
+    private var mTickspeedAutobuyerSetMode: Method? = null
+    private var mTickspeedAutobuyerSetModeResolved: Boolean = false
+    private fun mTickspeedAutobuyerSetMode(): Method? {
+        if (!mTickspeedAutobuyerSetModeResolved) {
+            mTickspeedAutobuyerSetModeResolved = true
+            mTickspeedAutobuyerSetMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.TickspeedAutobuyerState"),
+                "a", 1, "TickspeedAutobuyerState.a(I)=setMode",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mTickspeedAutobuyerSetMode
+    }
+    fun tickspeedAutobuyerMode(a: Any?): Int? =
+        call(mTickspeedAutobuyerMode(), a) as? Int
+    fun setTickspeedAutobuyerMode(a: Any?, mode: Int) {
+        call(mTickspeedAutobuyerSetMode(), a, mode)
+        markAutobuyerUiDirty()
+    }
+
+    private var mDimBoostLimit: Method? = null
+    private var mDimBoostLimitResolved: Boolean = false
+    private fun mDimBoostLimit(): Method? {
+        if (!mDimBoostLimitResolved) {
+            mDimBoostLimitResolved = true
+            mDimBoostLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "E", 0, "DimBoostAutobuyerState.E()=limitDimBoosts",
+            )
+        }
+        return mDimBoostLimit
+    }
+    private var mDimBoostSetLimit: Method? = null
+    private var mDimBoostSetLimitResolved: Boolean = false
+    private fun mDimBoostSetLimit(): Method? {
+        if (!mDimBoostSetLimitResolved) {
+            mDimBoostSetLimitResolved = true
+            mDimBoostSetLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "K", 1, "DimBoostAutobuyerState.K(Z)=setLimitDimBoosts",
+                paramTypeNames = listOf("boolean"),
+            )
+        }
+        return mDimBoostSetLimit
+    }
+    private var mDimBoostLimitGalaxies: Method? = null
+    private var mDimBoostLimitGalaxiesResolved: Boolean = false
+    private fun mDimBoostLimitGalaxies(): Method? {
+        if (!mDimBoostLimitGalaxiesResolved) {
+            mDimBoostLimitGalaxiesResolved = true
+            mDimBoostLimitGalaxies = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "F", 0, "DimBoostAutobuyerState.F()=limitUntilGalaxies",
+            )
+        }
+        return mDimBoostLimitGalaxies
+    }
+    private var mDimBoostSetLimitGalaxies: Method? = null
+    private var mDimBoostSetLimitGalaxiesResolved: Boolean = false
+    private fun mDimBoostSetLimitGalaxies(): Method? {
+        if (!mDimBoostSetLimitGalaxiesResolved) {
+            mDimBoostSetLimitGalaxiesResolved = true
+            mDimBoostSetLimitGalaxies = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "L", 1, "DimBoostAutobuyerState.L(Z)=setLimitUntilGalaxies",
+                paramTypeNames = listOf("boolean"),
+            )
+        }
+        return mDimBoostSetLimitGalaxies
+    }
+    fun dimBoostLimitDimBoosts(a: Any?): Boolean? =
+        call(mDimBoostLimit(), a) as? Boolean
+    fun setDimBoostLimitDimBoosts(a: Any?, value: Boolean) {
+        call(mDimBoostSetLimit(), a, value)
+        markAutobuyerUiDirty()
+    }
+    fun dimBoostLimitUntilGalaxies(a: Any?): Boolean? =
+        call(mDimBoostLimitGalaxies(), a) as? Boolean
+    fun setDimBoostLimitUntilGalaxies(a: Any?, value: Boolean) {
+        call(mDimBoostSetLimitGalaxies(), a, value)
+        markAutobuyerUiDirty()
+    }
+
+    private var mGalaxyLimit: Method? = null
+    private var mGalaxyLimitResolved: Boolean = false
+    private fun mGalaxyLimit(): Method? {
+        if (!mGalaxyLimitResolved) {
+            mGalaxyLimitResolved = true
+            mGalaxyLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.GalaxyAutobuyerState"),
+                "D", 0, "GalaxyAutobuyerState.D()=limitGalaxies",
+            )
+        }
+        return mGalaxyLimit
+    }
+    private var mGalaxySetLimit: Method? = null
+    private var mGalaxySetLimitResolved: Boolean = false
+    private fun mGalaxySetLimit(): Method? {
+        if (!mGalaxySetLimitResolved) {
+            mGalaxySetLimitResolved = true
+            mGalaxySetLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.GalaxyAutobuyerState"),
+                "H", 1, "GalaxyAutobuyerState.H(Z)=setLimitGalaxies",
+                paramTypeNames = listOf("boolean"),
+            )
+        }
+        return mGalaxySetLimit
+    }
+    fun galaxyLimitGalaxies(a: Any?): Boolean? = call(mGalaxyLimit(), a) as? Boolean
+    fun setGalaxyLimitGalaxies(a: Any?, value: Boolean) {
+        call(mGalaxySetLimit(), a, value)
+        markAutobuyerUiDirty()
+    }
+
+    private var mSacrificeAutobuyerSetMultiplier: Method? = null
+    private var mSacrificeAutobuyerSetMultiplierResolved: Boolean = false
+    private fun mSacrificeAutobuyerSetMultiplier(): Method? {
+        if (!mSacrificeAutobuyerSetMultiplierResolved) {
+            mSacrificeAutobuyerSetMultiplierResolved = true
+            mSacrificeAutobuyerSetMultiplier = method(
+                sacrificeAutobuyerCls(),
+                "l", 1, "SacrificeAutobuyerState.l(BigDouble)=setMultiplier",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
+        }
+        return mSacrificeAutobuyerSetMultiplier
+    }
+    fun setSacrificeMultiplier(value: Any?) {
+        call(mSacrificeAutobuyerSetMultiplier(), sacrificeAutobuyer(), value)
+        markAutobuyerUiDirty()
+    }
 
     private var mBaseI: Method? = null
     private var mBaseIResolved: Boolean = false
@@ -1751,6 +1949,37 @@ internal object GameApi {
             unlockField.getBoolean(a)
         } catch (error: Throwable) {
             miss("read isUnlocked", error)
+            null
+        }
+    }
+
+    private val autobuyerUnlockMethodCache = HashMap<Class<*>, Method?>()
+
+    /**
+     * 读取自动器的原版 `g()Z` 解锁判定。
+     *
+     * 有持久化 `isUnlocked` 字段的维度/计数频率仍以该字段为准；其余自动器调用
+     * 实例真实 `g()`，保留挑战、永恒里程碑与佩勒禁用门禁。读不到返回 null，
+     * 调用方必须 fail-closed，不能据此提前启用或显示受管配置。
+     */
+    fun isAutobuyerActuallyUnlocked(a: Any?): Boolean? {
+        if (a == null) return null
+        isAutobuyerUnlockedFlag(a)?.let { return it }
+        val unlockMethod = try {
+            autobuyerUnlockMethodCache.getOrPut(a.javaClass) {
+                a.javaClass.methods.firstOrNull {
+                    it.name == "g" && it.parameterCount == 0 &&
+                        it.returnType == java.lang.Boolean.TYPE
+                }
+            }
+        } catch (error: Throwable) {
+            miss("resolve autobuyer g()", error)
+            null
+        } ?: return null
+        return try {
+            unlockMethod.invoke(a) as? Boolean
+        } catch (error: Throwable) {
+            miss("invoke autobuyer g()", error)
             null
         }
     }

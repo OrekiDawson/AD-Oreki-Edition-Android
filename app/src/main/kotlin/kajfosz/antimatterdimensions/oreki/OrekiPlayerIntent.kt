@@ -6,8 +6,9 @@ import android.util.Log
 /**
  * [R96 第二十轮] 玩家意图守卫 —— 记录手动改动，并按策略 tick 延迟恢复建议配置。
  *
- * 目标驱动型智能自动购买器不能在下一帧抢写玩家刚改的配置；明确受管项目（包括
- * 原版自动购买器总开关与单项开关）要在下一次策略 tick 恢复当时最新建议值。
+ * [R120-01，用户最新规则] 调度器是受管自动购买器配置的唯一权威来源。玩家修改可以
+ * 临时存在，但在下一次有效调度 Tick 必须恢复当前阶段策略值。本对象只保留历史诊断
+ * 接口和 MOD 全局总开关边界，不再允许玩家配置永久覆盖策略。
  *
  * 原实现的问题（实测口径）：
  *   · `enableEarly()` 无条件 `setAutobuyersOn(true)` 并逐个激活维度/速度/提升/星系/坍缩自动器，
@@ -65,7 +66,8 @@ object OrekiPlayerIntent {
                 return
             }
             clearManagedActivePending("master")
-            masterPlayerDisabled = true
+            // 原版总开关关闭时托管层会让路；重新打开后下一有效 Tick 再统一应用策略。
+            masterPlayerDisabled = false
         } catch (_: Throwable) {
         }
     }
@@ -297,18 +299,13 @@ object OrekiPlayerIntent {
             return
         }
         if (current == crunchModeWritten || current == target) return
-        if (!crunchModePlayerOwned) {
-            crunchModePlayerOwned = true
-            Log.i(
-                TAG,
-                "player changed crunch mode current=$current modWrote=$crunchModeWritten -> MOD stops rewriting"
-            )
-        }
+        crunchModePlayerOwned = false
+        Log.i(TAG, "crunch mode changed current=$current target=$target -> restore next scheduler tick")
     }
 
     /** MOD 此刻是否允许改写坍缩模式。false = 玩家已手动改过，让路。 */
     @JvmStatic
-    fun mayRewriteCrunchMode(): Boolean = !crunchModePlayerOwned
+    fun mayRewriteCrunchMode(): Boolean = true
 
     // ---------------- 大坍缩自动器间隔（§81.1 第 4/5/7 条受管项） ----------------
 
@@ -356,20 +353,17 @@ object OrekiPlayerIntent {
             return
         }
         if (sameInterval(current, crunchIntervalWritten) || sameInterval(current, target)) return
-        if (!crunchIntervalPlayerOwned) {
-            crunchIntervalPlayerOwned = true
-            Log.i(
-                TAG,
-                "player changed crunch interval current=" + current +
-                    " modWrote=" + crunchIntervalWritten + " target=" + target +
-                    " -> MOD stops rewriting until next strategy tick"
-            )
-        }
+        crunchIntervalPlayerOwned = false
+        Log.i(
+            TAG,
+            "crunch interval changed current=" + current + " target=" + target +
+                " -> restore next scheduler tick"
+        )
     }
 
     /** MOD 此刻是否允许写坍缩间隔。false = 玩家占用中，等恢复时机。 */
     @JvmStatic
-    fun mayRewriteCrunchInterval(): Boolean = !crunchIntervalPlayerOwned
+    fun mayRewriteCrunchInterval(): Boolean = true
 
     /**
      * 恢复时机已到：把归属交还 MOD，随后按**当时最新**策略值写一次。
