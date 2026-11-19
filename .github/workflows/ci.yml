@@ -163,6 +163,7 @@ jobs:
             -ignore 'unexpected key "queue"' \
             .github/workflows/ci.yml \
             .github/workflows/candidate-unified.yml \
+            .github/workflows/codex-deepseek-review.yml \
             .github/workflows/r8-experiment.yml \
             .github/workflows/pr-review-summary.yml \
             .github/workflows/kody-trigger.yml \
