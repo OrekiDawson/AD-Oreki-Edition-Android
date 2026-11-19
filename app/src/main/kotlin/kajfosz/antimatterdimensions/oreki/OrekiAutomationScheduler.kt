@@ -176,33 +176,6 @@ object OrekiAutomationScheduler {
     @Volatile
     private var intervalSec: Int = INTERVAL_DEFAULT
 
-    // ------------------------------------------- [R107-01 STAGECAP] 阶段化节拍
-    //
-    // 默认 10s 节拍是 180 分钟通关的主瓶颈（AVD：默认设置首 reality≈2540s；
-    // interval=1 仅≈14.6min）。这里只做「实际生效间隔 = min(配置值, 阶段上限)」：
-    //   realities == 0      → cap 1s（bootstrap：每拍都要推进 TT/TS/EC/膨胀研究）
-    //   1..9                → cap 2s
-    //   10..49              → cap 3s
-    //   >=50                → cap 5s
-    // 依据：reality 数越少，单一动作（买 TT/时间研究/EC 研究/膨胀研究）越关键，
-    // 需要更密节拍；reality 数上来后单拍收益递减，放宽到 2~5s 以控制 GUI/CPU。
-    // **用户配置值仍原样保存/显示**；若玩家设置比 cap 更小则按其值（min 语义）。
-    // 只读 GameApi.realitiesValue()，不写任何玩家字段。
-    @Volatile
-    private var stageCapCacheAt: Long = 0L
-
-    @Volatile
-    private var stageCapCacheSec: Int = INTERVAL_MIN
-
-    @Volatile
-    private var stageCapLogAt: Long = 0L
-
-    @Volatile
-    private var stageCapLoggedSignature: String = ""
-
-    private const val STAGE_CAP_CACHE_MS = 1000L
-    private const val STAGE_CAP_LOG_MS = 10_000L
-
     @Volatile
     private var strictGlobal: Boolean = false
 
@@ -449,68 +422,11 @@ object OrekiAutomationScheduler {
         else -> value
     }
 
-    /**
-     * [R107-01 STAGECAP] 当前**实际生效**的节拍上限（reality 阶段只读判定，1s 缓存）。
-     * 异常/读不到 realities 时 fail-closed 返回 1s（宁可快，动作仍由游戏逻辑裁决）。
-     */
+    /** 配置值就是实际周期；阶段变化不得缩短或放大调度 tick。 */
     @JvmStatic
-    fun stageCapSec(): Int {
-        refreshStageCap(android.os.SystemClock.elapsedRealtime())
-        return stageCapCacheSec
-    }
+    fun effectiveIntervalSec(): Int = intervalSec
 
-    /**
-     * [R107-01 STAGECAP] 实际生效间隔 = min(用户配置, 阶段上限)。
-     * 玩家把 interval 设得比 cap 更小时返回玩家值（min 语义）。
-     */
-    @JvmStatic
-    fun effectiveIntervalSec(): Int {
-        refreshStageCap(android.os.SystemClock.elapsedRealtime())
-        return if (intervalSec < stageCapCacheSec) intervalSec else stageCapCacheSec
-    }
-
-    /**
-     * 只读刷新阶段上限：1s 缓存；阶段变化或 effective != configured 时限频打日志
-     * （TAG=OREKI_SCHED，10s 一条），便于 AVD 诊断「为什么日志里的节拍不是配置值」。
-     */
-    private fun refreshStageCap(now: Long) {
-        if (stageCapCacheAt != 0L && now - stageCapCacheAt < STAGE_CAP_CACHE_MS) return
-        stageCapCacheAt = now
-        val realities = try {
-            GameApi.realitiesValue()
-        } catch (_: Throwable) {
-            null
-        }
-        val cap: Int
-        if (realities == null) {
-            cap = INTERVAL_MIN
-        } else {
-            val realitiesCompareZero = GameApi.compareToDouble(realities, 0.0)
-            val cmp10 = GameApi.compareToDouble(realities, 10.0)
-            val cmp50 = GameApi.compareToDouble(realities, 50.0)
-            cap = when {
-                realitiesCompareZero == null || realitiesCompareZero <= 0 -> 1
-                cmp10 == null -> 1
-                cmp10 < 0 -> 2
-                cmp50 == null -> 3
-                cmp50 < 0 -> 3
-                else -> 5
-            }
-        }
-        stageCapCacheSec = cap
-        val effective = if (intervalSec < cap) intervalSec else cap
-        if (effective != intervalSec) {
-            val signature = "cap=" + cap + " configured=" + intervalSec + " effective=" + effective +
-                " realities=" + (realities?.toString() ?: "null")
-            if (signature != stageCapLoggedSignature || now - stageCapLogAt >= STAGE_CAP_LOG_MS) {
-                stageCapLoggedSignature = signature
-                stageCapLogAt = now
-                logI("stagecap " + signature + "（实际节拍按 min(配置,阶段上限)，配置值不变）")
-            }
-        }
-    }
-
-    /** 用户配置的动作间隔换算成毫秒，供各模块自守闸用；[R107-01] 跟随实际生效节拍。 */
+    /** 用户配置的动作间隔换算成毫秒，供各模块自守闸用。 */
     @JvmStatic
     fun intervalMs(): Int = effectiveIntervalSec() * 1000
 
@@ -549,7 +465,7 @@ object OrekiAutomationScheduler {
     fun globalGuiTickDue(): Boolean {
         if (!enabled) return false
         val now = SystemClock.elapsedRealtime()
-        // [R107-01 STAGECAP] GUI 强同步跟随实际节拍（bootstrap 1s），避免画面/数据落后于动作
+        // GUI 强同步与实际调度周期使用同一配置值。
         val gap = effectiveIntervalSec() * 1000L
         if (lastGuiTickAtMs != 0L && now - lastGuiTickAtMs < gap) return false
         lastGuiTickAtMs = now
@@ -654,8 +570,7 @@ object OrekiAutomationScheduler {
         }
 
         // ---- [R77] 全局统一节拍：所有任务的第一道闸 ----
-        // [R107-01 STAGECAP] 两道闸都用「实际生效间隔 = min(配置, 阶段上限)」，
-        // 配置值只影响 UI/存档，不影响阶段内的推进速度。
+        // 两道闸都严格使用玩家配置周期；阶段变化不改写调度 tick。
         val effectiveMs = effectiveIntervalSec() * 1000L
         val beat = lastBeatAt
         if (beat != 0L && now - beat < effectiveMs) {
@@ -870,8 +785,7 @@ object OrekiAutomationScheduler {
         val now = SystemClock.elapsedRealtime()
         val last = if (idx >= 0) lastAct[idx] else 0L
         val diff = if (last != 0L) (now - last).toInt() else -1
-        logI("dbg idx=$idx last=$diff iv=$intervalSec eff=" + effectiveIntervalSec() +
-            " cap=" + stageCapSec())
+        logI("dbg idx=$idx last=$diff iv=$intervalSec eff=" + effectiveIntervalSec())
     }
 
     /** 硬复位：连时间戳一起清（只在自测/「恢复默认」这类显式动作里用，**不**用于开关）。 */
