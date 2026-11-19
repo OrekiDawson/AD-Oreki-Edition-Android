@@ -418,10 +418,9 @@ android {
                 storePassword = System.getenv("OREKI_KS_PASS") ?: ""
                 keyAlias = "oreki"
                 keyPassword = System.getenv("OREKI_KS_PASS") ?: ""
-                // [R114-01 B9] 完整游戏 Release 显式启用 APK Signature Scheme v3。
-                // 背景：verify_release.py 的硬口径是 v2+v3（"签名方案 v2+v3"）；
-                // AGP 默认只产出 v2，导致 AGP 候选在 verify 阶段必 FAIL。
-                // 这里保留 v1/v2 现有行为，只补 v3（不放松 verifier）。
+                // [R120-01] 显式同时启用 v2/v3：部分 AGP 版本在只开 v3 时产出 v3-only，
+                // 会与 verify_release.py 的 v2+v3 硬门禁冲突。
+                enableV2Signing = true
                 enableV3Signing = true
             }
         }

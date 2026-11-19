@@ -45,4 +45,14 @@ public class OrekiAutoEternityGateTest {
         assertTrue(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
                 true, true));
     }
+
+    @Test
+    public void realityHistory_preventsRepeatedFirstEternityDwell() {
+        assertTrue(OrekiAutoEternityGate.neverEternitiedFromCounters(
+                true, true, true, true));
+        assertFalse(OrekiAutoEternityGate.neverEternitiedFromCounters(
+                true, true, false, true));
+        assertFalse(OrekiAutoEternityGate.neverEternitiedFromCounters(
+                true, true, null, true));
+    }
 }

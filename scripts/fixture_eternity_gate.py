@@ -88,6 +88,9 @@ def main() -> int:
                    / "OrekiEcAutomation.kt").read_text(encoding="utf-8")
         check("EC1/EC4 收益门槛豁免不得作用于挑战进行中",
               "if (GameApi.inAnyChallenge()) return false" in ec_text)
+        check("EC 入口缓存只允许缓存 targetId，不得缓存布尔豁免结果",
+              "entryGateCachedTargetId" in ec_text and
+              "entryGateExemptCachedValue" not in ec_text)
 
     # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
     # 历史沿革（两次纠偏，勿回退）：

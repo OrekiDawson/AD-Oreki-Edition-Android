@@ -132,10 +132,29 @@ internal object OrekiAutoEternityGate {
         if (saveId != null) freshSessionSaveId = saveId
     }
 
+    /**
+     * 从只读计数判断本存档是否从未永恒过。
+     *
+     * Reality 结算会真实清零 `eternities` 与 `bigEternities`，因此只看这两个当前计数
+     * 会把每次 Reality 后的旧档重新判成首次永恒。`realities` / `bigRealities` 是本存档
+     * 已进入现实层的持久证据；任一为正即可证明永恒层早已体验过。任一读取失败按
+     * “非首次”处理，宁可跳过节奏驻留，也不能把旧档无限卡在首次永恒门禁。
+     */
+    @JvmStatic
+    fun neverEternitiedFromCounters(
+        eternitiesZero: Boolean?,
+        bigEternitiesZero: Boolean?,
+        realitiesZero: Boolean?,
+        bigRealitiesZero: Boolean?,
+    ): Boolean = eternitiesZero == true && bigEternitiesZero == true &&
+        realitiesZero == true && bigRealitiesZero == true
+
     private fun neverEternitied(): Boolean {
         val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return false
         val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return false
-        return eZero && bZero
+        val rZero = isZeroValue(GameApi.realitiesValue()) ?: return false
+        val brZero = isZeroValue(GameApi.bigRealitiesValue()) ?: return false
+        return neverEternitiedFromCounters(eZero, bZero, rZero, brZero)
     }
 
     /** 本会话是否从全新档启动（用于"解锁后接管原版开关"的一次性判断）。 */
