@@ -2781,7 +2781,12 @@ object OrekiStageAuto {
         }
         if (!isTrueFirstEternity && gain != null && ep != null) {
             val comparison = GameApi.compareBigDoubles(gain, ep)
-            if (comparison != null && comparison < 0) return "ep-gain-too-low"
+            // [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口分别依赖永恒次数/
+            // 无限次数；入口未达成时不能用收益门槛压住其唯一自然增长途径。
+            // 其他 EC、玩家关闭与首次永恒驻留均由前述判据优先处理，不在未知状态放宽。
+            if (!OrekiEcAutomation.entryEternityGainGateExempt() &&
+                comparison != null && comparison < 0
+            ) return "ep-gain-too-low"
         }
         return "allow"
     }

@@ -31,4 +31,18 @@ public class OrekiAutoEternityGateTest {
         assertFalse(OrekiAutoEternityGate.lockedLayerDriveAllowed(
                 true, false, false, true, false));
     }
+
+    @Test
+    public void lockedPersistedSwitch_doesNotBypassFirstEternityDwell() {
+        assertFalse(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
+                true, false));
+        assertFalse(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
+                false, true));
+    }
+
+    @Test
+    public void unlockedPlayerSwitch_bypassesFirstEternityDwell() {
+        assertTrue(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
+                true, true));
+    }
 }
