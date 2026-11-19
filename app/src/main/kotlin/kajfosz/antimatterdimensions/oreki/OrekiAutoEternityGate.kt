@@ -48,6 +48,17 @@ internal object OrekiAutoEternityGate {
     fun autoEternitySwitchOn(): Boolean = GameApi.autoEternityIsActive() == true
 
     /**
+     * [R120-01 P0] 只有原版自动永恒已经解锁时，`isActive=true` 才可能代表玩家
+     * 亲自开启并授权自动结算。未解锁时 R118/R119 会由 MOD 持久化该字段以重建
+     * 跨读档所有权；这层内部状态不得绕过首次永恒 180 s 驻留。
+     */
+    @JvmStatic
+    fun playerSwitchBypassesFirstEternityDwell(
+        autoEternitySwitchOn: Boolean,
+        autoEternityUnlocked: Boolean,
+    ): Boolean = autoEternitySwitchOn && autoEternityUnlocked
+
+    /**
      * [R119-01 P1 / Web #69 parity] 自动永恒未解锁且存档已永恒过时，读档/冷启动
      * 丢失 freshSession 内存 latch 不应被当成玩家关闭。
      *
@@ -121,10 +132,29 @@ internal object OrekiAutoEternityGate {
         if (saveId != null) freshSessionSaveId = saveId
     }
 
+    /**
+     * 从只读计数判断本存档是否从未永恒过。
+     *
+     * Reality 结算会真实清零 `eternities` 与 `bigEternities`，因此只看这两个当前计数
+     * 会把每次 Reality 后的旧档重新判成首次永恒。`realities` / `bigRealities` 是本存档
+     * 已进入现实层的持久证据；任一为正即可证明永恒层早已体验过。任一读取失败按
+     * “非首次”处理，宁可跳过节奏驻留，也不能把旧档无限卡在首次永恒门禁。
+     */
+    @JvmStatic
+    fun neverEternitiedFromCounters(
+        eternitiesZero: Boolean?,
+        bigEternitiesZero: Boolean?,
+        realitiesZero: Boolean?,
+        bigRealitiesZero: Boolean?,
+    ): Boolean = eternitiesZero == true && bigEternitiesZero == true &&
+        realitiesZero == true && bigRealitiesZero == true
+
     private fun neverEternitied(): Boolean {
         val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return false
         val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return false
-        return eZero && bZero
+        val rZero = isZeroValue(GameApi.realitiesValue()) ?: return false
+        val brZero = isZeroValue(GameApi.bigRealitiesValue()) ?: return false
+        return neverEternitiedFromCounters(eZero, bZero, rZero, brZero)
     }
 
     /** 本会话是否从全新档启动（用于"解锁后接管原版开关"的一次性判断）。 */
@@ -214,8 +244,13 @@ internal object OrekiAutoEternityGate {
      */
     @JvmStatic
     fun firstEternityDwellRemainingMs(): Long {
-        // 玩家亲自打开自动化 = 明确授权自动结算，不驻留。
-        if (autoEternitySwitchOn()) return 0L
+        // 只有已解锁后的开关才是玩家可表达的意图；未解锁时 true 可能是 MOD 的
+        // 跨读档所有权持久化，仍必须经过首次永恒驻留。
+        if (playerSwitchBypassesFirstEternityDwell(
+                autoEternitySwitchOn(),
+                GameApi.autoEternityUnlocked(),
+            )
+        ) return 0L
         // 非首次永恒：既有自动化节奏不受影响。
         if (!neverEternitied()) return 0L
         if (!GameApi.canEternity()) {

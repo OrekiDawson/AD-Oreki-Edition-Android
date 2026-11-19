@@ -78,6 +78,19 @@ def main() -> int:
         check("Kotlin 倍率 = 1（双端统一）", "ETERNITY_SETTLEMENT_MULTIPLIER: Int = 1" in rules, "×1")
         check("Kotlin 倍率不得为 10（会把永恒次数/里程碑卡死）", "Int = 10" not in rules, "×1")
         check("Smali 不再出现硬编码倍率 0xa", "const/4 v2, 0xa" not in body, "无硬编码")
+        stage_text = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
+                      / "OrekiStageAuto.kt").read_text(encoding="utf-8")
+        check("Kotlin 外层 EP 门槛识别 EC1/EC4 入口例外",
+              "OrekiEcAutomation.entryEternityGainGateExempt()" in stage_text)
+        check("Smali 转发倍率接入同一 Kotlin 入口例外",
+              "OrekiEcAutomation.entryEternityGainGateExempt()" in rules)
+        ec_text = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
+                   / "OrekiEcAutomation.kt").read_text(encoding="utf-8")
+        check("EC1/EC4 收益门槛豁免不得作用于挑战进行中",
+              "if (GameApi.inAnyChallenge()) return false" in ec_text)
+        check("EC 入口缓存只允许缓存 targetId，不得缓存布尔豁免结果",
+              "entryGateCachedTargetId" in ec_text and
+              "entryGateExemptCachedValue" not in ec_text)
 
     # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
     # 历史沿革（两次纠偏，勿回退）：

@@ -31,4 +31,28 @@ public class OrekiAutoEternityGateTest {
         assertFalse(OrekiAutoEternityGate.lockedLayerDriveAllowed(
                 true, false, false, true, false));
     }
+
+    @Test
+    public void lockedPersistedSwitch_doesNotBypassFirstEternityDwell() {
+        assertFalse(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
+                true, false));
+        assertFalse(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
+                false, true));
+    }
+
+    @Test
+    public void unlockedPlayerSwitch_bypassesFirstEternityDwell() {
+        assertTrue(OrekiAutoEternityGate.playerSwitchBypassesFirstEternityDwell(
+                true, true));
+    }
+
+    @Test
+    public void realityHistory_preventsRepeatedFirstEternityDwell() {
+        assertTrue(OrekiAutoEternityGate.neverEternitiedFromCounters(
+                true, true, true, true));
+        assertFalse(OrekiAutoEternityGate.neverEternitiedFromCounters(
+                true, true, false, true));
+        assertFalse(OrekiAutoEternityGate.neverEternitiedFromCounters(
+                true, true, null, true));
+    }
 }
