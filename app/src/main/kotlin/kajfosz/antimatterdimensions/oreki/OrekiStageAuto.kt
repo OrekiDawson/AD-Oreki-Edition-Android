@@ -105,10 +105,6 @@ object OrekiStageAuto {
     /** 大坍缩模式（与 CrunchAutobuyerState.a(I) 取值一致）。 */
     private const val MODE_TIME = 1
     private const val MODE_X_HIGHEST = 2
-    /** 受管大坍缩非当前模式的阈值目标；TIME 模式下仍保持存档配置确定、可重复对账。 */
-    private const val CRUNCH_THRESHOLD = 10.0
-    /** 受管献祭自动器的原版默认乘数。 */
-    private const val SACRIFICE_MULTIPLIER = 2.0
 
     /**
      * [R94/R96] Break 前的填塌间隔（秒）：让反物质充分滚动后再收割 IP。
@@ -1879,7 +1875,7 @@ object OrekiStageAuto {
                 reconcileBigDoubleField(
                     "sacrifice.multiplier",
                     GameApi.sacrificeMultiplier(),
-                    SACRIFICE_MULTIPLIER,
+                    OrekiManagedAutobuyerAuthority.SACRIFICE_MULTIPLIER,
                 ) { GameApi.setSacrificeMultiplier(it) }
             }
             if (wantCrunch != null) {
@@ -1994,7 +1990,7 @@ object OrekiStageAuto {
         reconcileBigDoubleField(
             "crunch.amount",
             GameApi.crunchAmount(crunch),
-            CRUNCH_THRESHOLD,
+            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD,
         ) {
             if (!GameApi.setCrunchAmount(crunch, it)) {
                 Log.e(TAG_AU4C, "managed[crunch.amount] write failed")
@@ -2003,7 +1999,7 @@ object OrekiStageAuto {
         reconcileBigDoubleField(
             "crunch.xHighest",
             GameApi.crunchXHighest(crunch),
-            CRUNCH_THRESHOLD,
+            OrekiManagedAutobuyerAuthority.CRUNCH_THRESHOLD,
         ) { GameApi.setCrunchXHighest(crunch, it) }
         val increase = GameApi.crunchIncreaseWithMult(crunch)
         reconcileBooleanField(

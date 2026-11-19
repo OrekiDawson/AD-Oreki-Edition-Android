@@ -10,6 +10,8 @@ object OrekiManagedAutobuyerAuthority {
     const val CRUNCH_MODE_TIME: Int = 1
     const val DIMENSION_MODE_BUY_10: Int = 10
     const val TICKSPEED_MODE_BUY_MAX: Int = 100
+    const val CRUNCH_THRESHOLD: Double = 10.0
+    const val SACRIFICE_MULTIPLIER: Double = 2.0
 
     @JvmStatic
     fun isNewConfigTick(tickId: Long, lastAppliedTickId: Long): Boolean =
