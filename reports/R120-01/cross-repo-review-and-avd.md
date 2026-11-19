@@ -5,8 +5,10 @@
 - Android 调度器改动确定性命中 Web 的调度主循环、受管配置和受管坍缩模块。
 - Web 对端只读取 main 指定文件并记录 Commit SHA；无匹配时不读取对端。
 - 首次真实触发暴露 main 缺少 `deepseek-models.json` 与 actionlint `SC2129`，修复 PR 已补齐并合并。
-- 最终审查 Run、Token 与评论结果在小节后续追加。
-- 修复后首次重试已通过门禁与分类，但因 24 小时累计运行数达到默认上限而跳过模型；为完成一次受控真实验证，临时将上限调整为 20，结束后恢复 6。
+- 真实模型审查 PR #186 已完成一次，Token 使用 `18,833`，跨仓读取 Web main 并明确报告 Diff 覆盖不足。
+- 修复后改为核心源码优先的逐文件/hunk 预算，并实现 Android/Web 共享每日 100 次、Git ref CAS 原子预占和结构化 GitHub Review。
+- 最近 Run `44565082766` 在配额服务不可用时返回 `AI_REVIEW_NOT_EXECUTED`，由 `oreki-audit[bot]` 更新单一评论：[PR #186 评论](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pull/186#issuecomment-7014210194)。
+- 当前硬阻塞：App 的 `Pull requests:write` 可用，但 Web 仓 `Contents:write` 未授权，HTTP 422 导致共享配额写令牌无法创建。
 
 ## 软件 AVD
 
@@ -17,6 +19,7 @@
 - 签名：APK Signature Scheme v3 `Verifies`，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 - `MainActivity`：进程存在且位于 resumed task；logcat 显示 `OREKI_SCHED`、阶段门禁、TT 奖励、GUI tick 和 cron 探测持续运行。
 - 应用 `FATAL EXCEPTION`：未观察到。
+- AVD 后续因宿主 TCG/SystemUI ANR 自行退出；证据保留在 `reports/R120-01/android-avd-20261119/`。
 
 ## 状态
 
