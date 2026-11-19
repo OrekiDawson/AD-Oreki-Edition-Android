@@ -1,21 +1,5 @@
 #!/usr/bin/env python3
-"""调度器语义夹具（R66 新增）——不装机、不构建，直接验证 allow/note* 的控制流。
-
-为什么需要它
-------------
-R65 花了八次 Gradle 构建才把「间隔不生效」从一个现象收敛到「三处极性 + 一处接线」，
-代价极高。之后仍剩一个说不清的表象（8 条升级 80 ms 内连买）。这类问题本质上
-是**状态机语义问题**，完全可以在桌面用确定性的模型跑完，不必每次都整包构建。
-
-本夹具做两件事：
-  1. 把 `OrekiAutomationScheduler` 的 allow / noteActed / noteNoop / reserveOk /
-     clearReserve 按 smali 逐句翻译成可执行的 Python 状态机（时间由测试驱动）；
-  2. 断言 smali 里确实存在夹具依赖的那几条指令——防止夹具验证的是「另一个实现」。
-
-任何一条断言失败 = 退出码 1，可直接作为构建前置闸门。
-
-用法：python scripts/fixture_scheduler_semantics.py
-"""
+"""确定性验证 Kotlin 调度器的周期、闸门与记账语义，不构建、不等待真实秒数。"""
 
 from __future__ import annotations
 
@@ -24,241 +8,214 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SMALI = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler.smali"
+KOTLIN = (
+    ROOT
+    / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/"
+    "OrekiAutomationScheduler.kt"
+)
 
-# 任务表下标（与 sIds 顺序一致，尾部追加 breakShop = 11）
-IDX = {
-    "routine": 0, "early": 1, "eternity": 2, "eternityReset": 3,
-    "reality": 4, "celestial": 5, "perk": 6, "endgame": 7,
-    "breakUpgrades": 8, "breakGate": 9, "executor": 10, "breakShop": 11,
-}
-CONT = {0, 1, 2, 3}
+INTERVAL_MIN = 1
+INTERVAL_MAX = 60
+INTERVAL_DEFAULT = 10
 RESERVE_TTL_MS = 2000
 NOOP_RETRY_MS = 3000
 FAIL_COOLDOWN_MS = 2000
 
 
-class Scheduler:
-    """allow / note* 的确定性模型（时间单位 ms，由测试显式推进）。"""
+def clamp_interval(value: int) -> int:
+    return min(INTERVAL_MAX, max(INTERVAL_MIN, value))
 
-    def __init__(self, interval_sec=1, enabled=True, autobuyers_on=True, strict=False):
+
+class Scheduler:
+    """current Kotlin scheduler 控制流的确定性模型；时间单位 ms。"""
+
+    def __init__(self, interval=10, enabled=True, autobuyers=True, strict=False):
+        self.interval_ms = clamp_interval(interval) * 1000
         self.enabled = enabled
-        self.autobuyers_on = autobuyers_on
+        self.autobuyers = autobuyers
         self.strict = strict
-        self.interval_ms = interval_sec * 1000
-        self.last_act = {i: 0 for i in IDX.values()}
-        self.last_beat = 0
-        self.reserve = {i: 0 for i in IDX.values()}
-        self.noop_until = {i: 0 for i in IDX.values()}
-        self.fail_until = {i: 0 for i in IDX.values()}
+        self.beat = 0
+        self.last = {}
+        self.reserve = {}
+        self.fail_until = {}
+        self.noop_until = {}
         self.frame_acted = False
         self.now = 0
 
-    # ---- allow ----
+    def begin_frame(self):
+        self.frame_acted = False
+
+    def set_interval(self, value):
+        self.interval_ms = clamp_interval(value) * 1000
+
     def allow(self, task, now=None):
         if now is not None:
             self.now = now
         if not self.enabled:
             return False, "disabled"
-        if not self.autobuyers_on:
+        if not self.autobuyers:
             return False, "original-autobuyers-off"
-        i = IDX.get(task)
-        if i is None:
-            return False, "unknown-task"
-        if not self.strict and i in CONT:
-            return True, "cont"
-        # 失败冷却
-        d = self.fail_until[i]
-        if d > 0 and d > self.now:
+        if self.frame_acted:
+            return False, "frame-held"
+        if self.fail_until.get(task, 0) > self.now:
             return False, "failure-cooldown"
-        # no-op 重试冷却
-        d = self.noop_until[i]
-        if d > 0 and d > self.now:
+        if self.noop_until.get(task, 0) > self.now:
             return False, "noop-retry-wait"
-        # 间隔闸门
-        ref = self.last_beat if self.strict else self.last_act[i]
-        if ref != 0:
-            if self.now - ref < self.interval_ms:
+        if self.beat and self.now - self.beat < self.interval_ms:
+            return False, "interval"
+        if not self.strict and self.last.get(task, 0):
+            if self.now - self.last[task] < self.interval_ms:
                 return False, "interval"
-        # 原子预约（R66 新增）
-        if not self._reserve_ok(i):
+        reserved = self.reserve.get(task, 0)
+        if reserved and self.now - reserved < RESERVE_TTL_MS:
             return False, "reserved"
+        self.reserve[task] = self.now
         return True, "allow"
 
-    def _reserve_ok(self, i):
-        r = self.reserve[i]
-        if r != 0 and self.now - r < RESERVE_TTL_MS:
-            return False
-        self.reserve[i] = self.now
-        return True
-
-    # ---- note* ----
     def note_acted(self, task):
-        i = IDX[task]
-        self.reserve[i] = 0
-        self.last_act[i] = self.now
-        self.fail_until[i] = 0
-        self.noop_until[i] = 0
-        if not self.strict and i in CONT:
-            return
-        self.last_beat = self.now
+        self.reserve[task] = 0
+        self.last[task] = self.now
+        self.beat = self.now
+        self.fail_until[task] = 0
+        self.noop_until[task] = 0
         self.frame_acted = True
 
     def note_noop(self, task):
-        i = IDX[task]
-        self.reserve[i] = 0
-        self.noop_until[i] = self.now + NOOP_RETRY_MS
+        self.reserve[task] = 0
+        self.noop_until[task] = self.now + NOOP_RETRY_MS
 
     def note_fail(self, task):
-        i = IDX[task]
-        self.reserve[i] = 0
-        self.fail_until[i] = self.now + FAIL_COOLDOWN_MS
+        self.reserve[task] = 0
+        self.fail_until[task] = self.now + FAIL_COOLDOWN_MS
 
 
-def run_cases():
-    out = []
+def run_semantic_cases():
+    cases = []
 
-    def case(name, expect, got):
-        ok = expect == got
-        out.append((ok, name, expect, got))
+    def case(name, expected, actual):
+        cases.append((expected == actual, name, expected, actual))
 
-    # 1 第一次合法动作 → 放行
-    s = Scheduler()
-    s.now = 1000
-    case("第一次合法动作", True, s.allow("breakShop")[0])
+    # 默认周期 10 秒，边界前后不抢跑。
+    scheduler = Scheduler()
+    scheduler.begin_frame()
+    scheduler.now = 1000
+    case("默认周期首次动作放行", True, scheduler.allow("routine")[0])
+    scheduler.note_acted("routine")
+    scheduler.begin_frame()
+    case("默认周期 9.999 秒仍拒绝", False, scheduler.allow("routine", 10999)[0])
+    scheduler.begin_frame()
+    case("默认周期满 10 秒放行", True, scheduler.allow("routine", 11000)[0])
 
-    # 2 同一任务 1 ms 后再次执行 → 拒绝（预约先拦，即使忘了 noteActed）
-    s = Scheduler()
-    s.now = 1000
-    s.allow("breakShop")
-    case("1ms 后重复申请（未提交）", False, s.allow("breakShop", 1001)[0])
+    # 1 秒与 60 秒边界。
+    for seconds, before, at in ((1, 999, 1000), (60, 59999, 60000)):
+        scheduler = Scheduler(interval=seconds)
+        scheduler.now = 1000
+        scheduler.begin_frame()
+        scheduler.allow("routine")
+        scheduler.note_acted("routine")
+        scheduler.begin_frame()
+        case(f"{seconds} 秒边界前拒绝", False, scheduler.allow("routine", 1000 + before)[0])
+        scheduler.begin_frame()
+        case(f"{seconds} 秒边界到点放行", True, scheduler.allow("routine", 1000 + at)[0])
 
-    # 3 提交成功后 999 ms → 拒绝
-    s = Scheduler()
-    s.now = 1000
-    s.allow("breakShop")
-    s.note_acted("breakShop")
-    case("满 999ms 再次执行", False, s.allow("breakShop", 1999)[0])
+    # 默认档也受全局拍约束，其他任务不能绕过同一周期。
+    scheduler = Scheduler()
+    scheduler.now = 1000
+    scheduler.begin_frame()
+    scheduler.allow("routine")
+    scheduler.note_acted("routine")
+    scheduler.begin_frame()
+    case("默认档其他任务仍受全局周期", False, scheduler.allow("eternity", 1001)[0])
 
-    # 4 满 1000 ms → 放行
-    case("满 1000ms 再次执行", True, s.allow("breakShop", 2000)[0])
+    # 同帧最多一个真动作。
+    scheduler = Scheduler(interval=1)
+    scheduler.now = 1000
+    scheduler.begin_frame()
+    scheduler.allow("routine")
+    scheduler.note_acted("routine")
+    case("同帧第二个任务被拒绝", False, scheduler.allow("eternity", 1001)[0])
 
-    # 5 配置 60 秒：59.999s 拒绝 / 60s 放行
-    s = Scheduler(interval_sec=60)
-    s.now = 1000
-    s.allow("breakShop")
-    s.note_acted("breakShop")
-    case("60s 档未满（59.999s）", False, s.allow("breakShop", 60999)[0])
-    case("60s 档已满（60s）", True, s.allow("breakShop", 61000)[0])
+    # no-op 不推进动作节拍。
+    scheduler = Scheduler(interval=60)
+    scheduler.now = 1000
+    scheduler.begin_frame()
+    scheduler.allow("breakUpgrades")
+    scheduler.note_acted("breakUpgrades")
+    scheduler.now = 61000
+    scheduler.begin_frame()
+    scheduler.allow("breakUpgrades")
+    scheduler.note_noop("breakUpgrades")
+    scheduler.begin_frame()
+    case("no-op 不推进成功节拍", True, scheduler.allow("breakUpgrades", 64001)[0])
 
-    # 6 no-op 之后 3 秒内被「无效重试冷却」挡住（避免每帧空转）
-    s = Scheduler()
-    s.now = 5000
-    s.allow("breakShop")
-    s.note_noop("breakShop")
-    case("no-op 后 1ms 被重试冷却挡", False, s.allow("breakShop", 5001)[0])
+    # 失败冷却与未提交预约都有限恢复。
+    scheduler = Scheduler(interval=1)
+    scheduler.now = 1000
+    scheduler.begin_frame()
+    scheduler.allow("breakShop")
+    scheduler.note_fail("breakShop")
+    scheduler.begin_frame()
+    case("失败冷却内拒绝", False, scheduler.allow("breakShop", 2999)[0])
+    scheduler.begin_frame()
+    case("失败冷却结束可重试", True, scheduler.allow("breakShop", 3000)[0])
 
-    # 6b no-op **不推进成功动作时间戳**（用 60 秒档放大差异，避免被 3 秒重试冷却掩盖）
-    #    t=1000 成功 → last=1000
-    #    t=61000 满 60 秒、放行，但模块这次没买到 → note_noop（重试冷却到 64000）
-    #    t=64001 冷却已过：
-    #      正确（last 仍 1000）→ 63001ms ≥ 60000 → 放行
-    #      错误（last 被写成 61000）→ 3001ms < 60000 → 拒绝
-    s = Scheduler(interval_sec=60)
-    s.now = 1000
-    s.allow("breakShop")
-    s.note_acted("breakShop")
-    s.now = 61000
-    s.allow("breakShop")
-    s.note_noop("breakShop")
-    case("no-op 不推进成功时间戳", True, s.allow("breakShop", 64001)[0])
+    scheduler = Scheduler(interval=1)
+    scheduler.now = 1000
+    scheduler.begin_frame()
+    scheduler.allow("breakShop")
+    scheduler.begin_frame()
+    case("未提交预约 1.9 秒仍拒绝", False, scheduler.allow("breakShop", 2900)[0])
+    scheduler.begin_frame()
+    case("未提交预约 2 秒失效", True, scheduler.allow("breakShop", 3000)[0])
 
-    # 7 关闭 MOD 自动化 → 立即停止
-    s = Scheduler(enabled=False)
-    s.now = 1000
-    case("MOD 自动化关闭", False, s.allow("breakShop")[0])
+    # 开关关闭必须立即停止。
+    scheduler = Scheduler(enabled=False)
+    scheduler.begin_frame()
+    case("调度关闭立即停止", False, scheduler.allow("routine", 1000)[0])
+    scheduler = Scheduler(autobuyers=False)
+    scheduler.begin_frame()
+    case("原版自动器总开关关闭仍停止", False, scheduler.allow("routine", 1000)[0])
 
-    # 8 原版自动购买器关闭 → MOD 不得绕过
-    s = Scheduler(autobuyers_on=False)
-    case("原版总开关关闭", False, s.allow("breakShop")[0])
-
-    # 9 严格全局模式：不同任务也受同一节拍
-    s = Scheduler(strict=True)
-    s.now = 1000
-    s.allow("reality")
-    s.note_acted("reality")
-    case("严格档：另一任务 1ms 后", False, s.allow("breakShop", 1001)[0])
-    case("严格档：另一任务满 1000ms", True, s.allow("breakShop", 2000)[0])
-
-    # 10 默认档：不同任务互不阻塞
-    s = Scheduler()
-    s.now = 1000
-    s.allow("reality")
-    s.note_acted("reality")
-    case("默认档：另一任务 1ms 后放行", True, s.allow("breakShop", 1001)[0])
-
-    # 11 异常未提交 → 预约 2 秒后自动作废（不死锁）
-    s = Scheduler()
-    s.now = 1000
-    s.allow("breakShop")               # 假设模块抛异常，note* 都没调
-    case("异常未提交：1.9s 仍被挡", False, s.allow("breakShop", 2900)[0])
-    case("异常未提交：2.0s 自动恢复", True, s.allow("breakShop", 3000)[0])
-
-    # 12 连续 8 次「同帧申请」只应成功 1 次（R65 的真实故障场景）
-    s = Scheduler()
-    s.now = 4000
-    ok = 0
-    for k in range(8):
-        allowed, _ = s.allow("breakShop", 4000 + k)   # 80 ms 内连打 8 次
-        if allowed:
-            ok += 1
-            s.note_acted("breakShop")
-    case("80ms 内申请 8 次 → 只放行 1 次", 1, ok)
-
-    return out
+    # 周期配置边界。
+    case("下越界钳制到 1 秒", 1, clamp_interval(0))
+    case("上越界钳制到 60 秒", 60, clamp_interval(61))
+    case("合法周期原值保留", 37, clamp_interval(37))
+    return cases
 
 
-SMALI_MUST_HAVE = [
-    (r"\.method private static reserveOk\(I\)Z", "reserveOk 存在"),
-    (r"\.method public static clearReserve\(Ljava/lang/String;\)V", "clearReserve 存在"),
-    (r"\.field private static sReserve:\[J", "sReserve 字段存在"),
-    (r"invoke-static \{v1\}, Lkajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler;->reserveOk\(I\)Z",
-     "allow 调用了 reserveOk"),
-    (r":deny_7", "reserved 拒绝分支存在"),
-    (r"const-string v1, \"reserved\"", "reserved 原因串存在"),
-    (r"if-ltz v1, :done", "noteActed/noteNoop 用 if-ltz 判无效 id"),
+REQUIRED_KOTLIN = [
+    (r"private const val INTERVAL_MIN = 1", "最小值 1"),
+    (r"private const val INTERVAL_MAX = 60", "最大值 60"),
+    (r"private const val INTERVAL_DEFAULT = 10", "默认值 10"),
+    (r"fun effectiveIntervalSec\(\): Int = intervalSec", "配置值即实际周期"),
+    (r"val effectiveMs = effectiveIntervalSec\(\) \* 1000L", "闸门使用配置周期"),
+    (r"beat != 0L && now - beat < effectiveMs", "全局周期闸门存在"),
+    (r"sp\.getInt\(KEY_INTERVAL, INTERVAL_DEFAULT\)", "旧档缺省读取 10 秒"),
 ]
 
 
 def main() -> int:
-    txt = SMALI.read_text(encoding="utf-8")
-    fails = 0
+    source = KOTLIN.read_text(encoding="utf-8")
+    failures = 0
+    print("── Kotlin 静态契约 ───────────────────────────")
+    for pattern, description in REQUIRED_KOTLIN:
+        passed = re.search(pattern, source) is not None
+        print(f"  {'PASS' if passed else 'FAIL'}  {description}")
+        failures += 0 if passed else 1
+    stage_cap_removed = "stageCap" not in source and "STAGECAP" not in source
+    print(f"  {'PASS' if stage_cap_removed else 'FAIL'}  阶段上限不得覆盖周期")
+    failures += 0 if stage_cap_removed else 1
 
-    print("── 静态接线检查 ─────────────────────────────")
-    for pat, desc in SMALI_MUST_HAVE:
-        ok = re.search(pat, txt) is not None
-        print(f"  {'PASS' if ok else 'FAIL'}  {desc}")
-        fails += 0 if ok else 1
-
-    # noteActed / noteNoop / noteFail 都必须真的调用 clearReserve
-    for name in ("noteActed", "noteNoop", "noteFail"):
-        seg = re.search(rf"\.method public static {name}\(.*?\n\.end method", txt, re.S)
-        body = seg.group(0) if seg else ""
-        ok = "clearReserve" in body
-        print(f"  {'PASS' if ok else 'FAIL'}  {name} 调用 clearReserve")
-        fails += 0 if ok else 1
-
-    print()
-    print("── 语义夹具 ─────────────────────────────────")
-    for ok, name, expect, got in run_cases():
-        print(f"  {'PASS' if ok else 'FAIL'}  {name}  期望={expect} 实际={got}")
-        fails += 0 if ok else 1
+    print("\n── 确定性语义场景 ───────────────────────────")
+    for passed, name, expected, actual in run_semantic_cases():
+        print(f"  {'PASS' if passed else 'FAIL'}  {name}  期望={expected} 实际={actual}")
+        failures += 0 if passed else 1
 
     print()
-    if fails:
-        print(f"夹具未通过：{fails} 项失败")
+    if failures:
+        print(f"调度器夹具失败：{failures} 项")
         return 1
-    print("夹具通过：静态接线 10 项 + 语义场景 14 项")
+    print("调度器夹具通过：Kotlin 静态契约 8 项 + 语义场景 19 项")
     return 0
 
 
