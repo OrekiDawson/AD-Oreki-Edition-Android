@@ -67,7 +67,7 @@ object OrekiPlayerIntent {
             }
             clearManagedActivePending("master")
             // 原版总开关关闭时托管层会让路；重新打开后下一有效 Tick 再统一应用策略。
-            masterPlayerDisabled = false
+            masterPlayerDisabled = true
         } catch (_: Throwable) {
         }
     }

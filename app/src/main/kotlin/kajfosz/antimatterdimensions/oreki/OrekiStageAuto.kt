@@ -766,22 +766,20 @@ object OrekiStageAuto {
      * 每帧语义（幂等，可每帧调用）：
      *   1. 读实际值 `crunchInterval()`（失败即放弃，fail-closed，不猜）；
      *   2. `refreshCrunchInterval(actual, desired)` 判定玩家是否手改并登记待恢复；
-     *   3. `restoreDue` 到点时先解除玩家占用，随后用**当帧最新**目标写回一次；
-     *   4. 玩家占用中 → 不抢写，仅确保只登记一次恢复时机；
-     *   5. 实际值已等于目标 → 不写、不持久化（避免逐帧抖动，§81.1 第 7 条）。
+     *   3. 只有成功读到当前值后才消费本调度 Tick；
+     *   4. 实际值已等于目标 → 不写、不持久化（避免逐帧抖动，§81.1 第 7 条）。
      *
      * @return true = 本次真的写入了；false = 跳过（相等/被占用/读不到）
      */
     private fun writeManagedCrunchInterval(
         crunch: Any?,
         desiredSeconds: Double,
-        restoreDue: Boolean,
         reason: String
     ): Boolean {
         val tickId = managedConfigTickId
         if (!OrekiManagedAutobuyerAuthority.isNewConfigTick(tickId, appliedManagedIntervalTickId)) return false
-        appliedManagedIntervalTickId = tickId
         val actual = GameApi.crunchInterval(crunch) ?: return false
+        appliedManagedIntervalTickId = tickId
         if (!OrekiManagedAutobuyerAuthority.doubleNeedsWrite(actual, desiredSeconds)) {
             return false
         }
@@ -790,7 +788,7 @@ object OrekiStageAuto {
         Log.i(
             TAG_AU4C,
             "managed interval " + actual + " -> " + desiredSeconds +
-                " (" + reason + (if (restoreDue) ", restore" else "") + ")"
+                " (" + reason + ")"
         )
         return true
     }
@@ -2240,8 +2238,6 @@ object OrekiStageAuto {
             // 判据全部来自真实游戏状态；不允许额外重置时把间隔压到很大（可恢复，
             // 不改玩家保存的 amount/mode 语义），放行后立即恢复本阶段节奏。
             // 受管 mode/interval/active 只在新调度 Tick 恢复，旧玩家占用状态机已退出。
-            val restoreDue = false
-
             val decision = OrekiCrunchPolicy.decide()
             managedCrunchTarget = decision.allow
             // mode 与 interval 属于同一调度策略。先在本调度 Tick 统一校正 mode，
@@ -2479,7 +2475,7 @@ object OrekiStageAuto {
                 // 旧实现里等待原因不变就一直跳过写入，导致玩家把 30 秒改成 3600 秒后
                 // 永远恢复不回来（策略以为「已经设过 30 了」）。现在每帧都按当帧目标走
                 // 受管写入：目标与实读值相等则不写（幂等），不等且未被玩家占用才写。
-                writeManagedCrunchInterval(crunch, pauseSeconds, restoreDue, "pause:" + decision.reason)
+                writeManagedCrunchInterval(crunch, pauseSeconds, "pause:" + decision.reason)
                 return
             }
             // [R116-02-01 Kody P1] 间隔写入必须**每帧无条件**执行：加载存档时 pauseReason 初始为 null，
@@ -2520,7 +2516,7 @@ object OrekiStageAuto {
             val willEnterZeroBranch =
                 OrekiStageAuto.eternitiesZero() && GameApi.crunchMode(crunch) == MODE_TIME
             if (!willEnterZeroBranch) {
-                writeManagedCrunchInterval(crunch, resumeInterval, restoreDue, "resume:" + decision.reason)
+                writeManagedCrunchInterval(crunch, resumeInterval, "resume:" + decision.reason)
             }
             if (pauseReason != null) {
                 pauseReason = null
@@ -2560,7 +2556,7 @@ object OrekiStageAuto {
                 } else {
                     POST_BREAK_RESUME_SECONDS
                 }
-                writeManagedCrunchInterval(crunch, zeroInterval, restoreDue, "eternity-zero")
+                writeManagedCrunchInterval(crunch, zeroInterval, "eternity-zero")
                 return
             }
 
@@ -2575,7 +2571,7 @@ object OrekiStageAuto {
                     preBreakCrunchInitialized = true
                     Log.i(TAG_AU4C, "policy -> managed interval/10s (pre-break IP harvest)")
                 }
-                writeManagedCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS, restoreDue, "pre-break")
+                writeManagedCrunchInterval(crunch, PRE_BREAK_CRUNCH_SECONDS, "pre-break")
                 return
             }
 
@@ -2613,7 +2609,7 @@ object OrekiStageAuto {
                     Log.i(TAG_AU4C, "policy -> TIME/1s (break-upgrades empty)")
                 }
                 // 间隔 1 秒是本策略自己的节奏参数，可以继续每帧校准
-                writeManagedCrunchInterval(crunch, 1.0, restoreDue, "break-empty")
+                writeManagedCrunchInterval(crunch, 1.0, "break-empty")
             }
         } catch (error: Throwable) {
             // [R96] 不能静默：策略类若 VerifyError / 初始化失败，表现就是「完全不生效」。
