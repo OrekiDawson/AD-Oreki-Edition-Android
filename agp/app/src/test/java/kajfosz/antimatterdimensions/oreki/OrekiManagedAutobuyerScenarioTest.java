@@ -49,7 +49,7 @@ public class OrekiManagedAutobuyerScenarioTest {
                 if (entry.getKey().matches("dim\\d")) {
                     target = OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10;
                 } else if ("tickspeed".equals(entry.getKey())) {
-                    target = OrekiManagedAutobuyerAuthority.TICKSPEED_MODE_BUY_MAX;
+                    target = OrekiManagedAutobuyerAuthority.TICKSPEED_MODE_BUY_SINGLE;
                 } else {
                     continue;
                 }
@@ -124,7 +124,7 @@ public class OrekiManagedAutobuyerScenarioTest {
         assertEquals(1, model.mode);
         assertEquals(5, model.time, 0);
         assertEquals(10, model.modes.get("dim1").intValue());
-        assertEquals(100, model.modes.get("tickspeed").intValue());
+        assertEquals(1, model.modes.get("tickspeed").intValue());
         assertEquals(10, model.crunchAmount);
         assertEquals(10, model.crunchXHighest);
         assertFalse(model.increaseWithMult);

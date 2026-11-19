@@ -1846,7 +1846,7 @@ object OrekiStageAuto {
                 reconcileIntField(
                     "tickspeed.mode",
                     GameApi.tickspeedAutobuyerMode(tickspeed),
-                    OrekiManagedAutobuyerAuthority.TICKSPEED_MODE_BUY_MAX,
+                    OrekiManagedAutobuyerAuthority.TICKSPEED_MODE_BUY_SINGLE,
                 ) { GameApi.setTickspeedAutobuyerMode(tickspeed, it) }
             }
             val dimboost = GameApi.dimBoostAutobuyer()

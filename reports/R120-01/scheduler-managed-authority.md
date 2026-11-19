@@ -33,7 +33,7 @@
 ## 受管字段范围
 
 - 反物质维度 1～8：`isActive`、`mode=BUY_10`
-- 计数频率：`isActive`、`mode=BUY_MAX`
+- 计数频率：`isActive`、`mode=BUY_SINGLE`（保持已验证基线）
 - 维度提升：`isActive`、两个限制项为 false
 - 反物质星系：`isActive`、`limitGalaxies=false`
 - 献祭：`isActive`、`multiplier=2`
