@@ -765,7 +765,7 @@ object OrekiStageAuto {
      *
      * 每帧语义（幂等，可每帧调用）：
      *   1. 读实际值 `crunchInterval()`（失败即放弃，fail-closed，不猜）；
-     *   2. `refreshCrunchInterval(actual, desired)` 判定玩家是否手改并登记待恢复；
+     *   2. 新调度 Tick 读取真实值；玩家修改只存活到本拍，随后按策略目标恢复；
      *   3. 只有成功读到当前值后才消费本调度 Tick；
      *   4. 实际值已等于目标 → 不写、不持久化（避免逐帧抖动，§81.1 第 7 条）。
      *
@@ -784,7 +784,6 @@ object OrekiStageAuto {
             return false
         }
         GameApi.setCrunchInterval(crunch, desiredSeconds)
-        OrekiPlayerIntent.noteCrunchIntervalWritten(desiredSeconds)
         Log.i(
             TAG_AU4C,
             "managed interval " + actual + " -> " + desiredSeconds +
@@ -1945,7 +1944,6 @@ object OrekiStageAuto {
         val target = OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME
         if (!OrekiManagedAutobuyerAuthority.integerNeedsWrite(actual, target)) return
         GameApi.setCrunchMode(crunch, target)
-        OrekiPlayerIntent.noteCrunchModeWritten(target)
         Log.i(TAG_AU4C, "managed[crunch.mode] tick=" + managedConfigTickId +
             " mode " + actual + " -> " + target)
     }

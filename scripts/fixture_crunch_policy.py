@@ -126,9 +126,8 @@ _n_direct = text.count("setCrunchInterval(crunch,")
 check("间隔写入收拢到 writeManagedCrunchInterval 单一入口",
       _n_direct == 1,
       f"直接写间隔处 {_n_direct} 处（应仅受管入口内 1 处）")
-check("受管入口按调度 Tick 对账并登记写入",
+check("受管入口由调度 Tick 唯一对账",
       "isNewConfigTick" in text and "GameApi.crunchInterval(crunch)" in text
-      and "noteCrunchIntervalWritten" in text
       and "writeManagedCrunchInterval(" in text)
 
 # ---- 7. xHighest 只在 < 10 时补默认 ----

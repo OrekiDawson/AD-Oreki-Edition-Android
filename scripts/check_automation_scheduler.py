@@ -399,9 +399,10 @@ check("§80.2 存在玩家意图守卫（Kotlin-only）",
 check("§80.2 不得擅自打开玩家关闭的原版自动购买器",
       "fun mayTouchAutobuyers" in _pi and "masterPlayerDisabled" in _pi
       and "if (!OrekiPlayerIntent.mayTouchAutobuyers())" in stage)
-check("§80.2 不得覆盖玩家已手动修改的坍缩配置",
-      "fun mayRewriteCrunchMode" in _pi and "crunchModePlayerOwned" in _pi
-      and "OrekiPlayerIntent.refreshCrunchMode(" in stage)
+check("§80.2 受管坍缩配置由调度 Tick 唯一权威对账",
+      "mayRewriteCrunchMode" not in _pi and "crunchModePlayerOwned" not in _pi
+      and "OrekiPlayerIntent.refreshCrunchMode(" not in stage
+      and "isNewConfigTick" in stage)
 check("§80.2 守卫每帧刷新（总开关写入值与当前值差异判定，不猜意图）",
       "OrekiPlayerIntent.refresh()" in stage and "GameApi.autobuyersOn()" in _pi)
 
