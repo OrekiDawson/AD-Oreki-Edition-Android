@@ -84,6 +84,10 @@ def main() -> int:
               "OrekiEcAutomation.entryEternityGainGateExempt()" in stage_text)
         check("Smali 转发倍率接入同一 Kotlin 入口例外",
               "OrekiEcAutomation.entryEternityGainGateExempt()" in rules)
+        ec_text = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
+                   / "OrekiEcAutomation.kt").read_text(encoding="utf-8")
+        check("EC1/EC4 收益门槛豁免不得作用于挑战进行中",
+              "if (GameApi.inAnyChallenge()) return false" in ec_text)
 
     # ---- 1b. holdCrunch 的闸门条件（R82 修正后的真实语义） ----
     # 历史沿革（两次纠偏，勿回退）：

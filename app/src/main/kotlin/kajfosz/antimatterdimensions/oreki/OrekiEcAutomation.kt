@@ -276,6 +276,9 @@ object OrekiEcAutomation {
      */
     @JvmStatic
     fun entryEternityGainGateExempt(): Boolean {
+        // 挑战进行中不得因 EC1/EC4 入口未达成而放宽收益门槛，否则可能在中途
+        // 真实永恒并把当前挑战重置；入口推进只发生在挑战外。
+        if (GameApi.inAnyChallenge()) return false
         val target = nextTargetId()
         if (target != 1 && target != 4) return false
         val study = Abi.study(target) ?: return false
