@@ -1708,6 +1708,8 @@ object OrekiStageAuto {
     private var appliedManagedConfigTickId: Long = 0L
     /** 最近一次已应用受管坍缩 interval 的调度 Tick，保证多分支同 Tick 不重复写。 */
     private var appliedManagedIntervalTickId: Long = 0L
+    /** 本调度 Tick 内 pre-break 上限兜底刚恢复过原版大坍缩自动器。 */
+    private var crunchKeepAliveTickId: Long = 0L
     /** 本调度 Tick 已由当前大坍缩策略算出的启停目标；null = 尚未进入决策或未知。 */
     private var managedCrunchTarget: Boolean? = null
 
@@ -1823,6 +1825,9 @@ object OrekiStageAuto {
     private fun applyManagedAutobuyerStates(wantCrunch: Boolean?) {
         if (!OrekiAutomationScheduler.isEnabled()) return
         if (!GameApi.autobuyersOn()) return
+        // Pelle 毁灭现实只由 OrekiPelle 的末日相位机驱动；基础托管写入必须整体让路，
+        // 否则会把已在末日禁用的原版自动器重新打开，破坏反物质单调增长与通关判据。
+        if (GameApi.isDoomed()) return
         // IU15 冲刺是同一调度策略中的临时整体让路阶段，不能由基础恒开目标覆盖。
         if (OrekiIu15Sprint.isActive()) return
         val tickId = managedConfigTickId
@@ -1885,7 +1890,12 @@ object OrekiStageAuto {
                         modOwnsCrunch,
                         crunchPausedByStagePolicy,
                     )
-                if (reconcileManagedAutobuyer("crunch", crunch, effectiveCrunchTarget)) {
+                // applyCrunchPolicy 的 pre-break 上限保活会在本拍真实打开原版自动器；
+                // 紧随其后的统一对账不得在同一拍再写回 false，否则保活语义退化为 no-op。
+                val keptAliveThisTick = managedConfigTickId > 0L &&
+                    crunchKeepAliveTickId == managedConfigTickId
+                val crunchTarget = if (keptAliveThisTick) true else effectiveCrunchTarget
+                if (reconcileManagedAutobuyer("crunch", crunch, crunchTarget)) {
                     applyManagedCrunchMode()
                     applyManagedCrunchThresholds(crunch)
                 }
@@ -2305,6 +2315,7 @@ object OrekiStageAuto {
                 GameApi.isAutobuyerActive(crunch) == false
             ) {
                 GameApi.setAutobuyerActive(crunch, true)
+                crunchKeepAliveTickId = managedConfigTickId
                 crunchPausedByStagePolicy = false
                 modOwnsCrunch = false
                 OrekiAutomationScheduler.markCrunchPausedByMod(false)

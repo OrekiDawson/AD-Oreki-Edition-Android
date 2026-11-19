@@ -1738,11 +1738,8 @@ def _impl_payload():
     # 真机实测（第 38 轮）该旧行为在 8 秒内把玩家关掉的 4 个自动器全部重开，
     # 属真实缺陷。契约随之改为断言**新不变量**：isActive 只允许"尊重玩家关闭"，
     # 绝不允许经恢复路径强行写 true。
-    assert "OrekiPlayerIntent.notePlayerClosed" in sa_txt, (
-        "[R98] 受管自动器必须登记「玩家已关闭」一票否决，不得自动重开"
-    )
     assert "OrekiPlayerIntent.clearPlayerClosed" in sa_txt, (
-        "[R98] 玩家自行重新打开时必须解除一票否决闩锁"
+        "[R120-01] 调度器统一对账时必须清除旧玩家关闭断言"
     )
     # 反向守卫：策略恢复路径里不得再出现把单项 isActive 强行置 true 的写法。
     assert "GameApi.setAutobuyerActive(autobuyer, true)" not in sa_txt, (
@@ -1756,29 +1753,26 @@ def _impl_payload():
     #   ① Break 前（preBreakCrunchInitialized）：原版 auto.bigCrunch.amount=1 ⇒ IP 收益≈0，
     #      必须切 TIME + 10 秒才能把反物质滚起来；
     #   ② Break 后（crunchTimeModeInitialized）：早期 TIME/1s。
-    # 守卫语义不变：**任何一处都不得每帧改写 mode**（R74 根因），且只能是 MODE_TIME。
-    # [R116-03-01] 上限由 3 提到 4：新增的第 4 处是「永恒层主动切 TIME」的一次性初始化
-    # （AMOUNT/X_HIGHEST 不读 TIME interval，不切则 600s 成长窗口无效），
-    # 同样受 eternityLayerModeInitialized 闩锁与调度 Tick 一次性初始化保护。
-    # 守卫语义不变：任何一处都不得每帧改写 mode，且只能切 MODE_TIME。
+    # [R120-01] 受管 mode 已收敛到唯一入口 applyManagedCrunchMode()：
+    # 只在新的调度 Tick 对账，同 Tick 重入不写；玩家修改下一次有效 Tick 恢复。
     _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
-    assert len(_set_mode_calls) == 4, (
-        f"[R74] setCrunchMode 调用点应恰好 4 处（Break 前 / Break 后 / 目标保护暂停 / 永恒层切 TIME，均一次性），实际 {len(_set_mode_calls)} 处")
+    assert len(_set_mode_calls) == 1, (
+        f"[R120-01] setCrunchMode 应只有调度托管唯一入口，实际 {len(_set_mode_calls)} 处")
     for _call in _set_mode_calls:
         assert "MODE_TIME" in _call, f"[R74] setCrunchMode 只允许切 TIME，实际：{_call}"
-    # 取「TIME 模式一次性初始化」分支的代码块
-    # [R80] 字段按 §67 改名：sCrunchTimeInit → crunchTimeModeInitialized，取实际存在的那个。
-    _time_latch = ("crunchTimeModeInitialized" if "crunchTimeModeInitialized" in sa_txt
-                   else "sCrunchTimeInit")
-    _mode_idx = sa_txt.index(f"if (!{_time_latch})")
-    _mode_block = sa_txt[_mode_idx:_mode_idx + 400]
-    assert "GameApi.setCrunchMode(crunch, MODE_TIME)" in _mode_block, (
-        f"[R74] setCrunchMode 必须在 {_time_latch} 一次性分支内（玩家选择不得被每帧覆盖）")
-    # Break 前那处同样必须在 preBreakCrunchInitialized 一次性分支内。
-    _pre_idx = sa_txt.index("if (!preBreakCrunchInitialized)")
-    _pre_block = sa_txt[_pre_idx:_pre_idx + 400]
-    assert "GameApi.setCrunchMode(crunch, MODE_TIME)" in _pre_block, (
-        "[R74] Break 前的 setCrunchMode 必须在 preBreakCrunchInitialized 一次性分支内")
+    _managed_mode_idx = sa_txt.index("private fun applyManagedCrunchMode()")
+    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_idx + 800]
+    assert "isNewConfigTick" in _managed_mode_block, (
+        "[R120-01] 受管 mode 只能在新的调度 Tick 对账")
+    assert "GameApi.setCrunchMode(crunch, target)" in _managed_mode_block, (
+        "[R120-01] 受管 mode 的唯一写入必须位于 applyManagedCrunchMode()")
+
+    _managed_apply_idx = sa_txt.index("private fun applyManagedAutobuyerStates(")
+    _managed_apply_block = sa_txt[_managed_apply_idx:_managed_apply_idx + 1200]
+    assert "if (GameApi.isDoomed()) return" in _managed_apply_block, (
+        "[R120-01] Pelle 末日阶段必须跳过基础受管自动器写入")
+    assert "crunchKeepAliveTickId == managedConfigTickId" in sa_txt, (
+        "[R120-01] pre-break 上限保活必须在同拍对账中保留")
 
     note(f"[R41] 极性/条件回归表通过（{len(POLARITY_KT)} 处 Kotlin 语义守卫 + setCrunchMode 唯一性）")
 

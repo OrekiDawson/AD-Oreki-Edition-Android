@@ -74,3 +74,16 @@ java.io.FileNotFoundException:
 沿用 R120-01 已记录证据：
 `reports/R120-01/avd-install-blocked.md`。无 `/dev/kvm` 时 TCG 模拟导致
 `system_server` Watchdog 与 PackageManager 初始化失败，不能据此宣称真机 PASS。
+
+## R120-01 Kody 复审修复（2026-11-20）
+
+- `applyManagedAutobuyerStates()` 增加 Pelle `isDoomed()` 整体让路：末日阶段只由
+  `OrekiPelle` 驱动，基础受管写入不再重新开启被佩勒禁用的原版自动器。
+- pre-break 上限保活写入记录当前调度 Tick；紧随其后的统一对账在同一 Tick 不再把
+  刚恢复的原版大坍缩自动器写回关闭，避免 `1.8e308` 正文空白回归。
+- `verify_build_contracts.py` 的旧断言同步到新所有权状态机：大坍缩 mode 只允许
+  `applyManagedCrunchMode()` 在新调度 Tick 写入一次，并检查末日让路与同拍保活。
+- AGP `:app:testDebugUnitTest`、`verify_build_contracts.py`（5 PASS / 5 显式 SKIP）、
+  `--selftest` 15 条与 Python 契约测试 6 项均 PASS。
+- `check_automation_scheduler.py` 仍包含 9 条“阶段上限/固定成长窗口”的过时断言；
+  它不在 `.github/workflows` 的 Required CI 调用链中，本轮不把它冒充现行门禁。
