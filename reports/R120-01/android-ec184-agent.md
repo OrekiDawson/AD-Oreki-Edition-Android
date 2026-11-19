@@ -105,7 +105,8 @@ python3 -m py_compile scripts/fixture_eternity_gate.py scripts/verify_build_cont
 - 新增驻留判据 2 项单测 PASS；
 - APK/AVD：环境 BLOCKED，见 `reports/R120-01/avd-install-blocked.md`。
 
-最终源码（含挑战中禁止收益豁免、Reality 历史修复与 APK 签名复核）AGP r8off APK：
+EC184 修复分支（`fab6f61a`）的定向 AGP r8off APK；它不是 #186 合并调度器修复后的
+组合产物，不能作为本 PR 或正式发布依据：
 
 - 路径：`agp/app/build/outputs/apk/release/app-release.apk`
 - 包名/版本：`com.oreki.antimatterdimensions`，versionCode `30210002`，versionName `3.21.0`
@@ -117,6 +118,19 @@ python3 -m py_compile scripts/fixture_eternity_gate.py scripts/verify_build_cont
 - 安装：`adb install -r` PASS；从 AVD 回拉已安装 `base.apk` 的 SHA-256 与构建包一致。
 - AVD：进程存在、`topResumedActivity` 为游戏 Activity，均为 PASS；系统级 `system` ANR
   挡住游戏画面，GUI 功能验收 BLOCKED。不得据此宣称 AVD GUI 全面 PASS。
+- 组合分支 `b1312b51` 不是该 APK 的祖先：上述构建、签名、安装结果只证明 EC184
+  定向包，不覆盖 Pelle 末日让路与同拍坍缩保活。
+
+## 本 PR 组合构建与发布结论
+
+- Release 构建：**FAIL**；`reports/R120-01/scheduler-managed-authority.md` 记录唯一一次
+  本地离线 Release 尝试在 `:app:generateChangelogZh` 因缺少
+  `work/mod/res/raw/changelog.txt` 失败，发生在本轮构建预算内，不重试。
+- 可交付 APK：**NOT AVAILABLE**；本轮没有生成包含调度器修复的可追溯 APK SHA，
+  不得采信 `04140726…` 代替。
+- 组合运行验收：**NOT RUN / BLOCKED**；无 KVM 的 TCG 环境出现系统级 ANR。
+- 发布门禁：`scripts/release-gate-policy.json` 已回退为 `development`，在补齐真实构建、
+  安装、GUI 与本 PR 组合源码证据前禁止进入正式发布链。
 
 ## R120-01 Kody 复审修复（2026-11-20）
 
