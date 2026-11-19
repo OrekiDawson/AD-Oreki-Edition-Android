@@ -1,4 +1,6 @@
-# PROJECT PAUSED — AD-Oreki-Edition-Android
+# PROJECT ACTIVE — AD-Oreki-Edition-Android（历史暂停内容保留）
+
+> 2026-11-19 用户已明确解除 `PROJECT_PAUSED` 并启动 R120-01。以下自 2026-11-12 起的暂停与恢复记录仅作历史追溯，不代表当前执行状态；当前规则以 `AGENTS.md` 为准。
 
 - 暂停日期：2026-11-12（Asia/Hong_Kong）13:42（DeepSeek 高峰前收尾，14:00–18:00 停止 DeepSeek 开发）
 - 项目状态：R102 进行中；P0-01 插件 PR 已提交（#4）；P0-03 原档死锁修复+原版同档对照完成；P0-02（官方新档对照未做）/P0-04/P1 未完成
