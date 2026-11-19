@@ -104,3 +104,10 @@ python3 -m py_compile scripts/fixture_eternity_gate.py scripts/verify_build_cont
 - AGP `:app:testDebugUnitTest`：BUILD SUCCESSFUL；
 - 新增驻留判据 2 项单测 PASS；
 - APK/AVD：环境 BLOCKED，见 `reports/R120-01/avd-install-blocked.md`。
+
+最终源码（含挑战中禁止收益豁免）AGP r8off APK：
+
+- 路径：`build/r120-01-final/r8off/app-release.apk`
+- SHA-256：`74bc5a77de804ede5f8ebfdd3080e8970d3b447331ba975ee7e767183047ddd4`
+- V3 证书：`95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`
+- 构建：PASS；AVD 安装/运行仍为 BLOCKED。
