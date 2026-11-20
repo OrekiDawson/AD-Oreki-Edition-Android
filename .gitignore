@@ -8,7 +8,7 @@
 
 # ---------- 1. 构建中间树（apktool 解码/重建，约 1.7G、11 万文件）----------
 # base_decoded/base_rebuild/mod/verify/out 等全部由 scripts/build_mod.py
-# 从 input_info/input_file.txt 记录的原始 XAPK 重新生成，属于一次性中间物。
+# 从 archive/原版3.19输入文件记录.txt 记录的原始 XAPK 重新生成，属于一次性中间物。
 /work/
 
 # ---------- 2. 构建工具链（第三方二进制，约 719M）----------
