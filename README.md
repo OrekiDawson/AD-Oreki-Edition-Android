@@ -1,121 +1,71 @@
 # 反物质维度 · Oreki Edition（Android）
 
-《反物质维度》Android MOD。项目保留官方 Android 基线的必要兼容能力，并使用 Kotlin 实现 MOD 业务、阶段逻辑、自动化和移动端界面适配。
+《反物质维度》（Antimatter Dimensions）的 Android MOD。项目以官方 Android 3.21.0 为兼容基线，使用 Kotlin 扩展玩法、自动化与移动端界面，并与 Web 版维持玩家可见行为一致。
 
-## 项目状态与开发成本（2026-11-20）
+- **发布与下载**：[GitHub Releases](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases)（请核对所选版本的发行说明和 SHA-256；开发候选 APK 不等于稳定版）
+- **Web 版本**：[AD-Oreki-Edition-Web](https://github.com/OrekiDawson/AD-Oreki-Edition-Web) · [在线体验](https://oreki.net)
+- **中文知识库**：[wiki.oreki.net](https://wiki.oreki.net)
+- **当前工作进展**：[Pull Requests](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pulls) · [Issues](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues) · [事实索引](docs/FACTS.md)
 
-**当前状态：`R121-01` 进行中。** 用户已明确恢复当前开发轮次，范围包括 Kody 共享配额、PR 审查效率、双端规则与游戏节奏校准；无关历史任务仍保持原状态。源码、PR、Issues、Release、测试证据和部署记录继续保留。
+> 本 README 是项目入口，不是实时构建/审查仪表盘。某次 APK 是否通过真实新档验收、当前 Kody 是否启用、使用哪一版工具链，均以对应的源码、工作流、任务和验证证据为准。
 
-- **费用门禁**：继续遵守既定人民币预算、80% 预警、100% 停止新增付费调用与 DeepSeek 余额低于 ¥10 暂停规则。禁止通过换 Key、模型或账号规避预算；无法可靠取得余额时不得声称余额充足。
-- **Kody / Kodus**：Kody 已按 2026-11-21 最新授权恢复；`.github/workflows/kody-trigger.yml` 回读为 `active`，平台自动审查仍关闭以避免重复触发。Android/Web 共用 UTC+8 自然日 100 次主动审查额度，按原始评论 ID 去重；历史暂停事件仅作为审计记录。`Skipped`、`KODY NOT RUN` 均不是 PASS；所有审查只允许 Balanced，严禁 Heavy。
-- **旧 Oreki Audit**：`codex-deepseek-review.yml` 保留作回滚备份，`OREKI_AUDIT_ENABLED=false`；未经用户明确恢复，不调用 DeepSeek，也不发布自制 Review。
-- **自动化边界**：通用审查方法只维护在 Kodus Global Rule，项目业务约束由本仓 `AGENTS.md` 提供，不重复创建 Repository/Directory Rules。详细配额、去重和回滚规则见 `docs/KODUS_REVIEW_SETUP.md`。
+## 主要特点
 
-**Android 特别说明**：新增或修改游戏业务必须使用 Kotlin。构建、签名、AGP 9.5.1、存档兼容与 AVD/真机验证门禁不变；静态检查、CI 或 Kody 结论不能替代真实运行验收。
+- 在原版合法进度与挑战结算基础上，优化 Android 玩法节奏和自动化体验。
+- MOD 调度器支持 **1–60 秒**的可设置 tick，默认 10 秒；受管自动购买器配置由调度器按当前合法阶段策略管理，手动修改将在下一 tick 校正。
+- 保持原版自动购买器与 MOD 调度节拍独立；界面及教程尽可能用简体中文呈现，减少无意义等待和切页。
+- **新档真实墙钟 ≤180 分钟完成原版终局**是长期验收目标，不代表每个候选 APK 已达到该目标。
+- 长期体验目标按五阶段自然展开：0～30 分钟建立玩法理解，30～75 分钟展开无限/永恒，75～130 分钟进入现实与主要天神，130～165 分钟推进后期与 Pelle，165～180 分钟完成真实结算与收尾。详见 [长期 Agent 规则](AGENTS.md)。
 
+资源、进度、成就、存档、挑战结算及终局不得伪造；首次大坍缩后也不能非法跳过无限阶段。
 
-## 1. 适用范围
+## 开发与构建
 
-本仓库负责 Android 源码、官方 APK 基线、Gradle 构建、签名、存档兼容和真实设备/AVD 验证。Web 端是独立仓库，不使用本仓库的构建产物或运行证据替代 Web 验收。
+需要 JDK、Android SDK / Build Tools、Gradle Wrapper 和 adb。工具链的具体版本、基线资源及 ABI 要求以当前配置和 [构建交付规则](docs/DELIVERY_RULES.md) 为准，不使用旧报告中的固定版本代替实时检查。
 
-## 2. 开始之前
-
-需要可用的 JDK、Android SDK、Android Build Tools、Gradle Wrapper、Kotlin 编译器和 adb。优先使用本机已安装版本；具体版本、基线和 ABI 以当前环境检查、`docs/FACTS.md` 和构建报告为准。
-
-先阅读：
-
-1. [Android 当前规则](AGENTS.md)
-2. [当前事实总索引](docs/FACTS.md)（主题事实在 [docs/facts/](docs/facts/README.md)）
-3. [Kodus 审查配置](docs/KODUS_REVIEW_SETUP.md)
-4. [规则索引](docs/RULES_INDEX.md)
-5. [Web 与 Android 实现差异](WEB_ANDROID_DIFFERENCES.md)
-
-## 3. 构建
-
-### 3.1 候选 APK
+仓库保留历史构建链与 AGP 工程，**不要把旧的 `scripts/build_mod.py` 产物直接作为正式发行 APK**。AGP 工程有两种模式。**默认命令只执行 bridge/骨架包编译检查，不能拿生成的 APK 进行完整游戏安装与验收：**
 
 ```bash
-./gradlew assembleRelease --offline --no-daemon --console=plain
+./gradlew -p agp :app:assembleRelease --offline --no-daemon --console=plain
 ```
 
-候选 APK 只能用于定向验证。构建成功、签名成功或上传成功不能单独证明功能通过。
+完整游戏候选需要经过核验的官方 DEX 转换后的 JVM 游戏类 JAR，并显式指定完整游戏模式：
 
-### 3.2 正式交付
+```bash
+GAME_JAR=/absolute/path/to/verified-game.jar
+./gradlew -p agp :app:assembleRelease \
+  -PorekiFullGame=true -PorekiGameJar="$GAME_JAR" \
+  --offline --no-daemon --console=plain
+```
 
-正式交付前必须绑定同一份源码输入、版本、签名、APK、SHA-256 和必要运行证据。GitHub Release 使用完整发行说明；其他渠道只提供同一 APK 和对应 SHA-256 校验值。发布要求以 [AGENTS.md](AGENTS.md) 与当前验证记录为准；旧发布规则不再生效。
+以上仅为本地候选命令，**没有 `-PorekiFullGame=true` 与 `-PorekiGameJar` 时不会自动注入完整游戏类**。正式候选还须按 [.github/workflows/candidate-unified.yml](.github/workflows/candidate-unified.yml) 和 [交付规则](docs/DELIVERY_RULES.md) 完成基线输入、AGP-only、签名、安装与真实运行门禁；离线缺依赖时先核实依赖来源。构建成功不等于功能通过。
 
-## 4. 技术边界
+正式交付必须对应同一条可核查证据链：**源码 Commit → 构建配置与产物 → APK SHA-256 → 签名 → 设备安装 → 真实运行 → 结论**。不同 APK 的里程碑不可混用，正式发布还需满足平台审批与发布门禁。
 
-1. Android 新增或修改业务逻辑使用 Kotlin，并经过 Kotlin → kotlinc → D8 → DEX → APK 链路。
-2. 原版混淆 DEX/Smali 仅作为已核实的 ABI、反射和兼容入口，不新增 Smali/Java 业务实现。
-3. 阶段、自动购买器、存档和 GUI 必须使用真实游戏状态；不得伪造资源、结算、成就或解锁。
-4. 首次大坍缩后必须真实经历无限阶段，不能立即自动 Break Infinity；永恒和现实只能在真实结算后显示。
-5. 调度周期可在 **1～60 秒** 配置，默认 **10 秒**。受管自动购买器由调度器独占管理，玩家修改后必须在下一调度 tick 恢复当前合法策略。
+## 项目结构
 
-### 4.1 正式五阶段节奏目标
-
-| 真实墙钟时间 | 体验目标 |
+| 路径 | 用途 |
 | --- | --- |
-| 0～30 分钟 | 快速成长，建立基础维度、升级与自动化理解 |
-| 30～75 分钟 | 无限、打破无限、永恒及核心挑战逐步展开 |
-| 75～130 分钟 | 现实系统、主要天神与现实后自动化 |
-| 130～165 分钟 | 后期挑战、莱特拉与 Pelle 终局 |
-| 165～180 分钟 | 最终突破、真实结算与收尾 |
+| `app/src/main/kotlin/` | Android MOD 的生产 Kotlin 业务与适配代码 |
+| `agp/` | Android Gradle Plugin 工程 |
+| `baseline/` | 上游 APK 基线与版本资料 |
+| `scripts/` | 构建、检查、辅助工具及定向验证 |
+| `docs/` | 规则、事实索引、构建与交付说明 |
+| `reports/` | 历史构建、KVM/AVD、运行和故障证据 |
+| `tasks/` | 轮次任务、当前工作与验收口径 |
 
-分段用于指导内容节奏，不得按时钟强制解锁。新档真实墙钟通关 **≤180 分钟** 仍是硬性上限。
-Web 已在 2026-11-20 以全新存档真实通关，耗时 **10451.1 秒（174.19 分钟）**；
-Android 最终组合源码尚无可追溯 Release APK，新档终局运行仍为 `NOT RUN / BLOCKED`。
+根目录的旧 Gradle/脚本链及 `scripts/payload/` 可能仍用于隔离对照，不能仅凭目录存在认定其为正式发行入口。项目布局迁移请查阅 [相关 Issue](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)。
 
-## 5. AVD 与 GUI 验证
+## 验证与反馈
 
-共享 AVD 必须串行使用。每次测试记录 APK 身份、设备序列号、存档策略和测试范围；使用 frame-observer、截图和 UI dump 观察真实屏幕。
+按改动选择 Kotlin/JVM 测试、调度契约检查、构建和签名验证，以及必要的 KVM、AVD 或真机测试。涉及阶段门禁、自动购买器、存档和 GUI 的改动，应检查真实游戏状态及玩家可见结果。
 
-重点检查：
+`PASS`、`FAIL`、`BLOCKED`、`NOT RUN` 必须对应实际证据；CI 绿色不等于从新档通关。问题反馈请附版本、设备/Android 版本、复现步骤和脱敏日志，不要提交私钥或私人存档。
 
-- 调度器和智能自动购买器操作后，资源、按钮、页签和统计是否刷新；
-- 玩家手动修改受管自动购买器配置后，下一次策略 tick 是否恢复建议值；
-- Infinity、Eternity、Reality 三阶段的可见内容是否与真实结算一致；
-- 原版自动购买器是否不受 MOD 全局行动节拍额外限速；
-- 存档重载后阶段、设置、资源和 ABI 行为是否保持。
+## 规则与许可
 
-测试结果必须区分 `PASS`、`FAIL`、`BLOCKED` 和 `NOT RUN`。
+- [长期 Agent 规则](AGENTS.md) · [构建与发布门禁](docs/DELIVERY_RULES.md) · [Kodus 审查说明](docs/KODUS_REVIEW_SETUP.md)
+- [事实索引](docs/FACTS.md) · [Android/Web 差异](WEB_ANDROID_DIFFERENCES.md)
+- 原版许可与第三方归属请核对 [官方上游仓库](https://github.com/IvarK/AntimatterDimensionsSourceCode) 及原版发行资料；MOD 各版本的发行说明请见 [GitHub Releases](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases)。本仓当前没有可直接引用的根级 `LICENSE` / `MOD-LICENSE`，不得据此推断 MOD 代码或第三方素材已获额外授权。
 
-## 6. 目录边界
-
-当前仓库同时存在两套构建入口（目录标准化为 Issue #61 的长期目标，分阶段推进，尚未完成）：
-
-- **根 Gradle（Groovy，旧链）**：`settings.gradle` / `build.gradle`，正式 APK 由 `scripts/build_mod.py`（apktool + smali 补丁）与 Kotlin→D8 链路生成；仅作过渡与隔离对照，正式生产门禁见 [AGENTS.md](AGENTS.md) §8。
-- **AGP 工程（Kotlin DSL）**：`agp/settings.gradle.kts` / `agp/app/build.gradle.kts`，CI 以 `./gradlew -p agp` 使用；完整游戏 AGP 原生构建为正式目标（[Issue #25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)）。
-
-| 路径 | 当前用途 |
-|---|---|
-| `app/src/main/kotlin/` | 生产 Kotlin 业务/适配源码（标准 Android 布局；AGP 与旧链共用，R113-01 迁入） |
-| `scripts/payload/smali/` | 旧链 smali 业务补丁输入（随 `build_mod.py` 退役） |
-| `scripts/payload/assets/` | 教程资产源（AGP 经去重暂存打包） |
-| `scripts/payload/res/` | 资源类生成输入（如更新日志译文） |
-| `scripts/payload/lib/` | 旧链依赖库输入 |
-| `scripts/payload/smali/` | 旧链 smali 补丁输入（随 build_mod.py 退役，Issue #52） |
-| `agp/` | AGP 9.5.1 Kotlin DSL 工程（完整游戏构建目标） |
-| `baseline/` | 官方基线、版本配置和差异资料 |
-| `scripts/` | 构建、检查和验证入口 |
-| `build/` | 可再生中间产物与候选产物 |
-| `release/` | 通过发布门禁的产物 |
-| `savestates/` | 测试存档集合 |
-| `docs/` | 规则、事实和验证记录（目录迁移计划见 `docs/PROJECT_LAYOUT_S0.md`） |
-| `reports/` | 历史验证证据（唯一证据，不批量搬移） |
-
-目录标准化按 [Issue #61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 与 AGENTS.md §16 分阶段执行；根级 `app/`、`settings.gradle.kts`、`build.gradle.kts` 在 S3/S4 完成前不是当前真实结构，不要按目标结构提前搬动生产文件。
-
-## 7. 修改与反馈
-
-保留已有修改，不使用破坏性 Git 命令，不覆盖其他任务产物。提交前运行与改动直接相关的检查，并记录未覆盖范围。问题报告请提供版本、设备、Android 版本、ABI、复现步骤和脱敏日志，不要上传私钥或真实用户存档。
-
-许可证和第三方声明见仓库中的 `LICENSE`、`MOD-LICENSE` 与相关声明文件。
-
-## 8. 上游基线与 MOD 版本
-
-- **基线冻结（2026-11-13 起）**：固定官方 Android 3.21.0；允许只读监测上游安全/重大缺陷，禁止未经授权自动升级、合并、改基线或发布；base APK SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac`、XAPK `ad1b367e…`、versionCode `30210000`、minSdk 32 / targetSdk 37（见 `baseline/versions/3.21/manifest.json` 与 `docs/facts/build.md#f-6`）。
-- **选择性上游移植**：安全/崩溃/存档/数据错误优先评估；性能需实测收益；重大新玩法单独评估；普通 UI/重构/混淆/纯版本号默认不跟进。移植必须记录上游来源与验证结果，不得整包替换。
-- **独立 MOD 版本**：产品版本 Oreki Edition 从 `1.0.0` 起；Android **每次正式发布 `versionCode` 必须严格大于历史已发布最大值**（当前 `30210000`），且**原版基线 versionCode 与 MOD 发布 versionCode 分开记录**；不得改变包名、签名身份，不得破坏存档与覆盖升级。versionName/标签/文件名/更新机制验证后渐进迁移。
-- **反混淆/Kotlin 目标固定 3.21.0**：复用现有 JADX 导出、第一方索引与 Kotlin 重建成果，不因上游发版重置。
-- **完整基线升级的三种边界**（研究评估无需新授权 / 用户授权必须 / 正式发布门禁全部满足）见 `AGENTS.md` 第 9 节、`docs/DELIVERY_RULES.md` 第 6.5–6.7 节；仅满足技术条件不等于获准升级。
+Kodus 配置和任务启停状态可能随授权变化，不在 README 中维护过期的实时快照。
