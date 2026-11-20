@@ -41,7 +41,7 @@ jobs:
               if (/^reconstructed\//.test(path)) return '实验重建';
               if (/^\.github\/|^agp\/|^gradle\/|^baseline\/|(^|\/)(build\.gradle(\.kts)?|settings\.gradle(\.kts)?|proguard-rules\.pro)$|^scripts\/(publish_|release_|enforce_agp)/.test(path))
                 return 'CI/构建/发布';
-              if (/^docs\/|^tasks\/|^handoff\/|^(AGENTS|FACTS|README|CHANGELOG|PROJECT_PAUSED|WEB_ANDROID_DIFFERENCES)\.md$/.test(path))
+              if (/^docs\/|^tasks\/|^handoff\/|^archive\/|^(AGENTS|FACTS|README|CHANGELOG|WEB_ANDROID_DIFFERENCES)\.md$/.test(path))
                 return '文档/规则';
               return '源码/工具/其他';
             }

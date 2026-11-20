@@ -31,7 +31,7 @@
 | 内部结构 | `kajfosz.antimatterdimensions.apk`(base) + `config.armeabi_v7a.apk` + `config.xhdpi.apk` + `icon.png` + `manifest.json` |
 | OBB | 无 |
 
-细节见 `input_info/input_file.txt`、`analysis/xapk_listing.txt`。
+细节见 `archive/原版3.19输入文件记录.txt`、`analysis/xapk_listing.txt`。
 
 ---
 
@@ -259,7 +259,7 @@ launchable-activity: name='kajfosz.antimatterdimensions.MainActivity'
 ## 14. 目录索引
 
 ```
-input_info/input_file.txt          原始文件信息与只读声明
+archive/原版3.19输入文件记录.txt    原始文件信息与只读声明（历史归档）
 analysis/xapk_listing.txt          XAPK 内容清单
 analysis/base_apk_listing.txt      base APK 文件清单
 analysis/manifest_original.xml     原始 Manifest
