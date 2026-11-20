@@ -428,6 +428,8 @@ def check_store_policy(policy_src: str | None = None,
         _fail("[R121-01] AGP 必须依赖策略后 JAR，而不是原始 game JAR")
     if "dependsOn(applyStorePolicy)" not in agp:
         _fail("[R121-01] preBuild 必须先执行 applyStorePolicy")
+    if '-> !OrekiStorePolicy.isRemovedStoreTab(tabName)' not in _read(STAGE_AUTO_KT):
+        _fail("[R121-01] 商店父页签/子页签门禁必须返回 false")
     return "R121-01：STD 保底已删；商店/广告/购买动作 Kotlin fail-closed；JAR 字段与 ABI 保真"
 
 
