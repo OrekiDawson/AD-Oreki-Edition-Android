@@ -373,6 +373,20 @@ object OrekiStageAuto {
             // 已过首次无限：清掉开局闩锁，玩家重置存档后还能再应用一次。
             earlyAutomationApplied = false
 
+            // Break 是恢复无限层与后续永恒/挑战链的唯一关键动作。它必须先于
+            // 永恒层经济动作询问调度器，否则后者会在同一完整周期先拿到整拍名额，
+            // 造成 `brake=false` 长期饥饿。距完整周期不足 250ms 时本帧直接让出，
+            // 到期后的下一帧仍由严格 allow() 验证后才执行，绝不提前动作。
+            if (!GameApi.isDoomed() && !GameApi.isBroken() &&
+                OrekiAutomationScheduler.shouldDeferForPriorityBeat(
+                    "breakUpgrades",
+                    BREAK_PRIORITY_DEFER_MS,
+                )
+            ) {
+                return
+            }
+            maintainBreakState()
+
             // [R97 P0 阶段越界] 永恒相关自动化必须等打破无限**真正完成**。
             //
             // 真机证据（手机包 2a35c13 / SHA 150c50b9…，首次无限 02:01）：
@@ -468,50 +482,6 @@ object OrekiStageAuto {
                 // 「自动状态修改动作」，必须每帧跑 —— 否则玩家手动关掉后无法恢复托管。
                 // [R97 P0] 这是无限层（非永恒层）自动器，Break 前必须继续托管。
                 enableIpMultAutobuyer()
-
-                // ---- Break 兜底 + 自愈（R94；R96 第三轮提前到购买动作之前）----
-                //
-                // 实测（新档 02:45，坍缩间隔已买满 interval=100、17 项无限升级全买完，
-                // 却始终 `brake=false`）：旧的 Break 兜底排在五个购买动作之后，
-                // 每拍名额先被 sacrifice/bulk/infinityUpgrades 用掉 ⇒
-                // `allow("breakUpgrades")` 恒被 `deny frame-held` ⇒ Break 永远不触发。
-                // Break 是首次 Break 前唯一的一次性关键解锁，必须优先拿本拍名额；
-                // 未买满间隔时这里也先补买（只做一次真实动作，仍受全局节拍约束）。
-                // [R117-01-02c P0-6] 已 break 时本任务没有工作：直接跳过 allow/noteNoop，
-                // 避免每帧 noop + force-retry 刷屏（AVD 实测 19k 条/16 分钟）。brake 被原版
-                // 重置为 false 时会重新进入下面的自愈路径。
-                if (GameApi.isBroken()) {
-                    // 无动作：Break 已解锁
-                } else if (OrekiAutomationScheduler.shouldDeferForPriorityBeat(
-                        "breakUpgrades",
-                        BREAK_PRIORITY_DEFER_MS,
-                    )
-                ) {
-                    // 本帧离完整调度周期只差不足 250ms。让出本帧，下一帧由 Break 优先
-                    // 通过严格节拍；不得以提前放行动作换取一帧延迟。
-                    return
-                } else if (OrekiAutomationScheduler.allow("breakUpgrades")) {
-                    val wasBroken = GameApi.isBroken()
-                    if (!wasBroken) {
-                        // [R94] 实测：Break 可能被原版重置路径清掉（存档 brake=false），
-                        // 而原版同时把大坍缩间隔恢复为未满 —— 只重试 Break 永远不会成功。
-                        // 这里先按原版真实成本把间隔买到满，再走原版入口重试 Break。
-                        if (!crunchIntervalIsMaxed()) {
-                            // [R99 P0-B] 本拍只补买间隔，绝不同拍连发 Break；
-                            // 首次坍缩后的 Break 必须发生在之后的独立行动节拍。
-                            upgradeCrunchInterval()
-                            breakInfinityPrepPending = true
-                        } else if (breakInfinityAutoAllowed()) {
-                            tryBreakInfinity()
-                        }
-                    }
-                    val isBrokenNow = GameApi.isBroken()
-                    if (wasBroken != isBrokenNow) {
-                        OrekiAutomationScheduler.noteActed("breakUpgrades")
-                    } else {
-                        OrekiAutomationScheduler.noteNoop("breakUpgrades")
-                    }
-                }
 
                 // ============ [R78] 五个真实购买动作：全部纳入统一节拍 ============
                 //
@@ -803,6 +773,34 @@ object OrekiStageAuto {
     private fun isBroken(): Boolean = GameApi.isBroken()
 
     private const val BREAK_PRIORITY_DEFER_MS = 250L
+
+    /**
+     * Break 兜底 + 自愈。只在已经完成过无限且当前 `brake=false` 时工作。
+     *
+     * 该入口必须排在永恒层经济动作之前：Break 是恢复到无限层及后续挑战/现实
+     * 的唯一关键前置，不能因其它任务每拍成功而长期拿不到全局节拍。
+     */
+    private fun maintainBreakState() {
+        if (GameApi.isDoomed() || GameApi.isBroken()) return
+        if (!OrekiAutomationScheduler.allow("breakUpgrades")) return
+        val wasBroken = GameApi.isBroken()
+        if (!wasBroken) {
+            // [R94] Break 可能被原版重置路径清掉，而原版同时把大坍缩间隔恢复为未满。
+            // 先按原版真实成本把间隔买到满，再在之后的独立行动节拍重试 Break。
+            if (!crunchIntervalIsMaxed()) {
+                upgradeCrunchInterval()
+                breakInfinityPrepPending = true
+            } else if (breakInfinityAutoAllowed()) {
+                tryBreakInfinity()
+            }
+        }
+        val isBrokenNow = GameApi.isBroken()
+        if (wasBroken != isBrokenNow) {
+            OrekiAutomationScheduler.noteActed("breakUpgrades")
+        } else {
+            OrekiAutomationScheduler.noteNoop("breakUpgrades")
+        }
+    }
 
     /** 当前 IP 余额（BigDouble 引用）。 */
     private fun ipBalance(): Any? = GameApi.currencyValue(GameApi.ipCurrency())
