@@ -54,7 +54,7 @@ GAME_JAR=/absolute/path/to/verified-game.jar
 | `reports/` | 历史构建、KVM/AVD、运行和故障证据 |
 | `tasks/` | 轮次任务、当前工作与验收口径 |
 
-根目录的旧 Gradle/脚本链及 `scripts/payload/` 可能仍用于隔离对照，不能仅凭目录存在认定其为正式发行入口。项目布局迁移请查阅 [相关 Issue](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)。
+根目录的旧 Gradle/脚本链及 `scripts/payload/` 可能仍用于隔离对照，不能仅凭目录存在认定其为正式发行入口。项目布局迁移请查阅 [相关 Issue](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)；历史目录归档与保留理由见 [根目录整理说明](docs/ROOT_HYGIENE.md)。
 
 ## 验证与反馈
 
