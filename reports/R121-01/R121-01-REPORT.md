@@ -57,11 +57,11 @@
 显式传入已核验的游戏 JAR，R8 关闭。
 构建结果 **PASS**：
 
-- 源码：`20a95c7e4a9b5aff288d7889e03758ef4bc15c60`
-- APK：`build/r121-01-final7/r8off/app-release.apk`
+- 源码：`e02990aa` 所在最终源码树
+- APK：`build/r121-01-final8/r8off/app-release.apk`
 - SHA-256：
-  `2f3f0b10bab0d29c13e4637ac2e86f62fdc18cc232fcf5d81f1a58d108a6dc87`
-- 大小：81,615,719 B
+  `96cb980107a3d1a7a3c83d3382485ebcdc67c79a5a1d8cc75b5ca1304e7273ce`
+- 大小：81,615,767 B
 - 包名：`com.oreki.antimatterdimensions`
 - 版本：`30210002 / 3.21.0`
 - SDK：minSdk 32 / targetSdk 37
@@ -72,9 +72,9 @@
   `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`
 
 完整日志、输入哈希、测试 XML、签名与包清单见
-`reports/R121-01/build-evidence/final-auto-eternity-v2/`。构建期间一次
-离线 lint 依赖缺失和一次 fullGame 参数缺失均在产出 APK 前失败；最终有效
-完整游戏构建从上述源码成功产出签名 APK。
+`reports/R121-01/build-evidence/final-auto-eternity-v3/`。构建期间旧目录中的
+离线 lint 依赖缺失和 fullGame 参数缺失均在产出有效 APK 前失败；本目录的
+最终有效完整游戏构建从上述源码成功产出签名 APK。
 
 ## KVM AVD
 
@@ -97,15 +97,15 @@
 ## 安装追溯
 
 - `adb install -r`：**PASS**
-- 设备回拉 `base.apk` 为 81,615,719 B
+- 设备回拉 `base.apk` 为 81,615,767 B
 - 从设备回拉 `base.apk` 的 SHA-256 与最终构建 APK 完全一致：
-  `2f3f0b10…a6dc87`
+  `96cb9801…72bce`
 
 ## 真实新档
 
 修复版入口 `pm clear` 后点击“开始游戏”，当前运行目录：
 
-`reports/R121-01/avd-evidence/kvm-final-2f3f0b10/`
+`reports/R121-01/avd-evidence/kvm-final-96cb9801/`
 
 记录将包含 15 秒采样的 `timeline.jsonl`、完整 `logcat.txt`、关键帧截图、
 最终存档与通关后状态。终局结论待运行结束更新。
