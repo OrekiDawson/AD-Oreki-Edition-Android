@@ -23,10 +23,19 @@ object OrekiGamePace {
     fun applyDefaultIfUnset(context: Context?) {
         val ctx = context ?: return
         val prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val stored = prefs.getFloat(SPEED_KEY, Float.NaN)
-        if (stored.isFinite() && stored > 0f) return
+        val stored = try {
+            prefs.getFloat(SPEED_KEY, Float.NaN)
+        } catch (_: ClassCastException) {
+            Log.w("OREKI_PACE", "stored speed has invalid type; restoring default")
+            Float.NaN
+        }
+        if (isValidStoredSpeed(stored)) return
         setSpeed(defaultSpeed())
     }
+
+    /** 仅接受有限正倍率；缺失、错误类型及非正值都由启动路径安全回退。 */
+    @JvmStatic
+    fun isValidStoredSpeed(value: Float): Boolean = value.isFinite() && value > 0f
 
     @JvmStatic
     fun resetDefault(context: Context?) {
