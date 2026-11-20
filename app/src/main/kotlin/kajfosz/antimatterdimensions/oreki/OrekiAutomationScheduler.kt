@@ -104,14 +104,6 @@ object OrekiAutomationScheduler {
     private val FORCE_RETRY_TASKS = setOf("breakUpgrades")
     private const val FORCE_RETRY_AFTER_NOOP_WAITS = 2
     /**
-     * [R121-01] Break 是恢复无限层的唯一关键动作。GUI Tick 与实际动作记账存在约
-     * 10～100ms 的相位差；实测每拍 Break 检查总比全局节拍早约 80ms，随后其它任务
-     * 在同一拍成功并再次推迟 Break，导致 IP 已远超门槛仍长期 `brake=false`。
-     * 仅对 Break 关键任务允许 250ms 调度抖动，不改变玩家配置的 1～60 秒周期。
-     */
-    private const val CRITICAL_TASK_BEAT_GRACE_MS = 250L
-
-    /**
      * 阶段紧迫任务（R82）。
      *
      * 背景：R81 真机日志里 `sacrifice` 每拍都成功、`idBuy` 一次都没轮到 ——
@@ -583,10 +575,7 @@ object OrekiAutomationScheduler {
         // 两道闸都严格使用玩家配置周期；阶段变化不改写调度 tick。
         val effectiveMs = effectiveIntervalSec() * 1000L
         val beat = lastBeatAt
-        val beatElapsed = if (beat == 0L) effectiveMs else now - beat
-        val criticalGrace = taskId in FORCE_RETRY_TASKS &&
-            beatElapsed >= effectiveMs - CRITICAL_TASK_BEAT_GRACE_MS
-        if (beat != 0L && beatElapsed < effectiveMs && !criticalGrace) {
+        if (!isGlobalBeatReady(beat, now, effectiveMs)) {
             beatSkips++
             return deny("interval", taskId)
         }
@@ -605,6 +594,35 @@ object OrekiAutomationScheduler {
 
         return true
     }
+
+    /**
+     * [R121-01 P1] GUI Tick 可能比全局节拍早约 10～100ms。对于即将到期且确实是唯一关键
+     * 进度的 Break 任务，本帧应等待到完整周期，而不是提前放行动作或让其它任务先占拍。
+     *
+     * 这不是间隔豁免：返回 true 时调用方不得执行任何 MOD 动作；周期到达后的下一帧，
+     * Break 仍和其他任务一样通过严格 `allow()` 闸门。这样既维持 1～60 秒真实最小动作
+     * 间隔，也避免其它任务反复重置节拍导致 Break 长期饥饿。
+     */
+    @JvmStatic
+    fun shouldDeferForPriorityBeat(taskId: String?, marginMs: Long): Boolean {
+        if (taskId == null || taskId !in FORCE_RETRY_TASKS || marginMs <= 0L) return false
+        val remaining = priorityBeatRemainingMs(
+            lastBeatAt,
+            SystemClock.elapsedRealtime(),
+            effectiveIntervalSec() * 1000L,
+        )
+        return remaining > 0L && remaining <= marginMs
+    }
+
+    /** 纯节拍判据：首帧允许；之后必须完整经过玩家配置周期，不接受提前量。 */
+    @JvmStatic
+    fun isGlobalBeatReady(lastBeatAtMs: Long, nowMs: Long, intervalMs: Long): Boolean =
+        lastBeatAtMs == 0L || nowMs - lastBeatAtMs >= intervalMs
+
+    /** 距离完整节拍还剩多少毫秒；首帧或已到期返回 0，仅用于优先级等待。 */
+    @JvmStatic
+    fun priorityBeatRemainingMs(lastBeatAtMs: Long, nowMs: Long, intervalMs: Long): Long =
+        if (lastBeatAtMs == 0L) 0L else (intervalMs - (nowMs - lastBeatAtMs)).coerceAtLeast(0L)
 
     /**
      * 尝试为任务 idx 预约一次"正在进行中的动作"。

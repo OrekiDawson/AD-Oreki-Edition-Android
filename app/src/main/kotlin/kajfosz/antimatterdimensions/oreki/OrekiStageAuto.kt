@@ -482,6 +482,14 @@ object OrekiStageAuto {
                 // 重置为 false 时会重新进入下面的自愈路径。
                 if (GameApi.isBroken()) {
                     // 无动作：Break 已解锁
+                } else if (OrekiAutomationScheduler.shouldDeferForPriorityBeat(
+                        "breakUpgrades",
+                        BREAK_PRIORITY_DEFER_MS,
+                    )
+                ) {
+                    // 本帧离完整调度周期只差不足 250ms。让出本帧，下一帧由 Break 优先
+                    // 通过严格节拍；不得以提前放行动作换取一帧延迟。
+                    return
                 } else if (OrekiAutomationScheduler.allow("breakUpgrades")) {
                     val wasBroken = GameApi.isBroken()
                     if (!wasBroken) {
@@ -793,6 +801,8 @@ object OrekiStageAuto {
     }
 
     private fun isBroken(): Boolean = GameApi.isBroken()
+
+    private const val BREAK_PRIORITY_DEFER_MS = 250L
 
     /** 当前 IP 余额（BigDouble 引用）。 */
     private fun ipBalance(): Any? = GameApi.currencyValue(GameApi.ipCurrency())

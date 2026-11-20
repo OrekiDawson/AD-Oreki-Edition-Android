@@ -178,8 +178,8 @@ def main():
                 raise RuntimeError("push 存档失败: " + p.stderr[:300])
             # 包 UID 会随重装变化，不能沿用历史硬编码值；否则应用读不到注入档，
             # 会静默创建新档并把错误跑次误当成旧档回归。
-            uid = adb("shell", "stat", "-c", "%u", FILES).stdout.strip()
-            if not uid.isdigit():
+            uid = adb("shell", "stat", "-c", "%u", os.path.dirname(FILES)).stdout.strip()
+            if not uid.isdigit() or uid == "0":
                 raise RuntimeError("无法读取应用数据目录 UID: " + uid[:120])
             # adb push 会保留宿主 UID 类型对应的 SELinux 标签；仅改所有者仍会
             # 被应用以 EACCES 拒绝读取。先恢复标签，再改所有者；restorecon 可能
