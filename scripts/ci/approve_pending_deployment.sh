@@ -3,7 +3,7 @@
 # 用法：approve_pending_deployment.sh <run_id> [environment_name]
 set -euo pipefail
 RUN_ID=${1:?run_id required}
-ENV_FILTER=${2:-}
+export ENV_FILTER=${2:-}
 REPO=${REPO:-OrekiDawson/AD-Oreki-Edition-Android}
 RAW=$(gh api "repos/$REPO/actions/runs/$RUN_ID/pending_deployments")
 COUNT=$(printf '%s' "$RAW" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))')
