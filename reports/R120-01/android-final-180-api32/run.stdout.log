@@ -1,0 +1,94 @@
+[12:05:18] lock acquired pid=443206 lock=/tmp/r109_avd_run.lock
+[12:05:19] t=   0.1s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=68.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:06:20] t=  60.2s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=78.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:07:20] t= 120.2s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=91.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:08:20] t= 180.3s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=125.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:09:20] t= 240.4s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=162.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:10:20] t= 300.5s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=178.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:11:20] t= 360.6s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=57.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:12:20] t= 420.6s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=143.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:13:20] t= 480.7s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=167.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:14:20] t= 540.7s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=162.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:15:20] t= 600.9s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=176.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:16:20] t= 660.9s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=161.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:17:20] t= 721.0s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=269.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:18:20] t= 781.0s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=129.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:19:19] t= 840.1s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=120.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:20:20] t= 900.1s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=53.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:21:20] t= 960.2s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=184.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:22:20] t=1020.3s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=273.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:23:20] t=1080.4s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=175.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:24:20] t=1140.4s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=280.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:25:20] t=1200.5s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=84.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:26:20] t=1260.5s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=132.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:27:20] t=1320.6s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=208.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:28:20] t=1380.6s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=856.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:29:20] t=1440.7s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=11219.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:30:20] t=1500.8s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=7350.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:31:20] t=1560.8s real=0e0 et=0e0 EP=0e0 maxEPexp=0.0 amE=13625.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:32:20] t=1620.9s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=117.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:33:20] t=1681.0s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=86.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:34:20] t=1741.0s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=204.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:35:19] t=1800.1s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=106.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:36:20] t=1860.2s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=180.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:37:20] t=1920.2s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=228.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:38:20] t=1980.3s real=0e0 et=1e0 EP=8.824e12 maxEPexp=12.0 amE=292.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:39:20] t=2040.3s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:40:20] t=2100.4s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:41:20] t=2160.5s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:42:20] t=2220.5s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:43:20] t=2280.6s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=430.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:44:20] t=2340.6s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=911.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:45:20] t=2400.7s real=0e0 et=1e0 EP=2.478e11 maxEPexp=12.0 amE=2118.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:46:20] t=2460.7s real=0e0 et=1e0 EP=1.329e41 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:47:20] t=2520.8s real=0e0 et=1e0 EP=1.329e41 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:48:20] t=2580.9s real=0e0 et=1e0 EP=1.329e41 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:49:20] t=2640.9s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:50:20] t=2701.0s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:51:19] t=2760.1s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:52:20] t=2820.1s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1247.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:53:20] t=2880.3s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1607.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:54:20] t=2940.4s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=4496.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:55:20] t=3000.5s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:56:20] t=3060.5s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:57:20] t=3120.6s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:58:20] t=3180.7s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[12:59:20] t=3240.7s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:00:20] t=3300.8s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:01:20] t=3360.9s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:02:20] t=3421.0s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1364.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:03:20] t=3481.0s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=4459.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:04:19] t=3540.1s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=15192.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:05:19] t=3600.1s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:06:20] t=3660.2s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:07:20] t=3720.3s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:08:20] t=3780.4s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:09:20] t=3840.5s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:10:20] t=3900.6s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:11:20] t=3960.6s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=8639.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:12:20] t=4020.7s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1458.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:13:20] t=4080.7s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=9877.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:14:20] t=4140.8s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=15839.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:15:20] t=4200.9s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:16:20] t=4261.0s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:17:19] t=4320.1s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:18:20] t=4380.2s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:19:20] t=4440.2s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:20:20] t=4500.3s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:21:20] t=4560.3s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:22:20] t=4620.4s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1449.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:23:20] t=4680.4s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:24:20] t=4740.5s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:25:20] t=4800.7s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:26:20] t=4860.8s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:27:20] t=4920.8s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:28:20] t=4980.9s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:29:20] t=5041.0s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:30:19] t=5100.0s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:31:19] t=5160.1s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:32:20] t=5220.2s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1006.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:33:20] t=5280.2s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=1202.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:34:20] t=5340.3s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=7973.0 brk=True ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:35:20] t=5400.4s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:36:20] t=5460.4s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False
+[13:37:20] t=5520.5s real=0e0 et=1e0 EP=7.991e38 maxEPexp=41.0 amE=308.0 brk=False ds6=False RM=0e0 IM=0.0 iu=0 lai=0/False/0.0 doom=False rem=0.0 totAM=0e0 end=False

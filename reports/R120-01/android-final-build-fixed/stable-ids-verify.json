@@ -1,0 +1,17 @@
+{
+    "schema": 1,
+    "stage": "agp-fullgame-inputs-verify",
+    "applicationId": "com.oreki.antimatterdimensions",
+    "resources": 14973,
+    "stable_ids_bytes": 1076790,
+    "stable_ids_sha256": "13e9953a106c65622c5d3bef8a504d4cd3c6a2d1f6b55109a6d67daece778ab8",
+    "decoded_public_xml_sha256": "7d8ab4ae80269026019de22982f0dadac234cc6d59565815fe60f0c293a78f47",
+    "decoded_manifest_sha256": "5ff102f9ce329c381cb4bc67cc024601ea877487099907eb6b24049b515cce38",
+    "checks": {
+        "stable_ids_byte_equal": true,
+        "staged_public_ids_transform_equal": true,
+        "manifest_normalized": true,
+        "input_evidence_consistent": true,
+        "newline_normalized_like_python": true
+    }
+}
