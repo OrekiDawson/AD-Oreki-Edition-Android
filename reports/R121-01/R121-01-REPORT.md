@@ -29,7 +29,7 @@
 命令为 AGP 9.5.1 离线完整游戏 `:app:assembleRelease`，R8 关闭。
 构建结果 **PASS**：
 
-- 源码：`7808e5e5` 加 R121-01 P1 修复
+- 源码：`a09cc21389f0f31505eeee5d54ec795b9007316f`
 - APK：`build/r121-01-final2/r8off/app-release.apk`
 - SHA-256：
   `43e3f4fc42017541a37b81f7440e58fe8a67380ed9ff601d440038947091f1ac`
