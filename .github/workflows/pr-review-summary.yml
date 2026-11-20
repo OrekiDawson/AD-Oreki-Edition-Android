@@ -54,7 +54,7 @@ jobs:
             }
             const mechanicalFile=path =>
               /\.gen\.(js|mjs|ts)$/i.test(path) ||
-              ['日志/数据/证据', '实验重建'].includes(category(path)) ||
+              category(path)==='日志/数据/证据' ||
               /(^|\/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|Cargo\.lock|gradle\.lockfile)$|(^|\/)(generated|build|dist|node_modules)\//i.test(path);
             let effectiveChanges=0, mechanicalChanges=0, effectiveAdds=0, effectiveDels=0;
             for (const f of files) {
@@ -81,8 +81,11 @@ jobs:
               /\bR\d{2,3}-(?:\d{2,3}\b|[^\s，。；、,.;:：()（）\[\]*_\/]+)/g
             )||[])];
             const bareRounds=[...new Set(taskText.match(/\bR\d{2,3}\b(?!-)/g)||[])];
-            const taskIds=declaredTaskIds.length ? declaredTaskIds :
-              bareRounds.map(id=>id+'（未带子编号）');
+            const declaredRounds=new Set(declaredTaskIds.map(id=>id.match(/^R\d+/)?.[0]).filter(Boolean));
+            const uncoveredBareRounds=bareRounds
+              .filter(id=>!declaredRounds.has(id))
+              .map(id=>id+'（未带子编号）');
+            const taskIds=[...declaredTaskIds,...uncoveredBareRounds];
             const risk=platform==='Android' ? [
               ['AGP/R8/Gradle', /^(agp|gradle)\/|(^|\/)(build\.gradle(\.kts)?|proguard-rules\.pro)$/],
               ['CI/签名/正式发布', /^\.github\/workflows\/|^scripts\/(publish_|release_|enforce_agp)/],
