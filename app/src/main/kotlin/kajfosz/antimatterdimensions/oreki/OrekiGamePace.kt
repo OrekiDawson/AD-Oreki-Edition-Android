@@ -23,7 +23,8 @@ object OrekiGamePace {
     fun applyDefaultIfUnset(context: Context?) {
         val ctx = context ?: return
         val prefs = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (prefs.contains(SPEED_KEY)) return
+        val stored = prefs.getFloat(SPEED_KEY, Float.NaN)
+        if (stored.isFinite() && stored > 0f) return
         setSpeed(defaultSpeed())
     }
 

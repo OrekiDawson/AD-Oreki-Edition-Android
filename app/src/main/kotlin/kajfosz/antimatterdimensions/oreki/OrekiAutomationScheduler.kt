@@ -235,6 +235,9 @@ object OrekiAutomationScheduler {
         // 它只请求每帧重绘，不推进游戏、不改存档，用于修复「画面约 1.3 fps」。
         OrekiUiFramePump.start()
         if (context == null || inited) return
+        // 完整游戏 JAR 仍可能带有旧 OrekiSpeed 初始化常量；在它读取偏好前先由
+        // Kotlin 写入新档默认值。已有合法倍率不会被覆盖，非法/缺失值安全回退。
+        OrekiGamePace.applyDefaultIfUnset(context)
         inited = true
         ctx = context
         try {
