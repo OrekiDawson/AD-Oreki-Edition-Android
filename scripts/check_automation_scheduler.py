@@ -372,11 +372,11 @@ _beat_ok, _beat_out = False, "runner missing"
 if _beat_runner.is_file():
     try:
         _r = _sp.run([str(_beat_runner)], capture_output=True, text=True, timeout=300)
-        _beat_ok = _r.returncode == 0 and "ALL BEAT TESTS PASSED" in _r.stdout
+        _beat_ok = _r.returncode == 0 and "ALL MANAGED CONFIG TESTS PASSED" in _r.stdout
         _beat_out = (_r.stdout or _r.stderr or "").strip().splitlines()[-1:] or [""]
     except Exception as _e:
         _beat_out = [str(_e)]
-check("§81 受管节拍状态机单元验证通过（只登记一次/到点只恢复一次/1s与60s边界）", _beat_ok)
+check("受管配置权威状态机行为测试通过（当前路径与历史兜底对象）", _beat_ok)
 
 # ---------------------------------------- 24j. R96 第二十一轮：§81 智能自动购买器节拍（归属纠正后）
 # 用户 2026-11-09 纠正：逐帧节拍检查 + 玩家改动后下一 tick 恢复属于**原版自动购买器侧**，

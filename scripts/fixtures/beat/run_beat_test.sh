@@ -10,5 +10,7 @@ ANDROID_SDK_ROOT="$ANDROID_HOME" \
 JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}" \
 bash "$ROOT/gradlew" -p "$ROOT/agp" :app:testDebugUnitTest \
   --tests 'kajfosz.antimatterdimensions.oreki.OrekiAutobuyerBeatTest' \
+  --tests 'kajfosz.antimatterdimensions.oreki.OrekiManagedAutobuyerAuthorityTest' \
+  --tests 'kajfosz.antimatterdimensions.oreki.OrekiManagedAutobuyerScenarioTest' \
   --offline --no-daemon --console=plain
-echo "ALL BEAT TESTS PASSED"
+echo "ALL MANAGED CONFIG TESTS PASSED"

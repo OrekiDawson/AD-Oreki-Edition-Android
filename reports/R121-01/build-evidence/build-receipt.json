@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "round": "R121-01",
-  "source_commit": "a09cc21389f0f31505eeee5d54ec795b9007316f",
+  "source_commit": "dfa71a99fbf2097f41873042dac5c360b7c05347",
   "builder": {
     "gradle": "9.8.2",
     "agp": "9.5.1",
@@ -11,9 +11,9 @@
     "offline": true,
     "full_game": true,
     "r8": false,
-    "elapsed_seconds": 20,
-    "release_build_count": 3,
-    "build_note": "首次基线构建 e5b67f4f；P1 定向复验否决无节流的 ac500784；最终版增加 30 秒结算冷却与 250ms Break 调度抖动容忍后重建。"
+    "elapsed_seconds": 21,
+    "release_build_count": 9,
+    "build_note": "R121-01 最终 APK；包含 MOD/原版自动永恒复位识别、瞬时 null 证据保留、Break 自愈优先级与严格调度周期修复。"
   },
   "inputs": {
     "game_jar": {
@@ -35,9 +35,9 @@
     ]
   },
   "apk": {
-    "path": "build/r121-01-final2/r8off/app-release.apk",
-    "sha256": "43e3f4fc42017541a37b81f7440e58fe8a67380ed9ff601d440038947091f1ac",
-    "bytes": 81612591,
+    "path": "build/r121-01-final9/r8off/app-release.apk",
+    "sha256": "9e4571e84ed9c3b71afb1ede9bc1a92744916c71c1fd4865b886a237d2fccc79",
+    "bytes": 81616343,
     "package": "com.oreki.antimatterdimensions",
     "version_code": 30210002,
     "version_name": "3.21.0",
@@ -48,8 +48,8 @@
   },
   "device_install": {
     "serial": "emulator-5554",
-    "installed_apk_sha256": "43e3f4fc42017541a37b81f7440e58fe8a67380ed9ff601d440038947091f1ac",
-    "last_update_time": "2026-11-20 19:52:28",
+    "installed_apk_sha256": "9e4571e84ed9c3b71afb1ede9bc1a92744916c71c1fd4865b886a237d2fccc79",
+    "last_update_time": "2026-11-21 04:18:01",
     "state": "PASS"
   }
 }
