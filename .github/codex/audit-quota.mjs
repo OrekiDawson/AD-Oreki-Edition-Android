@@ -134,8 +134,8 @@ function importKodyEvidence(records, evidence, date, now) {
   const output = [...records];
   const seen = new Set(
     output
-      .filter(record => isKodyRecord(record) && record.date === date)
-      .map(record => String(record.commentId ?? ""))
+      .filter(record => isKodyRecord(record) && String(record.commentId ?? ""))
+      .map(record => `${String(record.repository ?? "")}#${String(record.commentId ?? "")}`)
       .filter(Boolean),
   );
   for (const item of evidence) {
@@ -144,18 +144,25 @@ function importKodyEvidence(records, evidence, date, now) {
     if (!repository || !commentId) {
       throw new Error("Kody quota evidence requires repository and unique comment id");
     }
-    if (seen.has(commentId)) continue;
-    seen.add(commentId);
+    const createdAt = new Date(String(item?.createdAt ?? ""));
+    if (!Number.isFinite(createdAt.getTime())) {
+      throw new Error("Kody quota evidence requires a valid creation time");
+    }
+    if (shanghaiDate(createdAt) !== date) continue;
+    const commentKey = `${repository}#${commentId}`;
+    if (seen.has(commentKey)) continue;
+    seen.add(commentKey);
     output.push({
       kind: KODY_KIND,
       identity: `kody-comment:${repository}#${commentId}`,
       repository,
+      pr: Number(item?.pr),
       commentId,
       commentUrl: String(item?.url ?? ""),
       source: "observed_comment",
       date,
       status: "posted",
-      createdAt: String(item?.createdAt ?? now),
+      createdAt: createdAt.toISOString(),
       updatedAt: now,
     });
   }
@@ -178,7 +185,9 @@ export function reserveKodyPure(records, candidate, {
   const identity = String(candidate?.identity ?? "");
   if (!identity) throw new Error("Kody quota identity is required");
   const prior = output.find(record =>
-    isActiveKodyRecord(record, date) && record.identity === identity);
+    isKodyRecord(record) &&
+    record.status !== "released" &&
+    record.identity === identity);
   if (prior) {
     return {
       allowed: false,
@@ -229,29 +238,59 @@ export function attachKodyCommand(records, {
   identity,
   commentId,
   commentUrl = "",
+  createdAt = "",
   now = new Date().toISOString(),
 }) {
+  if (commentId == null || !String(commentId).trim()) {
+    throw new Error("Kody trigger comment id is missing");
+  }
+  const duplicateComment = String(commentId);
+  const alreadyPosted = records.findLastIndex(record =>
+    isKodyRecord(record) &&
+    record.identity === identity &&
+    record.status === "posted" &&
+    String(record.commentId ?? "") === duplicateComment);
+  if (alreadyPosted >= 0) {
+    return {
+      ok: true,
+      record: records[alreadyPosted],
+      records,
+      counts: kodyQuotaCounts(records, records[alreadyPosted].date),
+    };
+  }
   const index = records.findLastIndex(record =>
     isKodyRecord(record) &&
     record.identity === identity &&
     record.status === "reserved");
   if (index < 0) throw new Error(`active Kody quota reservation not found: ${identity}`);
-  if (commentId == null || !String(commentId).trim()) {
-    throw new Error("Kody trigger comment id is missing");
-  }
-  const output = [...records];
-  output[index] = {
-    ...output[index],
+  const current = records[index];
+  const parsedCreatedAt = new Date(createdAt);
+  const commentDate = Number.isFinite(parsedCreatedAt.getTime())
+    ? shanghaiDate(parsedCreatedAt)
+    : current.date;
+  const output = records.filter((record, cursor) =>
+    cursor === index ||
+    !(isKodyRecord(record) &&
+      String(record.repository ?? "") === String(current.repository ?? "") &&
+      String(record.commentId ?? "") === duplicateComment));
+  const targetIndex = output.findLastIndex(record =>
+    isKodyRecord(record) &&
+    record.identity === identity &&
+    record.status === "reserved");
+  if (targetIndex < 0) throw new Error(`active Kody quota reservation not found: ${identity}`);
+  output[targetIndex] = {
+    ...output[targetIndex],
     status: "posted",
-    commentId: String(commentId),
+    date: commentDate,
+    commentId: duplicateComment,
     commentUrl: String(commentUrl),
     updatedAt: now,
   };
   return {
     ok: true,
-    record: output[index],
+    record: output[targetIndex],
     records: output,
-    counts: kodyQuotaCounts(output, output[index].date),
+    counts: kodyQuotaCounts(output, output[targetIndex].date),
   };
 }
 
@@ -417,6 +456,7 @@ export async function reserveKodyQuota(token, candidate, evidence = [], {
 export async function attachKodyQuota(token, identity, {
   commentId,
   commentUrl = "",
+  createdAt = "",
   now = new Date(),
 } = {}) {
   const date = shanghaiDate(now);
@@ -424,6 +464,7 @@ export async function attachKodyQuota(token, identity, {
     identity,
     commentId,
     commentUrl,
+    createdAt,
     now: now.toISOString(),
   }));
 }

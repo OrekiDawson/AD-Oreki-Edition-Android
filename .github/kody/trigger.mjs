@@ -81,6 +81,26 @@ export function shanghaiDayStart(now) {
   ) - 8 * 60 * 60 * 1000);
 }
 
+export function sameShanghaiQuotaDay(now, snapshotNow) {
+  return shanghaiDayStart(now).getTime() === shanghaiDayStart(snapshotNow).getTime();
+}
+
+export function quotaPostWindowOpen(now, snapshotNow, marginMs = 15_000) {
+  if (!sameShanghaiQuotaDay(now, snapshotNow)) return false;
+  const dayEnd = shanghaiDayStart(now).getTime() + 24 * 60 * 60 * 1000;
+  return dayEnd - now.getTime() > marginMs;
+}
+
+export function millisecondsUntilShanghaiMidnight(now) {
+  const dayEnd = shanghaiDayStart(now).getTime() + 24 * 60 * 60 * 1000;
+  return Math.max(0, dayEnd - now.getTime());
+}
+
+export function shouldWaitForQuotaMidnight(now, snapshotNow, marginMs = 15_000) {
+  return sameShanghaiQuotaDay(now, snapshotNow) &&
+    !quotaPostWindowOpen(now, snapshotNow, marginMs);
+}
+
 export function dailyCommentsPath(repository, since) {
   return `/repos/${repository}/issues/comments?since=${encodeURIComponent(since.toISOString())}&per_page=100`;
 }
@@ -120,8 +140,10 @@ export function sharedTriggerQuotaEvidence(commentGroups, since) {
       }
       const key = `${repository}#${commentId}`;
       if (unique.has(key)) continue;
+      const pullMatch = String(comment.html_url ?? "").match(/\/pull\/(\d+)(?:[\/#?]|$)/);
       unique.set(key, {
         repository,
+        pr: pullMatch ? Number(pullMatch[1]) : null,
         commentId,
         url: comment.html_url ?? "",
         createdAt: new Date(createdAt).toISOString(),
@@ -226,13 +248,36 @@ function finishSkip(reason, pr = null, headSha = "", quotaCounts = null) {
   console.log(`Kody trigger skipped: ${safeReason}`);
 }
 
-async function releaseReservation(token, identity) {
+async function releaseReservation(token, identity, now) {
   try {
-    return await releaseKodyQuota(token, identity);
+    return await releaseKodyQuota(token, identity, { now });
   } catch (error) {
     console.error(`Kody quota release failed; reservation remains consumed: ${error.message}`);
     return null;
   }
+}
+
+async function releaseReservationOrThrow(token, identity, now) {
+  let released = await releaseReservation(token, identity, now);
+  if (released?.ok === false && released.reason === "reservation-not-found") {
+    console.log("Kody quota reservation not found; treating release as idempotent");
+    return released;
+  }
+  if (released?.ok !== true) {
+    // PATCH 可能已落地但响应丢失；重读同一 identity 再释放一次可识别该情况。
+    released = await releaseReservation(token, identity, now);
+  }
+  if (released?.ok === false && released.reason === "reservation-not-found") {
+    console.log("Kody quota reservation released before retry");
+    return released;
+  }
+  if (released?.ok !== true) {
+    throw new Error(
+      `failed to release Kody quota reservation for ${identity}: ` +
+        `${released?.reason ?? "transport-or-service-error"}`,
+    );
+  }
+  return released;
 }
 
 function emitQuotaEvidence(evidence) {
@@ -242,6 +287,13 @@ function emitQuotaEvidence(evidence) {
         `created_at=${item.createdAt} url=${item.url}`,
     );
   }
+}
+
+function writeQuotaOutputs(quotaCounts) {
+  writeOutput("quota_warning", quotaCounts.warning);
+  writeOutput("shared_trigger_used", quotaCounts.used);
+  writeOutput("shared_trigger_remaining", quotaCounts.remaining);
+  writeOutput("shared_trigger_by_repo", JSON.stringify(quotaCounts.byRepository));
 }
 
 async function requestJson(path, { method = "GET", token, body } = {}) {
@@ -259,7 +311,9 @@ async function requestJson(path, { method = "GET", token, body } = {}) {
   });
   if (!response.ok) {
     const message = (await response.text()).slice(0, 500);
-    throw new Error(`GitHub API ${method} ${path} failed: ${response.status} ${message}`);
+    const error = new Error(`GitHub API ${method} ${path} failed: ${response.status} ${message}`);
+    error.status = response.status;
+    throw error;
   }
   return response;
 }
@@ -283,6 +337,28 @@ async function getPullRequest(repository, number, token) {
   return response.json();
 }
 
+async function loadStableSharedQuota(repository, token) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const startedAt = new Date();
+    const since = shanghaiDayStart(startedAt);
+    const commentGroups = [];
+    for (const source of sharedDailyCommentsPaths(repository, since)) {
+      commentGroups.push({
+        repository: source.repository,
+        comments: await listAllPages(source.path, token),
+      });
+    }
+    const finishedAt = new Date();
+    if (shanghaiDayStart(finishedAt).getTime() === since.getTime()) {
+      return {
+        evidence: sharedTriggerQuotaEvidence(commentGroups, since),
+        now: finishedAt,
+      };
+    }
+  }
+  throw new Error("UTC+8 quota day changed repeatedly while loading comments; retry later");
+}
+
 async function findTriggerCheck(repository, headSha, externalId, token) {
   const response = await requestJson(
     `/repos/${repository}/commits/${headSha}/check-runs?check_name=${encodeURIComponent(CHECK_NAME)}&filter=all&per_page=100`,
@@ -299,6 +375,11 @@ async function createCompletedTriggerCheck(
   externalId,
   commentUrl,
   token,
+  {
+    conclusion = "success",
+    title = "Kody 审查触发已发送",
+    summary = `已以 OrekiDawson 身份发送触发评论。PR #${prNumber}，Head \`${headSha}\`，评论 ${commentUrl}。Kody 审查结果仍需独立核验。`,
+  } = {},
 ) {
   await requestJson(`/repos/${repository}/check-runs`, {
     method: "POST",
@@ -308,10 +389,10 @@ async function createCompletedTriggerCheck(
       head_sha: headSha,
       external_id: externalId,
       status: "completed",
-      conclusion: "success",
+      conclusion,
       output: {
-        title: "Kody 审查触发已发送",
-        summary: `已以 OrekiDawson 身份发送触发评论。PR #${prNumber}，Head \`${headSha}\`，评论 ${commentUrl}。Kody 审查结果仍需独立核验。`,
+        title,
+        summary,
       },
     },
   });
@@ -378,18 +459,10 @@ export async function main() {
     return;
   }
 
-  const since = shanghaiDayStart(new Date());
-  const commentGroups = [];
-  for (const source of sharedDailyCommentsPaths(repository, since)) {
-    commentGroups.push({
-      repository: source.repository,
-      comments: await listAllPages(source.path, token),
-    });
-  }
-  const quotaEvidence = sharedTriggerQuotaEvidence(commentGroups, since);
-  emitQuotaEvidence(quotaEvidence);
-  writeOutput("quota_evidence", JSON.stringify(quotaEvidence));
-  const reservation = await reserveKodyQuota(
+  let quotaSnapshot = await loadStableSharedQuota(repository, token);
+  emitQuotaEvidence(quotaSnapshot.evidence);
+  writeOutput("quota_evidence", JSON.stringify(quotaSnapshot.evidence));
+  let reservation = await reserveKodyQuota(
     token,
     {
       identity: externalId,
@@ -397,54 +470,140 @@ export async function main() {
       pr: prNumber,
       headSha,
     },
-    quotaEvidence,
+    quotaSnapshot.evidence,
+    { now: quotaSnapshot.now },
   );
-  const quotaCounts = reservation.counts;
-  writeOutput("quota_warning", quotaCounts.warning);
-  writeOutput("shared_trigger_used", quotaCounts.used);
-  writeOutput("shared_trigger_remaining", quotaCounts.remaining);
-  writeOutput("shared_trigger_by_repo", JSON.stringify(quotaCounts.byRepository));
+  let quotaCounts = reservation.counts;
+  writeQuotaOutputs(quotaCounts);
   if (!reservation.allowed) {
     finishSkip(reservation.reason, pr, headSha, quotaCounts);
     return;
   }
 
-  const latest = await getPullRequest(repository, prNumber, token);
-  if (latest.state !== "open" || latest.merged_at != null) {
-    await releaseReservation(token, externalId);
-    finishSkip("pr_not_open", latest, latest.head?.sha ?? "", quotaCounts);
-    return;
-  }
-  if (latest.head?.sha !== headSha || latest.draft === true) {
-    await releaseReservation(token, externalId);
-    finishSkip("head_changed_before_comment", latest, latest.head?.sha ?? "", quotaCounts);
-    return;
-  }
-
-  const created = await (await requestJson(
-    `/repos/${repository}/issues/${prNumber}/comments`,
-    {
-      method: "POST",
+  let latest = null;
+  for (let dayAttempt = 0; dayAttempt < 3; dayAttempt += 1) {
+    try {
+      latest = await getPullRequest(repository, prNumber, token);
+    } catch (error) {
+      await releaseReservation(token, externalId, quotaSnapshot.now);
+      throw error;
+    }
+    if (latest.state !== "open" || latest.merged_at != null) {
+      await releaseReservationOrThrow(token, externalId, quotaSnapshot.now);
+      finishSkip("pr_not_open", latest, latest.head?.sha ?? "", quotaCounts);
+      return;
+    }
+    if (latest.head?.sha !== headSha || latest.draft === true) {
+      await releaseReservationOrThrow(token, externalId, quotaSnapshot.now);
+      finishSkip("head_changed_before_comment", latest, latest.head?.sha ?? "", quotaCounts);
+      return;
+    }
+    if (quotaPostWindowOpen(new Date(), quotaSnapshot.now)) {
+      break;
+    }
+    const now = new Date();
+    if (shouldWaitForQuotaMidnight(now, quotaSnapshot.now)) {
+      const untilMidnight = millisecondsUntilShanghaiMidnight(now);
+      if (untilMidnight > 0) {
+        await sleep(Math.ceil(untilMidnight / 1000) + 1);
+      }
+    }
+    await releaseReservationOrThrow(token, externalId, quotaSnapshot.now);
+    if (dayAttempt === 2) {
+      throw new Error("UTC+8 quota day changed repeatedly before trigger POST");
+    }
+    quotaSnapshot = await loadStableSharedQuota(repository, token);
+    emitQuotaEvidence(quotaSnapshot.evidence);
+    writeOutput("quota_evidence", JSON.stringify(quotaSnapshot.evidence));
+    reservation = await reserveKodyQuota(
       token,
-      body: { body: TRIGGER_BODY },
-    },
-  )).json();
-  const attached = await attachKodyQuota(token, externalId, {
-    commentId: created.id,
-    commentUrl: created.html_url,
-  });
+      {
+        identity: externalId,
+        repository,
+        pr: prNumber,
+        headSha,
+      },
+      quotaSnapshot.evidence,
+      { now: quotaSnapshot.now },
+    );
+    quotaCounts = reservation.counts;
+    writeQuotaOutputs(quotaCounts);
+    if (!reservation.allowed) {
+      finishSkip(reservation.reason, pr, headSha, quotaCounts);
+      return;
+    }
+  }
+  if (!latest) throw new Error("PR state unavailable before trigger POST");
+
+  let created;
+  try {
+    created = await (await requestJson(
+      `/repos/${repository}/issues/${prNumber}/comments`,
+      {
+        method: "POST",
+        token,
+        body: { body: TRIGGER_BODY },
+      },
+    )).json();
+  } catch (error) {
+    // 4xx 明确表示请求被拒；5xx/网络断开的结果不确定，保守保留预占并等待人工核对。
+    if (Number(error.status) >= 400 && Number(error.status) < 500) {
+      await releaseReservation(token, externalId, quotaSnapshot.now);
+    }
+    throw error;
+  }
 
   writeOutput("kody_review_state", "trigger_posted");
   writeOutput("head_sha", headSha);
   writeOutput("comment_id", created.id);
   writeOutput("comment_url", created.html_url);
+  let attached = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      attached = await attachKodyQuota(token, externalId, {
+        commentId: created.id,
+        commentUrl: created.html_url,
+        createdAt: created.created_at,
+        now: quotaSnapshot.now,
+      });
+      break;
+    } catch (error) {
+      if (attempt === 3) {
+        console.error(
+          `OREKI_KODY_QUOTA_ATTACH_FAILED comment=${created.id} ` +
+            `identity=${externalId}: ${error.message}`,
+        );
+        writeOutput("quota_attach_state", "failed_after_comment");
+        await createCompletedTriggerCheck(
+          repository,
+          prNumber,
+          headSha,
+          externalId,
+          created.html_url,
+          checkToken,
+          {
+            conclusion: "neutral",
+            title: "Kody 触发已发送，但配额回填失败",
+            summary: `评论 ${created.html_url} 已发送，但配额回填三次失败。` +
+              `Check Run 使用 neutral 阻止重复评论；请人工核对 ${externalId}。`,
+          },
+        );
+        throw new Error(
+          `trigger comment posted but quota attach failed for ${externalId}; ` +
+            `comment ${created.id}`,
+        );
+      }
+      await sleep(attempt);
+    }
+  }
+  if (attached) quotaCounts = attached.counts;
   writeSummary({
     status: "trigger_posted",
     reason: "comment_created",
     pr,
     headSha,
     commentUrl: created.html_url,
-    quotaCounts: attached.counts,
+    quotaCounts,
   });
 
   let checkError = null;

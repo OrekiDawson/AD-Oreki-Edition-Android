@@ -10,6 +10,10 @@ import {
   dailyCommentsPath,
   findKodyReviewForHead,
   findTriggerReservation,
+  millisecondsUntilShanghaiMidnight,
+  quotaPostWindowOpen,
+  shouldWaitForQuotaMidnight,
+  sameShanghaiQuotaDay,
   shanghaiDayStart,
   sharedDailyCommentsPaths,
   sharedTriggerQuotaEvidence,
@@ -106,6 +110,35 @@ test("UTC+08:00 自然日边界正确", () => {
     shanghaiDayStart(new Date("2026-11-20T16:00:00Z")).toISOString(),
     "2026-11-20T16:00:00.000Z",
   );
+  assert.equal(sameShanghaiQuotaDay(
+    new Date("2026-11-20T15:59:59Z"),
+    new Date("2026-11-20T00:00:00Z"),
+  ), true);
+  assert.equal(sameShanghaiQuotaDay(
+    new Date("2026-11-20T16:00:00Z"),
+    new Date("2026-11-20T15:59:59Z"),
+  ), false);
+  assert.equal(quotaPostWindowOpen(
+    new Date("2026-11-20T15:59:50Z"),
+    new Date("2026-11-20T15:59:40Z"),
+  ), false);
+  assert.equal(quotaPostWindowOpen(
+    new Date("2026-11-20T15:59:30Z"),
+    new Date("2026-11-20T15:59:20Z"),
+  ), true);
+  assert.equal(millisecondsUntilShanghaiMidnight(new Date("2026-11-20T15:59:50Z")), 10000);
+  assert.equal(shouldWaitForQuotaMidnight(
+    new Date("2026-11-20T15:59:50Z"),
+    new Date("2026-11-20T15:59:40Z"),
+  ), true);
+  assert.equal(shouldWaitForQuotaMidnight(
+    new Date("2026-11-20T04:00:00Z"),
+    new Date("2026-11-20T03:59:59Z"),
+  ), false);
+  assert.equal(shouldWaitForQuotaMidnight(
+    new Date("2026-11-20T16:00:01Z"),
+    new Date("2026-11-20T15:59:50Z"),
+  ), false);
 });
 
 function triggerComment(id, createdAt, overrides = {}) {
@@ -114,7 +147,7 @@ function triggerComment(id, createdAt, overrides = {}) {
     user: { login: "OrekiDawson" },
     body: TRIGGER_BODY,
     created_at: createdAt,
-    html_url: `https://github.com/example/comment/${id}`,
+    html_url: `https://github.com/example/repo/pull/${id}#issuecomment-${id}`,
     ...overrides,
   };
 }
@@ -142,6 +175,10 @@ test("Android/Web 合计按唯一评论 ID 计数，Webhook 重试不重复计�
   assert.deepEqual(
     sharedTriggerQuotaEvidence(groups, since).map(item => item.commentId),
     ["1", "2", "3", "4"],
+  );
+  assert.deepEqual(
+    sharedTriggerQuotaEvidence(groups, since).map(item => item.pr),
+    [1, 2, 3, 4],
   );
 });
 
