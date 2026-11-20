@@ -60,7 +60,7 @@
 
 不要再向仓库提交上述任何文件；仓库侧的 `kodus-config.yml` 在云端本就不生效（见下），保留只会让审查口径产生歧义。
 
-## 历史审查强度约束（云端口径，状态以 R120-01 为准）
+## 历史审查强度约束（云端口径，状态以 R121-01 为准）
 
 - **所有仓库、所有 PR 的 Kody Code Review 强度统一为 Balanced，严格禁止 Heavy。**
 - 由于 `kodyConfigFileOverridesWebPreferences = false`，该强度只能在 Kodus 云端生效，仓库文件无法约束；仓库删除配置不等于改变强度，也不等于放弃该约束。
