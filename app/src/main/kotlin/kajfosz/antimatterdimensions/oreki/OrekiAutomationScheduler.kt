@@ -92,6 +92,19 @@ object OrekiAutomationScheduler {
     private const val NOOP_RETRY_MS = 3000L
 
     /**
+     * [R117-01-02c P0-6] Break 关键任务：连续 FORCE_RETRY_AFTER_NOOP_WAITS 次被
+     * noop 静默窗挡住后强制放行一次。
+     *
+     * 实测（R117-01 AVD，android-avd 定向复核）：首无限后 AM 到上限，
+     * logcat 出现 70s+ 连续 deny noop-retry-wait task=breakUpgrades，
+     * break 一直买不到，正文空白。noop 静默窗 3s 在「每帧重试同一无进展动作」
+     * 时会被反复续期，等于把 Break 饿死。这里只对 Break 关键任务强制重试，
+     * 其他任务保持原有退避，避免全局退避失效。
+     */
+    private val FORCE_RETRY_TASKS = setOf("breakUpgrades")
+    private const val FORCE_RETRY_AFTER_NOOP_WAITS = 2
+
+    /**
      * 阶段紧迫任务（R82）。
      *
      * 背景：R81 真机日志里 `sacrifice` 每拍都成功、`idBuy` 一次都没轮到 ——
@@ -133,6 +146,9 @@ object OrekiAutomationScheduler {
     private val served = IntArray(IDS.size)
     private val noopStreak = IntArray(IDS.size)
     private val noopUntil = LongArray(IDS.size)
+
+    /** [R117-01-02c P0-6] 同一任务连续被 noop 静默窗拒绝的次数（强制重试用）。 */
+    private val noopWaitStreak = IntArray(IDS.size)
     private val reserve = LongArray(IDS.size)
 
     /** 全系统唯一节拍：最近一次"真执行"时刻（elapsedRealtime 毫秒）。 */
@@ -159,33 +175,6 @@ object OrekiAutomationScheduler {
 
     @Volatile
     private var intervalSec: Int = INTERVAL_DEFAULT
-
-    // ------------------------------------------- [R107-01 STAGECAP] 阶段化节拍
-    //
-    // 默认 10s 节拍是 180 分钟通关的主瓶颈（AVD：默认设置首 reality≈2540s；
-    // interval=1 仅≈14.6min）。这里只做「实际生效间隔 = min(配置值, 阶段上限)」：
-    //   realities == 0      → cap 1s（bootstrap：每拍都要推进 TT/TS/EC/膨胀研究）
-    //   1..9                → cap 2s
-    //   10..49              → cap 3s
-    //   >=50                → cap 5s
-    // 依据：reality 数越少，单一动作（买 TT/时间研究/EC 研究/膨胀研究）越关键，
-    // 需要更密节拍；reality 数上来后单拍收益递减，放宽到 2~5s 以控制 GUI/CPU。
-    // **用户配置值仍原样保存/显示**；若玩家设置比 cap 更小则按其值（min 语义）。
-    // 只读 GameApi.realitiesValue()，不写任何玩家字段。
-    @Volatile
-    private var stageCapCacheAt: Long = 0L
-
-    @Volatile
-    private var stageCapCacheSec: Int = INTERVAL_MIN
-
-    @Volatile
-    private var stageCapLogAt: Long = 0L
-
-    @Volatile
-    private var stageCapLoggedSignature: String = ""
-
-    private const val STAGE_CAP_CACHE_MS = 1000L
-    private const val STAGE_CAP_LOG_MS = 10_000L
 
     @Volatile
     private var strictGlobal: Boolean = false
@@ -266,6 +255,80 @@ object OrekiAutomationScheduler {
         logI("init ${statusLine()}")
     }
 
+    /**
+     * [PR #179 Kody·critical] MOD 是否在上次会话暂停了原版大坍缩自动器（持久化）。
+     *
+     * 冷启动时 modOwnsCrunch / crunchPausedByStagePolicy 都是内存默认 false，
+     * 只靠它们会把「进程在首次无限后、break 前重启」误判成「玩家关闭自动器」，
+     * 导致 pre-break 上限兜底与接管分支都不触发、AM 卡在上限并复现正文空白。
+     * 这个标记只由 MOD 自己的暂停/恢复点写入，用于跨进程重建所有权判据。
+     */
+    private const val KEY_CRUNCH_PAUSED = "oreki.crunch.pausedByMod"
+    private const val KEY_CRUNCH_PAUSED_SAVE_ID = "oreki.crunch.pausedByMod.saveId"
+
+    /**
+     * 记录/清除「MOD 暂停了原版大坍缩自动器」标记（只写 oreki_prefs，不碰存档）。
+     *
+     * 暂停必须同步落盘：本标记要覆盖的正是进程被 LMK 杀死或空白屏时强制停止的场景，
+     * `apply()` 可能来不及完成。恢复只清除标记，继续使用非阻塞写入。
+     * 同时记录存档身份，避免切换到另一份“玩家自行关闭坍缩”的存档时复用旧所有权。
+     */
+    @JvmStatic
+    fun markCrunchPausedByMod(paused: Boolean) {
+        val currentContext = ctx ?: return
+        try {
+            val editor = currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_CRUNCH_PAUSED, paused)
+            if (paused) {
+                val saveId = GameApi.saveIdentity()
+                if (saveId.isNullOrEmpty()) {
+                    editor.remove(KEY_CRUNCH_PAUSED_SAVE_ID)
+                } else {
+                    editor.putString(KEY_CRUNCH_PAUSED_SAVE_ID, saveId)
+                }
+                editor.commit()
+            } else {
+                editor.remove(KEY_CRUNCH_PAUSED_SAVE_ID)
+                editor.apply()
+            }
+        } catch (_: Throwable) {
+            // 写盘失败不影响运行，只是冷启动可能无法重建
+        }
+    }
+
+    /**
+     * 读取「MOD 上次会话暂停过原版大坍缩自动器」标记。
+     *
+     * 返回 null 表示上下文、标记或存档身份暂时不可读，调用方应保留重建机会并下一拍重试。
+     * 标记与当前存档身份不一致时清除陈旧标记并返回 false，绝不跨档接管。
+     */
+    @JvmStatic
+    fun crunchPausedByModPersistedOrNull(): Boolean? {
+        val currentContext = ctx ?: return null
+        return try {
+            val preferences = currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            if (!preferences.getBoolean(KEY_CRUNCH_PAUSED, false)) return false
+            val pausedSaveId = preferences.getString(KEY_CRUNCH_PAUSED_SAVE_ID, null)
+            val currentSaveId = GameApi.saveIdentity()
+            if (pausedSaveId.isNullOrEmpty() || currentSaveId.isNullOrEmpty()) return null
+            if (pausedSaveId != currentSaveId) {
+                preferences.edit()
+                    .putBoolean(KEY_CRUNCH_PAUSED, false)
+                    .remove(KEY_CRUNCH_PAUSED_SAVE_ID)
+                    .apply()
+                return false
+            }
+            true
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    /** 仅供诊断日志使用的布尔快照；不可读按 false，但冷启动重建必须使用可空版本。 */
+    @JvmStatic
+    fun crunchPausedByModPersisted(): Boolean =
+        crunchPausedByModPersistedOrNull() ?: false
+
     private fun persist() {
         val currentContext = ctx ?: return
         try {
@@ -312,6 +375,9 @@ object OrekiAutomationScheduler {
                 // R85：取消调度之外同步解除 IU15 临时限制，避免玩家关掉智能
                 // 开关之后仍被购买入口/挑战守卫接管；历史节拍时间戳保持不变。
                 OrekiIu15Sprint.releaseNow("automation-off")
+                // [R118-01 P1] 托管期间被 MOD 暂停的原版大坍缩自动器必须交还玩家，
+                // 否则关闭总开关后会同时失去 MOD 结算与原版自动坍缩（Web 无此差异）。
+                OrekiStageAuto.onAutomationDisabled()
             }
         }
         persist()
@@ -356,68 +422,11 @@ object OrekiAutomationScheduler {
         else -> value
     }
 
-    /**
-     * [R107-01 STAGECAP] 当前**实际生效**的节拍上限（reality 阶段只读判定，1s 缓存）。
-     * 异常/读不到 realities 时 fail-closed 返回 1s（宁可快，动作仍由游戏逻辑裁决）。
-     */
+    /** 配置值就是实际周期；阶段变化不得缩短或放大调度 tick。 */
     @JvmStatic
-    fun stageCapSec(): Int {
-        refreshStageCap(android.os.SystemClock.elapsedRealtime())
-        return stageCapCacheSec
-    }
+    fun effectiveIntervalSec(): Int = intervalSec
 
-    /**
-     * [R107-01 STAGECAP] 实际生效间隔 = min(用户配置, 阶段上限)。
-     * 玩家把 interval 设得比 cap 更小时返回玩家值（min 语义）。
-     */
-    @JvmStatic
-    fun effectiveIntervalSec(): Int {
-        refreshStageCap(android.os.SystemClock.elapsedRealtime())
-        return if (intervalSec < stageCapCacheSec) intervalSec else stageCapCacheSec
-    }
-
-    /**
-     * 只读刷新阶段上限：1s 缓存；阶段变化或 effective != configured 时限频打日志
-     * （TAG=OREKI_SCHED，10s 一条），便于 AVD 诊断「为什么日志里的节拍不是配置值」。
-     */
-    private fun refreshStageCap(now: Long) {
-        if (stageCapCacheAt != 0L && now - stageCapCacheAt < STAGE_CAP_CACHE_MS) return
-        stageCapCacheAt = now
-        val realities = try {
-            GameApi.realitiesValue()
-        } catch (_: Throwable) {
-            null
-        }
-        val cap: Int
-        if (realities == null) {
-            cap = INTERVAL_MIN
-        } else {
-            val realitiesCompareZero = GameApi.compareToDouble(realities, 0.0)
-            val cmp10 = GameApi.compareToDouble(realities, 10.0)
-            val cmp50 = GameApi.compareToDouble(realities, 50.0)
-            cap = when {
-                realitiesCompareZero == null || realitiesCompareZero <= 0 -> 1
-                cmp10 == null -> 1
-                cmp10 < 0 -> 2
-                cmp50 == null -> 3
-                cmp50 < 0 -> 3
-                else -> 5
-            }
-        }
-        stageCapCacheSec = cap
-        val effective = if (intervalSec < cap) intervalSec else cap
-        if (effective != intervalSec) {
-            val signature = "cap=" + cap + " configured=" + intervalSec + " effective=" + effective +
-                " realities=" + (realities?.toString() ?: "null")
-            if (signature != stageCapLoggedSignature || now - stageCapLogAt >= STAGE_CAP_LOG_MS) {
-                stageCapLoggedSignature = signature
-                stageCapLogAt = now
-                logI("stagecap " + signature + "（实际节拍按 min(配置,阶段上限)，配置值不变）")
-            }
-        }
-    }
-
-    /** 用户配置的动作间隔换算成毫秒，供各模块自守闸用；[R107-01] 跟随实际生效节拍。 */
+    /** 用户配置的动作间隔换算成毫秒，供各模块自守闸用。 */
     @JvmStatic
     fun intervalMs(): Int = effectiveIntervalSec() * 1000
 
@@ -456,7 +465,7 @@ object OrekiAutomationScheduler {
     fun globalGuiTickDue(): Boolean {
         if (!enabled) return false
         val now = SystemClock.elapsedRealtime()
-        // [R107-01 STAGECAP] GUI 强同步跟随实际节拍（bootstrap 1s），避免画面/数据落后于动作
+        // GUI 强同步与实际调度周期使用同一配置值。
         val gap = effectiveIntervalSec() * 1000L
         if (lastGuiTickAtMs != 0L && now - lastGuiTickAtMs < gap) return false
         lastGuiTickAtMs = now
@@ -540,11 +549,28 @@ object OrekiAutomationScheduler {
 
         // ---- no-op 重试节流 ----
         val noopAt = noopUntil[idx]
-        if (noopAt > 0L && noopAt > now) return deny("noop-retry-wait", taskId)
+        if (noopAt > 0L && noopAt > now) {
+            // [R117-01-02c P0-6] Break 关键任务不允许被 noop 静默窗长期饿死：
+            // 连续 N 次被挡后清零静默窗、强制放行一次；其余任务保持原退避。
+            noopWaitStreak[idx]++
+            if (taskId != null && taskId in FORCE_RETRY_TASKS &&
+                noopWaitStreak[idx] >= FORCE_RETRY_AFTER_NOOP_WAITS
+            ) {
+                noopWaitStreak[idx] = 0
+                noopUntil[idx] = 0L
+                try {
+                    android.util.Log.i(TAG, "force-retry " + taskId + " after " + FORCE_RETRY_AFTER_NOOP_WAITS + " noop-waits")
+                } catch (_: Throwable) {
+                }
+            } else {
+                return deny("noop-retry-wait", taskId)
+            }
+        } else {
+            noopWaitStreak[idx] = 0
+        }
 
         // ---- [R77] 全局统一节拍：所有任务的第一道闸 ----
-        // [R107-01 STAGECAP] 两道闸都用「实际生效间隔 = min(配置, 阶段上限)」，
-        // 配置值只影响 UI/存档，不影响阶段内的推进速度。
+        // 两道闸都严格使用玩家配置周期；阶段变化不改写调度 tick。
         val effectiveMs = effectiveIntervalSec() * 1000L
         val beat = lastBeatAt
         if (beat != 0L && now - beat < effectiveMs) {
@@ -650,6 +676,7 @@ object OrekiAutomationScheduler {
         lastAct[idx] = now
         served[idx]++
         noopStreak[idx] = 0
+        noopWaitStreak[idx] = 0
         failUntil[idx] = 0L
         attemptCount++
         actionCount++
@@ -698,6 +725,7 @@ object OrekiAutomationScheduler {
     private fun clearPending() {
         failUntil.fill(0L)
         noopStreak.fill(0)
+        noopWaitStreak.fill(0)
         noopUntil.fill(0L)
         reserve.fill(0L)
         frameActed = false
@@ -757,8 +785,7 @@ object OrekiAutomationScheduler {
         val now = SystemClock.elapsedRealtime()
         val last = if (idx >= 0) lastAct[idx] else 0L
         val diff = if (last != 0L) (now - last).toInt() else -1
-        logI("dbg idx=$idx last=$diff iv=$intervalSec eff=" + effectiveIntervalSec() +
-            " cap=" + stageCapSec())
+        logI("dbg idx=$idx last=$diff iv=$intervalSec eff=" + effectiveIntervalSec())
     }
 
     /** 硬复位：连时间戳一起清（只在自测/「恢复默认」这类显式动作里用，**不**用于开关）。 */
@@ -768,6 +795,7 @@ object OrekiAutomationScheduler {
         failUntil.fill(0L)
         served.fill(0)
         noopStreak.fill(0)
+        noopWaitStreak.fill(0)
         noopUntil.fill(0L)
         reserve.fill(0L)
         lastBeatAt = 0L

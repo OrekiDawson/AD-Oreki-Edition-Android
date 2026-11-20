@@ -1,0 +1,105 @@
+11-20 04:19:16.620  1466  4657 E ActivityManager: ANR in com.android.phone
+11-20 04:19:29.192  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP_STARTED intervalMs=16
+11-20 04:19:29.202  4931  4931 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-20 04:19:48.663  4931  4931 I OREKI_TABGATE: tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-20 04:20:02.545  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=2 targets=0
+11-20 04:20:05.831  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:09.278  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:10.399  1466  5080 E ActivityManager: ANR in com.android.phone
+11-20 04:20:11.484  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:14.140  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:16.929  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:19.743  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:32.589  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:35.375  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:37.683  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:45.124  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:45.901  1466  5217 E ActivityManager: ANR in android.process.media
+11-20 04:20:46.349  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:48.910  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:20:50.694  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:03.646  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:09.507  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:12.105  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:16.835  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:20.454   515   515 I adbd    : adbd service requested 'shell,v2,TERM=dumb:export ANDROID_LOG_TAGS=''; exec logcat '-d' '-s' 'ActivityManager:E' 'AndroidRuntime:E' 'OREKI_ET_GATE:I' 'OREKI_EC_AUTO:I' 'OREKI_AU4C:I' 'OREKI_PACE:I' '*:S''
+11-20 04:21:32.707  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:45.759  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:47.392  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:50.611  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=2 targets=0
+11-20 04:21:51.703  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:52.501  1466  5355 E ActivityManager: ANR in com.android.phone
+11-20 04:21:53.100  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:21:55.903  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:00.583  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:02.985  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:05.612  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:06.826  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:10.503  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=2 targets=0
+11-20 04:22:11.839  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=2 frames=3 targets=0
+11-20 04:22:13.079  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:14.927  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=1 frames=2 targets=0
+11-20 04:22:18.866  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:19.938  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:21.879  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:23.235  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:24.732  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=0
+11-20 04:22:25.544  4931  4931 I OREKI_TABGATE: tab=dimensions allowed=true eternityUnlocked=false
+11-20 04:22:25.936  4931  4931 I OREKI_TABGATE: tab=automation allowed=true eternityUnlocked=false
+11-20 04:22:25.936  4931  4931 I OREKI_TABGATE: tab=challenges allowed=true eternityUnlocked=false
+11-20 04:22:26.029  4931  4931 I OREKI_TABGATE: tab=infinity allowed=true eternityUnlocked=false
+11-20 04:22:26.029  4931  4931 I OREKI_TABGATE: tab=eternity allowed=false eternityUnlocked=false
+11-20 04:22:26.050  4931  4931 I OREKI_TABGATE: tab=reality allowed=false eternityUnlocked=false
+11-20 04:22:26.050  4931  4931 I OREKI_TABGATE: tab=celestials allowed=false eternityUnlocked=false
+11-20 04:22:26.050  4931  4931 I OREKI_TABGATE: tab=achievements allowed=true eternityUnlocked=false
+11-20 04:22:26.051  4931  4931 I OREKI_TABGATE: tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-20 04:22:26.051  4931  4931 I OREKI_TABGATE: tab=optionsMainTab allowed=true eternityUnlocked=false
+11-20 04:22:26.051  4931  4931 I OREKI_TABGATE: tab=shopMainTab allowed=true eternityUnlocked=false
+11-20 04:22:26.052  4931  4931 I OREKI_TABGATE: tab=infoMainTab allowed=true eternityUnlocked=false
+11-20 04:22:26.224  4931  4931 I OREKI_TABGATE: tab=infinityDimensions allowed=true eternityUnlocked=false
+11-20 04:22:26.225  4931  4931 I OREKI_TABGATE: tab=timeDimensions allowed=false eternityUnlocked=false
+11-20 04:22:26.225  4931  4931 I OREKI_TABGATE: tab=normalAchievements allowed=true eternityUnlocked=false
+11-20 04:22:26.225  4931  4931 I OREKI_TABGATE: tab=secretAchievements allowed=true eternityUnlocked=false
+11-20 04:22:26.225  4931  4931 I OREKI_TABGATE: tab=statistics allowed=true eternityUnlocked=false
+11-20 04:22:26.247  4931  4931 I OREKI_TABGATE: tab=challengeTimes allowed=true eternityUnlocked=false
+11-20 04:22:26.247  4931  4931 I OREKI_TABGATE: tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-20 04:22:26.247  4931  4931 I OREKI_TABGATE: tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-20 04:22:26.248  4931  4931 I OREKI_TABGATE: tab=graphs allowed=true eternityUnlocked=false
+11-20 04:22:26.248  4931  4931 I OREKI_TABGATE: tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-20 04:22:26.248  4931  4931 I OREKI_TABGATE: tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-20 04:22:26.248  4931  4931 I OREKI_TABGATE: tab=speedrunRecords allowed=true eternityUnlocked=false
+11-20 04:22:26.248  4931  4931 I OREKI_TABGATE: tab=howToPlay allowed=true eternityUnlocked=false
+11-20 04:22:26.248  4931  4931 I OREKI_TABGATE: tab=about allowed=true eternityUnlocked=false
+11-20 04:22:28.223  4931  4931 I OREKI_BOOTSTRAP_SCALE: DILATION_TT_COST original=1.0e0 scaled=1.0e0
+11-20 04:22:36.581  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=1
+11-20 04:22:46.023  4931  4931 I OREKI_IPSCALE: IP_DIVISOR bootstrap original=308.0 effective=30.0
+11-20 04:22:46.057  4931  4931 I OREKI_EPSCALE: EP_DIVISOR bootstrap original=308.0 effective=30.0
+11-20 04:22:49.197  4931  5053 I OREKI_EC_DIAG: unlocked=0 current=0 maxed=0/12 total=0 completions=0,0,0,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-20 04:22:49.210  4931  5053 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-20 04:22:49.211  4931  5053 I OREKI_SCHED: gui-tick #1 gapMs=1000
+11-20 04:22:49.240  4931  5053 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-20 04:22:49.241  4931  5053 I OREKI_GUI: STATE_CHANGED source=tick-sync:global-tick phase=before-first-infinity
+11-20 04:22:49.254  4931  5053 I OREKI_GUI: GUI_REFRESH_POSTED target=autobuyers+statistics phase=before-first-infinity phaseChanged=true dirty=false force=true
+11-20 04:22:49.255  4931  5053 I OREKI_AUTO_BEAT: gui-tick #1 gapMs=10000
+11-20 04:22:49.432  4931  5053 I OREKI_ET_PROBE: autoEternity.isActive=false
+11-20 04:22:49.433  4931  5053 I OREKI_ET_PROBE: autoEternity.canRun=false
+11-20 04:22:49.433  4931  5053 I OREKI_ET_PROBE: prestige.c.b=false
+11-20 04:22:49.433  4931  5053 I OREKI_ET_PROBE: MainActivity.mo=false
+11-20 04:22:49.443  4931  5053 I OREKI_ET_PROBE: OrekiEternity.sEtPending=0 bigE=0 ep=0.0e0
+11-20 04:22:49.605  4931  5053 I OREKI_AU4C: cold start: pre-break crunch rebuild skipped (no persisted MOD pause)
+11-20 04:22:49.679  4931  5053 I OREKI_PLAYER_INTENT: crunch baseline adopted current=0
+11-20 04:22:49.732  4931  5053 I OREKI_CRUNCH_DEC: allow=true reason=pre-infinity
+11-20 04:22:49.848  4931  5053 I OREKI_CRUNCH_PROBE: heartbeat brake=false amAtCap=false maxAMlog=1.0 ipGainLog=1.3010299956639813 canBigCrunch=false autoBig{active=true,interval=1.0,mode=0,amount=1.0e0} inf=0.0e0->0.0e0 thisInfTime=0.025 thisInfRealTime=0.025 eternities=0.0e0 autoEt=false modOwnsCrunch=false settled=false
+11-20 04:22:50.147  4931  5053 I OREKI_PLAYER_INTENT: crunch interval baseline adopted current=1.0
+11-20 04:22:50.148  4931  5053 I OREKI_AU4C: managed interval 1.0 -> 60.0 (resume:pre-infinity)
+11-20 04:22:50.334  4931  5053 I OREKI_AU4C: policy -> TIME/10s (pre-break IP harvest)
+11-20 04:22:50.336  4931  5053 I OREKI_EARLY: applied
+11-20 04:22:50.593  4931  5053 I OREKI_EARLY: OREKI_AUB unlocked=9 already=0 nofield=0 activeOff=0 detail=dim1:on,dim2:on,dim3:on,dim4:on,dim5:on,dim6:on,dim7:on,dim8:on,tickspeed:on,
+11-20 04:22:50.863  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=3
+11-20 04:22:52.445  4931  4931 I OREKI_NAV_REFRESH: NAV_REFRESH_APPLIED
+11-20 04:22:52.823  4931  4931 I OREKI_GUI: GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 04:22:52.856  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=0 frames=1 targets=3
+11-20 04:22:54.077  4931  4931 I OREKI_NAV_REFRESH: NAV_REFRESH_APPLIED
+11-20 04:22:54.193  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=4 frames=6 targets=3
+11-20 04:22:55.207  4931  4931 I OREKI_UIFRAME: UI_FRAME_PUMP fps=7 frames=8 targets=3
+11-20 04:22:55.497  4931  4931 I OREKI_NAV_REFRESH: NAV_REFRESH_APPLIED

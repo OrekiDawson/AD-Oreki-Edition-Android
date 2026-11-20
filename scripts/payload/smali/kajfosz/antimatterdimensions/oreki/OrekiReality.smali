@@ -18,7 +18,8 @@
 #   · `prestige/f` = `kajfosz.antimatterdimensions.prestige.Reality`（Kotlin object）
 #   · 完整重置一次现实 = `prestige/f;->b(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;`
 #     这是 **原版现实自动购买器自己用的入口**（`autobuyer/RealityAutobuyerState.smali:1115`）
-#   · 能不能重置 = `prestige/f;->f()Z`（canReality：需求检查 + thisReality.maxRM ≥ 1e4000）
+#   · 能不能重置 = `prestige/f;->f()Z`（canReality：需求检查 + thisReality.maxEP ≥ 1e4000；
+#     [R117-01-02c P1-1] 旧注释误写 maxRM，smali prestige/f.smali:1245-1327 实读的是本现实 maxEP）
 #   · 重置本体 = `m(Lqw3;ZLContinuationImpl;)` = `realityReset(props, reset)`（f:5436）
 #
 # ── suspend 调用纪律（R35/R36 的 EC 全废就是踩这个）──────────────────

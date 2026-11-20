@@ -1,0 +1,124 @@
+11-16 12:15:47.411 I/OREKI_TABGATE(12977): tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-16 12:15:49.009 I/OREKI_TABGATE(12977): tab=dimensions allowed=true eternityUnlocked=false
+11-16 12:15:49.026 I/OREKI_TABGATE(12977): tab=automation allowed=true eternityUnlocked=false
+11-16 12:15:49.026 I/OREKI_TABGATE(12977): tab=challenges allowed=true eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=infinity allowed=true eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=eternity allowed=false eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=reality allowed=false eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=celestials allowed=false eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=achievements allowed=true eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=optionsMainTab allowed=true eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=shopMainTab allowed=true eternityUnlocked=false
+11-16 12:15:49.028 I/OREKI_TABGATE(12977): tab=infoMainTab allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=infinityDimensions allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=timeDimensions allowed=false eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=normalAchievements allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=secretAchievements allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=statistics allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=challengeTimes allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=graphs allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=speedrunRecords allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=howToPlay allowed=true eternityUnlocked=false
+11-16 12:15:49.030 I/OREKI_TABGATE(12977): tab=about allowed=true eternityUnlocked=false
+11-16 12:15:49.355 I/OREKI_GUI_STAGE(12977): GUI_GATE_CHANGED from=none to=infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-16 12:15:49.359 I/OREKI_CRUNCH_DEC(12977): allow=true reason=pre-break-ip
+11-16 12:15:49.360 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=0
+11-16 12:15:49.366 I/OREKI_CRUNCH(12977): crunch detected inf=1.9e1->2.0e1 ip=2.0e1 ep=0.0e0 bigE=0 t=51350032
+11-16 12:15:49.819 I/OREKI_CRUNCH(12977): 9
+11-16 12:15:50.169 I/OREKI_CRUNCH(12977): 9
+11-16 12:15:50.407 I/OREKI_CRUNCH(12977): 9
+11-16 12:15:50.416 I/OREKI_CRUNCH(12977): crunch detected inf=2.4e1->2.5e1 ip=1.17e2 ep=0.0e0 bigE=0 t=51351082
+11-16 12:15:53.391 I/OREKI_CRUNCH(12977): crunch detected inf=2.5e1->2.6e1 ip=1.17e2 ep=0.0e0 bigE=0 t=51354057
+11-16 12:15:54.381 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51354057
+11-16 12:15:55.798 I/OREKI_CRUNCH(12977): 9
+11-16 12:15:58.778 I/OREKI_CRUNCH(12977): crunch detected inf=2.6e1->2.7e1 ip=9.57e2 ep=0.0e0 bigE=0 t=51359445
+11-16 12:15:59.383 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51359445
+11-16 12:16:01.271 I/OREKI_CRUNCH(12977): crunch detected inf=2.7e1->2.8e1 ip=7.553e3 ep=0.0e0 bigE=0 t=51361938
+11-16 12:16:03.229 I/OREKI_CRUNCH(12977): crunch detected inf=2.8e1->2.9e1 ip=1.8369e4 ep=0.0e0 bigE=0 t=51363895
+11-16 12:16:03.719 I/OREKI_CRUNCH(12977): 9
+11-16 12:16:04.395 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51363895
+11-16 12:16:05.159 I/OREKI_CRUNCH(12977): crunch detected inf=2.9e1->3.0e1 ip=5.0057e4 ep=0.0e0 bigE=0 t=51365825
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=autobuyers allowed=true eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=automator allowed=false eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=normalChallenges allowed=true eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=infinityChallenges allowed=true eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=eternityChallenges allowed=false eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=infinityUpgrades allowed=true eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=breakInfinity allowed=true eternityUnlocked=false
+11-16 12:16:06.171 I/OREKI_TABGATE(12977): tab=replicanti allowed=true eternityUnlocked=false
+11-16 12:16:07.681 I/OREKI_CRUNCH(12977): crunch detected inf=3.0e1->3.1e1 ip=9.2113e4 ep=0.0e0 bigE=0 t=51368348
+11-16 12:16:09.182 I/OREKI_CRUNCH(12977): crunch detected inf=3.1e1->3.2e1 ip=3.4722e4 ep=0.0e0 bigE=0 t=51369848
+11-16 12:16:09.400 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51369848
+11-16 12:16:10.746 I/OREKI_CRUNCH(12977): crunch detected inf=3.2e1->3.3e1 ip=1.01747e5 ep=0.0e0 bigE=0 t=51371412
+11-16 12:16:11.588 I/OREKI_CRUNCH(12977): 9
+11-16 12:16:12.235 I/OREKI_CRUNCH(12977): crunch detected inf=3.3e1->3.4e1 ip=1.6602e5 ep=0.0e0 bigE=0 t=51372901
+11-16 12:16:13.624 I/OREKI_CRUNCH(12977): crunch detected inf=3.4e1->3.5e1 ip=2.26389e5 ep=0.0e0 bigE=0 t=51374290
+11-16 12:16:14.399 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51374290
+11-16 12:16:15.571 I/OREKI_CRUNCH(12977): crunch detected inf=3.5e1->3.6e1 ip=3.16006e5 ep=0.0e0 bigE=0 t=51376237
+11-16 12:16:16.828 I/OREKI_CRUNCH(12977): crunch detected inf=3.6e1->3.7e1 ip=3.72919e5 ep=0.0e0 bigE=0 t=51377494
+11-16 12:16:17.989 I/OREKI_CRUNCH(12977): crunch detected inf=3.7e1->3.8e1 ip=4.32648e5 ep=0.0e0 bigE=0 t=51378655
+11-16 12:16:19.141 I/OREKI_CRUNCH(12977): crunch detected inf=3.8e1->3.9e1 ip=4.96921e5 ep=0.0e0 bigE=0 t=51379808
+11-16 12:16:19.419 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51379808
+11-16 12:16:19.530 I/OREKI_CRUNCH(12977): 9
+11-16 12:16:20.304 I/OREKI_CRUNCH(12977): crunch detected inf=3.9e1->4.0e1 ip=5.5825e5 ep=0.0e0 bigE=0 t=51380971
+11-16 12:16:21.454 I/OREKI_CRUNCH(12977): crunch detected inf=4.0e1->4.1e1 ip=6.22779e5 ep=0.0e0 bigE=0 t=51382120
+11-16 12:16:22.605 I/OREKI_CRUNCH(12977): crunch detected inf=4.1e1->4.2e1 ip=6.87436e5 ep=0.0e0 bigE=0 t=51383271
+11-16 12:16:24.307 I/OREKI_CRUNCH(12977): crunch detected inf=4.2e1->4.3e1 ip=7.74621e5 ep=0.0e0 bigE=0 t=51384973
+11-16 12:16:24.435 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51384973
+11-16 12:16:25.903 I/OREKI_CRUNCH(12977): crunch detected inf=4.3e1->4.4e1 ip=8.47726e5 ep=0.0e0 bigE=0 t=51386569
+11-16 12:16:27.392 I/OREKI_CRUNCH(12977): 13
+11-16 12:16:27.419 I/OREKI_CRUNCH(12977): crunch detected inf=4.4e1->4.5e1 ip=9.32543e5 ep=0.0e0 bigE=0 t=51388086
+11-16 12:16:28.997 I/OREKI_CRUNCH(12977): crunch detected inf=4.5e1->4.6e1 ip=4.1953e4 ep=0.0e0 bigE=0 t=51389663
+11-16 12:16:29.445 I/OREKI_ET_GATE(12977): allow=false reason=not-broken broken=false canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 lastCrunch=51389663
+11-16 12:16:30.507 I/OREKI_CRUNCH(12977): crunch detected inf=4.6e1->4.7e1 ip=2.11331e5 ep=0.0e0 bigE=0 t=51391174
+11-16 12:16:31.887 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:31.890 I/OREKI_ET_GATE(12977): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=0.0e-1 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=51391174
+11-16 12:16:33.141 I/OREKI_CRUNCH_DEC(12977): allow=false reason=id-peak-wait
+11-16 12:16:33.166 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:33.294 I/OREKI_CRUNCH_DEC(12977): allow=false reason=id-peak-wait
+11-16 12:16:33.943 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:33.968 I/OREKI_CRUNCH_DEC(12977): allow=false reason=id-peak-wait
+11-16 12:16:34.113 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:34.141 I/OREKI_CRUNCH_DEC(12977): allow=false reason=id-peak-wait
+11-16 12:16:34.357 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:34.409 I/OREKI_CRUNCH_DEC(12977): allow=false reason=id-peak-wait
+11-16 12:16:35.253 I/OREKI_CRUNCH(12977): 25
+11-16 12:16:36.889 I/OREKI_ET_GATE(12977): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=4.0e0 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=51391174
+11-16 12:16:41.890 I/OREKI_ET_GATE(12977): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=2.6e1 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=51391174
+11-16 12:16:43.183 I/OREKI_CRUNCH(12977): 25
+11-16 12:16:46.213 I/OREKI_CRUNCH_DEC(12977): allow=true reason=id-peak-reached
+11-16 12:16:46.238 I/OREKI_CRUNCH(12977): crunch detected inf=4.7e1->4.8e1 ip=9.15381606680576e106 ep=0.0e0 bigE=0 t=51406904
+11-16 12:16:46.901 I/OREKI_ET_GATE(12977): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=1.5e2 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=51406904
+11-16 12:16:48.140 I/OREKI_CRUNCH_DEC(12977): allow=false reason=id-peak-wait
+11-16 12:16:49.146 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:51.097 I/OREKI_CRUNCH(12977): 13
+11-16 12:16:51.255 I/OREKI_CRUNCH(12977): crunch detected inf=4.8e1->4.9e1 ip=2.6447153750096e198 ep=0.0e0 bigE=0 t=51411921
+11-16 12:16:51.255 I/OREKI_CRUNCH_DEC(12977): allow=true reason=id-peak-reached
+11-16 12:16:51.280 I/OREKI_CRUNCH_DEC(12977): allow=true reason=ip-jump
+11-16 12:16:51.915 I/OREKI_ET_GATE(12977): allow=false reason=cannot-eternity broken=true canEt=false ep=0.0e0 gain=1.18444e5 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=51411921
+11-16 12:16:56.264 I/OREKI_CRUNCH(12977): crunch detected inf=4.9e1->5.0e1 ip=2.75641921027466e342 ep=0.0e0 bigE=0 t=51416931
+11-16 12:16:56.265 I/OREKI_CRUNCH_DEC(12977): allow=true reason=eternity-ready
+11-16 12:16:56.266 I/OREKI_ET_GATE(12977): allow=false reason=same-frame-crunch broken=true canEt=true ep=0.0e0 gain=4.6639826e7 bigE=0 autoSwitch=false boot=true fresh=true etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=51416931
+11-16 12:16:56.291 I/OREKI_TABGATE(12977): tab=timeDimensions allowed=true eternityUnlocked=true
+11-16 12:16:56.312 I/OREKI_TABGATE(12977): tab=eternity allowed=true eternityUnlocked=true
+11-16 12:16:56.316 I/OREKI_CRUNCH_DEC(12977): allow=true reason=pre-infinity
+11-16 12:16:56.317 I/OREKI_GUI_STAGE(12977): GUI_GATE_CHANGED from=infinity to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=0,r=0,bigR=0,eternitiesField=1
+11-16 12:16:56.669 I/OREKI_TABGATE(12977): tab=eternityChallenges allowed=true eternityUnlocked=true
+11-16 12:16:56.669 I/OREKI_TABGATE(12977): tab=timeStudies allowed=true eternityUnlocked=true
+11-16 12:16:56.669 I/OREKI_TABGATE(12977): tab=eternityUpgrades allowed=true eternityUnlocked=true
+11-16 12:16:56.669 I/OREKI_TABGATE(12977): tab=milestones allowed=true eternityUnlocked=true
+11-16 12:16:56.669 I/OREKI_TABGATE(12977): tab=dilation allowed=true eternityUnlocked=true
+11-16 12:16:58.913 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:06.760 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:14.544 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:22.357 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:30.180 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:37.964 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:45.737 I/OREKI_CRUNCH(12977): 9
+11-16 12:17:53.480 I/OREKI_CRUNCH(12977): 9
+11-16 12:18:01.262 I/OREKI_CRUNCH(12977): 9

@@ -47,6 +47,35 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun autoEternitySwitchOn(): Boolean = GameApi.autoEternityIsActive() == true
 
+    /**
+     * [R120-01 P0] 只有原版自动永恒已经解锁时，`isActive=true` 才可能代表玩家
+     * 亲自开启并授权自动结算。未解锁时 R118/R119 会由 MOD 持久化该字段以重建
+     * 跨读档所有权；这层内部状态不得绕过首次永恒 180 s 驻留。
+     */
+    @JvmStatic
+    fun playerSwitchBypassesFirstEternityDwell(
+        autoEternitySwitchOn: Boolean,
+        autoEternityUnlocked: Boolean,
+    ): Boolean = autoEternitySwitchOn && autoEternityUnlocked
+
+    /**
+     * [R119-01 P1 / Web #69 parity] 自动永恒未解锁且存档已永恒过时，读档/冷启动
+     * 丢失 freshSession 内存 latch 不应被当成玩家关闭。
+     *
+     * 未解锁时界面没有该开关，玩家无法表达关闭意愿；只要 MOD 自动化与原版自动购买器
+     * 总开关都开启、且没有落盘的玩家手动关闭记录，就允许 MOD 继续驱动永恒/EC 入口。
+     * 已解锁时仍只认原版开关真实值，本判据不生效。
+     */
+    @JvmStatic
+    fun lockedLayerDriveAllowed(
+        automationEnabled: Boolean,
+        autobuyersOn: Boolean,
+        autoEternityUnlocked: Boolean,
+        everEternitied: Boolean,
+        userClosed: Boolean,
+    ): Boolean = automationEnabled && autobuyersOn && !autoEternityUnlocked &&
+        everEternitied && !userClosed
+
     // ------------------------------------------------------- [R104 P0] 新档引导窗口
     //
     // 问题（R104-01 实测）：全新存档的 `auto.eternity.isActive` 默认 false，而该自动器
@@ -103,10 +132,29 @@ internal object OrekiAutoEternityGate {
         if (saveId != null) freshSessionSaveId = saveId
     }
 
+    /**
+     * 从只读计数判断本存档是否从未永恒过。
+     *
+     * Reality 结算会真实清零 `eternities` 与 `bigEternities`，因此只看这两个当前计数
+     * 会把每次 Reality 后的旧档重新判成首次永恒。`realities` / `bigRealities` 是本存档
+     * 已进入现实层的持久证据；任一为正即可证明永恒层早已体验过。任一读取失败按
+     * “非首次”处理，宁可跳过节奏驻留，也不能把旧档无限卡在首次永恒门禁。
+     */
+    @JvmStatic
+    fun neverEternitiedFromCounters(
+        eternitiesZero: Boolean?,
+        bigEternitiesZero: Boolean?,
+        realitiesZero: Boolean?,
+        bigRealitiesZero: Boolean?,
+    ): Boolean = eternitiesZero == true && bigEternitiesZero == true &&
+        realitiesZero == true && bigRealitiesZero == true
+
     private fun neverEternitied(): Boolean {
         val eZero = isZeroValue(GameApi.eternitiesValue()) ?: return false
         val bZero = isZeroValue(GameApi.bigEternitiesValue()) ?: return false
-        return eZero && bZero
+        val rZero = isZeroValue(GameApi.realitiesValue()) ?: return false
+        val brZero = isZeroValue(GameApi.bigRealitiesValue()) ?: return false
+        return neverEternitiedFromCounters(eZero, bZero, rZero, brZero)
     }
 
     /** 本会话是否从全新档启动（用于"解锁后接管原版开关"的一次性判断）。 */
@@ -149,13 +197,78 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun reason(): String {
         if (!OrekiAutomationScheduler.isEnabled()) return "automation-off"
-        if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive()) {
+        if (!autoEternitySwitchOn() && !bootstrapActive() && !adoptionDriveActive() &&
+            !lockedLayerDriveAllowed(
+                automationEnabled = OrekiAutomationScheduler.isEnabled(),
+                autobuyersOn = GameApi.autobuyersOn(),
+                autoEternityUnlocked = GameApi.autoEternityUnlocked(),
+                everEternitied = !neverEternitied(),
+                userClosed = OrekiAutoEternityAdoption.userClosedByPlayer(),
+            )
+        ) {
             return "auto-eternity-off"
         }
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
+        // [R115-01 P0] 首次永恒不得由自动化在首个合法帧抢按（见 firstEternityDwellRemainingMs）。
+        if (firstEternityDwellRemainingMs() > 0L) return "first-eternity-dwell"
         return REASON_ALLOW
+    }
+
+    // ---------------------------------------------------- [R115-01 P0] 首次永恒驻留窗口
+    //
+    // 实测缺陷（2026-11-16 真 APK + 独占 AVD，报告 reports/R115-01/）：
+    //   打破无限后约 25 秒，一次坍缩把 IP 推到 2.756e342（≥ 1.797e308），canEternity 首次为真；
+    //   同一秒内新档引导窗口即发起**真实永恒结算**
+    //   （logcat: OREKI_CRUNCH_DEC reason=eternity-ready → OREKI_ET settled ep 0→1.2125e8）。
+    //   玩家可见症状即「刚打破无限就解锁永恒」：无限层被自动化瞬间跳过。
+    //   阶段门禁本身没有泄漏（EP=0 时永恒页签 allowed=false，DEX trampoline 齐全）。
+    //
+    // 语义（只约束「自动化替玩家按首次永恒」，不改变任何游戏机制）：
+    //   · 只作用于**首次永恒**（尚未永恒过）且玩家**没有亲自开启**原版自动永恒开关的引导/托管窗口；
+    //   · 玩家手动按永恒走原版 UI 入口，不经过本门禁，随时可用（手动优先）；
+    //   · 玩家一旦打开「自动永恒」开关，立即按原语义执行，不再驻留；
+    //   · 已永恒过的存档完全不受影响（自动化长跑节奏不变）。
+    //   · 驻留期结束后仍由原版 canEternity + 自动永恒真实结算，绝不伪造。
+    private const val FIRST_ETERNITY_DWELL_MS = 180_000L
+
+    private var dwellStartedAtMs: Long = 0L
+    private var dwellSaveId: String = ""
+
+    /**
+     * 首次永恒自动结算前的剩余驻留时间（毫秒）；0 = 不驻留、可立即自动结算。
+     *
+     * 计时从「本次存档里 canEternity 首次为真」开始；资格消失（例如玩家花掉 IP）即重置，
+     * 换存档（saveIdentity 变化）也重置，避免跨档继承旧计时。
+     */
+    @JvmStatic
+    fun firstEternityDwellRemainingMs(): Long {
+        // 只有已解锁后的开关才是玩家可表达的意图；未解锁时 true 可能是 MOD 的
+        // 跨读档所有权持久化，仍必须经过首次永恒驻留。
+        if (playerSwitchBypassesFirstEternityDwell(
+                autoEternitySwitchOn(),
+                GameApi.autoEternityUnlocked(),
+            )
+        ) return 0L
+        // 非首次永恒：既有自动化节奏不受影响。
+        if (!neverEternitied()) return 0L
+        if (!GameApi.canEternity()) {
+            dwellStartedAtMs = 0L
+            return 0L
+        }
+        val saveId = GameApi.saveIdentity() ?: ""
+        if (saveId != dwellSaveId) {
+            dwellSaveId = saveId
+            dwellStartedAtMs = 0L
+        }
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (dwellStartedAtMs == 0L) {
+            dwellStartedAtMs = now
+            return FIRST_ETERNITY_DWELL_MS
+        }
+        val elapsed = now - dwellStartedAtMs
+        return if (elapsed >= FIRST_ETERNITY_DWELL_MS) 0L else FIRST_ETERNITY_DWELL_MS - elapsed
     }
 
     /** 是否放行（等价 reason() == REASON_ALLOW）。 */
@@ -179,11 +292,23 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun challengeAutoStartAllowed(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
+        // [R115-01 P0] 首次永恒驻留期间禁止「自动进入 EC 顺带真实永恒」的旁路。
+        if (firstEternityDwellRemainingMs() > 0L) return false
         if (autoEternitySwitchOn()) return true
         // [R104 P0] 新档引导窗口内同样放行挑战自动化（否则 EC 链在新档永不启动）。
         if (bootstrapActive()) return true
         // [R114-01 P0] MOD 托管窗口（原版自动器未解锁）同样放行：否则 reality 后 EC 链停摆。
         if (adoptionDriveActive()) return true
+        // [R119-01 P1 / Web #69 parity] 读档/冷启动丢失 freshSession latch 时，
+        // 已永恒过且自动永恒仍未解锁的存档仍须继续 EC 链；玩家无法在界面上关闭该开关。
+        if (lockedLayerDriveAllowed(
+                automationEnabled = OrekiAutomationScheduler.isEnabled(),
+                autobuyersOn = GameApi.autobuyersOn(),
+                autoEternityUnlocked = GameApi.autoEternityUnlocked(),
+                everEternitied = !neverEternitied(),
+                userClosed = OrekiAutoEternityAdoption.userClosedByPlayer(),
+            )
+        ) return true
         val settlementNow = GameApi.canEternity()
         if (settlementNow) logChallengeBlocked()
         return !settlementNow

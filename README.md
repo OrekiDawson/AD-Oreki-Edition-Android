@@ -2,6 +2,18 @@
 
 《反物质维度》Android MOD。项目保留官方 Android 基线的必要兼容能力，并使用 Kotlin 实现 MOD 业务、阶段逻辑、自动化和移动端界面适配。
 
+## 项目状态与开发成本（2026-11-20）
+
+**当前状态：`R120-01` 进行中。** 用户已明确恢复当前开发轮次，范围包括 Oreki Audit 迁移、Kody 审查、双端规则与游戏节奏校准；无关历史任务仍保持原状态。源码、PR、Issues、Release、测试证据和部署记录继续保留。
+
+- **费用门禁**：继续遵守既定人民币预算、80% 预警、100% 停止新增付费调用与 DeepSeek 余额低于 ¥10 暂停规则。禁止通过换 Key、模型或账号规避预算；无法可靠取得余额时不得声称余额充足。
+- **Kody / Kodus**：代码审查由 Kodus Manual + `.github/workflows/kody-trigger.yml` 驱动。触发器只对 `OrekiDawson` 的同仓、`main`、非 Draft PR 生效，按 Head SHA 去重并使用最小权限 PAT。`Skipped`、`KODY NOT RUN` 均不是 PASS。
+- **旧 Oreki Audit**：`codex-deepseek-review.yml` 保留作回滚备份，`OREKI_AUDIT_ENABLED=false`；未经用户明确恢复，不调用 DeepSeek，也不发布自制 Review。
+- **自动化边界**：Kody Rules 初期最多 3 条并限定仓库路径；默认 Balanced、简体中文，不使用 Heavy。自动审查保持 Manual，不批量重审历史 PR。
+
+**Android 特别说明**：新增或修改游戏业务必须使用 Kotlin。构建、签名、AGP 9.5.1、存档兼容与 AVD/真机验证门禁不变；静态检查、CI 或 Kody 结论不能替代真实运行验收。
+
+
 ## 1. 适用范围
 
 本仓库负责 Android 源码、官方 APK 基线、Gradle 构建、签名、存档兼容和真实设备/AVD 验证。Web 端是独立仓库，不使用本仓库的构建产物或运行证据替代 Web 验收。
@@ -14,8 +26,9 @@
 
 1. [Android 当前规则](AGENTS.md)
 2. [当前事实总索引](docs/FACTS.md)（主题事实在 [docs/facts/](docs/facts/README.md)）
-3. [暂停状态与本地资产](PROJECT_PAUSED.md)
+3. [Kodus 审查配置](docs/KODUS_REVIEW_SETUP.md)
 4. [规则索引](docs/RULES_INDEX.md)
+5. [Web 与 Android 实现差异](WEB_ANDROID_DIFFERENCES.md)
 
 ## 3. 构建
 
@@ -37,6 +50,21 @@
 2. 原版混淆 DEX/Smali 仅作为已核实的 ABI、反射和兼容入口，不新增 Smali/Java 业务实现。
 3. 阶段、自动购买器、存档和 GUI 必须使用真实游戏状态；不得伪造资源、结算、成就或解锁。
 4. 首次大坍缩后必须真实经历无限阶段，不能立即自动 Break Infinity；永恒和现实只能在真实结算后显示。
+5. 调度周期可在 **1～60 秒** 配置，默认 **10 秒**。受管自动购买器由调度器独占管理，玩家修改后必须在下一调度 tick 恢复当前合法策略。
+
+### 4.1 正式五阶段节奏目标
+
+| 真实墙钟时间 | 体验目标 |
+| --- | --- |
+| 0～30 分钟 | 快速成长，建立基础维度、升级与自动化理解 |
+| 30～75 分钟 | 无限、打破无限、永恒及核心挑战逐步展开 |
+| 75～130 分钟 | 现实系统、主要天神与现实后自动化 |
+| 130～165 分钟 | 后期挑战、莱特拉与 Pelle 终局 |
+| 165～180 分钟 | 最终突破、真实结算与收尾 |
+
+分段用于指导内容节奏，不得按时钟强制解锁。新档真实墙钟通关 **≤180 分钟** 仍是硬性上限。
+Web 已在 2026-11-20 以全新存档真实通关，耗时 **10451.1 秒（174.19 分钟）**；
+Android 最终组合源码尚无可追溯 Release APK，新档终局运行仍为 `NOT RUN / BLOCKED`。
 
 ## 5. AVD 与 GUI 验证
 

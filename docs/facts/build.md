@@ -455,3 +455,126 @@ ANDROID_JAR = pathlib.Path("C:/Users/Oreki/Android/sdk/platforms/android-34/andr
 - **AVD 联合验收**（同一 APK）：新档首写 40.2s、HOME 保存、重启读取、5 分钟自动化 0 ABI 崩溃/ANR；
   合法晚期存档（SHA `75f570c5…`，realities=12）读取正常且 120s 后写回 `01e67bf8…`（29,912 B 合法 JSON）。
 - 证据：`reports/R113-01/P0-CLOSURE.md`、`reports/R113-01/avd-evidence/r113-hybrid6/`。
+
+<a id="f-candidate-bundle-hosting"></a>
+## candidate 私有 build bundle 托管位置（CONFIRMED + 待更新风险，2026-11-15）
+
+- **托管位置**：`candidate-unified` 的私有 build inputs 托管在 **OrekiDawson/AD-Oreki-Unified** draft release `r114-build-inputs`
+  （release id `446153821`，draft=true）；当前 asset `751450755` `oreki-build-inputs-r114.tar.gz` 493,408,095 B，
+  `state=starter`（上传中/未完成，2026-11-15 15:37 创建）。旧仓 `OrekiDawson/AD-Oreki-Build-Inputs` 实测 **HTTP 404**（废记，不得再引用）。
+- **CI 读取方式**：`.github/workflows/candidate-unified.yml:172-173` 使用 repo variables `OREKI_BUILD_BUNDLE_URL` / `OREKI_BUILD_BUNDLE_SHA256`，
+  下载步骤要求 HTTPS + 64 位 SHA + `secrets.OREKI_BUILD_BUNDLE_TOKEN`（:176-205）；game jar 由 `OREKI_GAME_JAR_SHA256` 钉住（:343-354）。
+- **Environment 变量实测**（`repos/.../environments/android-signing/variables`）：
+  `OREKI_BUILD_BUNDLE_SHA256=7d7644f7fbb5fce2f2964b0ef6a1248e3ea05d722e5b00d639d975512bb16f72`、
+  `OREKI_GAME_JAR_SHA256=5f0fcf39acaced6b6c29d48469f8510d89c20f25ad411eb14958ba8ae517faf8`、
+  `OREKI_BUILD_BUNDLE_URL=https://api.github.com/repos/OrekiDawson/AD-Oreki-Unified/releases/assets/751422489`。
+- **风险/待更新（CONFIRMED）**：URL 指向的旧 asset `751422489` 已 **404**（实测），release 当前只有 `751450755`（starter）；
+  ⇒ 在变量更新为 `.../assets/751450755` 且新 bundle 完成上传（state=uploaded）前，candidate 下载步骤会失败；SHA 也需按新 bundle 实测更新。
+- 证据：`gh api repos/OrekiDawson/AD-Oreki-Unified/releases/446153821/assets`、`.../assets/751422489`（404）、
+  `repos/OrekiDawson/AD-Oreki-Edition-Android/environments/android-signing/variables`。 `[实测]`
+
+<a id="f-programmatic-approval"></a>
+## 受保护 Environment 的程序化审批（CONFIRMED，PR #112）
+
+- GitHub Actions `pending_deployments` 审批必须提交 **`environment_ids[]` 数组**；只传 `state`/`comment` 会 HTTP 422。
+  脚本 `scripts/ci/approve_pending_deployment.sh`（PR #112，OPEN、尚未合并）从 `GET .../actions/runs/<run_id>/pending_deployments`
+  读取 `environment.id` 与 `current_user_can_approve`，按可选环境名过滤后 POST：
+  `-f state=approved -F "environment_ids[]=<id>"`；无匹配环境 fail-closed、无 pending 返回 NO_PENDING_DEPLOYMENT。
+- **实测**：修正后成功审批 run `43730492485`（PR #112 描述）；原实现未传 `environment_ids` 导致 422。
+- **边界**：程序化审批只使用仓库所有者已授权 `gh` 身份；保留 Environment 保护、Required Checks、签名密钥与源码 SHA 校验；
+  `AGENTS.md §16` 已写明「发布授权已长期授予，Environment Reviewer 按所有者身份程序化审批」。
+- 证据：PR #112（diff 新增脚本）、AGENTS.md §16、run `43730492485`。 `[读码] + [实测]`
+
+<a id="f-agp-v3-signing-risk"></a>
+## AGP fullGame 的 v3 签名配置与 v2+v3 门禁（CONFIRMED 配置 + UNKNOWN 产物实测，2026-11-15）
+
+- `[读码]` **CONFIRMED 配置**：`agp/app/build.gradle.kts:122` 在 `fullGame` release signingConfig 设置 `enableV3Signing = true`
+  （#108 合并 `eb9612f5`；注释称「保留 v1/v2 现有行为，只补 v3」）。
+- `[读码]` **CONFIRMED 门禁**：CI candidate 硬要求 **v2 且 v3**——`.github/workflows/candidate-unified.yml:435-452` 用 apksigner
+  分别 grep `Verified using v2 scheme ... true` / `v3 scheme ... true`；`scripts/verify_release.py:199-217` 对 API 24-27/28-32
+  分别验 v2/v3，`签名方案 v2+v3` 为硬 check。
+- `[实测冲突]` **UNKNOWN（待复核）**：本机 apksigner 37.0.0 对现有 AGP 产物实测为 **v2=true / v3=false**（v2-only）：
+  `agp/app/build/outputs/apk/release/app-release.apk`（81,584,175 B，11-15 21:58）与 `build/r114-final/ab/r8off/app-release.apk`；
+  另有 build_mod 旧链日志 `build/_r104_build_*.log:353-355` 记录 **v2=false / v3=true**（v3-only）。当前证据无法证实「AGP 配置产物为 v3-only」，
+  需在干净构建后复测 AGP 产物的签名方案。
+- **待验证/风险**：`scripts/ci/build_agp_candidate.sh` 目前只校验、**不重签**（`OREKI_REQUIRE_V3` 默认 false，仅 WARN；:15/:54/:57）；
+  若 CI 直接消费 v2-only 的 AGP 产物，candidate 的 v2+v3 校验会 FAIL；需 v2+v3 重签（生产 keystore）或修好 AGP 签名配置后实测。
+- 证据：PR #108、PR #109、本地 `apksigner verify --verbose --print-certs <apk>` 实测。 `[读码] + [实测]`
+
+<a id="f-kotlin-naming-gates"></a>
+## Kotlin 命名门禁：全量审计 advisory、delta 硬门禁（CONFIRMED，2026-11-15）
+
+- `[实测]` `scripts/check_kotlin_naming.py` 全量审计在 main 仍报 **15 项历史违规**（检查 3758 项、37 个 Kotlin 文件，扫描 `app/src/main/kotlin`），
+  退出码 1。CI `.github/workflows/ci.yml:48-50` 该步 **continue-on-error: true（advisory）**，不阻断。
+- `[读码]` 真正硬门禁是 **delta**：`ci.yml:52-67` 调 `scripts/check_kotlin_naming_delta.py --base <PR base sha>`，只拦新增违规；
+  无可靠 base（workflow_dispatch / 全 0 sha）时 exit 0 并提示 full audit remains advisory。
+- **纪律**：不得把「全量审计 15 项失败」当成本轮回归；新增命名违规必须修，历史债务只在 advisory 列表跟踪。 `[实测] + [读码]`
+
+<a id="f-r114-02-c1"></a>
+## R114-02 C1：教程资产生产路径迁出 build_mod.py（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/build_mod.py` 的 `patch_tutorial_content()`（278 行：构建期从 Web 单源 JSON 生成资产 + 三层断言 + 落盘回读 + 渲染层接线/极性守卫）已删除，改为
+  `stage_tutorial_assets()`：只把**已提交**的 `scripts/payload/assets/oreki_tutorial.txt`（200,880 B，SHA-256 `6bab3f8b978eda78e73e40c7a97dbce966f952f03ce34932be437721cd86b8ed`）
+  原样拷进 `work/mod/assets` 并清理 `*legacy*` 残留。生产构建不再导入 `oreki_tutorial_gen`、不再读 `web/AD-Oreki-Edition/src/core/oreki-tutorial-data.json`。
+- `[读码]` 消费端：AGP 完整游戏 `agp/app/build.gradle.kts` 的 `prepareFullGameAssets`（剔除解码树同名旧资产）+ `verifyTutorialAsset`（结构/编码/规模/PH/章节数，无 Python）
+  消费同一份提交资产；legacy 链由 `stage_tutorial_assets()` 落盘。教程渲染层 `TutorialActivity.kt` 仍只读唯一 asset。
+- `[实测]` 新鲜度改由独立校验把关：`scripts/verify_tutorial_zh.py` A1/A2 逐字节重生成比对（本机 34/34 PASS）、
+  `scripts/tests/test_buildmod_tutorial_retirement.py`（8/8 PASS，覆盖「生成器不许回潮」「主入口只调 staging」「AGP 消费同一资产」「staging 原样拷贝+legacy 清洗」），
+  以及 candidate workflow 新增「提交资产与钉住 Web 检出逐字节一致」步骤（AGP-only 门禁解除后生效）。
+- `[实测]` 生成器 `oreki_tutorial_gen.py` 的「唯一内容源」展示路径改为规范相对路径（`web/AD-Oreki-Edition/...`），使主检出/工作树/CI 不同布局生成**逐字节相同**的资产，
+  保证新鲜度比对与候选可复现性。
+- **NOT RUN**：真实 `./gradlew assembleRelease`、APK 内资产字节、教程页 AVD 打开（需私有解码基线与独占 AVD，本轮未占用）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §5；报告 `reports/R114-02/agents/buildmod-retirement-c1-tutorial-asset.md`。 `[实测] + [读码]`
+
+
+<a id="f-r114-02-c4"></a>
+## R114-02 C4：源码级 verify_* 迁出生产构建（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/build_mod.py` 的 `verify_kotlin_gameapi_aliases` / `verify_break_shop_kotlin` / `verify_au4b`（64/29/80 行）
+  已迁到独立脚本 `scripts/verify_build_contracts.py`：build_mod 不再定义或调用它们（7,394 → 7,219 行），
+  也不再由 Android 生产构建执行；改由源码 CI（Required Checks）执行，失败即阻断合并。
+- `[实测]` 新脚本 **不 import build_mod**；GameApi 别名校验改用 `baseline/versions/3.21/compatibility.json` 的
+  `payload_name→from320` 证据行作为权威源（比原先只对比 Python 常量表更强），并保留 `cls("短名")` 与货币 `p/o` 扣费入口守护。
+- `[实测]` `--selftest` 对每条断言做 10 条变异（别名值/证据缺失/裸 cls/扣费入口/表结构、Break tick/smali 双写/ABI 未登记、
+  AU4b 缺失/闩锁/setter/私有字段），全部被拦住；本机 `verify_build_contracts.py` 3/3 PASS + selftest PASS。
+- `[读码]` fail-closed 不变：候选链 validate 要求「同一 source SHA 已有成功的 Source CI run」，候选 SHA 必须先通过本校验。
+- **树级校验**：已由 R114-02 C4b 迁出（见 [f-r114-02-c4b](#f-r114-02-c4b)）；仅剩 `verify_payload` 未迁（C4c）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §7；报告 `reports/R114-02/agents/buildmod-retirement-c4-verify-ci.md`。 `[实测] + [读码]`
+
+
+<a id="f-r114-02-c4b"></a>
+## R114-02 C4b：树级 verify_* 迁 candidate 独立 step（CONFIRMED，2026-11-16）
+
+- `[实测]` `scripts/verify_build_contracts.py` 新增 `--mod-tree` / `--decoded-tree`，迁入 6 条校验：
+  源码级 2 条（`check_ec_chain_mechanisms`+`_verify_ec_r40b`、`check_challenge_auto_polarity`，只读 payload 源，公开 CI 执行）、
+  树级 4 条（`verify_eternity_chain`、`verify_pelle_record`、`verify_smali_field_types_320`、`check_smali_descriptors`）。
+  build_mod 删除这些函数/helper/常量与 `OREKI_EC_SELFTEST` 入口：7,394 → **6,532 行（-862）**，顶层函数 96 → 85。
+- `[实测]` 公开 CI 口径：默认运行只跑 5 条源码级校验；树级 4 条**显式 SKIP**（不是 PASS），且 `ci.yml` 不出现 `--mod-tree`/`--decoded-tree`；
+  `--selftest` 15 条源码变异全部被拦住。
+- `[实测]` candidate 私有 runner：`candidate-unified.yml` 新增 `Verify tree-level build contracts on the pinned full-game tree`，
+  在 pinned full-game tree 就位之后、AGP 打包之前执行 `--mod-tree work/mod --decoded-tree "$OREKI_BASE"`，失败即阻断候选。
+- `[实测·本机]` 用主检出的真实 `work/mod` + `base_decoded_321` 跑 verifier：**9/9 PASS**（证据 JSON SHA-256 `e31d107b…`）；
+  同一树上跑旧 build_mod 6 个校验函数：**OLD 6/6 PASS**（新旧等价）。
+- `[读码]` candidate 不再执行 `buildKotlinDex`：类描述符校验额外并入 `scripts/kotlin_business_classes.txt` 与
+  `app/src/main/kotlin` 顶层声明作为 Kotlin 类证据，避免误报。
+- **NOT RUN**：真实 candidate workflow run（AGP-only 门禁仍 fail-closed）、真实 `assembleRelease`/APK/AVD。
+- **剩余（C4c）**：`verify_payload` 已由 R114-02 C4c 迁出（见 [f-r114-02-c4c](#f-r114-02-c4c)）。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §8；报告 `reports/R114-02/agents/buildmod-retirement-c4b-tree-checks.md`。 `[实测] + [读码]`
+
+
+<a id="f-r114-02-c4c"></a>
+## R114-02 C4c：verify_payload 迁树级独立校验（CONFIRMED，2026-11-16）
+
+- `[实测]` `build_mod.verify_payload`（693 行）迁入 `scripts/verify_build_contracts.py::check_payload`（树级模式），
+  build_mod 删除 `verify_payload`、`refresh_touched`、`PAYLOAD_MUST_EXIST`、`PAYLOAD_REFS` 与随之变死的 `_stage_auto_kt`：
+  6,532 → **5,644 行（-888）**，顶层函数 85 → 81；`resolve_alias_ref` 保留（被 `test_r80_alias_rewrite.py` 直接调用）。
+- `[实测]` touched 集改为「MOD 树 vs 解码基线」差异重建（新增/内容变化），真实树得到 **77 文件（25 payload + 52 补丁改写）**；
+  `lint_smali_literals` 扫描 77 文件 0 问题，负例注入非法字面量下标时 rc=1（fail-closed）。
+- `[实测]` 别名换算不复制常量表：由 `baseline/versions/3.20/compatibility.json` + `3.21/compatibility.json` +
+  `bindings.json` 组合；与生产 `rewrite_alias` 对 41 项 PAYLOAD_REFS 逐条比对 **0 差异**。
+- `[实测]` 新旧等价：旧 `build_mod.verify_payload` 喂同一 77 文件 touched 集 **PASS**；新 verifier 真实树 **10/10 PASS**。
+- `[读码]` 公开 CI 默认只跑 5 条源码级校验，树级 5 条（含 payload）显式 SKIP；candidate 树级 step 增加
+  `--legacy-base "$OREKI_LEGACY_BASELINE_DIR"`（R73 夹具资源 ID 来自旧版解码树）。
+- **NOT RUN**：真实 candidate workflow（AGP-only 门禁 fail-closed，且 C4c PR 堆叠在未合并的 C4b #129 之上）、APK/AVD。
+- 证据：`docs/BUILDMOD_RETIREMENT_LEDGER.md` §9；报告 `reports/R114-02/agents/buildmod-retirement-c4c-payload.md`。 `[实测] + [读码]`
+

@@ -17,6 +17,36 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertGreaterEqual(int(policy["versionCode"]), int(policy["lastPublishedVersionCode"]))
         self.assertEqual(policy["package"], "com.oreki.antimatterdimensions")
 
+    def test_ready_for_release_policy_has_strictly_greater_version_code(self):
+        # release-unified 的发布守卫：ready-for-release 时 versionCode 必须严格大于已发布最大值，
+        # 否则会拒绝发布（release-unified.yml 的 lastPublishedVersionCode/modVersionState 检查）。
+        policy = json.loads((ROOT / "scripts/release-gate-policy.json").read_text("utf-8"))
+        if policy.get("modVersionState") == "ready-for-release":
+            self.assertGreater(int(policy["versionCode"]), int(policy["lastPublishedVersionCode"]))
+
+    def test_verifiers_use_release_policy_for_candidate_version(self):
+        import importlib.util
+
+        def load(name, rel):
+            spec = importlib.util.spec_from_file_location(name, ROOT / rel)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+
+        policy = json.loads((ROOT / "scripts/release-gate-policy.json").read_text("utf-8"))
+        release = load("verify_release_policy_probe", "scripts/verify_release.py")
+        self.assertEqual(release._read_release_identity(),
+                         (policy["versionName"], str(policy["versionCode"])))
+        patch = load("verify_patch_contract_policy_probe", "scripts/verify_patch_contract.py")
+        expected = patch.load_expected_version()
+        self.assertEqual(expected["version_name"], policy["versionName"])
+        self.assertEqual(expected["version_code"], str(policy["versionCode"]))
+        # 基线身份仍单独可区分（原版 30210000），不再用来校验 MOD 候选
+        self.assertEqual(expected["baseline_version_code"], "30210000")
+        release_text = (ROOT / "scripts/verify_release.py").read_text("utf-8")
+        self.assertIn("release-gate-policy.json", release_text)
+        self.assertNotIn("EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_base_version()", release_text)
+
     def test_agp_reads_reviewed_version_instead_of_hardcoding_baseline(self):
         app = (ROOT / "agp/app/build.gradle.kts").read_text("utf-8")
         self.assertIn('release-gate-policy.json', app)

@@ -52,6 +52,14 @@ class PullHelpersTests(unittest.TestCase):
             with self.assertRaises(pull.PullError):
                 pull.resolve_release("OrekiDawson/AD-Oreki-Edition-Android", None)
 
+    def test_expectations_are_derived_from_release_policy(self):
+        policy = json.loads(
+            (pathlib.Path(pull.__file__).with_name("release-gate-policy.json")).read_text(encoding="utf-8"))
+        self.assertEqual(pull.EXPECTED_VERSION_CODE, str(policy["versionCode"]))
+        self.assertEqual(pull.EXPECTED_VERSION_NAME, policy["versionName"])
+        self.assertEqual(pull.EXPECTED_PACKAGE, policy["package"])
+        self.assertEqual(pull.EXPECTED_CERT_SHA256, policy["certificate_sha256"])
+
     def test_parse_cert_digests_supports_build_tools_37_format(self):
         old = "Signer #1 certificate SHA-256 digest: " + "A" * 64
         new = "V3.0 Signer: certificate SHA-256 digest: " + "b" * 64
@@ -114,7 +122,8 @@ class PullEndToEndTests(unittest.TestCase):
             "discover_tool": mock.patch.object(pull, "discover_tool", return_value=None),
             "verify_signature": mock.patch.object(pull, "verify_signature", return_value=pull.EXPECTED_CERT_SHA256),
             "verify_badging": mock.patch.object(pull, "verify_badging",
-                                                return_value=(pull.EXPECTED_PACKAGE, pull.EXPECTED_VERSION_CODE, "3.21.0")),
+                                                return_value=(pull.EXPECTED_PACKAGE, pull.EXPECTED_VERSION_CODE,
+                                                              pull.EXPECTED_VERSION_NAME)),
         }
         patches.update(overrides or {})
         with exit_stack(patches.values()), mock.patch.object(sys, "argv", argv):
@@ -136,6 +145,17 @@ class PullEndToEndTests(unittest.TestCase):
         self.assertEqual(self._run(), 0)
         receipt = json.loads((self.dest / "local-channel-receipt.json").read_text(encoding="utf-8"))
         self.assertEqual(receipt["mode"], "idempotent")
+
+    def test_version_code_outside_release_policy_is_blocked_and_keeps_previous_stable(self):
+        (self.dest / "latest" / APK_NAME).write_bytes(b"previous-stable")
+        previous = pull.sha256_file(self.dest / "latest" / APK_NAME)
+        self.assertEqual(
+            self._run(overrides={"verify_badging": mock.patch.object(
+                pull, "verify_badging",
+                return_value=(pull.EXPECTED_PACKAGE, "1", pull.EXPECTED_VERSION_NAME))}), 2)
+        self.assertEqual(pull.sha256_file(self.dest / "latest" / APK_NAME), previous)
+        receipt = json.loads((self.dest / "local-channel-receipt.json").read_text(encoding="utf-8"))
+        self.assertEqual(receipt["status"], "BLOCKED")
 
     def test_signature_mismatch_keeps_previous_stable_and_writes_blocked(self):
         (self.dest / "latest" / APK_NAME).write_bytes(b"previous-stable")

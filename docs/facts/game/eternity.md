@@ -329,3 +329,24 @@ return false                        # 列表里一个都没买 → false
     `GameApi.kt:2175` 旧注释有误，已在 PR 描述记录，未改注释以免扩大 diff）。
   - DS1 是第一道前置（TT 上限 ≥12900 + EC11/EC12 + 231~234 任一），DS 1..6 顺序购买无独立死锁；
     每次 Reality 重建时间树约 9 分 50 秒（R113-01 logcat 32527→65735），属软成本。
+
+<a id="f-r115-01-first-eternity-dwell"></a>
+## R115-01 · 「打破无限后永恒提前解锁」的定性与首永恒驻留门禁（2026-11-16）
+
+> 证据：`reports/R115-01/R115-01-复现与根因.md`、`reports/R115-01/evidence/`。全部结论来自真实 Release APK（a12b5cd6）+ 独占 AVD。
+
+- **阶段门禁没有泄漏 `[实测]`**：最终 DEX 中 `f82.j()` 已是指向
+  `OrekiStageAuto.vanillaEternityUnlocked()` 的 trampoline，`vanillaEternityTabAllowed` 有 5 处调用；
+  `eternityPoints=0` 时 `tab=eternity/timeStudies/timeDimensions` 实测 `allowed=false`，
+  且 `OREKI_TABGATE` 只在真实结算（`ep=1,bigE=1`）之后才翻 true。历史 R100/R101/R107 的根因（DEX 丢失、页签绕过）本次不成立。
+- **真实根因 `[实测]`**：新档引导窗口（`OrekiAutoEternityGate` 的 `boot/fresh` 分支）在
+  `canEternity` 首次为真的**同一秒**即发起真实永恒结算
+  （`OREKI_CRUNCH_DEC reason=eternity-ready` → `OREKI_ET settled ep 0→1.2125e8`）。
+  打破无限 → 永恒仅 **25 秒**；真新档全路径 87 s 首个无限、147 s 永恒。玩家可见症状即「刚打破无限就解锁永恒」，属自动化节奏而非越阶段解锁。
+- **修复 `[实测]`**：`OrekiAutoEternityGate.firstEternityDwellRemainingMs()` 给**首次永恒**加 180 s 驻留
+  （`reason=first-eternity-dwell`），只作用于「首次永恒 + 玩家未亲自开启自动永恒」；
+  手动永恒、已永恒存档、玩家开启自动永恒后不受影响；驻留结束仍由原版 `canEternity` 真实结算。
+  实测：`canEt=true` 后驻留 179 s（EP/bigE 恒 0），随后 `allow=true` → `bigE=1`；合法永恒档加载即 `tab=eternity allowed=true`。
+- **未解决 `[实测]`**：打破无限后 IP 5e5→9e106、25 s 越过 1.79e308；首次永恒 EP 收益 1.2e8。
+  两项都是服务 ≤180 分钟目标的增益，压缩无限层体验，需单独评估并做长跑回归。
+

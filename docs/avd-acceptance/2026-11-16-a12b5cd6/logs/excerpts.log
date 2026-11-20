@@ -1,0 +1,436 @@
+11-16 01:07:35.251  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP_STARTED intervalMs=16
+11-16 01:07:35.251  7733  7733 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-16 01:07:36.542  7733  7733 I OREKI_TABGATE: tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-16 01:07:37.615  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=10 frames=11 targets=0
+11-16 01:07:38.419  7733  7733 I OREKI_TABGATE: tab=dimensions allowed=true eternityUnlocked=false
+11-16 01:07:38.426  7733  7733 I OREKI_TABGATE: tab=automation allowed=true eternityUnlocked=false
+11-16 01:07:38.426  7733  7733 I OREKI_TABGATE: tab=challenges allowed=true eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=infinity allowed=true eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=eternity allowed=false eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=reality allowed=false eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=celestials allowed=false eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=achievements allowed=true eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=optionsMainTab allowed=true eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=shopMainTab allowed=true eternityUnlocked=false
+11-16 01:07:38.427  7733  7733 I OREKI_TABGATE: tab=infoMainTab allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=infinityDimensions allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=timeDimensions allowed=false eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=normalAchievements allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=secretAchievements allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=statistics allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=challengeTimes allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=graphs allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=speedrunRecords allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=howToPlay allowed=true eternityUnlocked=false
+11-16 01:07:38.429  7733  7733 I OREKI_TABGATE: tab=about allowed=true eternityUnlocked=false
+11-16 01:07:38.720  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=25 frames=28 targets=1
+11-16 01:07:38.727  7733  7773 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:07:38.727  7733  7773 I OREKI_SCHED: gui-tick #1 gapMs=1000
+11-16 01:07:38.728  7733  7773 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=before-first-infinity eternity=false reality=false source=ep=0,bigE=0,eu=0,r=0,bigR=0,eternitiesField=0
+11-16 01:07:39.742  7733  7773 I OREKI_SCHED: gui-tick #2 gapMs=1000
+11-16 01:07:39.746  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=37 frames=38 targets=8
+11-16 01:07:40.752  7733  7773 I OREKI_SCHED: gui-tick #3 gapMs=1000
+11-16 01:07:40.773  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=53 frames=55 targets=8
+11-16 01:07:41.759  7733  7773 I OREKI_SCHED: gui-tick #4 gapMs=1000
+11-16 01:07:41.789  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=55 frames=56 targets=8
+11-16 01:07:42.776  7733  7773 I OREKI_SCHED: gui-tick #5 gapMs=1000
+11-16 01:07:42.816  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=57 frames=58 targets=8
+11-16 01:07:43.780  7733  7773 I OREKI_SCHED: gui-tick #6 gapMs=1000
+11-16 01:07:43.824  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=55 frames=56 targets=8
+11-16 01:07:44.806  7733  7773 I OREKI_SCHED: gui-tick #7 gapMs=1000
+11-16 01:07:44.852  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=57 frames=58 targets=8
+11-16 01:07:45.823  7733  7773 I OREKI_SCHED: gui-tick #8 gapMs=1000
+11-16 01:07:45.859  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=58 frames=59 targets=8
+11-16 01:07:46.824  7733  7773 I OREKI_SCHED: gui-tick #9 gapMs=1000
+11-16 01:07:46.879  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=55 frames=56 targets=8
+11-16 01:07:47.833  7733  7773 I OREKI_SCHED: gui-tick #10 gapMs=1000
+11-16 01:07:47.889  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=57 frames=58 targets=8
+11-16 01:07:48.838  7733  7773 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:07:48.839  7733  7773 I OREKI_SCHED: gui-tick #11 gapMs=1000
+11-16 01:07:48.905  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=51 frames=53 targets=8
+11-16 01:07:49.851  7733  7773 I OREKI_SCHED: gui-tick #12 gapMs=1000
+11-16 01:07:49.939  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=56 frames=57 targets=8
+11-16 01:07:50.878  7733  7773 I OREKI_SCHED: gui-tick #13 gapMs=1000
+11-16 01:07:50.965  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=58 frames=59 targets=8
+11-16 01:07:51.900  7733  7773 I OREKI_SCHED: gui-tick #14 gapMs=1000
+11-16 01:07:51.988  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=53 frames=55 targets=8
+11-16 01:07:52.920  7733  7773 I OREKI_SCHED: gui-tick #15 gapMs=1000
+11-16 01:07:53.005  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=56 frames=57 targets=8
+11-16 01:07:53.945  7733  7773 I OREKI_SCHED: gui-tick #16 gapMs=1000
+11-16 01:07:54.030  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=58 frames=59 targets=8
+11-16 01:07:54.953  7733  7773 I OREKI_SCHED: gui-tick #17 gapMs=1000
+11-16 01:07:55.049  7733  7733 I OREKI_UIFRAME: UI_FRAME_PUMP fps=57 frames=58 targets=8
+11-16 01:09:15.942  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP_STARTED intervalMs=16
+11-16 01:09:15.942  8262  8262 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-16 01:09:16.350  8262  8262 I OREKI_TABGATE: tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-16 01:09:17.442  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=7 frames=8 targets=0
+11-16 01:09:18.483  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=19 frames=20 targets=0
+11-16 01:09:18.930  8262  8262 I OREKI_TABGATE: tab=dimensions allowed=true eternityUnlocked=false
+11-16 01:09:18.940  8262  8262 I OREKI_TABGATE: tab=automation allowed=true eternityUnlocked=false
+11-16 01:09:18.940  8262  8262 I OREKI_TABGATE: tab=challenges allowed=true eternityUnlocked=false
+11-16 01:09:18.942  8262  8262 I OREKI_TABGATE: tab=infinity allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=eternity allowed=false eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=reality allowed=false eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=celestials allowed=false eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=achievements allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=optionsMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=shopMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=infoMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=infinityDimensions allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=timeDimensions allowed=false eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=normalAchievements allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=secretAchievements allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=statistics allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=challengeTimes allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=graphs allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=speedrunRecords allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=howToPlay allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=about allowed=true eternityUnlocked=false
+11-16 01:09:19.199  8262  8262 I OREKI_TABGATE: tab=eternity allowed=true eternityUnlocked=true
+11-16 01:09:19.201  8262  8262 I OREKI_TABGATE: tab=timeDimensions allowed=true eternityUnlocked=true
+11-16 01:09:19.319  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:19.319  8262  8297 I OREKI_SCHED: gui-tick #1 gapMs=1000
+11-16 01:09:19.319  8262  8297 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=1,r=0,bigR=0,eternitiesField=1
+11-16 01:09:19.327  8262  8297 I OREKI_SCHED: noop reality
+11-16 01:09:19.328  8262  8297 I OREKI_SCHED: act eternity @11359994ms gap=-1 taskGap=-1
+11-16 01:09:19.332  8262  8297 I OREKI_SCHED: deny frame-held task=realityUpgrades
+11-16 01:09:19.610  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=11 frames=13 targets=1
+11-16 01:09:20.319  8262  8297 I OREKI_SCHED: gui-tick #2 gapMs=1000
+11-16 01:09:20.329  8262  8297 I OREKI_SCHED: act infinityUpgrades @11360996ms gap=1002 taskGap=-1
+11-16 01:09:20.639  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=44 frames=46 targets=10
+11-16 01:09:21.318  8262  8297 I OREKI_SCHED: gui-tick #3 gapMs=1000
+11-16 01:09:21.330  8262  8297 I OREKI_SCHED: act infinityUpgrades @11361996ms gap=1000 taskGap=1000
+11-16 01:09:21.672  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=10
+11-16 01:09:22.319  8262  8297 I OREKI_SCHED: gui-tick #4 gapMs=1000
+11-16 01:09:22.332  8262  8297 I OREKI_SCHED: act infinityUpgrades @11362999ms gap=1003 taskGap=1003
+11-16 01:09:22.683  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=39 targets=10
+11-16 01:09:23.345  8262  8297 I OREKI_SCHED: gui-tick #5 gapMs=1000
+11-16 01:09:23.348  8262  8297 I OREKI_SCHED: act infinityUpgrades @11364014ms gap=1015 taskGap=1015
+11-16 01:09:23.721  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=40 targets=10
+11-16 01:09:24.355  8262  8297 I OREKI_SCHED: gui-tick #6 gapMs=1000
+11-16 01:09:24.358  8262  8297 I OREKI_SCHED: act infinityUpgrades @11365024ms gap=1010 taskGap=1010
+11-16 01:09:24.739  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=39 targets=9
+11-16 01:09:25.374  8262  8297 I OREKI_SCHED: gui-tick #7 gapMs=1000
+11-16 01:09:25.379  8262  8297 I OREKI_SCHED: act infinityUpgrades @11366045ms gap=1021 taskGap=1021
+11-16 01:09:25.769  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:09:26.373  8262  8297 I OREKI_SCHED: gui-tick #8 gapMs=1000
+11-16 01:09:26.401  8262  8297 I OREKI_SCHED: act infinityUpgrades @11367068ms gap=1023 taskGap=1023
+11-16 01:09:26.772  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=42 frames=43 targets=9
+11-16 01:09:27.375  8262  8297 I OREKI_SCHED: gui-tick #9 gapMs=1000
+11-16 01:09:27.406  8262  8297 I OREKI_SCHED: act infinityUpgrades @11368073ms gap=1005 taskGap=1005
+11-16 01:09:27.803  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:09:28.402  8262  8297 I OREKI_SCHED: gui-tick #10 gapMs=1000
+11-16 01:09:28.431  8262  8297 I OREKI_SCHED: act infinityUpgrades @11369098ms gap=1025 taskGap=1025
+11-16 01:09:28.822  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=47 targets=9
+11-16 01:09:29.333  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:09:29.397  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:29.423  8262  8297 I OREKI_SCHED: gui-tick #11 gapMs=1000
+11-16 01:09:29.456  8262  8297 I OREKI_SCHED: act infinityUpgrades @11370122ms gap=1024 taskGap=1024
+11-16 01:09:29.842  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=46 targets=9
+11-16 01:09:30.435  8262  8297 I OREKI_SCHED: gui-tick #12 gapMs=1000
+11-16 01:09:30.463  8262  8297 I OREKI_SCHED: act infinityUpgrades @11371130ms gap=1008 taskGap=1008
+11-16 01:09:30.874  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=47 targets=9
+11-16 01:09:31.456  8262  8297 I OREKI_SCHED: gui-tick #13 gapMs=1000
+11-16 01:09:31.495  8262  8297 I OREKI_SCHED: act infinityUpgrades @11372162ms gap=1032 taskGap=1032
+11-16 01:09:31.908  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:32.472  8262  8297 I OREKI_SCHED: gui-tick #14 gapMs=1000
+11-16 01:09:32.505  8262  8297 I OREKI_SCHED: act infinityUpgrades @11373172ms gap=1010 taskGap=1010
+11-16 01:09:32.926  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:09:33.493  8262  8297 I OREKI_SCHED: gui-tick #15 gapMs=1000
+11-16 01:09:33.523  8262  8297 I OREKI_SCHED: act infinityUpgrades @11374190ms gap=1018 taskGap=1018
+11-16 01:09:33.954  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:09:34.523  8262  8297 I OREKI_SCHED: gui-tick #16 gapMs=1000
+11-16 01:09:34.526  8262  8297 I OREKI_SCHED: act infinityUpgrades @11375192ms gap=1002 taskGap=1002
+11-16 01:09:34.956  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=42 frames=43 targets=9
+11-16 01:09:35.543  8262  8297 I OREKI_SCHED: gui-tick #17 gapMs=1000
+11-16 01:09:35.545  8262  8297 I OREKI_SCHED: act infinityUpgrades @11376211ms gap=1019 taskGap=1019
+11-16 01:09:35.977  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=36 frames=37 targets=9
+11-16 01:09:36.555  8262  8297 I OREKI_SCHED: gui-tick #18 gapMs=1000
+11-16 01:09:36.559  8262  8297 I OREKI_SCHED: act infinityUpgrades @11377226ms gap=1015 taskGap=1015
+11-16 01:09:37.009  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=45 targets=9
+11-16 01:09:37.573  8262  8297 I OREKI_SCHED: gui-tick #19 gapMs=1000
+11-16 01:09:37.591  8262  8297 I OREKI_SCHED: act infinityUpgrades @11378257ms gap=1031 taskGap=1031
+11-16 01:09:38.043  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:38.584  8262  8297 I OREKI_SCHED: gui-tick #20 gapMs=1000
+11-16 01:09:38.615  8262  8297 I OREKI_SCHED: act sacrifice @11379281ms gap=1024 taskGap=-1
+11-16 01:09:39.064  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=39 frames=40 targets=9
+11-16 01:09:39.338  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:09:39.519  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:39.595  8262  8297 I OREKI_SCHED: gui-tick #21 gapMs=1000
+11-16 01:09:39.622  8262  8297 I OREKI_SCHED: act infinityUpgrades @11380289ms gap=1008 taskGap=2032
+11-16 01:09:40.076  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:40.609  8262  8297 I OREKI_SCHED: gui-tick #22 gapMs=1000
+11-16 01:09:40.635  8262  8297 I OREKI_SCHED: act infinityUpgrades @11381302ms gap=1013 taskGap=1013
+11-16 01:09:41.123  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=45 targets=9
+11-16 01:09:41.630  8262  8297 I OREKI_SCHED: gui-tick #23 gapMs=1000
+11-16 01:09:41.657  8262  8297 I OREKI_SCHED: act infinityUpgrades @11382323ms gap=1021 taskGap=1021
+11-16 01:09:42.145  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=44 frames=45 targets=9
+11-16 01:09:42.647  8262  8297 I OREKI_SCHED: gui-tick #24 gapMs=1000
+11-16 01:09:42.678  8262  8297 I OREKI_SCHED: act infinityUpgrades @11383344ms gap=1021 taskGap=1021
+11-16 01:09:43.176  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=47 targets=9
+11-16 01:09:43.647  8262  8297 I OREKI_SCHED: gui-tick #25 gapMs=1000
+11-16 01:09:43.703  8262  8297 I OREKI_SCHED: act infinityUpgrades @11384370ms gap=1026 taskGap=1026
+11-16 01:09:44.193  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=46 frames=47 targets=9
+11-16 01:09:44.667  8262  8297 I OREKI_SCHED: gui-tick #26 gapMs=1000
+11-16 01:09:44.727  8262  8297 I OREKI_SCHED: act infinityUpgrades @11385394ms gap=1024 taskGap=1024
+11-16 01:09:45.217  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=42 frames=43 targets=9
+11-16 01:09:45.696  8262  8297 I OREKI_SCHED: gui-tick #27 gapMs=1000
+11-16 01:09:45.735  8262  8297 I OREKI_SCHED: act infinityUpgrades @11386401ms gap=1007 taskGap=1007
+11-16 01:09:15.942  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP_STARTED intervalMs=16
+11-16 01:09:15.942  8262  8262 I OREKI_SCHED: init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-16 01:09:16.350  8262  8262 I OREKI_TABGATE: tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-16 01:09:17.442  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=7 frames=8 targets=0
+11-16 01:09:18.483  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=19 frames=20 targets=0
+11-16 01:09:18.930  8262  8262 I OREKI_TABGATE: tab=dimensions allowed=true eternityUnlocked=false
+11-16 01:09:18.940  8262  8262 I OREKI_TABGATE: tab=automation allowed=true eternityUnlocked=false
+11-16 01:09:18.940  8262  8262 I OREKI_TABGATE: tab=challenges allowed=true eternityUnlocked=false
+11-16 01:09:18.942  8262  8262 I OREKI_TABGATE: tab=infinity allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=eternity allowed=false eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=reality allowed=false eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=celestials allowed=false eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=achievements allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=optionsMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=shopMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.943  8262  8262 I OREKI_TABGATE: tab=infoMainTab allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=infinityDimensions allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=timeDimensions allowed=false eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=normalAchievements allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=secretAchievements allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=statistics allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=challengeTimes allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=graphs allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=speedrunRecords allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=howToPlay allowed=true eternityUnlocked=false
+11-16 01:09:18.945  8262  8262 I OREKI_TABGATE: tab=about allowed=true eternityUnlocked=false
+11-16 01:09:19.199  8262  8262 I OREKI_TABGATE: tab=eternity allowed=true eternityUnlocked=true
+11-16 01:09:19.201  8262  8262 I OREKI_TABGATE: tab=timeDimensions allowed=true eternityUnlocked=true
+11-16 01:09:19.319  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:19.319  8262  8297 I OREKI_SCHED: gui-tick #1 gapMs=1000
+11-16 01:09:19.319  8262  8297 I OREKI_GUI_STAGE: GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=1,r=0,bigR=0,eternitiesField=1
+11-16 01:09:19.327  8262  8297 I OREKI_SCHED: noop reality
+11-16 01:09:19.328  8262  8297 I OREKI_SCHED: act eternity @11359994ms gap=-1 taskGap=-1
+11-16 01:09:19.332  8262  8297 I OREKI_SCHED: deny frame-held task=realityUpgrades
+11-16 01:09:19.610  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=11 frames=13 targets=1
+11-16 01:09:20.319  8262  8297 I OREKI_SCHED: gui-tick #2 gapMs=1000
+11-16 01:09:20.329  8262  8297 I OREKI_SCHED: act infinityUpgrades @11360996ms gap=1002 taskGap=-1
+11-16 01:09:20.639  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=44 frames=46 targets=10
+11-16 01:09:21.318  8262  8297 I OREKI_SCHED: gui-tick #3 gapMs=1000
+11-16 01:09:21.330  8262  8297 I OREKI_SCHED: act infinityUpgrades @11361996ms gap=1000 taskGap=1000
+11-16 01:09:21.672  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=10
+11-16 01:09:22.319  8262  8297 I OREKI_SCHED: gui-tick #4 gapMs=1000
+11-16 01:09:22.332  8262  8297 I OREKI_SCHED: act infinityUpgrades @11362999ms gap=1003 taskGap=1003
+11-16 01:09:22.683  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=39 targets=10
+11-16 01:09:23.345  8262  8297 I OREKI_SCHED: gui-tick #5 gapMs=1000
+11-16 01:09:23.348  8262  8297 I OREKI_SCHED: act infinityUpgrades @11364014ms gap=1015 taskGap=1015
+11-16 01:09:23.721  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=40 targets=10
+11-16 01:09:24.355  8262  8297 I OREKI_SCHED: gui-tick #6 gapMs=1000
+11-16 01:09:24.358  8262  8297 I OREKI_SCHED: act infinityUpgrades @11365024ms gap=1010 taskGap=1010
+11-16 01:09:24.739  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=39 targets=9
+11-16 01:09:25.374  8262  8297 I OREKI_SCHED: gui-tick #7 gapMs=1000
+11-16 01:09:25.379  8262  8297 I OREKI_SCHED: act infinityUpgrades @11366045ms gap=1021 taskGap=1021
+11-16 01:09:25.769  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:09:26.373  8262  8297 I OREKI_SCHED: gui-tick #8 gapMs=1000
+11-16 01:09:26.401  8262  8297 I OREKI_SCHED: act infinityUpgrades @11367068ms gap=1023 taskGap=1023
+11-16 01:09:26.772  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=42 frames=43 targets=9
+11-16 01:09:27.375  8262  8297 I OREKI_SCHED: gui-tick #9 gapMs=1000
+11-16 01:09:27.406  8262  8297 I OREKI_SCHED: act infinityUpgrades @11368073ms gap=1005 taskGap=1005
+11-16 01:09:27.803  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:09:28.402  8262  8297 I OREKI_SCHED: gui-tick #10 gapMs=1000
+11-16 01:09:28.431  8262  8297 I OREKI_SCHED: act infinityUpgrades @11369098ms gap=1025 taskGap=1025
+11-16 01:09:28.822  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=47 targets=9
+11-16 01:09:29.333  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:09:29.397  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:29.423  8262  8297 I OREKI_SCHED: gui-tick #11 gapMs=1000
+11-16 01:09:29.456  8262  8297 I OREKI_SCHED: act infinityUpgrades @11370122ms gap=1024 taskGap=1024
+11-16 01:09:29.842  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=46 targets=9
+11-16 01:09:30.435  8262  8297 I OREKI_SCHED: gui-tick #12 gapMs=1000
+11-16 01:09:30.463  8262  8297 I OREKI_SCHED: act infinityUpgrades @11371130ms gap=1008 taskGap=1008
+11-16 01:09:30.874  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=47 targets=9
+11-16 01:09:31.456  8262  8297 I OREKI_SCHED: gui-tick #13 gapMs=1000
+11-16 01:09:31.495  8262  8297 I OREKI_SCHED: act infinityUpgrades @11372162ms gap=1032 taskGap=1032
+11-16 01:09:31.908  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:32.472  8262  8297 I OREKI_SCHED: gui-tick #14 gapMs=1000
+11-16 01:09:32.505  8262  8297 I OREKI_SCHED: act infinityUpgrades @11373172ms gap=1010 taskGap=1010
+11-16 01:09:32.926  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:09:33.493  8262  8297 I OREKI_SCHED: gui-tick #15 gapMs=1000
+11-16 01:09:33.523  8262  8297 I OREKI_SCHED: act infinityUpgrades @11374190ms gap=1018 taskGap=1018
+11-16 01:09:33.954  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:09:34.523  8262  8297 I OREKI_SCHED: gui-tick #16 gapMs=1000
+11-16 01:09:34.526  8262  8297 I OREKI_SCHED: act infinityUpgrades @11375192ms gap=1002 taskGap=1002
+11-16 01:09:34.956  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=42 frames=43 targets=9
+11-16 01:09:35.543  8262  8297 I OREKI_SCHED: gui-tick #17 gapMs=1000
+11-16 01:09:35.545  8262  8297 I OREKI_SCHED: act infinityUpgrades @11376211ms gap=1019 taskGap=1019
+11-16 01:09:35.977  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=36 frames=37 targets=9
+11-16 01:09:36.555  8262  8297 I OREKI_SCHED: gui-tick #18 gapMs=1000
+11-16 01:09:36.559  8262  8297 I OREKI_SCHED: act infinityUpgrades @11377226ms gap=1015 taskGap=1015
+11-16 01:09:37.009  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=45 targets=9
+11-16 01:09:37.573  8262  8297 I OREKI_SCHED: gui-tick #19 gapMs=1000
+11-16 01:09:37.591  8262  8297 I OREKI_SCHED: act infinityUpgrades @11378257ms gap=1031 taskGap=1031
+11-16 01:09:38.043  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:38.584  8262  8297 I OREKI_SCHED: gui-tick #20 gapMs=1000
+11-16 01:09:38.615  8262  8297 I OREKI_SCHED: act sacrifice @11379281ms gap=1024 taskGap=-1
+11-16 01:09:39.064  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=39 frames=40 targets=9
+11-16 01:09:39.338  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:09:39.519  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:39.595  8262  8297 I OREKI_SCHED: gui-tick #21 gapMs=1000
+11-16 01:09:39.622  8262  8297 I OREKI_SCHED: act infinityUpgrades @11380289ms gap=1008 taskGap=2032
+11-16 01:09:40.076  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:40.609  8262  8297 I OREKI_SCHED: gui-tick #22 gapMs=1000
+11-16 01:09:40.635  8262  8297 I OREKI_SCHED: act infinityUpgrades @11381302ms gap=1013 taskGap=1013
+11-16 01:09:41.123  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=45 targets=9
+11-16 01:09:41.630  8262  8297 I OREKI_SCHED: gui-tick #23 gapMs=1000
+11-16 01:09:41.657  8262  8297 I OREKI_SCHED: act infinityUpgrades @11382323ms gap=1021 taskGap=1021
+11-16 01:09:42.145  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=44 frames=45 targets=9
+11-16 01:09:42.647  8262  8297 I OREKI_SCHED: gui-tick #24 gapMs=1000
+11-16 01:09:42.678  8262  8297 I OREKI_SCHED: act infinityUpgrades @11383344ms gap=1021 taskGap=1021
+11-16 01:09:43.176  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=47 targets=9
+11-16 01:09:43.647  8262  8297 I OREKI_SCHED: gui-tick #25 gapMs=1000
+11-16 01:09:43.703  8262  8297 I OREKI_SCHED: act infinityUpgrades @11384370ms gap=1026 taskGap=1026
+11-16 01:09:44.193  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=46 frames=47 targets=9
+11-16 01:09:44.667  8262  8297 I OREKI_SCHED: gui-tick #26 gapMs=1000
+11-16 01:09:44.727  8262  8297 I OREKI_SCHED: act infinityUpgrades @11385394ms gap=1024 taskGap=1024
+11-16 01:09:45.217  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=42 frames=43 targets=9
+11-16 01:09:45.696  8262  8297 I OREKI_SCHED: gui-tick #27 gapMs=1000
+11-16 01:09:45.735  8262  8297 I OREKI_SCHED: act infinityUpgrades @11386401ms gap=1007 taskGap=1007
+11-16 01:09:46.234  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=39 frames=40 targets=9
+11-16 01:09:46.698  8262  8297 I OREKI_SCHED: gui-tick #28 gapMs=1000
+11-16 01:09:46.760  8262  8297 I OREKI_SCHED: act infinityUpgrades @11387426ms gap=1025 taskGap=1025
+11-16 01:09:47.243  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:09:47.719  8262  8297 I OREKI_SCHED: gui-tick #29 gapMs=1000
+11-16 01:09:47.780  8262  8297 I OREKI_SCHED: act infinityUpgrades @11388446ms gap=1020 taskGap=1020
+11-16 01:09:48.262  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:09:48.729  8262  8297 I OREKI_SCHED: gui-tick #30 gapMs=1000
+11-16 01:09:48.790  8262  8297 I OREKI_SCHED: act infinityUpgrades @11389457ms gap=1011 taskGap=1011
+11-16 01:09:49.317  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=27 frames=29 targets=9
+11-16 01:09:49.340  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:09:49.669  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:49.752  8262  8297 I OREKI_SCHED: gui-tick #31 gapMs=1000
+11-16 01:09:49.808  8262  8297 I OREKI_SCHED: noop reality
+11-16 01:09:49.815  8262  8297 I OREKI_SCHED: act infinityUpgrades @11390481ms gap=1024 taskGap=1024
+11-16 01:09:50.324  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=31 frames=32 targets=9
+11-16 01:09:50.773  8262  8297 I OREKI_SCHED: gui-tick #32 gapMs=1000
+11-16 01:09:50.849  8262  8297 I OREKI_SCHED: act infinityUpgrades @11391515ms gap=1034 taskGap=1034
+11-16 01:09:51.384  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=32 frames=34 targets=9
+11-16 01:09:51.795  8262  8297 I OREKI_SCHED: gui-tick #33 gapMs=1000
+11-16 01:09:51.855  8262  8297 I OREKI_SCHED: act infinityUpgrades @11392521ms gap=1006 taskGap=1006
+11-16 01:09:52.396  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=31 frames=32 targets=9
+11-16 01:09:52.814  8262  8297 I OREKI_SCHED: gui-tick #34 gapMs=1000
+11-16 01:09:52.869  8262  8297 I OREKI_SCHED: act infinityUpgrades @11393535ms gap=1014 taskGap=1014
+11-16 01:09:53.406  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=30 frames=31 targets=9
+11-16 01:09:53.830  8262  8297 I OREKI_SCHED: gui-tick #35 gapMs=1000
+11-16 01:09:53.899  8262  8297 I OREKI_SCHED: act infinityUpgrades @11394566ms gap=1031 taskGap=1031
+11-16 01:09:54.423  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=31 frames=33 targets=9
+11-16 01:09:54.841  8262  8297 I OREKI_SCHED: gui-tick #36 gapMs=1000
+11-16 01:09:54.936  8262  8297 I OREKI_SCHED: act infinityUpgrades @11395603ms gap=1037 taskGap=1037
+11-16 01:09:55.440  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=26 frames=27 targets=9
+11-16 01:09:55.848  8262  8297 I OREKI_SCHED: gui-tick #37 gapMs=1000
+11-16 01:09:55.959  8262  8297 I OREKI_SCHED: act infinityUpgrades @11396626ms gap=1023 taskGap=1023
+11-16 01:09:56.520  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=33 frames=35 targets=9
+11-16 01:09:56.885  8262  8297 I OREKI_SCHED: gui-tick #38 gapMs=1000
+11-16 01:09:56.975  8262  8297 I OREKI_SCHED: act infinityUpgrades @11397642ms gap=1016 taskGap=1016
+11-16 01:09:57.522  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=24 frames=25 targets=9
+11-16 01:09:57.900  8262  8297 I OREKI_SCHED: gui-tick #39 gapMs=1000
+11-16 01:09:57.977  8262  8297 I OREKI_SCHED: act infinityUpgrades @11398644ms gap=1002 taskGap=1002
+11-16 01:09:58.545  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=32 frames=33 targets=9
+11-16 01:09:58.903  8262  8297 I OREKI_SCHED: gui-tick #40 gapMs=1000
+11-16 01:09:58.990  8262  8297 I OREKI_SCHED: act infinityUpgrades @11399657ms gap=1013 taskGap=1013
+11-16 01:09:59.347  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:09:59.582  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=29 frames=30 targets=9
+11-16 01:09:59.794  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:09:59.911  8262  8297 I OREKI_SCHED: gui-tick #41 gapMs=1000
+11-16 01:09:59.991  8262  8297 I OREKI_SCHED: act infinityUpgrades @11400657ms gap=1000 taskGap=1000
+11-16 01:10:00.610  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=32 frames=34 targets=9
+11-16 01:10:00.938  8262  8297 I OREKI_SCHED: gui-tick #42 gapMs=1000
+11-16 01:10:01.008  8262  8297 I OREKI_SCHED: act infinityUpgrades @11401674ms gap=1017 taskGap=1017
+11-16 01:10:01.656  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=30 frames=32 targets=9
+11-16 01:10:01.944  8262  8297 I OREKI_SCHED: gui-tick #43 gapMs=1000
+11-16 01:10:02.034  8262  8297 I OREKI_SCHED: act infinityUpgrades @11402700ms gap=1026 taskGap=1026
+11-16 01:10:02.705  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=35 frames=37 targets=9
+11-16 01:10:02.972  8262  8297 I OREKI_SCHED: gui-tick #44 gapMs=1000
+11-16 01:10:03.035  8262  8297 I OREKI_SCHED: act infinityUpgrades @11403702ms gap=1002 taskGap=1002
+11-16 01:10:03.724  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=46 targets=9
+11-16 01:10:03.988  8262  8297 I OREKI_SCHED: gui-tick #45 gapMs=1000
+11-16 01:10:04.043  8262  8297 I OREKI_SCHED: act infinityUpgrades @11404710ms gap=1008 taskGap=1008
+11-16 01:10:04.747  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=44 frames=45 targets=9
+11-16 01:10:04.996  8262  8297 I OREKI_SCHED: gui-tick #46 gapMs=1000
+11-16 01:10:05.058  8262  8297 I OREKI_SCHED: act infinityUpgrades @11405724ms gap=1014 taskGap=1014
+11-16 01:10:05.763  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=39 frames=40 targets=9
+11-16 01:10:06.012  8262  8297 I OREKI_SCHED: gui-tick #47 gapMs=1000
+11-16 01:10:06.067  8262  8297 I OREKI_SCHED: act infinityUpgrades @11406733ms gap=1009 taskGap=1009
+11-16 01:10:06.805  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=31 frames=34 targets=9
+11-16 01:10:07.023  8262  8297 I OREKI_SCHED: gui-tick #48 gapMs=1000
+11-16 01:10:07.085  8262  8297 I OREKI_SCHED: act infinityUpgrades @11407751ms gap=1018 taskGap=1018
+11-16 01:10:07.844  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=41 targets=9
+11-16 01:10:08.025  8262  8297 I OREKI_SCHED: gui-tick #49 gapMs=1000
+11-16 01:10:08.088  8262  8297 I OREKI_SCHED: act infinityUpgrades @11408754ms gap=1003 taskGap=1003
+11-16 01:10:08.856  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=37 frames=39 targets=9
+11-16 01:10:09.026  8262  8297 I OREKI_SCHED: gui-tick #50 gapMs=1000
+11-16 01:10:09.101  8262  8297 I OREKI_SCHED: act infinityUpgrades @11409768ms gap=1014 taskGap=1014
+11-16 01:10:09.356  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:10:09.889  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=31 frames=32 targets=9
+11-16 01:10:09.932  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:10:10.047  8262  8297 I OREKI_SCHED: gui-tick #51 gapMs=1000
+11-16 01:10:10.107  8262  8297 I OREKI_SCHED: act infinityUpgrades @11410773ms gap=1005 taskGap=1005
+11-16 01:10:10.920  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:10:11.071  8262  8297 I OREKI_SCHED: gui-tick #52 gapMs=1000
+11-16 01:10:11.128  8262  8297 I OREKI_SCHED: act infinityUpgrades @11411795ms gap=1022 taskGap=1022
+11-16 01:10:11.894  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=32 frames=33 targets=9
+11-16 01:10:12.096  8262  8297 I OREKI_SCHED: gui-tick #53 gapMs=1000
+11-16 01:10:12.160  8262  8297 I OREKI_SCHED: act infinityUpgrades @11412826ms gap=1031 taskGap=1031
+11-16 01:10:12.937  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=44 frames=45 targets=9
+11-16 01:10:13.102  8262  8297 I OREKI_SCHED: gui-tick #54 gapMs=1000
+11-16 01:10:13.185  8262  8297 I OREKI_SCHED: act infinityUpgrades @11413851ms gap=1025 taskGap=1025
+11-16 01:10:13.952  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=36 frames=37 targets=9
+11-16 01:10:14.117  8262  8297 I OREKI_SCHED: gui-tick #55 gapMs=1000
+11-16 01:10:14.191  8262  8297 I OREKI_SCHED: act infinityUpgrades @11414858ms gap=1007 taskGap=1007
+11-16 01:10:14.961  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=34 frames=35 targets=9
+11-16 01:10:15.118  8262  8297 I OREKI_SCHED: gui-tick #56 gapMs=1000
+11-16 01:10:15.199  8262  8297 I OREKI_SCHED: act infinityUpgrades @11415865ms gap=1007 taskGap=1007
+11-16 01:10:15.996  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=38 frames=40 targets=9
+11-16 01:10:16.127  8262  8297 I OREKI_SCHED: gui-tick #57 gapMs=1000
+11-16 01:10:16.213  8262  8297 I OREKI_SCHED: act infinityUpgrades @11416879ms gap=1014 taskGap=1014
+11-16 01:10:17.017  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=41 targets=9
+11-16 01:10:17.144  8262  8297 I OREKI_SCHED: gui-tick #58 gapMs=1000
+11-16 01:10:17.240  8262  8297 I OREKI_SCHED: act infinityUpgrades @11417906ms gap=1027 taskGap=1027
+11-16 01:10:18.029  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=39 frames=40 targets=9
+11-16 01:10:18.173  8262  8297 I OREKI_SCHED: gui-tick #59 gapMs=1000
+11-16 01:10:18.259  8262  8297 I OREKI_SCHED: act infinityUpgrades @11418925ms gap=1019 taskGap=1019
+11-16 01:10:19.043  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=45 frames=46 targets=9
+11-16 01:10:19.193  8262  8297 I OREKI_SCHED: gui-tick #60 gapMs=1000
+11-16 01:10:19.275  8262  8297 I OREKI_SCHED: act infinityUpgrades @11419942ms gap=1017 taskGap=1017
+11-16 01:10:19.369  8262  8297 I OREKI_SCHED: deny noop-retry-wait task=reality
+11-16 01:10:20.055  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:10:20.057  8262  8297 I OREKI_SCHED: stagecap cap=1 configured=10 effective=1 realities=0.0e0（实际节拍按 min(配置,阶段上限)，配置值不变）
+11-16 01:10:20.216  8262  8297 I OREKI_SCHED: gui-tick #61 gapMs=1000
+11-16 01:10:20.277  8262  8297 I OREKI_SCHED: noop reality
+11-16 01:10:20.279  8262  8297 I OREKI_SCHED: act infinityUpgrades @11420945ms gap=1003 taskGap=1003
+11-16 01:10:21.079  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:10:21.236  8262  8297 I OREKI_SCHED: gui-tick #62 gapMs=1000
+11-16 01:10:21.292  8262  8297 I OREKI_SCHED: act infinityUpgrades @11421958ms gap=1013 taskGap=1013
+11-16 01:10:22.089  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=43 frames=44 targets=9
+11-16 01:10:22.254  8262  8297 I OREKI_SCHED: gui-tick #63 gapMs=1000
+11-16 01:10:22.316  8262  8297 I OREKI_SCHED: act infinityUpgrades @11422983ms gap=1025 taskGap=1025
+11-16 01:10:23.121  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=40 frames=42 targets=9
+11-16 01:10:23.282  8262  8297 I OREKI_SCHED: gui-tick #64 gapMs=1000
+11-16 01:10:23.338  8262  8297 I OREKI_SCHED: act infinityUpgrades @11424005ms gap=1022 taskGap=1022
+11-16 01:10:24.160  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=41 frames=42 targets=9
+11-16 01:10:24.297  8262  8297 I OREKI_SCHED: gui-tick #65 gapMs=1000
+11-16 01:10:24.365  8262  8297 I OREKI_SCHED: act infinityUpgrades @11425032ms gap=1027 taskGap=1027
+11-16 01:10:25.174  8262  8262 I OREKI_UIFRAME: UI_FRAME_PUMP fps=30 frames=31 targets=9
+11-16 01:10:25.298  8262  8297 I OREKI_SCHED: gui-tick #66 gapMs=1000
+11-16 01:10:25.380  8262  8297 I OREKI_SCHED: act infinityUpgrades @11426047ms gap=1015 taskGap=1015

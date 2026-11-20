@@ -1,4 +1,6 @@
-# PROJECT PAUSED — AD-Oreki-Edition-Android
+# 历史暂停记录 — AD-Oreki-Edition-Android
+
+> **历史归档**：本文件记录 R102 时期的暂停背景，已由用户于 2026-11-20 明确启动的 R120-01 当前执行状态取代。当前状态以 [AGENTS.md](AGENTS.md) 与 [README.md](README.md) 为准；本文件不再禁止当前授权范围，也不会恢复其他历史任务。
 
 - 暂停日期：2026-11-12（Asia/Hong_Kong）13:42（DeepSeek 高峰前收尾，14:00–18:00 停止 DeepSeek 开发）
 - 项目状态：R102 进行中；P0-01 插件 PR 已提交（#4）；P0-03 原档死锁修复+原版同档对照完成；P0-02（官方新档对照未做）/P0-04/P1 未完成

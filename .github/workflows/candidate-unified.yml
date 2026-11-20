@@ -258,7 +258,8 @@ jobs:
           # scripts/fixture_strategy_semantics.py and scripts/gen_smart_strategy.py
           # resolve WORKSPACE = <repo>/<repo>/../.. — one level above the Actions workspace —
           # then read web/AD-Oreki-Edition/src/core/*.json. Link that path at the pinned
-          # Web checkout so the fixture, the generator and build_mod.py read one file.
+          # Web checkout so the fixtures and the tutorial freshness check read one file.
+          # (R114-02 C1: build_mod.py 不再在构建期生成教程资产，也不再读该 JSON。)
           target="$GITHUB_WORKSPACE/../web/AD-Oreki-Edition"
           mkdir -p "$(dirname "$target")"
           ln -sfn "$GITHUB_WORKSPACE/web/AD-Oreki-Edition" "$target"
@@ -266,6 +267,14 @@ jobs:
             test -s "$target/$f" || { echo "::error::Missing Web build input $f"; exit 1; }
           done
           echo "::notice::Web build inputs linked from the pinned checkout"
+      - name: Verify the committed tutorial asset matches the pinned Web single source
+        working-directory: source
+        run: |
+          set -euo pipefail
+          # R114-02 C1（Issue #52）：生产构建不再从 Web JSON 生成教程资产，只消费已提交字节。
+          # 这里对**钉住的 Web 检出**做逐字节重生成比对，防止提交物落后于单源 JSON
+          # 而静默发布旧教程（freshness 由候选链 fail-closed 把关）。
+          python3 scripts/verify_tutorial_zh.py | tail -n 6
 
       - name: Link the private decoded baseline used by existing fixtures
         env:
@@ -358,6 +367,19 @@ jobs:
           ln -s "$tree" source/work/mod
           echo "::notice::AGP full-game inputs verified (jar=$actual)"
 
+      - name: Verify tree-level build contracts on the pinned full-game tree
+        working-directory: source
+        run: |
+          set -euo pipefail
+          # R114-02 C4b（Issue #52）：树级 verify_* 已迁出 build_mod，改由这里在
+          # 「pinned full-game tree 就位之后、AGP 打包之前」独立执行，失败即阻断候选。
+          # 公开源码 CI 没有树，脚本对这些检查显式 SKIP（不假装执行）。
+          test -d work/mod || { echo '::error::work/mod missing after staging pinned tree'; exit 1; }
+          python3 scripts/verify_build_contracts.py \
+            --mod-tree work/mod --decoded-tree "$OREKI_BASE" \
+            --legacy-base "$OREKI_LEGACY_BASELINE_DIR" \
+            --json build/verify-tree-contracts.json
+
       - name: Build AGP 9.5.1 full-game release APK
         working-directory: source
         env:
@@ -373,6 +395,36 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/candidate"
           cp "$apk" "$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
           echo "::notice::AGP candidate APK staged"
+
+      - name: Re-sign AGP APK with both v2 and v3 schemes
+        working-directory: source
+        env:
+          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
+        run: |
+          set -euo pipefail
+          keystore="$RUNNER_TEMP/oreki-keys/oreki.jks"
+          test -s "$keystore" || { echo '::error::Missing staged production keystore'; exit 1; }
+          signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          test -n "$signer"
+          apk="$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
+          test -s "$apk"
+          # AGP 9.5.1 无论 signingConfig 如何配置都只输出单一种签名方案（v2-only 或 v3-only）；
+          # verify_release.py 硬性要求 v2+v3。这里用同一生产 keystore 重签，证书/包名/版本不变。
+          # --min-sdk-version 24 是必需的：apksigner 会按 APK manifest 的 minSdk(32) 省略 v2 块，
+          # 只有显式声明 24 才会同时写入 v2+v3（本地实测；v2-only/v3-only 输入均验证通过）。
+          "$signer" sign --ks "$keystore" --ks-key-alias oreki             --ks-pass env:OREKI_KS_PASS --key-pass env:OREKI_KS_PASS             --min-sdk-version 24             --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true             --out "$apk.resigned" "$apk"
+          mv "$apk.resigned" "$apk"
+          "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$apk" > "$GITHUB_WORKSPACE/candidate/signature-probe.txt"
+          grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
+            echo "::error::APK is missing v2 signature"; exit 1;
+          }
+          grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
+            echo "::error::APK is missing v3 signature"; exit 1;
+          }
+          grep -Fq "$EXPECTED_CERT_SHA256" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
+            echo "::error::Re-signing certificate does not match the existing stable APK"; exit 1;
+          }
+          echo "::notice::APK re-signed with v2+v3 using the production keystore"
 
       - name: Prepare APK tool report for contract verifiers
         working-directory: source
@@ -438,7 +490,7 @@ jobs:
           signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
           test -n "$signer"
           cand="$GITHUB_WORKSPACE/candidate"
-          "$signer" verify --verbose --print-certs "$cand/antimatter-dimensions.apk" > "$cand/signature.txt"
+          "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$cand/antimatter-dimensions.apk" > "$cand/signature.txt"
           grep -Fq "$EXPECTED_CERT_SHA256" "$cand/signature.txt" || {
             echo "::error::Signing certificate does not match the existing stable APK"
             exit 1

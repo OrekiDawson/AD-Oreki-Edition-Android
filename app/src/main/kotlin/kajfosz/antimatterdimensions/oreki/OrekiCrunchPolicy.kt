@@ -82,7 +82,10 @@ object OrekiCrunchPolicy {
      * 让反物质真正长起来；一旦某次结算让 IP 翻倍以上，窗口立即回到起点。
      * 全部判定读原版真实状态，不改存档、不伪造资源。
      */
-    private const val ETERNITY_GROW_START_SECONDS: Double = 60.0
+    // [R116-02-01] 真新档实测：60 秒窗口内反物质只长到 maxAM≈e1050（IP +35 数量级），
+    // 到 1.8e308 需要 maxAM≈e9240 ⇒ 约 500-600 秒真实成长。起始窗口直接给 600 秒，
+    // 让「一次坍缩 = 一次跨过永恒门槛」，而不是 60 秒一次慢慢爬（R114-01 通关路径等价）。
+    private const val ETERNITY_GROW_START_SECONDS: Double = 600.0
 
     /** 成长窗口上限（秒）：30 分钟真墙钟；配合 2.4e12ns 的等待上限兜底。 */
     private const val ETERNITY_GROW_MAX_SECONDS: Double = 1800.0
@@ -93,11 +96,16 @@ object OrekiCrunchPolicy {
     /** 当前成长窗口（秒）；跨帧保留，成功跃升后回落到起点。 */
     private var eternityGrowSeconds: Double = ETERNITY_GROW_START_SECONDS
 
+
     /** 上一次窗口结算时的 IP log10；用于判断这一窗口是否「值得」。 */
     private var lastCycleIpLog10: Double? = null
 
     /** 上次永恒层周期结算/收益结算的时刻（nanoTime）；0 = 未初始化。 */
     private var lastEternityCycleAt: Long = 0L
+
+    /** [R116-01 P0] canEternity hold 的上限：超时仍无结算就放行一次增长，避免无限停滞。 */
+    private const val ETERNITY_HOLD_MAX_MS = 180_000L
+    @Volatile private var eternityHoldStartedAt: Long = 0L
 
     /** [R99] 当前永恒层成长窗口（秒），供 `OrekiStageAuto` 写入坍缩间隔。 */
     @JvmStatic
@@ -125,15 +133,58 @@ object OrekiCrunchPolicy {
         return decision
     }
 
+    /**
+     * [R116-01 P0] 是否已经完成过至少一次现实（`Player.realities > 0`）。
+     *
+     * 只读原版真实字段；读不到返回 false（fail-closed，退回改动前的行为）。
+     * 用途：区分「真新档首次永恒之前」与「现实循环内的本现实 EP=0」——
+     * 后者同样满足 `eternitiesZero()`，但绝不能按新档爬坡策略高频坍缩。
+     */
+    private fun hasReality(): Boolean {
+        val realities = GameApi.realitiesValue()
+        if (realities == null) {
+            // fail-safe：读不到 realities 时按「已进入现实循环」处理，走永恒层收益驱动。
+            // 新档走该分支不会死锁（仍会等待 maxAM 成长后放行），而退回高频坍缩分支
+            // 正是本类要修的死锁路径，因此这里不能 fail-closed。
+            logReadFailure("hasReality", "realities=null")
+            return true
+        }
+        val cmp = GameApi.compareToDouble(realities, 0.0)
+        if (cmp == null) {
+            logReadFailure("hasReality", "compareToDouble=null realities=" + realities)
+            return true
+        }
+        return cmp > 0
+    }
+
+    /** 读取失败限频日志：区分「API 读不到」与「值不达标」，便于线上排查。 */
+    private fun logReadFailure(where: String, detail: String) {
+        val now = System.nanoTime()
+        if (now - lastReadFailureAt < 30_000_000_000L) return
+        lastReadFailureAt = now
+        Log.w(TAG, "read-failure " + where + " " + detail)
+    }
+
+    @Volatile private var lastReadFailureAt: Long = 0L
+
     private fun evaluate(): Decision {
         if (GameApi.inAnyChallenge()) {
             return Decision(true, "challenge-running")
         }
-        if (!GameApi.hasInfinity()) {
+        // [R116-02-01 真新档实测修复] 永恒层必须跳过 pre-* 快路径：
+        // Reality 会重置 Break（isBroken=false），于是 pre-infinity / pre-break-ip
+        // 每帧无条件放行，实测 272 秒内 infinities +3000 万，把 600 秒成长窗口架空，
+        // Reality 后 IP 只有约 2.5 数量级/分钟。
+        // [R116-03-02 失败安全] realities 读取失败时按「已在永恒层」处理，
+        // 否则会退回 pre-infinity / pre-break-ip 的每帧放行分支（R116-02 已观测到该路径清空 maxAM）。
+        val realitiesCmp = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+        val inEternityLayer = !OrekiStageAuto.eternitiesZero() ||
+            realitiesCmp == null || realitiesCmp > 0
+        if (!inEternityLayer && !GameApi.hasInfinity()) {
             return Decision(true, "pre-infinity")
         }
-        if (!GameApi.isBroken()) {
-            // 首次 Break 之前：坍缩是攒 IP / 买满间隔的唯一入口
+        if (!inEternityLayer && !GameApi.isBroken()) {
+            // 首次 Break 之前（且未进入永恒层）：坍缩是攒 IP / 买满间隔的唯一入口
             return Decision(true, "pre-break-ip")
         }
         // [R96 第四轮] 永恒层（首次永恒后、膨胀前）**不再无条件放行**。
@@ -145,37 +196,48 @@ object OrekiCrunchPolicy {
         // maxAM 平台 1e124044、首个永恒升级（5 EP）永远买不起。
         // 现在与首次永恒前共用同一套收益驱动：只有「一次坍缩至少让 IP 涨 10 倍」才结算，
         // 否则按住让维度/星系长起来；永恒门槛达标时也放行一次，保证 EP 循环不断。
-        if (!OrekiStageAuto.eternitiesZero()) {
+        // [R116-01 P0] 现实重置会把 EP / 永恒升级 / bigEternities 真实清零，但存档已经
+        // 进入过现实循环，并不是「真新档首次永恒之前」。旧实现只用 eternitiesZero()
+        // 判定，现实后的存档因此被误判成新档爬坡，落入下面的首次永恒目标驱动分支：
+        // 高频坍缩让 thisInfinity.maxAM 来不及成长，单次 gainedInfinityPoints 极小，
+        // IP 冻结在 1e112 量级、canEternity 永不成立 ⇒ 永恒链永久停摆。
+        // 真机证据：R115-01 的 180 分钟真新档长跑中，realities 在首次现实后长时间不再增长，
+        // 终态 eternities=0 / EP=0 / IP 停在 1e112 量级；而同期同基线、在重置前已积累
+        // 大量本现实永恒的 R114-01 跑次可以通关。完整时间线与 APK 身份见 PR 描述与
+        // reports/R115-01/（源码注释不固化一次性证据）。
+        // 因此：只要 realities > 0，就按永恒层收益驱动（等待 maxAM 成长 / 一次坍缩值得才放行）。
+        if (!OrekiStageAuto.eternitiesZero() || hasReality()) {
             // [R101 P0] 用户原档：autoBig TIME=60×10000 时旧 ip-jump 每 5 秒放行，
             // 反复重置 IP/maxIP。未达到 canEternity 时，只有原版投影
             // gainedInfinityPoints() 达到 1.797e308 才放行；否则等待 maxAM 成长。
-            if (GameApi.canEternity()) {
-                waitStartedAt = 0L
-                return Decision(true, "eternity-ready")
-            }
-            val projectedEternityIp = GameApi.log10BigDouble(GameApi.gainedInfinityPoints())
-            if (projectedEternityIp != null && projectedEternityIp < ETERNITY_IP_LOG10) {
-                return waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)
-            }
-            if (projectedEternityIp != null) {
-                waitStartedAt = 0L
-                return Decision(true, "eternity-ip-ready")
-            }
-            // 只看「这一次坍缩值不值得」：收益 ≥10× 当前 IP 才结算。
-            // 刻意**不**用 canEternity 当放行理由：永恒层里 canEternity 长期为真
-            // （maxIP 早已过 1.797e308），而真正决定能否结算的是 OrekiEternity 的
-            // 「gainedEP ≥ 10×EP」门槛；用它放行等于又回到无条件坍缩（实测 maxIP 平台 1e593）。
-            val leapEternity = gainVersusIp()
-            if (leapEternity != null && leapEternity >= 1.0) {
-                waitStartedAt = 0L
-                lastEternityCycleAt = System.nanoTime()
-                // [R99] 一次真正的大跃升：窗口回落到起点，重新按需扩张。
-                if (eternityGrowSeconds > ETERNITY_GROW_START_SECONDS) {
-                    Log.i(TAG, "eternity jump rewarded -> window reset to " + ETERNITY_GROW_START_SECONDS + "s")
-                    eternityGrowSeconds = ETERNITY_GROW_START_SECONDS
+            // [R116-02-01] hold 只在「当前 IP 已到 1.8e308」时生效：canEternity 读的是
+            // maxIP 记录（跨 eternity），reality 后 IP 重置为 0 时它仍可能为真，若此时 hold
+            // 会与 eternity-ip-ready 每 300ms 交替（实测 interval 在 5/3600 间抖动、
+            // autobuyer 每秒约 1.3 次坍缩、maxAM 无法成长），IP 增速反而被压制。
+            if (GameApi.canEternity() && (GameApi.log10BigDouble(GameApi.infinityPoints()) ?: 0.0) >= ETERNITY_IP_LOG10) {
+                // [R116-01 P0] canEternity 为真且 IP 已达标时**不得放行坍缩**：一次坍缩会立刻
+                // 把 IP 重置，门禁在下一帧就看不到资格。hold 有 180s 上限（Codex P1），
+                // 避免自动永恒被关闭或 EP 门槛拒绝时无限停滞。
+                val holdNow = android.os.SystemClock.elapsedRealtime()
+                if (eternityHoldStartedAt == 0L) eternityHoldStartedAt = holdNow
+                if (holdNow - eternityHoldStartedAt < ETERNITY_HOLD_MAX_MS) {
+                    return Decision(false, "eternity-hold")
                 }
-                return Decision(true, "eternity-ip-jump")
+                eternityHoldStartedAt = 0L
+                return Decision(true, "eternity-hold-timeout")
             }
+            eternityHoldStartedAt = 0L
+            // [R116-02-01 简化] autobuyer 保持 active，由 TIME interval 决定结算节奏。
+            // [待 3.21 核对] 「pause 期间 autobuyer 不计时」「TIME interval 以真实秒计」目前是
+            // 推断 + 旧包实测混合结论；尚未在官方 3.21 包上逐字段核对 auto.bigCrunch 的
+            // mode/time/interval 语义。若基线语义不同，本策略仍需再次调整，见 Issue #163。
+            return Decision(true, "eternity-window")
+            // [R116-02-01 修复] 投影与 gainVersusIp() 都基于 gainedInfinityPoints() 的投影值，
+            // 而该投影在高频坍缩下可达 e1.2e6、实际单次结算只涨几十个数量级（实测）。
+            // 只要投影 ≥ 门槛就会每帧放行，等于让 autobuyer 永久高频运行、600 秒窗口失效
+            // （实测 infinities 每秒 +100 万、IP 只涨 0.3 数量级/秒）。
+            // 因此永恒层不再用任何投影值放行，统一由下面的「自适应成长窗口」控制：
+            // 窗口内一律等待，到期才放行一帧让 autobuyer 真正结算一次。
             // [R99] 自适应成长窗口（替代固定 30 秒周期）。
             //
             // 固定 30 秒时反物质每次只长到 e24321 就被清空 ⇒ 单次坍缩收益恒定
@@ -223,11 +285,19 @@ object OrekiCrunchPolicy {
         // `thisEternity.maxIP ≥ eternityGoal(1.797e308)`，只等峰值永远到不了。
         // 现在按「这一拍坍缩值不值得」排序，全部读原版真实状态。
 
-        // 1) 已经够永恒：立刻放行，让原版 canEternity + 自动永恒结算。
+        // 1) 已经够永恒：暂停坍缩，让原版 canEternity + 自动永恒在下一帧完成结算。
+        //    放行坍缩会把 IP 立刻重置，门禁与 180s 驻留都会错过资格（R116-01 实测）。
         if (GameApi.canEternity()) {
-            waitStartedAt = 0L
-            return Decision(true, "eternity-ready")
+            // 首永恒前同样 hold，但保留 180s 上限，避免门禁不结算时永久停滞（Codex P1）。
+            val holdNow = android.os.SystemClock.elapsedRealtime()
+            if (eternityHoldStartedAt == 0L) eternityHoldStartedAt = holdNow
+            if (holdNow - eternityHoldStartedAt < ETERNITY_HOLD_MAX_MS) {
+                return Decision(false, "eternity-hold")
+            }
+            eternityHoldStartedAt = 0L
+            return Decision(true, "eternity-hold-timeout")
         }
+        eternityHoldStartedAt = 0L
 
         // 2) 下一次坍缩至少让 IP 涨一个数量级 → 立刻结算，保持 IP 增长循环。
         //    这一条必须排在「等 ID 峰值」之前：实测 ID6→ID7 的峰值要 +8141 指数

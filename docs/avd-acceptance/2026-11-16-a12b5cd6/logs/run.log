@@ -1,0 +1,43 @@
+[01:05:54] candidate=/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/candidate-43735315296/ad-oreki-candidate/antimatter-dimensions.apk
+a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87  /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/candidate-43735315296/ad-oreki-candidate/antimatter-dimensions.apk
+[1/5] 崩溃/签名/版本静态核查
+package: name='com.oreki.antimatterdimensions' versionCode='30210001' versionName='3.21.0' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v3.2 scheme (APK Signature Scheme v3.2): false
+V3.0 Signer: certificate SHA-256 digest: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
+[2/5] avd_gate（install-upgrade/launch/new-save/restart-load/persist）
+DRY-RUN（未操作设备）。计划：
+{
+  "device": "emulator-5554",
+  "apk": "/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/candidate-43735315296/ad-oreki-candidate/antimatter-dimensions.apk",
+  "apk_sha256": "a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87",
+  "apk_bytes": 81587691,
+  "mode": "all",
+  "allow_clear": true,
+  "allow_root": false,
+  "execute": false,
+  "steps": [
+    "preflight",
+    "install",
+    "cold-start",
+    "new-save",
+    "restart-load",
+    "finalize"
+  ],
+  "authorization_env": "1"
+}
+
+执行前必须由 Lead 设置 OREKI_AVD_GATE_AUTHORIZED=1 并加 --execute。
+avd_gate rc=0
+[3/5] 截图（主界面/设置/自动购买器/深色主题）
+total 1364
+drwx------ 2 oreki oreki    4096 Nov 16 01:05 .
+drwx------ 3 oreki oreki    4096 Nov 16 01:05 ..
+-rw------- 1 oreki oreki 1387522 Nov 16 01:05 01-main.png
+[4/5] 存档存在性与可解析性
+save ok realities= 9.0
+[5/5] logcat 崩溃检查
+0 /home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/reports/R114-01/avd-evidence/acceptance-a12b5cd6/crash.txt
+DONE

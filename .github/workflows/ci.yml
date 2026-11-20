@@ -39,8 +39,29 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_facts_governance.py' -v
       - name: Validate Python build helper syntax
         run: python3 -m compileall -q scripts
-      - name: Ensure DeepSeek AI review and failure triage remain disabled
+      # R114-02 C1（Issue #52）：教程资产的生产路径退役守卫 —— 构建只消费已提交资产，
+      # 生成器/三层断言不再进入生产构建；CI 同时防止「Python 生成器回潮」。
+      - name: Test build_mod tutorial-asset retirement guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_buildmod_tutorial_retirement.py' -v
+      # R114-02 C5（Issue #52）：AST 死代码退役守卫 —— 死代码必须为空，已退役符号不得复活，
+      # 调用链工具的 bm.<attr> 必须真实存在（删函数漏改调用方即红）。
+      - name: Test build_mod dead-code retirement guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_buildmod_dead_code_retirement.py' -v
+      # R114-02 C4（Issue #52）：原本在 build_mod 生产构建期执行的 Kotlin 契约校验
+      # （GameApi 别名 / Break 商店 / AU4b）迁为独立 CI 任务，失败即阻断合并。
+      - name: Verify Kotlin build contracts (migrated out of build_mod)
+        run: |
+          python3 scripts/verify_build_contracts.py
+          python3 scripts/verify_build_contracts.py --selftest
+      - name: Test build-contract verifier migration guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
+      - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
+      - name: Validate cross-repo review, shared quota and Publisher
+        run: |
+          node scripts/tests/test_review_context.mjs
+          node scripts/tests/test_audit_quota.mjs
+          node scripts/tests/test_publish_review.mjs
       - name: Verify DeepSeek off-peak billing calendar and time boundaries
         run: python3 -m unittest discover -s scripts/tests -p 'test_deepseek_pricing.py' -v
       # Existing source baseline has 67 naming violations (first CI run).
@@ -63,7 +84,20 @@ jobs:
             echo "::error::Missing trustworthy Git comparison base for naming-debt guard"
             exit 1
           }
-          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
+          # [R116-02-01] base SHA 可能因 main 重写而不可达：回退到 main 的浅克隆，
+          # 保证命名增量检查在合法比较基上运行，而不是直接判失败。
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA" || \
+            git fetch --no-tags --filter=blob:none --depth=1 origin main
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA=$(git rev-parse FETCH_HEAD)
+            echo "::warning::base $BASE_SHA unreachable; falling back to origin/main=$BASE_SHA"
+          fi
+          # [R116-03-01 Kody] 回退后 BASE_SHA 可能等于 HEAD：此时增量检查会空跑（无 diff ⇒ 恒无违规），
+          # 等于把 fail-closed 的守卫静默变成 always-pass。这里显式拦截，保持 fail-closed。
+          if [ "$BASE_SHA" = "$(git rev-parse HEAD)" ]; then
+            echo "::error::comparison base equals HEAD; naming-debt guard would run vacuously"
+            exit 1
+          fi
           python3 scripts/check_kotlin_naming_delta.py --base "$BASE_SHA"
       - name: Test new source policy guards
         run: python3 -m unittest discover -s scripts/tests -p 'test_repository_policy.py' -v
@@ -80,7 +114,17 @@ jobs:
             echo "::error::Missing trustworthy base SHA for repository policy"
             exit 1
           }
-          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA"
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$BASE_SHA" || \
+            git fetch --no-tags --filter=blob:none --depth=1 origin main
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA=$(git rev-parse FETCH_HEAD)
+            echo "::warning::base $BASE_SHA unreachable; falling back to origin/main=$BASE_SHA"
+          fi
+          # [R116-03-01 Kody] 同 naming 守卫：base 等于 HEAD 时策略检查会空跑，显式 fail-closed。
+          if [ "$BASE_SHA" = "$(git rev-parse HEAD)" ]; then
+            echo "::error::comparison base equals HEAD; repository policy guard would run vacuously"
+            exit 1
+          fi
           python3 scripts/check_repository_policy.py --base "$BASE_SHA" --policy android
       - name: Test staged AGP directory migration policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_directory_layout.py' -v
@@ -111,15 +155,18 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: android-actionlint-${{ runner.os }}-${{ runner.arch }}-v1.7.12
-      # actionlint 必须覆盖仓库内全部工作流：ci.yml 自身与其高频的 pull_request_target 摘要
-      # 工作流此前不在检查列表中，语法/表达式错误只能在运行时暴露。
+      # actionlint 必须覆盖仓库内全部工作流。固定版本尚不识别 GitHub 的
+      # concurrency.queue，仅忽略该已知语法差异，不忽略其他错误。
       - name: Lint every repository workflow with pinned actionlint
         run: |
           go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 \
+            -ignore 'unexpected key "queue"' \
             .github/workflows/ci.yml \
             .github/workflows/candidate-unified.yml \
+            .github/workflows/codex-deepseek-review.yml \
             .github/workflows/r8-experiment.yml \
             .github/workflows/pr-review-summary.yml \
+            .github/workflows/kody-trigger.yml \
             .github/workflows/verify-unified.yml \
             .github/workflows/release-gate-unified.yml \
             .github/workflows/release-unified.yml \
@@ -138,6 +185,8 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_unified_release_*.py' -v
       - name: Test dev-machine stable pull and atomic local channel
         run: python3 -m unittest discover -s scripts/tests -p 'test_local_pull.py' -v
+      - name: Test acceptance.json builder (fail-closed, no fabricated evidence)
+        run: python3 -m unittest discover -s scripts/tests -p 'test_build_acceptance_json.py' -v
       - name: Test AGP phase-1 parity helpers
         run: python3 -m unittest discover -s scripts/tests -p 'test_agp_parity.py' -v
       - name: Test AGP phase-3 full-game input preparation

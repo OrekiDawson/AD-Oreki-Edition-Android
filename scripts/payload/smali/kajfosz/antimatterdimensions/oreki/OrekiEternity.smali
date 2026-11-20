@@ -507,7 +507,7 @@
     invoke-virtual {v1}, Lkajfosz/antimatterdimensions/BigDouble;->copy()Lkajfosz/antimatterdimensions/BigDouble;
     move-result-object v1
 
-    # [R96 第十三轮] 双端统一为 ×1（EP 至少翻倍就结算）。
+    # [R96 第十三轮] 默认双端统一为 ×1（EP 至少翻倍就结算）。
     #
     # 五轮实测沿革（必须连起来看，单看一次会得出相反结论）：
     #   · 第五轮 ×10：EP 卡死 —— 真因是无限升级买不到 + 坍缩每帧重置（第七轮修）。
@@ -518,6 +518,8 @@
     #   · 第十三轮：EP 预留上线后，×1 的「高频永恒」不再损失 EP（余额被保护到能买升级），
     #     且永恒里程碑（2 次 keepAutobuyers、4 次 keepInfinityUpgrades）靠次数推进，
     #     ×1 能更快拿到 ⇒ 选择 ×1，与 Web 现有实现完全一致。
+    # [R120-01 / Android #184] EC1/EC4 入口未达成时，Kotlin 规则返回 0 以让
+    # 入口资源（永恒次数/无限次数）继续增长；其他阶段仍为 ×1。
     # 只影响结算时机，不改任何收益公式；EP 收益仍由原版 gainedEP 计算。
     #
     # [R96 第十六轮·§67] 倍率判定已迁到 Kotlin（OrekiEternityRules），

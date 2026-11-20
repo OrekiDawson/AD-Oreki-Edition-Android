@@ -8,16 +8,17 @@
 <a id="f-8-3"></a>
 ## 8.3 V（薇）解锁的六项条件与缩放后的取值
 
-> **状态：SUPERSEDED（Android 侧部分）** —— 下列缩放值只在 **Web** 生效；Android 3.21 构建的 `patch_v_unlock_thresholds()` 已按指令暂缓，
-> 实际门槛仍为原版，见 [V 门槛 Android 实际值](#f-v-unlock-thresholds-android)。
+> **状态：SUPERSEDED（Web 数值陈旧 + Android 未应用）** —— 下表为 Web 缩放值的历史快照：`realities` 旧值 200 已被
+> Web 现行 **60** 取代（v.js:65-67，R37-A 下调）；Android 3.21 构建的 `patch_v_unlock_thresholds()` 已按指令暂缓、
+> 实际门槛仍为原版。权威值见 [V 门槛 Android 实际值](#f-v-unlock-thresholds-android) 与 [双端常量对账](mechanics.md#f-parity-constants-2026-11-16)。
 
 `VUnlocks.vAchievementUnlock.requirement()` = 六项 `mainUnlock` 的
 `.every(e => e.progress() >= 1)`（`src/core/secret-formula/celestials/v.js:230-235`）。
-Oreki Edition 缩放后（`v.js:43-45`）：
+Oreki Edition 缩放后（`v.js:65-67`）：
 
 | 项 | 缩放值 | 常量 |
 |---|---|---|
-| realities | 200 | `OREKI_V_UNLOCK_REALITIES` |
+| realities | 60（Web 现行；R37-A 由 200 下调） | `OREKI_V_UNLOCK_REALITIES` |
 | dilatedTime | `1e30`（仅 Web；Android 为 1e320，见下条） | `OREKI_V_UNLOCK_DILATED_TIME` |
 | replicanti | `1e20000` | `OREKI_V_UNLOCK_REPLICANTI` |
 | eternities / infinities / realityMachines | 保持原版（`1e70` / `1e160` / `1e60`） | — |
@@ -32,13 +33,17 @@ Oreki Edition 缩放后（`v.js:43-45`）：
 <a id="f-v-unlock-thresholds-android"></a>
 ## V 解锁门槛的 Android 实际值（CONFIRMED，2026-11-15）
 
-> 本条更正 [C.8.3](#f-8-3) 在 Android 侧的适用范围：C.8.3 的 200 / 1e30 / 1e20000 是 **Web** 缩放值，
+> 本条更正 [C.8.3](#f-8-3) 在 Android 侧的适用范围：C.8.3 表格中的 realities=200 为陈旧值，现行 Web 为 **60 / 1e30 / 1e20000**，
 > Android 3.21 构建**未应用**该缩放。把该缩放当作 Android 实际值的说法标 SUPERSEDED，本节为 Android 权威值。
 
 - `[读码]` `scripts/build_mod.py:7035 patch_v_unlock_thresholds()` 在 3.21 基线因 `u55` 不是已验证的 V.mainUnlock 结构
   （缺少 `Ls55` 条目或 `g:List`）**按指令暂缓**（`:7107-7108`），不写缩放常量。
 - `[读码]` Android 3.21 实际 V 门槛仍为原版：**10000 现实 / 1e320 dilatedTime / 1e320000 replicanti**（其余三项同原版）。
   证据：Issue #98 P1-2；`build/build.log:165` 记录暂缓（构建日志未入库，工作树证据路径）。
+- `[读码]` **与 Web 现行值对比（DIFF）**：Web 为 **60 / 1e30 / 1e20000**（`v.js:65-67`）；Android 为 **10000 / 1e320 / 1e320000**，
+  两端不同（R114-02 对账，见 [双端常量对账](mechanics.md#f-parity-constants-2026-11-16)）；Web 的 realities 已由 200 下调为 60（R37-A）。
+- **SUPERSEDED 记录（Web 旧值，不静默删）**：C.8.3 表格中的 `realities=200` 是 Web 旧值，现行 Web 为 **60**；
+  该表已在本轮更正并标 SUPERSEDED；Android 侧缩放从未生效（见上）。
 - `[推断]` 与 [Dilation 缺口](../open-questions.md#f-dilation-gap) 叠加：无膨胀 + 1e320 DT ⇒ V/Ra 结构性不可达（INFERRED，AVD NOT RUN）。
 - `[读码]` 3.21 真类名（私有基线 `work/base_decoded_321/`）：V.mainUnlock 配置类 **w35**（`u35` a..f + `g:List`）、
   显示常量 **fw.n1 / fw.Y2 / fw.y4**、分母类 **xd4**（realities/10000.0、dilatedTime/320.0、replicanti/320000.0）；
@@ -309,3 +314,114 @@ if (MainActivity.yo) {                    // 「浇注按钮被按住」
 - `[实测]` **R114-01 真新档 180 分钟跑次**（logcat `reports/R114-01/avd-evidence/fresh-180min/logcat.txt`，工作树未跟踪/未入库）：
   20:26:53.965 `autoEternity.isActive=false` → **20:27:22.480 `true`（28.515 s 恢复）**，证明托管层在 Reality 复位后把开关补回；
   同期 realities 2→3（t=1901.2 s）→4（t=2603.5 s），`p0-watch.txt` 记录 `P0-ACCEPT realities>=3`。
+
+---
+
+<a id="f-r116-02-01-reality-crunch-cadence"></a>
+## R116-02-01 · Reality 后坍缩节奏：TIME 固定 / hold 抖动 / 60 秒成长窗口（CONFIRMED，2026-11-17）
+
+> 关联：[Issue #163](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/163)（P0 跟踪与实验记录）、
+> [PR #169](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pull/169)（修复，head `8306afc9`）、
+> 上一轮「IP 冻结」根因 [automation/collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)。
+> 基线：main `f178a21e`（PR #162：canEternity hold + 60 s 限流）；触发跑次 `reports/R116-01/avd-evidence/run-180min-30210002/`（`verdict=FAIL_EARLY`）。
+
+### 一、三条根因
+
+1. **bigCrunch 被固定为 TIME 模式（MODE_TIME=1）** `[读码]`
+   - `OrekiStageAuto.kt:81` `MODE_TIME = 1`；`:1885/:1933/:1948` 在托管时 `setCrunchMode(crunch, MODE_TIME)`；
+     `:1839` 是 `OrekiPlayerIntent.refreshCrunchMode(...)`（归属登记，不是写入点）；Break 后 resume interval 固定为
+     `POST_BREAK_RESUME_SECONDS = 5.0`（`:119`、`:1901`、`:1926`）。
+   - 模式判据 `[读码]`：`AUTO_CRUNCH_MODE = { AMOUNT: 0, TIME: 1, X_HIGHEST: 2 }`（Web `src/core/constants.js:202-206`，与 Kotlin `MODE_TIME=1`/`MODE_X_HIGHEST=2` 一致）：
+     AMOUNT = 单次坍缩收益 ≥ **固定 amount 阈值**（`gainedInfinityPoints().gte(this.amount)`）；TIME = 本无限真实时间 > `time` 秒；
+     X_HIGHEST = 单次收益 ≥ 历史最高收益 × `xHighest`（`highestPrevPrestige.times(xHighest)`）。**AMOUNT 不是「上次收益倍数」**（倍数语义只属于 X_HIGHEST）。
+   - 对照 `[读码]（提交记录）`：修复提交 `8306afc9` 记录 R114-01 通关存档为 AMOUNT（amount=e4.6e8、interval=150000）。
+     本轮可复核的**根工作区** `reports/R114-01/device-save-backup/files/`（Android 仓内无此目录）确有 mode=0/interval=150000 快照（`playerBackup2.json`、`speedrunBackup010.json`），
+     但该批备份 realities=0、amount=e0，**不是通关存档** ⇒ amount=e4.6e8 只能按提交记录转写，未独立复核。
+   - 机制影响：MOD 的 `writeManagedCrunchInterval` 写的是 **TIME 模式的 `time` 秒值**（`OrekiStageAuto.kt:735-772`）：恢复时 `time=5.0 s`、暂停时写 3600 s（`eternity-grow` 暂停例外，写自适应窗口，见根因 3）；
+     TIME 下每 5 s 真实时间即可触发坍缩，maxAM 来不及成长；AMOUNT 则等单次收益达到绝对阈值才坍缩
+     （修复注释：60 s 成长可让 maxAM 到 e1.6e9、收益 10^5.4e7）。
+
+2. **`eternity-hold` 与 `eternity-ip-ready` 同帧反复翻转（抖动）** `[实测]（观测）+ [读码]（判据）`
+   - 修复前 hold 判据只要求 `canEternity()`；其判据是 **`records.thisEternity.maxIP ≥ Player.eternityGoal`**
+     （`GameApi.kt:3129`；`GameApi.kt:3178` 注释明确是「本永恒 maxIP」，**不是跨永恒记录**）。
+     机制解释 `[推断]`：`canEternity` 只看 `thisEternity.maxIP`、不看当前 IP 余额；当前 IP 可能低于该记录
+     （本永恒起步时为 0，或被时间研究 / IP 倍率等消费）⇒ canEternity 仍为真 ⇒ 旧 hold 每拍暂停；
+     注：坍缩本身**不**重置 IP 余额（`bigCrunchGiveRewards()` 执行 `Currency.infinityPoints.add(infinityPoints)`，
+     `docs/official_src/big-crunch.js:64-71`）；余额下降的具体消费点本条未取证（`[未知]`）。
+     同拍投影达标的 `eternity-ip-ready` 又放行 ⇒ 同一帧互相覆盖，`time` 在 5/3600 之间抖动（观测：每 300 ms 交替、约 1.3 次/秒）。
+   - 抖动实测窗口在**首次永恒（396.1 s）之后、首次现实（637.4 s）之前**的永恒累积段（样本 21:58:48，t≈419 s）；
+     Reality 之后日志中 `eternity-hold` 计数为 **0**（该段只有 `ip-ready=40` / `rate-limit=40`）。
+     ⇒ Reality 后的主要问题是根因 1/3（TIME 5 s 强制节奏 + 成长窗口不足），不是 hold 抖动。
+   - 实测（`run-180min-30210002/logcat.txt`）：21:58:48.715–.840（125 ms）内出现 `hold-timeout → hold → ip-ready → rate-limit → hold` 五次决策；
+     `OREKI_CRUNCH_DEC` 计数 `eternity-hold=295`、`eternity-rate-limit=333`、`eternity-ip-ready=44`；
+     `OREKI_AU4C`（普通 `Log.i`、无节流；`autoBig paused` 仅在 `isActive` 跳变时打印、`policy -> pause` 仅在 `pauseReason` 变化时打印，故计数低于 `OREKI_CRUNCH_DEC` 是门控所致）中
+     `autoBig paused` 共 458 次（hold 294 + rate-limit 159 + id-peak-wait 5）、`autoBig resumed` 51 次；
+     `managed interval` 写入 108 次，其中 `3600.0 -> 5.0` 49 次、`5.0 -> 3600.0` 48 次 —— 暂停/放行反复翻转的直接频次证据。
+     注：`policy -> interval=5.0s (target-driven)` 只打一次（`targetIntervalInitialized` 惰性标记，`OrekiStageAuto.kt:1922-1925`），**不能**当频次证据。
+   - 计数口径：以上均为**整份 logcat** 统计；Issue #163 正文记录的 rate-limit=309、cannot-eternity=214 是另一统计窗口（口径不同），引用时须注明，不能与本节数字直接比较。
+   - 计数口径更正 `[实测]`：`OREKI_CRUNCH` 的 `crunch detected` 被 `lastCrunchLogAt` 限速为 **≤1 条/秒**（`OrekiStageAuto.kt:1999`），原「22:1x 时段 594 个秒采样、平均 1.13 次/秒」**不可能是该限速窗口内的 `crunch detected` 条数**（限速下 ≤1 条/秒），它来自另一统计窗口/计数对象，不能当作坍缩率或频次证据；提交记录「约 1.3 次/秒」同属未校准口径。可用的未节流证据是 `OREKI_CRUNCH_DEC` 的**决策状态迁移**（`OrekiCrunchPolicy.logOnChange` 仅在 allow/reason 变化时打印，**不是周期打印**，也不是坍缩次数；本观测中相邻迁移恰好相隔 60 s）与 `managed interval` 写入（见根因 3）；二者只证明窗口/放行节奏，不能当作坍缩频次或坍缩次数证据。
+   - 后果：maxAM 被反复清空、单次收益恒定在低量级；终态 `thisInfinity.maxAM` 指数 1.6e9 而 IP 仅 e91（`verdict.bottleneck_evidence`）。
+
+3. **60 秒成长窗口不足** `[实测]`（记录于 `8306afc9` 提交信息与 `OrekiCrunchPolicy.kt` 注释；原始 logcat 未入库）
+   - 60 s 窗口内反物质只长到 maxAM≈e1050 ⇒ 单次坍缩 IP 仅 +35 个数量级；按 div=30 换算，IP 到 1.8e308 需 maxAM≈e9240 ⇒ 约 500–600 秒真实成长。
+   - 修复前等待/放行语义不一致 `[读码]`：`eternity-grow` 有**两条**等待分支——
+     ① `OrekiCrunchPolicy.kt:231` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_NS)`（`ETERNITY_GROW_WAIT_NS=300 s`，触发条件为投影 < 1.8e308）；
+     ② `OrekiCrunchPolicy.kt:300` 的 `waitWithin("eternity-grow", ETERNITY_GROW_WAIT_LIMIT_NS)`（`ETERNITY_GROW_WAIT_LIMIT_NS=2_400_000_000_000L` 即 2400 s，**仅当投影不可读**——`GameApi.log10BigDouble(GameApi.gainedInfinityPoints())` 返回 null——且窗口未到期时触发；投影可读时必然在 `:231` 或 `:237-246` 返回）。
+     两者相差 8 倍，引用「等待窗口不足」结论时必须注明走的是哪条分支（期间均暂停 autobuyer，**反物质仍在增长**）。
+   - 「60 s 成长窗口」的实际来源 `[读码]`：修复前 `eternity-rate-limit` 的最小放行间隔 `ETERNITY_ALLOW_MIN_INTERVAL_MS = 60_000L`（`OrekiCrunchPolicy.kt:103`、`:111-112`、`:237-243`）——每次放行后 60 s 内不允许再次坍缩，期间暂停 autobuyer；放行帧 `OrekiStageAuto.kt:1901-1902` 写入固定 `POST_BREAK_RESUME_SECONDS=5.0`。**5 s 落在 60 s 窗口内部**（从放行时刻起算的下一个 60 s 内），不是与 60 s 相加，故两次放行的间隔为 60 s，成长窗口仍约 60 s。
+     实测口径（30210002，首次现实 22:02:26 之后）：`OREKI_CRUNCH_DEC` 仅在决策状态变化时打印，其 `eternity-ip-ready` / `eternity-rate-limit` 各 40 条、相邻两条严格相隔 60 s（22:02:50、22:03:50 …），`managed interval` 同步 `3600→5→3600`。因此「40」是**决策状态迁移次数**（本观测中相邻迁移相隔 60 s，覆盖约 2400 s），**不是坍缩次数**；它印证的是「60 s 成长窗口」，不能当频次证据。
+   - 暂停路径写入的 TIME 阈值取决于暂停原因 `[读码]`（`OrekiStageAuto.kt:1876-1880`）：`eternity-grow` 写自适应窗口 `OrekiCrunchPolicy.eternityWaitSeconds()`（60 s 起、无收益翻倍即翻倍、上限 1800 s）；`eternity-hold` / `eternity-rate-limit` / `id-peak-wait` 等其余原因写 `CRUNCH_PAUSE_SECONDS = 3600.0`（`:96`）。autobuyer 关闭期间两种取值都不产生坍缩，写入的秒值本身不决定成长时长，**不能**用「暂停阈值 60 s」解释成长窗口。
+   - 修复后：移除 60 s 最小放行间隔（`301f2a92`）；`ETERNITY_GROW_START_SECONDS` 初值 60→600 s，`eternity-grow` 等待时长与 resume 写入共用同一动态窗口（600 s 起、上限 1800 s）。
+
+### 二、修复（PR #169，head `8306afc9`，三个提交）
+
+| commit | 内容 |
+| --- | --- |
+| `301f2a92` | 移除 `eternity-ip-ready` 分支的 60 秒最小放行间隔，恢复原版 autobuyer 持续运行 |
+| `5bb19bdb` | 清理限流移除后的死代码（Kody 审查意见） |
+| `8306afc9` | 节奏修复本体 + 采纳 Kody critical（投影复核） |
+
+- **hold 收紧** `[读码]`：`canEternity() && log10(当前 IP) ≥ ETERNITY_IP_LOG10(1.8e308)` 才 hold（`OrekiCrunchPolicy.kt:203-217`），消除「canEternity 为真但当前 IP 低于 1.8e308」造成的抖动（余额与 maxIP 记录可能不一致）。
+- **成长窗口 60→600 秒** `[读码]`：`ETERNITY_GROW_START_SECONDS = 600.0`；`waitWithin("eternity-grow", eternityGrowSeconds×1e9)` 与 resume 写入的 interval 共用同一动态值。
+- **resume interval 动态化** `[读码]`：`OrekiStageAuto` Break 后 resume 改用 `OrekiCrunchPolicy.eternityWaitSeconds()`（`OrekiStageAuto.kt:1901-1910`、`:1933-1936`），不再固定 5 s。
+- **Kody critical（投影复核）** `[读码]`：放行前用「上次放行至今的真实 IP 增量」复核 `gainedInfinityPoints()` 投影；增量不足且未跨门槛时只跳过本次放行并返回 `eternity-projection-suspect`，**不进入暂停态、不压缩成长窗口**。
+- **一次性永恒升级购买放宽** `[读码]`：`buyEternityUpgrades()` 去掉 `canAutomateEternityUpgrades()` 前置（该前置要求时间维度 1），改为「非挑战中 + EP 足够」即购买，仍走原版商店与真实扣费。
+  **不得**据此宣称 Reality 后 `etUnlock`/`auto.eternity.isActive` 会被保持：原版 `EternityAutobuyerState` 的解锁/关闭判定是「本现实 100 次永恒」里程碑
+  （`GameApi.kt:1184-1188` 取证 `g()Z`→`f91.r`/`y81.w()` 为里程碑判定；与既有事实 [f-r114-01-reality](reality.md#f-r114-01-reality) 的复位链一致），与一次性升级购买无关。
+  该改动的实际作用需 AVD 采集 `auto.eternity.isActive`/`eternityUpgradeBits` 确认（**NOT RUN**）。
+- **状态**：PR #169 记录时 **OPEN**（未合并）；合并前 main（`f178a21e`）仍是旧行为。
+
+### 三、真新档验证数据（`[实测]`，同一 AVD、pm clear；定向回归 ≤15 分钟，**不是** 180 分钟通关验收）
+
+| 构建（APK SHA-256 前缀） | 含义 | 首次现实 | Reality 后 60 s IP | 之后 |
+| --- | --- | --- | --- | --- |
+| `60e0b5ae`（30210002） | 60 s 限流基线 | 637.4 s | —— | 637–1200 s e16→e73（563 s 跨 57 个数量级，按端点约 **10.1 数量级/100 s**；verdict `observations` 原文写「约 6 数量级/100s」，与端点不一致，本条按端点重算）；1200–1531 s e73→e78（0.9/min）；1923–2466 s e83→e87；终态 e91 @3060 s（`FAIL_EARLY`，末期 0.43 数量级/分钟） |
+| `cee48316` | 无限流（移除限流） | 636.7 s | e52.8 | 续跑（`cont15`）e58→e69 约 4 分钟（≈2.7/min） |
+| `67ed144f` | 动态窗口 | 636.7 s | e53.5 | +120 s e58.7 |
+| `048b6016` | 无抖动（hold 收紧） | 636.7 s | e52.7 | +120 s e58.9 |
+| `74aefc2a` | 一次性永恒升级 | 606.6 s | e53.7 | 跑次 707 s 结束（未到 120 s 采样） |
+| `cfd1d2a6` | 600 s 窗口 | 636.8 s | e53.1 | +120 s e56.5；跑次未完成（终局 **NOT RUN**） |
+| `f1053013` | 600 s + 投影复核 | **NOT RUN** | **NOT RUN** | **NOT RUN** |
+
+- 全部跑次 `fatal_count=0`、`anr_count=0`；首无限 154.7–155.4 s、首永恒 395.5–396.1 s、首现实 606.6–637.4 s。
+- 证据：`reports/R116-01/avd-evidence/{run-180min-30210002,fix-verify-nolimit,verify-window,verify-noflicker,verify-etupg,verify-w600}/`（`verdict.json`/`samples.json`/`run.log`/`logcat.txt`）。
+- **Reality 后 `etUnlock`/`auto.eternity.isActive` 实测（30210002）** `[实测]`：`etUnlock=true` 仅出现于 21:59:53–22:01:57（首次现实 **22:02:26 之前**）；
+  Reality 后全程 `etUnlock=false`（末条 22:42:46）；`verdict.bottleneck_evidence` 记 `autoEternityUnlocked=false`、`auto_eternity_isActive=false`、`eternityUpgradeBits=0`。
+- **与既有事实区分**：`[automation/eternity-reality.md#f-r114-01-adoption](../automation/eternity-reality.md#f-r114-01-adoption)` 记录的「Reality 后 28.5 s
+  `auto.eternity.isActive` false→true」是**托管层补开关**；Issue #163 的「Reality 后 5 秒内 autoSwitch=true / etUnlock=true」是 R114-01 跑次读数。
+  两者字段与机制不同，不得互相替代。
+- **修复效果待验证（原假设已否定）**：PR #169「一次性永恒升级购买放宽」与 `auto.eternity.isActive` 的因果关系**尚未证实**，
+  且本条前文 `[取码]` 已说明解锁/关闭由「本现实 100 次永恒」里程碑决定（`GameApi.kt:1184-1188`）。
+  早前「目标是让原版 `EternityAutobuyerState.h()` 不关闭开关」的表述属于**已否定的假设**，不得再作为该改动的作用机制；
+  实际作用仍需 AVD 采集 `auto.eternity.isActive` / `eternityUpgradeBits` 确认（**NOT RUN**）。
+- **前序方案效果**：PR #158（realities>0 走收益驱动）合并后，R116-01 定向回归 Reality 后 301.5 s IP `e17→e67`（**有效**）；
+  但 30210002（含 #158 + #162）仍在 `e91 @3060 s` 停滞（**不足以突破**）。R115-01 跑次是 #158 **之前**的故障对照
+  （见 [collapse.md#f-r116-01-real-deadlock](../automation/collapse.md#f-r116-01-real-deadlock)），不能用来评价 #158 的效果。
+
+### 四、边界与未决
+
+- 本条只登记「Reality 后坍缩节奏」的三条根因与修复；**180 分钟通关仍未验收（NOT RUN）**，不得据此写 PASS。
+- 60 s 窗口 maxAM≈e1050 与 R114 AMOUNT `amount=e4.6e8` 均来自提交 `8306afc9` 的记录值，原始 logcat/通关存档未入库，本轮无法独立复核。
+- Issue #163 中 23:12 评论的「Reality 后 antimatter 完全冻结」现象在 R3 修复后未复现，**未作为已确认根因登记**。
+- R114-01 原始 logcat（`reports/R114-01/avd-evidence/fresh-180min/logcat.txt`；Issue #163 写作 `fresh-180min-final/`）本轮在 Android 仓与根工作区均**未找到**；
+  R114 对照仅依据既有事实条目与**根工作区** `reports/R114-01/device-save-backup/` 存档快照（该目录不在 Android 仓内），**未做 logcat 级对照**。

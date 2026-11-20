@@ -818,8 +818,39 @@ internal object GameApi {
         return mPlayerBigC
     }
 
-    /** 是否已 Break（`Player.m()`）。 */
-    fun isBroken(): Boolean = (call(mPlayerM(), player()) as? Boolean) ?: false
+    /**
+     * 是否已 Break（**`Player.brake` 字段；原版把 break 拼成 brake**）。
+     *
+     * 证据等级：
+     * - [读码·官方 3.21 smali 实证] `work/base_decoded_321/smali_classes2/
+     *   kajfosz/antimatterdimensions/player/Player.smali:127` = `.field private brake:Z`，
+     *   即字段名、类型（Z=boolean）在冻结基线中确认存在。
+     * - [读码] 旧实现绑定 `Player.m()`；该方法返回 `imaginaryMachines`（Reality 前置布尔），
+     *   语义上不是 Break 状态。
+     * - [观察] 真新档存档中 `brake=true`，而旧判据给出 false。
+     *
+     * 失败语义：fail-closed —— 字段读取失败时返回 false（按「未 Break」处理），
+     * 且首次失败会 dump 一次 Player 字段名到 logcat 便于定位，不静默吞掉。
+     */
+    fun isBroken(): Boolean {
+        val direct = readGameField(player(), "brake") as? Boolean
+        if (direct == null) {
+            // [R116-02-01 诊断] 字段名反射失败时 dump 一次 Player 的字段名，确认真实 DEX 名。
+            if (!isBrokenDiagnosed) {
+                isBrokenDiagnosed = true
+                try {
+                    val names = player()?.javaClass?.declaredFields?.joinToString(",") { it.name }
+                    android.util.Log.i("OREKI_BROKEN", "dump brake missing; fields=" + names)
+                } catch (e: Throwable) {
+                    android.util.Log.i("OREKI_BROKEN", "dump failed: " + e)
+                }
+            }
+            return false
+        }
+        return direct
+    }
+
+    private var isBrokenDiagnosed = false
 
     /** `player().options`。 */
     fun options(): Any? = call(mPlayerK(), player())
@@ -872,6 +903,15 @@ internal object GameApi {
      * 全部为零。因此它**不得单独作为阶段判据**（R98 §3.2），
      * 只能与真实结算产物交叉核对，见 [OrekiGuiStage]。
      */
+    /**
+     * `Player.eternities`（BigDouble）。
+     *
+     * 证据等级：[读码·官方 3.21 smali 实证]
+     * `work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/player/Player.smali:149`
+     * = `.field private eternities:Lkajfosz/antimatterdimensions/BigDouble;`。
+     * 注意：[观察] 全新存档该字段可能读作 11（并非 0），所以「是否已永恒」不能用它单判，
+     * 见 OrekiStageAuto.eternitiesZero() 的判据。
+     */
     fun eternitiesValue(): Any? = readGameField(player(), "eternities")
 
     /** [R94] `bigEternities`（可能为 Number，读不到返回 null）。 */
@@ -882,6 +922,14 @@ internal object GameApi {
      *
      * 这是原版 `f82.p()` 的判据（`realities > 0`），也是现实层级的真实结算产物；
      * 现实重置会把 `eternities` 清零，所以永恒阶段判定必须把本字段计入。
+     */
+    /**
+     * `Player.realities`（BigDouble）。
+     *
+     * 证据等级：[读码·官方 3.21 smali 实证]
+     * `work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/player/Player.smali:185`
+     * = `.field private realities:Lkajfosz/antimatterdimensions/BigDouble;`。
+     * 读不到返回 null（调用方必须自行决定 fail-open / fail-safe，不得静默当作 0）。
      */
     fun realitiesValue(): Any? = readGameField(player(), "realities")
 
@@ -1335,6 +1383,92 @@ internal object GameApi {
     /** `thisEternity.maxAM`（BigDouble）。 */
     fun thisEternityMaxAM(): Any? = call(mThisEternityH(), call(mRecordsJ(), records()))
 
+    // ---------------------------------------------------------------- [R117-01-02c] thisInfinity 只读探针
+    //
+    // 受管坍缩「是否真的按 maxAM 结算」需要同时读 thisInfinity.maxAM / realTime / time。
+    // 绑定证据（冻结 3.21 基线，[读码·smali 实证]）：
+    //   · Player$Records.k() = thisInfinity（Player$Records.smali:502-511）；
+    //   · Player$ThisInfinity.d() = maxAM / e() = realTime / f() = time
+    //     （Player$ThisInfinity.smali:169-215）；
+    //   · ku4.g() = a/60000 分钟（ku4.smali:1472-1491），这里 ×60 换回秒。
+    // 全部只读，不写任何存档字段。
+    private var thisInfinityClassCache: Class<*>? = null
+    private var thisInfinityClsResolved: Boolean = false
+    private fun thisInfinityCls(): Class<*>? {
+        if (!thisInfinityClsResolved) {
+            thisInfinityClsResolved = true
+            thisInfinityClassCache = cls("kajfosz.antimatterdimensions.player.Player\$ThisInfinity")
+        }
+        return thisInfinityClassCache
+    }
+
+    private var mRecordsK: Method? = null
+    private var mRecordsKResolved: Boolean = false
+    private fun mRecordsK(): Method? {
+        if (!mRecordsKResolved) {
+            mRecordsKResolved = true
+            mRecordsK = method(playerRecordsCls(), "k", 0, "Records.k()=thisInfinity")
+        }
+        return mRecordsK
+    }
+
+    private var mThisInfinityD: Method? = null
+    private var mThisInfinityDResolved: Boolean = false
+    private fun mThisInfinityD(): Method? {
+        if (!mThisInfinityDResolved) {
+            mThisInfinityDResolved = true
+            mThisInfinityD = method(thisInfinityCls(), "d", 0, "ThisInfinity.d()=maxAM")
+        }
+        return mThisInfinityD
+    }
+
+    private var mThisInfinityE: Method? = null
+    private var mThisInfinityEResolved: Boolean = false
+    private fun mThisInfinityE(): Method? {
+        if (!mThisInfinityEResolved) {
+            mThisInfinityEResolved = true
+            mThisInfinityE = method(thisInfinityCls(), "e", 0, "ThisInfinity.e()=realTime")
+        }
+        return mThisInfinityE
+    }
+
+    private var mThisInfinityF: Method? = null
+    private var mThisInfinityFResolved: Boolean = false
+    private fun mThisInfinityF(): Method? {
+        if (!mThisInfinityFResolved) {
+            mThisInfinityFResolved = true
+            mThisInfinityF = method(thisInfinityCls(), "f", 0, "ThisInfinity.f()=time")
+        }
+        return mThisInfinityF
+    }
+
+    /** `records.thisInfinity`（只读探针用）。 */
+    fun thisInfinity(): Any? = call(mRecordsK(), records())
+
+    /** `records.thisInfinity.maxAM`（BigDouble，只读探针用）。 */
+    fun thisInfinityMaxAM(): Any? = call(mThisInfinityD(), thisInfinity())
+
+    /** `records.thisInfinity.realTime`（秒；内部按 ku4.g() 分钟 ×60）。 */
+    fun thisInfinityRealTimeSeconds(): Double? =
+        ku4Minutes(call(mThisInfinityE(), thisInfinity()))?.times(60.0)
+
+    /** `records.thisInfinity.time`（秒；内部按 ku4.g() 分钟 ×60）。 */
+    fun thisInfinityTimeSeconds(): Double? =
+        ku4Minutes(call(mThisInfinityF(), thisInfinity()))?.times(60.0)
+
+    /** ku4（时间对象）→ 分钟：`ku4.g()` 返回 `a/60000`（ku4.smali:1472-1491 实读）。 */
+    private fun ku4Minutes(value: Any?): Double? {
+        if (value == null) return null
+        val getter = try {
+            value.javaClass.methods.firstOrNull {
+                it.name == "g" && it.parameterCount == 0 && it.returnType == java.lang.Double.TYPE
+            }
+        } catch (_: Throwable) {
+            null
+        }
+        return (call(getter, value) as? Number)?.toDouble()
+    }
+
     // ---------------------------------------------------------------- BigDouble
 
     private var mBigDoubleInit: Method? = null
@@ -1348,16 +1482,34 @@ internal object GameApi {
     }
     private var mBigDoubleCompareDouble: Method? = null
     private var mBigDoubleCompareDoubleResolved: Boolean = false
+    private var compareDoubleRetryAtMs: Long = 0L
+    private var compareDoubleMissLogged: Boolean = false
     private fun mBigDoubleCompareDouble(): Method? {
-        if (!mBigDoubleCompareDoubleResolved) {
-            mBigDoubleCompareDoubleResolved = true
-            // 必须锁定 `(D)I`：同类还有 (I)/(J)/(Object)/(BigDouble) 四份同参数个数重载。
-            mBigDoubleCompareDouble = method(
-                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)",
-                paramTypeNames = listOf("double"),
-            )
+        // [R117-01 Kody·medium] 只在**解析成功**时置 resolved；失败按 60s 退避重试。
+        // 旧实现在查找前就置 resolved=true，首次瞬时失败会把 `compareTo(D)` 永久锁存为 null，
+        // 于是 compareToDouble() 整局返回 null、依赖它的永恒层判据静默退化（读取失败被当成错误阶段）。
+        if (mBigDoubleCompareDoubleResolved) return mBigDoubleCompareDouble
+        val now = System.currentTimeMillis()
+        if (now < compareDoubleRetryAtMs) return null
+        // 必须锁定 `(D)I`：同类还有 (I)/(J)/(Object)/(BigDouble) 四份同参数个数重载。
+        val parsed = method(
+            bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(D)",
+            paramTypeNames = listOf("double"),
+        )
+        if (parsed == null) {
+            compareDoubleRetryAtMs = now + 60_000L
+            if (!compareDoubleMissLogged) {
+                compareDoubleMissLogged = true
+                miss(
+                    "BigDouble.compareTo(D)",
+                    IllegalStateException("compareTo(D) not found; retry in 60s"),
+                )
+            }
+            return null
         }
-        return mBigDoubleCompareDouble
+        mBigDoubleCompareDouble = parsed
+        mBigDoubleCompareDoubleResolved = true
+        return parsed
     }
 
     /** 构造 `BigDouble(double)`。 */
@@ -1378,6 +1530,15 @@ internal object GameApi {
      * 接收者为空时必须直接返回 null：旧实现在 null 上 `Method.invoke` 会抛
      * NullPointerException 并被 `miss()` 打成「缺少 compareTo」，把上游的
      * 「读不到对象」误报成「方法不存在」，掩盖了真正原因。
+     */
+    /**
+     * `BigDouble.compareTo(D)I` 的包装；返回负数/0/正数，读不到返回 null。
+     *
+     * 证据等级：[读码·官方 3.21 smali 实证]
+     * `work/base_decoded_321/smali_classes2/kajfosz/antimatterdimensions/BigDouble.smali:3801`
+     * = `.method public final compareTo(D)I`。同类还有 (I)/(J)/(Object)/(BigDouble) 四份重载，
+     * 因此绑定必须用 `paramTypeNames = listOf("double")` 锁定 (D) 这一份。
+     * 调用方必须处理 null（fail-closed 或 fail-safe 由调用方决定）。
      */
     fun compareToDouble(a: Any?, b: Double): Int? {
         if (a == null) return null
@@ -1493,6 +1654,40 @@ internal object GameApi {
     }
 
     fun crunchMode(s: Any?): Int = (call(mCrunchI(), s) as? Int) ?: -1
+
+    /**
+     * `auto.bigCrunch.amount`（AMOUNT 模式阈值，BigDouble）。只读探针用。
+     *
+     * 字段名来自 Gson 序列化契约（存档 JSON 的 `auto.bigCrunch.amount`），
+     * 与 mode/interval 同属自动器配置字段，不是玩家进度。
+     */
+    fun crunchAmount(s: Any?): Any? = readGameField(s, "amount")
+
+    /** 写入 AMOUNT 阈值（自动化配置；失败返回 false，不伪造成功）。 */
+    fun setCrunchAmount(s: Any?, v: Any?): Boolean = writeGameField(s, "amount", v)
+    private var mCrunchH: Method? = null
+    private var mCrunchHResolved: Boolean = false
+    private fun mCrunchH(): Method? {
+        if (!mCrunchHResolved) {
+            mCrunchHResolved = true
+            mCrunchH = method(crunchCls(), "H", 0, "Crunch.H()=increaseWithMult")
+        }
+        return mCrunchH
+    }
+    private var mCrunchN: Method? = null
+    private var mCrunchNResolved: Boolean = false
+    private fun mCrunchN(): Method? {
+        if (!mCrunchNResolved) {
+            mCrunchNResolved = true
+            mCrunchN = method(crunchCls(), "N", 1, "Crunch.N(Z)=setIncreaseWithMult")
+        }
+        return mCrunchN
+    }
+    fun crunchIncreaseWithMult(s: Any?): Boolean? = call(mCrunchH(), s) as? Boolean
+    fun setCrunchIncreaseWithMult(s: Any?, value: Boolean) {
+        call(mCrunchN(), s, value)
+        markAutobuyerUiDirty()
+    }
     fun setCrunchMode(s: Any?, mode: Int) {
         call(mCrunchA(), s, mode)
         markAutobuyerUiDirty()
@@ -1518,6 +1713,181 @@ internal object GameApi {
     fun crunchBuy(s: Any?) = call(mCrunchUpA(), s, false)
 
     // ---------------------------------------------------------------- 自动购买器基类
+
+    private var mDimAutobuyerMode: Method? = null
+    private var mDimAutobuyerModeResolved: Boolean = false
+    private fun mDimAutobuyerMode(): Method? {
+        if (!mDimAutobuyerModeResolved) {
+            mDimAutobuyerModeResolved = true
+            mDimAutobuyerMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.AntimatterDimensionAutobuyerState"),
+                "E", 0, "AntimatterDimensionAutobuyerState.E()=mode",
+            )
+        }
+        return mDimAutobuyerMode
+    }
+    private var mDimAutobuyerSetMode: Method? = null
+    private var mDimAutobuyerSetModeResolved: Boolean = false
+    private fun mDimAutobuyerSetMode(): Method? {
+        if (!mDimAutobuyerSetModeResolved) {
+            mDimAutobuyerSetModeResolved = true
+            mDimAutobuyerSetMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.AntimatterDimensionAutobuyerState"),
+                "a", 1, "AntimatterDimensionAutobuyerState.a(I)=setMode",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mDimAutobuyerSetMode
+    }
+    fun dimensionAutobuyerMode(a: Any?): Int? = call(mDimAutobuyerMode(), a) as? Int
+    fun setDimensionAutobuyerMode(a: Any?, mode: Int) {
+        call(mDimAutobuyerSetMode(), a, mode)
+        markAutobuyerUiDirty()
+    }
+
+    private var mTickspeedAutobuyerMode: Method? = null
+    private var mTickspeedAutobuyerModeResolved: Boolean = false
+    private fun mTickspeedAutobuyerMode(): Method? {
+        if (!mTickspeedAutobuyerModeResolved) {
+            mTickspeedAutobuyerModeResolved = true
+            mTickspeedAutobuyerMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.TickspeedAutobuyerState"),
+                "D", 0, "TickspeedAutobuyerState.D()=mode",
+            )
+        }
+        return mTickspeedAutobuyerMode
+    }
+    private var mTickspeedAutobuyerSetMode: Method? = null
+    private var mTickspeedAutobuyerSetModeResolved: Boolean = false
+    private fun mTickspeedAutobuyerSetMode(): Method? {
+        if (!mTickspeedAutobuyerSetModeResolved) {
+            mTickspeedAutobuyerSetModeResolved = true
+            mTickspeedAutobuyerSetMode = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.TickspeedAutobuyerState"),
+                "a", 1, "TickspeedAutobuyerState.a(I)=setMode",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mTickspeedAutobuyerSetMode
+    }
+    fun tickspeedAutobuyerMode(a: Any?): Int? =
+        call(mTickspeedAutobuyerMode(), a) as? Int
+    fun setTickspeedAutobuyerMode(a: Any?, mode: Int) {
+        call(mTickspeedAutobuyerSetMode(), a, mode)
+        markAutobuyerUiDirty()
+    }
+
+    private var mDimBoostLimit: Method? = null
+    private var mDimBoostLimitResolved: Boolean = false
+    private fun mDimBoostLimit(): Method? {
+        if (!mDimBoostLimitResolved) {
+            mDimBoostLimitResolved = true
+            mDimBoostLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "E", 0, "DimBoostAutobuyerState.E()=limitDimBoosts",
+            )
+        }
+        return mDimBoostLimit
+    }
+    private var mDimBoostSetLimit: Method? = null
+    private var mDimBoostSetLimitResolved: Boolean = false
+    private fun mDimBoostSetLimit(): Method? {
+        if (!mDimBoostSetLimitResolved) {
+            mDimBoostSetLimitResolved = true
+            mDimBoostSetLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "K", 1, "DimBoostAutobuyerState.K(Z)=setLimitDimBoosts",
+                paramTypeNames = listOf("boolean"),
+            )
+        }
+        return mDimBoostSetLimit
+    }
+    private var mDimBoostLimitGalaxies: Method? = null
+    private var mDimBoostLimitGalaxiesResolved: Boolean = false
+    private fun mDimBoostLimitGalaxies(): Method? {
+        if (!mDimBoostLimitGalaxiesResolved) {
+            mDimBoostLimitGalaxiesResolved = true
+            mDimBoostLimitGalaxies = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "F", 0, "DimBoostAutobuyerState.F()=limitUntilGalaxies",
+            )
+        }
+        return mDimBoostLimitGalaxies
+    }
+    private var mDimBoostSetLimitGalaxies: Method? = null
+    private var mDimBoostSetLimitGalaxiesResolved: Boolean = false
+    private fun mDimBoostSetLimitGalaxies(): Method? {
+        if (!mDimBoostSetLimitGalaxiesResolved) {
+            mDimBoostSetLimitGalaxiesResolved = true
+            mDimBoostSetLimitGalaxies = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.DimBoostAutobuyerState"),
+                "L", 1, "DimBoostAutobuyerState.L(Z)=setLimitUntilGalaxies",
+                paramTypeNames = listOf("boolean"),
+            )
+        }
+        return mDimBoostSetLimitGalaxies
+    }
+    fun dimBoostLimitDimBoosts(a: Any?): Boolean? =
+        call(mDimBoostLimit(), a) as? Boolean
+    fun setDimBoostLimitDimBoosts(a: Any?, value: Boolean) {
+        call(mDimBoostSetLimit(), a, value)
+        markAutobuyerUiDirty()
+    }
+    fun dimBoostLimitUntilGalaxies(a: Any?): Boolean? =
+        call(mDimBoostLimitGalaxies(), a) as? Boolean
+    fun setDimBoostLimitUntilGalaxies(a: Any?, value: Boolean) {
+        call(mDimBoostSetLimitGalaxies(), a, value)
+        markAutobuyerUiDirty()
+    }
+
+    private var mGalaxyLimit: Method? = null
+    private var mGalaxyLimitResolved: Boolean = false
+    private fun mGalaxyLimit(): Method? {
+        if (!mGalaxyLimitResolved) {
+            mGalaxyLimitResolved = true
+            mGalaxyLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.GalaxyAutobuyerState"),
+                "D", 0, "GalaxyAutobuyerState.D()=limitGalaxies",
+            )
+        }
+        return mGalaxyLimit
+    }
+    private var mGalaxySetLimit: Method? = null
+    private var mGalaxySetLimitResolved: Boolean = false
+    private fun mGalaxySetLimit(): Method? {
+        if (!mGalaxySetLimitResolved) {
+            mGalaxySetLimitResolved = true
+            mGalaxySetLimit = method(
+                cls("kajfosz.antimatterdimensions.autobuyer.GalaxyAutobuyerState"),
+                "H", 1, "GalaxyAutobuyerState.H(Z)=setLimitGalaxies",
+                paramTypeNames = listOf("boolean"),
+            )
+        }
+        return mGalaxySetLimit
+    }
+    fun galaxyLimitGalaxies(a: Any?): Boolean? = call(mGalaxyLimit(), a) as? Boolean
+    fun setGalaxyLimitGalaxies(a: Any?, value: Boolean) {
+        call(mGalaxySetLimit(), a, value)
+        markAutobuyerUiDirty()
+    }
+
+    private var mSacrificeAutobuyerSetMultiplier: Method? = null
+    private var mSacrificeAutobuyerSetMultiplierResolved: Boolean = false
+    private fun mSacrificeAutobuyerSetMultiplier(): Method? {
+        if (!mSacrificeAutobuyerSetMultiplierResolved) {
+            mSacrificeAutobuyerSetMultiplierResolved = true
+            mSacrificeAutobuyerSetMultiplier = method(
+                sacrificeAutobuyerCls(),
+                "l", 1, "SacrificeAutobuyerState.l(BigDouble)=setMultiplier",
+                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+            )
+        }
+        return mSacrificeAutobuyerSetMultiplier
+    }
+    fun setSacrificeMultiplier(value: Any?) {
+        call(mSacrificeAutobuyerSetMultiplier(), sacrificeAutobuyer(), value)
+        markAutobuyerUiDirty()
+    }
 
     private var mBaseI: Method? = null
     private var mBaseIResolved: Boolean = false
@@ -1579,6 +1949,37 @@ internal object GameApi {
             unlockField.getBoolean(a)
         } catch (error: Throwable) {
             miss("read isUnlocked", error)
+            null
+        }
+    }
+
+    private val autobuyerUnlockMethodCache = HashMap<Class<*>, Method?>()
+
+    /**
+     * 读取自动器的原版 `g()Z` 解锁判定。
+     *
+     * 有持久化 `isUnlocked` 字段的维度/计数频率仍以该字段为准；其余自动器调用
+     * 实例真实 `g()`，保留挑战、永恒里程碑与佩勒禁用门禁。读不到返回 null，
+     * 调用方必须 fail-closed，不能据此提前启用或显示受管配置。
+     */
+    fun isAutobuyerActuallyUnlocked(a: Any?): Boolean? {
+        if (a == null) return null
+        isAutobuyerUnlockedFlag(a)?.let { return it }
+        val unlockMethod = try {
+            autobuyerUnlockMethodCache.getOrPut(a.javaClass) {
+                a.javaClass.methods.firstOrNull {
+                    it.name == "g" && it.parameterCount == 0 &&
+                        it.returnType == java.lang.Boolean.TYPE
+                }
+            }
+        } catch (error: Throwable) {
+            miss("resolve autobuyer g()", error)
+            null
+        } ?: return null
+        return try {
+            unlockMethod.invoke(a) as? Boolean
+        } catch (error: Throwable) {
+            miss("invoke autobuyer g()", error)
             null
         }
     }
@@ -1879,14 +2280,44 @@ internal object GameApi {
     }
 
     /** BigDouble 之间比较：<0 / 0 / >0，失败返回 null（精确锁定 `(BigDouble)I`）。 */
+    // [R116-03-01 Kody] 缓存 compareTo(BigDouble) 句柄：旧实现每次 `a.javaClass.methods` 返回新数组
+    // 再做 firstOrNull 线性扫描，而该函数在 onAutoBuyerTick 内每 tick 调用一次，属新增每帧反射分配。
+    // 证据：[读码·官方 3.21 smali 实证] `BigDouble.smali:4087` = `.method public compareTo(BigDouble)I`；
+    // 同类另有 (D)/(I)/(J)/(Object) 重载，因此必须用 paramTypeNames 锁定 BigDouble 这一份。
+    private var mBigDoubleCompareBigDouble: java.lang.reflect.Method? = null
+    private var mBigDoubleCompareBigDoubleResolved: Boolean = false
+    private var compareBigDoubleRetryAtMs: Long = 0L
+    private var compareBigDoubleMissLogged: Boolean = false
+    private fun mBigDoubleCompareBigDouble(): java.lang.reflect.Method? {
+        // [R116-03-01 Kody·critical] 只在**解析成功**时置 resolved；失败按 60s 退避重试，
+        // 避免首次瞬时失败把句柄永久固化为 null，使 compareBigDoubles 恒返回 null、
+        // realities 变化判据静默走失败分支。
+        if (mBigDoubleCompareBigDoubleResolved) return mBigDoubleCompareBigDouble
+        val now = System.currentTimeMillis()
+        if (now < compareBigDoubleRetryAtMs) return null
+        val parsed = method(
+            bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
+            paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
+        )
+        if (parsed == null) {
+            compareBigDoubleRetryAtMs = now + 60_000L
+            if (!compareBigDoubleMissLogged) {
+                compareBigDoubleMissLogged = true
+                miss("BigDouble.compareTo(BigDouble)",
+                    IllegalStateException("compareTo(BigDouble) not found; retry in 60s"))
+            }
+            return null
+        }
+        mBigDoubleCompareBigDouble = parsed
+        mBigDoubleCompareBigDoubleResolved = true
+        return parsed
+    }
+
     fun compareBigDoubles(a: Any?, b: Any?): Int? {
         if (a == null || b == null) return null
+        val compareMethod = mBigDoubleCompareBigDouble() ?: return null
         return try {
-            val compareMethod = a.javaClass.methods.firstOrNull {
-                it.name == "compareTo" && it.parameterCount == 1 &&
-                    it.parameterTypes[0].name == "kajfosz.antimatterdimensions.BigDouble"
-            }
-            compareMethod?.invoke(a, b) as? Int
+            compareMethod.invoke(a, b) as? Int
         } catch (e: Throwable) {
             miss("BigDouble.compareTo(BigDouble)", e); null
         }
@@ -2013,10 +2444,33 @@ internal object GameApi {
     // ---------------------------------------------------------------- R81 永恒商店兼容入口
 
     /** 只读取原版字段；名称来自序列化契约，禁止以此入口直接修改玩家存档。 */
+    // [R116-03-01 Kody] 缓存 Field 句柄：旧实现每帧 `getDeclaredField` + `setAccessible`，
+    // 而 realities/eternities 等字段在 onAutoBuyerTick 内被反复读取，属每帧反射分配。
+    // 按「类名 + 字段名」缓存；解析失败不缓存，保留可重试。
+    private val gameFieldCache = java.util.concurrent.ConcurrentHashMap<String, java.lang.reflect.Field>()
+    private fun gameField(owner: Any, fieldName: String): java.lang.reflect.Field? {
+        val key = owner.javaClass.name + "#" + fieldName
+        gameFieldCache[key]?.let { return it }
+        return try {
+            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }
+                .also { gameFieldCache[key] = it }
+        } catch (error: Throwable) {
+            // [R117-01 Kody·medium] 查找失败只在唯一一次查找处记录原因；
+            // 调用方不再重复查找（见 readGameField）。
+            miss("field $fieldName on ${owner.javaClass.simpleName}", error)
+            null
+        }
+    }
+
     private fun readGameField(owner: Any?, fieldName: String): Any? {
         if (owner == null) return null
+        // [R117-01 Kody·medium] gameField() 返回 null 说明同一次 getDeclaredField/setAccessible
+        // 刚刚抛过异常（gameField 已记录 miss）。旧实现在这里原样再查找一次，必然再次失败，
+        // 使每帧每次读取失败付出两次反射查找 + 两次异常，正好放大本方法想消除的每帧开销。
+        // 失败不缓存、下一次读取仍会重试，保持「可重试」语义。
+        val cached = gameField(owner, fieldName) ?: return null
         return try {
-            owner.javaClass.getDeclaredField(fieldName).apply { isAccessible = true }.get(owner)
+            cached.get(owner)
         } catch (error: Throwable) {
             miss("read $fieldName", error)
             null
@@ -2193,7 +2647,8 @@ internal object GameApi {
     }
 
     /**
-     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxRM 达阈值）。
+     * [R108-01] 原版 `prestige/f.f()Z` = canReality（= DS6 已买 && 本现实 maxEP ≥ 1e4000）。
+     * [R117-01-02c P1-1] 旧注释误写 maxRM；prestige/f.smali:1245-1327 实读 thisReality.maxEP。
      *
      * 用途：莱特拉 tier8 阶段判断「现实研究 6 是否已在本现实买上」，据此决定是否
      * 立刻进 run 买 IU25（IU25 的 checkRequirement 要 isRunning + maxAllowed==0 + DS6 + 符文≤1）。
@@ -2479,7 +2934,7 @@ internal object GameApi {
 
     /** `Player.u()D` —— 维度提升计数。 */
     fun dimensionBoosts(): Double? = try {
-        (method(playerCls(), "u", 0, "Player.u()=dimensionBoosts")?.let { m -> call(m, player()) } as? Number)?.toDouble()
+        (method(playerCls(), "u", 0, "Player.u()=dimensionBoosts")?.let { boostGetter -> call(boostGetter, player()) } as? Number)?.toDouble()
     } catch (e: Throwable) { miss("Player.u()", e); null }
 
     /** `Player.A()J` —— 反物质星系计数。 */
@@ -3355,19 +3810,12 @@ internal object GameApi {
         0
     }
 
-    private var mBigDoubleCompareBd: Method? = null
-    private var mBigDoubleCompareBdResolved = false
-    private fun mBigDoubleCompareBd(): Method? {
-        if (!mBigDoubleCompareBdResolved) {
-            mBigDoubleCompareBdResolved = true
-            // BigDouble.compareTo 有 (Double)/(Int)/(Long)/(Object)/(BigDouble) 五份重载，必须精确锁 (BigDouble)。
-            mBigDoubleCompareBd = method(
-                bigDoubleCls(), "compareTo", 1, "BigDouble.compareTo(BigDouble)",
-                paramTypeNames = listOf("kajfosz.antimatterdimensions.BigDouble"),
-            )
-        }
-        return mBigDoubleCompareBd
-    }
+    // [R117-01 Kody·medium] `compareBigDouble` 与 `compareBigDoubles` 解析的是同一个
+    // `compareTo(BigDouble)I`（BigDouble 有 (D)/(I)/(J)/(Object)/(BigDouble) 五份重载，必须精确锁这一份）。
+    // 旧实现为它单独保留了一个「查找前先置 resolved」的闩锁，首次失败同样会永久锁存为 null；
+    // 现直接复用已带「失败 60s 退避重试、成功才固化」语义的 mBigDoubleCompareBigDouble()，
+    // 避免同一重载存在两份互不一致的句柄状态。
+    private fun mBigDoubleCompareBd(): Method? = mBigDoubleCompareBigDouble()
 
     /** `BigDouble.compareTo(BigDouble)` → -1/0/1；任一侧不可读返回 null。 */
     fun compareBigDouble(a: Any?, b: Any?): Int? {
@@ -3453,10 +3901,89 @@ internal object GameApi {
      * 大坍缩按钮完全一致。用于佩勒末日阶段「拉满大坍缩间隔所需的真实 IP」那一步
      * （Web _pulseDoomedCrunch 的 bigCrunchResetRequest(true)）。
      */
+    /**
+     * 原版 `Infinity.j()`（证据分级，勿当作已验证语义）：
+     * - [读码·官方 3.21 smali **签名形状**对照] `prestige/e.smali:1335`
+     *   = `.method public static j()Z`，即「静态、0 参、返回 Z」与这里缓存校验的三项一致；
+     * - [读码·反编译] 方法体为 `!Player.a.m() || n63.f() || c22.d()`，其中 `Player.a.m()`
+     *   返回 `imaginaryMachines`；**方法体语义仍属待核对**，未在官方包上逐指令比对；
+     * - [观察] 真新档跑次中 `imaginaryMachines` 缺失（false）时 infinities 908 秒涨到约 1.5 亿、
+     *   maxAM 停在 e67 量级、IP 锁死；logcat 出现
+     *   `stage-policy -> autoBig paused (auto-crunch-shortcut)` 共 3 次，说明该 helper 运行期返回 true。
+     *
+     * 因此本函数只声明「签名形状与解码树一致 + 运行期确实返回 true」，不宣称方法体语义已证实。
+     */
+    // [R116-03-01 Kody] 缓存式解析：只在**三项校验全部通过**时缓存并置 resolved。
+    // [R116-03-01 Kody·critical] 解析失败不永久缓存：区分「类未找到 / 方法未找到 / 签名不符」三类，
+    // 各自打一次日志并进入退避（类/方法缺失 60s、签名不符 600s），避免每帧 cls()+method() 反射。
+    private var mInfinityShortcut: java.lang.reflect.Method? = null
+    private var mInfinityShortcutResolved: Boolean = false
+    private var infinityShortcutRetryAtMs: Long = 0L
+    private var infinityShortcutMissLogged: Boolean = false
+    private var infinityShortcutMismatchLogged: Boolean = false
+    private fun mInfinityShortcut(): java.lang.reflect.Method? {
+        if (mInfinityShortcutResolved) return mInfinityShortcut
+        val now = System.currentTimeMillis()
+        if (now < infinityShortcutRetryAtMs) return null
+        val clsRef = cls("kajfosz.antimatterdimensions.prestige.e")
+        if (clsRef == null) {
+            infinityShortcutRetryAtMs = now + 60_000L
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("mInfinityShortcut", IllegalStateException("class prestige.e not found"))
+            }
+            return null
+        }
+        val candidate = method(clsRef, "j", 0, "Infinity.j()")
+        if (candidate == null) {
+            infinityShortcutRetryAtMs = now + 60_000L
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("mInfinityShortcut", IllegalStateException("method j() not found"))
+            }
+            return null
+        }
+        val shapeOk = java.lang.reflect.Modifier.isStatic(candidate.modifiers) &&
+            candidate.parameterCount == 0 &&
+            (candidate.returnType == java.lang.Boolean.TYPE)
+        if (!shapeOk) {
+            infinityShortcutRetryAtMs = now + 600_000L
+            if (!infinityShortcutMismatchLogged) {
+                infinityShortcutMismatchLogged = true
+                miss("mInfinityShortcut", IllegalStateException(
+                    "signature mismatch (expect static ()Z): " + candidate))
+            }
+            return null
+        }
+        mInfinityShortcut = candidate
+        mInfinityShortcutResolved = true
+        return candidate
+    }
+
+    fun infinityAutoCrunchShortcut(): Boolean {
+        val shortcutMethod = mInfinityShortcut()
+        if (shortcutMethod == null) {
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("infinityAutoCrunchShortcut", IllegalStateException("prestige.e.j() unresolved"))
+            }
+            return false
+        }
+        return try {
+            (shortcutMethod.invoke(null) as? Boolean) ?: false
+        } catch (e: Throwable) {
+            if (!infinityShortcutMissLogged) {
+                infinityShortcutMissLogged = true
+                miss("infinityAutoCrunchShortcut", e)
+            }
+            false
+        }
+    }
+
     fun bigCrunchReset(): Boolean = try {
         val infinityCls = cls("kajfosz.antimatterdimensions.prestige.e") ?: return false
-        val m = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
-        m.invoke(null, orekiContinuation())
+        val resetMethod = method(infinityCls, "i", 1, "Infinity.i(Cont)=bigCrunchReset") ?: return false
+        resetMethod.invoke(null, orekiContinuation())
         true
     } catch (e: Throwable) {
         miss("bigCrunchReset", e)
