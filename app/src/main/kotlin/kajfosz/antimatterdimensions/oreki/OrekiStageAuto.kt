@@ -780,6 +780,7 @@ object OrekiStageAuto {
      * 该入口必须排在永恒层经济动作之前：Break 是恢复到无限层及后续挑战/现实
      * 的唯一关键前置，不能因其它任务每拍成功而长期拿不到全局节拍。
      */
+    // ---- Break 兜底 + 自愈（R94）----
     private fun maintainBreakState() {
         if (GameApi.isDoomed() || GameApi.isBroken()) return
         if (!OrekiAutomationScheduler.allow("breakUpgrades")) return

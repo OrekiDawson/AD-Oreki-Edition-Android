@@ -348,7 +348,10 @@ internal object OrekiAutoEternityAdoption {
     @JvmStatic
     fun ensure() {
         try {
-            if (!OrekiAutomationScheduler.isEnabled()) return
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                modSettlementResetPending = false
+                return
+            }
             load()
             bindSave()
             val active = GameApi.autoEternityIsActive()
@@ -359,6 +362,8 @@ internal object OrekiAutoEternityAdoption {
             lastObservedAutoEternityActive = active
             lastObservedEternityProgress = progress
             if (active == true) {
+                // 开关已恢复为开，任何更早的同步复位证据都已失去时效。
+                modSettlementResetPending = false
                 var changed = false
                 if (!adopted) {
                     adopted = true
@@ -379,7 +384,10 @@ internal object OrekiAutoEternityAdoption {
                 return
             }
             // 读不到开关（null）失败关闭：不写、不推定
-            if (active != false) return
+            if (active != false) {
+                modSettlementResetPending = false
+                return
+            }
             // MOD 或原版自动永恒结算都可能同步触发自动器复位。两者都是原版状态迁移，
             // 不是玩家关闭；在 userClosed 判定之前消费，避免后续 EC/Reality 链永久停摆。
             val vanillaSettlementReset = shouldRecordVanillaSettlementReset(

@@ -2,9 +2,10 @@
 
 ## 当前结论
 
-- 最终 APK 构建、身份、签名、安装与设备回拉：**PASS**
+- 当前修复版 APK 构建、身份、签名、安装与设备回拉：**PASS**
 - KVM 硬件加速 AVD：**PASS**
-- 真实新档终局：**IN PROGRESS**
+- 原版自动永恒复位 P1 定向单测：**PASS**
+- 当前修复版真实新档终局：**IN PROGRESS**
 - 稳定版发布：**NOT RUN**
 - 四渠道交付：**NOT RUN**
 
@@ -24,16 +25,43 @@
   `isValidStoredSpeed(F)Z` 的真实调用链。
 - 定向单测：倍率 2/2、Break 恢复判据 3/3，共 5/5 **PASS**。
 
+## R121-01 P1：原版自动永恒结算后的误关闭
+
+前一轮 KVM 长跑在约 `93` 分钟留下完整失败证据：原版自动永恒真实结算
+`bigE=0→1` 后把 `autoEternity` 同步置为 false；旧逻辑只记录 MOD
+`eternityTick()` 同步调用中的复位，下一帧把原版复位误判为玩家手动关闭，
+随后持续出现 `auto-eternity-off`，导致 EC/Reality 链停摆。
+
+最小修复：
+
+- 记录上一帧自动永恒开关与 `eternities/bigEternities` 稳定进度 token。
+- 仅当“上一帧明确为开、当前为关、永恒进度确实变化”同时成立时，判定为
+  原版自动结算复位并恢复开关。
+- 进度不变时仍按玩家手动关闭粘滞处理；任一进度不可读时 fail-closed。
+- 不修改资源、门槛、挑战或存档字段。
+
+失败证据：
+`reports/R121-01/avd-evidence/kvm-final-04ad779c/`，包括停滞截图
+`stalled-auto-eternity.png` 与 `02:37:06` 的 `true→false` 日志。
+
+验证：
+
+- `OrekiAutoEternityAdoptionTest`：**6/6 PASS**
+- 完整 `testDebugUnitTest`：**46/46 PASS**，0 failures / 0 errors / 0 skipped
+- 调度器契约静态/行为检查：**156/156 PASS**
+- 修复提交：`20a95c7e4a9b5aff288d7889e03758ef4bc15c60`
+
 ## Release 构建
 
-命令为 AGP 9.5.1 离线完整游戏 `:app:assembleRelease`，R8 关闭。
+命令为 AGP 9.5.1 离线完整游戏 `:app:assembleRelease -PorekiFullGame=true`，
+显式传入已核验的游戏 JAR，R8 关闭。
 构建结果 **PASS**：
 
-- 源码：`a09cc21389f0f31505eeee5d54ec795b9007316f`
-- APK：`build/r121-01-final2/r8off/app-release.apk`
+- 源码：`20a95c7e4a9b5aff288d7889e03758ef4bc15c60`
+- APK：`build/r121-01-final7/r8off/app-release.apk`
 - SHA-256：
-  `43e3f4fc42017541a37b81f7440e58fe8a67380ed9ff601d440038947091f1ac`
-- 大小：81,612,591 B
+  `2f3f0b10bab0d29c13e4637ac2e86f62fdc18cc232fcf5d81f1a58d108a6dc87`
+- 大小：81,615,719 B
 - 包名：`com.oreki.antimatterdimensions`
 - 版本：`30210002 / 3.21.0`
 - SDK：minSdk 32 / targetSdk 37
@@ -43,11 +71,10 @@
 - 签名：按 API 24 验证 V2+V3 **PASS**；按 API 28 验证 V3 **PASS**，证书
   `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`
 
-完整日志与命令输出见 `reports/R121-01/build-evidence/final-43e3f4fc/`。
-本轮 Release 构建共 3 次：首次基线 `e5b67f4f`；P1 定向复现后的实验版
-`ac500784` 因逐帧重复坍缩被否决；最终版增加每 Tick 限一次、30 秒最小
-结算间隔及 250ms Break 关键调度抖动容忍后重建为 `43e3f4fc`。失败实验
-未安装进入最终长跑，也未发布。
+完整日志、输入哈希、测试 XML、签名与包清单见
+`reports/R121-01/build-evidence/final-auto-eternity-v2/`。构建期间一次
+离线 lint 依赖缺失和一次 fullGame 参数缺失均在产出 APK 前失败；最终有效
+完整游戏构建从上述源码成功产出签名 APK。
 
 ## KVM AVD
 
@@ -70,20 +97,15 @@
 ## 安装追溯
 
 - `adb install -r`：**PASS**
-- 设备 `lastUpdateTime`：`2026-11-20 19:52:28`
+- 设备回拉 `base.apk` 为 81,615,719 B
 - 从设备回拉 `base.apk` 的 SHA-256 与最终构建 APK 完全一致：
-  `43e3f4fc…f1ac`
-
-首次 KVM 启动期间发现设备仍是旧包 `c20ffc7c…`，该段 13 分钟记录已移动至
-`reports/R121-01/avd-evidence/kvm-invalid-old-apk-20261120/` 并明确标为
-无效。正式计时在最终 APK 覆盖安装与回拉校验完成后，从
-`2026-11-20 19:52:34` 起重新开始。
+  `2f3f0b10…a6dc87`
 
 ## 真实新档
 
-入口 `pm clear` 后点击“开始游戏”，当前运行目录：
+修复版入口 `pm clear` 后点击“开始游戏”，当前运行目录：
 
-`reports/R121-01/avd-evidence/kvm-final-43e3f4fc/`
+`reports/R121-01/avd-evidence/kvm-final-2f3f0b10/`
 
 记录将包含 15 秒采样的 `timeline.jsonl`、完整 `logcat.txt`、关键帧截图、
 最终存档与通关后状态。终局结论待运行结束更新。
@@ -92,13 +114,10 @@
 
 | 节点 | 真实墙钟 | 证据 |
 | --- | ---: | --- |
-| 首次无限 | 142.9s | `crunch detected inf=0→2 ip=40` |
-| 首次 Break | 526.8s | `GATE brake=true` |
-| 首次永恒 | 744.8s | `bigE=1`、`EP=2.1107e16` |
-| 永恒入口可见 | 首次永恒后 | 时间维度截图与门禁日志 |
-
-首次永恒前真实经历了 180 秒驻留窗口，期间 `bigE=0`、EP=0、永恒页门禁
-保持关闭；窗口结束后才由原版永恒入口真实结算。
+| 首次 Break | 555.9s | 时间线与门禁日志 |
+| 首次永恒 | 765.4s | `bigE=1`、EP=4.185e14 |
+| Break 恢复 | 1005.6s | `GATE brake=true` |
+| 第二次永恒 | 1155.9s | `bigE=2`、EP=2.564e41 |
 
 ## 环境与交付预检
 
@@ -108,12 +127,13 @@
 - 四渠道只读预检：**PASS**（本次未发布）
 - GitHub、OneDrive、Google Drive、SSH、本地发布目录均可用
 
-## 审查暂停处置
+## Kody 审查状态
 
-仓库既有 Kody 自动触发器在 Web 非 Draft PR 创建后连接了外部审查。
-Android PR #204 的触发器当时已跳过；Web 事件随后立即关闭 PR，并将
-Android/Web 的 `kody-trigger.yml` 均设置为 `disabled_manually`。费用无法
-从本地确认，故不写成“未产生费用”；后续收口不使用 Kody 完成状态。
+用户最新指令已恢复 Kody，历史暂停事件仅保留作审计记录。Android/Web 的
+`kody-trigger.yml` 均于 2026-11-21 回读为 `active`；保持 Shared 100 次、
+原始评论 ID 去重、同 Head 去重和 Balanced-only。Android PR #204 当前
+HEAD 已请求一次审查；对已确认的测试报告计数落后问题按真实重跑结果修订，
+未把旧 PASS 沿用为当前证据。
 
 ## 遗留门禁
 
