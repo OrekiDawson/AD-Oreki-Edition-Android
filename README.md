@@ -22,13 +22,22 @@
 
 需要 JDK、Android SDK / Build Tools、Gradle Wrapper 和 adb。工具链的具体版本、基线资源及 ABI 要求以当前配置和 [构建交付规则](docs/DELIVERY_RULES.md) 为准，不使用旧报告中的固定版本代替实时检查。
 
-仓库保留历史构建链与 AGP 工程，**不要把旧的 `scripts/build_mod.py` 产物直接作为正式发行 APK**。AGP 工程构建示例（仅供本地候选与定向验证）：
+仓库保留历史构建链与 AGP 工程，**不要把旧的 `scripts/build_mod.py` 产物直接作为正式发行 APK**。AGP 工程有两种模式。**默认命令只执行 bridge/骨架包编译检查，不能拿生成的 APK 进行完整游戏安装与验收：**
 
 ```bash
 ./gradlew -p agp :app:assembleRelease --offline --no-daemon --console=plain
 ```
 
-构建前须按项目现有文档准备官方基线输入及签名相关环境；离线缺依赖时应先核实依赖来源。即使构建成功，也不意味着 APK 已通过完整游戏、签名兼容或真机验收。
+完整游戏候选需要经过核验的官方 DEX 转换后的 JVM 游戏类 JAR，并显式指定完整游戏模式：
+
+```bash
+GAME_JAR=/absolute/path/to/verified-game.jar
+./gradlew -p agp :app:assembleRelease \
+  -PorekiFullGame=true -PorekiGameJar="$GAME_JAR" \
+  --offline --no-daemon --console=plain
+```
+
+以上仅为本地候选命令，**没有 `-PorekiFullGame=true` 与 `-PorekiGameJar` 时不会自动注入完整游戏类**。正式候选还须按 [.github/workflows/candidate-unified.yml](.github/workflows/candidate-unified.yml) 和 [交付规则](docs/DELIVERY_RULES.md) 完成基线输入、AGP-only、签名、安装与真实运行门禁；离线缺依赖时先核实依赖来源。构建成功不等于功能通过。
 
 正式交付必须对应同一条可核查证据链：**源码 Commit → 构建配置与产物 → APK SHA-256 → 签名 → 设备安装 → 真实运行 → 结论**。不同 APK 的里程碑不可混用，正式发布还需满足平台审批与发布门禁。
 
@@ -56,6 +65,6 @@
 
 - [长期 Agent 规则](AGENTS.md) · [构建与发布门禁](docs/DELIVERY_RULES.md) · [Kodus 审查说明](docs/KODUS_REVIEW_SETUP.md)
 - [事实索引](docs/FACTS.md) · [Android/Web 差异](WEB_ANDROID_DIFFERENCES.md)
-- 许可证、官方来源和第三方声明以仓库中的 `LICENSE`、`MOD-LICENSE` 及相关文件为准。
+- 原版许可与第三方归属请核对 [官方上游仓库](https://github.com/IvarK/AntimatterDimensionsSourceCode) 及原版发行资料；MOD 各版本的发行说明请见 [GitHub Releases](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases)。本仓当前没有可直接引用的根级 `LICENSE` / `MOD-LICENSE`，不得据此推断 MOD 代码或第三方素材已获额外授权。
 
 Kodus 配置和任务启停状态可能随授权变化，不在 README 中维护过期的实时快照。
