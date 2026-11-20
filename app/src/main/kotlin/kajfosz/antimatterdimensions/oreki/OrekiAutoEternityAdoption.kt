@@ -69,6 +69,29 @@ internal object OrekiAutoEternityAdoption {
     private var lastLogKey = ""
     private var lastLogAt = 0L
 
+    /**
+     * [R121-01 P1] MOD 主动永恒调用期间观测到原版把开关 true→false。
+     *
+     * 原版会在这类结算中重置自动购买器；该关闭不是玩家操作，不能进入
+     * userClosed 粘滞分支，否则首次永恒后 EC/Reality 链会永久停摆。
+     * 标志只由 [GameApi.eternityTick] 在同步调用前后观测到真实翻转时设置，
+     * 并在下一次 [ensure] 中消费一次。
+     */
+    @Volatile
+    private var modSettlementResetPending = false
+
+    internal fun shouldRecordModSettlementReset(
+        activeBefore: Boolean?,
+        activeAfter: Boolean?,
+    ): Boolean = activeBefore == true && activeAfter == false
+
+    @JvmStatic
+    fun noteModEternityCallOutcome(activeBefore: Boolean?, activeAfter: Boolean?) {
+        if (shouldRecordModSettlementReset(activeBefore, activeAfter)) {
+            modSettlementResetPending = true
+        }
+    }
+
     // ------------------------------------------------------------------ 持久化
 
     private fun prefs(): android.content.SharedPreferences? = try {
@@ -301,6 +324,23 @@ internal object OrekiAutoEternityAdoption {
             }
             // 读不到开关（null）失败关闭：不写、不推定
             if (active != false) return
+            // MOD 发起的永恒若同步触发原版自动器复位，这是原版状态迁移，不是玩家关闭。
+            // 在 userClosed 判定之前消费一次，避免把首次永恒后的锁定窗口误标成手动关闭。
+            if (modSettlementResetPending) {
+                modSettlementResetPending = false
+                if (!GameApi.autobuyersOn()) return
+                GameApi.setAutoEternityActive(true)
+                if (GameApi.autoEternityIsActive() == true) {
+                    adopted = true
+                    userClosed = false
+                    if (token.isNotEmpty()) enabledRealities = token
+                    persist()
+                    log("re-enabled after mod eternity reset realities=" + token)
+                } else {
+                    log("mod eternity reset re-enable did not stick realities=" + token)
+                }
+                return
+            }
             if (userClosed) return
             // [Codex P2] 玩家手动关闭的识别必须排在「原版总开关 / 未解锁」早退**之前**：
             // 玩家可能先关「自动购买器总开关」再关「自动永恒」；旧顺序会直接 return，

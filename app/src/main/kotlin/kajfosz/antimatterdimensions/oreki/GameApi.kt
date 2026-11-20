@@ -3276,7 +3276,12 @@ internal object GameApi {
             OrekiAutoEternityGate.logBlocked(reason)
             return false
         }
+        val activeBefore = autoEternityIsActive()
         call(mEternityTick(), null)
+        OrekiAutoEternityAdoption.noteModEternityCallOutcome(
+            activeBefore,
+            autoEternityIsActive(),
+        )
         return true
     }
     // ------------------------------------------------- [R107-01] 永恒层经济动作独立入口
