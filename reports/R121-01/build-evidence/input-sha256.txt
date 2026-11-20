@@ -1,0 +1,5 @@
+e5b67f4f088d47b3291190bb8e0bc159b757a006bcbb6c9d5879136b7ba2986e  build/r121-01-final/r8off/app-release.apk
+a1344a5279efe77993a81e35e2b4801440f155ca0e3dedebf2ddb28354e5d16b  /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar
+2507cf762abe2171a8cb3c289837fc71f2e66e598f396f1cc10bb7dc10020329  /home/oreki/Android/Sdk/platforms/android-37.2/android.jar
+dab0d9a0b5837e21ef91a0168e39796f46590febef1f030e88f9ded4c352e7f4  build/agp-fullgame/fullgame-inputs.json
+13e9953a106c65622c5d3bef8a504d4cd3c6a2d1f6b55109a6d67daece778ab8  build/agp-fullgame/stable-ids.txt

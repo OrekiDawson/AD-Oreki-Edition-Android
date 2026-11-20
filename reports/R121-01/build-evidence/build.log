@@ -1,0 +1,115 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+[oreki] 游戏类输入: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar (19474277 bytes)
+
+> Task :app:generateChangelogZh
+[oreki] changelog 已中文化: 162 条 -> /home/oreki/AD-Oreki-Edition/工作树/android/r121-01/build/agp-generated-res/raw/changelog.txt
+
+> Task :app:generateKotlinBindings UP-TO-DATE
+> Task :app:prepareFullGameAssets
+
+> Task :app:prepareFullGameInputs
+PASS: AGP 完整游戏输入已准备 package=com.oreki.antimatterdimensions resources=14973 activities=6 abis=arm64-v8a,armeabi-v7a,x86,x86_64 assets=22 renamed=34
+
+> Task :app:verifyFullGameInputs
+[oreki] fullGame 输入校验通过：资源 14973 条 / stable-ids 1076790 B / SHA-256 13e9953a106c65622c5d3bef8a504d4cd3c6a2d1f6b55109a6d67daece778ab8 -> /home/oreki/AD-Oreki-Edition/工作树/android/r121-01/build/agp-fullgame-verify/stable-ids-verify.json
+
+> Task :app:verifyTutorialAsset
+[oreki] 教程资产校验通过: 200902 字节 / 25 章 / 8 阶段提示
+
+> Task :app:preBuild
+> Task :app:preReleaseBuild
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:generateReleaseResources
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so. Run with --info option to learn more.
+
+> Task :app:packageReleaseResources
+> Task :app:processReleaseNavigationResources
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:javaPreCompileRelease
+> Task :app:checkReleaseAarMetadata
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:compileReleaseNavigationResources
+> Task :app:parseReleaseLocalResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:generateReleaseRFile
+> Task :app:processReleaseMainManifest
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseManifest
+> Task :app:mergeReleaseStartupProfile
+> Task :app:processReleaseManifestForPackage
+> Task :app:mergeReleaseArtProfile
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:compressReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:validateSigningRelease
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:processReleaseResources
+> Task :app:optimizeReleaseResources
+
+> Task :app:compileReleaseKotlin
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt:1329:31 Unchecked cast of 'Any' to 'Array<Any>'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt:1492:44 Condition is always 'true'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt:1783:48 Condition is always 'false'.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:54:16 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:55:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:271:34 'val systemWindowInsetLeft: Int' is deprecated. Deprecated in Java.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:271:64 'val systemWindowInsetTop: Int' is deprecated. Deprecated in Java.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:271:93 'val systemWindowInsetRight: Int' is deprecated. Deprecated in Java.
+w: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/tutorial/TutorialActivity.kt:271:124 'val systemWindowInsetBottom: Int' is deprecated. Deprecated in Java.
+
+> Task :app:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:dexBuilderRelease
+> Task :app:compressReleaseJavaRes
+> Task :app:mergeReleaseJavaResource
+
+> Task :app:desugarReleaseFileDependencies
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+WARNING: /home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar: D8: Expected stack map table for method with non-linear control flow.
+
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:mergeExtDexRelease
+> Task :app:mergeDexRelease
+> Task :app:compileReleaseArtProfile
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+
+[Incubating] Problems report is available at: file:///home/oreki/AD-Oreki-Edition/%E5%B7%A5%E4%BD%9C%E6%A0%91/android/r121-01/agp/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 8s
+49 actionable tasks: 48 executed, 1 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html

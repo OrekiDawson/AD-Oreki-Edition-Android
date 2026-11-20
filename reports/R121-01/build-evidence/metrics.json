@@ -1,0 +1,40 @@
+{
+  "label": "R121-01-r8off",
+  "apk": "build/r121-01-final/r8off/app-release.apk",
+  "apk_sha256": "e5b67f4f088d47b3291190bb8e0bc159b757a006bcbb6c9d5879136b7ba2986e",
+  "apk_size_bytes": 81611015,
+  "dex_files": [
+    {
+      "class_defs_size": 6182,
+      "method_ids_size": 41957,
+      "field_ids_size": 29269,
+      "string_ids_size": 38954,
+      "type_ids_size": 8761,
+      "name": "classes.dex",
+      "size_bytes": 6429876
+    },
+    {
+      "class_defs_size": 10314,
+      "method_ids_size": 64640,
+      "field_ids_size": 51340,
+      "string_ids_size": 60025,
+      "type_ids_size": 13938,
+      "name": "classes2.dex",
+      "size_bytes": 11989940
+    }
+  ],
+  "entries_total": 1626,
+  "assets_bytes": 22548796,
+  "lib_bytes": 60292,
+  "arsc_bytes": 15120776,
+  "dex_count": 2,
+  "dex_total_bytes": 18419816,
+  "totals": {
+    "class_defs_size": 16496,
+    "method_ids_size": 106597,
+    "field_ids_size": 80609
+  },
+  "mapping": {
+    "mapping_present": false
+  }
+}

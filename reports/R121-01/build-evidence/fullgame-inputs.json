@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "stage": "agp-fullgame-inputs",
+  "source": {
+    "decoded_tree": "mod",
+    "manifest_sha256": "5ff102f9ce329c381cb4bc67cc024601ea877487099907eb6b24049b515cce38",
+    "public_xml_sha256": "7d8ab4ae80269026019de22982f0dadac234cc6d59565815fe60f0c293a78f47"
+  },
+  "package": "com.oreki.antimatterdimensions",
+  "manifest_normalized": {
+    "removed_package_attribute": true,
+    "removed_extract_native_libs": true
+  },
+  "resources": {
+    "resources": 14973,
+    "package_id": "0x7f",
+    "staged_dir": "res",
+    "generated_renamed": 34,
+    "xml_rewritten": 17,
+    "changelog_excluded": true
+  },
+  "components": {
+    "activities": 6,
+    "activity_aliases": 28,
+    "services": 7,
+    "receivers": 5,
+    "providers": 2,
+    "permissions": 1,
+    "uses_permissions": 9,
+    "uses_features": 1,
+    "launcher_activities": [],
+    "launcher_aliases": [
+      "kajfosz.antimatterdimensions.AppIcon_oreo_metro",
+      "kajfosz.antimatterdimensions.AppIcon_oreo",
+      "kajfosz.antimatterdimensions.AppIcon_blob_metro",
+      "kajfosz.antimatterdimensions.AppIcon_blob",
+      "kajfosz.antimatterdimensions.AppIcon_blind_metro",
+      "kajfosz.antimatterdimensions.AppIcon_blind",
+      "kajfosz.antimatterdimensions.AppIcon_bliss_metro",
+      "kajfosz.antimatterdimensions.AppIcon_bliss",
+      "kajfosz.antimatterdimensions.AppIcon_work_metro",
+      "kajfosz.antimatterdimensions.AppIcon_work",
+      "kajfosz.antimatterdimensions.AppIcon_nicolas_metro",
+      "kajfosz.antimatterdimensions.AppIcon_nicolas",
+      "kajfosz.antimatterdimensions.AppIcon_design_metro",
+      "kajfosz.antimatterdimensions.AppIcon_design",
+      "kajfosz.antimatterdimensions.AppIcon_confused_metro",
+      "kajfosz.antimatterdimensions.AppIcon_confused",
+      "kajfosz.antimatterdimensions.AppIcon_finnish_metro",
+      "kajfosz.antimatterdimensions.AppIcon_finnish",
+      "kajfosz.antimatterdimensions.AppIcon_christmas_metro",
+      "kajfosz.antimatterdimensions.AppIcon_christmas",
+      "kajfosz.antimatterdimensions.AppIcon_galactic_metro_inverted",
+      "kajfosz.antimatterdimensions.AppIcon_galactic_inverted",
+      "kajfosz.antimatterdimensions.AppIcon_metro_inverted",
+      "kajfosz.antimatterdimensions.AppIcon_inverted",
+      "kajfosz.antimatterdimensions.AppIcon_galactic_metro",
+      "kajfosz.antimatterdimensions.AppIcon_galactic",
+      "kajfosz.antimatterdimensions.AppIcon_metro",
+      "kajfosz.antimatterdimensions.AppIcon_default"
+    ]
+  },
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86",
+    "x86_64"
+  ],
+  "assets": {
+    "files": 22
+  },
+  "native_libs": {
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ],
+    "files": 8
+  },
+  "outputs": {
+    "manifest": "AndroidManifest.xml",
+    "res": "res",
+    "stable_ids": "stable-ids.txt",
+    "stable_ids_entries": 14973
+  }
+}
