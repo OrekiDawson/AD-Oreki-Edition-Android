@@ -33,11 +33,12 @@
 
 AVD 验证：
 
-- `adb install -r`：**PASS**
-- 回拉已安装 `base.apk` 后 SHA-256 与构建包一致：**PASS**
-- 进程启动、Activity resumed：**PASS**
+- `adb install -r`：**PASS**，原始输出见 `install.txt`
+- 回拉已安装 `base.apk` 后 SHA-256 与构建包一致：**PASS**，输出见 `apk-pull.txt`
+- 进程启动、Activity resumed：**PASS**，设备与 Activity 输出见 `device.txt`、`activity.txt`
 - 真实截图显示离线进度、开始游戏、游戏资源与更新日志/云存档弹窗：**PASS**
-- 最近日志未出现 `FATAL EXCEPTION` 或 `ANR in com.oreki.antimatterdimensions`
+- 最近 1000 行 logcat 未出现 `FATAL EXCEPTION` 或
+  `ANR in com.oreki.antimatterdimensions`，原始日志见 `logcat-tail.txt`
 - 由于该 APK 不含最终调度器源码，且没有重跑完整新档终局，不能把 AVD 启动证据
   当成 R120-01 最终运行验收
 
@@ -47,6 +48,18 @@ AVD 验证：
   （SHA-256 `76a0ddfe009ceb72a216fa2f1602ed8409fe0147daacd77703087caa7c393ecb`）
 - `reports/R120-01/android-avd-20261120/game-visible-modal.png`
   （SHA-256 `eec6c58e7578ea57a19392df8c0b721358c313c429dfb0796678e01e826bbcc6`）
+- `reports/R120-01/android-avd-20261120/launched-after-install-30s.png`
+  （本次重新安装后截屏，SHA-256 `d350d75c838fbf89761fc72150ade36ea6142f2540b19e8d23393e0c68dd8eae`）
+
+原始命令输出：
+
+- `reports/R120-01/android-avd-20261120/device.txt`
+- `reports/R120-01/android-avd-20261120/install.txt`
+- `reports/R120-01/android-avd-20261120/package.txt`
+- `reports/R120-01/android-avd-20261120/launch.txt`
+- `reports/R120-01/android-avd-20261120/activity.txt`
+- `reports/R120-01/android-avd-20261120/apk-pull.txt`
+- `reports/R120-01/android-avd-20261120/logcat-tail.txt`
 
 ## 尚未解决
 
