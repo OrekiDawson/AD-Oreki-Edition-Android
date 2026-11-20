@@ -31,7 +31,9 @@
 - POST-ENDGAME STABILITY：NOT RUN。
 - SAVE COMPATIBILITY：NOT RUN。静态字段/ABI/序列化保真通过；Android 原版 3.21.0 ↔ MOD 真实导入、继续游戏、再次导出仍需后续 KVM/真机并由 Lead 独占资源执行。
 
-## 当前限制
+## 交付状态
 
+- 代码 Commit：`0d5dbc7ae16efc09342127b03eeb469dd90179b6`，已 Push 至 PR #204 分支。
+- PR #204 保持 Draft；该分支当前与 `main` 仍为冲突状态，不能合并。
 - 未生成新 APK，不能提供 APK SHA-256。
-- 未向 #204 Push 当前改动前，所有结果仅是本工作树源码/JAR 定向证据。
+- PR 自动检查：PR 规模提示 PASS；Kody、Codex 与触发器项按当前 Draft/配置显示 Skipped。真实 Required Checks、APK、AVD 与发布门禁均为 `NOT RUN`。
