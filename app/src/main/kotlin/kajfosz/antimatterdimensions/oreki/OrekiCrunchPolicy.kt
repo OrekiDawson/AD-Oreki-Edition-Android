@@ -111,6 +111,33 @@ object OrekiCrunchPolicy {
     @JvmStatic
     fun eternityWaitSeconds(): Double = eternityGrowSeconds
 
+    /**
+     * [R121-01 P1] 首现实前，挑战完成已把 Break 丢失但当前坍缩投影已远超恢复
+     * Break 所需的 32767 IP 时，不应继续空等完整的永恒成长窗口。
+     *
+     * 实际运行证据：EC3 完成后投影 `ipGainLog=16.31`，仍等待固定 600 秒窗口，
+     * 每次挑战切换被额外拉长约 4～6 分钟。这里仍要求原版 `canBigCrunch()`、
+     * 不在挑战中且不处于可永恒 hold；只提前“目标已经足够”的真实结算。
+     */
+    const val BREAK_RECOVERY_IP_LOG10: Double = 6.0
+
+    @JvmStatic
+    fun shouldSettleBreakRecovery(
+        firstReality: Boolean,
+        broken: Boolean,
+        inChallenge: Boolean,
+        canBigCrunch: Boolean,
+        canEternity: Boolean,
+        gainedIpLog10: Double?,
+    ): Boolean =
+        firstReality &&
+            !broken &&
+            !inChallenge &&
+            canBigCrunch &&
+            !canEternity &&
+            gainedIpLog10 != null &&
+            gainedIpLog10 >= BREAK_RECOVERY_IP_LOG10
+
     /** [R99] 诊断：当前窗口与上次结算 IP 量级。 */
     @JvmStatic
     fun eternityGrowDiagnostics(): String =

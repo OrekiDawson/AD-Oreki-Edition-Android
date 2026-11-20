@@ -1646,6 +1646,11 @@ object OrekiStageAuto {
 
     /** [R116-02-01] 原版即时坍缩短路阶段（Infinity.j()==true），MOD 自己按窗口结算的最近触发时刻。 */
     private var lastManagedCrunchAtMs = 0L
+    /** [R121-01] Break 恢复提前结算所属的调度 Tick，防止逐帧重复清零。 */
+    private var lastBreakRecoverySettleTickId = 0L
+    /** [R121-01] Break 恢复提前结算的 30 秒最小间隔，给 Break 购买与 x0 留出多个调度 Tick。 */
+    private var lastBreakRecoverySettleAtMs = 0L
+    private const val BREAK_RECOVERY_SETTLE_MIN_INTERVAL_MS = 30_000L
 
     /** [R117-01-02c P0-1] 30 秒心跳探针的最近打印时刻。 */
     private var lastCrunchProbeAtMs = 0L
@@ -2236,6 +2241,7 @@ object OrekiStageAuto {
             if (GameApi.isDoomed()) return
             val crunch = GameApi.crunchState() ?: return
             if (!GameApi.crunchUnlocked(crunch)) return // 未解锁不动
+            if (GameApi.isBroken()) lastBreakRecoverySettleAtMs = 0L
 
             // [PR #179 Kody·critical] 冷启动先用持久化标记重建所有权/暂停判定：
             // 首次无限后、break 前重启时两字段都是内存默认 false，否则 pre-break 兜底与
@@ -2260,6 +2266,41 @@ object OrekiStageAuto {
 
             // [R117-01-02c P0-1] 30 秒只读心跳探针：记录受管坍缩是否真的按 maxAM 结算。
             maybeLogCrunchProbe()
+
+            // [R121-01 P1] EC 完成后 Break 会由原版重置。此时若投影 IP 已远高于
+            // 恢复 Break 所需的 32767 IP，却继续等待完整 600 秒成长窗口，会把
+            // 每个 EC 切换拉长到约 9 分钟。仅在首现实前、挑战外、不能永恒且
+            // 原版允许坍缩时提前结算一次真实大坍缩；不写 IP、不跳过 Break 购买。
+            val firstRealityCmp = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+            val firstReality = firstRealityCmp != null && firstRealityCmp == 0
+            val breakRecoveryNowMs = android.os.SystemClock.elapsedRealtime()
+            if (managedConfigTickId > 0L &&
+                managedConfigTickId != lastBreakRecoverySettleTickId &&
+                (lastBreakRecoverySettleAtMs == 0L ||
+                    breakRecoveryNowMs - lastBreakRecoverySettleAtMs >=
+                    BREAK_RECOVERY_SETTLE_MIN_INTERVAL_MS) &&
+                !takeoverBlockedByPolicy &&
+                OrekiCrunchPolicy.shouldSettleBreakRecovery(
+                    firstReality = firstReality && hasReachedEternityLayer(),
+                    broken = GameApi.isBroken(),
+                    inChallenge = GameApi.inAnyChallenge(),
+                    canBigCrunch = GameApi.canBigCrunch(),
+                    canEternity = GameApi.canEternity(),
+                    gainedIpLog10 = GameApi.log10BigDouble(GameApi.gainedInfinityPoints()),
+                )
+            ) {
+                if (settleCrunch("break-recovery-ip-ready")) {
+                    lastBreakRecoverySettleTickId = managedConfigTickId
+                    lastBreakRecoverySettleAtMs = breakRecoveryNowMs
+                    lastManagedCrunchAtMs = System.currentTimeMillis()
+                    Log.i(
+                        TAG_AU4C,
+                        "managed crunch fired (break-recovery ip-ready, thresholdLog10=" +
+                            OrekiCrunchPolicy.BREAK_RECOVERY_IP_LOG10 + ")",
+                    )
+                    return
+                }
+            }
 
             // [R117-01-02c P0-5 + PR #179 Kody·high] pre-break 禁止长窗口持留：
             // 原版 MainActivity.i9 在「AM 达 1.8e308 上限且 break=false」时把正文容器置 GONE，

@@ -11,7 +11,9 @@
     "offline": true,
     "full_game": true,
     "r8": false,
-    "elapsed_seconds": 68
+    "elapsed_seconds": 20,
+    "release_build_count": 3,
+    "build_note": "首次基线构建 e5b67f4f；P1 定向复验否决无节流的 ac500784；最终版增加 30 秒结算冷却与 250ms Break 调度抖动容忍后重建。"
   },
   "inputs": {
     "game_jar": {
@@ -33,9 +35,9 @@
     ]
   },
   "apk": {
-    "path": "build/r121-01-final/r8off/app-release.apk",
-    "sha256": "e5b67f4f088d47b3291190bb8e0bc159b757a006bcbb6c9d5879136b7ba2986e",
-    "bytes": 81611015,
+    "path": "build/r121-01-final2/r8off/app-release.apk",
+    "sha256": "43e3f4fc42017541a37b81f7440e58fe8a67380ed9ff601d440038947091f1ac",
+    "bytes": 81612591,
     "package": "com.oreki.antimatterdimensions",
     "version_code": 30210002,
     "version_name": "3.21.0",
@@ -46,8 +48,8 @@
   },
   "device_install": {
     "serial": "emulator-5554",
-    "installed_apk_sha256": "e5b67f4f088d47b3291190bb8e0bc159b757a006bcbb6c9d5879136b7ba2986e",
-    "last_update_time": "2026-11-20 18:36:02",
+    "installed_apk_sha256": "43e3f4fc42017541a37b81f7440e58fe8a67380ed9ff601d440038947091f1ac",
+    "last_update_time": "2026-11-20 19:52:28",
     "state": "PASS"
   }
 }

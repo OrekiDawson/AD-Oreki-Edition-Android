@@ -103,6 +103,13 @@ object OrekiAutomationScheduler {
      */
     private val FORCE_RETRY_TASKS = setOf("breakUpgrades")
     private const val FORCE_RETRY_AFTER_NOOP_WAITS = 2
+    /**
+     * [R121-01] Break 是恢复无限层的唯一关键动作。GUI Tick 与实际动作记账存在约
+     * 10～100ms 的相位差；实测每拍 Break 检查总比全局节拍早约 80ms，随后其它任务
+     * 在同一拍成功并再次推迟 Break，导致 IP 已远超门槛仍长期 `brake=false`。
+     * 仅对 Break 关键任务允许 250ms 调度抖动，不改变玩家配置的 1～60 秒周期。
+     */
+    private const val CRITICAL_TASK_BEAT_GRACE_MS = 250L
 
     /**
      * 阶段紧迫任务（R82）。
@@ -576,7 +583,10 @@ object OrekiAutomationScheduler {
         // 两道闸都严格使用玩家配置周期；阶段变化不改写调度 tick。
         val effectiveMs = effectiveIntervalSec() * 1000L
         val beat = lastBeatAt
-        if (beat != 0L && now - beat < effectiveMs) {
+        val beatElapsed = if (beat == 0L) effectiveMs else now - beat
+        val criticalGrace = taskId in FORCE_RETRY_TASKS &&
+            beatElapsed >= effectiveMs - CRITICAL_TASK_BEAT_GRACE_MS
+        if (beat != 0L && beatElapsed < effectiveMs && !criticalGrace) {
             beatSkips++
             return deny("interval", taskId)
         }
