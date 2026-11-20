@@ -30,6 +30,7 @@
 | 官方 versionCode / SDK | `30210000`；minSdk 32 / targetSdk 37；包名 `kajfosz.antimatterdimensions` | [build.md#f-6](facts/build.md#f-6) |
 | Web 上游冻结 | `IvarK/AntimatterDimensionsSourceCode` @ `5409e320cecef96a917cca1dfb68f1f183e499ca`（2026-07-17） | [environment.md#f-2](facts/environment.md#f-2) |
 | MOD 版本规则 | 产品名 Oreki Edition；正式发布 versionCode 必须严格大于历史最大值（当前 `30210001`，来自公开 `android-update-3.21.0-a12b5cd6`；下一发布 `30210002` 见 PR #160）；规则见 `AGENTS.md` §9 与 `docs/DELIVERY_RULES.md` | [release.md#f-r116-01-version-30210002](facts/release.md#f-r116-01-version-30210002) |
+| 五阶段体验契约 | 0～30 建立玩法理解；30～75 展开无限/永恒；75～130 展开现实/主要天神；130～165 后期挑战/Pelle；165～180 真实结算/收尾。`GAMEPLAY LEGALITY`、`PACING`、`ENDGAME`、`POST-ENDGAME STABILITY` 独立验收，PACING FAIL 阻断候选晋升 | [AGENTS.md](../AGENTS.md) §4；[DELIVERY_RULES.md](DELIVERY_RULES.md) §1 |
 
 ## 四、主题索引
 
