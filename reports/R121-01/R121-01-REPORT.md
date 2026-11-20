@@ -48,7 +48,7 @@
 
 - `OrekiAutoEternityAdoptionTest`：**6/6 PASS**
 - 完整 `testDebugUnitTest`：**48/48 PASS**，0 failures / 0 errors / 0 skipped
-- 调度器契约静态/行为检查：**156/156 PASS**
+- 调度器契约静态/行为检查：**157/157 PASS**
 - 修复提交：`20a95c7e4a9b5aff288d7889e03758ef4bc15c60`
 
 ## Release 构建
