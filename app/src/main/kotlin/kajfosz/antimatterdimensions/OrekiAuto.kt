@@ -43,16 +43,34 @@ object OrekiAuto {
     @JvmStatic
     fun hasInfinity(): Boolean {
         return try {
-        // [R93] 多源判定：任一来源证明「已无限过」即可。
-        // 现场证据：单看 infinities 在游戏内仍判 false，而 IP 已 968（IP 只来自无限）⇒ 加兜底，
-        // 避免单一绑定失效把整段后无限自动化关死。
-        if (bigDoublePositive(GameApi.infinities())) return true
-        if (bigDoublePositive(GameApi.currencyValue(GameApi.ipCurrency()))) return true
-        return GameApi.isBroken()
-    } catch (_: Throwable) {
-        false
+            // [R121-01 P1] 永恒挑战/永恒结算会清空当前无限次数与 IP，并同时清除 Break。
+            // 此时「曾经无限过」仍必须为真，否则 onAutoBuyerTick() 会在首次无限分支提前返回，
+            // EC 推进、Reality 与终局自动化全部停摆。大永恒次数/永恒次数是已跨过无限层的
+            // 不可逆结算证据，只参与阶段判定，不写入任何存档字段。
+            provesCompletedInfinity(
+                currentInfinities = bigDoublePositive(GameApi.infinities()),
+                currentInfinityPoints = bigDoublePositive(
+                    GameApi.currencyValue(GameApi.ipCurrency()),
+                ),
+                broken = GameApi.isBroken(),
+                bigEternities = bigDoublePositive(GameApi.bigEternitiesValue()),
+                eternities = bigDoublePositive(GameApi.eternitiesValue()),
+            )
+        } catch (_: Throwable) {
+            false
+        }
     }
-    }
+
+    /** 纯判据：任一真实进度来源证明已完成过无限。 */
+    @JvmStatic
+    internal fun provesCompletedInfinity(
+        currentInfinities: Boolean,
+        currentInfinityPoints: Boolean,
+        broken: Boolean,
+        bigEternities: Boolean,
+        eternities: Boolean,
+    ): Boolean = currentInfinities || currentInfinityPoints || broken ||
+        bigEternities || eternities
 
     /**
      * 是否仍在「首次无限之前」的开局阶段。
@@ -65,6 +83,7 @@ object OrekiAuto {
     private fun bigDoublePositive(value: Any?): Boolean {
         if (value == null) return false
         return try {
+            if (value is Number) return value.toDouble() > 0.0
             val raw = value.javaClass.methods
                 .firstOrNull { it.name == "toDouble" && it.parameterCount == 0 }
                 ?.invoke(value) as? Double ?: return false
