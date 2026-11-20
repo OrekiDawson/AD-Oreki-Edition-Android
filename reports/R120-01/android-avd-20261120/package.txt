@@ -1,0 +1,305 @@
+Activity Resolver Table:
+  Schemes:
+      genericidp:
+        80c653b com.oreki.antimatterdimensions/com.google.firebase.auth.internal.GenericIdpActivity filter ac14458
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Category: "android.intent.category.BROWSABLE"
+          Scheme: "genericidp"
+          Authority: "firebase.auth": -1
+          Path: "PatternMatcher{LITERAL: /}"
+      recaptcha:
+        b2d19b1 com.oreki.antimatterdimensions/com.google.firebase.auth.internal.RecaptchaActivity filter fee0e96
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Category: "android.intent.category.BROWSABLE"
+          Scheme: "recaptcha"
+          Authority: "firebase.auth": -1
+          Path: "PatternMatcher{LITERAL: /}"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        f12e8f3 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_default filter cf969b0
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        285d029 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_metro filter 11c4fae
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        7e9214f com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic filter 88370dc
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        28245e5 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic_metro filter 6e1b8ba
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        e40836b com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_inverted filter 944bec8
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        b165b61 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_metro_inverted filter 662a686
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        861eb47 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic_inverted filter 74aff74
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        c7c4c9d com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_galactic_metro_inverted filter eb2a512
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        e47f4e3 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_christmas filter bd29ee0
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        6561599 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_christmas_metro filter a92005e
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        2fafc3f com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_finnish filter 572c90c
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        6697255 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_finnish_metro filter e79c46a
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        7ad1d5b com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_confused filter 30969f8
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        71bded1 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_confused_metro filter b67bd36
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        4963437 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_design filter 1672da4
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        9ae970d com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_design_metro filter 26a76c2
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        38fdcd3 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_nicolas filter 7bb8010
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        83a9709 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_nicolas_metro filter 4ed3d0e
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        871732f com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_work filter ec08d3c
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        b6c9ac5 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_work_metro filter dc41c1a
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        32c134b com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_bliss filter ea74128
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        11e41 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_bliss_metro filter ef7dfe6
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        7a69927 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_blind filter fc347d4
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        8005d7d com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_blind_metro filter 521472
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        759a0c3 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_blob filter 9f70d40
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        3ba5479 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_blob_metro filter aa905be
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        8ab861f com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_oreo filter edfbd6c
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+        e82bf35 com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.AppIcon_oreo_metro filter bebbfca
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+      android.intent.action.VIEW:
+        f527e2d com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity filter c5f9f62
+          Action: "android.intent.action.VIEW"
+          Action: "android.intent.action.DEFAULT"
+      android.intent.action.DEFAULT:
+        f527e2d com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity filter c5f9f62
+          Action: "android.intent.action.VIEW"
+          Action: "android.intent.action.DEFAULT"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        bd440b3 com.oreki.antimatterdimensions/androidx.profileinstaller.ProfileInstallReceiver filter b005a6e
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        bd440b3 com.oreki.antimatterdimensions/androidx.profileinstaller.ProfileInstallReceiver filter 2884670
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      androidx.profileinstaller.action.SKIP_FILE:
+        bd440b3 com.oreki.antimatterdimensions/androidx.profileinstaller.ProfileInstallReceiver filter 41c4de9
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        bd440b3 com.oreki.antimatterdimensions/androidx.profileinstaller.ProfileInstallReceiver filter 9c8350f
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+      android.intent.action.BOOT_COMPLETED:
+        ed21a17 com.oreki.antimatterdimensions/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 8324e04
+          Action: "android.intent.action.BOOT_COMPLETED"
+      androidx.work.diagnostics.REQUEST_DIAGNOSTICS:
+        c489fed com.oreki.antimatterdimensions/androidx.work.impl.diagnostics.DiagnosticsReceiver filter 9f47e22
+          Action: "androidx.work.diagnostics.REQUEST_DIAGNOSTICS"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (9b77db9):
+    sourcePackage=com.oreki.antimatterdimensions
+    uid=10248 gids=[] type=0 prot=signature
+    perm=PermissionInfo{18515fe com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+    flags=0x0
+
+Registered ContentProviders:
+  com.oreki.antimatterdimensions/com.google.firebase.provider.FirebaseInitProvider:
+    Provider{2d1f15f com.oreki.antimatterdimensions/com.google.firebase.provider.FirebaseInitProvider}
+  com.oreki.antimatterdimensions/androidx.startup.InitializationProvider:
+    Provider{968e7ac com.oreki.antimatterdimensions/androidx.startup.InitializationProvider}
+
+ContentProvider Authorities:
+  [com.oreki.antimatterdimensions.firebaseinitprovider]:
+    Provider{2d1f15f com.oreki.antimatterdimensions/com.google.firebase.provider.FirebaseInitProvider}
+      applicationInfo=ApplicationInfo{3493c75 com.oreki.antimatterdimensions}
+  [com.oreki.antimatterdimensions.androidx-startup]:
+    Provider{968e7ac com.oreki.antimatterdimensions/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{e18940a com.oreki.antimatterdimensions}
+
+Key Set Manager:
+  [com.oreki.antimatterdimensions]
+      Signing KeySets: 66
+
+Packages:
+  Package [com.oreki.antimatterdimensions] (b474034):
+    appId=10248
+    pccId=-1
+    pkg=Package{8ee8044 com.oreki.antimatterdimensions}
+    codePath=/data/app/~~bMiLHIjIELG5PBzfmdE35g==/com.oreki.antimatterdimensions-E0Wy_OYf-eiVmi038G2vyg==
+    resourcePath=/data/app/~~bMiLHIjIELG5PBzfmdE35g==/com.oreki.antimatterdimensions-E0Wy_OYf-eiVmi038G2vyg==
+    legacyNativeLibraryDir=/data/app/~~bMiLHIjIELG5PBzfmdE35g==/com.oreki.antimatterdimensions-E0Wy_OYf-eiVmi038G2vyg==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=x86_64
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=30210002 minSdk=32 targetSdk=37
+    minExtensionVersions=[]
+    versionName=3.21.0
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    queriesIntents=[Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https:/... }, Intent { act=android.support.customtabs.action.CustomTabsService }, Intent { act=android.intent.action.INSERT dat=content://*/... typ=vnd.android.cursor.dir/event }, Intent { act=android.intent.action.VIEW dat=sms:xx }, Intent { act=android.intent.action.DIAL }]
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesOptionalLibraries:
+      android.ext.adservices
+      androidx.window.extensions
+      androidx.window.sidecar
+    usesLibraryFiles:
+      /system_ext/framework/androidx.window.extensions.jar
+      /system_ext/framework/androidx.window.sidecar.jar
+    timeStamp=2026-11-20 09:16:17
+    lastUpdateTime=2026-11-20 09:16:40
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=com.android.shell
+    originatingPackageName=null
+    packageSource=1
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{ac72a63 version:3, signatures:[e82e6a0f], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    declared permissions:
+      com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    requested permissions:
+      android.permission.DETECT_SCREEN_CAPTURE
+      com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+      android.permission.FOREGROUND_SERVICE
+      android.permission.INTERNET
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.USE_FINGERPRINT
+      android.permission.VIBRATE
+      android.permission.USE_BIOMETRIC
+      android.permission.WAKE_LOCK
+    install permissions:
+      android.permission.DETECT_SCREEN_CAPTURE: granted=true
+      com.oreki.antimatterdimensions.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.USE_FINGERPRINT: granted=true
+      android.permission.VIBRATE: granted=true
+      android.permission.USE_BIOMETRIC: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=582419 deDataInode=393761 pccCeDataInode=0 pccDeDataInode=0 installed=true hidden=false suspended=false appLockEnabled=false distractionFlags=0 stopped=true notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/com.oreki.antimatterdimensions
+      firstInstallTime=2026-11-13 18:58:58
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/EmulationPixel6/EmulationPixel6Overlay.apk
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /data/resource-cache/com.android.systemui-neutral-lnYW.frro
+        /data/resource-cache/com.android.systemui-accent-GO3v.frro
+        /data/resource-cache/com.android.systemui-dynamic-K6uu.frro
+      legacy overlay paths:
+        /product/overlay/EmulationPixel6/EmulationPixel6Overlay.apk
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      gids=[3003]
+      runtime permissions:
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+  queries via component:
+    com.google.android.apps.messaging:
+      com.oreki.antimatterdimensions
+    com.google.android.settings.intelligence:
+      com.oreki.antimatterdimensions
+    com.google.android.as:
+      com.oreki.antimatterdimensions
+    com.google.android.as.oss:
+      com.oreki.antimatterdimensions
+    com.google.android.gm:
+      com.oreki.antimatterdimensions
+    com.google.android.apps.accessibility.voiceaccess:
+      com.oreki.antimatterdimensions
+    com.google.android.youtube:
+      com.oreki.antimatterdimensions
+    com.google.android.contacts:
+      com.oreki.antimatterdimensions
+    com.android.wallpaper:
+      com.oreki.antimatterdimensions
+    com.oreki.antimatterdimensions:
+      com.google.android.apps.messaging
+      com.google.android.dialer
+      com.google.android.googlequicksearchbox
+      com.google.android.calendar
+      com.google.android.apps.docs
+      com.android.chrome
+  queryable via interaction:
+    User 0:
+  queryable via uses-library:
+
+Dexopt state:
+  [com.oreki.antimatterdimensions]
+    path: /data/app/~~bMiLHIjIELG5PBzfmdE35g==/com.oreki.antimatterdimensions-E0Wy_OYf-eiVmi038G2vyg==/base.apk
+      x86_64: [status=verify] [reason=install] [primary-abi]
+        [location is /data/app/~~bMiLHIjIELG5PBzfmdE35g==/com.oreki.antimatterdimensions-E0Wy_OYf-eiVmi038G2vyg==/oat/x86_64/base.odex]
+    known secondary dex files:
+      /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/1FECF17D179A896CE8C02AACE0C580FE8C2F25DD/pcam.jar
+        x86_64: [status=verify] [reason=vdex] [primary-abi]
+          [location is /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/1FECF17D179A896CE8C02AACE0C580FE8C2F25DD/oat/x86_64/pcam.vdex]
+        class loader context: =UnsupportedClassLoaderContext=
+      /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/4E191A78311FD9C287938BC7B148CB2595927348/pcam.jar (removed)
+        x86_64: [status=unknown] [reason=unknown] [primary-abi]
+          [location is error]
+        class loader context: =UnsupportedClassLoaderContext=
+      /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/F5778F957B15ED4E7344568BD8F87B5C462DEBF1/pcam.jar
+        x86_64: [status=verify] [reason=vdex] [primary-abi]
+          [location is /data/user/0/com.oreki.antimatterdimensions/app_pccache/6/F5778F957B15ED4E7344568BD8F87B5C462DEBF1/oat/x86_64/pcam.vdex]
+        class loader context: =UnsupportedClassLoaderContext=
+      /data/user/0/com.oreki.antimatterdimensions/cache/1782164920746.jar (removed)
+        x86_64: [status=unknown] [reason=unknown] [primary-abi]
+          [location is error]
+        class loader context: =UnsupportedClassLoaderContext=
+package:/data/app/~~bMiLHIjIELG5PBzfmdE35g==/com.oreki.antimatterdimensions-E0Wy_OYf-eiVmi038G2vyg==/base.apk

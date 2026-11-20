@@ -1,0 +1,10 @@
+  bash arg: -p
+  bash arg: com.oreki.antimatterdimensions
+  bash arg: 1
+args: [-p, com.oreki.antimatterdimensions, 1]
+ arg: "-p"
+ arg: "com.oreki.antimatterdimensions"
+ arg: "1"
+data="com.oreki.antimatterdimensions"
+Events injected: 1
+## Network stats: elapsed time=2801ms (0ms mobile, 0ms wifi, 2801ms not connected)
