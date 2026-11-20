@@ -100,4 +100,44 @@ class OrekiAutoEternityAdoptionTest {
             ),
         )
     }
+
+    @Test
+    fun unreadableSwitchKeepsModSettlementEvidenceForNextReadableFrame() {
+        assertFalse(
+            OrekiAutoEternityAdoption.shouldClearStaleModSettlementReset(
+                schedulerEnabled = true,
+                activeNow = null,
+            ),
+        )
+        assertTrue(
+            OrekiAutoEternityAdoption.shouldConsumeModSettlementReset(
+                pending = true,
+                schedulerEnabled = true,
+                activeNow = false,
+            ),
+        )
+    }
+
+    @Test
+    fun staleModSettlementEvidenceIsDiscardedWhenDisabledOrAlreadyOn() {
+        assertTrue(
+            OrekiAutoEternityAdoption.shouldClearStaleModSettlementReset(
+                schedulerEnabled = false,
+                activeNow = false,
+            ),
+        )
+        assertTrue(
+            OrekiAutoEternityAdoption.shouldClearStaleModSettlementReset(
+                schedulerEnabled = true,
+                activeNow = true,
+            ),
+        )
+        assertFalse(
+            OrekiAutoEternityAdoption.shouldConsumeModSettlementReset(
+                pending = false,
+                schedulerEnabled = true,
+                activeNow = false,
+            ),
+        )
+    }
 }

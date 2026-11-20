@@ -114,6 +114,23 @@ internal object OrekiAutoEternityAdoption {
             !progressNow.isNullOrEmpty() &&
             progressBefore != progressNow
 
+    /**
+     * 只允许在调度器关闭或开关已明确恢复为开时丢弃旧复位证据。
+     * 读不到开关（null）时必须保留 pending，下一帧读到 false 仍可完成恢复；
+     * 否则一次瞬时读取失败会把 MOD 结算复位误判成玩家关闭。
+     */
+    internal fun shouldClearStaleModSettlementReset(
+        schedulerEnabled: Boolean,
+        activeNow: Boolean?,
+    ): Boolean = !schedulerEnabled || activeNow == true
+
+    /** pending 证据只能在调度器开启且当前明确读到关闭时消费。 */
+    internal fun shouldConsumeModSettlementReset(
+        pending: Boolean,
+        schedulerEnabled: Boolean,
+        activeNow: Boolean?,
+    ): Boolean = pending && schedulerEnabled && activeNow == false
+
     @JvmStatic
     fun noteModEternityCallOutcome(activeBefore: Boolean?, activeAfter: Boolean?) {
         if (shouldRecordModSettlementReset(activeBefore, activeAfter)) {
@@ -355,6 +372,13 @@ internal object OrekiAutoEternityAdoption {
             load()
             bindSave()
             val active = GameApi.autoEternityIsActive()
+            if (shouldClearStaleModSettlementReset(
+                    OrekiAutomationScheduler.isEnabled(),
+                    active,
+                )
+            ) {
+                modSettlementResetPending = false
+            }
             val token = realityToken()
             val progress = eternityProgressToken()
             val previousActive = lastObservedAutoEternityActive
@@ -362,8 +386,6 @@ internal object OrekiAutoEternityAdoption {
             lastObservedAutoEternityActive = active
             lastObservedEternityProgress = progress
             if (active == true) {
-                // 开关已恢复为开，任何更早的同步复位证据都已失去时效。
-                modSettlementResetPending = false
                 var changed = false
                 if (!adopted) {
                     adopted = true
@@ -383,11 +405,8 @@ internal object OrekiAutoEternityAdoption {
                 }
                 return
             }
-            // 读不到开关（null）失败关闭：不写、不推定
-            if (active != false) {
-                modSettlementResetPending = false
-                return
-            }
+            // 读不到开关（null）失败关闭：不写、不推定，也不丢弃 MOD 复位证据。
+            if (active != false) return
             // MOD 或原版自动永恒结算都可能同步触发自动器复位。两者都是原版状态迁移，
             // 不是玩家关闭；在 userClosed 判定之前消费，避免后续 EC/Reality 链永久停摆。
             val vanillaSettlementReset = shouldRecordVanillaSettlementReset(
@@ -396,8 +415,13 @@ internal object OrekiAutoEternityAdoption {
                 previousProgress,
                 progress,
             )
-            if (modSettlementResetPending || vanillaSettlementReset) {
-                val source = if (modSettlementResetPending) "mod" else "vanilla"
+            val modSettlementReset = shouldConsumeModSettlementReset(
+                modSettlementResetPending,
+                OrekiAutomationScheduler.isEnabled(),
+                active,
+            )
+            if (modSettlementReset || vanillaSettlementReset) {
+                val source = if (modSettlementReset) "mod" else "vanilla"
                 modSettlementResetPending = false
                 if (!GameApi.autobuyersOn()) return
                 GameApi.setAutoEternityActive(true)
