@@ -36,7 +36,7 @@
 
 | 功能模块 | Web | Android | 差异类型 | 是否预期 | 一致性要求 | 验证状态 | 证据 |
 |---|---|---|---|---|---|---|---|
-| 正式五阶段节奏 | 0～30 / 30～75 / 75～130 / 130～165 / 165～180 分钟 | 同一五阶段目标 | 无差异 | 体验目标，不是按时钟解锁 | 内容顺序合法、关键阶段有实际过程，真实通关仍须 ≤180 分钟 | Web 新档 `PASS`，174.19 分钟；Android 组合源码终局长跑 `NOT RUN / BLOCKED` | Web `reports/R120-01/web-pacing-evidence.md`；Android `reports/R120-01/android-final-status.md` |
+| 正式五阶段节奏 | 0～30 / 30～75 / 75～130 / 130～165 / 165～180 分钟 | 同一五阶段目标 | 无差异 | 体验目标，不是按时钟解锁 | 内容顺序合法、关键阶段有实际过程，真实通关仍须 ≤180 分钟 | Web 174.19 分钟 ENDGAME PASS，但首次 Reality 约 56.85 分钟，PACING FAIL；Android `9e4571e8` 首次 Reality 约 46.6 分钟，PACING FAIL，ENDGAME STOPPED | `reports/R120-01/web-pacing-evidence.md`；`reports/R121-01/avd-evidence/kvm-final-9e4571e8/` |
 | 调度周期 | 可配置 1～60 秒，默认 10 秒 | 同一范围与默认值 | 无差异 | 预期 | 非法值安全钳制；修改后安全重排唯一调度生命周期 | Web 周期夹具 `PASS`，完整新档以默认 10 秒完成；Android 边界测试 `PASS`，组合 APK 运行 `NOT RUN` | Web `reports/R120-01/web-final-3000-r2-20261120/summary.json`；Android `OrekiAutomationScheduler` |
 | 自动购买器控制权 | 受管配置由调度器当前策略独占 | 同一语义 | 无差异 | 预期 | 玩家修改后下一次调度 tick 统一恢复；不覆盖非受管设置；不提前启用未解锁自动器 | Web Node 25/25、Chromium 17/17 PASS；Android AGP/契约 PASS，最终组合运行 `NOT RUN` | Web `oreki-managed-autobuyer-state.js` 测试；Android `OrekiManagedAutobuyerAuthority` 测试 |
 | Kody 审查入口 | `kody-trigger.yml`，按 Head SHA 去重 | `kody-trigger.yml`，按 Head SHA 去重 | 平台实现差异 | 预期 | 仅 OrekiDawson 同仓 main 非 Draft；已审查 Head 不重复触发；精确评论 `@kody start-review` | 四个修复 PR 均有 Kody Review；重复触发按既有 Review 跳过 | [Web #74](https://github.com/OrekiDawson/AD-Oreki-Edition-Web/pull/74#pullrequestreview-5983498790)、[Web #75](https://github.com/OrekiDawson/AD-Oreki-Edition-Web/pull/75#pullrequestreview-5983256832)、[Android #185](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pull/185#pullrequestreview-5983102446)、[Android #186](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/pull/186#pullrequestreview-5983717117) |
@@ -61,7 +61,7 @@
 
 | 功能模块 | Web 实现 | Android 实现 | 差异类型 | 是否预期 | 一致性要求 | 验证状态 | 证据 | 负责人/后续 |
 |---|---|---|---|---|---|---|---|---|
-| 游戏速度倍率 | `getGameSpeedupFactor()`，新档默认 F=3000；已有合法本地设置保留 | Kotlin `OrekiGamePace.DEFAULT_SPEED=3000`，Smali 只转发默认值；已有 SharedPreferences 保留 | 逻辑+性能 | 预期（实现语言不同） | 新档起点比例一致；用户已保存倍率不被迁移覆盖 | 待验证 | Web `src/core/speed-config.js`；Android `OrekiGamePace.kt` | 需做两端 F=3000 新档对照；F=10000 旧跑次仅作历史证据 |
+| 游戏速度倍率 | `getGameSpeedupFactor()`，新档默认 F=3000；已有合法本地设置保留 | 新档默认按真实进度：Break 前 1000、Break 后 1800、Reality 后 3000；玩家手改后停止阶段接管 | 逻辑+性能 | 当前需修复 | PACING FAIL 后验证阶段曲线；不得按时钟切换 | Android 待新 APK 短程验证；Web 历史 3000× 曲线 PACING FAIL | `app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt`；`reports/R121-01/avd-evidence/kvm-final-9e4571e8/` |
 | 时间倍率下「已流逝时间」缩放 | 主循环按 `diff × F` | `IntervaledAutobuyerState.c()` 已改为按倍率缩放已流逝时间 | 逻辑 | 预期 | 自动购买器的「间隔」语义一致 | 待验证 | Android 构建日志 `[Oreki AC]` | R41 |
 | 终局判据 | `game-end.js`：`OFFSET = 1`、`TARGET = 1000`，`endState >= 1 ⟺ 反物质指数 ≥ 1000` | `patch_pelle_end_target()` 把两条 `const-wide` 立即数改成 `1.0` / `1000.0`（后续修为 `1001.0`）；`OrekiPelleRecord.smali`（R42）补写 `PelleRecords.totalAntimatter`，由构建期断言强制挂在 `onAutoBuyerTick` | 数值 | 预期 | 判据字面一致（1e1000） | **待验证**（常量与记录写入都已就位，但从未跑到佩勒；`endState` 目前仍恒 0） | Web `src/core/celestials/pelle/game-end.js`；`OrekiPelleRecord.smali`；FACTS §C.15 / §C.17 / §C.59 | R51-AND-01：推进到佩勒再验 |
 | IU25 成本 | `OREKI_IU25_COST = 5e9`（原版 1.6e15） | 未确认是否同步 | 数值 | 需修复（若未同步） | 同一常量 | 未验证 | Web `secret-formula/reality/imaginary-upgrades.js` | R41 用 REA 查 Android 侧 IU25 成本常量 |

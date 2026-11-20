@@ -5,7 +5,8 @@
 - 当前修复版 APK 构建、身份、签名、安装与设备回拉：**PASS**
 - KVM 硬件加速 AVD：**PASS**
 - 原版自动永恒复位 P1 定向单测：**PASS**
-- 当前修复版真实新档终局：**IN PROGRESS**
+- 当前候选 `9e4571e8` 五阶段节奏：**PACING FAIL**
+- 当前候选完整终局：**STOPPED**（PACING FAIL，不作为晋升依据）
 - 稳定版发布：**NOT RUN**
 - 四渠道交付：**NOT RUN**
 
@@ -18,7 +19,9 @@
 
 - `OrekiAutomationScheduler.init()` 在旧 `OrekiSpeed` 初始化路径读取偏好
   前调用 `OrekiGamePace.applyDefaultIfUnset()`。
-- 新安装默认倍率为 `3000×`。
+- 新安装默认速度改为基于真实进度的阶段曲线：首个 Infinity/Break 前
+  `1000×`，Break 后至首次 Reality 前 `1800×`，进入 Reality 后 `3000×`；
+  玩家手动设置速度或关闭自动化后不再接管。
 - 缺失、NaN、无穷、非正倍率及错误偏好类型安全回退。
 - 有限正倍率保留，不覆盖合法用户配置。
 - DEX 已实证包含 `applyDefaultIfUnset(F)` 与
@@ -47,7 +50,7 @@
 验证：
 
 - `OrekiAutoEternityAdoptionTest`：**6/6 PASS**
-- 完整 `testDebugUnitTest`：**48/48 PASS**，0 failures / 0 errors / 0 skipped
+- 完整 `testDebugUnitTest`：**49/49 PASS**，0 failures / 0 errors / 0 skipped
 - 调度器契约静态/行为检查：**157/157 PASS**
 - 修复提交：`20a95c7e4a9b5aff288d7889e03758ef4bc15c60`
 
@@ -57,11 +60,11 @@
 显式传入已核验的游戏 JAR，R8 关闭。
 构建结果 **PASS**：
 
-- 源码：`dfa71a99` 所在最终源码树
-- APK：`build/r121-01-final9/r8off/app-release.apk`
+- 源码：阶段速度修复源码树（提交 SHA 在收口时补齐）
+- APK：`build/r121-01-final10/r8off/app-release.apk`
 - SHA-256：
-  `9e4571e84ed9c3b71afb1ede9bc1a92744916c71c1fd4865b886a237d2fccc79`
-- 大小：81,616,343 B
+  `19a97f834f60a501d7f65acfeac6681cfb8faac29528ab82f560653d19f7abc4`
+- 大小：81,617,703 B
 - 包名：`com.oreki.antimatterdimensions`
 - 版本：`30210002 / 3.21.0`
 - SDK：minSdk 32 / targetSdk 37
@@ -72,7 +75,7 @@
   `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`
 
 完整日志、输入哈希、测试 XML、签名与包清单见
-`reports/R121-01/build-evidence/final-auto-eternity-v4/`。构建期间旧目录中的
+`reports/R121-01/build-evidence/final-pacing-stage-speed/`。构建期间旧目录中的
 离线 lint 依赖缺失和 fullGame 参数缺失均在产出有效 APK 前失败；本目录的
 最终有效完整游戏构建从上述源码成功产出签名 APK。
 
@@ -97,30 +100,36 @@
 ## 安装追溯
 
 - `adb install -r`：**PASS**
-- 设备回拉 `base.apk` 为 81,616,343 B
+- 设备回拉 `base.apk` 为 81,617,703 B
 - 从设备回拉 `base.apk` 的 SHA-256 与最终构建 APK 完全一致：
-  `9e4571e8…fccc79`
+  `19a97f83…7abc4`
 
 ## 真实新档
 
-修复版入口 `pm clear` 后点击“开始游戏”，当前运行目录：
+`19a97f83` 阶段速度候选入口 `pm clear` 后点击“开始游戏”，运行目录：
 
-`reports/R121-01/avd-evidence/kvm-final-9e4571e8/`
+`reports/R121-01/avd-evidence/kvm-pacing-19a97f83/`
 
 记录将包含 15 秒采样的 `timeline.jsonl`、完整 `logcat.txt`、关键帧截图、
 最终存档与通关后状态。终局结论待运行结束更新。
 
+旧的 `9e4571e8` 跑次已确认 PACING FAIL，并在约 66.75 分钟安全停止；截图、存档与截止
+时间线分别保存为 `pacing-fail-stop.png`、`player-pacing-fail-stop.json`、
+`timeline-pacing-fail-stop.jsonl`。新候选先做短程阶段速度验证，通过后才启动完整终局。
+
 已确认的早期节点：
 
-以下节点来自历史 APK `kvm-final-04ad779c` 的实跑记录，仅用于比较节奏，不属于当前
-`9e4571e8` APK 的已确认进度；当前跑次到达相同节点后会另行记录。
+以下节点属于旧候选 `9e4571e8`，用于 PACING FAIL 判定；该候选禁止合并和发布。
 
 | 节点 | 真实墙钟 | 证据 |
 | --- | ---: | --- |
-| 首次 Break | 555.9s | 时间线与门禁日志 |
-| 首次永恒 | 765.4s | `bigE=1`、EP=4.185e14 |
-| Break 恢复 | 1005.6s | `GATE brake=true` |
-| 第二次永恒 | 1155.9s | `bigE=2`、EP=2.564e41 |
+| 首次 Infinity | 142.1s | `oreki_crunch` 首次 `inf=0→2` |
+| 首次 Break | 526.0s | `GATE brake=true` |
+| 首次 Eternity | 745.7s | `settled ... bigE=0→1` |
+| EC1 开始 | 1124s | `OREKI_EC_AUTO step: SETTLE id=1` |
+| EC12 开始 | 2786s | `OREKI_EC_AUTO step: BUY id=12` |
+| DS1–DS6 同时购买 | 2786s | `OREKI_DIL_STUDIES BUY id=1..6` |
+| 首次 Reality | 2796s（46分36秒） | `OREKI_REALITY_DIAG canReality=true` |
 
 ## 环境与交付预检
 
@@ -137,6 +146,13 @@
 原始评论 ID 去重、同 Head 去重和 Balanced-only。Android PR #204 当前
 HEAD 已请求一次审查；对已确认的测试报告计数落后问题按真实重跑结果修订，
 未把旧 PASS 沿用为当前证据。
+
+## R121-01 P1：五阶段节奏阻断
+
+当前候选第一次 Reality 约 `46分36秒`，早于正式 `75～130 分钟` 现实阶段窗口。
+日志证明动态速度未升档，全程维持 `3000×`；主要原因是新档固定 3000× 与自动化推进叠加，
+而非非法解锁或门禁旁路。`GAMEPLAY LEGALITY` 未发现阶段伪造，`PACING` 明确 FAIL：
+现实与主要天神内容被过早压缩，不能由可能的 ENDGAME PASS 覆盖。
 
 ## 遗留门禁
 

@@ -294,6 +294,11 @@ object OrekiStageAuto {
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
+            try {
+                OrekiGamePace.syncProgressionSpeed()
+            } catch (_: Throwable) {
+                // 速度阶段校正是节奏辅助；异常不得阻断主自动化与游戏 tick。
+            }
             // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
             logEternityChallengeDiagnosticsIfDue()
 
