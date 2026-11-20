@@ -45,8 +45,9 @@ object OrekiAuto {
         return try {
             // [R121-01 P1] 永恒挑战/永恒结算会清空当前无限次数与 IP，并同时清除 Break。
             // 此时「曾经无限过」仍必须为真，否则 onAutoBuyerTick() 会在首次无限分支提前返回，
-            // EC 推进、Reality 与终局自动化全部停摆。大永恒次数/永恒次数是已跨过无限层的
-            // 不可逆结算证据，只参与阶段判定，不写入任何存档字段。
+            // EC 推进、Reality 与终局自动化全部停摆。首现实还会把无限/永恒层计数一起清零，
+            // 因此大永恒次数、永恒次数和现实次数都是不可逆进度证据；这里只参与阶段判定，
+            // 不写入任何存档字段。
             provesCompletedInfinity(
                 currentInfinities = bigDoublePositive(GameApi.infinities()),
                 currentInfinityPoints = bigDoublePositive(
@@ -55,6 +56,7 @@ object OrekiAuto {
                 broken = GameApi.isBroken(),
                 bigEternities = bigDoublePositive(GameApi.bigEternitiesValue()),
                 eternities = bigDoublePositive(GameApi.eternitiesValue()),
+                realities = bigDoublePositive(GameApi.realitiesValue()),
             )
         } catch (_: Throwable) {
             false
@@ -69,8 +71,9 @@ object OrekiAuto {
         broken: Boolean,
         bigEternities: Boolean,
         eternities: Boolean,
+        realities: Boolean,
     ): Boolean = currentInfinities || currentInfinityPoints || broken ||
-        bigEternities || eternities
+        bigEternities || eternities || realities
 
     /**
      * 是否仍在「首次无限之前」的开局阶段。

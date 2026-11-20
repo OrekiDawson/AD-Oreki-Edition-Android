@@ -12,18 +12,25 @@ class OrekiAutoInfinityProgressTest {
         broken: Boolean = false,
         bigEternities: Boolean = false,
         eternities: Boolean = false,
+        realities: Boolean = false,
     ): Boolean = OrekiAuto.provesCompletedInfinity(
         currentInfinities = currentInfinities,
         currentInfinityPoints = currentInfinityPoints,
         broken = broken,
         bigEternities = bigEternities,
         eternities = eternities,
+        realities = realities,
     )
 
     @Test
     fun eternityProgressSurvivesInfinityAndBreakReset() {
         assertTrue(hasPriorInfinity(bigEternities = true))
         assertTrue(hasPriorInfinity(eternities = true))
+    }
+
+    @Test
+    fun firstRealitySurvivesInfinityAndEternityReset() {
+        assertTrue(hasPriorInfinity(realities = true))
     }
 
     @Test
