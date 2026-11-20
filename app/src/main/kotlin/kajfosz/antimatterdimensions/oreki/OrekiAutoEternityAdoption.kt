@@ -80,10 +80,39 @@ internal object OrekiAutoEternityAdoption {
     @Volatile
     private var modSettlementResetPending = false
 
+    /**
+     * 上一帧观察到的自动永恒开关与永恒进度。
+     *
+     * 原版自动永恒也可能绕过 MOD 的唯一入口直接完成结算；结算会把开关同步置为
+     * false。若只依赖 [modSettlementResetPending]，下一帧会把它误记成玩家手动关闭。
+     * 因而仅在“上一帧明确为开、当前为关、永恒计数确实变化”三者同时成立时，
+     * 才判定为原版自动结算复位。目标存档切换时清空这些内存观察值。
+     */
+    private var lastObservedAutoEternityActive: Boolean? = null
+    private var lastObservedEternityProgress = ""
+
     internal fun shouldRecordModSettlementReset(
         activeBefore: Boolean?,
         activeAfter: Boolean?,
     ): Boolean = activeBefore == true && activeAfter == false
+
+    /**
+     * 是否可将本次 true→false 视为原版自动永恒结算复位，而不是玩家手动关闭。
+     *
+     * 不能只凭开关翻转判断，否则玩家主动关闭会被强行覆盖。调用方还必须提供
+     * 结算前和当前可读取的永恒进度；任一进度不可读或没有变化时 fail-closed。
+     */
+    internal fun shouldRecordVanillaSettlementReset(
+        activeBefore: Boolean?,
+        activeNow: Boolean?,
+        progressBefore: String?,
+        progressNow: String?,
+    ): Boolean =
+        activeBefore == true &&
+            activeNow == false &&
+            !progressBefore.isNullOrEmpty() &&
+            !progressNow.isNullOrEmpty() &&
+            progressBefore != progressNow
 
     @JvmStatic
     fun noteModEternityCallOutcome(activeBefore: Boolean?, activeAfter: Boolean?) {
@@ -219,7 +248,29 @@ internal object OrekiAutoEternityAdoption {
         adopted = false
         userClosed = false
         enabledRealities = ""
+        lastObservedAutoEternityActive = null
+        lastObservedEternityProgress = ""
         persist()
+    }
+
+    /**
+     * 永恒进度的稳定观察 token。优先使用 BigDouble 的分量，读不到时退化为
+     * `toString()`；两者都读不到则返回空串，使调用方 fail-closed。
+     */
+    private fun eternityProgressToken(): String {
+        fun token(value: Any?): String {
+            if (value == null) return ""
+            val mantissa = numberMember(value, "getMantissa", "mantissa")
+            val exponent = numberMember(value, "getExponent", "exponent")
+            if (mantissa != null && exponent != null) {
+                return canonicalMantissa(mantissa.toDouble()) + "e" + exponent.toLong()
+            }
+            return value.toString()
+        }
+        val eternities = token(GameApi.eternitiesValue())
+        val bigEternities = token(GameApi.bigEternitiesValue())
+        if (eternities.isEmpty() && bigEternities.isEmpty()) return ""
+        return eternities + "|" + bigEternities
     }
 
     /**
@@ -302,6 +353,11 @@ internal object OrekiAutoEternityAdoption {
             bindSave()
             val active = GameApi.autoEternityIsActive()
             val token = realityToken()
+            val progress = eternityProgressToken()
+            val previousActive = lastObservedAutoEternityActive
+            val previousProgress = lastObservedEternityProgress
+            lastObservedAutoEternityActive = active
+            lastObservedEternityProgress = progress
             if (active == true) {
                 var changed = false
                 if (!adopted) {
@@ -324,9 +380,16 @@ internal object OrekiAutoEternityAdoption {
             }
             // 读不到开关（null）失败关闭：不写、不推定
             if (active != false) return
-            // MOD 发起的永恒若同步触发原版自动器复位，这是原版状态迁移，不是玩家关闭。
-            // 在 userClosed 判定之前消费一次，避免把首次永恒后的锁定窗口误标成手动关闭。
-            if (modSettlementResetPending) {
+            // MOD 或原版自动永恒结算都可能同步触发自动器复位。两者都是原版状态迁移，
+            // 不是玩家关闭；在 userClosed 判定之前消费，避免后续 EC/Reality 链永久停摆。
+            val vanillaSettlementReset = shouldRecordVanillaSettlementReset(
+                previousActive,
+                active,
+                previousProgress,
+                progress,
+            )
+            if (modSettlementResetPending || vanillaSettlementReset) {
+                val source = if (modSettlementResetPending) "mod" else "vanilla"
                 modSettlementResetPending = false
                 if (!GameApi.autobuyersOn()) return
                 GameApi.setAutoEternityActive(true)
@@ -335,9 +398,11 @@ internal object OrekiAutoEternityAdoption {
                     userClosed = false
                     if (token.isNotEmpty()) enabledRealities = token
                     persist()
-                    log("re-enabled after mod eternity reset realities=" + token)
+                    lastObservedAutoEternityActive = true
+                    lastObservedEternityProgress = eternityProgressToken()
+                    log("re-enabled after " + source + " eternity reset realities=" + token)
                 } else {
-                    log("mod eternity reset re-enable did not stick realities=" + token)
+                    log(source + " eternity reset re-enable did not stick realities=" + token)
                 }
                 return
             }
