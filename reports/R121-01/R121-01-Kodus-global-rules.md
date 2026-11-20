@@ -54,3 +54,32 @@
 - Kodus 的 Global 伪仓库无法直接解析 `AGENTS.md`，规则仍为 active；实际项目通过 `repoInstructionsEnabled=true` 读取仓库文件。
 - 下一次因真实改动触发的 Kody 审查应核对它是否实际引用项目 `AGENTS.md`；若没有，需调整 Global Rule 文案或 Kodus 的文件引用方式。
 - 未为验证额外触发 `@kody start-review`。
+
+## 自动规则学习（2026-11-20 追加核验）
+
+Kodus 官方文档要求 Generate from Past Reviews 至少具备 **3 个月**的 Kody 审查历史。
+
+实际最早 Kody 评论：
+
+- Android：`2026-11-16T03:31:07Z`
+- Web：`2026-11-16T04:58:37Z`
+- Wiki：`2026-11-16T01:53:06Z`
+
+截至 2026-11-20 均只有约 4 天历史，不满足官方最低条件。因此三仓继续继承
+`kodyRulesGeneratorEnabled=false`，不伪造训练历史，也不启用低质量候选规则生成。
+
+| 仓库 | 自动学习 | 原因 |
+| --- | --- | --- |
+| Android `1437322870` | **BLOCKED** | 仅约 4 天 Kody 历史，低于 3 个月要求 |
+| Web `1437323812` | **BLOCKED** | 仅约 4 天 Kody 历史，低于 3 个月要求 |
+| Wiki `1458464737` | **BLOCKED** | 仅约 4 天 Kody 历史，低于 3 个月要求 |
+
+`kodyKnowledgeApproval.enabled=true` 已在 Global 启用。未来满足条件并开启生成后，
+候选规则必须先进入 Pending Review，不能自动生效或覆盖 Global Rules。
+
+## 恢复方法
+
+- 删除 Global Rule：`kodus rules delete --uuid 6b9b0794-457a-427c-8a07-ff348a8574ce`（仅在用户明确要求撤销时执行）。
+- 回滚 Coding-Agent Instructions：在 Global 将 `repoInstructionsEnabled` 设回修改前值。
+- 自动学习在 3 个月历史满足后，按仓库将 `kodyRulesGeneratorEnabled` 设为 `true`；
+  保持 `kodyKnowledgeApproval.enabled=true`。
