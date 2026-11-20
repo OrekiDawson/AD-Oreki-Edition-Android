@@ -47,4 +47,3 @@
 - **`SAVE COMPATIBILITY` 独立阻断门禁**：原版→MOD 与 MOD→原版任一方向失败、存档重要信息损坏或历史购买记录被抹掉，均记 `SAVE COMPATIBILITY FAIL`，至少 P1，阻断稳定版合并及发布，先安全留存原始存档再修复；未知或未测记 `NOT RUN` / `BLOCKED`。涉及商店或存档的改动，测试必须覆盖官方新旧档、MOD 新旧档、曾购买商品的档、导入导出及重启保持，不能仅凭结构检查宣称 PASS。
 - **终局硬指标**：新档合法游戏墙钟 ≤180 分钟且终局后状态可确认，运行证据绑定明确源码 Commit、APK SHA-256、签名、安装、运行 ID 与新档起点；旧 APK 的里程碑不得算作当前 APK。
 - 定向执行 Kotlin/JVM 单测、调度契约、Release、签名、AVD/真机/KVM 的必要验证；每轮最多一次正式 Release 构建，离线优先。未经真实终局验收，不得把 R8 实验或仅构建通过的 APK 称为稳定版。详见 `docs/DELIVERY_RULES.md`、`docs/FACTS.md`。
-

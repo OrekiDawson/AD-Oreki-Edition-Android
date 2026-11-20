@@ -7,6 +7,14 @@ if [[ -z "${ANDROID_HOME:-}" || ! -d "${ANDROID_HOME}/platforms/android-37.0" ]]
   ANDROID_HOME="/home/oreki/Android/Sdk"
 fi
 case "$MODE" in
+  all)
+    TEST_ARGS=(
+      --tests 'kajfosz.antimatterdimensions.oreki.OrekiManagedAutobuyerAuthorityTest'
+      --tests 'kajfosz.antimatterdimensions.oreki.OrekiManagedAutobuyerScenarioTest'
+      --tests 'kajfosz.antimatterdimensions.oreki.OrekiAutobuyerBeatTest'
+    )
+    SUCCESS_MESSAGE="ALL AUTOBUYER BEAT TESTS PASSED"
+    ;;
   current)
     TEST_ARGS=(
       --tests 'kajfosz.antimatterdimensions.oreki.OrekiManagedAutobuyerAuthorityTest'
@@ -21,7 +29,7 @@ case "$MODE" in
     SUCCESS_MESSAGE="ALL LEGACY AUTOBUYER BEAT TESTS PASSED"
     ;;
   *)
-    echo "usage: $0 current|legacy" >&2
+    echo "usage: $0 all|current|legacy" >&2
     exit 2
     ;;
 esac
