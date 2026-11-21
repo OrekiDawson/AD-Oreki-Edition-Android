@@ -2,16 +2,50 @@
 
 ## 当前结论
 
-- 当前修复版 APK 构建、身份、签名、安装与设备回拉：**PASS**
+- 最新 TT 原版收益候选 `68092960` 构建、身份、签名、安装与设备回拉：**PASS**
 - KVM 硬件加速 AVD：**PASS**
 - 原版自动永恒复位 P1 定向单测：**PASS**
-- 当前候选 `9e4571e8` 五阶段节奏：**PACING FAIL**
-- 当前候选完整终局：**STOPPED**（PACING FAIL，不作为晋升依据）
+- 旧商店候选 `41edb37e`：发现 TT 购买仍为 `×500`，已安全停止，不再作为最终候选
+- 最新候选 `68092960`：TT 收益已恢复原版 `×1`
+- 最新候选 JVM 单测：**55/55 PASS**
+- 最新候选调度契约：**152/152 PASS**
+- 最新候选真实新档：**IN PROGRESS**（2026-11-21 09:00:19 起）
+- 最新候选 PACING / ENDGAME / POST-ENDGAME：**IN PROGRESS / NOT RUN**
 - 稳定版发布：**NOT RUN**
 - 四渠道交付：**NOT RUN**
 
 本报告在终局运行中持续更新；在尚未得到原版
 `player.isGameEnd=true` 前，不宣称 Android 终局通过。
+
+## 2026-11-21 09:00 TT 原版收益候选
+
+旧候选真实日志在首次永恒后持续出现：
+
+`tt-reward delta=1 extra=499 ... multiplier=500`
+
+根因是 Android 旧 MOD 仍在 `GameApi` 内保留 `×500` 发奖策略，而 Web 已恢复原版
+`×1`。这不影响“购买本身合法”，但破坏双端经济等价，且时间研究会被人为加速，
+因此旧跑次已保存现场并停止。
+
+最小 Kotlin 修复：
+
+- 新增 `OrekiTimeTheoremRewardPolicy`，收益倍率固定为原版 `×1`。
+- `timeTheoremBuyMax()` 返回原版真实购买数量。
+- `settleTimeTheoremReward()` 在倍率 1 下只推进基线，不调用额外货币发奖。
+- 未修改购买成本、资格、原版扣费、挑战、阶段门禁或存档字段。
+
+源码 Commit：`f04d5d16893d80a5b2b20bd0a7b4c31e51e47aff`。
+
+最终候选 APK：
+
+- 路径：`build/r121-01-store-removal-tt1/r8off/app-release.apk`
+- SHA-256：`68092960f61485544265955874cf00525bd35c3aa397e66211a1bbcb894d2fd4`
+- 版本：30210002 / 3.21.0
+- 签名：V3 / `95960bce…3197`
+- 安装后回拉哈希一致：PASS
+
+真实新档运行目录：
+`reports/R121-01/tt-reward-original/run/`。
 
 ## 源码与倍率修复
 

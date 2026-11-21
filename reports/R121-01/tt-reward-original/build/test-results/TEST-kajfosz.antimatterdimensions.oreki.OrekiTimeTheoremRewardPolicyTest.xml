@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kajfosz.antimatterdimensions.oreki.OrekiTimeTheoremRewardPolicyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-21T01:01:45.523Z" hostname="Oreki-Desktop" time="0.001">
+  <properties/>
+  <testcase name="不再补发旧模组额外时间定理" classname="kajfosz.antimatterdimensions.oreki.OrekiTimeTheoremRewardPolicyTest" time="0.001"/>
+  <testcase name="非正购买量保持零收益" classname="kajfosz.antimatterdimensions.oreki.OrekiTimeTheoremRewardPolicyTest" time="0.0"/>
+  <testcase name="购买收益恢复原版一乘" classname="kajfosz.antimatterdimensions.oreki.OrekiTimeTheoremRewardPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

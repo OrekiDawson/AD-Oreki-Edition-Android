@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kajfosz.antimatterdimensions.oreki.OrekiEternityGainGateTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-21T01:01:45.541Z" hostname="Oreki-Desktop" time="0.002">
+  <properties/>
+  <testcase name="unreadableEntryGoal_failClosed" classname="kajfosz.antimatterdimensions.oreki.OrekiEternityGainGateTest" time="0.002"/>
+  <testcase name="ec1OrEc4EntryUnmet_exemptsGainGate" classname="kajfosz.antimatterdimensions.oreki.OrekiEternityGainGateTest" time="0.0"/>
+  <testcase name="metEntryAndOtherEc_keepNormalGainGate" classname="kajfosz.antimatterdimensions.oreki.OrekiEternityGainGateTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "round": "R121-01",
+  "source_commit": "f04d5d16893d80a5b2b20bd0a7b4c31e51e47aff",
+  "source_commit_short": "f04d5d16",
+  "game_jar_sha256": "a1344a5279efe77993a81e35e2b4801440f155ca0e3dedebf2ddb28354e5d16b",
+  "apk": "build/r121-01-store-removal-tt1/r8off/app-release.apk",
+  "apk_sha256": "68092960f61485544265955874cf00525bd35c3aa397e66211a1bbcb894d2fd4",
+  "installed_apk_sha256": "68092960f61485544265955874cf00525bd35c3aa397e66211a1bbcb894d2fd4",
+  "apk_bytes": 81617195,
+  "package": "com.oreki.antimatterdimensions",
+  "version_name": "3.21.0",
+  "version_code": 30210002,
+  "min_sdk": 32,
+  "target_sdk": 37,
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "signature_schemes": ["v3"],
+  "unit_tests": {
+    "tests": 55,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "scheduler_contract": {
+    "checks": 152,
+    "failures": 0
+  },
+  "run_start_utc": "2026-11-21T01:00:19Z",
+  "status": {
+    "build": "PASS",
+    "signing": "PASS",
+    "install": "PASS",
+    "fresh_start": "PASS",
+    "time_theorem_reward": "PASS_STATIC_AND_JVM",
+    "gameplay_legality": "IN PROGRESS",
+    "pacing": "IN PROGRESS",
+    "endgame": "NOT RUN",
+    "post_endgame_stability": "NOT RUN",
+    "save_compatibility": "PASS_PREVIOUS_CANDIDATE_ONLY"
+  }
+}

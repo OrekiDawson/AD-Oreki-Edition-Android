@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kajfosz.antimatterdimensions.oreki.OrekiAutobuyerBeatTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-21T01:01:45.507Z" hostname="Oreki-Desktop" time="0.012">
+  <properties/>
+  <testcase name="managedBeatRegistersOnceAndRestoresExactlyAtConfiguredPeriod" classname="kajfosz.antimatterdimensions.oreki.OrekiAutobuyerBeatTest" time="0.011"/>
+  <testcase name="managedBeatHonoursOneAndSixtySecondBoundaries" classname="kajfosz.antimatterdimensions.oreki.OrekiAutobuyerBeatTest" time="0.001"/>
+  <testcase name="invalidManagedBeatFallsBackToTenSeconds" classname="kajfosz.antimatterdimensions.oreki.OrekiAutobuyerBeatTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
