@@ -246,6 +246,43 @@ val fullGameStage = File(repoRoot, providers.gradleProperty("orekiFullGameStage"
 // R106-02：由官方 3.21.0 DEX 经 dex2jar 转换并过滤后的 JVM 类输入（构建产物，不入库）。
 // 脚本：scripts/agp_gamejar.py；来源 SHA-256 必须随候选记录。
 val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
+val storePolicyGameJar = File(repoRoot, "build/agp-store-policy/game-hybrid-sig-store-policy.jar")
+val storePolicyReport = File(repoRoot, "build/agp-store-policy/report.json")
+
+// R121-01：商店/广告业务判据在 Kotlin；这里只对已转换游戏 JAR 的两个原版
+// ABI 出口做最小替换，存档字段、构造器、copy/component 与序列化保持原样。
+val applyStorePolicy = tasks.register<Exec>("applyStorePolicy") {
+    group = "oreki"
+    description = "Apply Kotlin STD/IAP and ad-bonus policy to the converted game JAR"
+    onlyIf { fullGame }
+    val inputJar = gameJar
+    val script = File(repoRoot, "scripts/agp/apply_store_policy.py")
+    val transformer = File(repoRoot, "scripts/agp/store_policy/StorePolicyTransformer.java")
+    val asmJar = File(gradle.gradleHomeDir, "lib").listFiles()
+        ?.filter { Regex("""asm-\d+(?:\.\d+)*\.jar""").matches(it.name) }
+        ?.sortedBy { it.name }
+        ?.firstOrNull()
+        ?: throw GradleException("找不到 Gradle 发行版内的 ASM jar（lib/asm-*.jar）")
+    if (fullGame && inputJar == null) {
+        throw GradleException("完整游戏模式缺少 orekiGameJar")
+    }
+    if (inputJar != null) inputs.file(inputJar)
+    inputs.file(script)
+    inputs.file(transformer)
+    inputs.file(asmJar)
+    outputs.file(storePolicyGameJar)
+    outputs.file(storePolicyReport)
+    workingDir = repoRoot
+    commandLine(
+        "python3",
+        script.absolutePath,
+        "--game-jar", inputJar?.absolutePath ?: "",
+        "--out-jar", storePolicyGameJar.absolutePath,
+        "--report", storePolicyReport.absolutePath,
+        "--asm-jar", asmJar.absolutePath,
+        "--java-home", System.getProperty("java.home"),
+    )
+}
 
 // [R114-02] 生产 Kotlin 生成输入显式化（Issue #61 阶段 S2 / Issue #52 去 Python）：
 // 基线绑定原由 `python3 scripts/build_kotlin.py --generate-bindings`（Exec）在 preBuild
@@ -457,9 +494,9 @@ if (fullGame) {
         throw GradleException("完整游戏模式缺少 -PorekiGameJar=<官方 DEX 转换后的 JVM jar>；来源 SHA-256 必须可追踪")
     }
     dependencies {
-        implementation(files(jar))
+        implementation(files(applyStorePolicy.map { storePolicyGameJar }))
     }
-    logger.lifecycle("[oreki] 游戏类输入: " + jar + " (" + jar.length() + " bytes)")
+    logger.lifecycle("[oreki] 游戏类输入: " + jar + " (" + jar.length() + " bytes) -> store-policy ABI adapter")
 }
 
 if (fullGame) {
@@ -787,6 +824,7 @@ tasks.register("verifyFullGameInputsCrlfSelfTest") {
 tasks.named("preBuild") {
     dependsOn(generateKotlinBindings)
     if (fullGame) {
+        dependsOn(applyStorePolicy)
         dependsOn(prepareFullGameInputs)
         dependsOn("verifyFullGameInputs")
         dependsOn("prepareFullGameAssets")

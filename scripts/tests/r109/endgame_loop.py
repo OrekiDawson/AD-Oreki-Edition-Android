@@ -14,7 +14,8 @@
 纪律：只读 Player 字段并 pull player.json；不写任何进度字段。
       --inject 仅用于把已存在的真实存档放回设备做诊断/夹具，报告中必须标注来源与用途。
 """
-import argparse, json, os, shutil, subprocess, time, datetime
+import argparse, json, os, re, shutil, subprocess, time, datetime
+import xml.etree.ElementTree as ET
 
 PKG = "com.oreki.antimatterdimensions"
 ACT = "kajfosz.antimatterdimensions.MainActivity"
@@ -98,6 +99,49 @@ def pull_player(dest):
     return data
 
 
+def _bounds_center(bounds):
+    match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
+    if not match:
+        return None
+    x1, y1, x2, y2 = map(int, match.groups())
+    return (x1 + x2) // 2, (y1 + y2) // 2
+
+
+def dismiss_known_ui(out_dir):
+    """关闭首启与纯说明弹窗，只点击稳定资源 ID，不碰游戏购买/挑战按钮。"""
+    try:
+        dump = adb("shell", "uiautomator", "dump", "/sdcard/oreki-window.xml", timeout=15)
+        if dump.returncode != 0:
+            return
+        xml = adb("shell", "cat", "/sdcard/oreki-window.xml", timeout=15)
+        if xml.returncode != 0 or not xml.stdout.strip():
+            return
+        root = ET.fromstring(xml.stdout)
+        for node in root.iter("node"):
+            rid = node.get("resource-id", "")
+            text = node.get("text", "").strip()
+            is_start = rid == f"{PKG}:id/loadingStartButton" and text == "开始游戏"
+            is_fixed_dialog = rid == "android:id/button1" and text == "确定"
+            if not (is_start or is_fixed_dialog):
+                continue
+            center = _bounds_center(node.get("bounds", ""))
+            if center is None:
+                continue
+            adb("shell", "input", "tap", str(center[0]), str(center[1]), timeout=15)
+            action = {
+                "at": datetime.datetime.now().isoformat(timespec="seconds"),
+                "resource_id": rid,
+                "text": text,
+            }
+            with open(os.path.join(out_dir, "ui-actions.jsonl"), "a", encoding="utf-8") as fp:
+                fp.write(json.dumps(action, ensure_ascii=False) + "\n")
+            log("ui: 已安全关闭 " + text)
+            time.sleep(1)
+            return
+    except Exception as error:
+        log("ui-check failed: " + str(error)[:200])
+
+
 def summary(p):
     if not p:
         return {}
@@ -176,8 +220,18 @@ def main():
             p = adb("push", args.inject, PLAYER)
             if p.returncode != 0:
                 raise RuntimeError("push 存档失败: " + p.stderr[:300])
-            adb("shell", "chown", "u0_a248:u0_a248", PLAYER)
-            adb("shell", "chmod", "660", PLAYER)
+            # 包 UID 会随重装变化，不能沿用历史硬编码值；否则应用读不到注入档，
+            # 会静默创建新档并把错误跑次误当成旧档回归。
+            uid = adb("shell", "stat", "-c", "%u", os.path.dirname(FILES)).stdout.strip()
+            if not uid.isdigit() or uid == "0":
+                raise RuntimeError("无法读取应用数据目录 UID: " + uid[:120])
+            # adb push 会保留宿主 UID 类型对应的 SELinux 标签；仅改所有者仍会
+            # 被应用以 EACCES 拒绝读取。先恢复标签，再改所有者；restorecon 可能
+            # 把新文件所有者恢复为 root，顺序反了仍会失败。
+            adb("shell", "restorecon", "-R", FILES, check=True)
+            adb("shell", "chown", "-R", f"{uid}:{uid}", FILES, check=True)
+            adb("shell", "chmod", "700", FILES, check=True)
+            adb("shell", "chmod", "600", PLAYER, check=True)
             log(f"inject: {args.inject} -> 设备 player.json")
             shutil.copy(args.inject, os.path.join(args.out, "player-injected.json"))
         adb("logcat", "-c")
@@ -192,6 +246,7 @@ def main():
         while time.time() - t0 < args.seconds:
             if time.time() >= next_sample:
                 snaps += 1
+                dismiss_known_ui(args.out)
                 dest = os.path.join(args.out, f"player-{snaps:03d}.json")
                 data = pull_player(dest)
                 s = summary(data)
