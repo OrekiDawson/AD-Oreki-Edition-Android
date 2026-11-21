@@ -2513,23 +2513,27 @@ object OrekiStageAuto {
      */
     private fun releaseC9CrunchOnAutomationDisabled() {
         if (!c9CrunchHoldCaptured) return
-        val crunch = GameApi.crunchState() ?: return
-        val activeBeforeRestore = GameApi.isAutobuyerActive(crunch) ?: return
-        val restoreAutoBig = OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
-            ownedByMod = c9PreviousModOwnedCrunch,
-            pausedByMod = c9PreviousPolicyPausedCrunch,
-            persistedPaused = false,
-            active = activeBeforeRestore,
-        )
-        restoreCrunchOwnershipAfterC9()
-        if (c9CrunchHoldCaptured) return
-        if (restoreAutoBig && GameApi.isAutobuyerActive(crunch) == false) {
-            GameApi.setAutobuyerActive(crunch, true)
+        try {
+            val crunch = GameApi.crunchState() ?: return
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            val restoreAutoBig = c9PreviouslyActiveAutoBig ||
+                OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
+                    ownedByMod = c9PreviousModOwnedCrunch,
+                    pausedByMod = c9PreviousPolicyPausedCrunch,
+                    persistedPaused = false,
+                    active = active,
+                )
+            if (restoreAutoBig && !active) {
+                GameApi.setAutobuyerActive(crunch, true)
+            }
+            modOwnsCrunch = false
+            crunchPausedByStagePolicy = false
+            OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            c9CrunchHoldCaptured = false
+            Log.i(TAG_AU4C, "automation-off: C9 crunch ownership released")
+        } catch (_: Throwable) {
+            // 保持 captured=true，关闭态下下一帧继续重试。
         }
-        modOwnsCrunch = false
-        crunchPausedByStagePolicy = false
-        OrekiAutomationScheduler.markCrunchPausedByMod(false)
-        Log.i(TAG_AU4C, "automation-off: C9 crunch ownership released")
     }
 
     /**
