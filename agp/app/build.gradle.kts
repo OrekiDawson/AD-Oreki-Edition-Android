@@ -341,6 +341,26 @@ fun orekiTransformFullGameManifest(
     )
     application.appendChild(settingsActivity)
 
+    val tutorialActivity = document.createElement("activity")
+    tutorialActivity.setAttributeNS(
+        OREKI_ANDROID_NS,
+        "android:name",
+        OREKI_OFFICIAL_PACKAGE + ".oreki.tutorial.TutorialActivity",
+    )
+    tutorialActivity.setAttributeNS(OREKI_ANDROID_NS, "android:exported", "false")
+    tutorialActivity.setAttributeNS(OREKI_ANDROID_NS, "android:label", "Oreki 教程")
+    tutorialActivity.setAttributeNS(
+        OREKI_ANDROID_NS,
+        "android:theme",
+        "@android:style/Theme.Material.NoActionBar",
+    )
+    tutorialActivity.setAttributeNS(
+        OREKI_ANDROID_NS,
+        "android:configChanges",
+        "keyboardHidden|orientation|screenLayout|screenSize|uiMode",
+    )
+    application.appendChild(tutorialActivity)
+
     target.parentFile.mkdirs()
     val transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer()
     transformer.setOutputProperty(javax.xml.transform.OutputKeys.ENCODING, "UTF-8")
@@ -752,9 +772,10 @@ fun orekiVerifyNativeFullGameInputs(
         throw GradleException("[oreki] 阶段 Manifest 仍带 android:extractNativeLibs")
     }
     if (!stagedManifestText.contains("android.app.shortcuts") ||
-        !stagedManifestText.contains(OREKI_OFFICIAL_PACKAGE + ".oreki.SpeedSettingsActivity")
+        !stagedManifestText.contains(OREKI_OFFICIAL_PACKAGE + ".oreki.SpeedSettingsActivity") ||
+        !stagedManifestText.contains(OREKI_OFFICIAL_PACKAGE + ".oreki.tutorial.TutorialActivity")
     ) {
-        throw GradleException("[oreki] 阶段 Manifest 缺少 MOD 快捷方式或设置页组件")
+        throw GradleException("[oreki] 阶段 Manifest 缺少 MOD 快捷方式、设置页或教程组件")
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -802,6 +823,7 @@ fun orekiVerifyNativeFullGameInputs(
         "checks" to linkedMapOf<String, Any>(
             "official_identity" to true,
             "manifest_transform_byte_equal" to true,
+            "tutorial_activity_registered" to true,
             "stable_ids_byte_equal" to true,
             "staged_public_ids_equal" to true,
             "mod_overlay_present" to true,

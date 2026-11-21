@@ -16,7 +16,7 @@ echo '[2/6] 复制工具与解码树（符号链接展开为实体）'
 cp -a "$AD/tools/apktool.jar" "$STAGE/assets/apktool.jar"
 cp -a "$AD/work/mdpi_decoded_321" "$STAGE/assets/work-splits/mdpi_decoded_321"
 cp -a "$AD/work/base_decoded_321" "$STAGE/baseline/current"
-cp -a "$AD/work/base_decoded_320" "$STAGE/legacy"
+cp -a "$AD/work/base_decoded_320/." "$STAGE/legacy/"
 cp -a "/home/oreki/private-staging/r113-leaffix4-tools/out/agpdex2/game-hybrid-sig.jar" "$STAGE/gamejar/game-hybrid-sig.jar"
 
 echo '[3/6] 校验关键原生输入与 game jar SHA'

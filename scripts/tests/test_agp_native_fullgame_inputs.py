@@ -15,6 +15,8 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         block = text[start:end]
         self.assertIn("orekiTransformFullGameManifest", block)
         self.assertIn("orekiStageFullGameResources", block)
+        self.assertIn("tutorial.TutorialActivity", text)
+        self.assertIn("@android:style/Theme.Material.NoActionBar", text)
         self.assertNotIn("commandLine(", block)
         self.assertNotIn("agp_prepare_fullgame.py", block)
         self.assertIn('OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"', text)
