@@ -6,7 +6,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** R122：C9 只保留能真实解锁维度提升链的原版自动购买器。 */
+/** C9 只保留能真实解锁维度提升链的原版自动购买器。 */
 class OrekiC9ManagedStrategyTest {
     @Test
     fun onlyC9UsesManagedC9Strategy() {
@@ -124,11 +124,34 @@ class OrekiC9ManagedStrategyTest {
     @Test
     fun thirdBoostFocusesSeventhDimension() {
         for (tier in 1..6) {
-            assertFalse(OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, 3))
+            assertFalse(
+                OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, 3, lowerChainReady = true),
+            )
         }
-        assertTrue(OrekiManagedAutobuyerAuthority.c9DimensionActive(7, 3))
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9DimensionActive(7, 3, lowerChainReady = true),
+        )
         assertFalse(OrekiManagedAutobuyerAuthority.c9DimensionActive(8, 3))
         assertFalse(OrekiManagedAutobuyerAuthority.c9TickspeedActive(3))
+    }
+
+    @Test
+    fun thirdBoostBootstrapsLowerChainAfterOriginalReset() {
+        for (tier in 1..6) {
+            assertTrue(
+                OrekiManagedAutobuyerAuthority.c9DimensionActive(
+                    tier,
+                    3,
+                    lowerChainReady = false,
+                ),
+            )
+        }
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9DimensionActive(7, 3, lowerChainReady = false),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9DimensionActive(8, 3, lowerChainReady = false),
+        )
     }
 
     @Test
@@ -141,11 +164,31 @@ class OrekiC9ManagedStrategyTest {
     @Test
     fun fourthBoostFocusesEighthDimensionUntilFifthBoost() {
         for (tier in 1..7) {
-            assertFalse(OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, 4))
+            assertFalse(
+                OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, 4, lowerChainReady = true),
+            )
         }
-        assertTrue(OrekiManagedAutobuyerAuthority.c9DimensionActive(8, 4))
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9DimensionActive(8, 4, lowerChainReady = true),
+        )
         assertFalse(OrekiManagedAutobuyerAuthority.c9TickspeedActive(4))
         assertFalse(OrekiManagedAutobuyerAuthority.c9SacrificeActive(4))
+    }
+
+    @Test
+    fun fourthBoostBootstrapsFirstSevenDimensionsAfterOriginalReset() {
+        for (tier in 1..7) {
+            assertTrue(
+                OrekiManagedAutobuyerAuthority.c9DimensionActive(
+                    tier,
+                    4,
+                    lowerChainReady = false,
+                ),
+            )
+        }
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9DimensionActive(8, 4, lowerChainReady = false),
+        )
     }
 
     @Test

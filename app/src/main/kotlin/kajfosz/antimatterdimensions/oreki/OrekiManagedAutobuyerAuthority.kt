@@ -125,11 +125,21 @@ object OrekiManagedAutobuyerAuthority {
         return !d7Ready || !d8Ready
     }
 
+    /**
+     * C9 第 3/4 次提升会执行原版维度重置。新档尚无“提升保留维度”能力，
+     * 若重置后仍只开放 D7/D8，基础生产链会因所有维度归零而无法重新启动。
+     * 因此仅在低层真实数量为零时临时自举基础购买层；检测到正数后立即收窄。
+     */
     @JvmStatic
-    fun c9DimensionActive(tier: Int, dimensionBoosts: Int): Boolean = when {
+    @JvmOverloads
+    fun c9DimensionActive(
+        tier: Int,
+        dimensionBoosts: Int,
+        lowerChainReady: Boolean = true,
+    ): Boolean = when {
         dimensionBoosts < 3 -> tier in 1..8
-        dimensionBoosts < 4 -> tier == 7
-        dimensionBoosts == 4 -> tier == 8
+        dimensionBoosts < 4 -> tier == 7 || (!lowerChainReady && tier in 1..6)
+        dimensionBoosts == 4 -> tier == 8 || (!lowerChainReady && tier in 1..7)
         else -> tier in 1..8
     }
 

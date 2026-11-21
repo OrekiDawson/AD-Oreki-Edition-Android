@@ -2136,10 +2136,26 @@ object OrekiStageAuto {
         appliedManagedConfigTickId = managedConfigTickId
         try {
             val purchasedBoosts = GameApi.dimensionBoosts()?.toInt() ?: 0
+            val dimensionStates = GameApi.antimatterDimensionStates()
+            val requiredProducedTier = when (purchasedBoosts) {
+                3 -> 6
+                4 -> 7
+                else -> 0
+            }
+            val lowerChainReady =
+                requiredProducedTier == 0 ||
+                    (1..requiredProducedTier).all { tier ->
+                        val state = dimensionStates?.getOrNull(tier - 1)
+                        GameApi.dimensionHasPositiveAmount(state)
+                    }
             GameApi.dimensionAutobuyers()?.forEachIndexed { i, dim ->
                 val tier = i + 1
                 val active =
-                    OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, purchasedBoosts)
+                    OrekiManagedAutobuyerAuthority.c9DimensionActive(
+                        tier,
+                        purchasedBoosts,
+                        lowerChainReady,
+                    )
                 if (reconcileManagedAutobuyer("dim" + tier, dim, active)) {
                     reconcileIntField(
                         "dim" + tier + ".mode",
@@ -2150,6 +2166,14 @@ object OrekiStageAuto {
                         ),
                     ) { GameApi.setDimensionAutobuyerMode(dim, it) }
                 }
+            }
+            if (requiredProducedTier > 0) {
+                Log.i(
+                    TAG_AU4C,
+                    "managed[c9.bootstrap] boosts=" + purchasedBoosts +
+                        " lowerChainReady=" + lowerChainReady +
+                        " requiredProducedTier=" + requiredProducedTier,
+                )
             }
 
             val tickspeed = GameApi.tickspeedAutobuyer()

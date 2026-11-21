@@ -428,6 +428,13 @@ check("C9 保留专用受管配置与真实提升维护",
       "applyC9ManagedAutobuyerStates()" in _c9_block
       and "c9MaintenanceTask(normalChallengeCurrent)" in _c9_block
       and "holdCrunchOwnershipForC9()" in _c9_block)
+check("C9 提升重置后按真实维度数量自举基础生产链",
+      "GameApi.dimensionHasPositiveAmount(state)" in stage
+      and "lowerChainReady" in stage
+      and "!lowerChainReady && tier in 1..6" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+      and "!lowerChainReady && tier in 1..7" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 入场准备不阻塞已运行的 IC/EC",
       "if (GameApi.inAnyChallenge()) return false" in
       read(KT_DIR / "OrekiAutoEternityGate.kt"))

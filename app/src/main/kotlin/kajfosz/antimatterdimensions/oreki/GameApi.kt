@@ -2044,6 +2044,26 @@ internal object GameApi {
         call(mDimN(), dim, true)
     }
 
+    private var mDimensionAmountY: Method? = null
+    private var mDimensionAmountYResolved: Boolean = false
+    private fun mDimensionAmountY(): Method? {
+        if (!mDimensionAmountYResolved) {
+            mDimensionAmountYResolved = true
+            mDimensionAmountY = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "y", 0, "AntimatterDimensionState.y()=amount",
+            )
+        }
+        return mDimensionAmountY
+    }
+
+    /** 原版维度当前数量 `AntimatterDimensionState.y()`；读不到返回 null。 */
+    fun dimensionAmount(state: Any?): Any? = call(mDimensionAmountY(), state)
+
+    /** 维度数量是否为真实正数；仅用于判断重置后基础生产链是否已重新建立。 */
+    fun dimensionHasPositiveAmount(state: Any?): Boolean =
+        log10BigDouble(dimensionAmount(state))?.isFinite() == true
+
     // ---------------------------------------------------------------- 无限维度
 
     private var mIdHolderA: Method? = null
