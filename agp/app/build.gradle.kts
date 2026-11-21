@@ -118,6 +118,11 @@ fun orekiReadPublicResources(file: File): List<OrekiPublicResource> {
 fun orekiRenamedResourceName(name: String): String =
     if (name.contains('$')) "_aapt_" + name.replace("$", "") else name
 
+fun orekiRenamedGeneratedResourceTarget(source: File, newStem: String): File {
+    val renamedName = if (source.extension.isEmpty()) newStem else newStem + "." + source.extension
+    return File(source.parentFile, renamedName)
+}
+
 /**
  * 以官方 3.21 public.xml 为权威顺序，仅追加同版 mdpi split 中缺失且非占位的资源。
  * 同 ID 不同语义或同名不同 ID 都是输入冲突，必须阻断。
@@ -550,7 +555,7 @@ fun orekiStageFullGameResources(
     for (source in generatedFiles) {
         val oldStem = source.nameWithoutExtension
         val newStem = "_aapt_" + oldStem.replace("$", "")
-        val target = File(source.parentFile, newStem + "." + source.extension)
+        val target = orekiRenamedGeneratedResourceTarget(source, newStem)
         if (target.exists()) {
             throw GradleException("[oreki] AAPT2 生成资源改名冲突: " + source + " -> " + target)
         }
@@ -1170,6 +1175,8 @@ val shortcutOverlay = File(repoRoot, "agp/fullgame-overlay/xml/oreki_shortcuts.x
 val prepareFullGameInputs by tasks.registering {
     group = "oreki"
     description = "Gradle 原生生成 AGP 完整游戏 Manifest、资源、stable-ids 与来源证据"
+    inputs.dir(officialTree).withPropertyName("orekiOfficialDecodedTree")
+    inputs.dir(splitTree).withPropertyName("orekiSplitDecodedTree")
     inputs.file(File(officialTree, "AndroidManifest.xml")).withPropertyName("orekiOfficialManifest")
     inputs.file(File(officialTree, "res/values/public.xml")).withPropertyName("orekiOfficialPublicXml")
     inputs.file(File(officialTree, "apktool.yml")).withPropertyName("orekiOfficialApktool")
@@ -1196,6 +1203,13 @@ val prepareFullGameInputs by tasks.registering {
             )
         }
         val canonicalInputs = orekiVerifyCanonicalFullGameInputs(officialTree, splitTree)
+        val extensionlessProbe = orekiRenamedGeneratedResourceTarget(
+            File(fullGameStage.parentFile, "res/raw/" + '$' + "oreki_probe"),
+            "_aapt_oreki_probe",
+        )
+        if (extensionlessProbe.name != "_aapt_oreki_probe") {
+            throw GradleException("[oreki] 无扩展名资源改名契约失败: " + extensionlessProbe.name)
+        }
         fun versionCode(tree: File): String {
             val metadata = File(tree, "apktool.yml")
             val match = Regex("versionCode:\\s*['\"]?(\\d+)").find(metadata.readText(Charsets.UTF_8))
@@ -1531,6 +1545,8 @@ if (fullGame) {
             "Gradle 原生独立校验 fullGame 输入：public.xml → stable-ids 期望字节、Manifest 规范化、" +
                 "阶段 oreki_public_ids.xml 改写、fullgame-inputs.json 指纹/统计"
         dependsOn(prepareFullGameInputs)
+        inputs.dir(officialTree).withPropertyName("orekiOfficialDecodedTree")
+        inputs.dir(splitTree).withPropertyName("orekiSplitDecodedTree")
         inputs.file(orekiDecodedPublicXml).withPropertyName("orekiDecodedPublicXml")
         inputs.file(orekiDecodedManifest).withPropertyName("orekiDecodedManifest")
         inputs.file(orekiStagedManifest).withPropertyName("orekiStagedManifest")

@@ -527,6 +527,11 @@ Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收�
 - `verifyFullGameInputs` 再次独立执行同一身份校验，并新增
   `AppTheme`、`Palette.Fallback`、`Theme.MySplash`、中文 `app_name`、
   `drawable-nodpi/antimatter.png` 与 `xml/oreki_shortcuts.xml` 的必要性检查。
+- 两棵完整解码树已显式登记为 `prepareFullGameInputs` 与
+  `verifyFullGameInputs` 的输入目录，避免只修改 `assets`/`lib` 时任务继续
+  UP-TO-DATE、却复制未经全树身份校验的内容。
+- `$` 资源改名按“有无扩展名”分别构造目标文件名；无扩展名探针必须得到
+  `_aapt_oreki_probe`，不得生成带尾点的非法资源名。
 - 历史 `work/mod` 不能再被伪装成“官方输入”：即使其包名、versionCode
   或资源条数看起来正确，Manifest/public.xml 哈希不符也会在目标目录被改动前失败。
 
