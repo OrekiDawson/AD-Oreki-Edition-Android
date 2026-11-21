@@ -96,7 +96,8 @@ check("默认启用（用户令：默认开）",
 # ---------------------------------------------------------------- 4. 全局节拍是第一道闸
 check("allow() 里存在全局节拍判定", "lastBeatAt" in sched and "beatSkips++" in sched)
 check("全局节拍判定使用 intervalSec 换算",
-      re.search(r"now - beat < intervalSec \* 1000L", sched) is not None)
+      "val effectiveMs = effectiveIntervalSec() * 1000L" in sched
+      and "isGlobalBeatReady(beat, now, effectiveMs)" in sched)
 check("全局节拍先于单任务闸（顺序断言）",
       sched.index("val beat = lastBeatAt") < sched.index("val last = lastAct[idx]"))
 
@@ -148,7 +149,8 @@ for fn in ("autoSacrifice", "upgradeBulkAll", "buyInfinityUpgrades",
 check("upgradeBulkAll 用轮转指针（每拍只升 1 个维度）",
       "bulkPurchaseCursor" in stage and "bulkPurchaseCursor = (bulkPurchaseCursor + 1) % autos.size" in stage)
 check("tryBuyId1 用轮转指针（每拍只处理 1 层）",
-      "infinityDimensionCursor" in stage and "infinityDimensionCursor = (infinityDimensionCursor + 1) % 8" in stage)
+      "infinityDimensionCursor" in stage
+      and "infinityDimensionCursor = (infinityDimensionCursor + 1) % buyableTiers.size" in stage)
 check("upgradeCrunchInterval 有一拍一级注释（不得循环多级）",
       "每拍**最多买 1 级**" in stage or "每拍最多买 1 级" in stage)
 
@@ -204,7 +206,7 @@ check("不再绑定错误的 g0(I)",
 check("存在大坍缩间隔是否买满的判据", "private fun crunchIntervalIsMaxed(): Boolean" in stage)
 check("Break 兜底内先买满间隔（upgradeCrunchInterval 调用）",
       "if (!crunchIntervalIsMaxed())" in stage and "upgradeCrunchInterval()" in stage)
-_break_block = stage[stage.index("---- Break 兜底 + 自愈"):]
+_break_block = stage[stage.index("fun maintainBreakState()"):]
 check("间隔自愈排在 tryBreakInfinity 之前",
       _break_block.index("crunchIntervalIsMaxed()") < _break_block.index("tryBreakInfinity()"))
 check("存在 Break 丢失诊断函数", "private fun detectBreakLoss()" in stage)
@@ -218,7 +220,7 @@ check("诊断使用独立 OREKI_BREAK 标签", 'TAG_BREAK_GUARD = "OREKI_BREAK"'
 _break_fn = stage[stage.index("fun tryBreakInfinity()"):]
 check("已 Break 时早退（不得重复写 brake）",
       _break_fn.index("if (isBroken()) return") < _break_fn.index("GameApi.setBrake(true)"))
-_heal_block = stage[stage.index("---- Break 兜底 + 自愈"):stage.index("---- Break 升级真实购买")]
+_heal_block = stage[stage.index("fun maintainBreakState()"):stage.index("private fun ipBalance()")]
 check("间隔自愈只在未 Break 分支内（已 Break 不买间隔）",
       "if (!wasBroken) {" in _heal_block and
       _heal_block.index("if (!wasBroken) {") < _heal_block.index("upgradeCrunchInterval()"))
@@ -280,7 +282,7 @@ check("eternitiesZero 对 bigEternities 兜底", "if (big is Number && big.toLon
 # ---------------------------------------------------------------- 22. R94：Break 前 IP 收割策略
 # 实测：存档 `auto.bigCrunch` 为 AMOUNT 模式且 amount=1 ⇒ 反物质刚到 1 就填塌，
 # 每次 IP 收益≈0，填塌间隔升级买不动 ⇒ Break 永久卡住。
-check("Break 前强制 TIME 模式收割 IP", "policy -> TIME/10s (pre-break IP harvest)" in stage)
+check("Break 前强制 TIME 模式收割 IP", "policy -> managed interval/10s (pre-break IP harvest)" in stage)
 check("Break 前填塌间隔按常量校准", "PRE_BREAK_CRUNCH_SECONDS" in stage)
 check("未 Break 分支在 isBroken 之前", stage.index("if (!isBroken()) {") < stage.index("if (GameApi.crunchMode(crunch) == MODE_TIME) return"))
 
@@ -308,14 +310,13 @@ check("决策优先级：未 Break 放行", 'Decision(true, "pre-break-ip")' in 
 # 星系/维度提升门槛永远达不到（maxIP 平台 1e593、10 分钟零增长）。
 check("永恒层坍缩改为收益驱动（不再无条件 allow）",
       'Decision(true, "post-eternity")' not in _crunch_kt
-      and 'Decision(true, "eternity-ip-jump")' in _crunch_kt
       and 'waitWithin("eternity-grow"' in _crunch_kt
-      # [R96 第五轮] 永恒层周期结算：30 秒墙钟放行一次，保证 IP→无限维度购买链不断
-      # （实测纯等待 87/min vs 持续结算 327-755/min）。
+      # [R116-02-01] 现实后也必须进入永恒层收益/成长窗口，而不是误判为新档。
+      and "if (!OrekiStageAuto.eternitiesZero() || hasReality())" in _crunch_kt
+      # [R96 第五轮 / R116] 自适应成长窗口到期才真实结算一次，不再无条件放行。
       and 'Decision(true, "eternity-cycle")' in _crunch_kt
-      and "ETERNITY_CYCLE_NS: Long = 30_000_000_000L" in _crunch_kt
-      # 永恒层分支内不得再出现 canEternity 放行（那里 canEternity 长期为真 ⇒ 等于无条件坍缩）
-      and 'if (GameApi.canEternity()) {' not in _crunch_kt.split("if (!OrekiStageAuto.eternitiesZero()) {")[1].split("// 1) 已经够永恒")[0])
+      # canEternity 只能进入有上限的 hold；达到门槛时不得直接放行坍缩。
+      and 'Decision(false, "eternity-hold")' in _crunch_kt)
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
@@ -370,7 +371,7 @@ _beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
 _beat_ok, _beat_out = False, "runner missing"
 if _beat_runner.is_file():
     try:
-        _r = _sp.run([str(_beat_runner)], capture_output=True, text=True, timeout=300)
+        _r = _sp.run(["bash", str(_beat_runner)], capture_output=True, text=True, timeout=300)
         _beat_ok = _r.returncode == 0 and "ALL BEAT TESTS PASSED" in _r.stdout
         _beat_out = (_r.stdout or _r.stderr or "").strip().splitlines()[-1:] or [""]
     except Exception as _e:
@@ -390,7 +391,8 @@ check("§81 存在原版购买器侧受管节拍对象（独立于 allow）",
 check("§81 玩家改动只登记一次、到点只恢复一次（不逐帧抢写、不无限延迟）",
       "if (pendingRestoreAtMs != 0L) return" in _ab and "pendingRestoreAtMs = 0L" in _ab)
 check("§81 受管节拍在配置优化层调用（allow 之外）",
-      "OrekiAutobuyerBeat.deferRestore" in stage and "OrekiAutobuyerBeat.consumeRestoreDue" in stage)
+      "managedConfigTickId" in stage
+      and "OrekiManagedAutobuyerAuthority.isNewConfigTick(tickId, appliedManagedIntervalTickId)" in stage)
 
 # ---------------------------------------- 24i. R96 第二十轮：§80.2 玩家意图守卫（两条硬约束）
 _pi = read(KT_DIR / "OrekiPlayerIntent.kt") if (KT_DIR / "OrekiPlayerIntent.kt").is_file() else ""
@@ -481,16 +483,19 @@ check("永恒层只要还有无限维度未解锁就优先 idBuy（否则 maxAM 
       "allInfinityDimensionsUnlocked()" in stage
       and 'if (!allInfinityDimensionsUnlocked()) {' in stage
       and stage.index("if (!allInfinityDimensionsUnlocked()) {") < stage.index('return "idBuy"'))
-check("永恒层 eternity-grow 用 30 秒间隔而非 1 小时硬暂停",
-      "ETERNITY_GROW_CRUNCH_SECONDS = 30.0" in stage
+check("永恒层 eternity-grow 使用自适应成长窗口而非 1 小时硬暂停",
+      "ETERNITY_GROW_START_SECONDS: Double = 600.0" in _crunch_kt
+      and "ETERNITY_GROW_MAX_SECONDS: Double = 1800.0" in _crunch_kt
+      and "eternityGrowSeconds * 2.0" in _crunch_kt
       and 'decision.reason == "eternity-grow"' in stage)
 check("硬暂停常量仍保留用于真等待分支",
       "CRUNCH_PAUSE_SECONDS = 3600.0" in stage)
 check("永恒层等待带上限（10 分钟）",
-      "ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L" in _crunch_kt)
+      "ETERNITY_GROW_WAIT_LIMIT_NS: Long = 2_400_000_000_000L" in _crunch_kt)
 
-check("永恒达标立即放行（原版 canEternity 判据）",
-      'Decision(true, "eternity-ready")' in _crunch_kt)
+check("永恒达标先 hold 原版结算，超时才放行",
+      'Decision(false, "eternity-hold")' in _crunch_kt
+      and 'Decision(true, "eternity-hold-timeout")' in _crunch_kt)
 check("首次永恒前 ID 峰值等待带上限", 'waitWithin("id-peak-wait", PEAK_WAIT_LIMIT_NS)' in _crunch_kt)
 check("全部维度解锁后按收益结算（一次坍缩至少涨 10 倍 IP）",
       'Decision(true, "ip-jump")' in _crunch_kt and "gainVersusIp()" in _crunch_kt)
@@ -508,7 +513,7 @@ check("抢救依据 sinceLastActMs（不是猜测业务）",
       "OrekiAutomationScheduler.sinceLastActMs(taskId)" in stage)
 _rescue = re.search(r"private fun starvationRescue\(base: String\?\): String\? \{.*?\n    \}", stage, re.S)
 check("Break 兜底抢在购买动作之前（否则恒被 frame-held 饿死、首次 Break 永不触发）",
-      stage.index('allow("breakUpgrades")') < stage.index('runScheduled("sacrifice")'))
+      stage.index('maintainBreakState()') < stage.index('runScheduled("sacrifice")'))
 check("紧迫任务按 id 分发（infinityUpgrades 不得落到 idBuy）",
       '"infinityUpgrades" -> buyInfinityUpgrades()' in stage
       and '"breakShop" -> GameApi.breakShopTick() != 0' in stage)
