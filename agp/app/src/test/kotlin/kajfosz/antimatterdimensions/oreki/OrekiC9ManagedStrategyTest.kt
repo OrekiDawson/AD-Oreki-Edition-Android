@@ -183,6 +183,40 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
+    fun c9CaptureOnlyRestoresForSameSaveAndReadableEndedChallenge() {
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave("save-a", "save-a"),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave("save-a", "save-b"),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave("save-a", null),
+        )
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture(
+                captured = true,
+                captureBelongsToSave = true,
+                normalChallengeCurrent = 0,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture(
+                captured = true,
+                captureBelongsToSave = true,
+                normalChallengeCurrent = null,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture(
+                captured = true,
+                captureBelongsToSave = true,
+                normalChallengeCurrent = 9,
+            ),
+        )
+    }
+
+    @Test
     fun belowThirdBoostKeepsDimensionsAvailableForEntryChain() {
         for (tier in 1..8) {
             assertTrue(OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, 2))

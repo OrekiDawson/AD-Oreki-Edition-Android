@@ -462,12 +462,26 @@ check("C9 准备缓存只覆盖慢变完成位，bulk 每次现读",
       and "d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf)" in stage
       and "d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf)" in stage)
 check("C9 结束恢复失败可逐帧重试",
-      "if (c9CrunchHoldCaptured && normalChallengeCurrent != 9)" in stage)
+      "shouldRestoreC9CrunchCapture(" in stage
+      and "captured = c9CrunchHoldCaptured" in stage
+      and "normalChallengeCurrent = normalChallengeCurrent" in stage)
 check("C9 跨重启保留进入前 autoBig 意图",
       "saveC9CrunchCapture(" in stage
       and "loadC9CrunchCaptureOrNull()" in stage
       and "clearC9CrunchCapture()" in stage
       and "KEY_C9_CRUNCH_SAVE_ID" in sched)
+check("C9 capture 绑定存档且仅在调度 tick 或 C9 内探测",
+      "c9CrunchCaptureSaveId" in stage
+      and "c9CaptureBelongsToSave(" in stage
+      and "normalChallengeCurrent == 9 || managedConfigTickId != 0L" in stage
+      and "clearC9CrunchCapture()" in stage)
+check("C9 capture 仅在挑战 ID 明确结束时恢复",
+      "shouldRestoreC9CrunchCapture(" in stage
+      and "normalChallengeCurrent != null" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 capture 清除同步落盘",
+      ".remove(KEY_C9_CRUNCH_SAVE_ID)" in sched
+      and ".commit()" in sched[sched.find("fun clearC9CrunchCapture()"):])
 check("C9 自举层使用单买，避免抬高 D7 价格",
       "!lowerChainReady || tier == 7 || tier == 8" in
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))

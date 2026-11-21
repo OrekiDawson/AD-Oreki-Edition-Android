@@ -157,6 +157,26 @@ object OrekiManagedAutobuyerAuthority {
         return (0 until requiredProducedTier).all { amountComparisons[it] == 1 }
     }
 
+    /** 内存中的 C9 capture 只有仍属于当前存档时才可参与恢复。 */
+    @JvmStatic
+    fun c9CaptureBelongsToSave(
+        capturedSaveId: String?,
+        currentSaveId: String?,
+    ): Boolean =
+        !capturedSaveId.isNullOrEmpty() && capturedSaveId == currentSaveId
+
+    /** 仅在挑战 ID 明确读到非 9 时恢复；null 表示读取失败，必须继续等待。 */
+    @JvmStatic
+    fun shouldRestoreC9CrunchCapture(
+        captured: Boolean,
+        captureBelongsToSave: Boolean,
+        normalChallengeCurrent: Int?,
+    ): Boolean =
+        captured &&
+            captureBelongsToSave &&
+            normalChallengeCurrent != null &&
+            normalChallengeCurrent != 9
+
     @JvmStatic
     @JvmOverloads
     fun c9DimensionMode(

@@ -396,7 +396,7 @@ object OrekiAutomationScheduler {
                 .remove(KEY_C9_CRUNCH_OWNED)
                 .remove(KEY_C9_CRUNCH_PAUSED)
                 .remove(KEY_C9_CRUNCH_SAVE_ID)
-                .apply()
+                .commit()
         } catch (_: Throwable) {
             // 清理失败不反向影响已完成的当前运行恢复。
         }
