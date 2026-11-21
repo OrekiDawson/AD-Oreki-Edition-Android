@@ -14,7 +14,8 @@
 纪律：只读 Player 字段并 pull player.json；不写任何进度字段。
       --inject 仅用于把已存在的真实存档放回设备做诊断/夹具，报告中必须标注来源与用途。
 """
-import argparse, json, os, shutil, subprocess, time, datetime
+import argparse, json, os, re, shutil, subprocess, time, datetime
+import xml.etree.ElementTree as ET
 
 PKG = "com.oreki.antimatterdimensions"
 ACT = "kajfosz.antimatterdimensions.MainActivity"
@@ -96,6 +97,49 @@ def pull_player(dest):
         return None
     shutil.move(tmp, dest)
     return data
+
+
+def _bounds_center(bounds):
+    match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
+    if not match:
+        return None
+    x1, y1, x2, y2 = map(int, match.groups())
+    return (x1 + x2) // 2, (y1 + y2) // 2
+
+
+def dismiss_known_ui(out_dir):
+    """关闭首启与纯说明弹窗，只点击稳定资源 ID，不碰游戏购买/挑战按钮。"""
+    try:
+        dump = adb("shell", "uiautomator", "dump", "/sdcard/oreki-window.xml", timeout=15)
+        if dump.returncode != 0:
+            return
+        xml = adb("shell", "cat", "/sdcard/oreki-window.xml", timeout=15)
+        if xml.returncode != 0 or not xml.stdout.strip():
+            return
+        root = ET.fromstring(xml.stdout)
+        for node in root.iter("node"):
+            rid = node.get("resource-id", "")
+            text = node.get("text", "").strip()
+            is_start = rid == f"{PKG}:id/loadingStartButton" and text == "开始游戏"
+            is_fixed_dialog = rid == "android:id/button1" and text == "确定"
+            if not (is_start or is_fixed_dialog):
+                continue
+            center = _bounds_center(node.get("bounds", ""))
+            if center is None:
+                continue
+            adb("shell", "input", "tap", str(center[0]), str(center[1]), timeout=15)
+            action = {
+                "at": datetime.datetime.now().isoformat(timespec="seconds"),
+                "resource_id": rid,
+                "text": text,
+            }
+            with open(os.path.join(out_dir, "ui-actions.jsonl"), "a", encoding="utf-8") as fp:
+                fp.write(json.dumps(action, ensure_ascii=False) + "\n")
+            log("ui: 已安全关闭 " + text)
+            time.sleep(1)
+            return
+    except Exception as error:
+        log("ui-check failed: " + str(error)[:200])
 
 
 def summary(p):
@@ -202,6 +246,7 @@ def main():
         while time.time() - t0 < args.seconds:
             if time.time() >= next_sample:
                 snaps += 1
+                dismiss_known_ui(args.out)
                 dest = os.path.join(args.out, f"player-{snaps:03d}.json")
                 data = pull_player(dest)
                 s = summary(data)
