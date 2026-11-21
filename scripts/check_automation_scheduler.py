@@ -369,15 +369,54 @@ check("系统二：配置写入幂等（有 once/变化检测闩锁，不逐帧�
 # 纯逻辑、不依赖设备：断言只登记一次 / 未到点不恢复 / 到点只恢复一次 / 1s 与 60s 边界 / 越界兜底。
 import subprocess as _sp
 _beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
-_beat_ok, _beat_out = False, "runner missing"
+_managed_ok, _legacy_ok = False, False
+_managed_out, _legacy_out = ["runner missing"], ["runner missing"]
 if _beat_runner.is_file():
     try:
-        _r = _sp.run(["bash", str(_beat_runner)], capture_output=True, text=True, timeout=300)
-        _beat_ok = _r.returncode == 0 and "ALL BEAT TESTS PASSED" in _r.stdout
-        _beat_out = (_r.stdout or _r.stderr or "").strip().splitlines()[-1:] or [""]
+        _beat = _sp.run(["bash", str(_beat_runner), "all"], capture_output=True, text=True, timeout=300)
+        _test_results = ROOT / "agp" / "app" / "build" / "test-results" / "testDebugUnitTest"
+        _managed_classes = {
+            "OrekiManagedAutobuyerAuthorityTest",
+            "OrekiManagedAutobuyerScenarioTest",
+        }
+        _legacy_classes = {"OrekiAutobuyerBeatTest"}
+        _xml_results = {name: {"tests": 0, "failures": 0, "errors": 0}
+                        for name in _managed_classes | _legacy_classes}
+        if _test_results.is_dir():
+            import xml.etree.ElementTree as _ET
+            for _xml in _test_results.glob("TEST-*.xml"):
+                _name = _xml.stem.rsplit(".", 1)[-1]
+                if _name not in _xml_results:
+                    continue
+                _root = _ET.parse(_xml).getroot()
+                for _key in ("tests", "failures", "errors"):
+                    _xml_results[_name][_key] += int(_root.attrib.get(_key, 0))
+
+        def _classes_passed(names):
+            rows = [_xml_results[name] for name in names]
+            return all(row["tests"] > 0 and row["failures"] == 0 and row["errors"] == 0
+                       for row in rows)
+
+        _managed_ok = _beat.returncode == 0 and _classes_passed(_managed_classes)
+        _legacy_ok = _beat.returncode == 0 and _classes_passed(_legacy_classes)
+        _summary = (_beat.stdout or _beat.stderr or "").strip().splitlines()[-1:] or [""]
+        _managed_out = _summary + [
+            "managed=" + ",".join(
+                f"{name}:{row['tests']}/{row['failures']}/{row['errors']}"
+                for name, row in _xml_results.items() if name in _managed_classes)
+        ]
+        _legacy_out = _summary + [
+            "legacy=" + ",".join(
+                f"{name}:{row['tests']}/{row['failures']}/{row['errors']}"
+                for name, row in _xml_results.items() if name in _legacy_classes)
+        ]
     except Exception as _e:
-        _beat_out = [str(_e)]
-check("§81 受管节拍状态机单元验证通过（只登记一次/到点只恢复一次/1s与60s边界）", _beat_ok)
+        _managed_out = [str(_e)]
+        _legacy_out = [str(_e)]
+check("当前受管配置路径在真实 Authority/Scenario 测试中通过（下一 tick 恢复、同 tick 幂等）",
+      _managed_ok, " ".join(_managed_out))
+check("历史兜底节拍对象回归通过（只登记一次、到点只恢复一次、1s/60s 边界）",
+      _legacy_ok, " ".join(_legacy_out))
 
 # ---------------------------------------- 24j. R96 第二十一轮：§81 智能自动购买器节拍（归属纠正后）
 # 用户 2026-11-09 纠正：逐帧节拍检查 + 玩家改动后下一 tick 恢复属于**原版自动购买器侧**，
