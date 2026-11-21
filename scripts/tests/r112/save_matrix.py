@@ -176,6 +176,7 @@ def crash_scan(log_text: str) -> dict:
 
 
 def uia_dump(out_dir: Path, tag: str) -> str:
+    sh("rm -f /sdcard/_r112_ui.xml")
     sh("uiautomator dump /sdcard/_r112_ui.xml")
     local = out_dir / f"{tag}-ui.xml"
     adb("pull", "/sdcard/_r112_ui.xml", str(local))
