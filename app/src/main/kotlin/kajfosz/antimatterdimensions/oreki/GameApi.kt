@@ -2044,6 +2044,26 @@ internal object GameApi {
         call(mDimN(), dim, true)
     }
 
+    private var mDimensionAmountY: Method? = null
+    private var mDimensionAmountYResolved: Boolean = false
+    private fun mDimensionAmountY(): Method? {
+        if (!mDimensionAmountYResolved) {
+            mDimensionAmountYResolved = true
+            mDimensionAmountY = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "y", 0, "AntimatterDimensionState.y()=amount",
+            )
+        }
+        return mDimensionAmountY
+    }
+
+    /** 原版维度当前数量 `AntimatterDimensionState.y()`；读不到返回 null。 */
+    fun dimensionAmount(state: Any?): Any? = call(mDimensionAmountY(), state)
+
+    /** 维度数量与 0 的原版 BigDouble 比较结果；仅用于判断重置后基础链是否已恢复。 */
+    fun compareDimensionAmountToZero(state: Any?): Int? =
+        compareToDouble(dimensionAmount(state), 0.0)
+
     // ---------------------------------------------------------------- 无限维度
 
     private var mIdHolderA: Method? = null
@@ -2215,6 +2235,15 @@ internal object GameApi {
         val challenges = readGameField(currentPlayer, "challenge") ?: return null
         val normal = readGameField(challenges, "normal") ?: return null
         return readGameField(normal, "current") as? Int
+    }
+
+    /** 普通挑战指定关卡是否已完成。读取失败返回 null。 */
+    fun normalChallengeCompleted(id: Int): Boolean? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val normal = readGameField(challenges, "normal") ?: return null
+        val bits = readGameField(normal, "completedBits") ?: return null
+        return bitSetHas(bits, id)
     }
 
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
@@ -3016,6 +3045,25 @@ internal object GameApi {
 
     /** Break 升级位图基数（0 = 还没买过任何 Break 升级）。 */
     fun bitSetCardinality(bits: Any?): Int = (call(mBitSetA(), bits) as? Int) ?: 0
+
+    private var mBitSetE: Method? = null
+    private var mBitSetEResolved: Boolean = false
+    private fun mBitSetE(): Method? {
+        if (!mBitSetEResolved) {
+            mBitSetEResolved = true
+            mBitSetE = method(
+                bitSetCls(),
+                "e",
+                1,
+                "BitSet.e(I)=has",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mBitSetE
+    }
+
+    fun bitSetHas(bits: Any?, id: Int): Boolean? =
+        call(mBitSetE(), bits, id) as? Boolean
 
     private var mPelleQ: Method? = null
     private var mPelleQResolved: Boolean = false

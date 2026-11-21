@@ -446,3 +446,145 @@ C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tr
 - 发布窗口内**不动** #129/#131、不改 candidate 链、不触发正式构建；
 - 新闭包（如 D1–D6）必须以「不影响发布」为前提，独立分支 + PR + Required Checks；
 - build_mod 剩余依赖未清零前，不得删除或旁路任何仍在生产消费的函数/脚本。
+
+## 11. R122 闭包 A：AGP 原生 Manifest / 资源输入
+
+> 2026-11-21，分支 `r122/agp-native-inputs`。本闭包只解决 AGP 完整游戏输入，
+> 不宣称 `build_mod.py` 已可删除，也不把已回填 game JAR 冒充完全原生代码链。
+
+### 11.1 实际移除的生产依赖
+
+| 旧依赖 | R122 状态 | 新输入 |
+|---|---|---|
+| candidate bundle `modtree` | **移除** | 不打包、不校验、不挂载补丁树 |
+| `-PorekiDecodedTree=work/mod` | **移除** | `-PorekiOfficialTree=<官方3.21>` + `-PorekiSplitTree=<mdpi split>` |
+| `prepareFullGameInputs -> python agp_prepare_fullgame.py` | **移除生产调用** | Gradle Kotlin DSL 内确定性 Manifest/资源阶段化 |
+| 根 `assembleRelease -> build_mod.py` 默认入口 | **默认 fail-closed** | 仅 `OREKI_LEGACY_ISOLATED=1` 允许隔离回归 |
+| candidate 对 `kotlinc` / `xhdpi` 的输入要求 | **移除** | AGP 自带 Kotlin 编译；只保留同版 mdpi split |
+
+三类身份已拆开验证：
+
+1. 官方输入包名：`kajfosz.antimatterdimensions`；
+2. AGP 最终 `applicationId`：`com.oreki.antimatterdimensions`；
+3. 官方 Manifest 去掉 `package` 后由 AGP 应用正式 applicationId。
+
+### 11.2 资源来源与计数
+
+官方 3.21 base `public.xml` 为 **14,928** 条；同版 mdpi split 新增 **45** 条；
+合并后 **14,973** 条，与 final8 已验证资源身份一致。此前 18,164 条来自
+误指向的 3.19 legacy 树，不是当前 3.21 输入。
+
+资源 overlay 只保留实际 MOD 差异：
+
+- 中文应用名与设置页快捷方式；
+- 深色状态栏/导航栏布尔；
+- 自动购买器错误色、EC 运行文本色、`Palette.Fallback`；
+- 简体中文导航抽屉和颜色选择器文案；
+- AAPT2 `$name` 资源确定性改名与 `stable-ids`。
+
+### 11.3 验证
+
+| 项目 | 结果 | 证据 |
+|---|---|---|
+| Gradle 原生 Manifest/资源生成 | **PASS** | `prepareFullGameInputs` |
+| 官方 source / MOD applicationId 分离 | **PASS** | `verifyFullGameInputs` |
+| base + split 独立 stable-ids 重算 | **PASS** | 14,973 条 / 1,076,790 B / SHA-256 `13e9953a…` |
+| AAPT2 Manifest/resource link | **PASS** | `processReleaseResources` |
+| AGP 原生输入守卫 | **PASS 5/5** | `test_agp_native_fullgame_inputs.py` |
+| YAML/Shell 语法 | **PASS** | `ci.yml`、`candidate-unified.yml`、build scripts |
+| R8 OFF 完整 APK 构建 | **PASS（过渡）** | SHA-256 `84fdb683…c9a7b`，81,626,243 B |
+| APK 包名/版本/证书 | **PASS** | `com.oreki.antimatterdimensions` / 30210002 / `95960bce…3197` |
+| 覆盖安装 / 冷启动 / GUI / 资源 | **PASS（短程）** | final10 AVD；中文更新日志、无限页、图标和主题正常 |
+| R8 ON | **NOT RUN** | 保持 opt-in |
+
+### 11.4 仍未消除的旧链依赖
+
+- `game-hybrid-sig.jar` 仍是历史 Smali 补丁后的回填 JAR；其来源 SHA 已记录，但生成过程仍依赖旧链。
+- `scripts/build_mod.py` 仍存在；根 Gradle 仅由环境变量显式打开隔离回归，不再默认进入生产。
+- `verify_patch_contract.py`、`probe_patches.py`、`r80_patch_run.py` 等仍有文本/补丁树消费点。
+- `applyStorePolicy` 的 ABI 适配器、数值常量和原版方法钩子尚未迁成完整 Kotlin/Rust 字节码变换器。
+
+因此：
+
+- 闭包 A：**PASS**；
+- R8 OFF 过渡 APK：**PASS（安装/冷启/GUI）**；
+- `build_mod.py` 物理删除条件：**BLOCKED**；
+- 正式 Candidate/Verify/Release：仍按 AGP-only 与真实游戏门禁 fail-closed。
+
+### 11.5 R122 输入身份加固与当前定向复核（2026-11-21）
+
+本轮继续在 `r122/agp-native-inputs-clean` / PR #231 上加固，不扩大为完整
+Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收通过。
+
+#### 实际修改
+
+- `prepareFullGameInputs` 在删除/重建阶段目录之前，固定校验官方 3.21 base
+  `AndroidManifest.xml`、base `public.xml` 和同版 mdpi split `public.xml`
+  的 SHA-256；同时校验 14,928 / 45 / 14,973 三条资源身份计数。
+- 对两棵完整解码树按“相对路径排序 → 每文件 SHA-256 → 清单 SHA-256”计算
+  确定性目录指纹，覆盖资源、assets、lib 及其他现存输入文件；文件数与全树
+  指纹同时写入 `fullgame-inputs.json`，防止只在 `public.xml` 不变时替换资源正文。
+  内容指纹排除仅描述解码工具版本/APK 文件名的根 `apktool.yml`；该文件的
+  versionCode 仍单独固定校验，整棵目录仍登记为 Gradle 输入以触发增量失效。
+- `verifyFullGameInputs` 再次独立执行同一身份校验，并新增
+  `AppTheme`、`Palette.Fallback`、`Theme.MySplash`、中文 `app_name`、
+  `drawable-nodpi/antimatter.png` 与 `xml/oreki_shortcuts.xml` 的必要性检查。
+- 两棵完整解码树已显式登记为 `prepareFullGameInputs` 与
+  `verifyFullGameInputs` 的输入目录，避免只修改 `assets`/`lib` 时任务继续
+  UP-TO-DATE、却复制未经全树身份校验的内容。
+- `$` 资源改名按“有无扩展名”分别构造目标文件名；无扩展名探针必须得到
+  `_aapt_oreki_probe`，不得生成带尾点的非法资源名。
+- `SpeedSettingsActivity` 保留旧链最终验证的
+  `@android:style/Theme.Material.NoActionBar`，并用 Manifest 重算守卫防止迁移回退到
+  会额外显示系统 ActionBar 的 `Theme.DeviceDefault`。
+- 历史 `work/mod` 不能再被伪装成“官方输入”：即使其包名、versionCode
+  或资源条数看起来正确，Manifest/public.xml 哈希不符也会在目标目录被改动前失败。
+
+#### 定向验证
+
+| 项目 | 结果 | 证据 |
+|---|---|---|
+| 官方 3.21 base Manifest | **PASS** | `b07e4343…ff6b0` |
+| 官方 3.21 base public.xml | **PASS** | `d6471a87…3ad4f` / 14,928 条 |
+| 官方 3.21 mdpi split public.xml | **PASS** | `21d70290…20f7e` / 45 条 |
+| 官方 3.21 base 完整内容树 | **PASS** | 17,412 files / `39e1039d…e5e78` |
+| 官方 3.21 mdpi split 完整内容树 | **PASS** | 50 files / `2b674c30…4aaa5` |
+| `prepareFullGameInputs` + `verifyFullGameInputs` | **PASS** | 14,973 条；stable-ids 1,076,790 B / `13e9953a…8ab8` |
+| 历史 `/work/mod` 负向输入 | **PASS（fail-closed）** | Manifest 实际 `5ff102f9…cce38`，在阶段目录改动前拒绝 |
+| AAPT2 `processReleaseResources` | **PASS** | 23 个相关任务成功；主题/资源链接无错误 |
+| built-in Kotlin `compileReleaseKotlin` | **PASS** | 全量 `--rerun-tasks` 成功，仅有既有告警 |
+| R8 OFF 完整 APK | **PASS（构建）** | 代码提交 `b0135d16` / 81,619,019 B；直接 AGP 产物 `84c3b660c3d3015c3b26f94b939ee0269e67b6215675b9419672d5e2ee1e8e7d`（直接产物哈希受 AGP 单方案签名块影响） |
+| 最终 APK 包名/版本 | **PASS** | `com.oreki.antimatterdimensions` / 30210002 |
+| 最终 APK 证书身份 | **PASS** | `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197` |
+| Candidate v2+v3 同钥重签 | **PASS（确定性）** | 81,624,555 B / `524ccf61125b85bb350ec2b19c7004a4bee6a3a7d8c7480cd1da7283f8f34020` |
+| APK 内教程资产 | **PASS** | 199,649 B / SHA-256 `158b9070…10dc7b1` |
+| R8 ON | **NOT RUN** | 仍为实验开关 |
+| 新 APK 安装/冷启动 | **NOT RUN** | 共享 AVD 正被其他 R122 C9 采样占用，未并发干扰 |
+
+两次全量 AGP 构建的直接 APK 外层哈希不同，但 `AndroidManifest.xml`、`classes.dex`、
+`classes2.dex`、`resources.arsc`、教程资产和抽样 native 库逐项 SHA-256 完全一致；
+同钥 v2+v3 重签后的 Candidate 为 `524ccf61…34020`。差异位于 AGP 直接产物
+的单方案签名块，不沿用“直接 APK 哈希相同”作为可复现性结论。
+
+#### 环境前置
+
+本机默认 `ANDROID_HOME=/opt/android-sdk` 不可写，且缺少 AGP 9.5.1 所需的
+`platforms/android-37.0` 与 `build-tools/36.0.0`。可复现命令必须显式使用：
+
+```bash
+ANDROID_HOME=/home/oreki/Android/Sdk
+ANDROID_SDK_ROOT=/home/oreki/Android/Sdk
+```
+
+该目录同时具备 Android 37.0 平台与 Build Tools 36.0.0，切换后资源与 Kotlin
+编译均 PASS。此项是环境失败，不是 Manifest 包名或资源内容失败。
+
+#### 仍存在的生产旧链
+
+- `game-hybrid-sig.jar` 仍不是由当前仓库纯 Kotlin/Rust 变换器生成。
+- `scripts/build_mod.py` 仍存在；根 Gradle 已默认 fail-closed，仅隔离回归可打开。
+- `applyStorePolicy` 仍通过 Python + ASM ABI 适配器执行，尚未完成字节码变换器替换。
+- 旧文本验证器仍读取 `build_mod.py` / 补丁树；因此物理删除仍为 **BLOCKED**。
+- #231 的直接 AGP APK 只有 v3；已按 Candidate 工作流同一命令使用生产密钥重签，
+  本机 `apksigner --min-sdk-version 24` 复核 v2=true、v3=true，证书身份不变。
+  该本地重签结果仍不等于 GitHub 受保护环境中的正式 Candidate Run。
