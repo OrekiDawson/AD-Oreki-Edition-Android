@@ -2205,6 +2205,18 @@ internal object GameApi {
         return false
     }
 
+    /**
+     * 当前普通挑战 ID。`null` 表示读取失败，调用方必须 fail-closed。
+     *
+     * 该读取只用于高成本自动化让路判定，不修改挑战状态，也不替代原版结算。
+     */
+    fun normalChallengeCurrent(): Int? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val normal = readGameField(challenges, "normal") ?: return null
+        return readGameField(normal, "current") as? Int
+    }
+
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
 
     private var mHolderW: Field? = null
