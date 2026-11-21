@@ -39,15 +39,15 @@ object OrekiManagedAutobuyerAuthority {
             kotlin.math.abs(actual - target) > epsilon
 
     /**
-     * 首次 Reality 前，Break 后进入 C9 时让原版自动购买器独占推进。
+     * Break 后进入普通挑战 C9，或挑战 ID 暂时不可读时，让原版自动购买器独占推进。
      *
      * 实测在 C9 内同时运行 StageAuto 和原版 BUY_10 bulk 路径会触发高频
-     * BigDouble 分配；暂停 MOD 侧逐帧策略后，游戏状态恢复推进。
-     * 该让路只覆盖普通挑战 C9，不改变挑战门槛、结算或资源。
+     * BigDouble 分配；暂停 MOD 侧逐帧策略后，游戏状态恢复推进。读取失败时
+     * 不能把未知状态当作“不在 C9”，否则冻结会静默复发，因此同样让路。
      */
     @JvmStatic
-    fun shouldYieldToOriginalInChallengeC9(
+    fun shouldYieldToOriginalForC9OrUnreadableChallenge(
         broken: Boolean?,
         normalChallengeCurrent: Int?,
-    ): Boolean = broken == true && normalChallengeCurrent == 9
+    ): Boolean = broken == true && (normalChallengeCurrent == null || normalChallengeCurrent == 9)
 }

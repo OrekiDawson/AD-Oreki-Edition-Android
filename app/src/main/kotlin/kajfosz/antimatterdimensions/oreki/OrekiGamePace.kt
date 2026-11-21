@@ -9,7 +9,7 @@ import android.util.Log
  * 默认倍率只决定新安装的全局时间压缩程度，不修改游戏门槛、公式、调度节拍或用户已经
  * 保存的倍率。业务判定和写入集中在 Kotlin；Smali 仅保留一个初始化转发入口。
  *
- * [R121-01 P1] 即时挑战退役后，1000× 在真实 C9 中购买计数长期停滞：前 8 个普通挑战
+ * 即时挑战退役后，1000× 在真实 C9 中购买计数长期停滞：前 8 个普通挑战
  * 约 16 分钟完成，C9 继续运行 27 分钟后仍只有 72 次计数购买、无 Break。早期阶段恢复
  * 3000×，只缩短合法购买的等待壁钟；Break 后仍降为 1800×，Reality 后恢复 3000×。
  */
@@ -38,7 +38,7 @@ object OrekiGamePace {
         }
         if (isValidStoredSpeed(stored)) return
         prefs.edit().putBoolean(KEY_PACING_MANAGED, true).apply()
-        setSpeed(defaultSpeed())
+        setManagedSpeed(defaultSpeed())
     }
 
     /** 仅接受有限正倍率；缺失、错误类型及非正值都由启动路径安全回退。 */
@@ -51,7 +51,7 @@ object OrekiGamePace {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean("speed_default_reset_seen", true)
-                .putBoolean(KEY_PACING_MANAGED, true)
+                .putBoolean(KEY_PACING_MANAGED, false)
                 .apply()
         }
         setSpeed(defaultSpeed())
@@ -107,7 +107,7 @@ object OrekiGamePace {
             return
         }
         if (actual.isFinite() && kotlin.math.abs(actual - target) <= 1e-9) return
-        setSpeed(target)
+        setManagedSpeed(target)
         Log.i(
             "OREKI_PACE",
             "stage speed " + actual + " -> " + target +
@@ -115,6 +115,18 @@ object OrekiGamePace {
                 ", break=" + GameApi.isBroken() +
                 ", reality=" + (versusZero > 0) + ")",
         )
+    }
+
+    /** 阶段曲线接管倍率时必须关闭动态升档，否则 autotune 会在下一次采样覆盖目标。 */
+    private fun setManagedSpeed(value: Double) {
+        try {
+            val speedClass = Class.forName(SPEED_CLASS)
+            speedClass.getMethod("setDynamic", Boolean::class.javaPrimitiveType)
+                .invoke(null, false)
+        } catch (error: Throwable) {
+            Log.e("OREKI_PACE", "disable dynamic speed failed", error)
+        }
+        setSpeed(value)
     }
 
     private fun setSpeed(value: Double) {

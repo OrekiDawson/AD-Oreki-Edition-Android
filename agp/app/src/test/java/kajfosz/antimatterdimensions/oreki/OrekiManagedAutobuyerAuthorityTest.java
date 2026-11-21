@@ -43,11 +43,12 @@ public class OrekiManagedAutobuyerAuthorityTest {
     }
 
     @Test
-    public void onlyBrokenNormalChallengeNineYieldsToOriginal() {
-        assertTrue(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(true, 9));
-        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(false, 9));
-        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(true, 8));
-        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(true, 0));
-        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(true, null));
+    public void brokenChallengeNineOrUnreadableYieldsToOriginal() {
+        assertTrue(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, 9));
+        assertTrue(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, null));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(false, 9));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(false, null));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, 8));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, 0));
     }
 }

@@ -296,40 +296,16 @@ object OrekiStageAuto {
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
+            // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
+            OrekiAutomationScheduler.beginFrame()
+            managedConfigTickId = 0L
+            managedCrunchTarget = null
+
             try {
                 OrekiGamePace.syncProgressionSpeed()
             } catch (_: Throwable) {
                 // 速度阶段校正是节奏辅助；异常不得阻断主自动化与游戏 tick。
             }
-            val normalChallengeCurrent = GameApi.normalChallengeCurrent()
-            if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(
-                    GameApi.isBroken(),
-                    normalChallengeCurrent,
-                )
-            ) {
-                if (!c9YieldActive) {
-                    c9YieldActive = true
-                    Log.i(
-                        TAG_C9_YIELD,
-                        "pause-stage-auto normalChallenge=9 broken=true; " +
-                            "original autobuyers continue",
-                    )
-                }
-                // 只让出 StageAuto；维度和大坍缩继续由原版自动购买器推进，
-                // 该定向复验已经在本次 APK 上证明会完成真实 C9 结算。
-                return
-            }
-            if (c9YieldActive) {
-                c9YieldActive = false
-                Log.i(TAG_C9_YIELD, "resume-stage-auto normalChallenge=0 or challenge ended")
-            }
-            // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
-            logEternityChallengeDiagnosticsIfDue()
-
-            // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
-            OrekiAutomationScheduler.beginFrame()
-            managedConfigTickId = 0L
-            managedCrunchTarget = null
 
             // [R99 §12] 双调度器 tick 强制 GUI 同步。
             // 必须在所有早退之前：即使本拍没有成功动作、或处于首次无限前的早返回分支，
@@ -354,6 +330,33 @@ object OrekiStageAuto {
                 // 同步异常不得静默：GameApi 内部已记录 GUI_TICK_SYNC_FAILED 并登记待同步。
             }
 
+            val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(
+                    GameApi.isBroken(),
+                    normalChallengeCurrent,
+                )
+            ) {
+                // 只暂停会造成分配风暴的 StageAuto 购买策略；新调度 tick 仍须
+                // 恢复受管自动购买器配置，随后由原版路径自行推进真实 C9。
+                applyManagedAutobuyerStates(null)
+                if (!c9YieldActive) {
+                    c9YieldActive = true
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "pause-stage-auto normalChallenge=" +
+                            (normalChallengeCurrent ?: "unreadable") + " broken=true; " +
+                            "managed config retained; original autobuyers continue",
+                    )
+                }
+                return
+            }
+            if (c9YieldActive) {
+                c9YieldActive = false
+                Log.i(TAG_C9_YIELD, "resume-stage-auto normalChallenge=0 or challenge ended")
+            }
+            // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
+            logEternityChallengeDiagnosticsIfDue()
+
             edpFrameNo++
             edpHeartbeat()
 
@@ -376,7 +379,7 @@ object OrekiStageAuto {
             // 放在早退之前：毁灭态下其余自动化全部跳过，必须由本驱动接管。
             OrekiPelle.tick()
 
-            // R121-01：旧 TT ×500 补发已撤销；保留对账入口以推进基线，不再发额外资源。
+            // 保留原版 TT 收益与真实购买对账入口，不在阶段自动化中另发额外资源。
             GameApi.settleTimeTheoremReward()
 
             OrekiPlayerIntent.refresh()
