@@ -55,11 +55,27 @@ val OREKI_MDPI_3_21_PUBLIC_XML_SHA256 =
 val OREKI_OFFICIAL_3_21_RESOURCE_COUNT = 14_928
 val OREKI_MDPI_3_21_RESOURCE_COUNT = 45
 val OREKI_FULL_GAME_RESOURCE_COUNT = 14_973
+val OREKI_OFFICIAL_3_21_FILE_COUNT = 17_413
+val OREKI_MDPI_3_21_FILE_COUNT = 51
+val OREKI_OFFICIAL_3_21_TREE_SHA256 =
+    "3d797fcd167289135bbda3b24b17cc4968ea0ebeebfd0596781bdca25c6fd2cc"
+val OREKI_MDPI_3_21_TREE_SHA256 =
+    "4560ef22d62f4fdcd42357c0ac26690113b5365d501b10a3016bf219b585eca2"
 
 data class OrekiPublicResource(
     val resourceId: String,
     val typeName: String,
     val name: String,
+)
+
+data class OrekiInputTreeIdentity(
+    val fileCount: Int,
+    val sha256: String,
+)
+
+data class OrekiCanonicalInputIdentity(
+    val official: OrekiInputTreeIdentity,
+    val split: OrekiInputTreeIdentity,
 )
 
 /** 读取 public.xml；失败关闭，不跳过畸形条目。 */
@@ -166,13 +182,39 @@ fun orekiStableIdsText(entries: List<OrekiPublicResource>, applicationId: String
 }
 
 /**
+ * 对完整解码树生成确定性指纹：相对路径 C 排序 → 每个文件 SHA-256 → 清单 SHA-256。
+ * 指纹不包含根目录、时间戳或文件系统遍历顺序，可跨工作树复算。
+ */
+fun orekiTreeSha256(root: File): Pair<Int, String> {
+    if (!root.isDirectory) {
+        throw GradleException("[oreki] 输入目录不存在: " + root)
+    }
+    val files = root.walkTopDown()
+        .filter { it.isFile }
+        .map { file -> file.relativeTo(root).invariantSeparatorsPath to file }
+        .sortedBy { it.first }
+        .toList()
+    val manifest = StringBuilder()
+    for ((relativePath, file) in files) {
+        manifest.append(orekiSha256(file.readBytes()))
+            .append("  ")
+            .append(relativePath)
+            .append('\n')
+    }
+    return files.size to orekiSha256(manifest.toString().toByteArray(Charsets.UTF_8))
+}
+
+/**
  * 官方解码输入的身份必须与冻结的 3.21.0 原始输入一致。
  *
  * 包名、versionCode 和资源条数都可能被经过补丁的 modtree 伪装成“看起来正确”，
  * 因此生产路径额外校验 base Manifest、base public.xml、mdpi split public.xml 的
  * 固定 SHA-256。任何历史 modtree、跨版本树或资源重排都会在改动目标目录前失败。
  */
-fun orekiVerifyCanonicalFullGameInputs(officialTree: File, splitTree: File) {
+fun orekiVerifyCanonicalFullGameInputs(
+    officialTree: File,
+    splitTree: File,
+): OrekiCanonicalInputIdentity {
     val inputs = listOf(
         Triple(
             "官方 3.21 Manifest",
@@ -203,6 +245,29 @@ fun orekiVerifyCanonicalFullGameInputs(officialTree: File, splitTree: File) {
         }
     }
 
+    val (officialFileCount, officialTreeSha256) = orekiTreeSha256(officialTree)
+    val (splitFileCount, splitTreeSha256) = orekiTreeSha256(splitTree)
+    if (officialFileCount != OREKI_OFFICIAL_3_21_FILE_COUNT ||
+        officialTreeSha256 != OREKI_OFFICIAL_3_21_TREE_SHA256
+    ) {
+        throw GradleException(
+            "[oreki] 官方 3.21 解码树身份漂移：files=" + officialFileCount +
+                " expectedFiles=" + OREKI_OFFICIAL_3_21_FILE_COUNT +
+                " sha256=" + officialTreeSha256 +
+                " expectedSha256=" + OREKI_OFFICIAL_3_21_TREE_SHA256,
+        )
+    }
+    if (splitFileCount != OREKI_MDPI_3_21_FILE_COUNT ||
+        splitTreeSha256 != OREKI_MDPI_3_21_TREE_SHA256
+    ) {
+        throw GradleException(
+            "[oreki] 官方 3.21 mdpi split 解码树身份漂移：files=" + splitFileCount +
+                " expectedFiles=" + OREKI_MDPI_3_21_FILE_COUNT +
+                " sha256=" + splitTreeSha256 +
+                " expectedSha256=" + OREKI_MDPI_3_21_TREE_SHA256,
+        )
+    }
+
     val officialEntries = orekiReadPublicResources(File(officialTree, "res/values/public.xml"))
     val splitEntries = orekiReadPublicResources(File(splitTree, "res/values/public.xml"))
     val mergedEntries = orekiMergePublicResources(officialEntries, splitEntries)
@@ -224,6 +289,10 @@ fun orekiVerifyCanonicalFullGameInputs(officialTree: File, splitTree: File) {
                 " expected=" + OREKI_FULL_GAME_RESOURCE_COUNT,
         )
     }
+    return OrekiCanonicalInputIdentity(
+        official = OrekiInputTreeIdentity(officialFileCount, officialTreeSha256),
+        split = OrekiInputTreeIdentity(splitFileCount, splitTreeSha256),
+    )
 }
 
 /**
@@ -795,7 +864,7 @@ fun orekiVerifyNativeFullGameInputs(
     val inputEvidence = File(stageRoot, "fullgame-inputs.json")
     val shortcutXml = File(stageRoot, "res/xml/oreki_shortcuts.xml")
 
-    orekiVerifyCanonicalFullGameInputs(officialRoot, splitRoot)
+    val canonicalInputs = orekiVerifyCanonicalFullGameInputs(officialRoot, splitRoot)
     if (applicationId != OREKI_MOD_APPLICATION_ID) {
         throw GradleException("[oreki] MOD applicationId 漂移: " + applicationId)
     }
@@ -892,9 +961,13 @@ fun orekiVerifyNativeFullGameInputs(
         ?: throw GradleException("[oreki] fullgame-inputs.json 缺少 source")
     if (source["officialManifestSha256"]?.toString() != orekiSha256(officialManifest.readBytes()) ||
         source["officialPublicXmlSha256"]?.toString() != orekiSha256(officialPublicXml.readBytes()) ||
-        source["splitPublicXmlSha256"]?.toString() != orekiSha256(splitPublicXml.readBytes())
+        source["splitPublicXmlSha256"]?.toString() != orekiSha256(splitPublicXml.readBytes()) ||
+        source["officialTreeFiles"]?.toString()?.toIntOrNull() != canonicalInputs.official.fileCount ||
+        source["officialTreeSha256"]?.toString() != canonicalInputs.official.sha256 ||
+        source["splitTreeFiles"]?.toString()?.toIntOrNull() != canonicalInputs.split.fileCount ||
+        source["splitTreeSha256"]?.toString() != canonicalInputs.split.sha256
     ) {
-        throw GradleException("[oreki] fullgame-inputs.json 的官方/split 输入指纹不一致")
+        throw GradleException("[oreki] fullgame-inputs.json 的官方/split 文件或目录树指纹不一致")
     }
     val resources = evidence["resources"] as? Map<*, *>
         ?: throw GradleException("[oreki] fullgame-inputs.json 缺少 resources")
@@ -923,6 +996,10 @@ fun orekiVerifyNativeFullGameInputs(
         "official_public_xml_sha256" to orekiSha256(officialPublicXml.readBytes()),
         "split_public_xml_sha256" to orekiSha256(splitPublicXml.readBytes()),
         "official_manifest_sha256" to orekiSha256(officialManifest.readBytes()),
+        "official_tree_files" to canonicalInputs.official.fileCount,
+        "official_tree_sha256" to canonicalInputs.official.sha256,
+        "split_tree_files" to canonicalInputs.split.fileCount,
+        "split_tree_sha256" to canonicalInputs.split.sha256,
         "checks" to linkedMapOf<String, Any>(
             "official_identity" to true,
             "canonical_3_21_hashes" to true,
@@ -1118,7 +1195,7 @@ val prepareFullGameInputs by tasks.registering {
                     splitTree,
             )
         }
-        orekiVerifyCanonicalFullGameInputs(officialTree, splitTree)
+        val canonicalInputs = orekiVerifyCanonicalFullGameInputs(officialTree, splitTree)
         fun versionCode(tree: File): String {
             val metadata = File(tree, "apktool.yml")
             val match = Regex("versionCode:\\s*['\"]?(\\d+)").find(metadata.readText(Charsets.UTF_8))
@@ -1162,6 +1239,10 @@ val prepareFullGameInputs by tasks.registering {
                 "officialPublicXmlSha256" to orekiSha256(officialPublic.readBytes()),
                 "splitPublicXmlSha256" to orekiSha256(splitPublic.readBytes()),
                 "shortcutOverlaySha256" to orekiSha256(shortcutOverlay.readBytes()),
+                "officialTreeFiles" to canonicalInputs.official.fileCount,
+                "officialTreeSha256" to canonicalInputs.official.sha256,
+                "splitTreeFiles" to canonicalInputs.split.fileCount,
+                "splitTreeSha256" to canonicalInputs.split.sha256,
             ),
             "resources" to linkedMapOf(
                 "official" to officialEntries.size,
