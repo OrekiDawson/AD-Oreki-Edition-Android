@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 
 import {
   DAILY_TRIGGER_LIMIT,
@@ -22,9 +23,49 @@ import {
   validateTriggerIdentity,
 } from "./trigger.mjs";
 
-import { confirmedKodySkip, hadEarlierRealKodyReview, kodySkipPullRequests } from "./skip-reconcile.mjs";
+import {
+  confirmedKodySkip,
+  githubListAll,
+  kodyTriggerCommentEvidence,
+  kodySkipPullRequests,
+  realKodyReviews,
+} from "./skip-reconcile.mjs";
 
 const repository = "OrekiDawson/AD-Oreki-Edition-Android";
+const workflow = readFileSync(
+  new URL("../workflows/kody-trigger.yml", import.meta.url),
+  "utf8",
+);
+
+test("Kody 工作流只使用合法并发键，并按事件身份隔离", () => {
+  assert.doesNotMatch(workflow, /^\s+queue:\s*/m);
+  assert.match(workflow,
+    /group: kody-skip-reconcile-\$\{\{ github\.repository \}\}-\$\{\{ github\.event\.check_run\.id \}\}/);
+  assert.match(workflow,
+    /group: kody-trigger-budget-\$\{\{ github\.repository \}\}-\$\{\{ github\.event\.pull_request\.number \|\| inputs\.pr_number \}\}/);
+  assert.match(workflow, /contents: read/);
+  assert.match(workflow, /issues: read/);
+  assert.match(workflow, /pull-requests: read/);
+});
+
+test("评论证据超过分页上限时返回已取页面并告警", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalWarn = console.warn;
+  let warned = false;
+  globalThis.fetch = async () => ({
+    ok: true,
+    async json() { return [{ id: 1 }]; },
+    headers: { get: () => '<https://api.github.com/next-page>; rel="next"' },
+  });
+  console.warn = () => { warned = true; };
+  try {
+    assert.deepEqual(await githubListAll("/comments", "token", 1), [{ id: 1 }]);
+    assert.equal(warned, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.warn = originalWarn;
+  }
+});
 
 function pr(overrides = {}) {
   return {
@@ -263,6 +304,7 @@ test("只有 Kody 官方 completed/skipped Check 才能退额", () => {
       status: "completed",
       conclusion: "skipped",
       head_sha: "a".repeat(40),
+      started_at: "2026-11-21T12:59:00Z",
       app: { slug: "kody-ai" },
       pull_requests: [{ number: 42 }, { number: 42 }],
       html_url: "https://example.test/checks/9871",
@@ -271,6 +313,7 @@ test("只有 Kody 官方 completed/skipped Check 才能退额", () => {
   assert.equal(confirmedKodySkip(event), true);
   assert.equal(kodySkipPullRequests(event).length, 1);
   assert.equal(kodySkipPullRequests(event)[0].pr, 42);
+  assert.equal(kodySkipPullRequests(event)[0].checkStartedAt, "2026-11-21T12:59:00Z");
   assert.equal(confirmedKodySkip({
     ...event, check_run: { ...event.check_run, conclusion: "success" },
   }), false); // 无问题的正常审查依然计入
@@ -286,29 +329,88 @@ test("只有 Kody 官方 completed/skipped Check 才能退额", () => {
   assert.deepEqual(kodySkipPullRequests({ ...event, check_run: {
     ...event.check_run, pull_requests: [],
   } }), []); // 关联不明时不误退款
+  assert.deepEqual(kodySkipPullRequests({ ...event, check_run: {
+    ...event.check_run, pull_requests: [{ number: 42 }, { number: 43 }],
+  } }), []); // 单个 Check 关联多个 PR 时无法证明归属
 });
 
-test("同一 HEAD 已有实际 Kody Review 时不得因后续 skipped 误退", () => {
-  const current = { id: 200, completed_at: "2026-11-21T13:00:00Z" };
-  const earlier = {
-    id: 100,
-    app: { slug: "kody-ai" },
-    name: "Kody Code Review",
-    status: "completed",
-    conclusion: "success",
-    completed_at: "2026-11-21T12:00:00Z",
-  };
-  assert.equal(hadEarlierRealKodyReview(current, [earlier]), true);
-  assert.equal(hadEarlierRealKodyReview(current, [
-    { ...earlier, conclusion: "failure" },
-  ]), true);
-  assert.equal(hadEarlierRealKodyReview(current, [
-    { ...earlier, conclusion: "skipped" },
-  ]), false);
-  assert.equal(hadEarlierRealKodyReview(current, [
-    { ...earlier, app: { slug: "github-actions" } },
-  ]), false);
-  assert.equal(hadEarlierRealKodyReview(current, [
-    { ...earlier, completed_at: "2026-11-21T14:00:00Z" },
-  ]), false);
+test("已完成、运行中或排队 Kody Review 关联到启动前最近请求", () => {
+  const checks = [
+    {
+      id: 1,
+      app: { slug: "kody-ai" },
+      name: "Kody Code Review",
+      status: "completed",
+      conclusion: "success",
+      started_at: "2026-11-21T12:58:00Z",
+    },
+    {
+      id: 2,
+      app: { slug: "kody-ai" },
+      name: "Kody Code Review",
+      status: "completed",
+      conclusion: "skipped",
+      started_at: "2026-11-21T12:59:00Z",
+    },
+    {
+      id: 3,
+      app: { slug: "github-actions" },
+      name: "Kody Code Review",
+      status: "completed",
+      conclusion: "success",
+      started_at: "2026-11-21T12:58:30Z",
+    },
+    {
+      id: 4,
+      app: { slug: "kody-ai" },
+      name: "Kody Code Review",
+      status: "in_progress",
+      conclusion: null,
+      started_at: "2026-11-21T12:58:40Z",
+    },
+    {
+      id: 5,
+      app: { slug: "kody-ai" },
+      name: "Kody Code Review",
+      status: "queued",
+      conclusion: null,
+      started_at: null,
+      created_at: "2026-11-21T12:58:50Z",
+    },
+  ];
+  const evidence = [
+    { commentId: "70", createdAt: "2026-11-21T12:57:50Z" },
+    { commentId: "71", createdAt: "2026-11-21T12:58:20Z" },
+  ];
+  assert.deepEqual(realKodyReviews(checks, 2, evidence), [
+    { startedAt: "2026-11-21T12:58:00Z", commentId: "70" },
+    { startedAt: "2026-11-21T12:58:40Z", commentId: "71" },
+    { startedAt: "2026-11-21T12:58:50Z", commentId: "71" },
+  ]);
+});
+
+test("skipped Check 到达时可从 PR 评论补齐精确触发证据", () => {
+  const comments = [
+    {
+      id: 77,
+      user: { login: "OrekiDawson" },
+      body: "@kody start-review",
+      html_url: "https://example.test/pull/7#issuecomment-77",
+      created_at: "2026-11-21T12:58:30Z",
+    },
+    {
+      id: 78,
+      user: { login: "OrekiDawson" },
+      body: "@kody start-review please",
+      html_url: "https://example.test/pull/7#issuecomment-78",
+      created_at: "2026-11-21T12:58:40Z",
+    },
+  ];
+  assert.deepEqual(kodyTriggerCommentEvidence(comments, repository, 7), [{
+    repository,
+    pr: 7,
+    commentId: "77",
+    url: "https://example.test/pull/7#issuecomment-77",
+    createdAt: "2026-11-21T12:58:30Z",
+  }]);
 });

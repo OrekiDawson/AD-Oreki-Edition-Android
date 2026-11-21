@@ -9,6 +9,7 @@ import {
   SHARED_QUOTA_REPOSITORIES,
   markKodySkippedQuota,
 } from "../codex/audit-quota.mjs";
+import { isExactTriggerComment } from "./trigger.mjs";
 
 export function confirmedKodySkip(event) {
   const check = event?.check_run;
@@ -37,10 +38,58 @@ export function kodySkipPullRequests(event) {
       pr: number,
       headSha: check.head_sha,
       checkRunId: check.id,
+      checkStartedAt: check.started_at ?? check.created_at ?? "",
       checkUrl: check.html_url ?? "",
     });
   }
-  return output;
+  return output.length === 1 ? output : [];
+}
+
+export function kodyTriggerCommentEvidence(comments, repository, pr) {
+  return comments
+    .filter(isExactTriggerComment)
+    .map(comment => ({
+      repository,
+      pr,
+      commentId: String(comment.id),
+      url: comment.html_url ?? "",
+      createdAt: comment.created_at,
+    }))
+    .filter(item =>
+      item.commentId &&
+      Number.isFinite(Date.parse(String(item.createdAt ?? ""))));
+}
+
+export function realKodyReviews(checks, currentCheckId, evidence = []) {
+  const triggerTimes = evidence
+    .map(item => ({
+      commentId: String(item.commentId ?? ""),
+      at: Date.parse(String(item.createdAt ?? "")),
+    }))
+    .filter(item => item.commentId && Number.isFinite(item.at))
+    .sort((left, right) => left.at - right.at);
+  return checks
+    .filter(check => {
+      const realOrRunning =
+        ["queued", "in_progress"].includes(check?.status) ||
+        (check?.status === "completed" && ["success", "failure"].includes(check?.conclusion));
+      return check?.app?.slug === "kody-ai" &&
+        check?.name === "Kody Code Review" &&
+        realOrRunning &&
+        String(check?.id ?? "") !== String(currentCheckId ?? "") &&
+        Number.isFinite(Date.parse(String(check?.started_at ?? check?.created_at ?? "")));
+    })
+    .map(check => {
+      const startedAt = check.started_at ?? check.created_at;
+      const startedMs = Date.parse(String(startedAt ?? ""));
+      const trigger = triggerTimes
+        .filter(item => item.at <= startedMs)
+        .sort((left, right) => right.at - left.at)[0] ?? null;
+      return {
+        startedAt,
+        commentId: trigger?.commentId ?? "",
+      };
+    });
 }
 
 /** 安全补查 check_run.pull_requests 为空的同仓 PR，仅接受唯一 HEAD 命中。 */
@@ -57,18 +106,29 @@ async function githubJson(path, token) {
   return response.json();
 }
 
-export function hadEarlierRealKodyReview(current, checks) {
-  const completedAt = Date.parse(current?.completed_at ?? "");
-  return checks.some(check =>
-    check?.app?.slug === "kody-ai" &&
-    check?.name === "Kody Code Review" &&
-    check?.status === "completed" &&
-    ["success", "failure"].includes(check?.conclusion) &&
-    check?.id !== current?.id &&
-    Number.isFinite(Date.parse(check?.completed_at ?? "")) &&
-    Number.isFinite(completedAt) &&
-    Date.parse(check.completed_at) <= completedAt
-  );
+export async function githubListAll(path, token, maxPages = 10) {
+  const output = [];
+  let next = path;
+  for (let page = 0; next && page < maxPages; page += 1) {
+    const response = await fetch(`https://api.github.com${next}`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "oreki-kody-skip-reconcile",
+      },
+    });
+    if (!response.ok) throw new Error(`GitHub API ${response.status} for ${next}`);
+    output.push(...await response.json());
+    const link = response.headers.get("link") ?? "";
+    const match = link.match(/<([^>]+)>;\s*rel="next"/);
+    next = match ? match[1].replace("https://api.github.com", "") : "";
+    if (next && page + 1 >= maxPages) {
+      console.warn("Kody skip: comment evidence pagination limit reached; using fetched pages.");
+      break;
+    }
+  }
+  return output;
 }
 
 async function resolvedKodySkipCandidates(event, token) {
@@ -91,6 +151,7 @@ async function resolvedKodySkipCandidates(event, token) {
     pr: matching[0].number,
     headSha: sha,
     checkRunId: event.check_run.id,
+    checkStartedAt: event.check_run.started_at ?? event.check_run.created_at ?? "",
     checkUrl: event.check_run.html_url ?? "",
   }];
 }
@@ -109,6 +170,18 @@ export async function main() {
   }
   const repository = event.repository.full_name;
   const sha = event.check_run.head_sha;
+  let headCommittedAt = "";
+  try {
+    const headCommit = await githubJson(`/repos/${repository}/commits/${sha}`, token);
+    headCommittedAt =
+      headCommit?.commit?.committer?.date ??
+      headCommit?.commit?.author?.date ??
+      "";
+  } catch (error) {
+    console.warn(
+      `Kody skip: head commit metadata unavailable; exact-head records only: ${error.message}`,
+    );
+  }
   const checks = await githubJson(
     `/repos/${repository}/commits/${sha}/check-runs?check_name=Kody%20Code%20Review&filter=all&per_page=100`,
     token,
@@ -116,12 +189,64 @@ export async function main() {
   if ((checks.total_count ?? 0) > (checks.check_runs?.length ?? 0)) {
     throw new Error("Kody Check 证据分页不完整，拒绝自动退额");
   }
-  if (hadEarlierRealKodyReview(event.check_run, checks.check_runs ?? [])) {
-    console.log("Kody skip: 同一 HEAD 已存在 Kody 实际完成的审查，保守保留用量。");
-    return;
-  }
   for (const match of matches) {
-    const result = await markKodySkippedQuota(token, match);
+    const currentPr = await githubJson(
+      `/repos/${repository}/pulls/${match.pr}`,
+      token,
+    );
+    const currentPullRequestHeadSha = currentPr?.head?.sha ?? "";
+    if (!currentPullRequestHeadSha) {
+      throw new Error(`Kody skip: PR #${match.pr} current head is unavailable`);
+    }
+    let currentPullRequestHeadCommittedAt = headCommittedAt;
+    if (currentPullRequestHeadSha !== sha) {
+      const currentHeadCommit = await githubJson(
+        `/repos/${repository}/commits/${currentPullRequestHeadSha}`,
+        token,
+      );
+      currentPullRequestHeadCommittedAt =
+        currentHeadCommit?.commit?.committer?.date ??
+        currentHeadCommit?.commit?.author?.date ??
+        "";
+      if (!Number.isFinite(Date.parse(String(currentPullRequestHeadCommittedAt)))) {
+        throw new Error(`Kody skip: PR #${match.pr} current head time is unavailable`);
+      }
+    }
+    let commentsFetchFailed = false;
+    let comments = [];
+    try {
+      comments = await githubListAll(
+        `/repos/${repository}/issues/${match.pr}/comments?sort=created&direction=desc&per_page=100`,
+        token,
+      );
+    } catch (error) {
+      commentsFetchFailed = true;
+      console.warn(
+        `Kody skip: PR #${match.pr} comment evidence unavailable; ` +
+        `exact-head records only: ${error.message}`,
+      );
+    }
+    match.checkStartedAt = event.check_run.started_at ?? event.check_run.created_at ?? "";
+    match.headCommittedAt = headCommittedAt;
+    match.currentPullRequestHeadSha = currentPullRequestHeadSha;
+    match.currentPullRequestHeadCommittedAt = currentPullRequestHeadCommittedAt;
+    match.evidence = kodyTriggerCommentEvidence(comments, repository, match.pr);
+    match.priorRealReviews = realKodyReviews(
+      checks.check_runs ?? [],
+      event.check_run.id,
+      match.evidence,
+    );
+    const startedMs = Date.parse(String(match.checkStartedAt ?? ""));
+    const result = await markKodySkippedQuota(token, match, {
+      now: Number.isFinite(startedMs) ? new Date(startedMs) : new Date(),
+    });
+    if (!result.ok &&
+        (["unattributed-trigger", "missing-check-start-time"].includes(result.reason) ||
+          (commentsFetchFailed && result.reason === "no-matching-kody-trigger"))) {
+      throw new Error(
+        `Kody skip: ${match.repository}#${match.pr} requires retry: ${result.reason}`,
+      );
+    }
     console.log(
       `Kody skip: ${match.repository}#${match.pr}@${match.headSha} ` +
       `CheckRun=${match.checkRunId} => ${result.reason}; ` +
