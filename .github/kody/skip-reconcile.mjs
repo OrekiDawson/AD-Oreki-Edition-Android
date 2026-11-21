@@ -60,7 +60,8 @@ export function kodyTriggerCommentEvidence(comments, repository, pr) {
       Number.isFinite(Date.parse(String(item.createdAt ?? ""))));
 }
 
-export function realKodyReviews(checks, currentCheckId, evidence = []) {
+export function realKodyReviews(checks, currentCheckId, evidence = [],
+  targetPr = null, allowUnattributed = false) {
   const triggerTimes = evidence
     .map(item => ({
       commentId: String(item.commentId ?? ""),
@@ -76,6 +77,10 @@ export function realKodyReviews(checks, currentCheckId, evidence = []) {
       return check?.app?.slug === "kody-ai" &&
         check?.name === "Kody Code Review" &&
         realOrRunning &&
+        (targetPr == null ||
+          (check?.pull_requests?.length
+            ? check.pull_requests.some(pr => Number(pr?.number) === Number(targetPr))
+            : allowUnattributed)) &&
         String(check?.id ?? "") !== String(currentCheckId ?? "") &&
         Number.isFinite(Date.parse(String(check?.started_at ?? check?.created_at ?? "")));
     })
@@ -124,8 +129,7 @@ export async function githubListAll(path, token, maxPages = 10) {
     const match = link.match(/<([^>]+)>;\s*rel="next"/);
     next = match ? match[1].replace("https://api.github.com", "") : "";
     if (next && page + 1 >= maxPages) {
-      console.warn("Kody skip: comment evidence pagination limit reached; using fetched pages.");
-      break;
+      throw new Error("Kody skip comment evidence pagination incomplete");
     }
   }
   return output;
@@ -159,10 +163,27 @@ async function resolvedKodySkipCandidates(event, token) {
 export async function main() {
   const eventPath = process.env.GITHUB_EVENT_PATH;
   if (!eventPath) throw new Error("GITHUB_EVENT_PATH is required");
-  const event = JSON.parse(readFileSync(eventPath, "utf8"));
-  if (!confirmedKodySkip(event)) return;
   const token = process.env.GH_TOKEN;
   if (!token) throw new Error("GH_TOKEN is required");
+  const eventName = String(process.env.GITHUB_EVENT_NAME ?? "").trim();
+  if (!eventName) throw new Error("GITHUB_EVENT_NAME is required");
+  let event = JSON.parse(readFileSync(eventPath, "utf8"));
+  if (eventName === "workflow_dispatch") {
+    const input = String(process.env.INPUT_CHECK_RUN_ID ?? "").trim();
+    if (!/^[1-9][0-9]*$/u.test(input)) {
+      throw new Error("workflow_dispatch check_run_id is invalid");
+    }
+    const check = await githubJson(
+      `/repos/${process.env.GITHUB_REPOSITORY}/check-runs/${input}`,
+      token,
+    );
+    event = {
+      action: "completed",
+      repository: { full_name: process.env.GITHUB_REPOSITORY },
+      check_run: check,
+    };
+  }
+  if (!confirmedKodySkip(event)) return;
   const matches = await resolvedKodySkipCandidates(event, token);
   if (!matches.length) {
     console.log("Kody skip: 无可靠 PR 关联，保留原始计数等待核对。");
@@ -235,14 +256,16 @@ export async function main() {
       checks.check_runs ?? [],
       event.check_run.id,
       match.evidence,
+      match.pr,
+      matches.length === 1,
     );
     const startedMs = Date.parse(String(match.checkStartedAt ?? ""));
     const result = await markKodySkippedQuota(token, match, {
       now: Number.isFinite(startedMs) ? new Date(startedMs) : new Date(),
     });
     if (!result.ok &&
-        (["unattributed-trigger", "missing-check-start-time"].includes(result.reason) ||
-          (commentsFetchFailed && result.reason === "no-matching-kody-trigger"))) {
+        commentsFetchFailed &&
+        result.reason === "no-matching-kody-trigger") {
       throw new Error(
         `Kody skip: ${match.repository}#${match.pr} requires retry: ${result.reason}`,
       );

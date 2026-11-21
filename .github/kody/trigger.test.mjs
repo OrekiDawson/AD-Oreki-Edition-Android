@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import {
   DAILY_TRIGGER_LIMIT,
@@ -28,6 +35,7 @@ import {
   githubListAll,
   kodyTriggerCommentEvidence,
   kodySkipPullRequests,
+  main as reconcileKodySkip,
   realKodyReviews,
 } from "./skip-reconcile.mjs";
 
@@ -43,27 +51,82 @@ test("Kody 工作流只使用合法并发键，并按事件身份隔离", () => 
     /group: kody-skip-reconcile-\$\{\{ github\.repository \}\}-\$\{\{ github\.event\.check_run\.id \}\}/);
   assert.match(workflow,
     /group: kody-trigger-budget-\$\{\{ github\.repository \}\}-\$\{\{ github\.event\.pull_request\.number \|\| inputs\.pr_number \}\}/);
-  assert.match(workflow, /contents: read/);
-  assert.match(workflow, /issues: read/);
-  assert.match(workflow, /pull-requests: read/);
+  const reconcileJob = workflow.split("reconcile_skipped:")[1].split("steps:")[0];
+  assert.match(reconcileJob, /contents: read/);
+  assert.match(reconcileJob, /issues: read/);
+  assert.match(reconcileJob, /pull-requests: read/);
 });
 
-test("评论证据超过分页上限时返回已取页面并告警", async () => {
+test("评论证据超过分页上限时失败关闭", async () => {
   const originalFetch = globalThis.fetch;
-  const originalWarn = console.warn;
-  let warned = false;
   globalThis.fetch = async () => ({
     ok: true,
     async json() { return [{ id: 1 }]; },
     headers: { get: () => '<https://api.github.com/next-page>; rel="next"' },
   });
-  console.warn = () => { warned = true; };
   try {
-    assert.deepEqual(await githubListAll("/comments", "token", 1), [{ id: 1 }]);
-    assert.equal(warned, true);
+    await assert.rejects(
+      githubListAll("/comments", "token", 1),
+      /pagination incomplete/u,
+    );
   } finally {
     globalThis.fetch = originalFetch;
-    console.warn = originalWarn;
+  }
+});
+
+test("Kody skipped 入口读取事件名并覆盖自动事件与手动重核分支", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "oreki-kody-skip-"));
+  const eventPath = join(directory, "event.json");
+  const previous = {
+    GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
+    GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME,
+    GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+    GH_TOKEN: process.env.GH_TOKEN,
+    INPUT_CHECK_RUN_ID: process.env.INPUT_CHECK_RUN_ID,
+  };
+  const restore = () => {
+    for (const [name, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  };
+  process.env.GITHUB_EVENT_PATH = eventPath;
+  process.env.GITHUB_REPOSITORY = repository;
+  process.env.GH_TOKEN = "test-token";
+  try {
+    writeFileSync(eventPath, JSON.stringify({
+      action: "completed",
+      repository: { full_name: repository },
+      check_run: {
+        id: 100,
+        name: "Kody Code Review",
+        status: "completed",
+        conclusion: "success",
+        head_sha: "a".repeat(40),
+        app: { slug: "kody-ai" },
+        pull_requests: [{ number: 42 }],
+      },
+    }));
+    process.env.GITHUB_EVENT_NAME = "check_run";
+    delete process.env.INPUT_CHECK_RUN_ID;
+    await reconcileKodySkip();
+
+    writeFileSync(eventPath, "{}");
+    process.env.GITHUB_EVENT_NAME = "workflow_dispatch";
+    process.env.INPUT_CHECK_RUN_ID = "0";
+    await assert.rejects(
+      reconcileKodySkip(),
+      /workflow_dispatch check_run_id is invalid/u,
+    );
+
+    process.env.GITHUB_EVENT_NAME = "";
+    await assert.rejects(
+      reconcileKodySkip(),
+      /GITHUB_EVENT_NAME is required/u,
+    );
+  } finally {
+    restore();
+    rmSync(directory, { recursive: true, force: true });
   }
 });
 
@@ -343,6 +406,7 @@ test("已完成、运行中或排队 Kody Review 关联到启动前最近请求"
       status: "completed",
       conclusion: "success",
       started_at: "2026-11-21T12:58:00Z",
+      pull_requests: [{ number: 42 }],
     },
     {
       id: 2,
@@ -351,6 +415,7 @@ test("已完成、运行中或排队 Kody Review 关联到启动前最近请求"
       status: "completed",
       conclusion: "skipped",
       started_at: "2026-11-21T12:59:00Z",
+      pull_requests: [{ number: 42 }],
     },
     {
       id: 3,
@@ -359,6 +424,7 @@ test("已完成、运行中或排队 Kody Review 关联到启动前最近请求"
       status: "completed",
       conclusion: "success",
       started_at: "2026-11-21T12:58:30Z",
+      pull_requests: [{ number: 42 }],
     },
     {
       id: 4,
@@ -367,6 +433,7 @@ test("已完成、运行中或排队 Kody Review 关联到启动前最近请求"
       status: "in_progress",
       conclusion: null,
       started_at: "2026-11-21T12:58:40Z",
+      pull_requests: [{ number: 42 }],
     },
     {
       id: 5,
@@ -376,17 +443,38 @@ test("已完成、运行中或排队 Kody Review 关联到启动前最近请求"
       conclusion: null,
       started_at: null,
       created_at: "2026-11-21T12:58:50Z",
+      pull_requests: [{ number: 42 }],
+    },
+    {
+      id: 6,
+      app: { slug: "kody-ai" },
+      name: "Kody Code Review",
+      status: "completed",
+      conclusion: "success",
+      started_at: "2026-11-21T12:58:55Z",
+      pull_requests: [{ number: 99 }],
+    },
+    {
+      id: 7,
+      app: { slug: "kody-ai" },
+      name: "Kody Code Review",
+      status: "completed",
+      conclusion: "success",
+      started_at: "2026-11-21T12:59:00Z",
+      pull_requests: [],
     },
   ];
   const evidence = [
     { commentId: "70", createdAt: "2026-11-21T12:57:50Z" },
     { commentId: "71", createdAt: "2026-11-21T12:58:20Z" },
   ];
-  assert.deepEqual(realKodyReviews(checks, 2, evidence), [
+  assert.deepEqual(realKodyReviews(checks, 2, evidence, 42, true), [
     { startedAt: "2026-11-21T12:58:00Z", commentId: "70" },
     { startedAt: "2026-11-21T12:58:40Z", commentId: "71" },
     { startedAt: "2026-11-21T12:58:50Z", commentId: "71" },
+    { startedAt: "2026-11-21T12:59:00Z", commentId: "71" },
   ]);
+  assert.equal(realKodyReviews(checks, 2, evidence, 42, false).length, 3);
 });
 
 test("skipped Check 到达时可从 PR 评论补齐精确触发证据", () => {

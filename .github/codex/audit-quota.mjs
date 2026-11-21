@@ -15,6 +15,7 @@ const OWNER = "OrekiDawson";
 
 export const LIMIT = 100;
 export const KODY_KIND = "kody_start_review";
+export const KODY_SKIP_PENDING_KIND = "kody_skip_pending";
 export const KODY_DAILY_LIMIT = 100;
 export const KODY_WARNING_AT = 80;
 export const COORDINATOR_REPO = "AD-Oreki-Edition-Web";
@@ -448,22 +449,33 @@ export function markKodySkippedPure(records, {
     .filter(priorToCheck)
     .sort((left, right) =>
       (recordTime(right) - recordTime(left)) * (reverse ? 1 : -1))[0] ?? null;
-  target = latest(exactMatches);
-  let observedEvidence = null;
-  if (target) {
-    if (!String(target.commentId ?? "").trim()) {
-      const targetMs = recordTime(target);
-      observedEvidence = latest(headlessMatches.filter(record =>
-        !Number.isFinite(targetMs) || recordTime(record) >= targetMs));
-    }
-  } else {
-    target = latest(headlessMatches);
-  }
+  target = latest([...exactMatches, ...headlessMatches]);
   if (!target) {
     return { ok: false, reason: "trigger-after-check", records };
   }
+  let mergeReservation = null;
+  if (!target.headSha) {
+    const targetMs = recordTime(target);
+    const reservations = exactMatches
+      .filter(record =>
+        record.status === "reserved" &&
+        !String(record.commentId ?? "").trim() &&
+        Number.isFinite(recordTime(record)) &&
+        recordTime(record) <= targetMs)
+      .sort((left, right) => recordTime(right) - recordTime(left));
+    for (const reservation of reservations) {
+      const earliestObservation = latest(
+        headlessMatches.filter(record => recordTime(record) >= recordTime(reservation)),
+        false,
+      );
+      if (earliestObservation === target) {
+        mergeReservation = reservation;
+        break;
+      }
+    }
+  }
   const targetRecordMs = recordTime(target);
-  const targetCommentId = String(observedEvidence?.commentId ?? target.commentId ?? "");
+  const targetCommentId = String(target.commentId ?? "");
   const priorRealReview = priorRealReviews.find(review => {
     const startedMs = Date.parse(String(review?.startedAt ?? ""));
     if (!Number.isFinite(startedMs)) return false;
@@ -483,23 +495,24 @@ export function markKodySkippedPure(records, {
       counts: kodyQuotaCounts(records, target.date),
     };
   }
-  const observedCommentId = String(observedEvidence?.commentId ?? "");
+  const observedCommentId = mergeReservation ? targetCommentId : "";
+  const skipTarget = mergeReservation ?? target;
   const output = records.filter(record =>
-    record !== observedEvidence &&
+    record !== (mergeReservation ? target : null) &&
     !(observedCommentId &&
       isKodyRecord(record) &&
-      String(record.repository ?? "") === String(target.repository ?? "") &&
+      String(record.repository ?? "") === String(skipTarget.repository ?? "") &&
       String(record.commentId ?? "") === observedCommentId &&
-      record !== target));
-  const outputTargetIndex = output.indexOf(target);
+      record !== skipTarget));
+  const outputTargetIndex = output.indexOf(skipTarget);
   output[outputTargetIndex] = {
-    ...target,
-    headSha: target.headSha || sha,
+    ...skipTarget,
+    headSha: skipTarget.headSha || sha,
     status: "skipped",
-    ...(observedEvidence ? {
+    ...(mergeReservation ? {
       commentId: observedCommentId,
-      commentUrl: String(observedEvidence.commentUrl ?? ""),
-      createdAt: observedEvidence.createdAt,
+      commentUrl: String(target.commentUrl ?? ""),
+      createdAt: target.createdAt,
     } : {}),
     skipCheckRunId: runId,
     skipCheckUrl: String(checkUrl),
@@ -509,8 +522,36 @@ export function markKodySkippedPure(records, {
     ok: true,
     reason: "kody-skipped-refunded",
     records: output,
-    counts: kodyQuotaCounts(output, target.date),
+    counts: kodyQuotaCounts(output, skipTarget.date),
   };
+}
+
+export function queuePendingKodySkip(records, checkIdentity, reason,
+  now = new Date().toISOString()) {
+  const identity =
+    `kody-skip-pending:${String(checkIdentity.repository ?? "")}` +
+    `#${Number(checkIdentity.pr)}@${String(checkIdentity.headSha ?? "")}` +
+    `:${String(checkIdentity.checkRunId ?? "")}`;
+  const existing = records.find(record =>
+    record?.kind === KODY_SKIP_PENDING_KIND && record.identity === identity);
+  if (existing) return records;
+  return [...records, {
+    kind: KODY_SKIP_PENDING_KIND,
+    identity,
+    repository: String(checkIdentity.repository ?? ""),
+    pr: Number(checkIdentity.pr),
+    headSha: String(checkIdentity.headSha ?? ""),
+    checkRunId: String(checkIdentity.checkRunId ?? ""),
+    checkStartedAt: String(checkIdentity.checkStartedAt ?? ""),
+    headCommittedAt: String(checkIdentity.headCommittedAt ?? ""),
+    currentPullRequestHeadSha: String(checkIdentity.currentPullRequestHeadSha ?? ""),
+    currentPullRequestHeadCommittedAt:
+      String(checkIdentity.currentPullRequestHeadCommittedAt ?? ""),
+    status: "pending_attribution",
+    reason: String(reason),
+    date: shanghaiDate(new Date(now)),
+    updatedAt: now,
+  }];
 }
 
 export async function markKodySkippedQuota(token, checkEvidence, { now = new Date() } = {}) {
@@ -521,10 +562,34 @@ export async function markKodySkippedQuota(token, checkEvidence, { now = new Dat
   } = checkEvidence;
   return mutate(token, date, records => {
     const imported = importKodyEvidence(records, evidence, date, now.toISOString());
-    return markKodySkippedPure(imported, {
+    const result = markKodySkippedPure(imported, {
       ...skipIdentity,
       now: now.toISOString(),
     });
+    const pendingIdentity =
+      `kody-skip-pending:${String(skipIdentity.repository ?? "")}` +
+      `#${Number(skipIdentity.pr)}@${String(skipIdentity.headSha ?? "")}` +
+      `:${String(skipIdentity.checkRunId ?? "")}`;
+    if (result.ok) {
+      const cleaned = result.records.filter(record =>
+        !(record?.kind === KODY_SKIP_PENDING_KIND &&
+          record.identity === pendingIdentity));
+      return { ...result, records: cleaned };
+    }
+    if (["unattributed-trigger", "missing-check-start-time"].includes(result.reason)) {
+      const pending = queuePendingKodySkip(
+        result.records,
+        skipIdentity,
+        result.reason,
+        now.toISOString(),
+      );
+      return {
+        ...result,
+        pendingQueued: pending !== result.records,
+        records: pending,
+      };
+    }
+    return result;
   });
 }
 
