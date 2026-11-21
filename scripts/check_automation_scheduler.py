@@ -52,6 +52,7 @@ SCHED = KT_DIR / "OrekiAutomationScheduler.kt"
 STAGE = KT_DIR / "OrekiStageAuto.kt"
 LISTENER = (ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz"
             / "antimatterdimensions" / "oreki" / "OrekiAutomationUiListener.kt")
+TT_REWARD_POLICY = KT_DIR / "OrekiTimeTheoremRewardPolicy.kt"
 
 checks = 0
 fails: list[str] = []
@@ -419,46 +420,24 @@ check("调度器提供 actedThisFrame 且每帧重置",
       "fun actedThisFrame(taskId: String)" in sched
       and "frameActedTask = null" in sched and "frameActedTask = taskId" in sched)
 
-# ---------------------------------------------------------------- 24f. R96 第十四轮：TT 购买收益 ×500
-# 用户 2026-11-09 正式裁决的 MOD 平衡参数；必须保留原版成本曲线与真实扣费。
+# ---------------------------------------------------------------- 24f. TT 购买收益恢复原版 ×1
+# 旧 MOD 的 ×500 会让时间研究成长与双端节奏偏离；恢复原版真实购买收益。
 _api = read(KT_DIR / "GameApi.kt")
-check("TT 购买收益倍率常量 = 500", "TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L" in _api)
+_tt_policy = read(TT_REWARD_POLICY)
+check("TT 购买收益倍率恢复原版 1",
+      re.search(r"MULTIPLIER\s*:\s*Long\s*=\s*1L", _tt_policy) is not None)
+check("TT 额外补发在倍率 1 下恒为 0",
+      "MULTIPLIER <= 1L" in _tt_policy and "return 0L" in _tt_policy)
+check("生产 buyMax 包装使用原版收益策略",
+      "OrekiTimeTheoremRewardPolicy.rewardForPurchasedTheorems(bought)" in _api)
+check("生产代码不再保留 TT 购买收益 500 倍常量",
+      "TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L" not in _api)
 check("倍率只包住原版唯一购买入口（不另造购买路径）",
       "fun timeTheoremBuyMax(auto: Boolean): Long" in _api
       and "call(mTtBuyMax(), null, auto)" in _api)
-check("按本次真实购买次数发奖（不可重复发放）",
-      "val bought = (call(mTtBuyMax(), null, auto) as? Long) ?: 0L" in _api
-      and "if (bought <= 0L) return 0L" in _api)
-check("补发走原版货币 API Currency.add（不写存档字段）",
-      "Currency.C(BigDouble)=add" in _api and "grantExtraTimeTheorems" in _api)
-check("发奖走「累计购买次数对账」，覆盖手动/自动/单次/批量全部购买路径",
-      "fun settleTimeTheoremReward()" in _api
-      and "timeTheoremPurchaseCount()" in _api
-      and "OrekiIu15Sprint.tick()" in stage
-      and "GameApi.settleTimeTheoremReward()" in stage)
-check("对账边界：首次只建基线、增量为 0 不发奖、回退只重置",
-      "if (last < 0L) {" in _api and "if (delta == 0L) return" in _api
-      and "if (total < last) {" in _api)
-# 实测：未缓存反射时主循环被拖慢（maxAM 增速 770/分 → 1/分、首次永恒迟迟不到）。
-check("对账反射 Method 必须缓存（禁止每帧 getMethod）",
-      "mTimestudyCounts" in _api and "mTimestudyCountsResolved" in _api
-      and "timestudyCountMethods" in _api
-      and _api.count('getMethod("b")') == 1)
-# 审查整改：切档不得把历史购买当新购；失败不得吞掉奖励。
-check("切档保护：单帧增量超上限只重设基线、不发奖",
-      "MAX_REASONABLE_DELTA" in _api and "tt-reward SWITCH-GUARD" in _api
-      and "if (delta > MAX_REASONABLE_DELTA)" in _api)
-check("补发失败不推进基线（下一帧重试，不永久吞奖励）",
-      "timeTheoremGrantFailures" in _api
-      and _api.split("if (!granted) {")[1].split("return")[0].find("timeTheoremPurchasesSettled = total") < 0)
-check("补发失败不静默：有 GRANT-FAILED 告警",
-      "tt-reward GRANT-FAILED" in _api)
-_tt_block = _api.split("fun timeTheoremBuyMax(auto: Boolean): Long")[1].split("// ------")[0]
-# 允许「读」购买次数（对账必须读），禁止任何「写」：不得改存档字段、不得调 setter。
-check("不伪造购买次数（只读 b/c/d，不写任何存档字段）",
-      'getMethod("b")' in _tt_block and 'getMethod("c")' in _tt_block and 'getMethod("d")' in _tt_block
-      and "setLong" not in _tt_block and "putLong" not in _tt_block
-      and "Timestudy;->" not in _tt_block)
+check("旧补发对账在 ×1 下只推进基线",
+      "if (OrekiTimeTheoremRewardPolicy.MULTIPLIER <= 1L)" in _api
+      and "timeTheoremPurchasesSettled = total" in _api)
 
 # ---------------------------------------------------------------- 24e. R96 第十三轮：EP 预留
 # 实测：bigE=8、EP=0、eupBits=0，34 分钟一次永恒升级都没买到 —— TD1（1/3/9…）把 EP 吃干。
