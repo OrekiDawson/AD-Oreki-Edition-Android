@@ -6,7 +6,7 @@
 - 分支：`r121-01/kody-quota-wiki-isolation`
 - 同步前 HEAD：`7ac506062ba28664857387f25f1da04d2c965ff2`
 - 最新 `origin/main`：`f35cdfde4104682a29429499dbd54a38f85ccef7`
-- 本地验证提交：`ffbe81c5`；远端代码经 GitHub Contents API 同步，最终 HEAD 以 PR #226 实时回读为准
+- 本地验证提交：`ffbe81c5`；在补齐 partial clone 缺失对象后正常 `git push --no-thin`
 
 ## 本次同步
 
