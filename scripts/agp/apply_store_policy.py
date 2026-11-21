@@ -22,6 +22,7 @@ import classfile  # noqa: E402
 
 TARGET_CLASSES = {
     "l5.class",
+    "kajfosz/antimatterdimensions/challenge/antimatter/c.class",
     "kajfosz/antimatterdimensions/shop/Purchases.class",
     "rw3.class",
     "ww1.class",
@@ -31,6 +32,7 @@ TARGET_CLASSES = {
     "kajfosz/antimatterdimensions/shop/LoginActivity.class",
     "kajfosz/antimatterdimensions/MainActivity.class",
 }
+RETIRED_INSTANT_PREFIX = "kajfosz/antimatterdimensions/OrekiInstantChallenge"
 
 
 def sha256(path: pathlib.Path) -> str:
@@ -45,12 +47,16 @@ def structural_checks(game_jar: pathlib.Path, out_jar: pathlib.Path) -> dict:
     with zipfile.ZipFile(game_jar) as before, zipfile.ZipFile(out_jar) as after:
         before_names = [entry.filename for entry in before.infolist()]
         after_names = [entry.filename for entry in after.infolist()]
-        if before_names != after_names:
-            raise SystemExit("FAIL: transformed JAR entry list changed")
+        removed = sorted(set(before_names) - set(after_names))
+        added = sorted(set(after_names) - set(before_names))
+        if added:
+            raise SystemExit(f"FAIL: transformed JAR gained entries: {added}")
+        if any(not name.startswith(RETIRED_INSTANT_PREFIX) for name in removed):
+            raise SystemExit(f"FAIL: transformed JAR removed unexpected entries: {removed}")
         non_target_same = all(
             before.read(name) == after.read(name)
             for name in before_names
-            if not name.endswith("/") and name not in TARGET_CLASSES
+            if not name.endswith("/") and name in after_names and name not in TARGET_CLASSES
         )
         if not non_target_same:
             raise SystemExit("FAIL: transformer changed a non-target JAR entry")
@@ -72,8 +78,13 @@ def structural_checks(game_jar: pathlib.Path, out_jar: pathlib.Path) -> dict:
                 "methods": len(old_methods),
                 "signatures_preserved": True,
             }
+        for name in after_names:
+            if name.endswith(".class") and b"OrekiInstantChallenge" in after.read(name):
+                raise SystemExit(f"FAIL: retired instant-challenge reference remains in {name}")
     return {
-        "entries_preserved": True,
+        "entries_preserved": not added,
+        "retired_instant_challenge_removed": bool(removed),
+        "removed_entries": removed,
         "non_target_entries_byte_identical": True,
         "target_classes": classes,
     }

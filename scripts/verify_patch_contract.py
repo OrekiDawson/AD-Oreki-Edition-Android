@@ -13,8 +13,8 @@ R91 起的真实口径：**直接检查候选 APK 的已准备解包树**，在 
   4. 已实测否证的提频补丁（patch_frame_cadence）保持禁用；
   5. 候选 APK 内 EC12 补丁唯一，且 unscale 紧邻限时比较；
   6. Challenges.update（3.21 的 suspend b(...)）只插入 1 次 tick()；
-  7. OrekiInstantChallenge 未被误放进 templates/；
-  8. OrekiInstantChallenge 类、tick() 与 E/F/y/K/BitSet 生产调用齐全；
+  7. 生产 payload 与候选 APK 均移除了旧 OrekiInstantChallenge；
+  8. 挑战自动进入钩子存在，且不补写完成次数或奖励；
   9. 3.21 普通挑战真实入口 a(I) -> normal/a；
  10. 3.21 无限挑战真实入口 c() -> infinity/a；
  11. 3.21 永恒挑战真实入口 c() -> eternity/b；
@@ -60,7 +60,6 @@ BINDINGS_DIR = ROOT / "baseline" / "versions"
 PKG_MOD = "com.oreki.antimatterdimensions"
 PLAYER_OPTIONS = "Lkajfosz/antimatterdimensions/player/Player$Options;"
 PLAYER_CHALLENGE_UPDATE = "Lkajfosz/antimatterdimensions/challenge/antimatter/c;"
-INSTANT_CHALLENGE = "Lkajfosz/antimatterdimensions/OrekiInstantChallenge;"
 OREKI_SPEED = "Lkajfosz/antimatterdimensions/OrekiSpeed;"
 CHALLENGE_BASE = "Lkajfosz/antimatterdimensions/challenge/antimatter/b;"
 ETERNITY_CHALLENGE = "Lkajfosz/antimatterdimensions/challenge/eternity/b;"
@@ -143,7 +142,7 @@ class SmaliIndex:
 
     def _build_patterns(self):
         pats = {}
-        for desc in (PLAYER_OPTIONS, PLAYER_CHALLENGE_UPDATE, INSTANT_CHALLENGE,
+        for desc in (PLAYER_OPTIONS, PLAYER_CHALLENGE_UPDATE,
                      OREKI_SPEED, CHALLENGE_BASE, ETERNITY_CHALLENGE, MOD_BITSET,
                      NOTATION_SPINNER):
             pats[f"class:{desc}"] = r"^\.class .*" + re.escape(desc) + r"\s*$"
@@ -151,7 +150,7 @@ class SmaliIndex:
             pats[pid] = r"^\.method .*" + re.escape(name + desc) + r"\s*$"
         markers = {
             "marker:ec12": "OrekiSpeed;->unscale(D)D",
-            "marker:instant_tick": "OrekiInstantChallenge;->tick()V",
+            "marker:instant_retired": "OrekiInstantChallenge",
             "marker:spinner": "NotationSpinner;->setSelection(I)V",
             "marker:scientific": '"Scientific"',
             "marker:mixed": '"Mixed scientific"',
@@ -587,16 +586,21 @@ def check_build_mod_main(subs):
     active = "\n".join(l for l in body.splitlines() if not l.strip().startswith("#"))
     add_sub(subs, re.search(r"^\s*patch_ec12_restriction\(\)\s*$", active, re.M) is not None,
             "main() 启用 patch_ec12_restriction()")
-    add_sub(subs, re.search(r"^\s*patch_instant_challenge\(\)\s*$", active, re.M) is not None,
-            "main() 启用 patch_instant_challenge()")
+    add_sub(subs, re.search(r"^\s*retire_instant_challenge\(\)\s*$", active, re.M) is not None,
+            "main() 启用 retire_instant_challenge()")
+    add_sub(subs, re.search(r"^\s*patch_instant_challenge\(\)\s*$", active, re.M) is None,
+            "main() 不再启用 patch_instant_challenge()")
+    add_sub(subs, re.search(r"^\s*patch_instant_challenge_rewards\(\)\s*$", active, re.M) is None,
+            "main() 不再启用 patch_instant_challenge_rewards()")
     add_sub(subs, re.search(r"^\s*patch_frame_cadence\(\)\s*$", active, re.M) is None,
             "main() 未启用已否证的 patch_frame_cadence()")
 
 
 def check_template(subs):
-    polluted = (SCRIPTS / "payload" / "templates" / "OrekiInstantChallenge.smali").exists()
-    add_sub(subs, not polluted, "OrekiInstantChallenge 未被当成模板误放进 templates/",
-            "templates 目录不应存在该文件" if polluted else "")
+    retired = (SCRIPTS / "payload" / "smali" / "kajfosz" / "antimatterdimensions" /
+               "OrekiInstantChallenge.smali")
+    add_sub(subs, not retired.exists(), "生产 payload 已移除 OrekiInstantChallenge.smali",
+            "旧即时完成类仍在 payload" if retired.exists() else "")
 
 
 def ec12_sequence_pattern():
@@ -670,61 +674,28 @@ def check_ec12(index: SmaliIndex, subs):
 
 
 def check_challenge_tick(index: SmaliIndex, subs):
-    needle = "OrekiInstantChallenge;->tick()V"
+    needle = "OrekiChallengeAuto;->tick()V"
     files = index.scan_markers([needle])[needle]
     total = sum(index.read(p).count(needle) for p in files)
-    add_sub(subs, total == 1, "全 APK 只调用 OrekiInstantChallenge.tick() 1 次",
+    add_sub(subs, total == 1, "全 APK 只调用 OrekiChallengeAuto.tick() 1 次",
             f"files={[index.rel(p) for p in files]} count={total}")
     p = index.find_class(PLAYER_CHALLENGE_UPDATE)
     text = index.read(p)
     hits = [(h, body) for h, body in iter_methods(text) if needle in body]
     if len(hits) != 1:
-        add_sub(subs, False, "Challenges.update 内 tick 位置唯一", f"命中 {len(hits)} 个方法")
-        raise ContractFailure("Challenges.update 内 tick 位置不唯一")
+        add_sub(subs, False, "Challenges.update 内自动进入 tick 位置唯一", f"命中 {len(hits)} 个方法")
+        raise ContractFailure("Challenges.update 内自动进入 tick 位置不唯一")
     header, body = hits[0]
     add_sub(subs, challenge_update_suspend_ok(header),
             "3.21 Challenges.update 为 suspend b(D, ContinuationImpl；shadow ABI 可接受)", header)
-    add_sub(subs, "OrekiChallengeAuto;->tick()V" in body,
-            "同方法先调用 OrekiChallengeAuto.tick()（自动进入挑战）")
-    add_sub(subs, body.find("OrekiChallengeAuto;->tick()V") < body.find(needle),
-            "OrekiChallengeAuto.tick() 位于 OrekiInstantChallenge.tick() 之前")
+    add_sub(subs, "OrekiInstantChallenge" not in body,
+            "Challenges.update 不再调用旧即时完成实现")
 
 
 def check_instant_challenge(index: SmaliIndex, subs):
-    p = index.find_class(INSTANT_CHALLENGE)
-    text = index.read(p)
-    tick = None
-    for h, body in iter_methods(text):
-        if method_sig(h) == ("tick", "()V"):
-            tick = (h, body)
-            break
-    add_sub(subs, tick is not None, "OrekiInstantChallenge 声明 tick()V")
-    if tick is None:
-        raise ContractFailure("OrekiInstantChallenge 缺少 tick()V")
-    body = tick[1]
-    for needle, sname in (
-        ("->E(Z)V", "复用挑战完成入口 E(Z)"),
-        ("->F(Z)V", "复用 EC addCompletion F(Z)"),
-        ("->y()Z", "EC isFullyCompleted 判定 y()Z"),
-        ("->K()Z", "已完成的挑战不重复结算 K()Z"),
-        ("BitSet;->c(I)V", "EC requirementBits 清零 BitSet.c(I)"),
-    ):
-        add_sub(subs, needle in body, sname, needle)
-
-    # 生产调用目标必须真实存在（不是只有字符串）
-    targets = [
-        (CHALLENGE_BASE, "E", "(Z)V"),
-        (ETERNITY_CHALLENGE, "F", "(Z)V"),
-        (ETERNITY_CHALLENGE, "y", "()Z"),
-        (CHALLENGE_BASE, "K", "()Z"),
-        (MOD_BITSET, "c", "(I)V"),
-    ]
-    for cls, name, desc in targets:
-        try:
-            tp, _, th = index.find_method_in_class(cls, name, desc)
-            add_sub(subs, True, f"{cls}->{name}{desc} 真实声明存在", index.rel(tp))
-        except ContractFailure as e:
-            add_sub(subs, False, f"{cls}->{name}{desc} 真实声明存在", str(e))
+    hits = index.scan_markers(["OrekiInstantChallenge"])["OrekiInstantChallenge"]
+    add_sub(subs, not hits, "候选 APK 不再包含 OrekiInstantChallenge",
+            f"残留文件={[index.rel(p) for p in hits]}")
 
 
 def check_challenge_entry(index: SmaliIndex, subs, kind: str):
@@ -764,11 +735,7 @@ def check_challenge_entry(index: SmaliIndex, subs, kind: str):
     for needle in must:
         add_sub(subs, needle in body, f"{label} 生产逻辑锚点：{needle}")
 
-    # 必须被 OrekiInstantChallenge.tick 真实调用；并在 3.21 bindings 的 CONFIRMED 目标里
-    ip = index.find_class(INSTANT_CHALLENGE)
-    itext = index.read(ip)
-    call = f"{cls}->{name}("
-    add_sub(subs, call in itext, f"OrekiInstantChallenge 调用 {cls}->{name}(")
+    # 入口类必须在 3.21 bindings 的 CONFIRMED 目标里；完成改由原版挑战更新处理。
     targets = load_confirmed_targets()
     add_sub(subs, cls in targets, f"{cls} 在 3.21 bindings.json 中为 CONFIRMED 目标",
             f"CONFIRMED 目标数={len(targets)}")
@@ -1116,7 +1083,7 @@ def main():
     # 7：模板污染（放在 APK 检查之前，纯构建树断言）
     subs = []
     check_template(subs)
-    check("OrekiInstantChallenge 未被当成模板误放进 templates/", all(x[0] for x in subs),
+    check("生产 payload 已移除 OrekiInstantChallenge.smali", all(x[0] for x in subs),
           "" if all(x[0] for x in subs) else next(x[2] for x in subs if not x[0]), subs)
 
     # 5-17：候选 APK / 调试树
@@ -1137,8 +1104,9 @@ def main():
         check(name, ok, detail, subs)
 
     run("EC12 补丁唯一且位于比较之前（候选 APK）", lambda s: check_ec12(index, s))
-    run("Challenges.update 只插入 1 次 tick()（候选 APK）", lambda s: check_challenge_tick(index, s))
-    run("OrekiInstantChallenge 类与 ABI（候选 APK）", lambda s: check_instant_challenge(index, s))
+    run("Challenges.update 只插入 1 次自动进入 tick()（候选 APK）",
+        lambda s: check_challenge_tick(index, s))
+    run("候选 APK 已移除旧即时完成类", lambda s: check_instant_challenge(index, s))
     run("3.21 普通挑战入口 a(I) -> normal/a（候选 APK）",
         lambda s: check_challenge_entry(index, s, "normal"))
     run("3.21 无限挑战入口 c() -> infinity/a（候选 APK）",
