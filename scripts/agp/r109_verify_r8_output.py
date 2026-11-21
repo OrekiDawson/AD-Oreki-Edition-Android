@@ -110,7 +110,6 @@ def main():
         "kajfosz/antimatterdimensions/OrekiAuto",
         "kajfosz/antimatterdimensions/OrekiTrace",
         "kajfosz/antimatterdimensions/OrekiChallengeAuto",
-        "kajfosz/antimatterdimensions/OrekiInstantChallenge",
         "kajfosz/antimatterdimensions/OrekiSpeed",
         "kajfosz/antimatterdimensions/OrekiEcContinuation",
         "kajfosz/antimatterdimensions/oreki/GameApi",
@@ -118,6 +117,9 @@ def main():
     ]
     for cls in bridge:
         check("class", cls, "L" + cls + ";" in classes, "smali->Kotlin ABI")
+    check("class-absent", "kajfosz/antimatterdimensions/OrekiInstantChallenge",
+          "Lkajfosz/antimatterdimensions/OrekiInstantChallenge;" not in classes,
+          "挑战即时完成类必须从生产 APK 移除")
 
     # 2) GameApi 反射目标（混淆短名 + 全名；见 proguard-rules.pro 与 keepgen）
     reflect = [
