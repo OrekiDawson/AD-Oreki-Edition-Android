@@ -26,6 +26,7 @@ import org.objectweb.asm.Opcodes;
  */
 public final class StorePolicyTransformer {
     private static final String POLICY = "kajfosz/antimatterdimensions/oreki/OrekiStorePolicy";
+    private static final String RETIRED_INSTANT = "kajfosz/antimatterdimensions/OrekiInstantChallenge";
     private static final Set<String> COUNT_GETTERS = Set.of(
         "getAllCosmeticSetPurchases",
         "getAllDimMultPurchases",
@@ -78,6 +79,10 @@ public final class StorePolicyTransformer {
             Enumeration<? extends ZipEntry> entries = source.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
+                if (!entry.isDirectory() && isRetiredInstant(entry.getName())) {
+                    replacements.put("removed:" + entry.getName(), "retired-instant-challenge");
+                    continue;
+                }
                 ZipEntry outEntry = new ZipEntry(entry.getName());
                 outEntry.setTime(entry.getTime());
                 target.putNextEntry(outEntry);
@@ -103,13 +108,25 @@ public final class StorePolicyTransformer {
 
     private static boolean isTarget(String name) {
         return name.equals("l5.class") ||
+            name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class") ||
             name.equals("kajfosz/antimatterdimensions/shop/Purchases.class") ||
             STORE_ACTION_CLASSES.contains(name);
     }
 
+    private static boolean isRetiredInstant(String name) {
+        return name.equals(RETIRED_INSTANT + ".class") ||
+            name.startsWith(RETIRED_INSTANT + "$");
+    }
+
     private static byte[] transformClass(String name, byte[] data, Map<String, String> report) {
         ClassReader reader = new ClassReader(data);
-        ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        int writerFlags = ClassWriter.COMPUTE_MAXS;
+        if (!name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class")) {
+            writerFlags |= ClassWriter.COMPUTE_FRAMES;
+        }
+        ClassWriter writer = name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class")
+            ? new ClassWriter(writerFlags)
+            : new ClassWriter(reader, writerFlags);
         ClassVisitor visitor = new ClassVisitor(Opcodes.ASM9, writer) {
             private String superName;
 
@@ -137,6 +154,36 @@ public final class StorePolicyTransformer {
                 MethodVisitor output = super.visitMethod(access, methodName, descriptor, signature, exceptions);
                 Replacement replacement = replacementFor(name, superName, methodName, descriptor);
                 if (replacement == null) {
+                    if (name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class")) {
+                        return new MethodVisitor(Opcodes.ASM9, output) {
+                            @Override
+                            public void visitMethodInsn(
+                                int opcode,
+                                String owner,
+                                String methodName,
+                                String methodDescriptor,
+                                boolean isInterface
+                            ) {
+                                if (opcode == Opcodes.INVOKESTATIC &&
+                                    owner.equals(RETIRED_INSTANT) &&
+                                    methodName.equals("tick") &&
+                                    methodDescriptor.equals("()V")) {
+                                    report.put(
+                                        name + "#removed-instant-tick",
+                                        "retired-instant-challenge"
+                                    );
+                                    return;
+                                }
+                                super.visitMethodInsn(
+                                    opcode,
+                                    owner,
+                                    methodName,
+                                    methodDescriptor,
+                                    isInterface
+                                );
+                            }
+                        };
+                    }
                     return output;
                 }
                 report.put(name + "#" + methodName + descriptor, replacement.policyMethod);

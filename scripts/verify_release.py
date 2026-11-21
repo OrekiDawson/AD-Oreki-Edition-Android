@@ -6,7 +6,7 @@
   1. 包名 / versionName / versionCode 与 scripts/release-gate-policy.json 的发布身份一致；
   2. 签名方案与证书指纹是项目个人密钥（未更换签名）；
   3. EC12 限时补丁真的在 dex 里（OrekiSpeed.unscale 紧邻限时比较）；
-  4. 挑战进入即完成补丁真的在 dex 里（OrekiInstantChallenge.tick 存在且被 Challenges.update 调用）。
+  4. 旧挑战即时完成实现已从 dex 移除，挑战完成只能走原版目标与结算。
 
 Gradle 先执行 AAPT2、apksigner、apktool 并生成工具报告；本脚本只负责
 基线版本、ABI 和补丁语义检查，不再启动 Android 工具或管理临时解包目录。
@@ -265,27 +265,18 @@ def main():
           len(ec12_files) == 1,
           str(ec12_files[0].relative_to(verify_dir)) if ec12_files else "未找到唯一目标")
 
-    # 3b. 挑战进入即完成：新类 + 调用点
+    # 3b. 挑战即时完成已退役：类和调用点都不得进入生产 dex。
     inst = find_smali("kajfosz/antimatterdimensions/OrekiInstantChallenge.smali")
-    check("OrekiInstantChallenge 类在 dex 内", inst is not None,
-          str(inst.relative_to(verify_dir)) if inst else "缺失")
-    if inst is not None:
-        t = inst.read_text(encoding="utf-8", errors="ignore")
-        for needle, desc in (
-            ("->E(Z)V", "复用 C/IC 完成入口 E(Z)"),
-            ("->F(Z)V", "复用 EC addCompletion F(Z)"),
-            ("->y()Z", "EC isFullyCompleted 判定"),
-            ("->K()Z", "已完成的挑战不重复结算"),
-        ):
-            check(f"OrekiInstantChallenge 含 {desc}", needle in t, needle)
+    check("OrekiInstantChallenge 类已从 dex 移除", inst is None,
+          str(inst.relative_to(verify_dir)) if inst else "")
 
     upd = find_smali("kajfosz/antimatterdimensions/challenge/antimatter/c.smali")
     if upd is not None:
         t = upd.read_text(encoding="utf-8", errors="ignore")
-        n = t.count("OrekiInstantChallenge;->tick()V")
-        check("Challenges.update 调用 tick()（恰好 1 处）", n == 1, f"count={n}")
+        n = t.count("OrekiInstantChallenge")
+        check("Challenges.update 不再引用 OrekiInstantChallenge", n == 0, f"count={n}")
     else:
-        check("Challenges.update 调用 tick()", False, "缺 challenge/antimatter/c.smali")
+        check("Challenges.update 清理旧即时完成", False, "缺 challenge/antimatter/c.smali")
 
     # ---------------- 汇总 ----------------
     failed = [r for r in results if not r["ok"]]
