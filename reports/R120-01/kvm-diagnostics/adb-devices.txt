@@ -1,0 +1,2 @@
+List of devices attached
+emulator-5556          device product:sdk_phone64_x86_64 model:Android_SDK_built_for_x86_64 device:emulator64_x86_64 transport_id:16

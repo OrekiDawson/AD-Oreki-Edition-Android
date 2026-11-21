@@ -1,0 +1,713 @@
+11-20 12:01:26.944 I/OREKI_SCHED( 2792): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-20 12:01:34.769 I/OREKI_TABGATE( 2792): tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-20 12:02:19.572 I/OREKI_TABGATE( 2792): tab=dimensions allowed=true eternityUnlocked=false
+11-20 12:02:19.903 I/OREKI_TABGATE( 2792): tab=automation allowed=true eternityUnlocked=false
+11-20 12:02:19.907 I/OREKI_TABGATE( 2792): tab=challenges allowed=true eternityUnlocked=false
+11-20 12:02:20.003 I/OREKI_TABGATE( 2792): tab=infinity allowed=true eternityUnlocked=false
+11-20 12:02:20.003 I/OREKI_TABGATE( 2792): tab=eternity allowed=false eternityUnlocked=false
+11-20 12:02:20.004 I/OREKI_TABGATE( 2792): tab=reality allowed=false eternityUnlocked=false
+11-20 12:02:20.004 I/OREKI_TABGATE( 2792): tab=celestials allowed=false eternityUnlocked=false
+11-20 12:02:20.004 I/OREKI_TABGATE( 2792): tab=achievements allowed=true eternityUnlocked=false
+11-20 12:02:20.004 I/OREKI_TABGATE( 2792): tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-20 12:02:20.012 I/OREKI_TABGATE( 2792): tab=optionsMainTab allowed=true eternityUnlocked=false
+11-20 12:02:20.013 I/OREKI_TABGATE( 2792): tab=shopMainTab allowed=true eternityUnlocked=false
+11-20 12:02:20.019 I/OREKI_TABGATE( 2792): tab=infoMainTab allowed=true eternityUnlocked=false
+11-20 12:02:20.168 I/OREKI_TABGATE( 2792): tab=infinityDimensions allowed=true eternityUnlocked=false
+11-20 12:02:20.169 I/OREKI_TABGATE( 2792): tab=timeDimensions allowed=false eternityUnlocked=false
+11-20 12:02:20.169 I/OREKI_TABGATE( 2792): tab=normalAchievements allowed=true eternityUnlocked=false
+11-20 12:02:20.169 I/OREKI_TABGATE( 2792): tab=secretAchievements allowed=true eternityUnlocked=false
+11-20 12:02:20.169 I/OREKI_TABGATE( 2792): tab=statistics allowed=true eternityUnlocked=false
+11-20 12:02:20.170 I/OREKI_TABGATE( 2792): tab=challengeTimes allowed=true eternityUnlocked=false
+11-20 12:02:20.179 I/OREKI_TABGATE( 2792): tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-20 12:02:20.179 I/OREKI_TABGATE( 2792): tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-20 12:02:20.179 I/OREKI_TABGATE( 2792): tab=graphs allowed=true eternityUnlocked=false
+11-20 12:02:20.179 I/OREKI_TABGATE( 2792): tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-20 12:02:20.180 I/OREKI_TABGATE( 2792): tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-20 12:02:20.180 I/OREKI_TABGATE( 2792): tab=speedrunRecords allowed=true eternityUnlocked=false
+11-20 12:02:20.180 I/OREKI_TABGATE( 2792): tab=howToPlay allowed=true eternityUnlocked=false
+11-20 12:02:20.180 I/OREKI_TABGATE( 2792): tab=about allowed=true eternityUnlocked=false
+11-20 12:04:44.743 I/OREKI_TABGATE( 2792): tab=autobuyers allowed=true eternityUnlocked=false
+11-20 12:04:44.746 I/OREKI_TABGATE( 2792): tab=automator allowed=false eternityUnlocked=false
+11-20 12:06:19.219 I/OREKI_CRUNCH( 2792): 9
+11-20 12:07:18.618 I/OREKI_CRUNCH( 2792): 9
+11-20 12:08:06.077 I/OREKI_CRUNCH( 2792): 9
+11-20 12:08:51.745 I/OREKI_CRUNCH( 2792): 9
+11-20 12:09:37.750 I/OREKI_CRUNCH( 2792): 9
+11-20 12:10:20.839 I/OREKI_CRUNCH( 2792): 9
+11-20 12:10:59.824 I/OREKI_CRUNCH( 2792): 9
+11-20 12:11:36.868 I/OREKI_CRUNCH( 2792): 9
+11-20 12:12:44.935 I/OREKI_CRUNCH( 2792): 9
+11-20 12:13:58.202 I/OREKI_CRUNCH( 2792): 9
+11-20 12:14:34.241 I/OREKI_CRUNCH( 2792): 9
+11-20 12:15:15.829 I/OREKI_CRUNCH( 2792): 9
+11-20 12:15:51.125 I/OREKI_CRUNCH( 2792): 9
+11-20 12:16:28.830 I/OREKI_CRUNCH( 2792): 9
+11-20 12:17:07.612 I/OREKI_CRUNCH( 2792): 9
+11-20 12:17:15.107 I/OREKI_TABGATE( 2792): tab=infinityUpgrades allowed=true eternityUnlocked=false
+11-20 12:17:15.450 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->2.0e0 ip=4.0e1 ep=0.0e0 bigE=0 t=1427935
+11-20 12:17:15.547 I/OREKI_SCHED( 2792): act infinityUpgrades @1428128ms gap=-1 taskGap=-1
+11-20 12:17:15.921 I/OREKI_TABGATE( 2792): tab=normalChallenges allowed=true eternityUnlocked=false
+11-20 12:17:15.927 I/OREKI_TABGATE( 2792): tab=infinityChallenges allowed=true eternityUnlocked=false
+11-20 12:17:15.927 I/OREKI_TABGATE( 2792): tab=eternityChallenges allowed=false eternityUnlocked=false
+11-20 12:17:15.927 I/OREKI_TABGATE( 2792): tab=breakInfinity allowed=true eternityUnlocked=false
+11-20 12:17:15.927 I/OREKI_TABGATE( 2792): tab=replicanti allowed=true eternityUnlocked=false
+11-20 12:17:25.557 I/OREKI_SCHED( 2792): act infinityUpgrades @1438138ms gap=10010 taskGap=10010
+11-20 12:17:32.549 I/OREKI_CRUNCH( 2792): 9
+11-20 12:17:35.609 I/OREKI_SCHED( 2792): act infinityUpgrades @1448190ms gap=10052 taskGap=10052
+11-20 12:17:45.636 I/OREKI_SCHED( 2792): act infinityUpgrades @1458217ms gap=10027 taskGap=10027
+11-20 12:17:52.093 I/OREKI_CRUNCH( 2792): 9
+11-20 12:17:55.720 I/OREKI_SCHED( 2792): act infinityUpgrades @1468301ms gap=10084 taskGap=10084
+11-20 12:18:05.788 I/OREKI_SCHED( 2792): act infinityUpgrades @1478369ms gap=10068 taskGap=10068
+11-20 12:18:12.317 I/OREKI_CRUNCH( 2792): 9
+11-20 12:18:15.813 I/OREKI_SCHED( 2792): act infinityUpgrades @1488394ms gap=10025 taskGap=10025
+11-20 12:18:25.829 I/OREKI_SCHED( 2792): act infinityUpgrades @1498410ms gap=10016 taskGap=10016
+11-20 12:18:31.837 I/OREKI_CRUNCH( 2792): 9
+11-20 12:18:35.872 I/OREKI_SCHED( 2792): act infinityUpgrades @1508454ms gap=10044 taskGap=10044
+11-20 12:18:45.965 I/OREKI_SCHED( 2792): act infinityUpgrades @1518547ms gap=10093 taskGap=10093
+11-20 12:18:51.865 I/OREKI_CRUNCH( 2792): 9
+11-20 12:18:55.984 I/OREKI_SCHED( 2792): act infinityUpgrades @1528566ms gap=10019 taskGap=10019
+11-20 12:19:06.009 I/OREKI_SCHED( 2792): act infinityUpgrades @1538590ms gap=10024 taskGap=10024
+11-20 12:19:08.897 I/OREKI_CRUNCH( 2792): 9
+11-20 12:19:16.043 I/OREKI_SCHED( 2792): act infinityUpgrades @1548624ms gap=10034 taskGap=10034
+11-20 12:19:26.105 I/OREKI_SCHED( 2792): act infinityUpgrades @1558686ms gap=10062 taskGap=10062
+11-20 12:19:27.400 I/OREKI_CRUNCH( 2792): 9
+11-20 12:19:42.461 I/OREKI_CRUNCH( 2792): crunch detected inf=9.0e0->1.0e1 ip=6.6e1 ep=0.0e0 bigE=0 t=1575042
+11-20 12:19:46.148 I/OREKI_SCHED( 2792): act infinityUpgrades @1578729ms gap=10028 taskGap=20043
+11-20 12:19:48.985 I/OREKI_CRUNCH( 2792): 9
+11-20 12:20:06.240 I/OREKI_SCHED( 2792): act infinityUpgrades @1598821ms gap=10051 taskGap=20092
+11-20 12:20:11.639 I/OREKI_CRUNCH( 2792): 9
+11-20 12:20:26.384 I/OREKI_SCHED( 2792): act infinityUpgrades @1618966ms gap=10113 taskGap=20145
+11-20 12:20:31.653 I/OREKI_CRUNCH( 2792): 9
+11-20 12:20:49.941 I/OREKI_CRUNCH( 2792): 9
+11-20 12:20:56.505 I/OREKI_SCHED( 2792): act infinityUpgrades @1649086ms gap=10068 taskGap=30120
+11-20 12:21:04.472 I/OREKI_CRUNCH( 2792): crunch detected inf=1.0e1->1.1e1 ip=2.32e2 ep=0.0e0 bigE=0 t=1657053
+11-20 12:21:08.239 I/OREKI_CRUNCH( 2792): 9
+11-20 12:21:26.352 I/OREKI_CRUNCH( 2792): 9
+11-20 12:21:46.550 I/OREKI_CRUNCH( 2792): 9
+11-20 12:21:59.253 I/OREKI_CRUNCH( 2792): crunch detected inf=1.1e1->1.2e1 ip=8.04e2 ep=0.0e0 bigE=0 t=1711834
+11-20 12:22:05.509 I/OREKI_CRUNCH( 2792): 9
+11-20 12:22:16.947 I/OREKI_SCHED( 2792): act infinityUpgrades @1729528ms gap=10001 taskGap=80442
+11-20 12:22:24.346 I/OREKI_CRUNCH( 2792): 9
+11-20 12:22:45.185 I/OREKI_CRUNCH( 2792): crunch detected inf=1.2e1->1.3e1 ip=8.96016e2 ep=0.0e0 bigE=0 t=1757766
+11-20 12:22:49.867 I/OREKI_CRUNCH( 2792): 9
+11-20 12:23:09.519 I/OREKI_CRUNCH( 2792): 9
+11-20 12:23:17.415 I/OREKI_SCHED( 2792): deny frame-held task=infinityUpgrades
+11-20 12:23:30.491 I/OREKI_CRUNCH( 2792): crunch detected inf=1.3e1->1.4e1 ip=1.732016e3 ep=0.0e0 bigE=0 t=1803073
+11-20 12:23:38.767 I/OREKI_CRUNCH( 2792): 9
+11-20 12:23:56.796 I/OREKI_CRUNCH( 2792): 9
+11-20 12:23:58.683 I/OREKI_CRUNCH( 2792): crunch detected inf=1.4e1->1.5e1 ip=4.856016e3 ep=0.0e0 bigE=0 t=1831255
+11-20 12:24:16.862 I/OREKI_CRUNCH( 2792): 9
+11-20 12:24:27.525 I/OREKI_CRUNCH( 2792): crunch detected inf=1.5e1->1.7e1 ip=1.936016e3 ep=0.0e0 bigE=0 t=1860103
+11-20 12:24:35.385 I/OREKI_CRUNCH( 2792): 9
+11-20 12:24:50.141 I/OREKI_CRUNCH( 2792): crunch detected inf=1.9e1->2.0e1 ip=6.268016e3 ep=0.0e0 bigE=0 t=1882722
+11-20 12:24:52.946 I/OREKI_CRUNCH( 2792): 9
+11-20 12:25:10.171 I/OREKI_CRUNCH( 2792): crunch detected inf=2.0e1->2.1e1 ip=1.556016e3 ep=0.0e0 bigE=0 t=1902752
+11-20 12:25:10.778 I/OREKI_CRUNCH( 2792): 9
+11-20 12:25:29.573 I/OREKI_CRUNCH( 2792): 9
+11-20 12:25:30.818 I/OREKI_CRUNCH( 2792): crunch detected inf=2.1e1->2.2e1 ip=1.1740016e4 ep=0.0e0 bigE=0 t=1923399
+11-20 12:25:46.721 I/OREKI_CRUNCH( 2792): 9
+11-20 12:25:51.636 I/OREKI_CRUNCH( 2792): crunch detected inf=2.2e1->2.3e1 ip=5.572016e3 ep=0.0e0 bigE=0 t=1944217
+11-20 12:26:08.231 I/OREKI_CRUNCH( 2792): 9
+11-20 12:26:09.755 I/OREKI_SCHED( 2792): deny frame-held task=infinityUpgrades
+11-20 12:26:29.763 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:26:29.832 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:26:30.166 I/OREKI_EC_AUTO( 2792): tsDump L0 c :: A/1boolean,B/0boolean,C/2void,D/2Boolean,E/1void,F/0boolean,G/0boolean,I/0List,J/0int,K/0boolean,L/0boolean,M/0boolean,N/1Object,m/0String,s/0SpannableStringBuilder,v/0String
+11-20 12:26:30.167 I/OREKI_EC_AUTO( 2792): tsDump L1 qu4 :: C/2void,y/0iq0
+11-20 12:26:30.168 I/OREKI_EC_AUTO( 2792): tsDump L2 na4 :: B/0boolean,E/1void,I/0List
+11-20 12:26:30.169 I/OREKI_EC_AUTO( 2792): tsDump L3 is3 :: H/1String,A/1boolean,B/0boolean,C/2void,D/2Boolean,E/1void,F/0boolean,G/0boolean,a/1boolean,k/0boolean,r/0String,v/0String,w/1String,x/0BigDouble,y/0iq0,z/0boolean
+11-20 12:26:35.389 I/OREKI_CRUNCH( 2792): 25
+11-20 12:26:40.371 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:26:40.449 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:27:10.262 I/OREKI_CRUNCH( 2792): 25
+11-20 12:27:20.699 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:27:20.744 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:27:31.181 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:27:31.251 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:27:34.737 I/OREKI_CRUNCH( 2792): 25
+11-20 12:27:41.565 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:27:41.608 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:27:51.728 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:27:51.741 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:28:00.748 I/OREKI_CRUNCH( 2792): 25
+11-20 12:28:02.039 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:28:02.065 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:28:12.199 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:28:12.212 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:28:23.241 I/OREKI_CRUNCH( 2792): 25
+11-20 12:28:32.345 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:28:32.357 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=0.0e0 unlocked=0
+11-20 12:28:42.693 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:28:46.752 I/OREKI_CRUNCH( 2792): 9
+11-20 12:29:02.841 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:29:10.609 I/OREKI_CRUNCH( 2792): 9
+11-20 12:29:32.993 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:29:33.443 I/OREKI_CRUNCH( 2792): 9
+11-20 12:29:53.060 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:29:56.643 I/OREKI_CRUNCH( 2792): 9
+11-20 12:30:03.128 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:30:13.182 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:30:23.040 I/OREKI_CRUNCH( 2792): 9
+11-20 12:30:33.303 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:30:43.383 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:30:47.834 I/OREKI_CRUNCH( 2792): 9
+11-20 12:30:53.435 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:31:13.491 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:31:17.005 I/OREKI_CRUNCH( 2792): 9
+11-20 12:31:23.607 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:31:35.569 I/OREKI_TABGATE( 2792): tab=timeDimensions allowed=true eternityUnlocked=true
+11-20 12:31:35.595 I/OREKI_CRUNCH( 2792): crunch detected inf=2.3e1->0.0e0 ip=0.0e0 ep=8.823576034303e12 bigE=1 t=2288176
+11-20 12:31:35.699 I/OREKI_TABGATE( 2792): tab=eternity allowed=true eternityUnlocked=true
+11-20 12:31:36.654 I/OREKI_TABGATE( 2792): tab=eternityChallenges allowed=true eternityUnlocked=true
+11-20 12:31:36.655 I/OREKI_TABGATE( 2792): tab=timeStudies allowed=true eternityUnlocked=true
+11-20 12:31:36.655 I/OREKI_TABGATE( 2792): tab=eternityUpgrades allowed=true eternityUnlocked=true
+11-20 12:31:36.656 I/OREKI_TABGATE( 2792): tab=milestones allowed=true eternityUnlocked=true
+11-20 12:31:36.656 I/OREKI_TABGATE( 2792): tab=dilation allowed=true eternityUnlocked=true
+11-20 12:31:44.581 I/OREKI_CRUNCH( 2792): 9
+11-20 12:32:13.307 I/OREKI_CRUNCH( 2792): 9
+11-20 12:32:42.304 I/OREKI_CRUNCH( 2792): 9
+11-20 12:33:12.610 I/OREKI_CRUNCH( 2792): 9
+11-20 12:33:50.477 I/OREKI_CRUNCH( 2792): 9
+11-20 12:34:23.841 I/OREKI_CRUNCH( 2792): 9
+11-20 12:34:58.550 I/OREKI_CRUNCH( 2792): 9
+11-20 12:35:27.109 I/OREKI_CRUNCH( 2792): 9
+11-20 12:35:57.376 I/OREKI_CRUNCH( 2792): 9
+11-20 12:36:28.085 I/OREKI_CRUNCH( 2792): 9
+11-20 12:36:58.995 I/OREKI_CRUNCH( 2792): 9
+11-20 12:37:28.851 I/OREKI_CRUNCH( 2792): 9
+11-20 12:37:57.283 I/OREKI_CRUNCH( 2792): 9
+11-20 12:38:26.202 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:38:26.204 I/OREKI_EC_AUTO( 2792): step: stage=pre-break unlocked=0
+11-20 12:38:26.308 I/OREKI_SCHED( 2792): act infinityUpgrades @2698889ms gap=412581 taskGap=969361
+11-20 12:38:26.433 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->2.0e0 ip=4.8e1 ep=8.823576033196e12 bigE=1 t=2699014
+11-20 12:38:27.693 I/OREKI_CRUNCH( 2792): crunch detected inf=7.0e0->8.0e0 ip=3.58e2 ep=5.252971710028e12 bigE=1 t=2700274
+11-20 12:38:28.492 I/OREKI_CRUNCH( 2792): 9
+11-20 12:38:30.063 I/OREKI_CRUNCH( 2792): crunch detected inf=1.2e1->1.3e1 ip=7.68e2 ep=1.338750388843e12 bigE=1 t=2702644
+11-20 12:38:36.317 I/OREKI_SCHED( 2792): act infinityUpgrades @2708898ms gap=10009 taskGap=10009
+11-20 12:38:46.326 I/OREKI_SCHED( 2792): act infinityUpgrades @2718907ms gap=10009 taskGap=10009
+11-20 12:38:51.725 I/OREKI_CRUNCH( 2792): 9
+11-20 12:38:56.634 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:39:06.712 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:39:16.747 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:39:17.239 I/OREKI_CRUNCH( 2792): 9
+11-20 12:39:26.762 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:39:26.794 I/OREKI_SCHED( 2792): act infinityUpgrades @2759375ms gap=10040 taskGap=40468
+11-20 12:39:35.504 I/OREKI_CRUNCH( 2792): 9
+11-20 12:39:36.798 I/OREKI_SCHED( 2792): act infinityUpgrades @2769379ms gap=10004 taskGap=10004
+11-20 12:39:46.802 I/OREKI_SCHED( 2792): act infinityUpgrades @2779383ms gap=10004 taskGap=10004
+11-20 12:39:54.113 I/OREKI_CRUNCH( 2792): 9
+11-20 12:39:56.814 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:39:56.832 I/OREKI_SCHED( 2792): act infinityUpgrades @2789414ms gap=10031 taskGap=10031
+11-20 12:40:06.881 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:40:06.899 I/OREKI_SCHED( 2792): act infinityUpgrades @2799480ms gap=10066 taskGap=10066
+11-20 12:40:14.306 I/OREKI_CRUNCH( 2792): 9
+11-20 12:40:17.037 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:40:17.060 I/OREKI_SCHED( 2792): act infinityUpgrades @2809639ms gap=10159 taskGap=10159
+11-20 12:40:27.063 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:40:27.100 I/OREKI_SCHED( 2792): act infinityUpgrades @2819682ms gap=10043 taskGap=10043
+11-20 12:40:31.657 I/OREKI_CRUNCH( 2792): 9
+11-20 12:40:37.139 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:40:37.150 I/OREKI_SCHED( 2792): act infinityUpgrades @2829731ms gap=10049 taskGap=10049
+11-20 12:40:47.186 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:40:47.213 I/OREKI_SCHED( 2792): act infinityUpgrades @2839794ms gap=10063 taskGap=10063
+11-20 12:40:49.196 I/OREKI_CRUNCH( 2792): 9
+11-20 12:40:57.251 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:40:57.281 I/OREKI_SCHED( 2792): act infinityUpgrades @2849862ms gap=10068 taskGap=10068
+11-20 12:41:07.281 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:41:07.314 I/OREKI_SCHED( 2792): act infinityUpgrades @2859895ms gap=10033 taskGap=10033
+11-20 12:41:08.392 I/OREKI_CRUNCH( 2792): 9
+11-20 12:41:17.327 I/OREKI_SCHED( 2792): act infinityUpgrades @2869909ms gap=10014 taskGap=10014
+11-20 12:41:27.359 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:41:27.386 I/OREKI_SCHED( 2792): act infinityUpgrades @2879967ms gap=10058 taskGap=10058
+11-20 12:41:27.550 I/OREKI_CRUNCH( 2792): 9
+11-20 12:41:37.409 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:41:37.453 I/OREKI_SCHED( 2792): act infinityUpgrades @2890034ms gap=10067 taskGap=10067
+11-20 12:41:47.593 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:41:48.445 I/OREKI_CRUNCH( 2792): 9
+11-20 12:41:57.634 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:42:07.753 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:42:11.771 I/OREKI_CRUNCH( 2792): 9
+11-20 12:42:18.080 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:42:18.162 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.05e4 unlocked=0
+11-20 12:42:28.393 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:42:28.417 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0499e4 unlocked=0
+11-20 12:42:38.516 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:42:38.529 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0496e4 unlocked=0
+11-20 12:42:39.727 I/OREKI_CRUNCH( 2792): 9
+11-20 12:43:00.482 I/OREKI_CRUNCH( 2792): 9
+11-20 12:43:08.639 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:43:08.683 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0493e4 unlocked=0
+11-20 12:43:19.299 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:43:19.336 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0489e4 unlocked=0
+11-20 12:43:31.710 I/OREKI_CRUNCH( 2792): 9
+11-20 12:43:39.436 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:43:39.484 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0486e4 unlocked=0
+11-20 12:43:49.788 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:43:49.821 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0479e4 unlocked=0
+11-20 12:43:55.484 I/OREKI_CRUNCH( 2792): 9
+11-20 12:44:19.548 I/OREKI_CRUNCH( 2792): 9
+11-20 12:44:40.019 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:44:40.049 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0475e4 unlocked=0
+11-20 12:44:41.353 I/OREKI_CRUNCH( 2792): 9
+11-20 12:45:00.237 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:45:00.259 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0471e4 unlocked=0
+11-20 12:45:02.213 I/OREKI_CRUNCH( 2792): 9
+11-20 12:45:10.303 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:45:10.331 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0467e4 unlocked=0
+11-20 12:45:20.568 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:45:20.612 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0437e4 unlocked=0
+11-20 12:45:24.015 I/OREKI_CRUNCH( 2792): 9
+11-20 12:45:30.619 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:45:30.633 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=2.0429e4 unlocked=0
+11-20 12:45:40.660 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:45:40.668 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=true D=true tt=2.0407e4 unlocked=0
+11-20 12:45:44.044 I/OREKI_CRUNCH( 2792): 9
+11-20 12:45:50.678 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:45:50.697 I/OREKI_EC_AUTO( 2792): step: SETTLE id=1 paid tt=2.0377e4 -> unlocked=1
+11-20 12:46:00.717 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:46:00.757 I/OREKI_EC_AUTO( 2792): step: START id=1 paid=false current=1 comps=0/5
+11-20 12:46:01.152 I/OREKI_CRUNCH( 2792): crunch detected inf=1.3e1->0.0e0 ip=0.0e0 ep=1.3291554146697702e41 bigE=1 t=3153733
+11-20 12:46:05.909 I/OREKI_CRUNCH( 2792): 8
+11-20 12:46:30.883 I/OREKI_CRUNCH( 2792): 9
+11-20 12:46:59.026 I/OREKI_CRUNCH( 2792): 9
+11-20 12:47:35.597 I/OREKI_CRUNCH( 2792): 9
+11-20 12:47:59.216 I/OREKI_CRUNCH( 2792): 9
+11-20 12:48:23.435 I/OREKI_CRUNCH( 2792): 9
+11-20 12:48:26.170 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:48:26.188 I/OREKI_EC_AUTO( 2792): step: stage=pre-break unlocked=1
+11-20 12:48:26.367 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->2.0e0 ip=5.382690133333334e66 ep=1.3291554146697702e41 bigE=1 t=3298948
+11-20 12:48:27.468 I/OREKI_CRUNCH( 2792): crunch detected inf=6.0e0->7.0e0 ip=2.29380539477232e89 ep=1.3291554146697702e41 bigE=1 t=3300049
+11-20 12:48:36.242 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:48:36.254 I/OREKI_SCHED( 2792): act infinityUpgrades @3308835ms gap=10042 taskGap=418801
+11-20 12:48:43.722 I/OREKI_CRUNCH( 2792): 9
+11-20 12:48:46.296 I/OREKI_SCHED( 2792): act infinityUpgrades @3318877ms gap=10042 taskGap=10042
+11-20 12:48:56.325 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:48:56.368 I/OREKI_SCHED( 2792): act infinityUpgrades @3328949ms gap=10072 taskGap=10072
+11-20 12:49:00.656 I/OREKI_CRUNCH( 2792): 9
+11-20 12:49:06.378 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:49:06.394 I/OREKI_SCHED( 2792): act infinityUpgrades @3338975ms gap=10026 taskGap=10026
+11-20 12:49:16.419 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:49:16.481 I/OREKI_SCHED( 2792): act infinityUpgrades @3349063ms gap=10088 taskGap=10088
+11-20 12:49:18.858 I/OREKI_CRUNCH( 2792): 9
+11-20 12:49:26.493 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:49:26.517 I/OREKI_SCHED( 2792): act infinityUpgrades @3359098ms gap=10035 taskGap=10035
+11-20 12:49:34.963 I/OREKI_CRUNCH( 2792): 9
+11-20 12:49:36.528 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:49:36.601 I/OREKI_SCHED( 2792): act infinityUpgrades @3369183ms gap=10085 taskGap=10085
+11-20 12:49:46.620 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:49:46.631 I/OREKI_SCHED( 2792): act infinityUpgrades @3379213ms gap=10030 taskGap=10030
+11-20 12:49:53.182 I/OREKI_CRUNCH( 2792): 9
+11-20 12:49:56.659 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:49:56.700 I/OREKI_SCHED( 2792): act infinityUpgrades @3389281ms gap=10068 taskGap=10068
+11-20 12:50:06.714 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:50:06.725 I/OREKI_SCHED( 2792): act infinityUpgrades @3399307ms gap=10026 taskGap=10026
+11-20 12:50:10.742 I/OREKI_CRUNCH( 2792): 9
+11-20 12:50:16.727 I/OREKI_SCHED( 2792): act infinityUpgrades @3409309ms gap=10002 taskGap=10002
+11-20 12:50:26.744 I/OREKI_SCHED( 2792): act infinityUpgrades @3419325ms gap=10016 taskGap=10016
+11-20 12:50:28.629 I/OREKI_CRUNCH( 2792): 9
+11-20 12:50:36.764 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:50:36.785 I/OREKI_SCHED( 2792): act infinityUpgrades @3429366ms gap=10041 taskGap=10041
+11-20 12:50:46.791 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:50:46.816 I/OREKI_SCHED( 2792): act infinityUpgrades @3439397ms gap=10031 taskGap=10031
+11-20 12:50:47.343 I/OREKI_CRUNCH( 2792): 9
+11-20 12:50:56.836 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:50:56.861 I/OREKI_SCHED( 2792): act infinityUpgrades @3449442ms gap=10045 taskGap=10045
+11-20 12:51:06.907 I/OREKI_SCHED( 2792): act infinityUpgrades @3459488ms gap=10046 taskGap=10046
+11-20 12:51:09.962 I/OREKI_CRUNCH( 2792): 9
+11-20 12:51:16.921 I/OREKI_SCHED( 2792): act infinityUpgrades @3469502ms gap=10014 taskGap=10014
+11-20 12:51:29.723 I/OREKI_CRUNCH( 2792): 9
+11-20 12:51:36.931 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:51:46.973 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:51:46.984 I/OREKI_EC_AUTO( 2792): step: RESPEC maxed id=1 comps=5/5 ret=true unlockedAfter=0 tt=6.7e4
+11-20 12:51:49.088 I/OREKI_CRUNCH( 2792): 9
+11-20 12:51:57.000 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:51:57.016 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.7e4 unlocked=0
+11-20 12:52:07.149 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:52:07.171 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6999e4 unlocked=0
+11-20 12:52:08.849 I/OREKI_CRUNCH( 2792): 9
+11-20 12:52:17.252 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:52:17.266 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6996e4 unlocked=0
+11-20 12:52:26.095 I/OREKI_CRUNCH( 2792): 9
+11-20 12:52:37.315 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:52:37.344 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6993e4 unlocked=0
+11-20 12:52:42.491 I/OREKI_CRUNCH( 2792): 9
+11-20 12:52:47.505 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:52:47.526 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6989e4 unlocked=0
+11-20 12:53:11.171 I/OREKI_CRUNCH( 2792): 9
+11-20 12:53:17.897 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:53:17.969 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6986e4 unlocked=0
+11-20 12:53:28.968 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:53:28.988 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6979e4 unlocked=0
+11-20 12:53:37.923 I/OREKI_CRUNCH( 2792): 9
+11-20 12:53:39.027 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:53:39.050 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6975e4 unlocked=0
+11-20 12:53:49.074 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:53:49.094 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6971e4 unlocked=0
+11-20 12:53:59.246 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:53:59.266 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6967e4 unlocked=0
+11-20 12:54:01.443 I/OREKI_CRUNCH( 2792): 9
+11-20 12:54:09.472 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:54:09.565 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6937e4 unlocked=0
+11-20 12:54:19.612 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:54:19.632 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6929e4 unlocked=0
+11-20 12:54:24.397 I/OREKI_CRUNCH( 2792): 9
+11-20 12:54:29.783 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:54:29.799 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=true D=true tt=6.6907e4 unlocked=0
+11-20 12:54:39.829 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:54:39.853 I/OREKI_EC_AUTO( 2792): step: BUY id=2 -> unlocked=2 tt=6.6872e4
+11-20 12:54:41.011 I/OREKI_CRUNCH( 2792): 9
+11-20 12:55:00.391 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:55:00.501 I/OREKI_EC_AUTO( 2792): step: START id=2 paid=false current=2 comps=0/5
+11-20 12:55:01.504 I/OREKI_CRUNCH( 2792): crunch detected inf=1.3e1->0.0e0 ip=0.0e0 ep=7.9910454709147e38 bigE=1 t=3694043
+11-20 12:55:11.737 I/OREKI_CRUNCH( 2792): 9
+11-20 12:55:37.431 I/OREKI_CRUNCH( 2792): 9
+11-20 12:56:02.845 I/OREKI_CRUNCH( 2792): 9
+11-20 12:56:26.701 I/OREKI_CRUNCH( 2792): 9
+11-20 12:56:51.845 I/OREKI_CRUNCH( 2792): 9
+11-20 12:57:27.433 I/OREKI_CRUNCH( 2792): 9
+11-20 12:57:52.152 I/OREKI_CRUNCH( 2792): 9
+11-20 12:58:17.824 I/OREKI_CRUNCH( 2792): 9
+11-20 12:58:26.211 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:58:26.244 I/OREKI_EC_AUTO( 2792): step: stage=pre-break unlocked=2
+11-20 12:58:26.317 I/OREKI_SCHED( 2792): act infinityUpgrades @3898899ms gap=205791 taskGap=429397
+11-20 12:58:26.386 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->2.0e0 ip=5.382690133333334e66 ep=7.9910454709147e38 bigE=1 t=3898963
+11-20 12:58:27.423 I/OREKI_CRUNCH( 2792): crunch detected inf=6.0e0->7.0e0 ip=2.29380539477232e89 ep=7.9910454709147e38 bigE=1 t=3899964
+11-20 12:58:36.324 I/OREKI_SCHED( 2792): act infinityUpgrades @3908906ms gap=10007 taskGap=10007
+11-20 12:58:38.501 I/OREKI_CRUNCH( 2792): 9
+11-20 12:58:46.331 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:58:46.352 I/OREKI_SCHED( 2792): act infinityUpgrades @3918933ms gap=10027 taskGap=10027
+11-20 12:58:55.919 I/OREKI_CRUNCH( 2792): 9
+11-20 12:58:56.381 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:58:56.417 I/OREKI_SCHED( 2792): act infinityUpgrades @3928998ms gap=10065 taskGap=10065
+11-20 12:59:06.424 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:59:06.449 I/OREKI_SCHED( 2792): act infinityUpgrades @3939030ms gap=10032 taskGap=10032
+11-20 12:59:12.664 I/OREKI_CRUNCH( 2792): 9
+11-20 12:59:16.465 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:59:16.507 I/OREKI_SCHED( 2792): act infinityUpgrades @3949089ms gap=10059 taskGap=10059
+11-20 12:59:26.531 I/OREKI_SCHED( 2792): act infinityUpgrades @3959113ms gap=10024 taskGap=10024
+11-20 12:59:28.008 I/OREKI_CRUNCH( 2792): 9
+11-20 12:59:36.567 I/OREKI_SCHED( 2792): act infinityUpgrades @3969148ms gap=10035 taskGap=10035
+11-20 12:59:45.040 I/OREKI_CRUNCH( 2792): 9
+11-20 12:59:46.570 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:59:46.603 I/OREKI_SCHED( 2792): act infinityUpgrades @3979184ms gap=10036 taskGap=10036
+11-20 12:59:56.608 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 12:59:56.624 I/OREKI_SCHED( 2792): act infinityUpgrades @3989205ms gap=10021 taskGap=10021
+11-20 13:00:03.483 I/OREKI_CRUNCH( 2792): 9
+11-20 13:00:06.632 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:00:06.648 I/OREKI_SCHED( 2792): act infinityUpgrades @3999230ms gap=10025 taskGap=10025
+11-20 13:00:16.670 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:00:16.695 I/OREKI_SCHED( 2792): act infinityUpgrades @4009276ms gap=10046 taskGap=10046
+11-20 13:00:21.311 I/OREKI_CRUNCH( 2792): 9
+11-20 13:00:26.719 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:00:26.748 I/OREKI_SCHED( 2792): act infinityUpgrades @4019330ms gap=10054 taskGap=10054
+11-20 13:00:36.805 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:00:36.832 I/OREKI_SCHED( 2792): act infinityUpgrades @4029413ms gap=10083 taskGap=10083
+11-20 13:00:38.455 I/OREKI_CRUNCH( 2792): 9
+11-20 13:00:46.941 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:00:46.965 I/OREKI_SCHED( 2792): act infinityUpgrades @4039546ms gap=10133 taskGap=10133
+11-20 13:00:56.492 I/OREKI_CRUNCH( 2792): 9
+11-20 13:01:07.023 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:01:07.064 I/OREKI_SCHED( 2792): act infinityUpgrades @4059645ms gap=10067 taskGap=20099
+11-20 13:01:20.296 I/OREKI_CRUNCH( 2792): 9
+11-20 13:01:37.178 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:01:37.189 I/OREKI_EC_AUTO( 2792): step: RESPEC maxed id=2 comps=5/5 ret=true unlockedAfter=0 tt=6.7e4
+11-20 13:01:40.191 I/OREKI_CRUNCH( 2792): 9
+11-20 13:01:55.746 I/OREKI_CRUNCH( 2792): 9
+11-20 13:01:57.233 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:01:57.246 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.7e4 unlocked=0
+11-20 13:02:07.469 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:02:07.509 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6999e4 unlocked=0
+11-20 13:02:13.749 I/OREKI_CRUNCH( 2792): 9
+11-20 13:02:17.689 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:02:17.725 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6996e4 unlocked=0
+11-20 13:02:27.764 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:02:27.779 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6993e4 unlocked=0
+11-20 13:02:30.096 I/OREKI_CRUNCH( 2792): 9
+11-20 13:02:37.925 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:02:37.961 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6989e4 unlocked=0
+11-20 13:02:45.201 I/OREKI_CRUNCH( 2792): 9
+11-20 13:02:48.049 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:02:48.064 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6986e4 unlocked=0
+11-20 13:02:58.164 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:02:58.184 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6979e4 unlocked=0
+11-20 13:03:02.336 I/OREKI_CRUNCH( 2792): 9
+11-20 13:03:08.390 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:03:08.439 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6975e4 unlocked=0
+11-20 13:03:18.183 I/OREKI_CRUNCH( 2792): 9
+11-20 13:03:18.464 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:03:18.495 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6971e4 unlocked=0
+11-20 13:03:38.801 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:03:38.897 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6967e4 unlocked=0
+11-20 13:03:39.964 I/OREKI_EC_AUTO( 2792): step: PAVE ts=111 ok=true price=1.2e1 tt=6.6955e4 depth=6
+11-20 13:03:44.925 I/OREKI_CRUNCH( 2792): 9
+11-20 13:04:00.093 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:04:00.205 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6937e4 unlocked=0
+11-20 13:04:03.476 I/OREKI_CRUNCH( 2792): 9
+11-20 13:04:10.239 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:04:10.263 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=false D=false tt=6.6929e4 unlocked=0
+11-20 13:04:19.369 I/OREKI_CRUNCH( 2792): 9
+11-20 13:04:20.508 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:04:20.533 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=171 b=false a=true D=true tt=6.6907e4 unlocked=0
+11-20 13:04:34.702 I/OREKI_CRUNCH( 2792): 9
+11-20 13:04:40.565 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:04:40.586 I/OREKI_EC_AUTO( 2792): step: SETTLE id=3 paid tt=6.7367e4 -> unlocked=3
+11-20 13:04:50.609 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:04:50.624 I/OREKI_EC_AUTO( 2792): step: START id=3 paid=false current=3 comps=0/5
+11-20 13:04:50.894 I/OREKI_CRUNCH( 2792): crunch detected inf=1.3e1->0.0e0 ip=0.0e0 ep=7.9910454709147e38 bigE=1 t=4283471
+11-20 13:04:51.777 I/OREKI_CRUNCH( 2792): 8
+11-20 13:05:16.721 I/OREKI_CRUNCH( 2792): 9
+11-20 13:05:41.049 I/OREKI_CRUNCH( 2792): 9
+11-20 13:06:04.063 I/OREKI_CRUNCH( 2792): 9
+11-20 13:06:26.754 I/OREKI_CRUNCH( 2792): 9
+11-20 13:06:51.458 I/OREKI_CRUNCH( 2792): 9
+11-20 13:07:15.889 I/OREKI_CRUNCH( 2792): 9
+11-20 13:07:38.989 I/OREKI_CRUNCH( 2792): 9
+11-20 13:08:03.392 I/OREKI_CRUNCH( 2792): 9
+11-20 13:08:26.213 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:08:26.219 I/OREKI_EC_AUTO( 2792): step: stage=pre-break unlocked=3
+11-20 13:08:26.237 I/OREKI_SCHED( 2792): act infinityUpgrades @4498818ms gap=215612 taskGap=439173
+11-20 13:08:26.284 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->2.0e0 ip=5.382690133333334e66 ep=7.9910454709147e38 bigE=1 t=4498865
+11-20 13:08:27.323 I/OREKI_CRUNCH( 2792): crunch detected inf=5.0e0->6.0e0 ip=1.341732929960647e89 ep=7.9910454709147e38 bigE=1 t=4499904
+11-20 13:08:28.880 I/OREKI_CRUNCH( 2792): 9
+11-20 13:08:36.237 I/OREKI_SCHED( 2792): act infinityUpgrades @4508819ms gap=10001 taskGap=10001
+11-20 13:08:45.016 I/OREKI_CRUNCH( 2792): 9
+11-20 13:08:46.273 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:08:46.283 I/OREKI_SCHED( 2792): act infinityUpgrades @4518865ms gap=10046 taskGap=10046
+11-20 13:08:56.737 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:08:56.948 I/OREKI_SCHED( 2792): act infinityUpgrades @4529529ms gap=10664 taskGap=10664
+11-20 13:09:06.980 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:09:07.025 I/OREKI_SCHED( 2792): act infinityUpgrades @4539607ms gap=10078 taskGap=10078
+11-20 13:09:14.384 I/OREKI_CRUNCH( 2792): 9
+11-20 13:09:17.039 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:09:17.076 I/OREKI_SCHED( 2792): act infinityUpgrades @4549657ms gap=10050 taskGap=10050
+11-20 13:09:27.081 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:09:27.117 I/OREKI_SCHED( 2792): act infinityUpgrades @4559698ms gap=10041 taskGap=10041
+11-20 13:09:29.283 I/OREKI_CRUNCH( 2792): 9
+11-20 13:09:37.163 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:09:37.196 I/OREKI_SCHED( 2792): act infinityUpgrades @4569777ms gap=10079 taskGap=10079
+11-20 13:09:47.241 I/OREKI_SCHED( 2792): act infinityUpgrades @4579822ms gap=10045 taskGap=10045
+11-20 13:09:47.527 I/OREKI_CRUNCH( 2792): 9
+11-20 13:09:57.247 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:09:57.292 I/OREKI_SCHED( 2792): act infinityUpgrades @4589873ms gap=10051 taskGap=10051
+11-20 13:10:05.765 I/OREKI_CRUNCH( 2792): 9
+11-20 13:10:07.301 I/OREKI_SCHED( 2792): act infinityUpgrades @4599882ms gap=10009 taskGap=10009
+11-20 13:10:17.357 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:10:17.387 I/OREKI_SCHED( 2792): act infinityUpgrades @4609968ms gap=10086 taskGap=10086
+11-20 13:10:24.065 I/OREKI_CRUNCH( 2792): 9
+11-20 13:10:27.395 I/OREKI_SCHED( 2792): act infinityUpgrades @4619976ms gap=10008 taskGap=10008
+11-20 13:10:37.428 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:10:37.448 I/OREKI_SCHED( 2792): act infinityUpgrades @4630030ms gap=10054 taskGap=10054
+11-20 13:10:39.695 I/OREKI_CRUNCH( 2792): 9
+11-20 13:10:47.465 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:10:47.489 I/OREKI_SCHED( 2792): act infinityUpgrades @4640069ms gap=10039 taskGap=10039
+11-20 13:10:57.513 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:10:57.527 I/OREKI_SCHED( 2792): act infinityUpgrades @4650109ms gap=10040 taskGap=10040
+11-20 13:10:58.001 I/OREKI_CRUNCH( 2792): 9
+11-20 13:11:07.636 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:11:17.642 I/OREKI_CRUNCH( 2792): 9
+11-20 13:11:27.773 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:11:27.780 I/OREKI_EC_AUTO( 2792): step: RESPEC maxed id=3 comps=5/5 ret=true unlockedAfter=0 tt=6.75e4
+11-20 13:11:35.704 I/OREKI_CRUNCH( 2792): 9
+11-20 13:11:37.795 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:11:37.810 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.75e4 unlocked=0
+11-20 13:11:48.000 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:11:48.027 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7499e4 unlocked=0
+11-20 13:11:52.117 I/OREKI_CRUNCH( 2792): 9
+11-20 13:12:08.094 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:12:08.110 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7496e4 unlocked=0
+11-20 13:12:08.466 I/OREKI_CRUNCH( 2792): 9
+11-20 13:12:24.157 I/OREKI_CRUNCH( 2792): 9
+11-20 13:12:38.990 I/OREKI_CRUNCH( 2792): 9
+11-20 13:12:48.309 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:12:48.337 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7493e4 unlocked=0
+11-20 13:12:56.088 I/OREKI_CRUNCH( 2792): 9
+11-20 13:12:58.435 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:12:58.449 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7489e4 unlocked=0
+11-20 13:13:08.501 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:13:08.531 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7486e4 unlocked=0
+11-20 13:13:12.847 I/OREKI_CRUNCH( 2792): 9
+11-20 13:13:18.612 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:13:18.628 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7479e4 unlocked=0
+11-20 13:13:30.067 I/OREKI_CRUNCH( 2792): 9
+11-20 13:13:38.871 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:13:38.899 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7475e4 unlocked=0
+11-20 13:13:44.765 I/OREKI_CRUNCH( 2792): 9
+11-20 13:13:49.003 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:13:49.036 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7471e4 unlocked=0
+11-20 13:14:01.300 I/OREKI_CRUNCH( 2792): 9
+11-20 13:14:09.153 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:14:09.163 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=143 b=false a=false D=false tt=6.7467e4 unlocked=0
+11-20 13:14:17.156 I/OREKI_CRUNCH( 2792): 9
+11-20 13:14:33.146 I/OREKI_CRUNCH( 2792): 9
+11-20 13:14:39.267 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:14:39.287 I/OREKI_EC_AUTO( 2792): step: SETTLE id=4 paid tt=6.8367e4 -> unlocked=4
+11-20 13:14:51.463 I/OREKI_CRUNCH( 2792): 9
+11-20 13:14:59.383 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:14:59.392 I/OREKI_EC_AUTO( 2792): step: START id=4 paid=false current=4 comps=0/5
+11-20 13:14:59.697 I/OREKI_CRUNCH( 2792): crunch detected inf=1.3e1->0.0e0 ip=0.0e0 ep=7.9910454709147e38 bigE=1 t=4892278
+11-20 13:15:12.896 I/OREKI_CRUNCH( 2792): 9
+11-20 13:15:49.380 I/OREKI_CRUNCH( 2792): 9
+11-20 13:16:14.000 I/OREKI_CRUNCH( 2792): 9
+11-20 13:16:37.498 I/OREKI_CRUNCH( 2792): 9
+11-20 13:17:02.271 I/OREKI_CRUNCH( 2792): 9
+11-20 13:17:27.829 I/OREKI_CRUNCH( 2792): 9
+11-20 13:17:52.854 I/OREKI_CRUNCH( 2792): 9
+11-20 13:18:16.464 I/OREKI_CRUNCH( 2792): 9
+11-20 13:18:26.229 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:18:26.251 I/OREKI_EC_AUTO( 2792): step: stage=pre-break unlocked=4
+11-20 13:18:26.327 I/OREKI_SCHED( 2792): act infinityUpgrades @5098908ms gap=206933 taskGap=448799
+11-20 13:18:26.398 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->2.0e0 ip=6.89204895133077e164 ep=7.9910454709147e38 bigE=1 t=5098975
+11-20 13:18:27.543 I/OREKI_CRUNCH( 2792): crunch detected inf=8.0e0->9.0e0 ip=6.89204895133077e164 ep=7.9910454709147e38 bigE=1 t=5100124
+11-20 13:18:36.335 I/OREKI_SCHED( 2792): act infinityUpgrades @5108916ms gap=10008 taskGap=10008
+11-20 13:18:38.396 I/OREKI_CRUNCH( 2792): 9
+11-20 13:18:46.337 I/OREKI_SCHED( 2792): act infinityUpgrades @5118918ms gap=10002 taskGap=10002
+11-20 13:18:55.233 I/OREKI_CRUNCH( 2792): 9
+11-20 13:18:56.359 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:18:56.379 I/OREKI_SCHED( 2792): act infinityUpgrades @5128961ms gap=10043 taskGap=10043
+11-20 13:19:06.384 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:19:06.429 I/OREKI_SCHED( 2792): act infinityUpgrades @5139010ms gap=10049 taskGap=10049
+11-20 13:19:12.467 I/OREKI_CRUNCH( 2792): 9
+11-20 13:19:16.484 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:19:16.511 I/OREKI_SCHED( 2792): act infinityUpgrades @5149092ms gap=10082 taskGap=10082
+11-20 13:19:26.528 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:19:26.544 I/OREKI_SCHED( 2792): act infinityUpgrades @5159125ms gap=10033 taskGap=10033
+11-20 13:19:32.052 I/OREKI_CRUNCH( 2792): 9
+11-20 13:19:36.584 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:19:36.592 I/OREKI_SCHED( 2792): act infinityUpgrades @5169174ms gap=10049 taskGap=10049
+11-20 13:19:46.600 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:19:46.649 I/OREKI_SCHED( 2792): act infinityUpgrades @5179230ms gap=10056 taskGap=10056
+11-20 13:19:51.848 I/OREKI_CRUNCH( 2792): 9
+11-20 13:19:56.691 I/OREKI_SCHED( 2792): act infinityUpgrades @5189273ms gap=10043 taskGap=10043
+11-20 13:20:06.710 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:20:06.725 I/OREKI_SCHED( 2792): act infinityUpgrades @5199306ms gap=10033 taskGap=10033
+11-20 13:20:10.488 I/OREKI_CRUNCH( 2792): 9
+11-20 13:20:16.734 I/OREKI_SCHED( 2792): act infinityUpgrades @5209316ms gap=10010 taskGap=10010
+11-20 13:20:26.783 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:20:26.817 I/OREKI_SCHED( 2792): act infinityUpgrades @5219398ms gap=10082 taskGap=10082
+11-20 13:20:27.792 I/OREKI_CRUNCH( 2792): 9
+11-20 13:20:36.832 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:20:36.875 I/OREKI_SCHED( 2792): act infinityUpgrades @5229456ms gap=10058 taskGap=10058
+11-20 13:20:43.920 I/OREKI_CRUNCH( 2792): 9
+11-20 13:20:46.933 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:20:46.971 I/OREKI_SCHED( 2792): act infinityUpgrades @5239553ms gap=10097 taskGap=10097
+11-20 13:20:57.447 I/OREKI_SCHED( 2792): act infinityUpgrades @5250028ms gap=10475 taskGap=10475
+11-20 13:21:07.477 I/OREKI_SCHED( 2792): act infinityUpgrades @5260059ms gap=10031 taskGap=10031
+11-20 13:21:16.948 I/OREKI_CRUNCH( 2792): 9
+11-20 13:21:37.597 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:21:37.615 I/OREKI_EC_AUTO( 2792): step: RESPEC maxed id=4 comps=5/5 ret=true unlockedAfter=0 tt=6.85e4
+11-20 13:21:47.693 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:21:47.736 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=42 b=false a=false D=false tt=6.85e4 unlocked=0
+11-20 13:21:48.477 I/OREKI_CRUNCH( 2792): 9
+11-20 13:22:04.578 I/OREKI_CRUNCH( 2792): 9
+11-20 13:22:07.932 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:22:07.956 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=42 b=false a=false D=false tt=6.8499e4 unlocked=0
+11-20 13:22:17.994 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:22:18.007 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=42 b=false a=false D=false tt=6.8497e4 unlocked=0
+11-20 13:22:19.920 I/OREKI_CRUNCH( 2792): 9
+11-20 13:22:28.118 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:22:28.139 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=42 b=false a=true D=true tt=6.8489e4 unlocked=0
+11-20 13:22:35.938 I/OREKI_CRUNCH( 2792): 9
+11-20 13:22:38.170 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:22:38.194 I/OREKI_EC_AUTO( 2792): step: SETTLE id=5 paid tt=6.8359e4 -> unlocked=5
+11-20 13:22:48.217 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:22:48.252 I/OREKI_EC_AUTO( 2792): step: START id=5 paid=false current=5 comps=0/5
+11-20 13:22:48.588 I/OREKI_CRUNCH( 2792): crunch detected inf=1.3e1->0.0e0 ip=0.0e0 ep=7.9910454709147e38 bigE=1 t=5361169
+11-20 13:22:55.901 I/OREKI_CRUNCH( 2792): 9
+11-20 13:23:18.400 I/OREKI_CRUNCH( 2792): 9
+11-20 13:23:40.822 I/OREKI_CRUNCH( 2792): 9
+11-20 13:24:04.917 I/OREKI_CRUNCH( 2792): 9
+11-20 13:24:28.948 I/OREKI_CRUNCH( 2792): 9
+11-20 13:24:53.093 I/OREKI_CRUNCH( 2792): 9
+11-20 13:25:16.001 I/OREKI_CRUNCH( 2792): 9
+11-20 13:25:38.426 I/OREKI_CRUNCH( 2792): 9
+11-20 13:26:02.798 I/OREKI_CRUNCH( 2792): 9
+11-20 13:26:26.023 I/OREKI_CRUNCH( 2792): 9
+11-20 13:26:48.516 I/OREKI_CRUNCH( 2792): 9
+11-20 13:27:27.325 I/OREKI_CRUNCH( 2792): 9
+11-20 13:27:50.269 I/OREKI_CRUNCH( 2792): 9
+11-20 13:28:14.117 I/OREKI_CRUNCH( 2792): 9
+11-20 13:28:26.235 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:28:26.236 I/OREKI_EC_AUTO( 2792): step: stage=pre-break unlocked=5
+11-20 13:28:26.291 I/OREKI_SCHED( 2792): act infinityUpgrades @5698869ms gap=338030 taskGap=438810
+11-20 13:28:26.337 I/OREKI_CRUNCH( 2792): crunch detected inf=0.0e0->3.0e0 ip=2.34e2 ep=7.9910454709147e38 bigE=1 t=5698918
+11-20 13:28:27.356 I/OREKI_CRUNCH( 2792): crunch detected inf=1.0e1->1.1e1 ip=3.403e3 ep=7.9910454709147e38 bigE=1 t=5699937
+11-20 13:28:36.175 I/OREKI_CRUNCH( 2792): 9
+11-20 13:28:36.288 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:28:36.357 I/OREKI_SCHED( 2792): act infinityUpgrades @5708938ms gap=10069 taskGap=10069
+11-20 13:28:46.357 I/OREKI_SCHED( 2792): act infinityUpgrades @5718938ms gap=10000 taskGap=10000
+11-20 13:28:53.436 I/OREKI_CRUNCH( 2792): 9
+11-20 13:28:56.379 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:28:56.385 I/OREKI_SCHED( 2792): act infinityUpgrades @5728966ms gap=10028 taskGap=10028
+11-20 13:29:06.386 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:29:06.403 I/OREKI_SCHED( 2792): act infinityUpgrades @5738985ms gap=10019 taskGap=10019
+11-20 13:29:09.724 I/OREKI_CRUNCH( 2792): 9
+11-20 13:29:16.440 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:29:16.467 I/OREKI_SCHED( 2792): act infinityUpgrades @5749048ms gap=10063 taskGap=10063
+11-20 13:29:26.520 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:29:26.536 I/OREKI_SCHED( 2792): act infinityUpgrades @5759118ms gap=10070 taskGap=10070
+11-20 13:29:27.640 I/OREKI_CRUNCH( 2792): 9
+11-20 13:29:36.597 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:29:36.625 I/OREKI_SCHED( 2792): act infinityUpgrades @5769206ms gap=10088 taskGap=10088
+11-20 13:29:43.092 I/OREKI_CRUNCH( 2792): 9
+11-20 13:29:46.626 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:29:46.640 I/OREKI_SCHED( 2792): act infinityUpgrades @5779221ms gap=10015 taskGap=10015
+11-20 13:29:56.648 I/OREKI_SCHED( 2792): act infinityUpgrades @5789229ms gap=10008 taskGap=10008
+11-20 13:29:58.525 I/OREKI_CRUNCH( 2792): 9
+11-20 13:30:06.651 I/OREKI_SCHED( 2792): act infinityUpgrades @5799232ms gap=10003 taskGap=10003
+11-20 13:30:13.869 I/OREKI_CRUNCH( 2792): 9
+11-20 13:30:16.663 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:30:16.679 I/OREKI_SCHED( 2792): act infinityUpgrades @5809260ms gap=10028 taskGap=10028
+11-20 13:30:26.704 I/OREKI_SCHED( 2792): act infinityUpgrades @5819285ms gap=10025 taskGap=10025
+11-20 13:30:30.433 I/OREKI_CRUNCH( 2792): 9
+11-20 13:30:36.711 I/OREKI_SCHED( 2792): act infinityUpgrades @5829293ms gap=10008 taskGap=10008
+11-20 13:30:46.716 I/OREKI_SCHED( 2792): act infinityUpgrades @5839297ms gap=10004 taskGap=10004
+11-20 13:30:47.433 I/OREKI_CRUNCH( 2792): 9
+11-20 13:30:56.750 I/OREKI_SCHED( 2792): act infinityUpgrades @5849331ms gap=10034 taskGap=10034
+11-20 13:31:05.705 I/OREKI_CRUNCH( 2792): 9
+11-20 13:31:06.777 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:31:06.834 I/OREKI_SCHED( 2792): act infinityUpgrades @5859415ms gap=10084 taskGap=10084
+11-20 13:31:27.544 I/OREKI_CRUNCH( 2792): 9
+11-20 13:31:36.918 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:31:47.745 I/OREKI_CRUNCH( 2792): 9
+11-20 13:31:56.991 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:31:57.000 I/OREKI_EC_AUTO( 2792): step: RESPEC maxed id=5 comps=5/5 ret=true unlockedAfter=0 tt=6.85e4
+11-20 13:32:06.376 I/OREKI_CRUNCH( 2792): 9
+11-20 13:32:17.056 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:32:17.071 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.85e4 unlocked=0
+11-20 13:32:21.858 I/OREKI_CRUNCH( 2792): 9
+11-20 13:32:27.277 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:32:27.297 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8499e4 unlocked=0
+11-20 13:32:37.449 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:32:37.541 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8496e4 unlocked=0
+11-20 13:32:47.977 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:32:47.992 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8493e4 unlocked=0
+11-20 13:32:51.780 I/OREKI_CRUNCH( 2792): 9
+11-20 13:32:58.156 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:32:58.189 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8489e4 unlocked=0
+11-20 13:33:08.242 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:33:08.256 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8486e4 unlocked=0
+11-20 13:33:10.041 I/OREKI_CRUNCH( 2792): 9
+11-20 13:33:18.296 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:33:18.310 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8479e4 unlocked=0
+11-20 13:33:27.024 I/OREKI_CRUNCH( 2792): 9
+11-20 13:33:28.479 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:33:28.528 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8475e4 unlocked=0
+11-20 13:33:42.108 I/OREKI_CRUNCH( 2792): 9
+11-20 13:33:48.562 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:33:48.577 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8471e4 unlocked=0
+11-20 13:33:58.440 I/OREKI_CRUNCH( 2792): 9
+11-20 13:34:08.779 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:34:08.803 I/OREKI_EC_AUTO( 2792): step: TRYBUY id=121 b=false a=false D=false tt=6.8467e4 unlocked=0
+11-20 13:34:14.591 I/OREKI_CRUNCH( 2792): 9
+11-20 13:34:18.844 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:34:18.862 I/OREKI_EC_AUTO( 2792): step: SETTLE id=6 paid tt=6.8352e4 -> unlocked=6
+11-20 13:34:28.878 I/OREKI_REALITY_DIAG( 2792): canReality=false
+11-20 13:34:28.910 I/OREKI_EC_AUTO( 2792): step: START id=6 paid=false current=6 comps=0/5
+11-20 13:34:29.259 I/OREKI_CRUNCH( 2792): crunch detected inf=1.4e1->0.0e0 ip=0.0e0 ep=7.9910454709147e38 bigE=1 t=6061840
+11-20 13:34:33.035 I/OREKI_CRUNCH( 2792): 8
+11-20 13:34:56.605 I/OREKI_CRUNCH( 2792): 9
+11-20 13:35:20.093 I/OREKI_CRUNCH( 2792): 9
+11-20 13:35:45.632 I/OREKI_CRUNCH( 2792): 9
+11-20 13:36:08.376 I/OREKI_CRUNCH( 2792): 9
+11-20 13:36:33.309 I/OREKI_CRUNCH( 2792): 9
+11-20 13:36:58.104 I/OREKI_CRUNCH( 2792): 9
+11-20 13:37:22.980 I/OREKI_CRUNCH( 2792): 9

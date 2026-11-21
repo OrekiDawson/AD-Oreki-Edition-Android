@@ -1,0 +1,3 @@
+build/r120-01-final-fixed/r8off/app-release.apk: 1 file pushed, 0 skipped. 12.0 MB/s (81610807 bytes in 6.478s)
+Performing Push Install
+Success

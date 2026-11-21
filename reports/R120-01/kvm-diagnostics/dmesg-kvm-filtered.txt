@@ -1,0 +1,5 @@
+[Thu Nov 19 18:05:10 2026] SVM disabled (by BIOS) in MSR_VM_CR
+[Thu Nov 19 18:05:10 2026] x86/fpu: Supporting XSAVE feature 0x1000: 'Control-flow Kernel registers (KVM only)'
+[Thu Nov 19 18:05:15 2026] kvm_amd: SVM not supported by CPU 6
+[Fri Nov 20 13:17:13 2026] kvm_amd: SVM not supported by CPU 4
+[Fri Nov 20 13:17:38 2026] kvm_amd: SVM not supported by CPU 1

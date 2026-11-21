@@ -1,0 +1,26 @@
+1378-
+1379-.field public Z7:Landroidx/appcompat/widget/AppCompatSpinner;
+1380-
+1381:.field public Z8:Landroid/widget/TextView;
+1382-
+1383-.field public Z9:[[Landroid/widget/Button;
+1384-
+--
+16421-    return-void
+16422-.end method
+16423-
+16424:.method public final Z8()V
+16425-    .registers 1
+16426-
+16427:    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->isStoreEnabled()Z
+16428-
+16429-    return-void
+16430-.end method
+--
+26511-
+26512-    sput-boolean v15, Lkajfosz/antimatterdimensions/MainActivity;->up:Z
+26513-
+26514:    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/MainActivity;->Z8()V
+26515-
+26516-    :cond_8c1
+26517-    sget-object v1, Lkajfosz/antimatterdimensions/MainActivity;->Wo:Lzo2;

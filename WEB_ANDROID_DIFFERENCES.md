@@ -63,7 +63,7 @@
 
 | 功能模块 | Web 实现 | Android 实现 | 差异类型 | 是否预期 | 一致性要求 | 验证状态 | 证据 | 负责人/后续 |
 |---|---|---|---|---|---|---|---|---|
-| 游戏速度倍率 | `getGameSpeedupFactor()`，新档默认 F=3000；已有合法本地设置保留 | Kotlin `OrekiGamePace.DEFAULT_SPEED=3000`，Smali 只转发默认值；已有 SharedPreferences 保留 | 逻辑+性能 | 预期（实现语言不同） | 新档起点比例一致；用户已保存倍率不被迁移覆盖 | 待验证 | Web `src/core/speed-config.js`；Android `OrekiGamePace.kt` | 需做两端 F=3000 新档对照；F=10000 旧跑次仅作历史证据 |
+| 游戏速度倍率 | `getGameSpeedupFactor()`，新档默认 F=3000；已有合法本地设置保留 | 新档默认按真实进度：Break 前 1000、Break 后 1800、Reality 后 3000；玩家手改后停止阶段接管 | 逻辑+性能 | 当前需修复 | PACING FAIL 后验证阶段曲线；不得按时钟切换 | Android 待新 APK 短程验证；Web 历史 3000× 曲线 PACING FAIL | `app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt`；`reports/R121-01/avd-evidence/kvm-final-9e4571e8/` |
 | 时间倍率下「已流逝时间」缩放 | 主循环按 `diff × F` | `IntervaledAutobuyerState.c()` 已改为按倍率缩放已流逝时间 | 逻辑 | 预期 | 自动购买器的「间隔」语义一致 | 待验证 | Android 构建日志 `[Oreki AC]` | R41 |
 | 终局判据 | `game-end.js`：`OFFSET = 1`、`TARGET = 1000`，`endState >= 1 ⟺ 反物质指数 ≥ 1000` | `patch_pelle_end_target()` 把两条 `const-wide` 立即数改成 `1.0` / `1000.0`（后续修为 `1001.0`）；`OrekiPelleRecord.smali`（R42）补写 `PelleRecords.totalAntimatter`，由构建期断言强制挂在 `onAutoBuyerTick` | 数值 | 预期 | 判据字面一致（1e1000） | **待验证**（常量与记录写入都已就位，但从未跑到佩勒；`endState` 目前仍恒 0） | Web `src/core/celestials/pelle/game-end.js`；`OrekiPelleRecord.smali`；FACTS §C.15 / §C.17 / §C.59 | R51-AND-01：推进到佩勒再验 |
 | IU25 成本 | `OREKI_IU25_COST = 5e9`（原版 1.6e15） | 未确认是否同步 | 数值 | 需修复（若未同步） | 同一常量 | 未验证 | Web `secret-formula/reality/imaginary-upgrades.js` | R41 用 REA 查 Android 侧 IU25 成本常量 |

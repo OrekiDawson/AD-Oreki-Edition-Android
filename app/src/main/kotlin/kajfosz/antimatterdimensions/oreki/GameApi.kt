@@ -3276,7 +3276,12 @@ internal object GameApi {
             OrekiAutoEternityGate.logBlocked(reason)
             return false
         }
+        val activeBefore = autoEternityIsActive()
         call(mEternityTick(), null)
+        OrekiAutoEternityAdoption.noteModEternityCallOutcome(
+            activeBefore,
+            autoEternityIsActive(),
+        )
         return true
     }
     // ------------------------------------------------- [R107-01] 永恒层经济动作独立入口
@@ -3349,10 +3354,10 @@ internal object GameApi {
         return mTtBuyMax
     }
 
-    // ------------------------------------------------------------ [R96 第十四轮] TT 购买收益 ×500
+    // ------------------------------------------------------------ TT 购买收益恢复原版 ×1
     //
-    // 用户 2026-11-09 正式裁决：AM / IP / EP 三源每次**真实** TT 购买收益由 1 TT 改为 500 TT，
-    // 且必须保留原版成本曲线、购买资格、资源扣费与真实购买结算（不得凭空发 TT）。
+    // R121-01 起撤销旧 MOD 的 ×500 增强：AM / IP / EP 三源每次**真实** TT 购买
+    // 只获得原版 1 TT，保留原版成本曲线、购买资格、资源扣费与真实购买结算。
     //
     // 实现要点（全部在 Kotlin，Smali 一行未改）：
     //   · 只包住原版唯一入口 `TimeTheorems.buyMax(auto)`；它内部已按原版公式向三源扣费，
@@ -3363,7 +3368,6 @@ internal object GameApi {
     //     膨胀门槛 12900 随之推进。
     //   · 不写存档字段、不伪造购买次数（`amBought/ipBought/epBought` 仍由原版自增）。
     private const val TAG_TT_REWARD = "OREKI_TT_REWARD"
-    private const val TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L
 
     private var mTimeTheoremsCurrency: Any? = null
     private var mTimeTheoremsCurrencyResolved: Boolean = false
@@ -3406,18 +3410,16 @@ internal object GameApi {
     }
 
     /**
-     * 原版 `TimeTheorems.buyMax(auto)`，并把 MOD 平衡参数「TT 购买收益 ×500」应用上去。
+     * 原版 `TimeTheorems.buyMax(auto)`，按原版 ×1 收益返回真实购买数量。
      *
-     * 返回本次获得的 TT 总量（= 原版真实购买次数 × 500）；没有买到时返回 0，
+     * 返回本次获得的 TT 总量（= 原版真实购买次数）；没有买到时返回 0，
      * 因此「余额不足 / 恰好不足一次」等边界都不会发奖。
      */
     @JvmStatic
     fun timeTheoremBuyMax(auto: Boolean): Long {
         val bought = (call(mTtBuyMax(), null, auto) as? Long) ?: 0L
         if (bought <= 0L) return 0L
-        // 发奖统一由 settleTimeTheoremReward() 的「累计购买次数对账」处理，
-        // 这里只回报本次收益供调用方展示，避免同一笔购买被两条路径各发一次。
-        return bought * TIME_THEOREM_REWARD_MULTIPLIER
+        return OrekiTimeTheoremRewardPolicy.rewardForPurchasedTheorems(bought)
     }
 
     /** 上一次对账时看到的「三源购买次数之和」；-1 表示尚未初始化。 */
@@ -3477,12 +3479,12 @@ internal object GameApi {
     }
 
     /**
-     * [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（每帧调用，幂等）。
+     * 旧 TT 额外补发对账入口。R121-01 恢复 ×1 后，本函数只维护基线，不补发资源。
      *
      * 为什么用「对账」而不是只包 `buyMax`：
      *   · 手动点击 TT 按钮走的是 `TimeTheoremPurchaseType.purchase()`，**不经过** `buyMax`；
      *   · 原版自动购买、MOD 自动购买、单次/批量购买入口也各不相同。
-     *   只包 `buyMax` 会漏掉手动购买 ⇒ 玩家按一下只得 1 TT，与 ×500 承诺不符。
+     *   只包 `buyMax` 会漏掉手动购买 ⇒ 旧补发逻辑无法覆盖全部真实购买路径。
      *   这里改为读原版真实的「三源购买次数之和」增量：**任何路径**每成功买一次都会让它 +1，
      *   于是手动/自动/单次/批量天然全覆盖，且因为每次对账后立刻把基线推进到当前值，
      *   同一笔购买不可能被发两次。
@@ -3500,6 +3502,10 @@ internal object GameApi {
         if (total < 0L) return
         val last = timeTheoremPurchasesSettled
         if (last < 0L) {
+            timeTheoremPurchasesSettled = total
+            return
+        }
+        if (OrekiTimeTheoremRewardPolicy.MULTIPLIER <= 1L) {
             timeTheoremPurchasesSettled = total
             return
         }
@@ -3527,7 +3533,7 @@ internal object GameApi {
             return
         }
 
-        val extra = delta * (TIME_THEOREM_REWARD_MULTIPLIER - 1L)
+        val extra = OrekiTimeTheoremRewardPolicy.extraRewardForPurchasedTheorems(delta)
         val granted = grantExtraTimeTheorems(extra)
         if (!granted) {
             // [审查整改] 补发失败**不推进基线**：下一帧重试，避免这笔奖励被永久吞掉。
@@ -3558,8 +3564,8 @@ internal object GameApi {
             Log.i(
                 TAG_TT_REWARD,
                 "tt-reward delta=" + delta + " extra=" + extra + " granted=" + granted +
-                    " total=" + (delta * TIME_THEOREM_REWARD_MULTIPLIER) +
-                    " multiplier=" + TIME_THEOREM_REWARD_MULTIPLIER + " cumulative=" + total +
+                    " total=" + OrekiTimeTheoremRewardPolicy.rewardForPurchasedTheorems(delta) +
+                    " multiplier=" + OrekiTimeTheoremRewardPolicy.MULTIPLIER + " cumulative=" + total +
                     " count=" + timeTheoremRewardCount,
             )
         }

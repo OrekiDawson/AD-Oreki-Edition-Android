@@ -1,0 +1,1858 @@
+--------- beginning of system
+11-20 19:50:11.005 I/ActivityTaskManager(  544): START u0 {flg=0x10000000 cmp=com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity} from uid 0
+11-20 19:50:11.006 W/ActivityTaskManager(  544): Can't find TaskDisplayArea to determine support for multi window. Task id=21 attached=false
+11-20 19:50:11.007 D/CompatibilityChangeReporter(  544): Compat change id reported: 174042980; UID 10106; state: DISABLED
+11-20 19:50:11.007 D/CompatibilityChangeReporter(  544): Compat change id reported: 184838306; UID 10106; state: DISABLED
+11-20 19:50:11.007 D/CompatibilityChangeReporter(  544): Compat change id reported: 185004937; UID 10106; state: DISABLED
+11-20 19:50:11.007 D/CompatibilityChangeReporter(  544): Compat change id reported: 181136395; UID 10106; state: DISABLED
+11-20 19:50:11.007 D/CompatibilityChangeReporter(  544): Compat change id reported: 174042936; UID 10106; state: DISABLED
+11-20 19:50:11.008 D/CompatibilityChangeReporter(  544): Compat change id reported: 197654537; UID 10106; state: ENABLED
+--------- beginning of main
+11-20 19:50:11.013 D/SplashScreenView(  760): Build android.window.SplashScreenView{7004e28 V.E...... ......ID 0,0-0,0}
+11-20 19:50:11.013 D/SplashScreenView(  760): Icon: view: android.widget.ImageView{de1a741 V.ED..... ......I. 0,0-0,0 #10204aa android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@75034e6 size: 240
+11-20 19:50:11.013 D/SplashScreenView(  760): Branding: view: android.view.View{d28ca27 G.ED..... ......I. 0,0-0,0 #10204a9 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-20 19:50:11.015 D/CompatibilityChangeReporter(  544): Compat change id reported: 135634846; UID 10106; state: DISABLED
+11-20 19:50:11.016 D/CompatibilityChangeReporter(  544): Compat change id reported: 143937733; UID 10106; state: ENABLED
+11-20 19:50:11.023 D/Zygote  (  353): Forked child process 6155
+11-20 19:50:11.025 I/ActivityManager(  544): Start proc 6155:com.oreki.antimatterdimensions/u0a106 for pre-top-activity {com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity}
+11-20 19:50:11.028 I/atterdimension( 6155): Late-enabling -Xcheck:jni
+11-20 19:50:11.034 I/BpBinder(  395): onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+11-20 19:50:11.041 W/atterdimension( 6155): Unexpected CPU variant for X86 using defaults: x86_64
+11-20 19:50:11.042 I/adbd    ( 2151): jdwp connection from 6155
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.046 W/InputReader(  544): Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.047 W/InputReader(  544): Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.054 D/EGL_emulation(  993): app_time_stats: avg=3832.70ms min=3832.70ms max=3832.70ms count=1
+11-20 19:50:11.055 D/CompatibilityChangeReporter( 6155): Compat change id reported: 171979766; UID 10106; state: ENABLED
+11-20 19:50:11.096 V/GraphicsEnvironment( 6155): ANGLE Developer option for 'com.oreki.antimatterdimensions' set to: 'default'
+11-20 19:50:11.096 V/GraphicsEnvironment( 6155): ANGLE GameManagerService for com.oreki.antimatterdimensions: false
+11-20 19:50:11.096 V/GraphicsEnvironment( 6155): Neither updatable production driver nor prerelease driver is supported.
+11-20 19:50:11.097 D/NetworkSecurityConfig( 6155): No Network Security Config specified, using platform default
+11-20 19:50:11.097 D/NetworkSecurityConfig( 6155): No Network Security Config specified, using platform default
+11-20 19:50:11.145 D/FirebaseSessions( 6155): Dependency to CRASHLYTICS added.
+11-20 19:50:11.152 I/FirebaseApp( 6155): Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+11-20 19:50:11.173 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:11.173 E/DynamiteModule( 6155): Invalid GmsCore APK, remote loading disabled.
+11-20 19:50:11.174 I/DynamiteModule( 6155): Considering local module com.google.android.gms.measurement.dynamite:216 and remote module com.google.android.gms.measurement.dynamite:0
+11-20 19:50:11.174 I/DynamiteModule( 6155): Selected local version of com.google.android.gms.measurement.dynamite
+11-20 19:50:11.175 E/DynamiteModule( 6155): Invalid GmsCore APK, remote loading disabled.
+11-20 19:50:11.227 W/atterdimension( 6155): Accessing hidden method Ldalvik/system/VMStack;->getStackClass2()Ljava/lang/Class; (unsupported, reflection, allowed)
+11-20 19:50:11.231 D/Phlogger( 6155): Application doesn't implement PhenotypeApplication interface, falling back to globally set context. See go/phenotype-flag#process-stable-init for more info.
+11-20 19:50:11.235 I/Phlogger( 6155): Unable to retrieve flag snapshot for com.google.android.gms.measurement#com.oreki.antimatterdimensions, using defaults.
+11-20 19:50:11.243 D/FirebaseSessions( 6155): Initializing Firebase Sessions 4.0.1.
+11-20 19:50:11.244 I/FirebaseCrashlytics( 6155): Initializing Firebase Crashlytics 21.0.1 for com.oreki.antimatterdimensions
+11-20 19:50:11.246 I/FA      ( 6155): App measurement initialized, version: 192000
+11-20 19:50:11.246 I/FA      ( 6155): To enable debug logging run: adb shell setprop log.tag.FA VERBOSE
+11-20 19:50:11.246 I/FA      ( 6155): To enable faster debug mode event logging run:
+11-20 19:50:11.246 I/FA      ( 6155):   adb shell setprop debug.firebase.analytics.app com.oreki.antimatterdimensions
+11-20 19:50:11.248 D/FirebaseSessions( 6155): Subscriber CRASHLYTICS registered.
+11-20 19:50:11.249 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:11.249 W/GoogleApiManager( 6155): The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.249 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:11.250 W/GoogleApiManager( 6155): The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.253 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:11.253 W/GoogleApiManager( 6155): The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.254 D/FirebaseSessions( 6155): No Sessions subscribers. Not listening to lifecycle events.
+11-20 19:50:11.254 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:11.254 W/GoogleApiManager( 6155): The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.255 W/FlagStore( 6155): Unable to update local snapshot for com.google.android.gms.measurement#com.oreki.antimatterdimensions, may result in stale flags.
+11-20 19:50:11.255 W/FlagStore( 6155): java.util.concurrent.ExecutionException: com.google.android.gms.internal.measurement.zzom: 17: 17: API: Phenotype.API is not available on this device. Connection failed with: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.b.j(Unknown Source:20)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.b.get(Unknown Source:23)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.c.b(Unknown Source:7)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at ey6.run(Unknown Source:1540)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:462)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:301)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at java.lang.Thread.run(Thread.java:920)
+11-20 19:50:11.255 W/FlagStore( 6155): Caused by: com.google.android.gms.internal.measurement.zzom: 17: 17: API: Phenotype.API is not available on this device. Connection failed with: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.255 W/FlagStore( 6155): 	at zy8.apply(Unknown Source:12)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at i.r(Unknown Source:2)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at i.run(Unknown Source:127)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.DirectExecutor.execute(Unknown Source:0)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.b.i(Unknown Source:0)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.b.g(Unknown Source:87)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.b.o(Unknown Source:15)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at k96.onComplete(Unknown Source:35)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzi.run(Unknown Source:19)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.DirectExecutor.execute(Unknown Source:0)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzj.zza(Unknown Source:17)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzr.zzb(Unknown Source:34)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzw.zzc(Unknown Source:19)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzc.run(Unknown Source:68)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.common.util.concurrent.DirectExecutor.execute(Unknown Source:0)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzd.zza(Unknown Source:7)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzr.zzb(Unknown Source:34)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.zzw.zzd(Unknown Source:23)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at com.google.android.gms.tasks.TaskCompletionSource.trySetException(Unknown Source:2)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at ei5.a(Unknown Source:11)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at lh5.f(Unknown Source:46)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at lh5.g(Unknown Source:9)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at lh5.l(Unknown Source:182)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at lh5.p(Unknown Source:95)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at lh5.n(Unknown Source:53)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at ms1.handleMessage(Unknown Source:1010)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at mi5.dispatchMessage(Unknown Source:5)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at android.os.Looper.loopOnce(Looper.java:201)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at android.os.Looper.loop(Looper.java:288)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-20 19:50:11.255 W/FlagStore( 6155): Caused by: com.google.android.gms.common.api.ApiException: 17: API: Phenotype.API is not available on this device. Connection failed with: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:11.255 W/FlagStore( 6155): 	at m10.o(Unknown Source:12)
+11-20 19:50:11.255 W/FlagStore( 6155): 	at ei5.a(Unknown Source:5)
+11-20 19:50:11.255 W/FlagStore( 6155): 	... 11 more
+11-20 19:50:11.280 I/FirebaseInitProvider( 6155): FirebaseApp initialization successful
+11-20 19:50:11.284 E/FA      ( 6155): AppMeasurementReceiver not registered/enabled
+11-20 19:50:11.288 E/FA      ( 6155): AppMeasurementService not registered/enabled
+11-20 19:50:11.288 E/FA      ( 6155): Uploading is not possible. App measurement disabled
+11-20 19:50:11.293 D/FirebaseSessions( 6155): Notified CRASHLYTICS of new session d437b42dd39742e786a9ef8608dc6174
+11-20 19:50:11.322 I/FirebaseCrashlytics( 6155): Saved version control info
+11-20 19:50:11.346 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP_STARTED intervalMs=16
+11-20 19:50:11.346 I/OREKI_SCHED( 6155): init 调度：已启用 · 间隔 10 秒 · 单任务档（每条任务各自计时，且全部受全局节拍约束）
+11-20 19:50:11.351 D/libEGL  ( 6155): loaded /vendor/lib64/egl/libEGL_emulation.so
+11-20 19:50:11.352 D/libEGL  ( 6155): loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-20 19:50:11.353 D/libEGL  ( 6155): loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-20 19:50:11.381 D/AppCompatDelegate( 6155): Checking for metadata for AppLocalesMetadataHolderService : Service not found
+11-20 19:50:11.391 W/atterdimension( 6155): Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (unsupported, reflection, allowed)
+11-20 19:50:11.401 D/CompatibilityChangeReporter( 6155): Compat change id reported: 171228096; UID 10106; state: ENABLED
+11-20 19:50:11.549 W/TabLayout( 6155): MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-20 19:50:11.549 W/TabLayout( 6155): MODE_SCROLLABLE + GRAVITY_FILL is not supported, GRAVITY_START will be used instead
+11-20 19:50:11.655 I/OREKI_TABGATE( 6155): tab=antimatterDimensions allowed=true eternityUnlocked=false
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_9 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_3 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_10 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_8 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_5 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_6 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_2 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_7 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_4 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.658 W/InputReader(  544): Device virtio_input_multi_touch_11 is associated with display ADISPLAY_ID_NONE.
+11-20 19:50:11.663 W/LibraryVersion( 6155): Failed to get app version for libraryName: firebase-auth
+11-20 19:50:11.696 W/ServiceManager(  544): Permission failure: android.permission.HIGH_SAMPLING_RATE_SENSORS from uid=10106 pid=6155
+11-20 19:50:11.697 W/System.err( 6155): java.io.FileNotFoundException: /data/user/0/com.oreki.antimatterdimensions/files/player2.json: open failed: ENOENT (No such file or directory)
+11-20 19:50:11.697 W/System.err( 6155): 	at libcore.io.IoBridge.open(IoBridge.java:575)
+11-20 19:50:11.697 W/System.err( 6155): 	at java.io.FileInputStream.<init>(FileInputStream.java:160)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.ContextImpl.openFileInput(ContextImpl.java:706)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:224)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:224)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.content.ContextWrapper.openFileInput(ContextWrapper.java:224)
+11-20 19:50:11.697 W/System.err( 6155): 	at kajfosz.antimatterdimensions.player.h.d(Unknown Source:62)
+11-20 19:50:11.697 W/System.err( 6155): 	at kajfosz.antimatterdimensions.MainActivity.onCreate(Unknown Source:2034)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.Activity.performCreate(Activity.java:8057)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.Activity.performCreate(Activity.java:8037)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1341)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3688)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3864)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:103)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2253)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.os.Looper.loopOnce(Looper.java:201)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.os.Looper.loop(Looper.java:288)
+11-20 19:50:11.697 W/System.err( 6155): 	at android.app.ActivityThread.main(ActivityThread.java:7870)
+11-20 19:50:11.697 W/System.err( 6155): 	at java.lang.reflect.Method.invoke(Native Method)
+11-20 19:50:11.697 W/System.err( 6155): 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+11-20 19:50:11.697 W/System.err( 6155): 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)
+11-20 19:50:11.698 W/System.err( 6155): Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+11-20 19:50:11.698 W/System.err( 6155): 	at libcore.io.Linux.open(Native Method)
+11-20 19:50:11.698 W/System.err( 6155): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:567)
+11-20 19:50:11.698 W/System.err( 6155): 	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:273)
+11-20 19:50:11.698 W/System.err( 6155): 	at libcore.io.ForwardingOs.open(ForwardingOs.java:567)
+11-20 19:50:11.698 W/System.err( 6155): 	at android.app.ActivityThread$AndroidOs.open(ActivityThread.java:7756)
+11-20 19:50:11.698 W/System.err( 6155): 	at libcore.io.IoBridge.open(IoBridge.java:561)
+11-20 19:50:11.698 W/System.err( 6155): 	... 23 more
+11-20 19:50:11.701 I/OrekiTutorial( 6155): 3
+11-20 19:50:11.701 I/OrekiTutorial( 6155): 3
+11-20 19:50:11.702 I/OrekiTutorial( 6155): 3
+11-20 19:50:11.702 I/OrekiTutorial( 6155): 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-20 19:50:11.703 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:11.703 D/FirebaseSessions( 6155): App foregrounded on com.oreki.antimatterdimensions
+11-20 19:50:11.703 D/FirebaseSessions( 6155): Session d437b42dd39742e786a9ef8608dc6174 has not backgrounded yet
+11-20 19:50:11.703 D/FirebaseSessions( 6155): Process com.oreki.antimatterdimensions is stale
+11-20 19:50:11.704 W/FA      ( 6155): Service invalid
+11-20 19:50:11.705 I/OrekiTutorial( 6155): 容器里已有入口按钮，跳过
+11-20 19:50:11.705 D/FirebaseSessions( 6155): Session d437b42dd39742e786a9ef8608dc6174 has not backgrounded yet
+11-20 19:50:11.705 I/OrekiTutorial( 6155): 容器里已有入口按钮，跳过
+11-20 19:50:11.705 I/OrekiTutorial( 6155): 容器里已有入口按钮，跳过
+11-20 19:50:11.705 I/OrekiTutorial( 6155): 本次无需重试（入口已插入 / 已存在 / 本页不承载入口），重置重试计数
+11-20 19:50:11.705 W/ServiceManager(  544): Permission failure: android.permission.HIGH_SAMPLING_RATE_SENSORS from uid=10106 pid=6155
+11-20 19:50:11.705 D/FirebaseSessions( 6155): Cold app start detected
+11-20 19:50:11.705 W/ServiceManager(  544): Permission failure: android.permission.HIGH_SAMPLING_RATE_SENSORS from uid=10106 pid=6155
+11-20 19:50:11.706 D/FirebaseSessions( 6155): Process com.oreki.antimatterdimensions is stale
+11-20 19:50:11.706 D/FirebaseSessions( 6155): Sessions SDK disabled through data collection. Events will not be sent.
+11-20 19:50:11.711 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:11.713 D/FirebaseSessions( 6155): Notified CRASHLYTICS of new session fff52e59c1a1416d907093cac3757811
+11-20 19:50:11.713 W/WindowManager(  544): Failed looking up window session=Session{32619d2 6155:u0a10106} callers=com.android.server.wm.WindowManagerService.windowForClientLocked:5771 com.android.server.wm.Session.updateRequestedVisibilities:640 android.view.IWindowSession$Stub.onTransact:1175 
+11-20 19:50:11.714 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:11.719 I/Codec2Client( 6155): Available Codec2 services: "default" "software"
+11-20 19:50:11.720 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:11.721 V/C2Store (  471): in init
+11-20 19:50:11.721 V/C2Store (  471): loading dll
+11-20 19:50:11.721 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:11.722 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:11.722 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:11.722 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:11.722 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:11.722 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:11.722 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:11.722 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:11.722 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:11.722 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:11.722 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:11.722 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:11.722 D/CCodecConfig( 6155): }
+11-20 19:50:11.723 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:11.723 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:11.723 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:11.723 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:11.723 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:11.723 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:11.723 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:11.723 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:11.723 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:11.723 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:11.723 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:11.723 D/CCodec  ( 6155): }
+11-20 19:50:11.723 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:11.723 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:11.723 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:11.723 D/CCodec  ( 6155): }
+11-20 19:50:11.723 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:11.724 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:11.724 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:11.724 D/C2Store ( 6155): Using DMABUF Heaps
+11-20 19:50:11.724 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#163] Created input block pool with allocatorID 16 => poolID 17 - OK (0)
+11-20 19:50:11.725 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#163] Created output block pool with allocatorID 16 => poolID 126 - OK
+11-20 19:50:11.725 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#163] Configured output block pool ids 126 => OK
+11-20 19:50:11.725 I/DMABUFHEAPS( 6155): Using DMA-BUF heap named: system
+11-20 19:50:11.725 D/SimpleC2Component(  471): Using output block pool with poolID 126 => got 126 - 0
+11-20 19:50:11.726 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:11.731 E/FA      ( 6155): Unable to use remote or local measurement implementation. Please register the AppMeasurementService service in the app manifest
+11-20 19:50:11.731 I/FA      ( 6155): Tag Manager is not found and thus will not be used
+11-20 19:50:11.732 E/FA      ( 6155): Unable to use remote or local measurement implementation. Please register the AppMeasurementService service in the app manifest
+11-20 19:50:11.762 D/HostConnection( 6155): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-20 19:50:11.763 I/hwservicemanager(  194): getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device VINTF manifest.
+11-20 19:50:11.763 W/OpenGLRenderer( 6155): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-20 19:50:11.764 D/EGL_emulation( 6155): eglCreateContext: 0x7bd530912910: maj 3 min 0 rcv 3
+11-20 19:50:11.765 D/EGL_emulation( 6155): eglMakeCurrent: 0x7bd530912910: ver 3 0 (tinfo 0x7bd756393080) (first time)
+11-20 19:50:11.774 I/hwservicemanager(  194): getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-20 19:50:11.774 I/Gralloc4( 6155): mapper 4.x is not supported
+11-20 19:50:11.798 I/hwservicemanager(  194): getTransport: Cannot find entry android.hardware.graphics.allocator@4.0::IAllocator/default in either framework or device VINTF manifest.
+11-20 19:50:11.798 W/Gralloc4( 6155): allocator 4.x is not supported
+11-20 19:50:11.806 D/HostConnection( 6155): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-20 19:50:11.840 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#163] MediaCodec discarded an unknown buffer
+11-20 19:50:11.840 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#163] MediaCodec discarded an unknown buffer
+11-20 19:50:11.840 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#163] MediaCodec discarded an unknown buffer
+11-20 19:50:11.846 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:11.847 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:11.847 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:11.847 V/C2Store (  471): unloading dll
+11-20 19:50:11.848 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:11.852 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:11.852 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:11.853 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:11.853 V/C2Store (  471): in init
+11-20 19:50:11.853 V/C2Store (  471): loading dll
+11-20 19:50:11.854 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:11.854 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:11.855 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:11.856 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:11.856 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:11.856 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:11.856 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:11.856 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:11.856 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:11.856 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:11.856 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:11.856 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:11.856 D/CCodecConfig( 6155): }
+11-20 19:50:11.857 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:11.857 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:11.857 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:11.857 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:11.857 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:11.857 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:11.857 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:11.857 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:11.857 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:11.857 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:11.857 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:11.857 D/CCodec  ( 6155): }
+11-20 19:50:11.857 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:11.857 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:11.857 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:11.857 D/CCodec  ( 6155): }
+11-20 19:50:11.857 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:11.858 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:11.858 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:11.858 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#30] Created input block pool with allocatorID 16 => poolID 18 - OK (0)
+11-20 19:50:11.859 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#30] Created output block pool with allocatorID 16 => poolID 127 - OK
+11-20 19:50:11.859 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#30] Configured output block pool ids 127 => OK
+11-20 19:50:11.859 D/SimpleC2Component(  471): Using output block pool with poolID 127 => got 127 - 0
+11-20 19:50:11.861 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:11.976 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#30] MediaCodec discarded an unknown buffer
+11-20 19:50:11.976 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#30] MediaCodec discarded an unknown buffer
+11-20 19:50:11.976 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#30] MediaCodec discarded an unknown buffer
+11-20 19:50:11.979 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:11.979 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:11.979 V/C2Store (  471): unloading dll
+11-20 19:50:11.979 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:11.979 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:11.981 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:11.982 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:11.982 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:11.982 V/C2Store (  471): in init
+11-20 19:50:11.982 V/C2Store (  471): loading dll
+11-20 19:50:11.983 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:11.983 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:11.984 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:11.985 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:11.985 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:11.985 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:11.985 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:11.985 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:11.985 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:11.985 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:11.985 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:11.985 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:11.985 D/CCodecConfig( 6155): }
+11-20 19:50:11.985 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:11.985 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:11.985 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:11.985 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:11.985 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:11.985 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:11.985 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:11.985 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:11.985 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:11.985 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:11.985 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:11.985 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:11.985 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:11.985 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:11.985 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:11.985 D/CCodec  ( 6155): }
+11-20 19:50:11.986 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:11.986 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:11.986 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:11.986 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:11.986 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:11.986 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:11.986 D/CCodec  ( 6155): }
+11-20 19:50:11.986 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:11.987 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:11.987 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:11.988 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#285] Created input block pool with allocatorID 16 => poolID 19 - OK (0)
+11-20 19:50:11.988 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#285] Created output block pool with allocatorID 16 => poolID 128 - OK
+11-20 19:50:11.988 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#285] Configured output block pool ids 128 => OK
+11-20 19:50:11.988 D/SimpleC2Component(  471): Using output block pool with poolID 128 => got 128 - 0
+11-20 19:50:11.990 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.082 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#285] MediaCodec discarded an unknown buffer
+11-20 19:50:12.082 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#285] MediaCodec discarded an unknown buffer
+11-20 19:50:12.082 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#285] MediaCodec discarded an unknown buffer
+11-20 19:50:12.090 I/OpenGLRenderer( 6155): Davey! duration=743ms; Flags=1, FrameTimelineVsyncId=606814, IntendedVsync=5616765645577, Vsync=5617132312229, InputEventId=0, HandleInputStart=5617147328173, AnimationStart=5617147330582, PerformTraversalsStart=5617147620251, DrawStart=5617240569285, FrameDeadline=5616782312243, FrameInterval=5617147311295, FrameStartTime=16666666, SyncQueued=5617244618959, SyncStart=5617245035233, IssueDrawCommandsStart=5617245797845, SwapBuffers=5617424792878, FrameCompleted=5617509810919, DequeueBufferDuration=23715, QueueBufferDuration=1158354, GpuCompleted=5617509719723, SwapBuffersCompleted=5617509810919, DisplayPresentTime=0, 
+11-20 19:50:12.091 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.092 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.092 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.092 V/C2Store (  471): unloading dll
+11-20 19:50:12.092 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.095 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.097 I/ActivityTaskManager(  544): Displayed com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity: +1s87ms
+11-20 19:50:12.098 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.104 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.104 V/C2Store (  471): in init
+11-20 19:50:12.104 V/C2Store (  471): loading dll
+11-20 19:50:12.107 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.107 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.107 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.108 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.108 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.108 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.108 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.108 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.108 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.108 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.108 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.108 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.108 D/CCodecConfig( 6155): }
+11-20 19:50:12.109 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.109 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.109 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.109 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.109 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.109 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.109 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.109 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.109 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.109 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.109 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.109 D/CCodec  ( 6155): }
+11-20 19:50:12.109 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.109 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.109 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.109 D/CCodec  ( 6155): }
+11-20 19:50:12.109 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.109 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.109 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.109 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#965] Created input block pool with allocatorID 16 => poolID 20 - OK (0)
+11-20 19:50:12.110 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#965] Created output block pool with allocatorID 16 => poolID 129 - OK
+11-20 19:50:12.110 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#965] Configured output block pool ids 129 => OK
+11-20 19:50:12.110 D/SimpleC2Component(  471): Using output block pool with poolID 129 => got 129 - 0
+11-20 19:50:12.112 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.178 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#965] MediaCodec discarded an unknown buffer
+11-20 19:50:12.178 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#965] MediaCodec discarded an unknown buffer
+11-20 19:50:12.178 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#965] MediaCodec discarded an unknown buffer
+11-20 19:50:12.183 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.183 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.183 V/C2Store (  471): unloading dll
+11-20 19:50:12.183 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.199 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.206 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.222 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.223 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.223 V/C2Store (  471): in init
+11-20 19:50:12.223 V/C2Store (  471): loading dll
+11-20 19:50:12.224 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.224 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.227 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.227 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.227 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.227 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.227 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.227 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.227 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.227 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.227 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.227 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.227 D/CCodecConfig( 6155): }
+11-20 19:50:12.228 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.228 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.228 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.228 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.228 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.228 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.228 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.229 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.230 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.230 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.230 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.230 D/CCodec  ( 6155): }
+11-20 19:50:12.230 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.230 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.230 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.230 D/CCodec  ( 6155): }
+11-20 19:50:12.230 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.230 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.230 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.231 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#282] Created input block pool with allocatorID 16 => poolID 21 - OK (0)
+11-20 19:50:12.231 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#282] Created output block pool with allocatorID 16 => poolID 130 - OK
+11-20 19:50:12.231 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#282] Configured output block pool ids 130 => OK
+11-20 19:50:12.231 D/SimpleC2Component(  471): Using output block pool with poolID 130 => got 130 - 0
+11-20 19:50:12.247 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.297 I/atterdimension( 6155): JIT allocated 77KB for compiled code of void android.view.View.<init>(android.content.Context, android.util.AttributeSet, int, int)
+11-20 19:50:12.408 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#282] MediaCodec discarded an unknown buffer
+11-20 19:50:12.408 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#282] MediaCodec discarded an unknown buffer
+11-20 19:50:12.409 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#282] MediaCodec discarded an unknown buffer
+11-20 19:50:12.414 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.414 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.414 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.414 V/C2Store (  471): unloading dll
+11-20 19:50:12.414 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.423 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.424 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.424 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.425 V/C2Store (  471): in init
+11-20 19:50:12.425 V/C2Store (  471): loading dll
+11-20 19:50:12.425 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.425 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.426 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.426 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.426 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.426 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.426 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.426 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.427 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.427 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.427 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.427 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.427 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.427 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.427 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.427 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.427 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.427 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.427 D/CCodecConfig( 6155): }
+11-20 19:50:12.427 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.427 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.428 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.428 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.428 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.428 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.428 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.428 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.428 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.428 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.428 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.428 D/CCodec  ( 6155): }
+11-20 19:50:12.428 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.428 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.428 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.428 D/CCodec  ( 6155): }
+11-20 19:50:12.428 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.428 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.428 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.428 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#459] Created input block pool with allocatorID 16 => poolID 22 - OK (0)
+11-20 19:50:12.429 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#459] Created output block pool with allocatorID 16 => poolID 131 - OK
+11-20 19:50:12.429 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#459] Configured output block pool ids 131 => OK
+11-20 19:50:12.429 D/SimpleC2Component(  471): Using output block pool with poolID 131 => got 131 - 0
+11-20 19:50:12.430 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.458 W/InputManager-JNI(  544): Input channel object 'f87cbbe Splash Screen com.oreki.antimatterdimensions (client)' was disposed without first being removed with the input manager!
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missed App frame:16
+11-20 19:50:12.508 W/FrameTracker(  760): Missing SF jank callback for vsyncId: 606896
+11-20 19:50:12.509 V/PerfettoTrigger(  760): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-39
+11-20 19:50:12.528 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#459] MediaCodec discarded an unknown buffer
+11-20 19:50:12.528 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#459] MediaCodec discarded an unknown buffer
+11-20 19:50:12.528 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#459] MediaCodec discarded an unknown buffer
+11-20 19:50:12.529 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.529 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.529 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.529 V/C2Store (  471): unloading dll
+11-20 19:50:12.530 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.531 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.531 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.532 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.532 V/C2Store (  471): in init
+11-20 19:50:12.532 V/C2Store (  471): loading dll
+11-20 19:50:12.533 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.533 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.533 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.533 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.533 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.533 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.537 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.537 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.537 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.537 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.537 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.537 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.537 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.537 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.537 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.537 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.537 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.537 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.537 D/CCodecConfig( 6155): }
+11-20 19:50:12.538 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.538 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.538 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.538 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.538 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.538 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.538 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.538 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.538 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.538 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.538 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.538 D/CCodec  ( 6155): }
+11-20 19:50:12.538 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.538 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.538 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.538 D/CCodec  ( 6155): }
+11-20 19:50:12.538 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.538 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.538 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.539 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#959] Created input block pool with allocatorID 16 => poolID 23 - OK (0)
+11-20 19:50:12.539 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#959] Created output block pool with allocatorID 16 => poolID 132 - OK
+11-20 19:50:12.539 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#959] Configured output block pool ids 132 => OK
+11-20 19:50:12.540 D/SimpleC2Component(  471): Using output block pool with poolID 132 => got 132 - 0
+11-20 19:50:12.540 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.629 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#959] MediaCodec discarded an unknown buffer
+11-20 19:50:12.630 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#959] MediaCodec discarded an unknown buffer
+11-20 19:50:12.630 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#959] MediaCodec discarded an unknown buffer
+11-20 19:50:12.636 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.636 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.636 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.636 V/C2Store (  471): unloading dll
+11-20 19:50:12.637 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.639 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.639 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.640 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.640 V/C2Store (  471): in init
+11-20 19:50:12.640 V/C2Store (  471): loading dll
+11-20 19:50:12.640 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.641 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.641 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.641 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.641 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.641 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.641 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.641 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.641 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.641 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.641 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.641 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.641 D/CCodecConfig( 6155): }
+11-20 19:50:12.642 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.642 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.642 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.642 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.642 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.642 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.642 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.642 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.642 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.642 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.642 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.642 D/CCodec  ( 6155): }
+11-20 19:50:12.642 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.642 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.642 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.642 D/CCodec  ( 6155): }
+11-20 19:50:12.642 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.643 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.643 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.644 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#935] Created input block pool with allocatorID 16 => poolID 24 - OK (0)
+11-20 19:50:12.644 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#935] Created output block pool with allocatorID 16 => poolID 133 - OK
+11-20 19:50:12.644 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#935] Configured output block pool ids 133 => OK
+11-20 19:50:12.644 D/SimpleC2Component(  471): Using output block pool with poolID 133 => got 133 - 0
+11-20 19:50:12.645 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.720 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#935] MediaCodec discarded an unknown buffer
+11-20 19:50:12.720 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#935] MediaCodec discarded an unknown buffer
+11-20 19:50:12.720 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#935] MediaCodec discarded an unknown buffer
+11-20 19:50:12.727 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=13 frames=14 targets=0
+11-20 19:50:12.733 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.733 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.733 V/C2Store (  471): unloading dll
+11-20 19:50:12.733 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.736 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.737 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.738 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.739 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.739 V/C2Store (  471): in init
+11-20 19:50:12.739 V/C2Store (  471): loading dll
+11-20 19:50:12.739 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.739 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.740 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.740 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.740 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.740 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.740 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.740 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.740 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.740 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.740 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.740 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.740 D/CCodecConfig( 6155): }
+11-20 19:50:12.740 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.740 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.740 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.740 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.740 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.740 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.740 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.742 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.742 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.742 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.742 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.742 D/CCodec  ( 6155): }
+11-20 19:50:12.742 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.742 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.742 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.742 D/CCodec  ( 6155): }
+11-20 19:50:12.742 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.742 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.742 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.742 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#505] Created input block pool with allocatorID 16 => poolID 25 - OK (0)
+11-20 19:50:12.742 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#505] Created output block pool with allocatorID 16 => poolID 134 - OK
+11-20 19:50:12.742 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#505] Configured output block pool ids 134 => OK
+11-20 19:50:12.743 D/SimpleC2Component(  471): Using output block pool with poolID 134 => got 134 - 0
+11-20 19:50:12.744 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.803 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#505] MediaCodec discarded an unknown buffer
+11-20 19:50:12.803 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#505] MediaCodec discarded an unknown buffer
+11-20 19:50:12.803 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#505] MediaCodec discarded an unknown buffer
+11-20 19:50:12.806 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.806 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.807 V/C2Store (  471): unloading dll
+11-20 19:50:12.807 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.807 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.808 D/MediaCodecList( 6155): codecHandlesFormat: no format, so no extra checks
+11-20 19:50:12.810 D/CCodec  ( 6155): allocate(c2.android.mp3.decoder)
+11-20 19:50:12.811 I/CCodec  ( 6155): setting up 'default' as default (vendor) store
+11-20 19:50:12.811 V/C2Store (  471): in init
+11-20 19:50:12.811 V/C2Store (  471): loading dll
+11-20 19:50:12.812 I/CCodec  ( 6155): Created component [c2.android.mp3.decoder]
+11-20 19:50:12.812 D/CCodecConfig( 6155): read media type: audio/mpeg
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.max-count.values
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.subscribed-indices.values
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: output.buffers.pool-ids.values
+11-20 19:50:12.812 D/ReflectedParamUpdater( 6155): extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-20 19:50:12.813 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.813 D/CCodecConfig( 6155): c2 config diff is Dict {
+11-20 19:50:12.813 D/CCodecConfig( 6155):   c2::u32 coded.bitrate.value = 64000
+11-20 19:50:12.813 D/CCodecConfig( 6155):   c2::u32 input.buffers.max-size.value = 8192
+11-20 19:50:12.813 D/CCodecConfig( 6155):   c2::u32 input.delay.value = 0
+11-20 19:50:12.813 D/CCodecConfig( 6155):   string input.media-type.value = "audio/mpeg"
+11-20 19:50:12.813 D/CCodecConfig( 6155):   string output.media-type.value = "audio/raw"
+11-20 19:50:12.813 D/CCodecConfig( 6155):   c2::u32 raw.channel-count.value = 2
+11-20 19:50:12.813 D/CCodecConfig( 6155):   c2::u32 raw.sample-rate.value = 44100
+11-20 19:50:12.813 D/CCodecConfig( 6155): }
+11-20 19:50:12.813 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:12.813 D/CCodec  ( 6155): [c2.android.mp3.decoder] buffers are bound to CCodec for this session
+11-20 19:50:12.813 D/CCodecConfig( 6155): no c2 equivalents for durationUs
+11-20 19:50:12.813 D/CCodecConfig( 6155): no c2 equivalents for track-id
+11-20 19:50:12.813 D/CCodecConfig( 6155): no c2 equivalents for encoder-delay
+11-20 19:50:12.813 D/CCodecConfig( 6155): no c2 equivalents for encoder-padding
+11-20 19:50:12.813 D/CCodecConfig( 6155): no c2 equivalents for flags
+11-20 19:50:12.813 D/CCodecConfig( 6155): c2 config diff is   c2::u32 coded.bitrate.value = 224000
+11-20 19:50:12.813 W/Codec2Client( 6155): query -- param skipped: index = 1107298332.
+11-20 19:50:12.813 D/CCodec  ( 6155): setup formats input: AMessage(what = 0x00000000) = {
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t bitrate = 224000
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t max-input-size = 8192
+11-20 19:50:12.813 D/CCodec  ( 6155):   string mime = "audio/mpeg"
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.813 D/CCodec  ( 6155): }
+11-20 19:50:12.813 D/CCodec  ( 6155): setup formats output: AMessage(what = 0x00000000) = {
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t channel-count = 2
+11-20 19:50:12.813 D/CCodec  ( 6155):   string mime = "audio/raw"
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t sample-rate = 44100
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t encoder-delay = 576
+11-20 19:50:12.813 D/CCodec  ( 6155):   int32_t encoder-padding = 1536
+11-20 19:50:12.813 D/CCodec  ( 6155): }
+11-20 19:50:12.813 I/CCodecConfig( 6155): query failed after returning 7 values (BAD_INDEX)
+11-20 19:50:12.813 W/Codec2Client( 6155): query -- param skipped: index = 1342179345.
+11-20 19:50:12.813 W/Codec2Client( 6155): query -- param skipped: index = 2415921170.
+11-20 19:50:12.814 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#493] Created input block pool with allocatorID 16 => poolID 26 - OK (0)
+11-20 19:50:12.814 I/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#493] Created output block pool with allocatorID 16 => poolID 135 - OK
+11-20 19:50:12.814 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#493] Configured output block pool ids 135 => OK
+11-20 19:50:12.815 D/SimpleC2Component(  471): Using output block pool with poolID 135 => got 135 - 0
+11-20 19:50:12.815 I/C2SoftMp3Dec(  471): Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-20 19:50:12.861 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#493] MediaCodec discarded an unknown buffer
+11-20 19:50:12.861 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#493] MediaCodec discarded an unknown buffer
+11-20 19:50:12.861 D/CCodecBufferChannel( 6155): [c2.android.mp3.decoder#493] MediaCodec discarded an unknown buffer
+11-20 19:50:12.866 I/hw-BpHwBinder( 6155): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.866 I/hw-BpHwBinder(  471): onLastStrongRef automatically unlinking death recipients
+11-20 19:50:12.866 V/C2Store (  471): in ~ComponentModule
+11-20 19:50:12.866 V/C2Store (  471): unloading dll
+11-20 19:50:12.867 D/MediaCodec( 6155): flushMediametrics
+11-20 19:50:13.184 D/EGL_emulation( 6155): app_time_stats: avg=47.47ms min=7.42ms max=147.62ms count=23
+11-20 19:50:13.442 I/OREKI_TABGATE( 6155): tab=dimensions allowed=true eternityUnlocked=false
+11-20 19:50:13.465 I/OREKI_TABGATE( 6155): tab=automation allowed=true eternityUnlocked=false
+11-20 19:50:13.465 I/OREKI_TABGATE( 6155): tab=challenges allowed=true eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=infinity allowed=true eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=eternity allowed=false eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=reality allowed=false eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=celestials allowed=false eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=achievements allowed=true eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=statisticsMainTab allowed=true eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=optionsMainTab allowed=true eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=shopMainTab allowed=true eternityUnlocked=false
+11-20 19:50:13.470 I/OREKI_TABGATE( 6155): tab=infoMainTab allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=infinityDimensions allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=timeDimensions allowed=false eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=normalAchievements allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=secretAchievements allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=statistics allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=challengeTimes allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=pastPrestigeRuns allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=multiplierBreakdown allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=graphs allowed=true eternityUnlocked=false
+11-20 19:50:13.479 I/OREKI_TABGATE( 6155): tab=glyphSetRecords allowed=true eternityUnlocked=false
+11-20 19:50:13.480 I/OREKI_TABGATE( 6155): tab=speedrunMilestones allowed=true eternityUnlocked=false
+11-20 19:50:13.480 I/OREKI_TABGATE( 6155): tab=speedrunRecords allowed=true eternityUnlocked=false
+11-20 19:50:13.480 I/OREKI_TABGATE( 6155): tab=howToPlay allowed=true eternityUnlocked=false
+11-20 19:50:13.480 I/OREKI_TABGATE( 6155): tab=about allowed=true eternityUnlocked=false
+11-20 19:50:13.533 I/OREKI_BOOTSTRAP_SCALE( 6155): DILATION_TT_COST original=1.0e0 scaled=1.0e0
+11-20 19:50:13.700 I/atterdimension( 6155): JIT allocated 66KB for compiled code of void kajfosz.antimatterdimensions.mainactivity.u.b(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:13.706 I/atterdimension( 6155): Compiler allocated 5559KB to compile void kajfosz.antimatterdimensions.mainactivity.u.b(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:13.969 I/atterdimension( 6155): NativeAlloc concurrent copying GC freed 245981(9885KB) AllocSpace objects, 62(2968KB) LOS objects, 39% free, 36MB/60MB, paused 2.133ms,44us total 278.386ms
+11-20 19:50:13.988 I/atterdimension( 6155): Compiler allocated 5168KB to compile void kajfosz.antimatterdimensions.mainactivity.u.b(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:14.023 I/atterdimension( 6155): JIT allocated 105KB for compiled code of void rj2.h(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:14.024 I/atterdimension( 6155): Compiler allocated 7964KB to compile void rj2.h(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:14.052 I/atterdimension( 6155): JIT allocated 72KB for compiled code of void rj2.h(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:14.053 I/atterdimension( 6155): Compiler allocated 7434KB to compile void rj2.h(kajfosz.antimatterdimensions.MainActivity)
+11-20 19:50:14.201 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:14.202 I/UserMessagingPlatform( 6155): Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("B3EEABB8EE11C2BE770B684D95219ECB") to set this as a debug device.
+11-20 19:50:14.204 W/UserMessagingPlatform( 6155): The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-20 19:50:14.204 W/UserMessagingPlatform( 6155): Example AndroidManifest:
+11-20 19:50:14.204 W/UserMessagingPlatform( 6155):     <meta-data
+11-20 19:50:14.204 W/UserMessagingPlatform( 6155):         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-20 19:50:14.204 W/UserMessagingPlatform( 6155):         android:value="ca-app-pub-0000000000000000~0000000000">
+11-20 19:50:14.206 W/UserMessagingPlatform( 6155): Metrics reporting URL is not set yet.
+11-20 19:50:14.262 I/OREKI_TABGATE( 6155): tab=eternity allowed=true eternityUnlocked=true
+11-20 19:50:14.264 I/OREKI_TABGATE( 6155): tab=timeDimensions allowed=true eternityUnlocked=true
+11-20 19:50:14.288 I/OREKI_IPSCALE( 6155): IP_DIVISOR bootstrap original=285.0 effective=30.0
+11-20 19:50:14.289 I/OREKI_EPSCALE( 6155): EP_DIVISOR bootstrap original=308.0 effective=30.0
+11-20 19:50:14.337 E/android.hardware.audio@7.0-impl.ranchu(  358): device/generic/goldfish/audio/stream_out.cpp:updateSourceMetadata:389 failure: Result::NOT_SUPPORTED
+11-20 19:50:14.338 D/AudioFlinger(  392): mixer(0x74a071db1a60) throttle end: throttle time(34)
+11-20 19:50:14.406 I/LatinIME:LogUtils( 1226): Dictionary info: dictionary = spellcheck_userunigram.en_US ; version = 1795175414 ; date = ?
+11-20 19:50:14.412 I/LatinIME:LogUtils( 1226): Dictionary info: dictionary = main:en ; version = 54 ; date = 1414726273
+11-20 19:50:14.426 I/Choreographer( 6155): Skipped 42 frames!  The application may be doing too much work on its main thread.
+11-20 19:50:14.426 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=12 frames=22 targets=1
+11-20 19:50:14.431 I/OREKI_EC_DIAG( 6155): unlocked=3 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-20 19:50:14.438 I/OREKI_SCHED( 6155): gui-tick #1 gapMs=10000
+11-20 19:50:14.440 I/OREKI_GUI_STAGE( 6155): GUI_GATE_CHANGED from=none to=eternity eternity=true reality=false source=ep=1,bigE=1,eu=1,r=0,bigR=0,eternitiesField=1
+11-20 19:50:14.442 I/OREKI_GUI( 6155): STATE_CHANGED source=tick-sync:global-tick phase=eternity
+11-20 19:50:14.442 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=true dirty=false force=true
+11-20 19:50:14.443 I/OREKI_AUTO_BEAT( 6155): gui-tick #1 gapMs=10000
+11-20 19:50:14.446 I/EDP_FRAME( 6155): frame=1 stage=pre-break break=false canEt=false ep=6.6683689384149e29 gainEP=2.3e1 bigE=1 inf=0.0e0 ip=0.0e0 db=0.0 gal=0 justCrunch=false lastCrunch=0 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:50:14.446 I/OREKI_ET_PROBE( 6155): autoEternity.isActive=false
+11-20 19:50:14.447 I/OREKI_ET_PROBE( 6155): autoEternity.canRun=false
+11-20 19:50:14.447 I/OREKI_ET_PROBE( 6155): prestige.c.b=false
+11-20 19:50:14.447 I/OREKI_ET_PROBE( 6155): MainActivity.mo=true
+11-20 19:50:14.447 I/OREKI_ET_PROBE( 6155): OrekiEternity.sEtPending=0 bigE=1 ep=6.6683689384149e29
+11-20 19:50:14.452 W/UserMessagingPlatform( 6155): The UMP SDK requires a valid application ID in your AndroidManifest.xml through a com.google.android.gms.ads.APPLICATION_ID meta-data tag.
+11-20 19:50:14.452 W/UserMessagingPlatform( 6155): Example AndroidManifest:
+11-20 19:50:14.452 W/UserMessagingPlatform( 6155):     <meta-data
+11-20 19:50:14.452 W/UserMessagingPlatform( 6155):         android:name="com.google.android.gms.ads.APPLICATION_ID"
+11-20 19:50:14.452 W/UserMessagingPlatform( 6155):         android:value="ca-app-pub-0000000000000000~0000000000">
+11-20 19:50:14.506 I/OREKI_AU4C( 6155): cold start: crunch ownership reconstructed (pausedByMod=true, owned=true, paused=true)
+11-20 19:50:14.521 I/OREKI_CRUNCH_DEC( 6155): allow=true reason=eternity-window
+11-20 19:50:14.522 D/EGL_emulation( 6155): app_time_stats: avg=111.50ms min=13.84ms max=668.62ms count=12
+11-20 19:50:14.532 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:14.535 I/OpenGLRenderer( 6155): Davey! duration=805ms; Flags=0, FrameTimelineVsyncId=606990, IntendedVsync=5619148978815, Vsync=5619848978787, InputEventId=0, HandleInputStart=5619858487395, AnimationStart=5619858490699, PerformTraversalsStart=5619859077876, DrawStart=5619882189550, FrameDeadline=5619182312147, FrameInterval=5619858430381, FrameStartTime=16666666, SyncQueued=5619883726396, SyncStart=5619883752699, IssueDrawCommandsStart=5619883800129, SwapBuffers=5619909313267, FrameCompleted=5619954745273, DequeueBufferDuration=5931, QueueBufferDuration=1727339, GpuCompleted=5619954562707, SwapBuffersCompleted=5619954745273, DisplayPresentTime=0, 
+11-20 19:50:14.538 I/OREKI_CRUNCH_PROBE( 6155): heartbeat brake=false amAtCap=true maxAMlog=2830.6197262830387 ipGainLog=16.312459457444763 canBigCrunch=true autoBig{active=false,interval=3600.0,mode=1,amount=1.0e1} inf=0.0e0->0.0e0 thisInfTime=207450.0 thisInfRealTime=34.575 eternities=1.0e0 autoEt=false modOwnsCrunch=true settled=false
+11-20 19:50:14.539 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:50:14.540 I/OREKI_CRUNCH_PROBE( 6155): break-recovery-ip-ready brake=false amAtCap=false maxAMlog=25.69897000433602 ipGainLog=16.312459457444763 canBigCrunch=false autoBig{active=false,interval=3600.0,mode=1,amount=1.0e1} inf=1.0e0->1.0e0 thisInfTime=0.0 thisInfRealTime=0.0 eternities=1.0e0 autoEt=false modOwnsCrunch=true settled=true
+11-20 19:50:14.540 I/OREKI_AU4C( 6155): managed crunch fired (break-recovery ip-ready, thresholdLog10=6.0)
+11-20 19:50:14.548 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:50:14.548 I/OREKI_SCHED( 6155): noop reality
+11-20 19:50:14.549 I/OREKI_EC_AUTO( 6155): step: stage=pre-break unlocked=3
+11-20 19:50:14.556 I/OREKI_EP_RESERVE( 6155): skip-unreachable cheapestLog=40.0 epLog=29.82401961987301 reserve=none ep=6.6683689384149e29 affordable=false
+11-20 19:50:14.556 I/OREKI_BOOTSTRAP_SCALE( 6155): DILATION_TT_COST original=1.0e3 scaled=1.0e3
+11-20 19:50:14.557 I/OREKI_BOOTSTRAP_SCALE( 6155): DILATION_TT_COST original=1.0e4 scaled=1.0e4
+11-20 19:50:14.559 I/OREKI_DIL_STUDIES( 6155): WAIT id=1 req=false afford=true cost=1.0e0 tt=5.0367e4
+11-20 19:50:14.559 I/OREKI_ET_GATE( 6155): allow=false reason=not-broken broken=false canEt=false ep=6.6683689384149e29 gain=2.3e1 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=true lastCrunch=0
+11-20 19:50:14.561 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:14.561 I/OREKI_IUP_SIZE( 6155): 17
+11-20 19:50:14.562 I/OREKI_IUP_B0( 6155): 0
+11-20 19:50:14.562 I/OREKI_SCHED( 6155): act infinityUpgrades @5619994ms gap=-1 taskGap=-1
+11-20 19:50:14.562 I/OREKI_SCHED( 6155): deny frame-held task=breakShop
+11-20 19:50:14.563 I/OREKI_GOAL( 6155): stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-20 19:50:14.576 I/OREKI_CRUNCH( 6155): crunch detected inf=0.0e0->2.0e0 ip=1.3456725333333335e66 ep=6.6683689384149e29 bigE=1 t=5620007
+11-20 19:50:14.592 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.599 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.609 I/OREKI_ET_PROBE( 6155): ec unlocked=3 current=0 completions=5,5,5,0,0,0,0,0,0,0,0,0 bigE=1 ep=6.6683689384149e29
+11-20 19:50:14.609 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.610 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.612 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:14.613 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.616 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.622 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.624 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.630 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.630 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.632 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.635 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.642 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.644 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.648 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.650 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.655 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.659 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.661 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.663 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.666 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.671 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.673 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.677 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.681 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.683 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.686 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.691 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.693 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.697 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.698 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.699 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.708 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.708 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.710 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.713 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:14.715 I/OREKI_AU4C( 6155): stage-policy -> autoBig paused (auto-crunch-shortcut)
+11-20 19:50:14.716 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=true force=false
+11-20 19:50:14.719 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=false
+11-20 19:50:15.017 E/TaskPersister(  544): File error accessing recents directory (directory doesn't exist?).
+11-20 19:50:15.169 E/android.hardware.audio@7.0-impl.ranchu(  358): device/generic/goldfish/audio/stream_out.cpp:updateSourceMetadata:389 failure: Result::NOT_SUPPORTED
+11-20 19:50:15.436 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=55 frames=56 targets=9
+11-20 19:50:15.539 D/EGL_emulation( 6155): app_time_stats: avg=2.99ms min=1.09ms max=12.67ms count=62
+11-20 19:50:15.741 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:15.798 I/netd    (  352): trafficSwapActiveStatsMap() <18.43ms>
+11-20 19:50:15.802 I/netd    (  352): tetherGetStats() -> {[]} <2.89ms>
+11-20 19:50:15.805 I/netd    (  352): bandwidthSetGlobalAlert(2097152) <0.10ms>
+11-20 19:50:15.807 I/netd    (  352): bandwidthRemoveInterfaceQuota(eth0) <0.59ms>
+11-20 19:50:15.808 I/netd    (  352): bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.34ms>
+11-20 19:50:15.814 D/WifiNl80211Manager(  544): Scan result ready event
+11-20 19:50:15.814 D/WifiNative(  544): Scan result ready event
+11-20 19:50:15.918 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:16.453 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=9
+11-20 19:50:16.539 D/EGL_emulation( 6155): app_time_stats: avg=3.45ms min=2.25ms max=9.62ms count=60
+11-20 19:50:16.724 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808f0558 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:16.724 D/BufferPoolAccessor2.0( 6155): evictor expired: 1, evicted: 1
+11-20 19:50:16.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e042b28 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-20 19:50:16.725 D/BufferPoolAccessor2.0(  471): evictor expired: 1, evicted: 1
+11-20 19:50:16.901 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:16.948 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:17.469 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=9
+11-20 19:50:17.557 D/EGL_emulation( 6155): app_time_stats: avg=2.98ms min=2.29ms max=4.20ms count=61
+11-20 19:50:17.600 D/ProfileInstaller( 6155): Installing profile for com.oreki.antimatterdimensions
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808f8b78 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808f8dc8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808f68c8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808fc9e8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808f94b8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd580902d58 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808f5f88 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0( 6155): evictor expired: 7, evicted: 7
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e046be8 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e03b788 : 0(0 size) total buffers - 0(0 size) used buffers - 203/207 (recycle/alloc) - 4/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e040d18 : 0(0 size) total buffers - 0(0 size) used buffers - 205/207 (recycle/alloc) - 2/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e0411b8 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e040878 : 0(0 size) total buffers - 0(0 size) used buffers - 203/207 (recycle/alloc) - 4/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e03fa98 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e041f98 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-20 19:50:17.725 D/BufferPoolAccessor2.0(  471): evictor expired: 7, evicted: 7
+11-20 19:50:17.906 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:18.157 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:18.228 I/OfflineSimulation( 6155): v3.21.0 | unknown Android SDK built for x86_64, API 32 | away 28.9 min, simulated 28.9 min, 1733 ms of game time per tick | 1,000 ticks in 3.8 s (3.819 ms/tick avg, p50 <= 4.10, p99 <= 16.38, max 33.0 at #2, first 179.2, 7 over 10 ms), completed | events: 2 crunches, 0 eternities, 0 realities | GC 5 runs / 259 ms, alloc 106.5 KB/tick | heap 61 -> 58 MB, limit 192 MB, device RAM 1968 MB | power save off, thermal none | thread on CPU 90%, nice 0 in /top-app, core 0 at 0.00 of 0.00 GHz (fastest 0.00), compiled code 0.0 MB
+11-20 19:50:18.263 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.265 E/DynamiteModule( 6155): Invalid GmsCore APK, remote loading disabled.
+11-20 19:50:18.301 I/OREKI_ET_PROBE( 6155): MainActivity.mo=false
+11-20 19:50:18.342 D/ConnectivityService(  544): requestNetwork for uid/pid:10106/6155 activeRequest: null callbackRequest: 137 [NetworkRequest [ REQUEST id=138, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]] callback flags: 0 priority: 2147483647
+11-20 19:50:18.342 D/ConnectivityService(  544): NetReassign [138 : null → 100]
+11-20 19:50:18.343 D/WifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=138, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.343 D/UntrustedWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=138, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.343 D/OemPaidWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=138, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.348 I/atterdimension( 6155): Background young concurrent copying GC freed 445987(19MB) AllocSpace objects, 43(1264KB) LOS objects, 31% free, 41MB/60MB, paused 30us,1.714ms total 100.547ms
+11-20 19:50:18.359 D/GASS    ( 6155): Clearcut logging disabled
+11-20 19:50:18.360 I/Ads     ( 6155): This request is sent from a test device.
+11-20 19:50:18.372 W/GooglePlayServicesUtil( 6155): Google Play services is missing.
+11-20 19:50:18.372 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.376 D/na6     ( 6155): File /data/user/0/com.oreki.antimatterdimensions/cache/1782164920746.dex not found. No need for deletion
+11-20 19:50:18.383 D/ConnectivityService(  544): requestNetwork for uid/pid:10106/6155 activeRequest: null callbackRequest: 139 [NetworkRequest [ REQUEST id=140, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]] callback flags: 0 priority: 2147483647
+11-20 19:50:18.383 D/ConnectivityService(  544): NetReassign [140 : null → 100]
+11-20 19:50:18.383 D/WifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=140, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.383 D/UntrustedWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=140, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.383 D/OemPaidWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=140, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.400 D/ConnectivityService(  544): requestNetwork for uid/pid:10106/6155 activeRequest: null callbackRequest: 141 [NetworkRequest [ REQUEST id=142, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]] callback flags: 0 priority: 2147483647
+11-20 19:50:18.400 D/ConnectivityService(  544): NetReassign [142 : null → 100]
+11-20 19:50:18.401 D/WifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=142, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.401 D/UntrustedWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=142, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.401 D/OemPaidWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=142, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:18.406 E/VerityUtils(  544): Failed to measure fs-verity, errno 1: /data/app/~~-12j8uBpN5CqgebPP3doqA==/com.oreki.antimatterdimensions-CGOCjk5avccrY0x7w-QFbg==/base.apk
+11-20 19:50:18.414 I/WebViewFactory( 6155): Loading com.android.webview version 95.0.4638.74 (code 463807406)
+11-20 19:50:18.416 D/nativeloader( 6155): classloader namespace configured for unbundled product apk. library_path=/product/app/webview/lib/x86_64:/product/app/webview/webview.apk!/lib/x86_64:/product/lib64:/system/product/lib64
+11-20 19:50:18.419 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.436 D/GASS    ( 6155): Clearcut logging disabled
+11-20 19:50:18.440 W/atterdimension( 6155): Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (unsupported, reflection, allowed)
+11-20 19:50:18.442 W/atterdimension( 6155): Accessing hidden method Landroid/os/Trace;->traceBegin(JLjava/lang/String;)V (unsupported, reflection, allowed)
+11-20 19:50:18.442 W/atterdimension( 6155): Accessing hidden method Landroid/os/Trace;->traceEnd(J)V (unsupported, reflection, allowed)
+11-20 19:50:18.442 W/atterdimension( 6155): Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+11-20 19:50:18.442 W/atterdimension( 6155): Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+11-20 19:50:18.444 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.445 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.446 I/cr_WVCFactoryProvider( 6155): Loaded version=95.0.4638.74 minSdkVersion=21 isBundle=false multiprocess=true packageId=2
+11-20 19:50:18.450 I/cr_VariationsUtils( 6155): Failed reading seed file "/data/user/0/com.oreki.antimatterdimensions/app_webview/variations_seed_new"
+11-20 19:50:18.454 I/cr_LibraryLoader( 6155): Successfully loaded native library
+11-20 19:50:18.454 W/atterdimension( 6155): Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->mutex:Ljava/lang/Object; (max-target-o, reflection, denied)
+11-20 19:50:18.454 W/atterdimension( 6155): Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->c:Ljava/util/Collection; (unsupported, reflection, allowed)
+11-20 19:50:18.454 W/atterdimension( 6155): Accessing hidden method Ljava/util/Collections$SynchronizedSet;-><init>(Ljava/util/Set;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-20 19:50:18.454 W/atterdimension( 6155): Accessing hidden method Ljava/util/Collections$SynchronizedCollection;-><init>(Ljava/util/Collection;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-20 19:50:18.455 I/cr_CachingUmaRecorder( 6155): Flushed 7 samples from 7 histograms.
+11-20 19:50:18.484 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=9
+11-20 19:50:18.489 E/DynamiteModule( 6155): Invalid GmsCore APK, remote loading disabled.
+11-20 19:50:18.491 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.495 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.509 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.509 W/GoogleApiManager( 6155): The service for a27 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:18.514 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.529 W/Ads     ( 6155): Fail to fetch AdActivity theme
+11-20 19:50:18.529 I/Ads     ( 6155): Please set theme of AdActivity to @android:style/Theme.Translucent to enable transparent background interstitial ad.
+11-20 19:50:18.572 D/EGL_emulation( 6155): app_time_stats: avg=3.62ms min=2.30ms max=29.36ms count=61
+11-20 19:50:18.595 W/GooglePlayServicesUtil( 6155): Google Play services is missing.
+11-20 19:50:18.606 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.612 E/DynamiteModule( 6155): Invalid GmsCore APK, remote loading disabled.
+11-20 19:50:18.614 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:18.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd580901ad8 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:18.725 D/BufferPoolAccessor2.0( 6155): bufferpool2 0x7bd5808ffa78 : 0(0 size) total buffers - 0(0 size) used buffers - 0/5 (recycle/alloc) - 4/412 (fetch/transfer)
+11-20 19:50:18.725 D/BufferPoolAccessor2.0( 6155): evictor expired: 2, evicted: 2
+11-20 19:50:18.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e03f158 : 0(0 size) total buffers - 0(0 size) used buffers - 203/207 (recycle/alloc) - 4/207 (fetch/transfer)
+11-20 19:50:18.725 D/BufferPoolAccessor2.0(  471): bufferpool2 0x72ce2e039e18 : 0(0 size) total buffers - 0(0 size) used buffers - 202/207 (recycle/alloc) - 5/207 (fetch/transfer)
+11-20 19:50:18.725 D/BufferPoolAccessor2.0(  471): evictor expired: 2, evicted: 2
+11-20 19:50:19.363 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:19.408 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:19.409 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:19.409 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=10 used=0
+11-20 19:50:19.410 I/OREKI_GATE( 6155): GATE brake=false g=true c=false b=true mult=3000.0 rt=4404979.000000015
+11-20 19:50:19.501 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:19.564 I/OREKI_ET_GATE( 6155): allow=false reason=not-broken broken=false canEt=false ep=6.6683689384149e29 gain=1.145e3 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:19.573 D/EGL_emulation( 6155): app_time_stats: avg=2.74ms min=2.35ms max=4.08ms count=60
+11-20 19:50:19.589 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:20.519 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:20.570 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:20.574 D/EGL_emulation( 6155): app_time_stats: avg=2.98ms min=2.30ms max=7.39ms count=60
+11-20 19:50:20.630 I/cr_VariationsUtils( 6155): Loaded seed with age 5345s
+11-20 19:50:20.632 D/CompatibilityChangeReporter(  544): Compat change id reported: 135634846; UID 10106; state: DISABLED
+11-20 19:50:20.633 D/CompatibilityChangeReporter(  544): Compat change id reported: 143937733; UID 10106; state: ENABLED
+11-20 19:50:20.642 D/Zygote  (  838): Forked child process 6349
+11-20 19:50:20.643 I/ActivityManager(  544): Start proc 6349:com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0i10 for  {com.oreki.antimatterdimensions/org.chromium.content.app.SandboxedProcessService0:0}
+11-20 19:50:20.647 W/ocessService0:( 6349): Unexpected CPU variant for X86 using defaults: x86_64
+11-20 19:50:20.650 I/adbd    ( 2151): jdwp connection from 6349
+11-20 19:50:20.658 D/CompatibilityChangeReporter( 6349): Compat change id reported: 171979766; UID 99010; state: ENABLED
+11-20 19:50:20.661 D/NetworkSecurityConfig( 6349): No Network Security Config specified, using platform default
+11-20 19:50:20.662 D/NetworkSecurityConfig( 6349): No Network Security Config specified, using platform default
+11-20 19:50:20.663 I/cr_WebViewApkApp( 6349): Launched version=95.0.4638.74 minSdkVersion=21 isBundle=false processName=com.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+11-20 19:50:20.663 I/cr_ChildProcessService( 6349): Creating new ChildProcessService pid=6349
+11-20 19:50:20.664 E/chromium( 6155): [ERROR:network_service_instance_impl.cc(179)] Failed to grant sandbox access to network context data for /data/user/0/com.oreki.antimatterdimensions/app_webview/Default with result 7: No such file or directory (2)
+11-20 19:50:20.665 E/SELinux (  193): avc:  denied  { find } for pid=6349 uid=99010 name=content_capture scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:object_r:content_capture_service:s0 tclass=service_manager permissive=0
+11-20 19:50:20.677 D/ConnectivityService(  544): requestNetwork for uid/pid:10106/6155 activeRequest: null callbackRequest: 143 [NetworkRequest [ REQUEST id=144, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]] callback flags: 0 priority: 2147483647
+11-20 19:50:20.677 D/ConnectivityService(  544): NetReassign [144 : null → 100]
+11-20 19:50:20.677 D/WifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=144, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:20.677 D/UntrustedWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=144, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:20.677 D/OemPaidWifiNetworkFactory(  544): got request NetworkRequest [ REQUEST id=144, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10106 RequestorUid: 10106 RequestorPkg: com.oreki.antimatterdimensions] ]
+11-20 19:50:20.681 D/ConnectivityService(  544): NetReassign [no changes]
+11-20 19:50:20.699 W/atterdimension( 6155): Accessing hidden method Landroid/media/AudioManager;->getOutputLatency(I)I (unsupported, reflection, allowed)
+11-20 19:50:20.702 W/cr_media( 6155): Requires BLUETOOTH permission
+11-20 19:50:20.703 D/HostConnection( 6155): HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_vulkan_queue_submit_with_commands ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_multi_configs ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-20 19:50:20.709 D/EGL_emulation( 6155): eglCreateContext: 0x7bd530b44e10: maj 3 min 0 rcv 3
+11-20 19:50:20.710 D/EGL_emulation( 6155): eglMakeCurrent: 0x7bd530b44e10: ver 3 0 (tinfo 0x7bd756393180) (first time)
+11-20 19:50:20.728 D/EGL_emulation( 6155): eglCreateContext: 0x7bd530b44e10: maj 3 min 0 rcv 3
+11-20 19:50:20.748 I/cr_LibraryLoader( 6349): Successfully loaded native library
+11-20 19:50:20.748 W/ocessService0:( 6349): Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->mutex:Ljava/lang/Object; (max-target-o, reflection, denied)
+11-20 19:50:20.748 W/ocessService0:( 6349): Accessing hidden method Ljava/util/Collections$SynchronizedSet;-><init>(Ljava/util/Set;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-20 19:50:20.748 W/ocessService0:( 6349): Accessing hidden method Ljava/util/Collections$SynchronizedCollection;-><init>(Ljava/util/Collection;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-20 19:50:20.749 I/cr_CachingUmaRecorder( 6349): Flushed 2 samples from 2 histograms.
+11-20 19:50:20.755 W/SystemServiceRegistry( 6349): No service published for: uimode
+11-20 19:50:20.789 D/EGL_emulation( 6155): eglCreateContext: 0x7bd530b511d0: maj 3 min 0 rcv 3
+11-20 19:50:20.929 I/Ads     ( 6155): JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02:1110)
+11-20 19:50:20.929 I/chromium( 6155): [INFO:CONSOLE(1110)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/production/sdk-core-v40-impl.js?n=true&lv=sdk_20190107_RC02 (1110)
+11-20 19:50:20.964 I/Ads     ( 6155): SDK version: afma-sdk-a-v263305000.263305000.0
+11-20 19:50:20.965 I/Ads     ( 6155): HTTP timeout: 60000 milliseconds.
+11-20 19:50:20.968 D/resolv  (  352): GetAddrInfoHandler::run: {100 100 100 983140 10106 0}
+11-20 19:50:20.969 D/resolv  (  352): resolv_getaddrinfo: explore_fqdn(): ai_family=0 ai_socktype=1 ai_protocol=6
+11-20 19:50:20.969 D/resolv  (  352): doQuery: (1, 28)
+11-20 19:50:20.969 D/resolv  (  352): res_nmkquery: (QUERY, IN, AAAA)
+11-20 19:50:20.969 D/resolv  (  352): res_nsend
+11-20 19:50:20.969 I/resolv  (  352): resolv_cache_lookup: lookup
+11-20 19:50:20.969 I/resolv  (  352): resolv_cache_lookup: NOT IN CACHE
+11-20 19:50:20.969 I/resolv  (  352): resolv_populate_res_for_net: netid=100
+11-20 19:50:20.969 I/resolv  (  352): res_stats_usable_server: NS stats: S 64 + E 0 + T 0 + I 0 = 64, rtt = 1, min_samples = 8
+11-20 19:50:20.969 I/resolv  (  352): res_stats_usable_server: success rate 100
+11-20 19:50:20.969 I/resolv  (  352): res_stats_usable_server: NS stats: S 0 + E 0 + T 0 + I 0 = 0, rtt = -1, min_samples = 8
+11-20 19:50:20.969 D/resolv  (  352): res_nsend: Querying server (# 1) address = [fec0::3]:53
+11-20 19:50:20.969 D/resolv  (  352): send_dg: new DG socket
+11-20 19:50:20.971 I/resolv  (  352): get_timeout: using timeout of 5000 msec
+11-20 19:50:20.971 I/resolv  (  352): retrying_poll: 56 retrying_poll
+11-20 19:50:20.972 D/resolv  (  352): doQuery: (1, 1)
+11-20 19:50:20.972 D/resolv  (  352): res_nmkquery: (QUERY, IN, A)
+11-20 19:50:20.972 D/resolv  (  352): res_nsend
+11-20 19:50:20.972 I/resolv  (  352): resolv_cache_lookup: lookup
+11-20 19:50:20.972 I/resolv  (  352): resolv_cache_lookup: NOT IN CACHE (STALE ENTRY 0x70e4ef149a50DISCARDED)
+11-20 19:50:20.972 I/resolv  (  352): _cache_remove_p: entry 52 removed (count=15)
+11-20 19:50:20.972 I/resolv  (  352): resolv_populate_res_for_net: netid=100
+11-20 19:50:20.973 I/resolv  (  352): retrying_poll: 56 retrying_poll returning 1
+11-20 19:50:20.973 I/resolv  (  352): res_nsend: used send_dg 45 terrno: 0
+11-20 19:50:20.974 I/resolv  (  352): res_stats_set_sample: rcode = 0, sec = 2
+11-20 19:50:20.974 I/resolv  (  352): res_cache_add_stats_sample_locked: adding sample to stats, next = 34, count = 64
+11-20 19:50:20.974 D/resolv  (  352): res_nsend: got answer:
+11-20 19:50:20.974 I/resolv  (  352): answer_getTTL: TTL = 0
+11-20 19:50:20.974 I/resolv  (  352): cache_dump_mru_locked: MRU LIST (15):  53 50 43 41 40 39 37 36 32 9 7 6 4 2 1
+11-20 19:50:20.974 D/resolv  (  352): doQuery: rcode=0, ancount=0
+11-20 19:50:20.974 I/resolv  (  352): res_stats_usable_server: NS stats: S 64 + E 0 + T 0 + I 0 = 64, rtt = 1, min_samples = 8
+11-20 19:50:20.974 I/resolv  (  352): res_stats_usable_server: success rate 100
+11-20 19:50:20.974 I/resolv  (  352): res_stats_usable_server: NS stats: S 0 + E 0 + T 0 + I 0 = 0, rtt = -1, min_samples = 8
+11-20 19:50:20.974 D/resolv  (  352): res_nsend: Querying server (# 1) address = [fec0::3]:53
+11-20 19:50:20.975 D/resolv  (  352): send_dg: new DG socket
+11-20 19:50:20.975 I/resolv  (  352): get_timeout: using timeout of 5000 msec
+11-20 19:50:20.975 I/resolv  (  352): retrying_poll: 56 retrying_poll
+11-20 19:50:20.976 I/resolv  (  352): retrying_poll: 56 retrying_poll returning 1
+11-20 19:50:20.976 I/resolv  (  352): res_nsend: used send_dg 61 terrno: 0
+11-20 19:50:20.976 I/resolv  (  352): res_stats_set_sample: rcode = 0, sec = 1
+11-20 19:50:20.976 I/resolv  (  352): res_cache_add_stats_sample_locked: adding sample to stats, next = 35, count = 64
+11-20 19:50:20.976 D/resolv  (  352): res_nsend: got answer:
+11-20 19:50:20.976 I/resolv  (  352): answer_getTTL: TTL = 1
+11-20 19:50:20.976 I/resolv  (  352): _cache_add_p: entry 54 added (count=16)
+11-20 19:50:20.976 I/resolv  (  352): cache_dump_mru_locked: MRU LIST (16):  54 53 50 43 41 40 39 37 36 32 9 7 6 4 2 1
+11-20 19:50:20.976 D/resolv  (  352): doQuery: rcode=0, ancount=1
+11-20 19:50:20.976 I/ResolverController(  352): No valid NAT64 prefix (100, <unspecified>/0)
+11-20 19:50:21.239 W/GooglePlayServicesUtil( 6155): com.oreki.antimatterdimensions requires the Google Play Store, but it is missing.
+11-20 19:50:21.239 W/GoogleApiManager( 6155): The service for rv8 is not available: vg0{statusCode=SERVICE_INVALID, resolution=null, message=null, clientMethodKey=null}
+11-20 19:50:21.534 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=57 frames=58 targets=8
+11-20 19:50:21.589 D/EGL_emulation( 6155): app_time_stats: avg=4.17ms min=2.30ms max=56.11ms count=58
+11-20 19:50:21.777 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:22.323 W/GooglePlayServicesUtil( 6155): Google Play services is missing.
+11-20 19:50:22.332 D/EGL_emulation( 6155): eglCreateContext: 0x7bd530b23bd0: maj 3 min 0 rcv 3
+11-20 19:50:22.363 D/EGL_emulation( 6155): eglCreateContext: 0x7bd530b23210: maj 3 min 0 rcv 3
+11-20 19:50:22.516 D/resolv  (  352): GetAddrInfoHandler::run: {100 100 100 983140 10106 0}
+11-20 19:50:22.521 D/resolv  (  352): resolv_getaddrinfo: explore_fqdn(): ai_family=0 ai_socktype=1 ai_protocol=6
+11-20 19:50:22.522 D/resolv  (  352): doQuery: (1, 28)
+11-20 19:50:22.522 D/resolv  (  352): res_nmkquery: (QUERY, IN, AAAA)
+11-20 19:50:22.522 D/resolv  (  352): res_nsend
+11-20 19:50:22.522 I/resolv  (  352): resolv_cache_lookup: lookup
+11-20 19:50:22.522 I/resolv  (  352): resolv_cache_lookup: NOT IN CACHE
+11-20 19:50:22.522 I/resolv  (  352): resolv_populate_res_for_net: netid=100
+11-20 19:50:22.522 I/resolv  (  352): res_stats_usable_server: NS stats: S 64 + E 0 + T 0 + I 0 = 64, rtt = 1, min_samples = 8
+11-20 19:50:22.522 I/resolv  (  352): res_stats_usable_server: success rate 100
+11-20 19:50:22.522 I/resolv  (  352): res_stats_usable_server: NS stats: S 0 + E 0 + T 0 + I 0 = 0, rtt = -1, min_samples = 8
+11-20 19:50:22.522 D/resolv  (  352): res_nsend: Querying server (# 1) address = [fec0::3]:53
+11-20 19:50:22.522 D/resolv  (  352): send_dg: new DG socket
+11-20 19:50:22.522 I/resolv  (  352): get_timeout: using timeout of 5000 msec
+11-20 19:50:22.522 I/resolv  (  352): retrying_poll: 56 retrying_poll
+11-20 19:50:22.522 D/resolv  (  352): doQuery: (1, 1)
+11-20 19:50:22.522 D/resolv  (  352): res_nmkquery: (QUERY, IN, A)
+11-20 19:50:22.522 D/resolv  (  352): res_nsend
+11-20 19:50:22.522 I/resolv  (  352): resolv_cache_lookup: lookup
+11-20 19:50:22.522 I/resolv  (  352): resolv_cache_lookup: NOT IN CACHE (STALE ENTRY 0x70e4ef14aa10DISCARDED)
+11-20 19:50:22.522 I/resolv  (  352): _cache_remove_p: entry 53 removed (count=15)
+11-20 19:50:22.522 I/resolv  (  352): resolv_populate_res_for_net: netid=100
+11-20 19:50:22.524 I/resolv  (  352): retrying_poll: 56 retrying_poll returning 1
+11-20 19:50:22.524 I/resolv  (  352): res_nsend: used send_dg 47 terrno: 0
+11-20 19:50:22.524 I/resolv  (  352): res_stats_set_sample: rcode = 0, sec = 2
+11-20 19:50:22.524 I/resolv  (  352): res_cache_add_stats_sample_locked: adding sample to stats, next = 36, count = 64
+11-20 19:50:22.524 D/resolv  (  352): res_nsend: got answer:
+11-20 19:50:22.524 I/resolv  (  352): answer_getTTL: TTL = 0
+11-20 19:50:22.524 I/resolv  (  352): cache_dump_mru_locked: MRU LIST (15):  54 50 43 41 40 39 37 36 32 9 7 6 4 2 1
+11-20 19:50:22.524 D/resolv  (  352): doQuery: rcode=0, ancount=0
+11-20 19:50:22.524 I/resolv  (  352): res_stats_usable_server: NS stats: S 64 + E 0 + T 0 + I 0 = 64, rtt = 1, min_samples = 8
+11-20 19:50:22.524 I/resolv  (  352): res_stats_usable_server: success rate 100
+11-20 19:50:22.524 I/resolv  (  352): res_stats_usable_server: NS stats: S 0 + E 0 + T 0 + I 0 = 0, rtt = -1, min_samples = 8
+11-20 19:50:22.524 D/resolv  (  352): res_nsend: Querying server (# 1) address = [fec0::3]:53
+11-20 19:50:22.525 D/resolv  (  352): send_dg: new DG socket
+11-20 19:50:22.525 I/resolv  (  352): get_timeout: using timeout of 5000 msec
+11-20 19:50:22.525 I/resolv  (  352): retrying_poll: 56 retrying_poll
+11-20 19:50:22.525 I/resolv  (  352): retrying_poll: 56 retrying_poll returning 1
+11-20 19:50:22.525 I/resolv  (  352): res_nsend: used send_dg 63 terrno: 0
+11-20 19:50:22.525 I/resolv  (  352): res_stats_set_sample: rcode = 0, sec = 0
+11-20 19:50:22.525 I/resolv  (  352): res_cache_add_stats_sample_locked: adding sample to stats, next = 37, count = 64
+11-20 19:50:22.525 D/resolv  (  352): res_nsend: got answer:
+11-20 19:50:22.525 I/resolv  (  352): answer_getTTL: TTL = 1
+11-20 19:50:22.525 I/resolv  (  352): _cache_add_p: entry 55 added (count=16)
+11-20 19:50:22.525 I/resolv  (  352): cache_dump_mru_locked: MRU LIST (16):  55 54 50 43 41 40 39 37 36 32 9 7 6 4 2 1
+11-20 19:50:22.525 D/resolv  (  352): doQuery: rcode=0, ancount=1
+11-20 19:50:22.528 I/ResolverController(  352): No valid NAT64 prefix (100, <unspecified>/0)
+11-20 19:50:22.550 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=48 frames=49 targets=8
+11-20 19:50:22.562 I/Ads     ( 6155): JS: The jsLoaded GMSG has been sent (https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html:1117)
+11-20 19:50:22.562 I/chromium( 6155): [INFO:CONSOLE(1117)] "The jsLoaded GMSG has been sent", source: https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-v40.html (1117)
+11-20 19:50:22.594 D/EGL_emulation( 6155): app_time_stats: avg=12.35ms min=2.33ms max=196.68ms count=48
+11-20 19:50:22.986 I/OREKI_NAV_REFRESH( 6155): NAV_REFRESH_APPLIED
+11-20 19:50:23.388 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:23.569 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:23.604 D/EGL_emulation( 6155): app_time_stats: avg=16.53ms min=10.54ms max=18.61ms count=61
+11-20 19:50:24.386 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:24.410 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:24.411 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:24.411 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:24.411 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:24.411 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=10 used=0
+11-20 19:50:24.411 I/OREKI_GATE( 6155): GATE brake=false g=true c=false b=true mult=3000.0 rt=4410002.000000015
+11-20 19:50:24.433 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:24.456 I/OREKI_SCHED( 6155): gui-tick #2 gapMs=10000
+11-20 19:50:24.457 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:50:24.457 I/OREKI_AUTO_BEAT( 6155): gui-tick #2 gapMs=10000
+11-20 19:50:24.459 I/EDP_FRAME( 6155): frame=1242 stage=pre-break break=false canEt=false ep=6.6683689384149e29 gainEP=1.145e3 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=0.0 gal=0 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:50:24.460 I/OREKI_AU4C( 6155): managed[tickspeed.mode] tick=2 100 -> 1
+11-20 19:50:24.461 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:50:24.487 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:24.539 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:24.584 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:24.587 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:50:24.589 I/OREKI_ET_GATE( 6155): allow=false reason=not-broken broken=false canEt=false ep=6.6683689384149e29 gain=1.145e3 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:24.590 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:24.590 I/OREKI_SCHED( 6155): act infinityUpgrades @5630022ms gap=10028 taskGap=10028
+11-20 19:50:24.590 I/OREKI_SCHED( 6155): deny frame-held task=breakShop
+11-20 19:50:24.621 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.83ms max=18.55ms count=61
+11-20 19:50:24.639 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:24.690 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:25.600 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:25.623 D/EGL_emulation( 6155): app_time_stats: avg=16.68ms min=15.05ms max=18.46ms count=60
+11-20 19:50:26.617 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:26.638 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=14.39ms max=19.45ms count=61
+11-20 19:50:27.634 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:27.654 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.01ms max=18.90ms count=61
+11-20 19:50:28.651 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:28.655 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=13.84ms max=19.98ms count=60
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:29.412 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:29.413 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:29.413 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:29.413 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:29.413 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=10 used=0
+11-20 19:50:29.413 I/OREKI_GATE( 6155): GATE brake=false g=true c=false b=true mult=3000.0 rt=4414982.000000015
+11-20 19:50:29.593 I/OREKI_ET_GATE( 6155): allow=false reason=not-broken broken=false canEt=false ep=6.6683689384149e29 gain=1.145e3 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:29.667 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:29.671 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=10.47ms max=22.54ms count=61
+11-20 19:50:29.798 I/OREKI_REALITY_PACING( 6155): hold=none
+--------- beginning of kernel
+11-20 19:50:30.781 I/logd    (    0): logdr: UID=0 GID=0 PID=6408 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-20 19:50:30.686 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:30.690 D/EGL_emulation( 6155): app_time_stats: avg=16.68ms min=14.68ms max=18.88ms count=61
+11-20 19:50:31.040 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:31.701 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:31.705 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=14.77ms max=18.95ms count=61
+11-20 19:50:32.705 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.65ms max=18.98ms count=60
+11-20 19:50:32.717 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:33.706 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=14.60ms max=18.91ms count=60
+11-20 19:50:33.736 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:34.414 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:34.414 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:34.414 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:34.414 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:34.414 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:34.414 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:34.415 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:34.415 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:34.415 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:34.415 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:34.415 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=10 used=0
+11-20 19:50:34.415 I/OREKI_GATE( 6155): GATE brake=false g=true c=false b=true mult=3000.0 rt=4419984.000000015
+11-20 19:50:34.419 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:34.466 I/OREKI_SCHED( 6155): gui-tick #3 gapMs=10000
+11-20 19:50:34.466 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:50:34.466 I/OREKI_AUTO_BEAT( 6155): gui-tick #3 gapMs=10000
+11-20 19:50:34.470 I/EDP_FRAME( 6155): frame=1634 stage=pre-break break=false canEt=false ep=6.6683689384149e29 gainEP=1.145e3 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=0.0 gal=0 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:50:34.470 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:50:34.475 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:34.521 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:34.572 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:34.593 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:50:34.594 I/OREKI_ET_GATE( 6155): allow=false reason=not-broken broken=false canEt=false ep=6.6683689384149e29 gain=1.145e3 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:34.594 I/OREKI_SCHED( 6155): deny noop-retry-wait task=breakUpgrades
+11-20 19:50:34.594 I/OREKI_SCHED( 6155): act infinityUpgrades @5640026ms gap=10004 taskGap=10004
+11-20 19:50:34.621 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:34.722 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=13.83ms max=18.49ms count=61
+11-20 19:50:34.753 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:34.900 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:35.738 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.49ms max=18.66ms count=61
+11-20 19:50:35.769 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:36.755 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.92ms max=18.53ms count=61
+11-20 19:50:36.784 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:37.756 D/EGL_emulation( 6155): app_time_stats: avg=16.68ms min=13.76ms max=19.65ms count=60
+11-20 19:50:37.800 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:38.697 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:38.772 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.88ms max=18.33ms count=61
+11-20 19:50:38.817 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:39.417 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:39.419 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:39.420 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:39.420 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:39.420 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:39.420 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:39.421 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:39.421 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:39.421 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:39.421 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:39.422 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=10 used=0
+11-20 19:50:39.422 I/OREKI_GATE( 6155): GATE brake=false g=true c=false b=true mult=3000.0 rt=4424987.000000015
+11-20 19:50:39.597 I/OREKI_ET_GATE( 6155): allow=false reason=not-broken broken=false canEt=false ep=6.6683689384149e29 gain=1.145e3 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:39.773 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.81ms max=18.87ms count=60
+11-20 19:50:39.834 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:40.008 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:40.788 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.66ms max=17.96ms count=61
+11-20 19:50:40.850 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:41.806 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.47ms max=18.25ms count=61
+11-20 19:50:41.867 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:42.821 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=14.35ms max=19.51ms count=61
+11-20 19:50:42.884 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:43.822 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=14.92ms max=18.61ms count=60
+11-20 19:50:43.901 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:44.421 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:44.422 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:44.422 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=10 used=0
+11-20 19:50:44.423 I/OREKI_GATE( 6155): GATE brake=false g=true c=false b=true mult=3000.0 rt=4429991.000000015
+11-20 19:50:44.423 I/OREKI_EC_DIAG( 6155): unlocked=3 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-20 19:50:44.425 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:44.471 I/OREKI_SCHED( 6155): gui-tick #4 gapMs=10000
+11-20 19:50:44.472 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:50:44.472 I/OREKI_AUTO_BEAT( 6155): gui-tick #4 gapMs=10000
+11-20 19:50:44.473 I/EDP_FRAME( 6155): frame=2026 stage=pre-break break=false canEt=false ep=6.6683689384149e29 gainEP=1.145e3 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=0.0 gal=0 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:50:44.474 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:50:44.475 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:44.476 I/OREKI_TABGATE( 6155): tab=breakInfinity allowed=true eternityUnlocked=true
+11-20 19:50:44.524 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:44.548 I/OREKI_CRUNCH_PROBE( 6155): heartbeat brake=false amAtCap=true maxAMlog=3985.7034267623985 ipGainLog=43.69314391924016 canBigCrunch=true autoBig{active=false,interval=3600.0,mode=1,amount=1.0e1} inf=1.3e1->1.3e1 thisInfTime=1.0433478768000001E7 thisInfRealTime=1738.9131280000017 eternities=1.0e0 autoEt=false modOwnsCrunch=true settled=false
+11-20 19:50:44.575 I/OREKI_EP_RESERVE( 6155): skip-unreachable cheapestLog=40.0 epLog=29.82401961987301 reserve=none ep=6.6683689384149e29 affordable=false
+11-20 19:50:44.576 I/OREKI_DIL_STUDIES( 6155): WAIT id=1 req=false afford=true cost=1.0e0 tt=5.0367e4
+11-20 19:50:44.576 I/OREKI_SCHED( 6155): force-retry breakUpgrades after 2 noop-waits
+11-20 19:50:44.576 I/OREKI_BRKTRACE2( 6155): x0-before brake=0
+11-20 19:50:44.576 I/OREKI_BRKTRACE2( 6155): x0-after brake=1
+11-20 19:50:44.577 I/OREKI_BRK2( 6155): Player.x0(true) + autobuyer.a.c()
+11-20 19:50:44.577 I/OREKI_SCHED( 6155): act breakUpgrades @5650008ms gap=9982 taskGap=-1
+11-20 19:50:44.599 I/OREKI_SCHED( 6155): deny interval task=reality
+11-20 19:50:44.602 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=1.18341e5 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:44.757 I/OREKI_GOAL( 6155): stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-20 19:50:44.839 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.44ms max=18.03ms count=61
+11-20 19:50:44.919 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:45.109 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:45.688 W/healthd (    0): battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-20 19:50:45.855 D/EGL_emulation( 6155): app_time_stats: avg=16.62ms min=14.67ms max=19.02ms count=61
+11-20 19:50:45.934 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:46.363 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:46.855 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.10ms max=18.31ms count=60
+11-20 19:50:46.951 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:47.855 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.97ms max=18.99ms count=60
+11-20 19:50:47.967 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:48.871 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=15.30ms max=18.62ms count=61
+11-20 19:50:48.984 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:49.428 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:49.428 W/OREKI_ACHAUDIT( 6155): MISMATCH id=36
+11-20 19:50:49.428 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:49.429 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:49.430 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:49.430 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:49.430 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:49.430 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=13 used=0
+11-20 19:50:49.430 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4434998.000000015
+11-20 19:50:49.610 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=2.53989161e8 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:49.872 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=15.33ms max=18.65ms count=60
+11-20 19:50:50.002 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:50.225 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:50.872 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=13.45ms max=20.05ms count=60
+11-20 19:50:51.017 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:51.873 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=15.06ms max=18.54ms count=60
+11-20 19:50:52.034 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:52.370 W/atterdimension( 6155): Checksum mismatch for dex base.apk
+11-20 19:50:52.371 W/atterdimension( 6155): Could not add methods to the existing profiler. Clearing the profile data.
+11-20 19:50:52.888 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=14.69ms max=18.21ms count=61
+11-20 19:50:53.050 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:53.904 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.22ms max=18.28ms count=61
+11-20 19:50:54.019 I/OREKI_CRUNCH( 6155): 9
+11-20 19:50:54.067 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:54.449 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:54.450 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:54.450 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:54.450 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:54.450 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:50:54.450 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4440019.000000015
+11-20 19:50:54.475 I/OREKI_SCHED( 6155): gui-tick #5 gapMs=10000
+11-20 19:50:54.475 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:50:54.475 I/OREKI_AUTO_BEAT( 6155): gui-tick #5 gapMs=10000
+11-20 19:50:54.477 I/EDP_FRAME( 6155): frame=2418 stage=break break=true canEt=false ep=6.6683689384149e29 gainEP=2.93102159e8 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=21.0 gal=2 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:50:54.479 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:50:54.580 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:50:54.580 I/OREKI_SCHED( 6155): noop reality
+11-20 19:50:54.580 I/OREKI_TABGATE( 6155): tab=timeStudies allowed=true eternityUnlocked=true
+11-20 19:50:54.580 I/OREKI_EC_AUTO( 6155): step: RESPEC maxed id=3 comps=5/5 ret=true unlockedAfter=0 tt=5.05e4
+11-20 19:50:54.580 I/OREKI_SCHED( 6155): act ec @5660012ms gap=10004 taskGap=-1
+11-20 19:50:54.606 I/OREKI_SCHED( 6155): deny noop-retry-wait task=reality
+11-20 19:50:54.630 I/OREKI_ET_PROBE( 6155): ec unlocked=0 current=0 completions=5,5,5,0,0,0,0,0,0,0,0,0 bigE=1 ep=6.6683689384149e29
+11-20 19:50:54.631 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:54.905 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.52ms max=18.51ms count=60
+11-20 19:50:55.084 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:55.317 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:50:55.905 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.51ms max=18.44ms count=60
+11-20 19:50:56.100 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:56.476 E/android.hardware.power.stats@1.0-service-mock(  379): Failed to getEnergyData
+11-20 19:50:56.921 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.22ms max=18.22ms count=61
+11-20 19:50:57.118 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:57.938 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.33ms max=18.99ms count=61
+11-20 19:50:58.134 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:58.938 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=15.54ms max=18.78ms count=60
+11-20 19:50:59.151 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:50:59.464 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:50:59.465 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:50:59.465 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:50:59.465 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:50:59.465 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:50:59.465 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:50:59.465 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4445034.000000015
+11-20 19:50:59.643 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:50:59.955 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.43ms max=18.44ms count=61
+11-20 19:51:00.025 D/EGL_emulation(  760): app_time_stats: avg=60003.63ms min=60003.63ms max=60003.63ms count=1
+11-20 19:51:00.167 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:00.407 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:00.956 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=14.13ms max=18.71ms count=60
+11-20 19:51:01.184 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:01.655 I/OREKI_CRUNCH( 6155): 9
+11-20 19:51:01.972 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.94ms max=18.30ms count=61
+11-20 19:51:02.200 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:02.602 D/EGL_emulation(  760): app_time_stats: avg=2576.62ms min=2576.62ms max=2576.62ms count=1
+11-20 19:51:02.972 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.37ms max=18.48ms count=60
+11-20 19:51:03.217 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:03.988 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.93ms max=19.16ms count=61
+11-20 19:51:04.234 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:04.466 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:04.467 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:04.467 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:04.467 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:04.467 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:04.469 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4450036.000000015
+11-20 19:51:04.490 I/OREKI_SCHED( 6155): gui-tick #6 gapMs=10000
+11-20 19:51:04.491 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:51:04.491 I/OREKI_AUTO_BEAT( 6155): gui-tick #6 gapMs=10000
+11-20 19:51:04.492 I/EDP_FRAME( 6155): frame=2811 stage=break break=true canEt=false ep=6.6683689384149e29 gainEP=8.893191e6 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=20.0 gal=3 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:51:04.494 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:51:04.593 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:51:04.594 I/OREKI_EC_AUTO( 6155): step: TRYBUY id=143 b=false a=false D=false tt=5.05e4 unlocked=0
+11-20 19:51:04.594 I/OREKI_EC_DIAG2( 6155): ECSTUDY target=4 unlocked=0 current=0 comps=0 max=5 A0=false A1=false z=true B=false prereqOk=false tail=true globalBlocked=false k=[143] price=7.0e1
+11-20 19:51:04.596 I/OREKI_EC_DIAG2( 6155): ECS 1=5/5M 2=5/5M 3=5/5M 4=0/5 5=0/5 6=0/5 7=0/5 8=0/5 9=0/5 10=0/5 11=0/5 12=0/5 boughtGlobal=false tree=c=0,b=1
+11-20 19:51:04.596 I/OREKI_EC_DIAG2( 6155): TS id=143 depth=0 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=5 K=false r=true price=4.0e0 k=[133]
+11-20 19:51:04.597 I/OREKI_EC_DIAG2( 6155): TS id=133 depth=1 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=5 K=false r=true price=5.0e0 k=[123]
+11-20 19:51:04.597 I/OREKI_EC_DIAG2( 6155): TS id=123 depth=2 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=5 K=false r=true price=9.0e0 k=[111]
+11-20 19:51:04.597 I/OREKI_EC_DIAG2( 6155): TS id=111 depth=3 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=-1 K=false r=true price=1.2e1 k=[101, 102, 103]
+11-20 19:51:04.597 I/OREKI_EC_AUTO( 6155): tsDump L0 v63 :: l/0fm1
+11-20 19:51:04.597 I/OREKI_EC_AUTO( 6155): tsDump L1 c :: A/1boolean,B/0boolean,C/2void,D/2Boolean,E/1void,F/0boolean,G/0boolean,I/0List,J/0int,K/0boolean,L/0boolean,M/0boolean,N/1Object,m/0String,s/0SpannableStringBuilder,v/0String
+11-20 19:51:04.597 I/OREKI_EC_AUTO( 6155): tsDump L2 qu4 :: C/2void,y/0iq0
+11-20 19:51:04.597 I/OREKI_EC_AUTO( 6155): tsDump L3 na4 :: B/0boolean,E/1void,I/0List
+11-20 19:51:04.599 I/OREKI_SCHED( 6155): act ec @5670030ms gap=10018 taskGap=10018
+11-20 19:51:04.621 I/OREKI_SCHED( 6155): deny noop-retry-wait task=reality
+11-20 19:51:04.647 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:05.004 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=15.16ms max=18.61ms count=61
+11-20 19:51:05.253 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:05.508 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:06.005 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=15.12ms max=18.46ms count=60
+11-20 19:51:06.267 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:07.022 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.71ms max=18.34ms count=61
+11-20 19:51:07.284 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:08.022 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.87ms max=18.52ms count=60
+11-20 19:51:08.300 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:09.040 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.13ms max=19.63ms count=61
+11-20 19:51:09.292 I/OREKI_CRUNCH( 6155): 9
+11-20 19:51:09.317 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:09.467 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:09.467 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:09.469 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:09.469 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:09.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:09.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:09.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:09.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:09.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:09.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:09.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:09.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:09.472 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:09.472 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4455037.000000015
+11-20 19:51:09.673 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:10.055 D/EGL_emulation( 6155): app_time_stats: avg=16.62ms min=14.77ms max=18.88ms count=61
+11-20 19:51:10.334 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:10.588 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:11.071 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=13.81ms max=19.08ms count=61
+11-20 19:51:11.350 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:11.732 W/FA      ( 6155): Tasks have been queued for a long time
+11-20 19:51:12.072 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=15.09ms max=18.68ms count=60
+11-20 19:51:12.367 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:13.088 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.96ms max=18.73ms count=61
+11-20 19:51:13.386 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:14.104 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.07ms max=19.70ms count=61
+11-20 19:51:14.402 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:14.443 I/OREKI_EC_DIAG( 6155): unlocked=0 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-20 19:51:14.469 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:14.469 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:14.469 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:14.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:14.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:14.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:14.471 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:14.471 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4460039.000000015
+11-20 19:51:14.494 I/OREKI_SCHED( 6155): gui-tick #7 gapMs=10000
+11-20 19:51:14.495 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:51:14.496 I/OREKI_AUTO_BEAT( 6155): gui-tick #7 gapMs=10000
+11-20 19:51:14.497 I/EDP_FRAME( 6155): frame=3204 stage=break break=true canEt=false ep=6.6683689384149e29 gainEP=8.893191e6 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=44.0 gal=3 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:51:14.499 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:51:14.573 I/OREKI_CRUNCH_PROBE( 6155): heartbeat brake=true amAtCap=true maxAMlog=8385.700319245852 ipGainLog=306.4550584323211 canBigCrunch=true autoBig{active=false,interval=3600.0,mode=1,amount=1.0e1} inf=1.3e1->1.3e1 thisInfTime=1.0613622768000001E7 thisInfRealTime=1768.9371280000018 eternities=1.0e0 autoEt=false modOwnsCrunch=true settled=false
+11-20 19:51:14.599 I/OREKI_EP_RESERVE( 6155): skip-unreachable cheapestLog=40.0 epLog=29.82401961987301 reserve=none ep=6.6683689384149e29 affordable=false
+11-20 19:51:14.599 I/OREKI_DIL_STUDIES( 6155): WAIT id=1 req=false afford=true cost=1.0e0 tt=5.0499e4
+11-20 19:51:14.600 I/OREKI_ID_DIAG( 6155): tier=1 id=true reqType=BigDouble maxAMType=BigDouble peakVs=1 unlocked=false purchases=0
+11-20 19:51:14.600 I/OREKI_ID_UNLOCK( 6155): 1
+11-20 19:51:14.600 I/OREKI_SCHED( 6155): act idBuy @5680032ms gap=10002 taskGap=-1
+11-20 19:51:14.623 I/OREKI_SCHED( 6155): deny interval task=reality
+11-20 19:51:14.675 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:14.957 I/OREKI_GOAL( 6155): stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-20 19:51:15.105 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.99ms max=18.38ms count=60
+11-20 19:51:15.419 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:15.691 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:16.106 D/EGL_emulation( 6155): app_time_stats: avg=16.68ms min=14.99ms max=18.37ms count=60
+11-20 19:51:16.434 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:16.938 I/OREKI_CRUNCH( 6155): 9
+11-20 19:51:17.122 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=15.02ms max=18.85ms count=61
+11-20 19:51:17.452 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:18.123 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=14.75ms max=19.55ms count=60
+11-20 19:51:18.467 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:19.138 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.26ms max=18.81ms count=61
+11-20 19:51:19.470 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:19.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:19.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:19.471 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:19.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:19.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:19.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:19.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:19.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:19.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:19.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:19.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:19.473 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:19.473 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4465041.000000015
+11-20 19:51:19.486 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:19.698 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:20.155 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.94ms max=18.87ms count=61
+11-20 19:51:20.501 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:20.772 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:21.171 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.35ms max=18.73ms count=61
+11-20 19:51:21.517 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:22.172 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=14.38ms max=18.52ms count=60
+11-20 19:51:22.534 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:23.188 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.36ms max=19.45ms count=61
+11-20 19:51:23.550 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:24.188 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=15.34ms max=19.00ms count=60
+11-20 19:51:24.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:24.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:24.472 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:24.473 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:24.473 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:24.473 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4470061.000000015
+11-20 19:51:24.515 I/OREKI_SCHED( 6155): gui-tick #8 gapMs=10000
+11-20 19:51:24.516 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:51:24.516 I/OREKI_AUTO_BEAT( 6155): gui-tick #8 gapMs=10000
+11-20 19:51:24.520 I/EDP_FRAME( 6155): frame=3597 stage=break break=true canEt=false ep=6.6683689384149e29 gainEP=8.893191e6 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=29.0 gal=4 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:51:24.521 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:51:24.570 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:24.591 I/OREKI_CRUNCH( 6155): 9
+11-20 19:51:24.619 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:51:24.620 I/OREKI_SCHED( 6155): noop reality
+11-20 19:51:24.621 I/OREKI_EC_AUTO( 6155): step: TRYBUY id=143 b=false a=false D=false tt=5.0499e4 unlocked=0
+11-20 19:51:24.623 I/OREKI_SCHED( 6155): act ec @5690054ms gap=10022 taskGap=20024
+11-20 19:51:24.623 I/OREKI_SCHED( 6155): deny frame-held task=eternity
+11-20 19:51:24.723 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:25.206 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=13.01ms max=20.12ms count=61
+11-20 19:51:25.584 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:25.866 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:26.221 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=15.11ms max=18.70ms count=61
+11-20 19:51:26.600 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:27.222 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.79ms max=18.67ms count=60
+11-20 19:51:27.619 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:28.238 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=14.85ms max=18.43ms count=61
+11-20 19:51:28.634 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:29.238 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=15.09ms max=18.72ms count=60
+11-20 19:51:29.487 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:29.488 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:29.489 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:29.490 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:29.490 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4475058.000000015
+11-20 19:51:29.652 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:29.745 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:30.238 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=13.85ms max=19.79ms count=60
+11-20 19:51:30.667 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:30.964 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:31.239 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.96ms max=18.37ms count=60
+11-20 19:51:31.684 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:32.237 I/OREKI_CRUNCH( 6155): 9
+11-20 19:51:32.255 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=14.58ms max=19.14ms count=61
+11-20 19:51:32.604 D/EGL_emulation(  760): app_time_stats: avg=30001.84ms min=30001.84ms max=30001.84ms count=1
+11-20 19:51:32.703 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:33.271 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.04ms max=19.27ms count=61
+11-20 19:51:33.717 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:34.272 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=15.21ms max=17.86ms count=60
+11-20 19:51:34.490 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:34.490 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:34.491 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:34.491 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:34.491 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4480078.000000015
+11-20 19:51:34.533 I/OREKI_SCHED( 6155): gui-tick #9 gapMs=10000
+11-20 19:51:34.534 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:51:34.536 I/OREKI_AUTO_BEAT( 6155): gui-tick #9 gapMs=10000
+11-20 19:51:34.538 I/EDP_FRAME( 6155): frame=3990 stage=break break=true canEt=false ep=6.6683689384149e29 gainEP=8.893191e6 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=49.0 gal=4 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:51:34.540 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:51:34.636 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:51:34.637 I/OREKI_EC_AUTO( 6155): step: TRYBUY id=143 b=false a=false D=false tt=5.0496e4 unlocked=0
+11-20 19:51:34.639 I/OREKI_EC_DIAG2( 6155): ECSTUDY target=4 unlocked=0 current=0 comps=0 max=5 A0=false A1=false z=true B=false prereqOk=false tail=true globalBlocked=false k=[143] price=7.0e1
+11-20 19:51:34.640 I/OREKI_EC_DIAG2( 6155): ECS 1=5/5M 2=5/5M 3=5/5M 4=0/5 5=0/5 6=0/5 7=0/5 8=0/5 9=0/5 10=0/5 11=0/5 12=0/5 boughtGlobal=false tree=c=0,b=1
+11-20 19:51:34.641 I/OREKI_EC_DIAG2( 6155): TS id=143 depth=0 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=5 K=false r=true price=4.0e0 k=[133]
+11-20 19:51:34.641 I/OREKI_EC_DIAG2( 6155): TS id=133 depth=1 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=5 K=false r=true price=5.0e0 k=[123]
+11-20 19:51:34.641 I/OREKI_EC_DIAG2( 6155): TS id=123 depth=2 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=5 K=false r=true price=9.0e0 k=[111]
+11-20 19:51:34.642 I/OREKI_EC_DIAG2( 6155): TS id=111 depth=3 B=false A0=false A1=false z=true reqType=AT_LEAST_ONE group=-1 K=false r=true price=1.2e1 k=[101, 102, 103]
+11-20 19:51:34.643 I/OREKI_SCHED( 6155): act ec @5700075ms gap=10021 taskGap=10021
+11-20 19:51:34.643 I/OREKI_SCHED( 6155): deny frame-held task=eternity
+11-20 19:51:34.736 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:34.765 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:35.273 D/EGL_emulation( 6155): app_time_stats: avg=16.67ms min=13.81ms max=18.54ms count=60
+11-20 19:51:35.750 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:36.073 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:36.288 D/EGL_emulation( 6155): app_time_stats: avg=16.63ms min=14.96ms max=18.64ms count=61
+11-20 19:51:36.767 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:37.288 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.36ms max=19.42ms count=60
+11-20 19:51:37.786 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:38.305 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.05ms max=18.43ms count=61
+11-20 19:51:38.482 I/logd    (    0): logdr: UID=0 GID=0 PID=6417 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-20 19:51:38.800 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:39.321 D/EGL_emulation( 6155): app_time_stats: avg=16.64ms min=13.51ms max=18.56ms count=61
+11-20 19:51:39.498 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:39.499 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:39.500 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:39.500 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:39.500 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:39.500 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:39.500 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4485069.000000015
+11-20 19:51:39.782 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=8.893191e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:39.817 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:39.882 I/OREKI_CRUNCH( 6155): 9
+11-20 19:51:40.321 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.23ms max=19.34ms count=60
+11-20 19:51:40.835 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:41.166 I/OREKI_REALITY_PACING( 6155): hold=none
+11-20 19:51:41.338 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=14.87ms max=18.64ms count=61
+11-20 19:51:41.851 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:42.338 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=15.09ms max=18.35ms count=60
+11-20 19:51:42.867 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:43.338 D/EGL_emulation( 6155): app_time_stats: avg=16.66ms min=14.46ms max=18.71ms count=60
+11-20 19:51:43.884 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:44.355 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.05ms max=18.76ms count=61
+11-20 19:51:44.469 I/OREKI_EC_DIAG( 6155): unlocked=0 current=0 maxed=3/12 total=15 completions=5,5,5,0,0,0,0,0,0,0,0,0 err=- buyable=1:n,2:n,3:n,4:n,5:n,6:n,7:n,8:n,9:n,10:n,11:n,12:n
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=35
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=85
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=93
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=114
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=115
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=117
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=136
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=141
+11-20 19:51:44.519 W/OREKI_ACHAUDIT( 6155): MISMATCH id=144
+11-20 19:51:44.520 W/OREKI_ACHAUDIT( 6155): MISMATCH id=174
+11-20 19:51:44.520 W/OREKI_ACHAUDIT( 6155): MISMATCH id=176
+11-20 19:51:44.520 W/OREKI_ACHAUDIT( 6155): MISMATCH id=186
+11-20 19:51:44.520 I/OREKI_ACHAUDIT( 6155): DONE scanned=144 unlocked=99 mismatch=12 used=0
+11-20 19:51:44.520 I/OREKI_GATE( 6155): GATE brake=true g=true c=false b=true mult=3000.0 rt=4490089.000000015
+11-20 19:51:44.543 I/OREKI_SCHED( 6155): gui-tick #10 gapMs=10000
+11-20 19:51:44.544 I/OREKI_GUI( 6155): GUI_REFRESH_POSTED target=autobuyers+statistics phase=eternity phaseChanged=false dirty=false force=true
+11-20 19:51:44.545 I/OREKI_AUTO_BEAT( 6155): gui-tick #10 gapMs=10000
+11-20 19:51:44.546 I/EDP_FRAME( 6155): frame=4382 stage=break break=true canEt=false ep=6.6683689384149e29 gainEP=8.893191e6 bigE=1 inf=1.3e1 ip=1.010379059003487e89 db=63.0 gal=4 justCrunch=false lastCrunch=5620145 modIntervalMs=10000 canReal=false realResets=0 hold=none auto=true
+11-20 19:51:44.547 I/OREKI_GUI( 6155): GUI_REFRESH_APPLIED target=autobuyers+statistics force=true
+11-20 19:51:44.595 I/OREKI_CRUNCH_PROBE( 6155): heartbeat brake=true amAtCap=true maxAMlog=8385.700319245852 ipGainLog=306.4550584323211 canBigCrunch=true autoBig{active=false,interval=3600.0,mode=1,amount=1.0e1} inf=1.3e1->1.3e1 thisInfTime=1.0793760768E7 thisInfRealTime=1798.9601280000018 eternities=1.0e0 autoEt=false modOwnsCrunch=true settled=false
+11-20 19:51:44.623 I/OREKI_EP_RESERVE( 6155): skip-unreachable cheapestLog=40.0 epLog=29.82401961987301 reserve=none ep=6.6683689384149e29 affordable=false
+11-20 19:51:44.623 I/OREKI_DIL_STUDIES( 6155): WAIT id=1 req=false afford=true cost=1.0e0 tt=5.0493e4
+11-20 19:51:44.645 I/OREKI_REALITY_DIAG( 6155): canReality=false
+11-20 19:51:44.646 I/OREKI_EC_AUTO( 6155): step: TRYBUY id=143 b=false a=false D=false tt=5.0493e4 unlocked=0
+11-20 19:51:44.647 I/OREKI_SCHED( 6155): act ec @5710079ms gap=10004 taskGap=10004
+11-20 19:51:44.647 I/OREKI_SCHED( 6155): deny frame-held task=eternity
+11-20 19:51:44.798 I/OREKI_ET_GATE( 6155): allow=false reason=cannot-eternity broken=true canEt=false ep=6.6683689384149e29 gain=9.045592e6 bigE=1 autoSwitch=false boot=false fresh=false etUnlock=false autoCanRun=false pending=0 latch=false halt=false lastCrunch=5620145
+11-20 19:51:44.900 I/OREKI_UIFRAME( 6155): UI_FRAME_PUMP fps=60 frames=61 targets=8
+11-20 19:51:45.156 I/OREKI_GOAL( 6155): stage=10 永恒与时间研究（含第一次永恒） goal=unlock-dilation unknownLeaf=0 degraded=0 s0=0
+11-20 19:51:45.355 D/EGL_emulation( 6155): app_time_stats: avg=16.65ms min=15.12ms max=19.29ms count=60
+11-20 19:51:45.576 I/logd    (    0): logdr: UID=0 GID=0 PID=6420 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

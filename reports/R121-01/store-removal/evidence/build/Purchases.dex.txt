@@ -1,0 +1,1920 @@
+.class public final Lkajfosz/antimatterdimensions/shop/Purchases;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Ljava/io/Serializable;
+
+
+# static fields
+.field public static final $stable:I = 0x8
+
+
+# instance fields
+.field private allCosmeticSetPurchases:I
+
+.field private allDimMultPurchases:I
+
+.field private dtSpeedPurchases:I
+
+.field private epMultPurchases:I
+
+.field private glyphPurchases:I
+
+.field private goldenBottomButtonsPurchased:Z
+
+.field private ipMultPurchases:I
+
+.field private lastRespec:J
+
+.field private normalDimMultPurchases:I
+
+.field private oneDayPurchases:I
+
+.field private permanentAdBonusPurchased:Z
+
+.field private replicantiSpeedPurchased:Z
+
+.field private replicantiSpeedPurchases:I
+
+.field private respecAvailable:Z
+
+.field private rmMultPurchases:I
+
+.field private singleCosmeticSetPurchases:I
+
+.field private sixHoursPurchases:I
+
+.field private spentSTDs:I
+
+.field private stds:I
+
+.field private unlockedCosmetics:Ljava/util/List;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end field
+
+
+# direct methods
+.method public constructor <init>()V
+    .registers 25
+
+    const v22, 0xfffff
+
+    const/16 v23, 0x0
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    const/4 v8, 0x0
+
+    const/4 v9, 0x0
+
+    const/4 v10, 0x0
+
+    const/4 v11, 0x0
+
+    const/4 v12, 0x0
+
+    const/4 v13, 0x0
+
+    const/4 v14, 0x0
+
+    const/4 v15, 0x0
+
+    const/16 v16, 0x0
+
+    const/16 v17, 0x0
+
+    const/16 v18, 0x0
+
+    const-wide/16 v19, 0x0
+
+    const/16 v21, 0x0
+
+    move-object/from16 v0, p0
+
+    invoke-direct/range {v0 .. v23}, Lkajfosz/antimatterdimensions/shop/Purchases;-><init>(IIZIIIIIIIZZZIIIIIJLjava/util/List;ILzt0;)V
+
+    return-void
+.end method
+
+.method public constructor <init>(IIZIIIIIIIZZZIIIIIJLjava/util/List;)V
+    .registers 22
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(IIZIIIIIIIZZZIIIIIJ",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;)V"
+        }
+    .end annotation
+
+    invoke-virtual/range {p21 .. p21}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    iput p2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    iput-boolean p3, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    iput p4, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    iput p5, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    iput p6, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    iput p7, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    iput p8, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    iput p9, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    iput p10, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    iput-boolean p11, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    iput-boolean p12, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    iput-boolean p13, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    iput p14, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    iput p15, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    move/from16 p1, p16
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    move/from16 p1, p17
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    move/from16 p1, p18
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    move-wide/from16 p1, p19
+
+    iput-wide p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    move-object/from16 p1, p21
+
+    iput-object p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    return-void
+.end method
+
+.method public synthetic constructor <init>(IIZIIIIIIIZZZIIIIIJLjava/util/List;ILzt0;)V
+    .registers 46
+
+    move/from16 v0, p22
+
+    and-int/lit8 v1, v0, 0x1
+
+    if-eqz v1, :cond_8
+
+    const/4 v1, 0x0
+
+    goto :goto_a
+
+    :cond_8
+    move/from16 v1, p1
+
+    :goto_a
+    and-int/lit8 v3, v0, 0x2
+
+    if-eqz v3, :cond_10
+
+    const/4 v3, 0x0
+
+    goto :goto_12
+
+    :cond_10
+    move/from16 v3, p2
+
+    :goto_12
+    and-int/lit8 v4, v0, 0x4
+
+    if-eqz v4, :cond_18
+
+    const/4 v4, 0x1
+
+    goto :goto_1a
+
+    :cond_18
+    move/from16 v4, p3
+
+    :goto_1a
+    and-int/lit8 v5, v0, 0x8
+
+    if-eqz v5, :cond_20
+
+    const/4 v5, 0x0
+
+    goto :goto_22
+
+    :cond_20
+    move/from16 v5, p4
+
+    :goto_22
+    and-int/lit8 v6, v0, 0x10
+
+    if-eqz v6, :cond_28
+
+    const/4 v6, 0x0
+
+    goto :goto_2a
+
+    :cond_28
+    move/from16 v6, p5
+
+    :goto_2a
+    and-int/lit8 v7, v0, 0x20
+
+    if-eqz v7, :cond_30
+
+    const/4 v7, 0x0
+
+    goto :goto_32
+
+    :cond_30
+    move/from16 v7, p6
+
+    :goto_32
+    and-int/lit8 v8, v0, 0x40
+
+    if-eqz v8, :cond_38
+
+    const/4 v8, 0x0
+
+    goto :goto_3a
+
+    :cond_38
+    move/from16 v8, p7
+
+    :goto_3a
+    and-int/lit16 v9, v0, 0x80
+
+    if-eqz v9, :cond_40
+
+    const/4 v9, 0x0
+
+    goto :goto_42
+
+    :cond_40
+    move/from16 v9, p8
+
+    :goto_42
+    and-int/lit16 v10, v0, 0x100
+
+    if-eqz v10, :cond_48
+
+    const/4 v10, 0x0
+
+    goto :goto_4a
+
+    :cond_48
+    move/from16 v10, p9
+
+    :goto_4a
+    and-int/lit16 v11, v0, 0x200
+
+    if-eqz v11, :cond_50
+
+    const/4 v11, 0x0
+
+    goto :goto_52
+
+    :cond_50
+    move/from16 v11, p10
+
+    :goto_52
+    and-int/lit16 v12, v0, 0x400
+
+    if-eqz v12, :cond_58
+
+    const/4 v12, 0x0
+
+    goto :goto_5a
+
+    :cond_58
+    move/from16 v12, p11
+
+    :goto_5a
+    and-int/lit16 v13, v0, 0x800
+
+    if-eqz v13, :cond_60
+
+    const/4 v13, 0x0
+
+    goto :goto_62
+
+    :cond_60
+    move/from16 v13, p12
+
+    :goto_62
+    and-int/lit16 v14, v0, 0x1000
+
+    if-eqz v14, :cond_68
+
+    const/4 v14, 0x0
+
+    goto :goto_6a
+
+    :cond_68
+    move/from16 v14, p13
+
+    :goto_6a
+    and-int/lit16 v15, v0, 0x2000
+
+    if-eqz v15, :cond_70
+
+    const/4 v15, 0x0
+
+    goto :goto_72
+
+    :cond_70
+    move/from16 v15, p14
+
+    :goto_72
+    and-int/lit16 v2, v0, 0x4000
+
+    if-eqz v2, :cond_78
+
+    const/4 v2, 0x0
+
+    goto :goto_7a
+
+    :cond_78
+    move/from16 v2, p15
+
+    :goto_7a
+    const v16, 0x8000
+
+    and-int v16, v0, v16
+
+    if-eqz v16, :cond_84
+
+    const/16 v16, 0x0
+
+    goto :goto_86
+
+    :cond_84
+    move/from16 v16, p16
+
+    :goto_86
+    const/high16 v17, 0x10000
+
+    and-int v17, v0, v17
+
+    if-eqz v17, :cond_8f
+
+    const/16 v17, 0x0
+
+    goto :goto_91
+
+    :cond_8f
+    move/from16 v17, p17
+
+    :goto_91
+    const/high16 v18, 0x20000
+
+    and-int v18, v0, v18
+
+    if-eqz v18, :cond_9a
+
+    const/16 v18, 0x0
+
+    goto :goto_9c
+
+    :cond_9a
+    move/from16 v18, p18
+
+    :goto_9c
+    const/high16 v19, 0x40000
+
+    and-int v19, v0, v19
+
+    if-eqz v19, :cond_a5
+
+    const-wide/16 v19, 0x0
+
+    goto :goto_a7
+
+    :cond_a5
+    move-wide/from16 v19, p19
+
+    :goto_a7
+    const/high16 v21, 0x80000
+
+    and-int v0, v0, v21
+
+    if-eqz v0, :cond_b5
+
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    move-object/from16 p22, v0
+
+    goto :goto_b7
+
+    :cond_b5
+    move-object/from16 p22, p21
+
+    :goto_b7
+    move-object/from16 p1, p0
+
+    move/from16 p2, v1
+
+    move/from16 p16, v2
+
+    move/from16 p3, v3
+
+    move/from16 p4, v4
+
+    move/from16 p5, v5
+
+    move/from16 p6, v6
+
+    move/from16 p7, v7
+
+    move/from16 p8, v8
+
+    move/from16 p9, v9
+
+    move/from16 p10, v10
+
+    move/from16 p11, v11
+
+    move/from16 p12, v12
+
+    move/from16 p13, v13
+
+    move/from16 p14, v14
+
+    move/from16 p15, v15
+
+    move/from16 p17, v16
+
+    move/from16 p18, v17
+
+    move/from16 p19, v18
+
+    move-wide/from16 p20, v19
+
+    invoke-direct/range {p1 .. p22}, Lkajfosz/antimatterdimensions/shop/Purchases;-><init>(IIZIIIIIIIZZZIIIIIJLjava/util/List;)V
+
+    return-void
+.end method
+
+.method public static synthetic copy$default(Lkajfosz/antimatterdimensions/shop/Purchases;IIZIIIIIIIZZZIIIIIJLjava/util/List;ILjava/lang/Object;)Lkajfosz/antimatterdimensions/shop/Purchases;
+    .registers 41
+
+    move-object/from16 v0, p0
+
+    move/from16 v1, p22
+
+    and-int/lit8 v2, v1, 0x1
+
+    if-eqz v2, :cond_b
+
+    iget v2, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    goto :goto_d
+
+    :cond_b
+    move/from16 v2, p1
+
+    :goto_d
+    and-int/lit8 v3, v1, 0x2
+
+    if-eqz v3, :cond_14
+
+    iget v3, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    goto :goto_16
+
+    :cond_14
+    move/from16 v3, p2
+
+    :goto_16
+    and-int/lit8 v4, v1, 0x4
+
+    if-eqz v4, :cond_1d
+
+    iget-boolean v4, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    goto :goto_1f
+
+    :cond_1d
+    move/from16 v4, p3
+
+    :goto_1f
+    and-int/lit8 v5, v1, 0x8
+
+    if-eqz v5, :cond_26
+
+    iget v5, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    goto :goto_28
+
+    :cond_26
+    move/from16 v5, p4
+
+    :goto_28
+    and-int/lit8 v6, v1, 0x10
+
+    if-eqz v6, :cond_2f
+
+    iget v6, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    goto :goto_31
+
+    :cond_2f
+    move/from16 v6, p5
+
+    :goto_31
+    and-int/lit8 v7, v1, 0x20
+
+    if-eqz v7, :cond_38
+
+    iget v7, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    goto :goto_3a
+
+    :cond_38
+    move/from16 v7, p6
+
+    :goto_3a
+    and-int/lit8 v8, v1, 0x40
+
+    if-eqz v8, :cond_41
+
+    iget v8, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    goto :goto_43
+
+    :cond_41
+    move/from16 v8, p7
+
+    :goto_43
+    and-int/lit16 v9, v1, 0x80
+
+    if-eqz v9, :cond_4a
+
+    iget v9, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    goto :goto_4c
+
+    :cond_4a
+    move/from16 v9, p8
+
+    :goto_4c
+    and-int/lit16 v10, v1, 0x100
+
+    if-eqz v10, :cond_53
+
+    iget v10, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    goto :goto_55
+
+    :cond_53
+    move/from16 v10, p9
+
+    :goto_55
+    and-int/lit16 v11, v1, 0x200
+
+    if-eqz v11, :cond_5c
+
+    iget v11, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    goto :goto_5e
+
+    :cond_5c
+    move/from16 v11, p10
+
+    :goto_5e
+    and-int/lit16 v12, v1, 0x400
+
+    if-eqz v12, :cond_65
+
+    iget-boolean v12, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    goto :goto_67
+
+    :cond_65
+    move/from16 v12, p11
+
+    :goto_67
+    and-int/lit16 v13, v1, 0x800
+
+    if-eqz v13, :cond_6e
+
+    iget-boolean v13, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    goto :goto_70
+
+    :cond_6e
+    move/from16 v13, p12
+
+    :goto_70
+    and-int/lit16 v14, v1, 0x1000
+
+    if-eqz v14, :cond_77
+
+    iget-boolean v14, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    goto :goto_79
+
+    :cond_77
+    move/from16 v14, p13
+
+    :goto_79
+    and-int/lit16 v15, v1, 0x2000
+
+    if-eqz v15, :cond_80
+
+    iget v15, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    goto :goto_82
+
+    :cond_80
+    move/from16 v15, p14
+
+    :goto_82
+    move/from16 p1, v2
+
+    and-int/lit16 v2, v1, 0x4000
+
+    if-eqz v2, :cond_8b
+
+    iget v2, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    goto :goto_8d
+
+    :cond_8b
+    move/from16 v2, p15
+
+    :goto_8d
+    const v16, 0x8000
+
+    and-int v16, v1, v16
+
+    if-eqz v16, :cond_97
+
+    iget v1, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    goto :goto_99
+
+    :cond_97
+    move/from16 v1, p16
+
+    :goto_99
+    const/high16 v16, 0x10000
+
+    and-int v16, p22, v16
+
+    move/from16 p2, v1
+
+    if-eqz v16, :cond_a4
+
+    iget v1, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    goto :goto_a6
+
+    :cond_a4
+    move/from16 v1, p17
+
+    :goto_a6
+    const/high16 v16, 0x20000
+
+    and-int v16, p22, v16
+
+    move/from16 p3, v1
+
+    if-eqz v16, :cond_b1
+
+    iget v1, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    goto :goto_b3
+
+    :cond_b1
+    move/from16 v1, p18
+
+    :goto_b3
+    const/high16 v16, 0x40000
+
+    and-int v16, p22, v16
+
+    move/from16 p5, v1
+
+    move/from16 p4, v2
+
+    if-eqz v16, :cond_c0
+
+    iget-wide v1, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    goto :goto_c2
+
+    :cond_c0
+    move-wide/from16 v1, p19
+
+    :goto_c2
+    const/high16 v16, 0x80000
+
+    and-int v16, p22, v16
+
+    if-eqz v16, :cond_d1
+
+    move-wide/from16 p6, v1
+
+    iget-object v1, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    move-wide/from16 p20, p6
+
+    move-object/from16 p22, v1
+
+    goto :goto_d5
+
+    :cond_d1
+    move-object/from16 p22, p21
+
+    move-wide/from16 p20, v1
+
+    :goto_d5
+    move/from16 p17, p2
+
+    move/from16 p18, p3
+
+    move/from16 p16, p4
+
+    move/from16 p19, p5
+
+    move/from16 p3, v3
+
+    move/from16 p4, v4
+
+    move/from16 p5, v5
+
+    move/from16 p6, v6
+
+    move/from16 p7, v7
+
+    move/from16 p8, v8
+
+    move/from16 p9, v9
+
+    move/from16 p10, v10
+
+    move/from16 p11, v11
+
+    move/from16 p12, v12
+
+    move/from16 p13, v13
+
+    move/from16 p14, v14
+
+    move/from16 p15, v15
+
+    move/from16 p2, p1
+
+    move-object/from16 p1, v0
+
+    invoke-virtual/range {p1 .. p22}, Lkajfosz/antimatterdimensions/shop/Purchases;->copy(IIZIIIIIIIZZZIIIIIJLjava/util/List;)Lkajfosz/antimatterdimensions/shop/Purchases;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+
+# virtual methods
+.method public final component1()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    return p0
+.end method
+
+.method public final component10()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    return p0
+.end method
+
+.method public final component11()Z
+    .registers 1
+
+    iget-boolean p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    return p0
+.end method
+
+.method public final component12()Z
+    .registers 1
+
+    iget-boolean p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    return p0
+.end method
+
+.method public final component13()Z
+    .registers 1
+
+    iget-boolean p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    return p0
+.end method
+
+.method public final component14()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    return p0
+.end method
+
+.method public final component15()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    return p0
+.end method
+
+.method public final component16()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    return p0
+.end method
+
+.method public final component17()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    return p0
+.end method
+
+.method public final component18()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    return p0
+.end method
+
+.method public final component19()J
+    .registers 3
+
+    iget-wide v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    return-wide v0
+.end method
+
+.method public final component2()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    return p0
+.end method
+
+.method public final component20()Ljava/util/List;
+    .registers 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    iget-object p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    return-object p0
+.end method
+
+.method public final component3()Z
+    .registers 1
+
+    iget-boolean p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    return p0
+.end method
+
+.method public final component4()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    return p0
+.end method
+
+.method public final component5()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    return p0
+.end method
+
+.method public final component6()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    return p0
+.end method
+
+.method public final component7()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    return p0
+.end method
+
+.method public final component8()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    return p0
+.end method
+
+.method public final component9()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    return p0
+.end method
+
+.method public final copy(IIZIIIIIIIZZZIIIIIJLjava/util/List;)Lkajfosz/antimatterdimensions/shop/Purchases;
+    .registers 44
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(IIZIIIIIIIZZZIIIIIJ",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;)",
+            "Lkajfosz/antimatterdimensions/shop/Purchases;"
+        }
+    .end annotation
+
+    invoke-virtual/range {p21 .. p21}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    new-instance v0, Lkajfosz/antimatterdimensions/shop/Purchases;
+
+    move/from16 v1, p1
+
+    move/from16 v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v4, p4
+
+    move/from16 v5, p5
+
+    move/from16 v6, p6
+
+    move/from16 v7, p7
+
+    move/from16 v8, p8
+
+    move/from16 v9, p9
+
+    move/from16 v10, p10
+
+    move/from16 v11, p11
+
+    move/from16 v12, p12
+
+    move/from16 v13, p13
+
+    move/from16 v14, p14
+
+    move/from16 v15, p15
+
+    move/from16 v16, p16
+
+    move/from16 v17, p17
+
+    move/from16 v18, p18
+
+    move-wide/from16 v19, p19
+
+    move-object/from16 v21, p21
+
+    invoke-direct/range {v0 .. v21}, Lkajfosz/antimatterdimensions/shop/Purchases;-><init>(IIZIIIIIIIZZZIIIIIJLjava/util/List;)V
+
+    return-object v0
+.end method
+
+.method public equals(Ljava/lang/Object;)Z
+    .registers 8
+
+    if-eq p0, p1, :cond_9c
+
+    instance-of v0, p1, Lkajfosz/antimatterdimensions/shop/Purchases;
+
+    const/4 v1, 0x0
+
+    if-nez v0, :cond_8
+
+    return v1
+
+    :cond_8
+    check-cast p1, Lkajfosz/antimatterdimensions/shop/Purchases;
+
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    if-eq v0, v2, :cond_11
+
+    return v1
+
+    :cond_11
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    if-eq v0, v2, :cond_18
+
+    return v1
+
+    :cond_18
+    iget-boolean v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    iget-boolean v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    if-eq v0, v2, :cond_1f
+
+    return v1
+
+    :cond_1f
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    if-eq v0, v2, :cond_26
+
+    return v1
+
+    :cond_26
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    if-eq v0, v2, :cond_2d
+
+    return v1
+
+    :cond_2d
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    if-eq v0, v2, :cond_34
+
+    return v1
+
+    :cond_34
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    if-eq v0, v2, :cond_3b
+
+    return v1
+
+    :cond_3b
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    if-eq v0, v2, :cond_42
+
+    return v1
+
+    :cond_42
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    if-eq v0, v2, :cond_49
+
+    return v1
+
+    :cond_49
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    if-eq v0, v2, :cond_50
+
+    return v1
+
+    :cond_50
+    iget-boolean v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    iget-boolean v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    if-eq v0, v2, :cond_57
+
+    return v1
+
+    :cond_57
+    iget-boolean v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    iget-boolean v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    if-eq v0, v2, :cond_5e
+
+    return v1
+
+    :cond_5e
+    iget-boolean v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    iget-boolean v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    if-eq v0, v2, :cond_65
+
+    return v1
+
+    :cond_65
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    if-eq v0, v2, :cond_6c
+
+    return v1
+
+    :cond_6c
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    if-eq v0, v2, :cond_73
+
+    return v1
+
+    :cond_73
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    if-eq v0, v2, :cond_7a
+
+    return v1
+
+    :cond_7a
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    if-eq v0, v2, :cond_81
+
+    return v1
+
+    :cond_81
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    iget v2, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    if-eq v0, v2, :cond_88
+
+    return v1
+
+    :cond_88
+    iget-wide v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    iget-wide v4, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    cmp-long v0, v2, v4
+
+    if-eqz v0, :cond_91
+
+    return v1
+
+    :cond_91
+    iget-object p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    iget-object p1, p1, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    invoke-static {p0, p1}, Lz42;->c(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    move-result p0
+
+    if-nez p0, :cond_9c
+
+    return v1
+
+    :cond_9c
+    const/4 p0, 0x1
+
+    return p0
+.end method
+
+.method public final getAllCosmeticSetPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getAllDimMultPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getDtSpeedPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getEpMultPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getGlyphPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getGoldenBottomButtonsPurchased()Z
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->isPurchaseEffectEnabled()Z
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getIpMultPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getLastRespec()J
+    .registers 3
+
+    iget-wide v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    return-wide v0
+.end method
+
+.method public final getNormalDimMultPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getOneDayPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getPermanentAdBonusPurchased()Z
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->isPurchaseEffectEnabled()Z
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getReplicantiSpeedPurchased()Z
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->isPurchaseEffectEnabled()Z
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getReplicantiSpeedPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getRespecAvailable()Z
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->isPurchaseEffectEnabled()Z
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getRmMultPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getSingleCosmeticSetPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getSixHoursPurchases()I
+    .registers 1
+
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiStorePolicy;->effectPurchaseCount()I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getSpentSTDs()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    return p0
+.end method
+
+.method public final getStds()I
+    .registers 1
+
+    iget p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    invoke-static {p0}, Lkajfosz/antimatterdimensions/oreki/OrekiShopRules;->clampStds(I)I
+
+    move-result p0
+
+    return p0
+.end method
+
+.method public final getUnlockedCosmetics()Ljava/util/List;
+    .registers 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    iget-object p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    return-object p0
+.end method
+
+.method public hashCode()I
+    .registers 5
+
+    iget v0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    invoke-static {v0}, Ljava/lang/Integer;->hashCode(I)I
+
+    move-result v0
+
+    const/16 v1, 0x1f
+
+    mul-int/2addr v0, v1
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget-boolean v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    invoke-static {v0, v1, v2}, Lbk0;->f(IIZ)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget-boolean v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    invoke-static {v0, v1, v2}, Lbk0;->f(IIZ)I
+
+    move-result v0
+
+    iget-boolean v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    invoke-static {v0, v1, v2}, Lbk0;->f(IIZ)I
+
+    move-result v0
+
+    iget-boolean v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    invoke-static {v0, v1, v2}, Lbk0;->f(IIZ)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    invoke-static {v2, v0, v1}, Lfl0;->c(III)I
+
+    move-result v0
+
+    iget-wide v2, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    invoke-static {v0, v1, v2, v3}, Lbk0;->d(IIJ)I
+
+    move-result v0
+
+    iget-object p0, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    invoke-virtual {p0}, Ljava/lang/Object;->hashCode()I
+
+    move-result p0
+
+    add-int/2addr p0, v0
+
+    return p0
+.end method
+
+.method public final setAllCosmeticSetPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    return-void
+.end method
+
+.method public final setAllDimMultPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    return-void
+.end method
+
+.method public final setDtSpeedPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    return-void
+.end method
+
+.method public final setEpMultPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    return-void
+.end method
+
+.method public final setGlyphPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    return-void
+.end method
+
+.method public final setGoldenBottomButtonsPurchased(Z)V
+    .registers 2
+
+    iput-boolean p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    return-void
+.end method
+
+.method public final setIpMultPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    return-void
+.end method
+
+.method public final setLastRespec(J)V
+    .registers 3
+
+    iput-wide p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    return-void
+.end method
+
+.method public final setNormalDimMultPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    return-void
+.end method
+
+.method public final setOneDayPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    return-void
+.end method
+
+.method public final setPermanentAdBonusPurchased(Z)V
+    .registers 2
+
+    iput-boolean p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    return-void
+.end method
+
+.method public final setReplicantiSpeedPurchased(Z)V
+    .registers 2
+
+    iput-boolean p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    return-void
+.end method
+
+.method public final setReplicantiSpeedPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    return-void
+.end method
+
+.method public final setRespecAvailable(Z)V
+    .registers 2
+
+    iput-boolean p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    return-void
+.end method
+
+.method public final setRmMultPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    return-void
+.end method
+
+.method public final setSingleCosmeticSetPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    return-void
+.end method
+
+.method public final setSixHoursPurchases(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    return-void
+.end method
+
+.method public final setSpentSTDs(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    return-void
+.end method
+
+.method public final setStds(I)V
+    .registers 2
+
+    iput p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    return-void
+.end method
+
+.method public final setUnlockedCosmetics(Ljava/util/List;)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;)V"
+        }
+    .end annotation
+
+    invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    iput-object p1, p0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    return-void
+.end method
+
+.method public toString()Ljava/lang/String;
+    .registers 24
+
+    move-object/from16 v0, p0
+
+    iget v1, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->stds:I
+
+    iget v2, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->spentSTDs:I
+
+    iget-boolean v3, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->respecAvailable:Z
+
+    iget v4, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->ipMultPurchases:I
+
+    iget v5, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->epMultPurchases:I
+
+    iget v6, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->rmMultPurchases:I
+
+    iget v7, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->normalDimMultPurchases:I
+
+    iget v8, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->allDimMultPurchases:I
+
+    iget v9, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchases:I
+
+    iget v10, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->dtSpeedPurchases:I
+
+    iget-boolean v11, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->permanentAdBonusPurchased:Z
+
+    iget-boolean v12, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->replicantiSpeedPurchased:Z
+
+    iget-boolean v13, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->goldenBottomButtonsPurchased:Z
+
+    iget v14, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->glyphPurchases:I
+
+    iget v15, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->sixHoursPurchases:I
+
+    move/from16 v16, v15
+
+    iget v15, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->oneDayPurchases:I
+
+    move/from16 v17, v15
+
+    iget v15, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->singleCosmeticSetPurchases:I
+
+    move/from16 v18, v15
+
+    iget v15, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->allCosmeticSetPurchases:I
+
+    move/from16 v19, v14
+
+    move/from16 v20, v15
+
+    iget-wide v14, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->lastRespec:J
+
+    iget-object v0, v0, Lkajfosz/antimatterdimensions/shop/Purchases;->unlockedCosmetics:Ljava/util/List;
+
+    move-object/from16 p0, v0
+
+    const-string v0, ", spentSTDs="
+
+    move-wide/from16 v21, v14
+
+    const-string v14, ", respecAvailable="
+
+    const-string v15, "Purchases(stds="
+
+    invoke-static {v15, v1, v0, v2, v14}, Lfl0;->p(Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v1, ", ipMultPurchases="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v1, ", epMultPurchases="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, ", rmMultPurchases="
+
+    const-string v2, ", normalDimMultPurchases="
+
+    invoke-static {v0, v5, v1, v6, v2}, Lfl0;->x(Ljava/lang/StringBuilder;ILjava/lang/String;ILjava/lang/String;)V
+
+    const-string v1, ", allDimMultPurchases="
+
+    const-string v2, ", replicantiSpeedPurchases="
+
+    invoke-static {v0, v7, v1, v8, v2}, Lfl0;->x(Ljava/lang/StringBuilder;ILjava/lang/String;ILjava/lang/String;)V
+
+    const-string v1, ", dtSpeedPurchases="
+
+    const-string v2, ", permanentAdBonusPurchased="
+
+    invoke-static {v0, v9, v1, v10, v2}, Lfl0;->x(Ljava/lang/StringBuilder;ILjava/lang/String;ILjava/lang/String;)V
+
+    invoke-virtual {v0, v11}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v1, ", replicantiSpeedPurchased="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v12}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v1, ", goldenBottomButtonsPurchased="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v13}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    const-string v1, ", glyphPurchases="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move/from16 v1, v19
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v1, ", sixHoursPurchases="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v1, ", oneDayPurchases="
+
+    const-string v2, ", singleCosmeticSetPurchases="
+
+    move/from16 v3, v16
+
+    move/from16 v4, v17
+
+    invoke-static {v0, v3, v1, v4, v2}, Lfl0;->x(Ljava/lang/StringBuilder;ILjava/lang/String;ILjava/lang/String;)V
+
+    const-string v1, ", allCosmeticSetPurchases="
+
+    const-string v2, ", lastRespec="
+
+    move/from16 v3, v18
+
+    move/from16 v4, v20
+
+    invoke-static {v0, v3, v1, v4, v2}, Lfl0;->x(Ljava/lang/StringBuilder;ILjava/lang/String;ILjava/lang/String;)V
+
+    move-wide/from16 v1, v21
+
+    invoke-virtual {v0, v1, v2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    const-string v1, ", unlockedCosmetics="
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-object/from16 v1, p0
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    const-string v1, ")"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+

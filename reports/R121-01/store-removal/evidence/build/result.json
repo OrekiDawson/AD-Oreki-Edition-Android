@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "round": "R121-01",
+  "source_commit": "f4707ae0386ceb424e2c82ee0015e2cd16554de3",
+  "apk_sha256": "41edb37ee6ece017c629eb1d00b6a6052d553477a56ff9115f7d78f8dabb13ea",
+  "installed_apk_sha256": "41edb37ee6ece017c629eb1d00b6a6052d553477a56ff9115f7d78f8dabb13ea",
+  "apk_bytes": 81617555,
+  "package": "com.oreki.antimatterdimensions",
+  "version_name": "3.21.0",
+  "version_code": 30210002,
+  "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197",
+  "signature_schemes": [
+    "v3"
+  ],
+  "official_package": "kajfosz.antimatterdimensions",
+  "store_policy_jar_sha256": "36f73180f637f5e681a8cfd09b257d75c9099bbb30646ed25708e97801f073e1",
+  "status": {
+    "store_policy": "PASS",
+    "build": "PASS",
+    "install": "PASS",
+    "save_compatibility": "PASS",
+    "pacing": "IN PROGRESS",
+    "endgame": "NOT RUN"
+  }
+}

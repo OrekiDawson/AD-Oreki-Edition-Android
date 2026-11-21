@@ -1,0 +1,4 @@
+accel:
+8
+/dev/kvm is not found: VT disabled in BIOS or KVM kernel module not loaded
+accel

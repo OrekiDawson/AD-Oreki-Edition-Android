@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kajfosz.antimatterdimensions.oreki.OrekiStorePolicyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-21T01:01:45.556Z" hostname="Oreki-Desktop" time="0.001">
+  <properties/>
+  <testcase name="runtimeEffectsAreNeutralAndFailClosed" classname="kajfosz.antimatterdimensions.oreki.OrekiStorePolicyTest" time="0.0"/>
+  <testcase name="removedStoreTabsStayBlocked" classname="kajfosz.antimatterdimensions.oreki.OrekiStorePolicyTest" time="0.001"/>
+  <testcase name="rawStdFieldIsPreserved" classname="kajfosz.antimatterdimensions.oreki.OrekiStorePolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

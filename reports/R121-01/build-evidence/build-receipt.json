@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "round": "R121-01",
+  "source_commit": "dfa71a99fbf2097f41873042dac5c360b7c05347",
+  "builder": {
+    "gradle": "9.8.2",
+    "agp": "9.5.1",
+    "jdk": "21.0.13.1",
+    "kotlin": "2.4.10",
+    "build_task": ":app:assembleRelease",
+    "offline": true,
+    "full_game": true,
+    "r8": false,
+    "elapsed_seconds": 21,
+    "release_build_count": 9,
+    "build_note": "R121-01 最终 APK；包含 MOD/原版自动永恒复位识别、瞬时 null 证据保留、Break 自愈优先级与严格调度周期修复。"
+  },
+  "inputs": {
+    "game_jar": {
+      "path": "/home/oreki/AD-Oreki-Edition/工作树/android/r117-agp/build/r117-01-agp/input/game-hybrid-sig-filtered.jar",
+      "sha256": "a1344a5279efe77993a81e35e2b4801440f155ca0e3dedebf2ddb28354e5d16b"
+    },
+    "android_jar": {
+      "path": "/home/oreki/Android/Sdk/platforms/android-37.2/android.jar",
+      "sha256": "2507cf762abe2171a8cb3c289837fc71f2e66e598f396f1cc10bb7dc10020329"
+    },
+    "fullgame_inputs_sha256": "dab0d9a0b5837e21ef91a0168e39796f46590febef1f030e88f9ded4c352e7f4",
+    "stable_ids_sha256": "13e9953a106c65622c5d3bef8a504d4cd3c6a2d1f6b55109a6d67daece778ab8",
+    "resources": 14973,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86",
+      "x86_64"
+    ]
+  },
+  "apk": {
+    "path": "build/r121-01-final9/r8off/app-release.apk",
+    "sha256": "9e4571e84ed9c3b71afb1ede9bc1a92744916c71c1fd4865b886a237d2fccc79",
+    "bytes": 81616343,
+    "package": "com.oreki.antimatterdimensions",
+    "version_code": 30210002,
+    "version_name": "3.21.0",
+    "min_sdk": 32,
+    "target_sdk": 37,
+    "signature_scheme": "v3",
+    "certificate_sha256": "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
+  },
+  "device_install": {
+    "serial": "emulator-5554",
+    "installed_apk_sha256": "9e4571e84ed9c3b71afb1ede9bc1a92744916c71c1fd4865b886a237d2fccc79",
+    "last_update_time": "2026-11-21 04:18:01",
+    "state": "PASS"
+  }
+}

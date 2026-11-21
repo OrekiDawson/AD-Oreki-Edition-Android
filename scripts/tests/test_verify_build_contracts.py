@@ -67,7 +67,7 @@ class ContractVerifierTest(unittest.TestCase):
                          "树级校验缺树时必须显式 SKIP（公开 CI 不假装执行）")
         self.assertEqual(sorted(n for n, s in statuses.items() if s == "pass"),
                          ["au4b", "break_shop_kotlin", "challenge_polarity",
-                          "ec_chain", "gameapi_aliases"],
+                          "ec_chain", "gameapi_aliases", "store_policy"],
                          "源码级校验集合与预期不符")
 
     def test_selftest_rejects_mutations(self):

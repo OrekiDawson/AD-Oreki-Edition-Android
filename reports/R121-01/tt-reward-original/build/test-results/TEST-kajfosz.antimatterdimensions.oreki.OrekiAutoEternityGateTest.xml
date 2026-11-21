@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-21T01:01:45.525Z" hostname="Oreki-Desktop" time="0.002">
+  <properties/>
+  <testcase name="realityHistory_preventsRepeatedFirstEternityDwell" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" time="0.001"/>
+  <testcase name="firstEternityOrUserClosedOrMasterOff_blocks" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" time="0.001"/>
+  <testcase name="unlockedAutobuyer_usesOriginalSwitchOnly" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" time="0.0"/>
+  <testcase name="lockedPersistedSwitch_doesNotBypassFirstEternityDwell" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" time="0.0"/>
+  <testcase name="loadedLockedAutobuyer_allowsDrive" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" time="0.0"/>
+  <testcase name="unlockedPlayerSwitch_bypassesFirstEternityDwell" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityGateTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

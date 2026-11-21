@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-20T20:17:07.754Z" hostname="Oreki-Desktop" time="0.002">
+  <properties/>
+  <testcase name="unreadableSwitchKeepsModSettlementEvidenceForNextReadableFrame" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.001"/>
+  <testcase name="modSettlementTurnOffIsRecorded" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.0"/>
+  <testcase name="vanillaSettlementResetFailsClosedWithoutTwoReadableProgressValues" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.0"/>
+  <testcase name="unchangedOrUnreadableSwitchIsNotTreatedAsSettlementReset" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.0"/>
+  <testcase name="staleModSettlementEvidenceIsDiscardedWhenDisabledOrAlreadyOn" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.001"/>
+  <testcase name="manualSwitchOffWithStableProgressRemainsPlayerIntent" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.0"/>
+  <testcase name="vanillaSettlementResetRequiresSwitchOffAndProgressChange" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.0"/>
+  <testcase name="unchangedOrPreviouslyOffSwitchIsNotAVanillaSettlementReset" classname="kajfosz.antimatterdimensions.oreki.OrekiAutoEternityAdoptionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

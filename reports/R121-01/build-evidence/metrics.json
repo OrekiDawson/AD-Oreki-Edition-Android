@@ -1,0 +1,27 @@
+{
+  "label": "R121-01-r8off",
+  "apk": "build/r121-01-final9/r8off/app-release.apk",
+  "apk_sha256": "9e4571e84ed9c3b71afb1ede9bc1a92744916c71c1fd4865b886a237d2fccc79",
+  "apk_size_bytes": 81616343,
+  "dex_files": [
+    {
+      "name": "classes.dex",
+      "size_bytes": 6452596,
+      "compress_size": 6452596
+    },
+    {
+      "name": "classes2.dex",
+      "size_bytes": 11972548,
+      "compress_size": 11972548
+    }
+  ],
+  "entries_total": 1626,
+  "assets_bytes": 22548796,
+  "lib_bytes": 60292,
+  "arsc_bytes": 15120776,
+  "dex_count": 2,
+  "dex_total_bytes": 18425144,
+  "mapping": {
+    "mapping_present": false
+  }
+}
