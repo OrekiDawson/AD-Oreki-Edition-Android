@@ -8,9 +8,13 @@ import android.util.Log
  *
  * 默认倍率只决定新安装的全局时间压缩程度，不修改游戏门槛、公式、调度节拍或用户已经
  * 保存的倍率。业务判定和写入集中在 Kotlin；Smali 仅保留一个初始化转发入口。
+ *
+ * [R121-01 P1] 即时挑战退役后，1000× 在真实 C9 中购买计数长期停滞：前 8 个普通挑战
+ * 约 16 分钟完成，C9 继续运行 27 分钟后仍只有 72 次计数购买、无 Break。早期阶段恢复
+ * 3000×，只缩短合法购买的等待壁钟；Break 后仍降为 1800×，Reality 后恢复 3000×。
  */
 object OrekiGamePace {
-    const val DEFAULT_SPEED: Double = 1000.0
+    const val DEFAULT_SPEED: Double = 3000.0
     const val POST_BREAK_SPEED: Double = 1800.0
     const val POST_REALITY_SPEED: Double = 3000.0
     private const val PREFS = "oreki_prefs"

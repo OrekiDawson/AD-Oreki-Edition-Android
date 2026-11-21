@@ -10,16 +10,16 @@ import org.junit.Test;
 public class OrekiGamePaceTest {
     @Test
     public void newSaveUsesNaturalFiveStageSpeedCurve() {
-        assertEquals(1000.0, OrekiGamePace.DEFAULT_SPEED, 0.0);
-        assertEquals(1000.0, OrekiGamePace.defaultSpeed(), 0.0);
+        assertEquals(3000.0, OrekiGamePace.DEFAULT_SPEED, 0.0);
+        assertEquals(3000.0, OrekiGamePace.defaultSpeed(), 0.0);
         assertEquals(1800.0, OrekiGamePace.POST_BREAK_SPEED, 0.0);
         assertEquals(3000.0, OrekiGamePace.POST_REALITY_SPEED, 0.0);
     }
 
     @Test
     public void stageTargetUsesRealProgressAndFailsClosed() {
-        assertEquals(1000.0, OrekiGamePace.stageTargetSpeed(false, false, false), 0.0);
-        assertEquals(1000.0, OrekiGamePace.stageTargetSpeed(true, false, false), 0.0);
+        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, false), 0.0);
+        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, false, false), 0.0);
         assertEquals(1800.0, OrekiGamePace.stageTargetSpeed(true, true, false), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, true, true), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, true), 0.0);
