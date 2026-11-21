@@ -64,6 +64,7 @@ def adb(*args: str, serial: str | None = None, check: bool = True) -> str:
 
 
 def parse(lines: list[str]):
+    pending_mismatch = []
     mism = []
     done = None
     abort = None
@@ -76,15 +77,21 @@ def parse(lines: list[str]):
             continue
         m = RE_MISMATCH.search(ln)
         if m:
-            mism.append(int(m.group(1)))
+            pending_mismatch.append(int(m.group(1)))
             continue
         m = RE_DONE.search(ln)
         if m:
+            mism = pending_mismatch
+            pending_mismatch = []
             done = tuple(int(x) if x is not None else -1 for x in m.groups())
+            abort = None
             continue
         m = RE_ABORT.search(ln)
         if m:
+            mism = pending_mismatch
+            pending_mismatch = []
             abort = tuple(int(x) if x is not None else -1 for x in m.groups())
+            done = None
     return mism, done, abort, markfail
 
 
