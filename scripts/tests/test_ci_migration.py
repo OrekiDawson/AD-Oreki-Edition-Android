@@ -106,5 +106,52 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("agp-kotlin-dex", ci)
 
 
+    def test_r8_experiment_cancels_stale_pr_head_and_skips_draft(self):
+        workflow = (ROOT / ".github/workflows/r8-experiment.yml").read_text(encoding="utf-8")
+        self.assertIn("types: [opened, reopened, synchronize, ready_for_review]", workflow)
+        self.assertIn("group: android-r8-experiment-", workflow)
+        self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", workflow)
+        self.assertIn("github.event.pull_request.draft == false", workflow)
+        self.assertIn("github.event_name == 'workflow_dispatch'", workflow)
+        self.assertIn("  r8-contract:", workflow)
+        self.assertIn("name: R8 DSL 与 ABI Keep 契约", workflow)
+        contract, experiment = workflow.split("  r8-experiment:", 1)
+        # Draft 阶段必须执行免费 R8 Keep 单测，不能被昂贵实验的 if 一起跳过。
+        self.assertNotIn("github.event.pull_request.draft == false", contract)
+        self.assertIn("run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v", contract)
+        self.assertNotIn("test_agp_r8_experiment -v", experiment)
+        self.assertIn("needs: r8-contract", experiment)
+        self.assertIn("github.event.pull_request.draft == false", experiment)
+        # 最终实验 R8 ON 仍强制重执行；R8 OFF 可以复用已验证的 Gradle 输入缓存。
+        off_command = next(line for line in workflow.splitlines()
+                           if "tee r8-evidence/logs/r8off-build.log" in line)
+        on_command = next(line for line in workflow.splitlines()
+                          if "tee r8-evidence/logs/r8on-build.log" in line)
+        self.assertNotIn("--rerun-tasks", off_command)
+        self.assertIn("-Poreki.r8=true --rerun-tasks", on_command)
+        self.assertIn("if: always()", workflow)
+        self.assertIn("name: android-r8-experiment-${{ github.sha }}", workflow)
+
+    def test_candidate_contract_fast_fails_before_gradle_without_duplicate_test(self):
+        ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        test_command = "python3 -m unittest scripts.tests.test_agp_candidate_wiring -v"
+        self.assertEqual(ci.count(test_command), 1)
+        self.assertIn("Fast-fail AGP candidate wiring contract", ci)
+        self.assertLess(ci.index("Fast-fail AGP candidate wiring contract"),
+                        ci.index("actions/setup-java@v6"))
+        # 不允许为了加速而变更生产构建验证所需的 Required Check 名称及依赖。
+        self.assertIn("name: Source checks (no proprietary APK baseline)", ci)
+        self.assertIn("needs: [agp-kotlin-dex, source-policy]", ci)
+        self.assertIn("if: always()", ci)
+
+    def test_pr_summary_draft_sync_is_skipped_but_ready_for_review_is_kept(self):
+        summary = (ROOT / ".github/workflows/pr-review-summary.yml").read_text(encoding="utf-8")
+        self.assertIn("ready_for_review", summary)
+        self.assertIn("github.event.action != 'synchronize'", summary)
+        self.assertIn("github.event.pull_request.draft == false", summary)
+        self.assertIn("pull-requests: write", summary)
+        self.assertIn("if(previous.body!==body)", summary)
+
+
 if __name__ == "__main__":
     unittest.main()
