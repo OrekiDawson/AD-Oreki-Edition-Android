@@ -66,11 +66,15 @@ object OrekiAutobuyerBeat {
         pendingRestoreAtMs = nowMs + gap
         lastDeferAtMs = nowMs
         deferCount++
-        Log.i(
-            TAG,
-            "beat defer #" + deferCount + " at=" + nowMs + "ms gapMs=" + gap +
-                " dueAt=" + pendingRestoreAtMs + "ms"
-        )
+        try {
+            Log.i(
+                TAG,
+                "beat defer #" + deferCount + " at=" + nowMs + "ms gapMs=" + gap +
+                    " dueAt=" + pendingRestoreAtMs + "ms"
+            )
+        } catch (_: Throwable) {
+            // JVM 单测与宿主异常环境下日志不可用时，不影响节拍状态机。
+        }
         return true
     }
 
@@ -88,11 +92,15 @@ object OrekiAutobuyerBeat {
         if (nowMs < at) return false
         pendingRestoreAtMs = 0L
         tickCount++
-        Log.i(
-            TAG,
-            "beat due #" + tickCount + " at=" + nowMs + "ms dueAt=" + at +
-                "ms waitedMs=" + (nowMs - lastDeferAtMs)
-        )
+        try {
+            Log.i(
+                TAG,
+                "beat due #" + tickCount + " at=" + nowMs + "ms dueAt=" + at +
+                    "ms waitedMs=" + (nowMs - lastDeferAtMs)
+            )
+        } catch (_: Throwable) {
+            // JVM 单测与宿主异常环境下日志不可用时，不影响节拍状态机。
+        }
         return true
     }
 

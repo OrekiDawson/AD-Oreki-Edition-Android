@@ -37,4 +37,17 @@ object OrekiManagedAutobuyerAuthority {
     fun doubleNeedsWrite(actual: Double, target: Double, epsilon: Double = 1e-9): Boolean =
         actual.isFinite() && target.isFinite() &&
             kotlin.math.abs(actual - target) > epsilon
+
+    /**
+     * Break 后进入普通挑战 C9，或挑战 ID 暂时不可读时，让原版自动购买器独占推进。
+     *
+     * 实测在 C9 内同时运行 StageAuto 和原版 BUY_10 bulk 路径会触发高频
+     * BigDouble 分配；暂停 MOD 侧逐帧策略后，游戏状态恢复推进。读取失败时
+     * 不能把未知状态当作“不在 C9”，否则冻结会静默复发，因此同样让路。
+     */
+    @JvmStatic
+    fun shouldYieldToOriginalForC9OrUnreadableChallenge(
+        broken: Boolean?,
+        normalChallengeCurrent: Int?,
+    ): Boolean = broken == true && (normalChallengeCurrent == null || normalChallengeCurrent == 9)
 }
