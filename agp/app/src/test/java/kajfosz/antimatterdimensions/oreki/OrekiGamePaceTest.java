@@ -1,6 +1,8 @@
 package kajfosz.antimatterdimensions.oreki;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -24,5 +26,15 @@ public class OrekiGamePaceTest {
         assertEquals(null, OrekiGamePace.stageTargetSpeed(null, true, false));
         assertEquals(null, OrekiGamePace.stageTargetSpeed(true, null, false));
         assertEquals(null, OrekiGamePace.stageTargetSpeed(true, true, null));
+    }
+
+    @Test
+    public void onlyFinitePositiveStoredSpeedsAreAccepted() {
+        assertTrue(OrekiGamePace.isValidStoredSpeed(3000f));
+        assertTrue(OrekiGamePace.isValidStoredSpeed(Float.MIN_VALUE));
+        assertFalse(OrekiGamePace.isValidStoredSpeed(0f));
+        assertFalse(OrekiGamePace.isValidStoredSpeed(-1f));
+        assertFalse(OrekiGamePace.isValidStoredSpeed(Float.NaN));
+        assertFalse(OrekiGamePace.isValidStoredSpeed(Float.POSITIVE_INFINITY));
     }
 }
