@@ -347,13 +347,17 @@ object OrekiStageAuto {
             }
 
             val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            val c9JustEnded =
+                c9YieldActive &&
+                    normalChallengeCurrent != null &&
+                    normalChallengeCurrent != 9
             val inspectCrunchCapture =
-                normalChallengeCurrent == 9 || managedConfigTickId != 0L
+                normalChallengeCurrent == 9 || managedConfigTickId != 0L || c9JustEnded
             val captureMatchesCurrentSave =
                 if (inspectCrunchCapture) {
                     syncC9CrunchCaptureForCurrentSave()
                 } else {
-                    c9CrunchHoldCaptured
+                    false
                 }
             if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture(
                     captured = c9CrunchHoldCaptured,
@@ -429,7 +433,6 @@ object OrekiStageAuto {
             if (c9YieldActive) {
                 c9YieldActive = false
                 lastC9YieldStrategy = null
-                restoreCrunchOwnershipAfterC9()
                 Log.i(TAG_C9_YIELD, "resume-stage-auto normalChallenge=0 or challenge ended")
             }
             // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
@@ -2591,6 +2594,10 @@ object OrekiStageAuto {
     private fun syncC9CrunchCaptureForCurrentSave(): Boolean {
         val currentSaveId = GameApi.saveIdentity() ?: return false
         if (c9CrunchHoldCaptured) {
+            if (c9CrunchCaptureSaveId.isNullOrEmpty()) {
+                c9CrunchCaptureSaveId = currentSaveId
+                return true
+            }
             if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(
                     c9CrunchCaptureSaveId,
                     currentSaveId,
