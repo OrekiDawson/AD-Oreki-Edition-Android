@@ -30,4 +30,13 @@ public class OrekiAutomationSchedulerPeriodTest {
         assertFalse(OrekiAutomationScheduler.isValidInterval(0));
         assertFalse(OrekiAutomationScheduler.isValidInterval(61));
     }
+
+    @Test
+    public void breakPriorityNeverAllowsActionBeforeConfiguredPeriod() {
+        long beat = 1_000L;
+        assertFalse(OrekiAutomationScheduler.isGlobalBeatReady(beat, beat + 750L, 1_000L));
+        assertTrue(OrekiAutomationScheduler.isGlobalBeatReady(beat, beat + 1_000L, 1_000L));
+        assertEquals(250L, OrekiAutomationScheduler.priorityBeatRemainingMs(beat, beat + 750L, 1_000L));
+        assertEquals(0L, OrekiAutomationScheduler.priorityBeatRemainingMs(beat, beat + 1_000L, 1_000L));
+    }
 }
