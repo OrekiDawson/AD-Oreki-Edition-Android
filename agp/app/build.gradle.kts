@@ -46,6 +46,15 @@ fun orekiXmlDocument(file: File): org.w3c.dom.Document {
 val OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"
 val OREKI_MOD_APPLICATION_ID = "com.oreki.antimatterdimensions"
 val OREKI_ANDROID_NS = "http://schemas.android.com/apk/res/android"
+val OREKI_OFFICIAL_3_21_MANIFEST_SHA256 =
+    "b07e4343839b3deb197e4cf0a3cc03cad264d1c4109456204df96f56e64ff6b0"
+val OREKI_OFFICIAL_3_21_PUBLIC_XML_SHA256 =
+    "d6471a87848cf1f3842f9da92a559c1489f506ca60ee4dd9e224b81f2e53ad4f"
+val OREKI_MDPI_3_21_PUBLIC_XML_SHA256 =
+    "21d70290f19b4c09b59da3e9d9c0f38b47a341a506c63b9c29371057ee820f7e"
+val OREKI_OFFICIAL_3_21_RESOURCE_COUNT = 14_928
+val OREKI_MDPI_3_21_RESOURCE_COUNT = 45
+val OREKI_FULL_GAME_RESOURCE_COUNT = 14_973
 
 data class OrekiPublicResource(
     val resourceId: String,
@@ -153,6 +162,67 @@ fun orekiStableIdsText(entries: List<OrekiPublicResource>, applicationId: String
         append(" = ")
         append(entry.resourceId)
         append('\n')
+    }
+}
+
+/**
+ * 官方解码输入的身份必须与冻结的 3.21.0 原始输入一致。
+ *
+ * 包名、versionCode 和资源条数都可能被经过补丁的 modtree 伪装成“看起来正确”，
+ * 因此生产路径额外校验 base Manifest、base public.xml、mdpi split public.xml 的
+ * 固定 SHA-256。任何历史 modtree、跨版本树或资源重排都会在改动目标目录前失败。
+ */
+fun orekiVerifyCanonicalFullGameInputs(officialTree: File, splitTree: File) {
+    val inputs = listOf(
+        Triple(
+            "官方 3.21 Manifest",
+            File(officialTree, "AndroidManifest.xml"),
+            OREKI_OFFICIAL_3_21_MANIFEST_SHA256,
+        ),
+        Triple(
+            "官方 3.21 public.xml",
+            File(officialTree, "res/values/public.xml"),
+            OREKI_OFFICIAL_3_21_PUBLIC_XML_SHA256,
+        ),
+        Triple(
+            "官方 3.21 mdpi split public.xml",
+            File(splitTree, "res/values/public.xml"),
+            OREKI_MDPI_3_21_PUBLIC_XML_SHA256,
+        ),
+    )
+    for ((label, file, expected) in inputs) {
+        if (!file.isFile) {
+            throw GradleException("[oreki] 缺少" + label + ": " + file)
+        }
+        val actual = orekiSha256(file.readBytes())
+        if (actual != expected) {
+            throw GradleException(
+                "[oreki] " + label + " 不是冻结的 3.21.0 原始输入：" +
+                    "actual=" + actual + " expected=" + expected + " path=" + file,
+            )
+        }
+    }
+
+    val officialEntries = orekiReadPublicResources(File(officialTree, "res/values/public.xml"))
+    val splitEntries = orekiReadPublicResources(File(splitTree, "res/values/public.xml"))
+    val mergedEntries = orekiMergePublicResources(officialEntries, splitEntries)
+    if (officialEntries.size != OREKI_OFFICIAL_3_21_RESOURCE_COUNT) {
+        throw GradleException(
+            "[oreki] 官方 3.21 资源身份数量漂移：actual=" + officialEntries.size +
+                " expected=" + OREKI_OFFICIAL_3_21_RESOURCE_COUNT,
+        )
+    }
+    if (splitEntries.size != OREKI_MDPI_3_21_RESOURCE_COUNT) {
+        throw GradleException(
+            "[oreki] 官方 3.21 mdpi split 资源身份数量漂移：actual=" + splitEntries.size +
+                " expected=" + OREKI_MDPI_3_21_RESOURCE_COUNT,
+        )
+    }
+    if (mergedEntries.size != OREKI_FULL_GAME_RESOURCE_COUNT) {
+        throw GradleException(
+            "[oreki] 官方 base + mdpi split 合并资源数量漂移：actual=" + mergedEntries.size +
+                " expected=" + OREKI_FULL_GAME_RESOURCE_COUNT,
+        )
     }
 }
 
@@ -725,6 +795,7 @@ fun orekiVerifyNativeFullGameInputs(
     val inputEvidence = File(stageRoot, "fullgame-inputs.json")
     val shortcutXml = File(stageRoot, "res/xml/oreki_shortcuts.xml")
 
+    orekiVerifyCanonicalFullGameInputs(officialRoot, splitRoot)
     if (applicationId != OREKI_MOD_APPLICATION_ID) {
         throw GradleException("[oreki] MOD applicationId 漂移: " + applicationId)
     }
@@ -752,6 +823,38 @@ fun orekiVerifyNativeFullGameInputs(
     }
     if (stagedRawPublicXml.exists()) {
         throw GradleException("[oreki] 阶段 res/values/public.xml 仍存在，AGP 会丢弃该文件")
+    }
+    val requiredStyles = setOf("AppTheme", "Palette.Fallback", "Theme.MySplash")
+    val stylesDocument = orekiXmlDocument(File(stageRoot, "res/values/styles.xml"))
+    val styleNodes = stylesDocument.getElementsByTagName("style")
+    val stagedStyles = buildSet {
+        for (index in 0 until styleNodes.length) {
+            add((styleNodes.item(index) as org.w3c.dom.Element).getAttribute("name"))
+        }
+    }
+    val missingStyles = requiredStyles - stagedStyles
+    if (missingStyles.isNotEmpty()) {
+        throw GradleException("[oreki] 阶段资源缺少必要主题样式: " + missingStyles.sorted())
+    }
+    val stringsDocument = orekiXmlDocument(File(stageRoot, "res/values/strings.xml"))
+    val stringNodes = stringsDocument.getElementsByTagName("string")
+    var appNameFound = false
+    for (index in 0 until stringNodes.length) {
+        val node = stringNodes.item(index) as org.w3c.dom.Element
+        if (node.getAttribute("name") == "app_name") {
+            if (node.textContent != "反物质维度") {
+                throw GradleException("[oreki] 阶段 app_name 未应用 MOD 中文名")
+            }
+            appNameFound = true
+            break
+        }
+    }
+    if (!appNameFound) {
+        throw GradleException("[oreki] 阶段资源缺少 string/app_name")
+    }
+    val launcherIcon = File(stageRoot, "res/drawable-nodpi/antimatter.png")
+    if (!launcherIcon.isFile || launcherIcon.length() == 0L) {
+        throw GradleException("[oreki] 阶段资源缺少非空 drawable/antimatter")
     }
     if (!shortcutXml.isFile || !shortcutXml.readText(Charsets.UTF_8).contains(applicationId)) {
         throw GradleException("[oreki] MOD 快捷方式资源缺失或 targetPackage 未指向正式 applicationId")
@@ -822,11 +925,13 @@ fun orekiVerifyNativeFullGameInputs(
         "official_manifest_sha256" to orekiSha256(officialManifest.readBytes()),
         "checks" to linkedMapOf<String, Any>(
             "official_identity" to true,
+            "canonical_3_21_hashes" to true,
             "manifest_transform_byte_equal" to true,
             "tutorial_activity_registered" to true,
             "stable_ids_byte_equal" to true,
             "staged_public_ids_equal" to true,
             "mod_overlay_present" to true,
+            "required_theme_resources" to true,
             "input_evidence_consistent" to true,
         ),
     )
@@ -1013,6 +1118,7 @@ val prepareFullGameInputs by tasks.registering {
                     splitTree,
             )
         }
+        orekiVerifyCanonicalFullGameInputs(officialTree, splitTree)
         fun versionCode(tree: File): String {
             val metadata = File(tree, "apktool.yml")
             val match = Regex("versionCode:\\s*['\"]?(\\d+)").find(metadata.readText(Charsets.UTF_8))

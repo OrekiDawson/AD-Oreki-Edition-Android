@@ -510,3 +510,61 @@ C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tr
 - R8 OFF 过渡 APK：**PASS（安装/冷启/GUI）**；
 - `build_mod.py` 物理删除条件：**BLOCKED**；
 - 正式 Candidate/Verify/Release：仍按 AGP-only 与真实游戏门禁 fail-closed。
+
+### 11.5 R122 输入身份加固与当前定向复核（2026-11-21）
+
+本轮继续在 `r122/agp-native-inputs-clean` / PR #231 上加固，不扩大为完整
+Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收通过。
+
+#### 实际修改
+
+- `prepareFullGameInputs` 在删除/重建阶段目录之前，固定校验官方 3.21 base
+  `AndroidManifest.xml`、base `public.xml` 和同版 mdpi split `public.xml`
+  的 SHA-256；同时校验 14,928 / 45 / 14,973 三条资源身份计数。
+- `verifyFullGameInputs` 再次独立执行同一身份校验，并新增
+  `AppTheme`、`Palette.Fallback`、`Theme.MySplash`、中文 `app_name`、
+  `drawable-nodpi/antimatter.png` 与 `xml/oreki_shortcuts.xml` 的必要性检查。
+- 历史 `work/mod` 不能再被伪装成“官方输入”：即使其包名、versionCode
+  或资源条数看起来正确，Manifest/public.xml 哈希不符也会在目标目录被改动前失败。
+
+#### 定向验证
+
+| 项目 | 结果 | 证据 |
+|---|---|---|
+| 官方 3.21 base Manifest | **PASS** | `b07e4343…ff6b0` |
+| 官方 3.21 base public.xml | **PASS** | `d6471a87…3ad4f` / 14,928 条 |
+| 官方 3.21 mdpi split public.xml | **PASS** | `21d70290…20f7e` / 45 条 |
+| `prepareFullGameInputs` + `verifyFullGameInputs` | **PASS** | 14,973 条；stable-ids 1,076,790 B / `13e9953a…8ab8` |
+| 历史 `/work/mod` 负向输入 | **PASS（fail-closed）** | Manifest 实际 `5ff102f9…cce38`，在阶段目录改动前拒绝 |
+| AAPT2 `processReleaseResources` | **PASS** | 23 个相关任务成功；主题/资源链接无错误 |
+| built-in Kotlin `compileReleaseKotlin` | **PASS** | 全量 `--rerun-tasks` 成功，仅有既有告警 |
+| R8 OFF 完整 APK | **PASS（构建）** | 81,619,023 B / `18554e9b3c9283854c64c72bb4b0e9b282a3648ac9c6a65c89c2d81a355be72b` |
+| 最终 APK 包名/版本 | **PASS** | `com.oreki.antimatterdimensions` / 30210002 |
+| 最终 APK 证书身份 | **PASS** | `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197` |
+| Candidate v2+v3 同钥重签 | **PASS** | 81,624,555 B / `b44b3f8de507b411383b5802a9ec46490098117cbe0e80045a7dd7a43dc48ac1` |
+| APK 内教程资产 | **PASS** | 199,649 B / SHA-256 `158b9070…10dc7b1` |
+| R8 ON | **NOT RUN** | 仍为实验开关 |
+| 新 APK 安装/冷启动 | **NOT RUN** | 共享 AVD 正被其他 R122 C9 采样占用，未并发干扰 |
+
+#### 环境前置
+
+本机默认 `ANDROID_HOME=/opt/android-sdk` 不可写，且缺少 AGP 9.5.1 所需的
+`platforms/android-37.0` 与 `build-tools/36.0.0`。可复现命令必须显式使用：
+
+```bash
+ANDROID_HOME=/home/oreki/Android/Sdk
+ANDROID_SDK_ROOT=/home/oreki/Android/Sdk
+```
+
+该目录同时具备 Android 37.0 平台与 Build Tools 36.0.0，切换后资源与 Kotlin
+编译均 PASS。此项是环境失败，不是 Manifest 包名或资源内容失败。
+
+#### 仍存在的生产旧链
+
+- `game-hybrid-sig.jar` 仍不是由当前仓库纯 Kotlin/Rust 变换器生成。
+- `scripts/build_mod.py` 仍存在；根 Gradle 已默认 fail-closed，仅隔离回归可打开。
+- `applyStorePolicy` 仍通过 Python + ASM ABI 适配器执行，尚未完成字节码变换器替换。
+- 旧文本验证器仍读取 `build_mod.py` / 补丁树；因此物理删除仍为 **BLOCKED**。
+- #231 的直接 AGP APK 只有 v3；已按 Candidate 工作流同一命令使用生产密钥重签，
+  本机 `apksigner --min-sdk-version 24` 复核 v2=true、v3=true，证书身份不变。
+  该本地重签结果仍不等于 GitHub 受保护环境中的正式 Candidate Run。
