@@ -1,6 +1,7 @@
 import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.CodingErrorAction
+import java.nio.file.Files
 import org.gradle.api.tasks.Exec
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
@@ -40,6 +41,456 @@ fun orekiXmlDocument(file: File): org.w3c.dom.Document {
     } catch (error: Exception) {
         throw GradleException("[oreki] XML 解析失败: " + file + "：" + error.message, error)
     }
+}
+
+val OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"
+val OREKI_MOD_APPLICATION_ID = "com.oreki.antimatterdimensions"
+val OREKI_ANDROID_NS = "http://schemas.android.com/apk/res/android"
+
+data class OrekiPublicResource(
+    val resourceId: String,
+    val typeName: String,
+    val name: String,
+)
+
+/** 读取 public.xml；失败关闭，不跳过畸形条目。 */
+fun orekiReadPublicResources(file: File): List<OrekiPublicResource> {
+    val document = orekiXmlDocument(file)
+    val nodes = document.getElementsByTagName("public")
+    if (nodes.length == 0) {
+        throw GradleException("[oreki] public.xml 没有任何 <public> 资源: " + file)
+    }
+    val entries = ArrayList<OrekiPublicResource>(nodes.length)
+    val seenNames = HashSet<String>()
+    val seenIds = HashMap<String, String>()
+    for (index in 0 until nodes.length) {
+        val element = nodes.item(index) as org.w3c.dom.Element
+        val typeName = element.getAttribute("type")
+        val name = element.getAttribute("name")
+        val rawId = element.getAttribute("id")
+        if (typeName.isEmpty() || name.isEmpty() || rawId.isEmpty()) {
+            throw GradleException("[oreki] public.xml 第 " + (index + 1) + " 条缺少 type/name/id: " + file)
+        }
+        val value = rawId.removePrefix("0x").removePrefix("0X").toLongOrNull(16)
+            ?: throw GradleException("[oreki] public.xml 非法资源 ID: " + rawId)
+        if (value < 0x7F000000L || value > 0x7FFFFFFFL) {
+            throw GradleException("[oreki] public.xml 资源 ID 不在 0x7f 包内: " + rawId)
+        }
+        val resourceId = "0x%08x".format(value)
+        val key = typeName + "/" + name
+        if (!seenNames.add(key)) {
+            throw GradleException("[oreki] public.xml 资源重复: " + key)
+        }
+        val previous = seenIds.put(resourceId, key)
+        if (previous != null) {
+            throw GradleException("[oreki] public.xml 资源 ID 冲突: " + resourceId + " / " + previous + " / " + key)
+        }
+        entries.add(OrekiPublicResource(resourceId, typeName, name))
+    }
+    return entries
+}
+
+fun orekiRenamedResourceName(name: String): String =
+    if (name.contains('$')) "_aapt_" + name.replace("$", "") else name
+
+/**
+ * 以官方 3.21 public.xml 为权威顺序，仅追加同版 mdpi split 中缺失且非占位的资源。
+ * 同 ID 不同语义或同名不同 ID 都是输入冲突，必须阻断。
+ */
+fun orekiMergePublicResources(
+    baseEntries: List<OrekiPublicResource>,
+    splitEntries: List<OrekiPublicResource>,
+): List<OrekiPublicResource> {
+    val merged = ArrayList<OrekiPublicResource>(baseEntries)
+    val byId = baseEntries.associateByTo(HashMap()) { it.resourceId }
+    val byName = baseEntries.associateByTo(HashMap()) { it.typeName + "/" + it.name }
+    for (entry in splitEntries) {
+        if (entry.name.startsWith("APKTOOL_DUMMY") || entry.typeName == "attr") continue
+        val nameKey = entry.typeName + "/" + entry.name
+        val idMatch = byId[entry.resourceId]
+        val nameMatch = byName[nameKey]
+        if (idMatch != null && idMatch != entry) {
+            throw GradleException(
+                "[oreki] split 资源 ID 冲突: " + entry.resourceId + " / " + idMatch + " / " + entry,
+            )
+        }
+        if (nameMatch != null && nameMatch != entry) {
+            throw GradleException(
+                "[oreki] split 资源名称冲突: " + nameKey + " / " + nameMatch + " / " + entry,
+            )
+        }
+        if (idMatch == null && nameMatch == null) {
+            merged.add(entry)
+            byId[entry.resourceId] = entry
+            byName[nameKey] = entry
+        }
+    }
+    return merged
+}
+
+fun orekiRenderPublicResources(entries: List<OrekiPublicResource>): String = buildString {
+    append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+    append("<resources>\n")
+    for (entry in entries) {
+        append("    <public type=\"")
+        append(entry.typeName)
+        append("\" name=\"")
+        append(orekiRenamedResourceName(entry.name))
+        append("\" id=\"")
+        append(entry.resourceId)
+        append("\" />\n")
+    }
+    append("</resources>\n")
+}
+
+fun orekiStableIdsText(entries: List<OrekiPublicResource>, applicationId: String): String = buildString {
+    for (entry in entries) {
+        append(applicationId)
+        append(':')
+        append(entry.typeName)
+        append('/')
+        append(orekiRenamedResourceName(entry.name))
+        append(" = ")
+        append(entry.resourceId)
+        append('\n')
+    }
+}
+
+/**
+ * 官方 3.21 Manifest → MOD 单 APK Manifest。
+ *
+ * 原版输入身份和应用产量身份分开校验：源必须仍为官方包名，输出不带 package，
+ * 最终 applicationId 完全由 AGP 应用。Google Play/Billing 组件按业务边界删除，
+ * Firebase 必需 meta-data 保留，并仅追加 MOD 设置页与快捷方式入口。
+ */
+fun orekiTransformFullGameManifest(
+    source: File,
+    target: File,
+    applicationId: String,
+) {
+    val factory = DocumentBuilderFactory.newInstance()
+    factory.isNamespaceAware = true
+    try {
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false)
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+    } catch (_: Throwable) {
+        // 本地受信输入；老 JDK 不支持全部 feature 时不改变业务校验。
+    }
+    val document = try {
+        factory.newDocumentBuilder().parse(source)
+    } catch (error: Exception) {
+        throw GradleException("[oreki] 官方 Manifest 解析失败: " + source, error)
+    }
+    val root = document.documentElement
+    val sourcePackage = root.getAttribute("package")
+    if (sourcePackage != OREKI_OFFICIAL_PACKAGE) {
+        throw GradleException(
+            "[oreki] 官方 Manifest 身份不匹配: package=" + sourcePackage +
+                " != " + OREKI_OFFICIAL_PACKAGE,
+        )
+    }
+    root.removeAttribute("package")
+    root.removeAttributeNS(OREKI_ANDROID_NS, "requiredSplitTypes")
+    root.removeAttributeNS(OREKI_ANDROID_NS, "splitTypes")
+
+    val dropPermissions = setOf(
+        "com.android.vending.BILLING",
+        "com.google.android.gms.permission.AD_ID",
+        "android.permission.ACCESS_ADSERVICES_AD_ID",
+        "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
+        "android.permission.ACCESS_ADSERVICES_TOPICS",
+        "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+        "com.google.android.providers.gsf.permission.READ_GSERVICES",
+    )
+    val children = buildList<org.w3c.dom.Node> {
+        for (index in 0 until root.childNodes.length) add(root.childNodes.item(index))
+    }
+    for (node in children) {
+        if (node !is org.w3c.dom.Element) continue
+        if (node.tagName == "uses-permission" &&
+            dropPermissions.contains(node.getAttributeNS(OREKI_ANDROID_NS, "name"))
+        ) {
+            root.removeChild(node)
+        }
+    }
+    val queries = root.getElementsByTagName("queries")
+    for (index in queries.length - 1 downTo 0) {
+        val query = queries.item(index) as org.w3c.dom.Element
+        val queryChildren = buildList<org.w3c.dom.Node> {
+            for (childIndex in 0 until query.childNodes.length) add(query.childNodes.item(childIndex))
+        }
+        for (node in queryChildren) {
+            if (node !is org.w3c.dom.Element) continue
+            val name = node.getAttributeNS(OREKI_ANDROID_NS, "name")
+            val action = if (node.tagName == "intent") node.getElementsByTagName("action").item(0) else null
+            val actionName = (action as? org.w3c.dom.Element)
+                ?.getAttributeNS(OREKI_ANDROID_NS, "name")
+                .orEmpty()
+            if (node.tagName == "package" &&
+                (name == "com.android.vending" || name == "com.google.android.gms")
+            ) {
+                query.removeChild(node)
+            } else if (node.tagName == "intent" &&
+                ("billing" in actionName || "vending" in actionName)
+            ) {
+                query.removeChild(node)
+            }
+        }
+        if (!query.hasChildNodes()) root.removeChild(query)
+    }
+
+    val application = root.getElementsByTagName("application").item(0)
+        as? org.w3c.dom.Element
+        ?: throw GradleException("[oreki] 官方 Manifest 没有 <application>")
+    application.removeAttributeNS(OREKI_ANDROID_NS, "extractNativeLibs")
+    val allElements = root.getElementsByTagName("*")
+    for (index in 0 until allElements.length) {
+        val element = allElements.item(index) as org.w3c.dom.Element
+        val authorities = element.getAttributeNS(OREKI_ANDROID_NS, "authorities")
+        if (authorities.contains(OREKI_OFFICIAL_PACKAGE)) {
+            element.setAttributeNS(
+                OREKI_ANDROID_NS,
+                "android:authorities",
+                authorities.replace(OREKI_OFFICIAL_PACKAGE, applicationId),
+            )
+        }
+        val name = element.getAttributeNS(OREKI_ANDROID_NS, "name")
+        if (name.startsWith(OREKI_OFFICIAL_PACKAGE + ".DYNAMIC_RECEIVER")) {
+            element.setAttributeNS(
+                OREKI_ANDROID_NS,
+                "android:name",
+                name.replace(OREKI_OFFICIAL_PACKAGE, applicationId),
+            )
+        }
+    }
+
+    val dropMeta = setOf(
+        "com.google.android.gms.games.APP_ID",
+        "com.google.android.gms.games.version",
+        "com.google.android.gms.ads.APPLICATION_ID",
+        "com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT",
+        "com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING",
+        "com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION",
+        "com.google.android.play.billingclient.version",
+        "com.android.vending.splits.required",
+        "com.android.vending.splits",
+        "com.android.vending.derived.apk.id",
+        "com.android.stamp.source",
+        "com.android.stamp.type",
+        "google_analytics_default_allow_analytics_storage",
+        "google_analytics_default_allow_ad_storage",
+        "google_analytics_default_allow_ad_user_data",
+        "google_analytics_default_allow_ad_personalization_signals",
+    )
+    val keepMeta = setOf("com.google.android.gms.version")
+    val dropPrefixes = listOf(
+        "com.google.android.gms",
+        "com.google.android.play",
+        "com.android.billingclient",
+        "androidx.credentials.playservices",
+    )
+    val applicationChildren = buildList<org.w3c.dom.Node> {
+        for (index in 0 until application.childNodes.length) add(application.childNodes.item(index))
+    }
+    for (node in applicationChildren) {
+        if (node !is org.w3c.dom.Element) continue
+        val name = node.getAttributeNS(OREKI_ANDROID_NS, "name")
+        if (node.tagName == "meta-data" && dropMeta.contains(name) && !keepMeta.contains(name)) {
+            application.removeChild(node)
+        } else if (node.tagName in setOf("activity", "service", "receiver", "provider") &&
+            dropPrefixes.any { name.startsWith(it) }
+        ) {
+            application.removeChild(node)
+        }
+    }
+
+    val activities = application.getElementsByTagName("activity")
+    var mainActivity: org.w3c.dom.Element? = null
+    for (index in 0 until activities.length) {
+        val activity = activities.item(index) as org.w3c.dom.Element
+        if (activity.getAttributeNS(OREKI_ANDROID_NS, "name").endsWith(".MainActivity")) {
+            mainActivity = activity
+            break
+        }
+    }
+    val launcher = mainActivity
+        ?: throw GradleException("[oreki] 官方 Manifest 找不到 MainActivity（冷启动组件契约变化）")
+    val shortcutMeta = document.createElement("meta-data")
+    shortcutMeta.setAttributeNS(OREKI_ANDROID_NS, "android:name", "android.app.shortcuts")
+    shortcutMeta.setAttributeNS(OREKI_ANDROID_NS, "android:resource", "@xml/oreki_shortcuts")
+    launcher.appendChild(shortcutMeta)
+
+    val settingsActivity = document.createElement("activity")
+    settingsActivity.setAttributeNS(
+        OREKI_ANDROID_NS,
+        "android:name",
+        OREKI_OFFICIAL_PACKAGE + ".oreki.SpeedSettingsActivity",
+    )
+    settingsActivity.setAttributeNS(OREKI_ANDROID_NS, "android:exported", "false")
+    settingsActivity.setAttributeNS(OREKI_ANDROID_NS, "android:label", "Oreki 设置")
+    settingsActivity.setAttributeNS(
+        OREKI_ANDROID_NS,
+        "android:theme",
+        "@android:style/Theme.DeviceDefault",
+    )
+    settingsActivity.setAttributeNS(
+        OREKI_ANDROID_NS,
+        "android:configChanges",
+        "keyboardHidden|orientation|screenLayout|screenSize|uiMode",
+    )
+    application.appendChild(settingsActivity)
+
+    target.parentFile.mkdirs()
+    val transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer()
+    transformer.setOutputProperty(javax.xml.transform.OutputKeys.ENCODING, "UTF-8")
+    transformer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "no")
+    transformer.transform(
+        javax.xml.transform.dom.DOMSource(document),
+        javax.xml.transform.stream.StreamResult(target),
+    )
+}
+
+/** 官方 3.21资源 + 同版 mdpi split + MOD 清单 overlay → AGP 独占阶段目录。 */
+fun orekiStageFullGameResources(
+    officialTree: File,
+    splitTree: File,
+    shortcutOverlay: File,
+    stageRoot: File,
+): Int {
+    val officialRes = File(officialTree, "res")
+    val splitRes = File(splitTree, "res")
+    val stageRes = File(stageRoot, "res")
+    stageRes.deleteRecursively()
+    officialRes.copyRecursively(stageRes, overwrite = true)
+
+    splitRes.walkTopDown().filter { it.isFile }.forEach { source ->
+        val relative = source.relativeTo(splitRes)
+        val firstPart = relative.path.replace('\\', '/').substringBefore('/')
+        if (firstPart == "values" || firstPart == "values-hdpi") {
+            return@forEach
+        }
+        val target = File(stageRes, relative.path)
+        target.parentFile.mkdirs()
+        source.copyTo(target, overwrite = true)
+    }
+    val shortcutTarget = File(stageRes, "xml/oreki_shortcuts.xml")
+    shortcutTarget.parentFile.mkdirs()
+    shortcutOverlay.copyTo(shortcutTarget, overwrite = true)
+
+    val changelog = File(stageRes, "raw/changelog.txt")
+    if (changelog.exists() && !changelog.delete()) {
+        throw GradleException("[oreki] 无法排除阶段 changelog: " + changelog)
+    }
+
+    val renamed = HashMap<String, String>()
+    val generatedFiles = stageRes.walkTopDown()
+        .filter { it.isFile && it.name.contains('$') }
+        .sortedBy { it.path }
+        .toList()
+    for (source in generatedFiles) {
+        val oldStem = source.nameWithoutExtension
+        val newStem = "_aapt_" + oldStem.replace("$", "")
+        val target = File(source.parentFile, newStem + "." + source.extension)
+        if (target.exists()) {
+            throw GradleException("[oreki] AAPT2 生成资源改名冲突: " + source + " -> " + target)
+        }
+        Files.move(source.toPath(), target.toPath())
+        renamed[oldStem] = newStem
+    }
+    if (renamed.isNotEmpty()) {
+        stageRes.walkTopDown().filter { it.isFile && it.extension == "xml" }.forEach { xml ->
+            val original = orekiNormalizeNewlines(xml.readText(Charsets.UTF_8))
+            var updated = Regex("@([A-Za-z0-9_.:]+/)\\$([A-Za-z0-9_]+)").replace(original) { match ->
+                "@" + match.groupValues[1] + "_aapt_" + match.groupValues[2]
+            }
+            updated = Regex("name=\"\\$([A-Za-z0-9_]+)\"").replace(updated) { match ->
+                "name=\"_aapt_" + match.groupValues[1] + "\""
+            }
+            if (updated != original) {
+                xml.writeText(updated, Charsets.UTF_8)
+            }
+        }
+    }
+
+    val strings = File(stageRes, "values/strings.xml")
+    val stringsText = orekiNormalizeNewlines(strings.readText(Charsets.UTF_8))
+    val appName = Regex("<string name=\"app_name\">[^<]*</string>")
+    if (!appName.containsMatchIn(stringsText)) {
+        throw GradleException("[oreki] 官方 strings.xml 缺少 app_name")
+    }
+    val overlayStrings = (
+        "    <string name=\"oreki_shortcut_short\">Oreki 设置</string>\n" +
+            "    <string name=\"oreki_shortcut_long\">游戏速度与成就设置</string>\n"
+        )
+    val updatedStrings = appName.replace(stringsText, "<string name=\"app_name\">反物质维度</string>")
+        .replace("</resources>", overlayStrings + "</resources>")
+    strings.writeText(updatedStrings, Charsets.UTF_8)
+
+    fun replaceRequired(file: File, transformations: List<Pair<String, String>>) {
+        var text = orekiNormalizeNewlines(file.readText(Charsets.UTF_8))
+        for ((old, new) in transformations) {
+            if (!text.contains(old)) {
+                throw GradleException("[oreki] MOD 资源 overlay 锚点缺失: " + file + " / " + old.take(100))
+            }
+            text = text.replace(old, new)
+        }
+        file.writeText(text, Charsets.UTF_8)
+    }
+
+    replaceRequired(
+        File(stageRes, "values/bools.xml"),
+        listOf(
+            "<bool name=\"window_light_status_bar\">true</bool>" to
+                "<bool name=\"window_light_status_bar\">false</bool>",
+        ),
+    )
+    val stylesFile = File(stageRes, "values/styles.xml")
+    var stylesText = orekiNormalizeNewlines(stylesFile.readText(Charsets.UTF_8))
+    val wrongTextOld = "<item name=\"AUTOBUYER_WRONG_TEXT_RED\">#88a62630</item>"
+    val wrongTextNew = "<item name=\"AUTOBUYER_WRONG_TEXT_RED\">#ffef5b5b</item>"
+    if (stylesText.split(wrongTextOld).size - 1 < 2) {
+        throw GradleException("[oreki] AUTOBUYER_WRONG_TEXT_RED 资源 overlay 锚点不足 2 处")
+    }
+    stylesText = stylesText.replaceFirst(wrongTextOld, wrongTextNew)
+        .replaceFirst(wrongTextOld, wrongTextNew)
+    stylesFile.writeText(stylesText, Charsets.UTF_8)
+    replaceRequired(
+        stylesFile,
+        listOf(
+            "        <item name=\"android:windowLightStatusBar\">@bool/window_light_status_bar</item>\n" to
+                "        <item name=\"android:windowLightStatusBar\">@bool/window_light_status_bar</item>\n" +
+                "        <item name=\"android:windowLightNavigationBar\">false</item>\n",
+            "<item name=\"ECSTUDY_RUNNING_TEXT\">#ff7041b8</item>" to
+                "<item name=\"ECSTUDY_RUNNING_TEXT\">#ffb58ce8</item>",
+            "<style name=\"Palette.Fallback\" parent=\"@style/Theme.AppCompat.DayNight.NoActionBar\">" to
+                "<style name=\"Palette.Fallback\" parent=\"@style/Theme.AppCompat.NoActionBar\">",
+        ),
+    )
+    val zhStrings = File(stageRes, "values-zh-rCN/strings.xml")
+    val zhText = orekiNormalizeNewlines(zhStrings.readText(Charsets.UTF_8))
+    val zhOverlay = (
+        "    <string name=\"navigation_drawer_open\">打开导航菜单</string>\n" +
+            "    <string name=\"navigation_drawer_close\">关闭导航菜单</string>\n" +
+            "    <string name=\"cpv_default_title\">选择颜色</string>\n"
+        )
+    if (!zhText.contains("name=\"navigation_drawer_open\"")) {
+        zhStrings.writeText(zhText.replace("</resources>", zhOverlay + "</resources>"), Charsets.UTF_8)
+    }
+
+    val officialPublic = orekiReadPublicResources(File(officialRes, "values/public.xml"))
+    val splitPublic = orekiReadPublicResources(File(splitRes, "values/public.xml"))
+    val mergedPublic = orekiMergePublicResources(officialPublic, splitPublic)
+    File(stageRes, "values/public.xml").delete()
+    File(stageRes, "values/oreki_public_ids.xml").writeText(
+        orekiRenderPublicResources(mergedPublic),
+        Charsets.UTF_8,
+    )
+    File(stageRoot, "stable-ids.txt").writeText(
+        orekiStableIdsText(mergedPublic, OREKI_MOD_APPLICATION_ID),
+        Charsets.UTF_8,
+    )
+    return renamed.size
 }
 
 /** 统一换行：Python 侧 read_text() 是 universal newline（CRLF/CR→LF），校验必须等价归一化。 */
@@ -230,19 +681,159 @@ fun orekiVerifyFullGameInputs(
     evidenceFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(verifyEvidence)) + "\n", Charsets.UTF_8)
     return Triple(publicEntries.size, actualStableIdsBytes.size, stableIdsSha256)
 }
+
+/**
+ * AGP 原生完整游戏输入的独立复核。
+ *
+ * 官方输入身份与 MOD 最终 applicationId 必须分别成立：前者固定为 kajfosz 原版包名，
+ * 后者固定为 Oreki 正式包名；阶段 Manifest 不得再携带 package，由 AGP 应用 applicationId。
+ */
+fun orekiVerifyNativeFullGameInputs(
+    officialRoot: File,
+    splitRoot: File,
+    stageRoot: File,
+    applicationId: String,
+    evidenceFile: File,
+): Triple<Int, Int, String> {
+    val officialManifest = File(officialRoot, "AndroidManifest.xml")
+    val officialPublicXml = File(officialRoot, "res/values/public.xml")
+    val splitPublicXml = File(splitRoot, "res/values/public.xml")
+    val stagedManifest = File(stageRoot, "AndroidManifest.xml")
+    val stagedStableIds = File(stageRoot, "stable-ids.txt")
+    val stagedPublicIds = File(stageRoot, "res/values/oreki_public_ids.xml")
+    val stagedRawPublicXml = File(stageRoot, "res/values/public.xml")
+    val inputEvidence = File(stageRoot, "fullgame-inputs.json")
+    val shortcutXml = File(stageRoot, "res/xml/oreki_shortcuts.xml")
+
+    if (applicationId != OREKI_MOD_APPLICATION_ID) {
+        throw GradleException("[oreki] MOD applicationId 漂移: " + applicationId)
+    }
+    val officialManifestText = orekiNormalizeNewlines(officialManifest.readText(Charsets.UTF_8))
+    val sourcePackage = Regex("\\bpackage=\"([^\"]*)\"").find(officialManifestText)?.groupValues?.get(1)
+        ?: throw GradleException("[oreki] 官方 Manifest 缺少 package 属性")
+    if (sourcePackage != OREKI_OFFICIAL_PACKAGE) {
+        throw GradleException(
+            "[oreki] 官方输入身份不匹配: package=" + sourcePackage + " != " + OREKI_OFFICIAL_PACKAGE,
+        )
+    }
+
+    val officialEntries = orekiReadPublicResources(officialPublicXml)
+    val splitEntries = orekiReadPublicResources(splitPublicXml)
+    val mergedEntries = orekiMergePublicResources(officialEntries, splitEntries)
+    val expectedStableIdsBytes = orekiStableIdsText(mergedEntries, applicationId).toByteArray(Charsets.UTF_8)
+    val actualStableIdsBytes = stagedStableIds.readBytes()
+    if (!expectedStableIdsBytes.contentEquals(actualStableIdsBytes)) {
+        throw GradleException("[oreki] stable-ids.txt 与官方 base + mdpi split 独立重算结果不一致")
+    }
+    val expectedPublicIds = orekiRenderPublicResources(mergedEntries)
+    val actualPublicIds = orekiNormalizeNewlines(stagedPublicIds.readText(Charsets.UTF_8))
+    if (expectedPublicIds != actualPublicIds) {
+        throw GradleException("[oreki] 阶段 oreki_public_ids.xml 与合并后的资源身份不一致")
+    }
+    if (stagedRawPublicXml.exists()) {
+        throw GradleException("[oreki] 阶段 res/values/public.xml 仍存在，AGP 会丢弃该文件")
+    }
+    if (!shortcutXml.isFile || !shortcutXml.readText(Charsets.UTF_8).contains(applicationId)) {
+        throw GradleException("[oreki] MOD 快捷方式资源缺失或 targetPackage 未指向正式 applicationId")
+    }
+
+    val expectedManifest = File(evidenceFile.parentFile, "manifest-recheck.xml")
+    expectedManifest.parentFile.mkdirs()
+    orekiTransformFullGameManifest(officialManifest, expectedManifest, applicationId)
+    val expectedManifestText = orekiNormalizeNewlines(expectedManifest.readText(Charsets.UTF_8))
+    val stagedManifestText = orekiNormalizeNewlines(stagedManifest.readText(Charsets.UTF_8))
+    if (expectedManifestText != stagedManifestText) {
+        throw GradleException("[oreki] 阶段 Manifest 与官方输入 + 确定性 Mod overlay 重算结果不一致")
+    }
+    if (Regex("<manifest\\b[^>]*\\bpackage=\"").containsMatchIn(stagedManifestText)) {
+        throw GradleException("[oreki] 阶段 Manifest 仍带 package 属性")
+    }
+    if (Regex("<application\\b[^>]*?\\s+android:extractNativeLibs=\"").containsMatchIn(stagedManifestText)) {
+        throw GradleException("[oreki] 阶段 Manifest 仍带 android:extractNativeLibs")
+    }
+    if (!stagedManifestText.contains("android.app.shortcuts") ||
+        !stagedManifestText.contains(OREKI_OFFICIAL_PACKAGE + ".oreki.SpeedSettingsActivity")
+    ) {
+        throw GradleException("[oreki] 阶段 Manifest 缺少 MOD 快捷方式或设置页组件")
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    val evidence = JsonSlurper().parse(inputEvidence) as Map<String, Any?>
+    if (evidence["sourcePackage"]?.toString() != OREKI_OFFICIAL_PACKAGE ||
+        evidence["applicationId"]?.toString() != applicationId
+    ) {
+        throw GradleException("[oreki] fullgame-inputs.json 未区分官方包名与 MOD applicationId")
+    }
+    val source = evidence["source"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullgame-inputs.json 缺少 source")
+    if (source["officialManifestSha256"]?.toString() != orekiSha256(officialManifest.readBytes()) ||
+        source["officialPublicXmlSha256"]?.toString() != orekiSha256(officialPublicXml.readBytes()) ||
+        source["splitPublicXmlSha256"]?.toString() != orekiSha256(splitPublicXml.readBytes())
+    ) {
+        throw GradleException("[oreki] fullgame-inputs.json 的官方/split 输入指纹不一致")
+    }
+    val resources = evidence["resources"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullgame-inputs.json 缺少 resources")
+    if (resources["total"]?.toString()?.toIntOrNull() != mergedEntries.size) {
+        throw GradleException("[oreki] fullgame-inputs.json 资源总数与合并结果不一致")
+    }
+    val outputs = evidence["outputs"] as? Map<*, *>
+        ?: throw GradleException("[oreki] fullgame-inputs.json 缺少 outputs")
+    if (outputs["stableIdsEntries"]?.toString()?.toIntOrNull() != mergedEntries.size) {
+        throw GradleException("[oreki] fullgame-inputs.json stable_ids_entries 与合并结果不一致")
+    }
+
+    expectedManifest.delete()
+    val stableIdsSha256 = orekiSha256(actualStableIdsBytes)
+    evidenceFile.parentFile.mkdirs()
+    val verifyEvidence = linkedMapOf<String, Any>(
+        "schema" to 1,
+        "stage" to "agp-fullgame-inputs-verify",
+        "sourcePackage" to OREKI_OFFICIAL_PACKAGE,
+        "applicationId" to applicationId,
+        "resourcesOfficial" to officialEntries.size,
+        "resourcesSplitAdded" to (mergedEntries.size - officialEntries.size),
+        "resourcesTotal" to mergedEntries.size,
+        "stable_ids_bytes" to actualStableIdsBytes.size,
+        "stable_ids_sha256" to stableIdsSha256,
+        "official_public_xml_sha256" to orekiSha256(officialPublicXml.readBytes()),
+        "split_public_xml_sha256" to orekiSha256(splitPublicXml.readBytes()),
+        "official_manifest_sha256" to orekiSha256(officialManifest.readBytes()),
+        "checks" to linkedMapOf<String, Any>(
+            "official_identity" to true,
+            "manifest_transform_byte_equal" to true,
+            "stable_ids_byte_equal" to true,
+            "staged_public_ids_equal" to true,
+            "mod_overlay_present" to true,
+            "input_evidence_consistent" to true,
+        ),
+    )
+    evidenceFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(verifyEvidence)) + "\n", Charsets.UTF_8)
+    return Triple(mergedEntries.size, actualStableIdsBytes.size, stableIdsSha256)
+}
 // Version identity is independent of the pinned Android 3.21.0 upstream baseline.
 // Keep the AGP manifest in lockstep with the reviewed release-gate policy.
 val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
 val orekiVersionCode = releaseIdentity["versionCode"].toString().toInt()
 val orekiVersionName = requireNotNull(releaseIdentity["versionName"] as? String)
 
-// R106-01 完整游戏模式：解码树（Manifest/res/assets/lib）由
-// scripts/agp_prepare_fullgame.py 规范化后作为真实输入；默认仍构建 CI 用的
-// bridge 包，公开 CI 不依赖官方二进制。完整游戏模式只在本机/受保护的私有
-// 环境运行，且在本轮验证完成前不产出可发布的 Candidate。
+// R122 完整游戏模式：Manifest/res 由官方 3.21 base + 同版 mdpi split + 受控 overlay
+// 在 Gradle 内确定性生成；assets 来自官方输入与 payload，native 库来自 payload。
+// 默认仍构建公开 CI bridge 包，不读取私有基线。
 val fullGame = (providers.gradleProperty("orekiFullGame").orNull ?: "false").toBoolean()
-val decodedTree = File(repoRoot, providers.gradleProperty("orekiDecodedTree").orNull ?: "work/mod")
-val fullGameStage = File(repoRoot, providers.gradleProperty("orekiFullGameStage").orNull ?: "build/agp-fullgame")
+fun orekiRepoPath(raw: String): File {
+    val candidate = File(raw)
+    return if (candidate.isAbsolute) candidate else File(repoRoot, raw)
+}
+val officialTree = orekiRepoPath(
+    providers.gradleProperty("orekiOfficialTree").orNull ?: "work/base_decoded_321",
+)
+val splitTree = orekiRepoPath(
+    providers.gradleProperty("orekiSplitTree").orNull ?: "work/mdpi_decoded_321",
+)
+val fullGameStage = orekiRepoPath(
+    providers.gradleProperty("orekiFullGameStage").orNull ?: "build/agp-fullgame",
+)
 // R106-02：由官方 3.21.0 DEX 经 dex2jar 转换并过滤后的 JVM 类输入（构建产物，不入库）。
 // 脚本：scripts/agp_gamejar.py；来源 SHA-256 必须随候选记录。
 val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
@@ -371,19 +962,103 @@ val generateKotlinBindings = tasks.register("generateKotlinBindings") {
     }
 }
 
-val prepareFullGameInputs by tasks.registering(Exec::class) {
-    workingDir = repoRoot
-    commandLine(
-        "python3",
-        "scripts/agp_prepare_fullgame.py",
-        "--decoded-tree", decodedTree.relativeTo(repoRoot).path,
-        "--out", fullGameStage.relativeTo(repoRoot).path,
-    )
-    inputs.file(File(repoRoot, "scripts/agp_prepare_fullgame.py"))
-    inputs.file(File(decodedTree, "AndroidManifest.xml"))
-    inputs.file(File(decodedTree, "res/values/public.xml"))
-    inputs.dir(File(decodedTree, "res"))
+val shortcutOverlay = File(repoRoot, "agp/fullgame-overlay/xml/oreki_shortcuts.xml")
+val prepareFullGameInputs by tasks.registering {
+    group = "oreki"
+    description = "Gradle 原生生成 AGP 完整游戏 Manifest、资源、stable-ids 与来源证据"
+    inputs.file(File(officialTree, "AndroidManifest.xml")).withPropertyName("orekiOfficialManifest")
+    inputs.file(File(officialTree, "res/values/public.xml")).withPropertyName("orekiOfficialPublicXml")
+    inputs.file(File(officialTree, "apktool.yml")).withPropertyName("orekiOfficialApktool")
+    inputs.dir(File(officialTree, "res")).withPropertyName("orekiOfficialRes")
+    inputs.file(File(splitTree, "res/values/public.xml")).withPropertyName("orekiSplitPublicXml")
+    inputs.file(File(splitTree, "apktool.yml")).withPropertyName("orekiSplitApktool")
+    inputs.dir(File(splitTree, "res")).withPropertyName("orekiSplitRes")
+    inputs.file(shortcutOverlay).withPropertyName("orekiShortcutOverlay")
     outputs.dir(fullGameStage)
+    doLast {
+        val officialManifest = File(officialTree, "AndroidManifest.xml")
+        val officialPublic = File(officialTree, "res/values/public.xml")
+        val splitPublic = File(splitTree, "res/values/public.xml")
+        if (!officialManifest.isFile || !officialPublic.isFile) {
+            throw GradleException(
+                "[oreki] 缺少官方 3.21 输入；请设置 -PorekiOfficialTree=<decoded-3.21>，当前=" +
+                    officialTree,
+            )
+        }
+        if (!splitPublic.isFile) {
+            throw GradleException(
+                "[oreki] 缺少同版 mdpi split；请设置 -PorekiSplitTree=<decoded-mdpi-3.21>，当前=" +
+                    splitTree,
+            )
+        }
+        fun versionCode(tree: File): String {
+            val metadata = File(tree, "apktool.yml")
+            val match = Regex("versionCode:\\s*['\"]?(\\d+)").find(metadata.readText(Charsets.UTF_8))
+                ?: throw GradleException("[oreki] apktool.yml 缺少 versionCode: " + metadata)
+            return match.groupValues[1]
+        }
+        val officialVersion = versionCode(officialTree)
+        val splitVersion = versionCode(splitTree)
+        if (officialVersion != "30210000" || splitVersion != officialVersion) {
+            throw GradleException(
+                "[oreki] 官方 base/split 版本不匹配或不是 3.21.0: base=" +
+                    officialVersion + " split=" + splitVersion,
+            )
+        }
+
+        fullGameStage.deleteRecursively()
+        fullGameStage.mkdirs()
+        orekiTransformFullGameManifest(
+            officialManifest,
+            File(fullGameStage, "AndroidManifest.xml"),
+            OREKI_MOD_APPLICATION_ID,
+        )
+        val renamedCount = orekiStageFullGameResources(
+            officialTree,
+            splitTree,
+            shortcutOverlay,
+            fullGameStage,
+        )
+        val officialEntries = orekiReadPublicResources(officialPublic)
+        val splitEntries = orekiReadPublicResources(splitPublic)
+        val mergedEntries = orekiMergePublicResources(officialEntries, splitEntries)
+        val evidence = linkedMapOf<String, Any>(
+            "schema" to 2,
+            "stage" to "agp-native-fullgame-inputs",
+            "sourcePackage" to OREKI_OFFICIAL_PACKAGE,
+            "applicationId" to OREKI_MOD_APPLICATION_ID,
+            "source" to linkedMapOf(
+                "officialTree" to officialTree.name,
+                "splitTree" to splitTree.name,
+                "officialManifestSha256" to orekiSha256(officialManifest.readBytes()),
+                "officialPublicXmlSha256" to orekiSha256(officialPublic.readBytes()),
+                "splitPublicXmlSha256" to orekiSha256(splitPublic.readBytes()),
+                "shortcutOverlaySha256" to orekiSha256(shortcutOverlay.readBytes()),
+            ),
+            "resources" to linkedMapOf(
+                "official" to officialEntries.size,
+                "splitAdded" to (mergedEntries.size - officialEntries.size),
+                "total" to mergedEntries.size,
+                "generatedRenamed" to renamedCount,
+            ),
+            "outputs" to linkedMapOf(
+                "manifest" to "AndroidManifest.xml",
+                "res" to "res",
+                "stableIds" to "stable-ids.txt",
+                "stableIdsEntries" to mergedEntries.size,
+            ),
+        )
+        File(fullGameStage, "fullgame-inputs.json").writeText(
+            JsonOutput.prettyPrint(JsonOutput.toJson(evidence)) + "\n",
+            Charsets.UTF_8,
+        )
+        logger.lifecycle(
+            "[oreki] AGP 原生 fullGame 输入已生成：官方 " + officialEntries.size +
+                " + split " + (mergedEntries.size - officialEntries.size) +
+                " = " + mergedEntries.size + " 条资源；source=" + OREKI_OFFICIAL_PACKAGE +
+                " applicationId=" + OREKI_MOD_APPLICATION_ID,
+        )
+    }
 }
 
 android {
@@ -442,7 +1117,7 @@ android {
             // 统一取 scripts/payload/assets 的提交版本，避免同名资产双来源导致 AGP 资源合并失败。
             assets.srcDirs(File(repoRoot, "build/agp-fullgame-assets"))
 
-            jniLibs.srcDirs(File(decodedTree, "lib"))
+            jniLibs.srcDirs(File(repoRoot, "scripts/payload/lib"))
         }
         androidResources {
             // public.xml 已显式固定原版资源 ID；stable-ids 映射作为独立复核输入，
@@ -516,7 +1191,7 @@ if (fullGame) {
 // 也避免改写 prepareFullGameInputs 的声明输出导致其每轮被判定失效后重跑。
 if (fullGame) {
     val changelogZhSrc = File(repoRoot, "scripts/payload/res/raw/changelog.zh.txt")
-    val decodedChangelog = File(decodedTree, "res/raw/changelog.txt")
+    val decodedChangelog = File(officialTree, "res/raw/changelog.txt")
     val generatedResDir = File(repoRoot, "build/agp-generated-res")
     val generatedChangelog = File(generatedResDir, "raw/changelog.txt")
     tasks.register("generateChangelogZh") {
@@ -583,7 +1258,7 @@ if (fullGame) {
     // R110-01 C1：解码树 assets 与 payload assets 去重暂存（始终只留 payload 版教程资产）
     val stagedAssets = File(repoRoot, "build/agp-fullgame-assets")
     tasks.register("prepareFullGameAssets", Sync::class) {
-        from(File(decodedTree, "assets")) { exclude("oreki_tutorial.txt") }
+        from(File(officialTree, "assets")) { exclude("oreki_tutorial.txt") }
         from(File(repoRoot, "scripts/payload/assets"))
         into(stagedAssets)
     }
@@ -626,18 +1301,15 @@ if (fullGame) {
 }
 
 if (fullGame) {
-    // [R114-02 C2] fullGame 输入准备链的 Python 依赖盘点与 Gradle 原生校验（Issue #52 / #61）。
-    // scripts/agp_prepare_fullgame.py 负责 Manifest 规范化、res 阶段化与 stable-ids 生成；
-    // 该脚本文件所有权属 buildmod-retirement（本闭包不修改、不替换它）。这里把「public.xml /
-    // stable-ids 校验」责任独立迁到 Gradle：从解码树 public.xml 重新计算 aapt2 --stable-ids
-    // 期望字节，并独立复核阶段产物（Manifest 规范化、oreki_public_ids.xml 改写、输入指纹），
-    // 任何漂移 fail-closed。校验只读，不改变任何 AGP 输入/输出（A/B 要求 fullGame APK 逐字节不变）。
-    // 校验核心见 orekiVerifyFullGameInputs(...)，与 CRLF 自测任务共用同一实现。
+    // R122（Issue #52 / #61）：生产输入准备和复核均由 Gradle 完成。
+    // 复核会分别验证官方包名、MOD applicationId、base+split 合并后的 stable-ids、
+    // 确定性 Manifest 重算结果和 MOD overlay；任何漂移 fail-closed。
     val orekiFullGameApplicationId = requireNotNull(android.defaultConfig.applicationId) {
         "完整游戏模式必须已设置 applicationId"
     }
-    val orekiDecodedPublicXml = File(decodedTree, "res/values/public.xml")
-    val orekiDecodedManifest = File(decodedTree, "AndroidManifest.xml")
+    val orekiDecodedPublicXml = File(officialTree, "res/values/public.xml")
+    val orekiDecodedManifest = File(officialTree, "AndroidManifest.xml")
+    val orekiSplitPublicXml = File(splitTree, "res/values/public.xml")
     val orekiStagedManifest = File(fullGameStage, "AndroidManifest.xml")
     val orekiStagedStableIds = File(fullGameStage, "stable-ids.txt")
     val orekiStagedPublicIds = File(fullGameStage, "res/values/oreki_public_ids.xml")
@@ -657,9 +1329,11 @@ if (fullGame) {
         inputs.file(orekiStagedPublicIds).withPropertyName("orekiStagedPublicIds")
         inputs.file(orekiInputEvidence).withPropertyName("orekiInputEvidence")
         outputs.file(orekiVerifyEvidence).withPropertyName("orekiVerifyEvidence")
+        inputs.file(orekiSplitPublicXml).withPropertyName("orekiSplitPublicXml")
         doLast {
-            val summary = orekiVerifyFullGameInputs(
-                decodedTree,
+            val summary = orekiVerifyNativeFullGameInputs(
+                officialTree,
+                splitTree,
                 fullGameStage,
                 orekiFullGameApplicationId,
                 orekiVerifyEvidence,

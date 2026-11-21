@@ -16,6 +16,7 @@ JAR=""
 VARIANT="both"
 OUTDIR="$ROOT/build/r109-r8/ab"
 XMX="1536m"
+EXTRA_GRADLE_ARGS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -23,6 +24,8 @@ while [ $# -gt 0 ]; do
     --variant) VARIANT="$2"; shift 2 ;;
     --outdir) OUTDIR="$2"; shift 2 ;;
     --xmx) XMX="$2"; shift 2 ;;
+    -PorekiOfficialTree=*|-PorekiSplitTree=*|-PorekiFullGameStage=*)
+      EXTRA_GRADLE_ARGS+=("$1"); shift ;;
     *) echo "unknown arg $1" >&2; exit 2 ;;
   esac
 done
@@ -65,10 +68,10 @@ RC=0
 DAEMON_PATTERN='KotlinCompileDaemon|org.gradle.launcher.daemon.bootstrap.GradleDaemon'
 DAEMONS_BEFORE=" $(pgrep -f "$DAEMON_PATTERN" 2>/dev/null | tr '\n' ' ')"
 if [ "$VARIANT" = "off" ] || [ "$VARIANT" = "both" ]; then
-  run_variant r8off || RC=1
+  run_variant r8off "${EXTRA_GRADLE_ARGS[@]}" || RC=1
 fi
 if [ "$VARIANT" = "on" ] || [ "$VARIANT" = "both" ]; then
-  run_variant r8on -Poreki.r8=true || RC=1
+  run_variant r8on -Poreki.r8=true "${EXTRA_GRADLE_ARGS[@]}" || RC=1
 fi
 
 for pid in $(pgrep -f "$DAEMON_PATTERN" 2>/dev/null); do

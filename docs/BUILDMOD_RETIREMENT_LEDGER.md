@@ -446,3 +446,67 @@ C4b 方案：给 `verify_build_contracts.py` 增加 `--mod-tree` / `--decoded-tr
 - 发布窗口内**不动** #129/#131、不改 candidate 链、不触发正式构建；
 - 新闭包（如 D1–D6）必须以「不影响发布」为前提，独立分支 + PR + Required Checks；
 - build_mod 剩余依赖未清零前，不得删除或旁路任何仍在生产消费的函数/脚本。
+
+## 11. R122 闭包 A：AGP 原生 Manifest / 资源输入
+
+> 2026-11-21，分支 `r122/agp-native-inputs`。本闭包只解决 AGP 完整游戏输入，
+> 不宣称 `build_mod.py` 已可删除，也不把已回填 game JAR 冒充完全原生代码链。
+
+### 11.1 实际移除的生产依赖
+
+| 旧依赖 | R122 状态 | 新输入 |
+|---|---|---|
+| candidate bundle `modtree` | **移除** | 不打包、不校验、不挂载补丁树 |
+| `-PorekiDecodedTree=work/mod` | **移除** | `-PorekiOfficialTree=<官方3.21>` + `-PorekiSplitTree=<mdpi split>` |
+| `prepareFullGameInputs -> python agp_prepare_fullgame.py` | **移除生产调用** | Gradle Kotlin DSL 内确定性 Manifest/资源阶段化 |
+| 根 `assembleRelease -> build_mod.py` 默认入口 | **默认 fail-closed** | 仅 `OREKI_LEGACY_ISOLATED=1` 允许隔离回归 |
+| candidate 对 `kotlinc` / `xhdpi` 的输入要求 | **移除** | AGP 自带 Kotlin 编译；只保留同版 mdpi split |
+
+三类身份已拆开验证：
+
+1. 官方输入包名：`kajfosz.antimatterdimensions`；
+2. AGP 最终 `applicationId`：`com.oreki.antimatterdimensions`；
+3. 官方 Manifest 去掉 `package` 后由 AGP 应用正式 applicationId。
+
+### 11.2 资源来源与计数
+
+官方 3.21 base `public.xml` 为 **14,928** 条；同版 mdpi split 新增 **45** 条；
+合并后 **14,973** 条，与 final8 已验证资源身份一致。此前 18,164 条来自
+误指向的 3.19 legacy 树，不是当前 3.21 输入。
+
+资源 overlay 只保留实际 MOD 差异：
+
+- 中文应用名与设置页快捷方式；
+- 深色状态栏/导航栏布尔；
+- 自动购买器错误色、EC 运行文本色、`Palette.Fallback`；
+- 简体中文导航抽屉和颜色选择器文案；
+- AAPT2 `$name` 资源确定性改名与 `stable-ids`。
+
+### 11.3 验证
+
+| 项目 | 结果 | 证据 |
+|---|---|---|
+| Gradle 原生 Manifest/资源生成 | **PASS** | `prepareFullGameInputs` |
+| 官方 source / MOD applicationId 分离 | **PASS** | `verifyFullGameInputs` |
+| base + split 独立 stable-ids 重算 | **PASS** | 14,973 条 / 1,076,790 B / SHA-256 `13e9953a…` |
+| AAPT2 Manifest/resource link | **PASS** | `processReleaseResources` |
+| AGP 原生输入守卫 | **PASS 5/5** | `test_agp_native_fullgame_inputs.py` |
+| YAML/Shell 语法 | **PASS** | `ci.yml`、`candidate-unified.yml`、build scripts |
+| R8 OFF 完整 APK 构建 | **PASS（过渡）** | SHA-256 `84fdb683…c9a7b`，81,626,243 B |
+| APK 包名/版本/证书 | **PASS** | `com.oreki.antimatterdimensions` / 30210002 / `95960bce…3197` |
+| 覆盖安装 / 冷启动 / GUI / 资源 | **PASS（短程）** | final10 AVD；中文更新日志、无限页、图标和主题正常 |
+| R8 ON | **NOT RUN** | 保持 opt-in |
+
+### 11.4 仍未消除的旧链依赖
+
+- `game-hybrid-sig.jar` 仍是历史 Smali 补丁后的回填 JAR；其来源 SHA 已记录，但生成过程仍依赖旧链。
+- `scripts/build_mod.py` 仍存在；根 Gradle 仅由环境变量显式打开隔离回归，不再默认进入生产。
+- `verify_patch_contract.py`、`probe_patches.py`、`r80_patch_run.py` 等仍有文本/补丁树消费点。
+- `applyStorePolicy` 的 ABI 适配器、数值常量和原版方法钩子尚未迁成完整 Kotlin/Rust 字节码变换器。
+
+因此：
+
+- 闭包 A：**PASS**；
+- R8 OFF 过渡 APK：**PASS（安装/冷启/GUI）**；
+- `build_mod.py` 物理删除条件：**BLOCKED**；
+- 正式 Candidate/Verify/Release：仍按 AGP-only 与真实游戏门禁 fail-closed。
