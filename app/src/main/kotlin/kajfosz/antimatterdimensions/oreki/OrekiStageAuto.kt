@@ -379,7 +379,7 @@ object OrekiStageAuto {
                     OrekiManagedAutobuyerAuthority.useC9ManagedStrategy(normalChallengeCurrent)
                 if (isC9) {
                     holdCrunchOwnershipForC9()
-                } else {
+                } else if (normalChallengeCurrent != null) {
                     restoreCrunchOwnershipAfterC9()
                 }
                 val dims = GameApi.dimensionAutobuyers()
@@ -2595,7 +2595,13 @@ object OrekiStageAuto {
         val currentSaveId = GameApi.saveIdentity() ?: return false
         if (c9CrunchHoldCaptured) {
             if (c9CrunchCaptureSaveId.isNullOrEmpty()) {
+                if (GameApi.normalChallengeCurrent() != 9) return false
                 c9CrunchCaptureSaveId = currentSaveId
+                OrekiAutomationScheduler.saveC9CrunchCapture(
+                    active = c9PreviouslyActiveAutoBig,
+                    ownedByMod = c9PreviousModOwnedCrunch,
+                    policyPaused = c9PreviousPolicyPausedCrunch,
+                )
                 return true
             }
             if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(

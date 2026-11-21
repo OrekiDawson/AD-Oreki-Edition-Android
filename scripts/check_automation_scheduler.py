@@ -485,6 +485,12 @@ check("C9 capture 清除同步落盘",
       and ".commit()" in sched[sched.find("fun clearC9CrunchCapture()"):]
       and "if (c9CrunchCaptureSaveId.isNullOrEmpty())" in stage
       and "c9CrunchCaptureSaveId = currentSaveId" in stage)
+check("C9 null 挑战 ID 不触发恢复，unknown save 仅在 C9 内补绑",
+      "} else if (normalChallengeCurrent != null) {" in stage
+      and "if (GameApi.normalChallengeCurrent() != 9) return false" in stage
+      and "saveC9CrunchCapture(" in stage[
+          stage.find("if (c9CrunchCaptureSaveId.isNullOrEmpty())"):
+          stage.find("if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(")])
 check("C9 自举层使用单买，避免抬高 D7 价格",
       "!lowerChainReady || tier == 7 || tier == 8" in
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
@@ -503,7 +509,10 @@ check("阶段速度接管关闭旧动态升档",
 check("C9 只临时暂停并在挑战结束后恢复大坍缩自动器",
       "private fun holdCrunchOwnershipForC9()" in stage
       and "private fun restoreCrunchOwnershipAfterC9()" in stage
-      and "restoreCrunchOwnershipAfterC9()" in stage[stage.find("if (c9YieldActive)"):]
+      and "restoreCrunchOwnershipAfterC9()" in stage[
+          stage.find("if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture("):
+          stage.find("if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9", stage.find(
+              "if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture("))]
       and "releaseCrunchOwnershipForC9Yield()" not in _c9_block)
 
 # ---------------------------------------------------------------- 24f. TT 购买收益恢复原版 ×1
