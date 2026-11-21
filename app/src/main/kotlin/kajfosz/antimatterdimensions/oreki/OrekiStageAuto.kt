@@ -380,7 +380,7 @@ object OrekiStageAuto {
             // 放在早退之前：毁灭态下其余自动化全部跳过，必须由本驱动接管。
             OrekiPelle.tick()
 
-            // 保留原版 TT 收益与真实购买对账入口，不在阶段自动化中另发额外资源。
+            // 旧 TT ×500 补发已撤销；保留对账入口以推进基线，不再发额外资源。
             GameApi.settleTimeTheoremReward()
 
             OrekiPlayerIntent.refresh()
