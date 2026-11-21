@@ -20,9 +20,23 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  r8-contract:
+    name: R8 DSL 与 ABI Keep 契约
+    # Draft 也必须验证：R8 OFF/ON 的构建可以推迟，Keep 规则守卫不能跳过。
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 检出实验源码
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: 运行 R8 DSL 与 ABI Keep 单测
+        run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
+
   r8-experiment:
     name: R8 优化前后 Release 对照（不发布）
-    # Draft 每次同步仅运行轻量门禁；昂贵 R8 双包对照在 Ready 或手动触发时运行。
+    needs: r8-contract
+    # 仅对 Ready PR / 手动执行双包对照；Draft 的契约守卫由 r8-contract 单独负责。
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -42,8 +56,6 @@ jobs:
           packages: platform-tools
       - name: 配置 Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: 运行 R8 DSL 与 ABI Keep 单测
-        run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
       - name: 构建未启用 R8 的 Release 对照 APK
         # 未开启 R8 的对照可使用 Gradle 正常输入追踪与缓存；显式开启 R8 的第二次构建仍强制重执行以防复用旧包。
         # R111 CI-2：不再对该确定性构建做最多 3 次整包重试（最坏情况会白跑 ~9 分钟）。
