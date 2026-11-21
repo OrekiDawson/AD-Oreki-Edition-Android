@@ -146,6 +146,8 @@
 
     if-eqz v4, :invalid
 
+    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/OrekiGamePace;->markManualSpeedChoice()V
+
     invoke-static {v2, v3}, Lkajfosz/antimatterdimensions/OrekiSpeed;->format(D)Ljava/lang/String;
     move-result-object v1
 
