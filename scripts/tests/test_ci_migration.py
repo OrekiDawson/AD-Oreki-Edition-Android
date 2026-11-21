@@ -121,7 +121,7 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertNotIn("--rerun-tasks", off_command)
         self.assertIn("-Poreki.r8=true --rerun-tasks", on_command)
         self.assertIn("if: always()", workflow)
-        self.assertIn("name: android-r8-experiment-", workflow)
+        self.assertIn("name: android-r8-experiment-${{ github.sha }}", workflow)
 
     def test_candidate_contract_fast_fails_before_gradle_without_duplicate_test(self):
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
