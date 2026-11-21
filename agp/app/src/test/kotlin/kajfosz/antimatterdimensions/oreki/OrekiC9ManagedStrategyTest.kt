@@ -246,6 +246,26 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
+    fun c9BootstrapUsesSinglePurchasesUntilLowerChainIsReady() {
+        assertEquals(
+            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+            OrekiManagedAutobuyerAuthority.c9DimensionMode(
+                tier = 1,
+                dimensionBoosts = 3,
+                lowerChainReady = false,
+            ),
+        )
+        assertEquals(
+            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10,
+            OrekiManagedAutobuyerAuthority.c9DimensionMode(
+                tier = 1,
+                dimensionBoosts = 3,
+                lowerChainReady = true,
+            ),
+        )
+    }
+
+    @Test
     fun galaxyStaysOffButPostFifthSacrificeRecovers() {
         assertFalse(OrekiManagedAutobuyerAuthority.c9GalaxyActive())
         assertFalse(OrekiManagedAutobuyerAuthority.c9SacrificeActive(4))

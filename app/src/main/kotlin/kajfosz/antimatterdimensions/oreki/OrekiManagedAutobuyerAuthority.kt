@@ -158,8 +158,16 @@ object OrekiManagedAutobuyerAuthority {
     }
 
     @JvmStatic
-    fun c9DimensionMode(tier: Int, dimensionBoosts: Int): Int =
-        if (dimensionBoosts < 5 && (tier == 7 || tier == 8)) {
+    @JvmOverloads
+    fun c9DimensionMode(
+        tier: Int,
+        dimensionBoosts: Int,
+        lowerChainReady: Boolean = true,
+    ): Int =
+        if (dimensionBoosts < 5 && (
+                !lowerChainReady || tier == 7 || tier == 8
+            )
+        ) {
             DIMENSION_MODE_BUY_SINGLE
         } else {
             DIMENSION_MODE_BUY_10

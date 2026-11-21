@@ -456,8 +456,21 @@ check("C9 暂停标记只在所有权或 active 状态变化时写盘",
 check("C9 准备判定按调度 tick 缓存",
       "c9PreparationCacheTick" in stage and "c9StartGateCacheTick" in
       read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("C9 准备缓存只覆盖慢变完成位，bulk 每次现读",
+      "c9PreparationFirstEightCompleted" in stage
+      and "c9PreparationCompleted" in stage
+      and "d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf)" in stage
+      and "d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf)" in stage)
 check("C9 结束恢复失败可逐帧重试",
       "if (c9CrunchHoldCaptured && normalChallengeCurrent != 9)" in stage)
+check("C9 跨重启保留进入前 autoBig 意图",
+      "saveC9CrunchCapture(" in stage
+      and "loadC9CrunchCaptureOrNull()" in stage
+      and "clearC9CrunchCapture()" in stage
+      and "KEY_C9_CRUNCH_SAVE_ID" in sched)
+check("C9 自举层使用单买，避免抬高 D7 价格",
+      "!lowerChainReady || tier == 7 || tier == 8" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 让路发生在调度开帧与 GUI 同步之后",

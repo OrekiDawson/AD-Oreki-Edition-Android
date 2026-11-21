@@ -269,7 +269,8 @@ object OrekiStageAuto {
     private var c9PreviousPolicyPausedCrunch = false
     private var c9PreviouslyActiveAutoBig = false
     private var c9PreparationCacheTick = Long.MIN_VALUE
-    private var c9PreparationCacheValue = false
+    private var c9PreparationFirstEightCompleted = false
+    private var c9PreparationCompleted = false
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
     private var lastObservedBrokenState: Boolean = false
@@ -345,6 +346,9 @@ object OrekiStageAuto {
             }
 
             val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            if (!c9CrunchHoldCaptured) {
+                loadC9CrunchCaptureFromPrefs()
+            }
             if (c9CrunchHoldCaptured && normalChallengeCurrent != 9) {
                 // 挑战正常结束时如果一次读值失败，不能永久留下 autoBig 暂停所有权。
                 restoreCrunchOwnershipAfterC9()
@@ -818,20 +822,21 @@ object OrekiStageAuto {
         val currentChallenge = GameApi.normalChallengeCurrent()
         if (currentChallenge != 0) return false
         val currentTick = OrekiAutomationScheduler.guiTickCount().toLong()
-        if (currentTick == c9PreparationCacheTick) return c9PreparationCacheValue
+        if (currentTick != c9PreparationCacheTick) {
+            c9PreparationFirstEightCompleted =
+                (1..8).all { GameApi.normalChallengeCompleted(it) == true }
+            c9PreparationCompleted = GameApi.normalChallengeCompleted(9) == true
+            c9PreparationCacheTick = currentTick
+        }
         val dims = GameApi.dimensionAutobuyers() ?: return false
-        val shouldPrepare = OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
+        return OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
             normalChallengeCurrent = currentChallenge,
-            firstEightChallengesCompleted =
-                (1..8).all { GameApi.normalChallengeCompleted(it) == true },
-            c9Completed = GameApi.normalChallengeCompleted(9),
+            firstEightChallengesCompleted = c9PreparationFirstEightCompleted,
+            c9Completed = c9PreparationCompleted,
             d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf),
             d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf),
             inAnyChallenge = GameApi.inAnyChallenge(),
         )
-        c9PreparationCacheTick = currentTick
-        c9PreparationCacheValue = shouldPrepare
-        return shouldPrepare
     }
 
     /**
@@ -2161,6 +2166,7 @@ object OrekiStageAuto {
                         OrekiManagedAutobuyerAuthority.c9DimensionMode(
                             tier,
                             purchasedBoosts,
+                            lowerChainReady,
                         ),
                     ) { GameApi.setDimensionAutobuyerMode(dim, it) }
                 }
@@ -2434,18 +2440,25 @@ object OrekiStageAuto {
             val wasOwned = modOwnsCrunch
             val wasPolicyPaused = crunchPausedByStagePolicy
             if (!c9CrunchHoldCaptured) {
-                val persistedPaused =
-                    OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
-                c9PreviousModOwnedCrunch = modOwnsCrunch || persistedPaused
-                c9PreviousPolicyPausedCrunch = crunchPausedByStagePolicy || persistedPaused
-                c9PreviouslyActiveAutoBig = active
-                c9CrunchHoldCaptured = true
-                Log.i(
-                    TAG_C9_YIELD,
-                    "hold autoBig for C9; previousActive=" + c9PreviouslyActiveAutoBig +
-                        " previousOwned=" + c9PreviousModOwnedCrunch +
-                        " previousPolicyPaused=" + c9PreviousPolicyPausedCrunch,
-                )
+                if (!loadC9CrunchCaptureFromPrefs()) {
+                    val persistedPaused =
+                        OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
+                    c9PreviousModOwnedCrunch = modOwnsCrunch || persistedPaused
+                    c9PreviousPolicyPausedCrunch = crunchPausedByStagePolicy || persistedPaused
+                    c9PreviouslyActiveAutoBig = active
+                    c9CrunchHoldCaptured = true
+                    OrekiAutomationScheduler.saveC9CrunchCapture(
+                        active = c9PreviouslyActiveAutoBig,
+                        ownedByMod = c9PreviousModOwnedCrunch,
+                        policyPaused = c9PreviousPolicyPausedCrunch,
+                    )
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "hold autoBig for C9; previousActive=" + c9PreviouslyActiveAutoBig +
+                            " previousOwned=" + c9PreviousModOwnedCrunch +
+                            " previousPolicyPaused=" + c9PreviousPolicyPausedCrunch,
+                    )
+                }
             }
             if (active) GameApi.setAutobuyerActive(crunch, false)
             modOwnsCrunch = true
@@ -2475,6 +2488,7 @@ object OrekiStageAuto {
                 OrekiAutomationScheduler.markCrunchPausedByMod(false)
             }
             c9CrunchHoldCaptured = false
+            OrekiAutomationScheduler.clearC9CrunchCapture()
             Log.i(
                 TAG_C9_YIELD,
                 "restore autoBig after C9; active=" + GameApi.isAutobuyerActive(crunch) +
@@ -2552,10 +2566,29 @@ object OrekiStageAuto {
             crunchPausedByStagePolicy = false
             OrekiAutomationScheduler.markCrunchPausedByMod(false)
             c9CrunchHoldCaptured = false
+            OrekiAutomationScheduler.clearC9CrunchCapture()
             Log.i(TAG_AU4C, "automation-off: C9 crunch ownership released")
         } catch (_: Throwable) {
             // 保持 captured=true，关闭态下下一帧继续重试。
         }
+    }
+
+    /** 冷启动或恢复时从同存档偏好加载 C9 接管前状态；成功后恢复内存 capture。 */
+    private fun loadC9CrunchCaptureFromPrefs(): Boolean {
+        if (c9CrunchHoldCaptured) return true
+        val captured = OrekiAutomationScheduler.loadC9CrunchCaptureOrNull() ?: return false
+        if (captured.size != 3) return false
+        c9PreviouslyActiveAutoBig = captured[0]
+        c9PreviousModOwnedCrunch = captured[1]
+        c9PreviousPolicyPausedCrunch = captured[2]
+        c9CrunchHoldCaptured = true
+        Log.i(
+            TAG_C9_YIELD,
+            "load restored C9 crunch capture; previousActive=" + c9PreviouslyActiveAutoBig +
+                " previousOwned=" + c9PreviousModOwnedCrunch +
+                " previousPolicyPaused=" + c9PreviousPolicyPausedCrunch,
+        )
+        return true
     }
 
     /**

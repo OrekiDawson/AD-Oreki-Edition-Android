@@ -271,6 +271,10 @@ object OrekiAutomationScheduler {
      */
     private const val KEY_CRUNCH_PAUSED = "oreki.crunch.pausedByMod"
     private const val KEY_CRUNCH_PAUSED_SAVE_ID = "oreki.crunch.pausedByMod.saveId"
+    private const val KEY_C9_CRUNCH_ACTIVE = "oreki.c9.crunch.previousActive"
+    private const val KEY_C9_CRUNCH_OWNED = "oreki.c9.crunch.previousOwned"
+    private const val KEY_C9_CRUNCH_PAUSED = "oreki.c9.crunch.previousPolicyPaused"
+    private const val KEY_C9_CRUNCH_SAVE_ID = "oreki.c9.crunch.saveId"
 
     /**
      * 记录/清除「MOD 暂停了原版大坍缩自动器」标记（只写 oreki_prefs，不碰存档）。
@@ -334,6 +338,69 @@ object OrekiAutomationScheduler {
     @JvmStatic
     fun crunchPausedByModPersisted(): Boolean =
         crunchPausedByModPersistedOrNull() ?: false
+
+    /**
+     * 持久化进入 C9 前的 autoBig active / MOD 所有权 / 策略暂停三个意图。
+     *
+     * C9 自身会写 `KEY_CRUNCH_PAUSED`；若不单独保存进入前状态，进程重启后会把
+     * C9 的临时暂停误认成玩家进入前已关闭，关闭自动化时可能错误开启 autoBig。
+     */
+    @JvmStatic
+    fun saveC9CrunchCapture(active: Boolean, ownedByMod: Boolean, policyPaused: Boolean) {
+        val currentContext = ctx ?: return
+        val saveId = GameApi.saveIdentity() ?: return
+        try {
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_C9_CRUNCH_ACTIVE, active)
+                .putBoolean(KEY_C9_CRUNCH_OWNED, ownedByMod)
+                .putBoolean(KEY_C9_CRUNCH_PAUSED, policyPaused)
+                .putString(KEY_C9_CRUNCH_SAVE_ID, saveId)
+                .commit()
+        } catch (_: Throwable) {
+            // 写盘失败时保留内存 capture；重启恢复能力降级但不改变当前运行语义。
+        }
+    }
+
+    /** 读取当前存档对应的 C9 进入前状态；无记录、跨档或读取失败返回 null。 */
+    @JvmStatic
+    fun loadC9CrunchCaptureOrNull(): BooleanArray? {
+        val currentContext = ctx ?: return null
+        val currentSaveId = GameApi.saveIdentity() ?: return null
+        return try {
+            val preferences = currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val storedSaveId = preferences.getString(KEY_C9_CRUNCH_SAVE_ID, null)
+            if (storedSaveId != currentSaveId) return null
+            if (!preferences.contains(KEY_C9_CRUNCH_ACTIVE) ||
+                !preferences.contains(KEY_C9_CRUNCH_OWNED) ||
+                !preferences.contains(KEY_C9_CRUNCH_PAUSED)
+            ) {
+                return null
+            }
+            booleanArrayOf(
+                preferences.getBoolean(KEY_C9_CRUNCH_ACTIVE, false),
+                preferences.getBoolean(KEY_C9_CRUNCH_OWNED, false),
+                preferences.getBoolean(KEY_C9_CRUNCH_PAUSED, false),
+            )
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    /** 清除 C9 进入前状态；必须在真实恢复或关闭自动化交还所有权后调用。 */
+    @JvmStatic
+    fun clearC9CrunchCapture() {
+        val currentContext = ctx ?: return
+        try {
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .remove(KEY_C9_CRUNCH_ACTIVE)
+                .remove(KEY_C9_CRUNCH_OWNED)
+                .remove(KEY_C9_CRUNCH_PAUSED)
+                .remove(KEY_C9_CRUNCH_SAVE_ID)
+                .apply()
+        } catch (_: Throwable) {
+            // 清理失败不反向影响已完成的当前运行恢复。
+        }
+    }
 
     private fun persist() {
         val currentContext = ctx ?: return
