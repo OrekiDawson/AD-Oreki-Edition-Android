@@ -10,7 +10,9 @@
 #   OREKI_CERT_SHA256         95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
 # 可选：
 #   OREKI_VARIANT（默认 off）  OREKI_OUTDIR（默认 build/agp-candidate）
-#   OREKI_CANDIDATE_DIR（默认 candidate）  OREKI_DECODED_TREE（默认 work/mod）
+#   OREKI_CANDIDATE_DIR（默认 candidate）
+#   OREKI_OFFICIAL_TREE（默认 OREKI_BASELINE_DIR）
+#   OREKI_SPLIT_TREE（默认 work/mdpi_decoded_321）
 #   OREKI_VERIFY_RELEASE      已有真实 verify-release.json 路径（给出则生成 release-manifest）
 #   OREKI_REQUIRE_V3=true     要求 v2+v3 签名（当前 AGP 产物为 v2-only，默认仅 WARN）
 #
@@ -32,15 +34,18 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 VARIANT="${OREKI_VARIANT:-off}"
 OUTDIR="${OREKI_OUTDIR:-build/agp-candidate}"
 CANDIDATE_DIR="${OREKI_CANDIDATE_DIR:-candidate}"
-TREE="${OREKI_DECODED_TREE:-work/mod}"
-[ -f "$TREE/AndroidManifest.xml" ] || fail "缺少完整游戏解码树 $TREE/AndroidManifest.xml（需先由 staging 生成）"
-[ -f "$TREE/res/values/public.xml" ] || fail "缺少 $TREE/res/values/public.xml（资源 ID 固定输入缺失）"
+OFFICIAL_TREE="${OREKI_OFFICIAL_TREE:-${OREKI_BASELINE_DIR:-work/base_decoded_321}}"
+SPLIT_TREE="${OREKI_SPLIT_TREE:-work/mdpi_decoded_321}"
+[ -f "$OFFICIAL_TREE/AndroidManifest.xml" ] || fail "缺少官方 3.21 Manifest：$OFFICIAL_TREE/AndroidManifest.xml"
+[ -f "$OFFICIAL_TREE/res/values/public.xml" ] || fail "缺少官方 3.21 public.xml：$OFFICIAL_TREE/res/values/public.xml"
+[ -f "$SPLIT_TREE/res/values/public.xml" ] || fail "缺少同版 mdpi split public.xml：$SPLIT_TREE/res/values/public.xml"
 [ -f "$OREKI_GAME_JAR" ] || fail "缺少 game jar $OREKI_GAME_JAR"
 ACTUAL_JAR_SHA="$(sha256sum "$OREKI_GAME_JAR" | cut -d' ' -f1)"
 [ "$ACTUAL_JAR_SHA" = "$OREKI_GAME_JAR_SHA256" ] || fail "game jar SHA 不符 actual=$ACTUAL_JAR_SHA pinned=$OREKI_GAME_JAR_SHA256"
 
 echo "[1/3] AGP 完整游戏构建 variant=$VARIANT jar=$ACTUAL_JAR_SHA"
-bash "$ROOT/scripts/agp/r109_build_ab.sh" --jar "$OREKI_GAME_JAR" --variant "$VARIANT" --outdir "$OUTDIR"
+bash "$ROOT/scripts/agp/r109_build_ab.sh" --jar "$OREKI_GAME_JAR" --variant "$VARIANT" --outdir "$OUTDIR" \
+  -PorekiOfficialTree="$OFFICIAL_TREE" -PorekiSplitTree="$SPLIT_TREE"
 APK="$OUTDIR/r8off/app-release.apk"
 if [ "$VARIANT" = "on" ]; then APK="$OUTDIR/r8on/app-release.apk"; fi
 [ -f "$APK" ] || fail "AGP 构建未产出 APK：$APK"

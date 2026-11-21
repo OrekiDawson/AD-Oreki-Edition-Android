@@ -196,7 +196,7 @@ jobs:
               for member in tar:
                   path = pathlib.PurePosixPath(member.name)
                   if (path.is_absolute() or '..' in path.parts or not path.parts
-                          or path.parts[0] not in ('assets', 'baseline', 'legacy', 'gamejar', 'modtree')
+                          or path.parts[0] not in ('assets', 'baseline', 'legacy', 'gamejar')
                           or not (member.isfile() or member.isdir())):
                       raise SystemExit('FAIL: unsafe bundle entry; only regular files and directories permitted')
                   names.append(member.name)
@@ -204,13 +204,13 @@ jobs:
                   raise SystemExit('FAIL: excessive build input bundle entries')
               tar.extractall(root, filter='data')
           for relative in ('assets/apktool.jar',
-                           'assets/kotlinc/bin/kotlinc',
-                           'assets/work-splits/xhdpi_decoded/apktool.yml',
                            'assets/work-splits/mdpi_decoded_321/apktool.yml',
-                           'baseline/current/apktool.yml','legacy/apktool.yml',
-                           'gamejar/game-hybrid-sig.jar',
-                           'modtree/AndroidManifest.xml',
-                           'modtree/res/values/public.xml'):
+                           'baseline/current/apktool.yml',
+                           'baseline/current/AndroidManifest.xml',
+                           'baseline/current/res/values/public.xml',
+                           'assets/work-splits/mdpi_decoded_321/res/values/public.xml',
+                           'legacy/apktool.yml',
+                           'gamejar/game-hybrid-sig.jar'):
               if not (root / relative).is_file():
                   raise SystemExit('FAIL: missing pinned build resource ' + relative)
           print('PASS: sha256-pinned private build resource bundle extracted safely')
@@ -221,10 +221,10 @@ jobs:
         run: |
           set -euo pipefail
           ASSETS="$OREKI_RUNNER_ASSETS"
-          for asset in apktool.jar kotlinc/bin/kotlinc; do
+          for asset in apktool.jar; do
             test -s "$ASSETS/$asset" || { echo "::error::Missing resource $asset"; exit 1; }
           done
-          for split in xhdpi_decoded mdpi_decoded_321; do
+          for split in mdpi_decoded_321; do
             test -s "$ASSETS/work-splits/$split/apktool.yml" || exit 1
           done
           mkdir -p source/tools source/baseline/tools/target/release source/work
@@ -233,9 +233,7 @@ jobs:
           # on Ubuntu 26.04 may not run on an older GitHub-hosted glibc.
           cargo build --release --offline --manifest-path source/baseline/tools/Cargo.toml
           test -x source/baseline/tools/target/release/baseline
-          rsync -a --delete "$ASSETS/kotlinc/" source/tools/kotlinc/
           rsync -a "$ASSETS/work-splits/" source/work/
-          chmod +x source/tools/kotlinc/bin/kotlinc
           echo "::notice::Runner has no persistent signing key or local proprietary baseline"
       - name: Require the sha256-pinned decoded 3.21 baseline
         env:
@@ -301,9 +299,7 @@ jobs:
           fail=0
           need() { if [[ -s "$1" ]]; then echo "  OK   $2"; else echo "::error::missing build input: $2 ($1)"; fail=1; fi; }
           need source/tools/apktool.jar               'apktool jar'
-          need source/tools/kotlinc/bin/kotlinc       'Kotlin compiler'
           need source/baseline/tools/target/release/baseline 'baseline tool'
-          need source/work/xhdpi_decoded/apktool.yml  'decoded config.xhdpi tree'
           need source/work/mdpi_decoded_321/apktool.yml 'decoded config.mdpi tree'
           # The signing key is loaded only after successful Kotlin / D8 compilation.
           need "$OREKI_BASELINE_DIR/apktool.yml"        'decoded 3.21 baseline'
@@ -354,42 +350,54 @@ jobs:
           set -euo pipefail
           bundle="$GITHUB_WORKSPACE/.oreki-private"
           jar="$bundle/gamejar/game-hybrid-sig.jar"
-          tree="$bundle/modtree"
+          tree="$bundle/baseline/current"
           test -s "$jar" || { echo '::error::Missing pinned game jar in bundle'; exit 1; }
-          test -f "$tree/AndroidManifest.xml" || { echo '::error::Missing full-game decoded tree manifest'; exit 1; }
-          test -f "$tree/res/values/public.xml" || { echo '::error::Missing full-game decoded tree public.xml'; exit 1; }
+          test -f "$tree/AndroidManifest.xml" || { echo '::error::Missing official 3.21 manifest'; exit 1; }
+          test -f "$tree/res/values/public.xml" || { echo '::error::Missing official 3.21 public.xml'; exit 1; }
+          test -f "$GITHUB_WORKSPACE/source/work/mdpi_decoded_321/res/values/public.xml" || {
+            echo '::error::Missing official 3.21 mdpi split public.xml'; exit 1;
+          }
           actual="$(sha256sum "$jar" | cut -d' ' -f1)"
           [[ "$actual" == "$OREKI_GAME_JAR_SHA256" ]] || {
             echo "::error::game jar SHA mismatch actual=$actual pinned=$OREKI_GAME_JAR_SHA256"; exit 1;
           }
-          mkdir -p source/work
-          rm -rf source/work/mod
-          ln -s "$tree" source/work/mod
-          echo "::notice::AGP full-game inputs verified (jar=$actual)"
+          echo "::notice::AGP native sources verified (jar=$actual; official baseline + mdpi split)"
 
-      - name: Verify tree-level build contracts on the pinned full-game tree
+      - name: Generate and verify AGP native full-game inputs
         working-directory: source
+        env:
+          OREKI_GAME_JAR: ${{ github.workspace }}/.oreki-private/gamejar/game-hybrid-sig.jar
+          OREKI_OFFICIAL_TREE: ${{ env.OREKI_BASELINE_DIR }}
+          OREKI_SPLIT_TREE: ${{ github.workspace }}/source/work/mdpi_decoded_321
         run: |
           set -euo pipefail
-          # R114-02 C4b（Issue #52）：树级 verify_* 已迁出 build_mod，改由这里在
-          # 「pinned full-game tree 就位之后、AGP 打包之前」独立执行，失败即阻断候选。
-          # 公开源码 CI 没有树，脚本对这些检查显式 SKIP（不假装执行）。
-          test -d work/mod || { echo '::error::work/mod missing after staging pinned tree'; exit 1; }
-          python3 scripts/verify_build_contracts.py \
-            --mod-tree work/mod --decoded-tree "$OREKI_BASE" \
-            --legacy-base "$OREKI_LEGACY_BASELINE_DIR" \
-            --json build/verify-tree-contracts.json
+          # Issue #52/#61：生产输入由 Gradle 从官方 3.21 base、同版 mdpi split 和
+          # 受控 overlay 生成，不依赖旧补丁树。
+          bash ./gradlew -p agp \
+            :app:prepareFullGameInputs :app:verifyFullGameInputs \
+            -PorekiFullGame=true \
+            -PorekiGameJar="$OREKI_GAME_JAR" \
+            -PorekiOfficialTree="$OREKI_OFFICIAL_TREE" \
+            -PorekiSplitTree="$OREKI_SPLIT_TREE" \
+            --no-daemon --console=plain
 
       - name: Build AGP 9.5.1 full-game release APK
         working-directory: source
         env:
           OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
           OREKI_GAME_JAR: ${{ github.workspace }}/.oreki-private/gamejar/game-hybrid-sig.jar
+          OREKI_OFFICIAL_TREE: ${{ env.OREKI_BASELINE_DIR }}
+          OREKI_SPLIT_TREE: ${{ github.workspace }}/source/work/mdpi_decoded_321
         run: |
           set -euo pipefail
           test -s "$OREKI_GAME_JAR"
           # 正式路径：AGP 9.5.1 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
-          bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true -PorekiGameJar="$OREKI_GAME_JAR" --no-daemon --console=plain
+          bash ./gradlew -p agp :app:assembleRelease \
+            -PorekiFullGame=true \
+            -PorekiGameJar="$OREKI_GAME_JAR" \
+            -PorekiOfficialTree="$OREKI_OFFICIAL_TREE" \
+            -PorekiSplitTree="$OREKI_SPLIT_TREE" \
+            --no-daemon --console=plain
           apk="agp/app/build/outputs/apk/release/app-release.apk"
           test -s "$apk" || { echo '::error::AGP release APK missing'; exit 1; }
           mkdir -p "$GITHUB_WORKSPACE/candidate"
