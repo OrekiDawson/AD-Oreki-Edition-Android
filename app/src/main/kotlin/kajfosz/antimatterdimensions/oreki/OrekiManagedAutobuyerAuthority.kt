@@ -103,14 +103,17 @@ object OrekiManagedAutobuyerAuthority {
      * 无法读取状态时不阻止启动，避免测试门禁自身制造挑战停滞。
      */
     @JvmStatic
+    @JvmOverloads
     fun shouldDeferC9Start(
         normalChallengeCurrent: Int?,
         firstEightChallengesCompleted: Boolean?,
         c9Completed: Boolean?,
         d7Bulk: Double?,
         d8Bulk: Double?,
+        inAnyChallenge: Boolean = false,
     ): Boolean {
-        if (normalChallengeCurrent != 0 ||
+        if (inAnyChallenge ||
+            normalChallengeCurrent != 0 ||
             firstEightChallengesCompleted == null || c9Completed == null
         ) {
             return false

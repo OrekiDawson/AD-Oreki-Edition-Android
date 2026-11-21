@@ -268,6 +268,8 @@ object OrekiStageAuto {
     private var c9PreviousModOwnedCrunch = false
     private var c9PreviousPolicyPausedCrunch = false
     private var c9PreviouslyActiveAutoBig = false
+    private var c9PreparationCacheTick = Long.MIN_VALUE
+    private var c9PreparationCacheValue = false
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
     private var lastObservedBrokenState: Boolean = false
@@ -335,7 +337,18 @@ object OrekiStageAuto {
                 // 同步异常不得静默：GameApi 内部已记录 GUI_TICK_SYNC_FAILED 并登记待同步。
             }
 
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                releaseC9CrunchOnAutomationDisabled()
+                c9YieldActive = false
+                lastC9YieldStrategy = null
+                return
+            }
+
             val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            if (c9CrunchHoldCaptured && normalChallengeCurrent != 9) {
+                // 挑战正常结束时如果一次读值失败，不能永久留下 autoBig 暂停所有权。
+                restoreCrunchOwnershipAfterC9()
+            }
             if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(
                     GameApi.isBroken(),
                     normalChallengeCurrent,
@@ -802,15 +815,23 @@ object OrekiStageAuto {
 
     /** 自动进入 C9 前，先通过原版 bulk 升级建立可解状态。 */
     private fun shouldPrepareC9Start(): Boolean {
+        val currentChallenge = GameApi.normalChallengeCurrent()
+        if (currentChallenge != 0) return false
+        val currentTick = OrekiAutomationScheduler.guiTickCount().toLong()
+        if (currentTick == c9PreparationCacheTick) return c9PreparationCacheValue
         val dims = GameApi.dimensionAutobuyers() ?: return false
-        return OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-            normalChallengeCurrent = GameApi.normalChallengeCurrent(),
+        val shouldPrepare = OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
+            normalChallengeCurrent = currentChallenge,
             firstEightChallengesCompleted =
                 (1..8).all { GameApi.normalChallengeCompleted(it) == true },
             c9Completed = GameApi.normalChallengeCompleted(9),
             d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf),
             d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf),
+            inAnyChallenge = GameApi.inAnyChallenge(),
         )
+        c9PreparationCacheTick = currentTick
+        c9PreparationCacheValue = shouldPrepare
+        return shouldPrepare
     }
 
     /**
@@ -2384,9 +2405,12 @@ object OrekiStageAuto {
      * 这里只临时暂停自动器，不写挑战状态，不绕过结算，挑战结束后恢复原有所有权。
      */
     private fun holdCrunchOwnershipForC9() {
+        if (!OrekiAutomationScheduler.isEnabled()) return
         try {
             val crunch = GameApi.crunchState() ?: return
             val active = GameApi.isAutobuyerActive(crunch) ?: return
+            val wasOwned = modOwnsCrunch
+            val wasPolicyPaused = crunchPausedByStagePolicy
             if (!c9CrunchHoldCaptured) {
                 val persistedPaused =
                     OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
@@ -2404,7 +2428,9 @@ object OrekiStageAuto {
             if (active) GameApi.setAutobuyerActive(crunch, false)
             modOwnsCrunch = true
             crunchPausedByStagePolicy = true
-            markCrunchPausedByMod()
+            if (active || !wasOwned || !wasPolicyPaused) {
+                markCrunchPausedByMod()
+            }
         } catch (_: Throwable) {
             // 读取失败时保留挑战运行；下一帧重试，不放宽挑战目标。
         }
@@ -2449,7 +2475,7 @@ object OrekiStageAuto {
     fun onAutomationDisabled() {
         try {
             if (c9CrunchHoldCaptured) {
-                restoreCrunchOwnershipAfterC9()
+                releaseC9CrunchOnAutomationDisabled()
                 return
             }
             val persistedPaused =
@@ -2477,6 +2503,22 @@ object OrekiStageAuto {
         } catch (_: Throwable) {
             // 关闭自动化流程不得因恢复动作异常而中断
         }
+    }
+
+    /**
+     * 自动化关闭时交还 C9 临时暂停的 autoBig，并清除 MOD 所有权。
+     *
+     * restore 先按进入 C9 前的真实 active 状态恢复，再清 MOD 标记；玩家原本关闭的
+     * autoBig 不会被强行打开。若状态读取瞬时失败，保留 captured 并在后续帧重试。
+     */
+    private fun releaseC9CrunchOnAutomationDisabled() {
+        if (!c9CrunchHoldCaptured) return
+        restoreCrunchOwnershipAfterC9()
+        if (c9CrunchHoldCaptured) return
+        modOwnsCrunch = false
+        crunchPausedByStagePolicy = false
+        OrekiAutomationScheduler.markCrunchPausedByMod(false)
+        Log.i(TAG_AU4C, "automation-off: C9 crunch ownership released")
     }
 
     /**

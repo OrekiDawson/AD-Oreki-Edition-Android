@@ -428,6 +428,21 @@ check("C9 保留专用受管配置与真实提升维护",
       "applyC9ManagedAutobuyerStates()" in _c9_block
       and "c9MaintenanceTask(normalChallengeCurrent)" in _c9_block
       and "holdCrunchOwnershipForC9()" in _c9_block)
+check("C9 入场准备不阻塞已运行的 IC/EC",
+      "if (GameApi.inAnyChallenge()) return false" in
+      read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("关闭 MOD 自动化后不再重新持有 autoBig",
+      "if (!OrekiAutomationScheduler.isEnabled()) {" in stage
+      and "releaseC9CrunchOnAutomationDisabled()" in stage
+      and "private fun releaseC9CrunchOnAutomationDisabled()" in stage)
+check("C9 暂停标记只在所有权或 active 状态变化时写盘",
+      "val wasOwned = modOwnsCrunch" in stage
+      and "if (active || !wasOwned || !wasPolicyPaused)" in stage)
+check("C9 准备判定按调度 tick 缓存",
+      "c9PreparationCacheTick" in stage and "c9StartGateCacheTick" in
+      read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("C9 结束恢复失败可逐帧重试",
+      "if (c9CrunchHoldCaptured && normalChallengeCurrent != 9)" in stage)
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 让路发生在调度开帧与 GUI 同步之后",

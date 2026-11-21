@@ -109,6 +109,16 @@ class OrekiC9ManagedStrategyTest {
                 256.0,
             ),
         )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
+                normalChallengeCurrent = 0,
+                firstEightChallengesCompleted = true,
+                c9Completed = false,
+                d7Bulk = 16.0,
+                d8Bulk = 16.0,
+                inAnyChallenge = true,
+            ),
+        )
     }
 
     @Test
