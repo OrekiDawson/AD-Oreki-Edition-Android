@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -48,6 +49,21 @@ class SaveMatrixTest(unittest.TestCase):
     def test_ui_text_extraction_ignores_empty_nodes(self) -> None:
         xml = '<hierarchy><node text="" /><node text="开始游戏" /></hierarchy>'
         self.assertEqual(save_matrix.ui_texts(xml), ["开始游戏"])
+
+    def test_store_pref_snapshot_keeps_history_without_exposing_unrelated_values(self) -> None:
+        xml = """<map>
+          <boolean name="PermanentAdBonusEnabled" value="true" />
+          <long name="adBonusTimeLeft" value="3600000" />
+          <string name="currentSubTab">dimensions</string>
+        </map>"""
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "MyPrefsFile.xml"
+            path.write_text(xml, encoding="utf-8")
+            flags = save_matrix.parse_store_pref_flags(path)
+        self.assertEqual(
+            flags,
+            {"PermanentAdBonusEnabled": True, "adBonusTimeLeft": 3600000},
+        )
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ import shutil
 import subprocess
 import sys
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 PACKAGES = {
@@ -36,8 +37,21 @@ PKG = PACKAGES["mod"]
 ACT = "kajfosz.antimatterdimensions.MainActivity"
 FILES = f"/data/data/{PKG}/files"
 PLAYER = f"{FILES}/player.json"
+STORE_PREFS = "shared_prefs/MyPrefsFile.xml"
 ADB = os.environ.get("ADB_BIN", "adb")
 DEVICE = os.environ.get("ADB_DEVICE", "emulator-5554")
+STORE_PREF_KEYS = {
+    "AllDimMultEnabled",
+    "NormalDimMultEnabled",
+    "IPMultEnabled",
+    "EPMultEnabled",
+    "RMMultEnabled",
+    "DTSpeedEnabled",
+    "ReplicantiSpeedEnabled",
+    "GoldenBottomButtonsEnabled",
+    "PermanentAdBonusEnabled",
+    "adBonusTimeLeft",
+}
 
 CRASH = (
     ("fatal_exception", re.compile(r"FATAL EXCEPTION")),
@@ -136,6 +150,45 @@ def pull_player(dest: Path) -> dict | None:
         return json.loads(dest.read_text())
     except Exception:
         return None
+
+
+def pull_store_prefs(out_dir: Path, tag: str) -> dict:
+    remote = f"/data/data/{PKG}/{STORE_PREFS}"
+    local = out_dir / f"{tag}-store-prefs.xml"
+    result = adb("pull", remote, str(local))
+    if result.returncode != 0 or not local.is_file():
+        return {"present": False, "remote": remote}
+    return {
+        "present": True,
+        "remote": remote,
+        "path": str(local),
+        "sha256": sha256_file(local),
+        "bytes": local.stat().st_size,
+    }
+
+
+def parse_store_pref_flags(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    try:
+        root = ET.fromstring(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    values = {}
+    for item in root.findall("*"):
+        name = item.get("name")
+        if name not in STORE_PREF_KEYS:
+            continue
+        raw = item.get("value")
+        if item.tag == "boolean":
+            values[name] = raw == "true"
+        elif item.tag == "int":
+            values[name] = int(raw or 0)
+        elif item.tag == "long":
+            values[name] = int(raw or 0)
+        else:
+            values[name] = raw
+    return values
 
 
 def check_state(data: dict | None, expect: dict | None) -> dict:
@@ -287,6 +340,14 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     written = out_dir / f"{tag}-written-player.json"
     data = pull_player(written)
     sh(f"am force-stop {PKG}")
+    prefs = pull_store_prefs(out_dir, tag)
+    if prefs["present"]:
+        prefs["effective_policy"] = {
+            "store_effects_expected_neutral": True,
+            "historical_flags_preserved_for_reference": parse_store_pref_flags(
+                Path(prefs["path"])
+            ),
+        }
     state = check_state(data, expect)
     try:
         source_data = json.loads((out_dir / "injected-save.json").read_text())
@@ -304,6 +365,7 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
         "crashes": crashes,
         "input_state": source_state,
         "state": state,
+        "store_prefs": prefs,
         "written_player": {"path": str(written), "sha256": sha256_file(written) if written.is_file() else None,
                            "bytes": written.stat().st_size if written.is_file() else None},
     }
@@ -425,6 +487,9 @@ def main() -> int:
         out_dir.mkdir(parents=True, exist_ok=True)
         dest = out_dir / f"{args.tag}-player.json"
         data = pull_player(dest)
+        prefs = pull_store_prefs(out_dir, args.tag)
+        if prefs["present"]:
+            prefs["historical_flags"] = parse_store_pref_flags(Path(prefs["path"]))
         manifest = {
             "tag": args.tag,
             "package": PKG,
@@ -435,6 +500,7 @@ def main() -> int:
                 "bytes": dest.stat().st_size if dest.is_file() else None,
             },
             "state": check_state(data, None),
+            "store_prefs": prefs,
             "status": "PASS" if isinstance(data, dict) else "FAIL",
         }
         (out_dir / f"{args.tag}-snapshot.json").write_text(
