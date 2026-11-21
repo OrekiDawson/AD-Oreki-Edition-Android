@@ -480,6 +480,14 @@ object OrekiStageAuto {
                     // 收益策略 / 同帧大坍缩互斥，全部满足才驱动原版永恒入口。
                     tickEternityGated()
 
+                    // [R114-01 P1-1] 膨胀自动化：DS1 后启动膨胀 → 播种速子粒子（TP）→ 买 dtGain。
+                    // 只走原版入口（GameApi 的 P1-1 段落，反射 ABI），不写任何存档字段；
+                    // 启动/退出膨胀本身就是一次真实永恒，因此模块内部只在 OrekiAutoEternityGate.allowed()
+                    // 放行时执行，不改变 TT/TD/TS 与永恒的既有调用顺序。
+                    if (OrekiAutomationScheduler.isEnabled()) {
+                        OrekiDilation.tick()
+                    }
+
                     // [R107-01 RU-AUTO] 现实升级自动购买：Web 顺序是「先买 RU，再浇注/现实」
                     // （oreki-celestial-automation.js:664-673）。放在 OrekiReality 之前，
                     // 让 RM 先用于 RU；realities==0 时 tick() 内部直接 false（bootstrap 不变）。
