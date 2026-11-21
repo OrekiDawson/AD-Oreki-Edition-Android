@@ -288,6 +288,11 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     data = pull_player(written)
     sh(f"am force-stop {PKG}")
     state = check_state(data, expect)
+    try:
+        source_data = json.loads((out_dir / "injected-save.json").read_text())
+    except Exception:
+        source_data = None
+    source_state = check_state(source_data, None)
     crashes = crash_scan(log)
     verdict = {
         "tag": tag,
@@ -297,6 +302,7 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
         "wait_seconds": wait,
         "process_alive": bool(alive),
         "crashes": crashes,
+        "input_state": source_state,
         "state": state,
         "written_player": {"path": str(written), "sha256": sha256_file(written) if written.is_file() else None,
                            "bytes": written.stat().st_size if written.is_file() else None},
