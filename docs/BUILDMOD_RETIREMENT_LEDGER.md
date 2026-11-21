@@ -524,6 +524,8 @@ Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收�
 - 对两棵完整解码树按“相对路径排序 → 每文件 SHA-256 → 清单 SHA-256”计算
   确定性目录指纹，覆盖资源、assets、lib 及其他现存输入文件；文件数与全树
   指纹同时写入 `fullgame-inputs.json`，防止只在 `public.xml` 不变时替换资源正文。
+  内容指纹排除仅描述解码工具版本/APK 文件名的根 `apktool.yml`；该文件的
+  versionCode 仍单独固定校验，整棵目录仍登记为 Gradle 输入以触发增量失效。
 - `verifyFullGameInputs` 再次独立执行同一身份校验，并新增
   `AppTheme`、`Palette.Fallback`、`Theme.MySplash`、中文 `app_name`、
   `drawable-nodpi/antimatter.png` 与 `xml/oreki_shortcuts.xml` 的必要性检查。
@@ -532,6 +534,9 @@ Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收�
   UP-TO-DATE、却复制未经全树身份校验的内容。
 - `$` 资源改名按“有无扩展名”分别构造目标文件名；无扩展名探针必须得到
   `_aapt_oreki_probe`，不得生成带尾点的非法资源名。
+- `SpeedSettingsActivity` 保留旧链最终验证的
+  `@android:style/Theme.Material.NoActionBar`，并用 Manifest 重算守卫防止迁移回退到
+  会额外显示系统 ActionBar 的 `Theme.DeviceDefault`。
 - 历史 `work/mod` 不能再被伪装成“官方输入”：即使其包名、versionCode
   或资源条数看起来正确，Manifest/public.xml 哈希不符也会在目标目录被改动前失败。
 
@@ -542,8 +547,8 @@ Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收�
 | 官方 3.21 base Manifest | **PASS** | `b07e4343…ff6b0` |
 | 官方 3.21 base public.xml | **PASS** | `d6471a87…3ad4f` / 14,928 条 |
 | 官方 3.21 mdpi split public.xml | **PASS** | `21d70290…20f7e` / 45 条 |
-| 官方 3.21 base 完整解码树 | **PASS** | 17,413 files / `3d797fcd…6fd2cc` |
-| 官方 3.21 mdpi split 完整解码树 | **PASS** | 51 files / `4560ef22…85eca2` |
+| 官方 3.21 base 完整内容树 | **PASS** | 17,412 files / `39e1039d…e5e78` |
+| 官方 3.21 mdpi split 完整内容树 | **PASS** | 50 files / `2b674c30…4aaa5` |
 | `prepareFullGameInputs` + `verifyFullGameInputs` | **PASS** | 14,973 条；stable-ids 1,076,790 B / `13e9953a…8ab8` |
 | 历史 `/work/mod` 负向输入 | **PASS（fail-closed）** | Manifest 实际 `5ff102f9…cce38`，在阶段目录改动前拒绝 |
 | AAPT2 `processReleaseResources` | **PASS** | 23 个相关任务成功；主题/资源链接无错误 |

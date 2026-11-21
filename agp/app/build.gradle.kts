@@ -55,12 +55,12 @@ val OREKI_MDPI_3_21_PUBLIC_XML_SHA256 =
 val OREKI_OFFICIAL_3_21_RESOURCE_COUNT = 14_928
 val OREKI_MDPI_3_21_RESOURCE_COUNT = 45
 val OREKI_FULL_GAME_RESOURCE_COUNT = 14_973
-val OREKI_OFFICIAL_3_21_FILE_COUNT = 17_413
-val OREKI_MDPI_3_21_FILE_COUNT = 51
+val OREKI_OFFICIAL_3_21_FILE_COUNT = 17_412
+val OREKI_MDPI_3_21_FILE_COUNT = 50
 val OREKI_OFFICIAL_3_21_TREE_SHA256 =
-    "3d797fcd167289135bbda3b24b17cc4968ea0ebeebfd0596781bdca25c6fd2cc"
+    "39e1039dbb1719596da47ce3706de67f1925ed45e4b8fdf0fb9dc693c77e5e78"
 val OREKI_MDPI_3_21_TREE_SHA256 =
-    "4560ef22d62f4fdcd42357c0ac26690113b5365d501b10a3016bf219b585eca2"
+    "2b674c30ffc4ed7eb1c85e8df7b0d447716eb9b03bbd59c5ced086004a54aaa5"
 
 data class OrekiPublicResource(
     val resourceId: String,
@@ -187,8 +187,9 @@ fun orekiStableIdsText(entries: List<OrekiPublicResource>, applicationId: String
 }
 
 /**
- * 对完整解码树生成确定性指纹：相对路径 C 排序 → 每个文件 SHA-256 → 清单 SHA-256。
- * 指纹不包含根目录、时间戳或文件系统遍历顺序，可跨工作树复算。
+ * 对完整解码树内容生成确定性指纹：相对路径排序 → 每个文件 SHA-256 → 清单 SHA-256。
+ * `apktool.yml` 的解码工具版本/APK 文件名属于元数据，不进入内容指纹；其 versionCode
+ * 仍由 prepare 单独固定校验。指纹不包含根目录、时间戳或文件系统遍历顺序。
  */
 fun orekiTreeSha256(root: File): Pair<Int, String> {
     if (!root.isDirectory) {
@@ -197,6 +198,7 @@ fun orekiTreeSha256(root: File): Pair<Int, String> {
     val files = root.walkTopDown()
         .filter { it.isFile }
         .map { file -> file.relativeTo(root).invariantSeparatorsPath to file }
+        .filter { (relativePath, _) -> relativePath != "apktool.yml" }
         .sortedBy { it.first }
         .toList()
     val manifest = StringBuilder()
@@ -476,7 +478,7 @@ fun orekiTransformFullGameManifest(
     settingsActivity.setAttributeNS(
         OREKI_ANDROID_NS,
         "android:theme",
-        "@android:style/Theme.DeviceDefault",
+        "@android:style/Theme.Material.NoActionBar",
     )
     settingsActivity.setAttributeNS(
         OREKI_ANDROID_NS,
@@ -953,6 +955,14 @@ fun orekiVerifyNativeFullGameInputs(
         !stagedManifestText.contains(OREKI_OFFICIAL_PACKAGE + ".oreki.tutorial.TutorialActivity")
     ) {
         throw GradleException("[oreki] 阶段 Manifest 缺少 MOD 快捷方式、设置页或教程组件")
+    }
+    val settingsActivityPattern = Regex(
+        "<activity\\b[^>]*android:name=\"" +
+            Regex.escape(OREKI_OFFICIAL_PACKAGE + ".oreki.SpeedSettingsActivity") +
+            "\"[^>]*android:theme=\"@android:style/Theme.Material.NoActionBar\"[^>]*/>",
+    )
+    if (!settingsActivityPattern.containsMatchIn(stagedManifestText)) {
+        throw GradleException("[oreki] SpeedSettingsActivity 未使用迁移前已验证的 NoActionBar 主题")
     }
 
     @Suppress("UNCHECKED_CAST")
