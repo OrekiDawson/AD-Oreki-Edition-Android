@@ -104,24 +104,22 @@ class ContractVerifierTest(unittest.TestCase):
 
 
 class TreeCheckWiringTest(unittest.TestCase):
-    """C4b：树级校验只能挂在 candidate 私有 runner 的树产出之后，不在公开 CI 假装执行。"""
+    """R122：candidate 必须先从官方输入生成并复核 AGP 原生树，再构建 APK。"""
 
-    def test_candidate_workflow_runs_tree_checks_after_tree_staging(self):
+    def test_candidate_workflow_prepares_native_inputs_before_build(self):
         workflow = (ROOT / ".github" / "workflows" / "candidate-unified.yml").read_text(encoding="utf-8")
         steps = [ln.strip() for ln in workflow.splitlines() if ln.strip().startswith("- name:")]
-        self.assertIn("- name: Verify tree-level build contracts on the pinned full-game tree",
-                      steps, "candidate 缺少树级契约校验 step")
-        idx_tree = steps.index("- name: Verify tree-level build contracts on the pinned full-game tree")
         idx_inputs = steps.index("- name: Verify pinned AGP full-game inputs")
+        idx_tree = steps.index("- name: Generate and verify AGP native full-game inputs")
         idx_build = steps.index("- name: Build AGP 9.5.1 full-game release APK")
         self.assertLess(idx_inputs, idx_tree,
-                        "树级校验必须排在 pinned full-game tree 就位之后")
+                        "原生输入准备必须排在官方 base/split 就位之后")
         self.assertLess(idx_tree, idx_build,
-                        "树级校验必须排在 AGP 打包之前（失败即阻断候选）")
-        self.assertIn("--mod-tree work/mod", workflow)
-        self.assertIn('--decoded-tree "$OREKI_BASE"', workflow)
-        self.assertIn('--legacy-base "$OREKI_LEGACY_BASELINE_DIR"', workflow,
-                      "payload 的 R73 夹具需要旧版解码树（注入块资源 ID 来自旧树）")
+                        "原生输入复核必须排在 AGP 打包之前（失败即阻断候选）")
+        self.assertIn(":app:prepareFullGameInputs :app:verifyFullGameInputs", workflow)
+        self.assertIn('-PorekiOfficialTree="$OREKI_OFFICIAL_TREE"', workflow)
+        self.assertIn('-PorekiSplitTree="$OREKI_SPLIT_TREE"', workflow)
+        self.assertNotIn("--mod-tree work/mod", workflow)
 
     def test_public_ci_does_not_fake_tree_checks(self):
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
