@@ -1816,7 +1816,10 @@ def _impl_payload():
     assert _set_mode_calls == ["GameApi.setCrunchMode(crunch, target)"], (
         f"[R74] setCrunchMode 只允许从托管 target 切 TIME，实际：{_set_mode_calls}")
     _managed_mode_idx = sa_txt.index("private fun applyManagedCrunchMode()")
-    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_idx + 800]
+    _managed_mode_end = sa_txt.find("\n    private fun ", _managed_mode_idx + 1)
+    if _managed_mode_end < 0:
+        _managed_mode_end = len(sa_txt)
+    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_end]
     assert "isNewConfigTick" in _managed_mode_block, (
         "[R120-01] 受管 mode 只能在新的调度 Tick 对账")
     assert "val target = OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME" in _managed_mode_block, (
