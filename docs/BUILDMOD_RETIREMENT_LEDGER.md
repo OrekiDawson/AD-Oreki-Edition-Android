@@ -543,13 +543,18 @@ Kotlin/Rust 字节码变换器迁移，也不把构建通过写成游戏验收�
 | 历史 `/work/mod` 负向输入 | **PASS（fail-closed）** | Manifest 实际 `5ff102f9…cce38`，在阶段目录改动前拒绝 |
 | AAPT2 `processReleaseResources` | **PASS** | 23 个相关任务成功；主题/资源链接无错误 |
 | built-in Kotlin `compileReleaseKotlin` | **PASS** | 全量 `--rerun-tasks` 成功，仅有既有告警 |
-| R8 OFF 完整 APK | **PASS（构建）** | 81,619,023 B / `18554e9b3c9283854c64c72bb4b0e9b282a3648ac9c6a65c89c2d81a355be72b` |
+| R8 OFF 完整 APK | **PASS（构建）** | 代码提交 `eb3f2c9a` / 81,619,023 B；直接 AGP 产物 `f8a3c4bb29170a63b0a1f24f6cd6bb5dfc72be033d29a620bbe1a5dc475224f6`（直接产物哈希受 AGP 单方案签名块影响） |
 | 最终 APK 包名/版本 | **PASS** | `com.oreki.antimatterdimensions` / 30210002 |
 | 最终 APK 证书身份 | **PASS** | `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197` |
-| Candidate v2+v3 同钥重签 | **PASS** | 81,624,555 B / `b44b3f8de507b411383b5802a9ec46490098117cbe0e80045a7dd7a43dc48ac1` |
+| Candidate v2+v3 同钥重签 | **PASS（确定性）** | 81,624,555 B / `b44b3f8de507b411383b5802a9ec46490098117cbe0e80045a7dd7a43dc48ac1` |
 | APK 内教程资产 | **PASS** | 199,649 B / SHA-256 `158b9070…10dc7b1` |
 | R8 ON | **NOT RUN** | 仍为实验开关 |
 | 新 APK 安装/冷启动 | **NOT RUN** | 共享 AVD 正被其他 R122 C9 采样占用，未并发干扰 |
+
+两次全量 AGP 构建的直接 APK 外层哈希不同，但 `AndroidManifest.xml`、`classes.dex`、
+`classes2.dex`、`resources.arsc`、教程资产和抽样 native 库逐项 SHA-256 完全一致；
+同钥 v2+v3 重签后的 Candidate 也稳定为 `b44b3f8d…48ac1`。差异位于 AGP 直接产物
+的单方案签名块，不沿用“直接 APK 哈希相同”作为可复现性结论。
 
 #### 环境前置
 
