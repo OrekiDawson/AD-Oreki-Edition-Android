@@ -972,6 +972,9 @@ object OrekiStageAuto {
         // （dilation: dilationUnlocked()/realityUnlocked()；eternityChallenges:
         // realityUnlocked() || challenge.eternity.unlocked !== 0 || EC completions>0）。
         val allowed = when (tabName) {
+            // R121-01：STD/IAP 商店不再属于 Oreki Edition。父分组与零售店页签都在
+            // 原版导航/currentSubTab 恢复共用的门禁中 fail-closed；其它原版页签不变。
+            "shop", "shopMainTab" -> !OrekiStorePolicy.isRemovedStoreTab(tabName)
             "eternity", "timeDimensions", "timeStudies", "eternityUpgrades", "milestones",
             "dilation", "eternityChallenges" ->
                 vanillaEternityUnlocked()
