@@ -424,9 +424,76 @@ check("调度器提供 actedThisFrame 且每帧重置",
 
 _c9_start = stage.find("val normalChallengeCurrent = GameApi.normalChallengeCurrent()")
 _c9_block = stage[_c9_start:stage.find("return", _c9_start)]
-check("C9 让路保留受管自动配置恢复",
-      "applyManagedAutobuyerStates(null)" in _c9_block
-      and "releaseCrunchOwnershipForC9Yield()" in _c9_block)
+check("C9 保留专用受管配置与真实提升维护",
+      "applyC9ManagedAutobuyerStates()" in _c9_block
+      and "c9MaintenanceTask(normalChallengeCurrent)" in _c9_block
+      and "holdCrunchOwnershipForC9()" in _c9_block)
+check("C9 提升重置后按真实维度数量自举基础生产链",
+      "GameApi::compareDimensionAmountToZero" in stage
+      and "c9LowerChainReady(" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+      and "lowerChainReady" in stage
+      and "!lowerChainReady && tier in 1..6" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+      and "!lowerChainReady && tier in 1..7" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 入场准备不阻塞已运行的 IC/EC",
+      "if (GameApi.inAnyChallenge()) return false" in
+      read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("关闭 MOD 自动化后不再重新持有 autoBig",
+      "if (!OrekiAutomationScheduler.isEnabled()) {" in stage
+      and "releaseC9CrunchOnAutomationDisabled()" in stage
+      and "private fun releaseC9CrunchOnAutomationDisabled()" in stage)
+_release_start = stage.find("private fun releaseC9CrunchOnAutomationDisabled()")
+_release_end = stage.find("\n    private fun ", _release_start + 1)
+_release_block = stage[_release_start:_release_end]
+check("关闭 C9 时按进入前所有权恢复被 MOD 暂停的 autoBig",
+      "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(" in _release_block
+      and "GameApi.setAutobuyerActive(crunch, true)" in _release_block)
+check("C9 暂停标记只在所有权或 active 状态变化时写盘",
+      "val wasOwned = modOwnsCrunch" in stage
+      and "if (active || !wasOwned || !wasPolicyPaused)" in stage)
+check("C9 准备判定按调度 tick 缓存",
+      "c9PreparationCacheTick" in stage and "c9StartGateCacheTick" in
+      read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("C9 准备缓存只覆盖慢变完成位，bulk 每次现读",
+      "c9PreparationFirstEightCompleted" in stage
+      and "c9PreparationCompleted" in stage
+      and "d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf)" in stage
+      and "d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf)" in stage)
+check("C9 结束恢复失败可逐帧重试",
+      "shouldRestoreC9CrunchCapture(" in stage
+      and "captured = c9CrunchHoldCaptured" in stage
+      and "normalChallengeCurrent = normalChallengeCurrent" in stage)
+check("C9 跨重启保留进入前 autoBig 意图",
+      "saveC9CrunchCapture(" in stage
+      and "loadC9CrunchCaptureOrNull()" in stage
+      and "clearC9CrunchCapture()" in stage
+      and "KEY_C9_CRUNCH_SAVE_ID" in sched)
+check("C9 capture 绑定存档且仅在调度 tick 或 C9 内探测",
+      "c9CrunchCaptureSaveId" in stage
+      and "c9CaptureBelongsToSave(" in stage
+      and "normalChallengeCurrent == 9 || managedConfigTickId != 0L || c9JustEnded" in stage
+      and "} else {\n                    false\n                }" in stage
+      and "clearC9CrunchCapture()" in stage)
+check("C9 capture 仅在挑战 ID 明确结束时恢复",
+      "shouldRestoreC9CrunchCapture(" in stage
+      and "normalChallengeCurrent != null" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 capture 清除同步落盘",
+      ".remove(KEY_C9_CRUNCH_SAVE_ID)" in sched
+      and ".commit()" in sched[sched.find("fun clearC9CrunchCapture()"):]
+      and "if (c9CrunchCaptureSaveId.isNullOrEmpty())" in stage
+      and "c9CrunchCaptureSaveId = currentSaveId" in stage)
+check("C9 null 挑战 ID 不触发恢复，unknown save 仅在 C9 内补绑",
+      "} else if (normalChallengeCurrent != null) {" in stage
+      and "if (GameApi.normalChallengeCurrent() != 9) return false" in stage
+      and "saveC9CrunchCapture(" in stage[
+          stage.find("if (c9CrunchCaptureSaveId.isNullOrEmpty())"):
+          stage.find("if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(")])
+check("C9 自举层使用单买，避免抬高 D7 价格",
+      "!lowerChainReady || tier == 7 || tier == 8" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 让路发生在调度开帧与 GUI 同步之后",
@@ -439,9 +506,14 @@ check("速度设置仅在成功保存后退出阶段速度管理",
 check("阶段速度接管关闭旧动态升档",
       "setManagedSpeed(target)" in read(KT_DIR / "OrekiGamePace.kt")
       and 'getMethod("setDynamic", Boolean::class.javaPrimitiveType)' in read(KT_DIR / "OrekiGamePace.kt"))
-check("C9 只交还由 MOD 暂停的大坍缩自动器",
-      "private fun releaseCrunchOwnershipForC9Yield()" in stage
-      and "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled" in stage)
+check("C9 只临时暂停并在挑战结束后恢复大坍缩自动器",
+      "private fun holdCrunchOwnershipForC9()" in stage
+      and "private fun restoreCrunchOwnershipAfterC9()" in stage
+      and "restoreCrunchOwnershipAfterC9()" in stage[
+          stage.find("if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture("):
+          stage.find("if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9", stage.find(
+              "if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture("))]
+      and "releaseCrunchOwnershipForC9Yield()" not in _c9_block)
 
 # ---------------------------------------------------------------- 24f. TT 购买收益恢复原版 ×1
 # 旧 MOD 的 ×500 会让时间研究成长与双端节奏偏离；恢复原版真实购买收益。
