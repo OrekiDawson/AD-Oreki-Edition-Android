@@ -19,8 +19,11 @@ class AgpCandidateWiringTests(unittest.TestCase):
 
     def test_workflow_invokes_agp_fullgame_build(self):
         text = WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("bash ./gradlew -p agp :app:assembleRelease -PorekiFullGame=true", text)
+        self.assertIn("bash ./gradlew -p agp :app:assembleRelease", text)
+        self.assertIn("-PorekiFullGame=true", text)
         self.assertIn("-PorekiGameJar=", text)
+        self.assertIn('-PorekiOfficialTree="$OREKI_OFFICIAL_TREE"', text)
+        self.assertIn('-PorekiSplitTree="$OREKI_SPLIT_TREE"', text)
         self.assertIn("enableV3Signing", (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8"))
 
     def test_workflow_emits_agp_provenance_and_contract_evidence(self):
@@ -45,16 +48,18 @@ class AgpCandidateWiringTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, text, forbidden)
 
-    def test_bundle_contract_requires_game_jar_and_modtree(self):
+    def test_bundle_contract_requires_game_jar_and_official_inputs(self):
         text = WORKFLOW.read_text(encoding="utf-8")
         for needle in (
             "gamejar/game-hybrid-sig.jar",
-            "modtree/AndroidManifest.xml",
-            "modtree/res/values/public.xml",
+            "baseline/current/AndroidManifest.xml",
+            "baseline/current/res/values/public.xml",
+            "assets/work-splits/mdpi_decoded_321/res/values/public.xml",
             "OREKI_GAME_JAR_SHA256",
-            "'gamejar', 'modtree'",
+            "'assets', 'baseline', 'legacy', 'gamejar'",
         ):
             self.assertIn(needle, text, needle)
+        self.assertNotIn("modtree", text)
 
     def test_tool_report_builder_writes_expected_schema(self):
         spec = importlib.util.spec_from_file_location(
