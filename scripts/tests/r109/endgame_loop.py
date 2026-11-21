@@ -176,8 +176,18 @@ def main():
             p = adb("push", args.inject, PLAYER)
             if p.returncode != 0:
                 raise RuntimeError("push 存档失败: " + p.stderr[:300])
-            adb("shell", "chown", "u0_a248:u0_a248", PLAYER)
-            adb("shell", "chmod", "660", PLAYER)
+            # 包 UID 会随重装变化，不能沿用历史硬编码值；否则应用读不到注入档，
+            # 会静默创建新档并把错误跑次误当成旧档回归。
+            uid = adb("shell", "stat", "-c", "%u", os.path.dirname(FILES)).stdout.strip()
+            if not uid.isdigit() or uid == "0":
+                raise RuntimeError("无法读取应用数据目录 UID: " + uid[:120])
+            # adb push 会保留宿主 UID 类型对应的 SELinux 标签；仅改所有者仍会
+            # 被应用以 EACCES 拒绝读取。先恢复标签，再改所有者；restorecon 可能
+            # 把新文件所有者恢复为 root，顺序反了仍会失败。
+            adb("shell", "restorecon", "-R", FILES, check=True)
+            adb("shell", "chown", "-R", f"{uid}:{uid}", FILES, check=True)
+            adb("shell", "chmod", "700", FILES, check=True)
+            adb("shell", "chmod", "600", PLAYER, check=True)
             log(f"inject: {args.inject} -> 设备 player.json")
             shutil.copy(args.inject, os.path.join(args.out, "player-injected.json"))
         adb("logcat", "-c")
