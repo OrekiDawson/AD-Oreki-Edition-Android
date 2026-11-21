@@ -58,6 +58,10 @@ jobs:
           python3 scripts/verify_build_contracts.py --selftest
       - name: Test build-contract verifier migration guard
         run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
+      # R122（Issue #52/#61）：AGP 完整游戏必须从官方 3.21 base + mdpi split 生成输入，
+      # 不得重新依赖 work/mod、modtree 或旧的 Python 阶段目录生产者。
+      - name: Test AGP native full-game input guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_agp_native_fullgame_inputs.py' -v
       - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Validate cross-repo review, shared quota and Publisher
