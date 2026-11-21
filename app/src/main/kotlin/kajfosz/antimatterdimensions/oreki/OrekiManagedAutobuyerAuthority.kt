@@ -143,6 +143,20 @@ object OrekiManagedAutobuyerAuthority {
         else -> tier in 1..8
     }
 
+    /**
+     * 重置后要求 D1..目标层数量均严格大于 0。
+     * BigDouble 的 `log10(0)` 不能代替零值比较；读取失败同样保持自举，避免永久停摆。
+     */
+    @JvmStatic
+    fun c9LowerChainReady(
+        requiredProducedTier: Int,
+        amountComparisons: List<Int?>,
+    ): Boolean {
+        if (requiredProducedTier <= 0) return true
+        if (amountComparisons.size < requiredProducedTier) return false
+        return (0 until requiredProducedTier).all { amountComparisons[it] == 1 }
+    }
+
     @JvmStatic
     fun c9DimensionMode(tier: Int, dimensionBoosts: Int): Int =
         if (dimensionBoosts < 5 && (tier == 7 || tier == 8)) {

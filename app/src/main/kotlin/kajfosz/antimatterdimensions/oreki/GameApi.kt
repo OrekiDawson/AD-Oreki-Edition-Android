@@ -2060,9 +2060,9 @@ internal object GameApi {
     /** 原版维度当前数量 `AntimatterDimensionState.y()`；读不到返回 null。 */
     fun dimensionAmount(state: Any?): Any? = call(mDimensionAmountY(), state)
 
-    /** 维度数量是否为真实正数；仅用于判断重置后基础生产链是否已重新建立。 */
-    fun dimensionHasPositiveAmount(state: Any?): Boolean =
-        log10BigDouble(dimensionAmount(state))?.isFinite() == true
+    /** 维度数量与 0 的原版 BigDouble 比较结果；仅用于判断重置后基础链是否已恢复。 */
+    fun compareDimensionAmountToZero(state: Any?): Int? =
+        compareToDouble(dimensionAmount(state), 0.0)
 
     // ---------------------------------------------------------------- 无限维度
 

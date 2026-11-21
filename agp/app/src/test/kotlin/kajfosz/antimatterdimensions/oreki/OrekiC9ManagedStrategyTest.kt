@@ -155,6 +155,34 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
+    fun resetBootstrapRequiresStrictlyPositiveLowerDimensions() {
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 6,
+                amountComparisons = List(6) { 0 },
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 6,
+                amountComparisons = listOf(1, 1, null, 1, 1, 1),
+            ),
+        )
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 6,
+                amountComparisons = List(6) { 1 },
+            ),
+        )
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 0,
+                amountComparisons = emptyList(),
+            ),
+        )
+    }
+
+    @Test
     fun belowThirdBoostKeepsDimensionsAvailableForEntryChain() {
         for (tier in 1..8) {
             assertTrue(OrekiManagedAutobuyerAuthority.c9DimensionActive(tier, 2))

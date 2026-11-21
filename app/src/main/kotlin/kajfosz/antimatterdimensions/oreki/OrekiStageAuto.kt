@@ -2142,12 +2142,10 @@ object OrekiStageAuto {
                 4 -> 7
                 else -> 0
             }
-            val lowerChainReady =
-                requiredProducedTier == 0 ||
-                    (1..requiredProducedTier).all { tier ->
-                        val state = dimensionStates?.getOrNull(tier - 1)
-                        GameApi.dimensionHasPositiveAmount(state)
-                    }
+            val lowerChainReady = OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier,
+                dimensionStates.orEmpty().map(GameApi::compareDimensionAmountToZero),
+            )
             GameApi.dimensionAutobuyers()?.forEachIndexed { i, dim ->
                 val tier = i + 1
                 val active =
