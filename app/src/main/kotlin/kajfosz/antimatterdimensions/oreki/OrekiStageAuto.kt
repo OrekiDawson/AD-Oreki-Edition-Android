@@ -294,6 +294,11 @@ object OrekiStageAuto {
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
+            try {
+                OrekiGamePace.syncProgressionSpeed()
+            } catch (_: Throwable) {
+                // 速度阶段校正是节奏辅助；异常不得阻断主自动化与游戏 tick。
+            }
             // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
             logEternityChallengeDiagnosticsIfDue()
 
@@ -347,7 +352,7 @@ object OrekiStageAuto {
             // 放在早退之前：毁灭态下其余自动化全部跳过，必须由本驱动接管。
             OrekiPelle.tick()
 
-            // [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（对账式，覆盖手动/自动/单次/批量）。
+            // R121-01：旧 TT ×500 补发已撤销；保留对账入口以推进基线，不再发额外资源。
             GameApi.settleTimeTheoremReward()
 
             OrekiPlayerIntent.refresh()
