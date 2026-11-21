@@ -148,6 +148,8 @@ object OrekiAutomationScheduler {
 
     /** [R117-01-02c P0-6] 同一任务连续被 noop 静默窗拒绝的次数（强制重试用）。 */
     private val noopWaitStreak = IntArray(IDS.size)
+    /** 强制重试自身的独立静默窗口，防止“清 no-op 窗口后立即再 no-op”的主循环空转。 */
+    private val forceRetryAt = LongArray(IDS.size)
     private val reserve = LongArray(IDS.size)
 
     /** 全系统唯一节拍：最近一次"真执行"时刻（elapsedRealtime 毫秒）。 */
@@ -556,12 +558,19 @@ object OrekiAutomationScheduler {
             // 连续 N 次被挡后清零静默窗、强制放行一次；其余任务保持原退避。
             noopWaitStreak[idx]++
             if (taskId != null && taskId in FORCE_RETRY_TASKS &&
-                noopWaitStreak[idx] >= FORCE_RETRY_AFTER_NOOP_WAITS
+                noopWaitStreak[idx] >= FORCE_RETRY_AFTER_NOOP_WAITS &&
+                forceRetryBudgetReady(now, forceRetryAt[idx])
             ) {
                 noopWaitStreak[idx] = 0
                 noopUntil[idx] = 0L
+                forceRetryAt[idx] = now
                 try {
-                    android.util.Log.i(TAG, "force-retry " + taskId + " after " + FORCE_RETRY_AFTER_NOOP_WAITS + " noop-waits")
+                    android.util.Log.i(
+                        TAG,
+                        "force-retry " + taskId +
+                            " after " + FORCE_RETRY_AFTER_NOOP_WAITS +
+                            " noop-waits; cooldown=" + NOOP_RETRY_MS + "ms",
+                    )
                 } catch (_: Throwable) {
                 }
             } else {
@@ -662,6 +671,15 @@ object OrekiAutomationScheduler {
         return false
     }
 
+    /**
+     * 强制重试只允许每个 [NOOP_RETRY_MS] 窗口触发一次。
+     *
+     * 独立于 no-op 窗口：否则“强制清窗 → 立即再次 no-op → 两帧后再次强制清窗”
+     * 会形成主循环高频空转，既不遵守调度节拍，也会制造大量 logcat。
+     */
+    internal fun forceRetryBudgetReady(now: Long, lastForceAt: Long): Boolean =
+        lastForceAt <= 0L || now - lastForceAt >= NOOP_RETRY_MS
+
     // ------------------------------------------------------------------ 记账
 
     /**
@@ -757,6 +775,7 @@ object OrekiAutomationScheduler {
         failUntil.fill(0L)
         noopStreak.fill(0)
         noopWaitStreak.fill(0)
+        forceRetryAt.fill(0L)
         noopUntil.fill(0L)
         reserve.fill(0L)
         frameActed = false
@@ -827,6 +846,7 @@ object OrekiAutomationScheduler {
         served.fill(0)
         noopStreak.fill(0)
         noopWaitStreak.fill(0)
+        forceRetryAt.fill(0L)
         noopUntil.fill(0L)
         reserve.fill(0L)
         lastBeatAt = 0L
