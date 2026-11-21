@@ -338,6 +338,7 @@ object OrekiStageAuto {
             ) {
                 // 只暂停会造成分配风暴的 StageAuto 购买策略；新调度 tick 仍须
                 // 恢复受管自动购买器配置，随后由原版路径自行推进真实 C9。
+                releaseCrunchOwnershipForC9Yield()
                 applyManagedAutobuyerStates(null)
                 if (!c9YieldActive) {
                     c9YieldActive = true
@@ -2149,6 +2150,41 @@ object OrekiStageAuto {
     private fun markCrunchPausedByMod() {
         OrekiPlayerIntent.clearPlayerClosed("crunch")
         OrekiAutomationScheduler.markCrunchPausedByMod(true)
+    }
+
+    /**
+     * C9 让路时交还 MOD 的大坍缩所有权。
+     *
+     * 只恢复确实由 MOD 暂停的自动器；玩家原本关闭的自动器保持关闭。持久化标记在这里
+     * 同步清除，避免下一次冷启动把它重新解释成 MOD 仍在托管。
+     */
+    private fun releaseCrunchOwnershipForC9Yield() {
+        try {
+            val persistedPaused =
+                OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
+            if (!modOwnsCrunch && !crunchPausedByStagePolicy && !persistedPaused) return
+            val crunch = GameApi.crunchState() ?: return
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            if (OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
+                    ownedByMod = modOwnsCrunch,
+                    pausedByMod = crunchPausedByStagePolicy,
+                    persistedPaused = persistedPaused,
+                    active = active,
+                )
+            ) {
+                GameApi.setAutobuyerActive(crunch, true)
+            }
+            modOwnsCrunch = false
+            crunchPausedByStagePolicy = false
+            OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            Log.i(
+                TAG_C9_YIELD,
+                "crunch ownership released; autoBig active=" +
+                    GameApi.isAutobuyerActive(crunch),
+            )
+        } catch (_: Throwable) {
+            // 交还失败保持原所有权；下一调度 tick 仍会重试。
+        }
     }
 
     /**

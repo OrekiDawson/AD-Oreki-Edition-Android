@@ -424,7 +424,8 @@ check("调度器提供 actedThisFrame 且每帧重置",
 _c9_start = stage.find("val normalChallengeCurrent = GameApi.normalChallengeCurrent()")
 _c9_block = stage[_c9_start:stage.find("return", _c9_start)]
 check("C9 让路保留受管自动配置恢复",
-      "applyManagedAutobuyerStates(null)" in _c9_block)
+      "applyManagedAutobuyerStates(null)" in _c9_block
+      and "releaseCrunchOwnershipForC9Yield()" in _c9_block)
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 让路发生在调度开帧与 GUI 同步之后",
@@ -437,6 +438,9 @@ check("速度设置仅在成功保存后退出阶段速度管理",
 check("阶段速度接管关闭旧动态升档",
       "setManagedSpeed(target)" in read(KT_DIR / "OrekiGamePace.kt")
       and 'getMethod("setDynamic", Boolean::class.javaPrimitiveType)' in read(KT_DIR / "OrekiGamePace.kt"))
+check("C9 只交还由 MOD 暂停的大坍缩自动器",
+      "private fun releaseCrunchOwnershipForC9Yield()" in stage
+      and "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled" in stage)
 
 # ---------------------------------------------------------------- 24f. R96 第十四轮：TT 购买收益 ×500
 # 用户 2026-11-09 正式裁决的 MOD 平衡参数；必须保留原版成本曲线与真实扣费。
