@@ -261,6 +261,8 @@ object OrekiStageAuto {
     // ------------------------------------------------------ [R94] Break 状态守护
 
     private val TAG_BREAK_GUARD = "OREKI_BREAK"
+    private val TAG_C9_YIELD = "OREKI_C9_YIELD"
+    private var c9YieldActive = false
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
     private var lastObservedBrokenState: Boolean = false
@@ -298,6 +300,28 @@ object OrekiStageAuto {
                 OrekiGamePace.syncProgressionSpeed()
             } catch (_: Throwable) {
                 // 速度阶段校正是节奏辅助；异常不得阻断主自动化与游戏 tick。
+            }
+            val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalInChallengeC9(
+                    GameApi.isBroken(),
+                    normalChallengeCurrent,
+                )
+            ) {
+                if (!c9YieldActive) {
+                    c9YieldActive = true
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "pause-stage-auto normalChallenge=9 broken=true; " +
+                            "original autobuyers continue",
+                    )
+                }
+                // 只让出 StageAuto；维度和大坍缩继续由原版自动购买器推进，
+                // 该定向复验已经在本次 APK 上证明会完成真实 C9 结算。
+                return
+            }
+            if (c9YieldActive) {
+                c9YieldActive = false
+                Log.i(TAG_C9_YIELD, "resume-stage-auto normalChallenge=0 or challenge ended")
             }
             // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
             logEternityChallengeDiagnosticsIfDue()
