@@ -435,6 +435,12 @@ check("关闭 MOD 自动化后不再重新持有 autoBig",
       "if (!OrekiAutomationScheduler.isEnabled()) {" in stage
       and "releaseC9CrunchOnAutomationDisabled()" in stage
       and "private fun releaseC9CrunchOnAutomationDisabled()" in stage)
+_release_start = stage.find("private fun releaseC9CrunchOnAutomationDisabled()")
+_release_end = stage.find("\n    private fun ", _release_start + 1)
+_release_block = stage[_release_start:_release_end]
+check("关闭 C9 时按进入前所有权恢复被 MOD 暂停的 autoBig",
+      "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(" in _release_block
+      and "GameApi.setAutobuyerActive(crunch, true)" in _release_block)
 check("C9 暂停标记只在所有权或 active 状态变化时写盘",
       "val wasOwned = modOwnsCrunch" in stage
       and "if (active || !wasOwned || !wasPolicyPaused)" in stage)

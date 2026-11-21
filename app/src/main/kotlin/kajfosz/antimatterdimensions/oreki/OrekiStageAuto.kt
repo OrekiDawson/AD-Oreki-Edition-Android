@@ -2513,8 +2513,19 @@ object OrekiStageAuto {
      */
     private fun releaseC9CrunchOnAutomationDisabled() {
         if (!c9CrunchHoldCaptured) return
+        val crunch = GameApi.crunchState() ?: return
+        val activeBeforeRestore = GameApi.isAutobuyerActive(crunch) ?: return
+        val restoreAutoBig = OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
+            ownedByMod = c9PreviousModOwnedCrunch,
+            pausedByMod = c9PreviousPolicyPausedCrunch,
+            persistedPaused = false,
+            active = activeBeforeRestore,
+        )
         restoreCrunchOwnershipAfterC9()
         if (c9CrunchHoldCaptured) return
+        if (restoreAutoBig && GameApi.isAutobuyerActive(crunch) == false) {
+            GameApi.setAutobuyerActive(crunch, true)
+        }
         modOwnsCrunch = false
         crunchPausedByStagePolicy = false
         OrekiAutomationScheduler.markCrunchPausedByMod(false)
