@@ -261,6 +261,8 @@ object OrekiStageAuto {
     // ------------------------------------------------------ [R94] Break 状态守护
 
     private val TAG_BREAK_GUARD = "OREKI_BREAK"
+    private val TAG_C9_YIELD = "OREKI_C9_YIELD"
+    private var c9YieldActive = false
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
     private var lastObservedBrokenState: Boolean = false
@@ -294,13 +296,16 @@ object OrekiStageAuto {
     @JvmStatic
     fun onAutoBuyerTick() {
         try {
-            // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
-            logEternityChallengeDiagnosticsIfDue()
-
             // 统一调度器开帧：必须第一句。同帧最多一个受控动作由它保证。
             OrekiAutomationScheduler.beginFrame()
             managedConfigTickId = 0L
             managedCrunchTarget = null
+
+            try {
+                OrekiGamePace.syncProgressionSpeed()
+            } catch (_: Throwable) {
+                // 速度阶段校正是节奏辅助；异常不得阻断主自动化与游戏 tick。
+            }
 
             // [R99 §12] 双调度器 tick 强制 GUI 同步。
             // 必须在所有早退之前：即使本拍没有成功动作、或处于首次无限前的早返回分支，
@@ -324,6 +329,34 @@ object OrekiStageAuto {
             } catch (_: Throwable) {
                 // 同步异常不得静默：GameApi 内部已记录 GUI_TICK_SYNC_FAILED 并登记待同步。
             }
+
+            val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(
+                    GameApi.isBroken(),
+                    normalChallengeCurrent,
+                )
+            ) {
+                // 只暂停会造成分配风暴的 StageAuto 购买策略；新调度 tick 仍须
+                // 恢复受管自动购买器配置，随后由原版路径自行推进真实 C9。
+                releaseCrunchOwnershipForC9Yield()
+                applyManagedAutobuyerStates(null)
+                if (!c9YieldActive) {
+                    c9YieldActive = true
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "pause-stage-auto normalChallenge=" +
+                            (normalChallengeCurrent ?: "unreadable") + " broken=true; " +
+                            "managed config retained; original autobuyers continue",
+                    )
+                }
+                return
+            }
+            if (c9YieldActive) {
+                c9YieldActive = false
+                Log.i(TAG_C9_YIELD, "resume-stage-auto normalChallenge=0 or challenge ended")
+            }
+            // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
+            logEternityChallengeDiagnosticsIfDue()
 
             edpFrameNo++
             edpHeartbeat()
@@ -2117,6 +2150,41 @@ object OrekiStageAuto {
     private fun markCrunchPausedByMod() {
         OrekiPlayerIntent.clearPlayerClosed("crunch")
         OrekiAutomationScheduler.markCrunchPausedByMod(true)
+    }
+
+    /**
+     * C9 让路时交还 MOD 的大坍缩所有权。
+     *
+     * 只恢复确实由 MOD 暂停的自动器；玩家原本关闭的自动器保持关闭。持久化标记在这里
+     * 同步清除，避免下一次冷启动把它重新解释成 MOD 仍在托管。
+     */
+    private fun releaseCrunchOwnershipForC9Yield() {
+        try {
+            val persistedPaused =
+                OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
+            if (!modOwnsCrunch && !crunchPausedByStagePolicy && !persistedPaused) return
+            val crunch = GameApi.crunchState() ?: return
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            if (OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
+                    ownedByMod = modOwnsCrunch,
+                    pausedByMod = crunchPausedByStagePolicy,
+                    persistedPaused = persistedPaused,
+                    active = active,
+                )
+            ) {
+                GameApi.setAutobuyerActive(crunch, true)
+            }
+            modOwnsCrunch = false
+            crunchPausedByStagePolicy = false
+            OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            Log.i(
+                TAG_C9_YIELD,
+                "crunch ownership released; autoBig active=" +
+                    GameApi.isAutobuyerActive(crunch),
+            )
+        } catch (_: Throwable) {
+            // 交还失败保持原所有权；下一调度 tick 仍会重试。
+        }
     }
 
     /**

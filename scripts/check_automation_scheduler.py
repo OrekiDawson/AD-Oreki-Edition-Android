@@ -53,6 +53,8 @@ STAGE = KT_DIR / "OrekiStageAuto.kt"
 LISTENER = (ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz"
             / "antimatterdimensions" / "oreki" / "OrekiAutomationUiListener.kt")
 TT_REWARD_POLICY = KT_DIR / "OrekiTimeTheoremRewardPolicy.kt"
+SETTINGS_CLICK = (ROOT / "scripts" / "payload" / "smali" / "kajfosz"
+                  / "antimatterdimensions" / "oreki" / "SettingsClickListener.smali")
 
 checks = 0
 fails: list[str] = []
@@ -419,6 +421,27 @@ check("献祭不得抢占维度升级（本帧 bulk 动过就放弃）",
 check("调度器提供 actedThisFrame 且每帧重置",
       "fun actedThisFrame(taskId: String)" in sched
       and "frameActedTask = null" in sched and "frameActedTask = taskId" in sched)
+
+_c9_start = stage.find("val normalChallengeCurrent = GameApi.normalChallengeCurrent()")
+_c9_block = stage[_c9_start:stage.find("return", _c9_start)]
+check("C9 让路保留受管自动配置恢复",
+      "applyManagedAutobuyerStates(null)" in _c9_block
+      and "releaseCrunchOwnershipForC9Yield()" in _c9_block)
+check("C9 挑战读取失败时仍 fail-closed 让路",
+      "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 让路发生在调度开帧与 GUI 同步之后",
+      _c9_start > stage.find("OrekiAutomationScheduler.beginFrame()")
+      and _c9_start > stage.find("GameApi.retryPendingGuiSync()"))
+_settings_click = read(SETTINGS_CLICK)
+check("速度设置仅在成功保存后退出阶段速度管理",
+      _settings_click.find("if-eqz v4, :invalid")
+      < _settings_click.find("OrekiGamePace;->markManualSpeedChoice()V"))
+check("阶段速度接管关闭旧动态升档",
+      "setManagedSpeed(target)" in read(KT_DIR / "OrekiGamePace.kt")
+      and 'getMethod("setDynamic", Boolean::class.javaPrimitiveType)' in read(KT_DIR / "OrekiGamePace.kt"))
+check("C9 只交还由 MOD 暂停的大坍缩自动器",
+      "private fun releaseCrunchOwnershipForC9Yield()" in stage
+      and "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled" in stage)
 
 # ---------------------------------------------------------------- 24f. TT 购买收益恢复原版 ×1
 # 旧 MOD 的 ×500 会让时间研究成长与双端节奏偏离；恢复原版真实购买收益。
