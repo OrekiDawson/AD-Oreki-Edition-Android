@@ -3243,7 +3243,7 @@ def patch_auto_enter_eternity_challenge():
     assert ".field public static final a:Lkajfosz/antimatterdimensions/OrekiEcContinuation;" in csrc, (
         "必须是静态单例（不允许每帧 new）")
 
-    # --- 插钩子：必须紧贴在 OrekiInstantChallenge.tick() 之前 ---
+    # --- 插钩子：挑战更新入口；不再依赖已退役的「进入即完成」钩子 ---
     blob = target.read_bytes()
     ic_line = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/"
                b"OrekiInstantChallenge;->tick()V")
@@ -3256,25 +3256,33 @@ def patch_auto_enter_eternity_challenge():
     # 因此该窗口内整帧跳过挑战自动化；canEternity 为假时照常推进（不结算）。
     gate_marker = b"OrekiAutoEternityGate;->challengeAutoStartAllowed()Z"
 
-    assert ic_line in blob, (
-        "Challenges.update 里没有 OrekiInstantChallenge.tick()："
-        "本补丁依赖它做顺序锚点，请确认 patch_instant_challenge() 已先执行")
     if gate_marker in blob:
         # 幂等 + 顺序再确认一次（防止别人调换过顺序）
-        assert blob.find(ca_line) < blob.find(ic_line), (
-            "OrekiChallengeAuto.tick() 排在 OrekiInstantChallenge.tick() 之后，"
-            "顺序被改动过：必须是「先进入、同帧结算」")
+        if ic_line in blob:
+            assert blob.find(ca_line) < blob.find(ic_line), (
+                "OrekiChallengeAuto.tick() 排在 OrekiInstantChallenge.tick() 之后，"
+                "顺序被改动过：必须先自动进入，再继续原版挑战更新")
         note("[Oreki CA] 自动进入永恒挑战钩子（含 autoEternity 门禁）已存在，跳过")
         return
 
-    assert blob.count(ic_line) == 1, "OrekiInstantChallenge.tick() 出现次数异常，无法安全定位"
-    pos = blob.find(ic_line)
-    assert pos > 0, "定位 OrekiInstantChallenge.tick() 行失败"
-    eol_prev = blob.rfind(b"\n", 0, pos)
-    assert eol_prev > 0, "定位行首失败"
+    if ic_line in blob:
+        assert blob.count(ic_line) == 1, "OrekiInstantChallenge.tick() 出现次数异常，无法安全定位"
+        pos = blob.find(ic_line)
+        assert pos > 0, "定位 OrekiInstantChallenge.tick() 行失败"
+        eol_prev = blob.rfind(b"\n", 0, pos)
+        assert eol_prev > 0, "定位行首失败"
+    else:
+        header = (b".method public final b(DLkotlin/coroutines/jvm/internal/ContinuationImpl;)"
+                  b"Ljava/lang/Object;")
+        idx = blob.find(header)
+        assert idx >= 0, "未找到 Challenges.update 方法头（结构可能已变）"
+        loc = blob.find(b".locals 23", idx)
+        assert loc >= 0 and loc - idx < 400, "未找到 Challenges.update 的 .locals 声明"
+        eol = blob.find(b"\n", loc)
+        assert eol > 0, "定位 .locals 行尾失败"
+        eol_prev = eol
     nl = b"\r\n" if blob[eol_prev:eol_prev + 1] == b"\r" else b"\n"
-    note_line = ("# [Oreki CA] 自动进入永恒挑战：必须在 OrekiInstantChallenge.tick() 之前，"
-                 "先进入再同帧结算（详见 OrekiChallengeAuto.smali）")
+    note_line = ("# [Oreki CA] 自动进入挑战：只购买/启动，完成与奖励仍由原版挑战结算")
     # 注释只放 ASCII：字节字面量不能含中文（中文说明见本函数 docstring 与 Kotlin 门禁）。
     gate_line = (b"    # [R101 P0] autoEternity gate: EC auto-start settles eternity when canEternity;"
                  b" skip this frame while the switch is off")
@@ -3292,8 +3300,10 @@ def patch_auto_enter_eternity_challenge():
     after = target.read_bytes()
     assert after.count(ca_marker) == 1, "补丁写入失败：tick() 不是 1 处"
     assert after.count(gate_marker) == 1, "补丁写入失败：autoEternity 门禁不是 1 处"
-    assert after.find(gate_invoke) < after.find(ca_line) < after.find(ic_line),         "写入后顺序不对（门禁 → CA → IC）"
-    note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先过 autoEternity 门禁、先于 IC 结算）")
+    assert after.find(gate_invoke) < after.find(ca_line), "写入后顺序不对（门禁 → CA）"
+    if ic_line in after:
+        assert after.find(ca_line) < after.find(ic_line), "写入后顺序不对（CA → IC）"
+    note("[Oreki CA] 已在 Challenges.update 入口插入 OrekiChallengeAuto.tick()（先过 autoEternity 门禁；完成由原版挑战结算）")
 
 
 # ---------------------------------------------------------------------------
@@ -3970,6 +3980,29 @@ def patch_instant_challenge_rewards():
     write_smali(target, out, encoding="utf-8")
     assert marker in target.read_text(encoding="utf-8"), "幂等标记写入失败"
     note("[Oreki RIS] 挑战进入即完成已改为「真实结算收益」：IP / 无限次数 / EP + 最速记录 + 幂等闸门")
+
+
+def retire_instant_challenge():
+    """从生产构建中彻底移除挑战即时完成实现。
+
+    历史实现会在挑战启动后直接补满完成次数，并临时抬高 maxAM/maxIP 复用原版
+    发奖函数。R121-01 起挑战必须由真实玩法达到目标后走原版结算，因此这里只
+    清理旧构建残留，不改变合法挑战入口或结算公式。
+    """
+    target = smali_tree() / "kajfosz" / "antimatterdimensions" / "challenge" / "antimatter" / "c.smali"
+    assert target.exists(), f"缺少 {target}（Challenges 类未反编译出来）"
+    blob = target.read_bytes()
+    marker = b"OrekiInstantChallenge"
+    if marker in blob:
+        kept = [line for line in blob.splitlines(keepends=True) if marker not in line]
+        target.write_bytes(b"".join(kept))
+        note("[Oreki IC] 已移除生产 Challenges.update 中的即时完成调用")
+
+    for root in smali_roots():
+        retired = root / "kajfosz" / "antimatterdimensions" / "OrekiInstantChallenge.smali"
+        if retired.exists():
+            retired.unlink()
+            note("[Oreki IC] 已移除旧 OrekiInstantChallenge.smali")
 
 
 def _scan_method(src, sig):
@@ -5579,10 +5612,10 @@ def main():
     # patch_debug_trace() 调用（R5.5 实测未生效，见函数 docstring）。R114-02 C5 按「无调用才删」
     # 的标准未删除；要删除须连同诊断链 patch_debug_trace 一起退役，待 Lead 决定。
     patch_ec12_restriction()
-    patch_instant_challenge()
-    # [R34 Agent C] 自动进入永恒挑战（Web buyEcStudiesAndStart 的 Android 对位）。
-    # 必须在 patch_instant_challenge() 之后：本补丁以 IC 的 tick 行为顺序锚点，
-    # 并把 OrekiChallengeAuto.tick() 插到它**前面**（先进入、同帧结算）。
+    retire_instant_challenge()
+    # R121-01：挑战必须按原版目标真实推进并由原版结算入口完成。
+    # 旧「进入即完成」以及直接补发奖励的补丁已从生产构建移除。
+    # 自动进入仍然合法：OrekiChallengeAuto 只购买/启动挑战，不写完成次数或奖励。
     patch_auto_enter_eternity_challenge()
     # [R114-02 C4b] 类描述符 / 挑战极性 / EC 链条三条校验已迁 scripts/verify_build_contracts.py：
     #   类描述符走 candidate 树产出后的独立 step；挑战极性与 EC 链条走源码 CI。
@@ -5594,9 +5627,6 @@ def main():
     patch_id_autobuyer_guard()
     # [R83] IU15 冲刺期间禁止自动进入 EC7（判定在 Kotlin）
     patch_iu15_ec7_guard()
-    # [R33 Agent C] 挑战进入即完成必须「真结算」：补发 IP / 无限次数 / EP，
-    # 并按原版口径更新最速无限记录；缺这一步 Android 会比 Web 少一整份资源。
-    patch_instant_challenge_rewards()
     # [R34 Agent C] V 的 mainUnlock 三项阈值与 Web 同步：realities 200 /
     # dilatedTime 1e30 / replicanti 1e20000。门槛常量（u55 就地 new BigDouble）
     # 与进度分母（c15 三个分支）两处同时改，否则 progress 永远到不了 1。
