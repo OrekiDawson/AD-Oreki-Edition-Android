@@ -1806,22 +1806,24 @@ def _impl_payload():
     )
 
     # 反向守卫：AMOUNT 模式不得被强行改写（R74 根因）。
-    # 代码里必须**没有**对 setCrunchMode 的无条件调用（只能出现在 sCrunchTimeInit 分支内）。
-    # [R96] 自 R94 起有两处**一次性** mode 初始化：
-    #   ① Break 前（preBreakCrunchInitialized）：原版 auto.bigCrunch.amount=1 ⇒ IP 收益≈0，
-    #      必须切 TIME + 10 秒才能把反物质滚起来；
-    #   ② Break 后（crunchTimeModeInitialized）：早期 TIME/1s。
     # [R120-01] 受管 mode 已收敛到唯一入口 applyManagedCrunchMode()：
     # 只在新的调度 Tick 对账，同 Tick 重入不写；玩家修改下一次有效 Tick 恢复。
+    # 目标值必须来自 OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME，再由局部
+    # `target` 传入；继续接受字面量 MODE_TIME 会允许绕过托管权威，放宽审查。
     _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
     assert len(_set_mode_calls) == 1, (
         f"[R120-01] setCrunchMode 应只有调度托管唯一入口，实际 {len(_set_mode_calls)} 处")
-    for _call in _set_mode_calls:
-        assert "MODE_TIME" in _call, f"[R74] setCrunchMode 只允许切 TIME，实际：{_call}"
+    assert _set_mode_calls == ["GameApi.setCrunchMode(crunch, target)"], (
+        f"[R74] setCrunchMode 只允许从托管 target 切 TIME，实际：{_set_mode_calls}")
     _managed_mode_idx = sa_txt.index("private fun applyManagedCrunchMode()")
-    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_idx + 800]
+    _managed_mode_end = sa_txt.find("\n    private fun ", _managed_mode_idx + 1)
+    if _managed_mode_end < 0:
+        _managed_mode_end = len(sa_txt)
+    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_end]
     assert "isNewConfigTick" in _managed_mode_block, (
         "[R120-01] 受管 mode 只能在新的调度 Tick 对账")
+    assert "val target = OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME" in _managed_mode_block, (
+        "[R74] 受管 mode 必须从 OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME 取值")
     assert "GameApi.setCrunchMode(crunch, target)" in _managed_mode_block, (
         "[R120-01] 受管 mode 的唯一写入必须位于 applyManagedCrunchMode()")
 

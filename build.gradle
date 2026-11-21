@@ -762,7 +762,7 @@ tasks.register('fingerprintInputs', Exec) {
 // Gradle 随后直接调用 zipalign/apksigner，最终候选仍只落在 build/gradle-stage/。
 tasks.register('assembleRelease', Exec) {
     group = 'oreki'
-    description = '用 smali/apktool 流水线生成并由 Gradle 对齐/签名候选 APK（不触碰 release/）'
+    description = 'DEPRECATED：仅隔离回归；正式构建使用 ./gradlew -p agp :app:assembleRelease'
     dependsOn 'verifyEnvironment', 'fingerprintInputs', 'buildKotlinDex', 'buildBaselineTool'
     workingDir = repoRoot
     commandLine pythonExe, 'scripts/build_mod.py'
@@ -794,7 +794,15 @@ tasks.register('assembleRelease', Exec) {
     }
     // [R66] 增量判定：输入指纹一致且候选 APK 仍在 → 跳过（Gradle 显示 SKIPPED）。
     // 注意 doFirst 只在真正执行时运行，所以「跳过」不会误删候选产物。
-    onlyIf { forceFullBuild || project.hasProperty('orekiForceBuild') || staleFlag.exists() }
+    onlyIf {
+        if (System.getenv('OREKI_LEGACY_ISOLATED') != '1') {
+            throw new GradleException(
+                '旧 build_mod/apktool 链已退出生产入口；仅可用 OREKI_LEGACY_ISOLATED=1 做隔离回归。' +
+                    '正式构建：./gradlew -p agp :app:assembleRelease'
+            )
+        }
+        forceFullBuild || project.hasProperty('orekiForceBuild') || staleFlag.exists()
+    }
     // 构建成功之后才提交新指纹：失败不会污染下一次的判定基准。
     doLast {
         def unsigned = new File(stageDir, 'unsigned.apk')
