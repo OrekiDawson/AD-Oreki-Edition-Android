@@ -424,9 +424,10 @@ check("调度器提供 actedThisFrame 且每帧重置",
 
 _c9_start = stage.find("val normalChallengeCurrent = GameApi.normalChallengeCurrent()")
 _c9_block = stage[_c9_start:stage.find("return", _c9_start)]
-check("C9 让路保留受管自动配置恢复",
-      "applyManagedAutobuyerStates(null)" in _c9_block
-      and "releaseCrunchOwnershipForC9Yield()" in _c9_block)
+check("C9 保留专用受管配置与真实提升维护",
+      "applyC9ManagedAutobuyerStates()" in _c9_block
+      and "c9MaintenanceTask(normalChallengeCurrent)" in _c9_block
+      and "holdCrunchOwnershipForC9()" in _c9_block)
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 让路发生在调度开帧与 GUI 同步之后",
@@ -439,9 +440,11 @@ check("速度设置仅在成功保存后退出阶段速度管理",
 check("阶段速度接管关闭旧动态升档",
       "setManagedSpeed(target)" in read(KT_DIR / "OrekiGamePace.kt")
       and 'getMethod("setDynamic", Boolean::class.javaPrimitiveType)' in read(KT_DIR / "OrekiGamePace.kt"))
-check("C9 只交还由 MOD 暂停的大坍缩自动器",
-      "private fun releaseCrunchOwnershipForC9Yield()" in stage
-      and "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled" in stage)
+check("C9 只临时暂停并在挑战结束后恢复大坍缩自动器",
+      "private fun holdCrunchOwnershipForC9()" in stage
+      and "private fun restoreCrunchOwnershipAfterC9()" in stage
+      and "restoreCrunchOwnershipAfterC9()" in stage[stage.find("if (c9YieldActive)"):]
+      and "releaseCrunchOwnershipForC9Yield()" not in _c9_block)
 
 # ---------------------------------------------------------------- 24f. TT 购买收益恢复原版 ×1
 # 旧 MOD 的 ×500 会让时间研究成长与双端节奏偏离；恢复原版真实购买收益。

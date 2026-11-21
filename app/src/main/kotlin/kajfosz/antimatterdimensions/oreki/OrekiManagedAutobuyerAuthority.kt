@@ -9,9 +9,12 @@ package kajfosz.antimatterdimensions.oreki
 object OrekiManagedAutobuyerAuthority {
     const val CRUNCH_MODE_TIME: Int = 1
     const val DIMENSION_MODE_BUY_10: Int = 10
+    const val DIMENSION_MODE_BUY_SINGLE: Int = 1
     const val TICKSPEED_MODE_BUY_SINGLE: Int = 1
     const val CRUNCH_THRESHOLD: Double = 10.0
     const val SACRIFICE_MULTIPLIER: Double = 2.0
+    const val C9_REQUIRED_DIMENSION_BULK: Double = 512.0
+    const val C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS: Int = 5
 
     @JvmStatic
     fun isNewConfigTick(tickId: Long, lastAppliedTickId: Long): Boolean =
@@ -39,15 +42,120 @@ object OrekiManagedAutobuyerAuthority {
             kotlin.math.abs(actual - target) > epsilon
 
     /**
-     * Break 后进入普通挑战 C9，或挑战 ID 暂时不可读时，让原版自动购买器独占推进。
+     * 普通挑战 C9 在 Break 前后都由 C9 专用策略推进。
      *
-     * 实测在 C9 内同时运行 StageAuto 和原版 BUY_10 bulk 路径会触发高频
-     * BigDouble 分配；暂停 MOD 侧逐帧策略后，游戏状态恢复推进。读取失败时
-     * 不能把未知状态当作“不在 C9”，否则冻结会静默复发，因此同样让路。
+     * 真新档会在 C1–C8 后、Break 前进入 C9；旧判据要求 `broken=true`，
+     * 导致最关键的新档路径继续运行通用 StageAuto。Break 后挑战 ID 不可读时
+     * 仍按未知状态让路，避免把未知误判为“不在 C9”。
      */
     @JvmStatic
     fun shouldYieldToOriginalForC9OrUnreadableChallenge(
         broken: Boolean?,
         normalChallengeCurrent: Int?,
-    ): Boolean = broken == true && (normalChallengeCurrent == null || normalChallengeCurrent == 9)
+    ): Boolean = normalChallengeCurrent == 9 ||
+        (broken == true && normalChallengeCurrent == null)
+
+    /**
+     * C9 由原版自动购买器独占推进时，只保留能打破价格锁的购买层。
+     *
+     * C9 会在一组同价购买完成后抬高其它同价项目。全部维度与计数频率同时运行时，
+     * 低层持续购买会把下一次维度提升所需的第七维度一起抬高，导致 D7=20 的门槛
+     * 无法达到；而维度提升又需要该门槛，形成真实条件阻断。
+     */
+    @JvmStatic
+    fun useC9ManagedStrategy(normalChallengeCurrent: Int?): Boolean =
+        normalChallengeCurrent == 9
+
+    /** C9 目标要求保持单次无限内的反物质增长，自动大坍缩会反复清零同一挑战内进度。 */
+    @JvmStatic
+    fun shouldPauseCrunchForC9(normalChallengeCurrent: Int?): Boolean =
+        normalChallengeCurrent == 9
+
+    /** C9 目标已达到时允许走一次原版大坍缩结算，不能在未达门槛时提前结算。 */
+    @JvmStatic
+    fun shouldSettleC9Goal(canBigCrunch: Boolean?): Boolean = canBigCrunch == true
+
+    /**
+     * C9 只保留一个 StageAuto 维护名额：优先走原版入口请求真实维度提升，
+     * 否则升级自动购买器 bulk。维度购买仍由受限的原版自动器执行。
+     */
+    @JvmStatic
+    fun c9MaintenanceTask(normalChallengeCurrent: Int?): String? =
+        if (normalChallengeCurrent == 9) "c9" else null
+
+    /**
+     * 第五次维度提升前必须限制购买层。
+     *
+     * bulk=512 只表示自动器一次可购买的上限，不代表 D7/D8 的实际数量或
+     * `canBeBought` 已满足。实测 bulk=512 的 fresh C9 在 4 次提升、D7=6、
+     * D8=3 时，D7/D8 的 lastTick 仍冻结；因此策略切换必须读取真实提升阶段。
+     */
+    @JvmStatic
+    fun c9NeedsRestrictedStrategy(dimensionBoosts: Int?): Boolean =
+        dimensionBoosts == null ||
+            dimensionBoosts < C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS
+
+    /**
+     * C1–C8 已完成时，自动启动 C9 前先把 D7/D8 的原版 bulk 升到 512。
+     *
+     * 失败真新档在 D7/D8 bulk 较低时进入 C9，低层购买把 D7 价格持续抬高，
+     * 形成 C9 内的结构墙。这里只延迟自动启动；玩家手动启动不受影响。
+     * 无法读取状态时不阻止启动，避免测试门禁自身制造挑战停滞。
+     */
+    @JvmStatic
+    fun shouldDeferC9Start(
+        normalChallengeCurrent: Int?,
+        firstEightChallengesCompleted: Boolean?,
+        c9Completed: Boolean?,
+        d7Bulk: Double?,
+        d8Bulk: Double?,
+    ): Boolean {
+        if (normalChallengeCurrent != 0 ||
+            firstEightChallengesCompleted == null || c9Completed == null
+        ) {
+            return false
+        }
+        val nextIsC9 = firstEightChallengesCompleted && !c9Completed
+        if (!nextIsC9) return false
+        val d7Ready = d7Bulk != null && d7Bulk >= C9_REQUIRED_DIMENSION_BULK
+        val d8Ready = d8Bulk != null && d8Bulk >= C9_REQUIRED_DIMENSION_BULK
+        return !d7Ready || !d8Ready
+    }
+
+    @JvmStatic
+    fun c9DimensionActive(tier: Int, dimensionBoosts: Int): Boolean = when {
+        dimensionBoosts < 3 -> tier in 1..8
+        dimensionBoosts < 4 -> tier == 7
+        dimensionBoosts == 4 -> tier == 8
+        else -> tier in 1..8
+    }
+
+    @JvmStatic
+    fun c9DimensionMode(tier: Int, dimensionBoosts: Int): Int =
+        if (dimensionBoosts < 5 && (tier == 7 || tier == 8)) {
+            DIMENSION_MODE_BUY_SINGLE
+        } else {
+            DIMENSION_MODE_BUY_10
+        }
+
+    /**
+     * 第五次提升前暂停计数频率购买，避免每次购买同时抬高同价的低层维度。
+     * 第五次提升后 D8 与新的维度提升反馈链都已建立，可恢复计数频率正常提速。
+     */
+    @JvmStatic
+    fun c9TickspeedActive(dimensionBoosts: Int): Boolean = dimensionBoosts >= 5
+
+    /** 维度提升必须保留；达到第七维度门槛后由原版入口真实解锁第八维度。 */
+    @JvmStatic
+    fun c9DimBoostActive(): Boolean = true
+
+    /**
+     * C9 目标只需要真实反物质增长。星系会重置维度，整个 C9 都不参与；
+     * 献祭在第五次维度提升前由原版禁用，达到门槛后恢复正常托管。
+     */
+    @JvmStatic
+    fun c9GalaxyActive(): Boolean = false
+
+    @JvmStatic
+    fun c9SacrificeActive(dimensionBoosts: Int): Boolean = dimensionBoosts >= 5
 }

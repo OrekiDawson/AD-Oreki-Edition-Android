@@ -2217,6 +2217,15 @@ internal object GameApi {
         return readGameField(normal, "current") as? Int
     }
 
+    /** 普通挑战指定关卡是否已完成。读取失败返回 null。 */
+    fun normalChallengeCompleted(id: Int): Boolean? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val normal = readGameField(challenges, "normal") ?: return null
+        val bits = readGameField(normal, "completedBits") ?: return null
+        return bitSetHas(bits, id)
+    }
+
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
 
     private var mHolderW: Field? = null
@@ -3016,6 +3025,25 @@ internal object GameApi {
 
     /** Break 升级位图基数（0 = 还没买过任何 Break 升级）。 */
     fun bitSetCardinality(bits: Any?): Int = (call(mBitSetA(), bits) as? Int) ?: 0
+
+    private var mBitSetE: Method? = null
+    private var mBitSetEResolved: Boolean = false
+    private fun mBitSetE(): Method? {
+        if (!mBitSetEResolved) {
+            mBitSetEResolved = true
+            mBitSetE = method(
+                bitSetCls(),
+                "e",
+                1,
+                "BitSet.e(I)=has",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mBitSetE
+    }
+
+    fun bitSetHas(bits: Any?, id: Int): Boolean? =
+        call(mBitSetE(), bits, id) as? Boolean
 
     private var mPelleQ: Method? = null
     private var mPelleQResolved: Boolean = false
