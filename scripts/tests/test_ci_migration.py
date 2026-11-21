@@ -113,6 +113,15 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", workflow)
         self.assertIn("github.event.pull_request.draft == false", workflow)
         self.assertIn("github.event_name == 'workflow_dispatch'", workflow)
+        self.assertIn("  r8-contract:", workflow)
+        self.assertIn("name: R8 DSL 与 ABI Keep 契约", workflow)
+        contract, experiment = workflow.split("  r8-experiment:", 1)
+        # Draft 阶段必须执行免费 R8 Keep 单测，不能被昂贵实验的 if 一起跳过。
+        self.assertNotIn("github.event.pull_request.draft == false", contract)
+        self.assertIn("run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v", contract)
+        self.assertNotIn("test_agp_r8_experiment -v", experiment)
+        self.assertIn("needs: r8-contract", experiment)
+        self.assertIn("github.event.pull_request.draft == false", experiment)
         # 最终实验 R8 ON 仍强制重执行；R8 OFF 可以复用已验证的 Gradle 输入缓存。
         off_command = next(line for line in workflow.splitlines()
                            if "tee r8-evidence/logs/r8off-build.log" in line)
