@@ -142,6 +142,10 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_directory_layout.py' -v
       - name: Enforce staged AGP production Kotlin source directories
         run: python3 scripts/check_directory_layout.py
+      # Issue #25：DEX→JVM 转换器的类排除、keep-kotlin、dash 修复与覆盖核对
+      # 使用合成夹具即可 fail-closed，不依赖官方 APK 或私有基线。
+      - name: Test AGP game JAR input conversion contract
+        run: python3 -m unittest scripts.tests.test_agp_gamejar -v
       - name: Test four-channel delivery preflight and stable-release promotion
         run: python3 -m unittest discover -s scripts/tests -p 'test_delivery_preflight.py' -v
       - name: Test immutable archive-only recovery without changing stable Latest
