@@ -15,7 +15,7 @@ public class OrekiEcPriorityTest {
   @Test
   public void realityLoopPrioritizesOriginalGateChallenges() {
     assertArrayEquals(
-        new int[] {11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+        new int[] {1, 2, 3, 10, 11, 12, 4, 5, 6, 7, 8, 9},
         OrekiEcAutomation.ecTargetOrder(true));
   }
 }
