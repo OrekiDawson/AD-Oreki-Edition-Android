@@ -5045,7 +5045,7 @@ def patch_v_unlock_thresholds():
     背景
       Web 侧 src/core/secret-formula/celestials/v.js 已把 V.mainUnlock 的
       realities / dilatedTime / replicanti 三项从原版 10000 / 1e320 / 1e320000
-      改为 200 / 1e30 / 1e20000（理由见该文件 :17-41 的实测注释：原值在 180
+      改为 60 / 1e30 / 1e20000（理由见该文件 :17-41 的实测注释：原值在 180
       分钟预算内物理上不可达）。Android 仍是原版，机制不等价。本轮只同步这三项。
 
     定位链（全部来自 apktool 反编译的 smali，不是靠猜类名）
@@ -5252,13 +5252,13 @@ def patch_v_unlock_thresholds():
             (
                 "    sget-object v3, Llu;->n1:Lkajfosz/antimatterdimensions/BigDouble;",
                 # v9/v10/v11 此时均未使用（.locals 12，v0..v2 已用于 s55/hr4）
-                "    # [Oreki V] realities 门槛 1e4(10000) -> 200（不碰共享常量 Llu;->n1，它另有 10 处引用）\n"
+                "    # [Oreki V] realities 门槛 1e4(10000) -> 60（不碰共享常量 Llu;->n1，它另有 10 处引用）\n"
                 "    new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/16 v9, 0xc8\n"
+                "    const/16 v9, 0x3c\n"
                 "    const/4 v10, 0x0\n"
                 "    const/4 v11, 0x1\n"
                 "    invoke-direct {v3, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
-                "realities 200",
+                "realities 60",
             ),
             (
                 "    sget-object v6, Llu;->Y2:Lkajfosz/antimatterdimensions/BigDouble;",
@@ -5301,7 +5301,7 @@ def patch_v_unlock_thresholds():
         )
         assert out.count("    " + umark) == 1, "幂等标记写入异常"
         write_smali(u55, out, encoding="utf-8")
-        note("[Oreki V] V.mainUnlock 门槛：realities 10000->200 / dilatedTime 1e320->1e30 / "
+        note("[Oreki V] V.mainUnlock 门槛：realities 10000->60 / dilatedTime 1e320->1e30 / "
              "replicanti 1e320000->1e20000")
 
     # ------------------------------------------------------- 2) 进度分母（3 个分支）
@@ -5316,7 +5316,7 @@ def patch_v_unlock_thresholds():
         body = csrc[i:j]
         plans = [
             # (旧字面量, 新字面量, 语义, 旧值文本, 新值文本)
-            ("0x40c3880000000000L", "0x4069000000000000L", "realities 进度分母 toDouble()/X", "10000.0", "200.0"),
+            ("0x40c3880000000000L", "0x404e000000000000L", "realities 进度分母 toDouble()/X", "10000.0", "60.0"),
             ("0x4074000000000000L", "0x403e000000000000L", "dilatedTime 进度分母 pLog10()/X", "320.0", "30.0"),
             ("0x4113880000000000L", "0x40d3880000000000L", "replicanti 进度分母 pLog10()/X", "320000.0", "20000.0"),
         ]
@@ -5337,20 +5337,20 @@ def patch_v_unlock_thresholds():
         )
         assert out.count("    " + cmark) == 1, "幂等标记写入异常"
         write_smali(c15, out, encoding="utf-8")
-        note("[Oreki V] V.mainUnlock 进度分母：realities /10000->/200、dilatedTime /320->/30、"
+        note("[Oreki V] V.mainUnlock 进度分母：realities /10000->/60、dilatedTime /320->/30、"
              "replicanti /320000->/20000")
 
     # ----------------------------------------- 3) 交付契约：两处都到位才算成功（fail-fast）
     ub = u55.read_text(encoding="utf-8")
     cb = c15.read_text(encoding="utf-8")
     checks = [
-        ("realities 门槛 200", "const/16 v9, 0xc8" in ub),
+        ("realities 门槛 60", "const/16 v9, 0x3c" in ub),
         ("dilatedTime 门槛 1e30", "const/16 v10, 0x1e" in ub),
         ("replicanti 门槛 1e20000", "const v10, 0x4e20" in ub),
         ("门槛不再 sget-object 共享常量", not [
             ln for ln in ub.splitlines()
             if "sget-object" in ln and any(x in ln for x in ("Llu;->n1", "Llu;->Y2", "Llu;->y4"))]),
-        ("realities 分母 200.0", "0x4069000000000000L" in cb),
+        ("realities 分母 60.0", "0x404e000000000000L" in cb),
         ("dilatedTime 分母 30.0", "0x403e000000000000L" in cb),
         ("replicanti 分母 20000.0", "0x40d3880000000000L" in cb),
         ("旧分母已彻底消失", all(
@@ -5753,9 +5753,9 @@ def main():
     patch_id_autobuyer_guard()
     # [R83] IU15 冲刺期间禁止自动进入 EC7（判定在 Kotlin）
     patch_iu15_ec7_guard()
-    # [R34 Agent C] V 的 mainUnlock 三项阈值与 Web 同步：realities 200 /
-    # dilatedTime 1e30 / replicanti 1e20000。门槛常量（u55 就地 new BigDouble）
-    # 与进度分母（c15 三个分支）两处同时改，否则 progress 永远到不了 1。
+    # [R34 Agent C / R124] V.mainUnlock 三项阈值与 Web 同步：realities 60 /
+    # dilatedTime 1e30 / replicanti 1e20000。3.21 修改 w35 门槛与 xd4 分母；
+    # 旧基线仍保留 u55/c15 分支。两处同时改，否则 progress 永远到不了 1。
     patch_v_unlock_thresholds()
     # [R38-B] 终局判定常量镜像 Web：OFFSET 8.7 -> 1.0、TARGET 9.0E15 -> 1000.0。
     # 语义：endState >= 1 <=> 反物质指数 >= TARGET。只改两条 const-wide 的立即数，
