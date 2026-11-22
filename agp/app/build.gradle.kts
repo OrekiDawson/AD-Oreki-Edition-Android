@@ -6,7 +6,9 @@ import org.gradle.api.tasks.Exec
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.security.MessageDigest
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import javax.xml.parsers.DocumentBuilderFactory
 
 plugins {
@@ -1144,6 +1146,167 @@ val orekiRequiredStorePolicyTargets = setOf(
     "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class#speed-ui-text -> speedUiText",
     "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class#speed-ui-text -> speedUiText",
 )
+val orekiRequiredStorePolicyAnchors = mapOf(
+    "l5.class" to listOf("OrekiStorePolicy", "isAdBonusEffectEnabled"),
+    "kajfosz/antimatterdimensions/challenge/antimatter/c.class" to
+        listOf("OrekiMatterChallengePacing", "adjustedDiff"),
+    "kajfosz/antimatterdimensions/shop/Purchases.class" to
+        listOf("OrekiStorePolicy", "effectPurchaseCount", "isPurchaseEffectEnabled"),
+    "rw3.class" to listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "ww1.class" to listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "xw1.class" to listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "yw1.class" to listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "kajfosz/antimatterdimensions/shop/b.class" to listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "kajfosz/antimatterdimensions/shop/LoginActivity.class" to
+        listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "kajfosz/antimatterdimensions/MainActivity.class" to
+        listOf("OrekiStorePolicy", "isStoreEnabled"),
+    "kajfosz/antimatterdimensions/OrekiSpeed.class" to
+        listOf("OrekiSpeedPolicy", "sanitize", "isValidInput"),
+    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class" to
+        listOf("OrekiGamePace", "resetDefault"),
+    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class" to
+        listOf("100 ~ 100000"),
+)
+
+data class OrekiStorePolicyVerifyResult(
+    val inputSha256: String,
+    val outputSha256: String,
+    val outputBytes: Long,
+)
+
+fun orekiVerifyStorePolicyArtifacts(
+    inputJar: File,
+    outputJar: File,
+    reportFile: File,
+    evidenceFile: File? = null,
+): OrekiStorePolicyVerifyResult {
+    if (!inputJar.isFile) throw GradleException("[oreki] store-policy 输入 JAR 不存在: $inputJar")
+    if (!outputJar.isFile) throw GradleException("[oreki] store-policy 输出 JAR 不存在: $outputJar")
+    if (!reportFile.isFile) throw GradleException("[oreki] store-policy 报告不存在: $reportFile")
+
+    val report = try {
+        JsonSlurper().parse(reportFile) as Map<*, *>
+    } catch (error: Exception) {
+        throw GradleException("[oreki] store-policy 报告不是有效 JSON: $reportFile", error)
+    }
+    if (report["schema"]?.toString() != "1") {
+        throw GradleException("[oreki] store-policy 报告 schema 不是 1")
+    }
+    val inputSha256 = orekiSha256(inputJar.readBytes())
+    val outputSha256 = orekiSha256(outputJar.readBytes())
+    if (report["input_jar_sha256"]?.toString() != inputSha256) {
+        throw GradleException("[oreki] store-policy 报告输入哈希与真实 JAR 不一致")
+    }
+    if (report["output_jar_sha256"]?.toString() != outputSha256) {
+        throw GradleException("[oreki] store-policy 报告输出哈希与真实 JAR 不一致")
+    }
+    if (report["output_jar_bytes"]?.toString() != outputJar.length().toString()) {
+        throw GradleException("[oreki] store-policy 报告输出字节数与真实 JAR 不一致")
+    }
+    val targets = (report["targets"] as? List<*>)
+        ?.mapNotNull { it?.toString() }
+        ?: throw GradleException("[oreki] store-policy 报告缺少 targets")
+    val missingTargets = orekiRequiredStorePolicyTargets.filterNot { required ->
+        targets.any { actual -> actual == required }
+    }
+    if (missingTargets.isNotEmpty()) {
+        throw GradleException("[oreki] store-policy 关键替换缺失: $missingTargets")
+    }
+    val compatibility = report["save_compatibility"] as? Map<*, *>
+        ?: throw GradleException("[oreki] store-policy 报告缺少 save_compatibility")
+    for (key in listOf("entries_preserved", "non_target_entries_byte_identical")) {
+        if (compatibility[key] != true) {
+            throw GradleException("[oreki] store-policy 兼容性检查未通过: $key")
+        }
+    }
+    val targetClasses = compatibility["target_classes"] as? Map<*, *>
+        ?: throw GradleException("[oreki] store-policy 报告缺少 target_classes")
+    for (name in orekiStorePolicyTargetEntries) {
+        val row = targetClasses[name] as? Map<*, *>
+            ?: throw GradleException("[oreki] store-policy 目标类缺报告: $name")
+        if (row["signatures_preserved"] != true) {
+            throw GradleException("[oreki] store-policy 目标类 ABI/字段签名未保持: $name")
+        }
+    }
+
+    ZipFile(inputJar).use { before ->
+        ZipFile(outputJar).use { after ->
+            val beforeEntries = before.entries().asSequence()
+                .filterNot { it.isDirectory }
+                .map { it.name }
+                .toSet()
+            val afterEntries = after.entries().asSequence()
+                .filterNot { it.isDirectory }
+                .map { it.name }
+                .toSet()
+            val added = afterEntries - beforeEntries
+            val removed = beforeEntries - afterEntries
+            if (added.isNotEmpty()) {
+                throw GradleException("[oreki] store-policy 输出新增未授权条目: $added")
+            }
+            val unexpectedRemoved = removed.filterNot {
+                it == "$orekiRetiredInstantPrefix.class" ||
+                    it.startsWith("$orekiRetiredInstantPrefix$")
+            }
+            if (unexpectedRemoved.isNotEmpty()) {
+                throw GradleException("[oreki] store-policy 输出误删条目: $unexpectedRemoved")
+            }
+            if (afterEntries.any {
+                    it == "$orekiRetiredInstantPrefix.class" ||
+                        it.startsWith("$orekiRetiredInstantPrefix$")
+                }
+            ) {
+                throw GradleException("[oreki] store-policy 输出仍包含已退役 OrekiInstantChallenge 条目")
+            }
+            for (name in beforeEntries intersect afterEntries) {
+                val oldBytes = before.getInputStream(before.getEntry(name)).readBytes()
+                val newBytes = after.getInputStream(after.getEntry(name)).readBytes()
+                if (name in orekiStorePolicyTargetEntries) {
+                    if (oldBytes.contentEquals(newBytes)) {
+                        throw GradleException("[oreki] store-policy 必需目标条目未改写: $name")
+                    }
+                    val newText = String(newBytes, Charsets.ISO_8859_1)
+                    for (anchor in orekiRequiredStorePolicyAnchors[name].orEmpty()) {
+                        if (!newText.contains(anchor)) {
+                            throw GradleException(
+                                "[oreki] store-policy 目标条目缺少策略锚点: $name#$anchor",
+                            )
+                        }
+                    }
+                } else if (!oldBytes.contentEquals(newBytes)) {
+                    throw GradleException("[oreki] store-policy 改写非目标条目: $name")
+                }
+            }
+            for (name in afterEntries.filter { it.endsWith(".class") }) {
+                val bytes = after.getInputStream(after.getEntry(name)).readBytes()
+                if (String(bytes, Charsets.ISO_8859_1).contains("OrekiInstantChallenge")) {
+                    throw GradleException("[oreki] store-policy 输出仍引用已退役类: $name")
+                }
+            }
+        }
+    }
+
+    if (evidenceFile != null) {
+        val evidence = linkedMapOf<String, Any>(
+            "schema" to 1,
+            "stage" to "agp-store-policy-verify",
+            "input_jar_sha256" to inputSha256,
+            "output_jar_sha256" to outputSha256,
+            "output_jar_bytes" to outputJar.length(),
+            "required_targets" to orekiRequiredStorePolicyTargets.sorted(),
+            "target_entries" to orekiStorePolicyTargetEntries.sorted(),
+            "non_target_entries_byte_identical" to true,
+            "save_compatibility" to true,
+        )
+        evidenceFile.parentFile.mkdirs()
+        evidenceFile.writeText(
+            JsonOutput.prettyPrint(JsonOutput.toJson(evidence)) + "\n",
+            Charsets.UTF_8,
+        )
+    }
+    return OrekiStorePolicyVerifyResult(inputSha256, outputSha256, outputJar.length())
+}
 
 val verifyStorePolicyOutput by tasks.registering {
     group = "verification"
@@ -1156,118 +1319,171 @@ val verifyStorePolicyOutput by tasks.registering {
     outputs.file(storePolicyVerifyReport)
     doLast {
         val inputJar = gameJar ?: throw GradleException("[oreki] store-policy 输入 JAR 未配置")
-        if (!inputJar.isFile) throw GradleException("[oreki] store-policy 输入 JAR 不存在: $inputJar")
-        if (!storePolicyGameJar.isFile) throw GradleException("[oreki] store-policy 输出 JAR 不存在: $storePolicyGameJar")
-        if (!storePolicyReport.isFile) throw GradleException("[oreki] store-policy 报告不存在: $storePolicyReport")
-
-        val report = try {
-            JsonSlurper().parse(storePolicyReport) as Map<*, *>
-        } catch (error: Exception) {
-            throw GradleException("[oreki] store-policy 报告不是有效 JSON: $storePolicyReport", error)
-        }
-        if (report["schema"]?.toString() != "1") {
-            throw GradleException("[oreki] store-policy 报告 schema 不是 1")
-        }
-        val inputSha256 = orekiSha256(inputJar.readBytes())
-        val outputSha256 = orekiSha256(storePolicyGameJar.readBytes())
-        if (report["input_jar_sha256"]?.toString() != inputSha256) {
-            throw GradleException("[oreki] store-policy 报告输入哈希与真实 JAR 不一致")
-        }
-        if (report["output_jar_sha256"]?.toString() != outputSha256) {
-            throw GradleException("[oreki] store-policy 报告输出哈希与真实 JAR 不一致")
-        }
-        if (report["output_jar_bytes"]?.toString() != storePolicyGameJar.length().toString()) {
-            throw GradleException("[oreki] store-policy 报告输出字节数与真实 JAR 不一致")
-        }
-        val targets = (report["targets"] as? List<*>)
-            ?.mapNotNull { it?.toString() }
-            ?: throw GradleException("[oreki] store-policy 报告缺少 targets")
-        val missingTargets = orekiRequiredStorePolicyTargets.filterNot { required ->
-            targets.any { actual -> actual == required }
-        }
-        if (missingTargets.isNotEmpty()) {
-            throw GradleException("[oreki] store-policy 关键替换缺失: $missingTargets")
-        }
-        val compatibility = report["save_compatibility"] as? Map<*, *>
-            ?: throw GradleException("[oreki] store-policy 报告缺少 save_compatibility")
-        for (key in listOf(
-            "entries_preserved",
-            "retired_instant_challenge_removed",
-            "non_target_entries_byte_identical",
-        )) {
-            if (compatibility[key] != true) {
-                throw GradleException("[oreki] store-policy 兼容性检查未通过: $key")
-            }
-        }
-        val targetClasses = compatibility["target_classes"] as? Map<*, *>
-            ?: throw GradleException("[oreki] store-policy 报告缺少 target_classes")
-        for (name in orekiStorePolicyTargetEntries) {
-            val row = targetClasses[name] as? Map<*, *>
-                ?: throw GradleException("[oreki] store-policy 目标类缺报告: $name")
-            if (row["signatures_preserved"] != true) {
-                throw GradleException("[oreki] store-policy 目标类 ABI/字段签名未保持: $name")
-            }
-        }
-
-        ZipFile(inputJar).use { before ->
-            ZipFile(storePolicyGameJar).use { after ->
-                val beforeEntries = before.entries().asSequence()
-                    .filterNot { it.isDirectory }
-                    .map { it.name }
-                    .toSet()
-                val afterEntries = after.entries().asSequence()
-                    .filterNot { it.isDirectory }
-                    .map { it.name }
-                    .toSet()
-                val added = afterEntries - beforeEntries
-                val removed = beforeEntries - afterEntries
-                if (added.isNotEmpty()) {
-                    throw GradleException("[oreki] store-policy 输出新增未授权条目: $added")
-                }
-                val unexpectedRemoved = removed.filterNot { it.startsWith(orekiRetiredInstantPrefix) }
-                if (unexpectedRemoved.isNotEmpty()) {
-                    throw GradleException("[oreki] store-policy 输出误删条目: $unexpectedRemoved")
-                }
-                if (removed.isEmpty()) {
-                    throw GradleException("[oreki] store-policy 未移除已退役 OrekiInstantChallenge")
-                }
-                for (name in beforeEntries intersect afterEntries) {
-                    if (name in orekiStorePolicyTargetEntries) continue
-                    val oldBytes = before.getInputStream(before.getEntry(name)).readBytes()
-                    val newBytes = after.getInputStream(after.getEntry(name)).readBytes()
-                    if (!oldBytes.contentEquals(newBytes)) {
-                        throw GradleException("[oreki] store-policy 改写非目标条目: $name")
-                    }
-                }
-                for (name in afterEntries.filter { it.endsWith(".class") }) {
-                    val bytes = after.getInputStream(after.getEntry(name)).readBytes()
-                    if (String(bytes, Charsets.ISO_8859_1).contains("OrekiInstantChallenge")) {
-                        throw GradleException("[oreki] store-policy 输出仍引用已退役类: $name")
-                    }
-                }
-            }
-        }
-
-        val evidence = linkedMapOf<String, Any>(
-            "schema" to 1,
-            "stage" to "agp-store-policy-verify",
-            "input_jar_sha256" to inputSha256,
-            "output_jar_sha256" to outputSha256,
-            "output_jar_bytes" to storePolicyGameJar.length(),
-            "required_targets" to orekiRequiredStorePolicyTargets.sorted(),
-            "target_entries" to orekiStorePolicyTargetEntries.sorted(),
-            "non_target_entries_byte_identical" to true,
-            "save_compatibility" to true,
-        )
-        storePolicyVerifyReport.parentFile.mkdirs()
-        storePolicyVerifyReport.writeText(
-            JsonOutput.prettyPrint(JsonOutput.toJson(evidence)) + "\n",
-            Charsets.UTF_8,
+        val result = orekiVerifyStorePolicyArtifacts(
+            inputJar,
+            storePolicyGameJar,
+            storePolicyReport,
+            storePolicyVerifyReport,
         )
         logger.lifecycle(
-            "[oreki] store-policy 独立校验通过: output=" + outputSha256 +
+            "[oreki] store-policy 独立校验通过: output=" + result.outputSha256 +
                 " targets=" + orekiRequiredStorePolicyTargets.size + " -> " + storePolicyVerifyReport,
         )
+    }
+}
+
+val orekiStorePolicySelfTestDir = File(repoRoot, "build/agp-store-policy-selftest")
+val orekiStorePolicySelfTestResult = File(orekiStorePolicySelfTestDir, "result.json")
+tasks.register("verifyStorePolicyOutputSelfTest") {
+    group = "verification"
+    description = "用最小 JAR 夹具验证 store-policy Gradle 门禁的正向和篡改 fail-closed 行为"
+    outputs.file(orekiStorePolicySelfTestResult)
+    doLast {
+        orekiStorePolicySelfTestDir.deleteRecursively()
+        orekiStorePolicySelfTestDir.mkdirs()
+
+        fun writeZip(file: File, entries: Map<String, ByteArray>) {
+            file.parentFile.mkdirs()
+            ZipOutputStream(file.outputStream()).use { zip ->
+                for ((name, bytes) in entries.toSortedMap()) {
+                    zip.putNextEntry(ZipEntry(name))
+                    zip.write(bytes)
+                    zip.closeEntry()
+                }
+            }
+        }
+
+        fun targetBytes(name: String): ByteArray =
+            orekiRequiredStorePolicyAnchors[name].orEmpty()
+                .joinToString("\u0000")
+                .toByteArray(Charsets.ISO_8859_1)
+
+        fun createCase(
+            caseName: String,
+            outputHashOverride: String? = null,
+            mutateOutput: (MutableMap<String, ByteArray>) -> Unit = {},
+        ): Triple<File, File, File> {
+            val dir = File(orekiStorePolicySelfTestDir, caseName)
+            dir.mkdirs()
+            val inputEntries = linkedMapOf<String, ByteArray>()
+            val outputEntries = linkedMapOf<String, ByteArray>()
+            for (name in orekiStorePolicyTargetEntries) {
+                inputEntries[name] = "unchanged:$name".toByteArray()
+                outputEntries[name] = targetBytes(name)
+            }
+            inputEntries["$orekiRetiredInstantPrefix.class"] = "retired".toByteArray()
+            inputEntries["keep.bin"] = byteArrayOf(1, 2, 3)
+            outputEntries["keep.bin"] = byteArrayOf(1, 2, 3)
+            mutateOutput(outputEntries)
+            val input = File(dir, "input.jar").also { writeZip(it, inputEntries) }
+            val output = File(dir, "output.jar").also { writeZip(it, outputEntries) }
+            val targetClasses = linkedMapOf<String, Any>().apply {
+                for (name in orekiStorePolicyTargetEntries) {
+                    put(name, linkedMapOf("signatures_preserved" to true))
+                }
+            }
+            val report = linkedMapOf<String, Any>(
+                "schema" to 1,
+                "input_jar_sha256" to orekiSha256(input.readBytes()),
+                "output_jar_sha256" to
+                    (outputHashOverride ?: orekiSha256(output.readBytes())),
+                "output_jar_bytes" to output.length(),
+                "targets" to orekiRequiredStorePolicyTargets.sorted(),
+                "save_compatibility" to linkedMapOf(
+                    "entries_preserved" to true,
+                    "retired_instant_challenge_removed" to true,
+                    "non_target_entries_byte_identical" to true,
+                    "target_classes" to targetClasses,
+                ),
+            )
+            val reportFile = File(dir, "report.json")
+            reportFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(report)) + "\n", Charsets.UTF_8)
+            return Triple(input, output, reportFile)
+        }
+
+        fun expectFailure(label: String, action: () -> Unit): Boolean {
+            return try {
+                action()
+                false
+            } catch (_: GradleException) {
+                true.also { logger.lifecycle("[oreki] store-policy 自测预期失败: $label") }
+            }
+        }
+
+        val positive = createCase("positive")
+        val positiveResult = orekiVerifyStorePolicyArtifacts(
+            positive.first,
+            positive.second,
+            positive.third,
+            File(orekiStorePolicySelfTestDir, "positive-evidence.json"),
+        )
+        val hashMismatch = createCase("negative-hash", outputHashOverride = "0".repeat(64))
+        val nonTargetChanged = createCase("negative-non-target") { output ->
+            output["keep.bin"] = byteArrayOf(9, 9, 9)
+        }
+        val retiredNotRemoved = createCase("negative-retired-remains") { output ->
+            output["$orekiRetiredInstantPrefix.class"] = "retired".toByteArray()
+        }
+        val staleReference = createCase("negative-stale-reference") { output ->
+            output["kajfosz/antimatterdimensions/OrekiSpeed.class"] =
+                targetBytes("kajfosz/antimatterdimensions/OrekiSpeed.class") +
+                    "OrekiInstantChallenge".toByteArray()
+        }
+        val targetUnchanged = createCase("negative-target-unchanged") { output ->
+            output["l5.class"] = "unchanged:l5.class".toByteArray()
+        }
+        val positivePass = positiveResult.outputSha256.isNotEmpty()
+        val hashFailClosed = expectFailure("报告输出哈希不一致") {
+            orekiVerifyStorePolicyArtifacts(hashMismatch.first, hashMismatch.second, hashMismatch.third)
+        }
+        val nonTargetFailClosed = expectFailure("非目标条目被改写") {
+            orekiVerifyStorePolicyArtifacts(
+                nonTargetChanged.first,
+                nonTargetChanged.second,
+                nonTargetChanged.third,
+            )
+        }
+        val retiredFailClosed = expectFailure("退役类未移除") {
+            orekiVerifyStorePolicyArtifacts(
+                retiredNotRemoved.first,
+                retiredNotRemoved.second,
+                retiredNotRemoved.third,
+            )
+        }
+        val staleReferenceFailClosed = expectFailure("输出仍引用退役类") {
+            orekiVerifyStorePolicyArtifacts(
+                staleReference.first,
+                staleReference.second,
+                staleReference.third,
+            )
+        }
+        val targetUnchangedFailClosed = expectFailure("必需目标类未改写") {
+            orekiVerifyStorePolicyArtifacts(
+                targetUnchanged.first,
+                targetUnchanged.second,
+                targetUnchanged.third,
+            )
+        }
+        val result = linkedMapOf<String, Any>(
+            "schema" to 1,
+            "stage" to "agp-store-policy-selftest",
+            "positivePass" to positivePass,
+            "hashMismatchFailClosed" to hashFailClosed,
+            "nonTargetChangeFailClosed" to nonTargetFailClosed,
+            "retiredNotRemovedFailClosed" to retiredFailClosed,
+            "staleReferenceFailClosed" to staleReferenceFailClosed,
+            "targetUnchangedFailClosed" to targetUnchangedFailClosed,
+        )
+        val allPassed = positivePass && hashFailClosed && nonTargetFailClosed &&
+            retiredFailClosed && staleReferenceFailClosed && targetUnchangedFailClosed
+        orekiStorePolicySelfTestResult.writeText(
+            JsonOutput.prettyPrint(JsonOutput.toJson(result)) + "\n",
+            Charsets.UTF_8,
+        )
+        if (!allPassed) {
+            throw GradleException("[oreki] store-policy 自测失败: $result")
+        }
+        logger.lifecycle("[oreki] store-policy 自测通过: positive + 5 类篡改均 fail-closed")
     }
 }
 

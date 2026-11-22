@@ -55,6 +55,15 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn("non_target_entries_byte_identical", text)
         self.assertIn("OrekiInstantChallenge", text)
         self.assertIn('dependsOn("verifyStorePolicyOutput")', text)
+        self.assertIn("val orekiRequiredStorePolicyAnchors = mapOf(", text)
+        self.assertIn("必需目标条目未改写", text)
+        self.assertIn("目标条目缺少策略锚点", text)
+        self.assertIn("verifyStorePolicyOutputSelfTest", text)
+        ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertIn(
+            "./gradlew -p agp :app:verifyStorePolicyOutputSelfTest",
+            ci,
+        )
 
     def test_legacy_root_release_is_fail_closed(self):
         text = (ROOT / "build.gradle").read_text(encoding="utf-8")
