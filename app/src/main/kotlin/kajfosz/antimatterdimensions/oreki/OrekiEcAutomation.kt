@@ -260,9 +260,26 @@ object OrekiEcAutomation {
         return true
     }
 
-    /** 最小未满级关号（1..12）；全部满级返回 0。 */
+    /**
+     * EC 目标顺序。首次 Reality 前完整推进 1→12；Reality 后优先 Reality 的
+     * 原版硬门槛 EC11/EC12，再以 1→10 兜底其它仍缺挑战。
+     *
+     * 纯判据函数，不读取/写入游戏状态，便于 JVM 回归验证两端顺序一致。
+     */
+    @JvmStatic
+    fun ecTargetOrder(afterFirstReality: Boolean): IntArray =
+        if (afterFirstReality) {
+            intArrayOf(11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        } else {
+            IntArray(EC_COUNT) { it + 1 }
+        }
+
+    /** 按阶段顺序取最小未满级关号；全部满级返回 0。 */
     private fun nextTargetId(): Int {
-        for (id in 1..EC_COUNT) {
+        val afterFirstReality = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+            ?.let { it > 0 }
+            ?: false
+        for (id in ecTargetOrder(afterFirstReality)) {
             val challengeObj = Abi.challenge(id) ?: continue
             if (Abi.isMaxedChallenge(challengeObj) != true) return id
         }
