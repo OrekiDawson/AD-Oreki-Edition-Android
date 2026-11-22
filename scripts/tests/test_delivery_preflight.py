@@ -91,6 +91,39 @@ class DeliveryPreflightTests(unittest.TestCase):
         self.assertTrue(p.remote_promotion_allowed(
             local_only=False, no_promote=False, state=success))
 
+    def test_prerelease_paths_are_isolated_from_stable_latest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            stable = root / "latest" / p.DEFAULT_APK_NAME
+            stable.parent.mkdir()
+            stable.write_bytes(b"stable-must-stay")
+            stable_sums = root / "SHA256SUMS"
+            stable_sums.write_text("stable-must-stay\n", encoding="utf-8")
+            apk = root / "candidate.apk"
+            apk.write_bytes(b"r125-prerelease")
+            digest = p.sha256_file(apk)
+            stats = {"sha256": digest, "size_bytes": apk.stat().st_size}
+            release_id = p.prerelease_release_id("3.21.0", digest)
+            state = {"channels": {}}
+
+            p.local_publish(root, apk, "3.21.0", stats, state, False,
+                            prerelease_id=release_id)
+
+            isolated = root / "pre-release" / release_id / p.DEFAULT_APK_NAME
+            self.assertEqual(p.sha256_file(isolated), digest)
+            self.assertEqual(stable.read_bytes(), b"stable-must-stay")
+            self.assertEqual(stable_sums.read_text(encoding="utf-8"), "stable-must-stay\n")
+            self.assertFalse((root / "release-info.json").exists())
+            self.assertEqual(
+                p.prerelease_directory("Apps/AD-Oreki-Edition", release_id),
+                f"Apps/AD-Oreki-Edition/Pre-release/{release_id}",
+            )
+
+    def test_prerelease_requires_exact_build_commit(self):
+        with self.assertRaises(RuntimeError):
+            p.validate_prerelease_target(True, "main")
+        p.validate_prerelease_target(True, "a" * 40)
+
     def test_failed_release_restores_snapshot_not_arbitrary_listing(self):
         calls = []
         latest = "android-update-3.21.0-3d924271"
