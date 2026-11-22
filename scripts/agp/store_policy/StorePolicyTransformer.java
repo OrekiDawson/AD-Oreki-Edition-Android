@@ -26,6 +26,8 @@ import org.objectweb.asm.Opcodes;
  */
 public final class StorePolicyTransformer {
     private static final String POLICY = "kajfosz/antimatterdimensions/oreki/OrekiStorePolicy";
+    private static final String MATTER_PACING =
+        "kajfosz/antimatterdimensions/oreki/OrekiMatterChallengePacing";
     private static final String RETIRED_INSTANT = "kajfosz/antimatterdimensions/OrekiInstantChallenge";
     private static final Set<String> COUNT_GETTERS = Set.of(
         "getAllCosmeticSetPurchases",
@@ -98,6 +100,9 @@ public final class StorePolicyTransformer {
         }
 
         if (!replacements.containsKey("l5.class#d()Z") ||
+            !replacements.containsKey(
+                "kajfosz/antimatterdimensions/challenge/antimatter/c.class#matter-pacing"
+            ) ||
             !replacements.containsValue("effectPurchaseCount") ||
             !replacements.containsValue("isPurchaseEffectEnabled") ||
             !replacements.containsValue("isStoreEnabled")) {
@@ -156,6 +161,26 @@ public final class StorePolicyTransformer {
                 if (replacement == null) {
                     if (name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class")) {
                         return new MethodVisitor(Opcodes.ASM9, output) {
+                            @Override
+                            public void visitCode() {
+                                output.visitCode();
+                                if (methodName.equals("b") &&
+                                    descriptor.equals(
+                                        "(DLoreki/shadow/kotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;"
+                                    )) {
+                                    output.visitVarInsn(Opcodes.DLOAD, 1);
+                                    output.visitMethodInsn(
+                                        Opcodes.INVOKESTATIC,
+                                        MATTER_PACING,
+                                        "adjustedDiff",
+                                        "(D)D",
+                                        false
+                                    );
+                                    output.visitVarInsn(Opcodes.DSTORE, 1);
+                                    report.put(name + "#matter-pacing", "sqrt-speed-normalization");
+                                }
+                            }
+
                             @Override
                             public void visitMethodInsn(
                                 int opcode,

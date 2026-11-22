@@ -183,6 +183,91 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
+    fun resetBootstrapUsesRealBoughtCountsInsteadOfBigDoubleZeroComparison() {
+        assertEquals(
+            0,
+            OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(0L),
+        )
+        assertEquals(
+            1,
+            OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(1L),
+        )
+        assertNull(
+            OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(null),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 7,
+                amountComparisons = List(7) {
+                    OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(0L)
+                },
+            ),
+        )
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 7,
+                amountComparisons = List(7) {
+                    OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(1L)
+                },
+            ),
+        )
+    }
+
+    @Test
+    fun normalChallengeGoalSettlementRequiresOriginalGoalAndCrunchGate() {
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.shouldSettleNormalChallengeGoal(
+                normalChallengeCurrent = 10,
+                goalReached = true,
+                canBigCrunch = true,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldSettleNormalChallengeGoal(
+                normalChallengeCurrent = 10,
+                goalReached = false,
+                canBigCrunch = true,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldSettleNormalChallengeGoal(
+                normalChallengeCurrent = 10,
+                goalReached = true,
+                canBigCrunch = false,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldSettleNormalChallengeGoal(
+                normalChallengeCurrent = null,
+                goalReached = true,
+                canBigCrunch = true,
+            ),
+        )
+    }
+
+    @Test
+    fun c11MatterAnnihilationDialogIsOnlyHandledWhenDue() {
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.shouldDismissMatterAnnihilationDialog(
+                normalChallengeCurrent = 11,
+                isDue = true,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldDismissMatterAnnihilationDialog(
+                normalChallengeCurrent = 11,
+                isDue = false,
+            ),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.shouldDismissMatterAnnihilationDialog(
+                normalChallengeCurrent = 10,
+                isDue = true,
+            ),
+        )
+    }
+
+    @Test
     fun c9CaptureOnlyRestoresForSameSaveAndReadableEndedChallenge() {
         assertTrue(
             OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave("save-a", "save-a"),

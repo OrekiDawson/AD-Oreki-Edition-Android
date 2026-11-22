@@ -76,6 +76,33 @@ object OrekiManagedAutobuyerAuthority {
     fun shouldSettleC9Goal(canBigCrunch: Boolean?): Boolean = canBigCrunch == true
 
     /**
+     * 普通挑战已经满足原版目标时，必须优先请求一次原版大坍缩结算。
+     *
+     * 该判据不提高资源、不写完成位；`goalReached` 来自挑战实例自己的 `v()`，
+     * `canBigCrunch` 来自原版结算门禁，二者缺一不可。
+     */
+    @JvmStatic
+    fun shouldSettleNormalChallengeGoal(
+        normalChallengeCurrent: Int?,
+        goalReached: Boolean?,
+        canBigCrunch: Boolean?,
+    ): Boolean =
+        normalChallengeCurrent != null &&
+            normalChallengeCurrent in 1..12 &&
+            goalReached == true &&
+            canBigCrunch == true
+
+    /**
+     * C11 中物质超过反物质时会弹出原版提示，阻塞自动推进。
+     * 只在新调度 tick 处理，避免逐帧重复点击；负向仅选择“确定”，绝不点击“放弃挑战”。
+     */
+    @JvmStatic
+    fun shouldDismissMatterAnnihilationDialog(
+        normalChallengeCurrent: Int?,
+        isDue: Boolean,
+    ): Boolean = normalChallengeCurrent == 11 && isDue
+
+    /**
      * C9 只保留一个 StageAuto 维护名额：优先走原版入口请求真实维度提升，
      * 否则升级自动购买器 bulk。维度购买仍由受限的原版自动器执行。
      */
@@ -155,6 +182,17 @@ object OrekiManagedAutobuyerAuthority {
         if (requiredProducedTier <= 0) return true
         if (amountComparisons.size < requiredProducedTier) return false
         return (0 until requiredProducedTier).all { amountComparisons[it] == 1 }
+    }
+
+    /**
+     * 只用原版维度 `bought` 计数判断重置后基础链是否已恢复。
+     * BigDouble 零值比较在 Android 原版运行态不可靠，不能作为 C9 自举依据。
+     */
+    @JvmStatic
+    fun c9DimensionBoughtComparison(bought: Long?): Int? = when {
+        bought == null -> null
+        bought > 0L -> 1
+        else -> 0
     }
 
     /** 内存中的 C9 capture 只有仍属于当前存档时才可参与恢复。 */
