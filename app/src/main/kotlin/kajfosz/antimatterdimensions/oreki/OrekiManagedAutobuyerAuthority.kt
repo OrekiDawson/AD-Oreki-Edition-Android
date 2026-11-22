@@ -42,18 +42,17 @@ object OrekiManagedAutobuyerAuthority {
             kotlin.math.abs(actual - target) > epsilon
 
     /**
-     * 普通挑战 C9 在 Break 前后都由 C9 专用策略推进。
+     * 只有 Break 后挑战 ID 不可读时才让位给原版自动器，避免未知状态误操作。
      *
-     * 真新档会在 C1–C8 后、Break 前进入 C9；旧判据要求 `broken=true`，
-     * 导致最关键的新档路径继续运行通用 StageAuto。Break 后挑战 ID 不可读时
-     * 仍按未知状态让路，避免把未知误判为“不在 C9”。
+     * 已确认的 C9 不再使用旧受限策略：真实新档在 500× 下从 16 分钟进入 C9，
+     * 到 51 分钟仍停在约 e185，而 Web 的通用合法购买链已在更早阶段完成 C9。
+     * 已知 C9 因此继续走通用 StageAuto 的同一原版购买入口。
      */
     @JvmStatic
     fun shouldYieldToOriginalForC9OrUnreadableChallenge(
         broken: Boolean?,
         normalChallengeCurrent: Int?,
-    ): Boolean = normalChallengeCurrent == 9 ||
-        (broken == true && normalChallengeCurrent == null)
+    ): Boolean = broken == true && normalChallengeCurrent == null
 
     /**
      * C9 由原版自动购买器独占推进时，只保留能打破价格锁的购买层。
