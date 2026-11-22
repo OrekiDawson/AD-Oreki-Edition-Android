@@ -131,6 +131,21 @@ class AgpR8ExperimentTests(unittest.TestCase):
             '"$dir/metrics.json" "$dir/metrics.log"',
             self.r8_ab_script,
         )
+        self.assertIn(
+            'full-game ABI 校验失败，见 $dir/r8-abi-verify.log" >&2\n'
+            '      rm -f "$dir/app-release.apk" "$dir/mapping.txt" '
+            '"$dir/metrics.json" "$dir/metrics.log"',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            'abi_verify = os.path.join(dir_, "r8-abi-verify.json")',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            '"abi_verify": {"path": abi_verify, "sha256": sha256(abi_verify)} '
+            'if os.path.isfile(abi_verify) else None',
+            self.r8_ab_script,
+        )
 
     def test_mapping_stub_detection_requires_synthetic_evidence(self):
         mapping = """\

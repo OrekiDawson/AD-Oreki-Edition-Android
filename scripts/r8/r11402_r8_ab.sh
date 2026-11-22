@@ -171,10 +171,12 @@ if status == "success":
     apk = os.path.join(dir_, "app-release.apk")
     mapping = os.path.join(dir_, "mapping.txt")
     metrics = os.path.join(dir_, "metrics.json")
+    abi_verify = os.path.join(dir_, "r8-abi-verify.json")
     manifest["artifacts"] = {
         "apk": {"path": apk, "sha256": sha256(apk), "bytes": os.path.getsize(apk)},
         "mapping": {"path": mapping, "sha256": sha256(mapping)} if os.path.isfile(mapping) else None,
         "metrics": {"path": metrics, "sha256": sha256(metrics)} if os.path.isfile(metrics) else None,
+        "abi_verify": {"path": abi_verify, "sha256": sha256(abi_verify)} if os.path.isfile(abi_verify) else None,
     }
 json.dump(manifest, open(os.path.join(dir_, "run.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 PY
