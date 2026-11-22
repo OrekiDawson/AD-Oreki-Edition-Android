@@ -285,8 +285,8 @@
 1. 明确候选源码/分支/Commit SHA 与 Owner，避免混入活动 Subagent 未提交 WIP。只采用当前受支持的、**完整真实游戏 Release APK** 构建链；遵守第 10 节 AGP-only 与独立 Candidate/Verify/Release 等技术硬门禁，不拿 Debug 包、旧 APK 改名、混合未验 DEX 或不完整 AGP 实验模块充数。签名环境由 Lead 独占，Gradle 离线优先，按该候选最小必要次数构建，禁止为四个平台分别构建。
 2. 校验包名、版本码递增、证书指纹/签名兼容、资源/DEX/ABI、真实安装及冷启动；定向确认不破坏既有真实存档，旧档存在不可逆损害风险则先阻断。可在用户允许的测试隔离条件中使用新档，明确建议先备份正式存档，不要求将完整 180 分钟长跑作为测试候选的强制前置。
 3. 根据实际 CI/Release 工作流、Required Checks/Ruleset 和审批执行，不关门禁、不绕签名、Secret 或权限。无法达成某个**技术硬门禁**即 `BLOCKED`；不得把游戏 PACING 未通过误当作技术硬门禁，也不得为了预发布篡改原有硬性 CI 结果。
-4. GitHub Releases 创建独立 Tag 和 Release，实际设置 **`prerelease=true`**。中文 Release Notes 至少包含“**R125/对应轮次 手机实测预发布，非稳定版**”、源码 SHA、版本名/`versionCode`、APK SHA-256、已有测试的 PASS/FAIL/BLOCKED/NOT RUN、已知风险和建议测试场景。未来轮次沿用本政策，无需每次重新授权，但用户最新暂停/安全/付费门禁优先。
-5. GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道**同一已经签名的 APK 同一 SHA-256**，各渠道只做必要验证；远端不可用标记 `BLOCKED`，部分成功不得宣称四渠道完成。不得覆盖旧稳定版；若尚无合法可发布候选，先完成最低技术闭环而不是生产冒险。
+4. GitHub Releases 创建独立唯一 Tag 和 Release，Tag 指向**实际构建 Commit**，实际设置 **`prerelease=true`**，创建参数必须包含 `--latest=false`。预发布发布路径禁止调用 `promote_verified_github_release()` 或执行 `gh release edit --prerelease=false --latest`；现有四渠道工具必须使用 `--no-promote` 等显式防晋升开关。发布后通过 GitHub API 回读 `isPrerelease=true`，并确认 `releases/latest` 仍是原来的正式稳定版。中文 Release Notes 至少包含“**R125/对应轮次 手机实测预发布，非稳定版**”、源码 SHA、版本名/`versionCode`、APK SHA-256、已有测试的 PASS/FAIL/BLOCKED/NOT RUN、已知风险和建议测试场景。未来轮次沿用本政策，无需每次重新授权，但用户最新暂停/安全/付费门禁优先。
+5. GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道**同一已经签名的 APK 同一 SHA-256**，各渠道只做必要验证；远端不可用标记 `BLOCKED`，部分成功不得宣称四渠道完成。预发布在 OneDrive/Google Drive 使用唯一 `Pre-release/<release-id>/` 目录，在本地 SSH/SFTP 使用 `~/Releases/AD-Oreki-Edition/pre-release/<release-id>/`；**禁止写入任何稳定 `latest/`，禁止复用 `pull_stable_release.py` 的稳定版 latest 拉取路径**。稳定渠道继续使用 `latest/`，两者互不覆盖。若尚无合法可发布候选，先完成最低技术闭环而不是生产冒险。
 6. 发布后记录 Tag、Release URL、四渠道实际链接/路径、源 SHA、APK SHA-256、签名版本、下载/校验及测试证据，并将用户反馈转为下一次最小修复。**正式稳定版**仍必须完成真实五阶段、原版合法终局及独立 SAVE COMPATIBILITY 等门禁。
 
 **范围**：这是一项长期交付类别授权，不是自动每次都发布、不要求用户再发新的 `/goal`，也不是允许云端 Issue/PR 自动化在缺乏本机签名与用户设备证据时越权发布。保持工作树、签名、现行发布脚本和旧稳定包完整。
