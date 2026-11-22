@@ -31,6 +31,8 @@
   完成位从 `510` 变为 `1022`，挑战当前值从 `9` 变为 `10`。
 - 结算日志：`OREKI_CRUNCH_PROBE: c9-goal ... settled=true`
 - 日志扫描：0 FATAL、0 ANR、0 VerifyError、0 ClassCastException。
+- 调度器契约自测：171 项 PASS，0 FAIL；门禁断言已同步校验
+  `GameApi.dimensionBoughtCount(`，不再引用已删除的零值比较符号。
 
 补充近终点验证：真实 C9、5 次提升、反物质约 4.34e296；当前候选约 10 秒内
 通过原版 C9 结算，完成位 `510`→`1022`。
