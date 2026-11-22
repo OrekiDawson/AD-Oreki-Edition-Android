@@ -1166,8 +1166,20 @@ val orekiRequiredStorePolicyAnchors = mapOf(
     "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class" to
         listOf("OrekiGamePace", "resetDefault"),
     "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class" to
-        listOf("100 ~ 100000"),
+        listOf("取值范围 0.000001 ~ 100000，建议"),
 )
+
+fun ByteArray.orekiContains(needle: ByteArray): Boolean {
+    if (needle.isEmpty()) return true
+    if (needle.size > size) return false
+    outer@ for (index in 0..(size - needle.size)) {
+        for (offset in needle.indices) {
+            if (this[index + offset] != needle[offset]) continue@outer
+        }
+        return true
+    }
+    return false
+}
 
 data class OrekiStorePolicyVerifyResult(
     val inputSha256: String,
@@ -1268,7 +1280,9 @@ fun orekiVerifyStorePolicyArtifacts(
                     }
                     val newText = String(newBytes, Charsets.ISO_8859_1)
                     for (anchor in orekiRequiredStorePolicyAnchors[name].orEmpty()) {
-                        if (!newText.contains(anchor)) {
+                        if (!newText.contains(anchor) &&
+                            !newBytes.orekiContains(anchor.toByteArray(Charsets.UTF_8))
+                        ) {
                             throw GradleException(
                                 "[oreki] store-policy 目标条目缺少策略锚点: $name#$anchor",
                             )
@@ -1356,7 +1370,7 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
         fun targetBytes(name: String): ByteArray =
             orekiRequiredStorePolicyAnchors[name].orEmpty()
                 .joinToString("\u0000")
-                .toByteArray(Charsets.ISO_8859_1)
+                .toByteArray(Charsets.UTF_8)
 
         fun createCase(
             caseName: String,
@@ -1432,6 +1446,10 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
         val targetUnchanged = createCase("negative-target-unchanged") { output ->
             output["l5.class"] = "unchanged:l5.class".toByteArray()
         }
+        val staleSpeedUi = createCase("negative-speed-ui-stale") { output ->
+            output["kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class"] =
+                "取值范围 0.000001 ~ 1000000000，建议 100 ~ 100000".toByteArray(Charsets.UTF_8)
+        }
         val positivePass = positiveResult.outputSha256.isNotEmpty()
         val hashFailClosed = expectFailure("报告输出哈希不一致") {
             orekiVerifyStorePolicyArtifacts(hashMismatch.first, hashMismatch.second, hashMismatch.third)
@@ -1464,6 +1482,13 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
                 targetUnchanged.third,
             )
         }
+        val staleSpeedUiFailClosed = expectFailure("速度设置旧上限文本仍存在") {
+            orekiVerifyStorePolicyArtifacts(
+                staleSpeedUi.first,
+                staleSpeedUi.second,
+                staleSpeedUi.third,
+            )
+        }
         val result = linkedMapOf<String, Any>(
             "schema" to 1,
             "stage" to "agp-store-policy-selftest",
@@ -1473,9 +1498,11 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
             "retiredNotRemovedFailClosed" to retiredFailClosed,
             "staleReferenceFailClosed" to staleReferenceFailClosed,
             "targetUnchangedFailClosed" to targetUnchangedFailClosed,
+            "staleSpeedUiFailClosed" to staleSpeedUiFailClosed,
         )
         val allPassed = positivePass && hashFailClosed && nonTargetFailClosed &&
-            retiredFailClosed && staleReferenceFailClosed && targetUnchangedFailClosed
+            retiredFailClosed && staleReferenceFailClosed && targetUnchangedFailClosed &&
+            staleSpeedUiFailClosed
         orekiStorePolicySelfTestResult.writeText(
             JsonOutput.prettyPrint(JsonOutput.toJson(result)) + "\n",
             Charsets.UTF_8,
@@ -1483,7 +1510,7 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
         if (!allPassed) {
             throw GradleException("[oreki] store-policy 自测失败: $result")
         }
-        logger.lifecycle("[oreki] store-policy 自测通过: positive + 5 类篡改均 fail-closed")
+        logger.lifecycle("[oreki] store-policy 自测通过: positive + 6 类篡改均 fail-closed")
     }
 }
 
