@@ -71,6 +71,11 @@ class DilationAutomationTests(unittest.TestCase):
         source = LAUNCHER.read_text(encoding="utf-8")
         self.assertIn("Eternity$confirmDilatedEternity$4", source)
         self.assertIn("Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V", source)
+        self.assertIn(
+            "Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILrj0;)V",
+            source,
+        )
+        self.assertNotIn("SuspendLambda;-><init>(ILvh0;)V", source)
         self.assertIn(".method public static startDilation()V", source)
 
 

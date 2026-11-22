@@ -28,6 +28,13 @@
 #   `g.p(lambda, false)` 会先查 `a.o(0)`（是否暂停 / 是否被反作弊冻结），
 #   命中就 `return-void`，**不留任何日志**。模拟器上存档时间戳常落后于系统时间，
 #   正好会命中这条，表现为「什么都没发生」。传 true 表示无条件启动。
+#
+# ── [R124] continuation 构造器描述符 ─────────────────────────────────
+#   3.21 的 `Eternity$confirmEternity$4` 与 `confirmDilatedEternity$4` 均为
+#   Kotlin 合成 SuspendLambda，类内没有自己的 `<init>`；官方 `create()` 也是
+#   `new-instance` 后直接调用父类 `SuspendLambda;<init>(I,Lrj0;)V`。
+#   因此这里必须使用同一个真实描述符。`Lvh0;` 不是该构造器参数，ART 会在方法
+#   解析时报 `NoSuchMethodError`。
 .class public final Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch;
 .super Ljava/lang/Object;
 
@@ -53,7 +60,7 @@
 
     const/4 v2, 0x0
 
-    invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILvh0;)V
+    invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILrj0;)V
 
     check-cast v0, Lgm1;
 
@@ -75,7 +82,7 @@
     const/4 v1, 0x1
     const/4 v2, 0x0
 
-    invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILvh0;)V
+    invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILrj0;)V
 
     check-cast v0, Lgm1;
 

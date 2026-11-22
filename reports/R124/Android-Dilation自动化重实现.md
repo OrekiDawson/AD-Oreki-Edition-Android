@@ -16,6 +16,9 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 - 启动经异步游戏 scope 发出后立即记录“启动在途”闩锁；在观察到原版
   `active=true` 或 Reality 代际变化前，不重复发起启动，也不在窗口内购买 dtGain。
   这避免 3 秒冷却过后对同一轮 Dilation 反复执行原版永恒重置。
+- 3.21 的 `Eternity$confirmEternity$4` / `confirmDilatedEternity$4` 是 Kotlin
+  合成 SuspendLambda，本身没有 `<init>`；启动器按官方 `create()` 的证据直接调用
+  父类真实构造器 `SuspendLambda.<init>(I,Lrj0;)V`，不使用错误别名 `Lvh0;`。
 - 已退出 Dilation 后，通过统一调度器 `dilation` 名额调用
   `eternity/dilation/b.b -> qw3.D(Z,rj0)` 购买 dtGain，遵守玩家 1～60 秒配置节拍，
   由原版内部判断余额并扣除 `Currency.dilatedTime`。
