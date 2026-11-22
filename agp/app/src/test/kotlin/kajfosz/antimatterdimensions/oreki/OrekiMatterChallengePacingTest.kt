@@ -62,4 +62,30 @@ class OrekiMatterChallengePacingTest {
             0.0,
         )
     }
+
+    @Test
+    fun challengeStateCacheReadsImmediatelyAndThrottlesAfterward() {
+        var now = 1_000_000L
+        var reads = 0
+        val cache = OrekiMatterChallengeStateCache(
+            nanoClock = { now },
+            challengeReader = {
+                reads += 1
+                if (reads == 1) 11 to 0 else 0 to 6
+            },
+        )
+
+        assertEquals(11, cache.normalChallengeCurrent())
+        assertEquals(0, cache.infinityChallengeCurrent())
+        assertEquals(1, reads)
+
+        now += OrekiMatterChallengePacing.STATE_CACHE_NANOS - 1
+        assertEquals(11, cache.normalChallengeCurrent())
+        assertEquals(1, reads)
+
+        now += 1
+        assertEquals(0, cache.normalChallengeCurrent())
+        assertEquals(6, cache.infinityChallengeCurrent())
+        assertEquals(2, reads)
+    }
 }

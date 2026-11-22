@@ -4,7 +4,8 @@ import kotlin.math.sqrt
 import java.lang.reflect.Method
 
 /**
- * C11 / IC6 的物质阶段原本主动抵消全局加速。
+ * C11 的物质增长会随全局时间差放大，高倍率下更容易触发不利的湮灭重置；
+ * IC6 的物质则作为独立惩罚除数，需要恢复 `/F` 归一化。
  *
  * R124 真实运行约 40 分钟仍只有 2 次维度提升，已构成 P1 节奏阻断。
  * 这里只调整进入该机制的时间差：C11 额外减慢物质增长，为被加速的
@@ -53,27 +54,21 @@ object OrekiMatterChallengePacing {
         }
     }
 
-    private var challengeStateReadAtNanos = Long.MIN_VALUE
-    private var cachedNormalChallenge: Int? = null
-    private var cachedInfinityChallenge: Int? = null
-
-    private fun refreshChallengeStateIfDue() {
-        val now = System.nanoTime()
-        if (now - challengeStateReadAtNanos < STATE_CACHE_NANOS) return
-        challengeStateReadAtNanos = now
-        cachedNormalChallenge = GameApi.normalChallengeCurrent()
-        cachedInfinityChallenge = GameApi.infinityChallengeCurrent()
-    }
+    private val challengeStateCache = OrekiMatterChallengeStateCache(
+        nanoClock = System::nanoTime,
+        challengeReader = {
+            GameApi.normalChallengeCurrent() to GameApi.infinityChallengeCurrent()
+        },
+    )
 
     /** 原版 game JAR 的唯一入口；读取失败时返回原始时间差。 */
     @JvmStatic
     fun adjustedDiff(diff: Double): Double {
-        refreshChallengeStateIfDue()
         return adjustedDiff(
             diff = diff,
             speed = currentSpeed(),
-            normalChallengeCurrent = cachedNormalChallenge,
-            infinityChallengeCurrent = cachedInfinityChallenge,
+            normalChallengeCurrent = challengeStateCache.normalChallengeCurrent(),
+            infinityChallengeCurrent = challengeStateCache.infinityChallengeCurrent(),
         )
     }
 
@@ -83,5 +78,42 @@ object OrekiMatterChallengePacing {
         null
     }
 
-    private const val STATE_CACHE_NANOS = 16_000_000L
+    internal const val STATE_CACHE_NANOS = 16_000_000L
+}
+
+/**
+ * 每 16 ms 至多读取一次挑战状态。
+ *
+ * 首帧必须真实读取；不能使用 `Long.MIN_VALUE` 作为哨兵后直接相减，否则有符号溢出
+ * 会让函数永久提前返回并静默关闭 C11/IC6 补偿。
+ */
+internal class OrekiMatterChallengeStateCache(
+    private val nanoClock: () -> Long,
+    private val challengeReader: () -> Pair<Int?, Int?>,
+) {
+    private var initialized = false
+    private var lastReadAtNanos = 0L
+    private var normalChallenge: Int? = null
+    private var infinityChallenge: Int? = null
+
+    fun normalChallengeCurrent(): Int? {
+        refreshIfDue()
+        return normalChallenge
+    }
+
+    fun infinityChallengeCurrent(): Int? {
+        refreshIfDue()
+        return infinityChallenge
+    }
+
+    private fun refreshIfDue() {
+        val now = nanoClock()
+        if (initialized && now - lastReadAtNanos < OrekiMatterChallengePacing.STATE_CACHE_NANOS) return
+
+        val (normal, infinity) = challengeReader()
+        normalChallenge = normal
+        infinityChallenge = infinity
+        lastReadAtNanos = now
+        initialized = true
+    }
 }

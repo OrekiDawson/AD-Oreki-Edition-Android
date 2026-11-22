@@ -32,6 +32,13 @@ class C11MatterPacingTests(unittest.TestCase):
         self.assertIn("return diff * compensationFactor(", source)
         self.assertIn("STATE_CACHE_NANOS", source)
         self.assertIn("speedMultMethod: Method? by lazy", source)
+        self.assertIn(
+            "initialized && now - lastReadAtNanos < OrekiMatterChallengePacing.STATE_CACHE_NANOS",
+            source,
+        )
+        self.assertIn("lastReadAtNanos = now", source)
+        self.assertIn("initialized = true", source)
+        self.assertNotIn("challengeStateReadAtNanos = Long.MIN_VALUE", source)
 
     def test_game_jar_hook_replaces_only_challenge_update_diff(self) -> None:
         source = TRANSFORMER.read_text(encoding="utf-8")
