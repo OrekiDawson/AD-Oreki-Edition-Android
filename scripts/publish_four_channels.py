@@ -1154,7 +1154,7 @@ def main() -> int:
         before = read_published_latest_tag()
         if before and before != f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}":
             state["previous_latest_tag"] = before
-            save_state(root, state)
+            save_state(state_root, state)
             say(f"github: 记录发布前 Latest={before}")
     say(f"APK={apk} version={args.version} sha256={apk_info['sha256']}")
     say(f"渠道={','.join(selected)} 模式={'dry-run' if args.dry_run else 'publish'}")
@@ -1201,12 +1201,12 @@ def main() -> int:
                 )
                 set_channel(state, channel, "success", f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}; {github_result}")
             if not args.dry_run and channel != "local":
-                save_state(root, state)
+                save_state(state_root, state)
         except Exception as exc:
             set_channel(state, channel, "failed", str(exc))
             if not args.dry_run:
-                root.mkdir(parents=True, exist_ok=True)
-                save_state(root, state)
+                state_root.mkdir(parents=True, exist_ok=True)
+                save_state(state_root, state)
             say(f"{channel} 失败：{exc}")
 
     if args.dry_run:
