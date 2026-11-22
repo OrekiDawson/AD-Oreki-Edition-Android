@@ -739,7 +739,9 @@ def release_title_for(version: str, sha_prefix: str) -> str:
     """GitHub Release 标题：本次更新的概括（不是任务编号）。"""
     return f"Android {version} 更新（{sha_prefix}）"
 
-def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str, object], dry_run: bool, title: str | None, notes_file: Path | None) -> str:
+def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str, object],
+                   dry_run: bool, title: str | None, notes_file: Path | None,
+                   github_target: str = "main") -> str:
     """[R97] 与云盘同理：附件必须来自本次 `--apk`，不能读本地 latest 的旧包。"""
     if not repo:
         raise RuntimeError("无法解析 GitHub owner/repo")
@@ -790,7 +792,9 @@ def github_publish(repo: str | None, version: str, apk: Path, apk_info: dict[str
         shutil.copyfile(checksum, asset_sum)
         if sha256_file(asset_apk) != apk_info["sha256"]:
             raise RuntimeError("github: 附件暂存副本与已验证 APK 不一致，拒绝上传")
-        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo, "--title", release_title, "--notes-file", str(notes_path), "--target", "main", "--prerelease", "--latest=false"]
+        command = ["gh", "release", "create", tag, str(asset_apk), str(asset_sum), "--repo", repo,
+                   "--title", release_title, "--notes-file", str(notes_path),
+                   "--target", github_target, "--prerelease", "--latest=false"]
         say(f"github: {' '.join(command)}")
         if not dry_run:
             existing = run(["gh", "release", "view", tag, "--repo", repo, "--json", "assets"])
@@ -843,6 +847,18 @@ def promote_verified_github_release(version: str, sha256: str) -> None:
     run(["gh", "release", "edit", tag, "--repo", repo,
          "--prerelease=false", "--latest"], check=True, timeout=60)
     say(f"github: 四渠道均成功，已晋升 {tag} 为正式 Latest")
+
+
+def remote_promotion_allowed(*, local_only: bool, no_promote: bool,
+                             state: dict[str, object]) -> bool:
+    """只有完整稳定版交付才允许把 GitHub Release 晋升为 Latest。"""
+    if local_only or no_promote:
+        return False
+    channels = state.get("channels") or {}
+    return all(
+        (channels.get(name) or {}).get("status") == "success"
+        for name in REMOTE_CHANNELS
+    )
 
 
 def read_published_latest_tag() -> str | None:
@@ -927,6 +943,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--publish", action="store_true", help="显式执行正式渠道交付")
     parser.add_argument("--retry-failed", action="store_true", help="只重试本地 release-info.json 中失败的渠道")
     parser.add_argument("--archive-only", action="store_true", help="只补发不可变云端归档；绝不修改稳定版 latest")
+    parser.add_argument("--no-promote", action="store_true",
+                        help="保持 GitHub Release 为 Pre-release，禁止晋升稳定 Latest")
+    parser.add_argument("--github-target", default="main",
+                        help="GitHub Release Tag 指向的分支或 Commit；测试包应传真实源码 Commit")
     parser.add_argument("--only", action="append", choices=CHANNELS, help="只处理指定渠道，可重复")
     parser.add_argument("--channels", help="逗号分隔的渠道子集（GitHub-hosted 发布使用 github,onedrive,gdrive）")
     parser.add_argument("--apk", help="已经验证的 APK 路径")
@@ -1136,7 +1156,10 @@ def main() -> int:
                 notes_file = Path(args.release_notes_file).expanduser().resolve() if args.release_notes_file else None
                 if notes_file and not notes_file.is_file():
                     raise RuntimeError(f"GitHub Release 详细内容文件不存在：{notes_file}")
-                github_result = github_publish(github_repo(), args.version, apk, apk_info, args.dry_run, args.release_title, notes_file)
+                github_result = github_publish(
+                    github_repo(), args.version, apk, apk_info, args.dry_run,
+                    args.release_title, notes_file, args.github_target,
+                )
                 set_channel(state, channel, "success", f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}; {github_result}")
             if not args.dry_run and channel != "local":
                 save_state(root, state)
@@ -1166,9 +1189,10 @@ def main() -> int:
     # GitHub Latest promotion requires the three remote channels for the SAME
     # APK SHA to be success. The local fourth channel is an asynchronous
     # post-condition of full delivery (dev machine pull), not a promotion gate.
-    if not args.local_only and all(
-        (state.get("channels", {}).get(name) or {}).get("status") == "success"
-        for name in REMOTE_CHANNELS
+    if remote_promotion_allowed(
+        local_only=args.local_only,
+        no_promote=args.no_promote,
+        state=state,
     ):
         try:
             promote_verified_github_release(args.version, str(apk_info["sha256"]))

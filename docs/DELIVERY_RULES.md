@@ -41,11 +41,11 @@
 - Android 公开仓 OrekiDawson/AD-Oreki-Edition-Android 负责源码检查、受保护环境内的敏感构建/签名、独立验签、AVD 验收与门禁；GitHub Actions 只发布 GitHub Releases / OneDrive / Google Drive 三个远端，Kubuntu 开发机再主动拉取并原子更新本地发布目录作为第四渠道（不再由 Actions 主动 SFTP 推送，旧私有构建仓已删除）。Web 独立 CI/CD，不受 Android 的故障拖累。每轮根据实际改动核对相应 Actions 日志及可复现结果。
 - 私钥/密码/Token 存 Secrets 或合规密钥管理系统，不进入任何 Git 仓库或日志；保持正式 APK 签名身份。候选 run、验证 run、源 SHA、APK SHA256、包名、版本和证书必须一对一关联；私有 Runner 不运行来自不可信公开 PR 的任意代码。
 - 已有授权轮次内可正常中文 Commit/Push，不再为每次无风险提交反复索取授权；每轮成功或失败都推送已完成、可追溯成果及证据。普通已验证修改可以推 main；高风险、密钥、CI/CD、构建迁移及未过门禁改动使用分支/PR，CI 合格后合并。禁止强推、丢弃他人改动。Push 不代表稳定发行。
-- **两小时至少一份合格稳定版**是明确的交付节奏目标；真实门禁和现行 DeepSeek 峰谷安全规则优先。无合格版时如实说明超期、阻碍与修复进度，不可发布失败包充数。
+- **四小时统一发布节奏（最新授权）**：在当前允许安全执行的非峰时发布窗口，**每四小时至少发布一份真实的新版本，这是硬性最低频率**；通过各自最低放行门禁的 Stable Release 或 Pre-release **同等计入一次**，不要求各发一份。四渠道的同一 APK 只算一份；旧 APK 改名、空 Release、仅源码 Push/构建或重复上传不计。**峰时可跳过交付窗口，不记欠账、不补发、不在峰时强制构建或发布**；恢复合法谷时继续正常交付。非峰时到期仍无满足最低门禁的候选时如实标注 `BLOCKED` 和频率未达标，不得为了凑数发布不安全或冒充稳定的包。
 - 正式 Android 发布为 GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道同一已验收 APK、同一 SHA256，优先复用既有发布脚本。避免无意义云端回读等待；按最低必要方式确认交付，本地使用 cp 与 sha256sum；保存旧稳定版备份，不替换签名、不误发历史包。
 - **事实库入口**：工程事实以 `docs/FACTS.md`（导航索引）与 `docs/facts/`（主题分册）为准；结构上限、禁止滚动文件与按需读取纪律见 `AGENTS.md` 第 17 节；旧章节/旧编号映射见 `docs/facts/MIGRATION.md`；CI 守卫 `scripts/check_facts_governance.py`。
 - 并行 Agent 分清文件与任务；共享 AVD、签名环境、最终构建和正式发行独占。收尾同步必要 FACTS/tasks/README/教程及报告；`frame-observer` 有修改同步 Push。授权轮次真实完成后停止，不自动开启新轮；因高峰或阻碍中止而未完成的目标应保留 `blocked/paused` 及真实验收状态，不得标成 `complete`。
-- **Lead 与高峰优先级（2026-11-14，强制）**：非高峰期 Lead 不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工，应协调或转做其他可执行任务；**DeepSeek 高峰期间 Lead、所有子 Agent、其他模型及自动化开发全部停止**，不得换模型继续开发，也不得启动构建、测试、Git/CI/CD、发布或部署。北京时间工作日 09:00–12:00、14:00–18:00 高峰，08:50/13:50 开始安全收尾并在峰前停止；周末和中国法定节假日按已核实规则低谷。峰前保存代码/证据/恢复点、解除 Goal 激活但不虚报完成，低谷恢复同一轮。细则以本仓 `AGENTS.md` 峰谷章节和实际生效的全局规则为准；该停工要求优先于 Lead 持续推进和两小时交付节奏。
+- **Lead 与高峰优先级（2026-11-14，强制）**：非高峰期 Lead 不得因子 Agent 失败、局部 `BLOCKED`、CI/AVD/PR 冲突擅自停工，应协调或转做其他可执行任务；**DeepSeek 高峰期间 Lead、所有子 Agent、其他模型及自动化开发全部停止**，不得换模型继续开发，也不得启动构建、测试、Git/CI/CD、发布或部署。北京时间工作日 09:00–12:00、14:00–18:00 高峰，08:50/13:50 开始安全收尾并在峰前停止；周末和中国法定节假日按已核实规则低谷。峰前保存代码/证据/恢复点、解除 Goal 激活但不虚报完成，低谷恢复同一轮。细则以本仓 `AGENTS.md` 峰谷章节和实际生效的全局规则为准；该停工要求优先于 Lead 持续推进和四小时统一交付节奏；峰时免考核，不补发。
 
 
 
@@ -56,7 +56,7 @@
 3. CI/CD 故障必须修复流水线，不能用手动发布绕过。
 4. Android 正式发布必须完成真实 APK 构建、独立验签、必要 AVD 验收及发布门禁。
 5. GitHub Releases、OneDrive、Google Drive 经正式工作流发布后，由开发机主动下载并校验 APK，再更新本地 SFTP 目录。
-6. 两小时稳定版交付节奏目标不得凌驾于质量门禁之上；未通过项如实标记 FAIL / BLOCKED / NOT RUN。
+6. 四小时 Stable/Pre-release 统一交付节奏不得凌驾于两类各自质量与安全门禁之上；峰时可跳过不补发，未通过项如实标记 FAIL / BLOCKED / NOT RUN。
 
 ## 6. 上游基线冻结与独立 MOD 版本体系（2026-11-13，用户决定）
 
@@ -259,3 +259,34 @@
 - 改动文件与相对路径引用要经 `rg`、Gradle/Actions/脚本、CI 测试核对；构建与运行验证按风险分层，至少覆盖静态引用、Gradle 配置、必要 Kotlin/DEX/资源兼容性；触及正式 APK、原版接线、签名/存档/GUI 时扩展必要真实 APK/AVD 验收。保留冻结 3.21.0 基线、原包名/证书、MOD 版本递增与 Web 既定行为等价。
 - 每个闭包报告：依赖 Issue、旧→新路径、源 SHA、Commit/PR、相关 Actions Run、改动前后关键输入/产物哈希、构建/AVD/发布状态及 `PASS / FAIL / BLOCKED / NOT RUN`。不把静态 CI PASS 当 AVD PASS，不用旧 Run 绿灯证明新 SHA，不为重排目录重跑无关 180 分钟全量验收。
 - 发布、Ruleset、Required Checks、Environment/Secrets、AGP-only fail-closed 和 DeepSeek 高峰停工规则的优先级不变。**R113 已获授权将 S2 提升为与 #52 并行的最高架构主线**，涉及生产路径修改仍须当前 Lead 协调文件所有权、共享 AVD/签名资源及必要 P0 验证；S3 正式根级切换继续遵守其全部先决条件，不单独开启新 `/goal`。当前 Android Source CI 已通过 PR #84 接入 `scripts/agp/directory-layout.json` 的 `legacy → dual → nested-new → root` 分阶段门禁；目录状态变更必须同步实际 Source Sets、CI 构建输入和功能测试，不能仅修改阶段标志冒充迁移完成。
+
+
+## 12. Android Pre-release 测试交付长期规则（2026-11-22，用户明确授权）
+
+> **双轨解释优先**：本文件此前凡要求“五项游戏验收 PASS 才能发布”、`PACING FAIL` 时“暂停候选发布”等语句，**针对正式稳定版晋升及生产级合格发布**。本节单独允许明确标示的 **Pre-release 测试交付**，其目的是让用户在手机上复现/反馈已知问题。其余关于**真实安全构建、AGP-only、代码来源、签名、存档安全、受保护 CI/CD、Ruleset、权限、四渠道一致性**的硬门禁**完全保留**。不得用“预发布”绕过实际平台硬性审批。
+
+**频率口径**：每次新版本实际经四渠道交付才完整记为一次，不能将同一 APK 在四个平台重复计数，也不将仅构建、仅合并或仅 GitHub 部分发布算成完整四渠道交付。四小时是非峰时允许发布窗口的硬性最低发布频率，非峰时到期未交付必须如实记录未达标；峰时按现行峰谷策略跳过，不因该时段欠发布任务，不要求下一谷时补齐累计“缺失版本”。一旦有安全或门禁阻断必须记录，不允许追数量。
+
+### 12.1 两类交付分别判定
+
+| 维度 | Stable Release | Pre-release |
+| --- | --- | --- |
+| 核心用途 | 合格稳定用户版本 | 用户手机安装测试、采集真实 Bug |
+| 五项游戏验收 | 必须符合正式门禁 | 允许 `FAIL / NOT RUN / BLOCKED`，逐项披露 |
+| 已知 PACING/阶段/自动化 Bug | 不可冒充通过，不可晋升稳定版 | 可在无不可逆损害的范围内明确披露，定向测试 |
+| 技术安全 | 来源、可安装启动、签名、存档安全、CI 和构建链全部满足适用硬门禁 | **同样必须满足** |
+| 发布标记 | `prerelease=false`，合格正式 Tag | `prerelease=true`，独立唯一 Tag 与测试说明 |
+| 四小时合并交付节奏 | 合格稳定版计入一次 | 满足最低放行门禁的 Pre-release 同样计入一次，不冒充稳定 PASS |
+
+`PACING FAIL` 不再自动禁止**这类明确授权的 Pre-release**。错误阶段解锁、经济节奏错误、自动化失效等可以作为测试已知问题出现，但**不得**宣称已合法完成测试、修复完成、存档互通 PASS，或以无法启动/损坏数据的 APK 强行让用户测试。若发现真实不可逆存档损坏、签名不兼容、安全问题或安装/启动不可用，必须停止公开发布并记录原因。
+
+### 12.2 最低发布门禁与执行顺序
+
+1. 明确候选源码/分支/Commit SHA 与 Owner，避免混入活动 Subagent 未提交 WIP。只采用当前受支持的、**完整真实游戏 Release APK** 构建链；遵守第 10 节 AGP-only 与独立 Candidate/Verify/Release 等技术硬门禁，不拿 Debug 包、旧 APK 改名、混合未验 DEX 或不完整 AGP 实验模块充数。签名环境由 Lead 独占，Gradle 离线优先，按该候选最小必要次数构建，禁止为四个平台分别构建。
+2. 校验包名、版本码递增、证书指纹/签名兼容、资源/DEX/ABI、真实安装及冷启动；定向确认不破坏既有真实存档，旧档存在不可逆损害风险则先阻断。可在用户允许的测试隔离条件中使用新档，明确建议先备份正式存档，不要求将完整 180 分钟长跑作为测试候选的强制前置。
+3. 根据实际 CI/Release 工作流、Required Checks/Ruleset 和审批执行，不关门禁、不绕签名、Secret 或权限。无法达成某个**技术硬门禁**即 `BLOCKED`；不得把游戏 PACING 未通过误当作技术硬门禁，也不得为了预发布篡改原有硬性 CI 结果。
+4. GitHub Releases 创建独立唯一 Tag 和 Release，Tag 指向**实际构建 Commit**，实际设置 **`prerelease=true`**，创建参数必须包含 `--latest=false`。预发布发布路径禁止调用 `promote_verified_github_release()` 或执行 `gh release edit --prerelease=false --latest`；现有四渠道工具必须使用 `--no-promote` 等显式防晋升开关。发布后通过 GitHub API 回读 `isPrerelease=true`，并确认 `releases/latest` 仍是原来的正式稳定版。中文 Release Notes 至少包含“**R125/对应轮次 手机实测预发布，非稳定版**”、源码 SHA、版本名/`versionCode`、APK SHA-256、已有测试的 PASS/FAIL/BLOCKED/NOT RUN、已知风险和建议测试场景。未来轮次沿用本政策，无需每次重新授权，但用户最新暂停/安全/付费门禁优先。
+5. GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP 四渠道**同一已经签名的 APK 同一 SHA-256**，各渠道只做必要验证；远端不可用标记 `BLOCKED`，部分成功不得宣称四渠道完成。预发布在 OneDrive/Google Drive 使用唯一 `Pre-release/<release-id>/` 目录，在本地 SSH/SFTP 使用 `~/Releases/AD-Oreki-Edition/pre-release/<release-id>/`；**禁止写入任何稳定 `latest/`，禁止复用 `pull_stable_release.py` 的稳定版 latest 拉取路径**。稳定渠道继续使用 `latest/`，两者互不覆盖。若尚无合法可发布候选，先完成最低技术闭环而不是生产冒险。
+6. 发布后记录 Tag、Release URL、四渠道实际链接/路径、源 SHA、APK SHA-256、签名版本、下载/校验及测试证据，并将用户反馈转为下一次最小修复。**正式稳定版**仍必须完成真实五阶段、原版合法终局及独立 SAVE COMPATIBILITY 等门禁。
+
+**范围**：这是一项长期交付类别授权，不是自动每次都发布、不要求用户再发新的 `/goal`，也不是允许云端 Issue/PR 自动化在缺乏本机签名与用户设备证据时越权发布。保持工作树、签名、现行发布脚本和旧稳定包完整。
