@@ -161,7 +161,7 @@ def main() -> int:
     check("转发类用 3.21 原版协程启动器 g.s(Lgm1;Z)",
           "Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V" in lt)
     check("lambda 以 (1, null) 构造",
-          "const/4 v1, 0x1" in lt and "SuspendLambda;-><init>(ILvh0;)V" in lt)
+          "const/4 v1, 0x1" in lt and "SuspendLambda;-><init>(ILrj0;)V" in lt)
     check("启动不写 eternities / EP（只调原版入口）",
           "Player;->x()" not in lt and "Player;->y()" not in lt)
     check("不再用自造 Continuation", "OrekiEcContinuation" not in tb_code)

@@ -192,6 +192,31 @@ object OrekiDilationStudies {
         "?"
     }
 
+    /** 原版 `B()` 已购判定；找不到研究或 ABI 读取失败返回 null。 */
+    @JvmStatic
+    fun isBought(id: Int): Boolean? = try {
+        if (!ensureStudies()) {
+            null
+        } else {
+            val objects = studyObjects
+            val ids = studyIds
+            if (objects == null || ids == null) {
+                null
+            } else {
+                var index = -1
+                for (i in ids.indices) {
+                    if (ids[i] == id) {
+                        index = i
+                        break
+                    }
+                }
+                if (index < 0) null else boolOf(objects[index], "B")
+            }
+        }
+    } catch (_: Throwable) {
+        null
+    }
+
     private fun logThrottled(msg: String) {
         val now = android.os.SystemClock.elapsedRealtime()
         if (now - lastLogAt < LOG_INTERVAL_MS) return
