@@ -45,6 +45,17 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn('android:targetPackage="com.oreki.antimatterdimensions"', text)
         self.assertFalse((ROOT / "agp/app/src/main/res/xml/oreki_shortcuts.xml").exists())
 
+    def test_store_policy_output_is_independently_verified_by_gradle(self):
+        text = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+        self.assertIn("val verifyStorePolicyOutput by tasks.registering", text)
+        self.assertIn("dependsOn(applyStorePolicy)", text)
+        self.assertIn('report["input_jar_sha256"]', text)
+        self.assertIn('report["output_jar_sha256"]', text)
+        self.assertIn('report["save_compatibility"]', text)
+        self.assertIn("non_target_entries_byte_identical", text)
+        self.assertIn("OrekiInstantChallenge", text)
+        self.assertIn('dependsOn("verifyStorePolicyOutput")', text)
+
     def test_legacy_root_release_is_fail_closed(self):
         text = (ROOT / "build.gradle").read_text(encoding="utf-8")
         self.assertIn("OREKI_LEGACY_ISOLATED", text)
