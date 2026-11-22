@@ -56,6 +56,17 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+abspath() {
+  python3 -c 'import os, sys; print(os.path.abspath(sys.argv[1]))' "$1"
+}
+
+# Gradle 的 -P 文件参数按 agp/app 工程目录解析；脚本必须先统一成绝对路径，
+# 否则 --outdir 使用相对路径时，过滤后的 game JAR 会在 Gradle 侧指向不存在的文件。
+JAR="$( [ -n "$JAR" ] && abspath "$JAR" || true )"
+RAW_JAR="$( [ -n "$RAW_JAR" ] && abspath "$RAW_JAR" || true )"
+ANDROID_JAR="$( [ -n "$ANDROID_JAR" ] && abspath "$ANDROID_JAR" || true )"
+OUTDIR="$(abspath "$OUTDIR")"
+
 if [ -n "$RAW_JAR" ]; then
   if [ -z "$ANDROID_JAR" ] || [ ! -f "$ANDROID_JAR" ]; then echo "--raw-jar 需要 --android-jar <android.jar>" >&2; exit 2; fi
   mkdir -p "$OUTDIR/input"
@@ -259,6 +270,17 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
     rm -f "$dir/app-release.apk" "$dir/mapping.txt" "$dir/metrics.json" "$dir/metrics.log"
     write_run_json "$name" "$dir" "failed" "1" "$started" "$finished"
     return 1
+  fi
+  if [ "$expect_mapping" = "1" ]; then
+    if ! python3 scripts/agp/r109_verify_r8_output.py \
+        --apk "$dir/app-release.apk" \
+        --scope full-game \
+        --mapping "$dir/mapping.txt" \
+        --json "$dir/r8-abi-verify.json" > "$dir/r8-abi-verify.log" 2>&1; then
+      echo "[r11402-r8] $name full-game ABI 校验失败，见 $dir/r8-abi-verify.log" >&2
+      write_run_json "$name" "$dir" "failed" "1" "$started" "$finished"
+      return 1
+    fi
   fi
   write_run_json "$name" "$dir" "success" "0" "$started" "$finished"
   return 0

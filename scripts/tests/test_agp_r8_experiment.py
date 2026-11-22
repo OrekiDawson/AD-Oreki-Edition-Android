@@ -10,6 +10,7 @@ from scripts.agp.r109_verify_r8_output import synthetic_platform_stubs
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 GRADLE = ROOT / "agp" / "app" / "build.gradle.kts"
 RULES = ROOT / "agp" / "app" / "proguard-rules.pro"
+R8_AB_SCRIPT = ROOT / "scripts" / "r8" / "r11402_r8_ab.sh"
 
 
 class AgpR8ExperimentTests(unittest.TestCase):
@@ -21,6 +22,7 @@ class AgpR8ExperimentTests(unittest.TestCase):
             ROOT / ".github" / "workflows" / "r8-experiment.yml"
         ).read_text(encoding="utf-8")
         cls.workflow = yaml.safe_load(cls.workflow_text)
+        cls.r8_ab_script = R8_AB_SCRIPT.read_text(encoding="utf-8")
 
     def test_r8_is_explicitly_opt_in_and_resource_shrinking_stays_off(self):
         self.assertIn('gradleProperty("oreki.r8")', self.gradle)
@@ -72,6 +74,34 @@ class AgpR8ExperimentTests(unittest.TestCase):
         triggers = self.workflow.get(True, self.workflow.get("on", {}))
         paths = triggers["pull_request"]["paths"]
         self.assertIn("scripts/agp/r109_verify_r8_output.py", paths)
+
+    def test_full_game_experiment_normalizes_gradle_path_inputs(self):
+        self.assertIn(
+            'OUTDIR="$(abspath "$OUTDIR")"',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            'JAR="$( [ -n "$JAR" ] && abspath "$JAR" || true )"',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            'RAW_JAR="$( [ -n "$RAW_JAR" ] && abspath "$RAW_JAR" || true )"',
+            self.r8_ab_script,
+        )
+
+    def test_full_game_experiment_runs_full_game_abi_gate(self):
+        self.assertIn(
+            'python3 scripts/agp/r109_verify_r8_output.py \\\n'
+            '        --apk "$dir/app-release.apk" \\\n'
+            '        --scope full-game \\\n'
+            '        --mapping "$dir/mapping.txt" \\\n'
+            '        --json "$dir/r8-abi-verify.json"',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            'full-game ABI 校验失败',
+            self.r8_ab_script,
+        )
 
     def test_mapping_stub_detection_requires_synthetic_evidence(self):
         mapping = """\
