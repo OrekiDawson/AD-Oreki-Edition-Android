@@ -91,7 +91,7 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 - `javap` 确认 Kotlin 门槛参数为 `60/0`、`1/30`、`1/20000`，进度分母为
   `60.0/30.0/20000.0`。
 - 完整 APK SHA-256：
-  `2dce37a02c4b30f2322a91150e2561e1ab96c225cc23a18611d6f8c0224831c5`；
+  `ff4dd355971ec6149fd8fd02f9d2c7b9ef6ab4e7f2f61790f5262b6d4fa6b390`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 - AGP 完整游戏 Signature 回填链路已尝试，但在 D8 前被外部 `SIGTERM` 终止，
   退出码 `143`，未生成 `build-receipt.json`；该链路结果记 `NOT RUN`，不冒充 PASS。
