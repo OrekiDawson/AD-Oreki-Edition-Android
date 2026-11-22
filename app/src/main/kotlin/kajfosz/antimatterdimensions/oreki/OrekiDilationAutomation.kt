@@ -39,6 +39,23 @@ internal data class OrekiDilationLaunchObservation(
 )
 
 internal object OrekiDilationPolicy {
+    /**
+     * DS1 已购判定的集中回退：
+     * - 原版研究对象 `B()` 可读时以它为准；
+     * - 第二套反射 ABI 失败时，回退到本模块必需的 `Player$Dilation.h()`；
+     * - 空列表是确定的“未购买”，列表缺失/含非数字项才是读取失败。
+     */
+    fun unlockedFromStudies(primary: Boolean?, studyIds: List<*>?): Boolean? {
+        if (primary != null) return primary
+        if (studyIds == null) return null
+        var found = false
+        for (value in studyIds) {
+            val id = value as? Number ?: return null
+            if (id.toInt() == 1) found = true
+        }
+        return found
+    }
+
     fun decide(
         automationEnabled: Boolean,
         autobuyersOn: Boolean,
@@ -166,6 +183,8 @@ internal object OrekiDilationApi {
     private var dilationDtCache: Method? = null
     private var dilationTpResolved = false
     private var dilationTpCache: Method? = null
+    private var dilationStudiesResolved = false
+    private var dilationStudiesCache: Method? = null
     private var thisRealityMaxDtResolved = false
     private var thisRealityMaxDtCache: Method? = null
     private var startDilatedResolved = false
@@ -266,6 +285,14 @@ internal object OrekiDilationApi {
             dilationTpCache = noArg(DILATION, "i")
         }
         return dilationTpCache
+    }
+
+    private fun dilationStudies(): Method? {
+        if (!dilationStudiesResolved) {
+            dilationStudiesResolved = true
+            dilationStudiesCache = noArg(DILATION, "h")
+        }
+        return dilationStudiesCache
     }
 
     private fun thisRealityMaxDt(): Method? {
@@ -384,7 +411,11 @@ internal object OrekiDilationApi {
         val thisReality = invoke(recordsThisReality(), records)
         val maxDt = invoke(thisRealityMaxDt(), thisReality)
 
-        val unlocked = OrekiDilationStudies.isBought(1)
+        val studies = invoke(dilationStudies(), dilation) as? List<*>
+        val unlocked = OrekiDilationPolicy.unlockedFromStudies(
+            primary = OrekiDilationStudies.isBought(1),
+            studyIds = studies,
+        )
         val tachyonComparison = GameApi.compareToDouble(tachyon, 0.0)
         val dtGainLevel = readDtGainLevel()
         return OrekiDilationSnapshot(

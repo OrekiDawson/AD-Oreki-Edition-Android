@@ -2,10 +2,23 @@ package kajfosz.antimatterdimensions.oreki
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OrekiDilationPolicyTest {
+    @Test
+    fun ds1FallsBackWhenSecondaryStudyAbiIsUnavailable() {
+        assertEquals(true, OrekiDilationPolicy.unlockedFromStudies(true, null))
+        assertEquals(false, OrekiDilationPolicy.unlockedFromStudies(false, null))
+        assertEquals(true, OrekiDilationPolicy.unlockedFromStudies(null, listOf(1, 2)))
+        assertEquals(true, OrekiDilationPolicy.unlockedFromStudies(null, listOf(2, 1)))
+        assertEquals(false, OrekiDilationPolicy.unlockedFromStudies(null, emptyList<Int>()))
+        assertEquals(false, OrekiDilationPolicy.unlockedFromStudies(null, listOf(2, 3)))
+        assertNull(OrekiDilationPolicy.unlockedFromStudies(null, null))
+        assertNull(OrekiDilationPolicy.unlockedFromStudies(null, listOf("1")))
+    }
+
     private fun decide(
         automationEnabled: Boolean = true,
         autobuyersOn: Boolean = true,
