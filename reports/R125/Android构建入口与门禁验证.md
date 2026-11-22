@@ -32,7 +32,7 @@ bash gradlew -p agp :app:testDebugUnitTest \
 
 - AGP Kotlin DEBUG 单元测试：92/92 PASS，18 个测试套件，0 failure / 0 error / 0 skipped，`BUILD SUCCESSFUL`，27 个任务完成。
 - 编译包含现有 unchecked-cast、条件恒真/恒假与系统栏弃用警告，无本轮新增编译错误。
-- 首次永恒判定链夹具：57/57 PASS（hold/can/EP 三道门禁极性正确）。
+- 首次永恒判定链夹具：60/60 PASS（hold/can/EP 极性、180 秒 dwell 与真实入口一致）。
 - V 解锁门槛测试：3/3 PASS。
 - Dilation 自动化测试：4/4 PASS。
 - C11 物质节奏测试：3/3 PASS。
@@ -41,6 +41,7 @@ bash gradlew -p agp :app:testDebugUnitTest \
 - `bash -n scripts/ci/build_bundle_r114.sh`：PASS。
 - `python3 -m py_compile scripts/deobf_semantic_kajfosz.py`：PASS。
 - 活动路径扫描：无旧 `AD-Oreki-Unified` 或旧一级仓库路径。
+- Android 首次永恒同步检查：`canEternity` 先于 180 秒 dwell 判定，驻留后仍走原版 `GameApi.eternityTick()`；该路径每个 autoBuyerTick 直接执行，不使用 Web 的单动作 `runCycle` 排序。
 - `./gradlew --version`：PASS，Gradle 9.8.2 / Kotlin 2.4.10 / JVM 25。
 - `bash scripts/run-all.sh`：解释器入口已修复，但干净工作树缺少 `work/mod` 解码树，静态门禁仅 2/6 通过，记为 `FAIL`（输入缺失，非本次路径修复通过）。
 
