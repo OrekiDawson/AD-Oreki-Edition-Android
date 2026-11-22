@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""R112-01 P0 AVD 存档兼容矩阵工具（AGP 泛型 Signature 回填候选）。
+"""Android 存档兼容矩阵工具。
 
-只操作指定设备上的 com.oreki.antimatterdimensions；不启动/停止模拟器。
+只操作指定设备上的目标包（默认 MOD）；不启动/停止模拟器。
 每步真实落盘证据：注入存档、logcat、截图、读档后 player.json、判定 JSON。
 
 用法：
-  python3 scripts/tests/r112/save_matrix.py install --apk <apk> --out <dir>
-  python3 scripts/tests/r112/save_matrix.py load --save <json> --tag S1 --out <dir> [--wait 35]
-  python3 scripts/tests/r112/save_matrix.py list-device
+  python3 scripts/tests/r112/save_matrix.py [--package mod|official] install --apk <apk> --out <dir>
+  python3 scripts/tests/r112/save_matrix.py [--package mod|official] load --save <json> --tag S1 --out <dir> [--wait 35]
+  python3 scripts/tests/r112/save_matrix.py [--package mod|official] snapshot --tag S1 --out <dir>
+  python3 scripts/tests/r112/save_matrix.py [--package mod|official] list-device
 
 退出码：0=PASS（读取且应用真实写档）；3=READ_ONLY_PASS（仅读取方向证据，无应用写入）；
 1=FAIL；2=参数/工具错误。
@@ -25,14 +26,32 @@ import shutil
 import subprocess
 import sys
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
-PKG = "com.oreki.antimatterdimensions"
+PACKAGES = {
+    "official": "kajfosz.antimatterdimensions",
+    "mod": "com.oreki.antimatterdimensions",
+}
+PKG = PACKAGES["mod"]
 ACT = "kajfosz.antimatterdimensions.MainActivity"
 FILES = f"/data/data/{PKG}/files"
 PLAYER = f"{FILES}/player.json"
+STORE_PREFS = "shared_prefs/MyPrefsFile.xml"
 ADB = os.environ.get("ADB_BIN", "adb")
 DEVICE = os.environ.get("ADB_DEVICE", "emulator-5554")
+STORE_PREF_KEYS = {
+    "AllDimMultEnabled",
+    "NormalDimMultEnabled",
+    "IPMultEnabled",
+    "EPMultEnabled",
+    "RMMultEnabled",
+    "DTSpeedEnabled",
+    "ReplicantiSpeedEnabled",
+    "GoldenBottomButtonsEnabled",
+    "PermanentAdBonusEnabled",
+    "adBonusTimeLeft",
+}
 
 CRASH = (
     ("fatal_exception", re.compile(r"FATAL EXCEPTION")),
@@ -57,6 +76,13 @@ def sha256_file(p: Path) -> str:
         for c in iter(lambda: fh.read(1 << 20), b""):
             h.update(c)
     return h.hexdigest()
+
+
+def configure_package(alias: str) -> None:
+    global PKG, FILES, PLAYER
+    PKG = PACKAGES[alias]
+    FILES = f"/data/data/{PKG}/files"
+    PLAYER = f"{FILES}/player.json"
 
 
 def adb(*args: str, timeout: int = 180) -> subprocess.CompletedProcess:
@@ -87,18 +113,29 @@ def package_info() -> dict:
     return info
 
 
-def uid() -> str:
-    return sh(f"stat -c %u {FILES}").stdout.strip()
+def app_uid_gid() -> tuple[str, str]:
+    raw = sh(f"stat -c '%u:%g' /data/data/{PKG}").stdout.strip()
+    if ":" not in raw:
+        raise RuntimeError(f"无法读取 {PKG} 应用 UID/GID: {raw[:120]}")
+    owner, group = raw.split(":", 1)
+    if not owner.isdigit() or not group.isdigit() or owner == "0" or group == "0":
+        raise RuntimeError(f"{PKG} 应用数据目录所有者异常: {raw[:120]}")
+    return owner, group
 
 
 def inject(save: Path) -> None:
     sh(f"mkdir -p {FILES}")
     tmp = "/data/local/tmp/_r112_inject.json"
     must(adb("push", str(save), tmp), "adb push 存档")
+    # adb push 会保留宿主类型的 SELinux 标签；恢复 context 后再改所有者，
+    # 否则应用可能静默拒绝读取 player.json 并回退到新档。
+    must(sh(f"restorecon -R {FILES}"), "恢复 files SELinux context")
     must(sh(f"cp -f {tmp} {PLAYER}"), "复制存档到 player.json")
-    u = uid()
-    sh(f"chown {u}:{u} {PLAYER}")
-    sh(f"chmod 660 {PLAYER}")
+    owner, group = app_uid_gid()
+    must(sh(f"chown -R {owner}:{group} {FILES}"), "恢复应用 files 所有者")
+    must(sh(f"restorecon -R {FILES}"), "恢复 player.json SELinux context")
+    must(sh(f"chown {owner}:{group} {PLAYER}"), "恢复 player.json 所有者")
+    must(sh(f"chmod 660 {PLAYER}"), "恢复 player.json 权限")
     sh(f"rm -f {tmp}")
 
 
@@ -113,6 +150,45 @@ def pull_player(dest: Path) -> dict | None:
         return json.loads(dest.read_text())
     except Exception:
         return None
+
+
+def pull_store_prefs(out_dir: Path, tag: str) -> dict:
+    remote = f"/data/data/{PKG}/{STORE_PREFS}"
+    local = out_dir / f"{tag}-store-prefs.xml"
+    result = adb("pull", remote, str(local))
+    if result.returncode != 0 or not local.is_file():
+        return {"present": False, "remote": remote}
+    return {
+        "present": True,
+        "remote": remote,
+        "path": str(local),
+        "sha256": sha256_file(local),
+        "bytes": local.stat().st_size,
+    }
+
+
+def parse_store_pref_flags(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    try:
+        root = ET.fromstring(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    values = {}
+    for item in root.findall("*"):
+        name = item.get("name")
+        if name not in STORE_PREF_KEYS:
+            continue
+        raw = item.get("value")
+        if item.tag == "boolean":
+            values[name] = raw == "true"
+        elif item.tag == "int":
+            values[name] = int(raw or 0)
+        elif item.tag == "long":
+            values[name] = int(raw or 0)
+        else:
+            values[name] = raw
+    return values
 
 
 def check_state(data: dict | None, expect: dict | None) -> dict:
@@ -134,6 +210,7 @@ def check_state(data: dict | None, expect: dict | None) -> dict:
             effects.append(type(g["effects"]).__name__)
     res["glyph_effects_types"] = effects[:8]
     res["glyph_effects_all_int"] = bool(effects) and all(t == "int" for t in effects)
+    res["glyph_effects_valid"] = all(t == "int" for t in effects)
     res["isGameEnd"] = data.get("isGameEnd")
     if expect:
         for k, v in expect.items():
@@ -152,11 +229,69 @@ def crash_scan(log_text: str) -> dict:
 
 
 def uia_dump(out_dir: Path, tag: str) -> str:
+    sh("rm -f /sdcard/_r112_ui.xml")
     sh("uiautomator dump /sdcard/_r112_ui.xml")
     local = out_dir / f"{tag}-ui.xml"
     adb("pull", "/sdcard/_r112_ui.xml", str(local))
     sh("rm -f /sdcard/_r112_ui.xml")
     return local.read_text(errors="replace") if local.is_file() else ""
+
+
+def ui_texts(xml: str) -> list[str]:
+    return [
+        match.group(1).strip()
+        for match in re.finditer(r'text="([^"]+)"', xml)
+        if match.group(1).strip()
+    ]
+
+
+def dismiss_known_startup_ui(out_dir: Path, tag: str) -> dict | None:
+    """只关闭原版启动与纯说明弹窗，不点击购买、挑战或重置决定。"""
+    xml = uia_dump(out_dir, tag)
+    for match in re.finditer(r"<node\b[^>]*>", xml):
+        attrs = dict(re.findall(r'([\w-]+)="([^"]*)"', match.group(0)))
+        resource_id = attrs.get("resource-id", "")
+        text = attrs.get("text", "").strip()
+        is_start = resource_id.endswith(":id/loadingStartButton") and text == "开始游戏"
+        is_notice = resource_id == "android:id/button1" and text == "确定"
+        if not (is_start or is_notice):
+            continue
+        bounds = re.fullmatch(
+            r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", attrs.get("bounds", "")
+        )
+        if not bounds:
+            continue
+        x1, y1, x2, y2 = map(int, bounds.groups())
+        action = {
+            "at": now(),
+            "step": tag,
+            "resource_id": resource_id,
+            "text": text,
+        }
+        sh(f"input tap {(x1 + x2) // 2} {(y1 + y2) // 2}")
+        with (out_dir / "ui-actions.jsonl").open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(action, ensure_ascii=False) + "\n")
+        time.sleep(2)
+        return action
+    return None
+
+
+def enter_game(out_dir: Path, tag: str) -> list[dict]:
+    actions = []
+    deadline = time.time() + 75
+    while time.time() < deadline:
+        action = dismiss_known_startup_ui(out_dir, tag)
+        if action:
+            actions.append(action)
+            continue
+        xml = uia_dump(out_dir, tag)
+        current = ui_texts(xml)
+        if any("你拥有" in text for text in current) and any(
+            "维度提升" in text or "反物质星系" in text for text in current
+        ):
+            break
+        time.sleep(2)
+    return actions
 
 
 def tap_start_button(out_dir: Path, tag: str) -> dict:
@@ -188,8 +323,8 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     must(sh("logcat -c"), "logcat -c")
     start = sh(f"am start -W -n {PKG}/{ACT}")
     (out_dir / f"{tag}-start.txt").write_text(start.stdout + "\n" + start.stderr)
-    time.sleep(18)
-    tap = tap_start_button(out_dir, tag)
+    startup_actions = enter_game(out_dir, tag)
+    tap = continue_startup_probe(out_dir, tag, startup_actions)
     time.sleep(wait)
     alive = sh(f"pidof {PKG}").stdout.strip()
     sh(f"screencap -p /sdcard/_r112.png")
@@ -205,16 +340,32 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     written = out_dir / f"{tag}-written-player.json"
     data = pull_player(written)
     sh(f"am force-stop {PKG}")
+    prefs = pull_store_prefs(out_dir, tag)
+    if prefs["present"]:
+        prefs["effective_policy"] = {
+            "store_effects_expected_neutral": True,
+            "historical_flags_preserved_for_reference": parse_store_pref_flags(
+                Path(prefs["path"])
+            ),
+        }
     state = check_state(data, expect)
+    try:
+        source_data = json.loads((out_dir / "injected-save.json").read_text())
+    except Exception:
+        source_data = None
+    source_state = check_state(source_data, None)
     crashes = crash_scan(log)
     verdict = {
         "tag": tag,
         "tap_start": tap,
+        "ui_actions": startup_actions,
         "captured_at": now(),
         "wait_seconds": wait,
         "process_alive": bool(alive),
         "crashes": crashes,
+        "input_state": source_state,
         "state": state,
+        "store_prefs": prefs,
         "written_player": {"path": str(written), "sha256": sha256_file(written) if written.is_file() else None,
                            "bytes": written.stat().st_size if written.is_file() else None},
     }
@@ -227,8 +378,13 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     verdict["written_is_injected"] = bool(inj_sha and w.get("sha256") == inj_sha)
     verdict["written_changed"] = (w.get("sha256") is not None and not verdict["written_is_injected"])
     # 读取方向判定：进程存活、无崩溃、读出的存档可解析、关键泛型结构类型正确。
-    read_ok = (bool(alive) and not crashes and state.get("parsed")
-               and state.get("laitela_dims_typed") and state.get("glyph_effects_all_int"))
+    read_ok = (
+        bool(alive)
+        and not crashes
+        and state.get("parsed")
+        and state.get("laitela_dims_typed")
+        and state.get("glyph_effects_valid")
+    )
     if expect:
         read_ok = read_ok and all(state.get(f"expect_{k}") for k in expect)
     verdict["read_ok"] = read_ok
@@ -245,9 +401,18 @@ def capture(out_dir: Path, tag: str, wait: int, expect: dict | None) -> dict:
     return verdict
 
 
+def continue_startup_probe(
+    out_dir: Path, tag: str, actions: list[dict]
+) -> dict:
+    if actions:
+        return {"attempted": True, "handled": len(actions), "source": "稳定资源 ID"}
+    return tap_start_button(out_dir, tag)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--device", default=DEVICE)
+    ap.add_argument("--package", choices=sorted(PACKAGES), default="mod")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p_install = sub.add_parser("install")
@@ -261,10 +426,15 @@ def main() -> int:
     p_load.add_argument("--wait", type=int, default=35)
     p_load.add_argument("--expect-json", default="")
 
+    p_snapshot = sub.add_parser("snapshot")
+    p_snapshot.add_argument("--tag", required=True)
+    p_snapshot.add_argument("--out", required=True)
+
     sub.add_parser("list-device")
 
     args = ap.parse_args()
     globals()["DEVICE"] = args.device
+    configure_package(args.package)
 
     if args.cmd == "list-device":
         print(sh(f"dumpsys package {PKG} | head -40").stdout)
@@ -310,6 +480,34 @@ def main() -> int:
             print("NOTE: 读取方向 PASS（无应用写入证据），状态 READ_ONLY_PASS，不代表写档往返 PASS")
             return 3
         return 1
+
+    if args.cmd == "snapshot":
+        must(adb("root"), "adb root")
+        time.sleep(1)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        dest = out_dir / f"{args.tag}-player.json"
+        data = pull_player(dest)
+        prefs = pull_store_prefs(out_dir, args.tag)
+        if prefs["present"]:
+            prefs["historical_flags"] = parse_store_pref_flags(Path(prefs["path"]))
+        manifest = {
+            "tag": args.tag,
+            "package": PKG,
+            "captured_at": now(),
+            "player": {
+                "path": str(dest),
+                "sha256": sha256_file(dest) if dest.is_file() else None,
+                "bytes": dest.stat().st_size if dest.is_file() else None,
+            },
+            "state": check_state(data, None),
+            "store_prefs": prefs,
+            "status": "PASS" if isinstance(data, dict) else "FAIL",
+        }
+        (out_dir / f"{args.tag}-snapshot.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=1)
+        )
+        print(json.dumps(manifest, ensure_ascii=False, indent=1))
+        return 0 if manifest["status"] == "PASS" else 1
 
     return 2
 

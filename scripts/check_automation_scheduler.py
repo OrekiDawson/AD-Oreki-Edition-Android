@@ -52,6 +52,9 @@ SCHED = KT_DIR / "OrekiAutomationScheduler.kt"
 STAGE = KT_DIR / "OrekiStageAuto.kt"
 LISTENER = (ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz"
             / "antimatterdimensions" / "oreki" / "OrekiAutomationUiListener.kt")
+TT_REWARD_POLICY = KT_DIR / "OrekiTimeTheoremRewardPolicy.kt"
+SETTINGS_CLICK = (ROOT / "scripts" / "payload" / "smali" / "kajfosz"
+                  / "antimatterdimensions" / "oreki" / "SettingsClickListener.smali")
 
 checks = 0
 fails: list[str] = []
@@ -96,7 +99,8 @@ check("默认启用（用户令：默认开）",
 # ---------------------------------------------------------------- 4. 全局节拍是第一道闸
 check("allow() 里存在全局节拍判定", "lastBeatAt" in sched and "beatSkips++" in sched)
 check("全局节拍判定使用 intervalSec 换算",
-      re.search(r"now - beat < intervalSec \* 1000L", sched) is not None)
+      "val effectiveMs = effectiveIntervalSec() * 1000L" in sched
+      and "isGlobalBeatReady(beat, now, effectiveMs)" in sched)
 check("全局节拍先于单任务闸（顺序断言）",
       sched.index("val beat = lastBeatAt") < sched.index("val last = lastAct[idx]"))
 
@@ -148,7 +152,8 @@ for fn in ("autoSacrifice", "upgradeBulkAll", "buyInfinityUpgrades",
 check("upgradeBulkAll 用轮转指针（每拍只升 1 个维度）",
       "bulkPurchaseCursor" in stage and "bulkPurchaseCursor = (bulkPurchaseCursor + 1) % autos.size" in stage)
 check("tryBuyId1 用轮转指针（每拍只处理 1 层）",
-      "infinityDimensionCursor" in stage and "infinityDimensionCursor = (infinityDimensionCursor + 1) % 8" in stage)
+      "infinityDimensionCursor" in stage
+      and "infinityDimensionCursor = (infinityDimensionCursor + 1) % buyableTiers.size" in stage)
 check("upgradeCrunchInterval 有一拍一级注释（不得循环多级）",
       "每拍**最多买 1 级**" in stage or "每拍最多买 1 级" in stage)
 
@@ -204,7 +209,7 @@ check("不再绑定错误的 g0(I)",
 check("存在大坍缩间隔是否买满的判据", "private fun crunchIntervalIsMaxed(): Boolean" in stage)
 check("Break 兜底内先买满间隔（upgradeCrunchInterval 调用）",
       "if (!crunchIntervalIsMaxed())" in stage and "upgradeCrunchInterval()" in stage)
-_break_block = stage[stage.index("---- Break 兜底 + 自愈"):]
+_break_block = stage[stage.index("fun maintainBreakState()"):]
 check("间隔自愈排在 tryBreakInfinity 之前",
       _break_block.index("crunchIntervalIsMaxed()") < _break_block.index("tryBreakInfinity()"))
 check("存在 Break 丢失诊断函数", "private fun detectBreakLoss()" in stage)
@@ -218,7 +223,7 @@ check("诊断使用独立 OREKI_BREAK 标签", 'TAG_BREAK_GUARD = "OREKI_BREAK"'
 _break_fn = stage[stage.index("fun tryBreakInfinity()"):]
 check("已 Break 时早退（不得重复写 brake）",
       _break_fn.index("if (isBroken()) return") < _break_fn.index("GameApi.setBrake(true)"))
-_heal_block = stage[stage.index("---- Break 兜底 + 自愈"):stage.index("---- Break 升级真实购买")]
+_heal_block = stage[stage.index("fun maintainBreakState()"):stage.index("private fun ipBalance()")]
 check("间隔自愈只在未 Break 分支内（已 Break 不买间隔）",
       "if (!wasBroken) {" in _heal_block and
       _heal_block.index("if (!wasBroken) {") < _heal_block.index("upgradeCrunchInterval()"))
@@ -280,7 +285,7 @@ check("eternitiesZero 对 bigEternities 兜底", "if (big is Number && big.toLon
 # ---------------------------------------------------------------- 22. R94：Break 前 IP 收割策略
 # 实测：存档 `auto.bigCrunch` 为 AMOUNT 模式且 amount=1 ⇒ 反物质刚到 1 就填塌，
 # 每次 IP 收益≈0，填塌间隔升级买不动 ⇒ Break 永久卡住。
-check("Break 前强制 TIME 模式收割 IP", "policy -> TIME/10s (pre-break IP harvest)" in stage)
+check("Break 前强制 TIME 模式收割 IP", "policy -> managed interval/10s (pre-break IP harvest)" in stage)
 check("Break 前填塌间隔按常量校准", "PRE_BREAK_CRUNCH_SECONDS" in stage)
 check("未 Break 分支在 isBroken 之前", stage.index("if (!isBroken()) {") < stage.index("if (GameApi.crunchMode(crunch) == MODE_TIME) return"))
 
@@ -308,14 +313,13 @@ check("决策优先级：未 Break 放行", 'Decision(true, "pre-break-ip")' in 
 # 星系/维度提升门槛永远达不到（maxIP 平台 1e593、10 分钟零增长）。
 check("永恒层坍缩改为收益驱动（不再无条件 allow）",
       'Decision(true, "post-eternity")' not in _crunch_kt
-      and 'Decision(true, "eternity-ip-jump")' in _crunch_kt
       and 'waitWithin("eternity-grow"' in _crunch_kt
-      # [R96 第五轮] 永恒层周期结算：30 秒墙钟放行一次，保证 IP→无限维度购买链不断
-      # （实测纯等待 87/min vs 持续结算 327-755/min）。
+      # [R116-02-01] 现实后也必须进入永恒层收益/成长窗口，而不是误判为新档。
+      and "if (!OrekiStageAuto.eternitiesZero() || hasReality())" in _crunch_kt
+      # [R96 第五轮 / R116] 自适应成长窗口到期才真实结算一次，不再无条件放行。
       and 'Decision(true, "eternity-cycle")' in _crunch_kt
-      and "ETERNITY_CYCLE_NS: Long = 30_000_000_000L" in _crunch_kt
-      # 永恒层分支内不得再出现 canEternity 放行（那里 canEternity 长期为真 ⇒ 等于无条件坍缩）
-      and 'if (GameApi.canEternity()) {' not in _crunch_kt.split("if (!OrekiStageAuto.eternitiesZero()) {")[1].split("// 1) 已经够永恒")[0])
+      # canEternity 只能进入有上限的 hold；达到门槛时不得直接放行坍缩。
+      and 'Decision(false, "eternity-hold")' in _crunch_kt)
 
 # [R96 第十轮] 永恒层等待不得用 1 小时硬暂停：否则 allow/deny 逐帧翻转时坍缩几乎不发生
 # （实测 maxIP 冻在 1e40、重建速度只有 ~190 指数/分钟）。
@@ -370,7 +374,7 @@ _beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
 _beat_ok, _beat_out = False, "runner missing"
 if _beat_runner.is_file():
     try:
-        _r = _sp.run([str(_beat_runner)], capture_output=True, text=True, timeout=300)
+        _r = _sp.run(["bash", str(_beat_runner)], capture_output=True, text=True, timeout=300)
         _beat_ok = _r.returncode == 0 and "ALL BEAT TESTS PASSED" in _r.stdout
         _beat_out = (_r.stdout or _r.stderr or "").strip().splitlines()[-1:] or [""]
     except Exception as _e:
@@ -390,7 +394,8 @@ check("§81 存在原版购买器侧受管节拍对象（独立于 allow）",
 check("§81 玩家改动只登记一次、到点只恢复一次（不逐帧抢写、不无限延迟）",
       "if (pendingRestoreAtMs != 0L) return" in _ab and "pendingRestoreAtMs = 0L" in _ab)
 check("§81 受管节拍在配置优化层调用（allow 之外）",
-      "OrekiAutobuyerBeat.deferRestore" in stage and "OrekiAutobuyerBeat.consumeRestoreDue" in stage)
+      "managedConfigTickId" in stage
+      and "OrekiManagedAutobuyerAuthority.isNewConfigTick(tickId, appliedManagedIntervalTickId)" in stage)
 
 # ---------------------------------------- 24i. R96 第二十轮：§80.2 玩家意图守卫（两条硬约束）
 _pi = read(KT_DIR / "OrekiPlayerIntent.kt") if (KT_DIR / "OrekiPlayerIntent.kt").is_file() else ""
@@ -417,46 +422,140 @@ check("调度器提供 actedThisFrame 且每帧重置",
       "fun actedThisFrame(taskId: String)" in sched
       and "frameActedTask = null" in sched and "frameActedTask = taskId" in sched)
 
-# ---------------------------------------------------------------- 24f. R96 第十四轮：TT 购买收益 ×500
-# 用户 2026-11-09 正式裁决的 MOD 平衡参数；必须保留原版成本曲线与真实扣费。
+_normal_challenge_authority = read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+_normal_challenge_gameapi = read(KT_DIR / "GameApi.kt")
+check("普通挑战达原版目标后优先请求真实大坍缩结算",
+      "shouldSettleNormalChallengeGoal(" in stage
+      and "GameApi::normalChallengeGoalReached" in stage
+      and "fun normalChallengeGoalReached(id: Int): Boolean?" in
+      _normal_challenge_gameapi
+      and "goalReached == true" in _normal_challenge_authority
+      and "canBigCrunch == true" in _normal_challenge_authority)
+check("C11 原版物质湮灭弹窗限频并只点击正向确认",
+      "shouldDismissMatterAnnihilationDialog(" in stage
+      and "GameApi.dismissMatterAnnihilationDialogIfPresent()" in stage
+      and "normalChallengeCurrent == 11" in _normal_challenge_authority
+      and "nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 50L" in stage
+      and "matterAnnihilationDialogPostPending.compareAndSet(false, true)" in
+      _normal_challenge_gameapi
+      and "android.R.id.button1" in _normal_challenge_gameapi
+      and 'getField("c0")' in _normal_challenge_gameapi
+      and 'getField("O0")' in _normal_challenge_gameapi
+      and "} catch (_: Throwable) {\n                        null\n                    } ?: continue" in
+      _normal_challenge_gameapi
+      and "0x7f0a05d3" in _normal_challenge_gameapi)
+
+_c9_start = stage.find("val c9JustEnded =")
+_c9_block = stage[_c9_start:stage.find("return", _c9_start)]
+check("C9 保留专用受管配置与真实提升维护",
+      "applyC9ManagedAutobuyerStates()" in _c9_block
+      and "c9MaintenanceTask(normalChallengeCurrent)" in _c9_block
+      and "holdCrunchOwnershipForC9()" in _c9_block)
+check("C9 提升重置后按真实维度数量自举基础生产链",
+      "GameApi.dimensionBoughtCount(" in stage
+      and "c9LowerChainReady(" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+      and "lowerChainReady" in stage
+      and "!lowerChainReady && tier in 1..6" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+      and "!lowerChainReady && tier in 1..7" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 入场准备不阻塞已运行的 IC/EC",
+      "if (GameApi.inAnyChallenge()) return false" in
+      read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("关闭 MOD 自动化后不再重新持有 autoBig",
+      "if (!OrekiAutomationScheduler.isEnabled()) {" in stage
+      and "releaseC9CrunchOnAutomationDisabled()" in stage
+      and "private fun releaseC9CrunchOnAutomationDisabled()" in stage)
+_release_start = stage.find("private fun releaseC9CrunchOnAutomationDisabled()")
+_release_end = stage.find("\n    private fun ", _release_start + 1)
+_release_block = stage[_release_start:_release_end]
+check("关闭 C9 时按进入前所有权恢复被 MOD 暂停的 autoBig",
+      "OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(" in _release_block
+      and "GameApi.setAutobuyerActive(crunch, true)" in _release_block)
+check("C9 暂停标记只在所有权或 active 状态变化时写盘",
+      "val wasOwned = modOwnsCrunch" in stage
+      and "if (active || !wasOwned || !wasPolicyPaused)" in stage)
+check("C9 准备判定按调度 tick 缓存",
+      "c9PreparationCacheTick" in stage and "c9StartGateCacheTick" in
+      read(KT_DIR / "OrekiAutoEternityGate.kt"))
+check("C9 准备缓存只覆盖慢变完成位，bulk 每次现读",
+      "c9PreparationFirstEightCompleted" in stage
+      and "c9PreparationCompleted" in stage
+      and "d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf)" in stage
+      and "d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf)" in stage)
+check("C9 结束恢复失败可逐帧重试",
+      "shouldRestoreC9CrunchCapture(" in stage
+      and "captured = c9CrunchHoldCaptured" in stage
+      and "normalChallengeCurrent = normalChallengeCurrent" in stage)
+check("C9 跨重启保留进入前 autoBig 意图",
+      "saveC9CrunchCapture(" in stage
+      and "loadC9CrunchCaptureOrNull()" in stage
+      and "clearC9CrunchCapture()" in stage
+      and "KEY_C9_CRUNCH_SAVE_ID" in sched)
+check("C9 capture 绑定存档且仅在调度 tick 或 C9 内探测",
+      "c9CrunchCaptureSaveId" in stage
+      and "c9CaptureBelongsToSave(" in stage
+      and "normalChallengeCurrent == 9 || managedConfigTickId != 0L || c9JustEnded" in stage
+      and "} else {\n                    false\n                }" in stage
+      and "clearC9CrunchCapture()" in stage)
+check("C9 capture 仅在挑战 ID 明确结束时恢复",
+      "shouldRestoreC9CrunchCapture(" in stage
+      and "normalChallengeCurrent != null" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 capture 清除同步落盘",
+      ".remove(KEY_C9_CRUNCH_SAVE_ID)" in sched
+      and ".commit()" in sched[sched.find("fun clearC9CrunchCapture()"):]
+      and "if (c9CrunchCaptureSaveId.isNullOrEmpty())" in stage
+      and "c9CrunchCaptureSaveId = currentSaveId" in stage)
+check("C9 null 挑战 ID 不触发恢复，unknown save 仅在 C9 内补绑",
+      "} else if (normalChallengeCurrent != null) {" in stage
+      and "if (GameApi.normalChallengeCurrent() != 9) return false" in stage
+      and "saveC9CrunchCapture(" in stage[
+          stage.find("if (c9CrunchCaptureSaveId.isNullOrEmpty())"):
+          stage.find("if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(")])
+check("C9 自举层使用单买，避免抬高 D7 价格",
+      "!lowerChainReady || tier == 7 || tier == 8" in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 挑战读取失败时仍 fail-closed 让路",
+      "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+check("C9 让路发生在调度开帧与 GUI 同步之后",
+      _c9_start > stage.find("OrekiAutomationScheduler.beginFrame()")
+      and _c9_start > stage.find("GameApi.retryPendingGuiSync()"))
+_settings_click = read(SETTINGS_CLICK)
+check("速度设置仅在成功保存后退出阶段速度管理",
+      _settings_click.find("if-eqz v4, :invalid")
+      < _settings_click.find("OrekiGamePace;->markManualSpeedChoice()V"))
+check("阶段速度接管关闭旧动态升档",
+      "setManagedSpeed(target)" in read(KT_DIR / "OrekiGamePace.kt")
+      and 'getMethod("setDynamic", Boolean::class.javaPrimitiveType)' in read(KT_DIR / "OrekiGamePace.kt"))
+check("C9 只临时暂停并在挑战结束后恢复大坍缩自动器",
+      "private fun holdCrunchOwnershipForC9()" in stage
+      and "private fun restoreCrunchOwnershipAfterC9()" in stage
+      and "restoreCrunchOwnershipAfterC9()" in stage[
+          stage.find("if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture("):
+          stage.find("if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9", stage.find(
+              "if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture("))]
+      and "releaseCrunchOwnershipForC9Yield()" not in _c9_block)
+
+# ---------------------------------------------------------------- 24f. TT 购买收益恢复原版 ×1
+# 旧 MOD 的 ×500 会让时间研究成长与双端节奏偏离；恢复原版真实购买收益。
 _api = read(KT_DIR / "GameApi.kt")
-check("TT 购买收益倍率常量 = 500", "TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L" in _api)
+_tt_policy = read(TT_REWARD_POLICY)
+check("TT 购买收益倍率恢复原版 1",
+      re.search(r"MULTIPLIER\s*:\s*Long\s*=\s*1L", _tt_policy) is not None)
+check("TT 额外补发在倍率 1 下恒为 0",
+      "MULTIPLIER <= 1L" in _tt_policy and "return 0L" in _tt_policy)
+check("生产 buyMax 包装使用原版收益策略",
+      "OrekiTimeTheoremRewardPolicy.rewardForPurchasedTheorems(bought)" in _api)
+check("生产代码不再保留 TT 购买收益 500 倍常量",
+      "TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L" not in _api)
 check("倍率只包住原版唯一购买入口（不另造购买路径）",
       "fun timeTheoremBuyMax(auto: Boolean): Long" in _api
       and "call(mTtBuyMax(), null, auto)" in _api)
-check("按本次真实购买次数发奖（不可重复发放）",
-      "val bought = (call(mTtBuyMax(), null, auto) as? Long) ?: 0L" in _api
-      and "if (bought <= 0L) return 0L" in _api)
-check("补发走原版货币 API Currency.add（不写存档字段）",
-      "Currency.C(BigDouble)=add" in _api and "grantExtraTimeTheorems" in _api)
-check("发奖走「累计购买次数对账」，覆盖手动/自动/单次/批量全部购买路径",
-      "fun settleTimeTheoremReward()" in _api
-      and "timeTheoremPurchaseCount()" in _api
-      and "OrekiIu15Sprint.tick()" in stage
-      and "GameApi.settleTimeTheoremReward()" in stage)
-check("对账边界：首次只建基线、增量为 0 不发奖、回退只重置",
-      "if (last < 0L) {" in _api and "if (delta == 0L) return" in _api
-      and "if (total < last) {" in _api)
-# 实测：未缓存反射时主循环被拖慢（maxAM 增速 770/分 → 1/分、首次永恒迟迟不到）。
-check("对账反射 Method 必须缓存（禁止每帧 getMethod）",
-      "mTimestudyCounts" in _api and "mTimestudyCountsResolved" in _api
-      and "timestudyCountMethods" in _api
-      and _api.count('getMethod("b")') == 1)
-# 审查整改：切档不得把历史购买当新购；失败不得吞掉奖励。
-check("切档保护：单帧增量超上限只重设基线、不发奖",
-      "MAX_REASONABLE_DELTA" in _api and "tt-reward SWITCH-GUARD" in _api
-      and "if (delta > MAX_REASONABLE_DELTA)" in _api)
-check("补发失败不推进基线（下一帧重试，不永久吞奖励）",
-      "timeTheoremGrantFailures" in _api
-      and _api.split("if (!granted) {")[1].split("return")[0].find("timeTheoremPurchasesSettled = total") < 0)
-check("补发失败不静默：有 GRANT-FAILED 告警",
-      "tt-reward GRANT-FAILED" in _api)
-_tt_block = _api.split("fun timeTheoremBuyMax(auto: Boolean): Long")[1].split("// ------")[0]
-# 允许「读」购买次数（对账必须读），禁止任何「写」：不得改存档字段、不得调 setter。
-check("不伪造购买次数（只读 b/c/d，不写任何存档字段）",
-      'getMethod("b")' in _tt_block and 'getMethod("c")' in _tt_block and 'getMethod("d")' in _tt_block
-      and "setLong" not in _tt_block and "putLong" not in _tt_block
-      and "Timestudy;->" not in _tt_block)
+check("旧补发对账在 ×1 下只推进基线",
+      "if (OrekiTimeTheoremRewardPolicy.MULTIPLIER <= 1L)" in _api
+      and "timeTheoremPurchasesSettled = total" in _api)
 
 # ---------------------------------------------------------------- 24e. R96 第十三轮：EP 预留
 # 实测：bigE=8、EP=0、eupBits=0，34 分钟一次永恒升级都没买到 —— TD1（1/3/9…）把 EP 吃干。
@@ -481,16 +580,19 @@ check("永恒层只要还有无限维度未解锁就优先 idBuy（否则 maxAM 
       "allInfinityDimensionsUnlocked()" in stage
       and 'if (!allInfinityDimensionsUnlocked()) {' in stage
       and stage.index("if (!allInfinityDimensionsUnlocked()) {") < stage.index('return "idBuy"'))
-check("永恒层 eternity-grow 用 30 秒间隔而非 1 小时硬暂停",
-      "ETERNITY_GROW_CRUNCH_SECONDS = 30.0" in stage
+check("永恒层 eternity-grow 使用自适应成长窗口而非 1 小时硬暂停",
+      "ETERNITY_GROW_START_SECONDS: Double = 600.0" in _crunch_kt
+      and "ETERNITY_GROW_MAX_SECONDS: Double = 1800.0" in _crunch_kt
+      and "eternityGrowSeconds * 2.0" in _crunch_kt
       and 'decision.reason == "eternity-grow"' in stage)
 check("硬暂停常量仍保留用于真等待分支",
       "CRUNCH_PAUSE_SECONDS = 3600.0" in stage)
 check("永恒层等待带上限（10 分钟）",
-      "ETERNITY_GROW_WAIT_LIMIT_NS: Long = 600_000_000_000L" in _crunch_kt)
+      "ETERNITY_GROW_WAIT_LIMIT_NS: Long = 2_400_000_000_000L" in _crunch_kt)
 
-check("永恒达标立即放行（原版 canEternity 判据）",
-      'Decision(true, "eternity-ready")' in _crunch_kt)
+check("永恒达标先 hold 原版结算，超时才放行",
+      'Decision(false, "eternity-hold")' in _crunch_kt
+      and 'Decision(true, "eternity-hold-timeout")' in _crunch_kt)
 check("首次永恒前 ID 峰值等待带上限", 'waitWithin("id-peak-wait", PEAK_WAIT_LIMIT_NS)' in _crunch_kt)
 check("全部维度解锁后按收益结算（一次坍缩至少涨 10 倍 IP）",
       'Decision(true, "ip-jump")' in _crunch_kt and "gainVersusIp()" in _crunch_kt)
@@ -508,7 +610,7 @@ check("抢救依据 sinceLastActMs（不是猜测业务）",
       "OrekiAutomationScheduler.sinceLastActMs(taskId)" in stage)
 _rescue = re.search(r"private fun starvationRescue\(base: String\?\): String\? \{.*?\n    \}", stage, re.S)
 check("Break 兜底抢在购买动作之前（否则恒被 frame-held 饿死、首次 Break 永不触发）",
-      stage.index('allow("breakUpgrades")') < stage.index('runScheduled("sacrifice")'))
+      stage.index('maintainBreakState()') < stage.index('runScheduled("sacrifice")'))
 check("紧迫任务按 id 分发（infinityUpgrades 不得落到 idBuy）",
       '"infinityUpgrades" -> buyInfinityUpgrades()' in stage
       and '"breakShop" -> GameApi.breakShopTick() != 0' in stage)

@@ -1,5 +1,10 @@
 import pathlib
+import tempfile
 import unittest
+
+import yaml
+
+from scripts.agp.r109_verify_r8_output import synthetic_platform_stubs
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -12,6 +17,10 @@ class AgpR8ExperimentTests(unittest.TestCase):
     def setUpClass(cls):
         cls.gradle = GRADLE.read_text(encoding="utf-8")
         cls.rules = RULES.read_text(encoding="utf-8")
+        cls.workflow_text = (
+            ROOT / ".github" / "workflows" / "r8-experiment.yml"
+        ).read_text(encoding="utf-8")
+        cls.workflow = yaml.safe_load(cls.workflow_text)
 
     def test_r8_is_explicitly_opt_in_and_resource_shrinking_stays_off(self):
         self.assertIn('gradleProperty("oreki.r8")', self.gradle)
@@ -36,6 +45,51 @@ class AgpR8ExperimentTests(unittest.TestCase):
         self.assertIn("apkanalyzer_bin", workflow)
         self.assertIn("dex packages --defined-only", workflow)
         self.assertIn("class-method-stats.json", workflow)
+
+    def test_experiment_fails_closed_on_r8_abi_loss(self):
+        gates = [
+            (name, job, step)
+            for name, job in self.workflow["jobs"].items()
+            for step in job.get("steps") or []
+            if "scripts/agp/r109_verify_r8_output.py" in (step.get("run") or "")
+        ]
+        self.assertEqual(len(gates), 1)
+        name, job, step = gates[0]
+        self.assertEqual(name, "r8-experiment")
+        run = step["run"]
+        self.assertIn("--apk", run)
+        self.assertIn("--scope bridge", run)
+        self.assertIn("--mapping r8-evidence/optimized/mapping.txt", run)
+        self.assertIn("--json r8-evidence/optimized/r8-abi-verify.json", run)
+        self.assertNotIn("|| true", run)
+        self.assertNotIn("continue-on-error", step)
+        self.assertNotIn("if", step)
+        self.assertNotIn("continue-on-error", job)
+        self.assertNotIn("--scope full-game", self.workflow_text)
+        self.assertIn("当前工作流没有 full-game R8 执行者", self.workflow_text)
+
+    def test_experiment_triggers_when_abi_verifier_changes(self):
+        triggers = self.workflow.get(True, self.workflow.get("on", {}))
+        paths = triggers["pull_request"]["paths"]
+        self.assertIn("scripts/agp/r109_verify_r8_output.py", paths)
+
+    def test_mapping_stub_detection_requires_synthetic_evidence(self):
+        mapping = """\
+android.media.MediaDrmThrowable -> android.media.MediaDrmThrowable:
+# {"id":"com.android.tools.r8.synthesized"}
+    void <clinit>() -> <clinit>
+android.text.SegmentFinder -> android.text.SegmentFinder:
+    void <clinit>() -> <clinit>
+androidx.work.RealClass -> x:
+    void m() -> a
+"""
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "mapping.txt"
+            path.write_text(mapping, encoding="utf-8")
+            self.assertEqual(
+                synthetic_platform_stubs(path),
+                {"android.media.MediaDrmThrowable"},
+            )
 
 
 if __name__ == "__main__":

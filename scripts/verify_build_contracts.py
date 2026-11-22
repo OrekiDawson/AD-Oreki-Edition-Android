@@ -45,6 +45,10 @@ BREAK_SHOP_KT = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "Ore
 BREAK_SHOP_SMALI = (ROOT / "scripts" / "payload" / "smali" / "kajfosz"
                     / "antimatterdimensions" / "oreki" / "OrekiBreakShop.smali")
 STAGE_AUTO_KT = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.kt"
+STORE_POLICY_KT = KOTLIN_SRC / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiShopRules.kt"
+STORE_TRANSFORMER = ROOT / "scripts" / "agp" / "store_policy" / "StorePolicyTransformer.java"
+STORE_HARNESS = ROOT / "scripts" / "agp" / "apply_store_policy.py"
+AGP_BUILD = ROOT / "agp" / "app" / "build.gradle.kts"
 COMPATIBILITY = ROOT / "baseline" / "versions" / "3.21" / "compatibility.json"
 BUSINESS_CLASSES = ROOT / "scripts" / "kotlin_business_classes.txt"
 PAYLOAD_SMALI = ROOT / "scripts" / "payload" / "smali"
@@ -372,6 +376,61 @@ def check_au4b(stage_src: str | None = None) -> str:
         if banned in body:
             _fail("[AU4b] 不得触碰 " + banned)
     return "大坍缩策略守卫通过（X_HIGHEST/10，与 Web 一致，只改策略）"
+
+
+# ---------------------------------------------------------------- R121-01 商店/广告退役
+def check_store_policy(policy_src: str | None = None,
+                       transformer_src: str | None = None,
+                       harness_src: str | None = None,
+                       agp_src: str | None = None) -> str:
+    """商店/广告禁用的 Kotlin 判据、JAR 适配范围和 AGP 接线。"""
+    policy = policy_src if policy_src is not None else _read(STORE_POLICY_KT)
+    transformer = transformer_src if transformer_src is not None else _read(STORE_TRANSFORMER)
+    harness = harness_src if harness_src is not None else _read(STORE_HARNESS)
+    agp = agp_src if agp_src is not None else _read(AGP_BUILD)
+
+    for required in (
+        "fun clampStds(raw: Int): Int = raw",
+        "fun isStoreEnabled(): Boolean = false",
+        "fun isPurchaseEffectEnabled(): Boolean = false",
+        "fun effectPurchaseCount(): Int = 0",
+        "fun isAdBonusEffectEnabled(): Boolean = false",
+        'tabName == "shop" || tabName == "shopMainTab"',
+    ):
+        if required not in policy:
+            _fail("[R121-01] 商店策略缺失: " + required)
+    if "STD_READ_FLOOR" in policy or "10_000" in policy:
+        _fail("[R121-01] 不得保留 STD 10000 保底")
+
+    for required in (
+        '"getAllDimMultPurchases"',
+        '"getIpMultPurchases"',
+        '"getEpMultPurchases"',
+        '"getRmMultPurchases"',
+        '"getDtSpeedPurchases"',
+        '"getReplicantiSpeedPurchases"',
+        '"getGlyphPurchases"',
+        '"getPermanentAdBonusPurchased"',
+        '"getGoldenBottomButtonsPurchased"',
+        '"getSixHoursPurchases"',
+        '"getOneDayPurchases"',
+        '"getSingleCosmeticSetPurchases"',
+        '"getAllCosmeticSetPurchases"',
+        '"isStoreEnabled"',
+        '"isAdBonusEffectEnabled"',
+    ):
+        if required not in transformer:
+            _fail("[R121-01] JAR ABI 适配缺失: " + required)
+    for required in ("non_target_entries_byte_identical", "save fields changed", "ABI methods changed"):
+        if required not in harness:
+            _fail("[R121-01] JAR 字段/ABI 保真校验缺失: " + required)
+    if "implementation(files(applyStorePolicy.map { storePolicyGameJar }))" not in agp:
+        _fail("[R121-01] AGP 必须依赖策略后 JAR，而不是原始 game JAR")
+    if "dependsOn(applyStorePolicy)" not in agp:
+        _fail("[R121-01] preBuild 必须先执行 applyStorePolicy")
+    if '-> !OrekiStorePolicy.isRemovedStoreTab(tabName)' not in _read(STAGE_AUTO_KT):
+        _fail("[R121-01] 商店父页签/子页签门禁必须返回 false")
+    return "R121-01：STD 保底已删；商店/广告/购买动作 Kotlin fail-closed；JAR 字段与 ABI 保真"
 
 
 # ---------------------------------------------------------------- C4b：树级/扩展源码级校验
@@ -960,7 +1019,6 @@ PAYLOAD_MUST_EXIST = [
     "smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali",
     # [Oreki AA] L3 验收（成就位逐位重算，只读）的设备侧执行者
     "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali",
-    "smali/kajfosz/antimatterdimensions/OrekiInstantChallenge.smali",
     # [R59] 符文自动装备（只填空槽；装备走原版 Glyphs.L，已确证不含 Reality 回调）
     "smali/kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.smali",
     # [R62] 特蕾莎自动浇注（按原版 MainActivity.yo 开关，复用主循环 a->r()）
@@ -1748,22 +1806,24 @@ def _impl_payload():
     )
 
     # 反向守卫：AMOUNT 模式不得被强行改写（R74 根因）。
-    # 代码里必须**没有**对 setCrunchMode 的无条件调用（只能出现在 sCrunchTimeInit 分支内）。
-    # [R96] 自 R94 起有两处**一次性** mode 初始化：
-    #   ① Break 前（preBreakCrunchInitialized）：原版 auto.bigCrunch.amount=1 ⇒ IP 收益≈0，
-    #      必须切 TIME + 10 秒才能把反物质滚起来；
-    #   ② Break 后（crunchTimeModeInitialized）：早期 TIME/1s。
     # [R120-01] 受管 mode 已收敛到唯一入口 applyManagedCrunchMode()：
     # 只在新的调度 Tick 对账，同 Tick 重入不写；玩家修改下一次有效 Tick 恢复。
+    # 目标值必须来自 OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME，再由局部
+    # `target` 传入；继续接受字面量 MODE_TIME 会允许绕过托管权威，放宽审查。
     _set_mode_calls = re.findall(r"GameApi\.setCrunchMode\([^)]*\)", sa_txt)
     assert len(_set_mode_calls) == 1, (
         f"[R120-01] setCrunchMode 应只有调度托管唯一入口，实际 {len(_set_mode_calls)} 处")
-    for _call in _set_mode_calls:
-        assert "MODE_TIME" in _call, f"[R74] setCrunchMode 只允许切 TIME，实际：{_call}"
+    assert _set_mode_calls == ["GameApi.setCrunchMode(crunch, target)"], (
+        f"[R74] setCrunchMode 只允许从托管 target 切 TIME，实际：{_set_mode_calls}")
     _managed_mode_idx = sa_txt.index("private fun applyManagedCrunchMode()")
-    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_idx + 800]
+    _managed_mode_end = sa_txt.find("\n    private fun ", _managed_mode_idx + 1)
+    if _managed_mode_end < 0:
+        _managed_mode_end = len(sa_txt)
+    _managed_mode_block = sa_txt[_managed_mode_idx:_managed_mode_end]
     assert "isNewConfigTick" in _managed_mode_block, (
         "[R120-01] 受管 mode 只能在新的调度 Tick 对账")
+    assert "val target = OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME" in _managed_mode_block, (
+        "[R74] 受管 mode 必须从 OrekiManagedAutobuyerAuthority.CRUNCH_MODE_TIME 取值")
     assert "GameApi.setCrunchMode(crunch, target)" in _managed_mode_block, (
         "[R120-01] 受管 mode 的唯一写入必须位于 applyManagedCrunchMode()")
 
@@ -2017,6 +2077,7 @@ CHECKS = (
     ("gameapi_aliases", "source", check_gameapi_aliases),
     ("break_shop_kotlin", "source", check_break_shop_kotlin),
     ("au4b", "source", check_au4b),
+    ("store_policy", "source", check_store_policy),
     ("ec_chain", "source", check_ec_chain),
     ("challenge_polarity", "source", check_challenge_polarity),
     ("eternity_chain", "mod", check_eternity_chain),
@@ -2123,6 +2184,19 @@ def _selftest_source():
     expect_fail("challenge_polarity: 完成位极性反转",
                 lambda: _impl_challenge_polarity(
                     pol_src.replace("if-nez v3, :c_next", "if-eqz v3, :c_next", 1)))
+    policy_src = _read(STORE_POLICY_KT)
+    expect_fail("store_policy: 10000 STD 保底复活",
+                lambda: check_store_policy(
+                    policy_src=policy_src + "\nconst val STD_READ_FLOOR = 10_000\n"))
+    transformer_src = _read(STORE_TRANSFORMER)
+    expect_fail("store_policy: 广告出口缺失",
+                lambda: check_store_policy(transformer_src=transformer_src.replace(
+                    '"isAdBonusEffectEnabled"', '"missingAdPolicy"')))
+    expect_fail("store_policy: AGP 绕过策略 JAR",
+                lambda: check_store_policy(
+                    agp_src=_read(AGP_BUILD).replace(
+                        "implementation(files(applyStorePolicy.map { storePolicyGameJar }))",
+                        "implementation(files(jar))")))
     return failures
 
 
@@ -2131,7 +2205,7 @@ def selftest():
     if failures:
         print("FAIL: 自测未拦住的变异 " + str(failures))
         return 1
-    print("PASS: 变异自测 15 条全部被拦住（源码级契约）")
+    print("PASS: 变异自测 18 条全部被拦住（源码级契约）")
     return 0
 
 

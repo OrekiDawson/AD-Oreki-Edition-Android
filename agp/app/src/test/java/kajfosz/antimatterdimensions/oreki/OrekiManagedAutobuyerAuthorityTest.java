@@ -41,4 +41,14 @@ public class OrekiManagedAutobuyerAuthorityTest {
         assertFalse(OrekiManagedAutobuyerAuthority.doubleNeedsWrite(60.0, 60.0));
         assertFalse(OrekiManagedAutobuyerAuthority.doubleNeedsWrite(Double.NaN, 60.0));
     }
+
+    @Test
+    public void challengeNineYieldsBeforeAndAfterBreakOrWhenUnreadable() {
+        assertTrue(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(false, 9));
+        assertTrue(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, 9));
+        assertTrue(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, null));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(false, null));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, 8));
+        assertFalse(OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(true, 0));
+    }
 }

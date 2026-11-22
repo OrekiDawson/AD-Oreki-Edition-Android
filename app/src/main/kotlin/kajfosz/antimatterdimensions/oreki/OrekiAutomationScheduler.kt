@@ -72,6 +72,8 @@ object OrekiAutomationScheduler {
         // [R107-01 RU-AUTO] 现实升级（RU1~5 可重复 + RU6~25 一次性）自动购买。
         // 只追加在尾部，历史索引语义不变。
         "realityUpgrades",
+        // C9 专用维护：按维度提升阶段聚焦 D7/D8，并走原版入口请求真实提升。
+        "c9",
     )
 
     /** 连续型（原版自动购买器等价物）索引上限：0..3。R77 起不再豁免，仅保留诊断用。 */
@@ -103,7 +105,6 @@ object OrekiAutomationScheduler {
      */
     private val FORCE_RETRY_TASKS = setOf("breakUpgrades")
     private const val FORCE_RETRY_AFTER_NOOP_WAITS = 2
-
     /**
      * 阶段紧迫任务（R82）。
      *
@@ -149,6 +150,8 @@ object OrekiAutomationScheduler {
 
     /** [R117-01-02c P0-6] 同一任务连续被 noop 静默窗拒绝的次数（强制重试用）。 */
     private val noopWaitStreak = IntArray(IDS.size)
+    /** 强制重试自身的独立静默窗口，防止“清 no-op 窗口后立即再 no-op”的主循环空转。 */
+    private val forceRetryAt = LongArray(IDS.size)
     private val reserve = LongArray(IDS.size)
 
     /** 全系统唯一节拍：最近一次"真执行"时刻（elapsedRealtime 毫秒）。 */
@@ -235,6 +238,9 @@ object OrekiAutomationScheduler {
         // 它只请求每帧重绘，不推进游戏、不改存档，用于修复「画面约 1.3 fps」。
         OrekiUiFramePump.start()
         if (context == null || inited) return
+        // 完整游戏 JAR 仍可能带有旧 OrekiSpeed 初始化常量；在它读取偏好前先由
+        // Kotlin 写入新档默认值。已有合法倍率不会被覆盖，非法/缺失值安全回退。
+        OrekiGamePace.applyDefaultIfUnset(context)
         inited = true
         ctx = context
         try {
@@ -265,6 +271,10 @@ object OrekiAutomationScheduler {
      */
     private const val KEY_CRUNCH_PAUSED = "oreki.crunch.pausedByMod"
     private const val KEY_CRUNCH_PAUSED_SAVE_ID = "oreki.crunch.pausedByMod.saveId"
+    private const val KEY_C9_CRUNCH_ACTIVE = "oreki.c9.crunch.previousActive"
+    private const val KEY_C9_CRUNCH_OWNED = "oreki.c9.crunch.previousOwned"
+    private const val KEY_C9_CRUNCH_PAUSED = "oreki.c9.crunch.previousPolicyPaused"
+    private const val KEY_C9_CRUNCH_SAVE_ID = "oreki.c9.crunch.saveId"
 
     /**
      * 记录/清除「MOD 暂停了原版大坍缩自动器」标记（只写 oreki_prefs，不碰存档）。
@@ -328,6 +338,69 @@ object OrekiAutomationScheduler {
     @JvmStatic
     fun crunchPausedByModPersisted(): Boolean =
         crunchPausedByModPersistedOrNull() ?: false
+
+    /**
+     * 持久化进入 C9 前的 autoBig active / MOD 所有权 / 策略暂停三个意图。
+     *
+     * C9 自身会写 `KEY_CRUNCH_PAUSED`；若不单独保存进入前状态，进程重启后会把
+     * C9 的临时暂停误认成玩家进入前已关闭，关闭自动化时可能错误开启 autoBig。
+     */
+    @JvmStatic
+    fun saveC9CrunchCapture(active: Boolean, ownedByMod: Boolean, policyPaused: Boolean) {
+        val currentContext = ctx ?: return
+        val saveId = GameApi.saveIdentity() ?: return
+        try {
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putBoolean(KEY_C9_CRUNCH_ACTIVE, active)
+                .putBoolean(KEY_C9_CRUNCH_OWNED, ownedByMod)
+                .putBoolean(KEY_C9_CRUNCH_PAUSED, policyPaused)
+                .putString(KEY_C9_CRUNCH_SAVE_ID, saveId)
+                .commit()
+        } catch (_: Throwable) {
+            // 写盘失败时保留内存 capture；重启恢复能力降级但不改变当前运行语义。
+        }
+    }
+
+    /** 读取当前存档对应的 C9 进入前状态；无记录、跨档或读取失败返回 null。 */
+    @JvmStatic
+    fun loadC9CrunchCaptureOrNull(): BooleanArray? {
+        val currentContext = ctx ?: return null
+        val currentSaveId = GameApi.saveIdentity() ?: return null
+        return try {
+            val preferences = currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val storedSaveId = preferences.getString(KEY_C9_CRUNCH_SAVE_ID, null)
+            if (storedSaveId != currentSaveId) return null
+            if (!preferences.contains(KEY_C9_CRUNCH_ACTIVE) ||
+                !preferences.contains(KEY_C9_CRUNCH_OWNED) ||
+                !preferences.contains(KEY_C9_CRUNCH_PAUSED)
+            ) {
+                return null
+            }
+            booleanArrayOf(
+                preferences.getBoolean(KEY_C9_CRUNCH_ACTIVE, false),
+                preferences.getBoolean(KEY_C9_CRUNCH_OWNED, false),
+                preferences.getBoolean(KEY_C9_CRUNCH_PAUSED, false),
+            )
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    /** 清除 C9 进入前状态；必须在真实恢复或关闭自动化交还所有权后调用。 */
+    @JvmStatic
+    fun clearC9CrunchCapture() {
+        val currentContext = ctx ?: return
+        try {
+            currentContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .remove(KEY_C9_CRUNCH_ACTIVE)
+                .remove(KEY_C9_CRUNCH_OWNED)
+                .remove(KEY_C9_CRUNCH_PAUSED)
+                .remove(KEY_C9_CRUNCH_SAVE_ID)
+                .commit()
+        } catch (_: Throwable) {
+            // 清理失败不反向影响已完成的当前运行恢复。
+        }
+    }
 
     private fun persist() {
         val currentContext = ctx ?: return
@@ -554,12 +627,19 @@ object OrekiAutomationScheduler {
             // 连续 N 次被挡后清零静默窗、强制放行一次；其余任务保持原退避。
             noopWaitStreak[idx]++
             if (taskId != null && taskId in FORCE_RETRY_TASKS &&
-                noopWaitStreak[idx] >= FORCE_RETRY_AFTER_NOOP_WAITS
+                noopWaitStreak[idx] >= FORCE_RETRY_AFTER_NOOP_WAITS &&
+                forceRetryBudgetReady(now, forceRetryAt[idx])
             ) {
                 noopWaitStreak[idx] = 0
                 noopUntil[idx] = 0L
+                forceRetryAt[idx] = now
                 try {
-                    android.util.Log.i(TAG, "force-retry " + taskId + " after " + FORCE_RETRY_AFTER_NOOP_WAITS + " noop-waits")
+                    android.util.Log.i(
+                        TAG,
+                        "force-retry " + taskId +
+                            " after " + FORCE_RETRY_AFTER_NOOP_WAITS +
+                            " noop-waits; cooldown=" + NOOP_RETRY_MS + "ms",
+                    )
                 } catch (_: Throwable) {
                 }
             } else {
@@ -573,7 +653,7 @@ object OrekiAutomationScheduler {
         // 两道闸都严格使用玩家配置周期；阶段变化不改写调度 tick。
         val effectiveMs = effectiveIntervalSec() * 1000L
         val beat = lastBeatAt
-        if (beat != 0L && now - beat < effectiveMs) {
+        if (!isGlobalBeatReady(beat, now, effectiveMs)) {
             beatSkips++
             return deny("interval", taskId)
         }
@@ -592,6 +672,35 @@ object OrekiAutomationScheduler {
 
         return true
     }
+
+    /**
+     * [R121-01 P1] GUI Tick 可能比全局节拍早约 10～100ms。对于即将到期且确实是唯一关键
+     * 进度的 Break 任务，本帧应等待到完整周期，而不是提前放行动作或让其它任务先占拍。
+     *
+     * 这不是间隔豁免：返回 true 时调用方不得执行任何 MOD 动作；周期到达后的下一帧，
+     * Break 仍和其他任务一样通过严格 `allow()` 闸门。这样既维持 1～60 秒真实最小动作
+     * 间隔，也避免其它任务反复重置节拍导致 Break 长期饥饿。
+     */
+    @JvmStatic
+    fun shouldDeferForPriorityBeat(taskId: String?, marginMs: Long): Boolean {
+        if (taskId == null || taskId !in FORCE_RETRY_TASKS || marginMs <= 0L) return false
+        val remaining = priorityBeatRemainingMs(
+            lastBeatAt,
+            SystemClock.elapsedRealtime(),
+            effectiveIntervalSec() * 1000L,
+        )
+        return remaining > 0L && remaining <= marginMs
+    }
+
+    /** 纯节拍判据：首帧允许；之后必须完整经过玩家配置周期，不接受提前量。 */
+    @JvmStatic
+    fun isGlobalBeatReady(lastBeatAtMs: Long, nowMs: Long, intervalMs: Long): Boolean =
+        lastBeatAtMs == 0L || nowMs - lastBeatAtMs >= intervalMs
+
+    /** 距离完整节拍还剩多少毫秒；首帧或已到期返回 0，仅用于优先级等待。 */
+    @JvmStatic
+    fun priorityBeatRemainingMs(lastBeatAtMs: Long, nowMs: Long, intervalMs: Long): Long =
+        if (lastBeatAtMs == 0L) 0L else (intervalMs - (nowMs - lastBeatAtMs)).coerceAtLeast(0L)
 
     /**
      * 尝试为任务 idx 预约一次"正在进行中的动作"。
@@ -630,6 +739,15 @@ object OrekiAutomationScheduler {
         }
         return false
     }
+
+    /**
+     * 强制重试只允许每个 [NOOP_RETRY_MS] 窗口触发一次。
+     *
+     * 独立于 no-op 窗口：否则“强制清窗 → 立即再次 no-op → 两帧后再次强制清窗”
+     * 会形成主循环高频空转，既不遵守调度节拍，也会制造大量 logcat。
+     */
+    internal fun forceRetryBudgetReady(now: Long, lastForceAt: Long): Boolean =
+        lastForceAt <= 0L || now - lastForceAt >= NOOP_RETRY_MS
 
     // ------------------------------------------------------------------ 记账
 
@@ -726,6 +844,7 @@ object OrekiAutomationScheduler {
         failUntil.fill(0L)
         noopStreak.fill(0)
         noopWaitStreak.fill(0)
+        forceRetryAt.fill(0L)
         noopUntil.fill(0L)
         reserve.fill(0L)
         frameActed = false
@@ -796,6 +915,7 @@ object OrekiAutomationScheduler {
         served.fill(0)
         noopStreak.fill(0)
         noopWaitStreak.fill(0)
+        forceRetryAt.fill(0L)
         noopUntil.fill(0L)
         reserve.fill(0L)
         lastBeatAt = 0L

@@ -1,9 +1,13 @@
 package kajfosz.antimatterdimensions.oreki
 
+import android.app.Activity
+import android.app.Dialog
 import android.os.Handler
 import android.util.Log
+import android.widget.Button
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 游戏内部类型的**缓存式反射访问层**。
@@ -413,6 +417,45 @@ internal object GameApi {
     /** 供 UI 帧泵使用：当前前台 Activity（尚未就绪时返回 null）。只读，不改任何游戏状态。 */
     @JvmStatic
     fun currentActivityForUiPump(): Any? = mainActivityRef()
+
+    /**
+     * C11 原版物质湮灭提示只提供“确定”和“放弃挑战”两个选择。
+     * 自动推进必须选择正向确认，绝不能替玩家退出挑战。
+     *
+     * 通过原版公开资源 ID `exitChallengeButton=0x7f0a05d3` 识别该专用布局，
+     * 再点击 Dialog 的标准 positive button。整个操作只投递到 UI 线程。
+     */
+    private val matterAnnihilationDialogPostPending = AtomicBoolean(false)
+
+    @JvmStatic
+    fun dismissMatterAnnihilationDialogIfPresent() {
+        val activity = currentActivityForUiPump() as? Activity ?: return
+        if (!matterAnnihilationDialogPostPending.compareAndSet(false, true)) return
+        activity.runOnUiThread {
+            try {
+                val delegate = activity.javaClass.getField("c0").get(activity)
+                val host = delegate.javaClass.getField("b").get(delegate)
+                val manager = host.javaClass.getField("r0").get(host)
+                val store = manager.javaClass.getField("c").get(manager)
+                val fragments = store.javaClass.getMethod("z").invoke(store)
+                    as? Iterable<*> ?: return@runOnUiThread
+                for (fragment in fragments) {
+                    val dialog = try {
+                        fragment?.javaClass?.getField("O0")?.get(fragment) as? Dialog
+                    } catch (_: Throwable) {
+                        null
+                    } ?: continue
+                    if (dialog.findViewById<android.view.View>(0x7f0a05d3) == null) continue
+                    val positive = dialog.findViewById<Button>(android.R.id.button1) ?: continue
+                    if (positive.isEnabled) positive.performClick()
+                }
+            } catch (_: Throwable) {
+                // 原版 UI 读取失败时保持游戏运行；下一调度 tick 再重试。
+            } finally {
+                matterAnnihilationDialogPostPending.set(false)
+            }
+        }
+    }
 
     // 3.21 MainActivity 保存的当前 Activity 弱引用；由 MainActivity 自身在 onCreate 时写入。
     // 这是已核对的原版字段，不通过遍历 View 或猜测当前窗口，避免后台 tick 直接碰 UI。
@@ -2044,6 +2087,32 @@ internal object GameApi {
         call(mDimN(), dim, true)
     }
 
+    private var mDimensionAmountY: Method? = null
+    private var mDimensionAmountYResolved: Boolean = false
+    private fun mDimensionAmountY(): Method? {
+        if (!mDimensionAmountYResolved) {
+            mDimensionAmountYResolved = true
+            mDimensionAmountY = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "y", 0, "AntimatterDimensionState.y()=amount",
+            )
+        }
+        return mDimensionAmountY
+    }
+
+    /** 原版维度当前数量 `AntimatterDimensionState.y()`；读不到返回 null。 */
+    fun dimensionAmount(state: Any?): Any? = call(mDimensionAmountY(), state)
+
+    /**
+     * 原版维度真实购买次数（存档字段 `bought`）。
+     *
+     * C9 维度重置后不能使用 `BigDouble(0).compareTo(0.0)` 判断基础链：
+     * Android 原版零值在该比较中可能返回正数，导致全部维度买次数仍为 0 时
+     * 被误判为已恢复。购买次数是直接的长期计数，读不到返回 null。
+     */
+    fun dimensionBoughtCount(state: Any?): Long? =
+        (readGameField(state, "bought") as? Number)?.toLong()
+
     // ---------------------------------------------------------------- 无限维度
 
     private var mIdHolderA: Method? = null
@@ -2203,6 +2272,88 @@ internal object GameApi {
             if (current != 0) return true
         }
         return false
+    }
+
+    /**
+     * 当前普通挑战 ID。`null` 表示读取失败，调用方必须 fail-closed。
+     *
+     * 该读取只用于高成本自动化让路判定，不修改挑战状态，也不替代原版结算。
+     */
+    fun normalChallengeCurrent(): Int? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val normal = readGameField(challenges, "normal") ?: return null
+        return readGameField(normal, "current") as? Int
+    }
+
+    /** 当前无限挑战 ID。`null` 表示读取失败，调用方必须 fail-closed。 */
+    fun infinityChallengeCurrent(): Int? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val infinity = readGameField(challenges, "infinity") ?: return null
+        return readGameField(infinity, "current") as? Int
+    }
+
+    /** 普通挑战指定关卡是否已完成。读取失败返回 null。 */
+    fun normalChallengeCompleted(id: Int): Boolean? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val normal = readGameField(challenges, "normal") ?: return null
+        val bits = readGameField(normal, "completedBits") ?: return null
+        return bitSetHas(bits, id)
+    }
+
+    private var normalChallengeRegistryClassCache: Class<*>? = null
+    private var normalChallengeRegistryClsResolved: Boolean = false
+    private fun normalChallengeRegistryCls(): Class<*>? {
+        if (!normalChallengeRegistryClsResolved) {
+            normalChallengeRegistryClsResolved = true
+            normalChallengeRegistryClassCache = cls(obf("n63"))
+        }
+        return normalChallengeRegistryClassCache
+    }
+
+    private var normalChallengeGetMethod: Method? = null
+    private var normalChallengeGetResolved: Boolean = false
+    private fun normalChallengeGet(): Method? {
+        if (!normalChallengeGetResolved) {
+            normalChallengeGetResolved = true
+            normalChallengeGetMethod = method(
+                normalChallengeRegistryCls(),
+                "a",
+                1,
+                "n63.a(I)=normalChallenge",
+            )
+        }
+        return normalChallengeGetMethod
+    }
+
+    private var normalChallengeGoalReachedMethod: Method? = null
+    private var normalChallengeGoalReachedResolved: Boolean = false
+    private fun normalChallengeGoalReached(): Method? {
+        if (!normalChallengeGoalReachedResolved) {
+            val challenge = call(normalChallengeGet(), null, 1) ?: return null
+            normalChallengeGoalReachedResolved = true
+            normalChallengeGoalReachedMethod = method(
+                challenge.javaClass,
+                "v",
+                0,
+                "NormalChallengeState.v()=goalReached",
+            )
+        }
+        return normalChallengeGoalReachedMethod
+    }
+
+    /**
+     * 当前普通挑战是否已满足原版目标。
+     *
+     * `v()` 是原版挑战实例自己的完成判据；`canBigCrunch()` 只表示可以执行结算，
+     * 两者必须同时成立才允许 MOD 主动请求原版大坍缩。读取失败返回 null。
+     */
+    fun normalChallengeGoalReached(id: Int): Boolean? {
+        if (id !in 1..12) return null
+        val challenge = call(normalChallengeGet(), null, id) ?: return null
+        return call(normalChallengeGoalReached(), challenge) as? Boolean
     }
 
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
@@ -3005,6 +3156,25 @@ internal object GameApi {
     /** Break 升级位图基数（0 = 还没买过任何 Break 升级）。 */
     fun bitSetCardinality(bits: Any?): Int = (call(mBitSetA(), bits) as? Int) ?: 0
 
+    private var mBitSetE: Method? = null
+    private var mBitSetEResolved: Boolean = false
+    private fun mBitSetE(): Method? {
+        if (!mBitSetEResolved) {
+            mBitSetEResolved = true
+            mBitSetE = method(
+                bitSetCls(),
+                "e",
+                1,
+                "BitSet.e(I)=has",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mBitSetE
+    }
+
+    fun bitSetHas(bits: Any?, id: Int): Boolean? =
+        call(mBitSetE(), bits, id) as? Boolean
+
     private var mPelleQ: Method? = null
     private var mPelleQResolved: Boolean = false
     private fun mPelleQ(): Method? {
@@ -3276,7 +3446,12 @@ internal object GameApi {
             OrekiAutoEternityGate.logBlocked(reason)
             return false
         }
+        val activeBefore = autoEternityIsActive()
         call(mEternityTick(), null)
+        OrekiAutoEternityAdoption.noteModEternityCallOutcome(
+            activeBefore,
+            autoEternityIsActive(),
+        )
         return true
     }
     // ------------------------------------------------- [R107-01] 永恒层经济动作独立入口
@@ -3349,10 +3524,10 @@ internal object GameApi {
         return mTtBuyMax
     }
 
-    // ------------------------------------------------------------ [R96 第十四轮] TT 购买收益 ×500
+    // ------------------------------------------------------------ TT 购买收益恢复原版 ×1
     //
-    // 用户 2026-11-09 正式裁决：AM / IP / EP 三源每次**真实** TT 购买收益由 1 TT 改为 500 TT，
-    // 且必须保留原版成本曲线、购买资格、资源扣费与真实购买结算（不得凭空发 TT）。
+    // 撤销旧 MOD 的 ×500 增强：AM / IP / EP 三源每次**真实** TT 购买
+    // 只获得原版 1 TT，保留原版成本曲线、购买资格、资源扣费与真实购买结算。
     //
     // 实现要点（全部在 Kotlin，Smali 一行未改）：
     //   · 只包住原版唯一入口 `TimeTheorems.buyMax(auto)`；它内部已按原版公式向三源扣费，
@@ -3363,7 +3538,6 @@ internal object GameApi {
     //     膨胀门槛 12900 随之推进。
     //   · 不写存档字段、不伪造购买次数（`amBought/ipBought/epBought` 仍由原版自增）。
     private const val TAG_TT_REWARD = "OREKI_TT_REWARD"
-    private const val TIME_THEOREM_REWARD_MULTIPLIER: Long = 500L
 
     private var mTimeTheoremsCurrency: Any? = null
     private var mTimeTheoremsCurrencyResolved: Boolean = false
@@ -3406,18 +3580,16 @@ internal object GameApi {
     }
 
     /**
-     * 原版 `TimeTheorems.buyMax(auto)`，并把 MOD 平衡参数「TT 购买收益 ×500」应用上去。
+     * 原版 `TimeTheorems.buyMax(auto)`，按原版 ×1 收益返回真实购买数量。
      *
-     * 返回本次获得的 TT 总量（= 原版真实购买次数 × 500）；没有买到时返回 0，
+     * 返回本次获得的 TT 总量（= 原版真实购买次数）；没有买到时返回 0，
      * 因此「余额不足 / 恰好不足一次」等边界都不会发奖。
      */
     @JvmStatic
     fun timeTheoremBuyMax(auto: Boolean): Long {
         val bought = (call(mTtBuyMax(), null, auto) as? Long) ?: 0L
         if (bought <= 0L) return 0L
-        // 发奖统一由 settleTimeTheoremReward() 的「累计购买次数对账」处理，
-        // 这里只回报本次收益供调用方展示，避免同一笔购买被两条路径各发一次。
-        return bought * TIME_THEOREM_REWARD_MULTIPLIER
+        return OrekiTimeTheoremRewardPolicy.rewardForPurchasedTheorems(bought)
     }
 
     /** 上一次对账时看到的「三源购买次数之和」；-1 表示尚未初始化。 */
@@ -3477,12 +3649,12 @@ internal object GameApi {
     }
 
     /**
-     * [R96 第十四轮] TT 购买收益 ×500 的唯一发奖点（每帧调用，幂等）。
+     * 旧 TT 额外补发对账入口。恢复 ×1 后，本函数只维护基线，不补发资源。
      *
      * 为什么用「对账」而不是只包 `buyMax`：
      *   · 手动点击 TT 按钮走的是 `TimeTheoremPurchaseType.purchase()`，**不经过** `buyMax`；
      *   · 原版自动购买、MOD 自动购买、单次/批量购买入口也各不相同。
-     *   只包 `buyMax` 会漏掉手动购买 ⇒ 玩家按一下只得 1 TT，与 ×500 承诺不符。
+     *   只包 `buyMax` 会漏掉手动购买 ⇒ 旧补发逻辑无法覆盖全部真实购买路径。
      *   这里改为读原版真实的「三源购买次数之和」增量：**任何路径**每成功买一次都会让它 +1，
      *   于是手动/自动/单次/批量天然全覆盖，且因为每次对账后立刻把基线推进到当前值，
      *   同一笔购买不可能被发两次。
@@ -3500,6 +3672,10 @@ internal object GameApi {
         if (total < 0L) return
         val last = timeTheoremPurchasesSettled
         if (last < 0L) {
+            timeTheoremPurchasesSettled = total
+            return
+        }
+        if (OrekiTimeTheoremRewardPolicy.MULTIPLIER <= 1L) {
             timeTheoremPurchasesSettled = total
             return
         }
@@ -3527,7 +3703,7 @@ internal object GameApi {
             return
         }
 
-        val extra = delta * (TIME_THEOREM_REWARD_MULTIPLIER - 1L)
+        val extra = OrekiTimeTheoremRewardPolicy.extraRewardForPurchasedTheorems(delta)
         val granted = grantExtraTimeTheorems(extra)
         if (!granted) {
             // [审查整改] 补发失败**不推进基线**：下一帧重试，避免这笔奖励被永久吞掉。
@@ -3558,8 +3734,8 @@ internal object GameApi {
             Log.i(
                 TAG_TT_REWARD,
                 "tt-reward delta=" + delta + " extra=" + extra + " granted=" + granted +
-                    " total=" + (delta * TIME_THEOREM_REWARD_MULTIPLIER) +
-                    " multiplier=" + TIME_THEOREM_REWARD_MULTIPLIER + " cumulative=" + total +
+                    " total=" + OrekiTimeTheoremRewardPolicy.rewardForPurchasedTheorems(delta) +
+                    " multiplier=" + OrekiTimeTheoremRewardPolicy.MULTIPLIER + " cumulative=" + total +
                     " count=" + timeTheoremRewardCount,
             )
         }

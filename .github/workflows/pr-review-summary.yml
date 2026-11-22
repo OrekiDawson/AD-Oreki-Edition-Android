@@ -17,7 +17,8 @@ concurrency:
 jobs:
   review:
     name: 自动 PR 规模与风险提示
-    if: github.event.pull_request.base.ref == 'main'
+    # Draft 的 synchronize 不必反复生成同一类元数据评论；opened/edited/ready 仍检查。
+    if: github.event.pull_request.base.ref == 'main' && (github.event.action != 'synchronize' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:

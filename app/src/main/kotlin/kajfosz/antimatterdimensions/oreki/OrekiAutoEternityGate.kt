@@ -292,6 +292,10 @@ internal object OrekiAutoEternityGate {
     @JvmStatic
     fun challengeAutoStartAllowed(): Boolean {
         if (!OrekiAutomationScheduler.isEnabled()) return false
+        if (shouldDeferC9AutoStart()) {
+            logC9PreparationBlocked()
+            return false
+        }
         // [R115-01 P0] 首次永恒驻留期间禁止「自动进入 EC 顺带真实永恒」的旁路。
         if (firstEternityDwellRemainingMs() > 0L) return false
         if (autoEternitySwitchOn()) return true
@@ -312,6 +316,53 @@ internal object OrekiAutoEternityGate {
         val settlementNow = GameApi.canEternity()
         if (settlementNow) logChallengeBlocked()
         return !settlementNow
+    }
+
+    /**
+     * 新档尚未进入 C9 时，等待 D7/D8 原版 bulk 达到安全阈值后再自动进入。
+     * 只影响 MOD 自动启动，玩家手动点击挑战始终可用。
+     */
+    private fun shouldDeferC9AutoStart(): Boolean {
+        if (GameApi.inAnyChallenge()) return false
+        val currentChallenge = GameApi.normalChallengeCurrent() ?: return false
+        if (currentChallenge != 0) return false
+        val currentTick = OrekiAutomationScheduler.guiTickCount().toLong()
+        if (currentTick == c9StartGateCacheTick) return c9StartGateCacheValue
+        val dims = GameApi.dimensionAutobuyers() ?: return false
+        val d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf)
+        val d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf)
+        val shouldDefer = OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
+            normalChallengeCurrent = currentChallenge,
+            firstEightChallengesCompleted =
+                (1..8).all { GameApi.normalChallengeCompleted(it) == true },
+            c9Completed = GameApi.normalChallengeCompleted(9),
+            d7Bulk = d7Bulk,
+            d8Bulk = d8Bulk,
+            inAnyChallenge = false,
+        )
+        c9StartGateCacheTick = currentTick
+        c9StartGateCacheValue = shouldDefer
+        return shouldDefer
+    }
+
+    private var lastC9PreparationBlockedAtMs = 0L
+    private var c9StartGateCacheTick = Long.MIN_VALUE
+    private var c9StartGateCacheValue = false
+
+    private fun logC9PreparationBlocked() {
+        try {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastC9PreparationBlockedAtMs < 10_000L) return
+            lastC9PreparationBlockedAtMs = now
+            val dims = GameApi.dimensionAutobuyers() ?: return
+            Log.i(
+                TAG,
+                "challenge-auto deferred before C9: d7Bulk=" +
+                    dims.getOrNull(6)?.let(GameApi::bulkOf) +
+                    " d8Bulk=" + dims.getOrNull(7)?.let(GameApi::bulkOf),
+            )
+        } catch (_: Throwable) {
+        }
     }
 
     private var lastChallengeBlockedAtMs: Long = 0L
