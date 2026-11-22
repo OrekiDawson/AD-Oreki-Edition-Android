@@ -272,6 +272,7 @@ object OrekiStageAuto {
     private var c9PreparationCacheTick = Long.MIN_VALUE
     private var c9PreparationFirstEightCompleted = false
     private var c9PreparationCompleted = false
+    private var lastMatterAnnihilationDialogAtMs = 0L
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
     private var lastObservedBrokenState: Boolean = false
@@ -347,6 +348,35 @@ object OrekiStageAuto {
             }
 
             val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            val normalChallengeGoalReached =
+                normalChallengeCurrent?.let(GameApi::normalChallengeGoalReached)
+            if (OrekiManagedAutobuyerAuthority.shouldSettleNormalChallengeGoal(
+                    normalChallengeCurrent = normalChallengeCurrent,
+                    goalReached = normalChallengeGoalReached,
+                    canBigCrunch = GameApi.canBigCrunch(),
+                )
+            ) {
+                if (settleCrunch("normal-challenge-goal")) {
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "settled normal challenge " + normalChallengeCurrent +
+                            " through original bigCrunchReset",
+                    )
+                    return
+                }
+            }
+            val nowForMatterDialog = System.currentTimeMillis()
+            val matterDialogDue =
+                managedConfigTickId != 0L ||
+                    nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 50L
+            if (OrekiManagedAutobuyerAuthority.shouldDismissMatterAnnihilationDialog(
+                    normalChallengeCurrent = normalChallengeCurrent,
+                    isDue = matterDialogDue,
+                )
+            ) {
+                lastMatterAnnihilationDialogAtMs = nowForMatterDialog
+                GameApi.dismissMatterAnnihilationDialogIfPresent()
+            }
             val c9JustEnded =
                 c9YieldActive &&
                     normalChallengeCurrent != null &&
