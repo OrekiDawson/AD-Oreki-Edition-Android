@@ -1168,6 +1168,11 @@ val orekiRequiredStorePolicyAnchors = mapOf(
     "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class" to
         listOf("取值范围 0.000001 ~ 100000，建议"),
 )
+// 独立于待测锚点保存转换器语义样本；锚点若与真实转换结果漂移，自测正例必须失败。
+val orekiStorePolicyFixtureSpeedUiBefore =
+    "取值范围 0.000001 ~ 1000000000，建议 100 ~ 100000"
+val orekiStorePolicyFixtureSpeedUiAfter =
+    "取值范围 0.000001 ~ 100000，建议 100 ~ 100000"
 
 fun ByteArray.orekiContains(needle: ByteArray): Boolean {
     if (needle.isEmpty()) return true
@@ -1368,9 +1373,13 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
         }
 
         fun targetBytes(name: String): ByteArray =
-            orekiRequiredStorePolicyAnchors[name].orEmpty()
-                .joinToString("\u0000")
-                .toByteArray(Charsets.UTF_8)
+            if (name == "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class") {
+                orekiStorePolicyFixtureSpeedUiAfter.toByteArray(Charsets.UTF_8)
+            } else {
+                orekiRequiredStorePolicyAnchors[name].orEmpty()
+                    .joinToString("\u0000")
+                    .toByteArray(Charsets.UTF_8)
+            }
 
         fun createCase(
             caseName: String,
@@ -1382,7 +1391,12 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
             val inputEntries = linkedMapOf<String, ByteArray>()
             val outputEntries = linkedMapOf<String, ByteArray>()
             for (name in orekiStorePolicyTargetEntries) {
-                inputEntries[name] = "unchanged:$name".toByteArray()
+                inputEntries[name] =
+                    if (name == "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class") {
+                        orekiStorePolicyFixtureSpeedUiBefore.toByteArray(Charsets.UTF_8)
+                    } else {
+                        "unchanged:$name".toByteArray()
+                    }
                 outputEntries[name] = targetBytes(name)
             }
             inputEntries["$orekiRetiredInstantPrefix.class"] = "retired".toByteArray()
@@ -1448,7 +1462,7 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
         }
         val staleSpeedUi = createCase("negative-speed-ui-stale") { output ->
             output["kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class"] =
-                "取值范围 0.000001 ~ 1000000000，建议 100 ~ 100000".toByteArray(Charsets.UTF_8)
+                orekiStorePolicyFixtureSpeedUiBefore.toByteArray(Charsets.UTF_8)
         }
         val positivePass = positiveResult.outputSha256.isNotEmpty()
         val hashFailClosed = expectFailure("报告输出哈希不一致") {
