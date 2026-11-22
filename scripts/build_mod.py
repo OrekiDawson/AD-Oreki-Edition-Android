@@ -5084,10 +5084,136 @@ def patch_v_unlock_thresholds():
           w55 用 13..15，androidx/room 用 0），因此这三个分支是 V 独占，不存在串味。
 
     门槛值与 Web 完全一致（v.js OREKI_V_UNLOCK_*）：
-      realities 200 → BigDouble(200, 0, true)
+      realities 60 → BigDouble(60, 0, true)
       dilatedTime 1e30 → BigDouble(1, 30, true)
       replicanti 1e20000 → BigDouble(1, 20000, true)
     """
+    # ------------------------------------------------- 0) 3.21 真实结构：w35 + xd4
+    #
+    # 3.21 的 V.mainUnlock 已不在 u55，而是在 w35：
+    #   a=realities(fw.n1), b=eternities(fw.D2), c=infinities(fw.M2),
+    #   d=dilatedTime(fw.Y2), e=replicanti(fw.y4), f=realityMachines(fw.A2),
+    #   最后 filled-new-array {v0..v5} -> g:List。
+    # 进度分母在 xd4.invoke 的三条独立分支中：10000/320/320000。
+    w35 = smali_tree() / "w35.smali"
+    xd4 = smali_tree() / "xd4.smali"
+    if w35.exists() and xd4.exists():
+        wsrc = w35.read_text(encoding="utf-8")
+        xsrc = xd4.read_text(encoding="utf-8")
+        shape_ok = (
+            "static constructor <clinit>()V" in wsrc
+            and "Lu35;" in wsrc
+            and "Lw35;->g:Ljava/util/List;" in wsrc
+            and wsrc.count("new-instance v") >= 6
+            and "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;" in xsrc
+        )
+        if not shape_ok:
+            raise AssertionError(
+                "[Oreki V] 3.21 w35/xd4 结构漂移，拒绝静默跳过 V.mainUnlock 门槛对齐"
+            )
+
+        wmark = "# [Oreki V] unlock-thresholds v2-321"
+        if wmark not in wsrc:
+            i, j = _scan_method(wsrc, "static constructor <clinit>()V")
+            body = wsrc[i:j]
+            plans = [
+                (
+                    "    sget-object v3, Lfw;->n1:Lkajfosz/antimatterdimensions/BigDouble;",
+                    "    # [Oreki V] realities 10000 -> 60（不修改共享 fw.n1）\n"
+                    "    new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;\n"
+                    "    const/16 v9, 0x3c\n"
+                    "    const/4 v10, 0x0\n"
+                    "    const/4 v11, 0x1\n"
+                    "    invoke-direct {v3, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                    "realities",
+                ),
+                (
+                    "    sget-object v6, Lfw;->Y2:Lkajfosz/antimatterdimensions/BigDouble;",
+                    "    # [Oreki V] dilatedTime 1e320 -> 1e30（不修改共享 fw.Y2）\n"
+                    "    new-instance v6, Lkajfosz/antimatterdimensions/BigDouble;\n"
+                    "    const/4 v9, 0x1\n"
+                    "    const/16 v10, 0x1e\n"
+                    "    const/4 v11, 0x1\n"
+                    "    invoke-direct {v6, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                    "dilatedTime",
+                ),
+                (
+                    "    sget-object v7, Lfw;->y4:Lkajfosz/antimatterdimensions/BigDouble;",
+                    "    # [Oreki V] replicanti 1e320000 -> 1e20000（不修改共享 fw.y4）\n"
+                    "    new-instance v7, Lkajfosz/antimatterdimensions/BigDouble;\n"
+                    "    const/4 v8, 0x1\n"
+                    "    const v9, 0x4e20\n"
+                    "    const/4 v10, 0x1\n"
+                    "    invoke-direct {v7, v8, v9, v10}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                    "replicanti",
+                ),
+            ]
+            for old, new, label in plans:
+                n = body.count(old)
+                assert n == 1, f"w35 <clinit> 内 {label} 锚点出现 {n} 次，预期 1"
+                body = body.replace(old, new, 1)
+            out = wsrc[:i] + body + wsrc[j:]
+            out = out.replace(
+                ".method static constructor <clinit>()V",
+                ".method static constructor <clinit>()V\n    " + wmark,
+                1,
+            )
+            wsrc = out
+            write_smali(w35, wsrc, encoding="utf-8")
+        else:
+            note("[Oreki V] 3.21 w35 门槛常量已同步（幂等跳过）")
+
+        xmark = "# [Oreki V] progress-divisor v2-321"
+        if xmark not in xsrc:
+            i, j = _scan_method(
+                xsrc,
+                "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+            )
+            body = xsrc[i:j]
+            plans = [
+                ("0x40c3880000000000L", "0x404e000000000000L", "10000.0", "60.0", "realities"),
+                ("0x4074000000000000L", "0x403e000000000000L", "320.0", "30.0", "dilatedTime"),
+                ("0x4113880000000000L", "0x40d3880000000000L", "320000.0", "20000.0", "replicanti"),
+            ]
+            for old, new, old_comment, new_comment, label in plans:
+                n = body.count(old)
+                assert n == 1, f"xd4 invoke 内 {label} 分母 {old} 出现 {n} 次，预期 1"
+                body = body.replace(old, new, 1)
+                assert body.count("    # " + old_comment) == 1, (
+                    f"xd4 {label} 尾注释 {old_comment} 数量异常"
+                )
+                body = body.replace("    # " + old_comment, "    # " + new_comment, 1)
+            out = xsrc[:i] + body + xsrc[j:]
+            out = out.replace(
+                ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+                ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;\n    " + xmark,
+                1,
+            )
+            xsrc = out
+            write_smali(xd4, xsrc, encoding="utf-8")
+        else:
+            note("[Oreki V] 3.21 xd4 进度分母已同步（幂等跳过）")
+
+        checks = [
+            ("realities 门槛 60", "const/16 v9, 0x3c" in wsrc),
+            ("dilatedTime 门槛 1e30", "const/16 v10, 0x1e" in wsrc),
+            ("replicanti 门槛 1e20000", "const v9, 0x4e20" in wsrc),
+            ("realities 分母 60.0", "0x404e000000000000L" in xsrc),
+            ("dilatedTime 分母 30.0", "0x403e000000000000L" in xsrc),
+            ("replicanti 分母 20000.0", "0x40d3880000000000L" in xsrc),
+            ("旧分母已消失", all(
+                x not in xsrc
+                for x in ("0x40c3880000000000L", "0x4074000000000000L", "0x4113880000000000L")
+            )),
+        ]
+        for name, ok in checks:
+            assert ok, f"[Oreki V] 3.21 契约未达成：{name}"
+        note(
+            "[Oreki V] 3.21 V.mainUnlock：realities 10000->60 / "
+            "dilatedTime 1e320->1e30 / replicanti 1e320000->1e20000"
+        )
+        return
+
     # ---------------------------------------------------------------- 1) 门槛（显示）
     u55 = smali_tree() /  "u55.smali"
     #
