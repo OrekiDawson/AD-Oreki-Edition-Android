@@ -25,6 +25,7 @@
 - Android 的自动触发实证为 `pull_request_target` 事件 [Run 44767526027](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/actions/runs/44767526027)：PR #206，Head `1d0b951324220c4923f46315f72634c055c5e2da`；工作流在共享配额实现合入 `main` 后启用。Web 工作流在 Web 实现合入后启用并按同样方式独立取证。云端设置或工作流启停状态变化时须重新读取并更新本段。
 - Android/Web 两仓共用每个 UTC+8 自然日的 100 次全局计数池，不设仓库保留额度或单仓硬上限；80 次预警，100 次拒绝新增主动请求。仅按 GitHub 原始评论唯一 ID 统计有效 `@kody start-review` 指令，Webhook 重试不重复计数；回复、讨论、修复提交、Kody 回复和 Oreki-Audit 自有审查不计数。同一 PR 再次主动发送属于新请求。统计展示全局已用、全局剩余和两端实际用量。
 - 预占与扣减复用 Web 协调分支上的共享 CAS 状态，并发请求基于同一父版本提交，只有一个能成功且冲突方必须重读；支付/统计状态不换算成 Provider 模型调用硬上限。
+- 所有 Kody 官方 `completed / skipped` Check 按 Check Run ID 幂等退额：触发前跳过不占位，已预占或主动评论在官方确认 skip 后不计入 Android/Web 共享 100 次；`SKIPPED` 仍不是审查 PASS。
 - 用户已恢复 Kody 审查。Android/Web 由 GitHub Actions 负责必要触发，Kodus 云端保持 `automatedReviewActive=false`、`reviewCadence.type=auto_pause`，避免平台自动审查与触发器重复；Wiki 已启用原生自动审查并由 Agent 监督回执与失败兜底。审查只允许 Balanced，严禁 Heavy。
 - `codex-deepseek-review.yml` 保留为回滚资产，`OREKI_AUDIT_ENABLED=false`；未经用户明确恢复，不调用 DeepSeek 或发布自制 Review。
 
