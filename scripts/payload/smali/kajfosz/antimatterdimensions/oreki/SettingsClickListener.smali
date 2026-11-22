@@ -175,7 +175,7 @@
 
     invoke-static {v1}, Lkajfosz/antimatterdimensions/oreki/OrekiGamePace;->resetDefault(Landroid/content/Context;)V
 
-    const-string v1, "已恢复默认：游戏速度 ×3000"
+    const-string v1, "已恢复默认：游戏速度 ×500"
 
     invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->toast(Ljava/lang/String;)V
 
@@ -236,7 +236,7 @@
     return-void
 
     :invalid
-    const-string v1, "输入无效：请输入 0.000001 ~ 1000000000 之间的数字"
+    const-string v1, "输入无效：请输入 0.000001 ~ 100000 之间的数字"
 
     invoke-direct {p0, v1}, Lkajfosz/antimatterdimensions/oreki/SettingsClickListener;->toast(Ljava/lang/String;)V
 

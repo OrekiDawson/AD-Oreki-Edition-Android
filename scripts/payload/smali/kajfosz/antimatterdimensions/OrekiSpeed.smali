@@ -184,27 +184,11 @@
 
     sget-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
 
-    invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
-    move-result v4
+    # 单一边界由 Kotlin 业务类维护：旧偏好超限值收窄到 100000×，
+    # NaN / 非有限值回退默认值。这里只保留 Smali ABI 转发。
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy;->sanitize(D)D
 
-    if-nez v4, :reset
-
-    const-wide v2, 0x3eb0c6f7a0b5ed8dL    # 1.0E-6
-
-    cmpg-double v4, v0, v2
-
-    if-ltz v4, :reset
-
-    const-wide v2, 0x41cdcd6500000000L    # 1.0E9
-
-    cmpl-double v4, v0, v2
-
-    if-gtz v4, :reset
-
-    return-wide v0
-
-    :reset
-    sget-wide v0, Lkajfosz/antimatterdimensions/OrekiSpeed;->DEF:D
+    move-result-wide v0
 
     return-wide v0
 .end method
@@ -539,22 +523,11 @@
 .method public static set(D)Z
     .locals 6
 
-    invoke-static {p0, p1}, Ljava/lang/Double;->isNaN(D)Z
+    invoke-static {p0, p1}, Lkajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy;->isValidInput(D)Z
+
     move-result v0
 
-    if-nez v0, :bad
-
-    const-wide v2, 0x3eb0c6f7a0b5ed8dL    # 1.0E-6
-
-    cmpl-double v0, p0, v2
-
-    if-lez v0, :bad
-
-    const-wide v2, 0x41cdcd6500000000L    # 1.0E9
-
-    cmpl-double v0, p0, v2
-
-    if-gtz v0, :bad
+    if-eqz v0, :bad
 
     sput-wide p0, Lkajfosz/antimatterdimensions/OrekiSpeed;->sMult:D
 

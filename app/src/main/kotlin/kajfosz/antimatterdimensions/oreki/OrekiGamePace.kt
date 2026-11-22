@@ -9,15 +9,16 @@ import android.util.Log
  * 默认倍率只决定新安装的全局时间压缩程度，不修改游戏门槛、公式、调度节拍或用户已经
  * 保存的倍率。业务判定和写入集中在 Kotlin；Smali 仅保留一个初始化转发入口。
  *
- * 即时挑战退役后，1000× 在真实 C9 中购买计数长期停滞：前 8 个普通挑战
- * 约 16 分钟完成，C9 继续运行 27 分钟后仍只有 72 次计数购买、无 Break。早期阶段恢复
- * 3000×，只缩短合法购买的等待壁钟；Break 后仍降为 1800×，Reality 后恢复 3000×。
+ * Web 真实新档在旧的 1000×/1800× 阶段速度下，约 42 分钟即进入 Reality，
+ * 压缩了目标 30～75 分钟的永恒、时间研究与 EC 内容。Android 与 Web 统一为：
+ * Break 前 500×、Break 后 900×、Reality 后 3000×。C9 不再使用 1800000×
+ * 特例；C9 的可解性必须由真实购买策略解决，而不是用异常速度掩盖阶段缺陷。
  */
 object OrekiGamePace {
-    const val DEFAULT_SPEED: Double = 3000.0
-    const val POST_BREAK_SPEED: Double = 1800.0
-    const val C9_SPEED: Double = 1800000.0
+    const val DEFAULT_SPEED: Double = 500.0
+    const val POST_BREAK_SPEED: Double = 900.0
     const val POST_REALITY_SPEED: Double = 3000.0
+    const val MAX_SPEED: Double = 100000.0
     private const val PREFS = "oreki_prefs"
     private const val SPEED_KEY = "speed_multiplier"
     private const val KEY_PACING_MANAGED = "speed_pacing_managed"
@@ -42,9 +43,10 @@ object OrekiGamePace {
         setManagedSpeed(defaultSpeed())
     }
 
-    /** 仅接受有限正倍率；缺失、错误类型及非正值都由启动路径安全回退。 */
+    /** 仅接受当前公开范围；历史超限、缺失、错误类型及非正值都由启动路径安全回退。 */
     @JvmStatic
-    fun isValidStoredSpeed(value: Float): Boolean = value.isFinite() && value > 0f
+    fun isValidStoredSpeed(value: Float): Boolean =
+        value.isFinite() && value > 0f && value <= MAX_SPEED.toFloat()
 
     @JvmStatic
     fun resetDefault(context: Context?) {
@@ -82,7 +84,6 @@ object OrekiGamePace {
         normalChallengeCurrent: Int? = null,
     ): Double? = when {
         hasReality == null || hasInfinity == null || broken == null -> null
-        normalChallengeCurrent == 9 -> C9_SPEED
         hasReality -> POST_REALITY_SPEED
         !hasInfinity || !broken -> DEFAULT_SPEED
         else -> POST_BREAK_SPEED

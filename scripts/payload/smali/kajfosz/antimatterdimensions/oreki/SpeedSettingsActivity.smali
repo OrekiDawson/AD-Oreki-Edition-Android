@@ -287,7 +287,7 @@
     invoke-direct {p0, v0, v6, v2, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAction(Landroid/widget/LinearLayout;Landroid/widget/EditText;ILjava/lang/String;)V
 
     const/4 v2, 0x2
-    const-string v3, "恢复默认（×3000）"
+    const-string v3, "恢复默认（×500）"
 
     invoke-direct {p0, v0, v6, v2, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addAction(Landroid/widget/LinearLayout;Landroid/widget/EditText;ILjava/lang/String;)V
 
@@ -359,7 +359,7 @@
     const-string v3, "倍率说明：加速作用于每个 tick 的游戏时间差，所以维度生产、时间机制、自动购买器都按倍率推进。现实时间字段（thisInfinity.realTime / realTimePlayed / previousRunRealTime）走独立累加，不受加速影响。需要注意：本次无限用时、本次永恒/现实用时、累计游戏时长、最佳无限/永恒时间这类「游戏时间」字段会被倍率放大；以它们为判据的 6 处成就/挑战判定和 4 处最佳记录尚未还原，属已知项，待确认后单独处理。"
     invoke-direct {p0, v0, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
-    const-string v3, "取值范围 0.000001 ~ 1000000000，建议 100 ~ 100000；倍率过高时手机可能掉帧。修改后立即生效，无需重启。"
+    const-string v3, "取值范围 0.000001 ~ 100000，建议 100 ~ 100000；倍率过高时手机可能掉帧。修改后立即生效，无需重启。"
     invoke-direct {p0, v0, v3}, Lkajfosz/antimatterdimensions/oreki/SpeedSettingsActivity;->addNote(Landroid/widget/LinearLayout;Ljava/lang/String;)V
 
     invoke-virtual {p0, v8}, Landroid/app/Activity;->setContentView(Landroid/view/View;)V
