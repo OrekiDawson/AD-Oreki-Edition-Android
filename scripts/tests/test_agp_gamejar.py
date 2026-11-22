@@ -240,6 +240,7 @@ class BuildContractTests(unittest.TestCase):
             "report": self.tmp / "report.json",
             "work_dir": self.tmp / "work",
             "dexdump": Path("/nonexistent/dexdump"),
+            "keep_kotlin": False,
         }
         values.update(overrides)
         return argparse.Namespace(**values)
@@ -255,6 +256,7 @@ class BuildContractTests(unittest.TestCase):
                 self.assertNotIn(DASH_OLD.encode(), blob)
                 self.assertIn(DASH_NEW.encode(), blob)
         self.assertEqual(report["excluded"], {"kotlin": 1})
+        self.assertEqual(report["options"], {"keep_kotlin": False})
         repairs = report["dash_name_repairs"]
         self.assertEqual(repairs[DASH_OLD], DASH_NEW)
         self.assertEqual(repairs["changed_class_files"], 2)
@@ -268,6 +270,21 @@ class BuildContractTests(unittest.TestCase):
                 "accounted": True,
             },
         )
+
+    def test_build_keep_kotlin_preserves_game_stdlib_classes(self) -> None:
+        report = GAMEJAR.build(self.args(keep_kotlin=True))
+        with zipfile.ZipFile(self.tmp / "out" / "game.jar") as archive:
+            self.assertIn("kotlin/Unit.class", archive.namelist())
+        self.assertEqual(report["excluded"], {})
+        self.assertEqual(report["options"], {"keep_kotlin": True})
+        self.assertEqual(report["output"]["class_files"], 4)
+
+    def test_build_tolerates_namespace_without_keep_kotlin(self) -> None:
+        args = self.args()
+        delattr(args, "keep_kotlin")
+        report = GAMEJAR.build(args)
+        self.assertEqual(report["options"], {"keep_kotlin": False})
+        self.assertEqual(report["excluded"], {"kotlin": 1})
 
     def test_duplicate_class_names_collapse(self) -> None:
         report = GAMEJAR.build(self.args())
