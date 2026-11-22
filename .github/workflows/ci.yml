@@ -21,6 +21,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      # 快速识别 AGP Candidate 契约漂移：纯 Python，不等待 JDK、Gradle 与其他长串测试。
+      - name: Fast-fail AGP candidate wiring contract
+        run: python3 -m unittest scripts.tests.test_agp_candidate_wiring -v
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
@@ -55,6 +58,10 @@ jobs:
           python3 scripts/verify_build_contracts.py --selftest
       - name: Test build-contract verifier migration guard
         run: python3 -m unittest discover -s scripts/tests -p 'test_verify_build_contracts.py' -v
+      # R122（Issue #52/#61）：AGP 完整游戏必须从官方 3.21 base + mdpi split 生成输入，
+      # 不得重新依赖 work/mod、modtree 或旧的 Python 阶段目录生产者。
+      - name: Test AGP native full-game input guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_agp_native_fullgame_inputs.py' -v
       - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Validate cross-repo review, shared quota and Publisher
@@ -180,8 +187,6 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_agp_only_policy.py' -v
       - name: Test AGP candidate provenance producer
         run: python3 -m unittest scripts.tests.test_agp_provenance -v
-      - name: Test AGP candidate wiring (candidate-unified -> AGP)
-        run: python3 -m unittest scripts.tests.test_agp_candidate_wiring -v
       - name: Test patch-contract alignment (4 处过时契约)
         run: python3 -m unittest scripts.tests.test_patch_contract_align -v
       - name: Run migrated immutable release gate regressions

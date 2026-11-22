@@ -21,6 +21,8 @@ public class OrekiGamePaceTest {
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, false), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, false, false), 0.0);
         assertEquals(1800.0, OrekiGamePace.stageTargetSpeed(true, true, false), 0.0);
+        assertEquals(1800000.0, OrekiGamePace.stageTargetSpeed(true, true, false, 9), 0.0);
+        assertEquals(1800000.0, OrekiGamePace.stageTargetSpeed(true, false, false, 9), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, true, true), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, true), 0.0);
         assertEquals(null, OrekiGamePace.stageTargetSpeed(null, true, false));

@@ -263,6 +263,16 @@ object OrekiStageAuto {
     private val TAG_BREAK_GUARD = "OREKI_BREAK"
     private val TAG_C9_YIELD = "OREKI_C9_YIELD"
     private var c9YieldActive = false
+    private var lastC9YieldStrategy: String? = null
+    private var c9CrunchHoldCaptured = false
+    private var c9PreviousModOwnedCrunch = false
+    private var c9PreviousPolicyPausedCrunch = false
+    private var c9PreviouslyActiveAutoBig = false
+    private var c9CrunchCaptureSaveId: String? = null
+    private var c9PreparationCacheTick = Long.MIN_VALUE
+    private var c9PreparationFirstEightCompleted = false
+    private var c9PreparationCompleted = false
+    private var lastMatterAnnihilationDialogAtMs = 0L
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
     private var lastObservedBrokenState: Boolean = false
@@ -330,7 +340,64 @@ object OrekiStageAuto {
                 // 同步异常不得静默：GameApi 内部已记录 GUI_TICK_SYNC_FAILED 并登记待同步。
             }
 
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                releaseC9CrunchOnAutomationDisabled()
+                c9YieldActive = false
+                lastC9YieldStrategy = null
+                return
+            }
+
             val normalChallengeCurrent = GameApi.normalChallengeCurrent()
+            val normalChallengeGoalReached =
+                normalChallengeCurrent?.let(GameApi::normalChallengeGoalReached)
+            if (OrekiManagedAutobuyerAuthority.shouldSettleNormalChallengeGoal(
+                    normalChallengeCurrent = normalChallengeCurrent,
+                    goalReached = normalChallengeGoalReached,
+                    canBigCrunch = GameApi.canBigCrunch(),
+                )
+            ) {
+                if (settleCrunch("normal-challenge-goal")) {
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "settled normal challenge " + normalChallengeCurrent +
+                            " through original bigCrunchReset",
+                    )
+                    return
+                }
+            }
+            val nowForMatterDialog = System.currentTimeMillis()
+            val matterDialogDue =
+                managedConfigTickId != 0L ||
+                    nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 50L
+            if (OrekiManagedAutobuyerAuthority.shouldDismissMatterAnnihilationDialog(
+                    normalChallengeCurrent = normalChallengeCurrent,
+                    isDue = matterDialogDue,
+                )
+            ) {
+                lastMatterAnnihilationDialogAtMs = nowForMatterDialog
+                GameApi.dismissMatterAnnihilationDialogIfPresent()
+            }
+            val c9JustEnded =
+                c9YieldActive &&
+                    normalChallengeCurrent != null &&
+                    normalChallengeCurrent != 9
+            val inspectCrunchCapture =
+                normalChallengeCurrent == 9 || managedConfigTickId != 0L || c9JustEnded
+            val captureMatchesCurrentSave =
+                if (inspectCrunchCapture) {
+                    syncC9CrunchCaptureForCurrentSave()
+                } else {
+                    false
+                }
+            if (OrekiManagedAutobuyerAuthority.shouldRestoreC9CrunchCapture(
+                    captured = c9CrunchHoldCaptured,
+                    captureBelongsToSave = captureMatchesCurrentSave,
+                    normalChallengeCurrent = normalChallengeCurrent,
+                )
+            ) {
+                // 挑战正常结束时如果一次读值失败，不能永久留下 autoBig 暂停所有权。
+                restoreCrunchOwnershipAfterC9()
+            }
             if (OrekiManagedAutobuyerAuthority.shouldYieldToOriginalForC9OrUnreadableChallenge(
                     GameApi.isBroken(),
                     normalChallengeCurrent,
@@ -338,21 +405,64 @@ object OrekiStageAuto {
             ) {
                 // 只暂停会造成分配风暴的 StageAuto 购买策略；新调度 tick 仍须
                 // 恢复受管自动购买器配置，随后由原版路径自行推进真实 C9。
-                releaseCrunchOwnershipForC9Yield()
-                applyManagedAutobuyerStates(null)
-                if (!c9YieldActive) {
-                    c9YieldActive = true
+                val isC9 =
+                    OrekiManagedAutobuyerAuthority.useC9ManagedStrategy(normalChallengeCurrent)
+                if (isC9) {
+                    holdCrunchOwnershipForC9()
+                } else if (normalChallengeCurrent != null) {
+                    restoreCrunchOwnershipAfterC9()
+                }
+                val dims = GameApi.dimensionAutobuyers()
+                val dimensionBoosts = GameApi.dimensionBoosts()?.toInt()
+                val restrictedC9 =
+                    isC9 &&
+                        OrekiManagedAutobuyerAuthority.c9NeedsRestrictedStrategy(
+                            dimensionBoosts,
+                        )
+                if (restrictedC9) {
+                    applyC9ManagedAutobuyerStates()
+                    OrekiManagedAutobuyerAuthority.c9MaintenanceTask(normalChallengeCurrent)
+                        ?.let { task ->
+                            runScheduled(task) { maintainC9DimensionChain() }
+                        }
+                } else {
+                    // C9 第四→第五提升后仍由 C9 专用配置维持星系关闭；
+                    // 挑战 ID 暂不可读时才回到通用配置。
+                    if (isC9) {
+                        applyC9ManagedAutobuyerStates()
+                        OrekiManagedAutobuyerAuthority.c9MaintenanceTask(normalChallengeCurrent)
+                            ?.let { task ->
+                                runScheduled(task) { maintainC9DimensionChain() }
+                            }
+                    } else {
+                        applyManagedAutobuyerStates(null)
+                    }
+                }
+                val strategy =
+                    when {
+                        restrictedC9 -> "restricted-before-fifth-boost"
+                        isC9 -> "full-chain-galaxy-off"
+                        else -> "unreadable-general"
+                    }
+                if (!c9YieldActive || lastC9YieldStrategy != strategy) {
                     Log.i(
                         TAG_C9_YIELD,
                         "pause-stage-auto normalChallenge=" +
-                            (normalChallengeCurrent ?: "unreadable") + " broken=true; " +
-                            "managed config retained; original autobuyers continue",
+                            (normalChallengeCurrent ?: "unreadable") +
+                            " dimensionBoosts=" + (dimensionBoosts ?: "unreadable") +
+                            " d7Bulk=" + dims?.getOrNull(6)?.let(GameApi::bulkOf) +
+                            " d8Bulk=" + dims?.getOrNull(7)?.let(GameApi::bulkOf) +
+                            "; strategy=" + strategy +
+                            "; original autobuyers continue",
                     )
                 }
+                c9YieldActive = true
+                lastC9YieldStrategy = strategy
                 return
             }
             if (c9YieldActive) {
                 c9YieldActive = false
+                lastC9YieldStrategy = null
                 Log.i(TAG_C9_YIELD, "resume-stage-auto normalChallenge=0 or challenge ended")
             }
             // [R96] 只读诊断：永恒挑战状态（30 秒一行）。仅定位用，不改变任何行为。
@@ -606,7 +716,10 @@ object OrekiStageAuto {
      *
      * 一旦 ID1 解锁就返回 null，调用方立刻恢复原有固定顺序 —— 不长期占用名额。
      */
-    private fun resolveUrgentTask(): String? = try {
+    private fun resolveUrgentTask(): String? {
+        return try {
+        // C9 入场准备必须先完成 D7/D8 bulk；这一窗口不能被其它经济任务的饥饿抢救覆盖。
+        if (shouldPrepareC9Start()) return "bulk"
         // [R94] 尚未 Break：坍缩间隔买满是 Break 的唯一前置，但它在固定顺序里排在
         // sacrifice/bulk/infinityUpgrades 之后，实测会被「frame-held」饿死 19 分钟以上
         // （run3：前 19 分钟 crunchInterval 0 次，直到无限升级买满才拿到节拍）。
@@ -668,8 +781,9 @@ object OrekiStageAuto {
             }
         }
         starvationRescue(base)
-    } catch (_: Throwable) {
-        null
+        } catch (_: Throwable) {
+            null
+        }
     }
 
     /**
@@ -714,6 +828,8 @@ object OrekiStageAuto {
                 // [R96 第十三轮] 永恒升级：走原版商店购买入口（真实判余额 + 扣 EP + 置位）
                 "eternity" -> buyEternityUpgrades()
                 "breakShop" -> GameApi.breakShopTick() != 0
+                "bulk" ->
+                    if (shouldPrepareC9Start()) upgradeC9RequiredBulk() else upgradeBulkAll()
                 else -> tryBuyId1()
             }
         } catch (_: Throwable) {
@@ -743,6 +859,87 @@ object OrekiStageAuto {
             if (!GameApi.idUnlocked(dim)) return false
         }
         return true
+    }
+
+    /** 自动进入 C9 前，先通过原版 bulk 升级建立可解状态。 */
+    private fun shouldPrepareC9Start(): Boolean {
+        val currentChallenge = GameApi.normalChallengeCurrent()
+        if (currentChallenge != 0) return false
+        val currentTick = OrekiAutomationScheduler.guiTickCount().toLong()
+        if (currentTick != c9PreparationCacheTick) {
+            c9PreparationFirstEightCompleted =
+                (1..8).all { GameApi.normalChallengeCompleted(it) == true }
+            c9PreparationCompleted = GameApi.normalChallengeCompleted(9) == true
+            c9PreparationCacheTick = currentTick
+        }
+        val dims = GameApi.dimensionAutobuyers() ?: return false
+        return OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
+            normalChallengeCurrent = currentChallenge,
+            firstEightChallengesCompleted = c9PreparationFirstEightCompleted,
+            c9Completed = c9PreparationCompleted,
+            d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf),
+            d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf),
+            inAnyChallenge = GameApi.inAnyChallenge(),
+        )
+    }
+
+    /**
+     * C9 准备窗口只升级仍未满的 D7/D8 bulk，避免通用 8 层轮转被已满低层卡住。
+     * 仍调用原版升级入口并读回 bulk，未真实增加即按 no-op 处理。
+     */
+    private fun upgradeC9RequiredBulk(): Boolean = try {
+        val dims = GameApi.dimensionAutobuyers()
+        if (dims == null || dims.size < 8) {
+            false
+        } else {
+            var acted = false
+            for (index in intArrayOf(6, 7)) {
+                val dim = dims[index]
+                val before = GameApi.bulkOf(dim)
+                if (before < 0.0 ||
+                    before >= OrekiManagedAutobuyerAuthority.C9_REQUIRED_DIMENSION_BULK
+                ) {
+                    continue
+                }
+                GameApi.upgradeBulk(dim)
+                val after = GameApi.bulkOf(dim)
+                if (after > before) {
+                    acted = true
+                    break
+                }
+            }
+            acted
+        }
+    } catch (_: Throwable) {
+        false
+    }
+
+    /**
+     * C9 第五次提升前优先通过原版入口真实购买维度提升，否则维护 bulk。
+     *
+     * 全新档尚未完成 C10，原版维度提升自动器不存在；只聚焦 D7/D8 购买而
+     * 不请求提升，会让 D8 达到门槛后仍无任何对象执行提升。
+     */
+    private fun maintainC9DimensionChain(): Boolean {
+        try {
+            if (OrekiManagedAutobuyerAuthority.shouldSettleC9Goal(GameApi.canBigCrunch()) &&
+                settleCrunch("c9-goal")
+            ) {
+                return true
+            }
+            val before = GameApi.dimensionBoosts()
+            if (before != null &&
+                before.toInt() <
+                OrekiManagedAutobuyerAuthority.C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS
+            ) {
+                GameApi.requestDimensionBoost()
+                val after = GameApi.dimensionBoosts()
+                if (after != null && after > before) return true
+            }
+            return upgradeBulkAll()
+        } catch (_: Throwable) {
+            return false
+        }
     }
 
     @JvmStatic
@@ -1959,6 +2156,130 @@ object OrekiStageAuto {
         }
     }
 
+    /**
+     * C9 专用受管配置：仍由原版自动购买器执行真实扣费与结算。
+     *
+     * 冻结档实测（源码 235dae，APK 65ea224a）：C9 以 3 次维度提升、D7=4 进入后，
+     * D1-D6 与计数频率继续购买，下一次提升所需的 D7=20 价格被持续 bump，
+     * 使 D7、D8 与维度提升自动器全部失去 `canTick`，主循环虽持续运行却无法推进。
+     *
+     * 阶段策略：
+     * · 3 次提升：只保留 D7 单买，达到原版 D7=20 门槛；
+     * · 4 次提升：只保留 D8 单买，达到下一次提升门槛；
+     * · 5 次提升：恢复全部维度、计数频率与献祭。
+     *
+     * 定向复验中 D7 在真实价格 1e114 时购买，原版维度提升随后从 3 升至 4。
+     * 此配置只改变自动购买器启停与 mode，不修改挑战目标、价格、维度数量、
+     * 完成位或资源；bulk 仍由 C9 受限维护任务通过原版入口推进。
+     */
+    private fun applyC9ManagedAutobuyerStates() {
+        if (!OrekiAutomationScheduler.isEnabled()) return
+        if (!GameApi.autobuyersOn()) return
+        if (GameApi.isDoomed()) return
+        if (OrekiIu15Sprint.isActive()) return
+        if (!OrekiManagedAutobuyerAuthority.isNewConfigTick(
+                managedConfigTickId,
+                appliedManagedConfigTickId,
+            )
+        ) return
+        appliedManagedConfigTickId = managedConfigTickId
+        try {
+            val purchasedBoosts = GameApi.dimensionBoosts()?.toInt() ?: 0
+            val dimensionStates = GameApi.antimatterDimensionStates()
+            val requiredProducedTier = when (purchasedBoosts) {
+                3 -> 6
+                4 -> 7
+                else -> 0
+            }
+            val lowerChainReady = OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier,
+                dimensionStates.orEmpty().map { state ->
+                    OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(
+                        GameApi.dimensionBoughtCount(state),
+                    )
+                },
+            )
+            GameApi.dimensionAutobuyers()?.forEachIndexed { i, dim ->
+                val tier = i + 1
+                val active =
+                    OrekiManagedAutobuyerAuthority.c9DimensionActive(
+                        tier,
+                        purchasedBoosts,
+                        lowerChainReady,
+                    )
+                if (reconcileManagedAutobuyer("dim" + tier, dim, active)) {
+                    reconcileIntField(
+                        "dim" + tier + ".mode",
+                        GameApi.dimensionAutobuyerMode(dim),
+                        OrekiManagedAutobuyerAuthority.c9DimensionMode(
+                            tier,
+                            purchasedBoosts,
+                            lowerChainReady,
+                        ),
+                    ) { GameApi.setDimensionAutobuyerMode(dim, it) }
+                }
+            }
+            if (requiredProducedTier > 0) {
+                Log.i(
+                    TAG_AU4C,
+                    "managed[c9.bootstrap] boosts=" + purchasedBoosts +
+                        " lowerChainReady=" + lowerChainReady +
+                        " requiredProducedTier=" + requiredProducedTier,
+                )
+            }
+
+            val tickspeed = GameApi.tickspeedAutobuyer()
+            if (reconcileManagedAutobuyer(
+                    "tickspeed",
+                    tickspeed,
+                    OrekiManagedAutobuyerAuthority.c9TickspeedActive(purchasedBoosts),
+                )
+            ) {
+                reconcileIntField(
+                    "tickspeed.mode",
+                    GameApi.tickspeedAutobuyerMode(tickspeed),
+                    OrekiManagedAutobuyerAuthority.TICKSPEED_MODE_BUY_SINGLE,
+                ) { GameApi.setTickspeedAutobuyerMode(tickspeed, it) }
+            }
+
+            val dimboost = GameApi.dimBoostAutobuyer()
+            if (reconcileManagedAutobuyer(
+                    "dimboost",
+                    dimboost,
+                    OrekiManagedAutobuyerAuthority.c9DimBoostActive(),
+                )
+            ) {
+                reconcileBooleanField(
+                    "dimboost.limitDimBoosts",
+                    GameApi.dimBoostLimitDimBoosts(dimboost),
+                    false,
+                ) { GameApi.setDimBoostLimitDimBoosts(dimboost, it) }
+                reconcileBooleanField(
+                    "dimboost.limitUntilGalaxies",
+                    GameApi.dimBoostLimitUntilGalaxies(dimboost),
+                    false,
+                ) { GameApi.setDimBoostLimitUntilGalaxies(dimboost, it) }
+            }
+
+            reconcileManagedAutobuyer(
+                "galaxy",
+                GameApi.galaxyAutobuyer(),
+                OrekiManagedAutobuyerAuthority.c9GalaxyActive(),
+            )
+            reconcileManagedAutobuyer(
+                "sacrifice",
+                GameApi.sacrificeAutobuyer(),
+                OrekiManagedAutobuyerAuthority.c9SacrificeActive(purchasedBoosts),
+            )
+            reconcileIpMultAutobuyer(true)
+        } catch (error: Throwable) {
+            if (!crunchPolicyErrorLogged) {
+                crunchPolicyErrorLogged = true
+                Log.e(TAG_AU4C, "C9 managed autobuyer config failed", error)
+            }
+        }
+    }
+
     private fun reconcileManagedAutobuyer(
         key: String,
         autobuyer: Any?,
@@ -2156,37 +2477,75 @@ object OrekiStageAuto {
     }
 
     /**
-     * C9 让路时交还 MOD 的大坍缩所有权。
-     *
-     * 只恢复确实由 MOD 暂停的自动器；玩家原本关闭的自动器保持关闭。持久化标记在这里
-     * 同步清除，避免下一次冷启动把它重新解释成 MOD 仍在托管。
+     * C9 目标是一次无限内达到 1.8e308；原版 autoBig 每 5 秒坍缩会把真实增长清零。
+     * 这里只临时暂停自动器，不写挑战状态，不绕过结算，挑战结束后恢复原有所有权。
      */
-    private fun releaseCrunchOwnershipForC9Yield() {
+    private fun holdCrunchOwnershipForC9() {
+        if (!OrekiAutomationScheduler.isEnabled()) return
         try {
-            val persistedPaused =
-                OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
-            if (!modOwnsCrunch && !crunchPausedByStagePolicy && !persistedPaused) return
             val crunch = GameApi.crunchState() ?: return
             val active = GameApi.isAutobuyerActive(crunch) ?: return
-            if (OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
-                    ownedByMod = modOwnsCrunch,
-                    pausedByMod = crunchPausedByStagePolicy,
-                    persistedPaused = persistedPaused,
-                    active = active,
-                )
-            ) {
+            val wasOwned = modOwnsCrunch
+            val wasPolicyPaused = crunchPausedByStagePolicy
+            if (!c9CrunchHoldCaptured) {
+                if (!loadC9CrunchCaptureFromPrefs()) {
+                    val persistedPaused =
+                        OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
+                    c9PreviousModOwnedCrunch = modOwnsCrunch || persistedPaused
+                    c9PreviousPolicyPausedCrunch = crunchPausedByStagePolicy || persistedPaused
+                    c9PreviouslyActiveAutoBig = active
+                    c9CrunchHoldCaptured = true
+                    c9CrunchCaptureSaveId = GameApi.saveIdentity()
+                    OrekiAutomationScheduler.saveC9CrunchCapture(
+                        active = c9PreviouslyActiveAutoBig,
+                        ownedByMod = c9PreviousModOwnedCrunch,
+                        policyPaused = c9PreviousPolicyPausedCrunch,
+                    )
+                    Log.i(
+                        TAG_C9_YIELD,
+                        "hold autoBig for C9; previousActive=" + c9PreviouslyActiveAutoBig +
+                            " previousOwned=" + c9PreviousModOwnedCrunch +
+                            " previousPolicyPaused=" + c9PreviousPolicyPausedCrunch,
+                    )
+                }
+            }
+            if (active) GameApi.setAutobuyerActive(crunch, false)
+            modOwnsCrunch = true
+            crunchPausedByStagePolicy = true
+            if (active || !wasOwned || !wasPolicyPaused) {
+                markCrunchPausedByMod()
+            }
+        } catch (_: Throwable) {
+            // 读取失败时保留挑战运行；下一帧重试，不放宽挑战目标。
+        }
+    }
+
+    /** C9 结束后恢复进入挑战前的 autoBig 所有权；玩家原本关闭时保持关闭。 */
+    private fun restoreCrunchOwnershipAfterC9() {
+        if (!c9CrunchHoldCaptured) return
+        try {
+            val crunch = GameApi.crunchState() ?: return
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            if (!active && c9PreviouslyActiveAutoBig) {
                 GameApi.setAutobuyerActive(crunch, true)
             }
-            modOwnsCrunch = false
-            crunchPausedByStagePolicy = false
-            OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            modOwnsCrunch = c9PreviousModOwnedCrunch
+            crunchPausedByStagePolicy = c9PreviousPolicyPausedCrunch
+            if (modOwnsCrunch && crunchPausedByStagePolicy) {
+                markCrunchPausedByMod()
+            } else {
+                OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            }
+            c9CrunchHoldCaptured = false
+            c9CrunchCaptureSaveId = null
+            OrekiAutomationScheduler.clearC9CrunchCapture()
             Log.i(
                 TAG_C9_YIELD,
-                "crunch ownership released; autoBig active=" +
-                    GameApi.isAutobuyerActive(crunch),
+                "restore autoBig after C9; active=" + GameApi.isAutobuyerActive(crunch) +
+                    " owned=" + modOwnsCrunch + " policyPaused=" + crunchPausedByStagePolicy,
             )
         } catch (_: Throwable) {
-            // 交还失败保持原所有权；下一调度 tick 仍会重试。
+            // 保持 captured=true，下一帧继续尝试恢复。
         }
     }
 
@@ -2201,6 +2560,10 @@ object OrekiStageAuto {
     @JvmStatic
     fun onAutomationDisabled() {
         try {
+            if (c9CrunchHoldCaptured) {
+                releaseC9CrunchOnAutomationDisabled()
+                return
+            }
             val persistedPaused =
                 OrekiAutomationScheduler.crunchPausedByModPersistedOrNull() == true
             if (!modOwnsCrunch && !crunchPausedByStagePolicy && !persistedPaused) return
@@ -2226,6 +2589,94 @@ object OrekiStageAuto {
         } catch (_: Throwable) {
             // 关闭自动化流程不得因恢复动作异常而中断
         }
+    }
+
+    /**
+     * 自动化关闭时交还 C9 临时暂停的 autoBig，并清除 MOD 所有权。
+     *
+     * restore 先按进入 C9 前的真实 active 状态恢复，再清 MOD 标记；玩家原本关闭的
+     * autoBig 不会被强行打开。若状态读取瞬时失败，保留 captured 并在后续帧重试。
+     */
+    private fun releaseC9CrunchOnAutomationDisabled() {
+        if (!c9CrunchHoldCaptured) return
+        try {
+            val crunch = GameApi.crunchState() ?: return
+            val active = GameApi.isAutobuyerActive(crunch) ?: return
+            val restoreAutoBig = c9PreviouslyActiveAutoBig ||
+                OrekiCrunchGate.shouldRestoreCrunchOnAutomationDisabled(
+                    ownedByMod = c9PreviousModOwnedCrunch,
+                    pausedByMod = c9PreviousPolicyPausedCrunch,
+                    persistedPaused = false,
+                    active = active,
+                )
+            if (restoreAutoBig && !active) {
+                GameApi.setAutobuyerActive(crunch, true)
+            }
+            modOwnsCrunch = false
+            crunchPausedByStagePolicy = false
+            OrekiAutomationScheduler.markCrunchPausedByMod(false)
+            c9CrunchHoldCaptured = false
+            c9CrunchCaptureSaveId = null
+            OrekiAutomationScheduler.clearC9CrunchCapture()
+            Log.i(TAG_AU4C, "automation-off: C9 crunch ownership released")
+        } catch (_: Throwable) {
+            // 保持 captured=true，关闭态下下一帧继续重试。
+        }
+    }
+
+    /** 冷启动或恢复时从同存档偏好加载 C9 接管前状态；成功后恢复内存 capture。 */
+    private fun syncC9CrunchCaptureForCurrentSave(): Boolean {
+        val currentSaveId = GameApi.saveIdentity() ?: return false
+        if (c9CrunchHoldCaptured) {
+            if (c9CrunchCaptureSaveId.isNullOrEmpty()) {
+                if (GameApi.normalChallengeCurrent() != 9) return false
+                c9CrunchCaptureSaveId = currentSaveId
+                OrekiAutomationScheduler.saveC9CrunchCapture(
+                    active = c9PreviouslyActiveAutoBig,
+                    ownedByMod = c9PreviousModOwnedCrunch,
+                    policyPaused = c9PreviousPolicyPausedCrunch,
+                )
+                return true
+            }
+            if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(
+                    c9CrunchCaptureSaveId,
+                    currentSaveId,
+                )
+            ) {
+                return true
+            }
+            clearC9CrunchCaptureMemory()
+        }
+        return loadC9CrunchCaptureFromPrefs(currentSaveId)
+    }
+
+    private fun clearC9CrunchCaptureMemory() {
+        c9CrunchHoldCaptured = false
+        c9PreviouslyActiveAutoBig = false
+        c9PreviousModOwnedCrunch = false
+        c9PreviousPolicyPausedCrunch = false
+        c9CrunchCaptureSaveId = null
+    }
+
+    private fun loadC9CrunchCaptureFromPrefs(
+        currentSaveId: String? = GameApi.saveIdentity(),
+    ): Boolean {
+        if (c9CrunchHoldCaptured) return true
+        if (currentSaveId.isNullOrEmpty()) return false
+        val captured = OrekiAutomationScheduler.loadC9CrunchCaptureOrNull() ?: return false
+        if (captured.size != 3) return false
+        c9PreviouslyActiveAutoBig = captured[0]
+        c9PreviousModOwnedCrunch = captured[1]
+        c9PreviousPolicyPausedCrunch = captured[2]
+        c9CrunchHoldCaptured = true
+        c9CrunchCaptureSaveId = currentSaveId
+        Log.i(
+            TAG_C9_YIELD,
+            "load restored C9 crunch capture; previousActive=" + c9PreviouslyActiveAutoBig +
+                " previousOwned=" + c9PreviousModOwnedCrunch +
+                " previousPolicyPaused=" + c9PreviousPolicyPausedCrunch,
+        )
+        return true
     }
 
     /**

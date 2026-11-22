@@ -3,19 +3,42 @@ name: Android R8 实验构建（不发布）
 on:
   workflow_dispatch:
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
     paths:
       - 'agp/**'
       - 'app/src/main/kotlin/**'
       - 'scripts/payload/smali/**'
+      - 'scripts/agp/r109_verify_r8_output.py'
       - 'scripts/tests/test_agp_r8_experiment.py'
       - '.github/workflows/r8-experiment.yml'
 
 permissions:
   contents: read
 
+# 只取消同一 PR 被新 HEAD 淘汰的 R8 实验；手动实验不得被自动中止。
+concurrency:
+  group: android-r8-experiment-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  r8-contract:
+    name: R8 DSL 与 ABI Keep 契约
+    # Draft 也必须验证：R8 OFF/ON 的构建可以推迟，Keep 规则守卫不能跳过。
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 检出实验源码
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: 运行 R8 DSL 与 ABI Keep 单测
+        run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
+
   r8-experiment:
     name: R8 优化前后 Release 对照（不发布）
+    needs: r8-contract
+    # 仅对 Ready PR / 手动执行双包对照；Draft 的契约守卫由 r8-contract 单独负责。
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -34,16 +57,15 @@ jobs:
           packages: platform-tools
       - name: 配置 Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: 运行 R8 DSL 与 ABI Keep 单测
-        run: python3 -m unittest scripts.tests.test_agp_r8_experiment -v
       - name: 构建未启用 R8 的 Release 对照 APK
+        # 未开启 R8 的对照可使用 Gradle 正常输入追踪与缓存；显式开启 R8 的第二次构建仍强制重执行以防复用旧包。
         # R111 CI-2：不再对该确定性构建做最多 3 次整包重试（最坏情况会白跑 ~9 分钟）。
         # 构建失败即为真实失败：日志完整保留到 r8-evidence/logs，由失败证据上传；
         # 平台性偶发失败通过手动重跑工作流处理，不掩盖确定性编译错误。
         run: |
           set -euo pipefail
           mkdir -p r8-evidence/baseline r8-evidence/logs
-          bash ./gradlew -p agp :app:assembleRelease --rerun-tasks --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8off-build.log
+          bash ./gradlew -p agp :app:assembleRelease --no-daemon --console=plain 2>&1 | tee r8-evidence/logs/r8off-build.log
           apk="$(find agp/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
           test -n "$apk" || { echo 'FAIL：未找到未启用 R8 的 Release APK'; exit 1; }
           cp "$apk" r8-evidence/baseline/
@@ -128,6 +150,19 @@ jobs:
           (root / 'class-method-stats.json').write_text(json.dumps(stats, indent=2) + '\n')
           print(json.dumps(stats, indent=2))
           PY
+      - name: 验证 R8 桥接产物 ABI
+        # 构建成功不能证明 R8 未裁掉运行时按名加载的类。本工作流当前构建的是 bridge，
+        # 因此只校验 bridge 范围。当前工作流没有 full-game R8 执行者，
+        # 完整游戏反射/Manifest/Gson 与三项 smali→Kotlin 桥在该范围均为 NOT RUN。
+        run: |
+          set -euo pipefail
+          apk="$(find r8-evidence/optimized -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：R8 ON 未产出 APK'; exit 1; }
+          python3 scripts/agp/r109_verify_r8_output.py \
+            --apk "$apk" \
+            --scope bridge \
+            --mapping r8-evidence/optimized/mapping.txt \
+            --json r8-evidence/optimized/r8-abi-verify.json
       - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
         run: |
           set -euo pipefail

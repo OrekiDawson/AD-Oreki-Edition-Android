@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/antimatter"
+        android:shortcutId="oreki_speed"
+        android:shortcutLongLabel="@string/oreki_shortcut_long"
+        android:shortcutShortLabel="@string/oreki_shortcut_short">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="kajfosz.antimatterdimensions.oreki.SpeedSettingsActivity"
+            android:targetPackage="com.oreki.antimatterdimensions" />
+    </shortcut>
+</shortcuts>
