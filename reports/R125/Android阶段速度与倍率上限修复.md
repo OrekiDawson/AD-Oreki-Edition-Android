@@ -32,7 +32,8 @@ OREKI_GATE ... mult=1800000.0
   `game-hybrid-sig.jar` 的 `OrekiSpeed.mult/set`，再调用 Kotlin 边界；
   Smali 源仅保留同一 ABI 的源码镜像。
 
-阶段速度仍只由真实 `hasInfinity`、`break`、`realities` 状态切换；不按墙钟锁阶段。
+阶段速度仍只由真实 `break`、`realities` 与可靠的永恒层证据切换；不按墙钟锁阶段，也不读取
+新档可能误读为 `11` 的 `Player.eternities`。永恒层关键字段读取失败时保持上一次倍率，不猜测阶段。
 
 ## 验证
 
@@ -56,6 +57,11 @@ OREKI_GATE ... mult=1800000.0
 - `OrekiGamePaceTest` AGP JVM 定向测试：BUILD SUCCESSFUL。
 - 当前受管配置 JUnit（Authority/Scenario）：PASS。
 - 历史兜底节拍 JUnit：PASS。
+- Kody 指出的静态回归缺口已闭合：源码契约现在精确断言
+  `Reality→3000×`、`Break→70×`、`未 Break` 时永恒层
+  `true→70× / false→500× / null→不写`，并禁止旧的 `hasInfinity` 前置重新进入。
+- 反向验证：临时把“仅 `break=false` 时读取永恒层”改为无条件读取后，
+  `test_eternity_layer_keeps_post_break_speed` 按预期 FAIL；恢复后 9/9 PASS。
 - 恢复默认重新启用阶段托管；历史超限手动倍率保留手动归属并仅收窄到 `100000×`。
 - R8 OFF Release APK：`81,663,651 B`，SHA-256
   `a528ff8e192a4c7582edfb4243cb75eee7d88598b31a57ab3ad03b9734b41920`，

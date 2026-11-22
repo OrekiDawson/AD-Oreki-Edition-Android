@@ -51,12 +51,30 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         source = (
             ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
         ).read_text(encoding="utf-8")
-        self.assertIn("enteredEternityLayer: Boolean? = null", source)
-        self.assertIn("enteredEternityLayer == true -> POST_BREAK_SPEED", source)
-        self.assertIn("enteredEternityLayer == false -> DEFAULT_SPEED", source)
-        self.assertIn("enteredEternityLayerState()", source)
-        self.assertNotIn("fun stageTargetSpeed(\n        hasInfinity:", source)
-        self.assertNotIn("hasInfinity = GameApi.hasInfinity()", source)
+        normalized = " ".join(source.split())
+        self.assertRegex(
+            normalized,
+            r"fun stageTargetSpeed\( broken: Boolean\?, hasReality: Boolean\?, "
+            r"normalChallengeCurrent: Int\? = null, enteredEternityLayer: Boolean\? = null, "
+            r"\): Double\? = when \{",
+        )
+        self.assertIn("hasReality == null || broken == null -> null", normalized)
+        self.assertRegex(normalized, r"hasReality -> POST_REALITY_SPEED")
+        self.assertRegex(normalized, r"broken -> POST_BREAK_SPEED")
+        self.assertIn("enteredEternityLayer == true -> POST_BREAK_SPEED", normalized)
+        self.assertIn("enteredEternityLayer == false -> DEFAULT_SPEED", normalized)
+        self.assertIn("else -> null", normalized)
+        self.assertNotIn("hasInfinity", source)
+        self.assertRegex(
+            normalized,
+            r"val enteredEternity = if \(versusZero > 0\) true "
+            r"else if \(broken == false\) enteredEternityLayerState\(\) else null",
+        )
+        self.assertRegex(
+            normalized,
+            r"val target = stageTargetSpeed\( broken, versusZero > 0, "
+            r"GameApi\.normalChallengeCurrent\(\), enteredEternity, \) \?: return",
+        )
         self.assertIn("GameApi.eternityPointsValue()", source)
         self.assertIn("GameApi.eternityUpgradeBitsValue()", source)
         self.assertIn("GameApi.bigEternitiesValue()", source)
