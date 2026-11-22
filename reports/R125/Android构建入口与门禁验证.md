@@ -30,7 +30,7 @@ bash gradlew -p agp :app:testDebugUnitTest \
 
 ### 结果
 
-- AGP Kotlin DEBUG 单元测试：PASS，`BUILD SUCCESSFUL`，27 个任务完成。
+- AGP Kotlin DEBUG 单元测试：92/92 PASS，18 个测试套件，0 failure / 0 error / 0 skipped，`BUILD SUCCESSFUL`，27 个任务完成。
 - 编译包含现有 unchecked-cast、条件恒真/恒假与系统栏弃用警告，无本轮新增编译错误。
 - `bash -n scripts/ci/build_bundle_r114.sh`：PASS。
 - `python3 -m py_compile scripts/deobf_semantic_kajfosz.py`：PASS。
