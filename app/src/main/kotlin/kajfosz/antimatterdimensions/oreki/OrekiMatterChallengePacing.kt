@@ -56,9 +56,8 @@ object OrekiMatterChallengePacing {
 
     private val challengeStateCache = OrekiMatterChallengeStateCache(
         nanoClock = System::nanoTime,
-        challengeReader = {
-            GameApi.normalChallengeCurrent() to GameApi.infinityChallengeCurrent()
-        },
+        normalChallengeReader = GameApi::normalChallengeCurrent,
+        infinityChallengeReader = GameApi::infinityChallengeCurrent,
     )
 
     /** 原版 game JAR 的唯一入口；读取失败时返回原始时间差。 */
@@ -89,7 +88,8 @@ object OrekiMatterChallengePacing {
  */
 internal class OrekiMatterChallengeStateCache(
     private val nanoClock: () -> Long,
-    private val challengeReader: () -> Pair<Int?, Int?>,
+    private val normalChallengeReader: () -> Int?,
+    private val infinityChallengeReader: () -> Int?,
 ) {
     private var initialized = false
     private var lastReadAtNanos = 0L
@@ -110,9 +110,8 @@ internal class OrekiMatterChallengeStateCache(
         val now = nanoClock()
         if (initialized && now - lastReadAtNanos < OrekiMatterChallengePacing.STATE_CACHE_NANOS) return
 
-        val (normal, infinity) = challengeReader()
-        normalChallenge = normal
-        infinityChallenge = infinity
+        normalChallenge = normalChallengeReader()
+        infinityChallenge = infinityChallengeReader()
         lastReadAtNanos = now
         initialized = true
     }
