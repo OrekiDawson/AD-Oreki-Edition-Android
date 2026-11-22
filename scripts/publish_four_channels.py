@@ -453,6 +453,24 @@ def base_state(version: str, apk_info: dict[str, object], manifest: dict[str, ob
     }
 
 
+def prerelease_release_id(version: str, sha256: str) -> str:
+    """生成稳定/预发布互不覆盖的唯一 release id。"""
+    return f"{version}-{sha256[:8]}"
+
+
+def prerelease_directory(base: str, release_id: str) -> str:
+    """把任意稳定交付目录映射到独立 Pre-release 子目录。"""
+    return f"{base.rstrip('/')}/Pre-release/{release_id}"
+
+
+def validate_prerelease_target(no_promote: bool, github_target: str) -> None:
+    """预发布 Tag 必须绑定真实 40 位构建 Commit，不能落到 main。"""
+    if no_promote and not re.fullmatch(r"[0-9a-f]{40}", github_target or ""):
+        raise RuntimeError(
+            "--no-promote 必须配合 --github-target <40位构建Commit>，避免测试 Tag 指向主线"
+        )
+
+
 def load_or_create_state(root: Path, version: str, apk_info: dict[str, object], manifest: dict[str, object] | None) -> dict[str, object]:
     path = root / "release-info.json"
     if path.is_file():
@@ -655,27 +673,38 @@ def preflight_write_channels(channels: list[str] | None = None) -> int:
     return 0
 
 
-def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object], state: dict[str, object], dry_run: bool) -> None:
+def local_publish(root: Path, apk: Path, version: str, apk_info: dict[str, object],
+                  state: dict[str, object], dry_run: bool,
+                  prerelease_id: str | None = None) -> None:
     """[R96/R105-04] 本地发布目录只覆盖固定文件名，不做版本归档。
 
     用户 2026-11-09 令：OneDrive / Google Drive / 本地 SSH 三个渠道不创建版本归档文件，
     只覆盖固定目录中的同名文件 `反物质维度.apk`；本地用临时文件写入、校验后原子替换。
     """
-    latest = root / "latest" / DEFAULT_APK_NAME
-    say(f"本地：原子覆盖 {latest}（不创建版本归档）")
+    if prerelease_id:
+        destination_root = root / "pre-release" / prerelease_id
+        destination = destination_root / DEFAULT_APK_NAME
+        say(f"本地：写入独立预发布目录 {destination}；稳定 latest 不变")
+    else:
+        destination_root = root
+        destination = root / "latest" / DEFAULT_APK_NAME
+        say(f"本地：原子覆盖 {destination}（不创建版本归档）")
     if dry_run:
         return
-    root.mkdir(parents=True, exist_ok=True)
-    atomic_copy(apk, latest)
-    actual = sha256_file(latest)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    atomic_copy(apk, destination)
+    actual = sha256_file(destination)
     if actual != apk_info["sha256"]:
         raise RuntimeError(f"本地交付后校验失败：{actual} != {apk_info['sha256']}")
-    # 同步更新同名 .sha256 与根 SHA256SUMS；否则目录里会留上一版哈希，玩家/脚本会读错。
-    atomic_write(latest.with_name(latest.name + ".sha256"),
+    # 同步更新同名 .sha256；稳定路径才刷新根 SHA256SUMS。
+    atomic_write(destination.with_name(destination.name + ".sha256"),
                  f"{actual}  {DEFAULT_APK_NAME}\n")
-    write_checksums(root)
-    set_channel(state, "local", "success", f"{latest}; sha256={actual}")
-    save_state(root, state)
+    if prerelease_id:
+        atomic_write(destination_root / "SHA256SUMS", f"{actual}  {DEFAULT_APK_NAME}\n")
+    else:
+        write_checksums(root)
+    set_channel(state, "local", "success", f"{destination}; sha256={actual}")
+    save_state(destination_root, state)
 
 
 def rclone_onedrive_singlepart_supported() -> bool:
@@ -1093,6 +1122,7 @@ def main() -> int:
 
     apk = Path(args.apk).expanduser().resolve()
     apk_info = inspect_apk(apk)
+    validate_prerelease_target(args.no_promote, args.github_target)
     manifest = None
     if args.manifest:
         manifest = verify_manifest(Path(args.manifest).expanduser().resolve(), apk, apk_info,
@@ -1105,7 +1135,9 @@ def main() -> int:
     if args.archive_only:
         return archive_only(root, apk, apk_info, args.version, args.only or [])
 
-    state = load_or_create_state(root, args.version, apk_info, manifest)
+    release_id = prerelease_release_id(args.version, str(apk_info["sha256"]))
+    state_root = root / "pre-release" / release_id if args.no_promote else root
+    state = load_or_create_state(state_root, args.version, apk_info, manifest)
     if args.retry_failed:
         selected = [channel for channel in CHANNELS if (state.get("channels", {}).get(channel) or {}).get("status") == "failed"]
         if not selected:
@@ -1122,7 +1154,7 @@ def main() -> int:
         before = read_published_latest_tag()
         if before and before != f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}":
             state["previous_latest_tag"] = before
-            save_state(root, state)
+            save_state(state_root, state)
             say(f"github: 记录发布前 Latest={before}")
     say(f"APK={apk} version={args.version} sha256={apk_info['sha256']}")
     say(f"渠道={','.join(selected)} 模式={'dry-run' if args.dry_run else 'publish'}")
@@ -1130,10 +1162,15 @@ def main() -> int:
     for channel in selected:
         try:
             if channel == "local":
-                local_publish(root, apk, args.version, apk_info, state, args.dry_run)
+                local_publish(
+                    root, apk, args.version, apk_info, state, args.dry_run,
+                    prerelease_id=release_id if args.no_promote else None,
+                )
             elif channel == "onedrive":
                 remote, remote_src = resolve_remote("AD_ONEDRIVE_REMOTE", "onedrive")
                 directory = setting("AD_ONEDRIVE_DIR", DEFAULT_ONEDRIVE_DIR)
+                if args.no_promote:
+                    directory = prerelease_directory(directory, release_id)
                 if remote_src == "auto":
                     say(f"OneDrive remote 未显式配置，按唯一 onedrive 类型 remote 解析为 {remote}")
                 try:
@@ -1148,6 +1185,8 @@ def main() -> int:
             elif channel == "gdrive":
                 remote, remote_src = resolve_remote("AD_GDRIVE_REMOTE", "drive")
                 directory = setting("AD_GDRIVE_DIR", DEFAULT_GDRIVE_DIR)
+                if args.no_promote:
+                    directory = prerelease_directory(directory, release_id)
                 if remote_src == "auto":
                     say(f"Google Drive remote 未显式配置，按唯一 drive 类型 remote 解析为 {remote}")
                 rclone_publish("Google Drive", remote, directory, apk, apk_info, args.dry_run)
@@ -1162,12 +1201,12 @@ def main() -> int:
                 )
                 set_channel(state, channel, "success", f"android-update-{args.version}-{str(apk_info['sha256'])[:8]}; {github_result}")
             if not args.dry_run and channel != "local":
-                save_state(root, state)
+                save_state(state_root, state)
         except Exception as exc:
             set_channel(state, channel, "failed", str(exc))
             if not args.dry_run:
-                root.mkdir(parents=True, exist_ok=True)
-                save_state(root, state)
+                state_root.mkdir(parents=True, exist_ok=True)
+                save_state(state_root, state)
             say(f"{channel} 失败：{exc}")
 
     if args.dry_run:

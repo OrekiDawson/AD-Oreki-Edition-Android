@@ -91,6 +91,92 @@ class DeliveryPreflightTests(unittest.TestCase):
         self.assertTrue(p.remote_promotion_allowed(
             local_only=False, no_promote=False, state=success))
 
+    def test_prerelease_paths_are_isolated_from_stable_latest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            stable = root / "latest" / p.DEFAULT_APK_NAME
+            stable.parent.mkdir()
+            stable.write_bytes(b"stable-must-stay")
+            stable_sums = root / "SHA256SUMS"
+            stable_sums.write_text("stable-must-stay\n", encoding="utf-8")
+            apk = root / "candidate.apk"
+            apk.write_bytes(b"r125-prerelease")
+            digest = p.sha256_file(apk)
+            stats = {"sha256": digest, "size_bytes": apk.stat().st_size}
+            release_id = p.prerelease_release_id("3.21.0", digest)
+            state = {"channels": {}}
+
+            p.local_publish(root, apk, "3.21.0", stats, state, False,
+                            prerelease_id=release_id)
+
+            isolated = root / "pre-release" / release_id / p.DEFAULT_APK_NAME
+            self.assertEqual(p.sha256_file(isolated), digest)
+            self.assertEqual(stable.read_bytes(), b"stable-must-stay")
+            self.assertEqual(stable_sums.read_text(encoding="utf-8"), "stable-must-stay\n")
+            self.assertFalse((root / "release-info.json").exists())
+            self.assertEqual(
+                p.prerelease_directory("Apps/AD-Oreki-Edition", release_id),
+                f"Apps/AD-Oreki-Edition/Pre-release/{release_id}",
+            )
+
+    def test_prerelease_requires_exact_build_commit(self):
+        with self.assertRaises(RuntimeError):
+            p.validate_prerelease_target(True, "main")
+        p.validate_prerelease_target(True, "a" * 40)
+
+    def test_prerelease_remote_failure_and_retry_share_isolated_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apk = root / "candidate.apk"
+            apk.write_bytes(b"r125-prerelease")
+            digest = p.sha256_file(apk)
+            stats = {"sha256": digest, "size_bytes": apk.stat().st_size}
+            release_id = p.prerelease_release_id("3.21.0", digest)
+            base_args = [
+                "publish_four_channels.py", "--publish", "--no-promote",
+                "--only", "gdrive", "--apk", str(apk), "--version", "3.21.0",
+                "--manifest", str(root / "manifest.json"),
+                "--github-target", "a" * 40,
+            ]
+            outcomes = [RuntimeError("HTTP 503 transient"), None]
+
+            def rclone_publish(*args, **kwargs):
+                outcome = outcomes.pop(0)
+                if outcome:
+                    raise outcome
+
+            with (mock.patch.object(p.sys, "argv", base_args),
+                  mock.patch.object(p, "inspect_apk", return_value=stats),
+                  mock.patch.object(p, "verify_manifest", return_value={}),
+                  mock.patch.object(p, "local_dir", return_value=root),
+                  mock.patch.object(p, "resolve_remote", return_value=("gdrive", "env")),
+                  mock.patch.object(p, "setting", side_effect=lambda _key, default=None: default),
+                  mock.patch.object(p, "rclone_publish", side_effect=rclone_publish)):
+                self.assertEqual(p.main(), 2)
+
+            isolated_state = root / "pre-release" / release_id / "release-info.json"
+            self.assertTrue(isolated_state.is_file())
+            self.assertFalse((root / "release-info.json").exists())
+            self.assertEqual(
+                json.loads(isolated_state.read_text(encoding="utf-8"))["channels"]["gdrive"]["status"],
+                "failed",
+            )
+
+            with (mock.patch.object(p.sys, "argv", [*base_args, "--retry-failed"]),
+                  mock.patch.object(p, "inspect_apk", return_value=stats),
+                  mock.patch.object(p, "verify_manifest", return_value={}),
+                  mock.patch.object(p, "local_dir", return_value=root),
+                  mock.patch.object(p, "resolve_remote", return_value=("gdrive", "env")),
+                  mock.patch.object(p, "setting", side_effect=lambda _key, default=None: default),
+                  mock.patch.object(p, "rclone_publish", side_effect=rclone_publish)):
+                self.assertEqual(p.main(), 0)
+
+            self.assertFalse((root / "release-info.json").exists())
+            self.assertEqual(
+                json.loads(isolated_state.read_text(encoding="utf-8"))["channels"]["gdrive"]["status"],
+                "success",
+            )
+
     def test_failed_release_restores_snapshot_not_arbitrary_listing(self):
         calls = []
         latest = "android-update-3.21.0-3d924271"
