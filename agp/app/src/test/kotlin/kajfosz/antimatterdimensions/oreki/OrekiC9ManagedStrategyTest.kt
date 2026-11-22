@@ -348,7 +348,7 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
-    fun d7AndD8BuySinglesWhileDimBoostStaysEnabled() {
+    fun allDimensionsBuySinglesWhileDimBoostStaysEnabled() {
         assertEquals(
             OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
             OrekiManagedAutobuyerAuthority.c9DimensionMode(7, 3),
@@ -358,7 +358,7 @@ class OrekiC9ManagedStrategyTest {
             OrekiManagedAutobuyerAuthority.c9DimensionMode(8, 4),
         )
         assertEquals(
-            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10,
+            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
             OrekiManagedAutobuyerAuthority.c9DimensionMode(6, 3),
         )
         assertTrue(OrekiManagedAutobuyerAuthority.c9DimBoostActive())
@@ -375,13 +375,25 @@ class OrekiC9ManagedStrategyTest {
             ),
         )
         assertEquals(
-            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10,
+            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
             OrekiManagedAutobuyerAuthority.c9DimensionMode(
                 tier = 1,
                 dimensionBoosts = 3,
                 lowerChainReady = true,
             ),
         )
+    }
+
+    @Test
+    fun c9KeepsSinglePurchasesThroughEveryBoostBand() {
+        for (boosts in intArrayOf(0, 3, 4, 5, 9)) {
+            for (tier in 1..8) {
+                assertEquals(
+                    OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+                    OrekiManagedAutobuyerAuthority.c9DimensionMode(tier, boosts),
+                )
+            }
+        }
     }
 
     @Test

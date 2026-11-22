@@ -42,17 +42,18 @@ object OrekiManagedAutobuyerAuthority {
             kotlin.math.abs(actual - target) > epsilon
 
     /**
-     * 只有 Break 后挑战 ID 不可读时才让位给原版自动器，避免未知状态误操作。
+     * 普通挑战 C9 在 Break 前后都由 C9 专用策略推进。
      *
-     * 已确认的 C9 不再使用旧受限策略：真实新档在 500× 下从 16 分钟进入 C9，
-     * 到 51 分钟仍停在约 e185，而 Web 的通用合法购买链已在更早阶段完成 C9。
-     * 已知 C9 因此继续走通用 StageAuto 的同一原版购买入口。
+     * 真新档会在 C1–C8 后、Break 前进入 C9；旧判据要求 `broken=true`，
+     * 导致最关键的新档路径继续运行通用 StageAuto。Break 后挑战 ID 不可读时
+     * 仍按未知状态让路，避免把未知误判为“不在 C9”。
      */
     @JvmStatic
     fun shouldYieldToOriginalForC9OrUnreadableChallenge(
         broken: Boolean?,
         normalChallengeCurrent: Int?,
-    ): Boolean = broken == true && normalChallengeCurrent == null
+    ): Boolean = normalChallengeCurrent == 9 ||
+        (broken == true && normalChallengeCurrent == null)
 
     /**
      * C9 由原版自动购买器独占推进时，只保留能打破价格锁的购买层。
@@ -110,11 +111,12 @@ object OrekiManagedAutobuyerAuthority {
         if (normalChallengeCurrent == 9) "c9" else null
 
     /**
-     * 第五次维度提升前必须限制购买层。
+     * C9 全程使用原版单次购买。
      *
-     * bulk=512 只表示自动器一次可购买的上限，不代表 D7/D8 的实际数量或
-     * `canBeBought` 已满足。实测 bulk=512 的 fresh C9 在 4 次提升、D7=6、
-     * D8=3 时，D7/D8 的 lastTick 仍冻结；因此策略切换必须读取真实提升阶段。
+     * 该挑战每购买 10 个维度或一次计数频率，就把同价项目抬到下一档。
+     * 真实失败存档在 9 次提升后使用 BUY_10，维度 bought 与自动器 lastTick
+     * 持续冻结，只能靠高维产出缓慢抬高反物质尾数；切回 BUY_SINGLE 后每次
+     * 可负担的购买都能由原版入口真实扣费并推进价格，不写资源或完成位。
      */
     @JvmStatic
     fun c9NeedsRestrictedStrategy(dimensionBoosts: Int?): Boolean =
@@ -217,18 +219,10 @@ object OrekiManagedAutobuyerAuthority {
     @JvmStatic
     @JvmOverloads
     fun c9DimensionMode(
-        tier: Int,
-        dimensionBoosts: Int,
-        lowerChainReady: Boolean = true,
-    ): Int =
-        if (dimensionBoosts < 5 && (
-                !lowerChainReady || tier == 7 || tier == 8
-            )
-        ) {
-            DIMENSION_MODE_BUY_SINGLE
-        } else {
-            DIMENSION_MODE_BUY_10
-        }
+        @Suppress("UNUSED_PARAMETER") tier: Int,
+        @Suppress("UNUSED_PARAMETER") dimensionBoosts: Int,
+        @Suppress("UNUSED_PARAMETER") lowerChainReady: Boolean = true,
+    ): Int = DIMENSION_MODE_BUY_SINGLE
 
     /**
      * 第五次提升前暂停计数频率购买，避免每次购买同时抬高同价的低层维度。

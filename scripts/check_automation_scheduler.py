@@ -559,8 +559,8 @@ check("C9 null 挑战 ID 不触发恢复，unknown save 仅在 C9 内补绑",
       and "saveC9CrunchCapture(" in stage[
           stage.find("if (c9CrunchCaptureSaveId.isNullOrEmpty())"):
           stage.find("if (OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave(")])
-check("C9 自举层使用单买，避免抬高 D7 价格",
-      "!lowerChainReady || tier == 7 || tier == 8" in
+check("C9 全程使用单买，避免同价涨价造成批量购买墙",
+      "): Int = DIMENSION_MODE_BUY_SINGLE" in
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
