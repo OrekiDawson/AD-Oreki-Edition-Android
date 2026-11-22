@@ -31,6 +31,10 @@ public final class StorePolicyTransformer {
         "kajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy";
     private static final String SPEED_CLASS =
         "kajfosz/antimatterdimensions/OrekiSpeed.class";
+    private static final String SPEED_SETTINGS_CLICK =
+        "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class";
+    private static final String SPEED_SETTINGS_ACTIVITY =
+        "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class";
     private static final String MATTER_PACING =
         "kajfosz/antimatterdimensions/oreki/OrekiMatterChallengePacing";
     private static final String RETIRED_INSTANT = "kajfosz/antimatterdimensions/OrekiInstantChallenge";
@@ -112,7 +116,8 @@ public final class StorePolicyTransformer {
             !replacements.containsValue("isPurchaseEffectEnabled") ||
             !replacements.containsValue("isStoreEnabled") ||
             !replacements.containsValue("sanitizeSpeed") ||
-            !replacements.containsValue("speedInputGate")) {
+            !replacements.containsValue("speedInputGate") ||
+            !replacements.containsValue("speedUiText")) {
             throw new IllegalStateException("store policy targets missing: " + replacements);
         }
         targetReport(report, input, output, replacements);
@@ -123,6 +128,8 @@ public final class StorePolicyTransformer {
             name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class") ||
             name.equals("kajfosz/antimatterdimensions/shop/Purchases.class") ||
             name.equals(SPEED_CLASS) ||
+            name.equals(SPEED_SETTINGS_CLICK) ||
+            name.equals(SPEED_SETTINGS_ACTIVITY) ||
             STORE_ACTION_CLASSES.contains(name);
     }
 
@@ -212,6 +219,21 @@ public final class StorePolicyTransformer {
                             output.visitInsn(Opcodes.ICONST_0);
                             output.visitInsn(Opcodes.IRETURN);
                             output.visitLabel(valid);
+                        }
+                    };
+                }
+                if (name.equals(SPEED_SETTINGS_CLICK) || name.equals(SPEED_SETTINGS_ACTIVITY)) {
+                    return new MethodVisitor(Opcodes.ASM9, output) {
+                        @Override
+                        public void visitLdcInsn(Object value) {
+                            if (value instanceof String text) {
+                                String updated = updateSpeedUiText(text);
+                                if (!updated.equals(text)) {
+                                    report.put(name + "#speed-ui-text", "speedUiText");
+                                    value = updated;
+                                }
+                            }
+                            super.visitLdcInsn(value);
                         }
                     };
                 }
@@ -382,6 +404,22 @@ public final class StorePolicyTransformer {
             return new Replacement("isPurchaseEffectEnabled", true, false, false);
         }
         return null;
+    }
+
+    private static String updateSpeedUiText(String value) {
+        return value
+            .replace("已恢复默认：游戏速度 ×3000", "已恢复默认：游戏速度 ×500")
+            .replace("已恢复默认：游戏速度 ×10000", "已恢复默认：游戏速度 ×500")
+            .replace(
+                "输入无效：请输入 0.000001 ~ 1000000000 之间的数字",
+                "输入无效：请输入 0.000001 ~ 100000 之间的数字"
+            )
+            .replace("恢复默认（×3000）", "恢复默认（×500）")
+            .replace("恢复默认（×10000）", "恢复默认（×500）")
+            .replace(
+                "取值范围 0.000001 ~ 1000000000",
+                "取值范围 0.000001 ~ 100000"
+            );
     }
 
     private static void targetReport(

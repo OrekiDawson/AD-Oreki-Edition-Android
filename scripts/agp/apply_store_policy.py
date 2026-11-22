@@ -32,6 +32,8 @@ TARGET_CLASSES = {
     "kajfosz/antimatterdimensions/shop/LoginActivity.class",
     "kajfosz/antimatterdimensions/MainActivity.class",
     "kajfosz/antimatterdimensions/OrekiSpeed.class",
+    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class",
+    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class",
 }
 RETIRED_INSTANT_PREFIX = "kajfosz/antimatterdimensions/OrekiInstantChallenge"
 
