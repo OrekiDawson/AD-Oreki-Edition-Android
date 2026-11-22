@@ -374,15 +374,15 @@ _beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
 _managed_ok, _legacy_ok = False, False
 _managed_out, _legacy_out = ["runner missing"], ["runner missing"]
 if _beat_runner.is_file():
-    try:
-        _test_results = ROOT / "agp" / "app" / "build" / "test-results" / "testDebugUnitTest"
-        _managed_classes = {
-            "OrekiManagedAutobuyerAuthorityTest",
-            "OrekiManagedAutobuyerScenarioTest",
-        }
-        _legacy_classes = {"OrekiAutobuyerBeatTest"}
+    _test_results = ROOT / "agp" / "app" / "build" / "test-results" / "testDebugUnitTest"
+    _managed_classes = {
+        "OrekiManagedAutobuyerAuthorityTest",
+        "OrekiManagedAutobuyerScenarioTest",
+    }
+    _legacy_classes = {"OrekiAutobuyerBeatTest"}
 
-        def _run_beat(mode, classes):
+    def _run_beat(mode, classes):
+        try:
             for _xml in _test_results.glob("TEST-*.xml"):
                 if _xml.stem.rsplit(".", 1)[-1] in classes:
                     _xml.unlink()
@@ -416,12 +416,11 @@ if _beat_runner.is_file():
                     for name, row in _rows.items())
             ]
             return _run.returncode == 0 and _executed, _summary + _detail
+        except Exception as _e:
+            return False, [mode + ": " + str(_e)]
 
-        _managed_ok, _managed_out = _run_beat("current", _managed_classes)
-        _legacy_ok, _legacy_out = _run_beat("legacy", _legacy_classes)
-    except Exception as _e:
-        _managed_out = [str(_e)]
-        _legacy_out = [str(_e)]
+    _managed_ok, _managed_out = _run_beat("current", _managed_classes)
+    _legacy_ok, _legacy_out = _run_beat("legacy", _legacy_classes)
 check("当前受管配置路径在真实 Authority/Scenario 测试中通过（下一 tick 恢复、同 tick 幂等）",
       _managed_ok, " ".join(_managed_out))
 check("历史兜底节拍对象回归通过（只登记一次、到点只恢复一次、1s/60s 边界）",
