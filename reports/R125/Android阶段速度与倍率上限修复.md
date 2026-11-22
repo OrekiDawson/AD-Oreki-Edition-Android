@@ -39,8 +39,8 @@ OREKI_GATE ... mult=1800000.0
   `OrekiSpeedPolicy.sanitize(D)D` 与 `OrekiSpeedPolicy.isValidInput(D)Z` 的调用。
 - `OrekiGamePaceTest` AGP JVM 定向测试：BUILD SUCCESSFUL。
 - 恢复默认重新启用阶段托管；历史超限手动倍率保留手动归属并仅收窄到 `100000×`。
-- R8 OFF Release APK：`81,663,663 B`，SHA-256
-  `1cae9d648d07f7aa062ae1e3a5ce2232c53ff43f6e88981d2e622ae06437b5a8`，
+- R8 OFF Release APK：`81,663,651 B`，SHA-256
+  `a528ff8e192a4c7582edfb4243cb75eee7d88598b31a57ab3ad03b9734b41920`，
   原证书 V3 验签 PASS。
 
 ## 尚未完成
