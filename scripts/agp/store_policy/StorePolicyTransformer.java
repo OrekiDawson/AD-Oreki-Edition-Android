@@ -13,6 +13,7 @@ import java.util.zip.ZipOutputStream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -26,6 +27,10 @@ import org.objectweb.asm.Opcodes;
  */
 public final class StorePolicyTransformer {
     private static final String POLICY = "kajfosz/antimatterdimensions/oreki/OrekiStorePolicy";
+    private static final String SPEED_POLICY =
+        "kajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy";
+    private static final String SPEED_CLASS =
+        "kajfosz/antimatterdimensions/OrekiSpeed.class";
     private static final String MATTER_PACING =
         "kajfosz/antimatterdimensions/oreki/OrekiMatterChallengePacing";
     private static final String RETIRED_INSTANT = "kajfosz/antimatterdimensions/OrekiInstantChallenge";
@@ -105,7 +110,9 @@ public final class StorePolicyTransformer {
             ) ||
             !replacements.containsValue("effectPurchaseCount") ||
             !replacements.containsValue("isPurchaseEffectEnabled") ||
-            !replacements.containsValue("isStoreEnabled")) {
+            !replacements.containsValue("isStoreEnabled") ||
+            !replacements.containsValue("sanitizeSpeed") ||
+            !replacements.containsValue("speedInputGate")) {
             throw new IllegalStateException("store policy targets missing: " + replacements);
         }
         targetReport(report, input, output, replacements);
@@ -115,6 +122,7 @@ public final class StorePolicyTransformer {
         return name.equals("l5.class") ||
             name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class") ||
             name.equals("kajfosz/antimatterdimensions/shop/Purchases.class") ||
+            name.equals(SPEED_CLASS) ||
             STORE_ACTION_CLASSES.contains(name);
     }
 
@@ -157,6 +165,56 @@ public final class StorePolicyTransformer {
                 String[] exceptions
             ) {
                 MethodVisitor output = super.visitMethod(access, methodName, descriptor, signature, exceptions);
+                if (name.equals(SPEED_CLASS) && methodName.equals("mult") && descriptor.equals("()D")) {
+                    report.put(name + "#mult()D", "sanitizeSpeed");
+                    return new MethodVisitor(Opcodes.ASM9, output) {
+                        @Override
+                        public void visitCode() {
+                            output.visitCode();
+                            output.visitFieldInsn(
+                                Opcodes.GETSTATIC,
+                                "kajfosz/antimatterdimensions/OrekiSpeed",
+                                "sMult",
+                                "D"
+                            );
+                            output.visitMethodInsn(
+                                Opcodes.INVOKESTATIC,
+                                SPEED_POLICY,
+                                "sanitize",
+                                "(D)D",
+                                false
+                            );
+                            output.visitFieldInsn(
+                                Opcodes.PUTSTATIC,
+                                "kajfosz/antimatterdimensions/OrekiSpeed",
+                                "sMult",
+                                "D"
+                            );
+                        }
+                    };
+                }
+                if (name.equals(SPEED_CLASS) && methodName.equals("set") && descriptor.equals("(D)Z")) {
+                    report.put(name + "#set(D)Z", "speedInputGate");
+                    return new MethodVisitor(Opcodes.ASM9, output) {
+                        @Override
+                        public void visitCode() {
+                            output.visitCode();
+                            output.visitVarInsn(Opcodes.DLOAD, 0);
+                            output.visitMethodInsn(
+                                Opcodes.INVOKESTATIC,
+                                SPEED_POLICY,
+                                "isValidInput",
+                                "(D)Z",
+                                false
+                            );
+                            Label valid = new Label();
+                            output.visitJumpInsn(Opcodes.IFNE, valid);
+                            output.visitInsn(Opcodes.ICONST_0);
+                            output.visitInsn(Opcodes.IRETURN);
+                            output.visitLabel(valid);
+                        }
+                    };
+                }
                 Replacement replacement = replacementFor(name, superName, methodName, descriptor);
                 if (replacement == null) {
                     if (name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class")) {

@@ -1058,6 +1058,15 @@ val fullGameStage = orekiRepoPath(
 val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
 val storePolicyGameJar = File(repoRoot, "build/agp-store-policy/game-hybrid-sig-store-policy.jar")
 val storePolicyReport = File(repoRoot, "build/agp-store-policy/report.json")
+val transformerSdkRoot = File(System.getenv("ANDROID_HOME") ?: "/opt/android-sdk")
+val transformerAndroidJar = File(transformerSdkRoot, "platforms")
+    .listFiles()
+    ?.filter { it.isDirectory }
+    ?.map { File(it, "android.jar") }
+    ?.filter { it.isFile }
+    ?.sortedBy { it.parentFile.name }
+    ?.lastOrNull()
+    ?: throw GradleException("找不到用于 ASM 帧计算的 android.jar")
 
 // R121-01：商店/广告业务判据在 Kotlin；这里只对已转换游戏 JAR 的两个原版
 // ABI 出口做最小替换，存档字段、构造器、copy/component 与序列化保持原样。
@@ -1090,6 +1099,7 @@ val applyStorePolicy = tasks.register<Exec>("applyStorePolicy") {
         "--out-jar", storePolicyGameJar.absolutePath,
         "--report", storePolicyReport.absolutePath,
         "--asm-jar", asmJar.absolutePath,
+        "--android-jar", transformerAndroidJar.absolutePath,
         "--java-home", System.getProperty("java.home"),
     )
 }

@@ -9,6 +9,8 @@ POLICY = ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiSpe
 SMALI = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/OrekiSpeed.smali"
 SETTINGS = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/SettingsClickListener.smali"
 SPEED_UI = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali"
+TRANSFORMER = ROOT / "scripts/agp/store_policy/StorePolicyTransformer.java"
+APPLY_POLICY = ROOT / "scripts/agp/apply_store_policy.py"
 
 
 class SpeedBoundPolicyTests(unittest.TestCase):
@@ -50,6 +52,17 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("0.000001 ~ 100000", settings)
         self.assertIn("恢复默认（×500）", speed_ui)
         self.assertIn("取值范围 0.000001 ~ 100000", speed_ui)
+
+    def test_agp_game_jar_transformer_owns_speed_abi(self):
+        transformer = TRANSFORMER.read_text(encoding="utf-8")
+        apply_policy = APPLY_POLICY.read_text(encoding="utf-8")
+        self.assertIn("OrekiSpeedPolicy", transformer)
+        self.assertIn('methodName.equals("mult")', transformer)
+        self.assertIn('methodName.equals("set")', transformer)
+        self.assertIn('"sanitizeSpeed"', transformer)
+        self.assertIn('"speedInputGate"', transformer)
+        self.assertIn('"kajfosz/antimatterdimensions/OrekiSpeed.class"', apply_policy)
+        self.assertIn("--android-jar", apply_policy)
 
 
 if __name__ == "__main__":

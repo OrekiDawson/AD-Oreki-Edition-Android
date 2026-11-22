@@ -21,14 +21,25 @@ OREKI_GATE ... mult=1800000.0
 - 游戏速度公开上限统一为 `100000×`。
 - 历史持久化超限值在运行时收窄到 `100000×`；非法值回退 `500×`。
 - 手动输入超过 `100000×` 返回失败，不静默保存。
+- 正式 AGP 链不会汇编 payload Smali，因此由 `StorePolicyTransformer` 直接改写
+  `game-hybrid-sig.jar` 的 `OrekiSpeed.mult/set`，再调用 Kotlin 边界；
+  Smali 源仅保留同一 ABI 的源码镜像。
 
 阶段速度仍只由真实 `hasInfinity`、`break`、`realities` 状态切换；不按墙钟锁阶段。
 
 ## 验证
 
-- `test_speed_bound_policy.py`：5/5 PASS。
+- `test_speed_bound_policy.py`：6/6 PASS。
 - Smali wide-register 检查：3 个文件 PASS。
 - `generateKotlinBindings compileKotlinClasses`：`BUILD SUCCESSFUL`。
+- `StorePolicyTransformer` 实际输出目标报告包含
+  `OrekiSpeed.class#mult()D -> sanitizeSpeed` 与
+  `OrekiSpeed.class#set(D)Z -> speedInputGate`。
+- 最终 APK DEX 反查确认同一 `classes.dex` 中存在
+  `OrekiSpeedPolicy.sanitize(D)D` 与 `OrekiSpeedPolicy.isValidInput(D)Z` 的调用。
+- R8 OFF Release APK：`81,663,655 B`，SHA-256
+  `e06d32b043eb148ad92d4ecd37ffd575df053ec9ccd80d8b7ac1474c4e84531f`，
+  原证书 V3 验签 PASS。
 
 ## 尚未完成
 
