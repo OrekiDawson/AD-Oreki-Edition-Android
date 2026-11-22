@@ -39,6 +39,8 @@ class C11MatterPacingTests(unittest.TestCase):
         self.assertIn("lastReadAtNanos = now", source)
         self.assertIn("initialized = true", source)
         self.assertNotIn("challengeStateReadAtNanos = Long.MIN_VALUE", source)
+        self.assertNotIn("Pair<", source)
+        self.assertIn("normalChallengeReader = GameApi::normalChallengeCurrent", source)
 
     def test_game_jar_hook_replaces_only_challenge_update_diff(self) -> None:
         source = TRANSFORMER.read_text(encoding="utf-8")
