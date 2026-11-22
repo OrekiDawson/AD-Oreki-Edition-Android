@@ -32,6 +32,12 @@ bash gradlew -p agp :app:testDebugUnitTest \
 
 - AGP Kotlin DEBUG 单元测试：92/92 PASS，18 个测试套件，0 failure / 0 error / 0 skipped，`BUILD SUCCESSFUL`，27 个任务完成。
 - 编译包含现有 unchecked-cast、条件恒真/恒假与系统栏弃用警告，无本轮新增编译错误。
+- 首次永恒判定链夹具：57/57 PASS（hold/can/EP 三道门禁极性正确）。
+- V 解锁门槛测试：3/3 PASS。
+- Dilation 自动化测试：4/4 PASS。
+- C11 物质节奏测试：3/3 PASS。
+- 目录布局测试：7/7 PASS。
+- Android 仓库策略测试：15/15 PASS。
 - `bash -n scripts/ci/build_bundle_r114.sh`：PASS。
 - `python3 -m py_compile scripts/deobf_semantic_kajfosz.py`：PASS。
 - 活动路径扫描：无旧 `AD-Oreki-Unified` 或旧一级仓库路径。
