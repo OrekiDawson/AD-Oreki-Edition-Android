@@ -69,10 +69,11 @@ class OrekiMatterChallengePacingTest {
         var reads = 0
         val cache = OrekiMatterChallengeStateCache(
             nanoClock = { now },
-            challengeReader = {
+            normalChallengeReader = {
                 reads += 1
-                if (reads == 1) 11 to 0 else 0 to 6
+                if (reads == 1) 11 else 0
             },
+            infinityChallengeReader = { if (reads == 1) 0 else 6 },
         )
 
         assertEquals(11, cache.normalChallengeCurrent())
