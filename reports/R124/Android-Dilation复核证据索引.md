@@ -34,10 +34,10 @@
 - 同日志在 `16:18:12.271` 记录 `action=start`；启动后未捕获
   `active=true` 中间态，但在 `16:18:12.771` 记录 `tp=95.807`，
   DT/maxDT 从 `182.031` 增长到 `183.434`。
-- 最终 APK 的 dtGain 在该日志中始终为 0，因此
-  “调度器 dtGain 购买”只能记 `NOT RUN`。历史 `d369c4e8` 的
-  `0→1` 记录属于前一候选，不得移植到最终 APK。
-- 搜索最终 APK 日志未发现 `FATAL EXCEPTION`、
+- `logcat-final-6460d0aa.txt`（历史候选 `6460d0aa`）的 dtGain 在该日志中始终为 0，
+  因此“调度器 dtGain 购买”只能记 `NOT RUN`。历史 `d369c4e8` 的
+  `0→1` 记录属于前一候选，不得移植到本复核 APK `add2edaa`。
+- 搜索 `logcat-final-6460d0aa.txt`（历史候选 `6460d0aa`）未发现 `FATAL EXCEPTION`、
   `SynchronizedLazyImpl`、`EnumEntries` 或新增的反射 ABI 崩溃。
 
 ## 历史候选文件
