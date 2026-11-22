@@ -14,7 +14,9 @@ R124 从 C9 原版结算档继续推进时发现两个真实 P1：
 - 新增原版挑战实例 `v()` 目标读取；只有 `goalReached=true` 且
   `canBigCrunch=true` 时调用既有 `bigCrunchReset()`。
 - C11 只识别原版物质湮灭 Dialog，按要求点击正向“确定”；
-  绝不点击“放弃挑战”。操作在 UI 线程执行，并限频为每 1 秒最多一次。
+  绝不点击“放弃挑战”。操作在 UI 线程执行，每 50 毫秒最多投递一次，
+  并用原子标记防止 UI 任务堆积；Fragment 扫描逐元素容错，任一无 Dialog
+  字段的原版 Fragment 都不会中断后续查找。
 
 ## 源码改动
 
@@ -32,7 +34,7 @@ R124 从 C9 原版结算档继续推进时发现两个真实 P1：
 - Kotlin/JVM：`76/76 PASS`，0 failure。
 - 调度器静态契约：`173/173 PASS`。
 - AGP 9.5.1 R8 OFF 完整游戏 APK：BUILD SUCCESSFUL。
-- APK SHA-256：`ab431af2ca9a9d8ce52ba4e1613706167505e3aec86af9556a4f8adda6d8bfeb`。
+- APK SHA-256：`23794842ca0e909e70b6ceee86abaf608d083157e467b3ca743eb487bf0d90d7`。
 - 包名：`com.oreki.antimatterdimensions`；versionCode `30210002`；
   versionName `3.21.0`；v3 证书 SHA-256 `95960bce…3197`。
 - AVD：`ad-game-api37`，`emulator-5554`，覆盖安装 Success。

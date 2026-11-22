@@ -435,10 +435,14 @@ check("C11 原版物质湮灭弹窗限频并只点击正向确认",
       "shouldDismissMatterAnnihilationDialog(" in stage
       and "GameApi.dismissMatterAnnihilationDialogIfPresent()" in stage
       and "normalChallengeCurrent == 11" in _normal_challenge_authority
-      and "nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 1000L" in stage
+      and "nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 50L" in stage
+      and "matterAnnihilationDialogPostPending.compareAndSet(false, true)" in
+      _normal_challenge_gameapi
       and "android.R.id.button1" in _normal_challenge_gameapi
       and 'getField("c0")' in _normal_challenge_gameapi
       and 'getField("O0")' in _normal_challenge_gameapi
+      and "} catch (_: Throwable) {\n                        null\n                    } ?: continue" in
+      _normal_challenge_gameapi
       and "0x7f0a05d3" in _normal_challenge_gameapi)
 
 _c9_start = stage.find("val c9JustEnded =")

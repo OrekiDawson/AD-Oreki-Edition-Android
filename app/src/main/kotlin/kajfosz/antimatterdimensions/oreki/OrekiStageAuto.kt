@@ -368,7 +368,7 @@ object OrekiStageAuto {
             val nowForMatterDialog = System.currentTimeMillis()
             val matterDialogDue =
                 managedConfigTickId != 0L ||
-                    nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 1000L
+                    nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 50L
             if (OrekiManagedAutobuyerAuthority.shouldDismissMatterAnnihilationDialog(
                     normalChallengeCurrent = normalChallengeCurrent,
                     isDue = matterDialogDue,

@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Button
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 游戏内部类型的**缓存式反射访问层**。
@@ -424,9 +425,12 @@ internal object GameApi {
      * 通过原版公开资源 ID `exitChallengeButton=0x7f0a05d3` 识别该专用布局，
      * 再点击 Dialog 的标准 positive button。整个操作只投递到 UI 线程。
      */
+    private val matterAnnihilationDialogPostPending = AtomicBoolean(false)
+
     @JvmStatic
     fun dismissMatterAnnihilationDialogIfPresent() {
         val activity = currentActivityForUiPump() as? Activity ?: return
+        if (!matterAnnihilationDialogPostPending.compareAndSet(false, true)) return
         activity.runOnUiThread {
             try {
                 val delegate = activity.javaClass.getField("c0").get(activity)
@@ -436,14 +440,19 @@ internal object GameApi {
                 val fragments = store.javaClass.getMethod("z").invoke(store)
                     as? Iterable<*> ?: return@runOnUiThread
                 for (fragment in fragments) {
-                    val dialog = fragment?.javaClass?.getField("O0")?.get(fragment)
-                        as? Dialog ?: continue
+                    val dialog = try {
+                        fragment?.javaClass?.getField("O0")?.get(fragment) as? Dialog
+                    } catch (_: Throwable) {
+                        null
+                    } ?: continue
                     if (dialog.findViewById<android.view.View>(0x7f0a05d3) == null) continue
                     val positive = dialog.findViewById<Button>(android.R.id.button1) ?: continue
                     if (positive.isEnabled) positive.performClick()
                 }
             } catch (_: Throwable) {
                 // 原版 UI 读取失败时保持游戏运行；下一调度 tick 再重试。
+            } finally {
+                matterAnnihilationDialogPostPending.set(false)
             }
         }
     }
