@@ -1429,12 +1429,20 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
             return Triple(input, output, reportFile)
         }
 
-        fun expectFailure(label: String, action: () -> Unit): Boolean {
+        fun expectFailure(
+            label: String,
+            expectedMessageFragment: String,
+            action: () -> Unit,
+        ): Boolean {
             return try {
                 action()
                 false
-            } catch (_: GradleException) {
-                true.also { logger.lifecycle("[oreki] store-policy 自测预期失败: $label") }
+            } catch (error: GradleException) {
+                val matched = error.message.orEmpty().contains(expectedMessageFragment)
+                if (matched) {
+                    logger.lifecycle("[oreki] store-policy 自测预期失败: $label")
+                }
+                matched
             }
         }
 
@@ -1462,41 +1470,45 @@ tasks.register("verifyStorePolicyOutputSelfTest") {
         }
         val staleSpeedUi = createCase("negative-speed-ui-stale") { output ->
             output["kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class"] =
-                orekiStorePolicyFixtureSpeedUiBefore.toByteArray(Charsets.UTF_8)
+                (orekiStorePolicyFixtureSpeedUiBefore + "；旧上限 1000000000")
+                    .toByteArray(Charsets.UTF_8)
         }
         val positivePass = positiveResult.outputSha256.isNotEmpty()
-        val hashFailClosed = expectFailure("报告输出哈希不一致") {
+        val hashFailClosed = expectFailure("报告输出哈希不一致", "报告输出哈希") {
             orekiVerifyStorePolicyArtifacts(hashMismatch.first, hashMismatch.second, hashMismatch.third)
         }
-        val nonTargetFailClosed = expectFailure("非目标条目被改写") {
+        val nonTargetFailClosed = expectFailure("非目标条目被改写", "改写非目标条目") {
             orekiVerifyStorePolicyArtifacts(
                 nonTargetChanged.first,
                 nonTargetChanged.second,
                 nonTargetChanged.third,
             )
         }
-        val retiredFailClosed = expectFailure("退役类未移除") {
+        val retiredFailClosed = expectFailure("退役类未移除", "仍包含已退役") {
             orekiVerifyStorePolicyArtifacts(
                 retiredNotRemoved.first,
                 retiredNotRemoved.second,
                 retiredNotRemoved.third,
             )
         }
-        val staleReferenceFailClosed = expectFailure("输出仍引用退役类") {
+        val staleReferenceFailClosed = expectFailure("输出仍引用退役类", "仍引用已退役类") {
             orekiVerifyStorePolicyArtifacts(
                 staleReference.first,
                 staleReference.second,
                 staleReference.third,
             )
         }
-        val targetUnchangedFailClosed = expectFailure("必需目标类未改写") {
+        val targetUnchangedFailClosed = expectFailure("必需目标类未改写", "必需目标条目未改写") {
             orekiVerifyStorePolicyArtifacts(
                 targetUnchanged.first,
                 targetUnchanged.second,
                 targetUnchanged.third,
             )
         }
-        val staleSpeedUiFailClosed = expectFailure("速度设置旧上限文本仍存在") {
+        val staleSpeedUiFailClosed = expectFailure(
+            "速度设置旧上限文本仍存在",
+            "目标条目缺少策略锚点",
+        ) {
             orekiVerifyStorePolicyArtifacts(
                 staleSpeedUi.first,
                 staleSpeedUi.second,
