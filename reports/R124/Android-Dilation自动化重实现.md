@@ -18,6 +18,10 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
   这避免 3 秒冷却过后对同一轮 Dilation 反复执行原版永恒重置。
 - 启动结果如在一个 500 ms 采样间隔内完成，则以 TP、maxDT、dtGain、永恒次数或
   EP 的真实观测 token 变化释放闩锁，避免短暂 active 未被采样时永久锁死。
+- 启动 10 秒后仍无 active 或任一观测代际变化时，释放在途闩锁并记录
+  `launch-timeout`，让下一轮重新经过完整原版门禁。
+- 每帧永恒门禁只调用轻量 `activeOrNull()`（3 次只读反射），完整 snapshot
+  仅保留在 500 ms 调度节拍，避免主循环每帧构造日志/字符串 token。
 - TP 已存在的再次膨胀必须先满足普通永恒的 EP 成长门槛（本次 EP ≥ 当前 EP）；
   首次 TP 播种不套用该门槛，以免既有高 EP 存档永远无法获得首个 TP。
 - 3.21 的 `Eternity$confirmEternity$4` / `confirmDilatedEternity$4` 是 Kotlin
@@ -77,12 +81,12 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 
 ## 验证
 
-- `OrekiDilationPolicyTest`：8 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
+- `OrekiDilationPolicyTest`：9 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
   未解锁、ABI 未知、TP 真零、门禁关闭、启动在途防重入、激活等待普通永恒退出和
   dtGain 购买条件。
 - `OrekiEternityGainGateTest` 覆盖膨胀激活时豁免收益门槛、非激活时保持原门槛。
 - Python Dilation/V 定向测试：7/7 PASS。
-- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：90/90 PASS，
+- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：91/91 PASS，
   0 failure，0 error。
 - `python3 scripts/check_automation_scheduler.py`：174/174 PASS。
 - `scripts/fixture_eternity_gate.py`：57/57 PASS。

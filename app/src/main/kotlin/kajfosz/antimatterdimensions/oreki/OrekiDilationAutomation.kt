@@ -85,6 +85,19 @@ internal object OrekiDilationPolicy {
         after: OrekiDilationLaunchObservation,
     ): Boolean = observedActive || (before != null && before != after)
 
+    fun launchTimedOut(
+        nowMs: Long,
+        issuedAtMs: Long,
+        observedActive: Boolean,
+        before: OrekiDilationLaunchObservation?,
+        after: OrekiDilationLaunchObservation,
+        timeoutMs: Long = 10_000L,
+    ): Boolean = !observedActive &&
+        before != null &&
+        before == after &&
+        issuedAtMs > 0L &&
+        nowMs - issuedAtMs >= timeoutMs
+
     fun shouldBuyDtGain(
         automationEnabled: Boolean,
         autobuyersOn: Boolean,
@@ -387,6 +400,13 @@ internal object OrekiDilationApi {
         )
     }
 
+    /** 每帧财务门禁专用轻量读取；不构造完整 snapshot。 */
+    fun activeOrNull(): Boolean? {
+        val player = player() ?: return null
+        val dilation = invoke(playerDilation(), player) ?: return null
+        return invoke(dilationActive(), dilation) as? Boolean
+    }
+
     private fun readDtGainLevel(): Long? {
         val upgrade = dtGainField()?.get(null) ?: return null
         return invoke(dtGainLevelMethod(), upgrade) as? Long
@@ -409,6 +429,7 @@ internal object OrekiDilationAutomation {
     private const val TAG = "OREKI_DIL"
     private const val TICK_MS = 500L
     private const val RESET_GAP_MS = 3_000L
+    private const val LAUNCH_TIMEOUT_MS = 10_000L
     private const val LOG_INTERVAL_MS = 30_000L
 
     private var lastTickAt = 0L
@@ -416,6 +437,7 @@ internal object OrekiDilationAutomation {
     private var lastRealityGeneration = Int.MIN_VALUE
     private var awaitingLaunchActive = false
     private var awaitingLaunchObservation: OrekiDilationLaunchObservation? = null
+    private var awaitingLaunchIssuedAt = 0L
     private var lastLogAt = 0L
     private var lastLogSignature = ""
     private var lastAction = "idle"
@@ -423,7 +445,7 @@ internal object OrekiDilationAutomation {
     /** 膨胀激活时必须允许一次普通永恒来发放 TP 并退出，不能继续套用 EP 收益增长门槛。 */
     @JvmStatic
     fun isActiveForEternitySettlement(): Boolean = try {
-        OrekiDilationApi.snapshot()?.active == true
+        OrekiDilationApi.activeOrNull() == true
     } catch (_: Throwable) {
         false
     }
@@ -434,6 +456,7 @@ internal object OrekiDilationAutomation {
         lastRealityGeneration = generation
         awaitingLaunchActive = false
         awaitingLaunchObservation = null
+        awaitingLaunchIssuedAt = 0L
         lastResetAt = 0L
         lastAction = "reality-reset"
     }
@@ -447,16 +470,32 @@ internal object OrekiDilationAutomation {
             eternityPointsToken = snapshot.eternityPointsToken,
         )
 
-    private fun reconcileLaunch(snapshot: OrekiDilationSnapshot) {
+    private fun reconcileLaunch(snapshot: OrekiDilationSnapshot, now: Long = SystemClock.elapsedRealtime()) {
         if (!awaitingLaunchActive) return
+        val after = observation(snapshot)
         if (OrekiDilationPolicy.launchSettled(
                 observedActive = snapshot.active == true,
                 before = awaitingLaunchObservation,
-                after = observation(snapshot),
+                after = after,
             )
         ) {
             awaitingLaunchActive = false
             awaitingLaunchObservation = null
+            awaitingLaunchIssuedAt = 0L
+        } else if (OrekiDilationPolicy.launchTimedOut(
+                nowMs = now,
+                issuedAtMs = awaitingLaunchIssuedAt,
+                observedActive = snapshot.active == true,
+                before = awaitingLaunchObservation,
+                after = after,
+                timeoutMs = LAUNCH_TIMEOUT_MS,
+            )
+        ) {
+            awaitingLaunchActive = false
+            awaitingLaunchObservation = null
+            awaitingLaunchIssuedAt = 0L
+            lastResetAt = now
+            lastAction = "launch-timeout"
         }
     }
 
@@ -477,7 +516,7 @@ internal object OrekiDilationAutomation {
             logThrottled(now, "abi-missing", false)
             return false
         }
-        reconcileLaunch(snapshot)
+        reconcileLaunch(snapshot, now)
 
         val tachyonPositive = (snapshot.tachyonComparison ?: 0) > 0
         val resetAllowed = OrekiAutoEternityGate.allowed() &&
@@ -507,6 +546,7 @@ internal object OrekiDilationAutomation {
                 if (OrekiDilationApi.startDilatedEternity()) {
                     awaitingLaunchActive = true
                     awaitingLaunchObservation = observation(snapshot)
+                    awaitingLaunchIssuedAt = now
                     lastResetAt = now
                     lastAction = "start"
                     true

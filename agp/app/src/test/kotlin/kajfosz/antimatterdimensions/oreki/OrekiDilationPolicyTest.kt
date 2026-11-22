@@ -136,6 +136,43 @@ class OrekiDilationPolicyTest {
     }
 
     @Test
+    fun launchLatchTimesOutOnlyWhenObservationsRemainUnchanged() {
+        val observation = OrekiDilationLaunchObservation(
+            tachyonLog10 = null,
+            maxDilatedTimeLog10 = null,
+            dtGainLevel = 0,
+            eternitiesToken = "0e0",
+            eternityPointsToken = "0e0",
+        )
+        assertFalse(
+            OrekiDilationPolicy.launchTimedOut(
+                10_000L,
+                issuedAtMs = 1L,
+                observedActive = false,
+                before = observation,
+                after = observation,
+            ),
+        )
+        assertTrue(
+            OrekiDilationPolicy.launchTimedOut(
+                10_001L,
+                issuedAtMs = 1L,
+                observedActive = false,
+                before = observation,
+                after = observation,
+            ),
+        )
+        assertFalse(
+            OrekiDilationPolicy.launchTimedOut(
+                20_000L,
+                issuedAtMs = 1L,
+                observedActive = false,
+                before = observation,
+                after = observation.copy(eternitiesToken = "1e0"),
+            ),
+        )
+    }
+    @Test
     fun waitsForTheOriginalEternityToExitDilationAndNeverUsesSafetyExit() {
         assertEquals(
             OrekiDilationAction.WAIT_ACTIVE_ETERNITY,
