@@ -375,43 +375,50 @@ _managed_ok, _legacy_ok = False, False
 _managed_out, _legacy_out = ["runner missing"], ["runner missing"]
 if _beat_runner.is_file():
     try:
-        _beat = _sp.run(["bash", str(_beat_runner), "all"], capture_output=True, text=True, timeout=300)
         _test_results = ROOT / "agp" / "app" / "build" / "test-results" / "testDebugUnitTest"
         _managed_classes = {
             "OrekiManagedAutobuyerAuthorityTest",
             "OrekiManagedAutobuyerScenarioTest",
         }
         _legacy_classes = {"OrekiAutobuyerBeatTest"}
-        _xml_results = {name: {"tests": 0, "failures": 0, "errors": 0}
-                        for name in _managed_classes | _legacy_classes}
-        if _test_results.is_dir():
-            import xml.etree.ElementTree as _ET
+
+        def _run_beat(mode, classes):
             for _xml in _test_results.glob("TEST-*.xml"):
-                _name = _xml.stem.rsplit(".", 1)[-1]
-                if _name not in _xml_results:
-                    continue
-                _root = _ET.parse(_xml).getroot()
-                for _key in ("tests", "failures", "errors"):
-                    _xml_results[_name][_key] += int(_root.attrib.get(_key, 0))
+                if _xml.stem.rsplit(".", 1)[-1] in classes:
+                    _xml.unlink()
+            _run = _sp.run(
+                ["bash", str(_beat_runner), mode],
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+            _rows = {name: {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
+                     for name in classes}
+            if _test_results.is_dir():
+                import xml.etree.ElementTree as _ET
+                for _xml in _test_results.glob("TEST-*.xml"):
+                    _name = _xml.stem.rsplit(".", 1)[-1]
+                    if _name not in _rows:
+                        continue
+                    _root = _ET.parse(_xml).getroot()
+                    for _key in ("tests", "failures", "errors", "skipped"):
+                        _rows[_name][_key] += int(_root.attrib.get(_key, 0))
+            _executed = all(
+                row["tests"] - row["skipped"] > 0
+                and row["failures"] == 0
+                and row["errors"] == 0
+                for row in _rows.values()
+            )
+            _summary = (_run.stdout or _run.stderr or "").strip().splitlines()[-1:] or [""]
+            _detail = [
+                mode + "=" + ",".join(
+                    f"{name}:{row['tests']}/{row['failures']}/{row['errors']}/{row['skipped']}"
+                    for name, row in _rows.items())
+            ]
+            return _run.returncode == 0 and _executed, _summary + _detail
 
-        def _classes_passed(names):
-            rows = [_xml_results[name] for name in names]
-            return all(row["tests"] > 0 and row["failures"] == 0 and row["errors"] == 0
-                       for row in rows)
-
-        _managed_ok = _beat.returncode == 0 and _classes_passed(_managed_classes)
-        _legacy_ok = _beat.returncode == 0 and _classes_passed(_legacy_classes)
-        _summary = (_beat.stdout or _beat.stderr or "").strip().splitlines()[-1:] or [""]
-        _managed_out = _summary + [
-            "managed=" + ",".join(
-                f"{name}:{row['tests']}/{row['failures']}/{row['errors']}"
-                for name, row in _xml_results.items() if name in _managed_classes)
-        ]
-        _legacy_out = _summary + [
-            "legacy=" + ",".join(
-                f"{name}:{row['tests']}/{row['failures']}/{row['errors']}"
-                for name, row in _xml_results.items() if name in _legacy_classes)
-        ]
+        _managed_ok, _managed_out = _run_beat("current", _managed_classes)
+        _legacy_ok, _legacy_out = _run_beat("legacy", _legacy_classes)
     except Exception as _e:
         _managed_out = [str(_e)]
         _legacy_out = [str(_e)]
