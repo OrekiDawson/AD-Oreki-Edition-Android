@@ -95,7 +95,7 @@ JADX_DIRS = [
     REPO / "work/output_code_321_r88/sources",
     REPO / "work/output_code_321_r86/sources",
 ]
-WEB_SRC = Path("/home/oreki/AD-Oreki-Unified/web/AD-Oreki-Edition/src")
+WEB_SRC = Path("/home/oreki/AD-Oreki-Edition/网页端/src")
 OUT_JSON = REPO / "docs/deobfuscation/data/3.21-semantic-kajfosz.json"
 OUT_CSV = REPO / "docs/deobfuscation/data/3.21-semantic-kajfosz.csv"
 OUT_REPORT = REPO / "reports/R106-02/semantic-kajfosz.md"

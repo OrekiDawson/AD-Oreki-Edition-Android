@@ -2,8 +2,8 @@
 # R122：组装 AGP 原生 candidate 所需的私有原始输入 bundle。
 # 不再复制或打包 work/mod / modtree；AGP 构建期从官方 base + 同版 split + overlay 生成输入。
 set -euo pipefail
-REPO=/home/oreki/AD-Oreki-Unified
-AD=$REPO/android/AD_Oreki_Edition_Android
+REPO=/home/oreki/AD-Oreki-Edition/安卓端
+AD=$REPO
 OUT=${OUT:-/home/oreki/private-staging/r114-bundle}
 STAGE=$OUT/stage
 mkdir -p "$STAGE"
@@ -36,6 +36,6 @@ echo "BUNDLE_SHA256=$BUNDLE_SHA"
 du -h "$OUT/oreki-build-inputs-native.tar.gz"
 
 echo '[6/6] 上传（需人工/Lead 执行）：'
-echo "  gh release create r122-native-build-inputs -R OrekiDawson/AD-Oreki-Unified --draft --title 'R122 native build inputs' --notes 'official 3.21 base + mdpi split + game jar; no modtree'"
-echo "  gh release upload r122-native-build-inputs \$OUT/oreki-build-inputs-native.tar.gz -R OrekiDawson/AD-Oreki-Unified"
+echo "  gh release create r122-native-build-inputs -R OrekiDawson/AD-Oreki-Edition-Android --draft --title 'R122 native build inputs' --notes 'official 3.21 base + mdpi split + game jar; no modtree'"
+echo "  gh release upload r122-native-build-inputs \$OUT/oreki-build-inputs-native.tar.gz -R OrekiDawson/AD-Oreki-Edition-Android"
 echo "  gh api -X PATCH repos/OrekiDawson/AD-Oreki-Edition-Android/environments/android-signing/variables/OREKI_BUILD_BUNDLE_SHA256 -f name=OREKI_BUILD_BUNDLE_SHA256 -f value=\$BUNDLE_SHA"
