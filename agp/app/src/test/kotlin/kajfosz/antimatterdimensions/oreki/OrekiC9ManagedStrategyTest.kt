@@ -183,6 +183,37 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
+    fun resetBootstrapUsesRealBoughtCountsInsteadOfBigDoubleZeroComparison() {
+        assertEquals(
+            0,
+            OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(0L),
+        )
+        assertEquals(
+            1,
+            OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(1L),
+        )
+        assertNull(
+            OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(null),
+        )
+        assertFalse(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 7,
+                amountComparisons = List(7) {
+                    OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(0L)
+                },
+            ),
+        )
+        assertTrue(
+            OrekiManagedAutobuyerAuthority.c9LowerChainReady(
+                requiredProducedTier = 7,
+                amountComparisons = List(7) {
+                    OrekiManagedAutobuyerAuthority.c9DimensionBoughtComparison(1L)
+                },
+            ),
+        )
+    }
+
+    @Test
     fun c9CaptureOnlyRestoresForSameSaveAndReadableEndedChallenge() {
         assertTrue(
             OrekiManagedAutobuyerAuthority.c9CaptureBelongsToSave("save-a", "save-a"),

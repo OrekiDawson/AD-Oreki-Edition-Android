@@ -429,7 +429,7 @@ check("C9 保留专用受管配置与真实提升维护",
       and "c9MaintenanceTask(normalChallengeCurrent)" in _c9_block
       and "holdCrunchOwnershipForC9()" in _c9_block)
 check("C9 提升重置后按真实维度数量自举基础生产链",
-      "GameApi::compareDimensionAmountToZero" in stage
+      "GameApi.dimensionBoughtCount(" in stage
       and "c9LowerChainReady(" in
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
       and "lowerChainReady" in stage
