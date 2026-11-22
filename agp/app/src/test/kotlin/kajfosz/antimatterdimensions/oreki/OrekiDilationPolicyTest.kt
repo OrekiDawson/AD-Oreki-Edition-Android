@@ -16,7 +16,7 @@ class OrekiDilationPolicyTest {
         tachyonKnown: Boolean = true,
         resetGateAllowed: Boolean = true,
         launchPending: Boolean = false,
-    ): OrekiDilationAction = OrekiDilationPolicy.decide(
+    ): Int = OrekiDilationPolicy.decide(
         automationEnabled = automationEnabled,
         autobuyersOn = autobuyersOn,
         userClosedByPlayer = userClosed,

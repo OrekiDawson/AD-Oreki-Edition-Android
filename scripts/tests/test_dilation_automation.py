@@ -47,6 +47,8 @@ class DilationAutomationTests(unittest.TestCase):
         self.assertNotIn("ordinaryEternity", source)
         self.assertNotIn("rebuyables[0]", source)
         self.assertNotIn("by lazy", source)
+        self.assertNotIn("enum class OrekiDilationAction", source)
+        self.assertIn("internal object OrekiDilationAction", source)
         self.assertIn("private fun playerClass(): Class<*>?", source)
         self.assertIn("private fun dtGainPurchaseMethod(): Method?", source)
 

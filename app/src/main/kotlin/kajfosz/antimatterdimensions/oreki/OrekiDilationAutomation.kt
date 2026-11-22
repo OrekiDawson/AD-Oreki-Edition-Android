@@ -21,13 +21,13 @@ import java.lang.reflect.Modifier
  *
  * 本类只编排上述原版入口，不写存档字段、不直接发资源，也不设置“安全阀”绕过永恒门禁。
  */
-internal enum class OrekiDilationAction {
-    STOP,
-    WAIT_ABI,
-    WAIT_UNLOCKED,
-    WAIT_ACTIVE_ETERNITY,
-    WAIT_GATE,
-    START,
+internal object OrekiDilationAction {
+    const val STOP = 0
+    const val WAIT_ABI = 1
+    const val WAIT_UNLOCKED = 2
+    const val WAIT_ACTIVE_ETERNITY = 3
+    const val WAIT_GATE = 4
+    const val START = 5
 }
 
 internal data class OrekiDilationLaunchObservation(
@@ -49,7 +49,7 @@ internal object OrekiDilationPolicy {
         tachyonKnown: Boolean,
         resetGateAllowed: Boolean,
         launchPending: Boolean = false,
-    ): OrekiDilationAction {
+    ): Int {
         if (!automationEnabled || !autobuyersOn || userClosedByPlayer || doomed) {
             return OrekiDilationAction.STOP
         }
@@ -541,6 +541,10 @@ internal object OrekiDilationAutomation {
             OrekiDilationAction.WAIT_ABI,
             OrekiDilationAction.STOP,
             -> {
+                lastAction = "wait-state"
+                false
+            }
+            else -> {
                 lastAction = "wait-state"
                 false
             }
