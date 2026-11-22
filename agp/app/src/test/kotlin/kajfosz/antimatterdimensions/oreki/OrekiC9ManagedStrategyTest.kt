@@ -41,84 +41,17 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
-    fun c9AutoStartWaitsForD7AndD8Bulk() {
-        assertTrue(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 256.0,
-                d8Bulk = 256.0,
-            ),
-        )
-        assertTrue(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 512.0,
-                d8Bulk = 256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 512.0,
-                d8Bulk = 512.0,
-            ),
-        )
-    }
-
-    @Test
-    fun c9EntryGateOnlyAppliesToFreshC9Candidate() {
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                8,
-                true,
-                false,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                9,
-                true,
-                false,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                0,
-                true,
-                true,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                0,
-                false,
-                null,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 16.0,
-                d8Bulk = 16.0,
-                inAnyChallenge = true,
-            ),
-        )
+    fun c9AlwaysUsesSingleBuyMode() {
+        for (tier in 1..8) {
+            assertEquals(
+                OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+                OrekiManagedAutobuyerAuthority.c9DimensionMode(tier, 0),
+            )
+            assertEquals(
+                OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+                OrekiManagedAutobuyerAuthority.c9DimensionMode(tier, 8),
+            )
+        }
     }
 
     @Test

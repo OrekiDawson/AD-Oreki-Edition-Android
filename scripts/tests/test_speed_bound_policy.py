@@ -1,6 +1,7 @@
 """R125 Android 游戏速度边界回归。"""
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -82,6 +83,23 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("SettingsClickListener.class", apply_policy)
         self.assertIn("--android-jar", apply_policy)
         self.assertIn("doFirst {", gradle)
+
+    def test_transformer_default_matches_kotlin_source_of_truth(self):
+        kotlin = (
+            ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
+        ).read_text(encoding="utf-8")
+        transformer = TRANSFORMER.read_text(encoding="utf-8")
+        kotlin_default = re.search(
+            r"const val DEFAULT_SPEED: Double = ([0-9]+(?:\.[0-9]+)?)",
+            kotlin,
+        )
+        transformer_default = re.search(
+            r"value = ([0-9]+(?:\.[0-9]+)?)d;\s*\n\s*resetDefaultConstantSeen",
+            transformer,
+        )
+        self.assertIsNotNone(kotlin_default)
+        self.assertIsNotNone(transformer_default)
+        self.assertEqual(kotlin_default.group(1), transformer_default.group(1))
 
 
 if __name__ == "__main__":

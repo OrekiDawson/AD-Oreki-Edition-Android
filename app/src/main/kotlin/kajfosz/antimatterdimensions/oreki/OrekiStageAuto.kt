@@ -269,9 +269,6 @@ object OrekiStageAuto {
     private var c9PreviousPolicyPausedCrunch = false
     private var c9PreviouslyActiveAutoBig = false
     private var c9CrunchCaptureSaveId: String? = null
-    private var c9PreparationCacheTick = Long.MIN_VALUE
-    private var c9PreparationFirstEightCompleted = false
-    private var c9PreparationCompleted = false
     private var lastMatterAnnihilationDialogAtMs = 0L
 
     /** 上一次观测到的 Break 状态（用于识别 true→false 的丢失事件）。 */
@@ -721,8 +718,6 @@ object OrekiStageAuto {
      */
     private fun resolveUrgentTask(): String? {
         return try {
-        // C9 入场准备必须先完成 D7/D8 bulk；这一窗口不能被其它经济任务的饥饿抢救覆盖。
-        if (shouldPrepareC9Start()) return "bulk"
         // [R94] 尚未 Break：坍缩间隔买满是 Break 的唯一前置，但它在固定顺序里排在
         // sacrifice/bulk/infinityUpgrades 之后，实测会被「frame-held」饿死 19 分钟以上
         // （run3：前 19 分钟 crunchInterval 0 次，直到无限升级买满才拿到节拍）。
@@ -831,8 +826,7 @@ object OrekiStageAuto {
                 // [R96 第十三轮] 永恒升级：走原版商店购买入口（真实判余额 + 扣 EP + 置位）
                 "eternity" -> buyEternityUpgrades()
                 "breakShop" -> GameApi.breakShopTick() != 0
-                "bulk" ->
-                    if (shouldPrepareC9Start()) upgradeC9RequiredBulk() else upgradeBulkAll()
+                "bulk" -> upgradeBulkAll()
                 else -> tryBuyId1()
             }
         } catch (_: Throwable) {
@@ -864,61 +858,8 @@ object OrekiStageAuto {
         return true
     }
 
-    /** 自动进入 C9 前，先通过原版 bulk 升级建立可解状态。 */
-    private fun shouldPrepareC9Start(): Boolean {
-        val currentChallenge = GameApi.normalChallengeCurrent()
-        if (currentChallenge != 0) return false
-        val currentTick = OrekiAutomationScheduler.guiTickCount().toLong()
-        if (currentTick != c9PreparationCacheTick) {
-            c9PreparationFirstEightCompleted =
-                (1..8).all { GameApi.normalChallengeCompleted(it) == true }
-            c9PreparationCompleted = GameApi.normalChallengeCompleted(9) == true
-            c9PreparationCacheTick = currentTick
-        }
-        val dims = GameApi.dimensionAutobuyers() ?: return false
-        return OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-            normalChallengeCurrent = currentChallenge,
-            firstEightChallengesCompleted = c9PreparationFirstEightCompleted,
-            c9Completed = c9PreparationCompleted,
-            d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf),
-            d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf),
-            inAnyChallenge = GameApi.inAnyChallenge(),
-        )
-    }
-
     /**
-     * C9 准备窗口只升级仍未满的 D7/D8 bulk，避免通用 8 层轮转被已满低层卡住。
-     * 仍调用原版升级入口并读回 bulk，未真实增加即按 no-op 处理。
-     */
-    private fun upgradeC9RequiredBulk(): Boolean = try {
-        val dims = GameApi.dimensionAutobuyers()
-        if (dims == null || dims.size < 8) {
-            false
-        } else {
-            var acted = false
-            for (index in intArrayOf(6, 7)) {
-                val dim = dims[index]
-                val before = GameApi.bulkOf(dim)
-                if (before < 0.0 ||
-                    before >= OrekiManagedAutobuyerAuthority.C9_REQUIRED_DIMENSION_BULK
-                ) {
-                    continue
-                }
-                GameApi.upgradeBulk(dim)
-                val after = GameApi.bulkOf(dim)
-                if (after > before) {
-                    acted = true
-                    break
-                }
-            }
-            acted
-        }
-    } catch (_: Throwable) {
-        false
-    }
-
-    /**
-     * C9 第五次提升前优先通过原版入口真实购买维度提升，否则维护 bulk。
+     * C9 维护任务只通过原版入口真实请求维度提升与结算。
      *
      * 全新档尚未完成 C10，原版维度提升自动器不存在；只聚焦 D7/D8 购买而
      * 不请求提升，会让 D8 达到门槛后仍无任何对象执行提升。
@@ -939,10 +880,11 @@ object OrekiStageAuto {
                 val after = GameApi.dimensionBoosts()
                 if (after != null && after > before) return true
             }
-            return upgradeBulkAll()
+            false
         } catch (_: Throwable) {
             return false
         }
+        return false
     }
 
     @JvmStatic

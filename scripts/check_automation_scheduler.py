@@ -505,8 +505,10 @@ check("C9 提升重置后按真实维度数量自举基础生产链",
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
       and "!lowerChainReady && tier in 1..7" in
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
-check("C9 入场准备不阻塞已运行的 IC/EC",
-      "if (GameApi.inAnyChallenge()) return false" in
+check("C9 自动启动不再设置 bulk 前置门",
+      "shouldDeferC9AutoStart(" not in
+      read(KT_DIR / "OrekiAutoEternityGate.kt")
+      and "c9StartGateCache" not in
       read(KT_DIR / "OrekiAutoEternityGate.kt"))
 check("关闭 MOD 自动化后不再重新持有 autoBig",
       "if (!OrekiAutomationScheduler.isEnabled()) {" in stage
@@ -521,14 +523,15 @@ check("关闭 C9 时按进入前所有权恢复被 MOD 暂停的 autoBig",
 check("C9 暂停标记只在所有权或 active 状态变化时写盘",
       "val wasOwned = modOwnsCrunch" in stage
       and "if (active || !wasOwned || !wasPolicyPaused)" in stage)
-check("C9 准备判定按调度 tick 缓存",
-      "c9PreparationCacheTick" in stage and "c9StartGateCacheTick" in
-      read(KT_DIR / "OrekiAutoEternityGate.kt"))
-check("C9 准备缓存只覆盖慢变完成位，bulk 每次现读",
-      "c9PreparationFirstEightCompleted" in stage
-      and "c9PreparationCompleted" in stage
-      and "d7Bulk = dims.getOrNull(6)?.let(GameApi::bulkOf)" in stage
-      and "d8Bulk = dims.getOrNull(7)?.let(GameApi::bulkOf)" in stage)
+check("C9 入场不再创建 bulk 准备任务",
+      "shouldPrepareC9Start(" not in stage
+      and "upgradeC9RequiredBulk(" not in stage
+      and "c9Preparation" not in stage)
+check("C9 入场批量阈值常量与门禁已删除",
+      "C9_REQUIRED_DIMENSION_BULK" not in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+      and "shouldDeferC9Start(" not in
+      read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 结束恢复失败可逐帧重试",
       "shouldRestoreC9CrunchCapture(" in stage
       and "captured = c9CrunchHoldCaptured" in stage
@@ -562,6 +565,15 @@ check("C9 null 挑战 ID 不触发恢复，unknown save 仅在 C9 内补绑",
 check("C9 全程使用单买，避免同价涨价造成批量购买墙",
       "): Int = DIMENSION_MODE_BUY_SINGLE" in
       read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
+_c9_maintenance_start = stage.find("private fun maintainC9DimensionChain()")
+_c9_maintenance_end = stage.find("@JvmStatic", _c9_maintenance_start)
+_c9_maintenance = stage[_c9_maintenance_start:_c9_maintenance_end]
+check("C9 单买维护链不再花费反物质购买无收益 bulk",
+      _c9_maintenance_start >= 0
+      and _c9_maintenance_end > _c9_maintenance_start
+      and "upgradeBulkAll()" not in _c9_maintenance
+      and "upgradeC9RequiredBulk(" not in stage
+      and "shouldDeferC9Start(" not in stage)
 check("C9 挑战读取失败时仍 fail-closed 让路",
       "normalChallengeCurrent == null" in read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt"))
 check("C9 让路发生在调度开帧与 GUI 同步之后",

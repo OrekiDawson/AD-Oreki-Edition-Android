@@ -13,7 +13,6 @@ object OrekiManagedAutobuyerAuthority {
     const val TICKSPEED_MODE_BUY_SINGLE: Int = 1
     const val CRUNCH_THRESHOLD: Double = 10.0
     const val SACRIFICE_MULTIPLIER: Double = 2.0
-    const val C9_REQUIRED_DIMENSION_BULK: Double = 512.0
     const val C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS: Int = 5
 
     @JvmStatic
@@ -122,36 +121,6 @@ object OrekiManagedAutobuyerAuthority {
     fun c9NeedsRestrictedStrategy(dimensionBoosts: Int?): Boolean =
         dimensionBoosts == null ||
             dimensionBoosts < C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS
-
-    /**
-     * C1–C8 已完成时，自动启动 C9 前先把 D7/D8 的原版 bulk 升到 512。
-     *
-     * 失败真新档在 D7/D8 bulk 较低时进入 C9，低层购买把 D7 价格持续抬高，
-     * 形成 C9 内的结构墙。这里只延迟自动启动；玩家手动启动不受影响。
-     * 无法读取状态时不阻止启动，避免测试门禁自身制造挑战停滞。
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun shouldDeferC9Start(
-        normalChallengeCurrent: Int?,
-        firstEightChallengesCompleted: Boolean?,
-        c9Completed: Boolean?,
-        d7Bulk: Double?,
-        d8Bulk: Double?,
-        inAnyChallenge: Boolean = false,
-    ): Boolean {
-        if (inAnyChallenge ||
-            normalChallengeCurrent != 0 ||
-            firstEightChallengesCompleted == null || c9Completed == null
-        ) {
-            return false
-        }
-        val nextIsC9 = firstEightChallengesCompleted && !c9Completed
-        if (!nextIsC9) return false
-        val d7Ready = d7Bulk != null && d7Bulk >= C9_REQUIRED_DIMENSION_BULK
-        val d8Ready = d8Bulk != null && d8Bulk >= C9_REQUIRED_DIMENSION_BULK
-        return !d7Ready || !d8Ready
-    }
 
     /**
      * C9 第 3/4 次提升会执行原版维度重置。新档尚无“提升保留维度”能力，

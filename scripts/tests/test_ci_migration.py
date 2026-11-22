@@ -93,7 +93,8 @@ class UnifiedMigrationTests(unittest.TestCase):
         self.assertIn('include(":app")', settings)
         self.assertIn('id("com.android.application") version "9.5.1"', root_build)
         self.assertIn('id("com.android.application")', app)
-        self.assertIn("compileSdk = 37", app)
+        self.assertIn("val orekiCompileSdk = 37", app)
+        self.assertIn("compileSdk = orekiCompileSdk", app)
         self.assertIn("app/src/main/kotlin", app)
         self.assertIn("build/kt/generated", app)
         # AGP 9 built-in Kotlin: no Kotlin Gradle Plugin and no legacy fallbacks.
