@@ -55,6 +55,8 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("enteredEternityLayer == true -> POST_BREAK_SPEED", source)
         self.assertIn("enteredEternityLayer == false -> DEFAULT_SPEED", source)
         self.assertIn("enteredEternityLayerState()", source)
+        self.assertNotIn("fun stageTargetSpeed(\n        hasInfinity:", source)
+        self.assertNotIn("hasInfinity = GameApi.hasInfinity()", source)
         self.assertIn("GameApi.eternityPointsValue()", source)
         self.assertIn("GameApi.eternityUpgradeBitsValue()", source)
         self.assertIn("GameApi.bigEternitiesValue()", source)

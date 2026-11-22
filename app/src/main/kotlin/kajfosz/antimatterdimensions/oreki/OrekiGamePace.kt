@@ -81,15 +81,13 @@ object OrekiGamePace {
     @JvmStatic
     @JvmOverloads
     fun stageTargetSpeed(
-        hasInfinity: Boolean?,
         broken: Boolean?,
         hasReality: Boolean?,
         normalChallengeCurrent: Int? = null,
         enteredEternityLayer: Boolean? = null,
     ): Double? = when {
-        hasReality == null || hasInfinity == null || broken == null -> null
+        hasReality == null || broken == null -> null
         hasReality -> POST_REALITY_SPEED
-        !hasInfinity -> DEFAULT_SPEED
         broken -> POST_BREAK_SPEED
         // 原版永恒结算会清除 break，但玩家仍处于同一个 Break 后阶段。
         // 只有可靠读取“尚未进入永恒层”时才回到首次 Break 前速度。
@@ -135,16 +133,14 @@ object OrekiGamePace {
         if (!prefs.getBoolean(KEY_PACING_MANAGED, false)) return
         val realities = GameApi.realitiesValue() ?: return
         val versusZero = GameApi.compareToDouble(realities, 0.0) ?: return
-        val hasInfinity = GameApi.hasInfinity()
         val broken = GameApi.isBroken()
-        // 只有“已无限且当前 break 被重置”才需要额外读取永恒层；
-        // 新档或仍在 Break 前不依赖永恒字段，Reality 后也无需读取。
+        // Reality 后无需永恒层判断；仍在 Break 后也直接取 70×。
+        // Break 已被清除时，才读取可靠的永恒层证据来区分新档/首次无限前与永恒后。
         val enteredEternity =
             if (versusZero > 0) true
-            else if (hasInfinity == true && broken == false) enteredEternityLayerState()
+            else if (broken == false) enteredEternityLayerState()
             else null
         val target = stageTargetSpeed(
-            hasInfinity,
             broken,
             versusZero > 0,
             GameApi.normalChallengeCurrent(),
@@ -160,8 +156,7 @@ object OrekiGamePace {
         Log.i(
             "OREKI_PACE",
             "stage speed " + actual + " -> " + target +
-                " (infinity=" + hasInfinity +
-                ", break=" + broken +
+                " (break=" + broken +
                 ", reality=" + (versusZero > 0) +
                 ", eternity=" + enteredEternity + ")",
         )

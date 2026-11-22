@@ -18,18 +18,15 @@ public class OrekiGamePaceTest {
 
     @Test
     public void stageTargetUsesRealProgressAndFailsClosed() {
-        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(false, false, false, null, false), 0.0);
-        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(false, true, false, null, true), 0.0);
-        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, true, false, null, false), 0.0);
-        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, true, false, 9, false), 0.0);
-        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, false, false, 9, true), 0.0);
-        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(true, false, false, 9, false), 0.0);
-        assertEquals(null, OrekiGamePace.stageTargetSpeed(true, false, false, 9, null));
-        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, true, true, null, false), 0.0);
-        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, true, null, null), 0.0);
-        assertEquals(null, OrekiGamePace.stageTargetSpeed(null, true, false));
-        assertEquals(null, OrekiGamePace.stageTargetSpeed(true, null, false));
-        assertEquals(null, OrekiGamePace.stageTargetSpeed(true, true, null));
+        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(false, false, null, false), 0.0);
+        assertEquals(null, OrekiGamePace.stageTargetSpeed(false, false, null, null));
+        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, false, null, false), 0.0);
+        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, false, 9, null), 0.0);
+        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(false, false, 9, true), 0.0);
+        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, true, null, false), 0.0);
+        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, true, null, null), 0.0);
+        assertEquals(null, OrekiGamePace.stageTargetSpeed(null, false));
+        assertEquals(null, OrekiGamePace.stageTargetSpeed(true, null));
     }
 
     @Test
