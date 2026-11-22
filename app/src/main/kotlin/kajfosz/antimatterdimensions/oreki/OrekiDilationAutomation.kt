@@ -239,6 +239,14 @@ internal object OrekiDilationAutomation {
     private var lastLogSignature = ""
     private var lastAction = "idle"
 
+    /** 膨胀激活时必须允许一次普通永恒来发放 TP 并退出，不能继续套用 EP 收益增长门槛。 */
+    @JvmStatic
+    fun isActiveForEternitySettlement(): Boolean = try {
+        OrekiDilationApi.snapshot()?.active == true
+    } catch (_: Throwable) {
+        false
+    }
+
     private fun refreshRealityGeneration() {
         val generation = OrekiRealityPacing.resetCount()
         if (generation == lastRealityGeneration) return

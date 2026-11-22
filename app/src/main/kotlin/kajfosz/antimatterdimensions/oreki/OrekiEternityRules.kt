@@ -41,7 +41,21 @@ object OrekiEternityRules {
      */
     @JvmStatic
     fun eternitySettlementMultiplierFor(targetEcId: Int, entryGoalMet: Boolean?): Int =
-        if (OrekiEcAutomation.shouldExemptEntryEternityGainGate(targetEcId, entryGoalMet)) {
+        eternitySettlementMultiplierFor(
+            targetEcId,
+            entryGoalMet,
+            OrekiDilationAutomation.isActiveForEternitySettlement(),
+        )
+
+    @JvmStatic
+    fun eternitySettlementMultiplierFor(
+        targetEcId: Int,
+        entryGoalMet: Boolean?,
+        dilationActive: Boolean?,
+    ): Int =
+        if (dilationActive == true ||
+            OrekiEcAutomation.shouldExemptEntryEternityGainGate(targetEcId, entryGoalMet)
+        ) {
             0
         } else {
             ETERNITY_SETTLEMENT_MULTIPLIER
@@ -52,6 +66,10 @@ object OrekiEternityRules {
     fun eternitySettlementMultiplier(): Int {
         // 入口目标读取失败时保持原 ×1，不在未知状态放宽结算节奏。
         val exemption = OrekiEcAutomation.entryEternityGainGateExempt()
-        return if (exemption) 0 else ETERNITY_SETTLEMENT_MULTIPLIER
+        return if (exemption || OrekiDilationAutomation.isActiveForEternitySettlement()) {
+            0
+        } else {
+            ETERNITY_SETTLEMENT_MULTIPLIER
+        }
     }
 }
