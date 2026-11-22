@@ -39,6 +39,7 @@ class DilationAutomationTests(unittest.TestCase):
             "launchPending = awaitingLaunchActive",
             "private fun reconcileLaunch(snapshot: OrekiDilationSnapshot)",
             "OrekiDilationPolicy.reentryAllowed(",
+            "OrekiDilationStudies.isBought(1)",
             "awaitingLaunchObservation = observation(snapshot)",
             "if (awaitingLaunchActive) return false",
         ):

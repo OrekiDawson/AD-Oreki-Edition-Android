@@ -151,8 +151,6 @@ internal object OrekiDilationApi {
     private var dilationActiveCache: Method? = null
     private var dilationDtResolved = false
     private var dilationDtCache: Method? = null
-    private var dilationStudiesResolved = false
-    private var dilationStudiesCache: Method? = null
     private var dilationTpResolved = false
     private var dilationTpCache: Method? = null
     private var thisRealityMaxDtResolved = false
@@ -247,14 +245,6 @@ internal object OrekiDilationApi {
             dilationDtCache = noArg(DILATION, "c")
         }
         return dilationDtCache
-    }
-
-    private fun dilationStudies(): Method? {
-        if (!dilationStudiesResolved) {
-            dilationStudiesResolved = true
-            dilationStudiesCache = noArg(DILATION, "h")
-        }
-        return dilationStudiesCache
     }
 
     private fun dilationTp(): Method? {
@@ -374,7 +364,6 @@ internal object OrekiDilationApi {
     fun snapshot(): OrekiDilationSnapshot? {
         val player = player() ?: return null
         val dilation = invoke(playerDilation(), player) ?: return null
-        val studies = invoke(dilationStudies(), dilation) as? List<*> ?: return null
         val active = invoke(dilationActive(), dilation) as? Boolean
         val tachyon = invoke(dilationTp(), dilation)
         val dt = invoke(dilationDt(), dilation)
@@ -382,7 +371,7 @@ internal object OrekiDilationApi {
         val thisReality = invoke(recordsThisReality(), records)
         val maxDt = invoke(thisRealityMaxDt(), thisReality)
 
-        val unlocked = studies.any { (it as? Number)?.toInt() == 1 }
+        val unlocked = OrekiDilationStudies.isBought(1)
         val tachyonComparison = GameApi.compareToDouble(tachyon, 0.0)
         val dtGainLevel = readDtGainLevel()
         return OrekiDilationSnapshot(
