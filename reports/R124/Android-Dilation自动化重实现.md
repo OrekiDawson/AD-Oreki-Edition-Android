@@ -13,6 +13,9 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 - Dilation 激活时，普通自动永恒的收益门槛不再要求本次 EP 超过现存 EP；这是让原版
   永恒真实发放首个及后续 TP、并自然退出膨胀的必要例外，玩家关闭、Doomed 和原版
   自动器总开关仍优先停手。
+- 启动经异步游戏 scope 发出后立即记录“启动在途”闩锁；在观察到原版
+  `active=true` 或 Reality 代际变化前，不重复发起启动，也不在窗口内购买 dtGain。
+  这避免 3 秒冷却过后对同一轮 Dilation 反复执行原版永恒重置。
 - 已退出 Dilation 后，通过统一调度器 `dilation` 名额调用
   `eternity/dilation/b.b -> qw3.D(Z,rj0)` 购买 dtGain，遵守玩家 1～60 秒配置节拍，
   由原版内部判断余额并扣除 `Currency.dilatedTime`。
@@ -64,11 +67,12 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 
 ## 验证
 
-- `OrekiDilationPolicyTest`：5 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
-  未解锁、ABI 未知、TP 真零、门禁关闭、激活等待普通永恒退出和 dtGain 购买条件。
+- `OrekiDilationPolicyTest`：6 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
+  未解锁、ABI 未知、TP 真零、门禁关闭、启动在途防重入、激活等待普通永恒退出和
+  dtGain 购买条件。
 - `OrekiEternityGainGateTest` 覆盖膨胀激活时豁免收益门槛、非激活时保持原门槛。
 - Python Dilation/V 定向测试：7/7 PASS。
-- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：87/87 PASS，
+- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：88/88 PASS，
   0 failure，0 error。
 - `python3 scripts/check_automation_scheduler.py`：174/174 PASS。
 - `javap` 已核对上表描述符。
@@ -80,7 +84,7 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 - `javap` 确认 Kotlin 门槛参数为 `60/0`、`1/30`、`1/20000`，进度分母为
   `60.0/30.0/20000.0`。
 - 完整 APK SHA-256：
-  `af408c4c4f6366fc63a81456a28872ab4e621c06f54f82fba7b54dc393c5d88a`；
+  `2dce37a02c4b30f2322a91150e2561e1ab96c225cc23a18611d6f8c0224831c5`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 - AGP 完整游戏 Signature 回填链路已尝试，但在 D8 前被外部 `SIGTERM` 终止，
   退出码 `143`，未生成 `build-receipt.json`；该链路结果记 `NOT RUN`，不冒充 PASS。

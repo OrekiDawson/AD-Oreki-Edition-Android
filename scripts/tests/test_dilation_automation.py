@@ -33,6 +33,10 @@ class DilationAutomationTests(unittest.TestCase):
             'private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch"',
             'exactMethod(dilationLaunchClass, "startDilation")',
             'field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)',
+            "private var awaitingLaunchActive = false",
+            "launchPending = awaitingLaunchActive",
+            "if (snapshot.active == true) awaitingLaunchActive = false",
+            "if (awaitingLaunchActive) return false",
         ):
             self.assertIn(expected, source)
         self.assertNotIn("OrekiEcContinuation", source)

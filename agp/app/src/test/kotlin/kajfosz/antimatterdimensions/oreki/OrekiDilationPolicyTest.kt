@@ -15,6 +15,7 @@ class OrekiDilationPolicyTest {
         active: Boolean? = false,
         tachyonKnown: Boolean = true,
         resetGateAllowed: Boolean = true,
+        launchPending: Boolean = false,
     ): OrekiDilationAction = OrekiDilationPolicy.decide(
         automationEnabled = automationEnabled,
         autobuyersOn = autobuyersOn,
@@ -24,6 +25,7 @@ class OrekiDilationPolicyTest {
         active = active,
         tachyonKnown = tachyonKnown,
         resetGateAllowed = resetGateAllowed,
+        launchPending = launchPending,
     )
 
     @Test
@@ -55,6 +57,22 @@ class OrekiDilationPolicyTest {
         assertEquals(
             OrekiDilationAction.START,
             decide(active = false, resetGateAllowed = true),
+        )
+    }
+
+    @Test
+    fun pendingLaunchCannotRepeatBeforeActiveOrRealityChange() {
+        assertEquals(
+            OrekiDilationAction.WAIT_ACTIVE_ETERNITY,
+            decide(active = false, launchPending = true),
+        )
+        assertEquals(
+            OrekiDilationAction.STOP,
+            decide(
+                automationEnabled = false,
+                active = false,
+                launchPending = true,
+            ),
         )
     }
 

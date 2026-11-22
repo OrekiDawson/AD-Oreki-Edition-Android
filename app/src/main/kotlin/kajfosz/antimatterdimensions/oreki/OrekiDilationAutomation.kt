@@ -12,8 +12,8 @@ import java.lang.reflect.Modifier
  * 官方 3.21 ABI：
  * - `prestige/c.p(Z, ContinuationImpl)`：购买 DS1 后启动 Dilation，先执行一次真实永恒，
  *   再把 `Player$Dilation.active` 置 true。
- * - `prestige/c.d(c, Z, Z, Z, Boolean, ContinuationImpl, I)`：原版永恒入口；
- *   退出 Dialog 的真实调用参数为 `(true,false,false,null,cont,14)`。
+ * - 启动只经同包 `OrekiEternityLaunch.startDilation()` 把原版 lambda 交给游戏 scope；
+ *   退出交给下一次原版普通永恒，本类不另造 Continuation 直调 suspend 入口。
  * - `Player$Dilation.a/c/g/h/i`：active、DT、rebuyables、studies、TP 的只读 getter。
  * - `Player$ThisReality.i`：本现实 maxDT。
  * - `eternity/dilation/b.b`：dtGain 的 `qw3` 实例；`qw3.D(Z,rj0)` 是原版真实购买入口，
@@ -40,6 +40,7 @@ internal object OrekiDilationPolicy {
         active: Boolean?,
         tachyonKnown: Boolean,
         resetGateAllowed: Boolean,
+        launchPending: Boolean = false,
     ): OrekiDilationAction {
         if (!automationEnabled || !autobuyersOn || userClosedByPlayer || doomed) {
             return OrekiDilationAction.STOP
@@ -51,7 +52,7 @@ internal object OrekiDilationPolicy {
 
         // 退出由下一次原版普通永恒自动完成（specialConditions 为普通路径）。
         // 不要用自造 Continuation 直调 suspend 入口，也不设置安全阀。
-        if (active) return OrekiDilationAction.WAIT_ACTIVE_ETERNITY
+        if (active || launchPending) return OrekiDilationAction.WAIT_ACTIVE_ETERNITY
         return if (resetGateAllowed) OrekiDilationAction.START else OrekiDilationAction.WAIT_GATE
     }
 
@@ -235,6 +236,7 @@ internal object OrekiDilationAutomation {
     private var lastTickAt = 0L
     private var lastResetAt = 0L
     private var lastRealityGeneration = Int.MIN_VALUE
+    private var awaitingLaunchActive = false
     private var lastLogAt = 0L
     private var lastLogSignature = ""
     private var lastAction = "idle"
@@ -251,6 +253,7 @@ internal object OrekiDilationAutomation {
         val generation = OrekiRealityPacing.resetCount()
         if (generation == lastRealityGeneration) return
         lastRealityGeneration = generation
+        awaitingLaunchActive = false
         lastResetAt = 0L
         lastAction = "reality-reset"
     }
@@ -272,6 +275,7 @@ internal object OrekiDilationAutomation {
             logThrottled(now, "abi-missing", false)
             return false
         }
+        if (snapshot.active == true) awaitingLaunchActive = false
 
         val resetAllowed = OrekiAutoEternityGate.allowed() &&
             (lastResetAt == 0L || now - lastResetAt >= RESET_GAP_MS)
@@ -284,11 +288,13 @@ internal object OrekiDilationAutomation {
             active = snapshot.active,
             tachyonKnown = snapshot.tachyonComparison != null,
             resetGateAllowed = resetAllowed,
+            launchPending = awaitingLaunchActive,
         )
 
         val resetInvoked = when (action) {
             OrekiDilationAction.START -> {
                 if (OrekiDilationApi.startDilatedEternity()) {
+                    awaitingLaunchActive = true
                     lastResetAt = now
                     lastAction = "start"
                     true
@@ -335,7 +341,9 @@ internal object OrekiDilationAutomation {
     @JvmStatic
     fun tickPurchase(): Boolean {
         refreshRealityGeneration()
+        if (awaitingLaunchActive) return false
         val snapshot = OrekiDilationApi.snapshot() ?: return false
+        if (snapshot.active == true) awaitingLaunchActive = false
         val shouldBuy = OrekiDilationPolicy.shouldBuyDtGain(
             automationEnabled = OrekiAutomationScheduler.isEnabled(),
             autobuyersOn = GameApi.autobuyersOn(),
