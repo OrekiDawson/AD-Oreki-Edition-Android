@@ -172,7 +172,10 @@ class SmaliIndex:
         rg = shutil.which("rg")
         if not rg:
             raise ContractFailure("缺少 ripgrep（rg）；无法在合理时间内索引 3.21 smali 树")
-        args = [rg, "-n", "--no-heading", "--color", "never"]
+        # 候选解包树可能放在某个父 Git 仓库的忽略目录中（例如本机
+        # `测试与验收/`）。门禁必须检查真实 APK 内容，不能被调用位置的
+        # `.gitignore` 静默过滤成空树。
+        args = [rg, "-n", "--no-heading", "--no-ignore", "--color", "never"]
         for pat in self._patterns.values():
             args.extend(["-e", pat])
         args.append(".")

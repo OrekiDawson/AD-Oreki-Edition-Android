@@ -32,7 +32,7 @@ done
 
 if [ -z "$JAR" ] || [ ! -f "$JAR" ]; then echo "missing --jar <file>" >&2; exit 2; fi
 export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}"
-export ANDROID_HOME="${ANDROID_HOME:-/home/oreki/Android/Sdk}"
+export ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 if [ -z "${OREKI_KS_PASS:-}" ] && [ -f "$ROOT/keys/密码.txt" ]; then
   OREKI_KS_PASS="$(cat "$ROOT/keys/密码.txt")"
 fi

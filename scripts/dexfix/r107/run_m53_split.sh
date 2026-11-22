@@ -17,7 +17,7 @@ if [ -z "$2" ]; then echo "usage: run_m53_split.sh <input.jar> <out-dir> [androi
 INPUT_JAR="$1"
 OUT_DIR="$2"
 ANDROID_JAR="$3"
-if [ -z "$ANDROID_JAR" ]; then ANDROID_JAR=/home/oreki/Android/Sdk/platforms/android-37.2/android.jar; fi
+if [ -z "$ANDROID_JAR" ]; then ANDROID_JAR=/opt/android-sdk/platforms/android-37.2/android.jar; fi
 if [ -z "$JAVA_HOME" ]; then
   if [ -n "$4" ]; then JAVA_HOME="$4"; else JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64; fi
 fi

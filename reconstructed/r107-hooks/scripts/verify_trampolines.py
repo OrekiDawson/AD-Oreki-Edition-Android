@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import re
 import subprocess
@@ -29,7 +30,25 @@ BASE = ROOT / "work" / "base_decoded_321"
 WORK = ROOT / "work" / "r107-hooks"
 PATCHED = WORK / "patched"
 ASM_CP = str(ROOT / "tools" / "apktool.jar") + ":" + str(WORK / "tools")
-DEXDUMP = pathlib.Path("/home/oreki/Android/Sdk/build-tools/37.0.0/dexdump")
+
+
+def find_dexdump() -> pathlib.Path:
+    roots = [
+        os.environ.get("ANDROID_SDK_ROOT"),
+        os.environ.get("ANDROID_HOME"),
+        "/opt/android-sdk",
+        str(pathlib.Path.home() / "Android" / "Sdk"),
+    ]
+    for raw in roots:
+        if not raw:
+            continue
+        candidates = sorted((pathlib.Path(raw).expanduser() / "build-tools").glob("*/dexdump"))
+        if candidates:
+            return candidates[-1]
+    raise SystemExit("找不到 dexdump（已探测 ANDROID_SDK_ROOT/ANDROID_HOME、/opt、~/Android/Sdk）")
+
+
+DEXDUMP = find_dexdump()
 
 KT_PKG = "Lkajfosz/antimatterdimensions/oreki/"
 

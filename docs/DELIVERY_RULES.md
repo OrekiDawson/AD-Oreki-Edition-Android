@@ -255,7 +255,7 @@
 
 ### 11.3 逐批验收、证据和保护
 
-- 迁移 PR 一项主目标、中文提交、无冲突 worktree；遵守 `/home/oreki/AD-Oreki-Unified/worktrees/android/` 和 `docs/WORKTREE_MAPPING.md`；在实际移动前核验所有者、源/目标、Git 跟踪与硬链接/未提交内容。禁止 `git reset --hard`、`git clean -fd`、强推、批量删除存档、唯一测试证据或旧稳定版。
+- 迁移 PR 一项主目标、中文提交、无冲突 worktree；遵守 `/home/oreki/AD-Oreki-Edition/工作树/android/` 与总仓 `/home/oreki/AD-Oreki-Edition/项目管理/工作树映射.md`；在实际移动前核验所有者、源/目标、Git 跟踪与硬链接/未提交内容。禁止 `git reset --hard`、`git clean -fd`、强推、批量删除存档、唯一测试证据或旧稳定版。
 - 改动文件与相对路径引用要经 `rg`、Gradle/Actions/脚本、CI 测试核对；构建与运行验证按风险分层，至少覆盖静态引用、Gradle 配置、必要 Kotlin/DEX/资源兼容性；触及正式 APK、原版接线、签名/存档/GUI 时扩展必要真实 APK/AVD 验收。保留冻结 3.21.0 基线、原包名/证书、MOD 版本递增与 Web 既定行为等价。
 - 每个闭包报告：依赖 Issue、旧→新路径、源 SHA、Commit/PR、相关 Actions Run、改动前后关键输入/产物哈希、构建/AVD/发布状态及 `PASS / FAIL / BLOCKED / NOT RUN`。不把静态 CI PASS 当 AVD PASS，不用旧 Run 绿灯证明新 SHA，不为重排目录重跑无关 180 分钟全量验收。
 - 发布、Ruleset、Required Checks、Environment/Secrets、AGP-only fail-closed 和 DeepSeek 高峰停工规则的优先级不变。**R113 已获授权将 S2 提升为与 #52 并行的最高架构主线**，涉及生产路径修改仍须当前 Lead 协调文件所有权、共享 AVD/签名资源及必要 P0 验证；S3 正式根级切换继续遵守其全部先决条件，不单独开启新 `/goal`。当前 Android Source CI 已通过 PR #84 接入 `scripts/agp/directory-layout.json` 的 `legacy → dual → nested-new → root` 分阶段门禁；目录状态变更必须同步实际 Source Sets、CI 构建输入和功能测试，不能仅修改阶段标志冒充迁移完成。

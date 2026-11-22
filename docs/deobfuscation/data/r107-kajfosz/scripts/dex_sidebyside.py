@@ -4,10 +4,10 @@
 import subprocess, re, json
 from pathlib import Path
 
-DD = "/home/oreki/Android/Sdk/build-tools/37.0.0/dexdump"
+DD = "/opt/android-sdk/build-tools/37.0.0/dexdump"
 OFFICIAL = Path("/home/oreki/private-staging/r10602/dex")
 CONVERTED = Path("/home/oreki/private-staging/r107-tools/out/agpdex2/d8-whole")
-OUT = Path("/home/oreki/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/work/r107-kajfosz")
+OUT = Path("/home/oreki/AD-Oreki-Edition/安卓端/work/r107-kajfosz")
 
 def dump(dexdir):
     text = ""

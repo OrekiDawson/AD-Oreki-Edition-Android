@@ -11,7 +11,11 @@
 set -u
 
 cd "$(dirname "$0")/.." || exit 1
-PY="C:/Users/Oreki/scoop/apps/python/current/python.exe"
+PY="${PYTHON:-python3}"
+command -v "$PY" >/dev/null 2>&1 || {
+  printf '缺少 Python 解释器: %s\n' "$PY" >&2
+  exit 2
+}
 FAIL=0
 DEVICE=0
 [ "${1:-}" = "--device" ] && DEVICE=1

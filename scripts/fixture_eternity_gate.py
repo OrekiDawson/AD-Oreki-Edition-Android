@@ -106,6 +106,19 @@ def main() -> int:
     stage = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
              / "OrekiStageAuto.kt")
     st = stage.read_text(encoding="utf-8")
+    gate = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
+            / "OrekiAutoEternityGate.kt").read_text(encoding="utf-8")
+    # 不把固定秒数钉成契约：驻留时长可通过阈值调整，测试只验证自动化首次永恒
+    # 仍经过有上限的单调时钟门禁，且后续可安全替换为更真实的内容门槛。
+    check("Android 首次永恒使用单调时钟驻留且有明确上限",
+          "FIRST_ETERNITY_DWELL_MS" in gate
+          and "SystemClock.elapsedRealtime()" in gate
+          and "elapsed >= FIRST_ETERNITY_DWELL_MS" in gate)
+    check("Android canEternity 在首次驻留前执行原版资格判定",
+          gate.index('if (!GameApi.canEternity()) return "cannot-eternity"') <
+          gate.index('if (firstEternityDwellRemainingMs() > 0L) return "first-eternity-dwell"'))
+    check("Android 驻留结束后仍走真实原版永恒入口",
+          "GameApi.eternityTick()" in st and "reason == \"allow\"" in st)
     # 取 computeHoldCrunch() 的函数体（Kotlin 用花括号，不能靠 .end method）
     # 支持两种等价写法：表达式函数体（= try { ... }）与 block body
     # （{ return try { ... } }）。AGP 9 内置 Kotlin 编译器要求后者，语义不变。

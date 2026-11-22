@@ -139,13 +139,25 @@ def jdkHome = jdkResolved ?: {
     }
     return cands ? cands.sort { it.name }.last() : null
 }()
+// Android SDK 的权威来源是显式环境变量；未设置时继续兼容旧的用户目录安装，
+// 再回退到本机共享 /opt。这样既有 Linux 开发者目录仍可用，也不会因工具链迁移
+// 把 androidJar、adb、build-tools 的解析口径拆成两套。
+def resolvedAndroidSdk = {
+    def explicit = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
+    if (explicit) return new File(explicit)
+    def candidates = [
+        new File(System.getProperty('user.home'), 'Android/Sdk'),
+        new File('/opt/android-sdk'),
+    ]
+    return candidates.find {
+        new File(it, 'platforms').isDirectory() || new File(it, 'platform-tools').isDirectory()
+    } ?: candidates[0]
+}()
 // [R96] POSIX 的 JDK 里可执行文件叫 java（不是 java.exe）。
 def javaExe = jdkHome ? new File(jdkHome, isWindows ? 'bin/java.exe' : 'bin/java') : null
 def adbExe = { ->
     if (isWindows) return file('tools/platform-tools/adb.exe')
-    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
-    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
-    def sdkAdb = new File(sdkHome, 'platform-tools/adb')
+    def sdkAdb = new File(resolvedAndroidSdk, 'platform-tools/adb')
     if (sdkAdb.exists()) return sdkAdb
     def local = file('tools/platform-tools/adb')
     return local.exists() ? local : new File('adb')
@@ -154,9 +166,7 @@ def apktoolJar = file('tools/apktool.jar')
 // [R96] Windows 用随仓库的 tools/bt/android-14（.exe 套件）；Linux 用 SDK build-tools。
 def btDir = {
     if (isWindows) return file('tools/bt/android-14')
-    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
-    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
-    def bt = new File(sdkHome, 'build-tools')
+    def bt = new File(resolvedAndroidSdk, 'build-tools')
     if (!bt.isDirectory()) return bt
     def dirs = bt.listFiles().findAll { it.isDirectory() }.sort { a, b -> b.name <=> a.name }
     for (d in dirs) { if (new File(d, 'zipalign').exists() || new File(d, 'zipalign.exe').exists()) return d }
@@ -166,9 +176,7 @@ def btDir = {
 // 对反编译树中的历史资源名执行更严格的校验；Windows 沿用仓库工具。
 def aapt2Dir = {
     if (isWindows) return btDir
-    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
-    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
-    def root = new File(sdkHome, 'build-tools')
+    def root = new File(resolvedAndroidSdk, 'build-tools')
     if (!root.isDirectory()) return btDir
     def pinned = new File(root, '34.0.0')
     if (new File(pinned, 'aapt2').isFile()) return pinned
@@ -177,17 +185,22 @@ def aapt2Dir = {
         ?.sort { a, b -> b.name <=> a.name } ?: []
     return dirs ? dirs[0] : btDir
 }()
-def kotlinCompiler = file("tools/kotlinc/bin/${isWindows ? 'kotlinc.bat' : 'kotlinc'}")
+// 优先使用项目显式锁定或本地准备的编译器；缺失时复用系统级 /opt 工具链，
+// 不再在每个工作树复制一套 Kotlin 发行包。
+def kotlinHome = file(System.getenv('KOTLIN_HOME') ?: 'tools/kotlinc')
+if (!kotlinHome.isDirectory()) {
+    kotlinHome = new File('/opt/kotlinc')
+}
+def kotlinCompiler = new File(kotlinHome, "bin/${isWindows ? 'kotlinc.bat' : 'kotlinc'}")
 def d8Exe = isWindows ? file('tools/bt/android-14/d8.bat') : new File(btDir, 'd8')
-def kotlinStdlib = file('tools/kotlinc/lib/kotlin-stdlib.jar')
+def kotlinStdlib = new File(kotlinHome, 'lib/kotlin-stdlib.jar')
 def androidJar = {
-    def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
-    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
-    def platforms = new File(sdkHome, 'platforms')
+    def platforms = new File(resolvedAndroidSdk, 'platforms')
     def preferred = new File(platforms, 'android-34/android.jar')
     if (preferred.isFile()) return preferred
     def jars = platforms.listFiles()?.collect { new File(it, 'android.jar') }?.findAll { it.isFile() } ?: []
-    return jars ? jars.sort { it.parentFile.name }.last() : new File('android.jar')
+    if (jars) return jars.sort { it.parentFile.name }.last()
+    throw new GradleException("找不到 Android platform android.jar：SDK=${resolvedAndroidSdk}")
 }()
 def SMOKE_PKG = 'com.oreki.antimatterdimensions'
 def keystore = file('keys/oreki.jks')
@@ -415,7 +428,7 @@ tasks.register('compileKotlinClasses', Exec) {
     inputs.dir(new File(repoRoot, "app/src/main/kotlin"))
     inputs.file(new File(repoRoot, "build/kt/generated/OrekiBaselineBindings.kt"))
     inputs.file(androidJar)
-    inputs.files(fileTree(new File(repoRoot, "tools/kotlinc/lib")) { include "*.jar" })
+    inputs.files(fileTree(new File(kotlinHome, "lib")) { include "*.jar" })
     outputs.dir(new File(repoRoot, "build/kt/classes"))
 }
 

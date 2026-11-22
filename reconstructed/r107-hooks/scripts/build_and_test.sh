@@ -12,12 +12,29 @@ HOOKS="$ROOT/reconstructed/r107-hooks"
 WORK="$ROOT/work/r107-hooks"
 OUT="$WORK/out"
 EVID="$HOOKS/evidence"
-KOTLINC="$ROOT/tools/kotlinc/bin/kotlinc"
-KOTLIN_STDLIB="$ROOT/tools/kotlinc/lib/kotlin-stdlib.jar"
-SDK="/home/oreki/Android/Sdk"
-D8="$SDK/build-tools/37.0.0/d8"
-DEXDUMP="$SDK/build-tools/37.0.0/dexdump"
-ANDROID_JAR="$SDK/platforms/android-37.0/android.jar"
+KOTLIN_HOME="${KOTLIN_HOME:-$ROOT/tools/kotlinc}"
+if [ ! -x "$KOTLIN_HOME/bin/kotlinc" ]; then KOTLIN_HOME=/opt/kotlinc; fi
+KOTLINC="$KOTLIN_HOME/bin/kotlinc"
+KOTLIN_STDLIB="$KOTLIN_HOME/lib/kotlin-stdlib.jar"
+SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+if [ -z "$SDK" ]; then
+  for candidate in /opt/android-sdk "$HOME/Android/Sdk"; do
+    if [ -d "$candidate/platforms" ]; then SDK="$candidate"; break; fi
+  done
+fi
+[ -d "${SDK:-}/platforms" ] || { echo "FAIL: 找不到 Android SDK" >&2; exit 2; }
+D8="$(find "$SDK/build-tools" -type f -name d8 2>/dev/null | sort -V | tail -n1)"
+DEXDUMP="$(find "$SDK/build-tools" -type f -name dexdump 2>/dev/null | sort -V | tail -n1)"
+ANDROID_JAR=""
+for version in android-37.2 android-37.0 android-34; do
+  if [ -f "$SDK/platforms/$version/android.jar" ]; then
+    ANDROID_JAR="$SDK/platforms/$version/android.jar"
+    break
+  fi
+done
+[ -n "$D8" ] && [ -x "$D8" ] || { echo "FAIL: 找不到 d8" >&2; exit 2; }
+[ -n "$DEXDUMP" ] && [ -x "$DEXDUMP" ] || { echo "FAIL: 找不到 dexdump" >&2; exit 2; }
+[ -n "$ANDROID_JAR" ] || { echo "FAIL: 找不到 android.jar（已探测 37.2/37.0/34）" >&2; exit 2; }
 
 mkdir -p "$OUT/classes" "$EVID" "$WORK/tools"
 

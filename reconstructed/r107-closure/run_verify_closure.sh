@@ -38,7 +38,7 @@ run() { local log="$1"; shift; echo "+ $*" >&2; if "$@" >"$log" 2>&1; then echo 
 
 ANDROID_JAR="${ANDROID_JAR:-}"
 if [ -z "$ANDROID_JAR" ]; then
-  for p in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" "/home/oreki/Android/Sdk"; do
+  for p in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" "/opt/android-sdk"; do
     [ -n "$p" ] || continue
     for v in android-37.2 android-37.0 android-34; do
       if [ -f "$p/platforms/$v/android.jar" ]; then ANDROID_JAR="$p/platforms/$v/android.jar"; break 2; fi

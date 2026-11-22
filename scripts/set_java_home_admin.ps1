@@ -8,7 +8,8 @@
 
 $ErrorActionPreference = 'Stop'
 
-$jdk = 'C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\tools\jdk\jdk-21.0.13+9'
+$repo = Join-Path $env:USERPROFILE 'AD-Oreki-Edition\安卓端'
+$jdk = Join-Path $repo 'tools\jdk\jdk-21.0.13+9'
 if (-not (Test-Path (Join-Path $jdk 'bin\java.exe'))) {
     Write-Output "ERROR: JDK 路径无效：$jdk"
     exit 1
@@ -35,7 +36,7 @@ $v = [Environment]::GetEnvironmentVariable('JAVA_HOME', 'Machine')
 $p2 = [Environment]::GetEnvironmentVariable('Path', 'Machine')
 $ok = ($v -eq $jdk) -and ($p2 -like '*%JAVA_HOME%\bin*' -or $p2 -like "*$jdk\bin*")
 $result = "JAVA_HOME=$v`nPATH_HAS_JAVAHOME_BIN=$($p2 -like '*%JAVA_HOME%\bin*')`nOK=$ok"
-$result | Set-Content -Path 'C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\android\AD_Oreki_Edition_Android\reports\r75_env_result.txt' -Encoding UTF8
+$result | Set-Content -Path (Join-Path $repo 'reports\r75_env_result.txt') -Encoding UTF8
 Write-Output $result
 
 if (-not $ok) { exit 2 }

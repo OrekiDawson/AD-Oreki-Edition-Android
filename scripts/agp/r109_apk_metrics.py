@@ -64,7 +64,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("apk")
     ap.add_argument("--label", default="")
-    ap.add_argument("--dex-tool", default="/home/oreki/Android/Sdk/build-tools/34.0.0/dexdump")
+    ap.add_argument("--dex-tool", default="/opt/android-sdk/build-tools/34.0.0/dexdump")
     ap.add_argument("--mapping")
     ap.add_argument("--json")
     args = ap.parse_args()
