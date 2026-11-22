@@ -10,7 +10,11 @@
 它只证明「名字还在」，不证明运行语义；AVD 验收仍由 Lead 执行。
 
 用法：
-  python3 scripts/agp/r109_verify_r8_output.py --apk <apk> [--json out.json]
+  python3 scripts/agp/r109_verify_r8_output.py --apk <apk> [--scope full-game|bridge]
+      [--json out.json]
+
+`bridge` 只校验公开 CI 当前真实构建的 AGP bridge Kotlin 类；完整游戏的
+反射、Manifest、Gson 闭包必须使用 `full-game`，不能把 bridge 结果冒充完整游戏 PASS。
 """
 import argparse
 import json
@@ -93,6 +97,7 @@ def wrap(cls):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--apk", required=True)
+    ap.add_argument("--scope", choices=("full-game", "bridge"), default="full-game")
     ap.add_argument("--json")
     ap.add_argument("--stubs", help="R8 合成平台存根类清单 JSON（数组），这些类允许出现在输出中")
     args = ap.parse_args()
@@ -105,64 +110,71 @@ def main():
     def check(kind, name, ok, detail):
         results.append({"kind": kind, "name": name, "ok": bool(ok), "detail": detail})
 
-    # 1) Kotlin payload / Smali 桥 ABI 类名保留
+    # 1) Kotlin payload / Smali 桥 ABI 类名保留。
+    # 公开 R8 CI 当前只构建 bridge；完整游戏专属 ABI 放到 full-game 范围，避免误报。
     bridge = [
         "kajfosz/antimatterdimensions/OrekiAuto",
         "kajfosz/antimatterdimensions/OrekiTrace",
-        "kajfosz/antimatterdimensions/OrekiChallengeAuto",
-        "kajfosz/antimatterdimensions/OrekiSpeed",
-        "kajfosz/antimatterdimensions/OrekiEcContinuation",
         "kajfosz/antimatterdimensions/oreki/GameApi",
         "kajfosz/antimatterdimensions/oreki/OrekiAutomationScheduler",
     ]
+    full_game_bridge = [
+        "kajfosz/antimatterdimensions/OrekiChallengeAuto",
+        "kajfosz/antimatterdimensions/OrekiSpeed",
+        "kajfosz/antimatterdimensions/OrekiEcContinuation",
+    ]
     for cls in bridge:
         check("class", cls, "L" + cls + ";" in classes, "smali->Kotlin ABI")
+    if args.scope == "full-game":
+        for cls in full_game_bridge:
+            check("class", cls, "L" + cls + ";" in classes, "smali->Kotlin ABI")
     check("class-absent", "kajfosz/antimatterdimensions/OrekiInstantChallenge",
           "Lkajfosz/antimatterdimensions/OrekiInstantChallenge;" not in classes,
           "挑战即时完成类必须从生产 APK 移除")
 
-    # 2) GameApi 反射目标（混淆短名 + 全名；见 proguard-rules.pro 与 keepgen）
-    reflect = [
-        "fl0", "dw", "m22", "iq0", "l01", "m91", "cu4", "f7", "ld0", "ui3",
-        "iw", "vi3", "k00", "j5", "w63", "pp0", "l5", "rj0", "ku4", "x81",
-        "y81", "vp0", "rq", "nr5", "zx1", "c22", "is3", "tw", "lx3", "yp0",
-        "t3", "ii3", "d51", "ee1", "w6", "f91", "fm1", "b60", "ek0", "n63", "cw",
-        "kajfosz/antimatterdimensions/player/Player",
-        "kajfosz/antimatterdimensions/BigDouble",
-        "kajfosz/antimatterdimensions/BitSet",
-        "kajfosz/antimatterdimensions/MainActivity",
-    ]
-    for cls in reflect:
-        check("class", cls, "L" + cls + ";" in classes, "GameApi 反射目标")
+    if args.scope == "full-game":
+        # 2) GameApi 反射目标（混淆短名 + 全名；见 proguard-rules.pro 与 keepgen）
+        reflect = [
+            "fl0", "dw", "m22", "iq0", "l01", "m91", "cu4", "f7", "ld0", "ui3",
+            "iw", "vi3", "k00", "j5", "w63", "pp0", "l5", "rj0", "ku4", "x81",
+            "y81", "vp0", "rq", "nr5", "zx1", "c22", "is3", "tw", "lx3", "yp0",
+            "t3", "ii3", "d51", "ee1", "w6", "f91", "fm1", "b60", "ek0", "n63", "cw",
+            "kajfosz/antimatterdimensions/player/Player",
+            "kajfosz/antimatterdimensions/BigDouble",
+            "kajfosz/antimatterdimensions/BitSet",
+            "kajfosz/antimatterdimensions/MainActivity",
+        ]
+        for cls in reflect:
+            check("class", cls, "L" + cls + ";" in classes, "GameApi 反射目标")
 
-    # 3) Manifest 按名加载类（示例，完整 39 条见 keepgen 输出）
-    manifest = [
-        "kajfosz/antimatterdimensions/App",
-        "kajfosz/antimatterdimensions/MainActivity",
-        "kajfosz/antimatterdimensions/shop/LoginActivity",
-        "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity",
-        "com/google/firebase/components/ComponentDiscoveryService",
-        "com/google/firebase/provider/FirebaseInitProvider",
-        "androidx/startup/InitializationProvider",
-    ]
-    for cls in manifest:
-        check("class", cls, "L" + cls + ";" in classes, "Manifest 按名加载")
+        # 3) Manifest 按名加载类（示例，完整 39 条见 keepgen 输出）
+        manifest = [
+            "kajfosz/antimatterdimensions/App",
+            "kajfosz/antimatterdimensions/MainActivity",
+            "kajfosz/antimatterdimensions/shop/LoginActivity",
+            "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity",
+            "com/google/firebase/components/ComponentDiscoveryService",
+            "com/google/firebase/provider/FirebaseInitProvider",
+            "androidx/startup/InitializationProvider",
+        ]
+        for cls in manifest:
+            check("class", cls, "L" + cls + ";" in classes, "Manifest 按名加载")
 
-    # 4) Gson 存档字段名（样本；完整闭包见 r109_save_keepgen.py）
-    save_fields = [
-        ("kajfosz/antimatterdimensions/player/Player", "antimatter"),
-        ("kajfosz/antimatterdimensions/player/Player", "eternityPoints"),
-        ("kajfosz/antimatterdimensions/player/Player", "eternities"),
-        ("kajfosz/antimatterdimensions/player/Player", "realities"),
-        ("kajfosz/antimatterdimensions/player/Player", "achievements"),
-        ("kajfosz/antimatterdimensions/player/Player", "auto"),
-        ("kajfosz/antimatterdimensions/player/Player", "challenge"),
-        ("kajfosz/antimatterdimensions/player/Player$Options", "notation"),
-        ("kajfosz/antimatterdimensions/player/Player$Options", "autosaveInterval"),
-        ("kajfosz/antimatterdimensions/player/Player$Auto", "eternity"),
-    ]
-    for cls, fld in save_fields:
-        check("field", cls + "#" + fld, ("L" + cls + ";", fld) in fields, "Gson 存档键")
+        # 4) Gson 存档字段名（样本；完整闭包见 r109_save_keepgen.py）
+        save_fields = [
+            ("kajfosz/antimatterdimensions/player/Player", "antimatter"),
+            ("kajfosz/antimatterdimensions/player/Player", "eternityPoints"),
+            ("kajfosz/antimatterdimensions/player/Player", "eternities"),
+            ("kajfosz/antimatterdimensions/player/Player", "realities"),
+            ("kajfosz/antimatterdimensions/player/Player", "achievements"),
+            ("kajfosz/antimatterdimensions/player/Player", "auto"),
+            ("kajfosz/antimatterdimensions/player/Player", "challenge"),
+            ("kajfosz/antimatterdimensions/player/Player$Options", "notation"),
+            ("kajfosz/antimatterdimensions/player/Player$Options", "autosaveInterval"),
+            ("kajfosz/antimatterdimensions/player/Player$Auto", "eternity"),
+        ]
+        for cls, fld in save_fields:
+            check("field", cls + "#" + fld, ("L" + cls + ";", fld) in fields, "Gson 存档键")
 
     # 5) 已剔除的 SDK 重名平台类不应作为程序类出现
     removed = [
@@ -182,7 +194,14 @@ def main():
         )
 
     failed = [r for r in results if not r["ok"]]
-    out = {"apk": args.apk, "stub_classes": sorted(stub_set), "checks": results, "failed": len(failed), "passed": len(results) - len(failed)}
+    out = {
+        "apk": args.apk,
+        "scope": args.scope,
+        "stub_classes": sorted(stub_set),
+        "checks": results,
+        "failed": len(failed),
+        "passed": len(results) - len(failed),
+    }
     print(json.dumps(out, indent=2, ensure_ascii=False))
     if args.json:
         open(args.json, "w", encoding="utf-8").write(json.dumps(out, indent=2, ensure_ascii=False) + chr(10))
