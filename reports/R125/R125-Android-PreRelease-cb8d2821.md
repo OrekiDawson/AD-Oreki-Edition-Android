@@ -44,3 +44,25 @@
 2. 重点观察首次 Infinity、Break、首次 Eternity、Reality、自动购买器开关、手动操作优先级及挑战结算。
 3. 回报问题时附上：发生阶段、真实操作步骤、存档来源、Android 版本、截图或录屏、logcat 与发生时的真实时间。
 4. 若遇到存档异常，立即停止继续写入并保留原文件；不要用清理数据作为恢复手段。
+
+## 四渠道交付
+
+| 渠道 | 状态 | 实际位置 / 证据 |
+|---|---|---|
+| GitHub Releases | `PASS` | [android-prerelease-r125-cb8d2821](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/releases/tag/android-prerelease-r125-cb8d2821)，`prerelease=true`、`draft=false`、Tag 指向 `c491faf0`；远端 APK `81,662,827 B`，回读 SHA-256 一致 |
+| Google Drive | `PASS` | https://drive.google.com/open?id=1-_jaGkZqa9nkmwc8ERCPCgQbGfn98B5t；远端 `81,662,827 B`，字节回读 SHA-256 一致 |
+| 本地 SSH/SFTP | `PASS` | `/home/oreki/Releases/AD-Oreki-Edition/pre-release/R125-20261122-cb8d2821/AD-Oreki-Edition-3.21.0-r125-cb8d2821.apk`，本地 SHA-256 一致 |
+| OneDrive | `BLOCKED` | 远端唯一路径只出现 `0 B` 占位文件；10 MiB 分片、Graph 单文件、50 MiB/5 MiB/10 MiB 分片均遭遇超低速、超时或 `Connection reset by peer`，没有通过哈希校验 |
+
+OneDrive 远端目标（未完成）：
+
+`onedrive:Apps/AD-Oreki-Edition/Pre-release/R125-20261122-cb8d2821/AD-Oreki-Edition-3.21.0-r125-cb8d2821.apk`
+
+稳定渠道未覆盖：
+
+- 本地 `latest/反物质维度.apk` 仍为 `a12b5cd620280465805ec844ea9a8554277e51d87d769dde4120fa5db842da87`。
+- GitHub 正式 Latest 仍为 `android-update-3.21.0-a12b5cd6`。
+
+## Web 同时段证据
+
+Owner 明确保留 Web `PACING FAIL / PROGRESSION BLOCKED`。独立 Web 新档 15 分钟取证完整跑满 `900.3s`：首次 Infinity `10.6s`、Break `582.2s`、Eternity `893.0s`，runtime/console error 均为 0；Reality 未出现，五项门禁 `NOT RUN`。该证据不能升级为 PACING、ENDGAME 或 Android 行为等价 PASS。
