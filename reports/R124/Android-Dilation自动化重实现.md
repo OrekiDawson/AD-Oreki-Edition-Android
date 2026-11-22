@@ -27,7 +27,10 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 - 3.21 的 `Eternity$confirmEternity$4` / `confirmDilatedEternity$4` 是 Kotlin
   合成 SuspendLambda，本身没有 `<init>`；启动器按官方 `create()` 的证据直接调用
   父类真实构造器 `SuspendLambda.<init>(I,Lrj0;)V`，不使用错误别名 `Lvh0;`。
-- DS1 已购状态复用 `OrekiDilationStudies` 的原版 `B()` 判定，不直接解析存档列表元素。
+- DS1 已购状态优先复用 `OrekiDilationStudies` 的原版 `B()` 判定；若该第二套
+  混淆 ABI 无法读取，则回退到本模块必需的 `Player$Dilation.h()` 研究列表并检查
+  id=1。空列表是确定的“未购买”，两路均不可读才返回 ABI 未知，避免永久停在
+  `WAIT_ABI`。
 - 游戏 APK 内置旧版 Kotlin stdlib；本模块不使用 `lazy` 或 enum，避免 AVD 实证的
   `SynchronizedLazyImpl` / `EnumEntries` 运行时 ABI 崩溃。
 - 已退出 Dilation 后，通过统一调度器 `dilation` 名额调用
@@ -87,7 +90,7 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
   dtGain 购买条件。
 - `OrekiEternityGainGateTest` 覆盖膨胀激活时豁免收益门槛、非激活时保持原门槛。
 - Python Dilation/V 定向测试：7/7 PASS。
-- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：91/91 PASS，
+- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：92/92 PASS，
   0 failure，0 error。
 - `python3 scripts/check_automation_scheduler.py`：174/174 PASS。
 - `scripts/fixture_eternity_gate.py`：57/57 PASS。
@@ -102,27 +105,43 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 - 完整 APK SHA-256：
   `6460d0aa7171c4c65e3ac9f26671af13cde530ff5460a1e87fcdf9c549da9005`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
+- 本复核 PR 的 R8 OFF Release 构建已完成但 AVD 尚未运行：
+  `add2edaa053277c4b6b1732a75fe88381d7dac6e8e16b5f0639040e3c9ccd292`；
+  v3 证书与上一候选一致。该新 APK 的玩家运行结果全部为 `NOT RUN`。
 - AGP 完整游戏 Signature 回填链路已尝试，但在 D8 前被外部 `SIGTERM` 终止，
   退出码 `143`，未生成 `build-receipt.json`；该链路结果记 `NOT RUN`，不冒充 PASS。
 
-## AVD 真实运行
+## 历史候选 AVD 真实运行
 
 设备：`emulator-5554`，Android API 37；包名 `com.oreki.antimatterdimensions`。
-证据目录：`reports/R124/avd-dilation-ff4dd355/`（截图 + `logcat-dilation.txt`）。
+历史运行候选 APK SHA-256：
+`6460d0aa7171c4c65e3ac9f26671af13cde530ff5460a1e87fcdf9c549da9005`。
+
+原始截图和完整 logcat 位于 Android 独立工作树
+`android/r124-dilation-auto/reports/R124/avd-dilation-ff4dd355/`，并未提交到 Git。
+逐文件 SHA-256、日志时间段及对应 APK 见
+[`Android-Dilation复核证据索引.md`](Android-Dilation复核证据索引.md)。目录名中的
+`ff4dd355` 是历史批次名，不代表其中所有记录都属于旧 APK；下表只把
+`logcat-final-6460d0aa*.txt` 的明确历史候选证据用于下表；本复核 PR 的新 APK
+`add2edaa…` 没有 AVD 结果，不能继承这些 PASS。
 
 | 项目 | 结果 | 证据 |
 | --- | --- | --- |
-| 未解锁不误启动 | PASS | `studies=[]` 时最终状态保持 `active=false / TP=0 / DT=0 / maxDT=0` |
-| 原版真实购买 DS1 | PASS | `OREKI_DIL_STUDIES: BUY id=1..6`，随后 `ds1=true` |
-| Dilation 合法启动 | PASS | `OREKI_DIL ... action=start`，下一拍 `active=true action=wait-active-eternity` |
-| 原版结算退出并发放 TP | PASS | TP 从 0 变为 `95.807`，active 回到 false |
-| DT / maxDT 增长 | PASS | `182.031 → 183.434`，最终 APK 持续增长 |
-| 调度器 dtGain 购买 | PASS | 前一业务候选 `d369c4e8`：`OREKI_SCHED: act dilation` 后 dtGain `0→1`；最终包仅改帧读取/超时，未改购买路径 |
-| Reality 重置清态 | PASS | 原版 Reality 后 studies 清空、TP/DT/maxDT 归零，符合原版规则 |
+| 未解锁不误启动 | PASS（历史 `6460`） | `logcat-final-6460d0aa.txt` 首次快照 `ds1=false ... action=wait-ds1` |
+| 原版真实购买 DS1 | PASS（历史 `6460`） | 同日志 `OREKI_DIL_STUDIES: BUY id=1..6`，随后 `ds1=true` |
+| Dilation 启动入口 | PASS（历史 `6460`） | 同日志 `active=false ds1=true ... action=start`，无反射异常 |
+| `active=true` 持续采样 | NOT RUN（历史 `6460`） | 该次运行快速完成真实永恒，500 ms 采样未捕获 active 中间态 |
+| 原版结算并发放 TP | PASS（历史 `6460`） | 同日志启动后 TP 从 `-inf`（BigDouble 零日志）变为 `95.807` |
+| DT / maxDT 增长 | PASS（历史 `6460`） | 同日志 `182.031 → 183.434` |
+| 调度器 dtGain 购买 | NOT RUN（历史 `6460`） | 同日志 dtGain 始终为 0；`d369c4e8` 的 `0→1` 属于更早候选 |
+| Reality 重置清态 | PASS（历史 `6460`） | 日志与截图记录原版 Reality 后 studies/TP/DT/maxDT 归零 |
 | V/Ra 1e30 maxDT 实际解锁 | NOT RUN | 本轮 19 秒样本 maxDT 仅到 `184.152`，未伪造到门槛 |
 | 完整 180 分钟与存档往返 | NOT RUN | 不在本轮短测范围 |
 
 测试后已用 AVD 原始 `files`/`shared_prefs` 备份恢复运行环境。
+
+本复核候选 `add2edaa…` 的 AVD 验证统一为 `NOT RUN`；上述历史 `6460` 结果仅用于
+说明已实现的真实路径，不用于新候选功能 PASS。
 
 ## 未运行
 
