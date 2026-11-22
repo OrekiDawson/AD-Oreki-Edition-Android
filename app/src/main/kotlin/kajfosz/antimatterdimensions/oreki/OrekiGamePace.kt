@@ -139,10 +139,17 @@ object OrekiGamePace {
         if (!prefs.getBoolean(KEY_PACING_MANAGED, false)) return
         val realities = GameApi.realitiesValue() ?: return
         val versusZero = GameApi.compareToDouble(realities, 0.0) ?: return
-        val enteredEternity = if (versusZero > 0) true else enteredEternityLayerState()
+        val hasInfinity = GameApi.hasInfinity()
+        val broken = GameApi.isBroken()
+        // 只有“已无限且当前 break 被重置”才需要额外读取永恒层；
+        // 新档或仍在 Break 前不依赖永恒字段，Reality 后也无需读取。
+        val enteredEternity =
+            if (versusZero > 0) true
+            else if (hasInfinity == true && broken == false) enteredEternityLayerState()
+            else null
         val target = stageTargetSpeed(
-            GameApi.hasInfinity(),
-            GameApi.isBroken(),
+            hasInfinity,
+            broken,
             versusZero > 0,
             GameApi.normalChallengeCurrent(),
             enteredEternity,
@@ -157,8 +164,8 @@ object OrekiGamePace {
         Log.i(
             "OREKI_PACE",
             "stage speed " + actual + " -> " + target +
-                " (infinity=" + GameApi.hasInfinity() +
-                ", break=" + GameApi.isBroken() +
+                " (infinity=" + hasInfinity +
+                ", break=" + broken +
                 ", reality=" + (versusZero > 0) +
                 ", eternity=" + enteredEternity + ")",
         )
