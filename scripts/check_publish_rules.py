@@ -32,13 +32,17 @@ def main() -> int:
     check("已存在时读取远端 .sha256 判定幂等", 'release", "download"' in src and "remote_sha == str(apk_info" in src)
     check("SHA 不同时禁止覆盖并提示新标签", "不得覆盖历史 Release" in src and "必须用新的更新标签" in src)
     check("本地渠道不创建版本归档", '"archive"' not in src.split("def local_publish")[1].split("def ")[0])
-    check("本地使用原子覆盖 latest", "atomic_copy(apk, latest)" in src)
+    check("稳定版本地使用原子覆盖 latest",
+          'destination = root / "latest" / DEFAULT_APK_NAME' in src
+          and "atomic_copy(apk, destination)" in src)
     check("云盘只 copyto 固定文件名", "rclone" in src and "copyto" in src and "DEFAULT_APK_NAME" in src)
     for section in ("修改内容", "修复内容", "验证内容", "APK 文件名", "APK SHA-256", "构建 / 验证时间"):
         check(f"Release 正文包含「{section}」", section in src)
     check("单次校验的同一 APK 交付四渠道", "apk_info" in src and "manifest" in src and "不重新构建" in src)
     check("Pre-release 可显式禁止晋升稳定 Latest", "--no-promote" in src and "remote_promotion_allowed" in src)
     check("GitHub Release Tag 可绑定真实源码 Commit", '"--github-target"' in src and '"--target", github_target' in src)
+    check("预发布本地目录不写稳定 latest", 'root / "pre-release" / prerelease_id' in src)
+    check("预发布云盘目录不写稳定根目录", "prerelease_directory(directory, release_id)" in src)
 
     failed = [name for name, ok in checks if not ok]
     print(f"APK 交付规则自检：{len(checks)} 项检查，失败 {len(failed)} 项")
