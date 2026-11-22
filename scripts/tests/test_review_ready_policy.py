@@ -5,6 +5,7 @@
 """
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -24,6 +25,7 @@ class TestReviewReadyPolicy(unittest.TestCase):
         cls.scheduler = rule_line("- **规则治理专职 Subagent")
         cls.ready = rule_line("- **具备审查条件的 PR 必须及时 Ready")
         cls.ready_gate = rule_line("- **Ready 前并发核对")
+        cls.quota_draft = rule_line("- **临近额度预留的 Draft 例外")
 
     def test_shared_three_slot_hard_limit(self):
         self.assertIn("全项目最多 3 个", self.scheduler)
@@ -31,9 +33,25 @@ class TestReviewReadyPolicy(unittest.TestCase):
         self.assertIn("Wiki 原生审查只占并发槽", self.scheduler)
 
     def test_no_default_two_slot_or_reserved_slot_draft(self):
-        text = self.scheduler + self.ready
-        self.assertNotIn("2 槽", text)
-        self.assertNotIn("第三槽", text)
+        lines = (ROOT / "AGENTS.md").read_text(encoding="utf-8").splitlines()
+        start = lines.index(self.scheduler)
+        while start > 0 and not re.match(r"^#{1,6}\s", lines[start]):
+            start -= 1
+        level = len(lines[start]) - len(lines[start].lstrip("#"))
+        end = len(lines)
+        for index in range(start + 1, len(lines)):
+            heading = re.match(r"^(#{1,6})\s", lines[index])
+            if heading and len(heading.group(1)) <= level:
+                end = index
+                break
+        text = "\n".join(lines[start:end])
+        self.assertNotRegex(
+            text,
+            r"(?:非阻断|默认)[^。；]{0,20}(?:2|两|二)\s*(?:个)?\s*(?:并发|在途|审查)?\s*槽(?:位)?",
+        )
+        self.assertNotRegex(
+            text, r"第(?:三|3)\s*(?:个)?\s*(?:并发|在途|审查)?\s*槽(?:位)?"
+        )
         self.assertIn("不为尚未出现的高优先级任务常态空置槽位", self.scheduler)
 
     def test_ready_is_distinct_from_paid_trigger(self):
@@ -54,6 +72,8 @@ class TestReviewReadyPolicy(unittest.TestCase):
             with self.subTest(needle=needle):
                 self.assertIn(needle, self.scheduler)
         self.assertIn("若已核实转 Ready 会自动触发未经授权", self.ready)
+        self.assertIn("REVIEW_BLOCKED(quota)", self.quota_draft)
+        self.assertIn("具体高优先级依据", self.quota_draft)
 
     def test_priority_and_daily_quota_still_apply(self):
         self.assertIn("真实 P0/P1、安全和合并阻断", self.scheduler)
