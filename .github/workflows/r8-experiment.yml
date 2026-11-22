@@ -8,6 +8,7 @@ on:
       - 'agp/**'
       - 'app/src/main/kotlin/**'
       - 'scripts/payload/smali/**'
+      - 'scripts/agp/r109_verify_r8_output.py'
       - 'scripts/tests/test_agp_r8_experiment.py'
       - '.github/workflows/r8-experiment.yml'
 
@@ -149,6 +150,19 @@ jobs:
           (root / 'class-method-stats.json').write_text(json.dumps(stats, indent=2) + '\n')
           print(json.dumps(stats, indent=2))
           PY
+      - name: 验证 R8 桥接产物 ABI
+        # 构建成功不能证明 R8 未裁掉运行时按名加载的类。本工作流当前构建的是 bridge，
+        # 因此只校验 bridge 范围。当前工作流没有 full-game R8 执行者，
+        # 完整游戏反射/Manifest/Gson 与三项 smali→Kotlin 桥在该范围均为 NOT RUN。
+        run: |
+          set -euo pipefail
+          apk="$(find r8-evidence/optimized -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：R8 ON 未产出 APK'; exit 1; }
+          python3 scripts/agp/r109_verify_r8_output.py \
+            --apk "$apk" \
+            --scope bridge \
+            --mapping r8-evidence/optimized/mapping.txt \
+            --json r8-evidence/optimized/r8-abi-verify.json
       - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
         run: |
           set -euo pipefail
