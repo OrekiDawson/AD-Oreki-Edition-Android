@@ -60,6 +60,17 @@ class AchievementAuditParseTest(unittest.TestCase):
         self.assertEqual(done, (144, 117, 0, 0))
         self.assertIsNone(aborted)
 
+    def test_done_replaces_previous_abort_cycle(self) -> None:
+        lines = [
+            "E/OREKI_ACHAUDIT: ABORT scanned=144 unlocked=118 mismatch=1 used=-1",
+            "W/OREKI_ACHAUDIT: MISMATCH id=34",
+            "I/OREKI_ACHAUDIT: DONE scanned=144 unlocked=117 mismatch=1 used=0",
+        ]
+        mismatches, done, aborted, _ = ach_audit.parse(lines)
+        self.assertEqual(mismatches, [34])
+        self.assertEqual(done, (144, 117, 1, 0))
+        self.assertIsNone(aborted)
+
     def test_abort_replaces_previous_done_cycle(self) -> None:
         lines = [
             "W/OREKI_ACHAUDIT: MISMATCH id=34",
