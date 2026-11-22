@@ -239,7 +239,11 @@ def main():
 
     # ---------------- 3. 反编译 dex（跳过资源，快） ----------------
     verify_dir = prepared_dir
-    check("apktool 反编译 dex", True, str(verify_dir.relative_to(ROOT)))
+    try:
+        prepared_label = str(verify_dir.relative_to(ROOT))
+    except ValueError:
+        prepared_label = str(verify_dir)
+    check("apktool 反编译 dex", True, prepared_label)
 
     smali = verify_dir / "smali"
 
@@ -258,8 +262,12 @@ def main():
         text = smali_file.read_text(encoding="utf-8", errors="ignore")
         if text.count("OrekiSpeed;->unscale(D)D") != 1:
             continue
-        idx = text.find("cmpg-double")
-        if idx >= 0 and "OrekiSpeed;->unscale(D)D" in text[max(0, idx - 400):idx]:
+        if re.search(
+            r"OrekiSpeed;->unscale\(D\)D\s*\n"
+            r"\s*move-result-wide v\d+\s*\n"
+            r"\s*cmpg-double v\d+, v\d+, v\d+",
+            text,
+        ):
             ec12_files.append(smali_file)
     check("EC12 补丁在 dex 内（unscale 1 次且紧邻限时比较）",
           len(ec12_files) == 1,
