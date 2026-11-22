@@ -78,6 +78,19 @@ class DeliveryPreflightTests(unittest.TestCase):
         self.assertIn("--latest", captured[0])
         self.assertIn("--prerelease=false", captured[0])
 
+    def test_prerelease_flag_never_promotes_latest(self):
+        success = {
+            "channels": {
+                "github": {"status": "success"},
+                "onedrive": {"status": "success"},
+                "gdrive": {"status": "success"},
+            }
+        }
+        self.assertFalse(p.remote_promotion_allowed(
+            local_only=False, no_promote=True, state=success))
+        self.assertTrue(p.remote_promotion_allowed(
+            local_only=False, no_promote=False, state=success))
+
     def test_failed_release_restores_snapshot_not_arbitrary_listing(self):
         calls = []
         latest = "android-update-3.21.0-3d924271"
