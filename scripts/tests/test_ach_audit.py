@@ -50,6 +50,16 @@ class AchievementAuditParseTest(unittest.TestCase):
         self.assertEqual(done, (144, 117, 1, 0))
         self.assertIsNone(aborted)
 
+    def test_done_zero_mismatch_discards_stale_partial_session_entries(self) -> None:
+        lines = [
+            "W/OREKI_ACHAUDIT: MISMATCH id=21",
+            "I/OREKI_ACHAUDIT: DONE scanned=144 unlocked=117 mismatch=0 used=0",
+        ]
+        mismatches, done, aborted, _ = ach_audit.parse(lines)
+        self.assertEqual(mismatches, [])
+        self.assertEqual(done, (144, 117, 0, 0))
+        self.assertIsNone(aborted)
+
     def test_abort_replaces_previous_done_cycle(self) -> None:
         lines = [
             "W/OREKI_ACHAUDIT: MISMATCH id=34",
@@ -72,6 +82,16 @@ class AchievementAuditParseTest(unittest.TestCase):
         self.assertEqual(mismatches, [55])
         self.assertIsNone(done)
         self.assertEqual(aborted, (144, 118, 1, -1))
+
+    def test_abort_zero_mismatch_discards_stale_partial_session_entries(self) -> None:
+        lines = [
+            "W/OREKI_ACHAUDIT: MISMATCH id=21",
+            "E/OREKI_ACHAUDIT: ABORT scanned=144 unlocked=118 mismatch=0 used=-1",
+        ]
+        mismatches, done, aborted, _ = ach_audit.parse(lines)
+        self.assertEqual(mismatches, [])
+        self.assertIsNone(done)
+        self.assertEqual(aborted, (144, 118, 0, -1))
 
 
 if __name__ == "__main__":
