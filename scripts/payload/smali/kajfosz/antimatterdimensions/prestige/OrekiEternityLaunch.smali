@@ -63,3 +63,25 @@
 
     return-void
 .end method
+
+
+# [R124] 以同一游戏 scope 启动原版 Dilation 确认协程。
+# 只做包内可见 lambda 的构造与启动；门禁、状态机和购买决策都在 Kotlin。
+.method public static startDilation()V
+    .locals 3
+
+    new-instance v0, Lkajfosz/antimatterdimensions/prestige/Eternity$confirmDilatedEternity$4;
+
+    const/4 v1, 0x1
+    const/4 v2, 0x0
+
+    invoke-direct {v0, v1, v2}, Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILvh0;)V
+
+    check-cast v0, Lgm1;
+
+    const/4 v1, 0x1
+
+    invoke-static {v0, v1}, Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V
+
+    return-void
+.end method

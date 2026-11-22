@@ -19,7 +19,7 @@ AUTOMATION = (
 )
 STAGE = ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.kt"
 SCHEDULER = ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiAutomationScheduler.kt"
-LAUNCHER = ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensions" / "prestige" / "OrekiDilationLaunch.smali"
+LAUNCHER = ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensions" / "prestige" / "OrekiEternityLaunch.smali"
 
 
 class DilationAutomationTests(unittest.TestCase):
@@ -30,8 +30,8 @@ class DilationAutomationTests(unittest.TestCase):
             'private const val THIS_REALITY = "kajfosz.antimatterdimensions.player.Player\\$ThisReality"',
             'private const val DILATION_UPGRADES = "kajfosz.antimatterdimensions.eternity.dilation.b"',
             'private const val QW3 = "qw3"',
-            'private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiDilationLaunch"',
-            'exactMethod(dilationLaunchClass, "start")',
+            'private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch"',
+            'exactMethod(dilationLaunchClass, "startDilation")',
             'field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)',
         ):
             self.assertIn(expected, source)
@@ -67,7 +67,7 @@ class DilationAutomationTests(unittest.TestCase):
         source = LAUNCHER.read_text(encoding="utf-8")
         self.assertIn("Eternity$confirmDilatedEternity$4", source)
         self.assertIn("Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V", source)
-        self.assertIn(".method public static start()V", source)
+        self.assertIn(".method public static startDilation()V", source)
 
 
 if __name__ == "__main__":

@@ -5,8 +5,8 @@
 Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin 架构重新最小实现：
 
 - DS1 未购买时不动作。
-- Dilation 未激活且 `OrekiAutoEternityGate.allowed()` 放行时，经同包 Smali 转发器
-  `OrekiDilationLaunch.start()` 构造原版 `Eternity$confirmDilatedEternity$4`
+- Dilation 未激活且 `OrekiAutoEternityGate.allowed()` 放行时，经现有同包启动器
+  `OrekiEternityLaunch.startDilation()` 构造原版 `Eternity$confirmDilatedEternity$4`
   SuspendLambda，再交给 `MainActivity.launchOnGameScope`；不直接反射 suspend 入口。
 - Dilation 激活后不设置安全阀，也不另造 Continuation 直调退出；等待下一次原版普通
   自动永恒完成真实 TP/DT 结算，并由原版语义退出 Dilation。
@@ -58,7 +58,7 @@ dtGain 等级只从已锁定静态字段 `b` 的 `qw3.I()` 读取；不再用 We
 - 3.21 V 门槛已同步到 Web 值：`w35` 构建字节码确认 `60 / 1e30 / 1e20000`，
   `xd4` 进度分母确认 `60.0 / 30.0 / 20000.0`；旧 `10000 / 320 / 320000` 已消失。
 - 最终完整游戏 APK SHA-256：
-  `0a12492fdea1279bb340cda4cb7f1f339e22677ad9cd7c7f933149e0f641efc1`；
+  `f5c1e3a1898e2e8c8faa412490a8ef0f76cf8f602b2d5030c1fd4a2da160f77a`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 
 ## 未运行

@@ -91,7 +91,7 @@ internal object OrekiDilationApi {
     private const val THIS_REALITY = "kajfosz.antimatterdimensions.player.Player\$ThisReality"
     private const val DILATION_UPGRADES = "kajfosz.antimatterdimensions.eternity.dilation.b"
     private const val QW3 = "qw3"
-    private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiDilationLaunch"
+    private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch"
 
     private val loader: ClassLoader
         get() = OrekiDilationApi::class.java.classLoader ?: ClassLoader.getSystemClassLoader()
@@ -118,7 +118,7 @@ internal object OrekiDilationApi {
     private val dilationTp: Method? by lazy { noArg(DILATION, "i") }
     private val thisRealityMaxDt: Method? by lazy { noArg(THIS_REALITY, "i") }
     private val startDilated: Method? by lazy {
-        exactMethod(dilationLaunchClass, "start")?.takeIf { Modifier.isStatic(it.modifiers) }
+        exactMethod(dilationLaunchClass, "startDilation")?.takeIf { Modifier.isStatic(it.modifiers) }
     }
     private val dtGainField: Field? by lazy {
         field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)?.also {
