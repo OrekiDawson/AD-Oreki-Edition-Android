@@ -140,6 +140,7 @@ def count_dexdump_classes(dex: Path, dexdump: Path | None) -> int | None:
 def build(args: argparse.Namespace) -> dict:
     base_apk = args.base_apk.resolve()
     work = args.work_dir.resolve()
+    keep_kotlin = bool(getattr(args, "keep_kotlin", False))
     if work.exists():
         shutil.rmtree(work)
     dex_dir = work / "dex"
@@ -149,6 +150,7 @@ def build(args: argparse.Namespace) -> dict:
         "stage": "agp-gamejar",
         "base_apk": {"path": base_apk.name, "sha256": sha256_file(base_apk)},
         "dex2jar": str(args.dex2jar),
+        "options": {"keep_kotlin": keep_kotlin},
         "dex": [],
         "excluded": {},
         "dash_name_repairs": {},
@@ -156,7 +158,7 @@ def build(args: argparse.Namespace) -> dict:
 
     dex_files = extract_dex(base_apk, dex_dir)
     excluded_total = 0
-    excluded_prefixes = EXCLUDED_PREFIXES_KEEP_KOTLIN if args.keep_kotlin else EXCLUDED_PREFIXES
+    excluded_prefixes = EXCLUDED_PREFIXES_KEEP_KOTLIN if keep_kotlin else EXCLUDED_PREFIXES
     class_blobs: dict[str, bytes] = {}
     dex_reports = []
     for dex in dex_files:
