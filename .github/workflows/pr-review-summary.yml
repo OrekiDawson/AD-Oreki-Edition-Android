@@ -77,15 +77,9 @@ jobs:
                 String(err?.message||err).slice(0,200));
             }
             const taskText=[pr.title,pr.body||"",...commits.map(c=>c.commit.message)].join("\n");
-            const declaredTaskIds=[...new Set(taskText.match(
-              /\bR\d{2,3}-(?:\d{2,3}|[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*)/gu
-            )||[])];
-            const bareRounds=[...new Set(pr.title.match(/\bR\d{2,3}\b(?!-)/g)||[])];
-            const declaredRounds=new Set(declaredTaskIds.map(id=>id.match(/^R\d+/)?.[0]).filter(Boolean));
-            const uncoveredBareRounds=bareRounds
-              .filter(id=>!declaredRounds.has(id))
-              .map(id=>id+'（未带子编号）');
-            const taskIds=[...declaredTaskIds,...uncoveredBareRounds];
+            // 新任务编号只允许单层 R整数；历史 R121-01 等子编号仍按主轮次归并，
+            // 不把它们误当成多个可启用的新任务。
+            const taskIds=[...new Set(taskText.match(/\bR\d{2,3}\b/g)||[])];
             const risk=platform==='Android' ? [
               ['AGP/R8/Gradle', /^(agp|gradle)\/|(^|\/)(build\.gradle(\.kts)?|proguard-rules\.pro)$/],
               ['CI/签名/正式发布', /^\.github\/workflows\/|^scripts\/(publish_|release_|enforce_agp)/],
