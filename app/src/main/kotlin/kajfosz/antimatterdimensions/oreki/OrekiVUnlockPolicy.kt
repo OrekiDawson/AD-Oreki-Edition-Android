@@ -28,11 +28,22 @@ object OrekiVUnlockPolicy {
     private const val DILATED_TIME_PROGRESS_DIVISOR = 30.0
     private const val REPLICANTI_PROGRESS_DIVISOR = 20_000.0
 
-    private val bigDoubleConstructor by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-        Class.forName(BIG_DOUBLE_CLASS).getDeclaredConstructor(
-            Integer.TYPE,
-            Integer.TYPE,
-            java.lang.Boolean.TYPE,
+    // 游戏 APK 内的旧版 Kotlin stdlib 没有新编译器 `lazy` 依赖的
+    // SynchronizedLazyImpl 四参数构造器；AVD 已实证 NoSuchMethodError。
+    private var constructorResolved = false
+    private var constructorCache: java.lang.reflect.Constructor<*>? = null
+
+    private fun bigDoubleConstructor(): java.lang.reflect.Constructor<*> {
+        if (!constructorResolved) {
+            constructorResolved = true
+            constructorCache = Class.forName(BIG_DOUBLE_CLASS).getDeclaredConstructor(
+                Integer.TYPE,
+                Integer.TYPE,
+                java.lang.Boolean.TYPE,
+            )
+        }
+        return constructorCache ?: throw IllegalStateException(
+            "Oreki V 3.21 threshold ABI unavailable",
         )
     }
 
@@ -59,7 +70,7 @@ object OrekiVUnlockPolicy {
 
     private fun threshold(mantissa: Int, exponent: Int, label: String): Any =
         try {
-            bigDoubleConstructor.newInstance(mantissa, exponent, true)
+            bigDoubleConstructor().newInstance(mantissa, exponent, true)
         } catch (error: Throwable) {
             throw IllegalStateException(
                 "Oreki V 3.21 threshold ABI unavailable for $label",

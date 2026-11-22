@@ -128,38 +128,194 @@ internal object OrekiDilationApi {
     private val loader: ClassLoader
         get() = OrekiDilationApi::class.java.classLoader ?: ClassLoader.getSystemClassLoader()
 
-    private val playerClass: Class<*>? by lazy { loadClass(PLAYER) }
-    private val dilationUpgradesClass: Class<*>? by lazy { loadClass(DILATION_UPGRADES) }
-    private val qw3Class: Class<*>? by lazy { loadClass(QW3) }
-    private val dilationLaunchClass: Class<*>? by lazy { loadClass(DILATION_LAUNCH) }
+    // 游戏 APK 内置旧版 Kotlin stdlib，不包含新编译器生成的 SynchronizedLazyImpl
+    // 四参数构造器。AVD 实机已出现 NoSuchMethodError，因此这里使用显式一次性缓存，
+    // 禁止在本类使用 lazy 委托。
+    private var playerClassResolved = false
+    private var playerClassCache: Class<*>? = null
+    private var dilationUpgradesClassResolved = false
+    private var dilationUpgradesClassCache: Class<*>? = null
+    private var qw3ClassResolved = false
+    private var qw3ClassCache: Class<*>? = null
+    private var dilationLaunchClassResolved = false
+    private var dilationLaunchClassCache: Class<*>? = null
+    private var playerFieldResolved = false
+    private var playerFieldCache: Field? = null
+    private var playerDilationResolved = false
+    private var playerDilationCache: Method? = null
+    private var playerRecordsResolved = false
+    private var playerRecordsCache: Method? = null
+    private var recordsThisRealityResolved = false
+    private var recordsThisRealityCache: Method? = null
+    private var dilationActiveResolved = false
+    private var dilationActiveCache: Method? = null
+    private var dilationDtResolved = false
+    private var dilationDtCache: Method? = null
+    private var dilationStudiesResolved = false
+    private var dilationStudiesCache: Method? = null
+    private var dilationTpResolved = false
+    private var dilationTpCache: Method? = null
+    private var thisRealityMaxDtResolved = false
+    private var thisRealityMaxDtCache: Method? = null
+    private var startDilatedResolved = false
+    private var startDilatedCache: Method? = null
+    private var dtGainFieldResolved = false
+    private var dtGainFieldCache: Field? = null
+    private var dtGainLevelMethodResolved = false
+    private var dtGainLevelMethodCache: Method? = null
+    private var dtGainPurchaseMethodResolved = false
+    private var dtGainPurchaseMethodCache: Method? = null
 
-    private val playerField: Field? by lazy {
-        field(playerClass, "a", static = true, exactType = playerClass)?.also {
-            it.isAccessible = true
+    private fun playerClass(): Class<*>? {
+        if (!playerClassResolved) {
+            playerClassResolved = true
+            playerClassCache = loadClass(PLAYER)
         }
+        return playerClassCache
     }
-    private val playerDilation: Method? by lazy { noArg(playerClass, "t") }
-    private val playerRecords: Method? by lazy { noArg(playerClass, "R") }
-    private val recordsThisReality: Method? by lazy {
-        val recordsClass = playerRecords?.returnType
-        noArg(recordsClass, "l")
-    }
-    private val dilationActive: Method? by lazy { noArg(DILATION, "a") }
-    private val dilationDt: Method? by lazy { noArg(DILATION, "c") }
-    private val dilationStudies: Method? by lazy { noArg(DILATION, "h") }
-    private val dilationTp: Method? by lazy { noArg(DILATION, "i") }
-    private val thisRealityMaxDt: Method? by lazy { noArg(THIS_REALITY, "i") }
-    private val startDilated: Method? by lazy {
-        exactMethod(dilationLaunchClass, "startDilation")?.takeIf { Modifier.isStatic(it.modifiers) }
-    }
-    private val dtGainField: Field? by lazy {
-        field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)?.also {
-            it.isAccessible = true
+
+    private fun dilationUpgradesClass(): Class<*>? {
+        if (!dilationUpgradesClassResolved) {
+            dilationUpgradesClassResolved = true
+            dilationUpgradesClassCache = loadClass(DILATION_UPGRADES)
         }
+        return dilationUpgradesClassCache
     }
-    private val dtGainLevelMethod: Method? by lazy { noArg(qw3Class, "I") }
-    private val dtGainPurchaseMethod: Method? by lazy {
-        exactMethod(qw3Class, "D", java.lang.Boolean.TYPE, loadClass("rj0"))
+
+    private fun qw3Class(): Class<*>? {
+        if (!qw3ClassResolved) {
+            qw3ClassResolved = true
+            qw3ClassCache = loadClass(QW3)
+        }
+        return qw3ClassCache
+    }
+
+    private fun dilationLaunchClass(): Class<*>? {
+        if (!dilationLaunchClassResolved) {
+            dilationLaunchClassResolved = true
+            dilationLaunchClassCache = loadClass(DILATION_LAUNCH)
+        }
+        return dilationLaunchClassCache
+    }
+
+    private fun playerField(): Field? {
+        if (!playerFieldResolved) {
+            playerFieldResolved = true
+            val owner = playerClass()
+            playerFieldCache = field(owner, "a", static = true, exactType = owner)?.also {
+                it.isAccessible = true
+            }
+        }
+        return playerFieldCache
+    }
+
+    private fun playerDilation(): Method? {
+        if (!playerDilationResolved) {
+            playerDilationResolved = true
+            playerDilationCache = noArg(playerClass(), "t")
+        }
+        return playerDilationCache
+    }
+
+    private fun playerRecords(): Method? {
+        if (!playerRecordsResolved) {
+            playerRecordsResolved = true
+            playerRecordsCache = noArg(playerClass(), "R")
+        }
+        return playerRecordsCache
+    }
+
+    private fun recordsThisReality(): Method? {
+        if (!recordsThisRealityResolved) {
+            recordsThisRealityResolved = true
+            recordsThisRealityCache = noArg(playerRecords()?.returnType, "l")
+        }
+        return recordsThisRealityCache
+    }
+
+    private fun dilationActive(): Method? {
+        if (!dilationActiveResolved) {
+            dilationActiveResolved = true
+            dilationActiveCache = noArg(DILATION, "a")
+        }
+        return dilationActiveCache
+    }
+
+    private fun dilationDt(): Method? {
+        if (!dilationDtResolved) {
+            dilationDtResolved = true
+            dilationDtCache = noArg(DILATION, "c")
+        }
+        return dilationDtCache
+    }
+
+    private fun dilationStudies(): Method? {
+        if (!dilationStudiesResolved) {
+            dilationStudiesResolved = true
+            dilationStudiesCache = noArg(DILATION, "h")
+        }
+        return dilationStudiesCache
+    }
+
+    private fun dilationTp(): Method? {
+        if (!dilationTpResolved) {
+            dilationTpResolved = true
+            dilationTpCache = noArg(DILATION, "i")
+        }
+        return dilationTpCache
+    }
+
+    private fun thisRealityMaxDt(): Method? {
+        if (!thisRealityMaxDtResolved) {
+            thisRealityMaxDtResolved = true
+            thisRealityMaxDtCache = noArg(THIS_REALITY, "i")
+        }
+        return thisRealityMaxDtCache
+    }
+
+    private fun startDilated(): Method? {
+        if (!startDilatedResolved) {
+            startDilatedResolved = true
+            startDilatedCache = exactMethod(dilationLaunchClass(), "startDilation")
+                ?.takeIf { Modifier.isStatic(it.modifiers) }
+        }
+        return startDilatedCache
+    }
+
+    private fun dtGainField(): Field? {
+        if (!dtGainFieldResolved) {
+            dtGainFieldResolved = true
+            dtGainFieldCache = field(
+                dilationUpgradesClass(),
+                "b",
+                static = true,
+                exactType = qw3Class(),
+            )?.also {
+                it.isAccessible = true
+            }
+        }
+        return dtGainFieldCache
+    }
+
+    private fun dtGainLevelMethod(): Method? {
+        if (!dtGainLevelMethodResolved) {
+            dtGainLevelMethodResolved = true
+            dtGainLevelMethodCache = noArg(qw3Class(), "I")
+        }
+        return dtGainLevelMethodCache
+    }
+
+    private fun dtGainPurchaseMethod(): Method? {
+        if (!dtGainPurchaseMethodResolved) {
+            dtGainPurchaseMethodResolved = true
+            dtGainPurchaseMethodCache = exactMethod(
+                qw3Class(),
+                "D",
+                java.lang.Boolean.TYPE,
+                loadClass("rj0"),
+            )
+        }
+        return dtGainPurchaseMethodCache
     }
 
     private fun loadClass(name: String): Class<*>? = try {
@@ -196,7 +352,7 @@ internal object OrekiDilationApi {
         }
     }
 
-    private fun player(): Any? = playerField?.get(null)
+    private fun player(): Any? = playerField()?.get(null)
 
     private fun invoke(method: Method?, receiver: Any?, vararg args: Any?): Any? = try {
         method?.invoke(receiver, *args)
@@ -217,14 +373,14 @@ internal object OrekiDilationApi {
 
     fun snapshot(): OrekiDilationSnapshot? {
         val player = player() ?: return null
-        val dilation = invoke(playerDilation, player) ?: return null
-        val studies = invoke(dilationStudies, dilation) as? List<*> ?: return null
-        val active = invoke(dilationActive, dilation) as? Boolean
-        val tachyon = invoke(dilationTp, dilation)
-        val dt = invoke(dilationDt, dilation)
-        val records = invoke(playerRecords, player)
-        val thisReality = invoke(recordsThisReality, records)
-        val maxDt = invoke(thisRealityMaxDt, thisReality)
+        val dilation = invoke(playerDilation(), player) ?: return null
+        val studies = invoke(dilationStudies(), dilation) as? List<*> ?: return null
+        val active = invoke(dilationActive(), dilation) as? Boolean
+        val tachyon = invoke(dilationTp(), dilation)
+        val dt = invoke(dilationDt(), dilation)
+        val records = invoke(playerRecords(), player)
+        val thisReality = invoke(recordsThisReality(), records)
+        val maxDt = invoke(thisRealityMaxDt(), thisReality)
 
         val unlocked = studies.any { (it as? Number)?.toInt() == 1 }
         val tachyonComparison = GameApi.compareToDouble(tachyon, 0.0)
@@ -243,20 +399,20 @@ internal object OrekiDilationApi {
     }
 
     private fun readDtGainLevel(): Long? {
-        val upgrade = dtGainField?.get(null) ?: return null
-        return invoke(dtGainLevelMethod, upgrade) as? Long
+        val upgrade = dtGainField()?.get(null) ?: return null
+        return invoke(dtGainLevelMethod(), upgrade) as? Long
     }
 
     fun startDilatedEternity(): Boolean {
-        val method = startDilated ?: return false
+        val method = startDilated() ?: return false
         return invokeVoid(method, null)
     }
 
     fun buyDtGain(expectedLevel: Long): Boolean {
-        val upgrade = dtGainField?.get(null) ?: return false
-        val level = invoke(dtGainLevelMethod, upgrade) as? Long ?: return false
+        val upgrade = dtGainField()?.get(null) ?: return false
+        val level = invoke(dtGainLevelMethod(), upgrade) as? Long ?: return false
         if (level != expectedLevel) return false
-        return invoke(dtGainPurchaseMethod, upgrade, true, null) as? Boolean ?: false
+        return invoke(dtGainPurchaseMethod(), upgrade, true, null) as? Boolean ?: false
     }
 }
 

@@ -31,8 +31,9 @@ class DilationAutomationTests(unittest.TestCase):
             'private const val DILATION_UPGRADES = "kajfosz.antimatterdimensions.eternity.dilation.b"',
             'private const val QW3 = "qw3"',
             'private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiEternityLaunch"',
-            'exactMethod(dilationLaunchClass, "startDilation")',
-            'field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)',
+            'exactMethod(dilationLaunchClass(), "startDilation")',
+            "dilationUpgradesClass(),",
+            'exactType = qw3Class(),',
             "private var awaitingLaunchActive = false",
             "private var awaitingLaunchObservation: OrekiDilationLaunchObservation? = null",
             "launchPending = awaitingLaunchActive",
@@ -45,6 +46,9 @@ class DilationAutomationTests(unittest.TestCase):
         self.assertNotIn("OrekiEcContinuation", source)
         self.assertNotIn("ordinaryEternity", source)
         self.assertNotIn("rebuyables[0]", source)
+        self.assertNotIn("by lazy", source)
+        self.assertIn("private fun playerClass(): Class<*>?", source)
+        self.assertIn("private fun dtGainPurchaseMethod(): Method?", source)
 
     def test_no_safety_valve_or_direct_resource_write(self) -> None:
         source = AUTOMATION.read_text(encoding="utf-8")

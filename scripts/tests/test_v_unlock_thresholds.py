@@ -54,6 +54,8 @@ class VUnlockThresholdTests(unittest.TestCase):
             'throw IllegalStateException(',
         ):
             self.assertIn(expected, policy)
+        self.assertNotIn("by lazy", policy)
+        self.assertIn("private fun bigDoubleConstructor()", policy)
 
         source = BUILD_MOD.read_text(encoding="utf-8")
         start = source.index("# ------------------------------------------------- 0) 3.21 真实结构：w35 + xd4")
