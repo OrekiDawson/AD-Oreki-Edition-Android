@@ -149,6 +149,16 @@ jobs:
           (root / 'class-method-stats.json').write_text(json.dumps(stats, indent=2) + '\n')
           print(json.dumps(stats, indent=2))
           PY
+      - name: 验证 R8 产物保留反射、Manifest 与 Gson ABI
+        # 构建成功不能证明 R8 未裁掉运行时按名加载的类、字段或方法。该守卫直接解析
+        # 优化后的 DEX，并与有源码/工具证据的 ABI 清单逐项比对，失败即阻断实验。
+        run: |
+          set -euo pipefail
+          apk="$(find r8-evidence/optimized -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -n "$apk" || { echo 'FAIL：R8 ON 未产出 APK'; exit 1; }
+          python3 scripts/agp/r109_verify_r8_output.py \
+            --apk "$apk" \
+            --json r8-evidence/optimized/r8-abi-verify.json
       - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
         run: |
           set -euo pipefail

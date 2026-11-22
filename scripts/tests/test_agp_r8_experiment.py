@@ -37,6 +37,12 @@ class AgpR8ExperimentTests(unittest.TestCase):
         self.assertIn("dex packages --defined-only", workflow)
         self.assertIn("class-method-stats.json", workflow)
 
+    def test_experiment_fails_closed_on_r8_abi_loss(self):
+        workflow = (ROOT / ".github" / "workflows" / "r8-experiment.yml").read_text(encoding="utf-8")
+        self.assertIn("scripts/agp/r109_verify_r8_output.py", workflow)
+        self.assertIn("r8-evidence/optimized/r8-abi-verify.json", workflow)
+        self.assertIn("R8 产物保留反射、Manifest 与 Gson ABI", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
