@@ -10,6 +10,9 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
   SuspendLambda，再交给 `MainActivity.launchOnGameScope`；不直接反射 suspend 入口。
 - Dilation 激活后不设置安全阀，也不另造 Continuation 直调退出；等待下一次原版普通
   自动永恒完成真实 TP/DT 结算，并由原版语义退出 Dilation。
+- Dilation 激活时，普通自动永恒的收益门槛不再要求本次 EP 超过现存 EP；这是让原版
+  永恒真实发放首个及后续 TP、并自然退出膨胀的必要例外，玩家关闭、Doomed 和原版
+  自动器总开关仍优先停手。
 - 已退出 Dilation 后，通过统一调度器 `dilation` 名额调用
   `eternity/dilation/b.b -> qw3.D(Z,rj0)` 购买 dtGain，遵守玩家 1～60 秒配置节拍，
   由原版内部判断余额并扣除 `Currency.dilatedTime`。
@@ -45,21 +48,42 @@ dtGain 等级只从已锁定静态字段 `b` 的 `qw3.I()` 读取；不再用 We
   比较返回 null 表示 ABI 或读取失败。
 - DT、maxDT 只用于诊断日志；读取失败不会触发任何资源或解锁行为。
 
+## V/Ra 门槛策略
+
+V 门槛与进度分母的唯一业务来源是 Kotlin `OrekiVUnlockPolicy`：
+
+- realities 门槛 `BigDouble(60, 0, true)`；
+- dilatedTime 门槛 `BigDouble(1, 30, true)`；
+- replicanti 门槛 `BigDouble(1, 20000, true)`；
+- 进度分母分别为 `60.0 / 30.0 / 20000.0`。
+
+`w35` 只调用 `thresholdForRealities/DilatedTime/Replicanti()` 并执行
+`check-cast BigDouble`；`xd4` 只调用 `progressDivisorFor*()` 后继续原版除法。
+Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
+`BigDouble(int,int,boolean)` ABI，构造异常直接失败关闭，不返回 0 或伪造资源。
+
 ## 验证
 
 - `OrekiDilationPolicyTest`：5 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
   未解锁、ABI 未知、TP 真零、门禁关闭、激活等待普通永恒退出和 dtGain 购买条件。
-- Python Dilation/V 定向测试：6/6 PASS。
-- `bash gradlew -p agp :app:testDebugUnitTest`：85/85 PASS，0 failure，0 error。
-- `python3 scripts/check_automation_scheduler.py`：173/173 PASS。
+- `OrekiEternityGainGateTest` 覆盖膨胀激活时豁免收益门槛、非激活时保持原门槛。
+- Python Dilation/V 定向测试：7/7 PASS。
+- `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：87/87 PASS，
+  0 failure，0 error。
+- `python3 scripts/check_automation_scheduler.py`：174/174 PASS。
 - `javap` 已核对上表描述符。
-- AGP 9.5.1 R8 OFF 完整游戏 APK 构建 PASS；`apkanalyzer` 确认
-  `OrekiDilationApi`、`OrekiDilationAutomation`、策略类和 `OrekiStageAuto` 均进入 APK。
-- 3.21 V 门槛已同步到 Web 值：`w35` 构建字节码确认 `60 / 1e30 / 1e20000`，
-  `xd4` 进度分母确认 `60.0 / 30.0 / 20000.0`；旧 `10000 / 320 / 320000` 已消失。
-- 最终完整游戏 APK SHA-256：
-  `f5c1e3a1898e2e8c8faa412490a8ef0f76cf8f602b2d5030c1fd4a2da160f77a`；
+- 隔离 3.21 `assembleRelease` 完整 APK 构建 PASS；`apkanalyzer` 确认
+  `OrekiVUnlockPolicy`、`OrekiDilationAutomation` 和 `OrekiEternityLaunch`
+  均进入 APK。
+- APK 内 `w35` 保留 3 处 Kotlin 门槛调用，`xd4` 保留 3 处 Kotlin 进度分母调用；
+  旧 `10000 / 320 / 320000` 分母已消失。
+- `javap` 确认 Kotlin 门槛参数为 `60/0`、`1/30`、`1/20000`，进度分母为
+  `60.0/30.0/20000.0`。
+- 完整 APK SHA-256：
+  `af408c4c4f6366fc63a81456a28872ab4e621c06f54f82fba7b54dc393c5d88a`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
+- AGP 完整游戏 Signature 回填链路已尝试，但在 D8 前被外部 `SIGTERM` 终止，
+  退出码 `143`，未生成 `build-receipt.json`；该链路结果记 `NOT RUN`，不冒充 PASS。
 
 ## 未运行
 
