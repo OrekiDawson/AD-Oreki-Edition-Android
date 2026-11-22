@@ -2060,9 +2060,15 @@ internal object GameApi {
     /** 原版维度当前数量 `AntimatterDimensionState.y()`；读不到返回 null。 */
     fun dimensionAmount(state: Any?): Any? = call(mDimensionAmountY(), state)
 
-    /** 维度数量与 0 的原版 BigDouble 比较结果；仅用于判断重置后基础链是否已恢复。 */
-    fun compareDimensionAmountToZero(state: Any?): Int? =
-        compareToDouble(dimensionAmount(state), 0.0)
+    /**
+     * 原版维度真实购买次数（存档字段 `bought`）。
+     *
+     * C9 维度重置后不能使用 `BigDouble(0).compareTo(0.0)` 判断基础链：
+     * Android 原版零值在该比较中可能返回正数，导致全部维度买次数仍为 0 时
+     * 被误判为已恢复。购买次数是直接的长期计数，读不到返回 null。
+     */
+    fun dimensionBoughtCount(state: Any?): Long? =
+        (readGameField(state, "bought") as? Number)?.toLong()
 
     // ---------------------------------------------------------------- 无限维度
 
