@@ -248,6 +248,8 @@ jobs:
         with:
           packages: platform-tools
       - uses: gradle/actions/setup-gradle@v6
+      - name: Verify store-policy JAR gate self-test
+        run: bash ./gradlew -p agp :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
       - name: Build AGP 9 Kotlin DEX
         # R111 CI-6：构建日志落盘，失败时随证据一起上传，避免只能翻折叠的 Actions 日志。
         run: |
