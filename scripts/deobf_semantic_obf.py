@@ -53,7 +53,7 @@ OUT_JSON = REPO / "docs/deobfuscation/data/3.21-semantic-default.json"
 OUT_CSV = REPO / "docs/deobfuscation/data/3.21-semantic-default.csv"
 OUT_MD = REPO / "reports/R106-02/semantic-default.md"
 DEFAULT_DEX = Path("/home/oreki/private-staging/r10602/dex")
-DEFAULT_DEXDUMP = Path("/home/oreki/Android/Sdk/build-tools/34.0.0/dexdump")
+DEFAULT_DEXDUMP = Path("/opt/android-sdk/build-tools/34.0.0/dexdump")
 
 EXPECTED_DEFAULT_CLASSES = 9712
 EXPECTED_FIRST_PARTY = 10954

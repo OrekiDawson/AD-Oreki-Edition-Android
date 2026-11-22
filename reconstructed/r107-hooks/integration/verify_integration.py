@@ -40,8 +40,8 @@ KOTLIN_STDLIB = REPO / "tools" / "kotlinc" / "lib" / "kotlin-stdlib.jar"
 APKTOOL = REPO / "tools" / "apktool.jar"
 ASM_SRC = REPO / "work" / "r107-hooks" / "tools" / "AsmSmali.java"
 ASM_CLASSES = REPO / "work" / "r107-hooks" / "tools"
-DEXDUMP = pathlib.Path("/home/oreki/Android/Sdk/build-tools/37.0.0/dexdump")
-ANDROID_JAR = pathlib.Path("/home/oreki/Android/Sdk/platforms/android-37.0/android.jar")
+DEXDUMP = pathlib.Path("/opt/android-sdk/build-tools/37.0.0/dexdump")
+ANDROID_JAR = pathlib.Path("/opt/android-sdk/platforms/android-37.0/android.jar")
 
 # 必须按此顺序应用：0003 与 0004 都改 oreki_dark_theme.py，0004 基于 0003 之后的状态生成。
 PATCH_ORDER = [

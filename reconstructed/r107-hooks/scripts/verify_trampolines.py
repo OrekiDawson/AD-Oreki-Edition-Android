@@ -29,7 +29,7 @@ BASE = ROOT / "work" / "base_decoded_321"
 WORK = ROOT / "work" / "r107-hooks"
 PATCHED = WORK / "patched"
 ASM_CP = str(ROOT / "tools" / "apktool.jar") + ":" + str(WORK / "tools")
-DEXDUMP = pathlib.Path("/home/oreki/Android/Sdk/build-tools/37.0.0/dexdump")
+DEXDUMP = pathlib.Path("/opt/android-sdk/build-tools/37.0.0/dexdump")
 
 KT_PKG = "Lkajfosz/antimatterdimensions/oreki/"
 

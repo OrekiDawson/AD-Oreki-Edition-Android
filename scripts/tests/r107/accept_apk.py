@@ -845,7 +845,7 @@ def main(argv: list[str] | None = None) -> int:
         if explicit:
             candidates.append(explicit)
         else:
-            sdk = Path(os.environ.get("ANDROID_SDK_ROOT") or os.environ.get("ANDROID_HOME") or "/home/oreki/Android/Sdk")
+            sdk = Path(os.environ.get("ANDROID_SDK_ROOT") or os.environ.get("ANDROID_HOME") or "/opt/android-sdk")
             build_tools = sdk / "build-tools"
             if build_tools.is_dir():
                 for child in sorted(build_tools.iterdir(), key=lambda p: p.name, reverse=True):

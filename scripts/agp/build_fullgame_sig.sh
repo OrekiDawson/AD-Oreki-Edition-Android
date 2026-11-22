@@ -28,8 +28,8 @@ OUTDIR=""
 VARIANT="off"
 REUSE=""
 JAVA_HOME_DEFAULT="/usr/lib/jvm/java-21-openjdk-amd64"
-ANDROID_JAR="${ANDROID_JAR:-/home/oreki/Android/Sdk/platforms/android-37.2/android.jar}"
-D8="${OREKI_D8:-/home/oreki/Android/Sdk/build-tools/34.0.0/d8}"
+ANDROID_JAR="${ANDROID_JAR:-/opt/android-sdk/platforms/android-37.2/android.jar}"
+D8="${OREKI_D8:-/opt/android-sdk/build-tools/34.0.0/d8}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -57,7 +57,7 @@ need_file() { [ -f "$1" ] || { echo "FAIL: 缺少文件 $1" >&2; exit 2; }; }
 need_file "$OFFICIAL_APK"; need_file "$STAGED_APK"; need_file "$DEX2JAR"; need_file "$ASM_JAR"
 need_file "$ANDROID_JAR"; need_file "$D8"
 export JAVA_HOME="${JAVA_HOME:-$JAVA_HOME_DEFAULT}"
-export ANDROID_HOME="${ANDROID_HOME:-/home/oreki/Android/Sdk}"
+export ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 
 mkdir -p "$OUTDIR" "$TOOLS_DIR"
 echo "[1/4] 官方 APK -> classes*.dex -> dex2jar 参考 jar"

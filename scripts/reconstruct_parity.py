@@ -547,7 +547,7 @@ def find_android_jar(explicit):
         return env
     candidates = []
     for root in [os.environ.get("ANDROID_HOME", ""), os.environ.get("ANDROID_SDK_ROOT", ""),
-                 "/home/oreki/Android/Sdk"]:
+                 "/opt/android-sdk"]:
         if root:
             candidates.extend(sorted(glob.glob(os.path.join(root, "platforms", "android-*", "android.jar"))))
     candidates = [c for c in candidates if os.path.isfile(c)]

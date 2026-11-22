@@ -65,7 +65,7 @@ run() { # run <log> <cmd...>
 # android.jar（只用于 Kotlin 编译期解析 platform 注解；这些类本身不引用 android.*）
 ANDROID_JAR="${ANDROID_JAR:-}"
 if [ -z "$ANDROID_JAR" ]; then
-  for p in "$REPO/../Android/Sdk" "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" "/home/oreki/Android/Sdk"; do
+  for p in "$REPO/../Android/Sdk" "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" "/opt/android-sdk"; do
     [ -n "$p" ] || continue
     for v in android-37.2 android-37.0 android-34; do
       if [ -f "$p/platforms/$v/android.jar" ]; then ANDROID_JAR="$p/platforms/$v/android.jar"; break 2; fi

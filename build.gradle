@@ -177,12 +177,18 @@ def aapt2Dir = {
         ?.sort { a, b -> b.name <=> a.name } ?: []
     return dirs ? dirs[0] : btDir
 }()
-def kotlinCompiler = file("tools/kotlinc/bin/${isWindows ? 'kotlinc.bat' : 'kotlinc'}")
+// 优先使用项目显式锁定或本地准备的编译器；缺失时复用系统级 /opt 工具链，
+// 不再在每个工作树复制一套 Kotlin 发行包。
+def kotlinHome = file(System.getenv('KOTLIN_HOME') ?: 'tools/kotlinc')
+if (!kotlinHome.isDirectory()) {
+    kotlinHome = new File('/opt/kotlinc')
+}
+def kotlinCompiler = new File(kotlinHome, "bin/${isWindows ? 'kotlinc.bat' : 'kotlinc'}")
 def d8Exe = isWindows ? file('tools/bt/android-14/d8.bat') : new File(btDir, 'd8')
-def kotlinStdlib = file('tools/kotlinc/lib/kotlin-stdlib.jar')
+def kotlinStdlib = new File(kotlinHome, 'lib/kotlin-stdlib.jar')
 def androidJar = {
     def sdkHome = System.getenv('ANDROID_SDK_ROOT') ?: System.getenv('ANDROID_HOME')
-    if (!sdkHome) sdkHome = new File(System.getProperty('user.home'), 'Android/Sdk').absolutePath
+    if (!sdkHome) sdkHome = '/opt/android-sdk'
     def platforms = new File(sdkHome, 'platforms')
     def preferred = new File(platforms, 'android-34/android.jar')
     if (preferred.isFile()) return preferred
@@ -415,7 +421,7 @@ tasks.register('compileKotlinClasses', Exec) {
     inputs.dir(new File(repoRoot, "app/src/main/kotlin"))
     inputs.file(new File(repoRoot, "build/kt/generated/OrekiBaselineBindings.kt"))
     inputs.file(androidJar)
-    inputs.files(fileTree(new File(repoRoot, "tools/kotlinc/lib")) { include "*.jar" })
+    inputs.files(fileTree(new File(kotlinHome, "lib")) { include "*.jar" })
     outputs.dir(new File(repoRoot, "build/kt/classes"))
 }
 
