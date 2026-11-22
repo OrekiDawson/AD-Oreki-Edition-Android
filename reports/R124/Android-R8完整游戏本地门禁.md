@@ -25,9 +25,14 @@
 ## 修复
 
 - R8 实验脚本在参数解析后把所有 JAR 和 `OUTDIR` 统一转换为绝对路径。
+- APK/mapping 输出、metrics 与 ABI verifier 全部改为基于脚本解析出的 `$ROOT`，
+  因此脚本可从仓库外目录启动。
+- 未知 `--variant` 现在显式返回退出码 2，不再静默成功。
 - 每个 R8 ON 变体产出 APK/mapping 后自动执行
   `r109_verify_r8_output.py --scope full-game`。
 - full-game ABI 失败时该变体记为 `failed`，不会把“能构建”误记为静态 ABI PASS。
+- ABI 门禁失败时删除不可交付 APK/mapping/metrics，保留本次 ABI 失败报告。
+- 同一 outdir 重跑前清理上一轮 ABI JSON/日志，避免陈旧 PASS 证据串轮。
 
 ## 实际验证
 
@@ -35,6 +40,7 @@
 - 过滤后 JAR SHA-256：`1b3936432a79861878be5c1f194ae9319936b538a45f5ebfd4f3f57c1c98d468`
 - 移除平台重名类：22。
 - R8 ON 完整游戏构建：PASS。
+- `test_agp_r8_experiment`：12/12 PASS。
 - APK SHA-256：`4be8a3e3223b6b44ac0d011ea7d08511aa6229cfac0cbdab3b1c7d4e20fbfc1f`
 - APK 大小：75,331,457 bytes。
 - Mapping SHA-256：`832541e2b3f6e0c7f4184192a18dea63381c1920aecefcf883b05eb5c66078d0`

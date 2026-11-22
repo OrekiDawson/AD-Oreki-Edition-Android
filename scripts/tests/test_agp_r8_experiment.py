@@ -91,15 +91,44 @@ class AgpR8ExperimentTests(unittest.TestCase):
 
     def test_full_game_experiment_runs_full_game_abi_gate(self):
         self.assertIn(
-            'python3 scripts/agp/r109_verify_r8_output.py \\\n'
+            'python3 "$ROOT/scripts/agp/r109_verify_r8_output.py" \\\n'
             '        --apk "$dir/app-release.apk" \\\n'
             '        --scope full-game \\\n'
             '        --mapping "$dir/mapping.txt" \\\n'
             '        --json "$dir/r8-abi-verify.json"',
             self.r8_ab_script,
         )
+
+    def test_full_game_experiment_uses_root_relative_artifacts_from_any_cwd(self):
+        self.assertIn(
+            'local apk_out="$ROOT/agp/app/build/outputs/apk/release/app-release.apk"',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            'python3 "$ROOT/scripts/agp/r109_apk_metrics.py"',
+            self.r8_ab_script,
+        )
+        self.assertNotIn('cp agp/app/build/outputs/mapping', self.r8_ab_script)
+
+    def test_full_game_experiment_rejects_unknown_variant(self):
+        self.assertIn(
+            '*) echo "unsupported --variant $VARIANT" >&2; exit 2 ;;',
+            self.r8_ab_script,
+        )
         self.assertIn(
             'full-game ABI 校验失败',
+            self.r8_ab_script,
+        )
+
+    def test_full_game_experiment_invalidates_stale_abi_evidence(self):
+        self.assertIn(
+            '"$1/verify.log" "$1/r8-abi-verify.json" '
+            '"$1/r8-abi-verify.log" "$1/run.json"',
+            self.r8_ab_script,
+        )
+        self.assertIn(
+            'rm -f "$dir/app-release.apk" "$dir/mapping.txt" '
+            '"$dir/metrics.json" "$dir/metrics.log"',
             self.r8_ab_script,
         )
 

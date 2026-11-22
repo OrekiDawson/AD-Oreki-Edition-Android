@@ -25,10 +25,11 @@
 #   因此不会误杀共享主机上其它 worktree/Agent 的构建进程。
 #
 # 产物一致性（Codex review P2）：
-#   每个变体重建前先删除旧 APK/mapping/metrics.json/run.json（失效化）；run.json 记录
-#   status=building|success|failed；失败变体只保留 build.log + status=failed 的 run.json，
-#   不残留旧产物。r11402_compare_metrics.py 会校验 run.json.status 与 APK/metrics SHA 一致，
-#   不一致的变体不会被当成可比实验数据。
+#   每个变体重建前先删除旧 APK/mapping/metrics/run 与 ABI 证据（失效化）；run.json 记录
+#   status=building|success|failed。构建或产物一致性失败只保留本次 build.log 与 failed run.json；
+#   full-game ABI 失败额外保留本次 r8-abi-verify.json/log，同时删除不可交付 APK/mapping。
+#   r11402_compare_metrics.py 会校验 run.json.status 与 APK/metrics SHA 一致，不一致的变体
+#   不会被当成可比实验数据。
 set -u
 set -o pipefail
 
@@ -66,6 +67,11 @@ JAR="$( [ -n "$JAR" ] && abspath "$JAR" || true )"
 RAW_JAR="$( [ -n "$RAW_JAR" ] && abspath "$RAW_JAR" || true )"
 ANDROID_JAR="$( [ -n "$ANDROID_JAR" ] && abspath "$ANDROID_JAR" || true )"
 OUTDIR="$(abspath "$OUTDIR")"
+
+case "$VARIANT" in
+  off|on|on-nomerge|all) ;;
+  *) echo "unsupported --variant $VARIANT" >&2; exit 2 ;;
+esac
 
 if [ -n "$RAW_JAR" ]; then
   if [ -z "$ANDROID_JAR" ] || [ ! -f "$ANDROID_JAR" ]; then echo "--raw-jar 需要 --android-jar <android.jar>" >&2; exit 2; fi
@@ -209,7 +215,8 @@ PY
 }
 
 invalidate_variant_artifacts() { # dir
-  rm -f "$1/app-release.apk" "$1/mapping.txt" "$1/metrics.json" "$1/metrics.log" "$1/run.json"
+  rm -f "$1/app-release.apk" "$1/mapping.txt" "$1/metrics.json" "$1/metrics.log" \
+    "$1/verify.log" "$1/r8-abi-verify.json" "$1/r8-abi-verify.log" "$1/run.json"
 }
 
 stamp_daemon_cleanup() {
@@ -256,13 +263,13 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
     write_run_json "$name" "$dir" "failed" "$rc" "$started" "$finished"
     return $rc
   fi
-  local apk_out="agp/app/build/outputs/apk/release/app-release.apk"
-  [ -f "$apk_out" ] || apk_out="agp/app/build/outputs/apk/release/app-release-unsigned.apk"
+  local apk_out="$ROOT/agp/app/build/outputs/apk/release/app-release.apk"
+  [ -f "$apk_out" ] || apk_out="$ROOT/agp/app/build/outputs/apk/release/app-release-unsigned.apk"
   cp "$apk_out" "$dir/app-release.apk" || { write_run_json "$name" "$dir" "failed" "1" "$started" "$finished"; return 1; }
-  if [ -f agp/app/build/outputs/mapping/release/mapping.txt ]; then
-    cp agp/app/build/outputs/mapping/release/mapping.txt "$dir/mapping.txt"
+  if [ -f "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt" ]; then
+    cp "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt" "$dir/mapping.txt"
   fi
-  python3 scripts/agp/r109_apk_metrics.py "$dir/app-release.apk" --label "$name" \
+  python3 "$ROOT/scripts/agp/r109_apk_metrics.py" "$dir/app-release.apk" --label "$name" \
     --mapping "$dir/mapping.txt" \
     --json "$dir/metrics.json" > "$dir/metrics.log" 2>&1 || true
   if ! verify_variant_artifacts "$dir" "$expect_mapping" > "$dir/verify.log" 2>&1; then
@@ -272,12 +279,13 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
     return 1
   fi
   if [ "$expect_mapping" = "1" ]; then
-    if ! python3 scripts/agp/r109_verify_r8_output.py \
+    if ! python3 "$ROOT/scripts/agp/r109_verify_r8_output.py" \
         --apk "$dir/app-release.apk" \
         --scope full-game \
         --mapping "$dir/mapping.txt" \
         --json "$dir/r8-abi-verify.json" > "$dir/r8-abi-verify.log" 2>&1; then
       echo "[r11402-r8] $name full-game ABI 校验失败，见 $dir/r8-abi-verify.log" >&2
+      rm -f "$dir/app-release.apk" "$dir/mapping.txt" "$dir/metrics.json" "$dir/metrics.log"
       write_run_json "$name" "$dir" "failed" "1" "$started" "$finished"
       return 1
     fi
