@@ -5300,35 +5300,35 @@ def patch_v_unlock_thresholds():
             # (原行, 新块, 说明)
             (
                 "    sget-object v3, Llu;->n1:Lkajfosz/antimatterdimensions/BigDouble;",
-                # v9/v10/v11 此时均未使用（.locals 12，v0..v2 已用于 s55/hr4）
-                "    # [Oreki V] realities 门槛 1e4(10000) -> 60（不碰共享常量 Llu;->n1，它另有 10 处引用）\n"
-                "    new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/16 v9, 0x3c\n"
-                "    const/4 v10, 0x0\n"
-                "    const/4 v11, 0x1\n"
-                "    invoke-direct {v3, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "    # [Oreki V] 兼容基线 realities 门槛转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                "OrekiVUnlockPolicy;->thresholdForRealities()Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object v3\n"
+                "\n"
+                "    check-cast v3, Lkajfosz/antimatterdimensions/BigDouble;",
                 "realities 60",
             ),
             (
                 "    sget-object v6, Llu;->Y2:Lkajfosz/antimatterdimensions/BigDouble;",
-                # 此处 v3=s55, v4=t55(5), v5=t55(6)，v6..v11 空闲
-                "    # [Oreki V] dilatedTime 门槛 1e320 -> 1e30（不碰共享常量 Llu;->Y2）\n"
-                "    new-instance v6, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/4 v9, 0x1\n"
-                "    const/16 v10, 0x1e\n"
-                "    const/4 v11, 0x1\n"
-                "    invoke-direct {v6, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "    # [Oreki V] 兼容基线 dilatedTime 门槛转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                "OrekiVUnlockPolicy;->thresholdForDilatedTime()Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object v6\n"
+                "\n"
+                "    check-cast v6, Lkajfosz/antimatterdimensions/BigDouble;",
                 "dilatedTime 1e30",
             ),
             (
                 "    sget-object v7, Llu;->y4:Lkajfosz/antimatterdimensions/BigDouble;",
-                # 此处 v4=s55, v5=t55(7), v6=t55(8)，v7..v11 空闲
-                "    # [Oreki V] replicanti 门槛 1e320000 -> 1e20000（不碰共享常量 Llu;->y4）\n"
-                "    new-instance v7, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/4 v9, 0x1\n"
-                "    const v10, 0x4e20\n"
-                "    const/4 v11, 0x1\n"
-                "    invoke-direct {v7, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "    # [Oreki V] 兼容基线 replicanti 门槛转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                "OrekiVUnlockPolicy;->thresholdForReplicanti()Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object v7\n"
+                "\n"
+                "    check-cast v7, Lkajfosz/antimatterdimensions/BigDouble;",
                 "replicanti 1e20000",
             ),
         ]
@@ -5350,8 +5350,7 @@ def patch_v_unlock_thresholds():
         )
         assert out.count("    " + umark) == 1, "幂等标记写入异常"
         write_smali(u55, out, encoding="utf-8")
-        note("[Oreki V] V.mainUnlock 门槛：realities 10000->60 / dilatedTime 1e320->1e30 / "
-             "replicanti 1e320000->1e20000")
+        note("[Oreki V] 兼容基线 V.mainUnlock 门槛已统一转发 Kotlin 策略")
 
     # ------------------------------------------------------- 2) 进度分母（3 个分支）
     c15 = smali_tree() /  "c15.smali"
@@ -5364,19 +5363,39 @@ def patch_v_unlock_thresholds():
         i, j = _scan_method(csrc, "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;")
         body = csrc[i:j]
         plans = [
-            # (旧字面量, 新字面量, 语义, 旧值文本, 新值文本)
-            ("0x40c3880000000000L", "0x404e000000000000L", "realities 进度分母 toDouble()/X", "10000.0", "60.0"),
-            ("0x4074000000000000L", "0x403e000000000000L", "dilatedTime 进度分母 pLog10()/X", "320.0", "30.0"),
-            ("0x4113880000000000L", "0x40d3880000000000L", "replicanti 进度分母 pLog10()/X", "320000.0", "20000.0"),
+            (
+                "0x40c3880000000000L",
+                "progressDivisorForRealities",
+                "realities 进度分母",
+            ),
+            (
+                "0x4074000000000000L",
+                "progressDivisorForDilatedTime",
+                "dilatedTime 进度分母",
+            ),
+            (
+                "0x4113880000000000L",
+                "progressDivisorForReplicanti",
+                "replicanti 进度分母",
+            ),
         ]
-        for old, new, label, otext, ntext in plans:
-            n = body.count(old)
-            assert n == 1, f"c15 invoke() 内 {label} 的字面量 {old} 出现 {n} 次，预期 1"
-            body = body.replace(old, new, 1)
-            # 同一行的尾部注释（# 10000.0）也要跟着改，否则后人照着注释读会读错
-            assert body.count("    # " + otext) == 1, (
-                f"{label} 的尾注释 '# {otext}' 出现 {body.count('    # ' + otext)} 次，预期 1")
-            body = body.replace("    # " + otext, "    # " + ntext, 1)
+        for old, method, label in plans:
+            pattern = re.compile(
+                r"(?m)^    const-wide(?:/high16)? (v\d+|p\d+), "
+                + re.escape(old)
+                + r"(?:\s+#.*)?$"
+            )
+            found = pattern.findall(body)
+            assert len(found) == 1, f"c15 invoke() 内 {label} 锚点出现 {len(found)} 次，预期 1"
+            reg = found[0]
+            replacement = (
+                f"    # [Oreki V] 兼容基线 {label}转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                f"OrekiVUnlockPolicy;->{method}()D\n"
+                "\n"
+                f"    move-result-wide {reg}"
+            )
+            body = pattern.sub(replacement, body, count=1)
             assert old not in body, f"{label} 替换后仍残留 {old}"
         out = csrc[:i] + body + csrc[j:]
         out = out.replace(
@@ -5386,22 +5405,33 @@ def patch_v_unlock_thresholds():
         )
         assert out.count("    " + cmark) == 1, "幂等标记写入异常"
         write_smali(c15, out, encoding="utf-8")
-        note("[Oreki V] V.mainUnlock 进度分母：realities /10000->/60、dilatedTime /320->/30、"
-             "replicanti /320000->/20000")
+        note("[Oreki V] 兼容基线 V.mainUnlock 进度分母已统一转发 Kotlin 策略")
 
     # ----------------------------------------- 3) 交付契约：两处都到位才算成功（fail-fast）
     ub = u55.read_text(encoding="utf-8")
     cb = c15.read_text(encoding="utf-8")
     checks = [
-        ("realities 门槛 60", "const/16 v9, 0x3c" in ub),
-        ("dilatedTime 门槛 1e30", "const/16 v10, 0x1e" in ub),
-        ("replicanti 门槛 1e20000", "const v10, 0x4e20" in ub),
+        ("realities 门槛 Kotlin 转发", ub.count(
+            "OrekiVUnlockPolicy;->thresholdForRealities()Ljava/lang/Object;"
+        ) == 1),
+        ("dilatedTime 门槛 Kotlin 转发", ub.count(
+            "OrekiVUnlockPolicy;->thresholdForDilatedTime()Ljava/lang/Object;"
+        ) == 1),
+        ("replicanti 门槛 Kotlin 转发", ub.count(
+            "OrekiVUnlockPolicy;->thresholdForReplicanti()Ljava/lang/Object;"
+        ) == 1),
         ("门槛不再 sget-object 共享常量", not [
             ln for ln in ub.splitlines()
             if "sget-object" in ln and any(x in ln for x in ("Llu;->n1", "Llu;->Y2", "Llu;->y4"))]),
-        ("realities 分母 60.0", "0x404e000000000000L" in cb),
-        ("dilatedTime 分母 30.0", "0x403e000000000000L" in cb),
-        ("replicanti 分母 20000.0", "0x40d3880000000000L" in cb),
+        ("realities 分母 Kotlin 转发", cb.count(
+            "OrekiVUnlockPolicy;->progressDivisorForRealities()D"
+        ) == 1),
+        ("dilatedTime 分母 Kotlin 转发", cb.count(
+            "OrekiVUnlockPolicy;->progressDivisorForDilatedTime()D"
+        ) == 1),
+        ("replicanti 分母 Kotlin 转发", cb.count(
+            "OrekiVUnlockPolicy;->progressDivisorForReplicanti()D"
+        ) == 1),
         ("旧分母已彻底消失", all(
             x not in cb for x in ("0x40c3880000000000L", "0x4074000000000000L", "0x4113880000000000L"))),
     ]

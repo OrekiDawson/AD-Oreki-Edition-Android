@@ -74,6 +74,25 @@ class VUnlockThresholdTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, branch)
 
+        legacy_start = source.index("# ---------------------------------------------------------------- 1) 门槛（显示）")
+        legacy_end = source.index("# ----------------------------------------- 3) 交付契约")
+        legacy = source[legacy_start:legacy_end]
+        for method in (
+            "thresholdForRealities",
+            "thresholdForDilatedTime",
+            "thresholdForReplicanti",
+            "progressDivisorForRealities",
+            "progressDivisorForDilatedTime",
+            "progressDivisorForReplicanti",
+        ):
+            self.assertGreaterEqual(source.count(method), 2, method)
+        for forbidden in (
+            "new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;",
+            "new-instance v6, Lkajfosz/antimatterdimensions/BigDouble;",
+            "new-instance v7, Lkajfosz/antimatterdimensions/BigDouble;",
+        ):
+            self.assertNotIn(forbidden, legacy)
+
     def test_build_patch_is_fail_closed(self) -> None:
         source = BUILD_MOD.read_text(encoding="utf-8")
         self.assertIn("3.21 w35/xd4 结构漂移，拒绝静默跳过", source)

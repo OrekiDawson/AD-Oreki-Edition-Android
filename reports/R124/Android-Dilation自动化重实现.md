@@ -78,6 +78,7 @@ V 门槛与进度分母的唯一业务来源是 Kotlin `OrekiVUnlockPolicy`：
 `check-cast BigDouble`；`xd4` 只调用 `progressDivisorFor*()` 后继续原版除法。
 Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 `BigDouble(int,int,boolean)` ABI，构造异常直接失败关闭，不返回 0 或伪造资源。
+保留的 3.20 `u55/c15` 兼容分支也采用同一组 Kotlin 转发，不再存在第二份数值源。
 
 ## 验证
 
