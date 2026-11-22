@@ -157,6 +157,17 @@ object OrekiManagedAutobuyerAuthority {
         return (0 until requiredProducedTier).all { amountComparisons[it] == 1 }
     }
 
+    /**
+     * 只用原版维度 `bought` 计数判断重置后基础链是否已恢复。
+     * BigDouble 零值比较在 Android 原版运行态不可靠，不能作为 C9 自举依据。
+     */
+    @JvmStatic
+    fun c9DimensionBoughtComparison(bought: Long?): Int? = when {
+        bought == null -> null
+        bought > 0L -> 1
+        else -> 0
+    }
+
     /** 内存中的 C9 capture 只有仍属于当前存档时才可参与恢复。 */
     @JvmStatic
     fun c9CaptureBelongsToSave(
