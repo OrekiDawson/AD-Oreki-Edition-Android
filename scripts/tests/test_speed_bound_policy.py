@@ -72,11 +72,15 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn('"sanitizeSpeed"', transformer)
         self.assertIn('"speedInputGate"', transformer)
         self.assertIn('"speedUiText"', transformer)
+        self.assertIn('"speedResetDefault"', transformer)
+        self.assertIn('"resetDefault"', transformer)
+        self.assertIn("androidComponents.sdkComponents.bootClasspath", gradle)
+        self.assertIn('it.name == "android.jar"', gradle)
+        self.assertIn("inputs.file(transformerAndroidJar)", gradle)
         self.assertIn('"kajfosz/antimatterdimensions/OrekiSpeed.class"', apply_policy)
         self.assertIn("SpeedSettingsActivity.class", apply_policy)
         self.assertIn("SettingsClickListener.class", apply_policy)
         self.assertIn("--android-jar", apply_policy)
-        self.assertIn("androidComponents.sdkComponents.sdkDirectory", gradle)
         self.assertIn("doFirst {", gradle)
 
 

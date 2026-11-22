@@ -31,6 +31,8 @@ public final class StorePolicyTransformer {
         "kajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy";
     private static final String SPEED_CLASS =
         "kajfosz/antimatterdimensions/OrekiSpeed.class";
+    private static final String SPEED_OWNER =
+        "kajfosz/antimatterdimensions/OrekiSpeed";
     private static final String SPEED_SETTINGS_CLICK =
         "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class";
     private static final String SPEED_SETTINGS_ACTIVITY =
@@ -117,7 +119,8 @@ public final class StorePolicyTransformer {
             !replacements.containsValue("isStoreEnabled") ||
             !replacements.containsValue("sanitizeSpeed") ||
             !replacements.containsValue("speedInputGate") ||
-            !replacements.containsValue("speedUiText")) {
+            !replacements.containsValue("speedUiText") ||
+            !replacements.containsValue("speedResetDefault")) {
             throw new IllegalStateException("store policy targets missing: " + replacements);
         }
         targetReport(report, input, output, replacements);
@@ -224,8 +227,19 @@ public final class StorePolicyTransformer {
                 }
                 if (name.equals(SPEED_SETTINGS_CLICK) || name.equals(SPEED_SETTINGS_ACTIVITY)) {
                     return new MethodVisitor(Opcodes.ASM9, output) {
+                        private boolean resetDefaultConstantSeen;
+
                         @Override
                         public void visitLdcInsn(Object value) {
+                            if (name.equals(SPEED_SETTINGS_CLICK) &&
+                                methodName.equals("onClick") &&
+                                descriptor.equals("(Landroid/view/View;)V") &&
+                                value instanceof Double number &&
+                                (number == 3000.0d || number == 10000.0d)) {
+                                value = 500.0d;
+                                resetDefaultConstantSeen = true;
+                                report.put(name + "#speed-reset-default-value", "speedResetDefaultValue");
+                            }
                             if (value instanceof String text) {
                                 String updated = updateSpeedUiText(text);
                                 if (!updated.equals(text)) {
@@ -234,6 +248,48 @@ public final class StorePolicyTransformer {
                                 }
                             }
                             super.visitLdcInsn(value);
+                        }
+
+                        @Override
+                        public void visitMethodInsn(
+                            int opcode,
+                            String owner,
+                            String calledName,
+                            String calledDescriptor,
+                            boolean isInterface
+                        ) {
+                            if (resetDefaultConstantSeen &&
+                                opcode == Opcodes.INVOKESTATIC &&
+                                owner.equals(SPEED_OWNER) &&
+                                calledName.equals("set") &&
+                                calledDescriptor.equals("(D)Z")) {
+                                output.visitInsn(Opcodes.POP2);
+                                output.visitVarInsn(Opcodes.ALOAD, 0);
+                                output.visitFieldInsn(
+                                    Opcodes.GETFIELD,
+                                    name.substring(0, name.length() - ".class".length()),
+                                    "act",
+                                    "Landroid/app/Activity;"
+                                );
+                                output.visitMethodInsn(
+                                    Opcodes.INVOKESTATIC,
+                                    "kajfosz/antimatterdimensions/oreki/OrekiGamePace",
+                                    "resetDefault",
+                                    "(Landroid/content/Context;)V",
+                                    false
+                                );
+                                output.visitInsn(Opcodes.ICONST_1);
+                                resetDefaultConstantSeen = false;
+                                report.put(name + "#speed-reset-default", "speedResetDefault");
+                                return;
+                            }
+                            super.visitMethodInsn(
+                                opcode,
+                                owner,
+                                calledName,
+                                calledDescriptor,
+                                isInterface
+                            );
                         }
                     };
                 }
