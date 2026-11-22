@@ -23,6 +23,9 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 - 3.21 的 `Eternity$confirmEternity$4` / `confirmDilatedEternity$4` 是 Kotlin
   合成 SuspendLambda，本身没有 `<init>`；启动器按官方 `create()` 的证据直接调用
   父类真实构造器 `SuspendLambda.<init>(I,Lrj0;)V`，不使用错误别名 `Lvh0;`。
+- DS1 已购状态复用 `OrekiDilationStudies` 的原版 `B()` 判定，不直接解析存档列表元素。
+- 游戏 APK 内置旧版 Kotlin stdlib；本模块不使用 `lazy` 或 enum，避免 AVD 实证的
+  `SynchronizedLazyImpl` / `EnumEntries` 运行时 ABI 崩溃。
 - 已退出 Dilation 后，通过统一调度器 `dilation` 名额调用
   `eternity/dilation/b.b -> qw3.D(Z,rj0)` 购买 dtGain，遵守玩家 1～60 秒配置节拍，
   由原版内部判断余额并扣除 `Currency.dilatedTime`。
@@ -82,6 +85,7 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 - `bash gradlew -p agp :app:testDebugUnitTest --rerun-tasks`：90/90 PASS，
   0 failure，0 error。
 - `python3 scripts/check_automation_scheduler.py`：174/174 PASS。
+- `scripts/fixture_eternity_gate.py`：57/57 PASS。
 - `javap` 已核对上表描述符。
 - 隔离 3.21 `assembleRelease` 完整 APK 构建 PASS；`apkanalyzer` 确认
   `OrekiVUnlockPolicy`、`OrekiDilationAutomation` 和 `OrekiEternityLaunch`
@@ -91,14 +95,31 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 - `javap` 确认 Kotlin 门槛参数为 `60/0`、`1/30`、`1/20000`，进度分母为
   `60.0/30.0/20000.0`。
 - 完整 APK SHA-256：
-  `ff4dd355971ec6149fd8fd02f9d2c7b9ef6ab4e7f2f61790f5262b6d4fa6b390`；
+  `d369c4e805e849845dfef6f08a5a1330476f81bab5901359ed8d66d226be93e2`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 - AGP 完整游戏 Signature 回填链路已尝试，但在 D8 前被外部 `SIGTERM` 终止，
   退出码 `143`，未生成 `build-receipt.json`；该链路结果记 `NOT RUN`，不冒充 PASS。
 
+## AVD 真实运行
+
+设备：`emulator-5554`，Android API 37；包名 `com.oreki.antimatterdimensions`。
+证据目录：`reports/R124/avd-dilation-ff4dd355/`（截图 + `logcat-dilation.txt`）。
+
+| 项目 | 结果 | 证据 |
+| --- | --- | --- |
+| 未解锁不误启动 | PASS | `studies=[]` 时最终状态保持 `active=false / TP=0 / DT=0 / maxDT=0` |
+| 原版真实购买 DS1 | PASS | `OREKI_DIL_STUDIES: BUY id=1..6`，随后 `ds1=true` |
+| Dilation 合法启动 | PASS | `OREKI_DIL ... action=start`，下一拍 `active=true action=wait-active-eternity` |
+| 原版结算退出并发放 TP | PASS | TP 从 0 变为 `95.807`，active 回到 false |
+| DT / maxDT 增长 | PASS | `182.281 → 184.152`，约 19 秒持续增长 |
+| 调度器 dtGain 购买 | PASS | `OREKI_SCHED: act dilation` 后 dtGain 等级 `0→1` |
+| Reality 重置清态 | PASS | 原版 Reality 后 studies 清空、TP/DT/maxDT 归零，符合原版规则 |
+| V/Ra 1e30 maxDT 实际解锁 | NOT RUN | 本轮 19 秒样本 maxDT 仅到 `184.152`，未伪造到门槛 |
+| 完整 180 分钟与存档往返 | NOT RUN | 不在本轮短测范围 |
+
+测试后已用 AVD 原始 `files`/`shared_prefs` 备份恢复运行环境。
+
 ## 未运行
 
-- AVD 真机测试由 Lead 独占执行：未解锁不误启动、合法启停、TP/DT 增长、
-  dtGain 真实扣款、Reality 后恢复、V/Ra 实际解锁。
 - V 门槛的静态/构建证据已对齐 Web，但尚未在 AVD 中用真实六项资源同时达成并触发原版 V 解锁。
 - 完整 PACING、ENDGAME、POST-ENDGAME STABILITY、SAVE COMPATIBILITY 仍为 `NOT RUN`。
