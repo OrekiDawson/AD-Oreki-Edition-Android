@@ -99,7 +99,7 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 - `javap` 确认 Kotlin 门槛参数为 `60/0`、`1/30`、`1/20000`，进度分母为
   `60.0/30.0/20000.0`。
 - 完整 APK SHA-256：
-  `d369c4e805e849845dfef6f08a5a1330476f81bab5901359ed8d66d226be93e2`；
+  `6460d0aa7171c4c65e3ac9f26671af13cde530ff5460a1e87fcdf9c549da9005`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 - AGP 完整游戏 Signature 回填链路已尝试，但在 D8 前被外部 `SIGTERM` 终止，
   退出码 `143`，未生成 `build-receipt.json`；该链路结果记 `NOT RUN`，不冒充 PASS。
@@ -115,8 +115,8 @@ Smali 不再构造门槛对象或保存新分母。Kotlin 复用已核实的
 | 原版真实购买 DS1 | PASS | `OREKI_DIL_STUDIES: BUY id=1..6`，随后 `ds1=true` |
 | Dilation 合法启动 | PASS | `OREKI_DIL ... action=start`，下一拍 `active=true action=wait-active-eternity` |
 | 原版结算退出并发放 TP | PASS | TP 从 0 变为 `95.807`，active 回到 false |
-| DT / maxDT 增长 | PASS | `182.281 → 184.152`，约 19 秒持续增长 |
-| 调度器 dtGain 购买 | PASS | `OREKI_SCHED: act dilation` 后 dtGain 等级 `0→1` |
+| DT / maxDT 增长 | PASS | `182.031 → 183.434`，最终 APK 持续增长 |
+| 调度器 dtGain 购买 | PASS | 前一业务候选 `d369c4e8`：`OREKI_SCHED: act dilation` 后 dtGain `0→1`；最终包仅改帧读取/超时，未改购买路径 |
 | Reality 重置清态 | PASS | 原版 Reality 后 studies 清空、TP/DT/maxDT 归零，符合原版规则 |
 | V/Ra 1e30 maxDT 实际解锁 | NOT RUN | 本轮 19 秒样本 maxDT 仅到 `184.152`，未伪造到门槛 |
 | 完整 180 分钟与存档往返 | NOT RUN | 不在本轮短测范围 |
