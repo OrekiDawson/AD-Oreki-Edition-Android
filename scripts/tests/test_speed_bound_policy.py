@@ -40,7 +40,7 @@ class SpeedBoundPolicyTests(unittest.TestCase):
             ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
         ).read_text(encoding="utf-8")
         self.assertIn("const val DEFAULT_SPEED: Double = 500.0", source)
-        self.assertIn("const val POST_BREAK_SPEED: Double = 900.0", source)
+        self.assertIn("const val POST_BREAK_SPEED: Double = 70.0", source)
         self.assertIn("const val POST_REALITY_SPEED: Double = 3000.0", source)
         self.assertNotIn("C9_SPEED", source)
         self.assertNotIn("normalChallengeCurrent == 9 ->", source)

@@ -11,12 +11,12 @@ import android.util.Log
  *
  * Web 真实新档在旧的 1000×/1800× 阶段速度下，约 42 分钟即进入 Reality，
  * 压缩了目标 30～75 分钟的永恒、时间研究与 EC 内容。Android 与 Web 统一为：
- * Break 前 500×、Break 后 900×、Reality 后 3000×。C9 不再使用 1800000×
+ * Break 前 500×、Break 后 70×、Reality 后 3000×。C9 不再使用 1800000×
  * 特例；C9 的可解性必须由真实购买策略解决，而不是用异常速度掩盖阶段缺陷。
  */
 object OrekiGamePace {
     const val DEFAULT_SPEED: Double = 500.0
-    const val POST_BREAK_SPEED: Double = 900.0
+    const val POST_BREAK_SPEED: Double = 70.0
     const val POST_REALITY_SPEED: Double = 3000.0
     const val MAX_SPEED: Double = 100000.0
     private const val PREFS = "oreki_prefs"
