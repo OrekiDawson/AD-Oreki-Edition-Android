@@ -2,7 +2,14 @@
 """只读：在 ADChinese/ADfaster 的 normal-achievements.js 中，把每一处时间读取映射到成就 ID"""
 import re, io, os, sys
 
-BASE = r"C:\Users\Oreki\WorkBuddy\AD-Oreki-Unified\web\upstream"
+raw_base = os.environ.get("AD_UPSTREAM_ROOT", "")
+if not raw_base:
+    print("请设置 AD_UPSTREAM_ROOT 指向包含 ADChinese/ADfaster 的上游对照目录", file=sys.stderr)
+    raise SystemExit(2)
+BASE = os.path.abspath(os.path.expanduser(raw_base))
+if not os.path.isdir(BASE):
+    print(f"上游对照目录不存在：{BASE}", file=sys.stderr)
+    raise SystemExit(2)
 FILES = {
     "ADChinese": os.path.join(BASE, "ADChinese", "src", "core", "secret-formula", "achievements", "normal-achievements.js"),
     "ADfaster": os.path.join(BASE, "ADfaster", "src", "core", "secret-formula", "achievements", "normal-achievements.js"),

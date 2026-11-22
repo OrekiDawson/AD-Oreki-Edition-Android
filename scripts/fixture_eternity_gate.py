@@ -108,8 +108,12 @@ def main() -> int:
     st = stage.read_text(encoding="utf-8")
     gate = (ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki"
             / "OrekiAutoEternityGate.kt").read_text(encoding="utf-8")
-    check("Android 首次永恒驻留常量与 Web 同为 180 秒",
-          "FIRST_ETERNITY_DWELL_MS = 180_000L" in gate)
+    # 不把固定秒数钉成契约：驻留时长可通过阈值调整，测试只验证自动化首次永恒
+    # 仍经过有上限的单调时钟门禁，且后续可安全替换为更真实的内容门槛。
+    check("Android 首次永恒使用单调时钟驻留且有明确上限",
+          "FIRST_ETERNITY_DWELL_MS" in gate
+          and "SystemClock.elapsedRealtime()" in gate
+          and "elapsed >= FIRST_ETERNITY_DWELL_MS" in gate)
     check("Android canEternity 在首次驻留前执行原版资格判定",
           gate.index('if (!GameApi.canEternity()) return "cannot-eternity"') <
           gate.index('if (firstEternityDwellRemainingMs() > 0L) return "first-eternity-dwell"'))

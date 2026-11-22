@@ -6,8 +6,8 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=%h/AD-Oreki-Unified/android/AD_Oreki_Edition_Android
-ExecStart=/usr/bin/python3 %h/AD-Oreki-Unified/android/AD_Oreki_Edition_Android/scripts/pull_stable_release.py --dest %h/Releases/AD-Oreki-Edition
+WorkingDirectory=%h/AD-Oreki-Edition/安卓端
+ExecStart=/usr/bin/python3 %h/AD-Oreki-Edition/安卓端/scripts/pull_stable_release.py --dest %h/Releases/AD-Oreki-Edition
 Nice=10
 IOSchedulingClass=idle
 # Never open an inbound port or upload a key: this only performs an outbound pull.

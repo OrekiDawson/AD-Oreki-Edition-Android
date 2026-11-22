@@ -40,8 +40,41 @@ KOTLIN_STDLIB = REPO / "tools" / "kotlinc" / "lib" / "kotlin-stdlib.jar"
 APKTOOL = REPO / "tools" / "apktool.jar"
 ASM_SRC = REPO / "work" / "r107-hooks" / "tools" / "AsmSmali.java"
 ASM_CLASSES = REPO / "work" / "r107-hooks" / "tools"
-DEXDUMP = pathlib.Path("/opt/android-sdk/build-tools/37.0.0/dexdump")
-ANDROID_JAR = pathlib.Path("/opt/android-sdk/platforms/android-37.0/android.jar")
+
+
+def find_android_sdk() -> pathlib.Path:
+    roots = [
+        os.environ.get("ANDROID_SDK_ROOT"),
+        os.environ.get("ANDROID_HOME"),
+        "/opt/android-sdk",
+        str(pathlib.Path.home() / "Android" / "Sdk"),
+    ]
+    for raw in roots:
+        if not raw:
+            continue
+        root = pathlib.Path(raw).expanduser()
+        if (root / "platforms").is_dir() or (root / "build-tools").is_dir():
+            return root
+    raise SystemExit("找不到 Android SDK（已探测 ANDROID_SDK_ROOT/ANDROID_HOME、/opt、~/Android/Sdk）")
+
+
+ANDROID_SDK = find_android_sdk()
+ANDROID_JAR_CANDIDATES = (
+    ANDROID_SDK / "platforms" / "android-37.2" / "android.jar",
+    ANDROID_SDK / "platforms" / "android-37.0" / "android.jar",
+    ANDROID_SDK / "platforms" / "android-34" / "android.jar",
+)
+ANDROID_JAR = next((path for path in ANDROID_JAR_CANDIDATES if path.is_file()), None)
+if ANDROID_JAR is None:
+    raise SystemExit(
+        "找不到 Android platform android.jar（已探测 "
+        + ", ".join(path.parent.name for path in ANDROID_JAR_CANDIDATES)
+        + f"；SDK={ANDROID_SDK}）"
+    )
+_dex_tools = sorted((ANDROID_SDK / "build-tools").glob("*/dexdump"))
+DEXDUMP = _dex_tools[-1] if _dex_tools else ANDROID_SDK / "build-tools" / "dexdump"
+if not DEXDUMP.is_file():
+    raise SystemExit(f"找不到 dexdump：{DEXDUMP}")
 
 # 必须按此顺序应用：0003 与 0004 都改 oreki_dark_theme.py，0004 基于 0003 之后的状态生成。
 PATCH_ORDER = [
