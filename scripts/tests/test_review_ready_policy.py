@@ -23,6 +23,7 @@ class TestReviewReadyPolicy(unittest.TestCase):
     def setUpClass(cls):
         cls.scheduler = rule_line("- **规则治理专职 Subagent")
         cls.ready = rule_line("- **具备审查条件的 PR 必须及时 Ready")
+        cls.ready_gate = rule_line("- **Ready 前并发核对")
 
     def test_shared_three_slot_hard_limit(self):
         self.assertIn("全项目最多 3 个", self.scheduler)
@@ -39,6 +40,7 @@ class TestReviewReadyPolicy(unittest.TestCase):
         self.assertIn("任何独立且可审查的 PR 都不得仅因审查队列或预留策略长期 Draft", self.scheduler)
         self.assertIn("不以其他 PR 正在审查", self.ready)
         self.assertIn("收费审查与 Draft/Ready 状态分开管理", self.ready)
+        self.assertIn("转 Ready 或推送新 HEAD 前，Lead 必须核对全项目在途付费审查数与当日剩余额度", self.ready_gate)
 
     def test_actual_hard_block_must_be_evidenced(self):
         for needle in (
