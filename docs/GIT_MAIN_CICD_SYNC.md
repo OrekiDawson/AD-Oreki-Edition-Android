@@ -12,12 +12,12 @@
 
 1. 检查仓库与工作树：`git status --short --branch`、`git branch --show-current`、`git worktree list`。确认当前任务所属的仓库、分支、工作树与其他 Agent 是否存在共享文件。
 2. 执行 `git fetch origin --prune`，记录 `git rev-parse origin/main` 与当前 `git rev-parse HEAD`。检查 `git log --oneline --left-right HEAD...origin/main`，识别领先、落后或分歧。
-3. 本步骤的例行 `fetch` **只刷新远端跟踪引用**，默认记录 `FETCHED_ONLY`，不自动切换分支、合并或变基。仅在本地 `main` 工作树干净、可安全快进、无人占用且 Owner 已确认时，允许另行执行 `git merge --ff-only origin/main`；非 `main`、存在修改/未跟踪文件、远端分叉或其他 Agent 占用时保留现场，标记 `FETCHED_ONLY/BLOCKED`，优先使用独立干净 worktree 读取最新源码。确需使**开发分支**跟上新主线的，作为单独明确授权的集成任务，在独立干净 worktree 核验独有提交与文件归属后选择安全合并，**不得仅凭定期 fetch 自动 rebase 或重写已公布历史**。不得擅自 stash、重置、删除、覆盖他人工作；有冲突则记录证据与下一动作，转做独立任务。
+3. 本步骤的例行 `fetch` **只刷新远端跟踪引用**，默认记录 `FETCHED_ONLY`（仅取到远端引用、工作树尚未同步），不自动切换分支、合并或变基。仅在本地 `main` 工作树干净、可安全快进、无人占用且 Owner 已确认时，允许另行执行 `git merge --ff-only origin/main`；非 `main`、存在修改/未跟踪文件、远端分叉或其他 Agent 占用时保留现场，同时标记 `BLOCKED`，优先使用独立干净 worktree 读取最新源码。确需使**开发分支**跟上新主线的，作为单独明确授权的集成任务，在独立干净 worktree 核验独有提交与文件归属后选择安全合并，**不得仅凭定期 fetch 自动 rebase 或重写已公布历史**。不得擅自 stash、重置、删除、覆盖他人工作；有冲突则记录证据与下一动作，转做独立任务。
 4. 多 Agent 并行开发使用独立分支与工作树，协调同一文件的所有权。遵循本仓既有 worktree 映射及共享构建、AVD、Pages 部署资源的隔离规则。
 
 ## 3. 提交、PR 与主干同步
 
-- 关键提交、Push/PR 合并前按最新有效规则检查远端时效并在必要时重新 `git fetch origin --prune`，核对 `origin/main`、PR HEAD、Owner 与 Required Checks。远程发生变化时**先分类领先/落后/分叉并留证**，不得因为 fetch 成功就自动合并、变基、覆盖或强制快进。若明确授权的开发分支集成确实必要，应在独立干净 worktree 确认 Owner、独有提交、Git 保护与冲突处理策略后单独进行受控合并；不能安全集成时保持 `FETCHED_ONLY/BLOCKED` 并阻止依赖旧基线的合并/交付。多人共享的分支不得擅自改写历史，定期同步不构成 rebase 授权。
+- 关键提交、Push/PR 合并前按最新有效规则检查远端时效并在必要时重新 `git fetch origin --prune`，核对 `origin/main`、PR HEAD、Owner 与 Required Checks。远程发生变化时**先分类领先/落后/分叉并留证**，不得因为 fetch 成功就自动合并、变基、覆盖或强制快进。若明确授权的开发分支集成确实必要，应在独立干净 worktree 确认 Owner、独有提交、Git 保护与冲突处理策略后单独进行受控合并；不能安全集成时保持 `FETCHED_ONLY` 作为已取到引用的事实状态，并另记 `BLOCKED` 表示不得依赖旧基线合并/交付。多人共享的分支不得擅自改写历史，定期同步不构成 rebase 授权。
 - 高风险、CI/CD、构建/部署与未过门禁改动使用 PR；保留仓库允许的普通变更提交流程，但**不得通过直接推送绕过必需 CI/Ruleset**。
 - 禁止 `git push --force`、未经明确授权的 `git reset --hard` 或 `git clean -fd` 等破坏性操作；禁止关闭 Ruleset、跳过检查或将冲突视作自动解决。
 - PR 合并只能在所要求的检查通过且符合当前仓库保护规则后进行。PR 通过不等于主干新提交、最终构建或真实运行验收已通过；合并后核对目标 `main` SHA。

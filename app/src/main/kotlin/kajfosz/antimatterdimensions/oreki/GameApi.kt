@@ -1,9 +1,13 @@
 package kajfosz.antimatterdimensions.oreki
 
+import android.app.Activity
+import android.app.Dialog
 import android.os.Handler
 import android.util.Log
+import android.widget.Button
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 游戏内部类型的**缓存式反射访问层**。
@@ -413,6 +417,45 @@ internal object GameApi {
     /** 供 UI 帧泵使用：当前前台 Activity（尚未就绪时返回 null）。只读，不改任何游戏状态。 */
     @JvmStatic
     fun currentActivityForUiPump(): Any? = mainActivityRef()
+
+    /**
+     * C11 原版物质湮灭提示只提供“确定”和“放弃挑战”两个选择。
+     * 自动推进必须选择正向确认，绝不能替玩家退出挑战。
+     *
+     * 通过原版公开资源 ID `exitChallengeButton=0x7f0a05d3` 识别该专用布局，
+     * 再点击 Dialog 的标准 positive button。整个操作只投递到 UI 线程。
+     */
+    private val matterAnnihilationDialogPostPending = AtomicBoolean(false)
+
+    @JvmStatic
+    fun dismissMatterAnnihilationDialogIfPresent() {
+        val activity = currentActivityForUiPump() as? Activity ?: return
+        if (!matterAnnihilationDialogPostPending.compareAndSet(false, true)) return
+        activity.runOnUiThread {
+            try {
+                val delegate = activity.javaClass.getField("c0").get(activity)
+                val host = delegate.javaClass.getField("b").get(delegate)
+                val manager = host.javaClass.getField("r0").get(host)
+                val store = manager.javaClass.getField("c").get(manager)
+                val fragments = store.javaClass.getMethod("z").invoke(store)
+                    as? Iterable<*> ?: return@runOnUiThread
+                for (fragment in fragments) {
+                    val dialog = try {
+                        fragment?.javaClass?.getField("O0")?.get(fragment) as? Dialog
+                    } catch (_: Throwable) {
+                        null
+                    } ?: continue
+                    if (dialog.findViewById<android.view.View>(0x7f0a05d3) == null) continue
+                    val positive = dialog.findViewById<Button>(android.R.id.button1) ?: continue
+                    if (positive.isEnabled) positive.performClick()
+                }
+            } catch (_: Throwable) {
+                // 原版 UI 读取失败时保持游戏运行；下一调度 tick 再重试。
+            } finally {
+                matterAnnihilationDialogPostPending.set(false)
+            }
+        }
+    }
 
     // 3.21 MainActivity 保存的当前 Activity 弱引用；由 MainActivity 自身在 onCreate 时写入。
     // 这是已核对的原版字段，不通过遍历 View 或猜测当前窗口，避免后台 tick 直接碰 UI。
@@ -2044,6 +2087,32 @@ internal object GameApi {
         call(mDimN(), dim, true)
     }
 
+    private var mDimensionAmountY: Method? = null
+    private var mDimensionAmountYResolved: Boolean = false
+    private fun mDimensionAmountY(): Method? {
+        if (!mDimensionAmountYResolved) {
+            mDimensionAmountYResolved = true
+            mDimensionAmountY = method(
+                cls("kajfosz.antimatterdimensions.dimension.antimatter.AntimatterDimensionState"),
+                "y", 0, "AntimatterDimensionState.y()=amount",
+            )
+        }
+        return mDimensionAmountY
+    }
+
+    /** 原版维度当前数量 `AntimatterDimensionState.y()`；读不到返回 null。 */
+    fun dimensionAmount(state: Any?): Any? = call(mDimensionAmountY(), state)
+
+    /**
+     * 原版维度真实购买次数（存档字段 `bought`）。
+     *
+     * C9 维度重置后不能使用 `BigDouble(0).compareTo(0.0)` 判断基础链：
+     * Android 原版零值在该比较中可能返回正数，导致全部维度买次数仍为 0 时
+     * 被误判为已恢复。购买次数是直接的长期计数，读不到返回 null。
+     */
+    fun dimensionBoughtCount(state: Any?): Long? =
+        (readGameField(state, "bought") as? Number)?.toLong()
+
     // ---------------------------------------------------------------- 无限维度
 
     private var mIdHolderA: Method? = null
@@ -2215,6 +2284,76 @@ internal object GameApi {
         val challenges = readGameField(currentPlayer, "challenge") ?: return null
         val normal = readGameField(challenges, "normal") ?: return null
         return readGameField(normal, "current") as? Int
+    }
+
+    /** 当前无限挑战 ID。`null` 表示读取失败，调用方必须 fail-closed。 */
+    fun infinityChallengeCurrent(): Int? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val infinity = readGameField(challenges, "infinity") ?: return null
+        return readGameField(infinity, "current") as? Int
+    }
+
+    /** 普通挑战指定关卡是否已完成。读取失败返回 null。 */
+    fun normalChallengeCompleted(id: Int): Boolean? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val normal = readGameField(challenges, "normal") ?: return null
+        val bits = readGameField(normal, "completedBits") ?: return null
+        return bitSetHas(bits, id)
+    }
+
+    private var normalChallengeRegistryClassCache: Class<*>? = null
+    private var normalChallengeRegistryClsResolved: Boolean = false
+    private fun normalChallengeRegistryCls(): Class<*>? {
+        if (!normalChallengeRegistryClsResolved) {
+            normalChallengeRegistryClsResolved = true
+            normalChallengeRegistryClassCache = cls(obf("n63"))
+        }
+        return normalChallengeRegistryClassCache
+    }
+
+    private var normalChallengeGetMethod: Method? = null
+    private var normalChallengeGetResolved: Boolean = false
+    private fun normalChallengeGet(): Method? {
+        if (!normalChallengeGetResolved) {
+            normalChallengeGetResolved = true
+            normalChallengeGetMethod = method(
+                normalChallengeRegistryCls(),
+                "a",
+                1,
+                "n63.a(I)=normalChallenge",
+            )
+        }
+        return normalChallengeGetMethod
+    }
+
+    private var normalChallengeGoalReachedMethod: Method? = null
+    private var normalChallengeGoalReachedResolved: Boolean = false
+    private fun normalChallengeGoalReached(): Method? {
+        if (!normalChallengeGoalReachedResolved) {
+            val challenge = call(normalChallengeGet(), null, 1) ?: return null
+            normalChallengeGoalReachedResolved = true
+            normalChallengeGoalReachedMethod = method(
+                challenge.javaClass,
+                "v",
+                0,
+                "NormalChallengeState.v()=goalReached",
+            )
+        }
+        return normalChallengeGoalReachedMethod
+    }
+
+    /**
+     * 当前普通挑战是否已满足原版目标。
+     *
+     * `v()` 是原版挑战实例自己的完成判据；`canBigCrunch()` 只表示可以执行结算，
+     * 两者必须同时成立才允许 MOD 主动请求原版大坍缩。读取失败返回 null。
+     */
+    fun normalChallengeGoalReached(id: Int): Boolean? {
+        if (id !in 1..12) return null
+        val challenge = call(normalChallengeGet(), null, id) ?: return null
+        return call(normalChallengeGoalReached(), challenge) as? Boolean
     }
 
     // ---------------------------------------------------------------- 货币（ln0 / bn0）
@@ -3016,6 +3155,25 @@ internal object GameApi {
 
     /** Break 升级位图基数（0 = 还没买过任何 Break 升级）。 */
     fun bitSetCardinality(bits: Any?): Int = (call(mBitSetA(), bits) as? Int) ?: 0
+
+    private var mBitSetE: Method? = null
+    private var mBitSetEResolved: Boolean = false
+    private fun mBitSetE(): Method? {
+        if (!mBitSetEResolved) {
+            mBitSetEResolved = true
+            mBitSetE = method(
+                bitSetCls(),
+                "e",
+                1,
+                "BitSet.e(I)=has",
+                paramTypeNames = listOf("int"),
+            )
+        }
+        return mBitSetE
+    }
+
+    fun bitSetHas(bits: Any?, id: Int): Boolean? =
+        call(mBitSetE(), bits, id) as? Boolean
 
     private var mPelleQ: Method? = null
     private var mPelleQResolved: Boolean = false

@@ -16,6 +16,7 @@ import android.util.Log
 object OrekiGamePace {
     const val DEFAULT_SPEED: Double = 3000.0
     const val POST_BREAK_SPEED: Double = 1800.0
+    const val C9_SPEED: Double = 1800000.0
     const val POST_REALITY_SPEED: Double = 3000.0
     private const val PREFS = "oreki_prefs"
     private const val SPEED_KEY = "speed_multiplier"
@@ -73,12 +74,15 @@ object OrekiGamePace {
      * 让前期保留理解与体验时间，而现实后继续使用原高效速度。
      */
     @JvmStatic
+    @JvmOverloads
     fun stageTargetSpeed(
         hasInfinity: Boolean?,
         broken: Boolean?,
         hasReality: Boolean?,
+        normalChallengeCurrent: Int? = null,
     ): Double? = when {
         hasReality == null || hasInfinity == null || broken == null -> null
+        normalChallengeCurrent == 9 -> C9_SPEED
         hasReality -> POST_REALITY_SPEED
         !hasInfinity || !broken -> DEFAULT_SPEED
         else -> POST_BREAK_SPEED
@@ -100,6 +104,7 @@ object OrekiGamePace {
             GameApi.hasInfinity(),
             GameApi.isBroken(),
             versusZero > 0,
+            GameApi.normalChallengeCurrent(),
         ) ?: return
         val actual = try {
             prefs.getFloat(SPEED_KEY, Float.NaN).toDouble()
