@@ -109,6 +109,8 @@ jobs:
           python3 scripts/check_kotlin_naming_delta.py --base "$BASE_SHA"
       - name: Test new source policy guards
         run: python3 -m unittest discover -s scripts/tests -p 'test_repository_policy.py' -v
+      - name: Test Ready and Kody concurrency wording contract (documentation only)
+        run: python3 -m unittest discover -s scripts/tests -p 'test_review_ready_policy.py' -v
       - name: Test achievement audit cycle parsing
         run: python3 -m unittest discover -s scripts/tests -p 'test_ach_audit.py' -v
       - name: Reject newly introduced credential files, CRLF, and Java/Smali payloads
