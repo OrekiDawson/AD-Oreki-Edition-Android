@@ -31,6 +31,9 @@ TARGET_CLASSES = {
     "kajfosz/antimatterdimensions/shop/b.class",
     "kajfosz/antimatterdimensions/shop/LoginActivity.class",
     "kajfosz/antimatterdimensions/MainActivity.class",
+    "kajfosz/antimatterdimensions/OrekiSpeed.class",
+    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class",
+    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class",
 }
 RETIRED_INSTANT_PREFIX = "kajfosz/antimatterdimensions/OrekiInstantChallenge"
 
@@ -96,6 +99,7 @@ def main() -> int:
     parser.add_argument("--out-jar", required=True)
     parser.add_argument("--report", required=True)
     parser.add_argument("--asm-jar", required=True)
+    parser.add_argument("--android-jar", required=True)
     parser.add_argument("--java-home", default=os.environ.get("JAVA_HOME", ""))
     args = parser.parse_args()
 
@@ -103,10 +107,13 @@ def main() -> int:
     out_jar = pathlib.Path(args.out_jar).resolve()
     report = pathlib.Path(args.report).resolve()
     asm_jar = pathlib.Path(args.asm_jar).resolve()
+    android_jar = pathlib.Path(args.android_jar).resolve()
     if not game_jar.is_file():
         raise SystemExit(f"FAIL: game JAR missing: {game_jar}")
     if not asm_jar.is_file():
         raise SystemExit(f"FAIL: ASM jar missing: {asm_jar}")
+    if not android_jar.is_file():
+        raise SystemExit(f"FAIL: Android jar missing: {android_jar}")
 
     java_home = pathlib.Path(args.java_home) if args.java_home else None
     javac = str(java_home / "bin" / "javac") if java_home else shutil.which("javac")
@@ -122,7 +129,9 @@ def main() -> int:
         subprocess.run([javac, "-cp", str(asm_jar), "-d", str(classes), str(SOURCE)], check=True)
         target_report = pathlib.Path(tmp) / "targets.txt"
         subprocess.run(
-            [java, "-cp", f"{classes}{os.pathsep}{asm_jar}", "StorePolicyTransformer",
+            [java, "-cp",
+             os.pathsep.join((str(classes), str(asm_jar), str(game_jar), str(android_jar))),
+             "StorePolicyTransformer",
              str(game_jar), str(out_jar), str(target_report)],
             check=True,
         )
@@ -140,6 +149,7 @@ def main() -> int:
         "output_jar_bytes": out_jar.stat().st_size,
         "asm_jar": str(asm_jar),
         "asm_jar_sha256": sha256(asm_jar),
+        "android_jar_sha256": sha256(android_jar),
         "targets": target_text.splitlines(),
         "save_compatibility": structural,
         "policy": "STD/IAP disabled; historical fields preserved; ad multiplier neutral",

@@ -13,6 +13,7 @@ import java.util.zip.ZipOutputStream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -26,6 +27,16 @@ import org.objectweb.asm.Opcodes;
  */
 public final class StorePolicyTransformer {
     private static final String POLICY = "kajfosz/antimatterdimensions/oreki/OrekiStorePolicy";
+    private static final String SPEED_POLICY =
+        "kajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy";
+    private static final String SPEED_CLASS =
+        "kajfosz/antimatterdimensions/OrekiSpeed.class";
+    private static final String SPEED_OWNER =
+        "kajfosz/antimatterdimensions/OrekiSpeed";
+    private static final String SPEED_SETTINGS_CLICK =
+        "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class";
+    private static final String SPEED_SETTINGS_ACTIVITY =
+        "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class";
     private static final String MATTER_PACING =
         "kajfosz/antimatterdimensions/oreki/OrekiMatterChallengePacing";
     private static final String RETIRED_INSTANT = "kajfosz/antimatterdimensions/OrekiInstantChallenge";
@@ -105,7 +116,11 @@ public final class StorePolicyTransformer {
             ) ||
             !replacements.containsValue("effectPurchaseCount") ||
             !replacements.containsValue("isPurchaseEffectEnabled") ||
-            !replacements.containsValue("isStoreEnabled")) {
+            !replacements.containsValue("isStoreEnabled") ||
+            !replacements.containsValue("sanitizeSpeed") ||
+            !replacements.containsValue("speedInputGate") ||
+            !replacements.containsValue("speedUiText") ||
+            !replacements.containsValue("speedResetDefault")) {
             throw new IllegalStateException("store policy targets missing: " + replacements);
         }
         targetReport(report, input, output, replacements);
@@ -115,6 +130,9 @@ public final class StorePolicyTransformer {
         return name.equals("l5.class") ||
             name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class") ||
             name.equals("kajfosz/antimatterdimensions/shop/Purchases.class") ||
+            name.equals(SPEED_CLASS) ||
+            name.equals(SPEED_SETTINGS_CLICK) ||
+            name.equals(SPEED_SETTINGS_ACTIVITY) ||
             STORE_ACTION_CLASSES.contains(name);
     }
 
@@ -157,6 +175,124 @@ public final class StorePolicyTransformer {
                 String[] exceptions
             ) {
                 MethodVisitor output = super.visitMethod(access, methodName, descriptor, signature, exceptions);
+                if (name.equals(SPEED_CLASS) && methodName.equals("mult") && descriptor.equals("()D")) {
+                    report.put(name + "#mult()D", "sanitizeSpeed");
+                    return new MethodVisitor(Opcodes.ASM9, output) {
+                        @Override
+                        public void visitCode() {
+                            output.visitCode();
+                            output.visitFieldInsn(
+                                Opcodes.GETSTATIC,
+                                "kajfosz/antimatterdimensions/OrekiSpeed",
+                                "sMult",
+                                "D"
+                            );
+                            output.visitMethodInsn(
+                                Opcodes.INVOKESTATIC,
+                                SPEED_POLICY,
+                                "sanitize",
+                                "(D)D",
+                                false
+                            );
+                            output.visitFieldInsn(
+                                Opcodes.PUTSTATIC,
+                                "kajfosz/antimatterdimensions/OrekiSpeed",
+                                "sMult",
+                                "D"
+                            );
+                        }
+                    };
+                }
+                if (name.equals(SPEED_CLASS) && methodName.equals("set") && descriptor.equals("(D)Z")) {
+                    report.put(name + "#set(D)Z", "speedInputGate");
+                    return new MethodVisitor(Opcodes.ASM9, output) {
+                        @Override
+                        public void visitCode() {
+                            output.visitCode();
+                            output.visitVarInsn(Opcodes.DLOAD, 0);
+                            output.visitMethodInsn(
+                                Opcodes.INVOKESTATIC,
+                                SPEED_POLICY,
+                                "isValidInput",
+                                "(D)Z",
+                                false
+                            );
+                            Label valid = new Label();
+                            output.visitJumpInsn(Opcodes.IFNE, valid);
+                            output.visitInsn(Opcodes.ICONST_0);
+                            output.visitInsn(Opcodes.IRETURN);
+                            output.visitLabel(valid);
+                        }
+                    };
+                }
+                if (name.equals(SPEED_SETTINGS_CLICK) || name.equals(SPEED_SETTINGS_ACTIVITY)) {
+                    return new MethodVisitor(Opcodes.ASM9, output) {
+                        private boolean resetDefaultConstantSeen;
+
+                        @Override
+                        public void visitLdcInsn(Object value) {
+                            if (name.equals(SPEED_SETTINGS_CLICK) &&
+                                methodName.equals("onClick") &&
+                                descriptor.equals("(Landroid/view/View;)V") &&
+                                value instanceof Double number &&
+                                (number == 3000.0d || number == 10000.0d)) {
+                                value = 500.0d;
+                                resetDefaultConstantSeen = true;
+                                report.put(name + "#speed-reset-default-value", "speedResetDefaultValue");
+                            }
+                            if (value instanceof String text) {
+                                String updated = updateSpeedUiText(text);
+                                if (!updated.equals(text)) {
+                                    report.put(name + "#speed-ui-text", "speedUiText");
+                                    value = updated;
+                                }
+                            }
+                            super.visitLdcInsn(value);
+                        }
+
+                        @Override
+                        public void visitMethodInsn(
+                            int opcode,
+                            String owner,
+                            String calledName,
+                            String calledDescriptor,
+                            boolean isInterface
+                        ) {
+                            if (resetDefaultConstantSeen &&
+                                opcode == Opcodes.INVOKESTATIC &&
+                                owner.equals(SPEED_OWNER) &&
+                                calledName.equals("set") &&
+                                calledDescriptor.equals("(D)Z")) {
+                                output.visitInsn(Opcodes.POP2);
+                                output.visitVarInsn(Opcodes.ALOAD, 0);
+                                output.visitFieldInsn(
+                                    Opcodes.GETFIELD,
+                                    name.substring(0, name.length() - ".class".length()),
+                                    "act",
+                                    "Landroid/app/Activity;"
+                                );
+                                output.visitMethodInsn(
+                                    Opcodes.INVOKESTATIC,
+                                    "kajfosz/antimatterdimensions/oreki/OrekiGamePace",
+                                    "resetDefault",
+                                    "(Landroid/content/Context;)V",
+                                    false
+                                );
+                                output.visitInsn(Opcodes.ICONST_1);
+                                resetDefaultConstantSeen = false;
+                                report.put(name + "#speed-reset-default", "speedResetDefault");
+                                return;
+                            }
+                            super.visitMethodInsn(
+                                opcode,
+                                owner,
+                                calledName,
+                                calledDescriptor,
+                                isInterface
+                            );
+                        }
+                    };
+                }
                 Replacement replacement = replacementFor(name, superName, methodName, descriptor);
                 if (replacement == null) {
                     if (name.equals("kajfosz/antimatterdimensions/challenge/antimatter/c.class")) {
@@ -324,6 +460,22 @@ public final class StorePolicyTransformer {
             return new Replacement("isPurchaseEffectEnabled", true, false, false);
         }
         return null;
+    }
+
+    private static String updateSpeedUiText(String value) {
+        return value
+            .replace("已恢复默认：游戏速度 ×3000", "已恢复默认：游戏速度 ×500")
+            .replace("已恢复默认：游戏速度 ×10000", "已恢复默认：游戏速度 ×500")
+            .replace(
+                "输入无效：请输入 0.000001 ~ 1000000000 之间的数字",
+                "输入无效：请输入 0.000001 ~ 100000 之间的数字"
+            )
+            .replace("恢复默认（×3000）", "恢复默认（×500）")
+            .replace("恢复默认（×10000）", "恢复默认（×500）")
+            .replace(
+                "取值范围 0.000001 ~ 1000000000",
+                "取值范围 0.000001 ~ 100000"
+            );
     }
 
     private static void targetReport(

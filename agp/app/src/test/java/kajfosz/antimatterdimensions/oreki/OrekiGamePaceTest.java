@@ -10,19 +10,19 @@ import org.junit.Test;
 public class OrekiGamePaceTest {
     @Test
     public void newSaveUsesNaturalFiveStageSpeedCurve() {
-        assertEquals(3000.0, OrekiGamePace.DEFAULT_SPEED, 0.0);
-        assertEquals(3000.0, OrekiGamePace.defaultSpeed(), 0.0);
-        assertEquals(1800.0, OrekiGamePace.POST_BREAK_SPEED, 0.0);
+        assertEquals(500.0, OrekiGamePace.DEFAULT_SPEED, 0.0);
+        assertEquals(500.0, OrekiGamePace.defaultSpeed(), 0.0);
+        assertEquals(70.0, OrekiGamePace.POST_BREAK_SPEED, 0.0);
         assertEquals(3000.0, OrekiGamePace.POST_REALITY_SPEED, 0.0);
     }
 
     @Test
     public void stageTargetUsesRealProgressAndFailsClosed() {
-        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, false), 0.0);
-        assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, false, false), 0.0);
-        assertEquals(1800.0, OrekiGamePace.stageTargetSpeed(true, true, false), 0.0);
-        assertEquals(1800000.0, OrekiGamePace.stageTargetSpeed(true, true, false, 9), 0.0);
-        assertEquals(1800000.0, OrekiGamePace.stageTargetSpeed(true, false, false, 9), 0.0);
+        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(false, false, false), 0.0);
+        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(true, false, false), 0.0);
+        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, true, false), 0.0);
+        assertEquals(70.0, OrekiGamePace.stageTargetSpeed(true, true, false, 9), 0.0);
+        assertEquals(500.0, OrekiGamePace.stageTargetSpeed(true, false, false, 9), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(true, true, true), 0.0);
         assertEquals(3000.0, OrekiGamePace.stageTargetSpeed(false, false, true), 0.0);
         assertEquals(null, OrekiGamePace.stageTargetSpeed(null, true, false));
@@ -33,6 +33,7 @@ public class OrekiGamePaceTest {
     @Test
     public void onlyFinitePositiveStoredSpeedsAreAccepted() {
         assertTrue(OrekiGamePace.isValidStoredSpeed(3000f));
+        assertTrue(OrekiGamePace.isValidStoredSpeed(500000f));
         assertTrue(OrekiGamePace.isValidStoredSpeed(Float.MIN_VALUE));
         assertFalse(OrekiGamePace.isValidStoredSpeed(0f));
         assertFalse(OrekiGamePace.isValidStoredSpeed(-1f));

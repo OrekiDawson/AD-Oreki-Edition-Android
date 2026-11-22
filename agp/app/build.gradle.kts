@@ -1058,6 +1058,15 @@ val fullGameStage = orekiRepoPath(
 val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
 val storePolicyGameJar = File(repoRoot, "build/agp-store-policy/game-hybrid-sig-store-policy.jar")
 val storePolicyReport = File(repoRoot, "build/agp-store-policy/report.json")
+val orekiCompileSdk = 37
+val transformerAndroidJar = androidComponents.sdkComponents.bootClasspath.map { bootClasspath ->
+    bootClasspath
+        .map { it.asFile }
+        .firstOrNull { it.name == "android.jar" }
+        ?: throw GradleException(
+            "AGP compileSdk=$orekiCompileSdk 的 bootClasspath 中没有 android.jar",
+        )
+}
 
 // R121-01：商店/广告业务判据在 Kotlin；这里只对已转换游戏 JAR 的两个原版
 // ABI 出口做最小替换，存档字段、构造器、copy/component 与序列化保持原样。
@@ -1080,18 +1089,29 @@ val applyStorePolicy = tasks.register<Exec>("applyStorePolicy") {
     inputs.file(script)
     inputs.file(transformer)
     inputs.file(asmJar)
+    inputs.file(transformerAndroidJar).withPropertyName("transformerAndroidJar")
     outputs.file(storePolicyGameJar)
     outputs.file(storePolicyReport)
     workingDir = repoRoot
-    commandLine(
-        "python3",
-        script.absolutePath,
-        "--game-jar", inputJar?.absolutePath ?: "",
-        "--out-jar", storePolicyGameJar.absolutePath,
-        "--report", storePolicyReport.absolutePath,
-        "--asm-jar", asmJar.absolutePath,
-        "--java-home", System.getProperty("java.home"),
-    )
+    doFirst {
+        val transformerAndroidJarFile = transformerAndroidJar.get()
+        if (!transformerAndroidJarFile.isFile) {
+            throw GradleException(
+                "AGP SDK 缺少 compileSdk=$orekiCompileSdk 对应的 android.jar: " +
+                    transformerAndroidJarFile,
+            )
+        }
+        commandLine(
+            "python3",
+            script.absolutePath,
+            "--game-jar", inputJar?.absolutePath ?: "",
+            "--out-jar", storePolicyGameJar.absolutePath,
+            "--report", storePolicyReport.absolutePath,
+            "--asm-jar", asmJar.absolutePath,
+            "--android-jar", transformerAndroidJarFile.absolutePath,
+            "--java-home", System.getProperty("java.home"),
+        )
+    }
 }
 
 // [R114-02] 生产 Kotlin 生成输入显式化（Issue #61 阶段 S2 / Issue #52 去 Python）：
@@ -1296,7 +1316,7 @@ val prepareFullGameInputs by tasks.registering {
 
 android {
     namespace = "kajfosz.antimatterdimensions"
-    compileSdk = 37
+    compileSdk = orekiCompileSdk
 
     defaultConfig {
         applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "kajfosz.antimatterdimensions.agpbridge"

@@ -13,7 +13,6 @@ object OrekiManagedAutobuyerAuthority {
     const val TICKSPEED_MODE_BUY_SINGLE: Int = 1
     const val CRUNCH_THRESHOLD: Double = 10.0
     const val SACRIFICE_MULTIPLIER: Double = 2.0
-    const val C9_REQUIRED_DIMENSION_BULK: Double = 512.0
     const val C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS: Int = 5
 
     @JvmStatic
@@ -111,46 +110,17 @@ object OrekiManagedAutobuyerAuthority {
         if (normalChallengeCurrent == 9) "c9" else null
 
     /**
-     * 第五次维度提升前必须限制购买层。
+     * C9 全程使用原版单次购买。
      *
-     * bulk=512 只表示自动器一次可购买的上限，不代表 D7/D8 的实际数量或
-     * `canBeBought` 已满足。实测 bulk=512 的 fresh C9 在 4 次提升、D7=6、
-     * D8=3 时，D7/D8 的 lastTick 仍冻结；因此策略切换必须读取真实提升阶段。
+     * 该挑战每购买 10 个维度或一次计数频率，就把同价项目抬到下一档。
+     * 真实失败存档在 9 次提升后使用 BUY_10，维度 bought 与自动器 lastTick
+     * 持续冻结，只能靠高维产出缓慢抬高反物质尾数；切回 BUY_SINGLE 后每次
+     * 可负担的购买都能由原版入口真实扣费并推进价格，不写资源或完成位。
      */
     @JvmStatic
     fun c9NeedsRestrictedStrategy(dimensionBoosts: Int?): Boolean =
         dimensionBoosts == null ||
             dimensionBoosts < C9_ORIGINAL_RECOVERY_DIMENSION_BOOSTS
-
-    /**
-     * C1–C8 已完成时，自动启动 C9 前先把 D7/D8 的原版 bulk 升到 512。
-     *
-     * 失败真新档在 D7/D8 bulk 较低时进入 C9，低层购买把 D7 价格持续抬高，
-     * 形成 C9 内的结构墙。这里只延迟自动启动；玩家手动启动不受影响。
-     * 无法读取状态时不阻止启动，避免测试门禁自身制造挑战停滞。
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun shouldDeferC9Start(
-        normalChallengeCurrent: Int?,
-        firstEightChallengesCompleted: Boolean?,
-        c9Completed: Boolean?,
-        d7Bulk: Double?,
-        d8Bulk: Double?,
-        inAnyChallenge: Boolean = false,
-    ): Boolean {
-        if (inAnyChallenge ||
-            normalChallengeCurrent != 0 ||
-            firstEightChallengesCompleted == null || c9Completed == null
-        ) {
-            return false
-        }
-        val nextIsC9 = firstEightChallengesCompleted && !c9Completed
-        if (!nextIsC9) return false
-        val d7Ready = d7Bulk != null && d7Bulk >= C9_REQUIRED_DIMENSION_BULK
-        val d8Ready = d8Bulk != null && d8Bulk >= C9_REQUIRED_DIMENSION_BULK
-        return !d7Ready || !d8Ready
-    }
 
     /**
      * C9 第 3/4 次提升会执行原版维度重置。新档尚无“提升保留维度”能力，
@@ -218,18 +188,10 @@ object OrekiManagedAutobuyerAuthority {
     @JvmStatic
     @JvmOverloads
     fun c9DimensionMode(
-        tier: Int,
-        dimensionBoosts: Int,
-        lowerChainReady: Boolean = true,
-    ): Int =
-        if (dimensionBoosts < 5 && (
-                !lowerChainReady || tier == 7 || tier == 8
-            )
-        ) {
-            DIMENSION_MODE_BUY_SINGLE
-        } else {
-            DIMENSION_MODE_BUY_10
-        }
+        @Suppress("UNUSED_PARAMETER") tier: Int,
+        @Suppress("UNUSED_PARAMETER") dimensionBoosts: Int,
+        @Suppress("UNUSED_PARAMETER") lowerChainReady: Boolean = true,
+    ): Int = DIMENSION_MODE_BUY_SINGLE
 
     /**
      * 第五次提升前暂停计数频率购买，避免每次购买同时抬高同价的低层维度。

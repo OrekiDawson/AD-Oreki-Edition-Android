@@ -41,84 +41,17 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
-    fun c9AutoStartWaitsForD7AndD8Bulk() {
-        assertTrue(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 256.0,
-                d8Bulk = 256.0,
-            ),
-        )
-        assertTrue(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 512.0,
-                d8Bulk = 256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 512.0,
-                d8Bulk = 512.0,
-            ),
-        )
-    }
-
-    @Test
-    fun c9EntryGateOnlyAppliesToFreshC9Candidate() {
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                8,
-                true,
-                false,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                9,
-                true,
-                false,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                0,
-                true,
-                true,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                0,
-                false,
-                null,
-                256.0,
-                256.0,
-            ),
-        )
-        assertFalse(
-            OrekiManagedAutobuyerAuthority.shouldDeferC9Start(
-                normalChallengeCurrent = 0,
-                firstEightChallengesCompleted = true,
-                c9Completed = false,
-                d7Bulk = 16.0,
-                d8Bulk = 16.0,
-                inAnyChallenge = true,
-            ),
-        )
+    fun c9AlwaysUsesSingleBuyMode() {
+        for (tier in 1..8) {
+            assertEquals(
+                OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+                OrekiManagedAutobuyerAuthority.c9DimensionMode(tier, 0),
+            )
+            assertEquals(
+                OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+                OrekiManagedAutobuyerAuthority.c9DimensionMode(tier, 8),
+            )
+        }
     }
 
     @Test
@@ -348,7 +281,7 @@ class OrekiC9ManagedStrategyTest {
     }
 
     @Test
-    fun d7AndD8BuySinglesWhileDimBoostStaysEnabled() {
+    fun allDimensionsBuySinglesWhileDimBoostStaysEnabled() {
         assertEquals(
             OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
             OrekiManagedAutobuyerAuthority.c9DimensionMode(7, 3),
@@ -358,7 +291,7 @@ class OrekiC9ManagedStrategyTest {
             OrekiManagedAutobuyerAuthority.c9DimensionMode(8, 4),
         )
         assertEquals(
-            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10,
+            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
             OrekiManagedAutobuyerAuthority.c9DimensionMode(6, 3),
         )
         assertTrue(OrekiManagedAutobuyerAuthority.c9DimBoostActive())
@@ -375,13 +308,25 @@ class OrekiC9ManagedStrategyTest {
             ),
         )
         assertEquals(
-            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_10,
+            OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
             OrekiManagedAutobuyerAuthority.c9DimensionMode(
                 tier = 1,
                 dimensionBoosts = 3,
                 lowerChainReady = true,
             ),
         )
+    }
+
+    @Test
+    fun c9KeepsSinglePurchasesThroughEveryBoostBand() {
+        for (boosts in intArrayOf(0, 3, 4, 5, 9)) {
+            for (tier in 1..8) {
+                assertEquals(
+                    OrekiManagedAutobuyerAuthority.DIMENSION_MODE_BUY_SINGLE,
+                    OrekiManagedAutobuyerAuthority.c9DimensionMode(tier, boosts),
+                )
+            }
+        }
     }
 
     @Test
