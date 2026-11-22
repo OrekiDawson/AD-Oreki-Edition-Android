@@ -100,6 +100,9 @@ public final class StorePolicyTransformer {
         }
 
         if (!replacements.containsKey("l5.class#d()Z") ||
+            !replacements.containsKey(
+                "kajfosz/antimatterdimensions/challenge/antimatter/c.class#matter-pacing"
+            ) ||
             !replacements.containsValue("effectPurchaseCount") ||
             !replacements.containsValue("isPurchaseEffectEnabled") ||
             !replacements.containsValue("isStoreEnabled")) {
@@ -174,7 +177,7 @@ public final class StorePolicyTransformer {
                                         false
                                     );
                                     output.visitVarInsn(Opcodes.DSTORE, 1);
-                                    report.put(name + "#matter-pacing", "sqrt-speed-compensation");
+                                    report.put(name + "#matter-pacing", "sqrt-speed-normalization");
                                 }
                             }
 

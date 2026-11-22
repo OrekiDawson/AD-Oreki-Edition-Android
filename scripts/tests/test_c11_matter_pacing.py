@@ -27,8 +27,11 @@ class C11MatterPacingTests(unittest.TestCase):
         self.assertIn("private const val IC6 = 6", source)
         self.assertIn("normalChallengeCurrent == C11 || infinityChallengeCurrent == IC6", source)
         self.assertIn("speed <= 1.0", source)
-        self.assertIn("return sqrt(speed)", source)
+        self.assertIn("normalChallengeCurrent == C11 -> 1.0 / (speed * sqrt(speed))", source)
+        self.assertIn("infinityChallengeCurrent == IC6 -> 1.0 / speed", source)
         self.assertIn("return diff * compensationFactor(", source)
+        self.assertIn("STATE_CACHE_NANOS", source)
+        self.assertIn("speedMultMethod: Method? by lazy", source)
 
     def test_game_jar_hook_replaces_only_challenge_update_diff(self) -> None:
         source = TRANSFORMER.read_text(encoding="utf-8")
@@ -41,7 +44,8 @@ class C11MatterPacingTests(unittest.TestCase):
         self.assertIn("Opcodes.DLOAD, 1", source)
         self.assertIn('"adjustedDiff"', source)
         self.assertIn("Opcodes.DSTORE, 1", source)
-        self.assertIn('"sqrt-speed-compensation"', source)
+        self.assertIn('"sqrt-speed-normalization"', source)
+        self.assertIn("c.class#matter-pacing", source)
 
     def test_game_jar_hook_does_not_touch_save_or_completion_fields(self) -> None:
         source = TRANSFORMER.read_text(encoding="utf-8")

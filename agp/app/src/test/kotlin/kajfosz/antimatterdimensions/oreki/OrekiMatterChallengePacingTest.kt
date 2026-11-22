@@ -16,15 +16,20 @@ class OrekiMatterChallengePacingTest {
     }
 
     @Test
-    fun originalSpeedRemainsUnchangedAndHighSpeedUsesBoundedCompensation() {
+    fun c11SlowsMatterAndIc6KeepsOriginalSpeedNormalization() {
         assertEquals(
             1.0,
             OrekiMatterChallengePacing.compensationFactor(1.0, 11, 0),
             0.0,
         )
         assertEquals(
-            kotlin.math.sqrt(1800.0),
+            1.0 / 1800.0,
             OrekiMatterChallengePacing.compensationFactor(1800.0, 0, 6),
+            1e-12,
+        )
+        assertEquals(
+            1.0 / (1800.0 * kotlin.math.sqrt(1800.0)),
+            OrekiMatterChallengePacing.compensationFactor(1800.0, 11, 0),
             1e-12,
         )
         assertEquals(
