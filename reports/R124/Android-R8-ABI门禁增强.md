@@ -12,6 +12,9 @@ Verify、Release 或生产签名链。
 - R8 ON 构建完成后执行 `scripts/agp/r109_verify_r8_output.py --scope bridge`。
 - 校验器显式区分 `bridge` 与 `full-game`。公开 R8 工作流当前构建 bridge，
   不得用完整游戏清单误报 65 项缺失，也不得把 bridge PASS 冒充 fullGame PASS。
+- **full-game 范围当前没有 CI 或发布链路执行者**：完整游戏反射/Manifest/Gson
+  闭包及三项 smali→Kotlin 桥在 R8 ON 下均为 `NOT RUN`。本 PR 只提供可复用校验入口，
+  不宣称这些项目已被自动验收。
 - 校验器从 R8 mapping 中只放行带 `com.android.tools.r8.synthesized` 证据的
   `android.*` 合成存根，不接受任意平台类。
 - R8 校验脚本自身纳入 `pull_request.paths`，脚本被修改时也会重新执行门禁。
@@ -46,7 +49,7 @@ Verify、Release 或生产签名链。
 | R8 ON 构建 | PASS（历史） | R8 9.5.29 曾产出完整实验 APK |
 | R8 静态 ABI 门禁接入 | PASS | 本批代码与单测通过 |
 | 当前 CI R8 bridge 产物 | PASS | R8 ON APK 9/9 ABI 检查通过 |
-| R8 fullGame CI | NOT RUN | 当前实验工作流未注入私有 fullGame 输入 |
+| R8 fullGame CI | NOT RUN | 当前没有 CI 执行 `--scope full-game`；私有输入未注入，不宣称自动验收 |
 | R8 ON 真实 AVD | NOT RUN | 本子任务不使用 AVD，由 Lead 独占 |
 | 存档双向兼容 | NOT RUN | 需真实运行，不由静态检查替代 |
 | 正式发布链 | 不变 | 未开启默认 R8，未修改 Candidate/Verify/Release |

@@ -150,7 +150,8 @@ def main():
         results.append({"kind": kind, "name": name, "ok": bool(ok), "detail": detail})
 
     # 1) Kotlin payload / Smali 桥 ABI 类名保留。
-    # 公开 R8 CI 当前只构建 bridge；完整游戏专属 ABI 放到 full-game 范围，避免误报。
+    # 公开 R8 CI 当前只构建 bridge；full-game 范围保留供后续执行器复用。
+    # 当前没有 CI 或发布链路调用 --scope full-game，因此完整游戏专属 ABI 仍为 NOT RUN。
     bridge = [
         "kajfosz/antimatterdimensions/OrekiAuto",
         "kajfosz/antimatterdimensions/OrekiTrace",

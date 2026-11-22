@@ -152,7 +152,8 @@ jobs:
           PY
       - name: 验证 R8 桥接产物 ABI
         # 构建成功不能证明 R8 未裁掉运行时按名加载的类。本工作流当前构建的是 bridge，
-        # 因此只校验 bridge 范围；完整游戏的反射/Manifest/Gson 闭包仍由 full-game 范围验收。
+        # 因此只校验 bridge 范围。当前工作流没有 full-game R8 执行者，
+        # 完整游戏反射/Manifest/Gson 与三项 smali→Kotlin 桥在该范围均为 NOT RUN。
         run: |
           set -euo pipefail
           apk="$(find r8-evidence/optimized -maxdepth 1 -type f -name '*.apk' -print -quit)"
