@@ -3366,6 +3366,9 @@ object OrekiStageAuto {
     /** 通过门禁才调用原版永恒入口；拒绝原因限频记录（原因变化或每 5 秒一条）。 */
     private fun tickEternityGated() {
         try {
+            // Dilation 的启动本身是原版永恒重置。必须在普通自动永恒之前决策，
+            // 避免普通永恒抢先完成并改变门禁；若本轮已发起 Dilation 重置，同帧让路。
+            if (OrekiDilationAutomation.tick()) return
             val reason = eternityGateReason()
             val now = android.os.SystemClock.elapsedRealtime()
             if (crunchSkipFrames > 0) crunchSkipFrames--
