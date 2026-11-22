@@ -5045,7 +5045,7 @@ def patch_v_unlock_thresholds():
     背景
       Web 侧 src/core/secret-formula/celestials/v.js 已把 V.mainUnlock 的
       realities / dilatedTime / replicanti 三项从原版 10000 / 1e320 / 1e320000
-      改为 200 / 1e30 / 1e20000（理由见该文件 :17-41 的实测注释：原值在 180
+      改为 60 / 1e30 / 1e20000（理由见该文件 :17-41 的实测注释：原值在 180
       分钟预算内物理上不可达）。Android 仍是原版，机制不等价。本轮只同步这三项。
 
     定位链（全部来自 apktool 反编译的 smali，不是靠猜类名）
@@ -5084,10 +5084,185 @@ def patch_v_unlock_thresholds():
           w55 用 13..15，androidx/room 用 0），因此这三个分支是 V 独占，不存在串味。
 
     门槛值与 Web 完全一致（v.js OREKI_V_UNLOCK_*）：
-      realities 200 → BigDouble(200, 0, true)
+      realities 60 → BigDouble(60, 0, true)
       dilatedTime 1e30 → BigDouble(1, 30, true)
       replicanti 1e20000 → BigDouble(1, 20000, true)
     """
+    # ------------------------------------------------- 0) 3.21 真实结构：w35 + xd4
+    #
+    # 3.21 的 V.mainUnlock 已不在 u55，而是在 w35：
+    #   a=realities(fw.n1), b=eternities(fw.D2), c=infinities(fw.M2),
+    #   d=dilatedTime(fw.Y2), e=replicanti(fw.y4), f=realityMachines(fw.A2),
+    #   最后 filled-new-array {v0..v5} -> g:List。
+    # 进度分母在 xd4.invoke 的三条独立分支中：10000/320/320000。
+    w35 = smali_tree() / "w35.smali"
+    xd4 = smali_tree() / "xd4.smali"
+    if w35.exists() and xd4.exists():
+        wsrc = w35.read_text(encoding="utf-8")
+        xsrc = xd4.read_text(encoding="utf-8")
+        shape_ok = (
+            "static constructor <clinit>()V" in wsrc
+            and "Lu35;" in wsrc
+            and "Lw35;->g:Ljava/util/List;" in wsrc
+            and wsrc.count("new-instance v") >= 6
+            and "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;" in xsrc
+        )
+        if not shape_ok:
+            raise AssertionError(
+                "[Oreki V] 3.21 w35/xd4 结构漂移，拒绝静默跳过 V.mainUnlock 门槛对齐"
+            )
+
+        wmark = "# [Oreki V] unlock-thresholds v3-321"
+        if wmark not in wsrc:
+            i, j = _scan_method(wsrc, "static constructor <clinit>()V")
+            body = wsrc[i:j]
+            plans = [
+                (
+                    "    sget-object v3, Lfw;->n1:Lkajfosz/antimatterdimensions/BigDouble;",
+                    "    # [Oreki V] realities 门槛由 Kotlin 策略提供（不修改共享 fw.n1）\n"
+                    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                    "OrekiVUnlockPolicy;->thresholdForRealities()Ljava/lang/Object;\n"
+                    "\n"
+                    "    move-result-object v3\n"
+                    "\n"
+                    "    check-cast v3, Lkajfosz/antimatterdimensions/BigDouble;",
+                    "realities",
+                ),
+                (
+                    "    sget-object v6, Lfw;->Y2:Lkajfosz/antimatterdimensions/BigDouble;",
+                    "    # [Oreki V] dilatedTime 门槛由 Kotlin 策略提供（不修改共享 fw.Y2）\n"
+                    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                    "OrekiVUnlockPolicy;->thresholdForDilatedTime()Ljava/lang/Object;\n"
+                    "\n"
+                    "    move-result-object v6\n"
+                    "\n"
+                    "    check-cast v6, Lkajfosz/antimatterdimensions/BigDouble;",
+                    "dilatedTime",
+                ),
+                (
+                    "    sget-object v7, Lfw;->y4:Lkajfosz/antimatterdimensions/BigDouble;",
+                    "    # [Oreki V] replicanti 门槛由 Kotlin 策略提供（不修改共享 fw.y4）\n"
+                    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                    "OrekiVUnlockPolicy;->thresholdForReplicanti()Ljava/lang/Object;\n"
+                    "\n"
+                    "    move-result-object v7\n"
+                    "\n"
+                    "    check-cast v7, Lkajfosz/antimatterdimensions/BigDouble;",
+                    "replicanti",
+                ),
+            ]
+            for old, new, label in plans:
+                n = body.count(old)
+                assert n == 1, f"w35 <clinit> 内 {label} 锚点出现 {n} 次，预期 1"
+                body = body.replace(old, new, 1)
+            out = wsrc[:i] + body + wsrc[j:]
+            out = out.replace(
+                ".method static constructor <clinit>()V",
+                ".method static constructor <clinit>()V\n    " + wmark,
+                1,
+            )
+            wsrc = out
+            write_smali(w35, wsrc, encoding="utf-8")
+        else:
+            note("[Oreki V] 3.21 w35 门槛常量已同步（幂等跳过）")
+
+        xmark = "# [Oreki V] progress-divisor v3-321"
+        if xmark not in xsrc:
+            i, j = _scan_method(
+                xsrc,
+                "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+            )
+            body = xsrc[i:j]
+            plans = [
+                (
+                    "    const-wide v0, 0x40c3880000000000L    # 10000.0",
+                    "    # [Oreki V] realities 进度分母由 Kotlin 策略提供\n"
+                    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                    "OrekiVUnlockPolicy;->progressDivisorForRealities()D\n"
+                    "\n"
+                    "    move-result-wide v0",
+                    "realities",
+                ),
+                (
+                    "    const-wide/high16 v0, 0x4074000000000000L    # 320.0",
+                    "    # [Oreki V] dilatedTime 进度分母由 Kotlin 策略提供\n"
+                    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                    "OrekiVUnlockPolicy;->progressDivisorForDilatedTime()D\n"
+                    "\n"
+                    "    move-result-wide v0",
+                    "dilatedTime",
+                ),
+                (
+                    "    const-wide v0, 0x4113880000000000L    # 320000.0",
+                    "    # [Oreki V] replicanti 进度分母由 Kotlin 策略提供\n"
+                    "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                    "OrekiVUnlockPolicy;->progressDivisorForReplicanti()D\n"
+                    "\n"
+                    "    move-result-wide v0",
+                    "replicanti",
+                ),
+            ]
+            for old, new, label in plans:
+                n = body.count(old)
+                assert n == 1, f"xd4 invoke 内 {label} 分母锚点出现 {n} 次，预期 1"
+                body = body.replace(old, new, 1)
+            out = xsrc[:i] + body + xsrc[j:]
+            out = out.replace(
+                ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;",
+                ".method public final invoke(Ljava/lang/Object;)Ljava/lang/Object;\n    " + xmark,
+                1,
+            )
+            xsrc = out
+            write_smali(xd4, xsrc, encoding="utf-8")
+        else:
+            note("[Oreki V] 3.21 xd4 进度分母已同步（幂等跳过）")
+
+        checks = [
+            ("realities 门槛 Kotlin 转发", wsrc.count(
+                "OrekiVUnlockPolicy;->thresholdForRealities()Ljava/lang/Object;"
+            ) == 1),
+            ("dilatedTime 门槛 Kotlin 转发", wsrc.count(
+                "OrekiVUnlockPolicy;->thresholdForDilatedTime()Ljava/lang/Object;"
+            ) == 1),
+            ("replicanti 门槛 Kotlin 转发", wsrc.count(
+                "OrekiVUnlockPolicy;->thresholdForReplicanti()Ljava/lang/Object;"
+            ) == 1),
+            ("门槛 Smali 不再构造或复用数值", all(
+                x not in wsrc
+                for x in (
+                    "sget-object v3, Lfw;->n1:",
+                    "sget-object v6, Lfw;->Y2:",
+                    "sget-object v7, Lfw;->y4:",
+                    "const/16 v9, 0x3c",
+                    "const/16 v10, 0x1e",
+                    "const v9, 0x4e20",
+                )
+            )),
+            ("realities 分母 Kotlin 转发", xsrc.count(
+                "OrekiVUnlockPolicy;->progressDivisorForRealities()D"
+            ) == 1),
+            ("dilatedTime 分母 Kotlin 转发", xsrc.count(
+                "OrekiVUnlockPolicy;->progressDivisorForDilatedTime()D"
+            ) == 1),
+            ("replicanti 分母 Kotlin 转发", xsrc.count(
+                "OrekiVUnlockPolicy;->progressDivisorForReplicanti()D"
+            ) == 1),
+            ("旧分母已消失", all(
+                x not in xsrc
+                for x in (
+                    "0x40c3880000000000L",
+                    "0x4074000000000000L",
+                    "0x4113880000000000L",
+                )
+            )),
+        ]
+        for name, ok in checks:
+            assert ok, f"[Oreki V] 3.21 契约未达成：{name}"
+        note(
+            "[Oreki V] 3.21 V.mainUnlock 门槛与进度分母已统一转发 Kotlin 策略"
+        )
+        return
+
     # ---------------------------------------------------------------- 1) 门槛（显示）
     u55 = smali_tree() /  "u55.smali"
     #
@@ -5125,35 +5300,35 @@ def patch_v_unlock_thresholds():
             # (原行, 新块, 说明)
             (
                 "    sget-object v3, Llu;->n1:Lkajfosz/antimatterdimensions/BigDouble;",
-                # v9/v10/v11 此时均未使用（.locals 12，v0..v2 已用于 s55/hr4）
-                "    # [Oreki V] realities 门槛 1e4(10000) -> 200（不碰共享常量 Llu;->n1，它另有 10 处引用）\n"
-                "    new-instance v3, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/16 v9, 0xc8\n"
-                "    const/4 v10, 0x0\n"
-                "    const/4 v11, 0x1\n"
-                "    invoke-direct {v3, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
-                "realities 200",
+                "    # [Oreki V] 兼容基线 realities 门槛转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                "OrekiVUnlockPolicy;->thresholdForRealities()Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object v3\n"
+                "\n"
+                "    check-cast v3, Lkajfosz/antimatterdimensions/BigDouble;",
+                "realities 60",
             ),
             (
                 "    sget-object v6, Llu;->Y2:Lkajfosz/antimatterdimensions/BigDouble;",
-                # 此处 v3=s55, v4=t55(5), v5=t55(6)，v6..v11 空闲
-                "    # [Oreki V] dilatedTime 门槛 1e320 -> 1e30（不碰共享常量 Llu;->Y2）\n"
-                "    new-instance v6, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/4 v9, 0x1\n"
-                "    const/16 v10, 0x1e\n"
-                "    const/4 v11, 0x1\n"
-                "    invoke-direct {v6, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "    # [Oreki V] 兼容基线 dilatedTime 门槛转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                "OrekiVUnlockPolicy;->thresholdForDilatedTime()Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object v6\n"
+                "\n"
+                "    check-cast v6, Lkajfosz/antimatterdimensions/BigDouble;",
                 "dilatedTime 1e30",
             ),
             (
                 "    sget-object v7, Llu;->y4:Lkajfosz/antimatterdimensions/BigDouble;",
-                # 此处 v4=s55, v5=t55(7), v6=t55(8)，v7..v11 空闲
-                "    # [Oreki V] replicanti 门槛 1e320000 -> 1e20000（不碰共享常量 Llu;->y4）\n"
-                "    new-instance v7, Lkajfosz/antimatterdimensions/BigDouble;\n"
-                "    const/4 v9, 0x1\n"
-                "    const v10, 0x4e20\n"
-                "    const/4 v11, 0x1\n"
-                "    invoke-direct {v7, v9, v10, v11}, Lkajfosz/antimatterdimensions/BigDouble;-><init>(IIZ)V",
+                "    # [Oreki V] 兼容基线 replicanti 门槛转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                "OrekiVUnlockPolicy;->thresholdForReplicanti()Ljava/lang/Object;\n"
+                "\n"
+                "    move-result-object v7\n"
+                "\n"
+                "    check-cast v7, Lkajfosz/antimatterdimensions/BigDouble;",
                 "replicanti 1e20000",
             ),
         ]
@@ -5175,8 +5350,7 @@ def patch_v_unlock_thresholds():
         )
         assert out.count("    " + umark) == 1, "幂等标记写入异常"
         write_smali(u55, out, encoding="utf-8")
-        note("[Oreki V] V.mainUnlock 门槛：realities 10000->200 / dilatedTime 1e320->1e30 / "
-             "replicanti 1e320000->1e20000")
+        note("[Oreki V] 兼容基线 V.mainUnlock 门槛已统一转发 Kotlin 策略")
 
     # ------------------------------------------------------- 2) 进度分母（3 个分支）
     c15 = smali_tree() /  "c15.smali"
@@ -5189,19 +5363,39 @@ def patch_v_unlock_thresholds():
         i, j = _scan_method(csrc, "public final invoke(Ljava/lang/Object;)Ljava/lang/Object;")
         body = csrc[i:j]
         plans = [
-            # (旧字面量, 新字面量, 语义, 旧值文本, 新值文本)
-            ("0x40c3880000000000L", "0x4069000000000000L", "realities 进度分母 toDouble()/X", "10000.0", "200.0"),
-            ("0x4074000000000000L", "0x403e000000000000L", "dilatedTime 进度分母 pLog10()/X", "320.0", "30.0"),
-            ("0x4113880000000000L", "0x40d3880000000000L", "replicanti 进度分母 pLog10()/X", "320000.0", "20000.0"),
+            (
+                "0x40c3880000000000L",
+                "progressDivisorForRealities",
+                "realities 进度分母",
+            ),
+            (
+                "0x4074000000000000L",
+                "progressDivisorForDilatedTime",
+                "dilatedTime 进度分母",
+            ),
+            (
+                "0x4113880000000000L",
+                "progressDivisorForReplicanti",
+                "replicanti 进度分母",
+            ),
         ]
-        for old, new, label, otext, ntext in plans:
-            n = body.count(old)
-            assert n == 1, f"c15 invoke() 内 {label} 的字面量 {old} 出现 {n} 次，预期 1"
-            body = body.replace(old, new, 1)
-            # 同一行的尾部注释（# 10000.0）也要跟着改，否则后人照着注释读会读错
-            assert body.count("    # " + otext) == 1, (
-                f"{label} 的尾注释 '# {otext}' 出现 {body.count('    # ' + otext)} 次，预期 1")
-            body = body.replace("    # " + otext, "    # " + ntext, 1)
+        for old, method, label in plans:
+            pattern = re.compile(
+                r"(?m)^    const-wide(?:/high16)? (v\d+|p\d+), "
+                + re.escape(old)
+                + r"(?:\s+#.*)?$"
+            )
+            found = pattern.findall(body)
+            assert len(found) == 1, f"c15 invoke() 内 {label} 锚点出现 {len(found)} 次，预期 1"
+            reg = found[0]
+            replacement = (
+                f"    # [Oreki V] 兼容基线 {label}转发 Kotlin 策略\n"
+                "    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+                f"OrekiVUnlockPolicy;->{method}()D\n"
+                "\n"
+                f"    move-result-wide {reg}"
+            )
+            body = pattern.sub(replacement, body, count=1)
             assert old not in body, f"{label} 替换后仍残留 {old}"
         out = csrc[:i] + body + csrc[j:]
         out = out.replace(
@@ -5211,22 +5405,33 @@ def patch_v_unlock_thresholds():
         )
         assert out.count("    " + cmark) == 1, "幂等标记写入异常"
         write_smali(c15, out, encoding="utf-8")
-        note("[Oreki V] V.mainUnlock 进度分母：realities /10000->/200、dilatedTime /320->/30、"
-             "replicanti /320000->/20000")
+        note("[Oreki V] 兼容基线 V.mainUnlock 进度分母已统一转发 Kotlin 策略")
 
     # ----------------------------------------- 3) 交付契约：两处都到位才算成功（fail-fast）
     ub = u55.read_text(encoding="utf-8")
     cb = c15.read_text(encoding="utf-8")
     checks = [
-        ("realities 门槛 200", "const/16 v9, 0xc8" in ub),
-        ("dilatedTime 门槛 1e30", "const/16 v10, 0x1e" in ub),
-        ("replicanti 门槛 1e20000", "const v10, 0x4e20" in ub),
+        ("realities 门槛 Kotlin 转发", ub.count(
+            "OrekiVUnlockPolicy;->thresholdForRealities()Ljava/lang/Object;"
+        ) == 1),
+        ("dilatedTime 门槛 Kotlin 转发", ub.count(
+            "OrekiVUnlockPolicy;->thresholdForDilatedTime()Ljava/lang/Object;"
+        ) == 1),
+        ("replicanti 门槛 Kotlin 转发", ub.count(
+            "OrekiVUnlockPolicy;->thresholdForReplicanti()Ljava/lang/Object;"
+        ) == 1),
         ("门槛不再 sget-object 共享常量", not [
             ln for ln in ub.splitlines()
             if "sget-object" in ln and any(x in ln for x in ("Llu;->n1", "Llu;->Y2", "Llu;->y4"))]),
-        ("realities 分母 200.0", "0x4069000000000000L" in cb),
-        ("dilatedTime 分母 30.0", "0x403e000000000000L" in cb),
-        ("replicanti 分母 20000.0", "0x40d3880000000000L" in cb),
+        ("realities 分母 Kotlin 转发", cb.count(
+            "OrekiVUnlockPolicy;->progressDivisorForRealities()D"
+        ) == 1),
+        ("dilatedTime 分母 Kotlin 转发", cb.count(
+            "OrekiVUnlockPolicy;->progressDivisorForDilatedTime()D"
+        ) == 1),
+        ("replicanti 分母 Kotlin 转发", cb.count(
+            "OrekiVUnlockPolicy;->progressDivisorForReplicanti()D"
+        ) == 1),
         ("旧分母已彻底消失", all(
             x not in cb for x in ("0x40c3880000000000L", "0x4074000000000000L", "0x4113880000000000L"))),
     ]
@@ -5627,9 +5832,9 @@ def main():
     patch_id_autobuyer_guard()
     # [R83] IU15 冲刺期间禁止自动进入 EC7（判定在 Kotlin）
     patch_iu15_ec7_guard()
-    # [R34 Agent C] V 的 mainUnlock 三项阈值与 Web 同步：realities 200 /
-    # dilatedTime 1e30 / replicanti 1e20000。门槛常量（u55 就地 new BigDouble）
-    # 与进度分母（c15 三个分支）两处同时改，否则 progress 永远到不了 1。
+    # [R34 Agent C / R124] V.mainUnlock 三项阈值与 Web 同步：realities 60 /
+    # dilatedTime 1e30 / replicanti 1e20000。3.21 修改 w35 门槛与 xd4 分母；
+    # 旧基线仍保留 u55/c15 分支。两处同时改，否则 progress 永远到不了 1。
     patch_v_unlock_thresholds()
     # [R38-B] 终局判定常量镜像 Web：OFFSET 8.7 -> 1.0、TARGET 9.0E15 -> 1000.0。
     # 语义：endState >= 1 <=> 反物质指数 >= TARGET。只改两条 const-wide 的立即数，

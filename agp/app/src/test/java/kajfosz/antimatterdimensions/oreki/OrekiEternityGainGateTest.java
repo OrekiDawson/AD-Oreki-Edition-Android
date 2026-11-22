@@ -34,4 +34,11 @@ public class OrekiEternityGainGateTest {
         assertEquals(1, OrekiEternityRules.eternitySettlementMultiplierFor(1, null));
         assertEquals(1, OrekiEternityRules.eternitySettlementMultiplierFor(4, null));
     }
+
+    @Test
+    public void activeDilationExemptsGainGateForTpSettlement() {
+        assertEquals(0, OrekiEternityRules.eternitySettlementMultiplierFor(3, true, true));
+        assertEquals(1, OrekiEternityRules.eternitySettlementMultiplierFor(3, true, false));
+        assertEquals(1, OrekiEternityRules.eternitySettlementMultiplierFor(3, true, null));
+    }
 }
