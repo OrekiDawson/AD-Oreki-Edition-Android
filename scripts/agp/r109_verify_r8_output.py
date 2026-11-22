@@ -94,17 +94,56 @@ def wrap(cls):
     return "L" + cls.replace(".", "/") + ";"
 
 
+def synthetic_platform_stubs(mapping_path):
+    """从 R8 mapping 精确提取 R8 合成的 android.* NCDFE 存根类。
+
+    存根类在 mapping 顶部使用原平台类名，并在类体首行标记
+    `com.android.tools.r8.synthesized`。只接受这个证据，不把普通 android 类放行。
+    """
+    result = set()
+    current = None
+    synthesized = False
+
+    def flush():
+        if current and synthesized and current.startswith("android."):
+            result.add(current)
+
+    with open(mapping_path, encoding="utf-8", errors="replace") as handle:
+        for raw in handle:
+            line = raw.rstrip("\n")
+            if line.startswith("#"):
+                if current and "com.android.tools.r8.synthesized" in line:
+                    synthesized = True
+                continue
+            if line and not line.startswith((" ", "\t")):
+                flush()
+                match = re.match(r"^(\S.*?) -> \S+:$", line)
+                current = match.group(1) if match else None
+                synthesized = False
+            elif current and "com.android.tools.r8.synthesized" in line:
+                synthesized = True
+    flush()
+    return result
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--apk", required=True)
     ap.add_argument("--scope", choices=("full-game", "bridge"), default="full-game")
     ap.add_argument("--json")
     ap.add_argument("--stubs", help="R8 合成平台存根类清单 JSON（数组），这些类允许出现在输出中")
+    ap.add_argument("--mapping", help="R8 mapping.txt；自动识别带合成标记的 android.* 存根")
     args = ap.parse_args()
     classes, fields, methods, strings = load_apk(args.apk)
-    stub_set = set()
+    stub_names = set()
     if args.stubs:
-        stub_set = {wrap(n[1:-1]) if n.startswith("L") else wrap(n) for n in json.load(open(args.stubs, encoding="utf-8"))}
+        stub_names.update(json.load(open(args.stubs, encoding="utf-8")))
+    if args.mapping:
+        stub_names.update(synthetic_platform_stubs(args.mapping))
+    stub_set = {
+        wrap(name[1:-1] if name.startswith("L") else name)
+        for name in stub_names
+    }
     results = []
 
     def check(kind, name, ok, detail):
@@ -197,6 +236,7 @@ def main():
     out = {
         "apk": args.apk,
         "scope": args.scope,
+        "mapping": args.mapping,
         "stub_classes": sorted(stub_set),
         "checks": results,
         "failed": len(failed),

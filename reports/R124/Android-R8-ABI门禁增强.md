@@ -12,6 +12,9 @@ Verify、Release 或生产签名链。
 - R8 ON 构建完成后执行 `scripts/agp/r109_verify_r8_output.py --scope bridge`。
 - 校验器显式区分 `bridge` 与 `full-game`。公开 R8 工作流当前构建 bridge，
   不得用完整游戏清单误报 65 项缺失，也不得把 bridge PASS 冒充 fullGame PASS。
+- 校验器从 R8 mapping 中只放行带 `com.android.tools.r8.synthesized` 证据的
+  `android.*` 合成存根，不接受任意平台类。
+- R8 校验脚本自身纳入 `pull_request.paths`，脚本被修改时也会重新执行门禁。
 - 校验项：
   - Smali/Kotlin 桥类；
   - `GameApi` 反射目标；
@@ -23,7 +26,7 @@ Verify、Release 或生产签名链。
 
 ## 验证
 
-- `python3 -m unittest scripts.tests.test_agp_r8_experiment -v`：5/5 PASS。
+- `python3 -m unittest scripts.tests.test_agp_r8_experiment -v`：7/7 PASS。
 - `python3 -c 'import yaml ...'`：YAML PASS。
 - `python3 -m compileall -q ...`：PASS。
 - `git diff --check`：PASS。
@@ -32,6 +35,9 @@ Verify、Release 或生产签名链。
   `--scope bridge` 9/9 PASS、0 FAIL。
 - R8 OFF bridge 对照 APK SHA-256
   `e8feb4a255bb52fcfe5efc27506777c8005aaca44e00d388c2941788a3d6b095`。
+- 用历史 R8 ON fullGame APK 与 mapping 复验：73 项有效 ABI PASS；
+  仅 `OrekiInstantChallenge` 1 项失败，因为该历史 APK 早于即时挑战退役，
+  不能作为当前源码失败。mapping 自动识别了 8 个带合成证据的平台存根。
 
 ## 状态与边界
 

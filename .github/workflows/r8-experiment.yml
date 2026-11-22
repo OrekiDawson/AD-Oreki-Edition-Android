@@ -8,6 +8,7 @@ on:
       - 'agp/**'
       - 'app/src/main/kotlin/**'
       - 'scripts/payload/smali/**'
+      - 'scripts/agp/r109_verify_r8_output.py'
       - 'scripts/tests/test_agp_r8_experiment.py'
       - '.github/workflows/r8-experiment.yml'
 
@@ -159,6 +160,7 @@ jobs:
           python3 scripts/agp/r109_verify_r8_output.py \
             --apk "$apk" \
             --scope bridge \
+            --mapping r8-evidence/optimized/mapping.txt \
             --json r8-evidence/optimized/r8-abi-verify.json
       - name: 运行 AGP R8 配置分析（若当前 AGP 提供该任务）
         run: |
