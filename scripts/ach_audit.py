@@ -81,14 +81,16 @@ def parse(lines: list[str]):
             continue
         m = RE_DONE.search(ln)
         if m:
-            mism = pending_mismatch
+            expected = int(m.group(3))
+            mism = pending_mismatch[-expected:] if expected else []
             pending_mismatch = []
             done = tuple(int(x) if x is not None else -1 for x in m.groups())
             abort = None
             continue
         m = RE_ABORT.search(ln)
         if m:
-            mism = pending_mismatch
+            expected = int(m.group(3))
+            mism = pending_mismatch[-expected:] if expected else []
             pending_mismatch = []
             abort = tuple(int(x) if x is not None else -1 for x in m.groups())
             done = None
