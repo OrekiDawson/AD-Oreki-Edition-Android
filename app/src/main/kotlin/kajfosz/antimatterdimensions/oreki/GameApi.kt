@@ -2286,6 +2286,14 @@ internal object GameApi {
         return readGameField(normal, "current") as? Int
     }
 
+    /** 当前无限挑战 ID。`null` 表示读取失败，调用方必须 fail-closed。 */
+    fun infinityChallengeCurrent(): Int? {
+        val currentPlayer = player() ?: return null
+        val challenges = readGameField(currentPlayer, "challenge") ?: return null
+        val infinity = readGameField(challenges, "infinity") ?: return null
+        return readGameField(infinity, "current") as? Int
+    }
+
     /** 普通挑战指定关卡是否已完成。读取失败返回 null。 */
     fun normalChallengeCompleted(id: Int): Boolean? {
         val currentPlayer = player() ?: return null
