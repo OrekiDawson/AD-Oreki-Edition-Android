@@ -25,11 +25,9 @@ internal enum class OrekiDilationAction {
     STOP,
     WAIT_ABI,
     WAIT_UNLOCKED,
-    WAIT_TP,
+    WAIT_ACTIVE_ETERNITY,
     WAIT_GATE,
     START,
-    EXIT,
-    BUY_DT_GAIN,
 }
 
 internal object OrekiDilationPolicy {
@@ -41,7 +39,6 @@ internal object OrekiDilationPolicy {
         unlocked: Boolean?,
         active: Boolean?,
         tachyonKnown: Boolean,
-        tachyonPositive: Boolean,
         resetGateAllowed: Boolean,
     ): OrekiDilationAction {
         if (!automationEnabled || !autobuyersOn || userClosedByPlayer || doomed) {
@@ -52,15 +49,30 @@ internal object OrekiDilationPolicy {
         }
         if (!unlocked) return OrekiDilationAction.WAIT_UNLOCKED
 
-        if (!tachyonPositive) {
-            if (active) return OrekiDilationAction.WAIT_TP
-            return if (resetGateAllowed) OrekiDilationAction.START else OrekiDilationAction.WAIT_GATE
-        }
-        if (active) {
-            return if (resetGateAllowed) OrekiDilationAction.EXIT else OrekiDilationAction.WAIT_GATE
-        }
-        return OrekiDilationAction.BUY_DT_GAIN
+        // 退出由下一次原版普通永恒自动完成（specialConditions 为普通路径）。
+        // 不要用自造 Continuation 直调 suspend 入口，也不设置安全阀。
+        if (active) return OrekiDilationAction.WAIT_ACTIVE_ETERNITY
+        return if (resetGateAllowed) OrekiDilationAction.START else OrekiDilationAction.WAIT_GATE
     }
+
+    fun shouldBuyDtGain(
+        automationEnabled: Boolean,
+        autobuyersOn: Boolean,
+        userClosedByPlayer: Boolean,
+        doomed: Boolean,
+        unlocked: Boolean?,
+        active: Boolean?,
+        tachyonKnown: Boolean,
+        tachyonPositive: Boolean,
+    ): Boolean =
+        automationEnabled &&
+            autobuyersOn &&
+            !userClosedByPlayer &&
+            !doomed &&
+            unlocked == true &&
+            active == false &&
+            tachyonKnown &&
+            tachyonPositive
 }
 
 internal data class OrekiDilationSnapshot(
@@ -77,23 +89,17 @@ internal object OrekiDilationApi {
     private const val PLAYER = "kajfosz.antimatterdimensions.player.Player"
     private const val DILATION = "kajfosz.antimatterdimensions.player.Player\$Dilation"
     private const val THIS_REALITY = "kajfosz.antimatterdimensions.player.Player\$ThisReality"
-    private const val ETERNITY = "kajfosz.antimatterdimensions.prestige.c"
     private const val DILATION_UPGRADES = "kajfosz.antimatterdimensions.eternity.dilation.b"
     private const val QW3 = "qw3"
-    private const val CONTINUATION = "oreki.shadow.kotlin.coroutines.jvm.internal.ContinuationImpl"
-    private const val OREKI_CONTINUATION = "kajfosz.antimatterdimensions.OrekiEcContinuation"
+    private const val DILATION_LAUNCH = "kajfosz.antimatterdimensions.prestige.OrekiDilationLaunch"
 
     private val loader: ClassLoader
         get() = OrekiDilationApi::class.java.classLoader ?: ClassLoader.getSystemClassLoader()
 
     private val playerClass: Class<*>? by lazy { loadClass(PLAYER) }
-    private val dilationClass: Class<*>? by lazy { loadClass(DILATION) }
-    private val thisRealityClass: Class<*>? by lazy { loadClass(THIS_REALITY) }
-    private val eternityClass: Class<*>? by lazy { loadClass(ETERNITY) }
     private val dilationUpgradesClass: Class<*>? by lazy { loadClass(DILATION_UPGRADES) }
     private val qw3Class: Class<*>? by lazy { loadClass(QW3) }
-    private val continuationClass: Class<*>? by lazy { loadClass(CONTINUATION) }
-    private val orekiContinuationClass: Class<*>? by lazy { loadClass(OREKI_CONTINUATION) }
+    private val dilationLaunchClass: Class<*>? by lazy { loadClass(DILATION_LAUNCH) }
 
     private val playerField: Field? by lazy {
         field(playerClass, "a", static = true, exactType = playerClass)?.also {
@@ -108,25 +114,11 @@ internal object OrekiDilationApi {
     }
     private val dilationActive: Method? by lazy { noArg(DILATION, "a") }
     private val dilationDt: Method? by lazy { noArg(DILATION, "c") }
-    private val dilationRebuyables: Method? by lazy { noArg(DILATION, "g") }
     private val dilationStudies: Method? by lazy { noArg(DILATION, "h") }
     private val dilationTp: Method? by lazy { noArg(DILATION, "i") }
     private val thisRealityMaxDt: Method? by lazy { noArg(THIS_REALITY, "i") }
     private val startDilated: Method? by lazy {
-        exactMethod(eternityClass, "p", java.lang.Boolean.TYPE, continuationClass)
-    }
-    private val ordinaryEternity: Method? by lazy {
-        exactMethod(
-            eternityClass,
-            "d",
-            eternityClass,
-            java.lang.Boolean.TYPE,
-            java.lang.Boolean.TYPE,
-            java.lang.Boolean.TYPE,
-            java.lang.Boolean::class.java,
-            continuationClass,
-            Integer.TYPE,
-        )?.takeIf { Modifier.isStatic(it.modifiers) }
+        exactMethod(dilationLaunchClass, "start")?.takeIf { Modifier.isStatic(it.modifiers) }
     }
     private val dtGainField: Field? by lazy {
         field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)?.also {
@@ -136,11 +128,6 @@ internal object OrekiDilationApi {
     private val dtGainLevelMethod: Method? by lazy { noArg(qw3Class, "I") }
     private val dtGainPurchaseMethod: Method? by lazy {
         exactMethod(qw3Class, "D", java.lang.Boolean.TYPE, loadClass("rj0"))
-    }
-    private val orekiContinuationField: Field? by lazy {
-        field(orekiContinuationClass, "a", static = true, exactType = orekiContinuationClass)?.also {
-            it.isAccessible = true
-        }
     }
 
     private fun loadClass(name: String): Class<*>? = try {
@@ -187,6 +174,15 @@ internal object OrekiDilationApi {
         null
     }
 
+    private fun invokeVoid(method: Method?, receiver: Any?, vararg args: Any?): Boolean = try {
+        method?.invoke(receiver, *args)
+        method != null
+    } catch (t: Throwable) {
+        val cause = t.cause ?: t
+        Log.w("OREKI_DIL", "ABI call failed: ${method?.name}", cause)
+        false
+    }
+
     fun snapshot(): OrekiDilationSnapshot? {
         val player = player() ?: return null
         val dilation = invoke(playerDilation, player) ?: return null
@@ -194,14 +190,13 @@ internal object OrekiDilationApi {
         val active = invoke(dilationActive, dilation) as? Boolean
         val tachyon = invoke(dilationTp, dilation)
         val dt = invoke(dilationDt, dilation)
-        val rebuyables = invoke(dilationRebuyables, dilation) as? LongArray
         val records = invoke(playerRecords, player)
         val thisReality = invoke(recordsThisReality, records)
         val maxDt = invoke(thisRealityMaxDt, thisReality)
 
         val unlocked = studies.any { (it as? Number)?.toInt() == 1 }
         val tachyonComparison = GameApi.compareToDouble(tachyon, 0.0)
-        val dtGainLevel = readDtGainLevel(rebuyables)
+        val dtGainLevel = readDtGainLevel()
         return OrekiDilationSnapshot(
             unlocked = unlocked,
             active = active,
@@ -213,25 +208,14 @@ internal object OrekiDilationApi {
         )
     }
 
-    private fun readDtGainLevel(rebuyables: LongArray?): Long? {
-        if (rebuyables == null || rebuyables.isEmpty()) return null
+    private fun readDtGainLevel(): Long? {
         val upgrade = dtGainField?.get(null) ?: return null
-        val level = invoke(dtGainLevelMethod, upgrade) as? Long ?: return null
-        return level.takeIf { it == rebuyables[0] }
+        return invoke(dtGainLevelMethod, upgrade) as? Long
     }
 
     fun startDilatedEternity(): Boolean {
-        val singleton = eternityClass?.let { field(it, "a", static = true, exactType = it) }?.get(null)
-            ?: return false
-        val continuation = orekiContinuationField?.get(null) ?: return false
         val method = startDilated ?: return false
-        return invoke(method, singleton, true, continuation) != null
-    }
-
-    fun exitDilatedEternity(): Boolean {
-        val method = ordinaryEternity ?: return false
-        val continuation = orekiContinuationField?.get(null) ?: return false
-        return invoke(method, null, true, false, false, null, continuation, 14) != null
+        return invokeVoid(method, null)
     }
 
     fun buyDtGain(expectedLevel: Long): Boolean {
@@ -255,19 +239,21 @@ internal object OrekiDilationAutomation {
     private var lastLogSignature = ""
     private var lastAction = "idle"
 
-    /** 返回 true 仅表示本 tick 已发起一次原版永恒重置，调用方应跳过同帧普通永恒。 */
+    private fun refreshRealityGeneration() {
+        val generation = OrekiRealityPacing.resetCount()
+        if (generation == lastRealityGeneration) return
+        lastRealityGeneration = generation
+        lastResetAt = 0L
+        lastAction = "reality-reset"
+    }
+
+    /** 返回 true 仅表示本 tick 已通过游戏 scope 发起一次 Dilation 启动，调用方应跳过同帧普通永恒。 */
     @JvmStatic
-    fun tick(): Boolean {
+    fun tickStart(): Boolean {
         val now = SystemClock.elapsedRealtime()
         if (lastTickAt != 0L && now - lastTickAt < TICK_MS) return false
         lastTickAt = now
-
-        val generation = OrekiRealityPacing.resetCount()
-        if (generation != lastRealityGeneration) {
-            lastRealityGeneration = generation
-            lastResetAt = 0L
-            lastAction = "reality-reset"
-        }
+        refreshRealityGeneration()
 
         val snapshot = try {
             OrekiDilationApi.snapshot()
@@ -289,7 +275,6 @@ internal object OrekiDilationAutomation {
             unlocked = snapshot.unlocked,
             active = snapshot.active,
             tachyonKnown = snapshot.tachyonComparison != null,
-            tachyonPositive = (snapshot.tachyonComparison ?: 0) > 0,
             resetGateAllowed = resetAllowed,
         )
 
@@ -304,27 +289,8 @@ internal object OrekiDilationAutomation {
                     false
                 }
             }
-            OrekiDilationAction.EXIT -> {
-                if (OrekiDilationApi.exitDilatedEternity()) {
-                    lastResetAt = now
-                    lastAction = "exit"
-                    true
-                } else {
-                    lastAction = "exit-failed"
-                    false
-                }
-            }
-            OrekiDilationAction.BUY_DT_GAIN -> {
-                val level = snapshot.dtGainLevel
-                if (level != null && OrekiDilationApi.buyDtGain(level)) {
-                    lastAction = "buy-dtGain@" + level
-                } else {
-                    lastAction = "buy-dtGain-wait"
-                }
-                false
-            }
-            OrekiDilationAction.WAIT_TP -> {
-                lastAction = "wait-tp"
+            OrekiDilationAction.WAIT_ACTIVE_ETERNITY -> {
+                lastAction = "wait-active-eternity"
                 false
             }
             OrekiDilationAction.WAIT_GATE -> {
@@ -355,6 +321,28 @@ internal object OrekiDilationAutomation {
             resetInvoked,
         )
         return resetInvoked
+    }
+
+    /** 通过统一调度器的 `dilation` 名额购买一次 dtGain；不得绕过用户配置的 1～60 秒节拍。 */
+    @JvmStatic
+    fun tickPurchase(): Boolean {
+        refreshRealityGeneration()
+        val snapshot = OrekiDilationApi.snapshot() ?: return false
+        val shouldBuy = OrekiDilationPolicy.shouldBuyDtGain(
+            automationEnabled = OrekiAutomationScheduler.isEnabled(),
+            autobuyersOn = GameApi.autobuyersOn(),
+            userClosedByPlayer = OrekiAutoEternityAdoption.userClosedByPlayer(),
+            doomed = GameApi.isDoomed(),
+            unlocked = snapshot.unlocked,
+            active = snapshot.active,
+            tachyonKnown = snapshot.tachyonComparison != null,
+            tachyonPositive = (snapshot.tachyonComparison ?: 0) > 0,
+        )
+        if (!shouldBuy) return false
+        val level = snapshot.dtGainLevel ?: return false
+        val bought = OrekiDilationApi.buyDtGain(level)
+        lastAction = if (bought) "buy-dtGain@" + level else "buy-dtGain-wait"
+        return bought
     }
 
     private fun logThrottled(now: Long, detail: String, important: Boolean) {

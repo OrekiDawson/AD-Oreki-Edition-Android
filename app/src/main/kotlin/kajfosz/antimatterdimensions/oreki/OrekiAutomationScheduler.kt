@@ -74,6 +74,8 @@ object OrekiAutomationScheduler {
         "realityUpgrades",
         // C9 专用维护：按维度提升阶段聚焦 D7/D8，并走原版入口请求真实提升。
         "c9",
+        // Dilation dtGain 真实购买：复用用户配置的统一节拍，不另设固定轮询周期。
+        "dilation",
     )
 
     /** 连续型（原版自动购买器等价物）索引上限：0..3。R77 起不再豁免，仅保留诊断用。 */

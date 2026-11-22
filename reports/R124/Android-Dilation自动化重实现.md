@@ -5,12 +5,13 @@
 Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin 架构重新最小实现：
 
 - DS1 未购买时不动作。
-- TP 为 0 且 Dilation 未激活时，只有通过现有 `OrekiAutoEternityGate.allowed()` 才调用原版
-  `prestige/c.p(Z, ContinuationImpl)` 启动真实膨胀。
-- Dilation 激活后不设置安全阀；等待原版自动永恒完成真实结算并获得 TP。
-- TP 已获得但 Dilation 仍激活时，经同一永恒门禁调用原版退出 Dialog 使用的
-  `prestige/c.d(..., true,false,false,null,cont,14)`。
-- 已退出 Dilation 后，只通过 `eternity/dilation/b.b -> qw3.D(Z,rj0)` 购买 dtGain，
+- Dilation 未激活且 `OrekiAutoEternityGate.allowed()` 放行时，经同包 Smali 转发器
+  `OrekiDilationLaunch.start()` 构造原版 `Eternity$confirmDilatedEternity$4`
+  SuspendLambda，再交给 `MainActivity.launchOnGameScope`；不直接反射 suspend 入口。
+- Dilation 激活后不设置安全阀，也不另造 Continuation 直调退出；等待下一次原版普通
+  自动永恒完成真实 TP/DT 结算，并由原版语义退出 Dilation。
+- 已退出 Dilation 后，通过统一调度器 `dilation` 名额调用
+  `eternity/dilation/b.b -> qw3.D(Z,rj0)` 购买 dtGain，遵守玩家 1～60 秒配置节拍，
   由原版内部判断余额并扣除 `Currency.dilatedTime`。
 - 自动化总开关、原版自动购买器总开关、玩家手动关闭或 Doomed 时整体停手。
 
@@ -29,13 +30,13 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 | studies | `Player$Dilation.h()Ljava/util/List;` |
 | TP | `Player$Dilation.i()LBigDouble;` |
 | 本现实 maxDT | `Player$Records.l() -> Player$ThisReality.i()LBigDouble;` |
-| 启动 Dilation | `prestige.c.p(Z,Loreki/shadow/kotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;` |
-| 原版永恒 | `prestige.c.d(Lprestige/c;ZZZLjava/lang/Boolean;L...ContinuationImpl;I)Ljava/lang/Object;` |
+| 启动 lambda | `Eternity$confirmDilatedEternity$4` + `g.s(Lgm1;Z)` 游戏 scope |
 | dtGain 实例 | `eternity.dilation.b.b:Lqw3;` |
 | dtGain 等级 | `qw3.I()J` |
 | dtGain 真实购买 | `qw3.D(ZLrj0;)Ljava/lang/Boolean;` |
 
-运行时还会核对 `qw3.I()` 与 `Player$Dilation.g()[0]`，不一致即停止购买，避免混淆映射漂移后买错升级。
+dtGain 等级只从已锁定静态字段 `b` 的 `qw3.I()` 读取；不再用 Web 的 1 基
+`rebuyables` 索引解释 Android 数据。`b` 的字段类型仍严格核对为 `qw3`。
 
 ## 读取失败与数值 0
 
@@ -46,10 +47,10 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 
 ## 验证
 
-- `OrekiDilationPolicyTest`：6 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
-  未解锁、ABI 未知、TP 真零、门禁关闭、激活等待、退出和 dtGain 购买。
-- `python3 -m unittest scripts.tests.test_dilation_automation -v`：3/3 PASS。
-- `bash gradlew -p agp :app:testDebugUnitTest`：86/86 PASS，0 failure，0 error。
+- `OrekiDilationPolicyTest`：5 个策略用例 PASS，覆盖总开关、玩家关闭、Doomed、
+  未解锁、ABI 未知、TP 真零、门禁关闭、激活等待普通永恒退出和 dtGain 购买条件。
+- Python Dilation/V 定向测试：6/6 PASS。
+- `bash gradlew -p agp :app:testDebugUnitTest`：85/85 PASS，0 failure，0 error。
 - `python3 scripts/check_automation_scheduler.py`：173/173 PASS。
 - `javap` 已核对上表描述符。
 - AGP 9.5.1 R8 OFF 完整游戏 APK 构建 PASS；`apkanalyzer` 确认
@@ -57,7 +58,7 @@ Android #103 不再作为生产候选。本实现基于最新 main 的 Kotlin �
 - 3.21 V 门槛已同步到 Web 值：`w35` 构建字节码确认 `60 / 1e30 / 1e20000`，
   `xd4` 进度分母确认 `60.0 / 30.0 / 20000.0`；旧 `10000 / 320 / 320000` 已消失。
 - 最终完整游戏 APK SHA-256：
-  `321d12add49138a810af985357a7746485660e01b847a82d2940b41bb060af40`；
+  `0a12492fdea1279bb340cda4cb7f1f339e22677ad9cd7c7f933149e0f641efc1`；
   v3 签名，证书 SHA-256 `95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197`。
 
 ## 未运行

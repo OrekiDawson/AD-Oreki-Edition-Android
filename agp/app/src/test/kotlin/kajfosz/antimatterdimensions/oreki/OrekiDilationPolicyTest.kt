@@ -1,6 +1,8 @@
 package kajfosz.antimatterdimensions.oreki
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OrekiDilationPolicyTest {
@@ -12,7 +14,6 @@ class OrekiDilationPolicyTest {
         unlocked: Boolean? = true,
         active: Boolean? = false,
         tachyonKnown: Boolean = true,
-        tachyonPositive: Boolean = false,
         resetGateAllowed: Boolean = true,
     ): OrekiDilationAction = OrekiDilationPolicy.decide(
         automationEnabled = automationEnabled,
@@ -22,7 +23,6 @@ class OrekiDilationPolicyTest {
         unlocked = unlocked,
         active = active,
         tachyonKnown = tachyonKnown,
-        tachyonPositive = tachyonPositive,
         resetGateAllowed = resetGateAllowed,
     )
 
@@ -42,7 +42,7 @@ class OrekiDilationPolicyTest {
         assertEquals(OrekiDilationAction.WAIT_UNLOCKED, decide(unlocked = false))
         assertEquals(
             OrekiDilationAction.START,
-            decide(tachyonKnown = true, tachyonPositive = false, resetGateAllowed = true),
+            decide(tachyonKnown = true, resetGateAllowed = true),
         )
     }
 
@@ -50,43 +50,48 @@ class OrekiDilationPolicyTest {
     fun startsOnlyThroughTheEternityGate() {
         assertEquals(
             OrekiDilationAction.WAIT_GATE,
-            decide(active = false, tachyonPositive = false, resetGateAllowed = false),
+            decide(active = false, resetGateAllowed = false),
         )
         assertEquals(
             OrekiDilationAction.START,
-            decide(active = false, tachyonPositive = false, resetGateAllowed = true),
+            decide(active = false, resetGateAllowed = true),
         )
     }
 
     @Test
-    fun waitsForTachyonRewardWhileActiveAndNeverUsesSafetyExit() {
+    fun waitsForTheOriginalEternityToExitDilationAndNeverUsesSafetyExit() {
         assertEquals(
-            OrekiDilationAction.WAIT_TP,
-            decide(active = true, tachyonPositive = false, resetGateAllowed = true),
+            OrekiDilationAction.WAIT_ACTIVE_ETERNITY,
+            decide(active = true, resetGateAllowed = true),
         )
         assertEquals(
-            OrekiDilationAction.WAIT_TP,
-            decide(active = true, tachyonPositive = false, resetGateAllowed = false),
-        )
-    }
-
-    @Test
-    fun exitsOnlyAfterTpAndOnlyWhenGateAllows() {
-        assertEquals(
-            OrekiDilationAction.WAIT_GATE,
-            decide(active = true, tachyonPositive = true, resetGateAllowed = false),
-        )
-        assertEquals(
-            OrekiDilationAction.EXIT,
-            decide(active = true, tachyonPositive = true, resetGateAllowed = true),
+            OrekiDilationAction.WAIT_ACTIVE_ETERNITY,
+            decide(active = true, resetGateAllowed = false),
         )
     }
 
     @Test
-    fun buysDtGainAfterTachyonSeededAndDilationExited() {
-        assertEquals(
-            OrekiDilationAction.BUY_DT_GAIN,
-            decide(active = false, tachyonPositive = true, resetGateAllowed = false),
+    fun buysDtGainOnlyAfterTachyonSeededAndDilationExited() {
+        fun canBuy(
+            unlocked: Boolean? = true,
+            active: Boolean? = false,
+            tachyonKnown: Boolean = true,
+            tachyonPositive: Boolean = true,
+        ) = OrekiDilationPolicy.shouldBuyDtGain(
+            automationEnabled = true,
+            autobuyersOn = true,
+            userClosedByPlayer = false,
+            doomed = false,
+            unlocked = unlocked,
+            active = active,
+            tachyonKnown = tachyonKnown,
+            tachyonPositive = tachyonPositive,
         )
+
+        assertTrue(canBuy())
+        assertFalse(canBuy(unlocked = null))
+        assertFalse(canBuy(active = null))
+        assertFalse(canBuy(tachyonKnown = false))
+        assertFalse(canBuy(tachyonPositive = false))
     }
 }

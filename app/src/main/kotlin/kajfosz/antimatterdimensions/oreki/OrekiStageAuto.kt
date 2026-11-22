@@ -590,6 +590,9 @@ object OrekiStageAuto {
                     // 收益策略 / 同帧大坍缩互斥，全部满足才驱动原版永恒入口。
                     tickEternityGated()
 
+                    // dtGain 是 MOD 主动购买，必须占用统一调度器名额和玩家配置的 1～60 秒节拍。
+                    runScheduled("dilation") { OrekiDilationAutomation.tickPurchase() }
+
                     // [R107-01 RU-AUTO] 现实升级自动购买：Web 顺序是「先买 RU，再浇注/现实」
                     // （oreki-celestial-automation.js:664-673）。放在 OrekiReality 之前，
                     // 让 RM 先用于 RU；realities==0 时 tick() 内部直接 false（bootstrap 不变）。
@@ -3368,7 +3371,8 @@ object OrekiStageAuto {
         try {
             // Dilation 的启动本身是原版永恒重置。必须在普通自动永恒之前决策，
             // 避免普通永恒抢先完成并改变门禁；若本轮已发起 Dilation 重置，同帧让路。
-            if (OrekiDilationAutomation.tick()) return
+            // 退出 Dilation 不单独直调 suspend 入口：下一次普通自动永恒会按原版语义退出。
+            if (OrekiDilationAutomation.tickStart()) return
             val reason = eternityGateReason()
             val now = android.os.SystemClock.elapsedRealtime()
             if (crunchSkipFrames > 0) crunchSkipFrames--
