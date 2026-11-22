@@ -30,6 +30,14 @@ internal enum class OrekiDilationAction {
     START,
 }
 
+internal data class OrekiDilationLaunchObservation(
+    val tachyonLog10: Double?,
+    val maxDilatedTimeLog10: Double?,
+    val dtGainLevel: Long?,
+    val eternitiesToken: String?,
+    val eternityPointsToken: String?,
+)
+
 internal object OrekiDilationPolicy {
     fun decide(
         automationEnabled: Boolean,
@@ -55,6 +63,27 @@ internal object OrekiDilationPolicy {
         if (active || launchPending) return OrekiDilationAction.WAIT_ACTIVE_ETERNITY
         return if (resetGateAllowed) OrekiDilationAction.START else OrekiDilationAction.WAIT_GATE
     }
+
+    /**
+     * 首次 TP 播种只要求原版永恒门禁；TP 已存在时，再次膨胀前必须先获得
+     * 至少与当前 EP 同等的未膨胀成长，避免反复截断 EP 成长窗口。
+     */
+    fun reentryAllowed(
+        tachyonPositive: Boolean,
+        canEternity: Boolean,
+        gainVsCurrentEp: Int?,
+    ): Boolean = canEternity &&
+        (!tachyonPositive || (gainVsCurrentEp != null && gainVsCurrentEp >= 0))
+
+    /**
+     * 启动结果可能在一个 500ms 采样间隔内完成；active 来不及观测时，
+     * 任一真实结算代际变化都证明原版永恒已经执行。
+     */
+    fun launchSettled(
+        observedActive: Boolean,
+        before: OrekiDilationLaunchObservation?,
+        after: OrekiDilationLaunchObservation,
+    ): Boolean = observedActive || (before != null && before != after)
 
     fun shouldBuyDtGain(
         automationEnabled: Boolean,
@@ -84,6 +113,8 @@ internal data class OrekiDilationSnapshot(
     val maxDilatedTimeLog10: Double?,
     val dtGainLevel: Long?,
     val tachyonLog10: Double?,
+    val eternitiesToken: String?,
+    val eternityPointsToken: String?,
 )
 
 internal object OrekiDilationApi {
@@ -206,6 +237,8 @@ internal object OrekiDilationApi {
             maxDilatedTimeLog10 = GameApi.log10BigDouble(maxDt),
             dtGainLevel = dtGainLevel,
             tachyonLog10 = GameApi.log10BigDouble(tachyon),
+            eternitiesToken = GameApi.eternitiesValue()?.toString(),
+            eternityPointsToken = GameApi.eternityPointsValue()?.toString(),
         )
     }
 
@@ -237,6 +270,7 @@ internal object OrekiDilationAutomation {
     private var lastResetAt = 0L
     private var lastRealityGeneration = Int.MIN_VALUE
     private var awaitingLaunchActive = false
+    private var awaitingLaunchObservation: OrekiDilationLaunchObservation? = null
     private var lastLogAt = 0L
     private var lastLogSignature = ""
     private var lastAction = "idle"
@@ -254,8 +288,31 @@ internal object OrekiDilationAutomation {
         if (generation == lastRealityGeneration) return
         lastRealityGeneration = generation
         awaitingLaunchActive = false
+        awaitingLaunchObservation = null
         lastResetAt = 0L
         lastAction = "reality-reset"
+    }
+
+    private fun observation(snapshot: OrekiDilationSnapshot): OrekiDilationLaunchObservation =
+        OrekiDilationLaunchObservation(
+            tachyonLog10 = snapshot.tachyonLog10,
+            maxDilatedTimeLog10 = snapshot.maxDilatedTimeLog10,
+            dtGainLevel = snapshot.dtGainLevel,
+            eternitiesToken = snapshot.eternitiesToken,
+            eternityPointsToken = snapshot.eternityPointsToken,
+        )
+
+    private fun reconcileLaunch(snapshot: OrekiDilationSnapshot) {
+        if (!awaitingLaunchActive) return
+        if (OrekiDilationPolicy.launchSettled(
+                observedActive = snapshot.active == true,
+                before = awaitingLaunchObservation,
+                after = observation(snapshot),
+            )
+        ) {
+            awaitingLaunchActive = false
+            awaitingLaunchObservation = null
+        }
     }
 
     /** 返回 true 仅表示本 tick 已通过游戏 scope 发起一次 Dilation 启动，调用方应跳过同帧普通永恒。 */
@@ -275,10 +332,19 @@ internal object OrekiDilationAutomation {
             logThrottled(now, "abi-missing", false)
             return false
         }
-        if (snapshot.active == true) awaitingLaunchActive = false
+        reconcileLaunch(snapshot)
 
+        val tachyonPositive = (snapshot.tachyonComparison ?: 0) > 0
         val resetAllowed = OrekiAutoEternityGate.allowed() &&
-            (lastResetAt == 0L || now - lastResetAt >= RESET_GAP_MS)
+            (lastResetAt == 0L || now - lastResetAt >= RESET_GAP_MS) &&
+            OrekiDilationPolicy.reentryAllowed(
+                tachyonPositive = tachyonPositive,
+                canEternity = GameApi.canEternity(),
+                gainVsCurrentEp = GameApi.compareBigDoubles(
+                    GameApi.gainedEternityPointsValue(),
+                    GameApi.eternityPointsValue(),
+                ),
+            )
         val action = OrekiDilationPolicy.decide(
             automationEnabled = OrekiAutomationScheduler.isEnabled(),
             autobuyersOn = GameApi.autobuyersOn(),
@@ -295,6 +361,7 @@ internal object OrekiDilationAutomation {
             OrekiDilationAction.START -> {
                 if (OrekiDilationApi.startDilatedEternity()) {
                     awaitingLaunchActive = true
+                    awaitingLaunchObservation = observation(snapshot)
                     lastResetAt = now
                     lastAction = "start"
                     true
@@ -341,9 +408,9 @@ internal object OrekiDilationAutomation {
     @JvmStatic
     fun tickPurchase(): Boolean {
         refreshRealityGeneration()
-        if (awaitingLaunchActive) return false
         val snapshot = OrekiDilationApi.snapshot() ?: return false
-        if (snapshot.active == true) awaitingLaunchActive = false
+        reconcileLaunch(snapshot)
+        if (awaitingLaunchActive) return false
         val shouldBuy = OrekiDilationPolicy.shouldBuyDtGain(
             automationEnabled = OrekiAutomationScheduler.isEnabled(),
             autobuyersOn = GameApi.autobuyersOn(),

@@ -34,8 +34,11 @@ class DilationAutomationTests(unittest.TestCase):
             'exactMethod(dilationLaunchClass, "startDilation")',
             'field(dilationUpgradesClass, "b", static = true, exactType = qw3Class)',
             "private var awaitingLaunchActive = false",
+            "private var awaitingLaunchObservation: OrekiDilationLaunchObservation? = null",
             "launchPending = awaitingLaunchActive",
-            "if (snapshot.active == true) awaitingLaunchActive = false",
+            "private fun reconcileLaunch(snapshot: OrekiDilationSnapshot)",
+            "OrekiDilationPolicy.reentryAllowed(",
+            "awaitingLaunchObservation = observation(snapshot)",
             "if (awaitingLaunchActive) return false",
         ):
             self.assertIn(expected, source)

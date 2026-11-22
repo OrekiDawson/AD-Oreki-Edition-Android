@@ -77,6 +77,65 @@ class OrekiDilationPolicyTest {
     }
 
     @Test
+    fun reentryWaitsForNormalEpGrowthAfterTachyonSeed() {
+        assertTrue(
+            OrekiDilationPolicy.reentryAllowed(
+                tachyonPositive = false,
+                canEternity = true,
+                gainVsCurrentEp = null,
+            ),
+        )
+        assertFalse(
+            OrekiDilationPolicy.reentryAllowed(
+                tachyonPositive = true,
+                canEternity = true,
+                gainVsCurrentEp = -1,
+            ),
+        )
+        assertFalse(
+            OrekiDilationPolicy.reentryAllowed(
+                tachyonPositive = true,
+                canEternity = true,
+                gainVsCurrentEp = null,
+            ),
+        )
+        assertTrue(
+            OrekiDilationPolicy.reentryAllowed(
+                tachyonPositive = true,
+                canEternity = true,
+                gainVsCurrentEp = 0,
+            ),
+        )
+        assertFalse(
+            OrekiDilationPolicy.reentryAllowed(
+                tachyonPositive = true,
+                canEternity = false,
+                gainVsCurrentEp = 1,
+            ),
+        )
+    }
+
+    @Test
+    fun launchLatchReleasesWhenFastSettlementChangesToken() {
+        val before = OrekiDilationLaunchObservation(
+            tachyonLog10 = null,
+            maxDilatedTimeLog10 = null,
+            dtGainLevel = 0,
+            eternitiesToken = "0e0",
+            eternityPointsToken = "0e0",
+        )
+        assertFalse(OrekiDilationPolicy.launchSettled(false, before, before))
+        assertTrue(
+            OrekiDilationPolicy.launchSettled(
+                observedActive = false,
+                before = before,
+                after = before.copy(eternitiesToken = "1e0"),
+            ),
+        )
+        assertTrue(OrekiDilationPolicy.launchSettled(true, before, before))
+    }
+
+    @Test
     fun waitsForTheOriginalEternityToExitDilationAndNeverUsesSafetyExit() {
         assertEquals(
             OrekiDilationAction.WAIT_ACTIVE_ETERNITY,
