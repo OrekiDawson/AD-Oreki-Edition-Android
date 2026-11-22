@@ -85,11 +85,46 @@ object OrekiGamePace {
         broken: Boolean?,
         hasReality: Boolean?,
         normalChallengeCurrent: Int? = null,
+        enteredEternityLayer: Boolean? = null,
     ): Double? = when {
         hasReality == null || hasInfinity == null || broken == null -> null
         hasReality -> POST_REALITY_SPEED
-        !hasInfinity || !broken -> DEFAULT_SPEED
-        else -> POST_BREAK_SPEED
+        !hasInfinity -> DEFAULT_SPEED
+        broken -> POST_BREAK_SPEED
+        // 原版永恒结算会清除 break，但玩家仍处于同一个 Break 后阶段。
+        // 只有可靠读取“尚未进入永恒层”时才回到首次 Break 前速度。
+        enteredEternityLayer == true -> POST_BREAK_SPEED
+        enteredEternityLayer == false -> DEFAULT_SPEED
+        else -> null
+    }
+
+    /**
+     * 读取“本存档已进入永恒层”的可靠证据。
+     *
+     * 不读取 3.21 新档会异常显示为 11 的 `Player.eternities`：
+     * EP、已购永恒升级或 bigEternities 任一为正即可证明已经发生过真实永恒。
+     * 任一关键读取失败返回 null，调用方必须保持原倍率，不猜测阶段。
+     */
+    @JvmStatic
+    fun enteredEternityLayerState(): Boolean? {
+        val points = GameApi.eternityPointsValue() ?: return null
+        val pointsCompare = GameApi.compareToDouble(points, 0.0) ?: return null
+        if (pointsCompare > 0) return true
+
+        val bits = GameApi.eternityUpgradeBitsValue() ?: return null
+        val bought = try {
+            GameApi.bitSetCardinality(bits)
+        } catch (_: Throwable) {
+            return null
+        }
+        if (bought > 0) return true
+
+        val big = GameApi.bigEternitiesValue()
+        return when (big) {
+            is Number -> big.toDouble() > 0.0
+            null -> null
+            else -> GameApi.compareToDouble(big, 0.0)?.let { it > 0 }
+        }
     }
 
     /**
@@ -104,11 +139,13 @@ object OrekiGamePace {
         if (!prefs.getBoolean(KEY_PACING_MANAGED, false)) return
         val realities = GameApi.realitiesValue() ?: return
         val versusZero = GameApi.compareToDouble(realities, 0.0) ?: return
+        val enteredEternity = if (versusZero > 0) true else enteredEternityLayerState()
         val target = stageTargetSpeed(
             GameApi.hasInfinity(),
             GameApi.isBroken(),
             versusZero > 0,
             GameApi.normalChallengeCurrent(),
+            enteredEternity,
         ) ?: return
         val actual = try {
             prefs.getFloat(SPEED_KEY, Float.NaN).toDouble()
@@ -122,7 +159,8 @@ object OrekiGamePace {
             "stage speed " + actual + " -> " + target +
                 " (infinity=" + GameApi.hasInfinity() +
                 ", break=" + GameApi.isBroken() +
-                ", reality=" + (versusZero > 0) + ")",
+                ", reality=" + (versusZero > 0) +
+                ", eternity=" + enteredEternity + ")",
         )
     }
 

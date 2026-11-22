@@ -17,6 +17,9 @@ OREKI_GATE ... mult=1800000.0
 - Break 前：`3000× → 500×`
 - Break 后、Reality 前：`1800× → 70×`
 - Reality 后：保持 `3000×`
+- 首次永恒后原版会清除 `break`，但玩家仍在 Break 后阶段；新增按 EP、已购永恒升级位图或
+  `bigEternities` 判断“已进入永恒层”，该状态保持 `70×`，不因 `break=false` 回到 `500×`。
+  新档常见的 `Player.eternities=11` 异常读数不参与该判断。
 - 删除 C9 `1800000×` 特例；C9 继续由真实维度购买、提升与原版大坍缩结算推进。
 - C9 已改为全程 `BUY_SINGLE`；本轮新档在约 65 分钟后反物质、IP 和无限次数完全停滞，
   根因是维护链仍调用原版 `upgradeBulk`。该入口在单买模式没有任何购买收益，却按真实价格扣除
@@ -34,8 +37,10 @@ OREKI_GATE ... mult=1800000.0
 ## 验证
 
 - `test_speed_bound_policy.py`：7/7 PASS。
-- 更新后 `test_speed_bound_policy.py`：8/8 PASS，其中新增 Java 转换器默认值与 Kotlin
+- 更新后 `test_speed_bound_policy.py`：9/9 PASS，其中新增 Java 转换器默认值与 Kotlin
   `OrekiGamePace.DEFAULT_SPEED` 的一致性校验，防止两处常量再次漂移。
+- `OrekiGamePaceTest` 强制 rerun：3/3 PASS，覆盖首次 Break 前、Break 后、首次永恒后
+  `break=false` 仍保持 `70×`、Reality 后 `3000×` 以及永恒层不可读时不写入。
 - `test_ci_migration.py`：11/11 PASS；`compileSdk` 契约改为同时校验
   `orekiCompileSdk = 37` 和 `compileSdk = orekiCompileSdk`，保留 AGP `bootClasspath`
   延迟解析能力。

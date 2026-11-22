@@ -47,6 +47,19 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertNotIn("normalChallengeCurrent == 9 ->", source)
         self.assertIn("putBoolean(KEY_PACING_MANAGED, true)", source)
 
+    def test_eternity_layer_keeps_post_break_speed(self):
+        source = (
+            ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn("enteredEternityLayer: Boolean? = null", source)
+        self.assertIn("enteredEternityLayer == true -> POST_BREAK_SPEED", source)
+        self.assertIn("enteredEternityLayer == false -> DEFAULT_SPEED", source)
+        self.assertIn("enteredEternityLayerState()", source)
+        self.assertIn("GameApi.eternityPointsValue()", source)
+        self.assertIn("GameApi.eternityUpgradeBitsValue()", source)
+        self.assertIn("GameApi.bigEternitiesValue()", source)
+        self.assertNotIn("!hasInfinity || !broken -> DEFAULT_SPEED", source)
+
     def test_historical_overlimit_stays_manual(self):
         source = (
             ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
