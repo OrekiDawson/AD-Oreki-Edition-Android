@@ -3153,8 +3153,25 @@ internal object GameApi {
         return mBitSetA
     }
 
+    /**
+     * 读取位图基数，并保留“方法不可用/调用失败”与真实 0 的差异。
+     *
+     * 阶段倍率等 fail-closed 决策必须使用本入口；旧 [bitSetCardinality] 仅为
+     * 既有调用方保持兼容。
+     */
+    fun bitSetCardinalityOrNull(bits: Any?): Int? {
+        val method = mBitSetA() ?: return null
+        if (bits == null) return null
+        return try {
+            method.invoke(bits) as? Int
+        } catch (e: Throwable) {
+            miss("invoke ${method.name}", e)
+            null
+        }
+    }
+
     /** Break 升级位图基数（0 = 还没买过任何 Break 升级）。 */
-    fun bitSetCardinality(bits: Any?): Int = (call(mBitSetA(), bits) as? Int) ?: 0
+    fun bitSetCardinality(bits: Any?): Int = bitSetCardinalityOrNull(bits) ?: 0
 
     private var mBitSetE: Method? = null
     private var mBitSetEResolved: Boolean = false

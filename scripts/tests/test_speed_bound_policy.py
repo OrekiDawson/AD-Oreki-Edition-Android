@@ -58,7 +58,15 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("GameApi.eternityPointsValue()", source)
         self.assertIn("GameApi.eternityUpgradeBitsValue()", source)
         self.assertIn("GameApi.bigEternitiesValue()", source)
+        self.assertIn("GameApi.bitSetCardinalityOrNull(bits) ?: return null", source)
         self.assertNotIn("!hasInfinity || !broken -> DEFAULT_SPEED", source)
+
+        gameapi = (
+            ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/GameApi.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn("fun bitSetCardinalityOrNull(bits: Any?): Int?", gameapi)
+        self.assertIn("method.invoke(bits) as? Int", gameapi)
+        self.assertIn("bitSetCardinalityOrNull(bits) ?: 0", gameapi)
 
     def test_historical_overlimit_stays_manual(self):
         source = (

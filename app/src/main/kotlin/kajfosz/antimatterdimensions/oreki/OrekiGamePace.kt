@@ -112,11 +112,7 @@ object OrekiGamePace {
         if (pointsCompare > 0) return true
 
         val bits = GameApi.eternityUpgradeBitsValue() ?: return null
-        val bought = try {
-            GameApi.bitSetCardinality(bits)
-        } catch (_: Throwable) {
-            return null
-        }
+        val bought = GameApi.bitSetCardinalityOrNull(bits) ?: return null
         if (bought > 0) return true
 
         val big = GameApi.bigEternitiesValue()
