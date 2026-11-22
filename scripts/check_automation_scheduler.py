@@ -422,7 +422,26 @@ check("调度器提供 actedThisFrame 且每帧重置",
       "fun actedThisFrame(taskId: String)" in sched
       and "frameActedTask = null" in sched and "frameActedTask = taskId" in sched)
 
-_c9_start = stage.find("val normalChallengeCurrent = GameApi.normalChallengeCurrent()")
+_normal_challenge_authority = read(KT_DIR / "OrekiManagedAutobuyerAuthority.kt")
+_normal_challenge_gameapi = read(KT_DIR / "GameApi.kt")
+check("普通挑战达原版目标后优先请求真实大坍缩结算",
+      "shouldSettleNormalChallengeGoal(" in stage
+      and "GameApi::normalChallengeGoalReached" in stage
+      and "fun normalChallengeGoalReached(id: Int): Boolean?" in
+      _normal_challenge_gameapi
+      and "goalReached == true" in _normal_challenge_authority
+      and "canBigCrunch == true" in _normal_challenge_authority)
+check("C11 原版物质湮灭弹窗限频并只点击正向确认",
+      "shouldDismissMatterAnnihilationDialog(" in stage
+      and "GameApi.dismissMatterAnnihilationDialogIfPresent()" in stage
+      and "normalChallengeCurrent == 11" in _normal_challenge_authority
+      and "nowForMatterDialog - lastMatterAnnihilationDialogAtMs >= 1000L" in stage
+      and "android.R.id.button1" in _normal_challenge_gameapi
+      and 'getField("c0")' in _normal_challenge_gameapi
+      and 'getField("O0")' in _normal_challenge_gameapi
+      and "0x7f0a05d3" in _normal_challenge_gameapi)
+
+_c9_start = stage.find("val c9JustEnded =")
 _c9_block = stage[_c9_start:stage.find("return", _c9_start)]
 check("C9 保留专用受管配置与真实提升维护",
       "applyC9ManagedAutobuyerStates()" in _c9_block
