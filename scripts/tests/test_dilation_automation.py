@@ -42,6 +42,8 @@ class DilationAutomationTests(unittest.TestCase):
             "OrekiDilationPolicy.reentryAllowed(",
             "OrekiDilationPolicy.launchTimedOut(",
             "OrekiDilationStudies.isBought(1)",
+            "OrekiDilationPolicy.unlockedFromStudies(",
+            'noArg(DILATION, "h")',
             "OrekiDilationApi.activeOrNull() == true",
             "awaitingLaunchObservation = observation(snapshot)",
             "if (awaitingLaunchActive) return false",
