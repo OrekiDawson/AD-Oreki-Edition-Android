@@ -44,6 +44,15 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("const val POST_REALITY_SPEED: Double = 3000.0", source)
         self.assertNotIn("C9_SPEED", source)
         self.assertNotIn("normalChallengeCurrent == 9 ->", source)
+        self.assertIn("putBoolean(KEY_PACING_MANAGED, true)", source)
+
+    def test_historical_overlimit_stays_manual(self):
+        source = (
+            ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn("stored.toDouble() > MAX_SPEED", source)
+        self.assertIn("setSpeed(MAX_SPEED)", source)
+        self.assertIn("value.isFinite() && value > 0f", source)
 
     def test_speed_ui_explains_current_bound_and_default(self):
         settings = SETTINGS.read_text(encoding="utf-8")
@@ -56,6 +65,7 @@ class SpeedBoundPolicyTests(unittest.TestCase):
     def test_agp_game_jar_transformer_owns_speed_abi(self):
         transformer = TRANSFORMER.read_text(encoding="utf-8")
         apply_policy = APPLY_POLICY.read_text(encoding="utf-8")
+        gradle = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
         self.assertIn("OrekiSpeedPolicy", transformer)
         self.assertIn('methodName.equals("mult")', transformer)
         self.assertIn('methodName.equals("set")', transformer)
@@ -63,6 +73,8 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn('"speedInputGate"', transformer)
         self.assertIn('"kajfosz/antimatterdimensions/OrekiSpeed.class"', apply_policy)
         self.assertIn("--android-jar", apply_policy)
+        self.assertIn("androidComponents.sdkComponents.sdkDirectory", gradle)
+        self.assertIn("doFirst {", gradle)
 
 
 if __name__ == "__main__":

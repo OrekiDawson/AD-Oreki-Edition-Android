@@ -1058,15 +1058,7 @@ val fullGameStage = orekiRepoPath(
 val gameJar = providers.gradleProperty("orekiGameJar").map { File(it) }.orNull
 val storePolicyGameJar = File(repoRoot, "build/agp-store-policy/game-hybrid-sig-store-policy.jar")
 val storePolicyReport = File(repoRoot, "build/agp-store-policy/report.json")
-val transformerSdkRoot = File(System.getenv("ANDROID_HOME") ?: "/opt/android-sdk")
-val transformerAndroidJar = File(transformerSdkRoot, "platforms")
-    .listFiles()
-    ?.filter { it.isDirectory }
-    ?.map { File(it, "android.jar") }
-    ?.filter { it.isFile }
-    ?.sortedBy { it.parentFile.name }
-    ?.lastOrNull()
-    ?: throw GradleException("找不到用于 ASM 帧计算的 android.jar")
+val transformerSdkDirectory = androidComponents.sdkComponents.sdkDirectory
 
 // R121-01：商店/广告业务判据在 Kotlin；这里只对已转换游戏 JAR 的两个原版
 // ABI 出口做最小替换，存档字段、构造器、copy/component 与序列化保持原样。
@@ -1092,16 +1084,26 @@ val applyStorePolicy = tasks.register<Exec>("applyStorePolicy") {
     outputs.file(storePolicyGameJar)
     outputs.file(storePolicyReport)
     workingDir = repoRoot
-    commandLine(
-        "python3",
-        script.absolutePath,
-        "--game-jar", inputJar?.absolutePath ?: "",
-        "--out-jar", storePolicyGameJar.absolutePath,
-        "--report", storePolicyReport.absolutePath,
-        "--asm-jar", asmJar.absolutePath,
-        "--android-jar", transformerAndroidJar.absolutePath,
-        "--java-home", System.getProperty("java.home"),
-    )
+    doFirst {
+        val transformerAndroidJar = File(transformerSdkDirectory.get().asFile, "platforms")
+            .listFiles()
+            ?.filter { it.isDirectory }
+            ?.map { File(it, "android.jar") }
+            ?.filter { it.isFile }
+            ?.sortedBy { it.parentFile.name }
+            ?.lastOrNull()
+            ?: throw GradleException("无法从 AGP 解析的 SDK 中找到用于 ASM 帧计算的 android.jar")
+        commandLine(
+            "python3",
+            script.absolutePath,
+            "--game-jar", inputJar?.absolutePath ?: "",
+            "--out-jar", storePolicyGameJar.absolutePath,
+            "--report", storePolicyReport.absolutePath,
+            "--asm-jar", asmJar.absolutePath,
+            "--android-jar", transformerAndroidJar.absolutePath,
+            "--java-home", System.getProperty("java.home"),
+        )
+    }
 }
 
 // [R114-02] 生产 Kotlin 生成输入显式化（Issue #61 阶段 S2 / Issue #52 去 Python）：

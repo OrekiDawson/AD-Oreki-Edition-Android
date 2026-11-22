@@ -38,15 +38,18 @@ object OrekiGamePace {
             Log.w("OREKI_PACE", "stored speed has invalid type; restoring default")
             Float.NaN
         }
-        if (isValidStoredSpeed(stored)) return
+        if (isValidStoredSpeed(stored)) {
+            if (stored.toDouble() > MAX_SPEED) setSpeed(MAX_SPEED)
+            return
+        }
         prefs.edit().putBoolean(KEY_PACING_MANAGED, true).apply()
         setManagedSpeed(defaultSpeed())
     }
 
-    /** 仅接受当前公开范围；历史超限、缺失、错误类型及非正值都由启动路径安全回退。 */
+    /** 仅接受有限正倍率；历史超限值由运行时收窄，缺失、错误类型及非正值安全回退。 */
     @JvmStatic
     fun isValidStoredSpeed(value: Float): Boolean =
-        value.isFinite() && value > 0f && value <= MAX_SPEED.toFloat()
+        value.isFinite() && value > 0f
 
     @JvmStatic
     fun resetDefault(context: Context?) {
@@ -54,7 +57,7 @@ object OrekiGamePace {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .edit()
                 .putBoolean("speed_default_reset_seen", true)
-                .putBoolean(KEY_PACING_MANAGED, false)
+                .putBoolean(KEY_PACING_MANAGED, true)
                 .apply()
         }
         setSpeed(defaultSpeed())

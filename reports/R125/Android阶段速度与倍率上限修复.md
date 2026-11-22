@@ -29,7 +29,7 @@ OREKI_GATE ... mult=1800000.0
 
 ## 验证
 
-- `test_speed_bound_policy.py`：6/6 PASS。
+- `test_speed_bound_policy.py`：7/7 PASS。
 - Smali wide-register 检查：3 个文件 PASS。
 - `generateKotlinBindings compileKotlinClasses`：`BUILD SUCCESSFUL`。
 - `StorePolicyTransformer` 实际输出目标报告包含
@@ -37,8 +37,10 @@ OREKI_GATE ... mult=1800000.0
   `OrekiSpeed.class#set(D)Z -> speedInputGate`。
 - 最终 APK DEX 反查确认同一 `classes.dex` 中存在
   `OrekiSpeedPolicy.sanitize(D)D` 与 `OrekiSpeedPolicy.isValidInput(D)Z` 的调用。
-- R8 OFF Release APK：`81,663,655 B`，SHA-256
-  `e06d32b043eb148ad92d4ecd37ffd575df053ec9ccd80d8b7ac1474c4e84531f`，
+- `OrekiGamePaceTest` AGP JVM 定向测试：BUILD SUCCESSFUL。
+- 恢复默认重新启用阶段托管；历史超限手动倍率保留手动归属并仅收窄到 `100000×`。
+- R8 OFF Release APK：`81,663,663 B`，SHA-256
+  `1cae9d648d07f7aa062ae1e3a5ce2232c53ff43f6e88981d2e622ae06437b5a8`，
   原证书 V3 验签 PASS。
 
 ## 尚未完成
