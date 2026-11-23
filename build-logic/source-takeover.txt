@@ -1013,6 +1013,7 @@ kajfosz/antimatterdimensions/OrekiEcContinuation.class
 kajfosz/antimatterdimensions/OrekiSpeed.class
 kajfosz/antimatterdimensions/oreki/OrekiAchAudit.class
 kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.class
+kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class
 kajfosz/antimatterdimensions/oreki/OrekiReality.class
 kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.class
 kajfosz/antimatterdimensions/oreki/OrekiStrategyData.class

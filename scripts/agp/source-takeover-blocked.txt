@@ -180,7 +180,6 @@ xe0.class | Lxe0; | dependency ju2.class has default method in classfile version
 l69.class | Ll69; | JADX omitted constructor initialization for final field a
 kajfosz/antimatterdimensions/OrekiChallengeAuto.class | Lkajfosz/antimatterdimensions/OrekiChallengeAuto; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/oreki/OrekiEternity.class | Lkajfosz/antimatterdimensions/oreki/OrekiEternity; | JADX source references default-package classes not accessible from a named Java/Kotlin package
-kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class | Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord; | JADX source references nested Player record classes that are not compiler-visible
 kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.class | Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.class | Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto; | JADX source references nested Player celestial classes that are not compiler-visible
 kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class | Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle; | JADX source references default-package classes not accessible from a named Java/Kotlin package

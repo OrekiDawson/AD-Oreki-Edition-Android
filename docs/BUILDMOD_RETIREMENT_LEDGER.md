@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1025` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1027` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -21,8 +21,8 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`153ded098d2db4c53a89cfca89e031e947f736991dd92a6cce5873f07582cc2b`
-  （93,605,335 B）；单测 96/96、Python 328/328、1025/1025 ABI/DEX PASS。
+- 当前 FullGame Debug APK：`048f8b03aa0b86306ee62e79f27a18d675f09ec47f5183ca9be2253e58f34503`
+  （93,604,895 B）；单测 96/96、Python 328/328、1027/1027 ABI/DEX PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
   获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
@@ -40,7 +40,9 @@
   StorePolicy transformer 不再改写这三类；`migrateBest` 由 build-logic ASM 单方法适配恢复
   `(Lku4;)V` ABI。AVD 实测设置页可从 `×70` 保存为 `×100`，重开仍为 `×100`，再恢复默认为
   `×500`，进程无 FATAL/缺失类。
-- 当前 `scripts/payload/smali` 剩余 `8` 个文件；生产 Smali 清零目标仍未完成。
+- `OrekiPelleRecord` 直接按原版 `Player.p().d().h()` 记录链单调写入峰值副本，
+  保留数量级节流日志与异常吞掉边界，不修改解锁或结算字段。
+- 当前 `scripts/payload/smali` 剩余 `6` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 
