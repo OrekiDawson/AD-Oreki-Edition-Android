@@ -42,7 +42,7 @@
   `×500`，进程无 FATAL/缺失类。
 - `OrekiPelleRecord` 直接按原版 `Player.p().d().h()` 记录链单调写入峰值副本，
   保留数量级节流日志与异常吞掉边界，不修改解锁或结算字段。
-- 当前 `scripts/payload/smali` 剩余 `6` 个文件；生产 Smali 清零目标仍未完成。
+- 当前 `scripts/payload/smali` 剩余 `7` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 
