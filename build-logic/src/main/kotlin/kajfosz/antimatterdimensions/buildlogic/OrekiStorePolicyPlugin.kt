@@ -496,12 +496,13 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     val adaptSourceAbi = project.tasks.registerAction(
                         "adaptSourceAbi${variant}",
                     ) {
-                        description = "适配 Java 语言无法直接表达的默认包 ABI 描述符"
+                        description = "适配 Java 语言无法直接表达的默认包 ABI 描述符与 JVM 名称"
                         data class AbiAdaptation(
                             val classPath: String,
                             val method: String,
                             val from: String,
                             val to: String,
+                            val targetMethod: String = method,
                         )
                         val classesRoot = compileTask.destinationDirectory.asFile.get()
                         val adaptationSpecs = listOf(
@@ -516,6 +517,13 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                 "of",
                                 "(Ljava/lang/Object;)Ljava/lang/String;",
                                 "(Lyn4;)Ljava/lang/String;",
+                            ),
+                            AbiAdaptation(
+                                "le3.class",
+                                "mo8getUnderlyingMatrixsQKQjiQ",
+                                "()[F",
+                                "()[F",
+                                "getUnderlyingMatrix-sQKQjiQ",
                             ),
                         )
                         outputs.file(File(
@@ -568,7 +576,11 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                                 }
                                             return super.visitMethod(
                                                 access,
-                                                name,
+                                                if (name == spec.method) {
+                                                    spec.targetMethod
+                                                } else {
+                                                    name
+                                                },
                                                 adaptedDescriptor,
                                                 signature,
                                                 exceptions,
@@ -585,12 +597,14 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                 }
                                 classFile.writeBytes(writer.toByteArray())
                                 logger.lifecycle(
-                                    "[oreki] 默认包 ABI 适配完成: " +
-                                        "${classFile.name}.${spec.method}",
+                                    "[oreki] 默认包 ABI/JVM 名称适配完成: " +
+                                        "${classFile.name}.${spec.method}" +
+                                        " -> ${spec.targetMethod}",
                                 )
                                 linkedMapOf(
                                     "class" to classFile,
                                     "method" to spec.method,
+                                    "target_method" to spec.targetMethod,
                                     "from" to spec.from,
                                     "to" to spec.to,
                                 )

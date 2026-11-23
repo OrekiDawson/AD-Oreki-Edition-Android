@@ -1,25 +1,15 @@
 # 未进入本批 AGP 生产接管的候选；文件仅记录准确阻断，不参与构建。
 # entry | descriptor | reason
 me3.class | Lme3; | dependency androidx/compose/ui/focus/b.class has static method in classfile version 49
-ws5.class | Lws5; | dependency com/google/android/gms/internal/ads/m.class has default method in classfile version 49
 f35.class | Lf35; | dependency xq6.class contains malformed variable-arity method d(String)
-g94.class | Lg94; | JADX inferred kotlin.collections.EmptyList.a, compiler-visible field is unavailable
-dg3.class | Ldg3; | JADX emitted invalid nested reference Path$Direction.a
 tu2.class | Ltu2; | JADX inferred missing qv1.f
 gv2.class | Lgv2; | JADX inferred missing ov3.v
 mm4.class | Lmm4; | JADX inferred missing synthetic constructor ze1(p02,byte)
-lu2.class | Llu2; | JADX inferred missing iu2.a
 nk6.class | Lnk6; | JADX inferred missing gc7.b
 ro2.class | Lro2; | JADX inferred missing di0.b(int,int,int)
 jn3.class | Ljn3; | JADX inferred missing jw4.b
 kx5.class | Lkx5; | JADX inferred missing al2.m(String)
 as7.class | Las7; | JADX inferred missing js7()
-ju2.class | Lju2; | depends on blocked lu2.class
-l30.class | Ll30; | depends on blocked dg3.class
-le3.class | Lle3; | depends on blocked l30.class
-r21.class | Lr21; | depends on blocked dg3.class
-t72.class | Lt72; | depends on blocked g94.class
-do1.class | Ldo1; | depends on blocked t72.class
 su8.class | Lsu8; | depends on blocked ws5.class
 ao5.class | Lao5; | javac/classfile or inherited dependency failure; see class-javac-1.log
 c25.class | Lc25; | javac/classfile or inherited dependency failure; see class-javac-1.log
@@ -139,7 +129,6 @@ zl6.class | Lzl6; | javac/classfile or inherited dependency failure; see class-j
 ah0.class | Lah0; | JADX default constructor no longer matches original ch0(sc0,sc0,int|sc0,sc0,sc0,float[]) ABI
 h62.class | Lh62; | JADX default constructor no longer matches original b62() ABI
 kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
-xe0.class | Lxe0; | dependency ju2.class has default method in classfile version 49
 l69.class | Ll69; | JADX omitted constructor initialization for final field a
 a67.class | La67; | JADX field q47.v is synthetic and unavailable to javac; retain frozen JAR implementation
 aw.class | Law; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
@@ -315,6 +304,7 @@ qy5.class | Lqy5; | R126 blocked-ABI recovery broad import javac/classfile failu
 q65.class | Lq65; | ABI guard: JADX source omitted 17 original Android API methods; retain frozen JAR implementation
 u1.class | Lu1; | ABI guard: JADX source omitted 29 original Android API methods; retain frozen JAR implementation
 w4.class | Lw4; | ABI guard: JADX source omitted 30 original Android API methods; retain frozen JAR implementation
+ws5.class | Lws5; | dependency com/google/android/gms/internal/ads/m.class remains invalid version-49 classfile; retain frozen JAR implementation
 a75.class | La75; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 a9.class | La9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
 at3.class | Lat3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR

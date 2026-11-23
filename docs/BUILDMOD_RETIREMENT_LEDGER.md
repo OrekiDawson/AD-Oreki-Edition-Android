@@ -1131,3 +1131,31 @@ ABI 根因恢复后，原先记录为“依赖 blocked `to2/hg8/uz8`”的 8 个
 
 剩余 blocked 仍需按具体 classfile、synthetic、JADX 失真和大型 Android API
 shim 根因继续收敛，不能把本批视为全量迁移完成。
+
+### 13.13 根阻断恢复与 JVM 名称适配
+
+2026-11-24 继续按真实 ABI 恢复上一批传递阻断的根因类：
+
+- 接管 `g94/dg3/iu2/lu2/ju2/l30/le3/r21/t72/do1/xe0` 共 11 类。
+  `g94` 使用真实可用的 `oreki.shadow.kotlin.collections.EmptyList`，`dg3`
+  使用实际存在的 `Path.Direction.values()`；`lu2/iu2` 恢复 Modifier 接口与单例
+  闭包，其余传递阻断按已解除的依赖重新验证。
+- `ws5` 仍因依赖 `com.google.android.gms.internal.ads.m` 的 version-49
+  classfile 无法由 javac 读取，继续保留冻结 JAR 实现，不以空实现绕过。
+- `le3` 的 JADX 名称 `mo8getUnderlyingMatrixsQKQjiQ` 无法表达原版 Kotlin 值类
+  JVM 名称。扩展既有 ABI 后处理任务，在同一确定性 classfile 变换中将编译结果
+  恢复为 `getUnderlyingMatrix-sQKQjiQ()[F`，同时继续处理既有默认包泛型擦除描述符。
+- 生产接管总数由 `1602` 增至 **1613**，blocked 由 `392` 降至 **382**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1613/1613 PASS**；定向 Python 测试
+  30/30 PASS；`check_buildmod_retired.py` PASS。
+- 当前 FullGame Debug APK：
+  `6ca18c2326a9849d44c1755e8f9e9146adbb91e2041b8784997ec87fecc2abde`
+  （92,980,421 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1437 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批仍未完成剩余 382 项具体阻断；ARM64 真机、双向存档矩阵和 180 分钟五项游戏
+门禁继续为 `NOT RUN`。
