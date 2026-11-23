@@ -2,6 +2,14 @@
 
 > 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
 
+## 持续执行与有效验证（2026-11-23，长期强制）
+
+- **继承跨仓权威**：遵循 [Workspace AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的持续执行、短测收敛、Owner 避让和 Subagent 连续调度规则；以该规则实际合并进入 main 后的版本为准，不提前宣称未合并 PR 已生效。
+- **阶段完成不等于停工**：当前 Goal active、合法窗口且存在已授权、无冲突的安全工作时，完成一次修复、测试、PR 或报告后立即处理下一项；只在真实完成、用户暂停、峰时/预算/安全限制、资源或权限阻断等条件下安全收口。不为凑时长空转。
+- **测试假设驱动**：每轮定向测试记录候选 HEAD、输入、预期状态变化、实际证据和停止条件；同一代码/条件下不得反复做没有新增验证目标的相同短测，失败先定位根因。Android 的 Kotlin/DEX、定向测试与 AVD/真机验证须使用真实候选；95/95 静态或单元测试 PASS 不等于 AVD、PACING 或存档兼容 PASS。
+- **外部等待期间独立推进**：云端 GitHub 写入窗口、Kody/CI/审批等待期间，在其他规则允许的工作窗口继续不冲突的本地工作和证据整理；禁止抢占共享分支、AVD、签名或覆盖他人修改。及时报告真实进展，但报告不是停止信号。
+
+
 ## 0. 游戏优先与规则审查边界（2026-11-22）
 
 - 跨仓唯一调度顺序以 [Workspace `AGENTS.md` §0](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 为准：游戏合法性、`PACING`、真实 180 分钟终局、存档兼容及直接阻断 CI/运行故障优先于非阻断规则 PR。
