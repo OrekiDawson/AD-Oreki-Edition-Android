@@ -21,8 +21,8 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`048f8b03aa0b86306ee62e79f27a18d675f09ec47f5183ca9be2253e58f34503`
-  （93,604,895 B）；单测 96/96、Python 328/328、1027/1027 ABI/DEX PASS。
+- 当前 FullGame Debug APK：`b5572aaaf8b02148a55298c801a4e6dc400159e6c795aaa0b88cad7e57e0304d`
+  （93,604,259 B）；单测 96/96、Python 328/328、1027/1027 ABI/DEX PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
   获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
@@ -42,7 +42,9 @@
   `×500`，进程无 FATAL/缺失类。
 - `OrekiPelleRecord` 直接按原版 `Player.p().d().h()` 记录链单调写入峰值副本，
   保留数量级节流日志与异常吞掉边界，不修改解锁或结算字段。
-- 当前 `scripts/payload/smali` 剩余 `7` 个文件；生产 Smali 清零目标仍未完成。
+- `OrekiTeresaAuto` 继续只切换原版 `MainActivity.vp`，保留 20 个一次性 RU 门禁、
+  浇满释放、180 秒有界 hold 与错误吞掉语义，不自行计算浇注或扣 RM。
+- 当前 `scripts/payload/smali` 剩余 `6` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 

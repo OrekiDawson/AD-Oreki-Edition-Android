@@ -1017,6 +1017,7 @@ kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class
 kajfosz/antimatterdimensions/oreki/OrekiReality.class
 kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.class
 kajfosz/antimatterdimensions/oreki/OrekiStrategyData.class
+kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.class
 kajfosz/antimatterdimensions/oreki/SettingsClickListener.class
 kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class
 kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.class
