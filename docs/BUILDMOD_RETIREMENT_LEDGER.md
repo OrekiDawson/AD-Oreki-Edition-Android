@@ -21,8 +21,8 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`f0f31ce09f0aeaf3b2ba18fd88dae4064132ef78808f9ea75d0b8409adc19143`
-  （83,820,604 B）；Python 336/336、1033/1033 Classes/ABI/DEX PASS；
+- 当前 FullGame Debug APK：`17ee650546eb9c91be59306b4616d5fd83aa9edb15c4e310e5c9e392cb136b75`
+  （83,820,616 B）；Python 336/336、1033/1033 Classes/ABI/DEX PASS；
   `minifyReleaseWithR8` PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`

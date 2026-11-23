@@ -81,14 +81,14 @@ object OrekiSpeed {
         if (value <= 1.0) return 25L
         value = minOf(value, 8.0)
         val frame = 25.0 / value
-        return if (frame < 3.0) frame.toLong() else 3L
+        return if (frame < 3.0) 3L else frame.toLong()
     }
 
     @JvmStatic
     fun init(context: Context?) {
         if (loaded) return
-        loaded = true
         if (context == null) return
+        loaded = true
         this.context = context
         OrekiGamePace.applyDefaultIfUnset(context)
         StageAssist.init(context)
@@ -118,11 +118,12 @@ object OrekiSpeed {
             val time = record.javaClass.getField("a")
             val value = time.getDouble(record)
             if (value == Player.c || value <= 0.0) return
-            val previousMax = Player.a.R().j().f().a
+            val player = Player.a ?: return
+            val previousMax = player.R().j().f().a
             if (previousMax <= 0.0 || value > previousMax * mult() * 0.5) {
                 time.setDouble(record, unscale(value))
             }
-        } catch (_: ReflectiveOperationException) {
+        } catch (_: Exception) {
             // 记录对象形状不符时不写任何值，保持迁移标记已持久化的幂等语义。
         }
     }

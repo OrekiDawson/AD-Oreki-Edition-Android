@@ -97,6 +97,10 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             ).exists()
         )
         self.assertIn("Math.round(log * 100.0)", speed)
+        self.assertIn("if (frame < 3.0) 3L else frame.toLong()", speed)
+        self.assertIn("if (context == null) return\n        loaded = true", speed)
+        self.assertIn("val player = Player.a ?: return", speed)
+        self.assertIn("} catch (_: Exception) {", speed)
         self.assertIn(
             "if (stagnant < 4000L || now - lastAdjust < 5000L) return",
             speed,
