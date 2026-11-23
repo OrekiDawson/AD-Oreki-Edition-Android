@@ -72,6 +72,15 @@ THIRD_PARTY_DROP_PREFIXES = (
 KOTLIN_STDLIB_MISSING_PREFIX = "Lkotlin/"
 
 
+def expected_64bit_jni_paths(official_libs: set[str]) -> set[str]:
+    names = {
+        path.split("/", 2)[2]
+        for path in official_libs
+        if path.startswith("lib/") and path.count("/") >= 2 and path.endswith(".so")
+    }
+    return {f"lib/{abi}/{name}" for abi in EXPECTED_ABIS for name in names}
+
+
 class AuditError(RuntimeError):
     """输入或外部工具不可用，属于 cannot-check，不是 FAIL。"""
 
@@ -585,16 +594,13 @@ def build_checks(target: dict, official: dict, csv_info: dict, opts, reference: 
     abis_ok = set(target_abis) == set(EXPECTED_ABIS)
     required("native-abis", abis_ok, "恰好包含 " + ", ".join(EXPECTED_ABIS), ", ".join(target_abis),
              f"lib/ 下共 {len(inv['libs'])} 个条目")
-    # 正式 MOD 自 R126 起只支持 ARM64 与 x86_64；官方历史 32 位 split 不要求进入目标 APK。
-    # expected libs = XAPK 全部 APK 的 64 位 lib/** 并集（若提供），否则官方 base APK 的 64 位 lib/**。
+    # 正式 MOD 自 R126 起只支持 ARM64 与 x86_64。官方基线可能只提供 32 位文件名，
+    # 因此从官方全部 .so 取文件名，再要求同一文件名同时存在于两个 64 位 ABI。
     official_libs = set(official.get("expected_libs") or official["inventory"]["libs"])
-    expected_64bit_libs = {
-        path for path in official_libs
-        if path.startswith(("lib/arm64-v8a/", "lib/x86_64/"))
-    }
+    expected_64bit_libs = expected_64bit_jni_paths(official_libs)
     missing_libs = sorted(expected_64bit_libs - set(inv["libs"]))
-    required("native-libs-complete", not missing_libs,
-             f"官方基线 64 位 {len(expected_64bit_libs)} 个 .so 全部存在（来源：{official.get('expected_libs_source', '官方 base APK')}）",
+    required("native-libs-complete", bool(expected_64bit_libs) and not missing_libs,
+             f"官方 .so 文件名应覆盖 {len(expected_64bit_libs)} 个 64 位路径（来源：{official.get('expected_libs_source', '官方 base APK')}）",
              f"{len(expected_64bit_libs) - len(missing_libs)}/{len(expected_64bit_libs)}",
              f"缺失={missing_libs[:10]}", missing=missing_libs)
     official_assets = set(official["inventory"]["assets"])

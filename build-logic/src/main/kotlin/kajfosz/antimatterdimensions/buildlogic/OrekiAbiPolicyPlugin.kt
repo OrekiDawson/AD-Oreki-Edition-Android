@@ -13,22 +13,34 @@ internal class OrekiAbiPolicyPlugin : Plugin<Project> {
         project.afterEvaluate {
             for (variant in listOf("Debug", "Release")) {
                 val variantName = variant.lowercase()
-                val apk = File(
-                    config.rootDir,
-                    "app/build/outputs/apk/$variantName/app-$variantName.apk",
-                )
                 val evidence = File(
                     config.rootDir,
                     "build/abi-policy/verify-$variantName.json",
                 )
+                val packageTask = project.tasks.named("package$variant")
                 val verify = project.tasks.registerAction("verifyAndroidAbi${variant}") {
                     group = "verification"
                     description = "核验正式构建只包含 arm64-v8a 与 x86_64"
-                    dependsOn("package$variant")
-                    inputs.file(apk)
+                    dependsOn(packageTask)
+                    inputs.files(packageTask)
                     outputs.file(evidence)
                     doLastAction {
-                        if (!apk.isFile) throw GradleException("缺少 AGP 打包 APK: $apk")
+                        val apk = packageTask.get().outputs.files.files
+                            .flatMap { output ->
+                                when {
+                                    output.isFile && output.extension == "apk" -> listOf(output)
+                                    output.isDirectory -> output.walkTopDown()
+                                        .filter { it.isFile && it.extension == "apk" }
+                                        .toList()
+                                    else -> emptyList()
+                                }
+                            }
+                            .sortedBy { it.name }
+                            .firstOrNull()
+                            ?: throw GradleException(
+                                "缺少 AGP 打包 APK，package$variant 输出: " +
+                                    packageTask.get().outputs.files.files,
+                            )
                         val packagedAbis = ZipFile(apk).use { zip ->
                             zip.entries().asSequence()
                                 .map { it.name }

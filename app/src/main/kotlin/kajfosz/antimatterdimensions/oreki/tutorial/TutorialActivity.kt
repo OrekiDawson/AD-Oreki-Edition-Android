@@ -52,16 +52,6 @@ class TutorialActivity : Activity() {
         fontScale = getSharedPreferences("oreki_tutorial_prefs", MODE_PRIVATE)
             .getInt("font_scale", 1).coerceIn(0, 2)
         window.setDecorFitsSystemWindows(false)
-        // API 37 的 PhoneWindow.getInsetsController() 要求 DecorView 已创建；
-        // 先取 decorView，避免首次打开教程时在 onCreate 直接 NPE。
-        window.decorView.windowInsetsController?.apply {
-            // 深色教程页使用浅色系统图标；清空 light appearance 位。
-            setSystemBarsAppearance(
-                0,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-            )
-        }
         loadAsset()
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -86,7 +76,18 @@ class TutorialActivity : Activity() {
             buildChapterPicker()
             showChapter(initialChapter())
         } else addParagraph("教程正文暂时不可用，请稍后重试。")
-        root.post { fadeIn(root) }
+        root.post {
+            applySystemBarAppearance()
+            fadeIn(root)
+        }
+    }
+
+    private fun applySystemBarAppearance() {
+        window.decorView.windowInsetsController?.setSystemBarsAppearance(
+            0,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+        )
     }
 
     /** 保留教程 Activity 的既有监听 ABI，同时集中处理系统栏安全区。 */

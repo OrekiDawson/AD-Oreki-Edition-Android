@@ -52,7 +52,16 @@ class AndroidAbiPolicyTest(unittest.TestCase):
         self.assertIn('sortedSetOf("arm64-v8a", "x86_64")', plugin)
         self.assertIn('filter { it.startsWith("lib/") && it.endsWith(".so") }', plugin)
         self.assertIn("packaged32BitJniLibs", plugin)
+        self.assertIn("inputs.files(packageTask)", plugin)
+        self.assertIn('outputs.files.files', plugin)
         self.assertIn('tasks.matching { it.name == "assemble$variant" }', plugin)
+        store_policy = (
+            ROOT
+            / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/"
+            "buildlogic/OrekiStorePolicyPlugin.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn('project.tasks.named("compile${variant}Kotlin")', store_policy)
+        self.assertIn('inputs.files(kotlinCompileTask)', store_policy)
 
     def test_acceptance_script_expects_exact_64bit_set(self) -> None:
         module_path = ROOT / "scripts/tests/r107/accept_apk.py"
@@ -80,6 +89,28 @@ class AndroidAbiPolicyTest(unittest.TestCase):
                     if name.startswith("lib/") and name.endswith(".so")
                 }
             self.assertEqual(abis - SUPPORTED, {"armeabi-v7a"})
+
+    def test_acceptance_requires_same_jni_names_in_both_64bit_abis(self) -> None:
+        module_path = ROOT / "scripts/tests/r107/accept_apk.py"
+        spec = importlib.util.spec_from_file_location("accept_apk_expected_libs", module_path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        official = {
+            "lib/armeabi-v7a/libalpha.so",
+            "lib/armeabi-v7a/libbeta.so",
+            "lib/armeabi-v7a/not-a-library.dat",
+        }
+        self.assertEqual(
+            module.expected_64bit_jni_paths(official),
+            {
+                "lib/arm64-v8a/libalpha.so",
+                "lib/arm64-v8a/libbeta.so",
+                "lib/x86_64/libalpha.so",
+                "lib/x86_64/libbeta.so",
+            },
+        )
+        self.assertEqual(module.expected_64bit_jni_paths(set()), set())
 
 
 if __name__ == "__main__":

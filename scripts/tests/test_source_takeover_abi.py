@@ -64,6 +64,19 @@ class SourceTakeoverAbiTest(unittest.TestCase):
             ("Ljava/lang/Object;", "Ljava/lang/Enum;"),
         )
 
+    def test_static_final_is_not_part_of_jvm_linkage_abi(self):
+        original = self.parsed(
+            methods=[("tick", "()Z", 0x0009, None, None, None)],
+        )
+        compiled = self.parsed(
+            methods=[("tick", "()Z", 0x0019, None, None, None)],
+        )
+        self.assertTrue(ABI.compare_abi(original, compiled)["ok"])
+        compiled["methods"] = [
+            ("tick", "()Z", 0x0011, None, None, None),
+        ]
+        self.assertFalse(ABI.compare_abi(original, compiled)["ok"])
+
     def test_final_dex_must_define_every_manifest_descriptor(self):
         entries = ["a5.class", "kajfosz/antimatterdimensions/MainActivity.class"]
         complete = {

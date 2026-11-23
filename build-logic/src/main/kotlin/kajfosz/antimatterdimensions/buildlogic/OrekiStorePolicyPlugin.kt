@@ -478,20 +478,22 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         config.rootDir,
                         "build/agp-source-takeover/verify-${variant.lowercase()}.json",
                     )
+                    val kotlinCompileTask = project.tasks.named("compile${variant}Kotlin")
                     val verifyCompiled = project.tasks.registerAction(
                         "verifySourceTakeover${variant}Classes",
                     ) {
                         group = "verification"
                         description = "验证源码接管清单中的 class 确实由 AGP 编译产物提供"
-                        dependsOn(compileTask)
+                        dependsOn(compileTask, kotlinCompileTask)
                         inputs.file(config.sourceTakeoverManifest)
                         inputs.dir(compileTask.destinationDirectory)
+                        inputs.files(kotlinCompileTask)
                         outputs.file(evidence)
                         doLast {
-                            val roots = listOf(
-                                compileTask.destinationDirectory.asFile.get(),
-                                File(config.rootDir, "build/tmp/kotlin-classes/${variant.lowercase()}"),
-                            ).filter(File::isDirectory)
+                            val roots = (
+                                listOf(compileTask.destinationDirectory.asFile.get()) +
+                                    kotlinCompileTask.get().outputs.files.files
+                                ).filter(File::isDirectory)
                             val missing = config.sourceTakeoverEntries.filter { entry ->
                                 roots.none { root -> File(root, entry).isFile }
                             }
@@ -528,40 +530,44 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         config.rootDir,
                         "scripts/agp/verify_source_takeover_abi.py",
                     )
-                    val kotlinClasses = File(
-                        config.rootDir,
-                        "build/tmp/kotlin-classes/${variant.lowercase()}",
-                    )
                     val verifyAbi = project.tasks.registerTypedAction(
                         "verifySourceTakeover${variant}Abi",
                         Exec::class.java,
                     ) {
                         group = "verification"
                         description = "对比原版 JAR 与 AGP class 的方法/字段 ABI"
-                        dependsOn(compileTask)
+                        dependsOn(compileTask, kotlinCompileTask)
                         config.gameJar?.let { inputs.file(it) }
-                        inputs.files(config.sourceTakeoverManifest, abiScript)
+                        inputs.files(config.sourceTakeoverManifest, abiScript, kotlinCompileTask)
                         inputs.dir(compileTask.destinationDirectory)
-                        if (kotlinClasses.isDirectory) inputs.dir(kotlinClasses)
                         outputs.file(abiEvidence)
                         doFirstAction {
                             val input = config.gameJar
                                 ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                            val kotlinRoots = kotlinCompileTask.get().outputs.files.files
+                                .filter(File::isDirectory)
+                            if (kotlinRoots.isEmpty()) {
+                                throw GradleException("compile${variant}Kotlin 没有 class 输出目录")
+                            }
                             commandLine(
-                                "python3",
-                                abiScript.absolutePath,
-                                "--game-jar", input.absolutePath,
-                                "--classes-dir", compileTask.destinationDirectory.asFile.get().absolutePath,
-                                "--classes-dir", kotlinClasses.absolutePath,
-                                "--manifest", config.sourceTakeoverManifest.absolutePath,
-                                "--report", abiEvidence.absolutePath,
+                                listOf(
+                                    "python3",
+                                    abiScript.absolutePath,
+                                    "--game-jar", input.absolutePath,
+                                    "--classes-dir",
+                                    compileTask.destinationDirectory.asFile.get().absolutePath,
+                                ) +
+                                    kotlinRoots.flatMap {
+                                        listOf("--classes-dir", it.absolutePath)
+                                    } +
+                                    listOf(
+                                        "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                        "--report", abiEvidence.absolutePath,
+                                    ),
                             )
                         }
                     }
-                    val packagedApk = File(
-                        config.rootDir,
-                        "app/build/outputs/apk/${variant.lowercase()}/app-${variant.lowercase()}.apk",
-                    )
+                    val packageTask = project.tasks.named("package$variant")
                     val dexEvidence = File(
                         config.rootDir,
                         "build/agp-source-takeover/dex-${variant.lowercase()}.json",
@@ -572,13 +578,26 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     ) {
                         group = "verification"
                         description = "核验最终 APK DEX 包含全部源码接管 descriptor"
-                        dependsOn("package$variant")
-                        inputs.files(config.sourceTakeoverManifest, abiScript, packagedApk)
+                        dependsOn(packageTask)
+                        inputs.files(config.sourceTakeoverManifest, abiScript, packageTask)
                         outputs.file(dexEvidence)
                         doFirstAction {
-                            if (!packagedApk.isFile) {
-                                throw GradleException("缺少 AGP 打包 APK: $packagedApk")
-                            }
+                            val packagedApk = packageTask.get().outputs.files.files
+                                .flatMap { output ->
+                                    when {
+                                        output.isFile && output.extension == "apk" -> listOf(output)
+                                        output.isDirectory -> output.walkTopDown()
+                                            .filter { it.isFile && it.extension == "apk" }
+                                            .toList()
+                                        else -> emptyList()
+                                    }
+                                }
+                                .sortedBy { it.name }
+                                .firstOrNull()
+                                ?: throw GradleException(
+                                    "缺少 package$variant APK 输出: " +
+                                        packageTask.get().outputs.files.files,
+                                )
                             commandLine(
                                 "python3",
                                 abiScript.absolutePath,

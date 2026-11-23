@@ -29,8 +29,16 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             path.relative_to(java_root).with_suffix("").as_posix()
             for path in java_root.rglob("*.java")
         }
+        kotlin_root = ROOT / "app/src/main/kotlin"
+        kotlin_names = {
+            path.relative_to(kotlin_root).with_suffix("").as_posix()
+            for path in kotlin_root.rglob("*.kt")
+        }
         manifest_names = {entry.removesuffix(".class") for entry in entries}
-        self.assertEqual(java_names, manifest_names)
+        self.assertTrue(
+            manifest_names <= (java_names | kotlin_names),
+            sorted(manifest_names - (java_names | kotlin_names)),
+        )
 
     def test_root_interface_batch_keeps_exact_original_signatures(self):
         expected = {
@@ -57,12 +65,20 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         generated = entries - known
         interface_sources = 0
         empty_interfaces = 0
+        missing_sources = []
         for name in generated:
-            source = (ROOT / "app/src/main/java" / f"{name}.java").read_text(encoding="utf-8")
+            java_path = ROOT / "app/src/main/java" / f"{name}.java"
+            kotlin_path = ROOT / "app/src/main/kotlin" / f"{name}.kt"
+            source_path = java_path if java_path.is_file() else kotlin_path
+            if not source_path.is_file():
+                missing_sources.append(name)
+                continue
+            source = source_path.read_text(encoding="utf-8")
             if f"public interface {name}" in source:
                 interface_sources += 1
             if source == f"public interface {name} {{}}\n":
                 empty_interfaces += 1
+        self.assertEqual(missing_sources, [])
         self.assertGreaterEqual(interface_sources, 780)
         self.assertGreaterEqual(empty_interfaces, 170)
         blocked = (ROOT / "scripts/agp/source-takeover-blocked.txt").read_text(encoding="utf-8")
@@ -95,11 +111,9 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("verifySourceTakeover${variant}Abi", gradle)
         self.assertIn("verifySourceTakeover${variant}Dex", gradle)
         self.assertIn("verify_source_takeover_abi.py", gradle)
-        self.assertIn("kotlin-classes/${variant.lowercase()}", gradle)
-        self.assertIn(
-            'app/build/outputs/apk/${variant.lowercase()}/app-${variant.lowercase()}.apk',
-            gradle,
-        )
+        self.assertIn('project.tasks.named("compile${variant}Kotlin")', gradle)
+        self.assertIn("inputs.files(kotlinCompileTask)", gradle)
+        self.assertNotIn('"app-$variantName.apk"', gradle)
         app_gradle = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
         self.assertIn("sourceTakeoverJavaExcludes", app_gradle)
         self.assertIn('if (!fullGame && sourceTakeoverJavaExcludes.isNotEmpty())', app_gradle)

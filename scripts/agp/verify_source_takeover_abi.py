@@ -17,6 +17,7 @@ import classfile  # noqa: E402
 
 
 ACC_STATIC = 0x0008
+ACC_FINAL = 0x0010
 ACC_SYNTHETIC = 0x1000
 
 
@@ -29,6 +30,15 @@ def normalized_member(member: tuple) -> tuple[str, str, int]:
     return name, descriptor, access & ~ACC_SYNTHETIC
 
 
+def normalized_method(member: tuple) -> tuple[str, str, int]:
+    name, descriptor, access = normalized_member(member)
+    # Static methods cannot be overridden; ACC_FINAL has no dispatch or linkage
+    # effect and is emitted automatically by Kotlin's @JvmStatic bridge.
+    if access & ACC_STATIC:
+        access &= ~ACC_FINAL
+    return name, descriptor, access
+
+
 def normalized_access(parsed: dict) -> int:
     return parsed["access"] & ~ACC_SYNTHETIC
 
@@ -36,7 +46,7 @@ def normalized_access(parsed: dict) -> int:
 def signatures(
     parsed: dict,
 ) -> tuple[set[tuple[str, str, int]], set[tuple[str, str, int]]]:
-    methods = {normalized_member(method) for method in parsed["methods"]}
+    methods = {normalized_method(method) for method in parsed["methods"]}
     fields = {normalized_member(field) for field in parsed["fields"]}
     return methods, fields
 
