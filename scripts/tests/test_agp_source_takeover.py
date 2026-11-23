@@ -21,8 +21,33 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             for line in manifest.splitlines()
             if line.strip() and not line.lstrip().startswith("#")
         ]
-        self.assertEqual(entries, ["a5.class"])
+        self.assertEqual(
+            entries,
+            [
+                "a23.class",
+                "a28.class",
+                "a43.class",
+                "a47.class",
+                "a5.class",
+                "a57.class",
+                "a64.class",
+            ],
+        )
         self.assertEqual(len(entries), len(set(entries)))
+
+    def test_root_interface_batch_keeps_exact_original_signatures(self):
+        expected = {
+            "a23.java": "public interface a23 extends tr2",
+            "a28.java": "public interface a28",
+            "a43.java": "public interface a43",
+            "a47.java": "void M0(ec7 value);",
+            "a57.java": "public interface a57 extends IInterface",
+            "a64.java": "float a(float value);",
+        }
+        for name, signature in expected.items():
+            source = (ROOT / "app/src/main/java" / name).read_text(encoding="utf-8")
+            self.assertNotIn("package ", source)
+            self.assertIn(signature, source)
 
     def test_store_policy_excludes_and_fails_closed(self):
         python = (ROOT / "scripts/agp/apply_store_policy.py").read_text(encoding="utf-8")

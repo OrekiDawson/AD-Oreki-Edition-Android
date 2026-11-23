@@ -47,6 +47,33 @@ AVD 首次尝试使用临时 `.srccheck` applicationId 共存包时，资源表�
 该失败仅发生在非正式临时后缀，不计入候选运行结论；正式 `.debug` APK 使用保留的数据更新后正常启动。
 临时包已卸载，未触碰旧用户包或其他存档。
 
+### R126 第二批：无状态根接口闭包
+
+第二批迁移 6 个依赖清晰、没有实例状态或默认方法的原版接口：
+
+| descriptor | JAR entry | ABI |
+|---|---|---|
+| `La23;` | `a23.class` | extends `tr2`，无新增成员 |
+| `La28;` | `a28.class` | 空接口 |
+| `La43;` | `a43.class` | 空接口 |
+| `La47;` | `a47.class` | `M0(Lec7;)V` |
+| `La57;` | `a57.class` | extends `android.os.IInterface`；`zze()Ljava/lang/String;`、`zzf()Ljava/lang/String;` |
+| `La64;` | `a64.class` | `a(F)F` |
+
+这些接口均恢复为默认包 Java 过渡源码，并与首批 `a5.class` 共用同一 exclusion manifest
+和 store-policy fail-closed 校验。
+
+第二批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `4efbfaf3298ed0548c9e0d81333a366ab6df6576717b7c5ce0ff6eb3680bfb8e`；7 个源码接管 entry 全部移除 |
+| FullGame Debug APK | SHA-256 `2739fb486e1f8d695af659ee09d47c33448c8b1e60ae21f39f643e6aeb5aec03` |
+| ABI | 7 个 `javap` 签名与原版逐个一致；无 package、字段或编译器新增构造器 |
+| DEX | 从 APK 实际提取 `classes*.dex`，7 个 `L<name>;` descriptor 全部由 AGP 产物提供 |
+| Gradle | `verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` 全 PASS；96 项单测零失败 |
+| AVD 运行 | 本批为依赖首批 infrastructure 的 stacked 批次，当前 **NOT RUN**；最终合并候选安装后统一复验，不用旧 APK PASS 代替 |
+
 ## 0. 现状事实（脚本实测）
 
 | 项 | 值 |

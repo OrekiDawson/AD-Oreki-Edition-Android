@@ -1,3 +1,9 @@
 # 从冻结游戏 JAR 移除、改由 app/src/main Java/Kotlin 标准源码编译的 class 条目。
 # 每行必须精确对应 JAR entry；空行和 # 注释会被忽略。
+a23.class
+a28.class
+a43.class
+a47.class
 a5.class
+a57.class
+a64.class
