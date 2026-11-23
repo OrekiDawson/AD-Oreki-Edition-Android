@@ -1,80 +1,10 @@
 # Android MOD · Agent 长期规则
 
-## R126｜P0：仅支持 arm64-v8a / x86_64，x86_64 AVD 为日常测试机（2026-11-23，长期强制）
+> 章节按主题连续编号；跨仓共性规则以 Workspace 为权威。章节编号用于导航，不改变现有权限、预算、验收和发布门禁。
 
-- **支持矩阵正式变更**：Android MOD 正式生产仅支持 `arm64-v8a` 与 `x86_64`；取消 `armeabi-v7a`、`x86` 32 位 JNI/NDK 兼容。标准根级 `:app` AGP NDK ABI 过滤、`jniLibs`、实际 APK `lib/<abi>/`、CI/发行和文档必须一致，禁止发布后手工重包或以删除文件掩盖缺失的 ARM64 原生库。冻结基线、研究档案/DEX 与 Java/Kotlin 方法签名、反射和存档兼容不得为“去掉 ARMv7”误删。原版必要 JNI 必须真实取得对应 64 位实现后才能称 PASS。
-- **测试设备默认**：日常开发和大多数定向回归使用用户 **x86_64 Linux 电脑上的唯一 Android AVD**（目前目标 API 37），由 AVD Owner 独占；不要求每个普通 PR 都占用用户手机。用户 **Android 真机**（历史设备 Xiaomi 23113RKC6C / Android 16，以实时 ADB 验证为准）仅在可用且用户授权时**偶尔**进行 ARM64 安装、冷启动、原生库/性能、存档与设备差异抽样测试；不默认当成长期 CI 或自动调用设备。
-- **退役任务特殊验收**：需核查原版/生产 `.so` ABI 及必要 64 位替代、`adb shell getprop ro.product.cpu.abilist`，生产 APK 只含两种允许 ABI 的 JNI、无 32 位原生库，x86_64 AVD 安装/启动/Tick/存档 PASS。ARM64 真机证据必须单列 PASS/FAIL/NOT RUN；没测试不得冒充已验证，真机暂不可用不能阻断其他独立工作。Release/签名/Kody/CI/合法结算/存档门禁仍有效。
-- **与全量 Smali 迁移并列 P0**：同属当前 R126 的架构目标，资源和 Owner 避让，不重复全仓审计、不创建新 `/goal` 或 R 号；用户数据、真实玩家 P0、安全/预算优先。权威 Issue：[Android #285](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/285)、[#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47)。
+## 1. 总则与授权
 
-
-## R126｜最高架构 P0：单夜全量 Smali/DEX 生产依赖清零（2026-11-23，长期强制）
-
-- **最新用户授权覆盖旧试点节奏**：R126 目标为本次夜间执行窗口**一次性完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin**、切断 Smali 生产补丁/手工 DEX 注入、彻底退役 `scripts/build_mod.py` 与旧 APK 二次拼装。不再把“先做一个小闭包、未来多轮慢慢推进”当作任务终点；内部最小闭包增量编译/提交仍用于安全集成。此目标未完成前不得写 PASS。
-- **生产改动规则**：JADX 对受保护原版 XAPK/APK/DEX 一次全量反编译，仅输出研究性 Java 参考；REA/JADX/xref 辅助修复混淆、重载、反射、控制流与 ABI。原版**未实质修改**代码允许暂存 `app/src/main/java`；新增、修复或实质改动业务先迁 `app/src/main/kotlin`。同一 descriptor 仅一个生产实现，不允许把未修复的全量反编译目录直接塞进 Source Set，也不允许用空方法、伪逻辑或跳过功能冒充恢复。
-- **迁移即清理**：Lead 核查现有 R126 worktree/Owner/PR，Subagent 分离依赖闭包并行恢复；16GB 主机避免重复重型 JADX、并发 AVD/Release。每批经标准 AGP 编译和必要运行证明后，同批删除对应旧生产 Smali、`build_mod.py` 生产入口、手工 DEX/旧打包调用及无其他消费者的工具。保留冻结基线、存档、签名、研究证据与仍被共用的 SDK/JDK/AGP。
-- **唯一完成门禁**：`PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0`、`MANUAL_DEX_INJECTION_PATHS=0`、`BUILDMOD_PRODUCTION_DEPENDENCIES=0`、`LEGACY_APK_REPACK_PATHS=0`，且 `AGP_FULL_GAME_BUILD`、`GAME_STARTUP_AND_TICK`、`SAVE_COMPATIBILITY`、`REQUIRED_RUNTIME_CHECKS` 真实 PASS。保留资源/ABI、API37、签名、正式包名、Kody/CI/规则集与合法挑战结算；正式 Release 本轮最多一次。失败保留真实 descriptor/调用方/日志，写 BLOCKED/FAIL，不以删除文件制造假零残留。
-- **优先级边界**：与根级 AGP、构建链退役并列最高架构 P0；真实玩家 P0、ANR、存档损坏、安全/预算可以即时抢占。完成 Smali 生产依赖清零后集中性能优化。沿用 R126，不新 `/goal`、编号或计时。权威 Issue：[Android #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47) 和 [#20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。
-
-
-## P0 应用身份：oreki.net 对应的 Android applicationId（2026-11-23，长期强制）
-
-- **用户正式选定的身份**：Android MOD 正式 `applicationId = "net.oreki.antimatterdimensions"`，Debug 应用 `net.oreki.antimatterdimensions.debug`（AGP `applicationIdSuffix`）。这是**P0 架构与用户数据迁移任务**，与 Android #52（`build_mod.py` 退役）、#61（根级标准 AGP 工程）、#25（完整游戏）、#17（发布）和 R126 PR #276 同步执行。原版包名 `kajfosz.antimatterdimensions`、需要保留的 `namespace`、混淆类/descriptor/ABI 不因 applicationId 改动而批量重命名。
-- **真正实施而非只改名称**：按标准 AGP Variant 分别处理正式/Debug 资源 stable IDs、Manifest `${applicationId}` 占位符、Provider/FileProvider authorities、动态快捷方式 targetPackage、权限、App Links/深链、存档导出入、BuildConfig/测试/生成资源、CI 和 provenance、签名/发布清单与发行下载说明。迁移 `com.oreki.antimatterdimensions` 的**生产身份引用**，但保留必要的旧存档识别、原版基线和历史证据。不得用最终 APK 修改/二次拼包替代 AGP 官方机制。
-- **应用身份不可覆盖兼容**：不同 applicationId 是两款系统应用，无法以新包名覆盖安装旧 `com.oreki.antimatterdimensions`；旧版私有数据不会自动进入新包，即使签名相同。**禁止静默卸载旧版、清除数据或承诺自动迁移**；必须提供旧版本导出存档→新版本导入的实际验证，并验证 API 37 AVD 上旧新共存、Debug/Release 变体隔离、包名/签名/Provider/快捷方式及关键真实玩法。
-- **实施与证据**：由 Android R126 Lead 在受保护工作树中执行，保持 Google 官方 AGP Kotlin→D8/R8→DEX→APK、Kotlin-only 新/改业务、临时未改旧 Java 允许的现行规则。每个 P0 闭包记录代码/资源/路径变更、Commit/PR、候选 APK SHA、测试 PASS/FAIL/BLOCKED/NOT RUN；未验证不得把包名切换称为可覆盖升级或 Stable PASS。规则合并后必须立即安全同步本机，只有本机回读 SHA 后才标 `LOCAL_SYNC_VERIFIED`。
-
-
-## 旧 Smali → Java 临时过渡与 Kotlin 改动边界（2026-11-23，长期强制）
-
-- **允许原版旧码分阶段恢复**：冻结基线中已有 Smali/DEX 可在保持可追溯语义和真实 ABI 的前提下暂时还原为 Java，作为 AGP 原生编译的**遗留兼容实现**，无需先一次性翻译全部代码为 Kotlin；研究用反编译 Java 与实际生产 Java 必须明确分离。反编译输出不保证天然可编译，不能凭源码生成或编译成功声称语义兼容。
-- **新增或实质修改必须 Kotlin**：新的游戏业务/功能、修改旧 Java 业务行为、修复旧 Java 的功能缺陷，必须先将该类或最小自洽逻辑闭包迁到 Kotlin，再实现改动；不得直接在过渡 Java 或原始 Smali 上新增业务逻辑、补丁和功能分支。允许保留原样且确有消费者的遗留 Java，不要求无关类提前重写。
-- **规范路径与唯一实现**：标准 `app/src/main/java/` 可暂存已验证可编译的旧 Java，`app/src/main/kotlin/` 存放 Kotlin 业务；同一 descriptor 不得 Java/Kotlin/Smali 双重生产定义。每批登记对应基线证据、Kotlin 接管范围、剩余 Java、实际 DEX/ABI/资源/存档/关键运行证据，随迁移移除无消费者的旧工具和旧调用；过渡 Java 不得演变成永久的新业务开发区。
-
-
-## P0 架构主线：根目录标准化与旧构建链同步退役（2026-11-23）
-
-- **明确等级**：用户将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P0 架构任务**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。P0 架构不表示已经发现游戏崩溃；用户暂停、预算/安全、真实玩家致命 P0/P1 仍优先。
-- **直接落地**：优先整理 Android 根目录、根级 AGP Kotlin DSL 入口、`app/src/main/kotlin`、Source Sets、资源、`scripts/`、`tools/`、`docs/`、`reports/`、`baseline/` 职责归属。人工维护文件/目录名优先中文，但 Android/Gradle/Kotlin/SDK/GitHub/CI 所要求的技术路径必须保留；批量移动须同步修复源码、CI、发布、脚本、文档与跨仓内链。分小 PR、独立工作树、实质完成，不只做盘点、改名或空报告。
-- **迁移即清理硬规则**：每完成一个实际生产构建环节的 Kotlin/AGP/Gradle Kotlin DSL/必要确定性字节码变换替代，同一批删除旧 `scripts/build_mod.py` 中对应实际可达调用、旧 Groovy 任务、过期路径、重复文件及该环节独占且**已无调用者**的旧工具。共享工具在最后一个消费者退役的同一批删除；不可强求“一个函数对应一个工具”，不可用新包装器继续调用旧脚本冒充完成。
-- **最终技术目标**：根级 AGP 为唯一正式构建入口；`scripts/build_mod.py`、旧 Groovy 正式入口、生产期 Smali 文本补丁、旧 Python 构建依赖及无用工具彻底退出。新增/修改的游戏业务只能 Kotlin；原版 Smali/DEX 允许经验证暂时恢复为未扩展业务的 Java 过渡实现，实质修改旧 Java 业务前须先迁 Kotlin；继续沿用冻结的官方 Android 3.21.0、真实 ABI、合法挑战/结算、签名及存档兼容。R8 ON 运行问题须实际修复，不通过虚构 PASS 或长期绕过解决。
-- **本机工具治理**：Google 官方 Android SDK/Emulator/Build Tools 集中在系统根分区专用 `/opt/android-sdk`；仅保留一台 API 37 AVD（`/opt/android-avd`），专用目录属主 `oreki:oreki`。先迁移/验证再清理，不能删除 AGP 实际依赖的版本、共享 JDK/系统 Python、原版基线、密钥、存档、发布包和证据；禁止递归修改整个 `/opt`、`/usr`。最新且兼容的稳定版优先。
-- **每批闭环**：旧生产调用→新实现路径、实际移动/删除文件与工具、剩余消费者、Commit/PR、磁盘释放量、源码/ABI/DEX/资源/必要 AVD 定向证据逐项记录；适用 CI/Kody/Ruleset/签名与 Release 门禁不降，禁止把 Debug 构建或纯迁移 PR 当作完整游戏验收。每轮最多一次正式 Release 构建。规则 PR 实际合并后立即交接本机安全同步，只有本机回读证明才标同步成功。继续 R126，不开新 `/goal` 或 R 编号。
-
-
-> 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
-
-## 环境故障自主诊断与有界恢复（2026-11-23，长期强制）
-
-- **禁止过早 BLOCKED**：遇到 ADB offline、AVD 启动失败、KVM/GPU、Gradle、D8/R8、签名输入或 APK 安装 等环境异常，Agent 必须先在授权时间/权限/预算/Owner 边界内完成有证据的自主定位和最小安全恢复；一次或两次失败、单独的 `offline`、构建工具存在或静态检查 PASS 都不能证明环境不可恢复，也不能把环境失败归咎于 APK/业务代码。
-- **诊断闭环**：先核对是否与其他 Agent、AVD、浏览器、构建任务争用资源；收集命令、版本、退出码、stderr/日志、进程/端口、磁盘/内存/OOM、权限及相关设备状态；区分进程退出、连接未就绪、系统未启动、应用安装/启动失败。依据证据逐项选择不同的最小恢复方案，并验证恢复后的真实功能，不按固定次数机械重试。
-- **保护现场与密钥**：优先只读诊断、冷启动/禁用快照、兼容渲染或隔离临时环境等非破坏性手段；不得未经核实抢占共享 ADB server、AVD、浏览器或工作树，不清空 userdata、不删他人 AVD、不重置共享环境、不打印/复制密钥、不强推或绕过安全门禁。涉及系统级修改须符合用户已有授权及最小影响原则。
-- **BLOCKED 的证据门槛**：只有确认硬件、权限、资源、外部服务、安全限制或不可安全修复的实际阻断，才标记 `ENVIRONMENT_BLOCKED`，附已尝试的互不重复方案、日志/退出码、已排除原因、剩余根因、Owner 和可执行恢复步骤；否则保持 `DIAGNOSING`。受峰时或截止限制应标 `DEFERRED`，不伪称永久阻断。
-- **隔离与持续推进**：环境故障期间继续其他合法、不冲突任务；恢复后重跑受影响的最小真实验证。环境修复成功、CI PASS 或 APK 构建成功均不得代替 Android AVD/真机、Web 真实浏览器、Wiki 线上功能等各自的实际验收。
-
-## 持续执行与有效验证（2026-11-23，长期强制）
-
-- **继承跨仓权威**：遵循 [Workspace AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的持续执行、短测收敛、Owner 避让和 Subagent 连续调度规则；以该规则实际合并进入 main 后的版本为准，不提前宣称未合并 PR 已生效。
-- **阶段完成不等于停工**：当前 Goal active、合法窗口且存在已授权、无冲突的安全工作时，完成一次修复、测试、PR 或报告后立即处理下一项；只在真实完成、用户暂停、峰时/预算/安全限制、资源或权限阻断等条件下安全收口。不为凑时长空转。
-- **测试假设驱动**：每轮定向测试记录候选 HEAD、输入、预期状态变化、实际证据和停止条件；同一代码/条件下不得反复做没有新增验证目标的相同短测，失败先定位根因。Android 的 Kotlin/DEX、定向测试与 AVD/真机验证须使用真实候选；95/95 静态或单元测试 PASS 不等于 AVD、PACING 或存档兼容 PASS。
-- **外部等待期间独立推进**：云端 GitHub 写入窗口、Kody/CI/审批等待期间，在其他规则允许的工作窗口继续不冲突的本地工作和证据整理；禁止抢占共享分支、AVD、签名或覆盖他人修改。及时报告真实进展，但报告不是停止信号。
-
-## 仅 AGENTS.md 变更的 Kody skipped 快速合并规则（2026-11-23）
-
-- 对当前 PR HEAD 的**实际完整 Diff** 核验：仅新增/修改 `AGENTS.md`（含子目录同名文件），不得混入代码、CI、其他文档、构建或发布文件；若混入任何其他路径，不适用本例外。
-- 当 Kody **官方**针对该 HEAD/配置确认因纯规则文件而 `skipped`，该结果不计付费审查配额，亦不等于 Review PASS；不为取得形式上的 PASS 重复触发 Kody。若 Kody skipped 的原因不明、服务故障或未返回官方结论，不得套用本例外。
-- 只要当前 HEAD 的适用 Required Checks、审批、分支保护、Ruleset、合并冲突及其他人工阻断均已核验满足，允许直接自动合并纯 AGENTS.md PR，无需额外等待 Kody 的 PASS 或逐项向用户征询。**不得**绕过 GitHub 强制要求的 Kody Check 或任何其他保护规则；若平台仍将其判为 Required 且未满足，保持 BLOCKED。
-- 合并后回读 GitHub 验证 merged 状态、merge commit 和 main；记录 Kody skipped 的真实原因、HEAD、门禁证据及结果。规则本身的授权不等于任何 PR 已满足合并条件。
-
-
-## 0. 游戏优先与规则审查边界（2026-11-22）
-
-- 跨仓唯一调度顺序以 [Workspace `AGENTS.md` §0](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 为准：游戏合法性、`PACING`、真实 180 分钟终局、存档兼容及直接阻断 CI/运行故障优先于非阻断规则 PR。
-- 本仓“规则变更 PR 优先”仅指先核对、按风险分派并实际推进合格项，不代表 Lead 必须亲自清空规则队列；跨仓优先级以 [Workspace `AGENTS.md` §0](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 为唯一权威。Lead 每个谷时小时最多投入一个非阻断规则 PR，专职规则治理 Subagent 按 §2 持续逐个收口，不受该 Lead 投入上限限制。
-- 等待外部回执的 PR 标 `WAITING`，同 HEAD 不重复收费审查；WAITING/BLOCKED 后应继续处理其他独立规则项，只有全部剩余事项均不可安全执行或出现硬停止条件时才释放专职规则治理 Subagent。
-- 合法谷时活跃且存在已授权、可执行的游戏核心任务时，每个自然小时至少推进一项游戏核心工作；若当前只授权规则/审查，如实记录无可执行游戏任务，不越权启动游戏开发。纯规则、fetch、Issue/PR 刷新、等待 Kody 或 CI 绿灯不计游戏推进，且不得冒充玩家体验或五项门禁成果。
-
-## 跨仓统一核心规则入口（强制）
+### 1.1 统一规则来源与继承
 
 - **单一权威来源**：[Workspace 最新 AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 是 ChatGPT/Agent 分工、任务编号与 `/goal`、费用/审查、游戏真实性与五阶段 180 分钟目标、Subagent 调度、GitHub/CI/CD、中文规范及交付的**全项目长期规则**。本仓继承其中适用条款；本仓 `AGENTS.md` 仅补充本平台技术和运行约束，**不得以内容未在本文件逐字重复为由忽略跨仓规则**。
 - **先读取再执行**：启动、恢复、跨仓交接和关键合并/部署前，按照 Workspace 生效规则核验最新 `origin/main:AGENTS.md`（云端用 GitHub API 可替代只读刷新）、本仓规则、事实、任务书、实际 PR/CI 与运行证据；遵守已有 60 分钟常规刷新和关键动作前的短间隔刷新。读取失败或未证实最新版本时记录 `STALE/BLOCKED`，不能声称已同步。本仓更细的合法技术约束继续有效；**用户最新授权与安全/预算硬限制优先，其他冲突以 Workspace 跨仓规则为准**，发现不可兼容之处只作最小修复并报告，不静默放宽门禁。
@@ -82,44 +12,32 @@
 
 - **Android 专属继承重点**：3.21.0 基线；新增/修改业务 Kotlin-only、§67 语义化命名、Kotlin→D8→DEX→APK；AGP/R8 逐环验证再淘汰旧构建；JADX 同基线全量导出一次，后续增量复用；真实挑战结算与调度器独占自动购买器配置（1～60 秒，默认 10 秒，手动修改下一 tick 恢复）；`savestates/` 测试样本注明版本/来源/用途/预期；深色原创页、教程按钮 `#0078D7`、顶栏“当前页面”、科学记数法及教程附录 F。
 
+### 1.2 游戏优先与规则审查边界
 
-## 1. 授权、预算与运行状态
+- 跨仓唯一调度顺序以 [Workspace `AGENTS.md` §1.1](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 为准：游戏合法性、`PACING`、真实 180 分钟终局、存档兼容及直接阻断 CI/运行故障优先于非阻断规则 PR。
+- 本仓“规则变更 PR 优先”仅指先核对、按风险分派并实际推进合格项，不代表 Lead 必须亲自清空规则队列；跨仓优先级以 [Workspace `AGENTS.md` §1.1](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 为唯一权威。Lead 每个谷时小时最多投入一个非阻断规则 PR，专职规则治理 Subagent 按 §3.1 持续逐个收口，不受该 Lead 投入上限限制。
+- 等待外部回执的 PR 标 `WAITING`，同 HEAD 不重复收费审查；WAITING/BLOCKED 后应继续处理其他独立规则项，只有全部剩余事项均不可安全执行或出现硬停止条件时才释放专职规则治理 Subagent。
+- 合法谷时活跃且存在已授权、可执行的游戏核心任务时，每个自然小时至少推进一项游戏核心工作；若当前只授权规则/审查，如实记录无可执行游戏任务，不越权启动游戏开发。纯规则、fetch、Issue/PR 刷新、等待 Kody 或 CI 绿灯不计游戏推进，且不得冒充玩家体验或五项门禁成果。
+
+### 1.3 授权、预算与运行状态
 
 - **实时授权优先**：用户明确授权的范围直接执行；未授权的付费调用、全量开发、自动发布和无人值守任务不得擅自启动。最新明确暂停优先于更早的恢复；当前 Goal/编号、PR、Kody 开关、测试状态以最新用户指令、实际平台配置及任务记录为准，不在本长期规则中永久冻结某一轮状态。历史 AGENTS 快照只供追溯。
 - **付费门禁**：累计预算达 80% 及时报告，达 100% 或下一批调用可能超额时停止新增收费任务；DeepSeek 实际可用余额低于 ¥10 时暂停全部任务并关闭 Subagent。余额、凭据或预算未知时不擅自付费，不创建密钥、不充值、不更换 Provider 绕限。本地 Codex 的峰谷执行窗口按下文用户最新授权执行；模型实际费率、节假日调休和收费权限仍须实时核验，不能把时段规则当作平台硬限流。
 - **事实与验收**：未运行为 `NOT RUN`，失败为 `FAIL`，受阻为 `BLOCKED`，只有真实证据才能写 `PASS`。单测、CI、构建、安装、真实运行、发布及线上验证分开标识，不伪造结果或把旧候选结果移植到新提交。
 - **风险分级**：P0 为崩溃、无法启动、非法阶段解锁、存档损坏、核心失效及伪造；P1 为五阶段 `PACING FAIL`、终局瓶颈、自动化失效、明显 GUI 延迟和重要跨端差异；P2 为非阻断体验和一般工具链整理（不含项目交付规则已明确提升为一级架构主线的 AGP、目录标准化、旧构建脚本退役等工作）。先用 AVD/Playwright 真实复现，再根因修复与最小必要验证。
 
-## 2. GitHub 审查与质量
+### 1.4 任务编号与 Goal
 
-- **风险分级**：A 类为纯文档/注释/索引，定向核实事实、版权、链接及敏感信息；B 类为 Actions、审查触发器、共享配额、权限、构建与发布工具，重点核实并发、幂等、边界、失败恢复和回滚，不因“未改游戏代码”而轻审；C 类为游戏业务、存档、结算和高风险机制，完整审查风险并做最小必要真实验证。混合 PR 按最高真实风险设置门禁，按文件聚焦测试。
-- **集中修复、避免复审循环**：先核对最新 PR HEAD、Diff、普通评论、Reviews、Review Threads 与 Required Checks；同一 HEAD、同一审查配置和适用范围已经有效审过时不重复主动请求。集中解决同一批问题、定向验证后再复审；不制造空提交，不因风格建议无限扩项，也不为归零机械关闭线程。
-- **规则治理专职 Subagent（长期强制，三仓共用 1 名）**：Lead 在当前已授权且实际运行的多 Agent 会话中，若存在可执行的规则/审查治理任务，应优先**仅委派 1 名跨 Android、Web、Wiki（兼顾 Workspace 交接）的规则治理 Subagent**，而非每仓各派 1 名或让所有 Agent 都处理规则；须核实实际 Subagent 可用性与现行数量限制，不凭文档声称已启动。该 Subagent 是当前授权窗口内的持续任务执行者：在已认领、独立的工作树和明确 Owner/文件范围内，负责各仓 `AGENTS.md`/专项长期规范一致性、有效规则 PR 的定向修复与去重、Kody/Codex Review Threads 的逐条核实、必要 CI/Ruleset 检查、过期/重复 PR 的安全收口和 [Workspace Issue #20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20) 的证据交接；Wiki 优先监督已配置的 **Kody 原生自动审查**，只在自动失败且符合现行费用/Provider/授权门禁时人工兜底，不重复发起相同 HEAD/配置收费审查。全项目最多 3 个已授权且相互独立的在途付费 Kody 审查，其中 Wiki 原生审查只占并发槽，不占 Android/Web 每日额度；多个独立 PR 在修改完成、具备审查内容且授权允许时应及时 Ready；全项目最多 3 个在途付费审查槽是所有优先级共享的唯一并发硬上限，不为某一类 PR 另设较低的固定槽位上限，也不为尚未出现的高优先级任务常态空置槽位。Lead 应优先安排真实 P0/P1、安全和合并阻断的待发起审查，不能为插队取消已在途审查或突破上限；只要全局仍有可用槽位且费用授权、安全隔离与日配额允许，任何独立且可审查的 PR 都不得仅因审查队列或预留策略长期 Draft。仅当已核实全局 3 槽全满、转 Ready 或更新 HEAD 会不可避免地触发超额付费审查、且现有自动触发器无法安全隔离时，才临时记录 `REVIEW_BLOCKED(concurrency-guard)`，写清 Owner、HEAD、真实在途数和解除条件；有独立收费隔离能力时仍按时 Ready，槽位释放后按当前实际优先级安排下一次付费审查。Android/Web 共享池 80 次仅预警、不因此自动停审，100 次为硬上限；临近 100 次时，Lead 必须在为 Android/Web 的任何非 P0/P1、非安全、非合并阻断项新建 PR、转为 Ready 或推送新 HEAD 前核对实时余量与在途量，为当日更高优先级审查动态预留额度；受限 PR 可保留已完成的 Ready 状态但不制造新触发，额度不足时记录包含 Owner、HEAD、已用量、在途量、原因和下一动作的 `REVIEW_BLOCKED(quota)`，待额度恢复或用户放行后继续，不得为了预留而把已完成 PR 无限转回 Draft。Wiki 的每日审查额度使用独立统计，不得读取、写入或扣减 Android/Web 共享池；Wiki 请求若被送入共享配额实现，必须失败关闭为 `not-shared-quota-repository`，不得记作 `REVIEW_BLOCKED(quota)` 或被 Android/Web 余量阻断；全项目并发槽仍按 Workspace §0 包含 Wiki 原生审查。自动触发器若无法在任何收费事件发生前执行余量预检或全项目 3 槽控制，应先修复或配置安全隔离机制；隔离期间记录覆盖该具体缺口的 `REVIEW_BLOCKED(concurrency-guard)`，不得以重复送审、批量推 HEAD 或永久单审查规避。峰时、预算、余额、授权等原有硬停止始终同时适用。**Lead 仍独占任务优先级、授权与预算、跨仓冲突、最终合并及正式发布决策，不得由 Subagent 绕过审批、Required Checks 或冒充 Review PASS**。Lead 每批次先识别真正阻断当前操作的 Critical/High/安全与 CI 问题并交给该 Subagent；“规则 PR 优先”是**发现与委派的优先权，不代表 Lead 必须亲自清空规则队列**。非阻断规则建议由该 Subagent 集中处理，不得因为措辞/风格复审无限修改 `AGENTS.md`、空提交、反复开 PR 或制造空轮询；出现真实结果或单个 PR 进入外部等待、受阻时，记录 `Owner/HEAD/CI/Review/下一动作` 后应立即检查并推进队列中其他独立规则项；单个 PR 合并/关闭、一次审查批次结束或单个 PR `WAITING/BLOCKED` 均不构成释放条件；只有队列已清空、无可安全执行事项、全部剩余事项均不可安全执行或出现硬停止条件时，才正常释放并记录交接。Lead 与其余合适的 Subagent 在无冲突且允许执行时**持续优先推进 Android/Web 的玩家 P0/P1、挑战原版结算、五阶段 PACING、180 分钟终局、存档兼容及最小真实验证**，Wiki 内容/Pages 的独立必要任务亦不因规则队列停摆；不可把仅处理规则、仅派遣 Agent 或等待 Kody 冒充游戏开发成果。安全/数据损坏/预算停工、峰谷与云端本地 Owner 避让、Kody Balanced/费用限额和最新用户明确指令始终优先；没有可用 Subagent 时 Lead 仅做必要安全收口并记录 `BLOCKED`，不为此停掉可独立执行的主线任务。
-- **Subagent 完成后再调度（长期强制）**：每次 Subagent 完成、失败、取消或释放资源后，Lead 应及时接收并核实真实 Commit/PR/测试证据、更新队列，再按已授权且无冲突的任务继续派发；无安全且有价值的任务时正常释放并记录原因，不制造占位任务。Lead 占用 AVD、签名、最终构建/部署或等待长跑/CI 时，不依赖这些资源的 Android/Web 游戏修复、定向测试准备或 AGP/R8 工程工作，在已授权且处于合法谷时（或安全可执行窗口）时仍应并行推进；不得因等待 Lead 合并 PR 而让已完成 Agent 无故闲置，也不得改动他人认领的 PR 或工作树。峰时停工、预算停工与本条冲突时优先。
-- **规则变更 PR 优先收口（长期强制）**：本地 Codex Lead 每次开始谷时 Issue/PR 批次、接收新的审查结果或准备认领普通 PR 时，**优先核对并实际推进当前四仓未关闭的规范/规则 PR**，包括 `AGENTS.md`、适用的 `DELIVERY_RULES`、跨仓策略、审查/预算/权限/调度规则、构建与发布门禁及其必要引用。以下顺序用于规则/审查收口与其他可选事项的排序；与 [Workspace `AGENTS.md` §0](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的游戏优先权冲突时以后者为准：**真实 P0/P1、安全/数据损坏及用户暂停或预算硬限制 > CI FAIL、Kody High、已完成验收且待合并的 PR > 影响当前工作合法性和安全性的规则 PR > 其他规则 PR > 普通功能 PR 与非阻断技术债**；普通功能若属于当前已授权的游戏主线或交付，按 Workspace §0 处理，不因本规则序列降级。不得将仅含 Changelog 的 PR 冒充规则变更。先读最新 `origin/main`、Workspace Issue #20 的 Owner/HEAD/交接和各 PR 的 Diff、CI、Review Threads，避免重复认领与覆盖；对无冲突且在授权范围内的规则 PR，执行 `TRIAGE → ACT → VERIFY → PERSIST`：确认规则冲突、修复可信审查意见、运行文档/CI 最小必要检查、推进合格 Draft、核实 Required Checks/审批后合并，或标记具体 `REVIEW_BLOCKED / CI_BLOCKED / CONFLICT / SUPERSEDED` 及下一动作。**优先处理不等于无审查自动合并**：不得绕过 Ruleset、未经授权触发收费 Kody、将 skipped 当 PASS，或为刷进度重复评论。规则 PR 合并后应即时刷新相关仓库 `origin/main` 并重读已生效规则，通知受影响的 Lead/Subagent 按新规则继续；未合并的新规则不得提前宣称生效。云端执行窗口仍按默认只读和明确交接规则避免并发；单个规则 PR 受阻时继续处理无冲突的下一项，不能让全部开发停摆。
-- **具备审查条件的 PR 必须及时 Ready（长期强制）**：`Draft` 仅适用于真实 WIP、缺少独立可审查的 Diff/说明、明确冻结且禁止合并的历史证据、存在尚未排除的严重冲突或安全问题；若已核实转 Ready 会自动触发未经授权、超过已满全局 3 槽或实际日配额硬限制的付费审查，且无法在收费触发器侧安全隔离，才允许额外短暂使用 Draft，并记录 `REVIEW_BLOCKED(concurrency-guard)` 或相应真实阻断、Owner、HEAD、实占槽位、额度和解除条件。**不以其他 PR 正在审查、推测未来高优先级任务或 80 次预警为由，让可审查的独立 PR 长期 Draft。** 除上述事实性例外外，修改已完成、范围清楚且可供审查时，Codex 必须及时将 PR 标记 `Ready for review` 并推进审查，不得只因 CI 尚在运行、预计会出现审查意见或担心 Kody 费用而长期留在 Draft。Ready 只表示允许开始审查，**不等于 Required Checks PASS、Kody Review PASS、游戏验收 PASS 或允许合并**；阻断仍须逐项核实并解决。Lead 每次接收子任务、CI/Review 结果及收口时检查本仓开放 PR，真实不能 Ready 的记录 `Owner / 最新 HEAD / 阻断 / CI / Review / 下一动作`，按需交接至 [Workspace Issue #20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。**收费审查与 Draft/Ready 状态分开管理**：核实事件自动审查触发、Provider、Balanced、既有授权及限额，不重复发送 `@kody start-review`，不为送审私自启用新的付费 Provider；授权或费用受阻如实记 `REVIEW_BLOCKED`，但不得反过来把本来可送审的独立 PR 无限压在 Draft。并发或额度条件解除后应立即 Ready；未解决 P0/P1、分支保护、冲突或必要 Review Threads 必须在合并前解决，不通过切换状态绕过硬门禁。跨仓总规则来源：[Workspace 已合并 PR #27](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/pull/27)及[Workspace AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md)。
-- **Ready 前并发核对（长期强制）**：转 Ready 或推送新 HEAD 前，Lead 必须核对全项目在途付费审查数与当日剩余额度；确认不会触发第 4 个在途付费审查或超过授权额度后才推进。核对结果不改变“Ready 不排队”：有安全隔离时直接 Ready，只有真实满 3 槽且无法隔离收费触发时才短暂记录 `REVIEW_BLOCKED(concurrency-guard)` 并等待槽位释放。
-- **临近额度预留的 Draft 例外（长期强制）**：当转 Ready 会占用 L23 为当日已确认的 P0/P1、安全或合并阻断审查保留的额度时，非阻断 PR 可短暂保留 Draft，并记录 `REVIEW_BLOCKED(quota)` 及 `Owner / HEAD / 已用量 / 在途量 / 具体高优先级依据 / 下一动作`；额度恢复、当日高优先级审查完成或用户放行后立即 Ready。没有具体高优先级待审项时，不得用预测或 80 次预警触发该例外。
-- **合并底线**：真实 P0/P1 与阻塞性问题必须修复或有充分反证；必要线程、审批、Ruleset、Required Checks 与测试均满足后正常合并。不得强推、跳过平台保护、虚构审核或将 `Skipped` / `KODY NOT RUN` 写作 PASS。文档变更不机械运行无关游戏长跑。
-- **Kodus 的规则分层**：通用审查标准归 Kodus Global Rules，项目执行规范归本仓 `AGENTS.md`；不重复抄写为项目级 Kody Rules。Kody 从仓库文件读指令与否以实际配置/证据核实。自动生成的规则先审批去重，只有真正跨仓适用的候选可提升 Global，不能默认未经批准直接生效。
-- **Kody 与额度**：Kody 仅限 Balanced，严禁 Heavy；授权、Provider 或云端审查配置暂停、未知或不确定时，禁止主动触发付费审查或重新连接付费 Provider；按实时授权、Provider、云端配置及费用状态执行。Android/Web 在 UTC+8 自然日共享最多 100 次主动审查请求（80 次预警，无单仓 50 次硬上限）；按原始 `@kody start-review` 评论唯一 ID 去重，避免同 Head SHA/配置重复审查。**Wiki Kody 独立统计，不消耗 Android/Web 这 100 次**，但不意味着无限、免费或自动授权。`Skipped` / `KODY NOT RUN` 不是 PASS；通用审查标准归 Kodus Global Rules，仓库执行规则归 `AGENTS.md`。
-- **Kody 跳过一律不计额度**：所有 Kody 已确认 `skipped` 的审查均不计入项目主动审查额度。触发前跳过不占位；已预占或已发 `@kody start-review` 而 Kody 官方 Check Run 最终确认为 `skipped` 的，按仓库、PR、HEAD 与 Kody Check Run 证据幂等退额；Android/Web 共享 100 次池与 Wiki 独立统计均遵守。未完成审查可临时预占防并发超额；真正完成的审查（即使无问题）仍计数。只有 GitHub Actions 的 `skipped`、缺失回执或不明状态不足以认定 Kody 已跳过，不得擅自退额或把 `SKIPPED` 写为审查 PASS。Kody 平台实际收费另行遵循其规则。
+- ChatGPT 是所有项目任务编号的唯一分配者。
+- Lead 只能使用 ChatGPT 已明确分配的编号；Subagent 继承当前编号；Codex、DeepSeek、其他 Agent、调度器和 GitHub Actions 不得自行创建、推算、递增或生成编号。
+- 新任务只用单层 `R整数`；禁止 `R122-01`、`R122.1`、`R122-A` 等子编号。用户说继续时沿用当前编号，中途新增需求默认纳入当前任务。
+- **Goal 入口**：新一轮开发的首条 Prompt 必须严格使用 ChatGPT 按用户最新要求提供的完整 `/goal` 字面前缀，原文不得缩写、变更或自行推断；包含个人本地安装包路径的具体模板仅随当轮授权输入或受控本地任务记录提供，不在公开长期规则中重复写死。中途续做、补充、纠错和暂停恢复不得重新 `/goal`、改编号或重置计时。超长目标应使用经验证的官方 Goal 文件引用机制或自定义实现，不静默截断，也不假定本机已解除 4000 字符限制。
+- 历史 `R121-01` 及相关提交、路径、证据保持原样，仅用于兼容与追溯；不表示该轮仍进行中。当前执行编号和状态由 ChatGPT 最新分配、用户明确授权、实际 Goal 与任务台账确定。
+- 所有历史编号、提交和证据保持原样；下一轮编号由 ChatGPT 明确指定，不得按历史最大值推算。
 
-## 3. 执行效率与反馈
+## 2. Android 技术与架构
 
-- **定期 fetch 与规则重载（2026-11-21 起长期强制）**：本地 Codex Lead 在已授权、活跃的谷时会话中，**启动/恢复本轮工作时立即检查一次；此后距上次成功刷新达到 60 分钟时，必须重新检查 Android、Web、Wiki、Workspace 四仓**：先核对各仓实际工作树/Owner、远端和 Git 锁，再逐仓执行 `git fetch --prune origin`（失败保留错误，不伪记成功），记录 `origin/main` SHA；读取 **`origin/main:AGENTS.md` 与当前工作树适用的 `AGENTS.md`**，对照 Workspace 主线规则、最新 Issue #20 交接以及**与当前任务相关**的专项规则。即使规则文件 SHA 未变也要核对当前有效规则版本和约束；若 SHA 变化，必须重新阅读受影响规则正文并在后续决策中采用，不凭旧会话记忆或旧本地工作树规则行动。此处 **60 分钟是仓库刷新间隔，不是 `current_time_reminder` 的 300 秒时钟提醒间隔**，不另建 cron/systemd timer/Actions schedule、空轮询或后台常驻进程；会话结束、峰时停工时不自动运行，下一次允许的谷时恢复后检查，离线时段不补跑。**会话内等待截止上界**：只要当前 Codex 会话仍在活跃回合内使用原生 `clock.sleep`，单次等待不得晚于**下一次可合法执行的谷时起点（工作日 12:00、18:00，其他日期按可靠日历）、下一次谷时 60 分钟 fetch 与规则重读截止、下一轮 Issue/PR 检查窗口、下一次峰前安全收尾点**中最早的未来时刻；已进入峰时或安全停工窗口时，只允许按当前授权等待至下一个合法谷时起点，不启动主动任务。不能因原生工具支持最长 12 小时就睡过 60 分钟规则刷新或谷时起点；睡眠返回立即重新判时、确认 Owner/交接，并完成已到期检查；会话退出不保证自动唤醒，离线不补跑。
-- **关键动作前的有效性门禁**：新建开发分支、领取新 Issue/PR、修改影响跨仓规则的文件，或合并/发布/部署/变更重要 CI 配置前，若距离上次成功远端刷新超过 **10 分钟**，应先按最小范围重新 fetch、核对最新 `origin/main`、PR HEAD、Required Checks 与相关 `AGENTS.md`/规则；即便未超时，合并等操作仍须即时确认远端最新 HEAD 和 Owner。未获证实的规则/远端状态标记 `STALE/BLOCKED`，不要用缓存结论强行合并或发布。**`fetch` 只更新远端跟踪引用，不等于工作树已经同步，也不授权自动集成**；禁止因此擅自 `pull/rebase/reset --hard/clean/stash`、强制切换、强推或覆盖未提交文件、其他 Agent 工作树。仅在干净且可安全快进的本地 `main` 上才允许 `merge --ff-only`；其余情况标记 `FETCHED_ONLY`（仅取到远端引用、工作树尚未同步）。其中非 `main` 分支、存在未提交/未跟踪文件、远端分叉或其他 Agent 占用等无法安全同步、需阻断合并/交付的情形，必须同时标记 `BLOCKED`，并使用经核实的独立干净 worktree 继续工作。确需让开发分支追上主线时，须另立明确授权的集成任务，在已确认归属的独立干净 worktree 按 [Git 主干/CI 同步规范](docs/GIT_MAIN_CICD_SYNC.md)进行受控合并，不得将例行 `fetch` 解释成自动 rebase 或改写历史的授权。若无 Git 工作树（例如云端只接 GitHub），用 GitHub API 读取各仓默认分支 HEAD 与规则正文作等价**只读刷新**，不得把 API 检查称作本机已执行 `git fetch`。记录上次成功刷新时间、四仓 SHA、实际重读的规则及失败原因；无变化不刷 GitHub 评论。
-- 先按路径/符号/Diff 缩小任务范围，复用未失效的测试及日志；工具相同失败两次应先诊断，不做无价值全量扫描、重试或无关重构。脚本尽量单责复用，不为假想需求提前增加复杂度。
-- 重要进展、失败、预算预警及交付及时用简体中文反馈；长任务原则上每 2 分钟至少反馈一次有实质内容的完成情况、真实障碍与下一步。Lead/Subagent 使用可复核交接资料，避免重复读取上下文、无任务轮询或资源冲突。
-- **本地 Codex 原生 time reminder（用户 2026-11-21 授权）**：本仓与另一平台仓共同遵守 [Workspace `AGENTS.md`](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的云端/本地协同约束。持续运行的**当前本地 Codex 会话**启用 `current_time_reminder`（建议 `reminder_interval_seconds = 300`、`clock_source = "system"`、`delivery_mode = "after_user_or_tool_output"`、`sleep_tool = true`），把提醒给出的 UTC 时间换算为 UTC+8，再按可靠日历判定峰谷；用原生 `clock.sleep` 在活跃回合内等待下一巡检窗口，允许用户新输入中断睡眠。先核实本地 Codex 版本、实际配置、工具是否注册；工具不可用或配置需重启时如实标记 `BLOCKED`。**提醒本身不是定时器，不能在退出、会话终止或机器睡眠后唤醒 Agent。** 不得新设 cron、systemd timer、at、Actions schedule、ChatGPT 自动化、shell sleep 或常驻守护进程替代本地循环。
-- **峰谷与每小时执行（必须运行，不是只提醒）**：按 `scripts/deepseek_pricing.py` 已验证的 UTC+8 判定与当前用户授权执行，工作日峰时为左闭右开 **[09:00,12:00)、[14:00,18:00)**，12:00、18:00 属谷时；周末、法定节假日、脚本明确列出的**调休补班日**均属谷时，日历和判定未知时先核实，不得武断当作谷时。**峰时全员停止主动开发、代码修改、构建、测试、Git/CI/CD 和新付费审查**，仅可完成安全停工、证据保存或按最新用户明确例外执行；峰前 08:50、13:50 开始收尾。当前 Codex 会话在合法谷时且存在安全可执行的 Issue/PR 收口目标时，由 Lead 每个自然小时启动一次收口批次、最多一次；无可执行目标时留存原因，不重复启动。该上限仅约束 Lead 的会话级批次，不约束专职规则治理 Subagent 在合法窗口内持续逐个处理多个规则 PR。不可用纯巡检、生成报告、建议下一步冒充已处理。离线错过不补跑；收到 `current_time_reminder`、`clock.sleep` 返回、用户输入或耗时操作完成后重新判时，空闲使用原生 `clock.sleep` 而非 shell 睡眠/空轮询，单次睡眠严格遵守本节“会话内等待截止上界”，12 小时只是原生工具的技术最大值，绝不是调度上限。纯睡眠期间不强制每两分钟发送进度。
-- **本地 Codex 必须实际处理 Issue/PR，且与云端避让**：每轮先读取 [Workspace Issue #20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)，在 Android/Web/Wiki/Workspace 四仓针对最新 HEAD/Owner/CI/Diff/Review Threads 完成 **INTAKE → TRIAGE → ACT → VERIFY → PERSIST**，优先 P0/P1、CI FAIL、Kody High、已验收待合并、可安全关闭的旧 Draft 及本机 Kotlin/AGP/DEX、AVD/真机、存档与工具链等本机独有任务。**有已授权、无冲突且可安全执行的目标时，必须实际行动**：定向复现或修复、修改代码并提交 PR、对真实审查意见回复及修复后解决线程、推进 Ready/合并合格 PR、关闭已被替代且核实无独有内容的 Issue/PR；处理后回读最新状态与证据。仅能报告或受阻时须记录具体阻断、Owner、HEAD 和后续动作，不得虚报完成、空提交或刷评论。云端独立按 UTC+8 **07:00–08:50、12:00–13:50、18:00–19:50** 执行；这些窗口内**共享 GitHub Issue/PR 默认只读**，本地仅处理不会写入云端目标的独立本机工作；只有在 Issue #20 已明确将具体任务/HEAD 交接给本地且核实云端无并发操作时才能写入。其他谷时写入前也须在 #20 核对并明确记录任务认领、Owner、PR/Issue、HEAD 和操作范围；有竞争或未知归属则只读并跳过。不得抢改分支、共享工作树、AVD、签名和重复收费审查。每小时保存本地执行标识、真实动作/阻断及交接，#20 只在状态实质变化时增量更新；遵守最新预算、Kody Balanced、Android+Web 共享每日 100 次、分支保护、Required Checks、必要功能及五项游戏验收，`Skipped` 非 PASS。不得新开 `/goal`、生成 R 编号或重置当前轮次。
-- 详细事实、当轮步骤、当前状态、工具版本、PR、构建回执和历史报告放在对应 `tasks/`、`reports/`、`docs/`；`AGENTS.md` 只留长期约束。任何规则整理不得改写历史任务编号、源代码证据或已发布产物；用户最新明确指令、实际 GitHub 门禁和预算安全约束优先。
-- **PR 原子化**：一个 PR 只处理一个独立且可审查的目标；约 400 行有效改动为软建议，超过约 800 行须评估拆分，不机械拆开必要的原子改动。禁止巨型混合 PR、强推、覆盖他人修改、绕过 CI/Ruleset 或重复付费审查。
-- **证据与命名**：连续测试存档、长日志、截图和大量构建输出独立归档，保留可追溯索引及必要 SHA-256，源码 PR 仅保留摘要、关键复现样本，禁止删除唯一证据。所有项目人工维护文件、目录优先准确简体中文；技术必需的源代码、`AGENTS.md`、`.github/`、构建配置、协议及工具名保持兼容，迁移后验证引用与 CI。
-- **多 Agent 协作**：Lead 动态派发已授权、可执行且无文件冲突的任务，文件派单与汇报，及时核实 Subagent 结果并决策；独立工作树和明确文件归属。AVD、签名、最终 Release 构建及部署独占；无有价值任务时正常空闲，不空唤醒、不造占位任务，Subagent 完成不等于 Goal 完成。Lead 及时用简体中文反馈实际进展。
-
-## 4. Android 技术与游戏约束
+### 2.1 Android 技术及游戏约束
 
 - 官方 Android 3.21.0 是兼容基线；未经授权不整体升级上游、改变包名/签名或破坏存档。实际 Gradle/AGP/JDK/D8/R8 版本以仓库当前构建配置和已验收证据为准，不使用过期版本快照指挥构建。
 - **新增或修改的游戏业务全部使用 Kotlin**；允许原版 Smali/DEX 在 ABI/行为验证后临时还原为未经业务扩展的 Java，任何对该旧 Java 的实质功能修改都必须先转 Kotlin；不在 Java/Smali 中继续开发业务。修改混淆符号前核实真实签名、调用路径和运行行为；遵守 Kotlin→DEX→APK 构建与签名流程。
@@ -149,16 +67,102 @@
 - **Pre-release 测试包独立放行制度（长期授权）**：允许从当前确切 Git Commit/可验证真实构建链产生**正式签名的 Release APK**，以 `Pre-release` 供用户手机安装复测，**不要求先取得五项完整游戏验收 PASS**。已知非破坏性功能 P0/P1、错误阶段解锁或 `PACING FAIL` 可以作为测试目的披露并暂时保留，未运行内容明确 `NOT RUN`，不能冒充修复或稳定版。最低放行门禁：实际完整游戏 Release 构建、APK 可验签、包名/版本码/必要 DEX/ABI 可信、旧安装签名兼容、可以安装和启动、关键存档导入/导出或不破坏验证、没有已知不可逆存档损坏或安全漏洞；**任何硬门禁失败则 `BLOCKED`**。严格遵守现行 AGP-only、Source Checks、Required Checks、Ruleset、审批、Secrets 和受保护发布链，不得以预发布名义退回未验证旧构建、强推或跳 CI。GitHub Releases 必须 `prerelease=true`，独立唯一 Tag、中文测试说明、真实 Commit/APK SHA-256、已知问题、测试建议及稳定版区别；四渠道均复用**同一 APK**：GitHub Releases、OneDrive、Google Drive、本地 SSH/SFTP，逐项验证下载与 SHA-256，不覆盖旧稳定包。**预发布必须走独立且可验证的路径：GitHub Tag 指向实际构建 Commit，创建时使用 `--prerelease --latest=false`，发布命令显式禁止调用稳定版 promotion；OneDrive/Google Drive/本地目录使用唯一 `Pre-release/<release-id>/` 或 `pre-release/<release-id>/`，禁止写入稳定 `latest/`。发布后回读确认 `prerelease=true`、不是 `releases/latest`、四渠道文件与源 SHA-256 一致。** 不得在无 180 分钟验收时无限延期已获授权且符合最低门禁的测试包；**预发布计入四小时统一交付节奏，但绝不计入稳定版合格验收**。如已有 R125 这类测试发布授权，无须每次重新询问同类型授权，但用户最新暂停、预算和安全硬限制优先。详见 `docs/DELIVERY_RULES.md` 的预发布章。
 - 定向执行 Kotlin/JVM 单测、调度契约、Release、签名、AVD/真机/KVM 的必要验证；每轮最多一次正式 Release 构建，离线优先。未经真实终局验收，不得把 R8 实验或仅构建通过的 APK 称为稳定版。详见 `docs/DELIVERY_RULES.md`、`docs/FACTS.md`。
 
-## 5. 任务编号唯一分配权
+### 2.2 标准工程与旧构建链退役
 
-- ChatGPT 是所有项目任务编号的唯一分配者。
-- Lead 只能使用 ChatGPT 已明确分配的编号；Subagent 继承当前编号；Codex、DeepSeek、其他 Agent、调度器和 GitHub Actions 不得自行创建、推算、递增或生成编号。
-- 新任务只用单层 `R整数`；禁止 `R122-01`、`R122.1`、`R122-A` 等子编号。用户说继续时沿用当前编号，中途新增需求默认纳入当前任务。
-- **Goal 入口**：新一轮开发的首条 Prompt 必须严格使用 ChatGPT 按用户最新要求提供的完整 `/goal` 字面前缀，原文不得缩写、变更或自行推断；包含个人本地安装包路径的具体模板仅随当轮授权输入或受控本地任务记录提供，不在公开长期规则中重复写死。中途续做、补充、纠错和暂停恢复不得重新 `/goal`、改编号或重置计时。超长目标应使用经验证的官方 Goal 文件引用机制或自定义实现，不静默截断，也不假定本机已解除 4000 字符限制。
-- 历史 `R121-01` 及相关提交、路径、证据保持原样，仅用于兼容与追溯；不表示该轮仍进行中。当前执行编号和状态由 ChatGPT 最新分配、用户明确授权、实际 Goal 与任务台账确定。
-- 所有历史编号、提交和证据保持原样；下一轮编号由 ChatGPT 明确指定，不得按历史最大值推算。
+- **明确等级**：用户将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P0 架构任务**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。P0 架构不表示已经发现游戏崩溃；用户暂停、预算/安全、真实玩家致命 P0/P1 仍优先。
+- **直接落地**：优先整理 Android 根目录、根级 AGP Kotlin DSL 入口、`app/src/main/kotlin`、Source Sets、资源、`scripts/`、`tools/`、`docs/`、`reports/`、`baseline/` 职责归属。人工维护文件/目录名优先中文，但 Android/Gradle/Kotlin/SDK/GitHub/CI 所要求的技术路径必须保留；批量移动须同步修复源码、CI、发布、脚本、文档与跨仓内链。分小 PR、独立工作树、实质完成，不只做盘点、改名或空报告。
+- **迁移即清理硬规则**：每完成一个实际生产构建环节的 Kotlin/AGP/Gradle Kotlin DSL/必要确定性字节码变换替代，同一批删除旧 `scripts/build_mod.py` 中对应实际可达调用、旧 Groovy 任务、过期路径、重复文件及该环节独占且**已无调用者**的旧工具。共享工具在最后一个消费者退役的同一批删除；不可强求“一个函数对应一个工具”，不可用新包装器继续调用旧脚本冒充完成。
+- **最终技术目标**：根级 AGP 为唯一正式构建入口；`scripts/build_mod.py`、旧 Groovy 正式入口、生产期 Smali 文本补丁、旧 Python 构建依赖及无用工具彻底退出。新增/修改的游戏业务只能 Kotlin；原版 Smali/DEX 允许经验证暂时恢复为未扩展业务的 Java 过渡实现，实质修改旧 Java 业务前须先迁 Kotlin；继续沿用冻结的官方 Android 3.21.0、真实 ABI、合法挑战/结算、签名及存档兼容。R8 ON 运行问题须实际修复，不通过虚构 PASS 或长期绕过解决。
+- **本机工具治理**：Google 官方 Android SDK/Emulator/Build Tools 集中在系统根分区专用 `/opt/android-sdk`；仅保留一台 API 37 AVD（`/opt/android-avd`），专用目录属主 `oreki:oreki`。先迁移/验证再清理，不能删除 AGP 实际依赖的版本、共享 JDK/系统 Python、原版基线、密钥、存档、发布包和证据；禁止递归修改整个 `/opt`、`/usr`。最新且兼容的稳定版优先。
+- **每批闭环**：旧生产调用→新实现路径、实际移动/删除文件与工具、剩余消费者、Commit/PR、磁盘释放量、源码/ABI/DEX/资源/必要 AVD 定向证据逐项记录；适用 CI/Kody/Ruleset/签名与 Release 门禁不降，禁止把 Debug 构建或纯迁移 PR 当作完整游戏验收。每轮最多一次正式 Release 构建。规则 PR 实际合并后立即交接本机安全同步，只有本机回读证明才标同步成功。继续 R126，不开新 `/goal` 或 R 编号。
 
-## 规则合并后本机立即同步（长期强制，2026-11-23）
+
+> 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
+
+### 2.3 P0 全量 Smali/DEX 源码接管
+
+- **最新用户授权覆盖旧试点节奏**：R126 目标为本次夜间执行窗口**一次性完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin**、切断 Smali 生产补丁/手工 DEX 注入、彻底退役 `scripts/build_mod.py` 与旧 APK 二次拼装。不再把“先做一个小闭包、未来多轮慢慢推进”当作任务终点；内部最小闭包增量编译/提交仍用于安全集成。此目标未完成前不得写 PASS。
+- **生产改动规则**：JADX 对受保护原版 XAPK/APK/DEX 一次全量反编译，仅输出研究性 Java 参考；REA/JADX/xref 辅助修复混淆、重载、反射、控制流与 ABI。原版**未实质修改**代码允许暂存 `app/src/main/java`；新增、修复或实质改动业务先迁 `app/src/main/kotlin`。同一 descriptor 仅一个生产实现，不允许把未修复的全量反编译目录直接塞进 Source Set，也不允许用空方法、伪逻辑或跳过功能冒充恢复。
+- **迁移即清理**：Lead 核查现有 R126 worktree/Owner/PR，Subagent 分离依赖闭包并行恢复；16GB 主机避免重复重型 JADX、并发 AVD/Release。每批经标准 AGP 编译和必要运行证明后，同批删除对应旧生产 Smali、`build_mod.py` 生产入口、手工 DEX/旧打包调用及无其他消费者的工具。保留冻结基线、存档、签名、研究证据与仍被共用的 SDK/JDK/AGP。
+- **唯一完成门禁**：`PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0`、`MANUAL_DEX_INJECTION_PATHS=0`、`BUILDMOD_PRODUCTION_DEPENDENCIES=0`、`LEGACY_APK_REPACK_PATHS=0`，且 `AGP_FULL_GAME_BUILD`、`GAME_STARTUP_AND_TICK`、`SAVE_COMPATIBILITY`、`REQUIRED_RUNTIME_CHECKS` 真实 PASS。保留资源/ABI、API37、签名、正式包名、Kody/CI/规则集与合法挑战结算；正式 Release 本轮最多一次。失败保留真实 descriptor/调用方/日志，写 BLOCKED/FAIL，不以删除文件制造假零残留。
+- **优先级边界**：与根级 AGP、构建链退役并列最高架构 P0；真实玩家 P0、ANR、存档损坏、安全/预算可以即时抢占。完成 Smali 生产依赖清零后集中性能优化。沿用 R126，不新 `/goal`、编号或计时。权威 Issue：[Android #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47) 和 [#20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。
+
+#### 2.3.1 遗留 Java 与 Kotlin 业务边界
+
+- **允许原版旧码分阶段恢复**：冻结基线中已有 Smali/DEX 可在保持可追溯语义和真实 ABI 的前提下暂时还原为 Java，作为 AGP 原生编译的**遗留兼容实现**，无需先一次性翻译全部代码为 Kotlin；研究用反编译 Java 与实际生产 Java 必须明确分离。反编译输出不保证天然可编译，不能凭源码生成或编译成功声称语义兼容。
+- **新增或实质修改必须 Kotlin**：新的游戏业务/功能、修改旧 Java 业务行为、修复旧 Java 的功能缺陷，必须先将该类或最小自洽逻辑闭包迁到 Kotlin，再实现改动；不得直接在过渡 Java 或原始 Smali 上新增业务逻辑、补丁和功能分支。允许保留原样且确有消费者的遗留 Java，不要求无关类提前重写。
+- **规范路径与唯一实现**：标准 `app/src/main/java/` 可暂存已验证可编译的旧 Java，`app/src/main/kotlin/` 存放 Kotlin 业务；同一 descriptor 不得 Java/Kotlin/Smali 双重生产定义。每批登记对应基线证据、Kotlin 接管范围、剩余 Java、实际 DEX/ABI/资源/存档/关键运行证据，随迁移移除无消费者的旧工具和旧调用；过渡 Java 不得演变成永久的新业务开发区。
+
+### 2.4 P0 64 位 ABI 与测试设备
+
+- **支持矩阵正式变更**：Android MOD 正式生产仅支持 `arm64-v8a` 与 `x86_64`；取消 `armeabi-v7a`、`x86` 32 位 JNI/NDK 兼容。标准根级 `:app` AGP NDK ABI 过滤、`jniLibs`、实际 APK `lib/<abi>/`、CI/发行和文档必须一致，禁止发布后手工重包或以删除文件掩盖缺失的 ARM64 原生库。冻结基线、研究档案/DEX 与 Java/Kotlin 方法签名、反射和存档兼容不得为“去掉 ARMv7”误删。原版必要 JNI 必须真实取得对应 64 位实现后才能称 PASS。
+- **测试设备默认**：日常开发和大多数定向回归使用用户 **x86_64 Linux 电脑上的唯一 Android AVD**（目前目标 API 37），由 AVD Owner 独占；不要求每个普通 PR 都占用用户手机。用户 **Android 真机**（历史设备 Xiaomi 23113RKC6C / Android 16，以实时 ADB 验证为准）仅在可用且用户授权时**偶尔**进行 ARM64 安装、冷启动、原生库/性能、存档与设备差异抽样测试；不默认当成长期 CI 或自动调用设备。
+- **退役任务特殊验收**：需核查原版/生产 `.so` ABI 及必要 64 位替代、`adb shell getprop ro.product.cpu.abilist`，生产 APK 只含两种允许 ABI 的 JNI、无 32 位原生库，x86_64 AVD 安装/启动/Tick/存档 PASS。ARM64 真机证据必须单列 PASS/FAIL/NOT RUN；没测试不得冒充已验证，真机暂不可用不能阻断其他独立工作。Release/签名/Kody/CI/合法结算/存档门禁仍有效。
+- **与全量 Smali 迁移并列 P0**：同属当前 R126 的架构目标，资源和 Owner 避让，不重复全仓审计、不创建新 `/goal` 或 R 号；用户数据、真实玩家 P0、安全/预算优先。权威 Issue：[Android #285](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/285)、[#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47)。
+
+### 2.5 P0 应用包名与数据迁移
+
+- **用户正式选定的身份**：Android MOD 正式 `applicationId = "net.oreki.antimatterdimensions"`，Debug 应用 `net.oreki.antimatterdimensions.debug`（AGP `applicationIdSuffix`）。这是**P0 架构与用户数据迁移任务**，与 Android #52（`build_mod.py` 退役）、#61（根级标准 AGP 工程）、#25（完整游戏）、#17（发布）和 R126 PR #276 同步执行。原版包名 `kajfosz.antimatterdimensions`、需要保留的 `namespace`、混淆类/descriptor/ABI 不因 applicationId 改动而批量重命名。
+- **真正实施而非只改名称**：按标准 AGP Variant 分别处理正式/Debug 资源 stable IDs、Manifest `${applicationId}` 占位符、Provider/FileProvider authorities、动态快捷方式 targetPackage、权限、App Links/深链、存档导出入、BuildConfig/测试/生成资源、CI 和 provenance、签名/发布清单与发行下载说明。迁移 `com.oreki.antimatterdimensions` 的**生产身份引用**，但保留必要的旧存档识别、原版基线和历史证据。不得用最终 APK 修改/二次拼包替代 AGP 官方机制。
+- **应用身份不可覆盖兼容**：不同 applicationId 是两款系统应用，无法以新包名覆盖安装旧 `com.oreki.antimatterdimensions`；旧版私有数据不会自动进入新包，即使签名相同。**禁止静默卸载旧版、清除数据或承诺自动迁移**；必须提供旧版本导出存档→新版本导入的实际验证，并验证 API 37 AVD 上旧新共存、Debug/Release 变体隔离、包名/签名/Provider/快捷方式及关键真实玩法。
+- **实施与证据**：由 Android R126 Lead 在受保护工作树中执行，保持 Google 官方 AGP Kotlin→D8/R8→DEX→APK、Kotlin-only 新/改业务、临时未改旧 Java 允许的现行规则。每个 P0 闭包记录代码/资源/路径变更、Commit/PR、候选 APK SHA、测试 PASS/FAIL/BLOCKED/NOT RUN；未验证不得把包名切换称为可覆盖升级或 Stable PASS。规则合并后必须立即安全同步本机，只有本机回读 SHA 后才标 `LOCAL_SYNC_VERIFIED`。
+
+## 3. 质量、审查与合并
+
+### 3.1 GitHub 审查与质量门禁
+
+- **风险分级**：A 类为纯文档/注释/索引，定向核实事实、版权、链接及敏感信息；B 类为 Actions、审查触发器、共享配额、权限、构建与发布工具，重点核实并发、幂等、边界、失败恢复和回滚，不因“未改游戏代码”而轻审；C 类为游戏业务、存档、结算和高风险机制，完整审查风险并做最小必要真实验证。混合 PR 按最高真实风险设置门禁，按文件聚焦测试。
+- **集中修复、避免复审循环**：先核对最新 PR HEAD、Diff、普通评论、Reviews、Review Threads 与 Required Checks；同一 HEAD、同一审查配置和适用范围已经有效审过时不重复主动请求。集中解决同一批问题、定向验证后再复审；不制造空提交，不因风格建议无限扩项，也不为归零机械关闭线程。
+- **规则治理专职 Subagent（长期强制，三仓共用 1 名）**：Lead 在当前已授权且实际运行的多 Agent 会话中，若存在可执行的规则/审查治理任务，应优先**仅委派 1 名跨 Android、Web、Wiki（兼顾 Workspace 交接）的规则治理 Subagent**，而非每仓各派 1 名或让所有 Agent 都处理规则；须核实实际 Subagent 可用性与现行数量限制，不凭文档声称已启动。该 Subagent 是当前授权窗口内的持续任务执行者：在已认领、独立的工作树和明确 Owner/文件范围内，负责各仓 `AGENTS.md`/专项长期规范一致性、有效规则 PR 的定向修复与去重、Kody/Codex Review Threads 的逐条核实、必要 CI/Ruleset 检查、过期/重复 PR 的安全收口和 [Workspace Issue #20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20) 的证据交接；Wiki 优先监督已配置的 **Kody 原生自动审查**，只在自动失败且符合现行费用/Provider/授权门禁时人工兜底，不重复发起相同 HEAD/配置收费审查。全项目最多 3 个已授权且相互独立的在途付费 Kody 审查，其中 Wiki 原生审查只占并发槽，不占 Android/Web 每日额度；多个独立 PR 在修改完成、具备审查内容且授权允许时应及时 Ready；全项目最多 3 个在途付费审查槽是所有优先级共享的唯一并发硬上限，不为某一类 PR 另设较低的固定槽位上限，也不为尚未出现的高优先级任务常态空置槽位。Lead 应优先安排真实 P0/P1、安全和合并阻断的待发起审查，不能为插队取消已在途审查或突破上限；只要全局仍有可用槽位且费用授权、安全隔离与日配额允许，任何独立且可审查的 PR 都不得仅因审查队列或预留策略长期 Draft。仅当已核实全局 3 槽全满、转 Ready 或更新 HEAD 会不可避免地触发超额付费审查、且现有自动触发器无法安全隔离时，才临时记录 `REVIEW_BLOCKED(concurrency-guard)`，写清 Owner、HEAD、真实在途数和解除条件；有独立收费隔离能力时仍按时 Ready，槽位释放后按当前实际优先级安排下一次付费审查。Android/Web 共享池 80 次仅预警、不因此自动停审，100 次为硬上限；临近 100 次时，Lead 必须在为 Android/Web 的任何非 P0/P1、非安全、非合并阻断项新建 PR、转为 Ready 或推送新 HEAD 前核对实时余量与在途量，为当日更高优先级审查动态预留额度；受限 PR 可保留已完成的 Ready 状态但不制造新触发，额度不足时记录包含 Owner、HEAD、已用量、在途量、原因和下一动作的 `REVIEW_BLOCKED(quota)`，待额度恢复或用户放行后继续，不得为了预留而把已完成 PR 无限转回 Draft。Wiki 的每日审查额度使用独立统计，不得读取、写入或扣减 Android/Web 共享池；Wiki 请求若被送入共享配额实现，必须失败关闭为 `not-shared-quota-repository`，不得记作 `REVIEW_BLOCKED(quota)` 或被 Android/Web 余量阻断；全项目并发槽仍按 Workspace §1.1 包含 Wiki 原生审查。自动触发器若无法在任何收费事件发生前执行余量预检或全项目 3 槽控制，应先修复或配置安全隔离机制；隔离期间记录覆盖该具体缺口的 `REVIEW_BLOCKED(concurrency-guard)`，不得以重复送审、批量推 HEAD 或永久单审查规避。峰时、预算、余额、授权等原有硬停止始终同时适用。**Lead 仍独占任务优先级、授权与预算、跨仓冲突、最终合并及正式发布决策，不得由 Subagent 绕过审批、Required Checks 或冒充 Review PASS**。Lead 每批次先识别真正阻断当前操作的 Critical/High/安全与 CI 问题并交给该 Subagent；“规则 PR 优先”是**发现与委派的优先权，不代表 Lead 必须亲自清空规则队列**。非阻断规则建议由该 Subagent 集中处理，不得因为措辞/风格复审无限修改 `AGENTS.md`、空提交、反复开 PR 或制造空轮询；出现真实结果或单个 PR 进入外部等待、受阻时，记录 `Owner/HEAD/CI/Review/下一动作` 后应立即检查并推进队列中其他独立规则项；单个 PR 合并/关闭、一次审查批次结束或单个 PR `WAITING/BLOCKED` 均不构成释放条件；只有队列已清空、无可安全执行事项、全部剩余事项均不可安全执行或出现硬停止条件时，才正常释放并记录交接。Lead 与其余合适的 Subagent 在无冲突且允许执行时**持续优先推进 Android/Web 的玩家 P0/P1、挑战原版结算、五阶段 PACING、180 分钟终局、存档兼容及最小真实验证**，Wiki 内容/Pages 的独立必要任务亦不因规则队列停摆；不可把仅处理规则、仅派遣 Agent 或等待 Kody 冒充游戏开发成果。安全/数据损坏/预算停工、峰谷与云端本地 Owner 避让、Kody Balanced/费用限额和最新用户明确指令始终优先；没有可用 Subagent 时 Lead 仅做必要安全收口并记录 `BLOCKED`，不为此停掉可独立执行的主线任务。
+- **Subagent 完成后再调度（长期强制）**：每次 Subagent 完成、失败、取消或释放资源后，Lead 应及时接收并核实真实 Commit/PR/测试证据、更新队列，再按已授权且无冲突的任务继续派发；无安全且有价值的任务时正常释放并记录原因，不制造占位任务。Lead 占用 AVD、签名、最终构建/部署或等待长跑/CI 时，不依赖这些资源的 Android/Web 游戏修复、定向测试准备或 AGP/R8 工程工作，在已授权且处于合法谷时（或安全可执行窗口）时仍应并行推进；不得因等待 Lead 合并 PR 而让已完成 Agent 无故闲置，也不得改动他人认领的 PR 或工作树。峰时停工、预算停工与本条冲突时优先。
+- **规则变更 PR 优先收口（长期强制）**：本地 Codex Lead 每次开始谷时 Issue/PR 批次、接收新的审查结果或准备认领普通 PR 时，**优先核对并实际推进当前四仓未关闭的规范/规则 PR**，包括 `AGENTS.md`、适用的 `DELIVERY_RULES`、跨仓策略、审查/预算/权限/调度规则、构建与发布门禁及其必要引用。以下顺序用于规则/审查收口与其他可选事项的排序；与 [Workspace `AGENTS.md` §1.1](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的游戏优先权冲突时以后者为准：**真实 P0/P1、安全/数据损坏及用户暂停或预算硬限制 > CI FAIL、Kody High、已完成验收且待合并的 PR > 影响当前工作合法性和安全性的规则 PR > 其他规则 PR > 普通功能 PR 与非阻断技术债**；普通功能若属于当前已授权的游戏主线或交付，按 Workspace §1.1 处理，不因本规则序列降级。不得将仅含 Changelog 的 PR 冒充规则变更。先读最新 `origin/main`、Workspace Issue #20 的 Owner/HEAD/交接和各 PR 的 Diff、CI、Review Threads，避免重复认领与覆盖；对无冲突且在授权范围内的规则 PR，执行 `TRIAGE → ACT → VERIFY → PERSIST`：确认规则冲突、修复可信审查意见、运行文档/CI 最小必要检查、推进合格 Draft、核实 Required Checks/审批后合并，或标记具体 `REVIEW_BLOCKED / CI_BLOCKED / CONFLICT / SUPERSEDED` 及下一动作。**优先处理不等于无审查自动合并**：不得绕过 Ruleset、未经授权触发收费 Kody、将 skipped 当 PASS，或为刷进度重复评论。规则 PR 合并后应即时刷新相关仓库 `origin/main` 并重读已生效规则，通知受影响的 Lead/Subagent 按新规则继续；未合并的新规则不得提前宣称生效。云端执行窗口仍按默认只读和明确交接规则避免并发；单个规则 PR 受阻时继续处理无冲突的下一项，不能让全部开发停摆。
+- **具备审查条件的 PR 必须及时 Ready（长期强制）**：`Draft` 仅适用于真实 WIP、缺少独立可审查的 Diff/说明、明确冻结且禁止合并的历史证据、存在尚未排除的严重冲突或安全问题；若已核实转 Ready 会自动触发未经授权、超过已满全局 3 槽或实际日配额硬限制的付费审查，且无法在收费触发器侧安全隔离，才允许额外短暂使用 Draft，并记录 `REVIEW_BLOCKED(concurrency-guard)` 或相应真实阻断、Owner、HEAD、实占槽位、额度和解除条件。**不以其他 PR 正在审查、推测未来高优先级任务或 80 次预警为由，让可审查的独立 PR 长期 Draft。** 除上述事实性例外外，修改已完成、范围清楚且可供审查时，Codex 必须及时将 PR 标记 `Ready for review` 并推进审查，不得只因 CI 尚在运行、预计会出现审查意见或担心 Kody 费用而长期留在 Draft。Ready 只表示允许开始审查，**不等于 Required Checks PASS、Kody Review PASS、游戏验收 PASS 或允许合并**；阻断仍须逐项核实并解决。Lead 每次接收子任务、CI/Review 结果及收口时检查本仓开放 PR，真实不能 Ready 的记录 `Owner / 最新 HEAD / 阻断 / CI / Review / 下一动作`，按需交接至 [Workspace Issue #20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。**收费审查与 Draft/Ready 状态分开管理**：核实事件自动审查触发、Provider、Balanced、既有授权及限额，不重复发送 `@kody start-review`，不为送审私自启用新的付费 Provider；授权或费用受阻如实记 `REVIEW_BLOCKED`，但不得反过来把本来可送审的独立 PR 无限压在 Draft。并发或额度条件解除后应立即 Ready；未解决 P0/P1、分支保护、冲突或必要 Review Threads 必须在合并前解决，不通过切换状态绕过硬门禁。跨仓总规则来源：[Workspace 已合并 PR #27](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/pull/27)及[Workspace AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md)。
+- **Ready 前并发核对（长期强制）**：转 Ready 或推送新 HEAD 前，Lead 必须核对全项目在途付费审查数与当日剩余额度；确认不会触发第 4 个在途付费审查或超过授权额度后才推进。核对结果不改变“Ready 不排队”：有安全隔离时直接 Ready，只有真实满 3 槽且无法隔离收费触发时才短暂记录 `REVIEW_BLOCKED(concurrency-guard)` 并等待槽位释放。
+- **临近额度预留的 Draft 例外（长期强制）**：当转 Ready 会占用 L23 为当日已确认的 P0/P1、安全或合并阻断审查保留的额度时，非阻断 PR 可短暂保留 Draft，并记录 `REVIEW_BLOCKED(quota)` 及 `Owner / HEAD / 已用量 / 在途量 / 具体高优先级依据 / 下一动作`；额度恢复、当日高优先级审查完成或用户放行后立即 Ready。没有具体高优先级待审项时，不得用预测或 80 次预警触发该例外。
+- **合并底线**：真实 P0/P1 与阻塞性问题必须修复或有充分反证；必要线程、审批、Ruleset、Required Checks 与测试均满足后正常合并。不得强推、跳过平台保护、虚构审核或将 `Skipped` / `KODY NOT RUN` 写作 PASS。文档变更不机械运行无关游戏长跑。
+- **Kodus 的规则分层**：通用审查标准归 Kodus Global Rules，项目执行规范归本仓 `AGENTS.md`；不重复抄写为项目级 Kody Rules。Kody 从仓库文件读指令与否以实际配置/证据核实。自动生成的规则先审批去重，只有真正跨仓适用的候选可提升 Global，不能默认未经批准直接生效。
+- **Kody 与额度**：Kody 仅限 Balanced，严禁 Heavy；授权、Provider 或云端审查配置暂停、未知或不确定时，禁止主动触发付费审查或重新连接付费 Provider；按实时授权、Provider、云端配置及费用状态执行。Android/Web 在 UTC+8 自然日共享最多 100 次主动审查请求（80 次预警，无单仓 50 次硬上限）；按原始 `@kody start-review` 评论唯一 ID 去重，避免同 Head SHA/配置重复审查。**Wiki Kody 独立统计，不消耗 Android/Web 这 100 次**，但不意味着无限、免费或自动授权。`Skipped` / `KODY NOT RUN` 不是 PASS；通用审查标准归 Kodus Global Rules，仓库执行规则归 `AGENTS.md`。
+- **Kody 跳过一律不计额度**：所有 Kody 已确认 `skipped` 的审查均不计入项目主动审查额度。触发前跳过不占位；已预占或已发 `@kody start-review` 而 Kody 官方 Check Run 最终确认为 `skipped` 的，按仓库、PR、HEAD 与 Kody Check Run 证据幂等退额；Android/Web 共享 100 次池与 Wiki 独立统计均遵守。未完成审查可临时预占防并发超额；真正完成的审查（即使无问题）仍计数。只有 GitHub Actions 的 `skipped`、缺失回执或不明状态不足以认定 Kody 已跳过，不得擅自退额或把 `SKIPPED` 写为审查 PASS。Kody 平台实际收费另行遵循其规则。
+
+#### 3.1.1 仅规则变更时的 Kody skipped 例外
+
+- 对当前 PR HEAD 的**实际完整 Diff** 核验：仅新增/修改 `AGENTS.md`（含子目录同名文件），不得混入代码、CI、其他文档、构建或发布文件；若混入任何其他路径，不适用本例外。
+- 当 Kody **官方**针对该 HEAD/配置确认因纯规则文件而 `skipped`，该结果不计付费审查配额，亦不等于 Review PASS；不为取得形式上的 PASS 重复触发 Kody。若 Kody skipped 的原因不明、服务故障或未返回官方结论，不得套用本例外。
+- 只要当前 HEAD 的适用 Required Checks、审批、分支保护、Ruleset、合并冲突及其他人工阻断均已核验满足，允许直接自动合并纯 AGENTS.md PR，无需额外等待 Kody 的 PASS 或逐项向用户征询。**不得**绕过 GitHub 强制要求的 Kody Check 或任何其他保护规则；若平台仍将其判为 Required 且未满足，保持 BLOCKED。
+- 合并后回读 GitHub 验证 merged 状态、merge commit 和 main；记录 Kody skipped 的真实原因、HEAD、门禁证据及结果。规则本身的授权不等于任何 PR 已满足合并条件。
+
+## 4. 工作方式与环境
+
+### 4.1 执行效率与及时反馈
+
+- **定期 fetch 与规则重载（2026-11-21 起长期强制）**：本地 Codex Lead 在已授权、活跃的谷时会话中，**启动/恢复本轮工作时立即检查一次；此后距上次成功刷新达到 60 分钟时，必须重新检查 Android、Web、Wiki、Workspace 四仓**：先核对各仓实际工作树/Owner、远端和 Git 锁，再逐仓执行 `git fetch --prune origin`（失败保留错误，不伪记成功），记录 `origin/main` SHA；读取 **`origin/main:AGENTS.md` 与当前工作树适用的 `AGENTS.md`**，对照 Workspace 主线规则、最新 Issue #20 交接以及**与当前任务相关**的专项规则。即使规则文件 SHA 未变也要核对当前有效规则版本和约束；若 SHA 变化，必须重新阅读受影响规则正文并在后续决策中采用，不凭旧会话记忆或旧本地工作树规则行动。此处 **60 分钟是仓库刷新间隔，不是 `current_time_reminder` 的 300 秒时钟提醒间隔**，不另建 cron/systemd timer/Actions schedule、空轮询或后台常驻进程；会话结束、峰时停工时不自动运行，下一次允许的谷时恢复后检查，离线时段不补跑。**会话内等待截止上界**：只要当前 Codex 会话仍在活跃回合内使用原生 `clock.sleep`，单次等待不得晚于**下一次可合法执行的谷时起点（工作日 12:00、18:00，其他日期按可靠日历）、下一次谷时 60 分钟 fetch 与规则重读截止、下一轮 Issue/PR 检查窗口、下一次峰前安全收尾点**中最早的未来时刻；已进入峰时或安全停工窗口时，只允许按当前授权等待至下一个合法谷时起点，不启动主动任务。不能因原生工具支持最长 12 小时就睡过 60 分钟规则刷新或谷时起点；睡眠返回立即重新判时、确认 Owner/交接，并完成已到期检查；会话退出不保证自动唤醒，离线不补跑。
+- **关键动作前的有效性门禁**：新建开发分支、领取新 Issue/PR、修改影响跨仓规则的文件，或合并/发布/部署/变更重要 CI 配置前，若距离上次成功远端刷新超过 **10 分钟**，应先按最小范围重新 fetch、核对最新 `origin/main`、PR HEAD、Required Checks 与相关 `AGENTS.md`/规则；即便未超时，合并等操作仍须即时确认远端最新 HEAD 和 Owner。未获证实的规则/远端状态标记 `STALE/BLOCKED`，不要用缓存结论强行合并或发布。**`fetch` 只更新远端跟踪引用，不等于工作树已经同步，也不授权自动集成**；禁止因此擅自 `pull/rebase/reset --hard/clean/stash`、强制切换、强推或覆盖未提交文件、其他 Agent 工作树。仅在干净且可安全快进的本地 `main` 上才允许 `merge --ff-only`；其余情况标记 `FETCHED_ONLY`（仅取到远端引用、工作树尚未同步）。其中非 `main` 分支、存在未提交/未跟踪文件、远端分叉或其他 Agent 占用等无法安全同步、需阻断合并/交付的情形，必须同时标记 `BLOCKED`，并使用经核实的独立干净 worktree 继续工作。确需让开发分支追上主线时，须另立明确授权的集成任务，在已确认归属的独立干净 worktree 按 [Git 主干/CI 同步规范](docs/GIT_MAIN_CICD_SYNC.md)进行受控合并，不得将例行 `fetch` 解释成自动 rebase 或改写历史的授权。若无 Git 工作树（例如云端只接 GitHub），用 GitHub API 读取各仓默认分支 HEAD 与规则正文作等价**只读刷新**，不得把 API 检查称作本机已执行 `git fetch`。记录上次成功刷新时间、四仓 SHA、实际重读的规则及失败原因；无变化不刷 GitHub 评论。
+- 先按路径/符号/Diff 缩小任务范围，复用未失效的测试及日志；工具相同失败两次应先诊断，不做无价值全量扫描、重试或无关重构。脚本尽量单责复用，不为假想需求提前增加复杂度。
+- 重要进展、失败、预算预警及交付及时用简体中文反馈；长任务原则上每 2 分钟至少反馈一次有实质内容的完成情况、真实障碍与下一步。Lead/Subagent 使用可复核交接资料，避免重复读取上下文、无任务轮询或资源冲突。
+- **本地 Codex 原生 time reminder（用户 2026-11-21 授权）**：本仓与另一平台仓共同遵守 [Workspace `AGENTS.md`](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的云端/本地协同约束。持续运行的**当前本地 Codex 会话**启用 `current_time_reminder`（建议 `reminder_interval_seconds = 300`、`clock_source = "system"`、`delivery_mode = "after_user_or_tool_output"`、`sleep_tool = true`），把提醒给出的 UTC 时间换算为 UTC+8，再按可靠日历判定峰谷；用原生 `clock.sleep` 在活跃回合内等待下一巡检窗口，允许用户新输入中断睡眠。先核实本地 Codex 版本、实际配置、工具是否注册；工具不可用或配置需重启时如实标记 `BLOCKED`。**提醒本身不是定时器，不能在退出、会话终止或机器睡眠后唤醒 Agent。** 不得新设 cron、systemd timer、at、Actions schedule、ChatGPT 自动化、shell sleep 或常驻守护进程替代本地循环。
+- **峰谷与每小时执行（必须运行，不是只提醒）**：按 `scripts/deepseek_pricing.py` 已验证的 UTC+8 判定与当前用户授权执行，工作日峰时为左闭右开 **[09:00,12:00)、[14:00,18:00)**，12:00、18:00 属谷时；周末、法定节假日、脚本明确列出的**调休补班日**均属谷时，日历和判定未知时先核实，不得武断当作谷时。**峰时全员停止主动开发、代码修改、构建、测试、Git/CI/CD 和新付费审查**，仅可完成安全停工、证据保存或按最新用户明确例外执行；峰前 08:50、13:50 开始收尾。当前 Codex 会话在合法谷时且存在安全可执行的 Issue/PR 收口目标时，由 Lead 每个自然小时启动一次收口批次、最多一次；无可执行目标时留存原因，不重复启动。该上限仅约束 Lead 的会话级批次，不约束专职规则治理 Subagent 在合法窗口内持续逐个处理多个规则 PR。不可用纯巡检、生成报告、建议下一步冒充已处理。离线错过不补跑；收到 `current_time_reminder`、`clock.sleep` 返回、用户输入或耗时操作完成后重新判时，空闲使用原生 `clock.sleep` 而非 shell 睡眠/空轮询，单次睡眠严格遵守本节“会话内等待截止上界”，12 小时只是原生工具的技术最大值，绝不是调度上限。纯睡眠期间不强制每两分钟发送进度。
+- **本地 Codex 必须实际处理 Issue/PR，且与云端避让**：每轮先读取 [Workspace Issue #20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)，在 Android/Web/Wiki/Workspace 四仓针对最新 HEAD/Owner/CI/Diff/Review Threads 完成 **INTAKE → TRIAGE → ACT → VERIFY → PERSIST**，优先 P0/P1、CI FAIL、Kody High、已验收待合并、可安全关闭的旧 Draft 及本机 Kotlin/AGP/DEX、AVD/真机、存档与工具链等本机独有任务。**有已授权、无冲突且可安全执行的目标时，必须实际行动**：定向复现或修复、修改代码并提交 PR、对真实审查意见回复及修复后解决线程、推进 Ready/合并合格 PR、关闭已被替代且核实无独有内容的 Issue/PR；处理后回读最新状态与证据。仅能报告或受阻时须记录具体阻断、Owner、HEAD 和后续动作，不得虚报完成、空提交或刷评论。云端独立按 UTC+8 **07:00–08:50、12:00–13:50、18:00–19:50** 执行；这些窗口内**共享 GitHub Issue/PR 默认只读**，本地仅处理不会写入云端目标的独立本机工作；只有在 Issue #20 已明确将具体任务/HEAD 交接给本地且核实云端无并发操作时才能写入。其他谷时写入前也须在 #20 核对并明确记录任务认领、Owner、PR/Issue、HEAD 和操作范围；有竞争或未知归属则只读并跳过。不得抢改分支、共享工作树、AVD、签名和重复收费审查。每小时保存本地执行标识、真实动作/阻断及交接，#20 只在状态实质变化时增量更新；遵守最新预算、Kody Balanced、Android+Web 共享每日 100 次、分支保护、Required Checks、必要功能及五项游戏验收，`Skipped` 非 PASS。不得新开 `/goal`、生成 R 编号或重置当前轮次。
+- 详细事实、当轮步骤、当前状态、工具版本、PR、构建回执和历史报告放在对应 `tasks/`、`reports/`、`docs/`；`AGENTS.md` 只留长期约束。任何规则整理不得改写历史任务编号、源代码证据或已发布产物；用户最新明确指令、实际 GitHub 门禁和预算安全约束优先。
+- **PR 原子化**：一个 PR 只处理一个独立且可审查的目标；约 400 行有效改动为软建议，超过约 800 行须评估拆分，不机械拆开必要的原子改动。禁止巨型混合 PR、强推、覆盖他人修改、绕过 CI/Ruleset 或重复付费审查。
+- **证据与命名**：连续测试存档、长日志、截图和大量构建输出独立归档，保留可追溯索引及必要 SHA-256，源码 PR 仅保留摘要、关键复现样本，禁止删除唯一证据。所有项目人工维护文件、目录优先准确简体中文；技术必需的源代码、`AGENTS.md`、`.github/`、构建配置、协议及工具名保持兼容，迁移后验证引用与 CI。
+- **多 Agent 协作**：Lead 动态派发已授权、可执行且无文件冲突的任务，文件派单与汇报，及时核实 Subagent 结果并决策；独立工作树和明确文件归属。AVD、签名、最终 Release 构建及部署独占；无有价值任务时正常空闲，不空唤醒、不造占位任务，Subagent 完成不等于 Goal 完成。Lead 及时用简体中文反馈实际进展。
+
+### 4.2 持续推进与短测收敛
+
+- **继承跨仓权威**：遵循 [Workspace AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的持续执行、短测收敛、Owner 避让和 Subagent 连续调度规则；以该规则实际合并进入 main 后的版本为准，不提前宣称未合并 PR 已生效。
+- **阶段完成不等于停工**：当前 Goal active、合法窗口且存在已授权、无冲突的安全工作时，完成一次修复、测试、PR 或报告后立即处理下一项；只在真实完成、用户暂停、峰时/预算/安全限制、资源或权限阻断等条件下安全收口。不为凑时长空转。
+- **测试假设驱动**：每轮定向测试记录候选 HEAD、输入、预期状态变化、实际证据和停止条件；同一代码/条件下不得反复做没有新增验证目标的相同短测，失败先定位根因。Android 的 Kotlin/DEX、定向测试与 AVD/真机验证须使用真实候选；95/95 静态或单元测试 PASS 不等于 AVD、PACING 或存档兼容 PASS。
+- **外部等待期间独立推进**：云端 GitHub 写入窗口、Kody/CI/审批等待期间，在其他规则允许的工作窗口继续不冲突的本地工作和证据整理；禁止抢占共享分支、AVD、签名或覆盖他人修改。及时报告真实进展，但报告不是停止信号。
+
+### 4.3 环境故障诊断与安全恢复
+
+- **禁止过早 BLOCKED**：遇到 ADB offline、AVD 启动失败、KVM/GPU、Gradle、D8/R8、签名输入或 APK 安装 等环境异常，Agent 必须先在授权时间/权限/预算/Owner 边界内完成有证据的自主定位和最小安全恢复；一次或两次失败、单独的 `offline`、构建工具存在或静态检查 PASS 都不能证明环境不可恢复，也不能把环境失败归咎于 APK/业务代码。
+- **诊断闭环**：先核对是否与其他 Agent、AVD、浏览器、构建任务争用资源；收集命令、版本、退出码、stderr/日志、进程/端口、磁盘/内存/OOM、权限及相关设备状态；区分进程退出、连接未就绪、系统未启动、应用安装/启动失败。依据证据逐项选择不同的最小恢复方案，并验证恢复后的真实功能，不按固定次数机械重试。
+- **保护现场与密钥**：优先只读诊断、冷启动/禁用快照、兼容渲染或隔离临时环境等非破坏性手段；不得未经核实抢占共享 ADB server、AVD、浏览器或工作树，不清空 userdata、不删他人 AVD、不重置共享环境、不打印/复制密钥、不强推或绕过安全门禁。涉及系统级修改须符合用户已有授权及最小影响原则。
+- **BLOCKED 的证据门槛**：只有确认硬件、权限、资源、外部服务、安全限制或不可安全修复的实际阻断，才标记 `ENVIRONMENT_BLOCKED`，附已尝试的互不重复方案、日志/退出码、已排除原因、剩余根因、Owner 和可执行恢复步骤；否则保持 `DIAGNOSING`。受峰时或截止限制应标 `DEFERRED`，不伪称永久阻断。
+- **隔离与持续推进**：环境故障期间继续其他合法、不冲突任务；恢复后重跑受影响的最小真实验证。环境修复成功、CI PASS 或 APK 构建成功均不得代替 Android AVD/真机、Web 真实浏览器、Wiki 线上功能等各自的实际验收。
+
+### 4.4 规则合并后的本机安全同步
 
 - **触发**：任一已授权项目仓库的长期规则（如 `AGENTS.md`、明确引用的规则文档）PR 实际合并到受保护默认分支后，必须立即启动对应本机工作副本的规则同步交接，不得等到下次开发轮次、定时巡检或下一次构建。仅创建 PR、CI 绿灯或宣称合并不触发已完成同步。
 - **职责与执行**：完成合并的云端 Agent 先回读确认 Merge Commit、目标分支和规则文件最新 SHA，随后通过**真实可用且已授权**的本机执行/消息通道通知本机 Lead（Codex/Twinny/Claude Code 等），附仓库、Merge Commit、受影响文件、优先级和具体同步命令；本机 Lead 在安全检查后立即 `git fetch` 并以非破坏性方式更新对应工作树，核验本机 `AGENTS.md` 与远端合并版本一致，记录本机 HEAD/文件 SHA 与结果。同步属于交接后的独立本机动作，云端 GitHub API 合并本身不能证明本机已经更新。
