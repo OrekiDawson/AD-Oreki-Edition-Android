@@ -203,7 +203,7 @@ EXPECTED_ABI = {
     "kajfosz.antimatterdimensions.oreki.tutorial.TutorialActivity": [
         "public final void onTabClick(int)",
         "public final void openChapterDrawer()",
-        "public android.view.WindowInsets onApplyWindowInsets(android.view.View, android.view.WindowInsets)",
+        "public final android.view.WindowInsets onApplyWindowInsets(android.view.View, android.view.WindowInsets)",
     ],
 }
 

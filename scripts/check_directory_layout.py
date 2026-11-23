@@ -30,18 +30,32 @@ def kotlin_files(root: Path, relative: Path) -> set[Path]:
     return {path.relative_to(directory) for path in directory.rglob("*.kt") if path.is_file()}
 
 
-def source_set_block(build_text: str) -> str:
-    # A missing source-set declaration is a failure for the nested AGP project.
-    match = re.search(
-        r'sourceSets\["main"\]\.kotlin\.(?:'
-        r'srcDirs\s*\((.*?)\)|'
-        r'directories\.addAll\s*\((.*?)\n\s*\)'
-        r')',
-        build_text, re.DOTALL,
-    )
+def balanced_call_body(text: str, pattern: str) -> str:
+    """返回 Kotlin 调用括号内的完整正文，支持 File(...) 等嵌套括号。"""
+    match = re.search(pattern, text)
     if not match:
         return ""
-    return match.group(1) or match.group(2) or ""
+    depth = 1
+    for index in range(match.end(), len(text)):
+        if text[index] == "(":
+            depth += 1
+        elif text[index] == ")":
+            depth -= 1
+            if depth == 0:
+                return text[match.end():index]
+    return ""
+
+
+def source_set_block(build_text: str) -> str:
+    # A missing source-set declaration is a failure for the nested AGP project.
+    for pattern in (
+        r'sourceSets\["main"\]\.kotlin\.srcDirs\s*\(',
+        r'sourceSets\["main"\]\.kotlin\.directories\.addAll\s*\(',
+    ):
+        block = balanced_call_body(build_text, pattern)
+        if block:
+            return block
+    return ""
 
 
 def check_layout(root: Path) -> list[str]:
