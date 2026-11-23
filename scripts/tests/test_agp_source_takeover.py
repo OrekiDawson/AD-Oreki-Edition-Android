@@ -15,6 +15,12 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("public interface a5", source)
         self.assertIn("void j(Object value);", source)
 
+    def test_a13_matches_official_context_wrapper_shape(self):
+        source = (ROOT / "app/src/main/java/a13.java").read_text(encoding="utf-8")
+        self.assertIn("public final class a13 extends ContextWrapper", source)
+        self.assertIn("public static final int a = 0;", source)
+        self.assertNotIn("extends j13", source)
+
     def test_takeover_manifest_is_reviewable_and_unique(self):
         manifest = (ROOT / "build-logic/source-takeover.txt").read_text(encoding="utf-8")
         entries = [
@@ -54,6 +60,51 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             source = (ROOT / "app/src/main/java" / name).read_text(encoding="utf-8")
             self.assertNotIn("package ", source)
             self.assertIn(signature, source)
+
+    def test_hyphenated_firebase_auth_interfaces_keep_original_descriptors(self):
+        expected = {
+            "n36": (
+                "com.google.android.gms.internal.`firebase-auth-api`.c0",
+                (
+                    "fun a(value: c0): Int",
+                    "fun b(target: Any, data: ByteArray, offset: Int, length: Int, reader: mq5)",
+                    "fun c(value: c0): Int",
+                    "fun d(target: Any, reader: y80, extensionRegistry: q16)",
+                    "fun e(target: Any, writer: qx7)",
+                    "fun f(first: c0, second: c0): Boolean",
+                    "fun zze(): c0",
+                    "fun zzf(target: Any)",
+                    "fun zzg(target: Any, source: Any)",
+                    "fun zzl(target: Any): Boolean",
+                ),
+            ),
+            "n79": (
+                "com.google.android.gms.internal.`firebase-auth-api`.k0",
+                ("fun h(parser: k0, text: CharSequence): Iterator<*>",),
+            ),
+            "wt5": (
+                "com.google.android.gms.internal.`firebase-auth-api`.y",
+                (
+                    "fun c(status: Status, callback: yj3)",
+                    "fun d(callback: qy4)",
+                    "fun f(response: lz5)",
+                    "fun l(response: lz5, callback: vy5)",
+                    "fun m(status: Status)",
+                    "fun p(request: wx5)",
+                    "fun s(credential: y)",
+                    "fun y(callback: ny4)",
+                    "fun zzl()",
+                ),
+            ),
+        }
+        for name, (import_name, signatures) in expected.items():
+            source = (ROOT / "app/src/main/kotlin" / f"{name}.kt").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(f"import {import_name}", source)
+            for signature in signatures:
+                self.assertIn(signature, source)
+            self.assertNotIn("p000firebaseauthapi", source)
 
     def test_eternity_launch_uses_prepared_continuation_constructor(self):
         source = (
