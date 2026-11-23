@@ -1297,3 +1297,49 @@ owner 变换已抽为 `adaptConstructorOwnerClass` 函数；`:build-logic:test`
 
 剩余 356 项 blocked、ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项
 游戏门禁仍未完成。
+
+### 13.17 无构造器 Binder 子类 super/owner 根因恢复
+
+本批处理 9 个同根因 blocked 类：
+
+- `j36`、`cy1`、`ox1`、`jv7`、`cc7`
+- `kn5`、`x76`、`p86`、`p2`
+
+冻结 JAR 中这些类均为 `abstract`，原版 super 为 `jh5`，仅实现一个接口并保留
+一个 `public static final synthetic int b` 字段；原版 classfile 明确
+`methods: 0`。`jh5` 只声明 `(B)V` 与 `(Ljava/lang/String;B)V` 构造器，
+因此 JADX 的空类文本经 javac 编译时会被隐式加入无参构造器，无法直接满足原版
+ABI。
+
+源码按原版字段和接口恢复为无包 Java 类，编译期暂以 `java/lang/Object` 为
+super。该变换已抽为真实可测试的 `adaptConstructorlessOwnerClass`；ASM 断言
+唯一隐式 `()V` 构造器的首个调用确为 `Object.<init>()V`，随后恢复 super 为
+`jh5` 并删除该隐式构造器，写入
+`constructorless_owner_adaptations` 证据。最终 ABI 与 DEX 守卫同时把 9 个类
+纳入 `--require-no-constructor`，防止构造器重新进入正式产物。
+`:build-logic:test` 对构造器 owner 与无构造器 owner 两类变换各执行 4 个
+真实 class 字节用例，覆盖正例及错误 source super、错误 descriptor、错误
+构造器 owner，合计 **8/8 PASS**；Python 规格测试逐类解析 manifest 中的
+source/target 与 class path，不再只匹配插件源码字符串。
+
+- 生产接管总数由 `1641` 增至 **1650**，blocked 由 `356` 降至 **347**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS。
+- `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1650/1650 PASS**。
+- `constructor_guard.missing_from_abi=[]`、
+  `constructor_guard.unexpected_in_dex=[]`。
+- Python 定向测试 43/43 PASS。
+- 无专有 JAR 的 bridge
+  `:app:testDebugUnitTest :app:assembleDebug :app:copyAgpKotlinClasses` PASS。
+- FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true -PorekiFullGame=true`
+  PASS；既有 5 个 owner mismatch warning 仍存在，本批 9 类没有新增 warning。
+- 当前 FullGame Debug APK：
+  `1b3787e7958830c71063ff00821e0481a1901925db346af7f44f9a89eccf962f`
+  （83,890,272 B）；ABI 门禁通过，仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD `Oreki_API_37`：冷启动 19 秒；候选安装 PASS，
+  `am start -W` 冷启动 2078 ms，前台 Activity 正确，进程存活；主调度
+  `gui-tick #1/#2/#3` 间隔均 10000 ms，`stage=13 unknownLeaf=0 degraded=0`；
+  crash buffer 为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError、
+  NoClassDefFoundError、ClassNotFoundException 或 UnsatisfiedLinkError。
+- ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项游戏门禁仍为
+  **NOT RUN**；剩余 347 项 blocked，保持 Issue #25/#52/#61/#285 OPEN。

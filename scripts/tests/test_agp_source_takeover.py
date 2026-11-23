@@ -347,12 +347,12 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('"constructor_removals"', gradle)
         self.assertIn('"removed_constructor" to "<init>()V"', gradle)
         self.assertIn('"--require-no-constructor"', gradle)
-        self.assertIn("constructorRemovalSpecs.flatMap", gradle)
+        self.assertIn("requiredNoConstructorSpecs.flatMap", gradle)
         dex_task = gradle.split(
             '"verifySourceTakeover${variant}Dex"',
             1,
         )[1].split("project.tasks.matching", 1)[0]
-        self.assertIn("constructorRemovalSpecs.flatMap", dex_task)
+        self.assertIn("requiredNoConstructorSpecs.flatMap", dex_task)
         self.assertIn('"requireNoConstructor"', dex_task)
 
     def test_constructor_owner_shims_restore_original_superclass(self):
@@ -386,6 +386,50 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('"constructor_owner" to "java/lang/Object"', gradle)
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertIn("./gradlew -p build-logic test", workflow)
+
+    def test_constructorless_owner_shims_restore_super_and_remove_implicit_init(self):
+        gradle = (
+            ROOT / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/"
+            "OrekiStorePolicyPlugin.kt"
+        ).read_text(encoding="utf-8")
+        expected = {
+            "j36": "b46",
+            "cy1": "dy1",
+            "ox1": "px1",
+            "jv7": "p58",
+            "cc7": "hm7",
+            "kn5": "to5",
+            "x76": "x86",
+            "p86": "uo6",
+            "p2": "ax1",
+        }
+        for name, interface in expected.items():
+            source = (ROOT / "app/src/main/java" / f"{name}.java").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(
+                f"public abstract class {name} implements {interface}",
+                source,
+            )
+            self.assertIn("public static final int b = 0;", source)
+            self.assertNotIn("jh5", source.split("*/", 1)[1])
+            match = re.search(
+                rf'ConstructorlessOwnerAdaptation\(\s*'
+                rf'"{name}\.class",\s*'
+                rf'"(?P<source>[^"]+)",\s*'
+                rf'"(?P<target>[^"]+)",?\s*\)',
+                gradle,
+            )
+            self.assertIsNotNone(match, name)
+            assert match is not None
+            self.assertEqual(match.group("source"), "java/lang/Object")
+            self.assertEqual(match.group("target"), "jh5")
+        self.assertIn('"constructorless_owner_adaptations"', gradle)
+        self.assertIn("constructorlessOwnerSpecs", gradle)
+        self.assertIn("requiredNoConstructorSpecs", gradle)
+        self.assertIn("adaptConstructorlessOwnerClass", gradle)
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertNotIn(":build-logic:test", workflow)
 
 
 if __name__ == "__main__":

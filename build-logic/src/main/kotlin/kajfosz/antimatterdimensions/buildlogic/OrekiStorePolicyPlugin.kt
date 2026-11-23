@@ -508,6 +508,58 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         "lp6.class",
                         "y61.class",
                     )
+                    val constructorlessOwnerSpecs = listOf(
+                        ConstructorlessOwnerAdaptation(
+                            "cc7.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "cy1.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "j36.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "jv7.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "kn5.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "ox1.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "p2.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "p86.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                        ConstructorlessOwnerAdaptation(
+                            "x76.class",
+                            "java/lang/Object",
+                            "jh5",
+                        ),
+                    )
+                    val requiredNoConstructorSpecs =
+                        (
+                            constructorRemovalSpecs +
+                                constructorlessOwnerSpecs.map { it.classPath }
+                            ).distinct()
                     val adaptSourceAbi = project.tasks.registerAction(
                         "adaptSourceAbi${variant}",
                     ) {
@@ -748,6 +800,35 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "constructor_owner" to "java/lang/Object",
                                     )
                                 }
+                            val constructorlessOwnerRows =
+                                constructorlessOwnerSpecs.map { spec ->
+                                    val classFile = classRoots
+                                        .map { File(it, spec.classPath) }
+                                        .firstOrNull(File::isFile)
+                                    if (classFile == null) {
+                                        throw GradleException(
+                                            "缺少无构造器 owner shim 编译产物: ${spec.classPath}",
+                                        )
+                                    }
+                                    classFile.writeBytes(
+                                        adaptConstructorlessOwnerClass(
+                                            classFile.readBytes(),
+                                            spec,
+                                        ),
+                                    )
+                                    logger.lifecycle(
+                                        "[oreki] 无构造器 super 已恢复并删除隐式 <init>: " +
+                                            "${spec.classPath} ${spec.sourceSuper} -> " +
+                                            spec.targetSuper,
+                                    )
+                                    linkedMapOf(
+                                        "class" to classFile,
+                                        "source_super" to spec.sourceSuper,
+                                        "target_super" to spec.targetSuper,
+                                        "removed_constructor" to "<init>()V",
+                                        "constructor_owner" to "java/lang/Object",
+                                    )
+                                }
                             val evidence = outputs.files.singleFile
                             evidence.parentFile.mkdirs()
                             evidence.writeText(
@@ -757,6 +838,8 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "adaptations" to evidenceRows,
                                         "constructor_removals" to constructorRemovalRows,
                                         "constructor_owner_adaptations" to constructorOwnerRows,
+                                        "constructorless_owner_adaptations" to
+                                            constructorlessOwnerRows,
                                     ),
                                 )) + "\n",
                                 Charsets.UTF_8,
@@ -863,7 +946,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "--exclude-from-abi-manifest",
                                         sourceOwnedManifest.absolutePath,
                                     ) +
-                                        constructorRemovalSpecs.flatMap {
+                                        requiredNoConstructorSpecs.flatMap {
                                             listOf("--require-no-constructor", it)
                                         } +
                                         listOf(
@@ -887,7 +970,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         inputs.files(config.sourceTakeoverManifest, abiScript, packageTask)
                         inputs.property(
                             "requireNoConstructor",
-                            constructorRemovalSpecs,
+                            requiredNoConstructorSpecs,
                         )
                         outputs.file(dexEvidence)
                         doFirstAction {
@@ -914,7 +997,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                     "--apk", packagedApk.absolutePath,
                                     "--manifest", config.sourceTakeoverManifest.absolutePath,
                                 ) +
-                                    constructorRemovalSpecs.flatMap {
+                                    requiredNoConstructorSpecs.flatMap {
                                         listOf("--require-no-constructor", it)
                                     } +
                                     listOf(
@@ -1039,6 +1122,131 @@ internal fun adaptConstructorOwnerClass(
     require(sawClass) { "${spec.classPath} 缺少 class header" }
     require(constructors == 1 && sawObjectConstructor) {
         "${spec.classPath} 构造器 owner shim 不唯一或未调用 Object.<init>()V"
+    }
+    return writer.toByteArray()
+}
+
+internal data class ConstructorlessOwnerAdaptation(
+    val classPath: String,
+    val sourceSuper: String,
+    val targetSuper: String,
+)
+
+internal fun adaptConstructorlessOwnerClass(
+    input: ByteArray,
+    spec: ConstructorlessOwnerAdaptation,
+): ByteArray {
+    var constructors = 0
+    var sawObjectConstructor = false
+    ClassReader(input).accept(
+        object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9) {
+            override fun visit(
+                version: Int,
+                access: Int,
+                name: String,
+                signature: String?,
+                superName: String?,
+                interfaces: Array<out String>?,
+            ) {
+                require(superName == spec.sourceSuper) {
+                    "${spec.classPath} 编译期 super 应为 ${spec.sourceSuper}，实际 $superName"
+                }
+            }
+
+            override fun visitMethod(
+                access: Int,
+                name: String,
+                descriptor: String,
+                signature: String?,
+                exceptions: Array<out String>?,
+            ): MethodVisitor? {
+                if (name != "<init>") return null
+                constructors += 1
+                require(descriptor == "()V") {
+                    "${spec.classPath} 隐式构造器 descriptor 应为 ()V，实际 $descriptor"
+                }
+                return object : MethodVisitor(Opcodes.ASM9) {
+                    override fun visitMethodInsn(
+                        opcode: Int,
+                        owner: String,
+                        name: String,
+                        descriptor: String,
+                        isInterface: Boolean,
+                    ) {
+                        if (!sawObjectConstructor) {
+                            require(
+                                opcode == Opcodes.INVOKESPECIAL &&
+                                    owner == "java/lang/Object" &&
+                                    name == "<init>" &&
+                                    descriptor == "()V",
+                            ) {
+                                "${spec.classPath} 隐式构造器首个调用不是 Object.<init>()V"
+                            }
+                            sawObjectConstructor = true
+                        }
+                    }
+                }
+            }
+        },
+        ClassReader.SKIP_DEBUG,
+    )
+    require(constructors == 1 && sawObjectConstructor) {
+        "${spec.classPath} 无构造器 owner shim 缺少唯一 Object.<init>()V"
+    }
+
+    var writtenConstructors = 0
+    var removedConstructors = 0
+    val writer = ClassWriter(ClassReader(input), 0)
+    ClassReader(input).accept(
+        object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+            override fun visit(
+                version: Int,
+                access: Int,
+                name: String,
+                signature: String?,
+                superName: String?,
+                interfaces: Array<out String>?,
+            ) {
+                require(superName == spec.sourceSuper) {
+                    "${spec.classPath} 重写期 super 应为 ${spec.sourceSuper}，实际 $superName"
+                }
+                super.visit(
+                    version,
+                    access,
+                    name,
+                    signature,
+                    spec.targetSuper,
+                    interfaces,
+                )
+            }
+
+            override fun visitMethod(
+                access: Int,
+                name: String,
+                descriptor: String,
+                signature: String?,
+                exceptions: Array<out String>?,
+            ): MethodVisitor? {
+                if (name == "<init>") {
+                    writtenConstructors += 1
+                    if (descriptor == "()V") {
+                        removedConstructors += 1
+                        return null
+                    }
+                }
+                return super.visitMethod(
+                    access,
+                    name,
+                    descriptor,
+                    signature,
+                    exceptions,
+                )
+            }
+        },
+        0,
+    )
+    require(writtenConstructors == 1 && removedConstructors == 1) {
+        "${spec.classPath} 无构造器 owner shim 不是唯一隐式 <init>()V"
     }
     return writer.toByteArray()
 }

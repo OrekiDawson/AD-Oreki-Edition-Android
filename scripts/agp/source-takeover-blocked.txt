@@ -43,9 +43,7 @@ zs.class | Lzs; | javac/classfile or inherited dependency failure; see class-jav
 b48.class | Lb48; | javac/classfile or inherited dependency failure; see class-javac-8.log
 bj.class | Lbj; | javac/classfile or inherited dependency failure; see class-javac-8.log
 bm6.class | Lbm6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-cc7.class | Lcc7; | javac/classfile or inherited dependency failure; see class-javac-8.log
 cj.class | Lcj; | javac/classfile or inherited dependency failure; see class-javac-8.log
-cy1.class | Lcy1; | javac/classfile or inherited dependency failure; see class-javac-8.log
 dt.class | Ldt; | javac/classfile or inherited dependency failure; see class-javac-8.log
 ep7.class | Lep7; | javac/classfile or inherited dependency failure; see class-javac-8.log
 fd1.class | Lfd1; | javac/classfile or inherited dependency failure; see class-javac-8.log
@@ -59,12 +57,9 @@ i94.class | Li94; | javac/classfile or inherited dependency failure; see class-j
 im6.class | Lim6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 ip3.class | Lip3; | javac/classfile or inherited dependency failure; see class-javac-8.log
 iq2.class | Liq2; | javac/classfile or inherited dependency failure; see class-javac-8.log
-j36.class | Lj36; | javac/classfile or inherited dependency failure; see class-javac-8.log
-jv7.class | Ljv7; | javac/classfile or inherited dependency failure; see class-javac-8.log
 jx4.class | Ljx4; | javac/classfile or inherited dependency failure; see class-javac-8.log
 kf2.class | Lkf2; | javac/classfile or inherited dependency failure; see class-javac-8.log
 kn4.class | Lkn4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-kn5.class | Lkn5; | javac/classfile or inherited dependency failure; see class-javac-8.log
 kt1.class | Lkt1; | javac/classfile or inherited dependency failure; see class-javac-8.log
 kw6.class | Lkw6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 l44.class | Ll44; | javac/classfile or inherited dependency failure; see class-javac-8.log
@@ -77,9 +72,6 @@ nf0.class | Lnf0; | javac/classfile or inherited dependency failure; see class-j
 nl3.class | Lnl3; | javac/classfile or inherited dependency failure; see class-javac-8.log
 o47.class | Lo47; | javac/classfile or inherited dependency failure; see class-javac-8.log
 ok4.class | Lok4; | javac/classfile or inherited dependency failure; see class-javac-8.log
-ox1.class | Lox1; | javac/classfile or inherited dependency failure; see class-javac-8.log
-p2.class | Lp2; | javac/classfile or inherited dependency failure; see class-javac-8.log
-p86.class | Lp86; | javac/classfile or inherited dependency failure; see class-javac-8.log
 pa8.class | Lpa8; | javac/classfile or inherited dependency failure; see class-javac-8.log
 pg5.class | Lpg5; | javac/classfile or inherited dependency failure; see class-javac-8.log
 qi0.class | Lqi0; | javac/classfile or inherited dependency failure; see class-javac-8.log
@@ -94,7 +86,6 @@ tz6.class | Ltz6; | javac/classfile or inherited dependency failure; see class-j
 w5.class | Lw5; | javac/classfile or inherited dependency failure; see class-javac-8.log
 wa3.class | Lwa3; | javac/classfile or inherited dependency failure; see class-javac-8.log
 wf5.class | Lwf5; | javac/classfile or inherited dependency failure; see class-javac-8.log
-x76.class | Lx76; | javac/classfile or inherited dependency failure; see class-javac-8.log
 y09.class | Ly09; | javac/classfile or inherited dependency failure; see class-javac-8.log
 ye1.class | Lye1; | javac/classfile or inherited dependency failure; see class-javac-8.log
 yt8.class | Lyt8; | javac/classfile or inherited dependency failure; see class-javac-8.log
