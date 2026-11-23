@@ -1,5 +1,13 @@
 # Android MOD · Agent 长期规则
 
+## R126｜P0：仅支持 arm64-v8a / x86_64，x86_64 AVD 为日常测试机（2026-11-23，长期强制）
+
+- **支持矩阵正式变更**：Android MOD 正式生产仅支持 `arm64-v8a` 与 `x86_64`；取消 `armeabi-v7a`、`x86` 32 位 JNI/NDK 兼容。标准根级 `:app` AGP NDK ABI 过滤、`jniLibs`、实际 APK `lib/<abi>/`、CI/发行和文档必须一致，禁止发布后手工重包或以删除文件掩盖缺失的 ARM64 原生库。冻结基线、研究档案/DEX 与 Java/Kotlin 方法签名、反射和存档兼容不得为“去掉 ARMv7”误删。原版必要 JNI 必须真实取得对应 64 位实现后才能称 PASS。
+- **测试设备默认**：日常开发和大多数定向回归使用用户 **x86_64 Linux 电脑上的唯一 Android AVD**（目前目标 API 37），由 AVD Owner 独占；不要求每个普通 PR 都占用用户手机。用户 **Android 真机**（历史设备 Xiaomi 23113RKC6C / Android 16，以实时 ADB 验证为准）仅在可用且用户授权时**偶尔**进行 ARM64 安装、冷启动、原生库/性能、存档与设备差异抽样测试；不默认当成长期 CI 或自动调用设备。
+- **退役任务特殊验收**：需核查原版/生产 `.so` ABI 及必要 64 位替代、`adb shell getprop ro.product.cpu.abilist`，生产 APK 只含两种允许 ABI 的 JNI、无 32 位原生库，x86_64 AVD 安装/启动/Tick/存档 PASS。ARM64 真机证据必须单列 PASS/FAIL/NOT RUN；没测试不得冒充已验证，真机暂不可用不能阻断其他独立工作。Release/签名/Kody/CI/合法结算/存档门禁仍有效。
+- **与全量 Smali 迁移并列 P0**：同属当前 R126 的架构目标，资源和 Owner 避让，不重复全仓审计、不创建新 `/goal` 或 R 号；用户数据、真实玩家 P0、安全/预算优先。权威 Issue：[Android #285](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/285)、[#52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47)。
+
+
 ## R126｜最高架构 P0：单夜全量 Smali/DEX 生产依赖清零（2026-11-23，长期强制）
 
 - **最新用户授权覆盖旧试点节奏**：R126 目标为本次夜间执行窗口**一次性完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin**、切断 Smali 生产补丁/手工 DEX 注入、彻底退役 `scripts/build_mod.py` 与旧 APK 二次拼装。不再把“先做一个小闭包、未来多轮慢慢推进”当作任务终点；内部最小闭包增量编译/提交仍用于安全集成。此目标未完成前不得写 PASS。
