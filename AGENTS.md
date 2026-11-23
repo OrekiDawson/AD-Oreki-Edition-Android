@@ -1,6 +1,39 @@
 # Android MOD · Agent 长期规则
 
+## P0 应用身份：oreki.net 对应的 Android applicationId（2026-11-23，长期强制）
+
+- **用户正式选定的身份**：Android MOD 正式 `applicationId = "net.oreki.antimatterdimensions"`，Debug 应用 `net.oreki.antimatterdimensions.debug`（AGP `applicationIdSuffix`）。这是**P0 架构与用户数据迁移任务**，与 Android #52（`build_mod.py` 退役）、#61（根级标准 AGP 工程）、#25（完整游戏）、#17（发布）和 R126 PR #276 同步执行。原版包名 `kajfosz.antimatterdimensions`、需要保留的 `namespace`、混淆类/descriptor/ABI 不因 applicationId 改动而批量重命名。
+- **真正实施而非只改名称**：按标准 AGP Variant 分别处理正式/Debug 资源 stable IDs、Manifest `${applicationId}` 占位符、Provider/FileProvider authorities、动态快捷方式 targetPackage、权限、App Links/深链、存档导出入、BuildConfig/测试/生成资源、CI 和 provenance、签名/发布清单与发行下载说明。迁移 `com.oreki.antimatterdimensions` 的**生产身份引用**，但保留必要的旧存档识别、原版基线和历史证据。不得用最终 APK 修改/二次拼包替代 AGP 官方机制。
+- **应用身份不可覆盖兼容**：不同 applicationId 是两款系统应用，无法以新包名覆盖安装旧 `com.oreki.antimatterdimensions`；旧版私有数据不会自动进入新包，即使签名相同。**禁止静默卸载旧版、清除数据或承诺自动迁移**；必须提供旧版本导出存档→新版本导入的实际验证，并验证 API 37 AVD 上旧新共存、Debug/Release 变体隔离、包名/签名/Provider/快捷方式及关键真实玩法。
+- **实施与证据**：由 Android R126 Lead 在受保护工作树中执行，保持 Google 官方 AGP Kotlin→D8/R8→DEX→APK、Kotlin-only 新/改业务、临时未改旧 Java 允许的现行规则。每个 P0 闭包记录代码/资源/路径变更、Commit/PR、候选 APK SHA、测试 PASS/FAIL/BLOCKED/NOT RUN；未验证不得把包名切换称为可覆盖升级或 Stable PASS。规则合并后必须立即安全同步本机，只有本机回读 SHA 后才标 `LOCAL_SYNC_VERIFIED`。
+
+
+## 旧 Smali → Java 临时过渡与 Kotlin 改动边界（2026-11-23，长期强制）
+
+- **允许原版旧码分阶段恢复**：冻结基线中已有 Smali/DEX 可在保持可追溯语义和真实 ABI 的前提下暂时还原为 Java，作为 AGP 原生编译的**遗留兼容实现**，无需先一次性翻译全部代码为 Kotlin；研究用反编译 Java 与实际生产 Java 必须明确分离。反编译输出不保证天然可编译，不能凭源码生成或编译成功声称语义兼容。
+- **新增或实质修改必须 Kotlin**：新的游戏业务/功能、修改旧 Java 业务行为、修复旧 Java 的功能缺陷，必须先将该类或最小自洽逻辑闭包迁到 Kotlin，再实现改动；不得直接在过渡 Java 或原始 Smali 上新增业务逻辑、补丁和功能分支。允许保留原样且确有消费者的遗留 Java，不要求无关类提前重写。
+- **规范路径与唯一实现**：标准 `app/src/main/java/` 可暂存已验证可编译的旧 Java，`app/src/main/kotlin/` 存放 Kotlin 业务；同一 descriptor 不得 Java/Kotlin/Smali 双重生产定义。每批登记对应基线证据、Kotlin 接管范围、剩余 Java、实际 DEX/ABI/资源/存档/关键运行证据，随迁移移除无消费者的旧工具和旧调用；过渡 Java 不得演变成永久的新业务开发区。
+
+
+## P0 架构主线：根目录标准化与旧构建链同步退役（2026-11-23）
+
+- **明确等级**：用户将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P0 架构任务**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。P0 架构不表示已经发现游戏崩溃；用户暂停、预算/安全、真实玩家致命 P0/P1 仍优先。
+- **直接落地**：优先整理 Android 根目录、根级 AGP Kotlin DSL 入口、`app/src/main/kotlin`、Source Sets、资源、`scripts/`、`tools/`、`docs/`、`reports/`、`baseline/` 职责归属。人工维护文件/目录名优先中文，但 Android/Gradle/Kotlin/SDK/GitHub/CI 所要求的技术路径必须保留；批量移动须同步修复源码、CI、发布、脚本、文档与跨仓内链。分小 PR、独立工作树、实质完成，不只做盘点、改名或空报告。
+- **迁移即清理硬规则**：每完成一个实际生产构建环节的 Kotlin/AGP/Gradle Kotlin DSL/必要确定性字节码变换替代，同一批删除旧 `scripts/build_mod.py` 中对应实际可达调用、旧 Groovy 任务、过期路径、重复文件及该环节独占且**已无调用者**的旧工具。共享工具在最后一个消费者退役的同一批删除；不可强求“一个函数对应一个工具”，不可用新包装器继续调用旧脚本冒充完成。
+- **最终技术目标**：根级 AGP 为唯一正式构建入口；`scripts/build_mod.py`、旧 Groovy 正式入口、生产期 Smali 文本补丁、旧 Python 构建依赖及无用工具彻底退出。新增/修改的游戏业务只能 Kotlin；原版 Smali/DEX 允许经验证暂时恢复为未扩展业务的 Java 过渡实现，实质修改旧 Java 业务前须先迁 Kotlin；继续沿用冻结的官方 Android 3.21.0、真实 ABI、合法挑战/结算、签名及存档兼容。R8 ON 运行问题须实际修复，不通过虚构 PASS 或长期绕过解决。
+- **本机工具治理**：Google 官方 Android SDK/Emulator/Build Tools 集中在系统根分区专用 `/opt/android-sdk`；仅保留一台 API 37 AVD（`/opt/android-avd`），专用目录属主 `oreki:oreki`。先迁移/验证再清理，不能删除 AGP 实际依赖的版本、共享 JDK/系统 Python、原版基线、密钥、存档、发布包和证据；禁止递归修改整个 `/opt`、`/usr`。最新且兼容的稳定版优先。
+- **每批闭环**：旧生产调用→新实现路径、实际移动/删除文件与工具、剩余消费者、Commit/PR、磁盘释放量、源码/ABI/DEX/资源/必要 AVD 定向证据逐项记录；适用 CI/Kody/Ruleset/签名与 Release 门禁不降，禁止把 Debug 构建或纯迁移 PR 当作完整游戏验收。每轮最多一次正式 Release 构建。规则 PR 实际合并后立即交接本机安全同步，只有本机回读证明才标同步成功。继续 R126，不开新 `/goal` 或 R 编号。
+
+
 > 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
+
+## 环境故障自主诊断与有界恢复（2026-11-23，长期强制）
+
+- **禁止过早 BLOCKED**：遇到 ADB offline、AVD 启动失败、KVM/GPU、Gradle、D8/R8、签名输入或 APK 安装 等环境异常，Agent 必须先在授权时间/权限/预算/Owner 边界内完成有证据的自主定位和最小安全恢复；一次或两次失败、单独的 `offline`、构建工具存在或静态检查 PASS 都不能证明环境不可恢复，也不能把环境失败归咎于 APK/业务代码。
+- **诊断闭环**：先核对是否与其他 Agent、AVD、浏览器、构建任务争用资源；收集命令、版本、退出码、stderr/日志、进程/端口、磁盘/内存/OOM、权限及相关设备状态；区分进程退出、连接未就绪、系统未启动、应用安装/启动失败。依据证据逐项选择不同的最小恢复方案，并验证恢复后的真实功能，不按固定次数机械重试。
+- **保护现场与密钥**：优先只读诊断、冷启动/禁用快照、兼容渲染或隔离临时环境等非破坏性手段；不得未经核实抢占共享 ADB server、AVD、浏览器或工作树，不清空 userdata、不删他人 AVD、不重置共享环境、不打印/复制密钥、不强推或绕过安全门禁。涉及系统级修改须符合用户已有授权及最小影响原则。
+- **BLOCKED 的证据门槛**：只有确认硬件、权限、资源、外部服务、安全限制或不可安全修复的实际阻断，才标记 `ENVIRONMENT_BLOCKED`，附已尝试的互不重复方案、日志/退出码、已排除原因、剩余根因、Owner 和可执行恢复步骤；否则保持 `DIAGNOSING`。受峰时或截止限制应标 `DEFERRED`，不伪称永久阻断。
+- **隔离与持续推进**：环境故障期间继续其他合法、不冲突任务；恢复后重跑受影响的最小真实验证。环境修复成功、CI PASS 或 APK 构建成功均不得代替 Android AVD/真机、Web 真实浏览器、Wiki 线上功能等各自的实际验收。
 
 ## 持续执行与有效验证（2026-11-23，长期强制）
 
@@ -8,6 +41,13 @@
 - **阶段完成不等于停工**：当前 Goal active、合法窗口且存在已授权、无冲突的安全工作时，完成一次修复、测试、PR 或报告后立即处理下一项；只在真实完成、用户暂停、峰时/预算/安全限制、资源或权限阻断等条件下安全收口。不为凑时长空转。
 - **测试假设驱动**：每轮定向测试记录候选 HEAD、输入、预期状态变化、实际证据和停止条件；同一代码/条件下不得反复做没有新增验证目标的相同短测，失败先定位根因。Android 的 Kotlin/DEX、定向测试与 AVD/真机验证须使用真实候选；95/95 静态或单元测试 PASS 不等于 AVD、PACING 或存档兼容 PASS。
 - **外部等待期间独立推进**：云端 GitHub 写入窗口、Kody/CI/审批等待期间，在其他规则允许的工作窗口继续不冲突的本地工作和证据整理；禁止抢占共享分支、AVD、签名或覆盖他人修改。及时报告真实进展，但报告不是停止信号。
+
+## 仅 AGENTS.md 变更的 Kody skipped 快速合并规则（2026-11-23）
+
+- 对当前 PR HEAD 的**实际完整 Diff** 核验：仅新增/修改 `AGENTS.md`（含子目录同名文件），不得混入代码、CI、其他文档、构建或发布文件；若混入任何其他路径，不适用本例外。
+- 当 Kody **官方**针对该 HEAD/配置确认因纯规则文件而 `skipped`，该结果不计付费审查配额，亦不等于 Review PASS；不为取得形式上的 PASS 重复触发 Kody。若 Kody skipped 的原因不明、服务故障或未返回官方结论，不得套用本例外。
+- 只要当前 HEAD 的适用 Required Checks、审批、分支保护、Ruleset、合并冲突及其他人工阻断均已核验满足，允许直接自动合并纯 AGENTS.md PR，无需额外等待 Kody 的 PASS 或逐项向用户征询。**不得**绕过 GitHub 强制要求的 Kody Check 或任何其他保护规则；若平台仍将其判为 Required 且未满足，保持 BLOCKED。
+- 合并后回读 GitHub 验证 merged 状态、merge commit 和 main；记录 Kody skipped 的真实原因、HEAD、门禁证据及结果。规则本身的授权不等于任何 PR 已满足合并条件。
 
 
 ## 0. 游戏优先与规则审查边界（2026-11-22）
@@ -65,8 +105,8 @@
 ## 4. Android 技术与游戏约束
 
 - 官方 Android 3.21.0 是兼容基线；未经授权不整体升级上游、改变包名/签名或破坏存档。实际 Gradle/AGP/JDK/D8/R8 版本以仓库当前构建配置和已验收证据为准，不使用过期版本快照指挥构建。
-- **新增或修改的业务全部使用 Kotlin**；原版 Java/DEX/Smali 仅为原有 ABI 与兼容入口，不新增 Java/Smali 业务。修改混淆符号前核实真实签名、调用路径和运行行为；遵守 Kotlin→DEX→APK 构建与签名流程。
-- **AGP/R8 渐进迁移**：标准 Google Android 工程、AGP、R8 和逐步淘汰 apktool 为长期目标；新链路先验证包名、资源、Kotlin→D8→DEX→APK、ABI、混淆/反射、签名、覆盖安装、真实运行及存档，再替换旧环节。禁止 Kotlin 空壳、伪迁移或新 Java/Smali 业务；JADX 使用 `jadx --deobf -d out_folder input.apk`，同一原版基线复用已导出的成果。
+- **新增或修改的游戏业务全部使用 Kotlin**；允许原版 Smali/DEX 在 ABI/行为验证后临时还原为未经业务扩展的 Java，任何对该旧 Java 的实质功能修改都必须先转 Kotlin；不在 Java/Smali 中继续开发业务。修改混淆符号前核实真实签名、调用路径和运行行为；遵守 Kotlin→DEX→APK 构建与签名流程。
+- **AGP/R8 渐进迁移**：标准 Google Android 工程、AGP、R8 和逐步淘汰 apktool 为长期目标；新链路先验证包名、资源、Kotlin→D8→DEX→APK、ABI、混淆/反射、签名、覆盖安装、真实运行及存档，再替换旧环节。禁止 Kotlin 空壳、伪迁移、在过渡 Java/Smali 中新增或修改游戏业务；JADX 使用 `jadx --deobf -d out_folder input.apk`，同一原版基线复用已导出的成果。
 - **游戏进度真实**：不得伪造资源、阶段、成就、挑战结算、存档或终局；首次大坍缩后不能马上非法解锁 Break Infinity，永恒/现实及挑战按合法进度开放。与 Web 的玩家可见机制和中文教程保持一致。
 - **调度器权威**：MOD 调度 tick 由玩家设置 1–60 秒，默认 10 秒；不得由阶段切换或主循环随意改写。原版自动购买器节拍独立；所有受 MOD 调度器管理的购买器配置由当前合法阶段策略决定，玩家手改后下一 tick 恢复，加载旧档后也进行安全校正。单测必须覆盖真实生产路径，不能用死代码冒充验证。
 - **自动化及 GUI**：总开关关闭立即停止对应 MOD 自动化；挑战从原版真实结算入口完成，不直接补完成位或非法解锁。Android 原创页深色、教程按钮 `#0078D7`、顶栏“当前页面”、默认科学记数法；资源、阶段、配置变化实时同步 GUI，省电模式沿用既有例外。中文玩家教程保留原版信息，MOD 独有内容仅放附录 F，双端一致。
