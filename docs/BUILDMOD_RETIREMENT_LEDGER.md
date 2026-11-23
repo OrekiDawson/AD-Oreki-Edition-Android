@@ -1277,7 +1277,7 @@ Java 编译器不允许子类构造器绕过无构造器父类，因此源码先
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
   `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
   `verifySourceTakeoverDebugDex` 均为 **1641/1641 PASS**；Python 定向测试
-  39/39 PASS。
+  42/42 PASS。
 - FullGame R8 PASS。R8 对上述原版同型构造器输出
   `Invalid stack map table ... Constructor mismatch` warning，但实际保持
   目标 super 与 `Object.<init>()V` 语义；该 warning 是后续 R8 版本需继续回归的
