@@ -1,5 +1,13 @@
 # Android MOD · Agent 长期规则
 
+## P0 应用身份：oreki.net 对应的 Android applicationId（2026-11-23，长期强制）
+
+- **用户正式选定的身份**：Android MOD 正式 `applicationId = "net.oreki.antimatterdimensions"`，Debug 应用 `net.oreki.antimatterdimensions.debug`（AGP `applicationIdSuffix`）。这是**P0 架构与用户数据迁移任务**，与 Android #52（`build_mod.py` 退役）、#61（根级标准 AGP 工程）、#25（完整游戏）、#17（发布）和 R126 PR #276 同步执行。原版包名 `kajfosz.antimatterdimensions`、需要保留的 `namespace`、混淆类/descriptor/ABI 不因 applicationId 改动而批量重命名。
+- **真正实施而非只改名称**：按标准 AGP Variant 分别处理正式/Debug 资源 stable IDs、Manifest `${applicationId}` 占位符、Provider/FileProvider authorities、动态快捷方式 targetPackage、权限、App Links/深链、存档导出入、BuildConfig/测试/生成资源、CI 和 provenance、签名/发布清单与发行下载说明。迁移 `com.oreki.antimatterdimensions` 的**生产身份引用**，但保留必要的旧存档识别、原版基线和历史证据。不得用最终 APK 修改/二次拼包替代 AGP 官方机制。
+- **应用身份不可覆盖兼容**：不同 applicationId 是两款系统应用，无法以新包名覆盖安装旧 `com.oreki.antimatterdimensions`；旧版私有数据不会自动进入新包，即使签名相同。**禁止静默卸载旧版、清除数据或承诺自动迁移**；必须提供旧版本导出存档→新版本导入的实际验证，并验证 API 37 AVD 上旧新共存、Debug/Release 变体隔离、包名/签名/Provider/快捷方式及关键真实玩法。
+- **实施与证据**：由 Android R126 Lead 在受保护工作树中执行，保持 Google 官方 AGP Kotlin→D8/R8→DEX→APK、Kotlin-only 新/改业务、临时未改旧 Java 允许的现行规则。每个 P0 闭包记录代码/资源/路径变更、Commit/PR、候选 APK SHA、测试 PASS/FAIL/BLOCKED/NOT RUN；未验证不得把包名切换称为可覆盖升级或 Stable PASS。规则合并后必须立即安全同步本机，只有本机回读 SHA 后才标 `LOCAL_SYNC_VERIFIED`。
+
+
 ## 旧 Smali → Java 临时过渡与 Kotlin 改动边界（2026-11-23，长期强制）
 
 - **允许原版旧码分阶段恢复**：冻结基线中已有 Smali/DEX 可在保持可追溯语义和真实 ABI 的前提下暂时还原为 Java，作为 AGP 原生编译的**遗留兼容实现**，无需先一次性翻译全部代码为 Kotlin；研究用反编译 Java 与实际生产 Java 必须明确分离。反编译输出不保证天然可编译，不能凭源码生成或编译成功声称语义兼容。
