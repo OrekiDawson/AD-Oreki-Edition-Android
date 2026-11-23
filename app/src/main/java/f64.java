@@ -1,5 +1,5 @@
 import androidx.compose.foundation.MutatePriority;
-import kotlin.coroutines.jvm.internal.ContinuationImpl;
+import oreki.shadow.kotlin.coroutines.jvm.internal.ContinuationImpl;
 
 
 

@@ -62,7 +62,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
                 interface_sources += 1
             if source == f"public interface {name} {{}}\n":
                 empty_interfaces += 1
-        self.assertGreaterEqual(interface_sources, 800)
+        self.assertGreaterEqual(interface_sources, 780)
         self.assertGreaterEqual(empty_interfaces, 170)
         blocked = (ROOT / "scripts/agp/source-takeover-blocked.txt").read_text(encoding="utf-8")
         blocked_names = {

@@ -120,7 +120,7 @@ JADX 研究树仍不进入 Source Set。
 
 | 项 | 结果 |
 |---|---|
-| 变换后游戏 JAR | SHA-256 `77cb53fc7361d29470e1f2fdf7b3dea7a34a1a7a20212965d3d287c0da3bdb9d` |
+| 变换后游戏 JAR | SHA-256 `563533d9d71849e92738ea90f3c45a1f4a36e7b242f3b3f93809c6ee11ddf9ad` |
 | FullGame Debug APK | SHA-256 `365763f34d232f33d8fb47aa654852fc006bfa1edda4c53f745de536becf372d` |
 | descriptor 覆盖 | APK DEX 共 `16,864` 个 descriptor；manifest `829/829` 全部存在，缺失 0 |
 | Gradle | `compileDebugJavaWithJavac`、`verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
@@ -149,25 +149,29 @@ JAR descriptor 存在、Smali 确认为普通类且 class body 非空的小型 J
 | 单元测试 | Gradle 96/96、Python 318/318 PASS |
 | 阻断 | 61 个具体 class 记录在 `scripts/agp/source-takeover-blocked.txt`；不伪报清零 |
 
-### R126 第六批：继续批量迁移小型普通类
+### R126 第六批：继续批量迁移小型普通类 + ABI 收敛
 
 再次对下一批无 decompile warning 的小型普通类执行导入与增量编译。新增 128 个候选后，
-`compileDebugJavaWithJavac` 暴露 72 个直接错误及 6 个依赖级联错误；这些类全部按准确
-class 名移入 blocked 台账，保留其余可验证源码。9 个单字段 synthetic 类按原版 Smali
-补回构造器，保持原字段/构造器 ABI。
+`compileDebugJavaWithJavac` 暴露 72 个直接错误及 6 个依赖级联错误；随后用 JAR 原 class
+与 AGP 编译 class 做字段/方法 ABI 对照，又发现 26 个 JADX 改名、缺少 `<clinit>` 或
+coroutine shadow 类型失真问题。以上类全部按准确 class 名移入 blocked 台账，保留其余
+可验证源码。单字段 synthetic 类按原版 Smali 补回构造器，6 个 coroutine 接口改回
+`oreki.shadow.kotlin.coroutines.jvm.internal.ContinuationImpl` 描述符。
 
-第六批结果：生产 Java `1,024`，Kotlin `45`，blocked `139`。本轮没有把编译失败类留在
+第六批最终结果：生产 Java `990`，Kotlin `45`，blocked `173`。本轮没有把编译失败或 ABI
+缺失的类留在
 Source Set，也没有为了达到数量删除原版类或生成伪实现。
 
 | 项 | 结果 |
 |---|---|
-| 变换后游戏 JAR | SHA-256 `9425d04e2afa591f7e7ee62cc778717bebc4f79b29aebc69eaa66c40b4a24891` |
-| FullGame Debug APK | SHA-256 `c895284f64fdc4a575d4c54e4a319d8d758e50662aa5d599cb2ee82dfa8292e3` |
-| AGP 编译正向校验 | `verifySourceTakeoverDebugClasses`：1024/1024 PASS |
-| descriptor 覆盖 | APK DEX 共 16,864 个 descriptor；manifest 1024/1024 存在，缺失 0 |
+| 变换后游戏 JAR | SHA-256 `77cb53fc7361d29470e1f2fdf7b3dea7a34a1a7a20212965d3d287c0da3bdb9d` |
+| FullGame Debug APK | SHA-256 `33100c646afb0410bdbcbba4a462de042901cf88cecdcd72ef79a69978f60805` |
+| AGP 编译正向校验 | `verifySourceTakeoverDebugClasses`：990/990 PASS |
+| descriptor 覆盖 | APK DEX 共 16,864 个 descriptor；manifest 990/990 存在，缺失 0 |
 | Gradle | `checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
 | 单元测试 | Gradle 96/96 PASS |
-| 剩余阻断 | 61→139 个 class，均可从 blocked 台账按 descriptor 复核 |
+| AVD | 保留旧存档更新启动 PASS；点击开始后 `lastUpdate` 与 `totalTimePlayed` 前进，无 FATAL/ANR |
+| 剩余阻断 | 173 个 class，均可从 blocked 台账按 descriptor 和错误类型复核 |
 
 ## 0. 现状事实（脚本实测）
 

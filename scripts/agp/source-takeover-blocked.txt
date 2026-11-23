@@ -24,6 +24,14 @@ r21.class | Lr21; | depends on blocked dg3.class
 t72.class | Lt72; | depends on blocked g94.class
 do1.class | Ldo1; | depends on blocked t72.class
 su8.class | Lsu8; | depends on blocked ws5.class
+xf.class | Lxf; | depends on blocked to2.class
+qm8.class | Lqm8; | depends on blocked hg8.class
+l39.class | Ll39; | depends on blocked uz8.class
+z29.class | Lz29; | depends on blocked uz8.class
+p29.class | Lp29; | depends on blocked uz8.class
+ag.class | Lag; | depends on blocked to2.class
+tf8.class | Ltf8; | depends on blocked hg8.class
+y24.class | Ly24; | depends on blocked to2.class
 ao5.class | Lao5; | javac/classfile or inherited dependency failure; see class-javac-1.log
 c25.class | Lc25; | javac/classfile or inherited dependency failure; see class-javac-1.log
 c77.class | Lc77; | javac/classfile or inherited dependency failure; see class-javac-1.log
@@ -139,3 +147,29 @@ yt8.class | Lyt8; | javac/classfile or inherited dependency failure; see class-j
 z07.class | Lz07; | javac/classfile or inherited dependency failure; see class-javac-8.log
 zb6.class | Lzb6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 zl6.class | Lzl6; | javac/classfile or inherited dependency failure; see class-javac-8.log
+an7.class | Lan7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+c67.class | Lc67; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+ek7.class | Lek7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+hg8.class | Lhg8; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+i78.class | Li78; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+ik8.class | Lik8; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+iv7.class | Liv7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+iw6.class | Liw6; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+j17.class | Lj17; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+j72.class | Lj72; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+kq5.class | Lkq5; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+kx4.class | Lkx4; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+m32.class | Lm32; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+ot6.class | Lot6; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+p97.class | Lp97; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+pt6.class | Lpt6; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+q66.class | Lq66; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+qr7.class | Lqr7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+s08.class | Ls08; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+tc7.class | Ltc7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+to2.class | Lto2; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+uz8.class | Luz8; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+w56.class | Lw56; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+xu5.class | Lxu5; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+y06.class | Ly06; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+z59.class | Lz59; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
