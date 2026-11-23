@@ -7,7 +7,7 @@
   冷启动并显示 MOD UI，但**运行期语义不保真**：游戏主循环 Tick 卡死（coroutine/Gson/
   Player 更新链 100%% CPU 自旋；无 FATAL），基线无钩子版同样卡死 → enjarify 不能作为
   生产游戏代码来源。该路线状态：BLOCKED。
-- 本脚本只做**过渡打包**：AGP 9.5.1 负责 Manifest/Resources/assets/4 ABI native/签名/
+- 本脚本只做**过渡打包**：AGP 9.5.2 负责 Manifest/Resources/assets/4 ABI native/签名/
   APK 打包与 MOD Kotlin DEX；游戏 + MOD 钩子 DEX 来自同一 work/mod 补丁树的旧链隔离构建
   （build/gradle-stage/unsigned.apk）。它用于验证"AGP 打包链路能承载完整 MOD 游戏"，
   不能宣称 AGP 已编译游戏代码，不能替代正式 Candidate 门禁。

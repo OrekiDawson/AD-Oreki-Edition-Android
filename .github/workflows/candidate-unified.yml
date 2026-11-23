@@ -257,7 +257,7 @@ jobs:
           # resolve WORKSPACE = <repo>/<repo>/../.. — one level above the Actions workspace —
           # then read web/AD-Oreki-Edition/src/core/*.json. Link that path at the pinned
           # Web checkout so the fixtures and the tutorial freshness check read one file.
-          # (R114-02 C1: build_mod.py 不再在构建期生成教程资产，也不再读该 JSON。)
+          # 教程唯一权威源：已提交资产由 Web 单源 JSON 做成熟度校验，不在 APK 构建期生成。
           target="$GITHUB_WORKSPACE/../web/AD-Oreki-Edition"
           mkdir -p "$(dirname "$target")"
           ln -sfn "$GITHUB_WORKSPACE/web/AD-Oreki-Edition" "$target"
@@ -381,7 +381,7 @@ jobs:
             -PorekiSplitTree="$OREKI_SPLIT_TREE" \
             --no-daemon --console=plain
 
-      - name: Build AGP 9.5.1 full-game release APK
+      - name: Build AGP 9.5.2 full-game release APK
         working-directory: source
         env:
           OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
@@ -391,7 +391,7 @@ jobs:
         run: |
           set -euo pipefail
           test -s "$OREKI_GAME_JAR"
-          # 正式路径：AGP 9.5.1 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
+          # 正式路径：AGP 9.5.2 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
           bash ./gradlew -p agp :app:assembleRelease \
             -PorekiFullGame=true \
             -PorekiGameJar="$OREKI_GAME_JAR" \
@@ -416,7 +416,7 @@ jobs:
           test -n "$signer"
           apk="$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
           test -s "$apk"
-          # AGP 9.5.1 无论 signingConfig 如何配置都只输出单一种签名方案（v2-only 或 v3-only）；
+          # AGP 9.5.2 无论 signingConfig 如何配置都只输出单一种签名方案（v2-only 或 v3-only）；
           # verify_release.py 硬性要求 v2+v3。这里用同一生产 keystore 重签，证书/包名/版本不变。
           # --min-sdk-version 24 是必需的：apksigner 会按 APK manifest 的 minSdk(32) 省略 v2 块，
           # 只有显式声明 24 才会同时写入 v2+v3（本地实测；v2-only/v3-only 输入均验证通过）。

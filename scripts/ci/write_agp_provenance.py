@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AGP 候选证据生产者（R114-01）。
 
-用途：AGP 9.5.1 完整游戏 APK 构建完成后，把门禁/下游需要的候选证据一次性写全：
+用途：AGP 9.5.2 完整游戏 APK 构建完成后，把门禁/下游需要的候选证据一次性写全：
   * agp-provenance.json    —— enforce_agp_only.py artifact 门禁要求的 AGP 来源绑定
   * candidate-metadata.json —— 来源 SHA / Web ref / run id / 版本 / 证书 / game jar 绑定
   * release-manifest.json   —— 可选；由真实 verify-release 报告生成（供 verify_release_gate.py）
@@ -21,7 +21,7 @@ import pathlib
 import re
 import sys
 
-AGP_VERSION = "9.5.1"
+AGP_VERSION = "9.5.2"
 BUILD_TASK = ":app:assembleRelease"
 APPLICATION_ID = "com.oreki.antimatterdimensions"
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}")

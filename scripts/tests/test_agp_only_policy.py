@@ -40,7 +40,7 @@ class AgpOnlyPolicyTests(unittest.TestCase):
             (root / "agp/app").mkdir(parents=True)
             (root / ".github/workflows").mkdir(parents=True)
             (root / "agp/build.gradle.kts").write_text(
-                'plugins { id("com.android.application") version "9.5.1" apply false }'
+                'plugins { id("com.android.application") version "9.5.2" apply false }'
             )
             app = root / "agp/app/build.gradle.kts"
             app.write_text('plugins { id("com.android.application") }\n'
@@ -65,7 +65,7 @@ class AgpOnlyPolicyTests(unittest.TestCase):
             (root / "agp/app").mkdir(parents=True)
             (root / ".github/workflows").mkdir(parents=True)
             (root / "agp/build.gradle.kts").write_text(
-                'plugins { id("com.android.application") version "9.5.1" apply false }'
+                'plugins { id("com.android.application") version "9.5.2" apply false }'
             )
             app = root / "agp/app/build.gradle.kts"
             workflow = root / policy.WORKFLOW
@@ -104,10 +104,10 @@ class AgpOnlyPolicyTests(unittest.TestCase):
             meta = {
                 "source_sha": "a" * 40, "candidate_run_id": 123,
                 "sha256": digest, "builder": "AGP",
-                "agp_version": "9.5.1", "build_task": ":app:assembleRelease",
+                "agp_version": "9.5.2", "build_task": ":app:assembleRelease",
             }
             prov = {
-                "schema": 1, "builder": "AGP", "agp_version": "9.5.1",
+                "schema": 1, "builder": "AGP", "agp_version": "9.5.2",
                 "build_task": ":app:assembleRelease",
                 "application_id": "com.oreki.antimatterdimensions",
                 "apk_sha256": digest, "source_sha": "a" * 40,

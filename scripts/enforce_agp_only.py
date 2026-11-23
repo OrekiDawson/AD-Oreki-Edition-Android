@@ -14,7 +14,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-AGP_VERSION = "9.5.1"
+AGP_VERSION = "9.5.2"
 APPLICATION_ID = "com.oreki.antimatterdimensions"
 # 桥接包名（仅用于在 fullGame 条件表达式里识别"非生产"分支）。
 BRIDGE_APPLICATION_ID = "kajfosz.antimatterdimensions.agpbridge"
@@ -50,11 +50,13 @@ def production_application_identity_present(app: str) -> bool:
 
 def check_candidate(root: Path = ROOT) -> None:
     """Reject the legacy production workflow even when AGP debug parity passes."""
+    for retired in ("scripts/build_mod.py", "scripts/oreki_dark_theme.py", "build.gradle", "settings.gradle"):
+        require(not (root / retired).exists(), "retired production entry still exists: " + retired)
     gradle = (root / "agp/build.gradle.kts").read_text(encoding="utf-8")
     app = (root / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
     workflow = (root / WORKFLOW).read_text(encoding="utf-8")
     require(f'id("com.android.application") version "{AGP_VERSION}"' in gradle,
-            "production AGP plugin is not pinned to 9.5.1")
+            "production AGP plugin is not pinned to 9.5.2")
     require('id("com.android.application")' in app,
             "AGP application module missing")
     require(production_application_identity_present(app),
@@ -120,7 +122,7 @@ def main() -> None:
             check_artifact(args.candidate_dir)
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
         parser.exit(1, f"FAIL: {error}\n")
-    print("PASS: AGP 9.5.1 production policy and provenance")
+    print("PASS: AGP 9.5.2 production policy and provenance")
 
 
 if __name__ == "__main__":

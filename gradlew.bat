@@ -66,14 +66,6 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
 @rem Find java.exe
-@rem ---- Oreki: 本机没有全局 Java，优先用仓库内 tools/jdk 作为 JAVA_HOME ----
-@rem 只在 JAVA_HOME 未设置时生效；路径相对仓库根，不写死个人目录。
-@rem 注意：Gradle 9.8.2 官方模板会覆盖本段，升级 wrapper 后必须手工补回。
-if not defined JAVA_HOME (
-    for /d %%j in ("%APP_HOME%tools\jdk\*") do (
-        if exist "%%j\bin\java.exe" set "JAVA_HOME=%%j"
-    )
-)
 if defined JAVA_HOME goto findJavaFromJavaHome
 
 set JAVA_EXE=java.exe

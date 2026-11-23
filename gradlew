@@ -114,18 +114,6 @@ case "$( uname )" in                #(
   NONSTOP* )        nonstop=true ;;
 esac
 
-# ---- Oreki: 本机没有全局 Java 时，优先用仓库内 tools/jdk（仅当 JAVA_HOME 未设置）----
-# 注意：Gradle 9.8.2 的官方模板会覆盖本段，升级 wrapper 后必须手工补回。
-if [ -z "$JAVA_HOME" ] ; then
-    for _oreki_jdk in "$APP_HOME"tools/jdk/* ; do
-        if [ -x "$_oreki_jdk/bin/java" ] ; then
-            JAVA_HOME=$_oreki_jdk
-        fi
-    done
-    if [ -n "$JAVA_HOME" ] ; then
-        export JAVA_HOME
-    fi
-fi
 
 
 # Determine the Java command to use to start the JVM.

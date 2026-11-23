@@ -5,7 +5,7 @@ Inputs are the existing (verified) prebuilt components:
   * base unsigned APK produced by the legacy smali/apktool pipeline: original
     manifest, resources.arsc/res (original resource IDs), native libraries and
     original+patched DEX files;
-  * AGP 9.5.1 built app APK (Kotlin business classes compiled by AGP built-in
+  * AGP 9.5.2 built app APK (Kotlin business classes compiled by AGP built-in
     Kotlin).
 
 The script replaces the Kotlin DEX inside the base APK with the AGP-built DEX

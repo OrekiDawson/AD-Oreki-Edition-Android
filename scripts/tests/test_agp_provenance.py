@@ -60,7 +60,7 @@ class AgpProvenanceTests(unittest.TestCase):
             provenance = json.loads((candidate / "agp-provenance.json").read_text(encoding="utf-8"))
             metadata = json.loads((candidate / "candidate-metadata.json").read_text(encoding="utf-8"))
             self.assertEqual(provenance["builder"], "AGP")
-            self.assertEqual(provenance["agp_version"], "9.5.1")
+            self.assertEqual(provenance["agp_version"], "9.5.2")
             self.assertEqual(provenance["build_task"], ":app:assembleRelease")
             self.assertEqual(provenance["application_id"], "com.oreki.antimatterdimensions")
             self.assertEqual(metadata["source_sha"], SOURCE)

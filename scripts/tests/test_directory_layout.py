@@ -77,7 +77,7 @@ sourceSets["main"].kotlin.srcDirs(
         self.assertTrue(guard.check_layout(self.root))
         (self.root / "scripts/payload/kotlin/demo/Example.kt").unlink()
         self.write("settings.gradle.kts", 'include(":app")\n')
-        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.1" apply false }\n')
+        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.2" apply false }\n')
         self.write("app/build.gradle.kts", 'plugins { id("com.android.application") }\n')
         self.assertEqual([], guard.check_layout(self.root))
 

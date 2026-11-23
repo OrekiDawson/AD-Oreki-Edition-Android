@@ -48,6 +48,14 @@ fun orekiXmlDocument(file: File): org.w3c.dom.Document {
 
 val OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"
 val OREKI_MOD_APPLICATION_ID = "com.oreki.antimatterdimensions"
+val orekiDebugApplicationIdSuffix = providers.gradleProperty("orekiDebugApplicationIdSuffix")
+    .orNull
+    ?.takeIf { it.isNotBlank() }
+    ?.also {
+        require(it.startsWith(".")) {
+            "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug"
+        }
+    }
 val OREKI_ANDROID_NS = "http://schemas.android.com/apk/res/android"
 val OREKI_OFFICIAL_3_21_MANIFEST_SHA256 =
     "b07e4343839b3deb197e4cf0a3cc03cad264d1c4109456204df96f56e64ff6b0"
@@ -401,7 +409,7 @@ fun orekiTransformFullGameManifest(
             element.setAttributeNS(
                 OREKI_ANDROID_NS,
                 "android:authorities",
-                authorities.replace(OREKI_OFFICIAL_PACKAGE, applicationId),
+                authorities.replace(OREKI_OFFICIAL_PACKAGE, "\${applicationId}"),
             )
         }
         val name = element.getAttributeNS(OREKI_ANDROID_NS, "name")
@@ -409,7 +417,7 @@ fun orekiTransformFullGameManifest(
             element.setAttributeNS(
                 OREKI_ANDROID_NS,
                 "android:name",
-                name.replace(OREKI_OFFICIAL_PACKAGE, applicationId),
+                name.replace(OREKI_OFFICIAL_PACKAGE, "\${applicationId}"),
             )
         }
     }
@@ -659,6 +667,15 @@ fun orekiStageFullGameResources(
         orekiStableIdsText(mergedPublic, OREKI_MOD_APPLICATION_ID),
         Charsets.UTF_8,
     )
+    if (orekiDebugApplicationIdSuffix != null) {
+        File(stageRoot, "stable-ids-debug.txt").writeText(
+            orekiStableIdsText(
+                mergedPublic,
+                OREKI_MOD_APPLICATION_ID + orekiDebugApplicationIdSuffix,
+            ),
+            Charsets.UTF_8,
+        )
+    }
     return renamed.size
 }
 
@@ -1327,7 +1344,7 @@ fun orekiVerifyStorePolicyArtifacts(
     return OrekiStorePolicyVerifyResult(inputSha256, outputSha256, outputJar.length())
 }
 
-val verifyStorePolicyOutput by tasks.registering {
+val verifyStorePolicyOutput = tasks.register("verifyStorePolicyOutput") {
     group = "verification"
     description = "独立校验 store-policy 转换 JAR、报告指纹、ABI/存档结构与非目标字节"
     onlyIf { fullGame && gameJar != null }
@@ -1628,7 +1645,7 @@ val generateKotlinBindings = tasks.register("generateKotlinBindings") {
 }
 
 val shortcutOverlay = File(repoRoot, "agp/fullgame-overlay/xml/oreki_shortcuts.xml")
-val prepareFullGameInputs by tasks.registering {
+val prepareFullGameInputs = tasks.register("prepareFullGameInputs") {
     group = "oreki"
     description = "Gradle 原生生成 AGP 完整游戏 Manifest、资源、stable-ids 与来源证据"
     inputs.dir(officialTree).withPropertyName("orekiOfficialDecodedTree")
@@ -1763,9 +1780,11 @@ android {
     // 显式登记为第二个 Source Set 输入；preBuild 依赖生成任务，保证编译前已就绪。
     // 注意：第二项保留与 orekiGeneratedBindingsDir 同源的字面量路径 ——
     // scripts/check_directory_layout.py 按该字面量做 fail-closed 校验。
-    sourceSets["main"].kotlin.srcDirs(
-        File(repoRoot, "app/src/main/kotlin"),
-        File(repoRoot, "build/kt/generated"),
+    sourceSets["main"].kotlin.directories.addAll(
+        listOf(
+            File(repoRoot, "app/src/main/kotlin").absolutePath,
+            File(repoRoot, "build/kt/generated").absolutePath,
+        ),
     )
 
     buildFeatures {
@@ -1775,6 +1794,9 @@ android {
     // R8 is an experiment until the complete AGP game APK passes runtime
     // acceptance. Keep it opt-in so Candidate/Verify/Release remain unchanged.
     buildTypes {
+        getByName("debug") {
+            orekiDebugApplicationIdSuffix?.let { applicationIdSuffix = it }
+        }
         getByName("release") {
             isMinifyEnabled = providers.gradleProperty("oreki.r8")
                 .map { it.equals("true", ignoreCase = true) }
@@ -1790,18 +1812,30 @@ android {
     if (fullGame) {
         sourceSets["main"].apply {
             manifest.srcFile(File(fullGameStage, "AndroidManifest.xml"))
-            res.srcDirs(File(fullGameStage, "res"), File(repoRoot, "build/agp-generated-res"))
+            res.directories.addAll(
+                listOf(
+                    File(fullGameStage, "res").absolutePath,
+                    File(repoRoot, "build/agp-generated-res").absolutePath,
+                ),
+            )
             // R110-01 C1：assets 由 prepareFullGameAssets 去重暂存后提供：
             // 解码树里的 oreki_tutorial.txt 一律剔除（旧 build_mod 可能已写入），
             // 统一取 scripts/payload/assets 的提交版本，避免同名资产双来源导致 AGP 资源合并失败。
-            assets.srcDirs(File(repoRoot, "build/agp-fullgame-assets"))
+            assets.directories.add(File(repoRoot, "build/agp-fullgame-assets").absolutePath)
 
-            jniLibs.srcDirs(File(repoRoot, "scripts/payload/lib"))
+            jniLibs.directories.add(File(repoRoot, "scripts/payload/lib").absolutePath)
         }
         androidResources {
             // public.xml 已显式固定原版资源 ID；stable-ids 映射作为独立复核输入，
             // 保证 aapt2 link 的结果可对照 public.xml 而不是靠分配顺序。
-            additionalParameters("--stable-ids", File(fullGameStage, "stable-ids.txt").absolutePath)
+            val stableIdsName = if (orekiDebugApplicationIdSuffix == null) {
+                "stable-ids.txt"
+            } else {
+                "stable-ids-debug.txt"
+            }
+            additionalParameters.addAll(
+                listOf("--stable-ids", File(fullGameStage, stableIdsName).absolutePath),
+            )
         }
         signingConfigs {
             create("release") {
@@ -1856,8 +1890,13 @@ if (fullGame) {
 if (fullGame) {
     // stable-ids 文件是资源链接的真实输入；显式登记，避免只改 ID 映射时任务被
     // 判定为 UP-TO-DATE 而产出旧 APK。
+    val stableIdsName = if (orekiDebugApplicationIdSuffix == null) {
+        "stable-ids.txt"
+    } else {
+        "stable-ids-debug.txt"
+    }
     tasks.matching { it.name.startsWith("process") && it.name.endsWith("Resources") }.configureEach {
-        inputs.file(File(fullGameStage, "stable-ids.txt")).withPropertyName("orekiStableIds")
+        inputs.file(File(fullGameStage, stableIdsName)).withPropertyName("orekiStableIds")
     }
 }
 
@@ -2190,9 +2229,9 @@ tasks.named("preBuild") {
 
 // AGP 9 built-in Kotlin puts compiled classes under an internal intermediates
 // path. Copy them to a stable directory so the ABI guard works identically in
-// CI and locally. The path is pinned to the pinned AGP 9.5.1 layout; if AGP
+// CI and locally. The path is pinned to the pinned AGP 9.5.2 layout; if AGP
 // changes it, this task fails loudly instead of silently skipping the guard.
-val copyAgpKotlinClasses by tasks.registering(Copy::class) {
+val copyAgpKotlinClasses = tasks.register<Copy>("copyAgpKotlinClasses") {
     dependsOn("compileDebugKotlin")
     from(layout.buildDirectory.dir("intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes"))
     into(layout.buildDirectory.dir("agp-kotlin-classes"))
