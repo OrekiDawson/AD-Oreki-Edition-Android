@@ -1,0 +1,1 @@
+public interface h42 {}

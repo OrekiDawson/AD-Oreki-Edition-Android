@@ -24,6 +24,12 @@ GAMEAPI = REPO / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/GameApi
 BINDINGS = REPO / "build/kt/generated/OrekiBaselineBindings.kt"
 
 ALIAS_320 = {"az1": "b22", "bn0": "rp0", "fp3": "qr3", "ln0": "bq0", "uu1": "px1"}
+EXTRA_KEEP_MEMBERS = {
+    # OrekiUiTitle.of(Object) 的两处 getMethod/getField 反射目标。
+    "yn4": ("mi2 j;",),
+    "mi2": ("java.lang.String a();",),
+    "rq4": ("java.lang.String a();",),
+}
 
 
 def parse_bindings():
@@ -85,15 +91,25 @@ def main():
             missing.append("%s->%s" % (literal, name))
 
     out = sorted(set(targets))
+    member_rules = []
+    for name, members in sorted(EXTRA_KEEP_MEMBERS.items()):
+        if class_exists(name, entries):
+            member_rules.append("-keep class %s { %s }" % (name, " ".join(members)))
+        else:
+            missing.append(name)
     for name in sorted(set(missing)):
         print("# MISS (not in jar): %s" % name, file=sys.stderr)
-    lines = ["-keep class %s { *; }" % name for name in out]
+    lines = ["-keep class %s { *; }" % name for name in out] + member_rules
     text = "\n".join(lines) + "\n"
     if args.rules_out:
         pathlib.Path(args.rules_out).write_text(text, encoding="utf-8")
     else:
         sys.stdout.write(text)
-    print("kept=%d missing=%d" % (len(out), len(set(missing))), file=sys.stderr)
+    print(
+        "kept=%d member_rules=%d missing=%d"
+        % (len(out), len(member_rules), len(set(missing))),
+        file=sys.stderr,
+    )
     return 0
 
 

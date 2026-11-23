@@ -53,7 +53,7 @@ DEFAULT_VERSION_NAME = "3.21.0"
 DEFAULT_VERSION_CODE = "30210000"
 DEFAULT_CERT = "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"
 CERT_OFFICIAL = "24c5158c0de5d472f018107476ca6e5fd8c1442b404c3fe49a26c2024dd1fd14"
-EXPECTED_ABIS = ("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+EXPECTED_ABIS = ("arm64-v8a", "x86_64")
 
 DEX_ENTRY = re.compile(r"^classes(\d*)\.dex$")
 RESOURCE_ID = re.compile(r"^0x[0-9a-f]{8}$")
@@ -70,6 +70,15 @@ THIRD_PARTY_DROP_PREFIXES = (
     "com.google.android.play.",
 )
 KOTLIN_STDLIB_MISSING_PREFIX = "Lkotlin/"
+
+
+def expected_64bit_jni_paths(official_libs: set[str]) -> set[str]:
+    names = {
+        path.split("/", 2)[2]
+        for path in official_libs
+        if path.startswith("lib/") and path.count("/") >= 2 and path.endswith(".so")
+    }
+    return {f"lib/{abi}/{name}" for abi in EXPECTED_ABIS for name in names}
 
 
 class AuditError(RuntimeError):
@@ -582,16 +591,17 @@ def build_checks(target: dict, official: dict, csv_info: dict, opts, reference: 
 
     # 5. native / assets
     target_abis = sorted({lib.split("/")[1] for lib in inv["libs"] if len(lib.split("/")) > 2})
-    abis_ok = set(EXPECTED_ABIS) <= set(target_abis)
-    required("native-abis", abis_ok, "包含 " + ", ".join(EXPECTED_ABIS), ", ".join(target_abis),
+    abis_ok = set(target_abis) == set(EXPECTED_ABIS)
+    required("native-abis", abis_ok, "恰好包含 " + ", ".join(EXPECTED_ABIS), ", ".join(target_abis),
              f"lib/ 下共 {len(inv['libs'])} 个条目")
-    # 官方 XAPK 只有 armeabi-v7a config split；4 ABI 通用打包是 MOD 交付约定，
-    # 因此 expected libs = XAPK 全部 APK 的 lib/** 并集（若提供），否则官方 base APK 的 lib/**。
+    # 正式 MOD 自 R126 起只支持 ARM64 与 x86_64。官方基线可能只提供 32 位文件名，
+    # 因此从官方全部 .so 取文件名，再要求同一文件名同时存在于两个 64 位 ABI。
     official_libs = set(official.get("expected_libs") or official["inventory"]["libs"])
-    missing_libs = sorted(official_libs - set(inv["libs"]))
-    required("native-libs-complete", not missing_libs,
-             f"官方基线 {len(official_libs)} 个 .so 全部存在（来源：{official.get('expected_libs_source', '官方 base APK')}）",
-             f"{len(official_libs) - len(missing_libs)}/{len(official_libs)}",
+    expected_64bit_libs = expected_64bit_jni_paths(official_libs)
+    missing_libs = sorted(expected_64bit_libs - set(inv["libs"]))
+    required("native-libs-complete", bool(expected_64bit_libs) and not missing_libs,
+             f"官方 .so 文件名应覆盖 {len(expected_64bit_libs)} 个 64 位路径（来源：{official.get('expected_libs_source', '官方 base APK')}）",
+             f"{len(expected_64bit_libs) - len(missing_libs)}/{len(expected_64bit_libs)}",
              f"缺失={missing_libs[:10]}", missing=missing_libs)
     official_assets = set(official["inventory"]["assets"])
     missing_assets = sorted(official_assets - set(inv["assets"]))

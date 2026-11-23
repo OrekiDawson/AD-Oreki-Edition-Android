@@ -8,6 +8,63 @@
 > `./gradlew :app:assembleRelease`，复杂完整游戏逻辑由 `build-logic/` included build 承担。
 > 以下阶段记录保留为历史证据，不再代表当前文件仍存在。
 
+## R126 当前源码接管状态（2026-11-24）
+
+- AGP 生产接管清单：`1033` 个 class；`TutorialProgress` 与
+  `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
+  `app/src/main/java/.../tutorial/`。
+- `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
+  Player/Pelle/成就对象直接调用，仅默认包 `t3.a(int)` 因 Java 语言边界使用受控反射。
+  `TutorialEntryListener` 保留构造器、私有 `start(Activity, Class)` 和 onClick 分派 ABI。
+- 教程阶段判定仍只读，外层 `catch (Throwable) -> 0` 保持原 fail-safe；入口监听器的
+  `Exception -> Toast` 行为也与原实现一致，没有新增业务规则。
+- 验证：FullGame `compileDebugJavaWithJavac` PASS；
+  `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
+  守卫按同一批 class 清单校验。
+- 当前 FullGame Debug APK：`17ee650546eb9c91be59306b4616d5fd83aa9edb15c4e310e5c9e392cb136b75`
+  （83,820,616 B）；Python 336/336、1033/1033 Classes/ABI/DEX PASS；
+  `minifyReleaseWithR8` PASS。
+- AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
+  创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
+  获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
+  修复 `oreki_tutorial.txt` 因任务误判 `UP-TO-DATE` 而未进入 APK 的问题。
+- 在同一 `Oreki_API_37` 上实际执行“开始游戏 → 游戏帮助 → 打开 Oreki 中文教程”：
+  教程第 4 章正文正常显示，进程存活、无 FATAL/NoClassDefFoundError/VerifyError；
+  返回主界面后 force-stop/冷启动成功，既有存档与离线进度正常加载。
+- `OrekiAchAudit` 已迁为 Kotlin，仅审计已解锁成就与原版谓词是否一致，
+  保留 5 秒节流、`used=-1` 未知态和异常日志语义，不写游戏状态。
+- `OrekiEcContinuation` 保持无状态叶 continuation、原版 completion/context 单例和
+  `invokeSuspend -> CoroutineSingletons.a` 行为，不持有游戏状态。
+- AVD 运行 `OrekiAchAudit` 连续输出 `DONE scanned=144` 与
+  `GATE brake=... mult=70.0 rt=...`，未出现 `ABORT`、FATAL、VerifyError 或缺失类。
+- `OrekiSpeed`、`SettingsClickListener` 已迁移 Kotlin；动态升档门槛恢复为
+  “停滞或间隔门限任一不足即返回”，`sigOf` 恢复 `round(log10 × 100)`，玩家保存倍率后
+  `speed_pacing_managed=false`。`migrateBest` 由 build-logic 从 javac/Kotlin 多编译根查找并
+  适配 `(Lku4;)V` ABI。AVD 实测保存 `×100` 后偏好为 `speed_multiplier=100.0`、
+  `speed_dynamic=0`、`speed_pacing_managed=false`，进程无 FATAL/缺失类。
+- `OrekiPelleRecord` 直接按原版 `Player.p().d().h()` 记录链单调写入峰值副本，
+  保留数量级节流日志与异常吞掉边界，不修改解锁或结算字段。
+- `OrekiTeresaAuto` 继续只切换原版 `MainActivity.vp`，保留 20 个一次性 RU 门禁、
+  浇满释放、180 秒有界 hold 与错误吞掉语义，不自行计算浇注或扣 RM。
+- `OrekiUiTitle` 以反射读取原版页签标题并保留同名去重，方法描述符由 build-logic ASM
+  适配回 `of(Lyn4;)Ljava/lang/String;`；R8 对实际反射类/成员生成精确 keep 规则。
+- `OrekiEternityLaunch` 以同包 Java 入口保留 `run()` / `startDilation()` ABI；
+  编译器无法表达包内 Kotlin continuation 的父类构造调用，因此 build-logic 对该类
+  两个方法执行确定性 ASM 方法体恢复，不恢复 Smali 生产文件。
+- `OrekiSmartStrategy` 已按原 19 阶段 DNF、2000 ms 节流、NaN fail-closed 和静态字段
+  ABI 恢复为 AGP 编译 Java；叶子取值继续优先调用 Kotlin `OrekiStrategyLeaves`。
+- `OrekiEternity` 已恢复为 AGP Java；TT、TD、时间研究和完整永恒仍走原版/Kotlin
+  既有入口，默认包 `l43`/`r51` 仅通过反射读取和调用。
+- `OrekiChallengeAuto` 已迁为 Kotlin；活动路径只驱动普通/无限挑战，EC 由独占的
+  `OrekiEcAutomation` 负责，旧 EC 私有入口保留 ABI 但不再被 `tick()` 进入。
+- `StageAssist` 已恢复为 AGP Java，保留默认关闭、永久留痕、Doomed 拒写、
+  36 个原始方法 descriptor 与全部阶段提示；默认包成就/炼金表仅通过反射读取。
+- 当前 `scripts/payload/smali` 剩余 `0` 个文件；生产 Smali 已清零。
+- `build-logic/source-owned.txt` 登记 24 个不存在于官方基线的 MOD 自有类：它们只跳过
+  “与原版 JAR 比较 ABI”，仍由 AGP 编译并接受最终 DEX 存在性校验。
+- 正式构建在 store-policy 前调用 `r109_filter_program_jar.py`，只删除 22 个与
+  `android.jar` 精确重名的平台程序类；R8 不再把平台库误当程序类。
+
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 
 首批把一个不修改业务的原版接口从冻结游戏 JAR 交给 AGP 标准 Source Set：
@@ -46,6 +103,132 @@ AVD 首次尝试使用临时 `.srccheck` applicationId 共存包时，资源表�
 `FirebaseInitProvider` 报 `Resources$NotFoundException: Unable to find resource ID #0x7f110460`。
 该失败仅发生在非正式临时后缀，不计入候选运行结论；正式 `.debug` APK 使用保留的数据更新后正常启动。
 临时包已卸载，未触碰旧用户包或其他存档。
+
+### R126 第二批：无状态根接口闭包
+
+第二批迁移 6 个依赖清晰、没有实例状态或默认方法的原版接口：
+
+| descriptor | JAR entry | ABI |
+|---|---|---|
+| `La23;` | `a23.class` | extends `tr2`，无新增成员 |
+| `La28;` | `a28.class` | 空接口 |
+| `La43;` | `a43.class` | 空接口 |
+| `La47;` | `a47.class` | `M0(Lec7;)V` |
+| `La57;` | `a57.class` | extends `android.os.IInterface`；`zze()Ljava/lang/String;`、`zzf()Ljava/lang/String;` |
+| `La64;` | `a64.class` | `a(F)F` |
+
+这些接口均恢复为默认包 Java 过渡源码，并与首批 `a5.class` 共用同一 exclusion manifest
+和 store-policy fail-closed 校验。
+
+第二批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `4efbfaf3298ed0548c9e0d81333a366ab6df6576717b7c5ce0ff6eb3680bfb8e`；7 个源码接管 entry 全部移除 |
+| FullGame Debug APK | SHA-256 `2739fb486e1f8d695af659ee09d47c33448c8b1e60ae21f39f643e6aeb5aec03` |
+| ABI | 7 个 `javap` 签名与原版逐个一致；无 package、字段或编译器新增构造器 |
+| DEX | 从 APK 实际提取 `classes*.dex`，7 个 `L<name>;` descriptor 全部由 AGP 产物提供 |
+| Gradle | `verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` 全 PASS；96 项单测零失败 |
+| AVD 运行 | 本批为依赖首批 infrastructure 的 stacked 批次，当前 **NOT RUN**；最终合并候选安装后统一复验，不用旧 APK PASS 代替 |
+
+### R126 第三批：三证一致的 170 个空接口批量迁移
+
+为避免人工逐类低吞吐，同时防止把 JADX 失败输出直接灌入生产，新增开发期导入器
+`scripts/agp/import_empty_interfaces.py`。每个候选必须同时满足：
+
+1. JADX 去注释后精确等于 `package defpackage; public interface <name> {}`；
+2. 冻结游戏 JAR 存在精确 `<name>.class` entry；
+3. 原版 Smali 唯一解析为无 `.implements`、无 `.field`、无 `.method`、无 `.annotation` 的空接口。
+
+本批处理 `9,365` 个 JADX `defpackage` 源，精确命中 `172` 个三证空接口；其中既有 2 个
+已在第二批接管，实际新增 `170` 个 `public interface <name> {}`。加上前两批 7 个有方法的
+接口后，manifest 当前共 `177` 个生产 class 接管项。
+
+生成器具有幂等拒绝覆盖、manifest 去重和报告输出；失败证据不会生成生产源码。全量
+JADX 研究树仍不进入 Source Set。
+
+第三批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `433dd2731ae747afcca5992c60d4a5b9916f3875cf7a731eaa0076d73ca609a7` |
+| FullGame Debug APK | SHA-256 `1c5c40a5fa73316423c73388535d5f6caa42df0f87b122ff376017421f3d0656` |
+| descriptor 覆盖 | APK 实际 DEX 共 `16,864` 个 descriptor；manifest 的 `177/177` 全部存在，缺失 0 |
+| JAR 排除 | `177` 个接管 entry 全部移除；非目标 entry 字节一致 |
+| Gradle | `verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` 全 PASS；96 项单测零失败 |
+| 文件口径 | `app/src/main/java` 177 个 Java；`app/src/main/kotlin` 45 个 Kotlin；manifest 177 项一一对应 |
+| AVD 运行 | 本批为 stacked 批次，当前 **NOT RUN**；最终统一候选再安装验证 |
+
+### R126 第四批：有方法/默认方法接口批量扩展
+
+在空接口基础上增加 `scripts/agp/import_interface_sources.py`，只接纳：
+
+1. JADX 无 `JADX WARN`/`Failed to decompile`，且顶层声明是原版接口；
+2. JAR 存在精确 class entry；
+3. Smali 是接口、无字段/注解，方法为 public abstract/default/static 之一；
+4. JADX 的 fake `defpackage` 包和 `import defpackage.*` 在进入生产 Source Set 前剥离。
+
+最终 `app/src/main/java` 为 `829` 个原版接口 Java，`app/src/main/kotlin` 为 `45` 个 Kotlin；
+`source-takeover.txt` 与 Java 文件一一对应。另有 `24` 个候选因 Java 关键字、错误 classfile
+版本、缺失合成构造器/字段或依赖链不可编译被移入 `scripts/agp/source-takeover-blocked.txt`，
+没有伪实现、空方法或伪造 descriptor。
+
+第四批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `563533d9d71849e92738ea90f3c45a1f4a36e7b242f3b3f93809c6ee11ddf9ad` |
+| FullGame Debug APK | SHA-256 `365763f34d232f33d8fb47aa654852fc006bfa1edda4c53f745de536becf372d` |
+| descriptor 覆盖 | APK DEX 共 `16,864` 个 descriptor；manifest `829/829` 全部存在，缺失 0 |
+| Gradle | `compileDebugJavaWithJavac`、`verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
+| 单元测试 | Gradle 96/96、Python 316/316 PASS |
+| blocked 明细 | `scripts/agp/source-takeover-blocked.txt` 记录 24 个具体类及精确原因 |
+
+### R126 第五批：普通 Java 类批量扩展
+
+新增 `scripts/agp/import_class_sources.py`，从 JADX `defpackage` 中筛选无 decompile warning、
+JAR descriptor 存在、Smali 确认为普通类且 class body 非空的小型 Java 类。批量导入后以
+`compileDebugJavaWithJavac` 做真实收敛；37 个在构造器、继承类或 JADX 推断类型上失败的类
+移入 blocked 台账，其余保留。
+
+第五批结果：生产 Java 从 `829` 增至 `920`，Kotlin 保持 `45`，blocked 增至 `61`。其中 9 个
+单字段类的 synthetic 构造器依据原版 Smali 补回，保持字段与构造器 ABI，不使用空实现。
+
+第五批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `c859bdeadf6b02c902f9abdbfbe93a50573e6461d098e92fa23329f9fb3b1310` |
+| FullGame Debug APK | SHA-256 `650c965bcd11cb1e17762314363232260173a775de451f91920f792f4aa4dd04` |
+| AGP 编译正向校验 | `verifySourceTakeoverDebugClasses`：920/920 PASS |
+| descriptor 覆盖 | APK DEX 共 16,864 个 descriptor；manifest 920/920 存在，缺失 0 |
+| Gradle | `checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
+| 单元测试 | Gradle 96/96、Python 318/318 PASS |
+| 阻断 | 61 个具体 class 记录在 `scripts/agp/source-takeover-blocked.txt`；不伪报清零 |
+
+### R126 第六批：继续批量迁移小型普通类 + ABI 收敛
+
+再次对下一批无 decompile warning 的小型普通类执行导入与增量编译。新增 128 个候选后，
+`compileDebugJavaWithJavac` 暴露 72 个直接错误及 6 个依赖级联错误；随后用 JAR 原 class
+与 AGP 编译 class 做字段/方法 ABI 对照，又发现 26 个 JADX 改名、缺少 `<clinit>` 或
+coroutine shadow 类型失真问题。以上类全部按准确 class 名移入 blocked 台账，保留其余
+可验证源码。单字段 synthetic 类按原版 Smali 补回构造器，6 个 coroutine 接口改回
+`oreki.shadow.kotlin.coroutines.jvm.internal.ContinuationImpl` 描述符。
+
+第六批最终结果：生产 Java `990`，Kotlin `45`，blocked `173`。本轮没有把编译失败或 ABI
+缺失的类留在
+Source Set，也没有为了达到数量删除原版类或生成伪实现。
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `77cb53fc7361d29470e1f2fdf7b3dea7a34a1a7a20212965d3d287c0da3bdb9d` |
+| FullGame Debug APK | SHA-256 `33100c646afb0410bdbcbba4a462de042901cf88cecdcd72ef79a69978f60805` |
+| AGP 编译正向校验 | `verifySourceTakeoverDebugClasses`：990/990 PASS |
+| descriptor 覆盖 | APK DEX 共 16,864 个 descriptor；manifest 990/990 存在，缺失 0 |
+| Gradle | `checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
+| 单元测试 | Gradle 96/96 PASS |
+| AVD | 保留旧存档更新启动 PASS；点击开始后 `lastUpdate` 与 `totalTimePlayed` 前进，无 FATAL/ANR |
+| 剩余阻断 | 173 个 class，均可从 blocked 台账按 descriptor 和错误类型复核 |
 
 ## 0. 现状事实（脚本实测）
 
@@ -684,3 +867,78 @@ ANDROID_SDK_ROOT=/home/oreki/Android/Sdk
 - `scripts/build_mod.py`：**物理删除，RETIRED**。
 - 根 Groovy 构建入口：**物理删除，RETIRED**。
 - Python 补丁树生产入口：**零调用**。
+
+## 13. R126：源码接管 ABI/DEX fail-closed 守卫
+
+> 2026-11-23，PR #283。当前仍是分批迁移状态，不把 990 个已接管类等同于
+> “全部生产 Smali 已迁移”。
+
+### 13.1 新增守卫
+
+- `verifySourceTakeover<variant>Abi`：逐 class 对比原版 JAR 与 AGP 编译 class 的
+  class 身份、父类、接口、字段、方法、descriptor 与有效访问修饰。
+- `verifySourceTakeover<variant>Dex`：解析最终 APK 的真实 DEX `class_def_item`，
+  要求接管清单中的每个 descriptor 都真实存在。
+- `assembleDebug` / `assembleRelease` 同时依赖编译产物、ABI 与最终 DEX 三个守卫。
+- 无专有游戏 JAR 的桥接构建不编译 FullGame 过渡 Java；FullGame 仍从标准
+  `app/src/main/java` 编译同一份源码，不建立第二套 Android 工程。
+
+### 13.2 当前证据
+
+| 项目 | 结果 | 证据 |
+|---|---|---|
+| JADX Java 参考 | 已导出 | 13,782 个文件 |
+| AGP 生产 Java 接管 | **当前批次 PASS** | 990 个 entry，`build-logic/source-takeover.txt` |
+| 精确 blocked 清单 | 保留 | 173 个 class，`scripts/agp/source-takeover-blocked.txt` |
+| ABI 守卫 | **PASS** | 990/990；synthetic 标记与 `<clinit>` 无效 public 位有明确规范化 |
+| 最终 APK DEX descriptor | **PASS** | APK 16,864 个 class；990/990 接管 descriptor 存在 |
+| 默认无专有基线构建 | **PASS** | `:app:assembleDebug :app:copyAgpKotlinClasses`；Java `NO-SOURCE` |
+| FullGame Debug 构建 | **PASS** | `:app:assembleDebug`，三层源码接管守卫全部执行 |
+| Python/静态守卫 | **PASS** | 322/322 |
+| FullGame Debug APK | 当前候选 | `3e991424e2f02c6f9cfc94bfbb731a6bd1ff61b4d7a0dc05dba1d74ea54055c1` |
+| API 37 AVD | **PASS（短程）** | 冷启动、保留存档、主界面；4 秒内反物质 `1.06e33 → 5.57e223` 且第八维度 `0 → 130`；无 FATAL/ANR/`NoSuchMethodError` |
+
+短程 AVD 结果只证明当前候选可安装、启动和主 Tick 推进；不替代 EC4、Reality、
+Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
+
+### 13.3 未完成
+
+- 仍有 173 个精确 blocked class 和大量 JADX 参考源码未迁移。
+- `scripts/payload/smali` 仍有 25 个历史/验证文件，但 `app/` 与 `build-logic/`
+  对它们没有生产构建引用。
+- `PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0` 尚未达到；
+  Issue #52/#61 保持 OPEN。
+
+### 13.4 下一批小类闭包
+
+2026-11-24 复用 JADX `output_code_321_r88`，由
+`scripts/agp/import_class_sources.py` 从 JAR、Smali、JADX 三重核验候选中选择
+24 个小类：
+
+- 19 个类通过 javac、原版 ABI 和最终 DEX 校验后进入生产 Source Set。
+- 5 个类因真实 JADX/classfile 差异移回 blocked：`ah0`、`h62`、`kc4`、
+  `l69`、`xe0`。
+- 接管总数由 990 增至 **1009**；blocked 由 173 增至 **178**。
+- FullGame `testDebugUnitTest` 96/96 PASS；ABI 1009/1009 PASS；最终 APK DEX
+  1009/1009 descriptor 存在。
+- 当前批次候选 APK：
+  `c1480397bab66d33fb73dfbd0b912bd4920d0894d24e771a6bfe5824caee8aa5`。
+
+该批仍不改变“尚有大量原版类未迁移”的结论，也不等于 180 分钟游戏验收完成。
+
+### 13.5 旧 Smali 业务类源码接管与清理
+
+2026-11-24 对 `scripts/payload/smali` 的 25 个 MOD 业务类执行 JADX
+`--single-class` 恢复：
+
+- 9 个类不依赖默认包，保留原 descriptor 转入 AGP Java 源码并删除对应 Smali。
+- `OrekiTrace` 已由现有 Kotlin 实现接管，其 Smali 文件同批删除。
+- 12 个类因其命名包源码无法访问原版默认包类或嵌套 ABI 不匹配，准确登记为
+  blocked，不生成空壳。
+- `OrekiSpeed`、`SettingsClickListener`、`SpeedSettingsActivity` 与
+  StorePolicyTransformer 目标重叠，不能直接源码接管，继续保留待 Kotlin 策略合并。
+- Smali 文件由 25 降至 **15**；AGP 源码接管由 1009 增至 **1018**。
+
+验证：FullGame `testDebugUnitTest` 96/96、ABI 1018/1018、最终 APK DEX
+1018/1018、Python 322/322。新增 fail-closed 守卫禁止 `app/`、`build-logic/`
+重新出现 `.smali` 或构建 DSL 引用 `scripts/payload/smali`。

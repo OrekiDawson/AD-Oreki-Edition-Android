@@ -39,6 +39,20 @@ COMPAT_LAYER_FILES = {
     "GameApi.kt",             # 反射查类的唯一入口：混淆名以字符串常量形式集中在此
 }
 
+# 已迁移生产类的原 JVM 私有字段名属于持久 ABI；允许在源码使用可读命名的同时，
+# 仅对确需保留的历史字段名做逐项登记，不按文件或前缀放宽。
+ABI_LEGACY_FIELDS = {
+    ("OrekiAchAudit.kt", "sLast"),
+    ("OrekiEternity.kt", "sEcHoldTtl"),
+    ("OrekiEternity.kt", "sEtBefore"),
+    ("OrekiEternity.kt", "sEtPending"),
+    ("OrekiEternity.kt", "sEtTtl"),
+    ("OrekiEternity.kt", "sRu10GaveUp"),
+    ("OrekiEternity.kt", "sRu10Since"),
+    ("TutorialEntry.kt", "sInstalled"),
+    ("TutorialEntry.kt", "sRetry"),
+}
+
 # 已知 3.19/3.20 混淆短名（用于 N7 精确判定，不靠「看着像」）
 KNOWN_OBFUSCATED = {
     # 3.19
@@ -154,7 +168,10 @@ def main() -> int:
                 add(rel, "N2 属性名必须 lowerCamelCase", name)
                 continue
             # N6 历史 s 前缀
-            if re.fullmatch(r"s[A-Z][A-Za-z0-9]*", name):
+            if (
+                re.fullmatch(r"s[A-Z][A-Za-z0-9]*", name)
+                and (f.name, name) not in ABI_LEGACY_FIELDS
+            ):
                 add(rel, "N6 禁止无意义 s 前缀", name)
             # N5 单字母
             if len(name) == 1 and name not in ALLOWED_SHORT:

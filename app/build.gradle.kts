@@ -1,5 +1,6 @@
 import groovy.json.JsonSlurper
 import java.io.File
+import org.gradle.api.tasks.Sync
 
 plugins {
     id("com.android.application")
@@ -7,11 +8,52 @@ plugins {
     id("oreki.android.build-metadata")
     id("oreki.android.game-assets")
     id("oreki.android.fullgame-inputs")
+    id("oreki.android.abi-policy")
 }
 
 val repoRoot = rootProject.layout.projectDirectory.asFile
 val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
 val fullGame = providers.gradleProperty("orekiFullGame").orNull?.toBoolean() ?: false
+val sourceTakeoverClasses = File(repoRoot, "build-logic/source-takeover.txt")
+    .takeIf(File::isFile)
+    ?.readLines()
+    ?.map(String::trim)
+    ?.filter { it.isNotEmpty() && !it.startsWith("#") }
+    ?.map { it.removeSuffix(".class") }
+    .orEmpty()
+val sourceTakeoverKotlinExcludes = sourceTakeoverClasses.mapNotNull { classPath ->
+    val kotlinPath = classPath.removeSuffix(".class") + ".kt"
+    kotlinPath.takeIf { File(repoRoot, "app/src/main/kotlin/$it").isFile }
+}
+val fullGameOnlyKotlinExcludes = sourceTakeoverKotlinExcludes
+val fullGameOnlyKotlinNames = fullGameOnlyKotlinExcludes.map { File(it).nameWithoutExtension }
+val testKotlinRoot = File(repoRoot, "app/src/test/kotlin")
+val sourceTakeoverTestKotlinExcludes = testKotlinRoot.walkTopDown()
+    .filter(File::isFile)
+    .filter { it.extension == "kt" }
+    .filter { testFile ->
+        val imports = testFile.readLines()
+            .map(String::trim)
+            .filter { it.startsWith("import ") }
+            .map { it.substringAfterLast('.') }
+        imports.any(fullGameOnlyKotlinNames::contains)
+    }
+    .map { it.relativeTo(testKotlinRoot).invariantSeparatorsPath }
+    .toList()
+val bridgeKotlinRoot = layout.buildDirectory.dir("bridge-kotlin")
+val bridgeTestKotlinRoot = layout.buildDirectory.dir("bridge-test-kotlin")
+val prepareBridgeKotlinSources = tasks.register<Sync>("prepareBridgeKotlinSources") {
+    from(File(repoRoot, "app/src/main/kotlin")) {
+        exclude(fullGameOnlyKotlinExcludes)
+    }
+    into(bridgeKotlinRoot)
+}
+val prepareBridgeTestKotlinSources = tasks.register<Sync>("prepareBridgeTestKotlinSources") {
+    from(testKotlinRoot) {
+        exclude(sourceTakeoverTestKotlinExcludes)
+    }
+    into(bridgeTestKotlinRoot)
+}
 val debugApplicationIdSuffix = (
     providers.gradleProperty("orekiDebugApplicationIdSuffix").orNull
         ?: ".debug".takeIf { fullGame }
@@ -37,6 +79,9 @@ android {
         targetSdk = 37
         versionCode = releaseIdentity["versionCode"].toString().toInt()
         versionName = requireNotNull(releaseIdentity["versionName"] as? String)
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     compileOptions {
@@ -66,6 +111,20 @@ android {
 
     // 生成绑定是唯一的非手写 Kotlin 输入；生产业务源码仍只来自标准 src/main/kotlin。
     sourceSets["main"].kotlin.directories.add(File(repoRoot, "build/kt/generated").absolutePath)
+    if (!fullGame && sourceTakeoverClasses.isNotEmpty()) {
+        // 无专有游戏 JAR 的桥接构建不能编译依赖原版 APK 的接管源码。
+        // FullGame 仍直接从标准 src/main/java 与 src/main/kotlin 编译全部生产类。
+        sourceSets["main"].java.directories.clear()
+        sourceSets["main"].kotlin.directories.clear()
+        sourceSets["main"].kotlin.directories.addAll(
+            listOf(
+                bridgeKotlinRoot.get().asFile.absolutePath,
+                File(repoRoot, "build/kt/generated").absolutePath,
+            ),
+        )
+        sourceSets["test"].kotlin.directories.clear()
+        sourceSets["test"].kotlin.directories.add(bridgeTestKotlinRoot.get().asFile.absolutePath)
+    }
 
     if (fullGame) {
         sourceSets["main"].apply {
@@ -103,6 +162,12 @@ android {
                 useLegacyPackaging = true
             }
         }
+    }
+}
+
+if (!fullGame) {
+    tasks.named("preBuild") {
+        dependsOn(prepareBridgeKotlinSources, prepareBridgeTestKotlinSources)
     }
 }
 

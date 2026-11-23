@@ -11,6 +11,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.compile.JavaCompile
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 
 private val targetEntries = setOf(
     "l5.class",
@@ -23,20 +27,12 @@ private val targetEntries = setOf(
     "kajfosz/antimatterdimensions/shop/b.class",
     "kajfosz/antimatterdimensions/shop/LoginActivity.class",
     "kajfosz/antimatterdimensions/MainActivity.class",
-    "kajfosz/antimatterdimensions/OrekiSpeed.class",
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class",
-    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class",
 )
 private const val retiredInstantPrefix =
     "kajfosz/antimatterdimensions/OrekiInstantChallenge"
 private val requiredTargets = setOf(
     "l5.class#d()Z -> isAdBonusEffectEnabled",
     "kajfosz/antimatterdimensions/challenge/antimatter/c.class#matter-pacing -> sqrt-speed-normalization",
-    "kajfosz/antimatterdimensions/OrekiSpeed.class#mult()D -> sanitizeSpeed",
-    "kajfosz/antimatterdimensions/OrekiSpeed.class#set(D)Z -> speedInputGate",
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class#speed-reset-default -> speedResetDefault",
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class#speed-ui-text -> speedUiText",
-    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class#speed-ui-text -> speedUiText",
 )
 private val requiredAnchors = mapOf(
     "l5.class" to listOf("OrekiStorePolicy", "isAdBonusEffectEnabled"),
@@ -53,12 +49,6 @@ private val requiredAnchors = mapOf(
         listOf("OrekiStorePolicy", "isStoreEnabled"),
     "kajfosz/antimatterdimensions/MainActivity.class" to
         listOf("OrekiStorePolicy", "isStoreEnabled"),
-    "kajfosz/antimatterdimensions/OrekiSpeed.class" to
-        listOf("OrekiSpeedPolicy", "sanitize", "isValidInput"),
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class" to
-        listOf("OrekiGamePace", "resetDefault"),
-    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class" to
-        listOf("取值范围 0.000001 ~ 100000，建议"),
 )
 
 private data class StorePolicyVerifyResult(
@@ -166,16 +156,18 @@ private fun verifyArtifacts(
                 val oldBytes = before.getInputStream(before.getEntry(name)).readBytes()
                 val newBytes = after.getInputStream(after.getEntry(name)).readBytes()
                 if (name in targetEntries) {
-                    if (oldBytes.contentEquals(newBytes)) {
-                        throw GradleException("[oreki] store-policy 必需目标条目未改写: $name")
-                    }
                     val text = String(newBytes, Charsets.ISO_8859_1)
-                    for (anchor in requiredAnchors[name].orEmpty()) {
+                    val anchors = requiredAnchors[name].orEmpty()
+                    for (anchor in anchors) {
                         val encoded = anchor.toByteArray(Charsets.UTF_8)
                         if (!text.contains(anchor) && !newBytes.hasBytes(encoded)) {
                             throw GradleException("[oreki] store-policy 目标条目缺少策略锚点: $name#$anchor")
                         }
                     }
+                    if (oldBytes.contentEquals(newBytes) && anchors.isEmpty()) {
+                        throw GradleException("[oreki] store-policy 必需目标条目未改写: $name")
+                    }
+                    // 已策略化输入重复经过时允许字节稳定，但必须已包含全部策略锚点。
                 } else if (!oldBytes.contentEquals(newBytes)) {
                     throw GradleException("[oreki] store-policy 改写非目标条目: $name")
                 }
@@ -225,24 +217,151 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                 ?.sortedBy { it.name }
                 ?.firstOrNull(),
         ) { "找不到 Gradle 发行版内的 ASM jar（lib/asm-*.jar）" }
+        val preparedGameJar = File(
+            config.rootDir,
+            "build/agp-store-policy/game-hybrid-sig-prepared.jar",
+        )
+        val filteredGameJar = File(
+            config.rootDir,
+            "build/agp-store-policy/game-hybrid-sig-filtered.jar",
+        )
+        val filterReport = File(
+            config.rootDir,
+            "build/agp-store-policy/filter-report.json",
+        )
+        val prepareGameJar = project.tasks.registerAction("prepareGameJar") {
+            group = "oreki"
+            description = "为包内 Kotlin continuation 增加标准构造器"
+            onlyIf { config.fullGame }
+            config.gameJar?.let { inputs.file(it) }
+            outputs.file(preparedGameJar)
+            doLast {
+                val input = config.gameJar
+                    ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                val continuationEntries = setOf(
+                    "kajfosz/antimatterdimensions/prestige/Eternity\$confirmEternity\$4.class",
+                    "kajfosz/antimatterdimensions/prestige/" +
+                        "Eternity\$confirmDilatedEternity\$4.class",
+                )
+                preparedGameJar.parentFile.mkdirs()
+                ZipFile(input).use { source ->
+                    ZipOutputStream(preparedGameJar.outputStream()).use { target ->
+                        for (entry in source.entries()) {
+                            val outputEntry = ZipEntry(entry.name).apply {
+                                time = entry.time
+                            }
+                            target.putNextEntry(outputEntry)
+                            var data = source.getInputStream(entry).use { it.readBytes() }
+                            if (!entry.isDirectory && entry.name in continuationEntries) {
+                                val reader = ClassReader(data)
+                                val writer = ClassWriter(reader, 0)
+                                var hasConstructor = false
+                                reader.accept(
+                                    object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+                                        override fun visitMethod(
+                                            access: Int,
+                                            name: String,
+                                            descriptor: String,
+                                            signature: String?,
+                                            exceptions: Array<out String>?,
+                                        ): MethodVisitor {
+                                            if (name == "<init>" &&
+                                                descriptor ==
+                                                "(ILkotlin/coroutines/Continuation;)V"
+                                            ) {
+                                                hasConstructor = true
+                                            }
+                                            return super.visitMethod(
+                                                access,
+                                                name,
+                                                descriptor,
+                                                signature,
+                                                exceptions,
+                                            )
+                                        }
+
+                                        override fun visitEnd() {
+                                            if (!hasConstructor) {
+                                                val method = super.visitMethod(
+                                                    Opcodes.ACC_PUBLIC,
+                                                    "<init>",
+                                                    "(ILkotlin/coroutines/Continuation;)V",
+                                                    null,
+                                                    null,
+                                                )
+                                                method.visitCode()
+                                                method.visitVarInsn(Opcodes.ALOAD, 0)
+                                                method.visitVarInsn(Opcodes.ILOAD, 1)
+                                                method.visitVarInsn(Opcodes.ALOAD, 2)
+                                                method.visitMethodInsn(
+                                                    Opcodes.INVOKESPECIAL,
+                                                    "kotlin/coroutines/jvm/internal/" +
+                                                        "SuspendLambda",
+                                                    "<init>",
+                                                    "(ILkotlin/coroutines/Continuation;)V",
+                                                    false,
+                                                )
+                                                method.visitInsn(Opcodes.RETURN)
+                                                method.visitMaxs(3, 3)
+                                                method.visitEnd()
+                                            }
+                                            super.visitEnd()
+                                        }
+                                    },
+                                    0,
+                                )
+                                data = writer.toByteArray()
+                                logger.lifecycle(
+                                    "[oreki] continuation ABI 构造器已准备: ${entry.name}",
+                                )
+                            }
+                            target.write(data)
+                            target.closeEntry()
+                        }
+                    }
+                }
+            }
+        }
+
+        val filterScript = File(config.rootDir, "scripts/agp/r109_filter_program_jar.py")
+        val filterTask = project.tasks.registerTypedAction("filterGameJar", Exec::class.java) {
+            group = "oreki"
+            description = "剔除转换 JAR 中与 android.jar 精确重名的平台程序类"
+            onlyIf { config.fullGame }
+            dependsOn(prepareGameJar)
+            inputs.files(preparedGameJar, filterScript, androidJar)
+            outputs.files(filteredGameJar, filterReport)
+            workingDir(config.rootDir)
+            doFirstAction {
+                val android = androidJar.get()
+                if (!android.isFile) throw GradleException("AGP SDK 缺少 android.jar: $android")
+                commandLine(
+                    "python3",
+                    filterScript.absolutePath,
+                    "--game-jar", preparedGameJar.absolutePath,
+                    "--android-jar", android.absolutePath,
+                    "--out", filteredGameJar.absolutePath,
+                    "--report", filterReport.absolutePath,
+                )
+            }
+        }
 
         val applyTask = project.tasks.registerTypedAction("applyStorePolicy", Exec::class.java) {
             group = "oreki"
             description = "应用 Kotlin STD/IAP 与广告加成策略到转换后的游戏 JAR"
             onlyIf { config.fullGame }
-            config.gameJar?.let { inputs.file(it) }
+            dependsOn(filterTask)
+            inputs.file(filteredGameJar)
             inputs.files(script, transformer, asmJar, androidJar, config.sourceTakeoverManifest)
             outputs.files(config.storePolicyJar, config.storePolicyReport)
             workingDir(config.rootDir)
             doFirstAction {
-                val input = config.gameJar
-                    ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
                 val android = androidJar.get()
                 if (!android.isFile) throw GradleException("AGP SDK 缺少 android.jar: $android")
                 commandLine(
                     "python3",
                     script.absolutePath,
-                    "--game-jar", input.absolutePath,
+                    "--game-jar", filteredGameJar.absolutePath,
                     "--out-jar", config.storePolicyJar.absolutePath,
                     "--report", config.storePolicyReport.absolutePath,
                     "--asm-jar", asmJar.absolutePath,
@@ -258,14 +377,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             description = "独立校验 store-policy JAR、报告、ABI 与非目标字节"
             onlyIf { config.fullGame }
             dependsOn(applyTask)
-            config.gameJar?.let { inputs.file(it) }
+            inputs.file(filteredGameJar)
             inputs.files(config.storePolicyJar, config.storePolicyReport, config.sourceTakeoverManifest)
             outputs.file(config.storePolicyVerifyReport)
             doLastAction {
-                val input = config.gameJar
-                    ?: throw GradleException("[oreki] store-policy 输入 JAR 未配置")
                 val result = verifyArtifacts(
-                    input,
+                    filteredGameJar,
                     config.storePolicyJar,
                     config.storePolicyReport,
                     config.sourceTakeoverEntries.toSet(),
@@ -375,6 +492,123 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     val compileName = "compile${variant}JavaWithJavac"
                     val compileTask = project.tasks.findByName(compileName) as? JavaCompile
                         ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
+                    val kotlinCompileTask = project.tasks.named("compile${variant}Kotlin")
+                    val adaptSourceAbi = project.tasks.registerAction(
+                        "adaptSourceAbi${variant}",
+                    ) {
+                        description = "适配 Java 语言无法直接表达的默认包 ABI 描述符"
+                        data class AbiAdaptation(
+                            val classPath: String,
+                            val method: String,
+                            val from: String,
+                            val to: String,
+                        )
+                        val classesRoot = compileTask.destinationDirectory.asFile.get()
+                        val adaptationSpecs = listOf(
+                            AbiAdaptation(
+                                "kajfosz/antimatterdimensions/OrekiSpeed.class",
+                                "migrateBest",
+                                "(Ljava/lang/Object;)V",
+                                "(Lku4;)V",
+                            ),
+                            AbiAdaptation(
+                                "kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class",
+                                "of",
+                                "(Ljava/lang/Object;)Ljava/lang/String;",
+                                "(Lyn4;)Ljava/lang/String;",
+                            ),
+                        )
+                        outputs.file(File(
+                            config.rootDir,
+                            "build/agp-source-takeover/abi-adapter-${variant.lowercase()}.json",
+                        ))
+                        inputs.files(kotlinCompileTask)
+                        outputs.upToDateWhen { false }
+                        doLast {
+                            val classRoots = (
+                                listOf(classesRoot) +
+                                    kotlinCompileTask.get().outputs.files.files
+                                ).filter(File::isDirectory)
+                            val evidenceRows = adaptationSpecs.map { spec ->
+                                val classFile = classRoots
+                                    .map { File(it, spec.classPath) }
+                                    .firstOrNull(File::isFile)
+                                if (classFile == null) {
+                                    throw GradleException(
+                                        "缺少默认包 ABI 适配编译产物: ${spec.classPath}",
+                                    )
+                                }
+                                var adapted = false
+                                val reader = ClassReader(classFile.readBytes())
+                                val writer = ClassWriter(reader, 0)
+                                reader.accept(
+                                    object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+                                        override fun visitMethod(
+                                            access: Int,
+                                            name: String,
+                                            descriptor: String,
+                                            signature: String?,
+                                            exceptions: Array<out String>?,
+                                        ): MethodVisitor {
+                                            val adaptedDescriptor =
+                                                if (name == spec.method) {
+                                                    when (descriptor) {
+                                                        spec.from -> {
+                                                            adapted = true
+                                                            spec.to
+                                                        }
+                                                        spec.to -> {
+                                                            adapted = true
+                                                            descriptor
+                                                        }
+                                                        else -> descriptor
+                                                    }
+                                                } else {
+                                                    descriptor
+                                                }
+                                            return super.visitMethod(
+                                                access,
+                                                name,
+                                                adaptedDescriptor,
+                                                signature,
+                                                exceptions,
+                                            )
+                                        }
+                                    },
+                                    0,
+                                )
+                                if (!adapted) {
+                                    throw GradleException(
+                                        "${classFile.name}.${spec.method} " +
+                                            "未找到待适配描述符",
+                                    )
+                                }
+                                classFile.writeBytes(writer.toByteArray())
+                                logger.lifecycle(
+                                    "[oreki] 默认包 ABI 适配完成: " +
+                                        "${classFile.name}.${spec.method}",
+                                )
+                                linkedMapOf(
+                                    "class" to classFile,
+                                    "method" to spec.method,
+                                    "from" to spec.from,
+                                    "to" to spec.to,
+                                )
+                            }
+                            val evidence = outputs.files.singleFile
+                            evidence.parentFile.mkdirs()
+                            evidence.writeText(
+                                JsonOutput.prettyPrint(JsonOutput.toJson(
+                                    linkedMapOf(
+                                        "schema" to 1,
+                                        "adaptations" to evidenceRows,
+                                    ),
+                                )) + "\n",
+                                Charsets.UTF_8,
+                            )
+                        }
+                    }
+                    compileTask.finalizedBy(adaptSourceAbi)
                     val evidence = File(
                         config.rootDir,
                         "build/agp-source-takeover/verify-${variant.lowercase()}.json",
@@ -384,15 +618,16 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     ) {
                         group = "verification"
                         description = "验证源码接管清单中的 class 确实由 AGP 编译产物提供"
-                        dependsOn(compileTask)
+                        dependsOn(compileTask, kotlinCompileTask)
                         inputs.file(config.sourceTakeoverManifest)
                         inputs.dir(compileTask.destinationDirectory)
+                        inputs.files(kotlinCompileTask)
                         outputs.file(evidence)
                         doLast {
-                            val roots = listOf(
-                                compileTask.destinationDirectory.asFile.get(),
-                                File(config.rootDir, "build/tmp/kotlin-classes/${variant.lowercase()}"),
-                            ).filter(File::isDirectory)
+                            val roots = (
+                                listOf(compileTask.destinationDirectory.asFile.get()) +
+                                    kotlinCompileTask.get().outputs.files.files
+                                ).filter(File::isDirectory)
                             val missing = config.sourceTakeoverEntries.filter { entry ->
                                 roots.none { root -> File(root, entry).isFile }
                             }
@@ -421,8 +656,106 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                             )
                         }
                     }
+                    val abiEvidence = File(
+                        config.rootDir,
+                        "build/agp-source-takeover/abi-${variant.lowercase()}.json",
+                    )
+                    val abiScript = File(
+                        config.rootDir,
+                        "scripts/agp/verify_source_takeover_abi.py",
+                    )
+                    val sourceOwnedManifest = File(
+                        config.rootDir,
+                        "build-logic/source-owned.txt",
+                    )
+                    val verifyAbi = project.tasks.registerTypedAction(
+                        "verifySourceTakeover${variant}Abi",
+                        Exec::class.java,
+                    ) {
+                        group = "verification"
+                        description = "对比原版 JAR 与 AGP class 的方法/字段 ABI"
+                        dependsOn(compileTask, kotlinCompileTask)
+                        config.gameJar?.let { inputs.file(it) }
+                        inputs.files(
+                            config.sourceTakeoverManifest,
+                            sourceOwnedManifest,
+                            abiScript,
+                            kotlinCompileTask,
+                        )
+                        inputs.dir(compileTask.destinationDirectory)
+                        outputs.file(abiEvidence)
+                        doFirstAction {
+                            val input = config.gameJar
+                                ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                            val kotlinRoots = kotlinCompileTask.get().outputs.files.files
+                                .filter(File::isDirectory)
+                            if (kotlinRoots.isEmpty()) {
+                                throw GradleException("compile${variant}Kotlin 没有 class 输出目录")
+                            }
+                            commandLine(
+                                listOf(
+                                    "python3",
+                                    abiScript.absolutePath,
+                                    "--game-jar", input.absolutePath,
+                                    "--classes-dir",
+                                    compileTask.destinationDirectory.asFile.get().absolutePath,
+                                ) +
+                                    kotlinRoots.flatMap {
+                                        listOf("--classes-dir", it.absolutePath)
+                                    } +
+                                    listOf(
+                                        "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                        "--exclude-from-abi-manifest",
+                                        sourceOwnedManifest.absolutePath,
+                                        "--report", abiEvidence.absolutePath,
+                                    ),
+                            )
+                        }
+                    }
+                    val packageTask = project.tasks.named("package$variant")
+                    val dexEvidence = File(
+                        config.rootDir,
+                        "build/agp-source-takeover/dex-${variant.lowercase()}.json",
+                    )
+                    val verifyDex = project.tasks.registerTypedAction(
+                        "verifySourceTakeover${variant}Dex",
+                        Exec::class.java,
+                    ) {
+                        group = "verification"
+                        description = "核验最终 APK DEX 包含全部源码接管 descriptor"
+                        dependsOn(packageTask)
+                        inputs.files(config.sourceTakeoverManifest, abiScript, packageTask)
+                        outputs.file(dexEvidence)
+                        doFirstAction {
+                            val packagedApk = packageTask.get().outputs.files.files
+                                .flatMap { output ->
+                                    when {
+                                        output.isFile && output.extension == "apk" -> listOf(output)
+                                        output.isDirectory -> output.walkTopDown()
+                                            .filter { it.isFile && it.extension == "apk" }
+                                            .toList()
+                                        else -> emptyList()
+                                    }
+                                }
+                                .sortedBy { it.name }
+                                .firstOrNull()
+                                ?: throw GradleException(
+                                    "缺少 package$variant APK 输出: " +
+                                        packageTask.get().outputs.files.files,
+                                )
+                            commandLine(
+                                "python3",
+                                abiScript.absolutePath,
+                                "--apk", packagedApk.absolutePath,
+                                "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                "--report", dexEvidence.absolutePath,
+                            )
+                        }
+                    }
                     project.tasks.matching { it.name == "assemble${variant}" }
-                        .configureEachAction { dependsOn(verifyCompiled) }
+                        .configureEachAction {
+                            dependsOn(verifyCompiled, verifyAbi, verifyDex)
+                        }
                 }
             }
         }

@@ -1,0 +1,26 @@
+# MOD 自有生产类：不存在于官方 3.21.0 JAR。
+# 仍由 AGP 编译并进入最终 DEX；动态版输入 JAR 中的旧副本只用于移除。
+kajfosz/antimatterdimensions/OrekiChallengeAuto.class
+kajfosz/antimatterdimensions/OrekiEcContinuation.class
+kajfosz/antimatterdimensions/OrekiSpeed.class
+kajfosz/antimatterdimensions/oreki/OrekiAchAudit.class
+kajfosz/antimatterdimensions/oreki/OrekiEternity.class
+kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.class
+kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class
+kajfosz/antimatterdimensions/oreki/OrekiReality.class
+kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.class
+kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.class
+kajfosz/antimatterdimensions/oreki/OrekiStrategyData.class
+kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.class
+kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class
+kajfosz/antimatterdimensions/oreki/SettingsClickListener.class
+kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class
+kajfosz/antimatterdimensions/oreki/StageAssist.class
+kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.class
+kajfosz/antimatterdimensions/oreki/StageConfirmListener.class
+kajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener.class
+kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch.class

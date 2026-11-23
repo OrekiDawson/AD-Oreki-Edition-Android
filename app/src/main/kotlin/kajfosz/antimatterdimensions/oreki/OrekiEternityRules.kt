@@ -32,6 +32,9 @@ object OrekiEternityRules {
      */
     private const val ETERNITY_SETTLEMENT_MULTIPLIER: Int = 1
 
+    /** 时间研究表的有效索引范围；必须排除 `size` 本身，避免 `SparseIntArray.keyAt(size)`。 */
+    internal fun normalStudyIndexRange(size: Int): IntRange = 0 until size
+
     /**
      * [R120-01 / Android #184] Smali 内的 EP 收益门槛乘数。
      *

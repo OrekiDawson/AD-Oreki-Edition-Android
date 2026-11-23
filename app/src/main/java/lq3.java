@@ -1,0 +1,1 @@
+public interface lq3 {}

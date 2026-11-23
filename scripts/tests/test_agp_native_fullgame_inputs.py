@@ -82,7 +82,11 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn("必需目标条目未改写", text)
         self.assertIn("目标条目缺少策略锚点", text)
         self.assertIn("verifyStorePolicyOutputSelfTest", text)
-        self.assertIn("取值范围 0.000001 ~ 100000，建议", text)
+        speed_ui = (
+            ROOT
+            / "app/src/main/java/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.java"
+        ).read_text(encoding="utf-8")
+        self.assertIn("取值范围 0.000001 ~ 100000，建议", speed_ui)
         ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertIn(
             "./gradlew :app:verifyStorePolicyOutputSelfTest",

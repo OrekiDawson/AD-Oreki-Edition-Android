@@ -121,6 +121,16 @@ class KotlinLiteralAndDescriptorTests(unittest.TestCase):
     def test_kotlin_escaped_quote_and_backslash(self):
         self.assertEqual(r109_r8_keepgen.unescape_kotlin_literal(r'a\"b\\c'), 'a"b\\c')
 
+    def test_r8_keepgen_preserves_oreki_ui_title_reflection_members(self):
+        self.assertEqual(
+            r109_r8_keepgen.EXTRA_KEEP_MEMBERS,
+            {
+                "yn4": ("mi2 j;",),
+                "mi2": ("java.lang.String a();",),
+                "rq4": ("java.lang.String a();",),
+            },
+        )
+
     def test_descriptor_only_dependency_is_reported(self):
         # 只在字段/方法描述符里出现的类型（没有 CONSTANT_Class）也必须被扫到。
         data = build_classfile([

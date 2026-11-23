@@ -8,6 +8,12 @@ import org.junit.Test
 
 class OrekiDilationPolicyTest {
     @Test
+    fun normalStudyIndicesNeverIncludeTheArraySize() {
+        assertEquals(emptyList<Int>(), OrekiEternityRules.normalStudyIndexRange(0).toList())
+        assertEquals(listOf(0, 1, 2), OrekiEternityRules.normalStudyIndexRange(3).toList())
+    }
+
+    @Test
     fun ds1FallsBackWhenSecondaryStudyAbiIsUnavailable() {
         assertEquals(true, OrekiDilationPolicy.unlockedFromStudies(true, null))
         assertEquals(false, OrekiDilationPolicy.unlockedFromStudies(false, null))

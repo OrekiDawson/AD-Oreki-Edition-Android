@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
     implementation("com.android.tools.build:gradle:9.5.2")
+    implementation("org.ow2.asm:asm:9.9")
 }
 
 gradlePlugin {
@@ -53,6 +54,11 @@ gradlePlugin {
             id = "oreki.android.fullgame-inputs"
             implementationClass =
                 "kajfosz.antimatterdimensions.buildlogic.OrekiFullGameInputsPlugin"
+        }
+        create("orekiAbiPolicy") {
+            id = "oreki.android.abi-policy"
+            implementationClass =
+                "kajfosz.antimatterdimensions.buildlogic.OrekiAbiPolicyPlugin"
         }
     }
 }
