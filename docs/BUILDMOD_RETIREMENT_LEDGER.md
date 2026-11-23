@@ -1162,3 +1162,44 @@ shim 根因继续收敛，不能把本批视为全量迁移完成。
 
 本批仍未完成剩余 382 项具体阻断；ARM64 真机、双向存档矩阵和 180 分钟五项游戏
 门禁继续为 `NOT RUN`。
+
+### 13.14 synthetic 根阻断恢复
+
+2026-11-24 对 8 个“JADX 推断缺成员”接口逐一使用 JADX、JAR 与冻结 Smali
+三重核验，避免直接把不可编译的反编译文本加入生产 Source Set：
+
+- 恢复 `tu2/gv2/mm4/nk6/ro2/jn3/kx5/as7` 八个接口，并同批恢复无构造器的
+  `js7` 与导入器筛出的真实小类 `mv1`。
+- `tu2/gv2` 的 `qv1.f`、`ov3.v`，`mm4` 的 synthetic
+  `ze1(Object,byte)` 原始成员无法被 Java/Kotlin 源码直接引用；由 Kotlin 兼容桥
+  `R126SyntheticAccess` 缓存原始字段/构造器并调用。精确 keep 规则确保 R8
+  不删除这些反射入口。
+- `di0.b(int,int,int)` 的 synthetic 打包逻辑按原字节码恢复为 flag bit 2/8
+  掩码、`Int.MAX_VALUE` 替换和 `di0.a(0,start,0,size)`；新增 JVM 定向测试与
+  原方法逐组对比。
+- 无专有游戏 JAR 的 bridge 构建将 `R126SyntheticAccess` 及其测试显式排除，
+  避免引用只在 FullGame 输入中存在的混淆类；`:app:assembleDebug
+  :app:copyAgpKotlinClasses` 在无 JAR 条件下 PASS。
+- `al2.m(String)` 的真实语义是抛出 `IllegalArgumentException`，在 `kx5`
+  中直接以同类型异常实现；`gc7.b` 的只读 synthetic 常量读取无副作用，移除了
+  JADX 生成的未使用读取。
+- `js7` 原 DEX 使用 `new-instance js7` 后直接调用 `Object.<init>`，冻结 Java
+  类因此没有 `<init>`。生产源码由其隐式构造器承载这一原版行为；其余方法保留
+  `final` 与对象监视器语义。
+- 生产接管总数由 `1613` 增至 **1623**，blocked 由 `382` 降至 **374**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1623/1623 PASS**；JVM 单测
+  **99/99 PASS**；迁移工具定向测试 **36/36 PASS**。最终
+  R8 `:app:minifyReleaseWithR8 -Poreki.r8=true` PASS，
+  `qv1.f`、`ov3.v` 与 `ze1(Object,byte)` 在 mapping 中保持原名。
+- 与最新 `main` 集成后的最终候选 Debug APK：
+  `996826855397883797c272a4bfe03177ded6dbd739959b02792e2c2ee1638284`
+  （83,888,848 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1707 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
+
+本轮由 Subagent 在独立 worktree 完成源码、ABI、DEX 与 R8 定向验证，Lead 在
+最新 `main` 上完成最终集成、FullGame、R8 与唯一 AVD 验收。剩余 374 项 blocked、
+ARM64 真机、双向存档矩阵及 180 分钟五项游戏门禁仍未完成。

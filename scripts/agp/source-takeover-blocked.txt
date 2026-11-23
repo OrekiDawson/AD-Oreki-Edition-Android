@@ -2,14 +2,6 @@
 # entry | descriptor | reason
 me3.class | Lme3; | dependency androidx/compose/ui/focus/b.class has static method in classfile version 49
 f35.class | Lf35; | dependency xq6.class contains malformed variable-arity method d(String)
-tu2.class | Ltu2; | JADX inferred missing qv1.f
-gv2.class | Lgv2; | JADX inferred missing ov3.v
-mm4.class | Lmm4; | JADX inferred missing synthetic constructor ze1(p02,byte)
-nk6.class | Lnk6; | JADX inferred missing gc7.b
-ro2.class | Lro2; | JADX inferred missing di0.b(int,int,int)
-jn3.class | Ljn3; | JADX inferred missing jw4.b
-kx5.class | Lkx5; | JADX inferred missing al2.m(String)
-as7.class | Las7; | JADX inferred missing js7()
 su8.class | Lsu8; | depends on blocked ws5.class
 ao5.class | Lao5; | javac/classfile or inherited dependency failure; see class-javac-1.log
 c25.class | Lc25; | javac/classfile or inherited dependency failure; see class-javac-1.log

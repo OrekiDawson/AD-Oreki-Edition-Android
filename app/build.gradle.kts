@@ -25,21 +25,25 @@ val sourceTakeoverKotlinExcludes = sourceTakeoverClasses.mapNotNull { classPath 
     val kotlinPath = classPath.removeSuffix(".class") + ".kt"
     kotlinPath.takeIf { File(repoRoot, "app/src/main/kotlin/$it").isFile }
 }
-val fullGameOnlyKotlinExcludes = sourceTakeoverKotlinExcludes
+val fullGameOnlyKotlinExcludes = (
+    sourceTakeoverKotlinExcludes + "R126SyntheticAccess.kt"
+    ).distinct()
 val fullGameOnlyKotlinNames = fullGameOnlyKotlinExcludes.map { File(it).nameWithoutExtension }
 val testKotlinRoot = File(repoRoot, "app/src/test/kotlin")
-val sourceTakeoverTestKotlinExcludes = testKotlinRoot.walkTopDown()
-    .filter(File::isFile)
-    .filter { it.extension == "kt" }
-    .filter { testFile ->
-        val imports = testFile.readLines()
-            .map(String::trim)
-            .filter { it.startsWith("import ") }
-            .map { it.substringAfterLast('.') }
-        imports.any(fullGameOnlyKotlinNames::contains)
-    }
-    .map { it.relativeTo(testKotlinRoot).invariantSeparatorsPath }
-    .toList()
+val sourceTakeoverTestKotlinExcludes = (
+    testKotlinRoot.walkTopDown()
+        .filter(File::isFile)
+        .filter { it.extension == "kt" }
+        .filter { testFile ->
+            val imports = testFile.readLines()
+                .map(String::trim)
+                .filter { it.startsWith("import ") }
+                .map { it.substringAfterLast('.') }
+            imports.any(fullGameOnlyKotlinNames::contains)
+        }
+        .map { it.relativeTo(testKotlinRoot).invariantSeparatorsPath }
+        .toList() + "R126SyntheticAccessTest.kt"
+    ).distinct()
 val bridgeKotlinRoot = layout.buildDirectory.dir("bridge-kotlin")
 val bridgeTestKotlinRoot = layout.buildDirectory.dir("bridge-test-kotlin")
 val prepareBridgeKotlinSources = tasks.register<Sync>("prepareBridgeKotlinSources") {

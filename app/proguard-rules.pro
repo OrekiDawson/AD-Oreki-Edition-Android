@@ -97,6 +97,12 @@
 -keep class mi2 { java.lang.String a(); }
 -keep class rq4 { java.lang.String a(); }
 
+# (2d) 原版 DEX 的 synthetic 成员仅由 R126SyntheticAccess 恢复。
+# Java/Kotlin 源码无法直接引用这些成员，保留精确成员以免 R8 移除或改名。
+-keepclassmembers class qv1 { public static *** f; }
+-keepclassmembers class ov3 { public static *** v; }
+-keepclassmembers class ze1 { public <init>(java.lang.Object, byte); }
+
 # (3) 存档兼容：Gson 序列化字段名即 player.json 键，必须保名。
 # 证据：savestates/**/*.json 的键是可读字段名；decoded smali 中 Player 存档树字段名与之一一对应；
 # 闭包由 scripts/agp/r109_save_keepgen.py 从 player/Player* 沿实例字段类型静态求出（102 类，0 enum）。
