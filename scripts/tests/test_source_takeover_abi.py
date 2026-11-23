@@ -77,6 +77,15 @@ class SourceTakeoverAbiTest(unittest.TestCase):
         ]
         self.assertFalse(ABI.compare_abi(original, compiled)["ok"])
 
+    def test_compiler_bridge_flag_is_not_part_of_source_declaration_abi(self):
+        original = self.parsed(
+            methods=[("size", "()I", 0x0051, None, None, None)],
+        )
+        compiled = self.parsed(
+            methods=[("size", "()I", 0x0011, None, None, None)],
+        )
+        self.assertTrue(ABI.compare_abi(original, compiled)["ok"])
+
     def test_final_dex_must_define_every_manifest_descriptor(self):
         entries = ["a5.class", "kajfosz/antimatterdimensions/MainActivity.class"]
         complete = {

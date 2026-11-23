@@ -79,6 +79,42 @@ class ImportClassSourcesTest(unittest.TestCase):
             self.assertTrue(IMPORTER.verify_smali(normal, "aa"))
             self.assertFalse(IMPORTER.verify_smali(interface, "bb"))
 
+    def test_restores_jadx_renamed_method_before_stripping_comments(self):
+        source = (
+            "package defpackage;\n"
+            "public class gg {\n"
+            "    /* JADX INFO: renamed from: zza */\n"
+            "    void mo76zza(Object value) {}\n"
+            "}\n"
+        )
+        self.assertIn(
+            "void zza(Object value)",
+            IMPORTER.rewrite_java(source, "gg"),
+        )
+
+    def test_reuses_only_identical_existing_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "aa.java"
+            path.write_text("public class aa {}\n", encoding="utf-8")
+            self.assertTrue(
+                IMPORTER.can_reuse_existing_source(path, "public class aa {}\n")
+            )
+            self.assertFalse(
+                IMPORTER.can_reuse_existing_source(path, "public class aa { int x; }\n")
+            )
+
+    def test_preserves_url_literals_while_removing_standalone_line_comments(self):
+        source = (
+            "package defpackage;\n"
+            "public class hh {\n"
+            "    // tool comment\n"
+            "    String url = \"https://example.test/a?b=1\";\n"
+            "}\n"
+        )
+        rewritten = IMPORTER.rewrite_java(source, "hh")
+        self.assertIn("https://example.test/a?b=1", rewritten)
+        self.assertNotIn("tool comment", rewritten)
+
 
 if __name__ == "__main__":
     unittest.main()

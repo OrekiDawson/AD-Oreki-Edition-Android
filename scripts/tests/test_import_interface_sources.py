@@ -96,6 +96,42 @@ class ImportInterfaceSourcesTest(unittest.TestCase):
         self.assertIsNone(IMPORTER.rewrite_java(annotation, "cc"))
         self.assertIsNone(IMPORTER.rewrite_java(real_package, "dd"))
 
+    def test_restores_jadx_renamed_method_before_stripping_comments(self):
+        source = (
+            "package defpackage;\n"
+            "public interface ee {\n"
+            "    /* JADX INFO: renamed from: zza */\n"
+            "    void mo76zza(Object value);\n"
+            "}\n"
+        )
+        self.assertIn(
+            "void zza(Object value)",
+            IMPORTER.rewrite_java(source, "ee"),
+        )
+
+    def test_reuses_only_identical_existing_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "ee.java"
+            path.write_text("public interface ee {}\n", encoding="utf-8")
+            self.assertTrue(
+                IMPORTER.can_reuse_existing_source(path, "public interface ee {}\n")
+            )
+            self.assertFalse(
+                IMPORTER.can_reuse_existing_source(path, "public interface ee { void a(); }\n")
+            )
+
+    def test_preserves_url_literals_while_removing_standalone_line_comments(self):
+        source = (
+            "package defpackage;\n"
+            "public interface ff {\n"
+            "    // tool comment\n"
+            "    String URL = \"https://example.test/a?b=1\";\n"
+            "}\n"
+        )
+        rewritten = IMPORTER.rewrite_java(source, "ff")
+        self.assertIn("https://example.test/a?b=1", rewritten)
+        self.assertNotIn("tool comment", rewritten)
+
 
 if __name__ == "__main__":
     unittest.main()

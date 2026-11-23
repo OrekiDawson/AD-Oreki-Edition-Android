@@ -144,32 +144,6 @@ yt8.class | Lyt8; | javac/classfile or inherited dependency failure; see class-j
 z07.class | Lz07; | javac/classfile or inherited dependency failure; see class-javac-8.log
 zb6.class | Lzb6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 zl6.class | Lzl6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-an7.class | Lan7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-c67.class | Lc67; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-ek7.class | Lek7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-hg8.class | Lhg8; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-i78.class | Li78; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-ik8.class | Lik8; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-iv7.class | Liv7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-iw6.class | Liw6; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-j17.class | Lj17; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-j72.class | Lj72; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-kq5.class | Lkq5; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-kx4.class | Lkx4; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-m32.class | Lm32; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-ot6.class | Lot6; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-p97.class | Lp97; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-pt6.class | Lpt6; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-q66.class | Lq66; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-qr7.class | Lqr7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-s08.class | Ls08; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-tc7.class | Ltc7; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-to2.class | Lto2; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-uz8.class | Luz8; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-w56.class | Lw56; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-xu5.class | Lxu5; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-y06.class | Ly06; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
-z59.class | Lz59; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
 ah0.class | Lah0; | JADX default constructor no longer matches original ch0(sc0,sc0,int|sc0,sc0,sc0,float[]) ABI
 h62.class | Lh62; | JADX default constructor no longer matches original b62() ABI
 kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
@@ -316,3 +290,113 @@ v67.class | Lv67; | R126 batch9 javac/classfile or inherited dependency failure;
 v93.class | Lv93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 vu3.class | Lvu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
 z93.class | Lz93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ai6.class | Lai6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+c38.class | Lc38; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+d50.class | Ld50; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ei6.class | Lei6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+h22.class | Lh22; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ha3.class | Lha3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+hh2.class | Lhh2; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+hp7.class | Lhp7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+io8.class | Lio8; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+iz7.class | Liz7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+k5.class | Lk5; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+n84.class | Ln84; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+nf6.class | Lnf6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+np3.class | Lnp3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+p57.class | Lp57; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+rv7.class | Lrv7; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ui3.class | Lui3; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+um6.class | Lum6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+x16.class | Lx16; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+x51.class | Lx51; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+y62.class | Ly62; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+yj8.class | Lyj8; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+ym6.class | Lym6; | R126 blocked-ABI recovery javac/classfile failure; source stays in frozen JAR
+h.class | Lh; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hw5.class | Lhw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ja3.class | Lja3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+m69.class | Lm69; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+my5.class | Lmy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+na3.class | Lna3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+qy5.class | Lqy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+q65.class | Lq65; | ABI guard: JADX source omitted 17 original Android API methods; retain frozen JAR implementation
+u1.class | Lu1; | ABI guard: JADX source omitted 29 original Android API methods; retain frozen JAR implementation
+w4.class | Lw4; | ABI guard: JADX source omitted 30 original Android API methods; retain frozen JAR implementation
+a75.class | La75; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+a9.class | La9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+at3.class | Lat3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+av3.class | Lav3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ba9.class | Lba9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+bc6.class | Lbc6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ck6.class | Lck6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ct3.class | Lct3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+cy5.class | Lcy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+d02.class | Ld02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+dg1.class | Ldg1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+di3.class | Ldi3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+e78.class | Le78; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ea3.class | Lea3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ei3.class | Lei3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+et3.class | Let3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ex5.class | Lex5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+f02.class | Lf02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ff4.class | Lff4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+fi3.class | Lfi3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+g01.class | Lg01; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+gs1.class | Lgs1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+h24.class | Lh24; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+h8.class | Lh8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hl5.class | Lhl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ht3.class | Lht3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hv5.class | Lhv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hy5.class | Lhy5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+hy6.class | Lhy6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+i02.class | Li02; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ip1.class | Lip1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+jd8.class | Ljd8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+jk7.class | Ljk7; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+jt3.class | Ljt3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+k57.class | Lk57; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ka6.class | Lka6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ke6.class | Lke6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+lv5.class | Llv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+lw3.class | Llw3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+m51.class | Lm51; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+mt3.class | Lmt3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+o32.class | Lo32; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+on5.class | Lon5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ow3.class | Low3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+qa3.class | Lqa3; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+qw5.class | Lqw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+r68.class | Lr68; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+sa2.class | Lsa2; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+sb9.class | Lsb9; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+t.class | Lt; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+t93.class | Lt93; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+ty5.class | Lty5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+u74.class | Lu74; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+u93.class | Lu93; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+up8.class | Lup8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+uw5.class | Luw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+v04.class | Lv04; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+vu5.class | Lvu5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+vv5.class | Lvv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+vx5.class | Lvx5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+w24.class | Lw24; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+w82.class | Lw82; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+w93.class | Lw93; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+wq6.class | Lwq6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+wq8.class | Lwq8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xb4.class | Lxb4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xf0.class | Lxf0; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xn6.class | Lxn6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+xt4.class | Lxt4; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+yc1.class | Lyc1; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+yh6.class | Lyh6; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+yw.class | Lyw; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+z0.class | Lz0; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zf8.class | Lzf8; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zl5.class | Lzl5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zv5.class | Lzv5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR
+zw5.class | Lzw5; | R126 blocked-ABI recovery broad import javac/classfile failure; source stays in frozen JAR

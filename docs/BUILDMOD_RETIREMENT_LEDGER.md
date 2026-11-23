@@ -1080,3 +1080,36 @@ descriptor、唯一 Smali 身份和源码选择：
 
 本批仍不等于全部源码或完整游戏验收完成；ARM64 真机、双向存档矩阵和
 180 分钟五项游戏门禁继续为 `NOT RUN`。
+
+### 13.11 ABI 根因恢复与导入器加固
+
+2026-11-24 对受阻 class 从“继续批量导入”切换为根因修复：
+
+- JADX 将多个原版 `zza/zzb/zzc/zzd` 方法重命名为 `moNNzza` 等名称。两个导入器
+  现在在剥离注释前按 `JADX INFO: renamed from` 恢复原方法名，并新增回归测试。
+- 修复逐行注释删除误把 `https://` 当作 `//` 注释的问题；现在只删除独立行注释，
+  URL 字面量完整保留并新增回归测试。
+- 导入器可复用与 JADX 转换结果逐字节一致的既有未登记源码，同时在报告和计数中
+  独立标记 `reused_existing`，修复并行导入清单竞态后的恢复路径。
+- ABI 守卫将编译器 `ACC_BRIDGE` 视为不可由 Java/Kotlin 源码直接声明的桥接标记；
+  方法名、descriptor 和其余访问位仍严格比对，并新增正负向单测。
+- 恢复 `19` 个接口、`7` 个常量类的运行时 `<clinit>` 语义和一批普通类；
+  `to2` 以等价 `Collections.emptyMap()` 补回原静态方法，`nq8/wa1/h04/hl1/ra/zd7`
+  按原版 Smali/JAR 补回遗漏构造器，`ku0` 以 sneaky-throw 保持原受检异常传播语义。
+- JADX 大规模缺方法的 `q65/u1/w4`、构造器/父类/字段不匹配及旧 classfile 依赖类
+  均保持 blocked，不以空方法或伪 ABI 通过。
+- 本批尝试 `271` 个候选，新增接管 `187` 类，新增 blocked `84` 类；生产接管
+  总数由 `1407` 增至 **1594**，blocked 为 **400**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1594/1594 PASS**；定向 Python 测试
+  30/30 PASS。
+- 当前 FullGame Debug APK：
+  `4be7926e4d7a6a527fe29404eb025fc9e0f18f0af7ca208843f611e782de57ac`
+  （92,984,125 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1519 ms，进程存活，主调度
+  `gui-tick #1/#2` PASS，`stage=13 unknownLeaf=0 degraded=0`；未发现
+  FATAL、ANR、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批显著降低 ABI 阻断并修复了可复用导入工具，但 blocked 仍有 400 项；ARM64
+真机、双向存档矩阵和 180 分钟五项游戏门禁继续为 `NOT RUN`。

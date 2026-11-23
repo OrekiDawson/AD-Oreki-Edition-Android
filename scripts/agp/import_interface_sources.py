@@ -12,18 +12,42 @@ from pathlib import Path
 
 JAVA_INTERFACE = re.compile(r"\bpublic\s+interface\s+([a-z][a-z0-9]*)\b")
 SMALI_CLASS = re.compile(r"^\.class public interface abstract L([a-z][a-z0-9]*);$")
+JADX_RENAMED = re.compile(r"/\* JADX INFO: renamed from: ([A-Za-z_$][\w$]*) \*/")
+JAVA_METHOD_NAME = re.compile(r"\b([A-Za-z_$][\w$]*)\s*\(")
+
+
+def restore_jadx_renamed_methods(text: str) -> str:
+    lines = text.splitlines(keepends=True)
+    restored: list[str] = []
+    pending: str | None = None
+    for line in lines:
+        if pending is None:
+            match = JADX_RENAMED.search(line)
+            if match is not None:
+                pending = match.group(1)
+            restored.append(line)
+            continue
+        if not line.strip() or line.lstrip().startswith(("/*", "//")):
+            restored.append(line)
+            continue
+        match = JAVA_METHOD_NAME.search(line)
+        if match is not None:
+            line = line[: match.start(1)] + pending + line[match.end(1) :]
+        pending = None
+        restored.append(line)
+    return "".join(restored)
 
 
 def strip_jadx_comments(text: str) -> str:
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
-    text = re.sub(r"//[^\n]*", "", text)
+    text = re.sub(r"^\s*//[^\n]*", "", text, flags=re.M)
     return text
 
 
 def rewrite_java(text: str, name: str) -> str | None:
     if "JADX WARN" in text or "Failed to decompile" in text:
         return None
-    clean = strip_jadx_comments(text).replace("\r\n", "\n")
+    clean = strip_jadx_comments(restore_jadx_renamed_methods(text)).replace("\r\n", "\n")
     match = JAVA_INTERFACE.search(clean)
     if match is None or match.group(1) != name:
         return None
@@ -46,6 +70,10 @@ def rewrite_java(text: str, name: str) -> str | None:
     if not lines or not clean.rstrip().endswith("}") or clean.count("{") != clean.count("}"):
         return None
     return "\n".join(lines) + "\n"
+
+
+def can_reuse_existing_source(path: Path, rewritten: str) -> bool:
+    return path.is_file() and path.read_text(encoding="utf-8") == rewritten
 
 
 def find_smali(smali_root: Path, name: str) -> Path | None:
@@ -136,6 +164,7 @@ def main() -> int:
         "smali_verified": 0,
         "already_in_manifest": 0,
         "existing_source": 0,
+        "reused_existing": 0,
         "emitted": 0,
     }
     selected = []
@@ -171,6 +200,11 @@ def main() -> int:
             output_path = args.output_root / f"{name}.java"
             if output_path.exists():
                 counts["existing_source"] += 1
+                if can_reuse_existing_source(output_path, rewritten):
+                    counts["reused_existing"] += 1
+                    selected.append((name, output_path, None))
+                    if len(selected) >= args.limit:
+                        break
                 continue
             selected.append((name, output_path, rewritten))
             if len(selected) >= args.limit:
@@ -178,9 +212,10 @@ def main() -> int:
 
     args.output_root.mkdir(parents=True, exist_ok=True)
     for name, output_path, source in selected:
-        if output_path.exists():
+        if source is not None and output_path.exists():
             raise SystemExit(f"FAIL: refusing to overwrite existing source: {output_path}")
-        output_path.write_text(source, encoding="utf-8")
+        if source is not None:
+            output_path.write_text(source, encoding="utf-8")
     write_manifest(args.manifest, original, [name for name, _, _ in selected])
     counts["emitted"] = len(selected)
     report = {
@@ -188,8 +223,13 @@ def main() -> int:
         "selection": "warning-free JADX interface + JAR + abstract-only Smali",
         "counts": counts,
         "emitted": [
-            {"descriptor": f"L{name};", "entry": f"{name}.class", "source": f"{name}.java"}
-            for name, _, _ in selected
+            {
+                "descriptor": f"L{name};",
+                "entry": f"{name}.class",
+                "source": f"{name}.java",
+                "reused_existing": source is None,
+            }
+            for name, _, source in selected
         ],
     }
     if args.report:
