@@ -31,18 +31,63 @@ def kotlin_files(root: Path, relative: Path) -> set[Path]:
 
 
 def balanced_call_body(text: str, pattern: str) -> str:
-    """返回 Kotlin 调用括号内的完整正文，支持 File(...) 等嵌套括号。"""
+    """返回 Kotlin 调用括号内的完整正文，跳过注释与字符串中的括号。"""
     match = re.search(pattern, text)
     if not match:
         return ""
     depth = 1
-    for index in range(match.end(), len(text)):
+    index = match.end()
+    while index < len(text):
+        if text.startswith("//", index):
+            newline = text.find("\n", index + 2)
+            if newline < 0:
+                return ""
+            index = newline + 1
+            continue
+        if text.startswith("/*", index):
+            index += 2
+            comment_depth = 1
+            while index < len(text) and comment_depth:
+                if text.startswith("/*", index):
+                    comment_depth += 1
+                    index += 2
+                elif text.startswith("*/", index):
+                    comment_depth -= 1
+                    index += 2
+                else:
+                    index += 1
+            if comment_depth:
+                return ""
+            continue
+        if text.startswith('"""', index):
+            end = text.find('"""', index + 3)
+            if end < 0:
+                return ""
+            index = end + 3
+            continue
+        if text[index] == '"':
+            index += 1
+            while index < len(text) and text[index] != '"':
+                index += 2 if text[index] == "\\" else 1
+            if index >= len(text):
+                return ""
+            index += 1
+            continue
+        if text[index] == "'":
+            index += 1
+            while index < len(text) and text[index] != "'":
+                index += 2 if text[index] == "\\" else 1
+            if index >= len(text):
+                return ""
+            index += 1
+            continue
         if text[index] == "(":
             depth += 1
         elif text[index] == ")":
             depth -= 1
             if depth == 0:
                 return text[match.end():index]
+        index += 1
     return ""
 
 
