@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AVD 加速语义测试驱动（S1/S2 审计 + S3 用）
 
-只操作 emulator-5554 与 /data/data/com.oreki.antimatterdimensions/。
+只操作 emulator-5554 与 /data/data/net.oreki.antimatterdimensions/。
 用法：
   python scripts/simtest.py pull <本地路径>
   python scripts/simtest.py inject <patch.json> <本地输出>
@@ -22,7 +22,7 @@ import sys
 import time
 
 ADB = r"C:\Users\Oreki\Android\sdk\platform-tools\adb.exe"
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 FILES = f"/data/data/{PKG}/files"
 PREFS = f"/data/data/{PKG}/shared_prefs/oreki_prefs.xml"
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

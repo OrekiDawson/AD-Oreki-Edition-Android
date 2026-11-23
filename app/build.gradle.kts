@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         applicationId = if (fullGame) {
-            "com.oreki.antimatterdimensions"
+            "net.oreki.antimatterdimensions"
         } else {
             "kajfosz.antimatterdimensions.agpbridge"
         }

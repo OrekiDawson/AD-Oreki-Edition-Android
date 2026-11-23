@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import simtest as S
 
 OUT = os.path.join(S.BASE, "build", "r55")
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 FILES = S.FILES
 
 

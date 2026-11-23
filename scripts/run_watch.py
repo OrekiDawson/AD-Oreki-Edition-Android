@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 
 ADB = r"C:\Users\Oreki\Android\Sdk\platform-tools\adb.exe"
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 SAVE = f"/data/data/{PKG}/files/player.json"
 
 # 判据全部来自游戏真实状态；数字取自原版门槛（ID1: IP 1e8 / maxAM 1e1100；复制器 1e140 IP）

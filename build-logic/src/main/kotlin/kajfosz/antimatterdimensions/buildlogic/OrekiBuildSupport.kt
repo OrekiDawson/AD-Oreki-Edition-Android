@@ -13,7 +13,7 @@ import org.gradle.api.GradleException
 
 internal object OrekiBuildSupport {
     val OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"
-    val OREKI_MOD_APPLICATION_ID = "com.oreki.antimatterdimensions"
+    val OREKI_MOD_APPLICATION_ID = "net.oreki.antimatterdimensions"
     val OREKI_ANDROID_NS = "http://schemas.android.com/apk/res/android"
     val OREKI_OFFICIAL_3_21_MANIFEST_SHA256 =
         "b07e4343839b3deb197e4cf0a3cc03cad264d1c4109456204df96f56e64ff6b0"

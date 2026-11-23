@@ -31,7 +31,7 @@ from pathlib import Path
 
 PACKAGES = {
     "official": "kajfosz.antimatterdimensions",
-    "mod": "com.oreki.antimatterdimensions",
+    "mod": "net.oreki.antimatterdimensions",
 }
 PKG = PACKAGES["mod"]
 ACT = "kajfosz.antimatterdimensions.MainActivity"

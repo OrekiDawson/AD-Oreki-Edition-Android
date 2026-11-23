@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """R107-01 AVD 门禁脚本（冷启动 / 新建档 / 重启读档）——由 Lead 在授权窗口执行。
 
-本脚本只操作指定设备上的 com.oreki.antimatterdimensions，绝不启动/停止模拟器，
+本脚本只操作指定设备上的 net.oreki.antimatterdimensions，绝不启动/停止模拟器，
 不操作其他应用，不清除其他包数据。默认 dry-run：只有显式传 --execute 且环境变量
 OREKI_AVD_GATE_AUTHORIZED=1 时才真正执行（防止子 Agent / 误调用占用 AVD）。
 
@@ -41,7 +41,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-PACKAGE = "com.oreki.antimatterdimensions"
+PACKAGE = "net.oreki.antimatterdimensions"
 MAIN_ACTIVITY = f"{PACKAGE}/kajfosz.antimatterdimensions.MainActivity"
 # 3.21 实际保存文件名可能是 player.json / playerBackup / speedrunBackup*.json；
 # 这里全部按“已知存档候选”检查，任一存在且非空即认为产生了持久化存档。

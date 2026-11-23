@@ -78,7 +78,7 @@ class AgpCandidateWiringTests(unittest.TestCase):
         def runner(command):
             calls.append(command)
             if "dump" in command:
-                return 0, "package: name='com.oreki.antimatterdimensions' versionCode='30210000' versionName='3.21.0'"
+                return 0, "package: name='net.oreki.antimatterdimensions' versionCode='30210000' versionName='3.21.0'"
             if "verify" in command:
                 return 0, "Verified using v2 scheme (APK Signature Scheme v2): true"
             prepared = pathlib.Path(command[command.index("-o") + 1])
