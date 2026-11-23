@@ -21,14 +21,6 @@ r21.class | Lr21; | depends on blocked dg3.class
 t72.class | Lt72; | depends on blocked g94.class
 do1.class | Ldo1; | depends on blocked t72.class
 su8.class | Lsu8; | depends on blocked ws5.class
-xf.class | Lxf; | depends on blocked to2.class
-qm8.class | Lqm8; | depends on blocked hg8.class
-l39.class | Ll39; | depends on blocked uz8.class
-z29.class | Lz29; | depends on blocked uz8.class
-p29.class | Lp29; | depends on blocked uz8.class
-ag.class | Lag; | depends on blocked to2.class
-tf8.class | Ltf8; | depends on blocked hg8.class
-y24.class | Ly24; | depends on blocked to2.class
 ao5.class | Lao5; | javac/classfile or inherited dependency failure; see class-javac-1.log
 c25.class | Lc25; | javac/classfile or inherited dependency failure; see class-javac-1.log
 c77.class | Lc77; | javac/classfile or inherited dependency failure; see class-javac-1.log

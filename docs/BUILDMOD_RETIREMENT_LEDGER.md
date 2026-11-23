@@ -1113,3 +1113,21 @@ descriptor、唯一 Smali 身份和源码选择：
 
 本批显著降低 ABI 阻断并修复了可复用导入工具，但 blocked 仍有 400 项；ARM64
 真机、双向存档矩阵和 180 分钟五项游戏门禁继续为 `NOT RUN`。
+
+### 13.12 传递阻断重验
+
+ABI 根因恢复后，原先记录为“依赖 blocked `to2/hg8/uz8`”的 8 个类已失去阻断
+前提。使用同一 JADX/Smali/JAR 工具在独立候选中重验：
+
+- 恢复 `xf/qm8/ag/tf8/y24` 五个接口与 `l39/z29/p29` 三个抽象类。
+- 生产接管总数由 `1594` 增至 **1602**，blocked 由 `400` 降至 **392**。
+- FullGame、`verifySourceTakeoverDebugAbi/Classes/Dex` 均为 **1602/1602 PASS**。
+- 当前 FullGame Debug APK：
+  `e66e81d5b5aea6416bc6785f3f8bae0978084b6b9c75d78c8cf221f333603018`
+  （92,983,565 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1465 ms，进程存活，主调度
+  `gui-tick #1/#2` PASS，`stage=13 unknownLeaf=0 degraded=0`；未发现
+  FATAL、ANR、NoSuchMethodError 或 NoClassDefFoundError。
+
+剩余 blocked 仍需按具体 classfile、synthetic、JADX 失真和大型 Android API
+shim 根因继续收敛，不能把本批视为全量迁移完成。
