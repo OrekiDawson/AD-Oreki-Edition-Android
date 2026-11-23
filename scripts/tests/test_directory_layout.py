@@ -66,6 +66,19 @@ sourceSets["main"].kotlin.directories.addAll(
 ''')
         self.assertIn("duplicate relative", " ".join(guard.check_layout(self.root)))
 
+    def test_call_parser_ignores_parentheses_in_strings_and_comments(self):
+        self.phase("dual")
+        self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
+        self.write("agp/app/build.gradle.kts", '''
+sourceSets["main"].kotlin.srcDirs(
+    File(repoRoot, "scripts/payload/kotlin"), // 旧根 (见 Issue #61
+    /* 中间块注释 ) 不应截断 */
+    File(repoRoot, "app/src/main/kotlin"),
+    File(repoRoot, "build/kt/generated"), // 结束 )
+)
+''')
+        self.assertEqual([], guard.check_layout(self.root))
+
     def test_nested_new_phase_rejects_old_source_set(self):
         self.phase("nested-new")
         self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
