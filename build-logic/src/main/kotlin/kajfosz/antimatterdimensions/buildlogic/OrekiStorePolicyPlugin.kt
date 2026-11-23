@@ -10,6 +10,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.compile.JavaCompile
 
 private val targetEntries = setOf(
     "l5.class",
@@ -366,6 +367,64 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
 
         project.tasks.matching { it.name == "preBuild" }.configureEachAction {
             if (config.fullGame) dependsOn(verifyTask)
+        }
+
+        if (config.fullGame) {
+            project.afterEvaluate {
+                for (variant in listOf("Debug", "Release")) {
+                    val compileName = "compile${variant}JavaWithJavac"
+                    val compileTask = project.tasks.findByName(compileName) as? JavaCompile
+                        ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
+                    val evidence = File(
+                        config.rootDir,
+                        "build/agp-source-takeover/verify-${variant.lowercase()}.json",
+                    )
+                    val verifyCompiled = project.tasks.registerAction(
+                        "verifySourceTakeover${variant}Classes",
+                    ) {
+                        group = "verification"
+                        description = "验证源码接管清单中的 class 确实由 AGP 编译产物提供"
+                        dependsOn(compileTask)
+                        inputs.file(config.sourceTakeoverManifest)
+                        inputs.dir(compileTask.destinationDirectory)
+                        outputs.file(evidence)
+                        doLast {
+                            val roots = listOf(
+                                compileTask.destinationDirectory.asFile.get(),
+                                File(config.rootDir, "build/tmp/kotlin-classes/${variant.lowercase()}"),
+                            ).filter(File::isDirectory)
+                            val missing = config.sourceTakeoverEntries.filter { entry ->
+                                roots.none { root -> File(root, entry).isFile }
+                            }
+                            if (missing.isNotEmpty()) {
+                                throw GradleException(
+                                    "[oreki] 源码接管清单缺少 AGP 编译产物: $missing",
+                                )
+                            }
+                            val payload = linkedMapOf<String, Any>(
+                                "schema" to 1,
+                                "stage" to "agp-source-takeover-compiled",
+                                "variant" to variant.lowercase(),
+                                "manifest" to config.sourceTakeoverManifest,
+                                "entries" to config.sourceTakeoverEntries,
+                                "compiledClassRoots" to roots,
+                                "verifiedCount" to config.sourceTakeoverEntries.size,
+                            )
+                            evidence.parentFile.mkdirs()
+                            evidence.writeText(
+                                JsonOutput.prettyPrint(JsonOutput.toJson(payload)) + "\n",
+                                Charsets.UTF_8,
+                            )
+                            logger.lifecycle(
+                                "[oreki] 源码接管 AGP 产物校验通过: " +
+                                    "${config.sourceTakeoverEntries.size} classes",
+                            )
+                        }
+                    }
+                    project.tasks.matching { it.name == "assemble${variant}" }
+                        .configureEachAction { dependsOn(verifyCompiled) }
+                }
+            }
         }
     }
 }
