@@ -1203,3 +1203,47 @@ shim 根因继续收敛，不能把本批视为全量迁移完成。
 本轮由 Subagent 在独立 worktree 完成源码、ABI、DEX 与 R8 定向验证，Lead 在
 最新 `main` 上完成最终集成、FullGame、R8 与唯一 AVD 验收。剩余 374 项 blocked、
 ARM64 真机、双向存档矩阵及 180 分钟五项游戏门禁仍未完成。
+
+### 13.15 原版无构造器类的 shim 删除
+
+剩余 382 项 blocked 的只读分类显示：283 个类在原版 JAR 中确实没有
+`<init>`，其中 263 个同时满足 JADX 无警告、JAR entry 存在和 Smali 身份核验。
+JADX 为源码可编译性隐式生成的默认构造器不能进入最终 ABI。本批先处理两组共
+13 个已核实类：
+
+- `an1/bn1/cn1/dn1/en1`：原版均为 `final`、无构造器，父类仅提供
+  `zm1(int,String,fm1,gm1,gm1,gm1)`。
+- `cc6/fp6/d38/ts6/zb6/qh6/lp6`：原版均为 `abstract`、无构造器，父类仅提供
+  `wb6(String)`。
+- `y61`：原版没有构造器，仅保留静态 `Set<int[]> a()`。
+- 每个类仅加入可编译的无参构造器 shim；`adaptSourceAbi` 使用 ASM 验证编译
+  产物恰有一个构造器、删除唯一 `<init>()V`，并记录
+  `constructor_removals` 证据。ABI 守卫新增
+  `--require-no-constructor`：若编译类仍有构造器、要求项未出现在实际 ABI
+  清单，或最终 DEX 的 class_data 直接方法表重新出现 `<init>`，均 fail-closed。
+  最终 DEX 守卫解析 `class_def → class_data_item → method_ids`，不再只检查
+  descriptor 是否存在；Gradle `verifySourceTakeover*Dex` 任务实际透传同一批
+  flag，并将要求项声明为任务输入。
+- `js7` 不纳入本批：其原版 `new-instance js7 + Object.<init>` 特殊模式虽然可
+  在 classfile 删除 shim，但 D8 会重新生成 `<init>`；保留前批已知边界并单独
+  继续研究，不能把 D8 行为冒充为已消除 ABI 差异。
+- 生产接管总数由 `1623` 增至 **1636**，blocked 由 `374` 降至 **361**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1636/1636 PASS**；Python 定向测试
+  41/41 PASS，含最小 synthetic DEX 的正/负例与多字节 ULEB128。最终 Debug
+  DEX 解析器确认上述 13 类均无 `<init>`，
+  `constructor_guard.missing_from_abi=[]`、`unexpected_in_dex=[]`。
+- 无专有 JAR 的 bridge
+  `:app:testDebugUnitTest :app:assembleDebug :app:copyAgpKotlinClasses` PASS。
+- FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true -PorekiFullGame=true`
+  PASS。
+- 当前 FullGame Debug APK：
+  `6bfc1d758e17fccdd47eb12cd7451dbd21492c94f0ca546a9b52115c9df765a8`
+  （83,889,620 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1361 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批仍不代表全部源码迁移完成。剩余 361 项 blocked、ARM64 真机、双向存档矩阵、
+正式签名/Release 和 180 分钟五项游戏门禁仍未完成。

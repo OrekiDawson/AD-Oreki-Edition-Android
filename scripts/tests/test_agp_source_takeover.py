@@ -319,6 +319,42 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             app_gradle,
         )
 
+    def test_constructor_shims_are_removed_with_fail_closed_evidence(self):
+        gradle = (
+            ROOT / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/"
+            "OrekiStorePolicyPlugin.kt"
+        ).read_text(encoding="utf-8")
+        expected = (
+            "an1",
+            "bn1",
+            "cn1",
+            "dn1",
+            "en1",
+            "cc6",
+            "fp6",
+            "d38",
+            "ts6",
+            "zb6",
+            "qh6",
+            "lp6",
+            "y61",
+        )
+        for name in expected:
+            self.assertIn(f'"{name}.class"', gradle)
+        self.assertIn('name == "<init>"', gradle)
+        self.assertIn('descriptor == "()V"', gradle)
+        self.assertIn("if (constructors != 1 || removed != 1)", gradle)
+        self.assertIn('"constructor_removals"', gradle)
+        self.assertIn('"removed_constructor" to "<init>()V"', gradle)
+        self.assertIn('"--require-no-constructor"', gradle)
+        self.assertIn("constructorRemovalSpecs.flatMap", gradle)
+        dex_task = gradle.split(
+            '"verifySourceTakeover${variant}Dex"',
+            1,
+        )[1].split("project.tasks.matching", 1)[0]
+        self.assertIn("constructorRemovalSpecs.flatMap", dex_task)
+        self.assertIn('"requireNoConstructor"', dex_task)
+
 
 if __name__ == "__main__":
     unittest.main()

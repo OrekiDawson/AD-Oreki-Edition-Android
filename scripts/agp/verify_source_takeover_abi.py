@@ -55,11 +55,21 @@ def signatures(
     return methods, fields
 
 
-def compare_abi(original: dict, compiled: dict) -> dict:
+def compare_abi(
+    original: dict,
+    compiled: dict,
+    *,
+    require_no_constructor: bool = False,
+) -> dict:
     original_methods, original_fields = signatures(original)
     compiled_methods, compiled_fields = signatures(compiled)
     missing_methods = sorted(original_methods - compiled_methods)
     missing_fields = sorted(original_fields - compiled_fields)
+    unexpected_constructors = (
+        sorted(method for method in compiled_methods if method[0] == "<init>")
+        if require_no_constructor
+        else []
+    )
     identity = {
         "name": (original["name"], compiled["name"]),
         "super": (original["super"], compiled["super"]),
@@ -74,7 +84,11 @@ def compare_abi(original: dict, compiled: dict) -> dict:
         "original_fields": len(original_fields),
         "missing_methods": missing_methods,
         "missing_fields": missing_fields,
-        "ok": identity_ok and not missing_methods and not missing_fields,
+        "unexpected_constructors": unexpected_constructors,
+        "ok": identity_ok
+        and not missing_methods
+        and not missing_fields
+        and not unexpected_constructors,
     }
 
 
@@ -125,6 +139,92 @@ def dex_class_definitions(data: bytes) -> set[str]:
     return classes
 
 
+def read_uleb128(data: bytes, offset: int) -> tuple[int, int]:
+    value = 0
+    shift = 0
+    for _ in range(5):
+        byte = data[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        if not byte & 0x80:
+            return value, offset
+        shift += 7
+    raise ValueError("invalid ULEB128 value")
+
+
+def dex_constructor_descriptors(data: bytes) -> set[str]:
+    """Return class descriptors whose direct method table declares <init>."""
+    if data[:4] != b"dex\n":
+        raise ValueError("not a DEX file")
+
+    import struct
+
+    def u32(offset: int) -> int:
+        return struct.unpack_from("<I", data, offset)[0]
+
+    string_ids_size = u32(0x38)
+    string_ids_off = u32(0x3C)
+    type_ids_off = u32(0x44)
+    method_ids_size = u32(0x58)
+    method_ids_off = u32(0x5C)
+    class_defs_size = u32(0x60)
+    class_defs_off = u32(0x64)
+    if not (
+        string_ids_size
+        and type_ids_off
+        and method_ids_size
+        and class_defs_size
+    ):
+        return set()
+
+    def string_at(index: int) -> str:
+        if index >= string_ids_size:
+            return ""
+        start = u32(string_ids_off + 4 * index)
+        pos = start
+        while pos < len(data) and (data[pos] & 0x80):
+            pos += 1
+        pos += 1
+        end = data.find(b"\x00", pos)
+        if end < 0:
+            end = len(data)
+        return data[pos:end].decode("utf-8", errors="ignore")
+
+    method_names = [
+        string_at(u32(method_ids_off + 8 * index + 4))
+        for index in range(method_ids_size)
+    ]
+    constructors: set[str] = set()
+    for index in range(class_defs_size):
+        class_def_offset = class_defs_off + 32 * index
+        class_idx = u32(class_def_offset)
+        type_idx = u32(type_ids_off + 4 * class_idx)
+        descriptor = string_at(type_idx)
+        class_data_off = u32(class_def_offset + 24)
+        if not descriptor or not class_data_off:
+            continue
+        offset = class_data_off
+        static_fields, offset = read_uleb128(data, offset)
+        instance_fields, offset = read_uleb128(data, offset)
+        direct_methods, offset = read_uleb128(data, offset)
+        _, offset = read_uleb128(data, offset)
+        for _ in range(static_fields + instance_fields):
+            _, offset = read_uleb128(data, offset)
+            _, offset = read_uleb128(data, offset)
+        method_index = 0
+        for _ in range(direct_methods):
+            method_index_diff, offset = read_uleb128(data, offset)
+            method_index += method_index_diff
+            _, offset = read_uleb128(data, offset)
+            _, offset = read_uleb128(data, offset)
+            if method_index >= len(method_names):
+                raise ValueError("DEX method index out of range")
+            if method_names[method_index] == "<init>":
+                constructors.add(descriptor)
+                break
+    return constructors
+
+
 def dex_classes_from_apk(path: Path) -> set[str]:
     classes: set[str] = set()
     with zipfile.ZipFile(path) as apk:
@@ -140,14 +240,44 @@ def dex_classes_from_apk(path: Path) -> set[str]:
     return classes
 
 
-def compare_dex(entries: list[str], descriptors: set[str]) -> dict:
+def dex_constructor_descriptors_from_apk(path: Path) -> set[str]:
+    constructors: set[str] = set()
+    with zipfile.ZipFile(path) as apk:
+        names = [
+            name
+            for name in apk.namelist()
+            if re.fullmatch(r"classes\d*\.dex", name)
+        ]
+        if not names:
+            raise ValueError(f"APK does not contain classes*.dex: {path}")
+        for name in names:
+            constructors.update(dex_constructor_descriptors(apk.read(name)))
+    return constructors
+
+
+def compare_dex(
+    entries: list[str],
+    descriptors: set[str],
+    *,
+    constructor_descriptors: set[str] | None = None,
+    require_no_constructor: list[str] | None = None,
+) -> dict:
     expected = {class_entry_descriptor(entry) for entry in entries}
     missing = sorted(expected - descriptors)
+    required_no_constructor = {
+        class_entry_descriptor(entry)
+        for entry in (require_no_constructor or [])
+    }
+    unexpected_constructors = sorted(
+        required_no_constructor & (constructor_descriptors or set()),
+    )
     return {
         "expected_classes": len(expected),
         "dex_classes": len(descriptors),
         "missing_classes": missing,
-        "ok": not missing,
+        "required_no_constructor": sorted(required_no_constructor),
+        "unexpected_constructors": unexpected_constructors,
+        "ok": not missing and not unexpected_constructors,
     }
 
 
@@ -171,6 +301,13 @@ def filter_abi_entries(entries: list[str], excluded: set[str]) -> list[str]:
     return [entry for entry in entries if entry not in excluded]
 
 
+def missing_required_entries(
+    required: list[str],
+    abi_entries: list[str],
+) -> list[str]:
+    return sorted(set(required) - set(abi_entries))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--game-jar", type=Path)
@@ -178,6 +315,7 @@ def main() -> int:
     parser.add_argument("--apk", type=Path)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--exclude-from-abi-manifest", type=Path)
+    parser.add_argument("--require-no-constructor", action="append", default=[])
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
 
@@ -193,6 +331,17 @@ def main() -> int:
             entries,
             set(load_manifest_entries(args.exclude_from_abi_manifest)),
         )
+    required_no_constructor = set(args.require_no_constructor)
+    missing_no_constructor_entries = missing_required_entries(
+        args.require_no_constructor,
+        abi_entries,
+    )
+    constructor_guard = {
+        "required": sorted(required_no_constructor),
+        "missing_from_abi": missing_no_constructor_entries,
+        "unexpected_in_dex": [],
+        "ok": not missing_no_constructor_entries,
+    }
     abi = None
     abi_failures = []
     if args.classes_dir:
@@ -217,6 +366,7 @@ def main() -> int:
                     result = compare_abi(
                         classfile.parse_class(archive.read(entry)),
                         classfile.parse_class(compiled_path.read_bytes()),
+                        require_no_constructor=entry in args.require_no_constructor,
                     )
                     result = {"entry": entry, **result}
                 results.append(result)
@@ -231,7 +381,16 @@ def main() -> int:
 
     dex = None
     if args.apk:
-        dex = compare_dex(entries, dex_classes_from_apk(args.apk))
+        dex = compare_dex(
+            entries,
+            dex_classes_from_apk(args.apk),
+            constructor_descriptors=dex_constructor_descriptors_from_apk(args.apk),
+            require_no_constructor=args.require_no_constructor,
+        )
+        constructor_guard["unexpected_in_dex"] = dex["unexpected_constructors"]
+        constructor_guard["ok"] = (
+            constructor_guard["ok"] and not dex["unexpected_constructors"]
+        )
 
     report = {
         "schema": 2,
@@ -246,7 +405,12 @@ def main() -> int:
         "checked": len(entries),
         "abi": abi,
         "dex": dex,
-        "ok": (abi is None or abi["ok"]) and (dex is None or dex["ok"]),
+        "constructor_guard": constructor_guard,
+        "ok": (
+            (abi is None or abi["ok"])
+            and (dex is None or dex["ok"])
+            and constructor_guard["ok"]
+        ),
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(
@@ -260,13 +424,21 @@ def main() -> int:
                 f"identity={row.get('identity', {})} "
                 f"missing_methods={row.get('missing_methods', [])} "
                 f"missing_fields={row.get('missing_fields', [])} "
+                f"unexpected_constructors={row.get('unexpected_constructors', [])} "
                 f"error={row.get('error', '')}",
                 file=sys.stderr,
             )
     if dex and not dex["ok"]:
         print(
-            "FAIL: final APK DEX missing source-takeover classes: "
-            f"{dex['missing_classes']}",
+            "FAIL: final APK DEX validation failed: "
+            f"missing_classes={dex['missing_classes']} "
+            f"unexpected_constructors={dex['unexpected_constructors']}",
+            file=sys.stderr,
+        )
+    if missing_no_constructor_entries:
+        print(
+            "FAIL: --require-no-constructor entries missing from ABI manifest: "
+            f"{missing_no_constructor_entries}",
             file=sys.stderr,
         )
     if not report["ok"]:
