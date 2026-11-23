@@ -1,0 +1,26 @@
+# 未进入本批 AGP 生产接管的候选；文件仅记录准确阻断，不参与构建。
+# entry | descriptor | reason
+me3.class | Lme3; | dependency androidx/compose/ui/focus/b.class has static method in classfile version 49
+ws5.class | Lws5; | dependency com/google/android/gms/internal/ads/m.class has default method in classfile version 49
+n36.class | Ln36; | JADX package com.google.android.gms.internal.p000firebaseauthapi does not match JAR descriptor
+n79.class | Ln79; | JADX package com.google.android.gms.internal.p000firebaseauthapi does not match JAR descriptor
+wt5.class | Lwt5; | JADX package com.google.android.gms.internal.p000firebaseauthapi does not match JAR descriptor
+f35.class | Lf35; | dependency xq6.class contains malformed variable-arity method d(String)
+g94.class | Lg94; | JADX inferred kotlin.collections.EmptyList.a, compiler-visible field is unavailable
+dg3.class | Ldg3; | JADX emitted invalid nested reference Path$Direction.a
+tu2.class | Ltu2; | JADX inferred missing qv1.f
+gv2.class | Lgv2; | JADX inferred missing ov3.v
+mm4.class | Lmm4; | JADX inferred missing synthetic constructor ze1(p02,byte)
+lu2.class | Llu2; | JADX inferred missing iu2.a
+nk6.class | Lnk6; | JADX inferred missing gc7.b
+ro2.class | Lro2; | JADX inferred missing di0.b(int,int,int)
+jn3.class | Ljn3; | JADX inferred missing jw4.b
+kx5.class | Lkx5; | JADX inferred missing al2.m(String)
+as7.class | Las7; | JADX inferred missing js7()
+ju2.class | Lju2; | depends on blocked lu2.class
+l30.class | Ll30; | depends on blocked dg3.class
+le3.class | Lle3; | depends on blocked l30.class
+r21.class | Lr21; | depends on blocked dg3.class
+t72.class | Lt72; | depends on blocked g94.class
+do1.class | Ldo1; | depends on blocked t72.class
+su8.class | Lsu8; | depends on blocked ws5.class

@@ -102,6 +102,31 @@ JADX 研究树仍不进入 Source Set。
 | 文件口径 | `app/src/main/java` 177 个 Java；`app/src/main/kotlin` 45 个 Kotlin；manifest 177 项一一对应 |
 | AVD 运行 | 本批为 stacked 批次，当前 **NOT RUN**；最终统一候选再安装验证 |
 
+### R126 第四批：有方法/默认方法接口批量扩展
+
+在空接口基础上增加 `scripts/agp/import_interface_sources.py`，只接纳：
+
+1. JADX 无 `JADX WARN`/`Failed to decompile`，且顶层声明是原版接口；
+2. JAR 存在精确 class entry；
+3. Smali 是接口、无字段/注解，方法为 public abstract/default/static 之一；
+4. JADX 的 fake `defpackage` 包和 `import defpackage.*` 在进入生产 Source Set 前剥离。
+
+最终 `app/src/main/java` 为 `829` 个原版接口 Java，`app/src/main/kotlin` 为 `45` 个 Kotlin；
+`source-takeover.txt` 与 Java 文件一一对应。另有 `24` 个候选因 Java 关键字、错误 classfile
+版本、缺失合成构造器/字段或依赖链不可编译被移入 `scripts/agp/source-takeover-blocked.txt`，
+没有伪实现、空方法或伪造 descriptor。
+
+第四批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `77cb53fc7361d29470e1f2fdf7b3dea7a34a1a7a20212965d3d287c0da3bdb9d` |
+| FullGame Debug APK | SHA-256 `365763f34d232f33d8fb47aa654852fc006bfa1edda4c53f745de536becf372d` |
+| descriptor 覆盖 | APK DEX 共 `16,864` 个 descriptor；manifest `829/829` 全部存在，缺失 0 |
+| Gradle | `compileDebugJavaWithJavac`、`verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
+| 单元测试 | Gradle 96/96、Python 316/316 PASS |
+| blocked 明细 | `scripts/agp/source-takeover-blocked.txt` 记录 24 个具体类及精确原因 |
+
 ## 0. 现状事实（脚本实测）
 
 | 项 | 值 |
