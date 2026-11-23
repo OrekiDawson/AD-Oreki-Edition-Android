@@ -101,13 +101,43 @@ class ImportInterfaceSourcesTest(unittest.TestCase):
             "package defpackage;\n"
             "public interface ee {\n"
             "    /* JADX INFO: renamed from: zza */\n"
+            "    @Override\n"
             "    void mo76zza(Object value);\n"
+            "    default void call(Object value) { mo76zza(value); }\n"
             "}\n"
         )
-        self.assertIn(
-            "void zza(Object value)",
-            IMPORTER.rewrite_java(source, "ee"),
+        rewritten = IMPORTER.rewrite_java(source, "ee")
+        self.assertIn("void zza(Object value);", rewritten)
+        self.assertIn("zza(value);", rewritten)
+        self.assertNotIn("mo76zza", rewritten)
+
+    def test_renamed_comment_does_not_rewrite_annotation_or_field_initializer(self):
+        source = (
+            "public interface ff2 {\n"
+            "    /* JADX INFO: renamed from: zza */\n"
+            "    @SuppressWarnings({\"unchecked\"})\n"
+            "    Object VALUE = new Object();\n"
+            "}\n"
         )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn('@SuppressWarnings({"unchecked"})', restored)
+        self.assertIn("Object VALUE = new Object();", restored)
+        self.assertNotIn("zza VALUE", restored)
+        self.assertNotIn("new zza()", restored)
+
+    def test_multiline_annotation_is_skipped_before_method_declaration(self):
+        source = (
+            "public interface gg2 {\n"
+            "    /* JADX INFO: renamed from: zzb */\n"
+            "    @SuppressWarnings({\n"
+            "        \"unchecked\",\n"
+            "    })\n"
+            "    String mo77zzb();\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn("String zzb();", restored)
+        self.assertNotIn("mo77zzb", restored)
 
     def test_reuses_only_identical_existing_source(self):
         with tempfile.TemporaryDirectory() as tmp:

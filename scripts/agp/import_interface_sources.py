@@ -13,13 +13,98 @@ from pathlib import Path
 JAVA_INTERFACE = re.compile(r"\bpublic\s+interface\s+([a-z][a-z0-9]*)\b")
 SMALI_CLASS = re.compile(r"^\.class public interface abstract L([a-z][a-z0-9]*);$")
 JADX_RENAMED = re.compile(r"/\* JADX INFO: renamed from: ([A-Za-z_$][\w$]*) \*/")
-JAVA_METHOD_NAME = re.compile(r"\b([A-Za-z_$][\w$]*)\s*\(")
+JAVA_IDENTIFIER = re.compile(r"[A-Za-z_$][\w$]*")
+
+
+def method_declaration_name(line: str) -> str | None:
+    stripped = line.lstrip()
+    if not stripped or stripped.startswith(("@", "//", "/*", "*", "}")):
+        return None
+    if re.match(
+        r"^(?:return|throw|new|if|for|while|switch|case|assert|yield|catch|synchronized)\b",
+        stripped,
+    ):
+        return None
+    open_paren = stripped.find("(")
+    close_paren = stripped.rfind(")")
+    if open_paren < 0 or close_paren < open_paren:
+        return None
+    prefix = stripped[:open_paren].rstrip()
+    if not prefix or "=" in prefix:
+        return None
+    suffix = stripped[close_paren + 1 :].strip()
+    if suffix and not suffix.startswith(("{", ";", "throws", "@")):
+        return None
+    match = re.search(r"([A-Za-z_$][\w$]*)$", prefix)
+    if match is None or not prefix[: match.start()].strip():
+        return None
+    return match.group(1)
+
+
+def replace_java_identifiers(text: str, replacements: dict[str, str]) -> str:
+    if not replacements:
+        return text
+    result: list[str] = []
+    index = 0
+    state = "code"
+    while index < len(text):
+        char = text[index]
+        following = text[index + 1] if index + 1 < len(text) else ""
+        if state == "code":
+            if char == "/" and following == "/":
+                state = "line_comment"
+                result.append("//")
+                index += 2
+                continue
+            if char == "/" and following == "*":
+                state = "block_comment"
+                result.append("/*")
+                index += 2
+                continue
+            if char == '"':
+                state = "string"
+                result.append(char)
+                index += 1
+                continue
+            if char == "'":
+                state = "char"
+                result.append(char)
+                index += 1
+                continue
+            identifier = JAVA_IDENTIFIER.match(text, index)
+            if identifier is not None:
+                value = identifier.group(0)
+                result.append(replacements.get(value, value))
+                index = identifier.end()
+                continue
+        elif state == "line_comment":
+            if char == "\n":
+                state = "code"
+        elif state == "block_comment":
+            if char == "*" and following == "/":
+                state = "code"
+                result.append("*/")
+                index += 2
+                continue
+        elif state in {"string", "char"}:
+            if char == "\\" and following:
+                result.append(char)
+                result.append(following)
+                index += 2
+                continue
+            if (state == "string" and char == '"') or (state == "char" and char == "'"):
+                state = "code"
+        result.append(char)
+        index += 1
+    return "".join(result)
 
 
 def restore_jadx_renamed_methods(text: str) -> str:
     lines = text.splitlines(keepends=True)
     restored: list[str] = []
     pending: str | None = None
+    annotation_depth = 0
+    replacements: dict[str, str] = {}
     for line in lines:
         if pending is None:
             match = JADX_RENAMED.search(line)
@@ -30,12 +115,25 @@ def restore_jadx_renamed_methods(text: str) -> str:
         if not line.strip() or line.lstrip().startswith(("/*", "//")):
             restored.append(line)
             continue
-        match = JAVA_METHOD_NAME.search(line)
-        if match is not None:
-            line = line[: match.start(1)] + pending + line[match.end(1) :]
+        stripped = line.strip()
+        if annotation_depth > 0:
+            annotation_depth += stripped.count("(") - stripped.count(")")
+            restored.append(line)
+            continue
+        if stripped.startswith("@"):
+            annotation_depth = stripped.count("(") - stripped.count(")")
+            restored.append(line)
+            continue
+        generated = method_declaration_name(line)
+        if generated is not None:
+            match = re.search(rf"\b{re.escape(generated)}\b", line)
+            if match is not None:
+                line = line[: match.start()] + pending + line[match.end() :]
+                if generated != pending:
+                    replacements[generated] = pending
         pending = None
         restored.append(line)
-    return "".join(restored)
+    return replace_java_identifiers("".join(restored), replacements)
 
 
 def strip_jadx_comments(text: str) -> str:

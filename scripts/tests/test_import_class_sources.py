@@ -84,13 +84,44 @@ class ImportClassSourcesTest(unittest.TestCase):
             "package defpackage;\n"
             "public class gg {\n"
             "    /* JADX INFO: renamed from: zza */\n"
-            "    void mo76zza(Object value) {}\n"
+            "    @Override\n"
+            "    public void mo76zza(Object value) {\n"
+            "        mo76zza(value);\n"
+            "    }\n"
             "}\n"
         )
-        self.assertIn(
-            "void zza(Object value)",
-            IMPORTER.rewrite_java(source, "gg"),
+        rewritten = IMPORTER.rewrite_java(source, "gg")
+        self.assertIn("public void zza(Object value)", rewritten)
+        self.assertIn("zza(value);", rewritten)
+        self.assertNotIn("mo76zza", rewritten)
+
+    def test_renamed_comment_does_not_rewrite_annotation_or_field_initializer(self):
+        source = (
+            "public class ii {\n"
+            "    /* JADX INFO: renamed from: zza */\n"
+            "    @SuppressWarnings({\"unchecked\"})\n"
+            "    Object value = new Object();\n"
+            "}\n"
         )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn('@SuppressWarnings({"unchecked"})', restored)
+        self.assertIn("Object value = new Object();", restored)
+        self.assertNotIn("zza value", restored)
+        self.assertNotIn("new zza()", restored)
+
+    def test_multiline_annotation_is_skipped_before_method_declaration(self):
+        source = (
+            "public class jj {\n"
+            "    /* JADX INFO: renamed from: zzb */\n"
+            "    @SuppressWarnings({\n"
+            "        \"unchecked\",\n"
+            "    })\n"
+            "    public String mo77zzb() { return \"mo77zzb\"; }\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn("public String zzb()", restored)
+        self.assertIn('return "mo77zzb";', restored)
 
     def test_reuses_only_identical_existing_source(self):
         with tempfile.TemporaryDirectory() as tmp:
