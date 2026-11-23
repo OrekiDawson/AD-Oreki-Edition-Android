@@ -968,3 +968,26 @@ JAR descriptor、唯一 Smali 身份和源码选择：
 
 本批仍是源码接管增量，不等于全部 JADX 参考源码已迁完，也不替代 AVD、存档矩阵、
 真实挑战结算或 180 分钟游戏验收。
+
+### 13.7 普通类批量接管第八批
+
+2026-11-24 继续复用 `work/output_code_321_r88/sources/defpackage`，通过
+`scripts/agp/import_class_sources.py` 对下一批 JADX 无警告候选执行 JAR
+descriptor、唯一 Smali 身份和源码选择：
+
+- 初次导入 128 个候选；FullGame `compileDebugJavaWithJavac` 暴露的 32 个
+  直接失败类全部移回 blocked。`s75` 依据原版 Smali/JAR `javap` 恢复遗漏的
+  `s75(AbstractComposeView)` 构造器后通过。
+- ABI 守卫继续发现 `iz5` 缺少原版 `zza(String)Lzu5;` 方法，因此将该类移回
+  blocked，未用伪方法绕过。
+- 最终保留并接入 **95** 个类；生产接管总数由 `1126` 增至 **1221**，
+  blocked 为 **246** 项。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1221/1221 PASS**。
+- 当前 FullGame Debug APK：
+  `e6ec9cce3fe3efa7cfd495af646189e8cb2f08bacdd17adf17bc98a4da8fc29f`
+  （83,837,732 B）；APK native ABI 仅 `arm64-v8a` 与 `x86_64`。
+
+本批仍不改变“仍有原版参考源码未迁移”的结论，也不替代 AVD、存档矩阵、真实挑战
+结算或 180 分钟游戏验收。
