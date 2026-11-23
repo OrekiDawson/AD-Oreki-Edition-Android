@@ -35,9 +35,10 @@ object OrekiEternityRules {
     /**
      * [R120-01 / Android #184] Smali 内的 EP 收益门槛乘数。
      *
-     * 默认仍为 ×1；下一目标为 EC1/EC4 且入口未达成时返回 0，使
-     * `gainedEP.compareTo(EP * 0) < 0` 不成立。这样外层 Kotlin 门禁与 Smali
-     * 内层门槛使用同一 Kotlin 判据，避免只放开一层后仍被下一层永久阻断。
+     * 默认仍为 ×1；下一目标为 EC1 且入口未达成时返回 0，使
+     * `gainedEP.compareTo(EP * 0) < 0` 不成立。EC4 的入口资源会被永恒清零，
+     * 因此不再放宽收益门槛，而由 `OrekiEcAutomation.shouldHoldEternityForEc4Entry`
+     * 暂停真实永恒，直到原版 EC4 研究购买完成。
      */
     @JvmStatic
     fun eternitySettlementMultiplierFor(targetEcId: Int, entryGoalMet: Boolean?): Int =

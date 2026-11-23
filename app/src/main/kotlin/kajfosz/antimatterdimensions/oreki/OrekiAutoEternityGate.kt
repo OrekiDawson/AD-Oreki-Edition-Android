@@ -211,6 +211,7 @@ internal object OrekiAutoEternityGate {
         if (GameApi.isDoomed()) return "doomed"
         if (!GameApi.isBroken()) return "not-broken"
         if (!GameApi.canEternity()) return "cannot-eternity"
+        if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return "ec4-entry-hold"
         // [R115-01 P0] 首次永恒不得由自动化在首个合法帧抢按（见 firstEternityDwellRemainingMs）。
         if (firstEternityDwellRemainingMs() > 0L) return "first-eternity-dwell"
         return REASON_ALLOW
@@ -313,6 +314,10 @@ internal object OrekiAutoEternityGate {
         if (settlementNow) logChallengeBlocked()
         return !settlementNow
     }
+
+    /** Smali `EternityAutobuyerState.c()` 的只读挂点：EC4 入口等待时禁止原版自动永恒。 */
+    @JvmStatic
+    fun ec4EntryHoldActive(): Boolean = OrekiEcAutomation.shouldHoldEternityForEc4Entry()
 
     private var lastChallengeBlockedAtMs: Long = 0L
 

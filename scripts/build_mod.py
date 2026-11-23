@@ -3429,6 +3429,49 @@ def _iu15_sites() -> tuple[str, ...]:
         f"请在 baseline/version-config.json 里补齐（用 rg 找到三处 1.5E12 / 门槛常量所在文件）。")
     return tuple(sites)
 
+def patch_auto_eternity_ec4_hold():
+    """[R126] 在 Kotlin 判定 EC4 入口等待时阻断原版自动永恒。
+
+    业务判据在 `OrekiAutoEternityGate.ec4EntryHoldActive()`。这里只在原版
+    `EternityAutobuyerState.c()` 的 `canRun` 入口插一条 Kotlin 转发，
+    防止原版每帧自动器绕过 MOD 调度门禁并清空 EC4 所需无限次数。
+    """
+    target = (smali_tree() / "kajfosz" / "antimatterdimensions" / "autobuyer"
+              / "EternityAutobuyerState.smali")
+    assert target.exists(), "缺少 EternityAutobuyerState.smali，无法安装 R126 EC4 hold"
+    blob = target.read_bytes()
+    marker = (b"Lkajfosz/antimatterdimensions/oreki/"
+              b"OrekiAutoEternityGate;->ec4EntryHoldActive()Z")
+    if marker in blob:
+        assert blob.count(marker) == 1, "R126 EC4 hold 挂点出现次数异常"
+        note("[R126 EC4] 原版自动永恒 EC4 hold 已存在，跳过")
+        return
+
+    header = b".method public final c()Z"
+    idx = blob.find(header)
+    assert idx >= 0, "未找到 EternityAutobuyerState.c()Z，结构可能已变"
+    loc = blob.find(b".locals 0", idx)
+    assert loc >= 0 and loc - idx < 300, "未找到 EternityAutobuyerState.c() 的 .locals"
+    eol = blob.find(b"\n", loc)
+    assert eol > 0, "定位 EternityAutobuyerState.c() 行尾失败"
+    nl = b"\r\n" if blob[eol - 1:eol] == b"\r" else b"\n"
+    comment = b"    # [R126] Kotlin gate: EC4 needs current Infinity; keep vanilla eternity paused"
+    invoke = (b"    invoke-static {}, Lkajfosz/antimatterdimensions/oreki/"
+              b"OrekiAutoEternityGate;->ec4EntryHoldActive()Z")
+    inject = (nl + comment + nl + invoke + nl +
+              b"    move-result p0" + nl +
+              b"    if-nez p0, :oreki_ec4_entry_hold_continue" + nl +
+              b"    const/4 p0, 0x0" + nl +
+              b"    return p0" + nl +
+              b"    :oreki_ec4_entry_hold_continue" + nl)
+    out = blob[:eol + 1] + inject + blob[eol + 1:]
+    target.write_bytes(out)
+    after = target.read_bytes()
+    super_marker = b"invoke-super {p0}, Lkajfosz/antimatterdimensions/autobuyer/AutobuyerState;->c()Z"
+    assert after.count(marker) == 1, "R126 EC4 hold 写入失败"
+    assert after.find(marker) < after.find(super_marker), "R126 EC4 hold 必须位于原版 canRun 之前"
+    note("[R126 EC4] 已为原版自动永恒接入 EC4 入口等待门禁")
+
 
 def check_iu15_threshold():
     """[R38-M] 把 IU15 门槛 1.5E12 **改写成** 1e8（3 处），并断言旧值已清零。
@@ -5818,6 +5861,7 @@ def main():
     # 的标准未删除；要删除须连同诊断链 patch_debug_trace 一起退役，待 Lead 决定。
     patch_ec12_restriction()
     retire_instant_challenge()
+    patch_auto_eternity_ec4_hold()
     # R121-01：挑战必须按原版目标真实推进并由原版结算入口完成。
     # 旧「进入即完成」以及直接补发奖励的补丁已从生产构建移除。
     # 自动进入仍然合法：OrekiChallengeAuto 只购买/启动挑战，不写完成次数或奖励。

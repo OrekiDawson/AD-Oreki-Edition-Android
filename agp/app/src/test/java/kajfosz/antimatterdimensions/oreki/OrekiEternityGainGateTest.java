@@ -6,15 +6,15 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-/** [R120-01 / Android #184] EC1/EC4 入口未达成时的永恒收益门槛判据。 */
+/** [R120-01 / R126] EC1 收益门槛豁免；EC4 改为暂停永恒以保留无限累计。 */
 public class OrekiEternityGainGateTest {
 
     @Test
-    public void ec1OrEc4EntryUnmet_exemptsGainGate() {
+    public void ec1EntryUnmet_exemptsGainGate_ec4NoLongerExempts() {
         assertTrue(OrekiEcAutomation.shouldExemptEntryEternityGainGate(1, false));
-        assertTrue(OrekiEcAutomation.shouldExemptEntryEternityGainGate(4, false));
+        assertFalse(OrekiEcAutomation.shouldExemptEntryEternityGainGate(4, false));
         assertEquals(0, OrekiEternityRules.eternitySettlementMultiplierFor(1, false));
-        assertEquals(0, OrekiEternityRules.eternitySettlementMultiplierFor(4, false));
+        assertEquals(1, OrekiEternityRules.eternitySettlementMultiplierFor(4, false));
     }
 
     @Test
