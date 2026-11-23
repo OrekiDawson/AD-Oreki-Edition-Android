@@ -21,7 +21,7 @@ def method_declaration_name(line: str) -> str | None:
     if not stripped or stripped.startswith(("@", "//", "/*", "*", "}")):
         return None
     if re.match(
-        r"^(?:return|throw|new|if|for|while|switch|case|assert|yield|catch|synchronized)\b",
+        r"^(?:return|throw|new|if|for|while|switch|case|assert|yield|catch)\b",
         stripped,
     ):
         return None

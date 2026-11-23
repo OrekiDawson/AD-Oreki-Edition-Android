@@ -123,6 +123,20 @@ class ImportClassSourcesTest(unittest.TestCase):
         self.assertIn("public String zzb()", restored)
         self.assertIn('return "mo77zzb";', restored)
 
+    def test_package_private_synchronized_method_is_restored(self):
+        source = (
+            "public class kk {\n"
+            "    /* JADX INFO: renamed from: zzc */\n"
+            "    synchronized void mo78zzc(Object lock) {\n"
+            "        synchronized (lock) { mo78zzc(lock); }\n"
+            "    }\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn("synchronized void zzc(Object lock)", restored)
+        self.assertIn("synchronized (lock) { zzc(lock); }", restored)
+        self.assertNotIn("mo78zzc", restored)
+
     def test_reuses_only_identical_existing_source(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "aa.java"

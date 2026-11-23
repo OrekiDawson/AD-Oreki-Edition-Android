@@ -139,6 +139,17 @@ class ImportInterfaceSourcesTest(unittest.TestCase):
         self.assertIn("String zzb();", restored)
         self.assertNotIn("mo77zzb", restored)
 
+    def test_package_private_synchronized_method_is_restored(self):
+        source = (
+            "public interface hh2 {\n"
+            "    /* JADX INFO: renamed from: zzc */\n"
+            "    synchronized void mo78zzc(Object lock);\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn("synchronized void zzc(Object lock);", restored)
+        self.assertNotIn("mo78zzc", restored)
+
     def test_reuses_only_identical_existing_source(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "ee.java"
