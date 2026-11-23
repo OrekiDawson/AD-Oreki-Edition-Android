@@ -53,6 +53,14 @@ ABI_LEGACY_FIELDS = {
     ("TutorialEntry.kt", "sRetry"),
 }
 
+# 原版默认包混淆类必须保持原 JVM descriptor；仅对已完成 ABI/源码核对的类
+# 按 (文件名, 类名) 放行 N1，不能按目录或前缀整体放宽。
+ABI_LEGACY_CLASSES = {
+    ("n36.kt", "n36"),
+    ("n79.kt", "n79"),
+    ("wt5.kt", "wt5"),
+}
+
 # 已知 3.19/3.20 混淆短名（用于 N7 精确判定，不靠「看着像」）
 KNOWN_OBFUSCATED = {
     # 3.19
@@ -99,6 +107,10 @@ def is_upper_snake(name: str) -> bool:
     return bool(re.fullmatch(r"[A-Z][A-Z0-9_]*", name))
 
 
+def is_abi_legacy_class(file_name: str, class_name: str) -> bool:
+    return (file_name, class_name) in ABI_LEGACY_CLASSES
+
+
 def strip_comments_preserving_lines(source: str) -> str:
     """Remove Kotlin line/block comments while preserving line boundaries."""
     source = re.sub(r"/\*.*?\*/", lambda m: "".join("\n" if c == "\n" else " " for c in m.group(0)), source, flags=re.S)
@@ -134,7 +146,7 @@ def main() -> int:
         for m in CLASS_RE.finditer(text):
             checks += 1
             name = m.group(1)
-            if not is_upper_camel(name):
+            if not is_upper_camel(name) and not is_abi_legacy_class(f.name, name):
                 add(rel, "N1 类名必须 UpperCamelCase", name)
             elif verbose:
                 print(f"  PASS {rel} N1 class {name}")

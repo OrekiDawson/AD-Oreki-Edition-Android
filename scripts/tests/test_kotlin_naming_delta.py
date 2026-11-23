@@ -10,10 +10,17 @@ from check_kotlin_naming_delta import (
     newly_introduced,
     parse_name_status,
 )
-from check_kotlin_naming import strip_comments_preserving_lines
+from check_kotlin_naming import is_abi_legacy_class, strip_comments_preserving_lines
 
 
 class NamingDeltaTests(unittest.TestCase):
+    def test_only_registered_original_descriptors_are_allowed(self):
+        self.assertTrue(is_abi_legacy_class("n36.kt", "n36"))
+        self.assertTrue(is_abi_legacy_class("n79.kt", "n79"))
+        self.assertTrue(is_abi_legacy_class("wt5.kt", "wt5"))
+        self.assertFalse(is_abi_legacy_class("other.kt", "n36"))
+        self.assertFalse(is_abi_legacy_class("n36.kt", "n37"))
+
     def test_unchanged_debt_is_allowed(self):
         existing = Counter({("a.kt", "N7", "bq0"): 2})
         self.assertFalse(newly_introduced(existing, existing))
