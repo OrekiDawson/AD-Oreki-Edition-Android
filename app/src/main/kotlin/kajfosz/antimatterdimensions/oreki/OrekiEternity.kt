@@ -229,12 +229,13 @@ object OrekiEternity {
 
     private fun holdCrunch(): Boolean {
         if (!stageAutoHoldCrunchResolved) {
-            stageAutoHoldCrunchResolved = true
-            stageAutoHoldCrunchMethod = Class.forName(
+            val resolved = Class.forName(
                 "kajfosz.antimatterdimensions.oreki.OrekiStageAuto",
                 true,
                 OrekiEternity::class.java.classLoader,
             ).getMethod("holdCrunch")
+            stageAutoHoldCrunchMethod = resolved
+            stageAutoHoldCrunchResolved = true
         }
         val method = checkNotNull(stageAutoHoldCrunchMethod) {
             "OrekiStageAuto.holdCrunch() 未解析"
