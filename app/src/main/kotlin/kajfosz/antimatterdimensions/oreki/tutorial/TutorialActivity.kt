@@ -65,13 +65,7 @@ class TutorialActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(surface)
             setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(WindowInsets.Type.systemBars())
-                // 顶部交给 Top App Bar，根容器只消费左右与底部安全区。
-                view.setPadding(bars.left, 0, bars.right, bars.bottom)
-                if (::appBar.isInitialized) {
-                    appBar.setPadding(dp(16), dp(10) + bars.top, dp(12), dp(10))
-                }
-                insets
+                onApplyWindowInsets(view, insets)
             }
         }
         addTopBar(root)
@@ -91,6 +85,17 @@ class TutorialActivity : Activity() {
             showChapter(initialChapter())
         } else addParagraph("教程正文暂时不可用，请稍后重试。")
         root.post { fadeIn(root) }
+    }
+
+    /** 保留教程 Activity 的既有监听 ABI，同时集中处理系统栏安全区。 */
+    fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets {
+        val bars = insets.getInsets(WindowInsets.Type.systemBars())
+        // 顶部交给 Top App Bar，根容器只消费左右与底部安全区。
+        view.setPadding(bars.left, 0, bars.right, bars.bottom)
+        if (::appBar.isInitialized) {
+            appBar.setPadding(dp(16), dp(10) + bars.top, dp(12), dp(10))
+        }
+        return insets
     }
 
     private fun loadAsset() {
