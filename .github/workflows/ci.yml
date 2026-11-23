@@ -251,7 +251,7 @@ jobs:
       - name: Verify store-policy JAR gate self-test
         run: bash ./gradlew :app:verifyStorePolicyOutputSelfTest --no-daemon --max-workers=1 --console=plain
       - name: Test constructor ASM invariants
-        run: bash ./gradlew :build-logic:test --no-daemon --max-workers=1 --console=plain
+        run: bash ./gradlew -p build-logic test --no-daemon --max-workers=1 --console=plain
       - name: Build AGP 9 Kotlin DEX
         # R111 CI-6：构建日志落盘，失败时随证据一起上传，避免只能翻折叠的 Actions 日志。
         run: |

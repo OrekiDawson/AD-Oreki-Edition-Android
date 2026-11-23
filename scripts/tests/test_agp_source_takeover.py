@@ -368,6 +368,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             "hp3": ("jp3", "(Ljava/lang/String;)V"),
         }
         for name, (target_super, descriptor) in expected.items():
+            # 位置敏感是有意设计：规格变更应先让测试失败，不能退化为全局子串匹配。
             match = re.search(
                 rf'ConstructorOwnerAdaptation\(\s*'
                 rf'"{name}\.class",\s*'
@@ -384,7 +385,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('"constructor_owner_adaptations"', gradle)
         self.assertIn('"constructor_owner" to "java/lang/Object"', gradle)
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        self.assertIn(":build-logic:test", workflow)
+        self.assertIn("./gradlew -p build-logic test", workflow)
 
 
 if __name__ == "__main__":
