@@ -355,6 +355,38 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("constructorRemovalSpecs.flatMap", dex_task)
         self.assertIn('"requireNoConstructor"', dex_task)
 
+    def test_constructor_owner_shims_restore_original_superclass(self):
+        gradle = (
+            ROOT / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/"
+            "OrekiStorePolicyPlugin.kt"
+        ).read_text(encoding="utf-8")
+        expected = {
+            "g21": ("j21", "(J)V"),
+            "i21": ("j21", "(J)V"),
+            "h23": ("p32", "(I)V"),
+            "hf5": ("jf5", "(Lde2;)V"),
+            "hp3": ("jp3", "(Ljava/lang/String;)V"),
+        }
+        for name, (target_super, descriptor) in expected.items():
+            # 位置敏感是有意设计：规格变更应先让测试失败，不能退化为全局子串匹配。
+            match = re.search(
+                rf'ConstructorOwnerAdaptation\(\s*'
+                rf'"{name}\.class",\s*'
+                rf'"(?P<source>[^"]+)",\s*'
+                rf'"(?P<target>[^"]+)",\s*'
+                rf'"(?P<descriptor>[^"]+)",?\s*\)',
+                gradle,
+            )
+            self.assertIsNotNone(match, name)
+            assert match is not None
+            self.assertEqual(match.group("source"), "java/lang/Object")
+            self.assertEqual(match.group("target"), target_super)
+            self.assertEqual(match.group("descriptor"), descriptor)
+        self.assertIn('"constructor_owner_adaptations"', gradle)
+        self.assertIn('"constructor_owner" to "java/lang/Object"', gradle)
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertIn("./gradlew -p build-logic test", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

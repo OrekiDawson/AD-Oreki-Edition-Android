@@ -1247,3 +1247,53 @@ JADX 为源码可编译性隐式生成的默认构造器不能进入最终 ABI�
 
 本批仍不代表全部源码迁移完成。剩余 361 项 blocked、ARM64 真机、双向存档矩阵、
 正式签名/Release 和 180 分钟五项游戏门禁仍未完成。
+
+### 13.16 构造器 super/owner 差异恢复
+
+第二批“原版无构造器父类”根因处理 5 个仍有真实构造器的子类：
+
+- `g21/i21`：原版 super 为 `j21`，构造器 `(J)V` 直接调用
+  `Object.<init>()V`。
+- `h23`：原版 super 为 `p32`，构造器 `(I)V` 直接调用
+  `Object.<init>()V`。
+- `hf5`：原版 super 为 `jf5`，构造器 `(Lde2;)V` 直接调用
+  `Object.<init>()V`。
+- `hp3`：原版 super 为 `jp3`，构造器 `(Ljava/lang/String;)V` 直接调用
+  `Object.<init>()V`。
+
+Java 编译器不允许子类构造器绕过无构造器父类，因此源码先以
+`java/lang/Object` 为 super 编译；`adaptSourceAbi` 使用 ASM：
+
+1. 断言编译期 super 确为 `java/lang/Object`；
+2. 断言唯一构造器 descriptor 与原版一致；
+3. 断言首个构造器调用为 `INVOKESPECIAL java/lang/Object.<init>()V`；
+4. 仅把 classfile super 恢复为原版目标父类，并写入
+   `constructor_owner_adaptations` 证据。
+
+该做法不伪造父类构造器，也不改变构造器指令。最终 Debug DEX 直接检查确认
+5 个类均保持目标 super 并继续调用 `Object.<init>()V`。
+owner 变换已抽为 `adaptConstructorOwnerClass` 函数；`:build-logic:test`
+用合成 class 字节执行真实 ASM 正例与错误 super、错误 descriptor、错误
+构造器 owner 三个负例，**4/4 PASS**。CI 的 `agp-kotlin-dex` Required Check
+现实际运行 `:build-logic:test`，不再只匹配插件源码字符串。
+
+- 生产接管总数由 `1636` 增至 **1641**，blocked 由 `361` 降至 **356**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1641/1641 PASS**；Python 定向测试
+  42/42 PASS。
+- FullGame R8 PASS。R8 对上述原版同型构造器输出
+  `Invalid stack map table ... Constructor mismatch` warning，但实际保持
+  目标 super 与 `Object.<init>()V` 语义；该 warning 是后续 R8 版本需继续回归的
+  真实兼容风险，不记为无警告通过。
+- 当前 FullGame Debug APK：
+  `ee684a3cacf71c5c3fcdd9828ea9e1a3fe776acfa30968605df704ca0850683d`
+  （83,889,852 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1911 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
+- 无专有 JAR 的 bridge
+  `:app:testDebugUnitTest :app:assembleDebug :app:copyAgpKotlinClasses` PASS。
+
+剩余 356 项 blocked、ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项
+游戏门禁仍未完成。

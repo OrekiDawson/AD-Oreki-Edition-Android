@@ -50,16 +50,11 @@ dt.class | Ldt; | javac/classfile or inherited dependency failure; see class-jav
 ep7.class | Lep7; | javac/classfile or inherited dependency failure; see class-javac-8.log
 fd1.class | Lfd1; | javac/classfile or inherited dependency failure; see class-javac-8.log
 fk7.class | Lfk7; | javac/classfile or inherited dependency failure; see class-javac-8.log
-g21.class | Lg21; | javac/classfile or inherited dependency failure; see class-javac-8.log
 gj6.class | Lgj6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 gx.class | Lgx; | javac/classfile or inherited dependency failure; see class-javac-8.log
 h21.class | Lh21; | javac/classfile or inherited dependency failure; see class-javac-8.log
-h23.class | Lh23; | javac/classfile or inherited dependency failure; see class-javac-8.log
-hf5.class | Lhf5; | javac/classfile or inherited dependency failure; see class-javac-8.log
 hm6.class | Lhm6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 hn6.class | Lhn6; | javac/classfile or inherited dependency failure; see class-javac-8.log
-hp3.class | Lhp3; | javac/classfile or inherited dependency failure; see class-javac-8.log
-i21.class | Li21; | javac/classfile or inherited dependency failure; see class-javac-8.log
 i94.class | Li94; | javac/classfile or inherited dependency failure; see class-javac-8.log
 im6.class | Lim6; | javac/classfile or inherited dependency failure; see class-javac-8.log
 ip3.class | Lip3; | javac/classfile or inherited dependency failure; see class-javac-8.log
