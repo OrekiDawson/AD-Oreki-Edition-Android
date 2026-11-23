@@ -46,15 +46,57 @@ def sha256(path: pathlib.Path) -> str:
     return digest.hexdigest()
 
 
-def structural_checks(game_jar: pathlib.Path, out_jar: pathlib.Path) -> dict:
+def load_source_takeover_entries(manifest: pathlib.Path) -> list[str]:
+    if not manifest.is_file():
+        raise SystemExit(f"FAIL: source takeover manifest missing: {manifest}")
+    entries = []
+    for line_number, raw in enumerate(manifest.read_text(encoding="utf-8").splitlines(), 1):
+        entry = raw.strip()
+        if not entry or entry.startswith("#"):
+            continue
+        if (
+            not entry.endswith(".class")
+            or entry.startswith("/")
+            or "\\" in entry
+            or ".." in entry
+        ):
+            raise SystemExit(
+                f"FAIL: invalid source takeover entry at {manifest}:{line_number}: {entry}"
+            )
+        entries.append(entry)
+    duplicates = sorted({entry for entry in entries if entries.count(entry) > 1})
+    if duplicates:
+        raise SystemExit(f"FAIL: duplicate source takeover entries: {duplicates}")
+    return sorted(entries)
+
+
+def structural_checks(
+    game_jar: pathlib.Path,
+    out_jar: pathlib.Path,
+    source_takeover_entries: list[str],
+) -> dict:
     with zipfile.ZipFile(game_jar) as before, zipfile.ZipFile(out_jar) as after:
         before_names = [entry.filename for entry in before.infolist()]
         after_names = [entry.filename for entry in after.infolist()]
         removed = sorted(set(before_names) - set(after_names))
         added = sorted(set(after_names) - set(before_names))
+        missing_takeovers = sorted(set(source_takeover_entries) - set(before_names))
+        retained_takeovers = sorted(set(source_takeover_entries) & set(after_names))
+        if missing_takeovers:
+            raise SystemExit(
+                f"FAIL: source takeover entries missing from input JAR: {missing_takeovers}"
+            )
+        if retained_takeovers:
+            raise SystemExit(
+                f"FAIL: source takeover entries remain in output JAR: {retained_takeovers}"
+            )
         if added:
             raise SystemExit(f"FAIL: transformed JAR gained entries: {added}")
-        if any(not name.startswith(RETIRED_INSTANT_PREFIX) for name in removed):
+        allowed_removed = set(source_takeover_entries)
+        if any(
+            not name.startswith(RETIRED_INSTANT_PREFIX) and name not in allowed_removed
+            for name in removed
+        ):
             raise SystemExit(f"FAIL: transformed JAR removed unexpected entries: {removed}")
         non_target_same = all(
             before.read(name) == after.read(name)
@@ -86,8 +128,12 @@ def structural_checks(game_jar: pathlib.Path, out_jar: pathlib.Path) -> dict:
                 raise SystemExit(f"FAIL: retired instant-challenge reference remains in {name}")
     return {
         "entries_preserved": not added,
-        "retired_instant_challenge_removed": bool(removed),
+        "retired_instant_challenge_removed": not any(
+            name.startswith(RETIRED_INSTANT_PREFIX) for name in after_names
+        ),
         "removed_entries": removed,
+        "source_takeover_entries": source_takeover_entries,
+        "source_takeovers_removed": not retained_takeovers and not missing_takeovers,
         "non_target_entries_byte_identical": True,
         "target_classes": classes,
     }
@@ -100,6 +146,7 @@ def main() -> int:
     parser.add_argument("--report", required=True)
     parser.add_argument("--asm-jar", required=True)
     parser.add_argument("--android-jar", required=True)
+    parser.add_argument("--source-takeover-manifest", required=True)
     parser.add_argument("--java-home", default=os.environ.get("JAVA_HOME", ""))
     args = parser.parse_args()
 
@@ -108,12 +155,14 @@ def main() -> int:
     report = pathlib.Path(args.report).resolve()
     asm_jar = pathlib.Path(args.asm_jar).resolve()
     android_jar = pathlib.Path(args.android_jar).resolve()
+    source_takeover_manifest = pathlib.Path(args.source_takeover_manifest).resolve()
     if not game_jar.is_file():
         raise SystemExit(f"FAIL: game JAR missing: {game_jar}")
     if not asm_jar.is_file():
         raise SystemExit(f"FAIL: ASM jar missing: {asm_jar}")
     if not android_jar.is_file():
         raise SystemExit(f"FAIL: Android jar missing: {android_jar}")
+    source_takeover_entries = load_source_takeover_entries(source_takeover_manifest)
 
     java_home = pathlib.Path(args.java_home) if args.java_home else None
     javac = str(java_home / "bin" / "javac") if java_home else shutil.which("javac")
@@ -132,13 +181,14 @@ def main() -> int:
             [java, "-cp",
              os.pathsep.join((str(classes), str(asm_jar), str(game_jar), str(android_jar))),
              "StorePolicyTransformer",
-             str(game_jar), str(out_jar), str(target_report)],
+             str(game_jar), str(out_jar), str(target_report),
+             str(source_takeover_manifest)],
             check=True,
         )
         target_text = target_report.read_text(encoding="utf-8")
     if "targets=" not in target_text:
         raise SystemExit("FAIL: transformer did not emit a target report")
-    structural = structural_checks(game_jar, out_jar)
+    structural = structural_checks(game_jar, out_jar, source_takeover_entries)
 
     payload = {
         "schema": 1,
@@ -151,6 +201,9 @@ def main() -> int:
         "asm_jar_sha256": sha256(asm_jar),
         "android_jar_sha256": sha256(android_jar),
         "targets": target_text.splitlines(),
+        "source_takeover_manifest": str(source_takeover_manifest),
+        "source_takeover_manifest_sha256": sha256(source_takeover_manifest),
+        "source_takeover_entries": source_takeover_entries,
         "save_compatibility": structural,
         "policy": "STD/IAP disabled; historical fields preserved; ad multiplier neutral",
     }

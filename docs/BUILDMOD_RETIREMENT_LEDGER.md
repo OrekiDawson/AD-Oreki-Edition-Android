@@ -8,6 +8,45 @@
 > `./gradlew :app:assembleRelease`，复杂完整游戏逻辑由 `build-logic/` included build 承担。
 > 以下阶段记录保留为历史证据，不再代表当前文件仍存在。
 
+## R126 原版 JAR 源码接管首批（2026-11-23）
+
+首批把一个不修改业务的原版接口从冻结游戏 JAR 交给 AGP 标准 Source Set：
+
+| 项 | 实际值 |
+|---|---|
+| DEX descriptor | `La5;` |
+| JAR entry | `a5.class` |
+| Java 参考源码 | `work/output_code_321_r88/sources/defpackage/a5.java` |
+| Smali 对照 | `work/base_decoded_321/smali/a5.smali` |
+| ABI | `public interface a5 { void j(Object); }`，无字段、构造器、默认方法 |
+| AGP 生产源码 | `app/src/main/java/a5.java` |
+| JAR 排除清单 | `build-logic/source-takeover.txt` |
+| 同批守卫 | store-policy 输入必须存在该 entry、输出必须移除该 entry；报告与清单不一致即 fail-closed |
+
+选择理由：该接口被原版 `ComponentActivity`、账单活动及多个回调实现真实引用；
+恢复为默认包 Java 源码后 descriptor 与方法签名保持完全一致，适合作为后续批量迁移
+的最小可验证单元。JADX 只提供参考，实际编译入口是根级 AGP `:app`；反编译树和
+JADX 均不进入 APK 生产依赖。
+
+实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 原版 APK | SHA-256 `4e9970a808d10b6cc1a1068b078ec3c7d922051086a576c66d071c1216f527ac` |
+| 输入游戏 JAR | SHA-256 `5f0fcf39acaced6b6c29d48469f8510d89c20f25ad411eb14958ba8ae517faf8` |
+| 变换后游戏 JAR | SHA-256 `71de9b734d6c7f304157a3c52e0f95bb457f305d7f9fbf4e3a53d70345df2e68`；`a5.class` 已移除 |
+| AGP 编译 ABI | `public abstract void j(Object)` / `(Ljava/lang/Object;)V`，与原版 `javap`、JADX、Smali 一致 |
+| 全量 Debug APK | SHA-256 `ce053c97e211e2d9388e575c7a19b4ca7938ee7c02650f31831ff706cdded4c2` |
+| Gradle | `:app:checkDebugDuplicateClasses`、`:app:assembleDebug`、`:app:testDebugUnitTest` **PASS**；96 项单元测试零失败 |
+| Python/静态守卫 | **309/309 PASS**；build-contract 18 条变异自测全部拦截 |
+| AVD 定向冒烟 | `Oreki_API_37`（API 37）实际安装启动，进程存活、GUI 可见、无 FATAL/VerifyError；**PASS** |
+| 180 分钟新档 | 使用本产物的新档已重新启动，长跑仍在进行，当前 **NOT RUN / IN PROGRESS** |
+
+AVD 首次尝试使用临时 `.srccheck` applicationId 共存包时，资源表与冻结 stable-id 组合不兼容并在
+`FirebaseInitProvider` 报 `Resources$NotFoundException: Unable to find resource ID #0x7f110460`。
+该失败仅发生在非正式临时后缀，不计入候选运行结论；正式 `.debug` APK 使用保留的数据更新后正常启动。
+临时包已卸载，未触碰旧用户包或其他存档。
+
 ## 0. 现状事实（脚本实测）
 
 | 项 | 值 |

@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -73,14 +75,16 @@ public final class StorePolicyTransformer {
     private StorePolicyTransformer() {}
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
+        if (args.length != 4) {
             throw new IllegalArgumentException(
-                "usage: StorePolicyTransformer <input.jar> <output.jar> <report.txt>"
+                "usage: StorePolicyTransformer <input.jar> <output.jar> <report.txt> " +
+                    "<source-takeover.txt>"
             );
         }
         File input = new File(args[0]);
         File output = new File(args[1]);
         File report = new File(args[2]);
+        Set<String> sourceTakeovers = readSourceTakeovers(new File(args[3]));
         output.getParentFile().mkdirs();
         report.getParentFile().mkdirs();
 
@@ -94,6 +98,10 @@ public final class StorePolicyTransformer {
                 ZipEntry entry = entries.nextElement();
                 if (!entry.isDirectory() && isRetiredInstant(entry.getName())) {
                     replacements.put("removed:" + entry.getName(), "retired-instant-challenge");
+                    continue;
+                }
+                if (!entry.isDirectory() && sourceTakeovers.contains(entry.getName())) {
+                    replacements.put("removed:" + entry.getName(), "compiled-from-source");
                     continue;
                 }
                 ZipEntry outEntry = new ZipEntry(entry.getName());
@@ -110,6 +118,13 @@ public final class StorePolicyTransformer {
             }
         }
 
+        for (String sourceTakeover : sourceTakeovers) {
+            if (!replacements.containsKey("removed:" + sourceTakeover)) {
+                throw new IllegalStateException(
+                    "source takeover entry missing from input JAR: " + sourceTakeover
+                );
+            }
+        }
         if (!replacements.containsKey("l5.class#d()Z") ||
             !replacements.containsKey(
                 "kajfosz/antimatterdimensions/challenge/antimatter/c.class#matter-pacing"
@@ -124,6 +139,31 @@ public final class StorePolicyTransformer {
             throw new IllegalStateException("store policy targets missing: " + replacements);
         }
         targetReport(report, input, output, replacements);
+    }
+
+    private static Set<String> readSourceTakeovers(File manifest) throws Exception {
+        Set<String> entries = new LinkedHashSet<>();
+        for (String raw : Files.readAllLines(manifest.toPath(), StandardCharsets.UTF_8)) {
+            String entry = raw.trim();
+            if (entry.isEmpty() || entry.startsWith("#")) {
+                continue;
+            }
+            if (!entry.endsWith(".class") ||
+                entry.startsWith("/") ||
+                entry.contains("\\") ||
+                entry.contains("..")) {
+                throw new IllegalArgumentException("invalid source takeover entry: " + entry);
+            }
+            if (isTarget(entry) || isRetiredInstant(entry)) {
+                throw new IllegalArgumentException(
+                    "source takeover overlaps build transformer target: " + entry
+                );
+            }
+            if (!entries.add(entry)) {
+                throw new IllegalArgumentException("duplicate source takeover entry: " + entry);
+            }
+        }
+        return entries;
     }
 
     private static boolean isTarget(String name) {
