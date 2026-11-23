@@ -141,6 +141,7 @@ def main() -> int:
     parser.add_argument("--game-jar", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--blocked-manifest", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=128)
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
@@ -156,6 +157,12 @@ def main() -> int:
         if not path.exists():
             raise SystemExit(f"FAIL: {label} missing: {path}")
     original_lines, manifest_entries = read_manifest(args.manifest)
+    blocked_lines = args.blocked_manifest.read_text(encoding="utf-8").splitlines()
+    blocked_names = {
+        line.split()[0].removesuffix(".class")
+        for line in blocked_lines
+        if line.strip() and not line.lstrip().startswith("#")
+    }
     candidates, counts = candidate_records(
         args.source_root,
         args.smali_root,
@@ -163,7 +170,11 @@ def main() -> int:
         args.output_root,
         manifest_entries,
     )
-    selected = candidates[: args.limit]
+    selected = [
+        (name, output_path)
+        for name, output_path in candidates
+        if name not in blocked_names
+    ][: args.limit]
     args.output_root.mkdir(parents=True, exist_ok=True)
     for name, output_path in selected:
         if output_path.exists():

@@ -29,9 +29,11 @@ class ImportEmptyInterfacesTest(unittest.TestCase):
         self.output = self.root / "java"
         self.jar = self.root / "game.jar"
         self.manifest = self.root / "source-takeover.txt"
+        self.blocked_manifest = self.root / "blocked.txt"
         self.sources.joinpath("defpackage").mkdir(parents=True)
         self.smali.mkdir(parents=True)
         self.manifest.write_text("# header\nkeep.class\n", encoding="utf-8")
+        self.blocked_manifest.write_text("# blocked\n", encoding="utf-8")
         with zipfile.ZipFile(self.jar, "w") as archive:
             archive.writestr("aa.class", b"class")
             archive.writestr("bb.class", b"class")
@@ -82,6 +84,7 @@ class ImportEmptyInterfacesTest(unittest.TestCase):
             "--game-jar", str(self.jar),
             "--output-root", str(self.output),
             "--manifest", str(self.manifest),
+            "--blocked-manifest", str(self.blocked_manifest),
             "--limit", "10",
         ]
         first = subprocess.run(command, check=True, text=True, capture_output=True)

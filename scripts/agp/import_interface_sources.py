@@ -113,6 +113,7 @@ def main() -> int:
     parser.add_argument("--game-jar", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--blocked-manifest", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=128)
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
@@ -120,6 +121,12 @@ def main() -> int:
         raise SystemExit("FAIL: --limit must be positive")
 
     original, manifest = read_manifest(args.manifest)
+    blocked_lines = args.blocked_manifest.read_text(encoding="utf-8").splitlines()
+    blocked_names = {
+        line.split()[0].removesuffix(".class")
+        for line in blocked_lines
+        if line.strip() and not line.lstrip().startswith("#")
+    }
     counts = {
         "java_files": 0,
         "warning_free_interface": 0,
@@ -142,6 +149,8 @@ def main() -> int:
         ):
             counts["java_files"] += 1
             name = java_path.stem
+            if name in blocked_names:
+                continue
             rewritten = rewrite_java(java_path.read_text(encoding="utf-8"), name)
             if rewritten is None:
                 continue

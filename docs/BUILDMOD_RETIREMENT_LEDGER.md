@@ -149,6 +149,26 @@ JAR descriptor 存在、Smali 确认为普通类且 class body 非空的小型 J
 | 单元测试 | Gradle 96/96、Python 318/318 PASS |
 | 阻断 | 61 个具体 class 记录在 `scripts/agp/source-takeover-blocked.txt`；不伪报清零 |
 
+### R126 第六批：继续批量迁移小型普通类
+
+再次对下一批无 decompile warning 的小型普通类执行导入与增量编译。新增 128 个候选后，
+`compileDebugJavaWithJavac` 暴露 72 个直接错误及 6 个依赖级联错误；这些类全部按准确
+class 名移入 blocked 台账，保留其余可验证源码。9 个单字段 synthetic 类按原版 Smali
+补回构造器，保持原字段/构造器 ABI。
+
+第六批结果：生产 Java `1,024`，Kotlin `45`，blocked `139`。本轮没有把编译失败类留在
+Source Set，也没有为了达到数量删除原版类或生成伪实现。
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `9425d04e2afa591f7e7ee62cc778717bebc4f79b29aebc69eaa66c40b4a24891` |
+| FullGame Debug APK | SHA-256 `c895284f64fdc4a575d4c54e4a319d8d758e50662aa5d599cb2ee82dfa8292e3` |
+| AGP 编译正向校验 | `verifySourceTakeoverDebugClasses`：1024/1024 PASS |
+| descriptor 覆盖 | APK DEX 共 16,864 个 descriptor；manifest 1024/1024 存在，缺失 0 |
+| Gradle | `checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
+| 单元测试 | Gradle 96/96 PASS |
+| 剩余阻断 | 61→139 个 class，均可从 blocked 台账按 descriptor 复核 |
+
 ## 0. 现状事实（脚本实测）
 
 | 项 | 值 |
