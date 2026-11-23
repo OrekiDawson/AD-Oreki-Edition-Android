@@ -115,6 +115,25 @@ class SourceTakeoverAbiTest(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["missing_classes"], ["La5;"])
 
+    def test_final_dex_rejects_required_constructor(self):
+        result = ABI.compare_dex(
+            ["an1.class"],
+            {"Lan1;"},
+            constructor_descriptors={"Lan1;"},
+            require_no_constructor=["an1.class"],
+        )
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["unexpected_constructors"], ["Lan1;"])
+
+    def test_required_constructor_must_be_present_in_abi_list(self):
+        self.assertEqual(
+            ABI.missing_required_entries(
+                ["an1.class", "cc6.class"],
+                ["an1.class"],
+            ),
+            ["cc6.class"],
+        )
+
     def test_class_entry_rejects_non_class_paths(self):
         self.assertEqual(
             ABI.class_entry_descriptor("kajfosz/antimatterdimensions/MainActivity.class"),

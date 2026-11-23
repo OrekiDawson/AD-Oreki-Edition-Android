@@ -347,6 +347,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('"constructor_removals"', gradle)
         self.assertIn('"removed_constructor" to "<init>()V"', gradle)
         self.assertIn('"--require-no-constructor"', gradle)
+        self.assertIn("constructorRemovalSpecs.flatMap", gradle)
 
 
 if __name__ == "__main__":

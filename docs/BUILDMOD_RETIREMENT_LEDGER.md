@@ -1219,7 +1219,10 @@ JADX 为源码可编译性隐式生成的默认构造器不能进入最终 ABI�
 - 每个类仅加入可编译的无参构造器 shim；`adaptSourceAbi` 使用 ASM 验证编译
   产物恰有一个构造器、删除唯一 `<init>()V`，并记录
   `constructor_removals` 证据。ABI 守卫新增
-  `--require-no-constructor`，若编译类仍有构造器则 fail-closed。
+  `--require-no-constructor`：若编译类仍有构造器、要求项未出现在实际 ABI
+  清单，或最终 DEX 的 class_data 直接方法表重新出现 `<init>`，均 fail-closed。
+  最终 DEX 守卫解析 `class_def → class_data_item → method_ids`，不再只检查
+  descriptor 是否存在。
 - `js7` 不纳入本批：其原版 `new-instance js7 + Object.<init>` 特殊模式虽然可
   在 classfile 删除 shim，但 D8 会重新生成 `<init>`；保留前批已知边界并单独
   继续研究，不能把 D8 行为冒充为已消除 ABI 差异。
@@ -1227,7 +1230,8 @@ JADX 为源码可编译性隐式生成的默认构造器不能进入最终 ABI�
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
   `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
   `verifySourceTakeoverDebugDex` 均为 **1636/1636 PASS**；Python 定向测试
-  38/38 PASS。最终 Debug DEX 直接检查确认上述 13 类均无 `<init>`。
+  40/40 PASS。最终 Debug DEX 解析器确认上述 13 类均无 `<init>`，
+  `constructor_guard.missing_from_abi=[]`、`unexpected_in_dex=[]`。
 - 无专有 JAR 的 bridge
   `:app:testDebugUnitTest :app:assembleDebug :app:copyAgpKotlinClasses` PASS。
 - FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true -PorekiFullGame=true`
