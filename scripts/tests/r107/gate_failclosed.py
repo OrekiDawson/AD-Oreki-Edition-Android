@@ -29,7 +29,7 @@ from pathlib import Path
 
 SCHEMA = 1
 AGP_VERSION = "9.5.2"
-APPLICATION_ID = "com.oreki.antimatterdimensions"
+APPLICATION_ID = "net.oreki.antimatterdimensions"
 RELEASE_TASK = ":app:assembleRelease"
 WORKFLOW = ".github/workflows/candidate-unified.yml"
 

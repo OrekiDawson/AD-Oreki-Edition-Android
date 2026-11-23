@@ -86,7 +86,7 @@
 - 产品版本名 **Oreki Edition**，从 `1.0.0` 起：`1.0.1` = patch（修复，不含新功能）；`1.1.0` = 向后兼容增强；`2.0.0` = 重大或不兼容变更。
 - Android **每次新的正式发布** `versionCode` 必须**严格大于历史已发布最大值**（当前最大值 `30210000`，来自 R103 `android-update-3.21.0-3d924271`）；不得回退、复用或跳变到无法升级的值。
 - **versionCode 分离记录**：原版基线 versionCode（当前 `30210000`）与 MOD 独立发布 versionCode 分开记录；MOD 每次发布使用的新 versionCode 必须严格大于此前所有已发布 MOD versionCode；`baseline/version-config.json` 的 `upstream.android` 同时登记 `baseline_version_code` 与 `mod_release_version_code`。
-- 不得改变包名 `com.oreki.antimatterdimensions`、签名证书身份 `95960bce…3197`，不得破坏合法存档兼容与覆盖升级安装（`adb install -r`）。
+- 正式包名固定为 `net.oreki.antimatterdimensions`（Debug 为 `net.oreki.antimatterdimensions.debug`）；签名证书身份仍为 `95960bce…3197`。新旧 applicationId 无法覆盖安装，旧 `com.oreki.antimatterdimensions` 仅保留历史存档导出/导入兼容识别，禁止静默卸载、清数据或承诺自动迁移。
 - `versionName`、Git 标签、APK 文件名与更新机制**在真实验证后渐进迁移**；迁移期必须同时保留“MOD 版本 ↔ 基线版本”映射，历史标签与历史资产不改写。
 - 每次发布记录：MOD 版本、基线版本（Android 3.21.0 / Web `5409e320`）、versionCode、证书 SHA-256、APK SHA-256、渠道与验收证据。
 

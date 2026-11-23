@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ANDROID_NS = "http://schemas.android.com/apk/res/android"
-DEFAULT_PACKAGE = "com.oreki.antimatterdimensions"
+DEFAULT_PACKAGE = "net.oreki.antimatterdimensions"
 # aapt2 从 <animated-vector> 内联片段生成的资源在解码树里以 "$name" 形式落盘。
 # AGP 9 的资源合并器只接受 [a-z0-9_.-] 文件基名，因此阶段化时统一改名，并
 # 同步改写 public.xml 与所有资源引用；资源 ID 由 stable-ids / public.xml 固定。

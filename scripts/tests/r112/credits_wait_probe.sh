@@ -3,19 +3,19 @@
 # 仅写指定设备；证据落在 reports/R112-01/avd-evidence/。
 set -u
 D="adb -s emulator-5554"
-P=/data/data/com.oreki.antimatterdimensions/files
+P=/data/data/net.oreki.antimatterdimensions/files
 OUT=reports/R112-01/avd-evidence/m14-credits-wait
 SAVE="${1:-reports/R110-01/avd-evidence/m13-agp-fresh-180/player-030.json}"
 mkdir -p "$OUT"
 $D root >/dev/null 2>&1; sleep 1
-$D shell am force-stop com.oreki.antimatterdimensions
+$D shell am force-stop net.oreki.antimatterdimensions
 $D push "$SAVE" /data/local/tmp/inj.json >/dev/null
 $D shell "cp -f /data/local/tmp/inj.json $P/player.json; chown \$(stat -c %u $P):\$(stat -c %g $P) $P/player.json; chmod 660 $P/player.json"
 cp "$SAVE" "$OUT/injected-save.json"
 INJ_SHA=$(sha256sum "$OUT/injected-save.json" | cut -d' ' -f1)
 echo "injected sha=$INJ_SHA"
 $D shell logcat -c
-$D shell am start -W -n com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity | tail -1
+$D shell am start -W -n net.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity | tail -1
 sleep 20
 $D shell uiautomator dump /sdcard/u.xml >/dev/null 2>&1; $D pull /sdcard/u.xml $OUT/ui-load.xml >/dev/null 2>&1
 BTN=$(python3 - <<'EOF'

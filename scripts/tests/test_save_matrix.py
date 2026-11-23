@@ -25,10 +25,16 @@ class SaveMatrixTest(unittest.TestCase):
             save_matrix.PLAYER, "/data/data/kajfosz.antimatterdimensions/files/player.json"
         )
 
-        save_matrix.configure_package("mod")
+        save_matrix.configure_package("legacy_mod")
         self.assertEqual(save_matrix.PKG, "com.oreki.antimatterdimensions")
         self.assertEqual(
             save_matrix.PLAYER, "/data/data/com.oreki.antimatterdimensions/files/player.json"
+        )
+
+        save_matrix.configure_package("mod")
+        self.assertEqual(save_matrix.PKG, "net.oreki.antimatterdimensions")
+        self.assertEqual(
+            save_matrix.PLAYER, "/data/data/net.oreki.antimatterdimensions/files/player.json"
         )
 
     def test_empty_glyph_inventory_is_valid_for_early_save(self) -> None:

@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 AGP_VERSION = "9.5.2"
-APPLICATION_ID = "com.oreki.antimatterdimensions"
+APPLICATION_ID = "net.oreki.antimatterdimensions"
 # 桥接包名（仅用于在 fullGame 条件表达式里识别"非生产"分支）。
 BRIDGE_APPLICATION_ID = "kajfosz.antimatterdimensions.agpbridge"
 RELEASE_TASK = ":app:assembleRelease"
@@ -31,8 +31,8 @@ def production_application_identity_present(app: str) -> bool:
     """真实 AGP 模块按 fullGame 选择 applicationId：完整游戏分支必须是 MOD 包名。
 
     只接受两种既有形态：
-      1. 字面量 `applicationId = "com.oreki.antimatterdimensions"`（无 fullGame 开关的旧形态）；
-      2. `applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "<bridge>"`
+      1. 字面量 `applicationId = "net.oreki.antimatterdimensions"`（无 fullGame 开关的旧形态）；
+      2. `applicationId = if (fullGame) "net.oreki.antimatterdimensions" else "<bridge>"`
          且桥接分支只能是已知的 bridge 包名。
     其他形态（包括直接写 bridge 包名、条件表达式真分支不是 MOD 包名）一律按 fail-closed 拒绝。
     本函数只做静态识别，不改变 `artifact` 门禁对 provenance 中 application_id 的强校验。

@@ -640,3 +640,43 @@ ANDROID_SDK_ROOT=/home/oreki/Android/Sdk
 - `scripts/build_mod.py`：**物理删除，RETIRED**。
 - 根 Groovy 构建入口：**物理删除，RETIRED**。
 - Python 补丁树生产入口：**零调用**。
+
+## 13. R126：P0 applicationId 迁移到 oreki.net
+
+> 2026-11-23，Android #279 规则合并后同步执行。
+> 第 11、12 节中的 `com.oreki.antimatterdimensions` 是迁移前历史候选身份，保留追溯，不代表当前正式包。
+
+### 13.1 身份
+
+| 项 | 当前值 |
+|---|---|
+| Release applicationId | `net.oreki.antimatterdimensions` |
+| Debug applicationId | `net.oreki.antimatterdimensions.debug` |
+| Kotlin/Manifest namespace | `kajfosz.antimatterdimensions`（保留原版类与 descriptor） |
+| 历史 MOD 包 | `com.oreki.antimatterdimensions`，仅用于旧存档/旧设备兼容识别 |
+| 官方基线包 | `kajfosz.antimatterdimensions` |
+
+### 13.2 已同步对象
+
+- `agp/app/build.gradle.kts`：正式 ID、默认 debug 后缀、按变体 stable IDs 与快捷方式 targetPackage。
+- CI/候选门禁、AGP provenance、release gate policy、Release/Patch verifier。
+- Android 探针、AVD 脚本、存档矩阵和对应单测。
+- 文档中的当前交付门禁；历史 AVD/发布证据不改写。
+
+### 13.3 当前本地验证
+
+- 无显式 suffix 参数的 fullGame Debug 构建：PASS。
+- 包名：`net.oreki.antimatterdimensions.debug`。
+- 快捷方式最终字符串：`net.oreki.antimatterdimensions.debug`。
+- Debug APK SHA-256：
+  `8f0feba435af1b183ef7e79efc4961a61dd6dbd5e04027cf1a8c22e427236777`。
+- Debug v2 签名：PASS。
+- `stable-ids.txt` / `stable-ids-debug.txt` 首行分别绑定正式/Debug ID。
+- `scripts/tests` 全量 304 项：PASS。
+- `check_repository_policy.py`：PASS。
+
+### 13.4 未完成
+
+- Release 候选 APK 的真实包名、签名、Provider/快捷方式、安装启动和 AVD 行为由 CI/后续真实验收确认，当前为 `NOT RUN`。
+- 旧 `com.oreki` 版本的存档导出 → 新 `net.oreki` 版本导入、新旧共存及往返兼容：`NOT RUN`。
+- 不得把不同 applicationId 描述为可覆盖升级；禁止静默卸载旧版或清数据。

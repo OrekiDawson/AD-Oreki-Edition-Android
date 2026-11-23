@@ -20,7 +20,7 @@ import time
 
 ADB = r"C:\Users\Oreki\Android\sdk\platform-tools\adb.exe"
 SERIAL = "emulator-5554"
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 FILES = f"/data/data/{PKG}/files"
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TMP = os.path.join(BASE, "build", "aw_test")

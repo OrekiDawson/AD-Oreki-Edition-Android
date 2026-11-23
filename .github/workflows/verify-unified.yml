@@ -17,7 +17,7 @@ permissions:
 
 env:
   EXPECTED_CERT_SHA256: 95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197
-  EXPECTED_PACKAGE: com.oreki.antimatterdimensions
+  EXPECTED_PACKAGE: net.oreki.antimatterdimensions
 
 jobs:
   verify:

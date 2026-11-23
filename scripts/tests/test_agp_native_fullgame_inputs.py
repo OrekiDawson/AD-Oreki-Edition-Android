@@ -20,7 +20,7 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertNotIn("commandLine(", block)
         self.assertNotIn("agp_prepare_fullgame.py", block)
         self.assertIn('OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"', text)
-        self.assertIn('OREKI_MOD_APPLICATION_ID = "com.oreki.antimatterdimensions"', text)
+        self.assertIn('OREKI_MOD_APPLICATION_ID = "net.oreki.antimatterdimensions"', text)
 
     def test_candidate_workflow_uses_official_base_and_split(self):
         text = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")

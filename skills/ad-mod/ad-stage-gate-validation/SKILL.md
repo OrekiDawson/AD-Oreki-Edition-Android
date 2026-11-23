@@ -70,9 +70,9 @@ license: 项目内部技能，遵循仓库 AGENTS.md §4 与 docs/长期规则_�
 
 ```bash
 # 非法恢复路径复现
-adb shell am force-stop com.oreki.antimatterdimensions
-adb shell "run-as com.oreki.antimatterdimensions sed -i 's/\"currentSubTab\":\"[^\"]*\"/\"currentSubTab\":\"timeStudies\"/' files/player.json" 2>/dev/null || true
-adb shell monkey -p com.oreki.antimatterdimensions -c android.intent.category.LAUNCHER 1
+adb shell am force-stop net.oreki.antimatterdimensions
+adb shell "run-as net.oreki.antimatterdimensions sed -i 's/\"currentSubTab\":\"[^\"]*\"/\"currentSubTab\":\"timeStudies\"/' files/player.json" 2>/dev/null || true
+adb shell monkey -p net.oreki.antimatterdimensions -c android.intent.category.LAUNCHER 1
 sleep 10
 curl -s localhost:8731/ui | rg -c "timeStudies"   # 期望 0
 adb logcat -d | rg "GUI_GATE_CHANGED|OREKI_GATE" | tail -5

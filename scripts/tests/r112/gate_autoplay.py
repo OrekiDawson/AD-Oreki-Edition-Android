@@ -26,7 +26,7 @@ import sys
 import time
 from pathlib import Path
 
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 ACT = "kajfosz.antimatterdimensions.MainActivity"
 FILES = f"/data/data/{PKG}/files"
 PLAYER = f"{FILES}/player.json"

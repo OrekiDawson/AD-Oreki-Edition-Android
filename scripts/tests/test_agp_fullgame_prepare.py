@@ -16,7 +16,7 @@ assert SPEC and SPEC.loader
 PREPARE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PREPARE)
 
-PACKAGE = "com.oreki.antimatterdimensions"
+PACKAGE = "net.oreki.antimatterdimensions"
 MANIFEST = f'''<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="{PACKAGE}">
     <uses-permission android:name="android.permission.INTERNET" />

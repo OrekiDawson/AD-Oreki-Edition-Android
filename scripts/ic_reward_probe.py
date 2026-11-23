@@ -47,7 +47,7 @@ import sys
 import time
 
 ADB = os.environ.get("ADB_BIN", "adb")
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 PLAYER_JSON = f"/data/data/{PKG}/files/player.json"
 
 CUR_PATH = {

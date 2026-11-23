@@ -6,10 +6,10 @@
 每步真实落盘证据：注入存档、logcat、截图、读档后 player.json、判定 JSON。
 
 用法：
-  python3 scripts/tests/r112/save_matrix.py [--package mod|official] install --apk <apk> --out <dir>
-  python3 scripts/tests/r112/save_matrix.py [--package mod|official] load --save <json> --tag S1 --out <dir> [--wait 35]
-  python3 scripts/tests/r112/save_matrix.py [--package mod|official] snapshot --tag S1 --out <dir>
-  python3 scripts/tests/r112/save_matrix.py [--package mod|official] list-device
+  python3 scripts/tests/r112/save_matrix.py [--package mod|legacy_mod|official] install --apk <apk> --out <dir>
+  python3 scripts/tests/r112/save_matrix.py [--package mod|legacy_mod|official] load --save <json> --tag S1 --out <dir> [--wait 35]
+  python3 scripts/tests/r112/save_matrix.py [--package mod|legacy_mod|official] snapshot --tag S1 --out <dir>
+  python3 scripts/tests/r112/save_matrix.py [--package mod|legacy_mod|official] list-device
 
 退出码：0=PASS（读取且应用真实写档）；3=READ_ONLY_PASS（仅读取方向证据，无应用写入）；
 1=FAIL；2=参数/工具错误。
@@ -31,7 +31,8 @@ from pathlib import Path
 
 PACKAGES = {
     "official": "kajfosz.antimatterdimensions",
-    "mod": "com.oreki.antimatterdimensions",
+    "legacy_mod": "com.oreki.antimatterdimensions",
+    "mod": "net.oreki.antimatterdimensions",
 }
 PKG = PACKAGES["mod"]
 ACT = "kajfosz.antimatterdimensions.MainActivity"

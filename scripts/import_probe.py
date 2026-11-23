@@ -48,7 +48,7 @@ def nodes(xml):
 
 
 def main():
-    sh("shell", "monkey", "-p", "com.oreki.antimatterdimensions",
+    sh("shell", "monkey", "-p", "net.oreki.antimatterdimensions",
        "-c", "android.intent.category.LAUNCHER", "1")
     time.sleep(9)
     # 进游戏（标题页开始按钮）

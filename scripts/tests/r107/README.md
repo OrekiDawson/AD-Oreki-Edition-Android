@@ -39,5 +39,5 @@ OREKI_AVD_GATE_AUTHORIZED=1 python3 scripts/tests/r107/avd_gate.py \
   --out-dir <dir>
 ```
 
-脚本不会启动/停止模拟器，只操作 `com.oreki.antimatterdimensions`，每步失败落盘 logcat/截图，
+脚本不会启动/停止模拟器，只操作 `net.oreki.antimatterdimensions`，每步失败落盘 logcat/截图，
 未执行项写 NOT RUN。详见 `reports/R107-01/test-ci/05-avd-gate.md`。

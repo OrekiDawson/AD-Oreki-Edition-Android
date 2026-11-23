@@ -23,7 +23,7 @@ import sys
 
 AGP_VERSION = "9.5.2"
 BUILD_TASK = ":app:assembleRelease"
-APPLICATION_ID = "com.oreki.antimatterdimensions"
+APPLICATION_ID = "net.oreki.antimatterdimensions"
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}")
 NL = chr(10)

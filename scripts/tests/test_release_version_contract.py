@@ -15,7 +15,7 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertRegex(policy["versionName"], r"^\S+$")
         self.assertGreater(int(policy["versionCode"]), 0)
         self.assertGreaterEqual(int(policy["versionCode"]), int(policy["lastPublishedVersionCode"]))
-        self.assertEqual(policy["package"], "com.oreki.antimatterdimensions")
+        self.assertEqual(policy["package"], "net.oreki.antimatterdimensions")
 
     def test_ready_for_release_policy_has_strictly_greater_version_code(self):
         # release-unified 的发布守卫：ready-for-release 时 versionCode 必须严格大于已发布最大值，

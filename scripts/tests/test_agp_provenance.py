@@ -62,7 +62,7 @@ class AgpProvenanceTests(unittest.TestCase):
             self.assertEqual(provenance["builder"], "AGP")
             self.assertEqual(provenance["agp_version"], "9.5.2")
             self.assertEqual(provenance["build_task"], ":app:assembleRelease")
-            self.assertEqual(provenance["application_id"], "com.oreki.antimatterdimensions")
+            self.assertEqual(provenance["application_id"], "net.oreki.antimatterdimensions")
             self.assertEqual(metadata["source_sha"], SOURCE)
             self.assertEqual(metadata["web_ref"], WEB)
             self.assertEqual(metadata["builder"], "AGP")
@@ -104,7 +104,7 @@ class AgpProvenanceTests(unittest.TestCase):
                 "checks": [{"id": "package", "ok": True}],
                 "sha256": apk_sha,
                 "cert_sha256": CERT,
-                "package": "com.oreki.antimatterdimensions",
+                "package": "net.oreki.antimatterdimensions",
                 "versionName": "3.21.0",
                 "versionCode": "30210000",
             }

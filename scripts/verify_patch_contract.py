@@ -56,7 +56,7 @@ MOD = ROOT / "work" / "mod"
 VERSION_CONFIG = ROOT / "baseline" / "version-config.json"
 BINDINGS_DIR = ROOT / "baseline" / "versions"
 
-PKG_MOD = "com.oreki.antimatterdimensions"
+PKG_MOD = "net.oreki.antimatterdimensions"
 PLAYER_OPTIONS = "Lkajfosz/antimatterdimensions/player/Player$Options;"
 PLAYER_CHALLENGE_UPDATE = "Lkajfosz/antimatterdimensions/challenge/antimatter/c;"
 OREKI_SPEED = "Lkajfosz/antimatterdimensions/OrekiSpeed;"

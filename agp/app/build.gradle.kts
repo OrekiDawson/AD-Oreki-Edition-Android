@@ -47,7 +47,7 @@ fun orekiXmlDocument(file: File): org.w3c.dom.Document {
 }
 
 val OREKI_OFFICIAL_PACKAGE = "kajfosz.antimatterdimensions"
-val OREKI_MOD_APPLICATION_ID = "com.oreki.antimatterdimensions"
+val OREKI_MOD_APPLICATION_ID = "net.oreki.antimatterdimensions"
 val orekiDebugApplicationIdSuffix = providers.gradleProperty("orekiDebugApplicationIdSuffix")
     .orNull
     ?.takeIf { it.isNotBlank() }
@@ -55,7 +55,7 @@ val orekiDebugApplicationIdSuffix = providers.gradleProperty("orekiDebugApplicat
         require(it.startsWith(".")) {
             "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug"
         }
-    }
+    } ?: ".debug"
 val OREKI_ANDROID_NS = "http://schemas.android.com/apk/res/android"
 val OREKI_OFFICIAL_3_21_MANIFEST_SHA256 =
     "b07e4343839b3deb197e4cf0a3cc03cad264d1c4109456204df96f56e64ff6b0"
@@ -1783,7 +1783,7 @@ android {
     compileSdk = orekiCompileSdk
 
     defaultConfig {
-        applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "kajfosz.antimatterdimensions.agpbridge"
+        applicationId = if (fullGame) "net.oreki.antimatterdimensions" else "kajfosz.antimatterdimensions.agpbridge"
         minSdk = 32
         targetSdk = 37
         versionCode = orekiVersionCode
@@ -2127,7 +2127,7 @@ tasks.register("verifyFullGameInputsCrlfSelfTest") {
     outputs.file(orekiCrlfSelfTestResult).withPropertyName("orekiCrlfSelfTestResult")
     doLast {
         val crlf = "\r\n"
-        val appId = "com.oreki.antimatterdimensions"
+        val appId = "net.oreki.antimatterdimensions"
         val decodedDir = File(orekiCrlfSelfTestDir, "decoded")
         val stageDir = File(orekiCrlfSelfTestDir, "stage")
         val negStableDir = File(orekiCrlfSelfTestDir, "stage-neg-stable")

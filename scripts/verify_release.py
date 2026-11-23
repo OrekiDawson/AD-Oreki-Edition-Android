@@ -23,7 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-EXPECT_PKG = "com.oreki.antimatterdimensions"
+EXPECT_PKG = "net.oreki.antimatterdimensions"
 
 # [R76] 期望版本从**所选基线**真实读取，不再写死 3.19.0 / 30190000。
 # [R97] 默认基线与 build.gradle 用同一入口：baseline/version-config.json 的
