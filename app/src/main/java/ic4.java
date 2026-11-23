@@ -1,0 +1,1 @@
+public interface ic4 {}

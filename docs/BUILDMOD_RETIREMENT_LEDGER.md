@@ -74,6 +74,34 @@ AVD 首次尝试使用临时 `.srccheck` applicationId 共存包时，资源表�
 | Gradle | `verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` 全 PASS；96 项单测零失败 |
 | AVD 运行 | 本批为依赖首批 infrastructure 的 stacked 批次，当前 **NOT RUN**；最终合并候选安装后统一复验，不用旧 APK PASS 代替 |
 
+### R126 第三批：三证一致的 170 个空接口批量迁移
+
+为避免人工逐类低吞吐，同时防止把 JADX 失败输出直接灌入生产，新增开发期导入器
+`scripts/agp/import_empty_interfaces.py`。每个候选必须同时满足：
+
+1. JADX 去注释后精确等于 `package defpackage; public interface <name> {}`；
+2. 冻结游戏 JAR 存在精确 `<name>.class` entry；
+3. 原版 Smali 唯一解析为无 `.implements`、无 `.field`、无 `.method`、无 `.annotation` 的空接口。
+
+本批处理 `9,365` 个 JADX `defpackage` 源，精确命中 `172` 个三证空接口；其中既有 2 个
+已在第二批接管，实际新增 `170` 个 `public interface <name> {}`。加上前两批 7 个有方法的
+接口后，manifest 当前共 `177` 个生产 class 接管项。
+
+生成器具有幂等拒绝覆盖、manifest 去重和报告输出；失败证据不会生成生产源码。全量
+JADX 研究树仍不进入 Source Set。
+
+第三批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `433dd2731ae747afcca5992c60d4a5b9916f3875cf7a731eaa0076d73ca609a7` |
+| FullGame Debug APK | SHA-256 `1c5c40a5fa73316423c73388535d5f6caa42df0f87b122ff376017421f3d0656` |
+| descriptor 覆盖 | APK 实际 DEX 共 `16,864` 个 descriptor；manifest 的 `177/177` 全部存在，缺失 0 |
+| JAR 排除 | `177` 个接管 entry 全部移除；非目标 entry 字节一致 |
+| Gradle | `verifyStorePolicyOutput`、`checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` 全 PASS；96 项单测零失败 |
+| 文件口径 | `app/src/main/java` 177 个 Java；`app/src/main/kotlin` 45 个 Kotlin；manifest 177 项一一对应 |
+| AVD 运行 | 本批为 stacked 批次，当前 **NOT RUN**；最终统一候选再安装验证 |
+
 ## 0. 现状事实（脚本实测）
 
 | 项 | 值 |

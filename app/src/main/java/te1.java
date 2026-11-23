@@ -1,0 +1,1 @@
+public interface te1 {}

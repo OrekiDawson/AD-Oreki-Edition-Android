@@ -21,19 +21,15 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             for line in manifest.splitlines()
             if line.strip() and not line.lstrip().startswith("#")
         ]
-        self.assertEqual(
-            entries,
-            [
-                "a23.class",
-                "a28.class",
-                "a43.class",
-                "a47.class",
-                "a5.class",
-                "a57.class",
-                "a64.class",
-            ],
-        )
         self.assertEqual(len(entries), len(set(entries)))
+        for required in ("a23.class", "a28.class", "a43.class", "a47.class", "a5.class"):
+            self.assertIn(required, entries)
+        java_names = {
+            path.name.removesuffix(".java")
+            for path in (ROOT / "app/src/main/java").glob("*.java")
+        }
+        manifest_names = {entry.removesuffix(".class") for entry in entries}
+        self.assertEqual(java_names, manifest_names)
 
     def test_root_interface_batch_keeps_exact_original_signatures(self):
         expected = {
@@ -48,6 +44,20 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             source = (ROOT / "app/src/main/java" / name).read_text(encoding="utf-8")
             self.assertNotIn("package ", source)
             self.assertIn(signature, source)
+
+    def test_bulk_empty_interfaces_have_no_members(self):
+        manifest = (ROOT / "build-logic/source-takeover.txt").read_text(encoding="utf-8")
+        entries = {
+            line.strip().removesuffix(".class")
+            for line in manifest.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        }
+        known = {"a23", "a28", "a43", "a47", "a5", "a57", "a64"}
+        generated = entries - known
+        self.assertEqual(len(generated), 170)
+        for name in generated:
+            source = (ROOT / "app/src/main/java" / f"{name}.java").read_text(encoding="utf-8")
+            self.assertEqual(source, f"public interface {name} {{}}\n")
 
     def test_store_policy_excludes_and_fails_closed(self):
         python = (ROOT / "scripts/agp/apply_store_policy.py").read_text(encoding="utf-8")

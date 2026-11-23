@@ -1,0 +1,1 @@
+public interface fk4 {}
