@@ -13,7 +13,6 @@ Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy$LockedDimension;
 Lkajfosz/antimatterdimensions/oreki/OrekiCrunchPolicy;
 Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation$Abi;
 Lkajfosz/antimatterdimensions/oreki/OrekiEcAutomation;
-Lkajfosz/antimatterdimensions/oreki/OrekiEternity;
 Lkajfosz/antimatterdimensions/oreki/OrekiEternityEconomy;
 Lkajfosz/antimatterdimensions/oreki/OrekiEternityRules;
 Lkajfosz/antimatterdimensions/oreki/OrekiGuiStage$Snapshot;
