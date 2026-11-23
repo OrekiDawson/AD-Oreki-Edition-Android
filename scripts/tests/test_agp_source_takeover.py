@@ -432,7 +432,35 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('it.name == "minify${variant}WithR8"', gradle)
         self.assertIn("transformedBytecodeConsumer.dependsOn(adaptSourceAbi)", gradle)
         self.assertIn("dependsOn(adaptSourceAbi)", gradle)
-        self.assertIn('"js7.class"', gradle)
+        removal_specs = re.search(
+            r"constructorRemovalSpecs\s*=\s*listOf\s*\((?P<body>.*?)^[ \t]*\)",
+            gradle,
+            re.S | re.M,
+        )
+        self.assertIsNotNone(removal_specs)
+        assert removal_specs is not None
+        self.assertIn('"js7.class"', removal_specs.group("body"))
+        call_owner_spec = re.search(
+            r"ConstructorCallOwnerAdaptation\s*\(\s*"
+            r'"(?P<class>as7\.class)",\s*'
+            r'"(?P<source>js7)",\s*'
+            r'"(?P<target>java/lang/Object)",\s*'
+            r'"(?P<method><init>)",\s*'
+            r'"(?P<descriptor>\(\)V)",?\s*\)',
+            gradle,
+        )
+        self.assertIsNotNone(call_owner_spec)
+        assert call_owner_spec is not None
+        self.assertEqual(
+            call_owner_spec.groupdict(),
+            {
+                "class": "as7.class",
+                "source": "js7",
+                "target": "java/lang/Object",
+                "method": "<init>",
+                "descriptor": "()V",
+            },
+        )
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertNotIn(":build-logic:test", workflow)
 
