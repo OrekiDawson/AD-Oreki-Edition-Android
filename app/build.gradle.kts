@@ -12,8 +12,10 @@ plugins {
 val repoRoot = rootProject.layout.projectDirectory.asFile
 val releaseIdentity = JsonSlurper().parse(File(repoRoot, "scripts/release-gate-policy.json")) as Map<*, *>
 val fullGame = providers.gradleProperty("orekiFullGame").orNull?.toBoolean() ?: false
-val debugApplicationIdSuffix = providers.gradleProperty("orekiDebugApplicationIdSuffix")
-    .orNull
+val debugApplicationIdSuffix = (
+    providers.gradleProperty("orekiDebugApplicationIdSuffix").orNull
+        ?: ".debug".takeIf { fullGame }
+    )
     ?.takeIf { it.isNotBlank() }
     ?.also { require(it.startsWith(".")) { "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug" } }
 val fullGameStage = providers.gradleProperty("orekiFullGameStage")

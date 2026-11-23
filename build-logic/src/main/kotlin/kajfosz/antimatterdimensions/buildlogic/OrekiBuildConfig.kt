@@ -26,14 +26,17 @@ internal fun Project.orekiBuildConfig(): OrekiBuildConfig {
         return File(raw).let { if (it.isAbsolute) it else File(root, raw) }
     }
 
-    val debugSuffix = providers.gradleProperty("orekiDebugApplicationIdSuffix")
-        .orNull
+    val fullGame = providers.gradleProperty("orekiFullGame").orNull?.toBoolean() ?: false
+    val debugSuffix = (
+        providers.gradleProperty("orekiDebugApplicationIdSuffix").orNull
+            ?: ".debug".takeIf { fullGame }
+        )
         ?.takeIf { it.isNotBlank() }
         ?.also { require(it.startsWith(".")) { "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug" } }
 
     return OrekiBuildConfig(
         rootDir = root,
-        fullGame = providers.gradleProperty("orekiFullGame").orNull?.toBoolean() ?: false,
+        fullGame = fullGame,
         debugApplicationIdSuffix = debugSuffix,
         officialTree = path("orekiOfficialTree", "work/base_decoded_321"),
         splitTree = path("orekiSplitTree", "work/mdpi_decoded_321"),

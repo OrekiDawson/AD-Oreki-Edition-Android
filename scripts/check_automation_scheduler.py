@@ -730,6 +730,18 @@ check("R126 EC4 hold 状态跨重启持久化且换档清零",
       and "getBoolean(KEY_EC4_ENTRY_HOLD" in _adoption_kt
       and "putBoolean(KEY_EC4_ENTRY_HOLD" in _adoption_kt
       and "ec4EntryHoldSuppressed = false" in _adoption_kt)
+_ec4_hold_section = _adoption_kt.split("private fun applyEc4EntryHold", 1)[1].split("private fun log", 1)[0]
+check("R126 EC4 hold 落盘失败仍先关闭原版自动永恒",
+      "ec4EntryHoldSuppressed = true" in _ec4_hold_section
+      and "if (!persistEc4Hold(true))" in _ec4_hold_section
+      and _ec4_hold_section.index("ec4EntryHoldSuppressed = true")
+      < _ec4_hold_section.index("GameApi.setAutoEternityActive(false)"))
+check("R126 EC4 hold 持久化不阻塞每帧主线程",
+      "putBoolean(KEY_EC4_ENTRY_HOLD, value).apply()" in _adoption_kt
+      and "putBoolean(KEY_EC4_ENTRY_HOLD, value).commit()" not in _adoption_kt)
+check("R126 EC4 hold 开关写入按秒重试",
+      "shouldAttemptEc4HoldSwitch(lastEc4HoldAttemptAt, now)" in _ec4_hold_section
+      and _ec4_hold_section.count("lastEc4HoldAttemptAt = now") >= 2)
 check("R126 EC4 每帧门禁复用 nextTargetId 缓存",
       _ec_kt.count("cachedNextTargetId()") >= 3)
 check("R126 旧 build_mod 已退出生产路径",

@@ -67,6 +67,7 @@ internal object OrekiAutoEternityAdoption {
     private var saveId = ""
 
     private var lastAttemptAt = 0L
+    private var lastEc4HoldAttemptAt = 0L
     private var lastLogKey = ""
     private var lastLogAt = 0L
 
@@ -186,15 +187,25 @@ internal object OrekiAutoEternityAdoption {
         }
     }
 
-    /** EC4 hold 是开关写入的前置证据，必须同步落盘成功后才允许关闭原版自动永恒。 */
+    /**
+     * EC4 hold 的跨重启提示。内存标记是当前进程的权威证据，落盘只用于进程重启后恢复；
+     * 这里使用 `apply()`，避免游戏主线程每帧同步 `commit()` 造成卡顿或 ANR。
+     */
     private fun persistEc4Hold(value: Boolean): Boolean {
         val sp = prefs() ?: return false
         return try {
-            sp.edit().putBoolean(KEY_EC4_ENTRY_HOLD, value).commit()
+            sp.edit().putBoolean(KEY_EC4_ENTRY_HOLD, value).apply()
+            true
         } catch (_: Throwable) {
             false
         }
     }
+
+    /** 原版自动永恒开关的 hold 写入按秒重试，避免失败时每帧重复调用。 */
+    internal fun shouldAttemptEc4HoldSwitch(lastAttemptAtMs: Long, nowMs: Long): Boolean =
+        lastAttemptAtMs <= 0L ||
+            nowMs < lastAttemptAtMs ||
+            nowMs - lastAttemptAtMs >= RETRY_INTERVAL_MS
 
     // ------------------------------------------------------------------ 判据
 
@@ -519,34 +530,53 @@ internal object OrekiAutoEternityAdoption {
     private fun applyEc4EntryHold(active: Boolean?): Boolean {
         if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) {
             if (active == true) {
-                if (!persistEc4Hold(true)) return true
+                val now = SystemClock.elapsedRealtime()
+                if (!shouldAttemptEc4HoldSwitch(lastEc4HoldAttemptAt, now)) return true
+                lastEc4HoldAttemptAt = now
+                // 内存证据先于开关写入；落盘失败也不能让原版自动永恒继续清零 EC4 入口资源。
                 ec4EntryHoldSuppressed = true
+                if (!persistEc4Hold(true)) {
+                    log("ec4-entry-hold persist failed, using memory-only evidence")
+                }
                 GameApi.setAutoEternityActive(false)
                 if (GameApi.autoEternityIsActive() == false) {
                     lastObservedAutoEternityActive = false
                     lastObservedEternityProgress = eternityProgressToken()
                     log("ec4-entry-hold disabled vanilla auto eternity")
                 } else {
-                    if (persistEc4Hold(false)) ec4EntryHoldSuppressed = false
+                    ec4EntryHoldSuppressed = false
+                    if (!persistEc4Hold(false)) {
+                        log("ec4-entry-hold rollback persist failed")
+                    }
+                    log("ec4-entry-hold switch-off did not stick")
                 }
             }
             return true
         }
         if (!ec4EntryHoldSuppressed) return false
         if (userClosed) {
-            if (persistEc4Hold(false)) ec4EntryHoldSuppressed = false
+            ec4EntryHoldSuppressed = false
+            if (!persistEc4Hold(false)) {
+                log("ec4-entry-hold clear persist failed after user close")
+            }
             return true
         }
         if (!GameApi.autobuyersOn()) return true
+        val now = SystemClock.elapsedRealtime()
+        if (!shouldAttemptEc4HoldSwitch(lastEc4HoldAttemptAt, now)) return true
+        lastEc4HoldAttemptAt = now
         GameApi.setAutoEternityActive(true)
         if (GameApi.autoEternityIsActive() == true) {
-            if (persistEc4Hold(false)) {
-                ec4EntryHoldSuppressed = false
-                adopted = true
-                lastObservedAutoEternityActive = true
-                lastObservedEternityProgress = eternityProgressToken()
-                log("ec4-entry-hold restored vanilla auto eternity")
+            ec4EntryHoldSuppressed = false
+            if (!persistEc4Hold(false)) {
+                log("ec4-entry-hold clear persist failed after restore")
             }
+            adopted = true
+            lastObservedAutoEternityActive = true
+            lastObservedEternityProgress = eternityProgressToken()
+            log("ec4-entry-hold restored vanilla auto eternity")
+        } else {
+            log("ec4-entry-hold restore did not stick")
         }
         return true
     }

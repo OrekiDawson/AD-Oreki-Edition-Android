@@ -63,7 +63,7 @@
     "public_xml_sha256": "<hex>",
     "tree_files": {"res": 0, "assets": 0}
   },
-  "package": "com.oreki.antimatterdimensions",
+  "package": "net.oreki.antimatterdimensions",
   "manifest_normalized": {"removed_package_attribute": true, "removed_extract_native_libs": true},
   "resources": {"resources": 0, "package_id": "0x7f", "generated_renamed": 0, "xml_rewritten": 0, "changelog_excluded": true},
   "components": {"activities": 0, "activity_aliases": 0, "services": 0, "receivers": 0, "providers": 0, "permissions": 0, "uses_permissions": 0, "uses_features": 0, "launcher_activities": [], "launcher_aliases": []},

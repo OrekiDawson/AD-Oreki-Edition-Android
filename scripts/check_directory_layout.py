@@ -96,6 +96,7 @@ def source_set_block(build_text: str) -> str:
     for pattern in (
         r'sourceSets\["main"\]\.kotlin\.srcDirs\s*\(',
         r'sourceSets\["main"\]\.kotlin\.directories\.addAll\s*\(',
+        r'sourceSets\["main"\]\.kotlin\.directories\.add\s*\(',
     ):
         block = balanced_call_body(build_text, pattern)
         if block:

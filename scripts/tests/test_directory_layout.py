@@ -103,6 +103,27 @@ sourceSets["main"].kotlin.srcDirs(
         self.write("build-logic/build.gradle.kts", "plugins { `java-gradle-plugin` }\n")
         self.assertEqual([], guard.check_layout(self.root))
 
+    def test_root_phase_matches_directories_add(self):
+        self.phase("root")
+        (self.root / "scripts/payload/kotlin/demo/Example.kt").unlink()
+        for path in (
+            self.root / "agp/app/build.gradle.kts",
+            self.root / "agp/settings.gradle.kts",
+        ):
+            path.unlink()
+        for directory in (self.root / "agp/app", self.root / "agp"):
+            directory.rmdir()
+        self.write("settings.gradle.kts", 'include(":app")\n')
+        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.2" apply false }\n')
+        self.write("build-logic/settings.gradle.kts", 'rootProject.name = "build-logic"\n')
+        self.write("build-logic/build.gradle.kts", "plugins { `java-gradle-plugin` }\n")
+        self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
+        self.write("app/build.gradle.kts", '''
+plugins { id("com.android.application") }
+sourceSets["main"].kotlin.directories.add(File(repoRoot, "build/kt/generated").absolutePath)
+''')
+        self.assertEqual([], guard.check_layout(self.root))
+
     def test_invalid_phase_is_rejected(self):
         self.phase("almost")
         self.assertIn("unknown migration phase", " ".join(guard.check_layout(self.root)))

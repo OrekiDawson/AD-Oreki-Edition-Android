@@ -72,7 +72,7 @@ license: 项目内部技能，遵循仓库 AGENTS.md §2.1 与 docs/长期规则
 ## 最小使用示例
 
 ```bash
-PKG=com.oreki.antimatterdimensions
+PKG=net.oreki.antimatterdimensions
 adb shell "tar -czf /data/local/tmp/pre.tgz -C /data/data $PKG ."
 adb pull /data/local/tmp/pre.tgz reports/R101-perf/pre.tgz
 adb shell "cat /data/data/$PKG/files/player.json" > reports/R101-perf/player-before.json

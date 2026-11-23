@@ -140,4 +140,12 @@ class OrekiAutoEternityAdoptionTest {
             ),
         )
     }
+
+    @Test
+    fun ec4HoldSwitchRetriesAreThrottledButClockResetReopensAttempt() {
+        assertTrue(OrekiAutoEternityAdoption.shouldAttemptEc4HoldSwitch(0L, 1_000L))
+        assertFalse(OrekiAutoEternityAdoption.shouldAttemptEc4HoldSwitch(1_000L, 1_500L))
+        assertTrue(OrekiAutoEternityAdoption.shouldAttemptEc4HoldSwitch(1_000L, 2_000L))
+        assertTrue(OrekiAutoEternityAdoption.shouldAttemptEc4HoldSwitch(2_000L, 1_000L))
+    }
 }
