@@ -519,12 +519,6 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                             val to: String,
                             val targetMethod: String = method,
                         )
-                        data class ConstructorOwnerAdaptation(
-                            val classPath: String,
-                            val sourceSuper: String,
-                            val targetSuper: String,
-                            val constructorDescriptor: String,
-                        )
                         val classesRoot = compileTask.destinationDirectory.asFile.get()
                         val adaptationSpecs = listOf(
                             AbiAdaptation(
@@ -735,115 +729,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                             "缺少构造器 owner shim 编译产物: ${spec.classPath}",
                                         )
                                     }
-                                    var constructors = 0
-                                    var sawObjectConstructor = false
-                                    val reader = ClassReader(classFile.readBytes())
-                                    val writer = ClassWriter(reader, 0)
-                                    reader.accept(
-                                        object :
-                                            org.objectweb.asm.ClassVisitor(
-                                                Opcodes.ASM9,
-                                                writer,
-                                            ) {
-                                            override fun visit(
-                                                version: Int,
-                                                access: Int,
-                                                name: String,
-                                                signature: String?,
-                                                superName: String?,
-                                                interfaces: Array<out String>?,
-                                            ) {
-                                                if (superName != spec.sourceSuper) {
-                                                    throw GradleException(
-                                                        "${spec.classPath} 编译期 super " +
-                                                            "应为 ${spec.sourceSuper}，实际 $superName",
-                                                    )
-                                                }
-                                                super.visit(
-                                                    version,
-                                                    access,
-                                                    name,
-                                                    signature,
-                                                    spec.targetSuper,
-                                                    interfaces,
-                                                )
-                                            }
-
-                                            override fun visitMethod(
-                                                access: Int,
-                                                name: String,
-                                                descriptor: String,
-                                                signature: String?,
-                                                exceptions: Array<out String>?,
-                                            ): MethodVisitor? {
-                                                if (name != "<init>") {
-                                                    return super.visitMethod(
-                                                        access,
-                                                        name,
-                                                        descriptor,
-                                                        signature,
-                                                        exceptions,
-                                                    )
-                                                }
-                                                constructors += 1
-                                                if (descriptor != spec.constructorDescriptor) {
-                                                    throw GradleException(
-                                                        "${spec.classPath} 构造器 descriptor " +
-                                                            "应为 ${spec.constructorDescriptor}，实际 $descriptor",
-                                                    )
-                                                }
-                                                return object :
-                                                    MethodVisitor(
-                                                        Opcodes.ASM9,
-                                                        super.visitMethod(
-                                                            access,
-                                                            name,
-                                                            descriptor,
-                                                            signature,
-                                                            exceptions,
-                                                        ),
-                                                    ) {
-                                                    override fun visitMethodInsn(
-                                                        opcode: Int,
-                                                        owner: String,
-                                                        name: String,
-                                                        descriptor: String,
-                                                        isInterface: Boolean,
-                                                    ) {
-                                                        if (!sawObjectConstructor) {
-                                                            if (
-                                                                opcode != Opcodes.INVOKESPECIAL ||
-                                                                owner != "java/lang/Object" ||
-                                                                name != "<init>" ||
-                                                                descriptor != "()V"
-                                                            ) {
-                                                                throw GradleException(
-                                                                    "${spec.classPath} 首个构造器调用 " +
-                                                                        "不是 Object.<init>()V",
-                                                                )
-                                                            }
-                                                            sawObjectConstructor = true
-                                                        }
-                                                        super.visitMethodInsn(
-                                                            opcode,
-                                                            owner,
-                                                            name,
-                                                            descriptor,
-                                                            isInterface,
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        0,
+                                    classFile.writeBytes(
+                                        adaptConstructorOwnerClass(
+                                            classFile.readBytes(),
+                                            spec,
+                                        ),
                                     )
-                                    if (constructors != 1 || !sawObjectConstructor) {
-                                        throw GradleException(
-                                            "${spec.classPath} 构造器 owner shim 不唯一或未调用 " +
-                                                "Object.<init>()V",
-                                        )
-                                    }
-                                    classFile.writeBytes(writer.toByteArray())
                                     logger.lifecycle(
                                         "[oreki] 构造器 super 已恢复: " +
                                             "${spec.classPath} ${spec.sourceSuper} -> " +
@@ -1040,4 +931,114 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             }
         }
     }
+}
+
+internal data class ConstructorOwnerAdaptation(
+    val classPath: String,
+    val sourceSuper: String,
+    val targetSuper: String,
+    val constructorDescriptor: String,
+)
+
+internal fun adaptConstructorOwnerClass(
+    input: ByteArray,
+    spec: ConstructorOwnerAdaptation,
+): ByteArray {
+    var constructors = 0
+    var sawObjectConstructor = false
+    var sawClass = false
+    val reader = ClassReader(input)
+    val writer = ClassWriter(reader, 0)
+    reader.accept(
+        object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+            override fun visit(
+                version: Int,
+                access: Int,
+                name: String,
+                signature: String?,
+                superName: String?,
+                interfaces: Array<out String>?,
+            ) {
+                require(superName == spec.sourceSuper) {
+                    "${spec.classPath} 编译期 super 应为 ${spec.sourceSuper}，实际 $superName"
+                }
+                sawClass = true
+                super.visit(
+                    version,
+                    access,
+                    name,
+                    signature,
+                    spec.targetSuper,
+                    interfaces,
+                )
+            }
+
+            override fun visitMethod(
+                access: Int,
+                name: String,
+                descriptor: String,
+                signature: String?,
+                exceptions: Array<out String>?,
+            ): MethodVisitor? {
+                if (name != "<init>") {
+                    return super.visitMethod(
+                        access,
+                        name,
+                        descriptor,
+                        signature,
+                        exceptions,
+                    )
+                }
+                constructors += 1
+                require(descriptor == spec.constructorDescriptor) {
+                    "${spec.classPath} 构造器 descriptor " +
+                        "应为 ${spec.constructorDescriptor}，实际 $descriptor"
+                }
+                return object :
+                    MethodVisitor(
+                        Opcodes.ASM9,
+                        super.visitMethod(
+                            access,
+                            name,
+                            descriptor,
+                            signature,
+                            exceptions,
+                        ),
+                    ) {
+                    override fun visitMethodInsn(
+                        opcode: Int,
+                        owner: String,
+                        name: String,
+                        descriptor: String,
+                        isInterface: Boolean,
+                    ) {
+                        if (!sawObjectConstructor) {
+                            require(
+                                opcode == Opcodes.INVOKESPECIAL &&
+                                    owner == "java/lang/Object" &&
+                                    name == "<init>" &&
+                                    descriptor == "()V",
+                            ) {
+                                "${spec.classPath} 首个构造器调用不是 Object.<init>()V"
+                            }
+                            sawObjectConstructor = true
+                        }
+                        super.visitMethodInsn(
+                            opcode,
+                            owner,
+                            name,
+                            descriptor,
+                            isInterface,
+                        )
+                    }
+                }
+            }
+        },
+        0,
+    )
+    require(sawClass) { "${spec.classPath} 缺少 class header" }
+    require(constructors == 1 && sawObjectConstructor) {
+        "${spec.classPath} 构造器 owner shim 不唯一或未调用 Object.<init>()V"
+    }
+    return writer.toByteArray()
 }

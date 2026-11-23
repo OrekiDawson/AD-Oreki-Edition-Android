@@ -368,13 +368,23 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             "hp3": ("jp3", "(Ljava/lang/String;)V"),
         }
         for name, (target_super, descriptor) in expected.items():
-            self.assertIn(f'"{name}.class"', gradle)
-            self.assertIn(f'"{target_super}"', gradle)
-            self.assertIn(f'"{descriptor}"', gradle)
+            match = re.search(
+                rf'ConstructorOwnerAdaptation\(\s*'
+                rf'"{name}\.class",\s*'
+                rf'"(?P<source>[^"]+)",\s*'
+                rf'"(?P<target>[^"]+)",\s*'
+                rf'"(?P<descriptor>[^"]+)",?\s*\)',
+                gradle,
+            )
+            self.assertIsNotNone(match, name)
+            assert match is not None
+            self.assertEqual(match.group("source"), "java/lang/Object")
+            self.assertEqual(match.group("target"), target_super)
+            self.assertEqual(match.group("descriptor"), descriptor)
         self.assertIn('"constructor_owner_adaptations"', gradle)
         self.assertIn('"constructor_owner" to "java/lang/Object"', gradle)
-        self.assertIn("首个构造器调用", gradle)
-        self.assertIn("Object.<init>()V", gradle)
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertIn(":build-logic:test", workflow)
 
 
 if __name__ == "__main__":

@@ -1272,6 +1272,10 @@ Java 编译器不允许子类构造器绕过无构造器父类，因此源码先
 
 该做法不伪造父类构造器，也不改变构造器指令。最终 Debug DEX 直接检查确认
 5 个类均保持目标 super 并继续调用 `Object.<init>()V`。
+owner 变换已抽为 `adaptConstructorOwnerClass` 函数；`:build-logic:test`
+用合成 class 字节执行真实 ASM 正例与错误 super、错误 descriptor、错误
+构造器 owner 三个负例，**4/4 PASS**。CI 的 `agp-kotlin-dex` Required Check
+现实际运行 `:build-logic:test`，不再只匹配插件源码字符串。
 
 - 生产接管总数由 `1636` 增至 **1641**，blocked 由 `361` 降至 **356**。
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；

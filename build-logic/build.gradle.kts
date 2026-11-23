@@ -31,6 +31,7 @@ repositories {
 dependencies {
     implementation("com.android.tools.build:gradle:9.5.2")
     implementation("org.ow2.asm:asm:9.9")
+    testImplementation("junit:junit:4.13.2")
 }
 
 gradlePlugin {
