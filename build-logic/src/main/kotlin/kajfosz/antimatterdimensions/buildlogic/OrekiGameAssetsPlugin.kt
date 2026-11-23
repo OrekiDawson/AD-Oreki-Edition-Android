@@ -14,14 +14,24 @@ internal class OrekiGameAssetsPlugin : Plugin<Project> {
         val config = project.orekiBuildConfig()
         if (!config.fullGame) return
         val tutorialAsset = File(config.rootDir, "scripts/payload/assets/oreki_tutorial.txt")
+        val officialAssets = File(config.officialTree, "assets")
         val changelogZh = File(config.rootDir, "scripts/payload/res/raw/changelog.zh.txt")
         val decodedChangelog = File(config.officialTree, "res/raw/changelog.txt")
         val generatedChangelog = File(config.generatedRes, "raw/changelog.txt")
 
         project.tasks.registerTypedAction("prepareFullGameAssets", Sync::class.java) {
-            from(File(config.officialTree, "assets")) { exclude("oreki_tutorial.txt") }
-            from(File(config.rootDir, "scripts/payload/assets"))
+            inputs.dir(officialAssets)
+            inputs.file(tutorialAsset)
+            outputs.dir(config.stagedAssets)
+            from(officialAssets)
+            from(tutorialAsset)
             into(config.stagedAssets)
+            doLast {
+                val stagedTutorial = File(config.stagedAssets, "oreki_tutorial.txt")
+                if (!stagedTutorial.isFile || stagedTutorial.length() == 0L) {
+                    throw GradleException("教程资产未进入 staged assets: $stagedTutorial")
+                }
+            }
         }
 
         project.tasks.registerAction("verifyTutorialAsset") {

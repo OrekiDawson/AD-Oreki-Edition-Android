@@ -21,8 +21,15 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 本批 FullGame Debug APK：`09cca5d993ea474b40339604e5f38e40ab564e3598e3ca4fd5f6097f508fd4f1`
-  （83,759,832 B）；单测 96/96、Python 328/328、1020/1020 ABI/DEX PASS。
+- 本批 FullGame Debug APK：`e1648e1926f75d503a93fa853f10a4c9ac2e3a946c7cede16a3eca7c5b7603fa`
+  （83,835,877 B）；单测 96/96、Python 328/328、1020/1020 ABI/DEX PASS。
+- AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
+  创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
+  获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
+  修复 `oreki_tutorial.txt` 因任务误判 `UP-TO-DATE` 而未进入 APK 的问题。
+- 在同一 `Oreki_API_37` 上实际执行“开始游戏 → 游戏帮助 → 打开 Oreki 中文教程”：
+  教程第 4 章正文正常显示，进程存活、无 FATAL/NoClassDefFoundError/VerifyError；
+  返回主界面后 force-stop/冷启动成功，既有存档与离线进度正常加载。
 - 当前 `scripts/payload/smali` 剩余 `13` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）

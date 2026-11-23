@@ -52,7 +52,9 @@ class TutorialActivity : Activity() {
         fontScale = getSharedPreferences("oreki_tutorial_prefs", MODE_PRIVATE)
             .getInt("font_scale", 1).coerceIn(0, 2)
         window.setDecorFitsSystemWindows(false)
-        window.insetsController?.apply {
+        // API 37 的 PhoneWindow.getInsetsController() 要求 DecorView 已创建；
+        // 先取 decorView，避免首次打开教程时在 onCreate 直接 NPE。
+        window.decorView.windowInsetsController?.apply {
             // 深色教程页使用浅色系统图标；清空 light appearance 位。
             setSystemBarsAppearance(
                 0,
