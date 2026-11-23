@@ -810,3 +810,44 @@ ANDROID_SDK_ROOT=/home/oreki/Android/Sdk
 - `scripts/build_mod.py`：**物理删除，RETIRED**。
 - 根 Groovy 构建入口：**物理删除，RETIRED**。
 - Python 补丁树生产入口：**零调用**。
+
+## 13. R126：源码接管 ABI/DEX fail-closed 守卫
+
+> 2026-11-23，PR #283。当前仍是分批迁移状态，不把 990 个已接管类等同于
+> “全部生产 Smali 已迁移”。
+
+### 13.1 新增守卫
+
+- `verifySourceTakeover<variant>Abi`：逐 class 对比原版 JAR 与 AGP 编译 class 的
+  class 身份、父类、接口、字段、方法、descriptor 与有效访问修饰。
+- `verifySourceTakeover<variant>Dex`：解析最终 APK 的真实 DEX `class_def_item`，
+  要求接管清单中的每个 descriptor 都真实存在。
+- `assembleDebug` / `assembleRelease` 同时依赖编译产物、ABI 与最终 DEX 三个守卫。
+- 无专有游戏 JAR 的桥接构建不编译 FullGame 过渡 Java；FullGame 仍从标准
+  `app/src/main/java` 编译同一份源码，不建立第二套 Android 工程。
+
+### 13.2 当前证据
+
+| 项目 | 结果 | 证据 |
+|---|---|---|
+| JADX Java 参考 | 已导出 | 13,782 个文件 |
+| AGP 生产 Java 接管 | **当前批次 PASS** | 990 个 entry，`build-logic/source-takeover.txt` |
+| 精确 blocked 清单 | 保留 | 173 个 class，`scripts/agp/source-takeover-blocked.txt` |
+| ABI 守卫 | **PASS** | 990/990；synthetic 标记与 `<clinit>` 无效 public 位有明确规范化 |
+| 最终 APK DEX descriptor | **PASS** | APK 16,864 个 class；990/990 接管 descriptor 存在 |
+| 默认无专有基线构建 | **PASS** | `:app:assembleDebug :app:copyAgpKotlinClasses`；Java `NO-SOURCE` |
+| FullGame Debug 构建 | **PASS** | `:app:assembleDebug`，三层源码接管守卫全部执行 |
+| Python/静态守卫 | **PASS** | 322/322 |
+| FullGame Debug APK | 当前候选 | `3e991424e2f02c6f9cfc94bfbb731a6bd1ff61b4d7a0dc05dba1d74ea54055c1` |
+| API 37 AVD | **PASS（短程）** | 冷启动、保留存档、主界面；4 秒内反物质 `1.06e33 → 5.57e223` 且第八维度 `0 → 130`；无 FATAL/ANR/`NoSuchMethodError` |
+
+短程 AVD 结果只证明当前候选可安装、启动和主 Tick 推进；不替代 EC4、Reality、
+Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
+
+### 13.3 未完成
+
+- 仍有 173 个精确 blocked class 和大量 JADX 参考源码未迁移。
+- `scripts/payload/smali` 仍有 25 个历史/验证文件，但 `app/` 与 `build-logic/`
+  对它们没有生产构建引用。
+- `PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0` 尚未达到；
+  Issue #52/#61 保持 OPEN。

@@ -421,8 +421,72 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                             )
                         }
                     }
+                    val abiEvidence = File(
+                        config.rootDir,
+                        "build/agp-source-takeover/abi-${variant.lowercase()}.json",
+                    )
+                    val abiScript = File(
+                        config.rootDir,
+                        "scripts/agp/verify_source_takeover_abi.py",
+                    )
+                    val verifyAbi = project.tasks.registerTypedAction(
+                        "verifySourceTakeover${variant}Abi",
+                        Exec::class.java,
+                    ) {
+                        group = "verification"
+                        description = "对比原版 JAR 与 AGP class 的方法/字段 ABI"
+                        dependsOn(compileTask)
+                        config.gameJar?.let { inputs.file(it) }
+                        inputs.files(config.sourceTakeoverManifest, abiScript)
+                        inputs.dir(compileTask.destinationDirectory)
+                        outputs.file(abiEvidence)
+                        doFirstAction {
+                            val input = config.gameJar
+                                ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                            commandLine(
+                                "python3",
+                                abiScript.absolutePath,
+                                "--game-jar", input.absolutePath,
+                                "--classes-dir", compileTask.destinationDirectory.asFile.get().absolutePath,
+                                "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                "--report", abiEvidence.absolutePath,
+                            )
+                        }
+                    }
+                    val packagedApk = File(
+                        config.rootDir,
+                        "app/build/outputs/apk/${variant.lowercase()}/app-${variant.lowercase()}.apk",
+                    )
+                    val dexEvidence = File(
+                        config.rootDir,
+                        "build/agp-source-takeover/dex-${variant.lowercase()}.json",
+                    )
+                    val verifyDex = project.tasks.registerTypedAction(
+                        "verifySourceTakeover${variant}Dex",
+                        Exec::class.java,
+                    ) {
+                        group = "verification"
+                        description = "核验最终 APK DEX 包含全部源码接管 descriptor"
+                        dependsOn("package$variant")
+                        inputs.files(config.sourceTakeoverManifest, abiScript, packagedApk)
+                        outputs.file(dexEvidence)
+                        doFirstAction {
+                            if (!packagedApk.isFile) {
+                                throw GradleException("缺少 AGP 打包 APK: $packagedApk")
+                            }
+                            commandLine(
+                                "python3",
+                                abiScript.absolutePath,
+                                "--apk", packagedApk.absolutePath,
+                                "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                "--report", dexEvidence.absolutePath,
+                            )
+                        }
+                    }
                     project.tasks.matching { it.name == "assemble${variant}" }
-                        .configureEachAction { dependsOn(verifyCompiled) }
+                        .configureEachAction {
+                            dependsOn(verifyCompiled, verifyAbi, verifyDex)
+                        }
                 }
             }
         }

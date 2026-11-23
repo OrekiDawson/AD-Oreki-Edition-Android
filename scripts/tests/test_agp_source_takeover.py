@@ -91,6 +91,20 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('verifySourceTakeover${variant}Classes', gradle)
         self.assertIn("compileTask.destinationDirectory", gradle)
         self.assertIn("源码接管清单缺少 AGP 编译产物", gradle)
+        self.assertIn("verifySourceTakeover${variant}Abi", gradle)
+        self.assertIn("verifySourceTakeover${variant}Dex", gradle)
+        self.assertIn("verify_source_takeover_abi.py", gradle)
+        self.assertIn(
+            'app/build/outputs/apk/${variant.lowercase()}/app-${variant.lowercase()}.apk',
+            gradle,
+        )
+        app_gradle = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
+        self.assertIn("sourceTakeoverJavaExcludes", app_gradle)
+        self.assertIn('if (!fullGame && sourceTakeoverJavaExcludes.isNotEmpty())', app_gradle)
+        self.assertIn(
+            "sourceSets[\"main\"].java.directories.clear()",
+            app_gradle,
+        )
 
 
 if __name__ == "__main__":
