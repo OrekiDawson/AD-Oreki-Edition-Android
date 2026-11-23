@@ -45,7 +45,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             self.assertNotIn("package ", source)
             self.assertIn(signature, source)
 
-    def test_bulk_interfaces_are_unique_and_blocked_sources_are_absent(self):
+    def test_bulk_sources_are_unique_and_blocked_sources_are_absent(self):
         manifest = (ROOT / "build-logic/source-takeover.txt").read_text(encoding="utf-8")
         entries = {
             line.strip().removesuffix(".class")
@@ -54,13 +54,15 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         }
         known = {"a23", "a28", "a43", "a47", "a5", "a57", "a64"}
         generated = entries - known
-        self.assertGreaterEqual(len(generated), 800)
+        interface_sources = 0
         empty_interfaces = 0
         for name in generated:
             source = (ROOT / "app/src/main/java" / f"{name}.java").read_text(encoding="utf-8")
-            self.assertIn(f"public interface {name}", source)
+            if f"public interface {name}" in source:
+                interface_sources += 1
             if source == f"public interface {name} {{}}\n":
                 empty_interfaces += 1
+        self.assertGreaterEqual(interface_sources, 800)
         self.assertGreaterEqual(empty_interfaces, 170)
         blocked = (ROOT / "scripts/agp/source-takeover-blocked.txt").read_text(encoding="utf-8")
         blocked_names = {

@@ -127,6 +127,28 @@ JADX 研究树仍不进入 Source Set。
 | 单元测试 | Gradle 96/96、Python 316/316 PASS |
 | blocked 明细 | `scripts/agp/source-takeover-blocked.txt` 记录 24 个具体类及精确原因 |
 
+### R126 第五批：普通 Java 类批量扩展
+
+新增 `scripts/agp/import_class_sources.py`，从 JADX `defpackage` 中筛选无 decompile warning、
+JAR descriptor 存在、Smali 确认为普通类且 class body 非空的小型 Java 类。批量导入后以
+`compileDebugJavaWithJavac` 做真实收敛；37 个在构造器、继承类或 JADX 推断类型上失败的类
+移入 blocked 台账，其余保留。
+
+第五批结果：生产 Java 从 `829` 增至 `920`，Kotlin 保持 `45`，blocked 增至 `61`。其中 9 个
+单字段类的 synthetic 构造器依据原版 Smali 补回，保持字段与构造器 ABI，不使用空实现。
+
+第五批实际验证：
+
+| 项 | 结果 |
+|---|---|
+| 变换后游戏 JAR | SHA-256 `c859bdeadf6b02c902f9abdbfbe93a50573e6461d098e92fa23329f9fb3b1310` |
+| FullGame Debug APK | SHA-256 `650c965bcd11cb1e17762314363232260173a775de451f91920f792f4aa4dd04` |
+| AGP 编译正向校验 | `verifySourceTakeoverDebugClasses`：920/920 PASS |
+| descriptor 覆盖 | APK DEX 共 16,864 个 descriptor；manifest 920/920 存在，缺失 0 |
+| Gradle | `checkDebugDuplicateClasses`、`testDebugUnitTest`、`assembleDebug` PASS |
+| 单元测试 | Gradle 96/96、Python 318/318 PASS |
+| 阻断 | 61 个具体 class 记录在 `scripts/agp/source-takeover-blocked.txt`；不伪报清零 |
+
 ## 0. 现状事实（脚本实测）
 
 | 项 | 值 |
