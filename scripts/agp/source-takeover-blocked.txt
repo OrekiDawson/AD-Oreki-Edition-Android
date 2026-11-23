@@ -188,5 +188,4 @@ kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.class | Lkajfosz/antimatterdi
 kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class | Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/oreki/StageAssist.class | Lkajfosz/antimatterdimensions/oreki/StageAssist; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.class | Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener; | JADX inferred Activity-to-TutorialActivity cast conflicts with current Kotlin class signature
-kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress.class | Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch.class | Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch; | JADX coroutine constructor no longer matches current Kotlin Eternity nested lambda ABI

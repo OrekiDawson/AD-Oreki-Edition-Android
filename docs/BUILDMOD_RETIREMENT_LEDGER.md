@@ -8,6 +8,19 @@
 > `./gradlew :app:assembleRelease`，复杂完整游戏逻辑由 `build-logic/` included build 承担。
 > 以下阶段记录保留为历史证据，不再代表当前文件仍存在。
 
+## R126 当前源码接管状态（2026-11-24）
+
+- AGP 生产接管清单：`1019` 个 class；`TutorialProgress.stage()` 已从
+  `scripts/payload/smali/.../TutorialProgress.smali` 迁入
+  `app/src/main/java/.../TutorialProgress.java`。
+- 本闭包保留原 `public final class` 与 `public static int stage()` ABI；命名包中的
+  Player/Pelle/成就对象直接调用，仅默认包 `t3.a(int)` 因 Java 语言边界使用受控反射。
+- 教程阶段判定仍只读，外层 `catch (Throwable) -> 0` 保持原 fail-safe；没有新增业务规则。
+- 验证：FullGame `compileDebugJavaWithJavac` PASS；
+  `verifySourceTakeoverDebugClasses` 1019/1019 PASS；
+  `verifySourceTakeoverDebugAbi` 1019/1019 PASS。
+- 当前 `scripts/payload/smali` 剩余 `14` 个文件；生产 Smali 清零目标仍未完成。
+
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 
 首批把一个不修改业务的原版接口从冻结游戏 JAR 交给 AGP 标准 Source Set：

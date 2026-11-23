@@ -1017,4 +1017,5 @@ kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.class
 kajfosz/antimatterdimensions/oreki/StageConfirmListener.class
 kajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener.class
 kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress.class
 kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener.class
