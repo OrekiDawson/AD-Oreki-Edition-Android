@@ -1227,12 +1227,17 @@ JADX 为源码可编译性隐式生成的默认构造器不能进入最终 ABI�
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
   `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
   `verifySourceTakeoverDebugDex` 均为 **1636/1636 PASS**；Python 定向测试
-  35/35 PASS。最终 Debug DEX 直接检查确认上述 13 类均无 `<init>`。
+  38/38 PASS。最终 Debug DEX 直接检查确认上述 13 类均无 `<init>`。
+- 无专有 JAR 的 bridge
+  `:app:testDebugUnitTest :app:assembleDebug :app:copyAgpKotlinClasses` PASS。
 - FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true -PorekiFullGame=true`
   PASS。
 - 当前 FullGame Debug APK：
-  `9a359638614c875540e7b043efca971957075a4ce49be0ea1e43fdd13e43c246`
-  （84,835,125 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+  `6bfc1d758e17fccdd47eb12cd7451dbd21492c94f0ca546a9b52115c9df765a8`
+  （83,889,620 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1361 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
 
 本批仍不代表全部源码迁移完成。剩余 361 项 blocked、ARM64 真机、双向存档矩阵、
-AVD 安装运行和 180 分钟五项游戏门禁继续待 Lead 验收。
+正式签名/Release 和 180 分钟五项游戏门禁仍未完成。
