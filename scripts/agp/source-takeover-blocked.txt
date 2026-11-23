@@ -178,3 +178,39 @@ h62.class | Lh62; | JADX default constructor no longer matches original b62() AB
 kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
 xe0.class | Lxe0; | dependency ju2.class has default method in classfile version 49
 l69.class | Ll69; | JADX omitted constructor initialization for final field a
+a13.class | La13; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+a67.class | La67; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+aw.class | Law; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ba6.class | Lba6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+bt0.class | Lbt0; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+d33.class | Ld33; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+h01.class | Lh01; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+h32.class | Lh32; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+hh6.class | Lhh6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ix7.class | Lix7; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+jb3.class | Ljb3; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+kl5.class | Lkl5; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+kr8.class | Lkr8; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+kw2.class | Lkw2; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+lg1.class | Llg1; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+lj0.class | Llj0; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+lz3.class | Llz3; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+m94.class | Lm94; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+nh1.class | Lnh1; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+oy6.class | Loy6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+p04.class | Lp04; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+p23.class | Lp23; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+pi.class | Lpi; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+q34.class | Lq34; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+qv5.class | Lqv5; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+r47.class | Lr47; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+r57.class | Lr57; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+r67.class | Lr67; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+rm4.class | Lrm4; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+sm4.class | Lsm4; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+tw2.class | Ltw2; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+uq6.class | Luq6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+w13.class | Lw13; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+w37.class | Lw37; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+wm8.class | Lwm8; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+z51.class | Lz51; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
