@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1033` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1128` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -943,7 +943,33 @@ Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
 1018/1018、Python 322/322。新增 fail-closed 守卫禁止 `app/`、`build-logic/`
 重新出现 `.smali` 或构建 DSL 引用 `scripts/payload/smali`。
 
-### 13.6 Firebase Auth 连字符包接口恢复
+### 13.6 普通类批量接管第七批
+
+2026-11-24 继续复用 `work/output_code_321_r88/sources/defpackage`，通过
+`scripts/agp/import_class_sources.py` 对下一批 JADX 无警告普通类执行
+JAR descriptor、唯一 Smali 身份和源码选择：
+
+- 初次导入 128 个候选；FullGame `compileDebugJavaWithJavac` 真实暴露 36 个
+  直接失败类。失败类全部移出生产 Source Set，并逐项登记到
+  `scripts/agp/source-takeover-blocked.txt`，没有空实现或伪造 ABI。
+- 其余 92 个类保留；`b5` 的 JADX 输出遗漏原版 synthetic 构造器，依据
+  `work/base_decoded_321/smali/b5.smali` 与冻结 JAR 的 `javap` 恢复
+  `b5(Object)`，保持字段和接口 ABI 后重新编译。
+- 生产接管总数由 `1033` 增至 **1125**；blocked 清单当前 **214** 项。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1125/1125 PASS**；Python
+  `test_agp_source_takeover` 9/9 PASS。
+- 当前 FullGame Debug APK：
+  `529ee90a1dca82c76e7b451e76a651128db42d4cc0b52832938713a4d8674adc`
+  （93,006,201 B）；包名 `net.oreki.antimatterdimensions.debug`。
+- APK native ABI 仅 `arm64-v8a` 与 `x86_64`；生产 `.smali` 为 0，
+  `scripts/build_mod.py` 不存在。
+
+本批仍是源码接管增量，不等于全部 JADX 参考源码已迁完，也不替代 AVD、存档矩阵、
+真实挑战结算或 180 分钟游戏验收。
+
+### 13.7 Firebase Auth 连字符包接口恢复
 
 JADX 将原版 `com/google/android/gms/internal/firebase-auth-api/*` 改写成
 `com.google.android.gms.internal.p000firebaseauthapi.*`，导致 `n36`、`n79`、
@@ -967,10 +993,10 @@ JADX 将原版 `com/google/android/gms/internal/firebase-auth-api/*` 改写成
 |---|---|
 | 独立 `kotlinc` 编译与 `javap` | PASS；3 个类身份、父类、接口/access 与逐个方法 descriptor 和原版 JAR 完全一致 |
 | FullGame AGP | `:app:testDebugUnitTest :app:assembleDebug -PorekiFullGame=true` PASS |
-| 源码接管 ABI | PASS；1012 个原版类（24 个 MOD 自有类按清单排除）全部一致，总计 1036 个生产接管 entry |
-| 最终 APK DEX | PASS；16,854 个 descriptor 中存在 `1036/1036` 个接管 descriptor，缺失 0 |
+| 源码接管 ABI | PASS；1128 个生产接管 entry 全部一致 |
+| 最终 APK DEX | PASS；`1128/1128` 个接管 descriptor 存在，缺失 0 |
 | ABI 门禁 | PASS；APK 仅 `arm64-v8a`、`x86_64`，32 位 JNI 0 |
 | 定向 Python | `scripts.tests.test_agp_source_takeover` 10/10 PASS |
-| 当前 APK | `0fa28bd2c46ae71a42593937c12f899ce9665c1af0090fcb71a323ac99d4335e`（83,824,472 B） |
-| blocked 剩余 | 175 个具体 class；未伪称全部迁移完成 |
+| 当前 APK | `950de549bd0126f6f42ca0f941a5b94adf61aa1de578f1ebafd7cc31e37d419e`（93,008,045 B） |
+| blocked 剩余 | 211 个具体 class；未伪称全部迁移完成 |
 | API 37 AVD | 本批 **NOT RUN**；由 Lead 在集成候选上统一复验 |
