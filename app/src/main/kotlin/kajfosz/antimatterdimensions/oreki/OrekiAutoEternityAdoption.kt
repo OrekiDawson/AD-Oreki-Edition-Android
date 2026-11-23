@@ -392,21 +392,8 @@ internal object OrekiAutoEternityAdoption {
             bindSave()
             if (!OrekiAutomationScheduler.isEnabled()) {
                 modSettlementResetPending = false
-                if (ec4EntryHoldSuppressed) {
-                    if (!userClosed && GameApi.autobuyersOn()) {
-                        GameApi.setAutoEternityActive(true)
-                        if (GameApi.autoEternityIsActive() == true) {
-                            if (persistEc4Hold(false)) {
-                                ec4EntryHoldSuppressed = false
-                                log("ec4-entry-hold restored after scheduler-off")
-                            }
-                        }
-                    } else if (userClosed) {
-                        if (persistEc4Hold(false)) {
-                            ec4EntryHoldSuppressed = false
-                        }
-                    }
-                }
+                // 总开关关闭时不再执行自动化；若此前 hold 已关闭原版开关，
+                // 保留持久化抑制证据，直到总开关恢复后由真实 EC4 条件决定释放。
                 return
             }
             val active = GameApi.autoEternityIsActive()
