@@ -493,6 +493,21 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     val compileTask = project.tasks.findByName(compileName) as? JavaCompile
                         ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
                     val kotlinCompileTask = project.tasks.named("compile${variant}Kotlin")
+                    val constructorRemovalSpecs = listOf(
+                        "an1.class",
+                        "bn1.class",
+                        "cn1.class",
+                        "dn1.class",
+                        "en1.class",
+                        "cc6.class",
+                        "fp6.class",
+                        "d38.class",
+                        "ts6.class",
+                        "zb6.class",
+                        "qh6.class",
+                        "lp6.class",
+                        "y61.class",
+                    )
                     val adaptSourceAbi = project.tasks.registerAction(
                         "adaptSourceAbi${variant}",
                     ) {
@@ -609,6 +624,69 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                     "to" to spec.to,
                                 )
                             }
+                            val constructorRemovalRows =
+                                constructorRemovalSpecs.map { classPath ->
+                                    val classFile = classRoots
+                                        .map { File(it, classPath) }
+                                        .firstOrNull(File::isFile)
+                                    if (classFile == null) {
+                                        throw GradleException(
+                                            "缺少构造器 shim 编译产物: $classPath",
+                                        )
+                                    }
+                                    var constructors = 0
+                                    var removed = 0
+                                    val reader = ClassReader(classFile.readBytes())
+                                    val writer = ClassWriter(reader, 0)
+                                    reader.accept(
+                                        object :
+                                            org.objectweb.asm.ClassVisitor(
+                                                Opcodes.ASM9,
+                                                writer,
+                                            ) {
+                                            override fun visitMethod(
+                                                access: Int,
+                                                name: String,
+                                                descriptor: String,
+                                                signature: String?,
+                                                exceptions: Array<out String>?,
+                                            ): MethodVisitor? {
+                                                if (name == "<init>") {
+                                                    constructors += 1
+                                                }
+                                                if (
+                                                    name == "<init>" &&
+                                                    descriptor == "()V" &&
+                                                    removed == 0
+                                                ) {
+                                                    removed += 1
+                                                    return null
+                                                }
+                                                return super.visitMethod(
+                                                    access,
+                                                    name,
+                                                    descriptor,
+                                                    signature,
+                                                    exceptions,
+                                                )
+                                            }
+                                        },
+                                        0,
+                                    )
+                                    if (constructors != 1 || removed != 1) {
+                                        throw GradleException(
+                                            "$classPath 构造器 shim 不是唯一 <init>()V",
+                                        )
+                                    }
+                                    classFile.writeBytes(writer.toByteArray())
+                                    logger.lifecycle(
+                                        "[oreki] 构造器 shim 已删除: $classPath.<init>()V",
+                                    )
+                                    linkedMapOf(
+                                        "class" to classFile,
+                                        "removed_constructor" to "<init>()V",
+                                    )
+                                }
                             val evidence = outputs.files.singleFile
                             evidence.parentFile.mkdirs()
                             evidence.writeText(
@@ -616,6 +694,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                     linkedMapOf(
                                         "schema" to 1,
                                         "adaptations" to evidenceRows,
+                                        "constructor_removals" to constructorRemovalRows,
                                     ),
                                 )) + "\n",
                                 Charsets.UTF_8,
@@ -721,8 +800,13 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "--manifest", config.sourceTakeoverManifest.absolutePath,
                                         "--exclude-from-abi-manifest",
                                         sourceOwnedManifest.absolutePath,
-                                        "--report", abiEvidence.absolutePath,
-                                    ),
+                                    ) +
+                                        constructorRemovalSpecs.flatMap {
+                                            listOf("--require-no-constructor", it)
+                                        } +
+                                        listOf(
+                                            "--report", abiEvidence.absolutePath,
+                                        ),
                             )
                         }
                     }

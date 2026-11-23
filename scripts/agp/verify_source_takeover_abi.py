@@ -55,11 +55,21 @@ def signatures(
     return methods, fields
 
 
-def compare_abi(original: dict, compiled: dict) -> dict:
+def compare_abi(
+    original: dict,
+    compiled: dict,
+    *,
+    require_no_constructor: bool = False,
+) -> dict:
     original_methods, original_fields = signatures(original)
     compiled_methods, compiled_fields = signatures(compiled)
     missing_methods = sorted(original_methods - compiled_methods)
     missing_fields = sorted(original_fields - compiled_fields)
+    unexpected_constructors = (
+        sorted(method for method in compiled_methods if method[0] == "<init>")
+        if require_no_constructor
+        else []
+    )
     identity = {
         "name": (original["name"], compiled["name"]),
         "super": (original["super"], compiled["super"]),
@@ -74,7 +84,11 @@ def compare_abi(original: dict, compiled: dict) -> dict:
         "original_fields": len(original_fields),
         "missing_methods": missing_methods,
         "missing_fields": missing_fields,
-        "ok": identity_ok and not missing_methods and not missing_fields,
+        "unexpected_constructors": unexpected_constructors,
+        "ok": identity_ok
+        and not missing_methods
+        and not missing_fields
+        and not unexpected_constructors,
     }
 
 
@@ -178,6 +192,7 @@ def main() -> int:
     parser.add_argument("--apk", type=Path)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--exclude-from-abi-manifest", type=Path)
+    parser.add_argument("--require-no-constructor", action="append", default=[])
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
 
@@ -217,6 +232,7 @@ def main() -> int:
                     result = compare_abi(
                         classfile.parse_class(archive.read(entry)),
                         classfile.parse_class(compiled_path.read_bytes()),
+                        require_no_constructor=entry in args.require_no_constructor,
                     )
                     result = {"entry": entry, **result}
                 results.append(result)
@@ -260,6 +276,7 @@ def main() -> int:
                 f"identity={row.get('identity', {})} "
                 f"missing_methods={row.get('missing_methods', [])} "
                 f"missing_fields={row.get('missing_fields', [])} "
+                f"unexpected_constructors={row.get('unexpected_constructors', [])} "
                 f"error={row.get('error', '')}",
                 file=sys.stderr,
             )

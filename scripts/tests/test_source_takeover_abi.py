@@ -86,6 +86,23 @@ class SourceTakeoverAbiTest(unittest.TestCase):
         )
         self.assertTrue(ABI.compare_abi(original, compiled)["ok"])
 
+    def test_required_constructor_absence_fails_closed(self):
+        original = self.parsed()
+        compiled = self.parsed(
+            methods=[("<init>", "()V", 0x0001, None, None, None)],
+        )
+        self.assertTrue(ABI.compare_abi(original, compiled)["ok"])
+        result = ABI.compare_abi(
+            original,
+            compiled,
+            require_no_constructor=True,
+        )
+        self.assertFalse(result["ok"])
+        self.assertEqual(
+            result["unexpected_constructors"],
+            [("<init>", "()V", 0x0001)],
+        )
+
     def test_final_dex_must_define_every_manifest_descriptor(self):
         entries = ["a5.class", "kajfosz/antimatterdimensions/MainActivity.class"]
         complete = {

@@ -1203,3 +1203,36 @@ shim 根因继续收敛，不能把本批视为全量迁移完成。
 本轮由 Subagent 在独立 worktree 完成源码、ABI、DEX 与 R8 定向验证，Lead 在
 最新 `main` 上完成最终集成、FullGame、R8 与唯一 AVD 验收。剩余 374 项 blocked、
 ARM64 真机、双向存档矩阵及 180 分钟五项游戏门禁仍未完成。
+
+### 13.15 原版无构造器类的 shim 删除
+
+剩余 382 项 blocked 的只读分类显示：283 个类在原版 JAR 中确实没有
+`<init>`，其中 263 个同时满足 JADX 无警告、JAR entry 存在和 Smali 身份核验。
+JADX 为源码可编译性隐式生成的默认构造器不能进入最终 ABI。本批先处理两组共
+13 个已核实类：
+
+- `an1/bn1/cn1/dn1/en1`：原版均为 `final`、无构造器，父类仅提供
+  `zm1(int,String,fm1,gm1,gm1,gm1)`。
+- `cc6/fp6/d38/ts6/zb6/qh6/lp6`：原版均为 `abstract`、无构造器，父类仅提供
+  `wb6(String)`。
+- `y61`：原版没有构造器，仅保留静态 `Set<int[]> a()`。
+- 每个类仅加入可编译的无参构造器 shim；`adaptSourceAbi` 使用 ASM 验证编译
+  产物恰有一个构造器、删除唯一 `<init>()V`，并记录
+  `constructor_removals` 证据。ABI 守卫新增
+  `--require-no-constructor`，若编译类仍有构造器则 fail-closed。
+- `js7` 不纳入本批：其原版 `new-instance js7 + Object.<init>` 特殊模式虽然可
+  在 classfile 删除 shim，但 D8 会重新生成 `<init>`；保留前批已知边界并单独
+  继续研究，不能把 D8 行为冒充为已消除 ABI 差异。
+- 生产接管总数由 `1623` 增至 **1636**，blocked 由 `374` 降至 **361**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1636/1636 PASS**；Python 定向测试
+  35/35 PASS。最终 Debug DEX 直接检查确认上述 13 类均无 `<init>`。
+- FullGame R8 `:app:minifyReleaseWithR8 -Poreki.r8=true -PorekiFullGame=true`
+  PASS。
+- 当前 FullGame Debug APK：
+  `9a359638614c875540e7b043efca971957075a4ce49be0ea1e43fdd13e43c246`
+  （84,835,125 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+
+本批仍不代表全部源码迁移完成。剩余 361 项 blocked、ARM64 真机、双向存档矩阵、
+AVD 安装运行和 180 分钟五项游戏门禁继续待 Lead 验收。
