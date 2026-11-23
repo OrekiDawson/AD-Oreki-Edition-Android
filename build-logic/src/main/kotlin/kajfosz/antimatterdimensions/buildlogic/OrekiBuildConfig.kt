@@ -14,6 +14,8 @@ internal data class OrekiBuildConfig(
     val stagedAssets: File,
     val generatedBindings: File,
     val gameJar: File?,
+    val sourceTakeoverManifest: File,
+    val sourceTakeoverEntries: List<String>,
     val storePolicyJar: File,
     val storePolicyReport: File,
     val storePolicyVerifyReport: File,
@@ -33,6 +35,26 @@ internal fun Project.orekiBuildConfig(): OrekiBuildConfig {
         )
         ?.takeIf { it.isNotBlank() }
         ?.also { require(it.startsWith(".")) { "orekiDebugApplicationIdSuffix 必须以点开头，例如 .debug" } }
+    val sourceTakeoverManifest = File(root, "build-logic/source-takeover.txt")
+    val sourceTakeoverEntries = sourceTakeoverManifest.takeIf(File::isFile)
+        ?.readLines(Charsets.UTF_8)
+        ?.map(String::trim)
+        ?.filter { it.isNotEmpty() && !it.startsWith("#") }
+        ?.sorted()
+        .orEmpty()
+        .also { entries ->
+            require(entries.distinct().size == entries.size) {
+                "source-takeover.txt 不允许重复 class entry"
+            }
+            entries.forEach { entry ->
+                require(
+                    entry.endsWith(".class") &&
+                        !entry.startsWith("/") &&
+                        !entry.contains("\\") &&
+                        !entry.contains(".."),
+                ) { "source-takeover.txt 含非法 JAR entry: $entry" }
+            }
+        }
 
     return OrekiBuildConfig(
         rootDir = root,
@@ -45,6 +67,8 @@ internal fun Project.orekiBuildConfig(): OrekiBuildConfig {
         stagedAssets = File(root, "build/agp-fullgame-assets"),
         generatedBindings = File(root, "build/kt/generated/OrekiBaselineBindings.kt"),
         gameJar = providers.gradleProperty("orekiGameJar").map(::File).orNull,
+        sourceTakeoverManifest = sourceTakeoverManifest,
+        sourceTakeoverEntries = sourceTakeoverEntries,
         storePolicyJar = File(root, "build/agp-store-policy/game-hybrid-sig-store-policy.jar"),
         storePolicyReport = File(root, "build/agp-store-policy/report.json"),
         storePolicyVerifyReport = File(root, "build/agp-store-policy/verify.json"),

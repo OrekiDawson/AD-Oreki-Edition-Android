@@ -10,6 +10,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.compile.JavaCompile
 
 private val targetEntries = setOf(
     "l5.class",
@@ -81,6 +82,7 @@ private fun verifyArtifacts(
     inputJar: File,
     outputJar: File,
     reportFile: File,
+    sourceTakeoverEntries: Set<String>,
     evidenceFile: File? = null,
 ): StorePolicyVerifyResult {
     if (!inputJar.isFile) throw GradleException("[oreki] store-policy 输入 JAR 不存在: $inputJar")
@@ -105,6 +107,16 @@ private fun verifyArtifacts(
     }
     val targets = (report["targets"] as? List<*>)?.mapNotNull { it?.toString() }
         ?: throw GradleException("[oreki] store-policy 报告缺少 targets")
+    val reportedTakeovers = (report["source_takeover_entries"] as? List<*>)
+        ?.mapNotNull { it?.toString() }
+        ?.toSet()
+        ?: throw GradleException("[oreki] store-policy 报告缺少 source_takeover_entries")
+    if (reportedTakeovers != sourceTakeoverEntries) {
+        throw GradleException(
+            "[oreki] store-policy 报告的源码接管条目与清单不一致: " +
+                "report=$reportedTakeovers manifest=$sourceTakeoverEntries",
+        )
+    }
     val missing = requiredTargets.filterNot { required -> targets.any { it == required } }
     if (missing.isNotEmpty()) throw GradleException("[oreki] store-policy 关键替换缺失: $missing")
     val compatibility = report["save_compatibility"] as? Map<*, *>
@@ -128,10 +140,20 @@ private fun verifyArtifacts(
                 .filterNot { it.isDirectory }.map { it.name }.toSet()
             val afterEntries = after.entries().asSequence()
                 .filterNot { it.isDirectory }.map { it.name }.toSet()
+            val missingTakeovers = sourceTakeoverEntries - beforeEntries
+            if (missingTakeovers.isNotEmpty()) {
+                throw GradleException("[oreki] 输入 JAR 缺少待源码接管条目: $missingTakeovers")
+            }
+            val retainedTakeovers = sourceTakeoverEntries intersect afterEntries
+            if (retainedTakeovers.isNotEmpty()) {
+                throw GradleException("[oreki] 输出 JAR 仍含源码接管条目: $retainedTakeovers")
+            }
             val added = afterEntries - beforeEntries
             if (added.isNotEmpty()) throw GradleException("[oreki] store-policy 输出新增未授权条目: $added")
             val removed = (beforeEntries - afterEntries).filterNot {
-                it == "$retiredInstantPrefix.class" || it.startsWith("$retiredInstantPrefix$")
+                it == "$retiredInstantPrefix.class" ||
+                    it.startsWith("$retiredInstantPrefix$") ||
+                    it in sourceTakeoverEntries
             }
             if (removed.isNotEmpty()) throw GradleException("[oreki] store-policy 输出误删条目: $removed")
             if (afterEntries.any {
@@ -175,6 +197,7 @@ private fun verifyArtifacts(
             "output_jar_bytes" to outputJar.length(),
             "required_targets" to requiredTargets.sorted(),
             "target_entries" to targetEntries.sorted(),
+            "source_takeover_entries" to sourceTakeoverEntries.sorted(),
             "non_target_entries_byte_identical" to true,
             "save_compatibility" to true,
         )
@@ -208,7 +231,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             description = "应用 Kotlin STD/IAP 与广告加成策略到转换后的游戏 JAR"
             onlyIf { config.fullGame }
             config.gameJar?.let { inputs.file(it) }
-            inputs.files(script, transformer, asmJar, androidJar)
+            inputs.files(script, transformer, asmJar, androidJar, config.sourceTakeoverManifest)
             outputs.files(config.storePolicyJar, config.storePolicyReport)
             workingDir(config.rootDir)
             doFirstAction {
@@ -224,6 +247,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     "--report", config.storePolicyReport.absolutePath,
                     "--asm-jar", asmJar.absolutePath,
                     "--android-jar", android.absolutePath,
+                    "--source-takeover-manifest", config.sourceTakeoverManifest.absolutePath,
                     "--java-home", System.getProperty("java.home"),
                 )
             }
@@ -235,7 +259,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             onlyIf { config.fullGame }
             dependsOn(applyTask)
             config.gameJar?.let { inputs.file(it) }
-            inputs.files(config.storePolicyJar, config.storePolicyReport)
+            inputs.files(config.storePolicyJar, config.storePolicyReport, config.sourceTakeoverManifest)
             outputs.file(config.storePolicyVerifyReport)
             doLastAction {
                 val input = config.gameJar
@@ -244,6 +268,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     input,
                     config.storePolicyJar,
                     config.storePolicyReport,
+                    config.sourceTakeoverEntries.toSet(),
                     config.storePolicyVerifyReport,
                 )
                 logger.lifecycle(
@@ -273,6 +298,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                 }
                 val before = linkedMapOf<String, ByteArray>()
                 before["keep.bin"] = byteArrayOf(1, 2, 3)
+                before["takeover.class"] = "original".toByteArray()
                 targetEntries.forEach { name ->
                     before[name] = "before:$name".toByteArray()
                 }
@@ -295,6 +321,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     "output_jar_sha256" to OrekiBuildSupport.orekiSha256(outputJar.readBytes()),
                     "output_jar_bytes" to outputJar.length(),
                     "targets" to requiredTargets.sorted(),
+                    "source_takeover_entries" to listOf("takeover.class"),
                     "save_compatibility" to linkedMapOf(
                         "entries_preserved" to true,
                         "non_target_entries_byte_identical" to true,
@@ -305,12 +332,22 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                 )
                 val reportFile = File(dir, "report.json")
                 reportFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(report)), Charsets.UTF_8)
-                verifyArtifacts(inputJar, outputJar, reportFile)
+                verifyArtifacts(
+                    inputJar,
+                    outputJar,
+                    reportFile,
+                    setOf("takeover.class"),
+                )
                 val badReport = File(dir, "bad-report.json")
                 report["output_jar_sha256"] = "0".repeat(64)
                 badReport.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(report)), Charsets.UTF_8)
                 val failed = try {
-                    verifyArtifacts(inputJar, outputJar, badReport)
+                    verifyArtifacts(
+                        inputJar,
+                        outputJar,
+                        badReport,
+                        setOf("takeover.class"),
+                    )
                     false
                 } catch (_: GradleException) {
                     true
@@ -330,6 +367,64 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
 
         project.tasks.matching { it.name == "preBuild" }.configureEachAction {
             if (config.fullGame) dependsOn(verifyTask)
+        }
+
+        if (config.fullGame) {
+            project.afterEvaluate {
+                for (variant in listOf("Debug", "Release")) {
+                    val compileName = "compile${variant}JavaWithJavac"
+                    val compileTask = project.tasks.findByName(compileName) as? JavaCompile
+                        ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
+                    val evidence = File(
+                        config.rootDir,
+                        "build/agp-source-takeover/verify-${variant.lowercase()}.json",
+                    )
+                    val verifyCompiled = project.tasks.registerAction(
+                        "verifySourceTakeover${variant}Classes",
+                    ) {
+                        group = "verification"
+                        description = "验证源码接管清单中的 class 确实由 AGP 编译产物提供"
+                        dependsOn(compileTask)
+                        inputs.file(config.sourceTakeoverManifest)
+                        inputs.dir(compileTask.destinationDirectory)
+                        outputs.file(evidence)
+                        doLast {
+                            val roots = listOf(
+                                compileTask.destinationDirectory.asFile.get(),
+                                File(config.rootDir, "build/tmp/kotlin-classes/${variant.lowercase()}"),
+                            ).filter(File::isDirectory)
+                            val missing = config.sourceTakeoverEntries.filter { entry ->
+                                roots.none { root -> File(root, entry).isFile }
+                            }
+                            if (missing.isNotEmpty()) {
+                                throw GradleException(
+                                    "[oreki] 源码接管清单缺少 AGP 编译产物: $missing",
+                                )
+                            }
+                            val payload = linkedMapOf<String, Any>(
+                                "schema" to 1,
+                                "stage" to "agp-source-takeover-compiled",
+                                "variant" to variant.lowercase(),
+                                "manifest" to config.sourceTakeoverManifest,
+                                "entries" to config.sourceTakeoverEntries,
+                                "compiledClassRoots" to roots,
+                                "verifiedCount" to config.sourceTakeoverEntries.size,
+                            )
+                            evidence.parentFile.mkdirs()
+                            evidence.writeText(
+                                JsonOutput.prettyPrint(JsonOutput.toJson(payload)) + "\n",
+                                Charsets.UTF_8,
+                            )
+                            logger.lifecycle(
+                                "[oreki] 源码接管 AGP 产物校验通过: " +
+                                    "${config.sourceTakeoverEntries.size} classes",
+                            )
+                        }
+                    }
+                    project.tasks.matching { it.name == "assemble${variant}" }
+                        .configureEachAction { dependsOn(verifyCompiled) }
+                }
+            }
         }
     }
 }
