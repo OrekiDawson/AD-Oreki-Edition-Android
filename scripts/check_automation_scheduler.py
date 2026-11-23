@@ -710,12 +710,21 @@ check("payload Kotlin 不依赖可能被裁剪的 kotlin.Triple/Pair", not _bad_
 _ec_kt = read(KT_DIR / "OrekiEcAutomation.kt")
 _gate_kt = read(KT_DIR / "OrekiAutoEternityGate.kt")
 _rules_kt = read(KT_DIR / "OrekiEternityRules.kt")
+_adoption_kt = read(KT_DIR / "OrekiAutoEternityAdoption.kt")
 check("R126 EC4 hold 只在主研究就绪、尚未买下时成立",
       "fun shouldHoldEternityForEc4Entry()" in _ec_kt
       and "targetEcId == 4 && unlockedEcId == 0" in _ec_kt
       and "prereqOk == true && studyBought != true" in _ec_kt)
 check("R126 MOD 自动永恒统一门禁识别 EC4 hold",
       'if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return "ec4-entry-hold"' in _gate_kt)
+check("R126 EC4 hold 接入原版自动永恒托管层",
+      "if (applyEc4EntryHold(active)) return" in _adoption_kt)
+check("R126 EC4 hold 临时关闭并恢复原版自动永恒",
+      "if (OrekiEcAutomation.shouldHoldEternityForEc4Entry())" in _adoption_kt
+      and "GameApi.setAutoEternityActive(false)" in _adoption_kt
+      and "GameApi.setAutoEternityActive(true)" in _adoption_kt)
+check("R126 EC4 每帧门禁复用 nextTargetId 缓存",
+      _ec_kt.count("cachedNextTargetId()") >= 3)
 check("R126 旧 build_mod 已退出生产路径",
       not (ROOT / "scripts/build_mod.py").exists())
 check("R126 EC4 不再复用“允许更频繁永恒”的收益门槛豁免",
