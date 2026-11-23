@@ -18,6 +18,7 @@ import classfile  # noqa: E402
 
 ACC_STATIC = 0x0008
 ACC_FINAL = 0x0010
+ACC_BRIDGE = 0x0040
 ACC_SYNTHETIC = 0x1000
 
 
@@ -32,6 +33,9 @@ def normalized_member(member: tuple) -> tuple[str, str, int]:
 
 def normalized_method(member: tuple) -> tuple[str, str, int]:
     name, descriptor, access = normalized_member(member)
+    # Java/Kotlin source cannot request a compiler bridge flag directly while
+    # preserving the same declaration and runtime dispatch.
+    access &= ~ACC_BRIDGE
     # Static methods cannot be overridden; ACC_FINAL has no dispatch or linkage
     # effect and is emitted automatically by Kotlin's @JvmStatic bridge.
     if access & ACC_STATIC:

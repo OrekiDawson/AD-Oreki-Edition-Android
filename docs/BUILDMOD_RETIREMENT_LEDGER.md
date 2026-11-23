@@ -1080,3 +1080,85 @@ descriptor、唯一 Smali 身份和源码选择：
 
 本批仍不等于全部源码或完整游戏验收完成；ARM64 真机、双向存档矩阵和
 180 分钟五项游戏门禁继续为 `NOT RUN`。
+
+### 13.11 ABI 根因恢复与导入器加固
+
+2026-11-24 对受阻 class 从“继续批量导入”切换为根因修复：
+
+- JADX 将多个原版 `zza/zzb/zzc/zzd` 方法重命名为 `moNNzza` 等名称。两个导入器
+  现在在剥离注释前按 `JADX INFO: renamed from` 恢复原方法名，并新增回归测试。
+- 修复逐行注释删除误把 `https://` 当作 `//` 注释的问题；现在只删除独立行注释，
+  URL 字面量完整保留并新增回归测试。
+- 导入器可复用与 JADX 转换结果逐字节一致的既有未登记源码，同时在报告和计数中
+  独立标记 `reused_existing`，修复并行导入清单竞态后的恢复路径。
+- 两个导入器进一步把 `renamed from` 注释只绑定到真实方法声明：跳过普通/参数/
+  多行注解，不把字段初始化器误当方法；恢复声明后同步替换同文件调用和引用，
+  字符串与注释内容保持不变，并新增正负向回归用例。
+- ABI 守卫将编译器 `ACC_BRIDGE` 视为不可由 Java/Kotlin 源码直接声明的桥接标记；
+  方法名、descriptor 和其余访问位仍严格比对，并新增正负向单测。
+- 恢复 `19` 个接口、`7` 个常量类的运行时 `<clinit>` 语义和一批普通类；
+  `to2` 以等价 `Collections.emptyMap()` 补回原静态方法，`nq8/wa1/h04/hl1/ra/zd7`
+  按原版 Smali/JAR 补回遗漏构造器，`ku0` 以 sneaky-throw 保持原受检异常传播语义。
+- JADX 大规模缺方法的 `q65/u1/w4`、构造器/父类/字段不匹配及旧 classfile 依赖类
+  均保持 blocked，不以空方法或伪 ABI 通过。
+- 本批尝试 `271` 个候选，新增接管 `187` 类，新增 blocked `84` 类；生产接管
+  总数由 `1407` 增至 **1594**，blocked 为 **400**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1594/1594 PASS**；定向 Python 测试
+  30/30 PASS。
+- 当前 FullGame Debug APK：
+  `4be7926e4d7a6a527fe29404eb025fc9e0f18f0af7ca208843f611e782de57ac`
+  （92,984,125 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1519 ms，进程存活，主调度
+  `gui-tick #1/#2` PASS，`stage=13 unknownLeaf=0 degraded=0`；未发现
+  FATAL、ANR、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批显著降低 ABI 阻断并修复了可复用导入工具，但 blocked 仍有 400 项；ARM64
+真机、双向存档矩阵和 180 分钟五项游戏门禁继续为 `NOT RUN`。
+
+### 13.12 传递阻断重验
+
+ABI 根因恢复后，原先记录为“依赖 blocked `to2/hg8/uz8`”的 8 个类已失去阻断
+前提。使用同一 JADX/Smali/JAR 工具在独立候选中重验：
+
+- 恢复 `xf/qm8/ag/tf8/y24` 五个接口与 `l39/z29/p29` 三个抽象类。
+- 生产接管总数由 `1594` 增至 **1602**，blocked 由 `400` 降至 **392**。
+- FullGame、`verifySourceTakeoverDebugAbi/Classes/Dex` 均为 **1602/1602 PASS**。
+- 当前 FullGame Debug APK：
+  `e66e81d5b5aea6416bc6785f3f8bae0978084b6b9c75d78c8cf221f333603018`
+  （92,983,565 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1465 ms，进程存活，主调度
+  `gui-tick #1/#2` PASS，`stage=13 unknownLeaf=0 degraded=0`；未发现
+  FATAL、ANR、NoSuchMethodError 或 NoClassDefFoundError。
+
+剩余 blocked 仍需按具体 classfile、synthetic、JADX 失真和大型 Android API
+shim 根因继续收敛，不能把本批视为全量迁移完成。
+
+### 13.13 根阻断恢复与 JVM 名称适配
+
+2026-11-24 继续按真实 ABI 恢复上一批传递阻断的根因类：
+
+- 接管 `g94/dg3/iu2/lu2/ju2/l30/le3/r21/t72/do1/xe0` 共 11 类。
+  `g94` 使用真实可用的 `oreki.shadow.kotlin.collections.EmptyList`，`dg3`
+  使用实际存在的 `Path.Direction.values()`；`lu2/iu2` 恢复 Modifier 接口与单例
+  闭包，其余传递阻断按已解除的依赖重新验证。
+- `ws5` 仍因依赖 `com.google.android.gms.internal.ads.m` 的 version-49
+  classfile 无法由 javac 读取，继续保留冻结 JAR 实现，不以空实现绕过。
+- `le3` 的 JADX 名称 `mo8getUnderlyingMatrixsQKQjiQ` 无法表达原版 Kotlin 值类
+  JVM 名称。扩展既有 ABI 后处理任务，在同一确定性 classfile 变换中将编译结果
+  恢复为 `getUnderlyingMatrix-sQKQjiQ()[F`，同时继续处理既有默认包泛型擦除描述符。
+- 生产接管总数由 `1602` 增至 **1613**，blocked 由 `392` 降至 **382**。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1613/1613 PASS**；定向 Python 测试
+  30/30 PASS；`check_buildmod_retired.py` PASS。
+- 当前 FullGame Debug APK：
+  `6ca18c2326a9849d44c1755e8f9e9146adbb91e2041b8784997ec87fecc2abde`
+  （92,980,421 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1437 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批仍未完成剩余 382 项具体阻断；ARM64 真机、双向存档矩阵和 180 分钟五项游戏
+门禁继续为 `NOT RUN`。

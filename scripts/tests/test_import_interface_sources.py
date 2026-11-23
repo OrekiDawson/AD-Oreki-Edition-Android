@@ -96,6 +96,83 @@ class ImportInterfaceSourcesTest(unittest.TestCase):
         self.assertIsNone(IMPORTER.rewrite_java(annotation, "cc"))
         self.assertIsNone(IMPORTER.rewrite_java(real_package, "dd"))
 
+    def test_restores_jadx_renamed_method_before_stripping_comments(self):
+        source = (
+            "package defpackage;\n"
+            "public interface ee {\n"
+            "    /* JADX INFO: renamed from: zza */\n"
+            "    @Override\n"
+            "    void mo76zza(Object value);\n"
+            "    default void call(Object value) { mo76zza(value); }\n"
+            "}\n"
+        )
+        rewritten = IMPORTER.rewrite_java(source, "ee")
+        self.assertIn("void zza(Object value);", rewritten)
+        self.assertIn("zza(value);", rewritten)
+        self.assertNotIn("mo76zza", rewritten)
+
+    def test_renamed_comment_does_not_rewrite_annotation_or_field_initializer(self):
+        source = (
+            "public interface ff2 {\n"
+            "    /* JADX INFO: renamed from: zza */\n"
+            "    @SuppressWarnings({\"unchecked\"})\n"
+            "    Object VALUE = new Object();\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn('@SuppressWarnings({"unchecked"})', restored)
+        self.assertIn("Object VALUE = new Object();", restored)
+        self.assertNotIn("zza VALUE", restored)
+        self.assertNotIn("new zza()", restored)
+
+    def test_multiline_annotation_is_skipped_before_method_declaration(self):
+        source = (
+            "public interface gg2 {\n"
+            "    /* JADX INFO: renamed from: zzb */\n"
+            "    @SuppressWarnings({\n"
+            "        \"unchecked\",\n"
+            "    })\n"
+            "    String mo77zzb();\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn("String zzb();", restored)
+        self.assertNotIn("mo77zzb", restored)
+
+    def test_package_private_synchronized_method_is_restored(self):
+        source = (
+            "public interface hh2 {\n"
+            "    /* JADX INFO: renamed from: zzc */\n"
+            "    synchronized void mo78zzc(Object lock);\n"
+            "}\n"
+        )
+        restored = IMPORTER.restore_jadx_renamed_methods(source)
+        self.assertIn("synchronized void zzc(Object lock);", restored)
+        self.assertNotIn("mo78zzc", restored)
+
+    def test_reuses_only_identical_existing_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "ee.java"
+            path.write_text("public interface ee {}\n", encoding="utf-8")
+            self.assertTrue(
+                IMPORTER.can_reuse_existing_source(path, "public interface ee {}\n")
+            )
+            self.assertFalse(
+                IMPORTER.can_reuse_existing_source(path, "public interface ee { void a(); }\n")
+            )
+
+    def test_preserves_url_literals_while_removing_standalone_line_comments(self):
+        source = (
+            "package defpackage;\n"
+            "public interface ff {\n"
+            "    // tool comment\n"
+            "    String URL = \"https://example.test/a?b=1\";\n"
+            "}\n"
+        )
+        rewritten = IMPORTER.rewrite_java(source, "ff")
+        self.assertIn("https://example.test/a?b=1", rewritten)
+        self.assertNotIn("tool comment", rewritten)
+
 
 if __name__ == "__main__":
     unittest.main()
