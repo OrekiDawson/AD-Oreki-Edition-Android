@@ -942,3 +942,35 @@ Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
 验证：FullGame `testDebugUnitTest` 96/96、ABI 1018/1018、最终 APK DEX
 1018/1018、Python 322/322。新增 fail-closed 守卫禁止 `app/`、`build-logic/`
 重新出现 `.smali` 或构建 DSL 引用 `scripts/payload/smali`。
+
+### 13.6 Firebase Auth 连字符包接口恢复
+
+JADX 将原版 `com/google/android/gms/internal/firebase-auth-api/*` 改写成
+`com.google.android.gms.internal.p000firebaseauthapi.*`，导致 `n36`、`n79`、
+`wt5` 三个默认包接口无法由 Java 源码编译。该包段含连字符，Java 标识符语法不能
+表达；Kotlin 反引号能够保留原始 JVM 包段，不需要重写依赖类 descriptor。
+
+| descriptor | JAR entry | 生产源码 | ABI |
+|---|---|---|---|
+| `Ln36;` | `n36.class` | `app/src/main/kotlin/n36.kt` | 10 个原版接口方法，含 `c0` 参数/返回值与 `mq5`、`y80`、`q16`、`qx7` 依赖 |
+| `Ln79;` | `n79.class` | `app/src/main/kotlin/n79.kt` | `h(Lk0;Ljava/lang/CharSequence;)Ljava/util/Iterator;` |
+| `Lwt5;` | `wt5.class` | `app/src/main/kotlin/wt5.kt` | 9 个原版接口方法，保留 `Status`、`yj3`、`qy4`、`lz5`、`vy5`、`wx5`、`ny4` 与 firebase-auth-api `y` 类型 |
+
+这三个类从 `scripts/agp/source-takeover-blocked.txt` 移除并加入
+`build-logic/source-takeover.txt`。新增防回归测试要求源码继续使用
+`com.google.android.gms.internal.\`firebase-auth-api\``，禁止重新写入 JADX
+伪造包名。
+
+本批验证：
+
+| 项 | 结果 |
+|---|---|
+| 独立 `kotlinc` 编译与 `javap` | PASS；3 个类身份、父类、接口/access 与逐个方法 descriptor 和原版 JAR 完全一致 |
+| FullGame AGP | `:app:testDebugUnitTest :app:assembleDebug -PorekiFullGame=true` PASS |
+| 源码接管 ABI | PASS；1012 个原版类（24 个 MOD 自有类按清单排除）全部一致，总计 1036 个生产接管 entry |
+| 最终 APK DEX | PASS；16,854 个 descriptor 中存在 `1036/1036` 个接管 descriptor，缺失 0 |
+| ABI 门禁 | PASS；APK 仅 `arm64-v8a`、`x86_64`，32 位 JNI 0 |
+| 定向 Python | `scripts.tests.test_agp_source_takeover` 10/10 PASS |
+| 当前 APK | `0fa28bd2c46ae71a42593937c12f899ce9665c1af0090fcb71a323ac99d4335e`（83,824,472 B） |
+| blocked 剩余 | 175 个具体 class；未伪称全部迁移完成 |
+| API 37 AVD | 本批 **NOT RUN**；由 Lead 在集成候选上统一复验 |

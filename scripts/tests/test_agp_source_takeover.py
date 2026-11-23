@@ -55,6 +55,29 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             self.assertNotIn("package ", source)
             self.assertIn(signature, source)
 
+    def test_hyphenated_firebase_auth_interfaces_keep_original_descriptors(self):
+        expected = {
+            "n36": (
+                "com.google.android.gms.internal.`firebase-auth-api`.c0",
+                "fun f(first: c0, second: c0): Boolean",
+            ),
+            "n79": (
+                "com.google.android.gms.internal.`firebase-auth-api`.k0",
+                "fun h(parser: k0, text: CharSequence): Iterator<*>",
+            ),
+            "wt5": (
+                "com.google.android.gms.internal.`firebase-auth-api`.y",
+                "fun c(status: Status, callback: yj3)",
+            ),
+        }
+        for name, (import_name, signature) in expected.items():
+            source = (ROOT / "app/src/main/kotlin" / f"{name}.kt").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(f"import {import_name}", source)
+            self.assertIn(signature, source)
+            self.assertNotIn("p000firebaseauthapi", source)
+
     def test_eternity_launch_uses_prepared_continuation_constructor(self):
         source = (
             ROOT

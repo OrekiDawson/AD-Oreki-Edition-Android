@@ -506,9 +506,11 @@ n14.class
 n18.class
 n20.class
 n31.class
+n36.class
 n45.class
 n48.class
 n49.class
+n79.class
 n54.class
 n55.class
 n61.class
@@ -892,6 +894,7 @@ wq2.class
 ws6.class
 wt0.class
 wt3.class
+wt5.class
 ww4.class
 ww5.class
 wx4.class
