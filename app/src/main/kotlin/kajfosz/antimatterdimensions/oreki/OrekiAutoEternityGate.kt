@@ -315,10 +315,6 @@ internal object OrekiAutoEternityGate {
         return !settlementNow
     }
 
-    /** Smali `EternityAutobuyerState.c()` 的只读挂点：EC4 入口等待时禁止原版自动永恒。 */
-    @JvmStatic
-    fun ec4EntryHoldActive(): Boolean = OrekiEcAutomation.shouldHoldEternityForEc4Entry()
-
     private var lastChallengeBlockedAtMs: Long = 0L
 
     /**
