@@ -243,3 +243,4 @@ y.class | Ly; | R126 batch7 javac/classfile or inherited dependency failure; sou
 y48.class | Ly48; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 z37.class | Lz37; | R126 batch7 javac/classfile or inherited dependency failure; source stays in frozen JAR
 iz5.class | Liz5; | ABI guard: JADX source omitted original zza(String)Lzu5; method; retain frozen JAR implementation
+h9.class | Lh9; | JADX method body collapsed to `throw null;`; production source cannot preserve original behavior

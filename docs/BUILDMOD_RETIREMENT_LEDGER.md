@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1224` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1223` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -1012,14 +1012,15 @@ descriptor、唯一 Smali 身份和源码选择：
   `s75(AbstractComposeView)` 构造器后通过。
 - ABI 守卫继续发现 `iz5` 缺少原版 `zza(String)Lzu5;` 方法，因此将该类移回
   blocked，未用伪方法绕过。
-- 最终保留并接入 **95** 个类；与最新 `main` 的 Firebase 修复/`a13` 接管合并后，
-  生产接管总数为 **1224**，blocked 为 **243** 项。
+- `h9` 的 JADX 方法体退化为 `throw null;`，移回 blocked；导入器新增同类占位体拒绝。
+- 最终保留并接入 **94** 个类；与最新 `main` 的 Firebase 修复/`a13` 接管合并后，
+  生产接管总数为 **1223**，blocked 为 **244** 项。
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
   `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
-  `verifySourceTakeoverDebugDex` 均为 **1224/1224 PASS**。
+  `verifySourceTakeoverDebugDex` 均为 **1223/1223 PASS**。
 - 当前 FullGame Debug APK：
-  `757aae87bb6cfd4625c2097bd82bbf1ae6b37ca6057b6367a8b9ccce29e0e2e4`
-  （93,009,581 B）；APK native ABI 仅 `arm64-v8a` 与 `x86_64`。
+  `93aba451ed51973b64198410b4af6dc7ebb4483269048acd38c5e158090251c9`
+  （93,009,769 B）；APK native ABI 仅 `arm64-v8a` 与 `x86_64`。
 
 本批仍不改变“仍有原版参考源码未迁移”的结论，也不替代 AVD、存档矩阵、真实挑战
 结算或 180 分钟游戏验收。
