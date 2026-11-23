@@ -14,11 +14,8 @@ Web 真实新档暴露：首次 Reality 后自动化仍按 EC1→12 重打完整
 
 - 新增纯函数 `ecTargetOrder(afterFirstReality)`：
   - 首次 Reality 前：EC1→EC12。
-- Reality 后：EC1→EC2→EC3→EC10→EC11→EC12→EC4～EC9。
-- EC1～3 与 EC10 用于解锁 181/191/193 研究链；EC11/EC12 用于重新满足
-  `TimeStudy.reality` 的原版硬条件。
-- Reality 后 EC1/2/3/10 只补到 1 次，EC11/12 仍补满 5/5，避免每轮多跑
-  16 次已经满足的挑战。
+- Reality 后仍保持 EC1→EC12，保留全部研究依赖与奖励顺序。
+- EC1～8 只补到 1 次；EC9～12 与膨胀模块共用 5/5 定义，避免 respec 循环。
 - respec 仍只在原版真正 5/5 满级时执行；阶段目标 1 次只影响下一目标选择。
 - EC11/12 入口未达成时保留越过 EP 收益门槛的真实永恒豁免。
 - EC 完成次数的反射读取失败按“未满足”处理，不伪装成已完成。

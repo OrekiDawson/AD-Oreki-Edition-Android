@@ -261,23 +261,19 @@ object OrekiEcAutomation {
     }
 
     /**
-     * EC 目标顺序。首次 Reality 前完整推进 1→12；Reality 后先补研究 181/191/193
-     * 所需的 EC1～3 与 EC10，再完成 Reality 硬门槛 EC11/EC12，最后兜底其余挑战。
+     * EC 目标顺序始终保持 1→12，保留研究解锁链和奖励顺序；阶段差异只体现在
+     * [ecRequiredCompletions] 的目标次数。
      *
      * 纯判据函数，不读取/写入游戏状态，便于 JVM 回归验证两端顺序一致。
      */
     @JvmStatic
     fun ecTargetOrder(afterFirstReality: Boolean): IntArray =
-        if (afterFirstReality) {
-            intArrayOf(1, 2, 3, 10, 11, 12, 4, 5, 6, 7, 8, 9)
-        } else {
-            IntArray(EC_COUNT) { it + 1 }
-        }
+        IntArray(EC_COUNT) { it + 1 }
 
     /** 当前阶段实际需要完成的挑战次数；见 [ecTargetOrder] 与 Web 同源规则。 */
     @JvmStatic
     fun ecRequiredCompletions(id: Int, maxCompletions: Int, afterFirstReality: Boolean): Int =
-        if (afterFirstReality && id in intArrayOf(1, 2, 3, 10)) {
+        if (afterFirstReality && id in 1..8) {
             minOf(1, maxCompletions)
         } else {
             maxCompletions
