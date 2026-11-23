@@ -1,6 +1,39 @@
 # Android MOD · Agent 长期规则
 
+## P0 架构主线：根目录标准化与旧构建链同步退役（2026-11-23）
+
+- **明确等级**：用户将 [#61 根目录/工程目录整理](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61) 定为 **P0 架构任务**，与 [#52 彻底退役 build_mod.py](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#25 AGP 完整游戏](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 同级并行推进。P0 架构不表示已经发现游戏崩溃；用户暂停、预算/安全、真实玩家致命 P0/P1 仍优先。
+- **直接落地**：优先整理 Android 根目录、根级 AGP Kotlin DSL 入口、`app/src/main/kotlin`、Source Sets、资源、`scripts/`、`tools/`、`docs/`、`reports/`、`baseline/` 职责归属。人工维护文件/目录名优先中文，但 Android/Gradle/Kotlin/SDK/GitHub/CI 所要求的技术路径必须保留；批量移动须同步修复源码、CI、发布、脚本、文档与跨仓内链。分小 PR、独立工作树、实质完成，不只做盘点、改名或空报告。
+- **迁移即清理硬规则**：每完成一个实际生产构建环节的 Kotlin/AGP/Gradle Kotlin DSL/必要确定性字节码变换替代，同一批删除旧 `scripts/build_mod.py` 中对应实际可达调用、旧 Groovy 任务、过期路径、重复文件及该环节独占且**已无调用者**的旧工具。共享工具在最后一个消费者退役的同一批删除；不可强求“一个函数对应一个工具”，不可用新包装器继续调用旧脚本冒充完成。
+- **最终技术目标**：根级 AGP 为唯一正式构建入口；`scripts/build_mod.py`、旧 Groovy 正式入口、生产期 Smali 文本补丁、旧 Python 构建依赖及无用工具彻底退出。新增/修改业务只能 Kotlin；继续沿用冻结的官方 Android 3.21.0、真实 ABI、合法挑战/结算、签名及存档兼容。R8 ON 运行问题须实际修复，不通过虚构 PASS 或长期绕过解决。
+- **本机工具治理**：Google 官方 Android SDK/Emulator/Build Tools 集中在系统根分区专用 `/opt/android-sdk`；仅保留一台 API 37 AVD（`/opt/android-avd`），专用目录属主 `oreki:oreki`。先迁移/验证再清理，不能删除 AGP 实际依赖的版本、共享 JDK/系统 Python、原版基线、密钥、存档、发布包和证据；禁止递归修改整个 `/opt`、`/usr`。最新且兼容的稳定版优先。
+- **每批闭环**：旧生产调用→新实现路径、实际移动/删除文件与工具、剩余消费者、Commit/PR、磁盘释放量、源码/ABI/DEX/资源/必要 AVD 定向证据逐项记录；适用 CI/Kody/Ruleset/签名与 Release 门禁不降，禁止把 Debug 构建或纯迁移 PR 当作完整游戏验收。每轮最多一次正式 Release 构建。规则 PR 实际合并后立即交接本机安全同步，只有本机回读证明才标同步成功。继续 R126，不开新 `/goal` 或 R 编号。
+
+
 > 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
+
+## 环境故障自主诊断与有界恢复（2026-11-23，长期强制）
+
+- **禁止过早 BLOCKED**：遇到 ADB offline、AVD 启动失败、KVM/GPU、Gradle、D8/R8、签名输入或 APK 安装 等环境异常，Agent 必须先在授权时间/权限/预算/Owner 边界内完成有证据的自主定位和最小安全恢复；一次或两次失败、单独的 `offline`、构建工具存在或静态检查 PASS 都不能证明环境不可恢复，也不能把环境失败归咎于 APK/业务代码。
+- **诊断闭环**：先核对是否与其他 Agent、AVD、浏览器、构建任务争用资源；收集命令、版本、退出码、stderr/日志、进程/端口、磁盘/内存/OOM、权限及相关设备状态；区分进程退出、连接未就绪、系统未启动、应用安装/启动失败。依据证据逐项选择不同的最小恢复方案，并验证恢复后的真实功能，不按固定次数机械重试。
+- **保护现场与密钥**：优先只读诊断、冷启动/禁用快照、兼容渲染或隔离临时环境等非破坏性手段；不得未经核实抢占共享 ADB server、AVD、浏览器或工作树，不清空 userdata、不删他人 AVD、不重置共享环境、不打印/复制密钥、不强推或绕过安全门禁。涉及系统级修改须符合用户已有授权及最小影响原则。
+- **BLOCKED 的证据门槛**：只有确认硬件、权限、资源、外部服务、安全限制或不可安全修复的实际阻断，才标记 `ENVIRONMENT_BLOCKED`，附已尝试的互不重复方案、日志/退出码、已排除原因、剩余根因、Owner 和可执行恢复步骤；否则保持 `DIAGNOSING`。受峰时或截止限制应标 `DEFERRED`，不伪称永久阻断。
+- **隔离与持续推进**：环境故障期间继续其他合法、不冲突任务；恢复后重跑受影响的最小真实验证。环境修复成功、CI PASS 或 APK 构建成功均不得代替 Android AVD/真机、Web 真实浏览器、Wiki 线上功能等各自的实际验收。
+
+## 持续执行与有效验证（2026-11-23，长期强制）
+
+- **继承跨仓权威**：遵循 [Workspace AGENTS.md](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 的持续执行、短测收敛、Owner 避让和 Subagent 连续调度规则；以该规则实际合并进入 main 后的版本为准，不提前宣称未合并 PR 已生效。
+- **阶段完成不等于停工**：当前 Goal active、合法窗口且存在已授权、无冲突的安全工作时，完成一次修复、测试、PR 或报告后立即处理下一项；只在真实完成、用户暂停、峰时/预算/安全限制、资源或权限阻断等条件下安全收口。不为凑时长空转。
+- **测试假设驱动**：每轮定向测试记录候选 HEAD、输入、预期状态变化、实际证据和停止条件；同一代码/条件下不得反复做没有新增验证目标的相同短测，失败先定位根因。Android 的 Kotlin/DEX、定向测试与 AVD/真机验证须使用真实候选；95/95 静态或单元测试 PASS 不等于 AVD、PACING 或存档兼容 PASS。
+- **外部等待期间独立推进**：云端 GitHub 写入窗口、Kody/CI/审批等待期间，在其他规则允许的工作窗口继续不冲突的本地工作和证据整理；禁止抢占共享分支、AVD、签名或覆盖他人修改。及时报告真实进展，但报告不是停止信号。
+
+## 仅 AGENTS.md 变更的 Kody skipped 快速合并规则（2026-11-23）
+
+- 对当前 PR HEAD 的**实际完整 Diff** 核验：仅新增/修改 `AGENTS.md`（含子目录同名文件），不得混入代码、CI、其他文档、构建或发布文件；若混入任何其他路径，不适用本例外。
+- 当 Kody **官方**针对该 HEAD/配置确认因纯规则文件而 `skipped`，该结果不计付费审查配额，亦不等于 Review PASS；不为取得形式上的 PASS 重复触发 Kody。若 Kody skipped 的原因不明、服务故障或未返回官方结论，不得套用本例外。
+- 只要当前 HEAD 的适用 Required Checks、审批、分支保护、Ruleset、合并冲突及其他人工阻断均已核验满足，允许直接自动合并纯 AGENTS.md PR，无需额外等待 Kody 的 PASS 或逐项向用户征询。**不得**绕过 GitHub 强制要求的 Kody Check 或任何其他保护规则；若平台仍将其判为 Required 且未满足，保持 BLOCKED。
+- 合并后回读 GitHub 验证 merged 状态、merge commit 和 main；记录 Kody skipped 的真实原因、HEAD、门禁证据及结果。规则本身的授权不等于任何 PR 已满足合并条件。
+
 
 ## 0. 游戏优先与规则审查边界（2026-11-22）
 
