@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1128` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1223` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -1000,3 +1000,27 @@ JADX 将原版 `com/google/android/gms/internal/firebase-auth-api/*` 改写成
 | 当前 APK | `950de549bd0126f6f42ca0f941a5b94adf61aa1de578f1ebafd7cc31e37d419e`（93,008,045 B） |
 | blocked 剩余 | 211 个具体 class；未伪称全部迁移完成 |
 | API 37 AVD | 本批 **NOT RUN**；由 Lead 在集成候选上统一复验 |
+
+### 13.8 普通类批量接管第八批
+
+2026-11-24 继续复用 `work/output_code_321_r88/sources/defpackage`，通过
+`scripts/agp/import_class_sources.py` 对下一批 JADX 无警告候选执行 JAR
+descriptor、唯一 Smali 身份和源码选择：
+
+- 初次导入 128 个候选；FullGame `compileDebugJavaWithJavac` 暴露的 32 个
+  直接失败类全部移回 blocked。`s75` 依据原版 Smali/JAR `javap` 恢复遗漏的
+  `s75(AbstractComposeView)` 构造器后通过。
+- ABI 守卫继续发现 `iz5` 缺少原版 `zza(String)Lzu5;` 方法，因此将该类移回
+  blocked，未用伪方法绕过。
+- `h9` 的 JADX 方法体退化为 `throw null;`，移回 blocked；导入器新增同类占位体拒绝。
+- 最终保留并接入 **94** 个类；与最新 `main` 的 Firebase 修复/`a13` 接管合并后，
+  生产接管总数为 **1223**，blocked 为 **244** 项。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1223/1223 PASS**。
+- 当前 FullGame Debug APK：
+  `93aba451ed51973b64198410b4af6dc7ebb4483269048acd38c5e158090251c9`
+  （93,009,769 B）；APK native ABI 仅 `arm64-v8a` 与 `x86_64`。
+
+本批仍不改变“仍有原版参考源码未迁移”的结论，也不替代 AVD、存档矩阵、真实挑战
+结算或 180 分钟游戏验收。

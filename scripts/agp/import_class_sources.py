@@ -25,6 +25,8 @@ def rewrite_java(text: str, name: str) -> str | None:
     if "JADX WARN" in text or "Failed to decompile" in text:
         return None
     clean = strip_jadx_comments(text).replace("\r\n", "\n")
+    if re.search(r"\bthrow\s+null\s*;", clean):
+        return None
     match = JAVA_CLASS.search(clean)
     if match is None or match.group(1) != name:
         return None
