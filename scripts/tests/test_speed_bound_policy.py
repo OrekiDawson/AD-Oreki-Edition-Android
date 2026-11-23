@@ -1,17 +1,17 @@
 """R125 Android 游戏速度边界回归。"""
 
 from pathlib import Path
-import re
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy.kt"
-SMALI = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/OrekiSpeed.smali"
-SETTINGS = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/SettingsClickListener.smali"
-SPEED_UI = ROOT / "scripts/payload/smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali"
+SPEED = ROOT / "app/src/main/java/kajfosz/antimatterdimensions/OrekiSpeed.java"
+SETTINGS = ROOT / "app/src/main/java/kajfosz/antimatterdimensions/oreki/SettingsClickListener.java"
+SPEED_UI = ROOT / "app/src/main/java/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.java"
 TRANSFORMER = ROOT / "scripts/agp/store_policy/StorePolicyTransformer.java"
 APPLY_POLICY = ROOT / "scripts/agp/apply_store_policy.py"
+MANIFEST = ROOT / "build-logic/source-takeover.txt"
 
 
 class SpeedBoundPolicyTests(unittest.TestCase):
@@ -23,18 +23,17 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("value < LEGACY_MIN -> DEFAULT", source)
 
     def test_mult_uses_single_kotlin_sanitizer(self):
-        source = SMALI.read_text(encoding="utf-8")
-        body = source.split(".method public static mult()D", 1)[1].split(".end method", 1)[0]
-        self.assertIn("OrekiSpeedPolicy;->sanitize(D)D", body)
-        self.assertIn("return-wide v0", body)
-        self.assertNotIn("0x41cdcd6500000000L", body)
+        source = SPEED.read_text(encoding="utf-8")
+        body = source.split("public static double mult()", 1)[1].split("private static void persistMult", 1)[0]
+        self.assertIn("OrekiSpeedPolicy.sanitize(sMult)", body)
+        self.assertNotIn("1.0E9d", body)
 
     def test_user_input_rejects_legacy_overlimit_values(self):
-        source = SMALI.read_text(encoding="utf-8")
-        body = source.split(".method public static set(D)Z", 1)[1].split(".end method", 1)[0]
-        self.assertIn("OrekiSpeedPolicy;->isValidInput(D)Z", body)
-        self.assertIn("if-eqz v0, :bad", body)
-        self.assertNotIn("0x41cdcd6500000000L", body)
+        source = SPEED.read_text(encoding="utf-8")
+        body = source.split("public static boolean set(double value)", 1)[1].split("public static boolean setDynamic", 1)[0]
+        self.assertIn("OrekiSpeedPolicy.isValidInput(value)", body)
+        self.assertIn("return false", body)
+        self.assertNotIn("1.0E9d", body)
 
     def test_stage_speed_matches_web_and_has_no_c9_exception(self):
         source = (
@@ -63,48 +62,40 @@ class SpeedBoundPolicyTests(unittest.TestCase):
         self.assertIn("恢复默认（×500）", speed_ui)
         self.assertIn("取值范围 0.000001 ~ 100000", speed_ui)
 
-    def test_agp_game_jar_transformer_owns_speed_abi(self):
+    def test_speed_abi_is_agp_source_not_game_jar_transformer(self):
         transformer = TRANSFORMER.read_text(encoding="utf-8")
         apply_policy = APPLY_POLICY.read_text(encoding="utf-8")
+        manifest = MANIFEST.read_text(encoding="utf-8")
         build_paths = [ROOT / "app/build.gradle.kts", *sorted((ROOT / "build-logic").rglob("*.kts")),
                        *sorted((ROOT / "build-logic").rglob("*.kt"))]
         gradle = "\n".join(path.read_text(encoding="utf-8") for path in build_paths if path.is_file())
-        self.assertIn("OrekiSpeedPolicy", transformer)
-        self.assertIn('methodName.equals("mult")', transformer)
-        self.assertIn('methodName.equals("set")', transformer)
-        self.assertIn('"sanitizeSpeed"', transformer)
-        self.assertIn('"speedInputGate"', transformer)
-        self.assertIn('"speedUiText"', transformer)
-        self.assertIn('"speedResetDefault"', transformer)
-        self.assertIn('"resetDefault"', transformer)
+        self.assertIn("kajfosz/antimatterdimensions/OrekiSpeed.class", manifest)
+        self.assertIn("kajfosz/antimatterdimensions/oreki/SettingsClickListener.class", manifest)
+        self.assertIn("kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class", manifest)
+        for removed in (
+            "OrekiSpeed.class",
+            "SettingsClickListener.class",
+            "SpeedSettingsActivity.class",
+            "sanitizeSpeed",
+            "speedInputGate",
+            "speedUiText",
+            "speedResetDefault",
+        ):
+            self.assertNotIn(removed, transformer)
+            self.assertNotIn(removed, apply_policy)
         self.assertIn('platforms/android-37.0/android.jar', gradle)
         self.assertIn(
             "inputs.files(script, transformer, asmJar, androidJar, "
             "config.sourceTakeoverManifest)",
             gradle,
         )
-        self.assertIn('"kajfosz/antimatterdimensions/OrekiSpeed.class"', apply_policy)
-        self.assertIn("SpeedSettingsActivity.class", apply_policy)
-        self.assertIn("SettingsClickListener.class", apply_policy)
         self.assertIn("--android-jar", apply_policy)
         self.assertIn("doFirstAction {", gradle)
 
-    def test_transformer_default_matches_kotlin_source_of_truth(self):
-        kotlin = (
-            ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiGamePace.kt"
-        ).read_text(encoding="utf-8")
-        transformer = TRANSFORMER.read_text(encoding="utf-8")
-        kotlin_default = re.search(
-            r"const val DEFAULT_SPEED: Double = ([0-9]+(?:\.[0-9]+)?)",
-            kotlin,
-        )
-        transformer_default = re.search(
-            r"value = ([0-9]+(?:\.[0-9]+)?)d;\s*\n\s*resetDefaultConstantSeen",
-            transformer,
-        )
-        self.assertIsNotNone(kotlin_default)
-        self.assertIsNotNone(transformer_default)
-        self.assertEqual(kotlin_default.group(1), transformer_default.group(1))
+    def test_source_default_matches_kotlin_source_of_truth(self):
+        source = SPEED.read_text(encoding="utf-8")
+        self.assertIn("OrekiGamePace.defaultSpeed()", source)
+        self.assertIn("private static double sMult = DEF", source)
 
 
 if __name__ == "__main__":

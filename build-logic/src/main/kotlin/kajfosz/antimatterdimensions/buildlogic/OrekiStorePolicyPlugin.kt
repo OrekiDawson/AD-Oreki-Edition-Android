@@ -11,6 +11,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.compile.JavaCompile
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 
 private val targetEntries = setOf(
     "l5.class",
@@ -23,20 +27,12 @@ private val targetEntries = setOf(
     "kajfosz/antimatterdimensions/shop/b.class",
     "kajfosz/antimatterdimensions/shop/LoginActivity.class",
     "kajfosz/antimatterdimensions/MainActivity.class",
-    "kajfosz/antimatterdimensions/OrekiSpeed.class",
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class",
-    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class",
 )
 private const val retiredInstantPrefix =
     "kajfosz/antimatterdimensions/OrekiInstantChallenge"
 private val requiredTargets = setOf(
     "l5.class#d()Z -> isAdBonusEffectEnabled",
     "kajfosz/antimatterdimensions/challenge/antimatter/c.class#matter-pacing -> sqrt-speed-normalization",
-    "kajfosz/antimatterdimensions/OrekiSpeed.class#mult()D -> sanitizeSpeed",
-    "kajfosz/antimatterdimensions/OrekiSpeed.class#set(D)Z -> speedInputGate",
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class#speed-reset-default -> speedResetDefault",
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class#speed-ui-text -> speedUiText",
-    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class#speed-ui-text -> speedUiText",
 )
 private val requiredAnchors = mapOf(
     "l5.class" to listOf("OrekiStorePolicy", "isAdBonusEffectEnabled"),
@@ -53,12 +49,6 @@ private val requiredAnchors = mapOf(
         listOf("OrekiStorePolicy", "isStoreEnabled"),
     "kajfosz/antimatterdimensions/MainActivity.class" to
         listOf("OrekiStorePolicy", "isStoreEnabled"),
-    "kajfosz/antimatterdimensions/OrekiSpeed.class" to
-        listOf("OrekiSpeedPolicy", "sanitize", "isValidInput"),
-    "kajfosz/antimatterdimensions/oreki/SettingsClickListener.class" to
-        listOf("OrekiGamePace", "resetDefault"),
-    "kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.class" to
-        listOf("取值范围 0.000001 ~ 100000，建议"),
 )
 
 private data class StorePolicyVerifyResult(
@@ -375,6 +365,86 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     val compileName = "compile${variant}JavaWithJavac"
                     val compileTask = project.tasks.findByName(compileName) as? JavaCompile
                         ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
+                    val adaptSourceAbi = project.tasks.registerAction(
+                        "adaptSourceAbi${variant}",
+                    ) {
+                        description = "适配 Java 语言无法直接表达的默认包 ABI 描述符"
+                        val speedClass = File(
+                            compileTask.destinationDirectory.asFile.get(),
+                            "kajfosz/antimatterdimensions/OrekiSpeed.class",
+                        )
+                        inputs.file(speedClass)
+                        outputs.file(File(
+                            config.rootDir,
+                            "build/agp-source-takeover/abi-adapter-${variant.lowercase()}.json",
+                        ))
+                        outputs.upToDateWhen { false }
+                        doLast {
+                            if (!speedClass.isFile) {
+                                throw GradleException("缺少 OrekiSpeed 编译产物: $speedClass")
+                            }
+                            var adapted = false
+                            val reader = ClassReader(speedClass.readBytes())
+                            val writer = ClassWriter(reader, 0)
+                            reader.accept(object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+                                override fun visitMethod(
+                                    access: Int,
+                                    name: String,
+                                    descriptor: String,
+                                    signature: String?,
+                                    exceptions: Array<out String>?,
+                                ): MethodVisitor {
+                                    val adaptedDescriptor =
+                                        if (name == "migrateBest") {
+                                            when (descriptor) {
+                                                "(Ljava/lang/Object;)V" -> {
+                                                    adapted = true
+                                                    "(Lku4;)V"
+                                                }
+                                                "(Lku4;)V" -> {
+                                                    adapted = true
+                                                    descriptor
+                                                }
+                                                else -> descriptor
+                                            }
+                                        } else {
+                                            descriptor
+                                        }
+                                    return super.visitMethod(
+                                        access,
+                                        name,
+                                        adaptedDescriptor,
+                                        signature,
+                                        exceptions,
+                                    )
+                                }
+                            }, 0)
+                            if (!adapted) {
+                                throw GradleException(
+                                    "OrekiSpeed.migrateBest 未找到待适配的 Object 描述符",
+                                )
+                            }
+                            speedClass.writeBytes(writer.toByteArray())
+                            val evidence = outputs.files.singleFile
+                            evidence.parentFile.mkdirs()
+                            evidence.writeText(
+                                JsonOutput.prettyPrint(JsonOutput.toJson(
+                                    linkedMapOf(
+                                        "schema" to 1,
+                                        "class" to speedClass,
+                                        "method" to "migrateBest",
+                                        "from" to "(Ljava/lang/Object;)V",
+                                        "to" to "(Lku4;)V",
+                                    ),
+                                )) + "\n",
+                                Charsets.UTF_8,
+                            )
+                            logger.lifecycle(
+                                "[oreki] 默认包 ABI 适配完成: OrekiSpeed.migrateBest(Lku4;)V",
+                            )
+                        }
+                    }
+                    compileTask.finalizedBy(adaptSourceAbi)
                     val evidence = File(
                         config.rootDir,
                         "build/agp-source-takeover/verify-${variant.lowercase()}.json",
