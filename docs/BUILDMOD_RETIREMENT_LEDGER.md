@@ -868,3 +868,20 @@ Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
   `c1480397bab66d33fb73dfbd0b912bd4920d0894d24e771a6bfe5824caee8aa5`。
 
 该批仍不改变“尚有大量原版类未迁移”的结论，也不等于 180 分钟游戏验收完成。
+
+### 13.5 旧 Smali 业务类源码接管与清理
+
+2026-11-24 对 `scripts/payload/smali` 的 25 个 MOD 业务类执行 JADX
+`--single-class` 恢复：
+
+- 9 个类不依赖默认包，保留原 descriptor 转入 AGP Java 源码并删除对应 Smali。
+- `OrekiTrace` 已由现有 Kotlin 实现接管，其 Smali 文件同批删除。
+- 12 个类因其命名包源码无法访问原版默认包类或嵌套 ABI 不匹配，准确登记为
+  blocked，不生成空壳。
+- `OrekiSpeed`、`SettingsClickListener`、`SpeedSettingsActivity` 与
+  StorePolicyTransformer 目标重叠，不能直接源码接管，继续保留待 Kotlin 策略合并。
+- Smali 文件由 25 降至 **15**；AGP 源码接管由 1009 增至 **1018**。
+
+验证：FullGame `testDebugUnitTest` 96/96、ABI 1018/1018、最终 APK DEX
+1018/1018、Python 322/322。新增 fail-closed 守卫禁止 `app/`、`build-logic/`
+重新出现 `.smali` 或构建 DSL 引用 `scripts/payload/smali`。

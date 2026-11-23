@@ -178,3 +178,15 @@ h62.class | Lh62; | JADX default constructor no longer matches original b62() AB
 kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
 xe0.class | Lxe0; | dependency ju2.class has default method in classfile version 49
 l69.class | Ll69; | JADX omitted constructor initialization for final field a
+kajfosz/antimatterdimensions/OrekiChallengeAuto.class | Lkajfosz/antimatterdimensions/OrekiChallengeAuto; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/OrekiEcContinuation.class | Lkajfosz/antimatterdimensions/OrekiEcContinuation; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/oreki/OrekiAchAudit.class | Lkajfosz/antimatterdimensions/oreki/OrekiAchAudit; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/oreki/OrekiEternity.class | Lkajfosz/antimatterdimensions/oreki/OrekiEternity; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class | Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord; | JADX source references nested Player record classes that are not compiler-visible
+kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.class | Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.class | Lkajfosz/antimatterdimensions/oreki/OrekiTeresaAuto; | JADX source references nested Player celestial classes that are not compiler-visible
+kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class | Lkajfosz/antimatterdimensions/oreki/OrekiUiTitle; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/oreki/StageAssist.class | Lkajfosz/antimatterdimensions/oreki/StageAssist; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.class | Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener; | JADX inferred Activity-to-TutorialActivity cast conflicts with current Kotlin class signature
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress.class | Lkajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress; | JADX source references default-package classes not accessible from a named Java/Kotlin package
+kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch.class | Lkajfosz/antimatterdimensions/prestige/OrekiEternityLaunch; | JADX coroutine constructor no longer matches current Kotlin Eternity nested lambda ABI

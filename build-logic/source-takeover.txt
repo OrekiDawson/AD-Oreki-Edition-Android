@@ -1009,3 +1009,12 @@ zw6.class
 zx0.class
 zx5.class
 zy7.class
+kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.class
+kajfosz/antimatterdimensions/oreki/OrekiReality.class
+kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.class
+kajfosz/antimatterdimensions/oreki/OrekiStrategyData.class
+kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.class
+kajfosz/antimatterdimensions/oreki/StageConfirmListener.class
+kajfosz/antimatterdimensions/oreki/tutorial/DrawerInsetListener.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.class
+kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener.class

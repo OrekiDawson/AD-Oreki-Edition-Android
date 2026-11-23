@@ -24,9 +24,10 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertEqual(len(entries), len(set(entries)))
         for required in ("a23.class", "a28.class", "a43.class", "a47.class", "a5.class"):
             self.assertIn(required, entries)
+        java_root = ROOT / "app/src/main/java"
         java_names = {
-            path.name.removesuffix(".java")
-            for path in (ROOT / "app/src/main/java").glob("*.java")
+            path.relative_to(java_root).with_suffix("").as_posix()
+            for path in java_root.rglob("*.java")
         }
         manifest_names = {entry.removesuffix(".class") for entry in entries}
         self.assertEqual(java_names, manifest_names)

@@ -19,6 +19,10 @@ PRODUCTION_SURFACES = (
     ROOT / "app",
     ROOT / "build-logic",
 )
+SMALI_FREE_SURFACES = (
+    ROOT / "app",
+    ROOT / "build-logic",
+)
 FORBIDDEN = (
     re.compile(r"\bscripts/build_mod\.py\b"),
     re.compile(r"\bimport build_mod\b"),
@@ -67,6 +71,22 @@ def main() -> int:
                         + str(path.relative_to(ROOT))
                         + " -> "
                         + pattern.pattern
+                    )
+
+    for surface in SMALI_FREE_SURFACES:
+        if not surface.exists():
+            continue
+        for path in sorted(surface.rglob("*")):
+            if path.is_file() and path.suffix == ".smali":
+                failures.append(
+                    "生产源码面重新出现 Smali: " + str(path.relative_to(ROOT))
+                )
+            if path.is_file() and path.suffix in {".kts", ".gradle"}:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                if "scripts/payload/smali" in text:
+                    failures.append(
+                        "生产构建配置重新引用 payload Smali: "
+                        + str(path.relative_to(ROOT))
                     )
 
     if failures:
