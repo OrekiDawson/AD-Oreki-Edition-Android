@@ -10,16 +10,20 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1019` 个 class；`TutorialProgress.stage()` 已从
-  `scripts/payload/smali/.../TutorialProgress.smali` 迁入
-  `app/src/main/java/.../TutorialProgress.java`。
-- 本闭包保留原 `public final class` 与 `public static int stage()` ABI；命名包中的
+- AGP 生产接管清单：`1020` 个 class；`TutorialProgress` 与
+  `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
+  `app/src/main/java/.../tutorial/`。
+- `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
   Player/Pelle/成就对象直接调用，仅默认包 `t3.a(int)` 因 Java 语言边界使用受控反射。
-- 教程阶段判定仍只读，外层 `catch (Throwable) -> 0` 保持原 fail-safe；没有新增业务规则。
+  `TutorialEntryListener` 保留构造器、私有 `start(Activity, Class)` 和 onClick 分派 ABI。
+- 教程阶段判定仍只读，外层 `catch (Throwable) -> 0` 保持原 fail-safe；入口监听器的
+  `Exception -> Toast` 行为也与原实现一致，没有新增业务规则。
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
-  `verifySourceTakeoverDebugClasses` 1019/1019 PASS；
-  `verifySourceTakeoverDebugAbi` 1019/1019 PASS。
-- 当前 `scripts/payload/smali` 剩余 `14` 个文件；生产 Smali 清零目标仍未完成。
+  `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
+  守卫按同一批 class 清单校验。
+- 本批 FullGame Debug APK：`09cca5d993ea474b40339604e5f38e40ab564e3598e3ca4fd5f6097f508fd4f1`
+  （83,759,832 B）；单测 96/96、Python 328/328、1020/1020 ABI/DEX PASS。
+- 当前 `scripts/payload/smali` 剩余 `13` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 

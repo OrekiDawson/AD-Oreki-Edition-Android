@@ -11,8 +11,6 @@ import kajfosz.antimatterdimensions.player.Player;
  * 仍按真实类型读取。外层捕获 {@link Throwable} 与原 Smali 的 fail-safe 保持一致。</p>
  */
 public final class TutorialProgress {
-    private static final String ACHIEVEMENTS_CLASS = "t3";
-
     public static int stage() {
         try {
             if (kajfosz.antimatterdimensions.celestials.pelle.c.q()) {
@@ -26,7 +24,7 @@ public final class TutorialProgress {
 
             if (player.P().compareTo(0.0d) > 0) {
                 Class<?> achievements = Class.forName(
-                        ACHIEVEMENTS_CLASS,
+                        "t3",
                         false,
                         TutorialProgress.class.getClassLoader());
                 Object raw = achievements.getMethod("a", int.class).invoke(null, 147);
