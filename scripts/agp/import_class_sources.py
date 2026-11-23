@@ -38,6 +38,8 @@ def rewrite_java(text: str, name: str) -> str | None:
         if line.strip() != "package defpackage;"
         and not line.strip().startswith("import defpackage.")
     ]
+    if any(re.match(r"^package\s+", line.strip()) for line in lines):
+        return None
     while lines and not lines[0].strip():
         lines.pop(0)
     while lines and not lines[-1].strip():

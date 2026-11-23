@@ -87,9 +87,14 @@ class ImportInterfaceSourcesTest(unittest.TestCase):
             "@Deprecated\n"
             "public interface cc { void run(); }\n"
         )
+        real_package = (
+            "package com.example;\n"
+            "public interface dd { void run(); }\n"
+        )
         self.assertIsNone(IMPORTER.rewrite_java(warning, "aa"))
         self.assertIsNotNone(IMPORTER.rewrite_java(default_method, "bb"))
         self.assertIsNone(IMPORTER.rewrite_java(annotation, "cc"))
+        self.assertIsNone(IMPORTER.rewrite_java(real_package, "dd"))
 
 
 if __name__ == "__main__":

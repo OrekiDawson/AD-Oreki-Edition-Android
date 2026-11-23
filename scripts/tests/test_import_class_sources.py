@@ -47,6 +47,12 @@ class ImportClassSourcesTest(unittest.TestCase):
                 "dd",
             )
         )
+        self.assertIsNone(
+            IMPORTER.rewrite_java(
+                "package com.example;\npublic class ee { int x; }\n",
+                "ee",
+            )
+        )
 
     def test_smali_must_not_be_interface(self):
         with tempfile.TemporaryDirectory() as tmp:
