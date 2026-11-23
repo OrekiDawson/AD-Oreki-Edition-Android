@@ -413,14 +413,23 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             )
             self.assertIn("public static final int b = 0;", source)
             self.assertNotIn("jh5", source.split("*/", 1)[1])
-            self.assertIn(f'"{name}.class"', gradle)
+            match = re.search(
+                rf'ConstructorlessOwnerAdaptation\(\s*'
+                rf'"{name}\.class",\s*'
+                rf'"(?P<source>[^"]+)",\s*'
+                rf'"(?P<target>[^"]+)",?\s*\)',
+                gradle,
+            )
+            self.assertIsNotNone(match, name)
+            assert match is not None
+            self.assertEqual(match.group("source"), "java/lang/Object")
+            self.assertEqual(match.group("target"), "jh5")
         self.assertIn('"constructorless_owner_adaptations"', gradle)
         self.assertIn("constructorlessOwnerSpecs", gradle)
-        self.assertIn("constructorlessOwnerClassPaths", gradle)
         self.assertIn("requiredNoConstructorSpecs", gradle)
-        self.assertIn("无构造器 owner shim", gradle)
-        self.assertIn("隐式构造器首个调用", gradle)
-        self.assertIn("removedConstructors != 1", gradle)
+        self.assertIn("adaptConstructorlessOwnerClass", gradle)
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertNotIn(":build-logic:test", workflow)
 
 
 if __name__ == "__main__":

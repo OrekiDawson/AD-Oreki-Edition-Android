@@ -1312,10 +1312,15 @@ owner 变换已抽为 `adaptConstructorOwnerClass` 函数；`:build-logic:test`
 ABI。
 
 源码按原版字段和接口恢复为无包 Java 类，编译期暂以 `java/lang/Object` 为
-super。`adaptSourceAbi` 使用 ASM 断言唯一隐式 `()V` 构造器的首个调用确为
-`Object.<init>()V`，随后恢复 super 为 `jh5` 并删除该隐式构造器，写入
+super。该变换已抽为真实可测试的 `adaptConstructorlessOwnerClass`；ASM 断言
+唯一隐式 `()V` 构造器的首个调用确为 `Object.<init>()V`，随后恢复 super 为
+`jh5` 并删除该隐式构造器，写入
 `constructorless_owner_adaptations` 证据。最终 ABI 与 DEX 守卫同时把 9 个类
 纳入 `--require-no-constructor`，防止构造器重新进入正式产物。
+`:build-logic:test` 对构造器 owner 与无构造器 owner 两类变换各执行 4 个
+真实 class 字节用例，覆盖正例及错误 source super、错误 descriptor、错误
+构造器 owner，合计 **8/8 PASS**；Python 规格测试逐类解析 manifest 中的
+source/target 与 class path，不再只匹配插件源码字符串。
 
 - 生产接管总数由 `1641` 增至 **1650**，blocked 由 `356` 降至 **347**。
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS。
@@ -1331,6 +1336,10 @@ super。`adaptSourceAbi` 使用 ASM 断言唯一隐式 `()V` 构造器的首个�
 - 当前 FullGame Debug APK：
   `1b3787e7958830c71063ff00821e0481a1901925db346af7f44f9a89eccf962f`
   （83,890,272 B）；ABI 门禁通过，仅 `arm64-v8a`、`x86_64`。
-
-本批未使用 AVD 或真机，运行、存档和 ARM64 真机结果均为 **NOT RUN**。
-剩余 347 项 blocked、正式 Release、双向存档矩阵与 180 分钟五项游戏门禁仍未完成。
+- 唯一 API 37 x86_64 AVD `Oreki_API_37`：冷启动 19 秒；候选安装 PASS，
+  `am start -W` 冷启动 2078 ms，前台 Activity 正确，进程存活；主调度
+  `gui-tick #1/#2/#3` 间隔均 10000 ms，`stage=13 unknownLeaf=0 degraded=0`；
+  crash buffer 为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError、
+  NoClassDefFoundError、ClassNotFoundException 或 UnsatisfiedLinkError。
+- ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项游戏门禁仍为
+  **NOT RUN**；剩余 347 项 blocked，保持 Issue #25/#52/#61/#285 OPEN。
