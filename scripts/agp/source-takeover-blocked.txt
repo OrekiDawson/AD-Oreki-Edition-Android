@@ -285,3 +285,34 @@ yt6.class | Lyt6; | R126 batch8 javac/classfile or inherited dependency failure;
 zt2.class | Lzt2; | R126 batch8 javac/classfile or inherited dependency failure; source stays in frozen JAR
 bh.class | Lbh; | ABI guard: JADX source omitted 19 original Android API methods; retain frozen JAR implementation
 v1.class | Lv1; | ABI guard: JADX source omitted 15 original Android API methods; retain frozen JAR implementation
+ba2.class | Lba2; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bc4.class | Lbc4; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+bx.class | Lbx; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+cc1.class | Lcc1; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+fu7.class | Lfu7; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ga3.class | Lga3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+iy.class | Liy; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ka3.class | Lka3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+kp6.class | Lkp6; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ma3.class | Lma3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+mv5.class | Lmv5; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+oi3.class | Loi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+or5.class | Lor5; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ow0.class | Low0; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+pa3.class | Lpa3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ph6.class | Lph6; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+pi3.class | Lpi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+qi3.class | Lqi3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ri3.class | Lri3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+sa3.class | Lsa3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+sk8.class | Lsk8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+t8.class | Lt8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+tu3.class | Ltu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ty8.class | Lty8; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+u04.class | Lu04; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+ud3.class | Lud3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+uu3.class | Luu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+v67.class | Lv67; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+v93.class | Lv93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+vu3.class | Lvu3; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR
+z93.class | Lz93; | R126 batch9 javac/classfile or inherited dependency failure; source stays in frozen JAR

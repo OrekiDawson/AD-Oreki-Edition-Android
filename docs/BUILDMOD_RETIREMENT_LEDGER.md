@@ -1054,3 +1054,29 @@ descriptor、唯一 Smali 身份和源码选择：
 
 本批仍不改变“原版源码尚未全部接管”的结论；ARM64 真机、双向存档矩阵和完整
 180 分钟五项验收继续为 `NOT RUN`。
+
+### 13.10 普通类批量接管第十批
+
+2026-11-24 继续使用同一 JADX/JAR/Smali 三重核验流程选择下一批 128 个候选：
+
+- 对齐 2,263 个 JADX Java 源；618 个无警告且有 JAR entry，其中 612 个通过
+  唯一非接口 Smali 身份核验，最终选择 128 个未接管候选。
+- `compileDebugJavaWithJavac` 首次暴露 31 个父类、构造器、字段或旧 classfile
+  依赖失败类，共 52 个错误；全部移回 blocked。
+- `nq8` 与 `wa1` 的 JADX 输出遗漏原版 `int` 构造器，依据原版 Smali/JAR
+  补回后通过。
+- 最终新增接管 97 类；生产接管总数由 `1310` 增至 **1407**，blocked
+  为 **316** 项。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1407/1407 PASS**；Python 定向测试
+  13/13 PASS。
+- 当前 FullGame Debug APK：
+  `ecab71f1ce3fc59054d42f183812abf1195f3d927b79dbdb1cead38cda558365`
+  （83,856,580 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1434 ms，进程存活，主调度
+  `gui-tick #1`、`#2` PASS，`stage=13 unknownLeaf=0 degraded=0`；未发现
+  FATAL、ANR、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批仍不等于全部源码或完整游戏验收完成；ARM64 真机、双向存档矩阵和
+180 分钟五项游戏门禁继续为 `NOT RUN`。
