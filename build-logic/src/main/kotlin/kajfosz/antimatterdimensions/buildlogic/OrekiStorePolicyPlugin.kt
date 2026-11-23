@@ -369,78 +369,107 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         "adaptSourceAbi${variant}",
                     ) {
                         description = "适配 Java 语言无法直接表达的默认包 ABI 描述符"
-                        val speedClass = File(
-                            compileTask.destinationDirectory.asFile.get(),
-                            "kajfosz/antimatterdimensions/OrekiSpeed.class",
+                        data class AbiAdaptation(
+                            val classFile: File,
+                            val method: String,
+                            val from: String,
+                            val to: String,
                         )
-                        inputs.file(speedClass)
+                        val classesRoot = compileTask.destinationDirectory.asFile.get()
+                        val adaptations = listOf(
+                            AbiAdaptation(
+                                File(classesRoot, "kajfosz/antimatterdimensions/OrekiSpeed.class"),
+                                "migrateBest",
+                                "(Ljava/lang/Object;)V",
+                                "(Lku4;)V",
+                            ),
+                            AbiAdaptation(
+                                File(classesRoot, "kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class"),
+                                "of",
+                                "(Ljava/lang/Object;)Ljava/lang/String;",
+                                "(Lyn4;)Ljava/lang/String;",
+                            ),
+                        )
+                        inputs.files(adaptations.map { it.classFile })
                         outputs.file(File(
                             config.rootDir,
                             "build/agp-source-takeover/abi-adapter-${variant.lowercase()}.json",
                         ))
                         outputs.upToDateWhen { false }
                         doLast {
-                            if (!speedClass.isFile) {
-                                throw GradleException("缺少 OrekiSpeed 编译产物: $speedClass")
-                            }
-                            var adapted = false
-                            val reader = ClassReader(speedClass.readBytes())
-                            val writer = ClassWriter(reader, 0)
-                            reader.accept(object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
-                                override fun visitMethod(
-                                    access: Int,
-                                    name: String,
-                                    descriptor: String,
-                                    signature: String?,
-                                    exceptions: Array<out String>?,
-                                ): MethodVisitor {
-                                    val adaptedDescriptor =
-                                        if (name == "migrateBest") {
-                                            when (descriptor) {
-                                                "(Ljava/lang/Object;)V" -> {
-                                                    adapted = true
-                                                    "(Lku4;)V"
-                                                }
-                                                "(Lku4;)V" -> {
-                                                    adapted = true
-                                                    descriptor
-                                                }
-                                                else -> descriptor
-                                            }
-                                        } else {
-                                            descriptor
-                                        }
-                                    return super.visitMethod(
-                                        access,
-                                        name,
-                                        adaptedDescriptor,
-                                        signature,
-                                        exceptions,
+                            val evidenceRows = adaptations.map { adaptation ->
+                                if (!adaptation.classFile.isFile) {
+                                    throw GradleException(
+                                        "缺少默认包 ABI 适配编译产物: ${adaptation.classFile}",
                                     )
                                 }
-                            }, 0)
-                            if (!adapted) {
-                                throw GradleException(
-                                    "OrekiSpeed.migrateBest 未找到待适配的 Object 描述符",
+                                var adapted = false
+                                val reader = ClassReader(adaptation.classFile.readBytes())
+                                val writer = ClassWriter(reader, 0)
+                                reader.accept(
+                                    object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+                                        override fun visitMethod(
+                                            access: Int,
+                                            name: String,
+                                            descriptor: String,
+                                            signature: String?,
+                                            exceptions: Array<out String>?,
+                                        ): MethodVisitor {
+                                            val adaptedDescriptor =
+                                                if (name == adaptation.method) {
+                                                    when (descriptor) {
+                                                        adaptation.from -> {
+                                                            adapted = true
+                                                            adaptation.to
+                                                        }
+                                                        adaptation.to -> {
+                                                            adapted = true
+                                                            descriptor
+                                                        }
+                                                        else -> descriptor
+                                                    }
+                                                } else {
+                                                    descriptor
+                                                }
+                                            return super.visitMethod(
+                                                access,
+                                                name,
+                                                adaptedDescriptor,
+                                                signature,
+                                                exceptions,
+                                            )
+                                        }
+                                    },
+                                    0,
+                                )
+                                if (!adapted) {
+                                    throw GradleException(
+                                        "${adaptation.classFile.name}.${adaptation.method} " +
+                                            "未找到待适配描述符",
+                                    )
+                                }
+                                adaptation.classFile.writeBytes(writer.toByteArray())
+                                logger.lifecycle(
+                                    "[oreki] 默认包 ABI 适配完成: " +
+                                        "${adaptation.classFile.name}.${adaptation.method}",
+                                )
+                                linkedMapOf(
+                                    "class" to adaptation.classFile,
+                                    "method" to adaptation.method,
+                                    "from" to adaptation.from,
+                                    "to" to adaptation.to,
                                 )
                             }
-                            speedClass.writeBytes(writer.toByteArray())
                             val evidence = outputs.files.singleFile
                             evidence.parentFile.mkdirs()
                             evidence.writeText(
                                 JsonOutput.prettyPrint(JsonOutput.toJson(
                                     linkedMapOf(
                                         "schema" to 1,
-                                        "class" to speedClass,
-                                        "method" to "migrateBest",
-                                        "from" to "(Ljava/lang/Object;)V",
-                                        "to" to "(Lku4;)V",
+                                        "adaptations" to evidenceRows,
                                     ),
                                 )) + "\n",
                                 Charsets.UTF_8,
-                            )
-                            logger.lifecycle(
-                                "[oreki] 默认包 ABI 适配完成: OrekiSpeed.migrateBest(Lku4;)V",
                             )
                         }
                     }

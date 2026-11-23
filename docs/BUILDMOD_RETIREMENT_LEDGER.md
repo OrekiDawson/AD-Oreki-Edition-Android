@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1027` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1028` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -21,8 +21,8 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`b5572aaaf8b02148a55298c801a4e6dc400159e6c795aaa0b88cad7e57e0304d`
-  （93,604,259 B）；单测 96/96、Python 328/328、1027/1027 ABI/DEX PASS。
+- 当前 FullGame Debug APK：`b288a71a5365673dd8904ac0ae83e05136c4dbf81e75b7a718002d79b6b3722a`
+  （93,603,923 B）；单测 96/96、Python 328/328、1028/1028 ABI/DEX PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
   获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
@@ -44,7 +44,9 @@
   保留数量级节流日志与异常吞掉边界，不修改解锁或结算字段。
 - `OrekiTeresaAuto` 继续只切换原版 `MainActivity.vp`，保留 20 个一次性 RU 门禁、
   浇满释放、180 秒有界 hold 与错误吞掉语义，不自行计算浇注或扣 RM。
-- 当前 `scripts/payload/smali` 剩余 `6` 个文件；生产 Smali 清零目标仍未完成。
+- `OrekiUiTitle` 以反射读取原版页签标题并保留同名去重，方法描述符由 build-logic ASM
+  适配回 `of(Lyn4;)Ljava/lang/String;`。
+- 当前 `scripts/payload/smali` 剩余 `5` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 
