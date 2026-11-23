@@ -1,5 +1,14 @@
 # Android MOD · Agent 长期规则
 
+## R126｜最高架构 P0：单夜全量 Smali/DEX 生产依赖清零（2026-11-23，长期强制）
+
+- **最新用户授权覆盖旧试点节奏**：R126 目标为本次夜间执行窗口**一次性完成原版 Android 3.21.0 生产 Smali/DEX → AGP 可编译 Java/Kotlin**、切断 Smali 生产补丁/手工 DEX 注入、彻底退役 `scripts/build_mod.py` 与旧 APK 二次拼装。不再把“先做一个小闭包、未来多轮慢慢推进”当作任务终点；内部最小闭包增量编译/提交仍用于安全集成。此目标未完成前不得写 PASS。
+- **生产改动规则**：JADX 对受保护原版 XAPK/APK/DEX 一次全量反编译，仅输出研究性 Java 参考；REA/JADX/xref 辅助修复混淆、重载、反射、控制流与 ABI。原版**未实质修改**代码允许暂存 `app/src/main/java`；新增、修复或实质改动业务先迁 `app/src/main/kotlin`。同一 descriptor 仅一个生产实现，不允许把未修复的全量反编译目录直接塞进 Source Set，也不允许用空方法、伪逻辑或跳过功能冒充恢复。
+- **迁移即清理**：Lead 核查现有 R126 worktree/Owner/PR，Subagent 分离依赖闭包并行恢复；16GB 主机避免重复重型 JADX、并发 AVD/Release。每批经标准 AGP 编译和必要运行证明后，同批删除对应旧生产 Smali、`build_mod.py` 生产入口、手工 DEX/旧打包调用及无其他消费者的工具。保留冻结基线、存档、签名、研究证据与仍被共用的 SDK/JDK/AGP。
+- **唯一完成门禁**：`PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0`、`MANUAL_DEX_INJECTION_PATHS=0`、`BUILDMOD_PRODUCTION_DEPENDENCIES=0`、`LEGACY_APK_REPACK_PATHS=0`，且 `AGP_FULL_GAME_BUILD`、`GAME_STARTUP_AND_TICK`、`SAVE_COMPATIBILITY`、`REQUIRED_RUNTIME_CHECKS` 真实 PASS。保留资源/ABI、API37、签名、正式包名、Kody/CI/规则集与合法挑战结算；正式 Release 本轮最多一次。失败保留真实 descriptor/调用方/日志，写 BLOCKED/FAIL，不以删除文件制造假零残留。
+- **优先级边界**：与根级 AGP、构建链退役并列最高架构 P0；真实玩家 P0、ANR、存档损坏、安全/预算可以即时抢占。完成 Smali 生产依赖清零后集中性能优化。沿用 R126，不新 `/goal`、编号或计时。权威 Issue：[Android #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52)、[#61](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)、[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25)、[Workspace #47](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/47) 和 [#20](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/issues/20)。
+
+
 ## P0 应用身份：oreki.net 对应的 Android applicationId（2026-11-23，长期强制）
 
 - **用户正式选定的身份**：Android MOD 正式 `applicationId = "net.oreki.antimatterdimensions"`，Debug 应用 `net.oreki.antimatterdimensions.debug`（AGP `applicationIdSuffix`）。这是**P0 架构与用户数据迁移任务**，与 Android #52（`build_mod.py` 退役）、#61（根级标准 AGP 工程）、#25（完整游戏）、#17（发布）和 R126 PR #276 同步执行。原版包名 `kajfosz.antimatterdimensions`、需要保留的 `namespace`、混淆类/descriptor/ABI 不因 applicationId 改动而批量重命名。
