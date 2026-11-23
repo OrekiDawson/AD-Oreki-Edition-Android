@@ -851,3 +851,20 @@ Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
   对它们没有生产构建引用。
 - `PRODUCTION_SMALI_FILES=0`、`PRODUCTION_SMALI_DEPENDENCIES=0` 尚未达到；
   Issue #52/#61 保持 OPEN。
+
+### 13.4 下一批小类闭包
+
+2026-11-24 复用 JADX `output_code_321_r88`，由
+`scripts/agp/import_class_sources.py` 从 JAR、Smali、JADX 三重核验候选中选择
+24 个小类：
+
+- 19 个类通过 javac、原版 ABI 和最终 DEX 校验后进入生产 Source Set。
+- 5 个类因真实 JADX/classfile 差异移回 blocked：`ah0`、`h62`、`kc4`、
+  `l69`、`xe0`。
+- 接管总数由 990 增至 **1009**；blocked 由 173 增至 **178**。
+- FullGame `testDebugUnitTest` 96/96 PASS；ABI 1009/1009 PASS；最终 APK DEX
+  1009/1009 descriptor 存在。
+- 当前批次候选 APK：
+  `c1480397bab66d33fb73dfbd0b912bd4920d0894d24e771a6bfe5824caee8aa5`。
+
+该批仍不改变“尚有大量原版类未迁移”的结论，也不等于 180 分钟游戏验收完成。

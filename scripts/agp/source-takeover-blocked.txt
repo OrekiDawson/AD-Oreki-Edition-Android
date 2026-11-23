@@ -173,3 +173,8 @@ w56.class | Lw56; | compiled ABI missing original method/field signature; valida
 xu5.class | Lxu5; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
 y06.class | Ly06; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
 z59.class | Lz59; | compiled ABI missing original method/field signature; validated against game-hybrid-sig.jar
+ah0.class | Lah0; | JADX default constructor no longer matches original ch0(sc0,sc0,int|sc0,sc0,sc0,float[]) ABI
+h62.class | Lh62; | JADX default constructor no longer matches original b62() ABI
+kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
+xe0.class | Lxe0; | dependency ju2.class has default method in classfile version 49
+l69.class | Ll69; | JADX omitted constructor initialization for final field a
