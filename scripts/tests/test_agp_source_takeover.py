@@ -95,6 +95,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("verifySourceTakeover${variant}Abi", gradle)
         self.assertIn("verifySourceTakeover${variant}Dex", gradle)
         self.assertIn("verify_source_takeover_abi.py", gradle)
+        self.assertIn("kotlin-classes/${variant.lowercase()}", gradle)
         self.assertIn(
             'app/build/outputs/apk/${variant.lowercase()}/app-${variant.lowercase()}.apk',
             gradle,

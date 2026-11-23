@@ -137,10 +137,18 @@ def compare_dex(entries: list[str], descriptors: set[str]) -> dict:
     }
 
 
+def find_compiled_class(roots: list[Path], entry: str) -> Path | None:
+    for root in roots:
+        candidate = root / entry
+        if candidate.is_file():
+            return candidate
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--game-jar", type=Path)
-    parser.add_argument("--classes-dir", type=Path)
+    parser.add_argument("--classes-dir", type=Path, action="append")
     parser.add_argument("--apk", type=Path)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
@@ -161,13 +169,20 @@ def main() -> int:
     if args.classes_dir:
         results = []
         with zipfile.ZipFile(args.game_jar) as archive:
+            archive_entries = set(archive.namelist())
             for entry in entries:
-                compiled_path = args.classes_dir / entry
-                if not compiled_path.is_file():
+                compiled_path = find_compiled_class(args.classes_dir, entry)
+                if compiled_path is None:
                     result = {
                         "entry": entry,
                         "ok": False,
                         "error": "compiled class missing",
+                    }
+                elif entry not in archive_entries:
+                    result = {
+                        "entry": entry,
+                        "ok": False,
+                        "error": "original class missing from game jar",
                     }
                 else:
                     result = compare_abi(
@@ -192,7 +207,8 @@ def main() -> int:
     report = {
         "schema": 2,
         "game_jar": str(args.game_jar) if args.game_jar else None,
-        "classes_dir": str(args.classes_dir) if args.classes_dir else None,
+        "classes_dirs": [str(path) for path in args.classes_dir]
+        if args.classes_dir else None,
         "apk": str(args.apk) if args.apk else None,
         "manifest": str(args.manifest),
         "checked": len(entries),

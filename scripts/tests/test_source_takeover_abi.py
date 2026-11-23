@@ -1,6 +1,7 @@
 """ABI comparison helper regression tests."""
 
 import importlib.util
+import tempfile
 from pathlib import Path
 import unittest
 
@@ -82,6 +83,29 @@ class SourceTakeoverAbiTest(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             ABI.class_entry_descriptor("classes.dex")
+
+    def test_compiled_class_can_come_from_any_supplied_root(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            java_root = root / "java"
+            kotlin_root = root / "kotlin"
+            java_root.mkdir()
+            kotlin_root.mkdir()
+            java_entry = java_root / "a5.class"
+            kotlin_entry = kotlin_root / "Example.class"
+            java_entry.write_bytes(b"java")
+            kotlin_entry.write_bytes(b"kotlin")
+            self.assertEqual(
+                ABI.find_compiled_class([java_root, kotlin_root], "a5.class"),
+                java_entry,
+            )
+            self.assertEqual(
+                ABI.find_compiled_class([java_root, kotlin_root], "Example.class"),
+                kotlin_entry,
+            )
+            self.assertIsNone(
+                ABI.find_compiled_class([java_root, kotlin_root], "missing.class"),
+            )
 
 
 if __name__ == "__main__":

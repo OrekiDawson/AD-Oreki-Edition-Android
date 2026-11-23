@@ -429,6 +429,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         config.rootDir,
                         "scripts/agp/verify_source_takeover_abi.py",
                     )
+                    val kotlinClasses = File(
+                        config.rootDir,
+                        "build/tmp/kotlin-classes/${variant.lowercase()}",
+                    )
                     val verifyAbi = project.tasks.registerTypedAction(
                         "verifySourceTakeover${variant}Abi",
                         Exec::class.java,
@@ -439,6 +443,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         config.gameJar?.let { inputs.file(it) }
                         inputs.files(config.sourceTakeoverManifest, abiScript)
                         inputs.dir(compileTask.destinationDirectory)
+                        if (kotlinClasses.isDirectory) inputs.dir(kotlinClasses)
                         outputs.file(abiEvidence)
                         doFirstAction {
                             val input = config.gameJar
@@ -448,6 +453,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                 abiScript.absolutePath,
                                 "--game-jar", input.absolutePath,
                                 "--classes-dir", compileTask.destinationDirectory.asFile.get().absolutePath,
+                                "--classes-dir", kotlinClasses.absolutePath,
                                 "--manifest", config.sourceTakeoverManifest.absolutePath,
                                 "--report", abiEvidence.absolutePath,
                             )
