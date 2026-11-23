@@ -40,6 +40,9 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("输入 JAR 缺少待源码接管条目", gradle)
         self.assertIn("输出 JAR 仍含源码接管条目", gradle)
         self.assertIn("source_takeover_entries", gradle)
+        self.assertIn('verifySourceTakeover${variant}Classes', gradle)
+        self.assertIn("compileTask.destinationDirectory", gradle)
+        self.assertIn("源码接管清单缺少 AGP 编译产物", gradle)
 
 
 if __name__ == "__main__":
