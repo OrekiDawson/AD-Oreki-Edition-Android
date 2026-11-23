@@ -41,7 +41,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ADB = ROOT / "tools" / "platform-tools" / "adb.exe"
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 TAG = "OREKI_ACHAUDIT"
 HARD_MAX_ID = 188          # 18 行 × 8 列 = 144 位 = ID 11..188（旧值 138 漏查 40 位，已修）
 WAIT_DEFAULT = 30

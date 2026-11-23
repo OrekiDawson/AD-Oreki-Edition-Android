@@ -49,7 +49,7 @@ from avd_check import ensure  # noqa: E402
 
 OUT = ROOT / 'build' / 'tickprobe'
 SAVE = ROOT / 'build' / 'a4test' / '554. 3R+1.1e6046EP+4.1e21DT.txt'
-PKG = 'com.oreki.antimatterdimensions'
+PKG = 'net.oreki.antimatterdimensions'
 
 
 def frames():

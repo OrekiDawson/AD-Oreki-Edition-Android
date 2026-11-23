@@ -60,9 +60,9 @@ class AgpProvenanceTests(unittest.TestCase):
             provenance = json.loads((candidate / "agp-provenance.json").read_text(encoding="utf-8"))
             metadata = json.loads((candidate / "candidate-metadata.json").read_text(encoding="utf-8"))
             self.assertEqual(provenance["builder"], "AGP")
-            self.assertEqual(provenance["agp_version"], "9.5.1")
+            self.assertEqual(provenance["agp_version"], "9.5.2")
             self.assertEqual(provenance["build_task"], ":app:assembleRelease")
-            self.assertEqual(provenance["application_id"], "com.oreki.antimatterdimensions")
+            self.assertEqual(provenance["application_id"], "net.oreki.antimatterdimensions")
             self.assertEqual(metadata["source_sha"], SOURCE)
             self.assertEqual(metadata["web_ref"], WEB)
             self.assertEqual(metadata["builder"], "AGP")
@@ -71,7 +71,7 @@ class AgpProvenanceTests(unittest.TestCase):
             self.assertIn("agp-provenance.json", sums)
 
     def test_fullgame_release_signing_enables_v3(self):
-        build = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+        build = (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8")
         self.assertIn("enableV3Signing = true", build)
         start = build.find('create("release")')
         self.assertGreaterEqual(start, 0)
@@ -104,7 +104,7 @@ class AgpProvenanceTests(unittest.TestCase):
                 "checks": [{"id": "package", "ok": True}],
                 "sha256": apk_sha,
                 "cert_sha256": CERT,
-                "package": "com.oreki.antimatterdimensions",
+                "package": "net.oreki.antimatterdimensions",
                 "versionName": "3.21.0",
                 "versionCode": "30210000",
             }

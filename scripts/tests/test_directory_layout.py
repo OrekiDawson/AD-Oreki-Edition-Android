@@ -22,7 +22,7 @@ class DirectoryLayoutTests(unittest.TestCase):
         self.write("scripts/payload/kotlin/demo/Example.kt", "package demo\nclass Example\n")
         self.write("agp/settings.gradle.kts", 'include(":app")\n')
         self.write("agp/app/build.gradle.kts", '''
-sourceSets["main"].kotlin.srcDirs(
+sourceSets["main"].kotlin.directories.addAll(
     File(repoRoot, "scripts/payload/kotlin"),
     File(repoRoot, "build/kt/generated"),
 )
@@ -58,13 +58,26 @@ sourceSets["main"].kotlin.srcDirs(
         self.phase("dual")
         self.write("app/src/main/kotlin/demo/Example.kt", "package demo\nclass Example\n")
         self.write("agp/app/build.gradle.kts", '''
-sourceSets["main"].kotlin.srcDirs(
+sourceSets["main"].kotlin.directories.addAll(
     File(repoRoot, "scripts/payload/kotlin"),
     File(repoRoot, "app/src/main/kotlin"),
     File(repoRoot, "build/kt/generated"),
 )
 ''')
         self.assertIn("duplicate relative", " ".join(guard.check_layout(self.root)))
+
+    def test_call_parser_ignores_parentheses_in_strings_and_comments(self):
+        self.phase("dual")
+        self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
+        self.write("agp/app/build.gradle.kts", '''
+sourceSets["main"].kotlin.srcDirs(
+    File(repoRoot, "scripts/payload/kotlin"), // 旧根 (见 Issue #61
+    /* 中间块注释 ) 不应截断 */
+    File(repoRoot, "app/src/main/kotlin"),
+    File(repoRoot, "build/kt/generated"), // 结束 )
+)
+''')
+        self.assertEqual([], guard.check_layout(self.root))
 
     def test_nested_new_phase_rejects_old_source_set(self):
         self.phase("nested-new")
@@ -76,10 +89,58 @@ sourceSets["main"].kotlin.srcDirs(
         self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
         self.assertTrue(guard.check_layout(self.root))
         (self.root / "scripts/payload/kotlin/demo/Example.kt").unlink()
+        for path in (
+            self.root / "agp/app/build.gradle.kts",
+            self.root / "agp/settings.gradle.kts",
+        ):
+            path.unlink()
+        for directory in (self.root / "agp/app", self.root / "agp"):
+            directory.rmdir()
         self.write("settings.gradle.kts", 'include(":app")\n')
-        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.1" apply false }\n')
+        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.2" apply false }\n')
         self.write("app/build.gradle.kts", 'plugins { id("com.android.application") }\n')
+        self.write("build-logic/settings.gradle.kts", 'rootProject.name = "build-logic"\n')
+        self.write("build-logic/build.gradle.kts", "plugins { `java-gradle-plugin` }\n")
         self.assertEqual([], guard.check_layout(self.root))
+
+    def test_root_phase_matches_directories_add(self):
+        self.phase("root")
+        (self.root / "scripts/payload/kotlin/demo/Example.kt").unlink()
+        for path in (
+            self.root / "agp/app/build.gradle.kts",
+            self.root / "agp/settings.gradle.kts",
+        ):
+            path.unlink()
+        for directory in (self.root / "agp/app", self.root / "agp"):
+            directory.rmdir()
+        self.write("settings.gradle.kts", 'include(":app")\n')
+        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.2" apply false }\n')
+        self.write("build-logic/settings.gradle.kts", 'rootProject.name = "build-logic"\n')
+        self.write("build-logic/build.gradle.kts", "plugins { `java-gradle-plugin` }\n")
+        self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
+        self.write("app/build.gradle.kts", '''
+plugins { id("com.android.application") }
+sourceSets["main"].kotlin.directories.add(File(repoRoot, "build/kt/generated").absolutePath)
+''')
+        self.assertEqual([], guard.check_layout(self.root))
+
+    def test_root_phase_rejects_legacy_sources_registered_with_directories_add(self):
+        self.phase("root")
+        self.write("app/src/main/kotlin/demo/Other.kt", "package demo\nclass Other\n")
+        self.write("settings.gradle.kts", 'include(":app")\n')
+        self.write("build.gradle.kts", 'plugins { id("com.android.application") version "9.5.2" apply false }\n')
+        self.write("build-logic/settings.gradle.kts", 'rootProject.name = "build-logic"\n')
+        self.write("build-logic/build.gradle.kts", "plugins { `java-gradle-plugin` }\n")
+        self.write("app/build.gradle.kts", '''
+plugins { id("com.android.application") }
+sourceSets["main"].kotlin.directories.add(
+    File(repoRoot, "scripts/payload/kotlin").absolutePath
+)
+''')
+        self.assertIn(
+            "root AGP sourceSets must not compile legacy Kotlin sources",
+            " ".join(guard.check_layout(self.root)),
+        )
 
     def test_invalid_phase_is_rejected(self):
         self.phase("almost")

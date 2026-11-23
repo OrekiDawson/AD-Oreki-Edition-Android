@@ -2,7 +2,7 @@
   "schema": 1,
   "public_source_repository": "OrekiDawson/AD-Oreki-Edition-Android",
   "apk_file": "antimatter-dimensions.apk",
-  "package": "com.oreki.antimatterdimensions",
+  "package": "net.oreki.antimatterdimensions",
   "baselineVersion": "3.21.0",
   "modVersion": "1.0.2",
   "modVersionState": "development",

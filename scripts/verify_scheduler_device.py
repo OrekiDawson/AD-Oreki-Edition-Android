@@ -46,9 +46,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ADB = ROOT / "tools" / "platform-tools" / "adb.exe"
 DEFAULT_SERIAL = "emulator-5554"
-# 注意：本 Mod 的 **applicationId 被改成 com.oreki.antimatterdimensions**，
+# 注意：本 Mod 的 **applicationId 被改成 net.oreki.antimatterdimensions**，
 # 而 **类名包仍是 kajfosz.antimatterdimensions**（见 dumpsys 的
-# `com.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity`）。
+# `net.oreki.antimatterdimensions/kajfosz.antimatterdimensions.MainActivity`）。
 # 所以组件名必须「应用 id / 类全名」拼，不能写成 `.MainActivity` 的简写。
 CLASS_PKG = "kajfosz.antimatterdimensions"
 PKG = ""          # 运行时由 resolve_pkg() 填
@@ -420,8 +420,8 @@ def self_test():
        "count_devices offline 应判否")
 
     # 4b) 包名解析（applicationId 与类包名不同，写错会导致 am start 全失败）
-    ok(parse_pkg("package:com.oreki.antimatterdimensions\npackage:com.android.chrome\n")
-       == "com.oreki.antimatterdimensions", "parse_pkg 未取到工程包名")
+    ok(parse_pkg("package:net.oreki.antimatterdimensions\npackage:com.android.chrome\n")
+       == "net.oreki.antimatterdimensions", "parse_pkg 未取到工程包名")
     ok(parse_pkg("package:com.android.chrome\n") == "", "parse_pkg 对无关输出应返回空串")
 
     # 4c) 屏幕尺寸与节点 y（「dump 有」还要「在屏内」才算可见）
@@ -521,7 +521,7 @@ def main():
         PKG = resolve_pkg()
         if not PKG:
             say("无法解析包名（pm list packages 里没有 .antimatterdimensions）")
-            PKG = "com.oreki.antimatterdimensions"
+            PKG = "net.oreki.antimatterdimensions"
         say(f"包名 = {PKG}")
         if step1_devices():
             step2_install(apk)

@@ -64,7 +64,7 @@ simtest.ADB = ADB_BIN
 
 OUT = ROOT / 'build' / 'cadence_bench'
 SAVE = ROOT / 'build' / 'a4test' / '554. 3R+1.1e6046EP+4.1e21DT.txt'
-PKG = 'com.oreki.antimatterdimensions'
+PKG = 'net.oreki.antimatterdimensions'
 
 
 def sh(cmd, timeout=40):

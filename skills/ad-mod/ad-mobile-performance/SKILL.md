@@ -61,9 +61,9 @@ license: 项目内部技能，遵循仓库 AGENTS.md §8.1/§8.2 与 docs/长期
 ## 最小使用示例（framestats 解析）
 
 ```bash
-adb shell dumpsys gfxinfo com.oreki.antimatterdimensions reset
+adb shell dumpsys gfxinfo net.oreki.antimatterdimensions reset
 sleep 15
-adb shell dumpsys gfxinfo com.oreki.antimatterdimensions framestats > /tmp/fs.txt
+adb shell dumpsys gfxinfo net.oreki.antimatterdimensions framestats > /tmp/fs.txt
 
 awk -F, '
   /^Flags,/ {hdr=1; n=0; next}

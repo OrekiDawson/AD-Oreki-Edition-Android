@@ -10,18 +10,18 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
 import android.view.View
-import android.os.Build
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import android.view.WindowInsets
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 /** 教程页的真实 UI 执行类；保留原 Activity 名称和监听器 ABI。 */
-class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
+class TutorialActivity : Activity() {
     private data class Record(val tag: String, val flag: String, val text: String)
     private data class Chapter(val id: String, val title: String, val start: Int, val stage: String?)
 
@@ -51,13 +51,22 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
         title = "Oreki 教程"
         fontScale = getSharedPreferences("oreki_tutorial_prefs", MODE_PRIVATE)
             .getInt("font_scale", 1).coerceIn(0, 2)
-        window.statusBarColor = surface
-        window.navigationBarColor = surface
+        window.setDecorFitsSystemWindows(false)
+        window.insetsController?.apply {
+            // 深色教程页使用浅色系统图标；清空 light appearance 位。
+            setSystemBarsAppearance(
+                0,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+            )
+        }
         loadAsset()
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(surface)
-            setOnApplyWindowInsetsListener(this@TutorialActivity)
+            setOnApplyWindowInsetsListener { view, insets ->
+                onApplyWindowInsets(view, insets)
+            }
         }
         addTopBar(root)
         addFontPicker(root)
@@ -76,6 +85,17 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
             showChapter(initialChapter())
         } else addParagraph("教程正文暂时不可用，请稍后重试。")
         root.post { fadeIn(root) }
+    }
+
+    /** 保留教程 Activity 的既有监听 ABI，同时集中处理系统栏安全区。 */
+    fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets {
+        val bars = insets.getInsets(WindowInsets.Type.systemBars())
+        // 顶部交给 Top App Bar，根容器只消费左右与底部安全区。
+        view.setPadding(bars.left, 0, bars.right, bars.bottom)
+        if (::appBar.isInitialized) {
+            appBar.setPadding(dp(16), dp(10) + bars.top, dp(12), dp(10))
+        }
+        return insets
     }
 
     private fun loadAsset() {
@@ -263,16 +283,6 @@ class TutorialActivity : Activity(), View.OnApplyWindowInsetsListener {
     private fun fadeIn(view: View) {
         val enabled = try { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f } catch (_: Throwable) { true }
         view.alpha = if (enabled) 0f else 1f; if (enabled) view.animate().alpha(1f).setDuration(180L).start()
-    }
-    override fun onApplyWindowInsets(view: View, insets: WindowInsets): WindowInsets {
-        val bars = if (Build.VERSION.SDK_INT >= 30) {
-            val systemBars = insets.getInsets(WindowInsets.Type.systemBars())
-            intArrayOf(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-        } else intArrayOf(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
-        // 语义：根容器只吃左右/底部，状态栏顶部只交给 Top App Bar，避免双重或零 padding。
-        view.setPadding(bars[0], 0, bars[2], bars[3])
-        if (::appBar.isInitialized) appBar.setPadding(dp(16), dp(10) + bars[1], dp(12), dp(10))
-        return insets
     }
     private fun shape(color: Int, radiusDp: Float) = GradientDrawable().apply { setColor(color); cornerRadius = dp(radiusDp).toFloat(); setStroke(dp(1), outline) }
     private fun ripple(content: GradientDrawable, maskColor: Int) = RippleDrawable(android.content.res.ColorStateList.valueOf(maskColor), content, null)

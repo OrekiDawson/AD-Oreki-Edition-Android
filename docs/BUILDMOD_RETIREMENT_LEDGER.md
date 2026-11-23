@@ -2,6 +2,11 @@
 
 > 基线：2026-11-14 android origin/main 7af89b4f + 技术分支 r107-01/agp-runtime（cc6f9053）。
 > 本文只记录**实际启用路径**与迁移目标，不机械迁移历史函数；状态严格用 PASS / FAIL / BLOCKED / NOT RUN。
+>
+> **R126 现行状态（2026-11-23）**：`scripts/build_mod.py`、旧根 Groovy
+> `build.gradle` / `settings.gradle` 与旧生产包装脚本已物理删除。正式入口为根级
+> `./gradlew :app:assembleRelease`，复杂完整游戏逻辑由 `build-logic/` included build 承担。
+> 以下阶段记录保留为历史证据，不再代表当前文件仍存在。
 
 ## 0. 现状事实（脚本实测）
 
@@ -588,3 +593,55 @@ ANDROID_SDK_ROOT=/home/oreki/Android/Sdk
 - #231 的直接 AGP APK 只有 v3；已按 Candidate 工作流同一命令使用生产密钥重签，
   本机 `apksigner --min-sdk-version 24` 复核 v2=true、v3=true，证书身份不变。
   该本地重签结果仍不等于 GitHub 受保护环境中的正式 Candidate Run。
+
+## 12. R126：Python 补丁树生产入口物理退役
+
+> 2026-11-23，分支 `r126/android-ec4-hold`。本节覆盖此前“保留隔离回退链”的临时状态。
+
+### 12.1 实际退役
+
+| 项 | 旧实现 | 新实现 / 状态 |
+|---|---|---|
+| 根构建入口 | 根 `build.gradle` 调用 `python3 scripts/build_mod.py` | 根 `build.gradle`、`settings.gradle` 已删除；唯一入口为 `bash ./gradlew -p agp :app:assembleRelease` |
+| Python 补丁树 | `build_mod.py` 生成 `work/mod` | AGP 从官方只读 base/split + 钉住游戏 JAR 生成输入 |
+| Manifest/资源 | Python 修改反编译树 | `prepareFullGameInputs` / `verifyFullGameInputs` / AAPT2 + stable IDs |
+| 教程与 changelog | 旧 Python 生产路径 | 已提交资产校验 + Gradle `generateChangelogZh` |
+| Kotlin 业务 | 旧链注入 DEX | AGP built-in Kotlin → D8/R8 → DEX |
+| 生产守卫 | 允许 `OREKI_LEGACY_ISOLATED=1` 回退 | `check_buildmod_retired.py` + `enforce_agp_only.py` fail-closed |
+
+### 12.2 已删除
+
+- `scripts/build_mod.py`
+- `scripts/oreki_dark_theme.py`
+- 根 `build.gradle`、根 `settings.gradle`
+- 依赖上述脚本的旧开发探针、辅助入口和退役专用测试
+
+历史报告、任务和原始证据中的脚本名保留，仅用于追溯。
+
+### 12.3 保留依赖
+
+- `game-hybrid-sig.jar`：静态 fullGame 输入，SHA-256
+  `5f0fcf39acaced6b6c29d48469f8510d89c20f25ad411eb14958ba8ae517faf8`，
+  由私有 candidate bundle 钉住，不再由仓库内 Python 补丁脚本现场生成。
+- `scripts/agp/apply_store_policy.py` + `StorePolicyTransformer.java`：现代 JAR ABI
+  适配，仍属生产辅助。
+- `tools/apktool.jar`：仅用于最终 APK 只读结构取证，禁止 `apktool b`。
+- `scripts/payload/smali/`：历史 ABI/补丁证据与定向夹具，不属于 AGP 正式构建输入。
+
+### 12.4 验证
+
+| 验证 | 结果 |
+|---|---|
+| `scripts/check_buildmod_retired.py` | PASS |
+| `scripts/enforce_agp_only.py candidate` | PASS |
+| `scripts/check_automation_scheduler.py` | PASS，180/180 |
+| `scripts/verify_build_contracts.py` | PASS，6 项执行 / 树级显式 SKIP |
+| `verify_build_contracts.py --selftest` | PASS，18 条变异全部拦截 |
+| AGP-only / candidate wiring / CI migration / provenance 单测 | PASS |
+| `bash ./gradlew -p agp help` | PASS |
+
+### 12.5 结论
+
+- `scripts/build_mod.py`：**物理删除，RETIRED**。
+- 根 Groovy 构建入口：**物理删除，RETIRED**。
+- Python 补丁树生产入口：**零调用**。

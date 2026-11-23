@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 MODE="${1:-all}"
 if [[ -z "${ANDROID_HOME:-}" || ! -d "${ANDROID_HOME}/platforms/android-37.0" ]]; then
-  ANDROID_HOME="/home/oreki/Android/Sdk"
+  ANDROID_HOME="/opt/android-sdk"
 fi
 case "$MODE" in
   all)
@@ -36,7 +36,7 @@ esac
 ANDROID_HOME="$ANDROID_HOME" \
 ANDROID_SDK_ROOT="$ANDROID_HOME" \
 JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}" \
-bash "$ROOT/gradlew" -p "$ROOT/agp" :app:testDebugUnitTest \
+bash "$ROOT/gradlew" :app:testDebugUnitTest \
   "${TEST_ARGS[@]}" \
   --offline --no-daemon --rerun --console=plain
 echo "$SUCCESS_MESSAGE"

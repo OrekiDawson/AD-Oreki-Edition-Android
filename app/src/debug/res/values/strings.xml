@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="oreki_shortcut_target_package" translatable="false">net.oreki.antimatterdimensions.debug</string>
+</resources>

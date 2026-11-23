@@ -24,7 +24,7 @@ advisory（记录但不改变判定）：dex-count、cross-dex-duplicates、
 
 示例：
   python3 scripts/tests/r107/accept_apk.py \
-      --apk agp/app/build/outputs/apk/release/app-release.apk \
+      --apk app/build/outputs/apk/release/app-release.apk \
       --reference-apk /home/oreki/private-staging/candidate-43408627390/antimatter-dimensions.apk \
       --out-dir reports/R107-01/test-ci/v7-baseline
 """
@@ -48,7 +48,7 @@ SCHEMA = 1
 DEFAULT_OFFICIAL_APK = "/home/oreki/private-staging/r10602/kajfosz.antimatterdimensions.apk"
 DEFAULT_OFFICIAL_XAPK = "/home/oreki/Antimatter+Dimensions_3.21.0_APKPure.xapk"
 DEFAULT_CSV = "docs/deobfuscation/data/first-party-3.21-index.csv"
-DEFAULT_PACKAGE = "com.oreki.antimatterdimensions"
+DEFAULT_PACKAGE = "net.oreki.antimatterdimensions"
 DEFAULT_VERSION_NAME = "3.21.0"
 DEFAULT_VERSION_CODE = "30210000"
 DEFAULT_CERT = "95960bce0d8806124d72755d827fcd9216919cac29147635767a967360ed3197"

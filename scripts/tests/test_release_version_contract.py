@@ -15,7 +15,7 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertRegex(policy["versionName"], r"^\S+$")
         self.assertGreater(int(policy["versionCode"]), 0)
         self.assertGreaterEqual(int(policy["versionCode"]), int(policy["lastPublishedVersionCode"]))
-        self.assertEqual(policy["package"], "com.oreki.antimatterdimensions")
+        self.assertEqual(policy["package"], "net.oreki.antimatterdimensions")
 
     def test_ready_for_release_policy_has_strictly_greater_version_code(self):
         # release-unified 的发布守卫：ready-for-release 时 versionCode 必须严格大于已发布最大值，
@@ -48,10 +48,10 @@ class ReleaseVersionContractTests(unittest.TestCase):
         self.assertNotIn("EXPECT_VERSION_NAME, EXPECT_VERSION_CODE = _read_base_version()", release_text)
 
     def test_agp_reads_reviewed_version_instead_of_hardcoding_baseline(self):
-        app = (ROOT / "agp/app/build.gradle.kts").read_text("utf-8")
+        app = (ROOT / "app/build.gradle.kts").read_text("utf-8")
         self.assertIn('release-gate-policy.json', app)
-        self.assertIn('versionCode = orekiVersionCode', app)
-        self.assertIn('versionName = orekiVersionName', app)
+        self.assertIn('versionCode = releaseIdentity["versionCode"]', app)
+        self.assertIn('versionName = requireNotNull(releaseIdentity["versionName"]', app)
         self.assertNotIn('versionCode = 30210000', app)
 
     def test_verify_uses_immutable_source_policy_and_not_self_report(self):

@@ -128,7 +128,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--legacy-dex", help="legacy Kotlin DEX (local full parity)")
     parser.add_argument("--expected-classes", help="committed business class manifest (CI, no kotlinc needed)")
-    parser.add_argument("--agp-apk", default="agp/app/build/outputs/apk/debug/app-debug.apk")
+    parser.add_argument("--agp-apk", default="app/build/outputs/apk/debug/app-debug.apk")
     parser.add_argument("--result-file")
     args = parser.parse_args()
     try:

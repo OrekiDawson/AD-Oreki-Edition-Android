@@ -75,7 +75,7 @@ STUB_SRC = OUT_DIR / "src"
 STUB_CLASSES = OUT_DIR / "classes"
 STUB_JAR = OUT_DIR / "stubs.jar"
 
-# 基线根（与 build.gradle / build_mod.py 同一入口）
+# 基线根（与 AGP 工程使用同一官方输入）
 def _base_root() -> Path:
     return Path(os.environ.get("OREKI_BASE") or (ROOT / "work" / "base_decoded")).resolve()
 

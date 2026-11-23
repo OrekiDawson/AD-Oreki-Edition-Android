@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AGP 阶段三输入准备：把 apktool 解码树规范化为 AGP 可消费的完整游戏输入。
 
-R106-01 背景：AGP 9.5.1 只接受 namespace（Gradle 声明），不接受源
+R106-01 背景：AGP 9.5.2 只接受 namespace（Gradle 声明），不接受源
 AndroidManifest.xml 里的 package 属性；同时正式构建需要原版 Manifest、资源、
 assets 与 native libs 作为真实输入。本脚本只读取解码树，做最小规范化并输出
 可复查的输入指纹，不复制、不携带任何官方二进制内容到仓库。
@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ANDROID_NS = "http://schemas.android.com/apk/res/android"
-DEFAULT_PACKAGE = "com.oreki.antimatterdimensions"
+DEFAULT_PACKAGE = "net.oreki.antimatterdimensions"
 # aapt2 从 <animated-vector> 内联片段生成的资源在解码树里以 "$name" 形式落盘。
 # AGP 9 的资源合并器只接受 [a-z0-9_.-] 文件基名，因此阶段化时统一改名，并
 # 同步改写 public.xml 与所有资源引用；资源 ID 由 stable-ids / public.xml 固定。

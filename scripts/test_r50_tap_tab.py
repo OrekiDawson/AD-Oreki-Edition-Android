@@ -82,7 +82,7 @@ def build_xml(labels: list[str], start_x: int = 24) -> str:
         '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>',
         '<hierarchy rotation="0">',
         '  <node index="0" text="" resource-id="" class="android.widget.FrameLayout" '
-        'package="com.oreki.antimatterdimensions" content-desc="" bounds="[0,0][1080,1920]">',
+        'package="net.oreki.antimatterdimensions" content-desc="" bounds="[0,0][1080,1920]">',
         '    <node index="0" text="关闭" class="android.widget.Button" bounds="[24,48][168,132]" />',
         '    <node index="1" text="打开 Oreki 设置" class="android.widget.Button" bounds="[192,48][520,132]" />',
         '    <node index="2" text="小" class="android.widget.TextView" bounds="[24,168][96,240]" />',
@@ -94,7 +94,7 @@ def build_xml(labels: list[str], start_x: int = 24) -> str:
         w = 40 + 22 * len(label)          # 13sp 中文大约 22px/字
         rows.append(
             f'    <node index="{i + 5}" text="{label}" resource-id="" '
-            f'class="android.widget.TextView" package="com.oreki.antimatterdimensions" '
+            f'class="android.widget.TextView" package="net.oreki.antimatterdimensions" '
             f'bounds="[{x},300][{x + w},376]" />'
         )
         x += w + 12

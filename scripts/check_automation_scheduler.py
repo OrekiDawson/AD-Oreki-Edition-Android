@@ -374,7 +374,7 @@ _beat_runner = ROOT / "scripts" / "fixtures" / "beat" / "run_beat_test.sh"
 _managed_ok, _legacy_ok = False, False
 _managed_out, _legacy_out = ["runner missing"], ["runner missing"]
 if _beat_runner.is_file():
-    _test_results = ROOT / "agp" / "app" / "build" / "test-results" / "testDebugUnitTest"
+    _test_results = ROOT / "app" / "build" / "test-results" / "testDebugUnitTest"
     _managed_classes = {
         "OrekiManagedAutobuyerAuthorityTest",
         "OrekiManagedAutobuyerScenarioTest",
@@ -705,6 +705,52 @@ for _kt in sorted(KT_DIR.glob("*.kt")):
         if _name in _src:
             _bad_stdlib.append(f"{_kt.name}:{_name}")
 check("payload Kotlin 不依赖可能被裁剪的 kotlin.Triple/Pair", not _bad_stdlib, "、".join(_bad_stdlib))
+
+# ---------------------------------------------------------------- 26. R126 EC4 入口等待
+_ec_kt = read(KT_DIR / "OrekiEcAutomation.kt")
+_gate_kt = read(KT_DIR / "OrekiAutoEternityGate.kt")
+_rules_kt = read(KT_DIR / "OrekiEternityRules.kt")
+_adoption_kt = read(KT_DIR / "OrekiAutoEternityAdoption.kt")
+check("R126 EC4 hold 只在主研究就绪、尚未买下时成立",
+      "fun shouldHoldEternityForEc4Entry()" in _ec_kt
+      and "targetEcId == 4 && unlockedEcId == 0" in _ec_kt
+      and "prereqOk == true && studyBought != true" in _ec_kt)
+check("R126 MOD 自动永恒统一门禁识别 EC4 hold",
+      'if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return "ec4-entry-hold"' in _gate_kt)
+check("R126 EC4 hold 接入原版自动永恒托管层",
+      "if (applyEc4EntryHold(active)) return" in _adoption_kt)
+check("R126 EC4 hold 临时关闭并恢复原版自动永恒",
+      "if (OrekiEcAutomation.shouldHoldEternityForEc4Entry())" in _adoption_kt
+      and "GameApi.setAutoEternityActive(false)" in _adoption_kt
+      and "GameApi.setAutoEternityActive(true)" in _adoption_kt)
+check("R126 EC4 hold 放行挑战自动化避免自锁",
+      "if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return true" in _gate_kt)
+check("R126 EC4 hold 状态跨重启持久化且换档清零",
+      'KEY_EC4_ENTRY_HOLD = "oreki.autoEternity.ec4EntryHold"' in _adoption_kt
+      and "getBoolean(KEY_EC4_ENTRY_HOLD" in _adoption_kt
+      and "putBoolean(KEY_EC4_ENTRY_HOLD" in _adoption_kt
+      and "ec4EntryHoldSuppressed = false" in _adoption_kt)
+_ec4_hold_section = _adoption_kt.split("private fun applyEc4EntryHold", 1)[1].split("private fun log", 1)[0]
+check("R126 EC4 hold 落盘失败仍先关闭原版自动永恒",
+      "ec4EntryHoldSuppressed = true" in _ec4_hold_section
+      and "if (!persistEc4Hold(true))" in _ec4_hold_section
+      and _ec4_hold_section.index("ec4EntryHoldSuppressed = true")
+      < _ec4_hold_section.index("GameApi.setAutoEternityActive(false)"))
+check("R126 EC4 hold 持久化不阻塞每帧主线程",
+      "putBoolean(KEY_EC4_ENTRY_HOLD, value).apply()" in _adoption_kt
+      and "putBoolean(KEY_EC4_ENTRY_HOLD, value).commit()" not in _adoption_kt)
+check("R126 EC4 hold 开关写入按秒重试",
+      "shouldAttemptEc4HoldSwitch(lastEc4HoldAttemptAt, now)" in _ec4_hold_section
+      and _ec4_hold_section.count("lastEc4HoldAttemptAt = now") >= 2)
+check("R126 EC4 每帧门禁复用 nextTargetId 缓存",
+      _ec_kt.count("cachedNextTargetId()") >= 3)
+check("R126 旧 build_mod 已退出生产路径",
+      not (ROOT / "scripts/build_mod.py").exists())
+check("R126 EC4 不再复用“允许更频繁永恒”的收益门槛豁免",
+      "targetEcId == 1 && entryGoalMet == false" in _ec_kt
+      and "targetEcId == 1 || targetEcId == 4" not in _ec_kt)
+check("R126 EC4 业务仍由 Kotlin 门禁实现",
+      "shouldHoldEternityForEcEntry" in _ec_kt)
 
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")

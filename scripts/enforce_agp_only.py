@@ -14,8 +14,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-AGP_VERSION = "9.5.1"
-APPLICATION_ID = "com.oreki.antimatterdimensions"
+AGP_VERSION = "9.5.2"
+APPLICATION_ID = "net.oreki.antimatterdimensions"
 # 桥接包名（仅用于在 fullGame 条件表达式里识别"非生产"分支）。
 BRIDGE_APPLICATION_ID = "kajfosz.antimatterdimensions.agpbridge"
 RELEASE_TASK = ":app:assembleRelease"
@@ -31,8 +31,8 @@ def production_application_identity_present(app: str) -> bool:
     """真实 AGP 模块按 fullGame 选择 applicationId：完整游戏分支必须是 MOD 包名。
 
     只接受两种既有形态：
-      1. 字面量 `applicationId = "com.oreki.antimatterdimensions"`（无 fullGame 开关的旧形态）；
-      2. `applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "<bridge>"`
+      1. 字面量 `applicationId = "net.oreki.antimatterdimensions"`（无 fullGame 开关的旧形态）；
+      2. `applicationId = if (fullGame) "net.oreki.antimatterdimensions" else "<bridge>"`
          且桥接分支只能是已知的 bridge 包名。
     其他形态（包括直接写 bridge 包名、条件表达式真分支不是 MOD 包名）一律按 fail-closed 拒绝。
     本函数只做静态识别，不改变 `artifact` 门禁对 provenance 中 application_id 的强校验。
@@ -40,21 +40,32 @@ def production_application_identity_present(app: str) -> bool:
     if f'applicationId = "{APPLICATION_ID}"' in app:
         return True
     conditional = (
+        r'applicationId\s*=\s*if\s*\(\s*fullGame\s*\)\s*\{\s*'
+        + '"' + re.escape(APPLICATION_ID) + '"'
+        + r'\s*\}\s*else\s*\{\s*'
+        + '"' + re.escape(BRIDGE_APPLICATION_ID) + '"'
+        + r'\s*\}'
+    )
+    if re.search(conditional, app, re.DOTALL):
+        return True
+    inline = (
         r'applicationId\s*=\s*if\s*\(\s*fullGame\s*\)\s*'
         + '"' + re.escape(APPLICATION_ID) + '"'
         + r'\s*else\s*'
         + '"' + re.escape(BRIDGE_APPLICATION_ID) + '"'
     )
-    return re.search(conditional, app) is not None
+    return re.search(inline, app) is not None
 
 
 def check_candidate(root: Path = ROOT) -> None:
     """Reject the legacy production workflow even when AGP debug parity passes."""
-    gradle = (root / "agp/build.gradle.kts").read_text(encoding="utf-8")
-    app = (root / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+    for retired in ("scripts/build_mod.py", "scripts/oreki_dark_theme.py", "build.gradle", "settings.gradle"):
+        require(not (root / retired).exists(), "retired production entry still exists: " + retired)
+    gradle = (root / "build.gradle.kts").read_text(encoding="utf-8")
+    app = (root / "app/build.gradle.kts").read_text(encoding="utf-8")
     workflow = (root / WORKFLOW).read_text(encoding="utf-8")
     require(f'id("com.android.application") version "{AGP_VERSION}"' in gradle,
-            "production AGP plugin is not pinned to 9.5.1")
+            "production AGP plugin is not pinned to 9.5.2")
     require('id("com.android.application")' in app,
             "AGP application module missing")
     require(production_application_identity_present(app),
@@ -63,7 +74,7 @@ def check_candidate(root: Path = ROOT) -> None:
             "standalone KGP is forbidden in AGP production")
     require("builtInKotlin=false" not in gradle + app,
             "built-in Kotlin was explicitly disabled")
-    require("bash ./gradlew -p agp :app:assembleRelease" in workflow,
+    require("bash ./gradlew :app:assembleRelease" in workflow,
             "production workflow does not invoke the real AGP release task")
     # Do not prohibit D8/R8/aapt2 inside AGP, or legacy parity in *source CI*.
     forbidden = (
@@ -120,7 +131,7 @@ def main() -> None:
             check_artifact(args.candidate_dir)
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
         parser.exit(1, f"FAIL: {error}\n")
-    print("PASS: AGP 9.5.1 production policy and provenance")
+    print("PASS: AGP 9.5.2 production policy and provenance")
 
 
 if __name__ == "__main__":

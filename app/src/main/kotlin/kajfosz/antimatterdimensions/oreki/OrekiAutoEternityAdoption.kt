@@ -47,6 +47,7 @@ internal object OrekiAutoEternityAdoption {
     private const val KEY_USER_CLOSED = "oreki.autoEternity.userClosed"
     private const val KEY_ENABLED_REALITIES = "oreki.autoEternity.enabledRealities"
     private const val KEY_SAVE_ID = "oreki.autoEternity.saveId"
+    private const val KEY_EC4_ENTRY_HOLD = "oreki.autoEternity.ec4EntryHold"
 
     /** 补回开关的最小间隔（避免写入失败时每帧重试刷屏）。 */
     private const val RETRY_INTERVAL_MS = 1_000L
@@ -66,6 +67,7 @@ internal object OrekiAutoEternityAdoption {
     private var saveId = ""
 
     private var lastAttemptAt = 0L
+    private var lastEc4HoldAttemptAt = 0L
     private var lastLogKey = ""
     private var lastLogAt = 0L
 
@@ -79,6 +81,15 @@ internal object OrekiAutoEternityAdoption {
      */
     @Volatile
     private var modSettlementResetPending = false
+
+    /**
+     * EC4 入口等待期间由 MOD 临时关闭原版自动永恒的内存标记。
+     *
+     * 原版 `EternityAutobuyerState.c()` 位于静态基线 JAR，Kotlin 侧不能直接改写其判据；
+     * 因此托管层在入口等待窗口把原版 `isActive` 暂时置 false，结束后恢复托管值。
+     * 该状态随存档身份落盘，跨进程重启保留；换档/导入时清空，不向新存档传播。
+     */
+    private var ec4EntryHoldSuppressed = false
 
     /**
      * 上一帧观察到的自动永恒开关与永恒进度。
@@ -155,6 +166,7 @@ internal object OrekiAutoEternityAdoption {
             userClosed = sp.getBoolean(KEY_USER_CLOSED, false)
             enabledRealities = sp.getString(KEY_ENABLED_REALITIES, "") ?: ""
             saveId = sp.getString(KEY_SAVE_ID, "") ?: ""
+            ec4EntryHoldSuppressed = sp.getBoolean(KEY_EC4_ENTRY_HOLD, false)
         } catch (_: Throwable) {
             // 读盘失败：保持内存默认值（不接管、不阻拦）
         }
@@ -168,11 +180,32 @@ internal object OrekiAutoEternityAdoption {
                 .putBoolean(KEY_USER_CLOSED, userClosed)
                 .putString(KEY_ENABLED_REALITIES, enabledRealities)
                 .putString(KEY_SAVE_ID, saveId)
+                .putBoolean(KEY_EC4_ENTRY_HOLD, ec4EntryHoldSuppressed)
                 .apply()
         } catch (_: Throwable) {
             // 写盘失败不影响本会话判定，只是重启后需要重新观察
         }
     }
+
+    /**
+     * EC4 hold 的跨重启提示。内存标记是当前进程的权威证据，落盘只用于进程重启后恢复；
+     * 这里使用 `apply()`，避免游戏主线程每帧同步 `commit()` 造成卡顿或 ANR。
+     */
+    private fun persistEc4Hold(value: Boolean): Boolean {
+        val sp = prefs() ?: return false
+        return try {
+            sp.edit().putBoolean(KEY_EC4_ENTRY_HOLD, value).apply()
+            true
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /** 原版自动永恒开关的 hold 写入按秒重试，避免失败时每帧重复调用。 */
+    internal fun shouldAttemptEc4HoldSwitch(lastAttemptAtMs: Long, nowMs: Long): Boolean =
+        lastAttemptAtMs <= 0L ||
+            nowMs < lastAttemptAtMs ||
+            nowMs - lastAttemptAtMs >= RETRY_INTERVAL_MS
 
     // ------------------------------------------------------------------ 判据
 
@@ -265,6 +298,7 @@ internal object OrekiAutoEternityAdoption {
         adopted = false
         userClosed = false
         enabledRealities = ""
+        ec4EntryHoldSuppressed = false
         lastObservedAutoEternityActive = null
         lastObservedEternityProgress = ""
         persist()
@@ -365,13 +399,16 @@ internal object OrekiAutoEternityAdoption {
     @JvmStatic
     fun ensure() {
         try {
-            if (!OrekiAutomationScheduler.isEnabled()) {
-                modSettlementResetPending = false
-                return
-            }
             load()
             bindSave()
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                modSettlementResetPending = false
+                // 总开关关闭时不再执行自动化；若此前 hold 已关闭原版开关，
+                // 保留持久化抑制证据，直到总开关恢复后由真实 EC4 条件决定释放。
+                return
+            }
             val active = GameApi.autoEternityIsActive()
+            if (applyEc4EntryHold(active)) return
             if (shouldClearStaleModSettlementReset(
                     OrekiAutomationScheduler.isEnabled(),
                     active,
@@ -487,6 +524,61 @@ internal object OrekiAutoEternityAdoption {
         } catch (_: Throwable) {
             // 主循环调用点：异常必须完全吞掉（不影响游戏 tick）
         }
+    }
+
+    /** EC4 入口等待时临时关闭原版自动永恒；等待结束后恢复 MOD 托管状态。 */
+    private fun applyEc4EntryHold(active: Boolean?): Boolean {
+        if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) {
+            if (active == true) {
+                val now = SystemClock.elapsedRealtime()
+                if (!shouldAttemptEc4HoldSwitch(lastEc4HoldAttemptAt, now)) return true
+                lastEc4HoldAttemptAt = now
+                // 内存证据先于开关写入；落盘失败也不能让原版自动永恒继续清零 EC4 入口资源。
+                ec4EntryHoldSuppressed = true
+                if (!persistEc4Hold(true)) {
+                    log("ec4-entry-hold persist failed, using memory-only evidence")
+                }
+                GameApi.setAutoEternityActive(false)
+                if (GameApi.autoEternityIsActive() == false) {
+                    lastObservedAutoEternityActive = false
+                    lastObservedEternityProgress = eternityProgressToken()
+                    log("ec4-entry-hold disabled vanilla auto eternity")
+                } else {
+                    ec4EntryHoldSuppressed = false
+                    if (!persistEc4Hold(false)) {
+                        log("ec4-entry-hold rollback persist failed")
+                    }
+                    log("ec4-entry-hold switch-off did not stick")
+                }
+            }
+            return true
+        }
+        if (!ec4EntryHoldSuppressed) return false
+        if (userClosed) {
+            ec4EntryHoldSuppressed = false
+            if (!persistEc4Hold(false)) {
+                log("ec4-entry-hold clear persist failed after user close")
+            }
+            return true
+        }
+        if (!GameApi.autobuyersOn()) return true
+        val now = SystemClock.elapsedRealtime()
+        if (!shouldAttemptEc4HoldSwitch(lastEc4HoldAttemptAt, now)) return true
+        lastEc4HoldAttemptAt = now
+        GameApi.setAutoEternityActive(true)
+        if (GameApi.autoEternityIsActive() == true) {
+            ec4EntryHoldSuppressed = false
+            if (!persistEc4Hold(false)) {
+                log("ec4-entry-hold clear persist failed after restore")
+            }
+            adopted = true
+            lastObservedAutoEternityActive = true
+            lastObservedEternityProgress = eternityProgressToken()
+            log("ec4-entry-hold restored vanilla auto eternity")
+        } else {
+            log("ec4-entry-hold restore did not stick")
+        }
+        return true
     }
 
     private fun log(message: String) {

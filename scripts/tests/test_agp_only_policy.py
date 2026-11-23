@@ -37,24 +37,24 @@ class AgpOnlyPolicyTests(unittest.TestCase):
     def test_candidate_fails_closed_when_bridge_or_legacy_is_used(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "agp/app").mkdir(parents=True)
+            (root / "app").mkdir(parents=True)
             (root / ".github/workflows").mkdir(parents=True)
-            (root / "agp/build.gradle.kts").write_text(
-                'plugins { id("com.android.application") version "9.5.1" apply false }'
+            (root / "build.gradle.kts").write_text(
+                'plugins { id("com.android.application") version "9.5.2" apply false }'
             )
-            app = root / "agp/app/build.gradle.kts"
+            app = root / "app/build.gradle.kts"
             app.write_text('plugins { id("com.android.application") }\n'
-                           'applicationId = "com.oreki.antimatterdimensions"\n')
+                           'applicationId = "net.oreki.antimatterdimensions"\n')
             workflow = root / policy.WORKFLOW
-            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n")
+            workflow.write_text("run: bash ./gradlew :app:assembleRelease\n")
             policy.check_candidate(root)
             app.write_text('plugins { id("com.android.application") }\n'
                            'applicationId = "kajfosz.antimatterdimensions.agpbridge"\n')
             with self.assertRaisesRegex(ValueError, "bridge"):
                 policy.check_candidate(root)
             app.write_text('plugins { id("com.android.application") }\n'
-                           'applicationId = "com.oreki.antimatterdimensions"\n')
-            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n"
+                           'applicationId = "net.oreki.antimatterdimensions"\n')
+            workflow.write_text("run: bash ./gradlew :app:assembleRelease\n"
                                 "run: bash ./gradlew buildKotlinDex\n")
             with self.assertRaisesRegex(ValueError, "non-AGP"):
                 policy.check_candidate(root)
@@ -62,28 +62,28 @@ class AgpOnlyPolicyTests(unittest.TestCase):
     def test_candidate_accepts_fullgame_conditional_application_identity(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "agp/app").mkdir(parents=True)
+            (root / "app").mkdir(parents=True)
             (root / ".github/workflows").mkdir(parents=True)
-            (root / "agp/build.gradle.kts").write_text(
-                'plugins { id("com.android.application") version "9.5.1" apply false }'
+            (root / "build.gradle.kts").write_text(
+                'plugins { id("com.android.application") version "9.5.2" apply false }'
             )
-            app = root / "agp/app/build.gradle.kts"
+            app = root / "app/build.gradle.kts"
             workflow = root / policy.WORKFLOW
-            workflow.write_text("run: bash ./gradlew -p agp :app:assembleRelease\n")
+            workflow.write_text("run: bash ./gradlew :app:assembleRelease\n")
             # 真实 fullGame 条件表达式：真分支 MOD 包名、假分支已知 bridge 包名 → 允许（生产形态）
             app.write_text('plugins { id("com.android.application") }\n'
-                           'applicationId = if (fullGame) "com.oreki.antimatterdimensions" '
+                           'applicationId = if (fullGame) "net.oreki.antimatterdimensions" '
                            'else "kajfosz.antimatterdimensions.agpbridge"\n')
             policy.check_candidate(root)
             # 条件表达式真分支写成 bridge → fail-closed 拒绝
             app.write_text('plugins { id("com.android.application") }\n'
                            'applicationId = if (fullGame) "kajfosz.antimatterdimensions.agpbridge" '
-                           'else "com.oreki.antimatterdimensions"\n')
+                           'else "net.oreki.antimatterdimensions"\n')
             with self.assertRaisesRegex(ValueError, "bridge"):
                 policy.check_candidate(root)
             # 条件表达式缺少已知 bridge 假分支 → 不给通过（fail-closed）
             app.write_text('plugins { id("com.android.application") }\n'
-                           'applicationId = if (fullGame) "com.oreki.antimatterdimensions" else "unknown"\n')
+                           'applicationId = if (fullGame) "net.oreki.antimatterdimensions" else "unknown"\n')
             with self.assertRaisesRegex(ValueError, "bridge"):
                 policy.check_candidate(root)
 
@@ -104,12 +104,12 @@ class AgpOnlyPolicyTests(unittest.TestCase):
             meta = {
                 "source_sha": "a" * 40, "candidate_run_id": 123,
                 "sha256": digest, "builder": "AGP",
-                "agp_version": "9.5.1", "build_task": ":app:assembleRelease",
+                "agp_version": "9.5.2", "build_task": ":app:assembleRelease",
             }
             prov = {
-                "schema": 1, "builder": "AGP", "agp_version": "9.5.1",
+                "schema": 1, "builder": "AGP", "agp_version": "9.5.2",
                 "build_task": ":app:assembleRelease",
-                "application_id": "com.oreki.antimatterdimensions",
+                "application_id": "net.oreki.antimatterdimensions",
                 "apk_sha256": digest, "source_sha": "a" * 40,
                 "candidate_run_id": 123,
             }

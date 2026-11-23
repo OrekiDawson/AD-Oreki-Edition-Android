@@ -9,7 +9,7 @@ verify_au4b 三条构建期断言迁到 scripts/verify_build_contracts.py（源�
   1) 独立校验脚本能在当前仓库通过（等价于 CI 的 Required Checks 步骤）；
   2) 变异自测真的会拦住 10 条故意破坏（不是恒真断言）；
   3) 校验脚本不 import build_mod（不再依赖待退役脚本）；
-  4) build_mod 不再定义/调用这三条校验（生产构建不再执行，且不回潮）。
+  4) build_mod.py 与根 Groovy 入口已物理退役，并由独立守卫阻止回流。
 
 真实构建/APK/AVD 不在本文件范围（NOT RUN）。
 """
@@ -26,18 +26,6 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = ROOT / "scripts"
 BUILD_MOD = SCRIPTS / "build_mod.py"
 VERIFIER = SCRIPTS / "verify_build_contracts.py"
-MIGRATED = (
-    # C4：源码级
-    "verify_kotlin_gameapi_aliases", "verify_break_shop_kotlin", "verify_au4b",
-    # C4b：EC/极性（源码级）+ 永恒层/终点记录/字段类型/类描述符（树级）
-    "check_ec_chain_mechanisms", "check_challenge_auto_polarity",
-    "verify_eternity_chain", "verify_pelle_record", "verify_smali_field_types_320",
-    "check_smali_descriptors",
-    # C4c：payload 全量契约（树级）
-    "verify_payload",
-)
-
-
 def _load_verifier():
     if str(SCRIPTS) not in sys.path:
         sys.path.insert(0, str(SCRIPTS))
@@ -90,17 +78,14 @@ class ContractVerifierTest(unittest.TestCase):
         self.assertNotIn('spec_from_file_location("build_mod"', text,
                          "独立校验脚本不得用 importlib 加载 build_mod")
 
-    def test_build_mod_no_longer_runs_the_migrated_checks(self):
-        tree = ast.parse(BUILD_MOD.read_text(encoding="utf-8"))
-        defs = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
-        for name in MIGRATED:
-            self.assertNotIn(name, defs, "已迁移校验仍定义在 build_mod（应已删除）: " + name)
-        called = set()
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-                called.add(node.func.id)
-        for name in MIGRATED:
-            self.assertNotIn(name, called, "build_mod 仍在构建期调用已迁移校验: " + name)
+    def test_build_mod_and_root_groovy_entry_are_retired(self):
+        self.assertFalse(BUILD_MOD.exists(), "scripts/build_mod.py 必须物理删除")
+        self.assertFalse((ROOT / "build.gradle").exists(), "根 Groovy build.gradle 必须删除")
+        self.assertFalse((ROOT / "settings.gradle").exists(), "根 Groovy settings.gradle 必须删除")
+        guard = SCRIPTS / "check_buildmod_retired.py"
+        self.assertTrue(guard.is_file(), "缺少 build_mod 回流守卫")
+        ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertIn("python3 scripts/check_buildmod_retired.py", ci)
 
 
 class TreeCheckWiringTest(unittest.TestCase):
@@ -111,7 +96,7 @@ class TreeCheckWiringTest(unittest.TestCase):
         steps = [ln.strip() for ln in workflow.splitlines() if ln.strip().startswith("- name:")]
         idx_inputs = steps.index("- name: Verify pinned AGP full-game inputs")
         idx_tree = steps.index("- name: Generate and verify AGP native full-game inputs")
-        idx_build = steps.index("- name: Build AGP 9.5.1 full-game release APK")
+        idx_build = steps.index("- name: Build AGP 9.5.2 full-game release APK")
         self.assertLess(idx_inputs, idx_tree,
                         "原生输入准备必须排在官方 base/split 就位之后")
         self.assertLess(idx_tree, idx_build,

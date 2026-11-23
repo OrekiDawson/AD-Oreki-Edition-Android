@@ -16,7 +16,7 @@
 """
 import argparse, json, os, shutil, subprocess, sys, time, datetime
 
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 ACT = "kajfosz.antimatterdimensions.MainActivity"
 FILES = f"/data/data/{PKG}/files"
 PLAYER = f"{FILES}/player.json"

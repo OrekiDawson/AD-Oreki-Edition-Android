@@ -17,7 +17,7 @@
 import argparse, json, os, re, shutil, subprocess, time, datetime
 import xml.etree.ElementTree as ET
 
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 ACT = "kajfosz.antimatterdimensions.MainActivity"
 FILES = f"/data/data/{PKG}/files"
 PLAYER = f"{FILES}/player.json"

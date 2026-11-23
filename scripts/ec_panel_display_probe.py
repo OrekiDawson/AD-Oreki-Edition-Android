@@ -13,7 +13,7 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADB = os.path.join(ROOT, "tools", "platform-tools", "adb.exe")
-PKG = "com.oreki.antimatterdimensions"
+PKG = "net.oreki.antimatterdimensions"
 PREFS = f"/data/data/{PKG}/shared_prefs/oreki_prefs.xml"
 OUT = os.path.join(ROOT, "build")
 

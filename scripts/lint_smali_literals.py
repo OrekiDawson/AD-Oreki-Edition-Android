@@ -35,7 +35,7 @@ def main(root: str | None = None, files: list[str] | None = None) -> int:
     """root 省略时取命令行第一个参数，再省略则用默认 payload 目录。
 
     这样既能当命令行工具用（python scripts/lint_smali_literals.py 路径），
-    也能被 build_mod.py 以 `main(str(MOD / "smali"))` 直接调用。
+    也能以 `main(str(MOD / "smali"))` 被独立检查器直接调用。
 
     [R75] 新增 `files` 参数：构建期只检查「本次改写过的文件」就够了 ——
     原版 smali 是 apktool 从官方 dex 反编译的，不可能有字面量下标错误；

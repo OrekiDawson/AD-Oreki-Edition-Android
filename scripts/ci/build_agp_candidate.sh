@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# R114-01：AGP 9.5.1 完整游戏候选构建单一入口（fail-closed，不发布）
+# R114-01：AGP 9.5.2 完整游戏候选构建单一入口（fail-closed，不发布）
 #
 # 前置（由 candidate workflow 的私有 bundle 提供；bundle 来源与 SHA 校验见报告）：
 #   OREKI_GAME_JAR            官方 3.21 DEX 转换/回填后的 game jar（本机已验证 5f0fcf39…）
@@ -51,7 +51,7 @@ if [ "$VARIANT" = "on" ]; then APK="$OUTDIR/r8on/app-release.apk"; fi
 [ -f "$APK" ] || fail "AGP 构建未产出 APK：$APK"
 
 echo "[2/3] 签名与证书核验"
-ANDROID_HOME="${ANDROID_HOME:-/home/oreki/Android/Sdk}"
+ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 SIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -n 1)"
 [ -n "$SIGNER" ] || fail "找不到 apksigner"
 VERBOSE="$("$SIGNER" verify --verbose --print-certs "$APK" 2>&1)" || fail "apksigner verify 失败"

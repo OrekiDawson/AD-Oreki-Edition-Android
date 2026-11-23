@@ -30,13 +30,78 @@ def kotlin_files(root: Path, relative: Path) -> set[Path]:
     return {path.relative_to(directory) for path in directory.rglob("*.kt") if path.is_file()}
 
 
+def balanced_call_body(text: str, pattern: str) -> str:
+    """返回 Kotlin 调用括号内的完整正文，跳过注释与字符串中的括号。"""
+    match = re.search(pattern, text)
+    if not match:
+        return ""
+    depth = 1
+    index = match.end()
+    while index < len(text):
+        if text.startswith("//", index):
+            newline = text.find("\n", index + 2)
+            if newline < 0:
+                return ""
+            index = newline + 1
+            continue
+        if text.startswith("/*", index):
+            index += 2
+            comment_depth = 1
+            while index < len(text) and comment_depth:
+                if text.startswith("/*", index):
+                    comment_depth += 1
+                    index += 2
+                elif text.startswith("*/", index):
+                    comment_depth -= 1
+                    index += 2
+                else:
+                    index += 1
+            if comment_depth:
+                return ""
+            continue
+        if text.startswith('"""', index):
+            end = text.find('"""', index + 3)
+            if end < 0:
+                return ""
+            index = end + 3
+            continue
+        if text[index] == '"':
+            index += 1
+            while index < len(text) and text[index] != '"':
+                index += 2 if text[index] == "\\" else 1
+            if index >= len(text):
+                return ""
+            index += 1
+            continue
+        if text[index] == "'":
+            index += 1
+            while index < len(text) and text[index] != "'":
+                index += 2 if text[index] == "\\" else 1
+            if index >= len(text):
+                return ""
+            index += 1
+            continue
+        if text[index] == "(":
+            depth += 1
+        elif text[index] == ")":
+            depth -= 1
+            if depth == 0:
+                return text[match.end():index]
+        index += 1
+    return ""
+
+
 def source_set_block(build_text: str) -> str:
     # A missing source-set declaration is a failure for the nested AGP project.
-    match = re.search(
-        r'sourceSets\["main"\]\.kotlin\.srcDirs\s*\((.*?)\n\s*\)',
-        build_text, re.DOTALL,
-    )
-    return match.group(1) if match else ""
+    for pattern in (
+        r'sourceSets\["main"\]\.kotlin\.srcDirs\s*\(',
+        r'sourceSets\["main"\]\.kotlin\.directories\.addAll\s*\(',
+        r'sourceSets\["main"\]\.kotlin\.directories\.add\s*\(',
+    ):
+        block = balanced_call_body(build_text, pattern)
+        if block:
+            return block
+    return ""
 
 
 def check_layout(root: Path) -> list[str]:
@@ -76,10 +141,23 @@ def check_layout(root: Path) -> list[str]:
                          Path("app/build.gradle.kts")):
             if not (root / relative).is_file():
                 problems.append(f"root AGP phase missing required build file: {relative}")
+        for relative in (Path("build-logic/settings.gradle.kts"),
+                         Path("build-logic/build.gradle.kts")):
+            if not (root / relative).is_file():
+                problems.append(f"root AGP phase missing build-logic entry: {relative}")
+        if (root / "agp").exists():
+            problems.append("root AGP phase must not retain nested agp/ project")
         build_path = root / "app/build.gradle.kts"
         settings = root / "settings.gradle.kts"
-        if settings.is_file() and 'include(":app")' not in settings.read_text(encoding="utf-8"):
-            problems.append("root settings.gradle.kts must include :app")
+        if settings.is_file():
+            settings_text = settings.read_text(encoding="utf-8")
+            if 'include(":app")' not in settings_text:
+                problems.append("root settings.gradle.kts must include :app")
+            included = re.findall(r'(?m)^\s*include\s*\(([^)]*)\)', settings_text)
+            normalized = [item for item in included if item.strip() != '":app"']
+            if normalized:
+                problems.append("root settings.gradle.kts contains non-app Android modules: "
+                                + "; ".join(normalized))
         if build_path.is_file():
             build = build_path.read_text(encoding="utf-8")
             if 'com.android.application' not in build:

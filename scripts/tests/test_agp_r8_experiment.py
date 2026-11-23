@@ -8,8 +8,8 @@ from scripts.agp.r109_verify_r8_output import synthetic_platform_stubs
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-GRADLE = ROOT / "agp" / "app" / "build.gradle.kts"
-RULES = ROOT / "agp" / "app" / "proguard-rules.pro"
+GRADLE = ROOT / "app" / "build.gradle.kts"
+RULES = ROOT / "app" / "proguard-rules.pro"
 R8_AB_SCRIPT = ROOT / "scripts" / "r8" / "r11402_r8_ab.sh"
 
 
@@ -101,14 +101,14 @@ class AgpR8ExperimentTests(unittest.TestCase):
 
     def test_full_game_experiment_uses_root_relative_artifacts_from_any_cwd(self):
         self.assertIn(
-            'local apk_out="$ROOT/agp/app/build/outputs/apk/release/app-release.apk"',
+            'local apk_out="$ROOT/app/build/outputs/apk/release/app-release.apk"',
             self.r8_ab_script,
         )
         self.assertIn(
             'python3 "$ROOT/scripts/agp/r109_apk_metrics.py"',
             self.r8_ab_script,
         )
-        self.assertNotIn('cp agp/app/build/outputs/mapping', self.r8_ab_script)
+        self.assertNotIn('cp app/build/outputs/mapping', self.r8_ab_script)
 
     def test_full_game_experiment_rejects_unknown_variant(self):
         self.assertIn(

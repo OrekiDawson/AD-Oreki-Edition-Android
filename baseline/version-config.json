@@ -2,9 +2,9 @@
   "schema": 1,
   "_comment": [
     "原版基线版本配置 —— 这是版本差异的唯一登记处。",
-    "scripts/build_mod.py 是唯一构建实现；本文件只描述「这一版原版长什么样」。",
+    "AGP 工程是唯一构建实现；本文件只描述「这一版原版长什么样」。",
     "新增版本 = 在 versions 里加一条 + 在 baseline/versions/<ver>/ 放清单，",
-    "不允许复制构建脚本、也不允许在 build_mod.py 里再加 startswith 分支。",
+    "不允许在 AGP 构建中散落版本分支；版本差异必须登记在本文件与 compatibility/bindings 证据中。",
     "字段含义见 baseline/README.md。",
     "has_* 系列：描述「原版自身是否已经具备该行为」。为 true 时 MOD 跳过对应注入，避免与新版原版重复实现或类型不符。",
     "R85 用户修正：平台上游独立管理，Web 不存在与 Android 版本号一致的升级前置要求。"

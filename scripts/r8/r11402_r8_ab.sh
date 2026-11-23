@@ -85,7 +85,7 @@ if [ -n "$RAW_JAR" ]; then
 fi
 if [ -z "$JAR" ] || [ ! -f "$JAR" ]; then echo "missing --jar <file> 或 --raw-jar <file>" >&2; exit 2; fi
 export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}"
-export ANDROID_HOME="${ANDROID_HOME:-/home/oreki/Android/Sdk}"
+export ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 if [ -z "${OREKI_KS_PASS:-}" ] && [ -f "$ROOT/keys/密码.txt" ]; then
   OREKI_KS_PASS="$(cat "$ROOT/keys/密码.txt")"
 fi
@@ -163,7 +163,7 @@ manifest = {
     "android_home": os.environ.get("ANDROID_HOME"),
     "gradle_wrapper": open(os.path.join(root, "gradle/wrapper/gradle-wrapper.properties")).read().strip().splitlines()[-1]
         if os.path.exists(os.path.join(root, "gradle/wrapper/gradle-wrapper.properties")) else None,
-    "keep_rules_sha256": sha256(os.path.join(root, "agp/app/proguard-rules.pro")),
+    "keep_rules_sha256": sha256(os.path.join(root, "app/proguard-rules.pro")),
     "build_log": os.path.abspath(os.path.join(dir_, "build.log")),
     "daemon_marker": "OREKI_R8_EXPERIMENT_ID=" + run_id,
 }
@@ -252,8 +252,8 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
   write_run_json "$name" "$dir" "building" "" "$started" ""
   echo "[r11402-r8] build $name (xmx=$XMX) extra=$*"
   # 清掉上一次 R8 构建残留的 mapping，避免变体之间误用旧产物。
-  rm -f "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt"
-  ( cd "$ROOT" && GRADLE_OPTS="${EXTRA_GRADLE_OPTS:-}" bash ./gradlew -p agp :app:assembleRelease \
+  rm -f "$ROOT/app/build/outputs/mapping/release/mapping.txt"
+  ( cd "$ROOT" && GRADLE_OPTS="${EXTRA_GRADLE_OPTS:-}" bash ./gradlew :app:assembleRelease \
       -PorekiFullGame=true -PorekiGameJar="$JAR" "$@" --console=plain --no-daemon \
       -Dorg.gradle.jvmargs="$jvmargs" > "$log" 2>&1 )
   rc=$?
@@ -265,11 +265,11 @@ run_variant() { # name expect_mapping(0/1) [extra gradle args...]
     write_run_json "$name" "$dir" "failed" "$rc" "$started" "$finished"
     return $rc
   fi
-  local apk_out="$ROOT/agp/app/build/outputs/apk/release/app-release.apk"
-  [ -f "$apk_out" ] || apk_out="$ROOT/agp/app/build/outputs/apk/release/app-release-unsigned.apk"
+  local apk_out="$ROOT/app/build/outputs/apk/release/app-release.apk"
+  [ -f "$apk_out" ] || apk_out="$ROOT/app/build/outputs/apk/release/app-release-unsigned.apk"
   cp "$apk_out" "$dir/app-release.apk" || { write_run_json "$name" "$dir" "failed" "1" "$started" "$finished"; return 1; }
-  if [ -f "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt" ]; then
-    cp "$ROOT/agp/app/build/outputs/mapping/release/mapping.txt" "$dir/mapping.txt"
+  if [ -f "$ROOT/app/build/outputs/mapping/release/mapping.txt" ]; then
+    cp "$ROOT/app/build/outputs/mapping/release/mapping.txt" "$dir/mapping.txt"
   fi
   python3 "$ROOT/scripts/agp/r109_apk_metrics.py" "$dir/app-release.apk" --label "$name" \
     --mapping "$dir/mapping.txt" \

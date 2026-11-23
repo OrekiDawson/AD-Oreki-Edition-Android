@@ -25,7 +25,7 @@
 ## 2. Android 构建与工具迁移
 
 - **Android 固定官方 3.21.0 冻结基线（2026-11-13 起，见第 6 节）；允许只读监测上游安全/重大缺陷，禁止未经用户授权自动升级、自动合并、修改冻结基线或发布**；上游更新按第 6.2 节选择性移植，完整基线替换按第 6.5 节三种边界（研究评估无需新授权 / 用户授权必须 / 正式发布门禁全部满足）。Web 固定 2026-07-17 冻结上游（见 Web 仓库规则）。新增或修改 Android 游戏业务必须用 Kotlin，不新增 Java/Smali 业务或 Kotlin 空壳；遵守 §67 语义命名，混淆名仅限有证据的 ABI 适配。
-- **正式 Android APK 构建强制 AGP 9.5.1，唯一生产入口。** 当前阶段一只有 AGP bridge 包，未通过原版 Manifest、资源 ID、DEX/native、原证书、安装升级和 AVD 真实游戏验收，故 Candidate/Verify/Release 必须拒绝旧链产物并 fail-closed 阻断正式新发布。旧 apktool 和独立 Kotlin→D8 链仅供隔离回归对照，不可直接签名、晋升、发布；已有稳定版继续保留。新链全部兼容验收通过后，才切换正式 Candidate 构建任务并解除阻断。AGP 内部正常使用 D8/R8/AAPT2 不属于禁止范围。
+- **正式 Android APK 构建强制 AGP 9.5.2 + Gradle 9.9.2，唯一生产入口。** 根 Groovy 工程与 `scripts/build_mod.py` 已物理删除，生产构建不执行 Python 补丁树、Smali 文本补丁或 apktool 重打包。旧 apktool 仅可用于最终 APK 的只读结构取证。AGP 内部正常使用 built-in Kotlin、D8/R8/AAPT2 不属于禁止范围。
 - JADX/REA 优先复用现有导出与 ABI 索引；同一官方基线完整导出一次即可，基线变动或证据缺失才重做。优先复用稳定 JDK、SDK、Gradle、Rust、rg 等；Gradle 离线优先，缺依赖再联网；Python 可合理用于非生产辅助与隔离验证，不代替 Kotlin 业务。**`scripts/build_mod.py` 为第 9 节强制退役例外，正式构建期 Python 依赖须逐步消除。**代码文本 LF。
 - 主动利用 logcat、AVD、截图、控件树、帧日志、源码及原版对照定位 Bug；优先根因修复，不能用遮挡 GUI、吞异常或编造状态蒙混过关。
 
@@ -86,7 +86,7 @@
 - 产品版本名 **Oreki Edition**，从 `1.0.0` 起：`1.0.1` = patch（修复，不含新功能）；`1.1.0` = 向后兼容增强；`2.0.0` = 重大或不兼容变更。
 - Android **每次新的正式发布** `versionCode` 必须**严格大于历史已发布最大值**（当前最大值 `30210000`，来自 R103 `android-update-3.21.0-3d924271`）；不得回退、复用或跳变到无法升级的值。
 - **versionCode 分离记录**：原版基线 versionCode（当前 `30210000`）与 MOD 独立发布 versionCode 分开记录；MOD 每次发布使用的新 versionCode 必须严格大于此前所有已发布 MOD versionCode；`baseline/version-config.json` 的 `upstream.android` 同时登记 `baseline_version_code` 与 `mod_release_version_code`。
-- 不得改变包名 `com.oreki.antimatterdimensions`、签名证书身份 `95960bce…3197`，不得破坏合法存档兼容与覆盖升级安装（`adb install -r`）。
+- 正式 applicationId 为 `net.oreki.antimatterdimensions`（Debug 后缀 `.debug`），原版源码 namespace/ABI 仍为 `kajfosz.antimatterdimensions`。签名证书身份保持 `95960bce…3197`；应用身份迁移不承诺覆盖安装旧包，但必须验证旧版存档导出→新版导入，不得自动卸载旧应用或删除用户存档。
 - `versionName`、Git 标签、APK 文件名与更新机制**在真实验证后渐进迁移**；迁移期必须同时保留“MOD 版本 ↔ 基线版本”映射，历史标签与历史资产不改写。
 - 每次发布记录：MOD 版本、基线版本（Android 3.21.0 / Web `5409e320`）、versionCode、证书 SHA-256、APK SHA-256、渠道与验收证据。
 
@@ -200,7 +200,7 @@
 
 ### 9.3 删除与完成验收
 
-- **构建**：无 `build_mod.py` 的干净工作区可重复生成完整、来源可追溯的 AGP 9.5.1 游戏 APK；不是 Bridge、混合拼包、静态检查或仅安装成功。记录源码/原版输入 SHA、编译与签名来源、APK SHA-256 及 ABI/资源证据。
+- **构建**：无 `build_mod.py` 的干净工作区可重复生成完整、来源可追溯的 AGP 9.5.2 游戏 APK；不是 Bridge、混合拼包、静态检查或仅安装成功。记录源码/原版输入 SHA、编译与签名来源、APK SHA-256 及 ABI/资源证据。
 - **运行**：真实 AVD/必要真机验证冷启动、主循环 Tick 持续增长、游戏存档保存/恢复、阶段/挑战真实结算、自动购买器、GUI 与相应 Android/Web 等价行为；只覆盖受影响的关键功能与高风险路径，不为此无差别重跑全部历史回归。
 - **发行**：原包名、原签名证书、MOD versionCode 递增、存档兼容与覆盖安装成立，独立 Candidate/Verify/Release、Required Checks、受保护签名和四渠道同 SHA 的实际证据齐备。新链不达标必须维持 **AGP-only fail-closed / BLOCKED**，保留现有稳定版，不得退回旧链、手动上传或宣称完全退役。
 - **完成标记**：清点 `build_mod.py` 的所有生产调用为零、删除文件、CI 防回流并通过上述门禁后，才将 [Issue #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 标记完成；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的原生游戏构建和 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 的实际交付分别据各自证据结案，不能合并或 PR 绿灯就批量关闭。
@@ -243,14 +243,14 @@
 
 - 最终以标准 AGP 9.5.1 Kotlin DSL 根工程为唯一正式生产入口：`app/build.gradle.kts`、`app/src/main/kotlin/`、`app/src/main/assets/`、`app/src/main/res/`、必要的 `app/src/test/`，根级 `settings.gradle.kts`、`build.gradle.kts` 和 `gradle/`。允许通过 Gradle Provider 声明的生成源码、资源、Manifest、ABI 变换等输入位于构建输出目录，不要求全部拷贝到 `src/main`；官方已冻结原版二进制与受保护私有构建输入不得因此公开入库。
 - `baseline/` 保存版本/ABI/索引与可公开的对照元数据；`reconstructed/` 留作尚未晋升的重建研究；`tools/` 负责 Rust/确定性工具；`scripts/` 负责非正式生产业务的诊断、验证、必要辅助与发布入口；`tests/`、`savestates/`、`docs/`、`reports/` 按实际需求与证据语义组织。不强制移动所有历史文件或修改历史报告链接，避免破坏可追溯性。
-- 当前根 Groovy 工程与 `agp/app` 双入口、`scripts/payload/kotlin` 等只是**过渡现状**，不是标准最终布局。不得将目录变更等同于 Kotlin 业务迁移成功、AGP 完整游戏可发布或 `build_mod.py` 退役完成。
+- 当前 R126 已把仓库根切为标准 Android Studio 工程与唯一 `app/` 模块，复杂完整游戏逻辑进入 `build-logic/` included build；旧根 Groovy、`agp/` 双入口和 `build_mod.py` 已物理退役。目录标准化完成仍需以真实 Debug/AVD、Release、签名、存档和五项游戏验收分别证明，不能把目录变更等同于完整游戏可发布。
 
 ### 11.2 迁移阶段与依赖
 
 1. **S0 只读映射**：核实仓库 `origin/main`、R111 工作树/Agent、运行中 AVD/构建；盘点 Gradle Source Sets、Actions、脚本、共享 Web 内容、相对路径、生成绑定、签名、硬链接及本地资产，记录可追溯清单，不重复完整 JADX 导出。
 2. **S1 低风险闭包**：先通过独立 PR 落实长期规则、README/目录架构入口与必要的无冲突辅助结构；`scripts/`、`docs/` 分类若存在被引用的路径，必须先改消费端并验证，禁止按名称批量移动或删除历史证据。
 3. **S2 正式源码/资产闭包（立即与 #25/#52 并行）**：不等待 #25/#52 全部结案，优先将已确认可编译的 Kotlin 生产源码分闭包迁入 `app/src/main/kotlin/`，同步 Gradle Kotlin Source Sets、生成绑定、验证脚本和受影响的 CI 路径；旧/新目录过渡时不得漏编译或重复类。随后分批接入经实证合格的教程资产、资源 Overlay 与生成文件。每批明确旧→新路径、源码/DEX 对照及消费端更新，执行受影响的干净/增量构建、ABI 和最低必要 APK/AVD/资源验证。无可用输入或冲突资源时先完成无冲突闭包，不中断玩家 P0 修复。
-4. **S3 根级 AGP 与双入口退役**：完整原生游戏构建、包名/资源 ID/Manifest/DEX/ABI、原签名、合法存档、覆盖升级、AVD、受保护 Candidate/Verify/Release 全部符合对应门禁后，才提升 `agp/app` 为根级 `app`，收敛 Kotlin DSL，删除不再需要的旧 Groovy/脚本依赖；不得用混合 DEX 或 Bridge 冒充完成。
+4. **S3 根级 AGP 与双入口退役**：根 `settings.gradle.kts` / `build.gradle.kts` 只识别 `:app`，`app/src/main/kotlin` 为唯一生产 Kotlin Source Set，静态资源位于 `app/src/main/res`，生成资源通过 Gradle Provider 接入；`build-logic/` 按职责提供可在离线环境解析的 Kotlin Gradle 插件/Task。不得用混合 DEX、Bridge、单体巨型构建脚本或双 Android 工程冒充完成。
 5. **S4 收口**：清理过时的路径引用与规则入口，补最小 CI 防回流和用户可读 README，按 Issue #61 清单逐项更新实测证据；无证据项目保留 OPEN、BLOCKED 或 NOT RUN。
 
 ### 11.3 逐批验收、证据和保护

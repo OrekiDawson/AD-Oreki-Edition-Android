@@ -270,13 +270,67 @@ object OrekiEcAutomation {
     }
 
     /**
+     * 每帧门禁共享的小缓存。EC 目标只会在完成数/时间研究状态变化时改变，
+     * 1 秒缓存足够避免 reason() 每帧重复扫描 1..12 的反射成员。
+     */
+    private fun cachedNextTargetId(): Int {
+        val now = android.os.SystemClock.elapsedRealtime()
+        val saveId = GameApi.saveIdentity() ?: ""
+        if (saveId == entryGateExemptCachedSaveId &&
+            entryGateExemptCachedAtMs >= 0L &&
+            now - entryGateExemptCachedAtMs in 0L..ENTRY_GATE_CACHE_MS
+        ) {
+            return entryGateCachedTargetId
+        }
+        return nextTargetId().also {
+            entryGateExemptCachedAtMs = now
+            entryGateExemptCachedSaveId = saveId
+            entryGateCachedTargetId = it
+        }
+    }
+
+    /**
+     * [R126] EC4 入口等待：主研究已就绪、EC4 研究尚未买下时暂停真实永恒。
+     *
+     * EC4 入口使用 `Currency.infinitiesTotal`；原版永恒会清零本次无限次数。
+     * Web R125 真实新档已观察到该值被 16 次自动永恒反复清零。Android 通过
+     * [OrekiAutoEternityGate] 同时拦截 MOD 与原版自动永恒，但只持续到原版
+     * EC4 研究购买成功（`unlocked=4`）；不写资源、完成位或存档字段。
+     */
+    @JvmStatic
+    fun shouldHoldEternityForEc4Entry(): Boolean {
+        if (!OrekiAutomationScheduler.isEnabled()) return false
+        if (GameApi.autobuyersOn() != true) return false
+        if (GameApi.inAnyChallenge()) return false
+        if (cachedNextTargetId() != 4) return false
+        val unlocked = Abi.unlocked() ?: return false
+        if (unlocked != 0) return false
+        val study = Abi.study(4) ?: return false
+        return shouldHoldEternityForEcEntry(
+            targetEcId = 4,
+            unlockedEcId = unlocked,
+            prereqOk = Abi.prereqOk(study),
+            studyBought = Abi.tsBought(study),
+        )
+    }
+
+    /** 纯判据，便于 JVM 锁定“达标前不释放、买下后立即释放”的边界。 */
+    @JvmStatic
+    fun shouldHoldEternityForEcEntry(
+        targetEcId: Int,
+        unlockedEcId: Int,
+        prereqOk: Boolean?,
+        studyBought: Boolean?,
+    ): Boolean = targetEcId == 4 && unlockedEcId == 0 &&
+        prereqOk == true && studyBought != true
+
+    /**
      * [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口未达成时，是否应越过
      * EP 收益门槛继续真实永恒。
      *
-     * EC1 的入口资源是永恒次数，EC4 是无限次数；当前 `gainedEP < EP` 门槛会在
-     * `et<100`、自动永恒尚未解锁的读档场景中压住入口资源增长。仅当下一目标是
-     * EC1/EC4 且官方 `e51.O()`（requirementCurrent >= requirementTotal）为 false
-     * 时豁免，其他 EC 和正常收益节奏不变。
+     * EC1 的入口资源是永恒次数；当前 `gainedEP < EP` 门槛会在 `et<100`、
+     * 自动永恒尚未解锁的读档场景中压住入口资源增长。EC4 的资源会在永恒时清零，
+     * 因此不再复用该豁免，而由 [shouldHoldEternityForEc4Entry] 暂停真实永恒。
      *
      * 本方法只读官方对象，不写 `unlocked`、完成位、资源或存档。
      */
@@ -285,20 +339,7 @@ object OrekiEcAutomation {
         // 挑战进行中不得因 EC1/EC4 入口未达成而放宽收益门槛，否则可能在中途
         // 真实永恒并把当前挑战重置；入口推进只发生在挑战外。
         if (GameApi.inAnyChallenge()) return false
-        val now = android.os.SystemClock.elapsedRealtime()
-        val saveId = GameApi.saveIdentity() ?: ""
-        val target = if (saveId == entryGateExemptCachedSaveId &&
-            entryGateExemptCachedAtMs >= 0L &&
-            now - entryGateExemptCachedAtMs in 0L..ENTRY_GATE_CACHE_MS
-        ) {
-            entryGateCachedTargetId
-        } else {
-            nextTargetId().also {
-                entryGateExemptCachedAtMs = now
-                entryGateExemptCachedSaveId = saveId
-                entryGateCachedTargetId = it
-            }
-        }
+        val target = cachedNextTargetId()
         if (target != 1 && target != 4) return false
         // 目标达成状态会在完成次数、永恒或无限次数变化时立即改变，不能缓存布尔结果。
         val study = Abi.study(target) ?: return false
@@ -306,10 +347,10 @@ object OrekiEcAutomation {
         return shouldExemptEntryEternityGainGate(target, entryGoalMet)
     }
 
-    /** 纯判据：只认下一目标 EC1/EC4 且入口目标尚未达成。 */
+    /** 纯判据：只认下一目标 EC1 且入口目标尚未达成。 */
     @JvmStatic
     fun shouldExemptEntryEternityGainGate(targetEcId: Int, entryGoalMet: Boolean?): Boolean =
-        (targetEcId == 1 || targetEcId == 4) && entryGoalMet == false
+        targetEcId == 1 && entryGoalMet == false
 
     // ------------------------------------------------------------ 阶段 B：真实进入
 

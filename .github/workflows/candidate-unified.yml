@@ -257,7 +257,7 @@ jobs:
           # resolve WORKSPACE = <repo>/<repo>/../.. — one level above the Actions workspace —
           # then read web/AD-Oreki-Edition/src/core/*.json. Link that path at the pinned
           # Web checkout so the fixtures and the tutorial freshness check read one file.
-          # (R114-02 C1: build_mod.py 不再在构建期生成教程资产，也不再读该 JSON。)
+          # 教程唯一权威源：已提交资产由 Web 单源 JSON 做成熟度校验，不在 APK 构建期生成。
           target="$GITHUB_WORKSPACE/../web/AD-Oreki-Edition"
           mkdir -p "$(dirname "$target")"
           ln -sfn "$GITHUB_WORKSPACE/web/AD-Oreki-Edition" "$target"
@@ -373,7 +373,7 @@ jobs:
           set -euo pipefail
           # Issue #52/#61：生产输入由 Gradle 从官方 3.21 base、同版 mdpi split 和
           # 受控 overlay 生成，不依赖旧补丁树。
-          bash ./gradlew -p agp \
+          bash ./gradlew \
             :app:prepareFullGameInputs :app:verifyFullGameInputs \
             -PorekiFullGame=true \
             -PorekiGameJar="$OREKI_GAME_JAR" \
@@ -381,7 +381,7 @@ jobs:
             -PorekiSplitTree="$OREKI_SPLIT_TREE" \
             --no-daemon --console=plain
 
-      - name: Build AGP 9.5.1 full-game release APK
+      - name: Build AGP 9.5.2 full-game release APK
         working-directory: source
         env:
           OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
@@ -391,37 +391,27 @@ jobs:
         run: |
           set -euo pipefail
           test -s "$OREKI_GAME_JAR"
-          # 正式路径：AGP 9.5.1 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
-          bash ./gradlew -p agp :app:assembleRelease \
+          # 正式路径：AGP 9.5.2 完整游戏打包（Kotlin 业务 + 已回填 game jar），R8 OFF。
+          bash ./gradlew :app:assembleRelease \
             -PorekiFullGame=true \
             -PorekiGameJar="$OREKI_GAME_JAR" \
             -PorekiOfficialTree="$OREKI_OFFICIAL_TREE" \
             -PorekiSplitTree="$OREKI_SPLIT_TREE" \
             --no-daemon --console=plain
-          apk="agp/app/build/outputs/apk/release/app-release.apk"
+          apk="app/build/outputs/apk/release/app-release.apk"
           test -s "$apk" || { echo '::error::AGP release APK missing'; exit 1; }
           mkdir -p "$GITHUB_WORKSPACE/candidate"
           cp "$apk" "$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
           echo "::notice::AGP candidate APK staged"
 
-      - name: Re-sign AGP APK with both v2 and v3 schemes
+      - name: Verify AGP-produced signature without re-signing
         working-directory: source
-        env:
-          OREKI_KS_PASS: ${{ secrets.OREKI_KS_PASS }}
         run: |
           set -euo pipefail
-          keystore="$RUNNER_TEMP/oreki-keys/oreki.jks"
-          test -s "$keystore" || { echo '::error::Missing staged production keystore'; exit 1; }
           signer="$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
           test -n "$signer"
           apk="$GITHUB_WORKSPACE/candidate/antimatter-dimensions.apk"
           test -s "$apk"
-          # AGP 9.5.1 无论 signingConfig 如何配置都只输出单一种签名方案（v2-only 或 v3-only）；
-          # verify_release.py 硬性要求 v2+v3。这里用同一生产 keystore 重签，证书/包名/版本不变。
-          # --min-sdk-version 24 是必需的：apksigner 会按 APK manifest 的 minSdk(32) 省略 v2 块，
-          # 只有显式声明 24 才会同时写入 v2+v3（本地实测；v2-only/v3-only 输入均验证通过）。
-          "$signer" sign --ks "$keystore" --ks-key-alias oreki             --ks-pass env:OREKI_KS_PASS --key-pass env:OREKI_KS_PASS             --min-sdk-version 24             --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true             --out "$apk.resigned" "$apk"
-          mv "$apk.resigned" "$apk"
           "$signer" verify --verbose --print-certs --min-sdk-version 24 --max-sdk-version 32 "$apk" > "$GITHUB_WORKSPACE/candidate/signature-probe.txt"
           grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
             echo "::error::APK is missing v2 signature"; exit 1;
@@ -430,9 +420,9 @@ jobs:
             echo "::error::APK is missing v3 signature"; exit 1;
           }
           grep -Fq "$EXPECTED_CERT_SHA256" "$GITHUB_WORKSPACE/candidate/signature-probe.txt" || {
-            echo "::error::Re-signing certificate does not match the existing stable APK"; exit 1;
+            echo "::error::AGP signing certificate does not match the existing stable APK"; exit 1;
           }
-          echo "::notice::APK re-signed with v2+v3 using the production keystore"
+          echo "::notice::AGP-produced APK independently verified with v2+v3 and production certificate"
 
       - name: Prepare APK tool report for contract verifiers
         working-directory: source

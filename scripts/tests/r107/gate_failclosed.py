@@ -3,7 +3,7 @@
 
 用法：
   python3 scripts/tests/r107/gate_failclosed.py \
-      --candidate-apk agp/app/build/outputs/apk/release/app-release.apk \
+      --candidate-apk app/build/outputs/apk/release/app-release.apk \
       --out-dir work/r107-tests/gate
 
 做三件事：
@@ -22,14 +22,15 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 SCHEMA = 1
-AGP_VERSION = "9.5.1"
-APPLICATION_ID = "com.oreki.antimatterdimensions"
+AGP_VERSION = "9.5.2"
+APPLICATION_ID = "net.oreki.antimatterdimensions"
 RELEASE_TASK = ":app:assembleRelease"
 WORKFLOW = ".github/workflows/candidate-unified.yml"
 
@@ -72,8 +73,8 @@ def read(root: Path, relative: str) -> str:
 def evaluate_candidate(root: Path) -> list[dict]:
     """独立复算 enforce_agp_only.check_candidate 的每条 require。"""
     try:
-        gradle = read(root, "agp/build.gradle.kts")
-        app = read(root, "agp/app/build.gradle.kts")
+        gradle = read(root, "build.gradle.kts")
+        app = read(root, "app/build.gradle.kts")
         workflow = read(root, WORKFLOW)
         error = None
     except OSError as exc:
@@ -93,21 +94,29 @@ def evaluate_candidate(root: Path) -> list[dict]:
     row(
         "agp-plugin-pinned",
         f'id("com.android.application") version "{AGP_VERSION}"' in gradle,
-        f'agp/build.gradle.kts 固定 com.android.application {AGP_VERSION}',
+        f'build.gradle.kts 固定 com.android.application {AGP_VERSION}',
         (gradle.strip().splitlines() or [""])[0],
     )
     row(
         "agp-application-module",
         'id("com.android.application")' in app,
         "agp/app 是 AGP application 模块",
-        "agp/app/build.gradle.kts 第 4 行 plugins { id(\"com.android.application\") }",
+        "app/build.gradle.kts 应用 com.android.application",
     )
     literal = f'applicationId = "{APPLICATION_ID}"' in app
-    conditional = f'applicationId = if (fullGame) "{APPLICATION_ID}"' in app
+    conditional = bool(re.search(
+        r'applicationId\s*=\s*if\s*\(\s*fullGame\s*\)\s*\{\s*'
+        + re.escape(f'"{APPLICATION_ID}"')
+        + r'\s*\}\s*else\s*\{\s*'
+        + re.escape('"kajfosz.antimatterdimensions.agpbridge"')
+        + r'\s*\}',
+        app,
+        re.DOTALL,
+    ))
     row(
         "application-id-production",
-        literal,
-        f'applicationId 字面量等于 {APPLICATION_ID}',
+        literal or conditional,
+        f'applicationId 生产分支等于 {APPLICATION_ID}',
         "实际代码为条件表达式：applicationId = if (fullGame) "
         f'"{APPLICATION_ID}" else "kajfosz.antimatterdimensions.agpbridge"；'
         f"condition 识别={conditional}",
@@ -129,8 +138,8 @@ def evaluate_candidate(root: Path) -> list[dict]:
     )
     row(
         "workflow-invokes-agp-release",
-        f"bash ./gradlew -p agp {RELEASE_TASK}" in workflow,
-        f"candidate workflow 必须调用 bash ./gradlew -p agp {RELEASE_TASK}",
+        f"bash ./gradlew {RELEASE_TASK}" in workflow,
+        f"candidate workflow 必须调用 bash ./gradlew {RELEASE_TASK}",
         "candidate-unified.yml 中只有旧链 assembleRelease/verifyRelease/installToRelease，"
         "没有 AGP release 任务",
         "切 CI 时把构建步骤替换成 AGP 任务，并显式传 -PorekiFullGame=true / -PorekiGameJar= / -PorekiDecodedTree=。",

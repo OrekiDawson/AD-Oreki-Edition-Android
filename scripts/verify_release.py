@@ -23,7 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-EXPECT_PKG = "com.oreki.antimatterdimensions"
+EXPECT_PKG = "net.oreki.antimatterdimensions"
 
 # [R76] 期望版本从**所选基线**真实读取，不再写死 3.19.0 / 30190000。
 # [R97] 默认基线与 build.gradle 用同一入口：baseline/version-config.json 的
@@ -140,7 +140,7 @@ def check_study_registry_abi(base, payload_dirs):
         if ".method public static a(Lw63;I)Lkajfosz/antimatterdimensions/eternity/studies/c;" not in text:
             problems.append("w63 缺少 a(Lw63;I)L.../studies/c; 访问器")
     # 注意：**不能**断言 payload 里没有 `Ll43;->`。
-    # 按 build_mod.py 的既有架构，payload 的短名是按 3.19 写的，3.21 的重命名
+    # payload 的短名是按 3.19 写的，3.21 的重命名
     # 只能由 baseline/versions/3.21/bindings.json 的 CONFIRMED 绑定在建包时改写；
     # 在 payload 源里直接写新版名字会让 3.19 失效，属于明确禁止的做法。
     # 这里只核对**基线**是否具备 payload 期望的成员形状，不评判 payload 的书写名。

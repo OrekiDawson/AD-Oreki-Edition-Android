@@ -14,7 +14,7 @@ import sys
 import time
 
 ADB = os.environ.get('ADB_BIN', 'adb')
-PKG = 'com.oreki.antimatterdimensions'
+PKG = 'net.oreki.antimatterdimensions'
 
 
 def _run(*args, timeout=15):
