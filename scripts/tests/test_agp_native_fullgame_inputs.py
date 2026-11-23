@@ -42,8 +42,20 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         overlay = ROOT / "agp/fullgame-overlay/xml/oreki_shortcuts.xml"
         self.assertTrue(overlay.is_file())
         text = overlay.read_text(encoding="utf-8")
-        self.assertIn('android:targetPackage="com.oreki.antimatterdimensions"', text)
+        self.assertIn('android:targetPackage="@string/oreki_shortcut_target_package"', text)
         self.assertFalse((ROOT / "agp/app/src/main/res/xml/oreki_shortcuts.xml").exists())
+
+    def test_variant_stable_ids_and_shortcut_target_are_bound_to_variant(self):
+        text = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
+        self.assertIn(
+            'inputs.property("orekiDebugApplicationIdSuffix", orekiDebugApplicationIdSuffix ?: "")',
+            text,
+        )
+        self.assertIn("variant.androidResources.aaptAdditionalParameters.addAll", text)
+        self.assertIn('"stable-ids-debug.txt"', text)
+        self.assertIn('"stable-ids.txt"', text)
+        self.assertIn('variant.makeResValueKey("string", "oreki_shortcut_target_package")', text)
+        self.assertIn("resValues = true", text)
 
     def test_store_policy_output_is_independently_verified_by_gradle(self):
         text = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")

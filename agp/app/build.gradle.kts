@@ -598,7 +598,8 @@ fun orekiStageFullGameResources(
     }
     val overlayStrings = (
         "    <string name=\"oreki_shortcut_short\">Oreki 设置</string>\n" +
-            "    <string name=\"oreki_shortcut_long\">游戏速度与成就设置</string>\n"
+            "    <string name=\"oreki_shortcut_long\">游戏速度与成就设置</string>\n" +
+            "    <string name=\"oreki_shortcut_target_package\">$OREKI_MOD_APPLICATION_ID</string>\n"
         )
     val updatedStrings = appName.replace(stringsText, "<string name=\"app_name\">反物质维度</string>")
         .replace("</resources>", overlayStrings + "</resources>")
@@ -952,8 +953,17 @@ fun orekiVerifyNativeFullGameInputs(
     if (!launcherIcon.isFile || launcherIcon.length() == 0L) {
         throw GradleException("[oreki] 阶段资源缺少非空 drawable/antimatter")
     }
-    if (!shortcutXml.isFile || !shortcutXml.readText(Charsets.UTF_8).contains(applicationId)) {
-        throw GradleException("[oreki] MOD 快捷方式资源缺失或 targetPackage 未指向正式 applicationId")
+    val shortcutTargetPackage = Regex(
+        "<string name=\"oreki_shortcut_target_package\">([^<]*)</string>",
+    ).find(File(stageRoot, "res/values/strings.xml").readText(Charsets.UTF_8))
+        ?.groupValues
+        ?.get(1)
+    if (!shortcutXml.isFile ||
+        !shortcutXml.readText(Charsets.UTF_8)
+            .contains("android:targetPackage=\"@string/oreki_shortcut_target_package\"") ||
+        shortcutTargetPackage != applicationId
+    ) {
+        throw GradleException("[oreki] MOD 快捷方式资源缺失或 targetPackage 字符串未指向正式 applicationId")
     }
 
     val expectedManifest = File(evidenceFile.parentFile, "manifest-recheck.xml")
@@ -1658,6 +1668,11 @@ val prepareFullGameInputs = tasks.register("prepareFullGameInputs") {
     inputs.file(File(splitTree, "apktool.yml")).withPropertyName("orekiSplitApktool")
     inputs.dir(File(splitTree, "res")).withPropertyName("orekiSplitRes")
     inputs.file(shortcutOverlay).withPropertyName("orekiShortcutOverlay")
+    inputs.property("orekiDebugApplicationIdSuffix", orekiDebugApplicationIdSuffix ?: "")
+    outputs.file(File(fullGameStage, "stable-ids.txt"))
+    if (orekiDebugApplicationIdSuffix != null) {
+        outputs.file(File(fullGameStage, "stable-ids-debug.txt"))
+    }
     outputs.dir(fullGameStage)
     doLast {
         val officialManifest = File(officialTree, "AndroidManifest.xml")
@@ -1714,6 +1729,15 @@ val prepareFullGameInputs = tasks.register("prepareFullGameInputs") {
         val officialEntries = orekiReadPublicResources(officialPublic)
         val splitEntries = orekiReadPublicResources(splitPublic)
         val mergedEntries = orekiMergePublicResources(officialEntries, splitEntries)
+        val stableOutputs = linkedMapOf<String, Any>(
+            "manifest" to "AndroidManifest.xml",
+            "res" to "res",
+            "stableIds" to "stable-ids.txt",
+            "stableIdsEntries" to mergedEntries.size,
+        )
+        if (orekiDebugApplicationIdSuffix != null) {
+            stableOutputs["stableIdsDebug"] = "stable-ids-debug.txt"
+        }
         val evidence = linkedMapOf<String, Any>(
             "schema" to 2,
             "stage" to "agp-native-fullgame-inputs",
@@ -1737,12 +1761,7 @@ val prepareFullGameInputs = tasks.register("prepareFullGameInputs") {
                 "total" to mergedEntries.size,
                 "generatedRenamed" to renamedCount,
             ),
-            "outputs" to linkedMapOf(
-                "manifest" to "AndroidManifest.xml",
-                "res" to "res",
-                "stableIds" to "stable-ids.txt",
-                "stableIdsEntries" to mergedEntries.size,
-            ),
+            "outputs" to stableOutputs,
         )
         File(fullGameStage, "fullgame-inputs.json").writeText(
             JsonOutput.prettyPrint(JsonOutput.toJson(evidence)) + "\n",
@@ -1789,6 +1808,8 @@ android {
 
     buildFeatures {
         buildConfig = false
+        // debug/release 的快捷方式 targetPackage 由 Variant API 生成，必须显式启用。
+        resValues = true
     }
 
     // R8 is an experiment until the complete AGP game APK passes runtime
@@ -1825,18 +1846,6 @@ android {
 
             jniLibs.directories.add(File(repoRoot, "scripts/payload/lib").absolutePath)
         }
-        androidResources {
-            // public.xml 已显式固定原版资源 ID；stable-ids 映射作为独立复核输入，
-            // 保证 aapt2 link 的结果可对照 public.xml 而不是靠分配顺序。
-            val stableIdsName = if (orekiDebugApplicationIdSuffix == null) {
-                "stable-ids.txt"
-            } else {
-                "stable-ids-debug.txt"
-            }
-            additionalParameters.addAll(
-                listOf("--stable-ids", File(fullGameStage, stableIdsName).absolutePath),
-            )
-        }
         signingConfigs {
             create("release") {
                 storeFile = File(repoRoot, "keys/oreki.jks")
@@ -1867,6 +1876,38 @@ android {
             jniLibs {
                 useLegacyPackaging = true
             }
+        }
+    }
+}
+
+if (fullGame) {
+    androidComponents {
+        onVariants { variant ->
+            // stable-ids 必须按变体选择，否则同时构建 debug/release 时 debug 的
+            // applicationIdSuffix 会泄漏到 release，导致原版硬编码资源 ID 失配。
+            val stableIdsName = if (variant.buildType == "debug" &&
+                orekiDebugApplicationIdSuffix != null
+            ) {
+                "stable-ids-debug.txt"
+            } else {
+                "stable-ids.txt"
+            }
+            variant.androidResources.aaptAdditionalParameters.addAll(
+                "--stable-ids",
+                File(fullGameStage, stableIdsName).absolutePath,
+            )
+            val targetPackage = if (variant.buildType == "debug") {
+                OREKI_MOD_APPLICATION_ID + (orekiDebugApplicationIdSuffix ?: "")
+            } else {
+                OREKI_MOD_APPLICATION_ID
+            }
+            variant.resValues.put(
+                variant.makeResValueKey("string", "oreki_shortcut_target_package"),
+                com.android.build.api.variant.ResValue(
+                    targetPackage,
+                    "MOD dynamic shortcut target package",
+                ),
+            )
         }
     }
 }

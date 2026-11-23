@@ -270,6 +270,26 @@ object OrekiEcAutomation {
     }
 
     /**
+     * 每帧门禁共享的小缓存。EC 目标只会在完成数/时间研究状态变化时改变，
+     * 1 秒缓存足够避免 reason() 每帧重复扫描 1..12 的反射成员。
+     */
+    private fun cachedNextTargetId(): Int {
+        val now = android.os.SystemClock.elapsedRealtime()
+        val saveId = GameApi.saveIdentity() ?: ""
+        if (saveId == entryGateExemptCachedSaveId &&
+            entryGateExemptCachedAtMs >= 0L &&
+            now - entryGateExemptCachedAtMs in 0L..ENTRY_GATE_CACHE_MS
+        ) {
+            return entryGateCachedTargetId
+        }
+        return nextTargetId().also {
+            entryGateExemptCachedAtMs = now
+            entryGateExemptCachedSaveId = saveId
+            entryGateCachedTargetId = it
+        }
+    }
+
+    /**
      * [R126] EC4 入口等待：主研究已就绪、EC4 研究尚未买下时暂停真实永恒。
      *
      * EC4 入口使用 `Currency.infinitiesTotal`；原版永恒会清零本次无限次数。
@@ -282,7 +302,7 @@ object OrekiEcAutomation {
         if (!OrekiAutomationScheduler.isEnabled()) return false
         if (GameApi.autobuyersOn() != true) return false
         if (GameApi.inAnyChallenge()) return false
-        if (nextTargetId() != 4) return false
+        if (cachedNextTargetId() != 4) return false
         val unlocked = Abi.unlocked() ?: return false
         if (unlocked != 0) return false
         val study = Abi.study(4) ?: return false
@@ -319,20 +339,7 @@ object OrekiEcAutomation {
         // 挑战进行中不得因 EC1/EC4 入口未达成而放宽收益门槛，否则可能在中途
         // 真实永恒并把当前挑战重置；入口推进只发生在挑战外。
         if (GameApi.inAnyChallenge()) return false
-        val now = android.os.SystemClock.elapsedRealtime()
-        val saveId = GameApi.saveIdentity() ?: ""
-        val target = if (saveId == entryGateExemptCachedSaveId &&
-            entryGateExemptCachedAtMs >= 0L &&
-            now - entryGateExemptCachedAtMs in 0L..ENTRY_GATE_CACHE_MS
-        ) {
-            entryGateCachedTargetId
-        } else {
-            nextTargetId().also {
-                entryGateExemptCachedAtMs = now
-                entryGateExemptCachedSaveId = saveId
-                entryGateCachedTargetId = it
-            }
-        }
+        val target = cachedNextTargetId()
         if (target != 1 && target != 4) return false
         // 目标达成状态会在完成次数、永恒或无限次数变化时立即改变，不能缓存布尔结果。
         val study = Abi.study(target) ?: return false

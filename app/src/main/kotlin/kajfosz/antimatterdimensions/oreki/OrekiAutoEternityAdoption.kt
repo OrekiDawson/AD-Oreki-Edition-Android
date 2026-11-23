@@ -81,6 +81,15 @@ internal object OrekiAutoEternityAdoption {
     private var modSettlementResetPending = false
 
     /**
+     * EC4 入口等待期间由 MOD 临时关闭原版自动永恒的内存标记。
+     *
+     * 原版 `EternityAutobuyerState.c()` 位于静态基线 JAR，Kotlin 侧不能直接改写其判据；
+     * 因此托管层在入口等待窗口把原版 `isActive` 暂时置 false，结束后恢复托管值。
+     * 不落盘，应用重启后会按真实存档与原版开关重新计算。
+     */
+    private var ec4EntryHoldSuppressed = false
+
+    /**
      * 上一帧观察到的自动永恒开关与永恒进度。
      *
      * 原版自动永恒也可能绕过 MOD 的唯一入口直接完成结算；结算会把开关同步置为
@@ -367,11 +376,13 @@ internal object OrekiAutoEternityAdoption {
         try {
             if (!OrekiAutomationScheduler.isEnabled()) {
                 modSettlementResetPending = false
+                ec4EntryHoldSuppressed = false
                 return
             }
             load()
             bindSave()
             val active = GameApi.autoEternityIsActive()
+            if (applyEc4EntryHold(active)) return
             if (shouldClearStaleModSettlementReset(
                     OrekiAutomationScheduler.isEnabled(),
                     active,
@@ -487,6 +498,30 @@ internal object OrekiAutoEternityAdoption {
         } catch (_: Throwable) {
             // 主循环调用点：异常必须完全吞掉（不影响游戏 tick）
         }
+    }
+
+    /** EC4 入口等待时临时关闭原版自动永恒；等待结束后恢复 MOD 托管状态。 */
+    private fun applyEc4EntryHold(active: Boolean?): Boolean {
+        if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) {
+            if (active == true) {
+                GameApi.setAutoEternityActive(false)
+                if (GameApi.autoEternityIsActive() == false) {
+                    ec4EntryHoldSuppressed = true
+                    log("ec4-entry-hold disabled vanilla auto eternity")
+                }
+            }
+            return true
+        }
+        if (!ec4EntryHoldSuppressed) return false
+        ec4EntryHoldSuppressed = false
+        if (!userClosed && GameApi.autobuyersOn()) {
+            GameApi.setAutoEternityActive(true)
+            if (GameApi.autoEternityIsActive() == true) {
+                adopted = true
+                log("ec4-entry-hold restored vanilla auto eternity")
+            }
+        }
+        return true
     }
 
     private fun log(message: String) {
