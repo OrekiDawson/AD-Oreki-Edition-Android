@@ -179,7 +179,6 @@ kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) 
 xe0.class | Lxe0; | dependency ju2.class has default method in classfile version 49
 l69.class | Ll69; | JADX omitted constructor initialization for final field a
 kajfosz/antimatterdimensions/OrekiChallengeAuto.class | Lkajfosz/antimatterdimensions/OrekiChallengeAuto; | JADX source references default-package classes not accessible from a named Java/Kotlin package
-kajfosz/antimatterdimensions/OrekiEcContinuation.class | Lkajfosz/antimatterdimensions/OrekiEcContinuation; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/oreki/OrekiEternity.class | Lkajfosz/antimatterdimensions/oreki/OrekiEternity; | JADX source references default-package classes not accessible from a named Java/Kotlin package
 kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class | Lkajfosz/antimatterdimensions/oreki/OrekiPelleRecord; | JADX source references nested Player record classes that are not compiler-visible
 kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.class | Lkajfosz/antimatterdimensions/oreki/OrekiSmartStrategy; | JADX source references default-package classes not accessible from a named Java/Kotlin package

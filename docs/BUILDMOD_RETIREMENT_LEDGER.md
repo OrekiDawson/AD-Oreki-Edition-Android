@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1021` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1022` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -21,8 +21,8 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`4d012779f29193d35e4ba9f457019b056342b448d5a16d9aa69249685f468e35`
-  （83,835,877 B）；单测 96/96、Python 328/328、1021/1021 ABI/DEX PASS。
+- 当前 FullGame Debug APK：`28af7633c1e0f1fa58211d4bb27a52cb02ea38b655ef64dd97b565bb9e7261c9`
+  （83,835,877 B）；单测 96/96、Python 328/328、1022/1022 ABI/DEX PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
   获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
@@ -32,7 +32,9 @@
   返回主界面后 force-stop/冷启动成功，既有存档与离线进度正常加载。
 - `OrekiAchAudit` 仅以反射读取默认包成就表与尚未完成源码迁移的运行期入口，
   保留 5 秒节流、谓词重算、`used=-1` 未知态和异常日志语义，不写游戏状态。
-- 当前 `scripts/payload/smali` 剩余 `12` 个文件；生产 Smali 清零目标仍未完成。
+- `OrekiEcContinuation` 保持无状态叶 continuation、原版 completion/context 单例和
+  `invokeSuspend -> CoroutineSingletons.a` 行为，不持有游戏状态。
+- 当前 `scripts/payload/smali` 剩余 `11` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 
