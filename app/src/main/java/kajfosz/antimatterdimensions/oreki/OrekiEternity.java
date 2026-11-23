@@ -75,7 +75,8 @@ public final class OrekiEternity {
             }
 
             ClassLoader loader = OrekiEternity.class.getClassLoader();
-            Class<?> tableOwner = Class.forName("l43", false, loader);
+            Class<?> tableOwner = Class.forName(
+                    LegacyReflection.NORMAL_STUDY_TABLE, false, loader);
             Object singleton = tableOwner.getField("a").get(null);
             SparseIntArray ids = (SparseIntArray) tableOwner.getField("d").get(null);
             Method lookup = tableOwner.getMethod("a", tableOwner, int.class);
@@ -210,15 +211,6 @@ public final class OrekiEternity {
     }
 
     private static Object eternityChallenge(int id) {
-        try {
-            Class<?> lookup = Class.forName(
-                    "r51",
-                    false,
-                    OrekiEternity.class.getClassLoader()
-            );
-            return lookup.getMethod("a", int.class).invoke(null, id);
-        } catch (ReflectiveOperationException error) {
-            return null;
-        }
+        return LegacyReflection.eternityChallenge(id);
     }
 }

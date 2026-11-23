@@ -406,13 +406,7 @@ public final class StageAssist {
     }
 
     public static boolean startPerk() {
-        try {
-            ClassLoader loader = StageAssist.class.getClassLoader();
-            Object perk = Class.forName("eg3", false, loader).getField("a").get(null);
-            return (Boolean) perk.getClass().getMethod("k").invoke(perk);
-        } catch (ReflectiveOperationException error) {
-            return false;
-        }
+        return LegacyReflection.startPerk();
     }
 
     private static String hintRows13() {
@@ -470,7 +464,9 @@ public final class StageAssist {
     private static a[] achievements() {
         try {
             Class<?> table = Class.forName(
-                    "z3", false, StageAssist.class.getClassLoader());
+                    LegacyReflection.ACHIEVEMENT_TABLE,
+                    false,
+                    StageAssist.class.getClassLoader());
             return (a[]) table.getField("c").get(null);
         } catch (ReflectiveOperationException error) {
             return new a[0];
@@ -480,7 +476,9 @@ public final class StageAssist {
     private static a achievement(int id) {
         try {
             Class<?> table = Class.forName(
-                    "z3", false, StageAssist.class.getClassLoader());
+                    LegacyReflection.ACHIEVEMENT_TABLE,
+                    false,
+                    StageAssist.class.getClassLoader());
             return (a) table.getMethod("a", int.class).invoke(null, id);
         } catch (ReflectiveOperationException error) {
             return null;
@@ -490,7 +488,9 @@ public final class StageAssist {
     private static int unlockedCount() {
         try {
             Class<?> table = Class.forName(
-                    "z3", false, StageAssist.class.getClassLoader());
+                    LegacyReflection.ACHIEVEMENT_TABLE,
+                    false,
+                    StageAssist.class.getClassLoader());
             return (Integer) table.getMethod("d").invoke(null);
         } catch (ReflectiveOperationException error) {
             return 0;

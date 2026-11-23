@@ -141,6 +141,31 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertEqual((11, 2), (term_offsets[11], term_counts[11]))
         self.assertEqual((71, 2), (clause_offsets[19], clause_counts[19]))
 
+    def test_legacy_reflection_uses_321_class_names(self):
+        helper = (
+            ROOT
+            / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/"
+            "LegacyReflection.kt"
+        ).read_text(encoding="utf-8")
+        eternity = (
+            ROOT
+            / "app/src/main/java/kajfosz/antimatterdimensions/oreki/"
+            "OrekiEternity.java"
+        ).read_text(encoding="utf-8")
+        stage = (
+            ROOT
+            / "app/src/main/java/kajfosz/antimatterdimensions/oreki/"
+            "StageAssist.java"
+        ).read_text(encoding="utf-8")
+        self.assertIn('const val ACHIEVEMENT_TABLE = "t3"', helper)
+        self.assertIn('const val NORMAL_STUDY_TABLE = "w63"', helper)
+        self.assertIn('Class.forName(\n            "x81"', helper)
+        self.assertIn('Class.forName(\n            "vi3"', helper)
+        self.assertNotIn('"l43"', eternity)
+        self.assertNotIn('"r51"', eternity)
+        self.assertNotIn('"z3"', stage)
+        self.assertNotIn('"eg3"', stage)
+
     def test_bulk_sources_are_unique_and_blocked_sources_are_absent(self):
         manifest = (ROOT / "build-logic/source-takeover.txt").read_text(encoding="utf-8")
         entries = {
