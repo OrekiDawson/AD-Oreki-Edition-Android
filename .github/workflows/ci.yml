@@ -56,6 +56,8 @@ jobs:
       # 不得重新依赖 work/mod、modtree 或旧的 Python 阶段目录生产者。
       - name: Test AGP native full-game input guard
         run: python3 -m unittest discover -s scripts/tests -p 'test_agp_native_fullgame_inputs.py' -v
+      - name: Test source-takeover manifest and AGP compiled-product guard
+        run: python3 -m unittest discover -s scripts/tests -p 'test_agp_source_takeover.py' -v
       - name: Validate scoped Codex DeepSeek PR review policy
         run: python3 -m unittest discover -s scripts/tests -p 'test_no_deepseek_ci.py' -v
       - name: Validate cross-repo review, shared quota and Publisher
