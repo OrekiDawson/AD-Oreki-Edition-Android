@@ -507,6 +507,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         "qh6.class",
                         "lp6.class",
                         "y61.class",
+                        "js7.class",
                     )
                     val constructorlessOwnerSpecs = listOf(
                         ConstructorlessOwnerAdaptation(
@@ -623,6 +624,15 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                 "java/lang/Object",
                                 "jp3",
                                 "(Ljava/lang/String;)V",
+                            ),
+                        )
+                        val constructorCallOwnerSpecs = listOf(
+                            ConstructorCallOwnerAdaptation(
+                                "as7.class",
+                                "js7",
+                                "java/lang/Object",
+                                "<init>",
+                                "()V",
                             ),
                         )
                         outputs.file(File(
@@ -800,6 +810,38 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "constructor_owner" to "java/lang/Object",
                                     )
                                 }
+                            val constructorCallOwnerRows =
+                                constructorCallOwnerSpecs.map { spec ->
+                                    val classFile = classRoots
+                                        .map { File(it, spec.classPath) }
+                                        .firstOrNull(File::isFile)
+                                    if (classFile == null) {
+                                        throw GradleException(
+                                            "缺少构造器调用 owner 适配编译产物: " +
+                                                spec.classPath,
+                                        )
+                                    }
+                                    classFile.writeBytes(
+                                        adaptConstructorCallOwner(
+                                            classFile.readBytes(),
+                                            spec,
+                                        ),
+                                    )
+                                    logger.lifecycle(
+                                        "[oreki] 构造器调用 owner 已恢复: " +
+                                            "${spec.classPath} ${spec.sourceOwner}." +
+                                            "${spec.method}${spec.descriptor} -> " +
+                                            "${spec.targetOwner}.${spec.method}" +
+                                            spec.descriptor,
+                                    )
+                                    linkedMapOf(
+                                        "class" to classFile,
+                                        "source_owner" to spec.sourceOwner,
+                                        "target_owner" to spec.targetOwner,
+                                        "method" to spec.method,
+                                        "descriptor" to spec.descriptor,
+                                    )
+                                }
                             val constructorlessOwnerRows =
                                 constructorlessOwnerSpecs.map { spec ->
                                     val classFile = classRoots
@@ -838,6 +880,8 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "adaptations" to evidenceRows,
                                         "constructor_removals" to constructorRemovalRows,
                                         "constructor_owner_adaptations" to constructorOwnerRows,
+                                        "constructor_call_owner_adaptations" to
+                                            constructorCallOwnerRows,
                                         "constructorless_owner_adaptations" to
                                             constructorlessOwnerRows,
                                     ),
@@ -847,6 +891,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         }
                     }
                     compileTask.finalizedBy(adaptSourceAbi)
+                    project.tasks.matching {
+                        it.name == "dexBuilder${variant}" ||
+                            it.name == "minify${variant}WithR8"
+                    }.configureEach { transformedBytecodeConsumer ->
+                        transformedBytecodeConsumer.dependsOn(adaptSourceAbi)
+                    }
                     val evidence = File(
                         config.rootDir,
                         "build/agp-source-takeover/verify-${variant.lowercase()}.json",
@@ -1247,6 +1297,76 @@ internal fun adaptConstructorlessOwnerClass(
     )
     require(writtenConstructors == 1 && removedConstructors == 1) {
         "${spec.classPath} 无构造器 owner shim 不是唯一隐式 <init>()V"
+    }
+    return writer.toByteArray()
+}
+
+internal data class ConstructorCallOwnerAdaptation(
+    val classPath: String,
+    val sourceOwner: String,
+    val targetOwner: String,
+    val method: String,
+    val descriptor: String,
+)
+
+internal fun adaptConstructorCallOwner(
+    input: ByteArray,
+    spec: ConstructorCallOwnerAdaptation,
+): ByteArray {
+    var rewrites = 0
+    val writer = ClassWriter(ClassReader(input), 0)
+    ClassReader(input).accept(
+        object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+            override fun visitMethod(
+                access: Int,
+                name: String,
+                descriptor: String,
+                signature: String?,
+                exceptions: Array<out String>?,
+            ): MethodVisitor {
+                val delegate = super.visitMethod(
+                    access,
+                    name,
+                    descriptor,
+                    signature,
+                    exceptions,
+                )
+                return object : MethodVisitor(Opcodes.ASM9, delegate) {
+                    override fun visitMethodInsn(
+                        opcode: Int,
+                        owner: String,
+                        name: String,
+                        descriptor: String,
+                        isInterface: Boolean,
+                    ) {
+                        val adaptedOwner =
+                            if (
+                                opcode == Opcodes.INVOKESPECIAL &&
+                                owner == spec.sourceOwner &&
+                                name == spec.method &&
+                                descriptor == spec.descriptor
+                            ) {
+                                rewrites += 1
+                                spec.targetOwner
+                            } else {
+                                owner
+                            }
+                        super.visitMethodInsn(
+                            opcode,
+                            adaptedOwner,
+                            name,
+                            descriptor,
+                            isInterface,
+                        )
+                    }
+                }
+            }
+        },
+        0,
+    )
+    require(rewrites == 1) {
+        "${spec.classPath} 应恰有一个 ${spec.sourceOwner}.${spec.method}" +
+            "${spec.descriptor} 调用，实际 $rewrites"
     }
     return writer.toByteArray()
 }

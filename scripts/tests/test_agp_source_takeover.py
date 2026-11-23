@@ -428,6 +428,11 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("constructorlessOwnerSpecs", gradle)
         self.assertIn("requiredNoConstructorSpecs", gradle)
         self.assertIn("adaptConstructorlessOwnerClass", gradle)
+        self.assertIn('it.name == "dexBuilder${variant}"', gradle)
+        self.assertIn('it.name == "minify${variant}WithR8"', gradle)
+        self.assertIn("transformedBytecodeConsumer.dependsOn(adaptSourceAbi)", gradle)
+        self.assertIn("dependsOn(adaptSourceAbi)", gradle)
+        self.assertIn('"js7.class"', gradle)
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
         self.assertNotIn(":build-logic:test", workflow)
 

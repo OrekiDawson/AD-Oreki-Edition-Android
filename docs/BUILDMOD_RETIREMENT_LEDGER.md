@@ -1343,3 +1343,46 @@ source/target 与 class path，不再只匹配插件源码字符串。
   NoClassDefFoundError、ClassNotFoundException 或 UnsatisfiedLinkError。
 - ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项游戏门禁仍为
   **NOT RUN**；剩余 347 项 blocked，保持 Issue #25/#52/#61/#285 OPEN。
+
+### 13.18 `js7` 调用方 owner 与无构造器 ABI 收口
+
+`js7` 的最后边界不是类本身，而是原版调用方 `as7.d()`：
+
+1. `js7` 原 classfile 没有 `<init>`；
+2. `as7` 使用 `new-instance js7` 后直接执行 `Object.<init>()V`；
+3. Java 源码无法表达这一组合，直接删除 `js7.<init>()V` 会因调用方仍引用该
+   descriptor 而让 D8 重新生成构造器。
+
+本批先由 `adaptConstructorCallOwner` 断言 `as7.class` 恰有一个
+`js7.<init>()V` 的 `invokespecial`，将其 owner 确定性地改为
+`java/lang/Object`；再把 `js7.class` 纳入既有唯一隐式构造器删除与最终
+`--require-no-constructor` 守卫。`js7` 源码、字段、14 个方法、`as7` 接口及
+对象监视器语义均保持不变。
+
+同时修正任务依赖建模：`dexBuilder<Variant>` 与
+`minify<Variant>WithR8` 现在显式依赖 `adaptSourceAbi<Variant>`。首次 probe
+曾在普通增量构建中复用改造前 DEX 缓存；强制重跑后确认方案有效，新增依赖可
+避免后续非强制构建再次读取改造前字节码。
+
+实际验证：
+
+- `:build-logic:test` **10/10 PASS**；新增构造器调用 owner 正例与缺失调用负例。
+- Python 定向测试 **43/43 PASS**。
+- FullGame Debug、Classes/ABI/DEX：**1650/1650 PASS**。
+- 最终 DEX 无构造器守卫由 22 项增至 **23 项**，包含 `Ljs7;`；
+  `unexpected_constructors=[]`。
+- FullGame R8 `:app:minifyReleaseWithR8 --rerun-tasks -Poreki.r8=true`：
+  **PASS**。D8/R8 仍对 `as7` 及既有五个同型构造器报告
+  `Constructor mismatch` / 缺失 stack-map warning；未来 R8 可能收紧该输入，
+  保留为真实兼容风险。
+- FullGame Debug APK：
+  `5a8661aef862ea91e77488cf334331efc4fa84a3a48da41d3b1aa29ecbd4ccd6`
+  （83,890,232 B），native ABI 仅 `arm64-v8a,x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，`am start -W` 冷启动 3857 ms，
+  `gui-tick #1/#2/#3` 均 10000 ms，`stage=13 unknownLeaf=0 degraded=0`；
+  crash buffer 为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError、
+  NoClassDefFoundError 或 IncompatibleClassChangeError。
+
+生产接管数保持 1650，blocked 保持 347；本批清偿的是其中一个已接管类的
+构造器 ABI 精确性。ARM64 真机、双向存档矩阵、正式 Release 与 180 分钟五项
+游戏门禁仍为 **NOT RUN**。
