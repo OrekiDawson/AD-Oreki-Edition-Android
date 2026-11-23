@@ -54,5 +54,10 @@ gradlePlugin {
             implementationClass =
                 "kajfosz.antimatterdimensions.buildlogic.OrekiFullGameInputsPlugin"
         }
+        create("orekiAbiPolicy") {
+            id = "oreki.android.abi-policy"
+            implementationClass =
+                "kajfosz.antimatterdimensions.buildlogic.OrekiAbiPolicyPlugin"
+        }
     }
 }

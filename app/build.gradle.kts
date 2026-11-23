@@ -7,6 +7,7 @@ plugins {
     id("oreki.android.build-metadata")
     id("oreki.android.game-assets")
     id("oreki.android.fullgame-inputs")
+    id("oreki.android.abi-policy")
 }
 
 val repoRoot = rootProject.layout.projectDirectory.asFile
@@ -44,6 +45,9 @@ android {
         targetSdk = 37
         versionCode = releaseIdentity["versionCode"].toString().toInt()
         versionName = requireNotNull(releaseIdentity["versionName"] as? String)
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     compileOptions {
