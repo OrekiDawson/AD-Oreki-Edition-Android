@@ -17,6 +17,8 @@ Web 真实新档暴露：首次 Reality 后自动化仍按 EC1→12 重打完整
 - Reality 后：EC1→EC2→EC3→EC10→EC11→EC12→EC4～EC9。
 - EC1～3 与 EC10 用于解锁 181/191/193 研究链；EC11/EC12 用于重新满足
   `TimeStudy.reality` 的原版硬条件。
+- Reality 后 EC1/2/3/10 只补到 1 次，EC11/12 仍补满 5/5，避免每轮多跑
+  16 次已经满足的挑战。
 - `nextTargetId()` 读取真实 `player.realities`；读取失败时按首次阶段顺序 fail-safe。
 - 仍由原版研究购买、挑战入口、目标判定、`completions` 与真实永恒结算完成挑战。
 - 不写完成位、不补资源，不改变 IU15 的 EC7 保护。

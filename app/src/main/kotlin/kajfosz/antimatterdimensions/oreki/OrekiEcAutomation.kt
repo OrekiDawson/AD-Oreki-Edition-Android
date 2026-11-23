@@ -247,7 +247,11 @@ object OrekiEcAutomation {
         val challenge = Abi.challenge(unlocked) ?: return false
         val comps = Abi.completions(challenge) ?: return false
         val max = Abi.maxCompletions(challenge) ?: return false
-        if (max <= 0 || comps < max) return false
+        val afterFirstReality = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
+            ?.let { it > 0 }
+            ?: false
+        val required = ecRequiredCompletions(unlocked, max, afterFirstReality)
+        if (required <= 0 || comps < required) return false
         val now = android.os.SystemClock.elapsedRealtime()
         val key = unlocked * 100 + comps
         if (lastEcRespecKey == key && now - lastEcRespecAt < 3000L) return false
@@ -274,6 +278,15 @@ object OrekiEcAutomation {
             IntArray(EC_COUNT) { it + 1 }
         }
 
+    /** 当前阶段实际需要完成的挑战次数；见 [ecTargetOrder] 与 Web 同源规则。 */
+    @JvmStatic
+    fun ecRequiredCompletions(id: Int, maxCompletions: Int, afterFirstReality: Boolean): Int =
+        if (afterFirstReality && id in intArrayOf(1, 2, 3, 10)) {
+            minOf(1, maxCompletions)
+        } else {
+            maxCompletions
+        }
+
     /** 按阶段顺序取最小未满级关号；全部满级返回 0。 */
     private fun nextTargetId(): Int {
         val afterFirstReality = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
@@ -281,7 +294,9 @@ object OrekiEcAutomation {
             ?: false
         for (id in ecTargetOrder(afterFirstReality)) {
             val challengeObj = Abi.challenge(id) ?: continue
-            if (Abi.isMaxedChallenge(challengeObj) != true) return id
+            val completions = Abi.completions(challengeObj) ?: continue
+            val max = Abi.maxCompletions(challengeObj) ?: continue
+            if (completions < ecRequiredCompletions(id, max, afterFirstReality)) return id
         }
         return 0
     }
