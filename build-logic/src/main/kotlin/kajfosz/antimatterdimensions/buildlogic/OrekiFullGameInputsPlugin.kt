@@ -55,6 +55,15 @@ internal class OrekiFullGameInputsPlugin : Plugin<Project> {
                     config.officialTree,
                     config.splitTree,
                 )
+                val outputEvidence = linkedMapOf<String, Any>(
+                    "manifest" to "AndroidManifest.xml",
+                    "res" to "res",
+                    "stableIds" to "stable-ids.txt",
+                    "stableIdsEntries" to merged.size,
+                )
+                if (config.debugApplicationIdSuffix != null) {
+                    outputEvidence["stableIdsDebug"] = "stable-ids-debug.txt"
+                }
                 val evidence = linkedMapOf<String, Any>(
                     "schema" to 2,
                     "stage" to "agp-native-fullgame-inputs",
@@ -83,12 +92,7 @@ internal class OrekiFullGameInputsPlugin : Plugin<Project> {
                         "total" to merged.size,
                         "generatedRenamed" to renamed,
                     ),
-                    "outputs" to linkedMapOf(
-                        "manifest" to "AndroidManifest.xml",
-                        "res" to "res",
-                        "stableIds" to "stable-ids.txt",
-                        "stableIdsEntries" to merged.size,
-                    ),
+                    "outputs" to outputEvidence,
                 )
                 inputEvidence.writeText(
                     JsonOutput.prettyPrint(JsonOutput.toJson(evidence)) + "\n",

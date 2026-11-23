@@ -61,6 +61,7 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn('"stable-ids-debug.txt"', text)
         self.assertIn('"stable-ids.txt"', text)
         self.assertIn('?: ".debug".takeIf { fullGame }', text)
+        self.assertIn('outputEvidence["stableIdsDebug"] = "stable-ids-debug.txt"', text)
         self.assertIn("@string/oreki_shortcut_target_package", text)
         self.assertIn(
             "net.oreki.antimatterdimensions.debug",
