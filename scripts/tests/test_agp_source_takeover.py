@@ -302,6 +302,7 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("fullGameOnlyKotlinExcludes", app_gradle)
         self.assertIn("sourceTakeoverTestKotlinExcludes", app_gradle)
         self.assertIn('"R126SyntheticAccess.kt"', app_gradle)
+        self.assertIn('"R126SyntheticAccessTest.kt"', app_gradle)
         self.assertIn("prepareBridgeKotlinSources", app_gradle)
         self.assertIn("prepareBridgeTestKotlinSources", app_gradle)
         self.assertIn('if (!fullGame && sourceTakeoverClasses.isNotEmpty())', app_gradle)
