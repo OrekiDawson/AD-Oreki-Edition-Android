@@ -56,6 +56,8 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
         self.assertIn('"stable-ids.txt"', text)
         self.assertIn('variant.makeResValueKey("string", "oreki_shortcut_target_package")', text)
         self.assertIn("resValues = true", text)
+        self.assertIn("val stableIdsFiles = buildList", text)
+        self.assertIn('withPropertyName("orekiStableIds$index")', text)
 
     def test_store_policy_output_is_independently_verified_by_gradle(self):
         text = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")

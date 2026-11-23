@@ -596,6 +596,8 @@ fun orekiStageFullGameResources(
     if (!appName.containsMatchIn(stringsText)) {
         throw GradleException("[oreki] 官方 strings.xml 缺少 app_name")
     }
+    // 基值用于无变体的输入阶段校验；最终 APK 中该 key 由 Variant resValues
+    // 按 debug/release 的实际 applicationId 覆盖，二者同名是有意的安全回退。
     val overlayStrings = (
         "    <string name=\"oreki_shortcut_short\">Oreki 设置</string>\n" +
             "    <string name=\"oreki_shortcut_long\">游戏速度与成就设置</string>\n" +
@@ -1931,13 +1933,16 @@ if (fullGame) {
 if (fullGame) {
     // stable-ids 文件是资源链接的真实输入；显式登记，避免只改 ID 映射时任务被
     // 判定为 UP-TO-DATE 而产出旧 APK。
-    val stableIdsName = if (orekiDebugApplicationIdSuffix == null) {
-        "stable-ids.txt"
-    } else {
-        "stable-ids-debug.txt"
+    val stableIdsFiles = buildList {
+        add(File(fullGameStage, "stable-ids.txt"))
+        if (orekiDebugApplicationIdSuffix != null) {
+            add(File(fullGameStage, "stable-ids-debug.txt"))
+        }
     }
     tasks.matching { it.name.startsWith("process") && it.name.endsWith("Resources") }.configureEach {
-        inputs.file(File(fullGameStage, stableIdsName)).withPropertyName("orekiStableIds")
+        stableIdsFiles.forEachIndexed { index, file ->
+            inputs.file(file).withPropertyName("orekiStableIds$index")
+        }
     }
 }
 

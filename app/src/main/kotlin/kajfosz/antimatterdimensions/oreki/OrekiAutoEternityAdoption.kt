@@ -374,13 +374,19 @@ internal object OrekiAutoEternityAdoption {
     @JvmStatic
     fun ensure() {
         try {
-            if (!OrekiAutomationScheduler.isEnabled()) {
-                modSettlementResetPending = false
-                ec4EntryHoldSuppressed = false
-                return
-            }
             load()
             bindSave()
+            if (!OrekiAutomationScheduler.isEnabled()) {
+                modSettlementResetPending = false
+                if (ec4EntryHoldSuppressed) {
+                    ec4EntryHoldSuppressed = false
+                    if (!userClosed && GameApi.autobuyersOn()) {
+                        GameApi.setAutoEternityActive(true)
+                        log("ec4-entry-hold restored after scheduler-off")
+                    }
+                }
+                return
+            }
             val active = GameApi.autoEternityIsActive()
             if (applyEc4EntryHold(active)) return
             if (shouldClearStaleModSettlementReset(
