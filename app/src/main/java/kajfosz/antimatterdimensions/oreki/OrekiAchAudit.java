@@ -27,7 +27,7 @@ public final class OrekiAchAudit {
                     .invoke(null);
             Object run = playerClass.getMethod("R").invoke(player);
             Object realTime = run.getClass().getMethod("i").invoke(run);
-            long realTimeMillis = realTime.getClass().getField("a").getLong(realTime);
+            double realTimeMillis = realTime.getClass().getField("a").getDouble(realTime);
             Log.i(
                     "OREKI_GATE",
                     "GATE brake=" + playerClass.getMethod("m").invoke(player)

@@ -21,7 +21,7 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`28af7633c1e0f1fa58211d4bb27a52cb02ea38b655ef64dd97b565bb9e7261c9`
+- 当前 FullGame Debug APK：`60b86acb3712cc657c76fb502446f3ce4624c043082daece44456c9a1cd5e184`
   （83,835,877 B）；单测 96/96、Python 328/328、1022/1022 ABI/DEX PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
@@ -34,6 +34,8 @@
   保留 5 秒节流、谓词重算、`used=-1` 未知态和异常日志语义，不写游戏状态。
 - `OrekiEcContinuation` 保持无状态叶 continuation、原版 completion/context 单例和
   `invokeSuspend -> CoroutineSingletons.a` 行为，不持有游戏状态。
+- AVD 运行 `OrekiAchAudit` 连续输出 `DONE scanned=144` 与
+  `GATE brake=... mult=70.0 rt=...`，未出现 `ABORT`、FATAL、VerifyError 或缺失类。
 - 当前 `scripts/payload/smali` 剩余 `11` 个文件；生产 Smali 清零目标仍未完成。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
