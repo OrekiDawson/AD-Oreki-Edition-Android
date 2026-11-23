@@ -1024,3 +1024,33 @@ descriptor、唯一 Smali 身份和源码选择：
 
 本批仍不改变“仍有原版参考源码未迁移”的结论，也不替代 AVD、存档矩阵、真实挑战
 结算或 180 分钟游戏验收。
+
+### 13.9 普通类批量接管第九批
+
+2026-11-24 继续复用 `work/output_code_321_r88/sources`，由
+`scripts/agp/import_class_sources.py` 按 JADX 无警告、冻结 JAR descriptor、
+唯一 Smali 身份三重条件选择下一批 128 个候选：
+
+- 扫描 `9,365` 个 JADX Java 源，其中 `6,075` 个无警告且存在对应 JAR
+  entry；`525` 个同时通过唯一非接口 Smali 身份核验，选择此前未接管的
+  `128` 个。
+- FullGame `compileDebugJavaWithJavac` 真实暴露 `39` 个构造器、父类、字段或
+  classfile 失败候选，全部移回 blocked。
+- `h04` 的 JADX 输出遗漏原版 synthetic 构造器；依据原版 Smali/JAR 恢复
+  `h04(ArrayList)` 后通过。`bh` 与 `v1` 分别遗漏 `19`、`15` 个 Android
+  API 方法，由 ABI 守卫拒绝并移回 blocked。
+- 最终新增接管 `87` 类；生产接管总数由 `1223` 增至 **1310**，blocked
+  为 **285** 项。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1310/1310 PASS**；Python 定向测试
+  13/13 PASS。
+- 当前 FullGame Debug APK：
+  `080af03d9bb0cc88485c06dc1c27cd444e44b77e45c41a2465cf160e095e6e9c`
+  （93,007,741 B）；APK native ABI 仅 `arm64-v8a` 与 `x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1493 ms，进程存活，主调度
+  `gui-tick #1`、`#2` PASS，`stage=13 unknownLeaf=0 degraded=0`；未发现
+  FATAL、ANR、NoSuchMethodError 或 NoClassDefFoundError。
+
+本批仍不改变“原版源码尚未全部接管”的结论；ARM64 真机、双向存档矩阵和完整
+180 分钟五项验收继续为 `NOT RUN`。
