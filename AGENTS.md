@@ -2,6 +2,16 @@
 
 > 此文件只记录稳定开发约束，不把轮次、单个 PR、临时审查启停和最新 APK 验收写成永久状态；当前状态核对用户最新授权、`tasks/` 的最新有效任务记录、GitHub PR/Issues 和实际平台配置。
 
+## Subagent 生命周期与事件驱动补位（2026-11-23，长期强制）
+
+- 当前 Goal active、合法工作窗口、预算和工具允许且有无冲突任务时，Lead 优先调度、分配 Owner、验收与集成，不得长期独自包办可派发的长测试、取证和 PR 核验；不为凑并发数制造任务。
+- 派发必须真实调用 Harness 工具并记录 Agent ID、任务、工作树、独占资源、状态与返回证据；仅写“计划派发”不算完成，普通进程不得冒充 Subagent。
+- Agent completed/failed/退出或资源释放时，Lead 立即验收产物并重新评估队列；有安全任务则及时补位。无法恢复已结束 Agent 时新建 Agent 并传递必要 HEAD、证据与下一动作，不要求保留旧会话。
+- 事件驱动重新调度，不进行空轮询或重复测试。无可执行任务、Owner 冲突、资源/预算/时间限制或工具不可用时允许闲置，但须说明原因。
+- 独立分支/工作树/文件 Owner，AVD/ADB、Playwright、构建与 GitHub 写入资源隔离；Lead 复核真实运行日志、HEAD、CI/Review，Subagent 自报 PASS 不等于验收 PASS。
+- 派发接口失败须报告具体工具错误、阻断与替代方案，继续其他合法任务；阶段报告列 active/completed/failed、实际派发、Owner 与下一补位动作。遵守 Workspace 权威规则及用户最新授权。
+
+
 ## 0. 游戏优先与规则审查边界（2026-11-22）
 
 - 跨仓唯一调度顺序以 [Workspace `AGENTS.md` §0](https://github.com/OrekiDawson/AD-Oreki-Edition-Workspace/blob/main/AGENTS.md) 为准：游戏合法性、`PACING`、真实 180 分钟终局、存档兼容及直接阻断 CI/运行故障优先于非阻断规则 PR。
