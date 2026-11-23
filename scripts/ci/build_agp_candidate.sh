@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# R114-01：AGP 9.5.1 完整游戏候选构建单一入口（fail-closed，不发布）
+# R114-01：AGP 9.5.2 完整游戏候选构建单一入口（fail-closed，不发布）
 #
 # 前置（由 candidate workflow 的私有 bundle 提供；bundle 来源与 SHA 校验见报告）：
 #   OREKI_GAME_JAR            官方 3.21 DEX 转换/回填后的 game jar（本机已验证 5f0fcf39…）

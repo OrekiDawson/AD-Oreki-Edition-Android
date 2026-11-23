@@ -31,17 +31,20 @@ LEDGER = ROOT / "build" / "release-build-ledger.json"
 # 真正影响 APK 内容的输入（相对路径前缀）。纯文档/报告/规则一律不纳入。
 INPUT_DIRS = (
     "app/src/main/kotlin",
-    "scripts/payload/smali",
     "scripts/payload/assets",
     "scripts/payload/res",
     "baseline/versions",
 )
 INPUT_FILES = (
-    "build.gradle",
-    "settings.gradle",
+    "agp/build.gradle.kts",
+    "agp/settings.gradle.kts",
+    "agp/app/build.gradle.kts",
+    "gradle/wrapper/gradle-wrapper.properties",
+    "gradlew",
     "baseline/version-config.json",
-    "scripts/build_mod.py",
     "scripts/build_kotlin.py",
+    "scripts/agp/apply_store_policy.py",
+    "scripts/agp/store_policy/StorePolicyTransformer.java",
 )
 # 参与构建的脚本目录（只取 .py，避免把报告/文档算进来）
 SCRIPT_DIRS = ("scripts",)

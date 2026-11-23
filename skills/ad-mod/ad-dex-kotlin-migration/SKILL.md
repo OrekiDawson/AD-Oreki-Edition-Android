@@ -20,7 +20,7 @@ license: 项目内部技能，遵循仓库 AGENTS.md 与 docs/rules/ANDROID.md
 | 项 | 要求 |
 |---|---|
 | 基线 | `work/base_decoded_321`（apktool 反编译树，3.21） |
-| 构建树 | `work/mod`，由 `scripts/build_mod.py` 的 `prepare()` 重建 |
+| 构建树 | AGP 原生输入；根 Groovy 与 `scripts/build_mod.py` 已退役 |
 | Kotlin 源码 | `scripts/payload/kotlin/kajfosz/antimatterdimensions/oreki/` |
 | ABI 桥 | `scripts/payload/smali/`，只允许机械转发 |
 | 工具 | `tools/kotlinc`、`d8`、`apktool.jar`、`zipalign`、`apksigner`、REA、rg |
@@ -39,10 +39,10 @@ license: 项目内部技能，遵循仓库 AGENTS.md 与 docs/rules/ANDROID.md
    - 新增 `object` 或顶层函数，`@JvmStatic` 暴露给桥。
    - 只读游戏状态时避免每帧反射；必要时缓存 `Field` 句柄（但需 A/B 证明收益，无收益即回退）。
 4. **接桥**
-   - 在 `scripts/build_mod.py` 的对应 `patch_*()` 中，用唯一锚点替换方法体为 trampoline，并加写入断言（标记串必须出现）。
+   - 在原版混淆 ABI 对应的现代字节码/JAR 适配层中替换方法体为 trampoline，并加写入断言。
    - 锚点断言必须 `count == 1`，否则中止构建。
 5. **构建与验证**
-   - `./gradlew assembleRelease`（内部：kotlinc → D8 → DEX → apktool 汇编 → zipalign → apksigner）。
+   - `./gradlew -p agp :app:assembleRelease`（AGP built-in Kotlin → D8/R8 → DEX → APK）。
    - 确认候选 APK 内含新类：`unzip -l` 或 `dexdump` 查 `Lkajfosz/antimatterdimensions/oreki/<新类>;`。
    - 运行期用 logcat 标记串确认桥被调用（例如 `OREKI_*` 前缀）。
 6. **回退准备**
@@ -86,7 +86,7 @@ rg -n "\.method public final g\(\)Z" work/base_decoded_321/smali_classes2/bm4.sm
 #    :oreki_allow
 
 # 4) 构建 + 验证
-./gradlew assembleRelease
+./gradlew -p agp :app:assembleRelease
 unzip -l build/gradle-stage/反物质维度.apk | grep -i oreki
 adb logcat -d | rg "OREKI_NAV"
 ```

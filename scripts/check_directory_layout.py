@@ -33,10 +33,15 @@ def kotlin_files(root: Path, relative: Path) -> set[Path]:
 def source_set_block(build_text: str) -> str:
     # A missing source-set declaration is a failure for the nested AGP project.
     match = re.search(
-        r'sourceSets\["main"\]\.kotlin\.srcDirs\s*\((.*?)\n\s*\)',
+        r'sourceSets\["main"\]\.kotlin\.(?:'
+        r'srcDirs\s*\((.*?)\)|'
+        r'directories\.addAll\s*\((.*?)\n\s*\)'
+        r')',
         build_text, re.DOTALL,
     )
-    return match.group(1) if match else ""
+    if not match:
+        return ""
+    return match.group(1) or match.group(2) or ""
 
 
 def check_layout(root: Path) -> list[str]:

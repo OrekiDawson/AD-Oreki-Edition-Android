@@ -10,7 +10,7 @@ import sys
 import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-BUILD = ROOT / "scripts/build_mod.py"
+STAGE_AUTO = ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiStageAuto.kt"
 
 
 def _decoded_base() -> pathlib.Path:
@@ -67,31 +67,19 @@ def check(name, ok, detail=""):
         fails.append(f"{name}  ← {detail}" if detail else name)
 
 
-bm = BUILD.read_text(encoding="utf-8")
+stage_auto = STAGE_AUTO.read_text(encoding="utf-8")
 
-# 1) 补丁函数存在且已接入主流程
-check("build_mod 定义了 patch_crunch_mode_label_refresh",
-      "def patch_crunch_mode_label_refresh()" in bm)
-check("build_mod 已调用该补丁",
-      re.search(r"^\s+patch_crunch_mode_label_refresh\(\)$", bm, re.M) is not None)
-
-# 2) 补丁内的关键片段齐全（防止拼接时被截断）
-for frag in (":oreki_r73_no_mode", ":oreki_r73_m_time", ":oreki_r73_m_xh",
-             ":oreki_r73_set", "0x7f11030e", "0x7f11030f", "0x7f110310",
-             "CrunchAutobuyerState;->I()I", "Landroid/widget/TextView;->setText"):
-    check(f"补丁含 {frag}", frag in bm)
-
-# 3) 红线：**注入块本身**只读 mode，不得写入。
-#    注意只能查 block 变量里的那一段 —— build_mod 全文当然会出现 a(I)V / Q()V
-#    （别处有断言和文档），按全文查会假失败（R73 第一次就踩了这个）。
-block_start = bm.find('    block = """    # [Oreki R73]')
-block_end = bm.find('"""', bm.find(':oreki_r73_no_mode', block_start))
-check("能定位到注入块", block_start > 0 and block_end > block_start)
-if block_start > 0 and block_end > block_start:
-    block = bm[block_start:block_end]
-    check("注入块不写 mode（不得出现 a(I)V）", "CrunchAutobuyerState;->a(I)V" not in block)
-    check("注入块不调 Q()（不得替玩家切换）", "CrunchAutobuyerState;->Q()V" not in block)
-    check("注入块只读 mode（含 I()I）", "CrunchAutobuyerState;->I()I" in block)
+# 1) 模式刷新已由 Kotlin 调度器接管，不再依赖 build_mod 文本注入。
+check("Kotlin 定义了 applyManagedCrunchMode",
+      "private fun applyManagedCrunchMode()" in stage_auto)
+check("Kotlin 调度器实际调用模式刷新",
+      stage_auto.count("applyManagedCrunchMode()") >= 2)
+check("Kotlin 通过 GameApi 写原版 mode",
+      "GameApi.setCrunchMode(crunch, target)" in stage_auto)
+check("Kotlin 保留 tick 级幂等闩锁",
+      "appliedManagedCrunchModeTickId" in stage_auto)
+check("Kotlin 记录受管模式日志",
+      "managed[crunch.mode]" in stage_auto)
 
 # 4) 锚点必须唯一且存在于源文件
 if TARGET.exists():

@@ -25,7 +25,7 @@
 
 需要 JDK、Android SDK / Build Tools、Gradle Wrapper 和 adb。工具链的具体版本、基线资源及 ABI 要求以当前配置和 [构建交付规则](docs/DELIVERY_RULES.md) 为准，不使用旧报告中的固定版本代替实时检查。
 
-仓库保留历史构建链与 AGP 工程，**不要把旧的 `scripts/build_mod.py` 产物直接作为正式发行 APK**。AGP 工程有两种模式。**默认命令只执行 bridge/骨架包编译检查，不能拿生成的 APK 进行完整游戏安装与验收：**
+**AGP 9.5.2 是唯一正式构建入口。** 根 Groovy 工程、`scripts/build_mod.py` 与 Python 补丁树生产链已于 R126 物理退役；历史报告只作追溯。默认命令执行 bridge/骨架包编译检查，不能拿该 bridge 包进行完整游戏安装与验收：
 
 ```bash
 ./gradlew -p agp :app:assembleRelease --offline --no-daemon --console=plain
@@ -56,7 +56,7 @@ GAME_JAR=/absolute/path/to/verified-game.jar
 | `reports/` | 历史构建、KVM/AVD、运行和故障证据 |
 | `tasks/` | 轮次任务、当前工作与验收口径 |
 
-根目录的旧 Gradle/脚本链及 `scripts/payload/` 可能仍用于隔离对照，不能仅凭目录存在认定其为正式发行入口。项目布局迁移请查阅 [相关 Issue](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)。
+根目录不再保留旧 Gradle 构建入口。`scripts/payload/smali/` 仅作为历史 ABI/回填证据，不属于正式生产输入；生产构建只读取经过 SHA-256 钉住的游戏 JAR、官方只读基线与 AGP 资源/Kotlin。项目布局迁移请查阅 [相关 Issue](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/61)。
 
 ## 验证与反馈
 

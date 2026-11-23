@@ -156,9 +156,9 @@ check("函数体有 try/catch 兜底（异常不得冒到主循环）",
       "try {" in body and "catch" in body)
 
 # ---------- 汇总 ----------
-# 注意：本脚本既可直接运行，也被 build_mod.py `import` 后调用 main()。
+# 注意：本脚本可直接运行，也可被独立契约校验器 import 后调用 main()。
 # 因此**不能**在模块顶层 `sys.exit()` —— 那会在 import 结束的瞬间终止整个构建进程
-# （R78 实测：build_mod 跑到这里静默 "成功" 退出、APK 没重新打包，极难定位）。
+# （历史链曾跑到这里静默成功退出、APK 未重新打包，极难定位）。
 def main() -> int:
     print(f"\nR74 大坍缩策略夹具（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")
     if fails:

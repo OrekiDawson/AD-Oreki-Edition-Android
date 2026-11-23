@@ -8,7 +8,7 @@ R91 起的真实口径：**直接检查候选 APK 的已准备解包树**，在 
 
 17 项契约（每项内部可含多个子断言，任一子断言失败即该项失败）：
   1. scripts/ 下所有 Python 能编译；
-  2. build_mod.py 的 main() 启用 EC12 限时补丁；
+  2. 旧 build_mod.py 与根 Groovy 生产入口保持删除；
   3. main() 启用「进入即完成」挑战补丁；
   4. 已实测否证的提频补丁（patch_frame_cadence）保持禁用；
   5. 候选 APK 内 EC12 补丁唯一，且 unscale 紧邻限时比较；
@@ -37,7 +37,7 @@ R91 起的真实口径：**直接检查候选 APK 的已准备解包树**，在 
     python scripts/verify_patch_contract.py --apk ... --json reports/r91-gates/verify-patch-contract.json
     python scripts/verify_patch_contract.py --tree work/mod        # 仅取证调试，不用于正式门禁
 
-退出码：0 = 17/17 全部通过；1 = 有契约失败；2 = 工具/候选 APK/反编译不可用。
+退出码：0 = 全部通过；1 = 有契约失败；2 = 工具/候选 APK/反编译不可用。
 """
 import argparse
 import pathlib
@@ -53,7 +53,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 MOD = ROOT / "work" / "mod"
-BUILD_MOD = SCRIPTS / "build_mod.py"
 VERSION_CONFIG = ROOT / "baseline" / "version-config.json"
 BINDINGS_DIR = ROOT / "baseline" / "versions"
 
@@ -568,7 +567,7 @@ def discover_spinner(index: SmaliIndex, holder: str, formatter_super: str):
 
 
 # ---------------------------------------------------------------------------
-# 17 项契约
+# 候选 APK 与退役链契约
 # ---------------------------------------------------------------------------
 def check_compile(subs):
     bad = []
@@ -582,21 +581,19 @@ def check_compile(subs):
     add_sub(subs, not bad, "scripts/*.py 全部可编译", "; ".join(bad[:3]))
 
 
-def check_build_mod_main(subs):
-    src = BUILD_MOD.read_text(encoding="utf-8", errors="replace")
-    m = re.search(r"\ndef main\(\):(.*?)\nif __name__", src, re.S)
-    body = m.group(1) if m else ""
-    active = "\n".join(l for l in body.splitlines() if not l.strip().startswith("#"))
-    add_sub(subs, re.search(r"^\s*patch_ec12_restriction\(\)\s*$", active, re.M) is not None,
-            "main() 启用 patch_ec12_restriction()")
-    add_sub(subs, re.search(r"^\s*retire_instant_challenge\(\)\s*$", active, re.M) is not None,
-            "main() 启用 retire_instant_challenge()")
-    add_sub(subs, re.search(r"^\s*patch_instant_challenge\(\)\s*$", active, re.M) is None,
-            "main() 不再启用 patch_instant_challenge()")
-    add_sub(subs, re.search(r"^\s*patch_instant_challenge_rewards\(\)\s*$", active, re.M) is None,
-            "main() 不再启用 patch_instant_challenge_rewards()")
-    add_sub(subs, re.search(r"^\s*patch_frame_cadence\(\)\s*$", active, re.M) is None,
-            "main() 未启用已否证的 patch_frame_cadence()")
+def check_build_retired(subs):
+    """旧 Python/Smali 生产入口必须保持物理退役。"""
+    add_sub(subs, not (SCRIPTS / "build_mod.py").exists(),
+            "scripts/build_mod.py 已删除")
+    add_sub(subs, not (ROOT / "build.gradle").exists(),
+            "根 Groovy build.gradle 已删除")
+    add_sub(subs, not (ROOT / "settings.gradle").exists(),
+            "根 Groovy settings.gradle 已删除")
+    workflow = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")
+    add_sub(subs, "scripts/build_mod.py" not in workflow,
+            "candidate workflow 不再引用 build_mod.py")
+    add_sub(subs, "bash ./gradlew -p agp :app:assembleRelease" in workflow,
+            "candidate workflow 仅使用 AGP Release 入口")
 
 
 def check_template(subs):
@@ -1077,9 +1074,9 @@ def main():
     check("scripts/*.py 全部可编译", all(x[0] for x in subs),
           "" if all(x[0] for x in subs) else next(x[2] for x in subs if not x[0]), subs)
 
-    # 2-4：build_mod.py main() 的三个独立契约项（与历史 17 项口径一致）
+    # 2-4：旧构建入口物理退役，AGP 唯一生产入口保持有效
     subs = []
-    check_build_mod_main(subs)
+    check_build_retired(subs)
     for ok, sname, sdetail in subs:
         check(sname, ok, "" if ok else sdetail)
 

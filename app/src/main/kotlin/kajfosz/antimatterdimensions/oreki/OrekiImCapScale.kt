@@ -14,7 +14,7 @@ import android.util.Log
  *
  *     export const OREKI_IM_CAP_MULT = 300;
  *
- * 本类只承载该倍率与防御性边界；真正的注入点在 scripts/build_mod.py 的
+ * 本类只承载该倍率与防御性边界；真正的注入点由现代 AGP/JAR ABI 适配链提供。
  * `patch_im_cap_scale()`：在 `Lfh2;->a(BigDouble)D`（= baseIMCap）return 前插入
  * `OrekiImCapScale.apply(result)`。不改触发条件、不改 hardcapRM/RM 公式、不写存档字段；
  * iMCap 只增不减（原版 updateIMCap 只在更大时写入），UI 同步显示新上限。

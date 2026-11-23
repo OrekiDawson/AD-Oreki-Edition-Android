@@ -25,7 +25,7 @@
 ## 2. Android 构建与工具迁移
 
 - **Android 固定官方 3.21.0 冻结基线（2026-11-13 起，见第 6 节）；允许只读监测上游安全/重大缺陷，禁止未经用户授权自动升级、自动合并、修改冻结基线或发布**；上游更新按第 6.2 节选择性移植，完整基线替换按第 6.5 节三种边界（研究评估无需新授权 / 用户授权必须 / 正式发布门禁全部满足）。Web 固定 2026-07-17 冻结上游（见 Web 仓库规则）。新增或修改 Android 游戏业务必须用 Kotlin，不新增 Java/Smali 业务或 Kotlin 空壳；遵守 §67 语义命名，混淆名仅限有证据的 ABI 适配。
-- **正式 Android APK 构建强制 AGP 9.5.1，唯一生产入口。** 当前阶段一只有 AGP bridge 包，未通过原版 Manifest、资源 ID、DEX/native、原证书、安装升级和 AVD 真实游戏验收，故 Candidate/Verify/Release 必须拒绝旧链产物并 fail-closed 阻断正式新发布。旧 apktool 和独立 Kotlin→D8 链仅供隔离回归对照，不可直接签名、晋升、发布；已有稳定版继续保留。新链全部兼容验收通过后，才切换正式 Candidate 构建任务并解除阻断。AGP 内部正常使用 D8/R8/AAPT2 不属于禁止范围。
+- **正式 Android APK 构建强制 AGP 9.5.2 + Gradle 9.9.2，唯一生产入口。** 根 Groovy 工程与 `scripts/build_mod.py` 已物理删除，生产构建不执行 Python 补丁树、Smali 文本补丁或 apktool 重打包。旧 apktool 仅可用于最终 APK 的只读结构取证。AGP 内部正常使用 built-in Kotlin、D8/R8/AAPT2 不属于禁止范围。
 - JADX/REA 优先复用现有导出与 ABI 索引；同一官方基线完整导出一次即可，基线变动或证据缺失才重做。优先复用稳定 JDK、SDK、Gradle、Rust、rg 等；Gradle 离线优先，缺依赖再联网；Python 可合理用于非生产辅助与隔离验证，不代替 Kotlin 业务。**`scripts/build_mod.py` 为第 9 节强制退役例外，正式构建期 Python 依赖须逐步消除。**代码文本 LF。
 - 主动利用 logcat、AVD、截图、控件树、帧日志、源码及原版对照定位 Bug；优先根因修复，不能用遮挡 GUI、吞异常或编造状态蒙混过关。
 
@@ -200,7 +200,7 @@
 
 ### 9.3 删除与完成验收
 
-- **构建**：无 `build_mod.py` 的干净工作区可重复生成完整、来源可追溯的 AGP 9.5.1 游戏 APK；不是 Bridge、混合拼包、静态检查或仅安装成功。记录源码/原版输入 SHA、编译与签名来源、APK SHA-256 及 ABI/资源证据。
+- **构建**：无 `build_mod.py` 的干净工作区可重复生成完整、来源可追溯的 AGP 9.5.2 游戏 APK；不是 Bridge、混合拼包、静态检查或仅安装成功。记录源码/原版输入 SHA、编译与签名来源、APK SHA-256 及 ABI/资源证据。
 - **运行**：真实 AVD/必要真机验证冷启动、主循环 Tick 持续增长、游戏存档保存/恢复、阶段/挑战真实结算、自动购买器、GUI 与相应 Android/Web 等价行为；只覆盖受影响的关键功能与高风险路径，不为此无差别重跑全部历史回归。
 - **发行**：原包名、原签名证书、MOD versionCode 递增、存档兼容与覆盖安装成立，独立 Candidate/Verify/Release、Required Checks、受保护签名和四渠道同 SHA 的实际证据齐备。新链不达标必须维持 **AGP-only fail-closed / BLOCKED**，保留现有稳定版，不得退回旧链、手动上传或宣称完全退役。
 - **完成标记**：清点 `build_mod.py` 的所有生产调用为零、删除文件、CI 防回流并通过上述门禁后，才将 [Issue #52](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/52) 标记完成；[#25](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/25) 的原生游戏构建和 [#17](https://github.com/OrekiDawson/AD-Oreki-Edition-Android/issues/17) 的实际交付分别据各自证据结案，不能合并或 PR 绿灯就批量关闭。

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class AgpNativeFullGameInputsTest(unittest.TestCase):
     def test_gradle_prepares_manifest_and_resources_without_python_stage(self):
         text = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
-        start = text.index("val prepareFullGameInputs by tasks.registering")
+        start = text.index('val prepareFullGameInputs = tasks.register("prepareFullGameInputs")')
         end = text.index("android {", start)
         block = text[start:end]
         self.assertIn("orekiTransformFullGameManifest", block)
@@ -47,7 +47,7 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
 
     def test_store_policy_output_is_independently_verified_by_gradle(self):
         text = (ROOT / "agp/app/build.gradle.kts").read_text(encoding="utf-8")
-        self.assertIn("val verifyStorePolicyOutput by tasks.registering", text)
+        self.assertIn('val verifyStorePolicyOutput = tasks.register("verifyStorePolicyOutput")', text)
         self.assertIn("dependsOn(applyStorePolicy)", text)
         self.assertIn('report["input_jar_sha256"]', text)
         self.assertIn('report["output_jar_sha256"]', text)
@@ -67,11 +67,12 @@ class AgpNativeFullGameInputsTest(unittest.TestCase):
             ci,
         )
 
-    def test_legacy_root_release_is_fail_closed(self):
-        text = (ROOT / "build.gradle").read_text(encoding="utf-8")
-        self.assertIn("OREKI_LEGACY_ISOLATED", text)
-        self.assertIn("./gradlew -p agp :app:assembleRelease", text)
-        self.assertIn("旧 build_mod/apktool 链已退出生产入口", text)
+    def test_legacy_root_entry_is_physically_removed(self):
+        self.assertFalse((ROOT / "build.gradle").exists())
+        self.assertFalse((ROOT / "settings.gradle").exists())
+        self.assertFalse((ROOT / "scripts/build_mod.py").exists())
+        workflow = (ROOT / ".github/workflows/candidate-unified.yml").read_text(encoding="utf-8")
+        self.assertIn("bash ./gradlew -p agp :app:assembleRelease", workflow)
 
 
 if __name__ == "__main__":
