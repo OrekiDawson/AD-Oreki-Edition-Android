@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1028` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1033` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -21,8 +21,8 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`b288a71a5365673dd8904ac0ae83e05136c4dbf81e75b7a718002d79b6b3722a`
-  （93,603,923 B）；单测 96/96、Python 328/328、1028/1028 ABI/DEX PASS。
+- 当前 FullGame Debug APK：`1aaaa556d1f99e090c06b0ba593a4360e4f8b64d672eae09df1ba2acb3497d88`
+  （93,471,749 B）；Python 331/331、1033/1033 Classes/ABI/DEX PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
   获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
@@ -30,8 +30,8 @@
 - 在同一 `Oreki_API_37` 上实际执行“开始游戏 → 游戏帮助 → 打开 Oreki 中文教程”：
   教程第 4 章正文正常显示，进程存活、无 FATAL/NoClassDefFoundError/VerifyError；
   返回主界面后 force-stop/冷启动成功，既有存档与离线进度正常加载。
-- `OrekiAchAudit` 仅以反射读取默认包成就表与尚未完成源码迁移的运行期入口，
-  保留 5 秒节流、谓词重算、`used=-1` 未知态和异常日志语义，不写游戏状态。
+- `OrekiAchAudit` 已迁为 Kotlin，仅审计已解锁成就与原版谓词是否一致，
+  保留 5 秒节流、`used=-1` 未知态和异常日志语义，不写游戏状态。
 - `OrekiEcContinuation` 保持无状态叶 continuation、原版 completion/context 单例和
   `invokeSuspend -> CoroutineSingletons.a` 行为，不持有游戏状态。
 - AVD 运行 `OrekiAchAudit` 连续输出 `DONE scanned=144` 与
@@ -46,7 +46,18 @@
   浇满释放、180 秒有界 hold 与错误吞掉语义，不自行计算浇注或扣 RM。
 - `OrekiUiTitle` 以反射读取原版页签标题并保留同名去重，方法描述符由 build-logic ASM
   适配回 `of(Lyn4;)Ljava/lang/String;`。
-- 当前 `scripts/payload/smali` 剩余 `5` 个文件；生产 Smali 清零目标仍未完成。
+- `OrekiEternityLaunch` 以同包 Java 入口保留 `run()` / `startDilation()` ABI；
+  编译器无法表达包内 Kotlin continuation 的父类构造调用，因此 build-logic 对该类
+  两个方法执行确定性 ASM 方法体恢复，不恢复 Smali 生产文件。
+- `OrekiSmartStrategy` 已按原 19 阶段 DNF、2000 ms 节流、NaN fail-closed 和静态字段
+  ABI 恢复为 AGP 编译 Java；叶子取值继续优先调用 Kotlin `OrekiStrategyLeaves`。
+- `OrekiEternity` 已恢复为 AGP Java；TT、TD、时间研究和完整永恒仍走原版/Kotlin
+  既有入口，默认包 `l43`/`r51` 仅通过反射读取和调用。
+- `OrekiChallengeAuto` 已迁为 Kotlin；活动路径只驱动普通/无限挑战，EC 由独占的
+  `OrekiEcAutomation` 负责，旧 EC 私有入口保留 ABI 但不再被 `tick()` 进入。
+- `StageAssist` 已恢复为 AGP Java，保留默认关闭、永久留痕、Doomed 拒写、
+  36 个原始方法 descriptor 与全部阶段提示；默认包成就/炼金表仅通过反射读取。
+- 当前 `scripts/payload/smali` 剩余 `0` 个文件；生产 Smali 已清零。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 

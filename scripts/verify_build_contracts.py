@@ -441,7 +441,10 @@ def check_store_policy(policy_src: str | None = None,
 # 以下实现由 build_mod.py 的 verify_* 逐条迁移（R114-02 C4b）；语义与断言文案不变，
 # 只把路径/别名/note 依赖换成上面的只读 shim。
 
-CA_SMALI = "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali"
+CA_KT = (
+    ROOT
+    / "app/src/main/kotlin/kajfosz/antimatterdimensions/OrekiChallengeAuto.kt"
+)
 
 EC_RED_LINES = (
     "PlayerEternityChallenges;->h(I)V",
@@ -469,204 +472,48 @@ def _ec_flat(src, start_marker):
 
 
 def _impl_ec_chain(src):
-    """纯函数（便于自测）：src 为 OrekiChallengeAuto.smali 全文，违规即 AssertionError。"""
-
-    tick = _ec_flat(src, ".method public static tick()V")
-    fill = _ec_flat(src, ".method private static fillEcRequirement(")
-    rsps = _ec_flat(src, ".method private static respecForEc(")
-
-    # ---- 0) 红线：不得写任何存档字段 ----
+    """Kotlin 源码级 EC 守卫；旧 Smali EC 段已退役并由 OrekiEcAutomation 接管。"""
     for banned in EC_RED_LINES:
         assert banned not in src, f"[R40B] OrekiChallengeAuto 触碰了存档字段（红线）：{banned}"
-
-    # ---- 1) 帧计数三连（respec 冷却依赖它，被删掉就等于没有节流）----
-    assert ("sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I"
-            "|add-int/lit8 v0, v0, 0x1"
-            "|sput v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->frame:I") in tick, (
-        "[R40B] tick() 缺少帧计数三连：respec 冷却会退化成「每帧都能 respec」")
-
-    # ---- 2) G2：互斥研究判定三连（A → z → O）----
-    good = ("invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z"
-            "|move-result v9|if-eqz v9, :ca_do_buy")
-    bad = ("invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->A(Z)Z"
-           "|move-result v9|if-nez v9, :ca_do_buy")
-    assert good in tick, (
-        "[R40B] canBeBought 判定三连不对：A()==1（可买）必须走 :ca_do_buy，"
-        "否则会出现「买得到却不去买」的死循环")
-    assert bad not in tick, "[R40B] canBeBought 极性回归（if-nez）：可买的 EC 被当成不可买"
-
-    good = "invoke-virtual {v7}, Lfp3;->z()Z|move-result v9|if-eqz v9, :next_id"
-    bad = "invoke-virtual {v7}, Lfp3;->z()Z|move-result v9|if-nez v9, :next_id"
-    assert good in tick, (
-        "[R40B] 买得起判定三连不对：z()==0（资源不足）必须 :next_id 跳过，"
-        "否则开局资源不够时会去清研究树")
-    assert bad not in tick, "[R40B] z() 极性回归（if-nez）：买不起也会 respec"
-
-    good = "invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z|move-result v9|if-eqz v9, :ca_official"
-    bad = "invoke-virtual {v7}, Lkajfosz/antimatterdimensions/eternity/studies/b;->O()Z|move-result v9|if-nez v9, :next_id"
-    assert good in tick, (
-        "[R40B] O() 判定三连不对：O()==1（没有互斥研究）必须走 :ca_official（原版 EC purchaseUntil），"
-        "否则前置缺失会被当成「等资源」永远停住")
-    assert bad not in tick, "[R40B] O() 极性回归（if-nez）"
-
-    # ---- 2b) R40B-2：前置缺失走原版 EC 自己的 purchaseUntil（ec 参数 = 真实 id）----
-    # 这是 EC11/EC12 的唯一正确入口：d.e(id, -1, …) 走不到「按 EC 选维度分叉」那段。
-    official = ("sget-object v9, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
-                "Lkajfosz/antimatterdimensions/OrekiEcContinuation;"
-                "|invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->S("
-                "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;")
-    assert official in tick, (
-        "[R40B-2] 缺少 b;->S(EC purchaseUntil) 调用：EC11/EC12 会一直停在 unlocked=0 且买不上的状态")
-    assert src.count("eternity/studies/b;->S(Lkotlin/coroutines/jvm/internal/ContinuationImpl;)"
-                     "Ljava/lang/Object;") == 1, (
-        "[R40B-2] EC purchaseUntil 调用点必须唯一（多处调用会每帧重复 commitToGameState）")
-    assert "const/4 v9, 0x0|invoke-virtual {v7, v9}, Lkajfosz/antimatterdimensions/eternity/studies/b;->S(" not in tick, (
-        "[R40B-2] EC purchaseUntil 又传 null continuation：ContinuationImpl 会 NPE（R35 的 b.D 老坑）")
-
-    good = ("invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z"
-            "|move-result v9|if-eqz v9, :next_id")
-    bad = ("invoke-static {v5}, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecForEc(I)Z"
-           "|move-result v9|if-nez v9, :next_id")
-    assert good in tick, (
-        "[R40B-2] respec 返回值极性不对：respecForEc 返回 0（被闸门拒绝）时必须 :next_id，"
-        "否则会被同一关永久卡住")
-    assert bad not in tick, "[R40B-2] respec 返回值极性回归（if-nez）"
-
-    # ---- 3) G1：purchaseUntil 接线 + 真实 continuation ----
-    # 反例先判：否则「把 continuation 换成 null」会先命中下面的正例断言，
-    # 报错信息变成「没有用真实 continuation」，丢掉真正的原因（null continuation NPE）。
-    assert "const/4 v6, 0x0|invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N(" not in fill, (
-        "[R40B] purchaseUntil 又传 null continuation：ContinuationImpl 会 NPE（R35 的 b.D 老坑）")
-    assert ("sget-object v6, Lkajfosz/antimatterdimensions/OrekiEcContinuation;->a:"
-            "Lkajfosz/antimatterdimensions/OrekiEcContinuation;"
-            "|invoke-virtual {v4, v6}, Lkajfosz/antimatterdimensions/eternity/studies/c;->N("
-            "Lkotlin/coroutines/jvm/internal/ContinuationImpl;)Ljava/lang/Object;") in fill, (
-        "[R40B] fillEcRequirement 没有用真实 continuation 调 purchaseUntil（c;->N）—— "
-        "G1（链式前置）没有修上，EC9~EC12 会继续停在原地")
-
-    # [R42 更正] 这条断言原来把「失败」和 if-nez 绑在一起，等于给错误写法上保险。
-    # D() 返回的是装箱 Boolean：null 才是「没给出结果」，应落 purchaseUntil 兜底；
-    # 非 null 则要看 booleanValue()。所以判空必须是 if-eqz。
-    # 按 FACTS C.69 §四：带条件跳转的断言必须成对覆盖「正写法存在 + 反写法不存在」，
-    # 只写前者时，变异回 if-nez 仍可能命中子串而不报错。
-    _D_PREFIX = ("invoke-virtual {v4, v6, v7}, Lkajfosz/antimatterdimensions/eternity/studies/c;->D(ZLvh0;)"
-                 "Ljava/lang/Boolean;|move-result-object v6|")
-    assert _D_PREFIX + "if-eqz v6, :fr_until" in fill, (
-        "[R40B] D() 返回 null 时没有落到 :fr_until（purchaseUntil 兜底被删）")
-    assert _D_PREFIX + "if-nez v6, :fr_until" not in fill, (
-        "[R40B] D() 判空极性回归成 if-nez：非 null 会跳走，"
-        "下面的 booleanValue() 就只在 null 时可达 ⇒ 对 null 调用即 NPE")
-
-    # booleanValue() 之后是原始布尔：true 才去 :fr_bought。
-    _BV_PREFIX = ("invoke-virtual {v6}, Ljava/lang/Boolean;->booleanValue()Z|move-result v6|")
-    assert _BV_PREFIX + "if-nez v6, :fr_bought" in fill, (
-        "[R40B] booleanValue() 为真时没有去 :fr_bought（单击就买上的快路被删）")
-    assert _BV_PREFIX + "if-eqz v6, :fr_bought" not in fill, (
-        "[R40B] booleanValue() 极性回归成 if-eqz：false（没买上）会被当成「买好了」，"
-        "这一关就再也买不上")
-
-    good = ("invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z"
-            "|move-result v6|if-nez v6, :fr_bought")
-    bad = ("invoke-virtual {v4}, Lkajfosz/antimatterdimensions/eternity/studies/c;->B()Z"
-           "|move-result v6|if-eqz v6, :fr_bought")
-    assert good in fill, (
-        "[R40B] purchaseUntil 之后没有用 B() 复核是否真的买上（B()==1 才 return 1）")
-    assert bad not in fill, (
-        "[R40B] B() 极性回归：买上了却当没买上，会每帧重复跑 buyStudiesUntil")
-
-    # ---- 4) respec 只允许一处、必须 auto=true、必须有节流与总次数上限 ----
-    assert src.count("Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V") == 1, (
-        "[R40B] respecTimeStudies 调用点必须唯一（否则会出现第二个未受节流保护的清树入口）")
-    assert "const/4 v0, 0x1|invoke-static {v0}, Lkajfosz/antimatterdimensions/eternity/studies/d;->b(Z)V" in rsps, (
-        "[R40B] respec 必须传 true（auto：不弹确认框），否则无人值守时会卡在对话框")
-    assert "const/16 v2, 0x78" in rsps, "[R40B] respec 冷却常量 0x78（120 帧 ≈ 6 s）被删"
-    assert "const/16 v1, 0x20" in rsps, "[R40B] respec 总次数上限 0x20 被删"
-
-    # ---- 5) R40B-2：同一关只清一次树（Web R40-A 的「快照闸门」在本端的等价物）----
-    assert ("sget v0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I"
-            "|if-ne v0, p0, :rr_no") in rsps, (
-        "[R40B-2] 缺少 respecLastId 闸门：同一关会反复清树（Web 实测的 6.2 s 抖动就是这么来的）")
-    assert ("sput p0, Lkajfosz/antimatterdimensions/OrekiChallengeAuto;->respecLastId:I") in rsps, (
-        "[R40B-2] respec 后没有登记 respecLastId，闸门恒不生效")
-    assert "const/4 v0, 0x1|return v0" in rsps, "[R40B-2] respec 成功必须 return 1"
-    assert "const/4 v0, 0x0|return v0" in rsps, "[R40B-2] respec 被拒必须 return 0"
-
-    for fld in ("frame", "respecFrame", "respecCount", "respecLastId"):
-        assert f".field private static {fld}:I" in src, f"[R40B] 缺少节流字段 {fld}"
-
+    assert "class OrekiChallengeAuto" in src
+    assert "fun tick()" in src
+    assert 'lookUp("c43", id)' in src
+    assert 'lookUp("py1", id)' in src
+    assert 'invokeBoolean(challenge, "K")' in src
+    assert 'invokeBoolean(challenge, "B")' in src
+    assert "result === suspendedValue()" in src
+    assert "result as? Boolean == true" in src
+    assert "OrekiEcAutomation" in src
+    assert "respecCount >= 32" in src
+    assert "elapsed in 0 until 120" in src
+    assert "respecLastId == id" in src
+    for field in ("frame", "respecFrame", "respecCount", "respecLastId"):
+        assert f"private var {field}" in src, f"[R40B] 缺少节流字段 {field}"
     return True
 
 
 def check_ec_chain():
-    p = _payload_smali(CA_SMALI)
-    _impl_ec_chain(p.read_text(encoding="utf-8"))
-    return "EC 链条断言通过（payload 源：purchaseUntil 真实 continuation / respec 互斥 / 无存档字段写入）"
+    _impl_ec_chain(CA_KT.read_text(encoding="utf-8"))
+    return "EC 链条断言通过（Kotlin tick / OrekiEcAutomation 接管 / respec 节流 / 无存档字段写入）"
 
 
 def _impl_challenge_polarity(src_override=None):
-    """[Oreki R39] 把「指令对」压成一行来断言极性，避免寄存器复用时误判。
-
-    v3 在本方法里先后被 K() 与 B() 复用，所以只看 `if-eqz v3` 这种单条形态会
-    把合法写法误判成回归。这里以 invoke 为锚点，断言紧跟的三连（invoke → move-result
-    → 跳转）整体正确，反例就自动不存在了。
-    """
-    if src_override is None:
-        p = _payload_smali(CA_SMALI)
-        src = p.read_text(encoding="utf-8")
-    else:
-        src = src_override
-
-    # ⓪ 类描述符硬约束：g40 在默认包，任何带包名的形式都会 VerifyError
-    assert "antimatter/g40" not in src, (
-        "[Oreki R39] 出现了不存在的类 Lkajfosz/antimatterdimensions/challenge/antimatter/g40; —— "
-        "g40 的真实描述符是 Lg40;（默认包），这会在装机时抛 VerifyError")
-
-    def flat(start_marker):
-        i = src.find(start_marker)
-        assert i >= 0, f"找不到方法头 {start_marker}"
-        j = src.find(".end method", i)
-        assert j > i, f"{start_marker} 找不到方法尾"
-        out = []
-        for ln in src[i:j].splitlines():
-            s = ln.strip()
-            if not s or s.startswith("#") or s.startswith(".line") or s == "|":
-                continue
-            out.append(s)
-        return "|".join(out)
-
-    specs = (
-        ("tryNormal", ".method private static tryNormal()Z", ":c_next",
-         "Lkajfosz/antimatterdimensions/challenge/antimatter/normal/a;->B()Z"),
-        # g40 在默认包里（`.class public abstract Lg40;`），不是 antimatter 子包。
-        # 写成带包名会让 ART 在类装载期抛 VerifyError（R39 首次装机实测）。
-        ("tryInfinity", ".method private static tryInfinity()Z", ":i_next", "Lg40;->B()Z"),
+    """Kotlin 源码级挑战极性守卫。"""
+    src = (
+        CA_KT.read_text(encoding="utf-8")
+        if src_override is None
+        else src_override
     )
-    for name, hdr, lbl, unlock in specs:
-        # R114-02 C4b：源码级校验直接使用 payload 原始描述符（不再套别名表）。
-        body = flat(hdr)
-
-        # ① 完成位：K() 之后必须 if-nez（非零＝已完成 → 跳过）
-        good = f"antimatter/b;->K()Z|move-result v3|if-nez v3, {lbl}"
-        bad = f"antimatter/b;->K()Z|move-result v3|if-eqz v3, {lbl}"
-        assert good in body, (
-            f"[Oreki R39] {name}：K() 之后不是 if-nez —— 已完成的挑战会被每帧重进（IC1 软锁）")
-        assert bad not in body, (
-            f"[Oreki R39] {name}：K() 仍是 if-eqz —— 极性回归，禁止构建")
-
-        # ② D() 的 Boolean：必须 if-eqz（零＝没进去 → 试下一关）
-        good = f"Ljava/lang/Boolean;->booleanValue()Z|move-result v2|if-eqz v2, {lbl}"
-        bad = f"Ljava/lang/Boolean;->booleanValue()Z|move-result v2|if-nez v2, {lbl}"
-        assert good in body, (
-            f"[Oreki R39] {name}：D() 的返回值判定不是 if-eqz —— 失败会被当成已进入，"
-            "并对下一关继续调 start（同帧多次全量重置）")
-        assert bad not in body, (
-            f"[Oreki R39] {name}：Boolean 仍是 if-nez —— 极性回归，禁止构建")
-
-        # ③ 解锁预检（未解锁直接跳过，省掉每帧一份协程对象分配）
-        assert f"invoke-virtual {{v2}}, {unlock}|move-result v3|if-eqz v3, {lbl}" in body, (
-            f"[Oreki R39] {name}：缺少解锁预检 {unlock}（未解锁关卡会被每帧调 D）")
-
-    note("[Oreki R39] 挑战自动进入极性断言通过：K()=已完成→跳过、D()=false→试下一关、含解锁预检")
+    assert "lookUp(\"c43\", id)" in src
+    assert "lookUp(\"py1\", id)" in src
+    assert "if (invokeBoolean(challenge, \"K\")) continue" in src
+    assert src.count("if (invokeBoolean(challenge, \"K\")) continue") == 2
+    assert "if (!invokeBoolean(challenge, \"K\")) continue" not in src
+    assert "if (!invokeBoolean(challenge, \"B\")) continue" in src
+    assert "result === suspendedValue() ||" in src
+    assert "result as? Boolean == true" in src
+    assert "antimatter/g40" not in src
+    note("[Oreki R39] Kotlin 挑战极性断言通过：K()=已完成→跳过、D()=false→试下一关、含解锁预检")
 
 
 def check_challenge_polarity():
@@ -1011,43 +858,9 @@ def check_smali_field_types():
     return "MOD 字段类型与解码基线一致（无 NoSuchFieldError 风险）"
 
 
-PAYLOAD_MUST_EXIST = [
-    "smali/kajfosz/antimatterdimensions/OrekiSpeed.smali",
-    # [R83] OrekiAuto 已迁到 Kotlin（payload/kotlin），不再有对应 Smali；
-    # 由 KOTLIN_OWNED_CLASSES + build_kotlin.py 的 ABI 断言保证存在。
-    "smali/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/SettingsClickListener.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/StageAssist.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/StageConfirmListener.smali",
-    # [三约束①] 默认关的唯一开启入口（设置页复选框回调）
-    "smali/kajfosz/antimatterdimensions/oreki/StageAssistToggleListener.smali",
-    # [Oreki AA] L3 验收（成就位逐位重算，只读）的设备侧执行者
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiAchAudit.smali",
-    # [R59] 符文自动装备（只填空槽；装备走原版 Glyphs.L，已确证不含 Reality 回调）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.smali",
-    # [R62] 特蕾莎自动浇注（按原版 MainActivity.yo 开关，复用主循环 a->r()）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.smali",
-    # [R87] OrekiBreakShop 已整体迁移到 Kotlin，由 KOTLIN_OWNED_CLASSES 与
-    # build_kotlin.py 的 ABI 断言保证 tick()I 存在，不再要求 Smali 文件。
-    # [R66] 剧情目标感知（只读）+ 由策略 JSON 编译出的数据表
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiStrategyData.smali",
-    "smali/kajfosz/antimatterdimensions/OrekiChallengeAuto.smali",
-    "smali/kajfosz/antimatterdimensions/OrekiEcContinuation.smali",
-    # [R94] OrekiBreakGate 已删除：该类在 3.21 上 VerifyError（旧 Smali 引用 3.20 类型 rp0，
-    # 3.21 为 yp0），无法加载；break 商店购买职责由 Kotlin OrekiBreakShop 承担。
-    # [R42] 终点记录写入（PelleRecords.totalAntimatter = 历史峰值反物质）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.smali",
-    # [Oreki ET1] 永恒层自动化（时间定理 / 时间维度 / 普通时间研究 / 按永恒）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiEternity.smali",
-    # [R51-A31] 现实（Reality）自动化：canReality() 判据 + 原版 realityReset 入口
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiReality.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.smali",
-    # [R44] 顶栏标题「主页签 · 子页签」合成（MainActivity.H8 里被 invoke-static）
-    "smali/kajfosz/antimatterdimensions/oreki/OrekiUiTitle.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.smali",
-    "smali/kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.smali",
-]
+# R126：所有 MOD 生产类均已迁入根级 AGP Source Set，payload Smali 物理清零。
+# 源码存在性与 ABI 由 verifySourceTakeover*、test_agp_source_takeover 守卫。
+PAYLOAD_MUST_EXIST = []
 
 PAYLOAD_REFS = [
     ("smali/z3.smali",
@@ -2177,17 +1990,22 @@ def _selftest_source():
                 lambda: check_au4b(stage.replace("GameApi.crunchMode(crunch)",
                                                  "crunch->mode:")))
 
-    ec_src = _read(_payload_smali(CA_SMALI))
+    ec_src = _read(CA_KT)
     expect_fail("ec_chain: 存档字段红线回归",
-                lambda: _impl_ec_chain(ec_src + "\n    invoke-virtual {v0}, Lkajfosz/antimatterdimensions/PlayerEternityChallenges;->h(I)V\n"))
-    expect_fail("ec_chain: 方法头丢失",
-                lambda: _impl_ec_chain(ec_src.replace(".method public static tick()V",
-                                                      ".method public static tickX()V")))
+                lambda: _impl_ec_chain(
+                    ec_src + "\nPlayerEternityChallenges;->h(I)V\n"))
+    expect_fail("ec_chain: tick 丢失",
+                lambda: _impl_ec_chain(
+                    ec_src.replace("fun tick()", "fun tickRemoved()")))
 
-    pol_src = _read(_payload_smali(CA_SMALI))
+    pol_src = _read(CA_KT)
     expect_fail("challenge_polarity: 完成位极性反转",
                 lambda: _impl_challenge_polarity(
-                    pol_src.replace("if-nez v3, :c_next", "if-eqz v3, :c_next", 1)))
+                    pol_src.replace(
+                        'if (invokeBoolean(challenge, "K")) continue',
+                        'if (!invokeBoolean(challenge, "K")) continue',
+                        1,
+                    )))
     policy_src = _read(STORE_POLICY_KT)
     expect_fail("store_policy: 10000 STD 保底复活",
                 lambda: check_store_policy(

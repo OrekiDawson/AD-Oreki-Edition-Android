@@ -215,24 +215,120 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                 ?.sortedBy { it.name }
                 ?.firstOrNull(),
         ) { "找不到 Gradle 发行版内的 ASM jar（lib/asm-*.jar）" }
+        val preparedGameJar = File(
+            config.rootDir,
+            "build/agp-store-policy/game-hybrid-sig-prepared.jar",
+        )
+        val prepareGameJar = project.tasks.registerAction("prepareGameJar") {
+            group = "oreki"
+            description = "为包内 Kotlin continuation 增加标准构造器"
+            onlyIf { config.fullGame }
+            config.gameJar?.let { inputs.file(it) }
+            outputs.file(preparedGameJar)
+            doLast {
+                val input = config.gameJar
+                    ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
+                val continuationEntries = setOf(
+                    "kajfosz/antimatterdimensions/prestige/Eternity\$confirmEternity\$4.class",
+                    "kajfosz/antimatterdimensions/prestige/" +
+                        "Eternity\$confirmDilatedEternity\$4.class",
+                )
+                preparedGameJar.parentFile.mkdirs()
+                ZipFile(input).use { source ->
+                    ZipOutputStream(preparedGameJar.outputStream()).use { target ->
+                        for (entry in source.entries()) {
+                            val outputEntry = ZipEntry(entry.name).apply {
+                                time = entry.time
+                            }
+                            target.putNextEntry(outputEntry)
+                            var data = source.getInputStream(entry).use { it.readBytes() }
+                            if (!entry.isDirectory && entry.name in continuationEntries) {
+                                val reader = ClassReader(data)
+                                val writer = ClassWriter(reader, 0)
+                                var hasConstructor = false
+                                reader.accept(
+                                    object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
+                                        override fun visitMethod(
+                                            access: Int,
+                                            name: String,
+                                            descriptor: String,
+                                            signature: String?,
+                                            exceptions: Array<out String>?,
+                                        ): MethodVisitor {
+                                            if (name == "<init>" &&
+                                                descriptor ==
+                                                "(ILkotlin/coroutines/Continuation;)V"
+                                            ) {
+                                                hasConstructor = true
+                                            }
+                                            return super.visitMethod(
+                                                access,
+                                                name,
+                                                descriptor,
+                                                signature,
+                                                exceptions,
+                                            )
+                                        }
+
+                                        override fun visitEnd() {
+                                            if (!hasConstructor) {
+                                                val method = super.visitMethod(
+                                                    Opcodes.ACC_PUBLIC,
+                                                    "<init>",
+                                                    "(ILkotlin/coroutines/Continuation;)V",
+                                                    null,
+                                                    null,
+                                                )
+                                                method.visitCode()
+                                                method.visitVarInsn(Opcodes.ALOAD, 0)
+                                                method.visitVarInsn(Opcodes.ILOAD, 1)
+                                                method.visitVarInsn(Opcodes.ALOAD, 2)
+                                                method.visitMethodInsn(
+                                                    Opcodes.INVOKESPECIAL,
+                                                    "kotlin/coroutines/jvm/internal/" +
+                                                        "SuspendLambda",
+                                                    "<init>",
+                                                    "(ILkotlin/coroutines/Continuation;)V",
+                                                    false,
+                                                )
+                                                method.visitInsn(Opcodes.RETURN)
+                                                method.visitMaxs(3, 3)
+                                                method.visitEnd()
+                                            }
+                                            super.visitEnd()
+                                        }
+                                    },
+                                    0,
+                                )
+                                data = writer.toByteArray()
+                                logger.lifecycle(
+                                    "[oreki] continuation ABI 构造器已准备: ${entry.name}",
+                                )
+                            }
+                            target.write(data)
+                            target.closeEntry()
+                        }
+                    }
+                }
+            }
+        }
 
         val applyTask = project.tasks.registerTypedAction("applyStorePolicy", Exec::class.java) {
             group = "oreki"
             description = "应用 Kotlin STD/IAP 与广告加成策略到转换后的游戏 JAR"
             onlyIf { config.fullGame }
-            config.gameJar?.let { inputs.file(it) }
+            dependsOn(prepareGameJar)
+            inputs.file(preparedGameJar)
             inputs.files(script, transformer, asmJar, androidJar, config.sourceTakeoverManifest)
             outputs.files(config.storePolicyJar, config.storePolicyReport)
             workingDir(config.rootDir)
             doFirstAction {
-                val input = config.gameJar
-                    ?: throw GradleException("完整游戏模式缺少 orekiGameJar")
                 val android = androidJar.get()
                 if (!android.isFile) throw GradleException("AGP SDK 缺少 android.jar: $android")
                 commandLine(
                     "python3",
                     script.absolutePath,
-                    "--game-jar", input.absolutePath,
+                    "--game-jar", preparedGameJar.absolutePath,
                     "--out-jar", config.storePolicyJar.absolutePath,
                     "--report", config.storePolicyReport.absolutePath,
                     "--asm-jar", asmJar.absolutePath,
@@ -248,14 +344,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             description = "独立校验 store-policy JAR、报告、ABI 与非目标字节"
             onlyIf { config.fullGame }
             dependsOn(applyTask)
-            config.gameJar?.let { inputs.file(it) }
+            inputs.file(preparedGameJar)
             inputs.files(config.storePolicyJar, config.storePolicyReport, config.sourceTakeoverManifest)
             outputs.file(config.storePolicyVerifyReport)
             doLastAction {
-                val input = config.gameJar
-                    ?: throw GradleException("[oreki] store-policy 输入 JAR 未配置")
                 val result = verifyArtifacts(
-                    input,
+                    preparedGameJar,
                     config.storePolicyJar,
                     config.storePolicyReport,
                     config.sourceTakeoverEntries.toSet(),

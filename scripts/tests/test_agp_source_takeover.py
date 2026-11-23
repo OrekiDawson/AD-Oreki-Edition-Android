@@ -54,6 +54,24 @@ class AgpSourceTakeoverTest(unittest.TestCase):
             self.assertNotIn("package ", source)
             self.assertIn(signature, source)
 
+    def test_eternity_launch_uses_prepared_continuation_constructor(self):
+        source = (
+            ROOT
+            / "app/src/main/java/kajfosz/antimatterdimensions/prestige/"
+            "OrekiEternityLaunch.java"
+        ).read_text(encoding="utf-8")
+        self.assertIn("public static void run()", source)
+        self.assertIn("public static void startDilation()", source)
+        gradle = (
+            ROOT
+            / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/"
+            "OrekiStorePolicyPlugin.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn("prepareGameJar", gradle)
+        self.assertIn("Eternity\\$confirmEternity\\$4.class", gradle)
+        self.assertIn("Eternity\\$confirmDilatedEternity\\$4.class", gradle)
+        self.assertIn('"(ILkotlin/coroutines/Continuation;)V"', gradle)
+
     def test_bulk_sources_are_unique_and_blocked_sources_are_absent(self):
         manifest = (ROOT / "build-logic/source-takeover.txt").read_text(encoding="utf-8")
         entries = {

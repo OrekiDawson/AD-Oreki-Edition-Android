@@ -19,7 +19,17 @@ AUTOMATION = (
 )
 STAGE = ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiStageAuto.kt"
 SCHEDULER = ROOT / "app" / "src" / "main" / "kotlin" / "kajfosz" / "antimatterdimensions" / "oreki" / "OrekiAutomationScheduler.kt"
-LAUNCHER = ROOT / "scripts" / "payload" / "smali" / "kajfosz" / "antimatterdimensions" / "prestige" / "OrekiEternityLaunch.smali"
+LAUNCHER = (
+    ROOT
+    / "app"
+    / "src"
+    / "main"
+    / "java"
+    / "kajfosz"
+    / "antimatterdimensions"
+    / "prestige"
+    / "OrekiEternityLaunch.java"
+)
 
 
 class DilationAutomationTests(unittest.TestCase):
@@ -85,13 +95,10 @@ class DilationAutomationTests(unittest.TestCase):
     def test_start_uses_game_scoped_original_lambda(self) -> None:
         source = LAUNCHER.read_text(encoding="utf-8")
         self.assertIn("Eternity$confirmDilatedEternity$4", source)
-        self.assertIn("Lkajfosz/antimatterdimensions/g;->s(Lgm1;Z)V", source)
-        self.assertIn(
-            "Lkotlin/coroutines/jvm/internal/SuspendLambda;-><init>(ILrj0;)V",
-            source,
-        )
-        self.assertNotIn("SuspendLambda;-><init>(ILvh0;)V", source)
-        self.assertIn(".method public static startDilation()V", source)
+        self.assertIn('Class.forName("gm1"', source)
+        self.assertIn('launcher.getMethod("s", gameLambda, boolean.class)', source)
+        self.assertIn(".getDeclaredConstructor(int.class, Continuation.class)", source)
+        self.assertIn("public static void startDilation()", source)
 
 
 if __name__ == "__main__":

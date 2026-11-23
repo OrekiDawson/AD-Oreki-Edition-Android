@@ -1010,13 +1010,17 @@ zx0.class
 zx5.class
 zy7.class
 kajfosz/antimatterdimensions/OrekiEcContinuation.class
+kajfosz/antimatterdimensions/OrekiChallengeAuto.class
 kajfosz/antimatterdimensions/OrekiSpeed.class
 kajfosz/antimatterdimensions/oreki/OrekiAchAudit.class
+kajfosz/antimatterdimensions/oreki/OrekiEternity.class
 kajfosz/antimatterdimensions/oreki/OrekiGlyphAuto.class
 kajfosz/antimatterdimensions/oreki/OrekiPelleRecord.class
 kajfosz/antimatterdimensions/oreki/OrekiReality.class
 kajfosz/antimatterdimensions/oreki/OrekiSpeedModeListener.class
 kajfosz/antimatterdimensions/oreki/OrekiStrategyData.class
+kajfosz/antimatterdimensions/oreki/OrekiSmartStrategy.class
+kajfosz/antimatterdimensions/oreki/StageAssist.class
 kajfosz/antimatterdimensions/oreki/OrekiTeresaAuto.class
 kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class
 kajfosz/antimatterdimensions/oreki/SettingsClickListener.class
@@ -1028,3 +1032,4 @@ kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntry.class
 kajfosz/antimatterdimensions/oreki/tutorial/TutorialEntryListener.class
 kajfosz/antimatterdimensions/oreki/tutorial/TutorialProgress.class
 kajfosz/antimatterdimensions/oreki/tutorial/TutorialTabListener.class
+kajfosz/antimatterdimensions/prestige/OrekiEternityLaunch.class
