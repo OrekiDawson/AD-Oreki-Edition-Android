@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1125` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1128` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -968,3 +968,35 @@ JAR descriptor、唯一 Smali 身份和源码选择：
 
 本批仍是源码接管增量，不等于全部 JADX 参考源码已迁完，也不替代 AVD、存档矩阵、
 真实挑战结算或 180 分钟游戏验收。
+
+### 13.7 Firebase Auth 连字符包接口恢复
+
+JADX 将原版 `com/google/android/gms/internal/firebase-auth-api/*` 改写成
+`com.google.android.gms.internal.p000firebaseauthapi.*`，导致 `n36`、`n79`、
+`wt5` 三个默认包接口无法由 Java 源码编译。该包段含连字符，Java 标识符语法不能
+表达；Kotlin 反引号能够保留原始 JVM 包段，不需要重写依赖类 descriptor。
+
+| descriptor | JAR entry | 生产源码 | ABI |
+|---|---|---|---|
+| `Ln36;` | `n36.class` | `app/src/main/kotlin/n36.kt` | 10 个原版接口方法，含 `c0` 参数/返回值与 `mq5`、`y80`、`q16`、`qx7` 依赖 |
+| `Ln79;` | `n79.class` | `app/src/main/kotlin/n79.kt` | `h(Lk0;Ljava/lang/CharSequence;)Ljava/util/Iterator;` |
+| `Lwt5;` | `wt5.class` | `app/src/main/kotlin/wt5.kt` | 9 个原版接口方法，保留 `Status`、`yj3`、`qy4`、`lz5`、`vy5`、`wx5`、`ny4` 与 firebase-auth-api `y` 类型 |
+
+这三个类从 `scripts/agp/source-takeover-blocked.txt` 移除并加入
+`build-logic/source-takeover.txt`。新增防回归测试要求源码继续使用
+`com.google.android.gms.internal.\`firebase-auth-api\``，禁止重新写入 JADX
+伪造包名。
+
+本批验证：
+
+| 项 | 结果 |
+|---|---|
+| 独立 `kotlinc` 编译与 `javap` | PASS；3 个类身份、父类、接口/access 与逐个方法 descriptor 和原版 JAR 完全一致 |
+| FullGame AGP | `:app:testDebugUnitTest :app:assembleDebug -PorekiFullGame=true` PASS |
+| 源码接管 ABI | PASS；1128 个生产接管 entry 全部一致 |
+| 最终 APK DEX | PASS；`1128/1128` 个接管 descriptor 存在，缺失 0 |
+| ABI 门禁 | PASS；APK 仅 `arm64-v8a`、`x86_64`，32 位 JNI 0 |
+| 定向 Python | `scripts.tests.test_agp_source_takeover` 10/10 PASS |
+| 当前 APK | `950de549bd0126f6f42ca0f941a5b94adf61aa1de578f1ebafd7cc31e37d419e`（93,008,045 B） |
+| blocked 剩余 | 211 个具体 class；未伪称全部迁移完成 |
+| API 37 AVD | 本批 **NOT RUN**；由 Lead 在集成候选上统一复验 |
