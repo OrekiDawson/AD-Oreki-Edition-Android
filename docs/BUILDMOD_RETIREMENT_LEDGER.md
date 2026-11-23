@@ -1187,12 +1187,16 @@ shim 根因继续收敛，不能把本批视为全量迁移完成。
 - FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
   `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
   `verifySourceTakeoverDebugDex` 均为 **1623/1623 PASS**；JVM 单测
-  **99/99 PASS**。R8 `:app:minifyReleaseWithR8 -Poreki.r8=true` PASS，
+  **99/99 PASS**；迁移工具定向测试 **36/36 PASS**。最终
+  R8 `:app:minifyReleaseWithR8 -Poreki.r8=true` PASS，
   `qv1.f`、`ov3.v` 与 `ze1(Object,byte)` 在 mapping 中保持原名。
-- 当前候选 Debug APK：
-  `538109d682b87686173796b8501c345d0afb5534e8f10adc465f764c86ff148c`
-  （83,889,568 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 与最新 `main` 集成后的最终候选 Debug APK：
+  `996826855397883797c272a4bfe03177ded6dbd739959b02792e2c2ee1638284`
+  （83,888,848 B）；native ABI 仅 `arm64-v8a`、`x86_64`。
+- 唯一 API 37 x86_64 AVD：安装 PASS，冷启动 1707 ms，进程存活，主调度
+  `gui-tick #1/#2/#3` PASS，`stage=13 unknownLeaf=0 degraded=0`；crash buffer
+  为空，未发现 FATAL、ANR、VerifyError、NoSuchMethodError 或 NoClassDefFoundError。
 
-本轮由 Subagent 在独立 worktree 完成源码、ABI、DEX 与 R8 定向验证；AVD、
-签名、正式 Release 和最终 PR 集成继续由 Lead 独占。剩余 374 项 blocked、
+本轮由 Subagent 在独立 worktree 完成源码、ABI、DEX 与 R8 定向验证，Lead 在
+最新 `main` 上完成最终集成、FullGame、R8 与唯一 AVD 验收。剩余 374 项 blocked、
 ARM64 真机、双向存档矩阵及 180 分钟五项游戏门禁仍未完成。
