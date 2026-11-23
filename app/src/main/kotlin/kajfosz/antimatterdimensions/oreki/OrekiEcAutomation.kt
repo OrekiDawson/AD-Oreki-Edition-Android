@@ -260,11 +260,34 @@ object OrekiEcAutomation {
         return true
     }
 
-    /** 最小未满级关号（1..12）；全部满级返回 0。 */
+    /**
+     * EC 目标顺序始终保持 1→12，保留原版研究解锁链与奖励顺序；阶段差异只体现在
+     * [ecRequiredCompletions] 的目标次数。纯判据函数，不读写游戏状态。
+     */
+    @JvmStatic
+    fun ecTargetOrder(afterFirstReality: Boolean): IntArray =
+        IntArray(EC_COUNT) { it + 1 }
+
+    /**
+     * 当前阶段实际需要完成的挑战次数：首次 Reality 之后 EC1..EC8 只需完成 1 次
+     * 即可推进解锁链，其余（含 EC9..EC12）仍按原版满级要求。纯判据函数。
+     */
+    @JvmStatic
+    fun ecRequiredCompletions(id: Int, maxCompletions: Int, afterFirstReality: Boolean): Int =
+        if (afterFirstReality && id in 1..8) minOf(1, maxCompletions) else maxCompletions
+
+    /** 首次 Reality 之后为真；读不到 realities 时按未 Reality 处理（从严）。 */
+    private fun afterFirstReality(): Boolean =
+        GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)?.let { it > 0 } ?: false
+
+    /** 按阶段目标顺序取最小未满足关号（1..12）；全部满足返回 0。 */
     private fun nextTargetId(): Int {
-        for (id in 1..EC_COUNT) {
+        val afterReality = afterFirstReality()
+        for (id in ecTargetOrder(afterReality)) {
             val challengeObj = Abi.challenge(id) ?: continue
-            if (Abi.isMaxedChallenge(challengeObj) != true) return id
+            val completions = Abi.completions(challengeObj) ?: return id
+            val max = Abi.maxCompletions(challengeObj) ?: return id
+            if (completions < ecRequiredCompletions(id, max, afterReality)) return id
         }
         return 0
     }
@@ -336,32 +359,33 @@ object OrekiEcAutomation {
     ): Boolean = inChallenge && canBeCompleted == true
 
     /**
-     * [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口未达成时，是否应越过
+     * [R120-01 / Android #184 / Web #69 parity] EC1/EC11/EC12 入口未达成时，是否应越过
      * EP 收益门槛继续真实永恒。
      *
-     * EC1 的入口资源是永恒次数；当前 `gainedEP < EP` 门槛会在 `et<100`、
-     * 自动永恒尚未解锁的读档场景中压住入口资源增长。EC4 的资源会在永恒时清零，
-     * 因此不再复用该豁免，而由 [shouldHoldEternityForEc4Entry] 暂停真实永恒。
+     * EC1 的入口资源是永恒次数；EC11/EC12 的 TT 支付也依赖 Reality 后重新增长 EP。
+     * 当前 `gainedEP < EP` 门槛会在 `et<100`、自动永恒尚未解锁的读档场景中压住入口
+     * 资源增长。EC4 的资源会在永恒时清零，因此不复用该豁免，而由
+     * [shouldHoldEternityForEc4Entry] 暂停真实永恒。
      *
      * 本方法只读官方对象，不写 `unlocked`、完成位、资源或存档。
      */
     @JvmStatic
     fun entryEternityGainGateExempt(): Boolean {
-        // 挑战进行中不得因 EC1/EC4 入口未达成而放宽收益门槛，否则可能在中途
+        // 挑战进行中不得因 EC1/EC11/EC12 入口未达成而放宽收益门槛，否则可能在中途
         // 真实永恒并把当前挑战重置；入口推进只发生在挑战外。
         if (GameApi.inAnyChallenge()) return false
         val target = cachedNextTargetId()
-        if (target != 1 && target != 4) return false
+        if (target != 1 && target != 11 && target != 12) return false
         // 目标达成状态会在完成次数、永恒或无限次数变化时立即改变，不能缓存布尔结果。
         val study = Abi.study(target) ?: return false
         val entryGoalMet = Abi.entryGoalMet(study) ?: return false
         return shouldExemptEntryEternityGainGate(target, entryGoalMet)
     }
 
-    /** 纯判据：只认下一目标 EC1 且入口目标尚未达成。 */
+    /** 纯判据：只认下一目标 EC1/11/12 且入口目标尚未达成。 */
     @JvmStatic
     fun shouldExemptEntryEternityGainGate(targetEcId: Int, entryGoalMet: Boolean?): Boolean =
-        targetEcId == 1 && entryGoalMet == false
+        (targetEcId == 1 || targetEcId == 11 || targetEcId == 12) && entryGoalMet == false
 
     // ------------------------------------------------------------ 阶段 B：真实进入
 
