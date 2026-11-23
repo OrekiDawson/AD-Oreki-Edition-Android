@@ -47,6 +47,7 @@ internal object OrekiAutoEternityAdoption {
     private const val KEY_USER_CLOSED = "oreki.autoEternity.userClosed"
     private const val KEY_ENABLED_REALITIES = "oreki.autoEternity.enabledRealities"
     private const val KEY_SAVE_ID = "oreki.autoEternity.saveId"
+    private const val KEY_EC4_ENTRY_HOLD = "oreki.autoEternity.ec4EntryHold"
 
     /** 补回开关的最小间隔（避免写入失败时每帧重试刷屏）。 */
     private const val RETRY_INTERVAL_MS = 1_000L
@@ -164,6 +165,7 @@ internal object OrekiAutoEternityAdoption {
             userClosed = sp.getBoolean(KEY_USER_CLOSED, false)
             enabledRealities = sp.getString(KEY_ENABLED_REALITIES, "") ?: ""
             saveId = sp.getString(KEY_SAVE_ID, "") ?: ""
+            ec4EntryHoldSuppressed = sp.getBoolean(KEY_EC4_ENTRY_HOLD, false)
         } catch (_: Throwable) {
             // 读盘失败：保持内存默认值（不接管、不阻拦）
         }
@@ -177,6 +179,7 @@ internal object OrekiAutoEternityAdoption {
                 .putBoolean(KEY_USER_CLOSED, userClosed)
                 .putString(KEY_ENABLED_REALITIES, enabledRealities)
                 .putString(KEY_SAVE_ID, saveId)
+                .putBoolean(KEY_EC4_ENTRY_HOLD, ec4EntryHoldSuppressed)
                 .apply()
         } catch (_: Throwable) {
             // 写盘失败不影响本会话判定，只是重启后需要重新观察
@@ -274,6 +277,7 @@ internal object OrekiAutoEternityAdoption {
         adopted = false
         userClosed = false
         enabledRealities = ""
+        ec4EntryHoldSuppressed = false
         lastObservedAutoEternityActive = null
         lastObservedEternityProgress = ""
         persist()
@@ -379,10 +383,16 @@ internal object OrekiAutoEternityAdoption {
             if (!OrekiAutomationScheduler.isEnabled()) {
                 modSettlementResetPending = false
                 if (ec4EntryHoldSuppressed) {
-                    ec4EntryHoldSuppressed = false
                     if (!userClosed && GameApi.autobuyersOn()) {
                         GameApi.setAutoEternityActive(true)
-                        log("ec4-entry-hold restored after scheduler-off")
+                        if (GameApi.autoEternityIsActive() == true) {
+                            ec4EntryHoldSuppressed = false
+                            persist()
+                            log("ec4-entry-hold restored after scheduler-off")
+                        }
+                    } else if (userClosed) {
+                        ec4EntryHoldSuppressed = false
+                        persist()
                     }
                 }
                 return
@@ -513,19 +523,25 @@ internal object OrekiAutoEternityAdoption {
                 GameApi.setAutoEternityActive(false)
                 if (GameApi.autoEternityIsActive() == false) {
                     ec4EntryHoldSuppressed = true
+                    persist()
                     log("ec4-entry-hold disabled vanilla auto eternity")
                 }
             }
             return true
         }
         if (!ec4EntryHoldSuppressed) return false
-        ec4EntryHoldSuppressed = false
-        if (!userClosed && GameApi.autobuyersOn()) {
-            GameApi.setAutoEternityActive(true)
-            if (GameApi.autoEternityIsActive() == true) {
-                adopted = true
-                log("ec4-entry-hold restored vanilla auto eternity")
-            }
+        if (userClosed) {
+            ec4EntryHoldSuppressed = false
+            persist()
+            return true
+        }
+        if (!GameApi.autobuyersOn()) return true
+        GameApi.setAutoEternityActive(true)
+        if (GameApi.autoEternityIsActive() == true) {
+            ec4EntryHoldSuppressed = false
+            adopted = true
+            persist()
+            log("ec4-entry-hold restored vanilla auto eternity")
         }
         return true
     }
