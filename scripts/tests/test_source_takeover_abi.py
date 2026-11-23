@@ -1,6 +1,7 @@
 """ABI comparison helper regression tests."""
 
 import importlib.util
+import struct
 import tempfile
 from pathlib import Path
 import unittest
@@ -15,6 +16,50 @@ SPEC.loader.exec_module(ABI)
 
 
 class SourceTakeoverAbiTest(unittest.TestCase):
+    @staticmethod
+    def minimal_dex(method_name: str) -> bytes:
+        descriptor = b"\x05Lan1;\x00"
+        method = bytes([len(method_name)]) + method_name.encode("ascii") + b"\x00"
+        string_ids_off = 0x70
+        type_ids_off = 0x78
+        method_ids_off = 0x7C
+        class_defs_off = 0x84
+        descriptor_off = 0xA4
+        method_name_off = descriptor_off + len(descriptor)
+        class_data_off = (method_name_off + len(method) + 3) & ~3
+        file_size = class_data_off + 7
+        data = bytearray(file_size)
+        data[:8] = b"dex\n035\x00"
+        struct.pack_into("<I", data, 0x20, file_size)
+        struct.pack_into("<I", data, 0x24, 0x70)
+        struct.pack_into("<I", data, 0x28, 0x12345678)
+        struct.pack_into("<II", data, 0x38, 2, string_ids_off)
+        struct.pack_into("<II", data, 0x40, 1, type_ids_off)
+        struct.pack_into("<II", data, 0x58, 1, method_ids_off)
+        struct.pack_into("<II", data, 0x60, 1, class_defs_off)
+        struct.pack_into("<II", data, string_ids_off, descriptor_off, method_name_off)
+        struct.pack_into("<I", data, type_ids_off, 0)
+        struct.pack_into("<HHI", data, method_ids_off, 0, 0, 1)
+        struct.pack_into(
+            "<8I",
+            data,
+            class_defs_off,
+            0,
+            0x11,
+            0xFFFFFFFF,
+            0,
+            0xFFFFFFFF,
+            0,
+            class_data_off,
+            0,
+        )
+        data[descriptor_off : descriptor_off + len(descriptor)] = descriptor
+        data[method_name_off : method_name_off + len(method)] = method
+        data[class_data_off : class_data_off + 7] = bytes(
+            [0, 0, 1, 0, 0, 1, 0],
+        )
+        return bytes(data)
+
     @staticmethod
     def parsed(*, methods=None, fields=None, super_name=None):
         return {
@@ -124,6 +169,20 @@ class SourceTakeoverAbiTest(unittest.TestCase):
         )
         self.assertFalse(result["ok"])
         self.assertEqual(result["unexpected_constructors"], ["Lan1;"])
+
+    def test_dex_parser_reads_direct_constructor_and_multibyte_uleb(self):
+        self.assertEqual(
+            ABI.dex_constructor_descriptors(self.minimal_dex("<init>")),
+            {"Lan1;"},
+        )
+        self.assertEqual(
+            ABI.dex_constructor_descriptors(self.minimal_dex("a")),
+            set(),
+        )
+        self.assertEqual(
+            ABI.read_uleb128(bytes([0x81, 0x80, 0x04]), 0),
+            (65537, 3),
+        )
 
     def test_required_constructor_must_be_present_in_abi_list(self):
         self.assertEqual(

@@ -217,6 +217,8 @@ def dex_constructor_descriptors(data: bytes) -> set[str]:
             method_index += method_index_diff
             _, offset = read_uleb128(data, offset)
             _, offset = read_uleb128(data, offset)
+            if method_index >= len(method_names):
+                raise ValueError("DEX method index out of range")
             if method_names[method_index] == "<init>":
                 constructors.add(descriptor)
                 break

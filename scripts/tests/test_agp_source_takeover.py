@@ -348,6 +348,12 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn('"removed_constructor" to "<init>()V"', gradle)
         self.assertIn('"--require-no-constructor"', gradle)
         self.assertIn("constructorRemovalSpecs.flatMap", gradle)
+        dex_task = gradle.split(
+            '"verifySourceTakeover${variant}Dex"',
+            1,
+        )[1].split("project.tasks.matching", 1)[0]
+        self.assertIn("constructorRemovalSpecs.flatMap", dex_task)
+        self.assertIn('"requireNoConstructor"', dex_task)
 
 
 if __name__ == "__main__":

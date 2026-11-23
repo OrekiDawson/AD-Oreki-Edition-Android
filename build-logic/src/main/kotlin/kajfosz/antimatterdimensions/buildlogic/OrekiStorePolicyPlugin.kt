@@ -823,6 +823,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         description = "核验最终 APK DEX 包含全部源码接管 descriptor"
                         dependsOn(packageTask)
                         inputs.files(config.sourceTakeoverManifest, abiScript, packageTask)
+                        inputs.property(
+                            "requireNoConstructor",
+                            constructorRemovalSpecs,
+                        )
                         outputs.file(dexEvidence)
                         doFirstAction {
                             val packagedApk = packageTask.get().outputs.files.files
@@ -842,11 +846,18 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         packageTask.get().outputs.files.files,
                                 )
                             commandLine(
-                                "python3",
-                                abiScript.absolutePath,
-                                "--apk", packagedApk.absolutePath,
-                                "--manifest", config.sourceTakeoverManifest.absolutePath,
-                                "--report", dexEvidence.absolutePath,
+                                listOf(
+                                    "python3",
+                                    abiScript.absolutePath,
+                                    "--apk", packagedApk.absolutePath,
+                                    "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                ) +
+                                    constructorRemovalSpecs.flatMap {
+                                        listOf("--require-no-constructor", it)
+                                    } +
+                                    listOf(
+                                        "--report", dexEvidence.absolutePath,
+                                    ),
                             )
                         }
                     }
