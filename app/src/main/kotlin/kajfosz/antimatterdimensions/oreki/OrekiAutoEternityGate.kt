@@ -295,6 +295,9 @@ internal object OrekiAutoEternityGate {
         if (!OrekiAutomationScheduler.isEnabled()) return false
         // [R115-01 P0] 首次永恒驻留期间禁止「自动进入 EC 顺带真实永恒」的旁路。
         if (firstEternityDwellRemainingMs() > 0L) return false
+        // EC4 入口 hold 已同时拦截 MOD 与原版永恒，必须放行挑战自动化，
+        // 否则原版 isActive 被临时关闭会让 EC4 永远无法 settle 并自锁。
+        if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return true
         if (autoEternitySwitchOn()) return true
         // [R104 P0] 新档引导窗口内同样放行挑战自动化（否则 EC 链在新档永不启动）。
         if (bootstrapActive()) return true

@@ -723,6 +723,13 @@ check("R126 EC4 hold 临时关闭并恢复原版自动永恒",
       "if (OrekiEcAutomation.shouldHoldEternityForEc4Entry())" in _adoption_kt
       and "GameApi.setAutoEternityActive(false)" in _adoption_kt
       and "GameApi.setAutoEternityActive(true)" in _adoption_kt)
+check("R126 EC4 hold 放行挑战自动化避免自锁",
+      "if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) return true" in _gate_kt)
+check("R126 EC4 hold 状态跨重启持久化且换档清零",
+      'KEY_EC4_ENTRY_HOLD = "oreki.autoEternity.ec4EntryHold"' in _adoption_kt
+      and "getBoolean(KEY_EC4_ENTRY_HOLD" in _adoption_kt
+      and "putBoolean(KEY_EC4_ENTRY_HOLD" in _adoption_kt
+      and "ec4EntryHoldSuppressed = false" in _adoption_kt)
 check("R126 EC4 每帧门禁复用 nextTargetId 缓存",
       _ec_kt.count("cachedNextTargetId()") >= 3)
 check("R126 旧 build_mod 已退出生产路径",
