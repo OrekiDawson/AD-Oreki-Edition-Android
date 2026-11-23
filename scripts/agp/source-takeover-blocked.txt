@@ -175,11 +175,10 @@ h62.class | Lh62; | JADX default constructor no longer matches original b62() AB
 kc4.class | Lkc4; | JADX byte constructors no longer match original eh0(Map...) and aj0() ABI
 xe0.class | Lxe0; | dependency ju2.class has default method in classfile version 49
 l69.class | Ll69; | JADX omitted constructor initialization for final field a
-a13.class | La13; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-a67.class | La67; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+a67.class | La67; | JADX field q47.v is synthetic and unavailable to javac; retain frozen JAR implementation
 aw.class | Law; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-ba6.class | Lba6; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
-bt0.class | Lbt0; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
+ba6.class | Lba6; | original ag5 constructor is ACC_SYNTHETIC; javac/Kotlin cannot reference it
+bt0.class | Lbt0; | original h10 no-arg constructor is ACC_SYNTHETIC; javac/Kotlin cannot reference it
 d33.class | Ld33; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
 h01.class | Lh01; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence
 h32.class | Lh32; | R126 batch4 javac/classfile or inherited dependency failure; see R126 batch4 javac evidence

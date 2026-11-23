@@ -15,6 +15,12 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("public interface a5", source)
         self.assertIn("void j(Object value);", source)
 
+    def test_a13_matches_official_context_wrapper_shape(self):
+        source = (ROOT / "app/src/main/java/a13.java").read_text(encoding="utf-8")
+        self.assertIn("public final class a13 extends ContextWrapper", source)
+        self.assertIn("public static final int a = 0;", source)
+        self.assertNotIn("extends j13", source)
+
     def test_takeover_manifest_is_reviewable_and_unique(self):
         manifest = (ROOT / "build-logic/source-takeover.txt").read_text(encoding="utf-8")
         entries = [
