@@ -25,7 +25,9 @@ val sourceTakeoverKotlinExcludes = sourceTakeoverClasses.mapNotNull { classPath 
     val kotlinPath = classPath.removeSuffix(".class") + ".kt"
     kotlinPath.takeIf { File(repoRoot, "app/src/main/kotlin/$it").isFile }
 }
-val fullGameOnlyKotlinExcludes = sourceTakeoverKotlinExcludes
+val fullGameOnlyKotlinExcludes = (
+    sourceTakeoverKotlinExcludes + "R126SyntheticAccess.kt"
+    ).distinct()
 val fullGameOnlyKotlinNames = fullGameOnlyKotlinExcludes.map { File(it).nameWithoutExtension }
 val testKotlinRoot = File(repoRoot, "app/src/test/kotlin")
 val sourceTakeoverTestKotlinExcludes = testKotlinRoot.walkTopDown()

@@ -1177,6 +1177,9 @@ shim 根因继续收敛，不能把本批视为全量迁移完成。
 - `di0.b(int,int,int)` 的 synthetic 打包逻辑按原字节码恢复为 flag bit 2/8
   掩码、`Int.MAX_VALUE` 替换和 `di0.a(0,start,0,size)`；新增 JVM 定向测试与
   原方法逐组对比。
+- 无专有游戏 JAR 的 bridge 构建将 `R126SyntheticAccess` 及其测试显式排除，
+  避免引用只在 FullGame 输入中存在的混淆类；`:app:assembleDebug
+  :app:copyAgpKotlinClasses` 在无 JAR 条件下 PASS。
 - `al2.m(String)` 的真实语义是抛出 `IllegalArgumentException`，在 `kx5`
   中直接以同类型异常实现；`gc7.b` 的只读 synthetic 常量读取无副作用，移除了
   JADX 生成的未使用读取。
