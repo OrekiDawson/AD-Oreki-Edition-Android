@@ -120,6 +120,20 @@ class SourceTakeoverAbiTest(unittest.TestCase):
                 ABI.find_compiled_class([java_root, kotlin_root], "missing.class"),
             )
 
+    def test_source_owned_classes_are_excluded_only_from_original_abi_comparison(self):
+        entries = ["a5.class", "kajfosz/antimatterdimensions/OrekiSpeed.class"]
+        self.assertEqual(
+            ABI.filter_abi_entries(
+                entries,
+                {"kajfosz/antimatterdimensions/OrekiSpeed.class"},
+            ),
+            ["a5.class"],
+        )
+        self.assertEqual(
+            ABI.compare_dex(entries, {"La5;"})["missing_classes"],
+            ["Lkajfosz/antimatterdimensions/OrekiSpeed;"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

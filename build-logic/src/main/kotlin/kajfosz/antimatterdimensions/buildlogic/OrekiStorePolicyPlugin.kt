@@ -156,16 +156,18 @@ private fun verifyArtifacts(
                 val oldBytes = before.getInputStream(before.getEntry(name)).readBytes()
                 val newBytes = after.getInputStream(after.getEntry(name)).readBytes()
                 if (name in targetEntries) {
-                    if (oldBytes.contentEquals(newBytes)) {
-                        throw GradleException("[oreki] store-policy 必需目标条目未改写: $name")
-                    }
                     val text = String(newBytes, Charsets.ISO_8859_1)
-                    for (anchor in requiredAnchors[name].orEmpty()) {
+                    val anchors = requiredAnchors[name].orEmpty()
+                    for (anchor in anchors) {
                         val encoded = anchor.toByteArray(Charsets.UTF_8)
                         if (!text.contains(anchor) && !newBytes.hasBytes(encoded)) {
                             throw GradleException("[oreki] store-policy 目标条目缺少策略锚点: $name#$anchor")
                         }
                     }
+                    if (oldBytes.contentEquals(newBytes) && anchors.isEmpty()) {
+                        throw GradleException("[oreki] store-policy 必需目标条目未改写: $name")
+                    }
+                    // 已策略化输入重复经过时允许字节稳定，但必须已包含全部策略锚点。
                 } else if (!oldBytes.contentEquals(newBytes)) {
                     throw GradleException("[oreki] store-policy 改写非目标条目: $name")
                 }
@@ -218,6 +220,14 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
         val preparedGameJar = File(
             config.rootDir,
             "build/agp-store-policy/game-hybrid-sig-prepared.jar",
+        )
+        val filteredGameJar = File(
+            config.rootDir,
+            "build/agp-store-policy/game-hybrid-sig-filtered.jar",
+        )
+        val filterReport = File(
+            config.rootDir,
+            "build/agp-store-policy/filter-report.json",
         )
         val prepareGameJar = project.tasks.registerAction("prepareGameJar") {
             group = "oreki"
@@ -313,12 +323,35 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             }
         }
 
+        val filterScript = File(config.rootDir, "scripts/agp/r109_filter_program_jar.py")
+        val filterTask = project.tasks.registerTypedAction("filterGameJar", Exec::class.java) {
+            group = "oreki"
+            description = "剔除转换 JAR 中与 android.jar 精确重名的平台程序类"
+            onlyIf { config.fullGame }
+            dependsOn(prepareGameJar)
+            inputs.files(preparedGameJar, filterScript, androidJar)
+            outputs.files(filteredGameJar, filterReport)
+            workingDir(config.rootDir)
+            doFirstAction {
+                val android = androidJar.get()
+                if (!android.isFile) throw GradleException("AGP SDK 缺少 android.jar: $android")
+                commandLine(
+                    "python3",
+                    filterScript.absolutePath,
+                    "--game-jar", preparedGameJar.absolutePath,
+                    "--android-jar", android.absolutePath,
+                    "--out", filteredGameJar.absolutePath,
+                    "--report", filterReport.absolutePath,
+                )
+            }
+        }
+
         val applyTask = project.tasks.registerTypedAction("applyStorePolicy", Exec::class.java) {
             group = "oreki"
             description = "应用 Kotlin STD/IAP 与广告加成策略到转换后的游戏 JAR"
             onlyIf { config.fullGame }
-            dependsOn(prepareGameJar)
-            inputs.file(preparedGameJar)
+            dependsOn(filterTask)
+            inputs.file(filteredGameJar)
             inputs.files(script, transformer, asmJar, androidJar, config.sourceTakeoverManifest)
             outputs.files(config.storePolicyJar, config.storePolicyReport)
             workingDir(config.rootDir)
@@ -328,7 +361,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                 commandLine(
                     "python3",
                     script.absolutePath,
-                    "--game-jar", preparedGameJar.absolutePath,
+                    "--game-jar", filteredGameJar.absolutePath,
                     "--out-jar", config.storePolicyJar.absolutePath,
                     "--report", config.storePolicyReport.absolutePath,
                     "--asm-jar", asmJar.absolutePath,
@@ -344,12 +377,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
             description = "独立校验 store-policy JAR、报告、ABI 与非目标字节"
             onlyIf { config.fullGame }
             dependsOn(applyTask)
-            inputs.file(preparedGameJar)
+            inputs.file(filteredGameJar)
             inputs.files(config.storePolicyJar, config.storePolicyReport, config.sourceTakeoverManifest)
             outputs.file(config.storePolicyVerifyReport)
             doLastAction {
                 val result = verifyArtifacts(
-                    preparedGameJar,
+                    filteredGameJar,
                     config.storePolicyJar,
                     config.storePolicyReport,
                     config.sourceTakeoverEntries.toSet(),
@@ -459,46 +492,54 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                     val compileName = "compile${variant}JavaWithJavac"
                     val compileTask = project.tasks.findByName(compileName) as? JavaCompile
                         ?: throw GradleException("[oreki] 缺少源码编译任务: $compileName")
+                    val kotlinCompileTask = project.tasks.named("compile${variant}Kotlin")
                     val adaptSourceAbi = project.tasks.registerAction(
                         "adaptSourceAbi${variant}",
                     ) {
                         description = "适配 Java 语言无法直接表达的默认包 ABI 描述符"
                         data class AbiAdaptation(
-                            val classFile: File,
+                            val classPath: String,
                             val method: String,
                             val from: String,
                             val to: String,
                         )
                         val classesRoot = compileTask.destinationDirectory.asFile.get()
-                        val adaptations = listOf(
+                        val adaptationSpecs = listOf(
                             AbiAdaptation(
-                                File(classesRoot, "kajfosz/antimatterdimensions/OrekiSpeed.class"),
+                                "kajfosz/antimatterdimensions/OrekiSpeed.class",
                                 "migrateBest",
                                 "(Ljava/lang/Object;)V",
                                 "(Lku4;)V",
                             ),
                             AbiAdaptation(
-                                File(classesRoot, "kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class"),
+                                "kajfosz/antimatterdimensions/oreki/OrekiUiTitle.class",
                                 "of",
                                 "(Ljava/lang/Object;)Ljava/lang/String;",
                                 "(Lyn4;)Ljava/lang/String;",
                             ),
                         )
-                        inputs.files(adaptations.map { it.classFile })
                         outputs.file(File(
                             config.rootDir,
                             "build/agp-source-takeover/abi-adapter-${variant.lowercase()}.json",
                         ))
+                        inputs.files(kotlinCompileTask)
                         outputs.upToDateWhen { false }
                         doLast {
-                            val evidenceRows = adaptations.map { adaptation ->
-                                if (!adaptation.classFile.isFile) {
+                            val classRoots = (
+                                listOf(classesRoot) +
+                                    kotlinCompileTask.get().outputs.files.files
+                                ).filter(File::isDirectory)
+                            val evidenceRows = adaptationSpecs.map { spec ->
+                                val classFile = classRoots
+                                    .map { File(it, spec.classPath) }
+                                    .firstOrNull(File::isFile)
+                                if (classFile == null) {
                                     throw GradleException(
-                                        "缺少默认包 ABI 适配编译产物: ${adaptation.classFile}",
+                                        "缺少默认包 ABI 适配编译产物: ${spec.classPath}",
                                     )
                                 }
                                 var adapted = false
-                                val reader = ClassReader(adaptation.classFile.readBytes())
+                                val reader = ClassReader(classFile.readBytes())
                                 val writer = ClassWriter(reader, 0)
                                 reader.accept(
                                     object : org.objectweb.asm.ClassVisitor(Opcodes.ASM9, writer) {
@@ -510,13 +551,13 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                             exceptions: Array<out String>?,
                                         ): MethodVisitor {
                                             val adaptedDescriptor =
-                                                if (name == adaptation.method) {
+                                                if (name == spec.method) {
                                                     when (descriptor) {
-                                                        adaptation.from -> {
+                                                        spec.from -> {
                                                             adapted = true
-                                                            adaptation.to
+                                                            spec.to
                                                         }
-                                                        adaptation.to -> {
+                                                        spec.to -> {
                                                             adapted = true
                                                             descriptor
                                                         }
@@ -538,20 +579,20 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                 )
                                 if (!adapted) {
                                     throw GradleException(
-                                        "${adaptation.classFile.name}.${adaptation.method} " +
+                                        "${classFile.name}.${spec.method} " +
                                             "未找到待适配描述符",
                                     )
                                 }
-                                adaptation.classFile.writeBytes(writer.toByteArray())
+                                classFile.writeBytes(writer.toByteArray())
                                 logger.lifecycle(
                                     "[oreki] 默认包 ABI 适配完成: " +
-                                        "${adaptation.classFile.name}.${adaptation.method}",
+                                        "${classFile.name}.${spec.method}",
                                 )
                                 linkedMapOf(
-                                    "class" to adaptation.classFile,
-                                    "method" to adaptation.method,
-                                    "from" to adaptation.from,
-                                    "to" to adaptation.to,
+                                    "class" to classFile,
+                                    "method" to spec.method,
+                                    "from" to spec.from,
+                                    "to" to spec.to,
                                 )
                             }
                             val evidence = outputs.files.singleFile
@@ -572,7 +613,6 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         config.rootDir,
                         "build/agp-source-takeover/verify-${variant.lowercase()}.json",
                     )
-                    val kotlinCompileTask = project.tasks.named("compile${variant}Kotlin")
                     val verifyCompiled = project.tasks.registerAction(
                         "verifySourceTakeover${variant}Classes",
                     ) {
@@ -624,6 +664,10 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         config.rootDir,
                         "scripts/agp/verify_source_takeover_abi.py",
                     )
+                    val sourceOwnedManifest = File(
+                        config.rootDir,
+                        "build-logic/source-owned.txt",
+                    )
                     val verifyAbi = project.tasks.registerTypedAction(
                         "verifySourceTakeover${variant}Abi",
                         Exec::class.java,
@@ -632,7 +676,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                         description = "对比原版 JAR 与 AGP class 的方法/字段 ABI"
                         dependsOn(compileTask, kotlinCompileTask)
                         config.gameJar?.let { inputs.file(it) }
-                        inputs.files(config.sourceTakeoverManifest, abiScript, kotlinCompileTask)
+                        inputs.files(
+                            config.sourceTakeoverManifest,
+                            sourceOwnedManifest,
+                            abiScript,
+                            kotlinCompileTask,
+                        )
                         inputs.dir(compileTask.destinationDirectory)
                         outputs.file(abiEvidence)
                         doFirstAction {
@@ -656,6 +705,8 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                     } +
                                     listOf(
                                         "--manifest", config.sourceTakeoverManifest.absolutePath,
+                                        "--exclude-from-abi-manifest",
+                                        sourceOwnedManifest.absolutePath,
                                         "--report", abiEvidence.absolutePath,
                                     ),
                             )

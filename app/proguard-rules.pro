@@ -91,6 +91,12 @@
 -keep class yp0 { *; }
 -keep class zx1 { *; }
 
+# (2c) OrekiUiTitle 的显式反射成员（原 Smali: Lyn4;->j:Lmi2;、Lrq4;->a()Ljava/lang/String;）
+# 新增 Object 反射后 R8 不再能沿字节码重命名这些成员，必须按精确类和成员保名。
+-keep class yn4 { mi2 j; }
+-keep class mi2 { java.lang.String a(); }
+-keep class rq4 { java.lang.String a(); }
+
 # (3) 存档兼容：Gson 序列化字段名即 player.json 键，必须保名。
 # 证据：savestates/**/*.json 的键是可读字段名；decoded smali 中 Player 存档树字段名与之一一对应；
 # 闭包由 scripts/agp/r109_save_keepgen.py 从 player/Player* 沿实例字段类型静态求出（102 类，0 enum）。

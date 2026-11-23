@@ -21,8 +21,9 @@
 - 验证：FullGame `compileDebugJavaWithJavac` PASS；
   `verifySourceTakeoverDebugClasses`、`verifySourceTakeoverDebugAbi` 与 DEX descriptor
   守卫按同一批 class 清单校验。
-- 当前 FullGame Debug APK：`1aaaa556d1f99e090c06b0ba593a4360e4f8b64d672eae09df1ba2acb3497d88`
-  （93,471,749 B）；Python 331/331、1033/1033 Classes/ABI/DEX PASS。
+- 当前 FullGame Debug APK：`ce65222e35f9e4927b6802179242ed0f48ce53711bca15515a14b19f63c67368`
+  （83,822,408 B）；Python 335/335、1033/1033 Classes/ABI/DEX PASS；
+  `minifyReleaseWithR8` PASS。
 - AVD 真实点击修复：首次教程入口暴露 `TutorialActivity.onCreate` 在 `DecorView`
   创建前读取 `WindowInsetsController` 的 NPE，已改为从 `decorView.windowInsetsController`
   获取；同时 `prepareFullGameAssets` 补齐输入/输出声明及 staging fail-closed，
@@ -36,16 +37,17 @@
   `invokeSuspend -> CoroutineSingletons.a` 行为，不持有游戏状态。
 - AVD 运行 `OrekiAchAudit` 连续输出 `DONE scanned=144` 与
   `GATE brake=... mult=70.0 rt=...`，未出现 `ABORT`、FATAL、VerifyError 或缺失类。
-- `OrekiSpeed`、`SettingsClickListener`、`SpeedSettingsActivity` 已迁入 AGP 源码，
-  StorePolicy transformer 不再改写这三类；`migrateBest` 由 build-logic ASM 单方法适配恢复
-  `(Lku4;)V` ABI。AVD 实测设置页可从 `×70` 保存为 `×100`，重开仍为 `×100`，再恢复默认为
-  `×500`，进程无 FATAL/缺失类。
+- `OrekiSpeed`、`SettingsClickListener` 已迁移 Kotlin；动态升档门槛恢复为
+  “停滞或间隔门限任一不足即返回”，`sigOf` 恢复 `round(log10 × 100)`，玩家保存倍率后
+  `speed_pacing_managed=false`。`migrateBest` 由 build-logic 从 javac/Kotlin 多编译根查找并
+  适配 `(Lku4;)V` ABI。AVD 实测保存 `×100` 后偏好为 `speed_multiplier=100.0`、
+  `speed_dynamic=0`、`speed_pacing_managed=false`，进程无 FATAL/缺失类。
 - `OrekiPelleRecord` 直接按原版 `Player.p().d().h()` 记录链单调写入峰值副本，
   保留数量级节流日志与异常吞掉边界，不修改解锁或结算字段。
 - `OrekiTeresaAuto` 继续只切换原版 `MainActivity.vp`，保留 20 个一次性 RU 门禁、
   浇满释放、180 秒有界 hold 与错误吞掉语义，不自行计算浇注或扣 RM。
 - `OrekiUiTitle` 以反射读取原版页签标题并保留同名去重，方法描述符由 build-logic ASM
-  适配回 `of(Lyn4;)Ljava/lang/String;`。
+  适配回 `of(Lyn4;)Ljava/lang/String;`；R8 对实际反射类/成员生成精确 keep 规则。
 - `OrekiEternityLaunch` 以同包 Java 入口保留 `run()` / `startDilation()` ABI；
   编译器无法表达包内 Kotlin continuation 的父类构造调用，因此 build-logic 对该类
   两个方法执行确定性 ASM 方法体恢复，不恢复 Smali 生产文件。
@@ -58,6 +60,10 @@
 - `StageAssist` 已恢复为 AGP Java，保留默认关闭、永久留痕、Doomed 拒写、
   36 个原始方法 descriptor 与全部阶段提示；默认包成就/炼金表仅通过反射读取。
 - 当前 `scripts/payload/smali` 剩余 `0` 个文件；生产 Smali 已清零。
+- `build-logic/source-owned.txt` 登记 24 个不存在于官方基线的 MOD 自有类：它们只跳过
+  “与原版 JAR 比较 ABI”，仍由 AGP 编译并接受最终 DEX 存在性校验。
+- 正式构建在 store-policy 前调用 `r109_filter_program_jar.py`，只删除 22 个与
+  `android.jar` 精确重名的平台程序类；R8 不再把平台库误当程序类。
 
 ## R126 原版 JAR 源码接管首批（2026-11-23）
 

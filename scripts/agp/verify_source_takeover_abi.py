@@ -155,12 +155,25 @@ def find_compiled_class(roots: list[Path], entry: str) -> Path | None:
     return None
 
 
+def load_manifest_entries(path: Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+
+def filter_abi_entries(entries: list[str], excluded: set[str]) -> list[str]:
+    return [entry for entry in entries if entry not in excluded]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--game-jar", type=Path)
     parser.add_argument("--classes-dir", type=Path, action="append")
     parser.add_argument("--apk", type=Path)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--exclude-from-abi-manifest", type=Path)
     parser.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
 
@@ -169,18 +182,20 @@ def main() -> int:
     if not args.classes_dir and not args.apk:
         parser.error("provide --classes-dir, --apk, or both")
 
-    entries = [
-        line.strip()
-        for line in args.manifest.read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.lstrip().startswith("#")
-    ]
+    entries = load_manifest_entries(args.manifest)
+    abi_entries = entries
+    if args.exclude_from_abi_manifest:
+        abi_entries = filter_abi_entries(
+            entries,
+            set(load_manifest_entries(args.exclude_from_abi_manifest)),
+        )
     abi = None
     abi_failures = []
     if args.classes_dir:
         results = []
         with zipfile.ZipFile(args.game_jar) as archive:
             archive_entries = set(archive.namelist())
-            for entry in entries:
+            for entry in abi_entries:
                 compiled_path = find_compiled_class(args.classes_dir, entry)
                 if compiled_path is None:
                     result = {
@@ -204,7 +219,7 @@ def main() -> int:
                 if not result["ok"]:
                     abi_failures.append(result)
         abi = {
-            "checked": len(entries),
+            "checked": len(abi_entries),
             "failures": abi_failures,
             "results": results,
             "ok": not abi_failures,
@@ -221,6 +236,9 @@ def main() -> int:
         if args.classes_dir else None,
         "apk": str(args.apk) if args.apk else None,
         "manifest": str(args.manifest),
+        "abi_manifest": str(args.exclude_from_abi_manifest)
+        if args.exclude_from_abi_manifest else str(args.manifest),
+        "abi_excluded_entries": len(entries) - len(abi_entries),
         "checked": len(entries),
         "abi": abi,
         "dex": dex,

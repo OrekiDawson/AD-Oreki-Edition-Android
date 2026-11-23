@@ -6,8 +6,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/OrekiSpeedPolicy.kt"
-SPEED = ROOT / "app/src/main/java/kajfosz/antimatterdimensions/OrekiSpeed.java"
-SETTINGS = ROOT / "app/src/main/java/kajfosz/antimatterdimensions/oreki/SettingsClickListener.java"
+SPEED = ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/OrekiSpeed.kt"
+SETTINGS = ROOT / "app/src/main/kotlin/kajfosz/antimatterdimensions/oreki/SettingsClickListener.kt"
 SPEED_UI = ROOT / "app/src/main/java/kajfosz/antimatterdimensions/oreki/SpeedSettingsActivity.java"
 TRANSFORMER = ROOT / "scripts/agp/store_policy/StorePolicyTransformer.java"
 APPLY_POLICY = ROOT / "scripts/agp/apply_store_policy.py"
@@ -24,13 +24,13 @@ class SpeedBoundPolicyTests(unittest.TestCase):
 
     def test_mult_uses_single_kotlin_sanitizer(self):
         source = SPEED.read_text(encoding="utf-8")
-        body = source.split("public static double mult()", 1)[1].split("private static void persistMult", 1)[0]
-        self.assertIn("OrekiSpeedPolicy.sanitize(sMult)", body)
+        body = source.split("fun mult(): Double", 1)[1].split("private fun persistMultiplier", 1)[0]
+        self.assertIn("OrekiSpeedPolicy.sanitize(multiplier)", body)
         self.assertNotIn("1.0E9d", body)
 
     def test_user_input_rejects_legacy_overlimit_values(self):
         source = SPEED.read_text(encoding="utf-8")
-        body = source.split("public static boolean set(double value)", 1)[1].split("public static boolean setDynamic", 1)[0]
+        body = source.split("fun set(value: Double)", 1)[1].split("fun setDynamic", 1)[0]
         self.assertIn("OrekiSpeedPolicy.isValidInput(value)", body)
         self.assertIn("return false", body)
         self.assertNotIn("1.0E9d", body)
@@ -95,7 +95,7 @@ class SpeedBoundPolicyTests(unittest.TestCase):
     def test_source_default_matches_kotlin_source_of_truth(self):
         source = SPEED.read_text(encoding="utf-8")
         self.assertIn("OrekiGamePace.defaultSpeed()", source)
-        self.assertIn("private static double sMult = DEF", source)
+        self.assertIn("private var multiplier = defaultSpeed", source)
 
 
 if __name__ == "__main__":

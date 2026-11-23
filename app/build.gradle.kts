@@ -25,7 +25,8 @@ val sourceTakeoverKotlinExcludes = sourceTakeoverClasses.mapNotNull { classPath 
     val kotlinPath = classPath.removeSuffix(".class") + ".kt"
     kotlinPath.takeIf { File(repoRoot, "app/src/main/kotlin/$it").isFile }
 }
-val sourceTakeoverKotlinNames = sourceTakeoverKotlinExcludes.map { File(it).nameWithoutExtension }
+val fullGameOnlyKotlinExcludes = sourceTakeoverKotlinExcludes
+val fullGameOnlyKotlinNames = fullGameOnlyKotlinExcludes.map { File(it).nameWithoutExtension }
 val testKotlinRoot = File(repoRoot, "app/src/test/kotlin")
 val sourceTakeoverTestKotlinExcludes = testKotlinRoot.walkTopDown()
     .filter(File::isFile)
@@ -35,7 +36,7 @@ val sourceTakeoverTestKotlinExcludes = testKotlinRoot.walkTopDown()
             .map(String::trim)
             .filter { it.startsWith("import ") }
             .map { it.substringAfterLast('.') }
-        imports.any(sourceTakeoverKotlinNames::contains)
+        imports.any(fullGameOnlyKotlinNames::contains)
     }
     .map { it.relativeTo(testKotlinRoot).invariantSeparatorsPath }
     .toList()
@@ -43,7 +44,7 @@ val bridgeKotlinRoot = layout.buildDirectory.dir("bridge-kotlin")
 val bridgeTestKotlinRoot = layout.buildDirectory.dir("bridge-test-kotlin")
 val prepareBridgeKotlinSources = tasks.register<Sync>("prepareBridgeKotlinSources") {
     from(File(repoRoot, "app/src/main/kotlin")) {
-        exclude(sourceTakeoverKotlinExcludes)
+        exclude(fullGameOnlyKotlinExcludes)
     }
     into(bridgeKotlinRoot)
 }
