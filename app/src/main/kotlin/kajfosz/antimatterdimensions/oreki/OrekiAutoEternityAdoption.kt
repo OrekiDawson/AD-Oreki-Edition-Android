@@ -86,7 +86,7 @@ internal object OrekiAutoEternityAdoption {
      *
      * 原版 `EternityAutobuyerState.c()` 位于静态基线 JAR，Kotlin 侧不能直接改写其判据；
      * 因此托管层在入口等待窗口把原版 `isActive` 暂时置 false，结束后恢复托管值。
-     * 不落盘，应用重启后会按真实存档与原版开关重新计算。
+     * 该状态随存档身份落盘，跨进程重启保留；换档/导入时清空，不向新存档传播。
      */
     private var ec4EntryHoldSuppressed = false
 
@@ -183,6 +183,16 @@ internal object OrekiAutoEternityAdoption {
                 .apply()
         } catch (_: Throwable) {
             // 写盘失败不影响本会话判定，只是重启后需要重新观察
+        }
+    }
+
+    /** EC4 hold 是开关写入的前置证据，必须同步落盘成功后才允许关闭原版自动永恒。 */
+    private fun persistEc4Hold(value: Boolean): Boolean {
+        val sp = prefs() ?: return false
+        return try {
+            sp.edit().putBoolean(KEY_EC4_ENTRY_HOLD, value).commit()
+        } catch (_: Throwable) {
+            false
         }
     }
 
@@ -386,13 +396,15 @@ internal object OrekiAutoEternityAdoption {
                     if (!userClosed && GameApi.autobuyersOn()) {
                         GameApi.setAutoEternityActive(true)
                         if (GameApi.autoEternityIsActive() == true) {
-                            ec4EntryHoldSuppressed = false
-                            persist()
-                            log("ec4-entry-hold restored after scheduler-off")
+                            if (persistEc4Hold(false)) {
+                                ec4EntryHoldSuppressed = false
+                                log("ec4-entry-hold restored after scheduler-off")
+                            }
                         }
                     } else if (userClosed) {
-                        ec4EntryHoldSuppressed = false
-                        persist()
+                        if (persistEc4Hold(false)) {
+                            ec4EntryHoldSuppressed = false
+                        }
                     }
                 }
                 return
@@ -520,28 +532,34 @@ internal object OrekiAutoEternityAdoption {
     private fun applyEc4EntryHold(active: Boolean?): Boolean {
         if (OrekiEcAutomation.shouldHoldEternityForEc4Entry()) {
             if (active == true) {
+                if (!persistEc4Hold(true)) return true
+                ec4EntryHoldSuppressed = true
                 GameApi.setAutoEternityActive(false)
                 if (GameApi.autoEternityIsActive() == false) {
-                    ec4EntryHoldSuppressed = true
-                    persist()
+                    lastObservedAutoEternityActive = false
+                    lastObservedEternityProgress = eternityProgressToken()
                     log("ec4-entry-hold disabled vanilla auto eternity")
+                } else {
+                    if (persistEc4Hold(false)) ec4EntryHoldSuppressed = false
                 }
             }
             return true
         }
         if (!ec4EntryHoldSuppressed) return false
         if (userClosed) {
-            ec4EntryHoldSuppressed = false
-            persist()
+            if (persistEc4Hold(false)) ec4EntryHoldSuppressed = false
             return true
         }
         if (!GameApi.autobuyersOn()) return true
         GameApi.setAutoEternityActive(true)
         if (GameApi.autoEternityIsActive() == true) {
-            ec4EntryHoldSuppressed = false
-            adopted = true
-            persist()
-            log("ec4-entry-hold restored vanilla auto eternity")
+            if (persistEc4Hold(false)) {
+                ec4EntryHoldSuppressed = false
+                adopted = true
+                lastObservedAutoEternityActive = true
+                lastObservedEternityProgress = eternityProgressToken()
+                log("ec4-entry-hold restored vanilla auto eternity")
+            }
         }
         return true
     }
