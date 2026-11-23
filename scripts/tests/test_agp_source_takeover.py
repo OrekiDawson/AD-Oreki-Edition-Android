@@ -355,6 +355,27 @@ class AgpSourceTakeoverTest(unittest.TestCase):
         self.assertIn("constructorRemovalSpecs.flatMap", dex_task)
         self.assertIn('"requireNoConstructor"', dex_task)
 
+    def test_constructor_owner_shims_restore_original_superclass(self):
+        gradle = (
+            ROOT / "build-logic/src/main/kotlin/kajfosz/antimatterdimensions/buildlogic/"
+            "OrekiStorePolicyPlugin.kt"
+        ).read_text(encoding="utf-8")
+        expected = {
+            "g21": ("j21", "(J)V"),
+            "i21": ("j21", "(J)V"),
+            "h23": ("p32", "(I)V"),
+            "hf5": ("jf5", "(Lde2;)V"),
+            "hp3": ("jp3", "(Ljava/lang/String;)V"),
+        }
+        for name, (target_super, descriptor) in expected.items():
+            self.assertIn(f'"{name}.class"', gradle)
+            self.assertIn(f'"{target_super}"', gradle)
+            self.assertIn(f'"{descriptor}"', gradle)
+        self.assertIn('"constructor_owner_adaptations"', gradle)
+        self.assertIn('"constructor_owner" to "java/lang/Object"', gradle)
+        self.assertIn("首个构造器调用", gradle)
+        self.assertIn("Object.<init>()V", gradle)
+
 
 if __name__ == "__main__":
     unittest.main()

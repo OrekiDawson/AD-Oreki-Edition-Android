@@ -519,6 +519,12 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                             val to: String,
                             val targetMethod: String = method,
                         )
+                        data class ConstructorOwnerAdaptation(
+                            val classPath: String,
+                            val sourceSuper: String,
+                            val targetSuper: String,
+                            val constructorDescriptor: String,
+                        )
                         val classesRoot = compileTask.destinationDirectory.asFile.get()
                         val adaptationSpecs = listOf(
                             AbiAdaptation(
@@ -539,6 +545,38 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                 "()[F",
                                 "()[F",
                                 "getUnderlyingMatrix-sQKQjiQ",
+                            ),
+                        )
+                        val constructorOwnerSpecs = listOf(
+                            ConstructorOwnerAdaptation(
+                                "g21.class",
+                                "java/lang/Object",
+                                "j21",
+                                "(J)V",
+                            ),
+                            ConstructorOwnerAdaptation(
+                                "i21.class",
+                                "java/lang/Object",
+                                "j21",
+                                "(J)V",
+                            ),
+                            ConstructorOwnerAdaptation(
+                                "h23.class",
+                                "java/lang/Object",
+                                "p32",
+                                "(I)V",
+                            ),
+                            ConstructorOwnerAdaptation(
+                                "hf5.class",
+                                "java/lang/Object",
+                                "jf5",
+                                "(Lde2;)V",
+                            ),
+                            ConstructorOwnerAdaptation(
+                                "hp3.class",
+                                "java/lang/Object",
+                                "jp3",
+                                "(Ljava/lang/String;)V",
                             ),
                         )
                         outputs.file(File(
@@ -687,6 +725,138 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "removed_constructor" to "<init>()V",
                                     )
                                 }
+                            val constructorOwnerRows =
+                                constructorOwnerSpecs.map { spec ->
+                                    val classFile = classRoots
+                                        .map { File(it, spec.classPath) }
+                                        .firstOrNull(File::isFile)
+                                    if (classFile == null) {
+                                        throw GradleException(
+                                            "缺少构造器 owner shim 编译产物: ${spec.classPath}",
+                                        )
+                                    }
+                                    var constructors = 0
+                                    var sawObjectConstructor = false
+                                    val reader = ClassReader(classFile.readBytes())
+                                    val writer = ClassWriter(reader, 0)
+                                    reader.accept(
+                                        object :
+                                            org.objectweb.asm.ClassVisitor(
+                                                Opcodes.ASM9,
+                                                writer,
+                                            ) {
+                                            override fun visit(
+                                                version: Int,
+                                                access: Int,
+                                                name: String,
+                                                signature: String?,
+                                                superName: String?,
+                                                interfaces: Array<out String>?,
+                                            ) {
+                                                if (superName != spec.sourceSuper) {
+                                                    throw GradleException(
+                                                        "${spec.classPath} 编译期 super " +
+                                                            "应为 ${spec.sourceSuper}，实际 $superName",
+                                                    )
+                                                }
+                                                super.visit(
+                                                    version,
+                                                    access,
+                                                    name,
+                                                    signature,
+                                                    spec.targetSuper,
+                                                    interfaces,
+                                                )
+                                            }
+
+                                            override fun visitMethod(
+                                                access: Int,
+                                                name: String,
+                                                descriptor: String,
+                                                signature: String?,
+                                                exceptions: Array<out String>?,
+                                            ): MethodVisitor? {
+                                                if (name != "<init>") {
+                                                    return super.visitMethod(
+                                                        access,
+                                                        name,
+                                                        descriptor,
+                                                        signature,
+                                                        exceptions,
+                                                    )
+                                                }
+                                                constructors += 1
+                                                if (descriptor != spec.constructorDescriptor) {
+                                                    throw GradleException(
+                                                        "${spec.classPath} 构造器 descriptor " +
+                                                            "应为 ${spec.constructorDescriptor}，实际 $descriptor",
+                                                    )
+                                                }
+                                                return object :
+                                                    MethodVisitor(
+                                                        Opcodes.ASM9,
+                                                        super.visitMethod(
+                                                            access,
+                                                            name,
+                                                            descriptor,
+                                                            signature,
+                                                            exceptions,
+                                                        ),
+                                                    ) {
+                                                    override fun visitMethodInsn(
+                                                        opcode: Int,
+                                                        owner: String,
+                                                        name: String,
+                                                        descriptor: String,
+                                                        isInterface: Boolean,
+                                                    ) {
+                                                        if (!sawObjectConstructor) {
+                                                            if (
+                                                                opcode != Opcodes.INVOKESPECIAL ||
+                                                                owner != "java/lang/Object" ||
+                                                                name != "<init>" ||
+                                                                descriptor != "()V"
+                                                            ) {
+                                                                throw GradleException(
+                                                                    "${spec.classPath} 首个构造器调用 " +
+                                                                        "不是 Object.<init>()V",
+                                                                )
+                                                            }
+                                                            sawObjectConstructor = true
+                                                        }
+                                                        super.visitMethodInsn(
+                                                            opcode,
+                                                            owner,
+                                                            name,
+                                                            descriptor,
+                                                            isInterface,
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        0,
+                                    )
+                                    if (constructors != 1 || !sawObjectConstructor) {
+                                        throw GradleException(
+                                            "${spec.classPath} 构造器 owner shim 不唯一或未调用 " +
+                                                "Object.<init>()V",
+                                        )
+                                    }
+                                    classFile.writeBytes(writer.toByteArray())
+                                    logger.lifecycle(
+                                        "[oreki] 构造器 super 已恢复: " +
+                                            "${spec.classPath} ${spec.sourceSuper} -> " +
+                                            spec.targetSuper,
+                                    )
+                                    linkedMapOf(
+                                        "class" to classFile,
+                                        "source_super" to spec.sourceSuper,
+                                        "target_super" to spec.targetSuper,
+                                        "constructor" to spec.constructorDescriptor,
+                                        "constructor_owner" to "java/lang/Object",
+                                    )
+                                }
                             val evidence = outputs.files.singleFile
                             evidence.parentFile.mkdirs()
                             evidence.writeText(
@@ -695,6 +865,7 @@ internal class OrekiStorePolicyPlugin : Plugin<Project> {
                                         "schema" to 1,
                                         "adaptations" to evidenceRows,
                                         "constructor_removals" to constructorRemovalRows,
+                                        "constructor_owner_adaptations" to constructorOwnerRows,
                                     ),
                                 )) + "\n",
                                 Charsets.UTF_8,
