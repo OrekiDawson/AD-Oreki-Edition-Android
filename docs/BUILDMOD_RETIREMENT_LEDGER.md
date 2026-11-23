@@ -10,7 +10,7 @@
 
 ## R126 当前源码接管状态（2026-11-24）
 
-- AGP 生产接管清单：`1033` 个 class；`TutorialProgress` 与
+- AGP 生产接管清单：`1125` 个 class；`TutorialProgress` 与
   `TutorialEntryListener` 已从 `scripts/payload/smali/.../tutorial/` 迁入
   `app/src/main/java/.../tutorial/`。
 - `TutorialProgress.stage()` 保留原 `public static int stage()` ABI；命名包中的
@@ -942,3 +942,29 @@ Pelle、Credits、180 分钟 PACING 或双向存档矩阵验收。
 验证：FullGame `testDebugUnitTest` 96/96、ABI 1018/1018、最终 APK DEX
 1018/1018、Python 322/322。新增 fail-closed 守卫禁止 `app/`、`build-logic/`
 重新出现 `.smali` 或构建 DSL 引用 `scripts/payload/smali`。
+
+### 13.6 普通类批量接管第七批
+
+2026-11-24 继续复用 `work/output_code_321_r88/sources/defpackage`，通过
+`scripts/agp/import_class_sources.py` 对下一批 JADX 无警告普通类执行
+JAR descriptor、唯一 Smali 身份和源码选择：
+
+- 初次导入 128 个候选；FullGame `compileDebugJavaWithJavac` 真实暴露 36 个
+  直接失败类。失败类全部移出生产 Source Set，并逐项登记到
+  `scripts/agp/source-takeover-blocked.txt`，没有空实现或伪造 ABI。
+- 其余 92 个类保留；`b5` 的 JADX 输出遗漏原版 synthetic 构造器，依据
+  `work/base_decoded_321/smali/b5.smali` 与冻结 JAR 的 `javap` 恢复
+  `b5(Object)`，保持字段和接口 ABI 后重新编译。
+- 生产接管总数由 `1033` 增至 **1125**；blocked 清单当前 **214** 项。
+- FullGame `:app:testDebugUnitTest :app:assembleDebug` PASS；
+  `verifySourceTakeoverDebugAbi`、`verifySourceTakeoverDebugClasses` 与
+  `verifySourceTakeoverDebugDex` 均为 **1125/1125 PASS**；Python
+  `test_agp_source_takeover` 9/9 PASS。
+- 当前 FullGame Debug APK：
+  `529ee90a1dca82c76e7b451e76a651128db42d4cc0b52832938713a4d8674adc`
+  （93,006,201 B）；包名 `net.oreki.antimatterdimensions.debug`。
+- APK native ABI 仅 `arm64-v8a` 与 `x86_64`；生产 `.smali` 为 0，
+  `scripts/build_mod.py` 不存在。
+
+本批仍是源码接管增量，不等于全部 JADX 参考源码已迁完，也不替代 AVD、存档矩阵、
+真实挑战结算或 180 分钟游戏验收。
