@@ -247,11 +247,7 @@ object OrekiEcAutomation {
         val challenge = Abi.challenge(unlocked) ?: return false
         val comps = Abi.completions(challenge) ?: return false
         val max = Abi.maxCompletions(challenge) ?: return false
-        val afterFirstReality = GameApi.compareToDouble(GameApi.realitiesValue(), 0.0)
-            ?.let { it > 0 }
-            ?: false
-        val required = ecRequiredCompletions(unlocked, max, afterFirstReality)
-        if (required <= 0 || comps < required) return false
+        if (max <= 0 || comps < max) return false
         val now = android.os.SystemClock.elapsedRealtime()
         val key = unlocked * 100 + comps
         if (lastEcRespecKey == key && now - lastEcRespecAt < 3000L) return false
@@ -294,21 +290,22 @@ object OrekiEcAutomation {
             ?: false
         for (id in ecTargetOrder(afterFirstReality)) {
             val challengeObj = Abi.challenge(id) ?: continue
-            val completions = Abi.completions(challengeObj) ?: continue
-            val max = Abi.maxCompletions(challengeObj) ?: continue
+            val completions = Abi.completions(challengeObj) ?: return id
+            val max = Abi.maxCompletions(challengeObj) ?: return id
             if (completions < ecRequiredCompletions(id, max, afterFirstReality)) return id
         }
         return 0
     }
 
     /**
-     * [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口未达成时，是否应越过
+     * [R120-01 / Android #184 / Web #69 parity] 入口资源型 EC 未达成时，是否应越过
      * EP 收益门槛继续真实永恒。
      *
-     * EC1 的入口资源是永恒次数，EC4 是无限次数；当前 `gainedEP < EP` 门槛会在
-     * `et<100`、自动永恒尚未解锁的读档场景中压住入口资源增长。仅当下一目标是
-     * EC1/EC4 且官方 `e51.O()`（requirementCurrent >= requirementTotal）为 false
-     * 时豁免，其他 EC 和正常收益节奏不变。
+     * EC1 的入口资源是永恒次数，EC4 是无限次数；EC11/EC12 的 TT 支付也依赖
+     * Reality 后重新增长 EP。当前 `gainedEP < EP` 门槛会在 `et<100`、自动永恒
+     * 尚未解锁的读档场景中压住入口资源增长。仅当下一目标是 EC1/4/11/12 且官方
+     * `e51.O()`（requirementCurrent >= requirementTotal）为 false 时豁免，
+     * 其他 EC 和正常收益节奏不变。
      *
      * 本方法只读官方对象，不写 `unlocked`、完成位、资源或存档。
      */
@@ -338,10 +335,11 @@ object OrekiEcAutomation {
         return shouldExemptEntryEternityGainGate(target, entryGoalMet)
     }
 
-    /** 纯判据：只认下一目标 EC1/EC4 且入口目标尚未达成。 */
+    /** 纯判据：只认下一目标 EC1/4/11/12 且入口目标尚未达成。 */
     @JvmStatic
     fun shouldExemptEntryEternityGainGate(targetEcId: Int, entryGoalMet: Boolean?): Boolean =
-        (targetEcId == 1 || targetEcId == 4) && entryGoalMet == false
+        (targetEcId == 1 || targetEcId == 4 || targetEcId == 11 || targetEcId == 12) &&
+            entryGoalMet == false
 
     // ------------------------------------------------------------ 阶段 B：真实进入
 
