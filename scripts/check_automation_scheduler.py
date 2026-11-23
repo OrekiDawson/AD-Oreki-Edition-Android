@@ -751,6 +751,11 @@ check("R126 EC4 不再复用“允许更频繁永恒”的收益门槛豁免",
       and "targetEcId == 1 || targetEcId == 4" not in _ec_kt)
 check("R126 EC4 业务仍由 Kotlin 门禁实现",
       "shouldHoldEternityForEcEntry" in _ec_kt)
+check("R126 可完成的当前永恒挑战不被额外 EP 收益门槛阻断",
+      "currentEternityChallengeCanBeCompleted" in read(KT_DIR / "GameApi.kt")
+      and "shouldAllowEternityForCompletableEc" in _ec_kt
+      and "shouldAllowEternityForCompletableEc(" in read(STAGE)
+      and "shouldAllowEternityForCompletableEc(" in read(KT_DIR / "OrekiEternityRules.kt"))
 
 # ---------------------------------------------------------------- 汇总
 print(f"\n调度器契约自测（Kotlin 版）：{checks} 项检查，失败 {len(fails)} 项")

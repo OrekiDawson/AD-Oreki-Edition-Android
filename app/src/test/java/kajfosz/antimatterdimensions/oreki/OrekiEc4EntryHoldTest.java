@@ -23,4 +23,12 @@ public class OrekiEc4EntryHoldTest {
     assertFalse(OrekiEcAutomation.shouldHoldEternityForEcEntry(4, 0, false, false));
     assertFalse(OrekiEcAutomation.shouldHoldEternityForEcEntry(4, 0, null, false));
   }
+
+  @Test
+  public void completableCurrentEcMayAttemptRealEternity() {
+    assertTrue(OrekiEcAutomation.shouldAllowEternityForCompletableEc(true, true));
+    assertFalse(OrekiEcAutomation.shouldAllowEternityForCompletableEc(false, true));
+    assertFalse(OrekiEcAutomation.shouldAllowEternityForCompletableEc(true, false));
+    assertFalse(OrekiEcAutomation.shouldAllowEternityForCompletableEc(true, null));
+  }
 }

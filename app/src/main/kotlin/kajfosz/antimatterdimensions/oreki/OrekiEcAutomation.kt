@@ -325,6 +325,17 @@ object OrekiEcAutomation {
         prereqOk == true && studyBought != true
 
     /**
+     * 当前正在运行的永恒挑战已经满足原版完成条件时，MOD 的额外 EP 收益门槛
+     * 不能阻止这次真实永恒；否则挑战会停在可完成状态，永远无法写入原版完成数。
+     * 本判据只影响“是否尝试”，不写完成位、不绕过 canEternity/restriction/结算。
+     */
+    @JvmStatic
+    fun shouldAllowEternityForCompletableEc(
+        inChallenge: Boolean,
+        canBeCompleted: Boolean?,
+    ): Boolean = inChallenge && canBeCompleted == true
+
+    /**
      * [R120-01 / Android #184 / Web #69 parity] EC1/EC4 入口未达成时，是否应越过
      * EP 收益门槛继续真实永恒。
      *
