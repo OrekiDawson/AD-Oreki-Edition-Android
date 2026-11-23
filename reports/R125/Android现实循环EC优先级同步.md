@@ -28,7 +28,7 @@ Web 真实新档暴露：首次 Reality 后自动化仍按 EC1→12 重打完整
 
 ## 验证
 
-- PASS：`OrekiEcPriorityTest` 2/2，`testDebugUnitTest --rerun-tasks`，27/27 tasks executed。
+- PASS：`OrekiEcPriorityTest` 4/4，`testDebugUnitTest --rerun-tasks`，27/27 tasks executed。
 - PASS：`check_automation_scheduler.py` 175/175。
 - PASS：`git diff --check`（排除仓库既有的 CRLF 检出差异）。
 - NOT RUN：Android AVD 中 Reality 后 EC11/12 真实耗时。
